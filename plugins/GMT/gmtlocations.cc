@@ -208,12 +208,13 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
     if ( !procstrm.isOK() )
 	mErrStrmRet("Failed to overlay locations")
 
-    MonitorLock ml( *ps );
-    for ( int idx=0; idx<ps->size(); idx++ )
+    Pick::SetIter psiter( *ps );
+    while ( psiter.next() )
     {
-	const Coord pos = ps->getPos( idx );
+	const Coord pos = psiter.getPos();
 	procstrm << pos.x << " " << pos.y << "\n";
     }
+    psiter.retire();
 
     strm << "Done" << od_endl;
     return true;
@@ -308,12 +309,13 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     od_ostream procstrm = makeOStream( comm, strm );
     if ( !procstrm.isOK() ) mErrStrmRet("Failed to overlay polylines")
 
-    MonitorLock ml( *ps );
-    for ( int idx=0; idx<ps->size(); idx++ )
+    Pick::SetIter psiter( *ps );
+    while ( psiter.next() )
     {
-	const Coord pos = ps->getPos( idx );
+	const Coord pos = psiter.getPos();
 	procstrm << pos.x << " " << pos.y << "\n";
     }
+    psiter.retire();
 
     strm << "Done" << od_endl;
     return true;

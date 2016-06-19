@@ -205,12 +205,11 @@ void VW2DPickSet::drawAll()
 	picks->poly_.erase();
 	picks->markerstyles_.erase();
 	OD::MarkerStyle2D markerstyle = get2DMarkers( *pickset_ );
-	const int nrpicks = pickset_->size();
 	ConstRefMan<ZAxisTransform> zat = vwr.getZAxisTransform();
-	MonitorLock ml( *pickset_ );
-	for ( int idx=0; idx<nrpicks; idx++ )
+	Pick::SetIter psiter( *pickset_ );
+	while ( psiter.next() )
 	{
-	    const Pick::Location pl = pickset_->get ( idx );
+	    const Pick::Location& pl = psiter.get();
 	    const Coord3& pos = pl.pos();
 	    const double z = zat ? zat->transform(pos) : pos.z;
 	    if ( regfdp && regfdp->isVertical() )
@@ -292,6 +291,7 @@ void VW2DPickSet::drawAll()
 	    }
 	    picks->markerstyles_ += markerstyle;
 	}
+	psiter.retire();
 	vwr.handleChange( FlatView::Viewer::Auxdata );
     }
 }

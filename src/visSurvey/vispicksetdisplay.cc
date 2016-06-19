@@ -284,6 +284,7 @@ void PickSetDisplay::redrawAll( int drageridx )
 	    dragger_->turnOn( showdragger_ );
 	}
     }
+    ml.unlockNow();
 
     markerset_->forceRedraw( true );
     redrawLine();
@@ -470,14 +471,15 @@ bool PickSetDisplay::setBodyDisplay()
     bodydisplay_->setDisplayTransformation( transformation_ );
 
     TypeSet<Coord3> picks;
-    MonitorLock ml( *set_ );
-    for ( int idx=0; idx<set_->size(); idx++ )
+    Pick::SetIter psiter( *set_ );
+    while ( psiter.next() )
     {
-	picks += set_->get(idx).pos();
+	Coord3 pck( psiter.get().pos() );
 	if ( datatransform_ )
-	    picks[idx].z = datatransform_->transformBack( picks[idx] );
+	    pck.z = datatransform_->transformBack( pck );
+	picks += pck;
     }
-    ml.unlockNow();
+    psiter.retire();
 
     return bodydisplay_->setPoints( picks );
 }

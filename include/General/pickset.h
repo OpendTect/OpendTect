@@ -140,7 +140,91 @@ protected:
     static const Set	emptyset_;
     static Set		dummyset_;
 
+    friend class	SetIter;
+    friend class	SetIter4Edit;
+
 };
+
+
+/*!\brief const Set iterator. Will MonitorLock, so when done before going out of
+  scope, call retire().
+
+  Needs a next() or prev() before a valid LocID is reached.
+
+  */
+
+mExpClass(General) SetIter
+{
+public:
+
+			SetIter(const Set&,bool start_at_end=false);
+			SetIter(const SetIter&);
+			~SetIter()		{ retire(); }
+    const Set&		pickSet() const		{ return *set_; }
+
+    bool		next();
+    bool		prev();
+
+    bool		isValid() const;
+    bool		atFirst() const	    { return curidx_ == 0; }
+    bool		atLast() const;
+    Set::LocID		ID() const;
+    const Location&	get() const;
+    Coord		getPos() const;
+    double		getZ() const;
+
+    void		retire();
+    void		reInit(bool toend=false);
+
+private:
+
+    ConstRefMan<Set>	set_;
+    Set::IdxType	curidx_;
+    MonitorLock		ml_;
+
+    SetIter&		operator =(const SetIter&); // pErrMsg
+
+};
+
+
+/*!\brief non-const Set iterator. Does not lock, so use this for non-shared
+  Pick::Set's only. Really, because it locks totally nothing, many methods
+  bypass the stand-alone Pick::Set's locking.
+
+  Needs a next() or prev() before a valid LocID is reached.
+
+  */
+
+mExpClass(General) SetIter4Edit
+{
+public:
+
+			SetIter4Edit(Set&,bool start_at_end=false);
+			SetIter4Edit(const SetIter4Edit&);
+    SetIter4Edit&	operator =(const SetIter4Edit&);
+    Set&		pickSet() const	 { return const_cast<Set&>(*set_); }
+
+    bool		next();
+    bool		prev();
+
+    bool		isValid() const;
+    bool		atFirst() const	    { return curidx_ == 0; }
+    bool		atLast() const;
+    Set::LocID		ID() const;
+    Location&		get() const;
+    void		removeCurrent();
+    void		insert(const Pick::Location&);
+
+    void		reInit(bool toend=false);
+    void		retire()	{}
+
+private:
+
+    RefMan<Set>		set_;
+    Set::IdxType	curidx_;
+
+};
+
 
 } // namespace Pick
 

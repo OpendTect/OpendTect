@@ -46,13 +46,13 @@ inline SetManager& SetMGR();
  if ( retval.isError() )
      { errmsg_ = retval; return false; }
 
- MonitorLock ml( *ps );
- for ( int idx=0; idx<ps->size(); idx++ )
+ Pick::SetIter psiter( *ps );
+ while ( psiter.next() )
  {
-     const Coord pos = ps->getPos( idx );
+     const Coord pos = psiter.getPos();
      // etc.
  }
- ml.unlockNow();
+ psiter.retire();
 
  Typical code for write:
 
@@ -61,6 +61,22 @@ inline SetManager& SetMGR();
  uiRetVal retval = Pick::SetMGR().store( *ps, id );
  if ( retval.isError() )
      { errmsg_ = retval; return false; }
+
+ Typical code for edit while iterating:
+
+ RefMan<Pick::Set> workps = new Pick::Set( *ps_ );
+ Pick::SetIter4Edit psiter( *workps );
+ while ( psiter.next() )
+ {
+    Pick::Location& loc = psiter.loc();
+    if ( rejectLoc(loc) )
+    {
+        psiter.removeCurrent();
+	psiter.prev();
+    }
+ }
+ psiter.retire();
+ *ps_ = *workps; // this will emit a 'EntireObjectChanged' event
 
 */
 

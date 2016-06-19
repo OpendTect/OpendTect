@@ -128,17 +128,17 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	 !set_->isEmpty() )
     {
 	TrcKeyZSampling cs( false );
-	MonitorLock ml1( *set_ );
-	for ( int pidx=0; pidx<set_->size(); pidx++ )
+	Pick::SetIter psiter( *set_ );
+	while ( psiter.next() )
 	{
-	    const Pick::Location loc = set_->get( pidx );
+	    const Pick::Location& loc = psiter.get();
 	    if ( loc.hasPos() )
 	    {
 		cs.hsamp_.include( loc.binID() );
 		cs.zsamp_.include( (float)loc.pos().z, false );
 	    }
 	}
-	ml1.unlockNow();
+	psiter.retire();
 
 	if ( cs.isDefined() )
 	{
@@ -157,18 +157,18 @@ void LocationDisplay::fullRedraw( CallBacker* )
     if ( set_->isEmpty() )
 	{ removeAll(); return; }
 
-    // This will cause deadlock, as we are changing the set in the loop
-    // MonitorLock ml( *set_ );
-    // Which means this code is inherently MT-unsafe
-    for ( int idx=0; idx<set_->size(); idx++ )
+    Pick::SetIter psiter( *set_ );
+    int idx = 0;
+    while ( psiter.next() )
     {
-	Pick::Location loc = set_->get( idx );
+	Pick::Location loc = psiter.get();
 	if ( !transformPos( loc ) )
 	    invalidpicks_ += idx;
 	else
 	    invalidpicks_ -= idx;
 
 	setPosition( idx, loc );
+	idx++;
     }
 }
 
@@ -199,7 +199,7 @@ bool LocationDisplay::displayedOnlyAtSections() const
 
 void LocationDisplay::pickCB( CallBacker* cb )
 {
-    if ( !isSelected() || !isOn() || isLocked() )
+    if ( !set_ || !isSelected() || !isOn() || isLocked() )
 	return;
 
     mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, cb );
@@ -262,15 +262,12 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		    const Pick::Location undoloc( undoloccoord_, dir );
 		    const Pick::Location newloc( newpos, dir );
 		    set_->set( waitsforpositionid_, newloc );
-		 //   Pick::Mgr().undo().setUserInteractionEnd(
-			//Pick::Mgr().undo().currentEventID() );
 		    undomove_ = false;
 		}
 		Pick::Location pl( set_->get(waitsfordirectionid_) );
 		const ::Sphere dir = pl.dir();
 		const Pick::Location undoloc( undoloccoord_, dir );
 		const Pick::Location newloc( newpos, dir );
-		// set_->set( waitsforpositionid_, undoloc );
 		set_->set( waitsforpositionid_, newloc );
 		undomove_ = false;
 	    }
@@ -366,11 +363,14 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	     !OD::altKeyboardButton( eventinfo.buttonstate_ ) &&
 	     !OD::shiftKeyboardButton( eventinfo.buttonstate_ ) )
 	{
-	    if ( eventinfo.pickedobjids.size() &&
-		 eventid==mousepressid_ )
+	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
 	    {
 		const int removeidx = clickedMarkerIndex( eventinfo );
-		if ( removeidx!=-1 ) removePick( removeidx );
+		if ( removeidx!=-1 )
+		{
+		    const LocID locid = set_->locIDFor( removeidx );
+		    removePick( locid );
+		}
 	    }
 
 	    eventcatcher_->setHandled();
@@ -511,32 +511,32 @@ void LocationDisplay::locChg( const Monitorable::ChangeData& chgdata )
     if ( chgdata.changeType() == Pick::Set::cEntireObjectChangeType() )
 	{ fullRedraw( 0 ); return; }
 
-    const Pick::Set::IdxType locidx = (Pick::Set::IdxType)chgdata.ID();
+    const LocID locid = (LocID)chgdata.ID();
     if ( chgdata.changeType() == Pick::Set::cLocationInsert() )
     {
-	Pick::Location loc = set_->get( locidx );
+	Pick::Location loc = set_->get( locid );
 	if ( !transformPos( loc ) )
-	    invalidpicks_ += locidx;
+	    invalidpicks_ += locid;
 
-	setPosition( locidx, loc, true );
+	setPosition( locid, loc, true );
     }
     else if ( chgdata.changeType() == Pick::Set::cLocationRemove() )
     {
-	removePosition( locidx );
-	invalidpicks_ -= locidx;
+	removePosition( locid );
+	invalidpicks_ -= locid;
     }
     else if ( chgdata.changeType() == Pick::Set::cLocationChange() )
     {
-	Pick::Location loc = set_->get( locidx );
+	Pick::Location loc = set_->get( locid );
 	if ( transformPos( loc ) )
-	    invalidpicks_ -= locidx;
+	    invalidpicks_ -= locid;
 	else
 	{
-	    if ( invalidpicks_.indexOf(locidx) < 0 )
-		invalidpicks_ += locidx;
+	    if ( invalidpicks_.indexOf(locid) < 0 )
+		invalidpicks_ += locid;
 	}
 
-	setPosition( locidx, loc );
+	setPosition( locid, loc );
     }
 }
 
@@ -569,11 +569,12 @@ bool LocationDisplay::isPicking() const
 
 bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir )
 {
-    if ( selectionmodel_ ) return false;
+    if ( selectionmodel_ )
+	return false;
 
     mDefineStaticLocalObject( TypeSet<Coord3>, sowinghistory, );
 
-    int locidx = -1;
+    LocID locid = -1;
     bool insertpick = false;
     if ( set_->connection() != Pick::Set::Disp::Close )
 	sower_->alternateSowingOrder( false );
@@ -610,11 +611,11 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir )
 	    if ( mIsUdf(mindist) || dist<mindist )
 	    {
 		mindist = dist;
-		locidx = idx;
+		locid = idx;
 	    }
 	}
 	ml.unlockNow();
-	insertpick = locidx >= 0;
+	insertpick = locid >= 0;
 
 	sowinghistory.insert( 0, pos );
 	sowinghistory.removeSingle( 2 );
@@ -626,26 +627,23 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir )
 	newloc.setGeomID( so->getGeomID() );
 
     if ( insertpick )
-	set_->insertBefore( locidx, newloc );
+	set_->insertBefore( locid, newloc );
     else
-    {
-	set_->add( newloc );
-	locidx = set_->size()-1;
-    }
+	locid = set_->add( newloc );
 
     if ( !hasText() )
 	return true;
 
-    if ( !set_->get(locidx).hasText() )
-	{ removePick( locidx ); return false; }
+    if ( !set_->get(locid).hasText() )
+	{ removePick( locid ); return false; }
 
     return true;
 }
 
 
-void LocationDisplay::removePick( int removeidx )
+void LocationDisplay::removePick( LocID removeid )
 {
-    set_->remove( removeidx );
+    set_->remove( removeid );
 }
 
 

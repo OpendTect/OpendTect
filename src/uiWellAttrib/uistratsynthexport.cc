@@ -379,9 +379,9 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	    ConstRefMan<Pick::Set> ps = picksetsel_->getPickSet();
 	    if ( !ps )
 		return false;
-	    MonitorLock ml( *ps );
-	    for ( int idx=0; idx<ps->size(); idx++ )
-		ptlist += ps->get(idx).pos();
+	    Pick::SetIter psiter( *ps );
+	    while ( psiter.next() )
+		ptlist += psiter.get().pos();
 	    break;
 	}
 	case RandomLine:

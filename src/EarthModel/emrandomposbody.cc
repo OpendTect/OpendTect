@@ -219,11 +219,13 @@ void RandomPosBody::copyFrom( const Pick::Set& ps )
     locations_.erase();
     ids_.erase();
 
-    MonitorLock ml( ps );
-    for ( int idx=0; idx<ps.size(); idx++ )
+    Pick::SetIter iter( ps );
+    EM::SubID idx = 0;
+    while ( iter.next() )
     {
-	locations_ += ps.get(idx).pos();
+	locations_ += iter.get().pos();
 	ids_ += idx;
+	idx++;
     }
 }
 

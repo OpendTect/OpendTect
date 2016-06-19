@@ -756,17 +756,17 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 
     TrcKeyZSampling cs = getTrcKeyZSampling(true,true,0);
     cs.normalise();
-    MonitorLock ml( *seeds );
-    for ( int seedidx=0; seedidx<seeds->size(); seedidx++ )
+    Pick::SetIter psiter( *seeds );
+    while ( psiter.next() )
     {
-	const Pick::Location& seedloc = seeds->get( seedidx );
+	const Pick::Location& seedloc = psiter.get();
 	const BinID bid = seedloc.binID();
 	const int i = cs.inlIdx( bid.inl() );
 	const int j = cs.crlIdx( bid.crl() );
 	const int k = cs.zIdx( seedloc.z() );
 	ff.addSeed( i, j, k );
     }
-    ml.unlockNow();
+    psiter.retire();
 
     if ( !ff.execute() )
 	return false;

@@ -104,13 +104,13 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 
 	    DataPointSet* newdps = new DataPointSet( is2d_ );
 	    DataPointSet::DataRow dr;
-	    MonitorLock ml( *ps );
-	    for ( int idx=0; idx<ps->size(); idx++ )
+	    Pick::SetIter psiter( *ps );
+	    while ( psiter.next() )
 	    {
-		dr.pos_.set( ps->get(idx).pos() );
+		dr.pos_.set( psiter.get().pos() );
 		newdps->addRow( dr );
 	    }
-	    ml.unlockNow();
+	    psiter.retire();
 	    newdps->dataChanged();
 	    dpss += newdps;
 	}

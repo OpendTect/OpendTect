@@ -175,10 +175,10 @@ bool StoredFunctionSource::load( const MultiID& velid )
     veldata_.setEmpty();
     veldata_.setNrVals( 2 );
 
-    MonitorLock ml( *ps );
-    for ( int idx=ps->size()-1; idx>=0; idx-- )
+    ::Pick::SetIter psiter( *ps, true );
+    while ( psiter.prev() )
     {
-	const ::Pick::Location ploc = ps->get( idx );
+	const ::Pick::Location& ploc = psiter.get();
 	if ( ploc.hasPos() && ploc.hasDir() )
 	{
 	    float vals[2];

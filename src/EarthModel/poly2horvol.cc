@@ -64,22 +64,22 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
     ODPolygon<float> poly;
     TrcKeySampling hs;
     TypeSet<Coord> pts; TypeSet<float> zvals;
-    MonitorLock ml( *ps_ );
-    for ( int idx=0; idx<ps_->size(); idx++ )
+    Pick::SetIter psiter( *ps_ );
+    while ( psiter.next() )
     {
-	const Pick::Location pl = ps_->get( idx );
+	const Pick::Location pl = psiter.get();
 	if ( !pl.hasPos() )
 	    continue;
 
 	pts += pl.pos(); zvals += (float) pl.z();
 	const BinID& bid = pl.binID();
 	poly.add( mPolyLoc(bid) );
-	if ( idx )
+	if ( psiter.atFirst() )
 	    hs.include( bid );
 	else
 	    hs.start_ = hs.stop_ = bid;
     }
-    ml.unlockNow();
+    psiter.retire();
 
     TriangulatedGridder2D grdr;
     grdr.setPoints( pts );

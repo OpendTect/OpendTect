@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "visobject.h"
 #include "vissurvobj.h"
+#include "pickset.h"
 
 class Sphere;
-namespace Pick { class Set; class Location; }
 template <class T> class Selector;
 
 
@@ -38,6 +38,8 @@ mExpClass(visSurvey) LocationDisplay : public visBase::VisualObjectImpl
     friend class Sower;
 
 public:
+
+    typedef Pick::Set::LocID	LocID;
 
     virtual void		setSet(Pick::Set*); // once!
 
@@ -116,7 +118,7 @@ protected:
     virtual			~LocationDisplay();
 
     bool			addPick(const Coord3&,const Sphere&);
-    void			removePick(int);
+    void			removePick(LocID);
 
     bool			getPickSurface(const visBase::EventInfo&,
 					   Coord3& pos, Coord3& normal) const;
@@ -134,8 +136,8 @@ protected:
 
     RefMan<Pick::Set>		set_;
     Notifier<LocationDisplay>	manip_;
-    int				waitsfordirectionid_;
-    int				waitsforpositionid_;
+    LocID			waitsfordirectionid_;
+    LocID			waitsforpositionid_;
 
     TypeSet<int>		invalidpicks_;
 

@@ -597,12 +597,12 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	if ( !ps )
 	    { errmsg = uirv; return 0; }
 
-	 MonitorLock ml( *ps );
-	 for ( int idx=0; idx<ps->size(); idx++ )
-	 {
-	     Pick::Location pl = ps->get( idx );
-	     retset->add( pl.binID(), pl.z() );
-	 }
+	Pick::SetIter psiter( *ps );
+	while ( psiter.next() )
+	{
+	    const Pick::Location& pl = psiter.get();
+	    retset->add( pl.binID(), pl.z() );
+	}
     }
 
     return retset;

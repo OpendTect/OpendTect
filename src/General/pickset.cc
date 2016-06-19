@@ -539,6 +539,185 @@ Pick::Set& Pick::Set::setZ( LocID idx, double z )
 }
 
 
+// Pick::SetIter
+
+Pick::SetIter::SetIter( const Set& ps, bool atend )
+    : set_(&ps)
+    , curidx_(atend?ps.size():-1)
+    , ml_(ps)
+{
+}
+
+
+Pick::SetIter::SetIter( const SetIter& oth )
+    : set_(&oth.pickSet())
+    , curidx_(oth.curidx_)
+    , ml_(oth.pickSet())
+{
+}
+
+
+Pick::SetIter& Pick::SetIter::operator =( const SetIter& oth )
+{
+    pErrMsg( "No assignment" );
+    return *this;
+}
+
+
+bool Pick::SetIter::next()
+{
+    curidx_++;
+    return curidx_ < set_->locs_.size();
+}
+
+
+bool Pick::SetIter::prev()
+{
+    curidx_--;
+    return curidx_ >= 0 ;
+}
+
+
+bool Pick::SetIter::isValid() const
+{
+    return set_->locs_.validIdx( curidx_ );
+}
+
+
+bool Pick::SetIter::atLast() const
+{
+    return curidx_ == set_->locs_.size()-1;
+}
+
+
+Pick::Set::LocID Pick::SetIter::ID() const
+{
+    return set_->locIDFor( curidx_ );
+}
+
+
+const Pick::Location& Pick::SetIter::get() const
+{
+    return set_->locs_.validIdx(curidx_) ? set_->locs_[curidx_]
+					 : Pick::Location::udf();
+}
+
+
+Coord Pick::SetIter::getPos() const
+{
+    return set_->locs_.validIdx(curidx_) ? set_->locs_[curidx_].pos()
+					 : Coord::udf();
+}
+
+
+double Pick::SetIter::getZ() const
+{
+    return set_->locs_.validIdx(curidx_) ? set_->locs_[curidx_].pos().z
+					 : mUdf(double);
+}
+
+
+void Pick::SetIter::retire()
+{
+    ml_.unlockNow();
+}
+
+
+void Pick::SetIter::reInit( bool toend )
+{
+    ml_.reLock();
+    curidx_ = toend ? set_->size() : -1;
+}
+
+
+// Pick::SetIter4Edit
+
+Pick::SetIter4Edit::SetIter4Edit( Set& ps, bool atend )
+    : set_(&ps)
+    , curidx_(atend?ps.size():-1)
+{
+}
+
+
+Pick::SetIter4Edit::SetIter4Edit( const SetIter4Edit& oth )
+    : set_(&oth.pickSet())
+    , curidx_(oth.curidx_)
+{
+}
+
+
+Pick::SetIter4Edit& Pick::SetIter4Edit::operator =( const SetIter4Edit& oth )
+{
+    if ( this != &oth )
+    {
+	set_ = &oth.pickSet();
+	curidx_ = oth.curidx_;
+    }
+    return *this;
+}
+
+
+bool Pick::SetIter4Edit::next()
+{
+    curidx_++;
+    return curidx_ < set_->locs_.size();
+}
+
+
+bool Pick::SetIter4Edit::prev()
+{
+    curidx_--;
+    return curidx_ >= 0 ;
+}
+
+
+bool Pick::SetIter4Edit::isValid() const
+{
+    return set_->locs_.validIdx( curidx_ );
+}
+
+
+bool Pick::SetIter4Edit::atLast() const
+{
+    return curidx_ == set_->locs_.size()-1;
+}
+
+
+Pick::Set::LocID Pick::SetIter4Edit::ID() const
+{
+    return set_->locIDFor( curidx_ );
+}
+
+
+Pick::Location& Pick::SetIter4Edit::get() const
+{
+    return set_->locs_.validIdx(curidx_)
+	? const_cast<Location&>(set_->locs_[curidx_])
+	: Pick::Location::dummy();
+}
+
+
+void Pick::SetIter4Edit::removeCurrent()
+{
+    if ( set_->locs_.validIdx(curidx_) )
+	set_->locs_.removeSingle( curidx_ );
+}
+
+
+void Pick::SetIter4Edit::insert( const Location& loc )
+{
+    if ( set_->locs_.validIdx(curidx_) )
+	set_->locs_.insert( curidx_, loc );
+}
+
+
+void Pick::SetIter4Edit::reInit( bool toend )
+{
+    curidx_ = toend ? set_->size() : -1;
+}
+
+
+
 // PickSetAscIO
 
 Table::FormatDesc* PickSetAscIO::getDesc( bool iszreq )

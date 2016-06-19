@@ -272,7 +272,6 @@ uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     if ( !astrm.isOK() )
 	return uiStrings::sCantOpenOutpFile();
 
-    MonitorLock ml( ps );
     IOPar par;
     ps.fillPar( par );
     par.set( sKey::ZUnit(),
@@ -280,13 +279,14 @@ uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     par.putTo( astrm );
 
     od_ostream& strm = astrm.stream();
-    for ( Pick::Set::IdxType iloc=0; iloc<ps.size(); iloc++ )
+    Pick::SetIter iter( ps );
+    while ( iter.next() )
     {
 	BufferString str;
-	ps.get( iloc ).toString( str );
+	iter.get().toString( str );
 	strm << str << od_newline;
     }
-    ml.unlockNow();
+    iter.retire();
 
     astrm.newParagraph();
     return astrm.isOK() ? uiStrings::sEmptyString()

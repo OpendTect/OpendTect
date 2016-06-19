@@ -143,15 +143,14 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 
     TypeSet<DataPointSet::Pos> positions;
     DataPointSet dps( pts, dcds, ads_->is2D() );
-    MonitorLock ml( ps_ );
-    for ( int idx=0; idx<ps_.size(); idx++ )
+    Pick::SetIter psiter( ps_ );
+    while ( psiter.next() )
     {
-	const Pick::Location pl( ps_.get(idx) );
-	DataPointSet::DataRow dtrow( DataPointSet::Pos(pl.pos()) );
+	DataPointSet::DataRow dtrow( DataPointSet::Pos(psiter.get().pos()) );
 	dps.addRow( dtrow );
 	positions += dtrow.pos_;
     }
-    ml.unlockNow();
+    psiter.retire();
 
     dps.dataChanged();
     if ( !getAndCheckAttribSelection( dps ) )

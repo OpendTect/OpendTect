@@ -107,6 +107,7 @@ public:
     void		toString(BufferString&,bool forexport=false) const;
 
     static const Location& udf();
+    static Location&	dummy();
     bool		isUdf() const	{ return *this == udf(); }
 
 protected:

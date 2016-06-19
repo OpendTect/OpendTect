@@ -324,17 +324,19 @@ void uiDataPointSetPickDlg::updateDPS()
     if ( !set )
 	{ dps_.dataChanged(); return; }
 
-    MonitorLock ml( *set );
-    for ( int idx=0; idx<set->size(); idx++ )
+    Pick::SetIter psiter( *set );
+    int currow = 0;
+    while ( psiter.next() )
     {
 	DataPointSet::Pos pos;
-	const Pick::Location loc = set->get( idx );
+	const Pick::Location& loc = psiter.get();
 	pos.set( loc.pos() );
 	DataPointSet::DataRow row( pos );
-	row.data_ += values_[idx];
+	row.data_ += values_[currow];
 	dps_.addRow( row );
+	currow++;
     }
-    ml.unlockNow();
+    psiter.retire();
 
     dps_.dataChanged();
 }

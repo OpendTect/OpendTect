@@ -190,13 +190,13 @@ int MeasureToolMan::getActiveSceneID() const
 }
 
 
-static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
+static void giveCoordsToDialog( const Pick::Set& ps, uiMeasureDlg& dlg )
 {
     TypeSet<Coord3> crds;
-    MonitorLock ml( set );
-    for ( int idx=0; idx<set.size(); idx++ )
-	crds += set.get(idx).pos();
-    ml.unlockNow();
+    Pick::SetIter psiter( ps );
+    while ( psiter.next() )
+	crds += psiter.get().pos();
+    psiter.retire();
 
     dlg.fill( crds );
 }

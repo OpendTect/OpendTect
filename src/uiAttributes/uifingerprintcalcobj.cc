@@ -126,10 +126,10 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
 	    { uiMSG().error( uirv ); return 0; }
 
 	retset = new BinIDValueSet( 1, false );
-	MonitorLock ml( *ps );
-	for ( int idx=0; idx<ps->size(); idx++ )
+	Pick::SetIter psiter( *ps );
+	while ( psiter.next() )
 	{
-	    Pick::Location pl = ps->get( idx );
+	    const Pick::Location& pl = psiter.get();
 	    retset->add( pl.binID(), pl.z() );
 	}
     }

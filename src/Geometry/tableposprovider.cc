@@ -83,11 +83,10 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( MultiID(res) );
 	if ( ps )
 	{
-	    MonitorLock ml( *ps );
-	    const Pick::Set::size_type sz = ps->size();
-	    for ( int idx=0; idx<sz; idx++ )
+	    Pick::SetIter psiter( *ps );
+	    while ( psiter.next() )
 	    {
-		const Coord3 crd3 = ps->get(idx).pos();
+		const Coord3 crd3 = psiter.get().pos();
 		bvs.add( SI().transform(crd3), (float)crd3.z );
 	    }
 	}
