@@ -31,7 +31,7 @@ class SetLocEvRecord;
 
 /*!\brief A record containing info about a Location change in a Set. */
 
-mExpClass(General) LocationChangeEvent
+mExpClass(Geometry) LocationChangeEvent
 {
 public:
 
