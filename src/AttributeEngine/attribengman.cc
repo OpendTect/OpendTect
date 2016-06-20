@@ -134,8 +134,8 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    // doesn't make much sense, but is better than nothing
 	    tkzs_.set2DDef();
 
-	    tkzs_.hsamp_.start_.inl() = tkzs_.hsamp_.stop_.inl() = 0;
 	    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
+	    tkzs_.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
 	    if ( outpar && outpar->hasKey(sKey::TrcRange()) )
 	    {
 		StepInterval<int> trcrg( 0, 0, 1 );
