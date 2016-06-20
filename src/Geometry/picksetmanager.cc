@@ -21,6 +21,14 @@ mDefineInstanceCreatedNotifierAccess(Pick::SetManager);
 static Pick::SetManager* theinst_ = 0;
 static Threads::Lock theinstcreatelock_(true);
 
+namespace Pick
+{
+    static const LocationChangeEvent udfchgev_(
+			LocationChangeEvent::LocID::get(), Location::udf() );
+    const LocationChangeEvent& LocationChangeEvent::udf() { return udfchgev_; }
+}
+
+
 Pick::SetManager& Pick::SetManager::getInstance()
 {
     if ( !theinst_ )
@@ -332,7 +340,7 @@ uiRetVal Pick::SetManager::store( const Set& newset, const SetID& id,
 	    if ( svr.monitored() != &newset )
 	    {
 		svr.setPickSet( newset );
-		self.locevrecs_[idxof]->setEmpty();
+		self.locevrecs_[idxof]->clear();
 	    }
 	}
     }
@@ -481,7 +489,29 @@ Pick::Set* Pick::SetManager::gtSet( const SetID& id ) const
 }
 
 
-void Pick::SetManager::pushLocEvent( const SetID& id, const LocEvent& ev )
+void Pick::SetManager::clearLocEvents( const SetID& id )
+{
+    mLock4Read();
+    int idxof = gtIdx( id );
+    if ( idxof < 0 )
+	return;
+    LocEvRecord* rec = locevrecs_[ idxof ];
+    if ( rec->isEmpty() )
+	return;
+
+    if ( !mLock2Write() )
+    {
+	idxof = gtIdx( id );
+	if ( idxof < 0 )
+	    return;
+	rec = locevrecs_[ idxof ];
+    }
+
+    rec->clear();
+}
+
+
+void Pick::SetManager::addLocEvent( const SetID& id, const LocEvent& ev )
 {
     mLock4Write();
     const int idxof = gtIdx( id );
@@ -489,24 +519,54 @@ void Pick::SetManager::pushLocEvent( const SetID& id, const LocEvent& ev )
 	{ pErrMsg("Huh"); return; }
 
     LocEvRecord& rec = *locevrecs_[ idxof ];
-    if ( rec.size() >= maxnrlocevrecs_ )
-	rec.removeSingle( 0 );
-    rec += ev;
+    if ( rec.curidx_ > rec.size() - 1 )
+	{ rec.add( ev ); rec.curidx_ = rec.size(); }
+    else
+    {
+	rec[rec.curidx_-1] = ev;
+	rec.curidx_++;
+	if ( rec.curidx_ < rec.size() )
+	    rec.removeRange( rec.curidx_, rec.size() - 1 );
+    }
+
+    if ( rec.size() > maxnrlocevrecs_ )
+    {
+	const int overrun = rec.size() - maxnrlocevrecs_;
+	rec.removeRange( 0, overrun-1 );
+	rec.curidx_ -= overrun;
+    }
 }
 
 
-Pick::SetManager::LocEvent Pick::SetManager::popLocEvent( const SetID& id )
+bool Pick::SetManager::haveLocEvent( const SetID& id, bool forundo ) const
 {
     mLock4Read();
     const int idxof = gtIdx( id );
     if ( idxof < 0 )
-	{ pErrMsg("Huh"); return LocEvent::udf(); }
-    LocEvRecord& rec = *locevrecs_[ idxof ];
+	return false;
+    const LocEvRecord& rec = *locevrecs_[ idxof ];
     if ( rec.isEmpty() )
+	return false;
+
+    return forundo ? rec.curidx_ > 0 : rec.curidx_ < rec.size();
+}
+
+
+Pick::SetManager::LocEvent Pick::SetManager::getLocEvent( const SetID& id,
+							  bool forundo ) const
+{
+    mLock4Read();
+    const int idxof = gtIdx( id );
+    if ( idxof < 0 )
+	return LocEvent::udf();
+    const LocEvRecord& rec = *locevrecs_[ idxof ];
+    if ( rec.isEmpty() || rec.curidx_ < 0 )
 	return LocEvent::udf();
 
-    mLock2Write();
-    return rec.isEmpty() ? LocEvent::udf() : rec.pop();
+    if ( forundo )
+	return rec.curidx_ > 0 ? rec[--rec.curidx_] : LocEvent::udf();
+    else
+	return rec.curidx_ < rec.size() ? rec[rec.curidx_++] : LocEvent::udf();
 }
 
 
@@ -595,13 +655,14 @@ void Pick::SetManager::setChgCB( CallBacker* inpcb )
 	return;
 
     mHandleSetChgCBStart();
-    const LocEvent::LocID locid( (LocEvent::LocID)chgdata.ID() );
+    const LocEvent::LocID locid( LocEvent::LocID::get(
+			(LocEvent::LocID::IDType)chgdata.ID()) );
     const SetID setid = savers_[idxof]->key();
 
     if ( isentire )
     {
 	mLock2Write();
-	locevrecs_[ idxof ]->setEmpty();
+	locevrecs_[ idxof ]->clear();
 	return;
     }
 
@@ -614,5 +675,5 @@ void Pick::SetManager::setChgCB( CallBacker* inpcb )
 	ev.prevloc_ = ps->get( locid );
 
     mUnlockAllAccess();
-    pushLocEvent( setid, ev );
+    addLocEvent( setid, ev );
 }

@@ -227,9 +227,10 @@ bool uiImpExpPickSet::doExport()
 
     strm.stdStream() << std::fixed;
     BufferString buf;
-    for ( int locidx=0; locidx<ps->size(); locidx++ )
+    Pick::SetIter psiter( *ps );
+    while ( psiter.next() )
     {
-	ps->get(locidx).toString( buf, true );
+	psiter.get().toString( buf, true );
 	strm << buf << od_newline;
     }
 

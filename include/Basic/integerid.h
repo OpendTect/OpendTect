@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "undefval.h"
+template <class T> class TypeSet;
 
 
 /*!\brief single integer ID with comparison but no automatic conversion.
@@ -46,6 +47,8 @@ mClass(Basic) IntegerID
 {
 public:
 
+    typedef IntType	IDType;
+
     static IntegerID	get( IntType i=-mUdf(IntType) )
 					{ return IntegerID(i); }
 
@@ -54,21 +57,11 @@ public:
 
     inline bool		operator ==( const IntegerID& oth ) const
 					{ return id_ == oth.id_;};
-    inline bool		operator !=( const IntegerID& oth ) const
-					{ return id_ != oth.id_; };
-    inline bool		operator >( const IntegerID& oth ) const
-					{ return id_ > oth.id_;};
-    inline bool		operator >=( const IntegerID& oth ) const
-					{ return id_ >= oth.id_;};
-    inline bool		operator <( const IntegerID& oth ) const
-					{ return id_ < oth.id_;};
-    inline bool		operator <=( const IntegerID& oth ) const
-					{ return id_ <= oth.id_;};
 
-    inline bool	isBeforeStart() const	{ return mIsUdf(-id_); }
-    inline bool	isAfterEnd() const	{ return mIsUdf(id_); };
-    inline void	setBeforeStart() const	{ id_ = -mUdf(IntType); }
-    inline void	setAfterEnd() const	{ mSetUdf(id_); }
+    inline bool	isUdf() const		{ return mIsUdf(id_); }
+    inline bool	isValid() const		{ return !isUdf(); }
+    inline void	setInvalid()		{ id_ = mUdf(IntType); }
+    static inline IntegerID getInvalid() { return IntegerID(mUdf(IntType)); }
 
 private:
 
@@ -76,6 +69,8 @@ private:
 
     inline		IntegerID( IntType i=0 )
 			    : id_(i)	{ /* keep private */ }
+
+    friend class	TypeSet<IntType>;
 
 };
 

@@ -142,6 +142,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
     mAddColDef( "crline", thetafld_ )
 
     TypeSet<DataPointSet::Pos> positions;
+    TypeSet<Pick::Set::LocID> locids;
     DataPointSet dps( pts, dcds, ads_->is2D() );
     Pick::SetIter psiter( ps_ );
     while ( psiter.next() )
@@ -149,6 +150,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	DataPointSet::DataRow dtrow( DataPointSet::Pos(psiter.get().pos()) );
 	dps.addRow( dtrow );
 	positions += dtrow.pos_;
+	locids.add( psiter.ID() );
     }
     psiter.retire();
 
@@ -161,9 +163,9 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	mErrRet( tr("Cannot calculate attributes at these positions") );
 
     //remark: removed possibility of variable vector length (radius = 1)
-    RefMan<Pick::Set> workps = new Pick::Set( ps_ );
     for ( int idx=0; idx<positions.size(); idx++ )
     {
+	const Pick::Set::LocID locid( locids[idx] );
 	float phi = 0;
 	float theta = 0;
 	DataPointSet::RowID rid = dps.find( positions[idx] );
@@ -179,7 +181,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	SeparString dipvaluetext;
 	dipvaluetext += ::toString( inldip );
 	dipvaluetext += ::toString( crldip );
-	Pick::Location pl( workps->get(idx) );
+	Pick::Location pl( ps_.get(locid) );
 	pl.setKeyedText( "Dip", dipvaluetext );
 
 	if ( usesteering_ )
@@ -201,14 +203,13 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	}
 	pl.setDir( Sphere(1,theta,phi) );
 
-	workps->set( idx, pl );
+	ps_.set( locid, pl );
     }
 
-    OD::MarkerStyle3D mstyle = workps->markerStyle();
+    OD::MarkerStyle3D mstyle = ps_.markerStyle();
     mstyle.type_ = OD::MarkerStyle3D::Plane;
-    workps->setMarkerStyle( mstyle );
+    ps_.setMarkerStyle( mstyle );
 
-    ps_ = *workps;
     return true;
 }
 

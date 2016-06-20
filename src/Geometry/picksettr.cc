@@ -279,14 +279,14 @@ uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     par.putTo( astrm );
 
     od_ostream& strm = astrm.stream();
-    Pick::SetIter iter( ps );
-    while ( iter.next() )
+    Pick::SetIter psiter( ps );
+    while ( psiter.next() )
     {
 	BufferString str;
-	iter.get().toString( str );
+	psiter.get().toString( str );
 	strm << str << od_newline;
     }
-    iter.retire();
+    psiter.retire();
 
     astrm.newParagraph();
     return astrm.isOK() ? uiStrings::sEmptyString()

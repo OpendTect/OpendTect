@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "draw.h"
 #include "iopar.h"
+#include "integerid.h"
 template <class T> class ODPolygon;
 
 
@@ -45,7 +46,7 @@ public:
 
     typedef TypeSet<Location>::size_type    size_type;
     typedef size_type			    IdxType;
-    typedef IdxType			    LocID; //TODO IdxType => IntegerID
+    typedef IntegerID<IdxType>		    LocID;
 
 			Set(const char* nm=0,const char* category=0);
 			mDeclMonitorableAssignment(Set);
@@ -66,6 +67,8 @@ public:
     Location		get(LocID) const;
     Coord		getPos(LocID) const;
     double		getZ(LocID) const;
+    Location		first() const;
+    Location		getByIndex(IdxType) const;
 
     Set&		setEmpty();
     Set&		append(const Set&);
@@ -75,6 +78,7 @@ public:
     Set&		remove(LocID);
     Set&		setPos(LocID,const Coord&);
     Set&		setZ(LocID,double);
+    Set&		setByIndex(IdxType,const Location&);
 
     bool		isMultiGeom() const;
     Pos::GeomID		firstGeomID() const;
@@ -135,10 +139,15 @@ protected:
 			~Set();
 
     TypeSet<Location>	locs_;
+    TypeSet<LocID>	locids_;
     Disp		disp_;
     IOPar		pars_;
+    mutable Threads::Atomic<IdxType> curlocidnr_;
     static const Set	emptyset_;
     static Set		dummyset_;
+
+    IdxType		gtIdxFor(LocID) const;
+    LocID		insNewLocID(IdxType,AccessLockHandler&);
 
     friend class	SetIter;
     friend class	SetIter4Edit;
@@ -199,23 +208,25 @@ mExpClass(General) SetIter4Edit
 {
 public:
 
-			SetIter4Edit(Set&,bool start_at_end=false);
+			SetIter4Edit(Set&,bool for_forward=true);
 			SetIter4Edit(const SetIter4Edit&);
     SetIter4Edit&	operator =(const SetIter4Edit&);
     Set&		pickSet() const	 { return const_cast<Set&>(*set_); }
 
     bool		next();
     bool		prev();
+    inline bool		advance( bool iterating_forward=true )
+			{ return iterating_forward ? next() : prev(); }
 
     bool		isValid() const;
     bool		atFirst() const	    { return curidx_ == 0; }
     bool		atLast() const;
     Set::LocID		ID() const;
     Location&		get() const;
-    void		removeCurrent();
-    void		insert(const Pick::Location&);
+    void		removeCurrent(bool iterating_forward=true);
+    void		insert(const Pick::Location&,bool iter_forward=true);
 
-    void		reInit(bool toend=false);
+    void		reInit(bool for_forward=true);
     void		retire()	{}
 
 private:

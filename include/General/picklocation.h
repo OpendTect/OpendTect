@@ -124,39 +124,6 @@ protected:
 };
 
 
-
-/*!\brief A record containing info about a Location change in a Set. */
-
-mExpClass(General) LocationChangeEvent
-{
-public:
-
-    typedef int		LocID;			//!< must be Pick::Set's LocID
-    enum Type		{ Create, Move, Delete };
-
-			LocationChangeEvent( LocID id, const Location& from,
-					      const Location& to )
-			: type_(Move), id_(id)
-			, prevloc_(from), loc_(to)	{}
-
-    Type		type_;
-    LocID		id_;
-    Location		loc_;
-    Location		prevloc_;
-
-    bool		isUdf() const       { return id_ < 0; }
-    static const LocationChangeEvent& udf();
-
-    inline bool		operator ==( const LocationChangeEvent& oth ) const
-			{
-			    return this == &oth ||
-			       (type_ == oth.type_ && id_ == oth.id_
-			      && loc_ == oth.loc_ && prevloc_ == oth.prevloc_);
-			}
-
-};
-
-
 } // namespace Pick
 
 #endif

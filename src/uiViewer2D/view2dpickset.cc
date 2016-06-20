@@ -138,7 +138,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	if ( !picks_[editoridx]->poly_.validIdx(locidx) )
 	    continue;
 
-	pickset_->remove( locidx );
+	pickset_->remove( pickset_->locIDFor(locidx) );
     }
 }
 

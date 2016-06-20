@@ -28,6 +28,42 @@ class SetManager;
 class SetLoaderExec;
 class SetLocEvRecord;
 
+
+/*!\brief A record containing info about a Location change in a Set. */
+
+mExpClass(General) LocationChangeEvent
+{
+public:
+
+    typedef Set::LocID	LocID;
+    enum Type		{ Create, Move, Delete };
+
+			LocationChangeEvent( LocID id, const Location& loc,
+					     Type t=Create )
+			    : type_(t), id_(id), prevloc_(Location::udf())
+			    , loc_(loc)					{}
+			LocationChangeEvent( LocID id, const Location& from,
+					      const Location& to )
+			: type_(Move), id_(id), prevloc_(from), loc_(to) {}
+
+    Type		type_;
+    LocID		id_;
+    Location		loc_;
+    Location		prevloc_;
+
+    bool		isUdf() const       { return id_.isUdf(); }
+    static const LocationChangeEvent& udf();
+
+    inline bool		operator ==( const LocationChangeEvent& oth ) const
+			{
+			    return this == &oth ||
+			       (type_ == oth.type_ && id_ == oth.id_
+			      && loc_ == oth.loc_ && prevloc_ == oth.prevloc_);
+			}
+
+};
+
+
 /*!\brief access to the singleton Pick Set Manager */
 
 inline SetManager& SetMGR();
@@ -70,10 +106,7 @@ inline SetManager& SetMGR();
  {
     Pick::Location& loc = psiter.loc();
     if ( rejectLoc(loc) )
-    {
         psiter.removeCurrent();
-	psiter.prev();
-    }
  }
  psiter.retire();
  *ps_ = *workps; // this will emit a 'EntireObjectChanged' event
@@ -130,15 +163,24 @@ public:
     CNotifier<SetManager,SetID>	UnsavedSetLastCall;
 
 			// creation and destruction are recorded automagically
-    void		pushLocEvent(const SetID&,const LocEvent&);
-    LocEvent		popLocEvent(const SetID&);
+			// so only add actual move events (at mouse release)
+    void		clearLocEvents(const SetID&);
+    void		addLocEvent(const SetID&,const LocEvent&);
+    bool		haveLocEvent(const SetID&,bool for_undo) const;
+    LocEvent		getLocEvent(const SetID&,bool for_undo) const;
 
     enum DispOpt	{ Show, Hide, Vanish };
     void		displayRequest(const MultiID&,DispOpt=Show);
 
 protected:
 
-    typedef TypeSet<LocEvent>	LocEvRecord;
+    class LocEvRecord : public TypeSet<LocEvent>
+    {
+    public:
+			LocEvRecord() : curidx_(0)	{}
+	void		clear()			{ setEmpty(); curidx_ = 0; }
+	mutable Threads::Atomic<size_type> curidx_; // position for next redo
+    };
 
 				SetManager();
 				~SetManager();

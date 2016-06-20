@@ -100,7 +100,7 @@ void uiPickSetMan::mkFileInfo()
 	       .add( ispoly ? " vertice" : " pick" );
 	    if ( sz > 1 )
 		txt.add( "s" );
-	    if ( !ispoly && ps->get(0).hasDir() )
+	    if ( !ispoly && ps->first().hasDir() )
 		txt.add( " (with directions)" );
 	    if ( ispoly && sz > 2 )
 	    {

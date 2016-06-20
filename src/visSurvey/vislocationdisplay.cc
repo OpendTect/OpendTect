@@ -56,8 +56,8 @@ LocationDisplay::LocationDisplay()
     , showall_( true )
     , set_( 0 )
     , manip_( this )
-    , waitsfordirectionid_( -1 )
-    , waitsforpositionid_( -1 )
+    , waitsfordirectionid_(LocID::getInvalid())
+    , waitsforpositionid_(LocID::getInvalid())
     , datatransform_( 0 )
     , pickedsobjid_(-1)
     , voiidx_(-1)
@@ -227,7 +227,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	return;
     }
 
-    if ( waitsfordirectionid_!=-1 )
+    if ( waitsfordirectionid_.isValid() )
     {
 	Coord3 newpos, normal;
 	if ( getPickSurface(eventinfo,newpos,normal) )
@@ -245,7 +245,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 
 	eventcatcher_->setHandled();
     }
-    else if ( waitsforpositionid_!=-1 ) // dragging
+    else if ( !waitsforpositionid_.isUdf() ) // dragging
     {
 	// when dragging it will receive multi times coords from visevent:
 	// mouse move and mouse release. we need the last one and the begin
@@ -316,11 +316,11 @@ void LocationDisplay::pickCB( CallBacker* cb )
     if ( eventid == -1 )
 	return;
 
-    if ( waitsforpositionid_!=-1 || waitsfordirectionid_!=-1 )
+    if ( waitsforpositionid_.isValid() || waitsfordirectionid_.isValid() )
     {
 	setPickable( true );
-	waitsforpositionid_ = -1;
-	waitsfordirectionid_ = -1;
+	waitsforpositionid_.setInvalid();
+	waitsfordirectionid_.setInvalid();
 	mousepressid_ = -1;
     }
     else if ( eventinfo.pressed )
@@ -331,24 +331,23 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	     !OD::shiftKeyboardButton( eventinfo.buttonstate_ ) )
 	{
 	    const int selfpickidx = clickedMarkerIndex( eventinfo );
-	    if ( selfpickidx!=-1 )
+	    if ( selfpickidx >= 0 )
 	    {
 		setPickable( false, false );
-		waitsforpositionid_ = selfpickidx;
+		waitsforpositionid_ = set_->locIDFor( selfpickidx );
 	    }
-	    const int selfdirpickidx = isDirMarkerClick(eventinfo.pickedobjids);
-	    if ( selfdirpickidx!=-1 )
+	    const int selfdirpickidx
+			    = isDirMarkerClick(eventinfo.pickedobjids);
+	    if ( selfdirpickidx >= 0 )
 	    {
+		waitsfordirectionid_ = set_->locIDFor( selfpickidx );
 		setPickable( false, false );
-		waitsfordirectionid_ = selfpickidx;
 	    }
 
 	    //Only set handled if clicked on marker. Otherwise
 	    //we may interfere with draggers.
-	    if ( selfdirpickidx!=-1 || selfpickidx!=-1 )
-	    {
+	    if ( selfdirpickidx>=0 || selfpickidx>=0 )
 		eventcatcher_->setHandled();
-	    }
 	    else
 	    {
 		const Color& color = set_->dispColor();
@@ -366,11 +365,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
 	    {
 		const int removeidx = clickedMarkerIndex( eventinfo );
-		if ( removeidx!=-1 )
-		{
-		    const LocID locid = set_->locIDFor( removeidx );
-		    removePick( locid );
-		}
+		if ( removeidx >= 0 )
+		    set_->remove( set_->locIDFor(removeidx) );
 	    }
 
 	    eventcatcher_->setHandled();
@@ -390,12 +386,13 @@ void LocationDisplay::pickCB( CallBacker* cb )
 				Coord3(normal.y,-normal.x,normal.z), true)
 			: Sphere( 1, 0, 0 );
 
-		    if ( addPick( newpos, dir ) )
+		    LocID locid = addPick( newpos, dir );
+		    if ( locid.isValid() )
 		    {
 			if ( hasDirection() )
 			{
 			    setPickable( false, false );
-			    waitsfordirectionid_ = set_->size()-1;
+			    waitsfordirectionid_ = locid;
 			}
 
 			eventcatcher_->setHandled();
@@ -511,32 +508,33 @@ void LocationDisplay::locChg( const Monitorable::ChangeData& chgdata )
     if ( chgdata.changeType() == Pick::Set::cEntireObjectChangeType() )
 	{ fullRedraw( 0 ); return; }
 
-    const LocID locid = (LocID)chgdata.ID();
+    const LocID locid = LocID::get( (LocID::IDType)chgdata.ID() );
+    const int locidx = set_->idxFor( locid );
     if ( chgdata.changeType() == Pick::Set::cLocationInsert() )
     {
 	Pick::Location loc = set_->get( locid );
 	if ( !transformPos( loc ) )
-	    invalidpicks_ += locid;
+	    invalidpicks_ += locidx;
 
-	setPosition( locid, loc, true );
+	setPosition( locidx, loc, true );
     }
     else if ( chgdata.changeType() == Pick::Set::cLocationRemove() )
     {
-	removePosition( locid );
-	invalidpicks_ -= locid;
+	removePosition( locidx );
+	invalidpicks_ -= locidx;
     }
     else if ( chgdata.changeType() == Pick::Set::cLocationChange() )
     {
 	Pick::Location loc = set_->get( locid );
 	if ( transformPos( loc ) )
-	    invalidpicks_ -= locid;
+	    invalidpicks_ -= locidx;
 	else
 	{
-	    if ( invalidpicks_.indexOf(locid) < 0 )
-		invalidpicks_ += locid;
+	    if ( invalidpicks_.indexOf(locidx) < 0 )
+		invalidpicks_ += locidx;
 	}
 
-	setPosition( locid, loc );
+	setPosition( locidx, loc );
     }
 }
 
@@ -567,14 +565,15 @@ bool LocationDisplay::isPicking() const
 }
 
 
-bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir )
+LocationDisplay::LocID LocationDisplay::addPick( const Coord3& pos,
+						 const Sphere& dir )
 {
     if ( selectionmodel_ )
-	return false;
+	return LocID::getInvalid();
 
     mDefineStaticLocalObject( TypeSet<Coord3>, sowinghistory, );
 
-    LocID locid = -1;
+    LocID locid = LocID::getInvalid();
     bool insertpick = false;
     if ( set_->connection() != Pick::Set::Disp::Close )
 	sower_->alternateSowingOrder( false );
@@ -595,8 +594,8 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir )
 	{
 	    int pidx = idx>0 ? idx-1 : setsz-1;
 
-	    const Coord3 pcoord = set_->get( idx ).pos();
-	    const Coord3 prevpcoord = set_->get( pidx ).pos();
+	    const Coord3 pcoord = set_->getByIndex( idx ).pos();
+	    const Coord3 prevpcoord = set_->getByIndex( pidx ).pos();
 	    int nrmatches = sowinghistory.indexOf( pcoord ) >= 0;
 	    nrmatches += sowinghistory.indexOf( prevpcoord ) >= 0;
 	    if ( nrmatches != sowinghistory.size() )
@@ -611,11 +610,11 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir )
 	    if ( mIsUdf(mindist) || dist<mindist )
 	    {
 		mindist = dist;
-		locid = idx;
+		locid = set_->locIDFor( idx );
 	    }
 	}
 	ml.unlockNow();
-	insertpick = locid >= 0;
+	insertpick = locid.isValid();
 
 	sowinghistory.insert( 0, pos );
 	sowinghistory.removeSingle( 2 );
@@ -627,23 +626,17 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir )
 	newloc.setGeomID( so->getGeomID() );
 
     if ( insertpick )
-	set_->insertBefore( locid, newloc );
+	locid = set_->insertBefore( locid, newloc );
     else
 	locid = set_->add( newloc );
 
-    if ( !hasText() )
-	return true;
+    if ( hasText() )
+    {
+	if ( !set_->get(locid).hasText() )
+	    { set_->remove( locid ); locid.setInvalid(); }
+    }
 
-    if ( !set_->get(locid).hasText() )
-	{ removePick( locid ); return false; }
-
-    return true;
-}
-
-
-void LocationDisplay::removePick( LocID removeid )
-{
-    set_->remove( removeid );
+    return locid;
 }
 
 
@@ -676,16 +669,6 @@ void LocationDisplay::otherObjectsMoved(
     if ( showall_ && invalidpicks_.isEmpty() )
 	return;
     // Ehhh? anything?
-}
-
-
-void LocationDisplay::setPosition( int idx, const Pick::Location& nl )
-{
-}
-
-
-void LocationDisplay::removePosition( int idx )
-{
 }
 
 
@@ -738,9 +721,10 @@ void LocationDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 }
 
 
-int LocationDisplay::getPickIdx( visBase::DataObject* dataobj ) const
+int LocationDisplay::getPickID(
+			    visBase::DataObject* dataobj ) const
 {
-    return 0; // to be implemented
+    return -1; // to be implemented
 }
 
 
@@ -781,27 +765,25 @@ const ZAxisTransform* LocationDisplay::getZAxisTransform() const
 }
 
 
-int LocationDisplay::clickedMarkerIndex(const visBase::EventInfo& evi) const
-{
-    return -1;
-}
+int LocationDisplay::clickedMarkerIndex( const visBase::EventInfo& evi ) const
+{ return -1; }
 
 
-bool LocationDisplay::isMarkerClick(const visBase::EventInfo& evi) const
+bool LocationDisplay::isMarkerClick( const visBase::EventInfo& evi ) const
 {
     return false;
 }
 
 
-int LocationDisplay::isDirMarkerClick(const TypeSet<int>&) const
+int LocationDisplay::isDirMarkerClick( const TypeSet<int>& ) const
 { return -1; }
 
 
 void LocationDisplay::triggerDeSel()
 {
     setPickable( true );
-    waitsfordirectionid_ = -1;
-    waitsforpositionid_ = -1;
+    waitsfordirectionid_.setInvalid();
+    waitsforpositionid_.setInvalid();
     VisualObject::triggerDeSel();
 }
 
@@ -820,16 +802,20 @@ bool LocationDisplay::removeSelections( TaskRunner* taskr )
     const Selector< Coord3>* selector = scene_ ? scene_->getSelector() : 0;
     if ( selector && selector->isOK() )
     {
-	MonitorLock ml( *set_ );
-	for ( int idx=set_->size()-1; idx>=0; idx-- )
+	RefMan<Pick::Set> workps = new Pick::Set( *set_ );
+	Pick::SetIter4Edit psiter( *workps );
+	while ( psiter.next() )
 	{
-	    const Pick::Location& loc = set_->get( idx );
+	    const Pick::Location& loc = psiter.get();
 	    if ( selector->includes(loc.pos()) )
 	    {
-		removePick( idx );
+		psiter.removeCurrent();
 		changed = true;
 	    }
 	}
+	psiter.retire();
+	if ( changed )
+	    *set_ = *workps;
     }
     return changed;
 }

@@ -48,12 +48,12 @@ bool uiGoogleExportPolygon::acceptOK( CallBacker* )
     mCreateWriter( "Polygon", SI().name() );
 
     TypeSet<Coord> coords;
-    MonitorLock ml( ps_ );
-    for ( int idx=0; idx<ps_.size(); idx++ )
-	coords += ps_.get(idx).pos();
-    if ( !ps_.isPolygon() )
-	coords += ps_.get(0).pos();
-    ml.unlockNow();
+    Pick::SetIter psiter( ps_ );
+    while ( psiter.next() )
+	coords += psiter.getPos();
+    if ( ps_.isPolygon() )
+	coords += ps_.first().pos();
+    psiter.retire();
 
     const float reqwdth = lsfld_->getWidth() * 0.1f;
     wrr.writePolyStyle( "polygon", lsfld_->getColor(), mNINT32(reqwdth) );

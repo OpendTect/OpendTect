@@ -19,10 +19,8 @@ namespace Pick
 {
     static Location			dummyloc_( Coord3::udf() );
     static const Location		udfloc_( Coord3::udf() );
-    static const LocationChangeEvent	udfchgev_( -1, udfloc_, udfloc_ );
     Location& Location::dummy()		{ return dummyloc_; }
     const Location& Location::udf()	{ return udfloc_; }
-    const LocationChangeEvent& LocationChangeEvent::udf() { return udfchgev_; }
 }
 
 #define mInitPtrs \

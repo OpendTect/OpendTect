@@ -249,10 +249,12 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
     const Coord3 dpscrd( pos.coord(dps_.bivSet().survID()), pos.z() );
     double mindist = mUdf( double );
     int locidx = -1;
-    MonitorLock ml( *set );
-    for ( int idx=0; idx<set->size(); idx++ )
+    Pick::SetIter psiter( *set );
+    int idx = -1;
+    while ( psiter.next() )
     {
-	const double dst = dpscrd.distTo( set->get(idx).pos() );
+	idx++;
+	const double dst = dpscrd.distTo( psiter.get().pos() );
 	if ( dst > mindist )
 	    continue;
 

@@ -78,7 +78,7 @@ public:
     void			setRightHandSystem(bool yn);
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     virtual void		turnOnSelectionMode(bool){};
-    int				getPickIdx(visBase::DataObject*) const;
+    int				getPickID(visBase::DataObject*) const;
 
     const SurveyObject*		getPickedSurveyObject() const;
 
@@ -94,19 +94,17 @@ public:
 
 protected:
 				LocationDisplay();
-    virtual void		setPosition(int idx,
-					    const Pick::Location&);
-    virtual void		setPosition(int idx,const Pick::Location&,
-					    bool add) {}
-    virtual void		removePosition(int);
+    virtual void		setPosition(int,const Pick::Location&)	{}
+    virtual void		setPosition(int,const Pick::Location&,
+					    bool add)			{}
+    virtual void		removePosition(int)			{}
     virtual void		removeAll();
 
     virtual bool		hasDirection() const { return false; }
     virtual bool		hasText() const { return false; }
     virtual int			clickedMarkerIndex(
-					const visBase::EventInfo& evi)const;
-    virtual bool		isMarkerClick(
-					const visBase::EventInfo& evi)const;
+				    const visBase::EventInfo&) const;
+    virtual bool		isMarkerClick(const visBase::EventInfo&) const;
     virtual void		updateDragger() {}
     virtual void		setDraggerNormal(const Coord3&) {}
     virtual bool		draggerNormal() const { return true; }
@@ -117,8 +115,7 @@ protected:
 
     virtual			~LocationDisplay();
 
-    bool			addPick(const Coord3&,const Sphere&);
-    void			removePick(LocID);
+    LocID			addPick(const Coord3&,const Sphere&);
 
     bool			getPickSurface(const visBase::EventInfo&,
 					   Coord3& pos, Coord3& normal) const;

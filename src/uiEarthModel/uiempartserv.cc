@@ -1652,24 +1652,24 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
 	return;
 
     hor->ref();
-    int idx = 0;
-    while ( idx < ps.size() )
+    Pick::SetIter4Edit psiter( ps );
+    while ( psiter.next() )
     {
-	const BinID bid = ps.get( idx ).binID();
+	const BinID bid = psiter.get().binID();
 	const EM::SubID subid = bid.toInt64();
 	double zval = hor->getPos( hor->sectionID(0), subid ).z;
+
 	if ( mIsUdf(zval) )
 	{
 	    const Geometry::BinIDSurface* geom =
 		hor->geometry().sectionGeometry( hor->sectionID(0) );
 	    if ( geom )
 		zval = geom->computePosition( Coord(bid.inl(),bid.crl()) ).z;
-	    if ( mIsUdf(zval) )
-		{ ps.remove(idx); continue; }
 	}
-
-	ps.setZ( idx, zval );
-	idx++;
+	if ( mIsUdf(zval) )
+	    psiter.removeCurrent( true );
+	else
+	    psiter.get().setZ( zval );
     }
 
     hor->unRef();

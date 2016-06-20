@@ -269,9 +269,11 @@ void PickSetDisplay::redrawAll( int drageridx )
     if ( drageridx==set_->size() )
 	drageridx = set_->size()-1;
 
-    for ( int idx=0; idx<set_->size(); idx++ )
+    Pick::SetIter psiter( *set_ );
+    int idx = 0;
+    while ( psiter.next() )
     {
-	Coord3 pos = set_->get(idx).pos();
+	Coord3 pos = psiter.get().pos();
 	if ( datatransform_ )
 	    pos.z = datatransform_->transform( pos );
 	if ( !mIsUdf(pos.z) )
@@ -283,8 +285,9 @@ void PickSetDisplay::redrawAll( int drageridx )
 	    dragger_->updateDragger( false );
 	    dragger_->turnOn( showdragger_ );
 	}
+	idx++;
     }
-    ml.unlockNow();
+    psiter.retire();
 
     markerset_->forceRedraw( true );
     redrawLine();
@@ -331,20 +334,19 @@ void PickSetDisplay::redrawLine()
     polyline_->setLineStyle( ls );
 
     polyline_->removeAllPoints();
-    int idx=0;
-    MonitorLock ml( *set_ );
-    for ( ; idx<set_->size(); idx++ )
+    Pick::SetIter psiter( *set_ );
+    while ( psiter.next() )
     {
-	Coord3 pos = set_->get(idx).pos();
+	Coord3 pos = psiter.get().pos();
 	if ( datatransform_ )
 	    pos.z = datatransform_->transform( pos );
 	if ( !mIsUdf(pos.z) )
 	    polyline_->addPoint( pos );
     }
+    psiter.retire();
 
-    if ( idx && set_->connection()==Pick::Set::Disp::Close )
-	polyline_->setPoint( idx, polyline_->getPoint(0) );
-    ml.unlockNow();
+    if ( polyline_->size()>2 && set_->connection()==Pick::Set::Disp::Close )
+	polyline_->setPoint( polyline_->size(), polyline_->getPoint(0) );
 
     polyline_->dirtyCoordinates();
 }
@@ -499,10 +501,14 @@ visBase::MarkerSet* PickSetDisplay::createOneMarker() const
 
 int PickSetDisplay::clickedMarkerIndex( const visBase::EventInfo& evi ) const
 {
-    if ( !isMarkerClick( evi ) )
-	return -1;
-
-    return markerset_->findClosestMarker( evi.displaypickedpos, true );
+    if ( isMarkerClick( evi ) )
+    {
+	const int idx = markerset_->findClosestMarker( evi.displaypickedpos,
+							true );
+	if ( idx >= 0 )
+	    return idx;
+    }
+    return -1;
 }
 
 
@@ -551,7 +557,7 @@ bool PickSetDisplay::updateMarkerAtSection( const SurveyObject* obj, int idx )
 {
     if ( !obj ) return false;
 
-    Coord3 pos = set_->get( idx ).pos();
+    Coord3 pos = set_->getByIndex( idx ).pos();
     if ( !pos.isDefined())
 	return false;
 
@@ -799,18 +805,16 @@ void PickSetDisplay::updateSelections(
 
 bool PickSetDisplay::removeSelections( TaskRunner* taskr )
 {
-    bool changed = false;
+    TypeSet<LocID> locids;
     for ( int idx=pickselstatus_.size()-1; idx>=0; idx-- )
-    {
 	if ( pickselstatus_[idx] )
-	{
-	    set_->remove( idx );
-	    changed = true;
-	}
-    }
+	    locids.add( set_->locIDFor(idx) );
+
+    for ( int idx=0; idx<locids.size(); idx++ )
+	set_->remove( locids[idx] );
 
     unSelectAll();
-    return changed;
+    return !locids.isEmpty();
 }
 
 } // namespace visSurvey

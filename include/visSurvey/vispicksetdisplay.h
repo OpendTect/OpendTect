@@ -77,8 +77,8 @@ public:
 protected:
 				~PickSetDisplay();
 
-    virtual void		setPosition(int loc,const Pick::Location&);
-    virtual void		setPosition(int idx,const Pick::Location&,
+    virtual void		setPosition(int,const Pick::Location&);
+    virtual void		setPosition(int,const Pick::Location&,
 					    bool add);
     Coord3			getPosition(int loc) const;
     virtual void		removePosition(int idx);

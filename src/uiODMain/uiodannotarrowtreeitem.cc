@@ -64,9 +64,10 @@ bool ArrowSubItem::init()
     RefMan<Pick::Set> workps = new Pick::Set( set_ );
     BufferString orientation;
     bool anychg = false;
-    for ( int idx=set_.size()-1; idx>=0; idx-- )
+    Pick::SetIter4Edit psiter( *workps );
+    while ( psiter.next() )
     {
-	Pick::Location ploc = workps->get( idx );
+	Pick::Location ploc = psiter.get();
 	bool havekyedtxt = ploc.getKeyedText("O",orientation);
 	if ( havekyedtxt )
 	{
@@ -86,10 +87,11 @@ bool ArrowSubItem::init()
 	if ( havekyedtxt || !ploc.text().isEmpty() )
 	{
 	    ploc.setText( 0 );
-	    workps->set( idx, ploc );
+	    psiter.get() = ploc;
 	    anychg = true;
 	}
     }
+    psiter.retire();
 
     if ( anychg ) // kept track to avoid unnecessary updates everywhere
 	set_ = *workps;
