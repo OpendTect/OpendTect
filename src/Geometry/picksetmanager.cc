@@ -23,9 +23,9 @@ static Threads::Lock theinstcreatelock_(true);
 
 namespace Pick
 {
-    static const LocationChangeEvent udfchgev_(
-			LocationChangeEvent::LocID::get(), Location::udf() );
-    const LocationChangeEvent& LocationChangeEvent::udf() { return udfchgev_; }
+    static const SetManager::LocEvent udfchgev_(
+	Set::LocID::getInvalid(), Location::udf(), SetManager::LocEvent::Move );
+    const SetManager::LocEvent& SetManager::LocEvent::udf() { return udfchgev_;}
 }
 
 
@@ -667,8 +667,8 @@ void Pick::SetManager::setChgCB( CallBacker* inpcb )
     }
 
     LocEvent ev( locid, Location::udf(), Location::udf() );
-    ev.type_ = isinsert ? LocationChangeEvent::Create
-			: LocationChangeEvent::Delete;
+    ev.type_ = isinsert ? SetManager::LocEvent::Create
+			: SetManager::LocEvent::Delete;
     if ( isinsert )
 	ev.loc_ = ps->get( locid );
     else

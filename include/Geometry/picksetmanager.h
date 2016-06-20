@@ -26,42 +26,7 @@ class Set;
 class SetSaver;
 class SetManager;
 class SetLoaderExec;
-class SetLocEvRecord;
 
-
-/*!\brief A record containing info about a Location change in a Set. */
-
-mExpClass(Geometry) LocationChangeEvent
-{
-public:
-
-    typedef Set::LocID	LocID;
-    enum Type		{ Create, Move, Delete };
-
-			LocationChangeEvent( LocID id, const Location& loc,
-					     Type t=Create )
-			    : type_(t), id_(id), prevloc_(Location::udf())
-			    , loc_(loc)					{}
-			LocationChangeEvent( LocID id, const Location& from,
-					      const Location& to )
-			: type_(Move), id_(id), prevloc_(from), loc_(to) {}
-
-    Type		type_;
-    LocID		id_;
-    Location		loc_;
-    Location		prevloc_;
-
-    bool		isUdf() const       { return id_.isUdf(); }
-    static const LocationChangeEvent& udf();
-
-    inline bool		operator ==( const LocationChangeEvent& oth ) const
-			{
-			    return this == &oth ||
-			       (type_ == oth.type_ && id_ == oth.id_
-			      && loc_ == oth.loc_ && prevloc_ == oth.prevloc_);
-			}
-
-};
 
 
 /*!\brief access to the singleton Pick Set Manager */
@@ -118,7 +83,6 @@ mExpClass(Geometry) SetManager : public Monitorable
 public:
 
     typedef ::MultiID			SetID;
-    typedef LocationChangeEvent		LocEvent;
 
     ConstRefMan<Set>	fetch(const SetID&,uiRetVal&,
 				    const char* category=0) const;
@@ -162,15 +126,48 @@ public:
     CNotifier<SetManager,SetID>	SetVanishRequested;
     CNotifier<SetManager,SetID>	UnsavedSetLastCall;
 
+    enum DispOpt	{ Show, Hide, Vanish };
+    void		displayRequest(const MultiID&,DispOpt=Show);
+
+
+    /*!\brief A record containing info about a Location change in a Set.
+      Used for undo/redo. */
+
+    mExpClass(Geometry) LocEvent
+    {
+    public:
+
+    typedef Set::LocID	LocID;
+    enum Type		{ Create, Move, Delete };
+
+			LocEvent( LocID id, const Location& loc, Type t )
+			    : type_(t), id_(id), prevloc_(Location::udf())
+			    , loc_(loc)					{}
+			LocEvent( LocID id, const Location& from,
+					    const Location& to )
+			: type_(Move), id_(id), prevloc_(from), loc_(to) {}
+
+    Type		type_;
+    LocID		id_;
+    Location		loc_;
+    Location		prevloc_;
+
+    bool		isUdf() const       { return id_.isUdf(); }
+    static const LocEvent& udf();
+
+    inline bool		operator ==( const LocEvent& oth ) const
+			{
+			    return this == &oth ||
+			       (type_ == oth.type_ && id_ == oth.id_
+			      && loc_ == oth.loc_ && prevloc_ == oth.prevloc_);
+			}
+    };
 			// creation and destruction are recorded automagically
 			// so only add actual move events (at mouse release)
-    void		clearLocEvents(const SetID&);
     void		addLocEvent(const SetID&,const LocEvent&);
     bool		haveLocEvent(const SetID&,bool for_undo) const;
     LocEvent		getLocEvent(const SetID&,bool for_undo) const;
-
-    enum DispOpt	{ Show, Hide, Vanish };
-    void		displayRequest(const MultiID&,DispOpt=Show);
+    void		clearLocEvents(const SetID&);
 
 protected:
 

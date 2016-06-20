@@ -261,15 +261,12 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		    const ::Sphere dir = pl.dir();
 		    const Pick::Location undoloc( undoloccoord_, dir );
 		    const Pick::Location newloc( newpos, dir );
-		    set_->set( waitsforpositionid_, newloc );
 		    undomove_ = false;
+		    set_->set( waitsforpositionid_, newloc );
+		    Pick::SetMGR().addLocEvent( Pick::SetMGR().getID(*set_),
+				Pick::SetManager::LocEvent( waitsforpositionid_,
+				undoloc, newloc ) );
 		}
-		Pick::Location pl( set_->get(waitsfordirectionid_) );
-		const ::Sphere dir = pl.dir();
-		const Pick::Location undoloc( undoloccoord_, dir );
-		const Pick::Location newloc( newpos, dir );
-		set_->set( waitsforpositionid_, newloc );
-		undomove_ = false;
 	    }
 	    else
 	    {
