@@ -28,6 +28,7 @@ namespace VolProc
 uiSmoother::uiSmoother( uiParent* p, Smoother* hf, bool is2d )
     : uiStepDialog( p, Smoother::sFactoryDisplayName(), hf, is2d )
     , smoother_( hf )
+    , inllenfld_( 0 )
 {
     setHelpKey( mODHelpKey(mVolumeSmootherHelpID) );
 
@@ -43,18 +44,25 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf, bool is2d )
     stepoutgroup->setFrame( true );
     stepoutgroup->attach( alignedBelow, label );
 
-    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, uiStrings::sInline(), 0,
-					"Inline_spinbox" );
-
     const BinID step( SI().inlStep(), SI().crlStep() );
-    inllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.inl(), step.inl() );
-    inllenfld_->box()->setValue( step.inl()*(smoother_->inlSz()/2) );
+    if ( !is2d )
+    {
+	inllenfld_ = new uiLabeledSpinBox(
+		stepoutgroup, uiStrings::sInline(), 0, "Inline_spinbox" );
 
-    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, uiStrings::sCrossline(), 0,
-				       "Crline_spinbox" );
+	inllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.inl(),
+					step.inl() );
+	inllenfld_->box()->setValue( step.inl()*(smoother_->inlSz()/2) );
+    }
+
+    crllenfld_ =
+	new uiLabeledSpinBox( stepoutgroup, is2d ? uiStrings::sTraceNumber()
+						 : uiStrings::sCrossline(), 0,
+			      "Crline_spinbox" );
     crllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.crl(), step.crl() );
     crllenfld_->box()->setValue( step.crl()*(smoother_->crlSz()/2) );
-    crllenfld_->attach( alignedBelow, inllenfld_ );
+    if ( inllenfld_ )
+	crllenfld_->attach( alignedBelow, inllenfld_ );
 
     const float zstep = SI().zStep() * SI().zDomain().userFactor();
     uiString zlabel = tr("Vertical %1").arg( SI().getUiZUnitString(true) );
@@ -87,7 +95,7 @@ bool uiSmoother::acceptOK( CallBacker* cb )
 
     const float zstep = SI().zStep() * SI().zDomain().userFactor();
     const int inlsz =
-	mNINT32(inllenfld_->box()->getFValue()/SI().inlStep())*2+1;
+	is2d_ ? 1 : mNINT32(inllenfld_->box()->getFValue()/SI().inlStep())*2+1;
     const int crlsz =
 	mNINT32(crllenfld_->box()->getFValue()/SI().crlStep())*2+1;
     const int zsz =

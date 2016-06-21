@@ -33,6 +33,7 @@ public:
 			~Smoother();
     virtual void	releaseData();
 
+    bool		canHandle2D() const	{ return true; }
     bool		setOperator(const char*,float param,
 				    int inlsz,int crlsz,int zsz);
 			//!<Size is set in multiples of inl/crl/z-step from SI.
