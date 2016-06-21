@@ -442,6 +442,9 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	    possvol.hsamp_.setLineRange( StepInterval<int>(lineid,lineid,1) );
 	    possvol.hsamp_.setTrcRange( Interval<int>(0,INT_MAX/3*2) );
 					    //unlikely;still, a limitation.
+	    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+	    if ( geom )
+		possvol.hsamp_.setTrcRange( geom->sampling().hsamp_.trcRange());
 	    globalcs = possvol;
 	}
 
