@@ -194,6 +194,8 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(m3Dots(uiStrings::sProperties() ) )
     , convertbodymnuitem_(tr("Convert to Body"))
+    , undomnuitem_(uiString::emptyString())
+    , redomnuitem_(uiString::emptyString())
 {
     set_.ref();
     displayid_ = did;
@@ -204,6 +206,8 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     propertymnuitem_.iconfnm = "disppars";
     storemnuitem_.iconfnm = "save";
     storeasmnuitem_.iconfnm = "saveas";
+    undomnuitem_.iconfnm = "undo";
+    redomnuitem_.iconfnm = "redo";
 
     mAttachCB( set_.objectChanged(), uiODPickSetTreeItem::setChgCB );
 }
@@ -279,6 +283,21 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mAddMenuItem( menu, &storemnuitem_, needssave, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
+
+    const MultiID setid = Pick::SetMGR().getID( set_ );
+    Pick::SetManager::LocEvent::Type undotyp, redotyp;
+    const bool haveundo = Pick::SetMGR().haveLocEvent( setid, true, &undotyp );
+    const bool haveredo = Pick::SetMGR().haveLocEvent( setid, false, &redotyp );
+    if ( haveundo )
+    {
+	undomnuitem_.text = Pick::SetManager::LocEvent::menuText(undotyp,true);
+	mAddMenuItem( menu, &undomnuitem_, true, false );
+    }
+    if ( haveredo )
+    {
+	undomnuitem_.text = Pick::SetManager::LocEvent::menuText(redotyp,false);
+	mAddMenuItem( menu, &redomnuitem_, true, false );
+    }
 }
 
 
@@ -347,6 +366,13 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	addChild( new uiODBodyDisplayTreeItem(npsd->id(),true), false );
 
 	visserv_->addObject( npsd, sceneID(), true );
+    }
+    else if ( mnuid==undomnuitem_.id || mnuid==redomnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	const MultiID setid = Pick::SetMGR().getID( set_ );
+	const bool isundo = mnuid==undomnuitem_.id;
+	Pick::SetMGR().applyLocEvent( setid, isundo );
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );

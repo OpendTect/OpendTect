@@ -567,6 +567,24 @@ Pick::Set& Pick::Set::remove( LocID id )
 }
 
 
+void Pick::Set::replaceID( LocID from, LocID to )
+{
+    mLock4Write();
+    IdxType targetidx = -1;
+    for ( int idx=0; idx<locids_.size(); idx++ )
+    {
+	const LocID locid = locids_[idx];
+	if ( locid == to )
+	    { pErrMsg("Attempt to replace with existing ID"); return; }
+	else if ( locid == from )
+	    targetidx = idx;
+    }
+
+    if ( targetidx >= 0 )
+	locids_[targetidx] = to;
+}
+
+
 static inline bool coordUnchanged( Pick::Set::IdxType idx,
 	const TypeSet<Pick::Location>& locs, const Coord& coord )
 {

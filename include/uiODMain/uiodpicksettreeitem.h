@@ -70,6 +70,8 @@ protected:
     MenuItem		onlyatsectmnuitem_;
     MenuItem		convertbodymnuitem_;
     MenuItem		propertymnuitem_;
+    MenuItem		undomnuitem_;
+    MenuItem		redomnuitem_;
 };
 
 

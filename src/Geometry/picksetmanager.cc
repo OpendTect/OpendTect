@@ -362,7 +362,7 @@ void Pick::SetManager::add( const Set& newset, const SetID& id,
     SetManager& self = *const_cast<SetManager*>(this);
     mLock4Write();
     self.savers_ += saver;
-    self.locevrecs_ += new LocEvRecord;
+    self.locevrecs_ += new LocEvRec;
     mUnlockAllAccess();
 
     self.addCBsToSet( newset );
@@ -489,13 +489,24 @@ Pick::Set* Pick::SetManager::gtSet( const SetID& id ) const
 }
 
 
+uiString Pick::SetManager::LocEvent::menuText( Type typ, bool forundo )
+{
+    return tr( "%1 %2 Pick" )
+	    .arg( forundo ? uiStrings::sUndo()
+		    	  : uiStrings::sRedo() )
+	    .arg( typ == Create ? uiStrings::sAdd()
+		: (typ == Move	? uiStrings::sMove()
+		    		: uiStrings::sRemove()) );
+}
+
+
 void Pick::SetManager::clearLocEvents( const SetID& id )
 {
     mLock4Read();
     int idxof = gtIdx( id );
     if ( idxof < 0 )
 	return;
-    LocEvRecord* rec = locevrecs_[ idxof ];
+    LocEvRec* rec = locevrecs_[ idxof ];
     if ( rec->isEmpty() )
 	return;
 
@@ -518,7 +529,7 @@ void Pick::SetManager::addLocEvent( const SetID& id, const LocEvent& ev )
     if ( idxof < 0 )
 	{ pErrMsg("Huh"); return; }
 
-    LocEvRecord& rec = *locevrecs_[ idxof ];
+    LocEvRec& rec = *locevrecs_[ idxof ];
     if ( rec.curidx_ > rec.size() - 1 )
 	{ rec.add( ev ); rec.curidx_ = rec.size(); }
     else
@@ -538,17 +549,25 @@ void Pick::SetManager::addLocEvent( const SetID& id, const LocEvent& ev )
 }
 
 
-bool Pick::SetManager::haveLocEvent( const SetID& id, bool forundo ) const
+bool Pick::SetManager::haveLocEvent( const SetID& id, bool forundo,
+				     LocEvent::Type* typ ) const
 {
     mLock4Read();
     const int idxof = gtIdx( id );
     if ( idxof < 0 )
 	return false;
-    const LocEvRecord& rec = *locevrecs_[ idxof ];
+    const LocEvRec& rec = *locevrecs_[ idxof ];
     if ( rec.isEmpty() )
 	return false;
 
-    return forundo ? rec.curidx_ > 0 : rec.curidx_ < rec.size();
+    const bool haveev = forundo ? rec.curidx_ > 0 : rec.curidx_ < rec.size();
+    if ( typ && haveev )
+    {
+	LocEvRec::size_type evidx = rec.curidx_;
+	if ( forundo ) evidx--;
+	*typ = rec[evidx].type_;
+    }
+    return haveev;
 }
 
 
@@ -559,14 +578,70 @@ Pick::SetManager::LocEvent Pick::SetManager::getLocEvent( const SetID& id,
     const int idxof = gtIdx( id );
     if ( idxof < 0 )
 	return LocEvent::udf();
-    const LocEvRecord& rec = *locevrecs_[ idxof ];
+    const LocEvRec& rec = *locevrecs_[ idxof ];
     if ( rec.isEmpty() || rec.curidx_ < 0 )
 	return LocEvent::udf();
 
+    LocEvRec::size_type retidx;
     if ( forundo )
-	return rec.curidx_ > 0 ? rec[--rec.curidx_] : LocEvent::udf();
+    {
+	if ( rec.curidx_ < 1 )
+	    return LocEvent::udf();
+	rec.curidx_--;
+	retidx = rec.curidx_;
+    }
     else
-	return rec.curidx_ < rec.size() ? rec[rec.curidx_++] : LocEvent::udf();
+    {
+	if ( rec.curidx_ >= rec.size() )
+	    return LocEvent::udf();
+	retidx = rec.curidx_;
+	rec.curidx_++;
+    }
+    return rec[retidx];
+}
+
+
+void Pick::SetManager::applyLocEvent( const SetID& setid, bool isundo ) const
+{
+    LocEvent ev = getLocEvent( setid, isundo );
+    if ( ev.isUdf() )
+	return;
+    RefMan<Set> ps = const_cast<SetManager*>(this)->fetchForEdit( setid );
+    if ( !ps )
+	return;
+
+    switch ( ev.type_ )
+    {
+    case LocEvent::Create:
+    {
+	if ( isundo )
+	    ps->remove( ev.id_ );
+	else
+	{
+	    const LocEvent::LocID newid
+				= ps->insertBefore( ev.beforeid_, ev.loc_ );
+	    ps->replaceID( newid, ev.id_ );
+	}
+    } break;
+    case LocEvent::Delete:
+    {
+	if ( !isundo )
+	    ps->remove( ev.id_ );
+	else
+	{
+	    const LocEvent::LocID newid
+				= ps->insertBefore( ev.beforeid_, ev.loc_ );
+	    ps->replaceID( newid, ev.id_ );
+	}
+    } break;
+    case LocEvent::Move:
+    {
+	if ( isundo )
+	    ps->set( ev.id_, ev.prevloc_ );
+	else
+	    ps->set( ev.id_, ev.loc_ );
+    } break;
+    };
 }
 
 
@@ -673,6 +748,10 @@ void Pick::SetManager::setChgCB( CallBacker* inpcb )
 	ev.loc_ = ps->get( locid );
     else
 	ev.prevloc_ = ps->get( locid );
+
+    const int curidx = ps->idxFor( locid );
+    if ( curidx < ps->size()-1 )
+	ev.beforeid_ = ps->locIDFor( curidx+1 );
 
     mUnlockAllAccess();
     addLocEvent( setid, ev );

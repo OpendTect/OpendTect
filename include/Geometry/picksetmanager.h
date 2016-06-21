@@ -140,18 +140,22 @@ public:
     typedef Set::LocID	LocID;
     enum Type		{ Create, Move, Delete };
 
-			LocEvent( LocID id, const Location& loc, Type t )
+			LocEvent( LocID id, const Location& loc, Type t,
+				  LocID beforeid=LocID::getInvalid() )
 			    : type_(t), id_(id), prevloc_(Location::udf())
-			    , loc_(loc)					{}
+			    , loc_(loc), beforeid_(beforeid)	{}
 			LocEvent( LocID id, const Location& from,
 					    const Location& to )
-			: type_(Move), id_(id), prevloc_(from), loc_(to) {}
+			: type_(Move), id_(id), prevloc_(from), loc_(to)
+		        , beforeid_(LocID::getInvalid()) 	{}
 
     Type		type_;
     LocID		id_;
     Location		loc_;
+    LocID		beforeid_;
     Location		prevloc_;
 
+    static uiString	menuText(Type,bool forundo);
     bool		isUdf() const       { return id_.isUdf(); }
     static const LocEvent& udf();
 
@@ -159,31 +163,35 @@ public:
 			{
 			    return this == &oth ||
 			       (type_ == oth.type_ && id_ == oth.id_
+				&& beforeid_ == oth.beforeid_
 			      && loc_ == oth.loc_ && prevloc_ == oth.prevloc_);
 			}
     };
 			// creation and destruction are recorded automagically
 			// so only add actual move events (at mouse release)
     void		addLocEvent(const SetID&,const LocEvent&);
-    bool		haveLocEvent(const SetID&,bool for_undo) const;
-    LocEvent		getLocEvent(const SetID&,bool for_undo) const;
+    bool		haveLocEvent(const SetID&,bool for_undo,
+	    			     LocEvent::Type* typ=0) const;
+    void		applyLocEvent(const SetID&,bool isundo) const;
+
     void		clearLocEvents(const SetID&);
+    LocEvent		getLocEvent(const SetID&,bool for_undo) const;
 
 protected:
 
-    class LocEvRecord : public TypeSet<LocEvent>
+    class LocEvRec : public TypeSet<LocEvent>
     {
     public:
-			LocEvRecord() : curidx_(0)	{}
+			LocEvRec() : curidx_(0)	{}
 	void		clear()			{ setEmpty(); curidx_ = 0; }
 	mutable Threads::Atomic<size_type> curidx_; // position for next redo
     };
 
-				SetManager();
-				~SetManager();
+			SetManager();
+			~SetManager();
 
-    ObjectSet<SetSaver>		savers_;
-    ObjectSet<LocEvRecord>	locevrecs_;
+    ObjectSet<SetSaver>	savers_;
+    ObjectSet<LocEvRec>	locevrecs_;
 
 			// Tools for locked state
     void		setEmpty();

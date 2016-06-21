@@ -148,9 +148,11 @@ protected:
 
     IdxType		gtIdxFor(LocID) const;
     LocID		insNewLocID(IdxType,AccessLockHandler&);
+    void		replaceID(LocID from,LocID to);
 
     friend class	SetIter;
     friend class	SetIter4Edit;
+    friend class	SetManager; // for replaceID (undo/redo)
 
 };
 
