@@ -75,7 +75,7 @@ public:
     Set&		set(LocID,const Location&);
     LocID		insertBefore(LocID,const Location&);
     LocID		add(const Location&);
-    Set&		remove(LocID);
+    LocID		remove(LocID); //!< returns ID of loc taking its place
     Set&		setPos(LocID,const Coord&);
     Set&		setZ(LocID,double);
     Set&		setByIndex(IdxType,const Location&);

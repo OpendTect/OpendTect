@@ -295,7 +295,7 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     }
     if ( haveredo )
     {
-	undomnuitem_.text = Pick::SetManager::LocEvent::menuText(redotyp,false);
+	redomnuitem_.text = Pick::SetManager::LocEvent::menuText(redotyp,false);
 	mAddMenuItem( menu, &redomnuitem_, true, false );
     }
 }

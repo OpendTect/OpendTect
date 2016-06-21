@@ -491,12 +491,12 @@ Pick::Set* Pick::SetManager::gtSet( const SetID& id ) const
 
 uiString Pick::SetManager::LocEvent::menuText( Type typ, bool forundo )
 {
-    return tr( "%1 %2 Pick" )
+    return tr( "%1 [%2 Pick]" )
 	    .arg( forundo ? uiStrings::sUndo()
-		    	  : uiStrings::sRedo() )
+			  : uiStrings::sRedo() )
 	    .arg( typ == Create ? uiStrings::sAdd()
 		: (typ == Move	? uiStrings::sMove()
-		    		: uiStrings::sRemove()) );
+				: uiStrings::sRemove()) );
 }
 
 
@@ -530,11 +530,12 @@ void Pick::SetManager::addLocEvent( const SetID& id, const LocEvent& ev )
 	{ pErrMsg("Huh"); return; }
 
     LocEvRec& rec = *locevrecs_[ idxof ];
-    if ( rec.curidx_ > rec.size() - 1 )
+    const int newidx = rec.curidx_;
+    if ( newidx > rec.size() - 1 )
 	{ rec.add( ev ); rec.curidx_ = rec.size(); }
     else
     {
-	rec[rec.curidx_-1] = ev;
+	rec[newidx] = ev;
 	rec.curidx_++;
 	if ( rec.curidx_ < rec.size() )
 	    rec.removeRange( rec.curidx_, rec.size() - 1 );
@@ -709,8 +710,9 @@ void Pick::SetManager::setDelCB( CallBacker* cb )
 {
     mHandleSetChgCBStart();
 
-    mLock2Write();
-    idxof = gtIdx( *ps );
+    if ( !mLock2Write() )
+	idxof = gtIdx( *ps );
+
     if ( idxof >= 0 )
     {
 	delete savers_.removeSingle( idxof );
@@ -721,12 +723,9 @@ void Pick::SetManager::setDelCB( CallBacker* cb )
 
 void Pick::SetManager::setChgCB( CallBacker* inpcb )
 {
-
     mGetMonitoredChgDataWithCaller( inpcb, chgdata, cb );
     const bool isentire = chgdata.changeType() == cEntireObjectChangeType();
-    const bool isinsert = chgdata.changeType() == Set::cLocationInsert();
-    const bool isremove = chgdata.changeType() == Set::cLocationRemove();
-    if ( !isentire && !isinsert && !isremove )
+    if ( !isentire )
 	return;
 
     mHandleSetChgCBStart();
@@ -734,25 +733,9 @@ void Pick::SetManager::setChgCB( CallBacker* inpcb )
 			(LocEvent::LocID::IDType)chgdata.ID()) );
     const SetID setid = savers_[idxof]->key();
 
-    if ( isentire )
-    {
-	mLock2Write();
+    if ( !mLock2Write() )
+	idxof = gtIdx( *ps );
+
+    if ( idxof >= 0 )
 	locevrecs_[ idxof ]->clear();
-	return;
-    }
-
-    LocEvent ev( locid, Location::udf(), Location::udf() );
-    ev.type_ = isinsert ? SetManager::LocEvent::Create
-			: SetManager::LocEvent::Delete;
-    if ( isinsert )
-	ev.loc_ = ps->get( locid );
-    else
-	ev.prevloc_ = ps->get( locid );
-
-    const int curidx = ps->idxFor( locid );
-    if ( curidx < ps->size()-1 )
-	ev.beforeid_ = ps->locIDFor( curidx+1 );
-
-    mUnlockAllAccess();
-    addLocEvent( setid, ev );
 }

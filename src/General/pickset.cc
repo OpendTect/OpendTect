@@ -483,7 +483,7 @@ Pick::Set::LocID Pick::Set::add( const Location& loc )
 Pick::Set::LocID Pick::Set::insertBefore( LocID id, const Location& loc )
 {
     if ( !id.isValid() )
-	return id;
+	return add( loc );
 
     mLock4Read();
     IdxType idx = gtIdxFor( id );
@@ -542,12 +542,12 @@ Pick::Set& Pick::Set::setByIndex( IdxType idx, const Location& loc )
 }
 
 
-Pick::Set& Pick::Set::remove( LocID id )
+Pick::Set::LocID Pick::Set::remove( LocID id )
 {
     mLock4Read();
     int idx = gtIdxFor( id );
     if ( idx == -1 )
-	return *this;
+	return LocID::getInvalid();
 
     mSendChgNotif( cLocationRemove(), id.getI() );
     accesslockhandler_.reLock();
@@ -557,13 +557,13 @@ Pick::Set& Pick::Set::remove( LocID id )
     {
 	idx = gtIdxFor( id );
 	if ( idx == -1 )
-	    return *this; // notif has been sent 2x ... too bad
+	    return LocID::getInvalid(); // notif has been sent 2x ... too bad
     }
 
     locs_.removeSingle( idx );
     locids_.removeSingle( idx );
 
-    return *this;
+    return idx < locids_.size()-1 ? locids_[idx+1] : LocID::getInvalid();
 }
 
 

@@ -374,9 +374,9 @@ void LocationDisplay::handleMouseUp( const EventInfo& evinfo,
     {
 	if ( evinfo.pickedobjids.size() && eventid==mousepressid_ )
 	{
-	    const int removeidx = clickedMarkerIndex( evinfo );
-	    if ( removeidx >= 0 )
-		set_->remove( set_->locIDFor(removeidx) );
+	    const int locidx = clickedMarkerIndex( evinfo );
+	    if ( locidx >= 0 )
+		removePick( set_->locIDFor(locidx) );
 	}
 
 	eventcatcher_->setHandled();
@@ -582,8 +582,7 @@ LocationDisplay::LocID LocationDisplay::addPick( const Coord3& pos,
 
     mDefineStaticLocalObject( TypeSet<Coord3>, sowinghistory, );
 
-    LocID locid = LocID::getInvalid();
-    bool insertpick = false;
+    LocID beforelocid = LocID::getInvalid();
     if ( set_->connection() != Pick::Set::Disp::Close )
 	sower_->alternateSowingOrder( false );
     else
@@ -619,11 +618,10 @@ LocationDisplay::LocID LocationDisplay::addPick( const Coord3& pos,
 	    if ( mIsUdf(mindist) || dist<mindist )
 	    {
 		mindist = dist;
-		locid = set_->locIDFor( idx );
+		beforelocid = set_->locIDFor( idx );
 	    }
 	}
 	ml.unlockNow();
-	insertpick = locid.isValid();
 
 	sowinghistory.insert( 0, pos );
 	sowinghistory.removeSingle( 2 );
@@ -634,18 +632,32 @@ LocationDisplay::LocID LocationDisplay::addPick( const Coord3& pos,
     if ( so )
 	newloc.setGeomID( so->getGeomID() );
 
-    if ( insertpick )
-	locid = set_->insertBefore( locid, newloc );
+    LocID newlocid = LocID::getInvalid();
+    if ( beforelocid.isValid() )
+	newlocid = set_->insertBefore( beforelocid, newloc );
     else
-	locid = set_->add( newloc );
+	newlocid = set_->add( newloc );
 
-    if ( hasText() )
+    if ( hasText() && !set_->get(newlocid).hasText() )
+	{ removePick( newlocid, false ); newlocid.setInvalid(); }
+    else
     {
-	if ( !set_->get(locid).hasText() )
-	    { set_->remove( locid ); locid.setInvalid(); }
+	Pick::SetManager::LocEvent ev( newlocid, set_->get(newlocid),
+		       Pick::SetManager::LocEvent::Create, beforelocid );
+	Pick::SetMGR().addLocEvent( Pick::SetMGR().getID(*set_), ev );
     }
 
-    return locid;
+    return newlocid;
+}
+
+
+void LocationDisplay::removePick( LocID locid, bool withev )
+{
+    Pick::SetManager::LocEvent ev( locid, set_->get(locid),
+				   Pick::SetManager::LocEvent::Delete );
+    ev.beforeid_ = set_->remove( locid );
+    if ( withev )
+	Pick::SetMGR().addLocEvent( Pick::SetMGR().getID(*set_), ev );
 }
 
 

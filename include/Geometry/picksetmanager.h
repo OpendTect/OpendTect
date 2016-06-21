@@ -147,7 +147,7 @@ public:
 			LocEvent( LocID id, const Location& from,
 					    const Location& to )
 			: type_(Move), id_(id), prevloc_(from), loc_(to)
-		        , beforeid_(LocID::getInvalid()) 	{}
+		        , beforeid_(LocID::getInvalid())	{}
 
     Type		type_;
     LocID		id_;
@@ -167,11 +167,11 @@ public:
 			      && loc_ == oth.loc_ && prevloc_ == oth.prevloc_);
 			}
     };
-			// creation and destruction are recorded automagically
-			// so only add actual move events (at mouse release)
+
+			// Only add events if you are the source
     void		addLocEvent(const SetID&,const LocEvent&);
     bool		haveLocEvent(const SetID&,bool for_undo,
-	    			     LocEvent::Type* typ=0) const;
+				     LocEvent::Type* typ=0) const;
     void		applyLocEvent(const SetID&,bool isundo) const;
 
     void		clearLocEvents(const SetID&);

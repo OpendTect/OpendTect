@@ -113,9 +113,10 @@ protected:
     virtual			~LocationDisplay();
 
     LocID			addPick(const Coord3&,const Sphere&);
+    void			removePick(LocID,bool withev=true);
 
     bool			getPickSurface(const EventInfo&,Coord3&,
-	    					Coord3&) const;
+						Coord3&) const;
     Coord3			display2World(const Coord3&) const;
     Coord3			world2Display(const Coord3&) const;
     bool			transformPos(Pick::Location&) const;
