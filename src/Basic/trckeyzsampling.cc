@@ -51,6 +51,10 @@ TrcKeySampling::TrcKeySampling( bool settosi )
 
 mStopAllowDeprecatedSection
 
+Pos::GeomID TrcKeySampling::getGeomID() const
+{ return is2D() ? start_.lineNr() : survid_; }
+
+
 bool TrcKeySampling::init( Pos::GeomID gid )
 {
     ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry( gid );
