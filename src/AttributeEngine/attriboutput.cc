@@ -352,9 +352,8 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars, int outidx )
     const char* res = outppar->find( scalekey() );
     if ( res )
     {
-	scaler_ = new LinScaler;
-	scaler_->fromString( res );
-	if ( scaler_->isEmpty() )
+	scaler_ = Scaler::get( res );
+	if ( scaler_ && scaler_->isEmpty() )
 	    { delete scaler_; scaler_ = 0; }
     }
 
