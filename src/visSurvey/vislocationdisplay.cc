@@ -56,13 +56,12 @@ LocationDisplay::LocationDisplay()
     , showall_( true )
     , set_( 0 )
     , manip_( this )
-    , waitsfordirectionid_(LocID::getInvalid())
-    , waitsforpositionid_(LocID::getInvalid())
+    , directionlocationid_(LocID::getInvalid())
+    , movinglocationid_(LocID::getInvalid())
     , datatransform_( 0 )
-    , pickedsobjid_(-1)
+    , pickedsurvobjid_(-1)
     , voiidx_(-1)
-    , undoloccoord_( Coord3::udf() )
-    , undomove_( false )
+    , movestartcoord_(Coord3::udf())
     , selectionmodel_(false)
     , ctrldown_(false)
 {
@@ -202,7 +201,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
     if ( !set_ || !isSelected() || !isOn() || isLocked() )
 	return;
 
-    mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, cb );
+    mCBCapsuleUnpack( const EventInfo&, eventinfo, cb );
     ctrldown_ = OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
 
     if ( eventinfo.dragging )
@@ -218,71 +217,15 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	updateDragger();
     }
 
-    const Pick::Set::Disp::Connection connection = set_->connection();
-    const bool sowerenabled = connection != Pick::Set::Disp::None;
+    const bool sowerenabled = set_->connection() != Pick::Set::Disp::None;
 
     if ( eventinfo.type == visBase::MouseDoubleClick && sowerenabled )
-    {
-	set_->setConnection( Pick::Set::Disp::Close );
-	return;
-    }
+	{ set_->setConnection( Pick::Set::Disp::Close ); return; }
 
-    if ( waitsfordirectionid_.isValid() )
-    {
-	Coord3 newpos, normal;
-	if ( getPickSurface(eventinfo,newpos,normal) )
-	{
-	    Pick::Location pl( set_->get(waitsfordirectionid_) );
-	    Coord3 dir = newpos - pl.pos();
-	    const float zscale = scene_ ? scene_->getZScale(): SI().zScale();
-	    dir.z *= -zscale; //convert to right dir-domain
-	    if ( dir.sqAbs()>=0 )
-	    {
-		pl.setDir( cartesian2Spherical(dir,true) );
-		set_->set( waitsfordirectionid_, pl );
-	    }
-	}
-
-	eventcatcher_->setHandled();
-    }
-    else if ( !waitsforpositionid_.isUdf() ) // dragging
-    {
-	// when dragging it will receive multi times coords from visevent:
-	// mouse move and mouse release. we need the last one and the begin
-	// one for undo issue
-	Coord3 newpos, normal;
-	if ( getPickSurface(eventinfo,newpos,normal) )
-	{
-	    if ( eventinfo.type==visBase::MouseClick )
-	    {
-		if ( undoloccoord_.isDefined() )
-		{
-		    Pick::Location pl( set_->get(waitsfordirectionid_) );
-		    const ::Sphere dir = pl.dir();
-		    const Pick::Location undoloc( undoloccoord_, dir );
-		    const Pick::Location newloc( newpos, dir );
-		    undomove_ = false;
-		    set_->set( waitsforpositionid_, newloc );
-		    Pick::SetMGR().addLocEvent( Pick::SetMGR().getID(*set_),
-				Pick::SetManager::LocEvent( waitsforpositionid_,
-				undoloc, newloc ) );
-		}
-	    }
-	    else
-	    {
-		Pick::Location pl = set_->get( waitsforpositionid_ );
-		if ( !undomove_ )
-		{
-		    undoloccoord_ = pl.pos();
-		    undomove_ =  true;
-		}
-		pl.setPos( newpos );
-		set_->set( waitsforpositionid_, pl );
-	    }
-	}
-
-	eventcatcher_->setHandled();
-    }
+    if ( directionlocationid_.isValid() )
+	handleDirectionEvent( eventinfo );
+    else if ( !movinglocationid_.isUdf() ) // dragging
+	handleDraggingEvent( eventinfo );
     else if ( sowerenabled && sower_->accept(eventinfo) )
 	return;
 
@@ -290,110 +233,179 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	 !OD::leftMouseButton( eventinfo.buttonstate_ ) )
 	return;
 
+    const int eventid = getEventID( eventinfo );
+    if ( eventid == -1 )
+	return;
+
+    if ( movinglocationid_.isValid() || directionlocationid_.isValid() )
+    {
+	setPickable( true ); mousepressid_ = -1;
+	movinglocationid_.setInvalid(); directionlocationid_.setInvalid();
+	return;
+    }
+
+    if ( eventinfo.pressed )
+	handleMouseDown( eventinfo, eventid, sowerenabled );
+    else
+	handleMouseUp( eventinfo, eventid );
+}
+
+
+void LocationDisplay::handleDraggingEvent( const EventInfo& evinfo )
+{
+    Coord3 newpos, normal;
+    if ( getPickSurface(evinfo,newpos,normal) )
+    {
+	if ( evinfo.type != visBase::MouseClick )
+	{
+	    // Still 'on the move'
+	    Pick::Location pl = set_->get( movinglocationid_ );
+	    if ( !movestartcoord_.isDefined() )
+		movestartcoord_ = pl.pos();
+	    pl.setPos( newpos );
+	    set_->set( movinglocationid_, pl );
+	}
+	else if ( movestartcoord_.isDefined() )
+	{
+	    // User ended move (button released)
+	    Pick::Location pl( set_->get(directionlocationid_) );
+	    const ::Sphere dir = pl.dir();
+	    const Pick::Location oldloc( movestartcoord_, dir );
+	    const Pick::Location newloc( newpos, dir );
+	    set_->set( movinglocationid_, newloc );
+	    Pick::SetMGR().addLocEvent( Pick::SetMGR().getID(*set_),
+			Pick::SetManager::LocEvent( movinglocationid_,
+			oldloc, newloc ) );
+	    movestartcoord_ = Coord3::udf();
+	}
+    }
+
+    eventcatcher_->setHandled();
+}
+
+
+void LocationDisplay::handleDirectionEvent( const EventInfo& evinfo )
+{
+    Coord3 newpos, normal;
+    if ( getPickSurface(evinfo,newpos,normal) )
+    {
+	Pick::Location pl( set_->get(directionlocationid_) );
+	Coord3 dir = newpos - pl.pos();
+	const float zscale = scene_ ? scene_->getZScale(): SI().zScale();
+	dir.z *= -zscale; //convert to right dir-domain
+	if ( dir.sqAbs()>=0 )
+	{
+	    pl.setDir( cartesian2Spherical(dir,true) );
+	    set_->set( directionlocationid_, pl );
+	}
+    }
+
+    eventcatcher_->setHandled();
+}
+
+
+int LocationDisplay::getEventID( const EventInfo& evinfo )
+{
     int eventid = -1;
-    pickedsobjid_ = -1;
-    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+    pickedsurvobjid_ = -1;
+    for ( int idx=0; idx<evinfo.pickedobjids.size(); idx++ )
     {
 	visBase::DataObject* dataobj =
-			visBase::DM().getObject( eventinfo.pickedobjids[idx] );
+			visBase::DM().getObject( evinfo.pickedobjids[idx] );
 	if ( !dataobj || dataobj == this )
 	    continue;
 
 	if ( dataobj->isPickable() )
-	    eventid = eventinfo.pickedobjids[idx];
+	    eventid = evinfo.pickedobjids[idx];
 
 	mDynamicCastGet(const SurveyObject*,so,dataobj);
 	if ( so && so->allowsPicks() )
-	    pickedsobjid_ = eventid;
+	    pickedsurvobjid_ = eventid;
 
-	if ( pickedsobjid_ != -1 )
+	if ( pickedsurvobjid_ != -1 )
 	    break;
     }
+    return eventid;
+}
 
-    if ( eventid == -1 )
-	return;
 
-    if ( waitsforpositionid_.isValid() || waitsfordirectionid_.isValid() )
+void LocationDisplay::handleMouseDown( const EventInfo& evinfo,
+					int eventid, bool sowerenabled )
+{
+    mousepressid_ = eventid;
+    if ( !OD::ctrlKeyboardButton( evinfo.buttonstate_ ) &&
+	 !OD::altKeyboardButton( evinfo.buttonstate_ ) &&
+	 !OD::shiftKeyboardButton( evinfo.buttonstate_ ) )
     {
-	setPickable( true );
-	waitsforpositionid_.setInvalid();
-	waitsfordirectionid_.setInvalid();
-	mousepressid_ = -1;
-    }
-    else if ( eventinfo.pressed )
-    {
-	mousepressid_ = eventid;
-	if ( !OD::ctrlKeyboardButton( eventinfo.buttonstate_ ) &&
-	     !OD::altKeyboardButton( eventinfo.buttonstate_ ) &&
-	     !OD::shiftKeyboardButton( eventinfo.buttonstate_ ) )
+	const int locpickidx = clickedMarkerIndex( evinfo );
+	if ( locpickidx >= 0 )
 	{
-	    const int selfpickidx = clickedMarkerIndex( eventinfo );
-	    if ( selfpickidx >= 0 )
-	    {
-		setPickable( false, false );
-		waitsforpositionid_ = set_->locIDFor( selfpickidx );
-	    }
-	    const int selfdirpickidx
-			    = isDirMarkerClick(eventinfo.pickedobjids);
-	    if ( selfdirpickidx >= 0 )
-	    {
-		waitsfordirectionid_ = set_->locIDFor( selfpickidx );
-		setPickable( false, false );
-	    }
-
-	    //Only set handled if clicked on marker. Otherwise
-	    //we may interfere with draggers.
-	    if ( selfdirpickidx>=0 || selfpickidx>=0 )
-		eventcatcher_->setHandled();
-	    else
-	    {
-		const Color& color = set_->dispColor();
-		if ( sowerenabled && sower_->activate(color, eventinfo) )
-		    return;
-	    }
+	    setPickable( false, false );
+	    movinglocationid_ = set_->locIDFor( locpickidx );
 	}
-    }
-    else
-    {
-	if ( OD::ctrlKeyboardButton( eventinfo.buttonstate_ ) &&
-	     !OD::altKeyboardButton( eventinfo.buttonstate_ ) &&
-	     !OD::shiftKeyboardButton( eventinfo.buttonstate_ ) )
+	const int dirpickidx
+			= isDirMarkerClick(evinfo.pickedobjids);
+	if ( dirpickidx >= 0 )
 	{
-	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
-	    {
-		const int removeidx = clickedMarkerIndex( eventinfo );
-		if ( removeidx >= 0 )
-		    set_->remove( set_->locIDFor(removeidx) );
-	    }
+	    directionlocationid_ = set_->locIDFor( locpickidx );
+	    setPickable( false, false );
+	}
 
+	//Only set handled if clicked on marker. Otherwise
+	//we may interfere with draggers.
+	if ( dirpickidx>=0 || locpickidx>=0 )
 	    eventcatcher_->setHandled();
-	}
-	else if ( !OD::ctrlKeyboardButton( eventinfo.buttonstate_ ) &&
-	          !OD::altKeyboardButton( eventinfo.buttonstate_ ) &&
-		  !OD::shiftKeyboardButton( eventinfo.buttonstate_ ) )
+	else
 	{
-	    if ( eventinfo.pickedobjids.size() &&
-		 eventid==mousepressid_ )
+	    const Color& color = set_->dispColor();
+	    if ( sowerenabled && sower_->activate(color,evinfo) )
+		return;
+	}
+    }
+}
+
+
+void LocationDisplay::handleMouseUp( const EventInfo& evinfo,
+					int eventid )
+{
+    if ( OD::ctrlKeyboardButton( evinfo.buttonstate_ ) &&
+	 !OD::altKeyboardButton( evinfo.buttonstate_ ) &&
+	 !OD::shiftKeyboardButton( evinfo.buttonstate_ ) )
+    {
+	if ( evinfo.pickedobjids.size() && eventid==mousepressid_ )
+	{
+	    const int removeidx = clickedMarkerIndex( evinfo );
+	    if ( removeidx >= 0 )
+		set_->remove( set_->locIDFor(removeidx) );
+	}
+
+	eventcatcher_->setHandled();
+    }
+    else if ( !OD::ctrlKeyboardButton( evinfo.buttonstate_ ) &&
+	      !OD::altKeyboardButton( evinfo.buttonstate_ ) &&
+	      !OD::shiftKeyboardButton( evinfo.buttonstate_ ) )
+    {
+	if ( evinfo.pickedobjids.size() &&
+	     eventid==mousepressid_ )
+	{
+	    Coord3 newpos, normal;
+	    if ( getPickSurface(evinfo,newpos,normal) )
 	    {
-		Coord3 newpos, normal;
-		if ( getPickSurface(eventinfo,newpos,normal) )
+		const Sphere dir = normal.isDefined()
+		    ? cartesian2Spherical(
+			    Coord3(normal.y,-normal.x,normal.z), true)
+		    : Sphere( 1, 0, 0 );
+
+		LocID locid = addPick( newpos, dir );
+		if ( locid.isValid() )
 		{
-		    const Sphere dir = normal.isDefined()
-			? cartesian2Spherical(
-				Coord3(normal.y,-normal.x,normal.z), true)
-			: Sphere( 1, 0, 0 );
-
-		    LocID locid = addPick( newpos, dir );
-		    if ( locid.isValid() )
+		    if ( hasDirection() )
 		    {
-			if ( hasDirection() )
-			{
-			    setPickable( false, false );
-			    waitsfordirectionid_ = locid;
-			}
-
-			eventcatcher_->setHandled();
+			setPickable( false, false );
+			directionlocationid_ = locid;
 		    }
+
+		    eventcatcher_->setHandled();
 		}
 	    }
 	}
@@ -401,7 +413,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 }
 
 
-bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
+bool LocationDisplay::getPickSurface( const EventInfo& evi,
 				      Coord3& newpos, Coord3& normal ) const
 {
     const int sz = evi.pickedobjids.size();
@@ -651,7 +663,13 @@ void LocationDisplay::getObjectInfo( BufferString& info ) const
 }
 
 
-void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,
+void LocationDisplay::getMousePosInfo( const EventInfo& ei, IOPar& iop ) const
+{
+    return SurveyObject::getMousePosInfo( ei, iop );
+}
+
+
+void LocationDisplay::getMousePosInfo( const EventInfo&,
 				      Coord3& pos, BufferString& val,
 				      BufferString& info ) const
 {
@@ -762,11 +780,11 @@ const ZAxisTransform* LocationDisplay::getZAxisTransform() const
 }
 
 
-int LocationDisplay::clickedMarkerIndex( const visBase::EventInfo& evi ) const
+int LocationDisplay::clickedMarkerIndex( const EventInfo& evi ) const
 { return -1; }
 
 
-bool LocationDisplay::isMarkerClick( const visBase::EventInfo& evi ) const
+bool LocationDisplay::isMarkerClick( const EventInfo& evi ) const
 {
     return false;
 }
@@ -779,15 +797,15 @@ int LocationDisplay::isDirMarkerClick( const TypeSet<int>& ) const
 void LocationDisplay::triggerDeSel()
 {
     setPickable( true );
-    waitsfordirectionid_.setInvalid();
-    waitsforpositionid_.setInvalid();
+    directionlocationid_.setInvalid();
+    movinglocationid_.setInvalid();
     VisualObject::triggerDeSel();
 }
 
 
 const SurveyObject* LocationDisplay::getPickedSurveyObject() const
 {
-    const DataObject* pickedobj = visBase::DM().getObject( pickedsobjid_ );
+    const DataObject* pickedobj = visBase::DM().getObject( pickedsurvobjid_ );
     mDynamicCastGet(const SurveyObject*,so,pickedobj);
     return so;
 }
@@ -882,13 +900,13 @@ bool LocationDisplay::usePar( const IOPar& par )
 
 
 const Coord3 LocationDisplay::getActivePlaneNormal(
-    const visBase::EventInfo& eventinfo ) const
+					const EventInfo& evinfo ) const
 {
     Coord3 normal = Coord3::udf();
-    for ( int idx = 0; idx<eventinfo.pickedobjids.size(); idx++ )
+    for ( int idx = 0; idx<evinfo.pickedobjids.size(); idx++ )
     {
 	visBase::DataObject* dataobj =
-	    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+	    visBase::DM().getObject(evinfo.pickedobjids[idx]);
 	if ( !dataobj ) continue;
 	mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
 	mDynamicCastGet( RandomTrackDisplay*, sdtd, dataobj );
@@ -900,7 +918,7 @@ const Coord3 LocationDisplay::getActivePlaneNormal(
 	}
 	if ( sdtd && sdtd->isOn() )
 	{
-	    normal = sdtd->getNormal(eventinfo.displaypickedpos).normalize();
+	    normal = sdtd->getNormal(evinfo.displaypickedpos).normalize();
 	    break;
 	}
 	if ( hord && hord->isOn() )

@@ -40,6 +40,7 @@ mExpClass(visSurvey) LocationDisplay : public visBase::VisualObjectImpl
 public:
 
     typedef Pick::Set::LocID	LocID;
+    typedef visBase::EventInfo	EventInfo;
 
     virtual void		setSet(Pick::Set*); // once!
 
@@ -58,12 +59,9 @@ public:
 
     virtual BufferString	getManipulationString() const;
     void			getObjectInfo(BufferString&) const;
-    void			getMousePosInfo(const visBase::EventInfo& ei,
-						IOPar& iop ) const
-				{ return SurveyObject::getMousePosInfo(ei,iop);}
-    virtual void		getMousePosInfo(const visBase::EventInfo&,
-						Coord3&,BufferString&,
-						BufferString&) const;
+    void			getMousePosInfo(const EventInfo&,IOPar&) const;
+    virtual void		getMousePosInfo(const EventInfo&,Coord3&,
+					    BufferString&,BufferString&) const;
     virtual bool		hasColor() const	{ return true; }
     virtual Color		getColor() const;
     virtual void		setColor(Color);
@@ -102,9 +100,8 @@ protected:
 
     virtual bool		hasDirection() const { return false; }
     virtual bool		hasText() const { return false; }
-    virtual int			clickedMarkerIndex(
-				    const visBase::EventInfo&) const;
-    virtual bool		isMarkerClick(const visBase::EventInfo&) const;
+    virtual int			clickedMarkerIndex(const EventInfo&) const;
+    virtual bool		isMarkerClick(const EventInfo&) const;
     virtual void		updateDragger() {}
     virtual void		setDraggerNormal(const Coord3&) {}
     virtual bool		draggerNormal() const { return true; }
@@ -117,13 +114,17 @@ protected:
 
     LocID			addPick(const Coord3&,const Sphere&);
 
-    bool			getPickSurface(const visBase::EventInfo&,
-					   Coord3& pos, Coord3& normal) const;
+    bool			getPickSurface(const EventInfo&,Coord3&,
+	    					Coord3&) const;
     Coord3			display2World(const Coord3&) const;
     Coord3			world2Display(const Coord3&) const;
     bool			transformPos(Pick::Location&) const;
-    const Coord3		getActivePlaneNormal(
-					      const visBase::EventInfo&) const;
+    const Coord3		getActivePlaneNormal(const EventInfo&) const;
+    void			handleDraggingEvent(const EventInfo&);
+    void			handleDirectionEvent(const EventInfo&);
+    int				getEventID(const EventInfo&);
+    void			handleMouseDown(const EventInfo&,int,bool);
+    void			handleMouseUp(const EventInfo&,int);
 
     void			pickCB(CallBacker*);
     void			setChgCB(CallBacker*);
@@ -133,14 +134,15 @@ protected:
 
     RefMan<Pick::Set>		set_;
     Notifier<LocationDisplay>	manip_;
-    LocID			waitsfordirectionid_;
-    LocID			waitsforpositionid_;
+
+    LocID			directionlocationid_;
+    LocID			movinglocationid_;
+    Coord3			movestartcoord_;
 
     TypeSet<int>		invalidpicks_;
-
     bool			showall_;
     int				mousepressid_;
-    int				pickedsobjid_; //!< Picked SurveyObject ID
+    int				pickedsurvobjid_;
     int				voiidx_;
     bool			ctrldown_;
     ObjectSet< Selector<Coord3> > selectors_;
@@ -156,8 +158,6 @@ protected:
     static const char*		sKeyMarkerSize();
 
     Sower*			sower_;
-    Coord3			undoloccoord_;
-    bool			undomove_;
     bool			selectionmodel_;
 
 };
