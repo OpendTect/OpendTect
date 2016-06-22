@@ -379,6 +379,7 @@ public:
     static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiString sPrevious()		{ return tr("Previous"); }
     static uiString sProcessing()	{ return tr("Processing"); }
+    static uiString sProcessingPars()	{ return tr("Processing parameters"); }
     static uiString sProbDensFunc(bool abbrevation=false, int num=1);
     static uiString sProgram()		{ return tr("Program"); }
     static uiString sProperties();
