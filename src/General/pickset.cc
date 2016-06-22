@@ -55,6 +55,7 @@ void Pick::Set::copyClassData( const Set& oth )
     locids_.copy( oth.locids_ );
     disp_ = oth.disp_;
     pars_ = oth.pars_;
+    curlocidnr_ = oth.curlocidnr_;
 }
 
 
@@ -372,6 +373,31 @@ Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
 }
 
 
+bool Pick::Set::removeWithPolygon( const ODPolygon<double>& wpoly, bool inside )
+{
+    RefMan<Pick::Set> workps = new Pick::Set( *this );
+    Pick::SetIter4Edit psiter( *workps, false );
+
+    int nrchgs = 0;
+    while ( psiter.prev() )
+    {
+	const Coord pos( psiter.get().pos() );
+	if ( !pos.isDefined() || inside == wpoly.isInside(pos,true,1e-3) )
+	    { psiter.removeCurrent(false); nrchgs++; }
+    }
+    psiter.retire();
+
+    if ( nrchgs > 0 )
+    {
+	*this = *workps;
+	return true;
+    }
+
+    return false;
+}
+
+
+
 void Pick::Set::fillPar( IOPar& par ) const
 {
     mLock4Read();
@@ -451,8 +477,12 @@ Pick::Set& Pick::Set::append( const Set& oth )
     {
 	mLock4Write();
 	MonitorLock monlock( oth );
-	locs_.append( oth.locs_ );
-	locids_.append( oth.locids_ );
+	for ( int idx=0; idx<oth.locids_.size(); idx++ )
+	{
+	    locs_.add( oth.locs_[idx] );
+	    const LocID newlocid = LocID::get( curlocidnr_++ );
+	    locids_.add( newlocid );
+	}
 	monlock.unlockNow();
 	mSendEntireObjChgNotif();
     }

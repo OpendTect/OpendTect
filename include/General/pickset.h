@@ -95,6 +95,8 @@ public:
     LocID		find(const TrcKey&) const;
     LocID		nearestLocation(const Coord&) const;
     LocID		nearestLocation(const Coord3&,bool ignorez=false) const;
+    bool		removeWithPolygon(const ODPolygon<double>&,
+					  bool inside=true);
 
     mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,0)
     void		fillPar(IOPar&) const;

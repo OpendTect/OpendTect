@@ -326,8 +326,8 @@ inline T Monitorable::getMemberSimple( const T& memb ) const
 }
 
 template <class TMember,class TSetTo>
-inline void Monitorable::setMemberSimple( TMember& memb, TSetTo setto, int typ,
-					  IDType id )
+inline void Monitorable::setMemberSimple( TMember& memb, TSetTo setto,
+					  ChangeType typ, IDType id )
 {
     mLock4Read();
     if ( memb == setto )

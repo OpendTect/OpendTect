@@ -73,7 +73,7 @@ void Pick::SetManager::setEmpty()
 
 
 template <class RefManType,class SetType>
-RefManType Pick::SetManager::doFetch( const SetID& id, uiRetVal& errmsg,
+RefManType Pick::SetManager::doFetch( const SetID& id, uiRetVal& uirv,
 				      const char* cat ) const
 {
     mLock4Read();
@@ -90,7 +90,7 @@ RefManType Pick::SetManager::doFetch( const SetID& id, uiRetVal& errmsg,
 	return RefManType( gtSet(id) );		// now loaded
     }
 
-    errmsg = loader.errMsgs();
+    uirv = loader.errMsgs();
     return RefManType( 0 );
 }
 
@@ -112,9 +112,9 @@ ConstRefMan<Pick::Set> Pick::SetManager::fetch( const SetID& id ) const
 
 
 ConstRefMan<Pick::Set> Pick::SetManager::fetch( const SetID& id,
-				    uiRetVal& errmsg, const char* cat ) const
+				    uiRetVal& uirv, const char* cat ) const
 {
-    return doFetch<ConstRefMan<Set>,const Set>( id, errmsg, cat );
+    return doFetch<ConstRefMan<Set>,const Set>( id, uirv, cat );
 }
 
 
@@ -126,9 +126,9 @@ RefMan<Pick::Set> Pick::SetManager::fetchForEdit( const SetID& id )
 
 
 RefMan<Pick::Set> Pick::SetManager::fetchForEdit( const SetID& id,
-				    uiRetVal& errmsg, const char* cat )
+				    uiRetVal& uirv, const char* cat )
 {
-    return doFetch<RefMan<Set>,Set>( id, errmsg, cat );
+    return doFetch<RefMan<Set>,Set>( id, uirv, cat );
 }
 
 

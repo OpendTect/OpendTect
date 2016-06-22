@@ -165,6 +165,8 @@ int uiAutoSave2RealObjDlg::run4All( const char* hnm, const char* unm )
 	FileMultiString fms( ioobj.pars().find( sKey::CrInfo() ) );
 	const int pid( fms.getIValue(1) );
 	const BufferString hostnm( fms[0] );
+	//TODO check whether another instance of OD is currently running on
+	// this machine that produced this auto-saved object
 	if ( hostnm == localhostnm && pid == GetPID() )
 	    continue;
 	else if ( !reqhostnm.isEmpty() && reqhostnm != hostnm )
