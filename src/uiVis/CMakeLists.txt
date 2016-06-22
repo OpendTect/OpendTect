@@ -11,7 +11,7 @@ set(OD_MODULE_SOURCES
 	uiattribtransdlg.cc
 	uifltdispoptgrp.cc
 	uigridlinesdlg.cc
-	uimarkerstyledlg.cc
+	uivismarkerstyledlg.cc
 	uimaterialdlg.cc
 	uimpeman.cc
 	uipickpropdlg.cc

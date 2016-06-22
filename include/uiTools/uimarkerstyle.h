@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 #include "draw.h"
+#include "typeset.h"
 
 class uiColorInput;
 class uiGenInput;
@@ -23,6 +24,7 @@ class uiSlider;
 mExpClass(uiTools) uiMarkerStyle : public uiGroup
 { mODTextTranslationClass(uiMarkerStyle)
 public:
+
     Color		getColor() const;
     int			getSize() const;
 
@@ -30,53 +32,55 @@ public:
     NotifierAccess*	typeSel();
     NotifierAccess*	colSel();
 
+    static int		cDefMaxMarkerSize()	{ return 18; }
+
 protected:
-			uiMarkerStyle(uiParent*,bool withcolor,
-				const Interval<int>& sizerange);
+
+			uiMarkerStyle(uiParent*);
 
     uiSlider*		sizefld_;
     uiGenInput*		typefld_;
     uiColorInput*	colselfld_;
+
+    TypeSet<int>	types_;
+    void		createFlds(const uiStringSet&,bool withcolor,
+				   const Interval<int>& szrg);
+    void		setMStyle(int typ,int sz, const Color&);
 };
 
 
 mExpClass(uiTools) uiMarkerStyle2D : public uiMarkerStyle
 { mODTextTranslationClass(uiMarkerStyle2D)
 public:
+
 			uiMarkerStyle2D(uiParent*,bool withcolor,
-				const Interval<int>& sizerange,
-				int nrexcluded=0,
-				const OD::MarkerStyle2D::Type* excluded=0);
+				Interval<int> sizerange
+				    =Interval<int>(1,cDefMaxMarkerSize()),
+				const TypeSet<OD::MarkerStyle2D::Type>* excl=0);
 
     OD::MarkerStyle2D::Type getType() const;
 
     void		setMarkerStyle(const OD::MarkerStyle2D& style);
     void		getMarkerStyle(OD::MarkerStyle2D& style) const;
 
-protected:
-
-    void		finalizeDone(CallBacker*);
-    EnumDefImpl<OD::MarkerStyle2D::Type> markertypedef_;
 };
 
 
 mExpClass(uiTools) uiMarkerStyle3D : public uiMarkerStyle
 { mODTextTranslationClass(uiMarkerStyle3D)
 public:
+
 			uiMarkerStyle3D(uiParent*,bool withcolor,
-				const Interval<int>& sizerange,
-				int nrexcluded=0,
-				const OD::MarkerStyle3D::Type* excluded=0);
+				Interval<int> sizerange
+				    =Interval<int>(1,cDefMaxMarkerSize()),
+				const TypeSet<OD::MarkerStyle3D::Type>* excl=0);
 
     OD::MarkerStyle3D::Type getType() const;
 
-    void		setMarkerStyle(const OD::MarkerStyle3D& style);
-    void		getMarkerStyle(OD::MarkerStyle3D& style) const;
+    void		setMarkerStyle(const OD::MarkerStyle3D&);
+    void		getMarkerStyle(OD::MarkerStyle3D&) const;
 
-protected:
-
-    void		finalizeDone(CallBacker*);
-    EnumDefImpl<OD::MarkerStyle3D::Type> markertypedef_;
 };
+
 
 #endif

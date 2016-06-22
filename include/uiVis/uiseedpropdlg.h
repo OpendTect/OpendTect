@@ -11,12 +11,12 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
-#include "uimarkerstyledlg.h"
+#include "uivismarkerstyledlg.h"
 #include "emobject.h"
 
 class uiColorInput;
 
-mExpClass(uiVis) uiSeedPropDlg : public uiMarkerStyleDlg
+mExpClass(uiVis) uiSeedPropDlg : public uiVisMarkerStyleDlg
 { mODTextTranslationClass(uiSeedPropDlg);
 public:
 			uiSeedPropDlg(uiParent*,EM::EMObject*);

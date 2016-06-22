@@ -44,7 +44,8 @@ static int defnrpicks_ = 500;
 static int defsize_ = 3;
 static const char* sGeoms2D[] = { "Z Range", "On Horizon",
 				  "Between Horizons", 0 };
-static const OD::MarkerStyle3D::Type msnoneexcl[] = { OD::MarkerStyle3D::None };
+static const TypeSet<OD::MarkerStyle3D::Type>
+		exclude_none( 1, OD::MarkerStyle3D::None );
 
 
 uiNewPickSetDlg::uiNewPickSetDlg( uiParent* p, bool ispoly, const char* cat )
@@ -59,8 +60,9 @@ uiNewPickSetDlg::uiNewPickSetDlg( uiParent* p, bool ispoly, const char* cat )
 		tr("Name for new %1").arg(ispolygon_ ? uiStrings::sPolygon() :
 						       uiStrings::sPickSet()) );
 
-    markerstylefld_ = new uiMarkerStyle3D( this, true, Interval<int>(1,99),
-			ispolygon_ ? 0 : 1, ispolygon_ ? 0 : msnoneexcl  );
+    markerstylefld_ = new uiMarkerStyle3D( this, true,
+		    Interval<int>(1,uiMarkerStyle3D::cDefMaxMarkerSize()),
+		    ispolygon_ ? 0 : &exclude_none  );
     OD::MarkerStyle3D mstyle;
     mstyle.type_ = OD::MarkerStyle3D::Sphere;
     mstyle.size_ = defsize_;

@@ -1,5 +1,5 @@
-#ifndef uimarkerstyledlg_h
-#define uimarkerstyledlg_h
+#ifndef uivismarkerstyledlg_h
+#define uivismarkerstyledlg_h
 /*+
 ________________________________________________________________________
 
@@ -15,11 +15,11 @@ ________________________________________________________________________
 
 class uiMarkerStyle3D;
 
-mExpClass(uiVis) uiMarkerStyleDlg : public uiDialog
-{ mODTextTranslationClass(uiMarkerStyleDlg);
+mExpClass(uiVis) uiVisMarkerStyleDlg : public uiDialog
+{ mODTextTranslationClass(uiVisMarkerStyleDlg);
 protected:
 
-			uiMarkerStyleDlg(uiParent*,const uiString& title);
+			uiVisMarkerStyleDlg(uiParent*,const uiString& title);
 
     uiMarkerStyle3D*	stylefld_;
 

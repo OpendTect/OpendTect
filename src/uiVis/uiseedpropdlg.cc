@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 
 uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject* emobj )
-    : uiMarkerStyleDlg( p, tr("Seed properties") )
+    : uiVisMarkerStyleDlg( p, tr("Seed properties") )
     , emobject_( emobj )
     , markerstyle_(emobject_->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()))
 {
