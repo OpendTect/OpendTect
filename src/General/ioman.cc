@@ -461,14 +461,14 @@ bool IOMan::setRootDir( const char* dirnm )
 
 
 #define mGoTo(where,forcereread) \
-    goTo( where, forcereread, accesslockhandler_ )
+    goTo( where, forcereread, mAccessLockHandler() )
 #define mSendNewIODirNotif() \
     mSendChgNotif( cNewIODirChangeType(), 0 ); \
     self.newIODir.trigger()
 
 
 bool IOMan::goTo( const IOSubDir* sd, bool forcereread,
-		    AccessLockHandler& accesslockhandler_ ) const
+		    AccessLockHandler& mAccessLockHandler() ) const
 {
     if ( gtIsBad() )
     {
@@ -540,7 +540,7 @@ static int gtLevelOf( const char* dirnm, int startat )
 
 
 bool IOMan::goTo( const MultiID& ky, bool forcereread,
-		    AccessLockHandler& accesslockhandler_ ) const
+		    AccessLockHandler& mAccessLockHandler() ) const
 {
     if ( rootdir_.isEmpty() )
 	return false;
@@ -560,7 +560,7 @@ bool IOMan::goTo( const MultiID& ky, bool forcereread,
 
     bool sendnotif = dirptr_;
     IOMan& self = *const_cast<IOMan*>( this );
-    accesslockhandler_.convertToWrite();
+    mAccessLockHandler().convertToWrite();
     if ( dirptr_ )
 	delete self.dirptr_;
     self.dirptr_ = newdir;

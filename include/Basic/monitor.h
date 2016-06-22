@@ -244,6 +244,7 @@ protected:
 #define mLock2Write() accesslockhandler_.convertToWrite()
 #define mReLock() accesslockhandler_.reLock()
 #define mUnlockAllAccess() accesslockhandler_.unlockNow()
+#define mAccessLockHandler() accesslockhandler_
 #define mSendChgNotif(typ,id) sendChgNotif(accesslockhandler_,typ,id)
 #define mSendEntireObjChgNotif() \
     mSendChgNotif( cEntireObjectChangeType(), cEntireObjectChangeID() )
@@ -333,8 +334,7 @@ inline void Monitorable::setMemberSimple( TMember& memb, TSetTo setto,
     if ( memb == setto )
 	return; // common
 
-    mLock2Write();
-    if ( !(memb == setto) ) // someone may have beat me to it!
+    if ( mLock2Write() || !(memb == setto) )
     {
 	memb = setto;
 	mSendChgNotif( typ, id );

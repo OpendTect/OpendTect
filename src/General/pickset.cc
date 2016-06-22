@@ -491,7 +491,7 @@ Pick::Set& Pick::Set::append( const Set& oth )
 
 
 Pick::Set::LocID Pick::Set::insNewLocID( IdxType idx,
-					AccessLockHandler& accesslockhandler_ )
+				    AccessLockHandler& mAccessLockHandler() )
 {
     const LocID newlocid = LocID::get( curlocidnr_++ );
     locids_.insert( idx, newlocid );
@@ -506,7 +506,7 @@ Pick::Set::LocID Pick::Set::add( const Location& loc )
     mLock4Write();
 
     locs_ += loc;
-    return insNewLocID( locids_.size(), accesslockhandler_ );
+    return insNewLocID( locids_.size(), mAccessLockHandler() );
 }
 
 
@@ -528,7 +528,7 @@ Pick::Set::LocID Pick::Set::insertBefore( LocID id, const Location& loc )
     }
 
     locs_.insert( idx, loc );
-    return insNewLocID( idx, accesslockhandler_ );
+    return insNewLocID( idx, mAccessLockHandler() );
 }
 
 
@@ -580,7 +580,7 @@ Pick::Set::LocID Pick::Set::remove( LocID id )
 	return LocID::getInvalid();
 
     mSendChgNotif( cLocationRemove(), id.getI() );
-    accesslockhandler_.reLock();
+    mReLock();
 
     idx = gtIdxFor( id );
     if ( !mLock2Write() )

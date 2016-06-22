@@ -86,7 +86,7 @@ RefManType Pick::SetManager::doFetch( const SetID& id, uiRetVal& uirv,
     mUnlockAllAccess();
     if ( loader.load() )
     {
-	accesslockhandler_.reLock();
+	mReLock();
 	return RefManType( gtSet(id) );		// now loaded
     }
 
