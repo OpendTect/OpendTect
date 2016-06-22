@@ -224,8 +224,6 @@ bool ColTab::MapperSetup::usePar( const IOPar& par )
 
     flipseq_ = false;
     par.getYN( sKeyFlipSeq(), flipseq_ );
-    if ( type_==Auto )
-	range_ = Interval<float>::udf();
 
     return par.get( sKeySymMidVal(), symmidval_ ) &&
 	   par.getYN( sKeyAutoSym(), autosym0_ );

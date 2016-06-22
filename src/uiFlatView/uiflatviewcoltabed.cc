@@ -49,8 +49,10 @@ void uiFlatViewColTabEd::setColTab( const FlatView::DataDispPars::VD& vdpars )
 void uiFlatViewColTabEd::colTabChanged( CallBacker* )
 {
     vdpars_.ctab_ = uicoltab_.colTabSeq().name();
+    const bool needrescale =
+	vdpars_.mappersetup_.needsReClip( uicoltab_.colTabMapperSetup() );
     uicoltab_.getDispPars( vdpars_ );
-    if ( vdpars_.mappersetup_.type_ != ColTab::MapperSetup::Fixed )
+    if ( needrescale )
 	vdpars_.mappersetup_.range_ = Interval<float>::udf();
     colTabChgd.trigger();
 }
