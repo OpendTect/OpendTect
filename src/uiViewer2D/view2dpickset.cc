@@ -135,10 +135,11 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
     mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
     if ( !regfdp && !randfdp ) return;
 
-    TypeSet<int> vw2dpsidxs;
-    for ( int idx=0; idx<pickset_->size(); idx++ )
+    TypeSet<Pick::Set::LocID> vw2dlocids;
+    Pick::SetIter psiter( *pickset_ );
+    while ( psiter.next() )
     {
-	const Pick::Location pl = pickset_->get( idx );
+	const Pick::Location& pl = psiter.get();
 	if ( regfdp )
 	{
 	    const TrcKeyZSampling& vwr2dtkzs = regfdp->sampling();
@@ -171,19 +172,20 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	else if ( randfdp->getPath().indexOf(pl.trcKey())<0 )
 	    continue;
 
-	vw2dpsidxs += idx;
+	vw2dlocids += psiter.ID();
     }
+
+    psiter.retire();
 
     const TypeSet<int>&	selpts = editor->getSelPtIdx();
     for ( int idx=0; idx<selpts.size(); idx++ )
     {
 	const int locidx = selpts[idx];
 	if ( !picks_[editoridx]->poly_.validIdx(locidx) ||
-	     !vw2dpsidxs.validIdx(locidx) )
+	     !vw2dlocids.validIdx(locidx) )
 	    continue;
 
-	const int pickidx = vw2dpsidxs[locidx];
-	pickset_->remove( pickset_->locIDFor(pickidx) );
+	pickset_->remove( vw2dlocids[locidx] );
     }
 }
 
