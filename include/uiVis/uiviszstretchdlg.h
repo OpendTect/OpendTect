@@ -51,8 +51,8 @@ protected:
 
     void		updateSliderValues(int);
     visSurvey::Scene*	getSelectedScene() const;
-    const float		getSelectedSceneZStretch() const;
-    const float		getSelectedSceneUiFactor() const;
+    float		getSelectedSceneZStretch() const;
+    float		getSelectedSceneUiFactor() const;
 
     void		doFinalise(CallBacker*);
     bool		acceptOK(CallBacker*);

@@ -71,13 +71,13 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	scenenms.add( uiStrings::sAll() );
 	for ( int idx=0; idx<sceneids_.size(); idx++ )
 	{
-	    mDynamicCastGet(visSurvey::Scene*,scene,
+	    mDynamicCastGet(visSurvey::Scene*,thescene,
 			    visBase::DM().getObject(sceneids_[idx]))
-	    scenenms.add( scene->name() );
+	    scenenms.add( thescene->name() );
 	    if ( idx>0 )
 	    {
 		const float initslval =
-		    scene->getFixedZStretch()*scene->getTempZStretch();
+		    thescene->getFixedZStretch()*thescene->getTempZStretch();
 		*zstretches_.getParam( this ) += initslval;
 	    }
 	}
@@ -319,7 +319,7 @@ visSurvey::Scene* uiZStretchDlg::getSelectedScene() const
 }
 
 
-const float uiZStretchDlg::getSelectedSceneZStretch() const 
+float uiZStretchDlg::getSelectedSceneZStretch() const 
 {
     const visSurvey::Scene* scene = getSelectedScene();
     if ( !scene )
@@ -328,7 +328,7 @@ const float uiZStretchDlg::getSelectedSceneZStretch() const
 }
 
 
-const float uiZStretchDlg::getSelectedSceneUiFactor() const
+float uiZStretchDlg::getSelectedSceneUiFactor() const
 {
     const visSurvey::Scene* scene = getSelectedScene();
     if ( !scene )
