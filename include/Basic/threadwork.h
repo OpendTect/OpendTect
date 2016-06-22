@@ -73,6 +73,9 @@ public:
 
     bool			addWork(TypeSet<Work>&, int queueid = -1,
 					bool firstinline = false);
+				/*!<Will wait for all work to be finished.
+				   \returns true if all Work was completed
+				   	    without error.*/
 
     bool			executeWork( Work*, int sz, int queueid = -1,
 					bool firstinline = false );
