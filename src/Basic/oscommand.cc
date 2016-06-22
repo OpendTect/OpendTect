@@ -520,14 +520,12 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     if ( pars.needmonitor_ )
     {
 	monitorfnm_ = pars.monitorfnm_;
-
-#ifdef __win__
 	if ( monitorfnm_.isEmpty() )
 	{
 	    monitorfnm_ = FilePath::getTempName("txt");
 	    redirectoutput_ = true;
 	}
-#endif
+
 	if ( File::exists(monitorfnm_) && !File::remove(monitorfnm_) )
 	    return false;
     }

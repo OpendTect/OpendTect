@@ -355,6 +355,9 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	    .needmonitor( bpi.uitype_ == BatchProgInfo::NoUI )
 	    .isconsoleuiprog( bpi.uitype_ == BatchProgInfo::TxtUI )
 	    .createstreams( bpi.uitype_ == BatchProgInfo::NoUI );
+    if ( pil_[selidx] && !inplst.size() &&
+	 pil_[selidx]->uitype_==BatchProgInfo::NoUI )
+	execpars.prioritylevel_ = 0;
 
     OS::MachineCommand mc( BufferString(prognm," ",args) );
     OS::CommandLauncher cl( mc );
