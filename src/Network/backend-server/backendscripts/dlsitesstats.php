@@ -87,8 +87,6 @@ foreach ( $tables AS $table )
 	}
     }
     
-    echo "$table: $nrsystems $nrrows\n";
-
     $result->close(); 
 
     $platforms = read_field_value_counts( $mysqli, $table, 'platform' );
@@ -98,39 +96,88 @@ foreach ( $tables AS $table )
     $tablestats = array( 'platforms' => $platforms,
   			 'countries' => $countries,
 			 'cpuavg' => $cpuavg,
-			 'memavg' => $memavg );
+			 'memavg' => $memavg,
+			 'nrrows' => $nrrows,
+			 'nrsystems' => $nrsystems );
 
     //Sort array in to get high values first
     arsort( $countries );
 
     $allcountries = array_unique( array_merge( $allcountries, array_keys( $countries ) ) );
+    $stats[$table] = $tablestats;
 }
 
 $platforms = array( "lux32", "lux64", "mac", "win32", "win64" );
 
 echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" ';
 echo '"http://www.w3.org/TR/html4/loose.dtd">'."\n";
-echo '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">'."\n";
-echo '<title>OpendTect platform & usage statistics</title>';
-echo '<link rel="stylesheet" href="dlsitesstats.css" type="text/css" /></head><body>'."\n";
+echo "<html>\n";
+echo " <head>\n";
+echo '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">'."\n";
+echo '  <title>OpendTect platform & usage statistics</title>'."\n";
+echo '  <link rel="stylesheet" href="dlsitesstats.css" type="text/css" />'."\n";
+echo " </head>\n";
+echo " <body>\n";
 
-echo "<table>";
+echo "  <table>\n";
 
 //Print header
-echo "<tr>";
-echo '<th colspan="2"></th><th colspan="'.count( $platforms ).'">Platforms</th>'."\n";
-echo '<th colspan="2">System stats</th>'."\n";
-echo '<th colspan="'.count( $allcountries ).'">Countries</th>'."\n";
-echo "<tr><th>Period</th><th>Unique systems</th>\n";
+echo "   <tr>";
+echo '    <th colspan="2"></th>'."\n";
+echo '    <th colspan="'.count( $platforms ).'">Platforms</th>'."\n";
+echo '    <th colspan="2">System stats</th>'."\n";
+echo '    <th colspan="'.count( $allcountries ).'">Countries</th>'."\n";
+echo "   <tr>\n";
+echo "    <th>Period</th>\n";
+echo "    <th>Unique systems</th>\n";
 foreach ( $platforms as $platform )
-    echo "<th>$platform</th>\n";
+    echo "    <th>$platform</th>\n";
 
-echo "<th>Average memory (Kb)</th><th>Average nr cpus</th>\n";
+echo "    <th>Average memory (Kb)</th><th>Average nr cpus</th>\n";
 
 foreach ( $allcountries as $country )
-    echo "<th>".ucfirst( $country )."</th>\n";
+    echo "    <th>".ucfirst( $country )."</th>\n";
 
-echo "</tr>\n";
+echo "   </tr>\n";
+
+
+foreach ( $stats as $periodkey => $periodstats )
+{
+    echo "   <tr>\n";
+    echo "    <td>$periodkey</td>\n";
+    echo "    <td>".$periodstats['nrsystems']."</td>\n";
+
+    $nrrows = $periodstats['nrrows'];
+
+    foreach ( $platforms as $platform )
+    {
+	echo "    <td>";
+	echo number_format($periodstats['platforms'][$platform]/$nrrows*100,1);
+	echo "</dh>\n";
+    }
+
+    echo "    <td>".$periodstats['memavg']."</td>\n";
+    echo "    <td>".$periodstats['cpuavg']."</td>\n";
+
+    foreach ( $allcountries as $country )
+    {
+	echo "    <td>";
+        if ( array_key_exists( $country, $periodstats['countries'] ) )
+	{
+	    echo number_format($periodstats['countries'][$country]/$nrrows*100,1);
+	}
+	echo "</td>\n";
+    }
+    echo "   </tr>\n";
+}
+
+echo "  </table>\n";
+echo " </body>\n";
+echo "</html>\n";
+
+
+
+
 
 
 
