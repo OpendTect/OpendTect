@@ -76,9 +76,9 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	    scenenms.add( thescene->name() );
 	    if ( idx>0 )
 	    {
-		const float initslval =
+		const float inival =
 		    thescene->getFixedZStretch()*thescene->getTempZStretch();
-		*zstretches_.getParam( this ) += initslval;
+		*zstretches_.getParam( this ) += inival;
 	    }
 	}
 
@@ -210,8 +210,6 @@ bool uiZStretchDlg::acceptOK( CallBacker* )
 
     int sceneidx = scenefld_ ? scenefld_->box()->currentItem()-1 : 0;
     if ( sceneidx<0 ) sceneidx=0;
-    mDynamicCastGet( visSurvey::Scene*, scene,
-	visBase::DM().getObject(sceneids_[sceneidx]) );
 
     const bool stretchall = scenefld_ && scenefld_->box()->currentItem()==0;
     if ( stretchall )
