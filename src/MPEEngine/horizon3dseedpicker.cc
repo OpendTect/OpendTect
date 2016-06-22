@@ -53,7 +53,7 @@ bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
     addedseed_ = seed;
     if ( !sowermode_ )
 	seedToBeAddedRemoved.trigger();
-
+    
     if ( blockpicking_ )
 	return true;
 
@@ -246,12 +246,12 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& start,
 					     bool startwasdefined,
 					     bool eraseonly )
 {
+    trackbounds_.erase();
+    junctions_.erase();
+
     BinID dir;
     if ( !lineTrackDirection(dir) )
 	return retrackFromSeedSet(); // track on Rdl
-
-    trackbounds_.erase();
-    junctions_.erase();
 
     if ( engine().activeVolume().hsamp_.includes(start) )
     {
