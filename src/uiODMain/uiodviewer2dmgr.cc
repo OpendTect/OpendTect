@@ -79,6 +79,7 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     tifs2d_->addFactory( new uiODVW2DVariableDensityTreeItemFactory, 2000 );
     tifs2d_->addFactory( new uiODVw2DHor2DTreeItemFactory, 3000 );
     tifs2d_->addFactory( new uiODVw2DFaultSS2DTreeItemFactory, 4000 );
+    tifs2d_->addFactory( new uiODVw2DPickSetTreeItemFactory, 5000 );
 
     // for relevant 3D datapack
     tifs3d_->addFactory( new uiODVW2DWiggleVarAreaTreeItemFactory, 1500 );

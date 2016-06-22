@@ -47,14 +47,14 @@ protected:
     void		dataChangedCB(CallBacker*);
     MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
     void		triggerDeSel();
-    void		updateSetIdx(const TrcKeyZSampling&);
-    void		updateSetIdx(const TrcKeyPath&);
+    mDeprecated void	updateSetIdx(const TrcKeyZSampling&);
+    mDeprecated void	updateSetIdx(const TrcKeyPath&);
 
     Pick::Set*			pickset_;
     bool			isselected_;
     Notifier<VW2DPickSet>	deselected_;
-    bool			isownremove_;
-    TypeSet<int>		picksetidxs_;
+    bool			isownremove_; //deprecated
+    TypeSet<int>		picksetidxs_; //deprecated
     TypeSet<int>		auxids_;
 
     ObjectSet<FlatView::AuxData>	picks_;
