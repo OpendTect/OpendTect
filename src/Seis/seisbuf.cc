@@ -266,10 +266,10 @@ int SeisTrcBuf::find( const BinID& binid, bool is2d ) const
     {
 	if ( ((SeisTrcBuf*)this)->get(idx)->info().binID() == binid )
 	    return idx;
-	/*TODO check & remove if unnecesary
-	  else if ( is2d &&
+	else if ( is2d &&
 		  ((SeisTrcBuf*)this)->get(idx)->info().nr_ == binid.crl() )
-	    return idx;*/
+	    return idx;
+
 	if ( pos < 0 ) pos = -pos;
 	else	       pos = -pos-1;
 	idx = startidx + pos;
