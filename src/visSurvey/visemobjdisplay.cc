@@ -717,7 +717,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 	const Coord3 pos = emobject_->getPos( (*pids)[idx] );
 	if ( !pos.isDefined() )
 	    continue;
-	markerset->addPos( pos, false );
+	const int mkpos = markerset->addPos( pos, false );
 	Color clr = emobject_->getPosAttrMarkerStyle(attrib).color_;
 
 	if ( hor3d )
@@ -726,7 +726,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 	    if ( hor3d->isNodeLocked(TrcKey(pickedbid)) )
 		 clr = hor3d->getLockColor();
 	}
-	markerset->getMaterial()->setColor( clr, idx );
+	markerset->getMaterial()->setColor( clr, mkpos );
     }
 
     markerset->turnAllMarkersOn( true );
