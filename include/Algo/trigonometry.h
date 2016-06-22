@@ -27,23 +27,52 @@ inline void interpolateOnTriangle2D( const Coord pt,
 			const Coord a, const Coord b, const Coord c,
 			double& weight_a, double& weight_b, double& weight_c )
 {
-    const Coord d0 = b-a;
-    const Coord d1 = pt-a;
-    const Coord d2 = b-c;
-    const double para_pt = (d0.x*d2.y-d0.y*d2.x) / (d1.x*d2.y-d1.y*d2.x);
-    const double para_bc = (d1.x*d0.y-d1.y*d0.x) / (d1.x*d2.y-d1.y*d2.x);
+    const Coord3 ba = Coord3(b-a,0.);
+    const Coord3 ca = Coord3(c-a,0.);
+    const double triarea = ba.cross( ca ).abs()*0.5;
 
-    if ( mIsZero(para_pt, 1e-5) )
+    const Coord3 pa = Coord3(pt-a,0.);
+    const Coord3 pb = Coord3(pt-b,0.);
+    const Coord3 pc = Coord3(pt-c,0.);
+
+    if ( mIsZero(triarea,1e-8) )
     {
-	weight_a = 1.;
-	weight_b = 0.;
-	weight_c = 0.;
-	return;
-    }
+	const double distpa = pa.abs();
+	if ( mIsZero(distpa,1e-8) )
+	{
+	    weight_a = 1.; weight_b = 0.; weight_c = 0.;
+	    return;
+	}
 
-    weight_a = 1.-1./para_pt;
-    weight_b = (1.-para_bc)/para_pt;
-    weight_c = para_bc/para_pt;
+	const double distpb = pb.abs();
+	if ( mIsZero(distpb,1e-8) )
+	{
+	    weight_a = 0.; weight_b = 1.; weight_c = 0.;
+	    return;
+	}
+
+	const double distpc = pc.abs();
+	if ( mIsZero(distpc,1e-8) )
+	{
+	    weight_a = 0.; weight_b = 0.; weight_c = 1.;
+	    return;
+	}
+
+	const double totalinversedist = 1./distpa + 1./distpb + 1./distpc;
+	weight_a = 1./(distpa*totalinversedist);
+	weight_b = 1./(distpb*totalinversedist);
+	weight_c = 1./(distpc*totalinversedist);
+    }
+    else
+    {
+	const double triareapab = pa.cross( pb ).abs()*0.5;
+	const double triareapac = pa.cross( pc ).abs()*0.5;
+	const double triareapcb = pc.cross( pb ).abs()*0.5;
+
+	weight_a = triareapcb / triarea;
+	weight_b = triareapac / triarea;
+	weight_c = triareapab / triarea;
+    }
 }
 
 
