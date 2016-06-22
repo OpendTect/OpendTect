@@ -13,6 +13,9 @@ ________________________________________________________________________
 #include "uivismod.h"
 #include "uidialog.h"
 
+namespace visSurvey
+{ class Scene; }
+
 class uiCheckBox;
 class uiLabeledComboBox;
 class uiSlider;
@@ -38,13 +41,22 @@ protected:
     uiButton*		vwallbut_;
 
     TypeSet<int>	sceneids_;
+    TypeSet<float>	zstretches_;
+    TypeSet<float>	initzstretches_;
+
     float		initslval_;
     float		uifactor_;
     bool		valchgd_;
 
     static uiString	sZStretch() { return tr( "Z stretch" ); }
-    void		setZStretch(float,bool permanent);
-    void		updateSliderValues();
+    void		setZStretch(visSurvey::Scene*,float,bool permanent);
+    void		setOneZStretchToAllScenes(float,bool permanent);
+    void		setZStretchesToScenes(TypeSet<float>&,bool permanent);
+
+    void		updateSliderValues(int);
+    visSurvey::Scene*	getSelectedScene() const;
+    const float		getSelectedSceneZStretch() const;
+    const float		getSelectedSceneUiFactor() const;
 
     void		doFinalise(CallBacker*);
     bool		acceptOK(CallBacker*);
@@ -52,6 +64,7 @@ protected:
     void		sliderMove(CallBacker*);
     void		butPush(CallBacker*);
     void		sceneSel(CallBacker*);
+
 };
 
 #endif
