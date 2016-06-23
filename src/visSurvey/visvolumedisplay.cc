@@ -1095,6 +1095,8 @@ bool VolumeDisplay::setDataVolume( int attrib,
     if ( !attribs_.validIdx(attrib) || !attribdata || attribdata->isEmpty() )
 	return false;
 
+    TrcKeyZSampling tkzs = attribdata->sampling();
+
     const Array3D<float>* usedarray = 0;
     bool arrayismine = true;
     if ( alreadyTransformed(attrib) || !datatransform_ )
@@ -1108,7 +1110,8 @@ bool VolumeDisplay::setDataVolume( int attrib,
 	datatransformer_->setInterpolate( true );
 	datatransformer_->setInput( attribdata->data(),
 				    attribdata->sampling() );
-	datatransformer_->setOutputRange( getTrcKeyZSampling(true,true,0) );
+	tkzs.zsamp_ = getTrcKeyZSampling(true,true,0).zsamp_;
+	datatransformer_->setOutputRange( tkzs );
 
 	if ( !TaskRunner::execute( tr, *datatransformer_ ) )
 	{
@@ -1126,7 +1129,6 @@ bool VolumeDisplay::setDataVolume( int attrib,
 	arrayismine = false;
     }
 
-    TrcKeyZSampling tkzs = attribdata->sampling();
     tkzs.hsamp_.survid_ = s3dgeom_->getSurvID();
     scalarfield_->setScalarField( attrib, usedarray, !arrayismine, tkzs, tr );
 
