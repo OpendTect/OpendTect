@@ -20,7 +20,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 ZAxisTransformer::ZAxisTransformer( ZAxisTransform& zat, bool forward )
-    : transform_(zat)
+    : ParallelTask("Z-axis transform")
+    , transform_(zat)
     , forward_(forward)
     , input_(0)
     , output_(0)

@@ -27,7 +27,7 @@ third is z.
 */
 
 mExpClass(Algo) ZAxisTransformer : public ParallelTask
-{
+{ mODTextTranslationClass(ZAxisTransformer);
 public:
 			ZAxisTransformer(ZAxisTransform&,bool forward = true);
 			~ZAxisTransformer();
@@ -60,6 +60,11 @@ protected:
 
     Array3D<float>*		output_;
     TrcKeyZSampling		outputcs_;
+
+public:
+    uiString		uiMessage() const   { return tr("Z-axis transform");  }
+    uiString		uiNrDoneText() const
+			{ return ParallelTask::sTrcFinished(); }
 };
 
 
