@@ -177,6 +177,8 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 
     psiter.retire();
 
+
+    ChangeNotifyBlocker notifyblocker( *pickset_ );
     const TypeSet<int>&	selpts = editor->getSelPtIdx();
     for ( int idx=0; idx<selpts.size(); idx++ )
     {
