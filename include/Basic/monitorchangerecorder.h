@@ -28,7 +28,7 @@ public:
 
     enum Action		{ Undo, Redo };
 
-    mClass(Basic) Record
+    mExpClass(Basic) Record
     { mODTextTranslationClass(ChangeRecorder::Record)
     public:
 	typedef ChangeRecorder::Action	Action;
