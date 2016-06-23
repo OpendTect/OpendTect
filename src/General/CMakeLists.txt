@@ -69,6 +69,7 @@ list ( APPEND OD_MODULE_SOURCES
 	picklocation.cc
 	pickretriever.cc
 	pickset.cc
+	picksetchangerecorder.cc
 	posimpexppars.cc
 	posidxpairdataset.cc
 	posidxpairvalset.cc

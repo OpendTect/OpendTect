@@ -28,6 +28,13 @@ namespace Pick
     , trckey_(0) \
     , text_(0)
 
+
+Pick::Location::Location()
+    : pos_(Coord3::udf())
+    , mInitPtrs
+{
+}
+
 Pick::Location::Location( double x, double y, double zval )
     : pos_(x,y,zval)
     , mInitPtrs

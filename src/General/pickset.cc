@@ -532,44 +532,59 @@ Pick::Set::LocID Pick::Set::insertBefore( LocID id, const Location& loc )
 }
 
 
-Pick::Set& Pick::Set::set( LocID id, const Location& loc )
+#define mPrepLocChange(id) \
+    mSendChgNotif( cLocationPreChange(), id.getI() ); \
+    mReLock(); mLock2Write()
+#define mSendLocChgNotif(istmp,id) \
+    mSendChgNotif( istmp?cLocationChangeTemp():cLocationChange(), id.getI() )
+
+
+Pick::Set& Pick::Set::set( LocID id, const Location& loc, bool istmp )
 {
     mLock4Read();
     int idx = gtIdxFor( id );
     if ( idx == -1 || loc == locs_[idx] )
 	return *this;
 
-    if ( !mLock2Write() )
-    {
-	idx = gtIdxFor( id );
-	if ( idx == -1 || loc == locs_[idx] )
-	    return *this;
-    }
+    mPrepLocChange( id );
+    idx = gtIdxFor( id );
+    if ( idx == -1 || loc == locs_[idx] )
+	return *this;
 
     locs_[idx] = loc;
 
-    mSendChgNotif( cLocationChange(), id.getI() );
+    mSendLocChgNotif( istmp, id );
     return *this;
 }
 
 
-Pick::Set& Pick::Set::setByIndex( IdxType idx, const Location& loc )
+Pick::Set& Pick::Set::setByIndex( IdxType idx, const Location& loc, bool istmp )
 {
     mLock4Read();
     if ( !locs_.validIdx(idx) || loc == locs_[idx] )
 	return *this;
 
-    if ( !mLock2Write() )
-    {
-	if ( !locs_.validIdx(idx) || loc == locs_[idx] )
-	    return *this;
-    }
+    mPrepLocChange( locids_[idx] );
+    if ( !locs_.validIdx(idx) || loc == locs_[idx] )
+	return *this;
 
     locs_[idx] = loc;
 
-    mSendChgNotif( cLocationChange(), locids_[idx].getI() );
+    mSendLocChgNotif( istmp, locids_[idx] );
     return *this;
 }
+
+
+Pick::Set::LocID Pick::Set::locIDAfter( LocID id ) const
+{
+    mLock4Read();
+    int idx = gtIdxFor( id );
+    if ( idx == -1 || idx > locids_.size() - 2 )
+	return LocID::getInvalid();
+
+    return locids_[idx+1];
+}
+
 
 
 Pick::Set::LocID Pick::Set::remove( LocID id )
@@ -622,23 +637,21 @@ static inline bool coordUnchanged( Pick::Set::IdxType idx,
 }
 
 
-Pick::Set& Pick::Set::setPos( LocID id, const Coord& coord )
+Pick::Set& Pick::Set::setPos( LocID id, const Coord& coord, bool istmp )
 {
     mLock4Read();
     int idx = gtIdxFor( id );
     if ( coordUnchanged(idx,locs_,coord) )
 	return *this;
 
-    if ( !mLock2Write() )
-    {
-	idx = gtIdxFor( id );
-	if ( coordUnchanged(idx,locs_,coord) )
-	    return *this;
-    }
+    mPrepLocChange( id );
+    idx = gtIdxFor( id );
+    if ( coordUnchanged(idx,locs_,coord) )
+	return *this;
 
     locs_[idx].setPos( coord );
 
-    mSendChgNotif( cLocationChange(), id.getI() );
+    mSendLocChgNotif( istmp, id );
     return *this;
 }
 
@@ -653,23 +666,21 @@ static inline bool zUnchanged( Pick::Set::IdxType idx,
     return mIsZero(zdiff,1e-6);
 }
 
-Pick::Set& Pick::Set::setZ( LocID id, double z )
+Pick::Set& Pick::Set::setZ( LocID id, double z, bool istmp )
 {
     mLock4Read();
     int idx = gtIdxFor( id );
     if ( zUnchanged(idx,locs_,z) )
 	return *this;
 
-    if ( !mLock2Write() )
-    {
-	idx = gtIdxFor( id );
-	if ( zUnchanged(idx,locs_,z) )
-	    return *this;
-    }
+    mPrepLocChange( id );
+    idx = gtIdxFor( id );
+    if ( zUnchanged(idx,locs_,z) )
+	return *this;
 
     locs_[idx].setZ( z );
 
-    mSendChgNotif( cLocationChange(), id.getI() );
+    mSendLocChgNotif( istmp, id );
     return *this;
 }
 

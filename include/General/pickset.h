@@ -60,9 +60,10 @@ public:
     size_type		size() const;
     inline bool		isEmpty() const			    { return size()<1; }
     bool		validLocID(LocID) const;
+    IdxType		idxFor(LocID) const;
+    LocID		locIDAfter(LocID) const;
     bool		validIdx(IdxType) const;
     LocID		locIDFor(IdxType) const;
-    IdxType		idxFor(LocID) const;
 
     Location		get(LocID) const;
     Coord		getPos(LocID) const;
@@ -72,13 +73,13 @@ public:
 
     Set&		setEmpty();
     Set&		append(const Set&);
-    Set&		set(LocID,const Location&);
     LocID		insertBefore(LocID,const Location&);
     LocID		add(const Location&);
     LocID		remove(LocID); //!< returns ID of loc taking its place
-    Set&		setPos(LocID,const Coord&);
-    Set&		setZ(LocID,double);
-    Set&		setByIndex(IdxType,const Location&);
+    Set&		set(LocID,const Location&,bool istemp=false);
+    Set&		setPos(LocID,const Coord&,bool istemp=false);
+    Set&		setZ(LocID,double,bool istemp=false);
+    Set&		setByIndex(IdxType,const Location&,bool istemp=false);
 
     bool		isMultiGeom() const;
     Pos::GeomID		firstGeomID() const;
@@ -128,13 +129,22 @@ public:
 
     static ChangeType	cDispChange()		{ return 2; }
     static ChangeType	cLocationInsert()	{ return 3; }
-    static ChangeType	cLocationChange()	{ return 4; }
-    static ChangeType	cLocationRemove()	{ return 5; }
-    static const char*	sKeyMarkerType()	{ return "Marker Type"; }
+    static ChangeType	cLocationRemove()	{ return 4; }
+    static ChangeType	cLocationPreChange()	{ return 5; }
+    static ChangeType	cLocationChange()	{ return 6; }
+    static ChangeType	cLocationChangeTemp()	{ return 7; }
+    static inline bool	isLocationUpdate( ChangeType ct )
+			{ return ct > cDispChange(); }
+    static inline bool	isLocationChange( ChangeType ct )
+			{ return ct > 4; }
+    static inline bool	isTempChange( ChangeType ct )
+			{ return ct > 6; }
 
     mDeclInstanceCreatedNotifierAccess(Set);
     static const Set&	emptySet()		{ return emptyset_; }
     static Set&		dummySet()		{ return dummyset_; }
+
+    static const char*	sKeyMarkerType()	{ return "Marker Type"; }
 
 protected:
 
@@ -154,7 +164,7 @@ protected:
 
     friend class	SetIter;
     friend class	SetIter4Edit;
-    friend class	SetManager; // for replaceID (undo/redo)
+    friend class	SetChangeRecord;
 
 };
 

@@ -26,6 +26,7 @@ class Set;
 class SetSaver;
 class SetManager;
 class SetLoaderExec;
+class SetChangeRecorder;
 
 
 
@@ -119,7 +120,6 @@ public:
     SetID		getID(int) const;
     IOPar		getIOObjPars(int) const;
 
-
     CNotifier<SetManager,SetID>	SetAdded;
     CNotifier<SetManager,SetID>	SetShowRequested;
     CNotifier<SetManager,SetID>	SetHideRequested;
@@ -129,69 +129,18 @@ public:
     enum DispOpt	{ Show, Hide, Vanish };
     void		displayRequest(const MultiID&,DispOpt=Show);
 
-
-    /*!\brief A record containing info about a Location change in a Set.
-      Used for undo/redo. */
-
-    mExpClass(Geometry) LocEvent
-    {
-    public:
-
-    typedef Set::LocID	LocID;
-    enum Type		{ Create, Move, Delete };
-
-			LocEvent( LocID id, const Location& loc, Type t,
-				  LocID beforeid=LocID::getInvalid() )
-			    : type_(t), id_(id), prevloc_(Location::udf())
-			    , loc_(loc), beforeid_(beforeid)	{}
-			LocEvent( LocID id, const Location& from,
-					    const Location& to )
-			: type_(Move), id_(id), prevloc_(from), loc_(to)
-		        , beforeid_(LocID::getInvalid())	{}
-
-    Type		type_;
-    LocID		id_;
-    Location		loc_;
-    LocID		beforeid_;
-    Location		prevloc_;
-
-    static uiString	menuText(Type,bool forundo);
-    bool		isUdf() const       { return id_.isUdf(); }
-    static const LocEvent& udf();
-
-    inline bool		operator ==( const LocEvent& oth ) const
-			{
-			    return this == &oth ||
-			       (type_ == oth.type_ && id_ == oth.id_
-				&& beforeid_ == oth.beforeid_
-			      && loc_ == oth.loc_ && prevloc_ == oth.prevloc_);
-			}
-    };
-
-			// Only add events if you are the source
-    void		addLocEvent(const SetID&,const LocEvent&);
-    bool		haveLocEvent(const SetID&,bool for_undo,
-				     LocEvent::Type* typ=0) const;
-    void		applyLocEvent(const SetID&,bool isundo) const;
-
-    void		clearLocEvents(const SetID&);
-    LocEvent		getLocEvent(const SetID&,bool for_undo) const;
+    void		clearChangeRecords(const SetID&);
+    void		getChangeInfo(const SetID&,
+				  uiString& undotxt,uiString& redotxt) const;
+    bool		useChangeRecord(const SetID&,bool forundo);
 
 protected:
 
-    class LocEvRec : public TypeSet<LocEvent>
-    {
-    public:
-			LocEvRec() : curidx_(0)	{}
-	void		clear()			{ setEmpty(); curidx_ = 0; }
-	mutable Threads::Atomic<size_type> curidx_; // position for next redo
-    };
+				    SetManager();
+				    ~SetManager();
 
-			SetManager();
-			~SetManager();
-
-    ObjectSet<SetSaver>	savers_;
-    ObjectSet<LocEvRec>	locevrecs_;
+    ObjectSet<SetSaver>		    savers_;
+    ObjectSet<SetChangeRecorder>    chgrecs_;
 
 			// Tools for locked state
     void		setEmpty();
@@ -202,7 +151,6 @@ protected:
     template<class RT,class ST> RT doFetch(const SetID&,uiRetVal&,
 					   const char* cat=0) const;
     void		addCBsToSet(const Set&);
-    void		addLocEv(const SetID&,const LocEvent&);
     uiRetVal		doSave(const SetID&) const;
 
     void		add(const Set&,const SetID&,const IOPar*,bool) const;

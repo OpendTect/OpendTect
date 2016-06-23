@@ -113,7 +113,6 @@ protected:
     virtual			~LocationDisplay();
 
     LocID			addPick(const Coord3&,const Sphere&);
-    void			removePick(LocID,bool withev=true);
 
     bool			getPickSurface(const EventInfo&,Coord3&,
 						Coord3&) const;

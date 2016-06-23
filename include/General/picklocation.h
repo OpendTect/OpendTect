@@ -45,7 +45,8 @@ If no direction is available, you'll get nullSphere().
 mExpClass(General) Location
 {
 public:
-			Location(double x=0,double y=0,double z=0);
+			Location();
+			Location(double x,double y,double z=0);
 			Location(const Coord&,float z=0);
 			Location(const Coord3&);
 			Location(const Coord3& pos,const Coord3& dir);

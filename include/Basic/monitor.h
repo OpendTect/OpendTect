@@ -85,6 +85,10 @@ public:
 
 	ChangeType	changeType() const	{ return first; }
 	IDType		ID() const		{ return second; }
+	bool		isEntireObject() const	{ return first == -1; }
+
+	static inline ChangeType cEntireObjectChgType()	{ return -1; }
+	static inline IDType cEntireObjectChgID()	{ return -1; }
     };
 
 			Monitorable(const Monitorable&);
@@ -106,8 +110,10 @@ public:
 
     void		sendEntireObjectChangeNotification() const;
 
-    static ChangeType	cEntireObjectChangeType()	{ return -1; }
-    static IDType	cEntireObjectChangeID()		{ return -1; }
+    static IDType	cEntireObjectChangeID()
+			{ return ChangeData::cEntireObjectChgID(); }
+    static inline ChangeType cEntireObjectChangeType()
+			{ return ChangeData::cEntireObjectChgType(); }
     static ChangeType	changeNotificationTypeOf(CallBacker*);
 
 protected:

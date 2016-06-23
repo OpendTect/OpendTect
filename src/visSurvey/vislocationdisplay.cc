@@ -61,7 +61,6 @@ LocationDisplay::LocationDisplay()
     , datatransform_( 0 )
     , pickedsurvobjid_(-1)
     , voiidx_(-1)
-    , movestartcoord_(Coord3::udf())
     , selectionmodel_(false)
     , ctrldown_(false)
 {
@@ -256,28 +255,10 @@ void LocationDisplay::handleDraggingEvent( const EventInfo& evinfo )
     Coord3 newpos, normal;
     if ( getPickSurface(evinfo,newpos,normal) )
     {
-	if ( evinfo.type != visBase::MouseClick )
-	{
-	    // Still 'on the move'
-	    Pick::Location pl = set_->get( movinglocationid_ );
-	    if ( !movestartcoord_.isDefined() )
-		movestartcoord_ = pl.pos();
-	    pl.setPos( newpos );
-	    set_->set( movinglocationid_, pl );
-	}
-	else if ( movestartcoord_.isDefined() )
-	{
-	    // User ended move (button released)
-	    Pick::Location pl( set_->get(directionlocationid_) );
-	    const ::Sphere dir = pl.dir();
-	    const Pick::Location oldloc( movestartcoord_, dir );
-	    const Pick::Location newloc( newpos, dir );
-	    set_->set( movinglocationid_, newloc );
-	    Pick::SetMGR().addLocEvent( Pick::SetMGR().getID(*set_),
-			Pick::SetManager::LocEvent( movinglocationid_,
-			oldloc, newloc ) );
-	    movestartcoord_ = Coord3::udf();
-	}
+	Pick::Location pl = set_->get( movinglocationid_ );
+	pl.setPos( newpos );
+	const bool isstillmoving = evinfo.type != visBase::MouseClick;
+	set_->set( movinglocationid_, pl, isstillmoving );
     }
 
     eventcatcher_->setHandled();
@@ -376,7 +357,7 @@ void LocationDisplay::handleMouseUp( const EventInfo& evinfo,
 	{
 	    const int locidx = clickedMarkerIndex( evinfo );
 	    if ( locidx >= 0 )
-		removePick( set_->locIDFor(locidx) );
+		set_->remove( set_->locIDFor(locidx) );
 	}
 
 	eventcatcher_->setHandled();
@@ -514,7 +495,7 @@ void LocationDisplay::setChgCB( CallBacker* cb )
 
 void LocationDisplay::locChg( const Monitorable::ChangeData& chgdata )
 {
-    if ( chgdata.changeType() == Pick::Set::cEntireObjectChangeType() )
+    if ( chgdata.isEntireObject() )
 	{ fullRedraw( 0 ); return; }
 
     const LocID locid = LocID::get( (LocID::IDType)chgdata.ID() );
@@ -532,7 +513,7 @@ void LocationDisplay::locChg( const Monitorable::ChangeData& chgdata )
 	removePosition( locidx );
 	invalidpicks_ -= locidx;
     }
-    else if ( chgdata.changeType() == Pick::Set::cLocationChange() )
+    else if ( Pick::Set::isLocationChange( chgdata.changeType() ) )
     {
 	Pick::Location loc = set_->get( locid );
 	if ( transformPos( loc ) )
@@ -639,25 +620,9 @@ LocationDisplay::LocID LocationDisplay::addPick( const Coord3& pos,
 	newlocid = set_->add( newloc );
 
     if ( hasText() && !set_->get(newlocid).hasText() )
-	{ removePick( newlocid, false ); newlocid.setInvalid(); }
-    else
-    {
-	Pick::SetManager::LocEvent ev( newlocid, set_->get(newlocid),
-		       Pick::SetManager::LocEvent::Create, beforelocid );
-	Pick::SetMGR().addLocEvent( Pick::SetMGR().getID(*set_), ev );
-    }
+	{ set_->remove( newlocid ); newlocid.setInvalid(); }
 
     return newlocid;
-}
-
-
-void LocationDisplay::removePick( LocID locid, bool withev )
-{
-    Pick::SetManager::LocEvent ev( locid, set_->get(locid),
-				   Pick::SetManager::LocEvent::Delete );
-    ev.beforeid_ = set_->remove( locid );
-    if ( withev )
-	Pick::SetMGR().addLocEvent( Pick::SetMGR().getID(*set_), ev );
 }
 
 

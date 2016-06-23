@@ -285,19 +285,11 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
 
     const MultiID setid = Pick::SetMGR().getID( set_ );
-    Pick::SetManager::LocEvent::Type undotyp, redotyp;
-    const bool haveundo = Pick::SetMGR().haveLocEvent( setid, true, &undotyp );
-    const bool haveredo = Pick::SetMGR().haveLocEvent( setid, false, &redotyp );
-    if ( haveundo )
-    {
-	undomnuitem_.text = Pick::SetManager::LocEvent::menuText(undotyp,true);
+    Pick::SetMGR().getChangeInfo( setid, undomnuitem_.text, redomnuitem_.text );
+    if ( !undomnuitem_.text.isEmpty() )
 	mAddMenuItem( menu, &undomnuitem_, true, false );
-    }
-    if ( haveredo )
-    {
-	redomnuitem_.text = Pick::SetManager::LocEvent::menuText(redotyp,false);
+    if ( !redomnuitem_.text.isEmpty() )
 	mAddMenuItem( menu, &redomnuitem_, true, false );
-    }
 }
 
 
@@ -372,7 +364,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	const MultiID setid = Pick::SetMGR().getID( set_ );
 	const bool isundo = mnuid==undomnuitem_.id;
-	Pick::SetMGR().applyLocEvent( setid, isundo );
+	Pick::SetMGR().useChangeRecord( setid, isundo );
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
