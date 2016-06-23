@@ -47,7 +47,7 @@ CompoundKey::IdxType CompoundKey::nrKeys() const
     if ( impl_.isEmpty() ) return 0;
 
     IdxType nrkeys = 1;
-    const char* ptr = impl_;
+    const char* ptr = impl_.buf();
     while ( true )
     {
 	ptr = firstOcc(ptr,'.');
@@ -135,7 +135,10 @@ MultiID::SubID MultiID::getIDAt( int lvl ) const
 
 MultiID::SubID MultiID::leafID() const
 {
-    const char* dotptr = lastOcc( impl_, '.' );
+    if ( isEmpty() )
+	return 0;
+
+    const char* dotptr = lastOcc( impl_.str(), '.' );
     const char* ptr = dotptr ? dotptr + 1 : str();
     return ptr && *ptr ? ::toInt( ptr ) : 0;
 }
@@ -162,6 +165,9 @@ bool MultiID::isUdf() const
 
 od_int64 MultiID::toInt64() const
 {
+    if ( isEmpty() )
+	return 0;
+
     const SubID ileaf = leafID();
     const MultiID par( parent() );
     const SubID ipar = par.isEmpty() ? 0 : parent().leafID();
