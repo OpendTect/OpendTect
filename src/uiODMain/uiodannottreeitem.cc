@@ -144,7 +144,7 @@ bool uiODAnnotTreeItem::showSubMenu()
     if ( mnusel < 0 )
 	return false;
 
-    Pick::Set* newps = 0;
+    RefMan<Pick::Set> newps = 0;
     if ( mnusel == 0 )
     {
 	const uiString title = tr( "%1 Annotations").arg(typestr_);
@@ -193,7 +193,7 @@ bool uiODAnnotTreeItem::showSubMenu()
 
 Pick::Set* uiODAnnotTreeItem::makeNewSet( const char* nm ) const
 {
-    Pick::Set* ps = new Pick::Set( nm, getCategory() );
+    RefMan<Pick::Set> ps = new Pick::Set( nm, getCategory() );
     ps->setDispColor( getRandStdDrawColor() );
     if ( defScale() >= 0 )
 	ps->setDispSize( defScale() );
@@ -202,7 +202,7 @@ Pick::Set* uiODAnnotTreeItem::makeNewSet( const char* nm ) const
     if ( !errmsg.isEmpty() )
 	{ uiMSG().error( errmsg ); return 0; }
 
-    ps->ref();
+    ps.setNoDelete( true );
     return ps;
 }
 
@@ -234,7 +234,7 @@ uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, int displayid )
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
 {
-    // no set_.ref() as it's already done by uiODAnnotTreeItem
+    set_.ref();
     name_ = toUiString( set_.name() );
     displayid_ = displayid;
 
