@@ -52,6 +52,9 @@ public:
 			{ return lastsavedirtycount_; }
     DirtyCountType	curDirtyCount() const;
 
+    static ChangeType	cSaveSucceededChangeType()	{ return 1; }
+    static ChangeType	cSaveFailedChangeType()		{ return 2; }
+
 protected:
 
     const Monitorable*	monitored_;

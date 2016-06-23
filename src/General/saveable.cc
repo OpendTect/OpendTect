@@ -120,9 +120,12 @@ bool OD::Saveable::save() const
 	    IOM().commitChanges( *ioobj );
 	    ioobj = IOM().get( storekey_ );
 	}
-	if ( store(*ioobj) )
+	if ( !store(*ioobj) )
+	    mSendChgNotif( cSaveFailedChangeType(), storekey_.toInt64() );
+	else
 	{
 	    setNoSaveNeeded();
+	    mSendChgNotif( cSaveSucceededChangeType(), storekey_.toInt64() );
 	    return true;
 	}
     }

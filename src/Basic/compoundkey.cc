@@ -112,6 +112,20 @@ bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 }
 
 
+MultiID::MultiID( SubID id1, SubID id2 )
+{
+    if ( id1 == 0 && id2 == 0 )
+	add( id1 );
+    else
+    {
+	if ( id1 != 0 )
+	    add( id1 );
+	if ( id2 != 0 )
+	    add( id2 );
+    }
+}
+
+
 MultiID::SubID MultiID::getIDAt( int lvl ) const
 {
     const BufferString idstr( key(lvl) );
@@ -121,8 +135,9 @@ MultiID::SubID MultiID::getIDAt( int lvl ) const
 
 MultiID::SubID MultiID::leafID() const
 {
-    const char* ptr = lastOcc( impl_, '.' );
-    return ::toInt( ptr ? ptr+1 : str() );
+    const char* dotptr = lastOcc( impl_, '.' );
+    const char* ptr = dotptr ? dotptr + 1 : str();
+    return ptr && *ptr ? ::toInt( ptr ) : 0;
 }
 
 
@@ -142,4 +157,21 @@ const MultiID& MultiID::udf()
 bool MultiID::isUdf() const
 {
     return impl_.isEmpty() || impl_ == udf().impl_;
+}
+
+
+od_int64 MultiID::toInt64() const
+{
+    const SubID ileaf = leafID();
+    const MultiID par( parent() );
+    const SubID ipar = par.isEmpty() ? 0 : parent().leafID();
+    return (((od_uint64)ipar) << 32) + (((od_uint64)ileaf) & 0xFFFFFFFF);
+}
+
+
+MultiID MultiID::fromInt64( od_int64 i64 )
+{
+    const SubID ipar = (SubID)(i64 >> 32);
+    const SubID ileaf = (SubID)(i64 & 0xFFFFFFFF);
+    return MultiID( ipar, ileaf );
 }

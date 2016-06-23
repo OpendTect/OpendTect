@@ -33,10 +33,7 @@ public:
 			: CompoundKey(mid)	{}
 			MultiID( SubID id )
 			{ add(id); }
-			MultiID( SubID id1, SubID id2 )
-			{ add(id1).add(id2); }
-			MultiID( SubID id1, SubID id2, SubID id3 )
-			{ add(id1).add(id2).add(id3); }
+			MultiID(SubID,SubID);
 
     inline MultiID&	operator =( const MultiID& mi )
 			{ impl_ = mi.impl_; return *this; }
@@ -66,6 +63,9 @@ public:
 			{ *this = s; return *this; }
     inline MultiID&	add( SubID id )
 			{ *this += toString(id); return *this; }
+
+    od_int64		toInt64() const;
+    static MultiID	fromInt64(od_int64);
 
     static const MultiID& udf();
     inline void		setUdf()		{ *this = udf(); }
