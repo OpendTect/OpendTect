@@ -91,13 +91,12 @@ void SurfaceAuxData::setAuxDataShift( int dataidx, float shift )
 }
 
 
+bool SurfaceAuxData::hasAuxDataName( const char* nm ) const
+{ return auxdatanames_.isPresent( nm ); }
+
+
 int SurfaceAuxData::auxDataIndex( const char* nm ) const
-{
-    for ( int idx=0; idx<auxdatanames_.size(); idx++ )
-	if ( auxdatanames_[idx] && auxdatanames_.get(idx) == nm )
-	    return idx;
-    return -1;
-}
+{ return auxdatanames_.indexOf( nm ); }
 
 
 int SurfaceAuxData::addAuxData( const char* name )
@@ -149,7 +148,12 @@ float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
 }
 
 
-void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
+void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val )
+{ setAuxDataVal( dataidx, posid, val, false ); }
+
+
+void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
+				    bool onlynewpos )
 {
     if ( !auxdatanames_.validIdx(dataidx) )
 	return;
@@ -161,9 +165,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
     if ( !auxdata_.validIdx(sectionidx) )
     {
 	for ( int idx=auxdata_.size(); idx<horizon_.nrSections(); idx++ )
-	{
 	    auxdata_ += 0;
-	}
     }
 
     if ( !auxdata_[sectionidx] )
@@ -183,10 +185,8 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 	vals[dataidx] = val;
 	auxdata_[sectionidx]->add( geomrc, vals );
     }
-    else
-    {
+    else if ( !onlynewpos )
 	auxdata_[sectionidx]->getVals( pos )[dataidx] = val;
-    }
 
     changed_ = true;
 }
@@ -234,8 +234,8 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
     }
 
     SurfaceIODataSelection& sel = transl->selections();
-    int nrauxdata = sel.sd.valnames.size();
-    if ( !nrauxdata || selidx >= nrauxdata ) return 0;
+    const int nrauxdata = sel.sd.valnames.size();
+    if ( nrauxdata==0 || selidx >= nrauxdata ) return 0;
 
     return transl->getAuxdataReader( horizon_, selidx );
 }
@@ -372,6 +372,10 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
 
 
 void SurfaceAuxData::init( int dataidx, float val )
+{ init( dataidx, false, val ); }
+
+
+void SurfaceAuxData::init( int dataidx, bool onlynewpos, float val )
 {
     const SectionID sid = horizon_.sectionID( 0 );
     const Geometry::RowColSurface* rcgeom =
@@ -390,10 +394,10 @@ void SurfaceAuxData::init( int dataidx, float val )
 	    if ( dataidx<0 )
 	    {
 		for ( int aidx=0; aidx<nrAuxData(); aidx++ )
-		    setAuxDataVal( aidx, posid, val );
+		    setAuxDataVal( aidx, posid, val, onlynewpos );
 	    }
 	    else
-		setAuxDataVal( dataidx, posid, val );
+		setAuxDataVal( dataidx, posid, val, onlynewpos );
 	}
     }
 }

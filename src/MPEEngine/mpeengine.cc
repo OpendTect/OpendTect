@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18
 #include "attribdescsetsholder.h"
 #include "autotracker.h"
 #include "emeditor.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
 #include "emsurface.h"
@@ -377,6 +378,10 @@ bool Engine::prepareForRetrack()
     EM::EMObject* emobj = activetracker_->emObject();
     emobj->setBurstAlert( true );
     emobj->removeAllUnSeedPos();
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    if ( hor3d ) hor3d->initAllAuxData();
+
     seedpicker->reTrack();
     emobj->setBurstAlert( false );
     return true;
@@ -492,6 +497,13 @@ int Engine::addTracker( EM::EMObject* emobj )
     ObjectSet<FlatCubeInfo>* flatcubes = new ObjectSet<FlatCubeInfo>;
     flatcubescontainer_ += flatcubes;
     trackeraddremove.trigger();
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    if ( hor3d )
+    {
+	hor3d->initTrackingArrays();
+	hor3d->initTrackingAuxData();
+    }
 
     return trackers_.size()-1;
 }

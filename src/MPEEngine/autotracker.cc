@@ -218,7 +218,7 @@ void HorizonTrackerMgr::startFromSeeds()
     {
 	if ( nrdone_==0 )
 	{
-	    hor3d->initAllAuxData();
+	    hor3d->initTrackingAuxData();
 	    hor3d->initTrackingArrays();
 	}
 

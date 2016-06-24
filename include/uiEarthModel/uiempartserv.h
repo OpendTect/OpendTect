@@ -98,7 +98,7 @@ public:
 			    to save it or not, and if so, the object is saved.
 			    Returns false when save option is cancelled. */
 
-    TrcKeySampling		horizon3DDisplayRange() const
+    TrcKeySampling	horizon3DDisplayRange() const
 				{ return selectedrg_; }
     void		setHorizon3DDisplayRange(const TrcKeySampling&);
 			/*!<Users can change the display range, hor 3D only. */
@@ -116,6 +116,8 @@ public:
 				    bool removeold=true);
 			/*!<Loads the specified data into memory and returns
 			    its auxdatanr. */
+    bool		loadAuxData(const EM::ObjectID&,const BufferStringSet&,
+				    bool removeold=true);
 
     bool		showLoadFaultAuxDataDlg(const EM::ObjectID&);
     bool		storeFaultAuxData(const EM::ObjectID& id,
@@ -199,7 +201,7 @@ protected:
     EM::EMManager&	em_;
     uiImportHorizon*	imphorattrdlg_;
     uiImportHorizon*	imphorgeomdlg_;
-    uiBulkHorizonImport*	impbulkhordlg_;
+    uiBulkHorizonImport* impbulkhordlg_;
     uiImportFault3D*	impfltdlg_;
     uiImportFault3D*	impfltstickdlg_;
     uiImportFaultStickSet2D*	impfss2ddlg_;
@@ -220,7 +222,7 @@ protected:
     uiSurfaceMan*	manfssdlg_;
     uiSurfaceMan*	manbodydlg_;
 
-    void				displayOnCreateCB(CallBacker*);
+    void		displayOnCreateCB(CallBacker*);
 };
 
 #endif

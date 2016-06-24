@@ -13,9 +13,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "datapointset.h"
 #include "datacoldef.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emhorizonztransform.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
@@ -331,6 +332,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    mps->useSavedSetupDlg( emid_, sectionid );
 	    uivisemobj_->checkTrackingStatus();
+	    addAuxDataItems();
 	    applMgr()->visServer()->triggerTreeUpdate();
 	    applMgr()->visServer()->turnSeedPickingOn( true );
 	}
@@ -431,6 +433,32 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     const MultiID mid = ems->getStorageID(emid_);
     mps->saveSetup( mid );
     updateColumnText( uiODSceneMgr::cNameColumn() );
+}
+
+
+void uiODEarthModelSurfaceTreeItem::addAuxDataItems()
+{
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
+    if ( !hor3d ) return;
+
+    BufferStringSet attrnms;
+    for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
+	attrnms.add( hor3d->auxdata.auxDataName(idx) );
+
+    applMgr()->EMServer()->loadAuxData( emid_, attrnms, true );
+
+    for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
+    {
+	DataPointSet dps( false, true );
+	float shift;
+	applMgr()->EMServer()->getAuxData( emid_, idx, dps, shift );
+	uiODDataTreeItem* itm = addAttribItem();
+	mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,dataitm,itm);
+	if ( !dataitm ) continue;
+
+	dataitm->setDataPointSet( dps );
+	dataitm->setChecked( false, true );
+    }
 }
 
 

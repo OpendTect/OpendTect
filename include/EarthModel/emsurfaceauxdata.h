@@ -57,6 +57,7 @@ public:
 					    if ( !auxDataName(idx) )
 					\endcode
 			*/
+    bool		hasAuxDataName(const char*) const;
     const char*		auxDataName(int dataidx) const;
 			/*!<\return The name of aux-data or 0 if the data
 				    is removed; */
@@ -70,6 +71,8 @@ public:
     void		removeAuxData(int dataidx);
     float		getAuxDataVal(int dataidx,const PosID& posid) const;
     void		setAuxDataVal(int dataidx,const PosID& posid,float val);
+    void		setAuxDataVal(int dataidx,const PosID& posid,float val,
+				      bool onlynewpos);
     void		setAuxDataVal(int dataidx,const TrcKey&,float val);
 
     void		setAuxDataShift(int,float);
@@ -86,7 +89,8 @@ public:
     BufferString	getFileName(const char* attrnm) const;
     bool		removeFile(const char* attrnm) const;
 
-    void		init(int dataidx,float val=mUdf(float));
+    void		init(int dataidx,bool onlynewpos=false,
+			     float val=mUdf(float));
 			/*!<dataidx==-1: init all*/
 
     Array2D<float>*	createArray2D(int dataidx,SectionID) const;
@@ -107,6 +111,10 @@ protected:
 			//One entry per section
     ObjectSet<BinIDValueSet>	auxdata_;
     bool		changed_;
+
+public:
+    void		init(int dataidx,float val=mUdf(float));
+			/*!<dataidx==-1: init all*/
 };
 
 } // namespace EM

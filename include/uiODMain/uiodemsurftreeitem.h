@@ -42,6 +42,7 @@ protected:
     void		handleMenuCB(CallBacker*);
 
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
+    void		addAuxDataItems();
 
     void		finishedEditingCB(CallBacker*);
     void		prepareForShutdown();
@@ -89,7 +90,7 @@ protected:
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     uiString		createDisplayName() const;
-    
+
     MenuItem		depthattribmnuitem_;
     MenuItem		savesurfacedatamnuitem_;
     MenuItem		loadsurfacedatamnuitem_;

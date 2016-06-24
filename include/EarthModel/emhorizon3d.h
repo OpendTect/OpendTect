@@ -157,6 +157,7 @@ public:
     void			initAllAuxData(float val=mUdf(float));
     SurfaceAuxData&		auxdata;
 
+    void			initTrackingAuxData(float val=mUdf(float));
     void			initTrackingArrays();
     TrcKeySampling		getTrackingSampling() const;
     void			setParent(const TrcKey&,const TrcKey& parent);
