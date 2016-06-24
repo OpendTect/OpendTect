@@ -61,7 +61,7 @@ public:
 
     inline bool		hasPos() const		{ return pos_.isDefined(); }
     bool		hasTrcKey() const;
-    inline bool		hasDir() const		{ return dir_.isNull(); }
+    inline bool		hasDir() const		{ return !dir_.isNull(); }
     bool		hasText() const;
 
     inline const Coord3& pos() const		{ return pos_; }

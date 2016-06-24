@@ -163,6 +163,9 @@ void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc )
 
 void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc, bool add)
 {
+    if ( loc.dir_ == ::Sphere() )
+	return;
+
     const Coord3 normal = spherical2Cartesian( loc.dir_, true );
     const bool pickedonz = mIsEqual(normal.z,1,mDefEps);
     if ( idx==0 )

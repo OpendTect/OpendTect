@@ -230,10 +230,10 @@ bool uiODAnnotTreeItem::showSubMenu()
 
     if ( mnusel == 0 )
     {
-    const uiString title = tr( "%1 Annotations").arg(typestr_);
-    uiGenInputDlg dlg( getUiParent(), title, tr("Group name"),
+	const uiString title = tr( "%1 Annotations").arg(typestr_);
+	uiGenInputDlg dlg( getUiParent(), title, tr("Group name"),
 			   new StringInpSpec );
-    dlg.setCaption( tr("Annotations") );
+	dlg.setCaption( tr("Annotations") );
 
 	while ( true )
 	{
@@ -243,7 +243,7 @@ bool uiODAnnotTreeItem::showSubMenu()
 	    if ( !txt || !*txt ) continue;
 
 	    if ( uiODAnnotSubItem::doesNameExist( txt ) &&
-	         !uiMSG().askOverwrite(
+		 !uiMSG().askOverwrite(
 		 tr("An object with that name already "
 		    "exists.\nDo you wish to overwrite it?")))
 		continue;

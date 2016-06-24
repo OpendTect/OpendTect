@@ -57,7 +57,7 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
 	BoolInpSpec(true,tr("Inl/Crl"),uiStrings::sZSlice()) );
     objectfld_->setSensitive( false );
 
-    const BoolInpSpec horverspec( true, uiStrings::sHorizontal(), 
+    const BoolInpSpec horverspec( true, uiStrings::sHorizontal(),
                                   uiStrings::sVertical() );
     horverfld_ = new uiGenInput( this, tr("Orientation"), horverspec );
     horverfld_->attach( alignedBelow, objectfld_ );
@@ -174,11 +174,11 @@ bool ScaleBarSubItem::init()
 	visserv_->addObject( ad, sceneID(), true );
 	visserv_->setViewMode( false );
 	displayid_ = ad->id();
-    ad->setName( name_ );
+	ad->setName( name_ );
     }
 
     mDynamicCastGet(visSurvey::ScaleBarDisplay*,ad,
-						visserv_->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     if ( !ad ) return false;
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
