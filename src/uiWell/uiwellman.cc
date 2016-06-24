@@ -155,8 +155,8 @@ static void getBasicInfo( Well::Reader* rdr )
 {
     if ( rdr )
     {
-	rdr->getInfo();
 	rdr->getTrack();
+	rdr->getInfo();
     }
 }
 
@@ -779,7 +779,7 @@ void uiWellMan::mkFileInfo()
     const Well::Reader currdr( *curioobj_, *curwd );
     BufferString txt;
 
-    if ( currdr.getInfo() && currdr.getTrack() )
+    if ( currdr.getTrack() && currdr.getInfo() )
     {
 
     const Well::Info& info = curwd->info();

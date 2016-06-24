@@ -40,8 +40,8 @@ public:
     virtual bool	getTrack() const;
     virtual bool	getLogs() const;
     virtual bool	getMarkers() const;	//needs to read Track too
-    virtual bool	getD2T() const;		//needs to read Track too
-    virtual bool	getCSMdl() const;	//needs to read Track too
+    virtual bool	getD2T() const;
+    virtual bool	getCSMdl() const;
     virtual bool	getDispProps() const;
     virtual bool	getLog(const char* lognm) const;
     virtual void	getLogInfo(BufferStringSet& lognms) const;

@@ -42,8 +42,8 @@ public:
     bool		getTrack() const;	//!< Read Track only
     bool		getLogs() const;	//!< Read logs only
     bool		getMarkers() const;	//!< Read Markers only
-    bool		getD2T() const;		//!< Read D2T model only
-    bool		getCSMdl() const;	//!< Read Checkshot model only
+    bool		getD2T() const;		//!< Read D2T model parts
+    bool		getCSMdl() const;	//!< Read Checkshot model parts
     bool		getDispProps() const;	//!< Read display props only
     bool		getLog(const char* lognm) const; //!< Read this one only
     void		getLogInfo(BufferStringSet& lognms) const;
