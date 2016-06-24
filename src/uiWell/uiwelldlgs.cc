@@ -1535,7 +1535,6 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     if ( mIsZero(timeshift,1e-2f) )
     {
 	const float dah = getDepthValue( 0, cMDCol );
-	const float time = getTimeValue( 0 );
 	Interval<float> replvellayer( kbelev, srdelev );
 	replvellayer.widen( 1e-2f, true );
 	if ( replvellayer.includes( -1.f * wd_.track().getPos(dah).z, true ) )
