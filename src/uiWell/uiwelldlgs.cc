@@ -932,7 +932,8 @@ float uiD2TModelDlg::getTimeValue( int irow ) const
 
 #define mGetVel(dah,d2t) \
 { \
-    const Interval<float> replvellayer( wd_.track().getKbElev(), srd ); \
+    Interval<float> replvellayer( wd_.track().getKbElev(), srd ); \
+    replvellayer.widen( 1e-2f, true ); \
     vint = replvellayer.includes( -1.f * wd_.track().getPos(dah).z, true ) && \
 	   !mIsUdf(wd_.info().replvel) \
 	 ? wd_.info().replvel \
@@ -1503,7 +1504,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     const Well::Track& track = wd_.track();
     if ( track.zRange().stop < SI().seismicReferenceDatum() &&
 	 ( !d2t || d2t->size() < 2 ) )
-    {
+    { //Whole well track is above SRD: The entire model is controlled by replvel
 	wd_.info().replvel = replvel;
 	updNow(0);
 	return;
@@ -1530,6 +1531,18 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     const float replveldz = zwllhead + srdelev;
     const float timeshift = kbabovesrd ? firsttwt
 				       : 2.f * replveldz / replvel - firsttwt;
+    wd_.info().replvel = replvel;
+    if ( mIsZero(timeshift,1e-2f) )
+    {
+	const float dah = getDepthValue( 0, cMDCol );
+	const float time = getTimeValue( 0 );
+	Interval<float> replvellayer( kbelev, srdelev );
+	replvellayer.widen( 1e-2f, true );
+	if ( replvellayer.includes( -1.f * wd_.track().getPos(dah).z, true ) )
+	    setDepthValue( 0, getVintCol(), replvel );
+
+	return;
+    }
 
     for( int irow=tbl_->nrRows()-1; irow>=0; irow-- )
     {
@@ -1552,7 +1565,6 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
 	setTimeValue( irow, twt + timeshift );
     }
 
-    wd_.info().replvel = replvel;
     updNow(0);
 }
 

@@ -93,8 +93,8 @@ uiWellMan::uiWellMan( uiParent* p )
     logexpbut_ = butgrp->addButton( "export",
 			uiStrings::phrExport( uiStrings::sWellLog(mPlural) ),
 			mCB(this,uiWellMan,exportLogs) );
-    loguombut_ = butgrp->addButton( "unitsofmeasure", 
-					tr("View/edit unit of measure"), 
+    loguombut_ = butgrp->addButton( "unitsofmeasure",
+					tr("View/edit unit of measure"),
 					mCB(this,uiWellMan,logUOMPush) );
     logedbut_ = butgrp->addButton( "edit", uiStrings::sEdit(),
 			mCB(this,uiWellMan,editLogPush) );
@@ -156,8 +156,8 @@ static void getBasicInfo( Well::Reader* rdr )
 {
     if ( rdr )
     {
-	rdr->getInfo();
 	rdr->getTrack();
+	rdr->getInfo();
     }
 }
 
@@ -226,8 +226,8 @@ void uiWellMan::fillLogsFld()
 
 
 
-void uiWellMan::setButToolTip( uiButton* but, const uiString& oper, 
-			   const uiString& objtyp, const uiString& obj, 
+void uiWellMan::setButToolTip( uiButton* but, const uiString& oper,
+			   const uiString& objtyp, const uiString& obj,
 			   const uiString& end )
 {
     if ( !but )
@@ -241,7 +241,7 @@ void uiWellMan::setButToolTip( uiButton* but, const uiString& oper,
     if ( !end.isEmpty() )
 	tt = toUiString("%1 %2").arg(tt).arg(end);
 
-    but->setToolTip( tt );			       
+    but->setToolTip( tt );
 }
 
 
@@ -251,9 +251,9 @@ void uiWellMan::setButToolTip( uiButton* but, const uiString& oper,
 
 void uiWellMan::setWellToolButtonProperties()
 {
-    const uiString curwellnm = curioobj_ ? curioobj_->uiName() : 
+    const uiString curwellnm = curioobj_ ? curioobj_->uiName() :
 						      uiStrings::sEmptyString();
-    const uiString edvwstr = iswritable_ ? uiStrings::sEdit() : 
+    const uiString edvwstr = iswritable_ ? uiStrings::sEdit() :
 							     uiStrings::sView();
 
     mSetWellButToolTip( welltrackbut_, mJoinUiStrs(sWell(),sTrack()) );
@@ -290,27 +290,27 @@ void uiWellMan::setLogToolButtonProperties()
     loguombut_->setSensitive( iswritable_ && nrlogs > 0 );
     logedbut_->setSensitive( iswritable_ && nrlogs > 0 );
 
-    const uiString curwellnm = curioobj_ ? curioobj_->uiName() : 
+    const uiString curwellnm = curioobj_ ? curioobj_->uiName() :
 						      uiStrings::sEmptyString();
     const uiString curlognm = toUiString(logsfld_->getText());
 
-    mSetLogButToolTip( logupbut_, uiStrings::sMove(), 
+    mSetLogButToolTip( logupbut_, uiStrings::sMove(),
 						   uiStrings::sUp().toLower() );
-    mSetLogButToolTip( logdownbut_, uiStrings::sMove(), 
+    mSetLogButToolTip( logdownbut_, uiStrings::sMove(),
 						 uiStrings::sDown().toLower() );
-    mSetLogButToolTip( logrenamebut_, uiStrings::sRename(), 
+    mSetLogButToolTip( logrenamebut_, uiStrings::sRename(),
 						    uiStrings::sEmptyString() );
-    mSetLogButToolTip( loguombut_, tr("View/edit units of measure for "), 
+    mSetLogButToolTip( loguombut_, tr("View/edit units of measure for "),
 						    uiStrings::sEmptyString() );
-    mSetLogButToolTip( logedbut_, uiStrings::sEdit(), 
+    mSetLogButToolTip( logedbut_, uiStrings::sEdit(),
 						    uiStrings::sEmptyString() );
 
-    setButToolTip(logrmbut_, uiStrings::sRemove(), 
-		  toUiString(lognms.getDispString(3)), curwellnm, 
+    setButToolTip(logrmbut_, uiStrings::sRemove(),
+		  toUiString(lognms.getDispString(3)), curwellnm,
 		  uiStrings::sEmptyString());
-    setButToolTip(logexpbut_, uiStrings::sExport(), 
-		  toUiString(lognms.getDispString(3)), 
-		  nrchosenwells==1 ? curwellnm : uiStrings::sEmptyString(), 
+    setButToolTip(logexpbut_, uiStrings::sExport(),
+		  toUiString(lognms.getDispString(3)),
+		  nrchosenwells==1 ? curwellnm : uiStrings::sEmptyString(),
 		  uiStrings::sEmptyString() );
 
     const int nrlogs2vw = nrchosenwells * nrchosenlogs ;
@@ -438,8 +438,6 @@ void uiWellMan::defD2T( bool chkshot )
 
     RefMan<Well::Data> wd = new Well::Data;
     PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
-    wrdr->getTrack();
-
     if ( chkshot )
 	wrdr->getCSMdl();
     else
@@ -695,7 +693,7 @@ void uiWellMan::renameLogPush( CallBacker* )
     mEnsureLogSelected(uiStrings::sNoLogSel());
     BufferString lognm = logsfld_->getText();
     const uiString titl = uiStrings::phrRename(toUiString("'%1'").arg(lognm));
-    uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(),sName().toLower()), 
+    uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(),sName().toLower()),
 				new StringInpSpec(lognm));
     if ( !dlg.go() )
 	return;
@@ -778,7 +776,7 @@ void uiWellMan::mkFileInfo()
     const Well::Reader currdr( *curioobj_, *curwd );
     BufferString txt;
 
-    if ( currdr.getInfo() && currdr.getTrack() )
+    if ( currdr.getTrack() && currdr.getInfo() )
     {
 
     const Well::Info& info = curwd->info();

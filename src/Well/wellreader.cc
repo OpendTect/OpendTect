@@ -67,7 +67,7 @@ bool Well::ReadAccess::addToLogSet( Well::Log* newlog ) const
 }
 
 
- bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, bool ischeckshot,
+bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, bool ischeckshot,
 				      uiString& errmsg ) const
 
 {
@@ -173,9 +173,25 @@ mImplSimpleWRFn(getInfo)
 mImplSimpleWRFn(getTrack)
 mImplSimpleWRFn(getLogs)
 mImplSimpleWRFn(getMarkers)
-mImplSimpleWRFn(getD2T)
-mImplSimpleWRFn(getCSMdl)
 mImplSimpleWRFn(getDispProps)
+
+bool Well::Reader::getD2T() const
+{
+    if ( !getTrack() || !getInfo() )
+	return false;
+
+    return ra_ ? ra_->getD2T() : false;
+}
+
+
+bool Well::Reader::getCSMdl() const
+{
+    if ( !getTrack() || !getInfo() )
+	return false;
+
+    return ra_ ? ra_->getCSMdl() : false;
+}
+
 
 mImplWRFn(bool,getLog,const char*,lognm,false)
 void Well::Reader::getLogInfo( BufferStringSet& lognms ) const
@@ -313,13 +329,19 @@ bool Well::odReader::get() const
 {
     wd_.setD2TModel( 0 );
     wd_.setCheckShotModel( 0 );
-    if ( !getTrack() || !getInfo() ) //Keep first
-	return false;
+    if ( SI().zIsTime() )
+    {
+	if ( !getD2T() )
+	    return false;
 
-    if ( SI().zIsTime() && !getD2T() )
-	return false;
+	getCSMdl();
+    }
+    else
+    {
+	if ( !getTrack() || !getInfo() )
+	    return false;
+    }
 
-    getCSMdl();
     getLogs();
     getMarkers();
 
@@ -387,7 +409,7 @@ bool Well::odReader::getInfo( od_istream& strm ) const
     if ( (mIsZero(surfcoord.x,0.001) && mIsZero(surfcoord.x,0.001))
 	    || (mIsUdf(surfcoord.x) && mIsUdf(surfcoord.x)) )
     {
-	if ( !getTrack(strm) )
+	if ( wd_.track().isEmpty() && !getTrack(strm) )
 	    return false;
 
 	wd_.info().surfacecoord = wd_.track().pos( 0 );
@@ -744,12 +766,6 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 	if ( !strm.isOK() )
 	    break;
 	d2t->add( dah, val );
-    }
-
-    if ( wd_.track().isEmpty() )
-    {
-	if ( !getTrack() || !getInfo() )
-	    return false;
     }
 
     if ( !updateDTModel(d2t,csmdl,errmsg_) )
