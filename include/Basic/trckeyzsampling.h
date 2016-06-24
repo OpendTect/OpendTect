@@ -95,6 +95,9 @@ public:
 			/*!< Checks if it is on valid bids and sample positions.
 			     If not, it will expand until it is */
 
+    bool		isEqual(const TrcKeyZSampling&,
+				float zeps=mUdf(float)) const;
+
     bool		operator==(const TrcKeyZSampling&) const;
     bool		operator!=(const TrcKeyZSampling&) const;
     TrcKeyZSampling&	operator=(const TrcKeyZSampling&);
