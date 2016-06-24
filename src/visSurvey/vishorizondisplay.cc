@@ -617,8 +617,6 @@ void HorizonDisplay::setSelSpec( int channel, const Attrib::SelSpec& as )
 
 void HorizonDisplay::setDepthAsAttrib( int channel )
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
-
     if ( !as_.validIdx(channel) )
 	return;
 
