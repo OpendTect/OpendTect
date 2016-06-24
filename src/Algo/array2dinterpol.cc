@@ -1435,11 +1435,11 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* taskrunner )
 	coordlistindices_ += corneridx_[idx];
 	if ( usefitplane && !mIsZero(bestfitplane.C_,1e-8) )
 	{
-	    cornerval_[idx] = -(bestfitplane.A_*pos.x + bestfitplane.B_*pos.y +
-		    bestfitplane.D_)/bestfitplane.C_;
+	    cornerval_[idx] = mCast(float, -(bestfitplane.A_*pos.x +
+			bestfitplane.B_*pos.y + bestfitplane.D_)/bestfitplane.C_);
 	}
 	else
-	    cornerval_[idx] =  avgz/nrdef;
+	    cornerval_[idx] =  mCast(float,avgz/nrdef);
 
 	trendpts += pos;
 	trendvals += cornerval_[idx];
@@ -1571,7 +1571,7 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 		}
 
 		trend_->apply( Coord(pos[0],pos[1]), false, val );
-		arr_->set( pos[0], pos[1], val );
+		arr_->set( pos[0], pos[1], mCast(float,val) );
 	    }
 	    else
 	    {
