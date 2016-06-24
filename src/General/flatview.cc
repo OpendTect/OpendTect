@@ -467,6 +467,8 @@ FlatView::Viewer::~Viewer()
     }
     delete flatviewergeom2dids_.getParam(this);
     flatviewergeom2dids_.removeParam( this );
+    delete zdinfos.getParam(this);
+    zdinfos.removeParam( this );
 }
 
 

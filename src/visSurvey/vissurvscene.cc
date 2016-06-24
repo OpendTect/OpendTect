@@ -203,6 +203,7 @@ Scene::~Scene()
 
     delete updatelocks.getParam( this );
     updatelocks.removeParam( this );
+    moreobjectstodo_.removeParam( this );
 }
 
 
