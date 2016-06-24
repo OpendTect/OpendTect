@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uimpecorrelationgrp.h"
 
 #include "draw.h"
+#include "hiddenparam.h"
 #include "horizonadjuster.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
@@ -27,12 +28,12 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uiseparator.h"
 #include "uispinbox.h"
 
-// TODO: Move preview viewer to separate object
-
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 
 namespace MPE
 {
+
+static HiddenParam<uiCorrelationGroup,uiGenInput*> snapfld_(0);
 
 uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     : uiDlgGroup(p,tr("Correlation"))
@@ -66,6 +67,14 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     corrthresholdfld_->box()->valueChanging.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
+    uiString nostr = uiStrings::sEmptyString();
+    uiGenInput* snapfld = new uiGenInput( leftgrp, nostr,
+			BoolInpSpec(true,tr("Snap to Event"),nostr) );
+    snapfld->valuechanged.notify(
+		mCB(this,uiCorrelationGroup,correlationChangeCB) );
+    snapfld->attach( rightTo, corrthresholdfld_ );
+    snapfld_.setParam( this, snapfld );
+
     uiSeparator* sep = new uiSeparator( leftgrp, "Sep" );
     sep->attach( stretchedBelow, corrthresholdfld_ );
 
@@ -98,6 +107,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
 
 uiCorrelationGroup::~uiCorrelationGroup()
 {
+    snapfld_.removeParam( this );
 }
 
 
@@ -106,6 +116,7 @@ void uiCorrelationGroup::selUseCorrelation( CallBacker* )
     const bool usecorr = usecorrfld_->getBoolValue();
     compwinfld_->setSensitive( usecorr );
     corrthresholdfld_->setSensitive( usecorr );
+    snapfld_.getParam(this)->setSensitive( usecorr );
     previewgrp_->setSensitive( usecorr );
 
     nrzfld_->setSensitive( usecorr );
@@ -167,6 +178,8 @@ void uiCorrelationGroup::init()
     corrthresholdfld_->box()->setValue(
 				adjuster_->similarityThreshold()*100.f );
 
+    snapfld_.getParam(this)->setValue( adjuster_->snapToEvent() );
+
     const int sample = mCast(int,SI().zStep()*SI().zDomain().userFactor());
     const Interval<int> dataintv = corrintv + Interval<int>(-2*sample,2*sample);
     nrzfld_->setValue( dataintv );
@@ -221,6 +234,8 @@ bool uiCorrelationGroup::commitToTracker( bool& fieldchange ) const
 	fieldchange = true;
 	adjuster_->setSimilarityThreshold( newthreshold );
     }
+
+    adjuster_->setSnapToEvent( snapfld_.getParam(this)->getBoolValue() );
 
     return true;
 }

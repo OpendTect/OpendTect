@@ -150,6 +150,12 @@ void HorizonAdjuster::setSimilarityThreshold( float th )
 float HorizonAdjuster::similarityThreshold() const
 { return evtracker_.similarityThreshold(); }
 
+void HorizonAdjuster::setSnapToEvent( bool yn )
+{ evtracker_.setSnapToEvent( yn ); }
+
+bool HorizonAdjuster::snapToEvent() const
+{ return evtracker_.snapToEvent(); }
+
 
 int HorizonAdjuster::nextStep()
 {
@@ -271,7 +277,7 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
     if ( !evtracker_.isOK() )
 	return false;
 
-    const bool res = evtracker_.track();
+    const bool res = evtracker_.snap( 0 );
     const float resz = sd.atIndex( evtracker_.targetDepth() );
     if ( !searchWindow().includes(resz-startz,false) )
 	return false;

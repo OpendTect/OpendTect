@@ -9,8 +9,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "valseriestracker.h"
 
 #include "genericnumer.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "samplfunc.h"
+
 
 ValSeriesTracker::ValSeriesTracker()
     : sourcevs_(0)
@@ -49,6 +51,8 @@ void ValSeriesTracker::setTarget( const ValueSeries<float>* vs, int sz,
 
 // EventTracker
 
+static HiddenParam<EventTracker,char> dosnap_(0);
+
 mDefineEnumUtils(EventTracker,CompareMethod,"Compare Method")
 {
 	"None",
@@ -71,6 +75,7 @@ const char* EventTracker::sKeyTrackByValue()	{ return "Track by value"; }
 const char* EventTracker::sKeyTrackEvent()	{ return "Track event"; }
 const char* EventTracker::sKeyCompareMethod()	{ return "Compare method"; }
 const char* EventTracker::sKeyAttribID()	{ return "Attribute"; }
+const char* EventTracker::sKeySnapToEvent()	{ return "Snap to event"; }
 
 
 static const char* event_names[] = { "Min", "Max", "0+-", "0-+", 0 };
@@ -110,7 +115,7 @@ EventTracker::EventTracker()
     : ValSeriesTracker()
     , permrange_( -5, 5 )
     , ampthreshold_( mUdf(float) )
-    , allowedvar_( 0.20 )
+    , allowedvar_( 0.25 )
     , evtype_( VSEvent::Max )
     , useabsthreshold_( false )
     , similaritywin_( -10, 10 )
@@ -126,9 +131,10 @@ EventTracker::EventTracker()
 {
 #define mAddAV(v) allowedvars_ += v
 //    mAddAV(0.01); mAddAV(0.02); mAddAV(0.05); mAddAV(0.1); mAddAV(0.2);
-    mAddAV( 0.05 );
+    mAddAV( 0.25 );
 #undef mAddAV
 
+    dosnap_.setParam( this, true );
 }
 
 
@@ -262,13 +268,17 @@ void EventTracker::setSimilarityWindow( const Interval<float>& rg )
 const Interval<float>& EventTracker::similarityWindow() const
 { return similaritywin_; }
 
-
 void EventTracker::setSimilarityThreshold( float th )
 { similaritythreshold_ = th; }
 
-
 float EventTracker::similarityThreshold() const
 { return similaritythreshold_; }
+
+void EventTracker::setSnapToEvent( bool yn )
+{ dosnap_.setParam( this, yn ); }
+
+bool EventTracker::snapToEvent() const
+{ return dosnap_.getParam(this); }
 
 
 bool EventTracker::track()
@@ -296,14 +306,22 @@ bool EventTracker::track()
 	    refampl = sampfunc.getValue( targetdepth_ );
 	}
 
-	const float threshold = refampl * (1-allowedvar_);
-	const bool res = snap( threshold );
+	Interval<float> amplrg( refampl * (1-allowedvar_),
+				refampl * (1+allowedvar_) );
+	if ( evtype_==VSEvent::Min )
+	    amplrg.sort();
+	const bool res = snap( amplrg );
 	if ( res )
 	{
-	    const SampledFunctionImpl<float,ValueSeries<float> >
-				sampfunc( *targetvs_, targetsize_);
-	    targetvalue_ = sampfunc.getValue( targetdepth_ );
-	    quality_ = (targetvalue_-threshold)/(refampl-threshold);
+	    if ( mIsUdf(targetvalue_) )
+	    {
+		const SampledFunctionImpl<float,ValueSeries<float> >
+				    sampfunc( *targetvs_, targetsize_);
+		targetvalue_ = sampfunc.getValue( targetdepth_ );
+	    }
+
+	    const float amplvar = Math::Abs(targetvalue_-refampl) / refampl;
+	    quality_ = 1 - (amplvar-allowedvar_)/allowedvar_;
 	    if ( quality_>1 ) quality_ = 1;
 	    else if ( quality_<0 ) quality_ = 0;
 	}
@@ -377,6 +395,14 @@ bool EventTracker::track()
 
     if ( targetdepth_<0 || mIsUdf(targetdepth_) )
 	return false;
+
+    if ( !snapToEvent() )
+    {
+	const SampledFunctionImpl<float,ValueSeries<float> >
+					sampfunc( *targetvs_, targetsize_ );
+	targetvalue_ = sampfunc.getValue( targetdepth_ );
+	return true;
+    }
 
     const int bestidx = mNINT32( targetdepth_ );
     return snap( (*targetvs_)[bestidx] );
@@ -553,6 +579,18 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 
 bool EventTracker::snap( float threshold )
 {
+    if ( evtype_==VSEvent::Max )
+	return snap( Interval<float>(threshold,mUdf(float)) );
+
+    if ( evtype_==VSEvent::Min )
+	return snap( Interval<float>(-mUdf(float),threshold) );
+
+    return snap( Interval<float>(threshold,threshold) );
+}
+
+
+bool EventTracker::snap( const Interval<float>& amplrg )
+{
     if ( targetdepth_< 0 || targetdepth_>=targetsize_ )
 	return false;
 
@@ -595,14 +633,15 @@ bool EventTracker::snap( float threshold )
 	bool uploopskip = false;
 	float uptroughampl;
 	ValueSeriesEvent<float,float> upevent =
-	    findExtreme(evfinder,uprg,threshold,upampl,uploopskip,uptroughampl);
+	    findExtreme(evfinder,uprg,amplrg,upampl,uploopskip,uptroughampl);
 
 	float dnampl;
 	bool dnloopskip = false;
 	float dntroughampl;
 	ValueSeriesEvent<float,float> dnevent =
-	    findExtreme(evfinder,dnrg,threshold,dnampl,dnloopskip,dntroughampl);
+	    findExtreme(evfinder,dnrg,amplrg,dnampl,dnloopskip,dntroughampl);
 
+	const float& threshold = amplrg.start;
 	float troughthreshold = !mIsUdf(threshold) ? -0.1f*threshold : 0;
 	if ( evtype_==VSEvent::Min )
 	{
@@ -625,28 +664,41 @@ bool EventTracker::snap( float threshold )
 	{
 	    if ( uploopskip!=dnloopskip )
 	    {
-		eventpos = uploopskip && dnevent.pos<=dnbound
-		    ? dnevent.pos : upevent.pos;
+		const bool usednev = uploopskip && dnevent.pos<=dnbound;
+		eventpos = usednev ? dnevent.pos : upevent.pos;
+		targetvalue_ = usednev ? dnevent.val : upevent.val;
 	    }
 	    else
 	    {
 		if ( upampl==dnampl )
 		{
-		    if( fabs(upevent.pos-dnevent.pos)<1 )
+		    if ( fabs(upevent.pos-dnevent.pos)<1 )
+		    {
 			eventpos = (upevent.pos + dnevent.pos) / 2;
+			targetvalue_ = upevent.val;
+		    }
 		    else
 		    {
 			const float updiff = fabs( targetdepth_-upevent.pos );
 			const float dndiff = fabs( targetdepth_-dnevent.pos );
-			eventpos = updiff<dndiff ? upevent.pos : dnevent.pos;
+			const bool useupev = updiff<dndiff;
+			eventpos = useupev ? upevent.pos : dnevent.pos;
+			targetvalue_ = useupev ? upevent.val : dnevent.val;
 		    }
 		}
 		else
-		    eventpos = upampl>dnampl ? upevent.pos : dnevent.pos;
+		{
+		    const bool useupev = upampl>dnampl;
+		    eventpos = useupev ? upevent.pos : dnevent.pos;
+		    targetvalue_ = useupev ? upevent.val : dnevent.val;
+		}
 	    }
 	}
 	else
+	{
 	    eventpos = upfound ? upevent.pos : dnevent.pos;
+	    targetvalue_ = upfound ? upevent.val : dnevent.val;
+	}
 
     }
     else
@@ -659,9 +711,13 @@ bool EventTracker::snap( float threshold )
 	return false;
 
     targetdepth_ = eventpos;
-    const SampledFunctionImpl<float,ValueSeries<float> >
-			sampfunc( *targetvs_, targetsize_);
-    targetvalue_ = sampfunc.getValue( targetdepth_ );
+    if ( mIsUdf(targetvalue_) )
+    {
+	const SampledFunctionImpl<float,ValueSeries<float> >
+					sampfunc( *targetvs_, targetsize_ );
+	targetvalue_ = sampfunc.getValue( targetdepth_ );
+    }
+
     return true;
 }
 
@@ -669,6 +725,17 @@ bool EventTracker::snap( float threshold )
 ValueSeriesEvent<float,float> EventTracker::findExtreme(
     const ValueSeriesEvFinder<float, float>& eventfinder,
     const Interval<float>& rg, float threshold, float& avgampl,
+    bool& hasloopskips, float& troughampl ) const
+{
+    return findExtreme( eventfinder, rg, Interval<float>(threshold,threshold),
+			avgampl, hasloopskips, troughampl );
+}
+
+
+
+ValueSeriesEvent<float,float> EventTracker::findExtreme(
+    const ValueSeriesEvFinder<float, float>& eventfinder,
+    const Interval<float>& rg, const Interval<float>& amplrg, float& avgampl,
     bool& hasloopskips, float& troughampl ) const
 {
     const SamplingData<float>& sd = eventfinder.samplingData();
@@ -682,9 +749,7 @@ ValueSeriesEvent<float,float> EventTracker::findExtreme(
 	if ( mIsUdf(ev.pos) )
 	    return ev;
 
-	if ( !mIsUdf(threshold) &&
-		( (evtype_==VSEvent::Min && ev.val>threshold) ||
-		    (evtype_==VSEvent::Max && ev.val<threshold)) )
+	if ( !amplrg.includes(ev.val,false) )
 	{
 	    occ++;
 	    continue;
@@ -740,6 +805,7 @@ void EventTracker::fillPar( IOPar& iopar ) const
     iopar.setYN( sKeyUseAbsThreshold(), useabsthreshold_ );
     iopar.set( sKeySimWindow(), similaritywin_ );
     iopar.set( sKeySimThreshold(), similaritythreshold_ );
+    iopar.setYN( sKeySnapToEvent(), snapToEvent() );
     iopar.setYN( sKeyTrackByValue(), !usesimilarity_ );
     iopar.setYN( sKeyNormSimi(), normalizesimi_ );
 }
@@ -767,6 +833,9 @@ bool EventTracker::usePar( const IOPar& iopar )
     iopar.get( sKeySimWindow(),similaritywin_ );
     iopar.getYN( sKeyNormSimi(), normalizesimi_ );
     iopar.get( sKeySimThreshold(), similaritythreshold_ );
+    bool dosnap = true;
+    iopar.getYN( sKeySnapToEvent(), dosnap );
+    setSnapToEvent( dosnap );
     bool trackbyvalue;
     if ( iopar.getYN( sKeyTrackByValue(), trackbyvalue ) )
 	usesimilarity_ = !trackbyvalue;

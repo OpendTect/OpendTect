@@ -61,6 +61,7 @@ static int getEventIdx( VSEvent::Type tp )
 
 static const char* sEventNames[] = { "Min", "Max", "0+-", "0-+", 0 };
 
+static bool sAllowSteps = false;
 
 uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     : uiDlgGroup(p,tr("Event"))
@@ -93,7 +94,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     ampthresholdfld_->valuechanged.notify(
 	    mCB(this,uiEventGroup,changeCB) );
 
-    if ( !is2d )
+    if ( !is2d && sAllowSteps )
     {
 	addstepbut_ = new uiPushButton( leftgrp, tr("Steps"),
 		mCB(this,uiEventGroup,addStepPushedCB), false );
@@ -148,12 +149,9 @@ uiEventGroup::~uiEventGroup()
 }
 
 
-void uiEventGroup::updateSensitivity( bool doauto )
+void uiEventGroup::updateSensitivity( bool )
 {
-    thresholdtypefld_->setSensitive( doauto );
-    ampthresholdfld_->setSensitive( doauto );
-    if ( addstepbut_ )
-	addstepbut_->setSensitive( doauto );
+    selEventType( 0 );
 }
 
 
@@ -188,6 +186,8 @@ void uiEventGroup::selEventType( CallBacker* )
     const bool thresholdneeded = ev==VSEvent::Min || ev==VSEvent::Max;
     thresholdtypefld_->setSensitive( thresholdneeded );
     ampthresholdfld_->setSensitive( thresholdneeded );
+    if ( addstepbut_ )
+	addstepbut_->setSensitive( thresholdneeded );
 }
 
 
@@ -198,27 +198,35 @@ void uiEventGroup::selAmpThresholdType( CallBacker* )
 						:tr("Allowed difference (%)"));
     if ( absthreshold )
     {
-	if ( is2d_ || adjuster_->getAmplitudeThresholds().isEmpty() )
+	const TypeSet<float>& thresholds = adjuster_->getAmplitudeThresholds();
+	if ( is2d_ || thresholds.isEmpty() )
 	    ampthresholdfld_->setValue( adjuster_->amplitudeThreshold() );
 	else
 	{
 	    BufferString bs;
-	    bs += adjuster_->getAmplitudeThresholds()[0];
-	    for (int idx=1;idx<adjuster_->getAmplitudeThresholds().size();idx++)
-	    { bs += ","; bs += adjuster_->getAmplitudeThresholds()[idx]; }
+	    bs += thresholds[0];
+	    if ( sAllowSteps )
+	    {
+		for (int idx=1;idx<thresholds.size();idx++)
+		{ bs += ","; bs += thresholds[idx]; }
+	    }
 	    ampthresholdfld_->setText( bs.buf() );
 	}
     }
     else
     {
-	if ( is2d_ || adjuster_->getAllowedVariances().isEmpty() )
+	const TypeSet<float>& variances = adjuster_->getAllowedVariances();
+	if ( is2d_ || variances.isEmpty() )
 	    ampthresholdfld_->setValue( adjuster_->allowedVariance()*100 );
 	else
 	{
 	    BufferString bs;
-	    bs += adjuster_->getAllowedVariances()[0]*100;
-	    for ( int idx=1; idx<adjuster_->getAllowedVariances().size(); idx++)
-	    { bs += ","; bs += adjuster_->getAllowedVariances()[idx]*100; }
+	    bs += variances[0]*100;
+	    if ( sAllowSteps )
+	    {
+		for ( int idx=1; idx<variances.size(); idx++)
+		{ bs += ","; bs += variances[idx]*100; }
+	    }
 	    ampthresholdfld_->setText( bs.buf() );
 	}
     }
@@ -360,119 +368,36 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 	adjuster_->setUseAbsThreshold( useabs );
     }
 
+    SeparString ss( ampthresholdfld_->text(), ',' );
     if ( useabs )
     {
-	SeparString ss( ampthresholdfld_->text(), ',' );
-	int idx = 0;
-	if ( ss.size() < 2 )
-	{
-	    float vgate = ss.getFValue(0);
-	    if ( Values::isUdf(vgate) )
-		mErrRet( tr("Value threshold not set") );
-	    if ( adjuster_->amplitudeThreshold() != vgate )
-	    {
-		fieldchange = true;
-		adjuster_->setAmplitudeThreshold( vgate );
-	    }
-	}
-	else
-	{
-	    TypeSet<float> vars;
-	    for ( ; idx<ss.size(); idx++ )
-	    {
-		float varvalue = ss.getFValue(idx);
-		if ( Values::isUdf(varvalue) )
-		    mErrRet( tr("Value threshold not set properly") );
+	const float thrval = ss.getFValue(0);
+	if ( mIsUdf(thrval) )
+	    mErrRet( tr("Value threshold not set") );
 
-		if ( adjuster_->getAmplitudeThresholds().size() < idx+1 )
-		{
-		    fieldchange = true;
-		    adjuster_->getAmplitudeThresholds() += varvalue;
-		    if ( idx == 0 )
-			adjuster_->setAmplitudeThreshold( varvalue );
-		}
-		else if ( adjuster_->getAmplitudeThresholds().size() >= idx+1 )
-		    if ( adjuster_->getAmplitudeThresholds()[idx] != varvalue )
-		    {
-			fieldchange = true;
-			adjuster_->getAmplitudeThresholds() += varvalue;
-			if ( idx == 0 )
-			    adjuster_->setAmplitudeThreshold( varvalue );
-		    }
-	    }
-	}
-
-	if ( idx==0 && adjuster_->getAmplitudeThresholds().size() > 0 )
+	if ( adjuster_->amplitudeThreshold() != thrval )
 	{
-	    adjuster_->getAmplitudeThresholds()[idx] =
-				adjuster_->amplitudeThreshold();
-	    idx++;
-	}
-
-	if ( adjuster_->getAmplitudeThresholds().size() > idx )
-	{
-	    int size = adjuster_->getAmplitudeThresholds().size();
 	    fieldchange = true;
-	    adjuster_->getAmplitudeThresholds().removeRange( idx, size-1 );
+	    adjuster_->setAmplitudeThreshold( thrval );
 	}
     }
     else
     {
-	SeparString ss( ampthresholdfld_->text(), ',' );
-	int idx = 0;
-	TypeSet<float>& vars = adjuster_->getAllowedVariances();
-	if ( ss.size() < 2 )
-	{
-	    float var = ss.getFValue(0) / 100;
-	    if ( var<=0.0 || var>=1.0 )
-		mErrRet( tr("Allowed difference must be between 0-100") );
-	    if ( adjuster_->allowedVariance() != var )
-	    {
-		fieldchange = true;
-		adjuster_->setAllowedVariance( var );
-	    }
-	}
-	else
-	{
-	    for ( ; idx<ss.size(); idx++ )
-	    {
-		float varvalue = ss.getFValue(idx) / 100;
-		if ( varvalue <=0.0 || varvalue>=1.0 )
-		    mErrRet( tr("Allowed difference must be between 0-100") );
+	const float var = ss.getFValue(0) / 100;
+	if ( var<=0.0 || var>=1.0 )
+	    mErrRet( tr("Allowed difference must be between 0-100") );
 
-		if ( vars.size() < idx+1 )
-		{
-		    fieldchange = true;
-		    vars += varvalue;
-		    if ( idx == 0 )
-			adjuster_->setAllowedVariance( varvalue );
-		}
-		else if ( vars.size() >= idx+1 )
-		    if ( vars[idx] != varvalue )
-		    {
-			fieldchange = true;
-			vars[idx] = varvalue;
-			if ( idx == 0 )
-			    adjuster_->setAllowedVariance( varvalue );
-		    }
-	    }
-	}
-
-	if ( idx==0 && vars.size()>0 )
+	if ( adjuster_->allowedVariance() != var )
 	{
-	    vars[idx] = adjuster_->allowedVariance();
-	    idx++;
-	}
-
-	if (  vars.size() > idx )
-	{
-	    const int size = vars.size();
 	    fieldchange = true;
-	    vars.removeRange( idx, size-1 );
+	    adjuster_->setAllowedVariance( var );
 	}
     }
+
+    if ( sAllowSteps )
+    { pErrMsg("Multiple steps not handled"); }
 
     return true;
 }
 
-} //namespace MPE
+} // namespace MPE

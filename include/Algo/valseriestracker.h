@@ -110,6 +110,7 @@ public:
 				       event within the permitted range. No
 				       amplitude threshold is used. */
     VSEvent::Type		trackEvent() const;
+    bool			snap(const Interval<float>& amplrg);
     bool			snap(float threshold);
 				/*!Snaps at nearest event that is in permitted
 				   range and where the amplitude meets the
@@ -150,6 +151,9 @@ public:
     void			setSimilarityThreshold(float th);
     float			similarityThreshold() const;
 
+    void			setSnapToEvent(bool);
+    bool			snapToEvent() const;
+
     bool			track();
     float			quality() const		{ return quality_; }
 
@@ -161,45 +165,50 @@ protected:
     ValueSeriesEvent<float,float>
 			findExtreme(const ValueSeriesEvFinder<float, float>&,
 			const Interval<float>&,float,float&,bool&,float&) const;
+    ValueSeriesEvent<float,float>
+			findExtreme(const ValueSeriesEvFinder<float, float>&,
+				const Interval<float>& zrg,
+				const Interval<float>& amplrg,float& avgampl,
+				bool& hasloopskips,float& troughampl) const;
     bool		findMaxSimilarity(int nrtests,int step,int nrgracetests,
 					 float& res,float& maxsim,
 					 bool& flatstart) const;
 
-    VSEvent::Type	evtype_;
-    Interval<float>	permrange_;
-    CompareMethod	comparemethod_;
-    float		ampthreshold_;
-    TypeSet<float>	ampthresholds_;
-    float		allowedvar_;
-    TypeSet<float>	allowedvars_;
-    bool		useabsthreshold_;
-    Interval<float>	similaritywin_;
-    float		rangestep_;
-    float		similaritythreshold_;
-    bool		usesimilarity_;
-    bool		normalizesimi_;
-    float		compareampl_;
-    float		quality_;
+    VSEvent::Type		evtype_;
+    Interval<float>		permrange_;
+    CompareMethod		comparemethod_;
+    float			ampthreshold_;
+    TypeSet<float>		ampthresholds_;
+    float			allowedvar_;
+    TypeSet<float>		allowedvars_;
+    bool			useabsthreshold_;
+    Interval<float>		similaritywin_;
+    float			rangestep_;
+    float			similaritythreshold_;
+    bool			usesimilarity_;
+    bool			normalizesimi_;
+    float			compareampl_;
+    float			quality_;
 
     const ValueSeries<float>*	seedvs_;
     float			seeddepth_;
     int				seedsize_;
 
-    static const char*	sKeyPermittedRange();
-    static const char*	sKeyValueThreshold();
-    static const char*	sKeyValueThresholds();
-    static const char*	sKeyAllowedVariance();
-    static const char*	sKeyAllowedVariances();
-    static const char*	sKeyUseAbsThreshold();
-    static const char*	sKeySimWindow();
-    static const char*	sKeySimThreshold();
-    static const char*	sKeyNormSimi();
-    static const char*	sKeyTrackByValue();
-    static const char*	sKeyTrackEvent();
-    static const char*	sKeyCompareMethod();
-    static const char*	sKeyAttribID();
+    static const char*		sKeyPermittedRange();
+    static const char*		sKeyValueThreshold();
+    static const char*		sKeyValueThresholds();
+    static const char*		sKeyAllowedVariance();
+    static const char*		sKeyAllowedVariances();
+    static const char*		sKeyUseAbsThreshold();
+    static const char*		sKeySimWindow();
+    static const char*		sKeySimThreshold();
+    static const char*		sKeyNormSimi();
+    static const char*		sKeyTrackByValue();
+    static const char*		sKeyTrackEvent();
+    static const char*		sKeyCompareMethod();
+    static const char*		sKeyAttribID();
+    static const char*		sKeySnapToEvent();
 
 };
-
 
 #endif
