@@ -1153,7 +1153,7 @@ bool TrcKeyZSampling::isEqual( const TrcKeyZSampling& tkzs, float zeps ) const
 	{
 	    const float minzstep = mMIN( fabs(zsamp_.step),
 					 fabs(tkzs.zsamp_.step) );
-	    zeps = mMAX( 1e-6, (mIsUdf(minzstep) ? 0.0 : 0.001*minzstep) );
+	    zeps = mMAX( 1e-6f, (mIsUdf(minzstep) ? 0.0f : 0.001f*minzstep) );
 	}
 
 	float diff = tkzs.zsamp_.start - this->zsamp_.start;
