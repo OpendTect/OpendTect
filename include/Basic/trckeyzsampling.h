@@ -113,6 +113,8 @@ public:
 			/*!< adjusts the non-flat dimensions of the desired
 			     "this" tkzs to the availabletkzs for optimal
 			     texture data display. */
+    bool		isEqual(const TrcKeyZSampling&,
+				float zeps=mUdf(float)) const;
 };
 
 

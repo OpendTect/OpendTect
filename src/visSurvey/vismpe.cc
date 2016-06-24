@@ -1149,7 +1149,10 @@ void MPEDisplay::showManipulator( bool yn )
 
 bool MPEDisplay::isManipulated() const
 {
-    return getTrcKeyZSampling(true,true,0) != getTrcKeyZSampling(false,true,0);
+    const TrcKeyZSampling curtkzs = getTrcKeyZSampling( false, true, 0 );
+    const TrcKeyZSampling maniptkzs = getTrcKeyZSampling( true, true, 0 );
+
+    return !curtkzs.isEqual( maniptkzs );
 }
 
 

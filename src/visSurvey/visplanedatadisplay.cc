@@ -506,7 +506,10 @@ bool PlaneDataDisplay::isManipulatorShown() const
 
 bool PlaneDataDisplay::isManipulated() const
 {
-    if ( getTrcKeyZSampling(true,true) != getTrcKeyZSampling(false,true) )
+    const TrcKeyZSampling curtkzs = getTrcKeyZSampling( false, true );
+    const TrcKeyZSampling maniptkzs = getTrcKeyZSampling( true, true );
+
+    if ( !curtkzs.isEqual(maniptkzs) )
 	return true;
 
     return forcemanipupdate_;
