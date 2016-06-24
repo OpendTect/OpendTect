@@ -1144,23 +1144,33 @@ void TrcKeyZSampling::snapToSurvey()
 
 
 bool TrcKeyZSampling::operator==( const TrcKeyZSampling& tkzs ) const
+{ return isEqual( tkzs, (SI().zIsTime() ? 1e-6f : 1e-3f) ); }
+
+
+bool TrcKeyZSampling::isEqual( const TrcKeyZSampling& tkzs, float zeps ) const
 {
     if ( this == &tkzs ) return true;
 
-   if ( tkzs.hsamp_ == this->hsamp_ )
-   {
+    if ( tkzs.hsamp_ == this->hsamp_ )
+    {
+	if ( mIsUdf(zeps) )
+	{
+	    const float minzstep = mMIN( fabs(zsamp_.step),
+					 fabs(tkzs.zsamp_.step) );
+	    zeps = mMAX( 1e-6f, (mIsUdf(minzstep) ? 0.0f : 0.001f*minzstep) );
+	}
+
 	float diff = tkzs.zsamp_.start - this->zsamp_.start;
-	const float eps = (float) ( SI().zIsTime() ? 1e-6 : 1e-3 );
-	if ( fabs(diff) > eps ) return false;
+	if ( fabs(diff) > zeps ) return false;
 
 	diff = tkzs.zsamp_.stop - this->zsamp_.stop;
-	if ( fabs(diff) > eps ) return false;
+	if ( fabs(diff) > zeps ) return false;
 
 	diff = tkzs.zsamp_.step - this->zsamp_.step;
-	if ( fabs(diff) > eps ) return false;
+	if ( fabs(diff) > zeps ) return false;
 
 	return true;
-   }
+    }
 
    return false;
 }
