@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "paralleltask.h"
 
+#include "arrayndalgo.h"
 #include "enums.h"
 #include "factory.h"
 #include "odmemory.h"
@@ -84,6 +85,11 @@ public:
     virtual bool		canUseArrayAccess() const { return false; }
     virtual bool		setArray(ArrayAccess&,TaskRunner* =0);
 				//!<Set AFTER all settings
+
+				//!<Trend is active only when setTrendOrder
+				//!<is called
+    void			setTrendOrder(PolyTrend::Order ord);
+    bool			trimArray(int step,Array2D<char>& edgesmask);
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);

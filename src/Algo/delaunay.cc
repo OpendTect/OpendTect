@@ -4,13 +4,12 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "delaunay.h"
+#include "od_ostream.h"
 #include "sorting.h"
 #include "trigonometry.h"
 #include "varlenarray.h"
-#include "od_ostream.h"
 
 
 DelaunayTriangulator::DelaunayTriangulator( DAGTriangleTree& dagt )
@@ -975,20 +974,24 @@ DAGTriangleTree::DAGTriangle::operator=( const DAGTriangleTree::DAGTriangle& b )
 Triangle2DInterpolator::Triangle2DInterpolator( const DAGTriangleTree& tri )
     : triangles_( tri )
 {
+    const TypeSet<Coord>& crdlist = triangles_.coordList();
     triangles_.getSurroundingIndices( perimeter_ );
-    triangles_.getConnectionAndWeights(mInitCorner0,corner0_,cornerweights0_);
-    triangles_.getConnectionAndWeights(mInitCorner1,corner1_,cornerweights1_);
-    triangles_.getConnectionAndWeights(mInitCorner2,corner2_,cornerweights2_);
+    triangles_.getConnectionAndWeights( mInitCorner0, corner0_,
+	    cornerweights0_ );
+    triangles_.getConnectionAndWeights( mInitCorner1, corner1_,
+	    cornerweights1_ );
+    triangles_.getConnectionAndWeights( mInitCorner2, corner2_,
+	    cornerweights2_ );
 
     initcenter_ = ( triangles_.getInitCoord(mInitCorner0) +
 		    triangles_.getInitCoord(mInitCorner1) +
 		    triangles_.getInitCoord(mInitCorner2) )/3;
-    const Coord startpt = initcenter_ + Coord(1,0);
-    for ( int idx=0; idx<perimeter_.size(); idx++ )
-	perimeterazimuth_ += initcenter_.angle( startpt,
-		triangles_.coordList()[perimeter_[idx]] );
+    const Coord pt = initcenter_ + Coord(1,0);
+    const int psize = perimeter_.size();
+    for ( int idx=0; idx<psize; idx++ )
+	perimeterazimuth_ += initcenter_.angle(pt,crdlist[perimeter_[idx]]);
 
-    sort_coupled(perimeterazimuth_.arr(), perimeter_.arr(), perimeter_.size());
+    sort_coupled( perimeterazimuth_.arr(), perimeter_.arr(), psize );
 }
 
 
@@ -996,6 +999,9 @@ bool Triangle2DInterpolator::computeWeights( const Coord& pt,
 	TypeSet<int>& vertices, TypeSet<double>& weights,
 	double maxdist, bool dointerpolate )
 {
+    vertices.erase();
+    weights.erase();
+
     int dupid = -1;
     TypeSet<int> tmpvertices;
     if ( !triangles_.getTriangle(pt,dupid,tmpvertices) )
@@ -1012,6 +1018,9 @@ bool Triangle2DInterpolator::computeWeights( const Coord& pt,
     if ( !nrvertices )
 	{ pErrMsg("Hmm"); return false; }
 
+    const TypeSet<Coord>& coordlist = triangles_.coordList();
+    const double maxdistsq = maxdist * maxdist;
+
     if ( !dointerpolate ) //Get the nearest node only
     {
 	double minsqdist = 0;
@@ -1020,10 +1029,12 @@ bool Triangle2DInterpolator::computeWeights( const Coord& pt,
 	    if ( tmpvertices[ptidx]<0 )
 		continue;
 
-	    const Coord diff = triangles_.coordList()[tmpvertices[ptidx]] - pt;
+	    const Coord diff = coordlist[tmpvertices[ptidx]] - pt;
 	    const double sqdist = diff.sqAbs();
+	    if ( !mIsUdf(maxdist) && sqdist > maxdistsq )
+		continue;
 
-	    if ( !vertices.size() )
+	    if ( vertices.isEmpty() )
 	    {
 		vertices += tmpvertices[ptidx];
 		minsqdist = sqdist;
@@ -1035,39 +1046,38 @@ bool Triangle2DInterpolator::computeWeights( const Coord& pt,
 	    }
 	}
 
-	if ( !vertices.size() )
+	if ( vertices.isEmpty() )
 	    return false;
 
 	weights += 1.;
 	return true;
     }
 
-    bool usedinit = false;
-    bool result = true;
     TypeSet<double> tmpw;
     TypeSet<int> tmpv;
+    bool usedinit = false;
+
     for ( int ptidx=0; ptidx<nrvertices; ptidx++ )
     {
-	if ( tmpvertices[ptidx]<0 )
+	if ( tmpvertices[ptidx] < 0 )
 	{
+	    if ( !setFromAzimuth( tmpvertices, pt, tmpv, tmpw ) )
+		return false;
+
 	    usedinit = true;
-	    result = setFromAzimuth( tmpvertices, pt, tmpv, tmpw );
 	    break;
 	}
     }
 
     if ( !usedinit )
     {
-	double weight[3];
-	interpolateOnTriangle2D( pt,
-		triangles_.coordList()[tmpvertices[0]],
-		triangles_.coordList()[tmpvertices[1]],
-		triangles_.coordList()[tmpvertices[2]],
-		weight[0], weight[1], weight[2] );
+	tmpw.setSize(3);
+	for ( int idx=0; idx<3; idx++ )
+	    tmpv += tmpvertices[idx];
 
-	tmpv += tmpvertices[0]; tmpw += weight[0];
-	tmpv += tmpvertices[1]; tmpw += weight[1];
-	tmpv += tmpvertices[2]; tmpw += weight[2];
+	interpolateOnTriangle2D( pt, coordlist[tmpvertices[0]],
+		coordlist[tmpvertices[1]], coordlist[tmpvertices[2]],
+		tmpw[0], tmpw[1], tmpw[2] );
     }
 
     if ( mIsUdf(maxdist) )
@@ -1077,28 +1087,24 @@ bool Triangle2DInterpolator::computeWeights( const Coord& pt,
     }
     else
     {
-	double weightsum = 0., remwsum = 0.;
-	for ( int idx=0; idx<tmpv.size(); idx++ )
+	double weightsum = 0.;
+	for ( int idx=0; idx<vertices.size(); idx++ )
 	{
-	    const int vertice = tmpv[idx];
-	    const double weight = tmpw[idx];
-
-	    const Coord df = triangles_.coordList()[vertice] - pt;
-	    if ( weight>mDefEps && df.sqAbs()<maxdist*maxdist )
+	    const int vertice = tmpvertices[idx];
+	    const Coord df = coordlist[vertice] - pt;
+	    if ( tmpw[idx] > mDefEps && df.sqAbs() < maxdistsq )
 	    {
 		vertices += vertice;
-		weights += weight;
-		weightsum += weight;
+		weights += tmpw[idx];
+		weightsum += tmpw[idx];
 	    }
-	    else
-		remwsum += weight;
 	}
 
 	for ( int idx=0; idx<vertices.size(); idx++ )
-	    weights[idx] += remwsum*weights[idx]/weightsum;
+	    weights[idx] += weights[idx]/weightsum;
     }
 
-    return result;
+    return weights.size() > 0;
 }
 
 

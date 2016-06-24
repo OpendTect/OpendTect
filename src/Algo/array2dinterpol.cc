@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "executor.h"
 #include "delaunay.h"
+#include "hiddenparam.h"
 #include "polygon.h"
 #include "limits.h"
 #include "rowcol.h"
@@ -21,6 +22,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mPolygonType int
+
+
+HiddenParam<Array2DInterpol,PolyTrend*> trend_(0);
+HiddenParam<TriangulationArray2DInterpol,TypeSet<int>*> corneridx_(0);
+HiddenParam<TriangulationArray2DInterpol,TypeSet<float>*> cornerval_(0);
+HiddenParam<TriangulationArray2DInterpol,TypeSet<BinID>*> cornerbid_(0);
 
 const char* Array2DInterpol::sKeyFillType()	{ return "Fill Type"; }
 const char* Array2DInterpol::sKeyRowStep()	{ return "Row Step"; }
@@ -103,13 +110,17 @@ Array2DInterpol::Array2DInterpol()
     , maskismine_(false)
     , isclassification_(false)
     , statsetup_(0)
-{}
+{
+    trend_.setParam( this, 0 );
+}
 
 
 Array2DInterpol::~Array2DInterpol()
 {
     if ( maskismine_ ) delete mask_;
     delete statsetup_;
+    delete trend_.getParam( this );
+    trend_.removeParam( this );
 }
 
 
@@ -134,6 +145,14 @@ void Array2DInterpol::setColStep( float cs )
 
 void Array2DInterpol::setOrigin( const RowCol& rc )
 { origin_ = rc; }
+
+
+void Array2DInterpol::setTrendOrder( PolyTrend::Order ord )
+{
+    delete trend_.getParam( this );
+    trend_.setParam( this, new PolyTrend() );
+    trend_.getParam(this)->setOrder( ord );
+}
 
 
 void Array2DInterpol::setSampling( const TrcKeySampling& hs )
@@ -623,6 +642,9 @@ bool Array2DInterpol::fillPar( IOPar& par ) const
     par.set( sKeyNrCols(), nrcols_ );
     par.set( sKeyNrCells(), nrcells_ );
     par.set( sKeyMaxHoleSz(), mIsUdf(maxholesize_) ? -1 : maxholesize_ );
+    if ( trend_.getParam(this) )
+	par.set( PolyTrend::sKeyOrder(), PolyTrend::OrderDef().getKey(
+		    trend_.getParam(this)->getOrder()) );
     return true;
 }
 
@@ -640,9 +662,55 @@ bool Array2DInterpol::usePar( const IOPar& par )
     par.get( sKeyNrCols(), nrcols_ );
     par.get( sKeyNrCells(), nrcells_ );
     par.get( sKeyMaxHoleSz(), maxholesize_ );
+
+    FixedString trendstr = par.find( PolyTrend::sKeyOrder() );
+    if ( !trendstr.isEmpty() )
+	setTrendOrder( PolyTrend::OrderDef().parse(trendstr) );
+
     return true;
 }
 
+
+bool Array2DInterpol::trimArray( int step, Array2D<char>& edgesmask )
+{
+    if ( !arr_ || mIsUdf(step) || step < 1 || !edgesmask.isOK() ||
+	 nrrows_ < 2 || nrcols_ < 2 )
+	return false;
+
+    edgesmask.setAll( '\0' );
+
+    const int n1m = nrrows_-1;
+    const int n2m = nrcols_-1;
+
+    for ( int idx=0; idx<nrrows_; idx++ )
+    {
+	for ( int idy=0; idy<nrcols_; idy++ )
+	{
+	    int requestnbneighbors = idx < 1 || idx > n1m ? 1 : 2;
+	    requestnbneighbors += idy < 1 || idy > n2m ? 1 : 2;
+	    if ( mIsUdf(arr_->get(idx,idy)) )
+		continue;
+
+	    int nbneighbors = 0;
+	    if ( idx > 0 && !mIsUdf(arr_->get(idx-1,idy)) )
+		nbneighbors++;
+	    if ( idx < n1m && !mIsUdf(arr_->get(idx+1,idy)) )
+		nbneighbors++;
+	    if ( idy > 0 && !mIsUdf(arr_->get(idx,idy-1)) )
+		nbneighbors++;
+	    if ( idy < n2m && !mIsUdf(arr_->get(idx,idy+1)) )
+		nbneighbors++;
+
+	    if ( (nbneighbors < requestnbneighbors) ||
+		 (idx%step == 0 && idy%step == 0) )
+	    {
+		edgesmask.set( idx, idy, '\1' );
+	    }
+	}
+    }
+
+    return true;
+}
 
 //InverseDistance
 //
@@ -1220,7 +1288,14 @@ TriangulationArray2DInterpol::TriangulationArray2DInterpol()
     , totalnr_( -1 )
     , dointerpolation_( true )
     , maxdistance_( mUdf(float) )
-{}
+{
+    corneridx_.setParam( this, new TypeSet<int> );
+    cornerval_.setParam( this, new TypeSet<float> );
+    cornerbid_.setParam( this, new TypeSet<BinID> );
+    corneridx_.getParam(this)->setSize( 4 );
+    cornerval_.getParam(this)->setSize( 4 );
+    cornerbid_.getParam(this)->setSize( 4 );
+}
 
 
 TriangulationArray2DInterpol::~TriangulationArray2DInterpol()
@@ -1228,6 +1303,12 @@ TriangulationArray2DInterpol::~TriangulationArray2DInterpol()
     delete [] nodestofill_;
     delete [] curdefined_;
     delete triangleinterpolator_;
+    delete corneridx_.getParam( this );
+    delete cornerval_.getParam( this );
+    delete cornerbid_.getParam( this );
+    corneridx_.removeParam( this );
+    cornerval_.removeParam( this );
+    cornerbid_.removeParam( this );
 }
 
 
@@ -1248,20 +1329,6 @@ bool TriangulationArray2DInterpol::setArray( ArrayAccess& arr,
 	return false;
 
     return initFromArray( taskrunner );
-}
-
-
-#define mSetRange \
-if ( !rgset ) \
-{ \
-    rgset = true; \
-    xrg.start = xrg.stop = row; \
-    yrg.start = yrg.stop = col; \
-} \
-else \
-{ \
-    xrg.include( row ); \
-    yrg.include( col ); \
 }
 
 
@@ -1288,80 +1355,111 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* taskrunner )
     totalnr_ = 0;
     const bool* ptr = curdefined_;
     const bool* stopptr = curdefined_+nrcells_;
-    int idx = 0;
     const bool* nodestofillptr = nodestofill_;
-    Interval<int> xrg, yrg;
-    bool rgset = false;
+
     while ( ptr!=stopptr )
     {
 	if ( *nodestofillptr && !*ptr )
-	{
-	    const int row = idx/nrcols_;
-	    const int col = idx%nrcols_;
 	    totalnr_++;
-
-	    mSetRange;
-	}
 
 	ptr++;
 	nodestofillptr++;
-	idx++;
     }
 
     if ( !totalnr_ )
 	return true;
 
+    //Trend settings
+    setTrendOrder( PolyTrend::Order2 );
+    Array2DImpl<char> edgesmask( arr_->info() );
+    const bool usetrimming = trend_.getParam(this) ? trimArray( 8, edgesmask )
+						   : false;
     //Get defined nodes to triangulate
     TypeSet<Coord>* coordlist = new TypeSet<Coord>;
     coordlistindices_.erase();
     ptr = curdefined_;
-    idx = 0;
+
+    TypeSet<Coord> trendpts;
+    TypeSet<float> trendvals;
+    TypeSet<Coord3> horpts;
+
+    double avgz = 0.;
+    od_int64 nrdef = 0;
+
+    bool hascorner[4];
+    for ( int idx=0; idx<4; idx++ )
+    {
+	hascorner[idx ] = false;
+	(*corneridx_.getParam(this))[idx] = -(idx+1);
+	(*cornerval_.getParam(this))[idx] = 0.f;
+	(*cornerbid_.getParam(this))[idx] = BinID( 0, 0 );
+	if ( idx>1 )
+	    (*cornerbid_.getParam(this))[idx].inl() = nrrows_-1;
+	if ( idx==1 || idx==2 )
+	    (*cornerbid_.getParam(this))[idx].crl() = nrcols_-1;
+    }
+
+    int curidx = 0;
     while ( ptr!=stopptr )
     {
 	if ( *ptr )
 	{
-	    bool dotriangulate = false;
-	    const int row = idx/nrcols_;
-	    const int col = idx%nrcols_;
-	    const bool isnotlastcol = col!=nrcols_-1;
+	    int pos[2];
+	    arr_->info().getArrayPos( curidx, pos );
+	    const float val = arr_->get( pos[0], pos[1] );
 
-	    if ( row )
+	    if ( !usetrimming || edgesmask.get(pos[0],pos[1])=='\1' )
 	    {
-		if ( (col && !curdefined_[idx-nrcols_-1]) ||
-		     !curdefined_[idx-nrcols_] ||
-		     (isnotlastcol && !curdefined_[idx-nrcols_+1]) )
-		    dotriangulate = true;
+		trendpts += Coord( pos[0], pos[1] );
+		trendvals += val;
+
+		(*coordlist) += Coord(pos[0], pos[1]);
+		coordlistindices_ += curidx;
+	    }
+	    else if ( pos[0]%4==0 && pos[1]%4==0 )
+	    {
+		(*coordlist) += Coord(pos[0], pos[1]);
+		coordlistindices_ += curidx;
 	    }
 
-	    if ( !dotriangulate && row!=nrrows_-1 )
-	    {
-		if ( (col && !curdefined_[idx+nrcols_-1]) ||
-		     !curdefined_[idx+nrcols_] ||
-		     (isnotlastcol && !curdefined_[idx+nrcols_+1]) )
-		    dotriangulate = true;
-	    }
+	    horpts += Coord3( pos[0], pos[1], val );
+	    avgz += val;
+	    nrdef++;
 
-	    if ( !dotriangulate )
+	    for ( int cidx=0; cidx<4; cidx++ )
 	    {
-		if ( (col && !curdefined_[idx-1]) ||
-		     (isnotlastcol && !curdefined_[idx+1]) )
-		    dotriangulate = true;
-	    }
-
-	    if ( dotriangulate )
-	    {
-		mSetRange;
-		(*coordlist) += Coord(rowstep_*row, colstep_*col);
-		coordlistindices_ += idx;
+		if ( (*cornerbid_.getParam(this))[cidx]==BinID(pos[0],pos[1]) )
+		{
+		    hascorner[cidx] = true;
+		    (*cornerval_.getParam(this))[cidx] = val;
+		}
 	    }
 	}
 
-	idx++;
+	curidx++;
 	ptr++;
     }
 
     if ( coordlist->isEmpty() )
 	return false;
+
+    for ( int idx=0; idx<4; idx++ )
+    {
+	if ( hascorner[idx] )
+	    continue;
+
+	const BinID curbid = (*cornerbid_.getParam(this))[idx];
+	const Coord pos( curbid.inl(), curbid.crl() );
+	(*coordlist) += pos;
+	coordlistindices_ += (*corneridx_.getParam(this))[idx];
+	(*cornerval_.getParam(this))[idx] =  mCast(float,avgz/nrdef);
+
+	trendpts += pos;
+	trendvals += (*cornerval_.getParam(this))[idx];
+    }
+
+    if ( trend_.getParam(this) )
+	trend_.getParam(this)->set( trendpts, trendvals.arr() );
 
     if ( triangulation_ )
 	delete triangulation_;
@@ -1369,11 +1467,6 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* taskrunner )
     triangulation_ = new DAGTriangleTree;
     if ( !triangulation_ ||
 	 !triangulation_->setCoordList( coordlist, OD::TakeOverPtr ) )
-	return false;
-
-    if ( !triangulation_->setBBox(
-		Interval<double>( xrg.start*rowstep_, xrg.stop*rowstep_ ),
-		Interval<double>( yrg.start*colstep_, yrg.stop*colstep_ ) ) )
 	return false;
 
     DelaunayTriangulator triangulator( *triangulation_ );
@@ -1427,6 +1520,9 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
     TypeSet<od_int64> currenttask;
     TypeSet<od_int64> definedidices;
 
+    const double curmaxdist = mIsUdf(maxdistance_) ? maxdistance_ :
+	maxdistance_/mMAX(rowstep_,colstep_);
+    float* data = arr_->getData();
     while ( shouldContinue() )
     {
 	getNextNodes( currenttask );
@@ -1436,28 +1532,74 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 	for ( int idx=0; idx<currenttask.size(); idx++, addToNrDone(1) )
 	{
 	    const od_int64 curnode = currenttask[idx];
-	    const int row = mCast(int,curnode/nrcols_);
-	    const int col = mCast(int,curnode%nrcols_);
-	    const Coord crd(rowstep_*row, colstep_*col);
+	    int pos[2];
+	    if ( !arr_->info().getArrayPos( curnode, pos ) )
+		continue;
 
+	    const Coord crd(pos[0], pos[1]);
 	    TypeSet<int> vertices;
-	    TypeSet<float> weights;
-	    TypeSet<double> weightsD;
-	    TypeSet<od_int64> usedindices;
+	    TypeSet<double> weightsd;
 	    if ( !triangleinterpolator_->computeWeights( crd, vertices,
-			weightsD, maxdistance_, dointerpolation_ ) )
+			weightsd, curmaxdist, dointerpolation_ ) )
 		return false;
 
 	    const int sz = vertices.size();
 	    if ( !sz ) continue;
 
-	    for ( int widx=0; widx<weightsD.size(); widx++ )
-		weights += mCast(float,weightsD[widx]);
+	    if ( trend_.getParam(this) )
+	    {
+		double val = 0;
+		for ( int widx=0; widx<weightsd.size(); widx++ )
+		{
+		    const od_int64 posidx = coordlistindices_[vertices[widx]];
+		    float posval = mUdf(float);
+		    Coord curpos;
 
-	    for ( int vidx=0; vidx<sz; vidx++ )
-		usedindices += coordlistindices_[vertices[vidx]];
+		    if ( posidx>=0 )
+		    {
+			posval = data[posidx];
+			int rc[2];
+			if ( !arr_->info().getArrayPos(curnode,rc) )
+			    continue;
 
-	    setFrom( curnode, usedindices.arr(), weights.arr(), sz );
+			curpos = Coord( rc[0], rc[1] );
+		    }
+		    else
+		    {
+			for (int cidx=0; cidx<4; cidx++ )
+			{
+			    if ( (*corneridx_.getParam(this))[cidx]==posidx )
+			    {
+				const BinID curbid =
+				    (*cornerbid_.getParam(this))[cidx];
+				posval = (*cornerval_.getParam(this))[cidx];
+				curpos = Coord( curbid.inl(), curbid.crl() );
+				break;
+			    }
+			}
+		    }
+
+		    if ( mIsUdf(posval) ) continue;
+
+		    trend_.getParam(this)->apply( curpos, true, posval );
+		    val += weightsd[widx] * posval;
+		}
+
+		trend_.getParam(this)->apply(Coord(pos[0],pos[1]), false, val);
+		arr_->set( pos[0], pos[1], val );
+	    }
+	    else
+	    {
+		TypeSet<float> weights;
+		for ( int widx=0; widx<weightsd.size(); widx++ )
+		    weights += mCast(float,weightsd[widx]);
+
+		TypeSet<od_int64> usedindices;
+		for ( int vidx=0; vidx<sz; vidx++ )
+		    usedindices += coordlistindices_[vertices[vidx]];
+
+		setFrom( curnode, usedindices.arr(), weights.arr(), sz );
+	    }
 	}
     }
 
