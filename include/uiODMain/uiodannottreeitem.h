@@ -88,7 +88,6 @@ protected:
 			uiODAnnotSubItem(Pick::Set&,int displayid=-1);
     virtual		~uiODAnnotSubItem();
 
-    void		prepareForShutdown()		{}
     bool		init();
     virtual const char*	parentType() const		= 0;
     virtual void	fillStoragePar(IOPar&) const	{}
