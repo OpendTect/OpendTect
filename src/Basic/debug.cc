@@ -570,18 +570,18 @@ void CrashDumper::sendDump( const char* filename )
 
     const BufferString prefix =  FilePath( GetArgV()[0] ).baseName();
 
-    const BufferString cmd( "\"",script.fullPath(), "\"" );
-    BufferString args = BufferString( "\"", filename, "\"" );
-    args += BufferString( " \"", symboldir.fullPath(), "\"" );
-    args += BufferString( " \"", dumphandler.fullPath(), "\"" );
-    args += BufferString( " ", prefix );
+    BufferString cmd( "\"",script.fullPath(), "\"" );
+    cmd += BufferString( " \"", filename, "\"" );
+    cmd += BufferString( " \"", symboldir.fullPath(), "\"" );
+    cmd += BufferString( " \"", dumphandler.fullPath(), "\"" );
+    cmd += BufferString( " ", prefix );
     if ( !sendappl_.isEmpty() )
-	args += BufferString( " \"",
+	cmd += BufferString( " \"",
 		FilePath(GetExecPlfDir(),sendappl_).fullPath(), "\"" );
 
-    std::cout << cmd.str() << " " << args.str() << std::endl;
+    std::cout << cmd.str() << std::endl;
 
-    ExecODProgram( cmd, args );
+    ExecCommand( cmd, OS::RunInBG );
 }
 
 
