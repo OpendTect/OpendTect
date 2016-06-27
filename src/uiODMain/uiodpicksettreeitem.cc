@@ -425,7 +425,7 @@ uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
 {
     
     mAttachCB( Pick::Mgr().setToBeRemoved,
-		uiODPickSetParentTreeItem::setRemovedCB );
+		uiODPolygonParentTreeItem::setRemovedCB );
 }
 
 
@@ -455,7 +455,7 @@ void uiODPolygonParentTreeItem::setRemovedCB( CallBacker* cb )
 
     for ( int idx=0; idx<children_.size(); idx++ )
     {
-	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
+	mDynamicCastGet(uiODPolygonTreeItem*,itm,children_[idx])
 	if ( !itm ) continue;
 	if ( itm->getSet() == ps )
 	{
