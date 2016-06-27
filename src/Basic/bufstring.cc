@@ -525,7 +525,8 @@ const OD::String& StringPair::getCompString() const
 {
     mDeclStaticString( ret );
     ret = first();
-    ret.add( separator() ).add( second() );
+    if ( !second().isEmpty() )
+	ret.add( separator() ).add( second() );
     return ret;
 }
 

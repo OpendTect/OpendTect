@@ -1001,13 +1001,8 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
     if ( compnm.isEmpty() && selout>0 )
 	return DescID::undef();	// "Missing component name"
 
-    BufferString userref = objnm;
-    if ( !compnm.isEmpty() )
-    {
-	userref += "|";
-	userref += compnm.buf();
-    }
-    newdesc->setUserRef( userref );
+    const StringPair strpair( objnm, compnm );
+    newdesc->setUserRef( strpair.getCompString() );
     newdesc->selectOutput( selout );
     ValParam& keypar = *newdesc->getValParam( StorageProvider::keyStr() );
     keypar.setValue( multiid );
@@ -1213,9 +1208,9 @@ void DescSet::fillInUIInputList( BufferStringSet& inplist ) const
 }
 
 
-Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
+Attrib::Desc* DescSet::getDescFromUIListEntry( const StringPair& inpstr )
 {
-    BufferString stornm = inpstr[0];
+    BufferString stornm = inpstr.first();
     if ( stornm.startsWith("[") )
     {
 	stornm.unEmbed( '[', ']' );
@@ -1228,7 +1223,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
 
 	BufferString storedidstr = attrinf.ioobjids_.get( iidx );
 	int compnr = 0;
-	if ( !inpstr[1].isEmpty() )
+	if ( !inpstr.second().isEmpty() )
 	{
 	    MultiID mid( storedidstr.buf() );
 	    IOObj* inpobj = IOM().get( mid );
@@ -1237,13 +1232,14 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
 		SeisIOObjInfo seisinfo( inpobj );
 		BufferStringSet nms;
 		seisinfo.getComponentNames( nms );
-		compnr = nms.indexOf(inpstr[1]); //ALL will be -1 as expected
+		compnr = nms.indexOf( inpstr.second() );
+			 //ALL will be -1 as expected
 	    }
 	}
 
-	Attrib::DescID retid = getStoredID( storedidstr.buf(),
-					    compnr, true, true,
-					    inpstr[1] );
+	const Attrib::DescID retid = getStoredID( storedidstr.buf(),
+						  compnr, true, true,
+						  inpstr.second() );
 	return getDesc( retid );
     }
     else

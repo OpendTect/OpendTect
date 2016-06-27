@@ -16,14 +16,10 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "notify.h"
 #include "multiid.h"
-#include "separstr.h"
 #include "uistring.h"
-
 
 class BufferStringSet;
 class DataPointSet;
-
-
 
 namespace Attrib
 {
@@ -130,7 +126,7 @@ public:
     void		fillInUIInputList(BufferStringSet&) const;
 			//!<Counterpart: will decode the UI string
 			//!<and return the corresponding Desc*
-    Desc*		getDescFromUIListEntry(FileMultiString);
+    Desc*		getDescFromUIListEntry(const StringPair&);
 
 			//!<will create an empty DataPointSet
     DataPointSet*	createDataPointSet(Attrib::DescSetup,

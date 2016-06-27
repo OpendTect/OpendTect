@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "uirockphysform.h"
 
-#include "separstr.h"
 #include "mathspecvars.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"
@@ -253,8 +252,8 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
     BufferString varnm( inpnm ), subnm;
     if ( subinpfld_ )
     {
-	const FileMultiString fms( inpnm );
-	varnm = fms[0]; subnm = fms[1];
+	const StringPair strpair( inpnm );
+	varnm = strpair.first(); subnm = strpair.second();
     }
     if ( !exact )
     {
@@ -276,10 +275,9 @@ const char* uiMathExpressionVariable::getInput() const
     if ( !subinpfld_ || subinpfld_->isEmpty() )
 	return inpfld_->text();
 
-    FileMultiString fms( inpfld_->text() );
-    fms += subinpfld_->text();
+    const StringPair strpair( inpfld_->text(), subinpfld_->text() );
     mDeclStaticString( ret );
-    ret.set( fms.buf() );
+    ret.set( strpair.getCompString() );
     return ret;
 }
 
