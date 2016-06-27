@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
+#include "linekey.h"
 #include "mathexpression.h"
 #include "odver.h"
 #include "od_ostream.h"
@@ -976,13 +977,7 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
     if ( compnm.isEmpty() && selout>0 )
 	return DescID::undef();	// "Missing component name"
 
-    BufferString userref = objnm;
-    if ( !compnm.isEmpty() )
-    {
-	userref += "|";
-	userref += compnm.buf();
-    }
-    newdesc->setUserRef( userref );
+    newdesc->setUserRef( LineKey(objnm,compnm) );
     newdesc->selectOutput( selout );
     ValParam& keypar = *newdesc->getValParam( StorageProvider::keyStr() );
     keypar.setValue( multiid );

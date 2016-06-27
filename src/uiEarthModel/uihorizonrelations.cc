@@ -199,6 +199,7 @@ bool acceptOK( CallBacker* )
 	EM::ObjectID outemobjid =
 	    EM::EMM().createObject( emobj->getTypeStr(), ctio_->ioobj_->name());
 	outemobj = EM::EMM().getObject( outemobjid );
+	outemobj->setPreferredColor( emobj->preferredColor() );
 
 	if ( !is2d_ )
 	{

@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uirockphysform.h"
 
+#include "linekey.h"
 #include "separstr.h"
 #include "mathspecvars.h"
 #include "mathexpression.h"
@@ -254,8 +255,8 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
     BufferString varnm( inpnm ), subnm;
     if ( subinpfld_ )
     {
-	const FileMultiString fms( inpnm );
-	varnm = fms[0]; subnm = fms[1];
+	const LineKey linekey( inpnm );
+	varnm = linekey.lineName(); subnm = linekey.attrName();
     }
     if ( !exact )
     {
