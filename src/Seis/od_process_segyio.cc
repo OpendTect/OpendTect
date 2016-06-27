@@ -45,7 +45,7 @@ bool BatchProgram::doImport( od_ostream& strm, IOPar& iop, bool is2d )
 	// important! otherwise reader will try to read output ID ...
 
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
-				"SEG-Y importer", outpar,
+				"SEG-Y importer", &iop,
 				tr("Importing traces") );
     stp->setProcPars( *outpar, is2d );
     return stp->go( strm );
