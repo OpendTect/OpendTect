@@ -155,12 +155,44 @@ rettyp Well::Reader::fnnm( typ arg ) const \
 #define mImplSimpleWRFn(fnnm) \
 bool Well::Reader::fnnm() const { return ra_ ? ra_->fnnm() : false; }
 
-mImplSimpleWRFn(get)
 mImplSimpleWRFn(getInfo)
 mImplSimpleWRFn(getTrack)
 mImplSimpleWRFn(getLogs)
 mImplSimpleWRFn(getMarkers)
 mImplSimpleWRFn(getDispProps)
+
+
+bool Well::Reader::get() const
+{
+    if ( !ra_ )
+	return false;
+
+    Well::Data* wd = const_cast<Well::Data*>( data() );
+    if ( !wd )
+	return false;
+
+    wd->setD2TModel( 0 );
+    wd->setCheckShotModel( 0 );
+    if ( SI().zIsTime() )
+    {
+	if ( !getD2T() )
+	    return false;
+
+	getCSMdl();
+    }
+    else
+    {
+	if ( !getTrack() || !getInfo() )
+	    return false;
+    }
+
+    getLogs();
+    getMarkers();
+    getDispProps();
+
+    return true;
+}
+
 
 bool Well::Reader::getD2T() const
 {
@@ -309,31 +341,6 @@ Well::odReader::odReader( const IOObj& ioobj, Well::Data& w, BufferString& e )
 {
     wd_.info().setName( ioobj.name() );
     wd_.setMultiID( ioobj.key() );
-}
-
-
-bool Well::odReader::get() const
-{
-    wd_.setD2TModel( 0 );
-    wd_.setCheckShotModel( 0 );
-    if ( SI().zIsTime() )
-    {
-	if ( !getD2T() )
-	    return false;
-
-	getCSMdl();
-    }
-    else
-    {
-	if ( !getTrack() || !getInfo() )
-	    return false;
-    }
-
-    getLogs();
-    getMarkers();
-
-    getDispProps();
-    return true;
 }
 
 

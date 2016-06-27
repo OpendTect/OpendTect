@@ -29,8 +29,6 @@ public:
 			ReadAccess( Data& d ) : wd_(d)	{}
     virtual		~ReadAccess()			{}
 
-    virtual bool	get() const			= 0; //!< Just read all
-
     virtual bool	getInfo() const			= 0;
     virtual bool	getTrack() const		= 0;
     virtual bool	getLogs() const			= 0;

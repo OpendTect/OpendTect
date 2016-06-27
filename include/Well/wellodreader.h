@@ -34,8 +34,6 @@ public:
 			odReader(const IOObj&,Data&,BufferString& errmsg);
 			odReader(const char* fnm,Data&,BufferString& errmsg);
 
-    virtual bool	get() const;
-
     virtual bool	getInfo() const;
     virtual bool	getTrack() const;
     virtual bool	getLogs() const;
