@@ -1586,7 +1586,7 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 		}
 
 		trend_.getParam(this)->apply(Coord(pos[0],pos[1]), false, val);
-		arr_->set( pos[0], pos[1], val );
+		arr_->set( pos[0], pos[1], mCast(float,val) );
 	    }
 	    else
 	    {
