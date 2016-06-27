@@ -19,6 +19,32 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visarrowdisplay.h"
 #include "uiarrowdlg.h"
 #include "uivispartserv.h"
+#include "uiodapplmgr.h"
+
+#define mRemoveImple(type) \
+void type##ParentItem::setRemovedCB( CallBacker* cb ) \
+    { \
+	mDynamicCastGet(Pick::Set*,ps,cb) \
+	if ( !ps ) return; \
+	for ( int idx=0; idx<nrChildren(); idx++ )\
+	{ \
+	    mDynamicCastGet(type##SubItem*,itm,getChild(idx)) \
+	    if ( !itm ) continue; \
+	    if ( itm->getSet() == ps ) \
+	    { \
+		applMgr()->visServer()->removeObject( itm->displayID(), sceneID() ); \
+		uiTreeItem::removeChild( itm ); \
+		return; \
+	    } \
+	} \
+    } \
+
+
+mRemoveImple(Arrow)
+mRemoveImple(Image)
+mRemoveImple(ScaleBar)
+
+
 
 const char* ArrowSubItem::parentType() const
 { return typeid(ArrowParentItem).name(); }

@@ -16,8 +16,7 @@ ________________________________________________________________________
 
 #include "uioddisplaytreeitem.h"
 #include "color.h"
-
-namespace Pick { class Set; }
+#include "pickset.h"
 
 mExpClass(uiODMain) uiODAnnotParentTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODAnnotParentTreeItem);
@@ -211,14 +210,19 @@ class type##ParentItem : public uiODAnnotTreeItem \
 { \
 public: \
 		type##ParentItem() \
-    		    : uiODAnnotTreeItem(typestr) {} \
+    		    : uiODAnnotTreeItem(typestr)\
+		{ \
+		 mAttachCB( Pick::Mgr().setToBeRemoved, \
+		 type##ParentItem::setRemovedCB ); \
+		} \
 protected: \
     uiTreeItem*	createSubItem(int di,Pick::Set& pck) \
     		{ return new type##SubItem(pck,di); } \
     const char*	managerName() const { return type##SubItem::sKeyManager(); } \
     const char* oldSelKey() const { return typestr.getFullString().buf(); } \
     int		defScale() const 	{ return defsz; } \
-}
+    void	setRemovedCB(CallBacker*); \
+}; \
 
 
 mDefineParentItem(Arrow,mToUiStringTodo("Arrows"),1000);
