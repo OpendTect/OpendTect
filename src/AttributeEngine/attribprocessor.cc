@@ -35,6 +35,7 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
     , moveonly(this)
     , prevbid_(BinID(-1,-1))
     , sd_(0)
+    , showdataavailabilityerrors_(true)
 {
     if ( !provider_ ) return;
     provider_->ref();
@@ -73,6 +74,9 @@ void Processor::setLineName( const char* lnm )
 }
 
 
+#define mErrorReturnValue() \
+    ( isHidingDataAvailabilityError() ? Finished() : ErrorOccurred() )
+
 int Processor::nextStep()
 {
     if ( !provider_ || outputs_.isEmpty() ) return ErrorOccurred();
@@ -81,12 +85,12 @@ int Processor::nextStep()
 	init();
 
     if ( !errmsg_.isEmpty() )
-	return ErrorOccurred();
+	return mErrorReturnValue();
 
     if ( !provider_->errMsg().isEmpty() )
     {
 	errmsg_ = provider_->errMsg();
-	return ErrorOccurred();
+	return mErrorReturnValue();
     }
 
     if ( useshortcuts_ )
@@ -98,11 +102,11 @@ int Processor::nextStep()
     {
 	errmsg_ = provider_->errMsg();
 	if ( !errmsg_.isEmpty() )
-	    return ErrorOccurred();
+	    return mErrorReturnValue();
     }
     useshortcuts_ ? useSCProcess( res ) : useFullProcess( res );
     if ( !errmsg_.isEmpty() )
-	return ErrorOccurred();
+	return mErrorReturnValue();
 
     provider_->resetMoved();
     provider_->resetZIntervals();
@@ -152,6 +156,7 @@ void Processor::useFullProcess( int& res )
 
     if ( res == 0 && !nrdone_ )
     {
+	provider_->setDataUnavailableFlag( true );
 	errmsg_ = tr("No positions processed.\n"
 	"Most probably, your input volume(s) are not available in the \n"
 	"selected region or the required stepout traces are not available");
@@ -226,6 +231,7 @@ void Processor::useSCProcess( int& res )
     }
     if ( res == 0 && !nrdone_ )
     {
+	provider_->setDataUnavailableFlag( true );
 	errmsg_ = tr("This stored cube contains no data in selected area.\n");
 	return;
     }
@@ -423,9 +429,12 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	{
 	    errmsg_ = provider_->errMsg();
 	    if ( errmsg_.isEmpty() )
+	    {
+		provider_->setDataUnavailableFlag( true );
 		errmsg_ = tr("Not possible to output required attribute"
 			 " in this area.\nPlease confront stepouts/timegates"
 			 " with available data");
+	    }
 	    return;
 	}
 
@@ -517,5 +526,14 @@ void Processor::setRdmPaths( TypeSet<BinID>* truepath,
 
     provider_->setRdmPaths( truepath, snappedpath );
 }
+
+
+void Processor::showDataAvailabilityErrors( bool yn )
+{ showdataavailabilityerrors_ = yn; }
+
+
+bool Processor::isHidingDataAvailabilityError() const
+{ return !showdataavailabilityerrors_ && provider_->getDataUnavailableFlag(); }
+
 
 }; // namespace Attrib

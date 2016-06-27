@@ -287,7 +287,7 @@ RefMan<RegularSeisDataPack>
     {
 	output = const_cast<RegularSeisDataPack*>(
 			proc.outputs_[0]->getDataPack() );
-	if ( !output )
+	if ( !output || !output->sampling().isDefined() )
 	    return 0;
 
 	for ( int idx=0; idx<attrspecs_.size(); idx++ )
@@ -304,7 +304,8 @@ RefMan<RegularSeisDataPack>
     {
         ConstRefMan<RegularSeisDataPack> dp =
 		proc.outputs_[idx] ? proc.outputs_[idx]->getDataPack() : 0;
-	if ( !dp ) continue;
+	if ( !dp || !dp->sampling().isDefined() )
+	    continue;
 
 	dpm_.add( const_cast<RegularSeisDataPack*>( dp.ptr()) );
 

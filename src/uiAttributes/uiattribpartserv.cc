@@ -773,6 +773,9 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	process = aem->createDataPackOutput( errmsg, cache );
 	if ( !process )
 	    { uiMSG().error(errmsg); return 0; }
+
+	process->showDataAvailabilityErrors( !aem->hasCache() );
+
 	bool showinlprogress = true;
 	bool showcrlprogress = true;
 	Settings::common().getYN( SettingsAccess::sKeyShowInlProgress(),

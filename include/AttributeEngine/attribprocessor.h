@@ -68,6 +68,8 @@ public:
 					    TypeSet<BinID>* snappedpath);
 				//for directional attributes
 
+    void			showDataAvailabilityErrors(bool yn);
+
 protected:
     void		useFullProcess(int&);
     void		useSCProcess(int&);
@@ -76,6 +78,8 @@ protected:
     void		defineGlobalOutputSpecs(TypeSet<int>&,TrcKeyZSampling&);
     void		prepareForTableOutput();
     void		computeAndSetPosAndDesVol(TrcKeyZSampling&);
+
+    bool		isHidingDataAvailabilityError() const;
 
     Desc&		desc_;
     Provider*		provider_;
@@ -89,6 +93,8 @@ protected:
 
     BinID		prevbid_;
     Seis::SelData*	sd_;
+
+    bool		showdataavailabilityerrors_;
 };
 
 

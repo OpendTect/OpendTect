@@ -173,6 +173,9 @@ public:
     virtual float		getDistBetwTrcs(bool,
 						const char* linenm =0) const;
 
+    void			setDataUnavailableFlag(bool yn);
+    bool			getDataUnavailableFlag() const;
+
 protected:
 
 				Provider(Desc&);
@@ -385,6 +388,7 @@ protected:
     bool			isusedmulttimes_;
     bool			needinterp_;
     uiString			errmsg_;
+    bool			dataunavailableflag_;
 };
 
 

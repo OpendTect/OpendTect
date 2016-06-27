@@ -229,6 +229,7 @@ Provider::Provider( Desc& nd )
     , needinterp_( 0 )
     , useshortcuts_( 0 )
     , refz0_( 0 )
+    , dataunavailableflag_( false )
 {
     desc_.ref();
     inputs_.allowNull( true );
@@ -1789,6 +1790,22 @@ float Provider::getApplicableCrlDist( bool dependoninput ) const
 	return getDistBetwTrcs( false, Survey::GM().getName(geomid_) );
 
     return crlDist();
+}
+
+
+void Provider::setDataUnavailableFlag( bool yn )
+{ dataunavailableflag_ = yn; }
+
+
+bool Provider::getDataUnavailableFlag() const
+{
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+	if ( inputs_[idx] && inputs_[idx]->getDataUnavailableFlag() )
+	    return true;
+    }
+
+    return dataunavailableflag_;
 }
 
 

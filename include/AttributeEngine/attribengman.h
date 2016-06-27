@@ -121,6 +121,8 @@ public:
     const char*		getCurUserRef() const;
     void		computeIntersect2D(ObjectSet<BinIDValueSet>&) const;
 
+    bool		hasCache() const		{ return cache_; }
+
 protected:
 
     const DescSet*	inpattrset_;
