@@ -170,8 +170,14 @@ void uiTieView::setLogsParams()
 	data.zistime_ = params_.iszintime_;
 	logsdisp_[idx]->setData( data );
     }
-    const float zfac = mCast( float, SI().zDomain().userFactor() );
-    Interval<float> zrg( zrange_.start*zfac, zrange_.stop*zfac );
+
+    float zfac = 1.f;
+    Interval<float> zrg( wd->d2TModel()->dahRange() );
+    if ( params_.iszintime_ )
+	zfac = mCast( float, SI().zDomain().userFactor() );
+    else if ( SI().depthsInFeet() )
+	    zfac = mToFeetFactorF;
+    zrg.scale(zfac);
     setLogsRanges( zrg );
 }
 
@@ -242,9 +248,32 @@ void uiTieView::setLogsRanges( Interval<float> rg )
 void uiTieView::zoomChg( CallBacker* )
 {
     const uiWorldRect& curwr = vwr_->curView();
-    const float userfac = SI().showZ2UserFactor();;
-    Interval<float> zrg( (float) curwr.top()*userfac, 
-					    (float) curwr.bottom()*userfac );
+    const float userfac = SI().showZ2UserFactor();
+    Interval<float> zrg;
+    uiWellDahDisplay::Data* data;
+    		
+    if ( !params_.iszintime_  && SI().depthsInFeet() )
+    {
+	float zrgstart = data_.wd_->d2TModel()->getDah( (float) curwr.top(), 
+							  data_.wd_->track() );
+	float zrgstop = data_.wd_->d2TModel()->getDah( (float) curwr.bottom(), 
+							  data_.wd_->track() );
+	if ( mIsUdf(zrgstop) )
+	{
+	    const int sz = data_.wd_->d2TModel()->size();
+	    zrgstop = data_.wd_->d2TModel()->dah(sz-1);
+	}
+
+	zrgstop = (float) data_.wd_->track().getPos(zrgstop).z;
+
+	zrg.start = zrgstart*mToFeetFactorF; 
+	zrg.stop = zrgstop*mToFeetFactorF;
+    }
+    else
+    {
+	zrg.start = (float) curwr.top()*userfac;
+	zrg.stop = (float) curwr.bottom()*userfac;
+    }
     setLogsRanges( zrg );
 }
 

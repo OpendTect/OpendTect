@@ -315,10 +315,12 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
     uiWellDahDisplay::DahObjData& dahdata = disp->dahObjData( first );
     dahdata.col_ = d == &newdriftcurve_ ? Color::DgbColor()
 					: Color::stdDrawColor(first ? 0 : 1);
+    float zfac = 1.f;
+    if ( SI().depthsInFeet() ) zfac = mToFeetFactorF;
     float startpos = -SI().seismicReferenceDatum();
     const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
 	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
-    Interval<float> zrg( startpos, stoppos );
+    Interval<float> zrg( startpos*zfac, stoppos*zfac );
     disp->setZRange(zrg);
     dahdata.drawaspoints_ = d == tkzs_ || d == &newdriftcurve_;
     dahdata.xrev_ = false;
@@ -362,8 +364,10 @@ void uiCheckShotEdit::drawDrift()
     float startpos = -SI().seismicReferenceDatum();
     const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
 	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
+    float zfac = 1.f;
+    if ( SI().depthsInFeet() ) zfac = mToFeetFactorF;
     
-    Interval<float> zrg( startpos, stoppos );
+    Interval<float> zrg( startpos*zfac, stoppos*zfac );
     driftdisplay_->setZRange(zrg);
 }
 
@@ -373,14 +377,17 @@ void uiCheckShotEdit::drawPoints()
     uiGraphicsScene& scene = d2tdisplay_->scene();
     scene.removeItem( d2tlineitm_ );
     delete d2tlineitm_; d2tlineitm_=0;
-if ( viewcorrd2t_->isChecked() )
+    float zfac = 1.f;
+    if ( SI().depthsInFeet() ) zfac = mToFeetFactorF;
+    if ( viewcorrd2t_->isChecked() )
     {
 	TypeSet<uiPoint> pts;
 	uiWellDahDisplay::DahObjData& ld = d2tdisplay_->dahObjData(true);
 	for ( int idx=0; idx<d2t_->size(); idx++ )
 	{
 	    const float val = d2t_->value( idx );
-	    const float dah = (float) wd_.track().getPos( d2t_->dah( idx ) ).z;
+	    const float dah = (float) wd_.track().getPos( 
+						    (d2t_->dah( idx ))*zfac ).z;
 	    pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
 	}
 

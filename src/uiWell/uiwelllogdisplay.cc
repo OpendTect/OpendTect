@@ -426,6 +426,10 @@ uiWellLogDispDlg* uiWellLogDispDlg::popupNonModal( uiParent* p,
     uiWellLogDisplay::Setup wldsu;
     wldsu.annotinside( false ).drawcurvenames( false );
     uiWellLogDispDlg* dlg = new uiWellLogDispDlg( p, wldsu, true );
+    uiWellDahDisplay::Data data(dlg->logDisplay().zData());
+    data.dispzinft_ = true;
+    data.zistime_ = false;
+    dlg->logDisplay().setData(data);
     dlg->setLog( wl1, true, wellnm1 );
     if ( wl2 )
 	dlg->setLog( wl2, false, wellnm2 );

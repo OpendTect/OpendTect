@@ -277,6 +277,9 @@ void uiWellDahDisplay::drawCurve( bool first )
     deepErase( ld.curveitms_ ); ld.curvepolyitm_ = 0;
     const int sz = ld.dahobj_ ? ld.dahobj_->size() : 0;
     if ( sz < 2 ) return;
+    float zfac = 1.f;
+    if ( zdata_.dispzinft_ && SI().depthsInFeet() )
+	zfac = mToFeetFactorF;
 
     TypeSet<uiPoint> pts;
     pts.setCapacity( sz, false );
@@ -341,11 +344,11 @@ void uiWellDahDisplay::drawCurve( bool first )
 	ld.curveitms_.add( ti );
     }
 
-    /*
+    
     if ( first )
-	ld.yax_.annotAtEnd( zdata_.zistime_ ? "(ms)" :
-			    zdata_.dispzinft_ ? "(ft)" : "(m)" );
-    */
+	ld.yax_.annotAtEnd( zdata_.zistime_ ? tr("(ms)") :
+			    SI().depthsInFeet() ? tr("(ft)") : tr("(m)") );
+    
 }
 
 

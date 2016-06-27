@@ -99,19 +99,23 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
     if ( seldisp_ )
     {
 	const uiWellDahDisplay::Data& zdata = seldisp_->zData();
+	float zfac = 1.f;
+	if ( !zdata.zistime_ && SI().depthsInFeet() )
+	    zfac = mToFeetFactorF;
+
 	xpos_ = seldisp_->dahObjData(true).xax_.getVal(mevh->event().pos().x);
 	ypos_ = seldisp_->dahObjData(true).yax_.getVal(mevh->event().pos().y);
-	const Well::Track* tr = zdata.track();
+	const Well::Track* track = zdata.track();
 	if ( zdata.zistime_ )
 	{
 	    time_ = ypos_;
 	    const Well::D2TModel* d2t = zdata.d2T();
-	    if ( d2t && d2t->size()>1 && tr && tr->size()>1 )
-		dah_ = d2t->getDah( ypos_*0.001f, *tr );
+	    if ( d2t && d2t->size()>1 && track && track->size()>1 )
+		dah_ = d2t->getDah( ypos_*0.001f, *track );
 	}
 	else
 	{
-	    dah_ = tr ? tr->getDahForTVD( ypos_ ) : mUdf(float);
+	    dah_ = track ? track->getDahForTVD( ypos_/zfac ) : mUdf(float);
 	    time_ = ypos_;
 	}
     }
@@ -134,7 +138,7 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
 
     info += "  MD:";
     const uiWellDahDisplay::Data& zdata = seldisp_->zData();
-    const bool zinft = zdata.dispzinft_ && zdata.zistime_;
+    const bool zinft = SI().depthsInFeet();
     const FixedString depthunitstr = getDistUnitString(zinft,false);
     info += toString( zinft ? mToFeetFactorF*dah_ : dah_, 2 );
     info += depthunitstr;

@@ -20,7 +20,9 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "welldisp.h"
 #include "welldata.h"
+#include "welld2tmodel.h"
 #include "welltrack.h"
+#include "survinfo.h"
 
 namespace Well { class DahObj; class Marker; class D2TModel; }
 
@@ -38,7 +40,13 @@ else if ( !zdata_.zistime_ && track() )\
 
 #define mDefZPosInLoop(val) \
     float zpos = val;\
-    mDefZPos(zpos)\
+    float fac = 1.f; \
+    if( !zdata_.zistime_ && SI().depthsInFeet() ) \
+	fac = mToFeetFactorF; \
+    if ( zdata_.zistime_ && zdata_.d2T() && track() )\
+    zpos = d2T()->getTime( zpos, *track() )*SI().zDomain().userFactor();\
+    else if ( !zdata_.zistime_ && track() )\
+    zpos = track() ? (float) zdata_.track()->getPos( zpos*fac ).z : 0; \
     if ( !ld1_->yax_.range().includes( zpos, true ) )\
 	continue;
 
@@ -47,7 +55,7 @@ else if ( !zdata_.zistime_ && track() )\
 */
 
 mExpClass(uiWell) uiWellDahDisplay : public uiGraphicsView
-{
+{ mODTextTranslationClass(uiWellDahDisplay)
 public:	
     mStruct(uiWell) Setup
     {

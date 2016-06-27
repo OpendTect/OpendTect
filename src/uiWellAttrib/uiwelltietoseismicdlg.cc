@@ -99,7 +99,6 @@ void uiTieWin::initAll()
     addControls();
     doWork( 0 );
     show();
-    dispPropChg( 0 );
 }
 
 
@@ -119,6 +118,7 @@ void uiTieWin::usePar( const IOPar& par )
     if ( infodlg_ )
 	infodlg_->usePar( par );
     par_ = par;
+    putDispParams();
 }
 
 
@@ -304,17 +304,16 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     mGetWD(return);
     dispgrp->setHSpacing( 50 );
 
-    zinftfld_ = new uiCheckBox( dispgrp, tr("Z in feet") );
     zintimefld_ = new uiCheckBox( dispgrp, tr("Z in time") );
-    zintimefld_ ->attach( alignedAbove, zinftfld_ );
+    zinftfld_ = new uiCheckBox( dispgrp, tr("Z in %1").arg(
+				SI().depthsInFeet()?tr("feet"):tr("meter")) );
+    zinftfld_ ->attach( alignedBelow, zintimefld_ );
 
     putDispParams();
 
     const CallBack pccb( mCB(this,uiTieWin,dispPropChg) );
-    zinftfld_->activated.notify( pccb );
     zintimefld_->activated.notify( pccb );
-
-    zinftfld_->setChecked( SI().depthsInFeet() );
+    zinftfld_->activated.notify( pccb );
 }
 
 
@@ -332,10 +331,15 @@ void uiTieWin::putDispParams()
 }
 
 
-void uiTieWin::dispPropChg( CallBacker* )
+void uiTieWin::dispPropChg( CallBacker*cb )
 {
     getDispParams();
-    zinftfld_->display( !params_.iszintime_ );
+    mDynamicCastGet(uiCheckBox*,tb,cb)
+    if ( cb == zintimefld_ )
+	zinftfld_->setChecked( !params_.iszintime_ );
+    else 
+	zintimefld_->setChecked( !params_.iszinft_ );
+    
     reDrawAll(0);
 }
 
