@@ -35,7 +35,9 @@ public:
 			ReadAccess( Data& d ) : wd_(d)	{}
     virtual		~ReadAccess()			{}
 
-    virtual bool	get() const			= 0; //!< Just read all
+    virtual bool	get() const			= 0;
+			/*!< Obsolete, will be removed after 6.0.
+			     Well::Reader::get() takes over		*/
 
     virtual bool	getInfo() const			= 0;
     virtual bool	getTrack() const		= 0;
