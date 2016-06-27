@@ -167,6 +167,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 {
     mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
     BinID curbid = provider_->getCurrentPosition();
+    const Pos::GeomID geomid = provider_->getGeomID();
     if ( is2d_ && curtrcinfo )
     {
 	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );
@@ -174,7 +175,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	    curbid = curtrcinfo->binid;
 	else
 	{
-	    curbid.inl() = 0;
+	    curbid.inl() = geomid==mUdfGeomID ? 0 : geomid;
 	    curbid.crl() = curtrcinfo->nr;
 	}
     }
@@ -188,7 +189,6 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     {
 	if ( !curtrcinfo )
 	    mytrcinfo.nr = curbid.crl();
-	const Pos::GeomID geomid = provider_->getGeomID();
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 			 Survey::GM().getGeometry(geomid) );
 	PosInfo::Line2DPos pos2d;
@@ -451,7 +451,9 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	provider_->setDesiredVolume( possvol );
 	if ( !provider_->getPossibleVolume( -1, possvol ) )
 	{
-	    errmsg_ = tr("Not possible to output required attribute"
+	    errmsg_ = provider_->errMsg();
+	    if ( errmsg_.isEmpty() )
+		errmsg_ = tr("Not possible to output required attribute"
                          " in this area.\nPlease confront stepouts/timegates"
 		         " with available data");
 	    return;

@@ -364,26 +364,43 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 }
 
 
-#define mAdjustToAvailStep( dir )\
-{\
-    if ( res.hsamp_.step_.dir>1 )\
-    {\
-	float remain =\
-	   ( possiblevolume_->hsamp_.start_.dir - res.hsamp_.start_.dir ) %\
-			res.hsamp_.step_.dir;\
-	if ( !mIsZero( remain, 1e-3 ) )\
-	    res.hsamp_.start_.dir = possiblevolume_->hsamp_.start_.dir + \
-				mNINT32(remain +0.5) *res.hsamp_.step_.dir;\
-    }\
+bool StorageProvider::getLine2DStoredVolume()
+{
+    if ( geomid_ == mUdfGeomID && desiredvolume_->hsamp_.is2D() )
+	geomid_ = desiredvolume_->hsamp_.getGeomID();
+
+    if ( geomid_ == mUdfGeomID )
+	return true;
+
+    Seis2DDataSet* dset = mscprov_->reader().dataSet();
+    if ( !dset )
+	mErrRet( tr("2D seismic data set not found") );
+
+    StepInterval<int> trcrg;
+    StepInterval<float> zrg;
+    if ( !dset->getRanges(geomid_,trcrg,zrg) )
+	mErrRet( tr("2D dataset %1 is not available for line %2")
+		.arg(dset->name()).arg(Survey::GM().getName(geomid_)) );
+
+    storedvolume_.hsamp_.setLineRange( StepInterval<int>(geomid_,geomid_,1) );
+    storedvolume_.hsamp_.setTrcRange( trcrg );
+    storedvolume_.zsamp_ = zrg;
+    return true;
 }
+
 
 bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
 {
     if ( !possiblevolume_ )
 	possiblevolume_ = new TrcKeyZSampling;
 
+    const bool is2d = mscprov_ && mscprov_->is2D();
+    if ( is2d && !getLine2DStoredVolume() )
+	return false;
+
     *possiblevolume_ = storedvolume_;
-    globpv.limitTo( *possiblevolume_ );
+    if ( is2d == globpv.hsamp_.is2D() )
+	globpv.limitTo( *possiblevolume_ );
     if ( !isondisc_ )
 	globpv = *possiblevolume_;
     return !globpv.isEmpty();
@@ -770,7 +787,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	ValueSeries<float>* series = const_cast<DataHolder&>(data).series(idx);
 	const bool isclss = isclass[idx];
 	compidx++;
-	
+
 	for ( int sampidx=0; sampidx<data.nrsamples_; sampidx++ )
 	{
 	    const float curt = (float)(z0+sampidx)*refstep_ + extrazfromsamppos;
@@ -778,7 +795,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	    const float val = trcrange.includes(curt,false) ?
 		(isclss ? trc->get(trc->nearestSample(curt),compnr)
 		 : trc->getValue(curt,compnr)) : mUdf(float);
-	    
+
 	    series->setValue( sampidx, val );
 	}
     }

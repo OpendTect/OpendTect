@@ -64,6 +64,7 @@ protected:
     static void		updateDesc(Desc&);
     static void		updateDescAndGetCompNms(Desc&,BufferStringSet*);
 
+    bool		getLine2DStoredVolume();
     bool		checkInpAndParsAtStart();
     bool		allowParallelComputation() const { return false; }
 
