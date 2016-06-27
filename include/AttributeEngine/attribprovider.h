@@ -388,6 +388,10 @@ protected:
     bool			isusedmulttimes_;
     bool			needinterp_;
     uiString			errmsg_;
+
+public:
+    void			setDataUnavailableFlag(bool yn);
+    bool			getDataUnavailableFlag() const;
 };
 
 

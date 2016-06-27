@@ -300,7 +300,7 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
     {
 	output = const_cast<RegularSeisDataPack*>(
 			proc.outputs_[0]->getDataPack() );
-	if ( !output )
+	if ( !output || !output->sampling().isDefined() )
 	    return 0;
 
 	for ( int idx=0; idx<attrspecs_.size(); idx++ )
@@ -317,7 +317,8 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
     {
 	const RegularSeisDataPack* dp =
 		proc.outputs_[idx] ? proc.outputs_[idx]->getDataPack() : 0;
-	if ( !dp ) continue;
+	if ( !dp || !dp->sampling().isDefined() )
+	    continue;
 
 	dpm_.addAndObtain( const_cast<RegularSeisDataPack*>(dp) );
 	if ( packset.size() && packset[0]->nrComponents()!=dp->nrComponents() )

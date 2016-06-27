@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "convmemvalseries.h"
 #include "trckeyzsampling.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
@@ -208,6 +209,8 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 }
 
 
+HiddenParam<Provider,char>	dataunavailableflag_( 0 );
+
 Provider::Provider( Desc& nd )
     : desc_( nd )
     , desiredvolume_( 0 )
@@ -239,6 +242,8 @@ Provider::Provider( Desc& nd )
 
     if ( !desc_.descSet() )
 	errmsg_ = tr("No attribute set specified");
+
+    dataunavailableflag_.setParam( this, false );
 }
 
 
@@ -257,6 +262,8 @@ Provider::~Provider()
     delete linebuffer_;
     delete possiblevolume_;
     delete desiredvolume_;
+
+    dataunavailableflag_.removeParam( this );
 }
 
 
@@ -1790,6 +1797,22 @@ float Provider::getApplicableCrlDist( bool dependoninput ) const
 	return getDistBetwTrcs( false, Survey::GM().getName(geomid_) );
 
     return crlDist();
+}
+
+
+void Provider::setDataUnavailableFlag( bool yn )
+{ dataunavailableflag_.setParam( this, yn ); }
+
+
+bool Provider::getDataUnavailableFlag() const
+{
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+	if ( inputs_[idx] && inputs_[idx]->getDataUnavailableFlag() )
+	    return true;
+    }
+
+    return dataunavailableflag_.getParam( this );
 }
 
 

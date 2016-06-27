@@ -641,7 +641,10 @@ bool StorageProvider::checkDesiredVolumeOK()
 		      .arg( storedvolume_.zsamp_.start )
 		      .arg( storedvolume_.zsamp_.stop ) );
     if ( inlwrong || crlwrong || zwrong )
+    {
+	setDataUnavailableFlag( true );
 	return false;
+    }
 
     if ( zstepwrong )
 	errmsg_ = tr("Z-Step is not correct. The maximum resampling "
@@ -671,6 +674,7 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
     if ( !trcrgwrong && !zwrong )
 	return true;
 
+    setDataUnavailableFlag( true );
     errmsg_ = tr("'%1' contains no data in selected area:\n")
 		.arg( desc_.userRef() );
     if ( trcrgwrong )

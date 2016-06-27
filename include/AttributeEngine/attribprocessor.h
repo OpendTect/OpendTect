@@ -93,6 +93,11 @@ protected:
 
     BinID		prevbid_;
     Seis::SelData*	sd_;
+
+    bool		isHidingDataAvailabilityError() const;
+
+public:
+    void		showDataAvailabilityErrors(bool yn);
 };
 
 

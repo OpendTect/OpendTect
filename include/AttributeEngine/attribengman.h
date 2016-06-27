@@ -144,6 +144,9 @@ private:
 
     friend class		AEMFeatureExtracter;//TODO will soon be removed
     friend class		AEMTableExtractor;
+
+public:
+    bool		hasCache() const		{ return cache_; }
 };
 
 } // namespace Attrib

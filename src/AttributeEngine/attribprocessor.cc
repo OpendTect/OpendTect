@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescset.h"
 #include "attriboutput.h"
 #include "attribprovider.h"
+#include "hiddenparam.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
 #include "survgeom2d.h"
@@ -24,6 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace Attrib
 {
+
+HiddenParam<Processor,char>	showdataavailabilityerrors_( 0 );
 
 Processor::Processor( Desc& desc , const char* lk, uiString& err )
     : Executor("Attribute Processor")
@@ -44,6 +47,8 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
     is2d_ = desc_.is2D();
     if ( is2d_ )
 	provider_->setCurLineName( lk );
+
+    showdataavailabilityerrors_.setParam( this, true );
 }
 
 
@@ -53,6 +58,8 @@ Processor::~Processor()
     deepUnRef( outputs_ );
 
     if (sd_) delete sd_;
+
+    showdataavailabilityerrors_.removeParam( this );
 }
 
 
@@ -74,6 +81,10 @@ void Processor::setLineName( const char* lnm )
 }
 
 
+#define mErrorReturnValue() \
+    ( isHidingDataAvailabilityError() ? Finished() : ErrorOccurred() )
+
+
 int Processor::nextStep()
 {
     if ( !provider_ || outputs_.isEmpty() ) return ErrorOccurred();
@@ -82,12 +93,12 @@ int Processor::nextStep()
 	init();
 
     if ( !errmsg_.isEmpty() )
-	return ErrorOccurred();
+	return mErrorReturnValue();
 
     if ( !provider_->errMsg().isEmpty() )
     {
 	errmsg_ = provider_->errMsg();
-	return ErrorOccurred();
+	return mErrorReturnValue();
     }
 
     if ( useshortcuts_ )
@@ -99,11 +110,11 @@ int Processor::nextStep()
     {
 	errmsg_ = provider_->errMsg();
 	if ( !errmsg_.isEmpty() )
-	    return ErrorOccurred();
+	    return mErrorReturnValue();
     }
     useshortcuts_ ? useSCProcess( res ) : useFullProcess( res );
     if ( !errmsg_.isEmpty() )
-	return ErrorOccurred();
+	return mErrorReturnValue();
 
     provider_->resetMoved();
     provider_->resetZIntervals();
@@ -153,6 +164,7 @@ void Processor::useFullProcess( int& res )
 
     if ( res == 0 && !nrdone_ )
     {
+	provider_->setDataUnavailableFlag( true );
 	errmsg_ = tr("No positions processed.\n"
 	"Most probably, your input volume(s) are not available in the \n"
 	"selected region or the required stepout traces are not available");
@@ -249,6 +261,7 @@ void Processor::useSCProcess( int& res )
     }
     if ( res == 0 && !nrdone_ )
     {
+	provider_->setDataUnavailableFlag( true );
 	errmsg_ = tr("This stored cube contains no data in selected area.\n");
 	return;
     }
@@ -453,9 +466,12 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	{
 	    errmsg_ = provider_->errMsg();
 	    if ( errmsg_.isEmpty() )
+	    {
+		provider_->setDataUnavailableFlag( true );
 		errmsg_ = tr("Not possible to output required attribute"
                          " in this area.\nPlease confront stepouts/timegates"
 		         " with available data");
+	    }
 	    return;
 	}
 
@@ -563,5 +579,17 @@ void Processor::setRdmPaths( TypeSet<BinID>* truepath,
 
     provider_->setRdmPaths( truepath, snappedpath );
 }
+
+
+void Processor::showDataAvailabilityErrors( bool yn )
+{ showdataavailabilityerrors_.setParam( this, yn ); }
+
+
+bool Processor::isHidingDataAvailabilityError() const
+{
+    return !showdataavailabilityerrors_.getParam(this) &&
+	   provider_->getDataUnavailableFlag();
+}
+
 
 }; // namespace Attrib
