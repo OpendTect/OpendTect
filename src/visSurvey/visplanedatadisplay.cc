@@ -428,9 +428,10 @@ void PlaneDataDisplay::draggerFinish( CallBacker* )
 	originalresolution_ = -1;
     }
 
-    interactivetexturedisplay_ = false;
+    if ( interactivetexturedisplay_ )
+	forcemanipupdate_ = true;
 
-    forcemanipupdate_ = true;
+    interactivetexturedisplay_ = false;
     updateSel();
     forcemanipupdate_ = false;
 
