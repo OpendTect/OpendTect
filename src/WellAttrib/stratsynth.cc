@@ -301,7 +301,7 @@ bool StratSynth::canRayModelsBeRemoved( const IOPar& sdraypar ) const
 	SynthGenParams sdsgp;
 	synthetics_[idx]->fillGenParams( sdsgp );
 	const bool ispsbased = sdsgp.synthtype_==SynthGenParams::AngleStack ||
-	    		       sdsgp.synthtype_==SynthGenParams::AVOGradient;
+			       sdsgp.synthtype_==SynthGenParams::AVOGradient;
 	if ( !ispsbased && synthrmmgr_.haveSameRM(sdraypar,sdsgp.raypars_) )
 	    return false;
     }
@@ -334,7 +334,7 @@ bool StratSynth::disableSynthetic( const char* nm )
 	SyntheticData* sd = synthetics_[idx];
 	if ( sd->name() != nm )
 	    continue;
-	
+
 	SynthGenParams sgp;
 	sd->fillGenParams( sgp );
 	if ( sgp.isPSBased() )
@@ -565,7 +565,7 @@ fullidstr.add( toString(gdp.id()) ); \
 dpidstring.add( fullidstr.buf() ); \
 Attrib::Desc* psdesc = \
     Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName()); \
-mSetString(Attrib::StorageProvider::keyStr(),dpidstring.buf()); 
+mSetString(Attrib::StorageProvider::keyStr(),dpidstring.buf());
 
 
 #define mSetProc() \
@@ -603,20 +603,12 @@ proc->getProvider()->setDesiredVolume( cs ); \
 proc->getProvider()->setPossibleVolume( cs ); \
 mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider()); \
 if ( !psattr ) \
-    mErrRet( proc->uiMessage(), return 0 ) ; 
+    mErrRet( proc->uiMessage(), return 0 ) ;
 
 
 #define mCreateSeisBuf() \
 if ( !TaskRunner::execute(taskr_,*proc) ) \
     mErrRet( proc->uiMessage(), return 0 ) ; \
-for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
-{ \
-    const BinID bid = dptrcbufs->get( trcidx )->info().binid; \
-    SeisTrcInfo& trcinfo = dptrcbufs->get( trcidx )->info(); \
-	trcinfo.trckey_.setSurvID( -100 ); \
-    trcinfo.coord_ = SI().transform( bid ); \
-    trcinfo.nr_ = trcidx+1; \
-} \
 SeisTrcBufDataPack* angledp = \
     new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
 			    SeisTrcInfo::TrcNr, synthgenpar.name_ ); \
@@ -912,7 +904,7 @@ bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
 	PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
 	if ( !wvlt || (wvlt_->name()==wvlt->name()) )
 	    needsetwvlt = true;
-	else 
+	else
 	    synthgen.setWavelet( wvlt, OD::CopyPtr );
     }
     if ( wvlt_ && needsetwvlt )

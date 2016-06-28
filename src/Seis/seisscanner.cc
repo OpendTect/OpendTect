@@ -349,7 +349,7 @@ bool SeisScanner::addTrc()
     }
 
     if ( !dtctor_.add(trc_.info().coord_,trc_.info().binID(),
-		      trc_.info().nr_,trc_.info().offset_) )
+		      trc_.info().trcNr(),trc_.info().offset_) )
     {
 	curmsg_ = dtctor_.errMsg();
 	return false;

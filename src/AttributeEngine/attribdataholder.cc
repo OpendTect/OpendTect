@@ -152,9 +152,9 @@ float DataHolder::getExtraZFromSampPos( float exactz, float refzstep )
 	return ((exactz/refzstep)-(int)(exactz/refzstep))*refzstep;
 
     const bool isfullmsstep = mIsEqual( refzstep*zfactor,
-	    				(int)(refzstep*zfactor), 1e-3 );
+					(int)(refzstep*zfactor), 1e-3 );
    if ( isfullmsstep )
-   { 
+   {
 	//Workaround to avoid conversion problems, 1e7 to get 1e6 precision
 	//in case the survey is in depth z*1e7 might exceed max int: we use 1e4
 	const int fact = SI().zIsTime() ? (int)1e7 : (int)1e4;
@@ -163,7 +163,7 @@ float DataHolder::getExtraZFromSampPos( float exactz, float refzstep )
 	const int leftem3 = (int)(exactz*fact) - extrazem7;
 	const int extrazem3 = (int)(leftem3*1e-3)%(int)(refzstep*zfactor);
 	if ( extrazem7 <= extrazem7noprec || extrazem3 != 0 ) //below precision
-	return (float) (extrazem3 * 1e-3 + extrazem7 * 
+	return (float) (extrazem3 * 1e-3 + extrazem7 *
 					    (SI().zIsTime() ? 1e-7 : 1e-4));
    }
    else
@@ -205,6 +205,7 @@ Data2DHolder::~Data2DHolder()
 TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 {
     TrcKeyZSampling res;
+    res.set2DDef();
     if ( trcinfoset_.isEmpty() )
 	return res;
 
@@ -215,7 +216,7 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 
     for ( int idx=0; idx<trcinfoset_.size(); idx++ )
     {
-	const int curtrcnr = trcinfoset_[idx]->nr_;
+	const int curtrcnr = trcinfoset_[idx]->trcNr();
 	const int start = dataset_[idx]->z0_;
 	const int stop = dataset_[idx]->z0_ + dataset_[idx]->nrsamples_-1;
 
@@ -245,10 +246,9 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 	prevtrcnr = curtrcnr;
     }
 
-    res.hsamp_.start_ = BinID( 0, trcrange.start );
-    res.hsamp_.stop_ = BinID( 0, trcrange.stop );
-    res.hsamp_.step_ = BinID( 1, trcrange.step );
-    res.hsamp_.survid_ = Survey::GM().get2DSurvID();
+    Pos::GeomID geomid = trcinfoset_[0]->lineNr();
+    res.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
+    res.hsamp_.setTrcRange( trcrange );
 
     res.zsamp_.start = zrange.start*zstep;
     res.zsamp_.stop = zrange.stop*zstep;
@@ -263,14 +263,14 @@ int Data2DHolder::getDataHolderIndex( int trcno ) const
     if ( trcinfoset_.isEmpty() )
 	return -1;
 
-    const int guessedidx = trcno-trcinfoset_[0]->nr_;
+    const int guessedidx = trcno-trcinfoset_[0]->trcNr();
     if ( trcinfoset_.validIdx(guessedidx) &&
-		trcno == trcinfoset_[guessedidx]->nr_ )
+		trcno == trcinfoset_[guessedidx]->trcNr() )
 	return guessedidx;
 
     for ( int idx=0; idx<trcinfoset_.size(); idx++ )
     {
-	if ( trcno == trcinfoset_[idx]->nr_ )
+	if ( trcno == trcinfoset_[idx]->trcNr() )
 	    return idx;
     }
 

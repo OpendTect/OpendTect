@@ -376,7 +376,6 @@ int SeisSingleTraceProc::getFillTrc()
 	}
 	filltrc_ = new SeisTrc( *worktrc_ );
 	filltrc_->zero();
-	filltrc_->info().nr_ = 0;
 	filltrc_->info().offset_ = 0;
 	filltrc_->info().azimuth_ = 0;
 	filltrc_->info().refnr_ = filltrc_->info().pick_ = mUdf(float);

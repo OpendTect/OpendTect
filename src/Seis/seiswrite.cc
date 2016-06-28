@@ -236,14 +236,14 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 	mDynamicCastGet(IOStream*,iostrm,ioobj_)
 	if ( iostrm->fileSpec().isRangeMulti() && trc.info().new_packet_ )
 	{
-	    const int connidx = iostrm->connIdxFor( trc.info().inl() );
+	    const int connidx = iostrm->connIdxFor( trc.info().lineNr() );
 	    neednewconn = connidx != iostrm->curConnIdx();
 	}
     }
 
     if ( neednewconn )
     {
-	Conn* conn = crConn( trc.info().inl(), first );
+	Conn* conn = crConn( trc.info().lineNr(), first );
 	if ( !conn || !start3DWrite(conn,trc) )
 	    return false;
     }
@@ -291,7 +291,7 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
     if ( !res )
 	errmsg_ = putter_->errMsg();
 
-    PosInfo::Line2DPos pos( trc.info().nr_ );
+    PosInfo::Line2DPos pos( trc.info().trcNr() );
     pos.coord_ = trc.info().coord_;
     linedata_->add( pos );
 
@@ -309,9 +309,6 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
     if ( seldata_ )
     {
 	BinID selbid = trc.info().binID();
-	if ( is2d_ )
-	    selbid = BinID( seldata_->inlRange().start, trc.info().nr_ );
-
 	if ( seldata_->selRes(selbid) )
 	    return true;
     }
@@ -326,9 +323,10 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	    return false;
 	}
 
-	if ( is2d_ && linedata_ && linedata_->indexOf(trc.info().nr_) < 0 )
+	if ( is2d_ && linedata_ &&
+		linedata_->indexOf(trc.info().trcNr()) < 0 )
 	{
-	    PosInfo::Line2DPos pos( trc.info().nr_ );
+	    PosInfo::Line2DPos pos( trc.info().trcNr() );
 	    pos.coord_ = trc.info().coord_;
 	    linedata_->add( pos );
 	}
@@ -497,9 +495,7 @@ bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
 	    ObjectSet<SeisTrc> trcs;
 	    for ( int idy=0; idy<outputs_.size(); idy++ )
 	    {
-		const bool samepos = writer_->is2D()
-		    ? bid.crl() == outputs_[idy]->info().nr_
-		    : outputs_[idy]->info().binID() == bid;
+		const bool samepos = outputs_[idy]->info().binID() == bid;
 		if ( samepos )
 		{
 		    trcs += outputs_.removeSingle( idy );

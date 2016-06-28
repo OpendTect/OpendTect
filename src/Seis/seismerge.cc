@@ -27,17 +27,17 @@
 
 SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 		      bool is2d )
-    	: Executor(is2d?"Merging line parts":"Merging cubes")
-    	, is2d_(is2d)
-    	, wrr_(0)
-    	, currdridx_(-1)
-    	, nrpos_(0)
-    	, totnrpos_(-1)
+	: Executor(is2d?"Merging line parts":"Merging cubes")
+	, is2d_(is2d)
+	, wrr_(0)
+	, currdridx_(-1)
+	, nrpos_(0)
+	, totnrpos_(-1)
 	, curbid_(SI().sampling(false).hsamp_.start_)
-    	, trcbuf_(*new SeisTrcBuf(false))
-    	, stacktrcs_(true)
+	, trcbuf_(*new SeisTrcBuf(false))
+	, stacktrcs_(true)
         , scaler_(0)
-    	, nrsamps_(-1)
+	, nrsamps_(-1)
 {
     if ( iops.isEmpty() )
     { errmsg_ = tr("Nothing to merge"); return; }
@@ -83,16 +83,16 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 
 
 SeisMerger::SeisMerger( const IOPar& iop )
-    	: Executor("Merging cubes")
-    	, is2d_(false)
-    	, wrr_(0)
-    	, currdridx_(-1)
-    	, nrpos_(0)
-    	, totnrpos_(-1)
+	: Executor("Merging cubes")
+	, is2d_(false)
+	, wrr_(0)
+	, currdridx_(-1)
+	, nrpos_(0)
+	, totnrpos_(-1)
 	, curbid_(SI().sampling(false).hsamp_.start_)
-    	, trcbuf_(*new SeisTrcBuf(false))
-    	, stacktrcs_(true)
-    	, nrsamps_(-1)
+	, trcbuf_(*new SeisTrcBuf(false))
+	, stacktrcs_(true)
+	, nrsamps_(-1)
 {
     if ( iop.isEmpty() )
     { errmsg_ = tr("Nothing to merge"); return; }
@@ -249,7 +249,7 @@ void SeisMerger::get3DTraces()
 	    SeisTrc* newtrc = getTrcFrom( rdr );
 	    if ( !newtrc )
 		continue;
-	    
+
 	    trcbuf_.add( newtrc );
 	    if ( !stacktrcs_ )
 		break;
@@ -359,12 +359,12 @@ int SeisMerger::writeFromBuf()
 
     SeisTrcBuf tmp( false );
     SeisTrc* trc0 = trcbuf_.remove( 0 );
-    const int tnr = trc0->info().nr_;
+    const TrcKey trckey = trc0->info().trckey_;
     tmp.add( trc0 );
 
     while ( !trcbuf_.isEmpty() )
     {
-	if ( trcbuf_.get(0)->info().nr_ != tnr )
+	if ( trcbuf_.get(0)->info().trckey_ != trckey )
 	    break;
 	tmp.add( trcbuf_.remove(0) );
     }

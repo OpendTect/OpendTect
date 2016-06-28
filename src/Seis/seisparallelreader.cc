@@ -531,9 +531,8 @@ ArrayFiller( SeisTrc& trc, const TypeSet<int>& components,
 bool execute()
 {
     const int idx0 = is2d_ ? 0
-		: dp_.sampling().hsamp_.lineIdx( trc_.info().inl() );
-    const int idx1 = dp_.sampling().hsamp_.trcIdx( is2d_ ? trc_.info().nr_
-							 : trc_.info().crl() );
+		: dp_.sampling().hsamp_.lineIdx( trc_.info().lineNr() );
+    const int idx1 = dp_.sampling().hsamp_.trcIdx( trc_.info().trcNr() );
 
     StepInterval<float> dpzsamp = dp_.sampling().zsamp_;
     const StepInterval<float>& trczsamp = trc_.zRange();

@@ -26,11 +26,12 @@ namespace PosInfo { class Line2DData; }
 mExpClass(WellAttrib) StratSynthExporter : public Executor
 { mODTextTranslationClass(StratSynthExporter);
 public:
-    				StratSynthExporter(
+				StratSynthExporter(
 				    const ObjectSet<const SyntheticData>& sds,
+				    Pos::GeomID geomid,
 				    PosInfo::Line2DData* newgeom,
 				    const SeparString&);
-    				~StratSynthExporter();
+				~StratSynthExporter();
 
     od_int64				nrDone() const;
     od_int64				totalNr() const;
@@ -39,13 +40,14 @@ public:
     uiString				uiMessage() const;
 protected:
 
-    int 				nextStep();
+    int				nextStep();
     int					writePostStackTrace();
     int					writePreStackTraces();
     bool				prepareWriter();
 
     bool				isps_;
     const ObjectSet<const SyntheticData>& sds_;
+    Pos::GeomID				geomid_;
     PosInfo::Line2DData*		linegeom_;
     SeisTrcWriter*			writer_;
     BufferString			prefixstr_;

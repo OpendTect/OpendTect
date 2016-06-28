@@ -351,7 +351,7 @@ uiStratSynthExport::GeomSel uiStratSynthExport::selType() const
 }
 
 
-bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
+Pos::GeomID uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 {
     uiStratSynthExport::GeomSel selgeom = selType();
     TypeSet<Coord> ptlist;
@@ -363,10 +363,10 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 		Survey::GM().getGeometry( linegeom.lineName() );
 	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
 	    if ( !geom2d )
-		mErrRet(uiStrings::phrCannotFind(tr(
-				    "the geometry of specified line")), false)
+		mErrRet(uiStrings::phrCannotFind(
+			    tr("the geometry of specified line")), mUdfGeomID )
 	    linegeom = geom2d->data();
-	    return true;
+	    return geom->getID();
 	}
 	case StraightLine:
 	{
@@ -378,7 +378,7 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	{
 	    ConstRefMan<Pick::Set> ps = picksetsel_->getPickSet();
 	    if ( !ps )
-		return false;
+		return mUdfGeomID;
 	    Pick::SetIter psiter( *ps );
 	    while ( psiter.next() )
 		ptlist += psiter.get().pos();
@@ -388,18 +388,18 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	{
 	    const IOObj* randlineobj = randlinesel_->ioobj();
 	    if ( !randlineobj )
-		mErrRet( tr("No random line selected"), false )
+		mErrRet( tr("No random line selected"), mUdfGeomID )
 	    Geometry::RandomLineSet lset;
 	    uiString errmsg;
 	    if ( !RandomLineSetTranslator::retrieve(lset,randlineobj,errmsg) )
-		mErrRet( errmsg, false )
+		mErrRet( errmsg, mUdfGeomID )
 	    const ObjectSet<Geometry::RandomLine>& lines = lset.lines();
 	    BufferStringSet linenames;
 	    for ( int idx=0; idx<lines.size(); idx++ )
 		linenames.add( lines[idx]->name() );
 	    int selitem = 0;
 	    if ( linenames.isEmpty() )
-		mErrRet( tr("Random line appears to be empty"), false )
+		mErrRet( tr("Random line appears to be empty"), mUdfGeomID )
 	    else if ( linenames.size()>1 )
 	    {
 		uiSelectFromList seldlg( this,
@@ -416,11 +416,10 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 
     Survey::Geometry::ID newgeomid =
 		Geom2DImpHandler::getGeomID( linegeom.lineName() );
-    if ( newgeomid == mUdfGeomID )
-	return false;
+    if ( newgeomid != mUdfGeomID )
+	create2DGeometry( ptlist, linegeom );
 
-    create2DGeometry( ptlist, linegeom );
-    return true;
+    return newgeomid;
 }
 
 
@@ -553,7 +552,8 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     }
 
     PtrMan<PosInfo::Line2DData> linegeom = new PosInfo::Line2DData( linenm );
-    if ( !getGeometry(*linegeom) )
+    Pos::GeomID newgeomid = getGeometry( *linegeom );
+    if ( newgeomid == mUdfGeomID )
     {
 	getExpObjs();
 	return false;
@@ -582,7 +582,7 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     sds.append( presds_ );
     if ( !sds.isEmpty() )
     {
-	StratSynthExporter synthexp( sds, linegeom, prepostfix );
+	StratSynthExporter synthexp( sds, newgeomid, linegeom, prepostfix );
 	uiTaskRunner taskrunner( this );
 	const bool res = TaskRunner::execute( &taskrunner, synthexp );
 	if ( !res )

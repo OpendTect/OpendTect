@@ -418,9 +418,8 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
     {
 	const int gathersz = gathers_[idx]->size(false);
 	SeisTrc* trc = new SeisTrc( gathersz );
-	trc->info().binid = gathers_[idx]->getBinID();
-	trc->info().coord_ = SI().transform( gathers_[idx]->getBinID() );
-	trc->info().nr_ = idx+1;
+	trc->info().trckey_ = gathers_[idx]->getTrcKey();
+	trc->info().coord_ = trc->info().trckey_.getCoord();
 	const SamplingData<double>& sd = gathers_[idx]->posData().range( false);
 	trc->info().sampling_.set((float) sd.start, (float) sd.step );
 	const Array2D<float>& data = gathers_[idx]->data();

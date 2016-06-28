@@ -66,7 +66,7 @@ protected:
     void		getExpObjs();
     void		removeNonSelected();
     bool		createHor2Ds();
-    bool		getGeometry(PosInfo::Line2DData&);
+    Pos::GeomID		getGeometry(PosInfo::Line2DData&);
     void		create2DGeometry(const TypeSet<Coord>&,
 					 PosInfo::Line2DData&);
 

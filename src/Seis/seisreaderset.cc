@@ -35,18 +35,6 @@ bool SeisTrcReaderSet::getSingle( int irdr, SeisTrcInfo& ti, int& res )
 }
 
 
-BinID SeisTrcReaderSet::getBinID( int irdr, const SeisTrcInfo& ti ) const
-{
-    BinID bid( ti.binID() );
-    if ( is2D() )
-    {
-	bid.inl() = (*this)[irdr]->curLineIdx();
-	bid.crl() = ti.nr_;
-    }
-    return bid;
-}
-
-
 int SeisTrcReaderSet::get( ObjectSet<SeisTrcInfo>& tis )
 {
     if ( isEmpty() )
@@ -59,14 +47,14 @@ int SeisTrcReaderSet::get( ObjectSet<SeisTrcInfo>& tis )
 	return res;
 
     //TODO algo only works if the first cube/line is (one of) the smallest
-    const BinID targetbid( getBinID(0,*tis[0]) );
+    const BinID targetbid( tis[0]->binID() );
     for ( int irdr=1; irdr<size(); irdr++ )
     {
 	while ( true )
 	{
 	    if ( !getSingle(irdr,*tis[irdr],res) )
 		return res;
-	    if ( getBinID(irdr,*tis[irdr]) == targetbid )
+	    if ( tis[irdr]->binID() == targetbid )
 		break;
 	}
     }

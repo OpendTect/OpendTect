@@ -187,8 +187,8 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 
     const Interval<int> transrg( mMAX(inputrg.start, outrg.start),
 				 mMIN(inputrg.stop, outrg.stop ) );
-    const int lineidx = tkzs.hsamp_.lineRange().nearestIndex( info.inl());
-    const int trcidx = tkzs.hsamp_.trcRange().nearestIndex( info.crl() );
+    const int lineidx = tkzs.hsamp_.lineRange().nearestIndex( info.lineNr());
+    const int trcidx = tkzs.hsamp_.trcRange().nearestIndex( info.trcNr() );
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
@@ -1158,7 +1158,7 @@ bool TableOutput::useCoords( Pos::SurvID survid ) const
 void TableOutput::collectData( const DataHolder& data, float refstep,
 			       const SeisTrcInfo& info )
 {
-    const bool usecoords = useCoords( info.trckey_.survID() );
+    const bool usecoords = useCoords( info.survID() );
     const Coord coord = info.coord_;
     DataPointSet::RowID rid = usecoords ? datapointset_.findFirst(coord)
 				      : datapointset_.findFirst(info.binID());
@@ -1186,7 +1186,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     {
 	BinIDValueSet::SPos spos = datapointset_.bvsPos( rid );
 	float* vals = datapointset_.bivSet().getVals( spos );
-	vals[datapointset_.nrFixedCols()-1] = mCast(float,info.nr_);
+	vals[datapointset_.nrFixedCols()-1] = mCast(float,info.trckey_.trcNr());
     }
 
     const int desnrvals = desoutputs_.size() + firstattrcol_;

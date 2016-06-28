@@ -848,7 +848,7 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 		    rm.outtrcs_[idoff]->set( idz, mUdf(float), 0 );
 	    }
 	    rm.outtrcs_[idoff]->info().offset_ = offsets_[idoff];
-	    rm.outtrcs_[idoff]->info().nr_ = idx+1;
+	    rm.outtrcs_[idoff]->info().trckey_ = TrcKey::getSynth( idx + 1 );
 	}
     }
 
@@ -1020,19 +1020,13 @@ void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
 
     for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
     {
-	const int crlstep = SI().crlStep();
-	const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
-			  SI().crlRange(false).stop + crlstep );
 	SeisTrcBuf* tbuf = new SeisTrcBuf( true );
 	ObjectSet<SeisTrc> trcs; (*raymodels_)[imdl]->getTraces( trcs, true );
 	for ( int idx=0; idx<trcs.size(); idx++ )
 	{
 	    SeisTrc* trc = trcs[idx];
-	    trc->info().trckey_.setSurvID( TrcKey::stdSynthSurvID() );
-	    trc->info().setInl( bid0.inl() );
-	    trc->info().setCrl( bid0.crl() + imdl*crlstep );
-	    trc->info().nr_ = imdl+1;
-	    trc->info().coord_ = SI().transform( trc->info().binID() );
+	    trc->info().trckey_ = TrcKey::getSynth( imdl + 1 );
+	    trc->info().coord_ = Coord::udf();
 	    tbuf->add( trc );
 	}
 	seisbufs += tbuf;
@@ -1045,17 +1039,11 @@ void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )
     if ( !raymodels_ || raymodels_->isEmpty() ) return;
 
     seisbuf.erase();
-    const int crlstep = SI().crlStep();
-    const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
-		      SI().crlRange(false).stop + crlstep );
     for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
     {
 	SeisTrc* trc = const_cast<SeisTrc*> ((*raymodels_)[imdl]->stackedTrc());
-	trc->info().trckey_.setSurvID( TrcKey::stdSynthSurvID() );
-	trc->info().setInl( bid0.inl() );
-	trc->info().setCrl( bid0.crl() + imdl*crlstep );
-	trc->info().nr_ = imdl+1;
-	trc->info().coord_ = SI().transform( trc->info().binID() );
+	trc->info().trckey_ = TrcKey::getSynth( imdl + 1 );
+	trc->info().coord_ = Coord::udf();
 	seisbuf.add( trc );
     }
 }

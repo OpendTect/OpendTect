@@ -215,7 +215,7 @@ const SeisTrcTranslator* SeisCBVS2DLineGetter::translator() const
 
 void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
 {
-    const int tnr = trc->info().crl();
+    const int tnr = trc->info().trcNr();
     if ( !isEmpty(seldata_) )
     {
 	if ( seldata_->type() == Seis::Range )
@@ -226,7 +226,6 @@ void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
 	}
     }
 
-    trc->info().nr_ = tnr;
     TrcKey tk( geomid_, tnr );
     trc->info().trckey_ = tk;
     tbuf_.add( trc );
@@ -379,18 +378,12 @@ SeisCBVS2DLinePutter::~SeisCBVS2DLinePutter()
 
 bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 {
-    SeisTrcInfo& info = const_cast<SeisTrcInfo&>( trc.info() );
-    bid_.crl() = info.nr_;
-    const BinID oldbid = info.binID();
-    info.setBinID( bid_ );
-
     if ( nrwr_ == 0 )
     {
 	tr_->setIs2D( true );
 	bool res = tr_->initWrite(new StreamConn(fname_.buf(),Conn::Write),trc);
 	if ( !res )
 	{
-	    info.setBinID( oldbid );
 	    errmsg_ = tr("Cannot open 2D line file:\n%1").arg(tr_->errMsg());
 	    return false;
 	}
@@ -409,7 +402,6 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 
     tr_->setIs2D( true );
     bool res = tr_->write(trc);
-    info.setBinID( oldbid );
     if ( res )
 	nrwr_++;
     else

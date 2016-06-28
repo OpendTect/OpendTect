@@ -28,10 +28,11 @@ ________________________________________________________________________
 #include "transl.h"
 
 StratSynthExporter::StratSynthExporter(
-	const ObjectSet<const SyntheticData>& sds,
+	const ObjectSet<const SyntheticData>& sds, Pos::GeomID geomid,
 	PosInfo::Line2DData* newgeom, const SeparString& prepostfix )
     : Executor( "Exporting syntheic data" )
     , sds_(sds)
+    , geomid_(geomid)
     , linegeom_(newgeom)
     , cursdidx_(0)
     , posdone_(0)
@@ -54,23 +55,13 @@ StratSynthExporter::StratSynthExporter(
 
 
 StratSynthExporter::~StratSynthExporter()
-{
-    delete writer_;
-}
-
-
-
+{ delete writer_; }
 
 od_int64 StratSynthExporter::nrDone() const
-{
-    return (cursdidx_*postobedone_) + posdone_;
-}
-
+{ return (cursdidx_*postobedone_) + posdone_; }
 
 od_int64 StratSynthExporter::totalNr() const
-{
-    return sds_.size()*postobedone_;
-}
+{ return sds_.size()*postobedone_; }
 
 #define mSkipInitialBlanks( str ) \
 { \
@@ -118,9 +109,7 @@ bool StratSynthExporter::prepareWriter()
     delete writer_;
     writer_ = new SeisTrcWriter( ctxt->ioobj_ );
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
-    Survey::Geometry::ID newgeomid =
-	Survey::GM().getGeomID( linegeom_->lineName() );
-    seldata->setGeomID( newgeomid );
+    seldata->setGeomID( geomid_ );
     writer_->setSelData( seldata );
     return true;
 }
@@ -169,8 +158,7 @@ int StratSynthExporter::writePostStackTrace()
 	mErrRetPErr( "Cannot find the trace in the required position" )
 
     SeisTrc trc( *synthrc );
-    trc.info().nr_ = linepos.nr_;
-    trc.info().binid = SI().transform( linepos.coord_ );
+    trc.info().trckey_ = TrcKey( geomid_, linepos.nr_ );
     trc.info().coord_ = linepos.coord_;
     if ( !writer_->put(trc) )
     {
@@ -208,8 +196,7 @@ int StratSynthExporter::writePreStackTraces()
     {
 	const float offset = gather->getOffset( offsidx );
 	SeisTrc trc( *gsdp.getTrace(posdone_,offsidx) );
-	trc.info().nr_ = linepos.nr_;
-	trc.info().binid = SI().transform( linepos.coord_ );
+	trc.info().trckey_ = TrcKey( geomid_, linepos.nr_ );
 	trc.info().coord_ = linepos.coord_;
 	trc.info().offset_ = offset;
 	if ( !writer_->put(trc) )

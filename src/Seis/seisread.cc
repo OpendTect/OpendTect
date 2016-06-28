@@ -334,26 +334,18 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     ti.new_packet_ = false;
 
     if ( mIsUdf(prev_inl) )
-	prev_inl = ti.inl();
-    else if ( prev_inl != ti.inl() )
+	prev_inl = ti.lineNr();
+    else if ( prev_inl != ti.lineNr() )
     {
 	foundvalidcrl = false;
-	prev_inl = ti.inl();
+	prev_inl = ti.lineNr();
 	if ( !entryis2d )
 	    ti.new_packet_ = true;
     }
 
     int selres = 0;
     if ( seldata_ )
-    {
-	if ( !entryis2d )
-	    selres = seldata_->selRes(ti.binID());
-	else
-	{
-	    BinID bid( seldata_->inlRange().start, ti.nr_ );
-	    selres = seldata_->selRes( bid );
-	}
-    }
+	selres = seldata_->selRes(ti.binID());
 
     if ( selres / 256 == 0 )
 	foundvalidcrl = true;

@@ -170,32 +170,15 @@ void Processor::useFullProcess( int& res )
 void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 {
     BinID curbid = provider_->getCurrentPosition();
-    const Pos::GeomID geomid = provider_->getGeomID();
-    if ( is2d_ && curtrcinfo )
-	curbid = curtrcinfo->binID();
-
     SeisTrcInfo mytrcinfo;
     if ( !curtrcinfo )
     {
-	mytrcinfo.setBinID( curbid );
+	TrcKey trckey( curbid );
 	if ( is2d_ )
-	{
-	    mytrcinfo.nr_ = curbid.crl();
-	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			     Survey::GM().getGeometry(geomid) );
-	    PosInfo::Line2DPos pos2d;
-	    if ( geom2d && geom2d->data().getPos(curbid.crl(),pos2d) )
-	    {
-		mytrcinfo.coord_ = pos2d.coord_;
-		mytrcinfo.trckey_.setSurvID( TrcKey::std2DSurvID() );
-	    }
-	    else
-	    {
-		mytrcinfo.coord_ = SI().transform( mytrcinfo.binID() );
-		//for synthetic data. synth data = 2D without geomid
-	    }
-	}
+	    trckey.setSurvID( TrcKey::std2DSurvID() );
 
+	mytrcinfo.trckey_ = trckey;
+	mytrcinfo.coord_ = trckey.getCoord();
 	curtrcinfo = &mytrcinfo;
     }
 

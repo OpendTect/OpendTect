@@ -397,15 +397,10 @@ void SEGY::OffsetCalculator::setOffset( SeisTrcInfo& ti,
 	return;
     }
 
-    bool diffcrl = false;
+    const bool diffcrl = mIsUdf(prevbid_.crl()) || prevbid_.crl() != ti.trcNr();
     bool diffinl = false;
-    if ( is2d_ )
-	diffcrl = mIsUdf(prevbid_.crl()) || prevbid_.crl() != ti.nr_;
-    else
-    {
-	diffinl = mIsUdf(prevbid_.inl()) || prevbid_.inl() != ti.inl();
-	diffcrl = mIsUdf(prevbid_.crl()) || prevbid_.crl() != ti.crl();
-    }
+    if ( !is2d_ )
+	diffinl = mIsUdf(prevbid_.inl()) || prevbid_.inl() != ti.lineNr();
 
     if ( diffcrl || diffinl )
 	curoffs_ = def_.start;

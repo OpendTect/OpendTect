@@ -37,12 +37,12 @@ public:
 
 void SeisPSImpLineBuf::add( SeisTrc* trc )
 {
-    const int crl = trc->info().crl();
+    const int crl = trc->info().trcNr();
     int bufidx = -1;
     for ( int idx=0; idx<gathers_.size(); idx++ )
     {
 	SeisTrcBuf& tbuf = *gathers_[idx];
-	const int bufcrl = tbuf.get(0)->info().crl();
+	const int bufcrl = tbuf.get(0)->info().trcNr();
 	if ( bufcrl == crl )
 	    { tbuf.add( trc ); return; }
 	else if ( bufcrl > crl )
@@ -83,7 +83,7 @@ void SeisPSImpDataMgr::endReached()
 
 void SeisPSImpDataMgr::add( SeisTrc* trc )
 {
-    const int inl = trc->info().inl();
+    const int inl = trc->info().lineNr();
     int bufidx = -1;
     for ( int idx=0; idx<lines_.size(); idx++ )
     {

@@ -282,7 +282,7 @@ SeisTrc* SeisCBVSPSIO::readNewTrace( int crlnr ) const
     SeisTrc* trc = new SeisTrc;
     if ( !tr_->read(*trc) )
 	{ delete trc; return 0; }
-    if ( trc->info().inl() != crlnr )
+    if ( trc->info().lineNr() != crlnr )
 	{ delete trc; return 0; }
 
     return trc;
@@ -477,7 +477,7 @@ SeisTrc* SeisCBVSPS3DReader::getNextTrace( const BinID& bid,
 {
     SeisTrc* trc = readNewTrace( bid.crl() );
     if ( !trc ) return 0;
-    trc->info().nr_ = trc->info().crl();
+    trc->info().nr_ = trc->info().trcNr();
     trc->info().setBinID( bid ); trc->info().coord_ = coord;
     return trc;
 }

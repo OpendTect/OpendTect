@@ -281,9 +281,9 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 
     const bool haveprev = !mIsUdf( prevnr_ );
     const bool wrblk = haveprev && (is_2d ? prevnr_ > 99
-				: prevnr_ != trc.info().inl());
+				: prevnr_ != trc.info().lineNr());
     if ( !is_2d )
-	prevnr_ = trc.info().inl();
+	prevnr_ = trc.info().lineNr();
     else if ( wrblk || !haveprev )
 	prevnr_ = 1;
     else
@@ -306,7 +306,7 @@ bool SeisTrcTranslator::writeBlock()
     int sz = trcblock_.size();
     SeisTrc* firsttrc = sz ? trcblock_.get(0) : 0;
     if ( firsttrc )
-	lastinlwritten_ = firsttrc->info().inl();
+	lastinlwritten_ = firsttrc->info().lineNr();
 
     if ( sz && enforce_regular_write )
     {
@@ -314,19 +314,18 @@ bool SeisTrcTranslator::writeBlock()
 					: SeisTrcInfo::BinIDCrl;
 	bool sort_asc = true;
 	if ( is_2d )
-	    sort_asc = trcblock_.get(0)->info().nr_
-		     < trcblock_.get(trcblock_.size()-1)->info().nr_;
+	    sort_asc = trcblock_.get(0)->info().trcNr() <
+		trcblock_.get(trcblock_.size()-1)->info().trcNr();
 	    // for 2D we're buffering only 100 traces, not an entire line
 	trcblock_.sort( sort_asc, keyfld );
 	firsttrc = trcblock_.get( 0 );
-	const int firstnr = is_2d ? firsttrc->info().nr_
-				 : firsttrc->info().crl();
+	const int firstnr = firsttrc->info().trcNr();
 	int nrperpos = 1;
 	if ( !is_2d )
 	{
 	    for ( int idx=1; idx<sz; idx++ )
 	    {
-		if ( trcblock_.get(idx)->info().crl() != firstnr )
+		if ( trcblock_.get(idx)->info().trcNr() != firstnr )
 		    break;
 		nrperpos++;
 	    }
@@ -351,7 +350,7 @@ bool SeisTrcTranslator::writeBlock()
     int nrwritten = 0;
     for ( ; binid.crl() != firstafter; binid.crl() += stp )
     {
-	while ( trc && trc->info().crl() < binid.crl() )
+	while ( trc && trc->info().trcNr() < binid.crl() )
 	{
 	    bufidx++;
 	    trc = bufidx < sz ? trcblock_.get(bufidx) : 0;

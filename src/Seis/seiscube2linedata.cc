@@ -97,7 +97,8 @@ int Seis2DFrom3DExtractor::handleTrace()
     if ( !rdr_.get(trc) )
 	return MoreToDo();
 
-    trc.info().nr_ = curpos.nr_;
+    TrcKey curtrckey( curgeom2d_->getID(), curpos.nr_ );
+    trc.info().trckey_ = curtrckey;
     trc.info().coord_ = curpos.coord_;
     if ( !wrr_.put(trc) )
 	mErrRet( wrr_.errMsg() )

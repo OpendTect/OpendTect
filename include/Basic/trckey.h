@@ -40,6 +40,9 @@ public:
 			//2D
 			TrcKey(Pos::GeomID,Pos::TraceID);
 
+			// Synthetic
+    static TrcKey	getSynth(Pos::TraceID);
+
     bool		is2D() const { return is2D(survid_); }
     static bool		is2D(SurvID);
 
@@ -49,6 +52,8 @@ public:
     TrcKey&		setGeomID(Pos::GeomID);
 
     bool		operator==(const TrcKey&) const;
+    bool		operator!=(const TrcKey& oth) const
+			{ return !(*this == oth); }
 
     inline bool		isUdf() const			{ return *this==udf(); }
     static const TrcKey& udf();

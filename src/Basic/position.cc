@@ -331,6 +331,13 @@ TrcKey::TrcKey( const BinID& bid )
 }
 
 
+TrcKey TrcKey::getSynth( Pos::TraceID trcnr )
+{
+    const BinID bid( 0, trcnr );
+    return TrcKey( stdSynthSurvID(), bid );
+}
+
+
 bool TrcKey::is2D( SurvID sid )
 { return sid==std2DSurvID(); }
 

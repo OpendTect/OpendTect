@@ -645,7 +645,7 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 #define mBadCoord(ti) \
 	(ti.coord_.x < 0.01 && ti.coord_.y < 0.01)
 #define mBadBid(ti) \
-	(ti.inl() <= 0 && ti.crl() <= 0)
+	(ti.lineNr() <= 0 && ti.trcNr() <= 0)
 #define mSkipThisTrace() { if ( !skipThisTrace(ti,nrbadtrcs) ) return false; }
 
 

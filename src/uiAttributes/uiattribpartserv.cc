@@ -1078,8 +1078,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const ObjectSet<SeisTrcInfo>& trcinfoset = input_.trcinfoset_;
 	for ( int tidx=mCast(int,start); tidx<=mCast(int,stop); tidx++ )
 	{
-	    const int trcidx = sampling_.hsamp_.trcIdx( trcinfoset[tidx]->nr_ );
-	    if ( trcidx<0 || trcidx>sampling_.hsamp_.nrTrcs()-1 )
+	    const int trcidx =
+			outputdp_->getGlobalIdx( trcinfoset[tidx]->trckey_ );
+	    if ( trcidx < 0 )
 		continue;
 
 	    const ValueSeries<float>* stor =

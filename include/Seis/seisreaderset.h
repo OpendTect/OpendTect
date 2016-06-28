@@ -43,7 +43,6 @@ protected:
     mutable uiString	errmsg_;
 
     bool		getSingle(int,SeisTrcInfo&,int& res);
-    BinID		getBinID(int,const SeisTrcInfo&) const;
 
 };
 

@@ -29,6 +29,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 				    const Pos::GeomID geomid, int trcinit,
 				    const Geometry::RandomLine& rln )
     : Executor("Saving 2D Line")
+    , geomid_(geomid)
     , rdr_(0)
     , wrr_(0)
     , nrdone_(0)
@@ -117,7 +118,7 @@ static void addTrcToBuffer( SeisTrc* trc, SeisTrcBuf* buf )
     for ( int idx=0; idx<buf->size(); idx++ )
     {
 	const SeisTrc* buftrc = buf->get( idx );
-	if ( buftrc->info().nr_ > trc->info().nr_ )
+	if ( buftrc->info().trcNr() > trc->info().trcNr() )
 	{
 	    buf->insert( trc, idx );
 	    return;
@@ -174,7 +175,8 @@ int SeisRandLineTo2D::nextStep()
     seldata_.binidValueSet().get( pos_, bid, vals );
     const Coord coord( vals[1], vals[2] );
     const int trcnr = mNINT32( vals[3] );
-    trc->info().nr_ = trcnr;
+    TrcKey trckey2d( geomid_, trcnr );
+    trc->info().trckey_ = trckey2d;
     trc->info().coord_ = coord;
     addTrcToBuffer( trc, buf_ );
 
@@ -189,7 +191,7 @@ int SeisRandLineTo2D::nextStep()
 	const Coord nextcoord( vals[1], vals[2] );
 	SeisTrc* nexttrc = new SeisTrc( *trc );
 	const int nexttrcnr = mNINT32( vals[3] );
-	nexttrc->info().nr_ = nexttrcnr;
+	nexttrc->info().trckey_ = TrcKey( geomid_, nexttrcnr );
 	nexttrc->info().coord_ = nextcoord;
 	addTrcToBuffer( nexttrc, buf_ );
 	nrdone_++;

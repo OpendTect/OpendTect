@@ -174,8 +174,8 @@ void SeisTrcBuf::sortForWrite( bool is2d )
     for ( int idx=1; idx<sz; idx++ )
     {
 	SeisTrc* trc = get( idx );
-	const bool issameinl = trc->info().inl()
-				== singinlbuf.get(0)->info().inl();
+	const bool issameinl = trc->info().lineNr()
+				== singinlbuf.get(0)->info().lineNr();
 	if ( issameinl )
 	    singinlbuf.add( trc );
 	else
@@ -266,9 +266,6 @@ int SeisTrcBuf::find( const BinID& binid, bool is2d ) const
     {
 	if ( ((SeisTrcBuf*)this)->get(idx)->info().binID() == binid )
 	    return idx;
-	else if ( is2d &&
-		  ((SeisTrcBuf*)this)->get(idx)->info().nr_ == binid.crl() )
-	    return idx;
 
 	if ( pos < 0 ) pos = -pos;
 	else	       pos = -pos-1;
@@ -303,14 +300,6 @@ int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
     int sz = size(); if ( sz < 2 ) return 0;
     BinID start = trcs_[0]->info().binID();
     BinID stop = trcs_[sz-1]->info().binID();
-    /*TODO check & remove if unnecesary
-    if ( is2d )
-    {
-	start.inl() = stop.inl() = 0;
-	start.crl() = trcs_[0]->info().nr_;
-	stop.crl() = trcs_[sz-1]->info().nr_;
-    }*/
-
     BinID dist( start.inl() - stop.inl(), start.crl() - stop.crl() );
     if ( !dist.inl() && !dist.crl() )
 	return 0;
@@ -345,11 +334,11 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 	strm << od_newline;
 	const SeisTrc& trc = *get( itrc );
 	if ( !is2d )
-	    strm << trc.info().inl() << ' ' << trc.info().crl();
+	    strm << trc.info().lineNr() << ' ' << trc.info().trcNr();
 	else
 	{
 	    BufferString postxt;
-	    postxt += trc.info().nr_; postxt += " ";
+	    postxt += trc.info().trcNr(); postxt += " ";
 	    postxt += trc.info().coord_.x; postxt += " ";
 	    postxt += trc.info().coord_.y;
 	    strm << postxt;
@@ -592,9 +581,9 @@ bool SeisTrcBufDataPack::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 	return false;
 
     cs.hsamp_.start_.inl() = cs.hsamp_.stop_.inl() =
-	buf.first()->info().inl();
+	buf.first()->info().lineNr();
     cs.hsamp_.start_.crl() = cs.hsamp_.stop_.crl() =
-	buf.first()->info().crl();
+	buf.first()->info().trcNr();
     cs.hsamp_.step_.inl() = SI().inlStep();
     cs.hsamp_.step_.crl() = SI().crlStep();
 

@@ -129,7 +129,6 @@ int SeisDataPackWriter::nextStep()
 			      mNINT32(dp_->sampling().zsamp_.stop/survrg.step),
 			      mNINT32(dp_->sampling().zsamp_.step/survrg.step));
 
-
     if ( !trc_ )
     {
 	if ( !writer_ || dp_->isEmpty() )
@@ -154,11 +153,10 @@ int SeisDataPackWriter::nextStep()
     }
 
     const TrcKeySampling& hs = dp_->sampling().hsamp_;
-    const BinID currentpos( iterator_.curBinID() );
+    const TrcKey currentpos( iterator_.curTrcKey() );
 
-    trc_->info().setBinID( currentpos );
-    trc_->info().nr_ = is2d_ ? currentpos.trcNr() : 0;
-    trc_->info().coord_ = SI().transform( currentpos );
+    trc_->info().trckey_ = currentpos;
+    trc_->info().coord_ = currentpos.getCoord();
     const int inl = currentpos.inl();
     const int crl = currentpos.crl();
     if ( posinfo_ && !posinfo_->includes(inl,crl) )

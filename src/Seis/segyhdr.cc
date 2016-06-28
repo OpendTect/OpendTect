@@ -586,9 +586,9 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     setEntryVal( EntryCoUnit(), 1 );
 
     const bool is2d = SEGY::TxtHeader::info2D();
-    if ( !is2d && ti.inl() != previnl_ )
+    if ( !is2d && ti.lineNr() != previnl_ )
 	lineseqnr_ = 1;
-    previnl_ = ti.inl();
+    previnl_ = ti.lineNr();
     int nr2put = is2d ? seqnr_ : lineseqnr_;
     setEntryVal( EntryTracl(), nr2put );
     setEntryVal( EntryTracr(), seqnr_ );
@@ -596,7 +596,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     if ( is2d )
 	{ nr2put = ti.nr_; mPIEPAdj(TrcNr,nr2put,false); }
     else
-	{ nr2put = ti.crl(); mPIEPAdj(Inl,nr2put,false); }
+	{ nr2put = ti.trcNr(); mPIEPAdj(Inl,nr2put,false); }
     setEntryVal( EntryCdp(), nr2put );
 
     Coord crd( ti.coord_ );
@@ -614,8 +614,8 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     hdef_.ycoord_.putValue( buf_, icy );
 
     BinID bid( ti.binID() ); mPIEPAdj(BinID,bid,false);
-    hdef_.inl_.putValue( buf_, ti.inl() );
-    hdef_.crl_.putValue( buf_, ti.crl() );
+    hdef_.inl_.putValue( buf_, ti.lineNr() );
+    hdef_.crl_.putValue( buf_, ti.trcNr() );
     int intval = ti.nr_; mPIEPAdj(TrcNr,intval,false);
     hdef_.trnr_.putValue( buf_, intval );
     float tioffs = ti.offset_; mPIEPAdj(Offset,tioffs,false);

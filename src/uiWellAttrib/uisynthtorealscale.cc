@@ -420,7 +420,7 @@ int getTrc2D()
     mDynamicCastGet(const EM::Horizon2D*,hor2d,dlg_.horizon_)
     if ( !hor2d )
 	return ErrorOccurred();
-    TrcKey tk( rdr_.geomID(), trc_.info().nr_ );
+    TrcKey tk( rdr_.geomID(), trc_.info().trcNr() );
     EM::PosID pid = hor2d->geometry().getPosID( tk );
     const Coord3 crd = dlg_.horizon_->getPos( pid );
     if ( mIsUdf(crd.z) )

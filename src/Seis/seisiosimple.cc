@@ -478,7 +478,7 @@ int SeisIOSimple::writeExpTrc()
 
     if ( data_.havenr_ )
     {
-	int nr = trc_.info().nr_;
+	int nr = trc_.info().trcNr();
 	const float refnr = trc_.info().refnr_;
 	mPIEPAdj(TrcNr,nr,false);
 	binstrm.add( nr );

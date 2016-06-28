@@ -412,8 +412,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 		outtrc->set( idx, outputptr[idx], 0 );
 	}
 
-	outtrc->info().nr_ = intrc.info().nr_;
-	outtrc->info().setBinID( intrc.info().binID() );
+	outtrc->info().trckey_ = intrc.info().trckey_;
 	outtrc->info().coord_ = intrc.info().coord_;
 	if ( !sequentialwriter_->submitTrace( outtrc, true ) )
 	    return false;
@@ -452,12 +451,7 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
 	    return false;
 	}
 
-	if ( is2d_ )
-	    trckey = TrcKey( seisreader_->selData()->geomID(), trc.info().nr_ );
-	else
-	    trckey = TrcKey( seisreader_->selData()->geomID(),
-			     trc.info().binID());
-
+	trckey = trc.info().trckey_;
 	if ( !outcs_.hsamp_.includes( trckey ) )
 	    continue;
 
@@ -513,13 +507,7 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, TrcKey& trckey )
 	    return false;
 	}
 
-	if ( is2d_ )
-	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
-					    trc.info().nr_ );
-	else
-	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
-					   trc.info().inl(), trc.info().crl() );
-
+	trckey = trc.info().trckey_;
 	if ( curhrg_.isEmpty() || !curhrg_.includes(trckey) )
 	{
 	    waitforall_ = true;

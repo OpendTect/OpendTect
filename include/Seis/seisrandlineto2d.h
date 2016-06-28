@@ -44,6 +44,7 @@ protected:
 
     SeisTrcReader*	rdr_;
     SeisTrcWriter*	wrr_;
+    Pos::GeomID		geomid_;
     int			nrdone_;
     int			totnr_;
 

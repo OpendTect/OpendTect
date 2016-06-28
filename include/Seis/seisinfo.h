@@ -41,15 +41,16 @@ public:
     float		refnr_;
     float		pick_;
 
+    inline Pos::SurvID	survID() const		{ return trckey_.survID(); }
     inline const BinID&	binID() const		{ return trckey_.binID(); }
-    inline IdxType	inl() const		{ return trckey_.inl(); }
-    inline IdxType	crl() const		{ return trckey_.crl(); }
+    inline IdxType	lineNr() const		{ return trckey_.lineNr(); }
+    inline IdxType	trcNr() const		{ return trckey_.trcNr(); }
     inline SeisTrcInfo&	setBinID( const BinID& bid )
 			{ trckey_.setBinID(bid); return *this; }
-    inline SeisTrcInfo&	setInl( IdxType inr )
-			{ trckey_.setInl(inr); return *this; }
-    inline SeisTrcInfo&	setCrl( IdxType inr )
-			{ trckey_.setCrl(inr); return *this; }
+    inline SeisTrcInfo&	setLineNr( IdxType lnr )
+			{ trckey_.setLineNr(lnr); return *this; }
+    inline SeisTrcInfo&	setTrcNr( IdxType tnr )
+			{ trckey_.setTrcNr(tnr); return *this; }
 
     int			nearestSample(float pos) const;
     float		samplePos( int idx ) const

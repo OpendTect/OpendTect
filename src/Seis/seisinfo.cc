@@ -283,13 +283,13 @@ double SeisTrcInfo::getValue( SeisTrcInfo::Fld fld ) const
     {
     case CoordX:	return coord_.x;
     case CoordY:	return coord_.y;
-    case BinIDInl:	return inl();
-    case BinIDCrl:	return crl();
+    case BinIDInl:	return lineNr();
+    case BinIDCrl:	return trcNr();
     case Offset:	return offset_;
     case Azimuth:	return azimuth_;
     case RefNr:		return refnr_;
     case Pick:		return pick_;
-    default:		return nr_;
+    default:		return trcNr();
     }
 }
 
@@ -323,9 +323,9 @@ int SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
 	return Offset;
     if ( is2d && ti->nr_ != nr_ )
 	return TrcNr;
-    if ( !is2d && ti->crl() != crl() )
+    if ( !is2d && ti->trcNr() != trcNr() )
 	return BinIDCrl;
-    if ( !is2d && ti->inl() != inl() )
+    if ( !is2d && ti->lineNr() != lineNr() )
 	return BinIDInl;
 
     // 'normal' doesn't apply, try coordinates
@@ -348,14 +348,14 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 
     if ( is2d )
     {
-	mIOIOPar( set, TrcNr, nr_ );
+	mIOIOPar( set, TrcNr, trcNr() );
 	if ( refnr_ && !mIsUdf(refnr_) )
 	    mIOIOPar( set, RefNr, refnr_ );
     }
     else
     {
-	mIOIOPar( set, BinIDInl, inl() );
-	mIOIOPar( set, BinIDCrl, crl() );
+	mIOIOPar( set, BinIDInl, lineNr() );
+	mIOIOPar( set, BinIDCrl, trcNr() );
 	iopar.set( sKey::Position(), binID().toString() );
     }
 
@@ -384,8 +384,8 @@ void SeisTrcInfo::setPSFlds( const Coord& rcv, const Coord& src, bool setpos )
 
 void SeisTrcInfo::usePar( const IOPar& iopar )
 {
-    mIOIOPar( get, TrcNr,	nr_ );
     BinID bid( binID() );
+    mIOIOPar( get, TrcNr,	bid.crl() );
     mIOIOPar( get, BinIDInl,	bid.inl() );
     mIOIOPar( get, BinIDCrl,	bid.crl() );
     setBinID( bid );
@@ -402,9 +402,9 @@ void SeisTrcInfo::usePar( const IOPar& iopar )
 
 void SeisTrcInfo::fillPar( IOPar& iopar ) const
 {
-    mIOIOPar( set, TrcNr,	nr_ );
-    mIOIOPar( set, BinIDInl,	inl() );
-    mIOIOPar( set, BinIDCrl,	crl() );
+    mIOIOPar( set, TrcNr,	trcNr() );
+    mIOIOPar( set, BinIDInl,	lineNr() );
+    mIOIOPar( set, BinIDCrl,	trcNr() );
     mIOIOPar( set, CoordX,	coord_.x );
     mIOIOPar( set, CoordY,	coord_.y );
     mIOIOPar( set, Offset,	offset_ );
