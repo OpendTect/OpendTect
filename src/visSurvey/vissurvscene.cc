@@ -63,7 +63,7 @@ static const char* sKeyNrChild()	{ return "Number of Child"; }
 static const char* childfix()		{ return "Child"; }
 static const char* sKeyTopImage()	{ return "TopImage"; }
 static const char* sKeyBottomImage()	{ return "BottomImage"; }
-
+static const char* sKeyZScale()		{ return "Z Scale"; }
 
 Scene::Scene()
     : tempzstretchtrans_(0)
@@ -145,8 +145,12 @@ void Scene::setup()
     annot_->setFont( fd );
     annot_->allowShading( SettingsAccess().doesUserWantShading(false) );
 
-    if ( !SI().pars().get( sKeyZStretch(), curzstretch_ ) )
-        SI().pars().get( "Z Scale", curzstretch_ );
+   if ( !SI().getPars().get(
+	IOPar::compKey(sKeyZScale(), zDomainInfo().key()), curzstretch_ ) )
+    {
+	if ( !SI().pars().get(sKeyZStretch(),curzstretch_) )
+	    SI().pars().get( sKeyZScale(), curzstretch_ );
+    }
 
     const TrcKeyZSampling& tkzs = SI().sampling(true);
     updateTransforms( tkzs );
@@ -907,6 +911,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
     datatransform_ = zat;
     if ( datatransform_ ) datatransform_->ref();
 
+    bool usedefaultzstretch = false;
     TrcKeyZSampling cs = SI().sampling( true );
     if ( !zat )
     {
@@ -925,6 +930,9 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 	setZDomainInfo( zat->toZDomainInfo() );
 	setZScale( zat->toZScale() );
+	usedefaultzstretch = SI().getPars().get(
+	    IOPar::compKey(sKeyZScale(), zDomainInfo().key()), curzstretch_ );
+
     }
 
     setAnnotScale( TrcKeyZSampling(false) );
@@ -937,6 +945,8 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 	so->setZAxisTransform( zat,0 );
     }
+    if ( usedefaultzstretch )
+	updateTransforms( tkzs_ );
 
     updateAnnotationText();
 }
