@@ -130,15 +130,15 @@ bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
 
     if ( selbutid==1 )
     {
-	uiSeisPreLoadSel dlg( uimain.topLevel(), Seis::Vol, key );
-	if ( !dlg.go() )
+	uiSeisPreLoadSel spldlg( uimain.topLevel(), Seis::Vol, key );
+	if ( !spldlg.go() )
 	    return false;
 
-	TrcKeyZSampling tkzs; dlg.getSampling( tkzs );
-	DataCharacteristics dc; dlg.getDataChar( dc );
+	TrcKeyZSampling tkzs; spldlg.getSampling( tkzs );
+	DataCharacteristics spldc; spldlg.getDataChar( spldc );
 	Seis::PreLoader spl( key );
 	spl.setTaskRunner( uitr );
-	if ( !spl.load(tkzs,dc.userType(),dlg.getScaler()) )
+	if ( !spl.load(tkzs,spldc.userType(),spldlg.getScaler()) )
 	{
 	    const uiString emsg = spl.errMsg();
 	    if ( !emsg.isEmpty() )
