@@ -13,9 +13,6 @@ static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18
 #include "mpeengine.h"
 
 #include "arrayndimpl.h"
-#include "attribdesc.h"
-#include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "autotracker.h"
 #include "emeditor.h"
 #include "emhorizon3d.h"
@@ -64,6 +61,7 @@ Engine::Engine()
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
     , dpm_(DPM(DataPackMgr::SeisID()))
     , activevolume_(!IOM().isBad())
+    , validator_(0)
 {
     trackers_.allowNull();
     trackermgrs_.allowNull();
@@ -89,7 +87,13 @@ Engine::~Engine()
 	dpm_.release( attribcachedatapackids_[idx] );
     for ( int idx=attribbkpcachedatapackids_.size()-1; idx>=0; idx-- )
 	dpm_.release( attribbkpcachedatapackids_[idx] );
+
+    setValidator( 0 );
 }
+
+
+void Engine::setValidator( TrackSettingsValidator* val )
+{ delete validator_; validator_ = val; }
 
 
 const TrcKeyZSampling& Engine::activeVolume() const
@@ -277,49 +281,25 @@ void Engine::enableTracking( bool yn )
 
 bool Engine::prepareForTrackInVolume( uiString& errmsg )
 {
-    if ( !activetracker_ ) return false;
+    if ( validator_ && !validator_->checkActiveTracker() )
+	return false;
 
     EMSeedPicker* seedpicker = activetracker_->getSeedPicker( true );
     if ( !seedpicker ||
 	 seedpicker->getTrackMode()!=EMSeedPicker::TrackFromSeeds )
 	return false;
 
-    const Attrib::SelSpec* as = seedpicker ? seedpicker->getSelSpec() : 0;
-    if ( !as ) return false;
-
-    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
-    const Attrib::Desc* desc = ads ? ads->getDesc( as->id() ) : 0;
-    if ( !desc )
-    {
-	ads = Attrib::DSHolder().getDescSet( false, false );
-	desc = ads ? ads->getDesc( as->id() ) : 0;
-    }
-
-    const MultiID mid =
-	desc ? MultiID(desc->getStoredID(false)) : MultiID::udf();
-    if ( mid.isUdf() )
-    {
-	errmsg = tr("Volume tracking can only be done on stored volumes.");
+    MultiID key = MultiID::udf();
+    Attrib::SelSpec as( *seedpicker->getSelSpec() );
+    if ( validator_ && !validator_->checkStoredData(as,key) )
 	return false;
-    }
 
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj )
-    {
-	errmsg = tr("Cannot find picked data in database");
+    if ( validator_ && !validator_->checkPreloadedData(key) )
 	return false;
-    }
 
     RefMan<RegularSeisDataPack> sdp =
-	Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
-
-    if ( !sdp )
-    {
-	errmsg = tr("Seismic data is not preloaded yet");
-	return false;
-    }
-
-    setAttribData( *as, sdp->id() );
+	Seis::PLDM().getAndCast<RegularSeisDataPack>(key);
+    setAttribData( as, sdp->id() );
     setActiveVolume( sdp->sampling() );
     return true;
 }

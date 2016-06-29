@@ -34,6 +34,16 @@ class EMTracker;
 class HorizonTrackerMgr;
 class ObjectEditor;
 
+mExpClass(MPEEngine) TrackSettingsValidator
+{
+public:
+    virtual bool	checkInVolumeTrackMode() const			= 0;
+    virtual bool	checkActiveTracker() const			= 0;
+    virtual bool	checkStoredData(Attrib::SelSpec&,MultiID&) const = 0;
+    virtual bool	checkPreloadedData(const MultiID&) const	= 0;
+};
+
+
 /*!
 \brief Main engine for tracking EM objects like horizons, faults etc.,
 */
@@ -139,9 +149,10 @@ public:
     ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
     void			removeEditor(const EM::ObjectID&);
 
+    void			setValidator(TrackSettingsValidator*);
     const char*			errMsg() const;
 
-    BufferString		setupFileName( const MultiID& ) const;
+    BufferString		setupFileName(const MultiID&) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -149,6 +160,7 @@ public:
 protected:
     void			applClosingCB(CallBacker*);
 
+    TrackSettingsValidator*	validator_;
     BufferString		errmsg_;
     TrcKeyZSampling		activevolume_;
     const TrcKeyPath*		rdmlinetkpath_;

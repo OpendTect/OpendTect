@@ -36,6 +36,7 @@ ________________________________________________________________________
 
 #include "uitaskrunner.h"
 #include "uihorizontracksetup.h"
+#include "uimpe.h"
 #include "uimsg.h"
 #include "od_helpids.h"
 
@@ -68,6 +69,8 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     , seedswithoutattribsel_(false)
     , setupgrp_(0)
 {
+    MPE::engine().setValidator( new MPE::uiTrackSettingsValidator() );
+
     MPE::engine().activevolumechange.notify(
 	    mCB(this, uiMPEPartServer, activeVolumeChange) );
     MPE::engine().loadEMObject.notify(

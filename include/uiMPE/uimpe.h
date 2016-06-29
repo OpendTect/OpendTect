@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "emposid.h"
 #include "emseedpicker.h"
+#include "mpeengine.h"
 #include "randcolor.h"
 #include "valseriestracker.h"
 
@@ -35,6 +36,17 @@ namespace MPE
 {
 
 class SectionTracker;
+
+
+/*! Gui part of settings validator */
+mExpClass(uiMPE) uiTrackSettingsValidator : public TrackSettingsValidator
+{ mODTextTranslationClass(uiTrackSettingsValidator)
+public:
+    bool	checkInVolumeTrackMode() const;
+    bool	checkActiveTracker() const;
+    bool	checkStoredData(Attrib::SelSpec&,MultiID&) const;
+    bool	checkPreloadedData(const MultiID&) const;
+};
 
 /*! Interface to track-setup groups. Implementations can be retrieved through
     MPE::uiSetupGroupFactory. */
