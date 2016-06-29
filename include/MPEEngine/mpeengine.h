@@ -37,6 +37,7 @@ class ObjectEditor;
 mExpClass(MPEEngine) TrackSettingsValidator
 {
 public:
+    virtual		~TrackSettingsValidator()			{}
     virtual bool	checkInVolumeTrackMode() const			= 0;
     virtual bool	checkActiveTracker() const			= 0;
     virtual bool	checkStoredData(Attrib::SelSpec&,MultiID&) const = 0;
