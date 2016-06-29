@@ -205,7 +205,8 @@ mExpClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
 { mODTextTranslationClass(uiFaultParSel)
 public:
 				uiFaultParSel(uiParent*,bool is2d,
-					      bool use_act_option=false);
+					      bool use_act_option=false,
+					      bool keep_clean_but=true);
 
 				/*Set my own options on selected, optional*/
     void			setActOptions(const BufferStringSet&,
@@ -217,6 +218,7 @@ public:
     BufferString		getSummary() const;
     const TypeSet<MultiID>&	selFaultIDs() const { return selfaultids_; }
 
+    void			setEmpty();
     void			setGeomIDs(const TypeSet<Pos::GeomID>&);
 				/*<for FaultStickSet picked from 2D lines.*/
 

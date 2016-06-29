@@ -844,17 +844,23 @@ public:
 };
 
 
-uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
-    : uiCompoundParSel(p,uiStrings::sFault())
+uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions,
+			      bool keepcleanbut )
+    : uiCompoundParSel(p,tr("Faults"))
     , is2d_(is2d)
     , selChange(this)
     , useoptions_(useoptions)
     , defaultoptidx_(0)
 {
     butPush.notify( mCB(this,uiFaultParSel,doDlg) );
-    uiPushButton* clearbut = new uiPushButton(this, uiStrings::sClear(), true);
-    clearbut->activated.notify( mCB(this,uiFaultParSel,clearPush) );
-    clearbut->attach( rightOf, selbut_ );
+    if ( keepcleanbut )
+    {
+	uiPushButton* clearbut =
+	    new uiPushButton( this, uiStrings::sClear(), true );
+	clearbut->activated.notify( mCB(this,uiFaultParSel,clearPush) );
+	clearbut->attach( rightOf, selbut_ );
+    }
+
     txtfld_->setElemSzPol( uiObject::Wide );
 }
 
@@ -875,6 +881,7 @@ void uiFaultParSel::setSelectedFaults( const TypeSet<MultiID>& ids,
 	optids_ += act && act->validIdx(idx) ? (*act)[idx]
 					     : FaultTrace::AllowCrossing;
     }
+
     updSummary(0);
     selChange.trigger();
 }
@@ -889,6 +896,10 @@ void uiFaultParSel::clearPush( CallBacker* )
     updSummary(0);
     selChange.trigger();
 }
+
+
+void uiFaultParSel::setEmpty()
+{ clearPush( 0 ); }
 
 
 void uiFaultParSel::setGeomIDs( const TypeSet<Pos::GeomID>& geomids )
