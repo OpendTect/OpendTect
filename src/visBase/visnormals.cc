@@ -22,7 +22,6 @@ mCreateFactoryEntry( visBase::Normals );
 namespace visBase
 {
 
-
 class DoTransformation: public ParallelTask
 {
 public:
@@ -43,6 +42,7 @@ private:
 };
 
 
+
 DoTransformation::DoTransformation( Normals* p, const od_int64 size,
 			const mVisTrans* oldtrans, const mVisTrans* newtrans )
     : normals_( p )
@@ -51,7 +51,6 @@ DoTransformation::DoTransformation( Normals* p, const od_int64 size,
     , newtrans_( newtrans )
 {
 }
-
 
 
 bool DoTransformation::doWork(od_int64 start,od_int64 stop,int)
@@ -109,7 +108,9 @@ void Normals::setNormal( int idx, const Vector3& n )
 
 
 int Normals::nrNormals() const
-{ return mGetOsgVec3Arr(osgnormals_)->size(); }
+{
+    return mGetOsgVec3Arr(osgnormals_)->size();
+}
 
 
 void Normals::clear()
@@ -160,31 +161,30 @@ void Normals::setAll( const Coord3* coords, int nmsz )
 	( *osgnormals )[nrnormals] =
 	   osg::Vec3f( Conv::to<osg::Vec3>(coords[nrnormals]) );
 	 nrnormals++;
-     }
+    }
 }
 
 
 void Normals::setAll( const Coord3& coord, int nmsz )
 {
-     Threads::MutexLocker lock( mutex_ );
+    Threads::MutexLocker lock( mutex_ );
 
-     osg::Vec3Array* osgnormals = mGetOsgVec3Arr( osgnormals_ );
-     if ( nmsz!=nrNormals() )
-	  osgnormals->resize( nmsz );
+    osg::Vec3Array* osgnormals = mGetOsgVec3Arr( osgnormals_ );
+    if ( nmsz!=nrNormals() )
+	osgnormals->resize( nmsz );
 
-     int nrnormals( 0 );
-     while ( nrnormals< nmsz )
-     {
+    int nrnormals( 0 );
+    while ( nrnormals< nmsz )
+    {
 	( *osgnormals )[nrnormals] =
 	    osg::Vec3f( Conv::to<osg::Vec3>(coord) );
 	nrnormals++;
-     }
-
+    }
 }
+
 
 int Normals::addNormal( const Vector3& n )
 {
-
     osg::Vec3f osgnormal;
     visBase::Transformation::transformNormal( transformation_, n, osgnormal );
 
@@ -303,9 +303,8 @@ void NormalListAdapter::remove( const TypeSet<int>& idxs )
     for ( int idx=idxs.size()-1; idx>=0; idx-- )
     {
 	if ( idxs[idx]<normals_.nrNormals() )
-    	    normals_.removeNormal( idxs[idx] );
+	    normals_.removeNormal( idxs[idx] );
     }
 }
 
-
-}; // namespace visBase
+} // namespace visBase
