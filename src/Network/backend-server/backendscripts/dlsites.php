@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-include( 'settings.php' );
+include( 'dlsitessettings.php' );
 
 header('Content-Type: text/plain');
 

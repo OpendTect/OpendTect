@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 The settings here are defaults only. Best practice is to copy this file
-to settings.local.php and put the changes there.
+to dlsitessettings.local.php and put the changes there.
 
 -*/
 
@@ -34,8 +34,11 @@ $DLSITES_DB_USER = '';
 //Statistics database password
 $DLSITES_DB_PW = '';
 
+//Table prefix
+$DLSITES_TABLE_PREFIX = 'dlsites_';
+
 //Override defaults if local file exists
-$localsettingsfile = realpath(dirname(__FILE__))."/settings.local.php";
+$localsettingsfile = realpath(dirname(__FILE__))."/dlsitessettings.local.php";
 if(file_exists( $localsettingsfile ))
 {
     include_once( $localsettingsfile );

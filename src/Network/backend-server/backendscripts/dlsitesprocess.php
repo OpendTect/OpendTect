@@ -9,10 +9,15 @@ ________________________________________________________________________
 
 -*/
 
-include( 'settings.php' );
+include_once( 'dlsitesdb.php' );
+include_once( 'dlsitessystemid.php' );
 
-function store_entry( $db, $tablename, $id, $platform, $country, $mem, $nrcpu )
+
+function store_entry( $db, $tablename, $id, $platform, $country, $nrcpu, $mem )
 {
+    global $DLSITES_TABLE_PREFIX;
+    $tablename = $DLSITES_TABLE_PREFIX.$tablename;
+
     $query = "CREATE TABLE IF NOT EXISTS `$tablename` ("
       	    ."`id` BIGINT UNSIGNED NOT NULL, "
       	    ."`platform` VARCHAR(6) NOT NULL, "
@@ -39,23 +44,7 @@ function store_entry( $db, $tablename, $id, $platform, $country, $mem, $nrcpu )
     return true;
 }
 
-
-$mysqli = new mysqli( $DLSITES_DB_HOST, $DLSITES_DB_USER, $DLSITES_DB_PW );
-
-if ($mysqli->connect_errno) {
-    printf("Connect failed: %s\n", $mysqli->connect_error);
-    exit();
-}
-
-//Try to select database, and create it if missing
-if ( $mysqli->select_db( $DLSITES_DB )===false ) {
-    //Try to create it if it missing
-    $result = $mysqli->query( "CREATE DATABASE $DLSITES_DB");
-    if ( $mysqli->select_db( $DLSITES_DB )===false ) {
-	printf( "Cannot select or create database $DLSITES_DB" );
-	exit(1);
-    }
-}
+$mysqli = connect_dlsitesdb();
 
 $rootdir = ".";
 if ( array_key_exists( 'DOCUMENT_ROOT', $_SERVER ) && $_SERVER['DOCUMENT_ROOT']!='' )
@@ -108,22 +97,24 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 	    }
 	}
 
-	$id = array_key_exists( 'i', $listing ) ? $listing['i'] : '';
+	$machash = array_key_exists( 'i', $listing ) ? $listing['i'] : '';
 	$platform = array_key_exists( 'p', $listing ) ? $listing['p'] : '';
 	$country =  array_key_exists( 'country', $listing ) ? $listing['country'] : '';
 	$nrcpu =  array_key_exists( 'c', $listing ) ? $listing['c'] : "NULL";
 	$mem =  array_key_exists( 'm', $listing ) ? $listing['m'] : "NULL";
 
-	if ( $platform!='' && $id!='' )
+	if ( $platform!='' && $machash!='' )
 	{
 	    $timestamp = new DateTime( $listing['date'] );
 	    $year_table_name = $timestamp->format( "Y" ); 
 	    $month_table_name = $timestamp->format( "Y-m" );
 	    $total_table_name = 'total';
 
-	    if ( !store_entry( $mysqli, $year_table_name, $id, $platform, $country, $mem, $nrcpu ) ||
-		 !store_entry( $mysqli, $month_table_name, $id, $platform, $country, $mem, $nrcpu ) ||
-		 !store_entry( $mysqli, $total_table_name, $id, $platform, $country, $mem, $nrcpu ) )
+	    $id = resolve_system_id( $mysqli, $machash, $platform, $nrcpu, $mem, true );
+
+	    if ( !store_entry( $mysqli, $year_table_name, $id, $platform, $country, $nrcpu, $mem ) ||
+		 !store_entry( $mysqli, $month_table_name, $id, $platform, $country, $nrcpu, $mem ) ||
+		 !store_entry( $mysqli, $total_table_name, $id, $platform, $country, $nrcpu, $mem ) )
 	    {
 		echo "Failure in storing entry from $file\n";
 	    }

@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-include( 'settings.php' );
+include_once( 'dlsitesdb.php' );
 
 function read_field_value_counts( $db, $table, $field )
 {
@@ -44,19 +44,7 @@ function read_field_average( $db, $table, $field )
     return $ret;
 }
 
-
-$mysqli = new mysqli( $DLSITES_DB_HOST, $DLSITES_DB_USER, $DLSITES_DB_PW );
-
-if ($mysqli->connect_errno) {
-    printf("Connect failed: %s\n", $mysqli->connect_error);
-    exit( 1 );
-}
-
-//Try to select database, and create it if missing
-if ( $mysqli->select_db( $DLSITES_DB )===false ) {
-    echo "Cannot select database $DLSITES_DB";
-    exit( 1 );
-}
+$mysqli = connect_dlsitesdb();
 
 $tables = array();
 
