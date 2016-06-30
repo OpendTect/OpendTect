@@ -99,7 +99,7 @@ protected:
 \brief Converts an explicit body to implicit.
 
    Given a triangulated body, extract position value on each trace based on
-   threshhold value. The arr's size is based on inlrg, crlrg, zrg. The value at
+   threshold value. The arr's size is based on inlrg, crlrg, zrg. The value at
    each point is the min distance to the body, inside to be negative, and
    outside to be positive.
 */
