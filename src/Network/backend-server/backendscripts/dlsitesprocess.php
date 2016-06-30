@@ -16,6 +16,7 @@ include_once( 'dlsitessystemid.php' );
 function store_entry( $db, $tablename, $id, $platform, $country, $nrcpu, $mem )
 {
     global $DLSITES_TABLE_PREFIX;
+    global $DLSITES_IP_API_KEY;
     $tablename = $DLSITES_TABLE_PREFIX.$tablename;
 
     $query = "CREATE TABLE IF NOT EXISTS `$tablename` ("
@@ -85,7 +86,7 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 	if ( !array_key_exists( 'country', $listing ) )
 	{
 	    $ipnumber = $listing['address'];
-	    $iplookup = file_get_contents( "http://api.db-ip.com/addrinfo?addr=$ipnumber&api_key=6657b916b375e9beb92a17a5f9ec0b232715bec8" );
+	    $iplookup = file_get_contents( "http://api.db-ip.com/addrinfo?addr=$ipnumber&api_key=$DLSITES_IP_API_KEY" );
 	    if ( $iplookup!==false )
 	    {
 		$iplookuparr = (array) json_decode( $iplookup );
