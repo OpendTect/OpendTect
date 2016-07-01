@@ -46,7 +46,7 @@ $outputfile = $outputdir.$tmpfilename;
 if ( file_exists( $outputdir.$filename ) )
     rename( $outputdir.$filename, $outputfile );
 
-if ( file_put_contents( $outputfile, json_encode( $filearray ), FILE_APPEND | LOCK_EX ) !== false )
+if ( file_put_contents( $outputfile, json_encode( $filearray )."\n", FILE_APPEND | LOCK_EX ) !== false )
 {
     rename( $outputfile, $outputdir.$filename );
 }
