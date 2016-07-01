@@ -25,7 +25,7 @@ $filearray = $_GET;
 $filearray['date'] = $datestring;
 $filearray['address'] = $address;
 
-$outputdir = $_SERVER['DOCUMENT_ROOT']."/".$DLSITES_OUTPUT_DIR."/";
+$outputdir = $_SERVER['DOCUMENT_ROOT']."/".$DLSITES_UNPROCESSED_DIR."/";
 
 //Create directory if need be
 if ( !file_exists( $outputdir ) )

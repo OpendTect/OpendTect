@@ -13,10 +13,13 @@ to dlsitessettings.local.php and put the changes there.
 -*/
 
 
-//Subdirectory where processing scripts looks for files to process
-$DLSITES_OUTPUT_DIR = 'unprocessed';
+//Subdirectory where processing scripts saves processed data
+$DLSITES_UNPROCESSED_DIR = 'unprocessed';
 
-//Subdirectory where processing script stores processed file
+//Subdirectory where processing script stores unprocessed input files
+$DLSITES_PROCESSED_DIR = 'processed';
+
+//Subdirectory where processing scripts saves processed data
 $DLSITES_ARCHIVE_DIR = 'archive';
 
 //Site that should be reported as download site

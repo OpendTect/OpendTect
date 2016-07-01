@@ -12,6 +12,8 @@ ________________________________________________________________________
 include_once( 'dlsitesdb.php' );
 include_once( 'dlsitessystemid.php' );
 
+date_default_timezone_set( 'UTC' );
+
 
 function store_entry( $db, $tablename, $id, $platform, $country, $nrcpu, $mem )
 {
@@ -53,8 +55,14 @@ if ( array_key_exists( 'DOCUMENT_ROOT', $_SERVER ) && $_SERVER['DOCUMENT_ROOT']!
     $rootdir = $_SERVER['DOCUMENT_ROOT'];
 }
 
-$inputdir = $rootdir."/".$DLSITES_OUTPUT_DIR."/";
+$inputdir = $rootdir."/".$DLSITES_UNPROCESSED_DIR."/";
 $archivedir = $rootdir."/".$DLSITES_ARCHIVE_DIR."/";
+$processeddir = $rootdir."/".$DLSITES_PROCESSED_DIR."/";
+
+
+if ( !file_exists( $inputdir ) ) { echo "$inputdir does not exist\n"; exit ( 1 ); }
+if ( !file_exists( $archivedir ) ) { echo "$archivedir does not exist\n"; exit ( 1 ); }
+if ( !file_exists( $processeddir ) ) { echo "$processeddir does not exist\n"; exit ( 1 ); }
 
 foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)   
 {  
@@ -70,6 +78,14 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
     }
 
     $inputarray = explode( "\n", $inputdata );
+    $archivename = $archivedir.basename( $file );
+    $processedname = $processeddir.basename( $file );
+    
+    if ( file_exists( $archivename ) )
+    {
+	echo "Removing $archivename";
+	unlink( $archivename );
+    }
 
     foreach ( $inputarray as $input )
     {
@@ -120,8 +136,9 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 		echo "Failure in storing entry from $file\n";
 	    }
 	}
+
+	file_put_contents( $archivename, json_encode( $listing ), FILE_APPEND );
     }
 
-    $archivename = $archivedir.basename( $file );
-    rename( $file, $archivename );
+    rename( $file, $processedname );
 }
