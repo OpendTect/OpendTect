@@ -14,6 +14,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "progressmeter.h"
 #include "ptrman.h"
 #include "uistrings.h"
+#include "timefun.h"
+#include "hiddenparam.h"
 
 #include <limits.h>
 
@@ -230,6 +232,23 @@ void TaskGroup::setParallel(bool)
     pErrMsg("'No No, Not Me!'");
 }
 
+#define mDefaultTimeLimit 250
+static HiddenParam<SequentialTask,int> seqtaskmgr_lastupdate_(0);
+
+
+SequentialTask::SequentialTask( const char* nm )
+    : Task(nm)
+    , progressmeter_(0)
+{
+    seqtaskmgr_lastupdate_.setParam( this, Time::getMilliSeconds() );
+}
+
+
+SequentialTask::~SequentialTask()
+{
+    seqtaskmgr_lastupdate_.removeParam( this );
+}
+
 
 #define mUpdateProgressMeter \
 	progressmeter_->setNrDone( nrDone() ); \
@@ -252,13 +271,18 @@ int SequentialTask::doStep()
     if ( progressmeter_ ) progressmeter_->setStarted();
 
     const int res = nextStep();
+    const int lastupdate = seqtaskmgr_lastupdate_.getParam( this );
+    const bool doupdate = Time::passedSince(lastupdate) > mDefaultTimeLimit;
     if ( progressmeter_ )
     {
-	mUpdateProgressMeter;
+	if ( doupdate )
+	    { mUpdateProgressMeter; }
 
 	if ( res<1 )
 	    progressmeter_->setFinished();
     }
+    if ( doupdate )
+	seqtaskmgr_lastupdate_.setParam( this, Time::getMilliSeconds() );
 
     return res;
 }
