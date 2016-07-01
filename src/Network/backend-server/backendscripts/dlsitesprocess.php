@@ -87,6 +87,7 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 	unlink( $archivename );
     }
 
+    $outputarray = array();
     foreach ( $inputarray as $input )
     {
 	$listing = (array) json_decode( $input );
@@ -114,6 +115,17 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 	    }
 	}
 
+	if ( !array_key_exists( 'country', $listing ) )
+	{
+	    echo "Cannot resolve country for ".$listing['address']."\n";
+	    exit( 1 );
+        }
+
+	array_push( $outputarray, $listing );
+    }
+
+    foreach ( $outputarray as $listing )
+    {
 	$machash = array_key_exists( 'i', $listing ) ? $listing['i'] : '';
 	$platform = array_key_exists( 'p', $listing ) ? $listing['p'] : '';
 	$country =  array_key_exists( 'country', $listing ) ? $listing['country'] : '';
