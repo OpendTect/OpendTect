@@ -35,6 +35,4 @@ fi
 
 "${curdir}/od_instmgr" $*
 
-stat=$status
-exit $stat
-
+exit $?
