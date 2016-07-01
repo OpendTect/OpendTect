@@ -217,8 +217,11 @@ public:
     BufferString		getSummary() const;
     const TypeSet<MultiID>&	selFaultIDs() const { return selfaultids_; }
 
+    void			setEmpty();
     void			setGeomIDs(const TypeSet<Pos::GeomID>&);
 				/*<for FaultStickSet picked from 2D lines.*/
+
+    void			hideClearButton(bool yn=true);
 
     Notifier<uiFaultParSel>	selChange;
 

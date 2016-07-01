@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
+#include "hiddenparam.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -844,18 +845,31 @@ public:
 };
 
 
+static HiddenParam<uiFaultParSel,uiPushButton*> clearbuttons( 0 );
+
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
-    : uiCompoundParSel(p,uiStrings::sFault())
+    : uiCompoundParSel(p,tr("Faults"))
     , is2d_(is2d)
     , selChange(this)
     , useoptions_(useoptions)
     , defaultoptidx_(0)
 {
     butPush.notify( mCB(this,uiFaultParSel,doDlg) );
+
     uiPushButton* clearbut = new uiPushButton(this, uiStrings::sClear(), true);
     clearbut->activated.notify( mCB(this,uiFaultParSel,clearPush) );
     clearbut->attach( rightOf, selbut_ );
+    clearbuttons.setParam( this, clearbut );
+
     txtfld_->setElemSzPol( uiObject::Wide );
+    setHAlignObj( txtfld_ );
+}
+
+
+void uiFaultParSel::hideClearButton( bool yn )
+{
+    uiPushButton* clearbut = clearbuttons.getParam( this );
+    if ( clearbut ) clearbut->display( false, true );
 }
 
 
@@ -889,6 +903,10 @@ void uiFaultParSel::clearPush( CallBacker* )
     updSummary(0);
     selChange.trigger();
 }
+
+
+void uiFaultParSel::setEmpty()
+{ clearPush( 0 ); }
 
 
 void uiFaultParSel::setGeomIDs( const TypeSet<Pos::GeomID>& geomids )
