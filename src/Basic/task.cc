@@ -12,6 +12,7 @@
 #include "varlenarray.h"
 #include "progressmeter.h"
 #include "ptrman.h"
+#include "timefun.h"
 #include "uistrings.h"
 
 #include <limits.h>
@@ -243,6 +244,15 @@ void TaskGroup::setParallel(bool)
 }
 
 
+
+SequentialTask::SequentialTask( const char* nm )
+    : Task(nm)
+    , progressmeter_(0)
+    , lastupdate_(Time::getMilliSeconds())
+{
+}
+
+#define mDefaultTimeLimit 250
 #define mUpdateProgressMeter \
 	progressmeter_->setNrDone( nrDone() ); \
 	progressmeter_->setTotalNr( totalNr() ); \
@@ -264,13 +274,17 @@ int SequentialTask::doStep()
     if ( progressmeter_ ) progressmeter_->setStarted();
 
     const int res = nextStep();
+    const bool doupdate = Time::passedSince(lastupdate_) > mDefaultTimeLimit;
     if ( progressmeter_ )
     {
-	mUpdateProgressMeter;
+	if ( doupdate )
+	    { mUpdateProgressMeter; }
 
 	if ( res<1 )
 	    progressmeter_->setFinished();
     }
+    if ( doupdate )
+	lastupdate_ = Time::getMilliSeconds();
 
     return res;
 }

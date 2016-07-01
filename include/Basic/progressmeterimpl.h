@@ -95,9 +95,10 @@ public:
     void		operator++();
     od_int64		nrDone() const			{ return nrdone_; }
 
+    void		reset();
+
 protected:
 
-    void		reset();
     void		addProgress(int);
 
     od_ostream&		strm_;

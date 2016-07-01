@@ -147,38 +147,38 @@ protected:
 mExpClass(Basic) SequentialTask : public Task
 {
 public:
-		SequentialTask(const char* nm=0)
-		    : Task(nm), progressmeter_( 0 )	{}
-    virtual	~SequentialTask()			{}
+			SequentialTask(const char* nm=0);
+    virtual		~SequentialTask()			{}
 
-    void	setProgressMeter(ProgressMeter*);
-    ProgressMeter* progressMeter()		{ return progressmeter_; }
+    void		setProgressMeter(ProgressMeter*);
+    ProgressMeter*	progressMeter()		{ return progressmeter_; }
     const ProgressMeter* progressMeter() const	{ return progressmeter_; }
 
-    virtual int	doStep();
+    virtual int		doStep();
 		/*!<\retval MoreToDo()		Not finished. Call me again.
 		    \retval Finished()		Nothing more to do.
 		    \retval ErrorOccurred()	Something went wrong.
 		    \note if function returns a value greater than cMoreToDo(),
-			  it should be interpreted as cMoreToDo(). */
+		     it should be interpreted as cMoreToDo(). */
 
-    static int	ErrorOccurred()				{ return -1; }
-    static int	Finished()				{ return 0; }
-    static int	MoreToDo()				{ return 1; }
-    static int	WarningAvailable()			{ return 2; }
+    static int		ErrorOccurred()			{ return -1; }
+    static int		Finished()			{ return 0; }
+    static int		MoreToDo()			{ return 1; }
+    static int		WarningAvailable()		{ return 2; }
 
-    bool	execute();
+    bool		execute();
 
 protected:
 
-    virtual int	nextStep()				= 0;
-		/*!<\retval MoreToDo()		Not finished. Call me again.
-		    \retval Finished()		Nothing more to do.
-		    \retval ErrorOccurred()	Something went wrong.
-		    \note if function returns a value greater than cMoreToDo(),
-			  it should be interpreted as cMoreToDo(). */
+    virtual int		nextStep()				= 0;
+			/*!<\retval MoreToDo()	Not finished. Call me again.
+			 \retval Finished()		Nothing more to do.
+			 \retval ErrorOccurred()	Something went wrong.
+			 \note if function returns a value greater than
+			  cMoreToDo(),it should be interpreted as cMoreToDo().*/
 
-    ProgressMeter* progressmeter_;
+    ProgressMeter*	progressmeter_;
+    int			lastupdate_;
 
 };
 
