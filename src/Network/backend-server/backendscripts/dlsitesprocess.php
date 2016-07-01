@@ -15,7 +15,7 @@ include_once( 'dlsitessystemid.php' );
 date_default_timezone_set( 'UTC' );
 
 
-function store_entry( $db, $tablename, $id, $platform, $country, $nrcpu, $mem )
+function store_entry( $db, $tablename, $time, $id, $platform, $country, $nrcpu, $mem )
 {
     global $DLSITES_TABLE_PREFIX;
     global $DLSITES_IP_API_KEY;
@@ -23,6 +23,7 @@ function store_entry( $db, $tablename, $id, $platform, $country, $nrcpu, $mem )
 
     $query = "CREATE TABLE IF NOT EXISTS `$tablename` ("
       	    ."`id` BIGINT UNSIGNED NOT NULL, "
+      	    ."`time` DATETIME, "
       	    ."`platform` VARCHAR(6) NOT NULL, "
       	    ."`country` VARCHAR(10) DEFAULT NULL, "
       	    ."`memory` BIGINT UNSIGNED DEFAULT NULL, "
@@ -35,8 +36,8 @@ function store_entry( $db, $tablename, $id, $platform, $country, $nrcpu, $mem )
 	return false;
     }
 
-    $query = "INSERT INTO `$tablename` (`id`,`platform`,`country`,`memory`,`cpu` ) "
-	    ."VALUES ( '$id', '$platform', '$country', $mem, $nrcpu )";
+    $query = "INSERT INTO `$tablename` (`time`,`id`,`platform`,`country`,`memory`,`cpu` ) "
+	    ."VALUES ( '$time', '$id', '$platform', '$country', $mem, $nrcpu )";
 
     if ( $db->query( $query )=== false )
     {
@@ -68,6 +69,8 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 {  
     if ( !file_exists( $file ) ) //It may be temporary renamed
 	continue;
+
+    echo "Processing $file: ";
 
     $inputdata = file_get_contents( $file );
 
@@ -103,15 +106,13 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 	if ( !array_key_exists( 'country', $listing ) )
 	{
 	    $ipnumber = $listing['address'];
-	    $iplookup = file_get_contents( "http://api.db-ip.com/addrinfo?addr=$ipnumber&api_key=$DLSITES_IP_API_KEY" );
+	    $iplookup = file_get_contents( "http://api.db-ip.com/v2/$DLSITES_IP_API_KEY/$ipnumber" );
 	    if ( $iplookup!==false )
 	    {
 		$iplookuparr = (array) json_decode( $iplookup );
 		$country = '';
 		if ( array_key_exists( 'country', $iplookuparr ) )
-		    $country = $iplookuparr['country'];
-
-		$listing['country'] = $country;
+		    $listing['country'] = $iplookuparr['country'];
 	    }
 	}
 
@@ -134,23 +135,26 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 
 	if ( $platform!='' && $machash!='' )
 	{
-	    $timestamp = new DateTime( $listing['date'] );
+	    $timestring = $listing['date'];
+	    $timestamp = new DateTime( $timestring );
 	    $year_table_name = $timestamp->format( "Y" ); 
 	    $month_table_name = $timestamp->format( "Y-m" );
 	    $total_table_name = 'total';
 
 	    $id = resolve_system_id( $mysqli, $machash, $platform, $nrcpu, $mem, true );
 
-	    if ( !store_entry( $mysqli, $year_table_name, $id, $platform, $country, $nrcpu, $mem ) ||
-		 !store_entry( $mysqli, $month_table_name, $id, $platform, $country, $nrcpu, $mem ) ||
-		 !store_entry( $mysqli, $total_table_name, $id, $platform, $country, $nrcpu, $mem ) )
+	    if ( !store_entry( $mysqli, $year_table_name, $timestring, $id, $platform, $country, $nrcpu, $mem ) ||
+		 !store_entry( $mysqli, $month_table_name, $timestring, $id, $platform, $country, $nrcpu, $mem ) ||
+		 !store_entry( $mysqli, $total_table_name, $timestring, $id, $platform, $country, $nrcpu, $mem ) )
 	    {
 		echo "Failure in storing entry from $file\n";
 	    }
 	}
 
-	file_put_contents( $archivename, json_encode( $listing ), FILE_APPEND );
+	file_put_contents( $archivename, json_encode( $listing )."\n", FILE_APPEND );
     }
 
     rename( $file, $processedname );
+
+    echo "Done\n";
 }
