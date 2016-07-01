@@ -117,9 +117,8 @@ protected:
 mExpClass(Basic) SequentialTask : public Task
 {
 public:
-		SequentialTask(const char* nm=0)
-		    : Task(nm), progressmeter_( 0 )	{}
-    virtual	~SequentialTask()			{}
+		SequentialTask(const char* nm=0);
+    virtual	~SequentialTask();
 
     void	setProgressMeter(ProgressMeter*);
     ProgressMeter* progressMeter()		{ return progressmeter_; }
