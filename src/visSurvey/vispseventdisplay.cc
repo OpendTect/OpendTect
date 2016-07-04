@@ -377,10 +377,10 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     BinIDValueSet locations( 0, false );
     eventman_->getLocations( locations );
 
-    TrcKeySampling eventrg( false );
-    eventrg.setInlRange( locations.inlRange() );
-    eventrg.setCrlRange( locations.crlRange() );
-    eventrg.survid_ = TrcKey::std3DSurvID();
+    TrcKeySampling evntrg( false );
+    evntrg.setInlRange( locations.inlRange() );
+    evntrg.setCrlRange( locations.crlRange() );
+    evntrg.survid_ = TrcKey::std3DSurvID();
 
 
     if ( displaymode_==ZeroOffset )
@@ -496,7 +496,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	dir.y = (isinl ? 0 : offsetscale_ ) / SI().crlDistance();
     }
 
-    if ( !cs.hsamp_.includes(eventrg) )
+    if ( !cs.hsamp_.includes(evntrg) )
 	return;
   
     pao->eventsets_.erase();
