@@ -334,7 +334,6 @@ void uiTieWin::putDispParams()
 void uiTieWin::dispPropChg( CallBacker*cb )
 {
     getDispParams();
-    mDynamicCastGet(uiCheckBox*,tb,cb)
     if ( cb == zintimefld_ )
 	zinftfld_->setChecked( !params_.iszintime_ );
     else 

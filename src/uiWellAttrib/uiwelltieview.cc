@@ -250,7 +250,6 @@ void uiTieView::zoomChg( CallBacker* )
     const uiWorldRect& curwr = vwr_->curView();
     const float userfac = SI().showZ2UserFactor();
     Interval<float> zrg;
-    uiWellDahDisplay::Data* data;
     		
     if ( !params_.iszintime_  && SI().depthsInFeet() )
     {
