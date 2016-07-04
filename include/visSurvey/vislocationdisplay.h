@@ -137,7 +137,6 @@ protected:
 
     LocID			directionlocationid_;
     LocID			movinglocationid_;
-    Coord3			movestartcoord_;
 
     TypeSet<int>		invalidpicks_;
     bool			showall_;

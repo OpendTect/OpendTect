@@ -277,7 +277,8 @@ void LocationDisplay::handleDirectionEvent( const EventInfo& evinfo )
 	if ( dir.sqAbs()>=0 )
 	{
 	    pl.setDir( cartesian2Spherical(dir,true) );
-	    set_->set( directionlocationid_, pl );
+	    const bool isstillmoving = evinfo.type != visBase::MouseClick;
+	    set_->set( directionlocationid_, pl, isstillmoving );
 	}
     }
 
