@@ -12,8 +12,20 @@ ________________________________________________________________________
 include_once( 'dlsitesdb.php' );
 include_once( 'dlsitessystemid.php' );
 
+require "$DLSITES_AWS_PATH/aws.phar";
+
 date_default_timezone_set( 'UTC' );
 
+$s3Client = new Aws\S3\S3Client([
+    'version'     => 'latest',
+    'region'      => 'eu-west-1',
+    'credentials' => [
+        'key'    => $DLSITES_AWS_ACCESS_ID,
+        'secret' => $DLSITES_AWS_ACCESS_KEY,
+    ],
+]);
+
+$s3Client->registerStreamWrapper();
 
 function store_entry( $db, $tablename, $time, $id, $platform, $country, $nrcpu, $mem )
 {
@@ -94,6 +106,7 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
     $inputarray = explode( "\n", $inputdata );
     $archivename = $archivedir.basename( $file );
     $processedname = $processeddir.basename( $file );
+    $awsarchivename = $DLSITES_AWS_ARCHIVE_PATH."/".basename( $file );
     
     if ( file_exists( $archivename ) )
     {
@@ -151,6 +164,7 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 	array_push( $outputarray, $listing );
     }
 
+    $archivetext = '';
     foreach ( $outputarray as $listing )
     {
 	$machash = array_key_exists( 'i', $listing ) ? $listing['i'] : '';
@@ -177,8 +191,11 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 	    }
 	}
 
-	file_put_contents( $archivename, json_encode( $listing )."\n", FILE_APPEND );
+	$archivetext .= json_encode( $listing )."\n";
     }
+
+    file_put_contents( $awsarchivename, $archivetext );
+    file_put_contents( $archivename, $archivetext );
 
     rename( $file, $processedname );
 
