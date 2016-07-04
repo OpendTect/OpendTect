@@ -161,13 +161,15 @@ bool uiODPSEventsTreeItem::init()
 }
 
 
-#define mAddPSMenuItems( mnu, func, midx ) \
+#define mAddPSMenuItems( mnu, func, midx, enab ) \
     mnu->removeItems(); \
     items = eventdisplay_->func(); \
     if ( items.isEmpty() ) return; \
     mnu->createItems( items ); \
     for ( int idx=0; idx<items.size(); idx++ ) \
-    {  mnu->getItem(idx)->checkable = true; } \
+    {  mnu->getItem(idx)->checkable = true; \
+       mnu->getItem(idx)->enabled = !idx || enab; \
+    } \
     mnu->getItem(midx)->checked = true; \
     items.erase(); \
 
@@ -179,13 +181,11 @@ void uiODPSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mAddMenuItem( menu, coloritem_, true, false );
     uiStringSet items;
-    mAddPSMenuItems( coloritem_, markerColorNames, coloridx_ )
-    if ( eventdisplay_->hasParents() )
-    {
-	mAddMenuItem( menu, &displaymnuitem_, true, false );
-	MenuItem* item = &displaymnuitem_;
-	mAddPSMenuItems( item, displayModeNames, dispidx_ )
-    }
+    mAddPSMenuItems( coloritem_, markerColorNames, coloridx_, true );
+    mAddMenuItem( menu, &displaymnuitem_, true, false );
+    MenuItem* item = &displaymnuitem_;
+    const bool enabled = eventdisplay_->supportsDisplay();
+    mAddPSMenuItems( item, displayModeNames, dispidx_, enabled )
 }
 
 
@@ -233,7 +233,7 @@ void uiODPSEventsTreeItem::updateDisplay()
         uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 	visserv->addObject( eventdisplay_, sceneID(), false );
 	displayid_ = eventdisplay_->id();
-    eventdisplay_->setName( toUiString(eventname_) );
+	eventdisplay_->setName( toUiString(eventname_) );
 	eventdisplay_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,4) );
 	eventdisplay_->setEventManager( &psem_ );
 

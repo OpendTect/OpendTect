@@ -64,7 +64,7 @@ public:
     virtual const ColTab::MapperSetup* getColTabMapperSetup(int,int) const;
     virtual void		setPixelDensity(float);
     
-    enum DisplayMode		{ None, ZeroOffset, FullOnSections, 
+    enum DisplayMode		{ ZeroOffset, FullOnSections, 
 				  ZeroOffsetOnSections, FullOnGathers };
     				mDeclareEnumUtils(DisplayMode);
     void			setDisplayMode(DisplayMode);
@@ -80,6 +80,7 @@ public:
     const uiStringSet&		markerColorNames()const;
     const uiStringSet&		displayModeNames()const;
     bool			hasParents() const;
+    bool			supportsDisplay() const;
 
 
 protected:

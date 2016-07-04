@@ -30,7 +30,7 @@ mDefineEnumUtils( PSEventDisplay, MarkerColor, "Marker Color" )
 { "Single", "Quality", "Velocity", "Velocity fit", 0 };
 
 mDefineEnumUtils( PSEventDisplay, DisplayMode, "Display Mode" )
-{ "None","Zero offset", "Sticks from sections", "Zero offset on sections",
+{ "Zero offset", "Sticks from sections", "Zero offset on sections",
   "Sticks to gathers", 0 };
 
 PSEventDisplay::PSEventDisplay()
@@ -363,7 +363,7 @@ float PSEventDisplay::getMoveoutComp( const TypeSet<float>& offsets,
     float variables[] = { picks[0], 0, 3000 };
     PtrMan<MoveoutComputer> moveoutcomp = new RMOComputer;
     const float error = moveoutcomp->findBestVariable(
-		    variables, 1, ctabmapper_.setup_.range_,
+		    variables, 1, qualityrange_,
 		    offsets.size(), offsets.arr(), picks.arr() );
     return markercolor_==Velocity ? variables[1] : error;
 }
@@ -374,20 +374,22 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     if ( !eventman_ )
 	return;
 
-    if ( displaymode_==None )
+    BinIDValueSet locations( 0, false );
+    eventman_->getLocations( locations );
+
+    TrcKeySampling eventrg( false );
+    eventrg.setInlRange( locations.inlRange() );
+    eventrg.setCrlRange( locations.crlRange() );
+    eventrg.survid_ = TrcKey::std3DSurvID();
+
+
+    if ( displaymode_==ZeroOffset )
     {
 	for ( int idx=0; idx<parentattached_.size(); idx++ )
 	    clearDisplay( parentattached_[idx] );
 
-	return;
-    }
-    else if ( displaymode_==ZeroOffset )
-    {
-	for ( int idx=0; idx<parentattached_.size(); idx++ )
-	    clearDisplay( parentattached_[idx] );
-
-	BinIDValueSet locations( 0, false );
-	eventman_->getLocations( locations );
+	
+	eventmarkerset_->clearMarkers();
 	TypeSet<float> vals;
 	for ( int lidx=0; lidx<locations.totalSize(); lidx++ )
 	{
@@ -395,10 +397,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    const PreStack::EventSet* eventset
 		    = eventman_->getEvents(bid, true );
 	    if ( !eventset )
-		return clearAll();
+		continue;
 
 	    const int size = eventset->events_.size();
-	    eventmarkerset_->clearMarkers();
 	    for ( int idx=0; idx<size; idx++ )
 	    {
 		const PreStack::Event* psevent = eventset->events_[idx];
@@ -419,27 +420,28 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		vals += (markercolor_==Quality ? psevent->quality_
 					       : getMoveoutComp(offsets,picks));
 	    }
-	    eventmarkerset_->turnAllMarkersOn( true );
-	    eventmarkerset_->forceRedraw( true );
+	   
 	}
 
 	if (  markercolor_ == Single )
 	{
-	    getMaterial()->setColor( eventman_->getColor() );
 	    eventmarkerset_->setMarkersSingleColor( eventman_->getColor() );
+	    getMaterial()->setColor( eventman_->getColor() );
 	}
 	else
 	{
-	    eventmarkerset_->setMaterial( new visBase::Material );
 	    const ArrayValueSeries<float,float> vs(vals.arr(),0,vals.size());
 	    ctabmapper_.setData( &vs, vals.size() );
 	    for (int idx=0;idx<eventmarkerset_->getCoordinates()->size();idx++)
 	    {
 		const Color col = ctabsequence_.color(
 		    ctabmapper_.position( vals[idx]) );
-		 eventmarkerset_->getMaterial()->setColor( col,idx) ;
+		 eventmarkerset_->getMaterial()->setColor(col,idx) ;
 	    }
 	}
+	
+	eventmarkerset_->turnAllMarkersOn( true );
+	eventmarkerset_->forceRedraw( true );
 	return;
     }
 
@@ -494,12 +496,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	dir.y = (isinl ? 0 : offsetscale_ ) / SI().crlDistance();
     }
 
-    TrcKeySamplingIterator iter( cs.hsamp_ );
-
-
-    int cii = 0;
-    int lastmarker = 0;
-
+    if ( !cs.hsamp_.includes(eventrg) )
+	return;
+  
     pao->eventsets_.erase();
     pao->tks_ = cs.hsamp_;
     pao->objectgroup_->addObject( pao->markerset_ );
@@ -515,13 +514,15 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     }
 
+    int cii = 0;
+    int lastmarker = 0;
     TypeSet<float> values;
-
+    TrcKeySamplingIterator iter( cs.hsamp_ );
     do
     {
-	const BinID bid( iter.curBinID() );
+	const TrcKey tk( iter.curTrcKey() );
 	PreStack::EventSet* eventset = eventman_ ?
-	    eventman_->getEvents( bid, true, false ) : 0;
+	    eventman_->getEvents( tk.position(), true, false) : 0;
 	if ( !eventset )
 	    continue;
 
@@ -573,7 +574,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    const bool doline = pickrg.start!=pickrg.stop;
 	    for ( int idy=pickrg.start; idy<=pickrg.stop; idy++ )
 	    {
-		Coord3 pos( bid.inl(), bid.crl(),  picks[idy] );
+		Coord3 pos( tk.inl(), tk.crl(),  picks[idy] );
 		if ( fullevent )
 		{
 		    const Coord offset = dir*offsets[idy];
@@ -724,6 +725,34 @@ void PSEventDisplay::eventForceReloadCB(CallBacker*)
 bool PSEventDisplay::hasParents() const
 {
     return !parentattached_.isEmpty();
+}
+
+
+bool PSEventDisplay::supportsDisplay() const
+{
+    if ( !hasParents() || !eventman_ )
+	return false;
+
+    BinIDValueSet locations( 0, false );
+    eventman_->getLocations( locations );
+    TrcKeySampling eventrg( false );
+    eventrg.setInlRange( locations.inlRange() );
+    eventrg.setCrlRange( locations.crlRange() );
+    eventrg.survid_ = TrcKey::std3DSurvID();
+
+    bool issuported = false;
+    for ( int idx=0; idx<parentattached_.size(); idx++ )
+    {
+	const ParentAttachedObject* pao = parentattached_[idx];
+	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,
+			visBase::DM().getObject( pao->parentid_ ) );
+	if ( !pdd )
+	    continue;
+	const TrcKeyZSampling pddrg = pdd->getTrcKeyZSampling();
+	issuported = pddrg.hsamp_.includes(eventrg);  
+    }
+
+    return issuported;
 }
 
 
