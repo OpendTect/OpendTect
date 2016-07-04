@@ -43,6 +43,9 @@ $DLSITES_TABLE_PREFIX = 'dlsites_';
 //IP-geography database key
 $DLSITES_IP_API_KEY = '';
 
+//IP-geography database key
+$DLSITES_USE_LOCAL_IP_DB = false;
+
 //Override defaults if local file exists
 $localsettingsfile = realpath(dirname(__FILE__))."/dlsitessettings.local.php";
 if(file_exists( $localsettingsfile ))

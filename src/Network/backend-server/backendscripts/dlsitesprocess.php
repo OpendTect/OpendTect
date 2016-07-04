@@ -61,9 +61,20 @@ $archivedir = $rootdir."/".$DLSITES_ARCHIVE_DIR."/";
 $processeddir = $rootdir."/".$DLSITES_PROCESSED_DIR."/";
 
 
-if ( !file_exists( $inputdir ) ) { echo "$inputdir does not exist\n"; exit ( 1 ); }
-if ( !file_exists( $archivedir ) ) { echo "$archivedir does not exist\n"; exit ( 1 ); }
-if ( !file_exists( $processeddir ) ) { echo "$processeddir does not exist\n"; exit ( 1 ); }
+if ( !file_exists( $inputdir ) )	{ echo "$inputdir does not exist\n"; exit ( 1 ); }
+if ( !file_exists( $archivedir ) )	{ echo "$archivedir does not exist\n"; exit ( 1 ); }
+if ( !file_exists( $processeddir ) )	{ echo "$processeddir does not exist\n"; exit ( 1 ); }
+
+$use_country_db = false;
+$dbip = ''; //Make variable in this scope
+
+if ( $DLSITES_USE_LOCAL_IP_DB )
+{
+    require "dbip.class.php";
+
+    $db = new PDO("mysql:host=$DLSITES_DB_HOST;dbname=$DLSITES_DB", $DLSITES_DB_USER, $DLSITES_DB_PW);
+    $dbip = new DBIP($db);
+}
 
 foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)   
 {  
@@ -106,12 +117,28 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 	if ( !array_key_exists( 'country', $listing ) || $listing['country']=='' )
 	{
 	    $ipnumber = $listing['address'];
-	    $iplookup = file_get_contents( "http://api.db-ip.com/v2/$DLSITES_IP_API_KEY/$ipnumber" );
-	    if ( $iplookup!==false )
+	    if ( $DLSITES_USE_LOCAL_IP_DB )
 	    {
-		$iplookuparr = (array) json_decode( $iplookup );
-		if ( array_key_exists( 'countryCode', $iplookuparr ) )
-		    $listing['country'] = $iplookuparr['countryCode'];
+		try
+		{
+		    $inf = $dbip->Lookup( $ipnumber );
+		    $listing['country'] = $inf->country;
+		}
+		catch (DBIP_Exception $e)
+		{
+		    echo "error: {$e->getMessage()}\n";
+		    exit ( 1 );
+		}
+	    }
+	    else
+	    {
+		$iplookup = file_get_contents( "http://api.db-ip.com/v2/$DLSITES_IP_API_KEY/$ipnumber" );
+		if ( $iplookup!==false )
+		{
+		    $iplookuparr = (array) json_decode( $iplookup );
+		    if ( array_key_exists( 'countryCode', $iplookuparr ) )
+			$listing['country'] = $iplookuparr['countryCode'];
+		}
 	    }
 	}
 
