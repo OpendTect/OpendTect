@@ -56,11 +56,13 @@ protected:
     void		prepareForShutdown();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     void		setChgCB(CallBacker*);
-    virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
     void		selChangedCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODPickSetParentTreeItem).name(); }
+
+    virtual void	createMenu(MenuHandler*,bool istb);
+    virtual void	handleMenuCB(CallBacker*);
+    virtual void	keyPressCB(CallBacker*);
 
     Pick::Set&		set_;
 

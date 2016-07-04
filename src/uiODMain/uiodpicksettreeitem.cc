@@ -25,6 +25,7 @@ ___________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uipickpartserv.h"
 #include "uipickpropdlg.h"
+#include "uishortcutsmgr.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
@@ -369,6 +370,25 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
+}
+
+
+void uiODPickSetTreeItem::keyPressCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(uiKeyDesc,kd,cb);
+
+    if ( kd.state()==OD::ControlButton && kd.key()==OD::KB_Z )
+    {
+	const MultiID setid = Pick::SetMGR().getID( set_ );
+	Pick::SetMGR().useChangeRecord( setid, true );
+    }
+    else if ( kd.state()==OD::ControlButton && kd.key()==OD::KB_Y )
+    {
+	const MultiID setid = Pick::SetMGR().getID( set_ );
+	Pick::SetMGR().useChangeRecord( setid, false );
+    }
+    else
+	uiODDisplayTreeItem::keyPressCB( cb );
 }
 
 

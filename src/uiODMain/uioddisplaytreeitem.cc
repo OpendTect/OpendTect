@@ -250,7 +250,7 @@ void uiODDisplayTreeItem::keyPressCB( CallBacker* cb )
 
     if ( kd.state()==OD::ShiftButton && kd.key()==OD::KB_Delete )
 	deleteObject();
-    if ( kd.key()==OD::KB_V && kd.state()==OD::NoButton )
+    else if ( kd.key()==OD::KB_V && kd.state()==OD::NoButton )
 	setOnlyAtSectionsDisplay( !displayedOnlyAtSections() );
 }
 
