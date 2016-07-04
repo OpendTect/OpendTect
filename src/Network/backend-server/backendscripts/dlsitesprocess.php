@@ -194,10 +194,22 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 	$archivetext .= json_encode( $listing )."\n";
     }
 
-    file_put_contents( $awsarchivename, $archivetext );
-    file_put_contents( $archivename, $archivetext );
+    $renameresult = rename( $file, $processedname );
+    $saveawsresult = file_put_contents( $awsarchivename, $archivetext );
+    $saveresult = file_put_contents( $archivename, $archivetext );
 
-    rename( $file, $processedname );
+    if ( $renameresult===false )
+	echo "Could not move $file to $processedname.\n";
+
+    if ( $saveawsresult===false )
+	echo "Could not write to AWS.\n";
+
+    if ( $saveresult===false )
+	echo "Could not write to $archivename.\n";
+
+    if ( $renameresult===false || $saveawsresult===false && $saveresult===false )
+	exit( 1 );
+
 
     echo "Done\n";
 }
