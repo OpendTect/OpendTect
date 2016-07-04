@@ -103,20 +103,19 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 	    continue;
 	}
 
-	if ( !array_key_exists( 'country', $listing ) )
+	if ( !array_key_exists( 'country', $listing ) || $listing['country']=='' )
 	{
 	    $ipnumber = $listing['address'];
 	    $iplookup = file_get_contents( "http://api.db-ip.com/v2/$DLSITES_IP_API_KEY/$ipnumber" );
 	    if ( $iplookup!==false )
 	    {
 		$iplookuparr = (array) json_decode( $iplookup );
-		$country = '';
-		if ( array_key_exists( 'country', $iplookuparr ) )
-		    $listing['country'] = $iplookuparr['country'];
+		if ( array_key_exists( 'countryCode', $iplookuparr ) )
+		    $listing['country'] = $iplookuparr['countryCode'];
 	    }
 	}
 
-	if ( !array_key_exists( 'country', $listing ) )
+	if ( !array_key_exists( 'country', $listing ) || $listing['country']=='' )
 	{
 	    echo "Cannot resolve country for ".$listing['address']."\n";
 	    exit( 1 );
