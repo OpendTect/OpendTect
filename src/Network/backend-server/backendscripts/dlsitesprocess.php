@@ -14,18 +14,24 @@ include_once( 'dlsitessystemid.php' );
 
 require "$DLSITES_AWS_PATH/aws.phar";
 
+use Aws\S3\S3Client;
+
 date_default_timezone_set( 'UTC' );
 
-$s3Client = new Aws\S3\S3Client([
+$s3Client = S3Client::factory(array(
     'version'     => 'latest',
     'region'      => 'eu-west-1',
     'credentials' => [
         'key'    => $DLSITES_AWS_ACCESS_ID,
         'secret' => $DLSITES_AWS_ACCESS_KEY,
-    ],
-]);
+    ]
+) );
 
-$s3Client->registerStreamWrapper();
+if ( $s3Client->registerStreamWrapper() === false )
+{
+    echo "Cannot register stream wrapper\n";
+    exit( 1 );
+}
 
 function store_entry( $db, $tablename, $time, $id, $platform, $country, $nrcpu, $mem )
 {
@@ -207,9 +213,8 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
     if ( $saveresult===false )
 	echo "Could not write to $archivename.\n";
 
-    if ( $renameresult===false || $saveawsresult===false && $saveresult===false )
+    if ( $renameresult===false || $saveawsresult===false || $saveresult===false )
 	exit( 1 );
-
 
     echo "Done\n";
 }
