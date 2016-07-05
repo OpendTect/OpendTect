@@ -54,7 +54,6 @@ BufferString EMTracker::objectName() const
 { return emobject_ ? emobject_->name() : 0; }
 
 
-
 EM::ObjectID EMTracker::objectID() const
 { return emobject_ ? emobject_->id() : -1; }
 
