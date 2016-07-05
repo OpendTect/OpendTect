@@ -127,12 +127,14 @@ foreach ( $platforms as $platform )
 echo "    <th>Average memory (Kb)</th><th>Average nr cpus</th>\n";
 
 foreach ( $allcountries as $country )
+{
     $countrycode = ucfirst( $country );
     $countryname = $countrycode;
     if ( array_key_exists( $countrycode, $countrynames ) )
 	$countryname = $countrynames[$countrycode];
 
     echo '    <th title="'.$countryname.'">'.$countrycode."</th>\n";
+}
 
 echo "   </tr>\n";
 
