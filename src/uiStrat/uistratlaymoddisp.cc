@@ -202,9 +202,9 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
     if ( !fixeddumpfnm.isEmpty() )
 	fnm_ = BufferString( fixeddumpfnm );
 
-    uiFileInput::Setup su( uiFileDialog::Txt, fnm_ );
+    uiFileInput::Setup su( uiFileDialog::Gen, fnm_ );
     su.forread_ = doread;
-    filefld_ = new uiFileInput( this, uiStrings::sFileName() );
+    filefld_ = new uiFileInput( this, uiStrings::sFileName(), su );
 
     if ( doread )
     {
