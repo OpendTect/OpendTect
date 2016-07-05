@@ -361,9 +361,9 @@ private:
     mutable uiSize	lastsz;
 
 public:
-    /*mDeprecated*/ double	getdValue( const RowCol& rc ) const
+    mDeprecated double	getdValue( const RowCol& rc ) const
 			{ return getDValue( rc ); }
-    /*mDeprecated*/ float	getfValue( const RowCol& rc ) const
+    mDeprecated float	getfValue( const RowCol& rc ) const
 			{ return getFValue( rc ); }
 };
 
