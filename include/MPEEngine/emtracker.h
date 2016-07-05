@@ -64,7 +64,7 @@ public:
     SectionTracker*		cloneSectionTracker();
     SectionTracker*		getSectionTracker(EM::SectionID,
 						  bool create=false);
-    virtual EMSeedPicker*	getSeedPicker(bool createifnotpresent=true)
+    virtual EMSeedPicker*	getSeedPicker(bool create=true)
 				{ return 0; }
     void 			applySetupAsDefault(const EM::SectionID);
 
