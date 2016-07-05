@@ -37,7 +37,7 @@ Horizon2DTracker::Horizon2DTracker( EM::Horizon2D* hor )
 
 Horizon2DTracker::~Horizon2DTracker()
 {
-//    delete seedpicker_;
+    delete seedpicker_;
 }
 
 
