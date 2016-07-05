@@ -599,29 +599,39 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 
 BufferString uiSEGYReadFinisher::getWildcardSubstLineName( int iln ) const
 {
-    FilePath fp( fs_.spec_.fileName( iln ) );
-    BufferString expandedname = fp.baseName();
+    BufferString fnm( fs_.spec_.fileName( iln ) );
+    BufferString wildcardexpr = fs_.spec_.usrStr();
 
-    const char* pwc = objname_.buf(); // objname_ holds wildcard expression
-    char* psubst = expandedname.getCStr();
+    char* pwc = wildcardexpr.getCStr();
+    char* pfnm = fnm.getCStr();
+    while ( *pwc && *pfnm && *pwc != '*' )
+	{ pwc++; pfnm++; }
+    if ( !*pwc || !*pfnm )
+	return BufferString( "_" );
 
-	// find start of substitution (left to right)
-    while ( *pwc && *psubst && *pwc == *psubst )
-	{ pwc++; psubst++; }
-    const char* lnm = psubst;
+    BufferString ret;
+    while ( pwc )
+    {
+	char* nonwcstart = pwc + 1;
+	if ( !*nonwcstart )
+	    break;
 
-	// find end of substitution (right to left)
-    while ( *pwc ) pwc++; while ( *psubst ) psubst++;
-    while ( psubst != lnm && *pwc == *psubst )
-	{ pwc--; psubst--; }
-	// psubst is at end of substitution, close string
-    if ( *psubst ) *(psubst+1) = '\0';
+	pwc = firstOcc( nonwcstart, '*' ); // move to next wildcard, if there
+	if ( pwc )
+	    *pwc = '\0';
 
-    if ( *lnm )
-	return BufferString( lnm );
+	char* subststart = pfnm;
+	pfnm = firstOcc( pfnm, nonwcstart );
+	if ( !pfnm )
+	    { pErrMsg("Huh"); if ( ret.isEmpty() ) ret.set( "_" ); return ret; }
+	*pfnm = '\0';
+	pfnm += FixedString(nonwcstart).size(); // to next wildcard section
 
-    pErrMsg( "Something went wrong with wildcard substitution" );
-    return fp.baseName();
+	if ( !ret.isEmpty() )
+	    ret.add( '_' );
+	ret.add( subststart );
+    }
+    return ret;
 }
 
 
