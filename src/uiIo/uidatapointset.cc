@@ -551,11 +551,10 @@ void uiDataPointSet::fillData( TRowID tid )
 void uiDataPointSet::handleAxisColChg()
 {
     updColNames();
+    disptb_->setSensitive( xplottbid_, !xplotwin_ && (xcol_>=0 && (ycol_>=0 ||
+								   y2col_>=0)));
     if ( xplotwin_ )
 	xplotwin_->handleAxisChg( xcol_, ycol_, y2col_ );
-
-    if ( ycol_ >= 0 && statswin_ )
-	showStats( dColID(ycol_) );
 
 }
 
@@ -563,6 +562,8 @@ void uiDataPointSet::handleAxisColChg()
 void uiDataPointSet::initWin( CallBacker* c )
 {
     setSortedCol( nrPosCols() );
+    disptb_->setSensitive( xplottbid_, !xplotwin_ && (xcol_>=0 && (ycol_>=0 ||
+								   y2col_>=0)));
 }
 
 
@@ -875,9 +876,7 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 	xplotwin_->windowClosed.notify( mCB(this,uiDataPointSet,xplotClose) );
     }
 
-    disptb_->setSensitive( xplottbid_, false );
     xplotwin_->setPercDisp( plotpercentage_ );
-    disptb_->setSensitive( xplottbid_, false );
     handleAxisColChg();
     xplotwin_->show();
 }
