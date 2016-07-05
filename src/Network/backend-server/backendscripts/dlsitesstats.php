@@ -10,6 +10,7 @@ ________________________________________________________________________
 -*/
 
 include_once( 'dlsitesdb.php' );
+include_once( 'countries.php' );
 
 function read_field_value_counts( $db, $table, $field )
 {
@@ -126,7 +127,12 @@ foreach ( $platforms as $platform )
 echo "    <th>Average memory (Kb)</th><th>Average nr cpus</th>\n";
 
 foreach ( $allcountries as $country )
-    echo "    <th>".ucfirst( $country )."</th>\n";
+    $countrycode = ucfirst( $country );
+    $countryname = $countrycode;
+    if ( array_key_exists( $countrycode, $countrynames ) )
+	$countryname = $countrynames[$countrycode];
+
+    echo '    <th title="'.$countryname.'">'.$countrycode."</th>\n";
 
 echo "   </tr>\n";
 
@@ -143,7 +149,8 @@ foreach ( $stats as $periodkey => $periodstats )
     foreach ( $platforms as $platform )
     {
 	echo "    <td>";
-	echo number_format($periodstats['platforms'][$platform]/$nrrows*100,1);
+	if ( array_key_exists( $platform, $periodstats['platforms'] ) )
+	    echo number_format($periodstats['platforms'][$platform]/$nrrows*100,1);
 	echo "</td>\n";
     }
 
