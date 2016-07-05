@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include "arrayndslice.h"
 #include "mathfunc.h"
 #include "periodicvalue.h"
+#include "trckeysampling.h"
+#include "uistrings.h"
 
 
 #define mComputeTrendAandB( sz ) { \
@@ -722,6 +724,142 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
     return true;
 }
 
+
+/*!\brief Transfers the common samples from one 2D array to another */
+
+template <class T>
+mExpClass(Algo) Array2DCopier : public ParallelTask
+{ mODTextTranslationClass(Array2DCopier);
+public:
+		Array2DCopier( const Array2D<T>& in,
+			       const TrcKeySampling& tksin,
+			       const TrcKeySampling& tksout,
+			       Array2D<T>& out )
+		    : in_(in)
+		    , tksin_(tksin)
+		    , tksout_(tksout)
+		    , out_(out)
+		{
+		    if ( canCopyAll() )
+		    {
+			doPrepare(0);
+			return;
+		    }
+
+		    tksin.getInterSection( tksout, commontks_ );
+		}
+
+    uiString	uiNrDoneText() const
+		{
+		    return uiStrings::phrJoinStrings(
+						uiStrings::sInline(mPlural),
+						uiStrings::sDone().toLower() );
+		}
+    uiString	uiMessage() const	{ return tr("Transferring grid data");}
+
+protected:
+
+    od_int64	nrIterations() const
+		{
+		    return canCopyAll() ? 0 : commontks_.nrLines();
+		}
+
+private:
+
+    bool	canCopyAll() const
+		{
+		    return tksout_ == tksin_ && in_.getData() &&
+			   ( out_.getData() || out_.getStorage() );
+		}
+
+    bool	doPrepare( int )
+		{
+		    if ( in_.info().getSize(0) != tksin_.nrLines() ||
+			 in_.info().getSize(1) != tksin_.nrTrcs() )
+		    {
+			return false;
+		    }
+
+		    if ( out_.info().getSize(0) != tksout_.nrLines() ||
+			 out_.info().getSize(1) != tksout_.nrTrcs() )
+		    {
+			mDynamicCastGet(Array2DImpl<T>*,outimpl,&out_)
+			if ( !outimpl || !outimpl->setSize( tksout_.nrLines(),
+							    tksout_.nrTrcs() ) )
+			{
+			    return false;
+			}
+
+			out_.setAll( mUdf(T) );
+		    }
+
+		    if ( canCopyAll() )
+		    {
+			if ( out_.getData() )
+			    in_.getAll( out_.getData() );
+			else if ( out_.getStorage() )
+			    in_.getAll( *out_.getStorage() );
+		    }
+
+		    return true;
+		}
+
+    bool	doWork( od_int64 start, od_int64 stop, int )
+		{
+		    const TrcKeySampling tksin( tksin_ );
+		    const TrcKeySampling tksout( tksout_ );
+		    const TrcKeySampling tks( commontks_ );
+
+		    const bool usearrayptrs = in_.getData() && out_.getData() &&
+					      in_.getStorage() &&
+					      out_.getStorage();
+		    OffsetValueSeries<T>* invals = !usearrayptrs ? 0 :
+			    new OffsetValueSeries<T>( *in_.getStorage(), 0 );
+		    OffsetValueSeries<T>* outvals = !usearrayptrs ? 0 :
+			    new OffsetValueSeries<T>( *out_.getStorage(), 0 );
+		    const int nrcrl = tks.nrTrcs();
+		    const od_int64 nrbytes = nrcrl * sizeof(T);
+
+		    const int startcrl = tks.start_.crl();
+		    const int startcrlidyin = tksin.trcIdx( startcrl );
+		    const int startcrlidyout = tksout.trcIdx( startcrl );
+		    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++)
+		    {
+			const int inl = tks.lineRange().atIndex( idx );
+			const int inlidxin = tksin.lineIdx( inl );
+			const int inlidxout = tksout.lineIdx( inl );
+			if ( usearrayptrs )
+			{
+			    invals->setOffset(
+			      in_.info().getOffset(inlidxin,startcrlidyin) );
+			    outvals->setOffset(
+			      out_.info().getOffset(inlidxout,startcrlidyout) );
+			    OD::memCopy(invals->arr(),outvals->arr(),nrbytes);
+			    continue;
+			}
+			else
+			{
+			    for ( int idy=0; idy<nrcrl; idy++ )
+			    {
+				const float val =
+					in_.get( inlidxin, startcrlidyin+idy );
+				out_.set( inlidxout, startcrlidyout+idy, val );
+			    }
+			}
+		    }
+
+		    delete invals;
+		    delete outvals;
+
+		    return true;
+		}
+
+    const Array2D<T>&	in_;
+    const TrcKeySampling&	tksin_;
+    const TrcKeySampling&	tksout_;
+    TrcKeySampling	commontks_;
+    Array2D<T>&		out_;
+};
 
 
 /*!
