@@ -36,8 +36,10 @@ if ( $s3Client->registerStreamWrapper() === false )
 function store_entry( $db, $tablename, $time, $id, $platform, $country, $nrcpu, $mem )
 {
     global $DLSITES_TABLE_PREFIX;
+    global $DLSITES_PERIOD_TABLE_PREFIX;
     global $DLSITES_IP_API_KEY;
-    $tablename = $DLSITES_TABLE_PREFIX.$tablename;
+
+    $tablename = $DLSITES_TABLE_PREFIX.$DLSITES_PERIOD_TABLE_PREFIX.$tablename;
 
     $query = "CREATE TABLE IF NOT EXISTS `$tablename` ("
       	    ."`id` BIGINT UNSIGNED NOT NULL, "

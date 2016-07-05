@@ -45,6 +45,9 @@ $DLSITES_DB_PW = '';
 //Table prefix
 $DLSITES_TABLE_PREFIX = 'dlsites_';
 
+//Period Table prefix
+$DLSITES_PERIOD_TABLE_PREFIX = 'period_';
+
 //IP-geography database key
 $DLSITES_IP_API_KEY = '';
 
