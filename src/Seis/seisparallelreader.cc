@@ -42,7 +42,7 @@ namespace Seis
 
 
 static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
-			   TypeSet<int>& selcomponents, od_ostream* logstrm )
+			   TypeSet<int>& selcomponents, uiString& msg )
 {
     BufferStringSet cnames;
     SeisIOObjInfo::getCompNames( ioobj.key(), cnames );
@@ -54,18 +54,15 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 			    dp.getDataDesc().nrBytes();
 			    // dp.nrKBytes() cannot be used before allocation
 
-    od_ostream& ostrm = logstrm ? *logstrm : od_ostream::logStream();
     BufferString memszstr( nbstr.getString( reqsz ) );
     if ( reqsz >= freemem )
     {
-	ostrm << od_newline << "Insufficient memory for allocating ";
-	ostrm << memszstr << od_endl;
+	msg = od_static_tr("Seis::addComponents",
+		"Insufficient memory for allocating %1").arg( memszstr );
 	return false;
     }
 
-    if ( logstrm )
-	ostrm << od_newline << "Allocating " << memszstr << od_newline;
-
+    msg = od_static_tr("Seis::addComponents","Allocating %1").arg( memszstr );
     for ( int idx=0; idx<nrcomp; idx++ )
     {
 	const int cidx = selcomponents[idx];
@@ -182,9 +179,11 @@ bool ParallelReader::doPrepare( int nrthreads )
 	dp_->setSampling( tkzs_ );
 	DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
 
-	if ( !addComponents(*dp_,*ioobj_,components_,0) )
+	uiString errmsg;
+	if ( !addComponents(*dp_,*ioobj_,components_,errmsg) )
 	{
 	    errmsg_ = allocprob;
+	    errmsg_.append( errmsg, true );
 	    return false;
 	}
     }
@@ -351,7 +350,7 @@ ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
 
     if ( tkzs )
 	tkzs_ = *tkzs;
-    
+
     totalnr_ = tkzs_.isEmpty() ? 1 : tkzs_.hsamp_.totalNr();
 }
 
@@ -366,7 +365,7 @@ bool ParallelReader2D::init()
 {
     const SeisIOObjInfo info( *ioobj_ );
     if ( !info.isOK() ) return false;
-   
+
     info.getDataChar( dc_ );
     if ( components_.isEmpty() )
     {
@@ -389,9 +388,9 @@ bool ParallelReader2D::init()
     if ( scaler_ )
 	dp_->setScaler( *scaler_ );
 
-    if ( !addComponents(*dp_,*ioobj_,components_,0) )
+    if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
     {
-	dp_->release(); dp_ = 0; 
+	dp_->release(); dp_ = 0;
 	return false;
     }
 
@@ -729,7 +728,7 @@ bool SequentialReader::init()
     if ( scaler_ && !scaler_->isEmpty() )
 	dp_->setScaler( *scaler_ );
 
-    if ( !addComponents(*dp_,*ioobj_,components_,0) )
+    if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
 	return false;
 
     PosInfo::CubeData cubedata;
@@ -743,7 +742,8 @@ bool SequentialReader::init()
 }
 
 
-bool SequentialReader::setDataPack( RegularSeisDataPack& dp, od_ostream* strm )
+bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
+				    od_ostream* extstrm )
 {
     nrdone_ = 0;
     DPM( DataPackMgr::SeisID() ).release( dp_ );
@@ -761,10 +761,14 @@ bool SequentialReader::setDataPack( RegularSeisDataPack& dp, od_ostream* strm )
     dp.setSampling( tkzs_ );
 
     mSetSelData()
-
     if ( dp.nrComponents() < components_.size() &&
-	 !addComponents(*dp_,*ioobj_,components_,strm) )
+	 !addComponents(*dp_,*ioobj_,components_,msg_) )
+    {
+	if ( extstrm )
+	    *extstrm << msg_.getFullString() << od_endl;
+
 	return false;
+    }
 
     PosInfo::CubeData cubedata;
     if ( rdr_.get3DGeometryInfo(cubedata) )
