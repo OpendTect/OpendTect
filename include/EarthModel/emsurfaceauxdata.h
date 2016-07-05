@@ -73,6 +73,10 @@ public:
 				      bool onlynewpos=false);
     void		setAuxDataVal(int dataidx,const TrcKey&,float val);
 
+    enum		AuxDataType { NoType=0, Tracking };
+    void		setAuxDataType(int dataidx,AuxDataType);
+    AuxDataType		getAuxDataType(int dataidx) const;
+
     void		setAuxDataShift(int,float);
     float		auxDataShift(int) const;
 
@@ -106,6 +110,7 @@ protected:
     BufferStringSet	auxdatanames_;
     BufferStringSet	auxdatainfo_;
     TypeSet<float>	auxdatashift_;
+    TypeSet<AuxDataType> auxdatatypes_;
 			//One entry per section
     ObjectSet<BinIDValueSet>	auxdata_;
     bool		changed_;

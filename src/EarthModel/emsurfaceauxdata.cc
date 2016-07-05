@@ -53,6 +53,7 @@ void SurfaceAuxData::removeAll()
     deepErase( auxdatanames_ );
     deepErase( auxdatainfo_ );
     auxdatashift_.erase();
+    auxdatatypes_.erase();
 
     deepErase( auxdata_ );
     changed_ = true;
@@ -70,6 +71,17 @@ const char* SurfaceAuxData::auxDataName( int dataidx ) const
 
     return 0;
 }
+
+
+void SurfaceAuxData::setAuxDataType( int dataidx, AuxDataType type )
+{
+    if ( auxdatatypes_.validIdx(dataidx) )
+	auxdatatypes_[dataidx] = type;
+}
+
+
+SurfaceAuxData::AuxDataType SurfaceAuxData::getAuxDataType( int dataidx ) const
+{ return auxdatatypes_.validIdx(dataidx) ? auxdatatypes_[dataidx] : NoType; }
 
 
 float SurfaceAuxData::auxDataShift( int dataidx ) const
@@ -102,6 +114,7 @@ int SurfaceAuxData::addAuxData( const char* name )
 {
     auxdatanames_.add( name );
     auxdatashift_ += 0.0;
+    auxdatatypes_ += NoType;
 
     for ( int idx=0; idx<auxdata_.size(); idx++ )
     {
@@ -118,6 +131,7 @@ void SurfaceAuxData::removeAuxData( int dataidx )
 {
     auxdatanames_.replace( dataidx, 0 );
     auxdatashift_[dataidx] = 0.0;
+    auxdatatypes_[dataidx] = NoType;
 
     for ( int idx=0; idx<auxdata_.size(); idx++ )
     {
