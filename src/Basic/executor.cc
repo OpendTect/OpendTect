@@ -122,6 +122,9 @@ int ExecutorGroup::nextStep()
     const int nrexecs = executors_.size();
     if ( !nrexecs ) return Finished();
 
+    if ( !executors_[currentexec_]->progressMeter() && progressmeter_ )
+	executors_[currentexec_]->setProgressMeter( progressmeter_ );
+
     int res = executorres_[currentexec_] = executors_[currentexec_]->doStep();
     if ( res == ErrorOccurred() )
 	return ErrorOccurred();
