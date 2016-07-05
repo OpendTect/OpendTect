@@ -12,6 +12,8 @@ to dlsitessettings.local.php and put the changes there.
 
 -*/
 
+//Directory where dlsites data should reside
+$DLSITES_DATA_ROOT_DIR = '';
 
 //Subdirectory where processing scripts saves processed data
 $DLSITES_UNPROCESSED_DIR = 'unprocessed';
@@ -21,6 +23,9 @@ $DLSITES_PROCESSED_DIR = 'processed';
 
 //Subdirectory where processing scripts saves processed data
 $DLSITES_ARCHIVE_DIR = 'archive';
+
+//Subdirectory where processing scripts saves processed compressed data
+$DLSITES_COMPRESSED_ARCHIVE_DIR = 'compressed_archive';
 
 //Site that should be reported as download site
 $DLSITES_DOWNLOAD_SITE = 'download.opendtect.org';

@@ -68,20 +68,20 @@ function store_entry( $db, $tablename, $time, $id, $platform, $country, $nrcpu, 
 
 $mysqli = connect_dlsitesdb();
 
-$rootdir = ".";
-if ( array_key_exists( 'DOCUMENT_ROOT', $_SERVER ) && $_SERVER['DOCUMENT_ROOT']!='' )
+if ( $DLSITES_DATA_ROOT_DIR=='' )
 {
-    $rootdir = $_SERVER['DOCUMENT_ROOT'];
+    echo "Document root not set!\n";
+    exit( 1 );
 }
 
-$inputdir = $rootdir."/".$DLSITES_UNPROCESSED_DIR."/";
-$archivedir = $rootdir."/".$DLSITES_ARCHIVE_DIR."/";
-$processeddir = $rootdir."/".$DLSITES_PROCESSED_DIR."/";
+$inputdir = $DLSITES_DATA_ROOT_DIR."/".$DLSITES_UNPROCESSED_DIR."/";
+$archivedir = $DLSITES_DATA_ROOT_DIR."/".$DLSITES_ARCHIVE_DIR."/";
+$processeddir = $DLSITES_DATA_ROOT_DIR."/".$DLSITES_PROCESSED_DIR."/";
 
 
-if ( !file_exists( $inputdir ) )	{ echo "$inputdir does not exist\n"; exit ( 1 ); }
-if ( !file_exists( $archivedir ) )	{ echo "$archivedir does not exist\n"; exit ( 1 ); }
-if ( !file_exists( $processeddir ) )	{ echo "$processeddir does not exist\n"; exit ( 1 ); }
+if ( !file_exists( $inputdir ) )		{ echo "$inputdir does not exist\n"; exit ( 1 ); }
+if ( !file_exists( $archivedir ) )		{ echo "$archivedir does not exist\n"; exit ( 1 ); }
+if ( !file_exists( $processeddir ) )		{ echo "$processeddir does not exist\n"; exit ( 1 ); }
 
 $use_country_db = false;
 $dbip = ''; //Make variable in this scope
@@ -218,3 +218,4 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
 
     echo "Done\n";
 }
+
