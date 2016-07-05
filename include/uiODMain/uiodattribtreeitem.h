@@ -23,24 +23,25 @@ mExpClass(uiODMain) uiODAttribTreeItem : public uiODDataTreeItem
 public:
     			uiODAttribTreeItem( const char* parenttype );
 			~uiODAttribTreeItem();
+
     static uiString	createDisplayName( int visid, int attrib );
     static void		createSelMenu(MenuItem&,int visid,int attrib,
 	    			      int sceneid);
     static bool		handleSelMenu(int mnuid,int visid,int attrib);
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();
+
 protected:
 
     bool		anyButtonClick(uiTreeViewItem*);
 
     void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB( CallBacker* );
-    void		updateColumnText( int col );
+    void		handleMenuCB(CallBacker*);
+    void		updateColumnText(int col);
     uiString		createDisplayName() const;
-    
+
     MenuItem		selattrmnuitem_;
     MenuItem		colsettingsmnuitem_;
 };
-
 
 #endif
