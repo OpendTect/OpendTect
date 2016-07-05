@@ -48,16 +48,12 @@ public:
     void			drawPoint(QPainter*);
     void			setHighLight( bool hl )
 				{ highlight_ = hl ; }
-    void			setColor( const Color& col )
-				{ pencolor_ = col ; }
 
     virtual int			type() const	{ return ODGraphicsType+1; }
 
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
     bool			highlight_;
-    int				penwidth_;
-    Color			pencolor_;
 };
 
 
@@ -234,6 +230,34 @@ protected:
     Qt::FillRule		fillrule_;
     QPainterPath		path_;
     QPen&			mypen_;
+};
+
+
+class ODGraphicsMultiColorPolyLineItem : public QGraphicsItem
+				       , public ODGraphicsHighlightItem
+{
+public:
+				ODGraphicsMultiColorPolyLineItem();
+				~ODGraphicsMultiColorPolyLineItem();
+
+    QRectF			boundingRect() const;
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
+
+    void			setPolyLine(const QPolygonF&);
+    void			setQPens(const QVector<QPen>&);
+
+    void			highlight()	{ highlight_ = true; }
+    void			unHighlight()	{ highlight_ = false; }
+
+    virtual int			type() const	{ return ODGraphicsType+6; }
+
+protected:
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+
+    bool			highlight_;
+    QPolygonF			qpolygon_;
+    QVector<QPen>		qpens_;
 };
 
 

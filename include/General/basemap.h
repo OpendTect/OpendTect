@@ -82,6 +82,7 @@ public:
 
     virtual bool		fill(int shapeidx) const	{ return false;}
     virtual bool		close(int shapeidx) const	{ return false;}
+    virtual bool		multicolor(int shapeidx) const	{ return false;}
 
     virtual void		setImage(int idx,OD::RGBImage*)     {}
     virtual const OD::RGBImage* getImage(int shapeidx) const	{ return 0;}

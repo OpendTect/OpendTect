@@ -122,15 +122,15 @@ void uiBaseMapObject::update()
 
     Threads::Locker( bmobject_->lock_ );
 
-    int itemnr = 0;
+    int itemnr = 0, labelitemnr = 0;
     for ( int idx=0; idx<bmobject_->nrShapes(); idx++ )
     {
 	TypeSet<Coord> crds;
 	bmobject_->getPoints( idx, crds );
 
-	TypeSet<uiWorldPoint> worldpts;
-	for ( int cdx=0; cdx<crds.size(); cdx++ )
-	    worldpts += crds[cdx];
+	TypeSet<uiWorldPoint> worldpts( crds.size(), Coord::udf() );
+	for ( int cidx=0; cidx<crds.size(); cidx++ )
+	    worldpts[cidx] = crds[cidx];
 
 	if ( bmobject_->getLineStyle(idx) &&
 	     bmobject_->getLineStyle(idx)->type_!=OD::LineStyle::None )
@@ -262,23 +262,24 @@ void uiBaseMapObject::update()
 	const char* shapenm = bmobject_->getShapeName( idx );
 	if ( shapenm && !crds.isEmpty() )
 	{
-	    while ( labelitem_.nrChildren()>itemnr )
+	    while ( labelitem_.nrChildren()>labelitemnr )
 	    {
 		mDynamicCastGet(uiTextItem*,itm,
-				labelitem_.getChild(itemnr));
+				labelitem_.getChild(labelitemnr));
 		if ( !itm )
-		    labelitem_.removeChild( labelitem_.getChild(itemnr), true );
+		    labelitem_.removeChild( labelitem_.getChild(labelitemnr),
+					    true );
 		else break;
 	    }
 
-	    if ( labelitem_.nrChildren()<=itemnr )
+	    if ( labelitem_.nrChildren()<=labelitemnr )
 	    {
 		uiTextItem* itm = new uiTextItem();
 		if ( !itm ) return;
 		addText( *itm );
 	    }
 
-	    mDynamicCastGet(uiTextItem*,itm,labelitem_.getChild(itemnr));
+	    mDynamicCastGet(uiTextItem*,itm,labelitem_.getChild(labelitemnr));
 	    if ( !itm ) return;
 	    itm->setText( toUiString(shapenm) );
 	    for( int crdidx=0; crdidx<crds.size(); crdidx++ )
@@ -295,7 +296,7 @@ void uiBaseMapObject::update()
 	    const float angle = Math::toDegrees( bmobject_->getTextRotation() );
 	    itm->setRotation( angle );
 
-	    itemnr++;
+	    labelitemnr++;
 	}
     }
 
@@ -344,10 +345,6 @@ void uiBaseMapObject::updateStyle()
 	    itm->fill();
 	    itemnr++;
 	}
-
-	const char* shapenm = bmobject_->getShapeName( idx );
-	if ( shapenm )
-	    itemnr++;
     }
 }
 
