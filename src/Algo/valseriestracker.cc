@@ -110,7 +110,7 @@ EventTracker::EventTracker()
     : ValSeriesTracker()
     , permrange_( -5, 5 )
     , ampthreshold_( mUdf(float) )
-    , allowedvar_( 0.20 )
+    , allowedvar_( 0.25 )
     , evtype_( VSEvent::Max )
     , useabsthreshold_( false )
     , similaritywin_( -10, 10 )
@@ -127,7 +127,7 @@ EventTracker::EventTracker()
 {
 #define mAddAV(v) allowedvars_ += v
 //    mAddAV(0.01); mAddAV(0.02); mAddAV(0.05); mAddAV(0.1); mAddAV(0.2);
-    mAddAV( 0.05 );
+    mAddAV( 0.25 );
 #undef mAddAV
 
 }
@@ -209,7 +209,9 @@ TypeSet<float>& EventTracker::getAmplitudeThresholds()
 
 
 void EventTracker::setAllowedVariance( float v )
-{ allowedvar_ = v; }
+{
+    allowedvar_ = mIsZero(v,mDefEps) ? 0.25f : v;
+}
 
 
 float EventTracker::allowedVariance() const
@@ -316,8 +318,7 @@ bool EventTracker::track()
 	    }
 
 	    const float amplvar = Math::Abs(targetvalue_-refampl) / refampl;
-	    quality_ = 1 - (amplvar-allowedvar_)/allowedvar_;
-//	    quality_ = (targetvalue_-threshold)/(refampl-threshold);
+	    quality_ = (allowedvar_-amplvar)/allowedvar_;
 	    if ( quality_>1 ) quality_ = 1;
 	    else if ( quality_<0 ) quality_ = 0;
 	}
