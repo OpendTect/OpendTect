@@ -110,6 +110,7 @@ public:
     void			unRefTracker(EM::ObjectID,bool nodel=false);
     bool			hasTracker(EM::ObjectID) const;
     Notifier<Engine>		trackeraddremove;
+    CNotifier<Engine,int>	trackertoberemoved;
     void			setActiveTracker(const EM::ObjectID&);
     void			setActiveTracker(EMTracker*);
     EMTracker*			getActiveTracker();

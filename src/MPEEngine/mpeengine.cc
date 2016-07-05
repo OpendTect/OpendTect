@@ -49,6 +49,7 @@ namespace MPE
 Engine::Engine()
     : activevolumechange(this)
     , trackeraddremove(this)
+    , trackertoberemoved(this)
     , loadEMObject(this)
     , actionCalled(this)
     , actionFinished(this)
@@ -453,6 +454,9 @@ void Engine::removeTracker( int idx )
     if ( !tracker ) return;
 
     const int noofref = tracker->nrRefs();
+    if ( noofref==1 )
+	trackertoberemoved.trigger( idx );
+
     tracker->unRef();
     showRefCountInfo( noofref>1 ? tracker : 0 );
     if ( noofref != 1 )
