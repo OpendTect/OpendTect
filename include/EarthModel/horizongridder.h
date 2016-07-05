@@ -52,7 +52,7 @@ protected:
     FaultTrcDataProvider* fltdataprov_;
 
     uiString	        infomsg_;
-    TrcKeySampling		hs_;
+    TrcKeySampling	hs_;
     TypeSet<MultiID>	faultids_;
 
     bool		init(TaskRunner*);
