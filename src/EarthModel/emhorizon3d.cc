@@ -590,6 +590,7 @@ void Horizon3D::initTrackingAuxData( float val )
 	    auxidx = auxdata.auxDataIndex( nm );
 
 	auxdata.init( auxidx, true, val );
+	auxdata.setAuxDataType( auxidx, SurfaceAuxData::Tracking );
     }
 }
 

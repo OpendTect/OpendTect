@@ -420,13 +420,21 @@ bool uiODHorizonTreeItem::init()
     mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
     if ( hor3d )
     {
+	const int trackerid = MPE::engine().getTrackerByObject( hor3d->id() );
+	const MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+
 	if ( !applMgr()->isRestoringSession() )
 	{
 	    hd->setDepthAsAttrib( 0 );
+	    const bool addauxdata = tracker && tracker->isEnabled() && !rgba_;
 	    const int nrauxdata = hor3d->auxdata.nrAuxData();
-	    for ( int idx=0; idx<nrauxdata; idx++ )
+	    for ( int idx=0; addauxdata && idx<nrauxdata; idx++ )
 	    {
 		if ( !hor3d->auxdata.auxDataName(idx) )
+		    continue;
+
+		if ( hor3d->auxdata.getAuxDataType(idx) !=
+						EM::SurfaceAuxData::Tracking )
 		    continue;
 
 		DataPointSet vals( false, true );
@@ -439,7 +447,7 @@ bool uiODHorizonTreeItem::init()
 	    }
 	}
 
-	if ( MPE::engine().getTrackerByObject(hor3d->id()) != -1 )
+	if ( tracker )
 	{
 	    for ( int idx=0; idx<nrChildren(); idx++ )
 		getChild(idx)->setChecked( false, true );
