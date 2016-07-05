@@ -97,6 +97,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     disptb_.turnOn( showy2tbid_, false );
 
     colortb_.enableManage( false );
+    colortb_.display( false );
     colortb_.seqChanged.notify(
 	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
     colortb_.scaleChanged.notify(
