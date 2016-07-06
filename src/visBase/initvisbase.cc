@@ -66,9 +66,7 @@ static uiString* legalText()
 "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\n"
 "Lesser General Public License for more details.\n"
 "\n"
-"You should have received a copy of the GNU Lesser General Public\n"
-"License along with this library; if not, write to the Free Software\n"
-"Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA\n"
-);
+"%1"
+).arg( lgplV3Text() );
     return res;
 }

@@ -48,4 +48,10 @@ ________________________________________________________________________
 
 mGlobal(Basic) ::Factory<uiString>& legalInformation();
 
+mGlobal(Basic) uiString gplV3Text();
+//!<Gnu Public License V3 text
+
+mGlobal(Basic) uiString lgplV3Text();
+//!<Gnu Lesser Public License Text. Includes GPL text
+
 #endif
