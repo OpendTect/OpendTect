@@ -31,6 +31,7 @@
 # include <time.h>
 # include <sys/timeb.h>
 # include <shlobj.h>
+# include <Psapi.h>
 #else
 # include <unistd.h>
 # include <errno.h>
@@ -326,6 +327,32 @@ bool isProcessAlive( int pid )
 #endif
 }
 
+
+const char* getProcessNameForPID( int pid )
+{
+    mDeclStaticString( ret );
+    BufferString procname;
+#ifdef __win__
+    HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION |
+				   PROCESS_VM_READ, FALSE, pid );
+    char procnamebuff[MAX_PATH];
+    ret.setEmpty();
+    if ( hProcess )
+    {
+	GetModuleFileNameEx( hProcess, 0, procnamebuff, MAX_PATH );
+	procname = procnamebuff;
+    }
+#else
+    const BufferString cmd( "ps -p ", pid, " -o comm=" );
+    BufferString stdoutput, stderror;
+    OS::ExecCommand( cmd, OS::Wait4Finish, &stdoutput, &stderror );
+    procname = !stdoutput.isEmpty() ? stdoutput
+				    : !stderror.isEmpty() ? stderror : "";
+#endif
+    const FilePath procpath( procname );
+    ret = procpath.fileName();
+    return ret.isEmpty() ? 0 : ret.buf();
+}
 
 int ExitProgram( int ret )
 {

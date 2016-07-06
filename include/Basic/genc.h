@@ -47,6 +47,10 @@ mGlobal(Basic) void SetProgramArgs(int argc, char** argv);
 
 mGlobal(Basic) bool isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
+mGlobal(Basic) const char* getProcessNameForPID(int pid);
+		/*!< returns null if process not found, otherwise returns 
+		     the executable name
+		*/
 
 mGlobal(Basic) int ExitProgram( int ret );
 		/*!< Win32: kills progam itself and ignores ret.
