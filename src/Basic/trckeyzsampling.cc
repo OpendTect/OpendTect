@@ -1261,15 +1261,11 @@ void TrcKeySamplingIterator::reset()
 
 TrcKey TrcKeySamplingIterator::curTrcKey() const
 {
-    const TrcKey trk( tks_.trcKeyAt( curpos_ ) );
-
-    return trk;
+    return tks_.trcKeyAt( curpos_ );
 }
 
 
 BinID TrcKeySamplingIterator::curBinID() const
 {
-    const BinID bid( curTrcKey().position() );
-
-    return bid;
+    return tks_.atIndex( curpos_ );
 }
