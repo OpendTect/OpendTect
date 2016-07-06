@@ -699,7 +699,7 @@ void WellDisplay::setDisplayTransformation( const mVisTrans* nt )
 
     if ( transformation_ )
 	transformation_->ref();
-    
+
     well_->setDisplayTransformation( transformation_ );
     setDisplayTransformForPicks( transformation_ );
     fullRedraw(0);
@@ -809,7 +809,7 @@ void WellDisplay::addPick( const visBase::EventInfo& eventinfo, int eventid )
 }
 
 
-void WellDisplay::addPick( Coord3 pos )
+void WellDisplay::addPick( const Coord3& pos )
 {
     if ( !pseudotrack_ )
 	return;

@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "welllogdisp.h"
 #include "factory.h"
 
-namespace OD { class LineStyle; };
+namespace OD { class LineStyle; }
 
 namespace visBase
 {
@@ -113,7 +113,7 @@ public:
     void			setDisplayTransformForPicks(const mVisTrans*);
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
-    void			addPick(Coord3);
+    void			addPick(const Coord3&);
 				//only used for user-made wells
     void			addKnownPos();
     void			getMousePosInfo(const visBase::EventInfo& ei,
