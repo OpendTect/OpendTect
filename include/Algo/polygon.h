@@ -41,7 +41,7 @@ public:
     void	erase();
     bool	isEmpty() const			{ return poly_.isEmpty(); }
 
-    int	size() const			{ return poly_.size(); }
+    int		size() const			{ return poly_.size(); }
     bool	validIdx(int idx) const		{ return poly_.validIdx(idx); }
     void	setEmpty()			{ erase(); }
 
