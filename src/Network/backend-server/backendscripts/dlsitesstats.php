@@ -34,15 +34,23 @@ function read_platform_counts( $db, $table )
     global $DLSITES_TABLE_PREFIX;
     $retarr = array();
     $countkey = "THECOUNT";
-    $query = "SELECT `platform`, count(*) AS `$countkey` "
+    $temptablename = $table."_tmp";
+    $query = "CREATE TEMPORARY TABLE `$temptablename` "
+	    ."SELECT DISTINCT `t2`.`id` AS `id`, `t1`.`platform` AS `platform` "
             ."FROM `".$DLSITES_TABLE_PREFIX."system_ids` "
-            ."WHERE `id` IN (SELECT DISTINCT `id` FROM `$table`) GROUP BY `platform`";
-    if ($result = $db->query($query)) {
-	while($obj = (array) $result->fetch_object()){
-	    $retarr[$obj['platform']] = $obj[$countkey];
-	}
+	    ."AS `t1` INNER JOIN `$table` AS `t2` ON `t1`.`id`=`t2`.`id`;\n"
+	    ."SELECT `platform`, count(*) AS `$countkey` FROM `$temptablename` GROUP BY `platform`";
 
-	$result->close(); 
+    if ( $db->multi_query($query)) {
+	do {
+	    if ($result = $db->store_result()) {
+		while($obj = (array) $result->fetch_object()){
+		    $retarr[$obj['platform']] = $obj[$countkey];
+		}
+
+		$result->close(); 
+	    }
+	} while ( $db->next_result() );
     }
 
     return $retarr;
@@ -161,10 +169,11 @@ echo "   </tr>\n";
 
 foreach ( $stats as $periodkey => $periodstats )
 {
+    $nrsystems = $periodstats['nrsystems'];
     echo "   <tr>\n";
     echo "    <td>".substr( $periodkey,
                             strlen( $DLSITES_TABLE_PREFIX.$DLSITES_PERIOD_TABLE_PREFIX ) )."</td>\n";
-    echo "    <td>".$periodstats['nrsystems']."</td>\n";
+    echo "    <td>".$nrsystems."</td>\n";
 
     $nrrows = $periodstats['nrrows'];
 
@@ -172,7 +181,7 @@ foreach ( $stats as $periodkey => $periodstats )
     {
 	echo "    <td>";
 	if ( array_key_exists( $platform, $periodstats['platforms'] ) )
-	    echo number_format($periodstats['platforms'][$platform]/$nrrows*100,1);
+	    echo number_format($periodstats['platforms'][$platform]/$nrsystems*100,1);
 	echo "</td>\n";
     }
 
