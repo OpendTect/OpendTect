@@ -310,6 +310,7 @@ void uiListBoxBody::mouseMoveEvent( QMouseEvent* ev )
 	const int newstop = itemIdxAtEvPos( *ev );
 	if ( newstop != sliderg_.stop )
 	    handleSlideChange( newstop, isCtrlPressed(*ev) );
+	sliderg_.start = sliderg_.stop = newstop;
     }
 
     QListWidget::mouseMoveEvent( ev );
@@ -428,7 +429,7 @@ uiListBox::uiListBox( uiParent* p, const Setup& setup, const char* nm )
 
     mkCheckGroup();
     mkLabel( setup.lbl_, setup.lblpos_ );
-    
+
 
     mStdConstrEnd;
 }
@@ -466,7 +467,7 @@ void uiListBox::mkCheckGroup()
 #else
     pb->setStyleSheet( ":pressed { border: 0; background: transparent }" );
 #endif
-    cb_ = new uiCheckBox( checkgrp_, uiStrings::sEmptyString(), 
+    cb_ = new uiCheckBox( checkgrp_, uiStrings::sEmptyString(),
 						mCB(this,uiListBox,checkCB) );
     cb_->setName( "Check-all box" );
     cb_->setMaximumWidth( 20 );
@@ -1083,7 +1084,10 @@ void uiListBox::setCurrentItem( int idx )
     if ( choicemode_ == OD::ChooseOnlyOne )
 	lb_->body().item( idx )->setSelected( true );
     if ( !scrollingblocked_ )
+    {
 	mStopScrolling;
+	lb_->body().scrollToItem( lb_->body().item(idx) );
+    }
 }
 
 
