@@ -29,6 +29,26 @@ function read_field_value_counts( $db, $table, $field )
 }
 
 
+function read_platform_counts( $db, $table )
+{
+    global $DLSITES_TABLE_PREFIX;
+    $retarr = array();
+    $countkey = "THECOUNT";
+    $query = "SELECT `platform`, count(*) AS `$countkey` "
+            ."FROM `".$DLSITES_TABLE_PREFIX."system_ids` "
+            ."WHERE `id` IN (SELECT DISTINCT `id` FROM `$table`) GROUP BY `platform`";
+    if ($result = $db->query($query)) {
+	while($obj = (array) $result->fetch_object()){
+	    $retarr[$obj['platform']] = $obj[$countkey];
+	}
+
+	$result->close(); 
+    }
+
+    return $retarr;
+}
+
+
 function read_field_average( $db, $table, $field )
 {
     $ret = -1;
@@ -77,7 +97,7 @@ foreach ( $tables AS $table )
 	$result->close(); 
     }
     
-    $platforms = read_field_value_counts( $mysqli, $table, 'platform' );
+    $platforms = read_platform_counts( $mysqli, $table );
     $countries = read_field_value_counts( $mysqli, $table, 'country' );
     $cpuavg = read_field_average( $mysqli, $table, 'cpu' );
     $memavg = read_field_average( $mysqli, $table, 'memory' );
