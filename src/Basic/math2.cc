@@ -11,7 +11,7 @@
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
-#include <limits>
+#include <limits.h>
 
 #ifndef __win__
 # include <unistd.h>
@@ -145,7 +145,7 @@ double Math::Cos( double x )
 
 float Math::Sinc( float x )
 {
-    const float eps = std::numeric_limits<float>::epsilon();
+    const double eps = 1e-10f;
     if ( x < eps && x > -eps )
 	return 1.0f;
     else
@@ -155,9 +155,9 @@ float Math::Sinc( float x )
 
 double Math::Sinc( double x )
 {
-    const double eps = std::numeric_limits<double>::epsilon();
+    const double eps = 1e-100;
     if ( x < eps && x > -eps )
-	return 1.0f;
+	return 1.0;
     else
 	return Sin( x ) / x;
 }
