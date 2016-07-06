@@ -107,20 +107,6 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 }
 
 
-void uiSeisPreLoadMgr::pushAddButton( Seis::GeomType tp, const MultiID* mid )
-{
-    initmid_ = mid ? *mid : MultiID::udf();
-    if ( tp == Seis::Vol )
-	cubeLoadPush(0);
-    else if ( tp == Seis::Line )
-	linesLoadPush(0);
-    else
-    {
-	pErrMsg( "Type not supported yet" );
-    }
-}
-
-
 void uiSeisPreLoadMgr::fullUpd( CallBacker* )
 {
     fillList();

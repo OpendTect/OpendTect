@@ -37,8 +37,6 @@ mExpClass(uiSeis) uiSeisPreLoadMgr : public uiDialog
 public:
 			uiSeisPreLoadMgr(uiParent*);
 
-    void		pushAddButton(Seis::GeomType,const MultiID* mid=0);
-
 protected:
 
     uiListBox*		listfld_;
