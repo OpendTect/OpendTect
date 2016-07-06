@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "sighndl.h"
 #include "posinfo2dsurv.h"
 #include "filepath.h"
+#include "legal.h"
 #ifdef __win__
 # include <stdio.h> // for _set_output_format
 #endif
@@ -20,7 +21,19 @@ ________________________________________________________________________
 #define OD_EXT_KEYSTR_EXPAND 1
 
 #include "keystrs.h"
+#ifndef OD_NO_QT
+# include <QtGlobal>
 
+static uiString* qtLegalText()
+{
+    return new uiString(toUiString(
+	    "The Qt GUI Toolkit ("
+	    QT_VERSION_STR
+	    ") is Copyright (C) The Qt Company Ltd.\n"
+	    "Contact: http://www.qt.io/licensing\n\n"
+	    "Qt is available under the LGPL\n\n%1" ).arg( lgplV3Text() ) );
+}
+#endif
 
 
 mDefModInitFn(Basic)
@@ -46,5 +59,9 @@ mDefModInitFn(Basic)
 #ifdef mUseCrashDumper
     //Force init of handler.
     System::CrashDumper::getInstance();
+#endif
+
+#ifndef OD_NO_QT
+    legalInformation().addCreator( qtLegalText, "Qt" );
 #endif
 }
