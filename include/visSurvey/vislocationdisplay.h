@@ -75,7 +75,7 @@ public:
     virtual const mVisTrans*	getDisplayTransformation() const;
     void			setRightHandSystem(bool yn);
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
-    virtual void		turnOnSelectionMode(bool){};
+    virtual void		turnOnSelectionMode(bool)		{}
     int				getPickID(visBase::DataObject*) const;
 
     const SurveyObject*		getPickedSurveyObject() const;
