@@ -65,7 +65,7 @@ protected:
     BaseMapObject*		bmobject_;
 
 private:
-    void			addText(uiGraphicsItem&);
+    void			addLabel(uiGraphicsItem&);
 };
 
 

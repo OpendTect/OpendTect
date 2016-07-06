@@ -110,7 +110,7 @@ void uiBaseMapObject::add( uiGraphicsItem& itm )
 }
 
 
-void uiBaseMapObject::addText( uiGraphicsItem& itm )
+void uiBaseMapObject::addLabel( uiGraphicsItem& itm )
 {
     labelitem_.addChild( &itm );
 }
@@ -150,7 +150,6 @@ void uiBaseMapObject::update()
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
 		    uiPolyLineItem* itm = new uiPolyLineItem();
-		    if ( !itm ) return;
 		    add( *itm );
 		}
 
@@ -177,7 +176,6 @@ void uiBaseMapObject::update()
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
 		    uiPolygonItem* itm = new uiPolygonItem();
-		    if ( !itm ) return;
 		    add( *itm );
 		}
 
@@ -245,7 +243,6 @@ void uiBaseMapObject::update()
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
 		    uiMarkerItem* itm = new uiMarkerItem();
-		    if ( !itm ) return;
 		    add( *itm );
 		}
 
@@ -262,25 +259,15 @@ void uiBaseMapObject::update()
 	const char* shapenm = bmobject_->getShapeName( idx );
 	if ( shapenm && !crds.isEmpty() )
 	{
-	    while ( labelitem_.nrChildren()>labelitemnr )
-	    {
-		mDynamicCastGet(uiTextItem*,itm,
-				labelitem_.getChild(labelitemnr));
-		if ( !itm )
-		    labelitem_.removeChild( labelitem_.getChild(labelitemnr),
-					    true );
-		else break;
-	    }
-
 	    if ( labelitem_.nrChildren()<=labelitemnr )
 	    {
 		uiTextItem* itm = new uiTextItem();
-		if ( !itm ) return;
-		addText( *itm );
+		addLabel( *itm );
 	    }
 
 	    mDynamicCastGet(uiTextItem*,itm,labelitem_.getChild(labelitemnr));
 	    if ( !itm ) return;
+
 	    itm->setText( toUiString(shapenm) );
 	    for( int crdidx=0; crdidx<crds.size(); crdidx++ )
 	    {
@@ -290,6 +277,7 @@ void uiBaseMapObject::update()
 		    break;
 		}
 	    }
+
 	    const OD::Alignment al = bmobject_->getAlignment( idx );
 	    itm->setAlignment( al );
 
@@ -302,6 +290,9 @@ void uiBaseMapObject::update()
 
     while ( graphitem_.nrChildren()>itemnr )
 	graphitem_.removeChild( graphitem_.getChild(itemnr), true );
+
+    while ( labelitem_.nrChildren()>labelitemnr )
+	labelitem_.removeChild( labelitem_.getChild(labelitemnr), true );
 }
 
 
