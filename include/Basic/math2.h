@@ -89,6 +89,12 @@ mGlobal(Basic) double Floor(double);
 mGlobal(Basic) float Ceil(float);
 mGlobal(Basic) double Ceil(double);
 
+mGlobal(Basic)	float Sin(float);
+mGlobal(Basic)	double Sin(double);
+mGlobal(Basic)	float Cos(float);
+mGlobal(Basic)	double Cos(double);
+mGlobal(Basic)	float Sinc(float);
+mGlobal(Basic)	double Sinc(double);
 mGlobal(Basic)	float Atan2(float y, float x);
 mGlobal(Basic)	double Atan2(double y, double x);
 mGlobal(Basic)	float Atan2(float_complex timeval);

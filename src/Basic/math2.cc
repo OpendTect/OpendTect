@@ -9,9 +9,9 @@
 #include "undefval.h"
 
 #include <float.h>
-#include <limits.h>
 #include <math.h>
 #include <stdlib.h>
+#include <limits>
 
 #ifndef __win__
 # include <unistd.h>
@@ -117,6 +117,50 @@ double Math::Floor( double val )	{ return floor(val); }
 float Math::Floor( float val )		{ return floorf(val); }
 double Math::Ceil( double val )		{ return ceil(val); }
 float Math::Ceil( float val )		{ return ceilf(val); }
+
+
+float Math::Sin( float x )
+{
+    return sinf( x );
+}
+
+
+double Math::Sin( double x )
+{
+    return sin( x );
+}
+
+
+float Math::Cos( float x )
+{
+    return cosf( x );
+}
+
+
+double Math::Cos( double x )
+{
+    return cos( x );
+}
+
+
+float Math::Sinc( float x )
+{
+    const float eps = std::numeric_limits<float>::epsilon();
+    if ( x < eps && x > -eps )
+	return 1.0f;
+    else
+	return Sin( x ) / x;
+}
+
+
+double Math::Sinc( double x )
+{
+    const double eps = std::numeric_limits<double>::epsilon();
+    if ( x < eps && x > -eps )
+	return 1.0f;
+    else
+	return Sin( x ) / x;
+}
 
 
 float Math::Atan2( float y, float x )
