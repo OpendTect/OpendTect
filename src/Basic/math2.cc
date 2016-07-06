@@ -145,21 +145,13 @@ double Math::Cos( double x )
 
 float Math::Sinc( float x )
 {
-    const double eps = 1e-10f;
-    if ( x < eps && x > -eps )
-	return 1.0f;
-    else
-	return Sin( x ) / x;
+    return x == 0.0f ? 1.0f : Sin( x ) / x;
 }
 
 
 double Math::Sinc( double x )
 {
-    const double eps = 1e-100;
-    if ( x < eps && x > -eps )
-	return 1.0;
-    else
-	return Sin( x ) / x;
+    return x == 0.0 ? 1.0 : Sin( x ) / x;
 }
 
 
