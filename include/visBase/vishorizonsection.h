@@ -141,6 +141,9 @@ public:
     bool			getTitlePrimitiveSet(int titleidx,
 				    TypeSet<int>&,GeometryType) const;
     int				getTexturePixelSizeInBits() const;
+    void			setUsingNeigborsInIsolatedLine(bool);
+    bool			usingNeigborsInIsolatedLine() const;
+
 
 protected:
 				~HorizonSection();
@@ -222,6 +225,7 @@ protected:
     ObjectSet<HorizonSectionTile> updatedtiles_;
     TypeSet<int>		updatedtileresolutions_;
     bool			wireframedisplayed_;
+    bool			useneigbors_;
 
 };
 

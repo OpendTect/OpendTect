@@ -246,6 +246,7 @@ HorizonSection::HorizonSection()
     , texturecallbackhandler_( 0 )
     , isredrawing_( false )
     , zaxistransform_( 0 )
+    , useneigbors_( true )
 {
     setLockable();
     osghorizon_->ref();
@@ -848,6 +849,18 @@ bool HorizonSection::getTitlePrimitiveSet( int titleidx, TypeSet<int>& ps,
 {
     if ( !checkTileIndex(titleidx) ) return false;
     return tiles_.getData()[titleidx]->getResolutionPrimitiveSet( ps, type );
+}
+
+
+void HorizonSection::setUsingNeigborsInIsolatedLine( bool useneigbors )
+{
+    useneigbors_ = useneigbors;
+}
+
+
+bool HorizonSection::usingNeigborsInIsolatedLine() const
+{
+    return useneigbors_;
 }
 
 } // namespace visBase

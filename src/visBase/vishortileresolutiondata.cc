@@ -408,7 +408,6 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
     const int nrroworcol = section.nrcoordspertileside_;
 	
     int highestresidx = currow*nrroworcol + curcol;
-    if ( islastcol ) highestresidx --;
     if ( islastrow ) highestresidx -= section.nrcoordspertileside_;
 
     //00 01 02
@@ -420,13 +419,14 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
     bool nbdef20 = false, nbdef21 = false, nbdef22 = false;
 	
     unsigned int sum = 0;
+    const bool useneigbors =  section.usingNeigborsInIsolatedLine();
     if ( direction == cTowardDown )
     {
 	if ( isfirstcol )
 	{
 	    const HorizonSectionTile* lefttile = 
 	    curtile->getNeighborTile(LEFTTILE);
-	    if ( !lefttile )
+	    if ( !lefttile || !useneigbors )
 	    {
 		nbdef10 = false; 
 		nbdef20 = false;
@@ -441,6 +441,25 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 	    nbdef12=curtile->hasDefinedCoordinates( highestresidx + 1 );  
 	    nbdef22=curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
 	} 
+	else if ( islastcol )
+	{
+	    const HorizonSectionTile* righttile =
+		curtile->getNeighborTile( RIGHTTILE );
+	    if ( !righttile || !useneigbors )
+	    {
+		nbdef12 = false;
+		nbdef22 = false;
+	    }
+	    else
+	    {
+		nbdef12 = righttile->hasDefinedCoordinates(
+		    highestresidx - nrroworcol + 1 );
+		nbdef22 = righttile->hasDefinedCoordinates(
+		    highestresidx + 1);
+	    }
+	    nbdef10=curtile->hasDefinedCoordinates(highestresidx - 1);
+	    nbdef20=curtile->hasDefinedCoordinates(highestresidx+nrroworcol-1);
+	}
 	else  
 	{ 
 	    nbdef10=curtile->hasDefinedCoordinates( highestresidx - 1 );   
@@ -455,7 +474,7 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 	if ( isfirstrow )   
 	{   
 	    const HorizonSectionTile* uptile=curtile->getNeighborTile(UPTILE);
-	    if ( !uptile )  
+	    if ( !uptile || !useneigbors )  
 	    {	
 		nbdef01 = false;   
 		nbdef02 = false;   
@@ -468,7 +487,25 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 	    }	
 	    nbdef21=curtile->hasDefinedCoordinates(highestresidx+nrroworcol);
 	    nbdef22=curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
-	}   
+	}
+	else if ( islastrow )
+	{
+	    const HorizonSectionTile* bottomtile =
+		curtile->getNeighborTile( BOTTOMTILE );
+	    if ( !bottomtile || !useneigbors )
+	    {
+		nbdef21 = 0;
+		nbdef22 = 0;
+	    }
+	    else
+	    {
+		const int rcsize = nrroworcol*( nrroworcol - 1 );
+		nbdef21 = bottomtile->hasDefinedCoordinates( curcol );
+		nbdef22 = bottomtile->hasDefinedCoordinates( curcol+1 );
+	    }
+	    nbdef01=curtile->hasDefinedCoordinates(highestresidx-nrroworcol);
+	    nbdef02=curtile->hasDefinedCoordinates(highestresidx-nrroworcol+1);
+	}
 	else	
 	{   
 	    nbdef01=curtile->hasDefinedCoordinates(highestresidx-nrroworcol);
