@@ -160,7 +160,7 @@ public:
     void		putSampling(SamplingData<float>,unsigned short);
 
     void		use(const SeisTrcInfo&);
-    void		fill(SeisTrcInfo&,float) const;
+    void		fill(SeisTrcInfo&,bool is2d,float) const;
     void		setNeedSwap( bool yn=true )	{ needswap_ = yn; }
 
     float		postScale(int numbfmt) const;
@@ -186,7 +186,7 @@ protected:
     double		getCoordScale(float extcoordsc) const;
 
     void		putRev1Flds(const SeisTrcInfo&) const;
-    void		getRev1Flds(SeisTrcInfo&) const;
+    void		getRev1Flds(SeisTrcInfo&,bool is2d) const;
 
 public:
 

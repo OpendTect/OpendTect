@@ -590,6 +590,7 @@ bool StorageProvider::set2DRangeSelData()
 
     if ( geomid_ != Survey::GeometryManager::cUndefGeomID() )
     {
+	TrcKeyZSampling tkzs; tkzs.set2DDef();
 	seldata->setGeomID( geomid_ );
 	StepInterval<float> dszrg; StepInterval<int> trcrg;
 	if ( dset->getRanges(geomid_,trcrg,dszrg) )
@@ -597,21 +598,21 @@ bool StorageProvider::set2DRangeSelData()
 	    if ( !checkDesiredTrcRgOK(trcrg,dszrg) )
 		return false;
 	    StepInterval<int> rg( geomid_, geomid_, 1 );
-	    seldata->setInlRange( rg );
+	    tkzs.hsamp_.setLineRange( rg );
 	    rg.start = desiredvolume_->hsamp_.start_.crl() < trcrg.start?
 			trcrg.start : desiredvolume_->hsamp_.start_.crl();
 	    rg.stop = desiredvolume_->hsamp_.stop_.crl() > trcrg.stop ?
 			trcrg.stop : desiredvolume_->hsamp_.stop_.crl();
 	    rg.step = desiredvolume_->hsamp_.step_.crl() > trcrg.step ?
 			desiredvolume_->hsamp_.step_.crl() : trcrg.step;
-	    seldata->setCrlRange( rg );
-	    Interval<float> zrg;
-	    zrg.start = desiredvolume_->zsamp_.start < dszrg.start ?
+	    tkzs.hsamp_.setTrcRange( rg );
+	    tkzs.zsamp_.start = desiredvolume_->zsamp_.start < dszrg.start ?
 			dszrg.start : desiredvolume_->zsamp_.start;
-	    zrg.stop = desiredvolume_->zsamp_.stop > dszrg.stop ?
+	    tkzs.zsamp_.stop = desiredvolume_->zsamp_.stop > dszrg.stop ?
 			dszrg.stop : desiredvolume_->zsamp_.stop;
-	    seldata->setZRange( zrg );
 	}
+
+	seldata->cubeSampling() = tkzs;
 	reader.setSelData( seldata );
     }
     else if ( !rsd && seldata )

@@ -333,7 +333,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	{
 	    coord.x = data_.startpos_.x + nrposdone * data_.steppos_.x;
 	    coord.y = data_.startpos_.y + nrposdone * data_.steppos_.y;
-	    bid = SI().transform( coord );
+	    bid.crl() = nr;
 	}
 	else
 	{
@@ -380,12 +380,11 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     mPIEPAdj(BinID,bid,true); mPIEPAdj(Coord,coord,true);
     mPIEPAdj(TrcNr,nr,true); mPIEPAdj(Offset,offs,true);
 
-    trc.info().setBinID( bid );
+    trc.info().trckey_ = is2d ? TrcKey( 0, nr ) : TrcKey( bid );
     prevbid_ = bid;
     trc.info().coord_ = coord;
     trc.info().offset_ = SI().xyInFeet() ? offs * mFromFeetFactorF : offs;
     trc.info().azimuth_ = azim;
-    trc.info().nr_ = nr;
     trc.info().refnr_ = refnr;
     prevnr_ = nr;
 #   define mApplyScalerAndSetTrcVal \

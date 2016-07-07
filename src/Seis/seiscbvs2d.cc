@@ -220,7 +220,7 @@ void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
     {
 	if ( seldata_->type() == Seis::Range )
 	{
-	    const BinID bid( seldata_->inlRange().start, tnr );
+	    const BinID bid( geomid_, tnr );
 	    if ( !seldata_->isOK(bid) )
 		{ delete trc; return; }
 	}

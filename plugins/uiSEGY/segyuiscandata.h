@@ -42,8 +42,8 @@ mExpClass(uiSEGY) BasicFileInfo
 { mODTextTranslationClass(BasicFileInfo);
 public:
 
-			BasicFileInfo()			{ init(); }
-    void		init();
+			BasicFileInfo(bool is2d)		{ init(is2d); }
+    void		init(bool is2d);
 
     int			revision_;
     int			ns_;
@@ -51,6 +51,7 @@ public:
     SamplingData<float>	sampling_;
     bool		hdrsswapped_;
     bool		dataswapped_;
+    bool		is2d_;
 
     bool		isValid() const			{ return ns_ > 0; }
     bool		isRev0() const			{ return revision_ < 1;}
@@ -83,12 +84,14 @@ mExpClass(uiSEGY) LoadDef : public BasicFileInfo
 {
 public:
 
-			LoadDef();
+			LoadDef(bool is2d);
 			~LoadDef();
 			LoadDef( const LoadDef& oth )
-			    : hdrdef_(0)	{ *this = oth; }
+			    : BasicFileInfo(oth.is2d_),hdrdef_(0)
+			{ *this = oth; }
+
     LoadDef&		operator =(const LoadDef&);
-    void		reInit(bool alsohdef);
+    void		reInit(bool is2d,bool alsohdef);
 
     float		coordscale_;
     FileReadOpts::ICvsXYType icvsxytype_;

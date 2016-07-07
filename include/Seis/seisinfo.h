@@ -41,6 +41,7 @@ public:
     float		refnr_;
     float		pick_;
 
+    inline bool		is2D() const		{ return trckey_.is2D(); }
     inline Pos::SurvID	survID() const		{ return trckey_.survID(); }
     inline const BinID&	binID() const		{ return trckey_.binID(); }
     inline IdxType	lineNr() const		{ return trckey_.lineNr(); }

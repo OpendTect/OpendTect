@@ -272,14 +272,6 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     if ( !forread_ )
 	return startWrite();
 
-    if ( is2d_ && seldata_ && seldata_->type() == Seis::Range )
-    {
-	// For 2D, inline is just an index number
-	Seis::SelData& sd = *const_cast<Seis::SelData*>( seldata_ );
-	sd.setInlRange(
-		Interval<int>(rdmgr_->binID().inl(),rdmgr_->binID().inl()) );
-    }
-
     if ( selRes(rdmgr_->binID()) )
 	return toNext();
 
@@ -299,10 +291,16 @@ int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
 	return 0;
 
     // Table for 2D: can't select because inl/crl in file is not 'true'
-    if ( is2d_ && seldata_->type() == Seis::Table )
-	return 0;
+    if ( is2d_ )
+    {
+	if ( seldata_->type() == Seis::Table )
+	    return 0;
 
-    return seldata_->selRes(bid);
+	const BinID bid2d( seldata_->geomID(), bid.trcNr() );
+	return seldata_->selRes( bid2d );
+    }
+
+    return seldata_->selRes( bid );
 }
 
 

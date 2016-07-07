@@ -198,7 +198,7 @@ int SeisImpBPSIF::readAscii()
 	float val; strm >> val;
 	tmpltrc.set( idx, val, 0 );
 	if ( idx == 0 )
-	    tmpltrc.info().nr_ = mNINT32(val);
+	    tmpltrc.info().trckey_.setTrcNr( mNINT32(val) );
     }
 
     BufferString rcvdata;
@@ -233,7 +233,7 @@ int SeisImpBPSIF::readBinary()
     tmpltrc.info().coord_.x = vbuf[0]; tmpltrc.info().coord_.y = vbuf[1];
     for ( int idx=0; idx<nrshotattrs; idx++ )
 	tmpltrc.set( idx, vbuf[2+idx], 0 );
-    tmpltrc.info().nr_ = mNINT32(vbuf[0]);
+    tmpltrc.info().trckey_.setTrcNr( mNINT32(vbuf[0]) );
 
     if ( !addTrcsBinary(tmpltrc) )
 	return fileEnded();

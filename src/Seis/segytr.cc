@@ -264,7 +264,7 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 
 void SEGYSeisTrcTranslator::updateCDFromBuf()
 {
-    SeisTrcInfo info; trchead_.fill( info, fileopts_.coordscale_ );
+    SeisTrcInfo info; trchead_.fill( info, is_2d, fileopts_.coordscale_ );
     if ( othdomain_ )
 	info.sampling_.step *= SI().zIsTime() ? 1000 : 0.001f;
 
@@ -305,7 +305,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 
 void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 {
-    trchead_.fill( ti, fileopts_.coordscale_ );
+    trchead_.fill( ti, is_2d, fileopts_.coordscale_ );
     if ( othdomain_ )
 	ti.sampling_.step *= SI().zIsTime() ? 1000 : 0.001f;
     if ( binhead_.isInFeet() ) ti.offset_ *= mFromFeetFactorF;
@@ -362,7 +362,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 		return;
 	    }
 	}
-	ti.coord_ = bp2c_->coordAt( mCast(float,ti.nr_) );
+	ti.coord_ = bp2c_->coordAt( mCast(float,ti.trcNr()) );
     }
 
     if ( ti.coord_.x > 1e9 || ti.coord_.y > 1e9 )
@@ -670,12 +670,12 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    curtrcnr_ = fileopts_.trcnrdef_.start;
 	else
 	    curtrcnr_ = prevtrcnr_ + fileopts_.trcnrdef_.step;
-	ti.nr_ = curtrcnr_;
+	ti.trckey_.setTrcNr( curtrcnr_ );
     }
 
     bool goodpos = true;
     int nrbadtrcs = 0;
-    if ( fileopts_.icdef_ == SEGY::FileReadOpts::XYOnly )
+    if ( !is_2d && fileopts_.icdef_ == SEGY::FileReadOpts::XYOnly )
     {
 	if ( read_mode == Seis::Scan )
 	    goodpos = !mBadCoord(ti);
@@ -724,7 +724,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     if ( goodpos )
     {
-	prevtrcnr_ = curtrcnr_; curtrcnr_ = ti.nr_;
+	prevtrcnr_ = curtrcnr_; curtrcnr_ = ti.trcNr();
 	prevbid_ = curbid_; curbid_ = ti.binID();
 	prevoffs_ = curoffs_; curoffs_ = ti.offset_;
     }

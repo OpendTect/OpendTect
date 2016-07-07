@@ -277,13 +277,13 @@ int SeisImporter::readIntoBuf()
 	{
 	    SeisTrc* btrc = buf_.get( buf_.size() - 1 );
 	    const BinID trcbid( btrc->info().binID() );
-	    const int trcnr = btrc->info().nr_;
+	    const int trcnr = btrc->info().trcNr();
 	    int nreq = 0;
 	    for ( int idx=buf_.size()-2; idx!=-1; idx-- )
 	    {
 		btrc = buf_.get( idx );
 		if ( (!is2d && btrc->info().binID() == trcbid)
-		  || (is2d && btrc->info().nr_ == trcnr) )
+		  || (is2d && btrc->info().trcNr() == trcnr) )
 		    nreq++;
 		else
 		    break;
@@ -305,16 +305,6 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 {
     const bool is2d = Seis::is2D(geomtype_);
     BinID bid( trc.info().binID() );
-    if ( is2d )
-    {
-	bid.crl() = trc.info().nr_;
-	bid.inl() = prevbid_.inl();
-	if ( mIsUdf(bid.inl()) )
-	    bid.inl() = 0;
-	else if ( trc.info().new_packet_ )
-	    bid.inl() = prevbid_.inl() + 1;
-    }
-
     bool rv = true;
     if ( sorting_ )
     {
@@ -324,7 +314,7 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	    {
 		errmsg_ = tr("Importing stopped at trace number: %1"
 			     "\nbecause before this trace, the rule was:\n%2")
-		        .arg( toString(trc.info().nr_) )
+			.arg( toString(trc.info().trcNr()) )
                         .arg( sorting_->description() );
 	    }
 	    else

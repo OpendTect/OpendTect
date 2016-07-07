@@ -353,7 +353,7 @@ int Seis2DLineMerger::doWork()
 
 	if ( !curattridx_ )
 	{
-	    PosInfo::Line2DPos pos( trc.info().nr_ );
+	    PosInfo::Line2DPos pos( trc.info().trcNr() );
 	    pos.coord_ = trc.info().coord_;
 	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry( outgeomid_);
 	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
@@ -374,7 +374,7 @@ int Seis2DLineMerger::doWork()
 
     nrdone_ = 0;
     totnr_ = outbuf_.size();
-    
+
     IOPar* lineiopar = new IOPar;
     lineiopar->set( sKey::GeomID(), outgeomid_ );
     putter_ = ds_->linePutter( outgeomid_ );
@@ -406,7 +406,8 @@ void Seis2DLineMerger::mergeBufs()
     if ( renumber_ )
     {
 	for ( int idx=0; idx<outbuf_.size(); idx++ )
-	    outbuf_.get( idx )->info().nr_ = numbering_.atIndex( idx );
+	    outbuf_.get( idx )->info().trckey_ =
+				TrcKey( outgeomid_, numbering_.atIndex(idx) );
     }
 }
 

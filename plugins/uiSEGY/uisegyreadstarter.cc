@@ -71,6 +71,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , detectrev0flds_(true)
     , userfilename_("_") // any non-empty non-existing
     , scaninfos_(0)
+    , loaddef_(imptyp ? imptyp->is2D() : false)
     , clipsampler_(*new DataClipSampler(100000))
     , survinfo_(0)
     , survinfook_(false)
@@ -483,8 +484,12 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 {
     const SEGY::ImpType& imptyp = impType();
 
+    loaddef_.is2d_ = imptyp.is2D();
     if ( imptyp.is2D() )
+    {
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::XYOnly;
+	loaddef_.havetrcnrs_ = true;
+    }
 
     infofld_->setImpTypIdx( imptyp.tidx_, false );
     detectrev0flds_ = true;
@@ -1003,7 +1008,7 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 
     if ( mIsUdf(bfi.sampling_.step) )
     {
-	SeisTrcInfo ti; thdr->fill( ti, 1.0f );
+	SeisTrcInfo ti; thdr->fill( ti, loaddef_.is2d_, 1.0f );
 	bfi.sampling_ = ti.sampling_;
     }
 

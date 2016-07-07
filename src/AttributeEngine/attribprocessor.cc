@@ -397,16 +397,6 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	if ( is2d_ || !possvol.includes(globalcs) )
 	    possvol = globalcs;
 
-	if ( is2d_ && globalcs.is2D() )
-	{
-	    const Pos::GeomID geomid = globalcs.hsamp_.getGeomID();
-	    possvol.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
-	    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
-	    if ( geom )
-		possvol.hsamp_.setTrcRange( geom->sampling().hsamp_.trcRange());
-	    globalcs = possvol;
-	}
-
 	provider_->setDesiredVolume( possvol );
 	if ( !provider_->getPossibleVolume( -1, possvol ) )
 	{

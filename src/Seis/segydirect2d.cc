@@ -201,12 +201,12 @@ const SeisTrcTranslator* SEGYDirect2DLineGetter::translator() const
 
 void SEGYDirect2DLineGetter::addTrc( SeisTrc* trc )
 {
-    const int tnr = trc->info().nr_;
+    const int tnr = trc->info().trcNr();
     if ( !isEmpty(seldata_) )
     {
 	if ( seldata_->type() == Seis::Range )
 	{
-	    const BinID bid( seldata_->inlRange().start, tnr );
+	    const BinID bid( geomid_, tnr );
 	    if ( !seldata_->isOK(bid) )
 		{ delete trc; return; }
 	}

@@ -244,7 +244,7 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx,
     if ( !goTo(filenr,trcidx) )
 	return 0;
     SeisTrc* trc = new SeisTrc;
-    if ( !tr_->readInfo(trc->info()) || trc->info().nr_ != trcnr )
+    if ( !tr_->readInfo(trc->info()) || trc->info().trcNr() != trcnr )
 	{ delete trc; return 0; }
     if ( tr_->read(*trc) )
 	return trc;

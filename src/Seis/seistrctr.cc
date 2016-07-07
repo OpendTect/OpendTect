@@ -583,6 +583,13 @@ void SeisTrcTranslator::usePar( const IOPar& iop )
 {
     iop.getYN( sKeyIs2D(), is_2d );
     iop.getYN( sKeyIsPS(), is_prestack );
+    Seis::GeomType geomtype;
+    if ( Seis::getFromPar(iop,geomtype) )
+    {
+	is_2d = Seis::is2D( geomtype );
+	is_prestack = Seis::isPS( geomtype );
+    }
+
     iop.getYN( sKeyRegWrite(), enforce_regular_write );
     iop.getYN( sKeySIWrite(), enforce_survinfo_write );
 }
