@@ -31,8 +31,6 @@ HorizonModifier::HorizonModifier( bool is2d )
 HorizonModifier::~HorizonModifier()
 {
     delete iter_;
-    if ( tophor_ ) tophor_->unRef();
-    if ( bothor_ ) bothor_->unRef();
 }
 
 
@@ -45,12 +43,6 @@ bool HorizonModifier::setHorizons( const MultiID& mid1, const MultiID& mid2 )
     objid = EM::EMM().getObjectID( mid2 );
     mDynamicCastGet(EM::Horizon*,bothor,EM::EMM().getObject(objid))
     bothor_ = bothor;
-
-    if ( tophor_ && bothor_ )
-    {
-	tophor_->ref();
-	bothor_->ref();
-    }
 
     deleteAndZeroPtr( iter_ );
 
@@ -155,6 +147,11 @@ void HorizonModifier::getLines( const EM::Horizon* hor )
 
 void HorizonModifier::doWork()
 {
+    if ( !tophor_ || !bothor_ )
+	return;
+
+    tophor_->ref();
+    bothor_->ref();
     BinID binid;
     while ( getNextNode(binid) )
     {
@@ -178,6 +175,9 @@ void HorizonModifier::doWork()
 	else if ( modifymode_ == Remove )
 	    removeNode( binid );
     }
+
+    tophor_->unRef();
+    bothor_->unRef();
 }
 
 
