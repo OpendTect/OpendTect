@@ -36,7 +36,7 @@ public:
     virtual			~Array2DInterpol();
 				mDefineFactoryInClass(Array2DInterpol,factory);
 
-    enum FillType		{ HolesOnly, ConvexHull, Full };
+    enum FillType		{ HolesOnly, ConvexHull, Full, Polygon };
 				mDeclareEnumUtils(FillType);
 
     void			setFillType(FillType);
@@ -104,6 +104,8 @@ public:
     static const char*		sKeyNrCols();
     static const char*		sKeyNrCells();
     static const char*		sKeyMaxHoleSz();
+    static const char*		sKeyPolyNrofNodes();
+    static const char*		sKeyPolyNode();
 
 protected:
 		Array2DInterpol();

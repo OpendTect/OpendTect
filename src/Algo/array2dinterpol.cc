@@ -25,6 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 HiddenParam<Array2DInterpol,PolyTrend*> trend_(0);
+HiddenParam<Array2DInterpol,ODPolygon<double>*> poly_(0);
+
 HiddenParam<TriangulationArray2DInterpol,TypeSet<int>*> corneridx_(0);
 HiddenParam<TriangulationArray2DInterpol,TypeSet<float>*> cornerval_(0);
 HiddenParam<TriangulationArray2DInterpol,TypeSet<BinID>*> cornerbid_(0);
@@ -37,6 +39,8 @@ const char* Array2DInterpol::sKeyNrRows()	{ return "Nr of Rows"; }
 const char* Array2DInterpol::sKeyNrCols()	{ return "Nr of Cols"; }
 const char* Array2DInterpol::sKeyNrCells()	{ return "Nr of Cells"; }
 const char* Array2DInterpol::sKeyMaxHoleSz()	{ return "Max Hole Size"; }
+const char* Array2DInterpol::sKeyPolyNrofNodes(){ return "Polygon nr of nodes";}
+const char* Array2DInterpol::sKeyPolyNode()	{ return "PolyNode"; }
 
 const char* InverseDistanceArray2DInterpol::sKeySearchRadius()
 { return "Search Radius"; }
@@ -112,6 +116,7 @@ Array2DInterpol::Array2DInterpol()
     , statsetup_(0)
 {
     trend_.setParam( this, 0 );
+    poly_.setParam( this, 0 );
 }
 
 
@@ -121,6 +126,9 @@ Array2DInterpol::~Array2DInterpol()
     delete statsetup_;
     delete trend_.getParam( this );
     trend_.removeParam( this );
+
+    delete poly_.getParam( this );
+    poly_.removeParam( this );
 }
 
 
@@ -256,7 +264,8 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	def = owndef.ptr();
     }
 
-    OD::memValueSet( shouldinterpol, filltype_!=ConvexHull, nrcells_ );
+    const bool defval = filltype_==Polygon ? false : filltype_!=ConvexHull;
+    OD::memValueSet( shouldinterpol, defval, nrcells_ );
 
     if ( filltype_==ConvexHull )
     {
@@ -401,6 +410,21 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	    idx = (irow+1)*nrcols_-1;
 	    if ( !def[idx] )
 		floodFillArrFrom( idx, def, shouldinterpol );
+	}
+    }
+    else if ( filltype_==Polygon )
+    {
+	if ( !poly_.getParam(this) )
+	    return;
+
+	for ( int idx=0; idx<nrcells_; idx++ )
+	{
+	    if ( def[idx] ) continue;
+
+	    Geom::Point2D<double> pos( (double)(idx / nrcols_ + origin_.inl()),
+				       (double)(idx % nrcols_ + origin_.crl()));
+	    if ( poly_.getParam(this)->isInside(pos,true,0) )
+		shouldinterpol[idx] = true;
 	}
     }
 
@@ -635,6 +659,21 @@ void Array2DInterpol::excludeBigHoles( const bool* def,
 bool Array2DInterpol::fillPar( IOPar& par ) const
 {
     par.set( sKeyFillType(), filltype_ );
+    if ( filltype_==Polygon )
+    {
+	const ODPolygon<double>* poly = poly_.getParam( this );
+	if ( !poly )
+	    return false;
+
+	const int nrofnodes = poly->size();
+	par.set( sKeyPolyNrofNodes(), nrofnodes );
+	for ( int idx=0; idx<nrofnodes; idx++ )
+	{
+	    Coord node( poly->getVertex(idx) );
+	    par.set( IOPar::compKey(sKeyPolyNode(),idx), node );
+	}
+    }
+
     par.set( sKeyRowStep(), rowstep_ );
     par.set( sKeyColStep(), colstep_ );
     par.set( sKeyOrigin(), origin_.row(), origin_.col() );
@@ -654,6 +693,26 @@ bool Array2DInterpol::usePar( const IOPar& par )
     int filltype;
     par.get( sKeyFillType(), filltype );
     filltype_ = (Array2DInterpol::FillType)filltype;
+
+    if ( filltype_==Polygon )
+    {
+	delete poly_.getParam( this );
+	poly_.setParam( this, 0 );
+
+	int nrnodes = 0;
+	par.get( sKeyPolyNrofNodes(), nrnodes );
+	if ( nrnodes>0 )
+	{
+	    poly_.setParam( this, new ODPolygon<double>() );
+	    for ( int idx=0; idx<nrnodes; idx++ )
+	    {
+		Coord node;
+		if ( par.get( IOPar::compKey(sKeyPolyNode(),idx), node ) )
+		    poly_.getParam(this)->add( node );
+	    }
+	    poly_.getParam(this)->setClosed( true );
+	}
+    }
 
     par.get( sKeyRowStep(), rowstep_ );
     par.get( sKeyColStep(), colstep_ );
