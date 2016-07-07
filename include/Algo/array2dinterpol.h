@@ -18,7 +18,9 @@ ________________________________________________________________________
 #include "arrayndalgo.h"
 #include "enums.h"
 #include "factory.h"
+#include "multiid.h"
 #include "odmemory.h"
+#include "polygon.h"
 #include "rowcol.h"
 
 class TrcKeySampling;
@@ -35,7 +37,7 @@ public:
     virtual			~Array2DInterpol();
 				mDefineFactoryInClass(Array2DInterpol,factory);
 
-    enum FillType		{ HolesOnly, ConvexHull, Full };
+    enum FillType		{ HolesOnly, ConvexHull, Full, Polygon };
 				mDeclareEnumUtils(FillType);
 
     void			setFillType(FillType);
@@ -96,6 +98,8 @@ public:
     uiString			uiMessage() const { return tr("Gridding"); }
 
     static const char*		sKeyFillType();
+    static const char*		sKeyPolyNrofNodes();
+    static const char*		sKeyPolyNode();
     static const char*		sKeyRowStep();
     static const char*		sKeyColStep();
     static const char*		sKeyOrigin();
@@ -142,6 +146,7 @@ protected:
     RowCol			origin_;
 
     FillType			filltype_;
+    ODPolygon<double>*		poly_;
     float			maxholesize_;
 
     const Array2D<bool>*	mask_;

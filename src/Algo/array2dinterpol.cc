@@ -23,6 +23,9 @@
 #define mPolygonType int
 
 const char* Array2DInterpol::sKeyFillType()	{ return "Fill Type"; }
+const char* Array2DInterpol::sKeyPolyNrofNodes()
+{ return "Polygon nr of nodes"; }
+const char* Array2DInterpol::sKeyPolyNode()	{ return "PolyNode"; }
 const char* Array2DInterpol::sKeyRowStep()	{ return "Row Step"; }
 const char* Array2DInterpol::sKeyColStep()	{ return "Col Step"; }
 const char* Array2DInterpol::sKeyOrigin()	{ return "Origin"; }
@@ -104,6 +107,7 @@ Array2DInterpol::Array2DInterpol()
     , isclassification_(false)
     , statsetup_(0)
     , trend_(0)
+    , poly_(0)
 {}
 
 
@@ -112,6 +116,7 @@ Array2DInterpol::~Array2DInterpol()
     if ( maskismine_ ) delete mask_;
     delete statsetup_;
     delete trend_;
+    delete poly_;
 }
 
 
@@ -247,7 +252,8 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	def = owndef.ptr();
     }
 
-    OD::memValueSet( shouldinterpol, filltype_!=ConvexHull, nrcells_ );
+    const bool defval = filltype_==Polygon ? false : filltype_!=ConvexHull;
+    OD::memValueSet( shouldinterpol, defval, nrcells_ );
 
     if ( filltype_==ConvexHull )
     {
@@ -392,6 +398,21 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	    idx = (irow+1)*nrcols_-1;
 	    if ( !def[idx] )
 		floodFillArrFrom( idx, def, shouldinterpol );
+	}
+    }
+    else if ( filltype_==Polygon )
+    {
+	if ( !poly_ )
+	    return;
+
+	for ( int idx=0; idx<nrcells_; idx++ )
+	{
+	    if ( def[idx] ) continue;
+
+	    const double xpos = mCast(double,idx / nrcols_ + origin_.inl());
+	    const double ypos = mCast(double,idx % nrcols_ + origin_.crl());
+	    if ( poly_->isInside(Geom::Point2D<double>(xpos,ypos),true,0) )
+		shouldinterpol[idx] = true;
 	}
     }
 
@@ -626,6 +647,18 @@ void Array2DInterpol::excludeBigHoles( const bool* def,
 bool Array2DInterpol::fillPar( IOPar& par ) const
 {
     par.set( sKeyFillType(), filltype_ );
+    if ( filltype_==Polygon )
+    {
+	if ( !poly_ ) return false;
+
+	par.set( sKeyPolyNrofNodes(), poly_->size() );
+	for ( int idx=0; idx<poly_->size(); idx++ )
+	{
+	    Coord node( poly_->getVertex(idx) );
+	    par.set( IOPar::compKey(sKeyPolyNode(),idx), node );
+	}
+    }
+
     par.set( sKeyRowStep(), rowstep_ );
     par.set( sKeyColStep(), colstep_ );
     par.set( sKeyOrigin(), origin_.row(), origin_.col() );
@@ -645,6 +678,24 @@ bool Array2DInterpol::usePar( const IOPar& par )
     int filltype;
     par.get( sKeyFillType(), filltype );
     filltype_ = (Array2DInterpol::FillType)filltype;
+    if ( filltype_==Polygon )
+    {
+	delete poly_; poly_ = 0;
+
+	int nrnodes = 0;
+	par.get( sKeyPolyNrofNodes(), nrnodes );
+	if ( nrnodes>0 )
+	{
+	    poly_ = new ODPolygon<double>();
+	    for ( int idx=0; idx<nrnodes; idx++ )
+	    {
+		Coord node;
+		if ( par.get( IOPar::compKey(sKeyPolyNode(),idx), node ) )
+		    poly_->add( node );
+	    }
+	    poly_->setClosed( true );
+	}
+    }
 
     par.get( sKeyRowStep(), rowstep_ );
     par.get( sKeyColStep(), colstep_ );
@@ -1436,7 +1487,8 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* taskrunner )
 	if ( usefitplane && !mIsZero(bestfitplane.C_,1e-8) )
 	{
 	    cornerval_[idx] = mCast(float, -(bestfitplane.A_*pos.x +
-			bestfitplane.B_*pos.y + bestfitplane.D_)/bestfitplane.C_);
+			bestfitplane.B_*pos.y +
+			bestfitplane.D_)/bestfitplane.C_);
 	}
 	else
 	    cornerval_[idx] =  mCast(float,avgz/nrdef);

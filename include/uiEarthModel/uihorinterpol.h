@@ -25,6 +25,7 @@ class uiArray1DInterpolSel;
 class uiIOObjSel;
 class uiHor3DInterpol;
 class uiHor3DInterpolSel;
+class uiPickSetIOObjSel;
 
 
 mExpClass(uiEarthModel) uiHorizonInterpolDlg : public uiDialog
@@ -45,7 +46,7 @@ protected:
     bool			interpolate3D(const IOPar&);
     bool			interpolate2D();
     void			selChangeCB(CallBacker*);
-    
+
     bool			is2d_;
     uiIOObjSel*			inputhorsel_;
     uiHor3DInterpolSel*		interpolhor3dsel_;
@@ -67,6 +68,9 @@ public:
     void			setStep(const BinID&);
 
     bool			isFullSurvey() const;
+    bool			isPolygon() const;
+    bool			getPolygonRange(Interval<int>& inlrg,
+						Interval<int>& crlrg);
 
     bool			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -74,11 +78,13 @@ public:
 protected:
 
     void			methodSelCB(CallBacker*);
+    void			scopeChgCB(CallBacker*);
 
     uiGenInput*			filltypefld_;
     uiGenInput*			maxholeszfld_;
     uiGenInput*			stepfld_;
     uiGenInput*			methodsel_;
+    uiPickSetIOObjSel*		polyfld_;
 
     ObjectSet<uiHor3DInterpol>	methodgrps_;
 };

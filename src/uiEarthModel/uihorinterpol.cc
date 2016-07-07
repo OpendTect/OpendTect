@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "horizongridder.h"
+#include "polygon.h"
 #include "survinfo.h"
 
 #include "uiarray1dinterpol.h"
@@ -33,9 +34,16 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uiiosurface.h"
 #include "uimsg.h"
+#include "uipicksetsel.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
+
+#define mScopeSurvey	0
+#define mScopeBBX	1
+#define mScopeConvex	2
+#define mScopeHoles	3
+#define mScopePolygon	4
 
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
@@ -144,6 +152,13 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
     if ( !savefldgrp_->acceptOK(0) )
 	return false;
+
+    if ( interpolhor3dsel_->isPolygon() )
+    {
+	Interval<int> inlrg, crlrg;
+	interpolhor3dsel_->getPolygonRange( inlrg, crlrg );
+	savefldgrp_->setHorRange( inlrg, crlrg );
+    }
 
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
 	savefldgrp_->getNewHorizon() : horizon_;
@@ -364,15 +379,20 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     scopes += tr("Bounding box");
     scopes += tr("Convex hull");
     scopes += tr("Only holes");
-    scopes += uiStrings::sEmptyString();
+    scopes += tr("Polygon");
     filltypefld_ = new uiGenInput(this, tr("Scope"), StringListInpSpec(scopes));
     filltypefld_->setValue( 2 );
+    filltypefld_->valuechanged.notify( mCB(this,uiHor3DInterpolSel,scopeChgCB));
+
+    polyfld_ =
+	new uiPickSetIOObjSel( this, true, uiPickSetIOObjSel::PolygonOnly );
+    polyfld_->attach( alignedBelow, filltypefld_ );
 
     PositionInpSpec::Setup setup;
     PositionInpSpec spec( setup );
     stepfld_ = new uiGenInput( this, tr("Inl/Crl Step"), spec );
     stepfld_->setValue( BinID(SI().inlStep(),SI().crlStep()) );
-    stepfld_->attach( alignedBelow, filltypefld_ );
+    stepfld_->attach( alignedBelow, polyfld_ );
 
     uiString titletext( tr("Keep holes larger than %1")
 				    .arg(SI().getUiXYUnitString()) );
@@ -398,6 +418,13 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
 
     setHAlignObj( methodsel_ );
     methodSelCB( 0 );
+    scopeChgCB( 0 );
+}
+
+
+void uiHor3DInterpolSel::scopeChgCB( CallBacker* )
+{
+    polyfld_->display( filltypefld_->getIntValue()==mScopePolygon );
 }
 
 
@@ -426,7 +453,30 @@ void uiHor3DInterpolSel::setStep( const BinID& steps )
 
 bool uiHor3DInterpolSel::isFullSurvey() const
 {
-    return filltypefld_->getIntValue() == 0;
+    return filltypefld_->getIntValue() == mScopeSurvey;
+}
+
+
+bool uiHor3DInterpolSel::isPolygon() const
+{
+    return filltypefld_->getIntValue() == mScopePolygon;
+}
+
+
+bool uiHor3DInterpolSel::getPolygonRange( Interval<int>& inlrg,
+					  Interval<int>& crlrg )
+{
+    if ( !isPolygon() )
+	return false;
+
+    const ODPolygon<float>* poly = polyfld_->getSelectionPolygon();
+    if ( !poly ) return false;
+
+    const Interval<float> xrg = poly->getRange( true );
+    const Interval<float> yrg = poly->getRange( false );
+    inlrg.start = (int)xrg.start; inlrg.stop = (int)xrg.stop+1;
+    crlrg.start = (int)yrg.start; crlrg.stop = (int)yrg.stop+1;
+    return true;
 }
 
 
@@ -434,14 +484,30 @@ bool uiHor3DInterpolSel::fillPar( IOPar& par ) const
 {
     Array2DInterpol::FillType filltype;
     const int selfilltype = filltypefld_->getIntValue();
-    if ( selfilltype == 0 || selfilltype == 1 )
+    if ( selfilltype == mScopeSurvey || selfilltype == mScopeBBX )
 	filltype = Array2DInterpol::Full;
-    else if ( selfilltype == 2 )
+    else if ( selfilltype == mScopeConvex )
 	filltype = Array2DInterpol::ConvexHull;
-    else
+    else if ( selfilltype ==mScopeHoles )
 	filltype = Array2DInterpol::HolesOnly;
+    else
+	filltype = Array2DInterpol::Polygon;
 
     par.set( Array2DInterpol::sKeyFillType(), filltype );
+    if ( filltype == Array2DInterpol::Polygon )
+    {
+	const ODPolygon<float>* poly = polyfld_->getSelectionPolygon();
+	if ( !poly ) return false;
+
+	par.set( Array2DInterpol::sKeyPolyNrofNodes(), poly->size() );
+	for ( int idx=0; idx<poly->size(); idx++ )
+	{
+	    const Geom::Point2D<float>& node = poly->getVertex(idx);
+	    par.set( IOPar::compKey(Array2DInterpol::sKeyPolyNode(),idx),
+		    Coord(node.x,node.y) );
+	}
+    }
+
     if ( maxholeszfld_->isChecked() )
 	par.set( Array2DInterpol::sKeyMaxHoleSz(),
 		 maxholeszfld_->getIntValue() );
