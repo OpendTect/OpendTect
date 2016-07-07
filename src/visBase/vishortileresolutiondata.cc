@@ -499,7 +499,6 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 	    }
 	    else
 	    {
-		const int rcsize = nrroworcol*( nrroworcol - 1 );
 		nbdef21 = bottomtile->hasDefinedCoordinates( curcol );
 		nbdef22 = bottomtile->hasDefinedCoordinates( curcol+1 );
 	    }
