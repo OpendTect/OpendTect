@@ -848,7 +848,7 @@ void uiODMenuMgr::fillUtilMenu()
     utilmnu_->insertItem( installmnu_ );
     FilePath installerdir( ODInst::GetInstallerDir() );
     const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
-    if ( hasinstaller && !__ismac__ )
+    if ( hasinstaller )
     {
 	const ODInst::AutoInstType ait = ODInst::getAutoInstType();
 	const bool aitfixed = ODInst::autoInstTypeIsFixed();

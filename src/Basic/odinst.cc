@@ -126,12 +126,17 @@ bool ODInst::canInstall()
 	return errretval; \
     if ( __iswin__ ) \
 	installerdir.add( "od_instmgr.exe" ); \
-    else if ( __islinux__ ) \
+    else \
 	installerdir.add( "run_installer" ); \
     BufferString cmd( installerdir.fullPath() ); \
     if ( !File::isExecutable(cmd) ) \
         return errretval; \
-    cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ).add( "\"" ); \
+    if ( __ismac__ ) \
+	cmd.quote( '\"' ); \
+    cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ); \
+    if ( __ismac__ ) \
+	cmd.add( "/Resources" ); \
+    cmd.add( "\"" ); \
 
 
 BufferString ODInst::GetInstallerDir()
@@ -139,6 +144,11 @@ BufferString ODInst::GetInstallerDir()
     BufferString appldir( GetSoftwareDir(0) );
     if ( File::isLink(appldir) )
 	appldir = File::linkTarget( appldir );
+
+#ifdef __mac__
+    FilePath macpath( appldir );
+    appldir = macpath.pathOnly();
+#endif
 
     FilePath installerdir( appldir );
     installerdir.setFileName( mInstallerDirNm );
@@ -189,7 +199,11 @@ BufferString ODInst::getInstallerPlfDir()
     FilePath installerbasedir( GetInstallerDir() );
     if ( !File::isDirectory(installerbasedir.fullPath()) )
 	return "";
+#ifndef __mac__
     FilePath installerdir ( installerbasedir, "bin", __plfsubdir__, "Release" );
+#else
+    FilePath installerdir ( installerbasedir, "Contents/MacOS" );
+#endif
     const BufferString path = installerdir.fullPath();
     if ( !File::exists(path) || !File::isDirectory(path) )
 	return installerbasedir.fullPath();
