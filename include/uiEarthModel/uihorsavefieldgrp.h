@@ -22,8 +22,8 @@ class uiCheckBox;
 class uiGenInput;
 class uiIOObjSel;
 
-/*!\brief save or overwrite horizon field set up. It will create new horizon 
-    based on given horizon, if the old horizon is not given, you can read it 
+/*!\brief save or overwrite horizon field set up. It will create new horizon
+    based on given horizon, if the old horizon is not given, you can read it
     from memory. You can also call saveHorizon() to save horizon based on your
     choice of as new or overwrite. */
 
@@ -42,7 +42,9 @@ public:
 
     EM::Horizon*		readHorizon(const MultiID&);
     bool			saveHorizon();
-    
+
+    void			setHorRange(const Interval<int>& newinlrg,
+					    const Interval<int>& newcrlrg);
     void			setFullSurveyArray(bool yn);
     bool			needsFullSurveyArray() const;
     bool			acceptOK(CallBacker*);
