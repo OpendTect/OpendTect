@@ -32,8 +32,6 @@ HorizonModifier::HorizonModifier( bool is2d )
 HorizonModifier::~HorizonModifier()
 {
     delete iter_;
-    if ( tophor_ ) tophor_->unRef();
-    if ( bothor_ ) bothor_->unRef();
 }
 
 
@@ -46,12 +44,6 @@ bool HorizonModifier::setHorizons( const MultiID& mid1, const MultiID& mid2 )
     objid = EM::EMM().getObjectID( mid2 );
     mDynamicCastGet(EM::Horizon*,bothor,EM::EMM().getObject(objid))
     bothor_ = bothor;
-
-    if ( tophor_ && bothor_ )
-    {
-	tophor_->ref();
-	bothor_->ref();
-    }
 
     deleteAndZeroPtr( iter_ );
 
@@ -78,7 +70,7 @@ bool HorizonModifier::getNextNode( BinID& bid )
 
 
 bool HorizonModifier::getNextNode3D( BinID& bid )
-{   
+{
     if ( !iter_ )
     {
 	TrcKeySampling hrg;
@@ -153,6 +145,11 @@ void HorizonModifier::getLines( const EM::Horizon* hor )
 
 void HorizonModifier::doWork()
 {
+    if ( !tophor_ || !bothor_ )
+	return;
+
+    tophor_->ref();
+    bothor_->ref();
     BinID binid;
     while ( getNextNode(binid) )
     {
@@ -176,6 +173,9 @@ void HorizonModifier::doWork()
 	else if ( modifymode_ == Remove )
 	    removeNode( binid );
     }
+
+    tophor_->unRef();
+    bothor_->unRef();
 }
 
 
@@ -196,7 +196,7 @@ void HorizonModifier::shiftNode( const BinID& bid )
     const EM::Horizon* statichor = topisstatic_ ? tophor_ : bothor_;
     EM::Horizon* dynamichor = topisstatic_ ? bothor_ : tophor_;
     const float extrashift = SI().zStep() / (topisstatic_ ? 4.f : -4.f);
-    
+
     if ( !is2d_ )
     {
 	mDynamicCastGet(const EM::Horizon3D*,statichor3d,statichor)
@@ -210,7 +210,7 @@ void HorizonModifier::shiftNode( const BinID& bid )
 	dynamichor3d->setZ( bid, newz, false );
     }
     else
-    { 
+    {
 	mDynamicCastGet(const EM::Horizon2D*,statichor2d,statichor)
 	mDynamicCastGet(EM::Horizon2D*,dynamichor2d,dynamichor)
 	if ( !statichor2d || !dynamichor2d ) return;
@@ -236,7 +236,7 @@ void HorizonModifier::removeNode( const BinID& bid )
 	dynamichor->unSetPos( dynamichor->sectionID(0), subid, false );
     }
     else
-    { 
+    {
 	mDynamicCastGet(EM::Horizon2D*,dynamichor2d,dynamichor)
 	if ( !dynamichor2d ) return;
 
