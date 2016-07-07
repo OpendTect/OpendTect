@@ -1138,7 +1138,7 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 /*!\brief Transfers the common samples from one 2D array to another */
 
 template <class T>
-mExpClass(Algo) Array2DCopier : public ParallelTask
+mClass(Algo) Array2DCopier : public ParallelTask
 { mODTextTranslationClass(Array2DCopier);
 public:
 		Array2DCopier( const Array2D<T>& in,
