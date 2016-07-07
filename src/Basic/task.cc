@@ -254,18 +254,19 @@ SequentialTask::SequentialTask( const char* nm )
 
 #define mDefaultTimeLimit 250
 #define mUpdateProgressMeter \
+{ \
+	progressmeter_->setName( name() ); \
 	progressmeter_->setNrDone( nrDone() ); \
 	progressmeter_->setTotalNr( totalNr() ); \
 	progressmeter_->setNrDoneText( uiNrDoneText() ); \
-	progressmeter_->setMessage( uiMessage() )
+	progressmeter_->setMessage( uiMessage() ); \
+}
 
 void SequentialTask::setProgressMeter( ProgressMeter* pm )
 {
     progressmeter_ = pm;
     if ( progressmeter_ )
-    {
-	mUpdateProgressMeter;
-    }
+	mUpdateProgressMeter
 }
 
 
@@ -278,7 +279,7 @@ int SequentialTask::doStep()
     if ( progressmeter_ )
     {
 	if ( doupdate )
-	    { mUpdateProgressMeter; }
+	    mUpdateProgressMeter
 
 	if ( res<1 )
 	    progressmeter_->setFinished();
@@ -364,10 +365,7 @@ void ParallelTask::setProgressMeter( ProgressMeter* pm )
 {
     progressmeter_ = pm;
     if ( progressmeter_ )
-    {
-	progressmeter_->setName( name() );
-	progressmeter_->setMessage( uiMessage() );
-    }
+	mUpdateProgressMeter
 }
 
 
