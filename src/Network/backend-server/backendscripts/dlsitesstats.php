@@ -205,7 +205,7 @@ echo "  </table>\n";
 if ($result = $mysqli->query("SELECT max(`time`) AS maxtime FROM `$totaltablename`") ){ ;
     $fields = $result->fetch_fields();
     if($obj = (array) $result->fetch_object()){
-       echo "  <p>Last entry in table was from ".$obj["maxtime"].".</p>\n";
+       echo "  <p>Last entry in table was from ".$obj["maxtime"]." UTC.</p>\n";
     }
  
     $result->close(); 
