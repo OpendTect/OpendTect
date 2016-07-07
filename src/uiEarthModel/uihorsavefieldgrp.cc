@@ -31,33 +31,33 @@ ________________________________________________________________________
 uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     : uiGroup( p )
     , horizon_( hor )
-    , newhorizon_( 0 ) 
+    , newhorizon_( 0 )
     , savefld_( 0 )
-    , addnewfld_( 0 )		     
+    , addnewfld_( 0 )
     , outputfld_( 0 )
     , is2d_( is2d )
-    , usefullsurvey_( false )		   
+    , usefullsurvey_( false )
 {
     if ( horizon_ ) horizon_->ref();
 
     savefld_ = new uiGenInput( this, uiStrings::phrSave(uiStrings::sHorizon(1)),
 			       BoolInpSpec(true,tr("As new"),
                                uiStrings::sOverwrite()) );
-   
+
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
     IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
 			     : EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread_ = false;
-    outputfld_ = new uiIOObjSel( this, ctxt, 
+    outputfld_ = new uiIOObjSel( this, ctxt,
 				 uiStrings::phrOutput(uiStrings::sHorizon(1)) );
     outputfld_->attach( alignedBelow, savefld_ );
-    
+
     addnewfld_ = new uiCheckBox( this, tr("Display after create") );
     addnewfld_->attach( alignedBelow, outputfld_ );
 
     setHAlignObj( savefld_ );
-    
+
     const bool allowovrwrt = horizon_ ? EM::canOverwrite(horizon_->multiID())
 				      : false ;
     allowOverWrite( allowovrwrt );
@@ -106,7 +106,7 @@ void uiHorSaveFieldGrp::setFullSurveyArray( bool yn )
     if ( usefullsurvey_ != yn )
     {
 	usefullsurvey_ = yn;
-    	if ( yn )
+	if ( yn )
 	    expandToFullSurveyArray();
     }
 }
@@ -127,7 +127,7 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
     if ( !emobj || !emobj->isFullyLoaded() )
     {
 	reader = EM::EMM().objectLoader( mid );
-	if ( !reader ) 
+	if ( !reader )
 	    mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
 
 	uiTaskRunner dlg( this );
@@ -190,14 +190,14 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 
     EM::EMManager& em = EM::EMM();
     EM::ObjectID objid = em.createObject( is2d_ ? EM::Horizon2D::typeStr()
-	    					: EM::Horizon3D::typeStr(),
+						: EM::Horizon3D::typeStr(),
 					  outputfld_->getInput() );
-    
+
     mDynamicCastGet(EM::Horizon*,horizon,em.getObject(objid));
     if ( !horizon )
 	mErrRet( uiStrings::sCantCreateHor() );
-    
-    newhorizon_ = horizon;      
+
+    newhorizon_ = horizon;
     newhorizon_->ref();
     newhorizon_->setMultiID( horizon_->multiID() );
 
@@ -226,46 +226,64 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 
 void uiHorSaveFieldGrp::expandToFullSurveyArray()
 {
+   if ( needsFullSurveyArray() )
+       setHorRange( SI().inlRange(true), SI().crlRange(true) );
+}
+
+
+void uiHorSaveFieldGrp::setHorRange( const Interval<int>& newinlrg,
+				     const Interval<int>& newcrlrg )
+{
     EM::Horizon* hor = overwriteHorizon() ? horizon_ : newhorizon_;
     if ( !hor || !hor->geometry().nrSections() )
 	return;
-    
+
     const EM::SectionID sid = hor->geometry().sectionID( 0 );
     mDynamicCastGet( Geometry::ParametricSurface*, surf,
 	    hor->sectionGeometry( sid ) );
-    if ( !surf || !needsFullSurveyArray() )
+    if ( !surf )
 	return;
-    
+
     StepInterval<int> rowrg = hor->geometry().rowRange( sid );
     StepInterval<int> colrg = hor->geometry().colRange( sid, -1 );
-    
-    const StepInterval<int> survcrlrg = SI().crlRange(true);
-    while ( colrg.start-colrg.step>=survcrlrg.start )
+
+    while ( colrg.start-colrg.step >= newcrlrg.start )
     {
 	const int newcol = colrg.start-colrg.step;
 	surf->insertCol( newcol );
 	colrg.start = newcol;
     }
-    
-    while ( colrg.stop+colrg.step<=survcrlrg.stop )
+
+    if ( colrg.start < newcrlrg.start )
+	surf->removeCol( colrg.start, newcrlrg.start-1 );
+
+    while ( colrg.stop+colrg.step <= newcrlrg.stop )
     {
 	const int newcol = colrg.stop+colrg.step;
 	surf->insertCol( newcol );
 	colrg.stop = newcol;
     }
-    
-    const StepInterval<int> survinlrg = SI().inlRange(true);
-    while ( rowrg.start-rowrg.step>=survinlrg.start )
+
+    if ( colrg.stop > newcrlrg.stop )
+	surf->removeCol( newcrlrg.stop+1, colrg.stop );
+
+    while ( rowrg.start-rowrg.step >= newinlrg.start )
     {
 	const int newrow = rowrg.start-rowrg.step;
 	surf->insertRow( newrow );
 	rowrg.start = newrow;
     }
-    
-    while ( rowrg.stop+rowrg.step<=survinlrg.stop )
+
+    if ( rowrg.start < newinlrg.start )
+	surf->removeRow( rowrg.start, newinlrg.start-1 );
+
+    while ( rowrg.stop+rowrg.step <= newinlrg.stop )
     {
 	const int newrow = rowrg.stop+rowrg.step;
 	surf->insertRow( newrow );
 	rowrg.stop = newrow;
     }
+
+    if ( rowrg.stop > newinlrg.stop )
+	surf->removeRow( newinlrg.stop+1, rowrg.stop );
 }
