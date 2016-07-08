@@ -41,7 +41,7 @@ struct FileHeader
 			{ return bits / 8; }
     inline int		nrBytesPerTrace() const
 			{ return nsamp * nrBytesPerSample(); }
-    void		fillInfo(SeisTrcInfo&,int trcidx) const;
+    void		fillInfo(SeisTrcInfo&,Pos::GeomID,int trcidx) const;
 
     unsigned short	tag, data, nsamp, bits;
     short		zero;
@@ -79,6 +79,7 @@ public:
 
 protected:
 
+    Pos::GeomID		geomid_;
     SeisTrc&		trc_;
     SeisTrcWriter*	wrr_;
     od_istream&		istream_;

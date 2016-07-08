@@ -163,8 +163,8 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 
 uiString uiSEGYExamine::sGetWinTitle()
 {
-    const BufferString fnm( FilePath(setup_.fs_.dispName()).fileName() ); 
-    
+    const BufferString fnm( FilePath(setup_.fs_.dispName()).fileName() );
+
     return ( tr("First %1 traces from %2").arg(tbuf_.size())
 			     .arg(fnm) );
 }
@@ -347,7 +347,6 @@ void uiSEGYExamine::updateInp()
 	}
 
 	nrdone++;
-	trc.info().nr_ = nrdone;
 	tbuf_.add( new SeisTrc(trc) );
     }
     tbl_->setNrCols( nrdone > 0 ? nrdone : 1 );

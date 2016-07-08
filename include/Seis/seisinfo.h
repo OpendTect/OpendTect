@@ -33,7 +33,6 @@ public:
     SeisTrcInfo&	operator =(const SeisTrcInfo&);
 
     TrcKey		trckey_;
-    IdxType		nr_;
     Coord		coord_;
     SamplingData<float>	sampling_;
     float		offset_;
@@ -85,7 +84,6 @@ public:
     float		zref_;		// not stored
     bool		new_packet_;	// not stored
 
-    mDeprecated IdxType& nr;
     mDeprecated Coord&	coord;
     mDeprecated SamplingData<float>& sampling;
     mDeprecated float&	offset;

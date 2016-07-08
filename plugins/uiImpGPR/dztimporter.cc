@@ -78,9 +78,10 @@ bool DZT::FileHeader::getFrom( od_istream& strm, BufferString& emsg )
 }
 
 
-void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, int trcidx ) const
+void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, Pos::GeomID geomid,
+				int trcidx ) const
 {
-    ti.nr_ = traceNr( trcidx );
+    ti.trckey_ = TrcKey( geomid, traceNr(trcidx) );
     ti.sampling_.start = position;
     ti.sampling_.step = ((float)range) / (nsamp-1);
     ti.sampling_.scale( cNanoFac );
@@ -95,6 +96,7 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj, Pos::GeomID gid )
     , totalnr_(-1)
     , wrr_(0)
     , databuf_(0)
+    , geomid_(gid)
     , di_(DataCharacteristics())
     , trc_(*new SeisTrc)
     , istream_(*new od_istream(fnm))
@@ -166,7 +168,7 @@ int DZT::Importer::nextStep()
     if ( istream_.lastNrBytesRead() != trcbytes )
 	return closeAll();
 
-    fh_.fillInfo( trc_.info(), mCast(int,nrdone_) );
+    fh_.fillInfo( trc_.info(), geomid_, mCast(int,nrdone_) );
     trc_.info().sampling_.scale( zfac_ );
 
     for ( int ichan=0; ichan<fh_.nchan; ichan++ )

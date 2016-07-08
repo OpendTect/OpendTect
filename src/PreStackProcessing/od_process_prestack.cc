@@ -96,7 +96,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( geomtype==Seis::LinePS && linekey.isEmpty() )
     {
-	mRetError(tr("\nNo linekey set"));
+	mRetError(tr("\nNo line Name set"));
     }
 
     PtrMan<IOObj> inputioobj = 0;
@@ -335,14 +335,15 @@ bool BatchProgram::go( od_ostream& strm )
 
 		if ( reader2d )
 		{
-		    trc.info().nr_ = curbid.crl();
+		    trc.info().trckey_ = TrcKey( curbid.lineNr(),
+						 curbid.trcNr() );
 		    PosInfo::Line2DPos linepos;
 		    if ( reader2d->posData().getPos(curbid.crl(),linepos) )
 			trc.info().coord_ = linepos.coord_;
 		}
 		else
 		{
-		    trc.info().binid = curbid;
+		    trc.info().trckey_ = TrcKey( curbid );
 		    trc.info().coord_ = SI().transform( curbid );
 		}
 

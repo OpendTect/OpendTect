@@ -203,13 +203,13 @@ mDefineEnumUtils(SeisTrcInfo,Fld,"Header field") {
 
 
 #define mDeclDeprecCompatStuff \
-    sampling(sampling_), nr(nr_), refnr(refnr_), pick(pick_) \
+    sampling(sampling_), refnr(refnr_), pick(pick_) \
   , offset(offset_), coord(coord_), azimuth(azimuth_)
 
 
 mStartAllowDeprecatedSection
 SeisTrcInfo::SeisTrcInfo()
-    : sampling_(0,defaultSampleInterval()), nr_(0)
+    : sampling_(0,defaultSampleInterval())
     , refnr_(mUdf(float)), pick_(mUdf(float))
     , offset_(0), azimuth_(0), zref_(0), new_packet_(false)
     , binid(const_cast<BinID&>(trckey_.binID()))
@@ -232,7 +232,6 @@ SeisTrcInfo& SeisTrcInfo::operator=( const SeisTrcInfo& oth )
     if ( this != &oth )
     {
 	sampling_ = oth.sampling_;
-	nr_ = oth.nr_;
 	trckey_ = oth.trckey_;
 	coord_ = oth.coord_;
 	offset_ = oth.offset_;
@@ -321,10 +320,8 @@ int SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
 
     if ( isps && !Seis::equalOffset(ti->offset_,offset_) )
 	return Offset;
-    if ( is2d && ti->nr_ != nr_ )
-	return TrcNr;
-    if ( !is2d && ti->trcNr() != trcNr() )
-	return BinIDCrl;
+    if ( ti->trcNr() != trcNr() )
+	return is2d ? TrcNr : BinIDCrl;
     if ( !is2d && ti->lineNr() != lineNr() )
 	return BinIDInl;
 
@@ -464,8 +461,8 @@ Seis::PosKey SeisTrcInfo::posKey( Seis::GeomType gt ) const
     switch ( gt )
     {
     case Seis::VolPS:	return Seis::PosKey( binID(), offset_ );
-    case Seis::Line:	return Seis::PosKey( nr_ );
-    case Seis::LinePS:	return Seis::PosKey( nr_, offset_ );
+    case Seis::Line:	return Seis::PosKey( trcNr() );
+    case Seis::LinePS:	return Seis::PosKey( trcNr(), offset_ );
     default:		return Seis::PosKey( binID() );
     }
 }
@@ -477,7 +474,7 @@ void SeisTrcInfo::setPosKey( const Seis::PosKey& pk )
     if ( Seis::isPS(gt) )
 	offset_ = pk.offset();
     if ( Seis::is2D(gt) )
-	nr_ = pk.trcNr();
+	trckey_.setTrcNr( pk.trcNr() );
     else
 	setBinID( pk.binID() );
 }

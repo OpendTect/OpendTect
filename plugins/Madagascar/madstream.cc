@@ -768,10 +768,7 @@ bool MadStream::writeTraces( bool writetofile )
 		    trc->info().sampling_ = sd;
 		    trc->info().binid = BinID( inl, crl );
 		    if ( isps_ )
-		    {
-			trc->info().nr_ = trcidx;
 			trc->info().offset_ = offsetsd.atIndex( trcidx - 1 );
-		    }
 
 		    for ( int isamp=0; isamp<nrsamps; isamp++ )
 			trc->set( isamp, buf[isamp], 0 );
@@ -842,8 +839,7 @@ bool MadStream::write2DTraces( bool writetofile )
 	    SeisTrc* trc = new SeisTrc( nrsamps );
 	    trc->info().sampling_ = sd;
 	    trc->info().coord_ = posns[idx].coord_;
-	    trc->info().binid.crl() = trcnr;
-	    trc->info().nr_ = trcnr;
+	    trc->info().trckey_.setTrcNr( trcnr );
 	    if ( isps_ )
 		trc->info().offset_ = offsetsd.atIndex( offidx );
 
