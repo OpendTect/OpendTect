@@ -147,7 +147,7 @@ uiSeisBrowser::~uiSeisBrowser()
 
 const BinID& uiSeisBrowser::curBinID() const
 {
-    return ctrc_.info().binid;
+    return ctrc_.info().binID();
 }
 
 
@@ -282,7 +282,7 @@ void uiSeisBrowser::addTrc( SeisTrcBuf& tbuf, const BinID& bid )
 	*newtrc = *tbufchgdtrcs_.get( chgbufidx );
     else if ( !tr_->goTo(bid) || !tr_->read(*newtrc) )
     {
-	newtrc->info().binid = bid;
+	newtrc->info().setBinID( bid );
 	newtrc->info().coord_ = SI().transform( bid );
 	fillUdf( *newtrc );
     }
@@ -300,7 +300,7 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
 {
     if ( !tbl_ )
 	return false;
-    if ( !force && bid == ctrc_.info().binid )
+    if ( !force && bid == ctrc_.info().binID() )
 	return true;
 
     NotifyStopper notifstop( tbl_->valueChanged );
@@ -333,7 +333,7 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
 	    fillUdf( ctrc_ );
     }
     if ( !havetrc || !canread )
-	binid = ctrc_.info().binid;
+	binid = ctrc_.info().binID();
 
     for ( int idx=1; idx<stepout_+1; idx++ )
     {
@@ -411,7 +411,7 @@ void uiSeisBrowser::fillTable()
     for ( int idx=0; idx<tbuf_.size(); idx++ )
     {
 	const SeisTrc& buftrc = *tbuf_.get(idx);
-	const int chidx = tbufchgdtrcs_.find(buftrc.info().binid,is2D());
+	const int chidx = tbufchgdtrcs_.find(buftrc.info().binID(),is2D());
 	if ( chidx < 0 )
 	    fillTableColumn( buftrc, idx );
 	else
@@ -427,7 +427,8 @@ void uiSeisBrowser::fillTable()
 
 void uiSeisBrowser::fillTableColumn( const SeisTrc& trc, int colidx )
 {
-    tbl_->setColumnLabel(colidx, toUiString(trc.info().binid.toString(is2D())));
+    tbl_->setColumnLabel( colidx,
+			  toUiString(trc.info().binID().toString(is2D())) );
 
     RowCol rc; rc.col() = colidx;
     for ( rc.row()=0; rc.row()<nrsamples_; rc.row()++ )
@@ -581,7 +582,7 @@ void uiSeisBrowser::commitChanges()
 	if ( !changed[idx] ) continue;
 
 	const SeisTrc& buftrc = *tbuf_.get(idx);
-	const int chidx = tbufchgdtrcs_.find(buftrc.info().binid,is2D());
+	const int chidx = tbufchgdtrcs_.find( buftrc.info().binID(),is2D() );
 	if ( chidx < 0 )
 	    tbufchgdtrcs_.add( new SeisTrc( buftrc ) );
 	else
@@ -699,7 +700,7 @@ int nextStep()
 
     if ( tri_->read(trc_) )
     {
-	const int chgidx = tbufchgdtrcs_.find( trc_.info().binid, is2d_ );
+	const int chgidx = tbufchgdtrcs_.find( trc_.info().binID(), is2d_ );
 	const bool res = chgidx<0 ? tro_->write( trc_ )
 				  : tro_->write( *tbufchgdtrcs_.get(chgidx) );
 	if ( !res )
@@ -892,10 +893,10 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 {
     coordfld_->setValue( trc.info().coord_ );
     if ( !is2d_ )
-	trcnrbinidfld_->setValue( trc.info().binid );
+	trcnrbinidfld_->setValue( trc.info().binID() );
     else
     {
-	trcnrbinidfld_->setValue( trc.info().binid.crl(), 0 );
+	trcnrbinidfld_->setValue( trc.info().binID().crl(), 0 );
 	trcnrbinidfld_->setValue( trc.info().refnr_, 1 );
     }
 

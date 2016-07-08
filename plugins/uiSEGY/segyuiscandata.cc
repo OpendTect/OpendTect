@@ -253,9 +253,9 @@ void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
     thdr.fill( ti, is2d_, coordscale_ );
     offscalc.setOffset( ti, thdr );
     if ( icvsxytype_ == FileReadOpts::ICOnly )
-	ti.coord_= SI().transform( ti.binid );
+	ti.coord_= SI().transform( ti.binID() );
     else if ( !is2d_ && icvsxytype_ == FileReadOpts::XYOnly )
-	ti.binid = SI().transform( ti.coord_);
+	ti.setBinID( SI().transform(ti.coord_) );
 }
 
 

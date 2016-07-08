@@ -199,7 +199,7 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
     for ( int idx=0; idx<tbuf.size(); idx++ )
     {
 	const SeisTrc& trc = *tbuf.get( idx );
-	DataPointSet::RowID rid = dps.findFirst( trc.info().binid );
+	DataPointSet::RowID rid = dps.findFirst( trc.info().binID() );
 	if ( rid < 0 )
 	    { pErrMsg("Huh?"); continue; }
 

@@ -186,7 +186,7 @@ int StratAmpCalc::nextStep()
 	if ( !trc ) return Executor::ErrorOccurred();
     }
 
-    const BinID bid = trc->info().binid;
+    const BinID bid = trc->info().binID();
     const EM::SubID subid = bid.toInt64();
     float z1 = (float) tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
     float z2 = !bothorizon_ ? z1

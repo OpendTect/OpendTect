@@ -766,7 +766,7 @@ bool MadStream::writeTraces( bool writetofile )
 		    readRSFTrace( buf, nrsamps );
 		    SeisTrc* trc = new SeisTrc( nrsamps );
 		    trc->info().sampling_ = sd;
-		    trc->info().binid = BinID( inl, crl );
+		    trc->info().setBinID( BinID(inl,crl) );
 		    if ( isps_ )
 			trc->info().offset_ = offsetsd.atIndex( trcidx - 1 );
 

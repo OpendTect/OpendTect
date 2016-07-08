@@ -293,7 +293,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    prevtrcnr_ = currentbid_.crl();
 
 	bool validstartpos = startpos != BinID(-1,-1);
-	if ( validstartpos && curtrcinfo_ && curtrcinfo_->binid == startpos )
+	if ( validstartpos && curtrcinfo_ && curtrcinfo_->binID() == startpos )
 	{
 	    alreadymoved_ = true;
 	    return 1;

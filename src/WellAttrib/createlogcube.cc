@@ -453,7 +453,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 		    if ( trcpos < 0 )
 		    {
 			trcsbufout.add( new SeisTrc(undeftrc) );
-			trcsbufout.last()->info().binid = bid;
+			trcsbufout.last()->info().setBinID( bid );
 			trcpos = trcsbufout.size() - 1;
 		    }
 
@@ -483,7 +483,7 @@ void LogCubeCreator::getLogNames( BufferStringSet& lognms ) const
 void LogCubeCreator::addUniqueTrace( const SeisTrc& trc,
 				     SeisTrcBuf& trcs ) const
 {
-    const BinID& bid = trc.info().binid;
+    const BinID& bid = trc.info().binID();
     const int pos = trcs.find( bid );
     if ( pos < 0 )
     {

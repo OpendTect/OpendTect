@@ -1204,7 +1204,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     for ( int idx=rid; idx<datapointset_.size(); idx++ )
     {
 	const BinID trcbid = usecoords ? SI().transform(info.coord_)
-					: info.binid;
+					: info.binID();
 	if ( trcbid != datapointset_.binID(idx) ) break;
 
 	const float zval = datapointset_.z(idx);

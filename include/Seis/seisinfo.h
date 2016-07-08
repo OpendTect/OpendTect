@@ -91,7 +91,7 @@ public:
     mDeprecated float&	azimuth;
     mDeprecated float&	refnr;
     mDeprecated float&	pick;
-    /* mDeprecated */ BinID& binid;
+    mDeprecated BinID&	binid;
 			//!< in new code, use binID()/setBinID() instead
 
 };

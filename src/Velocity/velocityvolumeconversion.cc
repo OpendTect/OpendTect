@@ -272,7 +272,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 	return 0;
 
     int res = 2;
-    while ( res==2 || !tks_.includes( trc.info().binid ) )
+    while ( res==2 || !tks_.includes( trc.info().binID() ) )
 	res = reader_->get( trc.info() );
 
     if ( res==1 )
@@ -280,7 +280,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 	if ( !reader_->get( trc ) )
 	    return -1;
 
-	sequentialwriter_->announceTrace( trc.info().binid );
+	sequentialwriter_->announceTrace( trc.info().binID() );
 	return 1;
     }
 

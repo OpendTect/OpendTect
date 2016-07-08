@@ -129,7 +129,7 @@ int SeismicExtractor::nextStep()
     for ( int idx=0; idx<trcbuf_->size(); idx++ )
     {
 	const SeisTrc* trc = trcbuf_->get(idx);
-	BinID b = trc->info().binid;
+	BinID b = trc->info().binID();
 
 	const SamplingData<float>& sd = trc->info().sampling_;
 	const int trcidx = sd.nearestIndex( zval );
