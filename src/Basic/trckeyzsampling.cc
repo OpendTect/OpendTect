@@ -98,7 +98,7 @@ BinID TrcKeySampling::atIndex(  od_int64 globalidx ) const
 
 TrcKey TrcKeySampling::toTrcKey( const Coord& pos, float* distance ) const
 {
-    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry( survid_ );
+    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry( getGeomID());
     return geom ? geom->nearestTrace( pos, distance ) : TrcKey::udf();
 }
 
