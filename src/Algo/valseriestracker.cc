@@ -214,7 +214,9 @@ TypeSet<float>& EventTracker::getAmplitudeThresholds()
 
 
 void EventTracker::setAllowedVariance( float v )
-{ allowedvar_ = v; }
+{
+    allowedvar_ = mIsZero(v,mDefEps) ? 0.25f : Math::Abs(v);
+}
 
 
 float EventTracker::allowedVariance() const
@@ -321,7 +323,7 @@ bool EventTracker::track()
 	    }
 
 	    const float amplvar = Math::Abs(targetvalue_-refampl) / refampl;
-	    quality_ = 1 - (amplvar-allowedvar_)/allowedvar_;
+	    quality_ = (allowedvar_-amplvar)/allowedvar_;
 	    if ( quality_>1 ) quality_ = 1;
 	    else if ( quality_<0 ) quality_ = 0;
 	}
