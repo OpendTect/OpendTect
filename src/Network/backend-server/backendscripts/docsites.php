@@ -32,6 +32,11 @@ if ( array_key_exists( $versionkey, $_GET ) &&
     $version = $_GET[$versionkey];
     $module = $_GET[$modulekey];
     $version = str_replace('.', '', $version);
+
+    //Temporary fix before website is updated.
+    if ( $module=='workflows' )
+	$module = 'HTML_WF';
+
     if ( is_numeric( $version ) )
     {
 	if ( $version>=600 )
