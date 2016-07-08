@@ -86,6 +86,7 @@ public:
 
     mDeprecated Coord&	coord;
     mDeprecated SamplingData<float>& sampling;
+    mDeprecated IdxType& nr;
     mDeprecated float&	offset;
     mDeprecated float&	azimuth;
     mDeprecated float&	refnr;

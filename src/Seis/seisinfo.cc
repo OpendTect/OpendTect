@@ -213,6 +213,7 @@ SeisTrcInfo::SeisTrcInfo()
     , refnr_(mUdf(float)), pick_(mUdf(float))
     , offset_(0), azimuth_(0), zref_(0), new_packet_(false)
     , binid(const_cast<BinID&>(trckey_.binID()))
+    , nr(const_cast<BinID&>(trckey_.binID()).crl())
     , mDeclDeprecCompatStuff
 {
 }
@@ -220,6 +221,7 @@ SeisTrcInfo::SeisTrcInfo()
 
 SeisTrcInfo::SeisTrcInfo( const SeisTrcInfo& oth )
     : binid(const_cast<BinID&>(oth.trckey_.binID()))
+    , nr(const_cast<BinID&>(trckey_.binID()).crl())
     , mDeclDeprecCompatStuff
 {
     *this = oth;
@@ -248,7 +250,6 @@ SeisTrcInfo& SeisTrcInfo::operator=( const SeisTrcInfo& oth )
 void SeisPacketInfo::clear()
 {
     usrinfo = defaultusrinfo;
-    nr = 0;
     fullyrectandreg = false;
     cubedata = 0;
     if ( !IOM().isBad() )
