@@ -165,7 +165,7 @@ int main( int argc, char** argv )
 	{
 	    od_cout() << "Coordinate: " << trc.info().coord_.toPrettyString();
 	    BinID b = info.geom_.b2c.transformBack( trc.info().coord_ );
-	    if ( b != trc.info().binid )
+	    if ( b != trc.info().binID() )
 		od_cout() << " --> " << b.toString();
 	    od_cout() << od_endl;
 	}
