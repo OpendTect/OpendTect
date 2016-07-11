@@ -108,7 +108,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     anglecompgrp_ = new PreStack::uiAngleCompGrp( this, params_, false, false );
     anglecompgrp_->attach( alignedBelow, valaxtypefld_ );
 
-    calcTypSel(0);
+    updateCalcType();
     setHAlignObj( prestackinpfld_ );
 }
 
@@ -392,11 +392,17 @@ void uiPreStackAttrib::doPreProcSel( CallBacker* )
 
 void uiPreStackAttrib::calcTypSel( CallBacker* )
 {
+    updateCalcType();
+    gatherTypSel( 0 );
+}
+
+
+void uiPreStackAttrib::updateCalcType()
+{
     const bool isnorm = calctypefld_->getIntValue() == 0;
     stattypefld_->display( isnorm );
     lsqtypefld_->display( !isnorm );
     xaxistypefld_->display( !isnorm );
-    gatherTypSel( 0 );
 }
 
 
