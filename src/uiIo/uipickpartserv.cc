@@ -258,6 +258,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly,
     dlg.showAlwaysOnTop();
     if ( !dlg.go() )
 	return false;
+
     TypeSet<MultiID> chosenids;
     dlg.getChosen( chosenids );
     if ( chosenids.isEmpty() )
@@ -289,6 +290,7 @@ bool uiPickPartServer::doLoadSets( TypeSet<MultiID>& psids )
 			.arg( uiStrings::sPickSet(nrps) ) );
 	return false;
     }
+
     return true;
 }
 
