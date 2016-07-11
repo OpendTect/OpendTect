@@ -54,6 +54,7 @@ protected:
     uiGenInput*				xunitfld_;
     uiGenInput*				xaxistypefld_;
     uiGenInput*				valaxtypefld_;
+    void				calcSelValueSetter();
 
     PreStack::uiAngleCompGrp*		anglecompgrp_;
     PreStack::AngleCompParams&		params_;
