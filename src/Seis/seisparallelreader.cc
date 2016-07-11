@@ -712,7 +712,7 @@ bool SequentialReader::init()
 	    TrcKeyZSampling storedtkzs;
 	    info.getRanges( storedtkzs );
 	    if ( tkzs_.isDefined() )
-		tkzs_. limitTo( storedtkzs );
+		tkzs_.limitTo( storedtkzs );
 	    else
 		tkzs_ = storedtkzs;
 	}
