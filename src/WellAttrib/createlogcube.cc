@@ -251,6 +251,13 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
 }
 
 
+void LogCubeCreator::getOutputNames( BufferStringSet& names ) const
+{
+    for ( int idx=0; idx<logcubes_.size(); idx++ )
+	names.add( logcubes_[idx]->fnm_ );
+}
+
+
 bool LogCubeCreator::doPrepare( int )
 {
     extractparams_.zstep_ = SI().zRange( true ).step;

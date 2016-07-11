@@ -25,20 +25,22 @@ _______________________________________________________________________
 #include "od_helpids.h"
 
 
-uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
+// uiCreateLogCubeDlg
+uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* key )
     : uiDialog(p,uiDialog::Setup(tr("Create Log Cube"),
 				 tr("Select logs to create new cubes"),
-				 mid ? mODHelpKey(mCreateLogCubeDlgHelpID)
+				 key ? mODHelpKey(mCreateLogCubeDlgHelpID)
 				     : mODHelpKey(mMultiWellCreateLogCubeDlg) ))
 {
     setCtrlStyle( RunAndClose );
 
+    const bool validinpwell = key && !key->isUdf();
     uiWellExtractParams::Setup su;
     su.withzstep(false).withsampling(true).withextractintime(false);
-    welllogsel_ = mid ? new uiMultiWellLogSel( this, su, *mid )
-		      : new uiMultiWellLogSel( this, su );
+    welllogsel_ = validinpwell ? new uiMultiWellLogSel( this, su, *key )
+			       : new uiMultiWellLogSel( this, su );
 
-    outputgrp_ = new uiCreateLogCubeOutputSel( this );
+    outputgrp_ = new uiCreateLogCubeOutputSel( this, validinpwell );
     outputgrp_->attach( alignedBelow, welllogsel_ );
 }
 
@@ -59,7 +61,7 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
     BufferStringSet lognms;
     welllogsel_->getSelLogNames( lognms );
     LogCubeCreator lcr( lognms, wids, extractparams, nrtrcs );
-    if ( !lcr.setOutputNm(outputgrp_->getPostFix()) )
+    if ( !lcr.setOutputNm(outputgrp_->getPostFix(),outputgrp_->withWellName()) )
     {
 	if ( !outputgrp_->askOverwrite(lcr.errMsg()) )
 	    return false;
@@ -71,20 +73,22 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
     if ( !TaskRunner::execute(taskrunner,lcr) || !lcr.isOK() )
 	mErrRet( lcr.errMsg() )
 
-    uiMSG().message( tr( "Successfully created the %1 log cube(s)" )
-                         .arg( lognms.size() ) );
+    BufferStringSet outputnames;
+    lcr.getOutputNames( outputnames );
+    uiMSG().message( tr("Successfully created log cube(s):\n%1")
+			.arg(outputnames.cat()) );
 
     return false;
 }
 
 
-
+// uiCreateLogCubeOutputSel
 uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
     : uiGroup(p,"Create LogCube output specification Group")
     , savewllnmfld_(0)
 {
     repeatfld_ = new uiLabeledSpinBox( this,
-				       tr("Duplicate trace around the track"));
+				tr("Duplicate trace around the track") );
     repeatfld_->box()->setInterval( 0, 20, 1 );
     repeatfld_->box()->setValue( 1 );
 
@@ -95,18 +99,18 @@ uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
     outputgrp->attach( ensureBelow, sep );
 
     uiLabel* savelbl = new uiLabel( outputgrp,
-			       uiStrings::phrOutput( uiStrings::sName() ) );
+			       uiStrings::phrOutput(uiStrings::sName()) );
     savesuffix_ = new uiGenInput( outputgrp, tr("with suffix"), "log cube" );
     savesuffix_->setWithCheck( true );
     savesuffix_->setChecked( true );
     savesuffix_->attach( rightOf, savelbl );
 
-    if ( !withwllnm )
-	return;
-
-    savewllnmfld_ = new uiCheckBox( outputgrp, tr("with well name") );
-    savewllnmfld_->setChecked( true );
-    savewllnmfld_->attach( rightOf, savesuffix_ );
+    if ( withwllnm )
+    {
+	savewllnmfld_ = new uiCheckBox( outputgrp, tr("With well name") );
+	savewllnmfld_->setChecked( true );
+	savewllnmfld_->attach( rightOf, savesuffix_ );
+    }
 }
 
 
@@ -156,11 +160,11 @@ void uiCreateLogCubeOutputSel::useWellNameFld( bool disp )
 bool uiCreateLogCubeOutputSel::askOverwrite( const uiString& errmsg ) const
 {
     if ( BufferString(errmsg.getFullString()).find("as another type") )
-{
+    {
 	uiString msg( errmsg );
 	msg.append( tr( "Please choose another suffix" ), true );
 	mErrRet( msg )
-}
+    }
 
     return uiMSG().askOverwrite( errmsg );
 }
