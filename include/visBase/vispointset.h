@@ -34,6 +34,10 @@ public:
 
     int			addPoint(const Coord3&);
     const Coord3	getPoint(int posidx) const;
+    const Coord3	getPoint(int,bool scenespace) const;
+			/*!<\if scenespace is true, return display coordinates,
+			false, return world coordinates.*/
+
     void		removeAllPoints();
     int			size() const ;
 
