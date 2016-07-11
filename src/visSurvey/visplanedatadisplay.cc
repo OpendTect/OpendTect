@@ -450,6 +450,7 @@ bool PlaneDataDisplay::updatePlanePos( const TrcKeyZSampling& tkz )
 
     setDraggerPos( tkz );
     updateSel();
+    moving_.trigger();
     return true;
 }
 

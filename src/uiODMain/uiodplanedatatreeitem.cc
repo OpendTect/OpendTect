@@ -567,11 +567,18 @@ void uiODPlaneDataTreeItem::keyUnReDoPressedCB( CallBacker* )
 
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
 
+
     if ( KeyboardEvent::isUnDo(kbe) )
-	pdd->undo().unDo();
+    {
+	if ( pdd->isSelected() )
+	    pdd->undo().unDo();
+    }
 
     if ( KeyboardEvent::isReDo(kbe) )
-	pdd->undo().reDo();
+    {
+	if ( pdd->isSelected() )
+	    pdd->undo().reDo();
+    }
 }
 
 

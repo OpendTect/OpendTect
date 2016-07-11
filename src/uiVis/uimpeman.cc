@@ -83,6 +83,7 @@ uiMPEMan::~uiMPEMan()
 
 void uiMPEMan::mpeActionCalledCB( CallBacker* )
 {
+    mEnsureExecutedInMainThread( uiMPEMan::mpeActionCalledCB );
     visSurvey::HorizonDisplay* hd = getSelectedDisplay();
     if ( !hd ) return;
 
@@ -96,6 +97,7 @@ void uiMPEMan::mpeActionCalledCB( CallBacker* )
 
 void uiMPEMan::mpeActionFinishedCB( CallBacker* )
 {
+    mEnsureExecutedInMainThread( uiMPEMan::mpeActionFinishedCB );
     visSurvey::HorizonDisplay* hd = getSelectedDisplay();
     if ( !hd ) return;
 
@@ -926,6 +928,9 @@ void uiMPEMan::cleanPatchDisplay()
 
 void uiMPEMan::undo()
 {
+    if ( !getSelectedDisplay() || !getSelectedDisplay()->isSelected() )
+	return;
+
     MouseCursorChanger mcc( MouseCursor::Wait );
     uiString errmsg;
     MPE::EMTracker* tracker = getSelectedTracker();
@@ -951,6 +956,9 @@ void uiMPEMan::undo()
 
 void uiMPEMan::redo()
 {
+    if ( !getSelectedDisplay() || !getSelectedDisplay()->isSelected() )
+	return;
+
     MouseCursorChanger mcc( MouseCursor::Wait );
     uiString redoerrmsg;
     engine().redo( redoerrmsg );
