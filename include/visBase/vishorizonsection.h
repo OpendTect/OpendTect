@@ -142,6 +142,8 @@ public:
     bool			getTitlePrimitiveSet(int titleidx,
 				    TypeSet<int>&,GeometryType) const;
     int				getTexturePixelSizeInBits() const;
+    void			setUsingNeighborsInIsolatedLine(bool);
+    bool			usingNeighborsInIsolatedLine() const;
 
 protected:
 				~HorizonSection();

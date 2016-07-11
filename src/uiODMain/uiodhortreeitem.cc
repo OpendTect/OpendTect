@@ -642,6 +642,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	else
 	    newcs.usePar( displaypar );
 
+	section->setUsingNeighborsInIsolatedLine( false );
 	section->setDisplayRange( newcs.hsamp_.inlRange(),
 				  newcs.hsamp_.crlRange() );
 	emserv->setHorizon3DDisplayRange( newcs.hsamp_ );
