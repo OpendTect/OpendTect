@@ -102,7 +102,6 @@ public:
     static int			evSetupClosed();
     static int			evInitFromSession();
 
-    void			loadTrackSetupCB(CallBacker*);
     bool 			prepareSaveSetupAs(const MultiID&);
     bool 			saveSetupAs(const MultiID&);
     bool 			saveSetup(const MultiID&);
@@ -136,15 +135,14 @@ protected:
     Pos::GeomID 		geomid_;
     Attrib::SelSpec		lineselspec_;
 
+    void			trackerAddRemoveCB(CallBacker*);
+    void			trackerToBeRemovedCB(CallBacker*);
     void			aboutToAddRemoveSeed(CallBacker*);
     void			seedAddedCB(CallBacker*);
     EM::ObjectID		trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
 
     int				initialundoid_;
-    bool			seedhasbeenpicked_;
-    bool			setupbeingupdated_;
-    bool			seedswithoutattribsel_;
 
     void			modeChangedCB(CallBacker*);
     void			eventChangedCB(CallBacker*);
@@ -153,7 +151,6 @@ protected:
 
     void			nrHorChangeCB(CallBacker*);
 
-    void			noTrackingRemoval();
     void			cleanSetupDependents();
 
     MPE::uiSetupGroup*		setupgrp_;
