@@ -662,7 +662,7 @@ void SequentialReader::setDataChar( DataCharacteristics::UserType type )
 void SequentialReader::setScaler( Scaler* newsc )
 {
     delete scaler_;
-    scaler_ = newsc;
+    scaler_ = newsc ? newsc->clone() : 0;
 //    rdr_.forceFloatData( scaler_ ); // Not sure if needed
 }
 
