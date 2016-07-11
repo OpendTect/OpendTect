@@ -246,7 +246,7 @@ HorizonSection::HorizonSection()
     , texturecallbackhandler_( 0 )
     , isredrawing_( false )
     , zaxistransform_( 0 )
-    , useneigbors_( true )
+    , useneighbors_( true )
 {
     setLockable();
     osghorizon_->ref();
@@ -852,15 +852,15 @@ bool HorizonSection::getTitlePrimitiveSet( int titleidx, TypeSet<int>& ps,
 }
 
 
-void HorizonSection::setUsingNeigborsInIsolatedLine( bool useneigbors )
+void HorizonSection::setUsingNeighborsInIsolatedLine( bool useneighbors )
 {
-    useneigbors_ = useneigbors;
+    useneighbors_ = useneighbors;
 }
 
 
-bool HorizonSection::usingNeigborsInIsolatedLine() const
+bool HorizonSection::usingNeighborsInIsolatedLine() const
 {
-    return useneigbors_;
+    return useneighbors_;
 }
 
 } // namespace visBase

@@ -419,7 +419,7 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
     bool nbdef20 = false, nbdef21 = false, nbdef22 = false;
 	
     unsigned int sum = 0;
-    const bool useneigbors =  section.usingNeigborsInIsolatedLine();
+    const bool useneigbors =  section.usingNeighborsInIsolatedLine();
     if ( direction == cTowardDown )
     {
 	if ( isfirstcol )
