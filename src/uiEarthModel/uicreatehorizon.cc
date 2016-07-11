@@ -40,8 +40,9 @@ uiCreateHorizon::uiCreateHorizon( uiParent* p, bool is2d )
     }
 
     uiString lbl = tr("Z Value ");
-    lbl.append( SI().getZUnitString() );
-    zfld_ = new uiGenInput( this, lbl, FloatInpSpec(SI().zRange(true).start) );
+    lbl.append( SI().getUiZUnitString() );
+    zfld_ = new uiGenInput( this, lbl, FloatInpSpec(SI().zRange(true).start
+					*SI().zDomain().userFactor()) );
 
     uiSurfaceWrite::Setup swsu( EM::Horizon3D::typeStr(),
 				EM::Horizon3D::userTypeStr() );
@@ -76,7 +77,7 @@ bool uiCreateHorizon::acceptOK( CallBacker* )
 	return false;
     }
 
-    if ( SI().zIsTime() ) zval /= 1000;
+    zval /= SI().zDomain().userFactor();
     if ( !SI().zRange(false).includes(zval,false) )
     {
 	const bool res =
