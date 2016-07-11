@@ -210,7 +210,7 @@ TypeSet<float>& EventTracker::getAmplitudeThresholds()
 
 void EventTracker::setAllowedVariance( float v )
 {
-    allowedvar_ = mIsZero(v,mDefEps) ? 0.25f : v;
+    allowedvar_ = mIsZero(v,mDefEps) ? 0.25f : Math::Abs(v);
 }
 
 
