@@ -430,7 +430,7 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* )
 }
 
 
-void uiPreStackAttrib::angleTypSel( CallBacker* )
+void uiPreStackAttrib::angleTypSel( CallBacker* cb)
 {
     if ( is2D() )
     {
@@ -448,10 +448,13 @@ void uiPreStackAttrib::angleTypSel( CallBacker* )
     anglecompgrp_->display( isoffset && iscomputeangle );
     xaxistypefld_->setSensitive( !iscomputeangle );
 
-    if ( iscomputeangle )
-	 xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
-    if ( !iscomputeangle && isoffset && !isnorm )
-	xaxistypefld_->setValue( PreStack::PropCalc::Norm ); 
+    if ( cb == useanglefld_ || cb == gathertypefld_ || cb == calctypefld_ )
+    {
+	if ( iscomputeangle )
+	    xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
+	if ( !iscomputeangle && isoffset && !isnorm )
+    	    xaxistypefld_->setValue( PreStack::PropCalc::Norm ); 
+    }
 }
 
 
