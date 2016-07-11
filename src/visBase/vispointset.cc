@@ -72,6 +72,12 @@ const Coord3 PointSet::getPoint( int idx ) const
 }
 
 
+const Coord3 PointSet::getPoint( int idx, bool scenespace ) const
+{
+    return coords_->getPos( idx, scenespace );
+}
+
+
 void PointSet::removeAllPoints()
 {
     coords_->setEmpty();
