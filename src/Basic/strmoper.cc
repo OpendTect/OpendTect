@@ -68,7 +68,7 @@ void StrmOper::clear( std::ios& strm )
 
 bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
 {
-    if ( strm.eof() || strm.fail() || !ptr )
+    if ( strm.eof() || strm.fail() || !ptr || mIsUdf(nrbytes) )
 	return false;
 
     if ( strm.bad() )
