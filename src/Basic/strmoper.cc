@@ -83,7 +83,7 @@ static void readPrep(std::istream& strm)
 
 bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
 {
-    if ( !ptr )
+    if ( !ptr || mIsUdf(nrbytes) )
 	return false;
 
     readPrep(strm);
