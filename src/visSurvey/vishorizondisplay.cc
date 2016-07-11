@@ -65,6 +65,60 @@ const char* HorizonDisplay::sKeyZValues()	{ return "Z values"; }
 
 static HiddenParam<HorizonDisplay,Threads::Mutex*> locker_( 0 );
 
+static HiddenParam<HorizonDisplay,char> newseeds_( false );
+static HiddenParam<HorizonDisplay,visBase::PointSet*> sectionlockedpts_( 0 );
+
+
+class LockedPointsCalculator: public ParallelTask
+{
+public:
+		    LockedPointsCalculator( const visSurvey::SurveyObject* obj,
+					    const visBase::PointSet* lockedpts,
+					    const od_int64 size);
+    od_int64	    totalNr() const { return totalnrcoords_; }
+    const TypeSet<int>&   getResult()	{ return pntsidx_; }	    
+
+protected:
+    bool	    doWork(od_int64 start, od_int64 stop, int);
+    od_int64	    nrIterations() const { return totalnrcoords_; }
+
+private:
+    Threads::Atomic<od_int64>	totalnrcoords_;
+    const visSurvey::SurveyObject* obj_;
+    const visBase::PointSet* lockedpts_;
+    Threads::Mutex  mutex_;
+    TypeSet<int> pntsidx_;
+};
+
+
+LockedPointsCalculator::LockedPointsCalculator( 
+    const visSurvey::SurveyObject* obj,	const visBase::PointSet* lockedpts,
+    const od_int64 size )
+    : totalnrcoords_( size )
+    , obj_( obj )
+    , lockedpts_( lockedpts )
+{}
+
+
+bool LockedPointsCalculator::doWork( od_int64 start, od_int64 stop, int )
+{
+    if ( !obj_ || !lockedpts_ )
+	return false;
+    
+    TypeSet<int> pntsidx;
+    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    {
+	const Coord3 crd = lockedpts_->getPoint( idx, true ); 
+	const float dist = obj_->calcDist( crd );
+	if ( !mIsUdf(dist) && dist<obj_->maxDist() )
+	    pntsidx += idx;
+    }
+    Threads::MutexLocker datalock (mutex_ );
+    pntsidx_.append( pntsidx );   
+    return true;
+}
+
+
 HorizonDisplay::HorizonDisplay()
     : parrowrg_( -1, -1, -1 )
     , parcolrg_( -1, -1, -1 )
@@ -120,6 +174,10 @@ HorizonDisplay::HorizonDisplay()
     Settings::common().get( "dTect.Horizon.Resolution", res );
     resolution_ = (char)res;
     locker_.setParam( this, new Threads::Mutex );
+
+    newseeds_.setParam( this, false );
+    sectionlockedpts_.setParam( this, 0 );
+
 }
 
 
@@ -134,7 +192,7 @@ HorizonDisplay::~HorizonDisplay()
     setSceneEventCatcher( 0 );
     curshiftidx_.erase();
 
-   if ( translation_ )
+    if ( translation_ )
     {
 	translation_->unRef();
 	translation_ = 0;
@@ -159,6 +217,12 @@ HorizonDisplay::~HorizonDisplay()
 
     delete locker_.getParam( this );
     locker_.removeParam( this );
+
+    if ( sectionlockedpts_.getParam( this) )
+	sectionlockedpts_.getParam(this)->unRef();
+    sectionlockedpts_.removeParam( this );
+
+    newseeds_.removeParam( this );
 }
 
 
@@ -198,7 +262,9 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 	selections_->setDisplayTransformation( transformation_ );
     if ( lockedpts_ )
 	lockedpts_->setDisplayTransformation( transformation_ );
-
+    if ( sectionlockedpts_.getParam(this) )
+	sectionlockedpts_.getParam(this)->setDisplayTransformation( 
+	transformation_ );
 }
 
 
@@ -1008,6 +1074,9 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
     EMObjectDisplay::setOnlyAtSectionsDisplay( yn );
 
     displayonlyatsections_ = yn;
+
+    if ( lockedpts_ && lockedpts_->size()>0 && !displayonlyatsections_ )
+	showLocked( true );
 }
 
 
@@ -1032,6 +1101,8 @@ void HorizonDisplay::setIntersectLineMaterial( visBase::Material* nm )
 
 void HorizonDisplay::emChangeCB( CallBacker* cb )
 {
+    if ( !cb ) return;
+    
     EMObjectDisplay::emChangeCB( cb );
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
@@ -1044,11 +1115,10 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	    sections_[idx]->inValidateCache(-1);
 	locker_.getParam(this)->unLock();
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+   else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
 	nontexturecol_ = emobject_->preferredColor();
 	setLineStyle( emobject_->preferredLineStyle() );
-
 	mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
 	if ( hor3d )
 	{
@@ -1056,9 +1126,15 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 		parentline_->getMaterial()->setColor( hor3d->getParentColor() );
 	    if ( selections_ && selections_->getMaterial() )
 		selections_->getMaterial()->setColor(
-						hor3d->getSelectionColor() );
+		hor3d->getSelectionColor() );
 	    if ( lockedpts_ && lockedpts_->getMaterial() )
 		lockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
+	    if ( sectionlockedpts_.getParam(this) )
+	    {
+		if ( sectionlockedpts_.getParam(this)->getMaterial() )
+		    sectionlockedpts_.getParam(this)->getMaterial()->setColor( 
+		    hor3d->getLockColor() );
+	    }
 	}
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::SelectionChange )
@@ -1067,9 +1143,32 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	// polygon selections
 	selectChildren();
     }
+    else if ( cbdata.event==EM::EMObjectCallbackData::LockChange )
+    {
+	// if it is unlocked, we need set all lockedpts to unlock.
+	// if it is locked, we do nothing
+	mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
+	const bool locked = hor3d ? hor3d->hasLockedNodes() : 0;
+	if ( locked && !displayonlyatsections_ ) 
+	    return; 
 
-    updateSingleColor();
-
+	if ( !locked )
+	{
+	    showLocked( false );
+	    if ( sectionlockedpts_.getParam(this) )
+		sectionlockedpts_.getParam(this)->turnOn( false );
+	}
+	else if ( locked && displayonlyatsections_ )
+	{
+	    showLocked( true ); // re-compute locked points
+	    hasmoved.trigger(); // display locked points on section
+	    showLocked( false ); 
+	    if ( sectionlockedpts_.getParam(this) )
+		sectionlockedpts_.getParam(this)->turnOn( true );
+	}
+    }
+    updateSingleColor();   
+    newseeds_ = true;
 }
 
 
@@ -1826,6 +1925,64 @@ void HorizonDisplay::updateSectionSeeds(
 	    }
 	}
     }
+
+    // handle locked points on section
+    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
+    if ( !lockedpts_ || 
+	 lockedpts_->size()<=0 || 
+	 !displayonlyatsections_ ||
+	 !hor3d->hasLockedNodes() )
+	return;
+
+    if ( !sectionlockedpts_.getParam(this) )
+    {
+        sectionlockedpts_.setParam( this, visBase::PointSet::create() );
+	sectionlockedpts_.getParam(this)->ref();
+	addChild( sectionlockedpts_.getParam(this)->osgNode() );
+	sectionlockedpts_.getParam(this)->setDisplayTransformation( 
+	    transformation_ );
+    }
+    else
+    {
+	sectionlockedpts_.getParam(this)->removeAllPoints();
+	sectionlockedpts_.getParam(this)->removeAllPrimitiveSets();
+	sectionlockedpts_.getParam(this)->getMaterial()->clear();
+    }
+
+    TypeSet<int> sectionpntindexes;
+    for ( int idx=0; idx<verticalsections.size(); idx++ )
+    {
+	const visSurvey::SurveyObject* obj = objs[verticalsections[idx]];
+	if ( !obj )
+	    continue;
+	LockedPointsCalculator calculator( obj,lockedpts_,lockedpts_->size() );
+	if ( calculator.execute() )
+	    sectionpntindexes.append( calculator.getResult() );
+    }
+
+    if ( sectionpntindexes.size()==0 )
+	return;
+
+    TypeSet<int> pidxs;
+    for ( int idx=0; idx<sectionpntindexes.size(); idx++ )
+    {
+	sectionlockedpts_.getParam(this)->addPoint( 
+	    lockedpts_->getPoint(sectionpntindexes[idx]) );
+	pidxs += idx;
+    }
+    
+    Geometry::PrimitiveSet* pointsetps = 
+	Geometry::IndexedPrimitiveSet::create(true);
+    pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
+    pointsetps->append( pidxs.arr(),pidxs.size() );
+    sectionlockedpts_.getParam(this)->addPrimitiveSet( pointsetps );
+
+    if ( hor3d) 
+	sectionlockedpts_.getParam(this)->getMaterial()->setColor( 
+	hor3d->getLockColor() );
+
+    lockedpts_->turnOn( false );
+    sectionlockedpts_.getParam(this)->turnOn( true );
 }
 
 
@@ -1942,7 +2099,13 @@ void HorizonDisplay::showLocked( bool yn )
 {
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
     const Array2D<char>* locked = hor3d ? hor3d->getLockedNodes() : 0;
-    if ( !locked ) return;
+    if ( !hor3d->hasLockedNodes() ) 
+    {
+	if ( lockedpts_ )
+	    lockedpts_->turnOn( false );
+	return;
+    }
+
 
     if ( !lockedpts_ && yn )
     {
@@ -1950,9 +2113,10 @@ void HorizonDisplay::showLocked( bool yn )
 	lockedpts_->ref();
 	addChild( lockedpts_->osgNode() );
 	lockedpts_->setDisplayTransformation( transformation_ );
+	newseeds_.setParam( this, true );
 }
 
-    if ( lockedpts_ )
+    if ( lockedpts_  && newseeds_.getParam(this) )
     {
 	lockedpts_->removeAllPoints();
 	lockedpts_->removeAllPrimitiveSets();
@@ -1964,34 +2128,63 @@ void HorizonDisplay::showLocked( bool yn )
     if ( !yn )
     {
 	lockedpts_->turnOn( false );
+	if ( sectionlockedpts_.getParam(this) )
+	    sectionlockedpts_.getParam(this)->turnOn( false );
 	return;
     }
 
-    const TrcKeySampling tks = hor3d->getTrackingSampling();
-    const EM::SectionID sid = hor3d->sectionID( 0 );
-    TypeSet<int> pidxs;
-    for ( od_int64 gidx=0; gidx<locked->info().getTotalSz(); gidx++ )
+    if ( newseeds_.getParam(this) )
     {
-	if ( locked->getData()[gidx] == '0' )
-	    continue;
+	const TrcKeySampling tks = hor3d->getTrackingSampling();
+	const EM::SectionID sid = hor3d->sectionID( 0 );
+	TypeSet<int> pidxs;
+	for ( od_int64 gidx=0; gidx<locked->info().getTotalSz(); gidx++ )
+	{
+	    if ( locked->getData()[gidx] == '0' )
+		continue;
 
-	const TrcKey tk = tks.atIndex( gidx );
-	const Coord3 pos = hor3d->getPos( sid, tk.pos().toInt64() );
-	const int pidx = lockedpts_->addPoint( pos );
-	pidxs += pidx;
+	    const TrcKey tk = tks.atIndex( gidx );
+	    const Coord3 pos = hor3d->getPos( sid, tk.binID().toInt64() );
+	    const int pidx = lockedpts_->addPoint( pos );
+	    pidxs += pidx;
+	}
+
+	if ( pidxs.size()==0 )
+	    return;
+
+	Geometry::PrimitiveSet* pointsetps =
+		    Geometry::IndexedPrimitiveSet::create( true );
+	pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
+	pointsetps->append( pidxs.arr(), pidxs.size() );
+	lockedpts_->addPrimitiveSet( pointsetps );
     }
 
-    Geometry::PrimitiveSet* pointsetps =
-		Geometry::IndexedPrimitiveSet::create( true );
-    pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
-    pointsetps->append( pidxs.arr(), pidxs.size() );
-    lockedpts_->addPrimitiveSet( pointsetps );
     lockedpts_->turnOn( true );
+    if ( displayonlyatsections_ && yn )
+    {
+	if ( sectionlockedpts_.getParam(this) && !newseeds_.getParam(this) )
+	{
+	    sectionlockedpts_.getParam(this)->turnOn( true );
+	    lockedpts_->turnOn( false );
+	}
+	else if ( newseeds_.getParam(this) )
+	{
+	    hasmoved.trigger();
+	    newseeds_ = false;
+	}
+    }
+
 }
 
 
 bool HorizonDisplay::lockedShown() const
-{ return lockedpts_ ? lockedpts_->isOn() : false; }
+{ 
+    const bool lockedshow = lockedpts_ ? lockedpts_->isOn() : false;
+    const bool sectionlockedshow = 
+	sectionlockedpts_.getParam(this) ? 
+	sectionlockedpts_.getParam(this)->isOn() : false;
+    return lockedshow || sectionlockedshow;
+}
 
 
 void HorizonDisplay::updateSelections()
@@ -2019,8 +2212,8 @@ void HorizonDisplay::updateSelections()
 
     for ( int idx=0; idx<selids.size(); idx++ )
     {
-    	const Coord3 pos = hor3d->getPos( sid, selids[idx] );
-    	if ( pos.isUdf() ) continue;
+	const Coord3 pos = hor3d->getPos( sid, selids[idx] );
+	if ( pos.isUdf() ) continue;
 
 	const int pidx = selections_->addPoint( pos );
 	pidxs += pidx;

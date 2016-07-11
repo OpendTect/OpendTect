@@ -173,6 +173,7 @@ public:
     void			lockAll();
     void			unlockAll();
     const Array2D<char>*	getLockedNodes() const;
+    bool			hasLockedNodes() const;
 
     void			setParentColor(const Color&);
     const Color&		getParentColor() const;
