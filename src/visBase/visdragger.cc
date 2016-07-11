@@ -291,6 +291,7 @@ void Dragger::notifyMove()
 
 void Dragger::setOwnShape( DataObject* newshape, bool activeshape )
 {
+    newshape->ref();
     unRefAndZeroPtr( inactiveshape_ );
     inactiveshape_ = newshape;
 }
