@@ -65,23 +65,29 @@ int DataManager::highestID() const
 
 static int prevobjectidx_ = 0;	// ABI-shortcut. OD has only one DataManager
 
-DataObject* DataManager::getObject( int id ) 
-{
-    const int sz = objects_.size();
-    int idx = prevobjectidx_;
 
-    for ( int count=0; count<sz; count++, idx++ )
-    {
-	if ( idx >= sz )
-	    idx = 0;
-
-	if ( objects_[idx]->id() == id )
-	{
-	    prevobjectidx_ = idx;
-	    return objects_[idx];
-	}
+#define mSmartLinearSearch( reversecondition, foundcondition, foundactions ) \
+    const int sz = objects_.size(); \
+    int idx = prevobjectidx_; \
+    const int dir = idx<sz && reversecondition ? -1 : 1; \
+    \
+    for ( int count=0; count<sz; count++, idx+=dir ) \
+    { \
+	if ( idx < 0 )	 idx = sz-1; \
+	if ( idx >= sz ) idx = 0; \
+	\
+	if ( foundcondition ) \
+	{ \
+	    prevobjectidx_ = idx; \
+	    foundactions; \
+	} \
     }
 
+DataObject* DataManager::getObject( int id )
+{
+    mSmartLinearSearch( id<objects_[idx]->id(),
+			objects_[idx]->id()==id,
+			return objects_[idx] );
     return 0;
 }
 
@@ -107,11 +113,9 @@ int DataManager::getID( const osg::Node* node ) const
 {
     if ( node )
     {
-	for ( int idx=0; idx<objects_.size(); idx++ )
-	{
-	    if ( objects_[idx]->osgNode(true)==node )
-		return objects_[idx]->id();
-	}
+	mSmartLinearSearch( false,
+			    objects_[idx]->osgNode(true)==node,
+			    return objects_[idx]->id() );
     }
 
     return -1;
@@ -142,7 +146,11 @@ void DataManager::getIDs( const std::type_info& ti,
 
 
 void DataManager::removeObject( DataObject* dobj )
-{ objects_ -= dobj; }
+{
+    mSmartLinearSearch( dobj->id()<objects_[idx]->id(),
+			objects_[idx]==dobj,
+			objects_.removeSingle(idx); return );
+}
 
 
 int DataManager::nrObjects() const
