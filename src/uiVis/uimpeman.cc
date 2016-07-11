@@ -924,6 +924,9 @@ void uiMPEMan::cleanPatchDisplay()
 
 void uiMPEMan::undo()
 {
+    if ( !getSelectedDisplay() || !getSelectedDisplay()->isSelected() )
+	return;
+
     MouseCursorChanger mcc( MouseCursor::Wait );
     uiString errmsg;
     MPE::EMTracker* tracker = getSelectedTracker();
@@ -949,6 +952,9 @@ void uiMPEMan::undo()
 
 void uiMPEMan::redo()
 {
+    if ( !getSelectedDisplay() || !getSelectedDisplay()->isSelected() )
+	return;
+
     MouseCursorChanger mcc( MouseCursor::Wait );
     uiString redoerrmsg;
     engine().redo( redoerrmsg );
