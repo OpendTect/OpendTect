@@ -295,6 +295,8 @@ private:
 
     visBase::PointSet*			selections_;
     visBase::PointSet*			lockedpts_;
+    bool				newseeds_;
+    visBase::PointSet*			sectionlockedpts_;
     visBase::VertexShape*		parentline_;
 
     StepInterval<int>			parrowrg_;

@@ -299,6 +299,7 @@ Horizon3D::Horizon3D( EMManager& man )
     , selectioncolor_(sDefaultSelectionColor())
     , lockcolor_(Color::Blue())
     , survgeomid_( Survey::GM().default3DSurvID() )
+    , haslockednodes_( false )
 {
     geometry_.addSection( "", false );
 }
@@ -899,6 +900,8 @@ void Horizon3D::lockAll()
 	setNodeLocked( tk, true );
     }
 
+    haslockednodes_ = true;
+
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::LockChange;
     change.trigger( cbdata );
@@ -909,6 +912,7 @@ void Horizon3D::unlockAll()
 {
     if ( !lockednodes_ ) return;
 
+    haslockednodes_ = false;
     lockednodes_->setAll( '0' );
 
     EMObjectCallbackData cbdata;

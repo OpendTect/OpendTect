@@ -182,6 +182,8 @@ public:
     const Color&		getSelectionColor() const;
     void			setLockColor(const Color&);
     const Color&		getLockColor() const;
+    bool			hasLockedNodes() const 
+					{ return haslockednodes_; }
 
     virtual bool		setPos(const EM::PosID&,const Coord3&,
 				       bool addtohistory);
@@ -207,6 +209,7 @@ protected:
     Color			lockcolor_;
 
     Pos::GeomID			survgeomid_;
+    bool			haslockednodes_;
 
 public:
     /*mDeprecated*/ float	getZ(const BinID&) const;
