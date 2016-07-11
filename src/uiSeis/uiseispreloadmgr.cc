@@ -33,8 +33,10 @@
 #include "statrand.h"
 #include "survinfo.h"
 
+#include "uiaxishandler.h"
 #include "uibuttongroup.h"
 #include "uigeninput.h"
+#include "uihistogramdisplay.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uimapperrangeeditor.h"
@@ -436,6 +438,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 				    const MultiID& input )
     : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
 					mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
+    , scaler_(new LinScaler(0,1))
 {
     setCaption( geom==Vol ? tr("Pre-load 3D Data") : tr("Pre-load 2D Data") );
 
@@ -453,31 +456,57 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     subselfld_->selChange.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
     subselfld_->attach( alignedBelow, seissel_ );
 
-    scalerfld_ = new uiScaler( leftgrp, uiStrings::sEmptyString(), true );
-    scalerfld_->attach( alignedBelow, subselfld_ );
-    scalerfld_->setUnscaled();
-
     typefld_ = new uiGenInput( leftgrp, tr("Load as"),
 		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
     typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
     typefld_->setValue( (int)DataCharacteristics::Auto );
-    typefld_->attach( alignedBelow, scalerfld_ );
+    typefld_->attach( alignedBelow, subselfld_ );
+
+    doscalefld_ = new uiGenInput( leftgrp, tr("Scale Values"),
+				  BoolInpSpec(false) );
+    doscalefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,doScaleCB) );
+    doscalefld_->attach( alignedBelow, typefld_ );
+
+    fromrgfld_ = new uiGenInput( leftgrp, tr("Scale From"),
+	FloatInpIntervalSpec().setName("From start",0).setName("From stop",1) );
+    fromrgfld_->attach( alignedBelow, doscalefld_ );
+
+    torgfld_ = new uiGenInput( leftgrp, tr("Scale To"),
+	FloatInpIntervalSpec().setName("To start",0).setName("To stop",1) );
+    torgfld_->attach( alignedBelow, fromrgfld_ );
 
     uiGroup* rightgrp = new uiGroup( this, "Right Group" );
     rightgrp->attach( rightOf, leftgrp );
     nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"), IntInpSpec(1000) );
-    uiPushButton* updatebut = new uiPushButton( rightgrp, tr("Update"), true );
-    updatebut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
-    updatebut->attach( rightTo, nrtrcsfld_ );
-    histfld_ = new uiMapperRangeEditor( rightgrp, -1 );
+    uiPushButton* scanbut = new uiPushButton( rightgrp, tr("Scan"), true );
+    scanbut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
+    scanbut->attach( rightTo, nrtrcsfld_ );
+    histfld_ = new uiMapperRangeEditor( rightgrp, -1, false );
+    histfld_->rangeChanged.notify( mCB(this,uiSeisPreLoadSel,histChangeCB) );
     histfld_->attach( leftAlignedBelow, nrtrcsfld_ );
 
-    postFinalise().notify( mCB(this,uiSeisPreLoadSel,seisSel) );
+    postFinalise().notify( mCB(this,uiSeisPreLoadSel,finalizeDoneCB) );
 }
 
 
 uiSeisPreLoadSel::~uiSeisPreLoadSel()
 {
+    delete scaler_;
+}
+
+
+void uiSeisPreLoadSel::finalizeDoneCB( CallBacker* )
+{
+    doScaleCB( 0 );
+    seisSel( 0 );
+}
+
+
+void uiSeisPreLoadSel::doScaleCB( CallBacker* )
+{
+    const bool doscale = doscalefld_->getBoolValue();
+    fromrgfld_->display( doscale );
+    torgfld_->display( doscale );
 }
 
 
@@ -509,7 +538,7 @@ void uiSeisPreLoadSel::selectedGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 
 
 Scaler* uiSeisPreLoadSel::getScaler() const
-{ return scalerfld_->getScaler(); }
+{ return scaler_; }
 
 
 void uiSeisPreLoadSel::fillHist( CallBacker* )
@@ -558,8 +587,8 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     SeisTrcBufArray2D array( &seisbuf, false, 0 );
     histfld_->setData( &array );
 
-    ColTab::Sequence seq;
-    ColTab::MapperSetup ms;
+    ColTab::Sequence seq( "" );
+    ColTab::MapperSetup ms; ms.range_ = histfld_->getDisplay().xAxis()->range();
     IOPar pars;
     if ( info.getDisplayPars(pars) )
     {
@@ -570,6 +599,14 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 
     histfld_->setColTabSeq( seq );
     histfld_->setColTabMapperSetup( ms );
+    histChangeCB( 0 );
+}
+
+
+void uiSeisPreLoadSel::histChangeCB( CallBacker* )
+{
+    const Interval<float> rg = histfld_->getColTabMapperSetup().range_;
+    fromrgfld_->setValue( rg );
 }
 
 
@@ -611,34 +648,22 @@ void uiSeisPreLoadSel::getDataChar( DataCharacteristics& dc ) const
 
 void uiSeisPreLoadSel::updateScaleFld()
 {
-    double scale = 1.0;
     SeisIOObjInfo info( seissel_->ioobj() );
     DataCharacteristics dcstor; info.getDataChar( dcstor );
     DataCharacteristics dc; getDataChar( dc );
-    if ( dc.getLimitValue(true) < dcstor.getLimitValue(true) )
+    Interval<double> intv; intv.setUdf();
+    if ( dc.nrBytes() < dcstor.nrBytes() || dc.isSigned() != dcstor.isSigned() )
     {
-	ColTab::MapperSetup mapper;
-	FilePath fp( seissel_->ioobj()->fullUserExpr(true) );
-	fp.setExtension( "par" );
-	IOPar iop;
-	if ( iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty() )
-	    mapper.usePar( iop );
-
-	const Interval<float>& rg = mapper.range_;
-	if ( !rg.isUdf() )
-	{
-	    const bool samesign = (rg.start*rg.stop > 0);
-	    const float posextreme = mGetExtremeVal( rg, true );
-	    if ( !mIsZero(posextreme,mDefEpsF) )
-		scale = fabs( dc.getLimitValue(true)/posextreme );
-	    const float negextreme = mGetExtremeVal( rg, false );
-	    if ( dc.isSigned() && !mIsZero(negextreme,mDefEpsF) )
-		scale = mMIN(scale,fabs(dc.getLimitValue(false)/negextreme));
-	    if ( scale > 1.0 ) scale = 1.0;
-	}
+	intv.start = dc.getLimitValue(false);
+	intv.stop = dc.getLimitValue(true);
     }
 
-    scalerfld_->setInput( LinScaler(0.0,scale) );
+    torgfld_->setValue( intv );
+
+    const DataCharacteristics::UserType type(
+		(DataCharacteristics::UserType)typefld_->getIntValue() );
+    doscalefld_->setValue( type != DataCharacteristics::Auto );
+    doScaleCB( 0 );
 }
 
 
@@ -672,6 +697,14 @@ void uiSeisPreLoadSel::updateEstUsage()
 
 bool uiSeisPreLoadSel::acceptOK( CallBacker* )
 {
+    mDynamicCastGet(LinScaler*,linscaler,scaler_)
+    linscaler->constant = 0; linscaler->factor = 1;
+    if ( doscalefld_->getBoolValue() )
+    {
+	linscaler->set( fromrgfld_->getDValue(0), torgfld_->getDValue(0),
+			fromrgfld_->getDValue(1), torgfld_->getDValue(1) );
+    }
+
     return seissel_->ioobj();
 }
 

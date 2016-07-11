@@ -75,16 +75,23 @@ protected:
     void		fillHist(CallBacker*);
     void		seisSel(CallBacker*);
     void		selChangeCB(CallBacker*);
+    void		histChangeCB(CallBacker*);
+    void		doScaleCB(CallBacker*);
+    void		finalizeDoneCB(CallBacker*);
     void		updateScaleFld();
     void		updateEstUsage();
     bool		acceptOK(CallBacker*);
 
+    Scaler*		scaler_;
+
     uiSeisSel*			seissel_;
     uiSeisSubSel*		subselfld_;
-    uiScaler*			scalerfld_;
     uiGenInput*			typefld_;
     uiMapperRangeEditor*	histfld_;
     uiGenInput*			nrtrcsfld_;
+    uiGenInput*			doscalefld_;
+    uiGenInput*			fromrgfld_;
+    uiGenInput*			torgfld_;
 };
 
 #endif
