@@ -90,11 +90,11 @@ mExpClass(General) DataInpSpec
 public:
 
 
-			DataInpSpec(DataType);
+			DataInpSpec(::DataType);
 			DataInpSpec(const DataInpSpec&);
     virtual		~DataInpSpec()			{}
 
-    DataType		type() const;
+    ::DataType		type() const;
 
     virtual DataInpSpec* clone() const			=0;
     virtual int	nElems() const			{ return 1; }
@@ -139,8 +139,8 @@ public:
 
 protected:
 
-    void		setType( DataType t );
-    DataType		tp_;
+    void		setType( ::DataType t );
+    ::DataType		tp_;
     bool		prefempty_;
 
     TypeSet<int>	nameidxs_;
@@ -307,7 +307,7 @@ mClass(General) NumInpIntervalSpec : public DataInpSpec
 { mODTextTranslationClass(NumInpIntervalSpec)
 public:
 			NumInpIntervalSpec( bool withstep=false )
-			    : DataInpSpec( DataTypeImpl<T>(DataType::interval) )
+			    : DataInpSpec( DataTypeImpl<T>(::DataType::interval) )
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
 			    , symm_(false)
 			    , wsymm_(false)
