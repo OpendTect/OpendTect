@@ -162,6 +162,8 @@ public:
 				    int whichobj)
 				{ otherObjectsMoved( objs, whichobj ); }
 
+    NotifierAccess*		getMovementNotifier()	{ return &hasmoved; }
+
     EM::Fault3D*		emFault();
     void			showSelectedSurfaceData();
     const BufferStringSet*	selectedSurfaceDataNames();
@@ -275,6 +277,8 @@ protected:
     bool				otherobjects_;
     bool				endstick_;
     EM::PosID				activestickid_;
+
+    Notifier<FaultDisplay>		hasmoved;
 
     static const char*			sKeyTriProjection();
     static const char*			sKeyEarthModelID();
