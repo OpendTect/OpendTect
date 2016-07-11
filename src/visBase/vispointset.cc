@@ -65,9 +65,9 @@ int PointSet::addPoint( const Coord3& pos )
 }
 
 
-const Coord3 PointSet::getPoint( int idx ) const
+const Coord3 PointSet::getPoint( int idx, bool scenespace ) const
 {
-    return coords_->getPos( idx ); 
+    return coords_->getPos( idx, scenespace ); 
 }
 
 
