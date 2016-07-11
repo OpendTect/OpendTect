@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visannot.h"
 #include "visdataman.h"
 #include "visevent.h"
+#include "visfaultdisplay.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vispolygonselection.h"
@@ -651,7 +652,12 @@ void Scene::objectMoved( CallBacker* cb )
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx))
-	if ( !so || !so->getMovementNotifier()
+
+	// ABI preservation: fault got no getMovementNotifier() (virtual!)
+	mDynamicCastGet(FaultDisplay*,fd,so);
+	const bool shouldhavemovementnotifier = fd;
+
+	if ( !so || (!so->getMovementNotifier() && !shouldhavemovementnotifier)
 		 || !so->isAnyAttribEnabled() )
 	    continue;
 

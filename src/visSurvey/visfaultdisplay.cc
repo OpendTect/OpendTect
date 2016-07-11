@@ -1405,16 +1405,50 @@ bool FaultDisplay::canDisplayHorizonIntersections() const
 }
 
 
+static int getValidIntersectionObjectIdx( bool horizonintersection,
+			const ObjectSet<const SurveyObject>& objs, int objid )
+{
+    for ( int idx=0; objid>=0 && idx<objs.size(); idx++ )
+    {
+	if ( horizonintersection )
+	{
+	    mDynamicCastGet( const HorizonDisplay*, hor, objs[idx] );
+	    if ( hor && hor->id()==objid )
+		return idx;
+	}
+	else
+	{
+	    mDynamicCastGet( const RandomTrackDisplay*, rdtd, objs[idx] );
+	    if ( rdtd && rdtd->id()==objid )
+		return idx;
+
+	    mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
+	    if ( plane && plane->id()==objid )
+		return idx;
+	}
+    }
+    return -1;
+}
+
+
 void FaultDisplay::updateHorizonIntersections( int whichobj,
 	const ObjectSet<const SurveyObject>& objs )
 {
     if ( !fault_ )
 	return;
 
+    const bool doall = whichobj==-1 || whichobj==id();
+    const int onlyidx = getValidIntersectionObjectIdx( true, objs, whichobj );
+    if ( !doall && onlyidx<0 )
+	return;
+
     ObjectSet<HorizonDisplay> activehordisps;
     TypeSet<int> activehorids;
     for ( int idx=0; idx<objs.size(); idx++ )
     {
+	if ( !doall && idx!=onlyidx )
+	    continue;
+
 	mDynamicCastGet( const HorizonDisplay*, hor, objs[idx] );
 	if ( !hor || !hor->isOn() || !hor->getSectionIDs().size() )
 	    continue;
@@ -1492,11 +1526,20 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 
     if ( !explicitintersections_ ) return;
 
+    const bool doall = whichobj==-1 || whichobj==id();
+    const int onlyidx = getValidIntersectionObjectIdx( false, objs, whichobj );
+    if ( !doall && onlyidx<0 )
+	return;
+
     ObjectSet<const SurveyObject> usedobjects;
     TypeSet<int> planeids;
+    otherobjects_ = false;
 
     for ( int idx=0; idx<objs.size(); idx++ )
     {
+	if ( !doall && idx!=onlyidx )
+	    continue;
+
 	mDynamicCastGet( const RandomTrackDisplay*, rdtd, objs[idx] );
 	mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
 	if ( !plane || !plane->isOn() )
@@ -1504,6 +1547,8 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	    if ( !rdtd || !rdtd->isOn() )
 		continue;
 	}
+
+	otherobjects_ = true;
 
 	const TrcKeyZSampling cs = plane ?
 				   plane->getTrcKeyZSampling(true,true,-1) :
@@ -1539,12 +1584,12 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	const int idy = intersectionobjs_.indexOf( objs[idx] );
 	if ( idy==-1 )
 	{
-	    usedobjects += plane;
+	    usedobjects += objs[idx];
 	    planeids += explicitintersections_->addPlane(normal,positions);
 	}
 	else
 	{
-	    usedobjects += plane;
+	    usedobjects += objs[idx];
 	    explicitintersections_->setPlane( planeids_[idy],
 					      normal, positions );
 	    planeids += planeids_[idy];
@@ -1559,7 +1604,6 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 
     intersectionobjs_ = usedobjects;
     planeids_ = planeids;
-    otherobjects_ = objs.size()>0;
     updateIntersectionDisplay();
     updateStickDisplay();
     showActiveStickMarker();
