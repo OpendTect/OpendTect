@@ -390,7 +390,7 @@ void uiPreStackAttrib::doPreProcSel( CallBacker* )
 }
 
 
-void uiPreStackAttrib::calcTypSel( CallBacker* )
+void uiPreStackAttrib::calcTypSel( CallBacker* cb )
 {
     updateCalcType();
     gatherTypSel( 0 );
@@ -406,7 +406,7 @@ void uiPreStackAttrib::updateCalcType()
 }
 
 
-void uiPreStackAttrib::gatherTypSel( CallBacker* )
+void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
 {
     const bool isoffset = gathertypefld_->getIntValue() == 0;
     uiString xlbl = isoffset ? tr("Offset range (empty=all)") : 
@@ -448,7 +448,7 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
     anglecompgrp_->display( isoffset && iscomputeangle );
     xaxistypefld_->setSensitive( !iscomputeangle );
 
-    if ( cb == useanglefld_ || cb == gathertypefld_ || cb == calctypefld_ )
+    if ( !cb )
     {
 	if ( iscomputeangle )
 	    xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
