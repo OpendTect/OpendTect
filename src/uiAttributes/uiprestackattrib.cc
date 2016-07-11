@@ -107,7 +107,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     anglecompgrp_ = new PreStack::uiAngleCompGrp( this, params_, false, false );
     anglecompgrp_->attach( alignedBelow, valaxtypefld_ );
 
-    calcSelValueSetter();
+    updateCalcType();
     setHAlignObj( prestackinpfld_ );
 }
 
@@ -344,14 +344,14 @@ void uiPreStackAttrib::doPreProcSel( CallBacker* )
 }
 
 
-void uiPreStackAttrib::calcTypSel( CallBacker* )
+void uiPreStackAttrib::calcTypSel( CallBacker* cb )
 {
-    calcSelValueSetter();
+    updateCalcType();
     gatherTypSel( 0 );
 }
 
 
-void uiPreStackAttrib::calcSelValueSetter()
+void uiPreStackAttrib::updateCalcType()
 {
     const bool isnorm = calctypefld_->getIntValue() == 0;
     stattypefld_->display( isnorm );
@@ -360,7 +360,7 @@ void uiPreStackAttrib::calcSelValueSetter()
 }
 
 
-void uiPreStackAttrib::gatherTypSel( CallBacker* )
+void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
 {
     const bool isoffset = gathertypefld_->getIntValue() == 0;
     uiString xlbl = tr("%1 range (empty=all)")	
@@ -383,7 +383,7 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* )
 }
 
 
-void uiPreStackAttrib::angleTypSel( CallBacker* )
+void uiPreStackAttrib::angleTypSel( CallBacker* cb)
 {
     if ( is2D() )
     {
@@ -396,15 +396,18 @@ void uiPreStackAttrib::angleTypSel( CallBacker* )
     const bool isnorm = calctypefld_->getIntValue() == 0;
     
     xrgfld_->setEmpty();
-    xrgfld_->setSensitive( !iscomputeangle || !isoffset );
-    xrglbl_->setSensitive( !iscomputeangle || !isoffset );
+    xrgfld_->setSensitive( !iscomputeangle );
+    xrglbl_->setSensitive( !iscomputeangle );
     anglecompgrp_->display( isoffset && iscomputeangle );
     xaxistypefld_->setSensitive( !iscomputeangle );
 
-    /*if ( iscomputeangle )
-	 xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
-    if ( !iscomputeangle && isoffset && !isnorm )
-	xaxistypefld_->setValue( PreStack::PropCalc::Norm ); */
+    if ( !cb )
+    {
+	if ( iscomputeangle )
+	    xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
+	if ( !iscomputeangle && isoffset && !isnorm )
+    	    xaxistypefld_->setValue( PreStack::PropCalc::Norm ); 
+    }
 }
 
 
