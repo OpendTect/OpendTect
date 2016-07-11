@@ -127,10 +127,9 @@ HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker(
 bool HorizonPainter3D::addPolyLine()
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
-    if ( !emobj ) return false;
-
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return false;
+
     nrseeds_ = 0;
     for ( int ids=0; ids<hor3d->nrSections(); ids++ )
     {
