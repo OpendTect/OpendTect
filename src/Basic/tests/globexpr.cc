@@ -12,12 +12,12 @@
 
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
     if ( quiet || argc != 3 )
-	return ExitProgram( 0 );
+	return 0;
 
     BufferString tomatch( argv[1] );
     GlobExpr ge( argv[2] );
@@ -26,5 +26,5 @@ int main( int argc, char** argv )
 	<< (ge.matches(argv[1]) ? "' matches '" : "' doesn't match '")
 	<< argv[2] << "'" << od_endl;
 
-    return ExitProgram( 0 );
+    return 0;
 }

@@ -36,7 +36,7 @@ static bool initLoader( EM::StoredObjAccess& soa )
 #include "moddepmgr.h"
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
     OD::ModDeps().ensureLoaded( "EarthModel" );
@@ -44,12 +44,12 @@ int main( int argc, char** argv )
 
     EM::StoredObjAccess soa;
     if ( !initLoader(soa) )
-	ExitProgram(1);
+	return 1;
 
     Executor* exec = soa.reader();
     TextTaskRunner ttr( od_cout() );
     if ( !ttr.execute(*exec) )
-	ExitProgram(1);
+	return 1;
 
     delete exec;
 
@@ -88,5 +88,5 @@ int main( int argc, char** argv )
        -> 4 sticks, 7 knots.
        */
 
-    return ExitProgram( 0 );
+    return 0;
 }

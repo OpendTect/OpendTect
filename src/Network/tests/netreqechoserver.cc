@@ -176,13 +176,13 @@ public:
 } //Namespace
 
 
-int main(int argc, char** argv)
+int testMain(int argc, char** argv)
 {
     mInitTestProg();
 
     //Make standard test-runs just work fine.
     if ( !clparser.hasKey("port") )
-	ExitProgram( 0 );
+	return 0;
 
     ApplicationData app;
 
@@ -195,5 +195,5 @@ int main(int argc, char** argv)
     Network::RequestEchoServer server( mCast(unsigned short,startport),
 					     timeout, app );
 
-    ExitProgram( app.exec() );
+    return app.exec();
 }

@@ -35,12 +35,12 @@ static bool testConnectionSetup()
 
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
     if ( !testConnectionSetup() )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

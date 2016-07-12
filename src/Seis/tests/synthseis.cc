@@ -6,10 +6,10 @@
 
 
 #include "synthseis.h"
-#include "testprog.h"
 
 #include "ailayer.h"
 #include "batchprog.h"
+#include "testprog.h"
 #include "commandlineparser.h"
 #include "factory.h"
 #include "ioman.h"

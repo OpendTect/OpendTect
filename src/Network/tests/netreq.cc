@@ -251,7 +251,7 @@ public:
 };
 
 
-int main(int argc, char** argv)
+int testMain(int argc, char** argv)
 {
     mInitTestProg();
     ApplicationData app;
@@ -271,18 +271,18 @@ int main(int argc, char** argv)
     if ( !clparser.hasKey("noechoapp") && !ExecODProgram( echoapp, args.buf() ))
     {
 	od_ostream::logStream() << "Cannot start " << echoapp << "\n";
-	ExitProgram( 1 );
+	return 1;
     }
 
     Threads::sleep( 1 );
 
     if ( !runner->runTest(false,false) )
-	ExitProgram( 1 );
+	return 1;
 
     CallBack::addToMainThread( mCB( runner,Tester, runEventLoopTest) );
     const int retval = app.exec();
 
     runner = 0;
 
-    ExitProgram( retval );
+    return retval;
 }

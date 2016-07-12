@@ -156,7 +156,7 @@ void loopCB(CallBacker*)
 }
 
 
-int main(int argc, char** argv)
+int testMain(int argc, char** argv)
 {
     mInitTestProg();
     ApplicationData app;
@@ -172,15 +172,15 @@ int main(int argc, char** argv)
     bool res = runTests();
     File::remove( tempfile.fullPath() );
     if ( !res )
-	ExitProgram( 1 );
+	return 1;
 
     Threads::Thread thread( mSCB( threadCB ), "test_networkaccess thread" );
     thread.waitForFinish();
 
     if ( !threadres )
-	ExitProgram( 1 );
+	return 1;
 
     CallBack::addToMainThread( mSCB( loopCB ) );
     const int retval = app.exec();
-    ExitProgram( retval );
+    return retval;
 }

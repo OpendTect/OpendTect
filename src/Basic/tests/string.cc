@@ -257,7 +257,7 @@ bool testEmptyStringComparison()
     return true;
 }
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -268,7 +268,7 @@ int main( int argc, char** argv )
       || !testOccFns()
       || !testLimFToStringFns()
       || !testEmptyStringComparison() )
-	ExitProgram( 1 );
+	return 1;
 
     BufferStringSet strs;
     strs.add( "Str pos 0" );
@@ -284,5 +284,5 @@ int main( int argc, char** argv )
 	od_cout() << "Should be empty: '" << str << "'" << od_endl;
     }
 
-    return ExitProgram( 0 );
+    return 0;
 }

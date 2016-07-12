@@ -136,10 +136,10 @@ bool testContinuousCurvatureInterpolation()
     return true;
 }
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
  
-    return ExitProgram( testContinuousCurvatureInterpolation() ? 0 : 1 );
+    return testContinuousCurvatureInterpolation() ? 0 : 1;
 
 }

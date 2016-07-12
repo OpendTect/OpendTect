@@ -10,9 +10,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiskeytracker.h"
 
 #define mErrRet(strmstuff) \
-{ od_cout() << strmstuff << od_endl; return ExitProgram(1); }
+{ od_cout() << strmstuff << od_endl; return 1; }
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -127,5 +127,5 @@ int main( int argc, char** argv )
     mDumpTrackRecord();
 
     strm.close();
-    return ExitProgram( 0 );
+    return 0;
 }

@@ -72,10 +72,10 @@ static bool compareDefs( const SEGY::DirectDef& dd1, const SEGY::DirectDef& dd2)
 
 #undef mErrRet
 #define mErrRet(strmstuff) \
-{ od_cout() << strmstuff << od_endl; ExitProgram(1); }
+{ od_cout() << strmstuff << od_endl; return false; }
 
 
-static void writeDefToFile( SEGY::DirectDef& dd, const char* fnm )
+static bool writeDefToFile( SEGY::DirectDef& dd, const char* fnm )
 {
     od_cout() << "Writing " << fnm << " ..." << od_endl;
     if ( !dd.writeHeadersToFile(fnm) )
@@ -83,15 +83,17 @@ static void writeDefToFile( SEGY::DirectDef& dd, const char* fnm )
     dd.fileDataSet().dump( *dd.getOutputStream() );
     if ( !dd.writeFootersToFile() )
 	mErrRet("Cannot write footers for "<<fnm)
+
+    return true;
 }
 
 
 #undef mErrRet
 #define mErrRet(strmstuff) \
-{ od_cout() << strmstuff << od_endl; return ExitProgram(1); }
+{ od_cout() << strmstuff << od_endl; return 1; }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -108,10 +110,13 @@ int main( int argc, char** argv )
 	mErrRet(dd2.errMsg().getFullString())
 
     if ( !compareDefs(dd1,dd2) )
-	return ExitProgram( 1 );
+	return 1;
 
-    writeDefToFile( dd1, "/tmp/dd1.txt" );
-    writeDefToFile( dd2, "/tmp/dd2.txt" );
+    if ( !writeDefToFile( dd1, "/tmp/dd1.txt" ) )
+	return 1;
 
-    return ExitProgram( 0 );
+    if ( !writeDefToFile( dd2, "/tmp/dd2.txt" ) )
+	return 1;
+
+    return 0;
 }

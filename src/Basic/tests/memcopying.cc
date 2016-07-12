@@ -116,7 +116,7 @@ static bool testCopySet()
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
     const bool largemem = clparser.hasKey( "largemem" );
@@ -127,9 +127,9 @@ int main( int argc, char** argv )
 	cTotNrElems /= 10;
 
     if ( !testCopySet() )
-	ExitProgram( 1 );
+	return 1;
     if ( !testSpeed() )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

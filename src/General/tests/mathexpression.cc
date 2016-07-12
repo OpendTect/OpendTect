@@ -128,7 +128,7 @@ static bool testAbs()
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -137,12 +137,12 @@ int main( int argc, char** argv )
     else
     {
 	if ( !testArithmeticOrder() )
-	    ExitProgram( 1 );
+	    return 1;
 	if ( !testParenthesis() )
-	    ExitProgram( 1 );
+	    return 1;
 	if ( !testAbs() )
-	    ExitProgram( 1 );
+	    return 1;
     }
 
-    return ExitProgram( 0 );
+    return 0;
 }

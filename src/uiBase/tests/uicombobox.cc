@@ -25,7 +25,7 @@ bool testEnums()
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -33,7 +33,7 @@ int main( int argc, char** argv )
 
 
     if ( !testEnums() )
-        ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

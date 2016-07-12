@@ -106,36 +106,30 @@ static bool testReadBigFile()
 }
 */
 
+bool testIsLocalFlag()
+{
+    od_istream dnstrm( "/dev/null" );
+    mRunStandardTest( dnstrm.isLocal(), "Stream should be local" );
 
-int main(int argc, char** argv)
+    od_istream wbstrm( "http://opendtect.org/dlsites.txt" );
+    mRunStandardTest( !wbstrm.isLocal(), "Stream should no be local" );
+
+    return true;
+}
+
+int testMain(int argc, char** argv)
 {
     mInitTestProg();
     ApplicationData app; // needed for QEventLoop
     OD::ModDeps().ensureLoaded( "Network" );
 
-    bool res = true;
-
-    if ( res && !testReadSmallFile() )
-	res = false;
+    if ( !testReadSmallFile() || !testIsLocalFlag() )
+	return 1;
 
 /*
     if ( res && !testReadBigFile() )
 	res = false;
 */
 
-
-    od_istream dnstrm( "/dev/null" );
-    if ( !dnstrm.isLocal() )
-    {
-	tstStream(true) << "Stream should be local" << od_endl;
-	res = false;
-    }
-    od_istream wbstrm( "http://opendtect.org/dlsites.txt" );
-    if ( wbstrm.isLocal() )
-    {
-	tstStream(true) << "Stream should not be local" << od_endl;
-	res = false;
-    }
-
-    ExitProgram( res ? 0 : 1 );
+    return 0;
 }

@@ -60,12 +60,12 @@ static bool test2DPDF()
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
     if ( !test2DPDF() )
-	ExitProgram( 1 );
+	return 1;
 
-    ExitProgram( 0 );
+    return 0;
 }

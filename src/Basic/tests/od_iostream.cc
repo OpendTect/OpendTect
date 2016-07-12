@@ -175,11 +175,11 @@ int doExit( int retval )
     if ( File::exists( tmpfnm ) )
 	File::remove( tmpfnm );
 
-    return ExitProgram( retval );
+    return retval;
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
     DBG::turnOn(0); //Turn off all debug-stuff as it screwes the pipes
@@ -192,7 +192,7 @@ int main( int argc, char** argv )
     isok = tstfn(); \
     File::remove( tmpfnm ); \
     if ( !isok ) \
-	doExit( 1 )
+	return doExit( 1 )
 
     mDoTest(strm1,"123 44.5",testIfNumberIsNormal);
     mDoTest(strm2,"\t\n123\t\t44.5\n\n",testIfNumberIsNormal);
@@ -203,14 +203,14 @@ int main( int argc, char** argv )
     mDoTest(strm7,"\n123\n \n",testOnlyIntRead);
 
     if (!testPipeInput())
-        doExit(1);
+	return doExit(1);
 
     if (!testPipeOutput())
     {
 	if (File::exists(tmpfnm))
 	    File::remove(tmpfnm);
 
-	doExit(1);
+	return doExit(1);
     }
 
     return doExit( 0 );

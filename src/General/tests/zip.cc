@@ -20,7 +20,7 @@ if ( !command ) \
     od_cout() << testname << " failed!\n" << err.getFullString(); \
     File::remove( zipfilename.fullPath() ); \
     File::removeDir( outputdir.fullPath() ); \
-    ExitProgram(1); \
+    return 1; \
 } \
 else if ( !quiet ) \
     od_cout() << testname << " Succeeded!\n"; \
@@ -43,14 +43,14 @@ else if ( !quiet ) \
 			       << dest.fullPath(); \
 	File::remove( zipfilename.fullPath() ); \
 	File::removeDir( outputdir.fullPath() ); \
-	ExitProgram(1); \
+	return 1; \
     } \
     else if ( !quiet ) \
 	od_cout() << "Data integrety check succeeded!\n"; \
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -76,5 +76,5 @@ int main( int argc, char** argv )
     File::remove( zipfilename.fullPath() );
     File::removeDir( outputdir.fullPath() );
 
-    return ExitProgram(0);
+    return 0;
 }

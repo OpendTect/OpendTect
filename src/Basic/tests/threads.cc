@@ -190,8 +190,10 @@ bool testAtomicPointer()
     const void* storage = curthread.getStorage();
     curthread = Threads::currentThread();
 
-    mRunStandardTest(storage == curthread.getStorage(), "Atomic pointer sanity");
-    mRunStandardTest(curthread == Threads::currentThread(), "Atomic Pointer assignment");
+    mRunStandardTest(storage == curthread.getStorage(),
+	    	     "Atomic pointer sanity");
+    mRunStandardTest(curthread == Threads::currentThread(),
+	    	     "Atomic Pointer assignment");
 
 
     return true;
@@ -390,10 +392,10 @@ bool testConditionVarTimeout()
 
 #define mRunTestWithType(thetype) \
     if ( !testAtomic<thetype>( " " #thetype " " ) ) \
-	ExitProgram( 1 );
+	return 1;
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -418,7 +420,7 @@ int main( int argc, char** argv )
       || !testConditionVarTimeout()
       || !testLock<Threads::Mutex>( false, "Mutex" )
       || !testLock<Threads::SpinLock>( true, "SpinLock" ) )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

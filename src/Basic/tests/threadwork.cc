@@ -219,7 +219,7 @@ public:
 };
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -228,5 +228,5 @@ int main( int argc, char** argv )
 		  && tester.testWorkResults();
 
     Threads::WorkManager::twm().shutdown();
-    return ExitProgram( res ? 0 : 1 );
+    return res ? 0 : 1;
 }

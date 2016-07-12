@@ -28,6 +28,14 @@ ________________________________________________________________________
 #  include "winmain.h"
 # endif
 
+int testMain( int argc, char** argv );
+
+#ifndef batchprog_h
+int main(int argc, char** argv)
+{
+    ExitProgram( testMain( argc, argv ) );
+}
+#endif
 
 static mUsedVar bool quiet = true;
 static mUsedVar PtrMan<CommandLineParser> theparser = 0;

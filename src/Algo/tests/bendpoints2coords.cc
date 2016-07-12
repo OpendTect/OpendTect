@@ -71,7 +71,7 @@ static bool testReadBendPointFile( const char* file )
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -79,18 +79,18 @@ int main( int argc, char** argv )
     clparser.getNormalArguments(normalargs);
 
     if ( !testCoordList2D() )
-	ExitProgram( 1 );
+	return 1;
     if ( !testCoordList3D() )
-	ExitProgram( 1 );
+	return 1;
 
     if ( normalargs.isEmpty() )
     {
 	od_ostream::logStream() << "No input file specified";
-	ExitProgram( 1 );
+	return 1;
     }
 
     if ( !testReadBendPointFile( normalargs.get(0) ) )
-	ExitProgram( 1 );
+	return 1;
 
-    ExitProgram( 0 );
+    return 0;
 }

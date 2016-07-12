@@ -299,7 +299,7 @@ bool testHexEncoding()
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -307,7 +307,7 @@ int main( int argc, char** argv )
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
 	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings() ||
 	 !testToLower() || !TestTranslator::testTranslation() || !testUTF8() )
-	ExitProgram( 1 );
+	return 1;
 
-    ExitProgram( 0 );
+    return 0;
 }

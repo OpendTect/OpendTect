@@ -94,11 +94,11 @@ public:
 };
 
 
-int main(int argc, char** argv)
+int testMain(int argc, char** argv)
 {
     mInitTestProg();
     if ( !clparser.hasKey("port") )
-	ExitProgram( 0 );
+	return 0;
 
 
     SetProgramArgs( argc, argv );
@@ -116,5 +116,5 @@ int main(int argc, char** argv)
 	      << " with a " <<server.timeout_ << " second timeout\n";
 
 
-    ExitProgram( app.exec() );
+    return app.exec();
 }

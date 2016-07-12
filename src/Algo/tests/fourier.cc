@@ -104,7 +104,8 @@ bool testForwardCC( const TypeSet<float_complex>& input )
 
     testname = "FFT results ";
     testname.add( input.size() );
-    mTest( testname.buf(), checkRMSDifference( transformdata, reference, 2e-5 ) );
+    mTest( testname.buf(),
+	   checkRMSDifference( transformdata, reference, 2e-5 ) );
 
     return true;
 }
@@ -123,7 +124,7 @@ bool FFTChecker::execute()
 
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -147,7 +148,7 @@ int main( int argc, char** argv )
     }
 
     if ( !Threads::WorkManager::twm().addWork( workload ) )
-        ExitProgram( 1 );
+        return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

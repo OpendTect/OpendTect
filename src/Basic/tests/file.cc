@@ -117,7 +117,7 @@ bool testFilePathParsing()
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -125,14 +125,14 @@ int main( int argc, char** argv )
     clparser.getNormalArguments(normalargs);
 
     if ( normalargs.isEmpty() )
-	{ od_cout() << "No input file specified"; ExitProgram( 1 ); }
+	{ od_cout() << "No input file specified"; return 1; }
 
     if ( !testReadContent()
       || !testIStream( normalargs.get(0).buf() ) )
-	ExitProgram( 1 );
+	return 1;
 
     if ( !testFilePathParsing() )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram(0);
+    return 0;
 }

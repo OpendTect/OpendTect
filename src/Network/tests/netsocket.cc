@@ -148,7 +148,7 @@ bool TestRunner::testNetSocket()
 // can be specified by --serverapp "application". If no serverapp is given,
 // echoserver is started
 
-int main(int argc, char** argv)
+int testMain(int argc, char** argv)
 {
     mInitTestProg();
     ApplicationData app;
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
     memsetter.execute();
 
     if ( !runner.testNetSocket() )
-	ExitProgram( 1 );
+	return 1;
 
     //Now with a running event loop
 
@@ -191,5 +191,5 @@ int main(int argc, char** argv)
     CallBack::addToMainThread( mCB(&runner,TestRunner,testCallBack) );
     const int res = app.exec();
 
-    ExitProgram( res );
+    return res;
 }

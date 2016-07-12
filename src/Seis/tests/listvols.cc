@@ -57,7 +57,7 @@ static int runEntryList( const IOObjContext& ctxt )
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -86,9 +86,9 @@ int main( int argc, char** argv )
     {
 	od_cout() << "Error: nr items from IOM=" << nritemsiom << ",\n"
 	          << "\t\tfrom EntryList=" << nritemsel << od_endl;
-	ExitProgram( 1 );
+	return 1;
     }
 
-    return ExitProgram( 0 );
+    return 0;
 }
 

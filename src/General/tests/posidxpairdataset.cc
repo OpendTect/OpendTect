@@ -186,7 +186,7 @@ static bool testAdd( Pos::IdxPairDataSet& ds, const ObjectSet<TstObj>& objs )
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -202,16 +202,16 @@ int main( int argc, char** argv )
 
     Pos::IdxPairDataSet ds_nodup( sizeof(TstObj), false, true );
     if ( !testAdd(ds_nodup,objs) )
-	ExitProgram( 1 );
+	return 1;
     Pos::IdxPairDataSet ds_dup( sizeof(TstObj), true, true );
     if ( !testAdd(ds_dup,objs) )
-	ExitProgram( 1 );
+	return 1;
     Pos::IdxPairDataSet ds_nodup_noman( sizeof(TstObj), false, false );
     if ( !testAdd(ds_nodup_noman,objs) )
-	ExitProgram( 1 );
+	return 1;
     Pos::IdxPairDataSet ds_dup_noman( sizeof(TstObj), true, false );
     if ( !testAdd(ds_dup_noman,objs) )
-	ExitProgram( 1 );
+	return ( 1 );
 
-    return ExitProgram( 0 );
+    return 0;
 }

@@ -76,7 +76,7 @@ public:
     { \
 	od_cout() << "Failed test with IbmFormat::as##func( " \
 		  << bufval << " )\n"; \
-	ExitProgram( 1 ); \
+	return 1; \
     } \
  \
     IbmFormat::put##func( correctval, &resbuf ); \
@@ -84,13 +84,13 @@ public:
     { \
 	od_cout() << "Failed test with IbmFormat::put##func( " \
 		  << bufval << " )\n"; \
-	ExitProgram( 1 ); \
+	return 1; \
     } \
 }
 
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -110,12 +110,12 @@ int main( int argc, char** argv )
 
     //Test two known problem-spots
      if ( !testFloatIndex( 152776, -1409417216.000000f ) )
-	 ExitProgram( 1 );
+	 return 1;
 
     if ( !testFloatIndex( 0, 0) )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 
     //Optional, run entire number-space.
     //IbmFormatTester tester;

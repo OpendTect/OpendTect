@@ -115,7 +115,8 @@ static bool runCommandWithLongOutput()
     //Should be 100% correct, meaning that no bytes have been skipped or
     //inserted.
     //
-    const FilePath scriptname(GetSoftwareDir(0),"testscripts", "count_to_1000.csh");
+    const FilePath scriptname( GetSoftwareDir(0),"testscripts",
+	    		       "count_to_1000.csh");
     BufferString output;
     OS::ExecCommand(scriptname.fullPath(), OS::Wait4Finish, &output );
 
@@ -161,7 +162,7 @@ static void testServer()
 
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     DBG::turnOn( 0 ); //Turn off all debug-stuff as it screwes the pipes
     mInitTestProg();
@@ -175,7 +176,7 @@ int main( int argc, char** argv )
 
     if ( !testCmds() || !testAllPipes() || !runCommandWithSpace() ||
 	 !runCommandWithLongOutput() )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

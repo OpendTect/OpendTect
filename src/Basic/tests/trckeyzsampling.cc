@@ -138,7 +138,7 @@ bool testIterator()
 }
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -153,7 +153,7 @@ int main( int argc, char** argv )
       || !testEmpty()
       || !testLimitTo()
       || !testIterator() )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

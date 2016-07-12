@@ -335,7 +335,7 @@ bool testManagedObjectSet()
 
 
 
-int main( int argc, char** argv )
+int testMain( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -346,5 +346,5 @@ int main( int argc, char** argv )
     res += testSetCapacity() ? 0 : 1;
     res += testManagedObjectSet() ? 0 : 1;
 
-    return ExitProgram( res );
+    return res;
 }
