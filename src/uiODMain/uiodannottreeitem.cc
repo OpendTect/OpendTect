@@ -134,7 +134,9 @@ uiODAnnotTreeItem::uiODAnnotTreeItem( const uiString& type )
 
 
 uiODAnnotTreeItem::~uiODAnnotTreeItem()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 const char* uiODAnnotTreeItem::parentType() const
@@ -144,7 +146,7 @@ const char* uiODAnnotTreeItem::parentType() const
 bool uiODAnnotTreeItem::init()
 {
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    mgr.setToBeRemoved.notify( mCB(this,uiODAnnotTreeItem,setRemovedCB));
+    mAttachCB(mgr.setToBeRemoved,uiODAnnotTreeItem::setRemovedCB);
     return true;
 }
 
