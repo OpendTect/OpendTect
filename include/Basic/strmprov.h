@@ -102,6 +102,7 @@ public:
     mExpClass(Basic) StreamSource
     {
     public:
+	virtual			~StreamSource()			{}
 	enum Type		{ Read, Write, Edit };
 	virtual const char*	name() const			= 0;
 	virtual bool		supports(Type) const		= 0;

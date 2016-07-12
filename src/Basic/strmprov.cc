@@ -109,8 +109,13 @@ static inline const char* remExecCmd()
 
 
 //---- StreamSource management ----
+struct StreamProviderRepos : public ObjectSet<const StreamProvider::StreamSource>
+{
+    ~StreamProviderRepos() { deepErase( *this ); }
+};
 
-static ObjectSet<const StreamProvider::StreamSource> streamsources_;
+static StreamProviderRepos streamsources_;
+
 static const StreamProvider::StreamSource& streamSource( int idx )
 { return *streamsources_[idx]; }
 int StreamProvider::addStreamSource( StreamSource* ss )
