@@ -357,34 +357,11 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* )
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     if ( !seedpicker ) return;
 
-    if ( setupbeingupdated_ )
-    {
-	saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
+    if ( setupgrp_ )
+	setupgrp_->commitToTracker();
 
-	trackercurrentobject_ = -1;
-	setupbeingupdated_ = false;
-	sendEvent( ::uiMPEPartServer::evSetupClosed() );
-	return;
-    }
+    saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
 
-    if ( !seedhasbeenpicked_ )
-    {
-	uiString str = tr("No seeds have been picked.\n\n"
-			  "Do you want to continue horizon tracking?");
-	const bool res = uiMSG().askContinue( str );
-	if ( !res )
-	{
-	    noTrackingRemoval();
-	    return;
-	}
-    }
-
-    if ( setupgrp_ && !setupgrp_->commitToTracker() )
-	if ( !seedhasbeenpicked_ )
-	{
-	    seedswithoutattribsel_ = true;
-	    return;
-	}
 
     seedpicker->seedToBeAddedRemoved.remove(
 			   mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
