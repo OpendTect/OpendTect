@@ -722,15 +722,17 @@ void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
     BufferString seltxt( curitem->text() );
     ObjectSet<uiTreeItem> treeitms;
     treetp_->findChildren( seltxt, treeitms );
-    uiODVw2DHor3DTreeItem* hortreeitm = 0;
+    uiODVw2DHor2DTreeItem* hor2dtreeitm = 0;
+    uiODVw2DHor3DTreeItem* hor3dtreeitm = 0;
     for ( int idx=0; idx<treeitms.size(); idx++ )
     {
-	mDynamicCast( uiODVw2DHor3DTreeItem*,hortreeitm,treeitms[idx])
-	if ( hortreeitm )
+	mDynamicCast(uiODVw2DHor2DTreeItem*,hor2dtreeitm,treeitms[idx])
+	mDynamicCast(uiODVw2DHor3DTreeItem*,hor3dtreeitm,treeitms[idx])
+	if ( hor2dtreeitm || hor3dtreeitm )
 	    break;
     }
 
-    if ( !hortreeitm )
+    if ( !hor2dtreeitm && !hor3dtreeitm )
     {
 	if ( viewstdcontrol_->editToolBar() )
 	    viewstdcontrol_->editToolBar()->setSensitive(
@@ -739,7 +741,9 @@ void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
     }
 
     uiMPEPartServer* mpserv = appl_.applMgr().mpeServer();
-    const int trackerid = mpserv->getTrackerID( hortreeitm->emObjectID() );
+    const EM::ObjectID emobjid = hor2dtreeitm ? hor2dtreeitm->emObjectID()
+					      : hor3dtreeitm->emObjectID();
+    const int trackerid = mpserv->getTrackerID( emobjid );
     if ( viewstdcontrol_->editToolBar() )
 	viewstdcontrol_->editToolBar()->setSensitive(
 		picksettingstbid_, trackerid==mpserv->activeTrackerID() );
