@@ -1251,7 +1251,7 @@ private:
 			{
 			    for ( int idy=0; idy<nrcrl; idy++ )
 			    {
-				const float val =
+				const T val =
 					in_.get( inlidxin, startcrlidyin+idy );
 				out_.set( inlidxout, startcrlidyout+idy, val );
 			    }
@@ -1264,11 +1264,11 @@ private:
 		    return true;
 		}
 
-    const Array2D<T>&	in_;
+    const Array2D<T>&		in_;
     const TrcKeySampling&	tksin_;
     const TrcKeySampling&	tksout_;
-    TrcKeySampling	commontks_;
-    Array2D<T>&		out_;
+    TrcKeySampling		commontks_;
+    Array2D<T>&			out_;
 };
 
 
