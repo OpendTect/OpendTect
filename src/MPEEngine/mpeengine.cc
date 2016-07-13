@@ -50,8 +50,9 @@ MPE::Engine& MPE::engine()
 namespace MPE
 {
 
-static HiddenParam< Engine, const TrcKeyPath* > rdmlinetkpaths( 0 );
-static HiddenParam< Engine, int > rdlids( -1 );
+static HiddenParam<Engine,const TrcKeyPath*> rdmlinetkpaths( 0 );
+static HiddenParam<Engine,int> rdlids( -1 );
+static HiddenParam<Engine,TrackSettingsValidator*> validators( 0 );
 
 // MPE::Engine
 Engine::Engine()
@@ -69,6 +70,8 @@ Engine::Engine()
 {
     rdmlinetkpaths.setParam( this, 0 );
     rdlids.setParam( this, -1 );
+    validators.setParam( this, 0 );
+
     trackers_.allowNull();
     trackermgrs_.allowNull();
     flatcubescontainer_.allowNull();
@@ -95,6 +98,15 @@ Engine::~Engine()
 	dpm_.release( attribbkpcachedatapackids_[idx] );
     rdmlinetkpaths.removeParam( this );
     rdlids.removeParam( this );
+    delete validators.getParam( this );
+    validators.removeParam( this );
+}
+
+
+void Engine::setValidator( TrackSettingsValidator* val )
+{
+    delete validators.getParam( this );
+    validators.setParam( this, val );
 }
 
 
@@ -321,47 +333,25 @@ void Engine::enableTracking( bool yn )
 
 bool Engine::prepareForTrackInVolume( uiString& errmsg )
 {
-    if ( !activetracker_ ) return false;
+    TrackSettingsValidator* validator = validators.getParam( this );
+    if ( validator && !validator->checkActiveTracker() )
+	return false;
 
     EMSeedPicker* seedpicker = activetracker_->getSeedPicker( true );
     if ( !seedpicker ||
 	 seedpicker->getTrackMode()!=EMSeedPicker::TrackFromSeeds )
 	return false;
 
-    const Attrib::SelSpec* as = seedpicker ? seedpicker->getSelSpec() : 0;
-    if ( !as ) return false;
-
-    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
-    const Attrib::Desc* desc = ads ? ads->getDesc( as->id() ) : 0;
-    if ( !desc )
-    {
-	ads = Attrib::DSHolder().getDescSet( false, false );
-	desc = ads ? ads->getDesc( as->id() ) : 0;
-    }
-
-    const MultiID mid =
-	desc ? MultiID(desc->getStoredID(false)) : MultiID::udf();
-    if ( mid.isUdf() )
-    {
-	errmsg = tr("Volume tracking can only be done on stored volumes.");
+    MultiID key = MultiID::udf();
+    Attrib::SelSpec as( *seedpicker->getSelSpec() );
+    if ( validator && !validator->checkStoredData(as,key) )
 	return false;
-    }
 
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj )
-    {
-	errmsg = tr("Cannot find picked data in database");
+    if ( validator && !validator->checkPreloadedData(key) )
 	return false;
-    }
 
-    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
-    if ( !sdp )
-    {
-	errmsg = tr("Seismic data is not preloaded yet");
-	return false;
-    }
-
-    setAttribData( *as, sdp->id() );
+    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(key));
+    setAttribData( as, sdp->id() );
     setActiveVolume( sdp->sampling() );
     return true;
 }
