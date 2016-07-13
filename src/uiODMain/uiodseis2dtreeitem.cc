@@ -710,7 +710,10 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
     else
     {
 	applMgr()->attrServer()->setTargetSelSpecs( as );
-	dp = applMgr()->attrServer()->createOutput( tkzs );
+	const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+	ConstRefMan<RegularSeisDataPack> regsdp =
+	    		dpm.get( s2d->getDataPackID(attribnr) );
+	dp = applMgr()->attrServer()->createOutput( tkzs, regsdp );
     }
 
     if ( !dp )

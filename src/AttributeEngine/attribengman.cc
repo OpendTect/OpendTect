@@ -492,6 +492,7 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 			tkzs_.hsamp_.survid_==Survey::GM().get2DSurvID() );
     RegularSeisDataPack* output =
 	new RegularSeisDataPack( category, &packset[0]->getDataDesc() );
+    DPM(DataPackMgr::SeisID()).add( output );
     if ( packset[0]->getScaler() )
 	output->setScaler( *packset[0]->getScaler() );
 
@@ -727,7 +728,6 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	cache_ = 0;
     }
 
-
     if ( tkzs_.isEmpty() )
 	prev = 0;
     else if ( prev )
@@ -735,8 +735,7 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	cache_ = prev;
         cache_->ref();
 	const TrcKeyZSampling cachecs = cache_->sampling();
-	if ( mRg(h).step_ != tkzs_.hsamp_.step_
-	  || (mRg(h).start_.inl() - tkzs_.hsamp_.start_.inl()) %
+	if ( (mRg(h).start_.inl() - tkzs_.hsamp_.start_.inl()) %
 		tkzs_.hsamp_.step_.inl()
 	  || (mRg(h).start_.crl() - tkzs_.hsamp_.start_.crl()) %
 		tkzs_.hsamp_.step_.crl()

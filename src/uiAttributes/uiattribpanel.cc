@@ -103,7 +103,7 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
     sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid_;
 
     const DataPack::ID outputid = uiAttribPartServer::createDataPackFor2D(
-					d2dh, sampling, SI().zDomain());
+							d2dh, SI().zDomain() );
     RefMan<DataPack> regsdp = DPM(DataPackMgr::SeisID()).get( outputid );
 
     return RefMan<FlatDataPack>( (FlatDataPack*) regsdp.ptr() );
