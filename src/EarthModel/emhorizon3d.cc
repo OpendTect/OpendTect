@@ -13,8 +13,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizonascio.h"
 #include "emioobjinfo.h"
 
+#include "arrayndalgo.h"
 #include "array2dinterpol.h"
 #include "arrayndimpl.h"
+#include "ascstream.h"
 #include "atomic.h"
 #include "binidsurface.h"
 #include "binidvalset.h"
@@ -25,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "emundo.h"
 #include "executor.h"
+#include "filepath.h"
 #include "ioobj.h"
 #include "pickset.h"
 #include "posprovider.h"
@@ -288,8 +291,8 @@ protected:
     int			nrdone_;
 };
 
-// EM::Horizon3D
 
+// EM::Horizon3D
 Horizon3D::Horizon3D( EMManager& man )
     : Horizon(man)
     , geometry_(*this)
@@ -606,21 +609,155 @@ void Horizon3D::initTrackingArrays()
     delete lockednodes_; lockednodes_ = 0;
     delete children_; children_ = 0;
 
-    const SectionID sid = sectionID( 0 );
-    const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
-    if ( !geom || geom->isEmpty() ) return;
+    const bool haspcd = readParentArray();
+    if ( !haspcd )
+    {
+	const SectionID sid = sectionID( 0 );
+	const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
+	if ( !geom || geom->isEmpty() ) return;
 
-    trackingsamp_.setInlRange( geom->rowRange() );
-    trackingsamp_.setCrlRange( geom->colRange() );
+	trackingsamp_.setLineRange( geom->rowRange() );
+	trackingsamp_.setTrcRange( geom->colRange() );
+    }
+
     const int nrrows = trackingsamp_.nrLines();
     const int nrcols = trackingsamp_.nrTrcs();
 
-    parents_ = new Array2DImpl<od_int64>( nrrows, nrcols );
-    parents_->setAll( -1 );
+    if ( !parents_ )
+    {
+	parents_ = new Array2DImpl<od_int64>( nrrows, nrcols );
+	parents_->setAll( -1 );
+    }
+
     lockednodes_ = new Array2DImpl<char>( nrrows, nrcols );
     lockednodes_->setAll( '0' );
     children_ = new Array2DImpl<char>( nrrows, nrcols );
     children_->setAll( '0' );
+}
+
+
+void Horizon3D::updateTrackingSampling()
+{
+    const SectionID sid = sectionID( 0 );
+    const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
+    if ( !geom || geom->isEmpty() ) return;
+
+    const TrcKeySampling curtks = getTrackingSampling();
+    TrcKeySampling tks;
+    tks.setLineRange( geom->rowRange() );
+    tks.setTrcRange( geom->colRange() );
+    tks.include( curtks, true );
+    if ( tks == curtks )
+	return;
+
+    initTrackingAuxData();
+
+    trackingsamp_ = tks;
+    if ( lockednodes_ )
+    {
+	Array2DImpl<char>* newlockednodes =
+		new Array2DImpl<char>( tks.nrLines(), tks.nrTrcs() );
+	newlockednodes->setAll( '0' );
+	Array2DCopier<char> lockednodescopier( *lockednodes_, curtks, tks,
+					       *newlockednodes );
+	if ( lockednodescopier.execute() )
+	{
+	    delete lockednodes_;
+	    lockednodes_ = newlockednodes;
+	}
+    }
+
+    if ( children_ )
+    {
+	Array2DImpl<char>* newchildren =
+		new Array2DImpl<char>( tks.nrLines(), tks.nrTrcs() );
+	newchildren->setAll( '0' );
+	Array2DCopier<char> childrencopier( *children_, curtks, tks,
+					    *newchildren );
+	if ( childrencopier.execute() )
+	{
+	    delete children_;
+	    children_ = newchildren;
+	}
+    }
+
+    if ( parents_ )
+    {
+	Array2DImpl<od_int64>* newparents =
+		new Array2DImpl<od_int64>( tks.nrLines(), tks.nrTrcs() );
+	newparents->setAll( -1 );
+	for ( od_int64 idx=0; idx<curtks.totalNr(); idx++ )
+	{
+	    const TrcKey curtk = curtks.trcKeyAt( idx );
+	    od_int64 parentidx = parents_->getData()[idx];
+	    if ( parentidx==-1 ) continue;
+
+	    const TrcKey parenttk = curtks.trcKeyAt( parentidx );
+	    parentidx = tks.globalIdx( parenttk );
+	    const od_int64 newidx = tks.globalIdx( curtk );
+	    newparents->getData()[newidx] = parentidx;
+	}
+
+	delete parents_;
+	parents_ = newparents;
+    }
+}
+
+
+bool Horizon3D::saveParentArray()
+{
+    if ( !parents_ ) return true;
+
+    const od_int64 totalsz = parents_->info().getTotalSz();
+    const od_int64* data = parents_->getData();
+    if ( totalsz<1 || !data ) return false;
+
+    IOObjInfo ioobjinfo( multiID() );
+    if ( !ioobjinfo.ioObj() ) return false;
+
+    od_ostream strm( getParentChildFileName(*ioobjinfo.ioObj()) );
+    if ( !strm.isOK() ) return false;
+
+    ascostream astream( strm );
+    astream.putHeader( "Parent-Child Data" );
+
+    IOPar par;
+    trackingsamp_.fillPar( par );
+    par.putTo( astream );
+
+    for ( od_int64 idx=0; idx<totalsz; idx++ )
+	strm.addBin( data[idx] );
+
+    strm.close();
+
+    return true;
+}
+
+
+bool Horizon3D::readParentArray()
+{
+    IOObjInfo ioobjinfo( multiID() );
+    if ( !ioobjinfo.ioObj() ) return false;
+
+    od_istream strm( getParentChildFileName(*ioobjinfo.ioObj()) );
+    if ( !strm.isOK() ) return false;
+
+    ascistream astream( strm );
+    const IOPar par( astream );
+    trackingsamp_.usePar( par );
+
+    delete parents_;
+    parents_ = new Array2DImpl<od_int64>( trackingsamp_.nrInl(),
+					  trackingsamp_.nrCrl() );
+    od_int64* data = parents_->getData();
+    if ( !data )
+    { delete parents_; parents_ = 0; return false; }
+
+    const od_int64 totalsz = parents_->info().getTotalSz();
+    for ( od_int64 idx=0; idx<totalsz; idx++ )
+	strm.getBin( data[idx] );
+
+    return true;
 }
 
 
@@ -659,9 +796,14 @@ void Horizon3D::getParents( const TrcKey& node, TypeSet<TrcKey>& parents ) const
     while ( true )
     {
 	gidx = parents_->getData()[gidx];
-	if ( gidx==-1 ) break;
+	if ( gidx==-1 )
+	    break;
 
-	parents.add( trackingsamp_.atIndex(gidx) );
+	const TrcKey tk = trackingsamp_.atIndex( gidx );
+	if ( parents.isPresent(tk) )
+	    break;
+
+	parents.add( tk );
     }
 }
 
@@ -1158,7 +1300,8 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 	if ( nodefound ) break;
     }
 
-    if ( !nodefound ) return false;
+    if ( !nodefound )
+	return false;
 
     const PosID firstposid = posid;
     while ( true )

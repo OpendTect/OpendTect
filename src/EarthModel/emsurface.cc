@@ -283,6 +283,14 @@ BufferString Surface::getSetupFileName( const IOObj& ioobj )
 }
 
 
+BufferString Surface::getParentChildFileName( const IOObj& ioobj )
+{
+    FilePath fp( ioobj.fullUserExpr(true) );
+    fp.setExtension( "pcd" );
+    return fp.fullPath();
+}
+
+
 bool Surface::usePar( const IOPar& par )
 {
     return EMObject::usePar(par) && geometry().usePar(par);
