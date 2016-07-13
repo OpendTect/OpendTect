@@ -26,7 +26,7 @@ ________________________________________________________________________
 #define __mUndefIntVal64          9223344556677889900LL
 
 
-/*!  \brief Templatized undefined and initialisation (i.e. null) values.  
+/*!  \brief Templatized undefined and initialisation (i.e. null) values.
 
     Since these are all templates, they can be used much more generic
     than previous solutions with macros.
@@ -222,30 +222,46 @@ public:
 };
 
 
+/*!
+\brief Undefined char.
+*/
+
+template<>
+mClass(Basic) Undef<char>
+{
+public:
+    static char		val()			{ return -127; }
+    static bool		hasUdf()		{ return true; }
+    static bool		isUdf( const char s )	{ return s==-127; }
+    static void		setUdf( char& s )	{ s = -127; }
+};
+
+
+
 template <class T> inline
 bool isUdf( const T& t )
-{ 
-    return Undef<T>::isUdf(t);  
+{
+    return Undef<T>::isUdf(t);
 }
 
 template <class T> inline
 const T& udfVal( const T& t )
-{ 
+{
     mDefineStaticLocalObject( T, u, = Undef<T>::val() );
     return u;
 }
 
 template <class T> inline
 bool hasUdf()
-{ 
-    return Undef<T>::hasUdf();  
+{
+    return Undef<T>::hasUdf();
 }
 
 template <class T> inline
 T& setUdf( T& u )
 {
     Undef<T>::setUdf( u );
-    return u; 
+    return u;
 }
 
 }
