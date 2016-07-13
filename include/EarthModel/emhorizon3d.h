@@ -159,6 +159,9 @@ public:
 
     void			initTrackingAuxData(float val=mUdf(float));
     void			initTrackingArrays();
+    void			updateTrackingSampling();
+    bool			saveParentArray();
+    bool			readParentArray();
     TrcKeySampling		getTrackingSampling() const;
     void			setParent(const TrcKey&,const TrcKey& parent);
     TrcKey			getParent(const TrcKey&) const;

@@ -222,6 +222,7 @@ void HorizonTrackerMgr::startFromSeeds()
 	    hor3d->initTrackingArrays();
 	}
 
+	hor3d->updateTrackingSampling();
 	horizon3dundoinfo_ = hor3d->createArray2D( hor3d->sectionID(0) );
 	horizon3dundoorigin_ = hor3d->range().start_;
     }
