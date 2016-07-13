@@ -834,14 +834,14 @@ private:
 			      in_.info().getOffset(inlidxin,startcrlidyin) );
 			    outvals->setOffset(
 			      out_.info().getOffset(inlidxout,startcrlidyout) );
-			    OD::memCopy(invals->arr(),outvals->arr(),nrbytes);
+			    OD::memCopy(outvals->arr(),invals->arr(),nrbytes);
 			    continue;
 			}
 			else
 			{
 			    for ( int idy=0; idy<nrcrl; idy++ )
 			    {
-				const float val =
+				const T val =
 					in_.get( inlidxin, startcrlidyin+idy );
 				out_.set( inlidxout, startcrlidyout+idy, val );
 			    }
