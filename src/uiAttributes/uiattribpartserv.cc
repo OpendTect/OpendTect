@@ -1058,23 +1058,18 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 }
 
 
-// Creates datapack for 2D data. outputsampling is the sampling for which
-// datapack will be created. Data2DHolder::getTrcKeyZSampling() is the sampling
-// of the input data.
 class RegularSeisDataPackCreatorFor2D : public ParallelTask
 {
 public:
 RegularSeisDataPackCreatorFor2D( const Data2DHolder& input,
-				 const TrcKeyZSampling& outputsampling,
 				 const ZDomain::Def& zdef,
 				 const BufferStringSet& compnames,
 				 DataPack::ID& outputid )
     : input_(input)
-    , inputsampling_(input.getTrcKeyZSampling())
-    , sampling_(outputsampling)
+    , sampling_(input.getTrcKeyZSampling())
     , zdef_(zdef)
     , compnames_(compnames)
-    , refnrs_(outputsampling.hsamp_.nrTrcs(),mUdf(float))
+    , refnrs_(sampling_.hsamp_.nrTrcs(),mUdf(float))
     , outputid_(outputid)
     , outputdp_(0)
 {
@@ -1085,8 +1080,7 @@ od_int64 nrIterations() const		{ return input_.trcinfoset_.size(); }
 bool doPrepare( int nrthreads )
 {
     if ( input_.trcinfoset_.isEmpty() ||
-	    sampling_.hsamp_.survid_!=Survey::GM().get2DSurvID() ||
-	    !sampling_.zsamp_.overlaps(inputsampling_.zsamp_) )
+	    sampling_.hsamp_.survid_!=Survey::GM().get2DSurvID() )
 	return false;
 
     outputdp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true) );
@@ -1105,12 +1099,8 @@ bool doPrepare( int nrthreads )
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
     if ( !outputdp_ ) return false;
-    const StepInterval<float>& datazrg = inputsampling_.zsamp_;
-    const StepInterval<float>& displayzrg = sampling_.zsamp_;
-    StepInterval<float> overlapzrg( displayzrg );
-    overlapzrg.limitTo( datazrg );
-    const int startzidx = displayzrg.nearestIndex( overlapzrg.start );
-    const int nrzsamp = overlapzrg.nrSteps()+1;
+    const StepInterval<float>& zrg = sampling_.zsamp_;
+    const int nrzsamp = zrg.nrSteps()+1;
     const TypeSet<int> valididxs = input_.dataset_[0]->validSeriesIdx();
 
     for ( int idx=0; idx<outputdp_->nrComponents(); idx++ )
@@ -1129,21 +1119,16 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		input_.dataset_[tidx]->series( valididxs[idx] );
 	    if ( !stor ) continue;
 
-	    const bool domemcopy = stor->arr() && data.getData() &&
-				mIsEqual(datazrg.step,displayzrg.step,mDefEpsF);
+	    const bool domemcopy = stor->arr() && data.getData();
 	    if ( domemcopy )
-		OD::memCopy( outputdp_->getTrcData(idx,trcidx)+startzidx,
+		OD::memCopy( outputdp_->getTrcData(idx,trcidx),
 			     stor->arr(), nrzsamp*sizeof(float) );
 	    else
 	    {
 		OffsetValueSeries<float> trcstor =
 			outputdp_->getTrcStorage( idx, trcidx );
 		for ( int zidx=0; zidx<nrzsamp; zidx++ )
-		{
-		    const float z = overlapzrg.atIndex( zidx );
-		    const int datazidx = datazrg.nearestIndex( z );
-		    trcstor.setValue( startzidx+zidx, stor->value(datazidx) );
-		}
+		    trcstor.setValue( zidx, stor->value(zidx) );
 	    }
 
 	    if ( idx == 0 )
@@ -1168,8 +1153,7 @@ bool doFinish( bool success )
 protected:
 
     const Data2DHolder&			input_;
-    const TrcKeyZSampling		inputsampling_;
-    const TrcKeyZSampling&		sampling_;
+    const TrcKeyZSampling		sampling_;
     const ZDomain::Def&			zdef_;
     const BufferStringSet&		compnames_;
     RegularSeisDataPack*		outputdp_;
@@ -1224,7 +1208,7 @@ DataPack::ID uiAttribPartServer::createDataPackFor2D(
 {
     DataPack::ID outputid = DataPack::cNoID();
     RegularSeisDataPackCreatorFor2D datapackcreator(
-		input, outputsampling, zdef, compnames, outputid );
+		input, zdef, compnames, outputid );
     datapackcreator.execute();
     return outputid;
 }
