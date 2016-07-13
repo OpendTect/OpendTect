@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "emhorizonascio.h"
 #include "emioobjinfo.h"
 
+#include "arrayndalgo.h"
 #include "array2dinterpol.h"
 #include "arrayndimpl.h"
 #include "ascstream.h"
@@ -46,7 +47,7 @@ namespace EM {
     Color Horizon3D::sDefaultSelectionColor() { return Color::Pink(); }
 
 class AuxDataImporter : public Executor
-{ mODTextTranslationClass(AuxDataImporter);
+{ mODTextTranslationClass(AuxDataImporter)
 public:
 
 AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
@@ -160,7 +161,7 @@ protected:
 
 
 class HorizonImporter : public Executor
-{ mODTextTranslationClass(HorizonImporter);
+{ mODTextTranslationClass(HorizonImporter)
 public:
 
 HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
@@ -286,8 +287,8 @@ protected:
     int			nrdone_;
 };
 
-// EM::Horizon3D
 
+// EM::Horizon3D
 Horizon3D::Horizon3D( EMManager& man )
     : Horizon(man)
     , geometry_(*this)
@@ -610,8 +611,8 @@ void Horizon3D::initTrackingArrays()
 	const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
 	if ( !geom || geom->isEmpty() ) return;
 
-	trackingsamp_.setInlRange( geom->rowRange() );
-	trackingsamp_.setCrlRange( geom->colRange() );
+	trackingsamp_.setLineRange( geom->rowRange() );
+	trackingsamp_.setTrcRange( geom->colRange() );
     }
 
     const int nrrows = trackingsamp_.nrLines();
@@ -627,6 +628,74 @@ void Horizon3D::initTrackingArrays()
     lockednodes_->setAll( '0' );
     children_ = new Array2DImpl<char>( nrrows, nrcols );
     children_->setAll( '0' );
+}
+
+
+void Horizon3D::updateTrackingSampling()
+{
+    const SectionID sid = sectionID( 0 );
+    const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
+    if ( !geom || geom->isEmpty() ) return;
+
+    const TrcKeySampling curtks = getTrackingSampling();
+    TrcKeySampling tks;
+    tks.setLineRange( geom->rowRange() );
+    tks.setTrcRange( geom->colRange() );
+    tks.include( curtks, true );
+    if ( tks == curtks )
+	return;
+
+    initTrackingAuxData();
+
+    trackingsamp_ = tks;
+    if ( lockednodes_ )
+    {
+	Array2DImpl<char>* newlockednodes =
+		new Array2DImpl<char>( tks.nrLines(), tks.nrTrcs() );
+	newlockednodes->setAll( '0' );
+	Array2DCopier<char> lockednodescopier( *lockednodes_, curtks, tks,
+					       *newlockednodes );
+	if ( lockednodescopier.execute() )
+	{
+	    delete lockednodes_;
+	    lockednodes_ = newlockednodes;
+	}
+    }
+
+    if ( children_ )
+    {
+	Array2DImpl<char>* newchildren =
+		new Array2DImpl<char>( tks.nrLines(), tks.nrTrcs() );
+	newchildren->setAll( '0' );
+	Array2DCopier<char> childrencopier( *children_, curtks, tks,
+					    *newchildren );
+	if ( childrencopier.execute() )
+	{
+	    delete children_;
+	    children_ = newchildren;
+	}
+    }
+
+    if ( parents_ )
+    {
+	Array2DImpl<od_int64>* newparents =
+		new Array2DImpl<od_int64>( tks.nrLines(), tks.nrTrcs() );
+	newparents->setAll( -1 );
+	for ( od_int64 idx=0; idx<curtks.totalNr(); idx++ )
+	{
+	    const TrcKey curtk = curtks.trcKeyAt( idx );
+	    od_int64 parentidx = parents_->getData()[idx];
+	    if ( parentidx==-1 ) continue;
+
+	    const TrcKey parenttk = curtks.trcKeyAt( parentidx );
+	    parentidx = tks.globalIdx( parenttk );
+	    const od_int64 newidx = tks.globalIdx( curtk );
+	    newparents->getData()[newidx] = parentidx;
+	}
+
+	delete parents_;
+	parents_ = newparents;
+    }
 }
 
 
@@ -722,9 +791,14 @@ void Horizon3D::getParents( const TrcKey& node, TypeSet<TrcKey>& parents ) const
     while ( true )
     {
 	gidx = parents_->getData()[gidx];
-	if ( gidx==-1 ) break;
+	if ( gidx==-1 )
+	    break;
 
-	parents.add( trackingsamp_.atIndex(gidx) );
+	const TrcKey tk = trackingsamp_.atIndex( gidx );
+	if ( parents.isPresent(tk) )
+	    break;
+
+	parents.add( tk );
     }
 }
 
