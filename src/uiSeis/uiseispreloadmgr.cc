@@ -707,4 +707,3 @@ bool uiSeisPreLoadSel::acceptOK( CallBacker* )
 
     return seissel_->ioobj();
 }
-
