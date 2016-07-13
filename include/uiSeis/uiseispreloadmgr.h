@@ -15,9 +15,19 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 #include "multiid.h"
+#include "seistype.h"
 
 class BufferStringSet;
+class DataCharacteristics;
+class IOObj;
+class Scaler;
+class TrcKeyZSampling;
+class uiGenInput;
 class uiListBox;
+class uiMapperRangeEditor;
+class uiScaler;
+class uiSeisSel;
+class uiSeisSubSel;
 class uiTextEdit;
 
 
@@ -45,5 +55,42 @@ protected:
     void		savePush(CallBacker*);
 };
 
+
+mExpClass(uiSeis) uiSeisPreLoadSel : public uiDialog
+{ mODTextTranslationClass(uiSeisPreLoadSel)
+public:
+			uiSeisPreLoadSel(uiParent*,Seis::GeomType,
+					 const MultiID& input);
+			~uiSeisPreLoadSel();
+
+    const IOObj*	getIOObj() const;
+    void		getSampling(TrcKeyZSampling&) const;
+    void		getSampling(TrcKeyZSampling&,Pos::GeomID) const;
+    void		selectedGeomIDs(TypeSet<Pos::GeomID>&) const;
+    Scaler*		getScaler() const;
+    void		getDataChar(DataCharacteristics&) const;
+
+protected:
+    void		fillHist(CallBacker*);
+    void		seisSel(CallBacker*);
+    void		selChangeCB(CallBacker*);
+    void		histChangeCB(CallBacker*);
+    void		doScaleCB(CallBacker*);
+    void		finalizeDoneCB(CallBacker*);
+    void		updateScaleFld();
+    void		updateEstUsage();
+    bool		acceptOK(CallBacker*);
+
+    Scaler*		scaler_;
+
+    uiSeisSel*			seissel_;
+    uiSeisSubSel*		subselfld_;
+    uiGenInput*			typefld_;
+    uiMapperRangeEditor*	histfld_;
+    uiGenInput*			nrtrcsfld_;
+    uiGenInput*			doscalefld_;
+    uiGenInput*			fromrgfld_;
+    uiGenInput*			torgfld_;
+};
 
 #endif
