@@ -589,7 +589,7 @@ inline bool removeTrend( ArrayND<T>& inout )
     return removeTrend<T,fT>( inconst, inout );
 }
 
-}; //namespace
+} // namespace ArrayMath
 
 
 /*!\brief Returns whether there are undefs in the Array.  */
@@ -1139,7 +1139,7 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 
 template <class T>
 mClass(Algo) Array2DCopier : public ParallelTask
-{ mODTextTranslationClass(Array2DCopier);
+{ mODTextTranslationClass(Array2DCopier)
 public:
 		Array2DCopier( const Array2D<T>& in,
 			       const TrcKeySampling& tksin,
@@ -1244,7 +1244,7 @@ private:
 			      in_.info().getOffset(inlidxin,startcrlidyin) );
 			    outvals->setOffset(
 			      out_.info().getOffset(inlidxout,startcrlidyout) );
-			    OD::memCopy(invals->arr(),outvals->arr(),nrbytes);
+			    OD::memCopy(outvals->arr(),invals->arr(),nrbytes);
 			    continue;
 			}
 			else
