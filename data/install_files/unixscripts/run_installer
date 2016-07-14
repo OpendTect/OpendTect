@@ -33,5 +33,5 @@ else
     fi
 fi
 
-"${curdir}/od_instmgr" $*
+"${curdir}/od_instmgr" "$@"
 exit $?

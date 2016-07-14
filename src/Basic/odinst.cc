@@ -133,9 +133,14 @@ bool ODInst::canInstall()
         return errretval; \
     if ( __ismac__ ) \
 	cmd.quote( '\"' ); \
-    cmd.add( " --instdir " ).add( "\"" ).add( mRelRootDir ); \
+    cmd.add( " --instdir " ).add( "\"" ); \
     if ( __ismac__ ) \
-	cmd.add( "/Resources" ); \
+	{ \
+	    FilePath instdir( mRelRootDir ); \
+	    cmd.add( instdir.pathOnly() ); \
+	} \
+    else \
+	cmd.add( mRelRootDir ); \
     cmd.add( "\"" ); \
 
 
