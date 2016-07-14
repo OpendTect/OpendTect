@@ -227,7 +227,7 @@ private:
 
     void			initSelectionDisplay(bool erase);
     virtual void		updateSelections();
-
+    void			updateLockedPointsColor();
 
     bool				allowshading_;
     mVisTrans*				translation_;

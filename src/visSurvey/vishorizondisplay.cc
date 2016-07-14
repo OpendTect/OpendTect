@@ -1127,14 +1127,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	    if ( selections_ && selections_->getMaterial() )
 		selections_->getMaterial()->setColor(
 		hor3d->getSelectionColor() );
-	    if ( lockedpts_ && lockedpts_->getMaterial() )
-		lockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
-	    if ( sectionlockedpts_.getParam(this) )
-	    {
-		if ( sectionlockedpts_.getParam(this)->getMaterial() )
-		    sectionlockedpts_.getParam(this)->getMaterial()->setColor( 
-		    hor3d->getLockColor() );
-	    }
+	    updateLockedPointsColor();
 	}
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::SelectionChange )
@@ -1150,7 +1143,10 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
 	const bool locked = hor3d ? hor3d->hasLockedNodes() : 0;
 	if ( locked && !displayonlyatsections_ ) 
+	{
+	    updateLockedPointsColor();
 	    return; 
+	}
 
 	if ( !locked )
 	{
@@ -1170,6 +1166,24 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     updateSingleColor();   
     newseeds_ = true;
 }
+
+
+void HorizonDisplay::updateLockedPointsColor()
+{
+    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
+    if ( !hor3d ) return;
+
+    if ( lockedpts_ && lockedpts_->getMaterial() )
+	lockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
+
+    if ( sectionlockedpts_.getParam(this) && 
+	sectionlockedpts_.getParam(this)->getMaterial() )
+    {
+	sectionlockedpts_.getParam(this)->getMaterial()->setColor( 
+	    hor3d->getLockColor() );
+    }
+}
+
 
 
 Color HorizonDisplay::singleColor() const
