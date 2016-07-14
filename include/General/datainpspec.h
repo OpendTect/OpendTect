@@ -60,7 +60,7 @@ protected:
 */
 
 template<class T>
-mClass(General) DataTypeImpl : public DataType
+mClass(General) DataTypeImpl : public ::DataType
 { mODTextTranslationClass(DataTypeImpl)
 public:
 
