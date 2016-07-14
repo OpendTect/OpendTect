@@ -443,12 +443,12 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
     const bool isnorm = calctypefld_->getIntValue() == 0;
     
     xrgfld_->setEmpty();
-    xrgfld_->setSensitive( !iscomputeangle );
-    xrglbl_->setSensitive( !iscomputeangle );
+    xrgfld_->setSensitive( !iscomputeangle || !isoffset );
+    xrglbl_->setSensitive( !iscomputeangle || !isoffset );
     anglecompgrp_->display( isoffset && iscomputeangle );
     xaxistypefld_->setSensitive( !iscomputeangle );
 
-    if ( !cb )
+    if ( cb )
     {
 	if ( iscomputeangle )
 	    xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
