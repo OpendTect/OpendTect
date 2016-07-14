@@ -46,7 +46,7 @@ else if ( !zdata_.zistime_ && track() )\
     if ( zdata_.zistime_ && zdata_.d2T() && track() )\
     zpos = d2T()->getTime( zpos, *track() )*SI().zDomain().userFactor();\
     else if ( !zdata_.zistime_ && track() )\
-    zpos = track() ? (float) zdata_.track()->getPos( zpos*fac ).z : 0; \
+    zpos = track() ? (float) zdata_.track()->getPos( zpos ).z*fac : 0; \
     if ( !ld1_->yax_.range().includes( zpos, true ) )\
 	continue;
 
