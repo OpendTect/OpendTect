@@ -23,7 +23,6 @@
 
 static const int cTxtHeadNrLines = 40;
 static const int cTxtHeadCharsPerLine = 80;
-static const bool noscalco = GetEnvVarYN( "OD_SEGY_NO_SCALCO" );
 
 bool& SEGY::TxtHeader::info2D()
 { mDefineStaticLocalObject( bool, is2d, = false ); return is2d; }
@@ -604,6 +603,8 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     if ( mIsUdf(crd.x) ) crd.x = crd.y = 0;
     mPIEPAdj(Coord,crd,false);
     int iscalco, icx, icy;
+    mDefineStaticLocalObject( const bool, noscalco,
+			      = GetEnvVarYN("OD_SEGY_NO_SCALCO") );
     if ( noscalco )
 	{ iscalco = 1; icx = mNINT32(crd.x); icy = mNINT32(crd.y); }
     else
