@@ -376,7 +376,7 @@ int dgbSurfDataReader::nextStep()
 	    chunksize_ = valsleftonsection_/totalnr_+1;
 	    if ( chunksize_ < 100 )
 	    {
-		chunksize_ = 100;
+		chunksize_ = mMIN(100,valsleftonsection_);
 		totalnr_ = valsleftonsection_/chunksize_+1;
 	    }
 	}
