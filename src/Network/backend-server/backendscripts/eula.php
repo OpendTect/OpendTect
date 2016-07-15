@@ -4,31 +4,45 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer
- Date:          Jun 2016
+ Date:          Jul 2016
 ________________________________________________________________________
 
-Displays the EULA in HTML.
+Displays the EULA in HTML. It generated html code that can be viewed in a browser
+or be printed into a PDF file.
 
+Usage uela.php?format=crm
+
+Format can be either:
+    'view' - two columns with normal text size.
+    'pdf'  - two columns with small text size
+    'crm'  - single column. For copy paste of HTML to pdf template in crm
 -*/
 
-$eulatext = file_get_contents( dirname(__FILE__)."/../../../../doc/eula.txt" );
-$eulaarray = explode( "\n", $eulatext );
+$format = 'view';
+if ( array_key_exists( "format", $_GET ) )
+    $format = $_GET['format'];
 
-$margin = 'margin-left: 5em; margin-right: 5em;';
+$twocolumns = $format == 'pdf' || $format == 'view';
+
+$marginamount = $twocolumns ? "1em" : "5em";
+$fontsize = $format == 'view' ? '' : 'font-size: xx-small; ';
+$subtitlefontsize = $format == 'view' ? '' : 'font-size: x-small; ';
+
+$margin = "margin-left: $marginamount; margin-right: $marginamount;";
 
 $DefaultStyle = "$margin ".
 		"text-align: justify; ".
-		"font-size: xx-small; ".
+		$fontsize.
 		"margin-bottom: 0em; ".
 		"margin-top: 0em;";
 
 $Level1Style = "$margin ".
-		"font-size: xx-small; ".
+		$fontsize.
 		"font-weight: bold";
 
 $Level2Style = "$margin ".
 		"text-align: justify; ".
-		"font-size: xx-small; ".
+		$fontsize.
 		"margin-bottom: 0em; ".
 		"margin-top: 0em; ".
 		"padding-left: 1em; ".
@@ -36,7 +50,7 @@ $Level2Style = "$margin ".
 
 $Level3Style = "$margin ".
 		"text-align: justify; ".
-		"font-size: xx-small; ".
+		$fontsize.
 		"margin-bottom: 0em; ".
 		"margin-top: 0em; ".
 		"padding-left: 2em; ".
@@ -44,7 +58,7 @@ $Level3Style = "$margin ".
 
 $TitleStyle = "text-align: center; font-weight: bold; $margin";
 
-$SubTitleStyle = "text-align: center; font-size: x-small; $margin";
+$SubTitleStyle = "text-align: center; $subtitlefontsize $margin";
 
 
 echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"'.
@@ -52,11 +66,9 @@ echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"'.
     '<html>'.
     '<head>'.
     '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
-    '<title>'.
-    '</title>'.
-    '</head>'.
-    '<body>'."\n";
 
+$eulatext = file_get_contents( dirname(__FILE__)."/../../../../doc/eula.txt" );
+$eulaarray = explode( "\n", $eulatext );
 
 $linenr = 0;
 
@@ -68,11 +80,14 @@ foreach ( $eulaarray AS $line )
     if ( $linenr==0 )
     {
 	$style = $TitleStyle;
-	echo '<title>'.$line.'</title></head><body>'."\n\n\n\n";
+	echo '<title>'.$line.'</title></head><body>';
+	echo "\n\n\n\n";
     }
 
     else if ( $linenr==1 )
+    {
 	$style = $SubTitleStyle;
+    }
 
     else if ( preg_match( "/[0-9]+\./m", $linearray[0] ) == 1 )
 	$style = $Level1Style;
@@ -83,7 +98,21 @@ foreach ( $eulaarray AS $line )
 
     echo '<p style="'.$style.'">'.htmlspecialchars($line)."</p>\n";
 
+    if ( $twocolumns && $linenr==1 )
+    {
+	echo '<div style="'.
+    	     '-webkit-column-count: 2; '.
+    	     '-webkit-column-gap: 0em; '.
+    	     '-moz-column-count: 2; '.
+    	     '-moz-column-gap: 0em; '.
+    	     'column-count:2; '.
+    	     'column-gap: 0em;">';
+    }
+
     $linenr++;
 }
+
+if ( $twocolumns )
+    echo "<div>";
 
 echo "\n\n\n\n\n</body></html>\n";
