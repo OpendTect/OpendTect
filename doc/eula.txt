@@ -1,0 +1,102 @@
+OpendTect End User License Agreement version July 8th 2016
+Covers Usage, Update, Maintenance & Support for commercial usage of OpendTect and its commercial extensions (Plugins) known collectively under the brand name OpendTect Pro
+This End User License Agreement between Licensee and dGB Earth Sciences BV, whose Registered Office is situated at Nijverheidstraat 11-2, 7511 JM Enschede, The Netherlands (hereinafter called "dGB");
+Whereas:
+Licensee wishes to use the OpendTect software under this EULA.  
+and whereas:
+	Licensee may wish to use closed source commercial extensions (Plugins) that extend the functionality of the OpendTect software under this EULA.
+and whereas:
+Licensee has entered into an Acquisition Agreement where this EULA is an integral part. Such Acquisition Agreement can be, but is not limited to, the acceptance of a quote, or a purchase order referring to a quote with this EULA integrated.
+It is hereby agreed as follows:
+1. Definitions
+In this Agreement the following expressions shall have the following meanings:
+A.	"OpendTect" shall mean the software "OpendTect" which is owned by dGB Beheer BV under the brand-name "OpendTect". It also applies to any software derivatives thereof which are owned by the same company, even if they are released under different names.
+B.	"Plugins" shall mean extensions (plugins) that extend the functionality of the OpendTect software. The Plugins may be owned by dGB Beheer BV or other 3rd party vendors that has given dGB the right to relicense them.
+C.	"Connectivity Plugins" shall mean extensions (plugins) to other software which enables them to work with OpendTect or Plugins.
+D.	"Connected Software Agreement" shall mean the license agreement between Licensee and a third party of a software connected to OpendTect or Plugins through a Connectivity Plugin. 
+E.	"Acquisition Agreement" shall mean an agreement whereby Software is purchased, rented or otherwise obtained. The Acquisition Agreement must state
+a.	which modules of the software are purchased, rented, or obtained,
+b.	the time period, during which  the license is valid, and
+c.	Maintenance fees
+d.	any eventual special conditions overruling this EULA.
+An Acquisition Agreement may be (but is not limited to):
+a.	an accepted quote from dGB, or from a reseller who is authorized by dGB, where this EULA is an integral part,
+b.	an academic agreement citing this EULA
+c.	the acceptance of this EULA as a part of an online Software purchase, or similar.
+d.	A License Key given to Licensee for the usage or evaluation of Software.
+F.	"Acquiring Entity" shall mean the organization or individual that is acquiring the Software under an Acquisition Agreement.
+G.	"Licensee" shall mean the Acquiring Entity and any organization or other legal entity that directly or indirectly is controlled by Acquiring Entity. Control means ownership, directly or through one or more affiliates, of more than fifty percent (50%) of the shares of stock entitled to vote for the election of directors, in the case of a corporation, or more than fifty percent (50%) of the equity interests in the case of any other type of legal entity. Licensee does not include any legal entity that dGB (through court order or other legal limits including, but not limited to, economic or technology sanctions) is not permitted to provide Software to.
+H.	"Usage Location" shall mean the country in which the Licensee is permitted to use the Software. Unless otherwise specified in the Acquisition Agreement, it is the country of the Licensee’s address in the Acquisition Agreement. If the Acquisition Agreement does not have address, it shall be the country of the Software’s main user.
+I.	"Software" means a combination of OpendTect, Plugins, and Connectivity Plugins and other software that the Licensee has acquired licenses for, as specified in the Acquisition Agreement.
+J.	"Documentation" shall mean any written or printed technical material provided by dGB with the Software to explain its operation or its use.
+K.	"License Key" means a code, file, and/or a device that enables the Software to run.
+L.	"Software Maintenance" means the correction of errors in Software.
+M.	"Software Updates" means new versions of the software with added or improved functionality.
+N.	"Maintenance Period" means the time period for which the Licensee is entitled to receive Software Maintenance and Software Updates.
+O.	"Software Support" means the communication between Licensee and dGB with regards to bug reporting, workaround and bug-fixing. Software Support does not include instructions in the normal operation of the Software.
+2. Term
+The term of this agreement is dependent of the type of license that is obtained through the Acquisition Agreement. 
+A.	If the Acquisition Agreement lists perpetual licenses, this agreement commences on the date of accepting the Acquisition Agreement and shall not cease, unless terminated by either party through the provisions in Clause 12 of this EULA.
+B.	If the Acquisition Agreement does not contain perpetual licenses, this agreement shall commence at the date set out in the Acquisition Agreement and last for the period specified in the Acquisition Agreement.
+C.	If the Acquisition Agreement is in the form of a temporary License Key, this agreement shall commence on the date that the License Key was sent to Licensee and last until the end-date of the License Key.
+3. Usage Rights
+A.	dGB hereby grants Licensee a nonexclusive right to the Software and the Documentation for the number of users specified in the Acquisition Agreement, for the time period specified in the Acquisition Agreement:
+a.	Perpetual licenses can be used from the starting date given in the Acquisition Agreement, and the right to use the Software will continue as long as this agreement is not terminated.
+b.	Temporary licenses give the Licensee the right to use the Software from the start date given in the Acquisition Agreement until the stop date set out in the Acquisition Agreement or until this agreement is terminated, whichever comes first.
+B.	Unless agreed elsewhere, the number of users shall mean the number of concurrent users of the Software.
+C.	The Licensee may only use the Software in Usage Location. Temporary usage of the Software is however permitted outside the Usage Location as a part of short term travel.
+D.	The Licensee is entitled to download the Software from the Internet and to receive license keys from dGB. Following the purchase of perpetual licenses, dGB may issue temporary license keys that give Licensee the right to use the Software for the payment term set out in the Acquisition Agreement, plus sixty (60) days. When dGB has received payment in full, dGB shall within three (3) working days provide Licensee with perpetual license keys.
+E.	Licensee has the right to give its personnel and contractors access to the Software and Documentation in order to allow them to use such Software and Documentation and to make copies of the Software in machine-readable form for emergency backup, fallback and archiving. Licensee has the right to make a reasonable number of copies of the Documentation.
+F.	Licensee is allowed to run any version of the Software that was released by dGB during
+a.	the period for which Maintenance fees have been paid for perpetual licenses, or
+b.	the time for which the temporary license is valid,
+and to receive from dGB new license keys as and when needed. Updates will be subjected to Licensee's acceptance tests. If, in the reasonable opinion of Licensee, the update does not satisfactorily pass these standard acceptance tests, Licensee may continue to use the prior version of the Software.
+G.	Licensee is allowed to use the Software on any hardware configuration, irrespective of whether or not Licensee owns or maintains such hardware configuration.
+H.	In the event the hardware configuration is wholly or partly temporarily, permanently inoperable or has been replaced by a new system in the course of modernization, or has been moved to another location within the Usage Location, Licensee will be allowed to use the Software on an alternative or new system and/or at such different location(s), as the case may be, provided it has given dGB prior written notice thereof. For the purpose of this Agreement that alternative or new system will temporarily or permanently, as the case may be, replace the hardware configuration on which the Software was originally intended to be installed.
+I.	dGB does only warrant that the Software works on a limited number of computer environments, as described in the Software’s documentation.
+J.	Licensee is free to connect the hardware configuration with other computer systems of Licensee. Licensee is free to use the Software for which it has obtained a licence in conjunction with its own and third party Software products resident in the hardware configuration or connected computer systems.
+K.	Licensee has the right to access the source code of OpendTect when creating plugins that modify or extend OpendTect’s functionality. Licensee may chose to keep such extensions proprietary, or to release it to others. Such plugins can be released under Licensee’s own terms and conditions. It should be noted that users who run OpendTect under the GPL license are not permitted to run plugins that are not licensed under the GPL license. If Licensee releases plugins under non-GPL licenses, they are required to inform the users of Licensee’s plugin that they must acquire a license for OpendTect. Licensee does not have any right to relicense OpendTect to anyone. Licensee is requested to contact dGB in case of doubt about commercialization issues.
+L.	Connectivity Plugins are, as applicable, also subject to the Connected Software Agreement. If any right set out in this agreement conflicts with the Connected Software Agreement, the Connected Software Agreement will prevail.
+4. Maintenance
+A.	dGB will maintain and provide Maintenance to Licensee for which the Licensee has an active Maintenance Period as follows:
+a.	Upgrades and enhancements to the Software as and when developed by dGB.
+b.	dGB shall use its reasonable endeavors to correct within a reasonable time errors and defects in the Software in order to ensure that the Software operates in accordance with the specifications set out in the operating manual.
+c.	Corresponding updates to Documentation.
+d.	Generation of License Keys.
+B.	The Maintenance Period for Perpetual license is determined by the Licensee’s purchase of Software Maintenance from dGB. The Software Maintenance for perpetual licenses lasts for the Maintenance Period as specified in the Acquisition Agreement, and continues thereafter with a 90 day’s termination notice. The Licensee may choose to terminate Software Maintenance for either specific modules of the Software, or all the Software. dGB will not refund any Maintenance fees in the event that the Licensee discontinues maintenance.
+C.	dGB will forward maintenance requests for Plugins by 3rd party vendors under this agreement to their respective vendor. dGB cannot guarantee the performance by 3rd party vendor’s maintenance efforts.
+D.	dGB may chose to discontinue Software Maintenance under the following circumstances:
+a.	There are technical or commercial reasons why the Software cannot maintained. If dGB discontinues maintenance for this reason, dGB will if possible continue maintenance for the current Maintenance Period. If this cannot be done, Licensee has the right to a refund of the Maintenance fees or for the period where Maintenance is not provided.
+b.	dGB is for legal reasons (including, but not limited to trade restrictions,  and sanctions) not permitted to provide Licensee with the Maintenance.
+E.	Licensee may reinstate a terminated Software Maintenance by paying Maintenance fees for the period the maintenance has been terminated.
+F.	If the Licensee has perpetual licenses of Software with active Software Maintenance, dGB will invoice Licensee for the next 12 month Maintenance fees at the end of the previous Maintenance Period. Maintenance fees for other periods will be charged pro-rated.
+G.	The Maintenance fees are set out in the Acquisition Agreement. All costs including but not limited to labour for the Software which are incurred by dGB shall be included in the Maintenance fees except as set out in clause 4H below.
+H.	All costs related to travel and accommodation expenses, which are incurred by dGB for the execution of this agreement, will be charged at cost to Licensee. 
+I.	Maintenance fees may increase by the inflation of the currency set out in the Acquisition Agreement plus three percent (3%). The inflation of a currency is defined as the consumer price index of the area for which the currency’s central bank is the central bank. dGB may choose to not increase Maintenance fees some years. In such case, the increases may be higher subsequent years. The three (3) year running average increase shall however not be higher than what is set out in this clause.
+J.	If Licensee has terminated the software maintenance for perpetual licenses, dGB will limit Software Maintenance to the generation of license keys for Licensees with perpetual licenses. Requests for new license keys will be charged at half day work using dGB’s standard consultancy charge at that time.
+5. Licensee Responsibilities
+A.	Licensee shall designate an employee or employees who shall be responsible for the Software and knowledgeable in the operation of the Software.
+B.	Licensee shall promptly notify dGB per email of any failure or malfunction of the Software and Licensee shall thereafter allow dGB or its duly authorized agents or subcontractors such access to the Software as may be necessary for dGB's performance of Maintenance subject to Licensee's reasonable security rules. The e-mail address to dGB in this matter the same as the one for support requests in Clause 6D. The response - times for any report of malfunction will be identical to the support-hours  in Clause 6C.
+6. Support
+A.	Software Support is provided to Licensee, who is up to date with the payment of their Maintenance fees.
+B.	dGB will assist users within reason to help them achieve their objectives when using the Software. Amount of support that is provided is limited by fair usage. The fair usage policy guarantees a minimum of four (4) hours of Software Support per user, per year. Each interaction on a support issue will account for at least fifteen (15) minutes work. Licensees with unlimited number of users are limited to eighty (80) hours of support per year. Should more support be needed, dGB can provide training and various forms of consultancy, as agreed separately.
+C.	Support and responses to Maintenance requests will be provided by the respective offices of dGB from 9.00 a.m. to 5.00 p.m. local time on every working day which shall exclude Saturdays, Sundays and local national Holidays. Overtime Support and response to Maintenance requests will be provided only on Licensee's express request and will be charged at current rates.
+D.	Support for Plugins from 3rd party vendors covered under this agreement will be given provided dGB has sufficient knowledge to give such support. Support that cannot be answered directly by dGB will be forwarded to the 3rd party vendor in question. dGB is not responsible for the quality, accuracy or timely performance of the 3rd party vendor’s support.
+E.	dGB endeavors to provide support and responses to Maintenance requests within 8 working hours of receipt of a request from Licensee. All such requests must be made via the Support Desk line, preferably via email to support@dgbes.com. This address may change, and a current address will be found on dGB’s website.
+7. Invoices
+Failure to meet payment dates from invoices stemming from this agreement will result in Support and Maintenance being suspended until such time as all invoices are fully paid.
+8. Warranties
+A.	dGB represents and warrants that it has all the rights, title, interest, power, and authority to grant this License and all other rights extended in relation to Software, including all rights in any third party software or Plugins provided through dGB.
+B.	dGB warrants that the dGB is not aware of any malicious code, program, or other internal component, contained in the Software that could allow unauthorized access, damage, destroy, or alter any computer program, or which could, reveal, damage, destroy, or alter any data or other information accessed through the Software (collectively "Malicious Code"), and will use reasonable efforts to ensure that the Software will not contain Malicious Code. dGB will immediately advise Licensee, upon reasonable suspicion that Software may contain Malicious Code. In such event, or if the Licensee notifies the dGB of the existence of Malicious Code, then the dGB shall immediately replace the Software with a version that does not contain Malicious Code.   
+9. Limitations
+A.	dGB's obligation to provide Maintenance and Support is subject to performance by Licensee of its obligations under Clause 4 and 6 above. Furthermore:
+a.	dGB does not warrant and is not obliged to provide Support or Maintenance for the Software for operation with any other equipment or software and assumes no responsibility for updating the Software to operate with any other equipment or software.
+b.	Any delay by Licensee in performing its obligations under clause 5 shall extend all related dGB obligations for a similar period.
+c.	Licensee shall reimburse any costs incurred by dGB as a result of Licensee’s failure to meet its obligations under clause 5 to dGB.
+B.	dGB shall not be liable for any loss or damage to Licensee caused by the delay of dGB in providing Support or Maintenance due to reasons beyond its control.
+C.	dGB shall not be liable for any loss or damage to Licensee caused by the delay of 3rd party vendors providing slow response to support requests forwarded from dGB to 3rd party vendors.
+D.	The Licensee and dGB shall in no event be liable one to the other for loss of revenue profit or anticipated profit.
+10. Assignment, Subcontract
+A.	Except as provided below, neither party may assign, or otherwise transfer any or all of its rights and obligations under this Agreement without the prior written consent of the other which consent shall not be unreasonably withheld.
+B.	dGB retains the right to subcontract its Support obligations hereunder provided that dGB shall exercise all due care in selecting reasonably competent subcontractor(s) possessing skills equivalent to those of dGB's Support personnel. dGB shall remain ultimately responsible for its duties towards the Licensee under this Agreement.
+C.	Any assignment or transfer by either party to a successor in interest to all or substantially all of that party's business by sale, merger or reorganization shall be permitted provided that such successor in interest is expressly bound by the terms of the assignment or transfer to perform all of that party's obligations under this Agreement.
