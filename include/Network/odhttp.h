@@ -103,8 +103,8 @@ private:
 
 
 /*The upload or download process. Can be queried for progress, data and errors*/
-mExpClass(Network) HttpRequestProcess : public CallBacker,
-				    public RefCount::Referenced
+mExpClass(Network) HttpRequestProcess : public RefCount::Referenced,
+					public CallBacker
 {
 public:
 				 //General purpose callbacks
