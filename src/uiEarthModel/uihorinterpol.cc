@@ -58,8 +58,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     , finished(this)
     , horReadyFroDisplay(this)
 {
-    //if ( !hor )
-	setCtrlStyle( RunAndClose );
+    setCtrlStyle( RunAndClose );
 
     if ( horizon_ )
 	horizon_->ref();
@@ -174,77 +173,16 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     uiStringSet errors;
+
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
     {
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
-
-	BinID steps = interpolhor3dsel_->getStep();
-	StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
-	rowrg.step = steps.inl();
-	StepInterval<int> colrg = hor3d->geometry().colRange();
-	colrg.step = steps.crl();
-
-	TrcKeySampling hs( false );
-	hs.set( rowrg, colrg );
-	hs.survid_ = hor3d->getSurveyID();
-
-	interpolator->setTrcKeySampling( hs );
-
-	Array2DImpl<float>* arr =
-	    new Array2DImpl<float>( hs.nrInl(), hs.nrCrl() );
-	if ( !arr->isOK() )
-	{
-	    const uiString msg = tr("Not enough horizon data for section %1")
-				 .arg(sid+1);
-	    errors += msg;
-	    continue;
-	}
-
-	arr->setAll( mUdf(float) );
-
-	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
-	if ( !iterator )
-	{
-	    const uiString msg = tr("Internal: Cannot create Horizon iterator"
-				    " for section %1").arg(sid+1);
-	    errors += msg;
-	    continue;
-	}
-
-	while( true )
-	{
-	    const EM::PosID posid = iterator->next();
-	    if ( posid.objectID() == -1 )
-		break;
-
-	    const BinID bid = posid.getRowCol();
-	    if ( hs.includes(bid) )
-	    {
-		const Coord3 pos = hor3d->getPos( posid );
-		arr->set( hs.inlIdx(bid.inl()), hs.crlIdx(bid.crl()),
-			  (float) pos.z );
-	    }
-	}
-
-	if ( !interpolator->setArray2D(*arr,&taskrunner) )
-	{
-	    const uiString msg = tr("Cannot setup interpolation on section %1")
-				 .arg(sid+1);
-	    errors += msg;
-	    continue;
-	}
-
-	mDynamicCastGet(Task*,task,interpolator.ptr());
-	if ( !task || !TaskRunner::execute(&taskrunner,*task) )
-	{
-	    const uiString msg = tr("Cannot interpolate section %1")
-				 .arg(sid+1);
-	    errors += msg;
-	    continue;
-	}
-
-	hor3d->geometry().sectionGeometry(sid)->setArray(
-					    hs.start_, hs.step_, arr, true );
+	uiString errmsg;
+	uiRetVal rv = HorizonGridder::executeGridding(
+		interpolator.ptr(), hor3d, sid, interpolhor3dsel_->getStep(),
+		&taskrunner );
+	if ( rv.isError() )
+	    errors += rv;
     }
 
     MouseCursorManager::restoreOverride();
