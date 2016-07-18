@@ -70,8 +70,7 @@ public:
 			WvltMathFunction(const Wavelet*);
 
 	StepInterval<float> samppos_;
-	int 		size_;
-	const float*    samples_;
+	TypeSet<float>	samples_;
 	float 		getValue(float) const;
 	float 		getIntValue(float) const;
 	virtual float 	getValue( const float* p ) const

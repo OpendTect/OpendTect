@@ -107,7 +107,8 @@ void uiWaveletMatchDlg::inpSelCB( CallBacker* cb )
     if ( !wvlt ) return;
 
     uiFunctionDisplay* fd = inpfld==wvlt0fld_ ? wvlt0disp_ : wvlt1disp_;
-    fd->setVals( wvlt->samplePositions(), wvlt->samples(), wvlt->size() );
+    TypeSet<float> samps; wvlt->getSamples( samps );
+    fd->setVals( wvlt->samplePositions(), samps.arr(), samps.size() );
 
     calcFilter();
 }
@@ -149,15 +150,17 @@ bool uiWaveletMatchDlg::calcFilter()
     mAllocVarLenArr(float,autoref,filtersz);
     mAllocVarLenArr(float,crossref,filtersz);
 
-    const float* wref = refwvlt->samples();
-    const int refsz = refwvlt->size();
+    TypeSet<float> refsamps; refwvlt->getSamples( refsamps );
+    const float* wref = refsamps.arr();
+    const int refsz = refsamps.size();
     float* autorefptr = mVarLenArr( autoref );
     genericCrossCorrelation( refsz, 0, wref,
 			     refsz, 0, wref,
 			     filtersz, -filtersz2, autorefptr );
 
-    const float* wtar = tarwvlt->samples();
-    const int tarsz = tarwvlt->size();
+    TypeSet<float> tarsamps; tarwvlt->getSamples( tarsamps );
+    const float* wtar = tarsamps.arr();
+    const int tarsz = tarsamps.size();
     float* crossrefptr = mVarLenArr( crossref );
     genericCrossCorrelation( refsz, 0, wref,
 			     tarsz, 0, wtar,
@@ -166,17 +169,20 @@ bool uiWaveletMatchDlg::calcFilter()
 //  Solve Ax=b
     outputwvlt_.reSize( filtersz );
     outputwvlt_.setCenterSample( filtersz2 );
-    float* x = outputwvlt_.samples();
-    solveAxb( filtersz, autoref, crossref, x );
+    TypeSet<float> samps; outputwvlt_.getSamples( samps );
+    float* psamps = samps.arr();
+    solveAxb( filtersz, autoref, crossref, psamps );
+    outputwvlt_.setSamples( samps );
 
     Interval<float> intv( -(float)filtersz2, (float)filtersz2 );
-    wvltoutdisp_->setVals( intv, x, filtersz );
+    wvltoutdisp_->setVals( intv, psamps, filtersz );
 
     wvltqcdisp_->setVals( tarwvlt->samplePositions(), wtar, tarsz );
 //  QC: Convolve result with reference wavelet
     mAllocVarLenArr(float,wqc,tarsz)
     float* wqcptr = mVarLenArr( wqc );
-    GenericConvolve( refsz,0,wref, filtersz,-filtersz/2,x, tarsz,0,wqcptr );
+    GenericConvolve( refsz,0,wref, filtersz,-filtersz/2,psamps,
+		     tarsz,0,wqcptr );
     wvltqcdisp_->setY2Vals( tarwvlt->samplePositions(), wqc, tarsz );
 
 //  Make y2 axis identical to y1

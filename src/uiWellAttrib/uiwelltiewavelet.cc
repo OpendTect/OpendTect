@@ -209,11 +209,13 @@ void uiWavelet::setAsActive( bool isactive )
 
 void uiWavelet::drawWavelet()
 {
-    if ( !wvlt_ ) return;
+    if ( !wvlt_ )
+	return;
 
-    const int wvltsz = wvlt_->size();
+    TypeSet<float> samps; wvlt_->getSamples( samps );
+    const int wvltsz = samps.size();
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
-    OD::memCopy( fva2d->getData(), wvlt_->samples(), wvltsz * sizeof(float) );
+    OD::memCopy( fva2d->getData(), samps.arr(), wvltsz * sizeof(float) );
     FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( wvlt_->name() );

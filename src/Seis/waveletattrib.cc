@@ -35,7 +35,7 @@ void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
 {
     wvltsz_ = wvlt.size();
     delete wvltarr_; wvltarr_ = new Array1DImpl<float>( wvltsz_ );
-    OD::memCopy( wvltarr_->getData(), wvlt.samples(), wvltsz_*sizeof(float) );
+    wvlt.getSamples( wvltarr_->getData() );
     centersample_ = wvlt.centerSample();
     sr_ = wvlt.sampleRate();
 }

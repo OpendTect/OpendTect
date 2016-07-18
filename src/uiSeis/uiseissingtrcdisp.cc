@@ -52,17 +52,19 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 
     if ( wvlt )
     {
-	const int wvltsz = wvlt->size();
+	TypeSet<float> samps; wvlt->getSamples( samps );
+	const int wvltsz = samps.size();
 	const float zfac = mCast( float, SI().zDomain().userFactor() );
 
 	Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
 	FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
-	OD::memCopy( fva2d->getData(), wvlt->samples(), wvltsz*sizeof(float) );
+	OD::memCopy( fva2d->getData(), samps.arr(), wvltsz*sizeof(float) );
 	dp->setName( wvlt->name() );
 	DPM( DataPackMgr::FlatID() ).add( dp );
 	curid_ = dp->id();
 	StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
-	if ( SI().zIsTime() ) posns.scale( zfac );
+	if ( SI().zIsTime() )
+	    posns.scale( zfac );
 	dp->posData().setRange( false, posns );
     }
 

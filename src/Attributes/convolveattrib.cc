@@ -450,14 +450,16 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
 bool Convolve::computeDataWavelet( const DataHolder& output, int z0,
 				   int nrsamples ) const
 {
-    if ( !inputdata_[0] || !wavelet_ ) return false;
+    if ( !inputdata_[0] || !wavelet_ )
+	return false;
 
-    int waveletsz = wavelet_->size();
-    int wavfirstidx = -wavelet_->centerSample();
-    float* wavarr = wavelet_->samples();
-    int inpshift = z0-inputdata_[0]->z0_;
+    const int waveletsz = wavelet_->size();
+    const int wavfirstidx = -wavelet_->centerSample();
+    TypeSet<float> samps; wavelet_->getSamples( samps );
+    const int inpshift = z0-inputdata_[0]->z0_;
     float* outp = output.series(0)->arr();
-    GenericConvolve( waveletsz, wavfirstidx, wavarr, inputdata_[0]->nrsamples_,
+    GenericConvolve( waveletsz, wavfirstidx, samps.arr(),
+		     inputdata_[0]->nrsamples_,
 		     -inpshift, *inputdata_[0]->series(dataidx_),
 		     nrsamples, 0, outp );
 

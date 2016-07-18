@@ -358,13 +358,15 @@ int SynthGenerator::genFreqWavelet()
 
     freqwavelet_.setSize( convolvesize_, float_complex(0,0) );
     //TODO add taper if wavelet length less than output trace size
-    for ( int idx=0; idx<wavelet_->size(); idx++ )
+    TypeSet<float> samps;
+    wavelet_->getSamples( samps );
+    for ( int idx=0; idx<samps.size(); idx++ )
     {
 	int arrpos = idx - wavelet_->centerSample();
 	if ( arrpos < 0 )
 	    arrpos += convolvesize_;
 
-	freqwavelet_[arrpos] = wavelet_->samples()[idx];
+	freqwavelet_[arrpos] = samps[idx];
     }
 
     mPrepFFT( fft, freqwavelet_.arr(), true, convolvesize_ );

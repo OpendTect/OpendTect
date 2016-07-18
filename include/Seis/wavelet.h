@@ -16,66 +16,88 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "ranges.h"
 #include "valseries.h"
-#include "uistring.h"
-class IOObj;
 template <class T> class ValueSeriesInterpolator;
+template <class T> class TypeSet;
+class IOObj; //TODO remove
 
 
-mExpClass(Seis) Wavelet : public NamedObject
-{ mODTextTranslationClass(Wavelet);
+mExpClass(Seis) Wavelet : public RefCount::Referenced
+			, public NamedMonitorable
+{
 public:
+
+    typedef int		size_type;
+    typedef size_type	IdxType;
+    typedef float	ValueType;
+    typedef float	ZType;
+
 			Wavelet(const char* nm=0);
-			Wavelet(bool ricker_else_sinc,float fpeak,
-				float sample_intv=mUdf(float),float scale=1);
-			Wavelet(const Wavelet&);
-    Wavelet&		operator=(const Wavelet&);
+			Wavelet(bool ricker_else_sinc,ValueType fpeak,
+				ValueType sample_intv=mUdf(ValueType),
+				ValueType scale=1);
     virtual		~Wavelet();
+			mDeclInstanceCreatedNotifierAccess(Wavelet);
+			mDeclMonitorableAssignment(Wavelet);
 
-    static Wavelet*	get(const IOObj*);
-    static IOObj*	getIOObj(const char* wvltnm);
-    bool		put(const IOObj*) const;
+    mImplSimpleMonitoredGetSet(inline,sampleRate,setSampleRate,
+				    ZType,dpos_,cParChange())
+    mImplSimpleMonitoredGetSet(inline,centerSample,setCenterSample,
+				    IdxType,cidx_,cParChange())
+    size_type		size() const;
+    bool		validIdx(IdxType) const;
+    ValueType		get(IdxType) const;
+    ValueType		getValue(ZType) const;
+    void		set(IdxType,ValueType);
+    ValueType*		getSamples() const;	//!< needs delete []
+    void		getSamples(ValueType*) const;
+    void		getSamples(TypeSet<ValueType>&) const;
+    void		setSamples(const ValueType*,size_type);
+    void		setSamples(const TypeSet<ValueType>&);
+    const ValueSeriesInterpolator<ValueType>& interpolator() const;
+    void		setInterpolator(ValueSeriesInterpolator<ValueType>*);
+			//!< becomes mine
+    void		reSize(size_type,ValueType val=0.f);
 
-    float*		samples()		{ return samps_; }
-    const float*	samples() const		{ return samps_; }
-    inline void		set( int idx, float v )
-			{ if ( isValidSample(idx) ) samps_[idx] = v; }
-    inline float	get( int idx ) const
-			{ return isValidSample(idx) ? samps_[idx] : 0.f; }
-    inline bool		isValidSample( int idx ) const
-			{ return idx>=0 && idx<sz_; }
+    StepInterval<ZType>	samplePositions() const;
+    IdxType		nearestSample(ZType) const;
+    bool		hasSymmetricalSamples() const;
 
-    float		sampleRate() const	{ return dpos_; }
-    int			centerSample() const	{ return cidx_; }
-    StepInterval<float>	samplePositions() const
-			{ return StepInterval<float>(
-				-cidx_*dpos_, (sz_-cidx_-1)*dpos_, dpos_ ); }
-    int			nearestSample(float z) const;
-    bool		hasSymmetricalSamples()	{ return cidx_ * 2 + 1 == sz_; }
-
-    int			size() const		{ return sz_; }
-    float		getValue(float) const;
-
-    void		setSampleRate(float sr)	{ dpos_ = sr; }
-    void		setCenterSample(int cidx)	{ cidx_ = cidx; }
-			//!< positive for starttwt < 0
-    void		reSize(int); // destroys current sample data!
-
-    bool		reSample(float newsr);
-    bool		reSampleTime(float newsr);
+    bool		reSample(ZType);
+    bool		reSampleTime(ZType);
     void		ensureSymmetricalSamples();
 			//!< pads with zeros - use with and before reSample
 			//  for better results
-    void		transform(float b,float a);
+    void		transform(ValueType b,ValueType a);
 			//!< a*X+b transformation
     void		normalize();
     bool		trimPaddedZeros(); //!< returns whether any change
-    float		getExtrValue(bool ismax = true) const;
-    void		getExtrValues(Interval<float>&) const;
-    int			getPos(float val,bool closetocenteronly=false) const;
+    ValueType		getExtrValue(bool ismax = true) const;
+    void		getExtrValues(Interval<ZType>&) const;
+    int			getPos(ZType val,bool closetocenteronly=false) const;
 
-    const ValueSeriesInterpolator<float>& interpolator() const;
-    void		setInterpolator(ValueSeriesInterpolator<float>*);
-			//!< becomes mine
+    static ChangeType	cParChange()	    { return 2; }
+    static ChangeType	cSampleChange()	    { return 3; }
+
+protected:
+
+    ValueType*		samps_;
+    size_type		sz_;
+    ZType		dpos_;		//!< delta Z, sample interval
+    IdxType		cidx_;		//!< The index at pos == 0
+
+    ValueSeriesInterpolator<ValueType>* intpol_;
+
+    void		doReSize(int); // destroys current sample data!
+    StepInterval<ZType>	gtSamplePositions() const;
+
+    friend class	WaveletValueSeries;
+
+public:
+
+    //TODO move into IO stuff
+    static Wavelet*	get(const IOObj*);
+    static IOObj*	getIOObj(const char* waveletnm);
+    bool		put(const IOObj*) const;
 
     static void		markScaled(const MultiID& id); //!< "External"
     static void		markScaled(const MultiID& id,const MultiID& orgid,
@@ -87,67 +109,51 @@ public:
 					BufferString& lvlnm);
 					//!< if external, orgid will be "0"
 
-protected:
-
-    float		dpos_;
-    float*		samps_;
-    int			sz_;
-    int			cidx_;		//!< The index of the center sample
-    ValueSeriesInterpolator<float>*	intpol_;
-
 };
 
 
-/*!> Wavelet conforming the ValueSeries<float> interface.
+/*!> Wavelet conforming the ValueSeries interface. */
 
-  The Wavelet can form a ValueSeries.
-
-*/
-
-mExpClass(Seis) WaveletValueSeries : public ValueSeries<float>
-{ mODTextTranslationClass(WaveletValueSeries);
+mExpClass(Seis) WaveletValueSeries : public ValueSeries<Wavelet::ValueType>
+{
 public:
 
-		WaveletValueSeries( const Wavelet& wv )
-		    :wv_(const_cast<Wavelet&>(wv)) {}
+			WaveletValueSeries(const Wavelet&);
 
-    float	value( od_int64 idx ) const;
-    bool	writable() const		{ return true; }
-    void	setValue( od_int64 idx,float v);
-    float*	arr();
-    const float* arr() const;
+    virtual ValueType	value(od_int64) const;
+    virtual bool	writable() const		{ return true; }
+    virtual void	setValue(od_int64 idx,ValueType);
+    virtual ValueType*	arr();
+    virtual const ValueType* arr() const;
 
-    inline ValueSeries<float>*	clone() const;
+    inline ValueSeries<ValueType>*  clone() const
+			{ return new WaveletValueSeries( *wv_ ); }
 
 protected:
 
-    Wavelet&	wv_;
+    RefMan<Wavelet>	wv_;
+    MonitorLock		ml_;
+
 };
 
-/*!> Wavelet conforming the MathFunction interface.
-
-  The Wavelet can form a MathFunction
-
-*/
+/*!> Wavelet conforming the MathFunction interface. */
 
 
 mExpClass(Seis) WaveletFunction : public FloatMathFunction
-{ mODTextTranslationClass(WaveletFunction);
+{
 public:
-		WaveletFunction(const Wavelet& wv)
-		    : wv_(wv)
-		{}
+		WaveletFunction(const Wavelet&);
 
-    float	getValue( float z ) const { return wv_.getValue(z); }
+    float	getValue( float z ) const	 { return wv_->getValue(z); }
     float	getValue( const float* p ) const { return getValue(*p); }
 
 protected:
 
-    const Wavelet& wv_;
+    ConstRefMan<Wavelet>	wv_;
+    MonitorLock			ml_;
+
 };
 
-inline ValueSeries<float>* WaveletValueSeries::clone() const
-{ return new WaveletValueSeries( wv_ ); }
 
 
 #endif

@@ -181,6 +181,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
     const bool addz = addzfld_->getBoolValue();
     const float zfac = mCast( float, SI().zDomain().userFactor() );
     const StepInterval<float> zpos( wvlt->samplePositions() );
+    TypeSet<float> samps; wvlt->getSamples( samps );
     for ( int idx=0; idx<wvlt->size(); idx++ )
     {
 	if ( addz )
@@ -189,7 +190,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 	    const od_int64 izval = mRounded( od_int64, 1000 * zval );
 	    strm << toString( izval * 0.001 ) << '\t';
 	}
-	strm << toString(wvlt->samples()[idx]) << '\n';
+	strm << toString(samps[idx]) << '\n';
     }
 
     if ( !strm.isOK() )

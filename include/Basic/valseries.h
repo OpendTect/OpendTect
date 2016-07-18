@@ -31,6 +31,8 @@ mClass(Basic) ValueSeries
 {
 public:
 
+    typedef T		ValueType;
+
     virtual		~ValueSeries()		{}
 
     void		getValues(ValueSeries<T>&,od_int64 nrvals) const;
@@ -152,10 +154,10 @@ protected:
 
 
 /*!
-\brief Valueseries that allocates its data in smaller chunks. By doing this, 
-it performs better in environments where the memory is fragmented 
+\brief Valueseries that allocates its data in smaller chunks. By doing this,
+it performs better in environments where the memory is fragmented
 (i.e. windows 32 bit).
-Default chunk size for windows 32 bit is 512MB and for all other platforms 
+Default chunk size for windows 32 bit is 512MB and for all other platforms
 default is 32 GB.
 */
 

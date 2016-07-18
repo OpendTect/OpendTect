@@ -222,8 +222,7 @@ void uiSeisWvltMerge::makeStackedWvlt()
     stackedwvlt_ = new Wavelet( wvltname );
     wvltset_ += stackedwvlt_;
     stackedwvlt_->reSize( maxwvltsize_ );
-    for ( int idx=0; idx<maxwvltsize_; idx++ )
-	stackedwvlt_->samples()[idx] = 0;
+    TypeSet<float> stackedsamps; stackedwvlt_->getSamples( stackedsamps );
 
     for ( int selidx=0; selidx<selsize; selidx++ )
     {
@@ -236,9 +235,10 @@ void uiSeisWvltMerge::makeStackedWvlt()
 	    const int shift = maxwvltsize_%2 ? 1 : 0;
 	    const float coeff = mCast( float, 2*idx-maxwvltsize_ + shift );
 	    const float val = func->getValue( coeff*5*SI().zStep());
-	    stackedwvlt_->samples()[idx] += val/selsize;
+	    stackedsamps[idx] += val/selsize;
 	}
     }
+    stackedwvlt_->setSamples( stackedsamps );
     WvltMathFunction* stackedfunc = new WvltMathFunction( stackedwvlt_ );
     wvltfuncset_ += stackedfunc;
     wd->addFunction( wvltname, stackedfunc, false );
@@ -371,14 +371,13 @@ void uiSeisWvltMerge::centerToMaxAmplPos( Wavelet& wvlt )
     if ( fabs(minval) > fabs(extrval) )
 	extrval = minval;
 
+    TypeSet<float> samps; wvlt.getSamples( samps );
     for ( int idx=0; idx<wvlt.size(); idx++ )
     {
-	if ( mIsEqual(wvlt.samples()[idx],extrval,mDefEps) )
-	{
-	    centeridx = idx;
-	    break;
-	}
+	if ( mIsEqual(samps[idx],extrval,mDefEps) )
+	    { centeridx = idx; break; }
     }
+    wvlt.setSamples( samps );
     wvlt.setCenterSample( centeridx );
 }
 
@@ -398,26 +397,33 @@ bool uiSeisWvltMerge::acceptOK( CallBacker* )
 
 
 uiSeisWvltMerge::WvltMathFunction::WvltMathFunction( const Wavelet* wvlt )
-		: samples_(wvlt->samples())
-		, samppos_(wvlt->samplePositions())
-		, size_(wvlt->size())
-		{}
+{
+    if ( wvlt )
+    {
+	samppos_ = wvlt->samplePositions();
+	wvlt->getSamples( samples_ );
+    }
+}
 
 float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
 {
+    if ( samples_.isEmpty() )
+	return mUdf(float);
+
+    const int sz = samples_.size();
     float x = ( t*0.1f - samppos_.start );
     x /= samppos_.step;
     const int x1 = int(x);
-    if ( x1 > size_-1 || x1<0 )
+    if ( x1 > sz-1 || x1<0 )
 	return 0;
-    else if ( x1 == size_-1 )
+    else if ( x1 == sz-1 )
 	return samples_[x1];
     const float val1 = samples_[x1];
     const int x2 = x1+1 ;
     const float val2 = samples_[x2];
     const float factor = ( x-x1 )/( x2-x1 );
 
-    if ( x1==0 || x2 == size_-1 )
+    if ( x1==0 || x2 == sz-1 )
 	return Interpolate::linearReg1D( val1, val2, factor );
     else
     {

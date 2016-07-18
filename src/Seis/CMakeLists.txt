@@ -73,6 +73,7 @@ set(OD_MODULE_SOURCES
 	synthseis.cc
 	timedepthconv.cc
 	wavelet.cc
+	waveletio.cc
 	waveletattrib.cc
 	waveletextractor.cc
 )

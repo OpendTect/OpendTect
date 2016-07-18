@@ -61,11 +61,9 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
     TrcKeyZSampling cs;
     PtrMan<SeisIOObjInfo> si = new SeisIOObjInfo( ioobj );
     si->getRanges( cs );
-    wvlt_.reSize( wvltsize_ );
     wvlt_.setSampleRate( cs.zsamp_.step );
     wvlt_.setCenterSample( wvltsize_/2 );
-    for ( int samp=0; samp<wvltsize_; samp++ )
-	wvlt_.samples()[samp] = 0;
+    wvlt_.reSize( wvltsize_, 0.f );
 }
 
 
@@ -270,7 +268,7 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
 	temp.set( idx, acarr.get( startidx+idx ) );
 
     ArrayMath::removeBias<float,float>( temp );
-    normalisation( temp );
+    doNormalisation( temp );
 
     Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
     Array1DImpl<float_complex> timedomsignal( wvltsize_ );
@@ -281,17 +279,19 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
     fft_->setOutput( freqdomsignal.getData() );
     fft_->run( true );
 
+    TypeSet<float> samps; wvlt_.getSamples( samps );
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
 	const float val = std::abs( freqdomsignal.arr()[idx] );
-	wvlt_.samples()[idx] += val;
+	samps[idx] += val;
     }
 
+    wvlt_.setSamples( samps );
     return true;
 }
 
 
-void WaveletExtractor::normalisation( Array1DImpl<float>& normal )
+void WaveletExtractor::doNormalisation( Array1DImpl<float>& normal )
 {
     float maxval = fabs( normal.arr()[0] );
     for ( int idx=1; idx<wvltsize_; idx++ )
@@ -312,17 +312,21 @@ void WaveletExtractor::normalisation( Array1DImpl<float>& normal )
 bool WaveletExtractor::finish( int nrusedtrcs )
 {
     if ( nrusedtrcs == 0 )
-    { msg_ = tr("No valid traces read"); return false; }
+	{ msg_ = tr("No valid traces read"); return false; }
 
-    float * stackedarr = wvlt_.samples();
-    stackedarr[0] = 0;
+    TypeSet<float> samps; wvlt_.getSamples( samps );
+    samps[0] = 0;
     for ( int i=1; i<wvltsize_; i++ )
-	stackedarr[i] = Math::Sqrt( stackedarr[i] / nrusedtrcs );
+	samps[i] = Math::Sqrt( samps[i] / nrusedtrcs );
 
-    if ( !doWaveletIFFT() || !rotateWavelet() || !taperWavelet() )
-    { msg_ = tr("Failed to generate wavelet"); return false; }
+    float* samparr = samps.arr();
+    if ( !doWaveletIFFT(samparr)
+      || !rotateWavelet(samparr)
+      || !taperWavelet(samparr) )
+	{ msg_ = tr("Failed to generate wavelet"); return false; }
 
-   return true;
+    wvlt_.setSamples( samps );
+    return true;
 }
 
 
@@ -334,13 +338,13 @@ void WaveletExtractor::setPhase( int phase )
 { phase_ = phase; }
 
 
-bool WaveletExtractor::doWaveletIFFT()
+bool WaveletExtractor::doWaveletIFFT( float* samps )
 {
     fft_->setDir( false );
 
     Array1DImpl<float_complex> signal( wvltsize_ ), transfsig( wvltsize_ );
     for ( int idx=0; idx<wvltsize_; idx++ )
-	signal.set( idx, wvlt_.samples()[idx] );
+	signal.set( idx, samps[idx] );
 
     fft_->setInput( signal.getData() );
     fft_->setOutput( transfsig.getData() );
@@ -349,20 +353,20 @@ bool WaveletExtractor::doWaveletIFFT()
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
 	if ( idx>=wvltsize_/2 )
-	    wvlt_.samples()[idx] = transfsig.get( idx - wvltsize_/2 ).real();
+	    samps[idx] = transfsig.get( idx - wvltsize_/2 ).real();
 	else
-	    wvlt_.samples()[idx] = transfsig.get( wvltsize_/2 - idx ).real();
+	    samps[idx] = transfsig.get( wvltsize_/2 - idx ).real();
     }
 
     return true;
 }
 
 
-bool WaveletExtractor::rotateWavelet()
+bool WaveletExtractor::rotateWavelet( float* samps )
 {
     Array1DImpl<float> rotatewvlt( wvltsize_ );
     for ( int idx=0; idx<wvltsize_; idx++ )
-	rotatewvlt.set( idx, wvlt_.samples()[idx] );
+	rotatewvlt.set( idx, samps[idx] );
 
     WaveletAttrib wvltattr( wvlt_ );
     wvltattr.getHilbert( rotatewvlt );
@@ -370,26 +374,26 @@ bool WaveletExtractor::rotateWavelet()
     double angle = phase_ * M_PI/180;
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
-	const float realval = wvlt_.samples()[idx];
+	const float realval = samps[idx];
 	const float imagval = -rotatewvlt.arr()[idx];
-	wvlt_.samples()[idx] = (float) (realval*cos(angle)-imagval*sin(angle));
+	samps[idx] = (float) (realval*cos(angle)-imagval*sin(angle));
     }
 
     return true;
 }
 
 
-bool WaveletExtractor::taperWavelet()
+bool WaveletExtractor::taperWavelet( float* samps )
 {
     Array1DImpl<float> taperwvlt( wvltsize_ );
     for ( int idx=0; idx<wvltsize_; idx++ )
-	taperwvlt.set( idx, wvlt_.samples()[idx] );
+	taperwvlt.set( idx, samps[idx] );
 
     ArrayNDWindow window( taperwvlt.info(), true, "CosTaper", paramval_ );
     window.apply( &taperwvlt );
     WaveletAttrib::muteZeroFrequency( taperwvlt );
     for ( int samp=0; samp<wvltsize_; samp++ )
-	wvlt_.samples()[samp] = taperwvlt.arr()[samp];
+	samps[samp] = taperwvlt.arr()[samp];
 
     return true;
 }

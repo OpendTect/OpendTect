@@ -273,10 +273,8 @@ bool DataPlayer::computeEstimatedWavelet( int wvltsz )
     window.apply( &wvltarr );
 
     data_.estimatedwvlt_.setSampleRate( step );
+    data_.estimatedwvlt_.setSamples( wvltarr.getData(), outwvltsz );
     data_.estimatedwvlt_.setCenterSample( (outwvltsz-1)/2 );
-    data_.estimatedwvlt_.reSize( outwvltsz );
-    OD::memCopy( data_.estimatedwvlt_.samples(), wvltarr.getData(),
-		outwvltsz*sizeof(float) );
     delete [] wvltarrfull;
 
     return true;

@@ -322,9 +322,10 @@ void uiSeisWvltMan::reversePolarity( CallBacker* )
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
 
-    float* samps = wvlt->samples();
+    TypeSet<float> samps; wvlt->getSamples( samps );
     for ( int idx=0; idx<wvlt->size(); idx++ )
 	samps[idx] *= -1;
+    wvlt->setSamples( samps );
 
     if ( !wvlt->put(curioobj_) )
 	uiMSG().error(uiStrings::phrCannotWrite(tr(
@@ -383,10 +384,12 @@ void uiSeisWvltMan::taper( CallBacker* )
 void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 {
     mDynamicCastGet(uiSeisWvltRotDlg*,dlg,cb);
-    if ( !dlg ) mErr();
+    if ( !dlg )
+	mErr();
 
     const Wavelet* wvlt = dlg->getWavelet();
-    if ( !wvlt ) mErr();
+    if ( !wvlt )
+	mErr();
 
     dispWavelet( wvlt );
 }
@@ -396,15 +399,16 @@ void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
 {
     wvnamdisp_->setText( curioobj_->uiName() );
     wvnamdisp_->setPrefWidthInChar( 60 );
-    if( !wvlt || !wvlt->samples() )
-    {
-	waveletdisplay_->setEmpty();
-	return;
-    }
+    TypeSet<float> samps;
+    if ( wvlt )
+	wvlt->getSamples( samps );
+    if ( samps.isEmpty() )
+    { waveletdisplay_->setEmpty(); return; }
+
     const int wvltsz = wvlt->size();
     StepInterval<float> intxval;
     intxval.setFrom( wvlt->samplePositions() );
     const float zfac = mCast(float,SI().zDomain().userFactor());
     intxval.scale( zfac );
-    waveletdisplay_->setVals( intxval, wvlt->samples(), wvltsz );
+    waveletdisplay_->setVals( intxval, samps.arr(), wvltsz );
 }

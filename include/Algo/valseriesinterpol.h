@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "valseries.h"
 #include "periodicvalue.h"
+#include "atomic.h"
 
 /*\brief interpolates between values of a ValueSeries object
 
@@ -37,7 +38,6 @@ public:
 
     inline T		value(const ValueSeries<T>&,T pos) const;
 
-    int			maxidx_;
     T			snapdist_;
     T			udfval_;
     bool		smooth_;
@@ -46,6 +46,7 @@ public:
     bool		hasudfs_;
     T			period_;
     bool		linear_;
+    Threads::Atomic<int> maxidx_;
 
 };
 

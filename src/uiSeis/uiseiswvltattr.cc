@@ -78,15 +78,16 @@ uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet& wvlt )
 void uiSeisWvltRotDlg::act( CallBacker* )
 {
     const float dphase = sliderfld_->getValue();
-    float* wvltsamps = wvlt_->samples();
-    const float* orgwvltsamps = orgwvlt_->samples();
-    const int wvltsz = wvlt_->size();
+    TypeSet<float> samps; orgwvlt_->getSamples( samps );
+    const int wvltsz = samps.size();
     Array1DImpl<float> hilsamps( wvltsz );
     wvltattr_->getHilbert( hilsamps );
 
     for ( int idx=0; idx<wvltsz; idx++ )
-	wvltsamps[idx] = (float) ( orgwvltsamps[idx]*cos( dphase*M_PI/180 )
+	samps[idx] = (float)( samps[idx]*cos( dphase*M_PI/180 )
 		       - hilsamps.get(idx)*sin( dphase*M_PI/180 ) );
+
+    wvlt_->setSamples( samps );
     acting.trigger();
 }
 
@@ -129,7 +130,8 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     mutefld_->activated.notify( mCB( this, uiSeisWvltTaperDlg, act )  );
 
     wvltvals_ = new Array1DImpl<float>( wvltsz_ );
-    OD::memCopy( wvltvals_->getData(), wvlt_->samples(),sizeof(float)*wvltsz_);
+    TypeSet<float> samps; wvlt_->getSamples( samps );
+    OD::memCopy( wvltvals_->getData(), samps.arr(), sizeof(float)*wvltsz_ );
 
     const float zstep = wvlt_->sampleRate();
     const float maxfreq = getFreqXAxisScaler() * 0.5f / zstep;
@@ -212,15 +214,17 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
     if ( isfreqtaper_ )
     {
 	Array1DImpl<float> tmpwvltvals( wvltsz_ );
-	OD::memCopy( tmpwvltvals.arr(), orgwvlt_->samples(),
+	TypeSet<float> samps; orgwvlt_->getSamples( samps );
+	OD::memCopy( tmpwvltvals.arr(), samps.arr(),
 		     sizeof(float)*wvltsz_);
 	wvltattr_->applyFreqWindow( *freqdrawer_->window(),
 				mPaddFac, tmpwvltvals );
 	for ( int idx=0; idx<wvltsz_; idx++ )
 	{
 	    wvltvals_->set( idx, tmpwvltvals.get(idx) );
-	    wvlt_->samples()[idx] = tmpwvltvals.get(idx);
+	    samps[idx] = tmpwvltvals.get(idx);
 	}
+	wvlt_->setSamples( samps );
 	setTimeData();
     }
     else
@@ -228,9 +232,11 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
 	float var = sliderfld_->getValue();
 	timedrawer_->setWindows( 1-var/100 );
 
-	if ( !timedrawer_->getFuncValues() ) return;
-	OD::memCopy( wvlt_->samples(), timedrawer_->getFuncValues(),
-						    sizeof(float)*wvltsz_ );
+	if ( !timedrawer_->getFuncValues() )
+	    return;
+	TypeSet<float> samps; wvlt_->getSamples( samps );
+	OD::memCopy( samps.arr(), timedrawer_->getFuncValues(),
+				    sizeof(float)*wvltsz_ );
 	if ( mutefld_->isChecked() )
 	    WaveletAttrib::muteZeroFrequency( *wvltvals_ );
 
@@ -336,8 +342,9 @@ void uiWaveletDispProp::addAttrDisp( int attridx )
 
 void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
 {
-    OD::memCopy( attrarrays_[0]->getData(), wvlt.samples(),
-		 wvltsz_*sizeof(float) );
+    TypeSet<float> samps; wvlt.getSamples( samps );
+    const int wvltsz = samps.size();
+    OD::memCopy( attrarrays_[0]->getData(), samps.arr(), wvltsz*sizeof(float) );
 
     wvltattr_->getFrequency( *attrarrays_[1], mPaddFac );
     wvltattr_->getPhase( *attrarrays_[2], true );
