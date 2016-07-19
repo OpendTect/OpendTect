@@ -311,7 +311,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     visSurvey::PreStackDisplay* viewer = new visSurvey::PreStackDisplay;
     viewer->ref();
     viewer->setMultiID( ioobj->key() );
-    visserv_->addObject( viewer, sceneid, false );
+    visserv_->addObject( viewer, sceneid, true );
 
     const Coord3 pickedpos = menu->getPickedPos();
 
@@ -610,6 +610,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 		    mCB( this, uiViewer3DMgr, sceneChangeCB ) );
 	viewers3d_ += psv;
 	posdialogs_ += 0;
+	settingdlgs_ += 0;
 	psv->ref();
     }
 
