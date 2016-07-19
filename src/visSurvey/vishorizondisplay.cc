@@ -48,7 +48,8 @@ ________________________________________________________________________
 
 
 
-using namespace visSurvey;
+namespace visSurvey
+{
 
 const char* HorizonDisplay::sKeyTexture()	{ return "Use texture"; }
 const char* HorizonDisplay::sKeyShift()		{ return "Shift"; }
@@ -2567,3 +2568,5 @@ HorizonDisplay::IntersectionData::setLineStyle( const OD::LineStyle& lst )
 
     return oldline;
 }
+
+} // namespace visSurvey
