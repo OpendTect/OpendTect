@@ -39,6 +39,7 @@ ________________________________________________________________________
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 
+#include "autosaver.h"
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
@@ -615,6 +616,19 @@ void uiODMain::handleStartupSession()
 }
 
 
+void uiODMain::autoSaveFail( CallBacker* cb )
+{
+    // called from autosaver thread
+    mDynamicCastGet(OD::AutoSaveObj*,asobj,cb);
+    if ( !asobj )
+	{ pErrMsg("Huh"); return; }
+    if ( asobj->prevSaveFailed() )
+	return; //TODO put something in log file
+
+    //TODO send uiMSG
+}
+
+
 void uiODMain::sessTimerCB( CallBacker* )
 {
     sceneMgr().layoutScenes();
@@ -668,6 +682,8 @@ bool uiODMain::go()
     if ( failed_ ) return false;
 
     show();
+
+    mAttachCB( OD::AUTOSAVE().saveFailed, uiODMain::autoSaveFail );
 
     Timer tm( "Handle startup session" );
     tm.tick.notify( mCB(this,uiODMain,afterSurveyChgCB) );

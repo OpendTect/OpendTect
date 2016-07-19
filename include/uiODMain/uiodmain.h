@@ -118,6 +118,7 @@ private:
     Timer&		memtimer_;
     Timer&		newsurvinittimer_;
     bool		neednewsurvinit_;
+    void		autoSaveFail(CallBacker*);
     void		sessTimerCB(CallBacker*);
     void		memTimerCB(CallBacker*);
     void		newSurvInitTimerCB(CallBacker*);

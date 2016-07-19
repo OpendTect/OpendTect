@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "notify.h"
+#include "monitor.h"
 #include "uistring.h"
 class IOStream;
 
@@ -20,8 +20,47 @@ class IOStream;
 namespace OD
 {
 
-class AutoSaveObj;
+class AutoSaver;
 class Saveable;
+
+
+mExpClass(General) AutoSaveObj : public CallBacker
+{
+public:
+
+    typedef Monitorable::DirtyCountType DirtyCountType;
+
+			AutoSaveObj(const Saveable&,AutoSaver&);
+			~AutoSaveObj();
+
+    uiString		errMsg() const		{ return errmsg_; }
+    bool		prevSaveFailed() const	{ return prevsavefailed_; }
+    bool		isFinished() const;
+    const Saveable*	saver() const		{ return saver_; }
+
+private:
+
+    const Saveable*	saver_;
+    mutable Threads::Lock lock_;
+    AutoSaver&		mgr_;
+    mutable uiString	errmsg_;
+    mutable bool	prevsavefailed_;
+
+    mutable DirtyCountType lastautosavedirtycount_;
+    mutable int		lastsaveclockseconds_;
+    mutable IOStream*	lastautosaveioobj_;
+    mutable int		autosavenr_;
+
+    bool		time4AutoSave() const;
+    int			autoSave(bool) const;
+    void		removeHiddenSaves();
+
+    void		removeIOObjAndData(IOStream*&) const;
+    void		saverDelCB(CallBacker*);
+
+    friend class	AutoSaver;
+
+};
 
 
 /*!\brief Auto-save manager. Singleton class. Works from its own thread.
@@ -52,7 +91,7 @@ public:
     void		add(const Saveable&);
     bool		restore(IOStream&,const char* newnm);
 
-			// triggered from mgr's thread. CB obj is the saver.
+			// triggered from mgr's thread. CB obj is AutoSaveObj
     Notifier<AutoSaver> saveDone;
     Notifier<AutoSaver> saveFailed;
 

@@ -61,43 +61,6 @@ static bool useHiddenModeByDefault()
 }
 
 
-namespace OD
-{
-
-mExpClass(General) AutoSaveObj : public CallBacker
-{
-public:
-
-    typedef Monitorable::DirtyCountType DirtyCountType;
-
-			AutoSaveObj(const Saveable&,AutoSaver&);
-			~AutoSaveObj();
-
-    bool		isFinished() const;
-
-    const Saveable*	saver_;
-    mutable Threads::Lock lock_;
-    AutoSaver&		mgr_;
-    mutable uiString	errmsg_;
-
-    mutable DirtyCountType lastautosavedirtycount_;
-    mutable int		lastsaveclockseconds_;
-    mutable IOStream*	lastautosaveioobj_;
-    mutable int		autosavenr_;
-
-    bool		time4AutoSave() const;
-    int			autoSave(bool) const;
-    void		removeHiddenSaves();
-
-    void		removeIOObjAndData(IOStream*&) const;
-    void		saverDelCB(CallBacker*);
-
-};
-
-} // namespace OD
-
-
-
 OD::AutoSaveObj::AutoSaveObj( const Saveable& obj, AutoSaver& mgr )
     : saver_(&obj)
     , mgr_(mgr)
@@ -105,6 +68,7 @@ OD::AutoSaveObj::AutoSaveObj( const Saveable& obj, AutoSaver& mgr )
     , lastsaveclockseconds_(mgr.curclockseconds_)
     , lastautosaveioobj_(0)
     , autosavenr_(1)
+    , prevsavefailed_(false)
 {
     mAttachCB( saver_->objectToBeDeleted(), OD::AutoSaveObj::saverDelCB );
 }
@@ -447,9 +411,16 @@ void OD::AutoSaver::go()
 		    break;
 
 		if ( res < 0 )
+		{
 		    saveFailed.trigger( asobj );
-		else if ( res > 0 )
-		    saveDone.trigger( asobj );
+		    asobj->prevsavefailed_ = true;
+		}
+		else
+		{
+		    if ( res > 0 )
+			saveDone.trigger( asobj );
+		    asobj->prevsavefailed_ = false;
+		}
 	    }
 	}
 
