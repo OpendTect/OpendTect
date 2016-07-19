@@ -15,6 +15,7 @@
 #include "timefun.h"
 #include "oddirs.h"
 #include "transl.h"
+#include "uistrings.h"
 #include "genc.h"
 
 static const int defnrsecondsbetweensaves_ = 300;
@@ -160,10 +161,12 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
     newstoreioobj->pars().set( sKey::CrInfo(), fms );
     newstoreioobj->updateCreationPars();
 
-    if ( !IOM().commitChanges(*newstoreioobj)
-      || !saver_->store(*newstoreioobj) )
+    const bool commitok = IOM().commitChanges( *newstoreioobj );
+    const bool saveok = commitok && saver_->store( *newstoreioobj );
+    if ( !saveok )
     {
-	errmsg_ = saver_->errMsg();
+	errmsg_ = commitok ? saver_->errMsg()
+	       : uiStrings::phrCannotCreateDBEntryFor( tr("auto-save object") );
 	lastautosavedirtycount_ = prevautosavedirtycount;
 	removeIOObjAndData( newstoreioobj );
 	return -1;

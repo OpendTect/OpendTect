@@ -40,6 +40,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 
 #include "autosaver.h"
+#include "saveable.h"
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
@@ -622,10 +623,23 @@ void uiODMain::autoSaveFail( CallBacker* cb )
     mDynamicCastGet(OD::AutoSaveObj*,asobj,cb);
     if ( !asobj )
 	{ pErrMsg("Huh"); return; }
-    if ( asobj->prevSaveFailed() )
-	return; //TODO put something in log file
 
-    //TODO send uiMSG
+    const OD::Saveable* svbl = asobj->saver();
+    const NamedMonitorable* obj = 0;
+    if ( svbl )
+	mDynamicCast(const NamedMonitorable*,obj,svbl->monitored());
+
+    uiString msg( tr("Auto-Save [%1]: %2")
+	    .arg( obj ? obj->name().str() : "" )
+	    .arg( asobj->errMsg() ) );
+
+    if ( !asobj->prevSaveFailed() )
+    {
+	//TODO need this to be in main thread, causes hard crash:
+	// uiMSG().error( msg );
+    }
+    //else
+	ErrMsg( msg.getFullString() );
 }
 
 
