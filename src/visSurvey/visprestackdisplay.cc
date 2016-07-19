@@ -591,9 +591,6 @@ void PreStackDisplay::setDisplayTransformation(
     flatviewer_->setDisplayTransformation( nt );
     if ( planedragger_ )
 	planedragger_->setDisplayTransformation( nt );
-
-    if ( seis2d_ )
-	seis2d_->setDisplayTransformation( nt );
 }
 
 
