@@ -232,7 +232,7 @@ private:
     void			initSelectionDisplay(bool erase);
     virtual void		updateSelections();
     void			updateLockedPointsColor();
-
+    void			handleEmChange(const EM::EMObjectCallbackData&);
     bool				allowshading_;
     mVisTrans*				translation_;
     Coord3				translationpos_;

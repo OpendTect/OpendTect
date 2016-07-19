@@ -81,6 +81,7 @@ uiMPEMan::~uiMPEMan()
 
 void uiMPEMan::mpeActionCalledCB( CallBacker* )
 {
+    mEnsureExecutedInMainThread( uiMPEMan::mpeActionCalledCB );
     visSurvey::HorizonDisplay* hd = getSelectedDisplay3D();
     if ( !hd ) return;
 
@@ -94,6 +95,7 @@ void uiMPEMan::mpeActionCalledCB( CallBacker* )
 
 void uiMPEMan::mpeActionFinishedCB( CallBacker* )
 {
+    mEnsureExecutedInMainThread( uiMPEMan::mpeActionFinishedCB );
     visSurvey::HorizonDisplay* hd = getSelectedDisplay3D();
     if ( !hd ) return;
 

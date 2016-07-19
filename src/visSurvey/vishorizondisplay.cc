@@ -206,6 +206,7 @@ HorizonDisplay::~HorizonDisplay()
     if ( selections_ ) selections_->unRef();
     if ( lockedpts_ ) lockedpts_->unRef();
     if ( sectionlockedpts_ ) sectionlockedpts_->unRef();
+    emchangedata_.clearData();
 }
 
 
@@ -1088,10 +1089,33 @@ void HorizonDisplay::setIntersectLineMaterial( visBase::Material* nm )
 
 void HorizonDisplay::emChangeCB( CallBacker* cb )
 {
-    if ( !cb ) return;
+    if ( cb )
+    {
+	mCBCapsuleUnpack( const EM::EMObjectCallbackData&,cbdata, cb );
+	emchangedata_.addCallBackData( &cbdata );
+    }
+    
+    mEnsureExecutedInMainThread( HorizonDisplay::emChangeCB );
+    for ( int idx=0; idx<emchangedata_.size(); idx++ )
+    {
+	const EM::EMObjectCallbackData* cbdata =
+        emchangedata_.getCallBackData( idx );
+	if ( !cbdata )
+	    continue;
+	EMObjectDisplay::handleEmChange( *cbdata );
+	handleEmChange( *cbdata );
+    }
 
-    EMObjectDisplay::emChangeCB( cb );
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    emchangedata_.clearData();
+    updateSingleColor();   
+    newseeds_ = true;
+}
+
+
+
+
+void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
+{
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
 	validtexture_ = false;
@@ -1148,8 +1172,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 		sectionlockedpts_->turnOn( true );
 	}
     }
-    updateSingleColor();   
-    newseeds_ = true;
+
 }
 
 

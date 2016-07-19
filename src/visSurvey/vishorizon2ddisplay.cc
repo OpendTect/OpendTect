@@ -64,6 +64,7 @@ Horizon2DDisplay::~Horizon2DDisplay()
 
     if ( ln2dset_ )
 	delete ln2dset_;
+    emchangedata_.clearData();
 }
 
 
@@ -472,14 +473,29 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 
 void Horizon2DDisplay::emChangeCB( CallBacker* cb )
 {
-    updateintsectmarkers_ = true;
-    EMObjectDisplay::emChangeCB( cb );
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-    if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    if ( cb )
     {
-	getMaterial()->setColor( emobject_->preferredColor() );
-	setLineStyle( emobject_->preferredLineStyle() );
+       mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
+       emchangedata_.addCallBackData( &cbdata );
     }
+    
+    mEnsureExecutedInMainThread( Horizon2DDisplay::emChangeCB );
+    for ( int idx=0; idx<emchangedata_.size(); idx++ )
+    {
+      const EM::EMObjectCallbackData* cbdata =
+          emchangedata_.getCallBackData( idx );
+      if ( !cbdata )
+          continue;
+      EMObjectDisplay::handleEmChange( *cbdata );
+        if ( cbdata->event==EM::EMObjectCallbackData::PrefColorChange )
+      {
+          getMaterial()->setColor( emobject_->preferredColor() );
+          setLineStyle( emobject_->preferredLineStyle() );
+      }
+    }
+
+    emchangedata_.clearData();
+    updateintsectmarkers_ = true; 
 }
 
 

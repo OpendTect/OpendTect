@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "visemobjdisplay.h"
 
 #include "emmanager.h"
-#include "emobject.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -113,6 +112,8 @@ EMObjectDisplay::~EMObjectDisplay()
     }
 
     clearSelections();
+
+    emchangedata_.clearData();
 }
 
 
@@ -509,82 +510,23 @@ EM::SectionID EMObjectDisplay::getSectionID( const TypeSet<int>* path ) const
 
 void EMObjectDisplay::emChangeCB( CallBacker* cb )
 {
-    bool triggermovement = false;
-
-
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-    if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
+   if ( cb )
     {
-	const EM::SectionID sectionid = cbdata.pid0.sectionID();
-	if ( emobject_->sectionIndex(sectionid)>=0 )
-	{
-	    if ( emobject_->hasBurstAlert() )
-		addsectionids_ += sectionid;
-	    else
-		addSection( sectionid, 0 );
-	}
-	else
-	{
-	    removeSectionDisplay(sectionid);
-	    hasmoved.trigger();
-	}
-
-	triggermovement = true;
+	mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
+	emchangedata_.addCallBackData( &cbdata );
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert)
+    
+    mEnsureExecutedInMainThread( EMObjectDisplay::emChangeCB );
+
+    for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
-	burstalertison_ = !burstalertison_;
-	if ( !burstalertison_ )
-	{
-	    while ( !addsectionids_.isEmpty() )
-	    {
-		addSection( addsectionids_[0], 0 );
-		addsectionids_.removeSingle( 0 );
-	    }
-
-	    for ( int idx=0; idx<posattribs_.size(); idx++ )
-		updatePosAttrib(posattribs_[idx]);
-
-	    triggermovement = true;
-	}
-
+	const EM::EMObjectCallbackData* cbdata = 
+	    emchangedata_.getCallBackData( idx );
+	if ( !cbdata )
+	    continue;
+	handleEmChange( *cbdata );
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
-    {
-	if ( !burstalertison_ )
-	{
-	    for ( int idx=0; idx<posattribs_.size(); idx++ )
-	    {
-		const TypeSet<EM::PosID>* pids =
-			emobject_->getPosAttribList(posattribs_[idx]);
-		if ( !pids || !pids->isPresent(cbdata.pid0) )
-		    continue;
-
-		updatePosAttrib(posattribs_[idx]);
-	    }
-	    triggermovement = true;
-	}
-    }
-    else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
-    {
-	if ( !burstalertison_ && posattribs_.isPresent(cbdata.attrib) )
-	    updatePosAttrib(cbdata.attrib);
-    }
-    else if ( cbdata.event==EM::EMObjectCallbackData::LockChange )
-    {
-	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
-	if ( hor3d )
-	{
-	    for ( int idx = 0; idx<posattribs_.size(); idx++ )
-		updatePosAttrib( posattribs_[idx] );
-	}
-    }
-
-    if ( displayonlyatsections_ )
-	setOnlyAtSectionsDisplay( true );
-    else if ( triggermovement )
-	hasmoved.trigger();
-
+    emchangedata_.clearData();
 }
 
 
@@ -920,5 +862,81 @@ void EMObjectDisplay::unSelectAll()
     clearSelections();
 }
 
+
+void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
+{
+   bool triggermovement = false;
+   if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
+    {
+	const EM::SectionID sectionid = cbdata.pid0.sectionID();
+	if ( emobject_->sectionIndex(sectionid)>=0 )
+	{
+	    if ( emobject_->hasBurstAlert() )
+		addsectionids_ += sectionid;
+	    else
+		addSection( sectionid, 0 );
+	}
+	else
+	{
+	    removeSectionDisplay(sectionid);
+	    hasmoved.trigger();
+	}
+
+	triggermovement = true;
+    }
+    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert)
+    {
+	burstalertison_ = !burstalertison_;
+	if ( !burstalertison_ )
+	{
+	    while ( !addsectionids_.isEmpty() )
+	    {
+		addSection( addsectionids_[0], 0 );
+		addsectionids_.removeSingle( 0 );
+	    }
+
+	    for ( int idx=0; idx<posattribs_.size(); idx++ )
+		updatePosAttrib(posattribs_[idx]);
+
+	    triggermovement = true;
+	}
+
+    }
+    else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+    {
+	if ( !burstalertison_ )
+	{
+	    for ( int idx=0; idx<posattribs_.size(); idx++ )
+	    {
+		const TypeSet<EM::PosID>* pids =
+			emobject_->getPosAttribList(posattribs_[idx]);
+		if ( !pids || !pids->isPresent(cbdata.pid0) )
+		    continue;
+
+		updatePosAttrib(posattribs_[idx]);
+	    }
+	    triggermovement = true;
+	}
+    }
+    else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
+    {
+	if ( !burstalertison_ && posattribs_.isPresent(cbdata.attrib) )
+	    updatePosAttrib(cbdata.attrib);
+    }
+    else if ( cbdata.event==EM::EMObjectCallbackData::LockChange )
+    {
+	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
+	if ( hor3d )
+	{
+	    for ( int idx = 0; idx<posattribs_.size(); idx++ )
+		updatePosAttrib( posattribs_[idx] );
+	}
+    }
+
+    if ( displayonlyatsections_ )
+	setOnlyAtSectionsDisplay( true );
+    else if ( triggermovement )
+	hasmoved.trigger();
+}
 
 } // namespace visSurvey
