@@ -929,7 +929,10 @@ void uiMPEMan::cleanPatchDisplay()
 void uiMPEMan::undo()
 {
     if ( !getSelectedDisplay() || !getSelectedDisplay()->isSelected() )
-	return;
+    {
+	if ( !getSelected2DDisplay() || !getSelected2DDisplay()->isSelected() )
+	    return;
+    }
 
     MouseCursorChanger mcc( MouseCursor::Wait );
     uiString errmsg;
@@ -957,7 +960,10 @@ void uiMPEMan::undo()
 void uiMPEMan::redo()
 {
     if ( !getSelectedDisplay() || !getSelectedDisplay()->isSelected() )
-	return;
+    {
+	if ( !getSelected2DDisplay() || !getSelected2DDisplay()->isSelected() )
+	    return;
+    }
 
     MouseCursorChanger mcc( MouseCursor::Wait );
     uiString redoerrmsg;

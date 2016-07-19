@@ -41,6 +41,9 @@ static HiddenParam< Horizon2DDisplay,visBase::MarkerSet* > intersectmkset_(0);
 static HiddenParam< Horizon2DDisplay,char > updateintsectmarkers_(true);
 static HiddenParam< Horizon2DDisplay,int > nr2dlines_(0);
 static HiddenParam< Horizon2DDisplay,Line2DInterSectionSet* > ln2dset_(0);
+static HiddenParam<visSurvey::Horizon2DDisplay,visSurvey::EMChangeData*>
+                                            emchangedata_( 0 );
+
 
 Horizon2DDisplay::Horizon2DDisplay()
 {
@@ -57,6 +60,7 @@ Horizon2DDisplay::Horizon2DDisplay()
     mkset->setMaterial( new visBase::Material );
     mkset->setMarkerStyle( MarkerStyle3D::Sphere );
     mkset->setScreenSize( 4.0 );
+    emchangedata_.setParam( this, new EMChangeData );
 }
 
 
@@ -77,6 +81,10 @@ Horizon2DDisplay::~Horizon2DDisplay()
     ln2dset_.removeParam( this );
 
     nr2dlines_.removeParam( this );
+    EMChangeData* emchangeddata = emchangedata_.getParam(this);
+    if ( emchangeddata )
+        emchangeddata->clearData();
+    emchangedata_.removeParam( this );
 }
 
 
@@ -500,14 +508,33 @@ bool Horizon2DDisplay::shouldDisplayIntersections(
 
 void Horizon2DDisplay::emChangeCB( CallBacker* cb )
 {
-    updateintsectmarkers_.setParam( this, true );
-    EMObjectDisplay::emChangeCB( cb );
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-    if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    if ( cb )
     {
-	getMaterial()->setColor( emobject_->preferredColor() );
-	setLineStyle( emobject_->preferredLineStyle() );
+       mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
+       emchangedata_.getParam(this)->addCallBackData( &cbdata );
     }
+
+    mEnsureExecutedInMainThread( Horizon2DDisplay::emChangeCB );
+
+    EMChangeData* hor2dchangedata = emchangedata_.getParam(this);
+    if ( !hor2dchangedata ) return;
+
+    updateintsectmarkers_.setParam( this, true );
+    for ( int idx=0; idx<hor2dchangedata->size(); idx++ )
+    {
+      const EM::EMObjectCallbackData* cbdata=
+          hor2dchangedata->getCallBackData( idx );
+      if ( !cbdata )
+          continue;
+      EMObjectDisplay::handleEmChange( *cbdata );
+      if ( cbdata->event==EM::EMObjectCallbackData::PrefColorChange )
+      {
+          getMaterial()->setColor( emobject_->preferredColor() );
+          setLineStyle( emobject_->preferredLineStyle() );
+      }
+    }
+
+    hor2dchangedata->clearData();
 }
 
 

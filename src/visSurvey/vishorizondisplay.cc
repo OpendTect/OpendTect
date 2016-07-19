@@ -68,6 +68,9 @@ static HiddenParam<HorizonDisplay,Threads::Mutex*> locker_( 0 );
 static HiddenParam<HorizonDisplay,char> newseeds_( false );
 static HiddenParam<HorizonDisplay,visBase::PointSet*> sectionlockedpts_( 0 );
 
+static HiddenParam<HorizonDisplay,visSurvey::EMChangeData*>
+                                            emchangedata_( 0 );
+
 
 class LockedPointsCalculator: public ParallelTask
 {
@@ -177,7 +180,7 @@ HorizonDisplay::HorizonDisplay()
 
     newseeds_.setParam( this, false );
     sectionlockedpts_.setParam( this, 0 );
-
+    emchangedata_.setParam( this, new EMChangeData );
 }
 
 
@@ -217,6 +220,11 @@ HorizonDisplay::~HorizonDisplay()
 
     delete locker_.getParam( this );
     locker_.removeParam( this );
+    
+    EMChangeData* horchangedata = emchangedata_.getParam( this );
+    if ( horchangedata )
+      horchangedata->clearData();
+    emchangedata_.removeParam( this );
 
     if ( sectionlockedpts_.getParam( this) )
 	sectionlockedpts_.getParam(this)->unRef();
@@ -1101,10 +1109,35 @@ void HorizonDisplay::setIntersectLineMaterial( visBase::Material* nm )
 
 void HorizonDisplay::emChangeCB( CallBacker* cb )
 {
-    if ( !cb ) return;
+    if ( cb )
+    {
+	mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+	emchangedata_.getParam( this )->addCallBackData( &cbdata );
+    }
     
-    EMObjectDisplay::emChangeCB( cb );
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    mEnsureExecutedInMainThread( HorizonDisplay::emChangeCB );
+
+    EMChangeData* horchangedata = emchangedata_.getParam(this);
+    if ( !horchangedata ) return;
+
+    for ( int idx=0; idx<horchangedata->size(); idx++ )
+    {
+	const EM::EMObjectCallbackData* cbdata = 
+        horchangedata->getCallBackData( idx );
+	if ( !cbdata )
+	    continue;
+	EMObjectDisplay::handleEmChange( *cbdata );
+	handleEmChange( *cbdata );
+    }
+
+    horchangedata->clearData();
+    updateSingleColor();   
+    newseeds_ = true;
+}
+
+
+void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
+{
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
 	validtexture_ = false;
@@ -1127,7 +1160,14 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	    if ( selections_ && selections_->getMaterial() )
 		selections_->getMaterial()->setColor(
 		hor3d->getSelectionColor() );
-	    updateLockedPointsColor();
+	    if ( lockedpts_ && lockedpts_->getMaterial() )
+		lockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
+	    if ( sectionlockedpts_.getParam(this) )
+	    {
+		if ( sectionlockedpts_.getParam(this)->getMaterial() )
+		    sectionlockedpts_.getParam(this)->getMaterial()->setColor( 
+		    hor3d->getLockColor() );
+	    }
 	}
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::SelectionChange )
@@ -1143,10 +1183,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
 	const bool locked = hor3d ? hor3d->hasLockedNodes() : 0;
 	if ( locked && !displayonlyatsections_ ) 
-	{
-	    updateLockedPointsColor();
 	    return; 
-	}
 
 	if ( !locked )
 	{
@@ -1163,8 +1200,6 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 		sectionlockedpts_.getParam(this)->turnOn( true );
 	}
     }
-    updateSingleColor();   
-    newseeds_ = true;
 }
 
 
@@ -1183,8 +1218,6 @@ void HorizonDisplay::updateLockedPointsColor()
 	    hor3d->getLockColor() );
     }
 }
-
-
 
 Color HorizonDisplay::singleColor() const
 {

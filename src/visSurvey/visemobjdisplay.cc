@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visemobjdisplay.h"
 
 #include "emmanager.h"
-#include "emobject.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -35,10 +34,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannel2rgba.h"
 #include "vispolygonselection.h"
 #include "zaxistransform.h"
+#include "hiddenparam.h"
 
 
 #define mSelColor Color( 0, 255, 0 )
 #define mDefaultSize 4
+
+static HiddenParam<visSurvey::EMObjectDisplay,visSurvey::EMChangeData*>
+					    emchangedata_( 0 );
+
 
 namespace visSurvey
 {
@@ -82,6 +86,7 @@ EMObjectDisplay::EMObjectDisplay()
     drawstyle_->setLineStyle( defls );
 
     getMaterial()->setAmbience( 0.8 );
+    emchangedata_.setParam( this, new EMChangeData );
 }
 
 
@@ -115,6 +120,12 @@ EMObjectDisplay::~EMObjectDisplay()
     }
 
     clearSelections();
+
+    EMChangeData* emchangeddata = emchangedata_.getParam( this );
+    if ( emchangeddata )
+	emchangeddata->clearData();
+    emchangedata_.removeParam(this);
+
 }
 
 
@@ -510,11 +521,34 @@ EM::SectionID EMObjectDisplay::getSectionID( const TypeSet<int>* path ) const
 
 void EMObjectDisplay::emChangeCB( CallBacker* cb )
 {
-    bool triggermovement = false;
+    if ( cb )
+    {
+	mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
+	emchangedata_.getParam( this )->addCallBackData( &cbdata );
+    }
+    
+    mEnsureExecutedInMainThread( EMObjectDisplay::emChangeCB );
+
+    EMChangeData* emchangedata = emchangedata_.getParam(this);
+    if ( !emchangedata ) return;
+
+    for ( int idx=0; idx<emchangedata->size(); idx++ )
+    {
+	const EM::EMObjectCallbackData* cbdata = 
+	    emchangedata->getCallBackData(idx);
+	if ( !cbdata )
+	    continue;
+	handleEmChange( *cbdata );
+    }
+    emchangedata->clearData();
+ }
 
 
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-    if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
+void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
+{
+
+   bool triggermovement = false;
+   if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
     {
 	const EM::SectionID sectionid = cbdata.pid0.sectionID();
 	if ( emobject_->sectionIndex(sectionid)>=0 )

@@ -207,7 +207,7 @@ private:
     EM::PosID			findClosestNode(const Coord3&) const;
     void			createDisplayDataPacks(
 					int attrib,const DataPointSet*);
-
+    
     void			removeSectionDisplay(const EM::SectionID&);
     visBase::VisualObject*	createSection(const EM::SectionID&) const;
     bool			addSection(const EM::SectionID&,TaskRunner*);
@@ -227,6 +227,7 @@ private:
 
     void			initSelectionDisplay(bool erase);
     virtual void		updateSelections();
+    void			handleEmChange(const EM::EMObjectCallbackData&);
     void			updateLockedPointsColor();
 
     bool				allowshading_;
