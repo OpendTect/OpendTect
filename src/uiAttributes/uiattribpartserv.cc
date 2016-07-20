@@ -65,6 +65,8 @@ ________________________________________________________________________
 #include "uiseispartserv.h"
 #include "uitaskrunner.h"
 
+using namespace Attrib;
+
 int uiAttribPartServer::evDirectShowAttr()	{ return 0; }
 int uiAttribPartServer::evNewAttrSet()		{ return 1; }
 int uiAttribPartServer::evAttrSetDlgClosed()	{ return 2; }
@@ -416,7 +418,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 }
 
 
-bool uiAttribPartServer::selectRGBAttribs( TypeSet<Attrib::SelSpec>& rgbaspecs,
+bool uiAttribPartServer::selectRGBAttribs( TypeSet<SelSpec>& rgbaspecs,
 					   const ZDomain::Info* zinf,
 					   Pos::GeomID geomid )
 {
@@ -515,7 +517,7 @@ int uiAttribPartServer::use3DMode() const
 }
 
 
-const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
+const DescSet* uiAttribPartServer::getUserPrefDescSet() const
 {
     const DescSet* ds3d = DSHolder().getDescSet( false, false );
     const DescSet* ds2d = DSHolder().getDescSet( true, false );
@@ -591,7 +593,7 @@ void uiAttribPartServer::setTargetSelSpec( const SelSpec& selspec )
 }
 
 
-Attrib::DescID uiAttribPartServer::targetID( bool for2d, int nr ) const
+DescID uiAttribPartServer::targetID( bool for2d, int nr ) const
 {
     return targetspecs_.size() <= nr ? DescID::undef()
 				     : targetspecs_[nr].id();
@@ -1160,7 +1162,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 
 
 DataPack::ID uiAttribPartServer::createDataPackFor2D(
-					const Attrib::Data2DHolder& input,
+					const Data2DHolder& input,
 					const ZDomain::Def& zdef,
 					const BufferStringSet& compnms )
 {
@@ -1209,7 +1211,7 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 }
 
 
-Attrib::DescID uiAttribPartServer::getStoredID( const MultiID& multiid,
+DescID uiAttribPartServer::getStoredID( const MultiID& multiid,
 						bool is2d, int selout ) const
 {
     DescSet* ds = eDSHolder().getDescSet( is2d, true );
@@ -1296,7 +1298,7 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
 {
     const DescSet* ds = DSHolder().getDescSet( is2d, true );
     const DescSet* nonstoredds = DSHolder().getDescSet( is2d, false );
-    const Attrib::Desc* desc = 0;
+    const Desc* desc = 0;
     if ( ds && ds->getDesc(as.id()) )
 	desc = ds->getDesc( as.id() );
     else if ( nonstoredds && nonstoredds->getDesc(as.id()) )
@@ -1450,7 +1452,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 
 
 void uiAttribPartServer::filter2DMenuItems(
-	MenuItem& subitem, const Attrib::SelSpec& as, int geomid,
+	MenuItem& subitem, const SelSpec& as, int geomid,
 	bool isstored, int steerpol )
 {
     if ( geomid == Survey::GM().cUndefGeomID() )
@@ -1478,11 +1480,9 @@ void uiAttribPartServer::filter2DMenuItems(
 	}
 	else
 	{
-	    const Attrib::DescSet* ds =
-		Attrib::DSHolder().getDescSet( true, as.isStored() );
-	    const Attrib::DescSet* activeds = ds;
-	    const Attrib::DescSet* altds =
-		Attrib::DSHolder().getDescSet( true, !as.isStored() );
+	    const DescSet* ds = DSHolder().getDescSet( true, as.isStored() );
+	    const DescSet* activeds = ds;
+	    const DescSet* altds = DSHolder().getDescSet( true, !as.isStored());
 	    int descidx = ds->indexOf( childnm );
 	    if ( descidx<0 && altds )
 	    {
@@ -1493,7 +1493,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	    if ( descidx<0 )
 		continue;
 
-	    const Attrib::Desc* desc = activeds->desc( descidx );
+	    const Desc* desc = activeds->desc( descidx );
 	    if ( !desc )
 		continue;
 

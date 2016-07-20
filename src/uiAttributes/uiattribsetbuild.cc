@@ -148,7 +148,7 @@ void uiAttribDescSetBuild::editReq( bool isadd )
     else
     {
 	attrnm = uiAF().attrNameOf( attrnm );
-	Attrib::Desc* desc = PF().createDescCopy( attrnm );
+	Attrib::Desc* desc = Attrib::PF().createDescCopy( attrnm );
 	if ( !desc ) { pErrMsg("Huh"); return; }
 	desc->setUserRef( "" );
 	desc->setDescSet( &descset_ );
@@ -167,7 +167,7 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 	{
 	    for ( int idx=descset_.size()-1; idx>=0; idx-- )
 	    {
-		Desc* tmpdesc = descset_.desc(idx);
+		Attrib::Desc* tmpdesc = descset_.desc(idx);
 		if ( tmpdesc->isStoredInMem() )
 		{
 		    const char* idval;

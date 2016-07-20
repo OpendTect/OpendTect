@@ -63,9 +63,9 @@ protected:
     bool		getInput(Attrib::Desc&);
 
     void		finaliseCB(CallBacker*);
-    void                examPush(CallBacker*);
-    void                qCPush(CallBacker*);
-    void                mixSel(CallBacker*);
+    void		examPush(CallBacker*);
+    void		qCPush(CallBacker*);
+    void		mixSel(CallBacker*);
     bool		passStdCheck(const Attrib::Desc*,const char*,int,int,
 				     Attrib::DescID);
     bool		passVolStatsCheck(const Attrib::Desc*,BinID,
@@ -75,7 +75,7 @@ protected:
     Attrib::DescID	createVolStatsDesc(Attrib::Desc&,int);
     void		createHilbertDesc(Attrib::Desc&,Attrib::DescID&);
     Attrib::DescID	createGapDeconDesc(Attrib::DescID&,Attrib::DescID,
-					   DescSet*,bool);
+					   Attrib::DescSet*,bool);
     void		prepareInputDescs(Attrib::DescID&,Attrib::DescID&,
 					  Attrib::DescSet*);
     void		fillInGDDescParams(Attrib::Desc*);

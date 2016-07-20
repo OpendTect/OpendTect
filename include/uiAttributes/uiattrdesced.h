@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "helpview.h"
 
-namespace Attrib { class Desc; class DescSet; class DescSetMan; };
+namespace Attrib { class Desc; class DescSet; class DescSetMan; }
 namespace ZDomain { class Info; }
 
 class uiAttrDescEd;
@@ -29,7 +29,6 @@ class uiImagAttrSel;
 class uiSteeringSel;
 class uiSteerAttrSel;
 
-using namespace Attrib;
 
 /*!
 \brief Description of attribute parameters to evaluate.
@@ -73,7 +72,7 @@ public:
 
 /*!
 \brief Attribute description editor.
- 
+
   Required functions are declared in the macro mDeclReqAttribUIFns. Two of
   those, attribName() and createInstance() are implemented by the mInitAttribUI
   macro.
@@ -85,16 +84,16 @@ public:
 
     virtual		~uiAttrDescEd();
     HelpKey		helpKey()			{ return helpkey_; }
-    void		setDesc(Desc*,DescSetMan*);
-    void		setDescSet( DescSet* ds )	{ ads_ = ds; }
-    Desc*		curDesc()			{ return desc_; }
-    const Desc*		curDesc() const			{ return desc_; }
+    void		setDesc(Attrib::Desc*,Attrib::DescSetMan*);
+    void		setDescSet( Attrib::DescSet* ds )	{ ads_ = ds; }
+    Attrib::Desc*	curDesc()			{ return desc_; }
+    const Attrib::Desc* curDesc() const			{ return desc_; }
 
     void		setZDomainInfo(const ZDomain::Info*);
     const ZDomain::Info* getZDomainInfo() const;
 
-    uiString		errMsgStr(Desc* desc);
-    virtual uiString	commit(Desc* desc=0);
+    uiString		errMsgStr(Attrib::Desc* desc);
+    virtual uiString	commit(Attrib::Desc* desc=0);
 			//!< returns null on success, error message otherwise
     			//!< If attribdesc is non-zero, that desc will be
     			//!< filled. If not, the internal desc will be filled.
@@ -123,7 +122,7 @@ public:
 
     virtual void	setDataPackInp(const TypeSet<DataPack::FullID>&);
 
-    static const char*	getInputAttribName(uiAttrSel*,const Desc&);
+    static const char*	getInputAttribName(uiAttrSel*,const Attrib::Desc&);
 
     static const char*	timegatestr();
     static const char*	frequencystr();
@@ -134,25 +133,25 @@ protected:
 
 			uiAttrDescEd(uiParent*,bool is2d,const HelpKey&);
 
-    virtual bool	setParameters(const Desc&)	{ return true; }
-    virtual bool	getParameters(Desc&)		{ return true; }
-    virtual bool	setInput(const Desc&)		{ return true; }
-    virtual bool	getInput(Desc&)			{ return true; }
-    virtual bool	setOutput(const Desc&)		{ return true; }
-    virtual bool	getOutput(Desc&);
+    virtual bool	setParameters(const Attrib::Desc&)	{ return true; }
+    virtual bool	getParameters(Attrib::Desc&)		{ return true; }
+    virtual bool	setInput(const Attrib::Desc&)		{ return true; }
+    virtual bool	getInput(Attrib::Desc&)			{ return true; }
+    virtual bool	setOutput(const Attrib::Desc&)		{ return true; }
+    virtual bool	getOutput(Attrib::Desc&);
 
-    virtual bool        areUIParsOK()			{ return true; }
+    virtual bool	areUIParsOK()			{ return true; }
 
-    void		fillOutput(Desc&,int selout);
-    void		fillInp(uiAttrSel*,Desc&,int);
-    void		fillInp(uiSteeringSel*,Desc&,int);
-    void		fillInp(uiSteerAttrSel*,Desc&,int);
-    
-    void		putInp(uiAttrSel*,const Desc&,int inpnr);
-    void		putInp(uiSteerAttrSel*,const Desc&,int inpnr);
-    void		putInp(uiSteeringSel*,const Desc&,int inpnr);
+    void		fillOutput(Attrib::Desc&,int selout);
+    void		fillInp(uiAttrSel*,Attrib::Desc&,int);
+    void		fillInp(uiSteeringSel*,Attrib::Desc&,int);
+    void		fillInp(uiSteerAttrSel*,Attrib::Desc&,int);
 
-    bool                needInputUpdate() const		{ return needinpupd_; }
+    void		putInp(uiAttrSel*,const Attrib::Desc&,int inpnr);
+    void		putInp(uiSteerAttrSel*,const Attrib::Desc&,int inpnr);
+    void		putInp(uiSteeringSel*,const Attrib::Desc&,int inpnr);
+
+    bool		needInputUpdate() const		{ return needinpupd_; }
 
     uiString		zDepLabel(const uiString& pre,
 				  const uiString& post) const;
@@ -169,14 +168,14 @@ protected:
     uiAttrSel*		createInpFld(const uiAttrSelData&,const char* txt=0);
     uiImagAttrSel*	createImagInpFld(bool is2d);
     bool		getInputDPID(uiAttrSel*,DataPack::FullID&) const;
-    Desc*		getInputDescFromDP(uiAttrSel*) const;
+    Attrib::Desc*	getInputDescFromDP(uiAttrSel*) const;
 
     HelpKey		helpkey_;
     BufferString	attrnm_;
     DomainType		domtyp_;
     DimensionType	dimtyp_;
-    uiString            errmsg_;
-    DescSet*		ads_;
+    uiString		errmsg_;
+    Attrib::DescSet*	ads_;
     bool		is2d_;
     bool		needinpupd_;
     const ZDomain::Info* zdomaininfo_;
@@ -192,16 +191,15 @@ protected:
     static const char*	sKeyPositionGrp();
     static const char*	sKeyDipGrp();
 
-    static uiString     sInputTypeError(int input); 
+    static uiString	sInputTypeError(int input);
 
-  
+
 
 private:
 
     BufferString	dispname_;
-    Desc*		desc_;
-    DescSetMan*		adsman_;
-
+    Attrib::Desc*	desc_;
+    Attrib::DescSetMan* adsman_;
 };
 
 

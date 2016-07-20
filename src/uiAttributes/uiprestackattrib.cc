@@ -35,8 +35,9 @@ ________________________________________________________________________
 #include "uiveldesc.h"
 #include "od_helpids.h"
 
+using namespace Attrib;
 
-mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"Prestack",sKeyBasicGrp())
+mInitAttribUI(uiPreStackAttrib,PSAttrib,"Prestack",sKeyBasicGrp())
 
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
@@ -80,12 +81,12 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     lsqtypefld_ = new uiGenInput( this, tr("AVO output"),
 		  StringListInpSpec(PreStack::PropCalc::LSQTypeDef()) );
     lsqtypefld_->attach( alignedBelow, calctypefld_ );
-    
+
     useanglefld_ = new uiCheckBox( this, tr("Compute Angles") );
     useanglefld_->attach( rightOf, lsqtypefld_ );
     useanglefld_->activated.notify( mCB(this,uiPreStackAttrib,angleTypSel) );
     useanglefld_->setChecked(false);
-    
+
     const uiString xlabel = SI().xyInFeet()?tr("feet     "):tr("meters    ");
     xrglbl_ = new uiLabel( this, xlabel );
     xrglbl_->attach( rightOf, xrgfld_ );
@@ -117,15 +118,15 @@ uiPreStackAttrib::~uiPreStackAttrib()
 }
 
 
-bool uiPreStackAttrib::setAngleParameters( const Attrib::Desc& desc )
+bool uiPreStackAttrib::setAngleParameters( const Desc& desc )
 {
-    mIfGetString( Attrib::PSAttrib::velocityIDStr(), mid,
+    mIfGetString( PSAttrib::velocityIDStr(), mid,
 		  params_.velvolmid_=mid )
 
     Interval<int> anglerange, normalanglevalrange( 0, 90 );
-    mIfGetInt( Attrib::PSAttrib::angleStartStr(), start,
+    mIfGetInt( PSAttrib::angleStartStr(), start,
 		anglerange.start=start )
-    mIfGetInt( Attrib::PSAttrib::angleStopStr(), stop,
+    mIfGetInt( PSAttrib::angleStopStr(), stop,
 		anglerange.stop=stop )
     if ( normalanglevalrange.includes(anglerange,false) )
 	params_.anglerange_ = anglerange;
@@ -133,7 +134,7 @@ bool uiPreStackAttrib::setAngleParameters( const Attrib::Desc& desc )
     anglecompgrp_->updateFromParams();
 
     BufferString raytracerparam;
-    mIfGetString( Attrib::PSAttrib::rayTracerParamStr(), param,
+    mIfGetString( PSAttrib::rayTracerParamStr(), param,
 		  raytracerparam=param )
     params_.raypar_.getParsFrom( raytracerparam );
 
@@ -186,10 +187,10 @@ bool uiPreStackAttrib::setAngleParameters( const Attrib::Desc& desc )
 }
 
 
-bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
+bool uiPreStackAttrib::setParameters( const Desc& desc )
 {
-    RefMan<Attrib::Desc> tmpdesc = new Attrib::Desc( desc );
-    RefMan<Attrib::PSAttrib> aps = new Attrib::PSAttrib( *tmpdesc );
+    RefMan<Desc> tmpdesc = new Desc( desc );
+    RefMan<PSAttrib> aps = new PSAttrib( *tmpdesc );
 
     prestackinpfld_->setInput( aps->psID() );
 
@@ -239,15 +240,15 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
     if ( !anglecompgrp_->acceptOK() )
 	return false;
 
-    mSetString(Attrib::PSAttrib::velocityIDStr(), params_.velvolmid_ );
+    mSetString(PSAttrib::velocityIDStr(), params_.velvolmid_ );
     Interval<int>& anglerg = params_.anglerange_;
     if ( mIsUdf(anglerg.start) ) anglerg.start = 0;
-    mSetInt(Attrib::PSAttrib::angleStartStr(),anglerg.start)
-    mSetInt(Attrib::PSAttrib::angleStopStr(),anglerg.stop)
+    mSetInt(PSAttrib::angleStartStr(),anglerg.start)
+    mSetInt(PSAttrib::angleStopStr(),anglerg.stop)
 
     BufferString rayparstr;
     params_.raypar_.putParsTo( rayparstr );
-    mSetString( Attrib::PSAttrib::rayTracerParamStr(), rayparstr );
+    mSetString( PSAttrib::rayTracerParamStr(), rayparstr );
 
     int smoothtype;
     const IOPar& smpar = params_.smoothingpar_;
@@ -289,49 +290,49 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     if ( !prestackinpfld_->commitInput() )
 	return false;
 
-    mSetString(Attrib::StorageProvider::keyStr(),prestackinpfld_->getMultiID())
+    mSetString(StorageProvider::keyStr(),prestackinpfld_->getMultiID())
 
     if ( dopreprocessfld_->getBoolValue() )
     {
 	MultiID mid;
 	if ( !preprocsel_->getSel(mid))
-	    { errmsg_ = uiStrings::phrSelect(tr("preprocessing setup")); 
+	    { errmsg_ = uiStrings::phrSelect(tr("preprocessing setup"));
 								return false; }
-	mSetString(Attrib::PSAttrib::preProcessStr(), mid );
+	mSetString(PSAttrib::preProcessStr(), mid );
     }
 
     const int calctyp = calctypefld_->getIntValue();
-    mSetEnum(Attrib::PSAttrib::calctypeStr(),calctyp)
+    mSetEnum(PSAttrib::calctypeStr(),calctyp)
     if ( calctyp == 0 )
     {
-	mSetEnum( Attrib::PSAttrib::stattypeStr(),
+	mSetEnum( PSAttrib::stattypeStr(),
 		  statsdef_.getEnumValForIndex(stattypefld_->getIntValue()));
     }
     else
     {
-	mSetEnum(Attrib::PSAttrib::lsqtypeStr(),lsqtypefld_->getIntValue())
-	mSetEnum(Attrib::PSAttrib::offsaxisStr(),xaxistypefld_->getIntValue())
+	mSetEnum(PSAttrib::lsqtypeStr(),lsqtypefld_->getIntValue())
+	mSetEnum(PSAttrib::offsaxisStr(),xaxistypefld_->getIntValue())
     }
 
-    mSetEnum(Attrib::PSAttrib::valaxisStr(),valaxtypefld_->getIntValue())
+    mSetEnum(PSAttrib::valaxisStr(),valaxtypefld_->getIntValue())
 
     const bool useangle = useanglefld_->isChecked();
-    mSetBool(Attrib::PSAttrib::useangleStr(),useangle)
+    mSetBool(PSAttrib::useangleStr(),useangle)
     if ( useangle && !getAngleParameters(desc) )
 	return false;
 
     if ( !useangle )
     {
 	const int gathertype = gathertypefld_->getIntValue();
-	mSetEnum(Attrib::PSAttrib::gathertypeStr(),gathertype)
-	mSetEnum(Attrib::PSAttrib::xaxisunitStr(),xunitfld_->getIntValue());
+	mSetEnum(PSAttrib::gathertypeStr(),gathertype)
+	mSetEnum(PSAttrib::xaxisunitStr(),xunitfld_->getIntValue());
 	Interval<float> offsrg = xrgfld_->getFInterval();
 	if ( SI().xyInFeet() && !offsrg.isUdf() && gathertype == 0 )
 	    offsrg.scale( mFromFeetFactorF );
 
 	if ( mIsUdf(offsrg.start) ) offsrg.start = 0;
-	mSetFloat(Attrib::PSAttrib::offStartStr(),offsrg.start)
-	mSetFloat(Attrib::PSAttrib::offStopStr(),offsrg.stop)
+	mSetFloat(PSAttrib::offStartStr(),offsrg.start)
+	mSetFloat(PSAttrib::offStopStr(),offsrg.stop)
     }
 
     return true;
@@ -363,7 +364,7 @@ void uiPreStackAttrib::updateCalcType()
 void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
 {
     const bool isoffset = gathertypefld_->getIntValue() == 0;
-    uiString xlbl = tr("%1 range (empty=all)")	
+    uiString xlbl = tr("%1 range (empty=all)")
 				      .arg(toUiString(gathertypefld_->text()));
     xrgfld_->setTitleText( xlbl );
     if ( isoffset )
@@ -374,7 +375,7 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
 	gatherUnitSel( 0 );
     }
 
-    useanglefld_->display( isoffset );    
+    useanglefld_->display( isoffset );
     gathertypefld_->display( true );
     xunitfld_->display( !isoffset );
     xaxistypefld_->setSensitive( isoffset );
@@ -390,11 +391,11 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
 	useanglefld_->setChecked( false );
 	useanglefld_->display( false );
     }
-    
+
     const bool isoffset = gathertypefld_->getIntValue() == 0;
     const bool iscomputeangle = useanglefld_->isChecked();
     const bool isnorm = calctypefld_->getIntValue() == 0;
-    
+
     xrgfld_->setEmpty();
     xrgfld_->setSensitive( !iscomputeangle || !isoffset );
     xrglbl_->setSensitive( !iscomputeangle || !isoffset );
@@ -406,7 +407,7 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
 	if ( iscomputeangle )
 	    xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
 	if ( !iscomputeangle && isoffset && !isnorm )
-    	    xaxistypefld_->setValue( PreStack::PropCalc::Norm ); 
+	    xaxistypefld_->setValue( PreStack::PropCalc::Norm );
     }
 }
 

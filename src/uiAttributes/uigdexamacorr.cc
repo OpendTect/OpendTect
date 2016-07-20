@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 #include "uimsg.h"
 
+using namespace Attrib;
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )
     : attribid_( DescID::undef() )
@@ -55,7 +56,7 @@ GapDeconACorrView::~GapDeconACorrView()
 bool GapDeconACorrView::computeAutocorr( bool isqc )
 {
     uiString errmsg;
-    RefMan<Attrib::Data2DHolder> d2dh = new Attrib::Data2DHolder();
+    RefMan<Data2DHolder> d2dh = new Data2DHolder();
     PtrMan<EngineMan> aem = createEngineMan();
 
     PtrMan<Processor> proc = dset_->is2D() ?
@@ -106,7 +107,7 @@ EngineMan* GapDeconACorrView::createEngineMan()
 
 void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 {
-    RefMan<Attrib::Data2DHolder> correctd2dh = new Attrib::Data2DHolder();
+    RefMan<Data2DHolder> correctd2dh = new Data2DHolder();
     for ( int idx=0; idx<d2dh.dataset_.size(); idx++ )
 	correctd2dh->dataset_ += d2dh.dataset_[idx]->clone();
     for ( int idx=0; idx<d2dh.trcinfoset_.size(); idx++ )
@@ -207,7 +208,7 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 }
 
 
-void GapDeconACorrView::setDescSet( Attrib::DescSet* ds )
+void GapDeconACorrView::setDescSet( DescSet* ds )
 {
     delete dset_;
     dset_ = ds;

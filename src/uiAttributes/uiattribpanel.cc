@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 #include "uimsg.h"
 
+using namespace Attrib;
 
 uiAttribPanel::uiAttribPanel( uiParent* p )
     : attribid_( DescID::undef() )
@@ -49,12 +50,13 @@ uiAttribPanel::~uiAttribPanel()
 FlatDataPack* uiAttribPanel::computeAttrib()
 {
     uiString errmsg;
-    RefMan<Attrib::Data2DHolder> d2dh = new Attrib::Data2DHolder();
+    RefMan<Data2DHolder> d2dh = new Data2DHolder();
     PtrMan<EngineMan> aem = createEngineMan();
 
     const bool is2d = dset_->is2D();
-    PtrMan<Processor> proc = is2d ? aem->createScreenOutput2D( errmsg, *d2dh )
-				  : aem->createDataPackOutput( errmsg, 0  );
+    PtrMan<Processor> proc =
+		is2d ? aem->createScreenOutput2D( errmsg, *d2dh )
+		     : aem->createDataPackOutput( errmsg, 0  );
     if ( !proc )
     {
 	uiMSG().error( errmsg );
@@ -73,7 +75,7 @@ FlatDataPack* uiAttribPanel::computeAttrib()
     FlatDataPack* fdpack = is2d ? createFDPack( *d2dh )
 				: createFDPack( aem, proc );
     if ( !fdpack ) return 0;
-    
+
     fdpack->setName( getPackName() );
     DPM(DataPackMgr::FlatID()).add( fdpack );
     return fdpack;
@@ -141,7 +143,7 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 			uiFlatViewStdControl::Setup(0).isvertical(true)) );
 	flatvwin_->setDeleteOnClose( false );
     }
-    
+
     flatvwin_->show();
 }
 
@@ -153,7 +155,7 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
     attribid_ = mpid;
     tkzs_ = cs;
     geomid_ = geomid;
-    
+
     if ( dset_ ) delete dset_;
     dset_ = dset;
 

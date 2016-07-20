@@ -45,6 +45,7 @@ static const char* outpstrs[] =
     0
 };
 
+using namespace Attrib;
 
 mInitAttribUI(uiEventAttrib,Event,"Event",sKeyPatternGrp())
 

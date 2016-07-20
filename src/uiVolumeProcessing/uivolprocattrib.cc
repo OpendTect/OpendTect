@@ -14,17 +14,18 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "od_helpids.h"
 #include "volproctrans.h"
 
 #include "uiattribfactory.h"
 #include "uiioobjsel.h"
-#include "uidialog.h" // for mTODOHelpKey ... ugh
 
+using namespace Attrib;
 
 mInitAttribUI(uiVolProcAttrib,VolProcAttrib,"VolumeProcessing",sKeyBasicGrp())
 
 uiVolProcAttrib::uiVolProcAttrib( uiParent* p, bool is2d )
-: uiAttrDescEd(p, is2d, mODHelpKey(mVolProcAttribHelpID))
+    : uiAttrDescEd(p, is2d, mODHelpKey(mVolProcAttribHelpID))
 
 {
     IOObjContext ctxt = is2d ? VolProcessing2DTranslatorGroup::ioContext()
@@ -36,7 +37,7 @@ uiVolProcAttrib::uiVolProcAttrib( uiParent* p, bool is2d )
 }
 
 
-bool uiVolProcAttrib::setParameters( const Attrib::Desc& desc )
+bool uiVolProcAttrib::setParameters( const Desc& desc )
 {
     if ( desc.attribName() != VolProcAttrib::attribName() )
 	return false;
@@ -51,7 +52,7 @@ bool uiVolProcAttrib::setParameters( const Attrib::Desc& desc )
 }
 
 
-bool uiVolProcAttrib::getParameters( Attrib::Desc& desc )
+bool uiVolProcAttrib::getParameters( Desc& desc )
 {
     if ( desc.attribName() != VolProcAttrib::attribName() )
 	return false;

@@ -24,17 +24,17 @@ namespace Attrib
 
 /*!
 \brief Holds the attribute data.
-  
+
   Basically, this is a set of ValueSeries<float> objects, the size of
   each of these, and the start Z in the AE Z-Axis definition:
   N = N times the Z step. z0_ is therefore the amount of steps away from 0.
-  
+
   The AE will work with any type of ValueSeries<float>. Internally,
   ArrayValueSeries<float,float> objects are always allocated.
-  
-  The class variable extrazfromsamppos_ is to keep track of an eventual 
-  exact position which would not be exactly on a sample ( in the case of 
-  horizons, picksets... )  
+
+  The class variable extrazfromsamppos_ is to keep track of an eventual
+  exact position which would not be exactly on a sample ( in the case of
+  horizons, picksets... )
 */
 
 mExpClass(AttributeEngine) DataHolder
@@ -95,8 +95,6 @@ protected:
 				~Data2DHolder();
 };
 
-
-}; //Namespace
-
+} // namespace Attrib
 
 #endif
