@@ -995,7 +995,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		mErrRet( tr(" input prestack synthetic data not found."),
 			 return 0 )
 	    CubeSampling cs( false );
-	    cs.hsamp_.survid_ = -100;
+	    cs.hsamp_.survid_ = TrcKey::stdSynthSurvID();
 	    for ( int idx=0; idx<sd->zerooffsd2tmodels_.size(); idx++ )
 	    {
 		const SeisTrc* trc = sd->getTrace( idx );
