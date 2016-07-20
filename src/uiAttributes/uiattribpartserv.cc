@@ -1062,6 +1062,7 @@ class RegularSeisDataPackCreatorFor2D : public ParallelTask
 {
 public:
 RegularSeisDataPackCreatorFor2D( const Data2DHolder& input,
+				 Pos::GeomID geomid,
 				 const ZDomain::Def& zdef,
 				 const BufferStringSet& compnames,
 				 DataPack::ID& outputid )
@@ -1073,6 +1074,7 @@ RegularSeisDataPackCreatorFor2D( const Data2DHolder& input,
     , outputid_(outputid)
     , outputdp_(0)
 {
+    sampling_.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
 }
 
 od_int64 nrIterations() const		{ return input_.trcinfoset_.size(); }
@@ -1153,7 +1155,7 @@ bool doFinish( bool success )
 protected:
 
     const Data2DHolder&			input_;
-    const TrcKeyZSampling		sampling_;
+    TrcKeyZSampling			sampling_;
     const ZDomain::Def&			zdef_;
     const BufferStringSet&		compnames_;
     RegularSeisDataPack*		outputdp_;
@@ -1208,7 +1210,8 @@ DataPack::ID uiAttribPartServer::createDataPackFor2D(
 {
     DataPack::ID outputid = DataPack::cNoID();
     RegularSeisDataPackCreatorFor2D datapackcreator(
-		input, zdef, compnames, outputid );
+		input, outputsampling.hsamp_.getGeomID(), zdef,
+		compnames, outputid );
     datapackcreator.execute();
     return outputid;
 }
