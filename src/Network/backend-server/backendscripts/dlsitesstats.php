@@ -161,6 +161,7 @@ function print_table( $mysqli, $table, $allplatforms, array &$allcountries )
 	echo "</td>\n";
     }
     echo "   </tr>\n";
+    flush();
 }
 
 
