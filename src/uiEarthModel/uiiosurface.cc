@@ -40,6 +40,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randcolor.h"
 #include "survinfo.h"
 
+#define mIdxShift2D	2
+#define mIdxShift3D	4
+
 const int cListHeight = 5;
 
 uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
@@ -696,6 +699,20 @@ public:
 };
 
 
+static int getUpdateOptIdx( int curoptidx, bool is2d, bool toui )
+{
+   if ( curoptidx <= 1 )
+      return curoptidx;
+
+  int cursel = curoptidx;
+  if ( toui )
+      cursel -= is2d ? mIdxShift2D : mIdxShift3D;
+  else
+      cursel += is2d ? mIdxShift2D : mIdxShift3D;
+  return cursel;
+}
+
+
 class uiFaultOptSel: public uiDialog
 { mODTextTranslationClass(uiFaultOptSel)
 public:
@@ -765,11 +782,13 @@ public:
 	if ( row==table_->nrRows() )
 	    table_->insertRows( row, 1 );
 
+
 	uiLabeledComboBox* actopts = new uiLabeledComboBox( 0,
 		uiString::emptyString(), "Boundary Type" );
 	actopts->box()->addItems( fltpar_.optnms_ );
 	actopts->box()->selectionChanged.notify( mCB(this,uiFaultOptSel,optCB));
-	actopts->box()->setCurrentItem( optidx );
+	const int cursel = getUpdateOptIdx( optidx, fltpar_.is2d_, true );
+	actopts->box()->setCurrentItem( cursel );
 	table_->setCellGroup( RowCol(row,1), actopts );
 
 	const char * fltnm = ioobj.name();
@@ -818,7 +837,8 @@ public:
 		    table_->getCellGroup(RowCol(idx,1)) );
 	    if ( selbox->box()!=cb ) continue;
 
-	    const int optidx = selbox->box()->currentItem();
+	    const int cursel = selbox->box()->currentItem();
+	    const int optidx = getUpdateOptIdx( cursel, fltpar_.is2d_, false );
 
 	    TypeSet<int> selrows;
 	    table_->getSelectedRows( selrows );
@@ -829,7 +849,7 @@ public:
 			table_->getCellGroup(RowCol(currow,1)) );
 		if ( curselbox )
 		{
-		    curselbox->box()->setValue( optidx );
+		    curselbox->box()->setValue( cursel );
 		    fltpar_.optids_[currow] = optidx;
 		}
 	    }
@@ -956,8 +976,9 @@ BufferString uiFaultParSel::getSummary() const
 	summ += selfaultnms_.get(idx);
 	if ( addopt )
 	{
+	    const int optnmidx = getUpdateOptIdx( optids_[idx], is2d_, true );
 	    summ += " (";
-	    summ += optnms_[optids_[idx]]->buf();
+	    summ += optnms_[optnmidx]->buf();
 	    summ += ")";
 	}
 

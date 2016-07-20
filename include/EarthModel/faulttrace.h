@@ -100,9 +100,13 @@ public:
     bool		isOnFault(const BinID&,float z,float threshold) const;
 			// threshold dist in measured in BinID units
 
-    enum Act		{ AllowCrossing=0, ForbidCrossing=1,
-			  ForbidCrossHigher=2, ForbidCrossLower=3 };
+    enum Act		{ AllowCrossing, ForbidCrossing,
+			  ForbidCrossHigher, ForbidCrossLower,
+			  AllowMinTraceToFault, AllowMaxTraceToFault,
+			  AllowMinInlToFault, AllowMaxInlToFault,
+			  AllowMinCrlToFault, AllowMaxCrlToFault };
     static void		getAllActNames(BufferStringSet&);
+    static void		getActNames(BufferStringSet&,bool is2d);
     static const char*	sKeyFaultAct()	{ return "Fault Act"; }
 
 protected:

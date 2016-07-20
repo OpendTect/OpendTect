@@ -710,13 +710,34 @@ bool FaultTrace::isOnPosSide( const BinID& bid, float z ) const
 }
 
 
-void FaultTrace::getAllActNames( BufferStringSet& bss )
+void FaultTrace::getAllActNames( BufferStringSet& actnms )
 {
-    bss.erase();
-    bss.add( "AllowCross (Default)" );
-    bss.add( "ForbidCross (DataDriven)" );
-    bss.add( "ForbidCrossHigh (ModelDriven)" );
-    bss.add( "ForbidCrossLow (ModelDriven)" );
+    actnms.erase();
+    actnms.add( "AllowCross (Default)" );
+    actnms.add( "ForbidCross (DataDriven)" );
+    actnms.add( "ForbidCrossHigh (ModelDriven)" );
+    actnms.add( "ForbidCrossLow (ModelDriven)" );
+}
+
+
+void FaultTrace::getActNames( BufferStringSet& actnms, bool is2d )
+{
+    actnms.erase();
+    actnms.add( "AllowCross" );
+    actnms.add( "ForbidCross (DataDriven)" );
+
+    if ( is2d )
+    {
+	actnms.add( "AllowMinTraceToFault (ModelDriven)" );
+	actnms.add( "AllowMaxTraceToFault (ModelDriven)" );
+    }
+    else
+    {
+	actnms.add( "AllowMinInlToFault (ModelDriven)" );
+	actnms.add( "AllowMaxInlToFault (ModelDriven)" );
+	actnms.add( "AllowMinCrlToFault (ModelDriven)" );
+	actnms.add( "AllowMaxCrlToFault (ModelDriven)" );
+    }
 }
 
 
@@ -941,7 +962,7 @@ const FaultTrace* FaultTrcHolder::getTrc( int linenr, bool isinl ) const
 int FaultTrcHolder::indexOf( int linenr, bool isinl ) const
 {
     if ( isinl )
-	return hs_.inlIdx(linenr);
+	return hs_.lineRange().includes(linenr,false) ? hs_.inlIdx(linenr) : -1;
 
     const int crlidx = hs_.crlIdx(linenr);
     return crlidx < 0 ? crlidx : crlidx + (hs_.nrCrl()==1 ? 0 : hs_.nrInl());
