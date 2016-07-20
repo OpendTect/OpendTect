@@ -274,7 +274,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 	}
     }
 
-    for ( int idx=0; idx<size(); idx++ )
+    for ( int idx=size()-1; idx>=0; idx-- )
     {
 	const LayerGenerator& lgen = *((*this)[idx]);
 	if ( !lgen.postProcess(ls,modpos) )
