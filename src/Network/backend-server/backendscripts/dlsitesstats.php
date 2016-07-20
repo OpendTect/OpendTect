@@ -73,23 +73,41 @@ function read_field_average( $db, $table, $field )
     return $ret;
 }
 
-$mysqli = connect_dlsitesdb();
 
-$tables = array();
+function print_header( $platforms, $allcountries )
+{
+    global $countrynames;
+    echo "   <tr>";
+    echo '    <th colspan="2"></th>'."\n";
+    echo '    <th colspan="'.count( $platforms ).'">Platforms</th>'."\n";
+    echo '    <th colspan="2">System stats</th>'."\n";
+    echo '    <th colspan="'.count( $allcountries ).'">Countries</th>'."\n";
+    echo "   <tr>\n";
+    echo "    <th>Period</th>\n";
+    echo "    <th>Unique systems</th>\n";
+    foreach ( $platforms as $platform )
+	echo "    <th>$platform</th>\n";
 
-if ($result = $mysqli->query("SHOW TABLES LIKE '$DLSITES_TABLE_PREFIX$DLSITES_PERIOD_TABLE_PREFIX%'")) {
-    $fields = $result->fetch_fields();
-    while($obj = (array) $result->fetch_object()){
-	array_push( $tables, $obj[$fields[0]->name] );
+    echo "    <th>Average memory (Kb)</th><th>Average nr cpus</th>\n";
+
+    foreach ( $allcountries as $country )
+    {
+	$countrycode = ucfirst( $country );
+	$countryname = $countrycode;
+	if ( array_key_exists( $countrycode, $countrynames ) )
+	    $countryname = $countrynames[$countrycode];
+
+	echo '    <th title="'.$countryname.'">'.$countrycode."</th>\n";
     }
 
-    $result->close(); 
+    echo "   </tr>\n";
 }
 
-$stats = array();
 
-foreach ( $tables AS $table )
+function print_table( $mysqli, $table, $allplatforms, array &$allcountries )
 {
+    global $DLSITES_TABLE_PREFIX;
+    global $DLSITES_PERIOD_TABLE_PREFIX;
     $nrsystems = 0;
     $nrrows = 0;
     $nrsystemskey = "NRSYSTEMS";
@@ -109,24 +127,55 @@ foreach ( $tables AS $table )
     $countries = read_field_value_counts( $mysqli, $table, 'country' );
     $cpuavg = read_field_average( $mysqli, $table, 'cpu' );
     $memavg = read_field_average( $mysqli, $table, 'memory' );
-    $tablestats = array( 'platforms' => $platforms,
-  			 'countries' => $countries,
-			 'cpuavg' => $cpuavg,
-			 'memavg' => $memavg,
-			 'nrrows' => $nrrows,
-			 'nrsystems' => $nrsystems );
 
-    $stats[$table] = $tablestats;
+    if ( !count( $allcountries ) )
+    {
+	arsort( $countries );
+	$allcountries = array_keys( $countries );
+	print_header( $allplatforms, $allcountries );
+    }
+
+    echo "   <tr>\n";
+    echo "    <td>".substr( $table,
+                            strlen( $DLSITES_TABLE_PREFIX.$DLSITES_PERIOD_TABLE_PREFIX ) )."</td>\n";
+    echo "    <td>".$nrsystems."</td>\n";
+
+    foreach ( $allplatforms as $platform )
+    {
+	echo "    <td>";
+	if ( array_key_exists( $platform, $platforms ) )
+	    echo number_format($platforms[$platform]/$nrsystems*100,1);
+	echo "</td>\n";
+    }
+
+    echo "    <td>".number_format($memavg)."</td>\n";
+    echo "    <td>".number_format($cpuavg,1)."</td>\n";
+
+    foreach ( $allcountries as $country )
+    {
+	echo "    <td>";
+        if ( array_key_exists( $country, $countries ) )
+	{
+	    echo number_format($countries[$country]/$nrrows*100,1);
+	}
+	echo "</td>\n";
+    }
+    echo "   </tr>\n";
 }
 
-$totaltablename = $DLSITES_TABLE_PREFIX.$DLSITES_PERIOD_TABLE_PREFIX."total";
 
-// Get country list, based on total stats
-$totalcountrycount = $stats[$totaltablename]['countries'];
-arsort( $totalcountrycount );
-$allcountries = array_keys( $totalcountrycount );
+$mysqli = connect_dlsitesdb();
 
-$platforms = array( "lux32", "lux64", "mac", "win32", "win64" );
+$tables = array();
+
+if ($result = $mysqli->query("SHOW TABLES LIKE '$DLSITES_TABLE_PREFIX$DLSITES_PERIOD_TABLE_PREFIX%'")) {
+    $fields = $result->fetch_fields();
+    while($obj = (array) $result->fetch_object()){
+	array_push( $tables, $obj[$fields[0]->name] );
+    }
+
+    $result->close(); 
+}
 
 echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" ';
 echo '"http://www.w3.org/TR/html4/loose.dtd">'."\n";
@@ -140,64 +189,16 @@ echo " <body>\n";
 
 echo "  <table>\n";
 
-//Print header
-echo "   <tr>";
-echo '    <th colspan="2"></th>'."\n";
-echo '    <th colspan="'.count( $platforms ).'">Platforms</th>'."\n";
-echo '    <th colspan="2">System stats</th>'."\n";
-echo '    <th colspan="'.count( $allcountries ).'">Countries</th>'."\n";
-echo "   <tr>\n";
-echo "    <th>Period</th>\n";
-echo "    <th>Unique systems</th>\n";
-foreach ( $platforms as $platform )
-    echo "    <th>$platform</th>\n";
 
-echo "    <th>Average memory (Kb)</th><th>Average nr cpus</th>\n";
+$platforms = array( "lux32", "lux64", "mac", "win32", "win64" );
+$totaltablename = $DLSITES_TABLE_PREFIX.$DLSITES_PERIOD_TABLE_PREFIX."total";
+$allcountries = array();
 
-foreach ( $allcountries as $country )
+print_table( $mysqli, $totaltablename, $platforms, $allcountries );
+
+foreach ( $tables AS $table )
 {
-    $countrycode = ucfirst( $country );
-    $countryname = $countrycode;
-    if ( array_key_exists( $countrycode, $countrynames ) )
-	$countryname = $countrynames[$countrycode];
-
-    echo '    <th title="'.$countryname.'">'.$countrycode."</th>\n";
-}
-
-echo "   </tr>\n";
-
-
-foreach ( $stats as $periodkey => $periodstats )
-{
-    $nrsystems = $periodstats['nrsystems'];
-    echo "   <tr>\n";
-    echo "    <td>".substr( $periodkey,
-                            strlen( $DLSITES_TABLE_PREFIX.$DLSITES_PERIOD_TABLE_PREFIX ) )."</td>\n";
-    echo "    <td>".$nrsystems."</td>\n";
-
-    $nrrows = $periodstats['nrrows'];
-
-    foreach ( $platforms as $platform )
-    {
-	echo "    <td>";
-	if ( array_key_exists( $platform, $periodstats['platforms'] ) )
-	    echo number_format($periodstats['platforms'][$platform]/$nrsystems*100,1);
-	echo "</td>\n";
-    }
-
-    echo "    <td>".number_format($periodstats['memavg'])."</td>\n";
-    echo "    <td>".number_format($periodstats['cpuavg'],1)."</td>\n";
-
-    foreach ( $allcountries as $country )
-    {
-	echo "    <td>";
-        if ( array_key_exists( $country, $periodstats['countries'] ) )
-	{
-	    echo number_format($periodstats['countries'][$country]/$nrrows*100,1);
-	}
-	echo "</td>\n";
-    }
-    echo "   </tr>\n";
+    print_table( $mysqli, $table, $platforms, $allcountries );
 }
 
 echo "  </table>\n";
