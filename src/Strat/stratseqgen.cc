@@ -30,6 +30,7 @@ mDefSimpleTranslators(StratLayerSequenceGenDesc,mFileType,od,Mdl);
 
 const char* Strat::LayerSequenceGenDesc::sKeyWorkBenchParams() { return "WB"; }
 
+
 Strat::LayerModelGenerator::LayerModelGenerator(
 		const Strat::LayerSequenceGenDesc& desc, Strat::LayerModel& lm,
 		int nrseqs )
@@ -273,7 +274,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 	}
     }
 
-    for ( int idx=0; idx<size(); idx++ )
+    for ( int idx=size()-1; idx>=0; idx-- )
     {
 	const LayerGenerator& lgen = *((*this)[idx]);
 	if ( !lgen.postProcess(ls,modpos) )
