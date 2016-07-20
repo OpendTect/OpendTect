@@ -39,6 +39,9 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "survinfo.h"
 
+
+#define mIdxShift3D	2
+
 const int cListHeight = 5;
 
 uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
@@ -696,6 +699,15 @@ public:
 };
 
 
+static int getUpdateOptIdx( int curoptidx, bool is2d, bool toui )
+{
+    if ( curoptidx <= 1 || is2d )
+	return curoptidx;
+
+    return toui ? curoptidx - mIdxShift3D : curoptidx + mIdxShift3D;
+}
+
+
 class uiFaultOptSel: public uiDialog
 { mODTextTranslationClass(uiFaultOptSel)
 public:
@@ -770,7 +782,8 @@ public:
 		uiString::emptyString(), "Boundary Type" );
 	actopts->box()->addItems( fltpar_.optnms_ );
 	actopts->box()->selectionChanged.notify( mCB(this,uiFaultOptSel,optCB));
-	actopts->box()->setCurrentItem( optidx );
+	const int cursel = getUpdateOptIdx( optidx, fltpar_.is2d_, true );
+	actopts->box()->setCurrentItem( cursel );
 	table_->setCellGroup( RowCol(row,1), actopts );
 
 	const char * fltnm = ioobj.name();
@@ -819,7 +832,8 @@ public:
 		    table_->getCellGroup(RowCol(idx,1)) );
 	    if ( selbox->box()!=cb ) continue;
 
-	    const int optidx = selbox->box()->currentItem();
+	    const int cursel = selbox->box()->currentItem();
+	    const int optidx = getUpdateOptIdx( cursel, fltpar_.is2d_, false );
 
 	    TypeSet<int> selrows;
 	    table_->getSelectedRows( selrows );
@@ -830,7 +844,7 @@ public:
 			table_->getCellGroup(RowCol(currow,1)) );
 		if ( curselbox )
 		{
-		    curselbox->box()->setValue( optidx );
+		    curselbox->box()->setValue( cursel );
 		    fltpar_.optids_[currow] = optidx;
 		}
 	    }
@@ -958,8 +972,9 @@ BufferString uiFaultParSel::getSummary() const
 	summ += selfaultnms_.get(idx);
 	if ( addopt )
 	{
+	    const int optnmidx = getUpdateOptIdx( optids_[idx], is2d_, true );
 	    summ += " (";
-	    summ += optnms_[optids_[idx]]->buf();
+	    summ += optnms_[optnmidx]->buf();
 	    summ += ")";
 	}
 
