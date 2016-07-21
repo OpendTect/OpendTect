@@ -44,6 +44,8 @@ public:
 
     void		paint();
     void		setUpdateTrcKeySampling(const TrcKeySampling&);
+    void		displaySelections(const TypeSet<EM::PosID>&);
+    void		removeSelections();
 
     	mStruct(EarthModel) Marker3D
 	{
@@ -93,6 +95,7 @@ protected:
 
     ObjectSet<SectionMarker3DLine> markerline_;
     Marker3D*		markerseeds_;
+    Marker3D*		selectionpoints_;
 
     bool		linenabled_;
     bool		seedenabled_;

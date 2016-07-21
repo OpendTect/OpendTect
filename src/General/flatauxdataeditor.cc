@@ -324,6 +324,16 @@ void AuxDataEditor::removePolygonSelected( int dataid )
 	    idxs.removeSingle( 0 );
 	}
     }
+    removeSelectionPolygon();
+}
+
+
+void AuxDataEditor::setSelectionPolygonVisible( bool yn )
+{
+    for ( int idx = 0; idx<polygonsel_.size(); idx++ )
+	polygonsel_[idx]->enabled_ =  yn;
+     
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 

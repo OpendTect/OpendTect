@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "vistransform.h"
 #include "zaxistransform.h"
 #include "seisioobjinfo.h"
+#include "selector.h"
 #include "geom2dintersections.h"
 
 namespace visSurvey
@@ -41,6 +42,7 @@ Horizon2DDisplay::Horizon2DDisplay()
     , updateintsectmarkers_( true )
     , nr2dlines_( 0 )
     , ln2dset_( 0 )
+    , selections_( 0 )
 {
     points_.allowNull(true);
     EMObjectDisplay::setLineStyle( OD::LineStyle(OD::LineStyle::Solid,5 ) );
@@ -64,6 +66,10 @@ Horizon2DDisplay::~Horizon2DDisplay()
 
     if ( ln2dset_ )
 	delete ln2dset_;
+
+    if ( selections_ )
+	selections_->unRef();
+     
     emchangedata_.clearData();
 }
 
@@ -487,7 +493,7 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
       if ( !cbdata )
           continue;
       EMObjectDisplay::handleEmChange( *cbdata );
-        if ( cbdata->event==EM::EMObjectCallbackData::PrefColorChange )
+      if ( cbdata->event==EM::EMObjectCallbackData::PrefColorChange )
       {
           getMaterial()->setColor( emobject_->preferredColor() );
           setLineStyle( emobject_->preferredLineStyle() );
@@ -845,5 +851,88 @@ void Horizon2DDisplay::removeVolumesOfInterest()
 
     volumeofinterestids_.setAll( -1 );
 }
+
+
+
+void Horizon2DDisplay::initSelectionDisplay( bool erase )
+{
+    mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
+    if ( !selections_ )
+    {
+	selections_ = new visBase::PointSet;
+	selections_->ref();
+
+	if ( h2d && selections_->getMaterial() )
+	    selections_->getMaterial()->setColor( h2d->getSelectionColor() );
+	addChild( selections_->osgNode() );
+	selections_->setDisplayTransformation( transformation_ );
+    }
+    else if ( erase )
+    {
+	selections_->removeAllPoints();
+	selections_->removeAllPrimitiveSets();
+	selections_->getMaterial()->clear();
+    }
+}
+
+
+void Horizon2DDisplay::updateSelections()
+{
+    EMObjectDisplay::updateSelections();
+    const int lastidx = selectors_.size() - 1;
+    if ( lastidx<0 ) return;
+
+    mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
+    if ( !h2d ) return;
+
+    initSelectionDisplay( lastidx==0 );
+
+    if ( !selections_ )
+	return;
+
+    const EM::SectionID sid = h2d->sectionID( 0 );
+    const Selector<Coord3>* sel = selectors_[lastidx];
+
+    const Geometry::Element* ge = h2d->geometry().sectionGeometry( sid );
+    if ( !ge ) return;
+
+    PtrMan<EM::EMObjectIterator> iterator = h2d->geometry().createIterator(-1);
+    TypeSet<int> pidxs;
+    while( true )
+    {
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID()==-1 )
+	    break;
+
+	const Coord3 pos = h2d->getPos( pid );
+	if ( sel->includes( pos ) )
+	{
+	    const int pidx = selections_->addPoint( pos );
+	    pidxs += pidx;
+	}
+    }
+
+    Geometry::PrimitiveSet* pointsetps =
+		Geometry::IndexedPrimitiveSet::create( true );
+    pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
+    pointsetps->append( pidxs.arr(), pidxs.size() );
+    selections_->addPrimitiveSet( pointsetps );
+    selections_->getMaterial()->setColor( 
+	h2d->getSelectionColor() );
+    selections_->turnOn( true );
+}
+
+
+void Horizon2DDisplay::clearSelections()
+{
+    EMObjectDisplay::clearSelections();
+    if ( selections_ )
+    {
+	selections_->removeAllPoints();
+	selections_->removeAllPrimitiveSets();
+	selections_->getMaterial()->clear();
+    }
+}
+
 
 } // namespace visSurvey

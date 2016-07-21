@@ -27,6 +27,7 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
     , linenabled_(true)
     , seedenabled_(true)
     , markerseeds_(0)
+    , selectionpoints_(0)
     , nrseeds_(0)
     , path_(0)
     , flatposdata_(0)
@@ -56,6 +57,7 @@ HorizonPainter3D::~HorizonPainter3D()
     }
 
     removePolyLine();
+    removeSelections();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 
     CallBack::removeFromMainThread( this );
@@ -507,5 +509,58 @@ void HorizonPainter3D::setUpdateTrcKeySampling(
 {
     updatesamplings_ = TrcKeySampling( samplings );
 }
+
+
+
+void HorizonPainter3D::displaySelections( 
+    const TypeSet<EM::PosID>& pointselections )
+{
+    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    if ( !emobj ) 
+	return;
+
+    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
+    if ( !hor3d ) return;
+
+    removeSelections();
+
+    selectionpoints_ = create3DMarker(0);
+    
+    for ( int idx=0; idx<pointselections.size(); idx++ )
+    {
+	const Coord3 pos = emobj->getPos( pointselections[idx] );
+	const TrcKey tk = tkzs_.hsamp_.toTrcKey(pos.coord());
+	double x = 0.0;
+	if ( tkzs_.nrLines()==1 )
+	    x = tk.crl();
+	else if ( tkzs_.nrTrcs()==1 )
+	    x = tk.inl();
+	const bool isseed = 
+	    hor3d->isPosAttrib(pointselections[idx],EM::EMObject::sSeedNode());
+	const int postype = isseed ? EM::EMObject::sSeedNode()
+	    : EM::EMObject::sIntersectionNode();
+	const OD::MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
+	markerstyle_.color_ = ms3d.color_;
+	markerstyle_.color_ = hor3d->getSelectionColor();
+	markerstyle_.size_ = ms3d.size_*2;
+	markerstyle_.type_ = OD::MarkerStyle3D::getMS2DType( ms3d.type_ );
+	selectionpoints_->marker_->markerstyles_ += markerstyle_;
+	selectionpoints_->marker_->poly_ += FlatView::Point( x, pos.z );
+    }
+
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
+}
+
+
+void HorizonPainter3D::removeSelections()
+{
+    if ( selectionpoints_ )
+    {
+	viewer_.removeAuxData( selectionpoints_->marker_ );
+	delete selectionpoints_;
+	selectionpoints_ = 0;
+    }
+}
+
 
 } // namespace EM

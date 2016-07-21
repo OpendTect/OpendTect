@@ -87,6 +87,7 @@ protected:
     void		updatePatchDisplay();
     void		sowingFinishedCB(CallBacker*);
     void		keyPressedCB(CallBacker*);
+    void		polygonFinishedCB(CallBacker*);
     void		undo();
     void		redo();
     EMSeedPicker*	getEMSeedPicker() const;
@@ -120,6 +121,7 @@ protected:
     TrcKey			pickedpos_;
     mutable bool		dodropnext_;
     FlatView::AuxData*		patchdata_;
+    TypeSet<EM::PosID>		pointselections_;
 
 };
 

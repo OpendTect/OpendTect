@@ -64,6 +64,8 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
     mAttachCB( editor_->sower().sowingEnd,
 	HorizonFlatViewEditor2D::sowingFinishedCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
+    mAttachCB( editor_->movementFinished, 
+	HorizonFlatViewEditor2D::polygonFinishedCB );
     if ( vwr )
     mAttachCB(
 	vwr->rgbCanvas().getKeyboardEventHandler().keyPressed,
@@ -315,6 +317,8 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
     if ( editor_ )
     {
 	editor_->sower().reInitSettings();
+	editor_->sower().setSequentSowMask(
+	    true,OD::ButtonState( OD::LeftButton+OD::ControlButton) );
 	editor_->sower().intersow();
 	editor_->sower().reverseSowingOrder();
 	if ( editor_->sower().activate(prefcol, mouseevent) )
@@ -464,19 +468,13 @@ void HorizonFlatViewEditor2D::sowingFinishedCB( CallBacker* )
     if ( !seedpicker || !mehandler_ )
 	return;
 
-    if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
-	 seedpicker->getTrackMode()==seedpicker->DrawAndSnap )
-    {
-	const MouseEvent& mouseevent = mehandler_->event();
-	const bool doerase =
-	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus();
-
-	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-	if ( !emobj ) return;
-	emobj->setBurstAlert( false );
-	seedpicker->endPatch( doerase );
-	updatePatchDisplay();
-    }
+    const MouseEvent& mouseevent = mehandler_->event();
+    const bool doerase = !mouseevent.shiftStatus() && mouseevent.ctrlStatus();
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+    emobj->setBurstAlert( false );
+    seedpicker->endPatch( doerase );
+    updatePatchDisplay();
 
 }
 
@@ -673,10 +671,13 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    drop = dodropnext_;
 	    dodropnext_ = false;
 	}
+	const MouseEvent& mouseevent = mehandler_->event();
+	const bool doerase =
+	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus();
 
 	const TrcKeyValue tkv2( getTrcKey(Coord(mev.x(),mev.y())), 0.f );
 	if ( spk.getTrackMode()==spk.DrawBetweenSeeds ||
-	      spk.getTrackMode()==spk.DrawAndSnap )
+	      spk.getTrackMode()==spk.DrawAndSnap || doerase )
 	{
 	    spk.addSeedToPatch( tkv );
 	    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
@@ -879,6 +880,35 @@ void HorizonFlatViewEditor2D::movementEndCB( CallBacker* )
 
 void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
 {
+   if ( pointselections_.isEmpty() )
+	return;
+
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
+    mDynamicCastGet( EM::Horizon2D*, hor2d,emobj.ptr() );
+    if ( !hor2d ) return;
+
+    Undo& undo = EM::EMM().undo();
+    const int lastid = undo.currentEventID();
+
+    hor2d->setBurstAlert( true );
+    for ( int idx=0; idx<pointselections_.size(); idx++ )
+	emobj->unSetPos( pointselections_[idx], true );
+
+    hor2d->setBurstAlert( false );
+
+    if ( lastid!=undo.currentEventID() )
+	undo.setUserInteractionEnd( undo.currentEventID() );
+
+    horpainter_->removeSelections();
+}
+
+
+void HorizonFlatViewEditor2D::polygonFinishedCB( CallBacker* )
+{
+    pointselections_.setEmpty();
+
     TypeSet<int> selectedids;
     TypeSet<int> selectedidxs;
     editor_->getPointSelections( selectedids, selectedidxs );
@@ -888,10 +918,8 @@ void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
     RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
     if ( !emobj ) return;
 
-    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj.ptr());
+    mDynamicCastGet( EM::Horizon2D*, hor2d, emobj.ptr() );
     if ( !hor2d ) return;
-
-    hor2d->setBurstAlert( true );
 
     BinID bid;
 
@@ -911,10 +939,13 @@ void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
 	bid.crl() = trcnrs[posidx];
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );
-	emobj->unSetPos( posid, false );
+	pointselections_ += posid;
     }
 
-    hor2d->setBurstAlert( false );
+    if ( pointselections_.size()>0 )
+	horpainter_->displaySelections( pointselections_ );
+
+    editor_->setSelectionPolygonVisible( false );
 }
 
 } // namespace MPE

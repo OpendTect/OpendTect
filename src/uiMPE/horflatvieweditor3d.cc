@@ -59,6 +59,8 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 	    mCB(this,HorizonFlatViewEditor3D,horRepaintedCB) );
     mAttachCB( editor_->sower().sowingEnd,
 	HorizonFlatViewEditor3D::sowingFinishedCB );
+    mAttachCB( editor_->movementFinished, 
+	HorizonFlatViewEditor3D::polygonFinishedCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
     if ( vwr )
     mAttachCB(
@@ -870,19 +872,44 @@ void HorizonFlatViewEditor3D::movementEndCB( CallBacker* )
 
 void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 {
+    if ( pointselections_.isEmpty() )
+	return;
+
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
+    mDynamicCastGet( EM::Horizon3D*, hor3d,emobj.ptr() );
+    if ( !hor3d ) return;
+
+    Undo& undo = EM::EMM().undo();
+    const int lastid = undo.currentEventID();
+
+    hor3d->setBurstAlert( true );
+    for ( int idx=0; idx<pointselections_.size(); idx++ )
+	emobj->unSetPos( pointselections_[idx], true );
+
+    hor3d->setBurstAlert( false );
+
+    if ( lastid!=undo.currentEventID() )
+	undo.setUserInteractionEnd( undo.currentEventID() );
+
+    horpainter_->removeSelections();
+}
+
+
+
+void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )
+{
+    if ( editor_->getSelPtDataID()!=-1 )
+	return;
+
+    pointselections_.setEmpty();
+
     TypeSet<int> selectedids;
     TypeSet<int> selectedidxs;
     editor_->getPointSelections( selectedids, selectedidxs );
 
     if ( !selectedids.size() ) return;
-
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
-    if ( !emobj ) return;
-
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj.ptr());
-    if ( !hor3d ) return;
-
-    hor3d->setBurstAlert( true );
 
     BinID bid;
 
@@ -913,10 +940,14 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 	}
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );
-	emobj->unSetPos( posid, false );
+	pointselections_ += posid;
     }
 
-    hor3d->setBurstAlert( false );
+    if ( pointselections_.size()>0 )
+	horpainter_->displaySelections( pointselections_ );
+
+    editor_->setSelectionPolygonVisible( false );
 }
+
 
 } // namespace MPE

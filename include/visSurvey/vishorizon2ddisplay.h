@@ -59,6 +59,9 @@ public:
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj );
     virtual void		setPixelDensity(float);
+    void			initSelectionDisplay(bool erase);
+    virtual void		updateSelections();
+    virtual void		clearSelections();
 
 
 protected:
@@ -114,6 +117,7 @@ protected:
     bool					updateintsectmarkers_;
     int						nr2dlines_;
     Line2DInterSectionSet*			ln2dset_;
+    visBase::PointSet*				selections_;
 };
 
 } // namespace visSurvey
