@@ -881,8 +881,8 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
     mDynamicCastGet( EM::Horizon3D*, hor3d,emobj.ptr() );
     if ( !hor3d ) return;
 
-    Undo& undo = EM::EMM().undo();
-    const int lastid = undo.currentEventID();
+    Undo& doundo = EM::EMM().undo();
+    const int lastid = doundo.currentEventID();
 
     hor3d->setBurstAlert( true );
     for ( int idx=0; idx<pointselections_.size(); idx++ )
@@ -890,8 +890,8 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 
     hor3d->setBurstAlert( false );
 
-    if ( lastid!=undo.currentEventID() )
-	undo.setUserInteractionEnd( undo.currentEventID() );
+    if ( lastid!=doundo.currentEventID() )
+	doundo.setUserInteractionEnd( doundo.currentEventID() );
 
     horpainter_->removeSelections();
 }
