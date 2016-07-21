@@ -163,6 +163,8 @@ public:
     TrcKey::SurvID		getSurveyID() const;
     uiString			getUserTypeStr() const { return userTypeStr(); }
     static uiString		userTypeStr() { return tr("2D Horizon"); }
+    void			setSelectionColor(const Color&);
+    const Color&		getSelectionColor() const;
 
 protected:
 

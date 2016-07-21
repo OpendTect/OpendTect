@@ -61,6 +61,9 @@ public:
 	};
 
     void		getDisplayedHor(ObjectSet<Marker2D>&);
+    void		displaySelections(const TypeSet<EM::PosID>&);
+    void		removeSelections();
+
 
     Notifier<HorizonPainter2D>	abouttorepaint_;
     Notifier<HorizonPainter2D>	repaintdone_;
@@ -96,6 +99,10 @@ protected:
     bool		linenabled_;
     bool		seedenabled_;
     bool		intersection_;
+
+private:
+    Marker2D*		create2DMarker(const EM::SectionID&);
+
 };
 
 } // namespace EM

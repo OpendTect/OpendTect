@@ -46,6 +46,8 @@ public:
     void		paint();
     void		setUpdateTrcKeySampling(const TrcKeySampling&);
     void		displayIntersection(bool yn) { intersection_ = yn; }
+    void		displaySelections(const TypeSet<EM::PosID>&);
+    void		removeSelections();
 
     	mStruct(EarthModel) Marker3D
 	{

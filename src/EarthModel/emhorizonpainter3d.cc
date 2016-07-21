@@ -20,8 +20,9 @@ ________________________________________________________________________
 namespace EM
 {
 
-    HiddenParam<HorizonPainter3D,TrcKeySampling*> updatesamplings_( 0 );
-
+static HiddenParam<HorizonPainter3D,TrcKeySampling*> updatesamplings_( 0 );
+static HiddenParam<HorizonPainter3D, HorizonPainter3D::Marker3D*>	
+					selectionpoints_( 0 );
 
 HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
 				    const EM::ObjectID& oid )
@@ -47,6 +48,7 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
     }
     updatesamplings_.setParam( this, new TrcKeySampling() );
     updatesamplings_.getParam(this)->init( false );
+    selectionpoints_.setParam( this, 0 );
 }
 
 
@@ -63,6 +65,8 @@ HorizonPainter3D::~HorizonPainter3D()
     }
 
     removePolyLine();
+    removeSelections();
+    selectionpoints_.removeParam( this );
     viewer_.handleChange( FlatView::Viewer::Auxdata );
     delete updatesamplings_.getParam(this);
     updatesamplings_.removeParam( this );
@@ -519,5 +523,58 @@ void HorizonPainter3D::setUpdateTrcKeySampling(
     updatesamplings_.removeParam( this );
     updatesamplings_.setParam(this, new TrcKeySampling(samplings) );
 }
+
+
+void HorizonPainter3D::displaySelections( 
+    const TypeSet<EM::PosID>& pointselections )
+{
+    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    if ( !emobj ) 
+	return;
+
+    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
+    if ( !hor3d ) return;
+
+    removeSelections();
+
+    selectionpoints_.setParam( this, create3DMarker(0) );
+    
+    for ( int idx=0; idx<pointselections.size(); idx++ )
+    {
+	const Coord3 pos = emobj->getPos( pointselections[idx] );
+	const TrcKey tk = tkzs_.hsamp_.toTrcKey(pos.coord());
+	double x = 0.0;
+	if ( tkzs_.nrLines()==1 )
+	    x = tk.crl();
+	else if ( tkzs_.nrTrcs()==1 )
+	    x = tk.inl();
+	const bool isseed = 
+	    hor3d->isPosAttrib(pointselections[idx],EM::EMObject::sSeedNode());
+	const int postype = isseed ? EM::EMObject::sSeedNode()
+	    : EM::EMObject::sIntersectionNode();
+	const MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
+	markerstyle_.color_ = ms3d.color_;
+	markerstyle_.color_ = hor3d->getSelectionColor();
+	markerstyle_.size_ = ms3d.size_*2;
+	markerstyle_.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
+	selectionpoints_.getParam(this)->marker_->markerstyles_ += markerstyle_;
+	selectionpoints_.getParam(this)->marker_->poly_ += 
+	    FlatView::Point( x, pos.z );
+    }
+
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
+}
+
+
+void HorizonPainter3D::removeSelections()
+{
+    if ( selectionpoints_.getParam(this) )
+    {
+	viewer_.removeAuxData( selectionpoints_.getParam(this)->marker_ );
+	delete selectionpoints_.getParam( this );
+	selectionpoints_.setParam( this, 0 );
+    }
+}
+
 
 } // namespace EM

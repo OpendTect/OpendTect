@@ -62,7 +62,9 @@ public:
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj );
     virtual void		setPixelDensity(float);
-
+    void			initSelectionDisplay(bool erase);
+    void			updateSelections();
+    void			clearSelections();
 
 protected:
     friend			class Horizon2DDisplayUpdater;

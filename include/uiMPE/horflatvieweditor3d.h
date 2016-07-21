@@ -82,6 +82,7 @@ protected:
 	    			  const MouseEvent&);
     void		sowingFinishedCB(CallBacker*);
     void		keyPressedCB(CallBacker*);
+    void		polygonFinishedCB(CallBacker*);
     void		undo();
     void		redo();
     EMSeedPicker*	getEMSeedPicker() const;

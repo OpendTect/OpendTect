@@ -19,9 +19,12 @@ ________________________________________________________________________
 
 namespace EM
 {
-HiddenParam< HorizonPainter2D, ObjectSet<HorizonPainter2D::Marker2D>* > 
+static HiddenParam< HorizonPainter2D, ObjectSet<HorizonPainter2D::Marker2D>* > 
 	    intsectmarkers_( 0 );
-HiddenParam< HorizonPainter2D, Line2DInterSectionSet* > lnintsectset_( 0 );
+static HiddenParam< HorizonPainter2D, Line2DInterSectionSet* > 
+					    lnintsectset_( 0 );
+static HiddenParam< HorizonPainter2D, HorizonPainter2D::Marker2D* >
+					  selectionpoints_( 0 );
 
 HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
 				    const EM::ObjectID& oid )
@@ -45,6 +48,9 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
     intsectmarkers_.setParam( this, new ObjectSet<HorizonPainter2D::Marker2D> );
     lnintsectset_.setParam( this, new Line2DInterSectionSet );
 
+    delete selectionpoints_.getParam( this );
+    selectionpoints_.setParam( this, 0 );
+
 }
 
 
@@ -59,11 +65,13 @@ HorizonPainter2D::~HorizonPainter2D()
     }
 
     removePolyLine();
+    removeSelections();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
     delete intsectmarkers_.getParam(this);
     delete lnintsectset_.getParam(this);
     intsectmarkers_.removeParam( this );
     lnintsectset_.removeParam( this );
+    selectionpoints_.removeParam(this);
 }
 
 
@@ -309,17 +317,27 @@ bool HorizonPainter2D::calcLine2DIntersections()
 HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker(
     const EM::SectionID& sid, float x, float z )
 {
-    FlatView::AuxData* seedauxdata = viewer_.createAuxData( 0 );
+    Marker2D* marker = 0;
+    marker = create2DMarker( sid );
+    if ( marker )
+	marker->marker_->poly_ += FlatView::Point( x, z );
+    return marker;
+}
+
+
+HorizonPainter2D::Marker2D* HorizonPainter2D::create2DMarker( 
+    const EM::SectionID& sid )
+{
+    FlatView::AuxData* seedauxdata = viewer_.createAuxData(0);
     seedauxdata->cursor_ = seedenabled_ ? MouseCursor::Cross
-					: MouseCursor::Arrow;
+	: MouseCursor::Arrow;
     seedauxdata->enabled_ = seedenabled_;
     seedauxdata->poly_.erase();
     seedauxdata->markerstyles_ += markerstyle_;
-    viewer_.addAuxData( seedauxdata );
+    viewer_.addAuxData(seedauxdata);
     Marker2D* marker = new Marker2D;
     marker->marker_ = seedauxdata;
     marker->sectionid_ = sid;
-    marker->marker_->poly_ += FlatView::Point( x, z );
     return marker;
 }
 
@@ -428,5 +446,54 @@ void HorizonPainter2D::displayIntersection( bool yn )
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 }
 
+
+void HorizonPainter2D::displaySelections( const 
+    TypeSet<EM::PosID>& pointselections )
+{
+    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    if ( !emobj ) 
+	return;
+
+    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
+    if ( !hor2d ) return;
+
+    removeSelections();
+
+    selectionpoints_.setParam( this, create2DMarker(0) );
+    for ( int idx=0; idx<pointselections.size(); idx++ )
+    {
+	const Coord3 pos = emobj->getPos( pointselections[idx] );
+	ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
+	const float z = zat ? zat->transform(pos) : (float)pos.z;
+
+	const TrcKey tk = tkzs_.hsamp_.toTrcKey( pos.coord() );
+	const int didx = trcnos_.indexOf( tk.trcNr() );
+
+	const bool isseed = 
+	    hor2d->isPosAttrib(pointselections[idx],EM::EMObject::sSeedNode());
+	const int postype = isseed ? EM::EMObject::sSeedNode()
+	    : EM::EMObject::sIntersectionNode();
+	const MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
+	markerstyle_.color_ = hor2d->getSelectionColor();
+	markerstyle_.size_ = ms3d.size_*2;
+	markerstyle_.type_ = MarkerStyle3D::getMS2DType( ms3d.type_ );
+	selectionpoints_.getParam(this)->marker_->markerstyles_ += markerstyle_;
+	selectionpoints_.getParam(this)->marker_->poly_ += 
+	    FlatView::Point(distances_[didx],z);
+    }
+
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
+}
+
+
+void HorizonPainter2D::removeSelections()
+{
+    if ( selectionpoints_.getParam(this) )
+    {
+	viewer_.removeAuxData( selectionpoints_.getParam(this)->marker_ );
+	delete selectionpoints_.getParam(this);
+	selectionpoints_.setParam( this, 0 );
+    }
+}
 
 }; //namespace EM

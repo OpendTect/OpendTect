@@ -34,9 +34,12 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "hiddenparam.h"
 
 namespace MPE
 {
+static HiddenParam<HorizonFlatViewEditor3D,TypeSet<EM::PosID>* >
+					pointselections_( 0 );
 
 HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 						  const EM::ObjectID& emid )
@@ -60,11 +63,14 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 	    mCB(this,HorizonFlatViewEditor3D,horRepaintedCB) );
     mAttachCB( editor_->sower().sowingEnd,
 	HorizonFlatViewEditor3D::sowingFinishedCB );
+    mAttachCB( editor_->movementFinished, 
+	HorizonFlatViewEditor3D::polygonFinishedCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
     if ( vwr )
     mAttachCB(
 	vwr->rgbCanvas().getKeyboardEventHandler().keyPressed,
 	HorizonFlatViewEditor3D::keyPressedCB );
+    pointselections_.setParam( this, new TypeSet<EM::PosID>() );
 }
 
 
@@ -95,6 +101,9 @@ HorizonFlatViewEditor3D::~HorizonFlatViewEditor3D()
 	delete patchdata_;
 	patchdata_ = 0;
     }
+
+    delete pointselections_.getParam( this );
+    pointselections_.removeParam( this );
 }
 
 
@@ -865,25 +874,51 @@ void HorizonFlatViewEditor3D::movementEndCB( CallBacker* )
 
 void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 {
+    if ( pointselections_.getParam(this) && 
+	pointselections_.getParam(this)->isEmpty() )
+	return;
+
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj ) return;
+
+    mDynamicCastGet( EM::Horizon3D*, hor3d,emobj.ptr() );
+    if ( !hor3d ) return;
+
+    Undo& doundo = EM::EMM().undo();
+    const int lastid = doundo.currentEventID();
+
+    hor3d->setBurstAlert( true );
+    for ( int idx=0; idx<pointselections_.getParam(this)->size(); idx++ )
+	emobj->unSetPos( (*pointselections_.getParam(this))[idx], true );
+
+    hor3d->setBurstAlert( false );
+
+    if ( lastid!=doundo.currentEventID() )
+	doundo.setUserInteractionEnd( doundo.currentEventID() );
+
+    horpainter_->removeSelections();
+}
+
+
+void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )
+{
+    if ( editor_->getSelPtDataID()!=-1 )
+	return;
+
+    pointselections_.getParam(this)->setEmpty();
+
     TypeSet<int> selectedids;
     TypeSet<int> selectedidxs;
     editor_->getPointSelections( selectedids, selectedidxs );
 
     if ( !selectedids.size() ) return;
 
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
-    if ( !emobj ) return;
-
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj.ptr());
-    if ( !hor3d ) return;
-
-    hor3d->setBurstAlert( true );
-
     BinID bid;
-
     ConstDataPackRef<FlatDataPack> fdp =
 	editor_->viewer().obtainPack( true, true );
-    mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+    mDynamicCastGet( const RandomFlatDataPack*, randfdp, fdp.ptr() );
+
+    TypeSet<EM::PosID>& posidset = *pointselections_.getParam(this);
     for ( int ids=0; ids<selectedids.size(); ids++ )
     {
 	const FlatView::AuxData* auxdata = getAuxData(selectedids[ids]);
@@ -908,10 +943,14 @@ void HorizonFlatViewEditor3D::removePosCB( CallBacker* )
 	}
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );
-	emobj->unSetPos( posid, false );
+	posidset += posid;
     }
 
-    hor3d->setBurstAlert( false );
+    if ( posidset.size()>0 )
+	horpainter_->displaySelections( posidset );
+
+    editor_->setSelectionPolygonVisible( false );
 }
+
 
 } // namespace MPE

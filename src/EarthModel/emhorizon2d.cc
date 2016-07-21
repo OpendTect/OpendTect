@@ -25,6 +25,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "zaxistransform.h"
+#include "color.h"
+
+#include "hiddenparam.h"
+
+static HiddenParam<EM::Horizon2D,Color*> selectioncolor_( 0 );
 
 namespace EM
 {
@@ -393,11 +398,15 @@ Horizon2D::Horizon2D( EMManager& emm )
     , geometry_(*this)
 {
     geometry_.addSection( "", false );
+    selectioncolor_.setParam( this, new Color(Color::Blue()) );
 }
 
 
 Horizon2D::~Horizon2D()
-{}
+{
+    delete selectioncolor_.getParam(this);
+    selectioncolor_.removeParam( this );
+}
 
 
 float Horizon2D::getZ( const TrcKey& tk ) const
@@ -699,6 +708,19 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid, Pos::GeomID geomid,
     }
 
     return arr;
+}
+
+
+void  Horizon2D::setSelectionColor( const Color& clr )
+{
+    delete selectioncolor_.getParam(this);
+    selectioncolor_.setParam( this, new Color(clr) );
+}
+
+
+const Color& Horizon2D::getSelectionColor() const
+{
+    return *selectioncolor_.getParam(this);
 }
 
 

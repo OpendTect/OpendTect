@@ -88,10 +88,11 @@ protected:
     void		updatePatchDisplay();
     void		sowingFinishedCB(CallBacker*);
     void		keyPressedCB(CallBacker*);
+    void		polygonFinishedCB(CallBacker*);
     void		undo();
     void		redo();
     EMSeedPicker*	getEMSeedPicker() const;
-
+    
 
 	mStruct(uiMPE) Hor2DMarkerIdInfo
 	{

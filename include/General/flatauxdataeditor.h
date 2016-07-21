@@ -196,6 +196,7 @@ public:
     MouseEventHandler&	mouseEventHandler()	    { return mousehandler_; }
 
     const Point*	markerPosAt(const Geom::Point2D<int>& mousepos) const;
+    void		setSelectionPolygonVisible(bool);
 
 protected:
     void		getPointSelections( const ObjectSet<AuxData>& polygon,
