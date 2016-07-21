@@ -63,8 +63,8 @@ public:
 				    int whichobj );
     virtual void		setPixelDensity(float);
     void			initSelectionDisplay(bool erase);
-    void			updateSelections();
-    void			clearSelections();
+    void			updateSelectionsHor2D();
+    void			clearSelectionsHor2D();
 
 protected:
     friend			class Horizon2DDisplayUpdater;

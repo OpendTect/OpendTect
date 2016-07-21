@@ -910,9 +910,8 @@ void Horizon2DDisplay::initSelectionDisplay( bool erase )
 }
 
 
-void Horizon2DDisplay::updateSelections()
+void Horizon2DDisplay::updateSelectionsHor2D()
 {
-    EMObjectDisplay::updateSelections();
     const int lastidx = selectors_.size() - 1;
     if ( lastidx<0 ) return;
 
@@ -957,9 +956,8 @@ void Horizon2DDisplay::updateSelections()
 }
 
 
-void Horizon2DDisplay::clearSelections()
+void Horizon2DDisplay::clearSelectionsHor2D()
 {
-    EMObjectDisplay::clearSelections();
     if ( selections_.getParam(this) )
     {
 	selections_.getParam(this)->removeAllPoints();

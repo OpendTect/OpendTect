@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "vishorizondisplay.h"
+#include "vishorizon2ddisplay.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
@@ -938,12 +939,20 @@ void EMObjectDisplay::updateSelections()
 	    }
 	}
     }
+
+    // Cannot reimplement virtual function to keep binary compatibility
+    mDynamicCastGet( Horizon2DDisplay*, h2dd, this );
+    if ( h2dd ) h2dd->updateSelectionsHor2D();
 }
 
 
 void EMObjectDisplay::clearSelections()
 {
-   deepErase( selectors_ );
+    deepErase( selectors_ );
+
+    // Cannot reimplement virtual function to keep binary compatibility
+    mDynamicCastGet( Horizon2DDisplay*, h2dd, this );
+    if ( h2dd ) h2dd->clearSelectionsHor2D();
 }
 
 
