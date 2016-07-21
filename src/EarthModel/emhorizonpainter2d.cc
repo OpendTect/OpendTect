@@ -420,7 +420,7 @@ void HorizonPainter2D::displayIntersection( bool yn )
 
 
 void HorizonPainter2D::displaySelections( 
-    TypeSet<EM::PosID>& pointselections )
+    const TypeSet<EM::PosID>& pointselections )
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( !emobj ) 
