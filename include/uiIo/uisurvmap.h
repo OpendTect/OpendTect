@@ -38,7 +38,8 @@ public:
     bool		labelsShown() const;
 
     const OD::LineStyle&	getLineStyle() const	{ return ls_; }
-    void		setLineStyle(const OD::LineStyle&);
+    void			setLineStyle(const OD::LineStyle&);
+    void			setVisibility(bool);
 
 protected:
 
@@ -50,7 +51,6 @@ protected:
     OD::LineStyle			ls_;
     bool			showlabels_;
 
-    void			setVisibility(bool);
 };
 
 

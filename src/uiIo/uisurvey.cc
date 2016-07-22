@@ -838,6 +838,11 @@ void uiSurvey::rmButPushed( CallBacker* )
 	    button(CANCEL)->setSensitive( false );
     }
 
+    if ( dirfld_->isEmpty() )
+    {
+	cursurvinfo_ = 0;
+	putToScreen();
+    }
     selChange( 0 );
 }
 
@@ -888,6 +893,7 @@ void uiSurvey::extractButPushed( CallBacker* )
 
     uiSurvey_UnzipFile( this, fdlg.fileName(), dataroot_ );
     updateSurvList();
+    readSurvInfoFromFile();
     //TODO set unpacked survey as current with dirfld_->setCurrentItem()
 }
 
@@ -1117,6 +1123,18 @@ void uiSurvey::putToScreen()
     if ( !survmap_ ) return;
 
     survmap_->setSurveyInfo( cursurvinfo_ );
+    const bool hassurveys = !dirfld_->isEmpty();
+    rmbut_->setSensitive( hassurveys );
+    editbut_->setSensitive( hassurveys );
+    for ( int idx=0; idx<utilbuts_.size(); idx++ )
+	utilbuts_[idx]->setSensitive( hassurveys );
+
+    if ( !hassurveys )
+    {
+	notesfld_->setText( uiString::emptyString() );
+	infofld_->setText( uiString::emptyString() );
+	return;
+    }
 
     BufferString locinfo( "Location: " );
     BufferString inlinfo( "In-line range: " );
@@ -1188,11 +1206,6 @@ void uiSurvey::putToScreen()
 	.addNewLine().add( orientinfo ).addNewLine().add( locinfo );
     infofld_->setText( infostr );
 
-    const bool anysvy = !dirfld_->isEmpty();
-    rmbut_->setSensitive( anysvy );
-    editbut_->setSensitive( anysvy );
-    for ( int idx=0; idx<utilbuts_.size(); idx++ )
-	utilbuts_[idx]->setSensitive( anysvy );
 }
 
 

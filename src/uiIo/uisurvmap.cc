@@ -29,7 +29,8 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
 {
     for ( int idx=0; idx<4; idx++ )
     {
-        uiMarkerItem* markeritem = new uiMarkerItem( OD::MarkerStyle2D::Square );
+	uiMarkerItem* markeritem =
+				new uiMarkerItem( OD::MarkerStyle2D::Square );
 	graphitem_.addChild( markeritem );
 	vertices_ += markeritem;
     }
@@ -136,7 +137,8 @@ uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
 	return;
 
     angleline_ = new uiLineItem;
-    angleline_->setPenStyle( OD::LineStyle(OD::LineStyle::Dot,2,Color(255,0,0)) );
+    angleline_->setPenStyle( OD::LineStyle(OD::LineStyle::Dot,2,
+					   Color(255,0,0)) );
     graphitem_.addChild( angleline_ );
 
     mDeclAlignment( txtalign, Right, Bottom );
@@ -284,6 +286,9 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 	if ( title_ ) title_->setText( toUiString(survinfo_->name()) );
 	setView( wr );
     }
+
+    if ( survbox_ )
+	survbox_->setVisibility( survinfo_ );
 }
 
 
