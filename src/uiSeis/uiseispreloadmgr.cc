@@ -578,7 +578,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     }
 
     const od_int64 totalsz = tkzs.hsamp_.totalNr();
-    const int nr2add = mMIN(totalsz,nrtrcsfld_->getIntValue());
+    const int nr2add = (int)mMIN(totalsz,nrtrcsfld_->getIntValue());
 
     TypeSet<od_int64> gidxs( nr2add, -1 );
     od_int64 randint = Stats::randGen().getIndex( mUdf(int) );
