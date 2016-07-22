@@ -131,6 +131,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
     if ( selbutid==1 )
     {
 	uiSeisPreLoadSel spldlg( uimain.topLevel(), Seis::Vol, key );
+	spldlg.showAlwaysOnTop();
 	if ( !spldlg.go() )
 	    return false;
 
