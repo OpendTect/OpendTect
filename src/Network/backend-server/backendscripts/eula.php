@@ -18,29 +18,22 @@ Format can be either:
     'crm'  - single column. For copy paste of HTML to pdf template in crm
 -*/
 
-$format = 'view';
-if ( array_key_exists( "format", $_GET ) )
-    $format = $_GET['format'];
+function generateHTML( $twocolumns, $ispdf, $marginamount, $fontsize, $subtitlefontsize )
+{
+    $output = '';
+    $margin = "margin-left: $marginamount; margin-right: $marginamount;";
 
-$twocolumns = $format == 'pdf' || $format == 'view';
-
-$marginamount = $twocolumns ? "1em" : "5em";
-$fontsize = $format == 'view' ? '' : 'font-size: xx-small; ';
-$subtitlefontsize = $format == 'view' ? '' : 'font-size: x-small; ';
-
-$margin = "margin-left: $marginamount; margin-right: $marginamount;";
-
-$DefaultStyle = "$margin ".
+    $DefaultStyle = "$margin ".
 		"text-align: justify; ".
 		$fontsize.
 		"margin-bottom: 0em; ".
 		"margin-top: 0em;";
 
-$Level1Style = "$margin ".
+    $Level1Style = "$margin ".
 		$fontsize.
 		"font-weight: bold";
 
-$Level2Style = "$margin ".
+    $Level2Style = "$margin ".
 		"text-align: justify; ".
 		$fontsize.
 		"margin-bottom: 0em; ".
@@ -48,7 +41,7 @@ $Level2Style = "$margin ".
 		"padding-left: 1em; ".
 		"text-indent: -1em;";
 
-$Level3Style = "$margin ".
+    $Level3Style = "$margin ".
 		"text-align: justify; ".
 		$fontsize.
 		"margin-bottom: 0em; ".
@@ -56,63 +49,94 @@ $Level3Style = "$margin ".
 		"padding-left: 2em; ".
 		"text-indent: -1em;";
 
-$TitleStyle = "text-align: center; font-weight: bold; $margin";
+    $TitleStyle = "text-align: center; font-weight: bold; $margin";
 
-$SubTitleStyle = "text-align: center; $subtitlefontsize $margin";
+    $SubTitleStyle = "text-align: center; $subtitlefontsize $margin";
 
 
-echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"'.
-     '"http://www.w3.org/TR/html4/strict.dtd">'.
-    '<html>'.
-    '<head>'.
-    '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+    $output .= '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"'.
+	 '"http://www.w3.org/TR/html4/strict.dtd">'.
+	'<html>'.
+	'<head>'.
+	'<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
 
-$eulatext = file_get_contents( dirname(__FILE__)."/../../../../doc/eula.txt" );
-$eulaarray = explode( "\n", $eulatext );
+    $eulatext = file_get_contents( dirname(__FILE__)."/../../../../doc/eula.txt" );
+    $eulaarray = explode( "\n", $eulatext );
 
-$linenr = 0;
+    $linenr = 0;
 
-foreach ( $eulaarray AS $line )
-{
-    $linearray = explode( " ", $line );
-    $style = $DefaultStyle;
-
-    if ( $linenr==0 )
+    foreach ( $eulaarray AS $line )
     {
-	$style = $TitleStyle;
-	echo '<title>'.$line.'</title></head><body>';
-	echo "\n\n\n\n";
+	$linearray = explode( " ", $line );
+	$style = $DefaultStyle;
+
+	if ( $linenr==0 )
+	{
+	    $style = $TitleStyle;
+	    $output .= '<title>'.$line.'</title></head><body>';
+	    $output .= "\n\n\n\n";
+	}
+	else if ( $linenr==1 )
+	{
+	    $style = $SubTitleStyle;
+	}
+	else if ( preg_match( "/[0-9]+\./m", $linearray[0] ) == 1 )
+	    $style = $Level1Style;
+	else if ( preg_match( "/[A-Z]+\.+/m", $linearray[0] ) == 1 )
+	    $style = $Level2Style;
+	else if ( preg_match( "/[a-z]+\.+/m", $linearray[0] ) == 1 )
+	    $style = $Level3Style;
+
+	$output .= '<p style="'.$style.'">'.htmlspecialchars($line)."</p>\n";
+
+	if ( $twocolumns && $linenr==1 )
+	{
+	    if ( $ispdf )
+		$output .= '<columns column-count="2" vAlign="J" column-gap="1" />';
+	    else
+		$output .= '<div style="'.
+		 '-webkit-column-count: 2; '.
+		 '-webkit-column-gap: 0em; '.
+		 '-moz-column-count: 2; '.
+		 '-moz-column-gap: 0em; '.
+		 'column-count:2; '.
+		 'column-gap: 0em;">';
+	}
+
+	$linenr++;
     }
 
-    else if ( $linenr==1 )
-    {
-	$style = $SubTitleStyle;
-    }
+    if ( $twocolumns && !$ispdf )
+	$output .= "<div>";
 
-    else if ( preg_match( "/[0-9]+\./m", $linearray[0] ) == 1 )
-	$style = $Level1Style;
-    else if ( preg_match( "/[A-Z]+\.+/m", $linearray[0] ) == 1 )
-	$style = $Level2Style;
-    else if ( preg_match( "/[a-z]+\.+/m", $linearray[0] ) == 1 )
-	$style = $Level3Style;
-
-    echo '<p style="'.$style.'">'.htmlspecialchars($line)."</p>\n";
-
-    if ( $twocolumns && $linenr==1 )
-    {
-	echo '<div style="'.
-    	     '-webkit-column-count: 2; '.
-    	     '-webkit-column-gap: 0em; '.
-    	     '-moz-column-count: 2; '.
-    	     '-moz-column-gap: 0em; '.
-    	     'column-count:2; '.
-    	     'column-gap: 0em;">';
-    }
-
-    $linenr++;
+    $output .= "\n\n\n\n\n</body></html>\n";
+    
+    return $output;
 }
 
-if ( $twocolumns )
-    echo "<div>";
 
-echo "\n\n\n\n\n</body></html>\n";
+$format = 'view';
+if ( array_key_exists( "format", $_GET ) )
+    $format = $_GET['format'];
+
+$ispdf = $format == 'pdf';
+$twocolumns = $ispdf || $format == 'view';
+
+$marginamount = $twocolumns ? "1em" : "5em";
+$fontsize = $format == 'view' ? '' : 'font-size: xx-small; ';
+$subtitlefontsize = $format == 'view' ? '' : 'font-size: x-small; ';
+
+$htmltext = generateHTML( $twocolumns, $ispdf, $marginamount, $fontsize, $subtitlefontsize );
+
+if ( $ispdf )
+{
+    require_once __DIR__ . '/vendor/autoload.php';
+    $mpdf = new mPDF( ['tempDir' => __DIR__ . '/tmp'] );
+    $mpdf->WriteHTML( $htmltext );
+    $mpdf->Output( 'OpendTect-EULA.pdf', 'I' );
+}
+else
+{
+    echo $htmltext;
+}
+
