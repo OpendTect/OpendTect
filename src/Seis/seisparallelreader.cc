@@ -411,10 +411,10 @@ void ParallelReader2D::setDataChar( DataCharacteristics::UserType type )
 { dc_ = DataCharacteristics(type); }
 
 
-void ParallelReader2D::setScaler( Scaler* scaler )
+void ParallelReader2D::setScaler( Scaler* newsc )
 {
     delete scaler_;
-    scaler_ = scaler;
+    scaler_ = newsc ? newsc->clone() : 0;
 }
 
 
