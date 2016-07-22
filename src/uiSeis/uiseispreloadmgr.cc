@@ -534,6 +534,9 @@ void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs,
 
 void uiSeisPreLoadSel::selectedGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 {
+    mDynamicCastGet(uiSeis2DSubSel*,ss2d,subselfld_)
+    if ( ss2d )
+	ss2d->selectedGeomIDs( geomids );
 }
 
 
@@ -549,11 +552,33 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 
     SeisIOObjInfo info( ioobj );
     TrcKeyZSampling tkzs;
-    bool res = info.getRanges( tkzs );
-    if ( !res ) return;
+    if ( info.is2D() )
+    {
+	TypeSet<Pos::GeomID> geomids;
+	selectedGeomIDs( geomids );
+	if ( geomids.isEmpty() )
+	{
+	    uiMSG().error( tr("Please select at least 1 2D line") );
+	    return;
+	}
+
+	Pos::GeomID geomid0 = geomids.first();
+	tkzs.hsamp_.setLineRange( StepInterval<int>(geomid0,geomid0,1) );
+	StepInterval<int> trcrg; StepInterval<float> zrg;
+	if ( !info.getRanges(geomid0,trcrg,zrg) )
+	    return;
+
+	tkzs.hsamp_.setTrcRange( trcrg );
+	tkzs.zsamp_ = zrg;
+    }
+    else
+    {
+	if ( !info.getRanges(tkzs) ) // TODO: Add message
+	    return;
+    }
 
     const od_int64 totalsz = tkzs.hsamp_.totalNr();
-    const int nr2add = mMAX(1,nrtrcsfld_->getIntValue());
+    const int nr2add = mMIN(totalsz,nrtrcsfld_->getIntValue());
 
     TypeSet<od_int64> gidxs( nr2add, -1 );
     od_int64 randint = Stats::randGen().getIndex( mUdf(int) );
@@ -574,7 +599,10 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     for ( int idx=0; idx<nr2add; idx++ )
     {
 	const od_int64 gidx = gidxs[idx];
-	res = rdr.seisTranslator()->goTo( tkzs.hsamp_.atIndex(gidx) );
+	bool res = true;
+	if ( rdr.seisTranslator()->supportsGoTo() )
+	    res = rdr.seisTranslator()->goTo( tkzs.hsamp_.atIndex(gidx) );
+
 	if ( !res ) continue;
 
 	SeisTrc* trc = new SeisTrc;

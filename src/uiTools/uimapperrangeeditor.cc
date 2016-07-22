@@ -136,8 +136,8 @@ void uiMapperRangeEditor::init()
     rightcoltab_ = scene.addItem( new uiPixmapItem() );
     rightcoltab_->setZValue( zval );
 
-    minvaltext_ = scene.addItem( new uiTextItem(uiStrings::sEmptyString()
-							  ,OD::Alignment::Right) );
+    minvaltext_ = scene.addItem(
+	new uiTextItem(uiStrings::sEmptyString(),OD::Alignment::Right) );
     maxvaltext_ = scene.addItem( new uiTextItem() );
 
     MouseCursor cursor( MouseCursor::SizeHor );
@@ -246,8 +246,9 @@ bool uiMapperRangeEditor::changeLinePos( bool firstclick )
     const int mousepix = ev.pos().x;
     const float mouseposval = xax_->getVal( ev.pos().x );
 
+    const Interval<float> histxrg = histogramdisp_->xAxis()->range();
     const bool insiderg = datarg_.includes(mouseposval,true) &&
-        histogramdisp_->setup().xrg_.includes(mouseposval,true);
+			  histxrg.includes(mouseposval,true);
     if ( !firstclick && !insiderg )
 	return false;
 

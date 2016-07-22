@@ -396,10 +396,10 @@ void ParallelReader2D::setDataChar( DataCharacteristics::UserType type )
 { dc_ = DataCharacteristics(type); }
 
 
-void ParallelReader2D::setScaler( Scaler* scaler )
+void ParallelReader2D::setScaler( Scaler* newsc )
 {
     delete scaler_;
-    scaler_ = scaler;
+    scaler_ = newsc ? newsc->clone() : 0;
 }
 
 
@@ -760,7 +760,8 @@ bool SequentialReader::init()
 }
 
 
-bool SequentialReader::setDataPack( RegularSeisDataPack& dp, od_ostream* extstrm )
+bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
+				    od_ostream* extstrm )
 {
     dp_ = &dp;
     DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
