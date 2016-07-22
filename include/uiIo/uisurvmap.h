@@ -40,6 +40,7 @@ public:
 
     const LineStyle&	getLineStyle() const	{ return ls_; }
     void		setLineStyle(const LineStyle&);
+    void		setVisibility(bool);
 
 protected:
 
@@ -50,8 +51,6 @@ protected:
     const SurveyInfo*		survinfo_;
     LineStyle			ls_;
     bool			showlabels_;
-
-    void			setVisibility(bool);
 };
 
 

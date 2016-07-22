@@ -285,6 +285,9 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 	if ( title_ ) title_->setText( toUiString(survinfo_->name()) );
 	setView( wr );
     }
+
+    if ( survbox_ )
+	survbox_->setVisibility( survinfo_ );
 }
 
 
