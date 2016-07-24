@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "odcomplex.h"
 #include "paralleltask.h"
 #include "threadlock.h"
+#include "wavelet.h"
 #include "uistrings.h"
 
 class RayTracer1D;
@@ -27,7 +28,6 @@ class SeisTrc;
 class SeisTrcBuf;
 class TimeDepthModel;
 class RayTracerRunner;
-class Wavelet;
 template <class T> class Array1D;
 template <class T> class SamplingData;
 
@@ -37,21 +37,14 @@ namespace PreStack { class Gather; }
 namespace Seis
 {
 
-/*
-   brief generates synthetic traces.The SynthGenerator performs the basic
-   convolution with a reflectivity series and a wavelet.
-   The MultiTraceSynthGenerator is a Parallel runner of the SynthGenerator.
-
-   If you have AI layers and want directly some synthetics out of them,
-   then you should use the RayTraceSynthGenerator.
-*/
+/*!\brief base class for synthetic trace generators. */
 
 
 mExpClass(Seis) SynthGenBase
 { mODTextTranslationClass(SynthGenBase);
 public:
 
-    virtual bool	setWavelet(const Wavelet*,OD::PtrPolicy pol);
+    virtual void	setWavelet(const Wavelet*);
 			/* auto computed + will be overruled if too small */
     virtual bool	setOutSampling(const StepInterval<float>&);
 			/* depends on the wavelet size too */
@@ -86,25 +79,32 @@ public:
     static const char*	sKeyStretchLimit(){ return "Stretch limit"; }
 
 protected:
-				SynthGenBase();
-    virtual			~SynthGenBase();
+			SynthGenBase();
+    virtual		~SynthGenBase();
 
-    bool			isfourier_;
-    bool			applynmo_;
-    float			stretchlimit_;
-    float			mutelength_;
-    bool			waveletismine_;
-    const Wavelet*		wavelet_;
-    StepInterval<float>		outputsampling_;
-    bool			dointernalmultiples_;
-    bool			dosampledreflectivities_;
-    float			surfreflcoeff_;
+    bool		isfourier_;
+    bool		applynmo_;
+    float		stretchlimit_;
+    float		mutelength_;
+    ConstRefMan<Wavelet> wavelet_;
+    StepInterval<float>	outputsampling_;
+    bool		dointernalmultiples_;
+    bool		dosampledreflectivities_;
+    float		surfreflcoeff_;
 
-    uiString			errmsg_;
+    uiString		errmsg_;
 
-    bool			isInputOK();
+    bool		isInputOK();
 };
 
+
+/*!\brief generates synthetic traces. It performs the basic
+   convolution with a reflectivity series and a wavelet.
+   The MultiTraceSynthGenerator is a Parallel runner of the SynthGenerator.
+
+   If you have AI layers and directly want some synthetics out of them,
+   then you should use the RayTraceSynthGenerator.
+*/
 
 
 mExpClass(Seis) SynthGenerator : public SynthGenBase
@@ -112,14 +112,12 @@ mExpClass(Seis) SynthGenerator : public SynthGenBase
 public:
     mDefineFactoryInClass( SynthGenerator, factory );
 
-    static SynthGenerator*	create(bool advanced);
+    static SynthGenerator* create(bool advanced);
 
 			SynthGenerator();
 			~SynthGenerator();
 
-    virtual bool	setWavelet(const Wavelet*,OD::PtrPolicy pol);
-			/* auto computed: not necessary -
-			   will be overruled if too small */
+    virtual void	setWavelet(const Wavelet*);
     virtual bool	setOutSampling(const StepInterval<float>&);
     bool		setModel(const ReflectivityModel&);
 

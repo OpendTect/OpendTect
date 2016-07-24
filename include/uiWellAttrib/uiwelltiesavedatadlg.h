@@ -23,7 +23,7 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiCheckList;
 class uiGenInput;
-class uiIOObjSel;
+class uiWaveletIOObjSel;
 
 
 namespace WellTie
@@ -43,8 +43,8 @@ protected :
     uiCreateLogCubeOutputSel*	outputgrp_;
     uiGenInput*			saveasfld_;
     uiCheckBox*			wvltchk_;
-    uiIOObjSel*			initwvltsel_;
-    uiIOObjSel*			estimatedwvltsel_;
+    uiWaveletIOObjSel*		initwvltsel_;
+    uiWaveletIOObjSel*		estimatedwvltsel_;
     Server&			dataserver_;
 
     bool			acceptOK(CallBacker*);

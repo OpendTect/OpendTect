@@ -64,6 +64,8 @@ public:
     bool		getFullSurveyPath(BufferString&) const;
     void		setSurveyPath(const char*);
 
+    bool		forRead() const		{ return true; }
+
 protected:
 
     void		selectCB(CallBacker*);

@@ -32,8 +32,8 @@ public:
 
 protected:
 
-    uiWaveletExtraction*	wvltext_;
-    uiWaveletDispPropDlg*	wvltpropdlg_;
+    uiWaveletExtraction*	extrdlg_;
+    uiWaveletDispPropDlg*	propdlg_;
     uiToolButton*		disppropbut_;
     uiToolButton*		revpolbut_;
     uiToolButton*		rotatephbut_;
@@ -45,7 +45,6 @@ protected:
     void			ownSelChg();
     void			dispWavelet(const Wavelet*);
 
-    void			closeDlg(CallBacker*);
     void			crPush(CallBacker*);
     void			dispProperties(CallBacker*);
 
@@ -58,7 +57,9 @@ protected:
     void			reversePolarity(CallBacker*);
     void			rotatePhase(CallBacker*);
     void			taper(CallBacker*);
-    void			wvltCreatedCB(CallBacker*);
+    void			wvltExtractedCB(CallBacker*);
+    void			extrDlgCloseCB(CallBacker*);
+    void			propDlgCloseCB(CallBacker*);
     void			rotUpdateCB(CallBacker*);
 };
 

@@ -22,6 +22,7 @@ class SeisTrcBuf;
 class TaskRunner;
 class uiSeisSel;
 class uiIOObjSel;
+class uiWaveletIOObjSel;
 class uiPickSetIOObjSel;
 class uiLabel;
 class uiGenInput;
@@ -66,7 +67,7 @@ protected:
 
     uiSeisSel*		seisfld_;
     uiIOObjSel*		horfld_;
-    uiIOObjSel*		wvltfld_;
+    uiWaveletIOObjSel*	wvltfld_;
     uiPickSetIOObjSel*	polyfld_;
     uiStratSeisEvent*	evfld_;
     uiGenInput*		finalscalefld_;

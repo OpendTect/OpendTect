@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uiwaveletextraction.h"
 
 #include "uigeninput.h"
-#include "uiioobjsel.h"
+#include "uiwaveletsel.h"
 #include "uimsg.h"
 #include "uiposprovgroupstd.h"
 #include "uiseislinesel.h"
@@ -83,6 +83,12 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
 }
 
 
+bool uiWaveletExtraction::is2D() const
+{
+    return !subselfld3d_;
+}
+
+
 void uiWaveletExtraction::createCommonUIFlds()
 {
     zextraction_ = new uiGenInput( this, tr("Vertical Extraction"),
@@ -113,9 +119,7 @@ void uiWaveletExtraction::createCommonUIFlds()
                                     IntInpSpec(0) );
     wvltphasefld_->attach( alignedBelow, taperfld_ );
 
-    IOObjContext wvltctxt( mIOObjContext(Wavelet) );
-    wvltctxt.forread_ = false;
-    outputwvltfld_ = new uiIOObjSel( this, wvltctxt );
+    outputwvltfld_ = new uiWaveletIOObjSel( this, false );
     outputwvltfld_->attach( alignedBelow, wvltphasefld_ );
 
     postFinalise().notify( mCB(this,uiWaveletExtraction,inputSelCB) );
@@ -217,11 +221,10 @@ void uiWaveletExtraction::lineSelCB( CallBacker* )
 bool uiWaveletExtraction::acceptOK( CallBacker* )
 {
     const IOObj* seisioobj = seisselfld_->ioobj();
-    if ( !seisioobj ) return false;
-
-    const IOObj* wvltioobj = outputwvltfld_->ioobj();
-    if ( !wvltioobj ) return false;
-
+    if ( !seisioobj )
+	return false;
+    if ( !outputwvltfld_->ioobj() )
+	return false;
     if ( linesel2dfld_ && !check2DFlds() )
 	return false;
 
@@ -259,7 +262,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
     if ( outputwvltfld_->existingTyped() )
 	outputwvltfld_->setConfirmOverwrite( true );
 
-    doProcess( *seisioobj, *wvltioobj, inputpars, surfacepars );
+    doProcess( *seisioobj, inputpars, surfacepars );
     return false;
 }
 
@@ -311,10 +314,10 @@ bool uiWaveletExtraction::check2DFlds()
 
 
 bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
-	const IOObj& wvltioobj, const IOPar& rangepar, const IOPar& surfacepar )
+			    const IOPar& rangepar, const IOPar& surfacepar )
 {
     const int phase = wvltphasefld_->getIntValue();
-    PtrMan<WaveletExtractor> extractor= new WaveletExtractor( seisioobj,
+    PtrMan<WaveletExtractor> extractor = new WaveletExtractor( seisioobj,
 							      wvltsize_ );
     if ( !linesel2dfld_ )
     {
@@ -359,11 +362,11 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
     if ( !TaskRunner::execute( &taskrunner, *extractor ) )
 	return false;
 
-    Wavelet storewvlt = extractor->getWavelet();
-    storewvlt.put( &wvltioobj );
-    extractionDone.trigger();
+    RefMan<Wavelet> reswvlt = extractor->getWavelet();
+    if ( outputwvltfld_->store(*reswvlt,false) )
+	{ extractionDone.trigger(); return true; }
 
-    return true;
+    return false;
 }
 
 
@@ -479,6 +482,5 @@ bool uiWaveletExtraction::getSelData( const IOPar& rangepar,
 
 MultiID uiWaveletExtraction::storeKey() const
 {
-    const IOObj* wvltioobj = outputwvltfld_->ioobj( true );
-    return wvltioobj ? wvltioobj->key() : MultiID("");
+    return outputwvltfld_->key( true );
 }

@@ -41,7 +41,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
-#include "uiseiswvltsel.h"
+#include "uiwaveletsel.h"
 #include "uiseparator.h"
 #include "uiwaveletextraction.h"
 #include "uiwellpropertyrefsel.h"
@@ -167,7 +167,8 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     sep = new uiSeparator( this, "Logs2Wavelt Sep" );
     sep->attach( stretchedBelow, logsgrp );
 
-    wvltfld_ = new uiSeisWaveletSel( this, "Reference wavelet" );
+    uiWaveletIOObjSel::Setup wvsu( tr("Reference wavelet") );
+    wvltfld_ = new uiWaveletIOObjSel( this, wvsu );
     wvltfld_->attach( alignedBelow, wellfld_ );
     wvltfld_->attach( ensureBelow, sep );
 
@@ -458,6 +459,10 @@ bool uiTieWinMGRDlg::initSetup()
     if ( !wellfld_->commitInput() )
 	mErrRet(uiStrings::phrSelect(tr("a valid well")))
 
+    wtsetup_.wvltid_ = wvltfld_->key();
+    if ( wtsetup_.wvltid_.isUdf() )
+	return false;
+
     const MultiID& wellid = wellfld_->ctxtIOObj().ioobj_->key();
     if ( wd_ )
 	wd_->unRef();
@@ -548,11 +553,6 @@ bool uiTieWinMGRDlg::initSetup()
     else
 	WellTie::Setup::CorrTypeDef().parse( cscorrfld_->box()->text(),
 				       wtsetup_.corrtype_ );
-
-    if ( !wvltfld_->getWavelet() )
-	mErrRet(uiStrings::phrSelect(tr("a valid wavelet")))
-
-    wtsetup_.wvltid_ = wvltfld_->getID();
 
     wtsetup_.commitDefaults();
     if ( saveButtonChecked() )

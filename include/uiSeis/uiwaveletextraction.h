@@ -17,6 +17,7 @@ class IOObj;
 namespace Seis { class SelData; class TableSelData; }
 class uiGenInput;
 class uiIOObjSel;
+class uiWaveletIOObjSel;
 class uiPosProvGroup;
 class uiSeisSel;
 class uiSeis2DMultiLineSel;
@@ -30,6 +31,7 @@ public:
 				uiWaveletExtraction(uiParent*,bool is2d);
 				~uiWaveletExtraction();
     MultiID			storeKey() const;
+    bool			is2D() const;
 
     Notifier<uiWaveletExtraction>	extractionDone;
 
@@ -42,8 +44,8 @@ protected:
     void			choiceSelCB(CallBacker*);
     void			inputSelCB(CallBacker*);
     void			lineSelCB(CallBacker*);
-    bool			doProcess(const IOObj&,const IOObj&,
-					  const IOPar&,const IOPar&);
+    bool			doProcess(const IOObj&,const IOPar&,
+					  const IOPar&);
     bool                        getSelData(const IOPar&,const IOPar&);
     bool			fillHorizonSelData(const IOPar&,const IOPar&,
 						   Seis::TableSelData&);
@@ -52,7 +54,7 @@ protected:
     uiGenInput*			wtlengthfld_;
     uiGenInput*			wvltphasefld_;
     uiGenInput*			taperfld_;
-    uiIOObjSel*			outputwvltfld_;
+    uiWaveletIOObjSel*		outputwvltfld_;
     uiPosProvGroup*		surfacesel_;
     uiSeisSel*			seisselfld_;
     uiSeis2DMultiLineSel*	linesel2dfld_;

@@ -18,27 +18,6 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "settings.h"
 
-IOPar& uiIOFileSelect::ixtablehistory()
-{ return *new IOPar("IXTable selection history"); }
-IOPar& uiIOFileSelect::tmpstoragehistory()
-{ return *new IOPar("Temporay storage selection history"); }
-
-
-uiObject* uiIOSelect::endObj( bool left )
-{
-    if ( !left )
-	return selbut_ ? (uiObject*)selbut_ : (uiObject*)inp_;
-
-    if ( optbox_ )
-	return optbox_;
-    else if ( lbl_ )
-	return lbl_;
-    else if ( !extselbuts_.isEmpty() )
-	return extselbuts_[ extselbuts_.size()-1 ];
-
-    return inp_;
-}
-
 
 uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	: uiGroup(p)
@@ -46,10 +25,10 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	, selectionDone(this)
 	, optionalChecked(this)
 	, keepmytxt_(su.keepmytxt_)
+	, haveempty_(su.withclear_)
 	, optbox_(0)
 	, selbut_(0)
 	, lbl_(0)
-	, haveempty_(su.withclear_)
 {
     inp_ = new uiComboBox( this,
 			BufferString("Select ",su.seltxt_.getFullString()) );
@@ -63,18 +42,20 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	optbox_ = new uiCheckBox( this, su.seltxt_ );
 	optbox_->activated.notify( mCB(this,uiIOSelect,optCheck) );
     }
-    else
+    else if ( !su.compact_ )
     {
 	lbl_ = new uiLabel( this, su.seltxt_ );
 	lbl_->setAlignment( OD::Alignment::Right );
     }
 
     const CallBack selcb( mCB(this,uiIOSelect,doSel) );
-    if ( su.buttontxt_.isEqualTo( uiStrings::sSelect() ) )
-	selbut_ = uiButton::getStd( this, OD::Select, selcb, false );
-    else if ( !su.buttontxt_.isEmpty() )
-	selbut_ = new uiPushButton( this, su.buttontxt_, selcb, false );
-
+    if ( !su.compact_ )
+    {
+	if ( su.buttontxt_.isEqualTo( uiStrings::sSelect() ) )
+	    selbut_ = uiButton::getStd( this, OD::Select, selcb, false );
+	else if ( !su.buttontxt_.isEmpty() )
+	    selbut_ = new uiPushButton( this, su.buttontxt_, selcb, false );
+    }
     if ( selbut_ )
     {
 	BufferString butnm( su.buttontxt_.getFullString(), " " );
@@ -102,23 +83,32 @@ void uiIOSelect::setHSzPol( uiObject::SzPolicy pol )
 }
 
 
-void uiIOSelect::addExtSelBut( uiButton* but )
+void uiIOSelect::addButton( uiButton* but, bool ins )
 {
     if ( but )
-	extselbuts_ += but;
+	(ins ? insbuts_ : extbuts_) += but;
 }
 
 
 void uiIOSelect::doFinalise( CallBacker* cb )
 {
+    uiObject* rightmost = inp_;
     if ( selbut_ )
+    {
 	selbut_->attach( rightOf, inp_ );
+	rightmost = selbut_;
+    }
+    for ( int idx=0; idx<extbuts_.size(); idx++ )
+    {
+	extbuts_[idx]->attach( rightOf, rightmost );
+	rightmost = extbuts_[idx];
+    }
 
     uiObject* leftmost = inp_;
-    for ( int idx=0; idx<extselbuts_.size(); idx++ )
+    for ( int idx=0; idx<insbuts_.size(); idx++ )
     {
-	extselbuts_[idx]->attach( leftOf, leftmost );
-	leftmost = extselbuts_[idx];
+	insbuts_[idx]->attach( leftOf, leftmost );
+	leftmost = insbuts_[idx];
     }
     if ( lbl_ )
     {
@@ -127,6 +117,26 @@ void uiIOSelect::doFinalise( CallBacker* cb )
     }
     if ( optbox_ )
 	optbox_->attach( leftOf, leftmost );
+}
+
+
+uiObject* uiIOSelect::endObj( bool left )
+{
+    if ( !left )
+    {
+	if ( !extbuts_.isEmpty() )
+	    return extbuts_.last();
+	return selbut_ ? (uiObject*)selbut_ : (uiObject*)inp_;
+    }
+
+    if ( optbox_ )
+	return optbox_;
+    else if ( lbl_ )
+	return lbl_;
+    else if ( !insbuts_.isEmpty() )
+	return insbuts_[ insbuts_.size()-1 ];
+
+    return inp_;
 }
 
 
@@ -427,14 +437,13 @@ void uiIOSelect::setReadOnly( bool yn )
     inp_->setReadOnly( yn );
 }
 
-uiString emptystring;
 
 const uiString& uiIOSelect::labelText() const
 {
 
     return lbl_
 	? lbl_->text()
-	: (optbox_ ? optbox_->text() : emptystring );
+	: (optbox_ ? optbox_->text() : uiString::emptyString() );
 }
 
 
@@ -455,46 +464,4 @@ void uiIOSelect::setLabelSelectable( bool yn )
 {
     if ( lbl_ )
 	lbl_->setTextSelectable( yn );
-}
-
-
-uiIOFileSelect::uiIOFileSelect( uiParent* p, const uiString& txt, bool frrd,
-				const char* inp, bool wclr )
-	: uiIOSelect(p,uiIOSelect::Setup(txt).withclear(wclr),
-			mCB(this,uiIOFileSelect,doFileSel))
-	, forread(frrd)
-	, seldir(false)
-{
-    if ( inp && *inp ) setInput( inp );
-}
-
-
-void uiIOFileSelect::doFileSel( CallBacker* c )
-{
-    uiString caption = uiStrings::phrSelect(labelText());
-    uiFileDialog fd( this, forread, getInput(),
-		     filter.isEmpty() ? 0 : (const char*)filter, caption );
-    if ( seldir )
-	fd.setMode( uiFileDialog::DirectoryOnly );
-
-    if ( fd.go() )
-    {
-	setInput( fd.fileName() );
-	selDone( 0 );
-    }
-}
-
-
-bool uiIOFileSelect::fillPar( IOPar& iopar ) const
-{
-    const char* res = getInput();
-    iopar.set( "File name", res );
-    return res && *res && File::exists(res);
-}
-
-
-void uiIOFileSelect::usePar( const IOPar& iopar )
-{
-    const char* res = iopar.find( "File name" );
-    if ( res ) setInput( res );
 }

@@ -534,10 +534,10 @@ void Wavelet::transform( float constant, float factor )
 
 void Wavelet::normalize()
 {
-    mLock4Write();
-    transform( 0, 1.f/mMAX( fabs(getExtrValue(true)),
-		  fabs(getExtrValue(false))) );
-    mSendEntireObjChgNotif();
+    const Interval<float> rg( getExtrValue(true), getExtrValue(false) );
+    if ( rg.start == 0 && rg.stop == 0 )
+	return;
+    transform( 0, 1.f / mMAX( fabs(rg.start),fabs(rg.stop)) );
 }
 
 

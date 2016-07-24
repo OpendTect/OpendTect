@@ -14,7 +14,6 @@
 #include "factory.h"
 #include "fourier.h"
 #include "genericnumer.h"
-#include "ioman.h"
 #include "muter.h"
 #include "reflectivitysampler.h"
 #include "raytrace1d.h"
@@ -27,7 +26,7 @@
 #include "sorting.h"
 #include "survinfo.h"
 #include "velocitycalc.h"
-#include "wavelet.h"
+#include "waveletmanager.h"
 #include "ioobj.h"
 
 
@@ -44,7 +43,6 @@ SynthGenBase::SynthGenBase()
     , isfourier_(true)
     , stretchlimit_( cStdStretchLimit() ) //20%
     , mutelength_( cStdMuteLength() )  //20ms
-    , waveletismine_(false)
     , applynmo_(false)
     , outputsampling_(mUdf(float),-mUdf(float),mUdf(float))
     , dointernalmultiples_(false)
@@ -55,35 +53,21 @@ SynthGenBase::SynthGenBase()
 
 SynthGenBase::~SynthGenBase()
 {
-    if ( waveletismine_ )
-	delete wavelet_;
 }
 
 
-bool SynthGenBase::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
+void SynthGenBase::setWavelet( const Wavelet* wvlt )
 {
-    if ( waveletismine_ )
-	{ delete wavelet_; wavelet_ = 0; }
-    if ( !wvlt )
-	mErrRet(tr("No valid wavelet given"), false);
-    if ( pol != OD::CopyPtr )
-	wavelet_ = wvlt;
-    else
-	wavelet_ = new Wavelet( *wvlt );
-
-    waveletismine_ = pol != OD::UsePtr;
-    return true;
+    wavelet_ = wvlt;
 }
 
 
 void SynthGenBase::fillPar( IOPar& par ) const
 {
     if ( wavelet_ )
-    {
-	PtrMan<IOObj> wvlobj = Wavelet::getIOObj( wavelet_->name() );
-	if ( wvlobj )
-	    par.set( sKey::WaveletID(), wvlobj->key() );
-    }
+	par.set( sKey::WaveletID(), WaveletMGR().getID(*wavelet_) );
+    else
+	par.removeWithKey( sKey::WaveletID() );
 
     par.setYN( sKeyFourier(), isfourier_ );
     par.setYN( sKeyNMO(), applynmo_ );
@@ -98,11 +82,7 @@ bool SynthGenBase::usePar( const IOPar& par )
 {
     MultiID waveletid;
     if ( par.get(sKey::WaveletID(),waveletid) )
-    {
-	waveletismine_ = true;
-	IOObj* ioobj = IOM().get( waveletid );
-	wavelet_ = Wavelet::get( ioobj );
-    }
+	wavelet_ = WaveletMGR().fetch( waveletid );
 
     const bool doint = par.getYN( sKeyInternal(), dointernalmultiples_ );
     if ( doint )
@@ -246,11 +226,10 @@ bool SynthGenerator::setModel( const ReflectivityModel& refmodel )
 }
 
 
-bool SynthGenerator::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
+void SynthGenerator::setWavelet( const Wavelet* wvlt )
 {
     freqwavelet_.erase();
-
-    return SynthGenBase::setWavelet( wvlt, pol );
+    SynthGenBase::setWavelet( wvlt );
 }
 
 
@@ -658,7 +637,7 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 
 	IOPar par; fillPar( par ); synthgen.usePar( par );
 	if ( wavelet_ )
-	    synthgen.setWavelet( wavelet_, OD::UsePtr );
+	    synthgen.setWavelet( wavelet_ );
 	synthgen.setOutSampling( outputsampling_ );
 	if ( !synthgen.doWork() )
 	    mErrRet( synthgen.errMsg(), false );
@@ -833,7 +812,7 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 	multitracegen.setOutSampling( outputsampling_ );
 	multitracegen.usePar( par );
 	if ( wavelet_ )
-	    multitracegen.setWavelet( wavelet_, OD::UsePtr );
+	    multitracegen.setWavelet( wavelet_ );
 
 	if ( !multitracegen.execute() )
 	    mErrRet( multitracegen.errMsg(), false )

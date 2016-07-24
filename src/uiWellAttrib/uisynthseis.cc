@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uisplitter.h"
 #include "uispinbox.h"
-#include "uiseiswvltsel.h"
+#include "uiwaveletsel.h"
 
 #include "synthseis.h"
 
@@ -36,10 +36,9 @@ uiSynthSeisGrp::uiSynthSeisGrp( uiParent* p, const uiRayTracer1D::Setup& su )
     rtsel_ = new uiRayTracerSel( this, su );
     rtsel_->offsetChanged.notify( mCB(this,uiSynthSeisGrp,parsChangedCB) );
 
-    wvltfld_ = new uiSeisWaveletSel( this );
-    wvltfld_->newSelection.notify( mCB(this,uiSynthSeisGrp,parsChangedCB) );
+    wvltfld_ = new uiWaveletIOObjSel( this );
+    wvltfld_->selectionDone.notify( mCB(this,uiSynthSeisGrp,parsChangedCB) );
     wvltfld_->attach( alignedBelow, rtsel_ );
-    wvltfld_->setFrame( false );
 
     uiSeparator* lastsep = 0;
     if ( su.doreflectivity_ )
@@ -123,13 +122,13 @@ void uiSynthSeisGrp::setRayTracerType( const char* type )
 
 const char* uiSynthSeisGrp::getWaveletName() const
 {
-    return wvltfld_->getWvltName();
+    return wvltfld_->getInput();
 }
 
 
 void uiSynthSeisGrp::setWavelet( const char* wvltnm )
 {
-    wvltfld_->setInput( wvltnm );
+    wvltfld_->setInputText( wvltnm );
 }
 
 #define mIsZeroOffset( offsets ) \
@@ -177,7 +176,7 @@ void uiSynthSeisGrp::fillPar( IOPar& iopar ) const
     iopar.setEmpty();
 
     rtsel_->fillPar( iopar );
-    iopar.set( sKey::WaveletID(), wvltfld_->getID() );
+    iopar.set( sKey::WaveletID(), wvltfld_->key(true) );
 
     const bool iszeroffset = rtsel_->current()->isZeroOffset();
     if ( iszeroffset )

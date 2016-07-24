@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
-#include "uiioobjsel.h"
+#include "uiwaveletsel.h"
 #include "uispinbox.h"
 #include "od_helpids.h"
 
@@ -53,7 +53,7 @@ static const char* outpstrs3d[] =
 
 static const char* outpstrs2d[] =
 {
-    	"Average gradient",
+	"Average gradient",
 	"Line gradient",
         "Time gradient",
         0
@@ -81,17 +81,17 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
     const uiString spherestr = is2d ? tr("Circle") : tr("Sphere");
     const uiString cubestr = is2d ? tr("Square") : uiStrings::sCube();
     shapefld_ = new uiGenInput( this, tr("Shape"),
-	    			BoolInpSpec(true, spherestr, cubestr) );
+				BoolInpSpec(true, spherestr, cubestr) );
     shapefld_->attach( alignedBelow, szfld_ );
 
     outpfld_ = new uiGenInput( this, uiStrings::sOutput(),
-		               StringListInpSpec( is2d_ ? outpstrs2d 
+		               StringListInpSpec( is2d_ ? outpstrs2d
                                                         : outpstrs3d) );
     outpfld_->attach( alignedBelow, kernelfld_ );
 
-    waveletfld_ = new uiIOObjSel( this, mIOObjContext(Wavelet) );
+    waveletfld_ = new uiWaveletIOObjSel( this, true );
     waveletfld_->attach( alignedBelow, kernelfld_ );
-    waveletfld_->display(false);
+    waveletfld_->display( false );
 
     kernelSel(0);
     setHAlignObj( inpfld_ );
@@ -133,7 +133,7 @@ bool uiConvolveAttrib::setParameters( const Desc& desc )
     mIfGetEnum( Convolve::shapeStr(), shape, shapefld_->setValue(shape) )
     mIfGetInt( Convolve::sizeStr(), size, szfld_->box()->setValue(size) )
     mIfGetString( Convolve::waveletStr(), wavidstr,
-	    	  setFldInp(waveletfld_,wavidstr) )
+		  setFldInp(waveletfld_,wavidstr) )
 
     kernelSel(0);
     return true;
@@ -172,8 +172,11 @@ bool uiConvolveAttrib::getParameters( Desc& desc )
 	mSetInt( Convolve::sizeStr(), szfld_->box()->getIntValue() );
     }
     else if ( typeval == 3 )
-	if ( waveletfld_->ioobj(true) )
-	    mSetString( Convolve::waveletStr(), waveletfld_->key().buf() );
+    {
+	const MultiID ky( waveletfld_->key(true) );
+	if ( !ky.isUdf() )
+	    mSetString( Convolve::waveletStr(), ky.buf() );
+    }
 
     return true;
 }

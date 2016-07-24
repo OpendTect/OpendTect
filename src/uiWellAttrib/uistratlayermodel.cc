@@ -32,7 +32,7 @@ ________________________________________________________________________
 #include "stratsynth.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-#include "wavelet.h"
+#include "waveletmanager.h"
 
 #include "uichecklist.h"
 #include "uielasticpropsel.h"
@@ -613,7 +613,7 @@ bool uiStratLayerModel::checkUnscaledWavelet()
     const Wavelet* wvlt = synthdisp_->getWavelet();
     if ( !wvlt )
 	return false;
-    if ( Wavelet::isScaled(synthdisp_->waveletID()) )
+    if ( WaveletMGR().isScaled(synthdisp_->waveletID()) )
 	return true;
 
     BufferStringSet opts;
@@ -632,7 +632,7 @@ bool uiStratLayerModel::checkUnscaledWavelet()
 	return true;
     else if ( choice == 1 )
     {
-	Wavelet::markScaled( synthdisp_->waveletID() );
+	WaveletMGR().setScalingInfo( synthdisp_->waveletID(), &MultiID::udf() );
 	return true;
     }
 

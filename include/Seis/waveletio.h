@@ -6,15 +6,64 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
- Date:		Feb 2015
+ Date:		July 2016
 ________________________________________________________________________
 
 -*/
 
 #include "seiscommon.h"
+#include "saveable.h"
+#include "wavelet.h"
 #include "transl.h"
 #include "tableascio.h"
-class Wavelet;
+#include "ptrman.h"
+
+
+/*!\brief Loader for Wavelet. Loads into WaveletMGR(). */
+
+mExpClass(Seis) WaveletLoader
+{ mODTextTranslationClass(WaveletLoader)
+public:
+
+			WaveletLoader(const MultiID&);
+			WaveletLoader(const IOObj*);
+			~WaveletLoader();
+
+    uiRetVal		load();
+
+protected:
+
+    IOObj*		ioobj_;
+
+public:
+
+    uiRetVal		read(Wavelet*&);
+    bool		addToMGR(Wavelet*,const MultiID&);
+
+};
+
+
+/*!\brief Saveable for Wavelet. */
+
+mExpClass(Seis) WaveletSaver : public OD::Saveable
+{ mODTextTranslationClass(WaveletSaver)
+public:
+
+			WaveletSaver(const Wavelet&);
+			mDeclMonitorableAssignment(WaveletSaver);
+			~WaveletSaver();
+
+    ConstRefMan<Wavelet> wavelet() const;
+    void		setWavelet(const Wavelet&);
+
+    mDeclInstanceCreatedNotifierAccess(WaveletSaver);
+
+protected:
+
+    virtual bool	doStore(const IOObj&) const;
+
+};
+
 
 
 mExpClass(Seis) WaveletTranslatorGroup : public TranslatorGroup

@@ -37,12 +37,14 @@ public:
 			    : seltxt_(seltext)
 			    , withclear_(false)
 			    , buttontxt_(uiStrings::sSelect())
+			    , compact_(false)
 			    , optional_(false)
 			    , keepmytxt_(false)		{}
 
 	mDefSetupMemb(uiString,seltxt)
 	mDefSetupMemb(uiString,buttontxt)
 	mDefSetupMemb(bool,withclear)
+	mDefSetupMemb(bool,compact)
 	mDefSetupMemb(bool,optional)
 	mDefSetupMemb(bool,keepmytxt)
     };
@@ -50,9 +52,7 @@ public:
 			uiIOSelect(uiParent*,const Setup&,const CallBack&);
 			~uiIOSelect();
 
-			// before finalise:
-    void		addExtSelBut(uiButton*);
-
+    virtual bool	forRead() const		    { return true; }
     bool		isEmpty() const;
     const char*		getInput() const;
     const char*		getKey() const;
@@ -79,6 +79,7 @@ public:
     virtual void	processInput()		{}
     void		setReadOnly(bool readonly=true);
 
+    void		addButton(uiButton*,bool insbut); //!< before finalise
     void		doSel(CallBacker*);
 			//!< Called by Select button push.
 			//!< Make sure selok_ is true if that is the case!
@@ -102,10 +103,11 @@ protected:
     bool		selok_;
     bool		keepmytxt_;
     CallBack		doselcb_;
+    ObjectSet<uiButton>	insbuts_;
+    ObjectSet<uiButton>	extbuts_;
 
     uiComboBox*		inp_;
     uiButton*		selbut_;
-    ObjectSet<uiButton>	extselbuts_;
     uiLabel*		lbl_;
     uiCheckBox*		optbox_;
 
@@ -129,32 +131,5 @@ protected:
     void		doFinalise(CallBacker*);
 };
 
-
-mExpClass(uiTools) uiIOFileSelect : public uiIOSelect
-{ mODTextTranslationClass(uiIOFileSelect);
-public:
-			uiIOFileSelect(uiParent*,const uiString& txt,
-					bool for_read,
-					const char* inp=0,
-					bool withclear=false);
-
-    void		setFilter( const char* f )	{ filter = f; }
-    void		selectDirectory( bool yn=true )	{ seldir = yn; }
-
-    bool		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
-
-			// Some standard types of files
-    static IOPar&	ixtablehistory();
-    static IOPar&	tmpstoragehistory();
-
-protected:
-
-    void		doFileSel(CallBacker*);
-    bool		forread;
-    BufferString	filter;
-    bool		seldir;
-
-};
 
 #endif

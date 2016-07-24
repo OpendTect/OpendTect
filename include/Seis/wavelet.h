@@ -16,9 +16,8 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "ranges.h"
 #include "valseries.h"
-template <class T> class ValueSeriesInterpolator;
 template <class T> class TypeSet;
-class IOObj; //TODO remove
+template <class T> class ValueSeriesInterpolator;
 
 
 mExpClass(Seis) Wavelet : public RefCount::Referenced
@@ -44,6 +43,7 @@ public:
     mImplSimpleMonitoredGetSet(inline,centerSample,setCenterSample,
 				    IdxType,cidx_,cParChange())
     size_type		size() const;
+    inline bool		isEmpty() const		    { return size() < 1; }
     bool		validIdx(IdxType) const;
     ValueType		get(IdxType) const;
     ValueType		getValue(ZType) const;
@@ -87,27 +87,10 @@ protected:
 
     ValueSeriesInterpolator<ValueType>* intpol_;
 
-    void		doReSize(int); // destroys current sample data!
+    void		doReSize(int);
     StepInterval<ZType>	gtSamplePositions() const;
 
     friend class	WaveletValueSeries;
-
-public:
-
-    //TODO move into IO stuff
-    static Wavelet*	get(const IOObj*);
-    static IOObj*	getIOObj(const char* waveletnm);
-    bool		put(const IOObj*) const;
-
-    static void		markScaled(const MultiID& id); //!< "External"
-    static void		markScaled(const MultiID& id,const MultiID& orgid,
-				   const MultiID& horid,const MultiID& seisid,
-				   const char* lvlnm);
-    static bool		isScaled(const MultiID&);
-    static bool		isScaled(const MultiID& id,MultiID& orgid,
-					MultiID& horid,MultiID& seisid,
-					BufferString& lvlnm);
-					//!< if external, orgid will be "0"
 
 };
 

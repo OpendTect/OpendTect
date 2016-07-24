@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiAttrSel;
 class uiGenInput;
 class uiLabeledSpinBox;
-class uiIOObjSel;
+class uiWaveletIOObjSel;
 
 /*! \brief Convolve Attribute description editor */
 
@@ -37,7 +37,7 @@ protected:
     uiGenInput*         kernelfld_;
     uiGenInput*         shapefld_;
     uiGenInput*         outpfld_;
-    uiIOObjSel*         waveletfld_;
+    uiWaveletIOObjSel*	waveletfld_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
@@ -49,7 +49,7 @@ protected:
 
     void		kernelSel(CallBacker*);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 

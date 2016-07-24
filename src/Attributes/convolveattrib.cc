@@ -10,10 +10,7 @@
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "ptrman.h"
-#include "ioman.h"
-#include "ioobj.h"
-#include "wavelet.h"
+#include "waveletmanager.h"
 #include "genericnumer.h"
 
 
@@ -292,10 +289,12 @@ Convolve::Convolve( Desc& ds )
     {
 	BufferString wavidstr;
 	mGetString( wavidstr, waveletStr() );
-	IOObj* ioobj = IOM().get( MultiID(wavidstr) );
-	wavelet_ = Wavelet::get( ioobj );
-	if ( !wavelet_ ) return;
+	ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( MultiID(wavidstr) );
+	if ( !wvlt )
+	    return;
 
+	wavelet_ = wvlt->clone();
+	wavelet_->ref();
 	int wvletmididx = wavelet_->centerSample();
 	dessampgate_ = Interval<int>( -wvletmididx, wvletmididx );
 
@@ -309,8 +308,9 @@ Convolve::Convolve( Desc& ds )
 
 Convolve::~Convolve()
 {
-    if ( kernel_ ) delete kernel_;
-    if ( wavelet_ ) delete wavelet_;
+    delete kernel_;
+    if ( wavelet_ )
+	wavelet_->unRef();
 }
 
 

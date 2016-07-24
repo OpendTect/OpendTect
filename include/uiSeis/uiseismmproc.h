@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uimmbatchjobdispatch.h"
 
 class uiGenInput;
-class uiIOFileSelect;
+class uiFileInput;
 class uiSeisIOObjInfo;
 class SeisJobExecProv;
 
@@ -35,7 +35,7 @@ protected:
     bool		lsfileemitted_;
     int			nrinlperjob_;
 
-    uiIOFileSelect*	tmpstordirfld_;
+    uiFileInput*	tmpstordirfld_;
     uiGenInput*		inlperjobfld_;
 
     virtual bool	initWork(bool);

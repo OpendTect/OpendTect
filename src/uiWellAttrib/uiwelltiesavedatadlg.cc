@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uichecklist.h"
 #include "uigeninput.h"
-#include "uiioobjsel.h"
+#include "uiwaveletsel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistrings.h"
@@ -82,16 +82,15 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     wvltchk_ = new uiCheckBox( wvltgrp, uiStrings::sWavelet() );
     wvltchk_->activated.notify( mCB(this,uiSaveDataDlg,saveWvltSelCB) );
 
-    IOObjContext ctxt = mIOObjContext(Wavelet);
-    ctxt.forread_ = false;
-    uiIOObjSel::Setup su( tr("Initial wavelet") ); su.optional( true );
+    uiWaveletIOObjSel::Setup su( tr("Initial wavelet") );
+    su.optional( true );
 
-    initwvltsel_ = new uiIOObjSel( wvltgrp, ctxt, su );
+    initwvltsel_ = new uiWaveletIOObjSel( wvltgrp, su, false );
     initwvltsel_->setInputText( data.initwvlt_.name() );
     initwvltsel_->attach( alignedBelow, wvltchk_ );
 
     su.seltxt_ = tr("Estimated wavelet");
-    estimatedwvltsel_ = new uiIOObjSel( wvltgrp, ctxt, su );
+    estimatedwvltsel_ = new uiWaveletIOObjSel( wvltgrp, su, false );
     estimatedwvltsel_->setInputText( data.estimatedwvlt_.name() );
     estimatedwvltsel_->attach( alignedBelow, initwvltsel_ );
 }
@@ -201,15 +200,15 @@ bool uiSaveDataDlg::saveLogs()
 }
 
 
-bool uiSaveDataDlg::saveWvlt( bool isestimated )
+bool uiSaveDataDlg::saveWvlt( bool useest )
 {
-    uiIOObjSel& wvltsel = isestimated ? *estimatedwvltsel_ : *initwvltsel_;
+    uiWaveletIOObjSel& wvltsel = useest ? *estimatedwvltsel_ : *initwvltsel_;
     if ( !wvltsel.isChecked() )
 	return true;
 
     const Data& data = dataserver_.data();
-    const Wavelet& wvlt = isestimated ? data.estimatedwvlt_ : data.initwvlt_;
-    if ( !wvlt.size() && isestimated )
+    const Wavelet& wvlt = useest ? data.estimatedwvlt_ : data.initwvlt_;
+    if ( !wvlt.size() && useest )
     {
 	uiString msg = tr( "No estimated wavelet yet" );
 	msg.append(
@@ -217,14 +216,7 @@ bool uiSaveDataDlg::saveWvlt( bool isestimated )
 	mErrRet( msg )
     }
 
-    const IOObj* wvltioobj = wvltsel.ioobj();
-    if ( !wvltioobj )
-	return false;
-
-    if ( !wvlt.put(wvltioobj) )
-	mErrRet( tr( "Cannot write output wavelet" ) )
-
-    return true;
+    return wvltsel.store( wvlt );
 }
 
 

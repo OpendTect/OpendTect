@@ -22,7 +22,7 @@ class Wavelet;
 class uiCheckBox;
 class uiLabeledComboBox;
 class uiGenInput;
-class uiIOObjSel;
+class uiWaveletIOObjSel;
 class uiFuncSelDraw;
 
 
@@ -38,8 +38,7 @@ protected:
 
     bool		putWvlt(const Wavelet&);
 
-    CtxtIOObj&		ctio_;
-    uiIOObjSel*		wvltfld_;
+    uiWaveletIOObjSel*	wvltfld_;
 };
 
 
@@ -55,7 +54,7 @@ protected:
     uiGenInput*		freqfld_;
     uiGenInput*		srfld_;
     uiGenInput*		peakamplfld_;
-    
+
     bool		acceptOK(CallBacker*);
 };
 
@@ -71,10 +70,10 @@ public:
 
 	StepInterval<float> samppos_;
 	TypeSet<float>	samples_;
-	float 		getValue(float) const;
-	float 		getIntValue(float) const;
-	virtual float 	getValue( const float* p ) const
-	    		{ return getValue(*p); }
+	float		getValue(float) const;
+	float		getIntValue(float) const;
+	virtual float	getValue( const float* p ) const
+			{ return getValue(*p); }
     };
 
 			uiSeisWvltMerge(uiParent*,const char* curwvltnm=0);
@@ -82,10 +81,10 @@ public:
 
 protected:
 
-    BufferString 	curwvltnm_;
-    int 		maxwvltsize_;			
+    BufferString	curwvltnm_;
+    int		maxwvltsize_;
     BufferStringSet	namelist_;
-    Wavelet*		stackedwvlt_;
+    RefMan<Wavelet>	stackedwvlt_;
     ObjectSet<WvltMathFunction> wvltfuncset_;
     ObjectSet<uiFuncSelDraw> wvltdrawer_;
     ObjectSet<Wavelet>  wvltset_;
@@ -94,19 +93,19 @@ protected:
     uiCheckBox*		centerfld_;
     uiLabeledComboBox*	centerchoicefld_;
 
-    void 		constructDrawer(bool);
-    void 		clearStackedWvlt(uiFuncSelDraw*);   
-    uiFuncSelDraw* 	getCurrentDrawer(); 
-    void 		centerToMaxEnergyPos(Wavelet&); 
-    void 		centerToMaxAmplPos(Wavelet&); 
-    void 		makeStackedWvlt();    
-    void 		reloadWvlts();
-    void 		reloadFunctions();
+    void		constructDrawer(bool);
+    void		clearStackedWvlt(uiFuncSelDraw*);
+    uiFuncSelDraw*	getCurrentDrawer();
+    void		centerToMaxEnergyPos(Wavelet&);
+    void		centerToMaxAmplPos(Wavelet&);
+    void		makeStackedWvlt();
+    void		reloadWvlts();
+    void		reloadFunctions();
 
     bool		acceptOK(CallBacker*);
-    void 		centerChged(CallBacker*);
-    void 		funcSelChg(CallBacker*);    
-    void 		reloadAll(CallBacker*);
+    void		centerChged(CallBacker*);
+    void		funcSelChg(CallBacker*);
+    void		reloadAll(CallBacker*);
 };
 
 

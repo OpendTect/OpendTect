@@ -23,9 +23,8 @@ ________________________________________________________________________
 #include "genc.h"
 
 #include "uilabel.h"
-#include "uiiosel.h"
 #include "uimsg.h"
-#include "uigeninput.h"
+#include "uifileinput.h"
 #include "od_helpids.h"
 
 
@@ -58,7 +57,7 @@ static int defltNrInlPerJob( const IOPar& inputpar )
     const InlineSplitJobDescProv jdp( inputpar );
     StepInterval<int> inlrg; jdp.getRange( inlrg );
     const int nrinls = inlrg.nrSteps() + 1;
-    
+
     int nr_inl_job = -1;
     inputpar.get( mNrInlPerJobProcKey, nr_inl_job );
     nr_inl_job = mMIN( nrinls, nr_inl_job );
@@ -122,7 +121,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 		     .arg(idres));
 
     nrinlperjob_ = defltNrInlPerJob( jobpars_ );
-   
+
     const_cast<bool&>(is2d_) = outioobjinfo_->is2D();
     const bool doresume = Batch::JobDispatcher::userWantsResume(iop)
 			&& SeisJobExecProv::isRestart(iop);
@@ -160,13 +159,12 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	}
 	else
 	{
-	    tmpstordirfld_ = new uiIOFileSelect( specparsgroup_,
-			    uiStrings::sTmpStor(), false, tmpstordir );
-	    tmpstordirfld_->usePar( uiIOFileSelect::tmpstoragehistory() );
+	    uiFileInput::Setup fisu( uiFileDialog::Gen );
+	    fisu.directories( true );
+	    tmpstordirfld_ = new uiFileInput( specparsgroup_,
+					      uiStrings::sTmpStor(), fisu );
 	    if ( !tmpstordir.isEmpty() && File::isDirectory(tmpstordir) )
-		tmpstordirfld_->setInput( tmpstordir );
-	    tmpstordirfld_->selectDirectory( true );
-	    tmpstordirfld_->setHSzPol( uiObject::MedMax );
+		tmpstordirfld_->setFileName( tmpstordir );
 	    inlperjobattach = tmpstordirfld_->mainObject();
 	}
 
@@ -202,7 +200,7 @@ bool uiSeisMMProc::initWork( bool retry )
 	    jobpars_.get( sKey::TmpStor(), tmpstordir );
 	else
 	{
-	    tmpstordir = tmpstordirfld_->getInput();
+	    tmpstordir = tmpstordirfld_->fileName();
 	    if ( !File::isWritable(tmpstordir) )
 		mErrRet(tr("The temporary storage directory is not writable"))
 	    tmpstordir = SeisJobExecProv::getDefTempStorDir( tmpstordir );

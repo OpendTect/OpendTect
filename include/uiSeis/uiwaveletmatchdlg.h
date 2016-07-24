@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiFunctionDisplay;
 class uiGenInput;
-class uiWaveletSel;
+class uiWaveletIOObjSel;
 class Wavelet;
 
 mExpClass(uiSeis) uiWaveletMatchDlg : public uiDialog
@@ -40,9 +40,9 @@ protected:
     uiFunctionDisplay*	wvltoutdisp_;
     uiFunctionDisplay*	wvltqcdisp_;
 
-    uiWaveletSel*	wvlt0fld_;
-    uiWaveletSel*	wvlt1fld_;
-    uiWaveletSel*	wvltoutfld_;
+    uiWaveletIOObjSel*	wvlt0fld_;
+    uiWaveletIOObjSel*	wvlt1fld_;
+    uiWaveletIOObjSel*	wvltoutfld_;
     uiGenInput*		filterszfld_;
 
     MultiID		wvltid_;

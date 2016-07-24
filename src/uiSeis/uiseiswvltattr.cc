@@ -52,7 +52,7 @@ void uiSeisWvltSliderDlg::constructSlider( uiSlider::Setup& su,
 
 uiSeisWvltSliderDlg::~uiSeisWvltSliderDlg()
 {
-    delete orgwvlt_;
+    orgwvlt_->unRef();
     delete wvltattr_;
 }
 
@@ -279,32 +279,45 @@ uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet& w )
 
 
 uiWaveletDispPropDlg::~uiWaveletDispPropDlg()
-{}
+{
+}
 
 
 //Wavelet display properties
 uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 	    : uiGroup(p,"Properties")
-	    ,wvltattr_(new WaveletAttrib(wvlt))
-	    ,wvltsz_(wvlt.size())
+	    , wvlt_(wvlt)
+	    , wvltsz_(wvlt.size())
+	    , wvltattr_(new WaveletAttrib(wvlt))
 {
-    timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop);
+    wvlt_.ref();
+    timerange_.set( wvlt_.samplePositions().start,wvlt_.samplePositions().stop);
     timerange_.scale( SI().showZ2UserFactor() );
-    const float maxfreq = 1.f / wvlt.sampleRate();
+    const float maxfreq = 1.f / wvlt_.sampleRate();
     const float zfac = getFreqXAxisScaler();
     freqrange_.set( 0.f, Math::Ceil( maxfreq*zfac ) );
 
     for ( int iattr=0; iattr<3; iattr++ )
 	addAttrDisp( iattr );
 
-    setAttrCurves( wvlt );
+    setAttrCurves();
+    mAttachCB( wvlt_.objectChanged(), uiWaveletDispProp::wvltChgCB );
 }
 
 
 uiWaveletDispProp::~uiWaveletDispProp()
 {
+    detachAllNotifiers();
     deepErase( attrarrays_ );
     delete wvltattr_;
+    wvlt_.unRef();
+}
+
+
+void uiWaveletDispProp::wvltChgCB( CallBacker* )
+{
+    wvltsz_ = wvlt_.size();
+    setAttrCurves();
 }
 
 
@@ -340,9 +353,9 @@ void uiWaveletDispProp::addAttrDisp( int attridx )
 }
 
 
-void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
+void uiWaveletDispProp::setAttrCurves()
 {
-    TypeSet<float> samps; wvlt.getSamples( samps );
+    TypeSet<float> samps; wvlt_.getSamples( samps );
     const int wvltsz = samps.size();
     OD::memCopy( attrarrays_[0]->getData(), samps.arr(), wvltsz*sizeof(float) );
 

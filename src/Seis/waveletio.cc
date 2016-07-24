@@ -6,9 +6,8 @@
 
 
 #include "waveletio.h"
-#include "wavelet.h"
+#include "waveletmanager.h"
 #include "uistrings.h"
-#include "ctxtioobj.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "separstr.h"
@@ -19,144 +18,175 @@
 defineTranslatorGroup(Wavelet,"Wavelet");
 defineTranslator(dgb,Wavelet,mDGBKey);
 mDefSimpleTranslatorSelector(Wavelet);
+mDefSimpleTranslatorioContext(Wavelet,Seis)
 
 uiString WaveletTranslatorGroup::sTypeName( int num )
 { return uiStrings::sWavelet(num); }
 
-static const char* sKeyScaled = "Scaled";
 
-
-IOObj* Wavelet::getIOObj( const char* waveletnm )
+WaveletLoader::WaveletLoader( const MultiID& id )
+    : ioobj_(IOM().get(id))
 {
-    if ( !waveletnm || !*waveletnm )
-	return 0;
-
-    IOObjContext ctxt( mIOObjContext(Wavelet) );
-    IOM().to( ctxt.getSelKey() );
-    return IOM().getLocal( waveletnm, mTranslGroupName(Wavelet) );
 }
 
 
-Wavelet* Wavelet::get( const IOObj* ioobj )
+WaveletLoader::WaveletLoader( const IOObj* ioobj )
+    : ioobj_(ioobj ? ioobj->clone() : 0)
 {
-    if ( !ioobj ) return 0;
-    PtrMan<WaveletTranslator> tr =
-		(WaveletTranslator*)ioobj->createTranslator();
-    if ( !tr ) return 0;
-    Wavelet* newwv = 0;
+}
 
-    Conn* connptr = ioobj->getConn( Conn::Read );
+
+WaveletLoader::~WaveletLoader()
+{
+    delete ioobj_;
+}
+
+
+uiRetVal WaveletLoader::read( Wavelet*& wvlt )
+{
+    uiRetVal uirv = uiRetVal::OK();
+    if ( !ioobj_ )
+    {
+	uirv = uiStrings::phrCannotFindDBEntry( uiStrings::sWavelet() );
+	return uirv;
+    }
+
+    PtrMan<WaveletTranslator> transl =
+		(WaveletTranslator*)ioobj_->createTranslator();
+    if ( !transl )
+    {
+	uirv = uiStrings::phrSelectObjectWrongType( uiStrings::sWavelet() );
+	return uirv;
+    }
+
+    wvlt = 0;
+    Conn* connptr = ioobj_->getConn( Conn::Read );
     if ( !connptr || connptr->isBad() )
-	ErrMsg( "Cannot open Wavelet file" );
+	uirv = uiStrings::phrCannotOpen( ioobj_->uiName() );
     else
     {
-	newwv = new Wavelet;
-	if ( tr->read( newwv, *connptr ) )
-	    newwv->setName( ioobj->name() );
+	wvlt = new Wavelet;
+	if ( transl->read( wvlt, *connptr ) )
+	    wvlt->setName( ioobj_->name() );
 	else
 	{
-	    ErrMsg( "Problem reading Wavelet from file (format error?)" );
-	    delete newwv;
-	    newwv = 0;
+	    uirv = tr( "Problem reading Wavelet '%1' from file" )
+			.arg( ioobj_->uiName() );
+	    wvlt->unRef(); wvlt = 0;
 	}
     }
 
     delete connptr;
-    return newwv;
+    return uirv;
 }
 
 
-bool Wavelet::put( const IOObj* ioobj ) const
+uiRetVal WaveletLoader::load()
 {
-    if ( !ioobj ) return false;
-    PtrMan<WaveletTranslator> trans =
-        (WaveletTranslator*)ioobj->createTranslator();
-    if ( !trans ) return false;
-    bool retval = false;
+    Wavelet* wvlt;
 
-    Conn* connptr = ioobj->getConn( Conn::Write );
-    if ( connptr && !connptr->isBad() )
-    {
-	if ( trans->write(this,*connptr) )
-	    retval = true;
-	else
-	{
-	    connptr->rollback();
-	    ErrMsg( "Cannot write Wavelet" );
-	}
-    }
-    else
-	ErrMsg( "Cannot open Wavelet file for write" );
+    uiRetVal uirv = read( wvlt );
+    if ( uirv.isOK() )
+	addToMGR( wvlt, ioobj_->key() );
 
-    delete connptr;
-    return retval;
+
+    return uirv;
 }
 
 
-static void markWaveletScaled( const MultiID& id, const char* val )
+bool WaveletLoader::addToMGR( Wavelet* wvlt, const MultiID& ky )
 {
-    PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( !ioobj ) return;
-    ioobj->pars().set( sKeyScaled, val );
-    IOM().commitChanges( *ioobj );
-}
+    WaveletManager& mgr = WaveletMGR();
+    if ( mgr.isLoaded(ioobj_->key()) )
+	{ wvlt->unRef(); return false; }
 
-
-void Wavelet::markScaled( const MultiID& id )
-{
-    markWaveletScaled( id, "External" );
-}
-
-
-void Wavelet::markScaled( const MultiID& id, const MultiID& orgid,
-			  const MultiID& horid, const MultiID& seisid,
-			  const char* lvlnm )
-{
-    FileMultiString fms( orgid.buf() );
-    fms += horid; fms += seisid; fms += lvlnm;
-    markWaveletScaled( id, fms );
-}
-
-
-static BufferString waveletScaleStr( const MultiID& id )
-{
-    BufferString ret;
-    IOObj* ioobj = IOM().get( id );
-    if ( !ioobj ) return ret;
-    ret = ioobj->pars().find( sKeyScaled );
-    delete ioobj;
-    return ret;
-}
-
-
-bool Wavelet::isScaled( const MultiID& id )
-{
-    return !waveletScaleStr(id).isEmpty();
-}
-
-
-bool Wavelet::isScaled( const MultiID& id, MultiID& orgid, MultiID& horid,
-			MultiID& seisid, BufferString& lvlnm )
-{
-    BufferString val( waveletScaleStr(id) );
-    if ( val.isEmpty() ) return false;
-    FileMultiString fms( val );
-    const int fmssz = fms.size();
-    if ( fmssz < 3 )
-	{ orgid = "0"; return true; }
-
-    orgid = fms[0]; horid = fms[1]; seisid = fms[2]; lvlnm = fms[3];
+    mgr.add( *wvlt, ky, 0, true );
     return true;
 }
 
 
-mDefSimpleTranslatorioContext(Wavelet,Seis)
+mDefineInstanceCreatedNotifierAccess(WaveletSaver)
+
+
+WaveletSaver::WaveletSaver( const Wavelet& ps )
+    : OD::Saveable(ps)
+{
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+WaveletSaver::WaveletSaver( const WaveletSaver& oth )
+    : OD::Saveable(oth)
+{
+    copyAll( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+WaveletSaver::~WaveletSaver()
+{
+    sendDelNotif();
+}
+
+
+mImplMonitorableAssignment(WaveletSaver,OD::Saveable)
+
+void WaveletSaver::copyClassData( const WaveletSaver& oth )
+{
+}
+
+
+ConstRefMan<Wavelet> WaveletSaver::wavelet() const
+{
+    return ConstRefMan<Wavelet>( static_cast<const Wavelet*>( monitored() ) );
+}
+
+
+void WaveletSaver::setWavelet( const Wavelet& ps )
+{
+    setMonitored( ps );
+}
+
+
+
+bool WaveletSaver::doStore( const IOObj& ioobj ) const
+{
+    bool result = false;
+    PtrMan<WaveletTranslator> transl =
+        (WaveletTranslator*)ioobj.createTranslator();
+    if ( !transl )
+    {
+	errmsg_ = uiStrings::phrSelectObjectWrongType( uiStrings::sWavelet() );
+	return result;
+    }
+
+    ConstRefMan<Wavelet> wvlt = wavelet();
+    if ( !wvlt )
+	    return true;
+
+    Conn* connptr = ioobj.getConn( Conn::Write );
+    if ( !connptr || connptr->isBad() )
+	errmsg_ = uiStrings::phrCannotOpen( toUiString(ioobj.fullUserExpr()) );
+    else
+    {
+	RefMan<Wavelet> copiedwvlt = new Wavelet( *wvlt );
+	if ( transl->write(copiedwvlt,*connptr) )
+	    result = true;
+	else
+	{
+	    connptr->rollback();
+	    errmsg_ = uiStrings::phrCannotWrite( ioobj.uiName() );
+	}
+    }
+
+    delete connptr;
+    return result;
+}
 
 
 static const char* sLength	= "Length";
 static const char* sIndex	= "Index First Sample";
 static const char* sSampRate	= "Sample Rate";
-
 
 bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 {
@@ -284,7 +314,7 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
     if ( mIsUdf(centersmp) || centersmp > samps.size() )
 	centersmp = samps.size() / 2;
 
-    Wavelet* ret = new Wavelet( "" );
+    Wavelet* ret = new Wavelet;
     ret->setSamples( samps );
     ret->setCenterSample( centersmp  );
     ret->setSampleRate( sr );

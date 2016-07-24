@@ -36,7 +36,7 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     , fft_( Fourier::CC::createDefault() )
     , totalnr_(0)
     , msg_(tr("Extracting wavelet"))
-    , wvlt_(*new Wavelet)
+    , wvlt_(new Wavelet)
     , lineidx_(-1)
     , paramval_( mUdf(float) )
 {
@@ -52,7 +52,6 @@ WaveletExtractor::~WaveletExtractor()
 {
     delete fft_;
     delete seisrdr_;
-    delete &wvlt_;
 }
 
 
@@ -61,9 +60,9 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
     TrcKeyZSampling cs;
     PtrMan<SeisIOObjInfo> si = new SeisIOObjInfo( ioobj );
     si->getRanges( cs );
-    wvlt_.setSampleRate( cs.zsamp_.step );
-    wvlt_.setCenterSample( wvltsize_/2 );
-    wvlt_.reSize( wvltsize_, 0.f );
+    wvlt_->setSampleRate( cs.zsamp_.step );
+    wvlt_->setCenterSample( wvltsize_/2 );
+    wvlt_->reSize( wvltsize_, 0.f );
 }
 
 
@@ -190,7 +189,7 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
 	return true;
     }
 
-    if ( trc.zRange().width(false) <  wvlt_.samplePositions().width(false) )
+    if ( trc.zRange().width(false) <  wvlt_->samplePositions().width(false) )
 	return false;
 
     const BinIDValueSet& bvis = tsd->binidValueSet();
@@ -279,14 +278,14 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
     fft_->setOutput( freqdomsignal.getData() );
     fft_->run( true );
 
-    TypeSet<float> samps; wvlt_.getSamples( samps );
+    TypeSet<float> samps; wvlt_->getSamples( samps );
     for ( int idx=0; idx<wvltsize_; idx++ )
     {
 	const float val = std::abs( freqdomsignal.arr()[idx] );
 	samps[idx] += val;
     }
 
-    wvlt_.setSamples( samps );
+    wvlt_->setSamples( samps );
     return true;
 }
 
@@ -314,7 +313,7 @@ bool WaveletExtractor::finish( int nrusedtrcs )
     if ( nrusedtrcs == 0 )
 	{ msg_ = tr("No valid traces read"); return false; }
 
-    TypeSet<float> samps; wvlt_.getSamples( samps );
+    TypeSet<float> samps; wvlt_->getSamples( samps );
     samps[0] = 0;
     for ( int i=1; i<wvltsize_; i++ )
 	samps[i] = Math::Sqrt( samps[i] / nrusedtrcs );
@@ -325,7 +324,7 @@ bool WaveletExtractor::finish( int nrusedtrcs )
       || !taperWavelet(samparr) )
 	{ msg_ = tr("Failed to generate wavelet"); return false; }
 
-    wvlt_.setSamples( samps );
+    wvlt_->setSamples( samps );
     return true;
 }
 
@@ -368,7 +367,7 @@ bool WaveletExtractor::rotateWavelet( float* samps )
     for ( int idx=0; idx<wvltsize_; idx++ )
 	rotatewvlt.set( idx, samps[idx] );
 
-    WaveletAttrib wvltattr( wvlt_ );
+    WaveletAttrib wvltattr( *wvlt_ );
     wvltattr.getHilbert( rotatewvlt );
 
     double angle = phase_ * M_PI/180;
@@ -399,5 +398,7 @@ bool WaveletExtractor::taperWavelet( float* samps )
 }
 
 
-const Wavelet& WaveletExtractor::getWavelet() const
-{ return wvlt_; }
+RefMan<Wavelet> WaveletExtractor::getWavelet() const
+{
+    return wvlt_;
+}

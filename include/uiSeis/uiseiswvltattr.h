@@ -66,8 +66,8 @@ public:
 				~uiSeisWvltTaperDlg();
 protected:
 
-    bool			isfreqtaper_;
     int				wvltsz_;
+    bool			isfreqtaper_;
 
     Array1DImpl<float>*		wvltvals_;
     Array1DImpl<float>*		freqvals_;
@@ -97,12 +97,13 @@ public:
 				uiWaveletDispProp(uiParent*,const Wavelet&);
 				~uiWaveletDispProp();
 
-    void                        setAttrCurves(const Wavelet&);
+    void                        setAttrCurves();
     Interval<float>             getFreqRange() const { return freqrange_; }
     Interval<float>             getTimeRange() const { return timerange_; }
 
 private:
 
+    const Wavelet&		wvlt_;
     int                         wvltsz_;
     ObjectSet<uiFunctionDisplay>  attrdisps_;
     ObjectSet< Array1DImpl<float> > attrarrays_;
@@ -113,7 +114,8 @@ private:
     Interval<float>		freqrange_;
 
     void			addAttrDisp(int);
-    
+    void			wvltChgCB(CallBacker*);
+
 };
 
 

@@ -48,13 +48,13 @@ set(OD_MODULE_SOURCES
 	uiseiswvltgen.cc
 	uiseiswvltimpexp.cc
 	uiseiswvltman.cc
-	uiseiswvltsel.cc
 	uistaticsdesc.cc
 	uitrcpositiondlg.cc
 	uiveldesc.cc
 	uivelocityvolumeconversion.cc
 	uiwaveletextraction.cc
 	uiwaveletmatchdlg.cc
+	uiwaveletsel.cc
 )
 
 set( OD_MODULE_PROGS od_ClusterProc.cc od_SeisMMBatch.cc )

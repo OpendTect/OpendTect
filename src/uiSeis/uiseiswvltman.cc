@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "survinfo.h"
-#include "wavelet.h"
+#include "waveletmanager.h"
 #include "waveletio.h"
 #include "waveletattrib.h"
 
@@ -49,8 +49,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
                                      mODHelpKey(mSeisWvltManHelpID) )
 				     .nrstatusflds(1).modal(false),
 		   WaveletTranslatorGroup::ioContext() )
-    , wvltext_(0)
-    , wvltpropdlg_(0)
+    , extrdlg_(0)
+    , propdlg_(0)
 {
     createDefaultUI();
 
@@ -86,20 +86,14 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 
     selChg( this );
     mTriggerInstanceCreatedNotifier();
-    windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
 }
 
 
 uiSeisWvltMan::~uiSeisWvltMan()
 {
-    if ( wvltext_ )
-	wvltext_->extractionDone.remove(
-		mCB(this,uiSeisWvltMan,wvltCreatedCB) );
-
-    delete wvltext_;
-
-    if ( wvltpropdlg_ )
-	delete wvltpropdlg_;
+    detachAllNotifiers();
+    delete extrdlg_;
+    delete propdlg_;
 }
 
 
@@ -166,9 +160,16 @@ void uiSeisWvltMan::extractPush( CallBacker* )
 	    is2d = res == 1;
     }
 
-    wvltext_ = new uiWaveletExtraction( parent(), is2d );
-    wvltext_->extractionDone.notify( mCB(this,uiSeisWvltMan,wvltCreatedCB) );
-    wvltext_->show();
+    if ( extrdlg_ && extrdlg_->is2D() != is2d )
+	{ delete extrdlg_; extrdlg_ = 0; }
+
+    if ( !extrdlg_ )
+    {
+	extrdlg_ = new uiWaveletExtraction( parent(), is2d );
+	mAttachCB( extrdlg_->extractionDone, uiSeisWvltMan::wvltExtractedCB );
+	mAttachCB( extrdlg_->windowClosed, uiSeisWvltMan::extrDlgCloseCB );
+    }
+    extrdlg_->show();
 }
 
 
@@ -180,16 +181,21 @@ void uiSeisWvltMan::matchPush( CallBacker* )
 }
 
 
-void uiSeisWvltMan::wvltCreatedCB( CallBacker* )
+void uiSeisWvltMan::extrDlgCloseCB( CallBacker* )
 {
-    selgrp_->fullUpdate( wvltext_->storeKey() );
+    extrdlg_ = 0;
 }
 
 
-void uiSeisWvltMan::closeDlg( CallBacker* )
+void uiSeisWvltMan::propDlgCloseCB( CallBacker* )
 {
-   if ( !wvltext_ ) return;
-   wvltext_->close();
+    propdlg_ = 0;
+}
+
+
+void uiSeisWvltMan::wvltExtractedCB( CallBacker* )
+{
+    selgrp_->fullUpdate( extrdlg_->storeKey() );
 }
 
 
@@ -225,7 +231,7 @@ void uiSeisWvltMan::ownSelChg()
 void uiSeisWvltMan::mkFileInfo()
 {
     BufferString txt;
-    Wavelet* wvlt = Wavelet::get( curioobj_ );
+    ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( curioobj_->key() );
     dispWavelet( wvlt );
     if ( wvlt )
     {
@@ -244,13 +250,14 @@ void uiSeisWvltMan::mkFileInfo()
 	if ( mIsZero(avgphase,1e-3f) ) avgphase = 0.f;
 	msg.add( "Average phase (deg): ").add( avgphase, 2 ).addNewLine();
 	txt.add( msg );
-	delete wvlt;
+	wvlt = 0;
 
 	MultiID orgid; MultiID horid; MultiID seisid; BufferString lvlnm;
-	if ( Wavelet::isScaled(curioobj_->key(),orgid,horid,seisid,lvlnm) )
+	if ( WaveletMGR().getScalingInfo(curioobj_->key(),
+			    orgid,horid,seisid,lvlnm) )
 	{
 	    msg = "Scaled: ";
-	    if ( orgid == MultiID("0") )
+	    if ( orgid.isUdf() )
 		msg.add( "Outside OpendTect" );
 	    else
 	    {
@@ -270,18 +277,15 @@ void uiSeisWvltMan::mkFileInfo()
 
 void uiSeisWvltMan::dispProperties( CallBacker* )
 {
-    Wavelet* wvlt = Wavelet::get( curioobj_ );
-    if ( !wvlt ) return;
+    ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( curioobj_->key() );
 
-    wvlt->setName( curioobj_->name().buf() );
+    if ( propdlg_ )
+	delete propdlg_;
 
-    wvltpropdlg_ = new uiWaveletDispPropDlg( this, *wvlt );
-    wvltpropdlg_->setCaption( tr("Wavelet '%1' Properties")
-						    .arg(curioobj_->uiName()) );
-    if ( wvltpropdlg_ ->go() )
-    { delete wvltpropdlg_; wvltpropdlg_ = 0; }
-
-    delete wvlt;
+    propdlg_ = new uiWaveletDispPropDlg( this, *wvlt );
+    propdlg_->setCaption( tr("Wavelet '%1' Properties").arg(wvlt->name()) );
+    mAttachCB( propdlg_->windowClosed, uiSeisWvltMan::propDlgCloseCB );
+    propdlg_->go();
 }
 
 
@@ -296,20 +300,24 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
     uiSelObjFromOtherSurvey dlg( this, ctio );
     dlg.setHelpKey(mODHelpKey(mSeisWvltMangetFromOtherSurveyHelpID) );
     Wavelet* wvlt = 0;
-    bool didsel = true;
-    if ( dlg.go() )
-	wvlt = Wavelet::get( ctio.ioobj_ );
-    else
-	didsel = false;
-
+    bool didsel = dlg.go();
     dlg.setDirToCurrentSurvey();
+    if ( !didsel )
+	return;
+
+    WaveletLoader loader( ctio.ioobj_ );
+    uiRetVal rv = loader.read( wvlt );
+    if ( rv.isError() )
+	uiMSG().error( rv );
+
     if ( !wvlt )
-	mRet((didsel ? uiStrings::phrCannotRead(uiStrings::sWavelet()) :
-		       uiStrings::sEmptyString()))
+	mRet(uiStrings::sEmptyString())
+
+    ctio.setObj( 0 );
     IOM().getEntry( ctio );
     if ( !ctio.ioobj_ )
 	mRet(uiStrings::phrCannotCreate(tr("new entry in Object Management")))
-    else if ( !wvlt->put(ctio.ioobj_) )
+    else if ( !loader.addToMGR(wvlt,ctio.ioobj_->key()) )
 	mRet(uiStrings::phrCannotWrite(tr("wavelet to disk")))
 
     selgrp_->fullUpdate( ctio.ioobj_->key() );
@@ -317,64 +325,55 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 }
 
 
+#define mPrepWvltChg() \
+    const MultiID ky( curioobj_->key() ); \
+    RefMan<Wavelet> wvlt = WaveletMGR().fetchForEdit( ky ); \
+    if ( !wvlt ) \
+	return
+
+#define mStoreWvltChg() \
+    uiRetVal rv = WaveletMGR().store( *wvlt, ky ); \
+    if ( rv.isError() ) \
+	uiMSG().error( rv ); \
+    else \
+	selgrp_->fullUpdate( ky )
+
 void uiSeisWvltMan::reversePolarity( CallBacker* )
 {
-    Wavelet* wvlt = Wavelet::get( curioobj_ );
-    if ( !wvlt ) return;
+    mPrepWvltChg();
 
     TypeSet<float> samps; wvlt->getSamples( samps );
     for ( int idx=0; idx<wvlt->size(); idx++ )
 	samps[idx] *= -1;
     wvlt->setSamples( samps );
 
-    if ( !wvlt->put(curioobj_) )
-	uiMSG().error(uiStrings::phrCannotWrite(tr(
-				    "new polarity reversed wavelet to disk")));
-    else
-	selgrp_->fullUpdate( curioobj_->key() );
-
-    delete wvlt;
+    mStoreWvltChg();
 }
 
 
 void uiSeisWvltMan::rotatePhase( CallBacker* )
 {
-    Wavelet* wvlt = Wavelet::get( curioobj_ );
-    if ( !wvlt ) return;
+    mPrepWvltChg();
 
     uiSeisWvltRotDlg dlg( this, *wvlt );
     dlg.acting.notify( mCB(this,uiSeisWvltMan,rotUpdateCB) );
     if ( dlg.go() )
-    {
-	if ( !wvlt->put(curioobj_) )
-	    uiMSG().error(tr("Cannot write rotated phase wavelet to disk"));
-	else
-	    selgrp_->fullUpdate( curioobj_->key() );
-    }
+	{ mStoreWvltChg(); }
 
     dlg.acting.remove( mCB(this,uiSeisWvltMan,rotUpdateCB) );
     mkFileInfo();
-
-    delete wvlt;
 }
 
 
 void uiSeisWvltMan::taper( CallBacker* )
 {
-    Wavelet* wvlt = Wavelet::get( curioobj_ );
-    if ( !wvlt ) return;
+    mPrepWvltChg();
 
     uiSeisWvltTaperDlg dlg( this, *wvlt );
     uiString title = tr("Taper '%1'").arg(curioobj_->uiName());
     dlg.setCaption( title );
     if ( dlg.go() )
-    {
-	if ( !wvlt->put(curioobj_) )
-	    uiMSG().error(uiStrings::phrCannotWrite(
-						tr("tapered wavelet to disk")));
-	else
-	    selgrp_->fullUpdate( curioobj_->key() );
-    }
+	{ mStoreWvltChg(); }
 }
 
 

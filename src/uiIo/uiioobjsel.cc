@@ -278,7 +278,7 @@ void uiIOObjSel::init()
     if ( workctio_.ctxt_.forread_ && setup_.withinserters_ )
     {
 	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
-					    extselbuts_ );
+					    insbuts_ );
 	for ( int idx=0; idx<inserters_.size(); idx++ )
 	    inserters_[idx]->objectInserted.notify(
 					mCB(this,uiIOObjSel,objInserted) );
@@ -300,6 +300,12 @@ uiIOObjSel::~uiIOObjSel()
     if ( inctiomine_ )
 	{ delete inctio_.ioobj_; delete &inctio_; }
     delete workctio_.ioobj_; delete &workctio_;
+}
+
+
+bool uiIOObjSel::forRead() const
+{
+    return workctio_.ctxt_.forread_;
 }
 
 
@@ -341,7 +347,7 @@ uiObject* uiIOObjSel::endObj( bool left )
 
 void uiIOObjSel::fillDefault()
 {
-    if ( setup_.filldef_ && !workctio_.ioobj_ && workctio_.ctxt_.forread_ )
+    if ( setup_.filldef_ && !workctio_.ioobj_ && forRead() )
 	workctio_.fillDefault();
 }
 
@@ -492,7 +498,7 @@ void uiIOObjSel::obtainIOObj()
 void uiIOObjSel::processInput()
 {
     obtainIOObj();
-    if ( workctio_.ioobj_ || workctio_.ctxt_.forread_ )
+    if ( workctio_.ioobj_ || forRead() )
 	updateInput();
 }
 
@@ -582,7 +588,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
     {
 	if ( workctio_.ioobj_ )
 	{
-	    if ( !workctio_.ctxt_.forread_ && wrtrselfld_
+	    if ( !forRead() && wrtrselfld_
 		&& !wrtrselfld_->isEmpty()
 		&& !wrtrselfld_->hasSelectedTranslator(*workctio_.ioobj_) )
 		mErrRet( tr("Cannot change the output format "
@@ -590,7 +596,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 
 	    const bool isalreadyok = inctio_.ioobj_
 			    && inctio_.ioobj_->key() == workctio_.ioobj_->key();
-	    if ( !alreadyerr && !isalreadyok && !workctio_.ctxt_.forread_ )
+	    if ( !alreadyerr && !isalreadyok && !forRead() )
 	    {
 		const bool exists = workctio_.ioobj_->implExists( false );
 		if ( exists )
@@ -613,7 +619,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 	       "\nPlease enter another name.").arg(getInput()))
 
     }
-    if ( workctio_.ctxt_.forread_ )
+    if ( forRead() )
 	return false;
 
     workctio_.setObj( createEntry( getInput() ) );
@@ -627,7 +633,7 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 
 void uiIOObjSel::doObjSel( CallBacker* )
 {
-    if ( !workctio_.ctxt_.forread_ )
+    if ( !forRead() )
 	workctio_.setName( getInput() );
     uiIOObjRetDlg* dlg = mkDlg();
     if ( !dlg )

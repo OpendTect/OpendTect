@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
-#include "uiseiswvltsel.h"
+#include "uiwaveletsel.h"
 
 
 static const int sDispWidth = 150;
@@ -67,16 +67,16 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     wvltqcdisp_->attach( heightSameAs, wvlt1disp_ );
     initFunctionDisplay( *wvltqcdisp_ );
 
-    uiIOObjSel::Setup setup0( tr("Reference Wavelet") );
+    uiWaveletIOObjSel::Setup setup0( tr("Reference Wavelet") );
     setup0.filldef(false).withclear(true);
-    wvlt0fld_ = new uiWaveletSel( this, true, setup0 );
+    wvlt0fld_ = new uiWaveletIOObjSel( this, setup0 );
     wvlt0fld_->attach( alignedBelow, wvltoutdisp_ );
     wvlt0fld_->setStretch( 0, 0 );
     wvlt0fld_->selectionDone.notify( mCB(this,uiWaveletMatchDlg,inpSelCB) );
 
-    uiIOObjSel::Setup setup1( tr("Target Wavelet") );
+    uiWaveletIOObjSel::Setup setup1( tr("Target Wavelet") );
     setup1.filldef(false).withclear(true);
-    wvlt1fld_ = new uiWaveletSel( this, true, setup1 );
+    wvlt1fld_ = new uiWaveletIOObjSel( this, setup1 );
     wvlt1fld_->attach( alignedBelow,  wvlt0fld_ );
     wvlt1fld_->setStretch( 0, 0 );
     wvlt1fld_->selectionDone.notify( mCB(this,uiWaveletMatchDlg,inpSelCB) );
@@ -86,7 +86,7 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     filterszfld_->valuechanging.notify( mCB(this,uiWaveletMatchDlg,filterSzCB));
     filterszfld_->attach( rightOf, wvlt1fld_ );
 
-    wvltoutfld_ = new uiWaveletSel( this, false, uiIOObjSel::Setup() );
+    wvltoutfld_ = new uiWaveletIOObjSel( this, false );
     wvltoutfld_->attach( alignedBelow, wvlt1fld_ );
     wvltoutfld_->setStretch( 0, 0 );
 }
@@ -94,17 +94,19 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
 
 uiWaveletMatchDlg::~uiWaveletMatchDlg()
 {
-    delete &outputwvlt_;
+    outputwvlt_.unRef();
 }
 
 
 void uiWaveletMatchDlg::inpSelCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiWaveletSel*,inpfld,cb)
-    if ( !inpfld ) return;
+    mDynamicCastGet(uiWaveletIOObjSel*,inpfld,cb)
+    if ( !inpfld )
+	return;
 
-    PtrMan<Wavelet> wvlt = inpfld->getWavelet( true );
-    if ( !wvlt ) return;
+    ConstRefMan<Wavelet> wvlt = inpfld->getWavelet();
+    if ( !wvlt )
+	return;
 
     uiFunctionDisplay* fd = inpfld==wvlt0fld_ ? wvlt0disp_ : wvlt1disp_;
     TypeSet<float> samps; wvlt->getSamples( samps );
@@ -141,9 +143,10 @@ static void solveAxb( int sz, float* a, float* b, float* x )
 
 bool uiWaveletMatchDlg::calcFilter()
 {
-    PtrMan<Wavelet> refwvlt = wvlt0fld_->getWavelet( true );
-    PtrMan<Wavelet> tarwvlt = wvlt1fld_->getWavelet( true );
-    if ( !refwvlt || !tarwvlt ) return false;
+    ConstRefMan<Wavelet> refwvlt = wvlt0fld_->getWavelet();
+    ConstRefMan<Wavelet> tarwvlt = wvlt1fld_->getWavelet();
+    if ( !refwvlt || !tarwvlt )
+	return false;
 
     const int filtersz = filterszfld_->getIntValue();
     const int filtersz2 = mCast(int,filtersz/2);
@@ -204,15 +207,5 @@ bool uiWaveletMatchDlg::calcFilter()
 
 bool uiWaveletMatchDlg::acceptOK( CallBacker* )
 {
-    const IOObj* ioobj = wvltoutfld_->ioobj();
-    if ( !ioobj ) return false;
-
-    const bool res = outputwvlt_.put( ioobj );
-    if ( !res )
-    {
-	uiMSG().error( tr("Cannot store new wavelet") );
-	return false;
-    }
-
-    return true;
+    return wvltoutfld_->store( outputwvlt_, true );
 }

@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uistratsynthdisp.h"
 #include "uisynthgendlg.h"
 #include "uistratsynthexport.h"
-#include "uiseiswvltsel.h"
+#include "uiwaveletsel.h"
 #include "uisynthtorealscale.h"
 #include "uicombobox.h"
 #include "uiflatviewer.h"
@@ -140,8 +140,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 				    tr("Specify input for synthetic creation"),
 				    mCB(this,uiStratSynthDisp,layerPropsPush));
 
-    wvltfld_ = new uiSeisWaveletSel( datagrp_, "", true, true, true );
-    wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
+    uiWaveletIOObjSel::Setup wvsu; wvsu.compact( true );
+    wvltfld_ = new uiWaveletIOObjSel( datagrp_, wvsu );
+    wvltfld_->selectionDone.notify( mCB(this,uiStratSynthDisp,wvltChg) );
     wvltfld_->setFrame( false );
     wvltfld_->attach( rightOf, layertb );
     curSS().setWavelet( wvltfld_->getWavelet() );
@@ -567,7 +568,7 @@ void uiStratSynthDisp::drawLevel()
 				  : 0.0f;
     ObjectSet<const TimeDepthModel> curd2tmodels;
     getCurD2TModel( currentwvasynthetic_ ? currentwvasynthetic_
-	    				 : currentvdsynthetic_, curd2tmodels,
+					 : currentvdsynthetic_, curd2tmodels,
 					 offset );
     if ( !curd2tmodels.isEmpty() && lvl )
     {
@@ -612,7 +613,7 @@ void uiStratSynthDisp::setCurrentWavelet()
 
     if ( wvasd )
     {
-	wvasd->setWavelet( wvltfld_->getWvltName() );
+	wvasd->setWavelet( wvltfld_->getInput() );
 	currentwvasynthetic_ = wvasd;
 	if ( synthgendlg_ )
 	    synthgendlg_->updateWaveletName();
@@ -630,7 +631,7 @@ void uiStratSynthDisp::setCurrentWavelet()
     mDynamicCastGet(const StratPropSyntheticData*,prsd,vdsd);
     if ( vdsd && !prsd )
     {
-	vdsd->setWavelet( wvltfld_->getWvltName() );
+	vdsd->setWavelet( wvltfld_->getInput() );
 	currentvdsynthetic_ = vdsd;
 	if ( vdsynthnm != wvasynthnm )
 	{
@@ -702,7 +703,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     PtrMan<SeisTrcBuf> scaletbuf = tbuf.clone();
     curSS().getLevelTimes( *scaletbuf,
 			   currentwvasynthetic_->zerooffsd2tmodels_ );
-    uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->getID(),levelname);
+    uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->key(true),levelname);
     if ( dlg.go() )
     {
 	MultiID mid( dlg.selWvltID() );
@@ -827,7 +828,7 @@ const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
 
     if ( tbdp->trcBuf().isEmpty() )
 	tbdp = vwr_->getPack( false, true );
-    
+
     if ( !tbdp )
     {
 	mDefineStaticLocalObject( SeisTrcBuf, emptybuf, (false) );
@@ -1211,10 +1212,10 @@ void uiStratSynthDisp::setCurrentSynthetic( bool wva )
 
     if ( !cursynth ) return;
 
-    NotifyStopper notstop( wvltfld_->newSelection );
+    NotifyStopper notstop( wvltfld_->selectionDone );
     if ( wva )
     {
-	wvltfld_->setInput( cursynth->waveletName() );
+	wvltfld_->setInputText( cursynth->waveletName() );
 	curSS().setWavelet( wvltfld_->getWavelet() );
     }
 }
@@ -1492,9 +1493,9 @@ const Wavelet* uiStratSynthDisp::getWavelet() const
 }
 
 
-const MultiID& uiStratSynthDisp::waveletID() const
+MultiID uiStratSynthDisp::waveletID() const
 {
-    return wvltfld_->getID();
+    return wvltfld_->key( true );
 }
 
 
@@ -1628,7 +1629,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	    if ( !synthpar ) continue;
 	    SynthGenParams genparams;
 	    genparams.usePar( *synthpar );
-	    wvltfld_->setInput( genparams.wvltnm_ );
+	    wvltfld_->setInputText( genparams.wvltnm_ );
 	    curSS().setWavelet( wvltfld_->getWavelet() );
 	    SyntheticData* sd = curSS().addSynthetic( genparams );
 	    if ( !sd )

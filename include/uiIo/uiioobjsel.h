@@ -59,6 +59,8 @@ public:
 			uiIOObjSel(uiParent*,const IOObjContext&,const Setup&);
 			~uiIOObjSel();
 
+    virtual bool	forRead() const;
+
     void		setInput(const IOObj&);
     void		setInput(const MultiID&);
     virtual void	setEmpty();
@@ -89,6 +91,8 @@ public:
     virtual uiObject*	endObj(bool left);
 
     static IOObjContext	getWriteIOObjCtxt(IOObjContext);
+
+    void		fullUpdate()	{ initRead(); }
 
 protected:
 

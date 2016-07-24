@@ -12,8 +12,6 @@ ________________________________________________________________________
 #include "uiseiswvltimpexp.h"
 
 #include "arrayndimpl.h"
-#include "ctxtioobj.h"
-#include "ioobj.h"
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "survinfo.h"
@@ -23,7 +21,7 @@ ________________________________________________________________________
 #include "waveletattrib.h"
 
 #include "uifileinput.h"
-#include "uiioobjsel.h"
+#include "uiwaveletsel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistrings.h"
@@ -37,7 +35,6 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import Wavelet"),mNoDlgTitle,
                                  mODHelpKey(mSeisWvltImpHelpID) ))
     , fd_(*WaveletAscIO::getDesc())
-    , ctio_(*mMkCtxtIOObj(Wavelet))
 {
     setOkText( uiStrings::sImport() );
 
@@ -60,15 +57,13 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     scalefld_->attach( alignedBelow, dataselfld_ );
     scalefld_->attach( ensureBelow, sep );
 
-    ctio_.ctxt_.forread_ = false;
-    wvltfld_ = new uiIOObjSel( this, ctio_ );
+    wvltfld_ = new uiWaveletIOObjSel( this, false );
     wvltfld_->attach( alignedBelow, scalefld_ );
 }
 
 
 uiSeisWvltImp::~uiSeisWvltImp()
 {
-    delete ctio_.ioobj_; delete &ctio_;
     delete &fd_;
 }
 
@@ -81,9 +76,6 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet( uiStrings::phrEnter(tr("the input file name")) )
-    if ( !wvltfld_->commitInput() )
-	mErrRet( !wvltfld_->isEmpty() ? uiString::emptyString()
-		: uiStrings::phrEnter(tr("a name for the new wavelet")) )
     if ( !dataselfld_->commit() )
 	return false;
     od_istream strm( fnm );
@@ -123,7 +115,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     if ( !mIsUdf(fac) && !mIsZero(fac,mDefEpsF) && !mIsEqual(fac,1.f,mDefEpsF) )
 	wvlt->transform( 0.f, fac );
 
-    if ( !wvlt->put(ctio_.ioobj_) )
+    if ( !wvltfld_->store(*wvlt,false) )
 	mErrRet( tr("Cannot store wavelet on disk") )
 
     uiString msg = tr("Wavelet successfully imported."
@@ -136,11 +128,13 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 
 MultiID uiSeisWvltImp::selKey() const
 {
-    return ctio_.ioobj_ ? ctio_.ioobj_->key() : MultiID("");
+    return wvltfld_->key( true );
 }
 
 
 // uiSeisWvltExp
+
+
 uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
     : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( uiStrings::sWavelet() ),
 				  mNoDlgTitle,
@@ -148,7 +142,8 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 {
     setOkText( uiStrings::sExport() );
 
-    wvltfld_ = new uiIOObjSel( this, mIOObjContext(Wavelet) );
+    uiWaveletIOObjSel::Setup wvsu; wvsu.compact( false );
+    wvltfld_ = new uiWaveletIOObjSel( this, wvsu, true );
 
     addzfld_ = new uiGenInput( this, uiStrings::phrOutput(SI().zIsTime() ?
 				     uiStrings::sTime() : uiStrings::sDepth()),
@@ -163,17 +158,15 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 
 bool uiSeisWvltExp::acceptOK( CallBacker* )
 {
-    const IOObj* ioobj = wvltfld_->ioobj();
-    if ( !ioobj ) return false;
+    ConstRefMan<Wavelet> wvlt = wvltfld_->getWavelet();
+    if ( !wvlt )
+	return false;
+    else if ( wvlt->size() < 1 )
+	mErrRet( tr("Empty wavelet") )
+
     const BufferString fnm( outpfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet( uiStrings::phrEnter(tr("the output file name")) )
-
-    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
-    if ( !wvlt )
-	mErrRet( uiStrings::phrCannotRead( uiStrings::sWavelet()) )
-    if ( wvlt->size() < 1 )
-	mErrRet( tr("Empty wavelet") )
     od_ostream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet( uiStrings::sCantOpenOutpFile() )

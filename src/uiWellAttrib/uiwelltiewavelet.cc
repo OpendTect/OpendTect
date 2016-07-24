@@ -168,7 +168,7 @@ void uiWavelet::rotatePhase( CallBacker* )
 	*wvlt_ = *orgwvlt;
 	wvltChanged(0);
     }
-    delete orgwvlt;
+    orgwvlt->unRef();
 }
 
 
@@ -182,7 +182,7 @@ void uiWavelet::taper( CallBacker* )
 	*wvlt_ = *orgwvlt;
 	wvltChanged(0);
     }
-    delete orgwvlt;
+    orgwvlt->unRef();
 }
 
 

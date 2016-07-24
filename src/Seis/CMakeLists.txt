@@ -76,6 +76,7 @@ set(OD_MODULE_SOURCES
 	waveletio.cc
 	waveletattrib.cc
 	waveletextractor.cc
+	waveletmanager.cc
 )
 
 set(OD_MODULE_BATCHPROGS

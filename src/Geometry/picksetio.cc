@@ -215,7 +215,9 @@ int Pick::SetLoaderExec::nextStep()
     uiString errmsg;
     if ( PickSetTranslator::retrieve(*ps,ioobj,errmsg) )
     {
-	if ( !psmgr.isLoaded(id) ) // check, someone may have beat me to it
+	if ( psmgr.isLoaded(id) ) // check, someone may have beat me to it
+	    ps->unRef();
+	else
 	    psmgr.add( *ps, id, &ioobj->pars(), true );
 
 	loader_.available_ += id;

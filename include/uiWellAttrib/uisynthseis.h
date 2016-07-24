@@ -21,7 +21,7 @@ class uiGenInput;
 class uiLabeledSpinBox;
 class uiPushButton;
 class uiRayTracerSel;
-class uiSeisWaveletSel;
+class uiWaveletIOObjSel;
 class uiSynthCorrectionsGrp;
 
 mExpClass(uiWellAttrib) uiSynthSeisGrp : public uiGroup
@@ -41,7 +41,7 @@ public:
 
 protected:
 
-    uiSeisWaveletSel*		wvltfld_;
+    uiWaveletIOObjSel*		wvltfld_;
     uiRayTracerSel*		rtsel_;
     uiSynthCorrectionsGrp*	uisynthcorrgrp_;
     uiCheckBox*			internalmultiplebox_;

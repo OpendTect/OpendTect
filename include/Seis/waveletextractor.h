@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "executor.h"
+#include "wavelet.h"
 #include "uistring.h"
 
 namespace Fourier { class CC; }
@@ -32,7 +33,7 @@ public:
     void			setSelData(const ObjectSet<Seis::SelData>&);//2D
     void			setPhase(int phase);
     void			setTaperParamVal(float paramval);
-    const Wavelet&		getWavelet() const;
+    RefMan<Wavelet>		getWavelet() const;
 
 protected:
 
@@ -56,7 +57,7 @@ protected:
     uiString			uiNrDoneText() const;
     uiString			uiMessage() const;
 
-    Wavelet&			wvlt_;
+    RefMan<Wavelet>		wvlt_;
     const IOObj&		iobj_;
     const Seis::SelData*	sd_;
     ObjectSet<Seis::SelData>    sdset_;

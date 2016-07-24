@@ -24,14 +24,14 @@
 #include "stratlevel.h"
 #include "statparallelcalc.h"
 #include "picksettr.h"
-#include "wavelet.h"
-#include "waveletio.h"
+#include "waveletmanager.h"
 #include "ioman.h"
 
 #include "uislider.h"
 #include "uistratseisevent.h"
 #include "uiseissel.h"
 #include "uipicksetsel.h"
+#include "uiwaveletsel.h"
 #include "uiseparator.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
@@ -210,9 +210,8 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     finalscalefld_->attach( centeredBelow, statsgrp );
     new uiLabel( this, tr("Scaling factor"), finalscalefld_ );
 
-    IOObjContext wvltctxt( mIOObjContext(Wavelet) );
-    wvltctxt.forread_ = false;
-    wvltfld_ = new uiIOObjSel( this, wvltctxt, tr("Save scaled Wavelet as") );
+    uiWaveletIOObjSel::Setup wvsu( tr("Save scaled Wavelet as") );
+    wvltfld_ = new uiWaveletIOObjSel( this, wvsu, false );
     wvltfld_->attach( alignedBelow, finalscalefld_ );
 
     postFinalise().notify( mCB(this,uiSynthToRealScale,initWin) );
@@ -280,7 +279,8 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
     }
 
     const IOObj* ioobj = horfld_->ioobj();
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
 							  &taskr );
     mDynamicCastGet(EM::Horizon*,hor,emobj);
@@ -512,34 +512,22 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
 
     const float scalefac = finalscalefld_->getFValue();
     if ( mIsUdf(scalefac) )
-	{ uiMSG().error(uiStrings::phrEnter(tr("the scale factor")));
-								return false; }
+	mErrRetBool(uiStrings::phrEnter(tr("the scale factor")))
 
-    const IOObj* ioobj = wvltfld_->ioobj();
-    if ( !ioobj )
+    uiRetVal retval = uiRetVal::OK();
+    ConstRefMan<Wavelet> inpwvlt = WaveletMGR().fetch( inpwvltid_, retval );
+    if ( retval.isError() )
+	mErrRetBool( retval )
+
+    RefMan<Wavelet> wvlt = inpwvlt->clone();
+    wvlt->transform( 0, scalefac );
+    if ( !wvltfld_->store(*wvlt) )
 	return false;
 
-    IOObj* inpioobj = IOM().get( inpwvltid_ );
-    Wavelet* wvlt = Wavelet::get( inpioobj );
-    delete inpioobj;
-    if ( !wvlt )
-    {
-	uiMSG().error(tr("Cannot save scaled wavelet because:\nThe "
-			 "original wavelet cannot be read."));
-	delete ioobj; return false;
-    }
-
-    wvlt->transform( 0, scalefac );
-    if ( !wvlt->put(ioobj) )
-    {
-	uiMSG().error(tr("Cannot write scaled Wavelet.\n"
-			 "Please check file permissions"));
-	delete ioobj; return false;
-    }
-    delete wvlt;
-
-    outwvltid_ = ioobj->key();
-    Wavelet::markScaled( outwvltid_, inpwvltid_, horfld_->key(),
-			 seisfld_->ioobj()->key(), evfld_->levelName() );
+    outwvltid_ = wvltfld_->key(true);
+    const MultiID horid( horfld_->key(true) );
+    const MultiID seisid( seisfld_->key(true) );
+    WaveletMGR().setScalingInfo( outwvltid_, &inpwvltid_, &horid, &seisid,
+				 evfld_->levelName() );
     return true;
 }

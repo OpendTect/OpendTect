@@ -27,7 +27,7 @@ class uiGenInput;
 class uiSeisSel;
 class uiWellPropSel;
 class uiSeis2DLineNameSel;
-class uiSeisWaveletSel;
+class uiWaveletIOObjSel;
 class uiWaveletExtraction;
 
 
@@ -58,7 +58,7 @@ protected:
     Well::Data*		wd_;
 
     uiIOObjSel*         wellfld_;
-    uiSeisWaveletSel*	wvltfld_;
+    uiWaveletIOObjSel*	wvltfld_;
     uiGenInput*		typefld_;
     uiGenInput*		seisextractfld_;
     uiSeisSel*		seis2dfld_;

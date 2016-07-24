@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "ptrman.h"
 class Executor;
-class IOObj;
 
 
 namespace Pick

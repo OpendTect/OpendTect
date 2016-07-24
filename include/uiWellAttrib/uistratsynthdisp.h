@@ -30,7 +30,7 @@ class uiFlatViewer;
 class uiMultiFlatViewControl;
 class uiPushButton;
 class uiSynthGenDlg;
-class uiSeisWaveletSel;
+class uiWaveletIOObjSel;
 class uiSynthSlicePos;
 class uiToolButton;
 class uiToolButtonSetup;
@@ -49,7 +49,7 @@ public:
 
     const Strat::LayerModel& layerModel() const;
     const char*		levelName() const;
-    const MultiID&	waveletID() const;
+    MultiID		waveletID() const;
     const Wavelet*	getWavelet() const;
     inline const StratSynth& curSS() const
 			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
@@ -149,7 +149,7 @@ protected:
     uiGroup*		topgrp_;
     uiGroup*		datagrp_;
     uiGroup*		prestackgrp_;
-    uiSeisWaveletSel*	wvltfld_;
+    uiWaveletIOObjSel*	wvltfld_;
     uiFlatViewer*	vwr_;
     uiPushButton*	scalebut_;
     uiButton*		lasttool_;

@@ -32,8 +32,6 @@ ________________________________________________________________________
 #include "fourier.h"
 #include "fftfilter.h"
 #include "flatposdata.h"
-#include "ioman.h"
-#include "ioobj.h"
 #include "mathfunc.h"
 #include "prestackattrib.h"
 #include "prestackgather.h"
@@ -50,12 +48,12 @@ ________________________________________________________________________
 #include "stratlayersequence.h"
 #include "unitofmeasure.h"
 #include "timeser.h"
-#include "wavelet.h"
+#include "waveletmanager.h"
 
 static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
 static const char* sKeySynthType()		{ return "Synthetic Type"; }
 static const char* sKeyWaveLetName()		{ return "Wavelet Name"; }
-static const char* sKeyRayPar()		{ return "Ray Parameter"; }
+static const char* sKeyRayPar()			{ return "Ray Parameter"; }
 static const char* sKeyDispPar()		{ return "Display Parameter"; }
 static const char* sKeyInput()			{ return "Input Synthetic"; }
 static const char* sKeyAngleRange()		{ return "Angle Range"; }
@@ -65,12 +63,13 @@ static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
 
 
 mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
-{ "Pre Stack",
-  "Zero Offset Stack",
-  "Strat Property",
-  "Angle Stack",
-  "AVO Gradient",
-  0
+{
+    "Pre Stack",
+    "Zero Offset Stack",
+    "Strat Property",
+    "Angle Stack",
+    "AVO Gradient",
+    0
 };
 
 
@@ -260,6 +259,8 @@ StratSynth::~StratSynth()
 {
     deepErase( synthetics_ );
     setLevel( 0 );
+    if ( wvlt_ )
+	wvlt_->unRef();
 }
 
 
@@ -274,9 +275,11 @@ void StratSynth::setWavelet( const Wavelet* wvlt )
     if ( !wvlt )
 	return;
 
-    delete wvlt_;
+    if ( wvlt_ )
+	wvlt_->unRef();
     wvlt_ = wvlt;
-    genparams_.wvltnm_ = wvlt->name();
+    wvlt_->ref();
+    genparams_.wvltnm_ = wvlt_->name();
 }
 
 
@@ -900,17 +903,11 @@ bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
     bool needsetwvlt = synthgenpar.wvltnm_.isEmpty();
     if ( !needsetwvlt )
     {
-	PtrMan<IOObj> ioobj = Wavelet::getIOObj( synthgenpar.wvltnm_ );
-	PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
-	if ( !wvlt || (wvlt_->name()==wvlt->name()) )
-	    needsetwvlt = true;
-	else
-	    synthgen.setWavelet( wvlt, OD::CopyPtr );
+	const MultiID ky = WaveletMGR().getID( synthgenpar.wvltnm_ );
+	synthgen.setWavelet( WaveletMGR().fetch(ky) );
     }
-    if ( wvlt_ && needsetwvlt )
-	synthgen.setWavelet( wvlt_, OD::UsePtr );
-    synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
 
+    synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
     return TaskRunner::execute( taskr_, synthgen );
 }
 

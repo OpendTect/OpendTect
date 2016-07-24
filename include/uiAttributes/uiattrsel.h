@@ -140,7 +140,7 @@ protected:
     uiLabeledComboBox*	compfld_;
 
     ObjectSet<uiIOObjInserter> inserters_;
-    ObjectSet<uiButton>	extselbuts_;
+    ObjectSet<uiButton>	insbuts_;
 
     void		initAndBuild(const uiString&,Attrib::DescID,bool);
     void		createSelectionButtons();

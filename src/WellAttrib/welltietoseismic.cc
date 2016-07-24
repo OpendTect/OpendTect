@@ -148,7 +148,7 @@ bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
 
     Seis::SynthGenerator gen;
     gen.setModel( refmodel_ );
-    gen.setWavelet( &wvlt, OD::UsePtr );
+    gen.setWavelet( &wvlt );
     gen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
     gen.setOutSampling( data_.getTraceRange() );
 
@@ -474,7 +474,7 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     aimodels += aimodel_;
     Seis::RaySynthGenerator gen( &aimodels );
     gen.forceReflTimes( data_.getReflRange() );
-    gen.setWavelet( &wvlt, OD::UsePtr );
+    gen.setWavelet( &wvlt );
     gen.setOutSampling( data_.getTraceRange() );
     gen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
     IOPar par;

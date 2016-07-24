@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 
 #include "uiposprovgroupstd.h"
-#include "uigeninput.h"
+#include "uifileinput.h"
 #include "uipicksetsel.h"
 #include "uiselsurvranges.h"
 #include "uimsg.h"
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "oddirs.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 mImplFactory2Param(uiPosProvGroup,uiParent*,const uiPosProvGroup::Setup&,
 		   uiPosProvGroup::factory);
@@ -279,9 +280,8 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
     selfld_->valuechanged.notify( selcb );
     psfld_ = new uiPickSetIOObjSel( this, true );
     psfld_->attach( alignedBelow, selfld_ );
-    tffld_ = new uiIOFileSelect( this, toUiString(sKey::FileName()), true,
-				 GetDataDir(), true );
-    tffld_->getHistory( uiIOFileSelect::ixtablehistory() );
+    uiFileInput::Setup fisu( uiFileDialog::Gen );
+    tffld_ = new uiFileInput( this, uiStrings::sFileName(), fisu );
     tffld_->attach( alignedBelow, selfld_ );
 
     setHAlignObj( selfld_ );
@@ -304,8 +304,10 @@ void uiTablePosProvGroup::usePar( const IOPar& iop )
     const char* fnmres = iop.find( mGetTableKey(sKey::FileName()) );
     const bool isfnm = fnmres && *fnmres;
     selfld_->setValue( !isfnm );
-    if ( idres ) psfld_->setInput( MultiID(idres) );
-    if ( fnmres ) tffld_->setInput( fnmres );
+    if ( idres )
+	psfld_->setInput( MultiID(idres) );
+    if ( fnmres )
+	tffld_->setFileName( fnmres );
 }
 
 
@@ -320,7 +322,7 @@ bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
     }
     else
     {
-	const BufferString fnm = tffld_->getInput();
+	const BufferString fnm = tffld_->fileName();
 	if ( fnm.isEmpty() )
 	    mErrRet(tr("Provide the table file name"))
 	else if ( File::isEmpty(fnm.buf()) )
@@ -354,7 +356,7 @@ bool uiTablePosProvGroup::getFileName( BufferString& fnm ) const
 {
     if ( selfld_->getBoolValue() )
 	return false;
-    fnm = tffld_->getInput();
+    fnm = tffld_->fileName();
     return true;
 }
 

@@ -21,7 +21,7 @@
 #include "raytracerrunner.h"
 #include "seistrc.h"
 #include "survinfo.h"
-#include "wavelet.h"
+#include "waveletmanager.h"
 
 static const char* sKeyWaveletID()	{ return "Wavelet"; }
 #define cStep 0.004f
@@ -157,23 +157,17 @@ bool BatchProgram::go( od_ostream& strm )
     const int nrmodels = 2; // model1: 2 spikes, model2: 3 spikes
     const float start_depth = 48.f;
 
-    ObjectSet<Wavelet> wvlts;
-    Wavelet syntheticricker(true,50.f,cStep,1.f); //Ricker 50Hz, 4ms SR
-    wvlts += &syntheticricker;
+    ObjectSet<const Wavelet> wvlts;
+    RefMan<Wavelet> syntheticricker = new Wavelet( true, 50.f, cStep, 1.f );
+    wvlts += syntheticricker;
+
     MultiID wavid;
     if ( !pars().get(sKeyWaveletID(),wavid) )
     {
 	strm << "Can not find wavelet from parameter file" << od_newline;
 	return false;
     }
-    PtrMan<IOObj> wavioobj = IOM().get( wavid );
-    if ( !wavioobj )
-    {
-	strm << "Input wavelet is not available." << od_newline;
-	return false;
-    }
-
-    PtrMan<Wavelet> realwav = Wavelet::get( wavioobj );
+    ConstRefMan<Wavelet> realwav = WaveletMGR().fetch( wavid );
     if ( !realwav )
     {
 	strm << "Input wavelet could not be read." << od_newline;
@@ -199,7 +193,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 	const float scal = wav->get( wav->centerSample() );
 	Seis::RaySynthGenerator synthgen( &models );
-	synthgen.setWavelet( wav, OD::UsePtr );
+	synthgen.setWavelet( wav );
 	synthgen.enableFourierDomain( true );
 	synthgen.usePar( *raypar );
 

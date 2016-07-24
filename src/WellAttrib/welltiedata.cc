@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emmanager.h"
 
-#include "wavelet.h"
+#include "waveletmanager.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellextractdata.h"
@@ -100,12 +100,18 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     : logset_(*new Well::LogSet)
     , wd_(&wdata)
     , setup_(wts)
-    , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
+    , initwvlt_(*new Wavelet)
     , estimatedwvlt_(*new Wavelet("Estimated wavelet"))
     , seistrc_(*new SeisTrc)
     , synthtrc_(*new SeisTrc)
     , trunner_(0)
 {
+    ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( wts.wvltid_ );
+    if ( wvlt )
+	initwvlt_ = *wvlt;
+    else
+	{ pErrMsg( "Wvlt ID invalid" ); initwvlt_ = Wavelet( true, 25.f ); }
+
     const Well::Track& track = wdata.track();
     const Well::D2TModel* d2t = wdata.d2TModel();
     float stoptime = SI().zRange(true).stop;
@@ -141,10 +147,10 @@ Data::~Data()
 {
     delete trunner_;
     delete &logset_;
-    delete &initwvlt_;
-    delete &estimatedwvlt_;
     delete &seistrc_;
     delete &synthtrc_;
+    initwvlt_.unRef();
+    estimatedwvlt_.unRef();
 }
 
 
