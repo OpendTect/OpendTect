@@ -90,7 +90,7 @@ RefMan<Pick::Set> uiNewPickSetDlg::getEmptyPickSet() const
 	ret = new Pick::Set( nm );
     else
     {
-	const MultiID setid = Pick::SetMGR().getID( nm );
+	const MultiID setid = Pick::SetMGR().getIDByName( nm );
 	uiString msg = tr("A Pick Set with that name already exists.\n");
 	if ( Pick::SetMGR().isLoaded( setid ) )
 	{
@@ -102,7 +102,7 @@ RefMan<Pick::Set> uiNewPickSetDlg::getEmptyPickSet() const
 	if ( !uiMSG().askGoOn( msg ) )
 	    return ret;
 
-	ret = Pick::SetMGR().fetchForEdit( Pick::SetMGR().getID(nm) );
+	ret = Pick::SetMGR().fetchForEdit( setid );
 	if ( !ret )
 	    ret = new Pick::Set( nm );
 	else

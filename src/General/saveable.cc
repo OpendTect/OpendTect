@@ -8,6 +8,7 @@
 #include "saveable.h"
 #include "saveablemanager.h"
 #include "monitorchangerecorder.h"
+#include "autosaver.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iodir.h"
@@ -161,8 +162,9 @@ bool Saveable::store( const IOObj& ioobj ) const
 
 
 
-SaveableManager::SaveableManager()
-    : ctxt_(0)
+SaveableManager::SaveableManager( const IOObjContext& ctxt, bool withautosave )
+    : ctxt_(*new IOObjContext(ctxt))
+    , autosaveable_(withautosave)
     , ObjAdded(this)
     , ObjOrphaned(this)
     , UnsavedObjLastCall(this)
@@ -182,7 +184,7 @@ SaveableManager::~SaveableManager()
     sendDelNotif();
     setEmpty();
     detachAllNotifiers();
-    delete const_cast<IOObjContext*>( ctxt_ );
+    delete const_cast<IOObjContext*>( &ctxt_ );
 }
 
 
@@ -196,7 +198,7 @@ void SaveableManager::setEmpty()
 void SaveableManager::setNoSaveNeeded( const ObjID& id ) const
 {
     mLock4Read();
-    const int idx = gtIdx( id );
+    const IdxType idx = gtIdx( id );
     if ( idx >= 0 )
 	savers_[idx]->setNoSaveNeeded();
 }
@@ -204,7 +206,7 @@ void SaveableManager::setNoSaveNeeded( const ObjID& id ) const
 
 uiRetVal SaveableManager::doSave( const ObjID& id ) const
 {
-    const int idx = gtIdx( id );
+    const IdxType idx = gtIdx( id );
     if ( idx >= 0 )
     {
 	if ( !savers_[idx]->save() )
@@ -218,7 +220,7 @@ uiRetVal SaveableManager::doSave( const ObjID& id ) const
 uiRetVal SaveableManager::save( const SharedObject& obj ) const
 {
     mLock4Read();
-    const int idx = gtIdx( obj );
+    const IdxType idx = gtIdx( obj );
     return idx<0 ? uiRetVal::OK() : doSave( savers_[idx]->key() );
 }
 
@@ -234,7 +236,7 @@ uiRetVal SaveableManager::saveAs( const ObjID& id, const ObjID& newid ) const
 {
     mLock4Read();
 
-    const int idx = gtIdx( id );
+    const IdxType idx = gtIdx( id );
     if ( idx < 0 )
 	{ pErrMsg("Save-As not loaded ID"); return uiRetVal::OK(); }
 
@@ -251,7 +253,7 @@ uiRetVal SaveableManager::saveAs( const ObjID& id, const ObjID& newid ) const
 bool SaveableManager::needsSave( const ObjID& id ) const
 {
     mLock4Read();
-    const int idx = gtIdx( id );
+    const IdxType idx = gtIdx( id );
     return idx < 0 ? false : savers_[idx]->needsSave();
 }
 
@@ -259,19 +261,19 @@ bool SaveableManager::needsSave( const ObjID& id ) const
 bool SaveableManager::needsSave( const SharedObject& obj ) const
 {
     mLock4Read();
-    const int idx = gtIdx( obj );
+    const IdxType idx = gtIdx( obj );
     return idx < 0 ? false : savers_[idx]->needsSave();
 }
 
 
-SaveableManager::ObjID SaveableManager::getID( const char* nm ) const
+SaveableManager::ObjID SaveableManager::getIDByName( const char* nm ) const
 {
     if ( !nm || !*nm )
 	return ObjID::udf();
 
     mLock4Read();
 
-    for ( int idx=0; idx<savers_.size(); idx++ )
+    for ( IdxType idx=0; idx<savers_.size(); idx++ )
     {
 	const Saveable& saver = *savers_[idx];
 	const SharedObject* obj = saver.object();
@@ -291,7 +293,7 @@ SaveableManager::ObjID SaveableManager::getID( const SharedObject& obj ) const
 {
     mLock4Read();
 
-    const int idxof = gtIdx( obj );
+    const IdxType idxof = gtIdx( obj );
     return idxof < 0 ? ObjID::udf() : savers_[idxof]->key();
 }
 
@@ -302,7 +304,7 @@ IOPar SaveableManager::getIOObjPars( const ObjID& id ) const
 	return IOPar();
 
     mLock4Read();
-    const int idx = gtIdx( id );
+    const IdxType idx = gtIdx( id );
     if ( idx >= 0 )
 	return savers_[idx]->ioObjPars();
     mUnlockAllAccess();
@@ -317,8 +319,8 @@ IOObj* SaveableManager::getIOObj( const char* nm ) const
     if ( !nm || !*nm )
 	return 0;
 
-    IODir iodir( ctxt_->getSelKey() );
-    const IOObj* ioobj = iodir.get( nm, ctxt_->translatorGroupName() );
+    IODir iodir( ctxt_.getSelKey() );
+    const IOObj* ioobj = iodir.get( nm, ctxt_.translatorGroupName() );
     return ioobj ? ioobj->clone() : 0;
 }
 
@@ -347,7 +349,7 @@ uiRetVal SaveableManager::store( const SharedObject& newobj,
     PtrMan<IOObj> ioobj = getIOObj( nm );
     if ( !ioobj )
     {
-	CtxtIOObj ctio( *ctxt_ );
+	CtxtIOObj ctio( ctxt_ );
 	ctio.setName( newobj.name() );
 	ctio.ctxt_.forread_ = false;
 	IOM().getEntry( ctio );
@@ -370,7 +372,7 @@ uiRetVal SaveableManager::store( const SharedObject& newobj, const ObjID& id,
     else
     {
 	mLock4Write();
-	const int idxof = gtIdx( id );
+	const IdxType idxof = gtIdx( id );
 	if ( idxof >= 0 )
 	{
 	    SaveableManager& self = *const_cast<SaveableManager*>(this);
@@ -405,6 +407,8 @@ void SaveableManager::add( const SharedObject& newobj, const ObjID& id,
     mUnlockAllAccess();
 
     self.ObjAdded.trigger( id );
+    if ( autosaveable_ )
+	OD::AUTOSAVE().add( *saver );
 }
 
 
@@ -433,30 +437,30 @@ bool SaveableManager::isLoaded( const ObjID& id ) const
 }
 
 
-int SaveableManager::size() const
+SaveableManager::IdxType SaveableManager::size() const
 {
     mLock4Read();
     return savers_.size();
 }
 
 
-MultiID SaveableManager::getID( int idx ) const
+MultiID SaveableManager::getIDByIndex( IdxType idx ) const
 {
     mLock4Read();
     return savers_.validIdx(idx) ? savers_[idx]->key() : ObjID::udf();
 }
 
 
-IOPar SaveableManager::getIOObjPars( int idx ) const
+IOPar SaveableManager::getIOObjParsByIndex( IdxType idx ) const
 {
     mLock4Read();
     return savers_.validIdx(idx) ? savers_[idx]->ioObjPars() : IOPar();
 }
 
 
-int SaveableManager::gtIdx( const char* nm ) const
+SaveableManager::IdxType SaveableManager::gtIdx( const char* nm ) const
 {
-    for ( int idx=0; idx<savers_.size(); idx++ )
+    for ( IdxType idx=0; idx<savers_.size(); idx++ )
     {
 	const SharedObject* obj = savers_[idx]->object();
 	if ( obj && obj->name() == nm )
@@ -466,9 +470,9 @@ int SaveableManager::gtIdx( const char* nm ) const
 }
 
 
-int SaveableManager::gtIdx( const ObjID& id ) const
+SaveableManager::IdxType SaveableManager::gtIdx( const ObjID& id ) const
 {
-    for ( int idx=0; idx<savers_.size(); idx++ )
+    for ( IdxType idx=0; idx<savers_.size(); idx++ )
     {
 	if ( savers_[idx]->key() == id )
 	    return idx;
@@ -477,9 +481,9 @@ int SaveableManager::gtIdx( const ObjID& id ) const
 }
 
 
-int SaveableManager::gtIdx( const SharedObject& obj ) const
+SaveableManager::IdxType SaveableManager::gtIdx( const SharedObject& obj ) const
 {
-    for ( int idx=0; idx<savers_.size(); idx++ )
+    for ( IdxType idx=0; idx<savers_.size(); idx++ )
     {
 	if ( savers_[idx]->object() == &obj )
 	    return idx;
@@ -488,10 +492,17 @@ int SaveableManager::gtIdx( const SharedObject& obj ) const
 }
 
 
+SharedObject* SaveableManager::gtObj( IdxType idx ) const
+{
+    return !savers_.validIdx(idx) ? 0
+	 : const_cast<SharedObject*>( savers_[idx]->object() );
+}
+
+
 void SaveableManager::clearChangeRecords( const ObjID& id )
 {
     mLock4Read();
-    int idxof = gtIdx( id );
+    IdxType idxof = gtIdx( id );
     if ( idxof < 0 )
 	return;
     ChangeRecorder* rec = chgrecs_[ idxof ];
@@ -516,7 +527,7 @@ void SaveableManager::getChangeInfo( const ObjID& id, uiString& undotxt,
 {
     undotxt.setEmpty(); redotxt.setEmpty();
     mLock4Read();
-    int idxof = gtIdx( id );
+    IdxType idxof = gtIdx( id );
     if ( idxof < 0 )
 	return;
     const ChangeRecorder* rec = chgrecs_[ idxof ];
@@ -533,7 +544,7 @@ void SaveableManager::getChangeInfo( const ObjID& id, uiString& undotxt,
 bool SaveableManager::useChangeRecord( const ObjID& id, bool forundo )
 {
     mLock4Read();
-    int idxof = gtIdx( id );
+    IdxType idxof = gtIdx( id );
     if ( idxof < 0 )
 	return false;
 
@@ -568,7 +579,7 @@ void SaveableManager::displayRequest( const ObjID& objid, DispOpt opt )
 void SaveableManager::handleUnsavedLastCall()
 {
     mLock4Read();
-    for ( int idx=0; idx<savers_.size(); idx++ )
+    for ( IdxType idx=0; idx<savers_.size(); idx++ )
     {
 	ConstRefMan<SharedObject> obj = savers_[idx]->object();
 	if ( !obj )
@@ -607,7 +618,7 @@ void SaveableManager::appExitCB( CallBacker* )
 	{ pErrMsg("CB is not a SharedObject"); return; } \
  \
     mLock4Read(); \
-    int idxof = gtIdx( *obj ); \
+    IdxType idxof = gtIdx( *obj ); \
     if ( idxof < 0 ) \
 	{ pErrMsg("idxof < 0"); return; }
 

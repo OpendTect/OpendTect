@@ -39,11 +39,13 @@ class IOObjContext;
 
 */
 
-mExpClass(General) SaveableManager : public Monitorable
+mExpClass(General) SaveableManager : public NamedMonitorable
 { mODTextTranslationClass(SaveableManager)
 public:
 
-    typedef ::MultiID	ObjID;
+    typedef ::MultiID				ObjID;
+    typedef ObjectSet<Saveable>::size_type	size_type;
+    typedef size_type				IdxType;
 
 			~SaveableManager();
 
@@ -56,14 +58,13 @@ public:
 
     bool		isLoaded(const char*) const;
     bool		isLoaded(const ObjID&) const;
-    ObjID		getID(const char*) const;
-    ObjID		getID(const SharedObject&) const;
+    ObjID		getIDByName(const char*) const;
     IOPar		getIOObjPars(const ObjID&) const;
 
 			// Use MonitorLock when iterating
-    int			size() const;
-    ObjID		getID(int) const;
-    IOPar		getIOObjPars(int) const;
+    IdxType		size() const;
+    ObjID		getIDByIndex(IdxType) const;
+    IOPar		getIOObjParsByIndex(IdxType) const;
 
     CNotifier<SaveableManager,ObjID>	ObjAdded;
     CNotifier<SaveableManager,ObjID>	ObjOrphaned;
@@ -82,7 +83,7 @@ public:
 
 protected:
 
-			SaveableManager();
+			SaveableManager(const IOObjContext&,bool autosv);
 
     virtual Saveable*	getSaver(const SharedObject&) const	= 0;
     virtual ChangeRecorder* getChangeRecorder(const SharedObject&) const
@@ -91,8 +92,11 @@ protected:
 
     ObjectSet<Saveable>		savers_;
     ObjectSet<ChangeRecorder>	chgrecs_;
+    const IOObjContext&		ctxt_;
+    const bool			autosaveable_;
 
 			// to be called from public obj-type specific ones
+    ObjID		getID(const SharedObject&) const;
     uiRetVal		store(const SharedObject&,const IOPar*) const;
     uiRetVal		store(const SharedObject&,const ObjID&,
 			      const IOPar*) const;
@@ -101,9 +105,10 @@ protected:
 
 			// Tools for locked state
     void		setEmpty();
-    int			gtIdx(const char*) const;
-    int			gtIdx(const ObjID&) const;
-    int			gtIdx(const SharedObject&) const;
+    IdxType		gtIdx(const char*) const;
+    IdxType		gtIdx(const ObjID&) const;
+    IdxType		gtIdx(const SharedObject&) const;
+    SharedObject*	gtObj(IdxType) const;
     uiRetVal		doSave(const ObjID&) const;
     void		add(const SharedObject&,const ObjID&,const IOPar*,
 			    bool) const;
@@ -114,7 +119,6 @@ protected:
     void		objDelCB(CallBacker*);
     void		objChgCB(CallBacker*);
 
-    const IOObjContext*	ctxt_;
     IOObj*		getIOObj(const char*) const;
 
 public:
@@ -123,6 +127,41 @@ public:
     void		handleUnsavedLastCall();
 
 };
+
+
+#define mDeclareSaveableManagerInstance(typ) \
+    static typ&	getInstance(); \
+    typ*	clone() const	{ return 0; } \
+    mDeclInstanceCreatedNotifierAccess(typ)
+
+#define mDefineSaveableManagerInstance(typ) \
+mDefineInstanceCreatedNotifierAccess(typ) \
+ \
+static typ* theinst_ = 0; \
+static Threads::Lock theinstcreatelock_(true); \
+ \
+typ& typ::getInstance() \
+{ \
+    if ( !theinst_ ) \
+    { \
+	Threads::Locker locker( theinstcreatelock_ ); \
+	if ( !theinst_ ) \
+	    theinst_ = new typ; \
+    } \
+    return *theinst_; \
+}
+
+
+#define mDefineStdFns(typ) \
+    ObjID		getID( const char* nm ) const \
+			{ return SaveableManager::getID(nm); } \
+    ObjID		getID( const SharedObject& obj ) const \
+			{ return SaveableManager::getID(obj); } \
+    ObjID		getID(const typ&) const; \
+    uiRetVal		store(const typ&,const IOPar* ioobjpars=0) const; \
+    uiRetVal		store(const typ&,const ObjID&,const IOPar* p=0) const; \
+    uiRetVal		save(const typ&) const; \
+    bool		needsSave(const typ&) const
 
 
 #endif

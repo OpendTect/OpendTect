@@ -123,7 +123,7 @@ bool uiPickPartServer::storePickSets( int polyopt, const char* cat )
     MonitorLock ml( Pick::SetMGR() );
     for ( int idx=0; idx<Pick::SetMGR().size(); idx++ )
     {
-	const MultiID setid = Pick::SetMGR().getID( idx );
+	const MultiID setid = Pick::SetMGR().getIDByIndex( idx );
 	if ( !Pick::SetMGR().hasCategory(setid,cat) )
 	    continue;
 	if ( polyopt )
@@ -143,7 +143,7 @@ bool uiPickPartServer::storePickSets( int polyopt, const char* cat )
     uiStringSet errmsgs;
     for ( int idx=0; idx<setids.size(); idx++ )
     {
-	const Pick::SetManager::SetID setid( setids[idx] );
+	const Pick::SetManager::ObjID setid( setids[idx] );
 	if ( !Pick::SetMGR().canSave(setid) )
 	    doSaveAs( setid, 0 );
 	else
@@ -167,7 +167,7 @@ bool uiPickPartServer::storePickSets( int polyopt, const char* cat )
 
 bool uiPickPartServer::storePickSet( const Pick::Set& ps )
 {
-    Pick::SetManager::SetID setid = Pick::SetMGR().getID( ps );
+    Pick::SetManager::ObjID setid = Pick::SetMGR().getID( ps );
     if ( setid.isUdf() )
     {
 	uiMSG().error( tr("Internal: Request to store an unmanaged PickSet") );
@@ -189,7 +189,7 @@ bool uiPickPartServer::storePickSet( const Pick::Set& ps )
 
 bool uiPickPartServer::storePickSetAs( const Pick::Set& ps )
 {
-    Pick::SetManager::SetID setid = Pick::SetMGR().getID( ps );
+    Pick::SetManager::ObjID setid = Pick::SetMGR().getID( ps );
     if ( setid.isUdf() )
     {
 	uiMSG().error( tr("Internal: Request to Save-As an unmanaged PickSet"));
@@ -405,7 +405,7 @@ void uiPickPartServer::mkRandLocs2D( CallBacker* cb )
 void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
 {
     const char* sKeyMisClass = "Misclassified [NN]";
-    Pick::SetManager::SetID id = Pick::SetMGR().getID( sKeyMisClass );
+    Pick::SetManager::ObjID id = Pick::SetMGR().getIDByName( sKeyMisClass );
     RefMan<Pick::Set> ps = id.isUdf() ? 0 : Pick::SetMGR().fetchForEdit( id );
     if ( ps )
 	ps->setEmpty();
