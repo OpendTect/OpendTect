@@ -338,6 +338,7 @@ int Seis2DLineMerger::doWork()
 	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 	    if ( !geom2d || !Survey::GMAdmin().write(*geom2d, msg_) )
 		return Executor::ErrorOccurred();
+	    geom2d->touch();
 	    currentlyreading_ = 0;
 	    return Executor::MoreToDo();
 	}
@@ -369,7 +370,7 @@ int Seis2DLineMerger::doWork()
 
     nrdone_ = 0;
     totnr_ = outbuf_.size();
-    
+
     IOPar* lineiopar = new IOPar;
     lineiopar->set( sKey::GeomID(), outgeomid_ );
     putter_ = ds_->linePutter( outgeomid_ );
