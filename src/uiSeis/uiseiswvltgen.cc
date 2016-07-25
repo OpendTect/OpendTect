@@ -168,7 +168,7 @@ uiSeisWvltMerge::~uiSeisWvltMerge()
     for ( int idx=0; idx<wvltdrawer_.size(); idx++ )
 	wvltdrawer_[idx]->funclistselChged.remove(
 				mCB(this,uiSeisWvltMerge,funcSelChg) );
-    deepErase( wvltset_ );
+    deepUnRef( wvltset_ );
     deepErase( wvltfuncset_ );
 }
 
@@ -195,8 +195,10 @@ void uiSeisWvltMerge::clearStackedWvlt( uiFuncSelDraw* wd )
     if ( stackedwvlt_ )
     {
 	delete wvltfuncset_.removeSingle( wd->removeLastItem() );
-	wvltset_.removeSingle( wvltset_.size()-1 );
-	stackedwvlt_ = 0;
+	const int idxof = wvltset_.indexOf( stackedwvlt_ );
+	if( idxof >= 0 )
+	    wvltset_.removeSingle( idxof );
+	stackedwvlt_->unRef(); stackedwvlt_ = 0;
     }
 }
 
@@ -270,7 +272,7 @@ uiFuncSelDraw* uiSeisWvltMerge::getCurrentDrawer()
 
 void uiSeisWvltMerge::reloadWvlts()
 {
-    deepErase( wvltset_ ); deepErase( namelist_ );
+    deepUnRef( wvltset_ ); deepErase( namelist_ );
     stackedwvlt_ = 0;
     const IOObjContext ctxt( mIOObjContext(Wavelet) );
     const IODir iodir( ctxt.getSelKey() );

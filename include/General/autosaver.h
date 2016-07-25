@@ -15,13 +15,13 @@ ________________________________________________________________________
 #include "monitor.h"
 #include "uistring.h"
 class IOStream;
+class Saveable;
 
 
 namespace OD
 {
 
 class AutoSaver;
-class Saveable;
 
 
 mExpClass(General) AutoSaveObj : public CallBacker

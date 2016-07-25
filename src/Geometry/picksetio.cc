@@ -75,14 +75,14 @@ void startSetCategoryFromTypeInOMFPutter()
 
 
 Pick::SetSaver::SetSaver( const Set& ps )
-    : OD::Saveable(ps)
+    : Saveable(ps)
 {
     mTriggerInstanceCreatedNotifier();
 }
 
 
 Pick::SetSaver::SetSaver( const SetSaver& oth )
-    : OD::Saveable(oth)
+    : Saveable(oth)
 {
     copyAll( oth );
     mTriggerInstanceCreatedNotifier();
@@ -95,7 +95,7 @@ Pick::SetSaver::~SetSaver()
 }
 
 
-mImplMonitorableAssignment(Pick::SetSaver,OD::Saveable)
+mImplMonitorableAssignment(Pick::SetSaver,Saveable)
 
 void Pick::SetSaver::copyClassData( const SetSaver& oth )
 {
@@ -104,13 +104,13 @@ void Pick::SetSaver::copyClassData( const SetSaver& oth )
 
 ConstRefMan<Pick::Set> Pick::SetSaver::pickSet() const
 {
-    return ConstRefMan<Set>( static_cast<const Set*>( monitored() ) );
+    return ConstRefMan<Set>( static_cast<const Set*>( object() ) );
 }
 
 
 void Pick::SetSaver::setPickSet( const Set& ps )
 {
-    setMonitored( ps );
+    setObject( ps );
 }
 
 

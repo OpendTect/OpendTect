@@ -316,7 +316,7 @@ uiRetVal WaveletManager::store( const Wavelet& newwvlt, const WvltID& id,
 	{
 	    WaveletManager& self = *const_cast<WaveletManager*>(this);
 	    WaveletSaver& svr = *self.savers_[idxof];
-	    if ( svr.monitored() != &newwvlt )
+	    if ( svr.object() != &newwvlt )
 		svr.setWavelet( newwvlt );
 	}
     }
@@ -442,7 +442,7 @@ int WaveletManager::gtIdx( const Wavelet& wvlt ) const
 {
     for ( int idx=0; idx<savers_.size(); idx++ )
     {
-	if ( savers_[idx]->monitored() == &wvlt ) // you cannot use wavelet()
+	if ( savers_[idx]->object() == &wvlt ) // you cannot use wavelet()
 	    return idx;
     }
     return -1;

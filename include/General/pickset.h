@@ -13,8 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "picklocation.h"
+#include "sharedobject.h"
 #include "enums.h"
-#include "namedobj.h"
 #include "trckey.h"
 #include "sets.h"
 #include "draw.h"
@@ -33,14 +33,11 @@ namespace Pick
   points: a polygon. Apart from this, a set may be labeled to be part of a
   'category', like 'ArrowAnnotations'.
 
-  In the near future, each location will get its own unique ID, the LocID. For
-  now, this ID is identical to the index in the list. This is not MT-safe. But
-  current code assumes LocID == IdxType.
+  Each location has its own unique ID, the LocID.
 
 */
 
-mExpClass(General) Set	: public RefCount::Referenced
-			, public NamedMonitorable
+mExpClass(General) Set	: public SharedObject
 {
 public:
 

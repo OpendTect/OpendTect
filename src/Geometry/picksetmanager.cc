@@ -330,7 +330,7 @@ uiRetVal Pick::SetManager::store( const Set& newset, const SetID& id,
 	{
 	    SetManager& self = *const_cast<SetManager*>(this);
 	    SetSaver& svr = *self.savers_[idxof];
-	    if ( svr.monitored() != &newset )
+	    if ( svr.object() != &newset )
 	    {
 		svr.setPickSet( newset );
 		delete self.chgrecs_.replace( idxof,
@@ -464,7 +464,7 @@ int Pick::SetManager::gtIdx( const Set& ps ) const
 {
     for ( int idx=0; idx<savers_.size(); idx++ )
     {
-	if ( savers_[idx]->monitored() == &ps ) // you cannot use pickSet()
+	if ( savers_[idx]->object() == &ps ) // you cannot use pickSet()
 	    return idx;
     }
     return -1;

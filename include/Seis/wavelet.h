@@ -12,16 +12,15 @@ ________________________________________________________________________
 -*/
 
 #include "seiscommon.h"
+#include "sharedobject.h"
 #include "mathfunc.h"
-#include "namedobj.h"
 #include "ranges.h"
 #include "valseries.h"
 template <class T> class TypeSet;
 template <class T> class ValueSeriesInterpolator;
 
 
-mExpClass(Seis) Wavelet : public RefCount::Referenced
-			, public NamedMonitorable
+mExpClass(Seis) Wavelet : public SharedObject
 {
 public:
 

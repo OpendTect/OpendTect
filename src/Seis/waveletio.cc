@@ -109,14 +109,14 @@ mDefineInstanceCreatedNotifierAccess(WaveletSaver)
 
 
 WaveletSaver::WaveletSaver( const Wavelet& ps )
-    : OD::Saveable(ps)
+    : Saveable(ps)
 {
     mTriggerInstanceCreatedNotifier();
 }
 
 
 WaveletSaver::WaveletSaver( const WaveletSaver& oth )
-    : OD::Saveable(oth)
+    : Saveable(oth)
 {
     copyAll( oth );
     mTriggerInstanceCreatedNotifier();
@@ -129,7 +129,7 @@ WaveletSaver::~WaveletSaver()
 }
 
 
-mImplMonitorableAssignment(WaveletSaver,OD::Saveable)
+mImplMonitorableAssignment(WaveletSaver,Saveable)
 
 void WaveletSaver::copyClassData( const WaveletSaver& oth )
 {
@@ -138,13 +138,13 @@ void WaveletSaver::copyClassData( const WaveletSaver& oth )
 
 ConstRefMan<Wavelet> WaveletSaver::wavelet() const
 {
-    return ConstRefMan<Wavelet>( static_cast<const Wavelet*>( monitored() ) );
+    return ConstRefMan<Wavelet>( static_cast<const Wavelet*>( object() ) );
 }
 
 
 void WaveletSaver::setWavelet( const Wavelet& ps )
 {
-    setMonitored( ps );
+    setObject( ps );
 }
 
 

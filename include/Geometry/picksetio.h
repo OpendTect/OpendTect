@@ -61,7 +61,7 @@ protected:
 
 /*!\brief Saveable for Pick::Set. */
 
-mExpClass(Geometry) SetSaver : public OD::Saveable
+mExpClass(Geometry) SetSaver : public Saveable
 {
 public:
 

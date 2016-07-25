@@ -624,10 +624,10 @@ void uiODMain::autoSaveFail( CallBacker* cb )
     if ( !asobj )
 	{ pErrMsg("Huh"); return; }
 
-    const OD::Saveable* svbl = asobj->saver();
-    const NamedMonitorable* obj = 0;
+    const Saveable* svbl = asobj->saver();
+    const SharedObject* obj = 0;
     if ( svbl )
-	mDynamicCast(const NamedMonitorable*,obj,svbl->monitored());
+	mDynamicCast(const SharedObject*,obj,svbl->object());
 
     uiString msg( tr("Auto-Save [%1]: %2")
 	    .arg( obj ? obj->name().str() : "" )

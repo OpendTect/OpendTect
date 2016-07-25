@@ -19,7 +19,7 @@ mDefineInstanceCreatedNotifierAccess(Wavelet)
 
 
 Wavelet::Wavelet( const char* nm )
-	: NamedMonitorable(nm)
+	: SharedObject(nm)
 	, cidx_(0)
 	, dpos_(SeisTrcInfo::defaultSampleInterval(true))
 	, sz_(0)
@@ -31,7 +31,7 @@ Wavelet::Wavelet( const char* nm )
 
 
 Wavelet::Wavelet( bool isricker, ValueType fpeak, ZType sr, ValueType scale )
-	: NamedMonitorable( BufferString(isricker ? "Ricker f=" : "Sinc f=",
+	: SharedObject( BufferString(isricker ? "Ricker f=" : "Sinc f=",
 					 fpeak, ")") )
 	, dpos_(sr)
 	, sz_(0)
@@ -87,7 +87,7 @@ Wavelet::~Wavelet()
 }
 
 
-mImplMonitorableAssignment( Wavelet, NamedMonitorable )
+mImplMonitorableAssignment( Wavelet, SharedObject )
 
 
 void Wavelet::copyClassData( const Wavelet& oth )

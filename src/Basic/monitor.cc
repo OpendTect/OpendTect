@@ -6,6 +6,7 @@
 
 
 #include "monitorchangerecorder.h"
+#include "sharedobject.h"
 #include "thread.h"
 #include "uistrings.h"
 
@@ -13,6 +14,8 @@ static const int maxnrchangerecs_ = 100;
 
 
 mDefineInstanceCreatedNotifierAccess(Monitorable)
+mDefineInstanceCreatedNotifierAccess(SharedObject)
+
 
 Monitorable::AccessLockHandler::AccessLockHandler( const Monitorable& obj,
 						   bool forread )
@@ -394,4 +397,32 @@ void ChangeRecorder::objChg( CallBacker* cb )
 	mGetMonitoredChgData( cb, chgdata );
 	handleObjChange( chgdata );
     }
+}
+
+
+SharedObject::SharedObject( const char* nm )
+    : NamedMonitorable(nm)
+{
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+SharedObject::SharedObject( const SharedObject& oth )
+    : NamedMonitorable(oth)
+{
+    copyAll( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+SharedObject::~SharedObject()
+{
+    sendDelNotif();
+}
+
+
+mImplMonitorableAssignment( SharedObject, NamedMonitorable )
+
+void SharedObject::copyClassData( const SharedObject& oth )
+{
 }

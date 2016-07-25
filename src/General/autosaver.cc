@@ -85,7 +85,7 @@ OD::AutoSaveObj::~AutoSaveObj()
 bool OD::AutoSaveObj::isFinished() const
 {
     Threads::Locker locker( lock_ );
-    return !saver_ || !saver_->monitoredAlive();
+    return !saver_ || !saver_->objectAlive();
 }
 
 
@@ -120,7 +120,7 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
 {
     Threads::Locker locker( lock_ );
     errmsg_.setEmpty();
-    if ( !saver_ || !saver_->monitoredAlive() )
+    if ( !saver_ || !saver_->objectAlive() )
 	return 0;
 
     const DirtyCountType curdirtycount = saver_->curDirtyCount();

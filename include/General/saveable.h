@@ -12,15 +12,11 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "monitor.h"
+#include "sharedobject.h"
 #include "multiid.h"
 #include "iopar.h"
 #include "uistring.h"
 class IOObj;
-
-
-namespace OD
-{
 
 
 /*!\brief Object that can be saved at any time. */
@@ -29,13 +25,13 @@ mExpClass(General) Saveable : public Monitorable
 { mODTextTranslationClass(Saveable)
 public:
 
-			Saveable(const Monitorable&);
+			Saveable(const SharedObject&);
 			~Saveable();
 			mDeclAbstractMonitorableAssignment(Saveable);
 
-    const Monitorable*	monitored() const;
-    bool		monitoredAlive() const	{ return monitoredalive_; }
-    void		setMonitored(const Monitorable&);
+    const SharedObject* object() const;
+    bool		objectAlive() const	{ return objectalive_; }
+    void		setObject(const SharedObject&);
 
     mImplSimpleMonitoredGetSet(inline,key,setKey,MultiID,storekey_,0)
     mImplSimpleMonitoredGetSet(inline,ioObjPars,setIOObjPars,IOPar,ioobjpars_,0)
@@ -57,11 +53,11 @@ public:
 
 protected:
 
-    const Monitorable*	monitored_;
+    const SharedObject* object_;
+    Threads::Atomic<bool> objectalive_;
     MultiID		storekey_;
     IOPar		ioobjpars_;
     mutable uiString	errmsg_;
-    Threads::Atomic<bool> monitoredalive_;
     mutable Threads::Atomic<DirtyCountType> lastsavedirtycount_;
 
 			// This function can be called from any thread
@@ -75,7 +71,5 @@ private:
 
 };
 
-
-}; //namespace OD
 
 #endif

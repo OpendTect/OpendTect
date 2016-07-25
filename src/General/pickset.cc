@@ -24,7 +24,7 @@ mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
 { "None", "Open", "Close", 0 };
 
 Pick::Set::Set( const char* nm, const char* cat )
-    : NamedMonitorable(nm)
+    : SharedObject(nm)
     , curlocidnr_(0)
 {
     setCategory( cat );
@@ -33,7 +33,7 @@ Pick::Set::Set( const char* nm, const char* cat )
 
 
 Pick::Set::Set( const Set& oth )
-    : NamedMonitorable(oth)
+    : SharedObject(oth)
     , curlocidnr_(oth.curlocidnr_)
 {
     copyAll( oth );
@@ -47,7 +47,7 @@ Pick::Set::~Set()
 }
 
 
-mImplMonitorableAssignment( Pick::Set, NamedMonitorable )
+mImplMonitorableAssignment( Pick::Set, SharedObject )
 
 void Pick::Set::copyClassData( const Set& oth )
 {

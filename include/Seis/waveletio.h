@@ -45,7 +45,7 @@ public:
 
 /*!\brief Saveable for Wavelet. */
 
-mExpClass(Seis) WaveletSaver : public OD::Saveable
+mExpClass(Seis) WaveletSaver : public Saveable
 { mODTextTranslationClass(WaveletSaver)
 public:
 

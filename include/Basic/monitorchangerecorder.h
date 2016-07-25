@@ -22,6 +22,7 @@ mExpClass(Basic) ChangeRecorder : public NamedMonitorable
 {
 public:
 
+			~ChangeRecorder();
     mDeclAbstractMonitorableAssignment(ChangeRecorder);
     bool		isEmpty() const;
     void		setEmpty();
@@ -51,7 +52,6 @@ protected:
 
 			ChangeRecorder(Monitorable&,const char* nm);
 			ChangeRecorder(const Monitorable&,const char*);
-			~ChangeRecorder();
 
     Monitorable*	obj_;
     ObjectSet<Record>	recs_;

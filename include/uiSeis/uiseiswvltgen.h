@@ -84,7 +84,7 @@ protected:
     BufferString	curwvltnm_;
     int		maxwvltsize_;
     BufferStringSet	namelist_;
-    RefMan<Wavelet>	stackedwvlt_;
+    Wavelet*		stackedwvlt_;
     ObjectSet<WvltMathFunction> wvltfuncset_;
     ObjectSet<uiFuncSelDraw> wvltdrawer_;
     ObjectSet<Wavelet>  wvltset_;
