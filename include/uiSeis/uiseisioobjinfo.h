@@ -19,8 +19,8 @@ mExpClass(uiSeis) uiSeisIOObjInfo
 { mODTextTranslationClass(uiSeisIOObjInfo);
 public:
 
-    			uiSeisIOObjInfo(const IOObj&,bool error_feedback=true);
-    			uiSeisIOObjInfo(const MultiID&,bool err_feedback=true);
+			uiSeisIOObjInfo(const IOObj&,bool error_feedback=true);
+			uiSeisIOObjInfo(const MultiID&,bool err_feedback=true);
 
     bool		isOK() const		{ return sii.isOK(); }
     bool		is2D() const		{ return sii.is2D(); }
@@ -30,6 +30,10 @@ public:
     const ZDomain::Def&	zDomainDef() const	{ return sii.zDomainDef(); }
 
     bool		provideUserInfo() const;
+    bool		provideUserInfo2D(
+				const TypeSet<Pos::GeomID>* sel=0) const;
+			// By default (sel=0) gives info for all lines.
+
     bool		checkSpaceLeft(const SeisIOObjInfo::SpaceInfo&) const;
 
     int			expectedMBs( const SeisIOObjInfo::SpaceInfo& s ) const

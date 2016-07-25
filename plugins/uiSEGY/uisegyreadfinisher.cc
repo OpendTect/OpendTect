@@ -457,6 +457,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 {
     const int nrlines = fs_.spec_.nrFiles();
     bool overwr_warn = true; bool overwr = true;
+    TypeSet<Pos::GeomID> geomids;
     for ( int iln=0; iln<nrlines; iln++ )
     {
 	const BufferString fnm( fs_.spec_.fileName(iln) );
@@ -476,11 +477,12 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 
 	if ( !exec2Dimp(inioobj,outioobj,doimp,fnm,lnm,geomid) )
 	    return false;
+
+	geomids += geomid;
     }
 
-    uiMSG().message( nrlines < 2 ? tr("Successfully loaded '%1'").arg( inplnm )
-		: tr("Successfully loaded %1 lines").arg( nrlines ) );
-    return true;
+    uiSeisIOObjInfo oinf( outioobj, true );
+    return oinf.provideUserInfo2D( &geomids );
 }
 
 
