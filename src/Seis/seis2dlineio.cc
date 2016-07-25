@@ -343,6 +343,7 @@ int Seis2DLineMerger::doWork()
 	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 	    if ( !geom2d || !Survey::GMAdmin().write(*geom2d, msg_) )
 		return Executor::ErrorOccurred();
+	    geom2d->touch();
 	    currentlyreading_ = 0;
 	    return Executor::MoreToDo();
 	}

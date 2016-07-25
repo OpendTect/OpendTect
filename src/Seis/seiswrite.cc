@@ -85,6 +85,7 @@ bool SeisTrcWriter::close()
 	{
 	    uiString st;
 	    geom2d->dataAdmin() = *linedata_;
+	    geom2d->touch();
 	    Survey::GMAdmin().write( *geom2d, st );
 	}
     }
