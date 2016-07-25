@@ -328,31 +328,27 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 
 bool uiODLine2DParentTreeItem::loadDefaultData()
 {
-    const BufferString key( IOPar::compKey(sKey::Default(),
-			    SeisTrcTranslatorGroup::sKeyDefault2D()) );
-    BufferString midstr = SI().pars().find( key );
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(midstr) );
-    if ( midstr.isEmpty() || !ioobj )
-    {
-	uiString msg = tr("No or no valid default 2D data found."
-			  "You can set default 2D data in the 'Manage "
-			  "Seismics' window.\n\nDo you want to go there now?\n"
-			  "(on 'No' only the projection line will be shown)" );
-	const bool tomanage = uiMSG().askGoOn( msg );
-	if ( tomanage )
-	{
-	    applMgr()->seisServer()->manageSeismics( 1 );
-	    midstr = SI().pars().find( key );
-	}
-	else
-	    return false;
+    Attrib::DescID descid;
+    if ( !applMgr()->getDefaultDescID(descid,true) )
+	return false;
 
-	ioobj = IOM().get( MultiID(midstr) );
-	if ( midstr.isEmpty() || !ioobj )
+    const Attrib::DescSet* ads = Attrib::eDSHolder().getDescSet( true, false );
+    if ( !ads )
+	return false;
+
+    const Attrib::Desc* desc = ads->getDesc( descid );
+    if ( !desc )
+    {
+	ads = Attrib::eDSHolder().getDescSet( true, true );
+	if ( !ads )
+	    return false;
+	
+	desc = ads->getDesc( descid );
+	if ( !desc )
 	    return false;
     }
 
-    const char* attrnm = ioobj->name().buf();
+    const char* attrnm = desc->userRef();
     uiTaskRunner uitr( ODMainWin() );
     ObjectSet<uiTreeItem> set;
     findChildren( sKeyRightClick(), set );
