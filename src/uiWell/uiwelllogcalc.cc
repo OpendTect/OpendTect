@@ -353,7 +353,13 @@ void uiWellLogCalc::setUnits4Log( int inpidx )
 
     uiMathExpressionVariable* inpfld = formfld_->inpFld( inpidx );
     inpfld->setPropType( wl->propType() );
-    inpfld->setUnit( wl->unitOfMeasure() );
+    if ( wl->propType() == PropertyRef::Other )
+    {
+	inpfld->setUnit( wl->unitOfMeasure() );
+	return;
+    }
+
+    inpfld->setUnit( UoMR().getInternalFor(wl->propType()) );
 }
 
 
@@ -432,8 +438,37 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
     {
 	const MultiID wmid = wellids_[iwell];
+				     
+	RefMan<Well::Data> wd = Well::MGR().get( wmid ); 
+	bool isinplogunitsi = true;
+	for ( int i = 0; i<form_.nrInputs(); i++ )
+	{
+	    if ( form_.inputUnit(i) )
+		isinplogunitsi = form_.inputUnit(i)->scaler().isEmpty();
 
-	RefMan<Well::Data> wd = Well::MGR().get( wmid );
+	    if( !isinplogunitsi )
+		break;
+	}
+
+	bool isoutputlogunitsi = true; 
+	if ( outunfld_->getUnit() )
+	    isoutputlogunitsi = outunfld_->getUnit()->scaler().isEmpty();
+    
+	if ( !isinplogunitsi && !isoutputlogunitsi )
+	{
+	    bool res = uiMSG().askContinue(tr("The log units are not SI units. "
+				    "Are you sure you want to continue?"));
+	    if ( !res )
+		return false;
+	}
+
+	else if ( !isinplogunitsi || !isoutputlogunitsi )
+	{
+	    uiMSG().error(tr("Input and Output Log units do not match.\n"
+		"Please correct the units and proceed"));
+	    return false;
+	}
+    
 	if ( !wd )
 	    mErrContinue( tr("%1").arg(Well::MGR().errMsg()) )
 
