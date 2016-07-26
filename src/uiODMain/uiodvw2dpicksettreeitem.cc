@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "picksetmanager.h"
 #include "uiflatviewstdcontrol.h"
 #include "uimenu.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodpicksettreeitem.h"
@@ -35,6 +36,8 @@ ________________________________________________________________________
 uiODVw2DPickSetParentTreeItem::uiODVw2DPickSetParentTreeItem()
     : uiODVw2DTreeItem( uiStrings::sPickSet() )
 {
+    mAttachCB( Pick::SetMGR().ShowRequested,
+	       uiODVw2DPickSetParentTreeItem::picksetAddedCB );
 }
 
 
@@ -104,6 +107,20 @@ void uiODVw2DPickSetParentTreeItem::setActive( const MultiID& setid )
 	    break;
 	}
     }
+}
+
+
+void uiODVw2DPickSetParentTreeItem::picksetAddedCB( CallBacker* cber )
+{
+    mCBCapsuleUnpack( MultiID,psid,cber );
+    mEnsureExecutedInMainThreadWithCapsule(
+	    uiODVw2DPickSetParentTreeItem::picksetAddedCB, cbercaps )
+    if ( psid.isUdf() )
+	return;
+
+    TypeSet<MultiID> setids;
+    setids += psid;
+    addPickSets( setids );
 }
 
 
@@ -249,8 +266,6 @@ MultiID uiODVw2DPickSetTreeItem::pickSetID() const
 
 void uiODVw2DPickSetTreeItem::setChangedCB( CallBacker* )
 {
-    if ( vw2dpickset_ )
-	vw2dpickset_->drawAll();
     displayMiniCtab();
 }
 

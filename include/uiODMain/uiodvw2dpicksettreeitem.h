@@ -44,6 +44,7 @@ protected:
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
     void			setActive(const MultiID&);
+    void			picksetAddedCB(CallBacker*);
 
 };
 

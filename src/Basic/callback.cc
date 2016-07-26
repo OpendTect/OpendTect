@@ -38,8 +38,12 @@ public:
 	locker.unlockNow();
 
 	for ( int idx=0; idx<queue_.size(); idx++ )
-	{
 	    queue_[idx].doCall( cbers[idx] );
+
+	for ( int idx=cbers.size()-1; idx>=0; idx-- )
+	{
+	    if ( cbers[idx] && cbers[idx]->isCapsule() )
+		delete cbers.removeSingle( idx );
 	}
 
 	locker.reLock();

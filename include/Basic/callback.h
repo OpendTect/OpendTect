@@ -120,6 +120,10 @@ CallBack::callInMainThread( CallBack( this, ((CallBackFunction)(&func) ) ), 0)
 	CallBack( this, ((CallBackFunction)(&func) ) ), 0 ) )  \
 	return
 
+#define mEnsureExecutedInMainThreadWithCapsule( func, caps ) \
+    CallBack cb( this, ((CallBackFunction)(&func) ) ); \
+    if ( CallBack::queueIfNotInMainThread(cb,caps->clone()) ) \
+	return;
 
 /*!\brief TypeSet of CallBacks with a few extras.  */
 
@@ -189,6 +193,7 @@ public:
 
     bool		isNotifierAttached(NotifierAccess*) const;
 			//!<Only for debugging purposes, don't use
+    virtual bool	isCapsule() const	{ return false; }
 
 protected:
 
@@ -225,6 +230,10 @@ public:
 
     PayLoadType		data;
     CallBacker*		caller;
+
+    CBCapsule<PayLoadType>* clone()
+			    { return new CBCapsule<PayLoadType>(data,caller); }
+    bool		isCapsule() const	{ return true; }
 };
 
 
