@@ -60,6 +60,9 @@ public:
 
     void		addErrMsg(BufferString&) const;
 
+    static od_int32	systemSizeLimit();		//< if < 1 no limit
+    static void		setSystemSizeLimit(od_int32);	//< if < 1 no limit
+
 protected:
 
     union Header

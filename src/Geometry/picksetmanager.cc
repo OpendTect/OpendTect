@@ -11,10 +11,7 @@
 #include "picksetchangerecorder.h"
 #include "autosaver.h"
 #include "ioman.h"
-#include "iodir.h"
 #include "ioobj.h"
-#include "keystrs.h"
-#include "uistrings.h"
 
 
 #define mToPS(cnsttyp,reftyp,var) static_cast<cnsttyp Pick::Set reftyp>(var)

@@ -10,11 +10,29 @@ ________________________________________________________________________
 
 #include "netreqpacket.h"
 #include "atomic.h"
-#include "bufstring.h"
+#include "settings.h"
 #include "ptrman.h"
 
 
 static Threads::Atomic<int> curreqid_;
+
+static const char* sKeySizeLimit = "Network.Limit Packet Size";
+
+od_int32 Network::RequestPacket::systemSizeLimit()
+{
+    const char* res = Settings::common().find( sKeySizeLimit );
+    return toInt( res );
+}
+
+void Network::RequestPacket::setSystemSizeLimit( od_int32 val )
+{
+    Settings& setts = Settings::common();
+    if ( val < 1 )
+	setts.removeWithKey( sKeySizeLimit );
+    else
+	setts.set( sKeySizeLimit, val );
+    setts.write();
+}
 
 
 #define mRequestID_	(header_.int32s_[1])

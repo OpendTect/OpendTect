@@ -110,7 +110,7 @@ void Saveable::objDelCB( CallBacker* )
 bool Saveable::save() const
 {
     mLock4Read();
-    if ( objectalive_ )
+    if ( !objectalive_ )
 	{ pErrMsg("Attempt to save already deleted object"); return true; }
 
     PtrMan<IOObj> ioobj = IOM().get( storekey_ );
