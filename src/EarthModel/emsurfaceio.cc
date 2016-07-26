@@ -884,9 +884,10 @@ int dgbSurfaceReader::nextStep()
 		return ErrorOccurred();
 	    }
 
+	    const int startcol = firstcol + noofcoltoskip;
+	    const int stopcol = firstcol + noofcoltoskip + colstep*(nrcols - 1);
 	    hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
-			    geomid, firstcol+noofcoltoskip,
-			    firstcol+nrcols+noofcoltoskip-1, colstep );
+			    geomid, startcol, stopcol, colstep );
 	}
     }
 
