@@ -290,6 +290,8 @@ void uiIOObjSel::init()
     }
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
     mAttachCB( IOM().afterSurveyChange, uiIOObjSel::survChangedCB );
+    mAttachCB( IOM().entryAdded, uiIOObjSel::iomEntryAddedCB );
+    mAttachCB( IOM().entryRemoved, uiIOObjSel::iomEntryRemovedCB );
 }
 
 
@@ -321,6 +323,17 @@ void uiIOObjSel::survChangedCB( CallBacker* )
 	deleteAndZeroPtr( workctio_.ioobj_ );
 
     initRead();
+}
+
+
+void uiIOObjSel::iomChg( CallBacker* cb )
+{
+    mCBCapsuleUnpack( MultiID, id, cb );
+    if ( id.isUdf() )
+	return;
+
+    if ( workctio_.ctxt_.getSelKey() == id.parent() )
+	initRead();
 }
 
 
@@ -363,15 +376,13 @@ void uiIOObjSel::fillEntries()
     IODirEntryList del( iodir, inctio_.ctxt_ );
     BufferStringSet keys, names;
     if ( setup_.withclear_ || !setup_.filldef_ )
-    {
-	keys.add( "" );
-	names.add( "" );
-    }
+	{ keys.add( "" ); names.add( "" ); }
 
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* obj = del[idx]->ioobj_;
-	if ( !obj ) continue;
+	if ( !obj )
+	    continue;
 
 	keys.add( obj->key().buf() );
 	names.add( obj->name().buf() );

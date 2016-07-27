@@ -109,6 +109,9 @@ protected:
     void		doObjSel(CallBacker*);
     void		objInserted(CallBacker*);
     void		survChangedCB(CallBacker*);
+    void		iomEntryAddedCB( CallBacker* cb )	{ iomChg(cb); }
+    void		iomEntryRemovedCB( CallBacker* cb )	{ iomChg(cb); }
+    void		iomChg(CallBacker*);
     void		initRead();
 
     virtual const char*	userNameFromKey(const char*) const;
