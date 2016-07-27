@@ -34,10 +34,9 @@ ________________________________________________________________________
 
 
 uiODVw2DPickSetParentTreeItem::uiODVw2DPickSetParentTreeItem()
-    : uiODVw2DTreeItem( uiStrings::sPickSet() )
+    : uiODVw2DParentTreeItem( uiStrings::sPickSet() )
 {
-    mAttachCB( Pick::SetMGR().ShowRequested,
-	       uiODVw2DPickSetParentTreeItem::picksetAddedCB );
+    setObjectManager( &Pick::SetMGR() );
 }
 
 
@@ -110,17 +109,64 @@ void uiODVw2DPickSetParentTreeItem::setActive( const MultiID& setid )
 }
 
 
-void uiODVw2DPickSetParentTreeItem::picksetAddedCB( CallBacker* cber )
+void uiODVw2DPickSetParentTreeItem::objAddedCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( MultiID,psid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
-	    uiODVw2DPickSetParentTreeItem::picksetAddedCB, cbercaps )
+	    uiODVw2DPickSetParentTreeItem::objAddedCB, cbercaps )
     if ( psid.isUdf() )
 	return;
 
     TypeSet<MultiID> setids;
     setids += psid;
     addPickSets( setids );
+}
+
+
+void uiODVw2DPickSetParentTreeItem::objVanishedCB( CallBacker* cber )
+{
+    mCBCapsuleUnpack( MultiID,psid,cber );
+    mEnsureExecutedInMainThreadWithCapsule(
+	    uiODVw2DPickSetParentTreeItem::objVanishedCB, cbercaps )
+    if ( psid.isUdf() )
+	return;
+
+    removePickSet( psid );
+}
+
+
+void uiODVw2DPickSetParentTreeItem::objShownCB( CallBacker* cber )
+{
+    mCBCapsuleUnpack( MultiID,psid,cber );
+    mEnsureExecutedInMainThreadWithCapsule(
+	    uiODVw2DPickSetParentTreeItem::objShownCB, cbercaps )
+    if ( psid.isUdf() )
+	return;
+
+    showHidePickSet( psid, true );
+}
+
+
+void uiODVw2DPickSetParentTreeItem::objHiddenCB( CallBacker* cber )
+{
+    mCBCapsuleUnpack( MultiID,psid,cber );
+    mEnsureExecutedInMainThreadWithCapsule(
+	    uiODVw2DPickSetParentTreeItem::objHiddenCB, cbercaps )
+    if ( psid.isUdf() )
+	return;
+
+    showHidePickSet( psid, false );
+}
+
+
+void uiODVw2DPickSetParentTreeItem::objOrphanedCB( CallBacker* cber )
+{
+    mCBCapsuleUnpack( MultiID,psid,cber );
+    mEnsureExecutedInMainThreadWithCapsule(
+	    uiODVw2DPickSetParentTreeItem::objOrphanedCB, cbercaps )
+    if ( psid.isUdf() )
+	return;
+    //TODO do something when we have clearer idea what to do when it happens
 }
 
 
@@ -135,6 +181,20 @@ void uiODVw2DPickSetParentTreeItem::getPickSetVwr2DIDs(
 	    continue;
 
 	vw2dobjids.addIfNew( picktreeitem->vw2DObject()->id() );
+    }
+}
+
+
+void uiODVw2DPickSetParentTreeItem::showHidePickSet( const MultiID& mid,
+						     bool show )
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DPickSetTreeItem*,pickitm,getChild(idx))
+	if ( !pickitm || mid!=pickitm->pickSetID() )
+	    continue;
+
+	pickitm->setChecked( show, true );
     }
 }
 
@@ -365,10 +425,16 @@ void uiODVw2DPickSetTreeItem::deSelCB( CallBacker* )
 }
 
 
-void uiODVw2DPickSetTreeItem::checkCB( CallBacker* )
+void uiODVw2DPickSetTreeItem::enableDisplay( bool yn )
 {
     if ( vw2dpickset_ )
-	vw2dpickset_->enablePainting( isChecked() );
+	vw2dpickset_->enablePainting( yn );
+}
+
+
+void uiODVw2DPickSetTreeItem::checkCB( CallBacker* )
+{
+    enableDisplay( isChecked() );
 }
 
 

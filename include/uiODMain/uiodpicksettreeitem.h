@@ -53,6 +53,7 @@ public:
 protected:
 
     bool		init();
+    void		handleItemCheck();
     void		prepareForShutdown();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     void		setChgCB(CallBacker*);

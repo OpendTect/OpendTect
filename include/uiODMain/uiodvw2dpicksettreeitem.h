@@ -22,7 +22,8 @@ namespace Pick{ class Set; }
 
 
 
-mExpClass(uiODMain) uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DPickSetParentTreeItem
+			: public uiODVw2DParentTreeItem
 { mODTextTranslationClass(uiODVw2DPickSetParentTreeItem);
 public:
 				uiODVw2DPickSetParentTreeItem();
@@ -32,6 +33,7 @@ public:
     void			getPickSetVwr2DIDs(const MultiID& mid,
 						   TypeSet<int>& vw2ids) const;
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
+    void			showHidePickSet(const MultiID&,bool);
     void			removePickSet(const MultiID&);
     void			addPickSets(const TypeSet<MultiID>&);
     void			setupNewPickSet(const MultiID&);
@@ -44,7 +46,12 @@ protected:
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
     void			setActive(const MultiID&);
-    void			picksetAddedCB(CallBacker*);
+
+    void			objAddedCB(CallBacker*);
+    void			objVanishedCB(CallBacker*);
+    void			objShownCB(CallBacker*);
+    void			objHiddenCB(CallBacker*);
+    void			objOrphanedCB(CallBacker*);
 
 };
 
@@ -72,6 +79,8 @@ public:
     const VW2DPickSet*	vw2DObject() const	{ return vw2dpickset_; }
     virtual void	doSave();
     virtual void	doSaveAs();
+
+    void		enableDisplay(bool);
 
 
 protected:

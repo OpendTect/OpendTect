@@ -56,6 +56,8 @@ protected:
     virtual bool	doubleClick(uiTreeViewItem*);
     virtual bool	init();
 
+    virtual void	handleItemCheck();
+
     bool		isSelectable() const		{ return true; }
     bool		isExpandable() const		{ return false; }
     uiString		getLockMenuText() const;

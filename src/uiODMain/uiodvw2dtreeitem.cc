@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uitreeview.h"
+#include "saveablemanager.h"
 #include "zaxistransform.h"
 
 #define mAddIdx		0
@@ -406,4 +407,44 @@ const uiODVw2DTreeItem* uiODVw2DTreeTop::getVW2DItem( int displayid ) const
     }
 
     return 0;
+}
+
+uiODVw2DParentTreeItem::uiODVw2DParentTreeItem( const uiString& nm )
+    : uiODVw2DTreeItem( nm )
+    , objectmgr_(0)
+{
+}
+
+
+uiODVw2DParentTreeItem::~uiODVw2DParentTreeItem()
+{
+    detachAllNotifiers();
+}
+
+
+void uiODVw2DParentTreeItem::setObjectManager( SaveableManager* mgr )
+{
+    if ( objectmgr_ )
+    {
+	mDetachCB( objectmgr_->ObjAdded, uiODVw2DParentTreeItem::objAddedCB );
+	mDetachCB( objectmgr_->VanishRequested,
+		   uiODVw2DParentTreeItem::objVanishedCB );
+	mDetachCB( objectmgr_->ShowRequested,
+		   uiODVw2DParentTreeItem::objShownCB );
+	mDetachCB( objectmgr_->HideRequested,
+		   uiODVw2DParentTreeItem::objHiddenCB );
+	mDetachCB( objectmgr_->ObjOrphaned,
+		   uiODVw2DParentTreeItem::objOrphanedCB );
+    }
+
+    if ( !mgr )
+	return;
+
+    objectmgr_ = mgr;
+    mAttachCB( objectmgr_->ObjAdded, uiODVw2DParentTreeItem::objAddedCB );
+    mAttachCB( objectmgr_->VanishRequested,
+	       uiODVw2DParentTreeItem::objVanishedCB );
+    mAttachCB( objectmgr_->ShowRequested, uiODVw2DParentTreeItem::objShownCB );
+    mAttachCB( objectmgr_->HideRequested, uiODVw2DParentTreeItem::objHiddenCB );
+    mAttachCB( objectmgr_->ObjOrphaned, uiODVw2DParentTreeItem::objOrphanedCB );
 }

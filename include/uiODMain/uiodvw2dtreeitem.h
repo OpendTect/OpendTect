@@ -21,6 +21,7 @@ class uiMenu;
 class uiODApplMgr;
 class uiODViewer2D;
 class ZAxisTransform;
+class SaveableManager;
 
 namespace Attrib { class SelSpec; }
 
@@ -76,6 +77,23 @@ protected:
     virtual void	removeAllChildren();
     virtual void	doSave() {}
     virtual void	doSaveAs() {}
+};
+
+
+mExpClass(uiODMain) uiODVw2DParentTreeItem : public uiODVw2DTreeItem
+{ mODTextTranslationClass(uiODVw2DParentTreeItem)
+public:
+			uiODVw2DParentTreeItem(const uiString&);
+			~uiODVw2DParentTreeItem();
+    void		setObjectManager(SaveableManager*);
+protected:
+    virtual void	objAddedCB(CallBacker*)			{}
+    virtual void	objVanishedCB(CallBacker*)		{}
+    virtual void	objShownCB(CallBacker*)			{}
+    virtual void	objHiddenCB(CallBacker*)		{}
+    virtual void	objOrphanedCB(CallBacker*)		{}
+
+    SaveableManager*	objectmgr_;
 };
 
 

@@ -66,6 +66,8 @@ void uiODPickSetParentTreeItem::addPickSet( Pick::Set* ps )
 
 void uiODPickSetParentTreeItem::removeSet( Pick::Set& ps )
 {
+    Pick::SetMGR().displayRequest( Pick::SetMGR().getID(ps),
+				   SaveableManager::Vanish );
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
@@ -217,6 +219,8 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
 {
     detachAllNotifiers();
+    Pick::SetMGR().displayRequest( Pick::SetMGR().getID(set_),
+				   SaveableManager::Vanish );
     set_.unRef();
 }
 
@@ -255,6 +259,15 @@ bool uiODPickSetTreeItem::init()
 
     updateColumnText( uiODSceneMgr::cColorColumn() );
     return uiODDisplayTreeItem::init();
+}
+
+
+void uiODPickSetTreeItem::handleItemCheck()
+{
+    uiODDisplayTreeItem::handleItemCheck();
+    SaveableManager::DispOpt dispopt = isChecked() ? SaveableManager::Show
+						   : SaveableManager::Hide;
+    Pick::SetMGR().displayRequest( Pick::SetMGR().getID(set_), dispopt );
 }
 
 

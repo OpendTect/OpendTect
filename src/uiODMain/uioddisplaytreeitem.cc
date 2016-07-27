@@ -237,10 +237,16 @@ bool uiODDisplayTreeItem::showSubMenu()
 }
 
 
-void uiODDisplayTreeItem::checkCB( CallBacker* )
+void uiODDisplayTreeItem::handleItemCheck()
 {
     if ( !visserv_->isSoloMode() )
 	visserv_->turnOn( displayid_, isChecked() );
+}
+
+
+void uiODDisplayTreeItem::checkCB( CallBacker* )
+{
+    handleItemCheck();
 }
 
 
