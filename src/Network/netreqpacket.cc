@@ -26,6 +26,10 @@ od_int32 Network::RequestPacket::systemSizeLimit()
 
 void Network::RequestPacket::setSystemSizeLimit( od_int32 val )
 {
+    const int curval = systemSizeLimit();
+    if ( curval == val )
+	return;
+
     Settings& setts = Settings::common();
     if ( val < 1 )
 	setts.removeWithKey( sKeySizeLimit );

@@ -289,6 +289,12 @@ bool Network::Socket::write( const Network::RequestPacket& pkt, bool waitfor )
     if ( !pkt.isOK() )
 	return false;
 
+#ifdef __debug__
+    const int maxsz = RequestPacket::systemSizeLimit();
+    if ( maxsz > 0 && pkt.totalSize() > maxsz )
+	{ pErrMsg( BufferString("Pkt exceeds max size: ",pkt.totalSize()) ); }
+#endif
+
     Threads::Locker locker( lock_ );
     if ( !writeArray( pkt.getRawHeader(), pkt.headerSize(), waitfor ) ||
 	   !writeArray( pkt.payload(), pkt.payloadSize(), waitfor ) )

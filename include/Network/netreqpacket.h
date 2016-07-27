@@ -45,9 +45,11 @@ public:
     bool		isNewRequest() const { return subID()==cBeginSubID(); }
     bool		isRequestEnd() const { return subID()<cMoreSubID(); }
     bool		isError() const      { return subID()==cErrorSubID(); }
-    od_int32		payloadSize() const;
     const void*		payload() const;
     void		getStringPayload(BufferString&) const;
+    od_int32		payloadSize() const;
+    od_int32		totalSize() const
+			{ return payloadSize() + mRequestPacketHeaderSize; }
 
     int			setIsNewRequest();   //!< conveniently returns reqID()
     void		setRequestID(od_int32); //!< for multi-packet requests
@@ -60,15 +62,16 @@ public:
 
     void		addErrMsg(BufferString&) const;
 
+			// essentially, there is no limit unless user sets it
     static od_int32	systemSizeLimit();		//< if < 1 no limit
-    static void		setSystemSizeLimit(od_int32);	//< if < 1 no limit
+    static void		setSystemSizeLimit(od_int32);	//< no limit set to 0
 
 protected:
 
     union Header
     {
 	od_int32	int32s_[2];
-	od_int16	int16s_[5]; //only number 4 is used
+	od_int16	int16s_[5]; //!< only int16s_[4] is used
     };
 
 
