@@ -322,6 +322,8 @@ int uiODApplMgr::manSurv( uiParent* p )
 	{
 	    if ( isconvpending )
 		continue;
+	    if ( dlg.currentSurvRemoved() && !dlg.hasSurveys() )
+		return 4;
 
 	    return 0;
 	}
@@ -1877,7 +1879,12 @@ void uiODApplMgr::storeEMObject( bool saveasreq )
 
 
 void uiODApplMgr::manSurvCB( CallBacker* )
-{ selectSurvey( 0 ); }
+{
+    const int retval = selectSurvey(0);
+    if ( retval == 4 )
+	appl_.exit( false );
+}
+
 void uiODApplMgr::tieWellToSeismic( CallBacker* )
 { wellattrserv_->createD2TModel(MultiID()); }
 void uiODApplMgr::doWellLogTools( CallBacker* )

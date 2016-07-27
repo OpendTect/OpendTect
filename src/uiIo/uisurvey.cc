@@ -707,11 +707,22 @@ bool uiSurvey::acceptOK( CallBacker* )
 
 bool uiSurvey::rejectOK( CallBacker* )
 {
-    if ( cursurvremoved_ )
-	mErrRet(tr("You have removed the current survey ...\n"
-		   "You *have to* select a survey now!"))
+    if ( cursurvremoved_ && !hasSurveys() )
+    {
+	uiString msg(tr("You have removed the current survey.\n"
+	       "No surveys found in the list.\n"
+		"Want to exit from OpendTect") );
+
+	return uiMSG().askGoOn( msg );
+    }
 
     mRetExitWin
+}
+
+
+bool uiSurvey::hasSurveys() const
+{
+    return dirfld_ && !dirfld_->isEmpty();
 }
 
 
@@ -835,14 +846,15 @@ void uiSurvey::rmButPushed( CallBacker* )
     {
 	cursurvremoved_ = true;
 	if ( button(CANCEL) )
-	    button(CANCEL)->setSensitive( false );
+	    button(CANCEL)->setSensitive( dirfld_->isEmpty() );
     }
 
     if ( dirfld_->isEmpty() )
     {
-	cursurvinfo_ = 0;
-	putToScreen();
+	button(CANCEL)->setText( tr("Exit") );
+	setCurrentSurvInfo( 0, true );
     }
+
     selChange( 0 );
 }
 

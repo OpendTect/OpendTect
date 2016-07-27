@@ -819,6 +819,13 @@ bool uiODMain::closeOK()
 	    return false;
     }
 
+    closeApplication();
+    return true;
+}
+
+
+void uiODMain::closeApplication()
+{
     IOM().applClosing();
 
     sesstimer_.tick.remove( mCB(this,uiODMain,sessTimerCB) );
@@ -826,8 +833,6 @@ bool uiODMain::closeOK()
     delete scenemgr_; scenemgr_ = 0;
     delete viewer2dmgr_; viewer2dmgr_ = 0;
     delete applmgr_; applmgr_ = 0;
-
-    return true;
 }
 
 
@@ -843,9 +848,15 @@ uiString uiODMain::getProgramName()
 }
 
 
-void uiODMain::exit()
+void uiODMain::exit( bool doconfirm )
 {
-    if ( !closeOK() ) return;
+    if ( doconfirm )
+    {
+	if ( !closeOK() )
+	    return;
+    }
+    else
+	closeApplication();
 
     uiapp_.exit(0);
 }

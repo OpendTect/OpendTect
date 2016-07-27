@@ -44,7 +44,7 @@ public:
 			~uiODMain();
 
     bool		go();
-    void		exit();
+    void		exit(bool doconfirm=true);
 
     uiODApplMgr&	applMgr()	{ return *applmgr_; }
     uiODMenuMgr&	menuMgr()	{ return *menumgr_; } //!< + toolbar
@@ -96,6 +96,7 @@ protected:
     bool		failed_;
 
     virtual bool	closeOK();
+    void		closeApplication();
     void		afterStartupCB(CallBacker*);
     void		afterSurveyChgCB(CallBacker*);
     void		handleStartupSession();
