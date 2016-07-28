@@ -21,7 +21,7 @@ using namespace Attrib;
 mInitAttribUI(uiEventFreqAttrib,EventFreq,"Event Frequency","Experimental" )
 
 uiEventFreqAttrib::uiEventFreqAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mNoHelpKey)
+	: uiAttrDescEd(p,is2d, mODHelpKey(mEventFreqAttribHelpID))
 {
     inpfld_ = createInpFld( is2d, "Input" );
     typfld_ = new uiGenInput( this, uiStrings::sOutput(),

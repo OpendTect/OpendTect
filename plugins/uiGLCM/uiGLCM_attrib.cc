@@ -99,7 +99,7 @@ mInitAttribUI( uiGLCM_attrib, GLCM_attrib, "Texture - Directional",
 	       sKeyBasicGrp() )
 
 uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
-    : uiAttrDescEd( p, is2d, mNoHelpKey )
+    : uiAttrDescEd( p, is2d, mODHelpKey(mTextuteDirectionalHelpID) )
 {
     inpfld_ = createInpFld( is2d );
 
