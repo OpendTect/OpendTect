@@ -92,8 +92,7 @@ TypeSet<uiWorldRect> uiFlatViewControl::getBoundingBoxes() const
 void uiFlatViewControl::onFinalise( CallBacker* )
 {
     const bool canreuse = zoommgr_.current().width() > 10
-			 && canReUseZoomSettings( vwrs_[0]->curView().centre(),
-						  zoommgr_.current() );
+			 && canReUseZoomSettings(*vwrs_[0]);
     if ( !canreuse )
 	zoommgr_.init( getBoundingBoxes() );
 
@@ -334,18 +333,15 @@ void uiFlatViewControl::usrClickCB( CallBacker* cb )
 }
 
 
-bool uiFlatViewControl::canReUseZoomSettings( Geom::Point2D<double> centre,
-					      Geom::Size2D<double> sz ) const
+bool uiFlatViewControl::canReUseZoomSettings( const uiFlatViewer& vwr ) const
 {
     //TODO: allow user to decide to reuse or not with a specific parameter
-    const uiWorldRect bb( vwrs_[0]->boundingBox() );
+    const uiWorldRect bb( vwr.boundingBox() );
+    const uiWorldRect& curview = vwr.curView();
+    const Geom::Size2D<double> sz = curview.size();
     if ( sz.width() > bb.width() || sz.height() > bb.height() )
 	return false;
     
-    const double hwdth = sz.width() * .5;
-    const double hhght = sz.height() * .5;
-
-    const Geom::Point2D<double> topleft( centre.x-hwdth, centre.y-hhght );
-    const Geom::Point2D<double> botright( centre.x+hwdth, centre.y+hhght );
-    return bb.contains(topleft,1e-3) && bb.contains(botright,1e-3);
+    return bb.contains(curview.topLeft(),1e-3) &&
+	   bb.contains(curview.bottomRight(),1e-3);
 }

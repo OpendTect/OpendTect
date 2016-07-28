@@ -94,8 +94,7 @@ protected:
 
     virtual void	finalPrepare()			{}
     virtual void	onFinalise(CallBacker*);
-    virtual bool	canReUseZoomSettings( Geom::Point2D<double>,
-	    				      Geom::Size2D<double> ) const;
+    virtual bool	canReUseZoomSettings(const uiFlatViewer&) const;
     virtual void	setViewToCustomZoomLevel(uiFlatViewer&) {}
     virtual void	updateZoomManager();
     
