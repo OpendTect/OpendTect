@@ -11,11 +11,31 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "netreqpacket.h"
 #include "atomic.h"
-#include "bufstring.h"
+#include "settings.h"
 #include "ptrman.h"
 
 
 static Threads::Atomic<int> curreqid_;
+
+static const char* sKeySizeLimit = "Network.Limit Packet Size";
+
+od_int32 Network::RequestPacket::systemSizeLimit()
+{
+    const char* res = Settings::common().find( sKeySizeLimit );
+    return toInt( res );
+}
+
+void Network::RequestPacket::setSystemSizeLimit( od_int32 val )
+{
+    const int curval = systemSizeLimit();
+    if ( val < 0 ) val = 0;
+    if ( curval == val )
+	return;
+
+    Settings& setts = Settings::common();
+    setts.set( sKeySizeLimit, val );
+    setts.write();
+}
 
 
 #define mRequestID_	(header_.int32s_[1])
