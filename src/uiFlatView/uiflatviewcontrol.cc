@@ -361,10 +361,7 @@ bool uiFlatViewControl::canReUseZoomSettings( Geom::Point2D<double> centre,
     if ( sz.width() > bb.width() || sz.height() > bb.height() )
 	return false;
     
-    const double hwdth = sz.width() * .5;
-    const double hhght = sz.height() * .5;
-
-    const Geom::Point2D<double> topleft( centre.x-hwdth, centre.y-hhght );
-    const Geom::Point2D<double> botright( centre.x+hwdth, centre.y+hhght );
-    return bb.contains(topleft,1e-3) && bb.contains(botright,1e-3);
+    const uiWorldRect& curview = vwrs_[0]->curView();
+    return bb.contains(curview.topLeft(),1e-3) &&
+	   bb.contains(curview.bottomRight(),1e-3);
 }
