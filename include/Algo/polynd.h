@@ -227,8 +227,8 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
 	} while ( positer.next() );
 
 	solver = new LinSolver<T>( poscoeffs );
-
-	if ( !solver->ready() ) return false;
+	if ( !solver->init() )
+	    return false;
     }
 
     solver->apply( input.getData(), coeffs.getData() );

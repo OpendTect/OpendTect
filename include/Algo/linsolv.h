@@ -13,11 +13,8 @@ ________________________________________________________________________
 */
 
 #include "arrayndimpl.h"
-#include "typeset.h"
-
-#include <math.h>
-
-#define TINY 1.0e-20
+#include "executor.h"
+#include "uistrings.h"
 
 /*!
 \brief LinSolver - Solves linear systems of equations on the form A*x=B. A is
@@ -34,6 +31,7 @@ public:
 
 				~LinSolver();
 
+    bool			init(TaskRunner* =0);
     bool			ready() const	{ return ready_; }
     int				size() const	{ return n_; }
 
@@ -43,10 +41,148 @@ protected:
     Array2DImpl<T>		croutsmatrix_;
     int*			croutsidx_;
     int				n_;
-    bool			parity_;
     bool			ready_;
 
 };
+
+
+template <class T>
+mClass(Algo) LinSolverTask : public Executor
+{ mODTextTranslationClass(LinSolverTask);
+public:
+				LinSolverTask(Array2DImpl<T>&,int*);
+				~LinSolverTask()		{}
+
+protected:
+
+    int				nextStep();
+    uiString			uiMessage() const
+				{
+				    return errmsg_.isEmpty()
+					? tr("Generating linear model")
+					: errmsg_;
+				}
+    uiString			uiNrDoneText() const
+				{ return tr("Nr points processed"); }
+
+    od_int64			nrDone() const		{ return curidx_; }
+    od_int64			totalNr() const		{ return totalnr_; }
+
+    int				curidx_;
+    int				totalnr_;
+    int				imax_;
+    int*			croutsidx_;
+    TypeSet<T>			vv_;
+    Array2DImpl<T>&		croutsmatrix_;
+    uiString			errmsg_;
+};
+
+
+template <class T>
+LinSolverTask<T>::LinSolverTask( Array2DImpl<T>& A, int* croutsidx )
+    : Executor("Generating linear model")
+    , croutsmatrix_(A)
+    , totalnr_(A.info().getSize(0))
+    , curidx_(0)
+    , imax_(mUdf(int))
+    , vv_(totalnr_,0)
+    , croutsidx_(croutsidx)
+{
+    if ( A.info().getSize(0) != A.info().getSize(1) )
+    {
+	errmsg_ = uiStrings::phrInvalid(uiStrings::sInput());
+	return;
+    }
+
+    for ( int idx=0; idx<totalnr_; idx++ )
+    {
+	T maxval = 0;
+	for ( int idy=0; idy<totalnr_; idy++ )
+	{
+	    const T temp = fabs( croutsmatrix_.get(idx,idy) );
+	    if ( temp > maxval )
+		maxval = temp;
+	}
+
+	if ( mIsZero(maxval,mDefEps) )
+	{
+	    errmsg_ = uiStrings::phrInvalid(uiStrings::sInput());
+	    return;
+	}
+
+	vv_[idx] = 1.0f/maxval;
+    }
+}
+
+
+#define TINY 1.0e-20
+
+template <class T>
+int LinSolverTask<T>::nextStep()
+{
+    if ( !errmsg_.isEmpty() )
+	return ErrorOccurred();
+
+    if ( curidx_ >= totalnr_ )
+	return Finished();
+
+    for (int idx=0; idx<curidx_; idx++ )
+    {
+	T sum = croutsmatrix_.get( idx, curidx_ );
+	for ( int idz=0; idz<idx; idz++ )
+	    sum -= croutsmatrix_.get(idx,idz) * croutsmatrix_.get(idz,curidx_);
+
+	croutsmatrix_.set( idx, curidx_, sum );
+    }
+
+    T big = 0.0;
+    for ( int idx=curidx_; idx<totalnr_; idx++ )
+    {
+	T sum = croutsmatrix_.get( idx, curidx_ );
+	for ( int idz=0; idz<curidx_; idz++ )
+	{
+	    sum -= croutsmatrix_.get(idx,idz)*croutsmatrix_.get(idz,curidx_);
+	}
+
+	croutsmatrix_.set( idx, curidx_, sum );
+
+	T dum = vv_[idx]*fabs(sum);
+
+	if ( dum >= big )
+	{
+	    big = dum;
+	    imax_ = idx;
+	}
+    }
+
+    if ( curidx_ != imax_ )
+    {
+	for ( int idz=0; idz<totalnr_; idz++ )
+	{
+	    const T dum = croutsmatrix_.get( imax_, idz );
+	    croutsmatrix_.set( imax_, idz, croutsmatrix_.get(curidx_,idz) );
+	    croutsmatrix_.set( curidx_, idz, dum );
+	}
+
+	vv_[imax_] = vv_[curidx_];
+    }
+
+    croutsidx_[curidx_] = imax_;
+
+    if ( mIsZero(croutsmatrix_.get(curidx_,curidx_),mDefEps) )
+	croutsmatrix_.set(curidx_,curidx_,TINY);
+
+    if ( curidx_ != totalnr_-1 )
+    {
+	const T dum = 1.0f/croutsmatrix_.get(curidx_,curidx_);
+	for ( int idx=curidx_+1; idx<totalnr_; idx++ )
+	    croutsmatrix_.set(idx, curidx_, dum*croutsmatrix_.get(idx,curidx_));
+    }
+
+    return ++curidx_>=totalnr_ ? Finished() : MoreToDo();
+}
+
+#undef TINY
 
 
 template <class T> inline
@@ -55,104 +191,24 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
     , croutsidx_(new int[A.info().getSize(0)])
     , n_(A.info().getSize(0))
     , ready_(false)
-    , parity_(true)
 {
-    if ( A.info().getSize(0) != A.info().getSize(1) )
-	return;
-
-    int imax = mUdf(int);
-
-    TypeSet<T> vv( n_, 0 );
-
-    for ( int i=0; i<n_; i++ )
-    {
-	T big=0;
-	for ( int j=0; j<n_; j++ )
-	{
-	    T temp = fabs( croutsmatrix_.get(i,j) );
-	    if ( temp > big)
-		big=temp;
-	}
-
-	if ( mIsZero(big,mDefEps) )
-	{
-	    ready_ = false;
-	    return;
-	}
-
-	vv[i]=1.0f/big;
-    }
-
-    for ( int j=0; j<n_; j++)
-    {
-	for (int i=0; i<j; i++ )
-	{
-	    T sum=croutsmatrix_.get(i,j);
-	    for ( int k=0; k<i; k++ )
-		sum -=  croutsmatrix_.get(i,k) * croutsmatrix_.get(k,j);
-
-	    croutsmatrix_.set(i,j,sum);
-	}
-
-	T big=0.0;
-	for ( int i=j; i<n_; i++ )
-	{
-	    T sum=croutsmatrix_.get(i,j);
-	    for ( int k=0; k<j; k++ )
-	    {
-		sum -=  croutsmatrix_.get(i,k)*croutsmatrix_.get(k,j);
-	    }
-
-	    croutsmatrix_.set(i,j,sum);
-
-	    T dum = vv[i]*fabs(sum);
-
-	    if ( dum >= big)
-	    {
-		big=dum;
-		imax=i;
-	    }
-
-	}
-
-	if ( j != imax )
-	{
-	    for ( int k=0; k<n_; k++ )
-	    {
-		T dum=croutsmatrix_.get(imax,k);
-		croutsmatrix_.set(imax,k,croutsmatrix_.get(j,k));
-		croutsmatrix_.set(j,k,dum);
-	    }
-
-	    parity_ = !parity_;
-	    vv[imax]=vv[j];
-	}
-
-	croutsidx_[j]=imax;
-
-	if ( mIsZero(croutsmatrix_.get(j,j),mDefEps) )
-	    croutsmatrix_.set(j,j,TINY);
-
-	if ( j != n_-1 )
-	{
-	    T dum=1.0f/(croutsmatrix_.get(j,j));
-
-	    for ( int i=j+1; i<n_; i++ )
-		croutsmatrix_.set(i,j,dum * croutsmatrix_.get(i,j));
-	}
-    }
-
-    ready_ = true;
 }
 
-#undef TINY
+
+template <class T> inline
+bool LinSolver<T>::init( TaskRunner* taskr )
+{
+    LinSolverTask<T> task( croutsmatrix_, croutsidx_ );
+    ready_ = TaskRunner::execute( taskr, task );
+    return ready_;
+}
+
 
 template <class T> inline
 LinSolver<T>::LinSolver( const LinSolver& s )
     : croutsmatrix_(s.croutsmatrix_)
     , croutsidx_(0)
     , n_(s.n_)
-    , parity_(s.parity_)
     , ready_(s.ready_)
 {
     if ( s.croutsidx_ )
@@ -174,6 +230,12 @@ LinSolver<T>::~LinSolver( )
 template <class T> inline
 void LinSolver<T>::apply( const T* b, T* x ) const
 {
+    if ( !ready_ )
+    {
+	pErrMsg("Cannot apply. Did you forget to call LinSolver::init()?");
+	return;
+    }
+    
     for ( int idx=0; idx<n_; idx++ )
 	x[idx] = b[idx];
 

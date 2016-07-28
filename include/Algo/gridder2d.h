@@ -54,7 +54,7 @@ public:
 			    setGridPoint outside these ranges. May speed
 			    up calculation. */
 
-    bool		setPoints(const TypeSet<Coord>&);
+    bool		setPoints(const TypeSet<Coord>&,TaskRunner* =0);
 			/*<!Points are assumed to remain in mem through
 			    getValue(). Points should correspond to the
 			    values in setValues. Don't re-set it unless they
@@ -91,8 +91,8 @@ protected:
 
     TypeSet<int>		usedpoints_;
 
-    virtual bool		pointsChangedCB(CallBacker*)	{ return true; }
-    virtual void		valuesChangedCB(CallBacker*)	{}
+    virtual bool		pointsChanged(TaskRunner*)	{ return true; }
+    virtual void		valuesChanged()			{}
     float			getDetrendedValue(int idx) const;
 				/*<!Input values corrected from the trend*/
     bool			isAtInputPos(const Coord&,int&idx) const;
@@ -170,7 +170,7 @@ protected:
 
     Coord			center_;
 
-    bool		pointsChangedCB(CallBacker*);
+    bool		pointsChanged(TaskRunner*);
 };
 
 
@@ -214,13 +214,13 @@ protected:
     TypeSet<double>*	globalweights_;
     LinSolver<double>*	solv_;
 
-    bool		updateSolver();
+    bool		updateSolver(TaskRunner*);
     bool		updateSolution();
     double		getRadius(const Coord& pos1,const Coord& pos2) const;
     static double	evaluateRBF(double radius,double scale=1.);
 
-    bool		pointsChangedCB(CallBacker*);
-    void		valuesChangedCB(CallBacker*);
+    bool		pointsChanged(TaskRunner*);
+    void		valuesChanged();
     bool		setWeights(const Coord&,TypeSet<double>& weights,
 				   TypeSet<int>* usedpoints=0) const;
 };

@@ -63,7 +63,7 @@ bool Gridder2D::isPointUsable(const Coord& cpt,const Coord& dpt) const
 { return true; }
 
 
-bool Gridder2D::setPoints( const TypeSet<Coord>& cl )
+bool Gridder2D::setPoints( const TypeSet<Coord>& cl, TaskRunner* taskr )
 {
     points_ = &cl;
 
@@ -77,7 +77,7 @@ bool Gridder2D::setPoints( const TypeSet<Coord>& cl )
 	    usedpoints_ += idx;
     }
 
-    if ( !pointsChangedCB(0) )
+    if ( !pointsChanged(taskr) )
     {
 	points_ = 0;
 	return false;
@@ -94,7 +94,7 @@ bool Gridder2D::setValues( const TypeSet<float>& vl )
     if ( trend_ && points_ && points_->size() == values_->size() )
 	trend_->set( *points_, values_->arr() );
 
-    valuesChangedCB(0);
+    valuesChanged();
 
     return true;
 }
@@ -125,7 +125,7 @@ void Gridder2D::setTrend( PolyTrend::Order order )
 	if ( trend_ )
 	    trend_->set( *points_, *values_ );
 
-	valuesChangedCB(0);
+	valuesChanged();
     }
 }
 
@@ -428,7 +428,7 @@ bool TriangulatedGridder2D::getWeights( const Coord& gridpoint,
 }
 
 
-bool TriangulatedGridder2D::pointsChangedCB( CallBacker* )
+bool TriangulatedGridder2D::pointsChanged( TaskRunner* taskr )
 {
     delete triangles_;
     triangles_ = new DAGTriangleTree;
@@ -541,13 +541,13 @@ bool RadialBasisFunctionGridder2D::operator==( const Gridder2D& b ) const
 }
 
 
-bool RadialBasisFunctionGridder2D::pointsChangedCB( CallBacker* )
+bool RadialBasisFunctionGridder2D::pointsChanged( TaskRunner* taskr )
 {
-    return updateSolver();
+    return updateSolver( taskr );
 }
 
 
-void RadialBasisFunctionGridder2D::valuesChangedCB( CallBacker* )
+void RadialBasisFunctionGridder2D::valuesChanged()
 {
     updateSolution();
 }
@@ -635,7 +635,7 @@ float RadialBasisFunctionGridder2D::getValue( const Coord& gridpoint,
 }
 
 
-bool RadialBasisFunctionGridder2D::updateSolver()
+bool RadialBasisFunctionGridder2D::updateSolver( TaskRunner* taskr )
 {
     delete solv_;
     delete globalweights_; //previous solution is invalid too
@@ -667,8 +667,7 @@ bool RadialBasisFunctionGridder2D::updateSolver()
     }
 
     solv_ = new LinSolver<double>( a );
-
-    return true;
+    return solv_->init( taskr );
 }
 
 

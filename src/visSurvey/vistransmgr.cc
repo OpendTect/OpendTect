@@ -81,6 +81,8 @@ void SceneTransformManager::computeICRotationTransform(
     double x[3];
 
     LinSolver<double> linsolver( A );
+    if ( !linsolver.init() )
+	return;
 
     const int inlwidth = hs.inlRange().width();
     const int crlwidth = hs.crlRange().width();
