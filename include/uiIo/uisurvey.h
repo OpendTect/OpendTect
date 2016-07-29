@@ -64,6 +64,8 @@ public:
     const char*		selectedSurveyName() const;
     bool		freshSurveySelected() const
 			{ return freshsurveyselected_; }
+    bool		hasSurveys() const;
+    bool		currentSurvRemoved() const { return cursurvremoved_; }
 
 protected:
 

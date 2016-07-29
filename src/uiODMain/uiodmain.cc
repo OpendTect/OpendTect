@@ -772,6 +772,13 @@ bool uiODMain::closeOK()
 	    return false;
     }
 
+    closeApplication();
+    return true;
+}
+
+
+void uiODMain::closeApplication()
+{
     IOM().applClosing();
 
     removeDockWindow( ctabwin_ );
@@ -780,8 +787,6 @@ bool uiODMain::closeOK()
     delete scenemgr_; scenemgr_ = 0;
     delete viewer2dmgr_; viewer2dmgr_ = 0;
     delete applmgr_; applmgr_ = 0;
-
-    return true;
 }
 
 
@@ -801,5 +806,12 @@ void uiODMain::exit()
 {
     if ( !closeOK() ) return;
 
+    uiapp_.exit(0);
+}
+
+
+void uiODMain::forceExit()
+{
+    closeApplication();
     uiapp_.exit(0);
 }

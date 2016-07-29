@@ -79,6 +79,7 @@ public:
     bool		isRestoringSession()	{ return restoringsess_; }
     void		setProgramName(const char*);
 			//Default is "OpendTect"
+    void		forceExit();
 
 protected:
 
@@ -102,6 +103,7 @@ protected:
     void		afterSurveyChgCB(CallBacker*);
     void		handleStartupSession();
     void		restoreSession(const IOObj*);
+    void		closeApplication();
 
 private:
 
