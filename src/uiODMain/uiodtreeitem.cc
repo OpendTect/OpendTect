@@ -109,8 +109,19 @@ void uiODTreeTop::loopOverChildrenIds( TypeSet<int>& dispids, int& selectedid,
 }
 
 
+#define cShowAllItems		200
+#define cHideAllItems		199
+#define cRemoveAllItems		198
+#define cExpandAllItems		197
+#define cCollapseAllItems	196
+
 uiODTreeItem::uiODTreeItem( const uiString& nm )
-    : uiTreeItem( nm )
+    : uiTreeItem(nm)
+    , showallitems_(tr("Show All Items"),cShowAllItems)
+    , hideallitems_(tr("Hide All Items"),cHideAllItems)
+    , removeallitems_(tr("Remove All Items from Tree"),cRemoveAllItems)
+    , expandallitems_(tr("Expand All Items"),cExpandAllItems)
+    , collapseallitems_(tr("Collapse All Items"),cCollapseAllItems)
 {}
 
 
@@ -166,13 +177,14 @@ void uiODTreeItem::addStandardItems( uiMenu& mnu )
     mnu.insertSeparator();
     uiAction* action = new uiAction( tr("Show All Items") );
     action->setEnabled( !allChildrenChecked() );
-    mnu.insertItem( action, 101 );
+    mnu.insertItem( action, cShowAllItems );
 
     action = new uiAction( tr("Hide All Items") );
     action->setEnabled( !allChildrenUnchecked() );
-    mnu.insertItem( action, 102 );
+    mnu.insertItem( action, cHideAllItems );
 
-    mnu.insertItem( new uiAction(tr("Remove All Items from Tree")), 103 );
+    mnu.insertItem( new uiAction(tr("Remove All Items from Tree")),
+		    cRemoveAllItems );
 
     mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0])
     if ( !itm || itm->nrChildren()==0 )
@@ -181,44 +193,88 @@ void uiODTreeItem::addStandardItems( uiMenu& mnu )
     mnu.insertSeparator();
     action = new uiAction( tr("Expand All Items") );
     action->setEnabled( !allChildrenExpanded() );
-    mnu.insertItem( action, 104 );
+    mnu.insertItem( action, cExpandAllItems );
 
     action = new uiAction( tr("Collapse All Items") );
     action->setEnabled( !allChildrenCollapsed() );
-    mnu.insertItem( action, 105 );
+    mnu.insertItem( action, cCollapseAllItems );
 }
 
 
-void uiODTreeItem::handleStandardItems( int mnuid )
+void uiODTreeItem::addStandardItems( MenuHandler* menu )
+{
+    if ( children_.size() < 2 ) return;
+
+    mAddMenuItem( menu, &showallitems_, !allChildrenChecked(), false );
+    mAddMenuItem( menu, &hideallitems_, !allChildrenUnchecked(), false );
+    mAddMenuItem( menu, &removeallitems_, true, false );
+
+    mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0]);
+    if ( !itm || itm->nrChildren()==0 )
+	return;
+
+    mAddMenuItem( menu, &expandallitems_, !allChildrenExpanded(), false );
+    mAddMenuItem( menu, &collapseallitems_, !allChildrenCollapsed(), false );
+}
+
+
+void uiODTreeItem::handleStandardItems( int menuid )
 {
     for ( int idx=0; idx<children_.size(); idx++ )
     {
-	if ( mnuid == 101 )
+	if ( menuid == cShowAllItems )
 	    children_[idx]->setChecked( true, true );
-	else if ( mnuid == 102 )
+	else if ( menuid == cHideAllItems )
 	    children_[idx]->setChecked( false, true );
-	else if ( mnuid == 104 )
+	else if ( menuid == cExpandAllItems )
 	    children_[idx]->expand();
-	else if ( mnuid == 105 )
+	else if ( menuid == cCollapseAllItems )
 	    children_[idx]->collapse();
     }
 
-    if ( mnuid==103 )
-    {
-	const uiString msg = tr("All %1 items will be removed from the tree."
-				"\n\nDo you want to continue?")
-			   .arg(name());
-	if ( !uiMSG().askRemove(msg) ) return;
+    if ( menuid == cRemoveAllItems )
+	removeAllItems();
+}
 
-	while ( children_.size() )
-	{
-	    setMoreObjectsToDoHint( children_.size()>1 );
-	    mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0])
-	    if ( !itm ) continue;
-	    itm->prepareForShutdown();
-	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
-	    removeChild( itm );
-	}
+
+void uiODTreeItem::handleStandardMenuCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller( int, menuid, caller, cb );
+    mDynamicCastGet(MenuHandler*,menu,caller);
+    if ( !menu || menu->isHandled() || menuid==-1 )
+	return;
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	if ( menuid == showallitems_.id )
+	    children_[idx]->setChecked( true, true );
+	else if ( menuid == hideallitems_.id )
+	    children_[idx]->setChecked( false, true );
+	else if ( menuid == expandallitems_.id )
+	    children_[idx]->expand();
+	else if ( menuid == collapseallitems_.id )
+	    children_[idx]->collapse();
+    }
+
+    if ( menuid == removeallitems_.id )
+	removeAllItems();
+}
+
+
+void uiODTreeItem::removeAllItems()
+{
+    const uiString msg = tr("All %1 items will be removed from tree.\n"
+	    		    "Do you want to continue?").arg(name());
+    if ( !uiMSG().askRemove(msg) ) return;
+
+    while ( children_.size() )
+    {
+	setMoreObjectsToDoHint( children_.size()>1 );
+	mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0]);
+	if ( !itm ) continue;
+	itm->prepareForShutdown();
+	applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
+	removeChild( itm );
     }
 }
 

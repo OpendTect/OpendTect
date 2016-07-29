@@ -16,10 +16,7 @@ ________________________________________________________________________
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 
-class uiMenu;
 class uiTaskRunner;
-
-
 
 
 mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODTreeItem
@@ -27,18 +24,34 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODTreeItem
     mDefineItemMembers( Line2DParent, TreeItem, TreeTop );
     mShowMenu;
     mMenuOnAnyButton;
-    bool                handleSubMenu(int);
+			~uiODLine2DParentTreeItem();
+
+    bool		init();
+    int			selectionKey() const;
+    void		createMenuCB(CallBacker*);
+    void		handleMenuCB(CallBacker*);
+
+    void		createMenu(MenuHandler*,bool istb);
     bool                loadDefaultData();
     bool                selectLoadAttribute(const TypeSet<Pos::GeomID>&,
                              const char* attrnm=sKeyRightClick());
     void		setTopAttribName(const char*);
     static const char*  sKeyRightClick();
     static const char*  sKeyUnselected();
-    uiMenu*             replaceattritm_;
-    uiMenu*             removeattritm_;
-    uiMenu*             dispattritm_;
-    uiMenu*             hideattritm_;
-    uiMenu*             editcoltabitm_;
+
+    uiVisPartServer*	visserv_;
+    MenuItem		additm_;
+    MenuItem		create2dgridfrom3ditm_;
+    MenuItem		extractfrom3ditm_;
+    MenuItem		generate3dcubeitm_;
+    MenuItem		addattritm_;
+    MenuItem		replaceattritm_;
+    MenuItem		removeattritm_;
+    MenuItem		dispattritm_;
+    MenuItem		hideattritm_;
+    MenuItem		editcoltabitm_;
+    MenuItem		displayallitm_;
+    MenuItem		hideallitm_;
 };
 
 

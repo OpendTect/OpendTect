@@ -39,10 +39,19 @@ protected:
     virtual const char*	iconName() const		{ return 0; }
 
     void		addStandardItems(uiMenu&);
+    void		addStandardItems(MenuHandler*);
     void		handleStandardItems(int mnuid);
+    void		handleStandardMenuCB(CallBacker*);
+    void		removeAllItems();
 
     void		setMoreObjectsToDoHint(bool yn);
     bool		getMoreObjectsToDoHint() const;
+
+    MenuItem		showallitems_;
+    MenuItem		hideallitems_;
+    MenuItem		removeallitems_;
+    MenuItem		expandallitems_;
+    MenuItem		collapseallitems_;
 };
 
 

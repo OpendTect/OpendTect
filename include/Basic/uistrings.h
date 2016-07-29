@@ -185,6 +185,7 @@ public:
 //Words
     static uiString s2D();
     static uiString s2DLine()		{ return tr("2D line"); }
+    static uiString s2DPlane(int num=1) { return tr("2D Plane",0,num); }
     static uiString s3D();
     static uiString sAbort()		{ return tr("Abort"); }
     static uiString sAbove()		{ return tr("Above"); }
@@ -329,6 +330,7 @@ public:
     static uiString sLayer(int num=1)	{ return tr("Layer",0,num); }
     static uiString sLine(int num=1)	{ return tr("Line",0,num); }
     static uiString sLineName(int num=1) { return tr("Line Name",0,num); }
+    static uiString sLineGeometry()	{ return tr("Line Geometry"); }
     static uiString sLeft()		{ return tr("Left"); }
     static uiString sLineStyle(int num=1) { return tr("Line Style",0,num); }
     static uiString sLithology(int num=1){ return tr("Lithology",0,num); }
