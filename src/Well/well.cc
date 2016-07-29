@@ -190,8 +190,11 @@ bool Well::DahObj::doInsertAtDah( float dh, float val, TypeSet<float>& vals,
 }
 
 
+mDefineInstanceCreatedNotifierAccess(Well::Data)
+
+
 Well::Data::Data( const char* nm )
-    : NamedMonitorable(nm)
+    : SharedObject(nm)
     , info_(nm)
     , track_(*new Well::Track)
     , logs_(*new Well::LogSet)
@@ -211,6 +214,7 @@ Well::Data::Data( const char* nm )
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
     mAttachCB( lvlset.levelToBeRemoved, Data::levelToBeRemoved );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -229,10 +233,12 @@ Well::Data::~Data()
 }
 
 
+/*
 void Well::Data::prepareForDelete()
 {
     Well::MGR().removeObject( this );
 }
+*/
 
 
 bool Well::Data::haveMarkers() const
@@ -247,12 +253,22 @@ bool Well::Data::haveLogs() const
 }
 
 
+Well::D2TModel* Well::Data::gtMdl( bool ckshot ) const
+{
+    mLock4Read();
+    return const_cast<D2TModel*>( ckshot ? csmodel_ : d2tmodel_ );
+}
+
+
 void Well::Data::setD2TModel( D2TModel* d )
 {
     if ( d2tmodel_ == d )
 	return;
+    mLock4Write();
     delete d2tmodel_;
     d2tmodel_ = d;
+    mUnlockAllAccess();
+    d2tchanged.trigger();
 }
 
 
@@ -260,8 +276,11 @@ void Well::Data::setCheckShotModel( D2TModel* d )
 {
     if ( csmodel_ == d )
 	return;
+    mLock4Write();
     delete csmodel_;
     csmodel_ = d;
+    mUnlockAllAccess();
+    csmdlchanged.trigger();
 }
 
 
@@ -290,11 +309,11 @@ void Well::Data::levelToBeRemoved( CallBacker* cb )
 }
 
 
-#define mName "Well name"
+static const char* sWellName = "Well name";
 
 void Well::Info::fillPar( IOPar& par ) const
 {
-    par.set( mName, name() );
+    par.set( sWellName, name() );
     par.set( sKeyUwid(), uwid );
     par.set( sKeyOper(), oper );
     par.set( sKeyState(), state );
@@ -309,7 +328,7 @@ void Well::Info::fillPar( IOPar& par ) const
 
 void Well::Info::usePar( const IOPar& par )
 {
-    setName( par.find(mName) );
+    setName( par.find(sWellName) );
     par.get( sKeyUwid(), uwid );
     par.get( sKeyOper(), oper );
     par.get( sKeyState(), state );

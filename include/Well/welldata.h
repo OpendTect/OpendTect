@@ -13,9 +13,9 @@ ________________________________________________________________________
 
 #include "wellcommon.h"
 
+#include "sharedobject.h"
 #include "enums.h"
 #include "multiid.h"
-#include "namedobj.h"
 #include "position.h"
 #include "notify.h"
 #include "uistring.h"
@@ -99,33 +99,40 @@ public:
   when more well tracks share an upper part.
 */
 
-mExpClass(Well) Data : public RefCount::Referenced
-		     , public ::NamedMonitorable
+mExpClass(Well) Data : public SharedObject
 {
 public:
 
 				Data(const char* nm=0);
+				mDeclInstanceCreatedNotifierAccess(Data);
 
     const MultiID&		multiID() const		{ return mid_; }
     void			setMultiID( const MultiID& mid ) const
-							{ mid_ = mid; }
+				{ mid_ = mid; }
 
     virtual const OD::String&	name() const		{ return info_.name(); }
     virtual void		setName(const char* nm) { info_.setName( nm ); }
+    virtual BufferString	getName() const	{ return info_.getName(); }
+
     const Info&			info() const		{ return info_; }
     Info&			info()			{ return info_; }
+
     const Track&		track() const		{ return track_; }
     Track&			track()			{ return track_; }
+
     const LogSet&		logs() const		{ return logs_; }
     LogSet&			logs()			{ return logs_; }
+
     const MarkerSet&		markers() const		{ return markers_; }
     MarkerSet&			markers()		{ return markers_; }
-    const D2TModel*		d2TModel() const	{ return d2tmodel_; }
-    D2TModel*			d2TModel()		{ return d2tmodel_; }
-    const D2TModel*		checkShotModel() const	{ return csmodel_; }
-    D2TModel*			checkShotModel()	{ return csmodel_; }
+
+    const D2TModel*		d2TModel() const	{ return gtMdl(false); }
+    D2TModel*			d2TModel()		{ return gtMdl(false); }
+    const D2TModel*		checkShotModel() const	{ return gtMdl(true); }
+    D2TModel*			checkShotModel()	{ return gtMdl(true); }
     void			setD2TModel(D2TModel*);	//!< becomes mine
     void			setCheckShotModel(D2TModel*); //!< mine, too
+
     DisplayProperties&		displayProperties( bool for2d=false )
 				    { return for2d ? disp2d_ : disp3d_; }
     const DisplayProperties&	displayProperties( bool for2d=false ) const
@@ -152,7 +159,7 @@ public:
 protected:
 
 			~Data();
-    void		prepareForDelete();
+    // void		prepareForDelete();
 
     Info		info_;
     mutable MultiID	mid_;
@@ -163,6 +170,8 @@ protected:
     MarkerSet&		markers_;
     DisplayProperties&	disp2d_;
     DisplayProperties&	disp3d_;
+
+    D2TModel*		gtMdl(bool) const;
 
 };
 
