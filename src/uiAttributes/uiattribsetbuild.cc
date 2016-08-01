@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
 #include "uiprestackattrib.h"
+#include "uistoredattrreplacer.h"
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
 
@@ -298,32 +299,19 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 	}
     }
 
-    if ( res )
-	usrchg_ = false;
-    else
-	uiMSG().error( emsg );
 
+    if ( !res )
+    {
+	uiMSG().error( emsg );
+	return false;
+    }
+
+    usrchg_ = false;
     if ( forread && ( !dpfids_.isEmpty() || !psdpfids_.isEmpty() ) )
     {
-	for ( int iattr=0; iattr<descset_.size(); iattr++ )
-	{
-	    Attrib::Desc& desc = *descset_.desc( iattr );
-
-	    if ( !desc.isStoredInMem() ) continue;
-
-	    Attrib::ValParam* vp = desc.getValParam(
-				Attrib::StorageProvider::keyStr() );
-	    const DataPack::FullID dpfid( vp->getStringValue(0) + 1 );
-	    if ( ( !desc.isPS() && !dpfids_.isPresent(dpfid)
-			        && !psdpfids_.isEmpty() )
-		|| ( desc.isPS() && !psdpfids_.isPresent(dpfid)
-				     && !dpfids_.size() ) )
-	    {
-		BufferString fidstr = "#";
-		fidstr += desc.isPS() ? psdpfids_[0] : dpfids_[0];
-		vp->setValue( fidstr.buf() );
-	    }
-	}
+	uiStoredAttribReplacer replacerdlg( this, &descset_ );
+	replacerdlg.setDataPackIDs( dpfids_ );
+	replacerdlg.go();
     }
 
     return res;

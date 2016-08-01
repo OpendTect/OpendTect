@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 #include "attribdescid.h"
 #include "bufstringset.h"
+#include "datapack.h"
 #include "multiid.h"
 #include "sets.h"
 #include "uistring.h"
@@ -27,14 +28,7 @@ namespace Attrib
 mExpClass(uiAttributes) uiStoredAttribReplacer
 { mODTextTranslationClass(uiStoredAttribReplacer);
 public:
-				uiStoredAttribReplacer(uiParent*,
-						       Attrib::DescSet*);
-				uiStoredAttribReplacer(uiParent*,IOPar*,
-						       bool is2d=false);
-    void			go();
-
-protected:
-
+    
     struct StoredEntry
     {
 				StoredEntry(Attrib::DescID id1,
@@ -61,6 +55,17 @@ protected:
 	BufferString		storedref_;
     };
 
+
+				uiStoredAttribReplacer(uiParent*,
+						       Attrib::DescSet*);
+				uiStoredAttribReplacer(uiParent*,IOPar*,
+						       bool is2d=false);
+    void			go();
+    void			setDataPackIDs(
+	    				const TypeSet<DataPack::FullID>& dpfids)
+				{ dpfids_ = dpfids; }
+protected:
+
     void			usePar(const IOPar&);
     void			setStoredKey(IOPar*,const char*);
     void			setSteerPar(StoredEntry,const char*,
@@ -80,6 +85,7 @@ protected:
     Attrib::DescSet*		attrset_;
     IOPar*			iopar_;
     TypeSet<StoredEntry>	storedids_;
+    TypeSet<DataPack::FullID>	dpfids_;
     bool			is2d_;
     uiParent*			parent_;
     int				noofsteer_;

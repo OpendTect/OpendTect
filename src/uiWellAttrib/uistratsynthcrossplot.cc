@@ -81,7 +81,8 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     }
 
     uiAttribDescSetBuild::Setup bsu( true );
-    bsu.showdepthonlyattrs(false).showusingtrcpos(true).showps( psfids.size() );
+    bsu.showdepthonlyattrs(false).showusingtrcpos(true).showps( psfids.size() )
+       .showhidden(false).showsteering(false);
     seisattrfld_ = new uiAttribDescSetBuild( this, bsu );
     seisattrfld_->setDataPackInp( fids, false );
     seisattrfld_->setDataPackInp( psfids, true );

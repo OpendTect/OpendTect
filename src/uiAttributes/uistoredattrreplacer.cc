@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include <string.h>
 
 #include "uiattrinpdlg.h"
+#include "uicombobox.h"
 #include "uimsg.h"
 
 
@@ -188,10 +189,9 @@ static bool hasSpace( const char* txt )
 }
 
 
-void uiStoredAttribReplacer::setStoredKey( IOPar* par, const char* key )
+static void setDefinitionKey( IOPar& par, const char* key )
 {
-    if ( !par || !key ) return;
-    const char* defstring = par->find( "Definition" );
+    const char* defstring = par.find( "Definition" );
     BufferString defstr( defstring );
     char* maindefstr = defstr.find( "id=" );
     if ( !maindefstr )
@@ -208,7 +208,14 @@ void uiStoredAttribReplacer::setStoredKey( IOPar* par, const char* key )
     if ( usequotes ) defstr += "\"";
     defstr += finalpartstr;
 
-    par->set( "Definition", defstr );
+    par.set( "Definition", defstr );
+}
+
+
+void uiStoredAttribReplacer::setStoredKey( IOPar* par, const char* key )
+{
+    if ( !par || !key ) return;
+    setDefinitionKey( *par, key );
 }
 
 
@@ -285,6 +292,94 @@ void uiStoredAttribReplacer::go()
 }
 
 
+class uiDataPackReplacerDlg : public uiDialog
+{ mODTextTranslationClass(uiDataPackReplacerDlg)
+public:
+uiDataPackReplacerDlg( uiParent* p, 
+		  TypeSet<uiStoredAttribReplacer::StoredEntry>& storedids,
+		  const TypeSet<DataPack::FullID>& dpfids )
+    : uiDialog(p,uiDialog::Setup(tr("Select data for input"),tr(""),mNoHelpKey))
+    , storedids_(storedids)
+    , attrset_(0)
+    , attrdspar_(0)
+    , dpfids_(dpfids)
+{
+    BufferStringSet dpnms;
+    for ( int dpidx=0; dpidx<dpfids.size(); dpidx++ )
+	dpnms.add( DataPackMgr::nameOf(dpfids[dpidx]) );
+
+    for ( int inpidx=0; inpidx<storedids_.size(); inpidx++ )
+    {
+	uiStoredAttribReplacer::StoredEntry& storedkey = storedids_[inpidx];
+	if ( storedkey.has2Ids() )
+	    continue;
+
+	uiLabeledComboBox* lastinpfld = inpflds_.last();
+	uiString lbl = tr("Input for '%1'").arg( storedkey.storedref_ );
+	inpflds_ += new uiLabeledComboBox( this, dpnms, lbl );
+	if ( lastinpfld )
+	    inpflds_.last()->attach( alignedBelow, lastinpfld );
+    }
+}
+
+bool acceptOK( CallBacker* )
+{
+    int inpfldidx = 0;
+    if ( !attrset_ && !attrdspar_ )
+    {
+	pErrMsg( "Either pass a DescSet or an IOPar" );
+	return false;
+    }
+
+    for ( int idx=0; idx<storedids_.size(); idx++ )
+    {
+	uiStoredAttribReplacer::StoredEntry& storedid = storedids_[idx];
+	if ( storedid.has2Ids() )
+	    continue;
+
+	uiComboBox* inpfld = inpflds_[inpfldidx]->box();
+	const int seldpidx = inpfld->currentItem();
+	BufferString dpidstr( "#" );
+	dpidstr += dpfids_[seldpidx];
+	FixedString dpnm( DataPackMgr::nameOf(dpfids_[seldpidx]) );
+	if ( attrset_ )
+	{
+	    Desc* ad = attrset_->getDesc( storedid.firstid_ );
+	    ad->changeStoredID( dpidstr );
+	    ad->setUserRef( dpnm );
+	}
+	else
+	{
+	    IOPar* descpar = attrdspar_->subselect( storedid.firstid_.asInt() );
+	    setDefinitionKey( *descpar, dpidstr );
+	    descpar->set( "UserRef", dpnm );
+	    BufferString idstr;
+	    idstr+= storedid.firstid_.asInt();
+	    attrdspar_->mergeComp( *descpar, idstr );
+	}
+
+	inpfldidx++;
+    }
+
+    return true;
+}
+
+void setAttribDescSet( Attrib::DescSet* ds )	{ attrset_ = ds; }
+
+void setAttribDescSetPar( IOPar* par )		{ attrdspar_ = par; }
+
+
+protected:
+
+const TypeSet<DataPack::FullID>&			dpfids_;
+TypeSet<uiStoredAttribReplacer::StoredEntry>&		storedids_;
+ObjectSet<uiLabeledComboBox>				inpflds_;
+Attrib::DescSet*					attrset_;
+IOPar*							attrdspar_;
+
+};
+
+
 void uiStoredAttribReplacer::handleOneGoInputRepl()
 {
     if ( storedids_.isEmpty() ) return;
@@ -306,6 +401,21 @@ void uiStoredAttribReplacer::handleOneGoInputRepl()
 	    seisinpidx += idx;
 	}
     }
+
+    if ( !dpfids_.isEmpty() )
+    {
+	uiDataPackReplacerDlg dlg( parent_, storedids_, dpfids_ );
+	if ( attrset_ )
+	    dlg.setAttribDescSet( attrset_ );
+	else
+	    dlg.setAttribDescSetPar( iopar_ );
+
+	if ( !dlg.go() && attrset_ )
+	    attrset_->removeAll( true );
+
+	return;
+    }
+
 
     uiAttrInpDlg dlg( parent_, seisinprefs, steerinprefs, is2d_ );
     if ( !dlg.go() )
