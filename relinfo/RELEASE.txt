@@ -3,6 +3,80 @@ OpendTect V6.0.x : Release info
 In general, all fixes in the stable 5.0 are also applied in the 6.0 releases.
 
 ----
+v6.0.4: August 1, 2016
+ * Fix for displaying saved pre-stack events in scene
+ * Fix for crash while creating horizon with a non-integer
+   Inline/Crossline step
+ * Fx for crash while importing horizon from multiple input files
+ * Fix for temporary SEG-Y files appearing in the list of available attributes
+   for display
+ * Performance improvements for displaying preloaded data in a depth scene
+ * Fix for automatic switching of scenes while working with a Fault display in
+   multiple scenes
+ * Fix for zigzag horizons after moving to another inline/crossline without
+   double-clicking in manual tracking mode
+ * Fix for crash in reference shift attribute
+ * Fix for wrong error message in Merge Crossplot utility
+ * Fix for displaying right values in FingerPrint advanced window
+ * Fix for updating Component selection field in mathematics attribute
+ * Fix for importing CBVS cube from another survey
+ * Fix for 'undo' issues in Polygon picking
+ * Fix for processing volume using MATLAB plugin
+ * Fix for default random line being at the wrong inline number if the survey
+   inline step is more than 1
+ * Performance improvements while loading data on large 2D lines
+ * Fix for wrong error message while auto tracking horizon in 2D viewer
+ * Fix for freezing OpendTect after opening Examine window on Windows platform
+ * Fix for displaying volume data if its step is greater than survey step
+   value
+ * Popup better error message if user types in wrong well track surface
+   coordinate
+ * Default file extension is now set if the user does not specify one while
+   exporting files
+ * Performance improvements while working with multiple horizons in tree
+ * Fix for freezing OpendTect while scanning a SEG-Y file for initial survey
+   setup
+ * Fix for Session Restore problem of Horizon color blending
+ * Fix for all the horizon seeds being displayed even in 'sections only' mode
+ * Fix for success message even after a failed well-track import
+ * Fix for cropped logs and synthetic trace below certain time/depth when
+   using checkshot editor
+ * Fix for updating measure tool window after picking points on scene
+ * Fix for Rev1 SEG-Y files being read as Rev0 in the Classic import wizard
+ * Fix for Horizon tracking issues on Random line
+ * Fix for wrong colors in Volume display of a time domain cube in a depth
+   scene
+ * Fix for crash while adding a newly created Scalebar group under Annotations
+ * Fix for applying Event tab parameters while tracking horizon using Seed Trace
+   method mode
+ * Fix for updating auto-tracking grids when resuming interpretation of
+   existing horizon
+ * Fix for Well to seismic tie log display in a Feet survey
+ * Fix for importing SEG-Y in batch mode if the Coordinates do not match the
+   current survey setup
+ * Fix for crash while removing polygon from manager while it is still in the
+   tree/scene
+ * Fix for popping-up wrong error message after closing the tracker settings
+   without seeds being picked while tracking 2D horizon
+ * Fix for displaying the log tracks in depth in well-to-seismic tie window if
+   the survey is in depth
+ * Fix for 2D data pre-loading and histogram display
+ * Fix for error while loading a newly imported 2D line
+ * Fix for reading 2D Horizons with trace number step greater than 1
+ * Current interpreted object is now remembered when opening a 2D Viewer
+   window
+ * Fix for crash while opening auto-scale window from Color Table
+ * Fix for Z axis annotations in 2D Viewer
+ * Fix to show only relevant data in the 2d line right click menu in tree
+ * Fix for removal of PickSets using Lasso in 2D Viewer
+ * Implemented PickSets for 2D lines in 2D Viewers
+ * Fix for PickSets drawing on a Z Slice displayed in 2D Viewer
+ * Autotracking is disabled when no seeds are picked
+ * Fix for Z scale of a transformed scene being applied to the default scene
+   after restarting OpendTect
+ * Fix for displaying saved annotation arrows
+ * Fix for sign reversal in Pre-stack gradient attribute
+
 v6.0.3: June 1, 2016
  * Fix for displaying geo bodies range information
  * Fix for shortcut keys ctr-Z and ctrl-Y while tracking 2D horizon
