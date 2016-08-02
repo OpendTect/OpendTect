@@ -623,7 +623,11 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	{
 	    uiString err;
 	    FixedString dscerr = dsc.errMsg();
-	    if ( dscerr==DescSet::storedIDErrStr() && dsc.isStored() )
+	    const bool storagenotfound = dscerr==DescSet::storedIDErrStr();
+	    if ( storagenotfound && dsc.isStoredInMem() )
+		continue;
+
+	    if ( storagenotfound && dsc.isStored() )
 	    {
 		IOPar tmpcpypar( copypar );
 		BufferString depattribnm;

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 #include "attribdescid.h"
 #include "bufstringset.h"
+#include "datapack.h"
 #include "linekey.h"
 #include "sets.h"
 #include "uistring.h"
@@ -28,13 +29,6 @@ namespace Attrib
 mExpClass(uiAttributes) uiStoredAttribReplacer
 { mODTextTranslationClass(uiStoredAttribReplacer);
 public:
-    				uiStoredAttribReplacer(uiParent*,
-						       Attrib::DescSet*);
-    				uiStoredAttribReplacer(uiParent*,IOPar*,
-						       bool is2d=false);
-    void 			go();
-
-protected:
 
     struct StoredEntry
     {
@@ -61,6 +55,14 @@ protected:
 	BufferString		storedref_;
     };
 
+				uiStoredAttribReplacer(uiParent*,
+						       Attrib::DescSet*);
+				uiStoredAttribReplacer(uiParent*,IOPar*,
+						       bool is2d=false);
+    void			go();
+
+protected:
+
     void			usePar(const IOPar&);
     void			setStoredKey(IOPar*,const char*);
     void			setSteerPar(StoredEntry,const char*,
@@ -85,6 +87,11 @@ protected:
     int				noofsteer_;
     int				noofseis_;
     bool			multiinpcube_;
+
+public:
+				~uiStoredAttribReplacer();
+    void			setDataPackIDs(
+				    const TypeSet<DataPack::FullID>&);
 };
 
 #endif
