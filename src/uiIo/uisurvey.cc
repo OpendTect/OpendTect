@@ -703,11 +703,13 @@ bool uiSurvey::acceptOK( CallBacker* )
 
 bool uiSurvey::rejectOK( CallBacker* )
 {
-    if ( cursurvremoved_ && !hasSurveys() )
+    if ( cursurvremoved_ )
     {
-	uiString msg( tr("You have removed the current survey.\n"
-			 "No surveys found in the list.\n"
-			 "Want to exit from OpendTect") );
+	uiString msg( tr("You have removed the current survey.\n" ) );
+	if ( !hasSurveys() )
+	    msg.append( tr("No surveys found in the list."), true );
+
+	msg.append( tr("Want to exit from OpendTect"),true );
 	return uiMSG().askGoOn( msg );
     }
 
@@ -838,14 +840,12 @@ void uiSurvey::rmButPushed( CallBacker* )
     {
 	cursurvremoved_ = true;
 	if ( button(CANCEL) )
-	    button(CANCEL)->setSensitive( dirfld_->isEmpty() );
+	    button(CANCEL)->setText( tr("Exit") );
     }
 
     if ( dirfld_->isEmpty() )
-    {
-	button(CANCEL)->setText( tr("Exit") );
 	setCurrentSurvInfo( 0, true );
-    }
+
     selChange( 0 );
 }
 
@@ -860,7 +860,7 @@ void uiSurvey::editButPushed( CallBacker* )
 
 void uiSurvey::copyButPushed( CallBacker* )
 {
-    if ( !cursurvinfo_ || !rootDirWritable() ) return;
+    if ( !rootDirWritable() ) return;
 
     uiNewSurveyByCopy dlg( this, dataroot_, selectedSurveyName() );
     if ( !dlg.go() )
@@ -877,6 +877,7 @@ void uiSurvey::copyButPushed( CallBacker* )
 
     updateSurvList();
     dirfld_->setCurrentItem( dlg.newdirnm_ );
+    putToScreen();
 }
 
 
@@ -940,6 +941,12 @@ void uiSurvey::dataRootPushed( CallBacker* )
 
     updateSurvList();
     updateDataRootLabel();
+    if ( dirfld_->isEmpty() )
+    {
+	setCurrentSurvInfo( 0 , true );
+	return;
+    }
+
     const char* ptr = GetSurveyName();
     if ( ptr && dirfld_->isPresent(ptr) )
 	dirfld_->setCurrentItem( GetSurveyName() );
