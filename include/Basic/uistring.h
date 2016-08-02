@@ -233,6 +233,53 @@ public:
 };
 
 
+/*\brief allows returning status and accompanying user info.
+
+  This class helps us make sure there is always user info on errors. Therefore,
+  you will find a 'setIsOK' but not OK means setting a non-empty message.
+
+*/
+
+mExpClass(Basic) uiRetVal
+{
+public:
+
+			uiRetVal(const uiString&);
+			uiRetVal(const uiStringSet&);
+			uiRetVal(const uiRetVal&);
+    static uiRetVal	OK()		    { return ok_; }
+    uiRetVal&		operator =(const uiRetVal&);
+    uiRetVal&		operator =(const uiString&);
+    uiRetVal&		operator =(const uiStringSet&);
+			operator uiString() const;
+
+    bool		isOK() const;
+    inline bool		isError() const	    { return !isOK(); }
+    bool		isMultiMessage() const;
+    uiStringSet		messages() const;
+
+    uiRetVal&		setOK();
+    uiRetVal&		set(const uiRetVal&);
+    uiRetVal&		set(const uiString&);
+    uiRetVal&		set(const uiStringSet&);
+    uiRetVal&		add(const uiRetVal&);
+    uiRetVal&		add(const uiString&);
+    uiRetVal&		add(const uiStringSet&);
+    void		resetError() { msgs_.setEmpty(); }
+
+    BufferString	getText() const;
+
+private:
+
+    uiStringSet		msgs_;
+    mutable Threads::Lock lock_;
+
+			uiRetVal()	    {}
+    static const uiRetVal ok_;
+
+};
+
+
 mGlobal(Basic) uiString toUiString(const uiString&);
 mGlobal(Basic) uiString toUiString(const char*);
 mGlobal(Basic) uiString toUiString(const OD::String&);

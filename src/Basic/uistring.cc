@@ -961,3 +961,125 @@ int uiString::size() const
 
      return  (*this).append(spaces);
  }
+
+
+//uiRetVal
+const uiRetVal uiRetVal::ok_;
+
+uiRetVal::uiRetVal( const uiString& str )
+{ msgs_.add( str ); }
+
+uiRetVal::uiRetVal( const uiStringSet& strs )
+    : msgs_(strs)
+{}
+
+uiRetVal::uiRetVal( const uiRetVal& oth )
+    : msgs_(oth.msgs_)
+{}
+
+uiRetVal& uiRetVal::operator =( const uiRetVal& oth )
+{ return set( oth ); }
+
+uiRetVal& uiRetVal::operator =( const uiString& str )
+{ return set( str ); }
+
+uiRetVal& uiRetVal::operator =( const uiStringSet& strs )
+{ return set( strs ); }
+
+
+uiRetVal::operator uiString() const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_.isEmpty() ? uiString::emptyString() : msgs_.cat();
+}
+
+
+bool uiRetVal::isOK() const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_.isEmpty() || msgs_[0].isEmpty();
+}
+
+
+bool uiRetVal::isMultiMessage() const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_.size() > 1;
+}
+
+
+uiStringSet uiRetVal::messages() const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_;
+}
+
+
+uiRetVal& uiRetVal::set( const uiRetVal& oth )
+{
+    if ( this != &oth )
+    {
+	Threads::Locker locker( lock_ );
+	msgs_ = oth.msgs_;
+    }
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::set( const uiString& str )
+{
+    Threads::Locker locker( lock_ );
+    msgs_.setEmpty();
+    msgs_.add( str );
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::set( const uiStringSet& strs )
+{
+    Threads::Locker locker( lock_ );
+    msgs_ = strs;
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::add( const uiRetVal& oth )
+{
+    if ( this != &oth )
+    {
+	Threads::Locker locker( lock_ );
+	msgs_.append( oth.msgs_ );
+    }
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::add( const uiString& str )
+{
+    Threads::Locker locker( lock_ );
+    msgs_.add( str );
+    return *this;
+}
+
+
+uiRetVal& uiRetVal::add( const uiStringSet& strs )
+{
+    Threads::Locker locker( lock_ );
+    msgs_.append( strs );
+    return *this;
+}
+
+
+BufferString uiRetVal::getText() const
+{
+    uiString uistr;
+    if ( !isMultiMessage() )
+	uistr = *this;
+    else
+    {
+	Threads::Locker locker( lock_ );
+	uistr = msgs_.cat();
+    }
+
+    return BufferString( uistr.getFullString() );
+}
