@@ -770,7 +770,8 @@ void Horizon3D::setParent( const TrcKey& node, const TrcKey& parent )
     if ( !parents_ ) return;
 
     const od_int64 gidx = trackingsamp_.globalIdx( node );
-    parents_->getData()[gidx] = trackingsamp_.globalIdx( parent );
+    if ( gidx >= 0 && gidx < parents_->info().getTotalSz() )
+	parents_->getData()[gidx] = trackingsamp_.globalIdx( parent );
 }
 
 
