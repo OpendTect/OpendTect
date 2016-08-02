@@ -38,6 +38,8 @@ public:
 
     static const char*		sKeyMID()		{ return "ID"; }
 
+    virtual void		draw()			{}
+
 protected:
 			~Vw2DDataObject();
 			Vw2DDataObject();

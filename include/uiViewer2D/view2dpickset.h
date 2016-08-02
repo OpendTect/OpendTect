@@ -31,7 +31,7 @@ public:
 			    mCreateVw2DDataObj(VW2DPickSet,id,win,ed);
 			~VW2DPickSet();
 
-    void		drawAll();
+    void		draw();
     void		clearPicks();
     void		enablePainting(bool yn);
     void		selected();

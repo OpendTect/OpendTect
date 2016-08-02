@@ -1525,7 +1525,7 @@ void uiODViewer2D::getPickSetVwr2DIDs( const MultiID& mid,
 	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickpitem,
 			treetp_->getChild(idx))
 	if ( pickpitem )
-	    pickpitem->getPickSetVwr2DIDs( mid, vw2dobjids );
+	    pickpitem->getVwr2DOjIDs( mid, vw2dobjids );
     }
 }
 
@@ -1539,7 +1539,7 @@ void uiODViewer2D::removePickSet( const MultiID& mid )
 	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
 			treetp_->getChild(idx))
 	if ( pickitem )
-	    pickitem->removePickSet( mid );
+	    pickitem->removeChildren( mid );
     }
 }
 
@@ -1553,7 +1553,7 @@ void uiODViewer2D::getLoadedPickSets( TypeSet<MultiID>& mids ) const
 	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
 			treetp_->getChild(idx))
 	if ( pickitem )
-	    pickitem->getLoadedPickSets( mids );
+	    pickitem->getLoadedChildren( mids );
     }
 }
 
@@ -1567,7 +1567,7 @@ void uiODViewer2D::addPickSets( const TypeSet<MultiID>& mids )
 	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
 			treetp_->getChild(idx))
 	if ( pickitem )
-	    pickitem->addPickSets( mids );
+	    pickitem->addChildren( mids );
     }
 }
 
@@ -1582,8 +1582,11 @@ void uiODViewer2D::setupNewPickSet( const MultiID& pickid )
 			treetp_->getChild(idx))
 	if ( pickpitem )
 	{
-	    pickpitem->setupNewPickSet( pickid );
-	    if ( viewstdcontrol_->editToolBar() )
+	    TypeSet<MultiID> pickids;
+	    pickids += pickid;
+	    pickpitem->addChildren( pickids );
+	    if ( viewstdcontrol_->editToolBar() &&
+		 pickpitem->selectChild(pickid) )
 		viewstdcontrol_->editToolBar()->setSensitive(
 			 picksettingstbid_, false );
 	}

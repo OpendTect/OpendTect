@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "emposid.h"
 
 class VW2DPickSet;
-
 namespace Pick{ class Set; }
 
 
@@ -30,14 +29,6 @@ public:
 				~uiODVw2DPickSetParentTreeItem();
 
     bool			showSubMenu();
-    void			getPickSetVwr2DIDs(const MultiID& mid,
-						   TypeSet<int>& vw2ids) const;
-    void			getLoadedPickSets(TypeSet<MultiID>&) const;
-    void			showHidePickSet(const MultiID&,bool);
-    void			removePickSet(const MultiID&);
-    void			addPickSets(const TypeSet<MultiID>&);
-    void			setupNewPickSet(const MultiID&);
-
 protected:
 
     bool			init();
@@ -45,14 +36,7 @@ protected:
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-    void			setActive(const MultiID&);
-
-    void			objAddedCB(CallBacker*);
-    void			objVanishedCB(CallBacker*);
-    void			objShownCB(CallBacker*);
-    void			objHiddenCB(CallBacker*);
-    void			objOrphanedCB(CallBacker*);
-
+    void			addChildItem(const MultiID&);
 };
 
 
@@ -75,8 +59,7 @@ public:
 
     bool		showSubMenu();
     bool		select();
-    MultiID		pickSetID() const;
-    const VW2DPickSet*	vw2DObject() const	{ return vw2dpickset_; }
+    const Vw2DDataObject* vw2DObject() const;
     virtual void	doSave();
     virtual void	doSaveAs();
 

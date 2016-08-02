@@ -69,7 +69,7 @@ public:
     bool		select();
     bool		showSubMenu();
     EM::ObjectID	emObjectID() const	{ return emid_; }
-    const Vw2DHorizon3D* vw2DObject() const	{ return horview_; }
+    const Vw2DDataObject* vw2DObject() const;
 
 protected:
 

@@ -228,7 +228,7 @@ OD::MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 }
 
 
-void VW2DPickSet::drawAll()
+void VW2DPickSet::draw()
 {
     ConstRefMan<FlatDataPack> fdp = viewers_[0]->getPack( true, true );
     if ( !fdp || !pickset_ )
@@ -353,7 +353,7 @@ void VW2DPickSet::clearPicks()
     if ( pickset_ )
     {
 	pickset_->setEmpty();
-	drawAll();
+	draw();
     }
 }
 
@@ -370,7 +370,7 @@ void VW2DPickSet::enablePainting( bool yn )
 
 void VW2DPickSet::dataChangedCB( CallBacker* )
 {
-    drawAll();
+    draw();
 }
 
 

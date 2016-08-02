@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitreeview.h"
 #include "saveablemanager.h"
+#include "view2ddata.h"
 #include "zaxistransform.h"
 
 #define mAddIdx		0
@@ -151,6 +152,7 @@ uiODVw2DTreeItem::uiODVw2DTreeItem( const uiString& nm )
     : uiTreeItem( nm )
     , displayid_(-1)
     , datatransform_(0)
+    , mid_( MultiID::udf() )
 {}
 
 
@@ -447,4 +449,159 @@ void uiODVw2DParentTreeItem::setObjectManager( SaveableManager* mgr )
     mAttachCB( objectmgr_->ShowRequested, uiODVw2DParentTreeItem::objShownCB );
     mAttachCB( objectmgr_->HideRequested, uiODVw2DParentTreeItem::objHiddenCB );
     mAttachCB( objectmgr_->ObjOrphaned, uiODVw2DParentTreeItem::objOrphanedCB );
+}
+
+
+void uiODVw2DParentTreeItem::objAddedCB( CallBacker* cber )
+{
+    mCBCapsuleUnpack( MultiID,mid,cber );
+    mEnsureExecutedInMainThreadWithCapsule(
+	    uiODVw2DParentTreeItem::objAddedCB, cbercaps )
+    if ( mid.isUdf() )
+	return;
+
+    TypeSet<MultiID> setids;
+    setids += mid;
+    addChildren( setids );
+}
+
+
+void uiODVw2DParentTreeItem::objVanishedCB( CallBacker* cber )
+{
+    mCBCapsuleUnpack( MultiID,mid,cber );
+    mEnsureExecutedInMainThreadWithCapsule(
+	    uiODVw2DParentTreeItem::objVanishedCB, cbercaps )
+    if ( mid.isUdf() )
+	return;
+
+    removeChildren( mid );
+}
+
+
+void uiODVw2DParentTreeItem::objShownCB( CallBacker* cber )
+{
+    mCBCapsuleUnpack( MultiID,mid,cber );
+    mEnsureExecutedInMainThreadWithCapsule(
+	    uiODVw2DParentTreeItem::objShownCB, cbercaps )
+    if ( mid.isUdf() )
+	return;
+
+    showHideChildren( mid, true );
+}
+
+
+void uiODVw2DParentTreeItem::objHiddenCB( CallBacker* cber )
+{
+    mCBCapsuleUnpack( MultiID,mid,cber );
+    mEnsureExecutedInMainThreadWithCapsule(
+	    uiODVw2DParentTreeItem::objHiddenCB, cbercaps )
+    if ( mid.isUdf() )
+	return;
+
+    showHideChildren( mid, false );
+}
+
+
+void uiODVw2DParentTreeItem::objOrphanedCB( CallBacker* cber )
+{
+    mCBCapsuleUnpack( MultiID,mid,cber );
+    mEnsureExecutedInMainThreadWithCapsule(
+	    uiODVw2DParentTreeItem::objOrphanedCB, cbercaps )
+    if ( mid.isUdf() )
+	return;
+    //TODO do something when we have clearer idea what to do when it happens
+}
+
+
+void uiODVw2DParentTreeItem::getVwr2DOjIDs(
+	const MultiID& mid, TypeSet<int>& vw2dobjids ) const
+{
+    if ( mid.isUdf() )
+	return;
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(const uiODVw2DTreeItem*,childitem,
+			getChild(idx))
+	if ( !childitem || childitem->storedID() != mid )
+	    continue;
+
+	if ( childitem->vw2DObject() )
+	    vw2dobjids.addIfNew( childitem->vw2DObject()->id() );
+    }
+}
+
+
+void uiODVw2DParentTreeItem::showHideChildren( const MultiID& mid, bool show )
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DTreeItem*,childitem,getChild(idx))
+	if ( !childitem || mid!=childitem->storedID() )
+	    continue;
+
+	childitem->setChecked( show, true );
+    }
+}
+
+
+void uiODVw2DParentTreeItem::removeChildren( const MultiID& mid )
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DTreeItem*,childitem,getChild(idx))
+	if ( !childitem || mid!=childitem->storedID() )
+	    continue;
+
+	removeChild( childitem );
+    }
+}
+
+
+void uiODVw2DParentTreeItem::getLoadedChildren( TypeSet<MultiID>& mids ) const
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(const uiODVw2DTreeItem*,childitem,getChild(idx))
+	if ( !childitem )
+	    continue;
+
+	mids.addIfNew( childitem->storedID() );
+    }
+}
+
+
+bool uiODVw2DParentTreeItem::selectChild( const MultiID& mid )
+{
+    TypeSet<MultiID> midsloaded;
+    getLoadedChildren( midsloaded );
+    if ( !midsloaded.isPresent(mid) )
+	return false;
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DTreeItem*,childtreeitm,getChild(idx))
+	if ( childtreeitm && mid==childtreeitm->storedID() )
+	{
+	    childtreeitm->select();
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
+void uiODVw2DParentTreeItem::addChildren( const TypeSet<MultiID>& setids )
+{
+    TypeSet<MultiID> setidstobeloaded, setidsloaded;
+    getLoadedChildren( setidsloaded );
+    for ( int idx=0; idx<setids.size(); idx++ )
+    {
+	if ( !setidsloaded.isPresent(setids[idx]) )
+	    setidstobeloaded.addIfNew( setids[idx] );
+    }
+
+    for ( int idx=0; idx<setidstobeloaded.size(); idx++ )
+	addChildItem( setidstobeloaded[idx] );
 }

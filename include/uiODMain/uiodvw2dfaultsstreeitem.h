@@ -66,7 +66,7 @@ public:
     bool		showSubMenu();
     bool		select();
     EM::ObjectID	emObjectID() const	{ return emid_; }
-    const VW2DFaultSS3D* vw2DObject() const	{ return fssview_; }
+    const Vw2DDataObject* vw2DObject() const;
 
 protected:
 

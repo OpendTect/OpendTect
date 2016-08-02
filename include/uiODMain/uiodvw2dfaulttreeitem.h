@@ -67,7 +67,7 @@ public:
     bool		showSubMenu();
     bool		select();
     EM::ObjectID	emObjectID() const	{ return emid_; }
-    const VW2DFault*	vw2DObject() const	{ return faultview_; }
+    const Vw2DDataObject* vw2DObject() const;
 
 protected:
 

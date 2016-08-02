@@ -432,3 +432,6 @@ uiTreeItem* uiODVw2DFaultTreeItemFactory::createForVis(
     mDynamicCastGet(const VW2DFault*,obj,vwr2d.dataMgr()->getObject(id));
     return obj ? new uiODVw2DFaultTreeItem(id,true) : 0;
 }
+
+const Vw2DDataObject* uiODVw2DFaultTreeItem::vw2DObject() const
+{ return faultview_; }

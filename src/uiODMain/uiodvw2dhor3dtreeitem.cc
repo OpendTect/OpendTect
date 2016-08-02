@@ -643,3 +643,6 @@ uiTreeItem* uiODVw2DHor3DTreeItemFactory::createForVis(
     mDynamicCastGet(const Vw2DHorizon3D*,obj,vwr2d.dataMgr()->getObject(id));
     return obj ? new uiODVw2DHor3DTreeItem(id,true) : 0;
 }
+
+const Vw2DDataObject* uiODVw2DHor3DTreeItem::vw2DObject() const
+{ return horview_; }

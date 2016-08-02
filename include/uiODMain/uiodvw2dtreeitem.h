@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uitreeitemmanager.h"
 #include "uistrings.h"
+#include "multiid.h"
 
 class TrcKeyZSampling;
 class uiTreeView;
@@ -22,6 +23,7 @@ class uiODApplMgr;
 class uiODViewer2D;
 class ZAxisTransform;
 class SaveableManager;
+class Vw2DDataObject;
 
 namespace Attrib { class SelSpec; }
 
@@ -33,6 +35,7 @@ public:
 			~uiODVw2DTreeItem();
 
     bool		setZAxisTransform(ZAxisTransform*);
+    const MultiID&	storedID() const	{ return mid_; }
 
     void		updSampling(const TrcKeyZSampling&,bool);
     void		updSelSpec(const Attrib::SelSpec*,bool wva);
@@ -45,6 +48,7 @@ public:
     const uiODVw2DTreeItem* getVW2DItem(int displayid) const;
 
     void		addKeyBoardEvent();
+    virtual const Vw2DDataObject* vw2DObject() const	{ return 0; }
 
 protected:
 
@@ -54,6 +58,7 @@ protected:
 
     int			displayid_;
     ZAxisTransform*	datatransform_;
+    MultiID		mid_;
 
     uiODApplMgr*	applMgr();
     uiODViewer2D*	viewer2D();
@@ -86,12 +91,22 @@ public:
 			uiODVw2DParentTreeItem(const uiString&);
 			~uiODVw2DParentTreeItem();
     void		setObjectManager(SaveableManager*);
+
+    void		getVwr2DOjIDs(const MultiID& mid,
+				       TypeSet<int>& vw2ids) const;
+    void		getLoadedChildren(TypeSet<MultiID>&) const;
+    void		showHideChildren(const MultiID&,bool);
+    void		removeChildren(const MultiID&);
+    void		addChildren(const TypeSet<MultiID>&);
+    bool		selectChild(const MultiID&);
 protected:
-    virtual void	objAddedCB(CallBacker*)			{}
-    virtual void	objVanishedCB(CallBacker*)		{}
-    virtual void	objShownCB(CallBacker*)			{}
-    virtual void	objHiddenCB(CallBacker*)		{}
-    virtual void	objOrphanedCB(CallBacker*)		{}
+    virtual void	objAddedCB(CallBacker*);
+    virtual void	objVanishedCB(CallBacker*);
+    virtual void	objShownCB(CallBacker*);
+    virtual void	objHiddenCB(CallBacker*);
+    virtual void	objOrphanedCB(CallBacker*);
+
+    virtual void	addChildItem(const MultiID&)		{}
 
     SaveableManager*	objectmgr_;
 };
