@@ -266,6 +266,7 @@ public:
     uiRetVal&		add(const uiRetVal&);
     uiRetVal&		add(const uiString&);
     uiRetVal&		add(const uiStringSet&);
+    void		resetError() { msgs_.setEmpty(); }
 
     BufferString	getText() const;
 
