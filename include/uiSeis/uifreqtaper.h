@@ -12,14 +12,12 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "uifunctiondisplay.h"
 #include "uiwindowfunctionsel.h"
 #include "uibutton.h"
 #include "survinfo.h"
 #include "arrayndalgo.h"
-#include <arrayndimpl.h>
 #include "uistring.h"
 
 class uiGenInput;
@@ -27,8 +25,6 @@ class uiFuncTaperDisp;
 class uiSliceSelDlg;
 class uiSlider;
 class uiFreqTaperGrp;
-
-class ArrayNDWindow;
 class TrcKeyZSampling;
 
 
@@ -37,13 +33,11 @@ mStruct(uiSeis) FreqTaperSetup
 		    FreqTaperSetup()
 			: hasmin_(false)
 			, hasmax_(true)
-			, seisnm_(0)
-			, attrnm_(0)
+			, multiid_(MultiID::udf())
 			, allfreqssetable_(false)
 			{}
 
-    const char*		seisnm_;
-    const char*		attrnm_; //2D
+    MultiID		multiid_;
     bool		hasmin_;
     bool		hasmax_;
     Interval<float>	minfreqrg_;
@@ -196,13 +190,11 @@ public:
 
 protected:
 
-
     uiFreqTaperGrp*	tapergrp_;
     uiFuncTaperDisp*    drawer_;
     Array1DImpl<float>* funcvals_;
 
-    const char*		seisnm_;
-    const char*		attrnm_;
+    MultiID		multiid_;
     uiPushButton*	previewfld_;
     uiSliceSelDlg*	posdlg_;
     TrcKeyZSampling*	tkzs_;
@@ -220,6 +212,8 @@ public:
 
     Interval<float>	freqValues() const;
 
+    void		setMultiID( const MultiID& multiid )
+			{ freqsetup_.multiid_ = multiid; }
     void		setIsMinMaxFreq(bool,bool);
     void		setInputFreqValue(float,int);
     void		setRefFreqs(Interval<float>);

@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uiaxishandler.h"
 #include "uigeninput.h"
 #include "uigroup.h"
-#include "uifunctiondisplay.h"
 #include "uigraphicsscene.h"
 #include "uilabel.h"
 #include "uicombobox.h"
@@ -23,7 +22,6 @@ ________________________________________________________________________
 #include "uislider.h"
 
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
 #include "ioman.h"
 #include "scaler.h"
 #include "seisbuf.h"
@@ -41,8 +39,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     , tkzs_(new TrcKeyZSampling())
     , posdlg_(0)
     , funcvals_(0)
-    , seisnm_(s.seisnm_)
-    , attrnm_(s.attrnm_)
+    , multiid_(s.multiid_)
 {
     setCtrlStyle( CloseOnly );
 
@@ -88,7 +85,7 @@ uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
 	, linesfld_(0)
 	, objinfo_(objinfo)
 {
-    uiString complbl = tr("Compute amplitude spectrum on %1");
+    uiString complbl = tr("Compute amplitude spectrum on");
     if ( objinfo_.is2D() )
     {
 	BufferStringSet linenames;
@@ -123,30 +120,37 @@ protected:
 { uiMSG().error(msg); return; }
 void uiFreqTaperDlg::previewPushed(CallBacker*)
 {
-    SeisIOObjInfo objinfo( seisnm_, Seis::Line );
+    SeisIOObjInfo objinfo( multiid_ );
     if ( !objinfo.isOK() )
 	mErrRet( tr("Cannot read input data, "
 		 "please make sure you selected valid data") );
 
-    objinfo.getRanges( *tkzs_ );
-
-    const bool is2d = objinfo.is2D();
     uiFreqTaperSelLineDlg lineposdlg( this, objinfo );
-    if ( lineposdlg.go() )
+    if ( !lineposdlg.go() )
+	return;
+
+    const Pos::GeomID geomid = Survey::GM().getGeomID(lineposdlg.getLineName());
+    const bool is2d = objinfo.is2D();
+    if ( is2d )
     {
-	delete posdlg_; posdlg_ = 0;
-	ZDomain::Info info( ZDomain::SI() );
-	uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD
-				   : (lineposdlg.isInl() ? uiSliceSel::Inl
-							 : uiSliceSel::Crl);
-	CallBack dummycb;
-	posdlg_ = new uiSliceSelDlg( this, *tkzs_, *tkzs_, dummycb, tp, info );
-	posdlg_->grp()->enableApplyButton( false );
-	posdlg_->grp()->enableScrollButton( false );
-	posdlg_->setModal( true );
+	StepInterval<int> trcrg;
+	objinfo.getRanges( geomid, trcrg, tkzs_->zsamp_ );
+	tkzs_->hsamp_.setLineRange( Interval<int>(geomid,geomid) );
+	tkzs_->hsamp_.setTrcRange( trcrg );
     }
     else
-	return;
+	objinfo.getRanges( *tkzs_ );
+    
+    ZDomain::Info info( ZDomain::SI() );
+    uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD
+			       : (lineposdlg.isInl() ? uiSliceSel::Inl
+				       		     : uiSliceSel::Crl);
+    CallBack dummycb;
+    deleteAndZeroPtr( posdlg_ );
+    posdlg_ = new uiSliceSelDlg( this, *tkzs_, *tkzs_, dummycb, tp, info );
+    posdlg_->grp()->enableApplyButton( false );
+    posdlg_->grp()->enableScrollButton( false );
+    posdlg_->setModal( true );
 
     if ( posdlg_ &&  posdlg_->go() )
     {
@@ -154,7 +158,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 	SeisTrcReader rdr( objinfo.ioObj() );
 
 	Seis::RangeSelData* sd = new Seis::RangeSelData( cs );
-	sd->setGeomID( Survey::GM().getGeomID(lineposdlg.getLineName()) );
+	sd->setGeomID( geomid );
 	rdr.setSelData( sd );
 	rdr.prepareWork();
 
@@ -583,7 +587,7 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
 uiFreqTaperSel::uiFreqTaperSel( uiParent* p, const Setup& s,
 				const FreqTaperSetup& fsu )
     : uiWindowFunctionSel(p,s)
-    , freqsetup_(FreqTaperSetup(fsu))
+    , freqsetup_(fsu)
     , freqtaperdlg_(0)
 {}
 

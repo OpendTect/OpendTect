@@ -43,6 +43,7 @@ protected:
     uiWindowFunctionSel::Setup* viewsetup_;
 
     void		finaliseCB(CallBacker*);
+    void		selectionDoneCB(CallBacker*);
     void		freqChanged(CallBacker*);
     void		freqWinSel(CallBacker*);
     void		updateTaperFreqs(CallBacker*);
