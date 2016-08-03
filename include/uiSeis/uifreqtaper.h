@@ -35,13 +35,12 @@ class TrcKeyZSampling;
 
 mStruct(uiSeis) FreqTaperSetup
 {
-		    FreqTaperSetup()
-			: hasmin_(false)
-			, hasmax_(true)
-			, seisnm_(0)
-			, attrnm_(0)
-			, allfreqssetable_(false)
-			{}
+		    FreqTaperSetup();
+		    FreqTaperSetup(const FreqTaperSetup&);
+		    ~FreqTaperSetup();
+
+    const MultiID&	multiID() const;
+    MultiID&		multiID();
 
     const char*		seisnm_;
     const char*		attrnm_; //2D
@@ -221,6 +220,8 @@ public:
 
     Interval<float>	freqValues() const;
 
+    void		setMultiID( const MultiID& multiid )
+			{ freqsetup_.multiID() = multiid; }
     void		setIsMinMaxFreq(bool,bool);
     void		setInputFreqValue(float,int);
     void		setRefFreqs(Interval<float>);

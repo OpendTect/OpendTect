@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "freqfilterattrib.h"
 
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribparam.h"
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
@@ -35,6 +36,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 
 {
     inpfld_ = createImagInpFld( is2d );
+    inpfld_->selectionDone.notify(mCB(this,uiFreqFilterAttrib,selectionDoneCB));
 
     isfftfld_ = new uiGenInput( this, tr("Filtering method"),
 			       BoolInpSpec(true,tr("FFT"),tr("ButterWorth")) );
@@ -66,8 +68,10 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	    su.inpfldtxt_ = "Min/max frequency(Hz)";
 
 	    FreqTaperSetup freqsu;
-	    freqsu.seisnm_ = inpfld_->getInput();
-	    freqsu.attrnm_ = inpfld_->getAttrName();
+	    const Attrib::DescSet& attrset = inpfld_->getAttrSet();
+	    const Attrib::Desc* inpdesc = attrset.getDesc(inpfld_->attribID());
+	    if ( inpdesc )
+		freqsu.multiID() = inpdesc->getStoredID( true );
 	    winflds_ += new uiFreqTaperSel( this, su, freqsu );
 	}
 	else
@@ -94,6 +98,19 @@ void uiFreqFilterAttrib::finaliseCB( CallBacker* )
     isfftSel(0);
     freqChanged(0);
     freqWinSel(0);
+}
+
+
+void uiFreqFilterAttrib::selectionDoneCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiFreqTaperSel*,freqtapersel,winflds_[1]);
+    if ( !freqtapersel ) return;
+
+    const Attrib::DescSet& attrset = inpfld_->getAttrSet();
+    const Attrib::Desc* inpdesc = attrset.getDesc( inpfld_->attribID() );
+    const MultiID multiid = inpdesc ? MultiID(inpdesc->getStoredID(true))
+				    : MultiID::udf();
+    freqtapersel->setMultiID( multiid );
 }
 
 
