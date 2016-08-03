@@ -2501,8 +2501,6 @@ void HorizonDisplay::IntersectionData::clear()
     line_->removeAllPrimitiveSets();
     line_->getCoordinates()->setEmpty();
     markerset_->clearMarkers();
-    line_->requestSingleRedraw();
-    markerset_->requestSingleRedraw();
 }
 
 
