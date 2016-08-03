@@ -1160,14 +1160,7 @@ void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	    if ( selections_ && selections_->getMaterial() )
 		selections_->getMaterial()->setColor(
 		hor3d->getSelectionColor() );
-	    if ( lockedpts_ && lockedpts_->getMaterial() )
-		lockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
-	    if ( sectionlockedpts_.getParam(this) )
-	    {
-		if ( sectionlockedpts_.getParam(this)->getMaterial() )
-		    sectionlockedpts_.getParam(this)->getMaterial()->setColor( 
-		    hor3d->getLockColor() );
-	    }
+	    updateLockedPointsColor();
 	}
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::SelectionChange )
@@ -1183,7 +1176,10 @@ void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
 	const bool locked = hor3d ? hor3d->hasLockedNodes() : 0;
 	if ( locked && !displayonlyatsections_ ) 
+	{
+	    updateLockedPointsColor();
 	    return; 
+	}
 
 	if ( !locked )
 	{
@@ -2505,6 +2501,8 @@ void HorizonDisplay::IntersectionData::clear()
     line_->removeAllPrimitiveSets();
     line_->getCoordinates()->setEmpty();
     markerset_->clearMarkers();
+    line_->requestSingleRedraw();
+    markerset_->requestSingleRedraw();
 }
 
 
