@@ -53,6 +53,16 @@ public:
 		    , event( EMObjectCallbackData::Undef )
 		{}
 
+
+		EMObjectCallbackData( const EMObjectCallbackData& data )
+		    : pid0( data.pid0 )
+		    , pid1( data.pid1 )
+		    , attrib( data.attrib )
+		    , flagfor2dviewer( data.flagfor2dviewer )
+		    , event( data.event )
+		{}
+
+
     enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
    		 AttribChange, SectionChange, NameChange, SelectionChange,
    		 LockChange, BurstAlert } event;

@@ -1112,7 +1112,8 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     if ( cb )
     {
 	mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-	emchangedata_.getParam( this )->addCallBackData( &cbdata );
+	emchangedata_.getParam( this )->addCallBackData( 
+	    new EM::EMObjectCallbackData(cbdata) );
     }
     
     mEnsureExecutedInMainThread( HorizonDisplay::emChangeCB );
