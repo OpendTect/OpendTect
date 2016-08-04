@@ -38,8 +38,9 @@ if( WIN32 )
     set( SPECFILES ${TXTFILES} )
     set( ODSCRIPTS process_dumpfile.cmd )
 else()
-    set( SPECFILES .exec_prog .init_dtect .init_dtect_user install .lic_inst_common
-		   .lic_start_common mk_datadir .start_dtect setup.od )
+    set( SPECFILES .exec_prog .init_dtect .init_dtect_user install
+		   .lic_inst_common .lic_start_common mk_datadir .start_dtect
+		   setup.od odinit.matlab )
     set( SPECFILES ${SPECFILES} ${TXTFILES} )
     set( ODSCRIPTS od_* mksethdir macterm.in process_dumpfile.sh )
 endif()
