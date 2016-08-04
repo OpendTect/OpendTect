@@ -1093,9 +1093,9 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     if ( cb )
     {
 	mCBCapsuleUnpack( const EM::EMObjectCallbackData&,cbdata, cb );
-	emchangedata_.addCallBackData( &cbdata );
+	emchangedata_.addCallBackData( new EM::EMObjectCallbackData(cbdata) );
     }
-    
+
     mEnsureExecutedInMainThread( HorizonDisplay::emChangeCB );
     for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
@@ -1111,8 +1111,6 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     updateSingleColor();   
     newseeds_ = true;
 }
-
-
 
 
 void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)

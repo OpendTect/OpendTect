@@ -55,7 +55,7 @@ struct EMChangeData
     void    clearData()
     {
 	Threads::Locker locker( lock_ );
-	emcallbackdata_.setEmpty();
+	deepErase( emcallbackdata_ );
     }
 
     int	    size() const { return emcallbackdata_.size(); }
