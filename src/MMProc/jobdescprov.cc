@@ -195,7 +195,8 @@ int InlineSplitJobDescProv::firstInlNr( int jidx ) const
 
 int InlineSplitJobDescProv::lastInlNr( int jidx ) const
 {
-    return firstInlNr(jidx) + inlrg_.step * (ninlperjob_ - 1);
+    const int lastinl = firstInlNr(jidx) + inlrg_.step * (ninlperjob_ - 1);
+    return lastinl > inlrg_.stop ? inlrg_.stop : lastinl;
 }
 
 
