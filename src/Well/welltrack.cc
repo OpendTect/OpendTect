@@ -389,9 +389,10 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
 
 float Well::Track::nearestDah( const Coord3& posin ) const
 {
-    if ( dah_.isEmpty() ) return 0;
-
-    if ( dah_.size() < 2 ) return dah_[1];
+    if ( dah_.isEmpty() )
+	return 0;
+    if ( dah_.size() < 2 )
+	return dah_[0];
 
     const double zfac = zistime_ ? 2000. : 1.;
     Coord3 reqpos( posin ); reqpos.z *= zfac;
