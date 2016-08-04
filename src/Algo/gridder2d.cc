@@ -88,6 +88,37 @@ bool Gridder2D::setPoints( const TypeSet<Coord>& cl )
 }
 
 
+bool Gridder2D::setPoints( const TypeSet<Coord>& cl, TaskRunner* taskr )
+{
+    mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,this);
+    if ( !rbfgridder )
+    {
+	pErrMsg("Use setPoints(const TypeSet<Coord>&) instead.");
+	return false;
+    }
+
+    points_ = &cl;
+
+    if ( trend_ && values_ && points_->size() == values_->size() )
+	trend_->set( *points_, values_->arr() );
+
+    usedpoints_.setEmpty();
+    for ( int idx=0; idx<points_->size(); idx++ )
+    {
+	if ( (*points_)[idx].isDefined() )
+	    usedpoints_ += idx;
+    }
+
+    if ( !rbfgridder->updateSolver(taskr) )
+    {
+	points_ = 0;
+	return false;
+    }
+
+    return true;
+}
+
+
 bool Gridder2D::setValues( const TypeSet<float>& vl )
 {
     values_ = &vl;
@@ -670,6 +701,42 @@ bool RadialBasisFunctionGridder2D::updateSolver()
     solv_ = new LinSolver<double>( a );
 
     return true;
+}
+
+
+bool RadialBasisFunctionGridder2D::updateSolver( TaskRunner* taskr )
+{
+    delete solv_;
+    delete globalweights_; //previous solution is invalid too
+    int sz = usedpoints_.size();
+    if ( !points_ || !sz )
+	return false;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( !points_->validIdx(usedpoints_[idx]) )
+	    return false;
+    }
+
+    Array2DImpl<double> a( sz, sz );
+    if ( !a.isOK() )
+	return false;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const int indexX = usedpoints_[idx];
+	const Coord& posX = (*points_)[indexX];
+	for ( int idy=0; idy<sz; idy++ )
+	{
+	    const int indexY = usedpoints_[idy];
+	    const Coord& posY = (*points_)[indexY];
+	    const double val = evaluateRBF( getRadius( posX, posY ) );
+	    a.set( idx, idy, val );
+	}
+    }
+
+    solv_ = new LinSolver<double>( a );
+    return solv_->init( taskr );
 }
 
 
