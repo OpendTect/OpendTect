@@ -135,7 +135,8 @@ static void solveAxb( int sz, float* a, float* b, float* x )
     }
 
     LinSolver<float> ls( A );
-    ls.apply( b, x );
+    if ( ls.init() )
+	ls.apply( b, x );
 }
 
 

@@ -61,6 +61,7 @@ public:
 			    values in setValues. Don't re-set it unless they
 			    have changed, as it may lead to substantial
 			    computations. */
+    bool		setPoints(const TypeSet<Coord>&,TaskRunner*);
     const TypeSet<Coord>* getPoints() const { return points_; }
     virtual void	setTrend(PolyTrend::Order);
     bool		setValues(const TypeSet<float>&);
@@ -204,6 +205,7 @@ public:
 				   TypeSet<int>& relevantpoints) const;
     float		getValue(const Coord&,const TypeSet<double>* weights=0,
 				 const TypeSet<int>* relevantpoints=0) const;
+    bool		updateSolver(TaskRunner*);
 
 protected:
 
