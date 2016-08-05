@@ -109,6 +109,7 @@ public:
     const JobInfo&		curJobInfo() const	{ return *curjobinfo_; }
     IOPar&			curJobIOPar()		{ return curjobiop_; }
     const FilePath&		curJobFilePath()	{ return curjobfp_; }
+    int				getLastReceivedTime(JobInfo&);
 
     const char*			procDir() const	{ return procdir_.buf(); }
 				// processing directory on local machine
