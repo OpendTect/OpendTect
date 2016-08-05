@@ -85,6 +85,8 @@ mGlobal(Basic) const char*	timeCreated(const char* filenm,
 mGlobal(Basic) const char*	timeLastModified(const char* filenm,
 					const char* fmt=Time::defDateTimeFmt());
 mGlobal(Basic) od_int64		getTimeInSeconds(const char*,bool modif=true);
+mGlobal(Basic) od_int64		getTimeInMilliSeconds( const char* fnm,
+					 bool lastmodif=true );//since day start
 
 mGlobal(Basic) const char*	getCurrentPath();
 mGlobal(Basic) const char*	getHomePath();

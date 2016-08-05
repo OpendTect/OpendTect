@@ -587,6 +587,17 @@ int JobRunner::doCycle()
 }
 
 
+int JobRunner::getLastReceivedTime( JobInfo& ji )
+{
+
+    FilePath logfp = getBaseFilePath( ji, *ji.hostdata_ );
+    logfp.setExtension( ".log", false );
+
+    int logfiletime = mCast(int,File::getTimeInMilliSeconds(logfp.fullPath()));
+    return logfiletime > ji.recvtime_ ? logfiletime : ji.recvtime_;
+}
+
+
 void JobRunner::updateJobInfo()
 {
     ObjQueue<StatusInfo>& queue = iomgr().statusQueue();
@@ -606,8 +617,9 @@ void JobRunner::updateJobInfo()
 	    int since_lst_chk = Time::passedSince( ji.starttime_ );
 	    if ( since_lst_chk > starttimeout_ )
 	    {
-		const int since_lst_recv = ji.recvtime_ ?
-					Time::passedSince(ji.recvtime_) : -1;
+		const int lastrecvdtime = getLastReceivedTime( ji );
+		const int since_lst_recv = lastrecvdtime ?
+					Time::passedSince(lastrecvdtime) : -1;
 		const int to = ji.state_ == JobInfo::WrappingUp
 		    ? wrapuptimeout_ : failtimeout_;
 
@@ -650,6 +662,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
     curjobinfo_ = ji;
     ji->infomsg_ = "";
     ji->recvtime_ = si.timestamp;
+
     if ( si.msg.size() ) ji->infomsg_ = si.msg;
 
     switch( si.tag )
