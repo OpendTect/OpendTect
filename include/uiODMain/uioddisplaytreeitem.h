@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodtreeitem.h"
+#include "multiid.h"
 
 class uiODDataTreeItem;
 class uiVisPartServer;
@@ -36,6 +37,7 @@ public:
     void		updateCheckStatus();
 
     int			displayID() const		{ return displayid_; }
+    const MultiID&	storedID() const		{ return storedid_; }
 
     uiODDataTreeItem*	addAttribItem();
     void		prepareForShutdown();
@@ -76,6 +78,7 @@ protected:
 
     uiVisPartServer*	visserv_;
     int			displayid_;
+    MultiID		storedid_;
 
     MenuItem		addmnuitem_;
     MenuItem		displaymnuitem_;

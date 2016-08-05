@@ -23,6 +23,7 @@ ___________________________________________________________________
 #include "uiscenepropdlg.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
+#include "saveablemanager.h"
 #include "vissurvscene.h"
 
 
@@ -330,8 +331,6 @@ void uiODTreeTop::removeFactoryCB( CallBacker* cb )
     removeChild( const_cast<uiTreeItem*>(child) );
 }
 
-
-// uiODSceneTreeItem
 
 uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, int id )
     : uiODTreeItem(nm)

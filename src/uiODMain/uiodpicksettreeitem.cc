@@ -36,8 +36,9 @@ ___________________________________________________________________
 #include "vissurvscene.h"
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
-    : uiODTreeItem( uiStrings::sPickSet())
+    : uiODParentTreeItem( uiStrings::sPickSet())
 {
+    setObjectManager( &Pick::SetMGR() );
 }
 
 
@@ -50,6 +51,19 @@ uiODPickSetParentTreeItem::~uiODPickSetParentTreeItem()
 const char* uiODPickSetParentTreeItem::iconName() const
 {
     return "tree-pickset";
+}
+
+
+void uiODPickSetParentTreeItem::addChildItem( const MultiID& mid )
+{
+    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( mid );
+    ps.setNoDelete( true );
+    if ( !ps || ps->isPolygon() )
+	return;
+
+    uiODDisplayTreeItem* item = new uiODPickSetTreeItem( -1, *ps );
+    addChild( item, false );
+    item->setChecked( true );
 }
 
 
@@ -133,12 +147,6 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	TypeSet<MultiID> mids;
 	if ( !applMgr()->pickServer()->loadSets(mids,false) )
 	    return false;
-
-	for ( int idx=0; idx<mids.size(); idx++ )
-	{
-	    setMoreObjectsToDoHint( idx<mids.size()-1 );
-	    addPickSet( Pick::SetMGR().fetchForEdit( mids[idx] ) );
-	}
     }
     else if ( mnuid==mGen3DIdx )
     {
@@ -432,8 +440,9 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
 
 uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
-    : uiODTreeItem( uiStrings::sPolygon() )
+    : uiODParentTreeItem( uiStrings::sPolygon() )
 {
+    setObjectManager( &Pick::SetMGR() );
 }
 
 
@@ -445,6 +454,19 @@ uiODPolygonParentTreeItem::~uiODPolygonParentTreeItem()
 
 const char* uiODPolygonParentTreeItem::iconName() const
 { return "tree-polygon"; }
+
+
+void uiODPolygonParentTreeItem::addChildItem( const MultiID& mid )
+{
+    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( mid );
+    ps.setNoDelete( true );
+    if ( !ps || !ps->isPolygon() )
+	return;
+
+    uiODDisplayTreeItem* item = new uiODPolygonTreeItem( -1, *ps );
+    addChild( item, false );
+    item->setChecked( true );
+}
 
 
 void uiODPolygonParentTreeItem::addPolygon( Pick::Set* ps )
@@ -498,12 +520,6 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	TypeSet<MultiID> setids;
 	if ( !applMgr()->pickServer()->loadSets(setids,true) )
 	    return false;
-
-	for ( int idx=0; idx<setids.size(); idx++ )
-	{
-	    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( setids[idx] );
-	    addPolygon( ps );
-	}
     }
     else if ( mnuid==mNewPolyIdx )
     {
@@ -555,6 +571,7 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     , propertymnuitem_(m3Dots(uiStrings::sProperties()))
     , closepolyitem_(tr("Close Polygon"))
 {
+    set_.ref();
     displayid_ = did;
     onlyatsectmnuitem_.checkable = true;
 
@@ -569,6 +586,9 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
 uiODPolygonTreeItem::~uiODPolygonTreeItem()
 {
     detachAllNotifiers();
+    Pick::SetMGR().displayRequest( Pick::SetMGR().getID(set_),
+				   SaveableManager::Vanish );
+    set_.unRef();
 }
 
 
@@ -606,6 +626,15 @@ bool uiODPolygonTreeItem::init()
 
     updateColumnText( uiODSceneMgr::cColorColumn() );
     return uiODDisplayTreeItem::init();
+}
+
+
+void uiODPolygonTreeItem::handleItemCheck()
+{
+    uiODDisplayTreeItem::handleItemCheck();
+    SaveableManager::DispOpt dispopt = isChecked() ? SaveableManager::Show
+						   : SaveableManager::Hide;
+    Pick::SetMGR().displayRequest( Pick::SetMGR().getID(set_), dispopt );
 }
 
 

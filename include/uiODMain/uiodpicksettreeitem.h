@@ -13,13 +13,14 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
+#include "uiodparenttreeitem.h"
 #include "uioddisplaytreeitem.h"
 
 namespace Pick		{ class Set; }
 
 
 
-mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODParentTreeItem
 {   mODTextTranslationClass(uiODPickSetParentTreeItem);
     mDefineItemMembers( PickSetParent, TreeItem, TreeTop );
     mShowMenu;
@@ -27,6 +28,7 @@ mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODTreeItem
 		~uiODPickSetParentTreeItem();
     void	addPickSet(Pick::Set*);
     void	removeSet(Pick::Set&);
+    void	addChildItem(const MultiID&);
 };
 
 
@@ -78,7 +80,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODParentTreeItem
 {   mODTextTranslationClass(uiODPolygonParentTreeItem);
     mDefineItemMembers( PolygonParent, TreeItem, TreeTop );
     mShowMenu;
@@ -88,6 +90,7 @@ mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODTreeItem
 
     void	addPolygon(Pick::Set*);
     void	removeSet(Pick::Set&);
+    void	addChildItem(const MultiID&);
 };
 
 
@@ -115,6 +118,7 @@ protected:
 
     bool		init();
     void		prepareForShutdown();
+    void		handleItemCheck();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     void		setChgCB(CallBacker*);
     virtual void	createMenu(MenuHandler*,bool istb);

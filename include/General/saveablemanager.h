@@ -67,6 +67,9 @@ public:
     IOPar		getIOObjParsByIndex(IdxType) const;
 
     CNotifier<SaveableManager,ObjID>	ObjAdded;
+					/*!< Do not delete the object in the 
+					  callbacker function. Use setNoDelete()
+					  in RefMan*/
     CNotifier<SaveableManager,ObjID>	ObjOrphaned;
     CNotifier<SaveableManager,ObjID>	UnsavedObjLastCall;
     CNotifier<SaveableManager,ObjID>	ShowRequested;
