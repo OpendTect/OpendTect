@@ -35,7 +35,7 @@ public:
 			~uiODVw2DTreeItem();
 
     bool		setZAxisTransform(ZAxisTransform*);
-    const MultiID&	storedID() const	{ return mid_; }
+    const MultiID&	storedID() const	{ return storedid_; }
 
     void		updSampling(const TrcKeyZSampling&,bool);
     void		updSelSpec(const Attrib::SelSpec*,bool wva);
@@ -46,6 +46,7 @@ public:
     static bool		create(uiTreeItem*,int vwrvisid,int displayid);
     static bool		create(uiTreeItem*,const uiODViewer2D&,int displayid);
     const uiODVw2DTreeItem* getVW2DItem(int displayid) const;
+    virtual void	enableDisplay(bool show,bool triggervwreq)	{}
 
     void		addKeyBoardEvent();
     virtual const Vw2DDataObject* vw2DObject() const	{ return 0; }
@@ -58,7 +59,7 @@ protected:
 
     int			displayid_;
     ZAxisTransform*	datatransform_;
-    MultiID		mid_;
+    MultiID		storedid_;
 
     uiODApplMgr*	applMgr();
     uiODViewer2D*	viewer2D();

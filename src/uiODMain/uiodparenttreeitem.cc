@@ -11,6 +11,7 @@ ___________________________________________________________________
 #include "uiodparenttreeitem.h"
 #include "uioddisplaytreeitem.h"
 #include "saveablemanager.h"
+#include "odpresentationmgr.h"
 
 
 uiODParentTreeItem::uiODParentTreeItem( const uiString& nm )
@@ -49,6 +50,9 @@ void uiODParentTreeItem::setObjectManager( SaveableManager* mgr )
 
 void uiODParentTreeItem::objAddedCB( CallBacker* cber )
 {
+    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Scene3D) )
+	return;
+
     mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODParentTreeItem::objAddedCB, cbercaps )
@@ -63,6 +67,9 @@ void uiODParentTreeItem::objAddedCB( CallBacker* cber )
 
 void uiODParentTreeItem::objVanishedCB( CallBacker* cber )
 {
+    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Scene3D) )
+	return;
+
     mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODParentTreeItem::objVanishedCB, cbercaps )
@@ -75,6 +82,9 @@ void uiODParentTreeItem::objVanishedCB( CallBacker* cber )
 
 void uiODParentTreeItem::objShownCB( CallBacker* cber )
 {
+    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Scene3D) )
+	return;
+
     mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODParentTreeItem::objShownCB, cbercaps )
@@ -87,6 +97,9 @@ void uiODParentTreeItem::objShownCB( CallBacker* cber )
 
 void uiODParentTreeItem::objHiddenCB( CallBacker* cber )
 {
+    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Scene3D) )
+	return;
+
     mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODParentTreeItem::objHiddenCB, cbercaps )
@@ -99,6 +112,9 @@ void uiODParentTreeItem::objHiddenCB( CallBacker* cber )
 
 void uiODParentTreeItem::objOrphanedCB( CallBacker* cber )
 {
+    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Scene3D) )
+	return;
+
     mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODParentTreeItem::objOrphanedCB, cbercaps )
@@ -116,7 +132,8 @@ void uiODParentTreeItem::showHideChildren( const MultiID& mid, bool show )
 	if ( !childitem || mid!=childitem->storedID() )
 	    continue;
 
-	childitem->setChecked( show, true );
+	childitem->setChecked( show, false );
+	childitem->handleItemCheck( false );
     }
 }
 

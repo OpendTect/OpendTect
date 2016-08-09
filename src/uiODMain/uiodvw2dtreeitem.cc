@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uitreeview.h"
+#include "odpresentationmgr.h"
 #include "saveablemanager.h"
 #include "view2ddata.h"
 #include "zaxistransform.h"
@@ -152,7 +153,7 @@ uiODVw2DTreeItem::uiODVw2DTreeItem( const uiString& nm )
     : uiTreeItem( nm )
     , displayid_(-1)
     , datatransform_(0)
-    , mid_( MultiID::udf() )
+    , storedid_( MultiID::udf() )
 {}
 
 
@@ -454,6 +455,9 @@ void uiODVw2DParentTreeItem::setObjectManager( SaveableManager* mgr )
 
 void uiODVw2DParentTreeItem::objAddedCB( CallBacker* cber )
 {
+    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Viewer2D) )
+	return;
+
     mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODVw2DParentTreeItem::objAddedCB, cbercaps )
@@ -468,6 +472,9 @@ void uiODVw2DParentTreeItem::objAddedCB( CallBacker* cber )
 
 void uiODVw2DParentTreeItem::objVanishedCB( CallBacker* cber )
 {
+    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Viewer2D) )
+	return;
+
     mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODVw2DParentTreeItem::objVanishedCB, cbercaps )
@@ -480,6 +487,9 @@ void uiODVw2DParentTreeItem::objVanishedCB( CallBacker* cber )
 
 void uiODVw2DParentTreeItem::objShownCB( CallBacker* cber )
 {
+    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Viewer2D) )
+	return;
+
     mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODVw2DParentTreeItem::objShownCB, cbercaps )
@@ -492,6 +502,9 @@ void uiODVw2DParentTreeItem::objShownCB( CallBacker* cber )
 
 void uiODVw2DParentTreeItem::objHiddenCB( CallBacker* cber )
 {
+    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Viewer2D) )
+	return;
+
     mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODVw2DParentTreeItem::objHiddenCB, cbercaps )
@@ -540,7 +553,8 @@ void uiODVw2DParentTreeItem::showHideChildren( const MultiID& mid, bool show )
 	if ( !childitem || mid!=childitem->storedID() )
 	    continue;
 
-	childitem->setChecked( show, true );
+	childitem->setChecked( show, false );
+	childitem->enableDisplay( show, false );
     }
 }
 

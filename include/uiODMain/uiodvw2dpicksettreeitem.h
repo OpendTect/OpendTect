@@ -63,7 +63,7 @@ public:
     virtual void	doSave();
     virtual void	doSaveAs();
 
-    void		enableDisplay(bool);
+    void		enableDisplay(bool,bool triggervwreq);
 
 
 protected:

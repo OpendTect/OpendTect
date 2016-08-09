@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiodvw2dpicksettreeitem.h"
 
-#include "picksetmanager.h"
 #include "uiflatviewstdcontrol.h"
 #include "uimenu.h"
 #include "uimain.h"
@@ -27,8 +26,10 @@ ________________________________________________________________________
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
 #include "uigraphicsview.h"
-#include "keyboardevent.h"
 
+#include "keyboardevent.h"
+#include "odpresentationmgr.h"
+#include "picksetmanager.h"
 #include "view2ddataman.h"
 #include "view2dpickset.h"
 
@@ -112,14 +113,14 @@ uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( Pick::Set& ps )
     , vw2dpickset_(0)
 {
     pickset_.ref();
-    mid_ = Pick::SetMGR().getID( pickset_ );
+    storedid_ = Pick::SetMGR().getID( pickset_ );
 }
 
 
 bool uiODVw2DPickSetTreeItem::init()
 {
     vw2dpickset_ =
-	VW2DPickSet::create( mid_.leafID(), viewer2D()->viewwin(),
+	VW2DPickSet::create( storedid_.leafID(), viewer2D()->viewwin(),
 			     viewer2D()->dataEditor() );
     if ( !vw2dpickset_ )
 	{ pErrMsg("Factory returns null"); return false; }
@@ -146,6 +147,8 @@ uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
     detachAllNotifiers();
     if ( vw2dpickset_ )
 	viewer2D()->dataMgr()->removeObject( vw2dpickset_ );
+    ODPrMan().setTriggerFromDomain( ODPresentationManager::Viewer2D );
+    Pick::SetMGR().displayRequest( storedid_, SaveableManager::Vanish );
     pickset_.unRef();
 }
 
@@ -251,16 +254,23 @@ void uiODVw2DPickSetTreeItem::deSelCB( CallBacker* )
 }
 
 
-void uiODVw2DPickSetTreeItem::enableDisplay( bool yn )
+void uiODVw2DPickSetTreeItem::enableDisplay( bool yn, bool triggervwreq )
 {
     if ( vw2dpickset_ )
 	vw2dpickset_->enablePainting( yn );
+
+    if ( triggervwreq )
+    {
+	SaveableManager::DispOpt dispopt = yn ? SaveableManager::Show
+					      : SaveableManager::Hide;
+	Pick::SetMGR().displayRequest( storedid_, dispopt );
+    }
 }
 
 
 void uiODVw2DPickSetTreeItem::checkCB( CallBacker* )
 {
-    enableDisplay( isChecked() );
+    enableDisplay( isChecked(), true );
 }
 
 

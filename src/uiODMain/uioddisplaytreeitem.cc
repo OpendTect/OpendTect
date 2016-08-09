@@ -237,7 +237,7 @@ bool uiODDisplayTreeItem::showSubMenu()
 }
 
 
-void uiODDisplayTreeItem::handleItemCheck()
+void uiODDisplayTreeItem::handleItemCheck( bool triggerdispreq )
 {
     if ( !visserv_->isSoloMode() )
 	visserv_->turnOn( displayid_, isChecked() );
@@ -246,7 +246,7 @@ void uiODDisplayTreeItem::handleItemCheck()
 
 void uiODDisplayTreeItem::checkCB( CallBacker* )
 {
-    handleItemCheck();
+    handleItemCheck( true );
 }
 
 

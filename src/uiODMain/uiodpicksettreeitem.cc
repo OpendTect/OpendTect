@@ -29,6 +29,7 @@ ___________________________________________________________________
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
+#include "odpresentationmgr.h"
 #include "vispicksetdisplay.h"
 #include "vispolylinedisplay.h"
 #include "visrandomposbodydisplay.h"
@@ -209,6 +210,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , redomnuitem_(uiString::emptyString())
 {
     set_.ref();
+    storedid_ = Pick::SetMGR().getID( set_ );
     displayid_ = did;
     onlyatsectmnuitem_.checkable = true;
 
@@ -227,8 +229,8 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
 {
     detachAllNotifiers();
-    Pick::SetMGR().displayRequest( Pick::SetMGR().getID(set_),
-				   SaveableManager::Vanish );
+    ODPrMan().setTriggerFromDomain( ODPresentationManager::Scene3D );
+    Pick::SetMGR().displayRequest( storedid_, SaveableManager::Vanish );
     set_.unRef();
 }
 
@@ -270,12 +272,16 @@ bool uiODPickSetTreeItem::init()
 }
 
 
-void uiODPickSetTreeItem::handleItemCheck()
+void uiODPickSetTreeItem::handleItemCheck( bool triggerdisprequest )
 {
-    uiODDisplayTreeItem::handleItemCheck();
-    SaveableManager::DispOpt dispopt = isChecked() ? SaveableManager::Show
-						   : SaveableManager::Hide;
-    Pick::SetMGR().displayRequest( Pick::SetMGR().getID(set_), dispopt );
+    uiODDisplayTreeItem::handleItemCheck( triggerdisprequest );
+    if ( triggerdisprequest )
+    {
+	SaveableManager::DispOpt dispopt = isChecked() ? SaveableManager::Show
+						       : SaveableManager::Hide;
+	ODPrMan().setTriggerFromDomain( ODPresentationManager::Scene3D );
+	Pick::SetMGR().displayRequest( storedid_, dispopt );
+    }
 }
 
 
@@ -306,8 +312,8 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( menu, &storemnuitem_, needssave, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
 
-    const MultiID setid = Pick::SetMGR().getID( set_ );
-    Pick::SetMGR().getChangeInfo( setid, undomnuitem_.text, redomnuitem_.text );
+    Pick::SetMGR().getChangeInfo( storedid_, undomnuitem_.text,
+				  redomnuitem_.text );
     if ( !undomnuitem_.text.isEmpty() )
 	mAddMenuItem( menu, &undomnuitem_, true, false );
     if ( !redomnuitem_.text.isEmpty() )
@@ -384,9 +390,8 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==undomnuitem_.id || mnuid==redomnuitem_.id )
     {
 	menu->setIsHandled( true );
-	const MultiID setid = Pick::SetMGR().getID( set_ );
 	const bool isundo = mnuid==undomnuitem_.id;
-	Pick::SetMGR().useChangeRecord( setid, isundo );
+	Pick::SetMGR().useChangeRecord( storedid_, isundo );
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -399,15 +404,9 @@ void uiODPickSetTreeItem::keyPressCB( CallBacker* cb )
     mCBCapsuleUnpack(uiKeyDesc,kd,cb);
 
     if ( kd.state()==OD::ControlButton && kd.key()==OD::KB_Z )
-    {
-	const MultiID setid = Pick::SetMGR().getID( set_ );
-	Pick::SetMGR().useChangeRecord( setid, true );
-    }
+	Pick::SetMGR().useChangeRecord( storedid_, true );
     else if ( kd.state()==OD::ControlButton && kd.key()==OD::KB_Y )
-    {
-	const MultiID setid = Pick::SetMGR().getID( set_ );
-	Pick::SetMGR().useChangeRecord( setid, false );
-    }
+	Pick::SetMGR().useChangeRecord( storedid_, false );
     else
 	uiODDisplayTreeItem::keyPressCB( cb );
 }
@@ -572,6 +571,7 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     , closepolyitem_(tr("Close Polygon"))
 {
     set_.ref();
+    storedid_ = Pick::SetMGR().getID( set_ );
     displayid_ = did;
     onlyatsectmnuitem_.checkable = true;
 
@@ -586,8 +586,8 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
 uiODPolygonTreeItem::~uiODPolygonTreeItem()
 {
     detachAllNotifiers();
-    Pick::SetMGR().displayRequest( Pick::SetMGR().getID(set_),
-				   SaveableManager::Vanish );
+    ODPrMan().setTriggerFromDomain( ODPresentationManager::Scene3D );
+    Pick::SetMGR().displayRequest( storedid_, SaveableManager::Vanish );
     set_.unRef();
 }
 
@@ -629,12 +629,16 @@ bool uiODPolygonTreeItem::init()
 }
 
 
-void uiODPolygonTreeItem::handleItemCheck()
+void uiODPolygonTreeItem::handleItemCheck( bool triggerdispreq )
 {
-    uiODDisplayTreeItem::handleItemCheck();
-    SaveableManager::DispOpt dispopt = isChecked() ? SaveableManager::Show
-						   : SaveableManager::Hide;
-    Pick::SetMGR().displayRequest( Pick::SetMGR().getID(set_), dispopt );
+    uiODDisplayTreeItem::handleItemCheck( triggerdispreq );
+    if ( triggerdispreq )
+    {
+	SaveableManager::DispOpt dispopt = isChecked() ? SaveableManager::Show
+						       : SaveableManager::Hide;
+	ODPrMan().setTriggerFromDomain( ODPresentationManager::Scene3D );
+	Pick::SetMGR().displayRequest( storedid_, dispopt );
+    }
 }
 
 

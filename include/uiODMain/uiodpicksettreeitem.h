@@ -51,11 +51,11 @@ public:
     virtual bool	actModeWhenSelected() const	{ return true; }
     Pick::Set&		getSet()			{ return set_; }
     const Pick::Set&	getSet() const			{ return set_; }
+    void		handleItemCheck(bool);
 
 protected:
 
     bool		init();
-    void		handleItemCheck();
     void		prepareForShutdown();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     void		setChgCB(CallBacker*);
@@ -113,12 +113,12 @@ public:
     virtual bool	actModeWhenSelected() const	{ return true; }
     Pick::Set&		getSet()			{ return set_; }
     const Pick::Set&	getSet() const			{ return set_; }
+    void		handleItemCheck(bool);
 
 protected:
 
     bool		init();
     void		prepareForShutdown();
-    void		handleItemCheck();
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     void		setChgCB(CallBacker*);
     virtual void	createMenu(MenuHandler*,bool istb);
