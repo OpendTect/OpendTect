@@ -787,10 +787,16 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 
     double minsqdist = mUdf(float);
     int minidx = -1;
-    for ( int idx=0; idx<markerset->getCoordinates()->size(); idx++ )
+
+    const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList( attrib );
+
+    for ( int idx=0; idx<pids->size(); idx++ )
     {
-	const double sqdist = clickeddisplaypos.sqDistTo(
-	    markerset->getCoordinates()->getPos(idx,true) );
+	Coord3 nodecrd = emobject_->getPos(  (*pids)[idx] );
+	if ( transformation_ )
+	    transformation_->transform( nodecrd );
+
+	const double sqdist = clickeddisplaypos.sqDistTo( nodecrd );
 	if ( sqdist<minsqdist )
 	{
 	    minsqdist = sqdist;
@@ -798,12 +804,11 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 	}
     }
 
-    const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList(attrib);
-    if ( pids && pids->validIdx(minidx))
+    if ( minidx !=-1 )
 	res = (*pids)[minidx];
 
     return res;
-}
+ }
 
 
 bool EMObjectDisplay::removeSelections( TaskRunner* taskr )
