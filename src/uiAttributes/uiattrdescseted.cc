@@ -453,8 +453,7 @@ bool uiAttribDescSetEd::doSave( bool endsave )
     if ( oldioobj != setctio_.ioobj_ )
 	delete oldioobj;
     setid_ = setctio_.ioobj_->key();
-    if ( !endsave )
-	attrsetfld_->setText( setctio_.ioobj_->name() );
+    attrsetfld_->setText( setctio_.ioobj_->name() );
     adsman_->setSaved( true );
     return true;
 }
@@ -585,6 +584,7 @@ void uiAttribDescSetEd::setButStates()
     sortbut_->setSensitive( selidx > 0 );
     int size = attrlistfld_->size();
     sortbut_->setSensitive( size > 1);;
+    attrsetfld_->setText( sKeyNotSaved );
 }
 
 
