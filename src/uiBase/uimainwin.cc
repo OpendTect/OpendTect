@@ -135,6 +135,7 @@ public:
 
     virtual QMenu*	createPopupMenu();
     void		addToolBar(uiToolBar*);
+    uiToolBar*		findToolBar(const char*);
     uiToolBar*		removeToolBar(uiToolBar*);
     uiMenu&		getToolbarsMenu()		{ return *toolbarsmnu_;}
     void		updateToolbarsMenu();
@@ -606,6 +607,16 @@ void uiMainWinBody::addToolBar( uiToolBar* tb )
 }
 
 
+uiToolBar* uiMainWinBody::findToolBar( const char* nm )
+{
+    for ( int idx=0; idx<toolbars_.size(); idx++ )
+	if ( toolbars_[idx]->name() == nm )
+	    return toolbars_[idx];
+
+    return 0;
+}
+
+
 uiToolBar* uiMainWinBody::removeToolBar( uiToolBar* tb )
 {
     if ( !toolbars_.isPresent(tb) )
@@ -920,6 +931,8 @@ void uiMainWin::addDockWindow( uiDockWin& dwin, Dock d )
 void uiMainWin::addToolBar( uiToolBar* tb )
 { body_->addToolBar( tb ); }
 
+uiToolBar* uiMainWin::findToolBar( const char* nm )
+{ return body_->findToolBar( nm ); }
 
 uiToolBar* uiMainWin::removeToolBar( uiToolBar* tb )
 { return body_->removeToolBar( tb ); }
