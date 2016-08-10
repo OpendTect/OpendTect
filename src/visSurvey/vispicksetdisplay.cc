@@ -535,6 +535,7 @@ void PickSetDisplay::otherObjectsMoved(
 	    invalidpicks_ += idx;
 
 	markerset_->turnMarkerOn( idx, showmarker );
+	markerset_->requestSingleRedraw();
     }
 
     updateLineAtSection();
