@@ -123,13 +123,15 @@ StatsCalculatorTask::StatsCalculatorTask( const Array3D<float>& input,
 					  const TrcKeyZSampling& tkzsin,
 					  const TrcKeyZSampling& tkzsout,
 					  BinID stepout, int nzsampextra,
-					  BufferString, Array3D<float>& output )
+					  BufferString statstype,
+					  Array3D<float>& output )
     : input_( input )
     , output_( output )
     , stepout_( stepout )
     , nzsampextra_ ( nzsampextra )
     , tkzsin_( tkzsin )
     , tkzsout_( tkzsout )
+    , statstype_(statstype)
 {
     shape_ = sKeyEllipse();	//only possible choice for now
     totalnr_ = output.info().getSize(0) * output.info().getSize(1);
@@ -139,7 +141,7 @@ StatsCalculatorTask::StatsCalculatorTask( const Array3D<float>& input,
 
 bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 {
-    //for now only median and shape Ellipse for dip filtering
+    //for now only median and average with shape Ellipse for dip filtering
     //We might reconsider the handling of undefs in corners
     BinID curbid;
     const int incr = mCast( int, stop-start+1 );
@@ -151,13 +153,11 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
     iter.setSampling( tkzsout_.hsamp_ );
     iter.setNextPos( tkzsout_.hsamp_.trcKeyAt(start) );
     iter.next( curbid );
-    Stats::CalcSetup rcsetup;
-    rcsetup.require( Stats::Median );
     const int statsz = nrpos * (nzsampextra_*2+1);
-    Stats::WindowedCalc<double> wcalc( rcsetup, statsz );
-    ArrPtrMan<float> values = new float[statsz];
-    const bool needmed = rcsetup.needMedian();
-    const int midway = statsz/2;
+    std::vector<float> values( statsz, mUdf(float) );
+    const bool needmed = statstype_ == sKey::Median();
+    const float* inparr = input_.getData();
+    float value = mUdf(float);
     for ( int idx=0; idx<incr; idx++ )
     {
 	int inpinlidx = tkzsin_.lineIdx( curbid.inl() );
@@ -168,6 +168,7 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 
 	for ( int idz=0; idz<nrsamples; idz++ )
 	{
+	    int valposidx = 0; float sum = 0;
 	    for ( int posidx=0; posidx<nrpos; posidx++ )
 	    {
 		const int theoricidxi = inpinlidx+positions_[posidx].inl();
@@ -185,28 +186,31 @@ bool StatsCalculatorTask::doWork( od_int64 start, od_int64 stop, int )
 		    const int valididxz =
 			idxz+idz<0 ? 0 : idxz+idz>=nrsamples ? nrsamples-1
 							     : idxz+idz;
-		    float value = input_.get( valididxi, valididxc, valididxz);
-		    if ( needmed )
-		    {
-			const int valposidx  = posidx*(nzsampextra_*2+1)
-					       + idxz + nzsampextra_;
-			values[valposidx] = value;
-		    }
+		    if ( inparr )
+			value = inparr[ valididxz + valididxc*nrsamples
+					+ valididxi*nrsamples*nrcrosslines ];
 		    else
-			wcalc += value;
+			value = input_.get( valididxi, valididxc, valididxz);
+		    if ( needmed )
+			values[valposidx++] = value;
+		    else
+			sum += value;
 		}
 	    }
+
 	    float outval;
 	    if ( needmed )
 	    {
-		quickSort( values.ptr(),statsz );
-		outval = values[midway];
+		std::nth_element( values.begin(), values.begin() + statsz/2,
+				  values.end() );
+		outval = values[statsz/2];
 	    }
 	    else
-		outval = (float)wcalc.getValue(Stats::Median);
+		outval = sum / statsz;
 
 	    output_.set( outpinlidx, outpcrlidx, idz, outval );
 	}
+
 	iter.next( curbid );
 	addToNrDone( 1 );
     }
