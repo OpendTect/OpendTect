@@ -235,7 +235,9 @@ int HorizonSorter::nextStep()
 	    return Finished();
 	}
 
-	binid_ = iterator_->curBinID();
+	if ( iterator_ )
+	    binid_ = iterator_->curBinID();
+
 	if ( is2d_ && binid_.inl() != previnl )
 	    binid_.crl() = trcrgs_[binid_.inl()].start;
 
