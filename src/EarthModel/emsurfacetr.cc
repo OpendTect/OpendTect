@@ -404,23 +404,21 @@ Executor* dgbEMSurfaceTranslator::getWriter()
 
 static BufferString getFileName( const char* fulluserexp, const char* attrnmptr)
 {
-    FixedString attrnm( attrnmptr );
+    const FixedString attrnm( attrnmptr );
     const BufferString basefnm( fulluserexp );
-    BufferString fnm; int gap = 0;
-    for ( int idx=0; ; idx++ )
+    BufferString fnm;
+    for ( int idx=0, gap=0; gap<=100; idx++ )
     {
-	if ( gap > 100 ) return "";
-
 	fnm = EM::dgbSurfDataWriter::createHovName(basefnm,idx);
 	if ( File::isEmpty(fnm.buf()) )
 	    { gap++; continue; }
 
-	EM::dgbSurfDataReader rdr( fnm.buf() );
+	const EM::dgbSurfDataReader rdr( fnm.buf() );
 	if ( attrnm == rdr.dataName() )
-	    break;
+	    return fnm;
     }
 
-    return fnm;
+    return 0;
 }
 
 static BufferString getFileName( const IOObj& ioobj, const char* attrnm )
@@ -484,26 +482,18 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
 
     bool isbinary = true;
     mSettUse(getYN,"dTect.Surface","Binary format",isbinary);
-    BufferString fnm;
-    if ( overwrite )
-    {
-	if ( dataidx<0 ) dataidx = 0;
-	if ( !sels_.sd.valnames.validIdx(dataidx) )
-	    return 0;
-
-	fnm = getFileName( *ioobj_, sels_.sd.valnames.get(dataidx) );
-	if ( !fnm.isEmpty() )
-	    return new EM::dgbSurfDataWriter(*hor3d,dataidx,0,isbinary,
-					     fnm.buf());
-    }
 
     ExecutorGroup* grp = new ExecutorGroup( "Surface Data saver" );
     grp->setNrDoneText( Task::uiStdNrDoneText() );
+    BufferString fnm;
     for ( int selidx=0; selidx<sels_.sd.valnames.size(); selidx++ )
     {
 	if ( dataidx >= 0 && dataidx != selidx )
 	    continue;
-	fnm = getFreeFileName( *ioobj_ );
+	if ( overwrite )
+	    fnm = getFileName( *ioobj_, sels_.sd.valnames.get(selidx) );
+	if ( !overwrite || fnm.isEmpty() )
+	    fnm = getFreeFileName( *ioobj_ );
 	Executor* exec =
 	    new EM::dgbSurfDataWriter(*hor3d,selidx,0,isbinary,fnm.buf());
 	grp->add( exec );
