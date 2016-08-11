@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_US">
+<TS version="2.0" language="en_US">
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
@@ -69,7 +69,7 @@
 <context>
     <name>VolProcessing2DTranslatorGroup</name>
     <message numerus="yes">
-        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+137"/>
+        <location filename="../../../src/VolumeProcessing/volproctrans.cc" line="+163"/>
         <source>2D Volume Processing Setup</source>
         <translation>
             <numerusform>2D Volume Processing Setup</numerusform>
@@ -80,7 +80,7 @@
 <context>
     <name>VolProcessingTranslatorGroup</name>
     <message numerus="yes">
-        <location line="-116"/>
+        <location line="-142"/>
         <source>Volume Processing Setup</source>
         <translation>
             <numerusform>Volume Processing Setup</numerusform>
@@ -91,7 +91,7 @@
 <context>
     <name>WellTie::uiSaveDataDlg</name>
     <message numerus="yes">
-        <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+168"/>
+        <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+167"/>
         <source>Cannot write log(s)</source>
         <translation>
             <numerusform>Cannot write log</numerusform>
@@ -152,7 +152,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+221"/>
+        <location line="+230"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>
@@ -324,7 +324,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+194"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+188"/>
+        <source>2D Plane</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+10"/>
         <source>Amplitude</source>
         <translation>
             <numerusform>Amplitude</numerusform>
@@ -469,7 +477,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Line Style</source>
         <translation>
             <numerusform>Line Style</numerusform>
@@ -493,7 +501,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+18"/>
+        <location line="+20"/>
         <source>Mute</source>
         <translation>
             <numerusform>Mute</numerusform>
@@ -541,7 +549,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Problem</source>
         <translation>
             <numerusform>Problem</numerusform>
