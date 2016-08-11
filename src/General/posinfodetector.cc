@@ -727,7 +727,7 @@ int PosInfo::Detector::getRawStep( bool inldir, bool retpositive ) const
 	if ( lndir )
 	{
 	    const int diff = ld.linenr_ - lds_[iln-1]->linenr_;
-	    if ( diff < stp ) stp = diff;
+	    stp = mIsUdf(stp) ? diff : Math::HCFOf(stp,diff);
 	}
 	else
 	{
@@ -735,7 +735,7 @@ int PosInfo::Detector::getRawStep( bool inldir, bool retpositive ) const
 	    {
 		const int curstep = ld.segments_[iseg].step;
 		if ( curstep && curstep < stp )
-		    stp = ld.segments_[iseg].step;
+		    stp = mIsUdf(stp) ? curstep : Math::HCFOf(stp,curstep);
 	    }
 	}
     }

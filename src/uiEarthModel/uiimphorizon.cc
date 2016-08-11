@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "emhorizonascio.h"
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
@@ -43,8 +44,6 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "horizonscanner.h"
 #include "ioman.h"
-#include "ioobj.h"
-#include "keystrs.h"
 #include "oddirs.h"
 #include "pickset.h"
 #include "randcolor.h"
@@ -482,7 +481,8 @@ bool uiImportHorizon::doImport()
     }
     else
     {
-	mDynamicCastGet(ExecutorGroup*,exec,horizon->auxdata.auxDataSaver(-1))
+	mDynamicCastGet(ExecutorGroup*,exec,
+			horizon->auxdata.auxDataSaver(-1,true));
 	mSave(taskrunner);
     }
 
@@ -555,11 +555,31 @@ bool uiImportHorizon::checkInpFlds()
 
     const char* outpnm = outputfld_->getInput();
     if ( !outpnm || !*outpnm )
-	mErrRet( uiStrings::phrSelect(mJoinUiStrs(sOutput().toLower(), 
-							sHorizon().toLower())) )
-
+	mErrRet( uiStrings::phrSelect(mJoinUiStrs(sOutput().toLower(),
+						  sHorizon().toLower())) );
     if ( !outputfld_->commitInput() )
 	return false;
+
+    const EM::IOObjInfo ioobjinfo( outputfld_->key() );
+    BufferStringSet attribnms, chosennms, existingnms;
+    ioobjinfo.getAttribNames( attribnms );
+    attrlistfld_->getChosen( chosennms );
+
+    for ( int idx=0; idx<chosennms.size(); idx++ )
+	if ( attribnms.isPresent(chosennms.get(idx)) )
+	    existingnms.add( chosennms.get(idx) );
+
+    if ( !existingnms.isEmpty() )
+    {
+	const uiString msg =
+	    (existingnms.size()>1 ? tr("%1 %2 already exist on disk.\n")
+				  : tr("%1 %2 already exists on disk.\n"))
+				.arg(uiStrings::sAttribute(existingnms.size()))
+				.arg(existingnms.cat(", "))
+				.append("Do you want to overwrite?");
+	if ( !uiMSG().askGoOn(msg,uiStrings::sYes(),uiStrings::sNo()) )
+	    return false;
+    }
 
     return true;
 }
