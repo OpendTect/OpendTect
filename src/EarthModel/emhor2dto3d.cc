@@ -175,7 +175,6 @@ void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 
 void Hor2DTo3D::fillSections()
 {
-    const float mindist = SI().xyInFeet() ? 400.0f : 100.0f;
     for ( int isd=0; isd<sd_.size(); isd++ )
     {
 	Coord lastpos = Coord::udf();
@@ -187,9 +186,6 @@ void Hor2DTo3D::fillSections()
 		break;
 
 	    const Coord3 coord = hor2d_.getPos( posid );
-	    if ( !lastpos.isUdf() && lastpos.distTo(coord) < mindist )
-		continue;
-
 	    const BinID bid = SI().transform( coord );
 	    sd.add( bid, (float) coord.z );
 	    lastpos = coord;
