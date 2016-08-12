@@ -106,7 +106,7 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 	ParallelReader2D rdr( *ioobj, geomid_, tkzs.isDefined() ? &tkzs : 0 );
 	rdr.setScaler( scaler );
 	rdr.setDataChar( type );
-	if ( !rdr.init() || !trunnr.execute(rdr) )
+	if ( !trunnr.execute(rdr) )
 	{
 	    errmsg_ = rdr.uiMessage();
 	    return false;

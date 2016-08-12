@@ -366,7 +366,9 @@ bool ParallelReader2D::init()
     const SeisIOObjInfo info( *ioobj_ );
     if ( !info.isOK() ) return false;
 
-    info.getDataChar( dc_ );
+    if ( dc_.userType() == DataCharacteristics::Auto )
+	info.getDataChar( dc_ );
+
     if ( components_.isEmpty() )
     {
 	const int nrcomps = info.nrComponents( geomid_ );
