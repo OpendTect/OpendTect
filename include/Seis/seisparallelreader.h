@@ -110,7 +110,6 @@ public:
 
     void		setDataChar(DataCharacteristics::UserType);
     void		setScaler(Scaler*);
-    bool		init();
 
     RegularSeisDataPack* getDataPack(); // The caller now owns the datapack
 
@@ -123,7 +122,7 @@ protected:
     bool		doWork(od_int64,od_int64,int);
     bool		doFinish(bool);
 
-    RegularSeisDataPack*	dp_;
+    RefMan<RegularSeisDataPack>	dp_;
     TypeSet<int>		components_;
     TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;

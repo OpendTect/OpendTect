@@ -340,18 +340,13 @@ ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
 }
 
 
-bool ParallelReader2D::doPrepare( int )
-{
-    return init();
-}
-
-
-bool ParallelReader2D::init()
+bool ParallelReader2D::doPrepare( int nrthreads )
 {
     const SeisIOObjInfo info( *ioobj_ );
     if ( !info.isOK() ) return false;
+    if ( dc_.userType() == DataCharacteristics::Auto )
+    	info.getDataChar( dc_ );
 
-    info.getDataChar( dc_ );
     if ( components_.isEmpty() )
     {
 	const int nrcomps = info.nrComponents( geomid_ );
@@ -369,18 +364,15 @@ bool ParallelReader2D::init()
     totalnr_ = tkzs_.hsamp_.totalNr();
 
     dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true), &dc_ );
+    DPM(DataPackMgr::SeisID()).add( dp_.ptr() );
     dp_->setSampling( tkzs_ );
     if ( scaler_ )
 	dp_->setScaler( *scaler_ );
 
     if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
-    {
-	dp_->unRef(); dp_ = 0;
 	return false;
-    }
-
+    
     msg_ = uiStrings::phrReading( ioobj_->uiName() );
-
     return true;
 }
 
@@ -691,7 +683,9 @@ bool SequentialReader::init()
     SeisIOObjInfo info( ioobj_ );
     if ( !info.isOK() ) return false;
     is2d_ = info.is2D();
-    info.getDataChar( dc_ );
+    if ( dc_.userType() == DataCharacteristics::Auto )
+	info.getDataChar( dc_ );
+
     if ( components_.isEmpty() )
     {
 	const int nrcomps = info.nrComponents();
