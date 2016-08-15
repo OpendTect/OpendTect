@@ -66,37 +66,12 @@ bool Gridder2D::isPointUsable(const Coord& cpt,const Coord& dpt) const
 
 bool Gridder2D::setPoints( const TypeSet<Coord>& cl )
 {
-    points_ = &cl;
-
-    if ( trend_ && values_ && points_->size() == values_->size() )
-	trend_->set( *points_, values_->arr() );
-
-    usedpoints_.setEmpty();
-    for ( int idx=0; idx<points_->size(); idx++ )
-    {
-	if ( (*points_)[idx].isDefined() )
-	    usedpoints_ += idx;
-    }
-
-    if ( !pointsChangedCB(0) )
-    {
-	points_ = 0;
-	return false;
-    }
-
-    return true;
+    return setPoints( cl, 0 );
 }
 
 
 bool Gridder2D::setPoints( const TypeSet<Coord>& cl, TaskRunner* taskr )
 {
-    mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,this);
-    if ( !rbfgridder )
-    {
-	pErrMsg("Use setPoints(const TypeSet<Coord>&) instead.");
-	return false;
-    }
-
     points_ = &cl;
 
     if ( trend_ && values_ && points_->size() == values_->size() )
@@ -109,7 +84,8 @@ bool Gridder2D::setPoints( const TypeSet<Coord>& cl, TaskRunner* taskr )
 	    usedpoints_ += idx;
     }
 
-    if ( !rbfgridder->updateSolver(taskr) )
+    CBCapsule<TaskRunner*> taskruncaps( taskr, 0 );
+    if ( !pointsChangedCB(&taskruncaps) )
     {
 	points_ = 0;
 	return false;
@@ -573,9 +549,11 @@ bool RadialBasisFunctionGridder2D::operator==( const Gridder2D& b ) const
 }
 
 
-bool RadialBasisFunctionGridder2D::pointsChangedCB( CallBacker* )
+bool RadialBasisFunctionGridder2D::pointsChangedCB( CallBacker* cb )
 {
-    return updateSolver();
+    mCBCapsuleUnpack(TaskRunner*,taskrunner,cb);
+
+    return updateSolver( taskrunner );
 }
 
 
@@ -669,38 +647,7 @@ float RadialBasisFunctionGridder2D::getValue( const Coord& gridpoint,
 
 bool RadialBasisFunctionGridder2D::updateSolver()
 {
-    delete solv_;
-    delete globalweights_; //previous solution is invalid too
-    int sz = usedpoints_.size();
-    if ( !points_ || !sz )
-	return false;
-
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	if ( !points_->validIdx(usedpoints_[idx]) )
-	    return false;
-    }
-
-    Array2DImpl<double> a( sz, sz );
-    if ( !a.isOK() )
-	return false;
-
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const int indexX = usedpoints_[idx];
-	const Coord& posX = (*points_)[indexX];
-	for ( int idy=0; idy<sz; idy++ )
-	{
-	    const int indexY = usedpoints_[idy];
-	    const Coord& posY = (*points_)[indexY];
-	    const double val = evaluateRBF( getRadius( posX, posY ) );
-	    a.set( idx, idy, val );
-	}
-    }
-
-    solv_ = new LinSolver<double>( a );
-
-    return true;
+    return updateSolver( 0 );
 }
 
 
