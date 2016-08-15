@@ -77,7 +77,8 @@ bool Gridder2D::setPoints( const TypeSet<Coord>& cl, TaskRunner* taskr )
 	    usedpoints_ += idx;
     }
 
-    if ( !pointsChanged(taskr) )
+    CBCapsule<TaskRunner*> taskruncaps( taskr, 0 );
+    if ( !pointsChangedCB(&taskruncaps) )
     {
 	points_ = 0;
 	return false;
@@ -94,7 +95,7 @@ bool Gridder2D::setValues( const TypeSet<float>& vl )
     if ( trend_ && points_ && points_->size() == values_->size() )
 	trend_->set( *points_, values_->arr() );
 
-    valuesChanged();
+    valuesChangedCB(0);
 
     return true;
 }
@@ -125,7 +126,7 @@ void Gridder2D::setTrend( PolyTrend::Order order )
 	if ( trend_ )
 	    trend_->set( *points_, *values_ );
 
-	valuesChanged();
+	valuesChangedCB(0);
     }
 }
 
@@ -428,7 +429,7 @@ bool TriangulatedGridder2D::getWeights( const Coord& gridpoint,
 }
 
 
-bool TriangulatedGridder2D::pointsChanged( TaskRunner* taskr )
+bool TriangulatedGridder2D::pointsChangedCB( CallBacker* )
 {
     delete triangles_;
     triangles_ = new DAGTriangleTree;
@@ -541,13 +542,15 @@ bool RadialBasisFunctionGridder2D::operator==( const Gridder2D& b ) const
 }
 
 
-bool RadialBasisFunctionGridder2D::pointsChanged( TaskRunner* taskr )
+bool RadialBasisFunctionGridder2D::pointsChangedCB( CallBacker* cb )
 {
-    return updateSolver( taskr );
+    mCBCapsuleUnpack(TaskRunner*,taskrunner,cb);
+
+    return updateSolver( taskrunner );
 }
 
 
-void RadialBasisFunctionGridder2D::valuesChanged()
+void RadialBasisFunctionGridder2D::valuesChangedCB( CallBacker* )
 {
     updateSolution();
 }
