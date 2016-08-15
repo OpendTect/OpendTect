@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "picklocation.h"
 #include "sharedobject.h"
+#include "monitoriter.h"
 #include "enums.h"
 #include "trckey.h"
 #include "sets.h"
@@ -166,41 +167,23 @@ protected:
 };
 
 
-/*!\brief const Set iterator. Will MonitorLock, so when done before going out of
-  scope, call retire().
+/*!\brief const Set iterator. */
 
-  Needs a next() or prev() before a valid LocID is reached.
-
-  */
-
-mExpClass(General) SetIter
+mExpClass(General) SetIter : public MonitorableIter<Set::IdxType>
 {
 public:
 
 			SetIter(const Set&,bool start_at_end=false);
 			SetIter(const SetIter&);
-			~SetIter()		{ retire(); }
-    const Set&		pickSet() const		{ return *set_; }
+    const Set&		pickSet() const;
+    size_type		size() const;
 
-    bool		next();
-    bool		prev();
-
-    bool		isValid() const;
-    bool		atFirst() const	    { return curidx_ == 0; }
-    bool		atLast() const;
     Set::LocID		ID() const;
     const Location&	get() const;
     Coord		getPos() const;
     double		getZ() const;
 
-    void		retire();
-    void		reInit(bool toend=false);
-
 private:
-
-    ConstRefMan<Set>	set_;
-    Set::IdxType	curidx_;
-    MonitorLock		ml_;
 
     SetIter&		operator =(const SetIter&); // pErrMsg
 

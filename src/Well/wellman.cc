@@ -70,10 +70,10 @@ Well::Data* Well::Man::get( const MultiID& key )
     Well::Data* wd = new Well::Data;
     wd->ref();
 
-    Well::Reader wr( key, *wd );
-    if ( !wr.get() )
+    Well::Reader rdr( key, *wd );
+    if ( !rdr.get() )
     {
-	msg_.set( wr.errMsg() );
+	msg_ = rdr.errMsg();
 	wd->unRef();
 	return 0;
     }
@@ -92,15 +92,17 @@ bool Well::Man::isLoaded( const MultiID& key ) const
 
 bool Well::Man::reload( const MultiID& key )
 {
+    msg_.setEmpty();
     const int wdidx = gtByKey( key );
-    if ( wdidx<0 ) return false;
+    if ( wdidx<0 )
+	return false;
 
     Well::Data* wd = wells_[wdidx];
     wd->ref();
-    Well::Reader wr( key, *wd );
-    if ( !wr.get() )
+    Well::Reader rdr( key, *wd );
+    if ( !rdr.get() )
     {
-	msg_.set( wr.errMsg() );
+	msg_ = rdr.errMsg();
 	wd->unRef();
 	return false;
     }
@@ -135,10 +137,10 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms )
     else
     {
 	RefMan<Well::Data> wd = new Well::Data;
-	Well::Reader wr( ky, *wd );
-	wr.getLogInfo( nms );
+	Well::Reader rdr( ky, *wd );
+	rdr.getLogInfo( nms );
 	if ( nms.isEmpty() )
-	    return wr.getInfo(); // returning whether the well exists
+	    return rdr.getInfo(); // returning whether the well exists
     }
     return true;
 }
@@ -157,8 +159,8 @@ bool Well::Man::getMarkerNames( BufferStringSet& nms )
 	const IOObj* ioobj = del[idx]->ioobj_;
 	if ( !ioobj ) continue;
 
-	Well::Reader wr( *ioobj, *data );
-	if ( !wr.getTrack() || !wr.getMarkers() ) continue;
+	Well::Reader rdr( *ioobj, *data );
+	if ( !rdr.getTrack() || !rdr.getMarkers() ) continue;
 
 	BufferStringSet wllmarkernms;
 	data->markers().getNames( wllmarkernms );
@@ -189,8 +191,8 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
 	    const IOObj* ioobj = del[idx]->ioobj_;
 	    if ( !ioobj ) continue;
 
-	    Well::Reader wr( *ioobj, *data );
-	    if ( wr.getInfo() && data->info().uwid == uwi )
+	    Well::Reader rdr( *ioobj, *data );
+	    if ( rdr.getInfo() && data->info().uwid == uwi )
 		return ioobj->clone();
 	}
     }

@@ -126,12 +126,10 @@ public:
     const MarkerSet&		markers() const		{ return markers_; }
     MarkerSet&			markers()		{ return markers_; }
 
-    const D2TModel*		d2TModel() const	{ return gtMdl(false); }
-    D2TModel*			d2TModel()		{ return gtMdl(false); }
-    const D2TModel*		checkShotModel() const	{ return gtMdl(true); }
-    D2TModel*			checkShotModel()	{ return gtMdl(true); }
-    void			setD2TModel(D2TModel*);	//!< becomes mine
-    void			setCheckShotModel(D2TModel*); //!< mine, too
+    const D2TModel&		d2TModel() const	{ return gtMdl(false); }
+    D2TModel&			d2TModel()		{ return gtMdl(false); }
+    const D2TModel&		checkShotModel() const	{ return gtMdl(true); }
+    D2TModel&			checkShotModel()	{ return gtMdl(true); }
 
     DisplayProperties&		displayProperties( bool for2d=false )
 				    { return for2d ? disp2d_ : disp3d_; }
@@ -144,8 +142,8 @@ public:
 
     bool			haveLogs() const;
     bool			haveMarkers() const;
-    bool			haveD2TModel() const	{ return d2tmodel_; }
-    bool			haveCheckShotModel() const { return csmodel_; }
+    bool			haveD2TModel() const;
+    bool			haveCheckShotModel() const;
 
     Notifier<Well::Data>	d2tchanged;
     Notifier<Well::Data>	csmdlchanged;
@@ -156,22 +154,29 @@ public:
     CNotifier<Well::Data,int>	logschanged;
     Notifier<Well::Data>	reloaded;
 
+				// Following return null when mdl is empty:
+    D2TModel*			d2TModelPtr()	    { return gtMdlPtr(false); }
+    D2TModel*			checkShotModelPtr() { return gtMdlPtr(true); }
+    const D2TModel*		d2TModelPtr() const { return gtMdlPtr(false); }
+    const D2TModel*		checkShotModelPtr() const
+						    { return gtMdlPtr(true); }
+
 protected:
 
 			~Data();
-    // void		prepareForDelete();
 
     Info		info_;
     mutable MultiID	mid_;
     Track&		track_;
     LogSet&		logs_;
-    D2TModel*		d2tmodel_;
-    D2TModel*		csmodel_;
+    D2TModel&		d2tmodel_;
+    D2TModel&		csmodel_;
     MarkerSet&		markers_;
     DisplayProperties&	disp2d_;
     DisplayProperties&	disp3d_;
 
-    D2TModel*		gtMdl(bool) const;
+    D2TModel&		gtMdl(bool) const;
+    D2TModel*		gtMdlPtr(bool) const;
 
 };
 

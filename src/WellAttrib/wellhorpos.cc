@@ -23,7 +23,10 @@ WellHorIntersectFinder::WellHorIntersectFinder( const Well::Track& tr,
 						const Well::D2TModel* d2t )
     : track_(tr)
     , d2t_(d2t)  
-{}
+{
+    if ( d2t_ && d2t_->isEmpty() )
+	d2t_ = 0;
+}
 
 
 void WellHorIntersectFinder::setHorizon( const EM::ObjectID& emid )

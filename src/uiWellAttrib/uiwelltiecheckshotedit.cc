@@ -41,36 +41,22 @@ ________________________________________________________________________
 namespace WellTie
 {
 
-bool uiCheckShotEdit::DriftCurve::insertAtDah( float dh, float v )
-{
-    if ( mIsUdf(v) ) return false;
-    if ( dah_.isEmpty()|| dh > dah_[dah_.size()-1] )
-	{ dah_ += dh; val_ += v; }
-    else if ( dh < dah_[0] )
-	{ dah_.insert( 0, dh ); val_.insert( 0, v ); }
-    else
-    {
-	const int insertidx = indexOf( dh );
-	if ( insertidx>=0 )
-	    { dah_.insert( insertidx+1, dh ); val_.insert( insertidx+1, v ); }
-    }
-    return true;
-}
 
-
-int uiCheckShotEdit::DriftCurve::indexOfCurrentPoint(float dh,float val) const
+    uiCheckShotEdit::PointID uiCheckShotEdit::currentPoint(
+		    const DriftCurve& dc, float dh, float val ) const
 {
-    for ( int idx=0; idx<size(); idx ++ )
+    Well::LogIter iter( dc );
+    while ( iter.next() )
     {
-	const float nddah = dah( idx );
+	const float nddah = iter.dah();
 	if ( mIsEqual(dh,nddah,10) )
 	{
-	    const float ndval = value( idx );
+	    const float ndval = iter.value();
 	    if ( mIsEqual(val,ndval,5) )
-		return idx;
+		return iter.ID();
 	}
     }
-    return -1;
+    return PointID::getInvalid();
 }
 
 
@@ -81,21 +67,21 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     , server_(server)
     , wd_(*server.wd())
     , d2tlineitm_(0)
-    , d2t_(wd_.d2TModel())
-    , tkzs_(wd_.checkShotModel())
+    , d2t_(wd_.d2TModelPtr())
+    , tkzs_(wd_.checkShotModelPtr())
     , orgcs_(0)
     , isedit_(false)
-    , movingpointidx_(-1)
+    , movingpointid_(PointID::getInvalid())
 {
     if ( !tkzs_ )
-	mErrRet( tr("No checkshot provided"), return );
+	mErrRet( tr("Empty checkshot provided"), return );
 
     orgcs_ = new Well::D2TModel( *tkzs_ );
     tkzs_->setName( "CheckShot Curve" );
 
     newdriftcurve_.setName( "User defined Drift Curve" );
 
-    orgd2t_ = new Well::D2TModel( *d2t_ );
+    orgd2t_ = d2t_ ? new Well::D2TModel( *d2t_ ) : new Well::D2TModel();
     uiWellDahDisplay::Setup dsu;
     dsu.samexaxisrange_ = true; dsu.drawcurvenames_ = false;
     d2tdisplay_ = new uiWellDahDisplay( this, dsu );
@@ -189,53 +175,55 @@ void uiCheckShotEdit::mousePressedCB( CallBacker* )
 {
     const float dah = control_->dah();
     const float val = control_->xPos();
-    movingpointidx_ = isedit_ ? newdriftcurve_.indexOfCurrentPoint(dah,val) :-1;
+    movingpointid_ = isedit_ ? currentPoint( newdriftcurve_,dah,val )
+			     : PointID::getInvalid();
 }
 
 
 void uiCheckShotEdit::mouseMovedCB( CallBacker* )
 {
-    if ( movingpointidx_ >= 0 && isedit_ )
+    if ( movingpointid_.isValid() && isedit_ )
 	movePt();
 }
 
 
 void uiCheckShotEdit::mouseReleasedCB( CallBacker* )
 {
-    if ( movingpointidx_ < 0 && isedit_ )
+    if ( !movingpointid_.isValid() && isedit_ )
 	doInsertRemovePt();
 
-    movingpointidx_ = -1;
+    movingpointid_.setInvalid();
 }
 
 
 void uiCheckShotEdit::reSizeCB( CallBacker* )
 {
     drawPoints();
-} 
+}
 
 
 void uiCheckShotEdit::movePt()
 {
-    if ( movingpointidx_ < 0 )
+    if ( movingpointid_.isInvalid() )
 	return;
 
     const float dah = control_->dah();
-
-    if ( movingpointidx_ > 1 )
+    const PointID nextid( newdriftcurve_.nextID(movingpointid_) );
+    const PointID previd( newdriftcurve_.nextID(movingpointid_) );
+    if ( !previd.isInvalid() )
     {
-	const float prevdah = newdriftcurve_.dah( movingpointidx_-1 );
+	const float prevdah = newdriftcurve_.dah( previd );
 	if ( dah < prevdah )
 	    return;
     }
-    if ( newdriftcurve_.size() >  movingpointidx_+1 )
+    if ( !nextid.isInvalid() )
     {
-	const float nextdah = newdriftcurve_.dah( movingpointidx_+1 );
+	const float nextdah = newdriftcurve_.dah( nextid );
 	if ( dah > nextdah  )
 	    return;
     }
 
-    newdriftcurve_.remove( movingpointidx_ );
+    newdriftcurve_.remove( movingpointid_ );
     doInsertRemovePt();
 }
 
@@ -251,9 +239,10 @@ void uiCheckShotEdit::doInsertRemovePt()
 	if ( isadd )
 	{
 	    if ( newdriftcurve_.isEmpty() && !driftcurve_.isEmpty() )
-		newdriftcurve_.add( driftcurve_.dah(0), driftcurve_.value(0) );
+		newdriftcurve_.setValueAt( driftcurve_.firstDah(),
+					   driftcurve_.firstValue() );
 
-	    newdriftcurve_.insertAtDah( dah, val );
+	    newdriftcurve_.setValueAt( dah, val );
 	}
 	undo_.addEvent( new DahObjUndoEvent(dah,val,newdriftcurve_,isadd) );
     }
@@ -270,7 +259,7 @@ void uiCheckShotEdit::editCSPushed( CallBacker* )
     uiD2TModelDlg csmdlg( this, wd_, true );
     if ( csmdlg.go() )
     {
-	tkzs_ = wd_.checkShotModel();
+	tkzs_ = wd_.checkShotModelPtr();
 	draw();
     }
 }
@@ -316,53 +305,54 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
 					: Color::stdDrawColor(first ? 0 : 1);
     float startpos = SI().seismicReferenceDatum();
     startpos = startpos != 0 ? -startpos : 0;
-    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
+    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop)
 	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
     Interval<float> zrg( startpos, stoppos );
     disp->setZRange(zrg);
     dahdata.drawaspoints_ = d == tkzs_ || d == &newdriftcurve_;
     dahdata.xrev_ = false;
     dahdata.setData( d );
-    
+
     disp->reDraw();
 }
 
 
 void uiCheckShotEdit::drawDrift()
 {
-    const int sz1 = orgd2t_->size();
-    const int sz2 = tkzs_->size();
-    int maxsz = mMAX(sz1,sz2);
-    const Well::D2TModel* longermdl = sz1 > sz2 ? orgd2t_ : tkzs_;
+    const int orgd2tsz = orgd2t_->size();
+    MonitorLock ml( *tkzs_ );
+    const int tkzssz = tkzs_->size();
+    int maxsz = mMAX(orgd2tsz,tkzssz);
+    const Well::D2TModel* longermdl = orgd2tsz > tkzssz ? orgd2t_ : tkzs_;
 
     driftcurve_.setEmpty();
     for ( int idx=0; idx<maxsz; idx++ )
     {
-	const float dah = longermdl->dah(idx);
+	const float dah = longermdl->dahByIdx( idx );
 	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
 	const float csval = tkzs_->getTime( dah, wd_.track() );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
-	driftcurve_.add( dah, drift );
-    }								  
+	driftcurve_.setValueAt( dah, drift );
+    }
     drawDahObj( &driftcurve_, true, false );
     drawDahObj( &newdriftcurve_, false, false );
 
-    for ( int idx=0; idx<sz2; idx++ )
+    for ( int idx=0; idx<tkzssz; idx++ )
     {
-	const float dah = tkzs_->dah( idx );
+	const float dah = tkzs_->dahByIdx( idx );
 	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
-	const float csval = tkzs_->value( idx );
+	const float csval = tkzs_->valueByIdx( idx );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	uiWellDahDisplay::PickData pd( dah, Color::stdDrawColor( 0 ) );
 	pd.val_ = drift;
-	driftcurve_.insertAtDah( dah, drift );
+	driftcurve_.setValueAt( dah, drift );
 	driftdisplay_->zPicks() += pd;
     }
-    
+
     float startpos = -SI().seismicReferenceDatum();
-    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop) 
+    const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop)
 	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
-    
+
     Interval<float> zrg( startpos, stoppos );
     driftdisplay_->setZRange(zrg);
 }
@@ -377,12 +367,14 @@ void uiCheckShotEdit::drawPoints()
     {
 	TypeSet<uiPoint> pts;
 	uiWellDahDisplay::DahObjData& ld = d2tdisplay_->dahObjData(true);
-	for ( int idx=0; idx<d2t_->size(); idx++ )
+	Well::D2TModelIter iter( *d2t_ );
+	while ( iter.next() )
 	{
-	    const float val = d2t_->value( idx );
-	    const float dah = (float) wd_.track().getPos( d2t_->dah( idx ) ).z;
-	    pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
+	    const float val = iter.value();
+	    const float z = (float)wd_.track().getPos( iter.dah() ).z;
+	    pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(z) );
 	}
+	iter.retire();
 
 	if ( pts.isEmpty() ) return;
 
@@ -401,15 +393,17 @@ void uiCheckShotEdit::applyCB( CallBacker* )
     Well::D2TModel tmpcs;
     *d2t_ = *orgd2t_;
 
-    for ( int idx=0; idx<driftcurve.size(); idx++ )
+    Well::LogIter iter( driftcurve );
+    while ( iter.next() )
     {
-	const float dah = driftcurve.dah( idx );
-	const float drift = driftcurve.value( idx );
+	const float dah = iter.dah();
+	const float drift = iter.value();
 	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
 	const float csval = drift / SI().zDomain().userFactor() + d2tval;
-	tmpcs.add( dah, csval );
+	tmpcs.setValueAt( dah, csval );
     }
-    
+    iter.retire();
+
     CheckShotCorr::calibrate( tmpcs, *d2t_ );
     drawPoints();
     draw();
@@ -418,10 +412,10 @@ void uiCheckShotEdit::applyCB( CallBacker* )
 
 bool uiCheckShotEdit::acceptOK( CallBacker* )
 {
-    if ( !d2t_ || d2t_->size() < 2)
+    if ( !d2t_ || d2t_->size() < 2 )
 	mErrRet(tr("Depth/time model is too small and won't be saved"),
 		return false)
-  
+
     server_.d2TModelMgr().setAsCurrent( new Well::D2TModel( *d2t_ ) );
     server_.updateExtractionRange();
 
@@ -456,11 +450,11 @@ bool DahObjUndoEvent::unDo()
     {
 	const int dahidx = dahobj_.indexOf( dah_ );
 	if ( dahidx >= 0 && dahidx < dahobj_.size() )
-	    dahobj_.remove( dahidx );
+	    dahobj_.removeByIdx( dahidx );
     }
     else
     {
-	dahobj_.insertAtDah( dah_, val_ );
+	dahobj_.setValueAt( dah_, val_ );
     }
     return true;
 }
@@ -470,13 +464,13 @@ bool DahObjUndoEvent::reDo()
 {
     if ( isadd_ )
     {
-	dahobj_.insertAtDah( dah_, val_ );
+	dahobj_.setValueAt( dah_, val_ );
     }
     else
     {
 	const int dahidx = dahobj_.indexOf( dah_ );
 	if ( dahidx >= 0 && dahidx < dahobj_.size() )
-	    dahobj_.remove( dahidx );
+	    dahobj_.removeByIdx( dahidx );
     }
     return true;
 }

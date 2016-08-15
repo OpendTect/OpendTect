@@ -92,8 +92,8 @@ uiWellMan::uiWellMan( uiParent* p )
     logexpbut_ = butgrp->addButton( "export",
 			uiStrings::phrExport( uiStrings::sWellLog(mPlural) ),
 			mCB(this,uiWellMan,exportLogs) );
-    loguombut_ = butgrp->addButton( "unitsofmeasure", 
-					tr("View/edit unit of measure"), 
+    loguombut_ = butgrp->addButton( "unitsofmeasure",
+					tr("View/edit unit of measure"),
 					mCB(this,uiWellMan,logUOMPush) );
     logedbut_ = butgrp->addButton( "edit", uiStrings::sEdit(),
 			mCB(this,uiWellMan,editLogPush) );
@@ -225,8 +225,8 @@ void uiWellMan::fillLogsFld()
 
 
 
-void uiWellMan::setButToolTip( uiButton* but, const uiString& oper, 
-			   const uiString& objtyp, const uiString& obj, 
+void uiWellMan::setButToolTip( uiButton* but, const uiString& oper,
+			   const uiString& objtyp, const uiString& obj,
 			   const uiString& end )
 {
     if ( !but )
@@ -240,7 +240,7 @@ void uiWellMan::setButToolTip( uiButton* but, const uiString& oper,
     if ( !end.isEmpty() )
 	tt = toUiString("%1 %2").arg(tt).arg(end);
 
-    but->setToolTip( tt );			       
+    but->setToolTip( tt );
 }
 
 
@@ -250,9 +250,9 @@ void uiWellMan::setButToolTip( uiButton* but, const uiString& oper,
 
 void uiWellMan::setWellToolButtonProperties()
 {
-    const uiString curwellnm = curioobj_ ? curioobj_->uiName() : 
+    const uiString curwellnm = curioobj_ ? curioobj_->uiName() :
 						      uiStrings::sEmptyString();
-    const uiString edvwstr = iswritable_ ? uiStrings::sEdit() : 
+    const uiString edvwstr = iswritable_ ? uiStrings::sEdit() :
 							     uiStrings::sView();
 
     mSetWellButToolTip( welltrackbut_, mJoinUiStrs(sWell(),sTrack()) );
@@ -289,27 +289,27 @@ void uiWellMan::setLogToolButtonProperties()
     loguombut_->setSensitive( iswritable_ && nrlogs > 0 );
     logedbut_->setSensitive( iswritable_ && nrlogs > 0 );
 
-    const uiString curwellnm = curioobj_ ? curioobj_->uiName() : 
+    const uiString curwellnm = curioobj_ ? curioobj_->uiName() :
 						      uiStrings::sEmptyString();
     const uiString curlognm = toUiString(logsfld_->getText());
 
-    mSetLogButToolTip( logupbut_, uiStrings::sMove(), 
+    mSetLogButToolTip( logupbut_, uiStrings::sMove(),
 						   uiStrings::sUp().toLower() );
-    mSetLogButToolTip( logdownbut_, uiStrings::sMove(), 
+    mSetLogButToolTip( logdownbut_, uiStrings::sMove(),
 						 uiStrings::sDown().toLower() );
-    mSetLogButToolTip( logrenamebut_, uiStrings::sRename(), 
+    mSetLogButToolTip( logrenamebut_, uiStrings::sRename(),
 						    uiStrings::sEmptyString() );
-    mSetLogButToolTip( loguombut_, tr("View/edit units of measure for "), 
+    mSetLogButToolTip( loguombut_, tr("View/edit units of measure for "),
 						    uiStrings::sEmptyString() );
-    mSetLogButToolTip( logedbut_, uiStrings::sEdit(), 
+    mSetLogButToolTip( logedbut_, uiStrings::sEdit(),
 						    uiStrings::sEmptyString() );
 
-    setButToolTip(logrmbut_, uiStrings::sRemove(), 
-		  toUiString(lognms.getDispString(3)), curwellnm, 
+    setButToolTip(logrmbut_, uiStrings::sRemove(),
+		  toUiString(lognms.getDispString(3)), curwellnm,
 		  uiStrings::sEmptyString());
-    setButToolTip(logexpbut_, uiStrings::sExport(), 
-		  toUiString(lognms.getDispString(3)), 
-		  nrchosenwells==1 ? curwellnm : uiStrings::sEmptyString(), 
+    setButToolTip(logexpbut_, uiStrings::sExport(),
+		  toUiString(lognms.getDispString(3)),
+		  nrchosenwells==1 ? curwellnm : uiStrings::sEmptyString(),
 		  uiStrings::sEmptyString() );
 
     const int nrlogs2vw = nrchosenwells * nrchosenlogs ;
@@ -433,7 +433,8 @@ void uiWellMan::edChckSh( CallBacker* )
 
 void uiWellMan::defD2T( bool chkshot )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() )
+	return;
 
     RefMan<Well::Data> wd = new Well::Data;
     PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
@@ -443,16 +444,9 @@ void uiWellMan::defD2T( bool chkshot )
     else
 	wrdr->getD2T();
 
-    if ( !chkshot && !wd->d2TModel() )
-	wd->setD2TModel( new Well::D2TModel );
-    if ( chkshot && !wd->checkShotModel() )
-	wd->setCheckShotModel( new Well::D2TModel );
-
     const float oldreplvel = wd->info().replvel;
-    Well::D2TModel* inpmdl = chkshot ? wd->checkShotModel() : wd->d2TModel();
-    PtrMan<Well::D2TModel> origd2t = 0;
-    if ( inpmdl )
-	origd2t = new Well::D2TModel( *inpmdl );
+    Well::D2TModel& inpmdl = chkshot ? wd->checkShotModel() : wd->d2TModel();
+    PtrMan<Well::D2TModel> origd2t = new Well::D2TModel( inpmdl );
 
     uiD2TModelDlg dlg( this, *wd, chkshot );
     if ( !dlg.go() || !iswritable_ )
@@ -464,12 +458,11 @@ void uiWellMan::defD2T( bool chkshot )
     if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
     {
 	errmsg = tr("Cannot write new model to disk");
-	Well::D2TModel* toput = origd2t.release();
 	if ( chkshot )
-	    wd->setCheckShotModel( toput );
+	    wd->checkShotModel() = *origd2t;
 	else
 	{
-	    wd->setD2TModel( toput );
+	    wd->d2TModel() = *origd2t;
 	    wd->info().replvel = oldreplvel;
 	}
     }
@@ -477,8 +470,8 @@ void uiWellMan::defD2T( bool chkshot )
 	      !wtr.putInfoAndTrack() )
     {
 	if ( !errmsg.isEmpty() )
-	errmsg.append( tr("Cannot write new %1 to disk")
-		       .arg(Well::Info::sReplVel()),true );
+	    errmsg.append( tr("Cannot write new %1 to disk")
+			   .arg(Well::Info::sReplVel()),true );
 	wd->info().replvel = oldreplvel;
     }
 
@@ -585,7 +578,6 @@ void uiWellMan::editLogPush( CallBacker* )
 			   "\n\nDo you want to save your changes?"), false );
     if ( !res ) return;
 
-    wl.updateAfterValueChanges();
     writeLogs();
 }
 
@@ -693,7 +685,7 @@ void uiWellMan::renameLogPush( CallBacker* )
     mEnsureLogSelected(uiStrings::sNoLogSel());
     BufferString lognm = logsfld_->getText();
     const uiString titl = uiStrings::phrRename(toUiString("'%1'").arg(lognm));
-    uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(),sName().toLower()), 
+    uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(),sName().toLower()),
 				new StringInpSpec(lognm));
     if ( !dlg.go() )
 	return;

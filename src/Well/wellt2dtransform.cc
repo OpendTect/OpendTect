@@ -54,8 +54,8 @@ bool WellT2DTransform::isOK() const
 
 bool WellT2DTransform::calcDepths()
 {
-    const Well::D2TModel* d2t = data_ ? data_->d2TModel() : 0;
-    if ( !d2t )
+    const Well::D2TModel* d2t = data_ ? &data_->d2TModel() : 0;
+    if ( !d2t || d2t->isEmpty() )
 	return false;
 
     return d2t->getTimeDepthModel( *data_, tdmodel_ );

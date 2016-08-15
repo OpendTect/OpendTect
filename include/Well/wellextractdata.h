@@ -36,7 +36,10 @@ namespace Well
 
 mExpClass(Well) ZRangeSelector
 { mODTextTranslationClass(ZRangeSelector);
-public :
+public:
+
+    typedef float	ZType;
+
 			ZRangeSelector() { setEmpty(); }
 			ZRangeSelector(const ZRangeSelector&);
     virtual		~ZRangeSelector() {}
@@ -63,40 +66,40 @@ public :
     virtual bool	isOK(uiString* errmsg=0) const;
 
     //set
-    void		setTopMarker(const char* nm,float offset)
+    void		setTopMarker(const char* nm,ZType offset)
 			{ setMarker( true, nm, offset); }
-    void		setBotMarker(const char* nm,float offset)
+    void		setBotMarker(const char* nm,ZType offset)
 			{ setMarker( false, nm, offset); }
-    void		setFixedRange(Interval<float>,bool istime);
+    void		setFixedRange(Interval<ZType>,bool istime);
     void		snapZRangeToSurvey(bool yn)
 			{ snapzrgtosurvey_ = yn; }
 
     //get
-    Interval<float>	calcFrom(const Data&,const BufferStringSet& logs,
+    Interval<ZType>	calcFrom(const Data&,const BufferStringSet& logs,
 				 bool todah=true) const;
 
-    float		topOffset() const	{ return above_; }
-    float		botOffset() const	{ return below_; }
+    ZType		topOffset() const	{ return above_; }
+    ZType		botOffset() const	{ return below_; }
     const char*		topMarker() const	{ return topmrkr_; }
     const char*		botMarker() const	{ return botmrkr_; }
-    Interval<float>	getFixedRange() const	{ return fixedzrg_; }
+    Interval<ZType>	getFixedRange() const	{ return fixedzrg_; }
     bool		isInTime() const	{ return zselection_ == Times; }
 
 protected:
 
-    Interval<float>	fixedzrg_;
+    Interval<ZType>	fixedzrg_;
     BufferString	topmrkr_;
     BufferString	botmrkr_;
-    float		above_;
-    float		below_;
+    ZType		above_;
+    ZType		below_;
     bool		snapzrgtosurvey_;
 
-    void		setMarker(bool top,BufferString nm,float offset);
-    void		getMarkerRange(const Data&,Interval<float>&) const;
-    void		getLimitPos(const MarkerSet&,bool,float&,
-				    const Interval<float>&) const;
-    void		snapZRangeToSurvey(Interval<float>&,bool,
-					  const D2TModel*,
+    void		setMarker(bool top,BufferString nm,ZType offset);
+    void		getMarkerRange(const Data&,Interval<ZType>&) const;
+    void		getLimitPos(const MarkerSet&,bool,ZType&,
+				    const Interval<ZType>&) const;
+    void		snapZRangeToSurvey(Interval<ZType>&,bool,
+					  const D2TModel&,
 					  const Track&) const;
 };
 
@@ -285,23 +288,25 @@ mExpClass(Well) SimpleTrackSampler : public Executor
 { mODTextTranslationClass(SimpleTrackSampler);
 public:
 			SimpleTrackSampler(const Well::Track&,
-					  const Well::D2TModel*,
+					  const Well::D2TModel&,
 					  bool extrapolate_ = false,
 					  bool stayinsidesurvey = false);
 
-    void                setSampling(const StepInterval<float>& intv)
-			{ extrintv_ = intv; } //In time if d2TModel is provided
+    void	setSampling( const StepInterval<float>& intv )
+					{ extrintv_ = intv; }
+					    //In time if d2TModel is provided
 
-    int                 nextStep();
-    od_int64            totalNr() const         { return extrintv_.nrSteps(); }
-    od_int64            nrDone() const          { return nrdone_; }
-    uiString	 uiMessage() const	   { return m3Dots(tr("Computing")); }
-    uiString	 uiNrDoneText() const	   { return tr("Points done"); }
+    int		nextStep();
+    od_int64	totalNr() const         { return extrintv_.nrSteps(); }
+    od_int64	nrDone() const          { return nrdone_; }
+    uiString	uiMessage() const	   { return m3Dots(tr("Computing")); }
+    uiString	uiNrDoneText() const	   { return tr("Points done"); }
 
-    void		getBIDs(TypeSet<BinID>& bs) const { bs = bidset_; }
-    void		getCoords(TypeSet<Coord>& cs) const { cs = coords_; }
+    void	getBIDs(TypeSet<BinID>& bs) const { bs = bidset_; }
+    void	getCoords(TypeSet<Coord>& cs) const { cs = coords_; }
 
 protected:
+
     StepInterval<float> extrintv_;
 
     TypeSet<BinID>      bidset_;
@@ -312,6 +317,7 @@ protected:
 
     Interval<float>     tracklimits_;
     const Well::Track&  track_;
+    MonitorLock		monlock_;
     const Well::D2TModel* d2t_;
     int                 nrdone_;
 };

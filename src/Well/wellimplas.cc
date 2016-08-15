@@ -368,7 +368,6 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
     if ( nradded == 0 )
 	return "No matching log data found";
 
-    wd_->logs().updateDahIntvs();
     wd_->logs().removeTopBottomUdfs();
     return 0;
 }

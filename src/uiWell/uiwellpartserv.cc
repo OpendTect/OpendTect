@@ -547,22 +547,20 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     for ( int idx=1; idx<pos.size(); idx++ )
     {
 	const float dist = mCast( float, pos[idx].distTo( pos[idx-1] ) );
-	track.addPoint( pos[idx], track.dah(idx-1) + dist );
+	track.addPoint( pos[idx], track.dahByIdx(idx-1) + dist );
     }
 
     const Interval<double> trackrg = track.zRangeD();
     const double startz = mMAX( srddepth, trackrg.start );
     if ( SI().zIsTime() && trackrg.stop > startz )
     {
-	Well::D2TModel* d2t = new Well::D2TModel;
+	Well::D2TModel& d2t = well->d2TModel();
 	const float startdah = trackrg.start > srddepth
 			      ? 0.f : track.getDahForTVD(srddepth);
-	d2t->add( startdah, tdmodel.getTime( (float)startz ) );
+	d2t.setValueAt( startdah, tdmodel.getTime( (float)startz ) );
 
 	const float stopdah = track.getDahForTVD( trackrg.stop );
-	d2t->add( stopdah, tdmodel.getTime( (float)trackrg.stop ) );
-
-	well->setD2TModel( d2t );
+	d2t.setValueAt( stopdah, tdmodel.getTime( (float)trackrg.stop ) );
     }
 
     Well::Writer wwr( *ctio->ioobj_, *well );

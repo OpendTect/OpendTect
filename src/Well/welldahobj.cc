@@ -54,10 +54,66 @@ Well::DahObj::size_type Well::DahObj::size() const
 }
 
 
+Well::DahObj::PointID Well::DahObj::firstID() const
+{
+    mLock4Read();
+    return ptids_.isEmpty() ? PointID::getInvalid() : ptids_.first();
+}
+
+
+Well::DahObj::PointID Well::DahObj::lastID() const
+{
+    mLock4Read();
+    return ptids_.isEmpty() ? PointID::getInvalid() : ptids_.last();
+}
+
+
+Well::DahObj::PointID Well::DahObj::nextID( PointID id ) const
+{
+    mLock4Read();
+    return gtNeighbourID( id, true );
+}
+
+
+Well::DahObj::PointID Well::DahObj::prevID( PointID id ) const
+{
+    mLock4Read();
+    return gtNeighbourID( id, false );
+}
+
+
+Well::DahObj::PointID Well::DahObj::gtNeighbourID( PointID id, bool next ) const
+{
+    if ( ptids_.size() < 2 )
+	return PointID::getInvalid();
+    const int idx = gtIdx( id );
+    if ( idx < 0 )
+	return PointID::getInvalid();
+    if ( next )
+	return idx < ptids_.size()-1 ? ptids_[idx+1] : PointID::getInvalid();
+    else
+	return idx > 0 ? ptids_[idx-1] : PointID::getInvalid();
+}
+
+
 Well::DahObj::ZType Well::DahObj::dah( PointID id ) const
 {
     mLock4Read();
     return gtDah( gtIdx(id) );
+}
+
+
+Well::DahObj::ZType Well::DahObj::firstDah() const
+{
+    mLock4Read();
+    return dahs_.isEmpty() ? mUdf(ZType) : dahs_.first();
+}
+
+
+Well::DahObj::ZType Well::DahObj::lastDah() const
+{
+    mLock4Read();
+    return dahs_.isEmpty() ? mUdf(ZType) : dahs_.last();
 }
 
 
@@ -79,6 +135,34 @@ Well::DahObj::ValueType Well::DahObj::valueByIdx( IdxType idx ) const
 {
     mLock4Read();
     return dahs_.validIdx(idx) ? gtVal( idx ) : mUdf(ValueType);
+}
+
+
+Well::DahObj::ValueType Well::DahObj::firstValue( bool noudfs ) const
+{
+    mLock4Read();
+    const size_type sz = dahs_.size();
+    for ( IdxType idx=0; idx<sz; idx++ )
+    {
+	const float val = gtVal( idx );
+	if ( !noudfs || !mIsUdf(val) )
+	    return val;
+    }
+    return mUdf(ZType);
+}
+
+
+Well::DahObj::ValueType Well::DahObj::lastValue( bool noudfs ) const
+{
+    mLock4Read();
+    const size_type sz = dahs_.size();
+    for ( IdxType idx=sz-1; idx>=0; idx-- )
+    {
+	const float val = gtVal( idx );
+	if ( !noudfs || !mIsUdf(val) )
+	    return val;
+    }
+    return mUdf(ZType);
 }
 
 
@@ -152,33 +236,76 @@ void Well::DahObj::setEmpty()
 }
 
 
-bool Well::DahObj::insertAtDah( ZType z, ValueType v )
+bool Well::DahObj::areEqualDahs( ZType dh1, ZType dh2 )
 {
-    mLock4Write();
-    if ( !doInsAtDah(z,v) )
-	return false;
-    mSendChgNotif( cPointAdd(), ptids_.last().getI() );
-    return true;
+    return isFPEqual( dh1, dh2, dahEps() );
 }
 
 
-bool Well::DahObj::setDah( PointID id, ZType dh )
+void Well::DahObj::setDah( PointID id, ZType dh )
 {
     mLock4Read();
     IdxType idx = gtIdx( id );
-    if ( !dahs_.validIdx(idx) )
-	return false;
+    if ( !dahs_.validIdx(idx) || areEqualDahs(dh,dahs_[idx]) )
+	return;
 
     if ( !mLock2Write() )
     {
 	idx = gtIdx( id );
 	if ( !dahs_.validIdx(idx) )
-	    return false;
+	    return;
     }
 
     dahs_[idx] = dh;
     mSendChgNotif( cDahChange(), id.getI() );
-    return true;
+}
+
+
+bool Well::DahObj::setValue( PointID id, ValueType v )
+{
+    mLock4Write();
+    IdxType idx = gtIdx( id );
+    if ( idx < 0 )
+	return false;
+
+    if ( !mLock2Write() )
+    {
+	idx = gtIdx( id );
+	if ( idx < 0 )
+	    return false;
+    }
+
+    const bool rv = doSet( idx, v );
+    if ( rv )
+	mSendChgNotif( cValueChange(), id.getI() );
+    return rv;
+}
+
+
+Well::DahObj::PointID Well::DahObj::setValueAt( ZType dh, ValueType v )
+{
+    mLock4Write();
+    const size_type sz = dahs_.size();
+    if ( sz > 0 && dh < dahs_.last() + dahEps() )
+    {
+	IdxType idx = gtIndexOf( dh );
+	if ( idx >= 0 )
+	{
+	    const ZType founddh = dahs_[idx];
+	    if ( areEqualDahs( founddh, dh ) )
+	    {
+		const PointID id = ptids_[idx];
+		if ( doSet(idx,v) )
+		    mSendChgNotif( cValueChange(), id.getI() );
+		return id;
+	    }
+	}
+    }
+
+    const PointID id = doInsAtDah( dh, v );
+    if ( id.isValid() )
+	mSendChgNotif( cPointAdd(), id.getI() );
+    return id;
 }
 
 
@@ -215,6 +342,13 @@ Well::DahObj::PointID Well::DahObj::pointIDFor( IdxType idx ) const
 {
     mLock4Read();
     return ptids_.validIdx(idx) ? ptids_[idx] : PointID::getInvalid();
+}
+
+
+Well::DahObj::IdxType Well::DahObj::indexOf( PointID id ) const
+{
+    mLock4Read();
+    return gtIdx( id );
 }
 
 
@@ -265,36 +399,38 @@ void Well::DahObj::deInterpolate()
 }
 
 
-void Well::DahObj::shiftDah( PointID id, float extradah )
+void Well::DahObj::shiftDahFrom( PointID id, float dahshift )
 {
     mLock4Write();
     const IdxType fromidx = gtIdx( id );
     if ( !dahs_.validIdx(fromidx) )
 	return;
 
-    if ( fromidx > 0 && (dahs_[fromidx] + extradah < dahs_[fromidx-1]) )
+    if ( fromidx > 0 && (dahs_[fromidx] + dahshift < dahs_[fromidx-1]) )
 	{ pErrMsg("Required precondition not met." ); return; }
 
     for ( IdxType idx=fromidx; idx<dahs_.size(); idx++ )
-	dahs_[idx] += extradah;
+	dahs_[idx] += dahshift;
 
     mSendEntireObjChgNotif();
 }
 
 
-bool Well::DahObj::doIns( ZType dh, ValueType val, ValueSetType& vals,
-				bool ascendingvalonly )
+Well::DahObj::PointID Well::DahObj::doIns( ZType dh, ValueType val,
+			    ValueSetType& vals, bool ascendingvalonly )
 {
+    PointID id = PointID::getInvalid();
     if ( mIsUdf(dh) || mIsUdf(val) )
-	return false;
+	return id;
 
     if ( dahs_.isEmpty() || dh >= dahs_[dahs_.size()-1] )
     {
 	if ( !dahs_.isEmpty() && ascendingvalonly
 	    && val <= vals[dahs_.size()-1] )
-	    return false;
+	    return id;
+	id = gtNewPointID();
 	dahs_ += dh; vals += val;
-	ptids_ += gtNewPointID();
+	ptids_ += id;
     }
     else
     {
@@ -302,24 +438,49 @@ bool Well::DahObj::doIns( ZType dh, ValueType val, ValueSetType& vals,
 	if ( dh < dahs_[0] )
 	{
 	    if ( ascendingvalonly && val >= vals[0] )
-		return false;
+		return id;
 	}
 	else
 	{
 	    const IdxType insertidx = gtIndexOf( dh );
 	    if ( insertidx < 0 )
-		return false;
-	    if ( ascendingvalonly
+		return id;
+	    else if ( ascendingvalonly
 		&& (val <= vals[insertidx] || val >= vals[insertidx+1]) )
-		return false;
+		return id;
 
 	    insidx = insertidx + 1;
 	}
+	id = gtNewPointID();
 	dahs_.insert( insidx, dh );
 	vals.insert( insidx, val );
-	ptids_.insert( insidx, gtNewPointID() );
+	ptids_.insert( insidx, id );
     }
 
+    return id;
+}
+
+
+bool Well::DahObj::doSetData( const ZSetType& zs, const ValueSetType& newvals,
+				ValueSetType& vals )
+{
+    if ( zs.isEmpty() )
+    {
+        if ( dahs_.isEmpty() )
+	    return false;
+	doSetEmpty();
+	return true;
+    }
+
+    const size_type sz = zs.size();
+    if ( sz != dahs_.size() )
+    {
+	ptids_.setEmpty();
+	for ( int idx=0; idx<sz; idx++ )
+	    ptids_ += gtNewPointID();
+    }
+    dahs_ = zs;
+    vals = newvals;
     return true;
 }
 
@@ -421,4 +582,40 @@ Well::DahObj::ValueType Well::DahObj::gtValueAt( ZType dh, bool noudfs ) const
 
     const ZType zdist = dah2 - dah1;
     return zdist ? (distfrom1*val2 + distfrom2*val1) / zdist : val1;
+}
+
+
+Well::DahObjIter::DahObjIter( const DahObj& dahobj, bool atend )
+    : MonitorableIter<IdxType>(dahobj,atend?dahobj.size():-1)
+{
+}
+
+
+Well::DahObjIter::DahObjIter( const DahObjIter& oth )
+    : MonitorableIter<IdxType>(oth)
+{
+}
+
+
+const Well::DahObj& Well::DahObjIter::dahObj() const
+{
+    return static_cast<const Well::DahObj&>( monitored() );
+}
+
+
+Well::DahObjIter::PointID Well::DahObjIter::ID() const
+{
+    return isValid() ? dahObj().ptids_[curidx_] : PointID::getInvalid();
+}
+
+
+Well::DahObjIter::ZType Well::DahObjIter::dah() const
+{
+    return dahObj().gtDah( curidx_ );
+}
+
+
+Well::DahObjIter::ValueType Well::DahObjIter::value() const
+{
+    return isValid() ? dahObj().gtVal( curidx_ ) : mUdf(ValueType);
 }

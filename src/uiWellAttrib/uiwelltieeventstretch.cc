@@ -62,15 +62,16 @@ void EventStretch::doStaticShift()
 #define mGapSize SI().zStep()
 void EventStretch::doStretchSqueeze()
 {
+    MonitorLock ml( *d2t_ );
     int d2tsz = d2t_->size();
     //we need to interpolate the model for efficient stretch/squeeze
     TypeSet<float> d2tarr, daharr;
     for ( int idx=0; idx<d2tsz-1; idx++ )
     {
-	const float timeval1 = d2t_->value(idx);
-	const float timeval2 = d2t_->value(idx+1);
+	const float timeval1 = d2t_->valueByIdx(idx);
+	const float timeval2 = d2t_->valueByIdx(idx+1);
 	d2tarr += timeval1;
-	daharr += d2t_->dah( idx );
+	daharr += d2t_->dahByIdx( idx );
 	if ( fabs( timeval2 - timeval1 ) > mGapSize )
 	{
 	    float time = timeval1;
@@ -83,11 +84,11 @@ void EventStretch::doStretchSqueeze()
 	}
     }
 
-    d2tarr += d2t_->value( d2tsz-1 );
-    daharr += d2t_->dah( d2tsz-1 );
+    d2tarr += d2t_->valueByIdx( d2tsz-1 );
+    daharr += d2t_->dahByIdx( d2tsz-1 );
     d2tsz = d2tarr.size();
 
-    Array1DImpl<float> calibratedarr( d2tsz );
+    TypeSet<float> calibratedarr( d2tsz, 0.f );
     TypeSet<int> ctrlidxs; TypeSet<float> ctrlvals;
     for ( int idx=0; idx<seispickset_.size(); idx++ )
     {
@@ -101,7 +102,7 @@ void EventStretch::doStretchSqueeze()
 			     ctrlvals.arr(), ctrlidxs.arr(),
 			     ctrlvals.size(), false, calibratedarr.arr() );
 
-    d2tmgr_.setFromData( daharr.arr(), calibratedarr.arr(), d2tsz );
+    d2tmgr_.setFromData( daharr, calibratedarr );
 }
 
 } // namespace WellTie

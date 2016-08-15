@@ -82,10 +82,17 @@ bool Pick::Set::validIdx( IdxType idx ) const
 
 Pick::Set::IdxType Pick::Set::gtIdxFor( LocID id ) const
 {
-    const size_type sz = locs_.size();
-    for ( IdxType idx=0; idx<sz; idx++ )
-	if ( locids_[idx] == id )
-	    return idx;
+    if ( id.isValid() )
+    {
+	const size_type sz = locs_.size();
+
+	if ( id.getI() < sz && locids_[id.getI()].getI() == id.getI() )
+	    return id.getI();
+
+	for ( IdxType idx=0; idx<sz; idx++ )
+	    if ( locids_[idx] == id )
+		return idx;
+    }
     return -1;
 }
 
@@ -688,18 +695,20 @@ Pick::Set& Pick::Set::setZ( LocID id, double z, bool istmp )
 // Pick::SetIter
 
 Pick::SetIter::SetIter( const Set& ps, bool atend )
-    : set_(&ps)
-    , curidx_(atend?ps.size():-1)
-    , ml_(ps)
+    : MonitorableIter<Pick::Set::IdxType>(ps,atend?ps.size():-1)
 {
 }
 
 
 Pick::SetIter::SetIter( const SetIter& oth )
-    : set_(&oth.pickSet())
-    , curidx_(oth.curidx_)
-    , ml_(oth.pickSet())
+    : MonitorableIter<Pick::Set::IdxType>(oth)
 {
+}
+
+
+const Pick::Set& Pick::SetIter::pickSet() const
+{
+    return static_cast<const Pick::Set&>( monitored() );
 }
 
 
@@ -710,69 +719,36 @@ Pick::SetIter& Pick::SetIter::operator =( const SetIter& oth )
 }
 
 
-bool Pick::SetIter::next()
+Pick::SetIter::size_type Pick::SetIter::size() const
 {
-    curidx_++;
-    return curidx_ < set_->locs_.size();
-}
-
-
-bool Pick::SetIter::prev()
-{
-    curidx_--;
-    return curidx_ >= 0 ;
-}
-
-
-bool Pick::SetIter::isValid() const
-{
-    return set_->locs_.validIdx( curidx_ );
-}
-
-
-bool Pick::SetIter::atLast() const
-{
-    return curidx_ == set_->locs_.size()-1;
+    return pickSet().locs_.size();
 }
 
 
 Pick::Set::LocID Pick::SetIter::ID() const
 {
-    return set_->locIDFor( curidx_ );
+    return pickSet().locIDFor( curidx_ );
 }
 
 
 const Pick::Location& Pick::SetIter::get() const
 {
-    return set_->locs_.validIdx(curidx_) ? set_->locs_[curidx_]
+    return pickSet().locs_.validIdx(curidx_) ? pickSet().locs_[curidx_]
 					 : Pick::Location::udf();
 }
 
 
 Coord Pick::SetIter::getPos() const
 {
-    return set_->locs_.validIdx(curidx_) ? set_->locs_[curidx_].pos()
+    return pickSet().locs_.validIdx(curidx_) ? pickSet().locs_[curidx_].pos()
 					 : Coord::udf();
 }
 
 
 double Pick::SetIter::getZ() const
 {
-    return set_->locs_.validIdx(curidx_) ? set_->locs_[curidx_].pos().z
+    return pickSet().locs_.validIdx(curidx_) ? pickSet().locs_[curidx_].pos().z
 					 : mUdf(double);
-}
-
-
-void Pick::SetIter::retire()
-{
-    ml_.unlockNow();
-}
-
-
-void Pick::SetIter::reInit( bool toend )
-{
-    ml_.reLock();
-    curidx_ = toend ? set_->size() : -1;
 }
 
 

@@ -59,8 +59,12 @@ public:
 					{ return id_ == oth.id_;};
 
     inline bool	isUdf() const		{ return mIsUdf(id_); }
-    inline bool	isValid() const		{ return !isUdf(); }
-    inline void	setInvalid()		{ id_ = mUdf(IntType); }
+    inline bool	isDefined() const	{ return !isUdf(); }
+    inline void	setUdf()		{ id_ = mUdf(IntType); }
+    inline bool	isInvalid() const	{ return isUdf(); }
+    inline bool	isValid() const		{ return isDefined(); }
+    inline void	setInvalid()		{ setUdf(); }
+    static inline IntegerID getUdf()	{ return IntegerID(mUdf(IntType)); }
     static inline IntegerID getInvalid() { return IntegerID(mUdf(IntType)); }
 
 private:

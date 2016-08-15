@@ -36,7 +36,7 @@ const WellDataIOProvider* WellDataIOProviderFactory::provider(
 
 
 Well::ReadAccess* WellDataIOProviderFactory::getReadAccess( const IOObj& ioobj,
-	    Well::Data& wd, BufferString& e ) const
+	    Well::Data& wd, uiString& e ) const
 {
     const WellDataIOProvider* prov = provider( ioobj.translator().str() );
     return prov ? prov->makeReadAccess(ioobj,wd,e) : 0;
@@ -44,7 +44,7 @@ Well::ReadAccess* WellDataIOProviderFactory::getReadAccess( const IOObj& ioobj,
 
 
 Well::WriteAccess* WellDataIOProviderFactory::getWriteAccess(
-	    const IOObj& ioobj, const Well::Data& wd, BufferString& e ) const
+	    const IOObj& ioobj, const Well::Data& wd, uiString& e ) const
 {
     const WellDataIOProvider* prov = provider( ioobj.translator().str() );
     return prov ? prov->makeWriteAccess(ioobj,wd,e) : 0;
@@ -58,10 +58,10 @@ public:
 			    : WellDataIOProvider("OpendTect")	{}
 
     Well::ReadAccess*	makeReadAccess( const IOObj& ioobj,
-				Well::Data& wd, BufferString& e ) const
+				Well::Data& wd, uiString& e ) const
 			{ return new Well::odReader(ioobj,wd,e); }
     Well::WriteAccess*	makeWriteAccess( const IOObj& ioobj,
-				const Well::Data& wd, BufferString& e ) const
+				const Well::Data& wd, uiString& e ) const
 			{ return new Well::odWriter(ioobj,wd,e); }
 
     static int		factid_;

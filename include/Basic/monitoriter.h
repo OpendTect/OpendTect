@@ -28,18 +28,19 @@ ________________________________________________________________________
   */
 
 template <class ITyp>
-mExpClass(General) MonitorableIter
+mExpClass(Basic) MonitorableIter
 {
 public:
 
     typedef ITyp	IdxType;
+    typedef IdxType	size_type;
 
     inline		MonitorableIter(const Monitorable&,IdxType startidx);
     inline		MonitorableIter(const MonitorableIter&);
     inline virtual	~MonitorableIter()	{ retire(); }
     inline const Monitorable& monitored() const	{ return obj_; }
 
-    virtual IdxType	size() const		= 0;
+    virtual size_type	size() const		= 0;
 
     inline bool		next();
     inline bool		prev();

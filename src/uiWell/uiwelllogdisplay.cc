@@ -63,11 +63,13 @@ void uiWellLogDisplay::LogData::setLog( const Well::Log* l )
 void uiWellLogDisplay::LogData::getInfoForDah( float dah,
 						BufferString& msg ) const
 {
-    if ( !log() ) return;
-    msg += log()->name();
-    msg += ":";
-    msg += toString( log()->getValue( dah ) );
-    msg += log()->unitMeasLabel();
+    const Well::Log* wl = log();
+    if ( wl )
+    {
+	msg.add( log()->name() ).add( ":" );
+	msg.add( toString(log()->valueAt(dah)) );
+	msg.add( log()->unitMeasLabel() );
+    }
 }
 
 
@@ -100,16 +102,6 @@ void uiWellLogDisplay::draw()
 }
 
 
-static const int cMaxNrLogSamples = 2000;
-#define mGetLoopSize(nrsamp,step)\
-    {\
-	if ( nrsamp > cMaxNrLogSamples )\
-	{\
-	    step = (float)nrsamp/cMaxNrLogSamples;\
-	    nrsamp = cMaxNrLogSamples;\
-	}\
-    }
-
 void uiWellLogDisplay::drawCurve( bool first )
 {
     uiWellDahDisplay::drawCurve( first );
@@ -124,6 +116,24 @@ void uiWellLogDisplay::drawCurve( bool first )
 }
 
 
+static const int cMaxNrLogSamples = 2000;
+#define mGetWLSizeAndStep() \
+    if ( !ld.log() ) \
+	return; \
+    const Well::Log& wl = *ld.log(); \
+    MonitorLock ml( wl ); \
+    int sz = wl.size(); \
+    if ( sz < 2 ) \
+	return; \
+    float step = 1.f; \
+    if ( sz > cMaxNrLogSamples ) \
+    { \
+	step = ((float)sz) / cMaxNrLogSamples; \
+	sz = cMaxNrLogSamples; \
+    }\
+
+
+
 void uiWellLogDisplay::drawSeismicCurve( bool first )
 {
     uiWellLogDisplay::LogData& ld = logData(first);
@@ -132,15 +142,12 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
     const float rgstop = ld.xax_.range().stop;
     const float rgstart = ld.xax_.range().start;
 
-    int sz = ld.log() ? ld.log()->size() : 0;
-    if ( sz < 2 ) return;
-    float step = 1;
-    mGetLoopSize( sz, step );
+    mGetWLSizeAndStep();
 
     ObjectSet< TypeSet<uiPoint> > pts;
     uiPoint closept;
 
-    float zfirst = ld.log()->dah(0);
+    float zfirst = wl.firstDah();
     mDefZPos( zfirst )
     const int pixstart = ld.xax_.getPix( rgstart );
     const int pixstop = ld.xax_.getPix( rgstop );
@@ -153,15 +160,15 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int index = mNINT32(idx*step);
-	float dah = ld.log()->dah( index );
+	float dah = wl.dahByIdx( index );
 	if ( index && index < sz-1 )
 	{
-	    if ( dah>=ld.log()->dah(index+1) || dah<=ld.log()->dah(index-1) )
+	    if ( dah>=wl.dahByIdx(index+1) || dah<=wl.dahByIdx(index-1) )
 		continue;
 	}
 	mDefZPosInLoop( dah )
 
-	float val = ld.log()->value( index );
+	float val = wl.valueByIdx( index );
 
 	pt.x = ld.xax_.getPix(val);
 	pt.y = closept.y = ld.yax_.getPix(zpos);
@@ -212,10 +219,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     const float colrgwidth = ld.disp_.fillrange_.width();
     const bool iscolrev = colrgstop < colrgstart;
 
-    int sz = ld.log() ? ld.log()->size() : 0;
-    if ( sz < 2 ) return;
-    float step = 1;
-    mGetLoopSize( sz, step );
+    mGetWLSizeAndStep();
 
     const bool fullpanelfill = ld.disp_.isleftfill_ && ld.disp_.isrightfill_;
     const bool isfillrev = !fullpanelfill &&
@@ -224,7 +228,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 		|| ( !first && ld.disp_.isrightfill_ && !isrev )
 		|| ( !first && ld.disp_.isleftfill_ && isrev ) );
 
-    float zfirst = ld.log()->dah(0);
+    float zfirst = wl.firstDah();
     mDefZPos( zfirst )
     const int pixstart = ld.xax_.getPix( rgstart );
     const int pixstop = ld.xax_.getPix( rgstop );
@@ -241,15 +245,15 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int index = mNINT32(idx*step);
-	float dah = ld.log()->dah( index );
+	float dah = wl.dahByIdx( index );
 	if ( index && index < sz-1 )
 	{
-	    if ( dah >= ld.log()->dah(index+1) || dah <= ld.log()->dah(index-1))
+	    if ( dah >= wl.dahByIdx(index+1) || dah <= wl.dahByIdx(index-1))
 		continue;
 	}
 	mDefZPosInLoop( dah )
 
-	float val = ld.log()->value( index );
+	float val = wl.valueByIdx( index );
 	bool isvalrev = iscolrev;
 	if ( ld.disp_.iscoltabflipped_ )
 	    isvalrev = !isvalrev;

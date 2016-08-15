@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "wellcommon.h"
 #include "bufstring.h"
 class IOObj;
+class uiString;
 
 
 namespace Well
@@ -23,7 +24,7 @@ namespace Well
 /*!\brief base class for Reader and Writer. */
 
 mExpClass(Well) odIO
-{
+{ mODTextTranslationClass(Well::odIO)
 public:
 
     const OD::String&	baseName() const	{ return basenm_; }
@@ -48,14 +49,14 @@ public:
     static const char*	getMainFileName(const IOObj&);
     static const char*	getMainFileName(const MultiID&);
 
-    const OD::String&	errMsg() const		{ return errmsg_; }
+    const uiString&	errMsg() const		{ return errmsg_; }
 
 protected:
 
 
-			odIO(const char*,BufferString&);
+			odIO(const char*,uiString&);
 
-    BufferString&	errmsg_;
+    uiString&		errmsg_;
     const BufferString	basenm_;
 
 public:

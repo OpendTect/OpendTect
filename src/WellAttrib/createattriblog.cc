@@ -41,15 +41,15 @@ bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )
 
     AttribLogExtractor ale( wd );
     if ( !ale.fillPositions(dahrg) )
-    { 
+    {
 	msg.arg(tr("No positions extracted")).arg(wd.name());
 	mErrRet(msg)
     }
 
     if ( !ale.extractData( aem, setup_.tr_ ) )
-    { 
+    {
 	msg.arg(tr("No data extracted")).arg(wd.name());
-	mErrRet(msg) 
+	mErrRet(msg)
     }
 
     if ( !createLog( wd, ale ) )
@@ -73,11 +73,8 @@ bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
 	    newlog->addValue( ale.depths()[idx], v[1] );
     }
 
-    if ( !newlog->size() )
-    {
-	delete newlog;
-	return false;
-    }
+    if ( newlog->isEmpty() )
+	{ delete newlog; return false; }
 
     if ( sellogidx_ < 0 )
     {
@@ -88,8 +85,9 @@ bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
     {
 	Well::Log& log = wd.logs().getLog( sellogidx_ );
 	log.setEmpty();
-	for ( int idx=0; idx<newlog->size(); idx++ )
-	    log.addValue( newlog->dah(idx), newlog->value(idx) );
+	Well::LogIter iter( *newlog );
+	while ( iter.next() )
+	    log.setValueAt( iter.dah(), iter.value() );
 	delete newlog;
     }
     return true;
@@ -109,13 +107,13 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 	const BinID bid = SI().transform( pos );
 	if ( !bid.inl() && !bid.crl() ) continue;
 
-	if ( SI().zIsTime() && wd_->d2TModel() )
-	    pos.z = wd_->d2TModel()->getTime( md, wd_->track() );
+	if ( SI().zIsTime() )
+	    pos.z = wd_->d2TModel().getTime( md, wd_->track() );
 	bidset_.add( bid, (float) pos.z, (float)idx );
 	depths_ += md;
 	positions_ += BinIDValueSet::SPos(0,0);
     }
-    
+
     BinIDValueSet::SPos pos;
     while ( bidset_.next(pos) )
     {
@@ -128,7 +126,7 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 }
 
 
-bool AttribLogExtractor::extractData( Attrib::EngineMan& aem, 
+bool AttribLogExtractor::extractData( Attrib::EngineMan& aem,
 				      TaskRunner* taskr )
 {
     uiString errmsg;
@@ -136,7 +134,7 @@ bool AttribLogExtractor::extractData( Attrib::EngineMan& aem,
     bivsset += &bidset_;
     PtrMan<Attrib::Processor> process =
 	    aem.createLocationOutput( errmsg, bivsset );
-    if ( !process ) 
+    if ( !process )
 	return false;
     return TaskRunner::execute( taskr, *process );
 }

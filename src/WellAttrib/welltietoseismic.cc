@@ -79,7 +79,7 @@ bool DataPlayer::computeSynthetics( const Wavelet& wvlt )
     if ( !data_.wd_ )
 	mErrRet( tr( "Cannot read well data" ) )
 
-    if ( !data_.wd_->d2TModel() )
+    if ( data_.wd_->d2TModel().isEmpty() )
 	mErrRet( tr( "No depth/time model computed" ) )
 
     if ( !setAIModel() )
@@ -522,8 +522,7 @@ bool DataPlayer::copyDataToLogSet()
     for ( int idx=0; idx<aimodel_.size(); idx++ )
     {
 	const float twt = data_.getModelRange().atIndex(idx);
-	const float dah = data_.wd_->d2TModel()->getDah( twt,
-							 data_.wd_->track() );
+	const float dah = data_.wd_->d2TModel().getDah( twt, data_.wd_->track());
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
@@ -546,8 +545,7 @@ bool DataPlayer::copyDataToLogSet()
 	    continue;
 
 	const float twt = spike.correctedtime_;
-	const float dah = data_.wd_->d2TModel()->getDah( twt,
-							 data_.wd_->track() );
+	const float dah = data_.wd_->d2TModel().getDah( twt, data_.wd_->track());
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
@@ -563,8 +561,7 @@ bool DataPlayer::copyDataToLogSet()
     for ( int idx=0; idx<=data_.synthtrc_.size(); idx++ )
     {
 	const float twt = tracerg.atIndex( idx );
-	const float dah = data_.wd_->d2TModel()->getDah( twt,
-							 data_.wd_->track() );
+	const float dah = data_.wd_->d2TModel().getDah( twt, data_.wd_->track());
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
@@ -640,23 +637,27 @@ bool DataPlayer::processLog( const Well::Log* log,
 
     outplog.setUnitMeasLabel( log->unitMeasLabel() );
 
-    int sz = log->size();
-    for ( int idx=0; idx<sz; idx++ )
+    Well::LogIter logiter( *log );
+    while ( logiter.next() )
     {
-	const float logval = log->value( idx );
+	const float logval = logiter.value();
 	if ( mIsUdf(logval) )
 	    continue;
 
-	outplog.addValue( log->dah(idx), logval );
+	outplog.setValueAt( logiter.dah(), logval );
     }
+    logiter.retire();
 
-    sz = outplog.size();
+    TypeSet<float> dahs, vals;
+    outplog.getData( dahs, vals );
+    const Well::Log::size_type sz = vals.size();
     if ( sz <= 2 )
 	mErrRet( tr( "%1: log size too small, please check your input log" )
 		     .arg( nm ) )
 
     GeoCalculator gc;
-    gc.removeSpikes( outplog.valArr(), sz, 10, 3 );
+    gc.removeSpikes( vals.arr(), sz, 10, 3 );
+    outplog.setData( dahs, vals );
     outplog.setName( log->name() );
 
     return true;
@@ -676,7 +677,7 @@ void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 
     log->setEmpty();
     for( int idx=0; idx<sz; idx ++)
-	log->addValue( dah[idx], vals[idx] );
+	log->setValueAt( dah[idx], vals[idx] );
 }
 
 } // namespace WellTie

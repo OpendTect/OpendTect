@@ -79,7 +79,7 @@ protected:
     bool		getInpDatas(Well::LogSet&,TypeSet<InpData>&);
     Well::Log*		getInpLog(Well::LogSet&,int,bool);
     bool		calcLog(Well::Log&,const TypeSet<InpData>&,
-				Well::Track&,Well::D2TModel*);
+				Well::Track&,const Well::D2TModel*);
 
     void		initWin(CallBacker*);
     void		rockPhysReq(CallBacker*);

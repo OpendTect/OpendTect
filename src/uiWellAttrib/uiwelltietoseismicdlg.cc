@@ -392,7 +392,7 @@ void uiTieWin::eventTypeChg( CallBacker* )
 void uiTieWin::applyPushed( CallBacker* cb )
 {
     mGetWD(return);
-    stretcher_.setD2TModel( wd->d2TModel() );
+    stretcher_.setD2TModel( wd->d2TModelPtr() );
     stretcher_.setTrack( &wd->track() );
     stretcher_.doWork( cb );
     server_.updateExtractionRange();
@@ -488,7 +488,7 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 
 
 bool uiTieWin::rejectOK( CallBacker* )
-{   
+{
     drawer_->enableCtrlNotifiers( false );
     close();
     return true;
@@ -500,7 +500,7 @@ void uiTieWin::cleanUp( CallBacker* )
     server_.d2TModelMgr().cancel();
     if ( Well::MGR().isLoaded( server_.wellID() ) )
         Well::MGR().reload( server_.wellID() );
-    return;    
+    return;
 }
 
 
@@ -860,8 +860,8 @@ void uiInfoDlg::crossCorrelationChanged( CallBacker* )
     { ouzrg.start = md2T( inzrg.start, outistime ); \
       ouzrg.stop = md2T( inzrg.stop, outistime ) }
 #define md2T( zval, outistime )\
-    outistime ? d2t->getTime( zval, wd->track() ) \
-	      : d2t->getDah( zval, wd->track() );
+    outistime ? d2t.getTime( zval, wd->track() ) \
+	      : d2t.getDah( zval, wd->track() );
 
 
 bool uiInfoDlg::updateZrg()
@@ -874,7 +874,7 @@ bool uiInfoDlg::updateZrg()
     NotifyStopper ns2 = NotifyStopper( zrangeflds_[2]->valuechanged );
 
     mGetWD(return false)
-    const Well::D2TModel* d2t = wd->d2TModel();
+    const Well::D2TModel& d2t = wd->d2TModel();
     selidx_ = choicefld_->getIntValue();
     Interval<float> dahrg( mUdf(float), mUdf(float) );
     Interval<float> timerg( mUdf(float), mUdf(float) );

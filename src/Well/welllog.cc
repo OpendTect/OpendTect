@@ -38,27 +38,21 @@ void Well::LogSet::add( Well::Log* wl )
 
 void Well::LogSet::updateDahIntv( const Well::Log& wl )
 {
-    if ( wl.isEmpty() ) return;
+    if ( wl.isEmpty() )
+	return;
 
+    const Interval<Log::ZType> dahrg( wl.dahRange() );
     if ( mIsUdf(dahintv_.start) )
-	{ dahintv_.start = wl.dah(0); dahintv_.stop = wl.dah(wl.size()-1); }
+	dahintv_ = dahrg;
     else
-    {
-	if ( dahintv_.start > wl.dah(0) )
-	    dahintv_.start = wl.dah(0);
-	if ( dahintv_.stop < wl.dah(wl.size()-1) )
-	    dahintv_.stop = wl.dah(wl.size()-1);
-    }
+	dahintv_.include( dahrg, false );
 }
 
 
 void Well::LogSet::updateDahIntvs()
 {
     for ( int idx=0; idx<logs_.size(); idx++ )
-    {
-	logs_[idx]->ensureAscZ();
 	updateDahIntv( *logs_[idx] );
-    }
 }
 
 
@@ -128,135 +122,157 @@ TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
 
 // ---- Well::Log
 
+static const float valsarecodeeps = 1e-4f;
+mDefineInstanceCreatedNotifierAccess(Well::Log);
 
-Well::Log& Well::Log::operator =( const Well::Log& wl )
+
+Well::Log::Log( const char* nm )
+    : DahObj(nm)
 {
-    if ( &wl != this )
+    redoValStats();
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Well::Log::Log( const Log& oth )
+    : DahObj(oth)
+{
+    copyAll( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Well::Log::~Log()
+{
+    sendDelNotif();
+}
+
+
+mImplMonitorableAssignment( Well::Log, Well::DahObj )
+
+
+void Well::Log::copyClassData( const Log& oth )
+{
+    vals_ = oth.vals_;
+    unitmeaslbl_ = oth.unitmeaslbl_;
+    pars_ = oth.pars_;
+    valrg_ = oth.valrg_;
+    valsarecodes_ = oth.valsarecodes_;
+}
+
+
+void Well::Log::getValues( ValueSetType& vals ) const
+{
+    mLock4Read();
+    vals = vals_;
+}
+
+
+void Well::Log::getData( ZSetType& dahs, ValueSetType& vals ) const
+{
+    mLock4Read();
+    dahs = dahs_;
+    vals = vals_;
+}
+
+
+void Well::Log::setValues( const ValueSetType& vals )
+{
+    mLock4Write();
+    if ( vals.size() != dahs_.size() )
+	{ pErrMsg("size not OK"); return; }
+    vals_ = vals;
+    redoValStats();
+    mSendEntireObjChgNotif();
+}
+
+
+void Well::Log::setData( const ZSetType& zs, const ValueSetType& vals )
+{
+    mLock4Write();
+    if ( doSetData( zs, vals, vals_ ) )
     {
-	setName( wl.name() );
-	setUnitMeasLabel( wl.unitMeasLabel() );
-	dah_ = wl.dah_; vals_ = wl.vals_; range_ = wl.range_;
-	iscode_ = wl.iscode_;
+	ensureAscZ();
+	redoValStats();
+	mSendEntireObjChgNotif();
     }
-    return *this;
 }
 
 
-static bool valIsCode( float val, float eps )
+void Well::Log::redoValStats()
 {
-    if ( mIsUdf(val) )
-	return true; //No reason for failure
+    valsarecodes_ = false;
+    valrg_.start = valrg_.stop = mUdf(ValueType);
 
-    return mIsEqual(val,mCast(float,mNINT32(val)),eps);
+    const int sz = vals_.size();
+    if ( sz > 0 )
+    {
+	valsarecodes_ = true;
+	valrg_.start = valrg_.stop = vals_[0];
+	for ( IdxType idx=0; idx<sz; idx++ )
+	    updValStats( vals_[idx] );
+    }
+
 }
 
 
-void Well::Log::setValue( int idx, float val )
+void Well::Log::setValue( PointID id, ValueType val )
 {
+    mLock4Write();
+    const IdxType idx = gtIdx( id );
+    if ( idx < 0 )
+	return;
+
+    stVal( idx, val );
+    mSendChgNotif( cValueChange(), id.getI() );
+}
+
+
+
+void Well::Log::setValue( IdxType idx, ValueType val )
+{
+    mLock4Read();
     if ( !vals_.validIdx(idx) )
 	return;
 
-    vals_[idx] = val;
-    if ( iscode_ && !valIsCode(val,1e-3f) )
-	iscode_ = false;
-}
+    if ( !mLock2Write() && !vals_.validIdx(idx) )
+	return;
 
-
-float Well::Log::getValue( float dh, bool noudfs ) const
-{
-    if ( isEmpty() )
-	return noudfs ? 0 : mUdf(float);
-
-    int idx1;
-    const float ret = gtVal( dh, idx1 );
-    if ( !noudfs || !mIsUdf(ret) )
-	return ret;
-
-    float dah1=mUdf(float),val1=mUdf(float),dah2=mUdf(float),val2=mUdf(float);
-    bool found1 = false, found2 = false;
-    if ( idx1 > 0 )
-    {
-	for ( int idx=idx1; idx>=0; idx-- )
-	{
-	    const float val = value( idx );
-	    if ( !mIsUdf(val) )
-		{ dah1 = dah( idx ); val1 = val; found1 = true; break; }
-	}
-    }
-    if ( idx1 < size()-1 )
-    {
-	for ( int idx=idx1+1; idx<size(); idx++ )
-	{
-	    const float val = value( idx );
-	    if ( !mIsUdf(val) )
-		{ dah2 = dah( idx ); val2 = val; found2 = true; break; }
-	}
-    }
-
-    if ( !found1 && !found2 )
-	return 0;
-    else if ( !found1 )
-	return val2;
-    else if ( !found2 )
-	return val1;
-
-    if ( iscode_ )
-	return val2;
-
-    return ((dh-dah1) * val2 + (dah2-dh) * val1) / (dah2 - dah1);
-}
-
-
-float Well::Log::gtVal( float dh, int& idx1 ) const
-{
-    if ( IdxAble::findFPPos(dah_,dah_.size(),dh,-1,idx1) )
-	return vals_[idx1];
-    else if ( idx1 < 0 || idx1 == dah_.size()-1 )
-	return mUdf(float);
-
-    const int idx2 = idx1 + 1;
-    const float v1 = vals_[idx1];
-    const float v2 = vals_[idx2];
-
-    const float d1 = dh - dah_[idx1];
-    const float d2 = dah_[idx2] - dh;
-    if ( iscode_ || mIsUdf(v1) || mIsUdf(v2) )
-	return d1 > d2 ? v2 : v1;
-
-    return ( d1*vals_[idx2] + d2*vals_[idx1] ) / (d1 + d2);
-}
-
-
-void Well::Log::addValue( float dh, float val )
-{
-    if ( !mIsUdf(val) )
-    {
-	if ( val < range_.start ) range_.start = val;
-	if ( val > range_.stop ) range_.stop = val;
-    }
-
-    dah_ += dh;
-    vals_ += val;
-    if ( isEmpty() )
-	iscode_ = valIsCode( val, 1e-3f );
-    else if ( iscode_ && !valIsCode(val,1e-3f) )
-	 iscode_ = false;
+    stVal( idx, val );
+    mSendChgNotif( cValueChange(), ptids_[idx].getI() );
 }
 
 
 const UnitOfMeasure* Well::Log::unitOfMeasure() const
 {
+    mLock4Read();
     return UnitOfMeasure::getGuessed(unitmeaslbl_);
+}
+
+
+void Well::Log::applyUnit( const UnitOfMeasure* touom )
+{
+    if ( !touom || isEmpty() )
+	return;
+
+    mLock4Write();
+    const size_type sz = vals_.size();
+    for ( IdxType idx=0; idx<sz; idx++ )
+	convValue( vals_[idx], 0, touom );
+    unitmeaslbl_ = touom->symbol();
+    mSendEntireObjChgNotif();
 }
 
 
 void Well::Log::convertTo( const UnitOfMeasure* touom )
 {
-    const UnitOfMeasure* curuom = unitOfMeasure();
-    if ( !curuom || !vals_.size() )
+    mLock4Write();
+    const size_type sz = vals_.size();
+    if ( sz < 1 )
 	return;
 
-    for ( int idx=0; idx<vals_.size(); idx++ )
+    const UnitOfMeasure* curuom = unitOfMeasure();
+    for ( IdxType idx=0; idx<sz; idx++ )
 	convValue( vals_[idx], curuom, touom );
 
     if ( touom )
@@ -267,6 +283,7 @@ void Well::Log::convertTo( const UnitOfMeasure* touom )
 	const UnitOfMeasure* siuom = UoMR().getInternalFor( tp );
 	unitmeaslbl_ = siuom ? siuom->symbol() : "";
     }
+    mSendEntireObjChgNotif();
 }
 
 
@@ -277,71 +294,116 @@ PropertyRef::StdType Well::Log::propType() const
 }
 
 
-void Well::Log::updateAfterValueChanges()
+void Well::Log::updValStats( ValueType val )
 {
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( !valIsCode(vals_[idx],1e-3f) )
-	{
-	    iscode_ = false;;
-	    return;
-	}
-    }
+    if ( mIsUdf(val) )
+	return;
 
-    iscode_ = true;
+    if ( val < valrg_.start )
+	valrg_.start = val;
+    if ( val > valrg_.stop )
+	valrg_.stop = val;
+
+    const ValueType intval = mRounded( ValueType, val );
+    const bool iscode = mIsEqual(val,intval,valsarecodeeps);
+    if ( valsarecodes_ && !iscode )
+	valsarecodes_ = false;
 }
 
 
 void Well::Log::ensureAscZ()
 {
-    if ( dah_.size() < 2 ) return;
-    const int sz = dah_.size();
-    if ( dah_[0] < dah_[sz-1] ) return;
-    const int hsz = sz / 2;
-    for ( int idx=0; idx<hsz; idx++ )
+    size_type sz = dahs_.size();
+    if ( sz < 2 )
+	return;
+    if ( dahs_[0] < dahs_[sz-1] )
+	return;
+
+    const size_type hsz = sz / 2;
+    for ( IdxType idx=0; idx<hsz; idx++ )
     {
-	Swap( dah_[idx], dah_[sz-idx-1] );
+	Swap( dahs_[idx], dahs_[sz-idx-1] );
 	Swap( vals_[idx], vals_[sz-idx-1] );
     }
+
 }
 
 
 void Well::Log::removeTopBottomUdfs()
 {
-    const int sz = size();
-    Interval<int> defrg( 0, sz-1 );
-    for ( int idx=0; idx<sz; idx++ )
+    mLock4Read();
+
+    const size_type sz = size();
+    if ( sz < 1 )
+	return;
+
+    Interval<IdxType> defrg( 0, sz-1 );
+    for ( IdxType idx=0; idx<sz; idx++ )
     {
 	if ( !mIsUdf(vals_[idx]) )
 	    break;
 	defrg.start++;
     }
-    for ( int idx=sz-1; idx>=defrg.start; idx-- )
+
+    for ( IdxType idx=sz-1; idx>=defrg.start; idx-- )
     {
 	if ( !mIsUdf(vals_[idx]) )
 	    break;
-	dah_.removeSingle( idx ); vals_.removeSingle( idx );
+	defrg.stop--;
     }
 
-    if ( defrg.start == 0 )
+    if ( defrg.start == 0 && defrg.stop == sz-1 )
 	return;
 
-    TypeSet<float> newval, newdah;
-    for ( int idx=defrg.start; idx<size(); idx++ )
-	{ newdah += dah_[idx]; newval += vals_[idx]; }
-    dah_ = newdah; vals_ = newval;
+    ZSetType newdahs; ValueSetType newvals;
+    for ( IdxType idx=defrg.start; idx<=defrg.stop; idx++ )
+	{ newdahs += dahs_[idx]; newvals += vals_[idx]; }
+
+    mUnlockAllAccess();
+    setData( newdahs, newvals );
 }
 
 
-bool Well::Log::insertAtDah( float dh, float val )
+bool Well::Log::doSet( IdxType idx, ValueType val )
 {
-    if ( !doInsertAtDah(dh,val,vals_,false) )
+    if ( val == vals_[idx] ) // cannot assume any epsilon
 	return false;
 
-    if ( val < range_.start )
-	range_.start = val;
-    if ( val > range_.stop )
-	range_.stop = val;
-
+    vals_[idx] = val;
+    updValStats( val );
     return true;
+}
+
+
+Well::Log::PointID Well::Log::doInsAtDah( ZType dh, ValueType val )
+{
+    PointID id = doIns(dh,val,vals_,false);
+    if ( id.isValid() )
+	updValStats( val );
+    return id;
+}
+
+
+void Well::Log::stVal( IdxType idx, ValueType val )
+{
+    vals_[idx] = val;
+    updValStats( val );
+}
+
+
+Well::LogIter::LogIter( const Log& trck, bool atend )
+    : DahObjIter(trck,atend)
+{
+}
+
+
+Well::LogIter::LogIter( const LogIter& oth )
+    : DahObjIter(oth)
+{
+}
+
+
+const Well::Log& Well::LogIter::log() const
+{
+    return static_cast<const Log&>( monitored() );
 }

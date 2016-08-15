@@ -245,7 +245,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 	return;
     }
 
-    const bool canuseexistingd2t = wd_->d2TModel() && !mIsUnvalidD2TM((*wd_));
+    const bool canuseexistingd2t = !mIsInvalidD2TM((*wd_));
     used2tmbox_->display( canuseexistingd2t );
     used2tmbox_->setChecked( canuseexistingd2t );
 

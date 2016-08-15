@@ -28,11 +28,11 @@ namespace Well
 
 mExpClass(Well) odReader : public odIO
 			 , public Well::ReadAccess
-{
+{ mODTextTranslationClass(Well::odReader)
 public:
 
-			odReader(const IOObj&,Data&,BufferString& errmsg);
-			odReader(const char* fnm,Data&,BufferString& errmsg);
+			odReader(const IOObj&,Data&,uiString& errmsg);
+			odReader(const char* fnm,Data&,uiString& errmsg);
 
     virtual bool	getInfo() const;
     virtual bool	getTrack() const;
@@ -44,7 +44,7 @@ public:
     virtual bool	getLog(const char* lognm) const;
     virtual void	getLogInfo(BufferStringSet& lognms) const;
 
-    virtual const OD::String& errMsg() const	{ return odIO::errMsg(); }
+    virtual const uiString& errMsg() const	{ return odIO::errMsg(); }
 
     bool		getInfo(od_istream&) const;
     bool		addLog(od_istream&) const;
@@ -62,6 +62,9 @@ protected:
     bool		doGetD2T(bool) const;
 
     static Log*		rdLogHdr(od_istream&,int&,int);
+
+    void		setInpStrmOpenErrMsg(od_istream&) const;
+    void		setStrmOperErrMsg(od_istream&,const uiString&) const;
 
 };
 

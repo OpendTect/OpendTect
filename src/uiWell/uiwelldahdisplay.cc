@@ -77,13 +77,11 @@ void uiWellDahDisplay::DahObjData::getInfoForDah( float dah,
 {
     if ( !dahobj_ )
 	return;
+    const float val = dahobj_->valueAt( dah );
+    if ( mIsUdf(val) )
+	return;
 
-    msg += dahobj_->name();
-
-    const int idx = dahobj_->indexOf( dah );
-    if ( idx < 0 ) return;
-    msg += ":";
-    msg += toString( dahobj_->value( idx ) );
+    msg.add( dahobj_->name() ).add( ":" ).add( val );
 }
 
 
@@ -177,24 +175,28 @@ void uiWellDahDisplay::setAxisRelations()
 void uiWellDahDisplay::gatherDataInfo( bool first )
 {
     uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
-    const int sz = ld.dahobj_ ? ld.dahobj_->size() : 0;
-    if ( sz < 2 ) return;
+    if ( !ld.dahobj_ )
+	return;
+    const Well::DahObj& dahobj = *ld.dahobj_;
+    MonitorLock ml( dahobj );
+    const int sz = dahobj.size();
+    if ( sz < 2 )
+	return;
 
     if ( mIsUdf( ld.valrg_.start ) )
     {
 	DataClipSampler dcs( sz );
 	for ( int idx=0; idx<sz; idx++ )
-	    dcs.add(  ld.dahobj_->value( idx ) );
-
+	    dcs.add( dahobj.valueByIdx( idx ) );
 	ld.valrg_ = dcs.getRange( ld.cliprate_ );
     }
 
-    float startpos = ld.zrg_.start = ld.dahobj_->dah( 0 );
-    float stoppos = ld.zrg_.stop = ld.dahobj_->dah( sz-1 );
+    float startpos = ld.zrg_.start = dahobj.firstDah();
+    float stoppos = ld.zrg_.stop = dahobj.lastDah();
     if ( zdata_.zistime_ && d2T() && d2T()->size() > 1 && track() )
     {
-	startpos = d2T()->getTime( startpos, *track() )*1000;
-	stoppos = d2T()->getTime( stoppos, *track() )*1000;
+	startpos = d2T()->getTime( startpos, *track() ) * 1000;
+	stoppos = d2T()->getTime( stoppos, *track() ) * 1000;
     }
     else if ( !zdata_.zistime_ && track() )
     {
@@ -275,27 +277,33 @@ void uiWellDahDisplay::drawCurve( bool first )
 {
     uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
     deepErase( ld.curveitms_ ); ld.curvepolyitm_ = 0;
-    const int sz = ld.dahobj_ ? ld.dahobj_->size() : 0;
-    if ( sz < 2 ) return;
+    if ( !ld.dahobj_ )
+	return;
+    const Well::DahObj& dahobj = *ld.dahobj_;
+    MonitorLock ml( dahobj );
+    const int sz = dahobj.size();
+    if ( sz < 2 )
+	return;
 
     TypeSet<uiPoint> pts;
     pts.setCapacity( sz, false );
     for ( int idx=0; idx<sz; idx++ )
     {
-	mDefZPosInLoop( ld.dahobj_->dah( idx ) );
-	float val = ld.dahobj_->value( idx );
+	mDefZPosInLoop( dahobj.dahByIdx( idx ) );
+	float val = dahobj.valueByIdx( idx );
 	int xaxisval = mIsUdf(val) ? mUdf(int) : ld.xax_.getPix(val);
 	pts += uiPoint( xaxisval, ld.yax_.getPix(zpos) );
     }
     if ( pts.isEmpty() )
 	return;
+    ml.unlockNow();
 
     OD::LineStyle ls(OD::LineStyle::Solid); ls.color_ = ld.col_;
     if ( ld.drawascurve_ )
     {
 	TypeSet<uiPoint> ptsforspikes;
 	const bool isreflectivity =
-	    ld.dahobj_->name().isEqual( "reflectivity", CaseInsensitive );
+	    dahobj.name().isEqual( "reflectivity", CaseInsensitive );
 	if ( isreflectivity )
 	{
 	    ptsforspikes.setCapacity( 3 * sz, false );
@@ -333,19 +341,13 @@ void uiWellDahDisplay::drawCurve( bool first )
 	OD::Alignment al( OD::Alignment::HCenter, first ? OD::Alignment::Top
 						: OD::Alignment::Bottom );
 	uiTextItem* ti = scene().addItem(new uiTextItem(toUiString(
-						       ld.dahobj_->name()),al));
+						       dahobj.name()),al));
 	ti->setTextColor( ls.color_ );
 	uiPoint txtpt;
 	txtpt = first ? uiPoint( pts[0] ) : pts[pts.size()-1];
 	ti->setPos( txtpt );
 	ld.curveitms_.add( ti );
     }
-
-    /*
-    if ( first )
-	ld.yax_.annotAtEnd( zdata_.zistime_ ? "(ms)" :
-			    zdata_.dispzinft_ ? "(ft)" : "(m)" );
-    */
 }
 
 

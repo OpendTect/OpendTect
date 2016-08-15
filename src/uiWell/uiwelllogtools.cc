@@ -72,14 +72,14 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	RefMan<Well::Data> wd = Well::MGR().get( wmid );
 	if ( !wd )
 	{
-	    msgs += new BufferString( Well::MGR().errMsg() );
+	    msgs += new BufferString( Well::MGR().errMsg().getFullString() );
 	    continue;
 	}
 
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd->logs() );
 	uiWellLogToolWin::LogData* ldata =
-	    new uiWellLogToolWin::LogData( *wls, wd->d2TModel(), &wd->track());
+	    new uiWellLogToolWin::LogData( *wls, wd->d2TModelPtr(),&wd->track());
 	const Well::ExtractParams& params = welllogselfld_->params();
 	ldata->dahrg_ = params.calcFrom( *wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
@@ -166,8 +166,8 @@ int uiWellLogToolWin::LogData::setSelectedLogs( BufferStringSet& lognms )
 	    continue;
 	for ( int dahidx=wl->size()-1; dahidx>=0; dahidx -- )
 	{
-	    if ( !dahrg_.includes( wl->dah( dahidx ), true ) )
-		wl->remove( dahidx );
+	    if ( !dahrg_.includes( wl->dahByIdx( dahidx ), true ) )
+		wl->removeByIdx( dahidx );
 	}
 	inplogs_ += wl;
 	nrsel++;
@@ -386,11 +386,15 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	    Well::Log* outplog = new Well::Log( inplog );
 	    const int sz = inplog.size();
 	    const int gate = gatefld_->getIntValue();
-	    if ( sz< 2 || ( act != 1 && sz < 2*gate ) ) continue;
+	    if ( sz< 2 || ( act != 1 && sz < 2*gate ) )
+		continue;
 
 	    ld.outplogs_ += outplog;
-	    const float* inp = inplog.valArr();
-	    float* outp = outplog->valArr();
+	    TypeSet<float> dahs, inpvals;
+	    inplog.getData( dahs, inpvals );
+	    TypeSet<float> outpvals( inpvals );
+	    const float* inp = inpvals.arr();
+	    float* outp = outpvals.arr();
 	    if ( act == 0 )
 	    {
 		Stats::Grubbs sgb;
@@ -427,8 +431,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    }
 		    else if ( spkact == 1 )
 		    {
-			float dah = outplog->dah( gridx );
-			grval = outplog->getValue( dah, true );
+			float dah = dahs[ gridx ];
+			grval = outplog->valueAt( dah, true );
 		    }
 		}
 	    }
@@ -485,7 +489,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 
 		for ( int idz=0; idz<sz; idz++ )
 		{
-		    const float dah = outplog->dah( idz );
+		    const float dah = dahs[idz];
 		    outp[idz] = filtvals.getValue( dah );
 		}
 	    }
@@ -512,6 +516,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    if ( outp[idx] > rg.stop )  outp[idx] = rg.stop;
 		}
 	    }
+	    outplog->setValues( outpvals );
 	}
     }
     okbut_->setSensitive( emsg.isEmpty() );
@@ -590,14 +595,15 @@ uiWellLogEditor::~uiWellLogEditor()
 void uiWellLogEditor::fillTable()
 {
     NotifyStopper ns( table_->valueChanged );
-    const int sz = log_.size();
     const UnitOfMeasure* depthunit = UnitOfMeasure::surveyDefDepthUnit();
-
-    for ( int idx=0; idx<sz; idx++ )
+    Well::LogIter iter( log_ );
+    int idx = -1;
+    while ( iter.next() )
     {
-	const float val = depthunit->getUserValueFromSI( log_.dah(idx) );
+	idx++;
+	const float val = depthunit->getUserValueFromSI( iter.dah() );
 	table_->setValue( RowCol(idx,0), val );
-	table_->setValue( RowCol(idx,1), log_.value(idx) );
+	table_->setValue( RowCol(idx,1), iter.value() );
     }
 }
 
@@ -616,11 +622,11 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 	return;
 
     const float newval = table_->getFValue( rc );
-    const float oldval = log_.value( rc.row() );
+    const float oldval = log_.valueByIdx( rc.row() );
     if ( mIsEqual(oldval,newval,mDefEpsF) )
 	return;
 
-    log_.setValue( rc.row(), newval );
+    log_.setValue( log_.pointIDFor(rc.row()), newval );
     changed_ = true;
     valueChanged.trigger();
 }

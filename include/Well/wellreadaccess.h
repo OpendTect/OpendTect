@@ -39,7 +39,7 @@ public:
     virtual bool	getLog(const char* lognm) const	= 0;
     virtual void	getLogInfo(BufferStringSet& lognms) const = 0;
 
-    virtual const OD::String& errMsg() const		= 0;
+    virtual const uiString& errMsg() const		= 0;
     Data&		data()				{ return wd_; }
     const Data&		data() const			{ return wd_; }
 
@@ -48,11 +48,8 @@ protected:
     Data&		wd_;
 
     bool		addToLogSet(Log*) const;
-    bool		updateDTModel(D2TModel*,bool ischeckshot,
+    bool		updateDTModel(D2TModel&,bool ischeckshot,
 					uiString& errmsg) const;
-    bool		updateDTModel(D2TModel*,bool ischeckshot,
-					BufferString& errmsg) const;
-			//!< D2TModel will become mine and may even be deleted
 
 };
 

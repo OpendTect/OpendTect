@@ -11,6 +11,7 @@ set(OD_MODULE_SOURCES
 	wellascio.cc
 	well.cc
 	welld2tmodel.cc
+	welldahobj.cc
 	welldisp.cc
 	wellelasticmodelcomputer.cc
 	wellextractdata.cc

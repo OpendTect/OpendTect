@@ -48,26 +48,28 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
     else
 	vel2TWT( proclog, wd );
 
-    TypeSet<float> dpt, vals;
-    for ( int idx=0; idx<proclog.size(); idx++ )
+    TypeSet<float> dahs, vals;
+    Well::LogIter iter( proclog );
+    while ( iter.next() )
     {
-	const float dah = proclog.dah( idx );
+	const float dah = iter.dah();
 	if ( mIsUdf(dah) )
 	    continue;
 
-	const float twt = proclog.value( idx );
+	const float twt = iter.value();
 	if ( mIsUdf(twt) || twt < -1. * mLocalEps )
 	    continue;
 
-	dpt += dah;
+	dahs += dah;
 	vals += twt;
     }
+    iter.retire();
 
     Well::D2TModel* d2tnew = new Well::D2TModel;
-    for ( int idx=0; idx<dpt.size(); idx++ )
-	d2tnew->add( dpt[idx], vals[idx] );
+    for ( int idx=0; idx<dahs.size(); idx++ )
+	d2tnew->setValueAt( dahs[idx], vals[idx] );
 
-    d2tnew->setName( "Integrated Depth/Time Model");
+    d2tnew->setName( "Integrated Depth/Time Model" );
     return d2tnew;
 }
 
@@ -99,12 +101,18 @@ void GeoCalculator::son2Vel( Well::Log& log ) const
     outuomlbl += issonic ? "/s" : getDistUnitString( isimperial, false );
     const UnitOfMeasure* outuom = UnitOfMeasure::getGuessed( outuomlbl );
 
-    for ( int idx=0; idx<log.size(); idx++ )
+    TypeSet<float> dahs, vals;
+    Well::LogIter iter( log );
+    while ( iter.next() )
     {
-	float& val = log.valArr()[idx];
+	float val = iter.value();
 	if ( !mIsUdf(val) )
 	    val = fact/val;
+	dahs += iter.dah();
+	vals += val;
     }
+    iter.retire();
+    log.setData( dahs, vals );
 
     if ( outuom )
 	log.setUnitMeasLabel( outuomlbl );
@@ -146,46 +154,48 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     const float srddepth = -1.f*mCast(float,SI().seismicReferenceDatum());
     const float srddah = track.getDahForTVD( srddepth );
     const float replveldz = -1.f * srddepth - track.getKbElev();
-    const float startdah = replveldz < 0 ? srddah : track.dah(0);
+    const float startdah = replveldz < 0 ? srddah : track.firstDah();
     const float replvel = wd.info().replvel;
     const float bulkshift = replveldz > 0 ? 2.f * replveldz / replvel : 0.f;
 
-    TypeSet<float> dpts, vals;
-    dpts += replveldz < 0 ? srddepth : track.value(0);
+    TypeSet<float> dahs, vals;
+    dahs += replveldz < 0 ? srddepth : track.firstValue( true );
     vals += logisvel ? replvel : bulkshift;
-    for ( int idx=0; idx<sz; idx++ )
+    Well::LogIter iter( log );
+    while ( iter.next() )
     {
-	const float dah = log.dah( idx );
-	const float logval = log.value( idx );
+	const float dah = iter.dah();
+	const float logval = iter.value();
 	if ( !mIsUdf(dah) && !mIsUdf(logval) && dah > startdah+mLocalEps )
 	{
-	    dpts += (float)track.getPos(dah).z;
+	    dahs += (float)track.getPos(dah).z;
 	    vals += loguom ? loguom->getSIValue( logval ) : logval;
 	}
     }
+    iter.retire();
 
-    sz = dpts.size();
+    sz = dahs.size();
     if ( !sz )
 	return;
 
-    TypeSet<float> sdpts, svals;
+    TypeSet<float> sdahs, svals;
     mGetIdxArr( int, idxs, sz );
     if ( !idxs) return;
-    sort_coupled( dpts.arr(), idxs, sz );
+    sort_coupled( dahs.arr(), idxs, sz );
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int sidx = idxs[idx];
-	const float newdepth = dpts[idx];
+	const float newdepth = dahs[idx];
 	const float newval = vals[sidx];
-	const int cursz = sdpts.size();
-	if ( cursz>1 && (mIsEqual(newdepth,sdpts[cursz-1],mLocalEps) ||
+	const int cursz = sdahs.size();
+	if ( cursz>1 && (mIsEqual(newdepth,sdahs[cursz-1],mLocalEps) ||
 			 mIsEqual(newval,svals[cursz-1],mLocalEps)) )
 	    continue;
-	sdpts += dpts[idx];
+	sdahs += dahs[idx];
 	svals += vals[sidx];
     }
 
-    sz = sdpts.size();
+    sz = sdahs.size();
     if ( !sz )
 	return;
 
@@ -193,8 +203,8 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     if ( logisvel )
     {
 	ArrayValueSeries<float,float> svalsvs(svals.arr(),false);
-	ArrayValueSeries<float,float> sdptsvs(sdpts.arr(),false);
-	if ( !TimeDepthConverter::calcTimes(svalsvs,sz,sdptsvs,outvals.arr()) )
+	ArrayValueSeries<float,float> sdahsvs(sdahs.arr(),false);
+	if ( !TimeDepthConverter::calcTimes(svalsvs,sz,sdahsvs,outvals.arr()) )
 	    return;
 
 	const float startime = outvals[0];
@@ -204,23 +214,23 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     else
     {
 	TimeDepthModel verticaldtmod;
-	if ( !verticaldtmod.setModel(sdpts.arr(),svals.arr(),sz) )
+	if ( !verticaldtmod.setModel(sdahs.arr(),svals.arr(),sz) )
 	    return;
 
 	outvals += replvel;
 	for ( int idx=1; idx<sz; idx++ )
-	    outvals += verticaldtmod.getVelocity( sdpts.arr(), svals.arr(),
-						  sz, sdpts[idx] );
+	    outvals += verticaldtmod.getVelocity( sdahs.arr(), svals.arr(),
+						  sz, sdahs[idx] );
     }
 
     log.setEmpty();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const float outdah = track.getDahForTVD( sdpts[idx] );
+	const float outdah = track.getDahForTVD( sdahs[idx] );
 	const float outval = outuom ? outuom->getUserValueFromSI(outvals[idx])
 				    : outvals[idx];
 
-	log.addValue( outdah, outval );
+	log.setValueAt( outdah, outval );
     }
 
     if ( outuom )
@@ -381,8 +391,11 @@ void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t,
 					Well::Log& log ) const
 {
     log.setEmpty();
-    for ( int idx=0; idx<d2t.size(); idx++ )
-	log.addValue( d2t.dah( idx ), d2t.value( idx ) );
+    MonitorLock ml( d2t );
+    Well::D2TModelIter iter( d2t );
+    while ( iter.next() )
+	log.setValueAt( iter.dah(), iter.value() );
+    iter.retire();
 
     const PropertyRef::StdType tp = PropertyRef::Time;
     log.setUnitMeasLabel( UoMR().getInternalFor(tp)->symbol() );

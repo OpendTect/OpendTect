@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "wellcommon.h"
 #include "sets.h"
-#include "bufstring.h"
+#include "uistring.h"
 
 class IOObj;
 class MultiID;
@@ -39,7 +39,7 @@ public:
     bool		isLoaded(const MultiID&) const;
     bool		reload(const MultiID&);
 
-    const char*		errMsg() const		{ return msg_; }
+    const uiString&	errMsg() const		{ return msg_; }
     ObjectSet<Data>&	wells()			{ return wells_; }
 
     static bool		getLogNames(const MultiID&,BufferStringSet&);
@@ -52,7 +52,7 @@ protected:
     mGlobal(Well) friend Man&	MGR();
 
     ObjectSet<Data>	wells_;
-    BufferString	msg_;
+    uiString		msg_;
 
     int			gtByKey(const MultiID&) const;
 };

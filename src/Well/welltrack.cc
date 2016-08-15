@@ -13,298 +13,85 @@
 #include "welldata.h"
 #include "welld2tmodel.h"
 
+mDefineInstanceCreatedNotifierAccess(Well::Track)
 
-Well::Track& Well::Track::operator =( const Track& t )
+
+Well::Track::Track( const char* nm )
+    : DahObj(nm)
+    , zistime_(false)
 {
-    if ( &t != this )
-    {
-	setName( t.name() );
-	dah_ = t.dah_;
-	pos_ = t.pos_;
-	zistime_ = t.zistime_;
-    }
-    return *this;
+    mTriggerInstanceCreatedNotifier();
 }
 
 
-bool Well::Track::isEmpty() const
+Well::Track::Track( const Track& oth )
 {
-    return dah_.isEmpty() || pos_.isEmpty();
+    copyAll( oth );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
-float Well::Track::getKbElev() const
+Well::Track::~Track()
 {
-    if ( isEmpty() )
-	return 0;
-
-    return dah_[0] - value(0);
+    sendDelNotif();
 }
 
 
-const Interval<double> Well::Track::zRangeD() const
+mImplMonitorableAssignment( Well::Track, Well::DahObj )
+
+
+void Well::Track::copyClassData( const Track& oth )
 {
-    if ( isEmpty() )
-	return Interval<double>( 0., 0. );
-
-    double zstart = pos_[0].z;
-    double zstop = pos_[0].z;
-
-    for ( int idx=1; idx<size(); idx++ )
-    {
-	const double zval = pos_[idx].z;
-	if ( zval < zstart )
-	    zstart = zval;
-	else if ( zval > zstop )
-	    zstop = zval;
-    }
-
-    return Interval<double> ( zstart, zstop );
+    pos_ = oth.pos_;
+    zistime_ = oth.zistime_;
 }
 
 
-const Interval<float> Well::Track::zRange() const
+Coord3 Well::Track::pos( PointID id ) const
 {
-    Interval<double> zrange = zRangeD();
-    return Interval<float> ( (float) zrange.start, (float) zrange.stop );
+    mLock4Read();
+    const IdxType idx = gtIdx( id );
+    return idx < 0 ? Coord3::udf() : pos_[idx];
 }
 
 
-void Well::Track::addPoint( const Coord3& c, float dahval )
+Coord3 Well::Track::posByIdx( IdxType idx ) const
 {
-    pos_ += c;
-    if ( mIsUdf(dahval) )
-    {
-	const int previdx = dah_.size() - 1;
-	dahval = previdx < 0 && previdx < pos_.size()-1 ? 0.f
-	    : mCast(float,pos_[previdx].distTo(pos_[previdx+1])+dah_[previdx] );
-    }
-
-    dah_ += dahval;
+    mLock4Read();
+    return pos_.validIdx(idx) ? pos_[idx] : Coord3::udf();
 }
 
 
-void Well::Track::addPoint( const Coord& c, float z, float dahval )
+Coord3 Well::Track::firstPos() const
 {
-    Coord3 c3( c, z );
-    addPoint( c3, dahval );
+    mLock4Read();
+    return pos_.isEmpty() ? Coord3::udf() : pos_.first();
 }
 
 
-void Well::Track::insertAfterIdx( int aftidx, const Coord3& c )
+Coord3 Well::Track::lastPos() const
 {
-    const int oldsz = pos_.size();
-    if ( aftidx > oldsz-2 )
-	{ addPoint( c ); return; }
-
-    double extradah, owndah = 0;
-    if ( aftidx == -1 )
-	extradah = c.distTo( pos_[0] );
-    else
-    {
-	double dist0 = c.distTo( pos_[aftidx] );
-	double dist1 = c.distTo( pos_[aftidx+1] );
-	owndah = dah_[aftidx] + dist0;
-	extradah = dist0 + dist1 - pos_[aftidx].distTo( pos_[aftidx+1] );
-    }
-
-    pos_.insert( aftidx+1, c );
-    dah_.insert( aftidx+1, mCast(float,owndah) );
-    addToDahFrom( aftidx+2, mCast(float,extradah) );
+    mLock4Read();
+    return pos_.isEmpty() ? Coord3::udf() : pos_.last();
 }
 
 
-int Well::Track::insertPoint( const Coord3& c )
+Coord3 Well::Track::getPos( ZType dh ) const
 {
-    const int oldsz = pos_.size();
-    if ( oldsz < 1 )
-	{ addPoint( c ); return oldsz; }
-
-    Coord3 cnew( c );
-    if ( oldsz < 2 )
-    {
-	Coord3 oth( pos_[0] );
-	if ( oth.z < cnew.z )
-	{
-	    addPoint( c );
-	    return oldsz;
-	}
-	else
-	{
-	    pos_.erase(); dah_.erase();
-	    pos_ += cnew; pos_ += oth;
-	    dah_ += 0.f;
-	    dah_ += mCast(float,oth.distTo( cnew ));
-	    return 0;
-	}
-    }
-
-    // Need to find 'best' position. This is when the angle of the triangle
-    // at the new point is maximal
-    // This boils down to min(sum of sq distances / product of distances)
-
-    double minval = 1e30; int minidx = -1;
-    int mindistidx = 0;
-    double mindist = pos_[mindistidx].distTo(cnew);
-    for ( int idx=1; idx<oldsz; idx++ )
-    {
-	const Coord3& c0 = pos_[idx-1];
-	const Coord3& c1 = pos_[idx];
-	const double d = c0.distTo( c1 );
-	const double d0 = c0.distTo( cnew );
-	const double d1 = c1.distTo( cnew );
-	if ( mIsZero(d0,1e-4) || mIsZero(d1,1e-4) )
-	    return -1; // point already present
-	double val = (( d0 * d0 + d1 * d1 - ( d * d ) ) / (2 * d0 * d1));
-	if ( val < minval )
-	    { minidx = idx-1; minval = val; }
-	if ( d1 < mindist )
-	    { mindist = d1; mindistidx = idx; }
-	if ( idx == oldsz-1 && minval > 0 )
-	{
-	    if ( mindistidx == oldsz-1)
-	    {
-		addPoint( c );
-		return oldsz;
-	    }
-	    else if ( mindistidx > 0 && mindistidx < oldsz-1 )
-	    {
-		double prevdist = pos_[mindistidx-1].distTo(cnew);
-		double nextdist = pos_[mindistidx+1].distTo(cnew);
-		minidx = prevdist > nextdist ? mindistidx : mindistidx -1;
-	    }
-	    else
-		minidx = mindistidx;
-	}
-    }
-
-    if ( minidx == 0 )
-    {
-	// The point may be before the first
-	const Coord3& c0 = pos_[0];
-	const Coord3& c1 = pos_[1];
-	const double d01sq = c0.sqDistTo( c1 );
-	const double d0nsq = c0.sqDistTo( cnew );
-	const double d1nsq = c1.sqDistTo( cnew );
-	if ( d01sq + d0nsq < d1nsq )
-	    minidx = -1;
-    }
-    if ( minidx == oldsz-2 )
-    {
-	// Hmmm. The point may be beyond the last
-	const Coord3& c0 = pos_[oldsz-2];
-	const Coord3& c1 = pos_[oldsz-1];
-	const double d01sq = c0.sqDistTo( c1 );
-	const double d0nsq = c0.sqDistTo( cnew );
-	const double d1nsq = c1.sqDistTo( cnew );
-	if ( d01sq + d1nsq < d0nsq )
-	    minidx = oldsz-1;
-    }
-
-    insertAfterIdx( minidx, cnew );
-    return minidx+1;
-}
-
-
-int  Well::Track::insertPoint( const Coord& c, float z )
-{
-    Coord3 c3( c, z );
-    return insertPoint( c3 );
-}
-
-
-bool Well::Track::insertAtDah( float dh, float zpos )
-{
-    if ( dah_.isEmpty() )
-	return false;
-
-    if ( dh < dah_[0] )
-    {
-	dah_.insert( 0, dh );
-	Coord3 crd( pos_[0] ); crd.z = mCast(double,zpos);
-	pos_.insert( 0, crd );
-    }
-    if ( dh > dah_[size()-1] )
-    {
-	dah_ += dh;
-	Coord3 crd( pos_[size()-1] ); crd.z = zpos;
-	pos_ += crd;
-    }
-
-    const int insertidx = indexOf( dh );
-    if ( insertidx<0 )
-	return false;
-    Coord3 prevcrd( pos_[insertidx] );
-    Coord3 nextcrd( pos_[insertidx+1] );
-    Coord3 crd( ( prevcrd + nextcrd )/2 );
-    crd.z = zpos;
-
-    dah_.insert( insertidx+1, dh );
-    pos_.insert( insertidx+1, crd );
-
-    return true;
-}
-
-
-void Well::Track::setPoint( int idx, const Coord3& c )
-{
-    const int nrpts = pos_.size();
-    if ( idx<0 || idx>=nrpts ) return;
-
-    Coord3 oldpt( pos_[idx] );
-    Coord3 newpt( c );
-    double olddist0 = idx > 0 ? oldpt.distTo(pos_[idx-1]) : 0;
-    double newdist0 = idx > 0 ? newpt.distTo(pos_[idx-1]) : 0;
-    double olddist1 = 0, newdist1 = 0;
-    if ( idx < nrpts-1 )
-    {
-	olddist1 = oldpt.distTo(pos_[idx+1]);
-	newdist1 = newpt.distTo(pos_[idx+1]);
-    }
-
-    pos_[idx] = newpt;
-    dah_[idx] += mCast( float, newdist0 - olddist0 );
-    const float dist = mCast(float, newdist0 - olddist0 + newdist1 - olddist1 );
-    addToDahFrom( idx+1, dist );
-}
-
-
-void Well::Track::setPoint( int idx, const Coord& c, float z )
-{
-    Coord3 c3( c, z );
-    setPoint( idx, c3 );
-}
-
-
-void Well::Track::removePoint( int idx )
-{
-    if ( idx < pos_.size()-1 && idx < dah_.size()-1 )
-    {
-	float olddist = idx ? dah_[idx+1] - dah_[idx-1] : dah_[1];
-	float newdist = idx ? (float) pos_[idx+1].distTo( pos_[idx-1] ) : 0;
-	float extradah = olddist - newdist;
-	removeFromDahFrom( idx+1, extradah );
-    }
-
-    remove( idx );
-}
-
-
-Coord3 Well::Track::getPos( float dh ) const
-{
+    mLock4Read();
     if ( pos_.isEmpty() )
 	return mUdf(Coord3);
 
     int idx1;
-    if ( IdxAble::findFPPos(dah_,dah_.size(),dh,-1,idx1) )
+    if ( IdxAble::findFPPos(dahs_,dahs_.size(),dh,-1,idx1) )
 	return pos_[idx1];
-    else if ( idx1 < 0 || idx1 == dah_.size()-1 )
+    else if ( idx1 < 0 || idx1 == dahs_.size()-1 )
     {
-        Coord3 ret ( idx1 < 0 ? pos_[0] : pos_[idx1] );
+        Coord3 ret( idx1 < 0 ? pos_[0] : pos_[idx1] );
         if ( idx1 < 0 )
-            ret.z -= dah_[0] - dh;
+            ret.z -= dahs_[0] - dh;
         else
-            ret.z += dh - dah_[idx1];
+            ret.z += dh - dahs_[idx1];
 
         return ret;
     }
@@ -313,42 +100,84 @@ Coord3 Well::Track::getPos( float dh ) const
 }
 
 
-Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
+Well::Track::ZType Well::Track::getKbElev() const
 {
-    const int idx2 = idx1 + 1;
-    const double d1 = (double)( dh - dah_[idx1] );
-    const double d2 = (double)( dah_[idx2] - dh );
-    const Coord3& c1 = pos_[idx1];
-    const Coord3& c2 = pos_[idx2];
-    const double f =  1. / (d1 + d2);
-    return Coord3( f * ( d1 * c2.x + d2 * c1.x ),
-		   f * ( d1 * c2.y + d2 * c1.y ),
-		   f * ( d1 * c2.z + d2 * c1.z ) );
+    mLock4Read();
+    return gtIsEmpty() ? 0.f : (ZType)(dahs_[0] - pos_[0].z);
 }
 
 
-float Well::Track::getDahForTVD( double z, float prevdah ) const
+Well::Track::ZType Well::Track::td() const
 {
+    mLock4Read();
+    return gtIsEmpty() ? 0.f : dahs_.last();
+}
+
+
+Interval<double> Well::Track::zRangeD() const
+{
+    mLock4Read();
+    return gtZRangeD();
+}
+
+
+Well::Track::ZIntvType Well::Track::zRange() const
+{
+    const Interval<double> zrange = zRangeD();
+    return ZIntvType( (ZType)zrange.start, (ZType)zrange.stop );
+}
+
+
+bool Well::Track::alwaysDownward() const
+{
+    mLock4Read();
+    const int sz = pos_.size();
+    if ( sz < 2 )
+	return true;
+
+    double prevz = pos_[0].z;
+    for ( int idx=1; idx<sz; idx++ )
+    {
+	double curz = pos_[idx].z;
+	if ( curz <= prevz )
+	    return false;
+
+	prevz = curz;
+    }
+
+    return true;
+}
+
+
+Well::Track::ZType Well::Track::getDahForTVD( ZType z, ZType prevdah ) const
+{
+    return getDahForTVD( (double)z, prevdah );
+}
+
+
+Well::Track::ZType Well::Track::getDahForTVD( double z, ZType prevdah ) const
+{
+    mLock4Read();
     const bool haveprevdah = !mIsUdf(prevdah);
-    const int sz = dah_.size();
+    const int sz = dahs_.size();
     if ( sz < 1 )
-	return mUdf(float);
+	return mUdf(ZType);
 
     if ( zistime_ )
     {
 	pErrMsg("getDahForTVD called for time well");
-	const float res = haveprevdah ? prevdah : dah_[0];
+	const ZType res = haveprevdah ? prevdah : dahs_[0];
 	return res;
     }
 
     static const double eps = 1e-3; // do not use lower for float precision
     static const double epsf = 1e-3f; // do not use lower for float precision
     if ( sz == 1 )
-	return mIsEqual(z,pos_[0].z,eps) ? dah_[0] : mUdf(float);
+	return mIsEqual(z,pos_[0].z,eps) ? dahs_[0] : mUdf(ZType);
 
-    const Interval<double> zrange = zRangeD();
+    const Interval<double> zrange = gtZRangeD();
     if ( !zrange.includes(z,false) )
-	return mUdf(float);
+	return mUdf(ZType);
 
 #define mZInRg() \
     (zrg.start-eps < z  && zrg.stop+eps  > z) \
@@ -358,7 +187,7 @@ float Well::Track::getDahForTVD( double z, float prevdah ) const
     int idxafter = -1;
     for ( int idx=1; idx<sz; idx++ )
     {
-	if ( !haveprevdah || prevdah+epsf < dah_[idx] )
+	if ( !haveprevdah || prevdah+epsf < dahs_[idx] )
 	{
 	    zrg.stop = pos_[idx].z;
 	    if ( mZInRg() )
@@ -367,50 +196,47 @@ float Well::Track::getDahForTVD( double z, float prevdah ) const
 	zrg.start = zrg.stop;
     }
     if ( idxafter < 1 )
-	return mUdf(float);
+	return mUdf(ZType);
 
     const int idx1 = idxafter - 1;
     const int idx2 = idxafter;
     const double z1 = pos_[idx1].z;
     const double z2 = pos_[idx2].z;
-    const double dah1 = mCast(double,dah_[idx1]);
-    const double dah2 = mCast(double,dah_[idx2]);
+    const double dah1 = (double)dahs_[idx1];
+    const double dah2 = (double)dahs_[idx2];
     const double zdiff = z2 - z1;
     const double res = ( (z-z1) * dah2 + (z2-z) * dah1 ) / zdiff;
-    return mIsZero(zdiff,eps) ? dah_[idx2] : mCast( float, res );
+    return mIsZero(zdiff,eps) ? dahs_[idx2] : (ZType)res;
 }
 
 
-float Well::Track::getDahForTVD( float z, float prevdah ) const
+Well::Track::ZType Well::Track::nearestDah( const Coord3& posin ) const
 {
-    return getDahForTVD( (double)z, prevdah );
-}
-
-
-float Well::Track::nearestDah( const Coord3& posin ) const
-{
-    if ( dah_.isEmpty() ) return 0;
-
-    if ( dah_.size() < 2 ) return dah_[1];
+    mLock4Read();
+    const int sz = gtSize();
+    if ( sz < 1 )
+	return 0;
+    else if ( sz < 2 )
+	return dahs_[0];
 
     const double zfac = zistime_ ? 2000. : 1.;
     Coord3 reqpos( posin ); reqpos.z *= zfac;
-    Coord3 curpos( getPos( dah_[0] ) ); curpos.z *= zfac;
+    Coord3 curpos( getPos( dahs_[0] ) ); curpos.z *= zfac;
     double sqneardist = curpos.sqDistTo( reqpos );
     double sqsecdist = sqneardist;
     int nearidx = 0; int secondidx = 0;
-    curpos = getPos( dah_[1] ); curpos.z *= zfac;
+    curpos = getPos( dahs_[1] ); curpos.z *= zfac;
     double sqdist = curpos.sqDistTo( reqpos );
     if ( sqdist < sqneardist )
 	{ nearidx = 1; sqneardist = sqdist; }
     else
 	{ secondidx = 1; sqsecdist = sqdist; }
 
-    for ( int idah=2; idah<dah_.size(); idah++ )
+    for ( int idah=2; idah<sz; idah++ )
     {
-	curpos = getPos( dah_[idah] ); curpos.z *= zfac;
+	curpos = getPos( dahs_[idah] ); curpos.z *= zfac;
 	sqdist = curpos.sqDistTo( reqpos );
-	if ( sqdist < 0.1 ) return dah_[idah];
+	if ( sqdist < 0.1 ) return dahs_[idah];
 
 	if ( sqdist < sqneardist )
 	{
@@ -426,99 +252,422 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 
     const double neardist = Math::Sqrt( sqneardist );
     const double secdist = Math::Sqrt( sqsecdist );
-    const double dahnear = mCast(double,dah_[nearidx]);
-    const double dahsec = mCast(double,dah_[secondidx]);
+    const double dahnear = (double)dahs_[nearidx];
+    const double dahsec = (double)dahs_[secondidx];
     const double res = ( neardist*dahsec+secdist*dahnear )/( neardist+secdist );
-    return mCast( float, res );
+    return (ZType)res;
+}
+
+#define mAddPtWithNotif(dh,c) addPt( dh, c, &mAccessLockHandler() )
+#define mDahAfterIdx(idx,c2add) (ZType)(dahs_[idx]+c2add.distTo(pos_[idx]))
+
+
+Well::Track::PointID Well::Track::addPoint( Coord3 c2add, ZType dh )
+{
+    mLock4Write();
+    if ( mIsUdf(dh) )
+    {
+	const int previdx = dahs_.size() - 1;
+	if ( previdx < 0 )
+	    dh = 0.f;
+	else
+	{
+	    double dist = c2add.distTo( pos_[previdx] );
+	    if ( mIsZero(dist,1e-3) )
+		return ptids_[previdx];
+	    dh = mDahAfterIdx( previdx, c2add );
+	}
+    }
+    return mAddPtWithNotif( dh, c2add );
 }
 
 
-bool Well::Track::alwaysDownward() const
+Well::Track::PointID Well::Track::addPoint( Coord c, ZType z, ZType dh )
 {
-    if ( size() < 2 )
-	return size();
+    return addPoint( Coord3(c,z), dh );
+}
 
-    double prevz = pos_[0].z;
-    for ( int idx=1; idx<pos_.size(); idx++ )
+
+Well::Track::PointID Well::Track::insertPoint( Coord c, ZType z )
+{
+    return insertPoint( Coord3(c,z) );
+}
+
+
+Well::Track::PointID Well::Track::insertPoint( Coord3 c2add )
+{
+    mLock4Write();
+    const int cursz = pos_.size();
+    if ( cursz < 1 )
+	{ return mAddPtWithNotif( 0.f, c2add ); }
+
+    if ( cursz < 2 )
     {
-	double curz = pos_[idx].z;
-	if ( curz <= prevz )
-	    return false;
-
-	prevz = curz;
+	Coord3 othpt( pos_[0] );
+	if ( othpt.z < c2add.z )
+	    { return mAddPtWithNotif( (ZType)(c2add.z-othpt.z), c2add ); }
+	else
+	{
+	    doSetEmpty();
+	    addPt( 0.f, c2add, 0 );
+	    return mAddPtWithNotif( (ZType)othpt.distTo(c2add), c2add );
+	}
     }
 
+    // Need to find 'best' position. This is when the angle of the triangle
+    // at the new point is as flat as possible (i.e. has maximum value).
+    // This boils down to finding pt with minimal value of:
+    // (sum of sq distances / product of distances)
+
+    int idx2insafter = -1;
+    int mindistidx = 0; double mindist = pos_[mindistidx].distTo( c2add );
+    double lowestval = 1e30;
+    for ( int idx=1; idx<cursz; idx++ )
+    {
+	const Coord3& prevpt = pos_[idx-1];
+	const Coord3& nextpt = pos_[idx];
+	const double dpts = prevpt.distTo( nextpt );
+	const double d2prev = prevpt.distTo( c2add );
+	const double d2next = nextpt.distTo( c2add );
+	if ( mIsZero(d2prev,1e-4) || mIsZero(d2next,1e-4) )
+	    return ptids_[idx]; // point already present
+	const double val2minimize =
+	    (( d2prev*d2prev + d2next*d2next - dpts*dpts ) / (2*d2prev*d2next));
+	if ( val2minimize < lowestval )
+	    { idx2insafter = idx-1; lowestval = val2minimize; }
+	if ( d2next < mindist )
+	    { mindist = d2next; mindistidx = idx; }
+	if ( idx == cursz-1 && lowestval > 0 )
+	{
+	    if ( mindistidx == cursz-1 )
+		return mAddPtWithNotif( dahs_[idx]+(ZType)d2next, c2add );
+	    else if ( mindistidx > 0 && mindistidx < cursz-1 )
+	    {
+		double prevdist = pos_[mindistidx-1].distTo( c2add );
+		double nextdist = pos_[mindistidx+1].distTo( c2add );
+		idx2insafter = prevdist > nextdist ? mindistidx : mindistidx -1;
+	    }
+	    else
+		idx2insafter = mindistidx;
+	}
+    }
+
+    if ( idx2insafter == 0 )
+    {
+	// The point may be before the first
+	const Coord3& firstpt = pos_[0];
+	const Coord3& secondpt = pos_[1];
+	const double d01sq = firstpt.sqDistTo( secondpt );
+	const double d0nsq = firstpt.sqDistTo( c2add );
+	const double d1nsq = secondpt.sqDistTo( c2add );
+	if ( d01sq + d0nsq < d1nsq )
+	    idx2insafter = -1;
+    }
+    if ( idx2insafter == cursz-2 )
+    {
+	// Hmmm. The point may be beyond the last
+	const Coord3& beforelastpt = pos_[cursz-2];
+	const Coord3& lastpt = pos_[cursz-1];
+	const double d01sq = beforelastpt.sqDistTo( lastpt );
+	const double d0nsq = beforelastpt.sqDistTo( c2add );
+	const double d1nsq = lastpt.sqDistTo( c2add );
+	if ( d01sq + d1nsq < d0nsq )
+	    idx2insafter = cursz-1;
+    }
+
+    return insAfterIdx( idx2insafter, c2add, mAccessLockHandler() );
+}
+
+
+bool Well::Track::doSet( IdxType idx, ValueType newz )
+{
+    Coord3 newpos( pos_[idx] );
+    if ( mIsEqual(newpos.z,newz,dahEps()) )
+	return false;
+
+    newpos.z = newz;
+    doSetPoint( idx, newpos );
     return true;
 }
 
-#define cDistTol 0.5f
+
+Well::Track::PointID Well::Track::doInsAtDah( ZType dh, ZType zpos )
+{
+    PointID id = PointID::getInvalid();
+    const int sz = gtSize();
+    if ( sz < 1 )
+	return id;
+
+    const float eps = dahEps();
+    if ( dh < dahs_[0] - eps )
+    {
+	Coord3 crd( pos_[0] ); crd.z = zpos;
+	id = insPt( 0, dh, crd, 0 );
+    }
+    else if ( dh > dahs_[size()-1] + eps )
+    {
+	Coord3 crd( pos_[size()-1] ); crd.z = zpos;
+	id = addPt( dh, crd, 0 );
+    }
+    else
+    {
+	const int insafteridx = indexOf( dh );
+	if ( insafteridx < 0 )
+	    { pErrMsg("Huh"); return id; }
+
+	if ( mIsEqual(dahs_[insafteridx],dh,eps) )
+	{
+	    pos_[insafteridx].z = zpos;
+	    id = ptids_[insafteridx];
+	}
+	else
+	{
+	    Coord3 prevcrd( pos_[insafteridx] );
+	    Coord3 nextcrd( pos_[insafteridx+1] );
+	    Coord3 crd( ( prevcrd + nextcrd )/2 );
+	    crd.z = zpos;
+	    id = insPt( insafteridx+1, dh, crd, 0 );
+	}
+    }
+
+    return id;
+}
+
+
+Well::Track::ValueType Well::Track::gtVal( IdxType idx ) const
+{
+    return pos_.validIdx(idx) ? (float)pos_[idx].z : mUdf(ValueType);
+}
+
+
+void Well::Track::setPoint( PointID id, const Coord& c, ZType z )
+{
+    setPoint( id, Coord3(c,z) );
+}
+
+
+void Well::Track::setPoint( PointID id, const Coord3& newpos )
+{
+    mLock4Write();
+    const int idx = gtIdx( id );
+    if ( pos_.validIdx(idx) )
+	doSetPoint( idx, newpos );
+    if ( idx == pos_.size()-1 )
+	mSendChgNotif( cDahChange(), ptids_[idx].getI() );
+    else
+	mSendEntireObjChgNotif();
+}
+
+
+void Well::Track::doSetPoint( IdxType idx, const Coord3& newpos )
+{
+    const Coord3 oldpos( pos_[idx] );
+    double olddist0 = idx > 0 ? oldpos.distTo(pos_[idx-1]) : 0;
+    double newdist0 = idx > 0 ? newpos.distTo(pos_[idx-1]) : 0;
+    dahs_[idx] += (ZType)(newdist0 - olddist0);
+    pos_[idx] = newpos;
+    if ( idx < pos_.size()-1 )
+    {
+	double olddist1 = oldpos.distTo( pos_[idx+1] );
+	double newdist1 = newpos.distTo( pos_[idx+1] );
+	const ZType dahshift = (ZType)(newdist0-olddist0 + newdist1-olddist1);
+	shiftDahFrom( ptids_[idx+1], dahshift );
+    }
+}
+
+
+void Well::Track::getData( ZSetType& dahs, ValueSetType& vals ) const
+{
+    mLock4Read();
+    const int sz = gtSize();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	dahs += dahs_[idx];
+	vals += (ZType)pos_[idx].z;
+    }
+}
+
+
+#define mDistTol 0.5f
+
 void Well::Track::toTime( const Data& wd )
 {
     const Track& track = wd.track();
-    const D2TModel* d2t = wd.d2TModel();
+    const D2TModel& d2t = wd.d2TModel();
+    MonitorLock mltrack( track );
+    MonitorLock mld2t( d2t );
     if ( track.isEmpty() )
 	return;
 
     TimeDepthModel replvelmodel;
     const double srddepth = -1. * SI().seismicReferenceDatum();
-    const float dummythickness = 1000.f;
-    TypeSet<float> replveldepths, replveltimes;
-    replveldepths += mCast(float,srddepth) - dummythickness;
+    const ZType dummythickness = 1000.f;
+    ZSetType replveldepths, replveltimes;
+    replveldepths += (ZType)(srddepth - dummythickness);
     replveltimes += -2.f * dummythickness / wd.info().replvel;
-    replveldepths += mCast(float,srddepth);
+    replveldepths += (ZType)srddepth;
     replveltimes += 0.f;
     replvelmodel.setModel( replveldepths.arr(), replveltimes.arr(),
 			   replveldepths.size() );
 
     TimeDepthModel dtmodel;
-    if ( d2t && !d2t->getTimeDepthModel(wd,dtmodel) )
+    if ( !d2t.getTimeDepthModel(wd,dtmodel) )
 	return;
 
-    TypeSet<float> newdah;
+    ZSetType newdah;
     TypeSet<Coord3> newpos;
-    newdah += track.dah( 0 );
-    newpos += track.pos( 0 );
+    newdah += track.firstDah();
+    newpos += track.firstPos();
 
-    float prevdah = newdah[0];
+    ZType prevdah = newdah[0];
     for ( int trckidx=1; trckidx<track.size(); trckidx++ )
     {
-	const float curdah = track.dah( trckidx );
-	const float dist = curdah - prevdah;
-	if ( dist > cDistTol )
+	const ZType curdah = track.dahByIdx( trckidx );
+	const ZType dist = curdah - prevdah;
+	if ( dist > mDistTol )
 	{
-	    const int nrchunks = mCast( int, dist / cDistTol );
-	    const float step = dist / mCast(float, nrchunks );
-	    StepInterval<float> dahrange( prevdah, curdah, step );
+	    const int nrchunks = (int)( dist / mDistTol );
+	    const ZType step = dist / ((ZType)nrchunks);
+	    StepInterval<ZType> dahrange( prevdah, curdah, step );
 	    for ( int idx=1; idx<dahrange.nrSteps(); idx++ )
 	    {
-		const float dahsegment = dahrange.atIndex( idx );
+		const ZType dahsegment = dahrange.atIndex( idx );
 		newdah += dahsegment;
 		newpos += track.getPos( dahsegment );
 	    }
 	}
 
 	newdah += curdah;
-	newpos += track.pos( trckidx );
+	newpos += track.posByIdx( trckidx );
 	prevdah = curdah;
     }
 
+    mLock4Write();
     // Copy the extended set into the new track definition
-    dah_ = newdah;
+    dahs_ = newdah;
     pos_ = newpos;
+    ptids_ = track.ptids_;
+
     // Now, convert to time
-    for ( int idx=0; idx<dah_.size(); idx++ )
+    for ( int idx=0; idx<dahs_.size(); idx++ )
     {
 	double& depth = pos_[idx].z;
 	const bool abovesrd = depth < srddepth;
-	if ( !abovesrd && !d2t )
-	{
-	    depth = mUdf(double);
-	    continue; //Should never happen
-	}
+	if ( !abovesrd && d2t.isEmpty() )
+	    { depth = mUdf(double); continue; } //Should never happen
 
-	depth = mCast( double, abovesrd ? replvelmodel.getTime( (float)depth )
-					: dtmodel.getTime( (float)depth ) );
+	depth = (double)( abovesrd ? replvelmodel.getTime( (ZType)depth )
+					: dtmodel.getTime( (ZType)depth ) );
     }
 
     zistime_ = true;
+    mSendEntireObjChgNotif();
+}
+
+
+Well::Track::PointID Well::Track::addPt( ZType dh, const Coord3& c,
+					    AccessLockHandler* alh )
+{
+    return insPt( ptids_.size(), dh, c, alh );
+}
+
+
+Well::Track::PointID Well::Track::insPt( IdxType idx, ZType dh, const Coord3& c,
+					    AccessLockHandler* alh )
+{
+    const PointID ptid = gtNewPointID();
+    if ( idx >= gtSize() )
+	{ pos_ += c; dahs_ += dh; ptids_ += ptid; }
+    else
+    {
+	pos_.insert( idx, c );
+	dahs_.insert( idx, dh );
+	ptids_.insert( idx, ptid );
+    }
+    if ( alh )
+    {
+	AccessLockHandler& mAccessLockHandler() = *alh;
+	mSendChgNotif( cPointAdd(), ptid.getI() );
+    }
+    return ptid;
+}
+
+
+Coord3 Well::Track::coordAfterIdx( ZType dh, int idx1 ) const
+{
+    const int idx2 = idx1 + 1;
+    const double d1 = (double)( dh - dahs_[idx1] );
+    const double d2 = (double)( dahs_[idx2] - dh );
+    const Coord3& prevpt = pos_[idx1];
+    const Coord3& nextpt = pos_[idx2];
+    const double f =  1. / (d1 + d2);
+    return Coord3( f * ( d1 * nextpt.x + d2 * prevpt.x ),
+		   f * ( d1 * nextpt.y + d2 * prevpt.y ),
+		   f * ( d1 * nextpt.z + d2 * prevpt.z ) );
+}
+
+
+Well::Track::PointID Well::Track::insAfterIdx( int idx2insafter,
+		const Coord3& c2add, AccessLockHandler& mAccessLockHandler() )
+{
+    const int newidx = idx2insafter + 1;
+    if ( newidx >= pos_.size() )
+	{ return mAddPtWithNotif( mDahAfterIdx(idx2insafter,c2add), c2add ); }
+
+    double extradah, newdah = 0;
+    if ( idx2insafter == -1 )
+	extradah = c2add.distTo( pos_[0] );
+    else
+    {
+	double dist0 = c2add.distTo( pos_[idx2insafter] );
+	double dist1 = c2add.distTo( pos_[idx2insafter+1] );
+	newdah = dahs_[idx2insafter] + dist0;
+	extradah = dist0 + dist1
+		 - pos_[idx2insafter].distTo( pos_[idx2insafter+1] );
+    }
+
+    const PointID ptid = insPt( newidx, (ZType)newdah, c2add,
+				&mAccessLockHandler() );
+    shiftDahFrom( ptid, (ZType)extradah );
+    return ptid;
+}
+
+
+Interval<double> Well::Track::gtZRangeD() const
+{
+    Interval<double> ret( 0., 0. );
+    const int sz = gtSize();
+
+    if ( sz > 0 )
+    {
+	ret.start = ret.stop = pos_[0].z;
+	for ( int idx=1; idx<sz; idx++ )
+	    ret.include( pos_[idx].z, false );
+    }
+
+    return ret;
+}
+
+
+Well::TrackIter::TrackIter( const Track& trck, bool atend )
+    : DahObjIter(trck,atend)
+{
+}
+
+
+Well::TrackIter::TrackIter( const TrackIter& oth )
+    : DahObjIter(oth)
+{
+}
+
+
+const Well::Track& Well::TrackIter::track() const
+{
+    return static_cast<const Track&>( monitored() );
+}
+
+
+Coord3 Well::TrackIter::pos() const
+{
+    return isValid() ? track().pos_[ curidx_ ] : Coord3::udf();
 }

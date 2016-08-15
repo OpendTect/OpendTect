@@ -245,10 +245,10 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 {
     wellid_ = multiid; wd_ = 0;
     mGetWD(return false);
-    const Well::D2TModel* d2t = wd->d2TModel();
+    const Well::D2TModel& d2t = wd->d2TModel();
     const bool trackabovesrd = wd->track().zRange().stop <
 			      -1.f * mCast(float,SI().seismicReferenceDatum());
-    if ( zistime_ && !d2t && !trackabovesrd )
+    if ( zistime_ && d2t.isEmpty() && !trackabovesrd )
 	mErrRet( "No depth to time model defined" )
 
     wellid_ = multiid;
@@ -282,11 +282,10 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
     const Well::Track& track = needsconversiontotime
 			     ? *timetrack_ : wd->track();
 
-    Coord3 pt;
-    for ( int idx=0; idx<track.size(); idx++ )
+    Well::TrackIter iter( track );
+    while ( iter.next() )
     {
-	pt = track.pos( idx );
-
+	Coord3 pt = iter.pos();
 	if ( !mIsUdf(pt.z) )
 	    trackpos += pt;
     }
@@ -397,20 +396,13 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     TypeSet<visBase::Well::Coord3Value> crdvals;
     TypeSet<visBase::Well::Coord3Value> crdvalsF;
 
-    const int logsz = logdata.size();
-    for ( int idx=0; idx<logsz; idx++ )
+    Well::LogIter iter( logdata );
+    while ( iter.next() )
     {
-	const float dah = logdata.dah( idx );
-
+	const float dah = iter.dah();
+	float val = iter.value();
 	Coord3 pos = track.getPos( dah );
-	if ( pos.isUdf() )
-	    continue;
-
-	if ( mIsUdf(pos.z) )
-	    continue;
-
-	float val = logdata.value(idx);
-	if ( mIsUdf(val) )
+	if ( pos.isUdf() || mIsUdf(pos.z) || mIsUdf(val) )
 	    continue;
 
 	val = lp.range_.limitValue( val );
@@ -418,9 +410,9 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	maxval = getmaxVal(maxval,val);
 	crdvals += visBase::Well::Coord3Value( pos, val );
 
-	if( isfilled )
+	if ( isfilled )
 	{
-	    const float valfill = logfill->value(idx);
+	    const float valfill = logfill->valueAt( dah );
 	    if ( !mIsUdf(valfill) )
 	    {
 		minvalF = getminVal(minvalF,valfill);
@@ -438,9 +430,9 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 
     lp.valfillrange_ .set( minvalF, maxvalF );
     lp.valrange_.set( minval, maxval );
-    well_->setLogData( crdvals,crdvalsF,lp,isfilled );
-
+    well_->setLogData( crdvals, crdvalsF, lp, isfilled );
 }
+
 
 #define cMaxLogSamp 2000
 
@@ -458,11 +450,11 @@ bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
     if ( !logdatain || (logfill && !logfillin) || logdata.isEmpty() )
 	return false;
 
-    float start = logdata.dah( 0 );
+    float start = logdata.firstDah();
     if ( start < track.dahRange().start )
 	start = track.dahRange().start;
 
-    float stop = logdata.dah( logdata.size()-1 );
+    float stop = logdata.lastDah();
     if ( stop > track.dahRange().stop )
 	stop = track.dahRange().stop;
 
@@ -479,13 +471,13 @@ bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
 	const float dah = dahrange.atIndex( idah );
 	const float val = Well::LogDataExtracter::calcVal( *logdatain,
 				dah, dahrange.step, Stats::UseAvg );
-	logdata.addValue( dah, val );
+	logdata.setValueAt( dah, val );
 	if ( logfill )
 	{
 	    const float fillval = filldata ? val
 				: Well::LogDataExtracter::calcVal( *logfillin,
 					dah, dahrange.step, Stats::UseAvg );
-	    logfill->addValue( dah, fillval );
+	    logfill->setValueAt( dah, fillval );
 	}
     }
 
@@ -563,13 +555,14 @@ void WellDisplay::calcClippedRange( float rate, Interval<float>& rg, int lidx )
     mGetWD(return);
 
     Well::Log& wl = wd->logs().getLog( lidx );
+    TypeSet<float> dahs, vals;
+    wl.getData( dahs, vals );
     if ( rate > 100 ) rate = 100;
     if ( mIsUdf(rate) || rate < 0 ) rate = 0;
     rate /= 100;
-    const int logsz = wl.size();
     DataClipper dataclipper;
-    dataclipper.setApproxNrValues( logsz );
-    dataclipper.putData( wl.valArr(), logsz );
+    dataclipper.setApproxNrValues( vals.size() );
+    dataclipper.putData( vals.arr(), vals.size() );
     dataclipper.calculateRange( rate, rg );
 }
 
@@ -679,7 +672,7 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 	if (log)
 	{
 	    if ( val.size() ) val += " / ";
-	    val += toString( log->getValue( dah ) );
+	    val += toString( log->valueAt( dah ) );
 	    val += " ";
 	    val += log->unitMeasLabel();
 	}
@@ -774,7 +767,7 @@ void WellDisplay::removePick( const visBase::EventInfo& evinfo )
 	return;
 
     markerset_->removeMarker( markeridx );
-    pseudotrack_->removePoint( markeridx );
+    pseudotrack_->removeByIdx( markeridx );
 
     TypeSet<Coord3> wcoords = getWellCoords();
     well_->setTrack( wcoords );
@@ -816,8 +809,9 @@ void WellDisplay::addPick( const Coord3& pos )
 
     const double zfactor = mCast(double,
 			   scene_ ? scene_->getZScale() : SI().zScale() );
-    const int insertidx = pseudotrack_->insertPoint(
+    const Well::Track::PointID ptid = pseudotrack_->insertPoint(
 					Coord3(pos.x,pos.y,pos.z*zfactor) );
+    const int insertidx = pseudotrack_->indexOf( ptid );
 
     TypeSet<Coord3> wcoords = getWellCoords();
     well_->setTrack( wcoords );
@@ -842,8 +836,10 @@ void WellDisplay::addKnownPos()
 	return;
 
     TypeSet<Coord3> wcoords;
-    for ( int idx=0; idx<pseudotrack_->size(); idx++ )
-	wcoords += pseudotrack_->pos(idx);
+    Well::TrackIter iter( *pseudotrack_ );
+    while ( iter.next() )
+	wcoords += iter.pos();
+    iter.retire();
 
     well_->setTrack( wcoords );
     needsave_ = true;

@@ -24,72 +24,87 @@ mExpClass(Well) Track : public DahObj
 {
 public:
 
-			Track( const char* nm=0 )
-			: DahObj(nm), zistime_(false) {}
-			Track( const Track& t )
-			: DahObj("")		{ *this = t; }
-    Track&		operator =(const Track&);
+    typedef Coord3		PosType;
+    typedef TypeSet<PosType>	PosSetType;
 
-    bool		isEmpty() const;
-    const Coord3&	pos( int idx ) const	{ return pos_[idx]; }
-    float		value( int idx ) const	{ return (float) pos_[idx].z; }
-    float		getKbElev() const;
-    float		td() const
-			{ return isEmpty() ? 0 : dah_.last(); }
-    int			size() const	{ return pos_.size(); }
-    bool		zIsTime() const		{ return zistime_; }
-    const Interval<double> zRangeD() const;
-    const Interval<float> zRange() const;
-			//!< returns (0, 0) for empty track
+			Track(const char* nm=0);
+			~Track();
+			mDeclMonitorableAssignment(Track);
+			mDeclInstanceCreatedNotifierAccess(Track);
 
-    int			insertPoint(const Coord3&);
-    int			insertPoint(const Coord&,float z);
-			//!< a 'good' place will be found
-			//!< If inserted at top, z will be used as first dah
-			//!< returns position index of the new point
-    void		addPoint(const Coord3&,float dah=mUdf(float));
-    void		addPoint(const Coord&,float z,float dah=mUdf(float));
-			//!< Point must be further down track. No checks.
-    void		setPoint(int,const Coord3&);
-    void		setPoint(int,const Coord&,float z);
-			//!< Will correct all dahs below point
-    void		insertAfterIdx(int,const Coord3&);
-			//!< Know what you're doing - not used normally
-    void		removePoint(int);
-			//!< Will correct all dahs below point
+    Coord3		pos(PointID) const;
+    Coord3		posByIdx(IdxType) const;
+    Coord3		firstPos() const;
+    Coord3		lastPos() const;
+    Coord3		getPos(ZType d_ah) const;
+    mImplSimpleMonitoredGet(zIsTime,bool,zistime_)
+    mImplSimpleMonitoredGet(getAllPos,PosSetType,pos_)
+    ZType		getKbElev() const;
+    ZType		td() const;
+    Interval<double>	zRangeD() const;
+    Interval<float>	zRange() const; //!< returns (0, 0) for empty track
+    bool		alwaysDownward() const;
 
-    Coord3		getPos(float d_ah) const;
-    const TypeSet<Coord3>& getAllPos() const { return pos_; }
-
-    float		getDahForTVD(double,float prevdah=mUdf(float)) const;
-    float		getDahForTVD(float,float prevdah=mUdf(float)) const;
+    ZType		getDahForTVD(double,ZType prevdah=mUdf(float)) const;
+    ZType		getDahForTVD(ZType,ZType prevdah=mUdf(float)) const;
 			//!< Non-unique. previous DAH may be helpful
 			//!< Don't use if track is in time
-    float		nearestDah(const Coord3&) const;
+    ZType		nearestDah(const Coord3&) const;
 			// If zIsTime() z must be time
 
-			// If you know what you're doing:
-    Coord3		coordAfterIdx(float d_ah,int) const;
-			//!< Beware: no bounds check on index.
-
-    bool		insertAtDah(float dah,float zpos);
-			//!< will interpolate x,y coords
-
-    bool		alwaysDownward() const;
     void		toTime(const Data&);
+
+	// Track building. insertPoint will find 'best' position.
+    PointID		insertPoint(Coord3);
+    PointID		insertPoint(Coord,float z);
+    PointID		addPoint(Coord3,float dah=mUdf(float));
+    PointID		addPoint(Coord,float z,float dah=mUdf(float));
+			//!< Point must be further down track. No checks.
+    void		setPoint(PointID,const Coord3&);
+    void		setPoint(PointID,const Coord&,float z);
+
+    virtual void	getData(ZSetType&,ValueSetType&) const;
 
 protected:
 
-
-    TypeSet<Coord3>	pos_;
+    PosSetType		pos_;
     bool		zistime_;
 
-    void		removeAux( int idx )	{ pos_.removeSingle(idx); }
-    void		eraseAux()		{ pos_.erase(); }
+    virtual bool	doSet(IdxType,ValueType);
+    virtual PointID	doInsAtDah(ZType,ValueType);
+    virtual ValueType	gtVal(IdxType) const;
+    virtual void	removeAux( IdxType i )	{ pos_.removeSingle(i); }
+    virtual void	eraseAux()		{ pos_.erase(); }
+
+    void		doSetPoint(IdxType,const Coord3&);
+    PointID		addPt(ZType,const Coord3&,AccessLockHandler*);
+    PointID		insPt(IdxType,ZType,const Coord3&,AccessLockHandler*);
+    PointID		insAfterIdx(IdxType,const Coord3&,
+					AccessLockHandler&);
+    Coord3		coordAfterIdx(ZType,IdxType) const;
+    Interval<double>	gtZRangeD() const;
+
+    friend class	TrackSampler;
+    friend class	TrackIter;
 
 };
 
 
-}; // namespace Well
+/*!\brief Well track iterator. */
+
+mExpClass(Well) TrackIter : public DahObjIter
+{
+public:
+			TrackIter(const Track&,bool start_at_end=false);
+			TrackIter(const TrackIter&);
+
+    const Track&	track() const;
+    Coord3		pos() const;
+
+};
+
+
+
+} // namespace Well
 
 #endif

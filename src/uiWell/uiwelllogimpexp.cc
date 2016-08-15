@@ -311,23 +311,20 @@ void uiExportLogs::setDefaultRange( bool zinft )
 	for ( int idx=0; idx<wd.logs().size(); idx++ )
 	{
 	    const Well::Log& log = wd.logs().getLog(idx);
+	    MonitorLock ml( log );
 	    const int logsz = log.size();
-	    if ( !logsz ) continue;
+	    if ( logsz < 0 )
+		continue;
 
 	    dahintv.include( wd.logs().dahInterval() );
-	    const float width = log.dah(logsz-1) - log.dah(0);
+	    const float width = log.lastDah() - log.firstDah();
 	    dahintv.step = width / (logsz-1);
 	    break;
 	}
     }
 
     if ( zinft )
-    {
-	dahintv.start *= mToFeetFactorF;
-	dahintv.stop *= mToFeetFactorF;
-	dahintv.step *= mToFeetFactorF;
-    }
-
+	dahintv.scale( mToFeetFactorF );
     zrangefld_->setValue( dahintv );
 }
 
@@ -416,7 +413,7 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
     const bool insec = zunitgrp_->selectedId() == 2;
     const bool inmsec = zunitgrp_->selectedId() == 3;
     const bool intime = insec || inmsec;
-    if ( intime && !wd.d2TModel() )
+    if ( intime && wd.d2TModel().isEmpty() )
     {
 	uiMSG().error( tr("No depth-time model found, "
 			  "cannot export with time") );
@@ -458,7 +455,7 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    if ( infeet ) z *= mToFeetFactorF;
 	    else if (intime )
 	    {
-		z = wd.d2TModel()->getTime( md, wd.track() );
+		z = wd.d2TModel().getTime( md, wd.track() );
 		if ( inmsec && !mIsUdf(z) ) z *= cTWTFac;
 	    }
 
@@ -469,7 +466,7 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	{
 	    const Well::Log& log = wd.logs().getLog( logidx );
 	    if ( !logsel_.isPresent( log.name() ) ) continue;
-	    const float val = log.getValue( md );
+	    const float val = log.valueAt( md );
 	    if ( mIsUdf(val) )
 		strm << od_tab << "1e30";
 	    else

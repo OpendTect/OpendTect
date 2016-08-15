@@ -113,10 +113,10 @@ Data::Data( const Setup& wts, Well::Data& wdata )
 	{ pErrMsg( "Wvlt ID invalid" ); initwvlt_ = Wavelet( true, 25.f ); }
 
     const Well::Track& track = wdata.track();
-    const Well::D2TModel* d2t = wdata.d2TModel();
+    const Well::D2TModel& d2t = wdata.d2TModel();
     float stoptime = SI().zRange(true).stop;
     const float td = track.td();
-    float tdtime = d2t->getTime( td, track );
+    float tdtime = d2t.getTime( td, track );
     if ( !mIsUdf(tdtime) && tdtime > stoptime )
 	stoptime = mCast( float, mNINT32(tdtime/cDefSeisSr())*cDefSeisSr() );
 
@@ -161,20 +161,20 @@ void Data::computeExtractionRange()
 
     const Well::Log* velplog = wd_->logs().getLog( setup_.vellognm_ );
     const Well::Track& track = wd_->track();
-    const Well::D2TModel* d2t = wd_->d2TModel();
-    if ( !velplog || !d2t || track.isEmpty() )
+    const Well::D2TModel& d2t = wd_->d2TModel();
+    if ( !velplog || d2t.isEmpty() || track.isEmpty() )
 	return;
 
     dahrg_ = velplog->dahRange();
     dahrg_.limitTo( track.dahRange() );
-    float twtstart = mMAX( 0.f, d2t->getTime( dahrg_.start, track ) );
-    float twtstop = d2t->getTime( dahrg_.stop, track );
+    float twtstart = mMAX( 0.f, d2t.getTime( dahrg_.start, track ) );
+    float twtstop = d2t.getTime( dahrg_.stop, track );
     twtstart = Math::Ceil( twtstart / cDefSeisSr() ) * cDefSeisSr();
     twtstop = Math::Floor( twtstop / cDefSeisSr() ) * cDefSeisSr();
     modelrg_ = StepInterval<float>( twtstart, twtstop, cDefSeisSr() );
 
-    dahrg_.start = d2t->getDah( twtstart, track );
-    dahrg_.stop = d2t->getDah( twtstop, track );
+    dahrg_.start = d2t.getDah( twtstart, track );
+    dahrg_.stop = d2t.getDah( twtstop, track );
 
     twtstart += cDefSeisSr();
     twtstop -= cDefSeisSr();
@@ -225,8 +225,9 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	    }
 	}
 	mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
-	if ( !hor ) continue;
-	WellHorIntersectFinder whfinder( wd_->track(), wd_->d2TModel() );
+	if ( !hor )
+	    continue;
+	WellHorIntersectFinder whfinder( wd_->track(), &wd_->d2TModel() );
 	whfinder.setHorizon( emid );
 	const float zval =
 	    whfinder.findZIntersection()*SI().zDomain().userFactor();
@@ -242,12 +243,13 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 }
 
 
-
 void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 					bool bynames ) const
 {
-    const Well::D2TModel* dtm = wd_ ? wd_->d2TModel() : 0;
-    if ( !dtm ) return;
+    const Well::D2TModel* dtm = wd_ ? &wd_->d2TModel() : 0;
+    if ( dtm && dtm->isEmpty() )
+	dtm = 0;
+
     for ( int idmrk=0; idmrk<wd_->markers().size(); idmrk++ )
     {
 	const Well::Marker& mrk = *wd_->markers()[idmrk];
@@ -259,8 +261,11 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 		|| ( !bynames && hd.id_ >=0 && hd.id_ == mrk.levelID() ))
 	    {
 		PosCouple pc; pcs += pc;
-		pc.z1_ = dtm->getTime(mrk.dah(), wd_->track())*
-				      SI().zDomain().userFactor();
+		if ( dtm )
+		    pc.z1_ = dtm->getTime(mrk.dah(), wd_->track())*
+					  SI().zDomain().userFactor();
+		else
+		    pc.z1_ = wd_->track().valueAt(mrk.dah());
 		pc.z2_ = hd.zpos_;
 	    }
 	}

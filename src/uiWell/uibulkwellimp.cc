@@ -152,10 +152,9 @@ void uiBulkTrackImport::addD2T( uiString& errmsg )
 	const float dahstart = track.dahRange().start;
 	const float dahstop = track.dahRange().stop;
 
-	Well::D2TModel* d2t = new Well::D2TModel;
-	d2t->add( dahstart, (zstart+srd)/twtvel );
-	d2t->add( dahstop, (zstop+srd)/twtvel );
-	wd->setD2TModel( d2t );
+	Well::D2TModel& d2t = wd->d2TModel();
+	d2t.setValueAt( dahstart, (zstart+srd)/twtvel );
+	d2t.setValueAt( dahstop, (zstop+srd)/twtvel );
     }
 }
 
@@ -516,9 +515,8 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	}
 
 	uiString msg;
-	D2TModel* d2t = new D2TModel( d2tdata[idx]->wellnm_.buf() );
-	d2t->ensureValid( *wd, msg, &d2tdata[idx]->mds_, &d2tdata[idx]->twts_ );
-	wd->setD2TModel( d2t );
+	D2TModel& d2t = wd->d2TModel();
+	d2t.ensureValid( *wd, msg, &d2tdata[idx]->mds_, &d2tdata[idx]->twts_ );
 
 	const BufferString wellfnm = ioobj->fullUserExpr();
 	Writer ww( *ioobj, *wd );

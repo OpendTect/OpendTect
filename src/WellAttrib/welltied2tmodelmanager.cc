@@ -28,12 +28,12 @@ D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& wts )
 	, wd_(&wd)
 	, emptyoninit_(false)
 {
-    if ( mIsUnvalidD2TM( wd ) )
-	{ emptyoninit_ = true; wd.setD2TModel( new Well::D2TModel ); }
+    if ( mIsInvalidD2TM( wd ) )
+	{ emptyoninit_ = true; wd.d2TModel().setEmpty(); }
 
     WellTie::GeoCalculator gc;
     Well::D2TModel* d2t = wts.useexistingd2tm_
-			? wd.d2TModel()
+			? &wd.d2TModel()
 			: gc.getModelFromVelLog( wd, wts.vellognm_ );
     if ( !d2t )
     {
@@ -43,12 +43,12 @@ D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& wts )
     }
 
     if ( wts.corrtype_ == Setup::Automatic && wd_->haveCheckShotModel() )
-	CheckShotCorr::calibrate( *wd.checkShotModel(), *d2t );
+	CheckShotCorr::calibrate( wd.checkShotModel(), *d2t );
 
     if ( !wts.useexistingd2tm_ )
 	setAsCurrent( d2t );
 
-    orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd.d2TModel() );
+    orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( wd.d2TModel() );
 }
 
 
@@ -60,25 +60,17 @@ D2TModelMgr::~D2TModelMgr()
 
 Well::D2TModel* D2TModelMgr::d2T()
 {
-    return wd_ ? wd_->d2TModel() : 0;
+    return wd_ ? &wd_->d2TModel() : 0;
 }
 
 
-#define mRemoveSameTimeValues(d2tm)\
-    for ( int idx=1; idx<d2tm->size(); idx++ )\
-    {\
-	if ( mIsZero(d2tm->value(idx)-d2tm->value(idx-1),1e-8) )\
-	    d2tm->remove( idx-1 );\
-    }
-void D2TModelMgr::shiftModel( float shift)
+void D2TModelMgr::shiftModel( float shift )
 {
-    if ( !d2T() ) return;
+    if ( !d2T() )
+	return;
     Well::D2TModel* d2t = new Well::D2TModel( *d2T() );
 
-    for ( int dahidx=1; dahidx<d2t->size(); dahidx++ )
-	d2t->valArr()[dahidx] += shift;
-
-    mRemoveSameTimeValues(d2t);
+    d2t->shiftDahFrom( d2t->pointIDFor(1), shift );
     setAsCurrent( d2t );
 }
 
@@ -98,7 +90,9 @@ void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
     delete prvd2t_; prvd2t_ = 0;
     if ( d2T() )
 	prvd2t_ =  new Well::D2TModel( *d2T() );
-    wd_->setD2TModel( d2t );
+
+    wd_->d2TModel() = *d2t;
+    delete d2t;
 }
 
 
@@ -124,7 +118,7 @@ bool D2TModelMgr::cancel()
 
 bool D2TModelMgr::updateFromWD()
 {
-    if ( !wd_ || mIsUnvalidD2TM( (*wd_) ) || !d2T() )
+    if ( !wd_ || mIsInvalidD2TM( (*wd_) ) || !d2T() )
        return false;
     setAsCurrent( d2T() );
     return true;
@@ -136,22 +130,19 @@ bool D2TModelMgr::commitToWD()
     if ( !datawriter_.writeD2TM() )
 	return false;
 
-    if ( wd_ ) wd_->d2tchanged.trigger();
+    if ( wd_ )
+	wd_->d2tchanged.trigger();
     delete orgd2t_; orgd2t_ = 0;
 
     return true;
 }
 
 
-void D2TModelMgr::setFromData( float* dahs, float* times, int sz )
+void D2TModelMgr::setFromData( const TypeSet<float>& dahs,
+				const TypeSet<float>& times )
 {
-    if ( !d2T() ) return;
     Well::D2TModel* d2t = new Well::D2TModel();
-    d2t->add( d2T()->dah(0), d2T()->value(0) );
-    for ( int dahidx=1; dahidx<sz; dahidx++ )
-	d2t->add( dahs[dahidx], times[dahidx] );
-
-    mRemoveSameTimeValues(d2t);
+    d2t->setData( dahs, times );
     setAsCurrent( d2t );
 }
 

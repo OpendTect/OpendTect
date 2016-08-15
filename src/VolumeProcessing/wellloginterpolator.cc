@@ -327,7 +327,7 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 
 	    for ( int idz=0; idz<mds.size(); idz++ )
 	    {
-		const float lv = log->getValue( mds[idz], extlog_ );
+		const float lv = log->valueAt( mds[idz], extlog_ );
 		if ( mIsUdf(lv) )
 		    continue;
 

@@ -437,8 +437,8 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
     {
 	const MultiID wmid = wellids_[iwell];
-				     
-	RefMan<Well::Data> wd = Well::MGR().get( wmid ); 
+
+	RefMan<Well::Data> wd = Well::MGR().get( wmid );
 	bool isinplogunitsi = true;
 	for ( int i = 0; i<form_.nrInputs(); i++ )
 	{
@@ -449,10 +449,10 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 		break;
 	}
 
-	bool isoutputlogunitsi = true; 
+	bool isoutputlogunitsi = true;
 	if ( outunfld_->getUnit() )
 	    isoutputlogunitsi = outunfld_->getUnit()->scaler().isEmpty();
-    
+
 	if ( !isinplogunitsi && !isoutputlogunitsi )
 	{
 	    bool res = uiMSG().askContinue(tr("The log units are not SI units. "
@@ -467,7 +467,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 		"Please correct the units and proceed"));
 	    return false;
 	}
-    
+
 	if ( !wd )
 	    mErrContinue( tr("%1").arg(Well::MGR().errMsg()) )
 
@@ -478,21 +478,15 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
 	Well::Log* newwl = new Well::Log( newnm );
 	wls.add( newwl );
-	if ( !calcLog(*newwl,inpdatas,wd->track(),wd->d2TModel()) )
+	const Well::D2TModel& d2t = wd->d2TModel();
+	if ( !calcLog(*newwl,inpdatas,wd->track(),d2t.isEmpty()?0:&d2t) )
 	    mErrContinue( tr("Cannot compute log for %1").arg(wd->name()))
 
 	const UnitOfMeasure* outun = outunfld_->getUnit();
 	if ( outun )
 	{
 	    const UnitOfMeasure* logun = form_.outputUnit();
-	    for ( int idx=0; idx<newwl->size(); idx++ )
-	    {
-		const float initialval = newwl->value( idx );
-		const float valinsi = !logun ? initialval
-				    : logun->getSIValue( initialval );
-		const float convertedval = outun->getUserValueFromSI( valinsi );
-		newwl->valArr()[idx] = convertedval;
-	    }
+	    newwl->applyUnit( logun );
 	}
 
 	if ( outun )
@@ -564,13 +558,7 @@ Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx,
     if ( convtosi )
     {
 	const char* logunitnm = ret->unitMeasLabel();
-	const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
-	if ( logun )
-	{
-	    float* valarr = ret->valArr();
-	    for ( int idx=0; idx<ret->size(); idx++ )
-		valarr[idx] = logun->getSIValue( valarr[idx] );
-	}
+	ret->applyUnit( UnitOfMeasure::getGuessed(logunitnm) );
     }
 
     return ret;
@@ -600,7 +588,7 @@ static void selectInpVals( const TypeSet<float>& noudfinpvals,
 
 bool uiWellLogCalc::calcLog( Well::Log& wlout,
 			     const TypeSet<uiWellLogCalc::InpData>& inpdatas,
-			     Well::Track& track, Well::D2TModel* d2t )
+			     Well::Track& track, const Well::D2TModel* d2t )
 {
     form_.startNewSeries();
 
@@ -634,10 +622,10 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 	    const float curdah = dah + samprg.step * inpd.shift_;
 	    if ( inpd.wl_ )
 	    {
-		const float val = inpd.wl_->getValue( curdah, false );
+		const float val = inpd.wl_->valueAt( curdah, false );
 		inpvals[iinp] = val;
 		noudfinpvals[iinp] = !mIsUdf(val) ? val
-				   : inpd.wl_->getValue( curdah, true );
+				   : inpd.wl_->valueAt( curdah, true );
 	    }
 	    else if ( inpd.isconst_ )
 		inpvals[iinp] = noudfinpvals[iinp] = inpd.constval_;

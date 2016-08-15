@@ -13,7 +13,6 @@
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "bendpointfinder.h"
-#include "idxable.h"
 #include "iopar.h"
 #include "stratlevel.h"
 #include "wellman.h"
@@ -66,130 +65,6 @@ int Well::Info::legacyLogWidthFactor()
 }
 
 
-int Well::DahObj::indexOf( float dh ) const
-{
-    int idx1 = -1;
-    IdxAble::findFPPos( dah_, dah_.size(), dh, -1, idx1 );
-    return idx1;
-}
-
-
-Interval<float>	Well::DahObj::dahRange() const
-{
-    if ( isEmpty() )
-	return Interval<float>( 0, 0 );
-
-    return Interval<float>( dah_.first(), dah_.last() );
-}
-
-
-float Well::DahObj::dahStep( bool ismin ) const
-{
-    const int sz = dah_.size();
-    if ( sz < 2 ) return mUdf(float);
-
-    float res = dah_[1] - dah_[0];
-    if ( res <0 ) res = 0;
-    int nrvals = 1;
-    for ( int idx=2; idx<sz; idx++ )
-    {
-	float val = dah_[idx] - dah_[idx-1];
-	if ( mIsZero(val,mDefEps) )
-	    continue;
-
-	if ( !ismin )
-	    res += val;
-	else
-	{
-	    if ( val < res && val >= 0 )
-		res = val;
-	}
-	nrvals++;
-    }
-
-    if ( !ismin ) res /= nrvals; // average
-    return mIsZero(res,mDefEps) ? mUdf(float) : res;
-}
-
-
-void Well::DahObj::deInterpolate()
-{
-    TypeSet<Coord> bpfinp;
-    bpfinp.setCapacity( dah_.size(), false );
-    for ( int idx=0; idx<dah_.size(); idx++ )
-	bpfinp += Coord( dah_[idx]*0.1, value( idx ) );
-	// for time we want a fac of 1000, but for track 1. Compromise.
-
-    BendPointFinder2D finder( bpfinp, 1e-5 );
-    if ( !finder.execute() || finder.bendPoints().size()<1 )
-	return;
-
-    const TypeSet<int>& bpidxs = finder.bendPoints();
-
-    int bpidx = 0;
-    TypeSet<int> torem;
-    for ( int idx=0; idx<bpfinp.size(); idx++ )
-    {
-	if ( idx != bpidxs[bpidx] )
-	    torem += idx;
-	else
-	    bpidx++;
-    }
-
-    for ( int idx=torem.size()-1; idx>-1; idx-- )
-	remove( torem[idx] );
-}
-
-
-void Well::DahObj::addToDahFrom( int fromidx, float extradah )
-{
-    for ( int idx=fromidx; idx<dah_.size(); idx++ )
-	dah_[idx] += extradah;
-}
-
-
-void Well::DahObj::removeFromDahFrom( int fromidx, float extradah )
-{
-    for ( int idx=fromidx; idx<dah_.size(); idx++ )
-	dah_[idx] -= extradah;
-}
-
-
-bool Well::DahObj::doInsertAtDah( float dh, float val, TypeSet<float>& vals,
-				bool ascendingvalonly )
-{
-    if ( mIsUdf(val) )
-	return false;
-
-    if ( dah_.isEmpty() || dh >= dah_[dah_.size()-1] )
-    {
-	if ( !dah_.isEmpty() && ascendingvalonly && val <= vals[dah_.size()-1] )
-	    return false;
-	dah_ += dh; vals += val;
-    }
-    else if ( dh < dah_[0] )
-    {
-	if ( ascendingvalonly && val >= vals[0] )
-	    return false;
-	dah_.insert( 0, dh );
-	vals.insert( 0, val );
-    }
-    else
-    {
-	const int insertidx = indexOf( dh );
-	if ( insertidx < 0 )
-	    return false;
-	if ( ascendingvalonly
-	    && (val <= vals[insertidx] || val >= vals[insertidx+1]) )
-	    return false;
-
-	dah_.insert( insertidx+1, dh );
-	vals.insert( insertidx+1, val );
-    }
-    return true;
-}
-
-
 mDefineInstanceCreatedNotifierAccess(Well::Data)
 
 
@@ -200,8 +75,8 @@ Well::Data::Data( const char* nm )
     , logs_(*new Well::LogSet)
     , disp2d_(*new Well::DisplayProperties(sKey2DDispProp()))
     , disp3d_(*new Well::DisplayProperties(sKey3DDispProp()))
-    , d2tmodel_(0)
-    , csmodel_(0)
+    , d2tmodel_(*new D2TModel)
+    , csmodel_(*new D2TModel)
     , markers_(*new MarkerSet)
     , d2tchanged(this)
     , csmdlchanged(this)
@@ -220,25 +95,18 @@ Well::Data::Data( const char* nm )
 
 Well::Data::~Data()
 {
+    Well::MGR().removeObject( this );
     sendDelNotif();
     detachAllNotifiers();
 
     delete &track_;
     delete &logs_;
+    delete &d2tmodel_;
+    delete &csmodel_;
+    delete &markers_;
     delete &disp2d_;
     delete &disp3d_;
-    delete d2tmodel_;
-    delete csmodel_;
-    delete &markers_;
 }
-
-
-/*
-void Well::Data::prepareForDelete()
-{
-    Well::MGR().removeObject( this );
-}
-*/
 
 
 bool Well::Data::haveMarkers() const
@@ -253,43 +121,38 @@ bool Well::Data::haveLogs() const
 }
 
 
-Well::D2TModel* Well::Data::gtMdl( bool ckshot ) const
+bool Well::Data::haveD2TModel() const
 {
-    mLock4Read();
-    return const_cast<D2TModel*>( ckshot ? csmodel_ : d2tmodel_ );
+    return !d2tmodel_.isEmpty();
 }
 
 
-void Well::Data::setD2TModel( D2TModel* d )
+bool Well::Data::haveCheckShotModel() const
 {
-    if ( d2tmodel_ == d )
-	return;
-    mLock4Write();
-    delete d2tmodel_;
-    d2tmodel_ = d;
-    mUnlockAllAccess();
-    d2tchanged.trigger();
+    return !csmodel_.isEmpty();
 }
 
 
-void Well::Data::setCheckShotModel( D2TModel* d )
+Well::D2TModel& Well::Data::gtMdl( bool ckshot ) const
 {
-    if ( csmodel_ == d )
-	return;
-    mLock4Write();
-    delete csmodel_;
-    csmodel_ = d;
-    mUnlockAllAccess();
-    csmdlchanged.trigger();
+    return const_cast<D2TModel&>( ckshot ? csmodel_ : d2tmodel_ );
+}
+
+
+Well::D2TModel* Well::Data::gtMdlPtr( bool ckshot ) const
+{
+    D2TModel& d2t = gtMdl( ckshot );
+    return d2t.isEmpty() ? 0 : &d2t;
 }
 
 
 void Well::Data::setEmpty()
 {
-    setD2TModel( 0 ); setCheckShotModel( 0 );
-    track_.setEmpty();
-    logs_.setEmpty();
+    csmodel_.setEmpty();
     markers_.setEmpty();
+    logs_.setEmpty();
+    d2tmodel_.setEmpty();
+    track_.setEmpty();
 }
 
 
@@ -339,7 +202,6 @@ void Well::Info::usePar( const IOPar& par )
     surfacecoord.fromString( par.find(sKeyCoord()) );
     par.get( sKeyReplVel(), replvel );
     par.get( sKeyGroundElev(), groundelev );
-
 }
 
 float Well::getDefaultVelocity()
@@ -349,7 +211,5 @@ float Well::getDefaultVelocity()
     if ( SI().zInFeet() )
 	return replvelft;
     else
-    {
 	return SI().depthsInFeet() ? replvelft * mFromFeetFactorF : replvelm;
-    }
 }

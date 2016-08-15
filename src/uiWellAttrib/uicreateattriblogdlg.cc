@@ -192,7 +192,7 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 bool uiCreateAttribLogDlg::inputsOK( int wellno )
 {
     Well::Data* wd = Well::MGR().wells()[ wellno ];
-    if ( SI().zIsTime() && !wd->d2TModel() )
+    if ( SI().zIsTime() && !wd->d2TModelPtr() )
 	mErrRet( tr("No depth to time model defined") );
 
     const Attrib::DescID seldescid = attribfld_->attribID();

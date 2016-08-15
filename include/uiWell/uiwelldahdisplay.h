@@ -136,7 +136,7 @@ public:
 	    dispzinft_	= d.dispzinft_;
 	    wd_	= d.wd_;
 	}
-	const Well::D2TModel*	d2T() const { return wd_ ? wd_->d2TModel() : 0;}
+	const Well::D2TModel*	d2T() const { return wd_ ? &wd_->d2TModel() : 0;}
 	const Well::Track*	track() const {return wd_ ? &wd_->track() : 0; }
 	const Well::MarkerSet*	mrks() const {return wd_ ? &wd_->markers() : 0;}
 

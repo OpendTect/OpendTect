@@ -99,13 +99,11 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	mErrRet( tr("Cannot generate D2Time model without track") )
 
     if ( cksh )
-	wd.setCheckShotModel( new Well::D2TModel );
+	wd.checkShotModel().setEmpty();
     else
-	wd.setD2TModel( new Well::D2TModel );
+	wd.d2TModel().setEmpty();
 
-    Well::D2TModel& d2t = *(cksh ? wd.checkShotModel() : wd.d2TModel());
-    if ( !&d2t )
-	mErrRet( tr("D2Time model not set properly") )
+    Well::D2TModel& d2t = cksh ? wd.checkShotModel() : wd.d2TModel();
 
     if ( filefld_->isCheckable() && !filefld_->isChecked() )
     {

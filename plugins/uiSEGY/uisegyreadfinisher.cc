@@ -344,7 +344,7 @@ bool uiSEGYReadFinisher::doVSP()
     if ( !wd )
 	mErrRet(tr("Cannot load the selected well\n%1")
 			.arg(Well::MGR().errMsg()))
-    else if ( !isdpth && !wd->d2TModel() )
+    else if ( !isdpth && !wd->d2TModelPtr() )
 	mErrRet(tr("Selected well has no Depth vs Time model"))
 
     const Well::Track& track = wd->track();
@@ -361,7 +361,7 @@ bool uiSEGYReadFinisher::doVSP()
     {
 	float z = trc.samplePos( isamp );
 	if ( !isdpth )
-	    z = wd->d2TModel()->getDah( z, track );
+	    z = wd->d2TModel().getDah( z, track );
 	else
 	{
 	    if ( inft )

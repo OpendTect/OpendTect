@@ -53,7 +53,7 @@ Well::Writer::Writer( const MultiID& ky, const Well::Data& wd )
 {
     IOObj* ioobj = IOM().get( ky );
     if ( !ioobj )
-	errmsg_.set( "Cannot find well ID " ).add( ky ).add( " in data store" );
+	errmsg_ = tr( "Cannot find well ID %1 in data store." ).arg( ky );
     else
     {
 	init( *ioobj, wd );
@@ -65,14 +65,14 @@ Well::Writer::Writer( const MultiID& ky, const Well::Data& wd )
 void Well::Writer::init( const IOObj& ioobj, const Well::Data& wd )
 {
     if ( ioobj.group() != mTranslGroupName(Well) )
-	errmsg_.set( ioobj.name() ).add( " is for a " ).add( ioobj.group() )
-	       .add( " - not for a Well" );
+        errmsg_ = tr( "%1 is a %2 - not a Well" )
+		    .arg( ioobj.name() ).arg( ioobj.group() );
     else
     {
 	wa_ = WDIOPF().getWriteAccess( ioobj, wd, errmsg_ );
-	if ( !wa_ )
-	    errmsg_.set( "Cannot create writer of type " )
-		   .add( ioobj.translator() );
+	if ( !wa_ && errmsg_.isEmpty() )
+	    errmsg_ = tr( "Cannot create writer of type %1" )
+		   .arg( ioobj.translator() );
     }
 }
 
@@ -101,17 +101,16 @@ mImplWWFn(bool,putLog,const Log&,wl,false)
 
 
 #define mErrStrmOper(oper,todo) \
-{ errmsg_.set( "Cannot " ).add( oper ).add( " for " ).add( strm.fileName() ); \
-    strm.addErrMsgTo( errmsg_ ); todo; }
+{ setStrmErrMsg(strm,oper); todo; }
 #define mErrRetStrmOper(oper) mErrStrmOper(oper,return false)
 
 #define mGetOutStream(ext,nr,todo) \
     errmsg_.setEmpty(); \
     od_ostream strm( getFileName(ext,nr) ); \
-    if ( !strm.isOK() ) mErrStrmOper("start writing",todo)
+    if ( !strm.isOK() ) mErrStrmOper(startWriteStr(),todo)
 
 
-Well::odWriter::odWriter( const char* f, const Well::Data& w, BufferString& e )
+Well::odWriter::odWriter( const char* f, const Well::Data& w, uiString& e )
     : Well::odIO(f,e)
     , Well::WriteAccess(w)
 {
@@ -120,7 +119,7 @@ Well::odWriter::odWriter( const char* f, const Well::Data& w, BufferString& e )
 
 
 Well::odWriter::odWriter( const IOObj& ioobj, const Well::Data& w,
-			  BufferString& e )
+			  uiString& e )
     : Well::odIO(ioobj.fullUserExpr(false),e)
     , Well::WriteAccess(w)
 {
@@ -134,6 +133,19 @@ void Well::odWriter::init()
 {
     binwrlogs_ = true;
     mSettUse(getYN,"dTect.Well logs","Binary format",binwrlogs_);
+}
+
+
+void Well::odWriter::setStrmErrMsg( od_stream& strm, const uiString& oper ) const
+{
+    errmsg_ = tr( "Cannot %1 for %2." ).arg( oper ).arg( strm.fileName() );
+    strm.addErrMsgTo( errmsg_ );
+}
+
+
+uiString Well::odWriter::startWriteStr() const
+{
+    return tr("start writing");
 }
 
 
@@ -171,7 +183,7 @@ bool Well::odWriter::putInfoAndTrack() const
 bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyWell()) )
-	mErrRetStrmOper("write header (info/track)")
+	mErrRetStrmOper(tr("write header (info/track)"))
 
     ascostream astrm( strm );
     astrm.put( Well::Info::sKeyDepthUnit(),
@@ -192,18 +204,19 @@ bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
 
 bool Well::odWriter::putTrack( od_ostream& strm ) const
 {
-    for ( int idx=0; idx<wd_.track().size(); idx++ )
+    TrackIter iter( wd_.track() );
+    while ( iter.next() )
     {
-	const Coord3& c = wd_.track().pos(idx);
+	const Coord3 c = iter.pos();
 	    // don't try to do the following in one statement
 	    // (unless for educational purposes)
 	strm << c.x << od_tab;
 	strm << c.y << od_tab;
 	strm << c.z << od_tab;
-	strm << wd_.track().dah(idx) << od_newline;
+	strm << iter.dah() << od_newline;
     }
     if ( !strm.isOK() )
-	mErrRetStrmOper("write track data")
+	mErrRetStrmOper(tr("write track data"))
     return true;
 }
 
@@ -217,7 +230,7 @@ bool Well::odWriter::putLogs() const
 
 	const Well::Log& wl = wd_.logs().getLog(idx);
 	if ( !putLog(strm,wl) )
-	    mErrRetStrmOper("write log")
+	    mErrRetStrmOper(tr("write log"))
     }
 
     return true;
@@ -245,8 +258,9 @@ bool Well::odWriter::putLog( const Well::Log& wl ) const
 bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
 {
     if ( !wrHdr(strm,sKeyLog()) )
-	mErrRetStrmOper("write header (log)")
+	mErrRetStrmOper(tr("write header (log)"))
 
+    MonitorLock ml( wl );
     ascostream astrm( strm );
     astrm.put( Well::Info::sKeyDepthUnit(),
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
@@ -267,13 +281,13 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
     float dah, val;
     for ( ; wrintv.start<wl.size(); wrintv.start++ )
     {
-	dah = wl.dah(wrintv.start); val = wl.value(wrintv.start);
+	dah = wl.dahByIdx(wrintv.start); val = wl.valueByIdx(wrintv.start);
 	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }
     for ( ; wrintv.stop>=0; wrintv.stop-- )
     {
-	dah = wl.dah(wrintv.stop); val = wl.value(wrintv.stop);
+	dah = wl.dahByIdx(wrintv.stop); val = wl.valueByIdx(wrintv.stop);
 	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }
@@ -281,11 +295,11 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
     float v[2];
     for ( int idx=wrintv.start; idx<=wrintv.stop; idx++ )
     {
-	v[0] = wl.dah( idx );
+	v[0] = wl.dahByIdx( idx );
 	if ( mIsUdf(v[0]) )
 	    continue;
 
-	v[1] = wl.value( idx );
+	v[1] = wl.valueByIdx( idx );
 	if ( binwrlogs_ )
 	    strm.addBin( v );
 	else
@@ -301,7 +315,7 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
     }
 
     if ( !strm.isOK() )
-	mErrRetStrmOper("write log data")
+	mErrRetStrmOper(tr("write log data"))
     return true;
 }
 
@@ -316,7 +330,7 @@ bool Well::odWriter::putMarkers() const
 bool Well::odWriter::putMarkers( od_ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyMarkers()) )
-	mErrRetStrmOper("write header (markers)")
+	mErrRetStrmOper(tr("write header (markers)"))
 
     ascostream astrm( strm );
     astrm.put( Well::Info::sKeyDepthUnit(),
@@ -337,7 +351,7 @@ bool Well::odWriter::putMarkers( od_ostream& strm ) const
     }
 
     if ( !strm.isOK() )
-	mErrRetStrmOper("write markers")
+	mErrRetStrmOper(tr("write markers"))
     return true;
 }
 
@@ -346,7 +360,8 @@ bool Well::odWriter::putD2T() const	{ return doPutD2T( false ); }
 bool Well::odWriter::putCSMdl() const	{ return doPutD2T( true ); }
 bool Well::odWriter::doPutD2T( bool csmdl ) const
 {
-    if ( (csmdl && !wd_.checkShotModel()) || (!csmdl && !wd_.d2TModel()) )
+    if ( (csmdl && wd_.checkShotModel().isEmpty())
+     || (!csmdl && wd_.d2TModel().isEmpty()) )
 	return true;
 
     mGetOutStream( csmdl ? sExtCSMdl() : sExtD2T(), 0, return false )
@@ -361,28 +376,29 @@ bool Well::odWriter::putCSMdl( od_ostream& strm ) const
 bool Well::odWriter::doPutD2T( od_ostream& strm, bool csmdl ) const
 {
     if ( !wrHdr(strm,sKeyD2T()) )
-	mErrRetStrmOper("write header (D2T model)")
+	mErrRetStrmOper(tr("write header (D2T model)"))
 
     ascostream astrm( strm );
-    const Well::D2TModel& d2t = *(csmdl ? wd_.checkShotModel(): wd_.d2TModel());
+    const Well::D2TModel& d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
     astrm.put( sKey::Name(), d2t.name() );
-    astrm.put( sKey::Desc(), d2t.desc );
-    astrm.put( D2TModel::sKeyDataSrc(), d2t.datasource );
+    astrm.put( sKey::Desc(), d2t.desc() );
+    astrm.put( D2TModel::sKeyDataSrc(), d2t.dataSource() );
     astrm.put( Well::Info::sKeyDepthUnit(),
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
     astrm.newParagraph();
 
-    for ( int idx=0; idx<d2t.size(); idx++ )
+    D2TModelIter iter( d2t );
+    while ( iter.next() )
     {
-	const float dah = d2t.dah( idx );
+	const float dah = iter.dah();
 	if ( mIsUdf(dah) )
 	    continue;
 
-	strm << dah << od_tab << d2t.t(idx) << od_newline;
+	strm << dah << od_tab << iter.t() << od_newline;
     }
 
     if ( !strm.isOK() )
-	mErrRetStrmOper("write Depth/Time data")
+	mErrRetStrmOper(tr("write Depth/Time data"))
     return true;
 }
 
@@ -397,7 +413,7 @@ bool Well::odWriter::putDispProps() const
 bool Well::odWriter::putDispProps( od_ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyDispProps()) )
-	mErrRetStrmOper("write header (display parameters)")
+	mErrRetStrmOper(tr("write header (display parameters)"))
 
     ascostream astrm( strm );
     IOPar iop;
@@ -405,6 +421,6 @@ bool Well::odWriter::putDispProps( od_ostream& strm ) const
     wd_.displayProperties(false).fillPar( iop );
     iop.putTo( astrm );
     if ( !strm.isOK() )
-	mErrRetStrmOper("write well display parameters")
+	mErrRetStrmOper(tr("write well display parameters"))
     return true;
 }

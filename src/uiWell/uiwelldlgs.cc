@@ -149,7 +149,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     iobutgrp->attach( leftAlignedBelow, actbutgrp );
 
     if ( !track_.isEmpty() )
-	origpos_ = track_.pos(0);
+	origpos_ = track_.firstPos();
 
     fillTable();
 }
@@ -192,21 +192,24 @@ bool uiWellTrackDlg::fillTable( CallBacker* )
 {
     RowCol curcell( tbl_->currentCell() );
 
+    MonitorLock ml( track_ );
     const int sz = track_.size();
     int newsz = sz + nremptyrows;
     if ( newsz < 8 ) newsz = 8;
     tbl_->setNrRows( newsz );
     tbl_->clearTable();
-    if ( !sz ) return false;
+    if ( sz < 1 )
+	return false;
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	const Coord3& c( track_.pos(idx) );
+	const Coord3& c( track_.posByIdx(idx) );
 	setX( idx, c.x );
 	setY( idx, c.y );
 	setZ( idx, c.z );
-	setMD( idx, track_.dah(idx) );
+	setMD( idx, track_.dahByIdx(idx) );
     }
+    ml.unlockNow();
 
     if ( curcell.row() >= newsz ) curcell.row() = newsz-1;
     tbl_->setCurrentCell( curcell );
@@ -235,8 +238,8 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
 			      .arg( Well::Info::sKBElev() )
 			      .arg( depthunit ) );
 
-    if ( track_.size() > 1 )
-	wd_.info().surfacecoord = track_.pos(0);
+    if ( !track_.isEmpty() )
+	wd_.info().surfacecoord = track_.firstPos();
 
     Coord wellhead = wd_.info().surfacecoord;
     if ( mIsZero(wellhead.x,0.001) )
@@ -468,7 +471,7 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 	if ( rowIsIncomplete(idx) )
 	{
 	    uiString msg =
-	    	tr("X, Y, Z or MD is not set in row %1.\n"
+		tr("X, Y, Z or MD is not set in row %1.\n"
 		   "Please enter a valid value or remove this row.").arg(idx+1);
 	    uiMSG().error( msg );
 	    return false;
@@ -490,8 +493,8 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 
 	if ( idx > 0 && mIsUdf(dahval) )
 	{
-	    dahval = track_.dah(idx-1) +
-		     mCast(float, track_.pos(idx-1).distTo( newc ) );
+	    dahval = track_.dahByIdx(idx-1) +
+		     mCast(float, track_.posByIdx(idx-1).distTo( newc ) );
 	    needfill = true;
 	}
 
@@ -534,7 +537,7 @@ void uiWellTrackDlg::updatePos( bool isx )
     const Coord surfacecoord = wd_.info().surfacecoord;
     double surfacepos = isx ? surfacecoord.x : surfacecoord.y;
     if ( mIsUdf(surfacepos) && !track_.isEmpty() )
-	surfacepos = isx ? track_.pos(0).x : track_.pos(0).y;
+	surfacepos = isx ? track_.firstPos().x : track_.firstPos().y;
 
     const double newpos = posfld->getDValue();
     if ( mIsUdf(newpos) )
@@ -643,16 +646,18 @@ bool uiWellTrackDlg::acceptOK( CallBacker* )
     if ( !updNow( 0 ) )
 	return false;
 
+    MonitorLock ml( track_ );
     const int nrpts = track_.size();
-    if ( nrpts < 2 ) return false;
+    if ( nrpts < 2 )
+	return false;
     const int orgnrpts = orgtrack_->size();
     bool dahchg = nrpts != orgnrpts;
     if ( !dahchg )
     {
 	for ( int idx=0; idx<nrpts; idx++ )
 	{
-	    const float dah = track_.dah(idx);
-	    const float orgdah = orgtrack_->dah(idx);
+	    const float dah = track_.dahByIdx(idx);
+	    const float orgdah = orgtrack_->dahByIdx(idx);
 	    if ( !mIsEqual(dah,orgdah,0.001) )
 		{ dahchg = true; break; }
 	}
@@ -707,14 +712,15 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     strm << trackcollbls[3] << depthunit << od_newline;
 
     const float kbdepth = -1.f * track_.getKbElev();
-    for ( int idx=0; idx<track_.size(); idx++ )
+    Well::TrackIter iter( track_ );
+    while ( iter.next() )
     {
-	const Coord3 coord( track_.pos(idx) );
+	const Coord3 coord( iter.pos() );
 	strm << coord.x << od_tab;
 	strm << coord.y << od_tab;
 	strm << mConvertVal(coord.z,true) << od_tab;
 	strm << mConvertVal(coord.z-kbdepth,true) << od_tab;
-	strm << mConvertVal(track_.dah(idx),true) << od_newline;
+	strm << mConvertVal(iter.dah(),true) << od_newline;
     }
 }
 
@@ -733,14 +739,15 @@ static const char* sKeyVint()		{ return "Vint"; }
 static const int cMDCol = 0;
 static const int cTVDCol = 1;
 
-#define mD2TModel (cksh_ ? wd_.checkShotModel() : wd_.d2TModel())
+#define mUseD2TModel (cksh_ ? wd_.checkShotModel() : wd_.d2TModel())
+#define mD2TModel (mUseD2TModel.isEmpty() ? 0 : &mUseD2TModel)
 
 
 uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	: uiDialog(p,mGetDlgSetup(wd,mTDName(cksh),mD2TModelDlgHelpID))
 	, wd_(wd)
 	, cksh_(cksh)
-	, orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : 0)
+	, orgd2t_(mD2TModel ? new Well::D2TModel(mUseD2TModel) : 0)
 	, origreplvel_(wd.info().replvel)
 	, replvelfld_(0)
 {
@@ -970,7 +977,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     float vint;
     for ( int idx=0; idx<dtsz; idx++ )
     {
-	const float dah = d2t->dah(idx);
+	const float dah = d2t->dahByIdx(idx);
 	const float tvdss = mCast(float,track.getPos(dah).z);
 	const float tvd = tvdss + kbelev;
 	mGetVel(dah,d2t)
@@ -983,7 +990,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
 	    setDepthValue( idx, getTVDSDCol(), tvdss + srd );
 
 	setDepthValue( idx, getTVDSSCol(), tvdss );
-	setTimeValue( idx, d2t->t(idx) );
+	setTimeValue( idx, d2t->valueByIdx(idx) );
 	setDepthValue( idx, getVintCol(), vint );
     }
     tbl_->setColumnReadOnly( getVintCol(), true );
@@ -1024,10 +1031,7 @@ void uiD2TModelDlg::dtpointRemovedCB( CallBacker* )
 {
     Well::D2TModel* d2t = mD2TModel;
     if ( !d2t || d2t->size()<3 )
-    {
-	uiMSG().error(tr("Invalid time-depth model"));
-	return;
-    }
+	{ uiMSG().error(tr("Invalid time-depth model")); return; }
 
     const int row = tbl_->currentRow();
     int idah = d2t->indexOf( getDepthValue(row,cMDCol) );
@@ -1035,13 +1039,13 @@ void uiD2TModelDlg::dtpointRemovedCB( CallBacker* )
 	 mIsUdf(idah) )
 	return;
 
-    d2t->remove( idah-1 );
+    d2t->removeByIdx( idah-1 );
     const int nextrow = getNextCompleteRowIdx( row-1 );
     if ( mIsUdf(nextrow) )
 	return;
 
     idah = d2t->indexOf( getDepthValue(nextrow,cMDCol) );
-    const float olddah = d2t->dah( idah );
+    const float olddah = d2t->dahByIdx( idah );
     updateDtpoint( nextrow, olddah );
 }
 
@@ -1081,7 +1085,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     const bool hastvdsd = !mIsZero( srd, 1e-3f );
     const bool inistvdsd = hastvdsd && incol == getTVDSDCol();
 
-    const float olddah = newrow ? mUdf(float) : d2t->dah( row );
+    const float olddah = newrow ? mUdf(float) : d2t->dahByIdx( row );
     const float oldtvdss = newrow ? mUdf(float) : (float)track.getPos(olddah).z;
     float oldval = mUdf( float );
     if ( inistvd && !mIsUdf(oldtvdss) )
@@ -1105,7 +1109,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
 
     float inval = getDepthValue( row, incol );
     Interval<float> dahrg = track.dahRange();
-    Interval<float> zrg( track.value( 0 ), track.value( tracksz - 1 ) );
+    Interval<float> zrg( (float)track.firstPos().z, (float)track.lastPos().z );
     if ( inistvd )
 	zrg.shift( kbelev );
     else if ( inistvdgl )
@@ -1199,7 +1203,7 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
     }
 
     const bool newrow = rowIsIncomplete( row );
-    const float oldval = newrow ? mUdf(float) : d2t->value( row );
+    const float oldval = newrow ? mUdf(float) : d2t->valueByIdx( row );
     if ( mIsUdf(getTimeValue(row)) )
     {
 	uiMSG().error( uiStrings::phrEnter(tr("a valid number")) );
@@ -1266,12 +1270,12 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
 	const bool oldvalisdah = tbl_->currentCol() < getTimeCol();
 	const float olddah = oldvalisdah ? oldval : d2t->getDah( oldval, track);
 	const int dahidx = d2t->indexOf( olddah );
-	d2t->remove( dahidx );
+	d2t->removeByIdx( dahidx );
     }
 
     const float dah = getDepthValue( row, cMDCol );
     const float twt = getTimeValue( row );
-    d2t->insertAtDah( dah, twt );
+    d2t->setValueAt( dah, twt );
     wd_.d2tchanged.trigger();
 
     const float srd = mCast(float,SI().seismicReferenceDatum());
@@ -1399,7 +1403,8 @@ void uiD2TModelDlg::readNew( CallBacker* )
 void uiD2TModelDlg::expData( CallBacker* )
 {
     Well::D2TModel* d2t = mD2TModel;
-    getModel( *d2t );
+    if ( d2t )
+	getModel( *d2t );
     if ( !d2t || d2t->size() < 2 )
 	{ uiMSG().error( tr("No valid data entered") ); return; }
 
@@ -1436,9 +1441,10 @@ void uiD2TModelDlg::expData( CallBacker* )
     strm << header.get( getTimeCol() ) << od_tab;
     strm << header.get( getVintCol() ) << od_newline;
     float vint;
-    for ( int idx=0; idx<d2t->size(); idx++ )
+    Well::D2TModelIter iter( *d2t );
+    while ( iter.next() )
     {
-	const float dah = d2t->dah(idx);
+	const float dah = iter.dah();
 	const float tvdss = mConvertVal(
 				mCast(float,wd_.track().getPos(dah).z), true );
 	const float tvd = tvdss + kbelev;
@@ -1455,7 +1461,7 @@ void uiD2TModelDlg::expData( CallBacker* )
 	    const float tvdsd = tvdss + srd;
 	    strm << tvdsd << od_tab;
 	}
-	strm << mConvertTimeVal( d2t->t(idx), true ) << od_tab;
+	strm << mConvertTimeVal( iter.value(), true ) << od_tab;
 	strm << mConvertVal( vint, true ) << od_newline;
     }
 }
@@ -1464,7 +1470,8 @@ void uiD2TModelDlg::expData( CallBacker* )
 bool uiD2TModelDlg::getFromScreen()
 {
     Well::D2TModel* d2t = mD2TModel;
-    getModel( *d2t );
+    if ( d2t )
+	getModel( *d2t );
 
     if ( wd_.track().zRange().stop < SI().seismicReferenceDatum() && !d2t )
 	return true;
@@ -1527,7 +1534,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     if ( mIsUdf(firstdah) || mIsUdf(firsttwt) )
 	return;
 
-    const float zwllhead = track.value(0);
+    const float zwllhead = (float)track.firstPos().z;
     const float replveldz = zwllhead + srdelev;
     const float timeshift = kbabovesrd ? firsttwt
 				       : 2.f * replveldz / replvel - firsttwt;
@@ -1579,7 +1586,7 @@ void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 
 	const float dah = getDepthValue( irow, cMDCol );
 	const float twt = getTimeValue( irow );
-	d2t.add( dah, twt );
+	d2t.setValueAt( dah, twt );
     }
 }
 
@@ -1587,7 +1594,7 @@ void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 bool uiD2TModelDlg::rejectOK( CallBacker* )
 {
     Well::D2TModel* d2t = mD2TModel;
-    if ( d2t )
+    if ( d2t && orgd2t_ )
 	*d2t = *orgd2t_;
 
     wd_.d2tchanged.trigger();
@@ -1801,4 +1808,3 @@ bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 {
     return setUoMValues();
 }
-

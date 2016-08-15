@@ -417,7 +417,7 @@ bool uiWellImportAsc::doWork()
 
 	datasrcnms.add( d2tgrp_->dataSourceName() );
 	if ( d2tgrp_->wantAsCSModel() )
-	    wd_.setCheckShotModel( new Well::D2TModel( *wd_.d2TModel() ) );
+	    wd_.checkShotModel() = wd_.d2TModel();
     }
 
     Well::Writer wwr( *outioobj, wd_ );

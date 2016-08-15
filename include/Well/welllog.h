@@ -42,60 +42,75 @@ mExpClass(Well) Log : public DahObj
 {
 public:
 
-			Log( const char* nm=0 )
-			: DahObj(nm)
-			, range_(mUdf(float),-mUdf(float))
-			, iscode_(false)			    {}
-			Log( const Log& t )
-			: DahObj("")			{ *this = t; }
-    Log&		operator =(const Log&);
+			Log(const char* nm=0);
+			~Log();
+			mDeclMonitorableAssignment(Log);
+			mDeclInstanceCreatedNotifierAccess(Log);
 
-    float		value( int idx ) const		{ return vals_[idx]; }
-    void		setValue(int idx,float val);
+    void		setValue(PointID,ValueType);
+    void		setValue(IdxType,ValueType);
+    inline void		addValue( ZType dh, ValueType val )
+			{ setValueAt( dh, val ); }
 
-    float		getValue(float,bool noudfs=false) const;
-    void		addValue(float dh,float val);
-			//!< addition must always ascend or descend
-    void		updateAfterValueChanges();
-			//!< call it upon any change of value(s)
-    void		ensureAscZ();
-			// Do this after adding values when Z may be reversed
-    bool		insertAtDah(float dh,float val);
+    void		getValues(ValueSetType&) const;
+    virtual void	getData(ZSetType&,ValueSetType&) const;
+    void		setValues(const ValueSetType&);
+    void		setData(const ZSetType&,const ValueSetType&);
+			// Make sure DAH values are sorted (asc or desc)
+
     void		removeTopBottomUdfs();
 
-    Interval<float>&	valueRange()			{ return range_; }
-    const Interval<float>& valueRange() const		{ return range_; }
-
-    const char*		unitMeasLabel() const		{ return unitmeaslbl_;}
+    mImplSimpleMonitoredGetSet(inline,unitMeasLabel,setUnitMeasLabel,
+				BufferString,unitmeaslbl_,cParsChange())
+    mImplSimpleMonitoredGetSet(inline,pars,setPars,IOPar,pars_,cParsChange())
     const UnitOfMeasure* unitOfMeasure() const;
-    void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
+    void		applyUnit(const UnitOfMeasure*);
     void		convertTo(const UnitOfMeasure*);
     PropertyRef::StdType propType() const;
-    bool		isCode() const			{ return iscode_; }
-			//!< log values are all integers stored as floats
+    mImplSimpleMonitoredGet(valueRange,Interval<ValueType>,valrg_)
+    mImplSimpleMonitoredGet(valsAreCodes,bool,valsarecodes_)
+
     static const char*	sKeyUnitLbl();
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();
 
-    float*		valArr()			{ return vals_.arr(); }
-    const float*	valArr() const			{ return vals_.arr(); }
-
-    IOPar&		pars()				{ return pars_; }
-    const IOPar&	pars() const			{ return pars_; }
-
 protected:
 
-    TypeSet<float>	vals_;
-    Interval<float>	range_;
+    ValueSetType	vals_;
     BufferString	unitmeaslbl_;
-    bool		iscode_;
     IOPar		pars_;
+    Interval<ValueType>	valrg_;
+    bool		valsarecodes_;
 
-    void		removeAux( int idx )	{ vals_.removeSingle(idx); }
-    void		eraseAux()		{ vals_.erase(); }
-    float		gtVal(float,int&) const;
+    virtual bool	doSet(IdxType,ValueType);
+    virtual PointID	doInsAtDah(ZType,ValueType);
+    virtual ValueType	gtVal( IdxType idx ) const  { return vals_[idx]; }
+    virtual void	removeAux( IdxType idx )    { vals_.removeSingle(idx); }
+    virtual void	eraseAux()		    { vals_.erase(); }
+
+    ValueType		gtVal(ZType,int&) const;
+    void		stVal(IdxType,ValueType);
+
+    void		redoValStats();
+    void		updValStats(ValueType);
+    void		ensureAscZ();
 
 };
+
+
+/*!\brief Well Log iterator. */
+
+mExpClass(Well) LogIter : public DahObjIter
+{
+public:
+
+			LogIter(const Log&,bool start_at_end=false);
+			LogIter(const LogIter&);
+
+    const Log&		log() const;
+
+};
+
 
 } // namespace Well
 

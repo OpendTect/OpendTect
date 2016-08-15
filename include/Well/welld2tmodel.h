@@ -27,41 +27,42 @@ mExpClass(Well) D2TModel : public DahObj
 { mODTextTranslationClass(D2TModel);
 public:
 
-			D2TModel( const char* nm= 0 )
-			: DahObj(nm)	{}
-			D2TModel( const D2TModel& d2t )
-			: DahObj("")	{ *this = d2t; }
-    D2TModel&		operator =(const D2TModel&);
-    bool		operator ==(const D2TModel&) const;
-    bool		operator !=(const D2TModel&) const;
+    typedef ValueType		TWTType;
+    typedef TWTType		VelType;
+    typedef ValueIntvType	TWTIntvType;
+    typedef ValueSetType	TWTSetType;
 
-    float		getTime(float d_ah, const Track&) const;
-    float		getDepth(float time, const Track&) const;
-    float		getDah(float time, const Track&) const;
-    double		getVelocityForDah(float d_ah,const Track&) const;
-    double		getVelocityForDepth(float dpt,const Track&) const;
-    double		getVelocityForTwt(float twt,const Track&) const;
+			D2TModel(const char* nm=0);
+			~D2TModel();
+			mDeclMonitorableAssignment(D2TModel);
+			mDeclInstanceCreatedNotifierAccess(D2TModel);
+    bool		operator ==(const D2TModel&) const;
+    bool		operator !=( const D2TModel& oth ) const
+			{ return !( oth == *this ); }
+
+    virtual void	getData(ZSetType&,TWTSetType&) const;
+    mImplSimpleMonitoredGetSet(inline,desc,setDesc,BufferString,
+				desc_,cParsChange());
+    mImplSimpleMonitoredGetSet(inline,dataSource,setDataSource,BufferString,
+				datasource_,cParsChange());
+
+    TWTType		getTime(ZType,const Track&) const;
+    ZType		getDepth(TWTType,const Track&) const;
+    ZType		getDah(TWTType,const Track&) const;
+    double		getVelocityForDah(ZType,const Track&) const;
+    double		getVelocityForDepth(ZType,const Track&) const;
+    double		getVelocityForTwt(TWTType,const Track&) const;
     bool		getTimeDepthModel(const Well::Data&,
 					  TimeDepthModel&) const;
 
-    inline float	t( int idx ) const	{ return t_[idx]; }
-    float		value( int idx ) const	{ return t(idx); }
-    float*		valArr()		{ return t_.arr(); }
-    const float*	valArr() const		{ return t_.arr(); }
+    inline ValueType	t( PointID id ) const	{ return value(id); }
 
-    BufferString	desc;
-    BufferString	datasource;
-
-    static const char*	sKeyTimeWell(); //!< name of model for well that is only
-				      //!< known in time
+    static const char*	sKeyTimeWell(); //!< for well that is only known in time
     static const char*	sKeyDataSrc();
 
-    void		add( float d_ah, float tm )
-						{ dah_ += d_ah; t_ += tm; }
-    bool		insertAtDah(float d_ah,float t);
-
-    void		makeFromTrack(const Track&, float cstvel,
-				      float replvel);
+    void		setData(const ZSetType&,const ValueSetType&);
+    void		makeFromTrack(const Track&,VelType cstvel,
+				      VelType replvel);
 			//!< cstvel: velocity of the TD model
 			//!< replvel: Replacement velocity, above SRD
     bool		ensureValid(const Well::Data&,uiString& errmsg,
@@ -69,29 +70,39 @@ public:
 				    TypeSet<double>* tvals=0);
 			//!< Returns corrected model if necessary
 			//!< May eventually also correct info().replvel
+    bool		calibrateBy(const D2TModel&);
+			//!< returns whether any change was made
 
 protected:
 
-    TypeSet<float>	t_;
+    TWTSetType		times_;
+    BufferString	desc_;
+    BufferString	datasource_;
 
-    void		removeAux( int idx )	{ t_.removeSingle(idx); }
-    void		eraseAux()		{ t_.erase(); }
+    virtual bool	doSet(IdxType,ValueType);
+    virtual PointID	doInsAtDah( ZType dh, ValueType val )
+			{ return doIns( dh, val, times_, true  ); }
+    virtual ValueType	gtVal( IdxType idx ) const  { return times_[idx]; }
+    virtual void	removeAux( int idx )	    { times_.removeSingle(idx);}
+    virtual void	eraseAux()		    { times_.erase(); }
 
-    bool		getVelocityBoundsForDah(float d_ah,const Track&,
+    ZType		gtDepth(float,const Track&) const;
+    double		gtVelocityForTwt(float,const Track&) const;
+    bool		gtVelocityBoundsForDah(ZType d_ah,const Track&,
 					  Interval<double>& depths,
 					  Interval<float>& times) const;
-    bool		getVelocityBoundsForTwt(float twt,const Track&,
+    bool		gtVelocityBoundsForTwt(float twt,const Track&,
 					  Interval<double>& depths,
 					  Interval<float>& times) const;
 			/*!<Gives index of next dtpoint at or after dah.*/
-    int			getVelocityIdx(float pos,const Track&,
+    int			gtVelocityIdx(ZType pos,const Track&,
 				       bool posisdah=true) const;
 
 protected:
 
-    inline float	getDepth( float time ) const { return mUdf(float); }
+    inline ZType	getDepth( float time ) const { return mUdf(ZType); }
 			//!< Legacy, misleading name. Use getDah().
-    bool		getOldVelocityBoundsForDah(float d_ah,const Track&,
+    bool		getOldVelocityBoundsForDah(ZType d_ah,const Track&,
 					     Interval<double>& depths,
 					     Interval<float>& times) const;
 			//!<Read legacy incorrect time-depth model.
@@ -103,16 +114,35 @@ protected:
 			  TypeSet<double>& zvals, TypeSet<double>& tvals,
 			  uiString& errmsg, uiString& warnmsg);
     static void convertDepthsToMD(const Well::Track&,
-				  const TypeSet<double>& zvals,
-				  TypeSet<float>& dahs);
+				  const TypeSet<double>& zvals,ZSetType&);
     static void shiftTimesIfNecessary(TypeSet<double>& tvals, double wllheadz,
 				 double vrepl, double origintwtinfile,
 				  uiString& msg);
     static void checkReplacementVelocity(Well::Info&,double vreplinfile,
 					 uiString& msg);
+
+    friend class	D2TModelIter;
 };
 
-}; // namespace Well
+
+/*!\brief Well D2T Model iterator. */
+
+mExpClass(Well) D2TModelIter : public DahObjIter
+{
+public:
+
+    typedef D2TModel::TWTType	TWTType;
+
+			D2TModelIter(const D2TModel&,bool start_at_end=false);
+			D2TModelIter(const D2TModelIter&);
+
+    const D2TModel&	model() const;
+    TWTType		t() const;
+
+};
+
+
+} // namespace Well
 
 
 #endif

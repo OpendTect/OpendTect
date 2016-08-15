@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
-#include "welldahobj.h"
+#include "welllog.h"
 #include "undo.h"
 #include "uistring.h"
 
@@ -58,73 +58,61 @@ public:
 				uiCheckShotEdit(uiParent*,Server&);
 				~uiCheckShotEdit();
 
-    mExpClass(uiWellAttrib) DriftCurve : public Well::DahObj
-    {
-    public:
-			DriftCurve() : DahObj("Drift Curve") {}
+    typedef Well::Log		DriftCurve;
+    typedef Well::Log::PointID	PointID;
 
-	void		add( float dh, float val )  { dah_ += dh; val_ += val; }
-	float		value( int idx ) const      { return val_[idx]; }
-	bool		insertAtDah(float dh,float v);
-
-	int		indexOfCurrentPoint(float dah,float val) const;
-
-    protected:
-	TypeSet<float>	val_;
-
-	void		removeAux(int idx)	{ val_.removeSingle( idx ); }
-	void		eraseAux()		{ val_.erase(); }
-    };
+    PointID		currentPoint(const DriftCurve&,float,float) const;
 
 protected:
-    Server&			server_;
-    Well::Data&			wd_;
 
-    Well::D2TModel*		d2t_;
-    Well::D2TModel*		orgd2t_;
-    Well::D2TModel*		tkzs_;
-    Well::D2TModel*		orgcs_;
-    DriftCurve			driftcurve_;
-    DriftCurve			newdriftcurve_;
+    Server&		server_;
+    Well::Data&		wd_;
 
-    uiToolBar*			toolbar_;
-    uiToolButton*		editbut_;
-    uiToolButton*		undobut_;
-    uiToolButton*		redobut_;
-    uiCheckBox*			viewcorrd2t_;
+    Well::D2TModel*	d2t_;
+    Well::D2TModel*	orgd2t_;
+    Well::D2TModel*	tkzs_;
+    Well::D2TModel*	orgcs_;
+    DriftCurve		driftcurve_;
+    DriftCurve		newdriftcurve_;
 
-    uiComboBox*			driftchoicefld_;
+    uiToolBar*		toolbar_;
+    uiToolButton*	editbut_;
+    uiToolButton*	undobut_;
+    uiToolButton*	redobut_;
+    uiCheckBox*		viewcorrd2t_;
 
-    bool			isedit_;
+    uiComboBox*		driftchoicefld_;
 
-    uiWellDahDisplay*		d2tdisplay_;
-    uiWellDahDisplay*		driftdisplay_;
-    uiWellDisplayControl*	control_;
-    uiPolyLineItem*		d2tlineitm_;
+    bool		isedit_;
 
-    Undo			undo_;
-    int				movingpointidx_;
+    uiWellDahDisplay*	d2tdisplay_;
+    uiWellDahDisplay*	driftdisplay_;
+    uiWellDisplayControl* control_;
+    uiPolyLineItem*	d2tlineitm_;
 
-    void			draw();
-    void			drawDahObj(const Well::DahObj* d,bool,bool);
-    void			drawDrift();
-    void			drawPoints();
-    void			movePt();
-    void			doInsertRemovePt();
+    Undo		undo_;
+    DriftCurve::PointID	movingpointid_;
 
-    void			applyCB(CallBacker*);
-    void			editCSPushed(CallBacker*);
-    void			editCB(CallBacker*);
-    void			undoCB(CallBacker*);
-    void			redoCB(CallBacker*);
-    void			mousePressedCB(CallBacker*);
-    void			mouseReleasedCB(CallBacker*);
-    void			mouseMovedCB(CallBacker*);
-    void			setInfoMsg(CallBacker*);
+    void		draw();
+    void		drawDahObj(const Well::DahObj* d,bool,bool);
+    void		drawDrift();
+    void		drawPoints();
+    void		movePt();
+    void		doInsertRemovePt();
 
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
-    void			reSizeCB(CallBacker*);
+    void		applyCB(CallBacker*);
+    void		editCSPushed(CallBacker*);
+    void		editCB(CallBacker*);
+    void		undoCB(CallBacker*);
+    void		redoCB(CallBacker*);
+    void		mousePressedCB(CallBacker*);
+    void		mouseReleasedCB(CallBacker*);
+    void		mouseMovedCB(CallBacker*);
+    void		setInfoMsg(CallBacker*);
+
+    bool		acceptOK(CallBacker*);
+    bool		rejectOK(CallBacker*);
+    void		reSizeCB(CallBacker*);
 };
 
 } // namespace WellTie

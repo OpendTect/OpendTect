@@ -254,18 +254,19 @@ void uiWellSelGrp::getCoordinates( TypeSet<Coord>& coords )
 	if ( !wd || wd->track().isEmpty() ) return;
 
 	if ( onlytop )
-	    coords += wd->track().pos(0).coord();
+	    coords += wd->track().firstPos();
 	else
 	{
+	    MonitorLock ml( wd->track() );
 	    const int firstidx = selwellstypes_[idx] ? wd->track().size()-1 : 0;
 	    const int stopidx = selwellstypes_[idx] ? -1 : wd->track().size();
 	    const int incidx = selwellstypes_[idx] ? -1 : 1;
 
-	    BinID prevbid( SI().transform(wd->track().pos(firstidx)) );
+	    BinID prevbid( SI().transform(wd->track().posByIdx(firstidx)) );
 	    coords += SI().transform( prevbid );
 	    for ( int posidx=firstidx; posidx!=stopidx; posidx+=incidx )
 	    {
-		BinID bid( SI().transform(wd->track().pos(posidx)) );
+		BinID bid( SI().transform(wd->track().posByIdx(posidx)) );
 		if ( bid != prevbid )
 		{
 		    coords += SI().transform( bid );

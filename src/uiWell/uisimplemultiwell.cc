@@ -254,9 +254,9 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     wd->track().addPoint( wcd.coord_, drg.stop, wcd.td_ );
     if ( velfld_ )
     {
-	Well::D2TModel* d2t = new Well::D2TModel("Simple");
-	d2t->makeFromTrack(  wd->track(), vel_, wd->info().replvel );
-	wd->setD2TModel( d2t );
+	Well::D2TModel& d2t = wd->d2TModel();
+	d2t.setName( "Simple" );
+	d2t.makeFromTrack( wd->track(), vel_, wd->info().replvel );
     }
 
     Well::Writer wr( ioobj, *wd );

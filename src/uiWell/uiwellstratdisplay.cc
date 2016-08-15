@@ -18,16 +18,16 @@ ________________________________________________________________________
 
 uiWellStratDisplay::uiWellStratDisplay( uiParent* p )
     : uiWellDahDisplay(p,uiWellDahDisplay::Setup())
-    , data_(StratDispData())  
+    , data_(StratDispData())
     , drawer_(uiStratDrawer(scene(),data_))
-    , stratgen_(0)  
-    , transparency_(0)		
+    , stratgen_(0)
+    , transparency_(0)
 {
     drawer_.setNewAxis( new uiAxisHandler(scene_,
 				uiAxisHandler::Setup(uiRect::Left)
-			    	.noannot(true)
+				.noannot(true)
 				.annotinside(true)
-			    	.border(uiBorder(0))), false );
+				.border(uiBorder(0))), false );
     drawer_.setNewAxis( new uiAxisHandler(scene_,
 				uiAxisHandler::Setup(uiRect::Top)
 				.noannot(true)
@@ -63,7 +63,7 @@ void uiWellStratDisplay::draw()
 	    unit.color_.setTransparency( mCast(char,transparency_) );
 	}
     }
-    
+
     drawer_.xAxis()->setNewDevSize( width(), height() );
     drawer_.yAxis()->setNewDevSize( height(), width() );
     drawer_.yAxis()->updateScene();
@@ -75,12 +75,12 @@ void uiWellStratDisplay::draw()
 
 
 
-WellStratUnitGen::WellStratUnitGen( StratDispData& data, 
+WellStratUnitGen::WellStratUnitGen( StratDispData& data,
 				    const Well::Data& wd )
     : data_(data)
-    , track_(wd.track())  
+    , track_(wd.track())
     , markers_(wd.markers())
-    , d2tmodel_(wd.d2TModel())
+    , d2tmodel_(wd.d2TModelPtr())
 {
     uidatagather_ = new uiStratTreeToDisp( data_, false, false );
     uidatagather_->newtreeRead.notify(mCB(this,WellStratUnitGen,dataChangedCB));
@@ -132,9 +132,9 @@ void WellStratUnitGen::gatherLeavedUnits()
 	    if ( mrk )
 	    {
 		float pos = mrk->dah();
-		if ( SI().zIsTime() && d2tmodel_ ) 
+		if ( SI().zIsTime() && d2tmodel_ )
 		    pos = d2tmodel_->getTime(pos, track_)*
-			  SI().zDomain().userFactor(); 
+			  SI().zDomain().userFactor();
 		else
 		    pos = (float) track_.getPos( pos ).z;
 
@@ -145,8 +145,8 @@ void WellStratUnitGen::gatherLeavedUnits()
 			break;
 		}
 		leaveddispunits_.insertAt( &unit, idunit );
-		leavedunits_.insertAt( lur, idunit ); 
-		absunitpos.insert( idunit, unit.zrg_.stop ); 
+		leavedunits_.insertAt( lur, idunit );
+		absunitpos.insert( idunit, unit.zrg_.stop );
 		posset_.insert( idunit, pos );
 	    }
 	}
@@ -179,7 +179,7 @@ void WellStratUnitGen::assignTimesToLeavedUnits()
 	StratDispData::Unit& unit = *leaveddispunits_[idx];
 	unit.zrg_.set( posset_[idx], posset_[idx+1] );
 	unit.zrg_.sort();
-	unit.isdisplayed_ = true; 
+	unit.isdisplayed_ = true;
 	data_.getCol( unit.colidx_ )->isdisplayed_ = true;
     }
 }
@@ -193,7 +193,7 @@ void WellStratUnitGen::assignTimesToAllUnits()
 	if ( dunit.isdisplayed_ )
 	{
 	    const Strat::LeavedUnitRef& ref = *leavedunits_[idx];
-	    const Strat::NodeOnlyUnitRef* un = 
+	    const Strat::NodeOnlyUnitRef* un =
 				(Strat::NodeOnlyUnitRef*)ref.upNode();
 	    while ( un )
 	    {

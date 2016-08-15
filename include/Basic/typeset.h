@@ -32,7 +32,7 @@ public:
 
     inline virtual		~TypeSetBase();
     inline TypeSetBase<T,I>&	operator =( const TypeSetBase<T,I>& ts )
-    				{ return copy( ts ); }
+				{ return copy( ts ); }
 
     inline size_type		size() const;
     inline virtual od_int64	nrItems() const		{ return size(); }
@@ -52,7 +52,7 @@ public:
     inline const T&		last() const;
     inline virtual bool		validIdx(od_int64) const;
     inline virtual size_type	indexOf(T,bool forward=true,
-	    				  size_type start=-1) const;
+					  size_type start=-1) const;
     inline bool			isPresent(const T&) const;
     inline size_type		count(const T&) const;
 
@@ -71,7 +71,7 @@ public:
     virtual inline void		createIntersection(const TypeSetBase<T,I>&);
 				//!< Only keeps common items
     virtual inline void		createDifference(const TypeSetBase<T,I>&,
-	    				 bool must_preserve_order=false);
+					 bool must_preserve_order=false);
 				//!< Removes all items present in other set.
 
     inline virtual void		swap(od_int64,od_int64);
@@ -79,7 +79,7 @@ public:
 
     inline virtual void		erase();
     inline virtual void		removeSingle(size_type,
-	    				     bool preserver_order=true);
+					     bool preserver_order=true);
     inline TypeSetBase<T,I>&	operator -=(const T&);
     inline virtual void		removeRange(size_type from,size_type to);
 
@@ -90,7 +90,7 @@ public:
     inline const std::vector<T>& vec() const;
 
 protected:
-    
+
     inline			TypeSetBase();
     inline			TypeSetBase(size_type nr,T typ);
     inline			TypeSetBase(const T*,size_type nr);
@@ -107,9 +107,9 @@ protected:
 
   TypeSet is meant for simple types or small objects that have a copy
   constructor. The `-=' operator will only remove the first occurrence that
-  matches using the `==' operator. The requirement of the presence of that  
+  matches using the `==' operator. The requirement of the presence of that
   operator is actually not that bad: at least you can't forget it.
-  
+
   Do not make TypeSet<bool> (don't worry, it won't compile). Use the
   BoolTypeSet typedef just after the class definition. See vectoraccess.h for
   details on why.
@@ -121,7 +121,7 @@ mClass(Basic) TypeSet : public TypeSetBase<T,int>
 public:
 
 	TypeSet()
-	    : TypeSetBase<T,int>() 		{}
+	    : TypeSetBase<T,int>()		{}
 	TypeSet( int nr, T typ )
 	    : TypeSetBase<T,int>( nr, typ )	{}
 	TypeSet( const T* t, int nr )
@@ -141,7 +141,7 @@ public:
 			BoolTypeSetType( bool v=false )
 			    : val_( v )		{}
     operator		bool() const		{ return (bool) val_; }
-    bool  		operator=( bool v )	{ val_ = v; return v; }
+    bool		operator=( bool v )	{ val_ = v; return v; }
 
 protected:
 
@@ -160,7 +160,7 @@ mClass(Basic) LargeValVec : public TypeSetBase<T,od_int64>
 public:
 
 	LargeValVec()
-	    : TypeSetBase<T,od_int64>() 		{}
+	    : TypeSetBase<T,od_int64>()		{}
 	LargeValVec( od_int64 nr, T typ )
 	    : TypeSetBase<T,od_int64>( nr, typ )	{}
 	LargeValVec( const T* t, od_int64 nr )
@@ -193,9 +193,11 @@ template <class T, class I, class J, class S>
 inline bool append( TypeSetBase<T,I>& to, const TypeSetBase<S,J>& from )
 {
     const J sz = from.size();
-    if ( !to.setCapacity( sz + to.size(), true ) ) return false;
+    if ( !to.setCapacity( sz + to.size(), true ) )
+	return false;
+
     for ( J idx=0; idx<sz; idx++ )
-	to.add( from[idx] );
+	to.add( (T)from[idx] );
 
     return true;
 }
@@ -295,7 +297,7 @@ T& TypeSetBase<T,I>::last()
 { return vec_.last(); }
 
 template <class T, class I> inline
-const T& TypeSetBase<T,I>::last() const	
+const T& TypeSetBase<T,I>::last() const
 { return vec_.last(); }
 
 template <class T, class I> inline

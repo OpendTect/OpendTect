@@ -13,33 +13,37 @@ Tut::LogTools::LogTools( const Well::Log& inp, Well::Log& outp )
 	: inplog_(inp)
 	, outplog_(outp)
 {
-}		
+}
+
 
 bool Tut::LogTools::runSmooth( const int inpgate )
 {
     outplog_.setUnitMeasLabel( inplog_.unitMeasLabel() );
 
-    const int gate = inpgate % 2 ? inpgate : inpgate + 1;  
+    const int gate = inpgate % 2 ? inpgate : inpgate + 1;
     const int rad = gate / 2;
     Stats::WindowedCalc<float> wcalc(
-	    		Stats::CalcSetup().require(Stats::Median), gate );
+			Stats::CalcSetup().require(Stats::Median), gate );
     const int sz = inplog_.size();
+    MonitorLock ml( inplog_ );
     for ( int idx=0; idx<sz+rad; idx++ )
     {
 	const int cpos = idx - rad;
 	if ( idx < sz )
 	{
-	    const float inval = inplog_.value(idx);
+	    const float inval = inplog_.valueByIdx(idx);
 	    if (!mIsUdf(inval) )
 		wcalc += inval;
 	    if ( cpos >= rad )
-		outplog_.addValue( inplog_.dah(cpos), wcalc.median() );
+		outplog_.setValueAt( inplog_.dahByIdx(cpos), wcalc.median() );
 	}
 	else
-	    outplog_.addValue( inplog_.dah(cpos), inplog_.value(cpos) );
+	    outplog_.setValueAt( inplog_.dahByIdx(cpos),
+				 inplog_.valueByIdx(cpos) );
 
 	if ( cpos<rad && cpos>=0 )
-	    outplog_.addValue( inplog_.dah(cpos), inplog_.value(cpos) );
+	    outplog_.setValueAt( inplog_.dahByIdx(cpos),
+				 inplog_.valueByIdx(cpos) );
     }
 
     return true;

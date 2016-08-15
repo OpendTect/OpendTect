@@ -243,7 +243,7 @@ void uiTieView::zoomChg( CallBacker* )
 {
     const uiWorldRect& curwr = vwr_->curView();
     const float userfac = SI().showZ2UserFactor();;
-    Interval<float> zrg( (float) curwr.top()*userfac, 
+    Interval<float> zrg( (float) curwr.top()*userfac,
 					    (float) curwr.bottom()*userfac );
     setLogsRanges( zrg );
 }
@@ -286,8 +286,10 @@ void uiTieView::drawViewerWellMarkers()
     bool ismarkerdisp = params_.isvwrmarkerdisp_;
     if ( !ismarkerdisp ) return;
 
-    const Well::D2TModel* d2tm = wd->d2TModel();
-    if ( !d2tm ) return;
+    const Well::D2TModel& d2tm = wd->d2TModel();
+    if ( d2tm.isEmpty() )
+	return;
+
     for ( int midx=0; midx<wd->markers().size(); midx++ )
     {
 	const Well::Marker* marker = wd->markers()[midx];
@@ -298,7 +300,7 @@ void uiTieView::drawViewerWellMarkers()
 	if ( !mrkdisp.selmarkernms_.isPresent( marker->name() ) )
 	    continue;
 
-	float zpos = d2tm->getTime( marker->dah(), wd->track() );
+	const float zpos = d2tm.getTime( marker->dah(), wd->track() );
 
 	if ( !zrange_.includes( zpos, true ) )
 	    continue;

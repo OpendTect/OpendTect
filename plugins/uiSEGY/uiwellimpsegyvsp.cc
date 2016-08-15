@@ -328,7 +328,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     if ( !wd )
 	mErrRet(tr("Cannot load the selected well\n%1")
 			.arg(Well::MGR().errMsg()))
-    if ( !isdpth_ && !wd->d2TModel() )
+    if ( !isdpth_ && !wd->d2TModelPtr() )
 	mErrRet(tr("Selected well has no Depth vs Time model"))
 
     const Well::Track& track = wd->track();
@@ -356,7 +356,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     {
 	float z = trc.samplePos( isamp );
 	if ( !isdpth_ )
-	    z = wd->d2TModel()->getDah( z, track );
+	    z = wd->d2TModel().getDah( z, track );
 	else if ( inptvd )
 	    prevdah = z = track.getDahForTVD( z, prevdah );
 

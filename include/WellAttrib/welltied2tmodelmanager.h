@@ -48,7 +48,8 @@ public:
     void		setWD( Well::Data* wd ) { wd_ = wd; }
     void		shiftModel(float);
     void		setAsCurrent(Well::D2TModel*);
-    void		setFromData(float* dah,float* time,int sz);
+    void		setFromData(const TypeSet<float>& dah,
+				    const TypeSet<float>& time);
 
     uiString		errMsg() const { return errmsg_; }
 
