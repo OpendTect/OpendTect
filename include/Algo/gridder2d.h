@@ -205,8 +205,6 @@ public:
 				   TypeSet<int>& relevantpoints) const;
     float		getValue(const Coord&,const TypeSet<double>* weights=0,
 				 const TypeSet<int>* relevantpoints=0) const;
-    bool		updateSolver(TaskRunner*);
-
 protected:
 
     bool		ismetric_;
@@ -218,6 +216,9 @@ protected:
     LinSolver<double>*	solv_;
 
     bool		updateSolver();
+			//will be removed after 6.0
+
+    bool		updateSolver(TaskRunner*);
     bool		updateSolution();
     double		getRadius(const Coord& pos1,const Coord& pos2) const;
     static double	evaluateRBF(double radius,double scale=1.);
