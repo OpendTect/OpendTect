@@ -86,12 +86,12 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     su.optional( true );
 
     initwvltsel_ = new uiWaveletIOObjSel( wvltgrp, su, false );
-    initwvltsel_->setInputText( data.initwvlt_.name() );
+    initwvltsel_->setInputText( data.initwvlt_->name() );
     initwvltsel_->attach( alignedBelow, wvltchk_ );
 
     su.seltxt_ = tr("Estimated wavelet");
     estimatedwvltsel_ = new uiWaveletIOObjSel( wvltgrp, su, false );
-    estimatedwvltsel_->setInputText( data.estimatedwvlt_.name() );
+    estimatedwvltsel_->setInputText( data.estimatedwvlt_->name() );
     estimatedwvltsel_->attach( alignedBelow, initwvltsel_ );
 }
 
@@ -207,7 +207,7 @@ bool uiSaveDataDlg::saveWvlt( bool useest )
 	return true;
 
     const Data& data = dataserver_.data();
-    const Wavelet& wvlt = useest ? data.estimatedwvlt_ : data.initwvlt_;
+    const Wavelet& wvlt = useest ? *data.estimatedwvlt_ : *data.initwvlt_;
     if ( !wvlt.size() && useest )
     {
 	uiString msg = tr( "No estimated wavelet yet" );

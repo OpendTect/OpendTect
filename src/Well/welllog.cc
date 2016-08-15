@@ -15,6 +15,8 @@ const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
 const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
 
+#define mUnitOfMeasure() UnitOfMeasure::getGuessed(unitmeaslbl_);
+
 
 // ---- Well::LogSet
 
@@ -101,8 +103,8 @@ TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
 
     for ( int idx=0; idx<logs_.size(); idx++ )
     {
-	const char* loguomlbl = logs_[idx]->unitMeasLabel();
-	const UnitOfMeasure* loguom = UnitOfMeasure::getGuessed( loguomlbl );
+	const Well::Log& wl = *logs_[idx];
+	const UnitOfMeasure* loguom = wl.unitOfMeasure();
 	bool isalt = false;
 	bool isok = !loguom || ptype == PropertyRef::Other
 	         || loguom->propType() == ptype;
@@ -246,7 +248,7 @@ void Well::Log::setValue( IdxType idx, ValueType val )
 const UnitOfMeasure* Well::Log::unitOfMeasure() const
 {
     mLock4Read();
-    return UnitOfMeasure::getGuessed(unitmeaslbl_);
+    return mUnitOfMeasure();
 }
 
 
@@ -271,7 +273,7 @@ void Well::Log::convertTo( const UnitOfMeasure* touom )
     if ( sz < 1 )
 	return;
 
-    const UnitOfMeasure* curuom = unitOfMeasure();
+    const UnitOfMeasure* curuom = mUnitOfMeasure();
     for ( IdxType idx=0; idx<sz; idx++ )
 	convValue( vals_[idx], curuom, touom );
 

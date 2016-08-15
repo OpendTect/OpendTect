@@ -557,7 +557,7 @@ Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx,
 
     if ( convtosi )
     {
-	const char* logunitnm = ret->unitMeasLabel();
+	const BufferString logunitnm = ret->unitMeasLabel();
 	ret->applyUnit( UnitOfMeasure::getGuessed(logunitnm) );
     }
 

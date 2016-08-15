@@ -669,12 +669,12 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 	info += isleft ? ", Left: " : ", Right: ";
 	info += lognm;
 	const Well::Log* log = wd->logs().getLog( lognm );
-	if (log)
+	if ( log )
 	{
-	    if ( val.size() ) val += " / ";
-	    val += toString( log->valueAt( dah ) );
-	    val += " ";
-	    val += log->unitMeasLabel();
+	    if ( !val.isEmpty() )
+		val.add( " / " );
+	    val.add( toString(log->valueAt(dah)) ).add( " " )
+		.add( log->unitMeasLabel() );
 	}
     }
 }

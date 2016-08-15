@@ -265,10 +265,11 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
     astrm.put( Well::Info::sKeyDepthUnit(),
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
     astrm.put( sKey::Name(), wl.name() );
-    const bool haveunits = *wl.unitMeasLabel();
+    const BufferString uomlbl = wl.unitMeasLabel();
+    const bool haveunits = !uomlbl.isEmpty();
     const bool havepars = !wl.pars().isEmpty();
     if ( haveunits )
-	astrm.put( Well::Log::sKeyUnitLbl(), wl.unitMeasLabel() );
+	astrm.put( Well::Log::sKeyUnitLbl(), uomlbl );
     astrm.putYN( Well::Log::sKeyHdrInfo(), havepars );
     const char* stortyp = binwrlogs_ ? (__islittle__ ? "Binary" : "Swapped")
 				     : "Ascii";

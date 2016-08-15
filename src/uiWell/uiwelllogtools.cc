@@ -577,8 +577,9 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     BufferString mdlbl( "MD" );
     mdlbl.add( getDistUnitString(SI().depthsInFeet(), true) );
     BufferString loglbl( log_.name() );
-    if ( log_.unitMeasLabel() && *log_.unitMeasLabel() )
-	loglbl.add( "(" ).add( log_.unitMeasLabel() ).add( ")" );
+    const BufferString uomlbl = log.unitMeasLabel();
+    if ( !uomlbl.isEmpty() )
+	loglbl.add( "(" ).add( uomlbl ).add( ")" );
 
     BufferStringSet colnms; colnms.add(mdlbl).add(loglbl);
     table_->setColumnLabels( colnms );

@@ -1762,7 +1762,7 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 	    }
 
 	    logs_ += log;
-	    const char* curruom = log->unitMeasLabel();
+	    const BufferString curruom = log->unitMeasLabel();
 	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( curruom );
 
 	    PropertyRef::StdType ptyp = PropertyRef::Other;

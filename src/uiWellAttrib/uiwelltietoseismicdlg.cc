@@ -144,7 +144,7 @@ void uiTieWin::doWork( CallBacker* cb )
 {
     drawer_->enableCtrlNotifiers( false );
     const Wavelet& wvlt = infodlg_ ? infodlg_->getWavelet()
-				   : server_.data().initwvlt_;
+				   : *server_.data().initwvlt_;
     if ( !server_.computeSynthetics(wvlt) )
 	{ uiMSG().error( server_.errMsg() ); }
 
@@ -561,15 +561,15 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     uiGroup* corrgrp = new uiGroup( viewersgrp, "CrossCorrelation group" );
 
     ObjectSet<Wavelet> wvlts;
-    wvlts += &data_.initwvlt_;
-    wvlts += &data_.estimatedwvlt_;
+    wvlts += const_cast<Wavelet*>(data_.initwvlt_.ptr());
+    wvlts += const_cast<Wavelet*>(data_.estimatedwvlt_.ptr());
     wvltdraw_ = new WellTie::uiWaveletView( wvltgrp, wvlts );
     wvltdraw_->activeWvltChged.notify( mCB(this,WellTie::uiInfoDlg,
 				       wvltChanged) );
     wvltdraw_->setActiveWavelet( true );
     wvltscaler_ = new uiLabel( wvltgrp, uiStrings::sEmptyString() );
     wvltscaler_->attach( leftAlignedBelow, wvltdraw_ );
-    const int initwvltsz = data_.initwvlt_.size() - 1;
+    const int initwvltsz = data_.initwvlt_->size() - 1;
     const int maxwvltsz = mNINT32( server_.data().getTraceRange().width() *
 				   SI().zDomain().userFactor() );
     estwvltlengthfld_ = new uiGenInput(wvltgrp,
@@ -1021,8 +1021,8 @@ void uiInfoDlg::drawData()
 
 const Wavelet& uiInfoDlg::getWavelet() const
 {
-    return isInitWvltActive() ? data_.initwvlt_
-			      : data_.estimatedwvlt_;
+    return isInitWvltActive() ? *data_.initwvlt_
+			      : *data_.estimatedwvlt_;
 }
 
 

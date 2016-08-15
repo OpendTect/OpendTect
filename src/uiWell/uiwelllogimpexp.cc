@@ -399,8 +399,9 @@ void uiExportLogs::writeHeader( od_ostream& strm, const Well::Data& wd )
 	lognm.replace( '+', '_' );
 	lognm.replace( '-', '_' );
 	strm << od_tab << lognm;
-	if ( *log.unitMeasLabel() )
-	    strm << "(" << log.unitMeasLabel() << ")";
+	const BufferString uomlbl = log.unitMeasLabel();
+	if ( !uomlbl.isEmpty() )
+	    strm << "(" << uomlbl << ")";
     }
 
     strm << od_newline;

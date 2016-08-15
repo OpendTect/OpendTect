@@ -21,12 +21,12 @@ ________________________________________________________________________
 #include "welldisp.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiesetup.h"
+#include "wavelet.h"
 
 
 class CtxtIOObj;
 class SeisTrc;
 class TaskRunner;
-class Wavelet;
 
 namespace Well { class Data; class Log; class LogSet; class Writer; }
 
@@ -112,8 +112,8 @@ public :
     Well::LogSet&		logset_;
     SeisTrc&			synthtrc_;
     SeisTrc&			seistrc_;
-    Wavelet&			initwvlt_;
-    Wavelet&			estimatedwvlt_;
+    RefMan<Wavelet>		initwvlt_;
+    RefMan<Wavelet>		estimatedwvlt_;
     const Well::Log*		cslog_;
 
     const StepInterval<float>&	getTraceRange() const	{ return tracerg_; }
