@@ -1746,7 +1746,7 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 	for ( int lidx=0; lidx<nrlogs; lidx++ )
 	{
 	    rowidx++;
-	    Well::Log* log = wls[wlsidx]->getLog( lognms.get(lidx ) );
+	    Well::Log* log = wls[wlsidx]->getLog( lognms.get(lidx) );
 	    if ( !log )
 	    {
 		uominfotbl_->removeRow( rowidx );
@@ -1762,6 +1762,7 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 	    if ( uom ) ptyp = uom->propType();
 	    uiUnitSel::Setup ussu( ptyp, uiStrings::sEmptyString() );
 	    ussu.selproptype( true );
+	    ussu.withnone_ = true;
 	    uiUnitSel* unfld = new uiUnitSel( 0, ussu );
 	    unfld->setUnit( uom );
 	    unflds_ += unfld;
