@@ -25,7 +25,6 @@ ________________________________________________________________________
 namespace Vel
 {
 
-
 const char* StoredFunctionSource::sKeyVelocityFunction()
 { return "Velocity Function"; }
 
@@ -293,4 +292,4 @@ StepInterval<float> StoredFunction::getAvailableZ() const
     return desiredrg_;
 }
 
-} //namespace
+} // namespace Vel

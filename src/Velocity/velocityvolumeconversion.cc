@@ -293,5 +293,4 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
     return mCast( char, res );
 }
 
-
-}; //namespace
+} // namespace Vel

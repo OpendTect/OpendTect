@@ -309,5 +309,4 @@ FunctionSource* VolumeFunctionSource::create(const MultiID& mid)
     return res;
 }
 
-
-}; //namespace
+} // namespace Vel

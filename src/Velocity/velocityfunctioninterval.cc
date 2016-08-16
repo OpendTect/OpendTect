@@ -14,7 +14,6 @@
 namespace Vel
 {
 
-
 IntervalFunction::IntervalFunction( IntervalSource& source )
     : Function( source )
     , inputfunc_( 0 )
@@ -155,7 +154,4 @@ void IntervalSource::sourceChangeCB( CallBacker* cb )
     }
 }
 
-
-
-
-}; //namespace
+} // namespace Vel

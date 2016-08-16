@@ -1157,5 +1157,4 @@ const char* PicksMgr::errMsg() const
     return errmsg_.str();
 }
 
-
-};
+} // namespace Vel

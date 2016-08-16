@@ -21,7 +21,6 @@ ________________________________________________________________________
 namespace Vel
 {
 
-
 FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
 			      od_istream& stm,
 			      od_int64 nrkbytes )
