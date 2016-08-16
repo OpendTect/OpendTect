@@ -671,6 +671,14 @@ SEGY::ScanInfoSet::ScanInfoSet( bool is2d, bool isps )
 }
 
 
+SEGY::ScanInfoSet::~ScanInfoSet()
+{
+    deepErase( sis_ );
+    delete &keydata_;
+    delete &detector_;
+}
+
+
 void SEGY::ScanInfoSet::setEmpty()
 {
     nrtrcs_ = 0;

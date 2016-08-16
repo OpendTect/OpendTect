@@ -215,6 +215,7 @@ mExpClass(uiSEGY) ScanInfoSet : public NamedObject
 public:
 
 			ScanInfoSet(bool is2d,bool isps);
+			~ScanInfoSet();
 
     void		setEmpty();
     ScanInfo&		add(const char* fnm);	//!< does not open anything
