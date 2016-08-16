@@ -95,7 +95,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 		}
 		else
 		{
-		    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
+		    Conn* conn = ioobj->getConn( Conn::Read );
 		    if ( !conn )
 		    {
 			msg_ = tr("Cannot open SEG-Y scan file");
@@ -107,7 +107,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 			delete str;
 		    }
 		    else
-			drdr_ = str;
+			drdr_ = str;	
 		}
 	    }
 	    break;
