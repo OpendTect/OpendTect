@@ -413,7 +413,10 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 
 
 const char* Desc::errMsg() const
-{ return errmsg_.str(); }
+{ 
+    return isStored() ? errmsg_.str() : "Error while saving the attribute.\n"
+					"Values are not correct."; 
+}
 
 
 bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const

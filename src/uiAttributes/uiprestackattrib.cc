@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uiveldesc.h"
 #include "od_helpids.h"
+#include "uimsg.h"
 
 
 mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"Prestack",sKeyBasicGrp())
@@ -82,7 +83,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     lsqtypefld_->attach( alignedBelow, calctypefld_ );
 
     useanglefld_ = new uiCheckBox( this, tr("Compute Angles") );
-    useanglefld_->attach( rightOf, lsqtypefld_ );
+    useanglefld_->attach( rightOf, gathertypefld_ );
     useanglefld_->activated.notify( mCB(this,uiPreStackAttrib,angleTypSel) );
 
     
@@ -246,7 +247,6 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
 	dopreprocessfld_->setValue( true );
 	preprocsel_->setSel( ppid );
     }
-
     calctypefld_->setValue( (int)aps->setup().calctype_ );
     if ( aps->setup().calctype_ == PreStack::PropCalc::Stats )
     {
@@ -335,7 +335,16 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 {
     if ( !prestackinpfld_->commitInput() )
 	return false;
-
+    StepInterval<float> xrg = xrgfld_->getFStepInterval();
+    const bool isoffset = gathertypefld_->getIntValue() == 0;
+    if ( xrg.start > xrg.stop )
+    {
+	errmsg_ = tr("Start value of the %1 range field is greater than stop "
+		     "value.")
+		     .arg( isoffset ? uiStrings::sOffset() : tr("Angle") );
+	uiMSG().error( errmsg_ );
+	return false;
+    }
     mSetString(Attrib::StorageProvider::keyStr(),prestackinpfld_->getMultiID())
 
     if ( dopreprocessfld_->getBoolValue() )
@@ -409,6 +418,7 @@ void uiPreStackAttrib::updateCalcType()
 void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
 {
     const bool isoffset = gathertypefld_->getIntValue() == 0;
+    const bool iscomputeangle = useanglefld_->isChecked();
     uiString xlbl = isoffset ? tr("Offset range (empty=all)") : 
 						tr("Angle range (empty=all)");
 
@@ -424,14 +434,24 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
     useanglefld_->display( isoffset );    
     gathertypefld_->display( true );
     xunitfld_->display( !isoffset );
-    xaxistypefld_->setSensitive( isoffset );
 
-    angleTypSel(0);
+    if ( cb )  //helps to populate non-default values
+    {
+	xrgfld_->setEmpty();
+
+	if ( !isoffset  )
+	    xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
+	else
+    	    xaxistypefld_->setValue( PreStack::PropCalc::Norm ); 
+    }
+
+	   
+    angleTypSel( 0 );
 }
 
 
 void uiPreStackAttrib::angleTypSel( CallBacker* cb)
-{
+{			
     if ( is2D() )
     {
 	useanglefld_->setChecked( false );
@@ -442,19 +462,21 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
     const bool iscomputeangle = useanglefld_->isChecked();
     const bool isnorm = calctypefld_->getIntValue() == 0;
     
-    xrgfld_->setEmpty();
     xrgfld_->setSensitive( !iscomputeangle || !isoffset );
     xrglbl_->setSensitive( !iscomputeangle || !isoffset );
     anglecompgrp_->display( isoffset && iscomputeangle );
-    xaxistypefld_->setSensitive( !iscomputeangle );
 
-    if ( cb )
+    if ( cb )  //helps to populate non-default values
     {
+	xrgfld_->setEmpty();
+
 	if ( iscomputeangle )
 	    xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
-	if ( !iscomputeangle && isoffset && !isnorm )
+	else
     	    xaxistypefld_->setValue( PreStack::PropCalc::Norm ); 
     }
+
+    xaxistypefld_->setSensitive( isoffset && !iscomputeangle );
 }
 
 

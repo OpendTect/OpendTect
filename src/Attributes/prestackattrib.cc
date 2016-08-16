@@ -60,7 +60,7 @@ void PSAttrib::initClass()
     desc->addParam( epar )
 
     EnumParam*
-    mDefEnumPar(calctype,PreStack::PropCalc::CalcType,0);
+    mDefEnumPar(calctype,PreStack::PropCalc::CalcType,PreStack::PropCalc::LLSQ);
     mDefEnumPar(stattype,Stats::Type,Stats::Average);
     mDefEnumPar(lsqtype,PreStack::PropCalc::LSQType,0);
     mDefEnumPar(valaxis,PreStack::PropCalc::AxisType,0);
