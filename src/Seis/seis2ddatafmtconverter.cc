@@ -366,7 +366,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     {
 	BufferString nm = ioobj->name();
 	nm.add( "[2D]" );
-	ctio.ioobj_ = 0;
+	ctio.setObj( 0 );
 	ctio.ctxt_.setName( nm );
 	if ( ctio.fillObj() == 0 ) return BufferString::empty();
 	FilePath fp( ctio.ioobj_->fullUserExpr() );
@@ -380,7 +380,9 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     if ( !issurvdefset && ctio.ioobj_ && survdefattr == attribnm )
 	ctio.ioobj_->setSurveyDefault();
 
-    return BufferString( ctio.ioobj_ ? ctio.ioobj_->fullUserExpr() : "" );
+    BufferString ret( ctio.ioobj_ ? ctio.ioobj_->fullUserExpr() : "" );
+    ctio.setObj( 0 );
+    return ret;
 }
 
 

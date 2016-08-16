@@ -16,6 +16,7 @@ ___________________________________________________________________
 
 uiODParentTreeItem::uiODParentTreeItem( const uiString& nm )
     : uiODTreeItem(nm)
+    , objectmgr_(0)
 {
 }
 
@@ -35,10 +36,10 @@ void uiODParentTreeItem::setObjectManager( SaveableManager* mgr )
 		   uiODParentTreeItem::objOrphanedCB );
     }
 
+    objectmgr_ = mgr;
     if ( !mgr )
 	return;
 
-    objectmgr_ = mgr;
     mAttachCB( objectmgr_->ObjAdded, uiODParentTreeItem::objAddedCB );
     mAttachCB( objectmgr_->VanishRequested,
 	       uiODParentTreeItem::objVanishedCB );
