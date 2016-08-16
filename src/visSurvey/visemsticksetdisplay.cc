@@ -20,7 +20,8 @@
 #include "mousecursor.h"
 #include "mouseevent.h"
 
-using namespace visSurvey;
+namespace visSurvey
+{
 
 #define mDefaultMarkerSize 3
 #define mSceneIdx (ownerscene_ ? ownerscene_->fixedIdx() : -1)
@@ -320,3 +321,5 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 	}
     }
 }
+
+} // namespace visSurvey
