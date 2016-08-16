@@ -510,10 +510,20 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
 	mResetMenuItem( &depthattribmnuitem_ );
     }
 
+    mDynamicCastGet(visSurvey::Scene*,scene,
+		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    bool isdttransform = false;
+    if ( scene && scene->getZAxisTransform() )
+    {							   
+	const BufferString zaxistrstr = scene->getZAxisTransform()
+							    ->toZDomainKey();
+	isdttransform = zaxistrstr == ZDomain::sKeyDepth() || 
+				    zaxistrstr == ZDomain::sKeyTime();   
+    }
     const bool enabsave = changed_ ||
 	(as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
-	 as->id()!=Attrib::SelSpec::cAttribNotSel() );
-
+	 as->id()!=Attrib::SelSpec::cAttribNotSel()) || isdttransform ;
+	     
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
     mAddMenuItem( menu, &algomnuitem_, true, false );
     mAddMenuItem( &algomnuitem_, &filtermnuitem_, true, false );
@@ -542,19 +552,34 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	DataPointSet vals( false, true );
 	vals.bivSet().setNrVals( 3 );
 	visserv->getRandomPosCache( visid, attribnr, vals );
+	mDynamicCastGet(visSurvey::Scene*,scene, visserv->getObject(sceneID()));
+	bool isdttransform = false;
+	BufferString zaxstrstr;
+	if ( scene && scene->getZAxisTransform() )
+	{
+	    zaxstrstr = scene->getZAxisTransform()->toZDomainKey();
+	    isdttransform = ( zaxstrstr == ZDomain::sKeyDepth() )  || 
+					   ( zaxstrstr == ZDomain::sKeyTime() );
+	}
 	if ( vals.size() )
 	{
+	    BufferString auxdatanm;  auxdatanm = name_.getFullString();
+	    if ( auxdatanm == sKey::ZValue() && zaxstrstr !=
+							SI().zDomain().key() )
+	    {
+		auxdatanm = zaxstrstr; auxdatanm += " Value";
+	    }
+
 	    const float shift = (float) visserv->getTranslation( visid ).z;
 	    const int validx = visserv->selectedTexture( visid, attribnr ) + 2;
 	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, vals,
-		    name_.getFullString(), validx, shift );
+		    auxdatanm, validx, shift );
 	    if ( auxnr<0 )
 	    {
 		pErrMsg( "Cannot find Horizon Data." );
 		return;
 	    }
 
-	    BufferString auxdatanm;
 	    const bool saved =
 		applMgr()->EMServer()->storeAuxData( emid_, auxdatanm, true );
 	    if ( saved )

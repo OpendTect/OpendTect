@@ -114,6 +114,7 @@ namespace sKey
     inline FixedString Table()		{ return "Table"; }
     inline FixedString Target()		{ return "Target"; }
     inline FixedString Time()		{ return "Time"; }
+    inline FixedString TimeRange()	{ return "Time Range"; }
     inline FixedString Title()		{ return "Title"; }
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
     inline FixedString TraceNr()	{ return "Trace number"; }
@@ -137,6 +138,7 @@ namespace sKey
     inline FixedString ZRange()		{ return "Z range"; }
     inline FixedString ZSlice()		{ return "Z-slice"; }
     inline FixedString ZUnit()		{ return "Z-Unit"; }
+    inline FixedString ZValue()		{ return "Z value"; }
 
     // Stats
     inline FixedString Average()	{ return "Average"; }
