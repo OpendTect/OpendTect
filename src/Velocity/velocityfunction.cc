@@ -123,9 +123,9 @@ BufferString FunctionSource::userName() const
 void FunctionSource::removeFunction( const Function* func )
 {
     Threads::Locker lckr( lock_ );
-    
+
     int idx = functions_.indexOf( func );
-    
+
     if ( idx!=-1 )
     {
 	functions_.removeSingle( idx );
@@ -175,9 +175,11 @@ ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
 
  	functions_ += tmpfunc.ptr();
     }
-    
+    else
+	tmpfunc = functions_[idx];
+
     lckr.unlockNow();
-    
+
     return ConstRefMan<Function>( tmpfunc.ptr() );
 
 }
