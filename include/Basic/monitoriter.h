@@ -28,7 +28,7 @@ ________________________________________________________________________
   */
 
 template <class ITyp>
-mExpClass(Basic) MonitorableIter
+mClass(Basic) MonitorableIter
 {
 public:
 
