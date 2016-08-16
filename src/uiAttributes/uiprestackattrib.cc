@@ -291,12 +291,12 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     if ( !prestackinpfld_->commitInput() )
 	return false;
     StepInterval<float> xrgfldint = xrgfld_->getFStepInterval();
-    bool gathertype = gathertypefld_->getIntValue() == 0;
+    bool isoffset = gathertypefld_->getIntValue() == 0;
     if ( xrgfldint.start > xrgfldint.stop )
     {
 	errmsg_ = tr("Start value of the %1 range field is greater than stop "
 		     "value.")
-		     .arg( gathertype ? uiStrings::sOffset() : tr("Angle") );
+		     .arg( isoffset ? uiStrings::sOffset() : tr("Angle") );
 	uiMSG().error( errmsg_ );
 	return false;
     }
@@ -403,7 +403,6 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
 
     const bool isoffset = gathertypefld_->getIntValue() == 0;
     const bool iscomputeangle = useanglefld_->isChecked();
-    const bool isnorm = calctypefld_->getIntValue() == 0;
     
     xrgfld_->setSensitive( !iscomputeangle || !isoffset );
     xrglbl_->setSensitive( !iscomputeangle || !isoffset );
