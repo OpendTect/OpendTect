@@ -60,6 +60,7 @@ protected:
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     void		setChgCB(CallBacker*);
     void		selChangedCB(CallBacker*);
+    bool		doubleClick(uiTreeViewItem*);
     const char*		parentType() const
 			{ return typeid(uiODPickSetParentTreeItem).name(); }
 
@@ -124,6 +125,7 @@ protected:
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		selChangedCB(CallBacker*);
+    bool		doubleClick(uiTreeViewItem*);
     const char*		parentType() const
 			{ return typeid(uiODPolygonParentTreeItem).name(); }
 
