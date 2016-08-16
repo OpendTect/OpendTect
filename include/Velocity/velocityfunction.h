@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "threadlock.h"
 #include "veldesc.h"
 
-namespace Attrib { class DataHolder; };
+namespace Attrib { class DataHolder; }
 
 class BinIDValueSet;
 
