@@ -270,7 +270,7 @@ void uiWellMarkersDispProperties::markerFldsChged( CallBacker* cb )
     colfld_->setSensitive( singlecolfld_->isChecked() );
     nmcolfld_->setSensitive( !samecolasmarkerfld_->isChecked() );
     cylinderheightfld_->display( !shapefld_->box()->currentItem() &&
-	    			 !setup_.onlyfor2ddisplay_ );
+				 !setup_.onlyfor2ddisplay_ );
 }
 
 
@@ -678,11 +678,10 @@ void uiWellLogDispProperties::isStyleChanged( CallBacker* )
 
 void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
 {
+    wls_ = wls;
     const BufferString curlognm = logsfld_->box()->text();
-    wl_ = wls;
     BufferStringSet lognames;
-    for ( int idx=0; idx< wl_->size(); idx++ )
-	lognames.addIfNew( wl_->getLog(idx).name() );
+    wls_->getNames( lognames );
     lognames.sort();
     logsfld_->box()->setEmpty();
     logsfld_->box()->addItem(uiStrings::sNone());
@@ -773,11 +772,12 @@ void uiWellLogDispProperties::updateRange( CallBacker* )
 {
     const char* lognm = logsfld_->box()->textOfItem(
 		        logsfld_->box()->currentItem() );
-    const int logno = wl_->indexOf( lognm );
-    if ( logno<0 ) return;
-
-    rangefld_->setValue( wl_->getLog(logno).valueRange() );
-    propChanged.trigger();
+    const Well::Log* wl = wls_->getLogByName( lognm );
+    if ( wl )
+    {
+	rangefld_->setValue( wl->valueRange() );
+	propChanged.trigger();
+    }
 }
 
 
@@ -785,11 +785,12 @@ void uiWellLogDispProperties::updateFillRange( CallBacker* )
 {
     const char* lognm = filllogsfld_->box()->textOfItem(
 			filllogsfld_->box()->currentItem() );
-    const int logno = wl_->indexOf( lognm );
-    if ( logno<0 ) return;
-
-    colorrangefld_->setValue( wl_->getLog(logno).valueRange() );
-    propChanged.trigger();
+    const Well::Log* wl = wls_->getLogByName( lognm );
+    if ( wl )
+    {
+	colorrangefld_->setValue( wl->valueRange() );
+	propChanged.trigger();
+    }
 }
 
 
@@ -798,16 +799,9 @@ void uiWellLogDispProperties::calcRange( const char* lognm,
 					 Interval<float>& valr )
 {
     valr.set( mUdf(float), -mUdf(float) );
-    for ( int idy=0; idy<wl_->size(); idy++ )
-    {
-	if ( wl_->getLog(idy).name() == lognm )
-	{
-	    const int logno = wl_->indexOf( lognm );
-	    Interval<float> range = wl_->getLog(logno).valueRange();
-	    if ( valr.start > range.start )
-		valr.start = range.start;
-	    if ( valr.stop < range.stop )
-		valr.stop = range.stop;
-	}
-    }
+    const Well::Log* wl = wls_->getLogByName( lognm );
+    if ( wl )
+	valr = wl->valueRange();
+    else
+	valr.start = valr.stop = mUdf(float);
 }

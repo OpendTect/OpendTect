@@ -332,9 +332,6 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 	mErrRet(tr("Selected well has no Depth vs Time model"))
 
     const Well::Track& track = wd->track();
-    int wlidx = wd->logs().indexOf( lognm );
-    if ( wlidx >= 0 )
-	delete wd->logs().remove( wlidx );
     Well::Log* wl = new Well::Log( lognm );
     wl->pars().set( sKey::FileName(), sgypars_.find(sKey::FileName()) );
 

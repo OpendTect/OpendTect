@@ -39,7 +39,7 @@ namespace WellTie
 Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 						   const char* sonlog ) const
 {
-    const Well::Log* log = wd.logs().getLog( sonlog );
+    const Well::Log* log = wd.logs().getLogByName( sonlog );
     if ( !log ) return 0;
 
     Well::Log proclog( *log );

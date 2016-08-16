@@ -503,9 +503,8 @@ void uiWellMan::logTools( CallBacker* )
 
 
 #define mDeleteLogs(idx) \
-    if ( !curwds_.validIdx( idx ) ) return;\
-    while ( curwds_[idx]->logs().size() ) \
-        delete curwds_[idx]->logs().remove(0);
+    if ( curwds_.validIdx(idx) ) \
+	curwds_[idx]->logs().setEmpty()
 
 void uiWellMan::importLogs( CallBacker* )
 {
@@ -564,19 +563,19 @@ void uiWellMan::editLogPush( CallBacker* )
     currdrs_[0]->getLogs();
     const char* lognm = logsfld_->textOfItem( selidx );
     Well::LogSet& wls = curwds_[0]->logs();
-    const int curlogidx = wls.indexOf( lognm );
-    if ( curlogidx < 0 )
+    Well::Log* wl = wls.getLogByName( lognm );
+    if ( !wl )
 	mErrRet(uiStrings::phrCannotRead(uiStrings::sWellLog()))
 
-    Well::Log& wl = wls.getLog( curlogidx );
-    uiWellLogEditor dlg( this, wl );
+    uiWellLogEditor dlg( this, *wl );
     if ( !dlg.go() || !dlg.isLogChanged() )
 	return;
 
     const bool res = uiMSG().askSave(
 			tr("One or more log values have been changed."
 			   "\n\nDo you want to save your changes?"), false );
-    if ( !res ) return;
+    if ( !res )
+	return;
 
     writeLogs();
 }
@@ -592,14 +591,12 @@ void uiWellMan::moveLogsPush( CallBacker* cb )
     bool isup = toolbut == logupbut_;
     const int curlogidx = logsfld_->currentItem();
     const int newlogidx = curlogidx + ( isup ? -1 : 1 );
-    Well::LogSet& wls = curwds_[0]->logs();
     currdrs_[0]->getLogs();
-    if ( !wls.validIdx( curlogidx ) || !wls.validIdx( newlogidx ) )
-	return;
-    wls.swap( curlogidx, newlogidx );
-
-    writeLogs();
-    logsfld_->setCurrentItem( newlogidx );
+    if ( curwds_[0]->logs().swap(curlogidx,newlogidx) )
+    {
+	writeLogs();
+	logsfld_->setCurrentItem( newlogidx );
+    }
 }
 
 
@@ -641,13 +638,13 @@ void uiWellMan::viewLogPush( CallBacker* )
     currdrs_[0]->getLogs();
     const Well::LogSet& wls = curwds_[0]->logs();
     const char* lognm = logsfld_->textOfItem( logsfld_->firstChosen() );
-    const Well::Log* wl = wls.getLog( lognm );
+    const Well::Log* wl = wls.getLogByName( lognm );
     if ( !wl )
 	mErrRet( uiStrings::phrCannotRead( uiStrings::sWellLog() ) )
 
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );
-    const int maxnrchosen = curwds_.size()*lognms.size();
+    const int maxnrchosen = curwds_.size() * lognms.size();
 
     if ( !maxnrchosen || maxnrchosen > 2 )
 	return;
@@ -657,16 +654,16 @@ void uiWellMan::viewLogPush( CallBacker* )
     if ( curwds_[0] )
     {
 	const Well::LogSet& wls1 = curwds_[0]->logs();
-	wl1 = wls1.getLog( lognms.get(0) );
-	if (  lognms.size() == 2 )
-	    wl2 = wls1.getLog( lognms.get(1) );
+	wl1 = wls1.getLogByName( lognms.get(0) );
+	if ( lognms.size() == 2 )
+	    wl2 = wls1.getLogByName( lognms.get(1) );
     }
 
     if ( curwds_.size() > 1 && curwds_[1] )
     {
 	currdrs_[1]->getLogs();
 	const Well::LogSet& wls2 = curwds_[1]->logs();
-	wl2 = wls2.getLog( lognms.get( 0 ) );
+	wl2 = wls2.getLogByName( lognms.get( 0 ) );
     }
 
     BufferStringSet wnms;
@@ -697,8 +694,9 @@ void uiWellMan::renameLogPush( CallBacker* )
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {
 	currdrs_[idwell]->getLogs();
-	Well::Log* log = curwds_[idwell]->logs().getLog(lognm);
-	if ( log ) log->setName( newnm );
+	Well::Log* log = curwds_[idwell]->logs().getLogByName(lognm);
+	if ( log )
+	    log->setName( newnm );
     }
     writeLogs();
 }
@@ -723,10 +721,10 @@ void uiWellMan::removeLogPush( CallBacker* )
 	for ( int idrem=0; idrem<logs2rem.size(); idrem++ )
 	{
 	    BufferString logname( logs2rem.get( idrem ) );
-	    const Well::Log* log = wls.getLog( logname );
+	    Well::Log* log = wls.removeByName( logname );
 	    if ( log )
 	    {
-		delete wls.remove( wls.indexOf( logname ) );
+		delete log;
 		curwds_[idwell]->reloaded.trigger();
 	    }
 	}
@@ -746,7 +744,8 @@ void uiWellMan::exportLogs( CallBacker* )
 	currdrs_[idwell]->getLogs();
 	currdrs_[idwell]->getD2T();
 	const IOObj* obj = IOM().get( curmultiids_[idwell] );
-	if ( obj ) curwds_[idwell]->info().setName( obj->name() );
+	if ( obj )
+	    curwds_[idwell]->info().setName( obj->name() );
     }
 
     uiExportLogs dlg( this, curwds_, sellogs );

@@ -20,21 +20,101 @@ const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
 
 // ---- Well::LogSet
 
+mDefineInstanceCreatedNotifierAccess(Well::LogSet);
 
-void Well::LogSet::getNames( BufferStringSet& nms ) const
+
+Well::LogSet::LogSet()
+    : curlogidnr_(0)
 {
-    for ( int idx=0; idx<logs_.size(); idx++ )
-	nms.add( logs_[idx]->name() );
+    recalcDahIntv();
+    mTriggerInstanceCreatedNotifier();
 }
 
 
-void Well::LogSet::add( Well::Log* wl )
+Well::LogSet::LogSet( const LogSet& oth )
+    : SharedObject(oth)
+    , curlogidnr_(0)
 {
-    if ( !wl ) return;
-    if ( getLog(wl->name()) ) return;
+    copyAll( oth );
+    mTriggerInstanceCreatedNotifier();
+}
 
-    logs_ += wl;
-    updateDahIntv( *wl );
+
+Well::LogSet::~LogSet()
+{
+    setEmpty();
+    sendDelNotif();
+}
+
+
+mImplMonitorableAssignment( Well::LogSet, SharedObject )
+
+
+void Well::LogSet::copyClassData( const LogSet& oth )
+{
+    deepCopy( logs_, oth.logs_ );
+    logids_ = oth.logids_;
+    dahintv_ = oth.dahintv_;
+    curlogidnr_ = oth.curlogidnr_;
+}
+
+
+Well::LogSet::IdxType Well::LogSet::gtIdx( LogID id ) const
+{
+    if ( id.isInvalid() )
+	return -1;
+
+    const int sz = logs_.size();
+    if ( id.getI() < sz && logids_[id.getI()] == id )
+	return id.getI();
+    for ( IdxType idx=0; idx<logids_.size(); idx++ )
+	if ( logids_[idx] == id )
+	    return idx;
+
+    return -1;
+}
+
+
+Well::Log* Well::LogSet::gtLog( LogID id ) const
+{
+    const IdxType idx = gtIdx( id );
+    return idx < 0 ? 0 : const_cast<Log*>( logs_[idx] );
+}
+
+
+Well::LogSet::LogID Well::LogSet::gtID( const Log* log ) const
+{
+    for ( IdxType idx=0; idx<logs_.size(); idx++ )
+    {
+	if ( logs_[idx] == log )
+	    return logids_[idx];
+    }
+    return LogID::getInvalid();
+}
+
+
+Well::LogSet::IdxType Well::LogSet::gtIdxByName( const char* nm ) const
+{
+    for ( IdxType idx=0; idx<logs_.size(); idx++ )
+    {
+	const Log& l = *logs_[idx];
+	if ( l.name() == nm )
+	    return idx;
+    }
+    return -1;
+}
+
+
+Well::Log* Well::LogSet::gtLogByName( const char* nm ) const
+{
+    const IdxType idx = gtIdxByName( nm );
+    return idx < 0 ? 0 : const_cast<Log*>( logs_[idx] );
+}
+
+
+Well::Log* Well::LogSet::gtLogByIdx( IdxType idx ) const
+{
+    return logs_.validIdx(idx) ? const_cast<Log*>( logs_[idx] ) : 0;
 }
 
 
@@ -51,56 +131,215 @@ void Well::LogSet::updateDahIntv( const Well::Log& wl )
 }
 
 
-void Well::LogSet::updateDahIntvs()
+void Well::LogSet::recalcDahIntv()
 {
-    for ( int idx=0; idx<logs_.size(); idx++ )
+    dahintv_.start = mSetUdf(dahintv_.stop);
+    for ( IdxType idx=0; idx<logs_.size(); idx++ )
 	updateDahIntv( *logs_[idx] );
 }
 
 
-int Well::LogSet::indexOf( const char* nm ) const
+Well::Log* Well::LogSet::doRemove( IdxType idx )
 {
-    for ( int idx=0; idx<logs_.size(); idx++ )
-    {
-	const Log& l = *logs_[idx];
-	if ( l.name() == nm )
-	    return idx;
-    }
-    return -1;
+    Log* log = logs_.removeSingle( idx );
+    logids_.removeSingle( idx );
+    recalcDahIntv();
+    return log;
 }
 
 
-Well::Log* Well::LogSet::remove( int logidx )
+void Well::LogSet::doSetEmpty()
 {
-    Log* log = logs_[logidx]; logs_ -= log;
-    ObjectSet<Well::Log> tmp( logs_ );
-    logs_.erase(); init();
-    for ( int idx=0; idx<tmp.size(); idx++ )
-	add( tmp[idx] );
-    return log;
+    deepErase( logs_ );
+    recalcDahIntv();
+}
+
+
+Well::Log* Well::LogSet::getLog( LogID id )
+{
+    mLock4Read();
+    return gtLog( id );
+}
+
+
+const Well::Log* Well::LogSet::getLog( LogID id ) const
+{
+    mLock4Read();
+    return gtLog( id );
+}
+
+
+Well::Log* Well::LogSet::getLogByName( const char* nm )
+{
+    mLock4Read();
+    return gtLogByName( nm );
+}
+
+
+const Well::Log* Well::LogSet::getLogByName( const char* nm ) const
+{
+    mLock4Read();
+    return gtLogByName( nm );
+}
+
+
+Well::Log* Well::LogSet::getLogByIdx( IdxType idx )
+{
+    mLock4Read();
+    return gtLogByIdx( idx );
+}
+
+
+const Well::Log* Well::LogSet::getLogByIdx( IdxType idx ) const
+{
+    mLock4Read();
+    return gtLogByIdx( idx );
+}
+
+
+const Well::Log* Well::LogSet::firstLog() const
+{
+    mLock4Read();
+    return logs_.isEmpty() ? 0 : logs_[0];
+}
+
+
+Well::LogSet::size_type Well::LogSet::size() const
+{
+    mLock4Read();
+    return logs_.size();
+}
+
+
+Well::LogSet::IdxType Well::LogSet::indexOf( LogID id ) const
+{
+    mLock4Read();
+    return gtIdx( id );
+}
+
+
+Well::LogSet::IdxType Well::LogSet::indexOf( const char* nm ) const
+{
+    mLock4Read();
+    return gtIdxByName( nm );
+}
+
+
+bool Well::LogSet::validIdx( IdxType idx ) const
+{
+    mLock4Read();
+    return logs_.validIdx( idx );
 }
 
 
 void Well::LogSet::setEmpty()
 {
-    deepErase( logs_ );
+    if ( isEmpty() )
+	return;
+
+    mLock4Write();
+    doSetEmpty();
+    mSendEntireObjChgNotif();
+}
+
+
+Well::LogSet::LogID Well::LogSet::add( Well::Log* wl )
+{
+    LogID logid = LogID::getInvalid();
+    if ( !wl )
+	return logid;
+
+    mLock4Write();
+    Log* existlog = gtLogByName( wl->name() );
+    if ( existlog )
+    {
+	*existlog = *wl;
+	delete wl;
+	logid = gtID( wl );
+	recalcDahIntv();
+    }
+    else
+    {
+	logid = LogID::get( curlogidnr_++ );
+	logids_ += logid;
+	logs_ += wl;
+	updateDahIntv( *wl );
+	mSendChgNotif( cLogAdd(), logid.getI() );
+    }
+    return logid;
+}
+
+
+Well::Log* Well::LogSet::remove( LogID id )
+{
+    mLock4Write();
+    IdxType idx = gtIdx( id );
+    if ( idx < 0 )
+	return 0;
+
+    mSendChgNotif( cLogRemove(), id.getI() );
+    mReLock();
+    idx = gtIdx( id );
+    if ( idx < 0 )
+	return 0;
+
+    return doRemove( idx );
+}
+
+
+Well::Log* Well::LogSet::removeByName( const char* nm )
+{
+    mLock4Write();
+    IdxType idx = gtIdxByName( nm );
+    if ( idx < 0 )
+	return 0;
+
+    LogID logid = logids_[idx];
+    mSendChgNotif( cLogRemove(), logid.getI() );
+    mReLock();
+    idx = gtIdx( logid );
+    if ( idx < 0 )
+	return 0;
+
+    return doRemove( idx );
+}
+
+
+bool Well::LogSet::isPresent( const char* nm ) const
+{
+    mLock4Read();
+    for ( IdxType idx=0; idx<logs_.size(); idx++ )
+	if ( logs_[idx]->name() == nm )
+	    return true;
+    return false;
+}
+
+
+void Well::LogSet::getNames( BufferStringSet& nms ) const
+{
+    mLock4Read();
+    for ( IdxType idx=0; idx<logs_.size(); idx++ )
+	nms.add( logs_[idx]->name() );
 }
 
 
 void Well::LogSet::removeTopBottomUdfs()
 {
+    mLock4Read();
     for ( int idx=0; idx<logs_.size(); idx++ )
 	logs_[idx]->removeTopBottomUdfs();
 }
 
 
-TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
+TypeSet<Well::LogSet::LogID> Well::LogSet::getSuitable(
+	PropertyRef::StdType ptype,
 	const PropertyRef* altpr, BoolTypeSet* arealt ) const
 {
-    TypeSet<int> ret;
+    TypeSet<LogID> ret;
     if ( arealt )
 	arealt->setEmpty();
 
+    mLock4Read();
     for ( int idx=0; idx<logs_.size(); idx++ )
     {
 	const Well::Log& wl = *logs_[idx];
@@ -112,13 +351,67 @@ TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
 	    isok = isalt = loguom->propType() == altpr->stdType();
 	if ( isok )
 	{
-	    ret += idx;
+	    ret += logids_[idx];
 	    if ( arealt )
 		*arealt += isalt;
 	}
     }
 
     return ret;
+}
+
+
+bool Well::LogSet::swap( IdxType idx1, IdxType idx2 )
+{
+    mLock4Write();
+    if ( !logs_.validIdx(idx1) || !logs_.validIdx(idx2) )
+	return false;
+
+    logs_.swap( idx1, idx2 );
+    logids_.swap( idx1, idx2 );
+    mSendChgNotif( cOrderChange(), logids_[idx1].getI() );
+    return true;
+}
+
+
+// Well::LogSetIter
+
+Well::LogSetIter::LogSetIter( const LogSet& ls, bool atend )
+    : MonitorableIter<LogSet::IdxType>(ls,atend?ls.size():-1)
+{
+}
+
+
+Well::LogSetIter::LogSetIter( const LogSetIter& oth )
+    : MonitorableIter<LogSet::IdxType>(oth)
+{
+}
+
+
+const Well::LogSet& Well::LogSetIter::logSet() const
+{
+    return static_cast<const LogSet&>( monitored() );
+}
+
+
+Well::LogSetIter::size_type Well::LogSetIter::size() const
+{
+    return logSet().logs_.size();
+}
+
+
+Well::LogSet::LogID Well::LogSetIter::ID() const
+{
+    return logSet().logs_.validIdx(curidx_) ? logSet().logids_[ curidx_ ]
+					    : LogID::getInvalid();
+}
+
+
+static const Well::Log emptylog;
+
+const Well::Log& Well::LogSetIter::log() const
+{
+    return logSet().logs_.validIdx(curidx_) ? *logSet().logs_[curidx_] :emptylog;
 }
 
 

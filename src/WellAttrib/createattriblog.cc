@@ -83,11 +83,11 @@ bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
     }
     else
     {
-	Well::Log& log = wd.logs().getLog( sellogidx_ );
-	log.setEmpty();
+	Well::Log* log = wd.logs().getLogByIdx( sellogidx_ );
+	log->setEmpty();
 	Well::LogIter iter( *newlog );
 	while ( iter.next() )
-	    log.setValueAt( iter.dah(), iter.value() );
+	    log->setValueAt( iter.dah(), iter.value() );
 	delete newlog;
     }
     return true;

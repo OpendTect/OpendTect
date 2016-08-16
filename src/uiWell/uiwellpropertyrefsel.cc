@@ -68,13 +68,16 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
     normunmeaslbls_.add( "-" ); altunmeaslbls_.add( "-" );
 
     BoolTypeSet arealt;
-    TypeSet<int> logidxs = wls.getSuitable( propref_.stdType(),
-					     altpropref_, &arealt );
-    for ( int idx=0; idx<logidxs.size(); idx++ )
+    TypeSet<Well::LogSet::LogID> logids = wls.getSuitable( propref_.stdType(),
+						 altpropref_, &arealt );
+    for ( int idx=0; idx<logids.size(); idx++ )
     {
-	const Well::Log& wl = wls.getLog( logidxs[idx] );
-	const OD::String& lognm = wl.name();
-	const BufferString unmeaslbl = wl.unitMeasLabel();
+	const Well::Log* wl = wls.getLog( logids[idx] );
+	if ( !wl )
+	    continue;
+
+	const OD::String& lognm = wl->name();
+	const BufferString unmeaslbl = wl->unitMeasLabel();
 	if ( arealt[idx] )
 	    { altnms_.add( lognm ); altunmeaslbls_.add( unmeaslbl ); }
 	else
@@ -242,7 +245,7 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
     const Well::Data* wd = Well::MGR().get( wellid_ );
     if  ( !wd ) return;
 
-    const Well::Log* log = wd->logs().getLog( fld->logName() );
+    const Well::Log* log = wd->logs().getLogByName( fld->logName() );
     const char* logunitnm = log ? log->unitMeasLabel() : 0;
     const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
     if ( !logun )
@@ -394,7 +397,7 @@ void uiWellPropSel::viewLogPushed( CallBacker* cb )
     if  ( !wd ) return;
 
     const Well::LogSet& logs = wd->logs();
-    const Well::Log* wl = logs.getLog( lognm );
+    const Well::Log* wl = logs.getLogByName( lognm );
     if ( !wl )
 	return; // the log was removed since popup of the window ... unlikely
 

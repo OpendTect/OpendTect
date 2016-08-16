@@ -1753,7 +1753,7 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 	for ( int lidx=0; lidx<nrlogs; lidx++ )
 	{
 	    rowidx++;
-	    Well::Log* log = wls[wlsidx]->getLog( lognms.get(lidx ) );
+	    Well::Log* log = wls[wlsidx]->getLogByName( lognms.get(lidx ) );
 	    if ( !log )
 	    {
 		uominfotbl_->removeRow( rowidx );

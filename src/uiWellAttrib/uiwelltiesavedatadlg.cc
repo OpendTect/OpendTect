@@ -54,9 +54,11 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     logchk_ = new uiCheckBox( loggrp, tr("Log(s)") );
     logchk_->activated.notify( mCB(this,uiSaveDataDlg,saveLogsSelCB) );
 
+    MonitorLock ml( data.logset_ );
     BufferStringSet lognms;
     for ( int idx=cLogShift; idx<data.logset_.size(); idx++)
-	lognms.add( data.logset_.getLog(idx).name() );
+	lognms.add( data.logset_.getLogByIdx(idx)->name() );
+    ml.unlockNow();
 
     logsfld_ = new uiCheckList( loggrp );
     logsfld_->addItems( lognms );
@@ -132,17 +134,18 @@ bool uiSaveDataDlg::saveLogs()
     Well::LogSet logset;
     BufferStringSet lognms;
     uiString msg;
+    MonitorLock ml( data.logset_ );
     for ( int ilog=0; ilog<logsfld_->size(); ilog++ )
     {
 	if ( !logsfld_->isChecked(ilog) )
 	    continue;
 
-	const Well::Log& log = data.logset_.getLog( ilog+cLogShift );
+	const Well::Log& log = *data.logset_.getLogByIdx( ilog+cLogShift );
 	BufferString lognm( log.name() );
 	if ( savetolog )
 	    lognm.addSpace().add( outputgrp_->getPostFix() );
 
-	if ( data.wd_->logs().getLog(lognm) )
+	if ( data.wd_->logs().isPresent(lognm) )
 	{
 	    const uiString localmsg = tr( "Log: '%1' already exists" )
 					  .arg( lognm );
@@ -154,6 +157,7 @@ bool uiSaveDataDlg::saveLogs()
 	logset.add( newlog );
 	lognms.add( lognm );
     }
+    ml.unlockNow();
 
     uiString endmsg = tr( "Please choose another postfix" );
     if ( msg.isSet() )

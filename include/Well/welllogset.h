@@ -12,9 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellcommon.h"
-#include "position.h"
-#include "ranges.h"
+#include "welllog.h"
 #include "propertyref.h"
 class BufferStringSet;
 
@@ -22,57 +20,99 @@ class BufferStringSet;
 namespace Well
 {
 
-/*!\brief Log set */
+/*!\brief Set of Well::Log's. */
 
-mExpClass(Well) LogSet
+mExpClass(Well) LogSet : public SharedObject
 {
 public:
 
-			LogSet()		{ init(); }
-    virtual		~LogSet()		{ setEmpty(); }
+    typedef ObjectSet<Log>::size_type	size_type;
+    typedef size_type			IdxType;
+    typedef IntegerID<IdxType>		LogID;
+    typedef Well::DahObj::ZType		ZType;
 
-    void		getNames(BufferStringSet&) const;
+			LogSet();
+			~LogSet();
+			mDeclMonitorableAssignment(LogSet);
+			mDeclInstanceCreatedNotifierAccess(LogSet);
 
-    int			size() const		{ return logs_.size(); }
-    Log&		getLog( int idx )	{ return *logs_[idx]; }
-    const Log&		getLog( int idx ) const	{ return *logs_[idx]; }
+    Log*		getLog(LogID);
+    const Log*		getLog(LogID) const;
+    Log*		getLogByName(const char*);
+    const Log*		getLogByName(const char*) const;
+    Log*		getLogByIdx(IdxType);
+    const Log*		getLogByIdx(IdxType) const;
+    const Log*		firstLog() const;
+
+    size_type		size() const;
+    int			indexOf(LogID) const;
     int			indexOf(const char*) const;
-    const Log*		getLog( const char* nm ) const	{ return gtLog(nm); }
-    Log*		getLog( const char* nm )	{ return gtLog(nm); }
-
-    Interval<float>	dahInterval() const	{ return dahintv_; }
-						//!< not def if start == undef
-    void		updateDahIntvs();
-						//!< if logs changed
-    void		removeTopBottomUdfs();
-
-    void		add(Log*);		//!< becomes mine
-    Log*		remove(int);		//!< becomes yours
-    void		swap(int idx0,int idx1)	{ logs_.swap( idx0, idx1 ); }
-    bool		validIdx(int idx) const	{ return logs_.validIdx(idx); }
-
+    bool		validIdx(IdxType) const;
     bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();
 
-    TypeSet<int>	getSuitable(PropertyRef::StdType,
+    LogID		add(Log*);		//!< becomes mine
+    Log*		remove(LogID);
+    Log*		removeByName(const char*);
+
+    bool		isPresent(const char*) const;
+    void		getNames(BufferStringSet&) const;
+    mImplSimpleMonitoredGet(dahInterval,Interval<ZType>,dahintv_)
+						//!< not def if start == undef
+
+    void		removeTopBottomUdfs();	//!< for all logs
+
+    TypeSet<LogID>	getSuitable(PropertyRef::StdType,
 				    const PropertyRef* altpr=0,
 				    BoolTypeSet* isalt=0) const;
+
+    static ChangeType	cLogAdd()	{ return 2; }
+    static ChangeType	cLogRemove()	{ return 3; }
+    static ChangeType	cOrderChange()	{ return 4; }
 
 protected:
 
     ObjectSet<Log>	logs_;
-    Interval<float>	dahintv_;
+    TypeSet<LogID>	logids_;
+    Interval<ZType>	dahintv_;
+    mutable Threads::Atomic<IdxType> curlogidnr_;
 
-    void		init()
-			{ dahintv_.start = mSetUdf(dahintv_.stop); }
-
+    IdxType		gtIdx(LogID) const;
+    Log*		gtLog(LogID) const;
+    LogID		gtID(const Log*) const;
+    IdxType		gtIdxByName(const char*) const;
+    Log*		gtLogByName(const char*) const;
+    Log*		gtLogByIdx(IdxType) const;
     void		updateDahIntv(const Well::Log&);
+    void		recalcDahIntv();
+    Log*		doRemove(IdxType);
+    void		doSetEmpty();
 
-    Log*		gtLog( const char* nm ) const
-			{ const int idx = indexOf(nm);
-			    return idx < 0 ? 0 : const_cast<Log*>(logs_[idx]); }
+    friend class	LogSetIter;
+
+public:
+
+    bool		swap(IdxType,IdxType);
 
 };
+
+
+mExpClass(Well) LogSetIter : public MonitorableIter<Log::IdxType>
+{
+public:
+
+    typedef LogSet::LogID   LogID;
+
+			LogSetIter(const LogSet&,bool start_at_end=false);
+			LogSetIter(const LogSetIter&);
+    const LogSet&	logSet() const;
+    size_type		size() const;
+
+    LogID		ID() const;
+    const Log&		log() const;
+
+};
+
 
 } // namespace Well
 

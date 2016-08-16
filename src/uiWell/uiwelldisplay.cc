@@ -182,8 +182,8 @@ void uiWellDisplay::setDisplayProperties()
 	const Well::DisplayProperties::Log& lp1 = dpp.logs_[idx]->left_;
 	const Well::DisplayProperties::Log& lp2 = dpp.logs_[idx]->right_;
 
-	const Well::Log* l1 = wd->logs().getLog( lp1.name_ );
-	const Well::Log* l2 = wd->logs().getLog( lp2.name_ );
+	const Well::Log* l1 = wd->logs().getLogByName( lp1.name_ );
+	const Well::Log* l2 = wd->logs().getLogByName( lp2.name_ );
 
 	ld1.setLog( l1 );			ld2.setLog( l2 );
 	ld1.xrev_ = false;			ld2.xrev_ = false;

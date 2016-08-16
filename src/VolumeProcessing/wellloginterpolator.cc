@@ -70,7 +70,7 @@ bool init()
     else
 	track_ = isloaded ? &wd->track() : new Well::Track( wd->track() );
 
-    const Well::Log* log = wd->logs().getLog( logname_ );
+    const Well::Log* log = wd->logs().getLogByName( logname_ );
     log_ = isloaded ? log : new Well::Log( *log );
 
     return true;

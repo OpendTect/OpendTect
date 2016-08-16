@@ -395,7 +395,7 @@ bool uiTieWinMGRDlg::getVelLogInSetup() const
     {
 	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind(
 			    mJoinUiStrs(sWell().toLower(),sData().toLower())))
-	Well::Log* vp = wd_->logs().getLog( wtsetup_.vellognm_ );
+	Well::Log* vp = wd_->logs().getLogByName( wtsetup_.vellognm_ );
 	if ( !vp )
 	{
 	    uiString errmsg = tr("Cannot retrieve the velocity log %1"
@@ -421,7 +421,7 @@ bool uiTieWinMGRDlg::getDenLogInSetup() const
     {
 	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind(
 			    mJoinUiStrs(sWell().toLower(),sData().toLower())))
-	Well::Log* den = wd_->logs().getLog( wtsetup_.denlognm_ );
+	Well::Log* den = wd_->logs().getLogByName( wtsetup_.denlognm_ );
 	if ( !den )
 	{
 	    uiString errmsg = tr("Cannot retrieve the density log %1"
@@ -518,7 +518,7 @@ bool uiTieWinMGRDlg::initSetup()
 	mErrRet( uiStrings::phrCannotFind(
 				tr("the density in the log selection list")) )
 
-    Well::Log* den = wd_->logs().getLog( psflden->logName() );
+    Well::Log* den = wd_->logs().getLogByName( psflden->logName() );
     if ( !den )
 	mErrRet( uiStrings::phrCannotExtract(tr("this density log")) )
 
@@ -535,7 +535,7 @@ bool uiTieWinMGRDlg::initSetup()
 	mErrRet( uiStrings::phrCannotFind(
 				    tr("the Pwave in the log selection list")) )
 
-    Well::Log* vp = wd_->logs().getLog( psflvp->logName() );
+    Well::Log* vp = wd_->logs().getLogByName( psflvp->logName() );
     if ( !vp )
 	mErrRet( uiStrings::phrCannotExtract(tr("this velocity log")) )
 

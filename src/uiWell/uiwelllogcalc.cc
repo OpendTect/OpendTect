@@ -145,7 +145,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     float defsr = SI().depthsInFeet() ? 0.5f : 0.1524f;
     if ( !superwls_.isEmpty() )
     {
-	defsr = superwls_.getLog(0).dahStep( false );
+	defsr = superwls_.firstLog()->dahStep( false );
 	if ( SI().depthsInFeet() )
 	    defsr *= mToFeetFactorF;
     }
@@ -214,11 +214,13 @@ void uiWellLogCalc::getAllLogs()
 
 	if ( havenewlog )
 	{
-	    if ( wrdr && !wrdr->getLogs() ) continue;
-	    for ( int ilog=0; ilog<wd->logs().size(); ilog++ )
+	    if ( wrdr && !wrdr->getLogs() )
+		continue;
+	    Well::LogSetIter iter( wd->logs() );
+	    while ( iter.next() )
 	    {
-		const Well::Log& wl = wd->logs().getLog( ilog );
-		if ( !superwls_.getLog(wl.name()) )
+		const Well::Log& wl = iter.log();
+		if ( !superwls_.getLogByName(wl.name()) )
 		    superwls_.add( new Well::Log(wl) );
 	    }
 	}
@@ -243,10 +245,11 @@ bool uiWellLogCalc::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 	    return false;
 	for ( int idx=0; idx<inputtypes->size(); idx++ )
 	{
-	    TypeSet<int> propidxs = superwls_.getSuitable( (*inputtypes)[idx] );
+	    TypeSet<Well::LogSet::LogID> propids
+			= superwls_.getSuitable( (*inputtypes)[idx] );
 	    BufferStringSet nms;
-	    for ( int ilog=0; ilog<propidxs.size(); ilog++ )
-		nms.add( superwls_.getLog(propidxs[ilog]).name() );
+	    for ( int ilog=0; ilog<propids.size(); ilog++ )
+		nms.add( superwls_.getLog(propids[ilog])->name() );
 	    formfld_->setNonSpecInputs( nms, idx );
 	}
     }
@@ -338,7 +341,7 @@ void uiWellLogCalc::formUnitSel( CallBacker* )
 
 Well::Log* uiWellLogCalc::getLog4InpIdx( Well::LogSet& wls, int varnr )
 {
-    return wls.getLog( formfld_->getInput(varnr) );
+    return wls.getLogByName( formfld_->getInput(varnr) );
 }
 
 
@@ -422,7 +425,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     const BufferString newnm = nmfld_ ? nmfld_->text() : "";
     if ( newnm.isEmpty() )
 	mErrRet(tr("Please provide a name for the new log"))
-    if ( lognms_.isPresent(newnm) || superwls_.getLog(newnm) )
+    if ( lognms_.isPresent(newnm) || superwls_.isPresent(newnm) )
 	mErrRet(tr("A log with this name already exists."
 		"\nPlease enter a different name for the new log"))
 

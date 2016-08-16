@@ -270,13 +270,6 @@ const char* Well::LASImporter::getLogs( od_istream& strm,
 	const bool ispresent = indexOf( lfi.lognms, lognm ) >= 0;
 	if ( !ispresent )
 	    continue;
-	if ( wd_->logs().getLog( lognm ) )
-	{
-	    BufferString msg( lognm );
-	    msg += " already exists, will be ignored.";
-	    pErrMsg( msg );
-	    continue;
-	}
 
 	issel[idx] = true;
 	Well::Log* newlog = new Well::Log( lognm );
@@ -360,7 +353,8 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
 	prevdah = dah;
 
 	for ( int idx=0; idx<selvals.size(); idx++ )
-	    wd_->logs().getLog(addstartidx+idx).addValue( dah, selvals[idx] );
+	    wd_->logs().getLogByIdx(addstartidx+idx)
+			->addValue( dah, selvals[idx] );
 
 	nradded++;
     }

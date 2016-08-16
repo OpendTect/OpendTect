@@ -430,8 +430,10 @@ bool DataPlayer::hasSeisId() const
 
 bool DataPlayer::setAIModel()
 {
-    const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sKeySonic() );
-    const Well::Log* denlog = data_.wd_->logs().getLog( data_.sKeyDensity());
+    const Well::Log* sonlog = data_.wd_->logs().getLogByName(
+						    data_.sKeySonic() );
+    const Well::Log* denlog = data_.wd_->logs().getLogByName(
+						    data_.sKeyDensity());
 
     Well::Log* pcvellog = new Well::Log;
     Well::Log* pcdenlog = new Well::Log;
@@ -571,9 +573,9 @@ bool DataPlayer::copyDataToLogSet()
 
     createLog( data_.sKeySynthetic(), dahsynth.arr(), synth.arr(),synth.size());
 
-    const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sKeySonic() );
+    const Well::Log* sonlog = data_.wd_->logs().getLogByName( data_.sKeySonic());
     const UnitOfMeasure* sonuom = sonlog ? sonlog->unitOfMeasure() : 0;
-    Well::Log* vellogfrommodel = data_.logset_.getLog( data_.sKeySonic() );
+    Well::Log* vellogfrommodel = data_.logset_.getLogByName( data_.sKeySonic() );
     if ( vellogfrommodel && sonlog )
     {
 	if ( data_.isSonic() )
@@ -584,9 +586,11 @@ bool DataPlayer::copyDataToLogSet()
 	vellogfrommodel->convertTo( sonuom );
     }
 
-    const Well::Log* denlog = data_.wd_->logs().getLog( data_.sKeyDensity());
+    const Well::Log* denlog = data_.wd_->logs().getLogByName(
+						data_.sKeyDensity());
     const UnitOfMeasure* denuom = denlog ? denlog->unitOfMeasure() : 0;
-    Well::Log* denlogfrommodel = data_.logset_.getLog( data_.sKeyDensity() );
+    Well::Log* denlogfrommodel = data_.logset_.getLogByName(
+						data_.sKeyDensity() );
     if ( denlogfrommodel && denlog )
     {
 	const UnitOfMeasure* denuomfrommodel =
@@ -597,7 +601,7 @@ bool DataPlayer::copyDataToLogSet()
 	denlogfrommodel->convertTo( denuom );
     }
 
-    Well::Log* ailogfrommodel = data_.logset_.getLog( data_.sKeyAI() );
+    Well::Log* ailogfrommodel = data_.logset_.getLogByName( data_.sKeyAI() );
     if ( ailogfrommodel && sonuom && denuom )
     {
 	const PropertyRef::StdType& impprop = PropertyRef::Imp;
@@ -667,13 +671,13 @@ bool DataPlayer::processLog( const Well::Log* log,
 void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 {
     Well::Log* log = 0;
-    if ( data_.logset_.indexOf( nm ) < 0 )
+    if ( data_.logset_.isPresent(nm) )
+	log = data_.logset_.getLogByName( nm );
+    else
     {
 	log = new Well::Log( nm );
 	data_.logset_.add( log );
     }
-    else
-	log = data_.logset_.getLog( nm );
 
     log->setEmpty();
     for( int idx=0; idx<sz; idx ++)

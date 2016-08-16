@@ -157,7 +157,7 @@ void Data::computeExtractionRange()
     if ( !wd_ )
 	return;
 
-    const Well::Log* velplog = wd_->logs().getLog( setup_.vellognm_ );
+    const Well::Log* velplog = wd_->logs().getLogByName( setup_.vellognm_ );
     const Well::Track& track = wd_->track();
     const Well::D2TModel& d2t = wd_->d2TModel();
     if ( !velplog || d2t.isEmpty() || track.isEmpty() )
@@ -341,11 +341,10 @@ bool DataWriter::writeLogs( const Well::LogSet& logset, bool todisk ) const
 {
     if ( !wd_ || !wtr_ ) return false;
     Well::LogSet& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
-    for ( int idx=0; idx<logset.size(); idx++ )
-    {
-	Well::Log* log = new Well::Log( logset.getLog(idx) );
-	wdlogset.add( log );
-    }
+    Well::LogSetIter iter( logset );
+    while ( iter.next() )
+	wdlogset.add( new Well::Log( iter.log() ) );
+    iter.retire();
 
     if ( todisk )
 	if ( !wtr_->putLogs() )
@@ -359,12 +358,9 @@ bool DataWriter::removeLogs( const Well::LogSet& logset ) const
 {
     if ( !wd_ ) return false;
     Well::LogSet& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
-    int nrlogs = wdlogset.size();
-    for ( int idx=0; idx<logset.size(); idx++ )
-    {
-	nrlogs--;
-	wdlogset.remove( nrlogs );
-    }
+    Well::LogSetIter iter( logset );
+    while ( iter.next() )
+	wdlogset.removeByName( iter.log().name() );
 
     return true;
 }

@@ -41,8 +41,8 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select Input Log") );
     inplogfld_ = new uiListBox( this, su );
     inplogfld_->setHSzPol( uiObject::Wide );
-    for ( int idx=0; idx<logs.size(); idx++ )
-	inplogfld_->addItem( toUiString(logs.getLog(idx).name()) );
+    BufferStringSet nms; logs.getNames( nms );
+    inplogfld_->addItems( nms );
     inplogfld_->selectionChanged.notify(
 				mCB(this,uiTutWellTools,inpchg) );
 
@@ -93,25 +93,24 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 
     const int gate = gatefld_->box()->getIntValue();
     Well::Log* outputlog = new Well::Log( lognm );
-    Tut::LogTools logtool( logset.getLog(inpidx), *outputlog );
-    if ( logtool.runSmooth(gate) )
+    Tut::LogTools logtool( *logset.getLogByIdx(inpidx), *outputlog );
+    if ( !logtool.runSmooth(gate) )
+	delete outputlog;
     {
-	logset.add( outputlog );
+	Well::LogSet::LogID logid = logset.add( outputlog );
 	PtrMan<IOObj> ioobj = IOM().get( wellid_ );
 	if ( !ioobj )
 	    mErrRet( uiStrings::phrCannotFind(tr("object in I/O Manager")) )
 
 	Well::Writer wtr( *ioobj, *wd_ );
-	const Well::Log& newlog = logset.getLog( logset.size()-1 );
-	if ( !wtr.putLog(newlog) )
+	const Well::Log* newlog = logset.getLog( logid );
+	if ( newlog && !wtr.putLog(*newlog) )
 	{
 	    uiString errmsg = uiStrings::phrCannotWrite(tr("log: %1"
-			     "\n Check write permissions.").arg(newlog.name()));
+			     "\n Check write permissions.").arg(newlog->name()));
 	    mErrRet( errmsg )
 	}
     }
-    else
-	delete outputlog;
 
     return true;
 }

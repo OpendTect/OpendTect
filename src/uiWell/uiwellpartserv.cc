@@ -343,9 +343,8 @@ void uiWellPartServer::getLogNames( const MultiID& wellid,
 					BufferStringSet& lognms ) const
 {
     ConstRefMan<Well::Data> wd = Well::MGR().get( wellid );
-    if ( !wd ||  wd->logs().isEmpty() ) return;
-    for ( int idx=0; idx<wd->logs().size(); idx++ )
-	lognms.add( wd->logs().getLog(idx).name() );
+    if ( wd )
+	wd->logs().getNames( lognms );
 }
 
 

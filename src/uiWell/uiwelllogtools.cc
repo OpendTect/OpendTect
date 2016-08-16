@@ -136,8 +136,9 @@ uiWellLogToolWin::LogData::LogData( const Well::LogSet& ls,
 {
     d2t_ = d2t ? new Well::D2TModel(*d2t) : 0;
     track_ = track ? new Well::Track(*track) : 0;
-    for ( int idx=0; idx<ls.size(); idx++ )
-	logs_.add( new Well::Log( ls.getLog( idx ) ) );
+    Well::LogSetIter iter( ls );
+    while ( iter.next() )
+	logs_.add( new Well::Log(iter.log()) );
 }
 
 
@@ -151,8 +152,9 @@ uiWellLogToolWin::LogData::~LogData()
 
 void uiWellLogToolWin::LogData::getOutputLogs( Well::LogSet& ls ) const
 {
-    for ( int idx=0; idx<logs_.size(); idx++ )
-	ls.add( new Well::Log( logs_.getLog( idx ) ) );
+    Well::LogSetIter iter( ls );
+    while ( iter.next() )
+	ls.add( new Well::Log(iter.log()) );
 }
 
 
@@ -161,9 +163,10 @@ int uiWellLogToolWin::LogData::setSelectedLogs( BufferStringSet& lognms )
     int nrsel = 0;
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	Well::Log* wl = logs_.getLog( lognms[idx]->buf() );
+	Well::Log* wl = logs_.getLogByName( lognms[idx]->buf() );
 	if ( !wl || wl->isEmpty() )
 	    continue;
+
 	for ( int dahidx=wl->size()-1; dahidx>=0; dahidx -- )
 	{
 	    if ( !dahrg_.includes( wl->dahByIdx( dahidx ), true ) )
@@ -332,18 +335,12 @@ bool uiWellLogToolWin::acceptOK( CallBacker* )
 	for ( int idl=ld.outplogs_.size()-1; idl>=0; idl-- )
 	{
 	    Well::Log* outplog = ld.outplogs_.removeSingle( idl );
-	    if ( overwrite )
-	    {
-		const int logidx = ls.indexOf( outplog->name() );
-		if ( ls.validIdx( logidx ) )
-		    delete ls.remove( logidx );
-	    }
-	    else
+	    if ( !overwrite )
 	    {
 		BufferString newnm( outplog->name() );
 		newnm += savefld_->text();
 		outplog->setName( newnm );
-		if ( ls.getLog( outplog->name() ) )
+		if ( ls.isPresent( outplog->name() ) )
 		{
 		    mErrRet(tr("One or more logs with this name already exists."
 		    "\nPlease select a different extension for the new logs"));

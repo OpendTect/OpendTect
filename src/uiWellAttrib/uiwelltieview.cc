@@ -179,7 +179,7 @@ void uiTieView::setLogsParams()
 void uiTieView::drawLog( const char* nm, bool first, int dispnr, bool reversed )
 {
     uiWellLogDisplay::LogData& wldld = logsdisp_[dispnr]->logData( first );
-    wldld.setLog( data_.logset_.getLog( nm ) );
+    wldld.setLog( data_.logset_.getLogByName( nm ) );
     wldld.disp_.color_ = Color::stdDrawColor( first ? 0 : 1 );
     wldld.disp_.isleftfill_ = wldld.disp_.isrightfill_ = false;
     wldld.xrev_ = reversed;

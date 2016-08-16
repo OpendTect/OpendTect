@@ -232,12 +232,12 @@ bool uiWellAttribPartServer::showAmplSpectrum( const MultiID& mid,
     if ( !wd || wd->logs().isEmpty()  )
 	return false;
 
-    const Well::Log* log = wd->logs().getLog( lognm );
+    const Well::Log* log = wd->logs().getLogByName( lognm );
     if ( !log )
 	mErrRet( tr("Cannot find log in well data."
 		    "  Probably it has been deleted") )
 
-    if ( !log->size() )
+    if ( log->isEmpty() )
 	mErrRet( tr("Well log is empty") )
 
     StepInterval<float> resamprg( log->dahRange() );

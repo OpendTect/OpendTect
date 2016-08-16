@@ -171,7 +171,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     for ( int idx=lognms.size()-1; idx>=0; idx-- )
     {
 	const char* lognm = lognms.get(idx).buf();
-	if ( wd->logs().getLog(lognm) )
+	if ( wd->logs().isPresent(lognm) )
 	{
 	    existlogs.add( lognm );
 	    lognms.removeSingle( idx );
@@ -308,9 +308,10 @@ void uiExportLogs::setDefaultRange( bool zinft )
     for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {
 	const Well::Data& wd = *wds_[idwell];
-	for ( int idx=0; idx<wd.logs().size(); idx++ )
+	Well::LogSetIter iter( wd.logs() );
+	while ( iter.next() )
 	{
-	    const Well::Log& log = wd.logs().getLog(idx);
+	    const Well::Log& log = iter.log();
 	    MonitorLock ml( log );
 	    const int logsz = log.size();
 	    if ( logsz < 0 )
@@ -390,14 +391,15 @@ void uiExportLogs::writeHeader( od_ostream& strm, const Well::Data& wd )
     BufferString zstr( unitid<2 ? "Depth" : "Time" );
     strm << zstr << units[unitid];
 
-    for ( int idx=0; idx<wd.logs().size(); idx++ )
+    Well::LogSetIter iter( wd.logs() );
+    while ( iter.next() )
     {
-	const Well::Log& log = wd.logs().getLog(idx);
-	if ( !logsel_.isPresent( log.name() ) ) continue;
+	const Well::Log& log = iter.log();
+	if ( !logsel_.isPresent(log.name()) )
+	    continue;
+
 	BufferString lognm( log.name() );
-	lognm.clean();
-	lognm.replace( '+', '_' );
-	lognm.replace( '-', '_' );
+	lognm.clean(); lognm.replace( '+', '_' ); lognm.replace( '-', '_' );
 	strm << od_tab << lognm;
 	const BufferString uomlbl = log.unitMeasLabel();
 	if ( !uomlbl.isEmpty() )
@@ -463,10 +465,12 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    strm << od_tab << z;
 	}
 
-	for ( int logidx=0; logidx<wd.logs().size(); logidx++ )
+	Well::LogSetIter iter( wd.logs() );
+	while ( iter.next() )
 	{
-	    const Well::Log& log = wd.logs().getLog( logidx );
-	    if ( !logsel_.isPresent( log.name() ) ) continue;
+	    const Well::Log& log = iter.log();
+	    if ( !logsel_.isPresent(log.name()) )
+		continue;
 	    const float val = log.valueAt( md );
 	    if ( mIsUdf(val) )
 		strm << od_tab << "1e30";

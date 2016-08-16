@@ -224,11 +224,14 @@ bool Well::odWriter::putTrack( od_ostream& strm ) const
 bool Well::odWriter::putLogs() const
 {
     removeAll( sExtLog() );
-    for ( int idx=0; idx<wd_.logs().size(); idx++ )
+    Well::LogSetIter iter( wd_.logs() );
+    int idx = 0;
+    while ( iter.next() )
     {
-	mGetOutStream( sExtLog(), idx+1, return false )
+	idx++;
+	mGetOutStream( sExtLog(), idx, return false )
 
-	const Well::Log& wl = wd_.logs().getLog(idx);
+	const Well::Log& wl = iter.log();
 	if ( !putLog(strm,wl) )
 	    mErrRetStrmOper(tr("write log"))
     }

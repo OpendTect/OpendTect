@@ -376,15 +376,20 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 {
     mGetWD(return);
 
-    Well::Log logdata = wd->logs().getLog( lp.logidx_ );
+    Well::Log logdata = *wd->logs().getLogByIdx( lp.logidx_ );
     Well::Log* logfill = 0;
 
     if ( isfilled )
-	logfill = new Well::Log( wd->logs().getLog( lp.filllogidx_ ) );
+    {
+	const Well::Log* filllog = wd->logs().getLogByIdx( lp.filllogidx_ );
+	if ( filllog )
+	    logfill = new Well::Log( *filllog );
+    }
 
     if ( !upscaleLogs(*wd,logdata,logfill,lp) )
     {
-	if ( logfill ) delete logfill;
+	if ( logfill )
+	    delete logfill;
 	return;
     }
 
@@ -444,9 +449,9 @@ bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
     if ( track.size() < 2 )
 	return false;
 
-    const Well::Log* logdatain = wd.logs().getLog( logdata.name() );
+    const Well::Log* logdatain = wd.logs().getLogByName( logdata.name() );
     const Well::Log* logfillin = !logfill ? 0
-					  : wd.logs().getLog( logfill->name() );
+				  : wd.logs().getLogByName( logfill->name() );
     if ( !logdatain || (logfill && !logfillin) || logdata.isEmpty() )
 	return false;
 
@@ -553,10 +558,12 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 void WellDisplay::calcClippedRange( float rate, Interval<float>& rg, int lidx )
 {
     mGetWD(return);
+    const Well::Log* wl = wd->logs().getLogByIdx( lidx );
+    if ( !wl )
+	return;
 
-    Well::Log& wl = wd->logs().getLog( lidx );
     TypeSet<float> dahs, vals;
-    wl.getData( dahs, vals );
+    wl->getData( dahs, vals );
     if ( rate > 100 ) rate = 100;
     if ( mIsUdf(rate) || rate < 0 ) rate = 0;
     rate /= 100;
@@ -668,7 +675,7 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
     {
 	info += isleft ? ", Left: " : ", Right: ";
 	info += lognm;
-	const Well::Log* log = wd->logs().getLog( lognm );
+	const Well::Log* log = wd->logs().getLogByName( lognm );
 	if ( log )
 	{
 	    if ( !val.isEmpty() )

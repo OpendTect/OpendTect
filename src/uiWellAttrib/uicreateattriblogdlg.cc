@@ -175,11 +175,11 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 
 	Well::Writer wtr( *ioobj, *wd );
 
-	const Well::Log& newlog = wd->logs().getLog(sellogidx_);
-	if ( !wtr.putLog(newlog) )
+	const Well::Log* newlog = wd->logs().getLogByIdx(sellogidx_);
+	if ( !wtr.putLog(*newlog) )
 	{
 	    errmsg = tr("Cannot write log '%1'.\nCheck the permissions "
-			"of the *.wll file").arg(newlog.name());
+			"of the *.wll file").arg(newlog->name());
 	    uiMSG().error( errmsg );
 	    return false;
 	}

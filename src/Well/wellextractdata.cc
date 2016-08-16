@@ -308,7 +308,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 
     for ( ; mIsUdf(dahrg.start) && ilog<lognms.size(); ilog++ )
     {
-	const Well::Log* log = wd.logs().getLog( lognms.get( ilog ) );
+	const Well::Log* log = wd.logs().getLogByName( lognms.get(ilog) );
 	if ( !log || log->isEmpty() )
 	    continue;
 
@@ -316,7 +316,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
     }
     for ( ; ilog<lognms.size(); ilog++ )
     {
-	const Well::Log* log = wd.logs().getLog( lognms.get( ilog ) );
+	const Well::Log* log = wd.logs().getLogByName( lognms.get(ilog) );
 	if ( !log || log->isEmpty() )
 	    continue;
 
@@ -703,11 +703,11 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
 	if ( dpscolidx < 0 ) return;
     }
 
-    int wlidx = wd.logs().indexOf( lognm_ );
-    if ( wlidx < 0 )
+    const Well::Log* wlptr = wd.logs().getLogByName( lognm_ );
+    if ( !wlptr)
 	return;
+    const Well::Log& wl = *wlptr;
 
-    const Well::Log& wl = wd.logs().getLog( wlidx );
     MonitorLock mltrack( track );
     MonitorLock mllog( wl );
 
@@ -986,8 +986,9 @@ Well::LogSampler::LogSampler( const Well::Data& wd,
 	    pars.zstep_, pars.extractzintime_, pars.samppol_ );
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const Well::Log* log = wd.logs().getLog( lognms.get( idx ) );
-	if ( log ) logset_ += log;
+	const Well::Log* log = wd.logs().getLogByName( lognms.get(idx) );
+	if ( log )
+	    logset_ += log;
     }
 }
 
@@ -1002,8 +1003,9 @@ Well::LogSampler::LogSampler( const Well::Data& wd,
     init( &wd.d2TModel(), zrg, zrgisintime, zstep, extrintime, samppol);
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const Well::Log* log = wd.logs().getLog( lognms.get( idx ) );
-	if ( log ) logset_ += log;
+	const Well::Log* log = wd.logs().getLogByName( lognms.get(idx) );
+	if ( log )
+	    logset_ += log;
     }
 }
 
