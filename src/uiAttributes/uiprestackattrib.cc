@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uiveldesc.h"
 #include "od_helpids.h"
+#include "uimsg.h"
 
 using namespace Attrib;
 
@@ -289,8 +290,17 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 {
     if ( !prestackinpfld_->commitInput() )
 	return false;
-
-    mSetString(StorageProvider::keyStr(),prestackinpfld_->getMultiID())
+    StepInterval<float> xrgfldint = xrgfld_->getFStepInterval();
+    bool gathertype = gathertypefld_->getIntValue() == 0;
+    if ( xrgfldint.start > xrgfldint.stop )
+    {
+	errmsg_ = tr("Start value of the %1 range field is greater than stop "
+		     "value.")
+		     .arg( gathertype ? uiStrings::sOffset() : tr("Angle") );
+	uiMSG().error( errmsg_ );
+	return false;
+    }
+    mSetString(Attrib::StorageProvider::keyStr(),prestackinpfld_->getMultiID())
 
     if ( dopreprocessfld_->getBoolValue() )
     {
@@ -348,7 +358,7 @@ void uiPreStackAttrib::doPreProcSel( CallBacker* )
 void uiPreStackAttrib::calcTypSel( CallBacker* cb )
 {
     updateCalcType();
-    gatherTypSel( 0 );
+    gatherTypSel( cb );
 }
 
 
@@ -378,9 +388,8 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
     useanglefld_->display( isoffset );
     gathertypefld_->display( true );
     xunitfld_->display( !isoffset );
-    xaxistypefld_->setSensitive( isoffset );
 
-    angleTypSel(0);
+    angleTypSel( cb );
 }
 
 
@@ -395,20 +404,22 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
     const bool isoffset = gathertypefld_->getIntValue() == 0;
     const bool iscomputeangle = useanglefld_->isChecked();
     const bool isnorm = calctypefld_->getIntValue() == 0;
-
-    xrgfld_->setEmpty();
+    
     xrgfld_->setSensitive( !iscomputeangle || !isoffset );
     xrglbl_->setSensitive( !iscomputeangle || !isoffset );
     anglecompgrp_->display( isoffset && iscomputeangle );
-    xaxistypefld_->setSensitive( !iscomputeangle );
-
-    if ( cb )
+    if ( cb )  //helps to populate non-default values
     {
-	if ( iscomputeangle )
+	if ( !isoffset || iscomputeangle )
 	    xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
-	if ( !iscomputeangle && isoffset && !isnorm )
-	    xaxistypefld_->setValue( PreStack::PropCalc::Norm );
+	if ( isoffset || !iscomputeangle )
+    	    xaxistypefld_->setValue( PreStack::PropCalc::Norm ); 
+	xrgfld_->setEmpty();
     }
+
+    xaxistypefld_->setSensitive( isoffset && !iscomputeangle );
+
+    
 }
 
 
