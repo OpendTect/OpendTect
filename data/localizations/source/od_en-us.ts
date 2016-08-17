@@ -327,8 +327,8 @@
         <location filename="../../../include/Basic/uistrings.h" line="+188"/>
         <source>2D Plane</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>2D Plane</numerusform>
+            <numerusform>2D Planes</numerusform>
         </translation>
     </message>
     <message numerus="yes">
