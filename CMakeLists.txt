@@ -95,6 +95,7 @@ set( OD_PLUGINS
 	uiMadagascar
 	uiMadagascarAttribs
 	uiMATLABLink
+	uiMMPTest
 	uiPresentationMaker
 	uiPreStackViewer
 	uiSEGY
