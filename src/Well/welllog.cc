@@ -250,22 +250,25 @@ Well::LogSet::LogID Well::LogSet::add( Well::Log* wl )
 	return logid;
 
     mLock4Write();
-    Log* existlog = gtLogByName( wl->name() );
-    if ( existlog )
-    {
-	*existlog = *wl;
-	delete wl;
-	logid = gtID( wl );
-	recalcDahIntv();
-    }
+    const Log* existlog = gtLogByName( wl->name() );
+    const int existidx = existlog ? logs_.indexOf(existlog) : -1;
+
+    logid = LogID::get( curlogidnr_++ );
+    logids_ += logid;
+    logs_ += wl;
+
+    if ( existidx < 0 )
+	updateDahIntv( *wl );
     else
     {
-	logid = LogID::get( curlogidnr_++ );
-	logids_ += logid;
-	logs_ += wl;
-	updateDahIntv( *wl );
-	mSendChgNotif( cLogAdd(), logid.getI() );
+	const LogID rmid = logids_[existidx];
+	delete doRemove( existidx );
+	recalcDahIntv();
+	mSendChgNotif( cLogRemove(), rmid.getI() );
+	mReLock();
     }
+
+    mSendChgNotif( cLogAdd(), logid.getI() );
     return logid;
 }
 
