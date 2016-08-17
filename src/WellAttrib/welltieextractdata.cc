@@ -67,9 +67,16 @@ bool SeismicExtractor::collectTracesAroundPath()
     const bool seisid2D = rdr_->is2D();
     if ( seisid2D )
     {
-	tkzs_->hsamp_.setInlRange( Interval<int>(bidset_[0].inl(),
-					    bidset_[0].inl()) );
-	tkzs_->hsamp_.setCrlRange( Interval<int>(0,SI().crlRange(true).stop) );
+	const Survey::Geometry* geom = linenm_.isEmpty() ? 0
+			: Survey::GM().getGeometry( linenm_ );
+	if ( !geom )
+	    mErrRet( tr("2D Line Geometry not found") );
+
+	tkzs_->hsamp_.init( geom->getID() );
+	const Coord pos = SI().transform( bidset_[0] );
+	const TrcKey trckey = geom->nearestTrace( pos );
+	tkzs_->hsamp_.setCrlRange( Interval<int>(trckey.trcNr(),
+						 trckey.trcNr()) );
     }
     else
     {
@@ -81,8 +88,10 @@ bool SeismicExtractor::collectTracesAroundPath()
 	    tkzs_->hsamp_.include( BinID( bid.inl() - radius_,
 				     bid.crl() - radius_ ) );
 	}
+
+	tkzs_->hsamp_.snapToSurvey();
     }
-    tkzs_->hsamp_.snapToSurvey();
+
     tkzs_->zsamp_ = extrintv_;
     Seis::RangeSelData* sd = new Seis::RangeSelData( *tkzs_ );
     if ( seisid2D && !linenm_.isEmpty() )
