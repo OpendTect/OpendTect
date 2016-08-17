@@ -49,6 +49,7 @@ ________________________________________________________________________
 #include "uievaluatedlg.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
+#include "uihelpview.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -142,8 +143,8 @@ const ZDomain::Info* uiAttribDescSetEd::getZDomainInfo() const
 
 void uiAttribDescSetEd::createMenuBar()
 {
-    uiMenuBar* menu = menuBar();
-    if( !menu )
+    uiMenuBar* menubar = menuBar();
+    if( !menubar )
 	{ pErrMsg("huh?"); return; }
 
     uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
@@ -163,7 +164,13 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertItemNoIcon( m3Dots(tr("Import set from Seismics")), importFromSeis );
 
     filemnu->insertItem( impmnu );
-    menu->insertItem( filemnu );
+    menubar->insertItem( filemnu );
+
+    uiMenu* helpmnu = new uiMenu( this, uiStrings::sHelp() );
+    mInsertMnuItem( helpmnu, tr("Documentation"), showDoc, 0 );
+    mInsertMnuItem( helpmnu, tr("Attribute Matrix"), showMatrix,
+		    "attributematrix" );
+    menubar->insertItem( helpmnu );
 }
 
 
@@ -260,6 +267,9 @@ void uiAttribDescSetEd::createGroups()
     helpbut_ = new uiToolButton( degrp, "contexthelp", uiStrings::sHelp(),
 				mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
+    uiToolButton* matrixbut = new uiToolButton( degrp, "attributematrix",
+	tr("Attribute Matrix"), mCB(this,uiAttribDescSetEd,showMatrix) );
+    matrixbut->attach( rightTo, helpbut_ );
 
     attrnmfld_ = new uiGenInput( rightgrp, uiStrings::sAttribName() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
@@ -1044,7 +1054,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     uiSelectFromList::Setup sflsu( tr("Default Attribute Sets"), attribnames );
     sflsu.dlgtitle( tr("Select default attribute set") );
     uiSelectFromList dlg( this, sflsu );
-    dlg.setHelpKey(mODHelpKey(mAttribDescSetEddefaultSetHelpID) );
+    dlg.setHelpKey( mODHelpKey(mAttribDescSetEddefaultSetHelpID) );
     if ( !dlg.go() ) return;
 
     const int selitm = dlg.selection();
@@ -1112,6 +1122,20 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
     gtDefaultAttribsets( mGetApplSetupDataDir(), is2d, attribfiles,
 			 attribnames );
     gtDefaultAttribsets( mGetSWDirDataDir(), is2d, attribfiles, attribnames );
+}
+
+
+void uiAttribDescSetEd::showDoc( CallBacker* )
+{
+    HelpProvider::provideHelp( HelpKey("od",0) );
+}
+
+
+void uiAttribDescSetEd::showMatrix( CallBacker* )
+{
+    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
+		       WebsiteHelp::sKeyAttribMatrix() );
+    HelpProvider::provideHelp( key );
 }
 
 
