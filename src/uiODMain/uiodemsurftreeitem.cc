@@ -564,8 +564,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( vals.size() )
 	{
 	    BufferString auxdatanm;  auxdatanm = name_.getFullString();
-	    if ( auxdatanm == sKey::ZValue() && zaxstrstr !=
-							SI().zDomain().key() )
+	    if ( auxdatanm == sKey::ZValue() && isdttransform )
 	    {
 		auxdatanm = zaxstrstr; auxdatanm += " Value";
 	    }
