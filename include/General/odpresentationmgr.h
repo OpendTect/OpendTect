@@ -25,6 +25,7 @@ mExpClass(General) ObjPresentationInfo
 {
 public:
 
+    virtual				~ObjPresentationInfo()	{}
     virtual void			fillPar(IOPar&) const;
     virtual bool			usePar(const IOPar&);
     void				setStoredID(const MultiID& id)
