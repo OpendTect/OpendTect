@@ -396,31 +396,27 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 
     Stats::CalcSetup rcsetup;
     for ( int outidx=0; outidx<outputinterest_.size(); outidx++ )
-    {
 	if ( outputinterest_[outidx] )
 	    rcsetup.require( (Stats::Type)outputtypes[outidx] );
-    }
+    
     int statsz = 0;
     for ( int posidx=0; posidx<nrpos; posidx++ )
-    {
 	if ( inputdata_[posidx] )
 	    statsz += gatesz;
-    }
-
+    
     Stats::WindowedCalc<double> wcalc( rcsetup, statsz );
-
-    for ( int idz=samplegate.start; idz<=samplegate.stop; idz++ )
+    for ( int posidx=0; posidx<nrpos; posidx++ )
     {
-	for ( int posidx=0; posidx<nrpos; posidx++ )
-	{
-	    const DataHolder* dh = inputdata_[posidx];
-	    if ( !dh ) continue;
+	const DataHolder* dh = inputdata_[posidx];      
+	if ( !dh ) continue;
 
+	for ( int idz=samplegate.start; idz<=samplegate.stop; idz++ )
+	{
 	    float shift = extrasamp;
 	    if ( dosteer_ )
 		shift += getInputValue( *steeringdata_, steerindexes_[posidx],
 					idz, z0 );
-
+	    
 	    wcalc += getInterpolInputValue( *dh, dataidx_, shift + idz, z0 );
 	}
     }

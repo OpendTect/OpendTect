@@ -191,23 +191,21 @@ int StratAmpCalc::nextStep()
     float z1 = (float) tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
     float z2 = !bothorizon_ ? z1
 	: (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
+    if ( mIsUdf(z1) || mIsUdf(z2) )
+	return Executor::MoreToDo();
+
     z1 += tophorshift_;
     z2 += bothorshift_;
-    Interval<int> sampintv( trc->info().nearestSample(z1),
-			    trc->info().nearestSample(z2) );
+    StepInterval<float> sampintv( z1, z2, trc->info().sampling_.step );
     sampintv.sort();
-
-    if ( sampintv.start < 0 )
-	sampintv.start = 0;
-    if ( sampintv.stop >= trc->size() )
-	sampintv.stop = trc->size()-1;
-
+    sampintv.limitTo( trc->zRange() );
+    
     Stats::CalcSetup rcsetup;
     rcsetup.require( stattyp_ );
     Stats::RunCalc<float> runcalc( rcsetup );
-    for ( int idx=sampintv.start; idx<=sampintv.stop; idx++ )
+    for ( float zval=sampintv.start; zval<=sampintv.stop; zval+=sampintv.step )
     {
-	const float val = trc->get( idx, 0 );
+	const float val = trc->getValue( zval, 0 );
 	if ( !mIsUdf(val) )
 	    runcalc.addValue( val );
     }
