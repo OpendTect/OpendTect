@@ -45,7 +45,7 @@ static EM::Horizon3D* loadHorizon( const MultiID& mid, const TrcKeySampling& hs,
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sdsel( sd );
     sdsel.rg = hs;
-    strm << "Laoding " << em.objectName( mid ) << od_newline;
+    strm << "Loading " << em.objectName( mid ) << od_newline;
     Executor* exec = em.objectLoader( mid, &sdsel );
     if ( !(exec && exec->go(strm, false, false, 0) ) )
 	return 0;
