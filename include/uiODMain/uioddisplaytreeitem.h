@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uiodtreeitem.h"
 #include "multiid.h"
+#include "odpresentationmgr.h"
 
 class uiODDataTreeItem;
 class uiVisPartServer;
@@ -46,6 +47,8 @@ public:
     virtual void	setOnlyAtSectionsDisplay(bool);
     virtual bool	displayedOnlyAtSections() const;
     virtual void	handleItemCheck(bool triggerdispreq=true);
+    virtual const char* objectTypeKey() const		{ return 0; }
+    void		emitPRRequest(ODPresentationManager::RequestType);
 
 protected:
 
@@ -54,6 +57,7 @@ protected:
     bool		shouldSelect(int selkey) const;
     int			selectionKey() const;
     int			uiTreeViewItemType() const;
+
     virtual void	checkCB(CallBacker*);
     virtual void	keyPressCB(CallBacker*);
     virtual bool	doubleClick(uiTreeViewItem*);
@@ -75,6 +79,8 @@ protected:
     virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
     virtual void	deleteObject();
+
+    virtual ObjPresentationInfo* getObjPRInfo()		{ return 0; }
 
     uiVisPartServer*	visserv_;
     int			displayid_;

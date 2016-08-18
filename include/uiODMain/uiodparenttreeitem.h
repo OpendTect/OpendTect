@@ -13,21 +13,25 @@ ________________________________________________________________________
 -*/
 
 #include "uiodtreeitem.h"
-
-class SaveableManager;
+#include "odpresentationmgr.h"
 
 
 mExpClass(uiODMain) uiODParentTreeItem : public uiODTreeItem
 { mODTextTranslationClass(uiODParentTreeItem)
 public:
 			uiODParentTreeItem(const uiString&);
-    void		setObjectManager(SaveableManager*);
+    virtual		~uiODParentTreeItem();
+    bool		init();
 
     void		getLoadedChildren(TypeSet<MultiID>&) const;
     void		showHideChildren(const MultiID&,bool);
     void		removeChildren(const MultiID&);
     void		addChildren(const TypeSet<MultiID>&);
     bool		selectChild(const MultiID&);
+    void		emitChildPRRequest(const MultiID&,
+					   ODPresentationManager::RequestType);
+
+    virtual const char* childObjTypeKey() const			=0;
 protected:
     virtual void	objAddedCB(CallBacker*);
     virtual void	objVanishedCB(CallBacker*);
@@ -36,8 +40,6 @@ protected:
     virtual void	objOrphanedCB(CallBacker*);
 
     virtual void	addChildItem(const MultiID&)		{}
-
-    SaveableManager*	objectmgr_;
 };
 
 #endif

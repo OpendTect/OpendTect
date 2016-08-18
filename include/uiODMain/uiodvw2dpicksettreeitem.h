@@ -29,6 +29,7 @@ public:
 				~uiODVw2DPickSetParentTreeItem();
 
     bool			showSubMenu();
+    const char*			childObjTypeKey() const;
 protected:
 
     bool			init();
@@ -64,7 +65,7 @@ public:
     virtual void	doSaveAs();
 
     void		enableDisplay(bool,bool triggervwreq);
-
+    const char*		objectTypeKey() const;
 
 protected:
 
@@ -77,6 +78,8 @@ protected:
     void		checkCB(CallBacker*);
     void		setChangedCB(CallBacker*);
     void		displayMiniCtab();
+
+    ObjPresentationInfo* getObjPRInfo();
 
     Pick::Set&		pickset_;
     VW2DPickSet*	vw2dpickset_;

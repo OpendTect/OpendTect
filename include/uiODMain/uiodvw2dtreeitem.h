@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uitreeitemmanager.h"
 #include "uistrings.h"
 #include "multiid.h"
+#include "odpresentationmgr.h"
 
 class TrcKeyZSampling;
 class uiTreeView;
@@ -22,7 +23,6 @@ class uiMenu;
 class uiODApplMgr;
 class uiODViewer2D;
 class ZAxisTransform;
-class SaveableManager;
 class Vw2DDataObject;
 
 namespace Attrib { class SelSpec; }
@@ -50,6 +50,8 @@ public:
 
     void		addKeyBoardEvent();
     virtual const Vw2DDataObject* vw2DObject() const	{ return 0; }
+    virtual const char* objectTypeKey() const		{ return 0; }
+    void		emitPRRequest(ODPresentationManager::RequestType);
 
 protected:
 
@@ -83,6 +85,8 @@ protected:
     virtual void	removeAllChildren();
     virtual void	doSave() {}
     virtual void	doSaveAs() {}
+
+    virtual ObjPresentationInfo* getObjPRInfo()		{ return 0; }
 };
 
 
@@ -91,7 +95,7 @@ mExpClass(uiODMain) uiODVw2DParentTreeItem : public uiODVw2DTreeItem
 public:
 			uiODVw2DParentTreeItem(const uiString&);
 			~uiODVw2DParentTreeItem();
-    void		setObjectManager(SaveableManager*);
+    bool		init();
 
     void		getVwr2DOjIDs(const MultiID& mid,
 				       TypeSet<int>& vw2ids) const;
@@ -100,6 +104,10 @@ public:
     void		removeChildren(const MultiID&);
     void		addChildren(const TypeSet<MultiID>&);
     bool		selectChild(const MultiID&);
+    void		emitChildPRRequest(const MultiID& childstoredid,
+					   ODPresentationManager::RequestType);
+    virtual const char* childObjTypeKey() const		{ return 0; }
+
 protected:
     virtual void	objAddedCB(CallBacker*);
     virtual void	objVanishedCB(CallBacker*);
@@ -108,8 +116,6 @@ protected:
     virtual void	objOrphanedCB(CallBacker*);
 
     virtual void	addChildItem(const MultiID&)		{}
-
-    SaveableManager*	objectmgr_;
 };
 
 

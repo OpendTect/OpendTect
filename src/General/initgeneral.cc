@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "mathformulatransl.h"
 #include "ioobjselectiontransl.h"
 #include "preloads.h"
+#include "pickset.h"
 #include "geometryio.h"
 #include "survgeometrytransl.h"
 
@@ -39,6 +40,7 @@ mDefModInitFn(General)
     odMathFormulaTranslator::initClass();
     odIOObjSelectionTranslator::initClass();
 
+    Pick::SetPresentationInfo::initClass();
     Pos::RangeProvider3D::initClass();
     Pos::RangeProvider2D::initClass();
     ValueProperty::initClass();

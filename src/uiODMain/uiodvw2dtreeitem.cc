@@ -19,8 +19,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uitreeview.h"
-#include "odpresentationmgr.h"
-#include "saveablemanager.h"
+#include "odviewer2dpresentationmgr.h"
 #include "view2ddata.h"
 #include "zaxistransform.h"
 
@@ -162,6 +161,19 @@ uiODVw2DTreeItem::~uiODVw2DTreeItem()
     detachAllNotifiers();
     if ( datatransform_ )
 	datatransform_->unRef();
+}
+
+
+void uiODVw2DTreeItem::emitPRRequest( ODPresentationManager::RequestType req )
+{
+    PtrMan<ObjPresentationInfo> objprinfo = getObjPRInfo();
+    if ( !objprinfo )
+	return;
+
+    IOPar objprinfopar;
+    objprinfo->fillPar( objprinfopar );
+    ODPrMan().request( Viewer2DPresentationMgr::sViewerTypeID(), req,
+		       objprinfopar );
 }
 
 
@@ -414,7 +426,6 @@ const uiODVw2DTreeItem* uiODVw2DTreeTop::getVW2DItem( int displayid ) const
 
 uiODVw2DParentTreeItem::uiODVw2DParentTreeItem( const uiString& nm )
     : uiODVw2DTreeItem( nm )
-    , objectmgr_(0)
 {
 }
 
@@ -425,42 +436,35 @@ uiODVw2DParentTreeItem::~uiODVw2DParentTreeItem()
 }
 
 
-void uiODVw2DParentTreeItem::setObjectManager( SaveableManager* mgr )
+bool uiODVw2DParentTreeItem::init()
 {
-    if ( objectmgr_ )
-    {
-	mDetachCB( objectmgr_->ObjAdded, uiODVw2DParentTreeItem::objAddedCB );
-	mDetachCB( objectmgr_->VanishRequested,
-		   uiODVw2DParentTreeItem::objVanishedCB );
-	mDetachCB( objectmgr_->ShowRequested,
-		   uiODVw2DParentTreeItem::objShownCB );
-	mDetachCB( objectmgr_->HideRequested,
-		   uiODVw2DParentTreeItem::objHiddenCB );
-	mDetachCB( objectmgr_->ObjOrphaned,
-		   uiODVw2DParentTreeItem::objOrphanedCB );
-    }
+    ODVwrTypePresentationMgr* vtmgr =
+	ODPrMan().getViewerTypeMgr( Viewer2DPresentationMgr::sViewerTypeID() );
+    if ( !vtmgr )
+	return false;
 
-    if ( !mgr )
-	return;
-
-    objectmgr_ = mgr;
-    mAttachCB( objectmgr_->ObjAdded, uiODVw2DParentTreeItem::objAddedCB );
-    mAttachCB( objectmgr_->VanishRequested,
+    mAttachCB( vtmgr->ObjAdded, uiODVw2DParentTreeItem::objAddedCB );
+    mAttachCB( vtmgr->VanishRequested,
 	       uiODVw2DParentTreeItem::objVanishedCB );
-    mAttachCB( objectmgr_->ShowRequested, uiODVw2DParentTreeItem::objShownCB );
-    mAttachCB( objectmgr_->HideRequested, uiODVw2DParentTreeItem::objHiddenCB );
-    mAttachCB( objectmgr_->ObjOrphaned, uiODVw2DParentTreeItem::objOrphanedCB );
+    mAttachCB( vtmgr->ShowRequested, uiODVw2DParentTreeItem::objShownCB );
+    mAttachCB( vtmgr->HideRequested, uiODVw2DParentTreeItem::objHiddenCB );
+    mAttachCB( vtmgr->ObjOrphaned, uiODVw2DParentTreeItem::objOrphanedCB );
+    return uiODVw2DTreeItem::init();
 }
 
 
 void uiODVw2DParentTreeItem::objAddedCB( CallBacker* cber )
 {
-    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Viewer2D) )
+    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
+    BufferString objtypekey;
+    objprinfopar.get( sKey::Type(), objtypekey );
+    if ( objtypekey != childObjTypeKey() )
 	return;
 
-    mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODVw2DParentTreeItem::objAddedCB, cbercaps )
+    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
+    const MultiID mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
@@ -472,12 +476,16 @@ void uiODVw2DParentTreeItem::objAddedCB( CallBacker* cber )
 
 void uiODVw2DParentTreeItem::objVanishedCB( CallBacker* cber )
 {
-    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Viewer2D) )
+    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
+    BufferString objtypekey;
+    objprinfopar.get( sKey::Type(), objtypekey );
+    if ( objtypekey != childObjTypeKey() )
 	return;
 
-    mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODVw2DParentTreeItem::objVanishedCB, cbercaps )
+    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
+    const MultiID mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
@@ -487,12 +495,16 @@ void uiODVw2DParentTreeItem::objVanishedCB( CallBacker* cber )
 
 void uiODVw2DParentTreeItem::objShownCB( CallBacker* cber )
 {
-    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Viewer2D) )
+    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
+    BufferString objtypekey;
+    objprinfopar.get( sKey::Type(), objtypekey );
+    if ( objtypekey != childObjTypeKey() )
 	return;
 
-    mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODVw2DParentTreeItem::objShownCB, cbercaps )
+    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
+    const MultiID mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
@@ -502,12 +514,16 @@ void uiODVw2DParentTreeItem::objShownCB( CallBacker* cber )
 
 void uiODVw2DParentTreeItem::objHiddenCB( CallBacker* cber )
 {
-    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Viewer2D) )
+    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
+    BufferString objtypekey;
+    objprinfopar.get( sKey::Type(), objtypekey );
+    if ( objtypekey != childObjTypeKey() )
 	return;
 
-    mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODVw2DParentTreeItem::objHiddenCB, cbercaps )
+    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
+    const MultiID mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
@@ -517,12 +533,37 @@ void uiODVw2DParentTreeItem::objHiddenCB( CallBacker* cber )
 
 void uiODVw2DParentTreeItem::objOrphanedCB( CallBacker* cber )
 {
-    mCBCapsuleUnpack( MultiID,mid,cber );
+    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
+    BufferString objtypekey;
+    objprinfopar.get( sKey::Type(), objtypekey );
+    if ( objtypekey != childObjTypeKey() )
+	return;
+
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODVw2DParentTreeItem::objOrphanedCB, cbercaps )
+    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
+    const MultiID mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
     //TODO do something when we have clearer idea what to do when it happens
+}
+
+
+void uiODVw2DParentTreeItem::emitChildPRRequest(
+	const MultiID& childstoredid, ODPresentationManager::RequestType req )
+{
+    if ( childstoredid.isUdf() )
+	return;
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DTreeItem*,childitem,
+			getChild(idx))
+	if ( !childitem || childitem->storedID() != childstoredid )
+	    continue;
+
+	childitem->emitPRRequest( req );
+    }
 }
 
 

@@ -30,6 +30,7 @@ ___________________________________________________________________
 #include "attribsel.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "odscenepresentationmgr.h"
 #include "threadwork.h"
 
 
@@ -241,6 +242,13 @@ void uiODDisplayTreeItem::handleItemCheck( bool triggerdispreq )
 {
     if ( !visserv_->isSoloMode() )
 	visserv_->turnOn( displayid_, isChecked() );
+    if ( triggerdispreq && !storedid_.isUdf() && objectTypeKey() )
+    {
+	ODPresentationManager::RequestType req =
+	    isChecked() ? ODPresentationManager::Show
+			: ODPresentationManager::Hide;
+	emitPRRequest( req );
+    }
 }
 
 
@@ -515,4 +523,16 @@ void uiODDisplayTreeItem::prepareForShutdown()
 	ODMainWin()->colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
 
     visserv_->removeObject( displayid_, sceneID() );
+}
+
+
+void uiODDisplayTreeItem::emitPRRequest( ODPresentationManager::RequestType req)
+{
+    PtrMan<ObjPresentationInfo> objprinfo = getObjPRInfo();
+    if ( !objprinfo )
+	return;
+
+    IOPar objprinfopar;
+    objprinfo->fillPar( objprinfopar );
+    ODPrMan().request( ScenePresentationMgr::sViewerTypeID(), req,objprinfopar);
 }

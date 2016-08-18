@@ -10,53 +10,52 @@ ___________________________________________________________________
 
 #include "uiodparenttreeitem.h"
 #include "uioddisplaytreeitem.h"
-#include "saveablemanager.h"
-#include "odpresentationmgr.h"
+#include "uiodapplmgr.h"
+#include "uivispartserv.h"
+#include "odscenepresentationmgr.h"
 
 
 uiODParentTreeItem::uiODParentTreeItem( const uiString& nm )
     : uiODTreeItem(nm)
-    , objectmgr_(0)
 {
 }
 
 
-void uiODParentTreeItem::setObjectManager( SaveableManager* mgr )
+uiODParentTreeItem::~uiODParentTreeItem()
 {
-    if ( objectmgr_ )
-    {
-	mDetachCB( objectmgr_->ObjAdded, uiODParentTreeItem::objAddedCB );
-	mDetachCB( objectmgr_->VanishRequested,
-		   uiODParentTreeItem::objVanishedCB );
-	mDetachCB( objectmgr_->ShowRequested,
-		   uiODParentTreeItem::objShownCB );
-	mDetachCB( objectmgr_->HideRequested,
-		   uiODParentTreeItem::objHiddenCB );
-	mDetachCB( objectmgr_->ObjOrphaned,
-		   uiODParentTreeItem::objOrphanedCB );
-    }
+    detachAllNotifiers();
+}
 
-    objectmgr_ = mgr;
-    if ( !mgr )
-	return;
 
-    mAttachCB( objectmgr_->ObjAdded, uiODParentTreeItem::objAddedCB );
-    mAttachCB( objectmgr_->VanishRequested,
+bool uiODParentTreeItem::init()
+{
+    ODVwrTypePresentationMgr* vtmgr =
+	ODPrMan().getViewerTypeMgr( ScenePresentationMgr::sViewerTypeID() );
+    if ( !vtmgr )
+	return false;
+
+    mAttachCB( vtmgr->ObjAdded, uiODParentTreeItem::objAddedCB );
+    mAttachCB( vtmgr->VanishRequested,
 	       uiODParentTreeItem::objVanishedCB );
-    mAttachCB( objectmgr_->ShowRequested, uiODParentTreeItem::objShownCB );
-    mAttachCB( objectmgr_->HideRequested, uiODParentTreeItem::objHiddenCB );
-    mAttachCB( objectmgr_->ObjOrphaned, uiODParentTreeItem::objOrphanedCB );
+    mAttachCB( vtmgr->ShowRequested, uiODParentTreeItem::objShownCB );
+    mAttachCB( vtmgr->HideRequested, uiODParentTreeItem::objHiddenCB );
+    mAttachCB( vtmgr->ObjOrphaned, uiODParentTreeItem::objOrphanedCB );
+    return uiODTreeItem::init();
 }
 
 
 void uiODParentTreeItem::objAddedCB( CallBacker* cber )
 {
-    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Scene3D) )
+    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
+    BufferString objtypekey;
+    objprinfopar.get( sKey::Type(), objtypekey );
+    if ( objtypekey != childObjTypeKey() )
 	return;
 
-    mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODParentTreeItem::objAddedCB, cbercaps )
+    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
+    const MultiID mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
@@ -68,12 +67,16 @@ void uiODParentTreeItem::objAddedCB( CallBacker* cber )
 
 void uiODParentTreeItem::objVanishedCB( CallBacker* cber )
 {
-    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Scene3D) )
+    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
+    BufferString objtypekey;
+    objprinfopar.get( sKey::Type(), objtypekey );
+    if ( objtypekey != childObjTypeKey() )
 	return;
 
-    mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODParentTreeItem::objVanishedCB, cbercaps )
+    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
+    const MultiID mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
@@ -83,12 +86,16 @@ void uiODParentTreeItem::objVanishedCB( CallBacker* cber )
 
 void uiODParentTreeItem::objShownCB( CallBacker* cber )
 {
-    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Scene3D) )
+    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
+    BufferString objtypekey;
+    objprinfopar.get( sKey::Type(), objtypekey );
+    if ( objtypekey != childObjTypeKey() )
 	return;
 
-    mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODParentTreeItem::objShownCB, cbercaps )
+    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
+    const MultiID mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
@@ -98,12 +105,16 @@ void uiODParentTreeItem::objShownCB( CallBacker* cber )
 
 void uiODParentTreeItem::objHiddenCB( CallBacker* cber )
 {
-    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Scene3D) )
+    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
+    BufferString objtypekey;
+    objprinfopar.get( sKey::Type(), objtypekey );
+    if ( objtypekey != childObjTypeKey() )
 	return;
 
-    mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODParentTreeItem::objHiddenCB, cbercaps )
+    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
+    const MultiID mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
@@ -113,15 +124,37 @@ void uiODParentTreeItem::objHiddenCB( CallBacker* cber )
 
 void uiODParentTreeItem::objOrphanedCB( CallBacker* cber )
 {
-    if ( !ODPrMan().isSyncedWithTriggerDomain(ODPresentationManager::Scene3D) )
+    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
+    BufferString objtypekey;
+    objprinfopar.get( sKey::Type(), objtypekey );
+    if ( objtypekey != childObjTypeKey() )
 	return;
 
-    mCBCapsuleUnpack( MultiID,mid,cber );
     mEnsureExecutedInMainThreadWithCapsule(
-	    uiODParentTreeItem::objOrphanedCB, cbercaps )
+	    uiODParentTreeItem::objHiddenCB, cbercaps )
+    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
+    const MultiID mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
     //TODO do something when we have clearer idea what to do when it happens
+}
+
+
+void uiODParentTreeItem::emitChildPRRequest(
+	const MultiID& mid, ODPresentationManager::RequestType req )
+{
+    if ( mid.isUdf() )
+	return;
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODDisplayTreeItem*,childitem,
+			getChild(idx))
+	if ( !childitem || childitem->storedID() != mid )
+	    continue;
+
+	childitem->emitPRRequest( req );
+    }
 }
 
 
@@ -147,6 +180,9 @@ void uiODParentTreeItem::removeChildren( const MultiID& mid )
 	if ( !childitem || mid!=childitem->storedID() )
 	    continue;
 
+	childitem->prepareForShutdown();
+	applMgr()->visServer()->removeObject( childitem->displayID(),
+					      sceneID() );
 	removeChild( childitem );
     }
 }

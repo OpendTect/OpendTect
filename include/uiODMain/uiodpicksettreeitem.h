@@ -22,13 +22,12 @@ namespace Pick		{ class Set; }
 
 mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODParentTreeItem
 {   mODTextTranslationClass(uiODPickSetParentTreeItem);
-    mDefineItemMembers( PickSetParent, TreeItem, TreeTop );
+    mDefineItemMembers( PickSetParent, ParentTreeItem, TreeTop );
     mShowMenu;
     mMenuOnAnyButton;
 		~uiODPickSetParentTreeItem();
-    void	addPickSet(Pick::Set*);
-    void	removeSet(Pick::Set&);
     void	addChildItem(const MultiID&);
+    const char* childObjTypeKey() const;
 };
 
 
@@ -51,7 +50,7 @@ public:
     virtual bool	actModeWhenSelected() const	{ return true; }
     Pick::Set&		getSet()			{ return set_; }
     const Pick::Set&	getSet() const			{ return set_; }
-    void		handleItemCheck(bool);
+    const char*		objectTypeKey() const;
 
 protected:
 
@@ -67,6 +66,8 @@ protected:
     virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
     virtual void	keyPressCB(CallBacker*);
+
+    ObjPresentationInfo*	getObjPRInfo();
 
     Pick::Set&		set_;
 
@@ -89,9 +90,9 @@ mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODParentTreeItem
 
 		~uiODPolygonParentTreeItem();
 
-    void	addPolygon(Pick::Set*);
-    void	removeSet(Pick::Set&);
     void	addChildItem(const MultiID&);
+    const char* childObjTypeKey() const;
+    ObjPresentationInfo*	getObjPRInfo();
 };
 
 
@@ -114,7 +115,7 @@ public:
     virtual bool	actModeWhenSelected() const	{ return true; }
     Pick::Set&		getSet()			{ return set_; }
     const Pick::Set&	getSet() const			{ return set_; }
-    void		handleItemCheck(bool);
+    const char*		objectTypeKey() const;
 
 protected:
 
@@ -128,6 +129,8 @@ protected:
     bool		doubleClick(uiTreeViewItem*);
     const char*		parentType() const
 			{ return typeid(uiODPolygonParentTreeItem).name(); }
+
+    ObjPresentationInfo*	getObjPRInfo();
 
     Pick::Set&		set_;
 

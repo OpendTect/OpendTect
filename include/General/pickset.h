@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "sharedobject.h"
 #include "monitoriter.h"
 #include "enums.h"
+#include "odpresentationmgr.h"
 #include "trckey.h"
 #include "sets.h"
 #include "draw.h"
@@ -228,6 +229,19 @@ private:
     RefMan<Set>		set_;
     Set::IdxType	curidx_;
 
+};
+
+
+mExpClass(General) SetPresentationInfo : public ObjPresentationInfo
+{
+public:
+					SetPresentationInfo();
+    void				fillPar(IOPar&) const;
+    bool				usePar(const IOPar&);
+
+    static ObjPresentationInfo*		createFrom( const IOPar&);
+    static void				initClass();
+    static const char*			sFactoryKey();
 };
 
 

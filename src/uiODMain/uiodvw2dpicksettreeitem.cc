@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 
 #include "keyboardevent.h"
-#include "odpresentationmgr.h"
 #include "picksetmanager.h"
 #include "view2ddataman.h"
 #include "view2dpickset.h"
@@ -37,7 +36,6 @@ ________________________________________________________________________
 uiODVw2DPickSetParentTreeItem::uiODVw2DPickSetParentTreeItem()
     : uiODVw2DParentTreeItem( uiStrings::sPickSet() )
 {
-    setObjectManager( &Pick::SetMGR() );
 }
 
 
@@ -50,8 +48,12 @@ const char* uiODVw2DPickSetParentTreeItem::iconName() const
 { return "tree-pickset"; }
 
 
+const char* uiODVw2DPickSetParentTreeItem::childObjTypeKey() const
+{ return Pick::SetPresentationInfo::sFactoryKey(); }
+
+
 bool uiODVw2DPickSetParentTreeItem::init()
-{ return uiODVw2DTreeItem::init(); }
+{ return uiODVw2DParentTreeItem::init(); }
 
 
 
@@ -87,6 +89,8 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 	return true;
 
     addChildren( setids );
+    for ( int idx=0; idx<setids.size(); idx++ )
+	emitChildPRRequest( setids[idx], ODPresentationManager::Add );
 
     if ( viewer2D() && viewer2D()->viewControl() )
 	viewer2D()->viewControl()->setEditMode(newps && selectChild(setids[0]));
@@ -99,7 +103,8 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 void uiODVw2DPickSetParentTreeItem::addChildItem( const MultiID& setid )
 {
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( setid );
-    if ( !ps )
+    ps.setNoDelete( true );
+    if ( !ps || ps->isPolygon() )
 	return;
 
     uiODVw2DPickSetTreeItem* childitm = new uiODVw2DPickSetTreeItem( *ps );
@@ -147,10 +152,22 @@ uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
     detachAllNotifiers();
     if ( vw2dpickset_ )
 	viewer2D()->dataMgr()->removeObject( vw2dpickset_ );
-    ODPrMan().setTriggerFromDomain( ODPresentationManager::Viewer2D );
-    Pick::SetMGR().displayRequest( storedid_, SaveableManager::Vanish );
+    emitPRRequest( ODPresentationManager::Vanish );
     pickset_.unRef();
 }
+
+
+
+ObjPresentationInfo* uiODVw2DPickSetTreeItem::getObjPRInfo()
+{
+    Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo;
+    psprinfo->setStoredID( storedid_ );
+    return psprinfo;
+}
+
+
+const char* uiODVw2DPickSetTreeItem::objectTypeKey() const
+{ return Pick::SetPresentationInfo::sFactoryKey(); }
 
 
 void uiODVw2DPickSetTreeItem::setChangedCB( CallBacker* )
@@ -261,9 +278,9 @@ void uiODVw2DPickSetTreeItem::enableDisplay( bool yn, bool triggervwreq )
 
     if ( triggervwreq )
     {
-	SaveableManager::DispOpt dispopt = yn ? SaveableManager::Show
-					      : SaveableManager::Hide;
-	Pick::SetMGR().displayRequest( storedid_, dispopt );
+	ODPresentationManager::RequestType req =
+	    yn ? ODPresentationManager::Show : ODPresentationManager::Hide;
+	emitPRRequest( req );
     }
 }
 

@@ -39,7 +39,6 @@ ___________________________________________________________________
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODParentTreeItem( uiStrings::sPickSet())
 {
-    setObjectManager( &Pick::SetMGR() );
 }
 
 
@@ -55,6 +54,12 @@ const char* uiODPickSetParentTreeItem::iconName() const
 }
 
 
+const char* uiODPickSetParentTreeItem::childObjTypeKey() const
+{
+    return Pick::SetPresentationInfo::sFactoryKey();
+}
+
+
 void uiODPickSetParentTreeItem::addChildItem( const MultiID& mid )
 {
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( mid );
@@ -63,36 +68,8 @@ void uiODPickSetParentTreeItem::addChildItem( const MultiID& mid )
 	return;
 
     uiODDisplayTreeItem* item = new uiODPickSetTreeItem( -1, *ps );
-    addChild( item, false );
+	addChild( item, false );
     item->setChecked( true );
-}
-
-
-void uiODPickSetParentTreeItem::addPickSet( Pick::Set* ps )
-{
-    if ( !ps )
-	return;
-
-    uiODDisplayTreeItem* item = new uiODPickSetTreeItem( -1, *ps );
-    addChild( item, false );
-    item->setChecked( true );
-}
-
-
-void uiODPickSetParentTreeItem::removeSet( Pick::Set& ps )
-{
-    Pick::SetMGR().displayRequest( Pick::SetMGR().getID(ps),
-				   SaveableManager::Vanish );
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
-	if ( itm && &itm->getSet() == &ps )
-	{
-	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
-	    uiTreeItem::removeChild( itm );
-	    return;
-	}
-    }
 }
 
 
@@ -148,18 +125,42 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	TypeSet<MultiID> mids;
 	if ( !applMgr()->pickServer()->loadSets(mids,false) )
 	    return false;
+
+	for ( int chidx=0; chidx<mids.size(); chidx++ )
+	{
+	    addChildItem( mids[chidx] );
+	    emitChildPRRequest( mids[chidx], ODPresentationManager::Add );
+	}
     }
     else if ( mnuid==mGen3DIdx )
     {
-	addPickSet( applMgr()->pickServer()->create3DGenSet() );
+	RefMan<Pick::Set> ps = applMgr()->pickServer()->create3DGenSet();
+	if ( !ps )
+	    return false;
+
+	const MultiID storedid = Pick::SetMGR().getID( *ps );
+	addChildItem( storedid );
+	emitChildPRRequest( storedid, ODPresentationManager::Add );
     }
     else if ( mnuid==mRandom2DIdx )
     {
-	addPickSet( applMgr()->pickServer()->createRandom2DSet() );
+	RefMan<Pick::Set> ps = applMgr()->pickServer()->createRandom2DSet();
+	if ( !ps )
+	    return false;
+
+	const MultiID storedid = Pick::SetMGR().getID( *ps );
+	addChildItem( storedid );
+	emitChildPRRequest( storedid, ODPresentationManager::Add );
     }
     else if ( mnuid==mEmptyIdx )
     {
-	addPickSet( applMgr()->pickServer()->createEmptySet(false) );
+	RefMan<Pick::Set> ps = applMgr()->pickServer()->createEmptySet(false);
+	if ( !ps )
+	    return false;
+
+	const MultiID storedid = Pick::SetMGR().getID( *ps );
+	addChildItem( storedid );
+	emitChildPRRequest( storedid, ODPresentationManager::Add );
     }
     else if ( mnuid==mSaveIdx )
     {
@@ -229,9 +230,22 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
 {
     detachAllNotifiers();
-    ODPrMan().setTriggerFromDomain( ODPresentationManager::Scene3D );
-    Pick::SetMGR().displayRequest( storedid_, SaveableManager::Vanish );
+    emitPRRequest( ODPresentationManager::Vanish );
     set_.unRef();
+}
+
+
+const char* uiODPickSetTreeItem::objectTypeKey() const
+{
+    return Pick::SetPresentationInfo::sFactoryKey();
+}
+
+
+ObjPresentationInfo* uiODPickSetTreeItem::getObjPRInfo()
+{
+    Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo();
+    psprinfo->setStoredID( storedid_ );
+    return psprinfo;
 }
 
 
@@ -281,19 +295,6 @@ bool uiODPickSetTreeItem::init()
 
     updateColumnText( uiODSceneMgr::cColorColumn() );
     return uiODDisplayTreeItem::init();
-}
-
-
-void uiODPickSetTreeItem::handleItemCheck( bool triggerdisprequest )
-{
-    uiODDisplayTreeItem::handleItemCheck( triggerdisprequest );
-    if ( triggerdisprequest )
-    {
-	SaveableManager::DispOpt dispopt = isChecked() ? SaveableManager::Show
-						       : SaveableManager::Hide;
-	ODPrMan().setTriggerFromDomain( ODPresentationManager::Scene3D );
-	Pick::SetMGR().displayRequest( storedid_, dispopt );
-    }
 }
 
 
@@ -453,7 +454,6 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
     : uiODParentTreeItem( uiStrings::sPolygon() )
 {
-    setObjectManager( &Pick::SetMGR() );
 }
 
 
@@ -467,6 +467,12 @@ const char* uiODPolygonParentTreeItem::iconName() const
 { return "tree-polygon"; }
 
 
+const char* uiODPolygonParentTreeItem::childObjTypeKey() const
+{
+    return Pick::SetPresentationInfo::sFactoryKey();
+}
+
+
 void uiODPolygonParentTreeItem::addChildItem( const MultiID& mid )
 {
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( mid );
@@ -477,15 +483,6 @@ void uiODPolygonParentTreeItem::addChildItem( const MultiID& mid )
     uiODDisplayTreeItem* item = new uiODPolygonTreeItem( -1, *ps );
     addChild( item, false );
     item->setChecked( true );
-}
-
-
-void uiODPolygonParentTreeItem::addPolygon( Pick::Set* ps )
-{
-    if ( !ps ) return;
-
-    uiODDisplayTreeItem* item = new uiODPolygonTreeItem( -1, *ps );
-    addChild( item, false );
 }
 
 
@@ -531,13 +528,21 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	TypeSet<MultiID> setids;
 	if ( !applMgr()->pickServer()->loadSets(setids,true) )
 	    return false;
+	for ( int idx=0; idx<setids.size(); idx++ )
+	{
+	    addChildItem( setids[idx] );
+	    emitChildPRRequest( setids[idx], ODPresentationManager::Add );
+	}
     }
     else if ( mnuid==mNewPolyIdx )
     {
 	RefMan<Pick::Set> ps = applMgr()->pickServer()->createEmptySet(true);
 	if ( !ps )
 	    return false;
-	addPolygon( ps );
+
+	const MultiID& storedid = Pick::SetMGR().getID( *ps );
+	addChildItem( storedid );
+	emitChildPRRequest( storedid, ODPresentationManager::Add );
     }
     else if ( mnuid==mSavePolyIdx )
     {
@@ -598,9 +603,21 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
 uiODPolygonTreeItem::~uiODPolygonTreeItem()
 {
     detachAllNotifiers();
-    ODPrMan().setTriggerFromDomain( ODPresentationManager::Scene3D );
-    Pick::SetMGR().displayRequest( storedid_, SaveableManager::Vanish );
     set_.unRef();
+}
+
+
+const char* uiODPolygonTreeItem::objectTypeKey() const
+{
+    return Pick::SetPresentationInfo::sFactoryKey();
+}
+
+
+ObjPresentationInfo* uiODPolygonTreeItem::getObjPRInfo()
+{
+    Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo();
+    psprinfo->setStoredID( storedid_ );
+    return psprinfo;
 }
 
 
@@ -651,19 +668,6 @@ bool uiODPolygonTreeItem::init()
 
     updateColumnText( uiODSceneMgr::cColorColumn() );
     return uiODDisplayTreeItem::init();
-}
-
-
-void uiODPolygonTreeItem::handleItemCheck( bool triggerdispreq )
-{
-    uiODDisplayTreeItem::handleItemCheck( triggerdispreq );
-    if ( triggerdispreq )
-    {
-	SaveableManager::DispOpt dispopt = isChecked() ? SaveableManager::Show
-						       : SaveableManager::Hide;
-	ODPrMan().setTriggerFromDomain( ODPresentationManager::Scene3D );
-	Pick::SetMGR().displayRequest( storedid_, dispopt );
-    }
 }
 
 

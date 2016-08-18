@@ -11,30 +11,100 @@ ________________________________________________________________________
 
 -*/
 
+#include "bufstringset.h"
 #include "generalmod.h"
 #include "commondefs.h"
+#include "callback.h"
+#include "notify.h"
+#include "typeset.h"
+#include "objectset.h"
+#include "multiid.h"
+
+
+mExpClass(General) ObjPresentationInfo
+{
+public:
+
+    virtual void			fillPar(IOPar&) const;
+    virtual bool			usePar(const IOPar&);
+    void				setStoredID(const MultiID& id)
+					{ storedid_ = id; }
+    const MultiID&			storedID() const
+					{ return storedid_; }
+    const char*				objTypeKey() const
+					{ return objtypekey_; }
+protected:
+    MultiID				storedid_;
+    BufferString			objtypekey_;
+};
+
+
+
+mExpClass(General) ObjPresentationInfoFactory
+{
+public:
+    typedef ObjPresentationInfo* (*CreateFunc)( const IOPar& );
+
+    void			addCreateFunc(CreateFunc, const char* key);
+    ObjPresentationInfo*	create(const IOPar&);
+protected:
+    TypeSet<CreateFunc>		createfuncs_;
+    BufferStringSet		keys_;
+};
+
+
+mGlobal(General) ObjPresentationInfoFactory& ODIFac();
+
+
+mExpClass(General) ODVwrTypePresentationMgr : public CallBacker
+{
+public:
+						ODVwrTypePresentationMgr();
+    virtual int					viewerTypeID()		=0;
+    CNotifier<ODVwrTypePresentationMgr,IOPar>	ObjAdded;
+    CNotifier<ODVwrTypePresentationMgr,IOPar>	ObjOrphaned;
+    CNotifier<ODVwrTypePresentationMgr,IOPar>	UnsavedObjLastCall;
+    CNotifier<ODVwrTypePresentationMgr,IOPar>	ShowRequested;
+    CNotifier<ODVwrTypePresentationMgr,IOPar>	HideRequested;
+    CNotifier<ODVwrTypePresentationMgr,IOPar>	VanishRequested;
+};
 
 
 mExpClass(General) ODPresentationManager
 {
 public:
-    enum DisplayDomain		{ Scene3D=0x0001, Viewer2D=0x0002,
-				  Basemap=0x0004 };
+
+    struct SyncInfo
+    {
+				SyncInfo( int did, bool sync )
+				    : vwrtypeid_(did)
+				    , issynced_(sync)	{}
+	int			vwrtypeid_;
+	bool			issynced_;
+	bool operator==( const SyncInfo& rhs ) const
+	{
+	    return vwrtypeid_==rhs.vwrtypeid_ && issynced_==rhs.issynced_;
+	}
+    };
+
+    enum RequestType		{ Add, Vanish, Show, Hide };
+
 				ODPresentationManager();
 
-    void			syncAllDomains();
-    void			setSyncOption( int opt )
-				{ syncoption_ = opt; }
-    bool			areDomainsSynced(DisplayDomain domain1,
-						 DisplayDomain domain2) const;
-    bool			isSyncedWithTriggerDomain(DisplayDomain) const;
-    bool			isTriggeredFromDomain(DisplayDomain) const;
-    void			setTriggerFromDomain( DisplayDomain opt )
-				{ triggeredfromdomain_ = opt; }
+    ODVwrTypePresentationMgr*	getViewerTypeMgr(int dispdomainid);
+    void			request(int vwrtypeid,RequestType,const IOPar&);
+    void			syncAllViewerTypes();
+    void			addViewerTypeManager(ODVwrTypePresentationMgr*);
+    bool			areViewerTypesSynced(int vwrtypeid1,
+						     int vwrtypeid2) const;
 protected:
-    unsigned int		syncoption_;
-    DisplayDomain		triggeredfromdomain_;
+    ObjectSet<ODVwrTypePresentationMgr> vwrtypemanagers_;
+    TypeSet<SyncInfo>			vwrtypesyncinfos_;
+
+    int				syncInfoIdx(int dispdomainid) const;
 };
 
 mGlobal(General) ODPresentationManager& ODPrMan();
+
+
 #endif
