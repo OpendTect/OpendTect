@@ -264,6 +264,8 @@ FlatView::AuxData::EditPermissions::EditPermissions()
 {}
 
 
+HiddenParam<FlatView::AuxData,BoolTypeSetType> turnon_( true );
+HiddenParam<FlatView::AuxData,BoolTypeSetType> updatelines_( true );
 
 FlatView::AuxData::AuxData( const char* nm )
     : name_( nm )
@@ -277,7 +279,10 @@ FlatView::AuxData::AuxData( const char* nm )
     , x2rg_( 0 )
     , enabled_( true )
     , editpermissions_( 0 )
-{}
+{
+    turnon_.setParam( this, true );
+    updatelines_.setParam( this, true );
+}
 
 
 FlatView::AuxData::AuxData(const FlatView::AuxData& aux)
@@ -295,7 +300,10 @@ FlatView::AuxData::AuxData(const FlatView::AuxData& aux)
     , editpermissions_( aux.editpermissions_
 	    ? new EditPermissions(*aux.editpermissions_) : 0 )
     , poly_( aux.poly_ )
-{}
+{
+    turnon_.setParam( this, true );
+    updatelines_.setParam( this, true );
+}
 
 
 FlatView::AuxData::~AuxData()
@@ -303,6 +311,8 @@ FlatView::AuxData::~AuxData()
     delete x1rg_;
     delete x2rg_;
     delete editpermissions_;
+    turnon_.removeParam( this );
+    updatelines_.removeParam( this );
 }
 
 
@@ -312,6 +322,30 @@ bool FlatView::AuxData::isEmpty() const
 
 void FlatView::AuxData::empty()
 { poly_.erase(); }
+
+
+void FlatView::AuxData::turnOn( bool yn )
+{
+    turnon_.setParam( this, yn );
+}
+
+
+bool FlatView::AuxData::isOn() const
+{
+    return turnon_.getParam( this );
+}
+
+
+void FlatView::AuxData::setNeedUpdateLines( bool yn )
+{
+    updatelines_.setParam( this, yn );
+}
+
+
+bool FlatView::AuxData::needsUpdateLines() const
+{
+    return updatelines_.getParam( this );
+}
 
 
 #define mIOPDoWVA(fn,keynm,memb) \

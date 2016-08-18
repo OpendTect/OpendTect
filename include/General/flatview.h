@@ -91,6 +91,11 @@ public:
 						{ fillpattern_ = fp; }
     bool			isEmpty() const;
     void			empty();
+    void			turnOn(bool yn); //!<Turns on/off display
+    bool			isOn() const;
+
+    bool			needsUpdateLines() const;
+    void			setNeedUpdateLines(bool);
 
     // should be protected, don't use.
 				AuxData( const char* nm );
