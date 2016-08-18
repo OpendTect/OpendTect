@@ -95,6 +95,10 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	return;
     }
 
+    display_->setVisible( isOn() );
+    if ( !display_->isVisible() )
+	return;
+
     display_->setZValue( zvalue_ );
 
     if ( x1rg_ || x2rg_ )
@@ -141,7 +145,8 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	    }
 	    else
 	    {
-		polylineitem_->setPolyLine( poly_ );
+		if ( needsUpdateLines() )
+		    polylineitem_->setPolyLine( poly_ );
 	    }
 
 	    item = polylineitem_;
