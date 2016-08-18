@@ -418,7 +418,6 @@ void uiPreStackAttrib::updateCalcType()
 void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
 {
     const bool isoffset = gathertypefld_->getIntValue() == 0;
-    const bool iscomputeangle = useanglefld_->isChecked();
     uiString xlbl = isoffset ? tr("Offset range (empty=all)") : 
 						tr("Angle range (empty=all)");
 
@@ -460,7 +459,6 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
     
     const bool isoffset = gathertypefld_->getIntValue() == 0;
     const bool iscomputeangle = useanglefld_->isChecked();
-    const bool isnorm = calctypefld_->getIntValue() == 0;
     
     xrgfld_->setSensitive( !iscomputeangle || !isoffset );
     xrglbl_->setSensitive( !iscomputeangle || !isoffset );
