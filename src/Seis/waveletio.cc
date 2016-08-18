@@ -108,8 +108,8 @@ bool WaveletLoader::addToMGR( Wavelet* wvlt, const MultiID& ky )
 mDefineInstanceCreatedNotifierAccess(WaveletSaver)
 
 
-WaveletSaver::WaveletSaver( const Wavelet& ps )
-    : Saveable(ps)
+WaveletSaver::WaveletSaver( const Wavelet& wvlt )
+    : Saveable(wvlt)
 {
     mTriggerInstanceCreatedNotifier();
 }
@@ -142,9 +142,9 @@ ConstRefMan<Wavelet> WaveletSaver::wavelet() const
 }
 
 
-void WaveletSaver::setWavelet( const Wavelet& ps )
+void WaveletSaver::setWavelet( const Wavelet& wvlt )
 {
-    setObject( ps );
+    setObject( wvlt );
 }
 
 

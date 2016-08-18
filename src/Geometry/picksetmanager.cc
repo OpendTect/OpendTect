@@ -9,7 +9,6 @@
 #include "picksetio.h"
 #include "picksettr.h"
 #include "picksetchangerecorder.h"
-#include "autosaver.h"
 #include "ioman.h"
 #include "ioobj.h"
 
@@ -58,8 +57,8 @@ RefManType Pick::SetManager::doFetch( const ObjID& id, uiRetVal& uirv,
 
 ConstRefMan<Pick::Set> Pick::SetManager::fetch( const ObjID& id ) const
 {
-    uiRetVal msg = uiRetVal::OK();
-    return doFetch<ConstRefMan<Set>,const Set>( id, msg );
+    uiRetVal uirv = uiRetVal::OK();
+    return doFetch<ConstRefMan<Set>,const Set>( id, uirv );
 }
 
 
@@ -72,8 +71,8 @@ ConstRefMan<Pick::Set> Pick::SetManager::fetch( const ObjID& id,
 
 RefMan<Pick::Set> Pick::SetManager::fetchForEdit( const ObjID& id )
 {
-    uiRetVal msg = uiRetVal::OK();
-    return doFetch<RefMan<Set>,Set>( id, msg );
+    uiRetVal uirv = uiRetVal::OK();
+    return doFetch<RefMan<Set>,Set>( id, uirv );
 }
 
 
@@ -137,7 +136,7 @@ bool Pick::SetManager::isPolygon( const ObjID& id ) const
     const IdxType idx = gtIdx( id );
     if ( idx >= 0 )
     {
-	const Pick::Set* ps = mToPS(const,*,savers_[idx]->object());
+	const Set* ps = mToPS(const,*,savers_[idx]->object());
 	if ( ps )
 	    return ps->isPolygon();
     }
@@ -157,7 +156,7 @@ bool Pick::SetManager::hasCategory( const ObjID& id, const char* cat ) const
     const IdxType idx = gtIdx( id );
     if ( idx >= 0 )
     {
-	const Pick::Set* ps = mToPS(const,*,savers_[idx]->object());
+	const Set* ps = mToPS(const,*,savers_[idx]->object());
 	if ( ps )
 	    return FixedString(ps->category()) == cat;
     }
@@ -172,14 +171,14 @@ bool Pick::SetManager::hasCategory( const ObjID& id, const char* cat ) const
 ConstRefMan<Pick::Set> Pick::SetManager::get( IdxType idx ) const
 {
     const SharedObject* shobj = gtObj( idx );
-    return ConstRefMan<Pick::Set>( mToPS(const,*,shobj) );
+    return ConstRefMan<Set>( mToPS(const,*,shobj) );
 }
 
 
 RefMan<Pick::Set> Pick::SetManager::getForEdit( IdxType idx )
 {
     SharedObject* shobj = gtObj( idx );
-    return RefMan<Pick::Set>( mToPS(,*,shobj) );
+    return RefMan<Set>( mToPS(,*,shobj) );
 }
 
 
@@ -195,12 +194,12 @@ Pick::Set* Pick::SetManager::gtSet( const ObjID& id ) const
 
 Saveable* Pick::SetManager::getSaver( const SharedObject& obj ) const
 {
-    return new Pick::SetSaver( mToPS(const,&,obj) );
+    return new SetSaver( mToPS(const,&,obj) );
 }
 
 
 ChangeRecorder* Pick::SetManager::getChangeRecorder(
 				    const SharedObject& obj ) const
 {
-    return new Pick::SetChangeRecorder( mToPS(const,&,obj) );
+    return new SetChangeRecorder( mToPS(const,&,obj) );
 }

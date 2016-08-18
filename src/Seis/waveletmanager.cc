@@ -53,8 +53,8 @@ RefManType WaveletManager::doFetch( const ObjID& id, uiRetVal& uirv ) const
 
 ConstRefMan<Wavelet> WaveletManager::fetch( const ObjID& id ) const
 {
-    uiRetVal msg = uiRetVal::OK();
-    return doFetch<ConstRefMan<Wavelet>,const Wavelet>( id, msg );
+    uiRetVal uirv = uiRetVal::OK();
+    return doFetch<ConstRefMan<Wavelet>,const Wavelet>( id, uirv );
 }
 
 
@@ -67,8 +67,8 @@ ConstRefMan<Wavelet> WaveletManager::fetch( const ObjID& id,
 
 RefMan<Wavelet> WaveletManager::fetchForEdit( const ObjID& id )
 {
-    uiRetVal msg = uiRetVal::OK();
-    return doFetch<RefMan<Wavelet>,Wavelet>( id, msg );
+    uiRetVal uirv = uiRetVal::OK();
+    return doFetch<RefMan<Wavelet>,Wavelet>( id, uirv );
 }
 
 

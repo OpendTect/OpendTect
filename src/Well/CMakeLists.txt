@@ -19,6 +19,7 @@ set(OD_MODULE_SOURCES
 	wellioprov.cc
 	welllog.cc
 	wellman.cc
+	wellmanager.cc
 	wellmarker.cc
 	wellposprovider.cc
 	wellreader.cc
