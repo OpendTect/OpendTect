@@ -32,12 +32,12 @@ Pick::SetManager::~SetManager()
 }
 
 
-template <class RefManType,class SetType>
+template <class RefManType>
 RefManType Pick::SetManager::doFetch( const ObjID& id, uiRetVal& uirv,
 				      const char* cat ) const
 {
     mLock4Read();
-    SetType* ps = gtSet( id );
+    Set* ps = const_cast<Set*>( gtSet(id) );
     if ( ps )
 	return RefManType( ps );		// already loaded
 
@@ -58,28 +58,28 @@ RefManType Pick::SetManager::doFetch( const ObjID& id, uiRetVal& uirv,
 ConstRefMan<Pick::Set> Pick::SetManager::fetch( const ObjID& id ) const
 {
     uiRetVal uirv = uiRetVal::OK();
-    return doFetch<ConstRefMan<Set>,const Set>( id, uirv );
+    return doFetch< ConstRefMan<Set> >( id, uirv );
 }
 
 
 ConstRefMan<Pick::Set> Pick::SetManager::fetch( const ObjID& id,
 				    uiRetVal& uirv, const char* cat ) const
 {
-    return doFetch<ConstRefMan<Set>,const Set>( id, uirv, cat );
+    return doFetch< ConstRefMan<Set> >( id, uirv, cat );
 }
 
 
 RefMan<Pick::Set> Pick::SetManager::fetchForEdit( const ObjID& id )
 {
     uiRetVal uirv = uiRetVal::OK();
-    return doFetch<RefMan<Set>,Set>( id, uirv );
+    return doFetch< RefMan<Set> >( id, uirv );
 }
 
 
 RefMan<Pick::Set> Pick::SetManager::fetchForEdit( const ObjID& id,
 				    uiRetVal& uirv, const char* cat )
 {
-    return doFetch<RefMan<Set>,Set>( id, uirv, cat );
+    return doFetch< RefMan<Set> >( id, uirv, cat );
 }
 
 

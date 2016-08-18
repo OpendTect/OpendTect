@@ -46,13 +46,13 @@ public:
     bool		getScalingInfo(const ObjID&,ObjID& orgid,
 				MultiID& horid,MultiID& seisid,
 				BufferString& lvlnm) const;
-    			//!< returns false if unscaled
-    			//!< orgid == udf when external scaling
+			//!< returns false if unscaled
+			//!< orgid == udf when external scaling
     void		setScalingInfo(const ObjID&,
-	    			const ObjID* orgid=0,const MultiID* horid=0,
+				const ObjID* orgid=0,const MultiID* horid=0,
 				const MultiID* seisid=0,const char* lvlnm=0);
-    			//!< orgid == null => unscaled
-    			//!< *orgid == udf => external scaling
+			//!< orgid == null => unscaled
+			//!< *orgid == udf => external scaling
 
 protected:
 
@@ -61,7 +61,7 @@ protected:
 
     virtual Saveable*	getSaver(const SharedObject&) const;
 
-    template<class RT,class ST> RT doFetch(const ObjID&,uiRetVal&) const;
+    template<class T> T	doFetch(const ObjID&,uiRetVal&) const;
     Wavelet*		gtWavelet(const ObjID&) const;
 
 public:

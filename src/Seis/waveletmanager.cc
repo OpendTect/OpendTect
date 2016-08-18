@@ -30,11 +30,11 @@ WaveletManager::~WaveletManager()
 }
 
 
-template <class RefManType,class WaveletType>
+template <class RefManType>
 RefManType WaveletManager::doFetch( const ObjID& id, uiRetVal& uirv ) const
 {
     mLock4Read();
-    WaveletType* wvlt = gtWavelet( id );
+    Wavelet* wvlt = const_cast<Wavelet*>( gtWavelet(id) );
     if ( wvlt )
 	return RefManType( wvlt );			// already loaded
 
@@ -54,28 +54,28 @@ RefManType WaveletManager::doFetch( const ObjID& id, uiRetVal& uirv ) const
 ConstRefMan<Wavelet> WaveletManager::fetch( const ObjID& id ) const
 {
     uiRetVal uirv = uiRetVal::OK();
-    return doFetch<ConstRefMan<Wavelet>,const Wavelet>( id, uirv );
+    return doFetch< ConstRefMan<Wavelet> >( id, uirv );
 }
 
 
 ConstRefMan<Wavelet> WaveletManager::fetch( const ObjID& id,
 					    uiRetVal& uirv ) const
 {
-    return doFetch<ConstRefMan<Wavelet>,const Wavelet>( id, uirv );
+    return doFetch< ConstRefMan<Wavelet> >( id, uirv );
 }
 
 
 RefMan<Wavelet> WaveletManager::fetchForEdit( const ObjID& id )
 {
     uiRetVal uirv = uiRetVal::OK();
-    return doFetch<RefMan<Wavelet>,Wavelet>( id, uirv );
+    return doFetch< RefMan<Wavelet> >( id, uirv );
 }
 
 
 RefMan<Wavelet> WaveletManager::fetchForEdit( const ObjID& id,
 				    uiRetVal& uirv )
 {
-    return doFetch<RefMan<Wavelet>,Wavelet>( id, uirv );
+    return doFetch< RefMan<Wavelet> >( id, uirv );
 }
 
 

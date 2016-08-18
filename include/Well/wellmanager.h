@@ -59,7 +59,7 @@ protected:
 
     virtual Saveable*	getSaver(const SharedObject&) const;
 
-    template<class RT> RT doFetch(const ObjID&,uiRetVal&) const;
+    template<class T> T	doFetch(const ObjID&,uiRetVal&) const;
     Data*		gtData(const ObjID&) const;
 
 public:

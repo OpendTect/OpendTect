@@ -64,8 +64,7 @@ protected:
     virtual Saveable*	getSaver(const SharedObject&) const;
     virtual ChangeRecorder* getChangeRecorder(const SharedObject&) const;
 
-    template<class RT,class ST> RT doFetch(const ObjID&,uiRetVal&,
-					   const char* cat=0) const;
+    template<class T> T	doFetch(const ObjID&,uiRetVal&,const char* cat=0) const;
     Set*		gtSet(const ObjID&) const;
 
 public:
