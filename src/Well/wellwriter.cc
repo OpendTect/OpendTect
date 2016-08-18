@@ -136,7 +136,8 @@ void Well::odWriter::init()
 }
 
 
-void Well::odWriter::setStrmErrMsg( od_stream& strm, const uiString& oper ) const
+void Well::odWriter::setStrmErrMsg( od_stream& strm,
+				    const uiString& oper ) const
 {
     errmsg_ = tr( "Cannot %1 for %2." ).arg( oper ).arg( strm.fileName() );
     strm.addErrMsgTo( errmsg_ );
@@ -398,7 +399,10 @@ bool Well::odWriter::doPutD2T( od_ostream& strm, bool csmdl ) const
 	if ( mIsUdf(dah) )
 	    continue;
 
-	strm << dah << od_tab << iter.t() << od_newline;
+	strm.addPrecise( dah );
+	strm << od_tab;
+	strm.addPrecise( iter.t() );
+	strm << od_newline;
     }
 
     if ( !strm.isOK() )
