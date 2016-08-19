@@ -1306,7 +1306,7 @@ bool ArrOperExec<OperType,ArrType>::doWork( od_int64 start, od_int64 stop, int )
 	if ( doshiftoutvals )
 	    xvalue += shift_;
 
-	const ArrType res = mCast(OperType,xvalue);
+	const ArrType res = mCast(ArrType,xvalue);
 	if ( outvals )
 	    outvals[idx] = res;
 	else if ( outstor )
