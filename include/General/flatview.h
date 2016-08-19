@@ -61,6 +61,8 @@ public:
     EditPermissions*		editpermissions_;//!<If null no editing allowed
 
     bool			enabled_;	//!<Turns on/off everything
+    bool			turnon_;	//!<Turns on/off display
+
     BufferString		name_;
     OD::Alignment		namealignment_;
     int				namepos_;	//!<nodraw=udf, before first=-1,
@@ -85,6 +87,7 @@ public:
     MouseCursor			cursor_;
 
     bool			close_;
+    bool			needsupdatelines_;
 
     void			setFillPattern( const OD::FillPattern& fp )
 						{ fillpattern_ = fp; }

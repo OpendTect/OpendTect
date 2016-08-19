@@ -274,7 +274,9 @@ FlatView::AuxData::AuxData( const char* nm )
     , x1rg_( 0 )
     , x2rg_( 0 )
     , enabled_( true )
+    , turnon_( true )
     , editpermissions_( 0 )
+    , needsupdatelines_( true )
 {}
 
 
@@ -290,9 +292,11 @@ FlatView::AuxData::AuxData(const FlatView::AuxData& aux)
     , x1rg_( aux.x1rg_ ? new Interval<double>( *aux.x1rg_ ) : 0 )
     , x2rg_( aux.x2rg_ ? new Interval<double>( *aux.x2rg_ ) : 0 )
     , enabled_( aux.enabled_ )
+    , turnon_( aux.turnon_ )
     , editpermissions_( aux.editpermissions_
 	    ? new EditPermissions(*aux.editpermissions_) : 0 )
     , poly_( aux.poly_ )
+    , needsupdatelines_( aux.needsupdatelines_ )
 {}
 
 
