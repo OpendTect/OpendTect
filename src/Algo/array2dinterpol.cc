@@ -527,34 +527,6 @@ bool Array2DInterpol::doPrepare( int )
 }
 
 
-bool Array2DInterpol::doFinish( bool success )
-{
-    if ( filltype_==Polygon && poly_ && croppoly_ )
-    {
-	for ( od_int64 idx=0; idx<nrcells_; idx++ )
-	{
-	    const int iidx = idx / nrcols_;
-	    const int iidy = idx % nrcols_;
-	    const double xpos = mCast(double,iidx + origin_.inl());
-	    const double ypos = mCast(double,iidy + origin_.crl());
-	    if ( poly_->isInside(Geom::Point2D<double>(xpos,ypos),true,0) )
-		continue;
-
-	    if ( arr_ )
-		arr_->set( iidx, iidy, mUdf(float) );
-	    else if ( arrsetter_ )
-	    {
-		od_int64 source[1]; source[0] = idx;
-		float weight[1]; weight[0] = mUdf(float);
-		arrsetter_->set( idx, source, weight, 1, isclassification_ );
-	    }
-	}
-    }
-
-    return success;
-}
-
-
 void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
 			       const float* weights, int nrsrc)
 {
@@ -566,7 +538,6 @@ void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
 	arrsetter_->set( target, sources, weights, nrsrc, isclassification_ );
 	return;
     }
-
 
     Stats::RunCalc<float> calc( *statsetup_ );
 
@@ -784,6 +755,37 @@ bool Array2DInterpol::trimArray( int step, Array2D<char>& edgesmask )
 
     return true;
 }
+
+
+mDefParallelCalc4Pars( ArrPolyCropper, od_static_tr("ArrPolyCropper",
+	    "Crop array along polygon"),
+	const ODPolygon<double>*, poly, Array2D<float>&, arr,
+	int, nrcols, const BinID&, origin )
+mDefParallelCalcBody
+(
+    ,
+	const int iidx = idx / nrcols_;
+	const int iidy = idx % nrcols_;
+	Geom::Point2D<double> pos( mCast(double,iidx + origin_.inl()),
+				   mCast(double,iidy + origin_.crl()) );
+	if ( !poly_->isInside(pos,true,0) )
+	    arr_.set( iidx, iidy, mUdf(float) );
+    ,
+)
+
+
+bool Array2DInterpol::doFinish( bool success )
+{
+    if ( filltype_==Polygon && poly_ && croppoly_ && arr_ )
+    {
+	//arrsetter_ is not considered since its never been finished
+	ArrPolyCropper polycrop( nrcells_, poly_, *arr_, nrcols_, origin_ );
+	polycrop.execute();
+    }
+
+    return success;
+}
+
 
 //InverseDistance
 //
