@@ -1417,6 +1417,13 @@ inline T getSum( const ArrayND<T>& in, bool noudf, bool parallel )
     return mCast(T,sumexec.getSum());
 }
 
+
+template <>
+inline float_complex getSum( const ArrayND<float_complex>& in, bool noudf,
+			     bool parallel )
+{ return mUdf(float_complex); }
+
+
 /*!\brief will be removed after 6.0 */
 template <class T>
 inline T mDeprecated getSum( const ArrayND<T>& in, bool noudf )
