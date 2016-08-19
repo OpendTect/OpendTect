@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "welllogset.h"
 #include "welldata.h"
 #include "welltrack.h"
+#include "wellinfo.h"
 #include "welltieunitfactors.h"
 #include "welld2tmodel.h"
 #include "odcomplex.h"
@@ -155,7 +156,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     const float srddah = track.getDahForTVD( srddepth );
     const float replveldz = -1.f * srddepth - track.getKbElev();
     const float startdah = replveldz < 0 ? srddah : track.firstDah();
-    const float replvel = wd.info().replvel;
+    const float replvel = wd.info().replacementVelocity();
     const float bulkshift = replveldz > 0 ? 2.f * replveldz / replvel : 0.f;
 
     TypeSet<float> dahs, vals;

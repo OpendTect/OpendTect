@@ -11,6 +11,7 @@
 #include "welltransl.h"
 
 #include "welldata.h"
+#include "wellinfo.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -189,14 +190,16 @@ bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
     ascostream astrm( strm );
     astrm.put( Well::Info::sKeyDepthUnit(),
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
-    astrm.put( Well::Info::sKeyUwid(), wd_.info().uwid );
-    astrm.put( Well::Info::sKeyOper(), wd_.info().oper );
-    astrm.put( Well::Info::sKeyState(), wd_.info().state );
-    astrm.put( Well::Info::sKeyCounty(), wd_.info().county );
-    if ( wd_.info().surfacecoord != Coord(0,0) )
-	astrm.put( Well::Info::sKeyCoord(), wd_.info().surfacecoord.toString());
-    astrm.put( Well::Info::sKeyReplVel(), wd_.info().replvel );
-    astrm.put( Well::Info::sKeyGroundElev(), wd_.info().groundelev );
+    astrm.put( Well::Info::sKeyUwid(), wd_.info().UWI() );
+    astrm.put( Well::Info::sKeyOper(), wd_.info().wellOperator() );
+    astrm.put( Well::Info::sKeyState(), wd_.info().getState() );
+    astrm.put( Well::Info::sKeyCounty(), wd_.info().getCounty() );
+    astrm.put( Well::Info::sKeyWellType(), (int)wd_.info().wellType() );
+    if ( wd_.info().surfaceCoord() != Coord(0,0) )
+	astrm.put( Well::Info::sKeyCoord(),
+			wd_.info().surfaceCoord().toString());
+    astrm.put( Well::Info::sKeyReplVel(), wd_.info().replacementVelocity() );
+    astrm.put( Well::Info::sKeyGroundElev(), wd_.info().groundElevation() );
     astrm.newParagraph();
 
     return putTrack( strm );

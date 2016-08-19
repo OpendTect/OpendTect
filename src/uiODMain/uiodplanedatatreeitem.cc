@@ -32,6 +32,7 @@ ___________________________________________________________________
 #include "coltabsequence.h"
 #include "settings.h"
 #include "welldata.h"
+#include "wellinfo.h"
 #include "wellman.h"
 
 
@@ -198,7 +199,7 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
 		    visserv_->getObject(displayid_));
     if ( !pdd ) return;
 
-    const Coord surfacecoord = wd.info().surfacecoord;
+    const Coord surfacecoord = wd.info().surfaceCoord();
     const BinID bid = SI().transform( surfacecoord );
     TrcKeyZSampling cs = pdd->getTrcKeyZSampling( true, true );
     if ( orient_ == OD::InlineSlice )

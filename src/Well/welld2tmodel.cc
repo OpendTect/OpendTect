@@ -18,6 +18,7 @@
 #include "unitofmeasure.h"
 #include "velocitycalc.h"
 #include "welldata.h"
+#include "wellinfo.h"
 #include "welltrack.h"
 
 const char* Well::D2TModel::sKeyTimeWell()	{ return "=Time"; }
@@ -681,12 +682,11 @@ void Well::D2TModel::checkReplacementVelocity( Well::Info& info,
 	return;
 
     uiString replvelbl = Well::Info::sReplVel();
-    if ( !mIsEqual((VelType)vreplinfile,info.replvel,v_eps) )
+    const Well::Info::VelType replvel = info.replacementVelocity();
+    if ( !mIsEqual((VelType)vreplinfile,replvel,v_eps) )
     {
-	if ( mIsEqual(info.replvel,Well::getDefaultVelocity(),v_eps) )
-	{
-	    info.replvel = (VelType)vreplinfile;
-	}
+	if ( mIsEqual(replvel,Well::getDefaultVelocity(),v_eps) )
+	    info.setReplacementVelocity( (Well::Info::VelType)vreplinfile );
 	else
 	{
 	    const UnitOfMeasure* uomvel = UnitOfMeasure::surveyDefVelUnit();
@@ -699,7 +699,7 @@ void Well::D2TModel::checkReplacementVelocity( Well::Info& info,
 		  "but the %1 was set to: %3%4\n"
 		  "Velocity information from file was overruled.");
 	    msg.arg( replvelbl ).arg( fileval )
-	       .arg( toString(mScaledValue(info.replvel,uomvel), 2) )
+	       .arg( toString(mScaledValue(replvel,uomvel), 2) )
 	       .arg( veluomlbl );
 	}
     }
@@ -798,7 +798,7 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
 	mErrRet( tr("Input file has not enough data points above TD") )
 
     removeDuplicatedVelocities( zvals, tvals );
-    const double replveld = (double)wllinfo.replvel;
+    const double replveld = (double)wllinfo.replacementVelocity();
     shiftTimesIfNecessary( tvals, zwllhead, replveld, origintwtinfile, warnmsg);
 
     if ( trackrg.includes(originz,false) )

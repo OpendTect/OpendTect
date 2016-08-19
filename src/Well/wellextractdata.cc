@@ -10,6 +10,7 @@
 #include "wellmarker.h"
 #include "wellreader.h"
 #include "welltrack.h"
+#include "wellinfo.h"
 #include "welld2tmodel.h"
 #include "welllogset.h"
 #include "welllog.h"

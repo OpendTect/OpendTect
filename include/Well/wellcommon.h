@@ -17,9 +17,9 @@ ________________________________________________________________________
 namespace Well
 {
 
-class D2TModel;
-class Data;
 class Info;
+class Data;
+class D2TModel;
 class Marker;
 class MarkerSet;
 class Log;

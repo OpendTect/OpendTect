@@ -11,6 +11,7 @@
 #include "survinfo.h"
 #include "velocitycalc.h"
 #include "welldata.h"
+#include "wellinfo.h"
 #include "welld2tmodel.h"
 
 mDefineInstanceCreatedNotifierAccess(Well::Track)
@@ -504,7 +505,7 @@ void Well::Track::toTime( const Data& wd )
     const ZType dummythickness = 1000.f;
     ZSetType replveldepths, replveltimes;
     replveldepths += (ZType)(srddepth - dummythickness);
-    replveltimes += -2.f * dummythickness / wd.info().replvel;
+    replveltimes += -2.f * dummythickness / wd.info().replacementVelocity();
     replveldepths += (ZType)srddepth;
     replveltimes += 0.f;
     replvelmodel.setModel( replveldepths.arr(), replveltimes.arr(),

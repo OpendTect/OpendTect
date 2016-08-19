@@ -12,79 +12,14 @@ ________________________________________________________________________
 -*/
 
 #include "wellcommon.h"
-
 #include "sharedobject.h"
-#include "enums.h"
 #include "multiid.h"
-#include "position.h"
-#include "notify.h"
-#include "uistring.h"
 
 
 namespace Well
 {
 
 class DisplayProperties;
-
-
-/*!
-\brief Information about a certain well.
-*/
-
-mExpClass(Well) Info : public ::NamedObject
-{ mODTextTranslationClass(Well::Info)
-public:
-
-			Info( const char* nm )
-			    : ::NamedObject(nm)
-			    , replvel(Well::getDefaultVelocity())
-			    , groundelev(mUdf(float))
-			    , welltype_(None)
-			{}
-
-    enum WellType	{ None, Oil, Gas, OilGas, Dry, PluggedOil,
-			  PluggedGas, PluggedOilGas, PermLoc, CancLoc,
-			  InjectDispose };
-			mDeclareEnumUtils(WellType);
-
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
-
-    BufferString	uwid;
-    BufferString	oper;
-    BufferString	state;
-    BufferString	county;
-    BufferString	source_; //!< filename for OD storage
-    WellType		welltype_;
-
-    Coord		surfacecoord;
-    float		replvel;
-    float		groundelev;
-
-    static const char*	sKeyDepthUnit();
-    static const char*	sKeyUwid();
-    static const char*	sKeyOper();
-    static const char*	sKeyState();
-    static const char*	sKeyCounty();
-    static const char*	sKeyCoord();
-    static const char*	sKeyKBElev();
-    static const char*	sKeyTD();
-    static const char*	sKeyReplVel();
-    static const char*	sKeyGroundElev();
-    static const char*	sKeyWellType();
-    static int		legacyLogWidthFactor();
-
-
-    static uiString	sUwid();
-    static uiString	sOper();
-    static uiString	sState();
-    static uiString	sCounty();
-    static uiString	sCoord();
-    static uiString	sKBElev();
-    static uiString	sTD();
-    static uiString	sReplVel();
-    static uiString	sGroundElev();
-};
 
 
 /*!
@@ -104,15 +39,13 @@ mExpClass(Well) Data : public SharedObject
 public:
 
 				Data(const char* nm=0);
+				~Data();
+				mDeclMonitorableAssignment(Data);
 				mDeclInstanceCreatedNotifierAccess(Data);
 
     const MultiID&		multiID() const		{ return mid_; }
     void			setMultiID( const MultiID& mid ) const
 				{ mid_ = mid; }
-
-    virtual const OD::String&	name() const		{ return info_.name(); }
-    virtual void		setName(const char* nm) { info_.setName( nm ); }
-    virtual BufferString	getName() const	{ return info_.getName(); }
 
     const Info&			info() const		{ return info_; }
     Info&			info()			{ return info_; }
@@ -161,12 +94,14 @@ public:
     const D2TModel*		checkShotModelPtr() const
 						    { return gtMdlPtr(true); }
 
+    				// name comes from Info
+    virtual BufferString	getName() const;
+    virtual void		setName(const char*);
+    virtual const OD::String&	name() const;
+
 protected:
 
-			~Data();
-
-    Info		info_;
-    mutable MultiID	mid_;
+    Info&		info_;
     Track&		track_;
     LogSet&		logs_;
     D2TModel&		d2tmodel_;
@@ -177,6 +112,9 @@ protected:
 
     D2TModel&		gtMdl(bool) const;
     D2TModel*		gtMdlPtr(bool) const;
+
+    // has to go:
+    mutable MultiID	mid_;
 
 };
 

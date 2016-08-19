@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welllog.h"
 #include "welltrack.h"
+#include "wellinfo.h"
 #include "welld2tmodel.h"
 #include "welldisp.h"
 #include "welllogset.h"
@@ -490,7 +491,7 @@ static void makeTimeDepthModel( bool addwellhead, double z0, double srddepth,
 {
     TypeSet<float> dpths, times;
     const bool wllheadbelowsrd = !addwellhead && z0 > 0.;
-    const double vrepl = mCast(double,info.replvel);
+    const double vrepl = info.replacementVelocity();
     const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
     double vtmp = (double)uiD2TModelGroup::getDefaultTemporaryVelocity();
     if ( SI().zIsTime() && SI().depthsInFeet() && zun )
@@ -531,7 +532,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     if ( coords[0].z > refz+mDefEps && addwellhead )
 	pos.insert( 0, Coord3( coords[0].x, coords[0].y, refz ) );
 
-    well->info().surfacecoord = Coord( pos[0].x, pos[0].y );
+    well->info().setSurfaceCoord( Coord( pos[0].x, pos[0].y ) );
 
     TimeDepthModel tdmodel;
     if ( SI().zIsTime() )

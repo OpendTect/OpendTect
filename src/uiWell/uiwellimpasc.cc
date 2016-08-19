@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "welld2tmodel.h"
 #include "wellimpasc.h"
 #include "welltrack.h"
+#include "wellinfo.h"
 #include "wellwriter.h"
 
 #include "uibutton.h"
@@ -98,9 +99,9 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     sep->attach( stretchedBelow, tdfld_ );
 
     wd_.ref();
-    float dispval = wd_.info().replvel;
+    float dispval = wd_.info().replacementVelocity();
     if ( !mIsUdf(dispval) )
-	wd_.info().replvel = dispval;
+	wd_.info().setReplacementVelocity( dispval );
 
     const bool zistime = SI().zIsTime();
     if ( zistime )
@@ -204,8 +205,8 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     const Well::Info& info = uwia_->wd_.info();
 
     PositionInpSpec::Setup possu( true );
-    if ( !mIsZero(info.surfacecoord.x,0.1) )
-	possu.coord_ = info.surfacecoord;
+    if ( !mIsZero(info.surfaceCoord().x,0.1) )
+	possu.coord_ = info.surfaceCoord();
     coordfld = new uiGenInput( this,
 	tr("Surface Coordinate (if different from first "
 	   "coordinate in track file)"),
@@ -213,9 +214,9 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 
     const bool zinfeet = SI().depthsInFeet();
 
-    float dispval = info.replvel;
+    float dispval = info.replacementVelocity();
     if ( zinfeet && zun_ )
-	dispval = zun_->userValue( info.replvel );
+	dispval = zun_->userValue( info.replacementVelocity() );
 
     uiString lbl = tr("%1 %2")
 		   .arg( Well::Info::sReplVel() )
@@ -223,8 +224,8 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     replvelfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, coordfld );
 
-    dispval = info.groundelev;
-    if ( zinfeet && zun_ ) dispval = zun_->userValue( info.groundelev );
+    dispval = info.groundElevation();
+    if ( zinfeet && zun_ ) dispval = zun_->userValue( info.groundElevation() );
     lbl = tr("%1 %2")
 		  .arg( Well::Info::sGroundElev() )
 	      .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
@@ -235,20 +236,20 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     horsep->attach( stretchedBelow, gdelevfld );
 
     idfld = new uiGenInput( this, Well::Info::sUwid(),
-			    StringInpSpec(info.uwid) );
+			    StringInpSpec(info.UWI()) );
     idfld->attach( alignedBelow, gdelevfld );
     idfld->attach( ensureBelow, horsep );
 
     operfld = new uiGenInput( this, Well::Info::sOper(),
-			      StringInpSpec(info.oper) );
+			      StringInpSpec(info.wellOperator()) );
     operfld->attach( rightTo, idfld );
 
     statefld = new uiGenInput( this, Well::Info::sState(),
-			       StringInpSpec(info.state) );
+			       StringInpSpec(info.getState()) );
     statefld->attach( alignedBelow, idfld );
 
     countyfld = new uiGenInput( this, Well::Info::sCounty(),
-				StringInpSpec(info.county) );
+				StringInpSpec(info.getCounty()) );
     countyfld->attach( rightTo, statefld );
 }
 
@@ -258,26 +259,26 @@ bool acceptOK( CallBacker* )
     Well::Info& info = uwia_->wd_.info();
 
     if ( *coordfld->text() )
-	info.surfacecoord = coordfld->getCoord();
+	info.setSurfaceCoord( coordfld->getCoord() );
 
     if ( *replvelfld->text() )
     {
 	const float replvel = replvelfld->getFValue();
 	if ( !mIsUdf(replvel) && zun_ )
-	    info.replvel = zun_->internalValue( replvel );
+	    info.setReplacementVelocity( zun_->internalValue(replvel) );
     }
 
     if ( *gdelevfld->text() )
     {
 	const float gdevel = gdelevfld->getFValue();
 	if ( !mIsUdf(gdevel)  && zun_ )
-	    info.groundelev = zun_->internalValue( gdevel );
+	    info.setGroundElevation( zun_->internalValue(gdevel) );
     }
 
-    info.uwid = idfld->text();
-    info.oper = operfld->text();
-    info.state = statefld->text();
-    info.county = countyfld->text();
+    info.setUWI( idfld->text() );
+    info.setWellOperator( operfld->text() );
+    info.setState( statefld->text() );
+    info.setCounty( countyfld->text() );
 
     uiString msg = tr("Well Track successfully imported."
 		      "\n\nDo you want to import more Well Tracks?");
@@ -313,8 +314,8 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 	return false;
 
     doWork();
-    wd_.info().surfacecoord.x = wd_.info().surfacecoord.y = 0;
-    wd_.info().groundelev = mUdf(float);
+    wd_.info().setSurfaceCoord( Coord(0,0) );
+    wd_.info().setGroundElevation( mUdf(float) );
     uiString msg = tr("Well Track successfully imported."
 		      "\n\nDo you want to import more Well Tracks?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),

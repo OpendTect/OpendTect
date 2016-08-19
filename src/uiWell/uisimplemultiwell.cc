@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "welltrack.h"
+#include "wellinfo.h"
 #include "welltransl.h"
 #include "wellwriter.h"
 
@@ -245,9 +246,9 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 					  const IOObj& ioobj )
 {
     RefMan<Well::Data> wd = new Well::Data( wcd.nm_ );
-    wd->info().surfacecoord = wcd.coord_;
-    wd->info().uwid = wcd.uwi_;
-    wd->info().groundelev = wcd.gl_;
+    wd->info().setSurfaceCoord( wcd.coord_ );
+    wd->info().setUWI( wcd.uwi_ );
+    wd->info().setGroundElevation( wcd.gl_ );
 
     Interval<float> drg( -wcd.elev_, wcd.td_-wcd.elev_ );
     wd->track().addPoint( wcd.coord_, drg.start, 0 );
@@ -256,7 +257,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     {
 	Well::D2TModel& d2t = wd->d2TModel();
 	d2t.setName( "Simple" );
-	d2t.makeFromTrack( wd->track(), vel_, wd->info().replvel );
+	d2t.makeFromTrack( wd->track(), vel_, wd->info().replacementVelocity());
     }
 
     Well::Writer wr( ioobj, *wd );

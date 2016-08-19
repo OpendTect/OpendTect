@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "wellman.h"
 #include "wellmarker.h"
 #include "welltrack.h"
+#include "wellinfo.h"
 #include "welltransl.h"
 #include "wellwriter.h"
 
@@ -117,7 +118,7 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	else
 	{
 	    wd = new Well::Data( wellnm );
-	    wd->info().uwid = uwi;
+	    wd->info().setUWI( uwi );
 	    wd->ref();
 	    wells_ += wd;
 	}

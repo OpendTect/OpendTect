@@ -6,6 +6,7 @@
 
 
 #include "welldata.h"
+#include "wellinfo.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -54,6 +55,51 @@ mDefineEnumUtils( Well::Info, WellType, "Well Type" )
   "pluggedgaswell", "pluggedoilgaswell", "permittedlocation",
   "canceledlocation", "injectiondisposalwell", 0 };
 
+
+mDefineInstanceCreatedNotifierAccess(Well::Info);
+
+
+Well::Info::Info( const char* nm )
+    : SharedObject(nm)
+    , replvel_(getDefaultVelocity())
+    , groundelev_(mUdf(float))
+    , welltype_(None)
+{
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Well::Info::Info( const Info& oth )
+    : SharedObject(oth)
+{
+    copyAll( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Well::Info::~Info()
+{
+    sendDelNotif();
+}
+
+
+mImplMonitorableAssignment( Well::Info, SharedObject )
+
+
+void Well::Info::copyClassData( const Info& oth )
+{
+    uwid_ = oth.uwid_;
+    oper_ = oth.oper_;
+    state_ = oth.state_;
+    county_ = oth.county_;
+    welltype_ = oth.welltype_;
+    surfacecoord_ = oth.surfacecoord_;
+    replvel_ = oth.replvel_;
+    groundelev_ = oth.groundelev_;
+    source_ = oth.source_;
+}
+
+
 int Well::Info::legacyLogWidthFactor()
 {
    const int inlnr = SI().inlRange( true ).nrSteps() + 1;
@@ -68,27 +114,37 @@ int Well::Info::legacyLogWidthFactor()
 mDefineInstanceCreatedNotifierAccess(Well::Data)
 
 
-Well::Data::Data( const char* nm )
-    : SharedObject(nm)
-    , info_(nm)
-    , track_(*new Well::Track)
-    , logs_(*new Well::LogSet)
-    , disp2d_(*new Well::DisplayProperties(sKey2DDispProp()))
-    , disp3d_(*new Well::DisplayProperties(sKey3DDispProp()))
-    , d2tmodel_(*new D2TModel)
-    , csmodel_(*new D2TModel)
-    , markers_(*new MarkerSet)
-    , d2tchanged(this)
-    , csmdlchanged(this)
-    , markerschanged(this)
-    , trackchanged(this)
-    , disp2dparschanged(this)
-    , disp3dparschanged(this)
-    , logschanged(this)
+#define mInitList(constrarg,nm) \
+      SharedObject(constrarg) \
+    , info_(*new Info(nm)) \
+    , track_(*new Well::Track) \
+    , logs_(*new Well::LogSet) \
+    , disp2d_(*new Well::DisplayProperties(sKey2DDispProp())) \
+    , disp3d_(*new Well::DisplayProperties(sKey3DDispProp())) \
+    , d2tmodel_(*new D2TModel) \
+    , csmodel_(*new D2TModel) \
+    , markers_(*new MarkerSet) \
+    , d2tchanged(this) \
+    , csmdlchanged(this) \
+    , markerschanged(this) \
+    , trackchanged(this) \
+    , disp2dparschanged(this) \
+    , disp3dparschanged(this) \
+    , logschanged(this) \
     , reloaded(this)
+
+
+Well::Data::Data( const char* nm )
+    : mInitList(nm,nm)
 {
-    Strat::LevelSet& lvlset = Strat::eLVLS();
-    mAttachCB( lvlset.levelToBeRemoved, Data::levelToBeRemoved );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Well::Data::Data( const Data& oth )
+    : mInitList(oth,"")
+{
+    copyAll( oth );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -99,13 +155,50 @@ Well::Data::~Data()
     sendDelNotif();
     detachAllNotifiers();
 
-    delete &track_;
-    delete &logs_;
-    delete &d2tmodel_;
-    delete &csmodel_;
-    delete &markers_;
     delete &disp2d_;
     delete &disp3d_;
+    delete &markers_;
+    delete &logs_;
+    delete &csmodel_;
+    delete &d2tmodel_;
+    delete &track_;
+    delete &info_;
+}
+
+
+mImplMonitorableAssignment( Well::Data, SharedObject )
+
+
+void Well::Data::copyClassData( const Data& oth )
+{
+    info_ = oth.info_;
+    track_ = oth.track_;
+    d2tmodel_ = oth.d2tmodel_;
+    markers_ = oth.markers_;
+    logs_ = oth.logs_;
+    csmodel_ = oth.csmodel_;
+    disp2d_ = oth.disp2d_;
+    disp3d_ = oth.disp3d_;
+
+    mid_ = oth.mid_;
+}
+
+
+BufferString Well::Data::getName() const
+{
+    return info_.getName();
+}
+
+
+void Well::Data::setName( const char* nm )
+{
+    info_.setName( nm );
+}
+
+
+const OD::String& Well::Data::name() const
+{
+    return info_.name();
 }
 
 
@@ -156,52 +249,36 @@ void Well::Data::setEmpty()
 }
 
 
-void Well::Data::levelToBeRemoved( CallBacker* cb )
-{
-    mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
-    if ( !lvlset )
-	{ pErrMsg( "cb null or not LevelSet" ); return; }
-    const int lvlidx = lvlset->notifLvlIdx();
-    if ( lvlset->levels().validIdx( lvlidx ) )
-    {
-	const Strat::Level& lvl = *lvlset->levels()[lvlidx];
-	Well::Marker* mrk = markers().getByLvlID( lvl.id() );
-	if ( mrk )
-	    mrk->setLevelID( -1 );
-    }
-}
-
-
 static const char* sWellName = "Well name";
 
 void Well::Info::fillPar( IOPar& par ) const
 {
     par.set( sWellName, name() );
-    par.set( sKeyUwid(), uwid );
-    par.set( sKeyOper(), oper );
-    par.set( sKeyState(), state );
-    par.set( sKeyCounty(), county );
-    par.set( sKeyWellType(), welltype_ );
-
-    par.set( sKeyCoord(), surfacecoord.toString() );
-    par.set( sKeyReplVel(), replvel );
-    par.set( sKeyGroundElev(), groundelev );
+    par.set( sKeyUwid(), uwid_ );
+    par.set( sKeyOper(), oper_ );
+    par.set( sKeyState(), state_ );
+    par.set( sKeyCounty(), county_ );
+    par.set( sKeyWellType(), (int)welltype_ );
+    par.set( sKeyCoord(), surfacecoord_.toString() );
+    par.set( sKeyReplVel(), replvel_ );
+    par.set( sKeyGroundElev(), groundelev_ );
 }
 
 
 void Well::Info::usePar( const IOPar& par )
 {
     setName( par.find(sWellName) );
-    par.get( sKeyUwid(), uwid );
-    par.get( sKeyOper(), oper );
-    par.get( sKeyState(), state );
-    par.get( sKeyCounty(), county );
-    int welltype = 0;
-    par.get( sKeyWellType(), welltype ); welltype_ = (WellType)welltype;
+    par.get( sKeyUwid(), uwid_ );
+    par.get( sKeyOper(), oper_ );
+    par.get( sKeyState(), state_ );
+    par.get( sKeyCounty(), county_ );
+    int welltype = (int)welltype_;
+    par.get( sKeyWellType(), welltype );
+    welltype_ = (WellType)welltype;
 
-    surfacecoord.fromString( par.find(sKeyCoord()) );
-    par.get( sKeyReplVel(), replvel );
-    par.get( sKeyGroundElev(), groundelev );
+    surfacecoord_.fromString( par.find(sKeyCoord()) );
+    par.get( sKeyReplVel(), replvel_ );
+    par.get( sKeyGroundElev(), groundelev_ );
 }
 
 float Well::getDefaultVelocity()

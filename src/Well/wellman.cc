@@ -12,6 +12,7 @@
 #include "welltransl.h"
 #include "ptrman.h"
 #include "welldata.h"
+#include "wellinfo.h"
 #include "wellreader.h"
 #include "welllogset.h"
 #include "wellmarker.h"
@@ -192,7 +193,7 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
 	    if ( !ioobj ) continue;
 
 	    Well::Reader rdr( *ioobj, *data );
-	    if ( rdr.getInfo() && data->info().uwid == uwi )
+	    if ( rdr.getInfo() && data->info().UWI() == uwi )
 		return ioobj->clone();
 	}
     }

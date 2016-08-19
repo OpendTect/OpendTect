@@ -23,6 +23,7 @@
 #include "separstr.h"
 #include "survinfo.h"
 #include "welldata.h"
+#include "wellinfo.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -200,7 +201,7 @@ bool Well::Reader::getMapLocation( Coord& coord ) const
 	return false;
 
     const Well::Data& wd = *data();
-    coord = wd.info().surfacecoord;
+    coord = wd.info().surfaceCoord();
     return true;
 }
 
@@ -317,7 +318,7 @@ bool Well::odReader::getInfo() const
 {
     mGetInpStream( sExtWell(), 0, true, return false );
 
-    wd_.info().source_.set( getFileName(sExtWell()) );
+    wd_.info().setDataSource( getFileName(sExtWell()) );
     return getInfo( strm );
 }
 
@@ -368,31 +369,39 @@ bool Well::odReader::getInfo( od_istream& strm ) const
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(Well::Info::sKeyUwid()) )
-	    wd_.info().uwid = astrm.value();
+	    wd_.info().setUWI( astrm.value() );
 	else if ( astrm.hasKeyword(Well::Info::sKeyOper()) )
-	    wd_.info().oper = astrm.value();
+	    wd_.info().setWellOperator( astrm.value() );
 	else if ( astrm.hasKeyword(Well::Info::sKeyState()) )
-	    wd_.info().state = astrm.value();
+	    wd_.info().setState( astrm.value() );
 	else if ( astrm.hasKeyword(Well::Info::sKeyCounty()) )
-	    wd_.info().county = astrm.value();
-	else if ( astrm.hasKeyword(Well::Info::sKeyCoord()) )
-	    wd_.info().surfacecoord.fromString( astrm.value() );
+	    wd_.info().setCounty( astrm.value() );
 	else if ( astrm.hasKeyword(sKeyOldreplvel()) ||
 		  astrm.hasKeyword(Well::Info::sKeyReplVel()) )
-	    wd_.info().replvel = astrm.getFValue();
+	    wd_.info().setReplacementVelocity( astrm.getFValue() );
 	else if ( astrm.hasKeyword(sKeyOldgroundelev()) ||
 		  astrm.hasKeyword(Well::Info::sKeyGroundElev()) )
-	    wd_.info().groundelev = astrm.getFValue();
+	    wd_.info().setGroundElevation( astrm.getFValue() );
+	else if ( astrm.hasKeyword(Well::Info::sKeyCoord()) )
+	{
+	    Coord coord; coord.fromString( astrm.value() );
+	    wd_.info().setSurfaceCoord( coord );
+	}
+	else if ( astrm.hasKeyword(Well::Info::sKeyWellType()) )
+	{
+	    int welltype = astrm.getIValue();
+	    wd_.info().setWellType( (Info::WellType)welltype );
+	}
     }
 
-    Coord surfcoord = wd_.info().surfacecoord;
+    const Coord surfcoord = wd_.info().surfaceCoord();
     if ( (mIsZero(surfcoord.x,0.001) && mIsZero(surfcoord.x,0.001))
 	    || (mIsUdf(surfcoord.x) && mIsUdf(surfcoord.x)) )
     {
 	if ( wd_.track().isEmpty() && !getTrack(strm) )
 	    return false;
 
-	wd_.info().surfacecoord = wd_.track().posByIdx( 0 );
+	wd_.info().setSurfaceCoord( wd_.track().firstPos() );
     }
 
     return true;

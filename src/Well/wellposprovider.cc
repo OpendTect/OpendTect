@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ptrman.h"
 #include "welldata.h"
+#include "wellinfo.h"
 #include "wellman.h"
 
 namespace Pos
@@ -81,7 +82,7 @@ void WellProvider3D::setHS()
     if ( onlysurfacecoords_ )
     {
 	const Well::Info& info = welldata_[curwellidx_]->info();
-	const BinID bid = SI().transform( info.surfacecoord );
+	const BinID bid = SI().transform( info.surfaceCoord() );
 	hs_.include( bid );
     }
 

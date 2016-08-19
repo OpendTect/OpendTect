@@ -66,15 +66,15 @@ public:
     ObjID		getIDByIndex(IdxType) const;
     IOPar		getIOObjParsByIndex(IdxType) const;
 
-    CNotifier<SaveableManager,ObjID>	ObjAdded;
-					/*!< Do not delete the object in the 
-					  callbacker function. Use setNoDelete()
-					  in RefMan*/
     CNotifier<SaveableManager,ObjID>	ObjOrphaned;
     CNotifier<SaveableManager,ObjID>	UnsavedObjLastCall;
     CNotifier<SaveableManager,ObjID>	ShowRequested;
     CNotifier<SaveableManager,ObjID>	HideRequested;
     CNotifier<SaveableManager,ObjID>	VanishRequested;
+
+    CNotifier<SaveableManager,ObjID>	ObjAdded;
+	/*!< Rarely used. Do not delete the object in the callbacker function.
+	  Use the setNoDelete() when you create a RefMan */
 
     void		clearChangeRecords(const ObjID&);
     void		getChangeInfo(const ObjID&,
