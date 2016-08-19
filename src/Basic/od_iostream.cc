@@ -488,6 +488,12 @@ od_ostream& od_ostream::add( typ t ) \
     mAddWithRetry( strm << tostrm, *this ); \
 }
 
+#define mImplStrmAddPreciseFn(typ,tostrm) \
+od_ostream& od_ostream::addPrecise( typ t ) \
+{ \
+    mAddWithRetry( strm << tostrm, *this ); \
+}
+
 #define mImplNumberGetFn(typ) \
 od_istream& od_istream::get( typ& t ) \
 { getNumberWithRetry(*this,t,errmsg_); return *this; }
@@ -496,6 +502,8 @@ od_istream& od_istream::get( typ& t ) \
     mImplStrmAddFn(typ,t) mImplNumberGetFn(typ)
 #define mImplSimpleAddGetFns(typ) \
     mImplStrmAddFn(typ,toString(t)) mImplNumberGetFn(typ)
+#define mImplPreciseAddFn(typ) \
+    mImplStrmAddPreciseFn(typ,toStringPrecise(t))
 
 mImplSimpleAddGetFnsNoConv(char)
 mImplSimpleAddGetFnsNoConv(unsigned char)
@@ -516,6 +524,8 @@ mImplSimpleAddGetFnsNoConv(unsigned long)
 
 mImplSimpleAddGetFns(float)
 mImplSimpleAddGetFns(double)
+mImplPreciseAddFn(float)
+mImplPreciseAddFn(double)
 
 mImplStrmAddFn(const char*,t)
 od_istream& od_istream::get( char* str )

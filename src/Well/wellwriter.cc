@@ -386,7 +386,10 @@ bool Well::odWriter::doPutD2T( od_ostream& strm, bool csmdl ) const
 	if ( mIsUdf(dah) )
 	    continue;
 
-	strm << dah << od_tab << d2t.t(idx) << od_newline;
+	strm.addPrecise( dah );
+	strm << od_tab;
+	strm.addPrecise( d2t.t(idx) );
+	strm << od_newline;
     }
 
     if ( !strm.isOK() )

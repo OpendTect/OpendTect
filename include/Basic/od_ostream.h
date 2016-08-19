@@ -58,8 +58,13 @@ public:
     od_ostream&		add(long);
     od_ostream&		add(unsigned long);
 #endif
+    //add clean numbers to the string, no 1.50000001 but 1.5
     od_ostream&		add(float);
     od_ostream&		add(double);
+
+    //add precise numbers to the string, 1.50000001 is left as is.
+    od_ostream&		addPrecise(float);
+    od_ostream&		addPrecise(double);
 
     od_ostream&		add(const OD::String&);
     od_ostream&		add(const uiString&);

@@ -268,6 +268,31 @@ static void finalCleanupNumberString( char* str )
 
 
 template <class T>
+static const char* getPreciseStringFromFPNumber( T inpval )
+{
+    mDeclStaticString( retstr );
+    char* str = retstr.getCStr();
+
+    if ( !inpval )
+	mSetStrTo0(str,return str)
+
+    const bool isneg = inpval < 0;
+    const T val = isneg ? -inpval : inpval;
+    if ( mIsUdf(val) )
+	return sKey::FloatUdf();
+
+    const bool scientific = val < (T)0.001 || val >= (T)1e8;
+    const char* fmtend = scientific ? "g" : "f";
+    const BufferString fmt( "%.8", fmtend );
+
+    if ( isneg ) *str = '-';
+    sprintf( isneg ? str+1 : str, fmt.buf(), val );
+    finalCleanupNumberString( str );
+    return str;
+}
+
+
+template <class T>
 static const char* getStringFromFPNumber( T inpval, bool isdouble )
 {
     mDeclStaticString( retstr );
@@ -287,7 +312,6 @@ static const char* getStringFromFPNumber( T inpval, bool isdouble )
 
     if ( isneg ) *str = '-';
     sprintf( isneg ? str+1 : str, fmt.buf(), val );
-
     const int nrdec = findUglyRoundOff( str, isdouble );
     if ( nrdec >= 0 )
     {
@@ -795,6 +819,12 @@ const char* toString( const OD::String& ods )
 
 const char* toString( const CompoundKey& key )
 { return key.buf(); }
+
+const char* toStringPrecise( float f )
+{ return getPreciseStringFromFPNumber( f ); }
+
+const char* toStringPrecise( double d )
+{ return getPreciseStringFromFPNumber( d ); }
 
 template <class T>
 static const char* toStringLimImpl( T val, int maxtxtwdth )
