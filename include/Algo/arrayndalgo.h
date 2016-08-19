@@ -984,10 +984,347 @@ void PolyTrend::apply( const Coord& pos, bool dir, T& val ) const
 namespace ArrayMath
 {
 
+mClass(Algo) ArrayOperExecSetup
+{
+public:
+		ArrayOperExecSetup(bool doadd=true,bool dosqinp=false,
+				   bool dosqout=false,bool doabs=false,
+				   bool donormalizesum=false,
+				   bool dosqrtsum=false)
+		    : doadd_(doadd)
+		    , dosqinp_(dosqinp)
+		    , dosqout_(dosqout)
+		    , doabs_(doabs)
+		    , donormalizesum_(donormalizesum)
+		    , dosqrtsum_(dosqrtsum)
+		{}
 
-/*!\brief Parallel task for computing the sum of all element of the array
+    bool	doadd_;
+    bool	dosqinp_;
+    bool	dosqout_;
+    bool	doabs_;
+    bool	donormalizesum_;
+    bool	dosqrtsum_;
+};
+
+
+/*!\brief Parallel task for computing the sum of element wise operations of
+	  one array and optionally a second input array.
 	  Should not be used directly, instead call getSum(const ArrayND)
  */
+
+template <class RT,class AT>
+class CumArrOperExec : public ParallelTask
+{ mODTextTranslationClass(CumArrOperExec);
+public:
+		CumArrOperExec( const ArrayND<AT>& xvals, bool noudf,
+				const ArrayOperExecSetup& setup )
+		    : xarr_(xvals)
+		    , yarr_(0)
+		    , sz_(xvals.info().getTotalSz())
+		    , xfact_(mUdf(double))
+		    , yfact_(mUdf(double))
+		    , noudf_(noudf)
+		    , cumsum_(mUdf(RT))
+		    , setup_(setup)
+		{}
+
+    uiString	uiNrDoneText() const	{ return ParallelTask::sPosFinished(); }
+    uiString	uiMessage() const	{ return tr("Cumulative sum executor");}
+
+    void	setYVals( const ArrayND<AT>& yvals )	{ yarr_ = &yvals; }
+    void	setScaler( double scaler, bool forx )
+		{
+		   if ( forx )
+		      xfact_ = scaler;
+		   else
+		      yfact_ = scaler;
+		}
+
+    RT		getSum() const		{ return cumsum_; }
+
+protected:
+
+    od_int64	nrIterations() const	{ return sz_; }
+
+private:
+
+    bool	doPrepare( int nrthreads )
+		{
+		    if ( yarr_ && yarr_->info().getTotalSz() != sz_ )
+			return false;
+
+		    return sumvals_.setSize( nrthreads );
+		}
+
+    bool	doWork(od_int64,od_int64,int);
+
+    bool	doFinish( bool success )
+		{
+		    if ( !success )
+			return false;
+
+		    int count = 0;
+		    cumsum_ = 0;
+		    for ( int idx=0; idx<sumvals_.size(); idx++ )
+		    {
+			if ( mIsUdf(sumvals_[idx]) )
+			    continue;
+
+			cumsum_ += sumvals_[idx];
+			count++;
+		    }
+
+		    if ( count == 0 )
+			cumsum_ = mUdf(RT);
+
+		    if ( setup_.donormalizesum_ )
+			cumsum_ /= mCast(RT,xarr_.info().getTotalSz());
+
+		    if ( setup_.dosqrtsum_ )
+			cumsum_ = Math::Sqrt( cumsum_ );
+
+		    return true;
+		}
+
+private:
+
+    const ArrayOperExecSetup&	setup_;
+    od_uint64		sz_;
+    bool		noudf_;
+
+    TypeSet<RT>		sumvals_;
+    const ArrayND<AT>&	xarr_;
+    const ArrayND<AT>*	yarr_;
+    double		xfact_;
+    double		yfact_;
+    RT			cumsum_;
+};
+
+
+template <class RT,class AT> inline
+bool CumArrOperExec<RT,AT>::doWork( od_int64 start, od_int64 stop,
+				    int threadidx )
+{
+    RT sumval = 0;
+    od_uint64 count = 0;
+    const AT* xvals = xarr_.getData();
+    const AT* yvals = yarr_ ? yarr_->getData() : 0;
+    const ValueSeries<AT>* xstor = xarr_.getStorage();
+    const ValueSeries<AT>* ystor = yarr_ ? yarr_->getStorage() : 0;
+    ArrayNDIter* xiter = xvals || xstor ? 0 : new ArrayNDIter( xarr_.info() );
+    ArrayNDIter* yiter = ( yarr_ && ( yvals || ystor ) ) || !yarr_
+		       ? 0 : new ArrayNDIter( yarr_->info() );
+    if ( xiter ) xiter->setGlobalPos( start );
+    if ( yiter ) yiter->setGlobalPos( start );
+    const bool doscalexvals = !mIsUdf(xfact_);
+    const bool hasyvals = yarr_;
+    const bool doscaleyvals = !mIsUdf(yfact_);
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	RT xvalue = xvals ? xvals[idx]
+			  : xstor ? xstor->value(idx)
+				  : xarr_.getND( xiter->getPos() );
+	if ( !noudf_ && mIsUdf(xvalue) )
+	{
+	    if ( xiter ) xiter->next();
+	    if ( yiter ) yiter->next();
+	    continue;
+	}
+
+	if ( setup_.dosqinp_ ) xvalue *= xvalue;
+	if ( doscalexvals ) xvalue *= xfact_;
+	if ( hasyvals )
+	{
+	    RT yvalue = yvals ? yvals[idx]
+			      : ystor ? ystor->value(idx)
+				      : yarr_->getND( yiter->getPos() );
+	    if ( !noudf_ && mIsUdf(yvalue) )
+	    {
+		if ( xiter ) xiter->next();
+		if ( yiter ) yiter->next();
+		continue;
+	    }
+
+	    if ( setup_.dosqinp_ ) yvalue *= yvalue;
+	    if ( doscaleyvals ) yvalue *= yfact_;
+	    if ( setup_.doadd_ )
+		xvalue += yvalue;
+	    else
+		xvalue *= yvalue;
+	}
+
+	if ( setup_.doabs_ )
+	    xvalue = Math::Abs( xvalue );
+	else if ( setup_.dosqout_ )
+	    xvalue *= xvalue;
+
+	sumval += xvalue;
+	count++;
+	if ( xiter ) xiter->next();
+	if ( yiter ) yiter->next();
+    }
+
+    delete xiter; delete yiter;
+    sumvals_[threadidx] = count==0 ? mUdf(RT) : sumval;
+
+    return true;
+}
+
+
+template <> inline
+bool CumArrOperExec<double,float_complex>::doWork( od_int64, od_int64, int )
+{ return false; }
+
+
+
+/*!\brief Parallel task for computing the element wise operations of
+	  one array and optionally a second input array.
+	  Should not be used directly, instead call getSum(const ArrayND)
+ */
+
+template <class OperType,class ArrType>
+class ArrOperExec : public ParallelTask
+{ mODTextTranslationClass(ArrOperExec);
+public:
+		ArrOperExec( const ArrayND<ArrType>& xvals,
+			     const ArrayND<ArrType>* yvals, bool noudf,
+			     const ArrayOperExecSetup& setup,
+			     ArrayND<ArrType>& outvals )
+		    : xarr_(xvals)
+		    , yarr_(yvals)
+		    , outarr_(outvals)
+		    , sz_(xvals.info().getTotalSz())
+		    , xfact_(mUdf(double))
+		    , shift_(mUdf(double))
+		    , noudf_(noudf)
+		    , setup_(setup)
+		{}
+
+    uiString	uiNrDoneText() const	{ return ParallelTask::sPosFinished(); }
+    uiString	uiMessage() const	{ return tr("Cumulative sum executor");}
+
+    void	setYVals( const ArrayND<ArrType>& yvals ) { yarr_ = &yvals; }
+    void	setScaler( double scaler, bool forx=true )
+		{
+		   if ( forx )
+		      xfact_ = scaler;
+		   else
+		      yfact_ = scaler;
+		}
+    void	setShift( double shift )	{ shift_ = shift; }
+
+protected:
+
+    od_int64	nrIterations() const	{ return sz_; }
+
+private:
+
+    bool	doPrepare( int )
+		{
+		    if ( outarr_.info().getTotalSz() != sz_ )
+			return false;
+
+		    if ( yarr_ && yarr_->info().getTotalSz() != sz_ )
+			return false;
+
+		    return true;
+		}
+
+    bool	doWork(od_int64,od_int64,int);
+
+private:
+
+    const ArrayOperExecSetup&	setup_;
+    od_uint64		sz_;
+    bool		noudf_;
+
+    const ArrayND<ArrType>&	xarr_;
+    const ArrayND<ArrType>*	yarr_;
+    ArrayND<ArrType>&	outarr_;
+    double		xfact_;
+    double		yfact_;
+    double		shift_;
+};
+
+
+template <class OperType,class ArrType>
+bool ArrOperExec<OperType,ArrType>::doWork( od_int64 start, od_int64 stop, int )
+{
+    const ArrType* xvals = xarr_.getData();
+    const ArrType* yvals = yarr_ ? yarr_->getData() : 0;
+    ArrType* outvals = outarr_.getData();
+    const ValueSeries<ArrType>* xstor = xarr_.getStorage();
+    const ValueSeries<ArrType>* ystor = yarr_ ? yarr_->getStorage() : 0;
+    ValueSeries<ArrType>* outstor = outarr_.getStorage();
+    ArrayNDIter* xiter = xvals || xstor ? 0 : new ArrayNDIter( xarr_.info() );
+    ArrayNDIter* yiter = ( yarr_ && ( yvals || ystor ) ) || !yarr_
+		       ? 0 : new ArrayNDIter( yarr_->info() );
+    ArrayNDIter* outiter = outvals || outstor
+			 ? 0 : new ArrayNDIter( outarr_.info() );
+    if ( xiter ) xiter->setGlobalPos( start );
+    if ( yiter ) yiter->setGlobalPos( start );
+    if ( outiter ) outiter->setGlobalPos( start );
+    const bool doscalexvals = !mIsUdf(xfact_);
+    const bool hasyvals = yarr_;
+    const bool doscaleyvals = !mIsUdf(yfact_);
+    const bool doshiftoutvals = !mIsUdf(shift_);
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	OperType xvalue = xvals ? xvals[idx]
+				: xstor ? xstor->value(idx)
+					: xarr_.getND( xiter->getPos() );
+	if ( !noudf_ && mIsUdf(xvalue) )
+	{
+	    if ( xiter ) xiter->next();
+	    if ( yiter ) yiter->next();
+	    if ( outiter ) outiter->next();
+	    continue;
+	}
+
+	if ( doscalexvals ) xvalue *= xfact_;
+	if ( hasyvals )
+	{
+	    OperType yvalue = yvals ? yvals[idx]
+				    : ystor ? ystor->value(idx)
+					    : yarr_->getND( yiter->getPos() );
+	    if ( !noudf_ && mIsUdf(yvalue) )
+	    {
+		if ( xiter ) xiter->next();
+		if ( yiter ) yiter->next();
+		if ( outiter ) outiter->next();
+		continue;
+	    }
+
+	    if ( doscaleyvals ) yvalue *= yfact_;
+	    if ( setup_.doadd_ )
+		xvalue += yvalue;
+	    else
+		xvalue *= yvalue;
+	}
+
+	if ( doshiftoutvals )
+	    xvalue += shift_;
+
+	const ArrType res = mCast(OperType,xvalue);
+	if ( outvals )
+	    outvals[idx] = res;
+	else if ( outstor )
+	    outstor->setValue( idx, res );
+	else
+	    outarr_.setND( outiter->getPos(), res );
+
+	if ( xiter ) xiter->next();
+	if ( yiter ) yiter->next();
+	if ( outiter ) outiter->next();
+    }
+
+    delete xiter; delete yiter; delete outiter;
+
+    return true;
+}
+
+
 
 template <class T>
 class CumSumExec : public ParallelTask
@@ -1072,29 +1409,12 @@ private:
 template <class T>
 inline T getSum( const ArrayND<T>& in, bool noudf, bool parallel )
 {
-    const T* inpvals = in.getData();
-    if ( inpvals )
-    {
-	CumSumExec<T> applycumsum( inpvals, in.info().getTotalSz(), noudf );
-	if ( !applycumsum.executeParallel(parallel) )
-	    return mUdf(T);
+    ArrayOperExecSetup setup;
+    CumArrOperExec<double,T> sumexec( in, noudf, setup );
+    if ( !sumexec.executeParallel(parallel) )
+	return mUdf(T);
 
-	return applycumsum.getSum();
-    }
-
-    T sum = 0; od_uint64 count = 0;
-    ArrayNDIter iter( in.info() );
-    do
-    {
-	const T value = in.getND( iter.getPos() );
-	if ( !noudf && mIsUdf(value) )
-	    continue;
-
-	sum += value;
-	count++;
-    } while ( iter.next() );
-
-    return count == 0 ? mUdf(T) : sum;
+    return mCast(T,sumexec.getSum());
 }
 
 /*!\brief will be removed after 6.0 */
@@ -1109,9 +1429,13 @@ inline T mDeprecated getSum( const ArrayND<T>& in, bool noudf )
 template <class T>
 inline T getAverage( const ArrayND<T>& in, bool noudf, bool parallel )
 {
-    const od_uint64 sz = in.info().getTotalSz();
-    const T sumvals = getSum( in, noudf, parallel );
-    return mIsUdf(sumvals) ? mUdf(T) : sumvals / mCast(T,sz);
+    ArrayOperExecSetup setup;
+    setup.donormalizesum_ = true;
+    CumArrOperExec<double,T> avgexec( in, noudf, setup );
+    if ( !avgexec.executeParallel(parallel) )
+	return mUdf(T);
+
+    return mCast(T,avgexec.getSum());
 }
 
 /*!\brief will be removed after 6.0 */
@@ -1151,39 +1475,30 @@ mDefParallelCalcBody(,const T inpval = arrin_[idx]; \
 /*!\brief returns a scaled array */
 
 template <class T>
-inline void getScaled( const ArrayND<T>& in, ArrayND<T>* out_, T fact, T shift,
-		       bool noudf, bool parallel )
+inline void getScaledArray( const ArrayND<T>& in, ArrayND<T>* out_, double fact,
+			    double shift, bool noudf, bool parallel )
 {
     ArrayND<T>& out = out_ ? *out_ : const_cast<ArrayND<T>&>( in );
-    const od_uint64 sz = in.info().getTotalSz();
-    const T* inpvals = in.getData();
-    T* outvals = out.getData();
-    if ( inpvals && outvals )
-    {
-	ScalingExec<T> applyscaler( sz, inpvals, outvals, fact, shift, noudf );
-	applyscaler.setReport( false );
-	applyscaler.executeParallel( parallel );
-	return;
-    }
-
-    ArrayNDIter iter( in.info() );
-    do
-    {
-	const int* pos = iter.getPos();
-	const T value = in.getND( pos );
-	if ( !noudf && mIsUdf(value) )
-	    continue;
-
-	out.setND( pos, fact * value + shift );
-    } while ( iter.next() );
+    ArrayOperExecSetup setup;
+    ArrOperExec<double,T> scalinngexec( in, 0, noudf, setup, out );
+    scalinngexec.setScaler( fact );
+    scalinngexec.setShift( shift );
+    scalinngexec.executeParallel( parallel );
 }
 
 
 /*!\brief will be removed after 6.0 */
 template <class T>
 inline mDeprecated void getScaled( const ArrayND<T>& in, ArrayND<T>* out_,
+				   T fact, T shift, bool noudf, bool parallel )
+{ return getScaledArray( in, out_, fact, shift, noudf, parallel ); }
+
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline mDeprecated void getScaled( const ArrayND<T>& in, ArrayND<T>* out_,
 				   T fact, T shift, bool noudf )
-{ return getScaled<T>( in, out_, fact, shift, noudf, true ); }
+{ return getScaledArray( in, out_, fact, shift, noudf, true ); }
 
 
 template <class T>
@@ -1198,43 +1513,30 @@ mDefParallelCalcBody(,const T val1 = arr1_[idx]; const T val2 = arr2_[idx]; \
 /*!\brief computes the sum array between two arrays with scaling */
 
 template <class T>
-inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
-		    ArrayND<T>& out, T fact1, T fact2, bool noudf,
-		    bool parallel )
+inline void getSumArrays( const ArrayND<T>& in1, const ArrayND<T>& in2,
+			  ArrayND<T>& out, double fact1, double fact2,
+			  bool noudf, bool parallel )
 {
-    const od_uint64 sz = in1.info().getTotalSz();
-    if ( in2.info().getTotalSz() != sz )
-	return;
-
-    const T* vals1 = in1.getData();
-    const T* vals2 = in2.getData();
-    T* outvals = out.getData();
-    if ( vals1 && vals2 && outvals )
-    {
-	SumExec<T> applysum( sz, vals1, vals2, outvals, fact1, fact2, noudf );
-	applysum.setReport( false );
-	applysum.executeParallel( parallel );
-	return;
-    }
-
-    ArrayNDIter iter( in1.info() );
-    do
-    {
-	const int* pos = iter.getPos();
-	const T val1 = in1.getND( pos );
-	const T val2 = in2.getND( pos );
-	if ( !noudf && ( mIsUdf(val1) || mIsUdf(val2) ) )
-	    { out.setND( pos, mUdf(T) ); continue; }
-
-	out.setND( pos, fact1 * val1 + fact2 * val2 );
-    } while ( iter.next() );
+    ArrayOperExecSetup setup;
+    ArrOperExec<double,T> sumexec( in1, &in2, noudf, setup, out );
+    sumexec.setScaler( fact1 );
+    sumexec.setScaler( fact2, false );
+    sumexec.executeParallel( parallel );
 }
+
+
+/*!\brief will be removed after 6.0 */
+template <class T>
+inline mDeprecated void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
+				ArrayND<T>& out, T fact1, T fact2, bool noudf,
+				bool parallel )
+{ getSumArrays( in1, in2, out, fact1, fact2, noudf, parallel ); }
 
 /*!\brief will be removed after 6.0 */
 template <class T>
 inline mDeprecated void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
 				ArrayND<T>& out, T fact1, T fact2, bool noudf )
-{ return getSum<T>( in1, in2, out, fact1, fact2, noudf, true ); }
+{ getSumArrays( in1, in2, out, fact1, fact2, noudf, true ); }
 
 
 
@@ -1254,32 +1556,10 @@ template <class T>
 inline void getProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
 			ArrayND<T>& out, bool noudf, bool parallel )
 {
-    const od_uint64 sz = in1.info().getTotalSz();
-    if ( in2.info().getTotalSz() != sz )
-	return;
-
-    const T* vals1 = in1.getData();
-    const T* vals2 = in2.getData();
-    T* outvals = out.getData();
-    if ( vals1 && vals2 && outvals )
-    {
-	ProdExec<T> applyprod( sz, vals1, vals2, outvals, noudf );
-	applyprod.setReport( false );
-	applyprod.executeParallel( parallel );
-	return;
-    }
-
-    ArrayNDIter iter( in1.info() );
-    do
-    {
-	const int* pos = iter.getPos();
-	const T val1 = in1.getND( pos );
-	const T val2 = in2.getND( pos );
-	if ( !noudf && ( mIsUdf(val1) || mIsUdf(val2) ) )
-	    { out.setND( pos, mUdf(T) ); continue; }
-
-	out.setND( pos, val1 * val2 );
-    } while ( iter.next() );
+    ArrayOperExecSetup setup;
+    setup.doadd_ = false;
+    ArrOperExec<double,T> prodexec( in1, &in2, noudf, setup, out );
+    prodexec.executeParallel( parallel );
 }
 
 /*!\brief will be removed after 6.0 */
@@ -1295,7 +1575,11 @@ inline mDeprecated void getProduct( const ArrayND<T>& in1,const ArrayND<T>& in2,
 template <class T>
 inline void getSum( const ArrayND<T>& in1, const ArrayND<T>& in2,
 		    ArrayND<T>& out, bool noudf, bool parallel )
-{ getSum( in1, in2, out, (T)1, (T)1, noudf, parallel ); }
+{
+    ArrayOperExecSetup setup;
+    ArrOperExec<double,T> sumexec( in1, &in2, noudf, setup, out );
+    sumexec.executeParallel( parallel );
+}
 
 
 /*!\brief will be removed after 6.0 */
@@ -1311,16 +1595,14 @@ template <class T>
 inline T getSumProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
 			bool noudf, bool parallel )
 {
-    const od_uint64 sz = in1.info().getTotalSz();
-    if ( in2.info().getTotalSz() != sz )
+    ArrayOperExecSetup setup;
+    setup.doadd_ = false;
+    CumArrOperExec<double,T> sumprodexec( in1, noudf, setup );
+    sumprodexec.setYVals( in2 );
+    if ( !sumprodexec.executeParallel(parallel) )
 	return mUdf(T);
 
-    Array1DImpl<T> prodvec( mCast(int,sz) );
-    if ( !prodvec.isOK() )
-	return mUdf(T);
-
-    getProduct( in1, in2, prodvec, noudf, parallel );
-    return getSum( prodvec, noudf, parallel );
+    return mCast(T,sumprodexec.getSum());
 }
 
 
@@ -1336,7 +1618,15 @@ inline mDeprecated void getSumProduct( const ArrayND<T>& in1,
 
 template <class T>
 inline T getSumSq( const ArrayND<T>& in, bool noudf, bool parallel )
-{ return getSumProduct( in, in, noudf, parallel ); }
+{
+    ArrayOperExecSetup setup;
+    setup.dosqinp_ = true;
+    CumArrOperExec<double,T> sumsqexec( in, noudf, setup );
+    if ( !sumsqexec.executeParallel(parallel) )
+	return mUdf(T);
+
+    return mCast(T,sumsqexec.getSum());
+}
 
 /*!\brief will be removed after 6.0 */
 template <class T>
@@ -1349,8 +1639,14 @@ inline mDeprecated T getSumSq( const ArrayND<T>& in, bool noudf )
 template <class T>
 inline T getNorm2( const ArrayND<T>& in, bool noudf, bool parallel )
 {
-    const T sumsqvals = getSumSq( in, noudf, parallel );
-    return mIsUdf(sumsqvals) ? mUdf(T) : Math::Sqrt( sumsqvals );
+    ArrayOperExecSetup setup;
+    setup.dosqinp_ = true;
+    setup.dosqrtsum_ = true;
+    CumArrOperExec<double,T> norm2exec( in, noudf, setup );
+    if ( !norm2exec.executeParallel(parallel) )
+	return mUdf(T);
+
+    return mCast(T,norm2exec.getSum());
 }
 
 /*!\brief will be removed after 6.0 */
@@ -1364,9 +1660,15 @@ inline mDeprecated T getNorm2( const ArrayND<T>& in, bool noudf )
 template <class T>
 inline T getRMS( const ArrayND<T>& in, bool noudf, bool parallel )
 {
-    const od_uint64 sz = in.info().getTotalSz();
-    const T sumsqvals = getSumSq( in, noudf, parallel );
-    return mIsUdf(sumsqvals) ? mUdf(T) : Math::Sqrt( sumsqvals/mCast(T,sz) );
+    ArrayOperExecSetup setup;
+    setup.dosqinp_ = true;
+    setup.donormalizesum_ = true;
+    setup.dosqrtsum_ = true;
+    CumArrOperExec<double,T> rmsexec( in, noudf, setup );
+    if ( !rmsexec.executeParallel(parallel) )
+	return mUdf(T);
+
+    return mCast(T,rmsexec.getSum());
 }
 
 /*!\brief will be removed after 6.0 */
@@ -1381,32 +1683,16 @@ template <class T>
 inline T getResidual( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
 		      bool parallel )
 {
-    const od_uint64 sz = in1.info().getTotalSz();
-    if ( in2.info().getTotalSz() != sz )
+    ArrayOperExecSetup setup;
+    setup.doabs_ = true;
+    setup.donormalizesum_ = true;
+    CumArrOperExec<double,T> residualexec( in1, noudf, setup );
+    residualexec.setYVals( in2 );
+    residualexec.setScaler( -1., false );
+    if ( !residualexec.executeParallel(parallel) )
 	return mUdf(T);
 
-    Array1DImpl<T> diffvec( mCast(int,sz) );
-    if ( !diffvec.isOK() )
-	return mUdf(T);
-
-    getSum( in1, in2, diffvec, (T)1, (T)-1, noudf, parallel );
-    T* diffdata = diffvec.getData();
-    if ( diffdata )
-    {
-	for ( od_uint64 idx=0; idx<sz; idx++ )
-	    diffdata[idx] = Math::Abs( diffdata[idx] );
-    }
-    else
-    {
-	ArrayNDIter iter( diffvec.info() );
-	do
-	{
-	    const int* pos = iter.getPos();
-	    diffvec.setND( pos, Math::Abs( diffvec.getND(pos) ) );
-	} while ( iter.next() );
-    }
-
-    return getAverage( diffvec, noudf, parallel );
+    return mCast(T,residualexec.getSum());
 }
 
 /*!\brief will be removed after 6.0 */
@@ -1422,16 +1708,15 @@ template <class T>
 inline T getSumXMY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
 		     bool parallel )
 {
-    const od_uint64 sz = in1.info().getTotalSz();
-    if ( in2.info().getTotalSz() != sz )
+    ArrayOperExecSetup setup;
+    setup.dosqout_ = true;
+    CumArrOperExec<double,T> sumxmy2exec( in1, noudf, setup );
+    sumxmy2exec.setYVals( in2 );
+    sumxmy2exec.setScaler( -1., false );
+    if ( !sumxmy2exec.executeParallel(parallel) )
 	return mUdf(T);
 
-    Array1DImpl<T> sumvec( mCast(int,sz) );
-    if ( !sumvec.isOK() )
-	return mUdf(T);
-
-    getSum( in1, in2, sumvec, (T)1, (T)-1, noudf, parallel );
-    return getSumSq( sumvec, noudf, parallel );
+    return mCast(T,sumxmy2exec.getSum());
 }
 
 /*!\brief will be removed after 6.0 */
@@ -1447,22 +1732,14 @@ template <class T>
 inline T getSumX2PY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
 		      bool parallel )
 {
-    const od_uint64 sz = in1.info().getTotalSz();
-    if ( in2.info().getTotalSz() != sz )
+    ArrayOperExecSetup setup;
+    setup.dosqinp_ = true;
+    CumArrOperExec<double,T> sumx2py2exec( in1, noudf, setup );
+    sumx2py2exec.setYVals( in2 );
+    if ( !sumx2py2exec.executeParallel(parallel) )
 	return mUdf(T);
 
-    Array1DImpl<T> sqvec1( mCast(int,sz) ), sqvec2( mCast(int,sz) );
-    if ( !sqvec1.isOK() || !sqvec2.isOK() )
-	return mUdf(T);
-
-    getProduct( in1, in1, sqvec1, noudf, parallel );
-    getProduct( in2, in2, sqvec2, noudf, parallel );
-    Array1DImpl<T> sumvec( mCast(int,sz) );
-    if ( !sumvec.isOK() )
-	return mUdf(T);
-
-    getSum( sqvec1, sqvec2, sumvec, noudf, parallel );
-    return getSum( sumvec, noudf, parallel );
+    return mCast(T,sumx2py2exec.getSum());
 }
 
 /*!\brief will be removed after 6.0 */
@@ -1478,22 +1755,15 @@ template <class T>
 inline T getSumX2MY2( const ArrayND<T>& in1, const ArrayND<T>& in2, bool noudf,
 		      bool parallel )
 {
-    const od_uint64 sz = in1.info().getTotalSz();
-    if ( in2.info().getTotalSz() != sz )
+    ArrayOperExecSetup setup;
+    setup.dosqinp_ = true;
+    CumArrOperExec<double,T> sumx2my2exec( in1, noudf, setup );
+    sumx2my2exec.setYVals( in2 );
+    sumx2my2exec.setScaler( -1., false );
+    if ( !sumx2my2exec.executeParallel(parallel) )
 	return mUdf(T);
 
-    Array1DImpl<T> sqvec1( mCast(int,sz) ), sqvec2( mCast(int,sz) );
-    if ( !sqvec1.isOK() || !sqvec2.isOK() )
-	return mUdf(T);
-
-    getProduct( in1, in1, sqvec1, noudf, parallel );
-    getProduct( in2, in2, sqvec2, noudf, parallel );
-    Array1DImpl<T> sumvec( mCast(int,sz) );
-    if ( !sumvec.isOK() )
-	return mUdf(T);
-
-    getSum( sqvec1, sqvec2, sumvec, (T)1, (T)-1, noudf, parallel );
-    return getSum( sumvec, noudf, parallel );
+    return mCast(T,sumx2my2exec.getSum());
 }
 
 /*!\brief will be removed after 6.0 */
@@ -1510,7 +1780,7 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
 				  T& intercept, T& gradient )
 {
     const od_uint64 sz = iny.info().getTotalSz();
-    T avgyvals = getAverage( iny, false );
+    T avgyvals = getAverage( iny, false, true );
     if ( mIsUdf(avgyvals) )
 	return false;
 
@@ -1542,7 +1812,7 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
 	inx = inxtmp;
     }
 
-    T avgxvals = getAverage( *inx, false );
+    T avgxvals = getAverage( *inx, false, true );
     if ( mIsUdf(avgxvals) )
 	{ if ( !hasxvals) delete inx; return false; }
 
@@ -1555,16 +1825,17 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
     if ( !crossprodxy.isOK() )
 	{ if ( !hasxvals ) delete inx; return false; }
 
-    getProduct( *inx, iny, crossprodxy, false );
+    getProduct( *inx, iny, crossprodxy, false, true );
 
-    gradient = getSumProduct( *inx, iny, false ) / getSumSq( *inx, false );
+    gradient = getSumProduct( *inx, iny, false, true ) /
+	       getSumSq( *inx, false, true );
     intercept = avgyvals - gradient * avgxvals;
-    getScaled( iny, &inyed, (T)1, avgyvals, false );
+    getScaledArray( iny, &inyed, 1., avgyvals, false, true );
 
     if ( !hasxvals )
 	delete inx;
     else
-	getScaled( *inx, &inxed, (T)1, avgxvals, false );
+	getScaledArray( *inx, &inxed, 1., avgxvals, false, true );
 
     return true;
 }
