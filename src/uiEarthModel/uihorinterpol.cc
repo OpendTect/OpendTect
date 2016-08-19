@@ -152,7 +152,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( !savefldgrp_->acceptOK(0) )
 	return false;
 
-    if ( interpolhor3dsel_->isPolygon() )
+    if ( interpolhor3dsel_->cropPolygon() )
     {
 	Interval<int> inlrg, crlrg;
 	interpolhor3dsel_->getPolygonRange( inlrg, crlrg );
@@ -325,12 +325,15 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     polyfld_ =
 	new uiPickSetIOObjSel( this, true, uiPickSetIOObjSel::PolygonOnly );
     polyfld_->attach( alignedBelow, filltypefld_ );
+    croppolyfld_ =
+	new uiGenInput(this, tr("Crop from polygon"), BoolInpSpec(false) );
+    croppolyfld_->attach( alignedBelow, polyfld_ );
 
     PositionInpSpec::Setup setup;
     PositionInpSpec spec( setup );
     stepfld_ = new uiGenInput( this, tr("Inl/Crl Step"), spec );
     stepfld_->setValue( BinID(SI().inlStep(),SI().crlStep()) );
-    stepfld_->attach( alignedBelow, polyfld_ );
+    stepfld_->attach( alignedBelow, croppolyfld_ );
 
     uiString titletext( tr("Keep holes larger than %1")
 				    .arg(SI().getUiXYUnitString()) );
@@ -362,7 +365,8 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
 
 void uiHor3DInterpolSel::scopeChgCB( CallBacker* )
 {
-    polyfld_->display( filltypefld_->getIntValue()==mScopePolygon );
+    polyfld_->display( isPolygon() );
+    croppolyfld_->display( isPolygon() );
 }
 
 
@@ -398,6 +402,12 @@ bool uiHor3DInterpolSel::isFullSurvey() const
 bool uiHor3DInterpolSel::isPolygon() const
 {
     return filltypefld_->getIntValue() == mScopePolygon;
+}
+
+
+bool uiHor3DInterpolSel::cropPolygon() const
+{
+    return isPolygon() && croppolyfld_->getBoolValue();
 }
 
 
@@ -437,6 +447,8 @@ bool uiHor3DInterpolSel::fillPar( IOPar& par ) const
 	const ODPolygon<float>* poly = polyfld_->getSelectionPolygon();
 	if ( !poly ) return false;
 
+	par.setYN( Array2DInterpol::sKeyCropPolygon(),
+		croppolyfld_->getBoolValue() );
 	par.set( Array2DInterpol::sKeyPolyNrofNodes(), poly->size() );
 	for ( int idx=0; idx<poly->size(); idx++ )
 	{

@@ -98,8 +98,6 @@ public:
     uiString			uiMessage() const { return tr("Gridding"); }
 
     static const char*		sKeyFillType();
-    static const char*		sKeyPolyNrofNodes();
-    static const char*		sKeyPolyNode();
     static const char*		sKeyRowStep();
     static const char*		sKeyColStep();
     static const char*		sKeyOrigin();
@@ -107,11 +105,15 @@ public:
     static const char*		sKeyNrCols();
     static const char*		sKeyNrCells();
     static const char*		sKeyMaxHoleSz();
+    static const char*		sKeyPolyNrofNodes();
+    static const char*		sKeyPolyNode();
+    static const char*		sKeyCropPolygon();
 
 protected:
 		Array2DInterpol();
 
     bool	doPrepare(int);
+    bool	doFinish(bool success);
     void	getNodesToFill(const bool* isdef, bool* shouldinterpol,
 			       TaskRunner*) const;
 		/*!<Fills shouldinterpol with true or false depending on if a
@@ -146,8 +148,10 @@ protected:
     RowCol			origin_;
 
     FillType			filltype_;
-    ODPolygon<double>*		poly_;
     float			maxholesize_;
+
+    ODPolygon<double>*		poly_;
+    bool			croppoly_;
 
     const Array2D<bool>*	mask_;
     bool			maskismine_;

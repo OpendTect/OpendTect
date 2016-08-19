@@ -69,6 +69,7 @@ public:
 
     bool			isFullSurvey() const;
     bool			isPolygon() const;
+    bool			cropPolygon() const;
     bool			getPolygonRange(Interval<int>& inlrg,
 						Interval<int>& crlrg);
 
@@ -84,6 +85,7 @@ protected:
     uiGenInput*			maxholeszfld_;
     uiGenInput*			stepfld_;
     uiGenInput*			methodsel_;
+    uiGenInput*			croppolyfld_;
     uiPickSetIOObjSel*		polyfld_;
 
     ObjectSet<uiHor3DInterpol>	methodgrps_;

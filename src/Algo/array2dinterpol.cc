@@ -26,6 +26,7 @@ const char* Array2DInterpol::sKeyFillType()	{ return "Fill Type"; }
 const char* Array2DInterpol::sKeyPolyNrofNodes()
 { return "Polygon nr of nodes"; }
 const char* Array2DInterpol::sKeyPolyNode()	{ return "PolyNode"; }
+const char* Array2DInterpol::sKeyCropPolygon()	{ return "Crop Polygon"; }
 const char* Array2DInterpol::sKeyRowStep()	{ return "Row Step"; }
 const char* Array2DInterpol::sKeyColStep()	{ return "Col Step"; }
 const char* Array2DInterpol::sKeyOrigin()	{ return "Origin"; }
@@ -108,6 +109,7 @@ Array2DInterpol::Array2DInterpol()
     , statsetup_(0)
     , trend_(0)
     , poly_(0)
+    , croppoly_(false)
 {}
 
 
@@ -525,6 +527,34 @@ bool Array2DInterpol::doPrepare( int )
 }
 
 
+bool Array2DInterpol::doFinish( bool success )
+{
+    if ( filltype_==Polygon && poly_ && croppoly_ )
+    {
+	for ( od_int64 idx=0; idx<nrcells_; idx++ )
+	{
+	    const int iidx = idx / nrcols_;
+	    const int iidy = idx % nrcols_;
+	    const double xpos = mCast(double,iidx + origin_.inl());
+	    const double ypos = mCast(double,iidy + origin_.crl());
+	    if ( poly_->isInside(Geom::Point2D<double>(xpos,ypos),true,0) )
+		continue;
+
+	    if ( arr_ )
+		arr_->set( iidx, iidy, mUdf(float) );
+	    else if ( arrsetter_ )
+	    {
+		od_int64 source[1]; source[0] = idx;
+		float weight[1]; weight[0] = mUdf(float);
+		arrsetter_->set( idx, source, weight, 1, isclassification_ );
+	    }
+	}
+    }
+
+    return success;
+}
+
+
 void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
 			       const float* weights, int nrsrc)
 {
@@ -651,6 +681,7 @@ bool Array2DInterpol::fillPar( IOPar& par ) const
     {
 	if ( !poly_ ) return false;
 
+	par.setYN( sKeyCropPolygon(), croppoly_ );
 	par.set( sKeyPolyNrofNodes(), poly_->size() );
 	for ( int idx=0; idx<poly_->size(); idx++ )
 	{
@@ -682,6 +713,7 @@ bool Array2DInterpol::usePar( const IOPar& par )
     {
 	delete poly_; poly_ = 0;
 
+	par.getYN( sKeyCropPolygon(), croppoly_ );
 	int nrnodes = 0;
 	par.get( sKeyPolyNrofNodes(), nrnodes );
 	if ( nrnodes>0 )
