@@ -15,14 +15,18 @@ ________________________________________________________________________
 #include "wellcommon.h"
 #include "color.h"
 #include "ranges.h"
-#include "namedobj.h"
+#include "sharedobject.h"
 #include "manobjectset.h"
 
 class TaskRunner;
 
 
+
 namespace Well
 {
+
+//TODO remove when these objects become true shared objects
+typedef Monitorable::DirtyCountType DirtyCountType;
 
 /*!\brief Marker, should be attached to Strat level.
 
@@ -58,6 +62,10 @@ public:
 
     // setName() and setColor() only used as fallback, if not attached to level
     void		setColor( Color col )	{ color_ = col; }
+
+    //TODO remove when object becomes a true SharedObject
+    void touch() const {}
+    DirtyCountType dirtyCount() const { return 0; }
 
 protected:
 
@@ -101,6 +109,10 @@ public:
     void		getColors(TypeSet<Color>&) const;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
+
+    //TODO remove when object becomes a true SharedObject
+    void touch() const {}
+    DirtyCountType dirtyCount() const { return 0; }
 
 protected:
 

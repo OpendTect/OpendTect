@@ -67,10 +67,12 @@ static const char* sKeyLeftLogWidthXY = "Left Log Width XY";
 static const char* sKeyRightLogWidthXY = "Right Log Width XY";
 
 
+mDefineInstanceCreatedNotifierAccess(Well::DisplayProperties);
 
-Well::DisplayProperties::DisplayProperties( const char* subjname )
-    : subjectname_(subjname)
-    , displaystrat_(false)  
+
+Well::DisplayProperties::DisplayProperties( const char* nm )
+    : SharedObject(nm)
+    , displaystrat_(false)
 {
     logs_ += new LogCouple();
 
@@ -80,30 +82,41 @@ Well::DisplayProperties::DisplayProperties( const char* subjname )
     Settings& setts = Settings::fetch( "welldisp" );
     markers_.selmarkernms_.erase();
     usePar( setts );
+
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Well::DisplayProperties::DisplayProperties( const DisplayProperties& oth )
+    : SharedObject( oth )
+{
+    copyAll( oth );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 Well::DisplayProperties::~DisplayProperties()
 {
+    sendDelNotif();
     deepErase( logs_ );
 }
 
 
-Well::DisplayProperties& Well::DisplayProperties::operator = ( 
-                                            const Well::DisplayProperties& dp )
+mImplMonitorableAssignment(Well::DisplayProperties, SharedObject )
+
+
+void Well::DisplayProperties::copyClassData( const DisplayProperties& oth )
 {
-    track_ = dp.track_;
-    markers_ = dp.markers_;
-    displaystrat_ = dp.displaystrat_;
-    if ( logs_.size() != dp.logs_.size() )
-        deepCopy( logs_, dp.logs_ );
+    track_ = oth.track_;
+    markers_ = oth.markers_;
+    displaystrat_ = oth.displaystrat_;
+    if ( logs_.size() != oth.logs_.size() )
+        deepCopy( logs_, oth.logs_ );
     else
         for ( int idx=0; idx<logs_.size(); idx++ )
-            *logs_[idx] = *dp.logs_[idx];
+            *logs_[idx] = *oth.logs_[idx];
 
-    deepCopy( markers_.selmarkernms_, dp.markers_.selmarkernms_ );
-    return *this;
-	
+    deepCopy( markers_.selmarkernms_, oth.markers_.selmarkernms_ );
 }
 
 
@@ -119,7 +132,7 @@ void Well::DisplayProperties::BasicProps::useLeftPar( const IOPar& iop )
 {
     iop.get( IOPar::compKey(subjectName(),sKey::Color()), color_ );
     iop.get( IOPar::compKey(subjectName(),sKey::Size()), size_ );
-    doUseLeftPar( iop ); 
+    doUseLeftPar( iop );
 }
 
 
@@ -127,7 +140,7 @@ void Well::DisplayProperties::BasicProps::useRightPar( const IOPar& iop )
 {
     iop.get( IOPar::compKey(subjectName(),sKey::Color()), color_ );
     iop.get( IOPar::compKey(subjectName(),sKey::Size()), size_ );
-    doUseRightPar( iop ); 
+    doUseRightPar( iop );
 }
 
 
@@ -205,7 +218,7 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& par ) const
 {
     par.setYN(IOPar::compKey(subjectName(),sKeyMarkerSingleColor),issinglecol_);
     par.set( IOPar::compKey(subjectName(),sKeyMarkerShape), shapeint_ );
-    par.set( IOPar::compKey(subjectName(),sKeyMarkerCylinderHeight), 
+    par.set( IOPar::compKey(subjectName(),sKeyMarkerCylinderHeight),
              cylinderheight_ );
     BufferString fontdata;
     font_.putTo( fontdata );
@@ -239,7 +252,7 @@ void Well::DisplayProperties::Log::doUseLeftPar( const IOPar& iop )
     if ( SI().xyInFeet() ) logwidth_ = (int)( logwidth_*mToFeetFactorF );
 
     iop.getYN( IOPar::compKey(subjectName(),sKeyLeftScale), islogarithmic_ );
-    iop.getYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped), 
+    iop.getYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped),
                iscoltabflipped_ );
     iop.get( IOPar::compKey(subjectName(),sKeyLeftLogStyle),style_);
 
@@ -268,9 +281,9 @@ void Well::DisplayProperties::Log::doUseRightPar( const IOPar& iop )
 
     iop.get( IOPar::compKey(subjectName(),sKeyRightLogWidthXY),logwidth_ );
     if ( SI().xyInFeet() ) logwidth_ = (int)( logwidth_*mToFeetFactorF );
-    
+
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightScale), islogarithmic_ );
-    iop.getYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped), 
+    iop.getYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped),
                iscoltabflipped_ );
     iop.get( IOPar::compKey(subjectName(),sKeyRightLogStyle),style_);
 }
@@ -294,13 +307,13 @@ void Well::DisplayProperties::Log::doFillLeftPar( IOPar& iop ) const
     iop.set( IOPar::compKey(subjectName(),sKeyLeftOverlapp), repeatovlap_ );
     iop.set( IOPar::compKey(subjectName(),sKeyLeftSeisColor), seiscolor_ );
     iop.set( IOPar::compKey(subjectName(),sKeyLeftSeqname), seqname_ );
-    
+
     const int logwidth = logwidth_*
 	(int)( SI().xyInFeet() ? mFromFeetFactorF : 1.0f );
 
     iop.set( IOPar::compKey(subjectName(),sKeyLeftLogWidthXY), logwidth );
     iop.setYN( IOPar::compKey(subjectName(),sKeyLeftScale), islogarithmic_ );
-    iop.setYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped), 
+    iop.setYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped),
                iscoltabflipped_ );
     iop.set( IOPar::compKey(subjectName(),sKeyLeftLogStyle),style_);
 }
@@ -325,13 +338,13 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& iop ) const
     iop.set( IOPar::compKey(subjectName(),sKeyRightOverlapp), repeatovlap_ );
     iop.set( IOPar::compKey(subjectName(),sKeyRightSeisColor), seiscolor_ );
     iop.set( IOPar::compKey(subjectName(),sKeyRightSeqname), seqname_ );
-    
+
     const int logwidth = logwidth_*
 	(int)( SI().xyInFeet() ? mFromFeetFactorF : 1.0f );
 
     iop.set( IOPar::compKey(subjectName(),sKeyRightLogWidthXY), logwidth );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightScale), islogarithmic_ );
-    iop.setYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped), 
+    iop.setYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped),
                iscoltabflipped_ );
     iop.set( IOPar::compKey(subjectName(),sKeyRightLogStyle),style_);
 
@@ -374,7 +387,7 @@ void Well::DisplayProperties::fillPar( IOPar& iop ) const
 	logs_[idx]->left_.fillLeftPar( tmpiop );
 	logs_[idx]->right_.fillRightPar( tmpiop );
 	par.mergeComp( tmpiop, idx ? toString( idx ) : "" );
-	//keeps compatibility with former versions 
+	//keeps compatibility with former versions
     }
     par.setYN(IOPar::compKey(subjectName(),sKey2DDisplayStrat),displaystrat_);
     iop.mergeComp( par, subjectName() );

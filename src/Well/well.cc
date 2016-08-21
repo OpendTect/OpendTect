@@ -18,6 +18,18 @@
 #include "stratlevel.h"
 #include "wellman.h"
 
+
+float Well::getDefaultVelocity()
+{
+    const float replvelm = 2000.f;
+    const float replvelft = 8000.f;
+    if ( SI().zInFeet() )
+	return replvelft;
+    else
+	return SI().depthsInFeet() ? replvelft * mFromFeetFactorF : replvelm;
+}
+
+
 // Keys for IOPars
 const char* Well::Info::sKeyDepthUnit() { return sKey::DepthUnit(); }
 const char* Well::Info::sKeyUwid()	{ return "Unique Well ID"; }
@@ -54,6 +66,9 @@ mDefineEnumUtils( Well::Info, WellType, "Well Type" )
 { "none", "oilwell", "gaswell", "oilgaswell", "dryhole", "pluggedoilwell",
   "pluggedgaswell", "pluggedoilgaswell", "permittedlocation",
   "canceledlocation", "injectiondisposalwell", 0 };
+
+
+static const char* sWellName = "Well name";
 
 
 mDefineInstanceCreatedNotifierAccess(Well::Info);
@@ -111,7 +126,48 @@ int Well::Info::legacyLogWidthFactor()
 }
 
 
+void Well::Info::fillPar( IOPar& par ) const
+{
+    par.set( sWellName, name() );
+    par.set( sKeyUwid(), uwid_ );
+    par.set( sKeyOper(), oper_ );
+    par.set( sKeyState(), state_ );
+    par.set( sKeyCounty(), county_ );
+    par.set( sKeyWellType(), (int)welltype_ );
+    par.set( sKeyCoord(), surfacecoord_.toString() );
+    par.set( sKeyReplVel(), replvel_ );
+    par.set( sKeyGroundElev(), groundelev_ );
+}
+
+
+void Well::Info::usePar( const IOPar& par )
+{
+    setName( par.find(sWellName) );
+    par.get( sKeyUwid(), uwid_ );
+    par.get( sKeyOper(), oper_ );
+    par.get( sKeyState(), state_ );
+    par.get( sKeyCounty(), county_ );
+    int welltype = (int)welltype_;
+    par.get( sKeyWellType(), welltype );
+    welltype_ = (WellType)welltype;
+
+    surfacecoord_.fromString( par.find(sKeyCoord()) );
+    par.get( sKeyReplVel(), replvel_ );
+    par.get( sKeyGroundElev(), groundelev_ );
+}
+
+
 mDefineInstanceCreatedNotifierAccess(Well::Data)
+
+#define mDoAllSubObjs(preact,postact) \
+    preact info_ postact; \
+    preact track_ postact; \
+    preact logs_ postact; \
+    preact d2tmodel_ postact; \
+    preact csmodel_ postact; \
+    preact markers_ postact; \
+    preact disp2d_ postact; \
+    preact disp3d_ postact
 
 
 #define mInitList(constrarg,nm) \
@@ -155,14 +211,7 @@ Well::Data::~Data()
     sendDelNotif();
     detachAllNotifiers();
 
-    delete &disp2d_;
-    delete &disp3d_;
-    delete &markers_;
-    delete &logs_;
-    delete &csmodel_;
-    delete &d2tmodel_;
-    delete &track_;
-    delete &info_;
+    mDoAllSubObjs( delete &, );
 }
 
 
@@ -249,44 +298,15 @@ void Well::Data::setEmpty()
 }
 
 
-static const char* sWellName = "Well name";
-
-void Well::Info::fillPar( IOPar& par ) const
+void Well::Data::touch() const
 {
-    par.set( sWellName, name() );
-    par.set( sKeyUwid(), uwid_ );
-    par.set( sKeyOper(), oper_ );
-    par.set( sKeyState(), state_ );
-    par.set( sKeyCounty(), county_ );
-    par.set( sKeyWellType(), (int)welltype_ );
-    par.set( sKeyCoord(), surfacecoord_.toString() );
-    par.set( sKeyReplVel(), replvel_ );
-    par.set( sKeyGroundElev(), groundelev_ );
+    mDoAllSubObjs( , .touch() );
 }
 
 
-void Well::Info::usePar( const IOPar& par )
+Well::Data::DirtyCountType Well::Data::dirtyCount() const
 {
-    setName( par.find(sWellName) );
-    par.get( sKeyUwid(), uwid_ );
-    par.get( sKeyOper(), oper_ );
-    par.get( sKeyState(), state_ );
-    par.get( sKeyCounty(), county_ );
-    int welltype = (int)welltype_;
-    par.get( sKeyWellType(), welltype );
-    welltype_ = (WellType)welltype;
-
-    surfacecoord_.fromString( par.find(sKeyCoord()) );
-    par.get( sKeyReplVel(), replvel_ );
-    par.get( sKeyGroundElev(), groundelev_ );
-}
-
-float Well::getDefaultVelocity()
-{
-    const float replvelm = 2000.f;
-    const float replvelft = 8000.f;
-    if ( SI().zInFeet() )
-	return replvelft;
-    else
-	return SI().depthsInFeet() ? replvelft * mFromFeetFactorF : replvelm;
+    DirtyCountType ret = 0;
+    mDoAllSubObjs( ret +=, .dirtyCount() );
+    return ret;
 }

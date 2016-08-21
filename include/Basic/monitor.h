@@ -103,10 +103,8 @@ public:
     mDeclInstanceCreatedNotifierAccess(	Monitorable );
 					//!< defines static instanceCreated()
 
-    void		touch() const		{ dirtycount_++; }
-    DirtyCountType	dirtyCount() const	{ return dirtycount_; }
-    void		setDirtyCount( DirtyCountType nr ) const
-							{ dirtycount_ = nr; }
+    virtual void	touch() const		{ dirtycount_++; }
+    virtual DirtyCountType dirtyCount() const	{ return dirtycount_; }
 
     void		sendEntireObjectChangeNotification() const;
 

@@ -128,7 +128,7 @@ public:
 
     void		close();
     bool		poppedUp() const		{ return poppedup_; }
-    bool		touch();
+    bool		resetPopupTimerIfNotPoppedUp();
 
     void		removeDockWin(uiDockWin*);
     void		addDockWin(uiDockWin&,uiMainWin::Dock);
@@ -446,7 +446,7 @@ void uiMainWinBody::go( bool showminimized )
 }
 
 
-bool uiMainWinBody::touch()
+bool uiMainWinBody::resetPopupTimerIfNotPoppedUp()
 {
     if ( poppedup_ || !finalised() )
 	return false;
@@ -883,7 +883,8 @@ void uiMainWin::show()
 void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
-bool uiMainWin::touch()				{ return body_->touch(); }
+bool uiMainWin::resetPopupTimerIfNotPoppedUp()	{ return body_->
+					    resetPopupTimerIfNotPoppedUp(); }
 bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 void uiMainWin::showMaximized()			{ body_->showMaximized(); }

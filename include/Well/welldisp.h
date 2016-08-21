@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "wellcommon.h"
 #include "fontdata.h"
-#include "namedobj.h"
+#include "sharedobject.h"
 #include "color.h"
 #include "ranges.h"
 #include "survinfo.h"
@@ -30,17 +30,14 @@ inline const char* sKey3DDispProp()	{ return "3D Display"; }
 \brief Display properties of a well.
 */
 
-mExpClass(Well) DisplayProperties
+mExpClass(Well) DisplayProperties : public SharedObject
 {
 public:
 
-			DisplayProperties(const char* subj = sKey3DDispProp());
-			DisplayProperties(const Well::DisplayProperties& dp)
-			{ *this = dp;}
-
-    virtual		~DisplayProperties();
-
-    DisplayProperties&	operator = (const DisplayProperties& dp);
+			DisplayProperties(const char* nm=sKey3DDispProp());
+			~DisplayProperties();
+			mDeclMonitorableAssignment(DisplayProperties);
+			mDeclInstanceCreatedNotifierAccess(DisplayProperties);
 
     mStruct(Well) BasicProps
     {
@@ -188,11 +185,7 @@ public:
     mStruct(Well) LogCouple { Log left_, right_; };
     ObjectSet<LogCouple> logs_;
 
-    virtual const char* subjectName() const	{ return subjectname_.buf(); }
-
-protected:
-
-    BufferString	subjectname_;
+    virtual const char* subjectName() const	{ return name().buf(); }
 
 };
 

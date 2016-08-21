@@ -143,7 +143,7 @@ public:
     uiRect		geometry(bool frame=true) const;
 
     bool		poppedUp() const;
-    bool		touch(); //!< resets pop-up timer if !poppedUp yet
+    bool		resetPopupTimerIfNotPoppedUp();
     bool		finalised() const;
     virtual uiMainWin*	mainwin() { return this; }
     int			getNrWidgets() const		{ return 1; }

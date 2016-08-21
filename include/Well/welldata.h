@@ -94,10 +94,13 @@ public:
     const D2TModel*		checkShotModelPtr() const
 						    { return gtMdlPtr(true); }
 
-    				// name comes from Info
+				// name comes from Info
     virtual BufferString	getName() const;
     virtual void		setName(const char*);
     virtual const OD::String&	name() const;
+
+    virtual void		touch() const;
+    virtual DirtyCountType	dirtyCount() const;
 
 protected:
 

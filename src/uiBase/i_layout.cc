@@ -790,7 +790,7 @@ void i_LayoutMngr::startPoptimer()
     if ( timer_running || popped_up ) return;
 
     if ( managedBody.uiObjHandle().mainwin()
-	 && !managedBody.uiObjHandle().mainwin()->touch() )
+     && !managedBody.uiObjHandle().mainwin()->resetPopupTimerIfNotPoppedUp() )
 	return;
 
     if ( poptimer.isActive() )
