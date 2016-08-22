@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "jobiomgr.h"
 #include "msgh.h"
 #include "oddirs.h"
+#include "od_ostream.h"
 #include "queue.h"
 #include "timefun.h"
 #include "perthreadrepos.h"
@@ -70,8 +71,9 @@ int& MMJob_getTempFileNr()
     return tmpfile_nr;
 }
 
-
-JobRunner::JobRunner( JobDescProv* p, const char* cmd )
+#define mLogMsg(s) if ( logstrm_ ) *logstrm_ << s << od_endl;
+#define mInTestMode logstrm_ != 0
+JobRunner::JobRunner( JobDescProv* p, const char* cmd, od_ostream* logstrm )
 	: Executor("Running jobs")
 	, iomgr_(0)
 	, descprov_(p)
@@ -94,15 +96,22 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	, curjobiop_(*new IOPar)
 	, curjobfp_(*new FilePath)
 	, curjobinfo_(0)
+	, logstrm_(logstrm)
 {
     procdir_ = GetProcFileName( getTempBaseNm() );
     procdir_ += "_"; procdir_ += MMJob_getTempFileNr();
     MMJob_getTempFileNr()++;
 
     if ( File::exists(procdir_) && !File::isDirectory(procdir_) )
+    {
 	File::remove(procdir_);
+	mLogMsg( "Removed Old Temp Folder " << procdir_ );
+    }
     if ( !File::exists(procdir_) )
+    {
 	File::createDir(procdir_);
+	mLogMsg( "Created New Temp Folder " << procdir_ );
+    }
 
     if ( mIsUdf(descprov_->nrJobs()) || !descprov_->nrJobs() )
     {
@@ -143,8 +152,9 @@ bool JobRunner::addHost( const HostData& hd )
     {
 	delete iomgr_;
 	iomgr_ = 0;
-	errmsg_ = tr("Failed to listen to Port %1 on %2 on ")
+	errmsg_ = tr("Failed to listen to Port %1 on %2")
 	        .arg(firstport_).arg(HostData::localHostName());
+	mLogMsg(errmsg_)
 	return false;
     }
 
@@ -229,12 +239,13 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 	curjobinfo_ = &ji;
 	msgAvail.trigger();
 
-	if ( mDebugOn )
+	if ( mDebugOn || mInTestMode )
 	{
 	    BufferString msg("----\nJobRunner::startJob : job ");
 	    msg += ji.descnr_;	msg += " is bad.";
 	    mAddDebugMsg( ji )
-	    DBG::message(msg);
+	    if ( mDebugOn ) DBG::message(msg);
+	    mLogMsg( msg )
 	}
 
 	jobinfos_ -= &ji; failedjobs_ += &ji;
@@ -243,25 +254,27 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 
     if ( !runJob(ji,hfi.hostdata_) )
     {
-	if ( mDebugOn )
+	if ( mDebugOn || mInTestMode )
 	{
 	    BufferString msg("----\nJobRunner::startJob: could not start job ");
 	    msg += ji.descnr_; msg += " on host ";
 	    msg += ji.hostdata_->getHostName();
 	    mAddDebugMsg( ji )
-	    DBG::message(msg);
+	    if ( mDebugOn ) DBG::message(msg);
+	    mLogMsg( msg )
 	}
 
 	return hostStatus(&hfi) == HostFailed ? HostBad : NotStarted;
     }
 
-    if ( mDebugOn )
+    if ( mDebugOn || mInTestMode )
     {
 	BufferString msg("----\nJobRunner::startJob : started job ");
 	msg += ji.descnr_; msg += " on host ";
 	msg += ji.hostdata_->getHostName();
 	mAddDebugMsg( ji )
-	DBG::message(msg);
+	if ( mDebugOn ) DBG::message(msg);
+	mLogMsg( msg )
     }
 
     hfi.inuse_ = true;
@@ -271,7 +284,7 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 
 JobIOMgr& JobRunner::iomgr()
 {
-    if ( !iomgr_ ) iomgr_ = new JobIOMgr(firstport_, prioritylevel_ );
+    if ( !iomgr_ ) iomgr_ = new JobIOMgr(firstport_, prioritylevel_, logstrm_ );
     return *iomgr_;
 }
 
@@ -305,14 +318,17 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 
     if ( !isAssigned(ji) )
     {
-	if ( mDebugOn )
+	if ( mDebugOn || mInTestMode )
 	{
 	    BufferString msg("----\nJobRunner::failedJob UNASSIGNED! : ");
 	    if ( ji.state_ == JobInfo::HostFailed ) msg += "host failed. ";
 	    if ( ji.state_ == JobInfo::JobFailed ) msg += "job failed. ";
 	    mAddDebugMsg( ji )
-	    DBG::message(msg);
+	    if ( mDebugOn ) DBG::message(msg);
+	    mLogMsg( msg )
 	}
+
+	if ( mInTestMode ) ji.state_ = JobInfo::Completed;
 	return;
     }
 
@@ -327,7 +343,7 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 	if ( hfi ) hfi->nrfailures_++;
     }
 
-    if ( mDebugOn )
+    if ( mDebugOn || mInTestMode )
     {
 	BufferString msg("----\nJobRunner::failedJob : ");
 	if ( ji.state_ == JobInfo::HostFailed ) msg += "host failed. ";
@@ -340,10 +356,12 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 	    msg += " seconds ago.";
 	}
 	mAddDebugMsg( ji )
-	DBG::message(msg);
+	if ( mDebugOn ) DBG::message(msg);
+	mLogMsg( msg )
     }
 
     jobFailed.trigger();
+    if ( mInTestMode ) ji.state_ = JobInfo::Completed;
     ji.infomsg_ = "";
 }
 
@@ -454,7 +472,7 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
     if ( hfi->starttime_ <= 0 )
     {
 	pErrMsg( "starttime_ <= 0!!. Setting to current time..." );
-	if ( mDebugOn )
+	if ( mDebugOn || mInTestMode )
 	{
 	    BufferString msg( "Start time (" );
 	    msg += hfi->starttime_; msg += ") <= 0 for ";
@@ -464,7 +482,8 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 	    msg += "\n nrsucc: "; msg += hfi->nrsucces_;
 	    msg += "\n last succes time: "; msg += hfi->lastsuccess_;
 
-	    DBG::message(msg);
+	    if ( mDebugOn ) DBG::message(msg);
+	    mLogMsg( msg )
 	}
 	const_cast<HostNFailInfo*>(hfi)->starttime_ = Time::getMilliSeconds();
     }
@@ -490,6 +509,7 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 	msg += "\n last succes time: "; msg += hfi->lastsuccess_;
 
 	DBG::message(msg);
+	mLogMsg( msg )
 	return HostFailed;
     }
 
@@ -732,12 +752,13 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 
     if ( ji->infomsg_.size() ) // not already handled by failedJob()
     {
-	if ( mDebugOn )
+	if ( mDebugOn || mInTestMode )
 	{
 	    BufferString msg("----\nJobRunner::handleStatusInfo: info for job");
 	    msg += ji->descnr_;	msg += " : ";
 	    mAddDebugMsg( (*ji) )
-	    DBG::message(msg);
+	    if ( mDebugOn ) DBG::message(msg);
+	    mLogMsg( msg )
 	}
 
 	msgAvail.trigger();

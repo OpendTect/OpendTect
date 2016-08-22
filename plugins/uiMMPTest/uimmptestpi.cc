@@ -75,6 +75,7 @@ void uiMMPTestMgr::mnuCB( CallBacker* )
 
     Batch::JobSpec js( "od_mmptestbatch" );
     Batch::MMJobDispatcher dispatcher;
+    dispatcher.setJobName( "MMP_Diagnostics" );
     dispatcher.go( js );
 }
 

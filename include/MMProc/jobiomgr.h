@@ -22,6 +22,7 @@ class FilePath;
 class HostData;
 class JobInfo;
 class JobIOHandler;
+class od_ostream;
 template <class T> class ObjQueue;
 
 /*!
@@ -64,7 +65,8 @@ mExpClass(MMProc) JobIOMgr : public CallBacker
 public:
     enum		Mode { Work, Pause, Stop };
 
-			JobIOMgr(int firstport=19345,float priority=-1.f);
+			JobIOMgr(int firstport=19345,float priority=-1.f,
+				 od_ostream* logstrm=0);
     virtual		~JobIOMgr();
 
     const char*		peekMsg()  { if ( msg_.size() ) return msg_; return 0; }
@@ -99,6 +101,7 @@ protected:
     JobIOHandler&	iohdlr_;
     BufferString	msg_;
     OS::CommandExecPars execpars_;
+    od_ostream*		logstrm_;
 
     void		mkCommand(OS::MachineCommand&,const HostData&,
 				  const char* progname,const FilePath& basefp,

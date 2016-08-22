@@ -34,13 +34,11 @@ public:
 } // namespace Batch
 
 
-class HostDataList;
-
 /*!\brief JobDesc for MMPTest. */
 mExpClass(uiMMPTest) MMTestJobDescProv : public JobDescProv
 {
 public:
-			MMTestJobDescProv(const IOPar&);
+			MMTestJobDescProv(const IOPar&,int nrmachs);
 			~MMTestJobDescProv();
 
     virtual int		nrJobs() const;
@@ -51,7 +49,7 @@ public:
 
 protected:
 
-    HostDataList&	hdl_;
+    int			nrmachs_;
 
 };
 
@@ -66,6 +64,8 @@ public:
 protected:
 
     virtual bool	initWork(bool);
+    virtual bool	needConfirmEarlyStop() const	{ return false; }
+    virtual bool	acceptOK(CallBacker*);
 };
 
 #endif

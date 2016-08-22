@@ -54,7 +54,8 @@ mExpClass(MMProc) JobRunner : public Executor
 { mODTextTranslationClass(JobRunner);
 public:
 
-				JobRunner(JobDescProv*,const char* cmd);
+				JobRunner(JobDescProv*,const char* cmd,
+					  od_ostream* logstrm=0);
 				//!< JobDescProv becomes mine. Never pass null.
 				~JobRunner();
 
@@ -124,6 +125,7 @@ protected:
     FilePath&			curjobfp_;
     IOPar&			curjobiop_;
     JobInfo*			curjobinfo_;
+    od_ostream*			logstrm_;
 
     JobIOMgr&			iomgr();
     JobIOMgr*			iomgr_;

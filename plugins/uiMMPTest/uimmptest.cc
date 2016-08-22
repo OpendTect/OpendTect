@@ -9,16 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "uimmptest.h"
-#include "uilabel.h"
+#include "uimsg.h"
 
 #include "batchjobdispatch.h"
-#include "hostdata.h"
+#include "filepath.h"
 #include "iopar.h"
 #include "jobrunner.h"
 #include "od_ostream.h"
 #include "od_helpids.h"
 
-static const char* sKeyMMPTestProgName = "od_mmptestbatch.cc";
+static const char* sKeyMMPTestProgName = "od_mmptestbatch";
 
 
 bool Batch::TestMMProgDef::isSuitedFor( const char* pnm ) const
@@ -44,6 +44,14 @@ uiMMPTestProc::uiMMPTestProc( uiParent* p, const IOPar& iop )
     setOkText( uiStrings::sClose() );
     setCancelText( uiString::emptyString() );
     setCaption( tr("Multi-Machine Processing Diagnostic Tool") );
+    enableJobControl( false );
+
+    FilePath fp( iop.find(sKey::FileName()) );
+    fp.setExtension( ".log" );
+    logstrm_ = new od_ostream( fp.fullPath() );
+
+    setTitleText( tr("Select Machines from the list on left and press 'Add'"
+		" to run Diagnostic Test on them") );
 }
 
 
@@ -58,30 +66,36 @@ bool uiMMPTestProc::initWork( bool retry )
     BufferString tmpstordir;
 
     delete jobrunner_;
-    IOPar dummy;
-    jobrunner_ = new JobRunner( new MMTestJobDescProv(dummy),
-				sKeyMMPTestProgName );
+    jobrunner_ = new JobRunner( new MMTestJobDescProv(jobpars_,nrSelMachs()),
+				sKeyMMPTestProgName, logstrm_ );
     return true;
 }
 
 
+bool uiMMPTestProc::acceptOK( CallBacker* )
+{
+    const BufferString filenm = logstrm_->fileName();
+    delete logstrm_; logstrm_ = 0;
+    uiMSG().message( tr("The log file has been saved as %1").arg(filenm) );
+    return true;
+}
 
-MMTestJobDescProv::MMTestJobDescProv( const IOPar& iop )
+
+MMTestJobDescProv::MMTestJobDescProv( const IOPar& iop, int nrmachs )
     : JobDescProv(iop)
-    , hdl_(*new HostDataList(false))
+    , nrmachs_(nrmachs)
 {
 }
 
 
 MMTestJobDescProv::~MMTestJobDescProv()
 {
-    delete &hdl_;
 }
 
 
 int MMTestJobDescProv::nrJobs() const
 {
-    return hdl_.size();
+    return nrmachs_;
 }
 
 
@@ -109,8 +123,6 @@ void MMTestJobDescProv::dump( od_ostream& strm ) const
 
 const char* MMTestJobDescProv::objName( int jidx ) const
 {
-    mDeclStaticString( namestr );
-    namestr = toString( jidx + 1 );
-    return namestr.buf();
+    return "";
 }
 

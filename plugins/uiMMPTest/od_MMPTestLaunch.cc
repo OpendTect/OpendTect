@@ -30,6 +30,7 @@ int main( int argc, char ** argv )
     uiMMPTestProc* testmmp = new uiMMPTestProc( 0, jobpars );
     app.setTopLevel( testmmp );
     testmmp->show();
-
-    return ExitProgram( app.exec() );
+    const int ret = app.exec();
+    delete testmmp;
+    return ExitProgram( ret );
 }

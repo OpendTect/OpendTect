@@ -39,7 +39,7 @@ ________________________________________________________________________
 #include "plugins.h"
 
 
-
+#define mLogMsg(s) if ( logstrm_ ) *logstrm_ << s << od_endl;
 bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
 						IOPar& jobpars )
 {
@@ -93,6 +93,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     , avmachfld_(0), usedmachfld_(0)
     , priofld_(0)
     , logvwer_(0)
+    , logstrm_(0)
     , progrfld_(0)
     , progbar_(0)
     , jrpstartfld_(0), jrpstopfld_(0)
@@ -264,6 +265,20 @@ void uiMMBatchJobDispatcher::initWin( CallBacker* cb )
 }
 
 
+void uiMMBatchJobDispatcher::enableJobControl( bool yn )
+{
+    jrppolselfld_->display( yn );
+    jrpworklbl_->display( yn );
+    if ( yn )
+	jrpSel( 0 );
+    else
+    {
+	jrpstartfld_->display( false );
+	jrpstopfld_->display( false );
+    }
+}
+
+
 void uiMMBatchJobDispatcher::startWork( CallBacker* )
 {
     if ( !initWork(false) || !jobrunner_ )
@@ -431,6 +446,7 @@ void uiMMBatchJobDispatcher::jobStart( CallBacker* )
     if ( ji.hostdata_ )
 	{ msg += " on "; msg += ji.hostdata_->getHostName(); }
     progrfld_->append( msg );
+    mLogMsg( msg );
 }
 
 
@@ -444,6 +460,7 @@ void uiMMBatchJobDispatcher::jobFail( CallBacker* )
     if ( !ji.infomsg_.isEmpty() )
 	{ msg += ": "; msg += ji.infomsg_; }
     progrfld_->append( msg );
+    mLogMsg( msg );
 }
 
 
@@ -459,6 +476,7 @@ void uiMMBatchJobDispatcher::infoMsgAvail( CallBacker* )
 
     msg += ": "; msg += ji.infomsg_;
     progrfld_->append( msg );
+    mLogMsg( msg );
 }
 
 
@@ -565,6 +583,7 @@ bool uiMMBatchJobDispatcher::wrapUp()
     }
 
     progrfld_->append( "Processing completed" );
+    mLogMsg( "Processing completed" );
     setCtrlStyle( CloseOnly );
     uiButton* cancbuttn = button( uiDialog::CANCEL );
     if ( cancbuttn )
@@ -691,6 +710,11 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
 }
 
 
+int uiMMBatchJobDispatcher::nrSelMachs() const
+{
+    return avmachfld_ ? avmachfld_->nrChosen() : 1;
+}
+
 #define mErrRet(s) { uiMSG().error(s); return; }
 
 void uiMMBatchJobDispatcher::addPush( CallBacker* )
@@ -699,7 +723,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
     if ( nrmach < 1 )
 	return;
 
-    const int nrsel = avmachfld_ ? avmachfld_->nrChosen() : 1;
+    const int nrsel = nrSelMachs();
     if ( nrsel < 1 )
 	mErrRet(uiStrings::phrSelect(tr("one or more hosts")))
 
@@ -729,7 +753,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 	    BufferString errmsg;
 	    if ( !hd->isKnownAs(HostData::localHostName())
 		    && !hostOK(*hd,hdl_.loginCmd(),errmsg) )
-		{ progrfld_->append( errmsg.buf() ); continue; }
+	    { progrfld_->append( errmsg.buf() ); mLogMsg(errmsg); continue; }
 	}
 
 	if ( !jobrunner_->addHost(*hd) && jobrunner_->jobsLeft() > 0 )
@@ -740,6 +764,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 	    if ( jobrunner_->errorMsg().isSet() )
 		msg.append( " : " ).append( jobrunner_->errorMsg() );
 	    progrfld_->append( msg.getFullString() );
+	    mLogMsg( msg.getFullString() );
 	}
     }
 }

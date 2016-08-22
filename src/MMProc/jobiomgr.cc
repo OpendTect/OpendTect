@@ -47,6 +47,7 @@ ________________________________________________________________________
     return false;\
 }
 
+#define mLogMsg(s) if ( logstrm_ ) *logstrm_ << s << od_endl;
 
 CommandString::CommandString( const HostData& hostdata, const char* init )
     : hstdata_(hostdata)
@@ -126,11 +127,12 @@ public:
 class JobIOHandler : public CallBacker
 {
 public:
-JobIOHandler( int firstport )
+JobIOHandler( int firstport, od_ostream* logstrm )
     : exitreq_(0)
     , firstport_(firstport)
     , usedport_(firstport)
     , ready_(false)
+    , logstrm_(logstrm)
 {
     server_.readyRead.notify( mCB(this,JobIOHandler,socketCB) );
     listen( firstport_ );
@@ -166,6 +168,7 @@ protected:
     ObjQueue<StatusInfo>	statusqueue_;
     ObjectSet<JobHostRespInfo>	jobhostresps_;
     bool			ready_;
+    od_ostream*			logstrm_;
 };
 
 
@@ -292,7 +295,7 @@ void JobIOHandler::socketCB( CallBacker* cb )
 
 	    // hardly ever needed and quite noisy.
 	    static bool debug_resp = GetEnvVarYN("DTECT_MM_DEBUG_RESP");
-	    if ( debug_resp && mDebugOn )
+	    if ( logstrm_ || (debug_resp && mDebugOn) )
 	    {
 		BufferString msg( "JobIOMgr::JobIOMgr: Response to host " );
 		msg.add( hostnm ).add( ", job: " ).add( jobid ).add( ": " );
@@ -304,7 +307,8 @@ void JobIOHandler::socketCB( CallBacker* cb )
 		    msg += "PAUSE";
 		else
 		    msg += &response;
-		DBG::message( msg );
+		if ( debug_resp && mDebugOn ) DBG::message( msg );
+		mLogMsg( msg)
 	    }
 	    char resp[2];
 	    resp[0] = response;
@@ -331,16 +335,17 @@ bool JobIOHandler::readTag( char& tag, SeparString& sepstr,
 
 
 // JobIOMgr
-JobIOMgr::JobIOMgr( int firstport, float prioritylevel )
-    : iohdlr_(*new JobIOHandler(firstport))
+JobIOMgr::JobIOMgr( int firstport, float prioritylevel, od_ostream* logstrm )
+    : iohdlr_(*new JobIOHandler(firstport,logstrm))
     , execpars_(true)
+    , logstrm_(logstrm)
 {
     for ( int count=0; count<10 && !iohdlr_.ready(); count++ )
 	{ sleepSeconds( 0.1 ); }
 
     setPriority( prioritylevel );
 
-    if ( mDebugOn )
+    if ( mDebugOn || logstrm_ )
     {
 	BufferString msg( "JobIOMgr::JobIOMgr " );
 	if( iohdlr_.ready() )
@@ -351,7 +356,8 @@ JobIOMgr::JobIOMgr( int firstport, float prioritylevel )
 	else
 	    msg += "NOT ready (yet). Clients might not be able to connect.";
 
-	DBG::message( msg );
+	if ( mDebugOn ) DBG::message( msg );
+	mLogMsg(msg)
     }
 }
 
@@ -394,10 +400,11 @@ bool JobIOMgr::startProg( const char* progname,
 
     iohdlr_.addJobDesc( machine, ji.descnr_ );
     const BufferString cmd( mc.getLocalCommand() );
-    if ( mDebugOn )
+    if ( mDebugOn || logstrm_ )
     {
 	const BufferString msg( "Executing: ", cmd );
-	DBG::message(msg);
+	if ( mDebugOn ) DBG::message(msg);
+	mLogMsg(msg)
     }
 
     OS::CommandLauncher cl( mc );
@@ -482,12 +489,14 @@ bool JobIOMgr::mkIOParFile( const FilePath& basefp,
     if ( !iopstrm.isOK() )
     {
 	msg.set( "Cannot open '" ).add( remoteiopfnm ).add( "' for write ..." );
+	mLogMsg(msg)
 	mErrRet()
     }
     else if ( !newiop.write(iopstrm,sKey::Pars()) )
     {
 	msg.set( "Cannot write parameters into '" ).add( remoteiopfnm );
 	msg.add( "'" );
+	mLogMsg(msg)
 	mErrRet()
     }
 

@@ -17,6 +17,7 @@ class Timer;
 class Executor;
 class JobRunner;
 class HostDataList;
+class od_ostream;
 class uiLabel;
 class uiSlider;
 class uiListBox;
@@ -47,15 +48,19 @@ protected:
     virtual bool	needConfirmEarlyStop() const	{ return jobrunner_; }
     virtual bool	recoverFailedWrapUp() const	{ return false; }
 
+    void		enableJobControl(bool);
+
     IOPar&		jobpars_;
     const HostDataList& hdl_;
     Timer*		timer_;
     int			nrcyclesdone_;
     uiString		basecaption_;
     JobRunner*		jobrunner_;
+    od_ostream*		logstrm_;
     mutable uiString	errmsg_;
 
     inline bool		isMultiHost() const		{ return avmachfld_; }
+    int			nrSelMachs() const;
     bool		isPaused() const;
     const char*		curUsedMachName();
     int			runnerHostIdx(const char*) const;
