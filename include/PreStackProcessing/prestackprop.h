@@ -46,7 +46,7 @@ public:
     {
     public:
 			Setup()
-			    : calctype_(Stats)
+			    : calctype_(LLSQ)
 			    , stattype_(Stats::Average)
 			    , lsqtype_(A0)
 			    , offsaxis_(Norm)
