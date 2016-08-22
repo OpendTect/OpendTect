@@ -155,7 +155,10 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val )
 void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
 				    bool onlynewpos )
 {
-    if ( !auxdatanames_.validIdx(dataidx) )
+    const TrcKey tk = BinID::fromInt64( posid.subID() );
+    if ( !auxdatanames_.validIdx(dataidx) || 
+	tk.isUdf() || 
+	horizon_.isNodeLocked(tk) )
 	return;
 
     const int sectionidx = horizon_.sectionIndex( posid.sectionID() );
