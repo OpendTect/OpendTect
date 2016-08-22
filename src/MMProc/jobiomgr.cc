@@ -393,7 +393,10 @@ bool JobIOMgr::startProg( const char* progname,
     const HostData& machine = *ji.hostdata_;
     FilePath ioparfp;
     if ( !mkIOParFile(basefp,machine,iop,ioparfp,msg_) )
+    {
+	mLogMsg(msg_)
 	return false;
+    }
 
     OS::MachineCommand mc;
     mkCommand( mc, machine, progname, basefp, ioparfp, ji, rshcomm );
@@ -489,14 +492,12 @@ bool JobIOMgr::mkIOParFile( const FilePath& basefp,
     if ( !iopstrm.isOK() )
     {
 	msg.set( "Cannot open '" ).add( remoteiopfnm ).add( "' for write ..." );
-	mLogMsg(msg)
 	mErrRet()
     }
     else if ( !newiop.write(iopstrm,sKey::Pars()) )
     {
 	msg.set( "Cannot write parameters into '" ).add( remoteiopfnm );
 	msg.add( "'" );
-	mLogMsg(msg)
 	mErrRet()
     }
 
