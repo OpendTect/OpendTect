@@ -118,6 +118,8 @@ private:
 
     uiIOObjSelGrp*	wellselgrp_;
     uiListBox*		markersselgrp_;
+
+    void		fltrMarkerNamesCB(CallBacker*);
 };
 
 #endif
