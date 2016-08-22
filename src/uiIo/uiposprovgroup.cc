@@ -80,11 +80,15 @@ void uiRangePosProvGroup::usePar( const IOPar& iop )
 	zrgfld_->setRange( cs.zsamp_ );
     if ( nrrgfld_ )
     {
-	const StepInterval<int>& curnrrg = nrrgfld_->getRange();
 	StepInterval<int> trcrg = cs.hsamp_.crlRange();
 	iop.get( IOPar::compKey(sKey::TrcRange(),0), trcrg );
-	nrrgfld_->setLimitRange( trcrg );
-	nrrgfld_->setRange( curnrrg );
+	nrrgfld_->setRange( trcrg );
+	if ( zrgfld_ )
+	{
+	    StepInterval<float> zrg = cs.zsamp_;
+	    iop.get( IOPar::compKey(sKey::ZRange(),0), zrg );
+	    zrgfld_->setRange( zrg );
+	}
     }
 }
 

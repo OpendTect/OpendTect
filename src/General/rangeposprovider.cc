@@ -622,8 +622,21 @@ int Pos::RangeProvider2D::estNrZPerPos() const
 
 void Pos::RangeProvider2D::getSummary( BufferString& txt ) const
 {
-    txt = "2D Line";
-    if ( geomids_.size() > 1 ) txt += "s";
+    if ( geomids_.size() < 2 && !trcrgs_.isEmpty() )
+    {
+	txt = "Trc Range: "; txt += trcrgs_[0].start;
+	txt += "-"; txt += trcrgs_[0].stop;
+	txt += "-"; txt += trcrgs_[0].step;
+	if ( !zrgs_.isEmpty() )
+	{
+	    txt += " ("; txt += zrgs_[0].nrSteps() + 1;
+	    txt += " samples)";
+	}
+
+	return;
+    }
+
+    txt = "2D Lines";
     txt += ": ";
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {

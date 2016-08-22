@@ -52,6 +52,7 @@ public:
     bool		setInlRange(Interval<int>);
     bool		setCrlRange(Interval<int>);
     bool		setZRange(Interval<float>);
+    void		setGeomID(Pos::GeomID);
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);

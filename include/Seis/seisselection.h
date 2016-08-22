@@ -115,7 +115,7 @@ public:
 
 			// Interesting in some 2D situations:
     inline Pos::GeomID  geomID() const	{ return geomid_; }
-    inline void		setGeomID(Pos::GeomID geomid) { geomid_ = geomid; }
+    virtual void	setGeomID(Pos::GeomID geomid) { geomid_ = geomid; }
 
 protected:
 

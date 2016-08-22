@@ -17,6 +17,7 @@
 #include "ioobj.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "keystrs.h"
 #include "tableposprovider.h"
 #include "polyposprovider.h"
@@ -250,6 +251,19 @@ bool Seis::RangeSelData::setZRange( Interval<float> rg )
 }
 
 
+void Seis::RangeSelData::setGeomID( Pos::GeomID geomid )
+{
+    SelData::setGeomID( geomid );
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+		    Survey::GM().getGeometry(geomid))
+    if ( geom2d )
+    {
+	tkzs_.hsamp_.survid_ = TrcKey::std2DSurvID();
+	tkzs_.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
+    }
+}
+
+
 void Seis::RangeSelData::fillPar( IOPar& iop ) const
 {
     Seis::SelData::fillPar( iop );
@@ -263,6 +277,14 @@ void Seis::RangeSelData::usePar( const IOPar& iop )
     Seis::SelData::usePar( iop );
     if ( !isall_ )
 	tkzs_.usePar( iop );
+
+    StepInterval<int> trcrg;
+    if ( iop.get(IOPar::compKey(sKey::TrcRange(),0),trcrg) )
+    {
+	tkzs_.hsamp_.survid_ = TrcKey::std2DSurvID();
+	tkzs_.hsamp_.setTrcRange( trcrg );
+	iop.get( IOPar::compKey(sKey::ZRange(),0), tkzs_.zsamp_ );
+    }
 }
 
 

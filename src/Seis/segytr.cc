@@ -738,6 +738,9 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( trchead_.nonrectcoords )
 	addWarn(cSEGYWarnNonrectCoord,getTrcPosStr());
 
+    if ( seldata_ && ti.is2D() )
+	ti.setLineNr( seldata_->geomID() );
+
     return (headerdone_ = true);
 }
 

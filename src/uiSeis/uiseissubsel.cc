@@ -283,7 +283,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     }
 
     iopar.set( sKey::LineKey(), sellinenm );
-    return true;
+    return uiSeisSubSel::fillPar( iopar );
 }
 
 
