@@ -374,7 +374,7 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
 	    posid.setSubID( RowCol(row,col).toInt64() );
-	    const float val = getAuxDataVal( dataidx, posid);
+	    const float val = getAuxDataVal( dataidx, posid );
 	    arr->set( rowrg.getIndex(row), colrg.getIndex(col), val );
 	}
     }
