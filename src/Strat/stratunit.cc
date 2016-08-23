@@ -82,7 +82,10 @@ void Strat::UnitRef::doUse( const char* str, IntegerID<int>& id )
     int nr = 0;
     if ( sz > 1 )
     {
-	id.setI( fms.getIValue(nr) );
+	const int i = fms.getIValue(nr);
+	id.setI( i );
+	if ( i < 0 )
+	    id.setInvalid();
 	nr++;
     }
     desc_ = fms[nr];
