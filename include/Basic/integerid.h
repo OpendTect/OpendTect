@@ -57,6 +57,8 @@ public:
 
     inline bool		operator ==( const IntegerID& oth ) const
 					{ return id_ == oth.id_;};
+    inline bool		operator !=( const IntegerID& oth ) const
+					{ return id_ != oth.id_;};
 
     inline bool	isUdf() const		{ return mIsUdf(id_); }
     inline bool	isDefined() const	{ return !isUdf(); }

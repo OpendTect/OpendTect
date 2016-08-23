@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "emobject.h"
 #include "ranges.h"
+#include "stratlevel.h"
 #include "typeset.h"
 #include "uistring.h"
 
@@ -35,6 +36,8 @@ class SurfaceIOData;
 mExpClass(EarthModel) IOObjInfo
 { mODTextTranslationClass(IOObjInfo);
 public:
+
+    typedef Strat::Level::ID		LevelID;
 
 			IOObjInfo(const IOObj*);
 			IOObjInfo(const IOObj&);
@@ -72,8 +75,9 @@ public:
     // Horizon
     inline bool		isHorizon() const	{ return type_ < FaultStickSet;}
     inline bool		is2DHorizon() const	{ return type_ == Horizon2D; }
-    int			levelID() const;
-    static void		getTiedToLevelID(int lvlid,TypeSet<MultiID>&,bool is2d);
+    LevelID		levelID() const;
+    static void		getTiedToLevelID(LevelID lvlid,TypeSet<MultiID>&,
+					 bool is2d);
     static bool		sortHorizonsOnZValues(const TypeSet<MultiID>&,
 					      TypeSet<MultiID>&);
 

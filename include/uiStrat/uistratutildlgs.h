@@ -160,17 +160,20 @@ protected:
 mExpClass(uiStrat) uiStratLinkLvlUnitDlg : public uiDialog
 { mODTextTranslationClass(uiStratLinkLvlUnitDlg);
 public:
+    
+    typedef Strat::Level::ID	LevelID;
 
     			uiStratLinkLvlUnitDlg(uiParent*,Strat::LeavedUnitRef&);
 
-    int 		lvlid_;
+
+    LevelID 		lvlid_;
 
 protected:
 
     Strat::LeavedUnitRef& unit_;
 
     uiGenInput*         lvllistfld_;
-    TypeSet<int>	ids_;
+    TypeSet<LevelID>	ids_;
 
     bool		acceptOK(CallBacker*);
 };

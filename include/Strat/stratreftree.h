@@ -85,7 +85,7 @@ public:
     void		reportChange(const UnitRef*,bool isrem=false);
     void		reportAdd(const UnitRef*);
     bool		addLeavedUnit(const char*,const char*);
-    Strat::LeavedUnitRef* getByLevel(int lvlid) const;//first match
+    Strat::LeavedUnitRef* getByLevel(Level::ID) const;
 
 };
 

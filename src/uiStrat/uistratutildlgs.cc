@@ -783,7 +783,7 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
 						Strat::LeavedUnitRef& ur )
     : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
 		mNoDlgTitle, mODHelpKey(mStratLinkLvlUnitDlgHelpID) ))
-    , lvlid_(-1)
+    , lvlid_(LevelID::getInvalid())
     , unit_(ur)
 {
     uiString msg = tr("Link Marker to %1").arg(ur.code());
@@ -803,7 +803,7 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
     }
     uiString bs = tr("Select marker");
     lvllistfld_ = new uiGenInput( this, bs, StringListInpSpec( lvlnms ) );
-    if ( lvlid_ >=0 )
+    if ( lvlid_.isValid() )
 	lvllistfld_->setValue( ids_.indexOf( lvlid_ ) +1 );
 }
 
@@ -811,7 +811,7 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
 bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
 {
     const int lvlidx = lvllistfld_->getIntValue()-1;
-    lvlid_ = lvlidx >=0 ? ids_[lvlidx] : -1;
+    lvlid_ = lvlidx >=0 ? ids_[lvlidx] : LevelID::getInvalid();
 
     Strat::RefTree& rt = Strat::eRT();
     Strat::LeavedUnitRef* lur = rt.getByLevel( lvlid_ );
@@ -828,7 +828,7 @@ bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
 	if ( res == -1 )
 	    return false;
 	if ( res == 0 )
-	    lur->setLevelID( -1 );
+	    lur->setLevelID( LevelID::getInvalid() );
     }
 
     unit_.setLevelID( lvlid_ );

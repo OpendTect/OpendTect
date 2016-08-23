@@ -256,7 +256,7 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 	    Marker& hd = horizons_[idhor];
 	    const BufferString mrknm( mrk.name() );
 	    if ( ( bynames && mrknm == hd.name_ )
-		|| ( !bynames && hd.id_ >=0 && hd.id_ == mrk.levelID() ))
+		|| ( !bynames && hd.id_.isValid() && hd.id_ == mrk.levelID() ))
 	    {
 		PosCouple pc; pcs += pc;
 		if ( dtm )

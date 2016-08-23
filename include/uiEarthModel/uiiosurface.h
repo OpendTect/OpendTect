@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "faulttrace.h"
 #include "trckeysampling.h"
 #include "posinfo2dsurv.h"
+#include "stratlevel.h"
 #include "emposid.h"
 
 
@@ -98,6 +99,8 @@ mExpClass(uiEarthModel) uiSurfaceWrite : public uiIOSurface
 { mODTextTranslationClass(uiSurfaceWrite)
 public:
 
+    typedef Strat::Level::ID LevelID;
+
     mExpClass(uiEarthModel) Setup
     {
     public:
@@ -126,7 +129,7 @@ public:
 				       const uiSurfaceWrite::Setup& setup);
 
     virtual bool	processInput();
-    int			getStratLevelID() const;
+    LevelID		getStratLevelID() const;
     void		setColor(const Color&);
     Color		getColor() const;
     bool		replaceInTree()	const;

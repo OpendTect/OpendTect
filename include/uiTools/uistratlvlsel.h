@@ -11,6 +11,8 @@ ________________________________________________________________________
 
 -*/
 
+#include "stratlevel.h"
+
 #include "uitoolsmod.h"
 #include "uigroup.h"
 
@@ -24,6 +26,8 @@ mExpClass(uiTools) uiStratLevelSel : public uiGroup
 { mODTextTranslationClass(uiStratLevelSel)
 public:
 
+    typedef Strat::Level::ID	LevelID;
+
 			uiStratLevelSel(uiParent*,bool withudf,
 					const uiString& lbltxt=sTiedToTxt());
 					//!< pass null for no label
@@ -32,11 +36,11 @@ public:
     const Strat::Level*	selected() const;
     const char*		getLevelName() const;
     Color		getColor() const;
-    int			getID() const;
+    LevelID		getID() const;
 
     void		setSelected(const Strat::Level*);
     void		setName(const char*);
-    void		setID(int);
+    void		setID(LevelID);
 
     Notifier<uiStratLevelSel> selChange;
 

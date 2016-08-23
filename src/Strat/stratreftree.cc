@@ -97,8 +97,7 @@ void Strat::RefTree::setToActualTypes()
     while ( it.next() )
     {
 	LeavedUnitRef* un = (LeavedUnitRef*)it.unit();
-	const bool haslvlid = un->levelID() >= 0;
-	if ( !haslvlid || !un->hasChildren() )
+	if ( un->levelID().isInvalid() || !un->hasChildren() )
 	    chrefs += un;
     }
 
@@ -109,8 +108,7 @@ void Strat::RefTree::setToActualTypes()
 	NodeUnitRef* par = un->upNode();
 	if ( un->hasChildren() )
 	    { norefs += un; continue; }
-	LeafUnitRef* newun = new LeafUnitRef( par, un->levelID(),
-						un->description() );
+	LeafUnitRef* newun = new LeafUnitRef( par, -1, un->description() );
 	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
 	delete par->replace( par->indexOf(un), newun );
     }
@@ -258,7 +256,7 @@ void Strat::RefTree::levelToBeRemoved( CallBacker* cb )
     if ( !lvlset->levels().validIdx( lvlidx ) ) return;
     const Strat::Level& lvl = *lvlset->levels()[lvlidx];
     Strat::LeavedUnitRef* lur = getByLevel( lvl.id() );
-    if ( lur ) lur->setLevelID( -1 );
+    if ( lur ) lur->setLevelID( Level::ID::getInvalid() );
 }
 
 
@@ -334,7 +332,7 @@ const Strat::LeavedUnitRef* Strat::RefTree::getLevelSetUnit(
 }
 
 
-Strat::LeavedUnitRef* Strat::RefTree::getByLevel( int lvlid ) const
+Strat::LeavedUnitRef* Strat::RefTree::getByLevel( Level::ID lvlid ) const
 {
     UnitRefIter it( *this, UnitRefIter::LeavedNodes );
     while ( it.next() )

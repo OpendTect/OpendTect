@@ -31,7 +31,7 @@ const Level& Level::undef()
     mDefineStaticLocalObject( PtrMan<Level>, lvl, = 0 );
     if ( !lvl )
     {
-	Level* newlvl = new Level( "Undefined", 0, -1 );
+	Level* newlvl = new Level( "Undefined", 0, ID::getInvalid() );
 	newlvl->color_ = Color::Black();
 
 	lvl.setIfNull(newlvl,true);
@@ -152,7 +152,7 @@ Strat::Level::~Level()
 bool Strat::Level::operator ==( const Level& lvl ) const
 {
     mLock4Read();
-    return id_ == -1 ? this == &lvl : id_ == lvl.id_;
+    return id_.isValid() ? id_ == lvl.id_ : this == &lvl;
 }
 
 
@@ -205,9 +205,7 @@ void Strat::Level::usePar( const IOPar& iop )
 
     mLock4Write();
 
-    ID newid = id_;
-    iop.get( sKey::ID(), newid );
-    const_cast<ID&>( id_ ) = newid;
+    iop.get( sKey::ID(), const_cast<ID&>(id_) );
     iop.get( sKey::Color(), color_ );
 
     pars_.merge( iop );
@@ -225,8 +223,8 @@ void Strat::Level::usePar( const IOPar& iop )
     , levelToBeRemoved(this) \
     , ischanged_(false)
 
-Strat::LevelSet::LevelSet() mLvlSetInitList(0)				{}
-Strat::LevelSet::LevelSet( Strat::Level::ID id ) mLvlSetInitList(id)	{}
+Strat::LevelSet::LevelSet() mLvlSetInitList(ID::get(0))		{}
+Strat::LevelSet::LevelSet( ID id ) mLvlSetInitList(id)		{}
 
 
 Strat::LevelSet::LevelSet( const Strat::LevelSet& oth )
@@ -282,7 +280,7 @@ void Strat::LevelSet::makeMine( Strat::Level& lvl )
 
 int Strat::LevelSet::gtIdxOf( const char* nm, Level::ID id ) const
 {
-    const bool useid = id >= 0;
+    const bool useid = id.isValid();
     for ( int ilvl=0; ilvl<size(); ilvl++ )
     {
 	const Level& lvl = *lvls_[ilvl];
@@ -315,7 +313,7 @@ Strat::Level* Strat::LevelSet::getNew( const Level* lvl ) const
     while ( isPresent(newnm.buf()) )
 	{ newnm = "<"; newnm.add(newnmbase).add( ++itry ).add( ">" ); }
 
-    const Level::ID newid = ++lastlevelid_;
+    const Level::ID newid = ID::get( lastlevelid_.getI() + 1 );
     if ( !lvl )
 	newlvl = new Level( newnm, this, newid );
     else
@@ -325,6 +323,7 @@ Strat::Level* Strat::LevelSet::getNew( const Level* lvl ) const
     }
 
     const_cast<Strat::LevelSet*>(this)->makeMine( *newlvl );
+    lastlevelid_ = newid;
     return newlvl;
 }
 
@@ -436,12 +435,12 @@ void Strat::LevelSet::readPars( ascistream& astrm, bool isold )
 	if ( isold && iop.name() != "Level" )
 	    continue;
 
-	const int llid = lastlevelid_;
+	const ID llid = lastlevelid_;
 	Level* lvl = getNew();
 	lastlevelid_ = llid;
 
 	lvl->usePar( iop );
-	if ( lvl->id() < 0 )
+	if ( lvl->id().isInvalid() )
 	    delete lvl;
 	else
 	{
@@ -452,7 +451,7 @@ void Strat::LevelSet::readPars( ascistream& astrm, bool isold )
 		lvl->pars_.removeWithKey( "Time" );
 	    }
 	    addLvl( lvl );
-	    if ( lvl->id() > lastlevelid_ )
+	    if ( lvl->id().getI() > lastlevelid_.getI() )
 		lastlevelid_ = lvl->id();
 	}
     }

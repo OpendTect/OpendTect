@@ -17,30 +17,123 @@
 const char* Well::Marker::sKeyDah()	{ return "Depth along hole"; }
 
 
+mDefineInstanceCreatedNotifierAccess(Well::Marker);
 
-Well::Marker& Well::Marker::operator =( const Well::Marker& mrk )
+
+Well::Marker::Marker( const char* nm, float dh, Color col )
+    : SharedObject(nm)
+    , dah_(dh)
+    , color_(col)
+    , levelid_(LevelID::getInvalid())
 {
-    if ( this != &mrk )
-    {
-	setName( mrk.name() );
-	dah_ = mrk.dah();
-	levelid_ = mrk.levelID();
-	color_ = mrk.color();
-    }
-    return *this;
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Well::Marker::Marker( LevelID lvlid, ZType dh )
+    : SharedObject(BufferString("Level ",lvlid.getI()))
+    , dah_(dh)
+    , color_(Color::Black())
+    , levelid_(lvlid)
+{
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Well::Marker::Marker( const Marker& oth )
+    : SharedObject(oth)
+    , levelid_(LevelID::getInvalid())
+{
+    copyAll( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+Well::Marker::~Marker()
+{
+    sendDelNotif();
+}
+
+
+mImplMonitorableAssignment( Well::Marker, SharedObject )
+
+
+void Well::Marker::copyClassData( const Marker& oth )
+{
+    dah_ = oth.dah_;
+    color_ = oth.color_;
+    levelid_ = oth.levelid_;
+}
+
+
+bool Well::Marker::operator ==( const Marker& oth ) const
+{
+    if ( this == &oth )
+	return true;
+
+    mLock4Read();
+    if ( levelid_ == oth.levelid_ && !levelid_.isInvalid() )
+	return true;
+
+    return gtName() == oth.gtName();
+}
+
+
+bool Well::Marker::operator > ( const Marker& oth ) const
+{
+    mLock4Read();
+    return dah_ > oth.dah_;
+}
+
+
+const OD::String& Well::Marker::name() const
+{
+    mLock4Read();
+    const Strat::Level* lvl = gtLevel();
+    return lvl ? lvl->name() : name_; // yeah I know, not MT-safe
+}
+
+
+BufferString Well::Marker::getName() const
+{
+    mLock4Read();
+    return gtName();
 }
 
 
 Color Well::Marker::color() const
 {
-    if ( levelid_ >= 0 )
-    {
-	const Strat::Level* lvl = Strat::LVLS().get( levelid_ );
-	if ( lvl )
-	    return lvl->color();
-    }
-    return color_;
+    mLock4Read();
+    const Strat::Level* lvl = gtLevel();
+    return lvl ? lvl->color() : color_;
 }
+
+
+const Strat::Level* Well::Marker::getLevel() const
+{
+    mLock4Read();
+    return gtLevel();
+}
+
+
+BufferString Well::Marker::gtName() const
+{
+    const Strat::Level* lvl = gtLevel();
+    return lvl ? lvl->getName() : name_;
+}
+
+
+const Strat::Level* Well::Marker::gtLevel() const
+{
+    return Strat::LVLS().get( levelid_ );
+}
+
+
+void Well::Marker::setNoLevelID()
+{
+    setLevelID( LevelID::getInvalid() );
+}
+
 
 
 void Well::MarkerSet::fillWithAll( TaskRunner* tr )
@@ -340,12 +433,13 @@ void Well::MarkerSet::mergeOtherWell( const ObjectSet<Well::Marker>& ms1 )
 }
 
 
-Well::Marker* Well::MarkerSet::gtByLvlID( int lvlid ) const
+Well::Marker* Well::MarkerSet::gtByLvlID( LevelID lvlid ) const
 {
-    if ( lvlid<=0 ) return 0;
+    if ( lvlid.isInvalid() )
+	return 0;
     for ( int idmrk=0; idmrk<size(); idmrk++ )
     {
-	Well::Marker* mrk = const_cast<Well::Marker*>((*this)[idmrk]);
+	Well::Marker* mrk = const_cast<Well::Marker*>( (*this)[idmrk] );
 	if ( mrk && mrk->levelID() == lvlid )
 	    return mrk;
     }
@@ -396,12 +490,15 @@ void Well::MarkerSet::usePar( const IOPar& iop )
 	if ( nm.isEmpty() || isPresent(nm) )
 	    continue;
 
-	float dpt = 0; mpar->get( sKey::Depth(), dpt );
-	Color col(0,0,0); mpar->get( sKey::Color(), col );
-	int lvlid = -1; mpar->get( sKey::Level(), lvlid );
+	float dpt = 0;
+	mpar->get( sKey::Depth(), dpt );
+	Color col;
+	mpar->get( sKey::Color(), col );
+	LevelID lvlid = LevelID::getInvalid();
+	mpar->get( sKey::Level(), lvlid );
 
-	Marker* mrk = new Marker( nm, dpt );
-	mrk->setColor( col ); mrk->setLevelID( lvlid );
+	Marker* mrk = new Marker( lvlid, dpt );
+	mrk->setColor( col ); mrk->setName( nm );
 	insertNew( mrk );
     }
 }

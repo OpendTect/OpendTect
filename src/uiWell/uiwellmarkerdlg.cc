@@ -340,7 +340,7 @@ void uiMarkerDlg::mouseClick( CallBacker* )
 
     uiGroup* grp = table_->getCellGroup( RowCol(rc.row(),cLevelCol) );
     mDynamicCastGet(uiStratLevelSel*,levelsel,grp)
-    const bool havelvl = levelsel && levelsel->getID() >= 0;
+    const bool havelvl = levelsel && levelsel->getID().isValid();
     if ( havelvl )
     {
 	uiMSG().error( tr("Cannot change color of regional marker") );
@@ -400,7 +400,8 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	if ( marker )
 	{
 	    if ( !Strat::LVLS().isPresent( marker->levelID() ) )
-		const_cast<Well::Marker*>(markers[idx])->setLevelID( -1 );
+		const_cast<Well::Marker*>(markers[idx])->setLevelID(
+					       Strat::Level::ID::getInvalid() );
 
 	    levelsel->setID( marker->levelID() );
 	    const float dah = marker->dah();
@@ -410,13 +411,13 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss * zfac );
 	    table_->setText( RowCol(irow,cNameCol), marker->name() );
 	    table_->setColor( RowCol(irow,cColorCol), marker->color() );
-	    if ( marker->levelID() >= 0 )
+	    if ( marker->levelID().isValid() )
 		updateFromLevel( irow, levelsel );
 
 	    continue;
 	}
 
-	Well::Marker mrk;
+	Well::Marker mrk("");
 	levelsel->setSensitive( true );
 	table_->setText( RowCol(irow,cDepthCol), "" );
 	table_->setText( RowCol(irow,cTVDCol), "" );
@@ -452,7 +453,7 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
     if ( !levelsel ) return;
 
     NotifyStopper notifystop( table_->valueChanged );
-    const bool havelvl = levelsel->getID() >= 0;
+    const bool havelvl = levelsel->getID().isValid();
     if ( havelvl )
     {
 	table_->setColor( RowCol(irow,cColorCol), levelsel->getColor() );
@@ -563,7 +564,8 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 	marker->setColor( table_->getColor(RowCol(rowidx,cColorCol)) );
 	uiGroup* grp = table_->getCellGroup( RowCol(rowidx,cLevelCol) );
 	mDynamicCastGet(uiStratLevelSel*,levelsel,grp)
-	marker->setLevelID( levelsel ? levelsel->getID() : -1 );
+	marker->setLevelID( levelsel ? levelsel->getID()
+				     : Strat::Level::ID::getInvalid() );
 	markers += marker;
     }
 
@@ -815,7 +817,7 @@ Well::Marker* uiMarkerDlg::getMarker( int row, bool fromname ) const
 	 (!fromname && !markers.validIdx(markeridx) ) )
 	return 0;
 
-    Well::Marker* marker = new Well::Marker();
+    Well::Marker* marker = new Well::Marker("");
     *marker = fromname ? *(markers.getByName( markernm ))
 		       : *(markers[markeridx]);
 

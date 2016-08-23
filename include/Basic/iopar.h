@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "fixedstring.h"
 #include "samplingdata.h"
+#include "integerid.h"
 #include "od_iosfwd.h"
 
 class BufferStringSet;
@@ -136,6 +137,9 @@ public:
     inline bool		isFalse( const char* key ) const
 			{ bool is = true; return getYN(key,is) && !is; }
 
+    template<class IdxType>
+    bool		get(const char*,IntegerID<IdxType>&) const;
+
     bool		get(const char*,int&,int&,float&) const;
 
     bool		get(const char*,TypeSet<int>&) const;
@@ -217,6 +221,11 @@ public:
 			mIOParDeclYNFns(set);
 			mIOParDeclYNFns(add);
 #undef mIOParDeclYNFns
+
+    template<class IdxType>
+    void		set(const char*,IntegerID<IdxType>);
+    template<class IdxType>
+    void		update(const char*,IntegerID<IdxType>);
 
     void		set(const char*,int,int,float);
     void		setPtr(const char*,void*);
@@ -303,34 +312,61 @@ protected:
 
 
 template <class T>
-inline bool IOPar::get( const char* k, Interval<T>& i ) const
+inline bool IOPar::get( const char* ky, Interval<T>& intv ) const
 {
-    mDynamicCastGet(StepInterval<T>*,si,&i)
-    return si ? get( k, i.start, i.stop, si->step )
-	      : get( k, i.start, i.stop );
+    mDynamicCastGet(StepInterval<T>*,si,&intv)
+    return si ? get( ky, intv.start, intv.stop, si->step )
+	      : get( ky, intv.start, intv.stop );
 }
 
 
 template <class T>
-inline void IOPar::set( const char* k, const Interval<T>& i )
+inline void IOPar::set( const char* ky, const Interval<T>& intv )
 {
-    mDynamicCastGet(const StepInterval<T>*,si,&i)
-    if ( si )	set( k, i.start, i.stop, si->step );
-    else	set( k, i.start, i.stop );
+    mDynamicCastGet(const StepInterval<T>*,si,&intv)
+    if ( si )	set( ky, intv.start, intv.stop, si->step );
+    else	set( ky, intv.start, intv.stop );
 }
 
 
 template <class T>
-inline bool IOPar::get( const char* k, SamplingData<T>& sd ) const
+inline bool IOPar::get( const char* ky, SamplingData<T>& sd ) const
 {
-    return get( k, sd.start, sd.step );
+    return get( ky, sd.start, sd.step );
 }
 
 
 template <class T>
-inline void IOPar::set( const char* k, const SamplingData<T>& sd )
+inline void IOPar::set( const char* ky, const SamplingData<T>& sd )
 {
-    set( k, sd.start, sd.step );
+    set( ky, sd.start, sd.step );
+}
+
+template<class IdxType>
+bool IOPar::get( const char* ky, IntegerID<IdxType>& id ) const
+{
+    IdxType idio = id.getI();
+    const bool rv = get( ky, idio );
+    if ( rv )
+	id.setI( idio );
+    return rv;
+}
+
+
+template<class IdxType>
+void IOPar::set( const char* ky, IntegerID<IdxType> id )
+{
+    set( ky, id.getI() );
+}
+
+
+template<class IdxType>
+void IOPar::update( const char* ky, IntegerID<IdxType> id )
+{
+    if ( id.isInvalid() )
+	removeWithKey( ky );
+    else
+	set( ky, id.getI() );
 }
 
 

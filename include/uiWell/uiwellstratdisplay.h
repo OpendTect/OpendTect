@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "stratlevel.h"
 #include "uiwellmod.h"
 #include "uistratdisplay.h"
 #include "uiwelldahdisplay.h"
@@ -45,7 +46,7 @@ protected:
 
     void 			assignTimesToLeavedUnits();
     void 			assignTimesToAllUnits();
-    const Well::Marker* 	getMarkerFromLvlID(int lvlid) const;
+    const Well::Marker* 	getMarkerFromLvlID(Strat::Level::ID) const;
     void 			gatherLeavedUnits();
     bool			areLeavedTied(const Strat::LeavedUnitRef&,
 					    const Strat::LeavedUnitRef&) const;

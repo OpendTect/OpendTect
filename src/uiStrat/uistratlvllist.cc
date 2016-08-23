@@ -123,7 +123,7 @@ void uiStratLvlList::removeAllCB( CallBacker* )
     for ( int idx=levelset.size()-1; idx>=0; idx-- )
     {
 	const Strat::Level* lvl = levelset.levels()[idx];
-	if ( lvl->id() >= 0 )
+	if ( lvl->id().isValid() )
 	{
 	    levelset.remove( lvl->id() );
 	    anychange_ = true;

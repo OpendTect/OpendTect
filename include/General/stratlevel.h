@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "repos.h"
 #include "notify.h"
+#include "integerid.h"
 class ascistream;
 class BufferStringSet;
 
@@ -42,7 +43,7 @@ mExpClass(General) Level : public NamedMonitorable
 {
 public:
 
-    typedef int		ID;
+    typedef IntegerID<int>	ID;
 
     bool		operator ==(const Level&) const;
     bool		isDifferentFrom(const Level&) const;
@@ -97,8 +98,10 @@ mExpClass(General) LevelSet : public CallBacker
 {
 public:
 
+    typedef Level::ID	ID;
+
 			LevelSet();
-			LevelSet(Level::ID startat);
+			LevelSet(ID startat);
 			LevelSet(const LevelSet&);
     virtual		~LevelSet();
     LevelSet&		operator =(const LevelSet&);
@@ -109,18 +112,20 @@ public:
     void		setEmpty()		{ lvls_.erase(); }
 
     inline bool	isPresent( const char* nm ) const
-			{ return gtIdxOf(nm,-1) >= 0; }
-    inline bool	isPresent( Level::ID id ) const
+			{ return gtIdxOf(nm,ID::getInvalid()) >= 0; }
+    inline bool	isPresent( ID id ) const
 			{ return gtIdxOf(0,id) >= 0; }
     inline int		indexOf( const char* nm ) const
-			{ return gtIdxOf(nm,-1); }
-    inline int		indexOf( Level::ID id ) const
+			{ return gtIdxOf(nm,ID::getInvalid()); }
+    inline int		indexOf( ID id ) const
 			{ return gtIdxOf(0,id); }
 
-    Level*		get( const char* nm )		{ return gtLvl(nm,-1); }
-    const Level*	get( const char* nm ) const	{ return gtLvl(nm,-1); }
-    Level*		get( Level::ID id )		{ return gtLvl(0,id); }
-    const Level*	get( Level::ID id ) const	{ return gtLvl(0,id); }
+    Level*		get( const char* nm )
+			{ return gtLvl(nm,ID::getInvalid()); }
+    const Level*	get( const char* nm ) const
+			{ return gtLvl(nm,ID::getInvalid()); }
+    Level*		get( ID id )			{ return gtLvl(0,id); }
+    const Level*	get( ID id ) const		{ return gtLvl(0,id); }
 
     Level*		add( const char* lvlnm, const Color& c )
 						{ return set(lvlnm,c,-1); }
@@ -128,7 +133,7 @@ public:
 						{ return set(lvlnm,c,idx); }
     Level*		set( const char* lvlnm, const Color& c )
 						{ return set(lvlnm,c,-1); }
-    void		remove(Level::ID);
+    void		remove(ID);
 
     Level*		add(const Level&); //!< copy stuff, but new ID/name
     void		add(const BufferStringSet&,const TypeSet<Color>&);
@@ -150,7 +155,7 @@ public:
 
     inline const Level&	getLevel( int idx ) const
 			{ return idx<size() ? *lvls_[idx] : Level::undef(); }
-    int			levelID( int idx ) const
+    ID			levelID( int idx ) const
 			{ return getLevel(idx).id(); }
     Color		color( int idx ) const
 			{ return getLevel(idx).color(); }
@@ -159,15 +164,16 @@ public:
 protected:
 
     ObjectSet<Level>	lvls_;
+    // TypeSet<ID>	lvlids_;
 
     mutable int         notiflvlidx_;
-    mutable Level::ID	lastlevelid_;
+    mutable ID		lastlevelid_;
     bool		ischanged_;
 
     Level*		getNew(const Level* lvl=0) const;
     Level*		set(const char*,const Color&,int);
-    int			gtIdxOf(const char*,Level::ID) const;
-    Level*		gtLvl(const char*,Level::ID) const;
+    int			gtIdxOf(const char*,ID) const;
+    Level*		gtLvl(const char*,ID) const;
     void		addLvl(Level*);
     void		getLevelsFrom(const LevelSet&);
     void		makeMine(Level&);
@@ -197,7 +203,8 @@ mGlobal(General) const LevelSet& unpushedLVLS();
 
 mGlobal(General) void setLVLS(LevelSet*);
 
-mGlobal(General) BufferString getStdFileName(const char* inpnm,const char* basenm);
+mGlobal(General) BufferString getStdFileName(const char* inpnm,
+					    const char* basenm);
 //!< example: getStdFileName("North Sea","Levels")
 
 

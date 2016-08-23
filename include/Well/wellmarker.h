@@ -13,10 +13,11 @@ ________________________________________________________________________
 -*/
 
 #include "wellcommon.h"
+#include "sharedobject.h"
 #include "color.h"
 #include "ranges.h"
-#include "sharedobject.h"
 #include "manobjectset.h"
+#include "stratlevel.h"
 
 class TaskRunner;
 
@@ -28,50 +29,50 @@ namespace Well
 //TODO remove when these objects become true shared objects
 typedef Monitorable::DirtyCountType DirtyCountType;
 
-/*!\brief Marker, should be attached to Strat level.
+/*!\brief Marker, can be attached to Strat level. When not attached, uses
+  the object's own (fallback) name and color. */
 
-  Can be unattached, then uses the fallback name and color.
-*/
-
-mExpClass(Well) Marker : public ::NamedObject
+mExpClass(Well) Marker : public ::SharedObject
 {
 public:
 
-			Marker( const char* nm=0, float dh=0, Color c=Color() )
-			: ::NamedObject(nm)
-			, dah_(dh)
-			, color_(c)
-			, levelid_(-1)		{}
-			Marker( int lvlid, float dh )
-			    : dah_(dh)
-			    , color_(Color::Black())
-			    , levelid_(lvlid)	{}
-    Marker&		operator =(const Marker&);
-    inline bool		operator ==( const Marker& m )
-			{ return m.name() == name(); }
-    bool                operator > ( const Marker& wm ) const
-			{ return dah_ > wm.dah_; }
+    typedef Strat::Level::ID	LevelID;
+    typedef float		ZType;
 
-    inline float	dah() const		{ return dah_; }
-    inline void		setDah( float v )	{ dah_ = v; }
-    inline int		levelID() const		{ return levelid_; }
-    inline void		setLevelID( int id )	{ levelid_ = id; }
+			Marker(const char*,ZType d=0.f,Color c=Color());
+			Marker(LevelID,ZType);
+			~Marker();
+			mDeclInstanceCreatedNotifierAccess(Marker);
+			mDeclAbstractMonitorableAssignment(Marker);
+    inline bool		operator ==(const Marker&) const;
+    bool                operator >(const Marker&) const;
+
+    virtual const OD::String& name() const;
+    virtual BufferString getName() const;
+
+    mImplSimpleMonitoredGetSet(inline,dah,setDah,ZType,dah_,cDahChange());
+    mImplSimpleMonitoredGetSet(inline,levelID,setLevelID,LevelID,levelid_,
+							cLevelChange());
     Color		color() const;
+    mImplSimpleMonitoredSet(setColor,Color,color_,cColorChange());
+
+    const Strat::Level*	getLevel() const;
+    void		setNoLevelID();
 
     static const char*	sKeyDah();
-
-    // setName() and setColor() only used as fallback, if not attached to level
-    void		setColor( Color col )	{ color_ = col; }
-
-    //TODO remove when object becomes a true SharedObject
-    void touch() const {}
-    DirtyCountType dirtyCount() const { return 0; }
-
+    static ChangeType	cColorChange()		{ return 2; }
+    static ChangeType	cLevelChange()		{ return 3; }
+    static ChangeType	cDahChange()		{ return 4; } // like DahObj
+   
 protected:
 
     float		dah_;
     Color		color_;
-    int			levelid_;
+    LevelID		levelid_;
+
+			// Usable in locked state
+    BufferString	gtName() const;
+    const Strat::Level*	gtLevel() const;
 
 };
 
@@ -82,13 +83,15 @@ mExpClass(Well) MarkerSet : public ManagedObjectSet<Marker>
 {
 public:
 
+    typedef Marker::LevelID	LevelID;
+
 			MarkerSet()			{}
     void		fillWithAll(TaskRunner* tr=0);
 
     const Marker*	getByName(const char* nm) const { return gtByName(nm); }
     Marker*		getByName(const char* nm)	{ return gtByName(nm); }
-    const Marker*	getByLvlID(int id) const	{ return gtByLvlID(id);}
-    Marker*		getByLvlID(int id)		{ return gtByLvlID(id);}
+    const Marker*	getByLvlID(LevelID id) const	{ return gtByLvlID(id);}
+    Marker*		getByLvlID(LevelID id)		{ return gtByLvlID(id);}
     int			getIdxAbove(float z,const Well::Track* trck=0) const;
 			//!< is trck provided, compares TVDs
 
@@ -118,7 +121,7 @@ protected:
 
     virtual ObjectSet<Marker>& doAdd(Marker*);
     Marker*		gtByName(const char*) const;
-    Marker*		gtByLvlID(int) const;
+    Marker*		gtByLvlID(LevelID) const;
     void		addCopy(const ObjectSet<Marker>&,int,float);
     void		alignOrderingWith(const ObjectSet<Marker>&);
     void		moveBlock(int,int,const TypeSet<int>&);

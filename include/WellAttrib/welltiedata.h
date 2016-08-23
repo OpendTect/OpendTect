@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "uistring.h"
 #include "welldisp.h"
+#include "wellmarker.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiesetup.h"
 #include "wavelet.h"
@@ -77,15 +78,19 @@ public:
 mExpClass(WellAttrib) Marker
 { mODTextTranslationClass(Marker);
 public:
+    
+    typedef Well::Marker::LevelID LevelID;
+
 			Marker(float z)
 			    : zpos_(z)
 			    , size_(2)
+			    , id_(LevelID::getInvalid())
 			{}
 
     Color		color_;
     float		zpos_;
     BufferString	name_;
-    int			id_;
+    LevelID		id_;
     int			size_;
 
     bool		operator == ( const Marker& m ) const

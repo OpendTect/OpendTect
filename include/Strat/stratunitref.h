@@ -88,7 +88,11 @@ protected:
     IOPar		pars_;
 
     void		doFill(BufferString&,int) const;
+    void		doFill(BufferString&,IntegerID<int>) const;
+
     void		doUse(const char*,int*);
+    void		doUse(const char*,IntegerID<int>&);
+
     void		notifChange(bool isrem=false);
 
     friend class	NodeUnitRef;
@@ -197,16 +201,19 @@ public:
 mExpClass(Strat) LeavedUnitRef : public NodeUnitRef
 {
 public:
+
+    typedef Level::ID	LevelID;
+
 			LeavedUnitRef( NodeUnitRef* up, const char* c,
 				     const char* d=0 )
 			: NodeUnitRef(up,c,d)
-			, levelid_(-1)			{}
+			, levelid_(LevelID::getInvalid()) {}
 
     virtual Type	type() const		{ return Leaved; }
     virtual bool	hasLeaves() const	{ return true; }
 
-    Level::ID		levelID() const		{ return levelid_; }
-    void		setLevelID(Level::ID);
+    LevelID		levelID() const		{ return levelid_; }
+    void		setLevelID(LevelID);
 
     virtual int		nrLeaves() const	{ return refs_.size(); }
     virtual const LeafUnitRef*	firstLeaf() const
@@ -221,10 +228,11 @@ public:
 
 protected:
 
-    Level::ID		levelid_;
+    LevelID		levelid_;
 
-    virtual void	fill( BufferString& bs ) const	{ doFill(bs,levelid_); }
-    virtual void	use( const char* s )	{ doUse(s,&levelid_); }
+    virtual void	fill( BufferString& bs ) const
+			{ doFill(bs,levelid_); }
+    virtual void	use( const char* s )	{ doUse(s,levelid_); }
 
 };
 
@@ -252,7 +260,7 @@ public:
 
 protected:
 
-    int			lith_;
+    int			lith_; // TODO: use IntegerID
 
     virtual void	fill( BufferString& bs ) const	{ doFill(bs,lith_); }
     virtual void	use( const char* s )	{ doUse(s,&lith_); }

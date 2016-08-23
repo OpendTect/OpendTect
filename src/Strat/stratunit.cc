@@ -54,6 +54,12 @@ void Strat::UnitRef::doFill( BufferString& str, int id ) const
 }
 
 
+void Strat::UnitRef::doFill( BufferString& str, IntegerID<int> id ) const
+{
+    doFill( str, id.getI() ); 
+}
+
+
 void Strat::UnitRef::doUse( const char* str, int* id )
 {
     FileMultiString fms( str );
@@ -63,6 +69,20 @@ void Strat::UnitRef::doUse( const char* str, int* id )
     {
 	if ( id )
 	    *id = fms.getIValue( nr );
+	nr++;
+    }
+    desc_ = fms[nr];
+}
+
+
+void Strat::UnitRef::doUse( const char* str, IntegerID<int>& id )
+{
+    FileMultiString fms( str );
+    const int sz = fms.size();
+    int nr = 0;
+    if ( sz > 1 )
+    {
+	id.setI( fms.getIValue(nr) );
 	nr++;
     }
     desc_ = fms[nr];

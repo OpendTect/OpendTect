@@ -400,7 +400,8 @@ void uiStratRefTree::removeUnit( uiTreeViewItem* lvit )
     Strat::NodeUnitRef* upnode = un->upNode();
     if ( !upnode ) return;
 
-    TypeSet<int> lithids; int lvlid = -1;
+    TypeSet<int> lithids; 
+    Level::ID lvlid = Level::ID::getInvalid();
     if ( un->isLeaved() )
     {
 	const Strat::LeavedUnitRef& lvedun = (Strat::LeavedUnitRef&)(*un);

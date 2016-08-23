@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "iopar.h"
 #include "trckey.h"
+#include "stratlevel.h"
 
 
 namespace EM
@@ -46,6 +47,9 @@ public:
 mExpClass(EarthModel) Horizon : public Surface
 {
 public:
+
+    typedef Strat::Level::ID		LevelID;
+
     virtual HorizonGeometry&		geometry()			= 0;
     virtual const HorizonGeometry&	geometry() const
 					{ return const_cast<Horizon*>(this)
@@ -61,9 +65,9 @@ public:
     virtual void	setAttrib(const TrcKey&,int attr,bool yn,bool undo) = 0;
     virtual bool	isAttrib(const TrcKey&,int attr) const = 0;
 
-    void		setStratLevelID( int lvlid )
+    void		setStratLevelID( LevelID lvlid )
 			{ stratlevelid_ = lvlid; }
-    int			stratLevelID() const
+    LevelID		stratLevelID() const
 			{ return stratlevelid_; }
 
     virtual void	fillPar( IOPar& par ) const
@@ -82,11 +86,12 @@ public:
 
 protected:
     			Horizon( EMManager& emm )
-			    : Surface(emm), stratlevelid_(-1)	{}
+			    : Surface(emm)
+			    , stratlevelid_(LevelID::getInvalid())	{}
 
     virtual const IOObjContext&	getIOObjContext() const			= 0;
 
-    int			stratlevelid_;
+    LevelID			stratlevelid_;
 };
 
 } // namespace EM

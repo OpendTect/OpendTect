@@ -353,7 +353,8 @@ bool Well::odWriter::putMarkers( od_ostream& strm ) const
 
 	astrm.put( IOPar::compKey(basekey,sKey::Name()), wm.name() );
 	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah()), dah );
-	astrm.put( IOPar::compKey(basekey,sKey::StratRef()), wm.levelID() );
+	astrm.put( IOPar::compKey(basekey,sKey::StratRef()),
+						wm.levelID().getI() );
 	BufferString bs; wm.color().fill( bs );
 	astrm.put( IOPar::compKey(basekey,sKey::Color()), bs );
     }

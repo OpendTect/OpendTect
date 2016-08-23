@@ -68,7 +68,7 @@ bool uiAddEditMrkrDlg::acceptOK( CallBacker* )
 	const bool ispresent = Strat::LVLS().isPresent( nm.buf() );
 	const Strat::Level* lvl = ispresent ?
 	    lvls.get( nm.buf() ) : lvls.add( nm.buf(), colorfld_->color() );
-	marker_.setLevelID( lvl ? lvl->id() : -1 );
+	marker_.setLevelID( lvl ? lvl->id() : Strat::Level::ID::getInvalid() );
     }
 
     return true;
@@ -79,7 +79,7 @@ void uiAddEditMrkrDlg::putToScreen()
 {
     namefld_->setText( marker_.name() );
     colorfld_->setColor( marker_.color() );
-    stratmrkfld_->setChecked( marker_.levelID() > 0 );
+    stratmrkfld_->setChecked( marker_.levelID().isValid() );
 }
 
 

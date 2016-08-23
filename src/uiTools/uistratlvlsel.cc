@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "uistratlvlsel.h"
-#include "stratlevel.h"
 #include "uicombobox.h"
 
 static const char* sNoLevelTxt			= "---";
@@ -67,21 +66,21 @@ const Strat::Level* uiStratLevelSel::selected() const
 const char* uiStratLevelSel::getLevelName() const
 {
     const Strat::Level* lvl = selected();
-    return lvl && lvl->id() >= 0 ? lvl->name().buf() : "";
+    return lvl && lvl->id().isValid() ? lvl->name().buf() : "";
 }
 
 
 Color uiStratLevelSel::getColor() const
 {
     const Strat::Level* lvl = selected();
-    return lvl && lvl->id() >= 0 ? lvl->color() : Color::NoColor();
+    return lvl && lvl->id().isValid() ? lvl->color() : Color::NoColor();
 }
 
 
-int uiStratLevelSel::getID() const
+uiStratLevelSel::LevelID uiStratLevelSel::getID() const
 {
     const Strat::Level* lvl = selected();
-    return lvl ? lvl->id() : -1;
+    return lvl ? lvl->id() : Strat::Level::ID::getInvalid();
 }
 
 
@@ -100,9 +99,9 @@ void uiStratLevelSel::setName( const char* nm )
 }
 
 
-void uiStratLevelSel::setID( int id )
+void uiStratLevelSel::setID( LevelID id )
 {
-    const Strat::Level* lvl = id < 0 ? 0 : Strat::LVLS().get( id );
+    const Strat::Level* lvl = id.isInvalid() ? 0 : Strat::LVLS().get( id );
     setSelected( lvl );
 }
 

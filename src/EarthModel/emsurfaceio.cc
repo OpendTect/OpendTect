@@ -469,12 +469,12 @@ SectionID dgbSurfaceReader::sectionID( int idx ) const
 }
 
 
-int dgbSurfaceReader::stratLevelID() const
+dgbSurfaceReader::LevelID dgbSurfaceReader::stratLevelID() const
 {
-    int ret = -1;
+    LevelID levelid = LevelID::getInvalid();
     if ( pars() )
-	pars()->get( sKey::StratRef(), ret );
-    return ret;
+	pars()->get( sKey::StratRef(), levelid );
+    return levelid;
 }
 
 

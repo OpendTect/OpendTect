@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "posinfo2dsurv.h"
 #include "ranges.h"
 #include "rowcol.h"
+#include "stratlevel.h"
 #include "od_iosfwd.h"
 
 class StreamConn;
@@ -45,6 +46,8 @@ class RowColSurfaceGeometry;
 mExpClass(EarthModel) dgbSurfaceReader : public ExecutorGroup
 { mODTextTranslationClass(dgbSurfaceReader);
 public:
+
+    typedef Strat::Level::ID	LevelID;
 			dgbSurfaceReader(const IOObj& ioobj,
 					 const char* filetype);
 			dgbSurfaceReader(const char* fullexp, const char* name,
@@ -96,7 +99,7 @@ public:
     BufferString	lineSet(int) const;
     Pos::GeomID		lineGeomID(int) const;
     StepInterval<int>	lineTrcRanges( int idx ) const;
-    int			stratLevelID() const;
+    LevelID		stratLevelID() const;
     const IOPar*	pars() const;
     int			getParsOffset() const;
 

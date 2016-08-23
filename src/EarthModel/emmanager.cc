@@ -467,7 +467,7 @@ void EMManager::levelToBeRemoved( CallBacker* cb )
     {
 	mDynamicCastGet( EM::Horizon*, hor, objects_[idx] )
 	if ( hor && hor->stratLevelID() == lvl.id() )
-	    hor->setStratLevelID( -1 );
+	    hor->setStratLevelID( Strat::Level::ID::getInvalid() );
     }
 }
 
