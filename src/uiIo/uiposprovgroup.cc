@@ -101,7 +101,8 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
     if ( setup_.is2d_ )
     {
 	iop.set( IOPar::compKey(sKey::TrcRange(),0), cs.hsamp_.crlRange() );
-	iop.set( IOPar::compKey(sKey::ZRange(),0), cs.zsamp_ );
+	if ( setup_.withz_ )
+	    iop.set( IOPar::compKey(sKey::ZRange(),0), cs.zsamp_ );
 	return true;
     }
 
