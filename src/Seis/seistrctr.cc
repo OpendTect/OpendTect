@@ -96,7 +96,8 @@ SeisTrcTranslator::~SeisTrcTranslator()
 bool SeisTrcTranslator::is2D( const IOObj& ioobj, bool internal_only )
 {
     const bool trok = *ioobj.group() == '2';
-    return trok || internal_only ? trok : ioobj.pars().isTrue( sKeyIs2D() );
+    return trok || internal_only ? trok
+	: ioobj.pars().isTrue( sKeyIs2D() ) || Seis::is2DGeom( ioobj.pars() );
 }
 
 

@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "keystrs.h"
 #include "linekey.h"
 #include "tableposprovider.h"
@@ -261,6 +262,14 @@ void Seis::RangeSelData::usePar( const IOPar& iop )
     Seis::SelData::usePar( iop );
     if ( !isall_ )
 	tkzs_.usePar( iop );
+
+    StepInterval<int> trcrg;
+    if ( iop.get(IOPar::compKey(sKey::TrcRange(),0),trcrg) )
+    {
+	tkzs_.hsamp_.survid_ = TrcKey::std2DSurvID();
+	tkzs_.hsamp_.setTrcRange( trcrg );
+	iop.get( IOPar::compKey(sKey::ZRange(),0), tkzs_.zsamp_ );
+    }
 }
 
 

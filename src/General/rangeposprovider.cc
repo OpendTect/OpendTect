@@ -28,7 +28,7 @@ Pos::RangeProvider3D::RangeProvider3D()
 }
 
 
-Pos::RangeProvider3D::RangeProvider3D( const Pos::RangeProvider3D& p )          
+Pos::RangeProvider3D::RangeProvider3D( const Pos::RangeProvider3D& p )
     : tkzs_(*new TrcKeyZSampling(false))
 {
     *this = p;
@@ -458,7 +458,7 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
 	for ( int idx=0; idx<pos.size(); idx++ )
 	    if ( pos[idx].coord_ == c )
 		return curTrcRange().includes(pos[idx].nr_,false)
-	    		&& curZRange().includes(z,false);
+			&& curZRange().includes(z,false);
     }
 
     for ( int lidx=0; lidx<nrLines(); lidx++ )
@@ -473,13 +473,13 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
 	    if ( pos[idx].coord_ == c )
 	    {
 		StepInterval<int> trcrg = trcrgs_.validIdx(lidx) ? trcrgs_[lidx]
-		    						 : trcrgs_[0];
+								 : trcrgs_[0];
 		StepInterval<float> zrg = zrgs_.validIdx(lidx) ? zrgs_[lidx]
-		    					       : zrgs_[0];
+							       : zrgs_[0];
 		trcrg.limitTo( geom2d->data().trcNrRange() );
 		zrg.limitTo( geom2d->data().zRange() );
 		return trcrg.includes(pos[idx].nr_,false)
-		    	&& zrg.includes(z,false);
+			&& zrg.includes(z,false);
 	    }
 	}
     }
@@ -558,7 +558,7 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 	    else
 	    {
 		S2DPOS().setCurLineSet( l2dkey.lsID() );
-		geomid =  Survey::GM().getGeomID( 
+		geomid =  Survey::GM().getGeomID(
 					S2DPOS().getLineSet(l2dkey.lsID()),
 					S2DPOS().getLineName(l2dkey.lineID()) );
 	    }
@@ -628,7 +628,7 @@ void Pos::RangeProvider2D::getSummary( BufferString& txt ) const
 	txt += "Line "; txt += idx; txt += ":";
 	const StepInterval<int>& rg = trcrgs_[0];
 	const StepInterval<float>& zrg = zrgs_.validIdx(idx) ? zrgs_[idx]
-	    						     : zrgs_[0];
+							     : zrgs_[0];
 	if ( rg.isUdf() )
 	    txt += "[all]";
 	else
