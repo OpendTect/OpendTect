@@ -91,7 +91,7 @@
 <context>
     <name>WellTie::uiSaveDataDlg</name>
     <message numerus="yes">
-        <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+167"/>
+        <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="+171"/>
         <source>Cannot write log(s)</source>
         <translation>
             <numerusform>Cannot write log</numerusform>
