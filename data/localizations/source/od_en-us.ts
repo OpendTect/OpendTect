@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.1" language="en_US">
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
@@ -326,7 +326,7 @@
     <message numerus="yes">
         <location filename="../../../include/Basic/uistrings.h" line="+188"/>
         <source>2D Plane</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>2D Plane</numerusform>
             <numerusform>2D Planes</numerusform>
         </translation>
