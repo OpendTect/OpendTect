@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 HiddenParam<Array2DInterpol,PolyTrend*> trend_(0);
 HiddenParam<Array2DInterpol,ODPolygon<double>*> poly_(0);
+HiddenParam<Array2DInterpol,char> croppoly_(0);
 
 HiddenParam<TriangulationArray2DInterpol,TypeSet<int>*> corneridx_(0);
 HiddenParam<TriangulationArray2DInterpol,TypeSet<float>*> cornerval_(0);
@@ -41,6 +42,8 @@ const char* Array2DInterpol::sKeyNrCells()	{ return "Nr of Cells"; }
 const char* Array2DInterpol::sKeyMaxHoleSz()	{ return "Max Hole Size"; }
 const char* Array2DInterpol::sKeyPolyNrofNodes(){ return "Polygon nr of nodes";}
 const char* Array2DInterpol::sKeyPolyNode()	{ return "PolyNode"; }
+const char* Array2DInterpol::sKeyCropPolygon()	{ return "Crop Polygon"; }
+
 
 const char* InverseDistanceArray2DInterpol::sKeySearchRadius()
 { return "Search Radius"; }
@@ -117,6 +120,7 @@ Array2DInterpol::Array2DInterpol()
 {
     trend_.setParam( this, 0 );
     poly_.setParam( this, 0 );
+    croppoly_.setParam( this, false );
 }
 
 
@@ -129,6 +133,8 @@ Array2DInterpol::~Array2DInterpol()
 
     delete poly_.getParam( this );
     poly_.removeParam( this );
+
+    croppoly_.removeParam( this );
 }
 
 
@@ -537,6 +543,36 @@ bool Array2DInterpol::doPrepare( int )
 }
 
 
+mDefParallelCalc4Pars( ArrPolyCropper, od_static_tr("ArrPolyCropper",
+	    "Crop array along polygon"),
+	const ODPolygon<double>*, poly, Array2D<float>&, arr,
+	int, nrcols, const BinID&, origin )
+mDefParallelCalcBody
+(
+     ,
+	const int iidx = idx / nrcols_;
+	const int iidy = idx % nrcols_;
+	Geom::Point2D<double> pos( mCast(double,iidx + origin_.inl()),
+				   mCast(double,iidy + origin_.crl()) );
+	if ( !poly_->isInside(pos,true,0) )
+	    arr_.set( iidx, iidy, mUdf(float) );
+     ,
+)
+
+
+void Array2DInterpol::doPolygonCrop()
+{
+    if ( filltype_ != Polygon || !poly_.getParam(this) ||
+	 !croppoly_.getParam(this) || !arr_ )
+	return;
+
+    //arrsetter_ is not considered since its never been finished
+    ArrPolyCropper polycrop( nrcells_, poly_.getParam(this), *arr_,
+			     nrcols_, origin_ );
+    polycrop.execute();
+}
+
+
 void Array2DInterpol::setFrom( od_int64 target, const od_int64* sources,
 			       const float* weights, int nrsrc)
 {
@@ -665,6 +701,7 @@ bool Array2DInterpol::fillPar( IOPar& par ) const
 	if ( !poly )
 	    return false;
 
+	par.setYN( sKeyCropPolygon(), croppoly_.getParam( this ) );
 	const int nrofnodes = poly->size();
 	par.set( sKeyPolyNrofNodes(), nrofnodes );
 	for ( int idx=0; idx<nrofnodes; idx++ )
@@ -698,6 +735,10 @@ bool Array2DInterpol::usePar( const IOPar& par )
     {
 	delete poly_.getParam( this );
 	poly_.setParam( this, 0 );
+
+	bool crop = croppoly_.getParam( this );
+	par.getYN( sKeyCropPolygon(), crop );
+	croppoly_.setParam( this, crop );
 
 	int nrnodes = 0;
 	par.get( sKeyPolyNrofNodes(), nrnodes );

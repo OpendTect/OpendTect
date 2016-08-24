@@ -45,6 +45,7 @@ static HiddenParam<uiHorizonInterpolDlg, Notifier<uiHorizonInterpolDlg>* >
 	horReadyForDisplays( 0 );
 
 static HiddenParam<uiHor3DInterpolSel, uiIOObjSel*> polyfld_( 0 );
+static HiddenParam<uiHor3DInterpolSel, uiGenInput*> croppolyfld_( 0 );
 
 
 #define mScopeSurvey	0
@@ -175,12 +176,13 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( !savefldgrp_->acceptOK(0) )
 	return false;
 
-    if ( interpolhor3dsel_->isPolygon() )
+     //May grid area in polygon but not in original horizon, optional?
+    /*if ( interpolhor3dsel_->cropPolygon() )
     {
 	Interval<int> inlrg, crlrg;
 	interpolhor3dsel_->getPolygonRange( inlrg, crlrg );
 	savefldgrp_->setHorRange( inlrg, crlrg );
-    }
+    }*/
 
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
 	savefldgrp_->getNewHorizon() : horizon_;
@@ -264,6 +266,10 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	    errors += msg;
 	    continue;
 	}
+
+	 mDynamicCastGet(Array2DInterpol*,arr2dinterp,interpolator.ptr());
+	 if ( arr2dinterp )
+	     arr2dinterp->doPolygonCrop();
 
 	hor3d->geometry().sectionGeometry(sid)->setArray(
 					    hs.start_, hs.step_, arr, true );
@@ -412,11 +418,16 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     polyselfld->attach( alignedBelow, filltypefld_ );
     polyfld_.setParam( this, polyselfld );
 
+    uiGenInput* cropfld = new uiGenInput( this, tr("Crop from polygon"),
+					  BoolInpSpec(false) );
+    cropfld->attach( alignedBelow, polyselfld );
+    croppolyfld_.setParam( this, cropfld );
+
     PositionInpSpec::Setup setup;
     PositionInpSpec spec( setup );
     stepfld_ = new uiGenInput( this, tr("Inl/Crl Step"), spec );
     stepfld_->setValue( BinID(SI().inlStep(),SI().crlStep()) );
-    stepfld_->attach( alignedBelow, polyselfld );
+    stepfld_->attach( alignedBelow, cropfld );
 
     uiString titletext( tr("Keep holes larger than %1")
 				    .arg(SI().getUiXYUnitString()) );
@@ -448,8 +459,9 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
 
 void uiHor3DInterpolSel::scopeChgCB( CallBacker* )
 {
-    const bool showpolyfld = filltypefld_->getIntValue()==mScopePolygon;
+    const bool showpolyfld = isPolygon();
     polyfld_.getParam(this)->display( showpolyfld );
+    croppolyfld_.getParam(this)->display( showpolyfld );
 }
 
 
@@ -485,6 +497,12 @@ bool uiHor3DInterpolSel::isFullSurvey() const
 bool uiHor3DInterpolSel::isPolygon() const
 {
     return filltypefld_->getIntValue() == mScopePolygon;
+}
+
+
+bool uiHor3DInterpolSel::cropPolygon() const
+{
+    return isPolygon() && croppolyfld_.getParam(this)->getBoolValue();
 }
 
 
@@ -546,6 +564,8 @@ bool uiHor3DInterpolSel::fillPar( IOPar& par ) const
 	if ( !readPolygon(poly) )
 	    return false;
 
+	par.setYN( Array2DInterpol::sKeyCropPolygon(),
+		croppolyfld_.getParam(this)->getBoolValue() );
 	par.set( Array2DInterpol::sKeyPolyNrofNodes(), poly.size() );
 	for ( int idx=0; idx<poly.size(); idx++ )
 	{

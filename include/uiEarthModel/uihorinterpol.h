@@ -71,6 +71,7 @@ public:
 
     bool			isFullSurvey() const;
     bool			isPolygon() const;
+    bool			cropPolygon() const;
     bool			getPolygonRange(Interval<int>& inlrg,
 						Interval<int>& crlrg);
     bool			readPolygon(ODPolygon<float>& poly) const;

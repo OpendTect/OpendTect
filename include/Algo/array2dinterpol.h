@@ -91,6 +91,8 @@ public:
     void			setTrendOrder(PolyTrend::Order ord);
     bool			trimArray(int step,Array2D<char>& edgesmask);
 
+    void			doPolygonCrop();
+
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
@@ -106,6 +108,7 @@ public:
     static const char*		sKeyMaxHoleSz();
     static const char*		sKeyPolyNrofNodes();
     static const char*		sKeyPolyNode();
+    static const char*		sKeyCropPolygon();
 
 protected:
 		Array2DInterpol();
