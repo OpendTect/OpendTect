@@ -134,13 +134,13 @@ void uiWellTrackDispProperties::doGetFromScreen()
 {
     trackprops().setDispBelow( dispbelowfld_->isChecked() );
     trackprops().setDispAbove( dispabovefld_->isChecked() );
-    FontData font( trackprops().font() );
-    font.setPointSize( nmsizefld_->box()->getIntValue() );
+    FontData fnt( trackprops().font() );
+    fnt.setPointSize( nmsizefld_->box()->getIntValue() );
     const int fontstyle = nmstylefld_->getIntValue();
     const bool bold = fontstyle==1 || fontstyle==3;
-    font.setWeight( bold ? FontData::Bold : FontData::Normal );
-    font.setItalic( fontstyle==2 || fontstyle==3 );
-    trackprops().setFont( font );
+    fnt.setWeight( bold ? FontData::Bold : FontData::Normal );
+    fnt.setItalic( fontstyle==2 || fontstyle==3 );
+    trackprops().setFont( fnt );
 }
 
 
@@ -304,13 +304,13 @@ void uiWellMarkersDispProperties::doGetFromScreen()
     mrkprops().setShapeType( shapefld_->box()->currentItem() );
     mrkprops().setCylinderHeight( cylinderheightfld_->box()->getIntValue() );
     mrkprops().setSingleColor( singlecolfld_->isChecked() );
-    FontData font( mrkprops().font() );
-    font.setPointSize( nmsizefld_->box()->getIntValue() );
+    FontData fnt( mrkprops().font() );
+    fnt.setPointSize( nmsizefld_->box()->getIntValue() );
     const int fontstyle = nmstylefld_->getIntValue();
     const bool bold = fontstyle==1 || fontstyle==3;
-    font.setWeight( bold ? FontData::Bold : FontData::Normal );
-    font.setItalic( fontstyle==2 || fontstyle==3 );
-    mrkprops().setFont( font );
+    fnt.setWeight( bold ? FontData::Bold : FontData::Normal );
+    fnt.setItalic( fontstyle==2 || fontstyle==3 );
+    mrkprops().setFont( fnt );
     mrkprops().setSameNameCol( samecolasmarkerfld_->isChecked() );
     mrkprops().setNameColor( nmcolfld_->color() );
     getSelNames();
