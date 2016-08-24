@@ -152,6 +152,7 @@ protected:
     void			importFromFile(const char*);
     void			dotPathCB(CallBacker*);
     void			exportToDotCB(CallBacker*);
+    void			showMatrix(CallBacker*);
 
     void			setButStates();
     bool			offerSetSave();

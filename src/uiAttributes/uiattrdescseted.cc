@@ -50,6 +50,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uievaluatedlg.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
+#include "uihelpview.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -261,6 +262,9 @@ void uiAttribDescSetEd::createGroups()
     helpbut_ = new uiToolButton( degrp, "contexthelp", uiStrings::sHelp(),
 				mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
+    uiToolButton* matrixbut = new uiToolButton( degrp, "attributematrix",
+	tr("Attribute Matrix"), mCB(this,uiAttribDescSetEd,showMatrix) );
+    matrixbut->attach( rightTo, helpbut_ );
 
     attrnmfld_ = new uiGenInput( rightgrp, uiStrings::sAttribName() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
@@ -1042,7 +1046,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     uiSelectFromList::Setup sflsu( tr("Default Attribute Sets"), attribnames );
     sflsu.dlgtitle( tr("Select default attribute set") );
     uiSelectFromList dlg( this, sflsu );
-    dlg.setHelpKey(mODHelpKey(mAttribDescSetEddefaultSetHelpID) );
+    dlg.setHelpKey( mODHelpKey(mAttribDescSetEddefaultSetHelpID) );
     if ( !dlg.go() ) return;
 
     const int selitm = dlg.selection();
@@ -1110,6 +1114,14 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
     gtDefaultAttribsets( mGetApplSetupDataDir(), is2d, attribfiles,
 			 attribnames );
     gtDefaultAttribsets( mGetSWDirDataDir(), is2d, attribfiles, attribnames );
+}
+
+
+void uiAttribDescSetEd::showMatrix( CallBacker* )
+{
+    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
+		       WebsiteHelp::sKeyAttribMatrix() );
+    HelpProvider::provideHelp( key );
 }
 
 
