@@ -49,24 +49,21 @@ public:
 
     typedef IntType	IDType;
 
-    static IntegerID	get( IntType i=-mUdf(IntType) )
+    static inline IntegerID get( IntType i=-mUdf(IntType) )
 					{ return IntegerID(i); }
 
-    IntType		getI() const	{ return id_; }
-    void		setI( IntType i ) { id_ = i; }
+    inline IntType	getI() const	{ return id_; }
+    inline void		setI( IntType i ) { id_ = i; }
 
     inline bool		operator ==( const IntegerID& oth ) const
 					{ return id_ == oth.id_;};
     inline bool		operator !=( const IntegerID& oth ) const
 					{ return id_ != oth.id_;};
+				// Do not add '>' or similar!
 
-    inline bool	isUdf() const		{ return mIsUdf(id_); }
-    inline bool	isDefined() const	{ return !isUdf(); }
-    inline void	setUdf()		{ id_ = mUdf(IntType); }
-    inline bool	isInvalid() const	{ return isUdf(); }
-    inline bool	isValid() const		{ return isDefined(); }
-    inline void	setInvalid()		{ setUdf(); }
-    static inline IntegerID getUdf()	{ return IntegerID(mUdf(IntType)); }
+    inline bool	isInvalid() const	{ return mIsUdf(id_); }
+    inline bool	isValid() const		{ return !isInvalid(); }
+    inline void	setInvalid()		{ mSetUdf(id_); }
     static inline IntegerID getInvalid() { return IntegerID(mUdf(IntType)); }
 
 private:
@@ -74,7 +71,7 @@ private:
     IntType		id_;
 
     inline		IntegerID( IntType i=0 )
-			    : id_(i)	{ /* keep private */ }
+			    : id_(i)	{ /* keep private! */ }
 
     friend class	TypeSet<IntType>;
 

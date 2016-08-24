@@ -46,6 +46,13 @@ FontData::FontData( const char* fms )
 }
 
 
+bool FontData::operator ==( const FontData& oth ) const
+{
+    BufferString myser, othser; putTo( myser ); oth.putTo( othser );
+    return myser == othser;
+}
+
+
 int FontData::numWeight( FontData::Weight w )
 { return numwghts[(int)w]; }
 

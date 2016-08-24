@@ -118,13 +118,13 @@ public:
 			Notifier( T* c )			{ cber_ = c; }
 
     inline void		trigger()
-			{ doTrigger( cbs_, cber_, 0 ); }
+			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, cber_, 0 ); }
     inline void		trigger( T& t )
-			{ doTrigger( cbs_, &t, 0 ); }
+			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, &t, 0 ); }
     inline void		trigger( CallBacker* c )
-			{ doTrigger( cbs_, c, 0 ); }
+			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, c, 0 ); }
     inline void		trigger( CallBacker* c, CallBacker* exclude )
-			{ doTrigger( cbs_, c, exclude ); }
+			{ if ( !cbs_.isEmpty() ) doTrigger(cbs_,c,exclude); }
 };
 
 

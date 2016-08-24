@@ -180,8 +180,9 @@ void uiTieView::drawLog( const char* nm, bool first, int dispnr, bool reversed )
 {
     uiWellLogDisplay::LogData& wldld = logsdisp_[dispnr]->logData( first );
     wldld.setLog( data_.logset_.getLogByName( nm ) );
-    wldld.disp_.color_ = Color::stdDrawColor( first ? 0 : 1 );
-    wldld.disp_.isleftfill_ = wldld.disp_.isrightfill_ = false;
+    wldld.disp_.setColor( Color::stdDrawColor( first ? 0 : 1 ) );
+    wldld.disp_.setFillLeft( false );
+    wldld.disp_.setFillRight( false );
     wldld.xrev_ = reversed;
 }
 
@@ -290,14 +291,14 @@ void uiTieView::drawViewerWellMarkers()
     if ( d2tm.isEmpty() )
 	return;
 
+    const Well::MarkerDispProps& mrkdisp = data_.dispparams_.mrkdisp_;
+    const BufferStringSet selmrknms = mrkdisp.selMarkerNames();
     for ( int midx=0; midx<wd->markers().size(); midx++ )
     {
 	const Well::Marker* marker = wd->markers()[midx];
 	if ( !marker  ) continue;
 
-	const Well::DisplayProperties::Markers& mrkdisp
-						= data_.dispparams_.mrkdisp_;
-	if ( !mrkdisp.selmarkernms_.isPresent( marker->name() ) )
+	if ( !selmrknms.isPresent( marker->name() ) )
 	    continue;
 
 	const float zpos = d2tm.getTime( marker->dah(), wd->track() );
@@ -305,7 +306,7 @@ void uiTieView::drawViewerWellMarkers()
 	if ( !zrange_.includes( zpos, true ) )
 	    continue;
 
-	const Color& col = mrkdisp.issinglecol_ ? mrkdisp.color_
+	const Color col = mrkdisp.singleColor() ? mrkdisp.color()
 						: marker->color();
 
 	if ( col == Color::NoColor() || col == Color::White() )
@@ -316,8 +317,8 @@ void uiTieView::drawViewerWellMarkers()
 
 	wellmarkerauxdatas_ += auxdata;
 	vwr_->addAuxData( auxdata );
-	const int shapeint = mrkdisp.shapeint_;
-	const int drawsize = mrkdisp.size_;
+	const int shapeint = mrkdisp.shapeType();
+	const int drawsize = mrkdisp.size();
 	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Dot, drawsize, col );
 	if ( shapeint == 1 )
 	    ls.type_ =  OD::LineStyle::Solid;

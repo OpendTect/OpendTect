@@ -134,7 +134,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     for ( int idx=0; idx<wdata.markers().size(); idx++ )
     {
 	dispparams_.allmarkernms_.add( wdata.markers()[idx]->name() );
-	dispparams_.mrkdisp_.selmarkernms_.add( wdata.markers()[idx]->name() );
+	dispparams_.mrkdisp_.addSelMarkerName( wdata.markers()[idx]->name() );
     }
 
     initwvlt_->reSample( cDefSeisSr() );

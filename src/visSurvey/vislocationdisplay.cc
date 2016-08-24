@@ -223,7 +223,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 
     if ( directionlocationid_.isValid() )
 	handleDirectionEvent( eventinfo );
-    else if ( !movinglocationid_.isUdf() ) // dragging
+    else if ( movinglocationid_.isValid() ) // dragging
 	handleDraggingEvent( eventinfo );
     else if ( sowerenabled && sower_->accept(eventinfo) )
 	return;

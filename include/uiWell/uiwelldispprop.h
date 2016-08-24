@@ -55,8 +55,8 @@ public:
     };
 
 			uiWellDispProperties(uiParent*,const Setup&,
-					Well::DisplayProperties::BasicProps&);
-    Well::DisplayProperties::BasicProps& props()	{ return *props_; }
+					Well::BasicDispProps&);
+    Well::BasicDispProps& props()	{ return *props_; }
 
     void		putToScreen();
     void		getFromScreen();
@@ -70,7 +70,7 @@ protected:
     virtual void	doPutToScreen()			{}
     virtual void	doGetFromScreen()		{}
 
-    Well::DisplayProperties::BasicProps*	props_;
+    Well::BasicDispProps* props_;
 
     void		propChg(CallBacker*);
     uiColorInput*	colfld_;
@@ -87,12 +87,12 @@ mExpClass(uiWell) uiWellTrackDispProperties : public uiWellDispProperties
 { mODTextTranslationClass(uiWellTrackDispProperties)
 public:
 			uiWellTrackDispProperties(uiParent*,const Setup&,
-					Well::DisplayProperties::Track&);
+					Well::TrackDispProps&);
 
-    Well::DisplayProperties::Track&	trackprops()
-	{ return static_cast<Well::DisplayProperties::Track&>(*props_); }
+    Well::TrackDispProps& trackprops()
+			{ return static_cast<Well::TrackDispProps&>(*props_); }
 
-    void		resetProps(Well::DisplayProperties::Track&);
+    void		resetProps(Well::TrackDispProps&);
 
 protected:
 
@@ -106,22 +106,20 @@ protected:
 };
 
 
-/*!
-\brief Well Markers display properties.
-*/
+/*!\brief Well Markers display properties.  */
 
 mExpClass(uiWell) uiWellMarkersDispProperties : public uiWellDispProperties
 { mODTextTranslationClass(uiWellMarkersDispProperties)
 public:
 			uiWellMarkersDispProperties(uiParent*,const Setup&,
-					Well::DisplayProperties::Markers&,
+					Well::MarkerDispProps&,
 					const BufferStringSet& allmarkernms);
 
-    Well::DisplayProperties::Markers&	mrkprops()
-	{ return static_cast<Well::DisplayProperties::Markers&>(*props_); }
+    Well::MarkerDispProps& mrkprops()
+			{ return static_cast<Well::MarkerDispProps&>(*props_); }
 
     void		setAllMarkerNames(const BufferStringSet&);
-    void		resetProps(Well::DisplayProperties::Markers&);
+    void		resetProps(Well::MarkerDispProps&);
 
 protected:
 
@@ -150,13 +148,13 @@ mExpClass(uiWell) uiWellLogDispProperties : public uiWellDispProperties
 { mODTextTranslationClass(uiWellLogDispProperties)
 public:
 			uiWellLogDispProperties(uiParent*,const Setup&,
-					Well::DisplayProperties::Log&,
+					Well::LogDispProps&,
 					const Well::LogSet* wl);
 
-    Well::DisplayProperties::Log&	logprops()
-	{ return static_cast<Well::DisplayProperties::Log&>(*props_); }
+    Well::LogDispProps&	logprops()
+			{ return static_cast<Well::LogDispProps&>(*props_); }
 
-    void		resetProps(Well::DisplayProperties::Log&);
+    void		resetProps(Well::LogDispProps&);
     void		setLogSet(const Well::LogSet*);
 
 protected:

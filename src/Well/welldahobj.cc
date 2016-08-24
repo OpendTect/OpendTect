@@ -14,7 +14,7 @@ mDefineInstanceCreatedNotifierAccess(Well::DahObj);
 
 
 Well::DahObj::DahObj( const char* nm )
-    : SharedObject(nm)
+    : NamedMonitorable(nm)
     , curptidnr_(0)
 {
     mTriggerInstanceCreatedNotifier();
@@ -22,7 +22,7 @@ Well::DahObj::DahObj( const char* nm )
 
 
 Well::DahObj::DahObj( const DahObj& oth )
-    : SharedObject(oth)
+    : NamedMonitorable(oth)
     , curptidnr_(oth.curptidnr_)
 {
     copyAll( oth );
@@ -36,7 +36,7 @@ Well::DahObj::~DahObj()
 }
 
 
-mImplMonitorableAssignment( Well::DahObj, SharedObject )
+mImplMonitorableAssignment( Well::DahObj, NamedMonitorable )
 
 
 void Well::DahObj::copyClassData( const DahObj& oth )

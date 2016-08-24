@@ -113,7 +113,7 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    //TODO remove when object becomes a true SharedObject
+    //TODO remove when object becomes a true NamedMonitorable
     void touch() const {}
     DirtyCountType dirtyCount() const { return 0; }
 

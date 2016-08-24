@@ -12,180 +12,276 @@ ________________________________________________________________________
 -*/
 
 #include "wellcommon.h"
-#include "fontdata.h"
-#include "sharedobject.h"
+#include "namedobj.h"
 #include "color.h"
 #include "ranges.h"
-#include "survinfo.h"
+#include "fontdata.h"
 #include "bufstringset.h"
 
 
 namespace Well
 {
 
+mExpClass(Well) BasicDispProps : public Monitorable
+{
+public:
+
+    typedef int	    SizeType;
+
+		    BasicDispProps(SizeType);
+		    ~BasicDispProps();
+		    mDeclAbstractMonitorableAssignment(BasicDispProps);
+
+    mImplSimpleMonitoredGetSet(inline,color,setColor,Color,color_,
+				cColorChg());
+    mImplSimpleMonitoredGetSet(inline,size,setSize,SizeType,size_,
+				cSizeChg());
+    mImplSimpleMonitoredGetSet(inline,font,setFont,FontData,font_,
+				cFontChg());
+
+    static SizeType	cDefaultFontSize()	{ return 10; }
+
+    static ChangeType	cColorChg()		{ return 2; }
+    static ChangeType	cSizeChg()		{ return 3; }
+    static ChangeType	cFontChg()		{ return 4; }
+
+    virtual const char*	subjectName() const	= 0;
+
+protected:
+
+    Color	color_;
+    SizeType	size_;
+    FontData	font_;
+
+    void		baseUsePar(const IOPar&,const char*,const char*);
+    void		baseFillPar(IOPar&,const char*) const;
+
+};
+
+
+mExpClass(Well) TrackDispProps : public BasicDispProps
+{
+public:
+		    TrackDispProps();
+		    ~TrackDispProps();
+		    mDeclMonitorableAssignment(TrackDispProps);
+
+    mImplSimpleMonitoredGetSet(inline,dispAbove,setDispAbove,bool,
+				dispabove_,cDispPosChg());
+    mImplSimpleMonitoredGetSet(inline,dispBelow,setDispBelow,bool,
+				dispbelow_,cDispPosChg());
+
+    virtual void	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+
+    static ChangeType   cDispPosChg()		{ return 5; }
+    virtual const char* subjectName() const	{ return "Track"; }
+
+protected:
+
+    bool		dispabove_;
+    bool		dispbelow_;
+
+};
+
+mExpClass(Well) MarkerDispProps : public BasicDispProps
+{
+public:
+
+    typedef int		ShapeType;
+    typedef int		HeightType;
+
+			MarkerDispProps();
+			~MarkerDispProps();
+			mDeclMonitorableAssignment(MarkerDispProps);
+
+    mImplSimpleMonitoredGetSet(inline,shapeType,setShapeType,ShapeType,
+				shapetype_,cShapeChg());
+    mImplSimpleMonitoredGetSet(inline,cylinderHeight,setCylinderHeight,
+				HeightType,cylinderheight_,cShapeChg());
+    mImplSimpleMonitoredGetSet(inline,singleColor,setSingleColor,bool,
+				issinglecol_,cColorChg());
+    mImplSimpleMonitoredGetSet(inline,nameColor,setNameColor,Color,
+				nmcol_,cColorChg());
+    mImplSimpleMonitoredGetSet(inline,sameNameCol,setSameNameCol,bool,
+				samenmcol_,cColorChg());
+    mImplSimpleMonitoredGetSet(inline,selMarkerNames,setSelMarkerNames,
+			    BufferStringSet,selmarkernms_,cMarkerNmsChg());
+
+    virtual void	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+
+    void		addSelMarkerName(const char*);
+    void		removeSelMarkerName(const char*);
+
+    static ChangeType   cShapeChg()		{ return 5; }
+    static ChangeType   cMarkerNmsChg()	{ return 6; }
+    virtual const char* subjectName() const	{ return "Markers"; }
+
+protected:
+
+    ShapeType		shapetype_;
+    HeightType		cylinderheight_;
+    bool		issinglecol_;
+    Color		nmcol_;
+    bool		samenmcol_;
+    BufferStringSet	selmarkernms_;
+
+};
+
+mExpClass(Well) LogDispProps : public BasicDispProps
+{
+public:
+
+    typedef int	    WidthType;
+    typedef int	    StyleType;
+
+		    LogDispProps();
+		    ~LogDispProps();
+		    mDeclMonitorableAssignment(LogDispProps);
+
+    virtual const char* subjectName() const	{ return "Log"; }
+
+    static ChangeType   cNameChg()		{ return 1; }
+    static ChangeType   cShapeChg()		{ return 5; }
+    static ChangeType   cScaleChg()		{ return 6; }
+
+    virtual void	usePar(const IOPar&,bool isleft);
+    virtual void	fillPar(IOPar&,bool isleft) const;
+
+    mImplSimpleMonitoredGetSet(inline,logName,setLogName,BufferString,
+				logname_,cNameChg());
+    mImplSimpleMonitoredGetSet(inline,fillName,setFillName,BufferString,
+				fillname_,cNameChg());
+    mImplSimpleMonitoredGetSet(inline,seqName,setSeqName,BufferString,
+				seqname_,cNameChg());
+
+    mImplSimpleMonitoredGetSet(inline,clipRate,setClipRate,float,
+				cliprate_,cScaleChg());
+    mImplSimpleMonitoredGetSet(inline,range,setRange,Interval<float>,
+				range_,cScaleChg());
+    mImplSimpleMonitoredGetSet(inline,fillRange,setFillRange,
+			       Interval<float>,fillrange_,cScaleChg());
+    mImplSimpleMonitoredGetSet(inline,isLogarithmic,setIsLogarithmic,bool,
+			       islogarithmic_,cScaleChg());
+    mImplSimpleMonitoredGetSet(inline,isDataRange,setIsDataRange,bool,
+			       isdatarange_,cScaleChg());
+
+    mImplSimpleMonitoredGetSet(inline,fillLeft,setFillLeft,bool,
+			       isleftfill_,cShapeChg());
+    mImplSimpleMonitoredGetSet(inline,fillRight,setFillRight,bool,
+			       isrightfill_,cShapeChg());
+    mImplSimpleMonitoredGetSet(inline,revertLog,setRevertLog,bool,
+			       islogreverted_,cShapeChg());
+    mImplSimpleMonitoredGetSet(inline,repeat,setRepeat,int,repeat_,
+				cShapeChg());
+    mImplSimpleMonitoredGetSet(inline,repeatOverlap,setRepeatOverlap,float,
+				repeatovlap_,cShapeChg());
+    mImplSimpleMonitoredGetSet(inline,style,setStyle,StyleType,style_,
+				cShapeChg());
+    mImplSimpleMonitoredGetSet(inline,logWidth,setLogWidth,WidthType,
+				logwidth_,cShapeChg());
+
+    mImplSimpleMonitoredGetSet(inline,singleColor,setSingleColor,bool,
+			       issinglecol_,cColorChg());
+    mImplSimpleMonitoredGetSet(inline,colTabFlipped,setColTabFlipped,bool,
+			       iscoltabflipped_,cColorChg());
+    mImplSimpleMonitoredGetSet(inline,seisColor,setSeisColor,Color,
+			       seiscolor_,cColorChg());
+
+protected:
+
+    BufferString	logname_;
+    BufferString	fillname_;
+    BufferString	seqname_;
+
+    float		cliprate_;
+    Interval<float>	range_;
+    Interval<float>	fillrange_;
+    bool		islogarithmic_;
+    bool		isdatarange_;
+
+    bool		isleftfill_;
+    bool		isrightfill_;
+    bool		islogreverted_;
+    int			repeat_;
+    float		repeatovlap_;
+    StyleType		style_;
+    WidthType		logwidth_;
+
+    bool		issinglecol_;
+    bool		iscoltabflipped_;
+    Color		seiscolor_;
+
+};
+
 inline const char* sKey2DDispProp()	{ return "2D Display"; }
 inline const char* sKey3DDispProp()	{ return "3D Display"; }
 
-/*!
-\brief Display properties of a well.
-*/
+/*!\brief Display properties of a well. */
 
-mExpClass(Well) DisplayProperties : public SharedObject
+mExpClass(Well) DisplayProperties : public NamedMonitorable
 {
 public:
+
+    typedef BasicDispProps::SizeType	SizeType;
+    typedef int				LogPairID; // yeah well. hit me.
 
 			DisplayProperties(const char* nm=sKey3DDispProp());
 			~DisplayProperties();
 			mDeclMonitorableAssignment(DisplayProperties);
 			mDeclInstanceCreatedNotifierAccess(DisplayProperties);
 
-    mStruct(Well) BasicProps
-    {
-			BasicProps( int sz=1 )
-			    : size_(sz)
-			    , color_(Color(0,0,255))	{}
+    TrackDispProps&	track()			{ return track_; }
+    const TrackDispProps& track() const		{ return track_; }
+    MarkerDispProps&	markers()		{ return markers_; }
+    const MarkerDispProps& markers() const	{ return markers_; }
 
-	Color		color_;
-	int		size_;
+    int			nrLogPairs() const;
+    LogDispProps&	log(bool first_is_left,LogPairID nr=0);
+    const LogDispProps&	log(bool first_is_left,LogPairID nr=0) const;
+    LogPairID		addLogPair();
+    void		setNrLogPairs(int);
+    bool		removeLogPair(LogPairID); // refuses to remove last one
 
-	void		usePar(const IOPar&);
-	void		fillPar(IOPar&) const;
-	void		useLeftPar(const IOPar&);
-	void		useRightPar(const IOPar&);
-	void		fillLeftPar(IOPar&) const;
-	void		fillRightPar(IOPar&) const;
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
 
-	virtual const char* subjectName() const		= 0;
+    static ChangeType	cLogPairAdded()		{ return 2; }
+    static ChangeType	cLogPairRemove()	{ return 3; }
+    static ChangeType	cDispStratChg()		{ return 4; }
 
-    protected:
-
-	virtual void	doUsePar(const IOPar&)		{}
-	virtual void	doFillPar(IOPar&) const		{}
-	virtual void	doUseLeftPar(const IOPar&)	{}
-	virtual void	doFillRightPar(IOPar&) const	{}
-	virtual void	doUseRightPar(const IOPar&)	{}
-	virtual void	doFillLeftPar(IOPar&) const	{}
-
-    };
-
-    mStruct(Well) Track : public BasicProps
-    {
-			Track()
-			    : BasicProps(1)
-			    , dispabove_(true)
-			    , dispbelow_(true)
-			    , font_(10)
-			    {}
-
-	virtual const char* subjectName() const	{ return "Track"; }
-
-	bool		dispabove_;
-	bool		dispbelow_;
-	FontData	font_;
-
-    protected:
-
-	virtual void	doUsePar(const IOPar&);
-	virtual void	doFillPar(IOPar&) const;
-
-    };
-
-    mStruct(Well) Markers : public BasicProps
-    {
-
-			Markers()
-			    : BasicProps(15)
-			    , shapeint_(0)
-			    , cylinderheight_(1)
-			    , issinglecol_(false)
-			    , font_(10)
-			    , samenmcol_(true)
-			    {}
-
-	virtual const char* subjectName() const	{ return "Markers"; }
-
-	int		shapeint_;
-	int		cylinderheight_;
-	bool		issinglecol_;
-	FontData	font_;
-	Color		nmcol_;
-	bool		samenmcol_;
-	BufferStringSet	selmarkernms_;
-
-    protected:
-
-	virtual void	doUsePar(const IOPar&);
-	virtual void	doFillPar(IOPar&) const;
-    };
-
-    mStruct(Well) Log : public BasicProps
-    {
-			Log()
-			    : cliprate_(0)
-			    , fillname_("none")
-			    , fillrange_(mUdf(float),mUdf(float))
-			    , isleftfill_(false)
-			    , isrightfill_(false)
-		            , isdatarange_(true)
-			    , islogarithmic_(false)
-			    , islogreverted_(false)
-			    , issinglecol_(false)
-			    , name_("none")
-		            , logwidth_(250 *
-				((int)(SI().xyInFeet() ? mToFeetFactorF:1)))
-			    , range_(mUdf(float),mUdf(float))
-			    , repeat_(5)
-			    , repeatovlap_(50)
-		            , seiscolor_(Color::White())
-			    , seqname_("Rainbow")
-			    , iscoltabflipped_(false)
-			    , style_( 0 )
-			    {}
-
-	virtual const char* subjectName() const	{ return "Log"; }
-
-	BufferString	name_;
-	BufferString	fillname_;
-	float           cliprate_;
-	Interval<float> range_;
-	Interval<float> fillrange_;
-	bool		isleftfill_;
-	bool		isrightfill_;
-	bool            islogarithmic_;
-	bool		islogreverted_;
-	bool            issinglecol_;
-	bool            isdatarange_;
-	bool		iscoltabflipped_;
-	int             repeat_;
-	float           repeatovlap_;
-	Color           linecolor_;
-	Color		seiscolor_;
-	BufferString    seqname_;
-	int		logwidth_;
-	int		style_;
-
-    protected:
-
-	virtual void	doUseLeftPar(const IOPar&);
-	virtual void	doFillRightPar(IOPar&) const;
-	virtual void	doUseRightPar(const IOPar&);
-	virtual void	doFillLeftPar(IOPar&) const;
-    };
-
-    Track		track_;
-    Markers		markers_;
-    bool		displaystrat_; //2d only
-
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
+    mImplSimpleMonitoredGetSet(inline,displayStrat,setDisplayStrat,bool,
+				displaystrat_,cDispStratChg());
 
     static DisplayProperties&	defaults();
     static void		commitDefaults();
 
-    mStruct(Well) LogCouple { Log left_, right_; };
-    ObjectSet<LogCouple> logs_;
-
     virtual const char* subjectName() const	{ return name().buf(); }
+
+protected:
+
+    TrackDispProps	track_;
+    MarkerDispProps	markers_;
+    ManagedObjectSet<LogDispProps> logs_;
+    bool		displaystrat_; //2d only
+
+    LogPairID		doAddLogPair();
+    void		copyLogPairsFrom(const DisplayProperties&);
+    void		addCBsToLogPair(LogPairID);
+    void		subobjChgCB(CallBacker*);
+    int			idx4PairID( LogPairID id, bool scnd=false ) const
+			{ return scnd ? 2*id + 1 : 2*id; }
+    int			pairID4Idx( int idx ) const
+			{ return idx / 2; }
+    int			nrPairs() const
+			{ return logs_.size() / 2; }
+    bool		isIDAvailable( LogPairID id )
+			{ return logs_.size() > id * 2; }
+
+private:
+
+    void		init();
 
 };
 

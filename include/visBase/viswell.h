@@ -133,10 +133,10 @@ public:
 	bool			iscoltabflipped_;
 
 	int			filllogidx_;
-	const char*		fillname_;
+	BufferString		fillname_;
 	Interval<float>		fillrange_;
 	Interval<float>		valfillrange_;
-	const char*		seqname_;
+	BufferString		seqname_;
 
 	int			repeat_;
 	float			ovlap_;
@@ -245,7 +245,7 @@ protected:
 
 private:
 
-    void			updateText(Text* tx, const uiString& chr, 
+    void			updateText(Text* tx, const uiString& chr,
 					   const Coord3* pos,
 					   const FontData& fnt);
 

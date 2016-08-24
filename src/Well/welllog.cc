@@ -32,7 +32,7 @@ Well::LogSet::LogSet()
 
 
 Well::LogSet::LogSet( const LogSet& oth )
-    : SharedObject(oth)
+    : NamedMonitorable(oth)
     , curlogidnr_(0)
 {
     copyAll( oth );
@@ -47,7 +47,7 @@ Well::LogSet::~LogSet()
 }
 
 
-mImplMonitorableAssignment( Well::LogSet, SharedObject )
+mImplMonitorableAssignment( Well::LogSet, NamedMonitorable )
 
 
 void Well::LogSet::copyClassData( const LogSet& oth )

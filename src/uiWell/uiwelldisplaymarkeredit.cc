@@ -37,7 +37,7 @@ uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
 					mNoDlgTitle,mNoHelpKey))
     , marker_(mrk)
 {
-    namefld_ = new uiGenInput( this, uiStrings::sName(), 
+    namefld_ = new uiGenInput( this, uiStrings::sName(),
                                StringInpSpec("Marker") );
 
     uiColorInput::Setup csu( mrk.color() );
@@ -486,12 +486,10 @@ void uiWellDispCtrlEditMarkerDlg::handleUsrClickCB( CallBacker* )
     if ( !isremove )
     {
 	addMoveMarker( idset, dah, mrknm );
-	curwd_->displayProperties(true).markers_.selmarkernms_.add( mrknm );
+	curwd_->displayProperties(true).markers().addSelMarkerName( mrknm );
     }
     else if ( curmrk_ )
-    {
 	removeMarker( idset, curmrk_->name() );
-    }
 
     mevh->setHandled( true);
     hasedited_ = true;

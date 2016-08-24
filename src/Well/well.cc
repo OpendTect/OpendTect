@@ -75,7 +75,7 @@ mDefineInstanceCreatedNotifierAccess(Well::Info);
 
 
 Well::Info::Info( const char* nm )
-    : SharedObject(nm)
+    : NamedMonitorable(nm)
     , replvel_(getDefaultVelocity())
     , groundelev_(mUdf(float))
     , welltype_(None)
@@ -85,7 +85,7 @@ Well::Info::Info( const char* nm )
 
 
 Well::Info::Info( const Info& oth )
-    : SharedObject(oth)
+    : NamedMonitorable(oth)
 {
     copyAll( oth );
     mTriggerInstanceCreatedNotifier();
@@ -98,7 +98,7 @@ Well::Info::~Info()
 }
 
 
-mImplMonitorableAssignment( Well::Info, SharedObject )
+mImplMonitorableAssignment( Well::Info, NamedMonitorable )
 
 
 void Well::Info::copyClassData( const Info& oth )

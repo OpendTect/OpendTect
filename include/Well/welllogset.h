@@ -22,7 +22,7 @@ namespace Well
 
 /*!\brief Set of Well::Log's. */
 
-mExpClass(Well) LogSet : public SharedObject
+mExpClass(Well) LogSet : public NamedMonitorable
 {
 public:
 

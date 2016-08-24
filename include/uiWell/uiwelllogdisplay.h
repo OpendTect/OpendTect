@@ -40,7 +40,7 @@ public:
 
 	void		getInfoForDah(float,BufferString&) const;
 
-	Well::DisplayProperties::Log disp_;
+	Well::LogDispProps disp_;
 
 	Notifier<uiWellLogDisplay::LogData> logSet;
 
@@ -56,13 +56,13 @@ public:
 
 	ObjectSet<uiPolygonItem> curvepolyitms_;
 
-	friend class 	uiWellLogDisplay;
+	friend class	uiWellLogDisplay;
     };
 
     LogData&		logData(bool first=true);
     const LogData&	logData(bool first=true) const
 				{ return const_cast<uiWellLogDisplay*>(this)
-				    			->logData(first); }
+							->logData(first); }
 
 protected:
 
@@ -86,7 +86,7 @@ mExpClass(uiWell) uiWellLogDispDlg : public uiDialog
 { mODTextTranslationClass(uiWellLogDispDlg)
 public:
 
-   			uiWellLogDispDlg(uiParent*,
+			uiWellLogDispDlg(uiParent*,
 					 const uiWellLogDisplay::Setup&,
 					 bool make_copy=true);
 			~uiWellLogDispDlg();
@@ -96,7 +96,7 @@ public:
     const Well::Log*	getLog(bool first=true) const;
 
     uiWellLogDisplay&	logDisplay()	{ return *dispfld_; }
-    			//!< for detailed work
+			//!< for detailed work
 
     Notifier<uiWellLogDispDlg>	logSet;
 
@@ -104,7 +104,7 @@ public:
 					   const Well::Log* wl2=0,
 					   const char* wellnm1=0,
 					   const char* wellnm2=0);
-    			//!< has setDeleteOnClose set
+			//!< has setDeleteOnClose set
 
 protected:
 

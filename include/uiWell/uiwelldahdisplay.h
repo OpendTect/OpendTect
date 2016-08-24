@@ -165,9 +165,9 @@ public:
     void			setZRange(Interval<float> zrg)
 					{ zdata_.zrg_ = zrg; dataChanged();}
 
-    const Data&			zData()	   { return zdata_; }
-    TypeSet<PickData>&          zPicks()           { return zpicks_; }
-    Well::DisplayProperties::Markers& markerDisp() { return  mrkdisp_; }
+    const Data&			zData()		{ return zdata_; }
+    TypeSet<PickData>&          zPicks()	{ return zpicks_; }
+    Well::MarkerDispProps&	markerDisp()	{ return mrkdisp_; }
 
     void			reDraw()	{ gatherInfo(); draw(); }
     void			reDrawAnnots()	{ drawMarkers(); drawZPicks(); }
@@ -197,7 +197,7 @@ protected:
     };
     ObjectSet<MarkerDraw>       markerdraws_;
     MarkerDraw*                 getMarkerDraw(const Well::Marker&);
-    Well::DisplayProperties::Markers mrkdisp_;
+    Well::MarkerDispProps	mrkdisp_;
 
     const Well::D2TModel*	d2T() const	{ return zdata_.d2T(); }
     const Well::Track*		track() const	{ return zdata_.track(); }

@@ -40,6 +40,9 @@
 #define mMeter2Feet(val) val *= mToFeetFactorF;
 #define mFeet2Meter(val) val *= mFromFeetFactorF;
 #define mGetDispPar(param) wd->displayProperties().param
+#define mGetTrackDispPar(fnnm) mGetDispPar( track().fnnm() )
+#define mGetMarkersDispPar(fnnm) mGetDispPar( markers().fnnm() )
+#define mGetLogDispPar(fnnm) mGetDispPar( log(isleft).fnnm() )
 
 
 namespace visSurvey
@@ -159,62 +162,61 @@ void WellDisplay::setWell( visBase::Well* well )
 void WellDisplay::fillTrackParams( visBase::Well::TrackParams& tp )
 {
     mGetWD(return);
-    tp.col_		= mGetDispPar( track_.color_ );
-    tp.isdispabove_	= mGetDispPar( track_.dispabove_ );
-    tp.isdispbelow_	= mGetDispPar( track_.dispbelow_ );
-    tp.font_		= mGetDispPar( track_.font_ );
-    tp.size_		= mGetDispPar( track_.size_ );
+    tp.col_		= mGetTrackDispPar( color );
+    tp.isdispabove_	= mGetTrackDispPar( dispAbove );
+    tp.isdispbelow_	= mGetTrackDispPar( dispBelow );
+    tp.font_		= mGetTrackDispPar( font );
+    tp.size_		= mGetTrackDispPar( size );
 }
 
 
 void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
 {
     mGetWD(return);
-    mp.col_		= mGetDispPar( markers_.color_  );
-    mp.shapeint_	= mGetDispPar( markers_.shapeint_ );
-    mp.cylinderheight_	= mGetDispPar( markers_.cylinderheight_ );
-    mp.font_		= mGetDispPar( markers_.font_ );
-    mp.namecol_		= mGetDispPar( markers_.nmcol_ );
-    mp.size_		= mGetDispPar( markers_.size_ );
+    mp.col_		= mGetMarkersDispPar( color  );
+    mp.font_		= mGetMarkersDispPar( font );
+    mp.size_		= mGetMarkersDispPar( size );
+    mp.shapeint_	= mGetMarkersDispPar( shapeType );
+    mp.cylinderheight_	= mGetMarkersDispPar( cylinderHeight );
+    mp.namecol_		= mGetMarkersDispPar( nameColor );
 }
 
-
-#define mGetLogPar(side,par) side==0 ? mGetDispPar(logs_[0]->left_.par)\
-				       : mGetDispPar(logs_[0]->right_.par)
 
 void WellDisplay::fillLogParams(
 		visBase::Well::LogParams& lp, visBase::Well::Side side )
 {
+    const bool isleft = side == 0;
     mGetWD(return);
-    lp.cliprate_	= mGetLogPar( side, cliprate_ );
-    lp.col_		= mGetLogPar( side, color_);
-    lp.fillname_	= mGetLogPar( side, fillname_ );
-    lp.fillrange_	= mGetLogPar( side, fillrange_ );
-    lp.isdatarange_	= mGetLogPar( side, isdatarange_ );
-    lp.isleftfilled_	= mGetLogPar( side, isleftfill_ );
-    lp.isrightfilled_	= mGetLogPar( side, isrightfill_ );
-    lp.issinglcol_	= mGetLogPar( side, issinglecol_);
-    lp.islogarithmic_	= mGetLogPar( side, islogarithmic_ );
-    lp.logwidth_	= mGetLogPar( side, logwidth_ );
-    lp.name_		= toUiString(mGetLogPar( side, name_ ));
-    lp.ovlap_		= mGetLogPar( side, repeatovlap_ );
-    lp.range_		= mGetLogPar( side, range_ );
-    lp.repeat_		= mGetLogPar( side, repeat_);
-    lp.seqname_		= mGetLogPar( side, seqname_ );
-    lp.size_		= mGetLogPar( side, size_ );
-    lp.seiscolor_	= mGetLogPar( side, seiscolor_ );
-    lp.iscoltabflipped_	= mGetLogPar( side, iscoltabflipped_ );
-    int style		= mGetLogPar( side, style_ );
-    lp.style_		= ( visBase::Well::LogStyle ) style;
+    lp.cliprate_	= mGetLogDispPar( clipRate );
+    lp.col_		= mGetLogDispPar( color );
+    lp.fillname_	= mGetLogDispPar( fillName );
+    lp.fillrange_	= mGetLogDispPar( fillRange );
+    lp.isdatarange_	= mGetLogDispPar( isDataRange );
+    lp.isleftfilled_	= mGetLogDispPar( fillLeft );
+    lp.isrightfilled_	= mGetLogDispPar( fillRight );
+    lp.issinglcol_	= mGetLogDispPar( singleColor);
+    lp.islogarithmic_	= mGetLogDispPar( isLogarithmic );
+    lp.logwidth_	= mGetLogDispPar( logWidth );
+    lp.name_		= toUiString( mGetLogDispPar(logName) );
+    lp.ovlap_		= mGetLogDispPar( repeatOverlap );
+    lp.range_		= mGetLogDispPar( range );
+    lp.repeat_		= mGetLogDispPar( repeat );
+    lp.seqname_		= mGetLogDispPar( seqName );
+    lp.size_		= mGetLogDispPar( size );
+    lp.seiscolor_	= mGetLogDispPar( seisColor );
+    lp.iscoltabflipped_	= mGetLogDispPar( colTabFlipped );
+    const int style	= mGetLogDispPar( style );
+    lp.style_		= (visBase::Well::LogStyle)style;
 }
 
 
-#define mDispLog( dsplSide, Side )\
+#define mDispLog( Side )\
 { \
-    BufferString& logname = mGetLogPar( dsplSide, name_ );\
-    if ( wd->logs().indexOf( logname ) >= 0 )\
+    const BufferString logname = mGetLogDispPar( logName );\
+    if ( wd->logs().indexOf(logname) >= 0 )\
 	display##Side##Log();\
 }
+
 void WellDisplay::fullRedraw( CallBacker* )
 {
     mGetWD(return);
@@ -235,8 +237,8 @@ void WellDisplay::fullRedraw( CallBacker* )
     well_->setWellName( tp );
     well_->removeLogs();
 
-    mDispLog( visBase::Well::Left, Left );
-    mDispLog( visBase::Well::Right, Right );
+    bool isleft = true; mDispLog( Left );
+    isleft = false; mDispLog( Right );
 }
 
 
@@ -305,7 +307,7 @@ void WellDisplay::updateMarkers( CallBacker* )
     const Well::Track& track = needsConversionToTime() ? *timetrack_
 						       : wd->track();
     const BufferStringSet selnms(
-		wd->displayProperties(false).markers_.selmarkernms_ );
+		wd->displayProperties(false).markers().selMarkerNames() );
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];
@@ -319,9 +321,10 @@ void WellDisplay::updateMarkers( CallBacker* )
 	mp.pos_ = &pos;
 	mp.name_ = toUiString(wellmarker->name());
 
-	if ( !mGetDispPar( markers_.issinglecol_ ) )
+	if ( !mGetMarkersDispPar(singleColor) )
 	    mp.col_ = wellmarker->color();
-	if ( mGetDispPar( markers_.samenmcol_ ) ) mp.namecol_  = mp.col_;
+	if ( mGetMarkersDispPar(sameNameCol) )
+	    mp.namecol_  = mp.col_;
 
 	well_->addMarker( mp );
     }
@@ -500,8 +503,8 @@ void WellDisplay::setLogDisplay( visBase::Well::Side side )
 {
     mGetWD(return);
 
-    BufferString& logname = mGetLogPar( side, name_ );
-    if ( wd->logs().isEmpty() ) return;
+    const bool isleft = side == 0;
+    const BufferString logname = mGetLogDispPar( logName );
     const int logidx = wd->logs().indexOf( logname );
     if ( logidx<0 )
     {
@@ -667,10 +670,7 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 {
     mGetWD(return);
 
-    const visBase::Well::Side side  =
-			isleft ? visBase::Well::Left : visBase::Well::Right;
-
-    BufferString lognm( mGetLogPar( side , name_ ) );
+    const BufferString lognm = mGetLogDispPar( logName );
     if ( !lognm.isEmpty() && !lognm.isEqual("None") && !lognm.isEqual("none") )
     {
 	info += isleft ? ", Left: " : ", Right: ";

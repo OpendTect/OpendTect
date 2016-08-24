@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uitabstack.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 
 #include "keystrs.h"
 #include "objdisposer.h"
@@ -53,10 +54,10 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 
     uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[0],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2d), props.logs_[0]->left_, &(wd_->logs()) );
+	.onlyfor2ddisplay(is2d), props.log(true), &(wd_->logs()) );
     uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[1],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2d), props.logs_[0]->right_, &(wd_->logs()) );
+	.onlyfor2ddisplay(is2d), props.log(false), &(wd_->logs()) );
 
     propflds_ += wlp1;
     propflds_ += wlp2;
@@ -67,11 +68,11 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 
     propflds_ += new uiWellMarkersDispProperties( tgs[2],
 	uiWellDispProperties::Setup( tr("Marker size"), tr("Marker color") )
-	.onlyfor2ddisplay(is2d), props.markers_, allmarkernms );
+	.onlyfor2ddisplay(is2d), props.markers(), allmarkernms );
 
     if ( !is2d )
 	propflds_ += new uiWellTrackDispProperties( tgs[3],
-			    uiWellDispProperties::Setup(), props.track_ );
+			    uiWellDispProperties::Setup(), props.track() );
 
     bool foundlog = false;
     for ( int idx=0; idx<propflds_.size(); idx++ )
@@ -79,9 +80,9 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 	mAttachCB( propflds_[idx]->propChanged, uiWellDispPropDlg::propChg );
 	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
 	{
-	    ts_->addTab( tgs[idx], foundlog ? is2d ? tr("Log 2") 
+	    ts_->addTab( tgs[idx], foundlog ? is2d ? tr("Log 2")
 						   : tr("Right Log")
-					    : is2d ? tr("Log 1") 
+					    : is2d ? tr("Log 1")
 						   : tr("Left Log") );
 	    foundlog = true;
 	}
@@ -223,7 +224,7 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	for ( int idx=0; idx< wds_.size(); idx++ )
 	    wellnames.addIfNew( wds_[idx]->name() );
 
-	wellselfld_ = new uiLabeledComboBox( this, tr("Select Well") );
+	wellselfld_ = new uiLabeledComboBox( this, uiStrings::sWell() );
 	wellselfld_->box()->addItems( wellnames );
 	mAttachCB( wellselfld_->box()->selectionChanged,
 		   uiMultiWellDispPropDlg::wellSelChg );
@@ -253,12 +254,11 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 	if ( logfld )
 	{
 	    logfld->setLogSet( &wd_->logs() );
-	    logfld->resetProps( first ? prop.logs_[logidx]->left_
-				      :	prop.logs_[logidx]->right_ );
+	    logfld->resetProps( prop.log(first,logidx) );
 	    first = false;
 	}
 	else if ( trckfld )
-	    trckfld->resetProps( prop.track_ );
+	    trckfld->resetProps( prop.track() );
 	else if ( mrkfld )
 	{
 	    BufferStringSet allmarkernms;
@@ -266,7 +266,7 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 		allmarkernms.add( wd_->markers()[idy]->name() );
 
 	    mrkfld->setAllMarkerNames( allmarkernms );
-	    mrkfld->resetProps( prop.markers_ );
+	    mrkfld->resetProps( prop.markers() );
 	}
     }
     putToScreen();

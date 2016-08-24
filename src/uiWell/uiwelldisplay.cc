@@ -61,8 +61,10 @@ void uiWellDisplay::init( const Setup& s )
 	zistime_ = wd.haveD2TModel() && SI().zIsTime();
 
 	Well::DisplayProperties& disp = wd.displayProperties( !use3ddisp_ );
+	MonitorLock mldisp( disp );
 
-	for ( int idx=0; idx<disp.logs_.size(); idx++ )
+	const int nrlogdisps = disp.nrLogPairs();
+	for ( int idx=0; idx<nrlogdisps; idx++ )
 	{
 	    uiWellLogDisplay::Setup wlsu;
 	    wlsu.noyannot_ = s.noyannot_;
@@ -89,12 +91,13 @@ void uiWellDisplay::init( const Setup& s )
 	    }
 	}
 
-	if ( disp.displaystrat_ )
+	if ( disp.displayStrat() )
 	{
 	    stratdisp_ = new uiWellStratDisplay( this );
 	    if ( !logdisps_.isEmpty() )
 		stratdisp_->attach( rightOf, logdisps_[logdisps_.size()-1] );
 	}
+	mldisp.unlockNow();
 
 	mAttachCB( wd.d2tchanged, uiWellDisplay::wdChgCB );
 	mAttachCB( wd.markerschanged, uiWellDisplay::wdChgCB );
@@ -172,24 +175,26 @@ void uiWellDisplay::setDisplayProperties()
 	{ clearLogDisplay(); return; }
 
     const Well::DisplayProperties& dpp = wd->displayProperties( !use3ddisp_ );
+    MonitorLock mldisp( dpp );
 
     for ( int idx=0; idx<logdisps_.size(); idx ++ )
     {
 	uiWellLogDisplay::LogData& ld1 = logdisps_[idx]->logData(true);
 	uiWellLogDisplay::LogData& ld2 = logdisps_[idx]->logData(false);
 
-	if ( !dpp.logs_.validIdx( idx ) ) continue;
-	const Well::DisplayProperties::Log& lp1 = dpp.logs_[idx]->left_;
-	const Well::DisplayProperties::Log& lp2 = dpp.logs_[idx]->right_;
+	if ( idx >= dpp.nrLogPairs() )
+	    continue;
+	const Well::LogDispProps& lp1 = dpp.log( true, idx );
+	const Well::LogDispProps& lp2 = dpp.log( false, idx );
 
-	const Well::Log* l1 = wd->logs().getLogByName( lp1.name_ );
-	const Well::Log* l2 = wd->logs().getLogByName( lp2.name_ );
+	const Well::Log* l1 = wd->logs().getLogByName( lp1.logName() );
+	const Well::Log* l2 = wd->logs().getLogByName( lp2.logName() );
 
 	ld1.setLog( l1 );			ld2.setLog( l2 );
 	ld1.xrev_ = false;			ld2.xrev_ = false;
 	ld1.disp_ = lp1;			ld2.disp_ = lp2;
 
-	logdisps_[idx]->markerDisp() = dpp.markers_;
+	logdisps_[idx]->markerDisp() = dpp.markers();
 	logdisps_[idx]->dataChanged();
     }
 }

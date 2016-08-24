@@ -21,7 +21,7 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
     : uiWellDahDisplay::DahObjData( scn, isfirst, s )
     , logSet(this)
 {
-    disp_.color_ = Color::stdDrawColor( isfirst ? 0 : 1 );
+    disp_.setColor(Color::stdDrawColor( isfirst ? 0 : 1 ) );
 }
 
 
@@ -35,9 +35,9 @@ uiWellLogDisplay::~uiWellLogDisplay()
 void uiWellLogDisplay::gatherDataInfo( bool first )
 {
     LogData& ld = logData( first );
-    ld.xax_.setup().islog( ld.disp_.islogarithmic_ );
-    ld.cliprate_ = ld.disp_.cliprate_;
-    ld.valrg_ = ld.disp_.range_;
+    ld.xax_.setup().islog( ld.disp_.isLogarithmic() );
+    ld.cliprate_ = ld.disp_.clipRate();
+    ld.valrg_ = ld.disp_.range();
 
     uiWellDahDisplay::gatherDataInfo( first );
 }
@@ -88,13 +88,13 @@ void uiWellLogDisplay::draw()
 {
     uiWellDahDisplay::draw();
 
-    int style = logData(true).disp_.style_;
+    int style = logData(true).disp_.style();
     if ( style==0 || style==2 )
 	drawFilledCurve( true );
     else
 	drawSeismicCurve( true );
 
-    style = logData(false).disp_.style_;
+    style = logData(false).disp_.style();
     if ( style==0 || style==2 )
 	drawFilledCurve( false );
     else
@@ -109,8 +109,8 @@ void uiWellLogDisplay::drawCurve( bool first )
 
     if ( !ld.curvepolyitm_ ) return;
     OD::LineStyle ls(OD::LineStyle::Solid);
-    ls.width_ = ld.disp_.size_;
-    ls.color_ = ld.disp_.color_;
+    ls.width_ = ld.disp_.size();
+    ls.color_ = ld.disp_.color();
     ld.curvepolyitm_->setPenStyle( ls );
     ld.curvepolyitm_->setVisible( ls.width_ > 0 );
 }
@@ -194,7 +194,7 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
     {
 	uiPolygonItem* pli = scene().addPolygon( *pts[idx], true );
 	ld.curvepolyitms_ += pli;
-	Color color = ld.disp_.seiscolor_;
+	const Color color = ld.disp_.seisColor();
 	pli->setFillColor( color );
 	pli->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1,color) );
 	pli->setZValue( 1 );
@@ -208,25 +208,29 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     uiWellLogDisplay::LogData& ld = logData(first);
     deepErase( ld.curvepolyitms_ );
 
-    if ( !ld.disp_.isleftfill_ && !ld.disp_.isrightfill_ ) return;
+    const bool fillleft = ld.disp_.fillLeft();
+    const bool fillright = ld.disp_.fillRight();
+    if ( !fillleft && !fillright )
+	return;
 
     const float rgstop = ld.xax_.range().stop;
     const float rgstart = ld.xax_.range().start;
     const bool isrev = rgstop < rgstart;
 
-    const float colrgstop = ld.disp_.fillrange_.stop;
-    const float colrgstart = ld.disp_.fillrange_.start;
-    const float colrgwidth = ld.disp_.fillrange_.width();
+    const Interval<float> fillrg = ld.disp_.fillRange();
+    const float colrgstop = fillrg.stop;
+    const float colrgstart = fillrg.start;
+    const float colrgwidth = fillrg.width();
     const bool iscolrev = colrgstop < colrgstart;
 
     mGetWLSizeAndStep();
 
-    const bool fullpanelfill = ld.disp_.isleftfill_ && ld.disp_.isrightfill_;
+    const bool fullpanelfill = fillleft && fillright;
     const bool isfillrev = !fullpanelfill &&
-		 ( ( first && ld.disp_.isleftfill_ && !isrev )
-		|| ( first && ld.disp_.isrightfill_ && isrev )
-		|| ( !first && ld.disp_.isrightfill_ && !isrev )
-		|| ( !first && ld.disp_.isleftfill_ && isrev ) );
+		 ( ( first && fillleft && !isrev )
+		|| ( first && fillright && isrev )
+		|| ( !first && fillright && !isrev )
+		|| ( !first && fillleft && isrev ) );
 
     float zfirst = wl.firstDah();
     mDefZPos( zfirst )
@@ -255,7 +259,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 
 	float val = wl.valueByIdx( index );
 	bool isvalrev = iscolrev;
-	if ( ld.disp_.iscoltabflipped_ )
+	if ( ld.disp_.colTabFlipped() )
 	    isvalrev = !isvalrev;
 	const float valdiff = isvalrev ? colrgstop-val : val-colrgstart;
 	const bool isvaludf = mIsUdf(val);
@@ -298,13 +302,13 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	colorposset += prevcolpos;
     }
 
-    const int tabidx = ColTab::SM().indexOf( ld.disp_.seqname_ );
+    const int tabidx = ColTab::SM().indexOf( ld.disp_.seqName() );
     const ColTab::Sequence* seq = ColTab::SM().get( tabidx<0 ? 0 : tabidx );
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	uiPolygonItem* pli = scene().addPolygon( *pts[idx], true );
 	ld.curvepolyitms_ += pli;
-	Color color = ld.disp_.issinglecol_ ? ld.disp_.seiscolor_
+	Color color = ld.disp_.singleColor() ? ld.disp_.seisColor()
 					    : seq->color(colorposset[idx]);
 	pli->setFillColor( color );
 	pli->setPenStyle( OD::LineStyle(OD::LineStyle::None) );
@@ -335,8 +339,8 @@ uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
     const CallBack cb( mCB(this,uiWellLogDispDlg,logSetCB) );
     dispfld_->logData(true).logSet.notify( cb );
     dispfld_->logData(false).logSet.notify( cb );
-    dispfld_->dahObjData(true).col_ = dispfld_->logData(true).disp_.color_;
-    dispfld_->dahObjData(false).col_ = dispfld_->logData(false).disp_.color_;
+    dispfld_->dahObjData(true).col_ = dispfld_->logData(true).disp_.color();
+    dispfld_->dahObjData(false).col_ = dispfld_->logData(false).disp_.color();
 
     dispfld_->setPrefWidth( 300 );
     dispfld_->setPrefHeight( 500 );

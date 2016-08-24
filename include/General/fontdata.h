@@ -30,6 +30,7 @@ public:
 				 Weight wght=defaultWeight(),
 				 bool ital=defaultItalic());
 			FontData(const char* fms); //! Calls getFrom
+    bool		operator ==(const FontData&) const;
 
 			//! Store/retrieve (in FileMultiString format).
     bool		getFrom(const char* fms);
@@ -72,6 +73,7 @@ protected:
     int			pointsize_;
     Weight		weight_;
     bool		italic_;
+
 };
 
 #endif

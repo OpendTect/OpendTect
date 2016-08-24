@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellcommon.h"
-#include "sharedobject.h"
+#include "namedobj.h"
 #include "monitoriter.h"
 #include "ranges.h"
 #include "sets.h"
@@ -34,7 +34,7 @@ namespace Well
 
 */
 
-mExpClass(Well) DahObj : public ::SharedObject
+mExpClass(Well) DahObj : public ::NamedMonitorable
 {
 public:
 

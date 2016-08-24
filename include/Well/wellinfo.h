@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellcommon.h"
-#include "sharedobject.h"
+#include "namedobj.h"
 #include "enums.h"
 #include "position.h"
 #include "uistring.h"
@@ -24,7 +24,7 @@ namespace Well
 
 /*!\brief Information about a certain well. */
 
-mExpClass(Well) Info : public SharedObject
+mExpClass(Well) Info : public NamedMonitorable
 { mODTextTranslationClass(Well::Info)
 public:
 

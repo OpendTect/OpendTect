@@ -59,7 +59,7 @@ public:
     bool		disphorfullnames_;
     bool		iszinft_;
     bool		iszintime_;
-    Well::DisplayProperties::Markers mrkdisp_;
+    Well::MarkerDispProps mrkdisp_;
     BufferStringSet	allmarkernms_;
 
     static const char*	sKeyIsMarkerDisp();
@@ -78,7 +78,7 @@ public:
 mExpClass(WellAttrib) Marker
 { mODTextTranslationClass(Marker);
 public:
-    
+
     typedef Well::Marker::LevelID LevelID;
 
 			Marker(float z)
