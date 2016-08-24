@@ -434,9 +434,9 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 	    else
 	    {
 		nbdef10 = lefttile->hasDefinedCoordinates(  
-		highestresidx + nrroworcol - 1 );
+		highestresidx + nrroworcol - 2 );
 		nbdef20 = lefttile->hasDefinedCoordinates(  
-		highestresidx + 2*nrroworcol - 1 );	
+		highestresidx + 2*nrroworcol - 2 );	
 	    }
 	    nbdef12=curtile->hasDefinedCoordinates( highestresidx + 1 );  
 	    nbdef22=curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);
@@ -453,9 +453,9 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 	    else
 	    {
 		nbdef12 = righttile->hasDefinedCoordinates(
-		    highestresidx - nrroworcol + 1 );
+		    highestresidx - nrroworcol + 2 );
 		nbdef22 = righttile->hasDefinedCoordinates(
-		    highestresidx + 1);
+		    highestresidx + 2);
 	    }
 	    nbdef10=curtile->hasDefinedCoordinates(highestresidx - 1);
 	    nbdef20=curtile->hasDefinedCoordinates(highestresidx+nrroworcol-1);
@@ -481,7 +481,7 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 	    }	
 	    else    
 	    {	
-		const int rcsize = nrroworcol*( nrroworcol - 1 );	
+		const int rcsize = nrroworcol*( nrroworcol - 2 );	
 		nbdef01=uptile->hasDefinedCoordinates( rcsize + highestresidx );
 		nbdef02=uptile->hasDefinedCoordinates( rcsize+highestresidx+1 );
 	    }	
@@ -499,8 +499,8 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 	    }
 	    else
 	    {
-		nbdef21 = bottomtile->hasDefinedCoordinates( curcol );
-		nbdef22 = bottomtile->hasDefinedCoordinates( curcol+1 );
+		nbdef21=bottomtile->hasDefinedCoordinates( curcol+nrroworcol );
+		nbdef22=bottomtile->hasDefinedCoordinates(curcol+nrroworcol+1);
 	    }
 	    nbdef01=curtile->hasDefinedCoordinates(highestresidx-nrroworcol);
 	    nbdef02=curtile->hasDefinedCoordinates(highestresidx-nrroworcol+1);
