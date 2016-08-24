@@ -165,12 +165,6 @@ void uiAttribDescSetEd::createMenuBar()
 
     filemnu->insertItem( impmnu );
     menubar->insertItem( filemnu );
-
-    uiMenu* helpmnu = new uiMenu( this, uiStrings::sHelp() );
-    mInsertMnuItem( helpmnu, tr("Documentation"), showDoc, 0 );
-    mInsertMnuItem( helpmnu, tr("Attribute Matrix"), showMatrix,
-		    "attributematrix" );
-    menubar->insertItem( helpmnu );
 }
 
 
@@ -1122,12 +1116,6 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
     gtDefaultAttribsets( mGetApplSetupDataDir(), is2d, attribfiles,
 			 attribnames );
     gtDefaultAttribsets( mGetSWDirDataDir(), is2d, attribfiles, attribnames );
-}
-
-
-void uiAttribDescSetEd::showDoc( CallBacker* )
-{
-    HelpProvider::provideHelp( HelpKey("od",0) );
 }
 
 
