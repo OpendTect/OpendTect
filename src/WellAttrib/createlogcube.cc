@@ -252,6 +252,13 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
 }
 
 
+void LogCubeCreator::getOutputNames( BufferStringSet& names ) const
+{
+    for ( int idx=0; idx<logcubes_.size(); idx++ )
+	names.add( logcubes_[idx]->fnm_ );
+}
+
+
 bool LogCubeCreator::doPrepare( int )
 {
     extractparams_.zstep_ = SI().zRange( true ).step;
@@ -366,7 +373,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
     Well::LogSampler logsamp( *wd, extractparams_, lognms );
     if ( !logsamp.execute() )
     {
-	msg = tr( "%1 for well $2" ).arg( logsamp.errMsg() ).arg( wllnm );
+	msg = tr( "%1 for well %2" ).arg( logsamp.errMsg() ).arg( wllnm );
 	mErrRet( msg, errmsg_.isEmpty(), return false )
     }
 

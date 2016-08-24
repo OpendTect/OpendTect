@@ -33,9 +33,10 @@ public:
 				       int nrtrcs=1);
 			~LogCubeCreator();
 
-			//Returns false is an output already exists
+			//Returns false if an output already exists
     bool		setOutputNm(const char* postfix=0,
 				    bool withwllnm=false);
+    void		getOutputNames(BufferStringSet&) const;
 
     const uiString&	errMsg() const { return errmsg_; }
     bool		isOK() const { return errmsg_.isEmpty(); }
