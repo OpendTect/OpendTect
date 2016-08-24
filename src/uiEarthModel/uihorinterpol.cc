@@ -176,14 +176,6 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( !savefldgrp_->acceptOK(0) )
 	return false;
 
-     //May grid area in polygon but not in original horizon, optional?
-    /*if ( interpolhor3dsel_->cropPolygon() )
-    {
-	Interval<int> inlrg, crlrg;
-	interpolhor3dsel_->getPolygonRange( inlrg, crlrg );
-	savefldgrp_->setHorRange( inlrg, crlrg );
-    }*/
-
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
 	savefldgrp_->getNewHorizon() : horizon_;
 
