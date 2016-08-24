@@ -83,7 +83,7 @@ uiString uiSEGYReadFinisher::getDlgTitle( const char* usrspec )
 uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
 					const char* usrspec )
     : uiDialog(p,uiDialog::Setup(getWinTile(fs),getDlgTitle(usrspec),
-				  mTODOHelpKey ) )
+				  mODHelpKey(mSEGYReadFinisherHelpID) ) )
     , fs_(fs)
     , outwllfld_(0)
     , lognmfld_(0)
