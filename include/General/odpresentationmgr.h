@@ -21,10 +21,8 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "multiid.h"
 #include "integerid.h"
-#include <utility>
 
-typedef IntegerID<int>	ViewerSubID;
-typedef std::pair< ViewerSubID, ViewerSubID > ViewerSubID_Pair;
+typedef IntegerID<int>	ViewerSubID; 
 
 mExpClass(General) ObjPresentationInfo
 {
@@ -84,14 +82,18 @@ protected:
 };
 
 
-mExpClass(General) ODViewerID : public ViewerSubID_Pair
+mExpClass(General) ODViewerID 
 {
 public:
 				ODViewerID( ViewerSubID vwrtypeid,
 					    ViewerSubID vwrid )
-				    : ViewerSubID_Pair(vwrtypeid,vwrid) {}
-    ViewerSubID			viewerTypeID()	{ return first; }
-    ViewerSubID			viewerID()	{ return second; }
+				    : first_(ViewerSubID::getInvalid())
+				    , second_(ViewerSubID::getInvalid()) {}
+    ViewerSubID			viewerTypeID()	{ return first_; }
+    ViewerSubID			viewerID()	{ return second_; }
+protected:
+    ViewerSubID			first_;
+    ViewerSubID			second_;
 };
 
 
