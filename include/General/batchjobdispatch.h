@@ -30,8 +30,7 @@ public:
 			  PreStack, SEGY, T2D, TwoDto3D, VelConv, Vol };
 
 			JobSpec(ProcType);
-			JobSpec( const char* pnm=0 )
-			    : prognm_(pnm), execpars_(true)		{}
+			JobSpec(const char* pnm=0);
 			JobSpec(const IOPar&);
 
     static const char*	progNameFor(ProcType);

@@ -30,6 +30,14 @@ Batch::JobSpec::JobSpec( Batch::JobSpec::ProcType pt )
 }
 
 
+Batch::JobSpec::JobSpec( const char* pnm )
+    : execpars_(true)
+    , prognm_(pnm)
+{
+    execpars_.needmonitor_ = true;
+}
+
+
 Batch::JobSpec::JobSpec( const IOPar& iop )
     : execpars_(true)
 {
