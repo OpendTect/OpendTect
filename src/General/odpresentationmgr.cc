@@ -24,7 +24,8 @@ ODPresentationManager::ODPresentationManager()
 }
 
 
-ODVwrTypePresentationMgr* ODPresentationManager::getViewerTypeMgr(int vwrtypeid)
+ODVwrTypePresentationMgr* ODPresentationManager::getViewerTypeMgr(
+	ViewerSubID vwrtypeid )
 {
     const int idx = syncInfoIdx( vwrtypeid );
     if ( idx<0 )
@@ -34,38 +35,25 @@ ODVwrTypePresentationMgr* ODPresentationManager::getViewerTypeMgr(int vwrtypeid)
 }
 
 
-void ODPresentationManager::request( int curdomainid, RequestType req,
-				     const IOPar& disppar )
+void ODPresentationManager::request(
+	ODViewerID vwrid,OD::PresentationRequestType req,const IOPar& prinfopar)
 {
     for ( int idx=0; idx<vwrtypemanagers_.size(); idx++ )
     {
-	ODVwrTypePresentationMgr* domainmgr = vwrtypemanagers_[idx];
+	ODVwrTypePresentationMgr* vwrtypemgr = vwrtypemanagers_[idx];
 	const SyncInfo& syninfo = vwrtypesyncinfos_[idx];
-	const int vwrtypeid = syninfo.vwrtypeid_;
-	if ( vwrtypeid==curdomainid ||
-	     !areViewerTypesSynced(curdomainid,vwrtypeid) )
+	const ViewerSubID vwrtypeid = syninfo.vwrtypeid_;
+	if ( !areViewerTypesSynced(vwrid.viewerTypeID(),vwrtypeid) )
 	    continue;
 
-	switch ( req )
-	{
-	    case Add:
-		domainmgr->ObjAdded.trigger( disppar );
-		break;
-	    case Vanish:
-		domainmgr->VanishRequested.trigger( disppar );
-		break;
-	    case Show:
-		domainmgr->ShowRequested.trigger( disppar );
-		break;
-	    case Hide:
-		domainmgr->HideRequested.trigger( disppar );
-		break;
-	}
+	vwrtypemgr->request(
+		req, prinfopar, vwrtypeid==vwrid.viewerTypeID()
+				? vwrid.viewerID() : ViewerSubID::get(-1) );
     }
 }
 
 
-int ODPresentationManager::syncInfoIdx( int vwrtypeid ) const
+int ODPresentationManager::syncInfoIdx( ViewerSubID vwrtypeid ) const
 {
     for ( int idx=0; idx<vwrtypesyncinfos_.size(); idx++ )
     {
@@ -77,16 +65,16 @@ int ODPresentationManager::syncInfoIdx( int vwrtypeid ) const
 }
 
 
-bool ODPresentationManager::areViewerTypesSynced( int domain1id,
-					      int domain2id ) const
+bool ODPresentationManager::areViewerTypesSynced( ViewerSubID vwr1typeid,
+						  ViewerSubID vwr2typeid ) const
 {
-    const int domain1idx = syncInfoIdx( domain1id );
-    const int domain2idx = syncInfoIdx( domain2id );
-    if ( domain1idx<0 || domain2idx<0 )
+    const int vwr1typeidx = syncInfoIdx( vwr1typeid );
+    const int vwr2typeidx = syncInfoIdx( vwr2typeid );
+    if ( vwr1typeidx<0 || vwr2typeidx<0 )
 	return false;
 
-    return vwrtypesyncinfos_[domain1idx].issynced_ &&
-	   vwrtypesyncinfos_[domain2idx].issynced_;
+    return vwrtypesyncinfos_[vwr1typeidx].issynced_ &&
+	   vwrtypesyncinfos_[vwr2typeidx].issynced_;
 }
 
 
@@ -104,14 +92,50 @@ void ODPresentationManager::addViewerTypeManager( ODVwrTypePresentationMgr* vtm)
 }
 
 
-ODVwrTypePresentationMgr::ODVwrTypePresentationMgr()
+PresentationManagedViewer::PresentationManagedViewer()
     : ObjAdded(this)
     , ObjOrphaned(this)
     , UnsavedObjLastCall(this)
     , ShowRequested(this)
     , HideRequested(this)
     , VanishRequested(this)
+    , viewerid_(ViewerSubID::get(-1))
 {
+}
+
+
+PresentationManagedViewer::~PresentationManagedViewer()
+{
+    detachAllNotifiers();
+}
+
+
+void ODVwrTypePresentationMgr::request(
+	OD::PresentationRequestType req, const IOPar& prinfopar,
+	ViewerSubID skipvwrid )
+{
+    for ( int idx=0; idx<viewers_.size(); idx++ )
+    {
+	PresentationManagedViewer* vwr = viewers_[idx];
+	if ( vwr->viewerID()==skipvwrid )
+	    continue;
+
+	switch ( req )
+	{
+	    case OD::Add:
+		vwr->ObjAdded.trigger( prinfopar );
+		break;
+	    case OD::Vanish:
+		vwr->VanishRequested.trigger( prinfopar );
+		break;
+	    case OD::Show:
+		vwr->ShowRequested.trigger( prinfopar );
+		break;
+	    case OD::Hide:
+		vwr->HideRequested.trigger( prinfopar );
+		break;
+	}
+    }
 }
 
 

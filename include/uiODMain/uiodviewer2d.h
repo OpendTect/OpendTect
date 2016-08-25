@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "uigeom.h"
 #include "uistring.h"
+#include "odpresentationmgr.h"
 
 class uiFlatViewAuxDataEditor;
 class uiFlatViewStdControl;
@@ -37,18 +38,21 @@ namespace Attrib	{ class SelSpec; }
 namespace FlatView	{ class AuxData; }
 namespace ZDomain	{ class Def; }
 
+static ViewerSubID sViewer2DMgrTypeID( ViewerSubID::get(1) );
 /*!
 \brief A 2D Viewer.
 */
 
-mExpClass(uiODMain) uiODViewer2D : public CallBacker
+mExpClass(uiODMain) uiODViewer2D : public PresentationManagedViewer
 { mODTextTranslationClass(uiODViewer2D);
 public:
-				uiODViewer2D(uiODMain&,int visid);
+				uiODViewer2D(uiODMain&);
 				~uiODViewer2D();
 
     mDeclInstanceCreatedNotifierAccess(uiODViewer2D);
 
+    ViewerSubID			viewerTypeID() const
+				{ return sViewer2DMgrTypeID; }
     virtual void		setUpView(DataPack::ID,bool wva);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
     void			setMouseCursorExchange(MouseCursorExchange*);
@@ -124,16 +128,13 @@ public:
     uiSlicePos2DView*		slicePos()
 				{ return slicepos_; }
     const ZDomain::Def&		zDomain() const;
-    int				getSyncSceneID() const	{ return syncsceneid_;}
+    int				getSyncSceneID() const	{ return -1;}
 
-    int				id_; /*!<Unique identifier */
     int				visid_; /*!<ID from 3D visualization */
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
-    virtual void		setWinTitle(bool fromvisobjinfo);
-				/*!<\param fromvisobjinfo if true, window title
-				  will be set from visBase::DataObject info.*/
+    virtual void		setWinTitle();
 
     static const char*		sKeyVDSelSpec()  { return "VD SelSpec"; }
     static const char*		sKeyWVASelSpec() { return "WVA SelSpec"; }
@@ -225,7 +226,6 @@ protected:
     uiODMain&			appl_;
     int				rdmlineid_;
     int				voiidx_;
-    int				syncsceneid_;
 
     uiWorldPoint		initialcentre_;
     float			initialx1pospercm_;

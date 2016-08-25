@@ -129,7 +129,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	for ( int chidx=0; chidx<mids.size(); chidx++ )
 	{
 	    addChildItem( mids[chidx] );
-	    emitChildPRRequest( mids[chidx], ODPresentationManager::Add );
+	    emitChildPRRequest( mids[chidx], OD::Add );
 	}
     }
     else if ( mnuid==mGen3DIdx )
@@ -140,7 +140,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
 	const MultiID storedid = Pick::SetMGR().getID( *ps );
 	addChildItem( storedid );
-	emitChildPRRequest( storedid, ODPresentationManager::Add );
+	emitChildPRRequest( storedid, OD::Add );
     }
     else if ( mnuid==mRandom2DIdx )
     {
@@ -150,7 +150,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
 	const MultiID storedid = Pick::SetMGR().getID( *ps );
 	addChildItem( storedid );
-	emitChildPRRequest( storedid, ODPresentationManager::Add );
+	emitChildPRRequest( storedid, OD::Add );
     }
     else if ( mnuid==mEmptyIdx )
     {
@@ -160,7 +160,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
 	const MultiID storedid = Pick::SetMGR().getID( *ps );
 	addChildItem( storedid );
-	emitChildPRRequest( storedid, ODPresentationManager::Add );
+	emitChildPRRequest( storedid, OD::Add );
     }
     else if ( mnuid==mSaveIdx )
     {
@@ -230,7 +230,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
 {
     detachAllNotifiers();
-    emitPRRequest( ODPresentationManager::Vanish );
+    emitPRRequest( OD::Vanish );
     set_.unRef();
 }
 
@@ -531,7 +531,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<setids.size(); idx++ )
 	{
 	    addChildItem( setids[idx] );
-	    emitChildPRRequest( setids[idx], ODPresentationManager::Add );
+	    emitChildPRRequest( setids[idx], OD::Add );
 	}
     }
     else if ( mnuid==mNewPolyIdx )
@@ -542,7 +542,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 
 	const MultiID& storedid = Pick::SetMGR().getID( *ps );
 	addChildItem( storedid );
-	emitChildPRRequest( storedid, ODPresentationManager::Add );
+	emitChildPRRequest( storedid, OD::Add );
     }
     else if ( mnuid==mSavePolyIdx )
     {

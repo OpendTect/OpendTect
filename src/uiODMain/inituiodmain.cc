@@ -11,8 +11,6 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 
 #include "odsession.h"
-#include "odviewer2dpresentationmgr.h"
-#include "odscenepresentationmgr.h"
 
 #include "uiodscenemgr.h"
 #include "uiodvolproctreeitem.h"
@@ -25,6 +23,4 @@ mDefModInitFn(uiODMain)
     dgbODSessionTranslator::initClass();
     uiKeyBindingSettingsGroup::initClass();
     VolProc::uiDataTreeItem::initClass();
-    Viewer2DPresentationMgr::initClass();
-    ScenePresentationMgr::initClass();
 }

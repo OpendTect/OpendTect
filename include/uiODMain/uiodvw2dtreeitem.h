@@ -43,7 +43,6 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    static bool		create(uiTreeItem*,int vwrvisid,int displayid);
     static bool		create(uiTreeItem*,const uiODViewer2D&,int displayid);
     const uiODVw2DTreeItem* getVW2DItem(int displayid) const;
     virtual void	enableDisplay(bool show,bool triggervwreq)	{}
@@ -51,7 +50,7 @@ public:
     void		addKeyBoardEvent();
     virtual const Vw2DDataObject* vw2DObject() const	{ return 0; }
     virtual const char* objectTypeKey() const		{ return 0; }
-    void		emitPRRequest(ODPresentationManager::RequestType);
+    void		emitPRRequest(OD::PresentationRequestType);
 
 protected:
 
@@ -105,7 +104,7 @@ public:
     void		addChildren(const TypeSet<MultiID>&);
     bool		selectChild(const MultiID&);
     void		emitChildPRRequest(const MultiID& childstoredid,
-					   ODPresentationManager::RequestType);
+					   OD::PresentationRequestType);
     virtual const char* childObjTypeKey() const		{ return 0; }
 
 protected:

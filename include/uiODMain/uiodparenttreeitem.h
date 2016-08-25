@@ -29,7 +29,7 @@ public:
     void		addChildren(const TypeSet<MultiID>&);
     bool		selectChild(const MultiID&);
     void		emitChildPRRequest(const MultiID&,
-					   ODPresentationManager::RequestType);
+					   OD::PresentationRequestType);
 
     virtual const char* childObjTypeKey() const			=0;
 protected:

@@ -83,6 +83,7 @@ public:
     void			setNlaServer(uiNLAPartServer* s);
     uiApplService&		applService()
 				{ return (uiApplService&)applservice_; }
+    inline uiODSceneMgr&	sceneMgr()	{ return appl_.sceneMgr(); }
 
 
     // Survey menu operations
@@ -295,8 +296,6 @@ protected:
 							  1:3D->2D, 2:2D->3D */
 
     friend class		uiODApplService;
-
-    inline uiODSceneMgr&	sceneMgr()	{ return appl_.sceneMgr(); }
 
     int				otherformatvisid_;
     int				otherformatattrib_;

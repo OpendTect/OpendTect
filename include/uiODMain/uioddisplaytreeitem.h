@@ -48,7 +48,7 @@ public:
     virtual bool	displayedOnlyAtSections() const;
     virtual void	handleItemCheck(bool triggerdispreq=true);
     virtual const char* objectTypeKey() const		{ return 0; }
-    void		emitPRRequest(ODPresentationManager::RequestType);
+    void		emitPRRequest(OD::PresentationRequestType);
 
 protected:
 

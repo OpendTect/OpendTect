@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "flatview.h"
 #include "geom2dintersections.h"
+#include "odpresentationmgr.h"
 #include "uigeom.h"
 #include "uigraphicsviewbase.h"
 #include "uiodapplmgr.h"
@@ -30,10 +31,16 @@ class TrcKeyZSampling;
 class Vw2DDataObject;
 namespace Attrib	{ class SelSpec; }
 
-mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
+static ViewerSubID sViewer2DTypeID( ViewerSubID::get(1) );
+mExpClass(uiODMain) uiODViewer2DMgr : public ODVwrTypePresentationMgr
 { mODTextTranslationClass(uiODViewer2DMgr);
 public:
 
+    ViewerSubID			viewerTypeID()	{ return theViewerTypeID(); }
+    static ViewerSubID		theViewerTypeID()
+				{ return sViewer2DTypeID; }
+
+    static void			initClass();
     struct SelectedAuxAnnot
     {
 				SelectedAuxAnnot(int auxposidx=-1,
@@ -50,21 +57,21 @@ public:
     };
 
     uiODViewer2D*		getParent2DViewer(int vw2dobjid);
-    uiODViewer2D*		find2DViewer(int id,bool byvisid);
+    uiODViewer2D*		find2DViewer(ViewerSubID id);
     uiODViewer2D*		find2DViewer(const MouseEventHandler&);
     uiODViewer2D*		find2DViewer(const Pos::GeomID&);
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
     int				nr2DViewers() const;
 
-    int				displayIn2DViewer(DataPack::ID,
+    ViewerSubID			displayIn2DViewer(DataPack::ID,
 	    				      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
 					      bool wva);
-    int				displayIn2DViewer(
+    ViewerSubID			displayIn2DViewer(
 	    				Viewer2DPosDataSel&,bool wva,
 				        float initialx1pospercm=mUdf(float),
 				        float initialx2pospercm=mUdf(float));
-    void			displayIn2DViewer(int visid,int attribid,
+    ViewerSubID			displayIn2DViewer(int visid,int attribid,
 						  bool wva);
     void			remove2DViewer(int id,bool byvisid);
 
@@ -144,8 +151,9 @@ protected:
 				uiODViewer2DMgr(uiODMain*);
 				~uiODViewer2DMgr();
 
-    uiODViewer2D&		addViewer2D(int visid);
-    ObjectSet<uiODViewer2D>     viewers2d_;
+    uiODViewer2D&		addViewer2D();
+    uiODViewer2D*		getViewer2D(int idx);
+    const uiODViewer2D*		getViewer2D(int idx) const;
     Line2DInterSectionSet*	l2dintersections_;
     SelectedAuxAnnot		selauxannot_;
     TypeSet<Pos::GeomID>	geom2dids_;

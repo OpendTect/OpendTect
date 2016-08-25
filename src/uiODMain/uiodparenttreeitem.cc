@@ -11,8 +11,8 @@ ___________________________________________________________________
 #include "uiodparenttreeitem.h"
 #include "uioddisplaytreeitem.h"
 #include "uiodapplmgr.h"
+#include "uiodscenemgr.h"
 #include "uivispartserv.h"
-#include "odscenepresentationmgr.h"
 
 
 uiODParentTreeItem::uiODParentTreeItem( const uiString& nm )
@@ -29,17 +29,16 @@ uiODParentTreeItem::~uiODParentTreeItem()
 
 bool uiODParentTreeItem::init()
 {
-    ODVwrTypePresentationMgr* vtmgr =
-	ODPrMan().getViewerTypeMgr( ScenePresentationMgr::sViewerTypeID() );
-    if ( !vtmgr )
+    uiODScene* scene = applMgr()->sceneMgr().getScene( sceneID() );
+    if ( !scene )
 	return false;
 
-    mAttachCB( vtmgr->ObjAdded, uiODParentTreeItem::objAddedCB );
-    mAttachCB( vtmgr->VanishRequested,
+    mAttachCB( scene->ObjAdded, uiODParentTreeItem::objAddedCB );
+    mAttachCB( scene->VanishRequested,
 	       uiODParentTreeItem::objVanishedCB );
-    mAttachCB( vtmgr->ShowRequested, uiODParentTreeItem::objShownCB );
-    mAttachCB( vtmgr->HideRequested, uiODParentTreeItem::objHiddenCB );
-    mAttachCB( vtmgr->ObjOrphaned, uiODParentTreeItem::objOrphanedCB );
+    mAttachCB( scene->ShowRequested, uiODParentTreeItem::objShownCB );
+    mAttachCB( scene->HideRequested, uiODParentTreeItem::objHiddenCB );
+    mAttachCB( scene->ObjOrphaned, uiODParentTreeItem::objOrphanedCB );
     return uiODTreeItem::init();
 }
 
@@ -141,7 +140,7 @@ void uiODParentTreeItem::objOrphanedCB( CallBacker* cber )
 
 
 void uiODParentTreeItem::emitChildPRRequest(
-	const MultiID& mid, ODPresentationManager::RequestType req )
+	const MultiID& mid, OD::PresentationRequestType req )
 {
     if ( mid.isUdf() )
 	return;

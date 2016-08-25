@@ -65,9 +65,9 @@ static void initSelSpec( Attrib::SelSpec& as )
 
 mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
 
-uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
-    : appl_(appl)
-    , visid_(visid)
+uiODViewer2D::uiODViewer2D( uiODMain& appl )
+    : PresentationManagedViewer()
+    , appl_(appl)
     , vdselspec_(*new Attrib::SelSpec)
     , wvaselspec_(*new Attrib::SelSpec)
     , viewwin_(0)
@@ -84,7 +84,6 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , initialx1pospercm_(mUdf(float))
     , initialx2pospercm_(mUdf(float))
     , isvertical_(true)
-    , ispolyselect_(true)
     , viewWinAvailable(this)
     , viewWinClosed(this)
     , dataChanged(this)
@@ -92,34 +91,11 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , mousecursorexchange_(0)
     , marker_(0)
     , datatransform_(0)
-    , syncsceneid_(-1)
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
-    id_ = vwrid++;
+    viewerid_ = ViewerSubID::get( vwrid++ );
 
-    setWinTitle( true );
-
-    if ( visid_>=0 )
-	syncsceneid_ = appl_.applMgr().visServer()->getSceneID( visid_ );
-    else
-    {
-	TypeSet<int> sceneids;
-	appl_.applMgr().visServer()->getSceneIds( sceneids );
-	for ( int iscn=0; iscn<sceneids.size(); iscn++ )
-	{
-	    const int sceneid = sceneids[iscn];
-	    const ZAxisTransform* scntransform =
-		appl_.applMgr().visServer()->getZAxisTransform( sceneid );
-	    const ZDomain::Info* scnzdomaininfo =
-		appl_.applMgr().visServer()->zDomainInfo( sceneid );
-	    if ( datatransform_==scntransform ||
-		 (scnzdomaininfo && scnzdomaininfo->def_==zDomain()) )
-	    {
-		syncsceneid_ = sceneid;
-		break;
-	    }
-	}
-    }
+    setWinTitle();
 
     initSelSpec( vdselspec_ );
     initSelSpec( wvaselspec_ );
@@ -358,7 +334,7 @@ void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs,
 	}
     }
 
-    if ( tkzs.isFlat() ) setWinTitle( false );
+    if ( tkzs.isFlat() ) setWinTitle();
 }
 
 
@@ -394,7 +370,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     }
 
     viewwin_->setInitialSize( 700, 400 );
-    if ( tkzs_.isFlat() ) setWinTitle( false );
+    if ( tkzs_.isFlat() ) setWinTitle();
 
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
@@ -827,47 +803,35 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
 }
 
 
-void uiODViewer2D::setWinTitle( bool fromvisobjinfo )
+void uiODViewer2D::setWinTitle()
 {
-    uiString info;
-    if ( fromvisobjinfo )
+    uiString info = toUiString("%1: %2");
+
+    if ( !mIsUdf(rdmlineid_) )
     {
-	BufferString objectinfo;
-	appl_.applMgr().visServer()->getObjectInfo( visid_, objectinfo );
-	if ( objectinfo.isEmpty() )
-	    info = appl_.applMgr().visServer()->getObjectName( visid_ );
-	else
-	    info = mToUiStringTodo( objectinfo );
+	const Geometry::RandomLine* rdmline =
+		    Geometry::RLM().get( rdmlineid_ );
+	if ( rdmline ) info = toUiString( rdmline->name() );
+    }
+    else if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    {
+	info.arg( tr("Line") )
+	    .arg( toUiString( Survey::GM().getName(geomID()) ) );
+    }
+    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+    {
+	info.arg( uiStrings::sInline() )
+	    .arg( tkzs_.hsamp_.start_.inl() );
+    }
+    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+    {
+	info.arg( uiStrings::sCrossline() )
+	    .arg( tkzs_.hsamp_.start_.crl() );
     }
     else
     {
-	info = toUiString("%1: %2");
-	if ( !mIsUdf(rdmlineid_) )
-	{
-	    const Geometry::RandomLine* rdmline =
-			Geometry::RLM().get( rdmlineid_ );
-	    if ( rdmline ) info = toUiString( rdmline->name() );
-	}
-	else if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
-	{
-	    info.arg( tr("Line") )
-		.arg( toUiString( Survey::GM().getName(geomID()) ) );
-	}
-	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
-	{
-	    info.arg( uiStrings::sInline() )
-		.arg( tkzs_.hsamp_.start_.inl() );
-	}
-	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
-	{
-	    info.arg( uiStrings::sCrossline() )
-		.arg( tkzs_.hsamp_.start_.crl() );
-	}
-	else
-	{
-	    info.arg( zDomain().userName() )
-		.arg( mNINT32(tkzs_.zsamp_.start * zDomain().userFactor()) );
-	}
+	info.arg( zDomain().userName() )
+	    .arg( mNINT32(tkzs_.zsamp_.start * zDomain().userFactor()) );
     }
 
     uiString title = toUiString("%1%2").arg(basetxt_).arg(info);

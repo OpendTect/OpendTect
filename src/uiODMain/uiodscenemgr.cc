@@ -85,12 +85,13 @@ static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
 
 #define mWSMCB(fn) mCB(this,uiODSceneMgr,fn)
 #define mDoAllScenes(memb,fn,arg) \
-    for ( int idx=0; idx<scenes_.size(); idx++ ) \
-	scenes_[idx]->memb->fn( arg )
+    for ( int idx=0; idx<viewers_.size(); idx++ ) \
+	getSceneByIdx(idx)->memb->fn( arg )
 
 
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
-    : appl_(*a)
+    : ODVwrTypePresentationMgr()
+    , appl_(*a)
     , mdiarea_(new uiMdiArea(a,"OpendTect work space"))
     , vwridx_(0)
     , tifs_(new uiTreeFactorySet)
@@ -153,7 +154,7 @@ uiODSceneMgr::~uiODSceneMgr()
 
 void uiODSceneMgr::initMenuMgrDepObjs()
 {
-    if ( scenes_.isEmpty() )
+    if ( viewers_.isEmpty() )
 	addScene(true);
 }
 
@@ -169,11 +170,11 @@ void uiODSceneMgr::cleanUp( bool startnew )
 }
 
 
-uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
+uiODScene& uiODSceneMgr::mkNewScene()
 {
-    uiODSceneMgr::Scene& scn = *new uiODSceneMgr::Scene( mdiarea_ );
+    uiODScene& scn = *new uiODScene( mdiarea_ );
     scn.mdiwin_->closed().notify( mWSMCB(removeSceneCB) );
-    scenes_ += &scn;
+    viewers_ += &scn;
     vwridx_++;
     BufferString vwrnm( "Viewer Scene ", vwridx_ );
     scn.vwr3d_->setName( vwrnm );
@@ -184,8 +185,9 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 		const uiString& name )
 {
-    Scene& scn = mkNewScene();
+    uiODScene& scn = mkNewScene();
     const int sceneid = visServ().addScene();
+    scn.setViewerID( ViewerSubID::get(sceneid) );
     mDynamicCastGet(visSurvey::Scene*,visscene,visServ().getObject(sceneid));
     if ( visscene && scn.vwr3d_->getPolygonSelector() )
 	visscene->setPolygonSelector( scn.vwr3d_->getPolygonSelector() );
@@ -212,19 +214,20 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     initTree( scn, vwridx_ );
     treeAdded.trigger( sceneid );
 
-    if ( scenes_.size()>1 && scenes_[0] )
+    if ( viewers_.size()>1 && viewers_[0] )
     {
-	scn.vwr3d_->setStereoType( scenes_[0]->vwr3d_->getStereoType() );
+	scn.vwr3d_->setStereoType( getSceneByIdx(0)->vwr3d_->getStereoType() );
 	scn.vwr3d_->setStereoOffset(
-		scenes_[0]->vwr3d_->getStereoOffset() );
-	scn.vwr3d_->showRotAxis( scenes_[0]->vwr3d_->rotAxisShown() );
-	if ( !scenes_[0]->vwr3d_->isCameraPerspective() )
+		getSceneByIdx(0)->vwr3d_->getStereoOffset() );
+	scn.vwr3d_->showRotAxis( getSceneByIdx(0)->vwr3d_->rotAxisShown() );
+	if ( !getSceneByIdx(0)->vwr3d_->isCameraPerspective() )
 	    scn.vwr3d_->toggleCameraType();
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
     }
-    else if ( scenes_[0] )
+    else if ( viewers_[0] )
     {
-	const bool isperspective = scenes_[0]->vwr3d_->isCameraPerspective();
+	const bool isperspective =
+	    getSceneByIdx(0)->vwr3d_->isCameraPerspective();
 	if ( appl_.menuMgrAvailable() )
 	{
 	    appl_.menuMgr().setCameraPixmap( isperspective );
@@ -245,13 +248,13 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 
 void uiODSceneMgr::newSceneUpdated( CallBacker* cb )
 {
-    if ( scenes_.size() >0 && scenes_.last()->vwr3d_ )
+    if ( viewers_.size() >0 && getSceneByIdx(viewers_.size()-1)->vwr3d_ )
     {
-	scenes_.last()->vwr3d_->viewAll( false );
+	getSceneByIdx(viewers_.size()-1)->vwr3d_->viewAll( false );
 	tiletimer_->start( 10,true );
 
-	visBase::DataObject* obj =
-	    visBase::DM().getObject( scenes_.last()->vwr3d_->sceneID() );
+	visBase::DataObject* obj = visBase::DM().getObject(
+		getSceneByIdx(viewers_.size()-1)->vwr3d_->sceneID() );
 
 	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
 
@@ -263,12 +266,12 @@ void uiODSceneMgr::newSceneUpdated( CallBacker* cb )
 
 void uiODSceneMgr::tileTimerCB( CallBacker* )
 {
-    if ( scenes_.size() > 1 )
+    if ( viewers_.size() > 1 )
 	tile();
 }
 
 
-void uiODSceneMgr::removeScene( uiODSceneMgr::Scene& scene )
+void uiODSceneMgr::removeScene( uiODScene& scene )
 {
     appl_.colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
     appl_.removeDockWindow( scene.dw_ );
@@ -288,7 +291,7 @@ void uiODSceneMgr::removeScene( uiODSceneMgr::Scene& scene )
     }
 
     scene.mdiwin_->closed().remove( mWSMCB(removeSceneCB) );
-    scenes_ -= &scene;
+    viewers_ -= &scene;
     delete &scene;
 }
 
@@ -298,9 +301,9 @@ void uiODSceneMgr::removeSceneCB( CallBacker* cb )
     mDynamicCastGet(uiGroupObj*,grp,cb)
     if ( !grp ) return;
     int idxnr = -1;
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	if ( grp == scenes_[idx]->mdiwin_->mainObject() )
+	if ( grp == getSceneByIdx(idx)->mdiwin_->mainObject() )
 	{
 	    idxnr = idx;
 	    break;
@@ -308,7 +311,7 @@ void uiODSceneMgr::removeSceneCB( CallBacker* cb )
     }
     if ( idxnr < 0 ) return;
 
-    uiODSceneMgr::Scene* scene = scenes_[idxnr];
+    uiODScene* scene = getSceneByIdx(idxnr);
     removeScene( *scene );
 }
 
@@ -316,7 +319,7 @@ void uiODSceneMgr::removeSceneCB( CallBacker* cb )
 void uiODSceneMgr::setSceneName( int sceneid, const uiString& nm )
 {
     visServ().setObjectName( sceneid, nm );
-    Scene* scene = getScene( sceneid );
+    uiODScene* scene = getScene( sceneid );
     if ( !scene ) return;
 
     scene->mdiwin_->setTitle( nm );
@@ -336,10 +339,10 @@ const ZDomain::Info* uiODSceneMgr::zDomainInfo( int sceneid ) const
 
 void uiODSceneMgr::getScenePars( IOPar& iopar )
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
 	IOPar iop;
-	scenes_[idx]->vwr3d_->fillPar( iop );
+	getSceneByIdx(idx)->vwr3d_->fillPar( iop );
 	iopar.mergeComp( iop, toString(idx) );
     }
 }
@@ -356,7 +359,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	    break;
 	}
 
-	Scene& scn = mkNewScene();
+	uiODScene& scn = mkNewScene();
 	if ( !scn.vwr3d_->usePar(*scenepar) )
 	{
 	    removeScene( scn );
@@ -436,7 +439,7 @@ void uiODSceneMgr::setSceneProperties()
 
 void uiODSceneMgr::viewModeChg( CallBacker* cb )
 {
-    if ( scenes_.isEmpty() ) return;
+    if ( viewers_.isEmpty() ) return;
 
     mDynamicCastGet(ui3DViewer*,vwr3d_,cb)
     if ( vwr3d_ ) setToViewMode( vwr3d_->isViewMode() );
@@ -456,7 +459,7 @@ void uiODSceneMgr::setToViewMode( bool yn )
 
 
 bool uiODSceneMgr::inViewMode() const
-{ return scenes_.isEmpty() ? false : scenes_[0]->vwr3d_->isViewMode(); }
+{ return viewers_.isEmpty() ? false : getSceneByIdx(0)->vwr3d_->isViewMode(); }
 
 
 void uiODSceneMgr::setToWorkMode( uiVisPartServer::WorkMode wm )
@@ -560,13 +563,13 @@ void uiODSceneMgr::updateStatusBar()
 
 int uiODSceneMgr::getStereoType() const
 {
-    return scenes_.size() ? (int)scenes_[0]->vwr3d_->getStereoType() : 0;
+    return viewers_.size() ? (int)getSceneByIdx(0)->vwr3d_->getStereoType() : 0;
 }
 
 
 void uiODSceneMgr::setStereoType( int type )
 {
-    if ( scenes_.isEmpty() ) return;
+    if ( viewers_.isEmpty() ) return;
 
     if ( type )
     {
@@ -591,10 +594,10 @@ void uiODSceneMgr::setStereoType( int type )
     }
 
     ui3DViewer::StereoType stereotype = (ui3DViewer::StereoType)type;
-    const float stereooffset = scenes_[0]->vwr3d_->getStereoOffset();
-    for ( int ids=0; ids<scenes_.size(); ids++ )
+    const float stereooffset = getSceneByIdx(0)->vwr3d_->getStereoOffset();
+    for ( int ids=0; ids<viewers_.size(); ids++ )
     {
-	ui3DViewer& vwr3d_ = *scenes_[ids]->vwr3d_;
+	ui3DViewer& vwr3d_ = *getSceneByIdx(ids)->vwr3d_;
 	if ( !vwr3d_.setStereoType(stereotype) )
 	{
 	    uiMSG().error( tr("No support for this type of stereo rendering") );
@@ -617,10 +620,10 @@ void uiODSceneMgr::cascade()		{ mdiarea_->cascade(); }
 
 void uiODSceneMgr::layoutScenes()
 {
-    const int nrgrps = scenes_.size();
-    if ( nrgrps == 1 && scenes_[0] )
-	scenes_[0]->mdiwin_->display( true, false, true );
-    else if ( nrgrps>1 && scenes_[0] )
+    const int nrgrps = viewers_.size();
+    if ( nrgrps == 1 && viewers_[0] )
+	getSceneByIdx(0)->mdiwin_->display( true, false, true );
+    else if ( nrgrps>1 && viewers_[0] )
 	tile();
 }
 
@@ -655,10 +658,10 @@ void uiODSceneMgr::showRotAxis( CallBacker* cb )
 {
     mDynamicCastGet(const uiAction*,act,cb)
     mDoAllScenes(vwr3d_,showRotAxis,act?act->isChecked():false);
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
 	const Color& col = applMgr().visServer()->getSceneAnnotCol( idx );
-	scenes_[idx]->vwr3d_->setAnnotationColor( col );
+	getSceneByIdx(idx)->vwr3d_->setAnnotationColor( col );
     }
 }
 
@@ -728,8 +731,8 @@ void uiODSceneMgr::soloMode( CallBacker* )
     int selectedid = -1;
 
     const bool issolomodeon = appl_.menuMgr().isSoloModeOn();
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-	dispids += scenes_[idx]->itemmanager_->getDisplayIds( selectedid,
+    for ( int idx=0; idx<viewers_.size(); idx++ )
+	dispids += getSceneByIdx(idx)->itemmanager_->getDisplayIds( selectedid,
 							      !issolomodeon );
 
     visServ().setSoloMode( issolomodeon, dispids, selectedid );
@@ -753,9 +756,9 @@ int uiODSceneMgr::askSelectScene( const char* zdomkeyfilter ) const
 {
     uiStringSet scenenms; TypeSet<int> sceneids;
     const FixedString zdomkey( zdomkeyfilter );
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	int sceneid = scenes_[idx]->itemmanager_->sceneID();
+	int sceneid = getSceneByIdx(idx)->itemmanager_->sceneID();
 	if ( !zdomkey.isEmpty() )
 	{
 	    const ZDomain::Info* zinfo = zDomainInfo( sceneid );
@@ -780,31 +783,31 @@ int uiODSceneMgr::askSelectScene( const char* zdomkeyfilter ) const
 void uiODSceneMgr::get3DViewers( ObjectSet<ui3DViewer>& vwrs )
 {
     vwrs.erase();
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-	vwrs += scenes_[idx]->vwr3d_;
+    for ( int idx=0; idx<viewers_.size(); idx++ )
+	vwrs += getSceneByIdx(idx)->vwr3d_;
 }
 
 
 const ui3DViewer* uiODSceneMgr::get3DViewer( int sceneid ) const
 {
-    const Scene* scene = getScene( sceneid );
+    const uiODScene* scene = getScene( sceneid );
     return scene ? scene->vwr3d_ : 0;
 }
 
 
 ui3DViewer* uiODSceneMgr::get3DViewer( int sceneid )
 {
-    const Scene* scene = getScene( sceneid );
+    const uiODScene* scene = getScene( sceneid );
     return scene ? scene->vwr3d_ : 0;
 }
 
 
 uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	if ( scenes_[idx]->lv_ == lv )
-	    return scenes_[idx]->itemmanager_;
+	if ( getSceneByIdx(idx)->lv_ == lv )
+	    return getSceneByIdx(idx)->itemmanager_;
     }
 
     return 0;
@@ -813,9 +816,9 @@ uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 
 void uiODSceneMgr::translateText()
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	scenes_[idx]->itemmanager_->translateText();
+	getSceneByIdx(idx)->itemmanager_->translateText();
     }
 }
 
@@ -845,14 +848,15 @@ void uiODSceneMgr::getActiveSceneName( BufferString& nm ) const
 int uiODSceneMgr::getActiveSceneID() const
 {
     const BufferString scenenm = mdiarea_->getActiveWin();
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	if ( !scenes_[idx] || !scenes_[idx]->itemmanager_ )
+	const uiODScene* idxscene = getSceneByIdx( idx );
+	if ( !viewers_[idx] || !idxscene->itemmanager_ )
 	    continue;
 
 	if ( scenenm ==
-	   getSceneName(scenes_[idx]->itemmanager_->sceneID()).getFullString() )
-	    return scenes_[idx]->itemmanager_->sceneID();
+	   getSceneName(idxscene->itemmanager_->sceneID()).getFullString() )
+	    return idxscene->itemmanager_->sceneID();
     }
 
     return -1;
@@ -881,7 +885,7 @@ void uiODSceneMgr::setActiveScene( int idx )
 
 
 
-void uiODSceneMgr::initTree( Scene& scn, int vwridx )
+void uiODSceneMgr::initTree( uiODScene& scn, int vwridx )
 {
     const uiString capt = tr( "Tree scene %1" ).arg( vwridx );
     scn.dw_ = new uiDockWin( &appl_, capt );
@@ -932,9 +936,9 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
 void uiODSceneMgr::updateTrees()
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	Scene& scene = *scenes_[idx];
+	uiODScene& scene = *getSceneByIdx( idx );
 	scene.itemmanager_->updateColumnText( cNameColumn() );
 	scene.itemmanager_->updateColumnText( cColorColumn() );
 	scene.itemmanager_->updateCheckStatus();
@@ -944,9 +948,9 @@ void uiODSceneMgr::updateTrees()
 
 void uiODSceneMgr::rebuildTrees()
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	Scene& scene = *scenes_[idx];
+	uiODScene& scene = *getSceneByIdx( idx );
 	const int sceneid = scene.vwr3d_->sceneID();
 	TypeSet<int> visids; visServ().getChildIds( sceneid, visids );
 
@@ -968,7 +972,7 @@ void uiODSceneMgr::rebuildTrees()
 
 uiTreeView* uiODSceneMgr::getTree( int sceneid )
 {
-    Scene* scene = getScene( sceneid );
+    uiODScene* scene = getScene( sceneid );
     return scene ? scene->lv_ : 0;
 }
 
@@ -998,7 +1002,7 @@ void uiODSceneMgr::updateSelectedTreeItem()
 	resetStatusBar( id );
 	//applMgr().modifyColorTable( id );
 	if ( !visServ().isOn(id) ) visServ().turnOn(id, true, true);
-	else if ( scenes_.size() != 1 && visServ().isSoloMode() )
+	else if ( viewers_.size() != 1 && visServ().isSoloMode() )
 	    visServ().updateDisplay( true, id );
     }
 
@@ -1011,9 +1015,9 @@ void uiODSceneMgr::updateSelectedTreeItem()
 
     bool found = applMgr().attrServer()->attrSetEditorActive();
     bool gotoact = false;
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	Scene& scene = *scenes_[idx];
+	uiODScene& scene = *getSceneByIdx( idx );
 	if ( !found )
 	{
 	    mDynamicCastGet( const uiODDisplayTreeItem*, treeitem,
@@ -1033,9 +1037,10 @@ void uiODSceneMgr::updateSelectedTreeItem()
 
 int uiODSceneMgr::getIDFromName( const char* str ) const
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	const uiTreeItem* itm = scenes_[idx]->itemmanager_->findChild( str );
+	const uiTreeItem* itm =
+	    getSceneByIdx(idx)->itemmanager_->findChild( str );
 	if ( itm ) return itm->selectionKey();
     }
 
@@ -1053,15 +1058,15 @@ void uiODSceneMgr::disabTrees( bool yn )
 {
     const bool wasparalysed = mdiarea_->paralyse( true );
 
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-	scenes_[idx]->lv_->setSensitive( !yn );
+    for ( int idx=0; idx<viewers_.size(); idx++ )
+	getSceneByIdx(idx)->lv_->setSensitive( !yn );
 
     mdiarea_->paralyse( wasparalysed );
 }
 
 
 #define mGetOrAskForScene \
-    Scene* scene = getScene( sceneid ); \
+    uiODScene* scene = getScene( sceneid ); \
     if ( !scene ) \
     { \
 	sceneid = askSelectScene(); \
@@ -1090,20 +1095,20 @@ void uiODSceneMgr::getLoadedPickSetIDs( TypeSet<MultiID>& picks, bool poly,
 {
     if ( sceneid>=0 )
     {
-	const Scene* scene = getScene( sceneid );
+	const uiODScene* scene = getScene( sceneid );
 	if ( !scene ) return;
 
 	gtLoadedPickSetIDs( *scene, picks, poly );
 	return;
     }
 
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-	gtLoadedPickSetIDs( *scenes_[idx], picks, poly );
+    for ( int idx=0; idx<viewers_.size(); idx++ )
+	gtLoadedPickSetIDs( *getSceneByIdx(idx), picks, poly );
 
 }
 
 
-void uiODSceneMgr::gtLoadedPickSetIDs( const Scene& scene,
+void uiODSceneMgr::gtLoadedPickSetIDs( const uiODScene& scene,
 	TypeSet<MultiID>& picks, bool poly ) const
 {
     for ( int chidx=0; chidx<scene.itemmanager_->nrChildren(); chidx++ )
@@ -1149,14 +1154,14 @@ void uiODSceneMgr::getLoadedEMIDs( TypeSet<int>& emids, const char* type,
 {
     if ( sceneid>=0 )
     {
-	const Scene* scene = getScene( sceneid );
+	const uiODScene* scene = getScene( sceneid );
 	if ( !scene ) return;
 	gtLoadedEMIDs( scene, emids, type );
 	return;
     }
 
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-	gtLoadedEMIDs( scenes_[idx], emids, type );
+    for ( int idx=0; idx<viewers_.size(); idx++ )
+	gtLoadedEMIDs( getSceneByIdx(idx), emids, type );
 }
 
 
@@ -1198,7 +1203,7 @@ void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm, TypeSet<int>& emids,
 }
 
 
-void uiODSceneMgr::gtLoadedEMIDs( const Scene* scene, TypeSet<int>& emids,
+void uiODSceneMgr::gtLoadedEMIDs( const uiODScene* scene, TypeSet<int>& emids,
 				  const char* type ) const
 {
     for ( int chidx=0; chidx<scene->itemmanager_->nrChildren(); chidx++ )
@@ -1344,9 +1349,9 @@ int uiODSceneMgr::addZSliceItem( DataPack::ID dpid,
 
 void uiODSceneMgr::removeTreeItem( int displayid )
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	Scene& scene = *scenes_[idx];
+	uiODScene& scene = *getSceneByIdx( idx );
 	uiTreeItem* itm = scene.itemmanager_->findChild( displayid );
 	if ( itm )
 	{
@@ -1359,9 +1364,9 @@ void uiODSceneMgr::removeTreeItem( int displayid )
 
 uiTreeItem* uiODSceneMgr::findItem( int displayid )
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	Scene& scene = *scenes_[idx];
+	uiODScene& scene = *getSceneByIdx( idx );
 	uiTreeItem* itm = scene.itemmanager_->findChild( displayid );
 	if ( itm ) return itm;
     }
@@ -1373,9 +1378,9 @@ uiTreeItem* uiODSceneMgr::findItem( int displayid )
 void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items )
 {
     deepErase( items );
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	Scene& scene = *scenes_[idx];
+	uiODScene& scene = *getSceneByIdx( idx );
 	scene.itemmanager_->findChildren( nm, items );
     }
 }
@@ -1399,27 +1404,42 @@ void uiODSceneMgr::doDirectionalLight(CallBacker*)
 }
 
 
-uiODSceneMgr::Scene* uiODSceneMgr::getScene( int sceneid )
+uiODScene* uiODSceneMgr::getSceneByIdx( int idx )
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    if ( !viewers_.validIdx(idx) )
+	return 0;
+
+    mDynamicCastGet(uiODScene*,scene,viewers_[idx]);
+    return scene;
+}
+
+
+const uiODScene* uiODSceneMgr::getSceneByIdx( int idx ) const
+{ return const_cast<uiODSceneMgr*>(this)->getSceneByIdx( idx ); }
+
+
+uiODScene* uiODSceneMgr::getScene( int sceneid )
+{
+    for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	uiODSceneMgr::Scene* scn = scenes_[idx];
+	uiODScene* scn = getSceneByIdx( idx );
 	if ( scn && scn->itemmanager_ &&
 		scn->itemmanager_->sceneID() == sceneid )
-	    return scenes_[idx];
+	    return scn;
     }
 
     return 0;
 }
 
 
-const uiODSceneMgr::Scene* uiODSceneMgr::getScene( int sceneid ) const
+const uiODScene* uiODSceneMgr::getScene( int sceneid ) const
 { return const_cast<uiODSceneMgr*>(this)->getScene( sceneid ); }
 
 
-// uiODSceneMgr::Scene
-uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
-        : lv_(0)
+// uiODScene
+uiODScene::uiODScene( uiMdiArea* mdiarea )
+	: PresentationManagedViewer()
+	, lv_(0)
 	, dw_(0)
 	, mdiwin_(0)
         , vwr3d_(0)
@@ -1436,7 +1456,7 @@ uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
 }
 
 
-uiODSceneMgr::Scene::~Scene()
+uiODScene::~uiODScene()
 {
     delete vwr3d_;
     delete itemmanager_;

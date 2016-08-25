@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uitreeview.h"
-#include "odviewer2dpresentationmgr.h"
 #include "view2ddata.h"
 #include "zaxistransform.h"
 
@@ -164,7 +163,7 @@ uiODVw2DTreeItem::~uiODVw2DTreeItem()
 }
 
 
-void uiODVw2DTreeItem::emitPRRequest( ODPresentationManager::RequestType req )
+void uiODVw2DTreeItem::emitPRRequest( OD::PresentationRequestType req )
 {
     PtrMan<ObjPresentationInfo> objprinfo = getObjPRInfo();
     if ( !objprinfo )
@@ -172,8 +171,9 @@ void uiODVw2DTreeItem::emitPRRequest( ODPresentationManager::RequestType req )
 
     IOPar objprinfopar;
     objprinfo->fillPar( objprinfopar );
-    ODPrMan().request( Viewer2DPresentationMgr::sViewerTypeID(), req,
-		       objprinfopar );
+    ODViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(),
+		      viewer2D()->viewerID() );
+    ODPrMan().request( vwrid, req, objprinfopar );
 }
 
 
@@ -356,15 +356,6 @@ uiODViewer2D* uiODVw2DTreeItem::viewer2D()
 }
 
 
-bool uiODVw2DTreeItem::create( uiTreeItem* treeitem, int visid, int displayid )
-{
-    uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().find2DViewer(visid,true);
-    if ( !vwr2d ) return false;
-
-    return create( treeitem, *vwr2d, displayid );
-}
-
-
 bool uiODVw2DTreeItem::create(
 		uiTreeItem* treeitem, const uiODViewer2D& vwr2d, int displayid )
 {
@@ -438,17 +429,12 @@ uiODVw2DParentTreeItem::~uiODVw2DParentTreeItem()
 
 bool uiODVw2DParentTreeItem::init()
 {
-    ODVwrTypePresentationMgr* vtmgr =
-	ODPrMan().getViewerTypeMgr( Viewer2DPresentationMgr::sViewerTypeID() );
-    if ( !vtmgr )
-	return false;
-
-    mAttachCB( vtmgr->ObjAdded, uiODVw2DParentTreeItem::objAddedCB );
-    mAttachCB( vtmgr->VanishRequested,
+    mAttachCB( viewer2D()->ObjAdded, uiODVw2DParentTreeItem::objAddedCB );
+    mAttachCB( viewer2D()->VanishRequested,
 	       uiODVw2DParentTreeItem::objVanishedCB );
-    mAttachCB( vtmgr->ShowRequested, uiODVw2DParentTreeItem::objShownCB );
-    mAttachCB( vtmgr->HideRequested, uiODVw2DParentTreeItem::objHiddenCB );
-    mAttachCB( vtmgr->ObjOrphaned, uiODVw2DParentTreeItem::objOrphanedCB );
+    mAttachCB( viewer2D()->ShowRequested, uiODVw2DParentTreeItem::objShownCB );
+    mAttachCB( viewer2D()->HideRequested, uiODVw2DParentTreeItem::objHiddenCB );
+    mAttachCB( viewer2D()->ObjOrphaned, uiODVw2DParentTreeItem::objOrphanedCB );
     return uiODVw2DTreeItem::init();
 }
 
@@ -550,7 +536,7 @@ void uiODVw2DParentTreeItem::objOrphanedCB( CallBacker* cber )
 
 
 void uiODVw2DParentTreeItem::emitChildPRRequest(
-	const MultiID& childstoredid, ODPresentationManager::RequestType req )
+	const MultiID& childstoredid, OD::PresentationRequestType req )
 {
     if ( childstoredid.isUdf() )
 	return;

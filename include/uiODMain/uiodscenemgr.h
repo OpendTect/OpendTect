@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "emposid.h"
 #include "flatview.h"
+#include "odpresentationmgr.h"
 #include "uivispartserv.h"
 
 class BufferStringSet;
@@ -34,6 +35,7 @@ class ZAxisTransform;
 namespace Pick { class Set; }
 namespace Geometry { class RandomLineSet; }
 
+static ViewerSubID sSceneViewerTypeID( ViewerSubID::get(0) );
 
 /*!\brief Manages the scenes and the corresponding trees.
 
@@ -41,12 +43,35 @@ namespace Geometry { class RandomLineSet; }
 
  */
 
-mExpClass(uiODMain) uiODSceneMgr : public CallBacker
+mExpClass(uiODMain) uiODScene : public PresentationManagedViewer
+{
+public:
+				uiODScene(uiMdiArea*);
+				~uiODScene();
+    ViewerSubID			viewerTypeID() const
+				{ return sSceneViewerTypeID; }
+
+private:
+    uiDockWin*			dw_;
+    uiTreeView*			lv_;
+    uiMdiAreaWindow*		mdiwin_;
+    ui3DViewer*			vwr3d_;
+    uiODTreeTop*		itemmanager_;
+
+    friend class		uiODSceneMgr;
+};
+
+
+mExpClass(uiODMain) uiODSceneMgr : public ODVwrTypePresentationMgr
 { mODTextTranslationClass(uiODSceneMgr)
 public:
 
+    ViewerSubID			viewerTypeID()	{ return theViewerTypeID(); }
+    static ViewerSubID		theViewerTypeID()
+				{ return sSceneViewerTypeID; }
+
     void			cleanUp(bool startnew=true);
-    int				nrScenes()	{ return scenes_.size(); }
+    int				nrScenes()	{ return viewers_.size(); }
     int				addScene(bool maximized,ZAxisTransform* =0,
 				    const uiString& nm=uiString::emptyString());
 				//!<Returns scene id
@@ -170,6 +195,9 @@ public:
 
     static uiString		sElements()	{ return tr("Elements"); }
 
+    uiODScene*			getScene(int sceneid);
+    const uiODScene*		getScene(int sceneid) const;
+
 protected:
 
 				uiODSceneMgr(uiODMain*);
@@ -190,34 +218,21 @@ protected:
     inline uiODApplMgr&		applMgr()     { return appl_.applMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
-    mExpClass(uiODMain) Scene
-    {
-    public:
-				Scene(uiMdiArea*);
-				~Scene();
 
-	uiDockWin*		dw_;
-	uiTreeView*		lv_;
-	uiMdiAreaWindow*	mdiwin_;
-	ui3DViewer*		vwr3d_;
-	uiODTreeTop*		itemmanager_;
-    };
-
-    ObjectSet<Scene>		scenes_;
-    Scene&			mkNewScene();
-    void			removeScene(Scene& scene);
+    uiODScene&			mkNewScene();
+    void			removeScene(uiODScene& scene);
     void			removeSceneCB(CallBacker*);
-    void			initTree(Scene&,int);
-    Scene*			getScene(int sceneid);
-    const Scene*		getScene(int sceneid) const;
+    void			initTree(uiODScene&,int);
+    uiODScene*			getSceneByIdx(int idx);
+    const uiODScene*		getSceneByIdx(int idx) const;
     void			newSceneUpdated(CallBacker*);
-    void			gtLoadedEMIDs(const Scene*,
+    void			gtLoadedEMIDs(const uiODScene*,
 					      TypeSet<EM::ObjectID>&,
 					      const char* emtypestr) const;
     void			gtLoadedEMIDs(const uiTreeItem*,
 					      TypeSet<EM::ObjectID>&,
 					      const char* emtypestr) const;
-    void			gtLoadedPickSetIDs(const Scene&,
+    void			gtLoadedPickSetIDs(const uiODScene&,
 				    TypeSet<MultiID>&, bool poly) const;
     void			gtLoadedPickSetIDs(const uiTreeItem&,
 				    TypeSet<MultiID>&,bool poly) const;

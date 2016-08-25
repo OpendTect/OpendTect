@@ -30,7 +30,6 @@ ___________________________________________________________________
 #include "attribsel.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "odscenepresentationmgr.h"
 #include "threadwork.h"
 
 
@@ -244,9 +243,7 @@ void uiODDisplayTreeItem::handleItemCheck( bool triggerdispreq )
 	visserv_->turnOn( displayid_, isChecked() );
     if ( triggerdispreq && !storedid_.isUdf() && objectTypeKey() )
     {
-	ODPresentationManager::RequestType req =
-	    isChecked() ? ODPresentationManager::Show
-			: ODPresentationManager::Hide;
+	OD::PresentationRequestType req = isChecked() ? OD::Show : OD::Hide;
 	emitPRRequest( req );
     }
 }
@@ -526,7 +523,7 @@ void uiODDisplayTreeItem::prepareForShutdown()
 }
 
 
-void uiODDisplayTreeItem::emitPRRequest( ODPresentationManager::RequestType req)
+void uiODDisplayTreeItem::emitPRRequest( OD::PresentationRequestType req)
 {
     PtrMan<ObjPresentationInfo> objprinfo = getObjPRInfo();
     if ( !objprinfo )
@@ -534,5 +531,7 @@ void uiODDisplayTreeItem::emitPRRequest( ODPresentationManager::RequestType req)
 
     IOPar objprinfopar;
     objprinfo->fillPar( objprinfopar );
-    ODPrMan().request( ScenePresentationMgr::sViewerTypeID(), req,objprinfopar);
+    ViewerSubID sceneid( ViewerSubID::get(sceneID()) );
+    ODViewerID vwrid( uiODSceneMgr::theViewerTypeID(), sceneid );
+    ODPrMan().request( vwrid, req, objprinfopar );
 }

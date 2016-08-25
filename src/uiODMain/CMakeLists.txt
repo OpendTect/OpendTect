@@ -16,8 +16,6 @@ set(OD_MODULE_SOURCES
 	inituiodmain.cc
 	measuretoolman.cc
 	odsession.cc
-	odviewer2dpresentationmgr.cc
-	odscenepresentationmgr.cc
 	uiautosaverestore.cc
 	uiodannottreeitem.cc
 	uiodannotarrowtreeitem.cc

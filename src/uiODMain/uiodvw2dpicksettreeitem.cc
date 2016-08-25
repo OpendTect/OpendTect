@@ -90,7 +90,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 
     addChildren( setids );
     for ( int idx=0; idx<setids.size(); idx++ )
-	emitChildPRRequest( setids[idx], ODPresentationManager::Add );
+	emitChildPRRequest( setids[idx], OD::Add );
 
     if ( viewer2D() && viewer2D()->viewControl() )
 	viewer2D()->viewControl()->setEditMode(newps && selectChild(setids[0]));
@@ -152,7 +152,7 @@ uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
     detachAllNotifiers();
     if ( vw2dpickset_ )
 	viewer2D()->dataMgr()->removeObject( vw2dpickset_ );
-    emitPRRequest( ODPresentationManager::Vanish );
+    emitPRRequest( OD::Vanish );
     pickset_.unRef();
 }
 
@@ -277,11 +277,7 @@ void uiODVw2DPickSetTreeItem::enableDisplay( bool yn, bool triggervwreq )
 	vw2dpickset_->enablePainting( yn );
 
     if ( triggervwreq )
-    {
-	ODPresentationManager::RequestType req =
-	    yn ? ODPresentationManager::Show : ODPresentationManager::Hide;
-	emitPRRequest( req );
-    }
+	emitPRRequest( yn ? OD::Show : OD::Hide );
 }
 
 
