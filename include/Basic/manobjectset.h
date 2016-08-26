@@ -80,6 +80,7 @@ mClass(Basic) RefObjectSet : public ManagedObjectSetBase<T>
 {
 public:
 				RefObjectSet();
+				RefObjectSet(const RefObjectSet<T>&);
 				RefObjectSet(const ObjectSet<T>&);
 
     RefObjectSet<T>&		operator=(const ObjectSet<T>& os);
@@ -201,6 +202,12 @@ RefObjectSet<T>::RefObjectSet()
 
 template <class T> inline
 RefObjectSet<T>::RefObjectSet( const ObjectSet<T>& os )
+    : ManagedObjectSetBase<T>( unRef )
+{ *this = os; }
+
+
+template <class T> inline
+RefObjectSet<T>::RefObjectSet( const RefObjectSet<T>& os )
     : ManagedObjectSetBase<T>( unRef )
 { *this = os; }
 
