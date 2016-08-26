@@ -39,6 +39,7 @@ mExpClass(Network) RequestPacket
 {
 public:
 			RequestPacket(od_int32 payloadsize=0);
+			RequestPacket(const RequestPacket&);
 			~RequestPacket();
 
     od_int32		requestID() const;

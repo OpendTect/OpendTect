@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "atomic.h"
 #include "settings.h"
 #include "ptrman.h"
+#include "string.h"
 
 
 static Threads::Atomic<int> curreqid_;
@@ -40,6 +41,21 @@ void Network::RequestPacket::setSystemSizeLimit( od_int32 val )
 #define mRequestID_	(header_.int32s_[1])
 #define mPayloadSize_	(header_.int32s_[0])
 #define mSubID_		(header_.int16s_[4])
+
+
+Network::RequestPacket::RequestPacket( const Network::RequestPacket& b )
+    : header_( b.header_ )
+    , payload_( 0 )
+{
+    const od_int32 payloadsize = b.payloadSize();
+    if ( payloadsize )
+    {
+	void* newpayload = allocPayload( payloadsize );
+	memcpy( newpayload, b.payload(), payloadsize );
+	setPayload( newpayload, payloadsize );
+    }
+}
+
 
 
 Network::RequestPacket::RequestPacket( od_int32 payloadsize )

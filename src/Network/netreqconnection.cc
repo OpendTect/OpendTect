@@ -17,6 +17,54 @@ ________________________________________________________________________
 #include "timefun.h"
 #include "ptrman.h"
 
+#ifndef OD_NO_QT
+# include <QObject>
+# include <QCoreApplication>
+# include "qtcpsocketcomm.h"
+#endif
+
+namespace Network
+{
+
+class RequestConnectionSender : public QObject
+{
+public:
+    RequestConnectionSender( RequestConnection& conn )
+	: conn_( conn )
+    {}
+
+    void addToQueue( RequestConnection::PacketSendData* psd )
+    {
+	lock_.lock();
+	queue_ += psd;
+	lock_.unLock();
+	QCoreApplication::postEvent( this, new QEvent(QEvent::None) );
+    }
+
+    bool event( QEvent* ) { sendQueue(); return true; }
+
+    void sendQueue()
+    {
+	lock_.lock();
+	RefObjectSet<RequestConnection::PacketSendData> localqueue = queue_;
+	queue_.erase();
+	lock_.unLock();
+
+	for ( int idx=0; idx<localqueue.size(); idx++ )
+	{
+	    localqueue[idx]->trySend( conn_ );
+	}
+    }
+
+    Threads::SpinLock					lock_;
+    RefObjectSet<RequestConnection::PacketSendData>	queue_;
+    RequestConnection&					conn_;
+};
+
+}; //Network namespace
+
+
+
 using namespace Network;
 
 static Threads::Atomic<int> connid;
@@ -34,11 +82,9 @@ RequestConnection::RequestConnection( const char* servername,
     , packetArrived( this )
     , id_( connid++ )
     , socketthread_( 0 )
+    , packetsender_( 0 )
+    , eventloop_( 0 )
     , timeout_( timeout )
-    , stopflag_( 0 )
-    , packettosend_( 0 )
-    , threadreadstatus_( None )
-    , triggerread_( false )
 {
     if ( multithreaded )
     {
@@ -46,11 +92,12 @@ RequestConnection::RequestConnection( const char* servername,
 	socketthread_ =
 	    new Threads::Thread( mCB(this,RequestConnection,socketThreadFunc),
 				 "RequestConnection socket thread" );
-	lock_.wait(); //Wait for thread to create connection.
+	while ( !eventloop_ )
+	    lock_.wait(); //Wait for thread to create connection.
     }
     else
     {
-	 connectToHost();
+	 connectToHost( false );
     }
 }
 
@@ -63,11 +110,9 @@ RequestConnection::RequestConnection( Network::Socket* sock )
     , packetArrived( this )
     , id_( connid++ )
     , socketthread_( 0 )
+    , packetsender_( 0 )
+    , eventloop_( 0 )
     , timeout_( 0 )
-    , stopflag_( 0 )
-    , packettosend_( 0 )
-    , threadreadstatus_( None )
-    , triggerread_( false )
 {
     if ( !sock )
 	return;
@@ -81,12 +126,9 @@ RequestConnection::~RequestConnection()
 {
     detachAllNotifiers();
 
-    if ( socketthread_ )
+    if ( eventloop_ )
     {
-	lock_.lock();
-	stopflag_ = true;
-	lock_.signal( true );
-	lock_.unLock();
+	eventloop_->exit();
 
 	socketthread_->waitForFinish();
 	deleteAndZeroPtr( socketthread_ );
@@ -100,6 +142,31 @@ RequestConnection::~RequestConnection()
 }
 
 
+RequestConnection::PacketSendData::PacketSendData( const RequestPacket& packet,
+						   bool wait )
+    : packet_( packet )
+    , waitforfinish_( wait )
+    , sendstatus_( NotAttempted )
+{}
+
+
+void RequestConnection::PacketSendData::trySend( RequestConnection& conn )
+{
+    if ( sendstatus_!=NotAttempted )   //Threadsafe as only I will set it
+				       //apart from constructor
+	return;
+
+    conn.lock_.lock();
+
+    sendstatus_ = conn.doSendPacket( packet_, waitforfinish_ )
+	 ? Sent
+	 : Failed;
+
+    conn.lock_.signal( true );
+    conn.lock_.unLock();
+}
+
+
 void RequestConnection::socketThreadFunc( CallBacker* )
 {
     if ( socket_ )
@@ -108,44 +175,27 @@ void RequestConnection::socketThreadFunc( CallBacker* )
 	return;
     }
 
-    connectToHost();
+    connectToHost( true );
 
+    mAttachCB(socket_->disconnected,RequestConnection::connCloseCB);
+    mAttachCB(socket_->readyRead,RequestConnection::dataArrivedCB);
+    eventloop_ = new QEventLoop( socket_->qSocket() );
+    packetsender_ = new RequestConnectionSender( *this );
+
+    //Tell constructor we are up and running!
     lock_.lock();
-    while ( !stopflag_ )
-    {
-	lock_.unLock();
-	const bool hasdata = socket_->bytesAvailable();
-	lock_.lock();
+    lock_.signal( true );
+    lock_.unLock();
 
-	if ( triggerread_ || hasdata )
-	{
-	    lock_.unLock();
-	    readFromSocket();
-	    lock_.lock();
-	    triggerread_ = false;
-	    lock_.signal( true );
-	    continue;
-	}
+    eventloop_->exec();
 
-	if ( packettosend_ && !sendingfinished_ )
-	{
-	    sendresult_ = doSendPacket( *packettosend_, sendwithwait_ );
-	    sendingfinished_ = true;
-
-	    lock_.signal( true );
-	    continue;
-	}
-
-	//Wait 100 ms. We should in principle be able to wait infinitly
-	//if everything is 100% correct. This is however safer
-	lock_.wait( 100 );
-    }
-
+    deleteAndZeroPtr( eventloop_ );
+    deleteAndZeroPtr( packetsender_ );
     deleteAndZeroPtr( socket_, ownssocket_ );
 }
 
 
-void RequestConnection::connectToHost()
+void RequestConnection::connectToHost( bool witheventloop )
 {
     if ( socket_ )
     {
@@ -153,7 +203,7 @@ void RequestConnection::connectToHost()
 	return;
     }
 
-    Network::Socket* newsocket = new Network::Socket( false );
+    Network::Socket* newsocket = new Network::Socket( witheventloop );
 
     if ( timeout_ > 0 )
 	newsocket->setTimeout( timeout_ );
@@ -162,10 +212,7 @@ void RequestConnection::connectToHost()
 	mAttachCB(newsocket->disconnected,RequestConnection::connCloseCB);
 
     Threads::MutexLocker locker( lock_ );
-
     socket_ = newsocket;
-    //Tell eventual constructor waiting that we have at least tried to connect
-    lock_.signal( true );
 }
 
 
@@ -184,6 +231,10 @@ bool RequestConnection::stillTrying() const
 
 void RequestConnection::connCloseCB( CallBacker* )
 {
+    lock_.lock();
+    lock_.signal(true);  //isOK has changed
+    lock_.unLock();
+
     connectionClosed.trigger();
 }
 
@@ -238,20 +289,6 @@ bool RequestConnection::doSendPacket( const RequestPacket& pkt,
     if ( !isOK() )
 	return	false;
 
-    const od_int32 reqid = pkt.requestID();
-
-    if ( !ourrequestids_.isPresent( reqid ) )
-    {
-	if ( pkt.isNewRequest() )
-	    ourrequestids_ += reqid;
-	else
-	{
-	    pErrMsg(
-		BufferString("Packet send requested for unknown ID: ",reqid) );
-	    return false;
-	}
-    }
-
     lock_.unLock();
     const bool result = socket_->write( pkt, waitforfinish );
     lock_.lock();
@@ -274,36 +311,40 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
 	return false;
 
     Threads::MutexLocker locker( lock_ );
+
+    const od_int32 reqid = pkt.requestID();
+
+    if ( !ourrequestids_.isPresent( reqid ) )
+    {
+	if ( pkt.isNewRequest() )
+	    ourrequestids_ += reqid;
+	else
+	{
+	    pErrMsg(
+		BufferString("Packet send requested for unknown ID: ",reqid) );
+	    return false;
+	}
+    }
+
     //We're non-threaded. Just send
     if ( !socketthread_ )
     {
 	return doSendPacket( pkt, waitforfinish );
     }
 
-    //Someone else is sending now. Wait
-    while ( packettosend_ )
-	lock_.wait();
+    RefMan<PacketSendData> senddata = new PacketSendData(pkt,waitforfinish);
+    packetsender_->addToQueue( senddata );
 
-    //Setup your batch job and poke thread
-    packettosend_ = &pkt;
-    sendwithwait_ = waitforfinish;
-    sendingfinished_ = false;
-    lock_.signal( true );
+    if ( !waitforfinish )
+	return true;
 
-    //Wait for sending to finish
-    while ( !sendingfinished_ )
+    while ( !socket_
+	    && senddata->sendstatus_==PacketSendData::NotAttempted )
     {
 	lock_.wait();
     }
 
-    //Pickup sending result
-    const bool result = sendresult_;
-
-    //Tell someone who may be waiting that he can send now.
-    packettosend_ = 0;
-    lock_.signal( true );
-
-    return result;
+    return senddata->sendstatus_==PacketSendData::Sent;
 }
 
 
@@ -350,8 +391,6 @@ RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
 	    }
 	    else
 	    {
-		triggerread_ = true;
-		lock_.signal( true );
 		lock_.wait( remaining );
 
 		locker.unLock();

@@ -101,6 +101,8 @@ public:
 				      read immediately */
 
     const void*			thread() const { return thread_; }
+
+    mQtclass(QTcpSocket)*	qSocket() { return qtcpsocket_; }
 private:
 
     bool			waitForConnected() const;

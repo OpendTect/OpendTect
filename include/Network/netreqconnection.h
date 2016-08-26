@@ -12,12 +12,16 @@ ________________________________________________________________________
 -*/
 
 #include "networkmod.h"
+
+#include "refcount.h"
+#include "netreqpacket.h"
 #include "gendefs.h"
 #include "thread.h"
 #include "objectset.h"
 #include "notify.h"
 #include "uistring.h"
 
+class QEventLoop;
 
 namespace Network
 {
@@ -25,6 +29,7 @@ namespace Network
 class Socket;
 class Server;
 class RequestPacket;
+class RequestConnectionSender;
 
 
 /*\brief
@@ -92,9 +97,6 @@ private:
 
     uiString			errmsg_;
 
-    enum ThreadReadStatus	{ None, TryRead, ReadOK, ReadFail };
-    ThreadReadStatus		threadreadstatus_;
-
     TypeSet<od_int32>		ourrequestids_;
     ObjectSet<RequestPacket>	receivedpackets_;
 
@@ -103,23 +105,28 @@ private:
     int				timeout_;
     bool			ownssocket_;
 
-    const RequestPacket*	packettosend_;
-    bool			sendwithwait_;
-    bool			sendresult_;
-    bool			sendingfinished_;
-    bool			triggerread_;
-
     int				id_;
 
     BufferString		servername_;
     unsigned short		serverport_;
 
-    Threads::Thread*		socketthread_;
-    void			socketThreadFunc(CallBacker*);
-    bool			stopflag_;
-    bool			readfirst_;
+    struct PacketSendData : public RefCount::Referenced
+    {
+				PacketSendData(const RequestPacket&,bool wait);
+	void			trySend(RequestConnection&);
+	RequestPacket		packet_;
+	bool			waitforfinish_;
 
-    void			connectToHost();
+	enum SendStatus		{ NotAttempted, Sent, Failed } sendstatus_;
+				//Protected by connections' lock_
+    };
+
+    Threads::Thread*		socketthread_;
+    RequestConnectionSender*	packetsender_;
+    QEventLoop*			eventloop_;
+
+    void			socketThreadFunc(CallBacker*);
+    void			connectToHost( bool witheventloop );
     void			connCloseCB(CallBacker*);
     void			newConnectionCB(CallBacker*);
     void			dataArrivedCB(CallBacker*);
@@ -133,6 +140,9 @@ private:
     Network::RequestPacket*	readConnection(int);
     Network::RequestPacket*	getNextAlreadyRead(int);
     void			requestEnded(od_int32);
+
+    friend struct		PacketSendData;
+    friend class		RequestConnectionSender;
 };
 
 
