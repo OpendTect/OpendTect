@@ -107,7 +107,7 @@ Pick::Set::IdxType Pick::Set::idxFor( LocID id ) const
 Pick::Set::LocID Pick::Set::locIDFor( IdxType idx ) const
 {
     mLock4Read();
-    return locids_.validIdx(idx) ? locids_[idx] : LocID::get();
+    return locids_.validIdx(idx) ? locids_[idx] : LocID::getInvalid();
 }
 
 
@@ -336,7 +336,7 @@ Pick::Set::LocID Pick::Set::find( const TrcKey& tk ) const
     for ( IdxType idx=0; idx<sz; idx++ )
 	if ( locs_[idx].trcKey() == tk )
 	    return locids_[idx];
-    return LocID::get();
+    return LocID::getInvalid();
 }
 
 
@@ -351,9 +351,9 @@ Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
 {
     mPrepRead( sz );
     if ( sz < 2 )
-	return sz < 1 ? LocID::get() : locids_[0];
+	return sz < 1 ? LocID::getInvalid() : locids_[0];
     if ( pos.isUdf() )
-	return LocID::get();
+	return LocID::getInvalid();
 
     LocID ret = locids_[0];
     IdxType idx = 0;

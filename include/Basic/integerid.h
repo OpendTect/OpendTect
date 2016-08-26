@@ -49,7 +49,7 @@ public:
 
     typedef IntType	IDType;
 
-    static inline IntegerID get( IntType i=-mUdf(IntType) )
+    static inline IntegerID get( IntType i )
 					{ return IntegerID(i); }
 
     inline IntType	getI() const	{ return id_; }
@@ -74,6 +74,52 @@ private:
 			    : id_(i)	{ /* keep private! */ }
 
     friend class	TypeSet<IntType>;
+
+};
+
+
+/*!\brief two integer IDs lumped together. */
+
+template <class IntType>
+mClass(Basic) DualID
+{
+public:
+
+    typedef IntType		    IDType;
+    typedef IntegerID<IntType>	    IntIDType;
+
+    static inline DualID get( IntType i1, IntType i2 )
+					{ return DualID(i1,i2); }
+
+    inline IntIDType	get1() const	{ return IntIDType::get(id1_); }
+    inline IntIDType	get2() const	{ return IntIDType::get(id2_); }
+    inline IntType	getI1() const	{ return id1_; }
+    inline IntType	getI2() const	{ return id2_; }
+    inline void		set1( IntIDType id ) { id1_ = id.getI(); }
+    inline void		set2( IntIDType id ) { id2_ = id.getI(); }
+    inline void		setI1( IntType i ) { id1_ = i; }
+    inline void		setI2( IntType i ) { id2_ = i; }
+
+    inline bool		operator ==( const DualID& oth ) const
+				{ return id1_ == oth.id1_ && id2_ == oth.id2_;};
+    inline bool		operator !=( const DualID& oth ) const
+				{ return id1_ != oth.id1_ || id2_ != oth.id2_;};
+
+    inline bool	isInvalid() const	{ return mIsUdf(id1_) || mIsUdf(id2_); }
+    inline bool	isValid() const		{ return !isInvalid(); }
+    inline void	setInvalid()		{ setInvalid1(); setInvalid2(); }
+    inline void	setInvalid1()		{ mSetUdf(id1_); }
+    inline void	setInvalid2()		{ mSetUdf(id2_); }
+    static inline DualID getInvalid()
+				{ return DualID(mUdf(IntType),mUdf(IntType)); }
+
+private:
+
+    IntType		id1_;
+    IntType		id2_;
+
+    inline		DualID( IntType i1=0, IntType i2=0 )
+			    : id1_(i1), id2_(i2) { /* keep private! */ }
 
 };
 
