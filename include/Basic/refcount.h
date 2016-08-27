@@ -29,7 +29,7 @@ template <class T> class RefMan;
    unRef() is called it is decremented. If it then reaches 0, the object is
    deleted.
 
-\section example Example usage       
+\section example Example usage
   A refcount class is set up by:
   \code
   class A : public RefCount::Referenced
@@ -54,7 +54,7 @@ template <class T> class RefMan;
   The unRefNoDelete() is only used when you want to bring the class back to the
   original state of refcount==0. Such an example may be a static create
   function:
-  
+
   \code
   A* createA()
   {
@@ -66,7 +66,7 @@ template <class T> class RefMan;
   }
   \endcode
 
-\section sets ObjectSet with reference counted objects  
+\section sets ObjectSet with reference counted objects
   ObjectSets with ref-counted objects can be modified by either:
   \code
   ObjectSet<RefCountClass> set:
@@ -187,6 +187,35 @@ public:
 };
 
 
+template <class T>
+inline void refIfObjIsReffed( const T* obj )
+{
+    if ( obj )
+    {
+	mDynamicCastGet( const RefCount::Referenced*, reffed, obj );
+	if ( reffed )
+	    reffed->ref();
+    }
+}
+
+template <class T>
+inline void unRefIfObjIsReffed( const T* obj )
+{
+    if ( obj )
+    {
+	mDynamicCastGet( const RefCount::Referenced*, reffed, obj );
+	if ( reffed )
+	    reffed->unRef();
+    }
+}
+
+template <class T> inline void refIfObjIsReffed( const T& obj )
+{ refIfObjIsReffed( &obj ); }
+template <class T> inline void unRefIfObjIsReffed( const T& obj )
+{ unRefIfObjIsReffed( &obj ); }
+
+
+
 mExpClass(Basic) WeakPtrBase
 {
 public:
@@ -276,11 +305,11 @@ RefMan<T> WeakPtr<T>::get() const
     {
 	//reffed once through tryRef
 	res = (T*) ptr_;
-	
+
 	//unref the ref from tryRef
 	ptr_->unRef();
     }
-    
+
     return res;
 }
 
