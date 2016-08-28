@@ -110,7 +110,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     if ( wvlt )
 	*initwvlt_ = *wvlt;
     else
-	{ pErrMsg( "Wvlt ID invalid" ); *initwvlt_ = Wavelet( true, 25.f ); }
+	{ pErrMsg( "Wvlt ID invalid" ); initwvlt_ = new Wavelet( true, 25.f ); }
 
     const Well::Track& track = wdata.track();
     const Well::D2TModel& d2t = wdata.d2TModel();

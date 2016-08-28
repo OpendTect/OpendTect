@@ -33,7 +33,6 @@ public:
 			Wavelet(bool ricker_else_sinc,ValueType fpeak,
 				ValueType sample_intv=mUdf(ValueType),
 				ValueType scale=1);
-    virtual		~Wavelet();
 			mDeclInstanceCreatedNotifierAccess(Wavelet);
 			mDeclMonitorableAssignment(Wavelet);
 
@@ -78,6 +77,8 @@ public:
     static ChangeType	cSampleChange()	    { return 3; }
 
 protected:
+
+    virtual		~Wavelet();
 
     ValueType*		samps_;
     size_type		sz_;

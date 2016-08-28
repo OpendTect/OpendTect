@@ -231,25 +231,25 @@ bool dgbWaveletTranslator::write( const Wavelet* inwv, Conn& conn )
     if ( !inwv || !conn.forWrite() || !conn.isStream() )
 	return false;
 
-    Wavelet wv( *inwv );
-    wv.trimPaddedZeros();
+    RefMan<Wavelet> wv = new Wavelet( *inwv );
+    wv->trimPaddedZeros();
 
     ascostream astream( ((StreamConn&)conn).oStream() );
     const BufferString head( mTranslGroupName(Wavelet), " file" );
     if ( !astream.putHeader( head ) )
 	return false;
 
-    if ( !wv.name().isEmpty() )
-	astream.put( sKey::Name(), wv.name() );
-    astream.put( sLength, wv.size() );
-    astream.put( sIndex, -wv.centerSample() );
+    if ( !wv->name().isEmpty() )
+	astream.put( sKey::Name(), wv->name() );
+    astream.put( sLength, wv->size() );
+    astream.put( sIndex, -wv->centerSample() );
     astream.put( IOPar::compKey(sSampRate,sKey::Unit()),
 		 SI().zDomain().unitStr() );
-    astream.put( sSampRate, wv.sampleRate() * SI().zDomain().userFactor() );
+    astream.put( sSampRate, wv->sampleRate() * SI().zDomain().userFactor() );
 
     astream.newParagraph();
     TypeSet<Wavelet::ValueType> samps;
-    wv.getSamples( samps );
+    wv->getSamples( samps );
     const Wavelet::size_type sz = samps.size();
     for ( int idx=0; idx<sz; idx++ )
 	astream.stream() << samps[idx] << od_newline;

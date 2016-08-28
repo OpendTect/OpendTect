@@ -83,7 +83,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 	mErrRet( uiStrings::sCantOpenInpFile() )
 
     WaveletAscIO aio( fd_ );
-    PtrMan<Wavelet> wvlt = aio.get( strm );
+    RefMan<Wavelet> wvlt = aio.get( strm );
     if ( !wvlt )
 	mErrRet(aio.errMsg())
 
