@@ -34,6 +34,7 @@ public:
 
     mStruct(uiWell) LogData : public uiWellDahDisplay::DahObjData
     {
+			LogData();
 
 	void		setLog(const Well::Log*);
 	const Well::Log* log() const;
@@ -86,36 +87,34 @@ mExpClass(uiWell) uiWellLogDispDlg : public uiDialog
 { mODTextTranslationClass(uiWellLogDispDlg)
 public:
 
-			uiWellLogDispDlg(uiParent*,
-					 const uiWellLogDisplay::Setup&,
-					 bool make_copy=true);
-			~uiWellLogDispDlg();
+				uiWellLogDispDlg(uiParent*,
+						 const uiWellLogDisplay::Setup&);
+				~uiWellLogDispDlg();
 
-    void		setLog(const Well::Log*,bool first=true,
-			       const char* wellnm=0);
-    const Well::Log*	getLog(bool first=true) const;
+    void			setLog(const Well::Log*,bool first=true,
+						        const char* wellnm=0);
+    const Well::Log*		getLog(bool first=true) const;
 
-    uiWellLogDisplay&	logDisplay()	{ return *dispfld_; }
+    uiWellLogDisplay&		logDisplay()		{ return *dispfld_; }
 			//!< for detailed work
 
     Notifier<uiWellLogDispDlg>	logSet;
 
-    static uiWellLogDispDlg* popupNonModal(uiParent*,const Well::Log*,
-					   const Well::Log* wl2=0,
-					   const char* wellnm1=0,
-					   const char* wellnm2=0);
-			//!< has setDeleteOnClose set
+    static uiWellLogDispDlg*	popupNonModal(uiParent*,const Well::Log*,
+					      const Well::Log* wl2=0,
+					      const char* wellnm1=0,
+					      const char* wellnm2=0);
+				    //!< has setDeleteOnClose set
 
 protected:
 
-    bool		logsmine_;
-    const Well::Log*	log1_;
-    const Well::Log*	log2_;
-    BufferString	wellnm1_;
-    BufferString	wellnm2_;
+    ConstRefMan<Well::Log>	log1_;
+    ConstRefMan<Well::Log>	log2_;
+    BufferString		wellnm1_;
+    BufferString		wellnm2_;
 
-    uiWellLogDisplay*	dispfld_;
-    void		logSetCB(CallBacker*);
+    uiWellLogDisplay*		dispfld_;
+    void			logSetCB(CallBacker*);
 
 };
 

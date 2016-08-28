@@ -379,22 +379,19 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 {
     mGetWD(return);
 
-    Well::Log logdata = *wd->logs().getLogByIdx( lp.logidx_ );
-    Well::Log* logfill = 0;
-
-    if ( isfilled )
-    {
-	const Well::Log* filllog = wd->logs().getLogByIdx( lp.filllogidx_ );
-	if ( filllog )
-	    logfill = new Well::Log( *filllog );
-    }
-
-    if ( !upscaleLogs(*wd,logdata,logfill,lp) )
-    {
-	if ( logfill )
-	    delete logfill;
+    ConstRefMan<Well::Log> shlogdata = wd->logs().getLogByIdx( lp.logidx_ );
+    if ( !shlogdata )
 	return;
-    }
+    ConstRefMan<Well::Log> shlogfill = !isfilled ? 0
+				   : wd->logs().getLogByIdx( lp.filllogidx_ );
+
+    RefMan<Well::Log> logdata = new Well::Log( *shlogdata );
+    RefMan<Well::Log> logfill = shlogfill ? new Well::Log( *shlogfill ) : 0;
+    shlogdata.release();
+    if ( shlogfill )
+	shlogfill.release();
+    if ( !upscaleLogs(wd->track(),*logdata,logfill) )
+	return;
 
     const Well::Track& track = needsConversionToTime() ? *timetrack_
 						       : wd->track();
@@ -404,7 +401,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     TypeSet<visBase::Well::Coord3Value> crdvals;
     TypeSet<visBase::Well::Coord3Value> crdvalsF;
 
-    Well::LogIter iter( logdata );
+    Well::LogIter iter( *logdata );
     while ( iter.next() )
     {
 	const float dah = iter.dah();
@@ -430,8 +427,6 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	    crdvalsF += visBase::Well::Coord3Value( pos, valfill );
 	}
     }
-    if ( logfill )
-	delete logfill;
 
     if ( crdvals.isEmpty() && crdvalsF.isEmpty() )
 	return;
@@ -444,25 +439,22 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 
 #define cMaxLogSamp 2000
 
-bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
-			       Well::Log* logfill,
-			       visBase::Well::LogParams& ld ) const
+bool WellDisplay::upscaleLogs( const Well::Track& track,
+			       Well::Log& logdata, Well::Log* logfill ) const
 {
-    const Well::Track& track = wd.track();
     if ( track.size() < 2 )
 	return false;
 
-    const Well::Log* logdatain = wd.logs().getLogByName( logdata.name() );
-    const Well::Log* logfillin = !logfill ? 0
-				  : wd.logs().getLogByName( logfill->name() );
-    if ( !logdatain || (logfill && !logfillin) || logdata.isEmpty() )
+    ConstRefMan<Well::Log> logdatain = new Well::Log( logdata );
+    ConstRefMan<Well::Log> logfillin = !logfill ? 0 : new Well::Log( *logfill );
+    if ( logdatain->isEmpty() )
 	return false;
 
-    float start = logdata.firstDah();
+    float start = logdatain->firstDah();
     if ( start < track.dahRange().start )
 	start = track.dahRange().start;
 
-    float stop = logdata.lastDah();
+    float stop = logdatain->lastDah();
     if ( stop > track.dahRange().stop )
 	stop = track.dahRange().stop;
 
@@ -473,7 +465,6 @@ bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
     if ( logfill )
 	logfill->setEmpty();
 
-    const bool filldata = logdatain == logfillin;
     for ( int idah=0; idah<dahrange.nrSteps()+1; idah++ )
     {
 	const float dah = dahrange.atIndex( idah );
@@ -482,8 +473,7 @@ bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
 	logdata.setValueAt( dah, val );
 	if ( logfill )
 	{
-	    const float fillval = filldata ? val
-				: Well::LogDataExtracter::calcVal( *logfillin,
+	    const float fillval = Well::LogDataExtracter::calcVal( *logfillin,
 					dah, dahrange.step, Stats::UseAvg );
 	    logfill->setValueAt( dah, fillval );
 	}

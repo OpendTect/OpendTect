@@ -92,10 +92,9 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	mErrRet( uiStrings::phrEnter(tr("a valid name for Output log")) )
 
     const int gate = gatefld_->box()->getIntValue();
-    Well::Log* outputlog = new Well::Log( lognm );
+    RefMan<Well::Log> outputlog = new Well::Log( lognm );
     Tut::LogTools logtool( *logset.getLogByIdx(inpidx), *outputlog );
-    if ( !logtool.runSmooth(gate) )
-	delete outputlog;
+    if ( logtool.runSmooth(gate) )
     {
 	Well::LogSet::LogID logid = logset.add( outputlog );
 	PtrMan<IOObj> ioobj = IOM().get( wellid_ );

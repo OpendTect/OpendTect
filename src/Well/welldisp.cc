@@ -99,8 +99,8 @@ void Well::DisplayProperties::copyLogPairsFrom( const DisplayProperties& oth )
     for ( int idx=0; idx<oth.logs_.size(); idx++ )
     {
 	logs_ += new LogDispProps( *oth.logs_[idx] );
-	if ( idx%2 == 0 )
-	    addCBsToLogPair( pairID4Idx(idx) );
+	if ( idx%2 == 1 )
+	    addCBsToLogPair( pairID4Idx(idx-1) );
     }
 }
 

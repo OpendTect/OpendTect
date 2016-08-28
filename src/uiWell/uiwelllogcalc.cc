@@ -403,7 +403,7 @@ void uiWellLogCalc::vwLog( CallBacker* cb )
 
     uiWellLogDisplay::Setup wldsu;
     wldsu.annotinside( true ).nrmarkerchars( 10 ).drawcurvenames( true );
-    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( this, wldsu, true );
+    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( this, wldsu );
     dlg->setLog( wl, true );
     dlg->setDeleteOnClose( true );
     dlg->show();

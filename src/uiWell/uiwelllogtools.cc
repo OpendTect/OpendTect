@@ -144,7 +144,7 @@ uiWellLogToolWin::LogData::LogData( const Well::LogSet& ls,
 
 uiWellLogToolWin::LogData::~LogData()
 {
-    deepErase( outplogs_ );
+    deepUnRef( outplogs_ );
     delete &logs_;
     delete d2t_;
 }
@@ -152,7 +152,7 @@ uiWellLogToolWin::LogData::~LogData()
 
 void uiWellLogToolWin::LogData::getOutputLogs( Well::LogSet& ls ) const
 {
-    Well::LogSetIter iter( ls );
+    Well::LogSetIter iter( logs_ );
     while ( iter.next() )
 	ls.add( new Well::Log(iter.log()) );
 }
@@ -335,16 +335,13 @@ bool uiWellLogToolWin::acceptOK( CallBacker* )
 	for ( int idl=ld.outplogs_.size()-1; idl>=0; idl-- )
 	{
 	    Well::Log* outplog = ld.outplogs_.removeSingle( idl );
-	    if ( !overwrite )
+	    BufferString newnm( outplog->name() );
+	    newnm += savefld_->text();
+	    outplog->setName( newnm );
+	    if ( !overwrite && ls.isPresent( outplog->name() ) )
 	    {
-		BufferString newnm( outplog->name() );
-		newnm += savefld_->text();
-		outplog->setName( newnm );
-		if ( ls.isPresent( outplog->name() ) )
-		{
-		    mErrRet(tr("One or more logs with this name already exists."
-		    "\nPlease select a different extension for the new logs"));
-		}
+		mErrRet(tr("One or more logs with this name already exists."
+		"\nPlease select a different extension for the new logs"));
 	    }
 	    ls.add( outplog );
 	    needsave_ = true;
@@ -375,7 +372,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
     for ( int idldata=0; idldata<logdatas_.size(); idldata++ )
     {
 	LogData& ld = *logdatas_[idldata];
-	deepErase( ld.outplogs_ );
+	deepUnRef( ld.outplogs_ );
 	const BufferString wllnm = ld.wellname_;
 	for ( int idlog=0; idlog<ld.inplogs_.size(); idlog++ )
 	{

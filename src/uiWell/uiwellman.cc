@@ -722,12 +722,9 @@ void uiWellMan::removeLogPush( CallBacker* )
 	for ( int idrem=0; idrem<logs2rem.size(); idrem++ )
 	{
 	    BufferString logname( logs2rem.get( idrem ) );
-	    Well::Log* log = wls.removeByName( logname );
+	    RefMan<Well::Log> log = wls.removeByName( logname );
 	    if ( log )
-	    {
-		delete log;
 		curwds_[idwell]->reloaded.trigger();
-	    }
 	}
     }
     writeLogs();

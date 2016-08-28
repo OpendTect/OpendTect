@@ -30,19 +30,22 @@ public:
     typedef size_type			IdxType;
     typedef IntegerID<IdxType>		LogID;
     typedef Well::DahObj::ZType		ZType;
+    typedef RefMan<Log>			LogRefMan;
+    typedef ConstRefMan<Log>		CLogRefMan;
 
 			LogSet();
 			~LogSet();
 			mDeclMonitorableAssignment(LogSet);
 			mDeclInstanceCreatedNotifierAccess(LogSet);
 
-    Log*		getLog(LogID);
-    const Log*		getLog(LogID) const;
-    Log*		getLogByName(const char*);
-    const Log*		getLogByName(const char*) const;
-    Log*		getLogByIdx(IdxType);
-    const Log*		getLogByIdx(IdxType) const;
-    const Log*		firstLog() const;
+    LogRefMan		getLog(LogID);
+    CLogRefMan		getLog(LogID) const;
+    LogRefMan		getLogByName(const char*);
+    CLogRefMan		getLogByName(const char*) const;
+    LogRefMan		getLogByIdx(IdxType);
+    CLogRefMan		getLogByIdx(IdxType) const;
+    LogRefMan		firstLog();
+    CLogRefMan		firstLog() const;
 
     size_type		size() const;
     int			indexOf(LogID) const;
@@ -51,9 +54,9 @@ public:
     bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();
 
-    LogID		add(Log*);		//!< becomes mine
-    Log*		remove(LogID);
-    Log*		removeByName(const char*);
+    LogID		add(Log*);
+    LogRefMan		remove(LogID);
+    LogRefMan		removeByName(const char*);
 
     bool		isPresent(const char*) const;
     void		getNames(BufferStringSet&) const;

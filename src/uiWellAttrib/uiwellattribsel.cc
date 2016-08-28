@@ -218,7 +218,7 @@ bool uiWellAttribSel::createLog( const BinIDValueSet& bidset,
 	    newlog->addValue( mdepths[idx], v[1] );
     }
 
-    if ( !newlog->size() )
+    if ( newlog->isEmpty() )
     {
 	uiMSG().error( "No values collected" );
 	delete newlog;
@@ -236,9 +236,8 @@ bool uiWellAttribSel::createLog( const BinIDValueSet& bidset,
 	log.erase();
 	for ( int idx=0; idx<newlog->size(); idx++ )
 	    log.addValue( newlog->dah(idx), newlog->value(idx) );
-	delete newlog;
+	newlog->unRef();
     }
 
     return true;
 }
-

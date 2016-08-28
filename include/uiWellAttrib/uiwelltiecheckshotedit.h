@@ -72,8 +72,8 @@ protected:
     Well::D2TModel*	orgd2t_;
     Well::D2TModel*	tkzs_;
     Well::D2TModel*	orgcs_;
-    DriftCurve		driftcurve_;
-    DriftCurve		newdriftcurve_;
+    RefMan<DriftCurve>	driftcurve_;
+    RefMan<DriftCurve>	newdriftcurve_;
 
     uiToolBar*		toolbar_;
     uiToolButton*	editbut_;

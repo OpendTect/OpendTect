@@ -64,7 +64,7 @@ bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )
 
 bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
 {
-    Well::Log* newlog = new Well::Log( setup_.lognm_ );
+    RefMan<Well::Log> newlog = new Well::Log( setup_.lognm_ );
     float v[2]; BinID bid;
     for ( int idx=0; idx<ale.depths().size(); idx++ )
     {
@@ -74,7 +74,7 @@ bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
     }
 
     if ( newlog->isEmpty() )
-	{ delete newlog; return false; }
+	return false;
 
     if ( sellogidx_ < 0 )
     {
@@ -83,12 +83,12 @@ bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
     }
     else
     {
-	Well::Log* log = wd.logs().getLogByIdx( sellogidx_ );
+	RefMan<Well::Log> log = wd.logs().getLogByIdx( sellogidx_ );
+	ChangeNotifyBlocker cnb( *log );
 	log->setEmpty();
 	Well::LogIter iter( *newlog );
 	while ( iter.next() )
 	    log->setValueAt( iter.dah(), iter.value() );
-	delete newlog;
     }
     return true;
 }

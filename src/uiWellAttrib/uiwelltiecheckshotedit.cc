@@ -72,14 +72,14 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     , orgcs_(0)
     , isedit_(false)
     , movingpointid_(PointID::getInvalid())
+    , driftcurve_(new DriftCurve)
+    , newdriftcurve_(new DriftCurve("User defined Drift Curve"))
 {
     if ( !tkzs_ )
 	mErrRet( tr("Empty checkshot provided"), return );
 
     orgcs_ = new Well::D2TModel( *tkzs_ );
     tkzs_->setName( "CheckShot Curve" );
-
-    newdriftcurve_.setName( "User defined Drift Curve" );
 
     orgd2t_ = d2t_ ? new Well::D2TModel( *d2t_ ) : new Well::D2TModel();
     uiWellDahDisplay::Setup dsu;
@@ -175,7 +175,7 @@ void uiCheckShotEdit::mousePressedCB( CallBacker* )
 {
     const float dah = control_->dah();
     const float val = control_->xPos();
-    movingpointid_ = isedit_ ? currentPoint( newdriftcurve_,dah,val )
+    movingpointid_ = isedit_ ? currentPoint(*newdriftcurve_,dah,val )
 			     : PointID::getInvalid();
 }
 
@@ -208,22 +208,22 @@ void uiCheckShotEdit::movePt()
 	return;
 
     const float dah = control_->dah();
-    const PointID nextid( newdriftcurve_.nextID(movingpointid_) );
-    const PointID previd( newdriftcurve_.nextID(movingpointid_) );
+    const PointID nextid( newdriftcurve_->nextID(movingpointid_) );
+    const PointID previd( newdriftcurve_->nextID(movingpointid_) );
     if ( !previd.isInvalid() )
     {
-	const float prevdah = newdriftcurve_.dah( previd );
+	const float prevdah = newdriftcurve_->dah( previd );
 	if ( dah < prevdah )
 	    return;
     }
     if ( !nextid.isInvalid() )
     {
-	const float nextdah = newdriftcurve_.dah( nextid );
+	const float nextdah = newdriftcurve_->dah( nextid );
 	if ( dah > nextdah  )
 	    return;
     }
 
-    newdriftcurve_.remove( movingpointid_ );
+    newdriftcurve_->remove( movingpointid_ );
     doInsertRemovePt();
 }
 
@@ -238,13 +238,13 @@ void uiCheckShotEdit::doInsertRemovePt()
 	const bool isadd = !control_->isCtrlPressed();
 	if ( isadd )
 	{
-	    if ( newdriftcurve_.isEmpty() && !driftcurve_.isEmpty() )
-		newdriftcurve_.setValueAt( driftcurve_.firstDah(),
-					   driftcurve_.firstValue() );
+	    if ( newdriftcurve_->isEmpty() && !driftcurve_->isEmpty() )
+		newdriftcurve_->setValueAt( driftcurve_->firstDah(),
+					   driftcurve_->firstValue() );
 
-	    newdriftcurve_.setValueAt( dah, val );
+	    newdriftcurve_->setValueAt( dah, val );
 	}
-	undo_.addEvent( new DahObjUndoEvent(dah,val,newdriftcurve_,isadd) );
+	undo_.addEvent( new DahObjUndoEvent(dah,val,*newdriftcurve_,isadd) );
     }
     undobut_->setSensitive( undo_.canUnDo() );
     redobut_->setSensitive( undo_.canReDo() );
@@ -297,21 +297,21 @@ void uiCheckShotEdit::draw()
 }
 
 
-void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
+void uiCheckShotEdit::drawDahObj( const Well::DahObj* dahobj, bool first, bool left )
 {
     uiWellDahDisplay* disp = left ? d2tdisplay_ : driftdisplay_;
     uiWellDahDisplay::DahObjData& dahdata = disp->dahObjData( first );
-    dahdata.col_ = d == &newdriftcurve_ ? Color::DgbColor()
-					: Color::stdDrawColor(first ? 0 : 1);
+    dahdata.col_ = dahobj == newdriftcurve_ ? Color::DgbColor()
+					    : Color::stdDrawColor(first ? 0 : 1);
     float startpos = SI().seismicReferenceDatum();
     startpos = startpos != 0 ? -startpos : 0;
     const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop)
 	? orgcs_->dahRange().stop : orgd2t_->dahRange().stop;
     Interval<float> zrg( startpos, stoppos );
     disp->setZRange(zrg);
-    dahdata.drawaspoints_ = d == tkzs_ || d == &newdriftcurve_;
+    dahdata.drawaspoints_ = dahobj == tkzs_ || dahobj == newdriftcurve_;
     dahdata.xrev_ = false;
-    dahdata.setData( d );
+    dahdata.setData( dahobj );
 
     disp->reDraw();
 }
@@ -325,17 +325,17 @@ void uiCheckShotEdit::drawDrift()
     int maxsz = mMAX(orgd2tsz,tkzssz);
     const Well::D2TModel* longermdl = orgd2tsz > tkzssz ? orgd2t_ : tkzs_;
 
-    driftcurve_.setEmpty();
+    driftcurve_->setEmpty();
     for ( int idx=0; idx<maxsz; idx++ )
     {
 	const float dah = longermdl->dahByIdx( idx );
 	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
 	const float csval = tkzs_->getTime( dah, wd_.track() );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
-	driftcurve_.setValueAt( dah, drift );
+	driftcurve_->setValueAt( dah, drift );
     }
-    drawDahObj( &driftcurve_, true, false );
-    drawDahObj( &newdriftcurve_, false, false );
+    drawDahObj( driftcurve_, true, false );
+    drawDahObj( newdriftcurve_, false, false );
 
     for ( int idx=0; idx<tkzssz; idx++ )
     {
@@ -345,7 +345,7 @@ void uiCheckShotEdit::drawDrift()
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	uiWellDahDisplay::PickData pd( dah, Color::stdDrawColor( 0 ) );
 	pd.val_ = drift;
-	driftcurve_.setValueAt( dah, drift );
+	driftcurve_->setValueAt( dah, drift );
 	driftdisplay_->zPicks() += pd;
     }
 
@@ -389,7 +389,7 @@ void uiCheckShotEdit::applyCB( CallBacker* )
 {
     const bool isorgdrift = driftchoicefld_->currentItem() == 0;
     editbut_->setSensitive( !isorgdrift );
-    const DriftCurve& driftcurve = isorgdrift ? driftcurve_ : newdriftcurve_;
+    const DriftCurve& driftcurve = *(isorgdrift ? driftcurve_ : newdriftcurve_);
     Well::D2TModel tmpcs;
     *d2t_ = *orgd2t_;
 

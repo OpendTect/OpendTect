@@ -470,7 +470,7 @@ void Well::odReader::getLogInfo( BufferStringSet& nms,
 	if ( rdHdr(strm,sKeyLog(),version) )
 	{
 	    int bintyp = 0;
-	    PtrMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
+	    RefMan<Well::Log> log = rdLogHdr( strm, bintyp, idx-1 );
 	    if ( nms.isPresent(log->name()) )
 	    {
 		BufferString msg( log->name() );

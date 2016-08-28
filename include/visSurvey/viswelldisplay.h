@@ -157,10 +157,8 @@ protected:
     void			saveDispProp( const Well::Data* wd );
     void			setLogInfo(BufferString&,BufferString&,
 					   float,bool) const;
-    bool			upscaleLogs(const Well::Data& wd,
-					    Well::Log& logdata,
-					    Well::Log* logfill,
-					    visBase::Well::LogParams&) const;
+    bool			upscaleLogs(const Well::Track&,Well::Log&,
+					    Well::Log*) const;
     void			removePick(const visBase::EventInfo&);
     void			addPick(const visBase::EventInfo&,int);
 

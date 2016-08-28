@@ -42,7 +42,6 @@ WellLogInfo( const MultiID& mid, const char* lognm )
 ~WellLogInfo()
 {
     delete track_;
-    delete log_;
 }
 
 bool init()
@@ -70,8 +69,8 @@ bool init()
     else
 	track_ = isloaded ? &wd->track() : new Well::Track( wd->track() );
 
-    const Well::Log* log = wd->logs().getLogByName( logname_ );
-    log_ = isloaded ? log : new Well::Log( *log );
+    ConstRefMan<Well::Log> log = wd->logs().getLogByName( logname_ );
+    log_ = isloaded || !log ? log : new Well::Log( *log );
 
     return true;
 }
@@ -111,7 +110,7 @@ Well::Track*	track_;
 TrcKeyZSampling bbox_;
 MultiID		mid_;
 BufferString	logname_;
-const Well::Log*	log_;
+ConstRefMan<Well::Log>	log_;
 TypeSet<float>	intersections_;
 
 };

@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id: uiwelldahdisplay.cc";
 #include "wellmarker.h"
 #include "welld2tmodel.h"
 #include "wellman.h"
+#include "refcount.h"
 
 
 uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
@@ -64,9 +65,28 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
     }
 }
 
+
+uiWellDahDisplay::DahObjData::~DahObjData()
+{
+    RefCount::unRefIfObjIsReffed( dahobj_ );
+    delete xaxprcts_;
+}
+
+
+void uiWellDahDisplay::DahObjData::setData( const Well::DahObj* dahobj )
+{
+    if ( dahobj != dahobj_ )
+    {
+	RefCount::unRefIfObjIsReffed( dahobj_ );
+	dahobj_ = dahobj;
+	RefCount::refIfObjIsReffed( dahobj_ );
+    }
+}
+
+
 void uiWellDahDisplay::DahObjData::plotAxis()
 {
-    xax_.updateScene();  yax_.updateScene();
+    xax_.updateScene(); yax_.updateScene();
     if ( xaxprcts_ )
 	xaxprcts_->updateScene();
 }

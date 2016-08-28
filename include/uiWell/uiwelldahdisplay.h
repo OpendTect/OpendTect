@@ -83,10 +83,10 @@ public:
 
     mStruct(uiWell) DahObjData : public CallBacker
     {
-	virtual			~DahObjData() { delete xaxprcts_; }
+	virtual			~DahObjData();
 
 	//Set these
-	void			setData(const Well::DahObj* d) { dahobj_ = d; }
+	void			setData(const Well::DahObj*);
 	bool			hasData() const { return dahobj_; }
 	bool                    xrev_;
 	int                     zoverlayval_;

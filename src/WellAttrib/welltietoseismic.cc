@@ -435,8 +435,8 @@ bool DataPlayer::setAIModel()
     const Well::Log* denlog = data_.wd_->logs().getLogByName(
 						    data_.sKeyDensity());
 
-    Well::Log* pcvellog = new Well::Log;
-    Well::Log* pcdenlog = new Well::Log;
+    RefMan<Well::Log> pcvellog = new Well::Log;
+    RefMan<Well::Log> pcdenlog = new Well::Log;
     if ( !processLog(sonlog,*pcvellog,data_.sKeySonic()) ||
 	 !processLog(denlog,*pcdenlog,data_.sKeyDensity()) )
 	return false;
@@ -670,7 +670,7 @@ bool DataPlayer::processLog( const Well::Log* log,
 
 void DataPlayer::createLog( const char* nm, float* dah, float* vals, int sz )
 {
-    Well::Log* log = 0;
+    RefMan<Well::Log> log;
     if ( data_.logset_.isPresent(nm) )
 	log = data_.logset_.getLogByName( nm );
     else

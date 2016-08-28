@@ -54,7 +54,7 @@ void uiWellLogDisplay::LogData::setLog( const Well::Log* l )
 {
     if ( dahobj_ != l )
     {
-	dahobj_ = l;
+	setData( l );
 	logSet.trigger();
     }
 }
@@ -325,14 +325,10 @@ uiWellLogDisplay::LogData& uiWellLogDisplay::logData( bool first )
 
 
 uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
-				    const uiWellLogDisplay::Setup& wldsu,
-				    bool mkcopy )
+				    const uiWellLogDisplay::Setup& wldsu )
     : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
 						       mNoHelpKey).modal(false))
     , logSet(this)
-    , logsmine_(mkcopy)
-    , log1_(0)
-    , log2_(0)
 {
     setCtrlStyle( CloseOnly );
     dispfld_ = new uiWellLogDisplay( this, wldsu );
@@ -351,27 +347,13 @@ uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
 
 uiWellLogDispDlg::~uiWellLogDispDlg()
 {
-    if ( logsmine_ )
-    {
-	delete const_cast<Well::Log*>(log1_);
-	delete const_cast<Well::Log*>(log2_);
-    }
 }
 
 
 void uiWellLogDispDlg::setLog( const Well::Log* wl, bool first,
 			       const char* wellnm )
 {
-    if ( wl && logsmine_ )
-    {
-	Well::Log*& mywl = const_cast<Well::Log*&>(first ? log1_ : log2_);
-	delete mywl; mywl = new Well::Log( *wl );
-	wl = mywl;
-    }
-
-    if ( wellnm )
-	first ? wellnm1_ = wellnm : wellnm2_ = wellnm;
-
+    (first ? wellnm1_ : wellnm2_).set( wellnm );
     dispfld_->logData( first ).setLog( wl );
 }
 
@@ -432,7 +414,7 @@ uiWellLogDispDlg* uiWellLogDispDlg::popupNonModal( uiParent* p,
 {
     uiWellLogDisplay::Setup wldsu;
     wldsu.annotinside( false ).drawcurvenames( false );
-    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( p, wldsu, true );
+    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( p, wldsu );
     dlg->setLog( wl1, true, wellnm1 );
     if ( wl2 )
 	dlg->setLog( wl2, false, wellnm2 );

@@ -38,12 +38,12 @@ namespace Well
   about this log.
 */
 
-mExpClass(Well) Log : public DahObj
+mExpClass(Well) Log : public RefCount::Referenced
+		    , public DahObj
 {
 public:
 
 			Log(const char* nm=0);
-			~Log();
 			mDeclMonitorableAssignment(Log);
 			mDeclInstanceCreatedNotifierAccess(Log);
 
@@ -75,6 +75,8 @@ public:
     static const char*	sKeyStorage();
 
 protected:
+
+			~Log();
 
     ValueSetType	vals_;
     BufferString	unitmeaslbl_;

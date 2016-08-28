@@ -40,17 +40,18 @@ namespace WellTie
 Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 						   const char* sonlog ) const
 {
-    const Well::Log* log = wd.logs().getLogByName( sonlog );
-    if ( !log ) return 0;
+    ConstRefMan<Well::Log> log = wd.logs().getLogByName( sonlog );
+    if ( !log )
+	return 0;
 
-    Well::Log proclog( *log );
+    RefMan<Well::Log> proclog = new Well::Log( *log );
     if ( log->propType() == PropertyRef::Son )
-	son2TWT( proclog, wd );
+	son2TWT( *proclog, wd );
     else
-	vel2TWT( proclog, wd );
+	vel2TWT( *proclog, wd );
 
     TypeSet<float> dahs, vals;
-    Well::LogIter iter( proclog );
+    Well::LogIter iter( *proclog );
     while ( iter.next() )
     {
 	const float dah = iter.dah();

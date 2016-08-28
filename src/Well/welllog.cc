@@ -52,7 +52,16 @@ mImplMonitorableAssignment( Well::LogSet, NamedMonitorable )
 
 void Well::LogSet::copyClassData( const LogSet& oth )
 {
-    deepCopy( logs_, oth.logs_ );
+    for ( int idx=0; idx<logs_.size(); idx++ )
+	logs_[idx]->unRef();
+    logs_.erase();
+    for ( int idx=0; idx<oth.logs_.size(); idx++ )
+    {
+	Log* newlog = new Log( *oth.logs_[idx] );
+	logs_ += newlog;
+	newlog->ref();
+    }
+
     logids_ = oth.logids_;
     dahintv_ = oth.dahintv_;
     curlogidnr_ = oth.curlogidnr_;
@@ -150,54 +159,61 @@ Well::Log* Well::LogSet::doRemove( IdxType idx )
 
 void Well::LogSet::doSetEmpty()
 {
-    deepErase( logs_ );
+    deepUnRef( logs_ );
     recalcDahIntv();
 }
 
 
-Well::Log* Well::LogSet::getLog( LogID id )
+Well::LogSet::LogRefMan Well::LogSet::getLog( LogID id )
 {
     mLock4Read();
     return gtLog( id );
 }
 
 
-const Well::Log* Well::LogSet::getLog( LogID id ) const
+Well::LogSet::CLogRefMan Well::LogSet::getLog( LogID id ) const
 {
     mLock4Read();
     return gtLog( id );
 }
 
 
-Well::Log* Well::LogSet::getLogByName( const char* nm )
+Well::LogSet::LogRefMan Well::LogSet::getLogByName( const char* nm )
 {
     mLock4Read();
     return gtLogByName( nm );
 }
 
 
-const Well::Log* Well::LogSet::getLogByName( const char* nm ) const
+Well::LogSet::CLogRefMan Well::LogSet::getLogByName( const char* nm ) const
 {
     mLock4Read();
     return gtLogByName( nm );
 }
 
 
-Well::Log* Well::LogSet::getLogByIdx( IdxType idx )
+Well::LogSet::LogRefMan Well::LogSet::getLogByIdx( IdxType idx )
 {
     mLock4Read();
     return gtLogByIdx( idx );
 }
 
 
-const Well::Log* Well::LogSet::getLogByIdx( IdxType idx ) const
+Well::LogSet::CLogRefMan Well::LogSet::getLogByIdx( IdxType idx ) const
 {
     mLock4Read();
     return gtLogByIdx( idx );
 }
 
 
-const Well::Log* Well::LogSet::firstLog() const
+Well::LogSet::LogRefMan Well::LogSet::firstLog()
+{
+    mLock4Read();
+    return logs_.isEmpty() ? 0 : logs_[0];
+}
+
+
+Well::LogSet::CLogRefMan Well::LogSet::firstLog() const
 {
     mLock4Read();
     return logs_.isEmpty() ? 0 : logs_[0];
@@ -248,10 +264,11 @@ Well::LogSet::LogID Well::LogSet::add( Well::Log* wl )
     LogID logid = LogID::getInvalid();
     if ( !wl )
 	return logid;
+    wl->ref();
 
     mLock4Write();
     const Log* existlog = gtLogByName( wl->name() );
-    const int existidx = existlog ? logs_.indexOf(existlog) : -1;
+    int existidx = existlog ? logs_.indexOf(existlog) : -1;
 
     logid = LogID::get( curlogidnr_++ );
     logids_ += logid;
@@ -262,10 +279,16 @@ Well::LogSet::LogID Well::LogSet::add( Well::Log* wl )
     else
     {
 	const LogID rmid = logids_[existidx];
-	delete doRemove( existidx );
-	recalcDahIntv();
+	Log* torem = gtLogByIdx( existidx );
 	mSendChgNotif( cLogRemove(), rmid.getI() );
 	mReLock();
+	existidx = logs_.indexOf( existlog );
+	if ( existidx >= 0 )
+	{
+	    doRemove( existidx );
+	    torem->unRef();
+	    recalcDahIntv();
+	}
     }
 
     mSendChgNotif( cLogAdd(), logid.getI() );
@@ -273,7 +296,7 @@ Well::LogSet::LogID Well::LogSet::add( Well::Log* wl )
 }
 
 
-Well::Log* Well::LogSet::remove( LogID id )
+Well::LogSet::LogRefMan Well::LogSet::remove( LogID id )
 {
     mLock4Write();
     IdxType idx = gtIdx( id );
@@ -286,11 +309,13 @@ Well::Log* Well::LogSet::remove( LogID id )
     if ( idx < 0 )
 	return 0;
 
-    return doRemove( idx );
+    LogRefMan refman = doRemove( idx );
+    refman.setNoDelete( true );
+    return refman;
 }
 
 
-Well::Log* Well::LogSet::removeByName( const char* nm )
+Well::LogSet::LogRefMan Well::LogSet::removeByName( const char* nm )
 {
     mLock4Write();
     IdxType idx = gtIdxByName( nm );
@@ -410,11 +435,11 @@ Well::LogSet::LogID Well::LogSetIter::ID() const
 }
 
 
-static const Well::Log emptylog;
+static ConstRefMan<Well::Log> emptylog = new Well::Log;
 
 const Well::Log& Well::LogSetIter::log() const
 {
-    return logSet().logs_.validIdx(curidx_) ? *logSet().logs_[curidx_] :emptylog;
+    return logSet().logs_.validIdx(curidx_) ? *logSet().logs_[curidx_] : *emptylog;
 }
 
 
