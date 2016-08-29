@@ -7,6 +7,7 @@ set(OD_MODULE_DEPS Basic )
 
 set( OD_TEST_PROGS
 	array2dmatrix.cc
+	arraymath.cc
 	checksum.cc
 	contcurvinterpol.cc
 	gaussianprobdenfunc.cc

@@ -108,18 +108,21 @@ template <class T>
 inline bool ParallelCalc<T>::doPrepare( int nrthreads )
 {
     if ( !data_ )
-    { 
+    {
 	errmsg_ = od_static_tr("Stats_Parallel_Calc",
-			       "No data given to compute statistics"); 
-	return false; 
+			       "No data given to compute statistics");
+	return false;
     }
     if ( nradded_ < 1 )
-    { 
+    {
 	errmsg_ = od_static_tr("Stats_Parallel_Calc",
 			       "Data array is empty");
-	return false; 
+	return false;
     }
 
+    const int nradded = nradded_;
+    BaseCalc<T>::clear();
+    nradded_ = nradded;
     variance_ = variance_w_ =0;
 
     barrier_.setNrThreads( nrthreads );
@@ -131,11 +134,11 @@ inline bool ParallelCalc<T>::doPrepare( int nrthreads )
 template <class T>
 inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 {
-    T sum_w = 0;
-    T sum_wx = 0;
-    T sum_wxx = 0;
-    T sum_x = 0;
-    T sum_xx = 0;
+    double sum_w = 0;
+    double sum_wx = 0;
+    double sum_wxx = 0;
+    double sum_x = 0;
+    double sum_xx = 0;
     int minidx = 0;
     int maxidx = 0;
     int nrused = 0;
@@ -193,12 +196,15 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 
     barrier_.waitForAll( false );
 
-    sum_x_ += sum_x;
-    sum_xx_ += sum_xx;
-    sum_w_ += sum_w;
-    sum_wx_ += sum_wx;
-    sum_wxx_ += sum_wxx;
     nrused_ += nrused;
+    sum_x_ += (T)sum_x;
+    sum_xx_ += (T)sum_xx;
+    if ( setup_.weighted_ )
+    {
+	sum_w_ += (T)sum_w;
+	sum_wx_ += (T)sum_wx;
+	sum_wxx_ += (T)sum_wxx;
+    }
 
     if ( ( mIsUdf(minval_) || minval_ > tmin ) &&  !mIsUdf(tmin ) )
 	{ minval_ = tmin; minidx_ = minidx; }
@@ -209,8 +215,11 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 
     barrier_.waitForAll( false );
 
-    meanval_ = sum_x_ / nrused_;
-    meanval_w_ = sum_wx_ / nrused_;
+    if ( nrused_ != 0 )
+    {
+	meanval_ = sum_x_ / nrused_;
+	meanval_w_ = sum_wx_ / nrused_;
+    }
 
     barrier_.mutex().unLock();
 
@@ -275,6 +284,14 @@ inline bool ParallelCalc<T>::doWork( od_int64 start, od_int64 stop, int thread )
 }
 
 
+template <>
+inline bool ParallelCalc<float_complex>::doWork( od_int64, od_int64, int )
+{
+    pErrMsg("Undefined operation for float_complex in template");
+    return false;
+}
+
+
 template <class T>
 inline bool ParallelCalc<T>::doFinish( bool success )
 {
@@ -318,6 +335,14 @@ inline bool ParallelCalc<T>::doFinish( bool success )
 }
 
 
+template <>
+inline bool ParallelCalc<float_complex>::doFinish( bool )
+{
+    pErrMsg("Undefined operation for float_complex in template");
+    return false;
+}
+
+
 template <class T>
 inline double ParallelCalc<T>::variance() const
 {
@@ -325,5 +350,12 @@ inline double ParallelCalc<T>::variance() const
 }
 
 
+template <>
+inline double ParallelCalc<float_complex>::variance() const
+{
+    pErrMsg("Undefined operation for float_complex in template");
+    return mUdf(double);
 }
+
+} //namespace Stats
 #endif

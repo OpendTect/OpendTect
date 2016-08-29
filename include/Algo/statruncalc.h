@@ -203,6 +203,8 @@ public:
 
 protected:
 
+    inline void		setMostFrequent(T val,T wt);
+
     using BaseCalc<T>::setup_;
     using BaseCalc<T>::nradded_;
     using BaseCalc<T>::nrused_;
@@ -404,6 +406,14 @@ inline double BaseCalc<T>::variance() const
 }
 
 
+template <>
+inline double BaseCalc<float_complex>::variance() const
+{
+    pErrMsg("Undefined operation for float_complex in template");
+    return mUdf(double);
+}
+
+
 template <class T>
 inline double BaseCalc<T>::normvariance() const
 {
@@ -486,6 +496,11 @@ inline T BaseCalc<T>::mostFreq() const
 
     return (T)ret;
 }
+
+
+template<> inline
+float_complex BaseCalc<float_complex>::mostFreq() const
+{ return mUdf(float_complex); }
 
 
 template <class T> inline
@@ -596,15 +611,7 @@ RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
     }
 
     if ( setup_.needmostfreq_ )
-    {
-	int ival; Conv::set( ival, val );
-	int setidx = clss_.indexOf( ival );
-
-	if ( setidx < 0 )
-	    { clss_ += ival; clsswt_ += wt; }
-	else
-	    clsswt_[setidx] += wt;
-    }
+	setMostFrequent( val, wt );
 
     if ( setup_.needsums_ )
     {
@@ -621,6 +628,25 @@ RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
     nrused_++;
     return *this;
 }
+
+
+template <class T> inline
+void RunCalc<T>::setMostFrequent( T val, T wt )
+{
+    int ival; Conv::set( ival, val );
+    int setidx = clss_.indexOf( ival );
+
+    if ( setidx < 0 )
+	{ clss_ += ival; clsswt_ += wt; }
+    else
+	clsswt_[setidx] += wt;
+}
+
+
+template <> inline
+void RunCalc<float_complex>::setMostFrequent( float_complex val,
+					      float_complex wt )
+{ pErrMsg("Undefined operation for float_complex in template"); }
 
 
 template <class T> inline
