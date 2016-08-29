@@ -239,8 +239,6 @@ bool TaskGroup::execute()
 
 void TaskGroup::setParallel(bool)
 {
-    pErrMsg("Not implemented. Perhaps you should do it?");
-    pErrMsg("'No No, Not Me!'");
 }
 
 
