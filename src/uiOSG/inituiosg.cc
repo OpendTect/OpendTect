@@ -11,10 +11,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 #include "uiosgfont.h"
+#include "uiglinfo.h"
 
 mDefModInitFn(uiOSG)
 {
     mIfNotFirstTime( return );
 
     uiOsgFontCreator::initClass();
+
+    uiGLI().createAndShowMessage( true, "dTect.Last GL info" );
 }
