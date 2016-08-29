@@ -1088,31 +1088,35 @@ FixedString NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit)
 
 int strLength( const char* str )
 {
-    int nr = 0;
+#ifdef mMEM_DEBUGGER
     if ( !str )
-	return nr;
+	return 0;
 
-    while( str[nr] && str[nr] != '\0' )
-	nr++;
+    const char* origstr = str;
+    while ( *str )
+	str++;
 
-    return nr;
+    return str-origstr;
+#else
+    return strlen( str );
+#endif
 }
 
 
 const char* firstOcc( const char* str, int character )
 {
+#ifdef mMEM_DEBUGGER
     if ( !str )
 	return 0;
 
-    char c = character;
-    int nr = 0;
-    while( str[nr] != '\0' && str[nr] != c )
-	nr++;
+    const char c = character;
+    while( *str != '\0' && *str != c )
+	str++;
 
-    if ( !str[nr] && c != 0 )
-	return 0;
-
-    return &str[nr];
+    return str;
+#else
+    return strchr(str,character);
+#endif
 }
 
 
@@ -1124,25 +1128,27 @@ char* firstOcc( char* str, int character )
 
 const char* lastOcc( const char* str, int character )
 {
+#ifdef mMEM_DEBUGGER
     if ( !str )
 	return 0;
 
-    char c = character;
-    int nr = 0, found = -1;
-    while( str[nr] != '\0' )
+    const char c = character;
+    const char* res = 0;
+    while( *str != '\0' )
     {
-	if ( str[nr] == c )
-	    found = nr;
+	if ( *str == c )
+	    res = str;
 
-	nr++;
+	str++;
     }
 
     if ( c == '\0' )
-	return &str[nr];
-    else if ( found == -1 )
-	return 0;
+	res++;
 
-    return &str[found];
+    return res;
+#else
+    return strrchr(str,character);
+#endif
 }
 
 

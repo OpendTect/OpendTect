@@ -7,6 +7,14 @@
 
 set( OD_USEQT Core )
 
+if ( UNIX )
+    option ( OD_ENABLE_MEMDEBUGGER_CODE
+	    "Enable code that gives less false memory violation positives" OFF )
+    if ( OD_ENABLE_MEMDEBUGGER_CODE )
+	add_definitions("-DmMEM_DEBUGGER")
+    endif()
+endif( UNIX )
+
 if ( OD_ENABLE_BREAKPAD )
     list(APPEND OD_MODULE_INCLUDESYSPATH ${BREAKPAD_DIR}/include/breakpad )
     list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_BREAKPADLIBS} )
