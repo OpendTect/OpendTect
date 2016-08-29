@@ -655,7 +655,7 @@ bool RadialBasisFunctionGridder2D::updateSolver( TaskRunner* taskr )
 {
     delete solv_;
     delete globalweights_; //previous solution is invalid too
-    int sz = usedpoints_.size();
+    const int sz = usedpoints_.size();
     if ( !points_ || !sz )
 	return false;
 
@@ -664,6 +664,9 @@ bool RadialBasisFunctionGridder2D::updateSolver( TaskRunner* taskr )
 	if ( !points_->validIdx(usedpoints_[idx]) )
 	    return false;
     }
+
+    if ( sz == 1 )
+	return true;
 
     Array2DImpl<double> a( sz, sz );
     if ( !a.isOK() )
@@ -693,8 +696,8 @@ bool RadialBasisFunctionGridder2D::updateSolution()
     if ( !values_ || values_->isEmpty() )
 	return false;
 
-    int sz = usedpoints_.size();
-    if ( !solv_ || solv_->size() != sz )
+    const int sz = usedpoints_.size();
+    if ( sz > 1 && ( !solv_ || solv_->size() != sz ) )
 	return false;
 
     Array1DImpl<double> b( sz );
