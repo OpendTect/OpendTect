@@ -1196,6 +1196,7 @@ public:
 		    , outarr_(outvals)
 		    , sz_(xvals.info().getTotalSz())
 		    , xfact_(mUdf(double))
+		    , yfact_(mUdf(double))
 		    , shift_(mUdf(double))
 		    , noudf_(noudf)
 		    , setup_(setup)
@@ -1612,6 +1613,19 @@ inline T getSumProduct( const ArrayND<T>& in1, const ArrayND<T>& in2,
     return mCast(T,sumprodexec.getSum());
 }
 
+template <class T>
+inline double getSumProductD( const ArrayND<T>& in1, const ArrayND<T>& in2,
+			      bool noudf, bool parallel )
+{
+    ArrayOperExecSetup setup;
+    setup.doadd_ = false;
+    CumArrOperExec<double,T> sumprodexec( in1, noudf, setup );
+    sumprodexec.setYVals( in2 );
+    if ( !sumprodexec.executeParallel(parallel) )
+	return mUdf(double);
+
+    return sumprodexec.getSum();
+}
 
 /*!\brief will be removed after 6.0 */
 template <class T>
@@ -1655,6 +1669,20 @@ inline T getNorm2( const ArrayND<T>& in, bool noudf, bool parallel )
 
     return mCast(T,norm2exec.getSum());
 }
+
+template <class T>
+inline double getNorm2D( const ArrayND<T>& in, bool noudf, bool parallel )
+{
+    ArrayOperExecSetup setup;
+    setup.dosqinp_ = true;
+    setup.dosqrtsum_ = true;
+    CumArrOperExec<double,T> norm2exec( in, noudf, setup );
+    if ( !norm2exec.executeParallel(parallel) )
+	return mUdf(double);
+
+    return norm2exec.getSum();
+}
+
 
 /*!\brief will be removed after 6.0 */
 template <class T>
