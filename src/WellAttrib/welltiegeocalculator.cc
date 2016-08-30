@@ -327,7 +327,7 @@ void GeoCalculator::deconvolve( const float* inp, const float_complex* filter,
     Array1DImpl<float_complex> cfiltervals( inpsz );
     OD::memCopy( cfiltervals.getData(), filter, inpsz*sizeof(float_complex) );
     window.apply( &cfiltervals );
-    ArrayMath::removeBias<float_complex,float_complex,double>( cfiltervals );
+    ArrayMath::removeBias<float_complex,float_complex,float>( cfiltervals );
 
     DeconvolveData dcinp( inpsz ), dcfilter( inpsz );
     const int cidx = mCast(int, inpsz/2 );
