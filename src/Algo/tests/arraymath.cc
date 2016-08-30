@@ -14,8 +14,8 @@ using namespace ArrayMath;
 static bool testSmallFloatArray( Array1D<float>& prices,
 				 Array1D<float>& milage )
 {
-    Array1DImpl<float> pricesplusmilage( prices.info().getTotalSz() ),
-		       pricestimesmilage( prices.info().getTotalSz() );
+	const int sz = mCast(int, prices.info().getTotalSz());
+    Array1DImpl<float> pricesplusmilage( sz ), pricestimesmilage( sz );
     prices.set(  0,   9300.f ); milage.set(  0,  7100.f );
     prices.set(  1,  10565.f ); milage.set(  1, 15500.f );
     prices.set(  2,  15000.f ); milage.set(  2,  4400.f );
@@ -105,7 +105,8 @@ static bool testSmallFloatArray( Array1D<float>& prices,
 static bool testFloatComplex( const Array1D<float>& real,
 			      const Array1D<float>& imag )
 {
-    Array1DImpl<float_complex> data( real.info().getTotalSz() );
+	const int sz = mCast(int, real.info().getTotalSz());
+    Array1DImpl<float_complex> data( sz );
     for ( int idx=0; idx<real.info().getTotalSz(); idx++ )
     {
 	const float_complex val( real.get(idx), imag.get(idx) );
