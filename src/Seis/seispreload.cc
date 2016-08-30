@@ -305,7 +305,7 @@ void PreLoader::fillPar( IOPar& iop ) const
 
     iop.set( sKey::ID(), mid_ );
     iop.set( sKey::GeomID(), geomid_ );
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,PLDM().get(mid_));
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,PLDM().get(mid_,geomid_));
     if ( regsdp )
     {
 	iop.set( sKeyUserType(), DataCharacteristics::toString(
