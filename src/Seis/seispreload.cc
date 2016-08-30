@@ -303,7 +303,7 @@ void PreLoader::fillPar( IOPar& iop ) const
 
     iop.set( sKey::ID(), mid_ );
     iop.set( sKey::GeomID(), geomid_ );
-    RefMan<DataPack> dp = PLDM().get(mid_);
+    RefMan<DataPack> dp = PLDM().get( mid_, geomid_ );
     mDynamicCastGet(const RegularSeisDataPack*,regsdp,dp.ptr());
     if ( regsdp )
     {
