@@ -68,6 +68,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
+static int seis2dloadaction = 0;
 static const char* sKeyPreLoad()	{ return "PreLoad"; }
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
@@ -407,12 +408,13 @@ bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
 	   .add( "Select attribute" );
     uiGenInput* optfld =
 	new uiGenInput( &dlg, tr("On OK"), StringListInpSpec(options) );
+    optfld->setValue( seis2dloadaction );
     optfld->attach( alignedBelow, lchfld );
     cursorchgr.restore();
     if ( !dlg.go() )
 	return false;
 
-    action = optfld->getIntValue();
+    seis2dloadaction = action = optfld->getIntValue();
     lchfld->getChosen( selids );
     return selids.size();
 }
