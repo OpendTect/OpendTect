@@ -154,10 +154,10 @@ private:
     Threads::ConditionVar	statuslock_;
     enum Status			{ Running, Error, Finished } status_;
 
-    bool			errorOccurred(CallBacker*);
-    bool			finish(CallBacker*);
-    bool			dataAvailable(CallBacker*);
-    bool			uploadStatus(CallBacker*);
+    void			errorOccurred(CallBacker*);
+    void			finish(CallBacker*);
+    void			dataAvailable(CallBacker*);
+    void			uploadStatus(CallBacker*);
 
     Threads::Atomic<od_int64>	bytesuploaded_;
     Threads::Atomic<od_int64>	totalbytestoupload_;

@@ -90,7 +90,7 @@ void HttpRequestProcess::waitForFinish()
 }
 
 
-bool HttpRequestProcess::errorOccurred(CallBacker*)
+void HttpRequestProcess::errorOccurred(CallBacker*)
 {
 #ifndef OD_NO_QT
     statuslock_.lock();
@@ -98,36 +98,23 @@ bool HttpRequestProcess::errorOccurred(CallBacker*)
     errmsg_.setFrom( qnetworkreply_->errorString() );
     statuslock_.signal( true );
     statuslock_.unLock();
-
-    return true;
-#else
-    return false;
 #endif
 }
 
 
-bool HttpRequestProcess::finish(CallBacker*)
+void HttpRequestProcess::finish(CallBacker* cber)
 {
 #ifndef OD_NO_QT
     statuslock_.lock();
     if ( status_==Running ) status_ = Finished;
     statuslock_.signal( true );
     statuslock_.unLock();
-
-    return true;
-#else
-    return false;
 #endif
 }
 
 
-bool HttpRequestProcess::dataAvailable( CallBacker* )
+void HttpRequestProcess::dataAvailable( CallBacker* )
 {
-#ifndef OD_NO_QT
-    return true;
-#else
-    return false;
-#endif
 }
 
 
@@ -164,13 +151,8 @@ BufferString HttpRequestProcess::readAll()
 }
 
 
-bool HttpRequestProcess::uploadStatus( CallBacker* )
+void HttpRequestProcess::uploadStatus( CallBacker* )
 {
-#ifndef OD_NO_QT
-    return true;
-#else
-    return false;
-#endif
 }
 
 //Network::HttpRequest implementation
