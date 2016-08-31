@@ -42,7 +42,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 
     for ( int idx=0; idx<tfs->nrFactories(); idx++ )
     {
-	mDynamicCastGet(const uiODTreeItemFactory*,itmcreater,
+	mDynamicCastGet(const uiODSceneTreeItemFactory*,itmcreater,
 			tfs->getFactory(idx))
 	if ( !itmcreater ) continue;
 
@@ -67,7 +67,7 @@ static const int cHideIdx = -950;
 static const int cRemoveIdx = -1000;
 
 uiODDisplayTreeItem::uiODDisplayTreeItem()
-    : uiODTreeItem(uiString::emptyString())
+    : uiODSceneTreeItem(uiString::emptyString())
     , displayid_(-1)
     , visserv_(ODMainWin()->applMgr().visServer())
     , addmnuitem_(uiStrings::sAdd(),cAddIdx)
@@ -520,18 +520,4 @@ void uiODDisplayTreeItem::prepareForShutdown()
 	ODMainWin()->colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
 
     visserv_->removeObject( displayid_, sceneID() );
-}
-
-
-void uiODDisplayTreeItem::emitPRRequest( OD::PresentationRequestType req)
-{
-    PtrMan<ObjPresentationInfo> objprinfo = getObjPRInfo();
-    if ( !objprinfo )
-	return;
-
-    IOPar objprinfopar;
-    objprinfo->fillPar( objprinfopar );
-    ViewerSubID sceneid( ViewerSubID::get(sceneID()) );
-    ODViewerID vwrid( uiODSceneMgr::theViewerTypeID(), sceneid );
-    ODPrMan().request( vwrid, req, objprinfopar );
 }

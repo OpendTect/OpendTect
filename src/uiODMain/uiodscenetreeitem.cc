@@ -10,6 +10,7 @@ ___________________________________________________________________
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
+#include "uiodsceneobjtreeitem.h"
 
 #include "keyboardevent.h"
 #include "settings.h"
@@ -27,13 +28,13 @@ ___________________________________________________________________
 #include "vissurvscene.h"
 
 
-const char* uiODTreeTop::sceneidkey()		{ return "Sceneid"; }
-const char* uiODTreeTop::viewerptr()		{ return "Viewer"; }
-const char* uiODTreeTop::applmgrstr()		{ return "Applmgr"; }
+const char* uiODSceneTreeTop::sceneidkey()		{ return "Sceneid"; }
+const char* uiODSceneTreeTop::viewerptr()		{ return "Viewer"; }
+const char* uiODSceneTreeTop::applmgrstr()		{ return "Applmgr"; }
 
 
-uiODTreeTop::uiODTreeTop( ui3DViewer* sovwr, uiTreeView* lv, uiODApplMgr* am,
-			    uiTreeFactorySet* tfs_ )
+uiODSceneTreeTop::uiODSceneTreeTop( ui3DViewer* sovwr, uiTreeView* lv,
+				    uiODApplMgr* am, uiTreeFactorySet* tfs_ )
     : uiTreeTopItem(lv)
     , tfs(tfs_)
 {
@@ -41,19 +42,19 @@ uiODTreeTop::uiODTreeTop( ui3DViewer* sovwr, uiTreeView* lv, uiODApplMgr* am,
     setPropertyPtr( viewerptr(), sovwr );
     setPropertyPtr( applmgrstr(), am );
 
-    tfs->addnotifier.notify( mCB(this,uiODTreeTop,addFactoryCB) );
-    tfs->removenotifier.notify( mCB(this,uiODTreeTop,removeFactoryCB) );
+    tfs->addnotifier.notify( mCB(this,uiODSceneTreeTop,addFactoryCB) );
+    tfs->removenotifier.notify( mCB(this,uiODSceneTreeTop,removeFactoryCB) );
 }
 
 
-uiODTreeTop::~uiODTreeTop()
+uiODSceneTreeTop::~uiODSceneTreeTop()
 {
-    tfs->addnotifier.remove( mCB(this,uiODTreeTop,addFactoryCB) );
-    tfs->removenotifier.remove( mCB(this,uiODTreeTop,removeFactoryCB) );
+    tfs->addnotifier.remove( mCB(this,uiODSceneTreeTop,addFactoryCB) );
+    tfs->removenotifier.remove( mCB(this,uiODSceneTreeTop,removeFactoryCB) );
 }
 
 
-int uiODTreeTop::sceneID() const
+int uiODSceneTreeTop::sceneID() const
 {
     int sceneid=-1;
     getProperty<int>( sceneidkey(), sceneid );
@@ -61,14 +62,14 @@ int uiODTreeTop::sceneID() const
 }
 
 
-bool uiODTreeTop::selectWithKey( int selkey )
+bool uiODSceneTreeTop::selectWithKey( int selkey )
 {
     applMgr()->visServer()->setSelObjectId(selkey);
     return true;
 }
 
 
-uiODApplMgr* uiODTreeTop::applMgr()
+uiODApplMgr* uiODSceneTreeTop::applMgr()
 {
     void* res = 0;
     getPropertyPtr( applmgrstr(), res );
@@ -76,7 +77,7 @@ uiODApplMgr* uiODTreeTop::applMgr()
 }
 
 
-TypeSet<int> uiODTreeTop::getDisplayIds( int& selectedid, bool usechecked )
+TypeSet<int> uiODSceneTreeTop::getDisplayIds( int& selectedid, bool usechecked )
 {
     TypeSet<int> dispids;
     loopOverChildrenIds( dispids, selectedid, usechecked, children_ );
@@ -84,13 +85,13 @@ TypeSet<int> uiODTreeTop::getDisplayIds( int& selectedid, bool usechecked )
 }
 
 
-void uiODTreeTop::loopOverChildrenIds( TypeSet<int>& dispids, int& selectedid,
-				       bool usechecked,
-				    const ObjectSet<uiTreeItem>& childrenlist )
+void uiODSceneTreeTop::loopOverChildrenIds(
+	TypeSet<int>& dispids, int& selectedid, bool usechecked,
+	const ObjectSet<uiTreeItem>& childrenlist )
 {
     for ( int idx=0; idx<childrenlist.size(); idx++ )
 	loopOverChildrenIds( dispids, selectedid,
-			     usechecked, childrenlist[idx]->children_ );
+			     usechecked, childrenlist[idx]->getChildren() );
 
     for ( int idy=0; idy<childrenlist.size(); idy++ )
     {
@@ -103,7 +104,7 @@ void uiODTreeTop::loopOverChildrenIds( TypeSet<int>& dispids, int& selectedid,
 	    else if ( !usechecked )
 		dispids += disptreeitem->displayID();
 
-	    if ( childrenlist[idy]->uitreeviewitem_->isSelected() )
+	    if ( childrenlist[idy]->getItem()->isSelected() )
 		selectedid = disptreeitem->displayID();
 	}
     }
@@ -116,17 +117,12 @@ void uiODTreeTop::loopOverChildrenIds( TypeSet<int>& dispids, int& selectedid,
 #define cExpandAllItems		197
 #define cCollapseAllItems	196
 
-uiODTreeItem::uiODTreeItem( const uiString& nm )
-    : uiTreeItem(nm)
-    , showallitems_(tr("Show All Items"),cShowAllItems)
-    , hideallitems_(tr("Hide All Items"),cHideAllItems)
-    , removeallitems_(tr("Remove All Items from Tree"),cRemoveAllItems)
-    , expandallitems_(tr("Expand All Items"),cExpandAllItems)
-    , collapseallitems_(tr("Collapse All Items"),cCollapseAllItems)
+uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm )
+    : uiODPrManagedTreeItem(nm)
 {}
 
 
-bool uiODTreeItem::anyButtonClick( uiTreeViewItem* item )
+bool uiODSceneTreeItem::anyButtonClick( uiTreeViewItem* item )
 {
     if ( item!=uitreeviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
@@ -138,131 +134,31 @@ bool uiODTreeItem::anyButtonClick( uiTreeViewItem* item )
 }
 
 
-bool uiODTreeItem::init()
-{
-    const char* iconnm = iconName();
-    if ( iconnm ) uitreeviewitem_->setIcon( 0, iconnm );
-
-    return uiTreeItem::init();
-}
-
-
-uiODApplMgr* uiODTreeItem::applMgr()
+uiODApplMgr* uiODSceneTreeItem::applMgr()
 {
     void* res = 0;
-    getPropertyPtr( uiODTreeTop::applmgrstr(), res );
+    getPropertyPtr( uiODSceneTreeTop::applmgrstr(), res );
     return reinterpret_cast<uiODApplMgr*>( res );
 }
 
 
-ui3DViewer* uiODTreeItem::viewer()
+ui3DViewer* uiODSceneTreeItem::viewer()
 {
     void* res = 0;
-    getPropertyPtr( uiODTreeTop::viewerptr(), res );
+    getPropertyPtr( uiODSceneTreeTop::viewerptr(), res );
     return reinterpret_cast<ui3DViewer*>( res );
 }
 
 
-int uiODTreeItem::sceneID() const
+int uiODSceneTreeItem::sceneID() const
 {
     int sceneid=-1;
-    getProperty<int>( uiODTreeTop::sceneidkey(), sceneid );
+    getProperty<int>( uiODSceneTreeTop::sceneidkey(), sceneid );
     return sceneid;
 }
 
 
-void uiODTreeItem::addStandardItems( uiMenu& mnu )
-{
-    if ( children_.size() < 2 ) return;
-
-    mnu.insertSeparator();
-    uiAction* action = new uiAction( tr("Show All Items") );
-    action->setEnabled( !allChildrenChecked() );
-    mnu.insertItem( action, cShowAllItems );
-
-    action = new uiAction( tr("Hide All Items") );
-    action->setEnabled( !allChildrenUnchecked() );
-    mnu.insertItem( action, cHideAllItems );
-
-    mnu.insertItem( new uiAction(tr("Remove All Items from Tree")),
-		    cRemoveAllItems );
-
-    mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0])
-    if ( !itm || itm->nrChildren()==0 )
-	return;
-
-    mnu.insertSeparator();
-    action = new uiAction( tr("Expand All Items") );
-    action->setEnabled( !allChildrenExpanded() );
-    mnu.insertItem( action, cExpandAllItems );
-
-    action = new uiAction( tr("Collapse All Items") );
-    action->setEnabled( !allChildrenCollapsed() );
-    mnu.insertItem( action, cCollapseAllItems );
-}
-
-
-void uiODTreeItem::addStandardItems( MenuHandler* menu )
-{
-    if ( children_.size() < 2 ) return;
-
-    mAddMenuItem( menu, &showallitems_, !allChildrenChecked(), false );
-    mAddMenuItem( menu, &hideallitems_, !allChildrenUnchecked(), false );
-    mAddMenuItem( menu, &removeallitems_, true, false );
-
-    mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0]);
-    if ( !itm || itm->nrChildren()==0 )
-	return;
-
-    mAddMenuItem( menu, &expandallitems_, !allChildrenExpanded(), false );
-    mAddMenuItem( menu, &collapseallitems_, !allChildrenCollapsed(), false );
-}
-
-
-void uiODTreeItem::handleStandardItems( int menuid )
-{
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	if ( menuid == cShowAllItems )
-	    children_[idx]->setChecked( true, true );
-	else if ( menuid == cHideAllItems )
-	    children_[idx]->setChecked( false, true );
-	else if ( menuid == cExpandAllItems )
-	    children_[idx]->expand();
-	else if ( menuid == cCollapseAllItems )
-	    children_[idx]->collapse();
-    }
-
-    if ( menuid == cRemoveAllItems )
-	removeAllItems();
-}
-
-
-void uiODTreeItem::handleStandardMenuCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller( int, menuid, caller, cb );
-    mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( !menu || menu->isHandled() || menuid==-1 )
-	return;
-
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	if ( menuid == showallitems_.id )
-	    children_[idx]->setChecked( true, true );
-	else if ( menuid == hideallitems_.id )
-	    children_[idx]->setChecked( false, true );
-	else if ( menuid == expandallitems_.id )
-	    children_[idx]->expand();
-	else if ( menuid == collapseallitems_.id )
-	    children_[idx]->collapse();
-    }
-
-    if ( menuid == removeallitems_.id )
-	removeAllItems();
-}
-
-
-void uiODTreeItem::removeAllItems()
+void uiODSceneTreeItem::removeAllItems()
 {
     const uiString msg = tr("All %1 items will be removed from tree.\n"
 	    		    "Do you want to continue?").arg(name());
@@ -273,25 +169,32 @@ void uiODTreeItem::removeAllItems()
 	setMoreObjectsToDoHint( children_.size()>1 );
 	mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0]);
 	if ( !itm ) continue;
-	itm->prepareForShutdown();
 	applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	removeChild( itm );
     }
 }
 
 
-void uiODTreeItem::setMoreObjectsToDoHint( bool yn )
+void uiODSceneTreeItem::setMoreObjectsToDoHint( bool yn )
 { applMgr()->visServer()->setMoreObjectsToDoHint( sceneID(), yn ); }
 
 
-bool uiODTreeItem::getMoreObjectsToDoHint() const
+bool uiODSceneTreeItem::getMoreObjectsToDoHint() const
 {
-    uiODApplMgr* applmgr = const_cast<uiODTreeItem*>(this)->applMgr();
+    uiODApplMgr* applmgr = const_cast<uiODSceneTreeItem*>(this)->applMgr();
     return applmgr->visServer()->getMoreObjectsToDoHint( sceneID() );
 }
 
 
-void uiODTreeTop::addFactoryCB( CallBacker* cb )
+OD::ViewerID uiODSceneTreeItem::getViewerID() const
+{
+    OD::ViewerID vwrid( uiODSceneMgr::theViewerTypeID(),
+			OD::ViewerObjID::get(sceneID()) );
+    return vwrid;
+}
+
+
+void uiODSceneTreeTop::addFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,factidx,cb);
     const int newplaceidx = tfs->getPlacementIdx( factidx );
@@ -322,7 +225,7 @@ void uiODTreeTop::addFactoryCB( CallBacker* cb )
 }
 
 
-void uiODTreeTop::removeFactoryCB( CallBacker* cb )
+void uiODSceneTreeTop::removeFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,idx,cb);
     PtrMan<uiTreeItem> dummy = tfs->getFactory(idx)->create();
@@ -331,9 +234,8 @@ void uiODTreeTop::removeFactoryCB( CallBacker* cb )
     removeChild( const_cast<uiTreeItem*>(child) );
 }
 
-
-uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, int id )
-    : uiODTreeItem(nm)
+uiODSceneObjTreeItem::uiODSceneObjTreeItem( const uiString& nm, int id )
+    : uiODSceneTreeItem(nm)
     , displayid_(id)
     , menu_(0)
     , propitem_( m3Dots(uiStrings::sProperties() ) )
@@ -345,57 +247,61 @@ uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, int id )
 }
 
 
-uiODSceneTreeItem::~uiODSceneTreeItem()
+uiODSceneObjTreeItem::~uiODSceneObjTreeItem()
 {
     if ( menu_ )
     {
 	menu_->createnotifier.remove(
-		mCB(this,uiODSceneTreeItem,createMenuCB) );
+		mCB(this,uiODSceneObjTreeItem,createMenuCB) );
 	menu_->handlenotifier.remove(
-		mCB(this,uiODSceneTreeItem,handleMenuCB) );
+		mCB(this,uiODSceneObjTreeItem,handleMenuCB) );
 	menu_->unRef();
     }
 
     MenuHandler* tb = applMgr()->visServer()->getToolBarHandler();
     if ( tb )
     {
-	tb->createnotifier.remove( mCB(this,uiODSceneTreeItem,addToToolBarCB) );
-	tb->handlenotifier.remove( mCB(this,uiODSceneTreeItem,handleMenuCB) );
+	tb->createnotifier.remove(
+		mCB(this,uiODSceneObjTreeItem,addToToolBarCB) );
+	tb->handlenotifier.remove(
+		mCB(this,uiODSceneObjTreeItem,handleMenuCB) );
     }
 }
 
 
-bool uiODSceneTreeItem::init()
+bool uiODSceneObjTreeItem::init()
 {
     if ( !menu_ )
     {
 	menu_ = new uiMenuHandler( getUiParent(), -1 );
 	menu_->ref();
 	menu_->createnotifier.notify(
-		mCB(this,uiODSceneTreeItem,createMenuCB) );
+		mCB(this,uiODSceneObjTreeItem,createMenuCB) );
 	menu_->handlenotifier.notify(
-		mCB(this,uiODSceneTreeItem,handleMenuCB) );
+		mCB(this,uiODSceneObjTreeItem,handleMenuCB) );
     }
 
     MenuHandler* tb = applMgr()->visServer()->getToolBarHandler();
     if ( tb )
     {
-	tb->createnotifier.notify( mCB(this,uiODSceneTreeItem,addToToolBarCB) );
-	tb->handlenotifier.notify( mCB(this,uiODSceneTreeItem,handleMenuCB) );
+	tb->createnotifier.notify(
+		mCB(this,uiODSceneObjTreeItem,addToToolBarCB) );
+	tb->handlenotifier.notify(
+		mCB(this,uiODSceneObjTreeItem,handleMenuCB) );
     }
 
-    return uiODTreeItem::init();
+    return uiODSceneTreeItem::init();
 }
 
 
-void uiODSceneTreeItem::createMenuCB( CallBacker* cb )
+void uiODSceneObjTreeItem::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(MenuHandler*,menu,cb);
     createMenu( menu, false );
 }
 
 
-void uiODSceneTreeItem::addToToolBarCB( CallBacker* cb )
+void uiODSceneObjTreeItem::addToToolBarCB( CallBacker* cb )
 {
     mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
     if ( !tb || tb->menuID() != displayid_ || !isSelected() )
@@ -405,7 +311,7 @@ void uiODSceneTreeItem::addToToolBarCB( CallBacker* cb )
 }
 
 
-void uiODSceneTreeItem::createMenu( MenuHandler* menu, bool istb )
+void uiODSceneObjTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     mAddMenuOrTBItem( istb, menu, menu, &propitem_, true, false );
     mAddMenuOrTBItem( istb, 0, menu, &imageitem_, true, false );
@@ -417,7 +323,7 @@ void uiODSceneTreeItem::createMenu( MenuHandler* menu, bool istb )
 }
 
 
-void uiODSceneTreeItem::handleMenuCB( CallBacker* cb )
+void uiODSceneObjTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
@@ -443,7 +349,7 @@ void uiODSceneTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiODSceneTreeItem::updateColumnText( int col )
+void uiODSceneObjTreeItem::updateColumnText( int col )
 {
     if ( col==uiODSceneMgr::cNameColumn() )
 	name_ = applMgr()->visServer()->getObjectName( displayid_ );
@@ -452,7 +358,7 @@ void uiODSceneTreeItem::updateColumnText( int col )
 }
 
 
-bool uiODSceneTreeItem::showSubMenu()
+bool uiODSceneObjTreeItem::showSubMenu()
 {
     return menu_->executeMenu( uiMenuHandler::fromTree() );
 }

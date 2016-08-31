@@ -20,10 +20,10 @@ class uiRandomLinePolyLineDlg;
 namespace Geometry { class RandomLineSet; }
 
 
-mExpClass(uiODMain) uiODRandomLineParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODRandomLineParentTreeItem : public uiODSceneTreeItem
 {
     mODTextTranslationClass(uiODRandomLineParentTreeItem);
-    mDefineItemMembers( RandomLineParent, TreeItem, TreeTop );
+    mDefineItemMembers( RandomLineParent, SceneTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
 
@@ -46,7 +46,8 @@ mExpClass(uiODMain) uiODRandomLineParentTreeItem : public uiODTreeItem
 namespace visSurvey { class RandomTrackDisplay; }
 
 
-mExpClass(uiODMain) uiODRandomLineTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODRandomLineTreeItemFactory
+    : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(uiODRandomLineTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }

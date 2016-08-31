@@ -62,14 +62,14 @@ bool uiODVw2DPickSetParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(m3Dots(uiStrings::sAdd())), 0 );
     mnu.insertItem( new uiAction(m3Dots(uiStrings::sNew())), 1 );
-    insertStdSubMenu( mnu );
+    addStandardItems( mnu );
     return handleSubMenu( mnu.exec() );
 }
 
 
 bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 {
-    handleStdSubMenu( menuid );
+    handleStandardItems( menuid );
 
     TypeSet<MultiID> setids;
     RefMan<Pick::Set> newps = 0;
@@ -158,7 +158,7 @@ uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
 
 
 
-ObjPresentationInfo* uiODVw2DPickSetTreeItem::getObjPRInfo()
+OD::ObjPresentationInfo* uiODVw2DPickSetTreeItem::getObjPRInfo()
 {
     Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo;
     psprinfo->setStoredID( storedid_ );
@@ -271,19 +271,19 @@ void uiODVw2DPickSetTreeItem::deSelCB( CallBacker* )
 }
 
 
-void uiODVw2DPickSetTreeItem::enableDisplay( bool yn, bool triggervwreq )
+void uiODVw2DPickSetTreeItem::handleItemCheck( bool triggervwreq )
 {
     if ( vw2dpickset_ )
-	vw2dpickset_->enablePainting( yn );
+	vw2dpickset_->enablePainting( isChecked() );
 
     if ( triggervwreq )
-	emitPRRequest( yn ? OD::Show : OD::Hide );
+	emitPRRequest( isChecked() ? OD::Show : OD::Hide );
 }
 
 
 void uiODVw2DPickSetTreeItem::checkCB( CallBacker* )
 {
-    enableDisplay( isChecked(), true );
+    handleItemCheck( true );
 }
 
 

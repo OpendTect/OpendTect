@@ -20,9 +20,42 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "objectset.h"
 #include "multiid.h"
-#include "integerid.h"
+#include "groupedid.h"
 
-typedef IntegerID<int>	ViewerSubID; 
+namespace OD
+{
+
+    typedef short int				GroupNrType;
+    typedef int					ObjNrType;
+    enum PresentationRequestType		{ Add, Vanish, Show, Hide };
+    typedef GroupedID<GroupNrType,ObjNrType>	ViewerGroupedID;
+    typedef ViewerGroupedID::GroupIDType	ViewerTypeID; 
+    typedef ViewerGroupedID::ObjIDType		ViewerObjID; 
+
+
+mExpClass(General) ViewerID : public ViewerGroupedID
+{
+public:
+				ViewerID()
+				: ViewerGroupedID(ViewerGroupedID::getInvalid())
+				{}
+
+				ViewerID( ViewerTypeID vwrtypeid,
+					  ViewerObjID vwrobjid )
+				: ViewerGroupedID(ViewerGroupedID::getInvalid())
+				{
+				    setGroupID( vwrtypeid );
+				    setObjID( vwrobjid );
+				}
+				ViewerID(int vwrtypeid, int vwrid)
+				: ViewerGroupedID(
+				    ViewerGroupedID::get(vwrtypeid,vwrid) )
+				{}
+    ViewerTypeID		viewerTypeID()	{ return getGroupID(); }
+    ViewerObjID			viewerObjID()	{ return getObjID(); }
+
+};
+
 
 mExpClass(General) ObjPresentationInfo
 {
@@ -57,7 +90,7 @@ protected:
 };
 
 
-mGlobal(General) ObjPresentationInfoFactory& ODIFac();
+mGlobal(General) ObjPresentationInfoFactory& PRIFac();
 
 
 mExpClass(General) PresentationManagedViewer : public CallBacker
@@ -65,10 +98,10 @@ mExpClass(General) PresentationManagedViewer : public CallBacker
 public:
 				PresentationManagedViewer();
     virtual			~PresentationManagedViewer();
-    virtual ViewerSubID		viewerTypeID() const			=0;
-    ViewerSubID			viewerID() const	{ return viewerid_; }
-    void			setViewerID(ViewerSubID id)
-				{ viewerid_ = id; }
+    virtual ViewerTypeID	viewerTypeID() const			=0;
+    ViewerObjID			viewerObjID() const	{ return viewerobjid_; }
+    void			setViewerObjID(ViewerObjID id)
+				{ viewerobjid_ = id; }
 
     CNotifier<PresentationManagedViewer,IOPar>	ObjAdded;
     CNotifier<PresentationManagedViewer,IOPar>	ObjOrphaned;
@@ -78,38 +111,19 @@ public:
     CNotifier<PresentationManagedViewer,IOPar>	VanishRequested;
 
 protected:
-    ViewerSubID			viewerid_;
+    ViewerObjID			viewerobjid_;
 };
 
 
-mExpClass(General) ODViewerID 
+
+mExpClass(General) VwrTypePresentationMgr : public CallBacker
 {
 public:
-				ODViewerID( ViewerSubID vwrtypeid,
-					    ViewerSubID vwrid )
-				    : first_(ViewerSubID::getInvalid())
-				    , second_(ViewerSubID::getInvalid()) {}
-    ViewerSubID			viewerTypeID()	{ return first_; }
-    ViewerSubID			viewerID()	{ return second_; }
-protected:
-    ViewerSubID			first_;
-    ViewerSubID			second_;
-};
-
-
-namespace OD
-{
-    enum PresentationRequestType	{ Add, Vanish, Show, Hide };
-}
-
-
-mExpClass(General) ODVwrTypePresentationMgr : public CallBacker
-{
-public:
-    virtual ViewerSubID		viewerTypeID()		=0;
-    void			request(OD::PresentationRequestType,
+    virtual ViewerTypeID	viewerTypeID()		=0;
+    void			request(PresentationRequestType,
 					const IOPar&,
-				    ViewerSubID skipvwrid=ViewerSubID::get(-1));
+				    ViewerObjID skipvwrid
+				    =ViewerObjID::get(-1));
 					// -1= do not skip any
     void			addViewer( PresentationManagedViewer* vwr )
 				{ viewers_ += vwr; }
@@ -117,16 +131,17 @@ protected:
     ObjectSet<PresentationManagedViewer> viewers_;
 };
 
-mExpClass(General) ODPresentationManager
+mExpClass(General) PresentationManager
 {
 public:
 
     struct SyncInfo
     {
-				SyncInfo( ViewerSubID vwrtypeid, bool sync )
+				SyncInfo( ViewerTypeID vwrtypeid,
+					  bool sync )
 				    : vwrtypeid_(vwrtypeid)
 				    , issynced_(sync)	{}
-	ViewerSubID		vwrtypeid_;
+	ViewerTypeID	vwrtypeid_;
 	bool			issynced_;
 	bool operator==( const SyncInfo& rhs ) const
 	{
@@ -134,24 +149,26 @@ public:
 	}
     };
 
-				ODPresentationManager();
+				PresentationManager();
 
-    ODVwrTypePresentationMgr*	getViewerTypeMgr(ViewerSubID dispdomainid);
-    void			request(ODViewerID id,
-					OD::PresentationRequestType,
+    VwrTypePresentationMgr*	getViewerTypeMgr(ViewerTypeID vwrtypeid);
+    void			request(ViewerID id,
+					PresentationRequestType,
 					const IOPar&);
     void			syncAllViewerTypes();
-    void			addViewerTypeManager(ODVwrTypePresentationMgr*);
-    bool			areViewerTypesSynced(ViewerSubID vwrtypeid1,
-						     ViewerSubID typeid2) const;
+    void			addViewerTypeManager(VwrTypePresentationMgr*);
+    bool			areViewerTypesSynced(ViewerTypeID,
+						    ViewerTypeID) const;
 protected:
-    ObjectSet<ODVwrTypePresentationMgr> vwrtypemanagers_;
+    ObjectSet<VwrTypePresentationMgr>	vwrtypemanagers_;
     TypeSet<SyncInfo>			vwrtypesyncinfos_;
 
-    int				syncInfoIdx(ViewerSubID dispdomainid) const;
+    int				syncInfoIdx(ViewerTypeID) const;
 };
 
-mGlobal(General) ODPresentationManager& ODPrMan();
+mGlobal(General) PresentationManager& PrMan();
 
+}
+//namedpace OD
 
 #endif

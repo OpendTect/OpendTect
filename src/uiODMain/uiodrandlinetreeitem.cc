@@ -138,7 +138,7 @@ uiTreeItem*
 
 
 uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
-    : uiODTreeItem( uiStrings::sRandomLine() )
+    : uiODSceneTreeItem( uiStrings::sRandomLine() )
     , rdlpolylinedlg_(0)
 {}
 

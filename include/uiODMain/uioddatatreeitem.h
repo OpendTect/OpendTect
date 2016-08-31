@@ -21,6 +21,7 @@ class uiMenuHandler;
 class uiSeisAmplSpectrum;
 class uiStatsDisplayWin;
 class uiVisPartServer;
+class uiODApplMgr;
 namespace Attrib { class SelSpec; }
 namespace ColTab { class Sequence; }
 

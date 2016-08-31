@@ -21,7 +21,7 @@ ________________________________________________________________________
 class uiCreateAttribLogDlg;
 class uiD2TMLogSelDlg;
 
-mExpClass(uiODMain) uiODWellParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODWellParentTreeItem : public uiODSceneTreeItem
 { mODTextTranslationClass(uiODWellParentTreeItem)
     typedef uiODTreeItem	inheritedClass;
 public:
@@ -34,12 +34,12 @@ protected:
     bool		showSubMenu();
     bool		handleSubMenu(int);
     const char*		parentType() const
-			{ return typeid(uiODTreeTop).name(); }
+			{ return typeid(uiODSceneTreeTop).name(); }
     bool 		constlogsize_;
 };
 
 
-mExpClass(uiODMain) uiODWellTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODWellTreeItemFactory : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(uiODWellTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }

@@ -932,7 +932,8 @@ Pick::SetPresentationInfo::SetPresentationInfo()
 }
 
 
-ObjPresentationInfo* Pick::SetPresentationInfo::createFrom( const IOPar& par )
+OD::ObjPresentationInfo* Pick::SetPresentationInfo::createFrom(
+	const IOPar& par )
 {
     Pick::SetPresentationInfo* psdispinfo = new Pick::SetPresentationInfo;
     psdispinfo->usePar( par );
@@ -948,17 +949,17 @@ const char* Pick::SetPresentationInfo::sFactoryKey()
 
 void Pick::SetPresentationInfo::initClass()
 {
-    ODIFac().addCreateFunc( createFrom, sFactoryKey() );
+    OD::PRIFac().addCreateFunc( createFrom, sFactoryKey() );
 }
 
 
 void Pick::SetPresentationInfo::fillPar( IOPar& par ) const
 {
-    ObjPresentationInfo::fillPar( par );
+    OD::ObjPresentationInfo::fillPar( par );
 }
 
 
 bool Pick::SetPresentationInfo::usePar( const IOPar& par )
 {
-    return ObjPresentationInfo::usePar( par );
+    return OD::ObjPresentationInfo::usePar( par );
 }

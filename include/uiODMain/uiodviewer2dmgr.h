@@ -31,14 +31,15 @@ class TrcKeyZSampling;
 class Vw2DDataObject;
 namespace Attrib	{ class SelSpec; }
 
-static ViewerSubID sViewer2DTypeID( ViewerSubID::get(1) );
-mExpClass(uiODMain) uiODViewer2DMgr : public ODVwrTypePresentationMgr
+static OD::ViewerTypeID theViewer2DTypeID( OD::ViewerTypeID::get(1) );
+
+mExpClass(uiODMain) uiODViewer2DMgr : public OD::VwrTypePresentationMgr
 { mODTextTranslationClass(uiODViewer2DMgr);
 public:
 
-    ViewerSubID			viewerTypeID()	{ return theViewerTypeID(); }
-    static ViewerSubID		theViewerTypeID()
-				{ return sViewer2DTypeID; }
+    OD::ViewerTypeID		viewerTypeID()	{ return theViewerTypeID(); }
+    static OD::ViewerTypeID		theViewerTypeID()
+				{ return theViewer2DTypeID; }
 
     static void			initClass();
     struct SelectedAuxAnnot
@@ -57,21 +58,21 @@ public:
     };
 
     uiODViewer2D*		getParent2DViewer(int vw2dobjid);
-    uiODViewer2D*		find2DViewer(ViewerSubID id);
+    uiODViewer2D*		find2DViewer(OD::ViewerObjID id);
     uiODViewer2D*		find2DViewer(const MouseEventHandler&);
     uiODViewer2D*		find2DViewer(const Pos::GeomID&);
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
     int				nr2DViewers() const;
 
-    ViewerSubID			displayIn2DViewer(DataPack::ID,
+    OD::ViewerObjID		displayIn2DViewer(DataPack::ID,
 	    				      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
 					      bool wva);
-    ViewerSubID			displayIn2DViewer(
+    OD::ViewerObjID		displayIn2DViewer(
 	    				Viewer2DPosDataSel&,bool wva,
 				        float initialx1pospercm=mUdf(float),
 				        float initialx2pospercm=mUdf(float));
-    ViewerSubID			displayIn2DViewer(int visid,int attribid,
+    OD::ViewerObjID		displayIn2DViewer(int visid,int attribid,
 						  bool wva);
     void			remove2DViewer(int id,bool byvisid);
 

@@ -38,12 +38,12 @@ namespace Attrib	{ class SelSpec; }
 namespace FlatView	{ class AuxData; }
 namespace ZDomain	{ class Def; }
 
-static ViewerSubID sViewer2DMgrTypeID( ViewerSubID::get(1) );
+static OD::ViewerTypeID sViewer2DMgrTypeID( OD::ViewerTypeID::get(1) );
 /*!
 \brief A 2D Viewer.
 */
 
-mExpClass(uiODMain) uiODViewer2D : public PresentationManagedViewer
+mExpClass(uiODMain) uiODViewer2D : public OD::PresentationManagedViewer
 { mODTextTranslationClass(uiODViewer2D);
 public:
 				uiODViewer2D(uiODMain&);
@@ -51,7 +51,7 @@ public:
 
     mDeclInstanceCreatedNotifierAccess(uiODViewer2D);
 
-    ViewerSubID			viewerTypeID() const
+    OD::ViewerTypeID		viewerTypeID() const
 				{ return sViewer2DMgrTypeID; }
     virtual void		setUpView(DataPack::ID,bool wva);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);

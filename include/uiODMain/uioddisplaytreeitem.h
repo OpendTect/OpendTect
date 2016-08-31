@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodtreeitem.h"
+#include "uiodscenetreeitem.h"
 #include "multiid.h"
 #include "odpresentationmgr.h"
 
@@ -22,7 +22,7 @@ class uiVisPartServer;
 namespace Attrib { class SelSpec; }
 
 
-mExpClass(uiODMain) uiODDisplayTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODDisplayTreeItem : public uiODSceneTreeItem
 { mODTextTranslationClass(uiODDisplayTreeItem);
 public:
 
@@ -38,7 +38,6 @@ public:
     void		updateCheckStatus();
 
     int			displayID() const		{ return displayid_; }
-    const MultiID&	storedID() const		{ return storedid_; }
 
     uiODDataTreeItem*	addAttribItem();
     void		prepareForShutdown();
@@ -48,7 +47,6 @@ public:
     virtual bool	displayedOnlyAtSections() const;
     virtual void	handleItemCheck(bool triggerdispreq=true);
     virtual const char* objectTypeKey() const		{ return 0; }
-    void		emitPRRequest(OD::PresentationRequestType);
 
 protected:
 
@@ -80,11 +78,8 @@ protected:
     virtual void	handleMenuCB(CallBacker*);
     virtual void	deleteObject();
 
-    virtual ObjPresentationInfo* getObjPRInfo()		{ return 0; }
-
     uiVisPartServer*	visserv_;
     int			displayid_;
-    MultiID		storedid_;
 
     MenuItem		addmnuitem_;
     MenuItem		displaymnuitem_;

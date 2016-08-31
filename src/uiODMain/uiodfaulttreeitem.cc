@@ -38,7 +38,7 @@ ___________________________________________________________________
 
 
 uiODFaultParentTreeItem::uiODFaultParentTreeItem()
-    : uiODTreeItem( uiStrings::sFault() )
+    : uiODSceneTreeItem( uiStrings::sFault() )
 {
 }
 
@@ -408,7 +408,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 
 // uiODFaultStickSetParentTreeItem
 uiODFaultStickSetParentTreeItem::uiODFaultStickSetParentTreeItem()
-    : uiODTreeItem( uiStrings::sFaultStickSet() )
+    : uiODSceneTreeItem( uiStrings::sFaultStickSet() )
 {}
 
 

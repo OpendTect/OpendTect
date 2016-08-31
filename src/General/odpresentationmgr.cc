@@ -9,23 +9,23 @@
 #include "keystrs.h"
 #include "iopar.h"
 
-static ODPresentationManager* prman_ = 0;
-ODPresentationManager& ODPrMan()
+static OD::PresentationManager* prman_ = 0;
+OD::PresentationManager& OD::PrMan()
 {
     if ( !prman_ )
-	prman_ = new ODPresentationManager;
+	prman_ = new OD::PresentationManager;
     return *prman_;
 }
 
 
-ODPresentationManager::ODPresentationManager()
+OD::PresentationManager::PresentationManager()
 {
     syncAllViewerTypes();
 }
 
 
-ODVwrTypePresentationMgr* ODPresentationManager::getViewerTypeMgr(
-	ViewerSubID vwrtypeid )
+OD::VwrTypePresentationMgr* OD::PresentationManager::getViewerTypeMgr(
+	OD::ViewerTypeID vwrtypeid )
 {
     const int idx = syncInfoIdx( vwrtypeid );
     if ( idx<0 )
@@ -35,25 +35,27 @@ ODVwrTypePresentationMgr* ODPresentationManager::getViewerTypeMgr(
 }
 
 
-void ODPresentationManager::request(
-	ODViewerID vwrid,OD::PresentationRequestType req,const IOPar& prinfopar)
+void OD::PresentationManager::request( OD::ViewerID vwrid,
+				     OD::PresentationRequestType req,
+				     const IOPar& prinfopar )
 {
     for ( int idx=0; idx<vwrtypemanagers_.size(); idx++ )
     {
-	ODVwrTypePresentationMgr* vwrtypemgr = vwrtypemanagers_[idx];
+	OD::VwrTypePresentationMgr* vwrtypemgr = vwrtypemanagers_[idx];
 	const SyncInfo& syninfo = vwrtypesyncinfos_[idx];
-	const ViewerSubID vwrtypeid = syninfo.vwrtypeid_;
+	const OD::ViewerTypeID vwrtypeid = syninfo.vwrtypeid_;
 	if ( !areViewerTypesSynced(vwrid.viewerTypeID(),vwrtypeid) )
 	    continue;
 
 	vwrtypemgr->request(
 		req, prinfopar, vwrtypeid==vwrid.viewerTypeID()
-				? vwrid.viewerID() : ViewerSubID::get(-1) );
+				    ? vwrid.viewerObjID()
+				    : OD::ViewerObjID::get(-1) );
     }
 }
 
 
-int ODPresentationManager::syncInfoIdx( ViewerSubID vwrtypeid ) const
+int OD::PresentationManager::syncInfoIdx( OD::ViewerTypeID vwrtypeid ) const
 {
     for ( int idx=0; idx<vwrtypesyncinfos_.size(); idx++ )
     {
@@ -65,8 +67,8 @@ int ODPresentationManager::syncInfoIdx( ViewerSubID vwrtypeid ) const
 }
 
 
-bool ODPresentationManager::areViewerTypesSynced( ViewerSubID vwr1typeid,
-						  ViewerSubID vwr2typeid ) const
+bool OD::PresentationManager::areViewerTypesSynced(
+	OD::ViewerTypeID vwr1typeid, OD::ViewerTypeID vwr2typeid ) const
 {
     const int vwr1typeidx = syncInfoIdx( vwr1typeid );
     const int vwr2typeidx = syncInfoIdx( vwr2typeid );
@@ -78,46 +80,47 @@ bool ODPresentationManager::areViewerTypesSynced( ViewerSubID vwr1typeid,
 }
 
 
-void ODPresentationManager::syncAllViewerTypes()
+void OD::PresentationManager::syncAllViewerTypes()
 {
     for ( int idx=0; idx<vwrtypesyncinfos_.size(); idx++ )
 	vwrtypesyncinfos_[idx].issynced_ = true;
 }
 
 
-void ODPresentationManager::addViewerTypeManager( ODVwrTypePresentationMgr* vtm)
+void OD::PresentationManager::addViewerTypeManager(
+	OD::VwrTypePresentationMgr* vtm )
 {
     vwrtypemanagers_ += vtm;
     vwrtypesyncinfos_ += SyncInfo( vtm->viewerTypeID(), true );
 }
 
 
-PresentationManagedViewer::PresentationManagedViewer()
+OD::PresentationManagedViewer::PresentationManagedViewer()
     : ObjAdded(this)
     , ObjOrphaned(this)
     , UnsavedObjLastCall(this)
     , ShowRequested(this)
     , HideRequested(this)
     , VanishRequested(this)
-    , viewerid_(ViewerSubID::get(-1))
+    , viewerobjid_(OD::ViewerObjID::get(-1))
 {
 }
 
 
-PresentationManagedViewer::~PresentationManagedViewer()
+OD::PresentationManagedViewer::~PresentationManagedViewer()
 {
     detachAllNotifiers();
 }
 
 
-void ODVwrTypePresentationMgr::request(
-	OD::PresentationRequestType req, const IOPar& prinfopar,
-	ViewerSubID skipvwrid )
+void OD::VwrTypePresentationMgr::request( OD::PresentationRequestType req,
+					const IOPar& prinfopar,
+					OD::ViewerObjID skipvwrid )
 {
     for ( int idx=0; idx<viewers_.size(); idx++ )
     {
-	PresentationManagedViewer* vwr = viewers_[idx];
-	if ( vwr->viewerID()==skipvwrid )
+	OD::PresentationManagedViewer* vwr = viewers_[idx];
+	if ( vwr->viewerObjID()==skipvwrid )
 	    continue;
 
 	switch ( req )
@@ -139,14 +142,14 @@ void ODVwrTypePresentationMgr::request(
 }
 
 
-void ObjPresentationInfo::fillPar( IOPar& par ) const
+void OD::ObjPresentationInfo::fillPar( IOPar& par ) const
 {
     par.set( sKey::Type(), objtypekey_ );
     par.set( IOPar::compKey(sKey::Stored(),sKey::ID()), storedid_ );
 }
 
 
-bool ObjPresentationInfo::usePar( const IOPar& par )
+bool OD::ObjPresentationInfo::usePar( const IOPar& par )
 {
     if ( !par.get(sKey::Type(),objtypekey_) )
 	return false;
@@ -155,17 +158,17 @@ bool ObjPresentationInfo::usePar( const IOPar& par )
 }
 
 
-static ObjPresentationInfoFactory* dispinfofac_ = 0;
+static OD::ObjPresentationInfoFactory* dispinfofac_ = 0;
 
-ObjPresentationInfoFactory& ODIFac()
+OD::ObjPresentationInfoFactory& OD::PRIFac()
 {
     if ( !dispinfofac_ )
-	dispinfofac_ = new ObjPresentationInfoFactory;
+	dispinfofac_ = new OD::ObjPresentationInfoFactory;
     return *dispinfofac_;
 }
 
 
-void ObjPresentationInfoFactory::addCreateFunc( CreateFunc crfn,
+void OD::ObjPresentationInfoFactory::addCreateFunc( CreateFunc crfn,
 						const char* key )
 {
     const int keyidx = keys_.indexOf( key );
@@ -180,7 +183,8 @@ void ObjPresentationInfoFactory::addCreateFunc( CreateFunc crfn,
 }
 
 
-ObjPresentationInfo* ObjPresentationInfoFactory::create( const IOPar& par )
+OD::ObjPresentationInfo* OD::ObjPresentationInfoFactory::create(
+	const IOPar& par )
 {
     BufferString keystr;
     if ( !par.get(sKey::Type(),keystr) )

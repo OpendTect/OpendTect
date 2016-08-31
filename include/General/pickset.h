@@ -232,14 +232,14 @@ private:
 };
 
 
-mExpClass(General) SetPresentationInfo : public ObjPresentationInfo
+mExpClass(General) SetPresentationInfo : public OD::ObjPresentationInfo
 {
 public:
 					SetPresentationInfo();
     void				fillPar(IOPar&) const;
     bool				usePar(const IOPar&);
 
-    static ObjPresentationInfo*		createFrom( const IOPar&);
+    static OD::ObjPresentationInfo*	createFrom( const IOPar&);
     static void				initClass();
     static const char*			sFactoryKey();
 };

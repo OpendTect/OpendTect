@@ -613,7 +613,7 @@ uiTreeItem*
 
 
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
-    : uiODTreeItem( uiStrings::sInline() )
+    : uiODSceneTreeItem( uiStrings::sInline() )
 {}
 
 
@@ -657,7 +657,7 @@ uiTreeItem*
 
 
 uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
-    : uiODTreeItem( uiStrings::sCrossline() )
+    : uiODSceneTreeItem( uiStrings::sCrossline() )
 {}
 
 
@@ -702,7 +702,7 @@ uiTreeItem*
 
 
 uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
-    : uiODTreeItem( uiStrings::sZSlice() )
+    : uiODSceneTreeItem( uiStrings::sZSlice() )
 {}
 
 

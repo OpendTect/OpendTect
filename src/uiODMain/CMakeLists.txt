@@ -33,9 +33,9 @@ set(OD_MODULE_SOURCES
 	uiodhelpmenumgr.cc
 	uiodmain.cc
 	uiodmenumgr.cc
-	uiodparenttreeitem.cc
 	uiodscenemgr.cc
-	uiodtreeitem.cc
+	uiodscenetreeitem.cc
+	uiodsceneparenttreeitem.cc
 	uiodemsurftreeitem.cc
 	uiodhortreeitem.cc
 	uiodpicksettreeitem.cc

@@ -64,7 +64,7 @@ public:
     virtual void	doSave();
     virtual void	doSaveAs();
 
-    void		enableDisplay(bool,bool triggervwreq);
+    void		handleItemCheck(bool triggervwreq);
     const char*		objectTypeKey() const;
 
 protected:
@@ -79,7 +79,7 @@ protected:
     void		setChangedCB(CallBacker*);
     void		displayMiniCtab();
 
-    ObjPresentationInfo* getObjPRInfo();
+    OD::ObjPresentationInfo* getObjPRInfo();
 
     Pick::Set&		pickset_;
     VW2DPickSet*	vw2dpickset_;

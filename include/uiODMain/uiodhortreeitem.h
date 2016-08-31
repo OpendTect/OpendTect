@@ -17,9 +17,9 @@ ________________________________________________________________________
 
 class uEMHorizonShiftDialog;
 
-mExpClass(uiODMain) uiODHorizonParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODHorizonParentTreeItem : public uiODSceneTreeItem
 { mODTextTranslationClass(uiODHorizonParentTreeItem)
-    typedef uiODTreeItem inheritedClass;
+    typedef uiODSceneTreeItem inheritedClass;
 public:
 			uiODHorizonParentTreeItem();
 			~uiODHorizonParentTreeItem();
@@ -35,7 +35,7 @@ protected:
     bool		showSubMenu();
     virtual bool	addChld(uiTreeItem*,bool,bool);
     const char* parentType() const
-			{ return typeid(uiODTreeTop).name(); }
+			{ return typeid(uiODSceneTreeTop).name(); }
 
     void		sort();
     MenuItem		trackitem_;
@@ -44,7 +44,7 @@ protected:
 
 
 
-mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(uiODHorizonTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -99,9 +99,9 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODHorizon2DParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODHorizon2DParentTreeItem : public uiODSceneTreeItem
 {   mODTextTranslationClass(uiODHorizon2DParentTreeItem);
-    mDefineItemMembers( Horizon2DParent, TreeItem, TreeTop );
+    mDefineItemMembers( Horizon2DParent, SceneTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
     void            sort();
@@ -111,7 +111,8 @@ mExpClass(uiODMain) uiODHorizon2DParentTreeItem : public uiODTreeItem
 };
 
 
-mExpClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODHorizon2DTreeItemFactory
+    : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(uiODHorizon2DTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }

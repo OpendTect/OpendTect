@@ -53,7 +53,7 @@
 
 
 uiODVolrenParentTreeItem::uiODVolrenParentTreeItem()
-    : uiODTreeItem( uiStrings::sVolume() )
+    : uiODSceneTreeItem( uiStrings::sVolume() )
 {
     //Check if there are any volumes already in the scene
 }
@@ -114,7 +114,7 @@ const char* uiODVolrenParentTreeItem::iconName() const
 
 
 const char* uiODVolrenParentTreeItem::parentType() const
-{ return typeid(uiODTreeTop).name(); }
+{ return typeid(uiODSceneTreeTop).name(); }
 
 
 

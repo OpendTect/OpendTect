@@ -24,9 +24,9 @@ class DataPointSet;
 namespace visSurvey { class FaultDisplay; class FaultStickSetDisplay; }
 
 
-mExpClass(uiODMain) uiODFaultParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODFaultParentTreeItem : public uiODSceneTreeItem
 { mODTextTranslationClass(uiODFaultParentTreeItem)
-    typedef uiODTreeItem inheritedClass;
+    typedef uiODSceneTreeItem inheritedClass;
 public:
 			uiODFaultParentTreeItem();
 			~uiODFaultParentTreeItem();
@@ -36,11 +36,12 @@ protected:
     const char*		iconName() const;
     bool		showSubMenu();
     const char* 	parentType() const
-			{ return typeid(uiODTreeTop).name(); }
+			{ return typeid(uiODSceneTreeTop).name(); }
 };
 
 
-mExpClass(uiODMain) uiODFaultTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODFaultTreeItemFactory
+    : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(uiODFaultTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -90,16 +91,16 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODFaultStickSetParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODFaultStickSetParentTreeItem : public uiODSceneTreeItem
 {   mODTextTranslationClass(uiODFaultStickSetParentTreeItem)
-    mDefineItemMembers( FaultStickSetParent, TreeItem, TreeTop );
+    mDefineItemMembers( FaultStickSetParent, SceneTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
 };
 
 
 mExpClass(uiODMain) uiODFaultStickSetTreeItemFactory
-    : public uiODTreeItemFactory
+    : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(uiODFaultStickSetTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }

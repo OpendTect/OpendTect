@@ -34,7 +34,7 @@ ________________________________________________________________________
 
 
 uiODPSEventsParentTreeItem::uiODPSEventsParentTreeItem()
-    : uiODTreeItem( uiStrings::sPreStackEvents() )
+    : uiODSceneTreeItem( uiStrings::sPreStackEvents() )
     , child_(0)
 {}
 
@@ -91,7 +91,7 @@ bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
 int uiODPSEventsParentTreeItem::sceneID() const
 {
     int sceneid;
-    if ( !getProperty<int>(uiODTreeTop::sceneidkey(),sceneid) )
+    if ( !getProperty<int>(uiODSceneTreeTop::sceneidkey(),sceneid) )
 	return -1;
     return sceneid;
 }
@@ -99,7 +99,7 @@ int uiODPSEventsParentTreeItem::sceneID() const
 
 bool uiODPSEventsParentTreeItem::init()
 {
-    bool ret = uiODTreeItem::init();
+    bool ret = uiODSceneTreeItem::init();
     if ( !ret ) return false;
 
     return true;
@@ -111,7 +111,7 @@ const char* uiODPSEventsParentTreeItem::iconName() const
 
 
 const char* uiODPSEventsParentTreeItem::parentType() const
-{ return typeid(uiODTreeTop).name(); }
+{ return typeid(uiODSceneTreeTop).name(); }
 
 
 

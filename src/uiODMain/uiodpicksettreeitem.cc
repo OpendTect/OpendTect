@@ -37,7 +37,7 @@ ___________________________________________________________________
 #include "vissurvscene.h"
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
-    : uiODParentTreeItem( uiStrings::sPickSet())
+    : uiODSceneParentTreeItem( uiStrings::sPickSet())
 {
 }
 
@@ -241,7 +241,7 @@ const char* uiODPickSetTreeItem::objectTypeKey() const
 }
 
 
-ObjPresentationInfo* uiODPickSetTreeItem::getObjPRInfo()
+OD::ObjPresentationInfo* uiODPickSetTreeItem::getObjPRInfo()
 {
     Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo();
     psprinfo->setStoredID( storedid_ );
@@ -452,7 +452,7 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
 
 uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
-    : uiODParentTreeItem( uiStrings::sPolygon() )
+    : uiODSceneParentTreeItem( uiStrings::sPolygon() )
 {
 }
 
@@ -613,7 +613,7 @@ const char* uiODPolygonTreeItem::objectTypeKey() const
 }
 
 
-ObjPresentationInfo* uiODPolygonTreeItem::getObjPRInfo()
+OD::ObjPresentationInfo* uiODPolygonTreeItem::getObjPRInfo()
 {
     Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo();
     psprinfo->setStoredID( storedid_ );

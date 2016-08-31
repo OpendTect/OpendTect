@@ -68,7 +68,7 @@ static const char* sKeySelecting()
 
 
 uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
-    : uiODTreeItem( tr("2D Line") )
+    : uiODSceneTreeItem( tr("2D Line") )
     , visserv_(ODMainWin()->applMgr().visServer())
     , additm_(m3Dots(uiStrings::sAdd()),cAdd)
     , create2dgridfrom3ditm_(m3Dots(tr("Create 2D Grid from 3D")),cGridFrom3D)

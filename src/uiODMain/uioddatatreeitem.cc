@@ -15,6 +15,7 @@ ___________________________________________________________________
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uioddisplaytreeitem.h"
+#include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uistatsdisplay.h"
@@ -101,7 +102,7 @@ int uiODDataTreeItem::uiTreeViewItemType() const
 uiODApplMgr* uiODDataTreeItem::applMgr() const
 {
     void* res = 0;
-    getPropertyPtr( uiODTreeTop::applmgrstr(), res );
+    getPropertyPtr( uiODSceneTreeTop::applmgrstr(), res );
     return reinterpret_cast<uiODApplMgr*>( res );
 }
 
@@ -140,7 +141,7 @@ bool uiODDataTreeItem::shouldSelect( int selid ) const
 int uiODDataTreeItem::sceneID() const
 {
     int sceneid=-1;
-    getProperty<int>( uiODTreeTop::sceneidkey(), sceneid );
+    getProperty<int>( uiODSceneTreeTop::sceneidkey(), sceneid );
     return sceneid;
 }
 

@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uitreeitemmanager.h"
+#include "uiodprmantreeitem.h"
 #include "uistrings.h"
 #include "multiid.h"
 #include "odpresentationmgr.h"
@@ -28,14 +28,13 @@ class Vw2DDataObject;
 namespace Attrib { class SelSpec; }
 
 
-mExpClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
+mExpClass(uiODMain) uiODVw2DTreeItem : public uiODPrManagedTreeItem
 { mODTextTranslationClass(uiODVw2DTreeItem)
 public:
 			uiODVw2DTreeItem(const uiString&);
 			~uiODVw2DTreeItem();
 
     bool		setZAxisTransform(ZAxisTransform*);
-    const MultiID&	storedID() const	{ return storedid_; }
 
     void		updSampling(const TrcKeyZSampling&,bool);
     void		updSelSpec(const Attrib::SelSpec*,bool wva);
@@ -45,25 +44,22 @@ public:
 
     static bool		create(uiTreeItem*,const uiODViewer2D&,int displayid);
     const uiODVw2DTreeItem* getVW2DItem(int displayid) const;
-    virtual void	enableDisplay(bool show,bool triggervwreq)	{}
 
     void		addKeyBoardEvent();
     virtual const Vw2DDataObject* vw2DObject() const	{ return 0; }
-    virtual const char* objectTypeKey() const		{ return 0; }
-    void		emitPRRequest(OD::PresentationRequestType);
 
 protected:
 
-    virtual bool	init();
     virtual const char*	iconName() const		{ return 0; }
     static uiString	sChangeSetup() { return m3Dots(tr("Change setup")); }
 
     int			displayid_;
     ZAxisTransform*	datatransform_;
-    MultiID		storedid_;
 
     uiODApplMgr*	applMgr();
     uiODViewer2D*	viewer2D();
+    const uiODViewer2D* viewer2D() const;
+    OD::ViewerID	getViewerID() const;
 
     void		addAction(uiMenu& mnu,uiString txt,int id,
 				  const char* icon=0,bool enab=true);
@@ -85,11 +81,11 @@ protected:
     virtual void	doSave() {}
     virtual void	doSaveAs() {}
 
-    virtual ObjPresentationInfo* getObjPRInfo()		{ return 0; }
+    virtual OD::ObjPresentationInfo* getObjPRInfo()		{ return 0; }
 };
 
 
-mExpClass(uiODMain) uiODVw2DParentTreeItem : public uiODVw2DTreeItem
+mExpClass(uiODMain) uiODVw2DParentTreeItem : public uiODPrManagedParentTreeItem
 { mODTextTranslationClass(uiODVw2DParentTreeItem)
 public:
 			uiODVw2DParentTreeItem(const uiString&);
@@ -98,23 +94,9 @@ public:
 
     void		getVwr2DOjIDs(const MultiID& mid,
 				       TypeSet<int>& vw2ids) const;
-    void		getLoadedChildren(TypeSet<MultiID>&) const;
-    void		showHideChildren(const MultiID&,bool);
-    void		removeChildren(const MultiID&);
-    void		addChildren(const TypeSet<MultiID>&);
-    bool		selectChild(const MultiID&);
-    void		emitChildPRRequest(const MultiID& childstoredid,
-					   OD::PresentationRequestType);
-    virtual const char* childObjTypeKey() const		{ return 0; }
-
 protected:
-    virtual void	objAddedCB(CallBacker*);
-    virtual void	objVanishedCB(CallBacker*);
-    virtual void	objShownCB(CallBacker*);
-    virtual void	objHiddenCB(CallBacker*);
-    virtual void	objOrphanedCB(CallBacker*);
-
-    virtual void	addChildItem(const MultiID&)		{}
+    uiODViewer2D*	viewer2D();
+    uiODApplMgr*	applMgr();
 };
 
 

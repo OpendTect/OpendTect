@@ -19,9 +19,9 @@ ________________________________________________________________________
 class uiTaskRunner;
 
 
-mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODSceneTreeItem
 {   mODTextTranslationClass(uiODLine2DParentTreeItem)
-    mDefineItemMembers( Line2DParent, TreeItem, TreeTop );
+    mDefineItemMembers( Line2DParent, SceneTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
 			~uiODLine2DParentTreeItem();
@@ -56,7 +56,7 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODTreeItem
 
 
 
-mExpClass(uiODMain) Line2DTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) Line2DTreeItemFactory : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(Line2DTreeItemFactory);
 public:
     const char*		name() const { return typeid(*this).name(); }

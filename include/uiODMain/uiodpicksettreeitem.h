@@ -13,16 +13,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodparenttreeitem.h"
+#include "uiodsceneparenttreeitem.h"
 #include "uioddisplaytreeitem.h"
 
 namespace Pick		{ class Set; }
 
 
 
-mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODParentTreeItem
+mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODSceneParentTreeItem
 {   mODTextTranslationClass(uiODPickSetParentTreeItem);
-    mDefineItemMembers( PickSetParent, ParentTreeItem, TreeTop );
+    mDefineItemMembers( PickSetParent, SceneParentTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
 		~uiODPickSetParentTreeItem();
@@ -31,7 +31,7 @@ mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODParentTreeItem
 };
 
 
-mExpClass(uiODMain) uiODPickSetTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODPickSetTreeItemFactory : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(uiODPickSetTreeItemFactory)
 public:
 
@@ -67,7 +67,7 @@ protected:
     virtual void	handleMenuCB(CallBacker*);
     virtual void	keyPressCB(CallBacker*);
 
-    ObjPresentationInfo*	getObjPRInfo();
+    OD::ObjPresentationInfo*	getObjPRInfo();
 
     Pick::Set&		set_;
 
@@ -82,9 +82,9 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODParentTreeItem
+mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODSceneParentTreeItem
 {   mODTextTranslationClass(uiODPolygonParentTreeItem);
-    mDefineItemMembers( PolygonParent, TreeItem, TreeTop );
+    mDefineItemMembers( PolygonParent, SceneParentTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
 
@@ -92,11 +92,11 @@ mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODParentTreeItem
 
     void	addChildItem(const MultiID&);
     const char* childObjTypeKey() const;
-    ObjPresentationInfo*	getObjPRInfo();
+    OD::ObjPresentationInfo*	getObjPRInfo();
 };
 
 
-mExpClass(uiODMain) uiODPolygonTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODPolygonTreeItemFactory : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(uiODPolygonTreeItemFactory)
 public:
 
@@ -130,7 +130,7 @@ protected:
     const char*		parentType() const
 			{ return typeid(uiODPolygonParentTreeItem).name(); }
 
-    ObjPresentationInfo*	getObjPRInfo();
+    OD::ObjPresentationInfo*	getObjPRInfo();
 
     Pick::Set&		set_;
 

@@ -70,7 +70,7 @@ ________________________________________________________________________
 #include "uiodpseventstreeitem.h"
 #include "uiodrandlinetreeitem.h"
 #include "uiodseis2dtreeitem.h"
-#include "uiodscenetreeitem.h"
+#include "uiodsceneobjtreeitem.h"
 #include "uiodvolrentreeitem.h"
 #include "uiodwelltreeitem.h"
 
@@ -90,7 +90,7 @@ static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
 
 
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
-    : ODVwrTypePresentationMgr()
+    : OD::VwrTypePresentationMgr()
     , appl_(*a)
     , mdiarea_(new uiMdiArea(a,"OpendTect work space"))
     , vwridx_(0)
@@ -187,7 +187,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 {
     uiODScene& scn = mkNewScene();
     const int sceneid = visServ().addScene();
-    scn.setViewerID( ViewerSubID::get(sceneid) );
+    scn.setViewerObjID( OD::ViewerObjID::get(sceneid) );
     mDynamicCastGet(visSurvey::Scene*,visscene,visServ().getObject(sceneid));
     if ( visscene && scn.vwr3d_->getPolygonSelector() )
 	visscene->setPolygonSelector( scn.vwr3d_->getPolygonSelector() );
@@ -802,7 +802,7 @@ ui3DViewer* uiODSceneMgr::get3DViewer( int sceneid )
 }
 
 
-uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
+uiODSceneTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 {
     for ( int idx=0; idx<viewers_.size(); idx++ )
     {
@@ -898,10 +898,11 @@ void uiODSceneMgr::initTree( uiODScene& scn, int vwridx )
     scn.lv_->addColumns( labels );
     scn.lv_->setFixedColumnWidth( cColorColumn(), 40 );
 
-    scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
-    uiODSceneTreeItem* sceneitm =
-	new uiODSceneTreeItem( scn.mdiwin_->getTitle(),
-			       scn.vwr3d_->sceneID() );
+    scn.itemmanager_ =
+	new uiODSceneTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
+    uiODSceneObjTreeItem* sceneitm =
+	new uiODSceneObjTreeItem( scn.mdiwin_->getTitle(),
+				  scn.vwr3d_->sceneID() );
     scn.itemmanager_->addChild( sceneitm, false );
 
     TypeSet<int> idxs;
@@ -1438,7 +1439,7 @@ const uiODScene* uiODSceneMgr::getScene( int sceneid ) const
 
 // uiODScene
 uiODScene::uiODScene( uiMdiArea* mdiarea )
-	: PresentationManagedViewer()
+	: OD::PresentationManagedViewer()
 	, lv_(0)
 	, dw_(0)
 	, mdiwin_(0)
@@ -1453,6 +1454,7 @@ uiODScene::uiODScene( uiMdiArea* mdiarea )
     vwr3d_->setPrefWidth( 400 );
     vwr3d_->setPrefHeight( 400 );
     mdiarea->addWindow( mdiwin_ );
+    viewerobjid_ = OD::ViewerObjID::get( vwr3d_->sceneID() );
 }
 
 

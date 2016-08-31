@@ -60,7 +60,7 @@ ___________________________________________________________________
 #define mConstIdx	10
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
-    : uiODTreeItem(
+    : uiODSceneTreeItem(
 	uiStrings::phrJoinStrings(uiStrings::s3D(),uiStrings::sHorizon()))
     , newmenu_(uiStrings::sNew())
     , trackitem_(m3Dots(tr("Auto and Manual Tracking")),mTrackIdx)
@@ -669,7 +669,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 
 uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
-    : uiODTreeItem(
+    : uiODSceneTreeItem(
 	uiStrings::phrJoinStrings(uiStrings::s2D(),uiStrings::sHorizon()) )
 {}
 

@@ -64,7 +64,7 @@ bool uiODAnnotParentTreeItem::rightClick( uiTreeViewItem* itm )
 int uiODAnnotParentTreeItem::sceneID() const
 {
     int sceneid;
-    if ( !getProperty<int>(uiODTreeTop::sceneidkey(),sceneid) )
+    if ( !getProperty<int>(uiODSceneTreeTop::sceneidkey(),sceneid) )
 	return -1;
     return sceneid;
 }
@@ -85,7 +85,7 @@ bool uiODAnnotParentTreeItem::init()
 
 const char* uiODAnnotParentTreeItem::parentType() const
 {
-    return typeid(uiODTreeTop).name();
+    return typeid(uiODSceneTreeTop).name();
 }
 
 
@@ -101,7 +101,7 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
 // Base uiODAnnotTreeItem ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 uiODAnnotTreeItem::uiODAnnotTreeItem( const uiString& type )
-    : uiODTreeItem(type)
+    : uiODSceneTreeItem(type)
     , typestr_(type)
 {
 }

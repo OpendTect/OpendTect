@@ -26,7 +26,7 @@ class uiDockWin;
 class uiTreeView;
 class uiMdiArea;
 class uiMdiAreaWindow;
-class uiODTreeTop;
+class uiODSceneTreeTop;
 class ui3DViewer;
 class uiTreeFactorySet;
 class uiTreeItem;
@@ -35,7 +35,7 @@ class ZAxisTransform;
 namespace Pick { class Set; }
 namespace Geometry { class RandomLineSet; }
 
-static ViewerSubID sSceneViewerTypeID( ViewerSubID::get(0) );
+static OD::ViewerTypeID sSceneViewerTypeID( OD::ViewerTypeID::get(0) );
 
 /*!\brief Manages the scenes and the corresponding trees.
 
@@ -43,12 +43,12 @@ static ViewerSubID sSceneViewerTypeID( ViewerSubID::get(0) );
 
  */
 
-mExpClass(uiODMain) uiODScene : public PresentationManagedViewer
+mExpClass(uiODMain) uiODScene : public OD::PresentationManagedViewer
 {
 public:
 				uiODScene(uiMdiArea*);
 				~uiODScene();
-    ViewerSubID			viewerTypeID() const
+    OD::ViewerTypeID		viewerTypeID() const
 				{ return sSceneViewerTypeID; }
 
 private:
@@ -56,18 +56,18 @@ private:
     uiTreeView*			lv_;
     uiMdiAreaWindow*		mdiwin_;
     ui3DViewer*			vwr3d_;
-    uiODTreeTop*		itemmanager_;
+    uiODSceneTreeTop*		itemmanager_;
 
     friend class		uiODSceneMgr;
 };
 
 
-mExpClass(uiODMain) uiODSceneMgr : public ODVwrTypePresentationMgr
+mExpClass(uiODMain) uiODSceneMgr : public OD::VwrTypePresentationMgr
 { mODTextTranslationClass(uiODSceneMgr)
 public:
 
-    ViewerSubID			viewerTypeID()	{ return theViewerTypeID(); }
-    static ViewerSubID		theViewerTypeID()
+    OD::ViewerTypeID		viewerTypeID()	{ return theViewerTypeID(); }
+    static OD::ViewerTypeID	theViewerTypeID()
 				{ return sSceneViewerTypeID; }
 
     void			cleanUp(bool startnew=true);
@@ -142,7 +142,7 @@ public:
     int				getActiveSceneID() const;
     Notifier<uiODSceneMgr>	activeSceneChanged;
 
-    uiODTreeTop*		getTreeItemMgr(const uiTreeView*) const;
+    uiODSceneTreeTop*		getTreeItemMgr(const uiTreeView*) const;
 
     void			displayIn2DViewer(int visid,int attribid,
 						  bool wva);

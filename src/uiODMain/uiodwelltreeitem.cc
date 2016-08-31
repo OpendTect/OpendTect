@@ -35,7 +35,7 @@ ___________________________________________________________________
 
 
 uiODWellParentTreeItem::uiODWellParentTreeItem()
-    : uiODTreeItem( uiStrings::sWell() )
+    : uiODSceneTreeItem( uiStrings::sWell() )
     , constlogsize_(true)
 {
 }

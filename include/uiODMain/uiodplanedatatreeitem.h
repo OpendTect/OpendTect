@@ -80,15 +80,15 @@ protected:
 
 
 
-mExpClass(uiODMain) uiODInlineParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODInlineParentTreeItem : public uiODSceneTreeItem
 {   mODTextTranslationClass(uiODInlineParentTreeItem);
-    mDefineItemMembers( InlineParent, TreeItem, TreeTop );
+    mDefineItemMembers( InlineParent, SceneTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
 };
 
 
-mExpClass(uiODMain) uiODInlineTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODInlineTreeItemFactory : public uiODSceneTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -109,15 +109,16 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODCrosslineParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODCrosslineParentTreeItem : public uiODSceneTreeItem
 {   mODTextTranslationClass(uiODCrossineParentTreeItem);
-    mDefineItemMembers( CrosslineParent, TreeItem, TreeTop );
+    mDefineItemMembers( CrosslineParent, SceneTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
 };
 
 
-mExpClass(uiODMain) uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODCrosslineTreeItemFactory
+	: public uiODSceneTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -139,15 +140,15 @@ protected:
 
 
 
-mExpClass(uiODMain) uiODZsliceParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODZsliceParentTreeItem : public uiODSceneTreeItem
 {   mODTextTranslationClass(uiODZsliceParentTreeItem);
-    mDefineItemMembers( ZsliceParent, TreeItem, TreeTop );
+    mDefineItemMembers( ZsliceParent, SceneTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
 };
 
 
-mExpClass(uiODMain) uiODZsliceTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODZsliceTreeItemFactory : public uiODSceneTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }

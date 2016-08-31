@@ -18,7 +18,7 @@ class uiODPSEventsTreeItem;
 namespace PreStack { class EventManager; }
 namespace visSurvey { class PSEventDisplay; }
 
-mExpClass(uiODMain) uiODPSEventsParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODPSEventsParentTreeItem : public uiODSceneTreeItem
 { mODTextTranslationClass(uiODPSEventsParentTreeItem);
 public:
 				uiODPSEventsParentTreeItem();
@@ -36,7 +36,8 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODPSEventsTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODPSEventsTreeItemFactory
+	: public uiODSceneTreeItemFactory
 {
 public:
     const char*		name() const   { return typeid(*this).name(); }

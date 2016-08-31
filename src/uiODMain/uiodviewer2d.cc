@@ -66,7 +66,7 @@ static void initSelSpec( Attrib::SelSpec& as )
 mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
 
 uiODViewer2D::uiODViewer2D( uiODMain& appl )
-    : PresentationManagedViewer()
+    : OD::PresentationManagedViewer()
     , appl_(appl)
     , vdselspec_(*new Attrib::SelSpec)
     , wvaselspec_(*new Attrib::SelSpec)
@@ -93,7 +93,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl )
     , datatransform_(0)
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
-    viewerid_ = ViewerSubID::get( vwrid++ );
+    viewerobjid_ = OD::ViewerObjID::get( vwrid++ );
 
     setWinTitle();
 

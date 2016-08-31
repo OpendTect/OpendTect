@@ -75,7 +75,8 @@ bool uiODVw2DTreeTop::setZAxisTransform( ZAxisTransform* zat )
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
-	itm->setZAxisTransform( zat );
+	if ( itm )
+	    itm->setZAxisTransform( zat );
     }
 
     return true;
@@ -148,10 +149,9 @@ void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
 #define mRemoveAllItemsMenuID 103
 
 uiODVw2DTreeItem::uiODVw2DTreeItem( const uiString& nm )
-    : uiTreeItem( nm )
+    : uiODPrManagedTreeItem( nm )
     , displayid_(-1)
     , datatransform_(0)
-    , storedid_( MultiID::udf() )
 {}
 
 
@@ -163,26 +163,11 @@ uiODVw2DTreeItem::~uiODVw2DTreeItem()
 }
 
 
-void uiODVw2DTreeItem::emitPRRequest( OD::PresentationRequestType req )
+OD::ViewerID uiODVw2DTreeItem::getViewerID() const
 {
-    PtrMan<ObjPresentationInfo> objprinfo = getObjPRInfo();
-    if ( !objprinfo )
-	return;
-
-    IOPar objprinfopar;
-    objprinfo->fillPar( objprinfopar );
-    ODViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(),
-		      viewer2D()->viewerID() );
-    ODPrMan().request( vwrid, req, objprinfopar );
-}
-
-
-bool uiODVw2DTreeItem::init()
-{
-    const char* iconnm = iconName();
-    if ( iconnm ) uitreeviewitem_->setIcon( 0, iconnm );
-
-    return uiTreeItem::init();
+    OD::ViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(),
+			viewer2D()->viewerObjID() );
+    return vwrid;
 }
 
 
@@ -356,6 +341,14 @@ uiODViewer2D* uiODVw2DTreeItem::viewer2D()
 }
 
 
+const uiODViewer2D* uiODVw2DTreeItem::viewer2D() const
+{
+    void* res = 0;
+    getPropertyPtr( uiODVw2DTreeTop::viewer2dptr(), res );
+    return reinterpret_cast<const uiODViewer2D*>( res );
+}
+
+
 bool uiODVw2DTreeItem::create(
 		uiTreeItem* treeitem, const uiODViewer2D& vwr2d, int displayid )
 {
@@ -416,7 +409,7 @@ const uiODVw2DTreeItem* uiODVw2DTreeTop::getVW2DItem( int displayid ) const
 }
 
 uiODVw2DParentTreeItem::uiODVw2DParentTreeItem( const uiString& nm )
-    : uiODVw2DTreeItem( nm )
+    : uiODPrManagedParentTreeItem( nm )
 {
 }
 
@@ -426,130 +419,19 @@ uiODVw2DParentTreeItem::~uiODVw2DParentTreeItem()
     detachAllNotifiers();
 }
 
-
-bool uiODVw2DParentTreeItem::init()
+uiODApplMgr* uiODVw2DParentTreeItem::applMgr()
 {
-    mAttachCB( viewer2D()->ObjAdded, uiODVw2DParentTreeItem::objAddedCB );
-    mAttachCB( viewer2D()->VanishRequested,
-	       uiODVw2DParentTreeItem::objVanishedCB );
-    mAttachCB( viewer2D()->ShowRequested, uiODVw2DParentTreeItem::objShownCB );
-    mAttachCB( viewer2D()->HideRequested, uiODVw2DParentTreeItem::objHiddenCB );
-    mAttachCB( viewer2D()->ObjOrphaned, uiODVw2DParentTreeItem::objOrphanedCB );
-    return uiODVw2DTreeItem::init();
+    void* res = 0;
+    getPropertyPtr( uiODVw2DTreeTop::applmgrstr(), res );
+    return reinterpret_cast<uiODApplMgr*>( res );
 }
 
 
-void uiODVw2DParentTreeItem::objAddedCB( CallBacker* cber )
+uiODViewer2D* uiODVw2DParentTreeItem::viewer2D()
 {
-    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
-    BufferString objtypekey;
-    objprinfopar.get( sKey::Type(), objtypekey );
-    if ( objtypekey != childObjTypeKey() )
-	return;
-
-    mEnsureExecutedInMainThreadWithCapsule(
-	    uiODVw2DParentTreeItem::objAddedCB, cbercaps )
-    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
-    const MultiID mid = prinfo->storedID();
-    if ( mid.isUdf() )
-	return;
-
-    TypeSet<MultiID> setids;
-    setids += mid;
-    addChildren( setids );
-}
-
-
-void uiODVw2DParentTreeItem::objVanishedCB( CallBacker* cber )
-{
-    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
-    BufferString objtypekey;
-    objprinfopar.get( sKey::Type(), objtypekey );
-    if ( objtypekey != childObjTypeKey() )
-	return;
-
-    mEnsureExecutedInMainThreadWithCapsule(
-	    uiODVw2DParentTreeItem::objVanishedCB, cbercaps )
-    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
-    const MultiID mid = prinfo->storedID();
-    if ( mid.isUdf() )
-	return;
-
-    removeChildren( mid );
-}
-
-
-void uiODVw2DParentTreeItem::objShownCB( CallBacker* cber )
-{
-    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
-    BufferString objtypekey;
-    objprinfopar.get( sKey::Type(), objtypekey );
-    if ( objtypekey != childObjTypeKey() )
-	return;
-
-    mEnsureExecutedInMainThreadWithCapsule(
-	    uiODVw2DParentTreeItem::objShownCB, cbercaps )
-    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
-    const MultiID mid = prinfo->storedID();
-    if ( mid.isUdf() )
-	return;
-
-    showHideChildren( mid, true );
-}
-
-
-void uiODVw2DParentTreeItem::objHiddenCB( CallBacker* cber )
-{
-    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
-    BufferString objtypekey;
-    objprinfopar.get( sKey::Type(), objtypekey );
-    if ( objtypekey != childObjTypeKey() )
-	return;
-
-    mEnsureExecutedInMainThreadWithCapsule(
-	    uiODVw2DParentTreeItem::objHiddenCB, cbercaps )
-    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
-    const MultiID mid = prinfo->storedID();
-    if ( mid.isUdf() )
-	return;
-
-    showHideChildren( mid, false );
-}
-
-
-void uiODVw2DParentTreeItem::objOrphanedCB( CallBacker* cber )
-{
-    mCBCapsuleUnpack( IOPar,objprinfopar,cber );
-    BufferString objtypekey;
-    objprinfopar.get( sKey::Type(), objtypekey );
-    if ( objtypekey != childObjTypeKey() )
-	return;
-
-    mEnsureExecutedInMainThreadWithCapsule(
-	    uiODVw2DParentTreeItem::objOrphanedCB, cbercaps )
-    ObjPresentationInfo* prinfo = ODIFac().create( objprinfopar );
-    const MultiID mid = prinfo->storedID();
-    if ( mid.isUdf() )
-	return;
-    //TODO do something when we have clearer idea what to do when it happens
-}
-
-
-void uiODVw2DParentTreeItem::emitChildPRRequest(
-	const MultiID& childstoredid, OD::PresentationRequestType req )
-{
-    if ( childstoredid.isUdf() )
-	return;
-
-    for ( int idx=0; idx<nrChildren(); idx++ )
-    {
-	mDynamicCastGet(uiODVw2DTreeItem*,childitem,
-			getChild(idx))
-	if ( !childitem || childitem->storedID() != childstoredid )
-	    continue;
-
-	childitem->emitPRRequest( req );
-    }
+    void* res = 0;
+    getPropertyPtr( uiODVw2DTreeTop::viewer2dptr(), res );
+    return reinterpret_cast<uiODViewer2D*>( res );
 }
 
 
@@ -572,77 +454,8 @@ void uiODVw2DParentTreeItem::getVwr2DOjIDs(
 }
 
 
-void uiODVw2DParentTreeItem::showHideChildren( const MultiID& mid, bool show )
+bool uiODVw2DParentTreeItem::init()
 {
-    for ( int idx=0; idx<nrChildren(); idx++ )
-    {
-	mDynamicCastGet(uiODVw2DTreeItem*,childitem,getChild(idx))
-	if ( !childitem || mid!=childitem->storedID() )
-	    continue;
-
-	childitem->setChecked( show, false );
-	childitem->enableDisplay( show, false );
-    }
-}
-
-
-void uiODVw2DParentTreeItem::removeChildren( const MultiID& mid )
-{
-    for ( int idx=0; idx<nrChildren(); idx++ )
-    {
-	mDynamicCastGet(uiODVw2DTreeItem*,childitem,getChild(idx))
-	if ( !childitem || mid!=childitem->storedID() )
-	    continue;
-
-	removeChild( childitem );
-    }
-}
-
-
-void uiODVw2DParentTreeItem::getLoadedChildren( TypeSet<MultiID>& mids ) const
-{
-    for ( int idx=0; idx<nrChildren(); idx++ )
-    {
-	mDynamicCastGet(const uiODVw2DTreeItem*,childitem,getChild(idx))
-	if ( !childitem )
-	    continue;
-
-	mids.addIfNew( childitem->storedID() );
-    }
-}
-
-
-bool uiODVw2DParentTreeItem::selectChild( const MultiID& mid )
-{
-    TypeSet<MultiID> midsloaded;
-    getLoadedChildren( midsloaded );
-    if ( !midsloaded.isPresent(mid) )
-	return false;
-
-    for ( int idx=0; idx<nrChildren(); idx++ )
-    {
-	mDynamicCastGet(uiODVw2DTreeItem*,childtreeitm,getChild(idx))
-	if ( childtreeitm && mid==childtreeitm->storedID() )
-	{
-	    childtreeitm->select();
-	    return true;
-	}
-    }
-
-    return false;
-}
-
-
-void uiODVw2DParentTreeItem::addChildren( const TypeSet<MultiID>& setids )
-{
-    TypeSet<MultiID> setidstobeloaded, setidsloaded;
-    getLoadedChildren( setidsloaded );
-    for ( int idx=0; idx<setids.size(); idx++ )
-    {
-	if ( !setidsloaded.isPresent(setids[idx]) )
-	    setidstobeloaded.addIfNew( setids[idx] );
-    }
-
-    for ( int idx=0; idx<setidstobeloaded.size(); idx++ )
-	addChildItem( setidstobeloaded[idx] );
+    setPRManagedViewer( *viewer2D() );
+    return uiODTreeItem::init();
 }

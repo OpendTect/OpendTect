@@ -38,7 +38,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODAnnotTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODAnnotTreeItemFactory : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(uiODAnnotTreeItemFactory);
 public:
     const char*		name() const   { return getName(); }
@@ -49,9 +49,9 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODAnnotTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODAnnotTreeItem : public uiODSceneTreeItem
 { mODTextTranslationClass(uiODAnnotTreeItem);
-    typedef uiODTreeItem  inheritedClass;
+    typedef uiODSceneTreeItem  inheritedClass;
 public:
 				uiODAnnotTreeItem(const uiString&);
 				~uiODAnnotTreeItem();

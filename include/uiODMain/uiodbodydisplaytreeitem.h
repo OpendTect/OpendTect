@@ -23,17 +23,18 @@ namespace visSurvey { class MarchingCubesDisplay; class PolygonBodyDisplay;
 		      class RandomPosBodyDisplay; }
 
 
-mExpClass(uiODMain) uiODBodyDisplayParentTreeItem : public uiODTreeItem
+mExpClass(uiODMain) uiODBodyDisplayParentTreeItem : public uiODSceneTreeItem
 {
     mODTextTranslationClass(uiODBodyDisplayParentTreeItem);
-    mDefineItemMembers( BodyDisplayParent, TreeItem, TreeTop );
+    mDefineItemMembers( BodyDisplayParent, SceneTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
     void loadBodies();
 };
 
 
-mExpClass(uiODMain) uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODBodyDisplayTreeItemFactory
+    : public uiODSceneTreeItemFactory
 { mODTextTranslationClass(uiODBodyDisplayTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }

@@ -67,7 +67,7 @@ ___________________________________________________________________
 
 
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
-    : uiODTreeItem( uiStrings::sBody() )
+    : uiODSceneTreeItem( uiStrings::sBody() )
 {}
 
 

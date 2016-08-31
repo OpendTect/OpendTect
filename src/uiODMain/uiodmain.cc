@@ -329,9 +329,9 @@ bool uiODMain::ensureGoodSurveySetup()
 bool uiODMain::buildUI()
 {
     scenemgr_ = new uiODSceneMgr( this );
-    ODPrMan().addViewerTypeManager( scenemgr_ );
+    OD::PrMan().addViewerTypeManager( scenemgr_ );
     viewer2dmgr_ = new uiODViewer2DMgr( this );
-    ODPrMan().addViewerTypeManager( viewer2dmgr_ );
+    OD::PrMan().addViewerTypeManager( viewer2dmgr_ );
     menumgr_ = new uiODMenuMgr( this );
     menumgr_->initSceneMgrDepObjs( applmgr_, scenemgr_ );
 
