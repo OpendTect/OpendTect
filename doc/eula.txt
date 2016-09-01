@@ -108,9 +108,7 @@ B.	dGB may terminate this agreement within the first year if Licensee is more th
 C.	Either party may terminate the Agreement by written notice to either party if:
 a.	The other party unlawfully repudiates the Agreement; or
 b.	The other party shall commit a substantial breach of any of its obligations under the Agreement not amounting to such a repudiation and shall not have remedied such breach within four (4) weeks of receiving written notice of the breach from the first party of the breach, or commits a repetition of such breach; or  
-c.	The other party shall become bankrupt or enter into liquidation (provisional or otherwise) except for purpose of amalgamation or reconstruction or a receiver and / or manager or administrator appointed in respect of its assets or any part thereof or it enters into any composition or arrangement with creditors generally.
-If dGB is the party that becomes bankrupt or enters into liquidation, Licensee
-has the right to use perpetual licenses acquired under this agreement
+c.	The other party shall become bankrupt or enter into liquidation (provisional or otherwise) except for purpose of amalgamation or reconstruction or a receiver and / or manager or administrator appointed in respect of its assets or any part thereof or it enters into any composition or arrangement with creditors generally.  If dGB is the party that becomes bankrupt or enters into liquidation, Licensee has the right to use perpetual licenses acquired under this agreement
 perpetually and irrevocably, and temporary licenses until their expiry date.
 d.	For any other reason if the other party agrees to the termination in writing.
 13. General Provitions
