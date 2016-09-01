@@ -78,15 +78,14 @@ static bool testSmallFloatArray( Array1D<float>& prices,
     mRunStandardTest( mIsEqual(res[12],7.30533338e10f,1e3f), "SumX2MY2 N-CPU" );
 
     float intercept, gradient;
-    if ( !getInterceptGradient<float,double>(milage,&prices,intercept,
-					     gradient) )
+    if ( !getInterceptGradient<float,float>(milage,&prices,intercept,gradient) )
 	return false;
 
     mRunStandardTest( mIsEqual(intercept,8136.1503f,1e-3f), "Intercept simple" )
     mRunStandardTest( mIsEqual(gradient,-0.051269039f,1e-8f),"Gradient simple" )
 
     Array1DImpl<float> milagedetrended( milage );
-    if ( !removeTrend<float,double>(milagedetrended) )
+    if ( !removeTrend<float,float>(milagedetrended) )
 	return false;
 
     const float avgmilage = getAverage( milagedetrended, true, true );
@@ -150,7 +149,7 @@ static bool testBigVector()
     mRunStandardTest(mIsEqual(calcinterceptf,-152.46854f,1e-2f),
 		     "Intercept float")
 
-    if ( !removeBias<double,double>(data) || !removeBias<float,double>(dataf) )
+    if ( !removeBias<double,double>(data) || !removeBias<float,float>(dataf) )
 	return false;
 
     res = getSum( data, true, true );
@@ -168,7 +167,7 @@ static bool testBigVector()
     for ( int idx=0; idx<sz; idx++ )
 	dataf.set( idx, mCast(float,data.get(idx)) );
 
-    if ( !removeTrend<double,double>(data) || !removeTrend<float,double>(dataf))
+    if ( !removeTrend<double,double>(data) || !removeTrend<float,float>(dataf))
 	return false;
 
     res = getSum( data, true, true );
