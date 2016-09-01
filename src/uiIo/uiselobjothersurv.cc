@@ -39,7 +39,7 @@ uiSelObjFromOtherSurvey::~uiSelObjFromOtherSurvey()
 }
 
 
-bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
+bool uiSelObjFromOtherSurvey::acceptOK()
 {
     if ( !selfld_->getFullSurveyPath(othersurveyrootdir_) )
 	return false;

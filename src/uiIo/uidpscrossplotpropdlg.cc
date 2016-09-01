@@ -731,7 +731,8 @@ uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
     const OD::MarkerStyle2D& mstyle = plotter_.setup().markerstyle_;
     sizefld_ = new uiGenInput(this,tr("Marker size"),IntInpSpec(mstyle.size_));
 
-    shapeenums_.remove( OD::MarkerStyle2D::TypeDef().getKey(OD::MarkerStyle2D::None) );
+    shapeenums_.remove(
+	OD::MarkerStyle2D::TypeDef().getKey(OD::MarkerStyle2D::None) );
 
     uiLabeledComboBox* llb =
 	new uiLabeledComboBox( this, shapeenums_, tr("Marker shape") );
@@ -939,10 +940,11 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 }
 
 
-void uiDataPointSetCrossPlotterPropDlg::doApply( CallBacker* cb )
-{ acceptOK( cb ); }
+void uiDataPointSetCrossPlotterPropDlg::doApply( CallBacker* )
+{ acceptOK(); }
 
-bool uiDataPointSetCrossPlotterPropDlg::acceptOK( CallBacker* )
+
+bool uiDataPointSetCrossPlotterPropDlg::acceptOK()
 {
     if ( scaletab_ ) scaletab_->acceptOK();
     if ( statstab_ ) statstab_->acceptOK();

@@ -186,7 +186,7 @@ void uiPluginMan::loadPush( CallBacker* )
 }
 
 
-bool uiPluginMan::rejectOK( CallBacker* )
+bool uiPluginMan::rejectOK()
 {
     const bool oldyn =
 	Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup());

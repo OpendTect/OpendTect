@@ -297,12 +297,15 @@ void uiCheckShotEdit::draw()
 }
 
 
-void uiCheckShotEdit::drawDahObj( const Well::DahObj* dahobj, bool first, bool left )
+void uiCheckShotEdit::drawDahObj( const Well::DahObj* dahobj, bool first,
+				  bool left )
 {
     uiWellDahDisplay* disp = left ? d2tdisplay_ : driftdisplay_;
     uiWellDahDisplay::DahObjData& dahdata = disp->dahObjData( first );
-    dahdata.col_ = dahobj == newdriftcurve_ ? Color::DgbColor()
-					    : Color::stdDrawColor(first ? 0 : 1);
+    dahdata.col_ = dahobj == newdriftcurve_
+	? Color::DgbColor()
+	: Color::stdDrawColor(first ? 0 : 1);
+
     float startpos = SI().seismicReferenceDatum();
     startpos = startpos != 0 ? -startpos : 0;
     const float stoppos = (orgcs_->dahRange().stop > orgd2t_->dahRange().stop)
@@ -410,7 +413,7 @@ void uiCheckShotEdit::applyCB( CallBacker* )
 }
 
 
-bool uiCheckShotEdit::acceptOK( CallBacker* )
+bool uiCheckShotEdit::acceptOK()
 {
     if ( !d2t_ || d2t_->size() < 2 )
 	mErrRet(tr("Depth/time model is too small and won't be saved"),
@@ -423,7 +426,7 @@ bool uiCheckShotEdit::acceptOK( CallBacker* )
 }
 
 
-bool uiCheckShotEdit::rejectOK( CallBacker* )
+bool uiCheckShotEdit::rejectOK()
 {
     server_.d2TModelMgr().cancel();
     return true;

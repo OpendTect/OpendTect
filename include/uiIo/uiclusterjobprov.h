@@ -48,7 +48,7 @@ protected:
     uiGenInput*		cmdfld_;
 
     void		nrJobsCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     bool		createJobScripts(const char*);
     const char*		getOutPutIDKey() const;

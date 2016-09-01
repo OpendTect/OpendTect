@@ -94,7 +94,7 @@ protected:
     void			putDispParams();
     void			resetInfoDlg();
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     void			applyPushed(CallBacker*);
     void			applyShiftPushed(CallBacker*);
     bool			compute(CallBacker*);
@@ -117,7 +117,7 @@ protected:
     void			reDrawSeisViewer(CallBacker*);
     void			reDrawAuxDatas(CallBacker*);
     void			reDrawAll(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			rejectOK();
     void			setView(CallBacker*);
     bool			saveDataPushed(CallBacker*);
     void			timeChanged(CallBacker*);

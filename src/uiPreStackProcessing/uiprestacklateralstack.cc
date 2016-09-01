@@ -50,7 +50,7 @@ uiLateralStack::uiLateralStack( uiParent* p, LateralStack* sgvs )
 }
 
 
-bool uiLateralStack::acceptOK( CallBacker* )
+bool uiLateralStack::acceptOK()
 {
     if ( !processor_ ) return true;
 

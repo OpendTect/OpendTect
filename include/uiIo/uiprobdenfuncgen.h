@@ -36,7 +36,7 @@ protected:
     MultiID		ioobjky_;
 
     void		choiceSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

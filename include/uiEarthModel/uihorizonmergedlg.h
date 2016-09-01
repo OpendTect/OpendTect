@@ -29,7 +29,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiHorizon3DSel*	horselfld_;
     uiGenInput*		duplicatefld_;

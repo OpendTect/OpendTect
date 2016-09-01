@@ -23,7 +23,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiFileInput*	inpfld_;
     uiGenInput*		sortsticksfld_;

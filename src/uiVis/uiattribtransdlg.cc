@@ -39,13 +39,13 @@ void uiAttribTransDlg::changeCB( CallBacker* )
 }
 
 
-bool uiAttribTransDlg::rejectOK( CallBacker* )
+bool uiAttribTransDlg::rejectOK()
 {
     so_.setAttribTransparency( attrib_, initaltrans_ );
     return true;
 }
 
-bool uiAttribTransDlg::acceptOK( CallBacker* )
+bool uiAttribTransDlg::acceptOK()
 {
     return true;
 }

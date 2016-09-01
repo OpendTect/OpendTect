@@ -64,9 +64,9 @@ protected:
     void		updateFields();
     void		onFinalise(CallBacker*);
     void		timerTick(CallBacker*);
-    virtual bool        acceptOK(CallBacker*);
+    virtual bool	acceptOK();
 
-    virtual bool        rejectOK(CallBacker*);
+    virtual bool	rejectOK();
 
     void		init();
 };

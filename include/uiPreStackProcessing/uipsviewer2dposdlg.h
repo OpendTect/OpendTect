@@ -110,7 +110,7 @@ protected:
 
     uiGatherPosSliceSel*	sliceselfld_;
     bool			is2d_;
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 };
 
 
@@ -129,7 +129,7 @@ protected:
     BufferStringSet&		selgathers_;	
 
     void 			selButPush(CallBacker*);
-    bool 			acceptOK(CallBacker*);
+    bool			acceptOK();
 };
 
 }; //namespace

@@ -33,7 +33,7 @@ protected:
     void		rebuildList(int);
     void		addPush(CallBacker*);
     void		rmPush(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiListBox*		listfld;
 };

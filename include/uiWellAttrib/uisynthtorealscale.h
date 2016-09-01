@@ -79,7 +79,7 @@ protected:
     void		setScaleFld(CallBacker*);
     void		goPush( CallBacker* )
 			{ updSynthStats(); updRealStats(); }
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     bool		getEvent();
     bool		getHorData(TaskRunner&);

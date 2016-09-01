@@ -185,7 +185,7 @@ uiScaleDlg( uiParent* p, const TrcKeyZSampling& scale, const char* zdomkey )
 }
 
 
-bool acceptOK(CallBacker *)
+bool rejectOK()
 {
     newscale_ = rangefld_->getSampling();
     return true;
@@ -249,7 +249,7 @@ void uiScenePropertyDlg::updateScene( visSurvey::Scene* scene )
 }
 
 
-bool uiScenePropertyDlg::rejectOK( CallBacker* )
+bool uiScenePropertyDlg::rejectOK()
 {
     if ( scene_ )
     {
@@ -322,7 +322,7 @@ void uiScenePropertyDlg::setOffsetCB( CallBacker* )
 }
 
 
-bool uiScenePropertyDlg::acceptOK( CallBacker* )
+bool uiScenePropertyDlg::acceptOK()
 {
     if ( scene_ )
     {

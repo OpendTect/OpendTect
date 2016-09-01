@@ -63,7 +63,7 @@ void uiGoogleExportWells::initWin( CallBacker* )
 }
 
 
-bool uiGoogleExportWells::acceptOK( CallBacker* )
+bool uiGoogleExportWells::acceptOK()
 {
     mCreateWriter( "Wells", SI().name() );
 

@@ -110,7 +110,7 @@ protected:
 
     uiSliceSel*			slicesel_;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 };
 
 
@@ -128,7 +128,7 @@ public:
 							   }
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     bool		selectPos2D();
     bool		selectPos3D();
 

@@ -51,7 +51,7 @@ protected:
 
     uiPickPartServer*	serv_;
 
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
     void		inputChgd(CallBacker*);
     void		formatSel(CallBacker*);
     bool		checkInpFlds();

@@ -126,7 +126,7 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
-bool uiImportLogsDlg::acceptOK( CallBacker* )
+bool uiImportLogsDlg::acceptOK()
 {
     const MultiID wmid = wellfld_->key();
     RefMan<Well::Data> wd = new Well::Data;
@@ -336,7 +336,7 @@ void uiExportLogs::typeSel( CallBacker* )
     zunitgrp_->setSensitive( 3, typefld_->getIntValue() );
 }
 
-bool uiExportLogs::acceptOK( CallBacker* )
+bool uiExportLogs::acceptOK()
 {
     BufferString fname = outfld_->fileName();
     if ( fname.isEmpty() )

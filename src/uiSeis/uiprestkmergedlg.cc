@@ -275,7 +275,7 @@ void uiPreStackMergeDlg::moveButPush( CallBacker* cb )
 }
 
 
-bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
+bool uiPreStackMergeDlg::acceptOK()
 {
     if ( !setSelectedVols() ) return false;
 
@@ -411,7 +411,7 @@ void uiPreStackCopyDlg::objSel( CallBacker* )
 }
 
 
-bool uiPreStackCopyDlg::acceptOK( CallBacker* )
+bool uiPreStackCopyDlg::acceptOK()
 {
     const IOObj* inioobj = inpfld_->ioobj();
     if ( !inioobj )

@@ -248,7 +248,7 @@ uiLatLong2CoordFileTransDlg( uiParent* p, const LatLong2Coord& ll2c )
     outfld_->attach( alignedBelow, tollfld_ );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     const BufferString inpfnm = inpfld_->fileName();
     if ( inpfnm.isEmpty() ) mErrRet(uiStrings::phrEnter(mJoinUiStrs(
@@ -346,7 +346,7 @@ bool uiLatLong2CoordDlg::getLL2C()
 }
 
 
-bool uiLatLong2CoordDlg::acceptOK( CallBacker* )
+bool uiLatLong2CoordDlg::acceptOK()
 {
     if ( !getLL2C() )
 	return false;

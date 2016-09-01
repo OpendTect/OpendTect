@@ -103,7 +103,7 @@ void uiHandleDLSiteFail::proxyButCB( CallBacker* )
 }
 
 
-bool uiHandleDLSiteFail::rejectOK( CallBacker* )
+bool uiHandleDLSiteFail::rejectOK()
 {
     if ( isfatal_ )
 	ExitProgram( 1 );
@@ -111,7 +111,7 @@ bool uiHandleDLSiteFail::rejectOK( CallBacker* )
 }
 
 
-bool uiHandleDLSiteFail::acceptOK( CallBacker* )
+bool uiHandleDLSiteFail::acceptOK()
 {
     if ( dlsitefld_ )
 	site_ = dlsitefld_->text();

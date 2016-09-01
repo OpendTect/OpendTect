@@ -22,7 +22,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;

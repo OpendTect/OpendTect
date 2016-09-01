@@ -309,7 +309,7 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
 }
 
 
-bool uiBatchProgLaunch::acceptOK( CallBacker* )
+bool uiBatchProgLaunch::acceptOK()
 {
     if ( !progfld_ ) return true;
 

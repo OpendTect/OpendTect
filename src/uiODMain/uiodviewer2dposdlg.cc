@@ -46,7 +46,7 @@ void uiODViewer2DPosDlg::zoomLevelCB( CallBacker* )
 }
 
 
-bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
+bool uiODViewer2DPosDlg::acceptOK()
 {
     if ( !posgrp_->commitSel( true ) )
 	return false;

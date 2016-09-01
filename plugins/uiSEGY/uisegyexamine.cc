@@ -401,7 +401,7 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 }
 
 
-bool uiSEGYExamine::rejectOK(CallBacker*)
+bool uiSEGYExamine::rejectOK()
 {
     return true;
 }

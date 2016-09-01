@@ -427,7 +427,7 @@ ArrayNDProbDenFunc* uiImpRokDocPDF::getAdjustedPDF(
 }
 
 
-bool uiImpRokDocPDF::acceptOK( CallBacker* )
+bool uiImpRokDocPDF::acceptOK()
 {
     const IOObj* pdfioobj = outputfld_->ioobj();
     if ( !pdfioobj ) return false;
@@ -584,7 +584,7 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf )
 };
 
 
-bool uiExpRokDocPDF::acceptOK( CallBacker* )
+bool uiExpRokDocPDF::acceptOK()
 {
     const IOObj* pdfioobj = inpfld_->ioobj();
     if ( !pdfioobj ) return false;

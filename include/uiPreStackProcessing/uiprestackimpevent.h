@@ -29,7 +29,7 @@ public:
 			uiEventImport(uiParent*);
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     Table::FormatDesc&	fd_;
 

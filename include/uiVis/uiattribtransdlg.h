@@ -23,8 +23,8 @@ public:
 						 visSurvey::SurveyObject&,
 						 int attrib);
 protected:
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK();
+    bool			rejectOK();
     void			changeCB(CallBacker*);
 
     unsigned char		initaltrans_;

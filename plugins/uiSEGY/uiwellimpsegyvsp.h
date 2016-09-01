@@ -57,7 +57,7 @@ protected:
     void		wllSel(CallBacker*);
     void		outSampChk(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     bool		fetchTrc(SeisTrc&);
     bool		createLog(const SeisTrc&,const Interval<float>&,
 				  const char*);

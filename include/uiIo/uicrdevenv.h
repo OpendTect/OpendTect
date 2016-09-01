@@ -29,7 +29,7 @@ protected:
     uiGenInput*		workdirfld;
     uiFileInput*	basedirfld;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 #endif

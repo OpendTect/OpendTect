@@ -200,7 +200,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
 
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
@@ -338,7 +338,7 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 }
 
 
-bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
+bool uiSimpleMultiWellCreate::acceptOK()
 {
     crwellids_.erase();
     vel_ = velfld_ ? velfld_->getFValue() : getGUIDefaultVelocity();

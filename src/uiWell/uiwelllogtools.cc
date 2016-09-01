@@ -57,7 +57,7 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
+bool uiWellLogToolWinMgr::acceptOK()
 {
     BufferStringSet wellids; welllogselfld_->getSelWellIDs( wellids );
     BufferStringSet wellnms; welllogselfld_->getSelWellNames( wellnms );
@@ -79,7 +79,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd->logs() );
 	uiWellLogToolWin::LogData* ldata =
-	    new uiWellLogToolWin::LogData( *wls, wd->d2TModelPtr(),&wd->track());
+	    new uiWellLogToolWin::LogData( *wls,wd->d2TModelPtr(),&wd->track());
 	const Well::ExtractParams& params = welllogselfld_->params();
 	ldata->dahrg_ = params.calcFrom( *wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
@@ -325,7 +325,7 @@ void uiWellLogToolWin::handleSpikeSelCB( CallBacker* )
 }
 
 
-bool uiWellLogToolWin::acceptOK( CallBacker* )
+bool uiWellLogToolWin::acceptOK()
 {
     for ( int idx=0; idx<logdatas_.size(); idx++ )
     {
@@ -351,7 +351,7 @@ bool uiWellLogToolWin::acceptOK( CallBacker* )
 }
 
 
-bool uiWellLogToolWin::rejectOK( CallBacker* )
+bool uiWellLogToolWin::rejectOK()
 { close(); return true; }
 
 
@@ -627,7 +627,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 }
 
 
-bool uiWellLogEditor::acceptOK( CallBacker* )
+bool uiWellLogEditor::acceptOK()
 {
     return true;
 }

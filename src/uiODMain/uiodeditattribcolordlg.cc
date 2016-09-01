@@ -115,7 +115,7 @@ void uiODEditAttribColorDlg::mapperChg( CallBacker* )
 }
 
 
-bool uiODEditAttribColorDlg::acceptOK( CallBacker* )
+bool uiODEditAttribColorDlg::acceptOK()
 {
     return true;
 }

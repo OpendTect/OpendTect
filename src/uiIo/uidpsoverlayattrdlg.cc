@@ -102,10 +102,10 @@ const char* uiDPSOverlayPropDlg::userName( int did ) const
 
 
 void uiDPSOverlayPropDlg::doApply( CallBacker* )
-{ acceptOK(0); }
+{ acceptOK(); }
 
 
-bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
+bool uiDPSOverlayPropDlg::acceptOK()
 {
     if ( y3propselfld_->currentItem() )
     {

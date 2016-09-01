@@ -782,7 +782,7 @@ bool uiCreate2DGrid::fillPar()
 }
 
 
-bool uiCreate2DGrid::acceptOK( CallBacker* )
+bool uiCreate2DGrid::acceptOK()
 {
     if ( !fillPar() )
 	return false;

@@ -151,7 +151,7 @@ void uiWellTo2DLineDlg::previewPush( CallBacker* cb )
 
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
-bool uiWellTo2DLineDlg::acceptOK( CallBacker* )
+bool uiWellTo2DLineDlg::acceptOK()
 {
     TypeSet<Coord> wellcoord; getCoordinates( wellcoord );
     if ( wellcoord.size() < 2 )

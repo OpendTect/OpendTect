@@ -105,7 +105,7 @@ bool uiSeisEventSnapper::readHorizon()
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 
-bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
+bool uiSeisEventSnapper::acceptOK()
 {
     const IOObj* seisioobj = seisfld_->ioobj();
     if ( !seisioobj )
@@ -114,7 +114,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
     if ( !readHorizon() )
 	mErrRet( uiStrings::phrCannotRead( uiStrings::sHorizon() ) );
 
-    if ( !savefldgrp_->acceptOK( cb ) )
+    if ( !savefldgrp_->acceptOK() )
 	return false;
 
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?

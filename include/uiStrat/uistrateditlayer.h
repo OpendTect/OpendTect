@@ -44,7 +44,7 @@ protected:
 
     bool		getFromScreen(bool);
     void		valChg(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

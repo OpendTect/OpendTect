@@ -91,7 +91,7 @@ public:
     MultiID			getBodyMid() const;
 
 protected:
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     bool			createImplicitBody();
 
     uiBodyRegionGrp*		grp_;

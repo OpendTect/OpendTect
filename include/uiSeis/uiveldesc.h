@@ -73,7 +73,7 @@ public:
 
 protected:
 
-   bool			acceptOK(CallBacker*);
+   bool			acceptOK();
    void			volSelChange(CallBacker*);
    bool			scanAvgVel(const IOObj&, const VelocityDesc&);
 

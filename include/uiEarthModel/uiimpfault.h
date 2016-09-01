@@ -44,7 +44,7 @@ protected:
     bool		checkInpFlds();
     bool		handleAscii();
     bool		handleLMKAscii();
-    virtual bool	acceptOK(CallBacker*) { return false; }
+    virtual bool	acceptOK() { return false; }
     virtual bool	getFromAscIO(od_istream&,EM::Fault&);
     EM::Fault*		createFault() const;
 
@@ -77,7 +77,7 @@ mExpClass(uiEarthModel) uiImportFault3D : public uiImportFault
 public:
     			uiImportFault3D(uiParent*,const char* type);
 protected:
-    bool		acceptOK(CallBacker*);			
+    bool		acceptOK();
 };
 
 
@@ -90,7 +90,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     bool		getFromAscIO(od_istream&,EM::Fault&);
 
 };

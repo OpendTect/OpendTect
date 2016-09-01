@@ -87,8 +87,8 @@ protected:
     void			preparePreStackDescs();
 
     bool			handleUnsaved();
-    bool			rejectOK(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			rejectOK();
+    bool			acceptOK();
 
 };
 

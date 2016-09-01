@@ -63,7 +63,7 @@ void uiViewer3DSettingDlg::applyCheckedCB( CallBacker* cb )
 }
 
 
-bool uiViewer3DSettingDlg::acceptOK( CallBacker* cb )
+bool uiViewer3DSettingDlg::acceptOK()
 {
    if ( saveButtonChecked() )
    {
@@ -72,7 +72,7 @@ bool uiViewer3DSettingDlg::acceptOK( CallBacker* cb )
        shapetab_->saveAsDefault( true );
    }
 
-   return uiTabStackDlg::acceptOK(cb);
+   return uiTabStackDlg::acceptOK();
 }
 
 } // namespace PreStackView

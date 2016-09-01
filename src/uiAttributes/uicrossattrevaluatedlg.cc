@@ -288,7 +288,7 @@ void uiCrossAttrEvaluateDlg::sliderMove( CallBacker* )
 }
 
 
-bool uiCrossAttrEvaluateDlg::acceptOK( CallBacker* )
+bool uiCrossAttrEvaluateDlg::acceptOK()
 {
     if ( !paramsfld_ || srcspecids_.isEmpty() )
 	return true;

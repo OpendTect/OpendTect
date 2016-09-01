@@ -113,7 +113,7 @@ protected:
     bool		supportPrintFormats() const	{ return true; }
 
     void		setFldVals(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 

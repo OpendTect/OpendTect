@@ -50,7 +50,7 @@ uiAGC::uiAGC( uiParent* p, AGC* sgagc )
 }
 
 
-bool uiAGC::acceptOK( CallBacker* )
+bool uiAGC::acceptOK()
 {
     if ( !processor_ ) return true;
 

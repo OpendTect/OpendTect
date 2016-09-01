@@ -62,7 +62,7 @@ MultiID uiCreateHorizon::getSelID() const
 { return outfld_->selIOObj() ? outfld_->selIOObj()->key() : MultiID::udf(); }
 
 
-bool uiCreateHorizon::acceptOK( CallBacker* )
+bool uiCreateHorizon::acceptOK()
 {
     if ( !zfld_ ) return true;
 

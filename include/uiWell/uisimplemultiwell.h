@@ -36,7 +36,7 @@ protected:
     BufferStringSet	crwellids_;
     const UnitOfMeasure* zun_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     void		rdFilePush(CallBacker*);
     bool		getWellCreateData(int,const char*,uiSMWCData&);

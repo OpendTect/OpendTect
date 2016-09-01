@@ -274,7 +274,7 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
     return false; \
 }
 
-bool uiAttribCrossPlot::acceptOK( CallBacker* )
+bool uiAttribCrossPlot::acceptOK()
 {
     RefMan<DataPointSet> dps = 0;
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();

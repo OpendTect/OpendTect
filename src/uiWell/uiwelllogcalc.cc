@@ -281,7 +281,7 @@ uiWellLogCalcRockPhys( uiParent* p )
                                   mODHelpKey(mWellLogCalcRockPhysHelpID) ))
 { formgrp_ = new uiRockPhysForm( this ); }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     bool rv = formgrp_->isOK();
     if ( !rv ) uiMSG().error( mToUiStringTodo(formgrp_->errMsg()) );
@@ -415,7 +415,7 @@ void uiWellLogCalc::vwLog( CallBacker* cb )
 #define mErrContinue(s) { uiMSG().error(s); continue; }
 
 
-bool uiWellLogCalc::acceptOK( CallBacker* )
+bool uiWellLogCalc::acceptOK()
 {
     if ( !formfld_ )
 	return true;

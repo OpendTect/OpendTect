@@ -492,7 +492,7 @@ uiReadMarkerFile( uiParent* p )
     delete &fd_;
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     fnm_ = fnmfld_->fileName();
     if ( File::isEmpty(fnm_) )
@@ -573,7 +573,7 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 }
 
 
-bool uiMarkerDlg::acceptOK( CallBacker* )
+bool uiMarkerDlg::acceptOK()
 {
     Well::MarkerSet markers;
     if ( !getMarkerSet(markers) ) return false;
@@ -728,7 +728,7 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
 }
 
 
-bool uiMarkerDlg::rejectOK( CallBacker* )
+bool uiMarkerDlg::rejectOK()
 {
     MultiID mid;
     if ( !getKey(mid) )

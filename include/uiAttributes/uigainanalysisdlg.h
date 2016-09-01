@@ -42,8 +42,8 @@ protected:
     TypeSet<float>&		zvals_;
     TypeSet<float>&		scalefactors_;
     
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK();
+    bool			rejectOK();
     void			dispRangeChgd(CallBacker*);
     void			amplScaleTypeChanged(CallBacker*);
     void			setData(bool sety=false);

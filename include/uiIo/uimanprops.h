@@ -37,7 +37,7 @@ protected:
     uiBuildPROPS*	buildfld_;
     uiGenInput*		srcfld_;
 
-    bool		rejectOK(CallBacker*);
+    bool		rejectOK();
 
 };
 
@@ -89,7 +89,7 @@ public:
 protected:
     uiSelectPropRefsGrp*	proprefgrp_;
     
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 };
 
 
@@ -101,7 +101,7 @@ public:
 protected:
     uiSelectPropRefsGrp*	proprefgrp_;
     
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 };
 
 #endif

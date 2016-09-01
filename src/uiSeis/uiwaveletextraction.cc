@@ -218,7 +218,7 @@ void uiWaveletExtraction::lineSelCB( CallBacker* )
 }
 
 
-bool uiWaveletExtraction::acceptOK( CallBacker* )
+bool uiWaveletExtraction::acceptOK()
 {
     const IOObj* seisioobj = seisselfld_->ioobj();
     if ( !seisioobj )

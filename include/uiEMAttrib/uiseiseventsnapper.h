@@ -45,7 +45,7 @@ protected:
     bool			is2d_;
     EnumDefImpl<VSEvent::Type>	typedef_;
 
-    virtual bool		acceptOK(CallBacker*);
+    virtual bool		acceptOK();
     bool			readHorizon();
 
     EM::Horizon*		horizon_;

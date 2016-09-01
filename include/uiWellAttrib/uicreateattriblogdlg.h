@@ -44,7 +44,7 @@ protected:
     AttribLogCreator::Setup	datasetup_;
 
     bool                        inputsOK(int);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     void			init(CallBacker*);
     void			selDone(CallBacker*);
 };

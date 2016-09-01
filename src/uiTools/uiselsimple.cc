@@ -52,7 +52,7 @@ uiObject* uiSelectFromList::bottomFld()
 }
 
 
-bool uiSelectFromList::acceptOK( CallBacker* )
+bool uiSelectFromList::acceptOK()
 {
     if ( !selfld_ ) return false;
 
@@ -106,7 +106,7 @@ uiGroup* uiGetObjectName::bottomFld()
 }
 
 
-bool uiGetObjectName::acceptOK( CallBacker* )
+bool uiGetObjectName::acceptOK()
 {
     const char* txt = text();
     return *txt ? true : false;
@@ -165,7 +165,7 @@ uiGroup* uiGetChoice::bottomFld()
 }
 
 
-bool uiGetChoice::rejectOK( CallBacker* )
+bool uiGetChoice::rejectOK()
 {
     if ( !allowcancel_ )
 	return false;
@@ -174,7 +174,7 @@ bool uiGetChoice::rejectOK( CallBacker* )
 }
 
 
-bool uiGetChoice::acceptOK( CallBacker* )
+bool uiGetChoice::acceptOK()
 {
     choice_ = inpfld_->firstChecked();
     return true;

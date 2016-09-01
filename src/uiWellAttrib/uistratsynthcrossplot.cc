@@ -520,7 +520,7 @@ bool uiStratSynthCrossplot::handleUnsaved()
 }
 
 
-bool uiStratSynthCrossplot::rejectOK( CallBacker* )
+bool uiStratSynthCrossplot::rejectOK()
 {
     return handleUnsaved();
 }
@@ -528,7 +528,7 @@ bool uiStratSynthCrossplot::rejectOK( CallBacker* )
 #undef mErrRet
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
-bool uiStratSynthCrossplot::acceptOK( CallBacker* )
+bool uiStratSynthCrossplot::acceptOK()
 {
     if ( !errmsg_.isEmpty() )
 	return true;

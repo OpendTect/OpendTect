@@ -49,7 +49,7 @@ uiGoogleExportSurvey::~uiGoogleExportSurvey()
 }
 
 
-bool uiGoogleExportSurvey::acceptOK( CallBacker* )
+bool uiGoogleExportSurvey::acceptOK()
 {
     mCreateWriter( "Survey area", si_->name() );
 

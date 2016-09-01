@@ -22,7 +22,7 @@ public:
 protected:
 
     void		choiceSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     bool		checkAttribName() const;
     bool		doThicknessCalc();

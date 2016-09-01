@@ -274,7 +274,7 @@ bool uiStratAmpCalc::fillPar()
 }
 
 
-bool uiStratAmpCalc::acceptOK( CallBacker* )
+bool uiStratAmpCalc::acceptOK()
 {
     return prepareProcessing() && fillPar() && batchfld_->start();
 }

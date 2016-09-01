@@ -45,7 +45,7 @@ protected:
 
     void			setDefaultRange();
     void			selDone(CallBacker*);
-    virtual bool		acceptOK(CallBacker*);
+    virtual bool		acceptOK();
 
     bool			inputsOK();
     void			getPositions(BinIDValueSet&,

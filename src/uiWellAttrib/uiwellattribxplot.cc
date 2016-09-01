@@ -45,7 +45,7 @@ void uiWellAttribCrossPlot::setDescSet( const Attrib::DescSet* newads )
 
 #define mErrRet(s) { deepErase(dcds); if ( s ) uiMSG().error(s); return false; }
 
-bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
+bool uiWellAttribCrossPlot::acceptOK()
 {
     if ( !wellextractgrp_->extractDPS() )
 	return false;

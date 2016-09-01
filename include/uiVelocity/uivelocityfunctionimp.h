@@ -45,7 +45,7 @@ protected:
     void		velTypeChangeCB(CallBacker*);
     void                formatSel(CallBacker*);
 
-    virtual bool	acceptOK(CallBacker*);    
+    virtual bool	acceptOK();
 
 };
 

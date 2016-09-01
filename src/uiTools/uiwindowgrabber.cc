@@ -173,7 +173,7 @@ bool uiWindowGrabDlg::filenameOK() const
 }
 
 
-bool uiWindowGrabDlg::acceptOK( CallBacker* )
+bool uiWindowGrabDlg::acceptOK()
 {
     if ( !filenameOK() )
 	return false;

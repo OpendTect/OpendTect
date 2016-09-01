@@ -235,7 +235,7 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 }
 
 
-bool uiViewer3DPositionDlg::rejectOK( CallBacker* )
+bool uiViewer3DPositionDlg::rejectOK()
 {
     oobox_->setChecked( true );
     return true;

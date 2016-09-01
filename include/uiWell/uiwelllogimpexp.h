@@ -45,7 +45,7 @@ protected:
     uiListBox*		logsfld_;
     uiWellSel*		wellfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		lasSel(CallBacker*);
 };
 
@@ -75,7 +75,7 @@ protected:
     void		writeLogs(od_ostream&,const Well::Data&);
 
     void		typeSel(CallBacker*);
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
     uiString		getDlgTitle( const ObjectSet<Well::Data>& wds,
 				     const BufferStringSet& lognms );
 

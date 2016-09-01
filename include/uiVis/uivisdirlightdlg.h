@@ -50,8 +50,8 @@ protected:
     void			removeSceneNotifiers();
     float			getDiffuseIntensity() const;
 
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK();
+    bool			rejectOK();
     void			pdDlgDoneCB(CallBacker*);
     void			showPolarDiagramCB(CallBacker*);
     void			lightSelChangedCB(CallBacker*);

@@ -76,7 +76,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*)
+    bool		acceptOK()
 			{ return selgrp_->updateCtxtIOObj(); }
     void		statusMsgCB(CallBacker*);
 

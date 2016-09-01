@@ -35,7 +35,7 @@ protected:
 
     Mute*		processor_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     static uiDialog*	create(uiParent*,Processor*);
 
     uiIOObjSel*		mutedeffld_;

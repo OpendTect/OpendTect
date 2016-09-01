@@ -150,7 +150,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     uiString labl = tr("Reference %1")
 	.arg( SI().zIsTime() ? uiStrings::sTime() : uiStrings::sDepth() );
     userefdepthfld_ = new uiGenInput( this, labl,
-                                      BoolInpSpec(surfacefiller_->usesRefZValue(),uiStrings::sConstant(),
+	    BoolInpSpec(surfacefiller_->usesRefZValue(),uiStrings::sConstant(),
 	    uiStrings::sHorizon()));
     userefdepthfld_->valuechanged.notify(
 	    mCB(this,uiSurfaceLimitedFiller,useRefValCB) );
@@ -316,10 +316,10 @@ void uiSurfaceLimitedFiller::useRefValCB( CallBacker* )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
+bool uiSurfaceLimitedFiller::acceptOK()
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    if ( !uiStepDialog::acceptOK( cb ) )
+    if ( !uiStepDialog::acceptOK() )
 	return false;
 
     const bool usestartval = usestartvalfld_ ? usestartvalfld_->getBoolValue()

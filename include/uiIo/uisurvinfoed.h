@@ -106,8 +106,8 @@ protected:
     bool		setRelation();
     bool		doApply();
 
-    bool		acceptOK(CallBacker*);
-    bool		rejectOK(CallBacker*);
+    bool		acceptOK();
+    bool		rejectOK();
     void		sipCB(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);

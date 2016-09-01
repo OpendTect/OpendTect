@@ -73,8 +73,8 @@ protected:
     void			removeCB(CallBacker*);
     void			saveCB(CallBacker*);
     void			flipCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK();
+    bool			rejectOK();
     virtual void		reDraw( bool deep )	{ reDrawCB(0); }
 
 

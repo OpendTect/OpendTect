@@ -50,8 +50,8 @@ protected:
     FlatView::Viewer&	vwr_;
     int			selannot_;
 
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK();
+    bool		acceptOK();
 
     CallBack		applycb_;
     void		doApply(CallBacker*);

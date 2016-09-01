@@ -428,7 +428,7 @@ void uiSeisIOSimple::haveoffsSel( CallBacker* cb )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiSeisIOSimple::acceptOK( CallBacker* )
+bool uiSeisIOSimple::acceptOK()
 {
     if ( !isascfld_ ) return true;
 

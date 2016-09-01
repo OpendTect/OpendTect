@@ -195,7 +195,7 @@ bool uiBatchTime2DepthSetup::fillPar()
 }
 
 
-bool uiBatchTime2DepthSetup::acceptOK( CallBacker* )
+bool uiBatchTime2DepthSetup::acceptOK()
 {
     if ( !prepareProcessing() || !fillPar() )
 	return false;

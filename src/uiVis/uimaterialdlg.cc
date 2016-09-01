@@ -97,7 +97,7 @@ void uiLineStyleGrp::changedCB( CallBacker* )
 }
 
 
-bool uiLineStyleGrp::rejectOK( CallBacker* )
+bool uiLineStyleGrp::rejectOK()
 {
     survobj_->setLineStyle( backup_ );
     return true;

@@ -151,7 +151,7 @@ bool uiStratUnitEditDlg::checkWrongChar(char* buf)
 }
 
 
-bool uiStratUnitEditDlg::acceptOK( CallBacker* )
+bool uiStratUnitEditDlg::acceptOK()
 {
     getFromScreen();
     BufferString unnm( unitnmfld_->text() );
@@ -442,7 +442,7 @@ uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
     new uiLabel( this, su.lbltxt_, colfld_ );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     BufferString nm( nmfld_->text() );
     nm.clean( BufferString::NoSpecialChars );
@@ -724,7 +724,7 @@ bool uiStratUnitDivideDlg::areTimesOK( ObjectSet<Strat::LeavedUnitRef>& units,
 }
 
 
-bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
+bool uiStratUnitDivideDlg::acceptOK()
 {
     BufferStringSet bfs;
     ObjectSet<Strat::LeavedUnitRef> units;
@@ -808,7 +808,7 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
 }
 
 
-bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
+bool uiStratLinkLvlUnitDlg::acceptOK()
 {
     const int lvlidx = lvllistfld_->getIntValue()-1;
     lvlid_ = lvlidx >=0 ? ids_[lvlidx] : LevelID::getInvalid();

@@ -27,7 +27,7 @@ protected:
     void		writeToSettings();
     void		setAspectRatio(CallBacker*);
     void		setFldVals(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 #endif

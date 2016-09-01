@@ -188,7 +188,7 @@ void uiGridLinesDlg::setParameters()
     cs.hsamp_.step_.dir() = dir##intv.step;\
 
 
-bool uiGridLinesDlg::acceptOK( CallBacker* )
+bool uiGridLinesDlg::acceptOK()
 {
     TrcKeyZSampling cs;
     if ( inlfld_ ) { mGetHrgSampling(inl) };

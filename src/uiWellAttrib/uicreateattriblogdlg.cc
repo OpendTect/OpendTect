@@ -129,7 +129,7 @@ void uiCreateAttribLogDlg::selDone( CallBacker* )
 
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
-bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
+bool uiCreateAttribLogDlg::acceptOK()
 {
     if ( !attribfld_ ) return true;
 

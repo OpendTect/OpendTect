@@ -98,7 +98,7 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
 }
 
 
-bool uiSeisWvltGen::acceptOK( CallBacker* )
+bool uiSeisWvltGen::acceptOK()
 {
     float freq = freqfld_->getFValue();
     float sr = srfld_->getFValue();
@@ -386,7 +386,7 @@ void uiSeisWvltMerge::centerChged( CallBacker* )
 }
 
 
-bool uiSeisWvltMerge::acceptOK( CallBacker* )
+bool uiSeisWvltMerge::acceptOK()
 {
     if ( !stackedwvlt_ )
 	mErrRet( tr("there is no stacked wavelet to be saved") );

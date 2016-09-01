@@ -68,7 +68,7 @@ protected:
     void		writeParsCB(CallBacker*);
     void		fileSel(CallBacker*);
     void		geomChg(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     void		useSpecificPars(const IOPar&);
 
@@ -99,7 +99,7 @@ protected:
     void		editCB(CallBacker*);
     void		dirSelCB(CallBacker*);
     void		fileSelCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

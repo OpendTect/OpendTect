@@ -12,7 +12,7 @@ class uiFileInput;
 
 #define mDecluiGoogleExpStd \
     uiFileInput*	fnmfld_; \
-    bool		acceptOK(CallBacker*)
+    bool		acceptOK()
 
 #define mImplFileNameFld(nm) \
     BufferString deffnm( nm ); \

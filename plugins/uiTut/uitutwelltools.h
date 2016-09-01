@@ -36,7 +36,7 @@ protected:
 
     void		inpchg(CallBacker*);
     void		wellToBeDeleted(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

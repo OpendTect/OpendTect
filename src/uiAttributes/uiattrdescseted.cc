@@ -607,7 +607,7 @@ void uiAttribDescSetEd::handleSensitivity()
 }
 
 
-bool uiAttribDescSetEd::acceptOK( CallBacker* )
+bool uiAttribDescSetEd::acceptOK()
 {
     if ( !curDesc() )
 	return true;
@@ -629,7 +629,7 @@ bool uiAttribDescSetEd::acceptOK( CallBacker* )
 }
 
 
-bool uiAttribDescSetEd::rejectOK( CallBacker* )
+bool uiAttribDescSetEd::rejectOK()
 {
     setid_ = cancelsetid_;
     return true;
@@ -1350,7 +1350,7 @@ const char* fileName() const
 { return dotfld_->fileName(); }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     const BufferString fnm = fileName();
     if ( File::exists(fnm) && File::isExecutable(fnm) )

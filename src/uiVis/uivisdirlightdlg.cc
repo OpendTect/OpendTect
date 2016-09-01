@@ -579,7 +579,7 @@ bool uiDirLightDlg::isInSync()
 }
 
 
-bool uiDirLightDlg::acceptOK( CallBacker* )
+bool uiDirLightDlg::acceptOK()
 {
     if ( initinfo_.size() > 0 )
     {
@@ -615,7 +615,7 @@ bool uiDirLightDlg::acceptOK( CallBacker* )
 }
 
 
-bool uiDirLightDlg::rejectOK( CallBacker* )
+bool uiDirLightDlg::rejectOK()
 {
     resetWidgets();
 

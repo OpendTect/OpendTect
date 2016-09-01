@@ -203,7 +203,7 @@ void uiSEGYDefDlg::geomChg( CallBacker* )
 }
 
 
-bool uiSEGYDefDlg::acceptOK( CallBacker* )
+bool uiSEGYDefDlg::acceptOK()
 {
     if ( savenrtrcsbox_->isChecked() )
     {
@@ -393,7 +393,7 @@ void uiEditSEGYFileDataDlg::dirSelCB( CallBacker* )
 
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
-bool uiEditSEGYFileDataDlg::acceptOK( CallBacker* )
+bool uiEditSEGYFileDataDlg::acceptOK()
 {
     if ( !isusable_ )
 	return true;

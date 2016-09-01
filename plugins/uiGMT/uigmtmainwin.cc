@@ -384,7 +384,7 @@ void uiGMTMainWin::resetCB( CallBacker* )
 void uiGMTMainWin::createPush( CallBacker* )
 {
     viewbut_->setSensitive( false );
-    if ( !acceptOK(0) )
+    if ( !acceptOK() )
 	return;
 
     tim_ = new Timer( "Status" );
@@ -524,7 +524,7 @@ bool uiGMTMainWin::usePar( const IOPar& par )
 }
 
 
-bool uiGMTMainWin::acceptOK( CallBacker*)
+bool uiGMTMainWin::acceptOK()
 {
     return fillPar() && batchfld_->start();
 }

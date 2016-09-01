@@ -76,7 +76,7 @@ uiImpPVDS::~uiImpPVDS()
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiImpPVDS::acceptOK( CallBacker* )
+bool uiImpPVDS::acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() || File::isEmpty(fnm) )

@@ -273,7 +273,7 @@ bool uiLaySeqAttribEd::getFromScreen()
 }
 
 
-bool uiLaySeqAttribEd::acceptOK( CallBacker* )
+bool uiLaySeqAttribEd::acceptOK()
 {
     const BufferString oldnm( attr_.name() );
     const BufferString newnm( namefld_->text() );

@@ -322,7 +322,7 @@ void uiPrintSceneDlg::sceneSel( CallBacker* )
 }
 
 
-bool uiPrintSceneDlg::acceptOK( CallBacker* )
+bool uiPrintSceneDlg::acceptOK()
 {
     const od_int64 size = mNINT64(sizepix_.width()*sizepix_.height())*4 ;
     if( size>m32BitSizeLimit )

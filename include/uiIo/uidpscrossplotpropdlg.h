@@ -42,7 +42,7 @@ protected:
     uiDPSCPBackdropTab*			bdroptab_;    
 
     void				doApply(CallBacker*);
-    bool				acceptOK(CallBacker*);
+    bool				acceptOK();
 
 };
 

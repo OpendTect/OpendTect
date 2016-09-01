@@ -45,7 +45,7 @@ protected:
     void			statsPushCB(CallBacker*);
     void			startvalCB(CallBacker*);
     void			gradientCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 
     RegionFiller*		regionfiller_;
     uiBodyRegionGrp*		regiongrp_;

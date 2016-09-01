@@ -53,7 +53,7 @@ protected:
 
     void		setupSelCB(CallBacker*);
     void		editPushCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 } // namespace VolProc

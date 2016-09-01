@@ -44,7 +44,7 @@ void uiMultiSurfaceReadDlg::statusMsg( CallBacker* cb )
 }
 
 
-bool uiMultiSurfaceReadDlg::acceptOK( CallBacker* )
+bool uiMultiSurfaceReadDlg::acceptOK()
 {
     return surfacefld_->objselGrp()->nrChosen() > 0;
 }

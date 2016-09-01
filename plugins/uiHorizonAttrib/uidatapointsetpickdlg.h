@@ -48,7 +48,7 @@ protected:
     void		saveasCB(CallBacker*);
     void		doSave(bool saveas);
     void		setChgCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		winCloseCB(CallBacker*);
     void		objSelCB(CallBacker*);
 

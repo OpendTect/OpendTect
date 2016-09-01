@@ -37,7 +37,7 @@ protected:
 
     void		fillTable();
     void		advbutCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     void		changedCB(CallBacker*);
     void		addHostCB(CallBacker*);

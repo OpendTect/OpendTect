@@ -109,10 +109,10 @@ uiStepDialog* uiHorInterFiller::createInstance( uiParent* parent, Step* ps,
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiHorInterFiller::acceptOK( CallBacker* cb )
+bool uiHorInterFiller::acceptOK()
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    if ( !uiStepDialog::acceptOK( cb ) )
+    if ( !uiStepDialog::acceptOK() )
 	return false;
 
     if ( mIsUdf( topvalfld_->getFValue() ) )

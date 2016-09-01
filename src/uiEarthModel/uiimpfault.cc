@@ -353,7 +353,7 @@ uiImportFault3D::uiImportFault3D( uiParent* p, const char* type )
 }
 
 
-bool uiImportFault3D::acceptOK( CallBacker* )
+bool uiImportFault3D::acceptOK()
 {
     if ( !checkInpFlds() ) return false;
 
@@ -380,7 +380,7 @@ bool uiImportFaultStickSet2D::getFromAscIO( od_istream& strm, EM::Fault& flt )
 }
 
 
-bool uiImportFaultStickSet2D::acceptOK( CallBacker* )
+bool uiImportFaultStickSet2D::acceptOK()
 {
     if ( !checkInpFlds() ) return false;
     return handleAscii();

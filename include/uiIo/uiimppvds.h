@@ -40,7 +40,7 @@ protected:
     uiGenInput*		row1isdatafld_;
     uiIOObjSel*		outfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     bool		getData(od_istream&,Table::FormatDesc&,DataPointSet&);
     bool		writeData(const DataPointSet&,const IOObj&);

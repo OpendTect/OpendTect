@@ -179,7 +179,7 @@ void uiColTabMarkerDlg::rebuildColTab()
 }
 
 
-bool uiColTabMarkerDlg::acceptOK( CallBacker* )
+bool uiColTabMarkerDlg::acceptOK()
 {
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {

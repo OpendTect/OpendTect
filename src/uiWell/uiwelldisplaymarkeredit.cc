@@ -53,7 +53,7 @@ uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
 }
 
 
-bool uiAddEditMrkrDlg::acceptOK( CallBacker* )
+bool uiAddEditMrkrDlg::acceptOK()
 {
     BufferString nm = namefld_->text();
     if ( nm.isEmpty() )
@@ -189,7 +189,7 @@ void uiDispEditMarkerDlg::removeMarker( int idset, const char* nm )
 }
 
 
-bool uiDispEditMarkerDlg::acceptOK( CallBacker* )
+bool uiDispEditMarkerDlg::acceptOK()
 {
     needsave_ = hasedited_;
     hasedited_ = false;
@@ -197,7 +197,7 @@ bool uiDispEditMarkerDlg::acceptOK( CallBacker* )
 }
 
 
-bool uiDispEditMarkerDlg::rejectOK( CallBacker* )
+bool uiDispEditMarkerDlg::rejectOK()
 {
     needsave_ = false;
     hasedited_ = false;
@@ -497,7 +497,7 @@ void uiWellDispCtrlEditMarkerDlg::handleUsrClickCB( CallBacker* )
 }
 
 
-bool uiWellDispCtrlEditMarkerDlg::acceptOK( CallBacker* )
+bool uiWellDispCtrlEditMarkerDlg::acceptOK()
 {
     needsave_ = hasedited_;
     if ( hasedited_ )
@@ -510,7 +510,7 @@ bool uiWellDispCtrlEditMarkerDlg::acceptOK( CallBacker* )
 }
 
 
-bool uiWellDispCtrlEditMarkerDlg::rejectOK( CallBacker* )
+bool uiWellDispCtrlEditMarkerDlg::rejectOK()
 {
     needsave_ = false;
     if ( hasedited_ )

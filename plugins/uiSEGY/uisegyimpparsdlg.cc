@@ -148,7 +148,7 @@ void uiSEGYImpParsDlg::updateButtons()
 }
 
 
-bool uiSEGYImpParsDlg::acceptOK( CallBacker* )
+bool uiSEGYImpParsDlg::acceptOK()
 {
     if ( !doIO() )
 	return false;

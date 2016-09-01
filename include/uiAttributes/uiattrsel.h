@@ -153,7 +153,7 @@ protected:
     void		filtChg(CallBacker*);
     void		cubeSel(CallBacker*);
     void                objInserted(CallBacker*);
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
 };
 
 

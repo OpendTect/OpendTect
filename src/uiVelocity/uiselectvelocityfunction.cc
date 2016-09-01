@@ -218,7 +218,7 @@ void uiAddFunction::typeSelChangeCB(CallBacker*)
 }
 
 
-bool uiAddFunction::acceptOK(CallBacker*)
+bool uiAddFunction::acceptOK()
 {
     const int sel = typesel_->getIntValue();
     return settingldgs_[sel]->acceptOK();
@@ -234,7 +234,7 @@ uiEditFunction::uiEditFunction( uiParent* p, FunctionSource* vfs )
 }
 
 
-bool uiEditFunction::acceptOK(CallBacker*)
+bool uiEditFunction::acceptOK()
 {
     return dlggrp_ ? dlggrp_->acceptOK() : true;
 }

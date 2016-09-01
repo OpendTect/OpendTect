@@ -40,7 +40,7 @@ protected:
     void			copyToClipBoardCB(CallBacker*);
     void			proxySetCB(CallBacker*);
     
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     void			setButSensitive(bool);
     void			getReport(BufferString&) const;
 

@@ -439,7 +439,7 @@ bool uiImportHorizon2D::doImport()
 }
 
 
-bool uiImportHorizon2D::acceptOK( CallBacker* )
+bool uiImportHorizon2D::acceptOK()
 {
     if ( !checkInpFlds() ) return false;
 

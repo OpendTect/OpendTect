@@ -149,7 +149,7 @@ void uiStratEditLayer::valChg( CallBacker* )
 }
 
 
-bool uiStratEditLayer::acceptOK( CallBacker* )
+bool uiStratEditLayer::acceptOK()
 {
     if ( !editable_ )
 	return true;

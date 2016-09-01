@@ -62,7 +62,7 @@ void uiGraphicsSaveImageDlg::setAspectRatio( CallBacker* )
 { aspectratio_ = (float) ( scene_->width() / scene_->height() ); }
 
 
-bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
+bool uiGraphicsSaveImageDlg::acceptOK()
 {
     if ( cliboardselfld_->isChecked() )
     {

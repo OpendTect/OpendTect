@@ -115,9 +115,9 @@ uiStepDialog* uiLateralSmoother::createInstance( uiParent* parent, Step* ps,
 }
 
 
-bool uiLateralSmoother::acceptOK( CallBacker* cb )
+bool uiLateralSmoother::acceptOK()
 {
-    if ( !uiStepDialog::acceptOK( cb ) )
+    if ( !uiStepDialog::acceptOK() )
 	return false;
 
     Array2DFilterPars pars;

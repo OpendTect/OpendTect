@@ -69,7 +69,7 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
 }
 
 
-bool uiFlatViewZoomLevelDlg::acceptOK( CallBacker* )
+bool uiFlatViewZoomLevelDlg::acceptOK()
 {
     x1pospercm_ = x1fld_->getFValue();
     x2pospercm_ = x2fld_ ? x2fld_->getFValue() : x1pospercm_;

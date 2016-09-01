@@ -914,19 +914,19 @@ void uiFlatViewPropDlg::putAllToScreen()
 
 void uiFlatViewPropDlg::doApply( CallBacker* cb )
 {
-    acceptOK( cb );
+    acceptOK();
     applycb_.doCall( this );
 }
 
 
-bool uiFlatViewPropDlg::rejectOK( CallBacker* cb )
+bool uiFlatViewPropDlg::rejectOK()
 {
     putAllToScreen();
     return true;
 }
 
 
-bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
+bool uiFlatViewPropDlg::acceptOK()
 {
     mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);
     if ( !uivwr ) return false;
@@ -940,7 +940,7 @@ bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
 	return false;
     }
 
-    if ( !uiTabStackDlg::acceptOK(cb) )
+    if ( !uiTabStackDlg::acceptOK() )
 	return false;
 
     vwr_.appearance().annot_.title_ = titlefld_->text();

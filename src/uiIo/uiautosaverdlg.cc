@@ -62,7 +62,7 @@ void uiAutoSaverDlg::isActiveCB( CallBacker* )
 }
 
 
-bool uiAutoSaverDlg::acceptOK( CallBacker* )
+bool uiAutoSaverDlg::acceptOK()
 {
     OD::AutoSaver& autosaver = OD::AUTOSAVE();
 

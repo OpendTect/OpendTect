@@ -101,7 +101,7 @@ void uiTutSeisTools::choiceSel( CallBacker* )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiTutSeisTools::acceptOK( CallBacker* )
+bool uiTutSeisTools::acceptOK()
 {
     const uiString outputtype = uiStrings::phrOutput(uiStrings::sVolume());
     // Get cubes and check

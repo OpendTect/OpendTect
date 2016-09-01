@@ -731,7 +731,7 @@ uiSEGYHdrEntrySettings( uiParent* p )
     offsrgfld_->attach( alignedBelow, yrgfld_ );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     SEGY::HdrEntryConstraints& hec = SEGY::HdrEntryConstraints::get4Edit();
     hec.inlrg_ = inlrgfld_->getIInterval();
@@ -1054,7 +1054,7 @@ bool uiSEGYReadStarter::commit( bool permissive )
 }
 
 
-bool uiSEGYReadStarter::acceptOK( CallBacker* )
+bool uiSEGYReadStarter::acceptOK()
 {
     if ( !commit(false) )
 	return false;

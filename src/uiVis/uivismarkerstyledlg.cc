@@ -34,7 +34,7 @@ uiVisMarkerStyleDlg::uiVisMarkerStyleDlg( uiParent* p, const uiString& title )
 }
 
 
-bool uiVisMarkerStyleDlg::acceptOK( CallBacker* )
+bool uiVisMarkerStyleDlg::acceptOK()
 {
     /* Bert: Can someone at least TELL me why this is necessary??
     OD::MarkerStyle3D style;

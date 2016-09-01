@@ -33,7 +33,7 @@ void uiBatchProcDlg::getJobName( BufferString& jobnm ) const
 }
 
 
-bool uiBatchProcDlg::acceptOK( CallBacker* )
+bool uiBatchProcDlg::acceptOK()
 {
     if ( !prepareProcessing() )
 	return false;

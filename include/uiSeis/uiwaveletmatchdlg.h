@@ -32,7 +32,7 @@ protected:
 
     void		inpSelCB(CallBacker*);
     void		filterSzCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     bool		calcFilter();
 
     uiFunctionDisplay*	wvlt0disp_;

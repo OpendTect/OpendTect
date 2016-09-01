@@ -247,7 +247,7 @@ const char* uiHorizonShiftDialog::getAttribBaseName() const
 }
 
 
-bool uiHorizonShiftDialog::acceptOK( CallBacker* )
+bool uiHorizonShiftDialog::acceptOK()
 {
     if ( storefld_ && storefld_->isChecked() )
     {

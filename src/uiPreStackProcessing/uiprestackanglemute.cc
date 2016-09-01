@@ -193,7 +193,7 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
 }
 
 
-bool uiAngleCompAdvParsDlg::acceptOK( CallBacker* )
+bool uiAngleCompAdvParsDlg::acceptOK()
 {
     raytracerfld_->fillPar( params_.raypar_ );
     if ( isformute_ )
@@ -353,7 +353,7 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
 }
 
 
-bool uiAngleMute::acceptOK(CallBacker*)
+bool uiAngleMute::acceptOK()
 {
     if ( !anglecompgrp_->acceptOK() )
 	return false;

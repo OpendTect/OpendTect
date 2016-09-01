@@ -164,7 +164,7 @@ protected:
     void			fillHorPar(IOPar&);
 
     bool			checkInput(IOPar&) const;
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 };
 
 

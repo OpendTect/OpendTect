@@ -324,7 +324,7 @@ void uiSeisMultiCubePS::fullUpdate()
 
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
-bool uiSeisMultiCubePS::acceptOK( CallBacker* )
+bool uiSeisMultiCubePS::acceptOK()
 {
     if ( entries_.isEmpty() )
 	return true;

@@ -75,7 +75,7 @@ void uiSeisDump2DGeom::seisSel( CallBacker* )
 }
 
 
-bool uiSeisDump2DGeom::acceptOK( CallBacker* )
+bool uiSeisDump2DGeom::acceptOK()
 {
     const IOObj* lsioobj = seisfld_->ioobj();
     if ( !lsioobj )

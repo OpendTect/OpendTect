@@ -41,7 +41,7 @@ protected:
 
     CtxtIOObj&		ctio_;
 
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
     bool		writeAscii();
 };
 

@@ -39,7 +39,7 @@ protected:
 
     bool		getLL2C();
     void		transfFile(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

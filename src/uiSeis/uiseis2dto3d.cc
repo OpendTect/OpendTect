@@ -126,7 +126,7 @@ bool uiSeis2DTo3D::fillPar()
     return true;
 }
 
-bool uiSeis2DTo3D::acceptOK( CallBacker* )
+bool uiSeis2DTo3D::acceptOK()
 {
     if ( taperfld_->getFValue() < 0 || taperfld_->getFValue() > 90 )
     {

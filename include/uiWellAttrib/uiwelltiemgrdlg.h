@@ -77,7 +77,7 @@ protected:
 					 const WellTie::Setup&) const;
 
     void		onFinalise(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		typeSelChg(CallBacker*);
     void		seisSelChg(CallBacker*);
     void		seis2DCheckChg(CallBacker*);

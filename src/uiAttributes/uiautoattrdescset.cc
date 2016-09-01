@@ -103,7 +103,7 @@ void uiAutoAttrSelDlg::useChg( CallBacker* )
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
+bool uiAutoAttrSelDlg::acceptOK()
 {
     if ( !usefld_->getBoolValue() )
 	return true;
@@ -202,7 +202,7 @@ void uiAutoAttrSetOpen::setChg( CallBacker* )
     autoloadfld_->setSensitive( usrdef_ );
 }
 
-bool uiAutoAttrSetOpen::acceptOK( CallBacker* )
+bool uiAutoAttrSetOpen::acceptOK()
 {
     usrdef_ = defselfld_->getBoolValue();
     if ( usrdef_ && selgrp_->nrChosen() < 1 )

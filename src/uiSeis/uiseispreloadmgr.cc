@@ -305,7 +305,7 @@ void dsSel( CallBacker* )
     lnmsfld_->chooseAll();
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     if ( !ioObj() )
     {
@@ -723,7 +723,7 @@ void uiSeisPreLoadSel::updateEstUsage()
 }
 
 
-bool uiSeisPreLoadSel::acceptOK( CallBacker* )
+bool uiSeisPreLoadSel::acceptOK()
 {
     mDynamicCastGet(LinScaler*,linscaler,scaler_)
     linscaler->constant = 0; linscaler->factor = 1;

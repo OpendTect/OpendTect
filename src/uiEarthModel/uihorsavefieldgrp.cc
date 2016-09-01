@@ -165,7 +165,7 @@ bool uiHorSaveFieldGrp::saveHorizon()
 }
 
 
-bool uiHorSaveFieldGrp::acceptOK( CallBacker* )
+bool uiHorSaveFieldGrp::acceptOK()
 {
     if ( savefld_->getBoolValue() )
     {

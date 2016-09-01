@@ -225,7 +225,7 @@ void uiSettings::dispNewGrp( CallBacker* )
 }
 
 
-bool uiSettings::acceptOK( CallBacker* )
+bool uiSettings::acceptOK()
 {
     getChanges();
     if ( chgdsetts_.isEmpty() )
@@ -500,9 +500,9 @@ uiSettingsDlg::~uiSettingsDlg()
 }
 
 
-bool uiSettingsDlg::acceptOK( CallBacker* cb )
+bool uiSettingsDlg::acceptOK()
 {
-    if ( !uiTabStackDlg::acceptOK(cb) )
+    if ( !uiTabStackDlg::acceptOK() )
 	return false;
 
     changed_ = false;

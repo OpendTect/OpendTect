@@ -68,8 +68,8 @@ protected:
     void		fillSetFields(CallBacker* cb=0);
     bool		updNow(CallBacker*);
     void		readNew(CallBacker*);
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK();
+    bool		acceptOK();
     void		exportCB(CallBacker*);
     void		updateXpos(CallBacker*);
     void		updateYpos(CallBacker*);
@@ -120,8 +120,8 @@ protected:
     bool		updateDtpointTime(int row);
     bool		updateDtpoint(int row,float oldval);
     void		readNew(CallBacker*);
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK();
+    bool		acceptOK();
     void		expData(CallBacker*);
     void		getModel(Well::D2TModel&);
     void		correctD2TModelIfInvalid();
@@ -161,7 +161,7 @@ protected:
     BufferString	wellname_;
     BufferStringSet*	nms_;
 
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
     const BufferStringSet& mkWellNms();
 };
 
@@ -181,7 +181,7 @@ protected:
     ObjectSet<uiUnitSel>	unflds_;
     uiTable*			uominfotbl_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 protected:
     void		fillTable(ObjectSet<Well::LogSet> wls,

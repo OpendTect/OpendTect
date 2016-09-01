@@ -163,7 +163,7 @@ bool copySurv()
     return true;
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     if ( !inpsurveyfld_->getFullSurveyPath( inpdirnm_ ) ||
 	 !newsurveyfld_->getFullSurveyPath( newdirnm_) )
@@ -192,7 +192,7 @@ public:
 					      SurveyInfo&);
 
     bool		isOK();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     ObjectSet<uiSurvInfoProvider> sips_;
     int			sipidx_;
@@ -308,7 +308,7 @@ bool uiStartNewSurveySetup::isOK()
 }
 
 
-bool uiStartNewSurveySetup::acceptOK( CallBacker* cb )
+bool uiStartNewSurveySetup::acceptOK()
 {
     if ( !isOK() )
 	return false;
@@ -620,7 +620,7 @@ extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 #define mRetExitWin { SetCurBaseDataDirOverrule( "" ); return true; }
 
 
-bool uiSurvey::acceptOK( CallBacker* )
+bool uiSurvey::acceptOK()
 {
     if ( !dirfld_ )
 	mRetExitWin
@@ -705,7 +705,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 }
 
 
-bool uiSurvey::rejectOK( CallBacker* )
+bool uiSurvey::rejectOK()
 {
     if ( cursurvremoved_ && !hasSurveys() )
     {

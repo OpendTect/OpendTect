@@ -66,7 +66,7 @@ MultiID uiHorizonMergeDlg::getNewHorMid() const
 }
 
 
-bool uiHorizonMergeDlg::acceptOK( CallBacker* )
+bool uiHorizonMergeDlg::acceptOK()
 {
     uiTaskRunner uitr( this );
 

@@ -73,7 +73,7 @@ protected:
     void		crNewChg(CallBacker*);
     void		geomSel(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

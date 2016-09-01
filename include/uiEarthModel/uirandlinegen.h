@@ -53,7 +53,7 @@ protected:
     void		largestOnlyChg(CallBacker*);
     void		isrelChg(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 public:
     static uiString	sSpecGenPar();
@@ -79,7 +79,7 @@ protected:
     uiGenInput*		sidefld_;
     uiCheckBox*		dispfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 
@@ -101,7 +101,7 @@ protected:
     uiSelZRange*	zrgfld_;
     uiCheckBox*		dispfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

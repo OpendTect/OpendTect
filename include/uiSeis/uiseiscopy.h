@@ -42,7 +42,7 @@ protected:
 
     void		inpSel(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 
@@ -64,7 +64,7 @@ protected:
     uiBatchJobDispatcherSel* batchfld_;
 
     void		inpSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

@@ -129,7 +129,7 @@ void uiSetPickDirs::dirinpSel( CallBacker* )
     dcds += new DataColDef( coldefnm##fld ); \
 }
 
-bool uiSetPickDirs::acceptOK( CallBacker* )
+bool uiSetPickDirs::acceptOK()
 {
     if ( usesteering_ && !*steerfld_->getInput() )
 	mErrRet( uiStrings::phrSelect(toUiString("SteeringCube")) )

@@ -471,7 +471,7 @@ void uiWell2RandomLineDlg::previewPush( CallBacker* cb )
 }
 
 
-bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
+bool uiWell2RandomLineDlg::acceptOK()
 {
     if ( !outfld_->commitInput() || !outctio_.ioobj_ )
     {

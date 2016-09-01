@@ -440,7 +440,7 @@ void hostChgCB( CallBacker* )
     windowspriofld_->display( iswin );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     if ( remhostfld_ && remhostfld_->isChecked() )
     {

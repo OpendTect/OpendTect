@@ -139,7 +139,7 @@ void uiSeisImportCBVS::inpSel( CallBacker* )
 
 #define rmTmpIOObj() IOM().permRemove( MultiID(tmpid_.buf()) );
 
-bool uiSeisImportCBVS::acceptOK( CallBacker* )
+bool uiSeisImportCBVS::acceptOK()
 {
     const IOObj* selioobj = outfld_->ioobj();
     if ( !selioobj )

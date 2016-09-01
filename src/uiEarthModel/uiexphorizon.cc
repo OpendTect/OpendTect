@@ -429,7 +429,7 @@ bool uiExportHorizon::writeAscii()
 }
 
 
-bool uiExportHorizon::acceptOK( CallBacker* )
+bool uiExportHorizon::acceptOK()
 {
     if ( zfld_->getIntValue()==2 )
     {

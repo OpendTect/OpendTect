@@ -41,7 +41,7 @@ protected:
     BufferString	fulluserexpression_;
     BufferString	othersurveyrootdir_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 #endif

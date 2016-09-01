@@ -61,13 +61,13 @@ protected:
     bool			prepareSyntheticToBeChanged(bool toberemoved);
     void			typeChg(CallBacker*);
     bool			genNewCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     void			removeSyntheticsCB(CallBacker*);
     void			changeSyntheticsCB(CallBacker*);
     void			parsChanged(CallBacker*);
     void			angleInpChanged(CallBacker*);
     void			nameChanged(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			rejectOK();
     void			finaliseDone(CallBacker*);
 };
 

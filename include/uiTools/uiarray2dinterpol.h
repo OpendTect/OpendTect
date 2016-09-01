@@ -97,7 +97,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiGenInput*		cornersfirstfld_;
     uiGenInput*		stepsizefld_;

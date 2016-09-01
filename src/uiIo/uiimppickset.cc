@@ -239,7 +239,7 @@ bool uiImpExpPickSet::doExport()
 }
 
 
-bool uiImpExpPickSet::acceptOK( CallBacker* )
+bool uiImpExpPickSet::acceptOK()
 {
     uiMsgMainWinSetter mws( this );
 

@@ -81,9 +81,9 @@ void uiVelocityGridder::sourceChangeCB( CallBacker* )
 }
 
 
-bool uiVelocityGridder::acceptOK( CallBacker* cb )
+bool uiVelocityGridder::acceptOK()
 {
-    if ( !uiStepDialog::acceptOK( cb ) )
+    if ( !uiStepDialog::acceptOK() )
 	return false;
 
     if ( !operation_ ) return true;

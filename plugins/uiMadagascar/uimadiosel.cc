@@ -325,7 +325,7 @@ bool uiMadIOSelDlg::getInp()
 }
 
 
-bool uiMadIOSelDlg::acceptOK( CallBacker* )
+bool uiMadIOSelDlg::acceptOK()
 {
     if ( !getInp() )
 	return false;

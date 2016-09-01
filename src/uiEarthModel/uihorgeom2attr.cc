@@ -72,9 +72,9 @@ BufferStringSet& uiHorGeom2Attr::getItems( const EM::Horizon3D& hor )
 #define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
 
 
-bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
+bool uiHorGeom2Attr::acceptOK()
 {
-    if ( !uiGetObjectName::acceptOK(cb) )
+    if ( !uiGetObjectName::acceptOK() )
 	return false;
 
     int auxidx = hor_.auxdata.auxDataIndex( text() );
@@ -263,12 +263,12 @@ void fillHorizonArray()
 };
 
 
-bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
+bool uiHorAttr2Geom::acceptOK()
 {
     mGetZFac( 0.001f );
     const bool isdelta = isdeltafld_->getBoolValue();
 
-    if ( !savefldgrp_->acceptOK(0) )
+    if ( !savefldgrp_->acceptOK() )
 	return false;
 
     EM::Horizon3D* usedhor = &hor_;

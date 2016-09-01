@@ -49,7 +49,7 @@ protected:
 
     IOObj*		getInpIOObj(const char*) const;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

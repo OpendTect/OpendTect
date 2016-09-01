@@ -71,7 +71,7 @@ uiSeisWvltImp::~uiSeisWvltImp()
 
 
 
-bool uiSeisWvltImp::acceptOK( CallBacker* )
+bool uiSeisWvltImp::acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
@@ -156,7 +156,7 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 }
 
 
-bool uiSeisWvltExp::acceptOK( CallBacker* )
+bool uiSeisWvltExp::acceptOK()
 {
     ConstRefMan<Wavelet> wvlt = wvltfld_->getWavelet();
     if ( !wvlt )

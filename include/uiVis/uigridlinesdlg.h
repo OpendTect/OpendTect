@@ -29,7 +29,7 @@ protected:
 
     void		setParameters();
     void 		showGridLineCB(CallBacker*);
-    bool                acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiCheckBox*		inlfld_;
     uiCheckBox*		crlfld_;

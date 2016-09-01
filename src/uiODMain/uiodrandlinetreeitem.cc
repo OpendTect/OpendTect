@@ -84,7 +84,7 @@ void colorChangeCB( CallBacker* )
 { rtd_->setColor( colsel_->color() ); }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     if ( !rtd_->createFromPolyLine() )
     {
@@ -97,7 +97,7 @@ bool acceptOK( CallBacker* )
 }
 
 
-bool rejectOK( CallBacker* )
+bool rejectOK()
 {
     rtd_->setPolyLineMode( false );
     return true;

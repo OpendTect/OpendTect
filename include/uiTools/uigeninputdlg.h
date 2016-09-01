@@ -57,7 +57,7 @@ public:
     int			nrFlds() const		{ return flds.size(); }
     uiGenInput*		getFld( int idx=0 )	{ return flds[idx]; }
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     NotifierAccess*	enterClose();
     			/*!<\returns notifier when a simple text field is
 			             displayed. An eventual notifier will
@@ -104,7 +104,7 @@ public:
 
 protected:
     void		setEnterClose(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     uiGenInputGrp*	group;
 
 public:

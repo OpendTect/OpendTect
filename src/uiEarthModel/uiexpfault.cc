@@ -233,7 +233,7 @@ bool uiExportFault::writeAscii()
 }
 
 
-bool uiExportFault::acceptOK( CallBacker* )
+bool uiExportFault::acceptOK()
 {
     if ( !infld_->commitInput() )
 	mErrRet( uiStrings::phrSelect(tr("the input fault")) );

@@ -44,7 +44,7 @@ protected :
     uiColorInput*		colorfld_;
     uiCheckBox*			stratmrkfld_;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 };
 
 
@@ -94,13 +94,13 @@ protected:
     virtual Well::Marker*	getMarkerFromTmpList(const char* nm); 
 
 
-    virtual bool		acceptOK(CallBacker*);
+    virtual bool		acceptOK();
     void			buttonPushedCB(CallBacker*);
     virtual void		fillMarkerList(CallBacker*);
     virtual void		handleUsrClickCB(CallBacker*) =0;
     virtual void		modeChg(CallBacker*);
     virtual void		listRClickCB(CallBacker*);
-    virtual bool		rejectOK(CallBacker*);
+    virtual bool		rejectOK();
 };
 
 
@@ -126,10 +126,10 @@ protected:
     bool			removeMrkrFromList();
 
     void			triggerWDsMarkerChanged();
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     void			handleUsrClickCB(CallBacker*);
     void			handleCtrlChangeCB(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			rejectOK();
 };
 
 

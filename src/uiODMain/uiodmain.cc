@@ -478,7 +478,7 @@ void useChg( CallBacker* )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     const bool douse = usefld_->getBoolValue();
     const bool dosel = douse ? doselfld_->getBoolValue() : false;

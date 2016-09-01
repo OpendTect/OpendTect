@@ -40,7 +40,7 @@ protected:
     void			createCommonUIFlds();
     bool			checkWaveletSize();
     bool			check2DFlds();
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     void			choiceSelCB(CallBacker*);
     void			inputSelCB(CallBacker*);
     void			lineSelCB(CallBacker*);

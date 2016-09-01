@@ -30,7 +30,7 @@ public:
 protected:
 
     void		createAndDisplay2DViewer();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiFileInput*	maddatafld_;
     uiGenInput*		dowigglesfld_;

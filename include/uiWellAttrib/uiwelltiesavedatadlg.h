@@ -47,7 +47,7 @@ protected :
     uiWaveletIOObjSel*		estimatedwvltsel_;
     Server&			dataserver_;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     bool			saveLogs();
     bool			saveWvlt(bool isestimated=true);
     void			changeLogUIOutput(CallBacker*);

@@ -161,7 +161,7 @@ void uiProxyDlg::useProxyCB( CallBacker* )
 }
 
 
-bool uiProxyDlg::acceptOK( CallBacker* )
+bool uiProxyDlg::acceptOK()
 {
     IOPar pars;
     if ( !fillPar(pars,false) )

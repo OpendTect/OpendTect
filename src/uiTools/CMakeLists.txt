@@ -93,7 +93,6 @@ set( OD_MODULE_SOURCES
 	uiwindowfunctionsel.cc
 	uiwindowfuncseldlg.cc
 	uiwindowgrabber.cc
-	uiwizard.cc
 	uiworld2ui.cc
 	uizaxistransform.cc
 	uizrangeinput.cc

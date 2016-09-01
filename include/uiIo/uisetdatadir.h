@@ -29,7 +29,7 @@ protected:
     const BufferString	curdatadir_;
     uiFileInput*	basedirfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     static void		offerUnzipSurv(uiParent*,const char*);
 

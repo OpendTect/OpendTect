@@ -101,8 +101,8 @@ protected:
     void			handleSpikeSelCB(CallBacker*);
     void			overWriteCB(CallBacker*);
     void			applyPushedCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK();
+    bool			rejectOK();
 };
 
 
@@ -116,7 +116,7 @@ protected:
 
     uiMultiWellLogSel*	welllogselfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		winClosed(CallBacker*);
 };
 
@@ -135,7 +135,7 @@ public:
 protected:
     void		fillTable();
     void		valChgCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     Well::Log&		log_;
     uiTable*		table_;

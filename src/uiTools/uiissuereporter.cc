@@ -160,7 +160,7 @@ void uiIssueReporterDlg::getReport( BufferString& res ) const
 }
 
 
-bool uiIssueReporterDlg::acceptOK(CallBacker *)
+bool uiIssueReporterDlg::acceptOK()
 {
     if ( !allowSending() )
     {

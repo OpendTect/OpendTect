@@ -31,7 +31,7 @@ protected:
     uiMultiWellLogSel*		welllogsel_;
     uiCreateLogCubeOutputSel*	outputgrp_;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 };
 
 

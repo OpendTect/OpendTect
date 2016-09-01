@@ -86,8 +86,8 @@ protected:
     bool		cursurvremoved_;
     bool		freshsurveyselected_;
 
-    bool		acceptOK(CallBacker*);
-    bool		rejectOK(CallBacker*);
+    bool		acceptOK();
+    bool		rejectOK();
     void		newButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);
     void		editButPushed(CallBacker*);

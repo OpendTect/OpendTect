@@ -138,7 +138,7 @@ protected:
     void			setTable();
     BufferStringSet		checkForNewColumns() const;
     void			checkForSameColNms(BufferStringSet&) const;
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     void			attribChangedCB(CallBacker*);
     void			matchPolChangedCB(CallBacker*);
 };

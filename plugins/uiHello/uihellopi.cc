@@ -81,7 +81,7 @@ uiHelloMsgBringer( uiParent* p )
     typfld->attach( alignedBelow, txtfld );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     const char* typedtxt = txtfld->text();
     if ( ! *typedtxt )

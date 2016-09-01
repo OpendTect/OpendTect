@@ -38,7 +38,7 @@ protected:
     uiLabeledSpinBox*	cellsizefld_;
     uiSeisSubSel*	subselfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		cubeSel(CallBacker*);
     void		interpSelDone(CallBacker*);
 };

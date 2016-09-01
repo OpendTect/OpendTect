@@ -373,7 +373,7 @@ uiWellRockPhysLauncher( uiParent* p )
 			uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     TypeSet<MultiID> mids;
     selgrp_->getChosen( mids );

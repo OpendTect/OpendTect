@@ -562,7 +562,7 @@ bool uiTieWinMGRDlg::initSetup()
 }
 
 
-bool uiTieWinMGRDlg::acceptOK( CallBacker* )
+bool uiTieWinMGRDlg::acceptOK()
 {
     if ( !initSetup() )
 	return false;

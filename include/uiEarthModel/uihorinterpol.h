@@ -41,7 +41,7 @@ public:
 
 protected:
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 
     bool			interpolate3D(const IOPar&);
     bool			interpolate2D();

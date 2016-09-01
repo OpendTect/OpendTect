@@ -58,7 +58,7 @@ uiAngleMuteComputer::~uiAngleMuteComputer()
 }
 
 
-bool uiAngleMuteComputer::acceptOK(CallBacker*)
+bool uiAngleMuteComputer::acceptOK()
 {
     if ( !anglecompgrp_->acceptOK() )
 	return false;

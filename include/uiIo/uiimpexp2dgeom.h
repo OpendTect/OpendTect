@@ -25,7 +25,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiIOObjSelGrp*	geomfld_;
     uiFileInput*	outfld_;

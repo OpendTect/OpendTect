@@ -115,7 +115,7 @@ bool uiTutHorTools::checkAttribName() const
 }
 
 
-bool uiTutHorTools::acceptOK( CallBacker* )
+bool uiTutHorTools::acceptOK()
 {
     if ( !inpfld_->ioobj() ) return false;
 

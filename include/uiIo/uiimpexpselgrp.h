@@ -186,7 +186,7 @@ protected:
     void		fldCheckedCB(CallBacker*);
     void		examineCB(CallBacker*);
     void		selectedCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 
@@ -217,7 +217,7 @@ protected:
     uiSGSel*				outfld_;
     const ObjectSet<SelectionGrp>&	selgrps_;
 
-    bool				acceptOK(CallBacker*);
+    bool				acceptOK();
 
 };
 

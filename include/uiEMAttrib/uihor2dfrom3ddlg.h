@@ -38,7 +38,7 @@ protected:
     void 			set2DHorizon(EM::Horizon2D&);
     bool			checkFlds();
     EM::Horizon2D* 		create2dHorizon( const char* );
-    bool			acceptOK( CallBacker* );
+    bool			acceptOK();
    
 };
 

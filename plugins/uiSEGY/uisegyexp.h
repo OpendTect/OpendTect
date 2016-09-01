@@ -52,7 +52,7 @@ protected:
 
     void		inpSel(CallBacker*);
     void		batchChg(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     friend class	uiSEGYExpMore;
     friend class	uiSEGYExpTxtHeader;

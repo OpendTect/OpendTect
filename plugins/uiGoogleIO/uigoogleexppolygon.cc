@@ -41,7 +41,7 @@ uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
 
 
 
-bool uiGoogleExportPolygon::acceptOK( CallBacker* )
+bool uiGoogleExportPolygon::acceptOK()
 {
     if ( ps_.isEmpty() )
 	{ uiMSG().error( tr("Polygon is empty") ); return false; }

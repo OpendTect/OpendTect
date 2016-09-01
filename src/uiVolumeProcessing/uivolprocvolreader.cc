@@ -62,10 +62,10 @@ uiStepDialog* uiVolumeReader::createInstance( uiParent* parent, Step* ps,
 }
 
 
-bool uiVolumeReader::acceptOK( CallBacker* cb )
+bool uiVolumeReader::acceptOK()
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    if ( !uiStepDialog::acceptOK( cb ) )
+    if ( !uiStepDialog::acceptOK() )
 	return false;
 
     const IOObj* ioobj = seissel_->ioobj();

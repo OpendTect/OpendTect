@@ -67,8 +67,7 @@ public:
 
 protected:
 
-    virtual bool		rejectOK()	{ return rejectOK(0); }
-    bool			rejectOK(CallBacker*);
+    bool			rejectOK();
     void			changedCB(CallBacker*);
 
     visSurvey::SurveyObject*	survobj_;

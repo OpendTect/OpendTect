@@ -46,7 +46,7 @@ protected:
 
     bool		is2d_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

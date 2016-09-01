@@ -332,7 +332,7 @@ void setTimer()
 }
 
 
-bool rejectOK( CallBacker* )
+bool rejectOK()
 {
     paused_ = true;
     inauto_ = false;
@@ -611,7 +611,7 @@ uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const TrcKeyZSampling& curcs,
 }
 
 
-bool uiSliceSelDlg::acceptOK( CallBacker* )
+bool uiSliceSelDlg::acceptOK()
 {
     return slicesel_->acceptOK();
 }
@@ -657,7 +657,7 @@ uiLinePosSelDlg::~uiLinePosSelDlg()
 }
 
 
-bool uiLinePosSelDlg::acceptOK( CallBacker* )
+bool uiLinePosSelDlg::acceptOK()
 {
     return linesfld_ ? selectPos2D()
 		     : selectPos3D();

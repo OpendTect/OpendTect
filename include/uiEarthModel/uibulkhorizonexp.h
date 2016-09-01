@@ -19,7 +19,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiFileInput*	outfld_;
 };

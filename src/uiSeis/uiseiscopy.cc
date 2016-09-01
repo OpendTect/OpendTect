@@ -94,7 +94,7 @@ void uiSeisCopyCube::inpSel( CallBacker* cb )
 }
 
 
-bool uiSeisCopyCube::acceptOK( CallBacker* )
+bool uiSeisCopyCube::acceptOK()
 {
     const IOObj* inioobj = inpfld_->ioobj();
     if ( !inioobj )
@@ -132,7 +132,8 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 
 uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 					  const char* fixedoutputtransl )
-    : uiDialog(p,Setup(uiStrings::phrCopy(uiStrings::sVolDataName(true,false,false)),
+    : uiDialog(p,
+	Setup(uiStrings::phrCopy(uiStrings::sVolDataName(true,false,false)),
 		       uiString::emptyString(),
 		       mODHelpKey(mSeisCopyLineSetHelpID) ))
 {
@@ -173,7 +174,7 @@ void uiSeisCopy2DDataSet::inpSel( CallBacker* )
 }
 
 
-bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
+bool uiSeisCopy2DDataSet::acceptOK()
 {
     const IOObj* inioobj = inpfld_->ioobj();
     if ( !inioobj )

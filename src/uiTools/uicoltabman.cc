@@ -380,7 +380,7 @@ bool uiColorTableMan::saveColTab( bool saveas )
 }
 
 
-bool uiColorTableMan::acceptOK( CallBacker* )
+bool uiColorTableMan::acceptOK()
 {
     ctab_.setUndefColor( undefcolfld_->color() );
     ctab_.setMarkColor( markercolfld_->color() );
@@ -403,7 +403,7 @@ bool uiColorTableMan::acceptOK( CallBacker* )
 }
 
 
-bool uiColorTableMan::rejectOK( CallBacker* )
+bool uiColorTableMan::rejectOK()
 {
     if ( orgctab_ ) ctab_ = *orgctab_;
     tableChanged.trigger();

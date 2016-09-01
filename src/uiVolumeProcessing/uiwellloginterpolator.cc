@@ -114,9 +114,9 @@ void uiWellLogInterpolator::algoChg( CallBacker* )
 }
 
 
-bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
+bool uiWellLogInterpolator::acceptOK()
 {
-    if ( !uiStepDialog::acceptOK(cb) )
+    if ( !uiStepDialog::acceptOK() )
 	return false;
 
     InterpolationLayerModel* mdl = layermodelfld_->getModel();

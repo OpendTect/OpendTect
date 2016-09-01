@@ -93,15 +93,15 @@ bool uiSEGYReadDlg::getParsFromScreen( bool permissive )
 }
 
 
-bool uiSEGYReadDlg::rejectOK( CallBacker* cb )
+bool uiSEGYReadDlg::rejectOK()
 {
     getParsFromScreen( true );
-    return uiVarWizardDlg::rejectOK( cb );
+    return uiVarWizardDlg::rejectOK();
 }
 
 
 
-bool uiSEGYReadDlg::acceptOK( CallBacker* )
+bool uiSEGYReadDlg::acceptOK()
 {
     if ( !getParsFromScreen(false) )
 	return false;

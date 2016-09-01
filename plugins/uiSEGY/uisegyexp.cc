@@ -122,7 +122,7 @@ void writePush( CallBacker* )
 	{ uiMSG().error(tr("Failed to write to this file")); return; }
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     autogen_ = autogenfld_->getBoolValue();
     if ( !autogen_ )
@@ -295,7 +295,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     BufferString fnm = fnmfld_->fileName();
     FilePath fp( fnm );
@@ -387,7 +387,7 @@ bool doExp( const FilePath& fp )
 #define mErrRet(s) \
 	{ uiMSG().error(s); return false; }
 
-bool uiSEGYExp::acceptOK( CallBacker* )
+bool uiSEGYExp::acceptOK()
 {
     const IOObj* inioobj = seissel_->ioobj(true);
     if ( !inioobj )

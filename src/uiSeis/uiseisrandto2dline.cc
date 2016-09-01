@@ -111,7 +111,7 @@ uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
 }
 
 
-bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
+bool uiSeisRandTo2DLineDlg::acceptOK()
 {
     if ( !basegrp_->checkInputs() )
 	return false;

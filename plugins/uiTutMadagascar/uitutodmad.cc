@@ -41,7 +41,7 @@ uiTutODMad::uiTutODMad( uiParent* p )
 }
 
 
-bool uiTutODMad::acceptOK( CallBacker* )
+bool uiTutODMad::acceptOK()
 {
     iop_.setEmpty();
     iop_.set( IOPar::compKey(sKey::Input(),sKey::Type()),

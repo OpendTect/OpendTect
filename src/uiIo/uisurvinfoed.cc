@@ -545,7 +545,7 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 }
 
 
-bool uiSurveyInfoEditor::rejectOK( CallBacker* )
+bool uiSurveyInfoEditor::rejectOK()
 {
     if ( isnew_ )
     {
@@ -572,7 +572,7 @@ bool uiSurveyInfoEditor::setSurvName()
 }
 
 
-bool uiSurveyInfoEditor::acceptOK( CallBacker* )
+bool uiSurveyInfoEditor::acceptOK()
 {
     if ( !doApply() )
 	return false;

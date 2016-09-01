@@ -254,7 +254,7 @@ void uiStartBatchJobDialog::setButSens()
 }
 
 
-bool uiStartBatchJobDialog::acceptOK( CallBacker* )
+bool uiStartBatchJobDialog::acceptOK()
 {
     if ( !canRun() )
     {

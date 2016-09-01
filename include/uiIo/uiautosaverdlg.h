@@ -32,7 +32,7 @@ private:
     uiGenInput*		autoaskfld_;
 
     void		isActiveCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

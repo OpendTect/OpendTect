@@ -47,7 +47,7 @@ protected:
     int				getVendorIndex(const char*) const;
     void			readVendorList();
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 
     ObjectSet<PluginProduct>	products_;
     ObjectSet<PluginVendor>	vendors_;

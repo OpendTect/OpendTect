@@ -34,7 +34,7 @@ protected:
     void			sizeChg(CallBacker*);
     void			typeSel(CallBacker*);
     void			colSel(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     void			drawStyleCB(CallBacker*);
     void			drawSel(CallBacker*);
 

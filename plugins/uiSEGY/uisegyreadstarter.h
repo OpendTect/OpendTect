@@ -152,7 +152,7 @@ protected:
     void		coordscaleChg(CallBacker*);
     void		updateAmplDisplay(CallBacker*);
     void		initClassic(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     bool		commit(bool permissive=false);
 

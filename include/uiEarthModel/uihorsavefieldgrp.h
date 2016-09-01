@@ -46,7 +46,7 @@ public:
 					    const Interval<int>& newcrlrg);
     void			setFullSurveyArray(bool yn);
     bool			needsFullSurveyArray() const;
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 
 protected:
 

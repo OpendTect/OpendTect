@@ -210,7 +210,7 @@ class uiSynthCorrAdvancedDlg : public uiDialog
 
     protected:
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 };
 
 
@@ -293,7 +293,7 @@ uiSynthCorrAdvancedDlg::uiSynthCorrAdvancedDlg( uiParent* p )
 }
 
 
-bool uiSynthCorrAdvancedDlg::acceptOK( CallBacker* )
+bool uiSynthCorrAdvancedDlg::acceptOK()
 {
     if ( mIsUdf(mutelenfld_->getFValue() ) || mutelenfld_->getFValue()<0 )
 	mErrRet( tr("The mutelength must be more than zero."), return false );

@@ -434,7 +434,7 @@ void uiEvaluateDlg::sliderMove( CallBacker* )
 }
 
 
-bool uiEvaluateDlg::acceptOK( CallBacker* )
+bool uiEvaluateDlg::acceptOK()
 {
     const int sliceidx = sliderfld->getIntValue();
     if ( sliceidx < specs_.size() )

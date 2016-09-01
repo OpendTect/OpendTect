@@ -123,7 +123,7 @@ RefMan<Pick::Set> uiNewPickSetDlg::getEmptyPickSet() const
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiNewPickSetDlg::acceptOK( CallBacker* )
+bool uiNewPickSetDlg::acceptOK()
 {
     RefMan<Pick::Set> newset = getEmptyPickSet();
     set_ = newset;

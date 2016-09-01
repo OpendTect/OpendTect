@@ -32,7 +32,7 @@ protected:
     virtual void		getJobName(BufferString& jobnm) const;
     virtual bool		fillPar(IOPar&)		=0;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     void			setProgName(const char*);
 
     uiGroup*			pargrp_;

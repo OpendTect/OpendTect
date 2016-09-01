@@ -36,7 +36,7 @@ protected:
 				uiVelocityGridder(uiParent*,VelocityGridder*,
 						  bool is2d);
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     static uiStepDialog*	createInstance(uiParent*,VolProc::Step*,bool);
 
     void			pickSelChange(CallBacker*);

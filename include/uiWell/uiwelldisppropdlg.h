@@ -55,7 +55,7 @@ protected:
     virtual void		applyAllPush(CallBacker*);
     virtual void		onClose(CallBacker*);
     virtual void		propChg(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			rejectOK();
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
     void			tabSel(CallBacker*);

@@ -204,7 +204,7 @@ void uiColTabImport::usrSel( CallBacker* )
 }
 
 
-bool uiColTabImport::acceptOK( CallBacker* )
+bool uiColTabImport::acceptOK()
 {
     bool oneadded = false;
 

@@ -203,7 +203,7 @@ void uiWellDispPropDlg::onClose( CallBacker* )
 }
 
 
-bool uiWellDispPropDlg::rejectOK( CallBacker* )
+bool uiWellDispPropDlg::rejectOK()
 {
     savedefault_ = saveButtonChecked();
     return true;

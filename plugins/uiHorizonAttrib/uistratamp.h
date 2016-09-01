@@ -36,7 +36,7 @@ protected:
     bool		checkInpFlds();
     bool		fillPar();
     void		setParFileName();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     CtxtIOObj&		horctio1_;
     CtxtIOObj&		horctio2_;

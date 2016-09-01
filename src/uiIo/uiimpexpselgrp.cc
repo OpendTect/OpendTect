@@ -504,7 +504,7 @@ uiSGSelDlg( uiParent* p, bool forread )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     bool ret = true;
     if ( forread_ )
@@ -970,7 +970,7 @@ void uiReadSelGrp::getInfo( const ObjectSet<SelectionGrp>& selgrps,
 }
 
 
-bool uiReadSelGrp::acceptOK( CallBacker* )
+bool uiReadSelGrp::acceptOK()
 {
     if ( !adjustSelectionGrps() )
 	return false;
@@ -993,7 +993,7 @@ uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
 }
 
 
-bool uiExpSelectionArea::acceptOK( CallBacker* )
+bool uiExpSelectionArea::acceptOK()
 {
     if ( !outfld_->isOK() )
     {

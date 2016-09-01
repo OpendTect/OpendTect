@@ -223,7 +223,7 @@ int nrTrcs()
 Pos::GeomID geomID() const
 { return linesfld_ ? linesfld_->getInputGeomID() : mUdfGeomID; }
 
-bool acceptOK(CallBacker*)
+bool acceptOK()
 {
     if ( nrtrcfld_->getIntValue()< 1 )
     {

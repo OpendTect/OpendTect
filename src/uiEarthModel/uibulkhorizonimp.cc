@@ -113,7 +113,7 @@ uiBulkHorizonImport::~uiBulkHorizonImport()
 
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
-bool uiBulkHorizonImport::acceptOK( CallBacker* )
+bool uiBulkHorizonImport::acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )

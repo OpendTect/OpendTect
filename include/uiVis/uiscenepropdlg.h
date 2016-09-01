@@ -41,8 +41,8 @@ protected:
     void		setOffsetCB(CallBacker*);
     void		selAnnotFontCB(CallBacker*);
     void		setAnnotScaleCB(CallBacker*);
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK();
+    bool		acceptOK();
 
     const ObjectSet<ui3DViewer>&viewers_;
     int				curvwridx_;

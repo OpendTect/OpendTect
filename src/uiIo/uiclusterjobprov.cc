@@ -226,7 +226,7 @@ void uiClusterJobProv::nrJobsCB( CallBacker* )
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-bool uiClusterJobProv::acceptOK( CallBacker* )
+bool uiClusterJobProv::acceptOK()
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     const int nrinlperjob = nrinlfld_->getIntValue();

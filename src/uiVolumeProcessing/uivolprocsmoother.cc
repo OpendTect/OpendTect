@@ -88,9 +88,9 @@ uiStepDialog* uiSmoother::createInstance( uiParent* parent, Step* ps,
 }
 
 
-bool uiSmoother::acceptOK( CallBacker* cb )
+bool uiSmoother::acceptOK()
 {
-    if ( !uiStepDialog::acceptOK( cb ) )
+    if ( !uiStepDialog::acceptOK() )
 	return false;
 
     const float zstep = SI().zStep() * SI().zDomain().userFactor();

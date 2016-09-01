@@ -28,7 +28,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiAttrSel*		rfld_;
     uiAttrSel*		gfld_;

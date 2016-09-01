@@ -110,8 +110,8 @@ protected:
     void		mouseMovedCB(CallBacker*);
     void		setInfoMsg(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
-    bool		rejectOK(CallBacker*);
+    bool		acceptOK();
+    bool		rejectOK();
     void		reSizeCB(CallBacker*);
 };
 

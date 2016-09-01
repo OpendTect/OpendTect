@@ -54,7 +54,7 @@ protected:
     void		createFields();
     void		extendLine(TypeSet<Coord>&);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		previewPush(CallBacker*);
 
 };

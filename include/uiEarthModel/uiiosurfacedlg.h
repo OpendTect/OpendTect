@@ -47,7 +47,7 @@ protected:
     uiSurfaceWrite*	iogrp_;
     const EM::Surface&	surface_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 
@@ -61,7 +61,7 @@ public:
 
 protected:
     uiSurfaceRead*	iogrp_;
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 
@@ -79,7 +79,7 @@ protected:
 
     bool		dooverwrite_;
     bool		checkIfAlreadyPresent(const char*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 
@@ -98,7 +98,7 @@ protected:
     CtxtIOObj&		ctio_;
 
     CtxtIOObj*		mkCtxtIOObj(const IOObj&);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

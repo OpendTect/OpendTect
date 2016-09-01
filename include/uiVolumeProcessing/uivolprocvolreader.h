@@ -40,7 +40,7 @@ protected:
 
     void			volSel(CallBacker*);
     void			updateFlds(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 
     VolumeReader*		volumereader_;
 

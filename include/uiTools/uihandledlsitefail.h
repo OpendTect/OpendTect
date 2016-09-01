@@ -53,8 +53,8 @@ protected:
     uiSlider*		timeoutfld_;
 
     void		proxyButCB(CallBacker*);
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK();
+    bool		acceptOK();
 
 };
 

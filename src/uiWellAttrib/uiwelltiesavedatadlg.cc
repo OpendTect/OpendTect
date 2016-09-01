@@ -224,7 +224,7 @@ bool uiSaveDataDlg::saveWvlt( bool useest )
 }
 
 
-bool uiSaveDataDlg::acceptOK( CallBacker* )
+bool uiSaveDataDlg::acceptOK()
 {
     bool success = true;
 

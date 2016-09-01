@@ -235,7 +235,7 @@ void uiTaskRunner::updateFields()
 }
 
 
-bool uiTaskRunner::acceptOK( CallBacker* )
+bool uiTaskRunner::acceptOK()
 {
     Threads::Locker lckr( uitaskrunnerthreadlock_ );
     if ( !task_ ) return false;
@@ -306,7 +306,7 @@ uiString uiTaskRunner::finalizeTask()
 }
 
 
-bool uiTaskRunner::rejectOK( CallBacker* )
+bool uiTaskRunner::rejectOK()
 {
     Threads::Locker lckr( uitaskrunnerthreadlock_ );
     if ( task_ ) task_->controlWork( Task::Stop );

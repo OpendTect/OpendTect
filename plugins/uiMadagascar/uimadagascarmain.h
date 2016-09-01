@@ -57,13 +57,13 @@ protected:
     void		openFlow(CallBacker*);
     bool		saveFlow(CallBacker*);
     void		exportFlow(CallBacker*);
-    bool		rejectOK(CallBacker*);
+    bool		rejectOK();
 
     bool		fillPar();
     void		createToolBar();
     void		updateCaption();
     uiGroup*		crProcGroup(uiGroup*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 

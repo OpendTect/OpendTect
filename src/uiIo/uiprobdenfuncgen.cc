@@ -70,7 +70,7 @@ public:
     bool		getFromScreen();
     ProbDenFunc*	getPDF() const;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		chgCB(CallBacker*);
     void		rgChg(CallBacker*);
 };
@@ -89,7 +89,7 @@ public:
     uiEditGaussianProbDenFunc* pdffld_;
     uiIOObjSel*		outfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 
@@ -127,7 +127,7 @@ void uiProbDenFuncGen::choiceSel( CallBacker* )
 }
 
 
-bool uiProbDenFuncGen::acceptOK( CallBacker* )
+bool uiProbDenFuncGen::acceptOK()
 {
     const int choice = choicefld_->firstChecked();
     const int nrdims = nrdimfld_->getIntValue();
@@ -421,7 +421,7 @@ ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const
 }
 
 
-bool uiProbDenFuncGenSampled::acceptOK( CallBacker* )
+bool uiProbDenFuncGenSampled::acceptOK()
 {
     if ( !getFromScreen() )
 	return false;
@@ -475,7 +475,7 @@ uiProbDenFuncGenGaussian::~uiProbDenFuncGenGaussian()
 }
 
 
-bool uiProbDenFuncGenGaussian::acceptOK( CallBacker* )
+bool uiProbDenFuncGenGaussian::acceptOK()
 {
     const IOObj* pdfioobj = outfld_->ioobj();
     if ( !pdfioobj || !pdffld_->commitChanges() )

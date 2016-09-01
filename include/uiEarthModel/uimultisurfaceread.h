@@ -52,7 +52,7 @@ public:
 protected:
 
     void		statusMsg(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiMultiSurfaceRead*	surfacefld_;
 };

@@ -75,7 +75,7 @@ bool uiHor3DFrom2DDlg::doDisplay() const
 }
 
 
-bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
+bool uiHor3DFrom2DDlg::acceptOK()
 {
 #define mErrRet(s) { uiMSG().error(s); return false; }
 

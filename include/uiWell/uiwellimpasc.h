@@ -57,7 +57,7 @@ protected:
     bool		zinft_;
     const UnitOfMeasure* zun_;
 
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
     bool		checkInpFlds();
     bool		doWork();
     void		doAdvOpt(CallBacker*);

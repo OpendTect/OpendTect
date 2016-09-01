@@ -250,7 +250,7 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 }
 
 
-bool uiExport2DHorizon::acceptOK( CallBacker* )
+bool uiExport2DHorizon::acceptOK()
 {
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )

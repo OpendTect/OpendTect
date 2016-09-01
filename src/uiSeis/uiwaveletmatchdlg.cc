@@ -206,7 +206,7 @@ bool uiWaveletMatchDlg::calcFilter()
 }
 
 
-bool uiWaveletMatchDlg::acceptOK( CallBacker* )
+bool uiWaveletMatchDlg::acceptOK()
 {
     return wvltoutfld_->store( outputwvlt_, true );
 }

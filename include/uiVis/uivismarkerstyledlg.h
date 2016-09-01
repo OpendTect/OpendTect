@@ -23,7 +23,7 @@ protected:
 
     uiMarkerStyle3D*	stylefld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     virtual void	doFinalise(CallBacker*)		=0;
 
     virtual void	sizeChg(CallBacker*)		=0;

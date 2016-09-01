@@ -98,7 +98,7 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
     }
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     data_.stor_ = stortypfld_->getIntValue();
     data_.sclr_ = scalefld_->getScaler();

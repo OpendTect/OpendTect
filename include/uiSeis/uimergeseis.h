@@ -35,7 +35,7 @@ protected:
     uiSeisTransfer*	transffld_;
     uiSeisSel*		outfld_;
 
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
     bool		getInput(ObjectSet<IOPar>&,IOPar&);
 };
 

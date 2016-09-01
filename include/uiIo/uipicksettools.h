@@ -30,7 +30,7 @@ protected:
     uiIOObjSel*		outfld_;
     MultiID&		setid_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     RefMan<Pick::Set>	getMerged(IOPar&) const;
 
 };

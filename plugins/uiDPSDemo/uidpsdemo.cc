@@ -58,7 +58,7 @@ uiDPSDemo::~uiDPSDemo()
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 
-bool uiDPSDemo::acceptOK( CallBacker* )
+bool uiDPSDemo::acceptOK()
 {
     const IOObj* horioobj = horfld_->ioobj(); // emits its own error message
     if ( !horioobj ) return false;

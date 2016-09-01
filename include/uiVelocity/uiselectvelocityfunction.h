@@ -85,7 +85,7 @@ public:
     FunctionSource*		getSource();
 public:
     void			typeSelChangeCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 
     uiGenInput*				typesel_;
     ObjectSet<uiFunctionSettings>	settingldgs_;
@@ -99,7 +99,7 @@ public:
 						FunctionSource* );
     bool			isOK() const { return dlggrp_; }
 public:
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 
     uiFunctionSettings*		dlggrp_;
 };

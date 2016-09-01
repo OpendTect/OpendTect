@@ -109,7 +109,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 
 #define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
-bool uiSetDataDir::acceptOK( CallBacker* )
+bool uiSetDataDir::acceptOK()
 {
     seldir_ = basedirfld_->text();
     if ( seldir_.isEmpty() || !File::isDirectory(seldir_) )

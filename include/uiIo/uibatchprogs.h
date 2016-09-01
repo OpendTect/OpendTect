@@ -41,7 +41,7 @@ protected:
 
     void		progSel(CallBacker*);
     void		exButPush(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		filenmUpd(CallBacker*);
 };
 

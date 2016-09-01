@@ -72,7 +72,7 @@ bool uiMMPTestProc::initWork( bool retry )
 }
 
 
-bool uiMMPTestProc::acceptOK( CallBacker* )
+bool uiMMPTestProc::acceptOK()
 {
     const BufferString filenm = logstrm_->fileName();
     delete logstrm_; logstrm_ = 0;

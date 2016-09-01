@@ -470,7 +470,7 @@ void uiBatchHostsDlg::dataRootChanged( int row )
 }
 
 
-bool uiBatchHostsDlg::acceptOK( CallBacker* )
+bool uiBatchHostsDlg::acceptOK()
 {
     uiStringSet errmsg;
     if ( !hostdatalist_.isOK(errmsg) )

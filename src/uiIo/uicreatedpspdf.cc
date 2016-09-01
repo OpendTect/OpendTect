@@ -300,7 +300,7 @@ void uiCreateDPSPDF::setPrefDefNames( const BufferStringSet& prefdefnms )
 }
 
 
-bool uiCreateDPSPDF::acceptOK( CallBacker* )
+bool uiCreateDPSPDF::acceptOK()
 {
     if ( !createPDF() )
 	return false;

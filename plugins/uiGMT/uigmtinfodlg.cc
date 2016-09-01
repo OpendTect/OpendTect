@@ -62,7 +62,7 @@ void uiGMTInfoDlg::gmtPushCB( CallBacker* )
 }
 
 
-bool uiGMTInfoDlg::acceptOK( CallBacker* )
+bool uiGMTInfoDlg::acceptOK()
 {
     const BufferString envvar = GetEnvVar( "GMT_SHAREDIR" );
     if ( !envvar.isEmpty() )

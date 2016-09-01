@@ -67,7 +67,7 @@ class uiFPAdvancedDlg: public uiDialog
     void		prepareNumGroup(uiGroup*,const BufferStringSet&);
     void		rangeSel(CallBacker*);
     void		calcPush(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiButtonGroup*	rangesgrp_;
     uiRadioButton*	picksetbut_;
@@ -780,7 +780,7 @@ void uiFPAdvancedDlg::calcPush( CallBacker* cb )
 }
 
 
-bool uiFPAdvancedDlg::acceptOK( CallBacker* cb )
+bool uiFPAdvancedDlg::acceptOK()
 {
     calcobj_.clearValues();
     calcobj_.clearRanges();

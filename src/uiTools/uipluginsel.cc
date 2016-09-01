@@ -286,7 +286,7 @@ void uiPluginSel::createUI()
 }
 
 
-bool uiPluginSel::acceptOK( CallBacker* )
+bool uiPluginSel::acceptOK()
 {
     FileMultiString dontloadlist;
     for ( int idx=0; idx<products_.size(); idx++ )

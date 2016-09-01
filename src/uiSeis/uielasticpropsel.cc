@@ -409,7 +409,7 @@ void uiElasticPropSelDlg::elasticPropSelectionChanged( CallBacker* )
 }
 
 
-bool uiElasticPropSelDlg::rejectOK( CallBacker* )
+bool uiElasticPropSelDlg::rejectOK()
 {
     elpropsel_ = orgelpropsel_;
     propsaved_ = false;
@@ -417,7 +417,7 @@ bool uiElasticPropSelDlg::rejectOK( CallBacker* )
 }
 
 
-bool uiElasticPropSelDlg::acceptOK( CallBacker* )
+bool uiElasticPropSelDlg::acceptOK()
 {
     if ( !screenSelectionChanged(0) )
 	return false;

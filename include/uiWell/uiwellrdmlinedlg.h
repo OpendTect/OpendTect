@@ -95,7 +95,7 @@ protected:
     void		attachFields();
     void		previewPush(CallBacker*);
     void		extendLine(TypeSet<Coord>&);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiGenInput*		extendfld_;
     uiIOObjSel*	outfld_;

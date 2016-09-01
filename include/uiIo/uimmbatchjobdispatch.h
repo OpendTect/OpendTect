@@ -79,8 +79,8 @@ private:
     uiLabel*		jrpworklbl_;
 
     bool		retFullFailGoOnMsg();
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK();
+    bool		acceptOK();
 
     void		initWin(CallBacker*);
     void		doCycle(CallBacker*);

@@ -80,7 +80,7 @@ protected:
     void		setRow(int);
     void		handleFirstTrace(const SeisTrc&,
 					 const SEGYSeisTrcTranslator&);
-    bool		rejectOK(CallBacker*);
+    bool		rejectOK();
 
     void		outInfo(const char*);
 

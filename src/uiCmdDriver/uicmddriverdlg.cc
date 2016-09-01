@@ -81,7 +81,7 @@ uiCmdInteractDlg::uiCmdInteractDlg( uiParent* p, const InteractSpec& ispec )
 }
 
 
-bool uiCmdInteractDlg::rejectOK( CallBacker* )
+bool uiCmdInteractDlg::rejectOK()
 { return button( CANCEL ); }
 
 
@@ -247,7 +247,7 @@ void uiCmdDriverDlg::refreshDisplay( bool runmode, bool idle )
 }
 
 
-bool uiCmdDriverDlg::rejectOK( CallBacker* )
+bool uiCmdDriverDlg::rejectOK()
 {
     if ( interactdlg_ && !interactdlg_->isHidden() )
 	return false;

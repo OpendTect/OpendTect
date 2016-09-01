@@ -80,7 +80,7 @@ protected:
     void		finalizeDoneCB(CallBacker*);
     void		updateScaleFld();
     void		updateEstUsage();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     Scaler*		scaler_;
 

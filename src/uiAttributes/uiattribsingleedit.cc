@@ -49,7 +49,7 @@ void uiSingleAttribEd::setDataPackSelection(
 }
 
 
-bool uiSingleAttribEd::acceptOK( CallBacker* )
+bool uiSingleAttribEd::acceptOK()
 {
     const BufferString oldnm( desc_.userRef() );
     const BufferString newnm( namefld_->text() );

@@ -167,7 +167,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
 }
 
 
-bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
+bool uiChangeHorizonDlg::acceptOK()
 {
     if ( inputfld_ && !inputfld_->commitInput() )
     {
@@ -184,7 +184,7 @@ bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
 	return false;
     }
    
-    if ( !savefldgrp_->acceptOK( cb ) )
+    if ( !savefldgrp_->acceptOK() )
 	return false;
 
     if ( !doProcessing() )

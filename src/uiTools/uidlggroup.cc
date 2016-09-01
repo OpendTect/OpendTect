@@ -63,7 +63,7 @@ void uiTabStackDlg::showGroup( int idx )
 }
 
 
-bool uiTabStackDlg::acceptOK(CallBacker*)
+bool uiTabStackDlg::acceptOK()
 {
     const int curpage = currentGroupID();
     for ( int idx=groups_.size()-1; idx>=0; idx-- )
@@ -88,7 +88,7 @@ bool uiTabStackDlg::acceptOK(CallBacker*)
 }
 
 
-bool uiTabStackDlg::rejectOK(CallBacker*)
+bool uiTabStackDlg::rejectOK()
 {
     for ( int idx=groups_.size()-1; idx>=0; idx-- )
     {

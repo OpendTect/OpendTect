@@ -118,7 +118,7 @@ void uiPickPropDlg::colSel( CallBacker* cb )
 }
 
 
-bool uiPickPropDlg::acceptOK( CallBacker* )
+bool uiPickPropDlg::acceptOK()
 {
     return true;
 }

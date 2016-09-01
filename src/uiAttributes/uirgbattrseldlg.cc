@@ -63,7 +63,7 @@ void uiRGBAttrSelDlg::fillSelSpec( TypeSet<Attrib::SelSpec>& as ) const
 }
 
 
-bool uiRGBAttrSelDlg::acceptOK( CallBacker* )
+bool uiRGBAttrSelDlg::acceptOK()
 {
     return true;
 }

@@ -89,7 +89,7 @@ class uiEditPropRef : public uiDialog
 public:
 
 			uiEditPropRef(uiParent*,PropertyRef&,bool,bool);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     PropertyRef&	pr_;
     const bool		withform_;
@@ -244,7 +244,7 @@ void uiEditPropRef::definitionChecked( CallBacker* )
 
 #define mErrRet(s,retype) { uiMSG().error(s); return retype; }
 
-bool uiEditPropRef::acceptOK( CallBacker* )
+bool uiEditPropRef::acceptOK()
 {
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() || !iswalpha(newnm[0]) || newnm.size() < 2 )
@@ -396,7 +396,7 @@ uiManPROPS::uiManPROPS( uiParent* p )
 }
 
 
-bool uiManPROPS::rejectOK( CallBacker* )
+bool uiManPROPS::rejectOK()
 {
     if ( !haveUserChange() )
 	return true;
@@ -438,7 +438,7 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p,PropertyRefSelection& prs,
 }
 
 
-bool uiSelectPropRefs::acceptOK( CallBacker* )
+bool uiSelectPropRefs::acceptOK()
 { return proprefgrp_->acceptOK(); }
 
 
@@ -456,7 +456,7 @@ uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
 }
 
 
-bool uiSelectPropRefsVWDlg::acceptOK( CallBacker* )
+bool uiSelectPropRefsVWDlg::acceptOK()
 { return proprefgrp_->acceptOK(); }
 
 

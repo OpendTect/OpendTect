@@ -52,7 +52,7 @@ protected:
     int			getChgdSettIdx(const char*) const;
     void		grpChg(CallBacker*);
     void		dispNewGrp(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 
@@ -102,7 +102,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     ObjectSet<uiSettingsGroup>	grps_;
     Settings&		setts_;

@@ -87,7 +87,7 @@ protected:
     void		updTrcVals();
     void		rowSel(int);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     friend class	uiSEGYFileManipDataExtracter;
 

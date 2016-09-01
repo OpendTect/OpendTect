@@ -365,7 +365,7 @@ void uiDataPointSetPickDlg::updateTable()
 }
 
 
-bool uiDataPointSetPickDlg::acceptOK( CallBacker* )
+bool uiDataPointSetPickDlg::acceptOK()
 {
     return true;
 }

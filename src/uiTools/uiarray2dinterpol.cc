@@ -499,7 +499,7 @@ int uiInvDistInterpolPars::stepSize() const
 int uiInvDistInterpolPars::nrSteps() const
 { return nrstepsfld_->getIntValue(); }
 
-bool uiInvDistInterpolPars::acceptOK( CallBacker* )
+bool uiInvDistInterpolPars::acceptOK()
 {
     const int stepsize = stepsizefld_->getIntValue();
     const int nrsteps = nrstepsfld_->getIntValue();

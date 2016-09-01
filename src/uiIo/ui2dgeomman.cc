@@ -143,7 +143,7 @@ uiGeom2DImpDlg( uiParent* p, const char* linenm )
     dataselfld_->attach( alignedBelow, geom2dinfld_ );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     if ( File::isEmpty(geom2dinfld_->fileName()) )
     { uiMSG().error(uiStrings::sInvInpFile()); return false; }
@@ -194,7 +194,7 @@ void fillTable( const PosInfo::Line2DData& geom )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     if (!uiMSG().askGoOn(tr("Do you really want to change the geometry?\n"
 			    "This will affect all associated data.")))

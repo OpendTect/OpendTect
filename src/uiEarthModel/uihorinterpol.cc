@@ -149,7 +149,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( interpolhor3dsel_->isFullSurvey() )
 	savefldgrp_->setFullSurveyArray( true );
 
-    if ( !savefldgrp_->acceptOK(0) )
+    if ( !savefldgrp_->acceptOK() )
 	return false;
 
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
@@ -199,7 +199,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
 bool uiHorizonInterpolDlg::interpolate2D()
 {
-    if ( !savefldgrp_->acceptOK(0) )
+    if ( !savefldgrp_->acceptOK() )
 	return false;
 
     EM::Horizon* usedhor = !savefldgrp_->overwriteHorizon() ?
@@ -249,7 +249,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 }
 
 
-bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
+bool uiHorizonInterpolDlg::acceptOK()
 {
     IOPar par;
     const bool isok = is2d_ ? interpol1dsel_->acceptOK()

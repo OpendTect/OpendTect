@@ -188,7 +188,7 @@ Stats::Type getSelectedStatsType() const
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     const IOObj* ioobj = inpfld_->ioobj();
     if ( !ioobj ) return false;
@@ -242,9 +242,9 @@ void uiRegionFiller::statsPushCB( CallBacker* )
 }
 
 
-bool uiRegionFiller::acceptOK( CallBacker* cb )
+bool uiRegionFiller::acceptOK()
 {
-    if ( !uiStepDialog::acceptOK(cb) || !regiongrp_->accept() )
+    if ( !uiStepDialog::acceptOK() || !regiongrp_->accept() )
 	return false;
 
     IOPar regionpars;

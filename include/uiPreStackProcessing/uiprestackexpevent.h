@@ -28,7 +28,7 @@ public:
     			uiEventExport(uiParent*,const MultiID*);
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiIOObjSel*		eventsel_;
     uiSeisSubSel*	subsel_;

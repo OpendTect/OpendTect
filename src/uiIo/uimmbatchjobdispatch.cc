@@ -798,7 +798,7 @@ int uiMMBatchJobDispatcher::runnerHostIdx( const char* mach ) const
 
 
 
-bool uiMMBatchJobDispatcher::rejectOK( CallBacker* )
+bool uiMMBatchJobDispatcher::rejectOK()
 {
     if ( !jobrunner_ )
 	return true;
@@ -832,7 +832,7 @@ bool uiMMBatchJobDispatcher::rejectOK( CallBacker* )
 }
 
 
-bool uiMMBatchJobDispatcher::acceptOK(CallBacker*)
+bool uiMMBatchJobDispatcher::acceptOK()
 {
     if ( needConfirmEarlyStop() )
     {

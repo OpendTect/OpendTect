@@ -70,7 +70,7 @@ protected:
     void		havesdSel(CallBacker*);
     void		haveoffsSel(CallBacker*);
     void		initFlds(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     static SeisIOSimple::Data&	data2d();
     static SeisIOSimple::Data&	data3d();

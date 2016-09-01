@@ -111,7 +111,7 @@ bool uiExportMute::writeAscii()
 }
 
 
-bool uiExportMute::acceptOK( CallBacker* )
+bool uiExportMute::acceptOK()
 {
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )

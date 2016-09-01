@@ -90,7 +90,7 @@ void uiODSysAdmColorTabs::rebuildList( int curidx )
 }
 
 
-bool uiODSysAdmColorTabs::acceptOK( CallBacker* )
+bool uiODSysAdmColorTabs::acceptOK()
 {
     if ( !ColTab::SM().write(true) )
     {

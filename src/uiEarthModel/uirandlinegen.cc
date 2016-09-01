@@ -135,7 +135,7 @@ void uiGenRanLinesByContour::isrelChg( CallBacker* )
 
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
-bool uiGenRanLinesByContour::acceptOK( CallBacker* )
+bool uiGenRanLinesByContour::acceptOK()
 {
     const IOObj* horioobj = infld_->ioobj();
     if ( !horioobj )
@@ -240,7 +240,7 @@ MultiID uiGenRanLinesByShift::getNewSetID() const
 }
 
 
-bool uiGenRanLinesByShift::acceptOK( CallBacker* )
+bool uiGenRanLinesByShift::acceptOK()
 {
     const IOObj* inioobj = infld_->ioobj();
     if ( !inioobj )
@@ -314,7 +314,7 @@ bool uiGenRanLineFromPolygon::dispOnCreation()
 }
 
 
-bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
+bool uiGenRanLineFromPolygon::acceptOK()
 {
     PtrMan< ODPolygon<float> > poly = infld_->getSelectionPolygon();
     if ( !poly )

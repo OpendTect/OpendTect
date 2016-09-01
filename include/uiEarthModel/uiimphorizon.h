@@ -63,7 +63,7 @@ protected:
     uiIOObjSel*		outputfld_;
     uiCheckBox*		displayfld_;
 
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
     void                descChg(CallBacker*);
     void		inputChgd(CallBacker*);
     void		addAttribCB(CallBacker*);

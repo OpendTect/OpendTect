@@ -106,9 +106,9 @@ void uiBodyFiller::typeSel( CallBacker* cb )
 static BodyFiller::ValueType getValueType( uiGenInput& fld )
 { return (BodyFiller::ValueType)fld.getIntValue(); }
 
-bool uiBodyFiller::acceptOK( CallBacker* cb )
+bool uiBodyFiller::acceptOK()
 {
-    if ( !uiStepDialog::acceptOK(cb) )
+    if ( !uiStepDialog::acceptOK() )
 	return false;
 
     const IOObj* ioobj = bodyfld_->ioobj();

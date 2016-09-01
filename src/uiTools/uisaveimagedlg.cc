@@ -544,7 +544,7 @@ void uiSaveWinImageDlg::setFldVals( CallBacker* )
 }
 
 
-bool uiSaveWinImageDlg::acceptOK( CallBacker* )
+bool uiSaveWinImageDlg::acceptOK()
 {
     mDynamicCastGet(uiMainWin*,mw,parent());
     if ( !mw ) return false;

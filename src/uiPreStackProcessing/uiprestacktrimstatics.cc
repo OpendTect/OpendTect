@@ -176,7 +176,7 @@ void uiTrimStatics::moveDownCB( CallBacker* )
 }
 
 
-bool uiTrimStatics::acceptOK( CallBacker* )
+bool uiTrimStatics::acceptOK()
 {
     if ( !processor_ ) return true;
 

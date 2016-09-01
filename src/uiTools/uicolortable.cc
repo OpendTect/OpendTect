@@ -113,7 +113,7 @@ void enabDefSetts( bool yn ) { storfld->display( yn ); }
 bool saveDef()
 { return doclipfld->getBoolValue() && storfld->isChecked(); }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     doApply();
     scaleChanged.trigger();

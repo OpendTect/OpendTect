@@ -405,7 +405,7 @@ float getTD() const
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     track_.setEmpty();
     fnm_ = wtinfld_->fileName();
@@ -629,7 +629,7 @@ bool uiWellTrackDlg::rowIsNotSet( int row ) const
 }
 
 
-bool uiWellTrackDlg::rejectOK( CallBacker* )
+bool uiWellTrackDlg::rejectOK()
 {
     track_ = *orgtrack_;
     wd_.info().setSurfaceCoord( origpos_ );
@@ -639,7 +639,7 @@ bool uiWellTrackDlg::rejectOK( CallBacker* )
 }
 
 
-bool uiWellTrackDlg::acceptOK( CallBacker* )
+bool uiWellTrackDlg::acceptOK()
 {
     if ( !writable_ )
 	return true;
@@ -1361,7 +1361,7 @@ uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     if ( !d2tgrp->getD2T(wd_,cksh_) )
     {
@@ -1596,7 +1596,7 @@ void uiD2TModelDlg::getModel( Well::D2TModel& d2t )
 }
 
 
-bool uiD2TModelDlg::rejectOK( CallBacker* )
+bool uiD2TModelDlg::rejectOK()
 {
     Well::D2TModel* d2t = mD2TModel;
     if ( d2t && orgd2t_ )
@@ -1650,7 +1650,7 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
 }
 
 
-bool uiD2TModelDlg::acceptOK( CallBacker* )
+bool uiD2TModelDlg::acceptOK()
 {
     if ( !writable_ )
 	return true;
@@ -1699,7 +1699,7 @@ const BufferStringSet& uiNewWellDlg::mkWellNms()
 }
 
 
-bool uiNewWellDlg::acceptOK( CallBacker* )
+bool uiNewWellDlg::acceptOK()
 {
     BufferString newnm( text() );
     if ( newnm.trimBlanks().isEmpty() )
@@ -1809,7 +1809,7 @@ bool uiWellLogUOMDlg::setUoMValues()
 }
 
 
-bool uiWellLogUOMDlg::acceptOK( CallBacker* )
+bool uiWellLogUOMDlg::acceptOK()
 {
     return setUoMValues();
 }

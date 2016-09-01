@@ -39,7 +39,7 @@ void uiStereoDlg::doFinalise( CallBacker* )
     sliderfld_->setValue( offset );
 }
 
-bool uiStereoDlg::acceptOK( CallBacker* )
+bool uiStereoDlg::acceptOK()
 {
     const float slval = sliderfld_->getFValue();
     for ( int idx=0; idx<vwrs_.size(); idx++ )

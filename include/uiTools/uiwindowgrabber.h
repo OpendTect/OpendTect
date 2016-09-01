@@ -46,7 +46,7 @@ protected:
     void		addFileExtension(BufferString&);
     bool		filenameOK() const;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		surveyChanged(CallBacker*);
 
     const char*		getExtension() const;

@@ -178,7 +178,7 @@ void uiBatchSetup::setupSelCB( CallBacker* )
 }
 
 
-bool uiBatchSetup::acceptOK( CallBacker* )
+bool uiBatchSetup::acceptOK()
 {
     if ( !prepareProcessing() || !fillPar() )
 	return false;

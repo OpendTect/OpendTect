@@ -46,7 +46,7 @@ uiExp2DGeom::~uiExp2DGeom()
 }
 
 
-bool uiExp2DGeom::acceptOK( CallBacker* )
+bool uiExp2DGeom::acceptOK()
 {
     const BufferString fnm = outfld_->fileName();
     if ( fnm.isEmpty() )

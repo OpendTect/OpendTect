@@ -37,7 +37,7 @@ protected:
     void		inpSel(CallBacker*);
     void		formSet(CallBacker*);
     void		rockPhysReq(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     void		setPType4Inp(int);
 

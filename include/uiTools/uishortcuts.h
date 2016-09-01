@@ -31,7 +31,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     ObjectSet<uiComboBox> stateboxes_;
     ObjectSet<uiComboBox> keyboxes_;

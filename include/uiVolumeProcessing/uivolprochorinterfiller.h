@@ -38,7 +38,7 @@ protected:
 
     static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     void			updateFlds(CallBacker*);
 
     HorInterFiller*		horinterfiller_;

@@ -53,7 +53,7 @@ uiEventImport::uiEventImport( uiParent* p )
 }
 
 
-bool uiEventImport::acceptOK( CallBacker* )
+bool uiEventImport::acceptOK()
 {
     if ( !filefld_->fileName() )
     {

@@ -61,7 +61,7 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 }
 
 
-bool uiViewer2DPosDlg::acceptOK( CallBacker* )
+bool uiViewer2DPosDlg::acceptOK()
 {
     okpushed_.trigger();
     return false;
@@ -515,7 +515,7 @@ void uiViewer2DSelDataDlg::selButPush( CallBacker* cb )
 }
 
 
-bool uiViewer2DSelDataDlg::acceptOK( CallBacker* )
+bool uiViewer2DSelDataDlg::acceptOK()
 {
     if ( selgatherfld_->isEmpty() )
     {

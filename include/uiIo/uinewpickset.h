@@ -43,7 +43,7 @@ protected:
     void		attachStdFlds(bool mineabove,uiGroup* mygrp);
     virtual bool	fillData(Pick::Set&)	    { return true; }
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     RefMan<Pick::Set>	getEmptyPickSet() const;
 
 };

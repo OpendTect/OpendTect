@@ -73,7 +73,7 @@ void uiHorizonSortDlg::getSortedHorizonIDs( TypeSet<MultiID>& horids ) const
 }
 
 
-bool uiHorizonSortDlg::acceptOK( CallBacker* )
+bool uiHorizonSortDlg::acceptOK()
 {
     TypeSet<MultiID> horids;
     getSelectedHorizons( horids );

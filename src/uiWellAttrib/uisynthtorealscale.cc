@@ -505,7 +505,7 @@ void uiSynthToRealScale::updRealStats()
 }
 
 
-bool uiSynthToRealScale::acceptOK( CallBacker* )
+bool uiSynthToRealScale::acceptOK()
 {
     if ( !evfld_->getFromScreen() )
 	return false;

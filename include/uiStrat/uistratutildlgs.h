@@ -67,7 +67,7 @@ protected:
     void		getFromScreen();
     void		putToScreen();
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		selLithCB(CallBacker*);
 };
 
@@ -133,7 +133,7 @@ protected :
 
     void			addUnitToTable(int,const Strat::LeavedUnitRef&);
     void			mouseClick(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     void			resetUnits(CallBacker*);
 };
 
@@ -175,7 +175,7 @@ protected:
     uiGenInput*         lvllistfld_;
     TypeSet<LevelID>	ids_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 

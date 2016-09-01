@@ -455,7 +455,7 @@ uiSeisBrowserGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
 				     .setName("Crossline",1) );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     pos_ = posfld_->getBinID();
     if ( !SI().isReasonable(pos_) )
@@ -605,7 +605,7 @@ void uiSeisBrowser::doBrowse( uiParent* p, const IOObj& ioobj, bool is2d,
 }
 
 
-bool uiSeisBrowser::acceptOK( CallBacker* )
+bool uiSeisBrowser::acceptOK()
 {
     commitChanges();
     if ( tbufchgdtrcs_.isEmpty() )

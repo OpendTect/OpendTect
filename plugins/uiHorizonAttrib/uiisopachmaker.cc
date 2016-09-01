@@ -185,7 +185,7 @@ bool uiIsochronMakerBatch::fillPar()
 }
 
 
-bool uiIsochronMakerBatch::acceptOK( CallBacker* )
+bool uiIsochronMakerBatch::acceptOK()
 {
     if ( !prepareProcessing() || !fillPar() )
 	return false;
@@ -214,7 +214,7 @@ uiIsochronMakerDlg::~uiIsochronMakerDlg()
 }
 
 
-bool uiIsochronMakerDlg::acceptOK( CallBacker* )
+bool uiIsochronMakerDlg::acceptOK()
 {
     if ( !grp_->chkInputFlds() )
 	return false;

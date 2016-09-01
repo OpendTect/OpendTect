@@ -31,7 +31,7 @@ protected:
     void		readFile(od_istream&);
     void		addD2T(uiString&);
     void		write(uiStringSet&);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;
@@ -50,7 +50,7 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiFileInput*	inpfld_;
     uiGenInput*		istvdfld_;
@@ -65,7 +65,7 @@ public:
 			~uiBulkMarkerImport();
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		readFile(od_istream&,BufferStringSet&,
 				 ObjectSet<Well::MarkerSet>&);
 
@@ -83,7 +83,7 @@ public:
 			~uiBulkD2TModelImport();
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		readFile(od_istream&,
 				 ObjectSet<D2TModelData>&);
 

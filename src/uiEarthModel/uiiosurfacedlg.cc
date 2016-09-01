@@ -56,7 +56,7 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
 }
 
 
-bool uiWriteSurfaceDlg::acceptOK( CallBacker* )
+bool uiWriteSurfaceDlg::acceptOK()
 {
     return iogrp_->processInput();
 }
@@ -91,7 +91,7 @@ uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const char* typ )
 }
 
 
-bool uiReadSurfaceDlg::acceptOK( CallBacker* )
+bool uiReadSurfaceDlg::acceptOK()
 {
     return iogrp_->processInput();
 }
@@ -124,7 +124,7 @@ const char* uiStoreAuxData::auxdataName() const
 { return attrnmfld_->text(); }
 
 
-bool uiStoreAuxData::acceptOK( CallBacker* )
+bool uiStoreAuxData::acceptOK()
 {
     dooverwrite_ = false;
     BufferString attrnm = attrnmfld_->text();
@@ -236,7 +236,7 @@ CtxtIOObj* uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
 
 #define mErrRet(msg) { if ( !msg.isEmpty() ) uiMSG().error(msg); return false; }
 
-bool uiCopySurface::acceptOK( CallBacker* )
+bool uiCopySurface::acceptOK()
 {
     if ( !inpfld->processInput() ) return false;
     if ( !outfld->commitInput() )

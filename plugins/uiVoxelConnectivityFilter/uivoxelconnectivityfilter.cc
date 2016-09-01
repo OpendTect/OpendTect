@@ -139,9 +139,9 @@ void uiVoxelConnectivityFilter::updateFieldsCB( CallBacker* )
 }
 
 
-bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
+bool uiVoxelConnectivityFilter::acceptOK()
 {
-    if ( !uiStepDialog::acceptOK( cb ) )
+    if ( !uiStepDialog::acceptOK() )
 	return false;
 
     Interval<float> range;

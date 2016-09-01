@@ -89,7 +89,7 @@ protected:
     void		inpSel(CallBacker*);
     void		vwLog(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

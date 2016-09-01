@@ -226,7 +226,7 @@ void uiAttr2DSelDlg::selDone( CallBacker* c )
 }
 
 
-bool uiAttr2DSelDlg::acceptOK( CallBacker* )
+bool uiAttr2DSelDlg::acceptOK()
 {
     int selidx = -1;
     const int newseltype = selType();

@@ -44,7 +44,7 @@ protected:
     void		selChg(CallBacker*);
     void		extPDF(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     ArrayNDProbDenFunc* getAdjustedPDF(ArrayNDProbDenFunc*) const;
     void		setDisplayedFields(bool dim1,bool dim2);
@@ -66,7 +66,7 @@ protected:
     uiIOObjSel*		inpfld_;
     uiFileInput*	outfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

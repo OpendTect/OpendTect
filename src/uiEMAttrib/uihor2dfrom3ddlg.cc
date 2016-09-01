@@ -59,7 +59,7 @@ uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
 }
 
 
-bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
+bool uiHor2DFrom3DDlg::acceptOK()
 {
     if ( !checkFlds() )
 	return false;

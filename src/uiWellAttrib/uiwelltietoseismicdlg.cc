@@ -487,7 +487,7 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 }
 
 
-bool uiTieWin::rejectOK( CallBacker* )
+bool uiTieWin::rejectOK()
 {
     drawer_->enableCtrlNotifiers( false );
     close();
@@ -504,7 +504,7 @@ void uiTieWin::cleanUp( CallBacker* )
 }
 
 
-bool uiTieWin::acceptOK( CallBacker* )
+bool uiTieWin::acceptOK()
 {
     uiString errmsg = tr("This will overwrite your depth/time model, "
 			 "do you want to continue?");

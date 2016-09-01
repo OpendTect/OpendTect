@@ -104,7 +104,7 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 
 
 #define mErrRet(msg ) { uiMSG().error( msg ); return false; }
-bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
+bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK()
 {
     if ( !import_ )
 	mErrRet( tr("No valid input, please select a new input file") )

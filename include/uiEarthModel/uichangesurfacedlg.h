@@ -43,7 +43,7 @@ protected:
     EM::Horizon*		horizon_;
     bool			is2d_;
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
     bool			readHorizon();
     bool			doProcessing();
     bool			doProcessing2D();

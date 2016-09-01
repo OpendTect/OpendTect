@@ -118,7 +118,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
 }
 
 
-bool uiGetFileForAttrSet::acceptOK( CallBacker* )
+bool uiGetFileForAttrSet::acceptOK()
 {
     fname_ = fileinpfld->fileName();
     if ( fname_.isEmpty() || !File::exists(fname_) )
@@ -185,7 +185,7 @@ uiImpAttrSet::~uiImpAttrSet()
 {}
 
 
-bool uiImpAttrSet::acceptOK( CallBacker* )
+bool uiImpAttrSet::acceptOK()
 {
     const char* fnm = fileinpfld_->fileName();
     if ( !File::exists(fnm) )

@@ -40,7 +40,7 @@ protected:
     void		initFromSettings();
     bool		saveInSettings();
     void		useProxyCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiCheckBox*		authenticationfld_;
     uiGenInput*		usernamefld_;

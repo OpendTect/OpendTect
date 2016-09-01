@@ -48,7 +48,7 @@ protected:
     void		inpSel(CallBacker*);
     void		geomSel(CallBacker*);
     void		nrinlSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

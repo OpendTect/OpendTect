@@ -153,7 +153,7 @@ void cubeSel( CallBacker* cb )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     for ( int isel=0; isel<sels_.size(); isel++ )
     {

@@ -135,7 +135,7 @@ uiMergePickSets::uiMergePickSets( uiParent* p, MultiID& setid )
 }
 
 
-bool uiMergePickSets::acceptOK( CallBacker* )
+bool uiMergePickSets::acceptOK()
 {
     if ( selfld_->nrChosen() < 2 )
     {

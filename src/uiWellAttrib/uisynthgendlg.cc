@@ -393,7 +393,7 @@ void uiSynthGenDlg::updateWaveletName()
 }
 
 
-bool uiSynthGenDlg::acceptOK( CallBacker* )
+bool uiSynthGenDlg::acceptOK()
 {
     const int selidx = synthnmlb_->currentItem();
     if ( selidx<0 )
@@ -426,7 +426,7 @@ bool uiSynthGenDlg::isCurSynthChanged() const
 }
 
 
-bool uiSynthGenDlg::rejectOK( CallBacker* )
+bool uiSynthGenDlg::rejectOK()
 {
     return true;
 }

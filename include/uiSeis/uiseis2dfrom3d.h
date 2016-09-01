@@ -27,7 +27,7 @@ public:
 protected:
 
     void		cubeSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiSeisSel*		data3dfld_;
     uiSeis2DSubSel*	subselfld_;

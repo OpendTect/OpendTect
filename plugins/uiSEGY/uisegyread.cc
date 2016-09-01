@@ -247,7 +247,7 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     delete scanner_;
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     scanner_= new SEGY::Scanner( pars_, geom_ );
     const int nrtrcs = nrtrcsfld_->isChecked() ? nrtrcsfld_->getIntValue() : 0;
@@ -349,7 +349,7 @@ uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d, IOPar& iop )
     dontaskfld_->attach( rightBorder );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     pol_ = choicefld_->firstChecked() + 1;
     int storepol = dontaskfld_->isChecked() ? -pol_ : pol_;

@@ -156,7 +156,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
 }
 
 
-bool Vel::uiBatchVolumeConversion::acceptOK( CallBacker* )
+bool Vel::uiBatchVolumeConversion::acceptOK()
 {
     if ( !fillPar() )
 	return false;

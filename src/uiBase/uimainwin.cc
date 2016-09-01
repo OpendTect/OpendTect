@@ -1459,14 +1459,14 @@ public:
     void		reject( CallBacker* s )
 			{
 			    mHandle.cancelpushed_ = s == cnclbut_;
-			    if ( mHandle.rejectOK(s) )
+			    if ( mHandle.rejectOK() )
 				_done(0);
 			    else
 				uiSetResult( -1 );
 			}
                         //!< to be called by a 'cancel' button
     void		accept( CallBacker* s )
-			    { if ( mHandle.acceptOK(s) ) _done(1); }
+			    { if ( mHandle.acceptOK() ) _done(1); }
                         //!< to be called by a 'ok' button
     void		done( int i )
 			    { if ( mHandle.doneOK(i) ) _done(i); }
@@ -2080,6 +2080,21 @@ int uiDialog::goMinimized()
     return mBody->exec( true );
 }
 
+
+mStartAllowDeprecatedSection
+
+bool uiDialog::acceptOK()
+{
+    return acceptOK( 0 );
+}
+
+
+bool uiDialog::rejectOK()
+{
+    return rejectOK( 0 );
+}
+
+mStopAllowDeprecatedSection
 
 const uiDialog::Setup& uiDialog::setup() const	{ return mBody->getSetup(); }
 void uiDialog::reject( CallBacker* cb)		{ mBody->reject( cb ); }

@@ -39,7 +39,7 @@ protected:
     uiGenInput*		x2fld_;
     uiCheckBox*		saveglobalfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 

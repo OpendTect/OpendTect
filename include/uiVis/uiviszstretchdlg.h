@@ -59,8 +59,8 @@ protected:
     float		getSelectedSceneUiFactor() const;
 
     void		doFinalise(CallBacker*);
-    bool		acceptOK(CallBacker*);
-    bool		rejectOK(CallBacker*);
+    bool		acceptOK();
+    bool		rejectOK();
     void		sliderMove(CallBacker*);
     void		butPush(CallBacker*);
     void		sceneSel(CallBacker*);

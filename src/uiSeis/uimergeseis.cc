@@ -58,7 +58,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 }
 
 
-bool uiMergeSeis::acceptOK( CallBacker* )
+bool uiMergeSeis::acceptOK()
 {
     ObjectSet<IOPar> inpars; IOPar outpar;
     if ( !getInput(inpars,outpar) )

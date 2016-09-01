@@ -148,7 +148,7 @@ uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     BufferString fnm = fnmfld_->fileName();
     FilePath fp( fnm );

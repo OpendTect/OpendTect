@@ -39,7 +39,7 @@ protected:
     uiGenInput*		scalefld_;
     uiWaveletIOObjSel*	wvltfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 
@@ -55,7 +55,7 @@ protected:
     uiFileInput*	outpfld_;
     uiGenInput*		addzfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

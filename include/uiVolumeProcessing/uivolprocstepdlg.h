@@ -52,7 +52,7 @@ protected:
 
     void		addConnectionFromMultiInput();
     void		addDefaultConnection();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 } // namespace VolProc

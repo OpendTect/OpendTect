@@ -211,7 +211,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 #undef mErrRet
 #define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
-bool uiCrDevEnv::acceptOK( CallBacker* )
+bool uiCrDevEnv::acceptOK()
 {
     BufferString workdir = basedirfld->text();
     if ( workdir.isEmpty() || !File::isDirectory(workdir) )

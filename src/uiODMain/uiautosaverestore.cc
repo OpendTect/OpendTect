@@ -130,7 +130,7 @@ void uiAutoSave2RealObjDlg::choiceSel( CallBacker* )
 }
 
 
-bool uiAutoSave2RealObjDlg::acceptOK( CallBacker* )
+bool uiAutoSave2RealObjDlg::acceptOK()
 {
     return true;
 }

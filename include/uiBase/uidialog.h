@@ -159,13 +159,16 @@ public:
 
 protected:
 
-    virtual bool        rejectOK(CallBacker*){ return true;}//!< confirm reject
-    virtual bool        acceptOK(CallBacker*){ return true;}//!< confirm accept
+    virtual bool	rejectOK();		//!< confirm reject
+    virtual bool	acceptOK();		//!< confirm accept
     virtual bool        doneOK(int)	     { return true; } //!< confirm exit
 
     bool		cancelpushed_;
     CtrlStyle		ctrlstyle_;
     static int		titlepos_;
+
+    virtual mDeprecated bool	    acceptOK(CallBacker*)	{ return true; }
+    virtual mDeprecated bool	    rejectOK(CallBacker*)	{ return true; }
 
 };
 

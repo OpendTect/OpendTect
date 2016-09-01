@@ -31,7 +31,7 @@ protected:
 
 	void			seqChg(CallBacker*);
 	void			mapperChg(CallBacker*);
-	bool			acceptOK(CallBacker*);
+	bool			acceptOK();
 };
 
 #endif

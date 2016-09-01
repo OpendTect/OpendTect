@@ -42,7 +42,7 @@ protected:
 
     void		srchDir(CallBacker*);
     void		selChg(CallBacker* =0);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 
@@ -58,7 +58,7 @@ public:
 			~uiImpAttrSet();
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     uiFileInput*	fileinpfld_;
     uiIOObjSel*		attrsetfld_;

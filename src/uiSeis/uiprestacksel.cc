@@ -37,7 +37,7 @@ uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
 }
 
 
-bool uiPreStackDataPackSelDlg::acceptOK( CallBacker* )
+bool uiPreStackDataPackSelDlg::acceptOK()
 {
     const int selidx = datapackinpfld_->currentItem();
     selid_ = dpfids_.validIdx( selidx ) ? dpfids_[selidx] : MultiID::udf();

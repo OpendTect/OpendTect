@@ -57,8 +57,8 @@ protected:
     void		preScanCB(CallBacker*);
 
     friend class	uiSEGYImpSimilarDlg;
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK();
+    bool		acceptOK();
 
     bool		getParsFromScreen(bool);
     virtual bool	doWork(const IOObj&)		= 0;

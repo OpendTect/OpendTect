@@ -322,7 +322,7 @@ uiDataPackReplacerDlg( uiParent* p,
     }
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     int inpfldidx = 0;
     if ( !attrset_ && !attrdspar_ )

@@ -133,7 +133,7 @@ void uiDPSRefineSelDlg::setPlotter()
 }
 
 
-bool uiDPSRefineSelDlg::acceptOK( CallBacker* )
+bool uiDPSRefineSelDlg::acceptOK()
 {
     dcolids_.erase();
     if ( !mathobj_ )

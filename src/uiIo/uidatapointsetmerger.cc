@@ -365,7 +365,7 @@ void uiDataPointSetMerger::checkForSameColNms( BufferStringSet& colnms ) const
 }
 
 
-bool uiDataPointSetMerger::acceptOK( CallBacker* )
+bool uiDataPointSetMerger::acceptOK()
 {
    if ( !outfld_->ioobj() )
        return false;

@@ -712,7 +712,7 @@ void uiSEGYReadFinisher::setAsDefaultObj()
 }
 
 
-bool uiSEGYReadFinisher::acceptOK( CallBacker* )
+bool uiSEGYReadFinisher::acceptOK()
 {
     outputid_.setEmpty();
     if ( fs_.isVSP() )

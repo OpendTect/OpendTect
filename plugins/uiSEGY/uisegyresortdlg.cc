@@ -169,7 +169,7 @@ uiIOObjSel* uiResortSEGYDlg::objSel()
 }
 
 
-bool uiResortSEGYDlg::acceptOK( CallBacker* )
+bool uiResortSEGYDlg::acceptOK()
 {
     const IOObj* ioobj = objSel()->ioobj();
     if ( !ioobj )

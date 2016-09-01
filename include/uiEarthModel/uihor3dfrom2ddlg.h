@@ -39,7 +39,7 @@ public:
 
 protected:
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 
     const EM::Horizon2D& 	hor2d_;
     EM::Horizon3D* 		hor3d_;

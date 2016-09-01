@@ -109,7 +109,7 @@ void uiSrchProcFiles::srchDir( CallBacker* )
 }
 
 
-bool uiSrchProcFiles::acceptOK( CallBacker* )
+bool uiSrchProcFiles::acceptOK()
 {
     return true;
 }

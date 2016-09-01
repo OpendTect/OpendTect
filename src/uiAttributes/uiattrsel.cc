@@ -571,7 +571,7 @@ const char* uiAttrSelDlg::zDomainKey() const
 { return attrdata_.zdomaininfo_ ? attrdata_.zdomaininfo_->key() : ""; }
 
 
-bool uiAttrSelDlg::acceptOK( CallBacker* )
+bool uiAttrSelDlg::acceptOK()
 {
     return getAttrData(true);
 }

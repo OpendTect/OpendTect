@@ -31,7 +31,7 @@ protected:
     uiTextEdit*		infofld;
     uiCheckBox*		selatstartfld;
 
-    bool		rejectOK(CallBacker*);
+    bool		rejectOK();
     void		fillList();
     void		selChg(CallBacker*);
     void		loadPush(CallBacker*);

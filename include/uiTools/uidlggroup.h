@@ -74,8 +74,8 @@ public:
 		}
 
 protected:
-    bool	acceptOK(CallBacker*)		{ return grp_->acceptOK(); }
-    bool	rejectOK(CallBacker*)		{ return grp_->rejectOK(); }
+    bool	acceptOK()		{ return grp_->acceptOK(); }
+    bool	rejectOK()		{ return grp_->rejectOK(); }
 
     uiDlgGroup*	grp_;
 };
@@ -110,8 +110,8 @@ protected:
 
     void			selChange(CallBacker*);
 
-    virtual bool		acceptOK(CallBacker*);
-    virtual bool		rejectOK(CallBacker*);
+    virtual bool		acceptOK();
+    virtual bool		rejectOK();
 
     bool 			canrevert_;
     ObjectSet<uiDlgGroup>	groups_;

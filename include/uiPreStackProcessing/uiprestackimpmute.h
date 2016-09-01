@@ -49,7 +49,7 @@ protected:
     void 		formatSel(CallBacker*);
     void		changePrefPosInfo(CallBacker*);
 
-    virtual bool	acceptOK(CallBacker*);    
+    virtual bool	acceptOK();
 };
 
 

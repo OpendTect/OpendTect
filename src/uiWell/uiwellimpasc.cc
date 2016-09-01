@@ -254,7 +254,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     Well::Info& info = uwia_->wd_.info();
 
@@ -308,7 +308,7 @@ void uiWellImportAsc::doAdvOpt( CallBacker* )
 }
 
 
-bool uiWellImportAsc::acceptOK( CallBacker* )
+bool uiWellImportAsc::acceptOK()
 {
     if ( !checkInpFlds() )
 	return false;

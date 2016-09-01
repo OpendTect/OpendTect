@@ -383,10 +383,10 @@ void uiTextFileDlg::dismiss( CallBacker* )
 }
 
 
-bool uiTextFileDlg::rejectOK( CallBacker* cb )
+bool uiTextFileDlg::rejectOK()
 {
     if ( !cancelpushed_ )
-	return acceptOK( cb );
+	return acceptOK();
 
     if ( !okToExit() )
 	return false;
@@ -398,7 +398,7 @@ bool uiTextFileDlg::rejectOK( CallBacker* cb )
 }
 
 
-bool uiTextFileDlg::acceptOK( CallBacker* )
+bool uiTextFileDlg::acceptOK()
 {
     return okToExit();
 }

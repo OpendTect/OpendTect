@@ -557,7 +557,7 @@ protected:
     void		zRgChanged(CallBacker*);
     void		applyZRgToAllCB(CallBacker*);
 
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
 };
 
 
@@ -708,7 +708,7 @@ void uiSeis2DMultiLineSelDlg::applyZRgToAllCB( CallBacker* )
 }
 
 
-bool uiSeis2DMultiLineSelDlg::acceptOK( CallBacker* )
+bool uiSeis2DMultiLineSelDlg::acceptOK()
 {
     if ( lnmsfld_->nrChosen() == 1 )
     {

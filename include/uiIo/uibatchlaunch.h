@@ -70,7 +70,7 @@ protected:
     void			launcherSel(CallBacker*);
     void			viewFile(CallBacker*);
     void			rmFile(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 
     bool			canRun() const;
     void			setButSens();

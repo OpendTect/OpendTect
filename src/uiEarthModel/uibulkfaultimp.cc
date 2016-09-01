@@ -258,7 +258,7 @@ static EM::FaultStickSet* createFaultStickSet(
 }
 
 
-bool uiBulkFaultImport::acceptOK( CallBacker* )
+bool uiBulkFaultImport::acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )

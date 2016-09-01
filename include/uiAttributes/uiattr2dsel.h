@@ -70,7 +70,7 @@ protected:
 
     void		doFinalise( CallBacker* );
     void		selDone(CallBacker*);
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
     int			selType() const;
 };
 

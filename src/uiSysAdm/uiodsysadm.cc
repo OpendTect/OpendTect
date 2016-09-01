@@ -194,11 +194,11 @@ void uiODSysAdm::taskChg( CallBacker* )
 void uiODSysAdm::taskDClick( CallBacker* )
 {
     taskChg( this );
-    acceptOK( this );
+    acceptOK();
 }
 
 
-bool uiODSysAdm::acceptOK( CallBacker* )
+bool uiODSysAdm::acceptOK()
 {
     if ( groups_.isEmpty() )
 	return true;

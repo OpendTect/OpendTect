@@ -95,7 +95,7 @@ void valChg( CallBacker* )
     havechg_ = true;
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     if ( !havechg_ )
 	return true;
@@ -470,7 +470,7 @@ void insTxt( CallBacker* )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     const char* txt = formfld_->text();
     if ( !txt || !*txt )
@@ -747,7 +747,7 @@ void uiSEGYFileManip::rowSel( int rownr )
 }
 
 
-bool uiSEGYFileManip::acceptOK( CallBacker* )
+bool uiSEGYFileManip::acceptOK()
 {
     if ( errlbl_ )
 	return true;

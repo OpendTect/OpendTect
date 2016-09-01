@@ -70,7 +70,7 @@ uiShortcutsDlg::~uiShortcutsDlg()
 }
 
 
-bool uiShortcutsDlg::acceptOK( CallBacker* )
+bool uiShortcutsDlg::acceptOK()
 {
     scl_.keyDescs().erase();
     for ( int idx=0; idx<stateboxes_.size(); idx++ )

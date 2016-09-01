@@ -43,7 +43,7 @@ protected:
 
     const ObjectSet<SurfaceInfo>&	hinfos_;
 
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
     void		horChg(CallBacker*);
     bool		doExport();
     void		writeHeader(od_ostream&);

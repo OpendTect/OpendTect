@@ -81,7 +81,7 @@ bool uiGenInputGrp::getBoolValue( int idx )
 { return flds[idx]->getBoolValue( 0 ); }
 
 
-bool uiGenInputGrp::acceptOK( CallBacker* )
+bool uiGenInputGrp::acceptOK()
 {
     for ( int idx=0; idx<entries->size(); idx++ )
     {
@@ -147,7 +147,7 @@ uiGenInput* uiGenInputDlg::getFld(int idx)
 { return group->getFld(idx); }
 
 
-bool uiGenInputDlg::acceptOK( CallBacker* cb )
+bool uiGenInputDlg::acceptOK()
 {
-    return group->acceptOK( cb );
+    return group->acceptOK();
 }

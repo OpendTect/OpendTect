@@ -37,7 +37,7 @@ protected:
     uiGenInput*		smoothszfld_;
     uiGenInput*		newsdfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		choiceSel(CallBacker*);
     void		inpSel(CallBacker*);
     void		doProc(CallBacker*);

@@ -103,7 +103,7 @@ void uiImportVelFunc::formatSel( CallBacker* )
 
 #define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
-bool uiImportVelFunc::acceptOK( CallBacker* )
+bool uiImportVelFunc::acceptOK()
 {
     BinIDValueSet bidvalset( 0, true);
     VelocityDesc desc;

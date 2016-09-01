@@ -178,7 +178,7 @@ void uiStepDialog::addDefaultConnection()
 }
 
 
-bool uiStepDialog::acceptOK( CallBacker* )
+bool uiStepDialog::acceptOK()
 {
     const BufferString nm( namefld_->text() );
     if ( nm.isEmpty() )
@@ -338,7 +338,7 @@ const MultiID& uiChain::storageID() const
 }
 
 
-bool uiChain::acceptOK( CallBacker* )
+bool uiChain::acceptOK()
 {
     const int nrsteps = chain_.nrSteps();
     if ( nrsteps>0 && chain_.getStep(0) &&

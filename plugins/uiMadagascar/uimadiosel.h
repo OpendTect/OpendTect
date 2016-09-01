@@ -96,7 +96,7 @@ protected:
     void		sconsCB(CallBacker*);
 
     bool		getInp();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 

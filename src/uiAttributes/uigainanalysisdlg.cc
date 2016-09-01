@@ -206,7 +206,7 @@ void uiGainAnalysisDlg::dispRangeChgd( CallBacker* )
 }
 
 
-bool uiGainAnalysisDlg::acceptOK( CallBacker* )
+bool uiGainAnalysisDlg::acceptOK()
 {
     scalefactors_ = funcdisp_->yVals();
     while ( scalefactors_.isPresent(mUdf(float)) )
@@ -217,7 +217,7 @@ bool uiGainAnalysisDlg::acceptOK( CallBacker* )
 }
 
 
-bool uiGainAnalysisDlg::rejectOK( CallBacker* )
+bool uiGainAnalysisDlg::rejectOK()
 {
     convertZTo( true );
     return true;

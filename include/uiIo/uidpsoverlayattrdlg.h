@@ -39,7 +39,7 @@ protected:
 
     const char* 	userName(int did) const;
     void		doApply(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		attribChanged(CallBacker*);
     void		scaleChanged(CallBacker*);
 

@@ -952,7 +952,7 @@ MultiID uiBodyRegionDlg::getBodyMid() const
 }
 
 
-bool uiBodyRegionDlg::acceptOK( CallBacker* )
+bool uiBodyRegionDlg::acceptOK()
 {
     if ( !outputfld_->ioobj() )
 	return false;

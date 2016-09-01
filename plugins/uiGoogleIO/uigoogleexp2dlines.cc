@@ -98,7 +98,7 @@ void uiGoogleExport2DSeis::getInitialSelectedLineNames()
 }
 
 
-bool uiGoogleExport2DSeis::acceptOK( CallBacker* )
+bool uiGoogleExport2DSeis::acceptOK()
 {
     mCreateWriter( s2dfm_->name(), SI().name() );
 

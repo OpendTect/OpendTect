@@ -95,7 +95,7 @@ void uiImportMute::changePrefPosInfo( CallBacker* cb )
 
 #define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
-bool uiImportMute::acceptOK( CallBacker* )
+bool uiImportMute::acceptOK()
 {
     MuteDef mutedef;
 

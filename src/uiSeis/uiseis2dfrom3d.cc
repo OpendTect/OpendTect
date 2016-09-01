@@ -56,7 +56,7 @@ void uiSeis2DFrom3D::cubeSel( CallBacker* )
 }
 
 
-bool uiSeis2DFrom3D::acceptOK( CallBacker* )
+bool uiSeis2DFrom3D::acceptOK()
 {
     const IOObj* ioobj3d = data3dfld_->ioobj();
     const IOObj* ioobj2d = data2dfld_->ioobj();

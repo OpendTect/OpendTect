@@ -49,7 +49,7 @@ protected:
     void		renCB(CallBacker*);
     void		delCB(CallBacker*);
     void		selChgCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     virtual void	selectionChanged()	{}
     virtual bool	doIO()			= 0;

@@ -258,7 +258,7 @@ void uiWellImportSEGYVSP::outSampChk( CallBacker* )
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 #define mScaleVal(val,fac) if ( !mIsUdf(val) ) val *= fac
 
-bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
+bool uiWellImportSEGYVSP::acceptOK()
 {
     if ( bparsfld_->fnm_.isEmpty() || sgypars_.isEmpty() )
 	mErrRet(tr("Please define the input SEG-Y"))

@@ -173,7 +173,7 @@ void uiZStretchDlg::updateSliderValues(  int sceneidx )
 
 
 
-bool uiZStretchDlg::acceptOK( CallBacker* )
+bool uiZStretchDlg::acceptOK()
 {
     if ( !sliderfld_ )
 	return true;
@@ -250,7 +250,7 @@ void uiZStretchDlg::setZStretch( visSurvey::Scene* scene, float zstretch,
 }
 
 
-bool uiZStretchDlg::rejectOK( CallBacker* )
+bool uiZStretchDlg::rejectOK()
 {
     setZStretchesToScenes( initzstretches_, false );
     return true;

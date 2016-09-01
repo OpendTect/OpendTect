@@ -48,7 +48,7 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* key )
 #define mErrRet( msg ) { uiMSG().error( msg ); return false; }
 
 
-bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
+bool uiCreateLogCubeDlg::acceptOK()
 {
     const Well::ExtractParams& extractparams = welllogsel_->params();
     const int nrtrcs = outputgrp_->getNrRepeatTrcs();

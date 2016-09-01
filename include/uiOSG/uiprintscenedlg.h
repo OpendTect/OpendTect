@@ -68,7 +68,7 @@ protected:
     enum		{InvalidImages=0, OnlyMainViewImage, MainAndHudImages };
     void		setFldVals(CallBacker*);
     void		sceneSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     osg::Image*		offScreenRenderViewToImage(osgViewer::View*,
 						   unsigned char transparency);
 			/*! The returned image is not referenced yet. */

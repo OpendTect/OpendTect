@@ -232,8 +232,8 @@ protected:
     void			compVertVariogram(CallBacker*);
     void                        chgPosDispType(CallBacker*);
 
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK();
+    bool			rejectOK();
     void			showPtsInWorkSpace(CallBacker*);
     void			applClosingCB(CallBacker*);
 

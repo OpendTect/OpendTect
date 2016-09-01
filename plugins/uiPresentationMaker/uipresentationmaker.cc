@@ -129,7 +129,7 @@ void formatCB( CallBacker* )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     SlideLayout& layout = spec_.getSlideLayout();
     layout.format_ = formatfld_->currentItem();
@@ -246,7 +246,7 @@ uiPresentationMakerDlg::~uiPresentationMakerDlg()
 }
 
 
-bool uiPresentationMakerDlg::acceptOK( CallBacker* )
+bool uiPresentationMakerDlg::acceptOK()
 {
     return true;
 }

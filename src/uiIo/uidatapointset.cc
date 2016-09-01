@@ -741,7 +741,7 @@ void selTypeChanged( CallBacker* )
 					 seltypefld_->getBoolValue())), 0 );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     DataPointSet::Pos pos;
     const bool isreasonable =
@@ -1306,15 +1306,15 @@ bool uiDataPointSet::saveOK()
 }
 
 
-bool uiDataPointSet::rejectOK( CallBacker* )
+bool uiDataPointSet::rejectOK()
 {
     if ( !saveOK() )
 	return false;
-    return acceptOK( 0 );
+    return acceptOK();
 }
 
 
-bool uiDataPointSet::acceptOK( CallBacker* )
+bool uiDataPointSet::acceptOK()
 {
     removeSelPts( 0 );
 
@@ -1417,7 +1417,7 @@ void outTypChg( CallBacker* )
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     istab_ = tabfld_->getBoolValue();
     if ( istab_ )

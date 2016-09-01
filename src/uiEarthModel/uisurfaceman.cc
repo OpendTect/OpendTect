@@ -757,7 +757,7 @@ void lvlChg( CallBacker* cb )
     tbl_->setColor( RowCol(rc.row(),1), col );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     for ( int idx=0; idx<objids_.size(); idx++ )
     {

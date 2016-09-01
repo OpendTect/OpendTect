@@ -76,7 +76,7 @@ ui2DDefSurvInfoDlg( uiParent* p )
 #define cDefautSRft 15.0f
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     const float grdsp = grdspfld_->getFValue();
     if ( mIsUdf(grdsp) )

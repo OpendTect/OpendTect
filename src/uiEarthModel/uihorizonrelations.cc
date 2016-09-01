@@ -178,7 +178,7 @@ void horSel( CallBacker* )
 
 #define mErrRet(msg) { if ( !msg.isEmpty() ) uiMSG().error(msg); return false; }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     const bool saveas = savefld_->getBoolValue();
     const bool topisstatic = horizonfld_->getIntValue() == 1;

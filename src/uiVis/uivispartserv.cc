@@ -1380,7 +1380,7 @@ void fullPush( CallBacker* )
     selfld_->setSampling( SI().sampling(false) );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     TrcKeyZSampling cs = selfld_->getSampling();
     const_cast<SurveyInfo&>(SI()).setWorkRange( cs );

@@ -46,7 +46,7 @@ protected:
     bool		fillSeisPar();
 
     virtual bool	fillPar();
-    virtual bool	acceptOK(CallBacker*);
+    virtual bool	acceptOK();
 };
 
 #endif

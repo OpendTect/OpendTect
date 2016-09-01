@@ -39,7 +39,7 @@ protected:
 
     void			checkMathExpr(CallBacker*);
     void			parsePush(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 
     uiDataPointSetCrossPlotter&	plotter_;
     BufferString		mathexprstring_;

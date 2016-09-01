@@ -51,7 +51,7 @@ protected:
     uiCheckBox*		loadbutton_;
 
     void		useChg(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 
@@ -86,7 +86,7 @@ protected:
     bool		isauto_;
 
     void		setChg(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
 };
 

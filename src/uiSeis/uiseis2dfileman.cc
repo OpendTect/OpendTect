@@ -328,7 +328,7 @@ void optSel( CallBacker* )
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     const char* outnm = outfld_->text();
     if ( !outnm || !*outnm )

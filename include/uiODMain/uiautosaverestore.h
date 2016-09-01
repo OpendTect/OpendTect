@@ -33,7 +33,7 @@ public:
 protected:
 
     void		choiceSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     IOObj&		ioobj_;
 

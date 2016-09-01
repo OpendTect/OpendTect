@@ -297,7 +297,7 @@ int getNrDisplayModels()
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK()
 {
     if ( fnm_.isEmpty() )
     {

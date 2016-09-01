@@ -523,7 +523,7 @@ void uiStratSynthExport::removeNonSelected()
 }
 
 
-bool uiStratSynthExport::acceptOK( CallBacker* )
+bool uiStratSynthExport::acceptOK()
 {
     removeNonSelected();
 

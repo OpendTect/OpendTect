@@ -143,7 +143,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& seisinpnms,
     }
 
 
-bool uiAttrInpDlg::acceptOK( CallBacker* )
+bool uiAttrInpDlg::acceptOK()
 {
     const uiString errmsg = uiStrings::phrSelect(tr("the input for the "
 								"attributes"));

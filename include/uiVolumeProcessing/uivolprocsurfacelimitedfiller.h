@@ -44,7 +44,7 @@ protected:
 				~uiSurfaceLimitedFiller();
 
     static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 
     void			addSurfaceCB(CallBacker*);
     void			removeSurfaceCB(CallBacker*);

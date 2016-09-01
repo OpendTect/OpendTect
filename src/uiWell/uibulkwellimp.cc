@@ -191,7 +191,7 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiBulkTrackImport::acceptOK( CallBacker* )
+bool uiBulkTrackImport::acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
@@ -251,7 +251,7 @@ uiBulkLogImport::~uiBulkLogImport()
 {}
 
 
-bool uiBulkLogImport::acceptOK( CallBacker* )
+bool uiBulkLogImport::acceptOK()
 {
     BufferStringSet filenms;
     inpfld_->getFileNames( filenms );
@@ -337,7 +337,7 @@ uiBulkMarkerImport::~uiBulkMarkerImport()
 {}
 
 
-bool uiBulkMarkerImport::acceptOK( CallBacker* )
+bool uiBulkMarkerImport::acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
@@ -471,7 +471,7 @@ uiBulkD2TModelImport::~uiBulkD2TModelImport()
 {}
 
 
-bool uiBulkD2TModelImport::acceptOK( CallBacker* )
+bool uiBulkD2TModelImport::acceptOK()
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )

@@ -74,7 +74,7 @@ void uiTutWellTools::inpchg( CallBacker* )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiTutWellTools::acceptOK( CallBacker* )
+bool uiTutWellTools::acceptOK()
 {
     if ( !wd_ ) return false;
     const char* inplognm = inplogfld_->getText();
@@ -106,7 +106,7 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	if ( newlog && !wtr.putLog(*newlog) )
 	{
 	    uiString errmsg = uiStrings::phrCannotWrite(tr("log: %1"
-			     "\n Check write permissions.").arg(newlog->name()));
+		     "\n Check write permissions.").arg(newlog->name()));
 	    mErrRet( errmsg )
 	}
     }

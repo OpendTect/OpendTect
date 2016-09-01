@@ -388,7 +388,7 @@ protected:
     void			saveFmt(CallBacker*);
 
     bool			commit();
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK();
 };
 
 
@@ -505,7 +505,7 @@ bool uiTableFormatDescFldsEd::commit()
     return true;
 }
 
-bool uiTableFormatDescFldsEd::acceptOK( CallBacker* )
+bool uiTableFormatDescFldsEd::acceptOK()
 {
     return commit();
 }

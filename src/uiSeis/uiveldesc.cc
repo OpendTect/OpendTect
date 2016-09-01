@@ -202,7 +202,7 @@ bool uiVelocityDescDlg::scanAvgVel( const IOObj& ioobj,
 }
 
 
-bool uiVelocityDescDlg::acceptOK(CallBacker*)
+bool uiVelocityDescDlg::acceptOK()
 {
     volselfld_->commitInput();
     PtrMan<IOObj> ioobj = volselfld_->getIOObj( false );

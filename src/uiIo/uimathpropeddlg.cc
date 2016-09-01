@@ -93,7 +93,7 @@ void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 }
 
 
-bool uiMathPropEdDlg::acceptOK( CallBacker* )
+bool uiMathPropEdDlg::acceptOK()
 {
     if ( formfld_->updateForm() )
 	return true;

@@ -495,7 +495,7 @@ bool uiImportHorizon::doImport()
 }
 
 
-bool uiImportHorizon::acceptOK( CallBacker* )
+bool uiImportHorizon::acceptOK()
 {
     if ( !checkInpFlds() ) return false;
 

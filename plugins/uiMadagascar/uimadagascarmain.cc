@@ -334,7 +334,7 @@ void uiMadagascarMain::exportFlow( CallBacker* )
 }
 
 
-bool uiMadagascarMain::rejectOK( CallBacker* )
+bool uiMadagascarMain::rejectOK()
 {
     windowHide.trigger();
     return true;
@@ -356,7 +356,7 @@ bool uiMadagascarMain::fillPar()
 }
 
 
-bool uiMadagascarMain::acceptOK( CallBacker* )
+bool uiMadagascarMain::acceptOK()
 {
     return fillPar() && batchfld_->start();
 }

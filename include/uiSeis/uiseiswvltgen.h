@@ -55,7 +55,7 @@ protected:
     uiGenInput*		srfld_;
     uiGenInput*		peakamplfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 };
 
 
@@ -102,7 +102,7 @@ protected:
     void		reloadWvlts();
     void		reloadFunctions();
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		centerChged(CallBacker*);
     void		funcSelChg(CallBacker*);
     void		reloadAll(CallBacker*);

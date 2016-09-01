@@ -294,7 +294,7 @@ void uiBodyOperatorDlg::bodySel( CallBacker* )
 #define mRetErr(msg) { uiMSG().error(msg); return false; }
 
 
-bool uiBodyOperatorDlg::acceptOK( CallBacker* )
+bool uiBodyOperatorDlg::acceptOK()
 {
     for ( int idx=0; idx<listinfo_.size(); idx++ )
     {
@@ -420,7 +420,7 @@ uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p,
 }
 
 
-bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
+bool uiImplicitBodyValueSwitchDlg::acceptOK()
 {
     const IOObj* inpiobj = inputfld_->ioobj(true);
     if ( !inpiobj )

@@ -32,7 +32,7 @@ public:
 			~uiPresentationMakerDlg();
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     void		templateCB(CallBacker*);
     void		imageTypeCB(CallBacker*);

@@ -37,7 +37,7 @@ public:
     bool			unHide() const		{ return unhide_; }
 
 protected:
-    bool			rejectOK(CallBacker*);
+    bool			rejectOK();
     uiTextEdit*			infofld_;
     uiLabel*			resumelbl_;
     bool			unhide_;
@@ -68,7 +68,7 @@ protected:
     bool			selectStartRecordCB(CallBacker*);
     void			selectStopRecordCB(CallBacker*);
     void			interactCB(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			rejectOK();
     void			interactClosedCB(CallBacker*);
     void			toolTipChangeCB(CallBacker*);
 

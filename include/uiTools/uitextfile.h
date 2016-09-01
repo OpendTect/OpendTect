@@ -120,8 +120,8 @@ protected:
     void		save(CallBacker*);
     void		saveAs(CallBacker*);
     void		dismiss(CallBacker*);
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK();
+    bool		acceptOK();
     void		finalizeCB(CallBacker*);
 
     void		fileNmChgd(CallBacker*);

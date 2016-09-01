@@ -57,7 +57,7 @@ void uiGoogleExportRandomLine::putSel( CallBacker* )
 }
 
 
-bool uiGoogleExportRandomLine::acceptOK( CallBacker* )
+bool uiGoogleExportRandomLine::acceptOK()
 {
     if ( crds_.size() < 1 ) return true;
 

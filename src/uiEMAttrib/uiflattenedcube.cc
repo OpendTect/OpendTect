@@ -89,7 +89,7 @@ uiWriteFlattenedCube::~uiWriteFlattenedCube()
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiWriteFlattenedCube::acceptOK( CallBacker* )
+bool uiWriteFlattenedCube::acceptOK()
 {
     if ( !seisselin_ ) return true;
 

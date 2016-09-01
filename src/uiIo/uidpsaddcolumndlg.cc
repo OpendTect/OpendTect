@@ -125,7 +125,7 @@ void uiDPSAddColumnDlg::updateDisplay()
 }
 
 
-bool uiDPSAddColumnDlg::acceptOK( CallBacker* )
+bool uiDPSAddColumnDlg::acceptOK()
 {
     if ( !withmathop_ || (withmathop_ && !mathobj_) )
 	return true;

@@ -155,7 +155,7 @@ void uiDPSSelectednessDlg::showIn3DScene()
 }
 
 
-bool uiDPSSelectednessDlg::acceptOK( CallBacker* )
+bool uiDPSSelectednessDlg::acceptOK()
 {
     DataPointSet& dps = plotter_.dps();
     BufferStringSet colnms;

@@ -24,7 +24,7 @@ public:
 			uiGMTInfoDlg(uiParent*);
 protected:
     void		gmtPushCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
     void		selCB(CallBacker*);
 
     uiCheckBox*		chkbut_;
