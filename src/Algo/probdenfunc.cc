@@ -251,7 +251,7 @@ float ArrayNDProbDenFunc::getNormFac() const
     for ( od_int64 idx=0; idx<totalsz; idx++ )
 	sumval += values[idx];
 
-    return 1.f / sumval;
+    return sumval ? 1.f / sumval : 1.f;
 }
 
 
