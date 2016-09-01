@@ -25,10 +25,10 @@ ________________________________________________________________________
 
 
 #define mComputeTrendAandB( sz ) { \
-	aval = ( (fT)sz * crosssum - sum * (fT)sumindexes ) / \
-	       ( (fT)sz * (fT)sumsqidx - (fT)sumindexes * (fT)sumindexes );\
-	bval = ( sum * (fT)sumsqidx - (fT)sumindexes * crosssum ) / \
-	       ( (fT)sz * (fT)sumsqidx - (fT)sumindexes * (fT)sumindexes ); }
+	aval = mCast(T,( (fT)sz * crosssum - sum * sumindexes ) / \
+	       ( (fT)sz * sumsqidx - sumindexes * sumindexes ) );\
+	bval = mCast(T,( sum * sumsqidx - sumindexes * crosssum ) / \
+	       ( (fT)sz * sumsqidx - sumindexes * sumindexes ) ); }
 
 
 /*!\brief [do not use, helper function] */
@@ -42,8 +42,8 @@ inline bool removeLinPart( const ArrayND<T>& in_, ArrayND<T>* out, bool trend )
 
     T avg = 0;
     T sum = 0;
-    od_int64 sumindexes = 0;
-    od_int64 sumsqidx = 0;
+    fT sumindexes = 0;
+    fT sumsqidx = 0;
     T crosssum = 0;
     T aval = mUdf(T);
     T bval = mUdf(T);
@@ -67,9 +67,10 @@ inline bool removeLinPart( const ArrayND<T>& in_, ArrayND<T>* out, bool trend )
 	    if ( !trend )
 		continue;
 
-	    sumindexes += idx;
-	    sumsqidx += idx * idx;
-	    crosssum += inpptr[idx] * (fT)idx;
+	    const fT fidx = mCast(fT,idx);
+	    sumindexes += fidx;
+	    sumsqidx += fidx * fidx;
+	    crosssum += inpptr[idx] * fidx;
 	}
 
 	if ( count <= 1 )
@@ -1106,7 +1107,7 @@ template <class RT,class AT> inline
 bool CumArrOperExec<RT,AT>::doWork( od_int64 start, od_int64 stop,
 				    int threadidx )
 {
-    RT sumval = 0;
+    RT sumval = 0, comp = 0;
     od_uint64 count = 0;
     const AT* xvals = xarr_.getData();
     const AT* yvals = yarr_ ? yarr_->getData() : 0;
@@ -1159,7 +1160,10 @@ bool CumArrOperExec<RT,AT>::doWork( od_int64 start, od_int64 stop,
 	else if ( setup_.dosqout_ )
 	    xvalue *= xvalue;
 
-	sumval += xvalue;
+	xvalue -= comp;
+	const RT t = sumval + xvalue;
+	comp = ( t - sumval ) - xvalue;
+	sumval = t;
 	count++;
 	if ( xiter ) xiter->next();
 	if ( yiter ) yiter->next();
