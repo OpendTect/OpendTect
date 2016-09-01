@@ -245,15 +245,8 @@ bool RequestConnection::readFromSocket()
     {
 	PtrMan<RequestPacket> nextreceived = new RequestPacket;
 	Network::Socket::ReadStatus readres = socket_->read( *nextreceived );
-	if ( readres==Network::Socket::ReadError )
-	{
-	    errmsg_ = socket_->errMsg();
-	    socket_->disconnectFromHost();
-	    if ( errmsg_.isEmpty() )
-		errmsg_ = tr("Error reading from socket");
-	    return false;
-	}
-	else if ( readres==Network::Socket::ReadOK )
+
+	if ( readres==Network::Socket::ReadOK )
 	{
 	    if ( !nextreceived->isOK() )
 	    {
@@ -273,9 +266,22 @@ bool RequestConnection::readFromSocket()
 
 		packetArrived.trigger(receivedid);
 	    }
+	    else
+	    {
+		pErrMsg("Invalid packet arrived");
+	    }
+	}
+	else //Error or timeout
+	{
+	    errmsg_ = socket_->errMsg();
+	    socket_->disconnectFromHost();
+	    if (errmsg_.isEmpty())
+		errmsg_ = tr("Error reading from socket");
+	    return false;
 	}
 
-	if ( !socket_->bytesAvailable() ) //Not sure this works
+	//Break the loop when there is nothing left to read
+	if ( !socket_->bytesAvailable() )
 	    return true;
     }
 

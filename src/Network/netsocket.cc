@@ -38,6 +38,7 @@ Network::Socket::Socket( bool haveevloop )
     , timeout_( 30000 )
     , noeventloop_( !haveevloop )
     , disconnected( this )
+    , error( this )
     , readyRead( this )
     , ownssocket_( true )
     , thread_( Threads::currentThread() )
@@ -60,6 +61,7 @@ Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
     , disconnected( this )
     , readyRead( this )
     , ownssocket_( false )
+    , error( this )
     , thread_( Threads::currentThread() )
 {
 #ifndef OD_NO_QT
@@ -71,8 +73,8 @@ Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
 Network::Socket::~Socket()
 {
 #ifndef OD_NO_QT
-    mCheckThread;
     socketcomm_->disconnect();
+    mCheckThread;
     socketcomm_->deleteLater();
     if ( ownssocket_ ) qtcpsocket_->deleteLater();
 #endif

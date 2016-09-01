@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 -*/
 
+
 #include <QTcpSocket>
 #include "netsocket.h"
 
@@ -36,9 +37,24 @@ QTcpSocketComm( QTcpSocket* qtcpsocket, Network::Socket* netsocket )
 {
     connect( qtcpsocket, SIGNAL(disconnected()), this, SLOT(trigDisconnect()));
     connect( qtcpsocket, SIGNAL(readyRead()), this, SLOT(trigReadyRead()) );
+    connect(qtcpsocket, SIGNAL(error(QAbstractSocket::SocketError)),
+	this, SLOT(handleError(QAbstractSocket::SocketError)));
+    connect(qtcpsocket, SIGNAL(stateChange(QAbstractSocket::SocketState)),
+	this, SLOT(handleStateChange(QAbstractSocket::SocketState)));
 }
 
 private slots:
+
+void handleError( QAbstractSocket::SocketError err )
+{
+    if (netsocket_)
+	netsocket_->error.trigger();
+}
+
+void handleStateChange(QAbstractSocket::SocketState state)
+{
+}
+
 
 void trigDisconnect()
 {

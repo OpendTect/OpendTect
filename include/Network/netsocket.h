@@ -99,6 +99,8 @@ public:
     Notifier<Socket> readyRead;    /*!<Note that object may or may not be
 				      locked, so you may not be able to
 				      read immediately */
+    Notifier<Socket> error;
+
 
     const void*			thread() const { return thread_; }
 

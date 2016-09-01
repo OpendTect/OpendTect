@@ -739,6 +739,10 @@ Threads::ConditionVar::ConditionVar( const ConditionVar& )
 Threads::ConditionVar::~ConditionVar()
 {
 #ifndef OD_NO_QT
+# ifdef __debug__
+    if (count_)
+	pErrMsg("Deleting condition variable with waiting threads.");
+# endif
     delete cond_;
 #endif
 }
