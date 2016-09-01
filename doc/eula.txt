@@ -100,3 +100,22 @@ D.	The Licensee and dGB shall in no event be liable one to the other for loss of
 A.	Except as provided below, neither party may assign, or otherwise transfer any or all of its rights and obligations under this Agreement without the prior written consent of the other which consent shall not be unreasonably withheld.
 B.	dGB retains the right to subcontract its Support obligations hereunder provided that dGB shall exercise all due care in selecting reasonably competent subcontractor(s) possessing skills equivalent to those of dGB's Support personnel. dGB shall remain ultimately responsible for its duties towards the Licensee under this Agreement.
 C.	Any assignment or transfer by either party to a successor in interest to all or substantially all of that party's business by sale, merger or reorganization shall be permitted provided that such successor in interest is expressly bound by the terms of the assignment or transfer to perform all of that party's obligations under this Agreement.
+11. Notice
+All notices hereunder shall be in writing and may be sent by recorded delivery first-class post addressed to the other party at the address set out above. A notice shall be deemed to have been served 7 days after posting. Either party should notify the other party on any changes in contact persons or addresses where notices should be sent.
+12. Termination
+A.	Licensee may terminate this agreement with 90 days notice. Licensee does thereby lose the license to use the Software. Licensee is still obliged to pay eventual Maintenance fees during the notice period. Eventual maintenance fees that are already paid by Licensee for the period after the termination will not be refunded. Following the termination there shall be no other liabilities between the parties.
+B.	dGB may terminate this agreement within the first year if Licensee is more than 30 days late paying the invoices stemming from this agreement.
+C.	Either party may terminate the Agreement by written notice to either party if:
+a.	The other party unlawfully repudiates the Agreement; or
+b.	The other party shall commit a substantial breach of any of its obligations under the Agreement not amounting to such a repudiation and shall not have remedied such breach within four (4) weeks of receiving written notice of the breach from the first party of the breach, or commits a repetition of such breach; or  
+c.	The other party shall become bankrupt or enter into liquidation (provisional or otherwise) except for purpose of amalgamation or reconstruction or a receiver and / or manager or administrator appointed in respect of its assets or any part thereof or it enters into any composition or arrangement with creditors generally.
+If dGB is the party that becomes bankrupt or enters into liquidation, Licensee
+has the right to use perpetual licenses acquired under this agreement
+perpetually and irrevocably, and temporary licenses until their expiry date.
+d.	For any other reason if the other party agrees to the termination in writing.
+13. General Provitions
+A.	This Agreement shall be construed so far as possible to give validity to all its provisions. Any provision found to be void or unenforceable shall be deemed to be omitted herefrom and the remaining provisions shall continue in full force and effect.
+B.	Unless otherwise specified in the Acquisition Agreement, this Agreement shall be governed by Dutch law and the parties irrevocably submit to the exclusive jurisdiction of the Dutch Courts.
+C.	This Agreement sets out the entire understanding of the parties and supersedes all proposals oral or written and all other prior promises representations understandings implications or negotiations between the parties. No modification of any of the provisions hereof or any future representation promise or condition in connection with the subject matter hereof shall be binding on either party unless made in writing and signed by both parties.
+D.	The headings are included for reference purposes only and shall not affect the meaning or interpretation of this Agreement.
+E.	The waiver by either party of any breach of any provision of this Agreement shall not prevent the subsequent enforcement of that provision and shall not be deemed to be a waiver of any subsequent breach of that or any other provision.
