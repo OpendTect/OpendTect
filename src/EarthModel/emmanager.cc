@@ -60,6 +60,7 @@ EMManager::EMManager()
 
 EMManager::~EMManager()
 {
+    detachAllNotifiers();
     setEmpty();
     delete &undo_;
 }
@@ -460,7 +461,9 @@ void EMManager::levelSetChgCB( CallBacker* cb )
     if ( chgdata.changeType() != Strat::LevelSet::cLevelToBeRemoved() )
 	return;
 
-    const Strat::Level::ID lvlid = Strat::Level::ID::get( chgdata.ID() );
+    const Strat::Level::ID::IDType idnr
+				= (Strat::Level::ID::IDType)chgdata.ID();
+    const Strat::Level::ID lvlid = Strat::Level::ID::get( idnr );
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
 	mDynamicCastGet( EM::Horizon*, hor, objects_[idx] )
