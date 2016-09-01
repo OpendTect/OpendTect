@@ -453,7 +453,7 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     formfld_->setText( hc_.def_ );
     formfld_->attach( rightOf, addbut );
     formfld_->setHSzPol( uiObject::WideVar );
-    formfld_->returnPressed.notify(mCB(this,uiSEGYFileManipHdrCalcEd,acceptOK));
+    formfld_->returnPressed.notify(mCB(this,uiSEGYFileManipHdrCalcEd,acceptOKCB));
     uiLabel* lbl = new uiLabel(this, tr("Formula for '%1'")
 				   .arg(hc_.he_.name()));
     lbl->attach( centeredBelow, formfld_ );

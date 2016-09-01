@@ -256,7 +256,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     horSepar->attach( stretchedBelow, actiongrp );
 
     okbut_ = uiButton::getStd( this, OD::Ok,
-				mCB(this,uiWellLogToolWin,acceptOK), true );
+				mCB(this,uiWellLogToolWin,acceptOKCB), true );
     okbut_->attach( leftBorder, 20 );
     okbut_->attach( ensureBelow, horSepar );
     okbut_->setSensitive( false );

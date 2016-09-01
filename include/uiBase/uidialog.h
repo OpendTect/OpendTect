@@ -157,6 +157,9 @@ public:
 
     Notifier<uiDialog>	applyPushed;
 
+    void		acceptOKCB( CallBacker* cb )	{ acceptOK(); }
+    void		rejectOKCB( CallBacker* cb )	{ rejectOK(); }
+
 protected:
 
     virtual bool	rejectOK();		//!< confirm reject
