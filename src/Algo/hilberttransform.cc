@@ -94,11 +94,18 @@ class Masker
 {
 public:
 
-Masker( const ValueSeries<float>& data, int sz )
+Masker( const float* data, int sz )
     : avg_(0)
-    , data_(data)
+    , dataptr_(data)
     , size_(sz)
+    , valsinp_(0)
 {}
+
+
+void setValSeries( const ValueSeries<float>& valsinp )
+{
+    valsinp_ = &valsinp;
+}
 
 
 float operator[]( int pos ) const
@@ -106,11 +113,11 @@ float operator[]( int pos ) const
     float val = mUdf(float);
     const int nrsamples = size_;
     if ( pos < 0 )
-	val = data_.value(0);
+	val = dataptr_ ? dataptr_[0] : valsinp_->value( 0 );
     else if ( pos >= nrsamples )
-	val = data_.value( nrsamples-1 );
+	val = dataptr_ ? dataptr_[nrsamples-1] : valsinp_->value( nrsamples-1 );
     else
-	val = data_.value( pos );
+	val = dataptr_ ? dataptr_[pos] : valsinp_->value( pos );
 
     bool isudf = mIsUdf(val);
 
@@ -122,7 +129,7 @@ float operator[]( int pos ) const
 
 	while ( isudf && tmppos>0 && tmppos < nrsamples )
 	{
-	    val = data_.value( tmppos );
+	    val = dataptr_ ? dataptr_[tmppos] : valsinp_->value( tmppos );
 	    isudf = mIsUdf( val );
 	    goup ? tmppos++ : tmppos--;
 	}
@@ -133,14 +140,48 @@ float operator[]( int pos ) const
 
     int				size_;
     float			avg_;
-    const ValueSeries<float>&	data_;
+    const float*		dataptr_;
+    const ValueSeries<float>*	valsinp_;
 };
 
 
-bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
-				  ValueSeries<float>& output, int szout ) const
+bool HilbertTransform::transform( const float* input, int szin,
+				  float* output, int szout ) const
 {
+    return transform( input, szin, output, szout, 0 );
+}
+
+
+bool HilbertTransform::transform( const float* input, int szin,
+				  float* output, int szout,
+				  const ValueSeries<float>* valsinp ) const
+{
+    if ( !input && !valsinp )
+    {
+	pErrMsg( "Must have either a float pointer or a ValueSeries" );
+	return false;
+    }
+
+#ifdef __debug__
+    bool alludfvals = true;
+    for ( int idx=0; idx<szin; idx++ )
+    {
+	const float val = input ? input[idx] : valsinp->value( idx );
+	if ( !mIsUdf(val) )
+	{
+	    alludfvals = false;
+	    break;
+	}
+    }
+
+    if ( alludfvals )
+	{ pErrMsg("All input values are undefined"); return false; }
+#endif
+
     Masker masker( input, szin );
+    if ( !input && valsinp )
+	masker.setValSeries( *valsinp );
+
     float sum = 0;
 
     if ( startidx_<0 )
@@ -163,19 +204,31 @@ bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
 	maskerarr[idx] = masker[idx];
     }
 
+    if ( !nrsampforavg )
+	return true;
+
     masker.avg_ = sum / nrsampforavg;
 
-    float* outarr = output.arr();
     const int windowsz = halflen_ * 2 + 1;
     if ( nrsampforavg != szin )		//means there are undefined values
 	GenericConvolve( windowsz, -halflen_, hilbwindow_,
 			 szin, 0, maskerarr.ptr(),
-			 szout, convstartidx_, outarr );
+			 szout, convstartidx_, output );
     else
 	GenericConvolveNoUdf( windowsz, -halflen_, hilbwindow_, szin, 0,
-			      maskerarr.ptr(), szout, convstartidx_, outarr );
+			      maskerarr.ptr(), szout, convstartidx_, output );
 
     return true;
+}
+
+
+bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
+				  ValueSeries<float>& output, int szout ) const
+{
+    if ( !output.arr() )
+	return false;
+
+    return transform( input.arr(), szin, output.arr(), szout, &input );
 }
 
 
