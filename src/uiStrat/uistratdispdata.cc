@@ -22,8 +22,8 @@ ________________________________________________________________________
 #include "stratlith.h"
 
 
-#define mAskStratNotif(obj,nm,act)\
-    (obj)->nm.act(mCB(this,uiStratTreeToDisp,triggerDataChange));
+#define mAskStratNotif(obj,nm)\
+    (obj)->nm.notify(mCB(this,uiStratTreeToDisp,triggerDataChange));
 
 uiStratTreeToDisp::uiStratTreeToDisp( StratDispData& ad,
 					bool witauxs, bool withlvls  )
@@ -35,18 +35,14 @@ uiStratTreeToDisp::uiStratTreeToDisp( StratDispData& ad,
     setTree();
 }
 
-
 uiStratTreeToDisp::~uiStratTreeToDisp()
 {
-    mAskStratNotif(&Strat::eLVLS(),levelChanged,remove)
-    if ( tree_ )
-    {
-	tree_->deleteNotif.remove(mCB(this,uiStratTreeToDisp,treeDel));
-	mAskStratNotif(tree_,unitAdded,remove)
-	mAskStratNotif(tree_,unitChanged,remove)
-	mAskStratNotif(tree_,unitToBeDeleted,remove)
-    }
+    detachAllNotifiers();
 }
+
+
+#define mAskStratNotif(obj,nm)\
+    (obj)->nm.notify(mCB(this,uiStratTreeToDisp,triggerDataChange));
 
 
 void uiStratTreeToDisp::setTree()
@@ -56,10 +52,10 @@ void uiStratTreeToDisp::setTree()
 	return;
 
     tree_->deleteNotif.notify(mCB(this,uiStratTreeToDisp,treeDel));
-    mAskStratNotif(tree_,unitAdded,notify)
-    mAskStratNotif(tree_,unitChanged,notify)
-    mAskStratNotif(tree_,unitToBeDeleted,notify)
-    mAskStratNotif(&Strat::eLVLS(),levelChanged,notify)
+    mAskStratNotif(tree_,unitAdded)
+    mAskStratNotif(tree_,unitChanged)
+    mAskStratNotif(tree_,unitToBeDeleted)
+    mAskStratNotif(&Strat::eLVLS(),objectChanged())
 
     readFromTree();
 }
@@ -179,11 +175,10 @@ void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
     BufferString lvlnm; Color lvlcol;
     const Strat::Level::ID id = ur.levelID();
     const Strat::LevelSet& lvls = Strat::LVLS();
-    lvlcol = lvls.isPresent( id ) ? lvls.get( id )->color() : Color::Black();
-    lvlnm = lvls.isPresent( id ) ? lvls.get( id )->name().buf() : "";
+    lvlcol = lvls.isPresent( id ) ? lvls.levelColor( id ) : Color::Black();
+    lvlnm = lvls.isPresent( id ) ? lvls.levelName( id ) : "";
 
-    StratDispData::Level* lvl = new StratDispData::Level( lvlnm.buf(),
-							  ur.fullCode() );
+    StratDispData::Level* lvl = new StratDispData::Level( lvlnm, ur.fullCode() );
     lvl->zpos_ = ur.timeRange().start;
     lvl->color_ = lvlcol;
     data_.getCol( levelcolidx_ )->levels_ += lvl;

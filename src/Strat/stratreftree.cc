@@ -34,15 +34,13 @@ Strat::RefTree::RefTree()
 void Strat::RefTree::initTree()
 {
     src_ = Repos::Temp;
-    Strat::eLVLS().levelToBeRemoved.notifyIfNotNotified(
-	    mCB(this,Strat::RefTree,levelToBeRemoved) );
+    mAttachCB( Strat::eLVLS().objectChanged(), Strat::RefTree::levelSetChgCB );
 }
 
 
 Strat::RefTree::~RefTree()
 {
-    Strat::eLVLS().levelToBeRemoved.remove(
-	    mCB(this,Strat::RefTree,levelToBeRemoved) );
+    detachAllNotifiers();
     deleteNotif.trigger();
     delete &udfleaf_;
 }
@@ -247,16 +245,15 @@ bool Strat::RefTree::write( od_ostream& strm ) const
 }
 
 
-void Strat::RefTree::levelToBeRemoved( CallBacker* cb )
+void Strat::RefTree::levelSetChgCB( CallBacker* cb )
 {
-    mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
-    if ( !lvlset )
-	{ pErrMsg( "cb null or not a LevelSet" ); return; }
-    const int lvlidx = lvlset->notifLvlIdx();
-    if ( !lvlset->levels().validIdx( lvlidx ) ) return;
-    const Strat::Level& lvl = *lvlset->levels()[lvlidx];
-    Strat::LeavedUnitRef* lur = getByLevel( lvl.id() );
-    if ( lur ) lur->setLevelID( Level::ID::getInvalid() );
+    mGetMonitoredChgData( cb, chgdata );
+    if ( chgdata.changeType() != Strat::LevelSet::cLevelToBeRemoved() )
+	return;
+
+    Strat::LeavedUnitRef* lur = getByLevel( Level::ID::get(chgdata.ID()) );
+    if ( lur )
+	lur->setLevelID( Level::ID::getInvalid() );
 }
 
 
@@ -288,15 +285,16 @@ void Strat::RefTree::createFromLevelSet( const Strat::LevelSet& ls )
 
     NodeOnlyUnitRef* ndun = new NodeOnlyUnitRef( this, "Above",
 						"Layers above all markers" );
-    const Level& lvl0 = ls.getLevel( 0 );
+    const Level lvl0 = ls.first();
     ndun->add( new LeavedUnitRef( ndun, lvl0.name(),
 				BufferString("Above ",lvl0.name()) ) );
     add( ndun );
 
+    MonitorLock ml( ls );
     ndun = new NodeOnlyUnitRef( this, "Below", "Layers below a marker" );
     for ( int ilvl=0; ilvl<ls.size(); ilvl++ )
     {
-	const Level& lvl = ls.getLevel( ilvl );
+	const Level lvl = ls.getByIdx( ilvl );
 	LeavedUnitRef* lur = new LeavedUnitRef( ndun, lvl.name(),
 					BufferString("Below ",lvl.name()) );
 	lur->setLevelID( lvl.id() );

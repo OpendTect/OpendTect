@@ -213,7 +213,7 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 	eachfld_ = new uiGenInput( this, tr("Use Each"), val );
 	eachfld_->attach( alignedBelow, filefld_ );
 
-	doreplacefld_ = new uiGenInput( this, 
+	doreplacefld_ = new uiGenInput( this,
 					tr("Clear existing model before add"),
 					BoolInpSpec(true) );
 	doreplacefld_->attach( alignedBelow, eachfld_ );
@@ -535,7 +535,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , contitms_(*new uiGraphicsItemSet)
     , selseqitm_(0)
     , selseqad_(0)
-    , selectedlevel_(-1)
+    , selectedlevel_(Strat::Level::ID::getInvalid())
     , selectedcontent_(0)
     , allcontents_(false)
 {
@@ -889,7 +889,7 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 {
     dispprop_ = tools_.selPropIdx();
-    selectedlevel_ = tools_.selLevelIdx();
+    selectedlevel_ = tools_.selLevelID();
     dispeach_ = tools_.dispEach();
     showzoomed_ = tools_.dispZoomed();
     uselithcols_ = tools_.dispLith();
@@ -1003,14 +1003,14 @@ void uiStratSimpleLayerModelDisp::getBounds()
 {
     lvldpths_.erase();
     dispprop_ = tools_.selPropIdx();
-    const Strat::Level* lvl = tools_.selStratLevel();
+    const Strat::Level lvl = tools_.selStratLevel();
     for ( int iseq=0; iseq<layerModel().size(); iseq++ )
     {
 	const Strat::LayerSequence& seq = layerModel().sequence( iseq );
-	if ( !lvl || seq.isEmpty() )
+	if ( lvl.id().isInvalid() || seq.isEmpty() )
 	    { lvldpths_ += mUdf(float); continue; }
 
-	const int posidx = seq.positionOf( *lvl );
+	const int posidx = seq.positionOf( lvl );
 	float zlvl = mUdf(float);
 	if ( posidx >= seq.size() )
 	    zlvl = seq.layers()[seq.size()-1]->zBot();

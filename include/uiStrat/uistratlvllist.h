@@ -22,20 +22,21 @@ public:
 		~uiStratLvlList();
 
     void	setLevels();
-    void	setIsLocked(bool yn) { islocked_ = yn; }
+    void	setIsLocked( bool yn )	{ islocked_ = yn; }
 
-    bool	anyChg() const 	{ return anychange_; }
-    void	setNoChg() 	{ anychange_ = false; }
+    bool	anyChg() const		{ return anychange_; }
+    void	setNoChg()		{ anychange_ = false; }
 
 protected:
 
     bool	islocked_;
     bool	anychange_;
 
+    void	fill();
     void	editLevel(bool);
     bool	checkLocked() const;
 
-    void	fill(CallBacker*);
+    void	lvlSetChgCB(CallBacker*);
     void	removeLvl(CallBacker*);
     void	selLvlChgCB(CallBacker*);
 
@@ -45,7 +46,9 @@ protected:
     void	removeAllCB(CallBacker*);
 
 private:
+
     static const char*	sNoLevelTxt()		{return "--- None ---"; }
+
 };
 
 #endif

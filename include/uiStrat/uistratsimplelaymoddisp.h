@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uistratmod.h"
 #include "uistratlaymoddisp.h"
+#include "stratlevel.h"
 class uiLineItem;
 class uiTextItem;
 class uiRectItem;
@@ -26,9 +27,9 @@ mExpClass(uiStrat) uiStratSimpleLayerModelDisp : public uiStratLayerModelDisp
 { mODTextTranslationClass(uiStratSimpleLayerModelDisp)
 public:
 
-    			uiStratSimpleLayerModelDisp(uiStratLayModEditTools&,
+			uiStratSimpleLayerModelDisp(uiStratLayModEditTools&,
 					    const Strat::LayerModelProvider&);
-    			~uiStratSimpleLayerModelDisp();
+			~uiStratSimpleLayerModelDisp();
 
     virtual void	modelChanged();
     virtual void	reSetView();
@@ -59,7 +60,7 @@ protected:
     int			dispprop_;
     int			dispeach_;
     bool		fillmdls_;
-    int			selectedlevel_;
+    Strat::Level::ID	selectedlevel_;
     bool		uselithcols_;
     bool		showzoomed_;
     const Strat::Content* selectedcontent_;

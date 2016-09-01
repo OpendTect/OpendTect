@@ -256,9 +256,10 @@ void uiStratSynthExport::getExpObjs()
     const SyntheticData* sd = postsds_[0];
     const ObjectSet<const TimeDepthModel>& d2t = sd->zerooffsd2tmodels_;
     const Strat::LevelSet& lvls = Strat::LVLS();
+    MonitorLock ml( lvls );
     for ( int idx=0; idx<lvls.size(); idx++ )
     {
-	const Strat::Level& lvl = lvls.getLevel( idx );
+	const Strat::Level lvl = lvls.getByIdx( idx );
 	StratSynthLevel* ssl = new StratSynthLevel( lvl.name(), lvl.color() );
 	ss_.getLevelDepths( lvl, ssl->zvals_ );
 	for ( int trcidx=0; trcidx<ssl->zvals_.size(); trcidx++ )

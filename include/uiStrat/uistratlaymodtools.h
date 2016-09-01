@@ -14,13 +14,13 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "stratlevel.h"
 #include "uistring.h"
 
 class uiComboBox;
 class uiLabel;
 class uiSpinBox;
 class uiToolButton;
-namespace Strat { class Level; }
 
 
 mExpClass(uiStrat) uiStratGenDescTools : public uiGroup
@@ -96,8 +96,8 @@ public:
     Notifier<uiStratLayModEditTools>	mkSynthChg;
 
     int		selPropIdx() const;		//!< May return -1
-    int		selLevelIdx() const;		//!< May return -1
-    const Strat::Level*	selStratLevel() const;	//!< May return null
+    Strat::Level::ID selLevelID() const;
+    Strat::Level selStratLevel() const;
     Color	selLevelColor() const;		//!< May return NoColor
 
     uiToolButton* lithButton()		{ return lithtb_; }

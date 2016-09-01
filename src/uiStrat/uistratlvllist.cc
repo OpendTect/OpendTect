@@ -52,21 +52,14 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
 void uiStratLvlList::setLevels()
 {
     Strat::LevelSet& levelset = Strat::eLVLS();
-    levelset.levelChanged.notifyIfNotNotified( mCB(this,uiStratLvlList,fill) );
-    levelset.levelAdded.notifyIfNotNotified( mCB(this,uiStratLvlList,fill) );
-    levelset.levelToBeRemoved.notifyIfNotNotified(
-	    mCB(this,uiStratLvlList,removeLvl) );
-
-    fill(0);
+    mAttachCB( levelset.objectChanged(), uiStratLvlList::lvlSetChgCB );
+    fill();
 }
 
 
 uiStratLvlList::~uiStratLvlList()
 {
-    Strat::LevelSet& levelset = Strat::eLVLS();
-    levelset.levelChanged.remove( mCB(this,uiStratLvlList,fill) );
-    levelset.levelAdded.remove( mCB(this,uiStratLvlList,fill) );
-    levelset.levelToBeRemoved.remove( mCB(this,uiStratLvlList,removeLvl) );
+    detachAllNotifiers();
 }
 
 
@@ -99,14 +92,15 @@ void uiStratLvlList::addCB( CallBacker* )
 void uiStratLvlList::removeCB( CallBacker* )
 {
     mCheckLocked; mCheckEmptyList;
-    uiString msg = tr("This will remove the selected marker.");
+    uiString msg = tr("This will remove the selected Level.");
     if ( !uiMSG().askRemove(msg) ) return;
 
     Strat::LevelSet& levelset = Strat::eLVLS();
     const char* lvlnm = getText();
-    if ( !levelset.isPresent(lvlnm) ) return;
+    if ( !levelset.isPresent(lvlnm) )
+	return;
 
-    const Strat::Level& lvl = *levelset.get( lvlnm );
+    const Strat::Level lvl = levelset.getByName( lvlnm );
     levelset.remove( lvl.id() ) ;
     anychange_ = true;
 }
@@ -117,51 +111,38 @@ void uiStratLvlList::removeAllCB( CallBacker* )
     mCheckLocked; mCheckEmptyList;
     uiString msg = tr("This will remove all the markers present in the list,"
 		      " do you want to continue ?");
-    if ( !uiMSG().askRemove(msg) ) return;
+    if ( !uiMSG().askRemove(msg) )
+	return;
 
-    Strat::LevelSet& levelset = Strat::eLVLS();
-    for ( int idx=levelset.size()-1; idx>=0; idx-- )
-    {
-	const Strat::Level* lvl = levelset.levels()[idx];
-	if ( lvl->id().isValid() )
-	{
-	    levelset.remove( lvl->id() );
-	    anychange_ = true;
-	}
-    }
+    Strat::eLVLS().setEmpty();
+    anychange_ = true;
 }
 
 
-void uiStratLvlList::removeLvl( CallBacker* cb )
+void uiStratLvlList::lvlSetChgCB( CallBacker* cb )
 {
-    mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
-    if ( !lvlset )
-	{ pErrMsg( "cb null or not a LevelSet" ); return; }
-    const int lvlidx = lvlset->notifLvlIdx();
-    if ( lvlset->levels().validIdx( lvlidx ) )
-    {
-	const Strat::Level* lvl = lvlset->levels()[lvlidx];
-	if ( isPresent( lvl->name() ) )
-	    removeItem( indexOf( lvl->name() ) );
-    }
-    if ( isEmpty() )
-	addItem( toUiString("--- %1 ---").arg(uiStrings::sNone()) );
+    //TODO merge edits with new situation
+    fill();
 }
 
 
-void uiStratLvlList::fill( CallBacker* )
+void uiStratLvlList::fill()
 {
     setEmpty();
+
+    const Strat::LevelSet& lvls = Strat::LVLS();
     BufferStringSet lvlnms;
     TypeSet<Color> lvlcolors;
 
-    const Strat::LevelSet& lvls = Strat::LVLS();
+    MonitorLock ml( lvls );
     for ( int idx=0; idx<lvls.size(); idx++ )
     {
-	const Strat::Level& lvl = *lvls.levels()[idx];
+	const Strat::Level lvl = lvls.getByIdx( idx );
 	lvlnms.add( lvl.name() );
 	lvlcolors += lvl.color();
     }
+    ml.unlockNow();
+
     for ( int idx=0; idx<lvlnms.size(); idx++ )
 	addItem( toUiString(lvlnms[idx]->buf()), lvlcolors[idx] );
 
@@ -173,26 +154,29 @@ void uiStratLvlList::fill( CallBacker* )
 void uiStratLvlList::editLevel( bool create )
 {
     Strat::LevelSet& lvls = Strat::eLVLS();
-    BufferString oldnm = create ? "" : getText();
-    uiStratLevelDlg newlvldlg( this );
-    newlvldlg.setCaption( create ? tr("Create level") : tr("Edit level") );
-    Strat::Level* lvl = create ? 0 : lvls.get( oldnm );
-    if ( lvl ) newlvldlg.setLvlInfo( oldnm, lvl->color() );
-    if ( newlvldlg.go() )
+    BufferString oldnm;
+
+    uiStratLevelDlg lvldlg( this );
+    lvldlg.setCaption( create ? tr("Create level") : tr("Edit level") );
+    Strat::Level lvl = Strat::Level::undef();
+    if ( !create )
+    {
+	oldnm = getText();
+	lvl = lvls.getByName( oldnm );
+	lvldlg.setLvlInfo( oldnm, lvl.color() );
+    }
+
+    if ( lvldlg.go() )
     {
 	BufferString nm; Color col;
-	newlvldlg.getLvlInfo( nm, col );
-	if ( !nm.isEmpty() && oldnm!=nm && lvls.isPresent( nm ) )
+	lvldlg.getLvlInfo( nm, col );
+	if ( !nm.isEmpty() && oldnm != nm && lvls.isPresent( nm ) )
 	    { uiMSG().error(tr("Level name is empty or already exists"));
               return; }
-	if ( create )
-	    lvl = lvls.add( nm.buf(), col );
-	else if ( lvl )
-	{
-	    lvl->setName( nm.buf() );
-	    lvl->setColor( col );
-	}
 
+	lvl.setName( nm.buf() );
+	lvl.setColor( col );
+	lvls.set( lvl );
 	anychange_ = true;
     }
 }

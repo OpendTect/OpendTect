@@ -33,18 +33,17 @@ public:
 					//!< pass null for no label
 			~uiStratLevelSel();
 
-    const Strat::Level*	selected() const;
+    Strat::Level	selected() const;
     const char*		getLevelName() const;
     Color		getColor() const;
     LevelID		getID() const;
 
-    void		setSelected(const Strat::Level*);
     void		setName(const char*);
     void		setID(LevelID);
 
     Notifier<uiStratLevelSel> selChange;
 
-    static const uiString	sTiedToTxt();
+    static const uiString sTiedToTxt();
 
 protected:
 

@@ -88,9 +88,16 @@ bool Well::Marker::operator > ( const Marker& oth ) const
 
 const OD::String& Well::Marker::name() const
 {
+    mDeclStaticString( lvnmret );
     mLock4Read();
-    const Strat::Level* lvl = gtLevel();
-    return lvl ? lvl->name() : name_; // yeah I know, not MT-safe
+    Strat::Level lvl = gtLevel();
+    if ( lvl.isUndef() )
+    {
+	lvnmret = lvl.name();
+	return lvnmret;
+    }
+
+    return name_;
 }
 
 
@@ -104,12 +111,12 @@ BufferString Well::Marker::getName() const
 Color Well::Marker::color() const
 {
     mLock4Read();
-    const Strat::Level* lvl = gtLevel();
-    return lvl ? lvl->color() : color_;
+    const Strat::Level lvl = gtLevel();
+    return lvl.isUndef() ? color_ : lvl.color();
 }
 
 
-const Strat::Level* Well::Marker::getLevel() const
+Strat::Level Well::Marker::getLevel() const
 {
     mLock4Read();
     return gtLevel();
@@ -118,12 +125,12 @@ const Strat::Level* Well::Marker::getLevel() const
 
 BufferString Well::Marker::gtName() const
 {
-    const Strat::Level* lvl = gtLevel();
-    return lvl ? lvl->getName() : name_;
+    const Strat::Level lvl = gtLevel();
+    return lvl.isUndef() ? name_ : lvl.getName();
 }
 
 
-const Strat::Level* Well::Marker::gtLevel() const
+Strat::Level Well::Marker::gtLevel() const
 {
     return Strat::LVLS().get( levelid_ );
 }

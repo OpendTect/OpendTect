@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "keystrs.h"
 #include "propertyref.h"
-#include "stratlevel.h"
 #include "stratlayermodel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -248,9 +247,10 @@ const char* uiStratLayModEditTools::selLevel() const
 }
 
 
-int uiStratLayModEditTools::selLevelIdx() const
+Strat::Level::ID uiStratLayModEditTools::selLevelID() const
 {
-    return lvlfld_->isEmpty() ? -1 : lvlfld_->currentItem() - 1;
+    return lvlfld_->isEmpty() ? Strat::Level::ID::getInvalid()
+			      : Strat::LVLS().getByName( lvlfld_->text() ).id();
 }
 
 
@@ -260,17 +260,17 @@ const char* uiStratLayModEditTools::selContent() const
 }
 
 
-const Strat::Level* uiStratLayModEditTools::selStratLevel() const
+Strat::Level uiStratLayModEditTools::selStratLevel() const
 {
-    const int lvlidx = selLevelIdx();
-    return lvlidx < 0 ? 0 : Strat::LVLS().levels()[lvlidx];
+    const Strat::Level::ID lvlid = selLevelID();
+    return Strat::LVLS().get( lvlid );
 }
 
 
 Color uiStratLayModEditTools::selLevelColor() const
 {
-    const Strat::Level* lvl = selStratLevel();
-    return lvl ? lvl->color() : Color::NoColor();
+    const Strat::Level lvl = selStratLevel();
+    return lvl.color();
 }
 
 
@@ -294,7 +294,7 @@ bool uiStratLayModEditTools::dispLith() const
 
 bool uiStratLayModEditTools::showFlattened() const
 {
-    return flattenedtb_->isOn() && (bool)selStratLevel();
+    return flattenedtb_->isOn() && selStratLevel().id().isValid();
 }
 
 

@@ -544,8 +544,10 @@ bool uiStratSynthCrossplot::acceptOK()
 				   : Interval<float>::udf();
     const float zstep = evfld_->hasStep() ? evfld_->event().extrStep()
 					  : mUdf(float);
-    const Strat::Level& lvl = *evfld_->event().level();
-    const Strat::Level* stoplvl = evfld_->event().downToLevel();
+    const Strat::Level lvl = Strat::LVLS().get( evfld_->event().levelID() );
+    const Strat::Level downtolevel = Strat::LVLS().get(
+	    				evfld_->event().downToLevelID() );
+    const Strat::Level* stoplvl = downtolevel.id().isValid() ? &downtolevel : 0;
     RefMan<DataPointSet> dps =
 		getData( seisattrs, seqattrs, lvl, extrwin, zstep, stoplvl );
     if ( !dps )

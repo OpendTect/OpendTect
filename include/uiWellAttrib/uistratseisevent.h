@@ -25,15 +25,17 @@ mExpClass(uiWellAttrib) uiStratSeisEvent : public uiGroup
 { mODTextTranslationClass(uiStratSeisEvent);
 public:
 
+    typedef Strat::Level::ID	LevelID;
+
     mExpClass(uiWellAttrib) Setup
     {
     public:
 			Setup( bool wew=false )
 			    : withextrwin_(wew)
 			    , allowlayerbased_(false)
-			    , fixedlevel_(0)		{}
+			    , fixedlevelid_(LevelID::getInvalid())	{}
 
-	mDefSetupMemb(const Strat::Level*,fixedlevel)
+	mDefSetupMemb(LevelID,fixedlevelid)
 	mDefSetupMemb(bool,withextrwin)
 	mDefSetupMemb(bool,allowlayerbased)
     };

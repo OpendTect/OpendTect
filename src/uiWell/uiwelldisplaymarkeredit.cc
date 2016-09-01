@@ -65,10 +65,15 @@ bool uiAddEditMrkrDlg::acceptOK()
     if ( stratmrkfld_->isChecked() )
     {
 	Strat::LevelSet& lvls = Strat::eLVLS();
-	const bool ispresent = Strat::LVLS().isPresent( nm.buf() );
-	const Strat::Level* lvl = ispresent ?
-	    lvls.get( nm.buf() ) : lvls.add( nm.buf(), colorfld_->color() );
-	marker_.setLevelID( lvl ? lvl->id() : Strat::Level::ID::getInvalid() );
+	Strat::Level lvl = Strat::LVLS().getByName( nm );
+	Strat::Level::ID lvlid = lvl.id();
+	if ( lvlid.isInvalid() )
+	{
+	    lvl.setName( nm );
+	    lvl.setColor( colorfld_->color() );
+	    lvlid = lvls.set( lvl );
+	}
+	marker_.setLevelID( lvlid );
     }
 
     return true;

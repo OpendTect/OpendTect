@@ -91,7 +91,7 @@ protected:
 
     ObjectSet<EMObject>		objects_;
 
-    void		levelToBeRemoved(CallBacker*);
+    void		levelSetChgCB(CallBacker*);
     static const char*	displayparameterstr();
 
     bool		readParsFromDisplayInfoFile(const MultiID&,

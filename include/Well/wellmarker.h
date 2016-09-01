@@ -56,14 +56,14 @@ public:
     Color		color() const;
     mImplSimpleMonitoredSet(setColor,Color,color_,cColorChange());
 
-    const Strat::Level*	getLevel() const;
+    Strat::Level	getLevel() const;
     void		setNoLevelID();
 
     static const char*	sKeyDah();
     static ChangeType	cColorChange()		{ return 2; }
     static ChangeType	cLevelChange()		{ return 3; }
     static ChangeType	cDahChange()		{ return 4; } // like DahObj
-   
+
 protected:
 
     float		dah_;
@@ -72,7 +72,7 @@ protected:
 
 			// Usable in locked state
     BufferString	gtName() const;
-    const Strat::Level*	gtLevel() const;
+    Strat::Level	gtLevel() const;
 
 };
 

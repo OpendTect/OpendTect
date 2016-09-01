@@ -33,7 +33,7 @@ public:
 			~RefTree();
 
     Repos::Source	source() const			{ return src_; }
-    
+
     LithologySet&	lithologies()			{ return liths_; }
     const LithologySet&	lithologies() const		{ return liths_; }
     ContentSet&		contents()			{ return contents_; }
@@ -45,7 +45,7 @@ public:
     Notifier<RefTree>	unitChanged;
     Notifier<RefTree>	unitToBeDeleted;
     const UnitRef*	notifUnit() const		{ return notifun_; }
-    			//!< if null, assume everything has changed
+			//!< if null, assume everything has changed
 
     const LeafUnitRef&	undefLeaf() const		{ return udfleaf_; }
     virtual int		level() const			{ return 0; }
@@ -54,7 +54,7 @@ public:
     static RefTree*	createStd(const char*);
 
     void		createFromLevelSet(const LevelSet&);
-    			//!< keep contents and lithologies
+			//!< keep contents and lithologies
     const LeavedUnitRef* getLevelSetUnit(const char* lvlnm) const;
 
     Notifier<RefTree>	deleteNotif;
@@ -69,14 +69,14 @@ protected:
     const UnitRef*	notifun_;
     LeafUnitRef&	udfleaf_;
 
-    void 		levelToBeRemoved(CallBacker*);
+    void		levelSetChgCB(CallBacker*);
 
 public:
 
     Repos::Source	src_;
 
-    				// for printing, export or something.
-    				// otherwise, use RepositoryAccess::write()
+				// for printing, export or something.
+				// otherwise, use RepositoryAccess::write()
     bool		read(od_istream&);
     bool		write(od_ostream&) const;
 

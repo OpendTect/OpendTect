@@ -668,14 +668,17 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 	if ( !res ) return false;
     }
 
+    //TODO MonitorLock ml( mset );
     for ( int idx=0; idx<selitems.size(); idx++ )
     {
 	const int selidx = selitems[idx];
-	Strat::Level* level = lvls.add( mset[selidx]->name(),
-					mset[selidx]->color() );
+	const Well::Marker mrkr = *mset[selidx]; //TODO mset.getByIdx( selidx );
+	Strat::Level level( mrkr.name(), mrkr.color() );
+	Strat::Level::ID lvlid = lvls.set( level );
 	lvls.store( Repos::Survey );
-	mset[selidx]->setLevelID( level->id() );
+	mset[selidx]->setLevelID( lvlid );
     }
+    //TODO ml.unlockNow();
 
     setMarkerSet( mset, false );
     return true;

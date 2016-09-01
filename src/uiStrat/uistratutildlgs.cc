@@ -794,9 +794,10 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
     lvlid_ = ur.levelID();
 
     const Strat::LevelSet& lvls = Strat::LVLS();
+    MonitorLock ml( lvls );
     for ( int idx=0; idx<lvls.size(); idx++ )
     {
-	const Strat::Level& lvl = *lvls.levels()[idx];
+	const Strat::Level lvl = lvls.getByIdx( idx );
 	lvlnms.add( lvl.name() );
 	colors += lvl.color();
 	ids_ += lvl.id();
@@ -832,6 +833,5 @@ bool uiStratLinkLvlUnitDlg::acceptOK()
     }
 
     unit_.setLevelID( lvlid_ );
-    Strat::eLVLS().levelChanged.trigger();
     return true;
 }

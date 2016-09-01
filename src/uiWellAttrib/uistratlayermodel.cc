@@ -1015,9 +1015,7 @@ void uiStratLayerModel::setModelProps()
     for ( int idx=1; idx<lm.propertyRefs().size(); idx++ )
 	nms.add( lm.propertyRefs()[idx]->name() );
     modtools_->setProps( nms );
-    nms.erase(); const Strat::LevelSet& lvls = Strat::LVLS();
-    for ( int idx=0; idx<lvls.size(); idx++ )
-	nms.add( lvls.levels()[idx]->name() );
+    nms.erase(); Strat::LVLS().getNames( nms );
     modtools_->setLevelNames( nms );
     nms.erase();
     const Strat::ContentSet& conts = lm.refTree().contents();

@@ -177,7 +177,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     polyfld_->attach( alignedBelow, horfld_ );
 
     uiStratSeisEvent::Setup ssesu( true );
-    ssesu.fixedlevel( Strat::LVLS().get(lvlnm) );
+    ssesu.fixedlevelid( Strat::LVLS().getIDByName(lvlnm) );
     evfld_ = new uiStratSeisEvent( this, ssesu );
     evfld_->attach( alignedBelow, polyfld_ );
 

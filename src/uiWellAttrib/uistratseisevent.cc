@@ -33,8 +33,8 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     , uptolvlfld_(0)
     , evtype_( VSEvent::TypeDef() )
 {
-    if ( !setup_.fixedlevel_ )
-	levelfld_ = new uiStratLevelSel( this, false, tr("Reference level" ));
+    if ( !setup_.fixedlevelid_.isValid() )
+	levelfld_ = new uiStratLevelSel( this, false, tr("Reference level") );
 
     evtype_.remove( evtype_.getKeyForIndex(0) );
 
@@ -104,13 +104,13 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 
 void uiStratSeisEvent::setLevel( const char* lvlnm )
 {
-    const Strat::Level* lvl = Strat::LVLS().get( lvlnm );
+    const LevelID lvlid = Strat::LVLS().getIDByName( lvlnm );
     if ( levelfld_ )
-	levelfld_->setSelected( lvl );
-    else if ( lvl )
+	levelfld_->setID( lvlid );
+    else if ( lvlid.isValid() )
     {
-	setup_.fixedlevel_ = lvl;
-	ev_.setLevel( lvl );
+	setup_.fixedlevelid_ = lvlid;
+	ev_.setLevelID( lvlid );
     }
 }
 
@@ -118,7 +118,7 @@ void uiStratSeisEvent::setLevel( const char* lvlnm )
 const char* uiStratSeisEvent::levelName() const
 {
     return levelfld_ ? levelfld_->getLevelName()
-		     : setup_.fixedlevel_->name().buf();
+		     : Strat::LVLS().get(setup_.fixedlevelid_).name().buf();
 }
 
 
@@ -165,11 +165,11 @@ void uiStratSeisEvent::stepSelCB( CallBacker* )
 
 bool uiStratSeisEvent::getFromScreen()
 {
-    ev_.setLevel( setup_.fixedlevel_ );
+    ev_.setLevelID( setup_.fixedlevelid_ );
     if ( levelfld_ )
     {
-	ev_.setLevel( levelfld_->selected() );
-	if ( !ev_.level() )
+	ev_.setLevelID( levelfld_->getID() );
+	if ( !ev_.levelID().isValid() )
 	    mErrRet(uiStrings::phrCannotFind(
 					    tr("selected stratigraphic level")))
     }
@@ -200,7 +200,8 @@ bool uiStratSeisEvent::getFromScreen()
 	ev_.setExtrStep( extrstep );
 
 	if ( uptolvlfld_ && uptolvlfld_->isChecked() )
-	    ev_.setDownToLevel( Strat::LVLS().get( uptolvlfld_->text() ) );
+	    ev_.setDownToLevelID( Strat::LVLS().getIDByName(
+						uptolvlfld_->text() ) );
     }
 
     return true;
@@ -210,7 +211,7 @@ bool uiStratSeisEvent::getFromScreen()
 void uiStratSeisEvent::putToScreen()
 {
     if ( levelfld_ )
-	levelfld_->setSelected( ev_.level() );
+	levelfld_->setID( ev_.levelID() );
     evfld_->setChecked( ev_.evType() != VSEvent::None );
     if ( ev_.evType() == VSEvent::None )
 	evfld_->setValue( evtype_.getKey(ev_.evType()) );
@@ -225,9 +226,11 @@ void uiStratSeisEvent::putToScreen()
 
 	if ( uptolvlfld_ )
 	{
-	    uptolvlfld_->setChecked( (bool)ev_.downToLevel() );
-	    if ( ev_.downToLevel() )
-		uptolvlfld_->setText( ev_.downToLevel()->name() );
+	    const bool havelvl = ev_.downToLevelID().isValid();
+	    uptolvlfld_->setChecked( havelvl );
+	    if ( havelvl )
+		uptolvlfld_->setText( Strat::LVLS().levelName(
+			    				ev_.downToLevelID()) );
 	}
     }
 }

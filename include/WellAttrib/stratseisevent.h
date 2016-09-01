@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 #include "valseriesevent.h"
 #include "ranges.h"
+#include "stratlevel.h"
 class SeisTrc;
 
 
@@ -26,43 +27,47 @@ class Level;
 mExpClass(WellAttrib) SeisEvent
 {
 public:
-			SeisEvent(const Level* lvl=0,
-				   VSEvent::Type evtyp=VSEvent::None)
-			    : level_(lvl)
+
+    typedef Strat::Level::ID	LevelID;
+    typedef VSEvent::Type	EvType;
+
+			SeisEvent( LevelID lvlid=LevelID::getInvalid(),
+				   EvType evtyp=VSEvent::None )
+			    : levelid_(lvlid)
 			    , evtype_(evtyp)
 			    , offs_(0)
 			    , extrwin_(0,0)
 			    , extrstep_(mUdf(float))
-			    , downtolevel_(0)		{}
+			    , downtolevelid_(LevelID::getInvalid())	{}
 
     float		snappedTime(const SeisTrc&) const;
     bool		snapPick(SeisTrc&) const;
 
-    void		setLevel( const Strat::Level* lvl ) { level_ = lvl; }
-    void		setEvType( const VSEvent::Type evtyp )
+    void		setLevelID( LevelID id ) { levelid_ = id; }
+    void		setEvType( const EvType evtyp )
 						{ evtype_ = evtyp; }
     void		setOffset( float off )	{ offs_ = off; }
     void		setExtrWin( const Interval<float>& win )
 						{ extrwin_ = win; }
     void		setExtrStep(float step ) { extrstep_ = step; }
-    void		setDownToLevel(  const Strat::Level* downtolevel )
-						{ downtolevel_ = downtolevel; }
+    void		setDownToLevelID( LevelID id )
+						{ downtolevelid_ = id; }
 
-    const Strat::Level* level() const		{ return level_; }
-    const VSEvent::Type& evType() const 	{ return evtype_; }
+    LevelID		levelID() const		{ return levelid_; }
+    EvType		evType() const		{ return evtype_; }
     float		offset() const		{ return offs_; }
     const Interval<float>& extrWin() const	{ return extrwin_; }
     float		extrStep() const	{ return extrstep_; }
-    const Strat::Level* downToLevel() const	{ return downtolevel_; }
+    LevelID		downToLevelID() const	{ return downtolevelid_; }
 
 protected:
 
-    const Strat::Level*	level_;
+    LevelID		levelid_;
     VSEvent::Type	evtype_;
     float		offs_;
     Interval<float>	extrwin_;
     float		extrstep_;
-    const Strat::Level*	downtolevel_;
+    LevelID		downtolevelid_;
 
 };
 
