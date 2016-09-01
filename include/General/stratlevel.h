@@ -123,7 +123,6 @@ public:
     Level		first() const;
 
     ID			add(const char*,const Color&);
-    ID			insert(const char*,const Color&,ID after);
     void		remove(ID);
 
     ID			set(const Level&);

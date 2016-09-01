@@ -454,6 +454,14 @@ void Strat::LevelSet::remove( ID id )
 }
 
 
+Strat::LevelSet::ID Strat::LevelSet::add( const char* nm, const Color& col )
+{
+    Level lvl( nm, col );
+    mLock4Write();
+    return doSet( lvl );
+}
+
+
 Strat::LevelSet::ID Strat::LevelSet::set( const Level& lvl )
 {
     mLock4Write();
