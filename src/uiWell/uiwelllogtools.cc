@@ -256,7 +256,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     horSepar->attach( stretchedBelow, actiongrp );
 
     okbut_ = uiButton::getStd( this, OD::Ok,
-	    			mCB(this,uiWellLogToolWin,acceptOK), true );
+	    			mCB(this,uiWellLogToolWin,okPushedCB), true );
     okbut_->attach( leftBorder, 20 );
     okbut_->attach( ensureBelow, horSepar );
     okbut_->setSensitive( false );
@@ -275,7 +275,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     overwritefld_->setStretch( 0, 0 );
 
     uiButton* cancelbut = uiButton::getStd( this, OD::Cancel,
-				mCB(this,uiWellLogToolWin,rejectOK), true );
+			    mCB(this,uiWellLogToolWin,cancelPushedCB), true );
     cancelbut->attach( rightBorder, 20 );
     cancelbut->attach( ensureBelow, horSepar );
     cancelbut->attach( ensureRightOf, overwritefld_ );
@@ -325,7 +325,7 @@ void uiWellLogToolWin::handleSpikeSelCB( CallBacker* )
 }
 
 
-bool uiWellLogToolWin::acceptOK()
+bool uiWellLogToolWin::okPushedCB( CallBacker* )
 {
     for ( int idx=0; idx<logdatas_.size(); idx++ )
     {
@@ -351,7 +351,7 @@ bool uiWellLogToolWin::acceptOK()
 }
 
 
-bool uiWellLogToolWin::rejectOK()
+bool uiWellLogToolWin::cancelPushedCB()
 { close(); return true; }
 
 

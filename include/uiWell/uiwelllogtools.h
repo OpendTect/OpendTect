@@ -101,8 +101,8 @@ protected:
     void			handleSpikeSelCB(CallBacker*);
     void			overWriteCB(CallBacker*);
     void			applyPushedCB(CallBacker*);
-    bool			acceptOK();
-    bool			rejectOK();
+    bool			okPushedCB(CallBacker*);
+    bool			cancelPushedCB();
 };
 
 
