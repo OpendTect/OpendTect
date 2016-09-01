@@ -228,7 +228,7 @@ void uiTieWin::drawFields()
     horSepar->attach( ensureBelow, vwrtaskgrp );
 
     uiPushButton* okbut = new uiPushButton( this, tr("OK/Save"),
-			mCB(this,uiTieWin,acceptOKCB), true );
+			mCB(this,uiTieWin,okPushCB), true );
     okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, horSepar );
 
@@ -241,7 +241,7 @@ void uiTieWin::drawFields()
     helpbut->attach( rightOf, infobut );
     helpbut->attach( ensureBelow, horSepar );
     uiPushButton* cancelbut = new uiPushButton( this, uiStrings::sCancel(),
-			mCB(this,uiTieWin,rejectOK), true );
+			mCB(this,uiTieWin,cancelPushCB), true );
     cancelbut->attach( rightBorder );
     cancelbut->attach( ensureBelow, horSepar );
 }
@@ -487,7 +487,7 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 }
 
 
-bool uiTieWin::rejectOK()
+bool uiTieWin::cancelPushCB( CallBacker* )
 {
     drawer_->enableCtrlNotifiers( false );
     close();
@@ -504,7 +504,7 @@ void uiTieWin::cleanUp( CallBacker* )
 }
 
 
-bool uiTieWin::acceptOK()
+bool uiTieWin::okPushCB( CallBacker* )
 {
     uiString errmsg = tr("This will overwrite your depth/time model, "
 			 "do you want to continue?");
