@@ -25,12 +25,12 @@ ________________________________________________________________________
 namespace OD
 {
 
-    typedef short int				GroupNrType;
-    typedef int					ObjNrType;
+    typedef short int 				GroupNrType;
+    typedef int 				ObjNrType;
     enum PresentationRequestType		{ Add, Vanish, Show, Hide };
     typedef GroupedID<GroupNrType,ObjNrType>	ViewerGroupedID;
-    typedef ViewerGroupedID::GroupIDType	ViewerTypeID; 
-    typedef ViewerGroupedID::ObjIDType		ViewerObjID; 
+    typedef ViewerGroupedID::GroupIDType 	ViewerTypeID; 
+    typedef ViewerGroupedID::ObjIDType 		ViewerObjID; 
 
 
 mExpClass(General) ViewerID : public ViewerGroupedID
@@ -47,7 +47,7 @@ public:
 				    setGroupID( vwrtypeid );
 				    setObjID( vwrobjid );
 				}
-				ViewerID(int vwrtypeid, int vwrid)
+				ViewerID(GroupNrType vwrtypeid, ObjNrType vwrid)
 				: ViewerGroupedID(
 				    ViewerGroupedID::get(vwrtypeid,vwrid) )
 				{}
