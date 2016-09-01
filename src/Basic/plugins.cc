@@ -447,7 +447,12 @@ static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
 {
     mGetFn(ArgcArgvCCRetFn,sla,"Init","Plugin",libnm);
     if ( !fn ) // their bad
+    {
+	const BufferString libnmonly = FilePath(libnm).fileName();
+	ErrMsg( BufferString( libnmonly,
+		    " does not have a InitPlugin function"));
 	return false;
+    }
 
     const char* ret = (*fn)( argc, argv );
     if ( ret )
@@ -479,7 +484,11 @@ bool PluginManager::load( const char* libnm )
 
     data->info_ = getPluginInfo( data->sla_, libnmonly );
     if ( !data->info_ )
-	{ delete data; return false; }
+    {
+	ErrMsg( BufferString( libnm, " does not return plugin information.") );
+	delete data;
+	return false;
+    }
 
     Data* existing = const_cast<Data*>(
 	findDataWithDispName( data->info_->dispname_ ) );
@@ -491,7 +500,10 @@ bool PluginManager::load( const char* libnm )
 	data = 0;
 
 	if ( existing->isloaded_ )
+	{
+	    ErrMsg( BufferString( libnm, " is already loaded.") );
 	    return false;
+	}
 
 	if ( !loadPlugin(existing->sla_,GetArgC(),GetArgV(),libnmonly) )
 	{
