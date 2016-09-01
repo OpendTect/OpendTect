@@ -166,10 +166,6 @@ protected:
     bool		cancelpushed_;
     CtrlStyle		ctrlstyle_;
     static int		titlepos_;
-
-    virtual mDeprecated bool	    acceptOK(CallBacker*)	{ return true; }
-    virtual mDeprecated bool	    rejectOK(CallBacker*)	{ return true; }
-
 };
 
 #endif

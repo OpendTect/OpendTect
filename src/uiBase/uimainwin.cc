@@ -2081,20 +2081,17 @@ int uiDialog::goMinimized()
 }
 
 
-mStartAllowDeprecatedSection
-
 bool uiDialog::acceptOK()
 {
-    return acceptOK( 0 );
+    return true;
 }
 
 
 bool uiDialog::rejectOK()
 {
-    return rejectOK( 0 );
+    return true;
 }
 
-mStopAllowDeprecatedSection
 
 const uiDialog::Setup& uiDialog::setup() const	{ return mBody->getSetup(); }
 void uiDialog::reject( CallBacker* cb)		{ mBody->reject( cb ); }
