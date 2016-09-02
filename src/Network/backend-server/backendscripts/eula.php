@@ -18,7 +18,7 @@ Format can be either:
     'crm'  - single column. For copy paste of HTML to pdf template in crm
 -*/
 
-function generateHTML( $twocolumns, $ispdf, $marginamount, $fontsize, $subtitlefontsize )
+function generateHTML( $inputfile, $twocolumns, $ispdf, $marginamount, $fontsize, $subtitlefontsize )
 {
     $output = '';
     $margin = "margin-left: $marginamount; margin-right: $marginamount;";
@@ -60,7 +60,7 @@ function generateHTML( $twocolumns, $ispdf, $marginamount, $fontsize, $subtitlef
 	'<head>'.
 	'<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
 
-    $eulatext = file_get_contents( dirname(__FILE__)."/../../../../doc/eula.txt" );
+    $eulatext = file_get_contents( $inputfile );
     $eulaarray = explode( "\n", $eulatext );
 
     $linenr = 0;
@@ -126,17 +126,34 @@ $marginamount = $twocolumns ? "1em" : "5em";
 $fontsize = $format == 'view' ? '' : 'font-size: xx-small; ';
 $subtitlefontsize = $format == 'view' ? '' : 'font-size: x-small; ';
 
-$htmltext = generateHTML( $twocolumns, $ispdf, $marginamount, $fontsize, $subtitlefontsize );
+$filename = "OpendTect-EULA.pdf";
+$inputfile = dirname(__FILE__)."/../../../../doc/eula.txt";
+$cachefile = dirname(__FILE__)."/../../../../doc/$filename";
 
-if ( $ispdf )
+if ( $ispdf && file_exists( $inputfile ) && file_exists( $cachefile )
+     && filemtime( $inputfile ) < filemtime( $cachefile ) )
 {
-    require_once __DIR__ . '/vendor/autoload.php';
-    $mpdf = new mPDF( ['tempDir' => __DIR__ . '/tmp'] );
-    $mpdf->WriteHTML( $htmltext );
-    $mpdf->Output( 'OpendTect-EULA.pdf', 'I' );
+    header("Content-type:application/pdf");
+    header("Content-Disposition:inline;filename='$filename'");
+    echo file_get_contents( $cachefile );
 }
 else
 {
-    echo $htmltext;
-}
+    $htmltext = generateHTML( $inputfile, $twocolumns, $ispdf, $marginamount, $fontsize, $subtitlefontsize );
 
+    if ( $ispdf )
+    {
+	require_once __DIR__ . '/vendor/autoload.php';
+	$mpdf = new mPDF( ['tempDir' => __DIR__ . '/tmp'] );
+	$mpdf->WriteHTML( $htmltext );
+	$mpdf->Output( $cachefile, 'F' );
+
+	header("Content-type:application/pdf");
+	header("Content-Disposition:inline;filename='$filename'");
+	echo file_get_contents( $cachefile );
+    }
+    else
+    {
+	echo $htmltext;
+    }
+}
