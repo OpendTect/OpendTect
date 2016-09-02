@@ -242,7 +242,7 @@ bool FileDownloader::writeData()
 {
 #ifndef OD_NO_QT
     od_int64 bytes = odnr_->downloadBytesAvailable();
-    ArrPtrMan<char> buffer = new char[bytes];
+    mAllocLargeVarLenArr( char, buffer, bytes );
     bytes = odnr_->read( buffer, bytes );
     nrdone_ += bytes;
     if ( databuffer_ )
