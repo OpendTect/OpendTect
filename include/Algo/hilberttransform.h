@@ -27,7 +27,7 @@ template <class T> class ArrayND;
 mExpClass(Algo) HilbertTransform
 {
 public:
-    			HilbertTransform();
+			HilbertTransform();
 			~HilbertTransform();
 
     bool		setInputInfo(const ArrayNDInfo&);
@@ -46,8 +46,15 @@ public:
     void		setHalfLen( int hl )		{ halflen_ = hl; }
     void		setCalcRange(int startidx,int convstartidx);
 
+			/*<! Will handle some undefined values
+			     BUT will be very slow if there are mostly
+				 undefined values.
+			     Returns unchanged output if all input values are
+			     undefined
+			 */
+    bool		transform(const float*,int szin,float*,int szout) const;
     bool		transform(const ValueSeries<float>&,int szin,
-	    			  ValueSeries<float>&,int szout) const;
+				  ValueSeries<float>&,int szout) const;
     bool		transform(const ArrayND<float>&,ArrayND<float>&) const;
     bool		transform(const ArrayND<float_complex>&,
 				  ArrayND<float_complex>&) const;
@@ -61,6 +68,9 @@ protected:
     float*		makeHilbWindow(int);
     bool		isPossible(int) const;
     bool		isFast( int ) const		{ return true; }
+
+    bool		transform(const float*,int szin,float*,int szout,
+				  const ValueSeries<float>* in) const;
 
     bool		forward_;
     int			nrsamples_;
