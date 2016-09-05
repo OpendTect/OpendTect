@@ -199,8 +199,8 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 	markerset_->setPos( idx, loc.pos_, true );
     if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow ||
 	 set_->disp_.markertype_ == MarkerStyle3D::Plane )
-    	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
-    
+	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
+
     if ( needLine() )
 	setPolylinePos( idx, loc.pos_ );
 
@@ -478,7 +478,7 @@ bool PickSetDisplay::setBodyDisplay()
 
 visBase::MarkerSet* PickSetDisplay::createOneMarker() const
 {
-    visBase::MarkerSet* marker =  visBase::MarkerSet::create();
+    visBase::MarkerSet* marker = visBase::MarkerSet::create();
     MarkerStyle3D markerstyle;
     markerstyle.size_ = set_->disp_.pixsize_;
     markerstyle.type_ = ( MarkerStyle3D::Type ) set_->disp_.markertype_;
@@ -486,7 +486,6 @@ visBase::MarkerSet* PickSetDisplay::createOneMarker() const
     marker->setMarkerStyle(markerstyle);
     marker->setMarkersSingleColor( Color::NoColor() );
     marker->addPos( Coord3(0,0,0) );
-    refPtr( marker );
     return marker;
 }
 
