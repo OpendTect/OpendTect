@@ -14,44 +14,52 @@ ________________________________________________________________________
 #include "integerid.h"
 
 
-/*!\brief 2 integer IDs combined to designate a Grouped Object.
+/*!\brief A unique identifier for an object consisting of a group and an ID
+	within the group.
 
-to prevent automatic conversion between GroupID & ObjectID we need to define
-different types for GroupID & ObjID
+In many places there is a need for an ID consisting of not only an object ID but also a group ID. If the groups were closed, an enum would be sufficient. But
+if the number of groups is not fixed (e.g. because they are in a factory) then
+both group ID and the object ID need to be integer numbers.
 
-e.g
-GroupedID <short int, int>
+Usually there are a lot less groups than possible objects, so the group ID can
+be represented by a short int. In that case, automatic conversion from group
+ID to object ID or the other way round will be prevented by this class.
 
 */
 
-template <class GroupNrType,class ObjNrType>
-mClass(Basic) GroupedID
+template <class GroupNrT,class ObjNrT>
+mClass(Basic) IDWithGroup
 {
 public:
 
-    typedef IntegerID<GroupNrType>	    GroupIDType;
-    typedef IntegerID<ObjNrType>	    ObjIDType;
+    typedef GroupNrT		    GroupNrType;
+    typedef ObjNrT		    ObjNrType;
+    typedef IntegerID<GroupNrT>	    GroupIDType;
+    typedef IntegerID<ObjNrT>	    ObjIDType;
 
-    static inline GroupedID get( GroupNrType grpnr, ObjNrType objnr )
-			{ return GroupedID(grpnr,objnr); }
+			IDWithGroup( GroupIDType gid, ObjIDType oid )
+			    : groupnr_(gid.getI())
+			    , objnr_(oid.getI())	{}
+    static inline IDWithGroup get( GroupNrT grpnr, ObjNrT objnr )
+			{ return IDWithGroup(grpnr,objnr); }
 
-    inline GroupIDType	getGroupID() const
+    inline GroupIDType	groupID() const
 			{ return GroupIDType::get(groupnr_); }
-    inline ObjIDType	getObjID() const
+    inline ObjIDType	objID() const
 			{ return ObjIDType::get(objnr_); }
-    inline GroupNrType	getGroupNr() const		{ return groupnr_; }
-    inline ObjNrType	getObjNr() const		{ return objnr_; }
+    inline GroupNrT	groupNr() const			{ return groupnr_; }
+    inline ObjNrT	objNr() const			{ return objnr_; }
     inline void		setGroupID( GroupIDType id )	{ groupnr_ = id.getI();}
     inline void		setObjID( ObjIDType id )	{ objnr_ = id.getI(); }
-    inline void		setGroupNr( GroupNrType nr )	{ groupnr_ = nr; }
-    inline void		setObjNr( ObjNrType nr )	{ objnr_ = nr; }
+    inline void		setGroupNr( GroupNrT nr )	{ groupnr_ = nr; }
+    inline void		setObjNr( ObjNrT nr )		{ objnr_ = nr; }
 
-    inline bool		operator ==( const GroupedID& oth ) const
-			{ return groupnr_ == oth.groupnr_ &&
-				 objnr_ == oth.objnr_; }
-    inline bool		operator !=( const GroupedID& oth ) const
-			{ return groupnr_ != oth.groupnr_ ||
-				 objnr_ != oth.objnr_; }
+    inline bool		operator ==( const IDWithGroup& oth ) const
+				{ return groupnr_ == oth.groupnr_ &&
+					 objnr_ == oth.objnr_; }
+    inline bool		operator !=( const IDWithGroup& oth ) const
+				{ return groupnr_ != oth.groupnr_ ||
+					 objnr_ != oth.objnr_; }
 
     inline bool		isInvalid() const
 				{ return groupnr_<0 || objnr_<0; }
@@ -62,18 +70,40 @@ public:
 			{ setInvalidGroup(); setInvalidObj(); }
     inline void		setInvalidGroup()		{ groupnr_=-1; }
     inline void		setInvalidObj()			{ objnr_ = -1; }
-    static inline GroupedID getInvalid()
-				{ return GroupedID(-1,-1); }
+    static inline IDWithGroup getInvalid()
+				{ return IDWithGroup(-1,-1); }
 
-private:
+    od_int64		toInt64() const;
+    static IDWithGroup	fromInt64(od_int64);
 
-    GroupNrType		groupnr_;
-    ObjNrType		objnr_;
+protected:
 
-    inline		GroupedID( GroupNrType gnr=0, ObjNrType onr=0 )
+    GroupNrT		groupnr_;
+    ObjNrT		objnr_;
+
+    inline		IDWithGroup( GroupNrT gnr=0, ObjNrT onr=0 )
 			    : groupnr_(gnr), objnr_(onr) { /* keep private! */ }
 
 };
+
+
+typedef IDWithGroup<short,int> GroupedID;
+
+
+template <class GroupNrT,class ObjNrT>
+inline od_int64 IDWithGroup<GroupNrT,ObjNrT>::toInt64() const
+{
+    return (((od_uint64)groupnr_) << 32) + (((od_uint64)objnr_) & 0xFFFFFFFF);
+}
+
+
+template <class GroupNrT,class ObjNrT>
+inline IDWithGroup<GroupNrT,ObjNrT>
+IDWithGroup<GroupNrT,ObjNrT>::fromInt64( od_int64 i64 )
+{
+    return IDWithGroup<GroupNrT,ObjNrT>( (GroupNrT)(i64 >> 32),
+					 (ObjNrT)(i64 & 0xFFFFFFFF) );
+}
 
 
 #endif
