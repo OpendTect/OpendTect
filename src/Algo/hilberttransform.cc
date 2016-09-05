@@ -95,8 +95,7 @@ class Masker
 public:
 
 Masker( const float* data, int sz )
-    : avg_(0)
-    , dataptr_(data)
+    : dataptr_(data)
     , size_(sz)
     , valsinp_(0)
 {}
@@ -135,11 +134,10 @@ float operator[]( int pos ) const
 	}
     }
 
-    return isudf ? mUdf(float) : val - avg_;
+    return isudf ? mUdf(float) : val;
 }
 
     int				size_;
-    float			avg_;
     const float*		dataptr_;
     const ValueSeries<float>*	valsinp_;
 };
@@ -182,8 +180,6 @@ bool HilbertTransform::transform( const float* input, int szin,
     if ( !input && valsinp )
 	masker.setValSeries( *valsinp );
 
-    float sum = 0;
-
     if ( startidx_<0 )
 	return false;
 
@@ -191,6 +187,7 @@ bool HilbertTransform::transform( const float* input, int szin,
     if ( !maskerarr )
 	return false;
 
+    float sum = 0;
     int nrsampforavg = 0;
     for ( int idx=0; idx<szin; idx++ )
     {
@@ -204,10 +201,12 @@ bool HilbertTransform::transform( const float* input, int szin,
 	maskerarr[idx] = masker[idx];
     }
 
-    if ( !nrsampforavg )
+    if ( !nrsampforavg || sum == 0.f )
 	return true;
 
-    masker.avg_ = sum / nrsampforavg;
+    const float avg = sum / nrsampforavg;
+    for ( int idx=0; idx<szin; idx++ )
+	maskerarr[idx] -= avg;
 
     const int windowsz = halflen_ * 2 + 1;
     if ( nrsampforavg != szin )		//means there are undefined values
