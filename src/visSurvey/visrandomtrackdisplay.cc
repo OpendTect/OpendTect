@@ -859,8 +859,8 @@ void RandomTrackDisplay::updatePanelStripPath()
     if ( nodes_.size()<2 || getUpdateStageNr() )
 	return;
 
-    TypeSet<BinID> trcbids;
-    getDataTraceBids( trcbids );	// Will update trcspath_
+    trcspathbids_.setEmpty();
+    getDataTraceBids( trcspathbids_ );	// Will update trcspath_
 
     TypeSet<Coord> pathcrds;
     TypeSet<float> mapping;
@@ -1313,9 +1313,9 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
     utm2display->transformBack( pos, xytpos );
     BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
 
-    TypeSet<BinID> bids;
-    getDataTraceBids( bids );
-    if ( !bids.isPresent(binid) )
+    if ( trcspathbids_.isEmpty() )
+	getDataTraceBids( trcspathbids_ );
+    if ( !trcspathbids_.isPresent(binid) )
 	return mUdf(float);
 
     float zdiff = 0;
