@@ -489,12 +489,11 @@ bool PickSetDisplay::setBodyDisplay()
 
 visBase::MarkerSet* PickSetDisplay::createOneMarker() const
 {
-    visBase::MarkerSet* marker =  visBase::MarkerSet::create();
+    visBase::MarkerSet* marker = visBase::MarkerSet::create();
     marker->setMaterial(0);
-    marker->setMarkerStyle(set_->markerStyle());
+    marker->setMarkerStyle( set_->markerStyle() );
     marker->setMarkersSingleColor( Color::NoColor() );
     marker->addPos( Coord3(0,0,0) );
-    refPtr( marker );
     return marker;
 }
 
