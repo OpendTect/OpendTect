@@ -16,6 +16,8 @@ template <class T> class TypeSet;
 
 
 /*!\brief single integer ID with comparison but no automatic conversion.
+  Note that you will want to make a subclass to make the IDs specific for your
+  class. Therefore, use the mDefIntegerID macro.
 
   typedef IntegerID<int> ID;
 
@@ -61,12 +63,12 @@ public:
 					{ return id_ != oth.id_;};
 				// Do not add '>' or similar!
 
-    inline bool	isInvalid() const	{ return mIsUdf(id_); }
-    inline bool	isValid() const		{ return !isInvalid(); }
-    inline void	setInvalid()		{ mSetUdf(id_); }
-    static inline IntegerID getInvalid() { return IntegerID(mUdf(IntType)); }
+    inline bool		isInvalid() const	{ return id_ < 0; }
+    inline bool		isValid() const		{ return !isInvalid(); }
+    inline void		setInvalid()		{ id_ = -1; }
+    static inline IntegerID getInvalid()	{ return IntegerID(-1); }
 
-private:
+protected:
 
     IntType		id_;
 
@@ -78,50 +80,30 @@ private:
 };
 
 
-/*!\brief two integer IDs lumped together. */
-
-template <class IntType>
-mClass(Basic) DualID
-{
-public:
-
-    typedef IntType		    IDType;
-    typedef IntegerID<IntType>	    IntIDType;
-
-    static inline DualID get( IntType i1, IntType i2 )
-					{ return DualID(i1,i2); }
-
-    inline IntIDType	get1() const	{ return IntIDType::get(id1_); }
-    inline IntIDType	get2() const	{ return IntIDType::get(id2_); }
-    inline IntType	getI1() const	{ return id1_; }
-    inline IntType	getI2() const	{ return id2_; }
-    inline void		set1( IntIDType id ) { id1_ = id.getI(); }
-    inline void		set2( IntIDType id ) { id2_ = id.getI(); }
-    inline void		setI1( IntType i ) { id1_ = i; }
-    inline void		setI2( IntType i ) { id2_ = i; }
-
-    inline bool		operator ==( const DualID& oth ) const
-				{ return id1_ == oth.id1_ && id2_ == oth.id2_;};
-    inline bool		operator !=( const DualID& oth ) const
-				{ return id1_ != oth.id1_ || id2_ != oth.id2_;};
-
-    inline bool	isInvalid() const	{ return mIsUdf(id1_) || mIsUdf(id2_); }
-    inline bool	isValid() const		{ return !isInvalid(); }
-    inline void	setInvalid()		{ setInvalid1(); setInvalid2(); }
-    inline void	setInvalid1()		{ mSetUdf(id1_); }
-    inline void	setInvalid2()		{ mSetUdf(id2_); }
-    static inline DualID getInvalid()
-				{ return DualID(mUdf(IntType),mUdf(IntType)); }
-
-private:
-
-    IntType		id1_;
-    IntType		id2_;
-
-    inline		DualID( IntType i1=0, IntType i2=0 )
-			    : id1_(i1), id2_(i2) { /* keep private! */ }
-
-};
+#define mDefIntegerIDType(IntType,classname) \
+ \
+class classname : public IntegerID<IntType> \
+{ \
+public: \
+ \
+    static inline classname get( IntType i ) \
+					{ return classname(i); } \
+ \
+    inline bool		operator ==( const classname& oth ) const \
+			{ return IntegerID<IntType>::operator ==(oth); } \
+    inline bool		operator !=( const classname& oth ) const \
+			{ return IntegerID<IntType>::operator !=(oth); } \
+ \
+    static inline classname getInvalid() { return classname(-1); } \
+ \
+protected: \
+ \
+    inline		classname( IntType i=0 ) \
+			    : IntegerID<IntType>(i)	{} \
+ \
+    friend class	TypeSet<classname>; \
+ \
+}
 
 
 #endif

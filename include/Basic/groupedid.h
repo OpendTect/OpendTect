@@ -22,8 +22,7 @@ if the number of groups is not fixed (e.g. because they are in a factory) then
 both group ID and the object ID need to be integer numbers.
 
 Usually there are a lot less groups than possible objects, so the group ID can
-be represented by a short int. In that case, automatic conversion from group
-ID to object ID or the other way round will be prevented by this class.
+be represented by a short int.
 
 */
 
@@ -32,25 +31,25 @@ mClass(Basic) IDWithGroup
 {
 public:
 
-    typedef GroupNrT		    GroupNrType;
-    typedef ObjNrT		    ObjNrType;
-    typedef IntegerID<GroupNrT>	    GroupIDType;
-    typedef IntegerID<ObjNrT>	    ObjIDType;
+    typedef GroupNrT		GroupNrType;
+    typedef ObjNrT		ObjNrType;
+    mDefIntegerIDType(GroupNrT,	GroupID);
+    mDefIntegerIDType(ObjNrT,	ObjID);
 
-			IDWithGroup( GroupIDType gid, ObjIDType oid )
+			IDWithGroup( GroupID gid, ObjID oid )
 			    : groupnr_(gid.getI())
 			    , objnr_(oid.getI())	{}
     static inline IDWithGroup get( GroupNrT grpnr, ObjNrT objnr )
 			{ return IDWithGroup(grpnr,objnr); }
 
-    inline GroupIDType	groupID() const
-			{ return GroupIDType::get(groupnr_); }
-    inline ObjIDType	objID() const
-			{ return ObjIDType::get(objnr_); }
+    inline GroupID	groupID() const
+			{ return GroupID::get(groupnr_); }
+    inline ObjID	objID() const
+			{ return ObjID::get(objnr_); }
     inline GroupNrT	groupNr() const			{ return groupnr_; }
     inline ObjNrT	objNr() const			{ return objnr_; }
-    inline void		setGroupID( GroupIDType id )	{ groupnr_ = id.getI();}
-    inline void		setObjID( ObjIDType id )	{ objnr_ = id.getI(); }
+    inline void		setGroupID( GroupID id )	{ groupnr_ = id.getI();}
+    inline void		setObjID( ObjID id )		{ objnr_ = id.getI(); }
     inline void		setGroupNr( GroupNrT nr )	{ groupnr_ = nr; }
     inline void		setObjNr( ObjNrT nr )		{ objnr_ = nr; }
 
@@ -64,8 +63,8 @@ public:
     inline bool		isInvalid() const
 				{ return groupnr_<0 || objnr_<0; }
     inline bool		isValid() const			{ return !isInvalid(); }
-    inline bool		hasValidGroup() const		{ return groupnr_>=0; }
-    inline bool		hasValidObj() const		{ return objnr_>=0; }
+    inline bool		hasValidGroupID() const		{ return groupnr_>=0; }
+    inline bool		hasValidObjID() const		{ return objnr_>=0; }
     inline void		setInvalid()
 			{ setInvalidGroup(); setInvalidObj(); }
     inline void		setInvalidGroup()		{ groupnr_=-1; }

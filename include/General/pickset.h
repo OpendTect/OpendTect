@@ -45,7 +45,7 @@ public:
 
     typedef TypeSet<Location>::size_type    size_type;
     typedef size_type			    IdxType;
-    typedef IntegerID<IdxType>		    LocID;
+    mDefIntegerIDType(IdxType,		    LocID);
 
 			Set(const char* nm=0,const char* category=0);
 			mDeclMonitorableAssignment(Set);

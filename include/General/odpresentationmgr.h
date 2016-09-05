@@ -25,8 +25,8 @@ ________________________________________________________________________
 namespace OD
 {
 
-    typedef GroupedID::GroupIDType	ViewerTypeID;
-    typedef GroupedID::ObjIDType	ViewerObjID;
+    typedef GroupedID::GroupID		ViewerTypeID;
+    typedef GroupedID::ObjID		ViewerObjID;
 
     enum PresentationRequestType	{ Add, Show, Hide, Vanish };
 
