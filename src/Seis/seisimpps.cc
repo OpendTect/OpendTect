@@ -58,7 +58,7 @@ void SeisPSImpLineBuf::add( SeisTrc* trc )
 }
 
 
-SeisPSImpDataMgr::SeisPSImpDataMgr( const MultiID& pswrid )
+SeisPSImpDataMgr::SeisPSImpDataMgr( const DBKey& pswrid )
     : wrid_(pswrid)
     , wrr_(0)
     , maxinloffs_(-1)

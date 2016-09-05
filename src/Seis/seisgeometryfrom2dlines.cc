@@ -40,7 +40,7 @@ void OD_2DLineGeometryFrom2DLinesTransf::doTransf( CallBacker* )
 {
     if ( !SI().has2D() ) return;
 
-    BufferStringSet lsnms; TypeSet<MultiID> lsids;
+    BufferStringSet lsnms; TypeSet<DBKey> lsids;
     SeisIOObjInfo::get2DLineInfo( lsnms, &lsids );
     if ( lsnms.isEmpty() ) return;
 

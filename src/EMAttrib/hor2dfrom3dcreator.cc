@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "executor.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "posinfo.h"
 #include "ioobj.h"
 #include "ioman.h"

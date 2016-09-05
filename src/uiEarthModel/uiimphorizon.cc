@@ -385,9 +385,9 @@ bool uiImportHorizon::doDisplay() const
 }
 
 
-MultiID uiImportHorizon::getSelID() const
+DBKey uiImportHorizon::getSelID() const
 {
-    MultiID mid = ctio_.ioobj_ ? ctio_.ioobj_->key() : -1;
+    DBKey mid = ctio_.ioobj_ ? ctio_.ioobj_->key() : -1;
     return mid;
 }
 
@@ -651,7 +651,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
 {
     const char* horizonnm = outputfld_->getInput();
     EM::EMManager& em = EM::EMM();
-    const MultiID mid = getSelID();
+    const DBKey mid = getSelID();
     EM::ObjectID objid = em.getObjectID( mid );
     if ( objid < 0 )
 	objid = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
@@ -661,7 +661,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
 	mErrRet( uiStrings::sCantCreateHor() );
 
     horizon->change.disable();
-    horizon->setMultiID( mid );
+    horizon->setDBKey( mid );
     horizon->setStratLevelID( stratlvlfld_->getID() );
     horizon->ref();
     return horizon;
@@ -672,7 +672,7 @@ EM::Horizon3D* uiImportHorizon::loadHor()
 {
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
-    emobj->setMultiID( ctio_.ioobj_->key() );
+    emobj->setDBKey( ctio_.ioobj_->key() );
     Executor* loader = emobj->loader();
     if ( !loader ) mErrRet( uiStrings::sCantReadHor());
 

@@ -30,7 +30,7 @@ namespace PreStack
 AngleCompParams::AngleCompParams()
     : mutecutoff_(30)
     , anglerange_(0,30)
-    , velvolmid_(MultiID::udf())
+    , velvolmid_(DBKey::udf())
 {
     smoothingpar_.set( AngleComputer::sKeySmoothType(),
 		       AngleComputer::FFTFilter );
@@ -99,7 +99,7 @@ bool AngleMuteBase::usePar( const IOPar& par  )
 
 bool AngleMuteBase::setVelocityFunction()
 {
-    const MultiID& mid = params_->velvolmid_;
+    const DBKey& mid = params_->velvolmid_;
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) return false;
 

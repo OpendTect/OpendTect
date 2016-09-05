@@ -77,7 +77,7 @@ bool GMTClip::execute( od_ostream& strm, const char* fnm )
 	return true;
     }
 
-    MultiID id; get( sKey::ID(), id );
+    DBKey id; get( sKey::ID(), id );
     uiRetVal uirv = uiRetVal::OK();
     ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, uirv );
     if ( !ps )

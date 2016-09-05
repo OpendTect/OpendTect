@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodscenetreeitem.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "odpresentationmgr.h"
 
 class uiODDataTreeItem;

@@ -15,7 +15,7 @@
 #include "ioman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ptrman.h"
 #include "raytrace1d.h"
 #include "raytracerrunner.h"
@@ -161,7 +161,7 @@ bool BatchProgram::go( od_ostream& strm )
     RefMan<Wavelet> syntheticricker = new Wavelet( true, 50.f, cStep, 1.f );
     wvlts += syntheticricker;
 
-    MultiID wavid;
+    DBKey wavid;
     if ( !pars().get(sKeyWaveletID(),wavid) )
     {
 	strm << "Can not find wavelet from parameter file" << od_newline;

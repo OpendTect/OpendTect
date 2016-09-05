@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uiattrdesced.h"
 #include "uiattribpanel.h"
 #include "iopar.h"
@@ -60,7 +60,7 @@ protected:
     void		panelTFPush(CallBacker*);
 
     void		checkOutValSnapped() const;
-    void		getInputMID(MultiID&) const;
+    void		getInputMID(DBKey&) const;
     Attrib::DescID	createSpecDecompDesc(Attrib::DescSet*) const;
     void		createHilbertDesc(Attrib::DescSet*,
 	    				  Attrib::DescID&) const;

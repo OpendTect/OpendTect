@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uigravmod.h"
 #include "executor.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "grav.h"
 class ZAxisTransform;
 namespace EM { class Horizon3D; }
@@ -30,21 +30,21 @@ public:
     mExpClass(uiGrav) Setup
     { mODTextTranslationClass(Setup);
     public:
-			Setup( const MultiID& calcmid )
+			Setup( const DBKey& calcmid )
 			    : calcid_(calcmid)		{}
 
-	mDefSetupMemb(MultiID,calcid)
-	mDefSetupMemb(MultiID,topid)
-	mDefSetupMemb(MultiID,botid)
+	mDefSetupMemb(DBKey,calcid)
+	mDefSetupMemb(DBKey,topid)
+	mDefSetupMemb(DBKey,botid)
 	mDefSetupMemb(BufferString,denattr)
     };
 
-			HorCalc(const MultiID&,const MultiID* top=0,
-				const MultiID* bot=0,float ang=1);
+			HorCalc(const DBKey&,const DBKey* top=0,
+				const DBKey* bot=0,float ang=1);
 			~HorCalc();
 
     void		setCutOffAngle( float a )	{ cutoffangle_ = a; }
-    void		setVelModel( const MultiID& m )	{ velmid_ = m; }
+    void		setVelModel( const DBKey& m )	{ velmid_ = m; }
 
     uiString		uiMessage() const		{ return msg_; }
     uiString		uiNrDoneText() const;
@@ -55,7 +55,7 @@ public:
 protected:
 
     float		cutoffangle_;
-    MultiID		velmid_;
+    DBKey		velmid_;
 
     EM::Horizon3D*	calchor_;
     EM::Horizon3D*	tophor_;

@@ -40,11 +40,11 @@ static int doWork( int argc, char** argv )
 
     IOObj* ioobj = IOM().get( argv[1] );
     if ( !ioobj ) return prUsage( "Horizon_ID not OK" );
-    MultiID ioobjkey( ioobj->key() );
+    DBKey ioobjkey( ioobj->key() );
     delete ioobj;
 
     EM::EMManager& em = EM::EMM();
-    PtrMan<Executor> exec = em.objectLoader( MultiID(argv[1]) );
+    PtrMan<Executor> exec = em.objectLoader( DBKey(argv[1]) );
     exec->execute( &std::cerr );
     EM::EMObject* emobj = em.getObject( em.getObjectID(ioobjkey) );
     mDynamicCastGet(EM::Horizon*,horizon,emobj)

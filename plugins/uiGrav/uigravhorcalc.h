@@ -25,7 +25,7 @@ public:
 
 protected:
 
-    const MultiID	horid_;
+    const DBKey	horid_;
     const IOObj*	horioobj_;
 
     uiIOObjSel*		topfld_;

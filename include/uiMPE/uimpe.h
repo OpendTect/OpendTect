@@ -44,8 +44,8 @@ mExpClass(uiMPE) uiTrackSettingsValidator : public TrackSettingsValidator
 public:
     bool	checkInVolumeTrackMode() const;
     bool	checkActiveTracker() const;
-    bool	checkStoredData(Attrib::SelSpec&,MultiID&) const;
-    bool	checkPreloadedData(const MultiID&) const;
+    bool	checkStoredData(Attrib::SelSpec&,DBKey&) const;
+    bool	checkPreloadedData(const DBKey&) const;
 };
 
 /*! Interface to track-setup groups. Implementations can be retrieved through

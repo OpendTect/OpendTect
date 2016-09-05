@@ -7,7 +7,7 @@
 -*/
 
 #include "uigoogleexpdlg.h"
-#include "multiid.h"
+#include "dbkey.h"
 class uiListBox;
 
 
@@ -20,7 +20,7 @@ public:
 
 protected:
 
-    ObjectSet<MultiID>	wellids_;
+    ObjectSet<DBKey>	wellids_;
 
     uiListBox*		selfld_;
 

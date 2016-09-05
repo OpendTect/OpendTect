@@ -64,7 +64,7 @@ public:
 
     void			refBody();
     void			unRefBody();
-    MultiID			storageID() const;
+    DBKey			storageID() const;
     BufferString		storageName() const;
 
     EM::BodyOperator*		getBodyOperator() const	{ return operator_; }

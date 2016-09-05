@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "survinfo.h"
@@ -343,7 +343,7 @@ void uiSurfaceMan::copyCB( CallBacker* )
 void uiSurfaceMan::merge3dCB( CallBacker* )
 {
     uiHorizonMergeDlg dlg( this, false );
-    TypeSet<MultiID> chsnmids;
+    TypeSet<DBKey> chsnmids;
     selgrp_->getChosen( chsnmids );
     dlg.setInputHors( chsnmids );
     if ( dlg.go() )
@@ -517,12 +517,12 @@ void uiSurfaceMan::fillAttribList()
     if ( !attribfld_ ) return;
 
     attribfld_->setEmpty();
-    TypeSet<MultiID> mids;
+    TypeSet<DBKey> mids;
     selgrp_->getChosen( mids );
     if ( mids.isEmpty() )
 	return;
 
-    const MultiID& firstmid = mids[0];
+    const DBKey& firstmid = mids[0];
     EM::IOObjInfo info( firstmid );
     if ( !info.isOK() )
 	return;
@@ -533,7 +533,7 @@ void uiSurfaceMan::fillAttribList()
 
     for ( int midx=1; midx<mids.size(); midx++ )
     {
-	const MultiID& mid = mids[midx];
+	const DBKey& mid = mids[midx];
 	EM::IOObjInfo eminfo( mid );
 	if ( !info.isOK() )
 	    return;
@@ -673,7 +673,7 @@ od_int64 uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
 class uiSurfaceStratDlg : public uiDialog
 { mODTextTranslationClass(uiSurfaceStratDlg);
 public:
-uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
+uiSurfaceStratDlg( uiParent* p,  const ObjectSet<DBKey>& ids )
     : uiDialog(p,uiDialog::Setup(uiStrings::sStratigraphy(),mNoDlgTitle,
                                  mNoHelpKey))
     , objids_(ids)
@@ -780,14 +780,14 @@ bool acceptOK()
 
 
     uiTable*	tbl_;
-    const ObjectSet<MultiID>& objids_;
+    const ObjectSet<DBKey>& objids_;
 
 };
 
 
 void uiSurfaceMan::stratSel( CallBacker* )
 {
-    const ObjectSet<MultiID>& ids = selgrp_->getIOObjIds();
+    const ObjectSet<DBKey>& ids = selgrp_->getIOObjIds();
     uiSurfaceStratDlg dlg( this, ids );
     dlg.go();
 }

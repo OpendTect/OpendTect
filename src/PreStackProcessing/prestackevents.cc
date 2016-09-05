@@ -246,7 +246,7 @@ int EventManager::addHorizon( int id )
 
     const int res = id==-1 ? nextHorizonID( true ) : id;
     horids_ += res;
-    horrefs_ += MultiID();
+    horrefs_ += DBKey();
     emhorizons_ += 0;
 
     auxdatachanged_ = true;
@@ -326,11 +326,11 @@ void EventManager::setColor( const Color& col )
 }
 
 
-const MultiID& EventManager::horizonEMReference( int id ) const
+const DBKey& EventManager::horizonEMReference( int id ) const
 { return horrefs_[horids_.indexOf(id)]; }
 
 
-void EventManager::setHorizonEMReference( int id, const MultiID& mid )
+void EventManager::setHorizonEMReference( int id, const DBKey& mid )
 {
     if ( horrefs_[horids_.indexOf(id)]==mid )
 	return;
@@ -354,7 +354,7 @@ EventManager::getDipSource( bool primary ) const
 }
 
 
-Executor* EventManager::setStorageID( const MultiID& mid, bool reload )
+Executor* EventManager::setStorageID( const DBKey& mid, bool reload )
 {
     reloadbids_->setEmpty();
     storageid_ = mid;
@@ -377,7 +377,7 @@ Executor* EventManager::setStorageID( const MultiID& mid, bool reload )
 }
 
 
-const MultiID& EventManager::getStorageID() const
+const DBKey& EventManager::getStorageID() const
 { return storageid_; }
 
 
@@ -619,7 +619,7 @@ void EventManager::fillPar( IOPar& par ) const
 
 bool EventManager::usePar( const IOPar& par )
 {
-    MultiID mid;
+    DBKey mid;
     if ( par.get( sKeyStorageID(), mid ) )
     {
 	PtrMan<Executor> exec = setStorageID( mid, true );

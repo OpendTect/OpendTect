@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uinlamod.h"
 #include "uiapplserv.h"
 #include "uistring.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "nlamodel.h"
 #include "bufstringset.h"
 #include "uistring.h"
@@ -40,7 +40,7 @@ public:
     virtual		~uiNLAPartServer();
 
     const char*		name() const			= 0;
-    virtual MultiID	modelId() const			= 0;
+    virtual DBKey	modelId() const			= 0;
     virtual void	reset()				= 0;
     virtual bool	isClassification() const	= 0;
     virtual void	getNeededStoredInputs(

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 
 #include "trckeyzsampling.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "binid.h"
 #include "posinfo2dsurv.h"
 
@@ -32,16 +32,16 @@ mExpClass(EarthModel) HorizonSorter : public Executor
 { mODTextTranslationClass(HorizonSorter);
 public:
 
-				HorizonSorter(const TypeSet<MultiID>&,
+				HorizonSorter(const TypeSet<DBKey>&,
 					      bool is2d=false);
 				~HorizonSorter();
 
     void			setTaskRunner(TaskRunner&);
 
-    void			getSortedList(TypeSet<MultiID>&);
+    void			getSortedList(TypeSet<DBKey>&);
     const TrcKeySampling&		getBoundingBox() const	{ return tks_; }
-    int				getNrCrossings(const MultiID&,
-					       const MultiID&) const;
+    int				getNrCrossings(const DBKey&,
+					       const DBKey&) const;
 
     uiString			uiMessage() const;
     od_int64			totalNr() const;
@@ -67,8 +67,8 @@ protected:
     TrcKeySampling			tks_;
     ObjectSet<EM::Horizon>	horizons_;
     Array3D<int>*		result_;
-    TypeSet<MultiID>		unsortedids_;
-    TypeSet<MultiID>		sortedids_;
+    TypeSet<DBKey>		unsortedids_;
+    TypeSet<DBKey>		sortedids_;
     TaskRunner*			taskrun_;
 
     uiString			message_;

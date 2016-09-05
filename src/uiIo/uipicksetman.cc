@@ -126,7 +126,7 @@ void uiPickSetMan::mkFileInfo()
 
 void uiPickSetMan::mergeSets( CallBacker* )
 {
-    MultiID curid;
+    DBKey curid;
     if ( curioobj_ )
 	curid = curioobj_->key();
 

@@ -136,7 +136,7 @@ void uiWellLogExtractGrp::adsChg()
 
     for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
-	SeisIOObjInfo sii( MultiID( attrinf.ioobjids_.get(idx) ) );
+	SeisIOObjInfo sii( DBKey( attrinf.ioobjids_.get(idx) ) );
 	if ( sii.isPS() && sii.is2D() )
 	{
 	    attrinf.ioobjids_.removeSingle( idx );

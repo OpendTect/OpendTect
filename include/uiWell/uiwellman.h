@@ -31,7 +31,7 @@ public:
 
     mDeclInstanceCreatedNotifierAccess(uiWellMan);
 
-    const TypeSet<MultiID>&	getSelWells() const	{ return curmultiids_; }
+    const TypeSet<DBKey>&	getSelWells() const	{ return curdbkeys_; }
     void			getSelLogs(BufferStringSet&) const;
     const BufferStringSet&	getAvailableLogs() const;
     static void			setButToolTip(uiButton* but,
@@ -47,7 +47,7 @@ protected:
     bool			iswritable_;
     ObjectSet<Well::Data>	curwds_;
     ObjectSet<Well::Reader>	currdrs_;
-    TypeSet<MultiID>		curmultiids_;
+    TypeSet<DBKey>		curdbkeys_;
     BufferStringSet		curfnms_;
     BufferStringSet		availablelognms_;
 

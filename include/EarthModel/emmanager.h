@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "ptrman.h"
 #include "ranges.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "emposid.h"
 
 class Undo;
@@ -50,7 +50,7 @@ public:
     EM::ObjectID	objectID(int idx) const;
     bool		objectExists(const EMObject*) const;
 
-    EMObject*		loadIfNotFullyLoaded(const MultiID&,TaskRunner* =0);
+    EMObject*		loadIfNotFullyLoaded(const DBKey&,TaskRunner* =0);
 			/*!<If fully loaded, the loaded instance
 			    will be returned. Otherwise, it will be loaded.
 			    Returned object must be reffed by caller
@@ -60,27 +60,27 @@ public:
     const EMObject*	getObject(const ObjectID&) const;
     EMObject*		createTempObject(const char* type);
 
-    BufferString	objectName(const MultiID&) const;
+    BufferString	objectName(const DBKey&) const;
 			/*!<\returns the name of the object */
-    const char*		objectType(const MultiID&) const;
+    const char*		objectType(const DBKey&) const;
 			/*!<\returns the type of the object */
 
-    ObjectID		getObjectID(const MultiID&) const;
+    ObjectID		getObjectID(const DBKey&) const;
 			/*!<\note that the relationship between storage id
-			     (MultiID) and EarthModel id (ObjectID) may change
+			     (DBKey) and EarthModel id (ObjectID) may change
 			     due to "Save as" operations and similar. */
-    MultiID		getMultiID(const ObjectID&) const;
+    DBKey		getDBKey(const ObjectID&) const;
 			/*!<\note that the relationship between storage id
-			     (MultiID) and EarthModel id (ObjectID) may change
+			     (DBKey) and EarthModel id (ObjectID) may change
 			     due to "Save as" operations and similar. */
 
     void		burstAlertToAll(bool yn);
 
     void		removeSelected(const ObjectID&,const Selector<Coord3>&,
 				       TaskRunner*);
-    bool		readDisplayPars(const MultiID&,IOPar&) const;
-    bool		writeDisplayPars(const MultiID&,const IOPar&) const;
-    bool		getSurfaceData(const MultiID&,SurfaceIOData&,
+    bool		readDisplayPars(const DBKey&,IOPar&) const;
+    bool		writeDisplayPars(const DBKey&,const IOPar&) const;
+    bool		getSurfaceData(const DBKey&,SurfaceIOData&,
 				       uiString& errmsg) const;
 
     Notifier<EMManager>	addRemove;
@@ -94,9 +94,9 @@ protected:
     void		levelSetChgCB(CallBacker*);
     static const char*	displayparameterstr();
 
-    bool		readParsFromDisplayInfoFile(const MultiID&,
+    bool		readParsFromDisplayInfoFile(const DBKey&,
 						    IOPar&)const;
-    bool		readParsFromGeometryInfoFile(const MultiID&,
+    bool		readParsFromGeometryInfoFile(const DBKey&,
 						     IOPar&)const;
 
 public:
@@ -105,11 +105,11 @@ public:
 
     void		setEmpty();
 
-    Executor*		objectLoader(const MultiID&,
+    Executor*		objectLoader(const DBKey&,
 				     const SurfaceIODataSelection* =0);
-    Executor*		objectLoader(const TypeSet<MultiID>&,
+    Executor*		objectLoader(const TypeSet<DBKey>&,
 				     const SurfaceIODataSelection* =0,
-				     TypeSet<MultiID>* idstobeloaded =0);
+				     TypeSet<DBKey>* idstobeloaded =0);
 		/*!< idstobeloaded are the ids for which the objects
 			     will be actually loaded */
 
@@ -130,7 +130,7 @@ public:
 mDefineFactory1Param( EarthModel, EMObject, EMManager&, EMOF );
 
 mGlobal(EarthModel) EMManager& EMM();
-mGlobal(EarthModel) bool canOverwrite(const MultiID&);
+mGlobal(EarthModel) bool canOverwrite(const DBKey&);
 
 } // namespace EM
 

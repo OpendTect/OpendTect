@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "offsetazimuth.h"
 #include "prestackprocessor.h"
 

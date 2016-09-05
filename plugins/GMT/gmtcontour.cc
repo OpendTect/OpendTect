@@ -85,7 +85,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
 
 bool GMTContour::execute( od_ostream& strm, const char* fnm )
 {
-    MultiID id;
+    DBKey id;
     get( sKey::ID(), id );
     bool drawcontour=false, dofill=false;
     getYN( ODGMT::sKeyDrawContour(), drawcontour );

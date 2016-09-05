@@ -60,7 +60,7 @@ const char* uiODPickSetParentTreeItem::childObjTypeKey() const
 }
 
 
-void uiODPickSetParentTreeItem::addChildItem( const MultiID& mid )
+void uiODPickSetParentTreeItem::addChildItem( const DBKey& mid )
 {
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( mid );
     ps.setNoDelete( true );
@@ -122,7 +122,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
     if ( mnuid==mLoadIdx )
     {
-	TypeSet<MultiID> mids;
+	TypeSet<DBKey> mids;
 	if ( !applMgr()->pickServer()->loadSets(mids,false) )
 	    return false;
 
@@ -138,7 +138,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	if ( !ps )
 	    return false;
 
-	const MultiID storedid = Pick::SetMGR().getID( *ps );
+	const DBKey storedid = Pick::SetMGR().getID( *ps );
 	addChildItem( storedid );
 	emitChildPRRequest( storedid, OD::Add );
     }
@@ -148,7 +148,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	if ( !ps )
 	    return false;
 
-	const MultiID storedid = Pick::SetMGR().getID( *ps );
+	const DBKey storedid = Pick::SetMGR().getID( *ps );
 	addChildItem( storedid );
 	emitChildPRRequest( storedid, OD::Add );
     }
@@ -158,7 +158,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	if ( !ps )
 	    return false;
 
-	const MultiID storedid = Pick::SetMGR().getID( *ps );
+	const DBKey storedid = Pick::SetMGR().getID( *ps );
 	addChildItem( storedid );
 	emitChildPRRequest( storedid, OD::Add );
     }
@@ -179,7 +179,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	}
     }
     else if ( mnuid==mMergeIdx )
-	{ MultiID mid; applMgr()->pickServer()->mergePickSets( mid ); }
+	{ DBKey mid; applMgr()->pickServer()->mergePickSets( mid ); }
     else
 	handleStandardItems( mnuid );
 
@@ -473,7 +473,7 @@ const char* uiODPolygonParentTreeItem::childObjTypeKey() const
 }
 
 
-void uiODPolygonParentTreeItem::addChildItem( const MultiID& mid )
+void uiODPolygonParentTreeItem::addChildItem( const DBKey& mid )
 {
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( mid );
     ps.setNoDelete( true );
@@ -525,7 +525,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 
     if ( mnuid==mLoadPolyIdx )
     {
-	TypeSet<MultiID> setids;
+	TypeSet<DBKey> setids;
 	if ( !applMgr()->pickServer()->loadSets(setids,true) )
 	    return false;
 	for ( int idx=0; idx<setids.size(); idx++ )
@@ -540,7 +540,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	if ( !ps )
 	    return false;
 
-	const MultiID& storedid = Pick::SetMGR().getID( *ps );
+	const DBKey& storedid = Pick::SetMGR().getID( *ps );
 	addChildItem( storedid );
 	emitChildPRRequest( storedid, OD::Add );
     }

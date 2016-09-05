@@ -55,7 +55,7 @@ mExpClass(Seis) SeisMSCProvider
 { mODTextTranslationClass(SeisMSCProvider);
 public:
 
-			SeisMSCProvider(const MultiID&);
+			SeisMSCProvider(const DBKey&);
 				//!< Use any real user entry from '.omf' file
 			SeisMSCProvider(const IOObj&);
 				//!< Use any real user entry from '.omf' file
@@ -137,7 +137,7 @@ protected:
 mExpClass(Seis) SeisFixedCubeProvider
 { mODTextTranslationClass(SeisFixedCubeProvider);
 public:
-			SeisFixedCubeProvider(const MultiID&);
+			SeisFixedCubeProvider(const DBKey&);
 			~SeisFixedCubeProvider();
 
     void		clear();

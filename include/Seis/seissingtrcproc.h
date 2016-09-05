@@ -107,7 +107,7 @@ protected:
     int			nrwr_;
     int			nrskipped_;
     int			totnr_;
-    MultiID&		wrrkey_;
+    DBKey&		wrrkey_;
     int			trcsperstep_;
     int			currdridx_;
     Scaler*		scaler_;

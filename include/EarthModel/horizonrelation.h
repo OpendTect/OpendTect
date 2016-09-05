@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 
 #include "earthmodelmod.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "objectset.h"
 
 class FileMultiString;
@@ -34,9 +34,9 @@ public:
     mExpClass(EarthModel) Node
     {
     public:
-				Node(const MultiID&);
+				Node(const DBKey&);
 
-	MultiID			id_;
+	DBKey			id_;
 	BufferString		datestamp_;
 	ObjectSet<const Node>	children_;
 
@@ -54,24 +54,24 @@ public:
     				RelationTree(bool is2d,bool read=true);
 				~RelationTree();
 
-    const RelationTree::Node*	getNode(const MultiID&) const;
+    const RelationTree::Node*	getNode(const DBKey&) const;
     void			getParents(int,TypeSet<int>&) const;
-    void			removeNode(const MultiID&,bool write=true);
-    void			addRelation(const MultiID& id1,
-	    				    const MultiID& id2,bool write=true);
+    void			removeNode(const DBKey&,bool write=true);
+    void			addRelation(const DBKey& id1,
+	    				    const DBKey& id2,bool write=true);
     				// id1 is above id2
 
-    int				findRelation(const MultiID&,
-	    				     const MultiID&) const;
+    int				findRelation(const DBKey&,
+	    				     const DBKey&) const;
     				/* 0 -> no relation
     				   1 -> first horizon is at the top
 				   2 -> second horizon is at the top */
-    bool			getSorted(const TypeSet<MultiID>& unsortedids,
-	    				  TypeSet<MultiID>& sortedids ) const;
+    bool			getSorted(const TypeSet<DBKey>& unsortedids,
+	    				  TypeSet<DBKey>& sortedids ) const;
 
     static bool			sortHorizons(bool is2d,
-				     const TypeSet<MultiID>& unsortedids,
-				     TypeSet<MultiID>& sortedids);
+				     const TypeSet<DBKey>& unsortedids,
+				     TypeSet<DBKey>& sortedids);
 				/*!< Much faster if you only need RelationTree
 				     for sorting and unsortedids is a small
 				     subset of all horizons in the survey. */
@@ -84,7 +84,7 @@ protected:
     ObjectSet<RelationTree::Node>	nodes_;
     bool			is2d_;
 
-    int				findNode(const MultiID&) const;
+    int				findNode(const DBKey&) const;
     bool			read(bool removeoutdated);
 
     static const char*		sKeyHorizonRelations();

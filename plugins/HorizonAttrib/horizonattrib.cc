@@ -77,7 +77,7 @@ Horizon::Horizon( Desc& dsc )
     , relz_(false)
 { 
     BufferString idstr = desc_.getValParam( sKeyHorID() )->getStringValue();
-    horid_ = MultiID( idstr.buf() );
+    horid_ = DBKey( idstr.buf() );
 
     mGetEnum( outtype_, sKeyType() );
     if ( outtype_ == mOutTypeSurfData )

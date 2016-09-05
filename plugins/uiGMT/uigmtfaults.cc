@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "survinfo.h"
 
 
@@ -161,10 +161,10 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 	return false;
 
     faultfld_->chooseAll( false );
-    TypeSet<MultiID> tosel;
+    TypeSet<DBKey> tosel;
     for ( int idx=0; idx<fltpar->size(); idx++ )
     {
-	MultiID mid;
+	DBKey mid;
 	if (!fltpar->get( toString(idx), mid ) )
 	    break;
 	IOObj* obj = IOM().get( mid );
@@ -189,7 +189,7 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
     }
     else
     {
-	MultiID horid;
+	DBKey horid;
 	iop.get( ODGMT::sKeyHorizonID(), horid );
 	horfld_->setInput( horid );
     }

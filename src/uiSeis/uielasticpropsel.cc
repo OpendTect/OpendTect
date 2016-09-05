@@ -485,7 +485,7 @@ bool uiElasticPropSelDlg::openPropSel()
 }
 
 
-bool uiElasticPropSelDlg::doRead( const MultiID& mid )
+bool uiElasticPropSelDlg::doRead( const DBKey& mid )
 {
     ElasticPropSelection* elp = elpropsel_.get( mid );
     ctio_.setObj( IOM().get( mid ) );

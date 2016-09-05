@@ -167,7 +167,7 @@ void uiODViewer2DMgr::setupCurInterpItem( uiODViewer2D* vwr2d )
 	vwr2d->setupNewTempFaultSS2D( fltssdisp->getEMObjectID() );
     }
     else if ( pickdisp )
-	vwr2d->setupNewPickSet( pickdisp->getMultiID() );
+	vwr2d->setupNewPickSet( pickdisp->getDBKey() );
 }
 
 
@@ -218,7 +218,7 @@ void uiODViewer2DMgr::setupFaultSSs( uiODViewer2D* vwr2d )
 
 void uiODViewer2DMgr::setupPickSets( uiODViewer2D* vwr2d )
 {
-    TypeSet<MultiID> pickmids;
+    TypeSet<DBKey> pickmids;
     getLoadedPickSets( pickmids );
     appl_.sceneMgr().getLoadedPickSetIDs(
 	    pickmids, false, vwr2d->getSyncSceneID() );
@@ -254,14 +254,14 @@ OD::ViewerObjID uiODViewer2DMgr::displayIn2DViewer(
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel.selspec_ );
     const bool isrl =
-	!mIsUdf(posdatasel.rdmlineid_) || !posdatasel.rdmlinemultiid_.isUdf();
+	!mIsUdf(posdatasel.rdmlineid_) || !posdatasel.rdmlinedbkey_.isUdf();
     if ( isrl )
     {
 	Geometry::RandomLine* rdmline = 0;
 	if ( !mIsUdf(posdatasel.rdmlineid_) )
 	    rdmline = Geometry::RLM().get( posdatasel.rdmlineid_ );
 	else
-	    rdmline = Geometry::RLM().get( posdatasel.rdmlinemultiid_ );
+	    rdmline = Geometry::RLM().get( posdatasel.rdmlinedbkey_ );
 
 	if ( !rdmline )
 	    return OD::ViewerObjID::get( -1 );
@@ -280,7 +280,7 @@ OD::ViewerObjID uiODViewer2DMgr::displayIn2DViewer(
     const Attrib::SelSpec& as = posdatasel.selspec_;
     vwr2d->setSelSpec( &as, dowva ); vwr2d->setSelSpec( &as, !dowva );
     const Geometry::RandomLine* rdmline =
-	Geometry::RLM().get( posdatasel.rdmlinemultiid_ );
+	Geometry::RLM().get( posdatasel.rdmlinedbkey_ );
     if ( rdmline )
 	vwr2d->setRandomLineID( rdmline->ID() );
     vwr2d->setInitialX1PosPerCM( initialx1pospercm );
@@ -875,9 +875,9 @@ void uiODViewer2DMgr::getVWR2DDataGeomIDs(
     if ( !wvadesc && !vddesc )
 	return;
 
-    const MultiID wvaid( wvadesc ? wvadesc->getStoredID(true)
+    const DBKey wvaid( wvadesc ? wvadesc->getStoredID(true)
 				 : vddesc->getStoredID(true) );
-    const MultiID vdmid( vddesc ? vddesc->getStoredID(true)
+    const DBKey vdmid( vddesc ? vddesc->getStoredID(true)
 				: wvadesc->getStoredID(true) );
     const SeisIOObjInfo wvasi( wvaid );
     const SeisIOObjInfo vdsi( vdmid );
@@ -1517,7 +1517,7 @@ void uiODViewer2DMgr::addNewTempFaultSS2D( EM::ObjectID emid, int sceneid )
 
 
 
-void uiODViewer2DMgr::getPickSetVwr2DIDs( const MultiID& mid,
+void uiODViewer2DMgr::getPickSetVwr2DIDs( const DBKey& mid,
 					  TypeSet<int>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
@@ -1528,7 +1528,7 @@ void uiODViewer2DMgr::getPickSetVwr2DIDs( const MultiID& mid,
 }
 
 
-void uiODViewer2DMgr::removePickSet( const MultiID& mid )
+void uiODViewer2DMgr::removePickSet( const DBKey& mid )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1538,7 +1538,7 @@ void uiODViewer2DMgr::removePickSet( const MultiID& mid )
 }
 
 
-void uiODViewer2DMgr::getLoadedPickSets( TypeSet<MultiID>& mids ) const
+void uiODViewer2DMgr::getLoadedPickSets( TypeSet<DBKey>& mids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1548,7 +1548,7 @@ void uiODViewer2DMgr::getLoadedPickSets( TypeSet<MultiID>& mids ) const
 }
 
 
-void uiODViewer2DMgr::addPickSets( const TypeSet<MultiID>& mids )
+void uiODViewer2DMgr::addPickSets( const TypeSet<DBKey>& mids )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {

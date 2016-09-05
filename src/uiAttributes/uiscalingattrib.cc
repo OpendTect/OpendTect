@@ -384,7 +384,7 @@ uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
     createSelFields( is2d ? DataPack2D : DataPack3D );
 }
 
-uiSelectPositionDlg( uiParent* p,const MultiID& mid, bool is2d )
+uiSelectPositionDlg( uiParent* p,const DBKey& mid, bool is2d )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
 	      uiStrings::sData().toLower()),tr("For gain analysis"),mNoHelpKey))
     , linesfld_(0)
@@ -468,7 +468,7 @@ bool acceptOK()
 }
 
     DataPack::FullID	dpfid_;
-    MultiID		mid_;
+    DBKey		mid_;
 
     uiGenInput*		nrtrcfld_;
     uiSelSubvol*	subvolfld_;
@@ -521,7 +521,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     int nrtrcs = 0;
     if ( !isinpindp )
     {
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(inpdesccp->getStoredID(true)));
+	PtrMan<IOObj> ioobj = IOM().get( DBKey(inpdesccp->getStoredID(true)));
 	if ( !ioobj )
 	{
 	    uiMSG().error( tr("Select a valid input") );

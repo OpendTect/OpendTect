@@ -26,7 +26,7 @@
 
 static const StepInterval<int> sSampleGateRange( 3, 99, 2 );
 
-uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
+uiTutWellTools::uiTutWellTools( uiParent* p, const DBKey& wellid )
 	: uiDialog( p, Setup( tr("Log Smoothing"),
 			      tr("Specify parameters for smoothing"),
 			      mODHelpKey(mStorePicksHelpID) ) )

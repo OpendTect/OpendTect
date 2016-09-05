@@ -33,12 +33,12 @@ void uiDataTreeItem::initClass()
 { uiODDataTreeItem::factory().addCreator( create, 0 ); }
 
 
-uiDataTreeItem::uiDataTreeItem( const char* parenttype, const MultiID* key )
+uiDataTreeItem::uiDataTreeItem( const char* parenttype, const DBKey* key )
     : uiODDataTreeItem( parenttype )
     , selmenuitem_( m3Dots(tr("Select Setup")), true )
     , reloadmenuitem_( uiStrings::sReload(), true )
     , editmenuitem_( uiStrings::sEdit(), true )
-    , mid_(key ? *key : MultiID::udf())
+    , mid_(key ? *key : DBKey::udf())
 {
     editmenuitem_.iconfnm = VolProc::uiChain::pixmapFileName();
     reloadmenuitem_.iconfnm = "refresh";
@@ -81,9 +81,9 @@ uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
 
     const char* parkey = VolProc::ExternalAttribCalculator::sKeySetup();
     BufferString setupmidstr;
-    MultiID setupmid = MultiID::udf();
+    DBKey setupmid = DBKey::udf();
     if ( Attrib::Desc::getParamString(defstr,parkey,setupmidstr) )
-	setupmid = MultiID( setupmidstr.buf() );
+	setupmid = DBKey( setupmidstr.buf() );
 
     return new uiDataTreeItem( parenttype, &setupmid );
 }

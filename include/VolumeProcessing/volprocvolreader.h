@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "volumeprocessingmod.h"
 #include "volprocstep.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class SeisTrcReader;
 class SeisTrcTranslator;
@@ -33,8 +33,8 @@ public:
 					"VolumeReader", tr("Input Volume") )
 				~VolumeReader();
 
-    bool			setVolumeID(const MultiID&);
-    const MultiID&		getVolumeID() const		{ return mid_; }
+    bool			setVolumeID(const DBKey&);
+    const DBKey&		getVolumeID() const		{ return mid_; }
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
@@ -54,7 +54,7 @@ protected:
 
     static const char*		sKeyVolumeID()		{ return "Volume ID"; }
 
-    MultiID			mid_;
+    DBKey			mid_;
     ObjectSet<SeisTrcReader>	readers_;
     ObjectSet<SeisTrcTranslator> translators_;
 

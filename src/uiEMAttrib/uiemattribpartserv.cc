@@ -127,7 +127,7 @@ void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 
 void uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid, bool is2d )
 {
-    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid) );
+    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getDBKey(emid) );
     if ( !ioobj ) return;
 
     if ( uiseisevsnapdlg_ ) delete uiseisevsnapdlg_;

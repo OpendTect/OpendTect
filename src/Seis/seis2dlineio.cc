@@ -88,7 +88,7 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 bool TwoDSeisTrcTranslator::initRead_()
 {
     errmsg_.setEmpty();
-    PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : MultiID() );
+    PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : DBKey() );
     if ( !ioobj )
 	{ errmsg_ = tr( "Cannot reconstruct 2D filename" ); return false; }
     BufferString fnm( ioobj->fullUserExpr(true) );
@@ -141,7 +141,7 @@ bool SeisTrc2DTranslator::implRename( const IOObj* ioobj,
 bool SeisTrc2DTranslator::initRead_()
 {
     errmsg_.setEmpty();
-    PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : MultiID() );
+    PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : DBKey() );
     if ( !ioobj )
 	{ errmsg_ = tr("Cannot reconstruct 2D filename"); return false; }
     BufferString fnm( ioobj->fullUserExpr(true) );

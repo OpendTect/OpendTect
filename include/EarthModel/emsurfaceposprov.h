@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 #include "emposid.h"
 #include "trckeysampling.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "embody.h"
 #include "keystrs.h"
 
@@ -61,7 +61,7 @@ public:
     virtual int		estNrZPerPos() const;
 
     int			nrSurfaces() const;
-    MultiID		surfaceID( int idx ) const
+    DBKey		surfaceID( int idx ) const
 			{ return idx ? id2_ : id1_; }
     EM::Surface*	surface( int idx )
 			{ return idx ? surf2_ : surf1_; }
@@ -82,8 +82,8 @@ protected:
 			EMSurfaceProvider(const EMSurfaceProvider&);
     void		copyFrom(const Pos::EMSurfaceProvider&);
 
-    MultiID		id1_;
-    MultiID		id2_;
+    DBKey		id1_;
+    DBKey		id2_;
     EM::Surface*	surf1_;
     EM::Surface*	surf2_;
     float		zstep_;

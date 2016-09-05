@@ -73,8 +73,8 @@ uiGroup* uiRegionFiller::createVelGrp()
     const bool hasauxdata = auxdatainfo.mids_.size();
     const uiString fromhorattribstr = tr("From Horizon Data");
 
-    const MultiID& starthorid = regionfiller_->getStartValueHorizonID();
-    const bool conststartval = starthorid==MultiID::udf();
+    const DBKey& starthorid = regionfiller_->getStartValueHorizonID();
+    const bool conststartval = starthorid==DBKey::udf();
     startvalselfld_ = new uiGenInput( grp, tr("Start value"),
         BoolInpSpec(conststartval,uiStrings::sConstant(),
                         fromhorattribstr) );
@@ -93,8 +93,8 @@ uiGroup* uiRegionFiller::createVelGrp()
 		regionfiller_->getStartValueAuxDataIdx(), &auxdatainfo );
     starthorfld_->attach( alignedBelow, startvalselfld_ );
 
-    const MultiID& gradhorid = regionfiller_->getGradientHorizonID();
-    const bool constgrad = gradhorid==MultiID::udf();
+    const DBKey& gradhorid = regionfiller_->getGradientHorizonID();
+    const bool constgrad = gradhorid==DBKey::udf();
     gradvalselfld_ = new uiGenInput( grp, tr("Gradient"),
         BoolInpSpec(constgrad,uiStrings::sConstant(),fromhorattribstr) );
     gradvalselfld_->setSensitive( hasauxdata );

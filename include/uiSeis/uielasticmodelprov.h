@@ -24,12 +24,12 @@ mExpClass(uiSeis) uiElasticModelProvider : public uiGroup
 { mODTextTranslationClass(uiElasticModelProvider);
 public:
 			uiElasticModelProvider(uiParent*,bool is2d);
-    bool		getInputMIDs(MultiID& pwmid,MultiID& swmid,
-				     MultiID& aimid,MultiID& simid,
-				     MultiID& denmid) const;
-    void		setInputMIDs(const MultiID& pwmid,const MultiID& swmid,
-				     const MultiID& aimid,const MultiID& simid,
-				     const MultiID& denmid);
+    bool		getInputMIDs(DBKey& pwmid,DBKey& swmid,
+				     DBKey& aimid,DBKey& simid,
+				     DBKey& denmid) const;
+    void		setInputMIDs(const DBKey& pwmid,const DBKey& swmid,
+				     const DBKey& aimid,const DBKey& simid,
+				     const DBKey& denmid);
 
     uiString		errMsg() const			{ return errmsg_; }
 

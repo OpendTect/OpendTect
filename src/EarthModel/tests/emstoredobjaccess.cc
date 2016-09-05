@@ -7,20 +7,20 @@
 
 #include "emstoredobjaccess.h"
 #include "od_ostream.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 #define mErrRet(s) { od_ostream::logStream() << s << od_endl; return false; }
 
 static bool initLoader( EM::StoredObjAccess& soa )
 {
-    if ( !soa.add( MultiID("100020.3") ) ) // Hor3D: Demo 6 --> FS8
+    if ( !soa.add( DBKey("100020.3") ) ) // Hor3D: Demo 6 --> FS8
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( MultiID("100020.53") ) ) // Body: Slumps-2b
+    if ( !soa.add( DBKey("100020.53") ) ) // Body: Slumps-2b
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( MultiID("100020.33") ) ) // SSIS-Grid-Faultsticks
+    if ( !soa.add( DBKey("100020.33") ) ) // SSIS-Grid-Faultsticks
 	mErrRet( soa.getError(0) );
 
-    if ( soa.add( MultiID("100020.99795") ) )
+    if ( soa.add( DBKey("100020.99795") ) )
 	mErrRet( "ID 100020.99795 should give error" );
     soa.dismiss( "100020.99795" );
 

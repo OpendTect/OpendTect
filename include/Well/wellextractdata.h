@@ -147,7 +147,7 @@ public:
     od_int64		nrDone() const		{ return curidx_; }
     od_int64		totalNr() const		{ return totalnr_; }
 
-    const ObjectSet<MultiID>&	ids() const	{ return ids_; }
+    const ObjectSet<DBKey>&	ids() const	{ return ids_; }
     const ObjectSet<Info>&	infos() const	{ return infos_; }
 				//!< Same size as ids()
     const ObjectSet<MarkerSet>&	markers() const	{ return markers_; }
@@ -158,7 +158,7 @@ public:
 
 protected:
 
-    ObjectSet<MultiID>		ids_;
+    ObjectSet<DBKey>		ids_;
     ObjectSet<Info>		infos_;
     ObjectSet<MarkerSet>	markers_;
     ObjectSet<BufferStringSet>	logs_;

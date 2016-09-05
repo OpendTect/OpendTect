@@ -58,7 +58,7 @@ protected:
     void			useRefValCB(CallBacker*);
 
     SurfaceLimitedFiller*	surfacefiller_;
-    TypeSet<MultiID>		surfacelist_;
+    TypeSet<DBKey>		surfacelist_;
 
     uiTable*			table_;
     uiPushButton*		addbutton_;

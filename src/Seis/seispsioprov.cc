@@ -274,7 +274,7 @@ bool SeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 	const FixedString res = ioobj->pars().find(
 					SeisPSIOProvider::sKeyCubeID );
 	if ( !res.isEmpty() )
-	    IOM().permRemove( MultiID(res) );
+	    IOM().permRemove( DBKey(res) );
     }
     return true;
 }

@@ -31,7 +31,7 @@ public :
 
     SEGY::Scanner*	getScanner();	//!< becomes yours
 
-    virtual MultiID	outputID() const;
+    virtual DBKey	outputID() const;
 
 protected:
 

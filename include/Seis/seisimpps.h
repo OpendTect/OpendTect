@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "strmdata.h"
 #include "bufstringset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "executor.h"
 #include "uistring.h"
 class SeisTrc;
@@ -37,7 +37,7 @@ mExpClass(Seis) SeisPSImpDataMgr
 { mODTextTranslationClass(SeisPSImpDataMgr);
 public:
 
-			SeisPSImpDataMgr(const MultiID& pswrid);
+			SeisPSImpDataMgr(const DBKey& pswrid);
     virtual		~SeisPSImpDataMgr();
 
     void		add(SeisTrc*);		//!< trc becomes mine
@@ -59,7 +59,7 @@ public:
 protected:
 
     ObjectSet<SeisPSImpLineBuf>	lines_;
-    MultiID			wrid_;
+    DBKey			wrid_;
     SeisTrcWriter*		wrr_;
     int				maxinloffs_;
     TypeSet<int>		towrite_;

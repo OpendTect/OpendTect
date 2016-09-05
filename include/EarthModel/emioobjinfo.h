@@ -41,7 +41,7 @@ public:
 
 			IOObjInfo(const IOObj*);
 			IOObjInfo(const IOObj&);
-			IOObjInfo(const MultiID&);
+			IOObjInfo(const DBKey&);
 			IOObjInfo(const IOObjInfo&);
 			~IOObjInfo();
     IOObjInfo&		operator =(const IOObjInfo&);
@@ -50,7 +50,7 @@ public:
 			  FaultStickSet, Fault, Body };
 			mDeclareEnumUtils(ObjectType)
 
-    static void		getIDs(ObjectType,TypeSet<MultiID>&);
+    static void		getIDs(ObjectType,TypeSet<DBKey>&);
 			//!< Does not erase the IDs at start
 
     bool		isOK() const;
@@ -76,10 +76,10 @@ public:
     inline bool		isHorizon() const	{ return type_ < FaultStickSet;}
     inline bool		is2DHorizon() const	{ return type_ == Horizon2D; }
     LevelID		levelID() const;
-    static void		getTiedToLevelID(LevelID lvlid,TypeSet<MultiID>&,
+    static void		getTiedToLevelID(LevelID lvlid,TypeSet<DBKey>&,
 					 bool is2d);
-    static bool		sortHorizonsOnZValues(const TypeSet<MultiID>&,
-					      TypeSet<MultiID>&);
+    static bool		sortHorizonsOnZValues(const TypeSet<DBKey>&,
+					      TypeSet<DBKey>&);
 
     // 2D Horizons
     bool		getLineNames(BufferStringSet&) const;

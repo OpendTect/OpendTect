@@ -25,7 +25,7 @@
 namespace PreStack
 {
 
-uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
+uiEventExport::uiEventExport( uiParent* p, const DBKey* mid )
     : uiDialog( p, uiDialog::Setup(
 			uiStrings::phrExport( uiStrings::sPreStackEvents() ),
 			mNoDlgTitle,

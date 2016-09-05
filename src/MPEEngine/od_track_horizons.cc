@@ -48,7 +48,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    mError( BufferString( "Cannot find settings for tracker ", idx ),
 		    continue );
 	
-	MultiID hormid;
+	DBKey hormid;
 	if ( !trackerpar->get( MPE::HorizonAutoTracker::sKeyHorizonID(),
 			       hormid ) )
 	    mError( BufferString( "Cannot find horizonid for tracker ", idx ),

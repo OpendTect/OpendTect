@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 
 #include "generalmod.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "namedobj.h"
 #include "uistring.h"
 
@@ -32,7 +32,7 @@ mExpClass(General) IOObjProducer
 public:
 virtual		~IOObjProducer()		{}
     virtual bool	canMake(const char*) const	= 0;
-    virtual IOObj*	make(const char*,const MultiID&,
+    virtual IOObj*	make(const char*,const DBKey&,
 			     bool fill_defs) const	= 0;
 
 };
@@ -43,7 +43,7 @@ The IOMan object manager manages IODir directories of IOObj objects. These
 objects contain the information needed to do the I/O needed for the storage
 that is accessed in OpendTect software.
 
-Every IOObj has a unique key in the form of a MultiID. This key
+Every IOObj has a unique key in the form of a DBKey. This key
 holds (a) the position of the IOObj in the IOMan/IODir tree (b) a unique
 integer as an index in the IOObj's own IODir.
 
@@ -58,8 +58,8 @@ mExpClass(General) IOObj : public NamedObject
 {
 public:
 
-    typedef MultiID		Key;
-    typedef MultiID::SubID	SubID;
+    typedef DBKey		Key;
+    typedef DBKey::SubID	SubID;
 
     uiString			uiName() const { return toUiString(name()); }
 
@@ -141,7 +141,7 @@ private:
 
     friend class	IODir;
 
-    static IOObj*	produce(const char*,const char* nm,const MultiID& ky,
+    static IOObj*	produce(const char*,const char* nm,const DBKey& ky,
 				bool initdefaults);
     void		copyStuffFrom(const IOObj&);
 

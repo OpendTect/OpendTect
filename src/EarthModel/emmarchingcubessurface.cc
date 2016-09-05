@@ -287,7 +287,7 @@ void MarchingCubesSurface::unRefBody()
 }
 
 
-MultiID MarchingCubesSurface::storageID() const
+DBKey MarchingCubesSurface::storageID() const
 { return EMObject::multiID(); }
 
 

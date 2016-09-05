@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class Muter;
 
@@ -45,12 +45,12 @@ public:
     static const char*	sTailMute()		{ return "Tail Mute";}
     static const char*	sMuteDef()		{ return "Mute Definition";}
 
-    const MultiID&	muteDefID() const	{ return id_; }
+    const DBKey&	muteDefID() const	{ return id_; }
     const MuteDef&	muteDef() const		{ return def_; }
     MuteDef&		muteDef()		{ return def_; }
     bool		isTailMute() const	{ return tail_; }
     float		taperLength() const	{ return taperlen_; }
-    bool		setMuteDefID(const MultiID&);
+    bool		setMuteDefID(const DBKey&);
     void		setEmptyMute();
     void		setTailMute(bool yn=true);
     void		setTaperLength(float);
@@ -62,7 +62,7 @@ protected:
 
     MuteDef&		def_;
     Muter*		muter_;
-    MultiID		id_;
+    DBKey		id_;
     uiString		errmsg_;
 
     od_int64		nrIterations() const { return outidx_.size(); }

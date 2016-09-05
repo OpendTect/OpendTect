@@ -114,7 +114,7 @@ void PSAttrib::initClass()
 
 void PSAttrib::updateDesc( Desc& desc )
 {
-    const MultiID procid = desc.getValParam(preProcessStr())->getStringValue();
+    const DBKey procid = desc.getValParam(preProcessStr())->getStringValue();
     const bool dopreproc = !procid.isEmpty() && !procid.isUdf();
     desc.setParamEnabled( preProcessStr(), dopreproc );
 
@@ -221,7 +221,7 @@ PSAttrib::PSAttrib( Desc& ds )
 	{
 	    PreStack::VelocityBasedAngleComputer* velangcomp =
 		new PreStack::VelocityBasedAngleComputer;
-	    velangcomp->setMultiID( velocityid_ );
+	    velangcomp->setDBKey( velocityid_ );
 	    anglecomp_ = velangcomp;
 	    anglecomp_->ref();
 	}

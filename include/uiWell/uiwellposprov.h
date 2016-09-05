@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uiposprovgroup.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiStepOutSel;
 class uiSelZRange;
@@ -35,7 +35,7 @@ public:
 
     void		setExtractionDefaults();
 
-    bool		getIDs(TypeSet<MultiID>&) const;
+    bool		getIDs(TypeSet<DBKey>&) const;
     void		getZRange(StepInterval<float>&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)

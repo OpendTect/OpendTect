@@ -69,7 +69,7 @@ public:
 
     void		setExtractionDefaults();
 
-    bool		getID(MultiID&) const;
+    bool		getID(DBKey&) const;
     void		getZRange(StepInterval<float>&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
@@ -97,7 +97,7 @@ public:
     virtual bool	fillPar(IOPar&) const;
     void		getSummary(BufferString&) const;
 
-    bool		getID(MultiID&) const;
+    bool		getID(DBKey&) const;
     bool		getFileName(BufferString&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)

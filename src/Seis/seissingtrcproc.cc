@@ -16,7 +16,7 @@
 #include "seisselection.h"
 #include "seisresampler.h"
 #include "trckeyzsampling.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "survinfo.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -32,7 +32,7 @@
 	, nrskipped_(0) \
 	, intrc_(*new SeisTrc) \
 	, nrwr_(0) \
-	, wrrkey_(*new MultiID) \
+	, wrrkey_(*new DBKey) \
 	, trcsperstep_(10) \
 	, scaler_(0) \
 	, skipnull_(false) \

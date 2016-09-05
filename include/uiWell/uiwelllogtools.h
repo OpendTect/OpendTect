@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uistring.h"
 
 class uiCheckBox;
@@ -47,7 +47,7 @@ public:
 					const Well::Track*);
 				~LogData();
 
-	MultiID			wellid_;
+	DBKey			wellid_;
 	BufferString		wellname_;
 	Interval<float>		dahrg_;
 

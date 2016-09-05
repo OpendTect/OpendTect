@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uibatchjobdispatcherlauncher.h"
 #include "uidialog.h"
 #include "clusterjobdispatch.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class InlineSplitJobDescProv;
 class uiGenInput;
@@ -52,7 +52,7 @@ protected:
 
     bool		createJobScripts(const char*);
     const char*		getOutPutIDKey() const;
-    MultiID		getTmpID(const char*) const;
+    DBKey		getTmpID(const char*) const;
 };
 
 

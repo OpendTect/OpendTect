@@ -137,7 +137,7 @@ void uiSeisImportCBVS::inpSel( CallBacker* )
 }
 
 
-#define rmTmpIOObj() IOM().permRemove( MultiID(tmpid_.buf()) );
+#define rmTmpIOObj() IOM().permRemove( DBKey(tmpid_.buf()) );
 
 bool uiSeisImportCBVS::acceptOK()
 {

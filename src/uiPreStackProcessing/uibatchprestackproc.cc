@@ -68,7 +68,7 @@ void uiBatchProcSetup::setupSelCB( CallBacker* )
 {
     inputsel_->display( true );
 
-    MultiID chainmid;
+    DBKey chainmid;
     PtrMan<IOObj> setupioobj = 0;
     if ( chainsel_->getSel(chainmid) )
 	setupioobj = IOM().get( chainmid );
@@ -97,7 +97,7 @@ void uiBatchProcSetup::setupSelCB( CallBacker* )
 
 bool uiBatchProcSetup::prepareProcessing()
 {
-    MultiID chainmid;
+    DBKey chainmid;
     PtrMan<IOObj> ioobj = 0;
     if ( chainsel_->getSel(chainmid) )
 	ioobj = IOM().get( chainmid );
@@ -132,7 +132,7 @@ bool uiBatchProcSetup::fillPar( IOPar& par )
     if ( (inputsel_->attachObj()->isDisplayed() && !inioobj) || !outioobj )
 	return false;
 
-    MultiID mid;
+    DBKey mid;
     if ( !chainsel_->getSel(mid) )
 	return false;
 

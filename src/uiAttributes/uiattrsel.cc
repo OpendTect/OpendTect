@@ -128,7 +128,7 @@ void uiAttrSelData::fillSelSpec( SelSpec& as ) const
 	, in_action_(false) \
 	, showsteerdata_(stp.showsteeringdata_) \
 	, usedasinput_(stp.isinp4otherattrib_)\
-	, insertedobjmid_(MultiID::udf())
+	, insertedobjmid_(DBKey::udf())
 
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
@@ -317,7 +317,7 @@ void uiAttrSelDlg::createSelectionFields()
     storoutfld_->attach( rightOf, selgrp_ );
     for ( int idx=0; idx<attrinf_->ioobjids_.size(); idx++ )
     {
-	const MultiID mid( attrinf_->ioobjids_.get(idx) );
+	const DBKey mid( attrinf_->ioobjids_.get(idx) );
 	const char* iconnm =
 		Seis::PLDM().isPresent(mid) ? "preloaded" : "empty";
 	storoutfld_->setIcon( idx, iconnm );
@@ -455,7 +455,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	if ( nms.validIdx(selidx) )
 	{
 	    IOM().to(
-		 MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
+		 DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
 	    PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
 	    if ( ioobj ) ioobjkey = ioobj->key();
 	}
@@ -467,7 +467,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     filtfld_->display( !is2d && isstoreddata );
 
     compfld_->box()->setCurrentItem(0);
-    const MultiID key( ioobjkey.buf() );
+    const DBKey key( ioobjkey.buf() );
     BufferStringSet compnms;
     SeisIOObjInfo::getCompNames( key, compnms );
     compfld_->box()->setEmpty();
@@ -523,7 +523,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
-	IOM().to(MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
+	IOM().to(DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
 	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
 	if ( !ioobj ) return false;
 
@@ -604,7 +604,7 @@ void uiAttrSelDlg::replaceStoredByInMem()
 
 void uiAttrSelDlg::objInserted( CallBacker* cb )
 {
-    mCBCapsuleUnpack( MultiID, ky, cb );
+    mCBCapsuleUnpack( DBKey, ky, cb );
     if ( !ky.isEmpty() )
     {
 	insertedobjmid_ = ky;
@@ -756,7 +756,7 @@ bool uiAttrSel::getRanges( TrcKeyZSampling& cs ) const
     const Desc* desc = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
     if ( !desc ) return false;
 
-    const MultiID mid( desc->getStoredID(true) );
+    const DBKey mid( desc->getStoredID(true) );
     return SeisTrcTranslator::getRanges( mid, cs,
 					 desc->is2D() ? getInput() : 0 );
 }

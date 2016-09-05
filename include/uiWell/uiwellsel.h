@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uicompoundparsel.h"
 #include "uiioobjsel.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 
 mExpClass(uiWell) uiWellSel : public uiIOObjSel
@@ -41,8 +41,8 @@ public:
 			~uiWellParSel();
 
     int			nrSelected() const	{ return selids_.size(); }
-    void		setSelected(const TypeSet<MultiID>&);
-    void		getSelected(TypeSet<MultiID>&) const;
+    void		setSelected(const TypeSet<DBKey>&);
+    void		getSelected(TypeSet<DBKey>&) const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -52,7 +52,7 @@ protected:
     void		doDlg(CallBacker*);
     BufferString	getSummary() const;
 
-    TypeSet<MultiID>	selids_;
+    TypeSet<DBKey>	selids_;
     IOPar&		iopar_;
 };
 

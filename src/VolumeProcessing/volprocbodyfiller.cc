@@ -30,11 +30,11 @@ namespace VolProc
 
 
 const char* BodyFiller::sKeyOldType()	{ return "MarchingCubes"; }
-const char* BodyFiller::sKeyOldMultiID() { return "MarchingCubeSurface ID"; }
+const char* BodyFiller::sKeyOldDBKey() { return "MarchingCubeSurface ID"; }
 const char* BodyFiller::sKeyOldInsideOutsideValue()
 					{ return "Surface InsideOutsideValue"; }
 
-const char* BodyFiller::sKeyMultiID()		{ return "Body ID"; }
+const char* BodyFiller::sKeyDBKey()		{ return "Body ID"; }
 const char* BodyFiller::sKeyInsideType()	{ return "Inside Type"; }
 const char* BodyFiller::sKeyOutsideType()	{ return "Outside Type"; }
 const char* BodyFiller::sKeyInsideValue()	{ return "Inside Value"; }
@@ -88,7 +88,7 @@ void BodyFiller::releaseData()
 }
 
 
-bool BodyFiller::setSurface( const MultiID& mid )
+bool BodyFiller::setSurface( const DBKey& mid )
 {
     if ( emobj_ )
     {
@@ -273,7 +273,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 void BodyFiller::fillPar( IOPar& par ) const
 {
     Step::fillPar( par );
-    par.set( sKeyMultiID(), mid_ );
+    par.set( sKeyDBKey(), mid_ );
     par.set( sKeyInsideType(), insidevaltype_ );
     par.set( sKeyInsideValue(), insideval_ );
     par.set( sKeyOutsideType(), outsidevaltype_ );
@@ -286,8 +286,8 @@ bool BodyFiller::usePar( const IOPar& par )
     if ( !Step::usePar(par) )
 	return false;
 
-    MultiID mid;
-    if ( (!par.get(sKeyMultiID(),mid) && !par.get(sKeyOldMultiID(),mid) ) ||
+    DBKey mid;
+    if ( (!par.get(sKeyDBKey(),mid) && !par.get(sKeyOldDBKey(),mid) ) ||
 	 !setSurface(mid) )
 	return false;
 

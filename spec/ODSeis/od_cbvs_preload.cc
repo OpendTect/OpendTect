@@ -37,7 +37,7 @@ int main( int argc, char** argv )
     }
 
     OD::ModDeps().ensureLoaded( "Seis" );
-    const MultiID seismid( argv[1] );
+    const DBKey seismid( argv[1] );
     PtrMan<IOObj> ioobj = IOM().get( seismid );
     if ( !ioobj )
     {

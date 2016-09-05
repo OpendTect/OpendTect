@@ -107,7 +107,7 @@ protected:
 mExpClass(Seis) FileIndexer : public Executor
 { mODTextTranslationClass(FileIndexer);
 public:
-			FileIndexer(const MultiID& mid,bool isvol,
+			FileIndexer(const DBKey& mid,bool isvol,
 				    const FileSpec&,bool is2d,const IOPar&);
 			~FileIndexer();
 

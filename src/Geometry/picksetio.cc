@@ -42,7 +42,7 @@ SetCategoryFromTypeInOMFPutter()
 
 void doWork( CallBacker* )
 {
-    const IODir iodir( MultiID( mIOObjContext(PickSet)
+    const IODir iodir( DBKey( mIOObjContext(PickSet)
 				.getStdDirData(IOObjContext::Loc)->id_ ) );
     for ( int idx=0; idx<iodir.size(); idx++ )
     {
@@ -132,13 +132,13 @@ bool Pick::SetSaver::doStore( const IOObj& ioobj ) const
 }
 
 
-Pick::SetLoader::SetLoader( const MultiID& ky )
+Pick::SetLoader::SetLoader( const DBKey& ky )
 {
     toload_ += ky;
 }
 
 
-Pick::SetLoader::SetLoader( const TypeSet<MultiID>& kys )
+Pick::SetLoader::SetLoader( const TypeSet<DBKey>& kys )
     : toload_(kys)
 {
 }
@@ -197,7 +197,7 @@ int Pick::SetLoaderExec::nextStep()
 	return Finished();
 
     Pick::SetManager& psmgr = Pick::SetMGR();
-    const MultiID id = loader_.toload_[curidx_];
+    const DBKey id = loader_.toload_[curidx_];
     if ( psmgr.isLoaded(id) )
     {
 	loader_.available_ += id;

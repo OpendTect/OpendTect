@@ -54,7 +54,7 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
-			    const NLAModel* model, const MultiID& id )
+			    const NLAModel* model, const DBKey& id )
     : uiBatchProcDlg(p,uiString::emptyString(),false, Batch::JobSpec::Attrib)
     , subselpar_(*new IOPar)
     , sel_(*new Attrib::CurrentSel)
@@ -161,7 +161,7 @@ uiAttrVolOut::~uiAttrVolOut()
 
 void uiAttrVolOut::updateAttributes( const Attrib::DescSet& descset,
 				     const NLAModel* nlamodel,
-				     const MultiID& nlaid )
+				     const DBKey& nlaid )
 {
     delete ads_;
     ads_ = new Attrib::DescSet( descset );
@@ -217,7 +217,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    if ( firststoreddsc )
 	    {
 		PtrMan<IOObj> ioobj =
-			IOM().get( MultiID(firststoreddsc->getStoredID(true)) );
+			IOM().get( DBKey(firststoreddsc->getStoredID(true)) );
 		if ( ioobj )
 		    transffld_->setInput( *ioobj );
 	    }
@@ -234,7 +234,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    PtrMan<IOObj> ioobj = 0;
 	    if ( prov )
 	    {
-		MultiID mid( desc->getStoredID(true).buf() );
+		DBKey mid( desc->getStoredID(true).buf() );
 		ioobj = IOM().get( mid );
 	    }
 
@@ -341,10 +341,10 @@ bool uiAttrVolOut::prepareProcessing()
 
 	TypeSet<Attrib::DescID> ids;
 	attrselfld_->getSelIds( ids );
-	ObjectSet<MultiID> mids; TypeSet<float> offs; TypeSet<int> comps;
+	ObjectSet<DBKey> mids; TypeSet<float> offs; TypeSet<int> comps;
 	for ( int idx=0; idx<ids.size(); idx++ )
 	{
-	    mids += new MultiID( outioobj->key() );
+	    mids += new DBKey( outioobj->key() );
 	    offs += offsetfld_->getFValue(0) + idx*offsetfld_->getFValue(1);
 	    comps += idx;
 	}
@@ -489,7 +489,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     BufferString linename;
     if ( is2d )
     {
-	MultiID ky;
+	DBKey ky;
 	Attrib::DescSet descset(true);
 	if ( nlamodel_ )
 	    descset.usePar( nlamodel_->pars() );

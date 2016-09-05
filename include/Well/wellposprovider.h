@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellcommon.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "posprovider.h"
 #include "callback.h"
 #include "trckeysampling.h"
@@ -72,7 +72,7 @@ public:
 protected:
 
     void		setHS();
-    TypeSet<MultiID>	wellids_;
+    TypeSet<DBKey>	wellids_;
     ObjectSet<Well::Data> welldata_;
 
     bool		onlysurfacecoords_;

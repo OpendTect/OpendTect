@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "multiid.h"
+#include "dbkey.h"
 #include "propertyref.h"
 #include "welllogset.h"
 #include "uigroup.h"
@@ -90,11 +90,11 @@ public:
     uiWellSinglePropSel* getPropSelFromListByName(const BufferString&);
     uiWellSinglePropSel* getPropSelFromListByIndex(int);
     virtual bool	isOK() const;
-    void		setWellID( const MultiID& wid ) { wellid_ = wid; }
+    void		setWellID( const DBKey& wid ) { wellid_ = wid; }
 
     uiButton*		getRightmostButton( int idx ) { return viewbuts_[idx]; }
 
-    MultiID		wellid_;
+    DBKey		wellid_;
     Notifier<uiWellPropSel> logCreated;
 
 protected:

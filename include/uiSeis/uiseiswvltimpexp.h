@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class CtxtIOObj;
 class uiGenInput;
@@ -28,7 +28,7 @@ public:
 			uiSeisWvltImp(uiParent*);
 			~uiSeisWvltImp();
 
-    MultiID		selKey() const;
+    DBKey		selKey() const;
 
 protected:
 

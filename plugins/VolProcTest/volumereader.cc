@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdatacubes.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "seisread.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -36,11 +36,11 @@ VolumeReader::VolumeReader( ProcessingChain& pc )
 {}
 
 
-void VolumeReader::setStorage( const MultiID& mid )
+void VolumeReader::setStorage( const DBKey& mid )
 { storageid_ = mid; }
 
 
-const MultiID& VolumeReader::getStorage() const
+const DBKey& VolumeReader::getStorage() const
 { return storageid_; }
 
 

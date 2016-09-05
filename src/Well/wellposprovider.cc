@@ -174,7 +174,7 @@ void WellProvider3D::usePar( const IOPar& iop )
     iop.get( sKey::ZRange(), zrg_ );
     for ( int idx=0; idx<nrwells; idx++ )
     {
-	MultiID mid;
+	DBKey mid;
 	BufferString idkey = IOPar::compKey( sKey::ID(), idx );
 	iop.get( mGetWellKey(idkey), mid );
 	wellids_ += mid;

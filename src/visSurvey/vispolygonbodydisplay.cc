@@ -364,9 +364,9 @@ bool PolygonBodyDisplay::removeSelections( TaskRunner* )
 }
 
 
-MultiID PolygonBodyDisplay::getMultiID() const
+DBKey PolygonBodyDisplay::getDBKey() const
 {
-    return empolygonsurf_ ? empolygonsurf_->multiID() : MultiID();
+    return empolygonsurf_ ? empolygonsurf_->multiID() : DBKey();
 }
 
 
@@ -456,7 +456,7 @@ void PolygonBodyDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
-    par.set( sKeyEMPolygonSurfID(), getMultiID() );
+    par.set( sKeyEMPolygonSurfID(), getDBKey() );
 }
 
 
@@ -467,7 +467,7 @@ bool PolygonBodyDisplay::usePar( const IOPar& par )
 
 	 return false;
 
-    MultiID newmid;
+    DBKey newmid;
     if ( par.get(sKeyEMPolygonSurfID(),newmid) )
     {
 	EM::ObjectID emid = EM::EMM().getObjectID( newmid );

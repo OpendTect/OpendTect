@@ -185,7 +185,7 @@ bool BatchProgram::go( od_ostream& strm )
 	//processing dataset on a single machine
 	if ( alllinenames.isEmpty() && is2d )
 	{
-	    MultiID dsid;
+	    DBKey dsid;
 	    pars().get( "Input Line Set", dsid );
 	    PtrMan<IOObj> dsobj = IOM().get( dsid );
 	    if ( dsobj )

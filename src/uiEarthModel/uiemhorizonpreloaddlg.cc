@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "preloads.h"
 #include "ptrman.h"
 #include "survinfo.h"
@@ -118,7 +118,7 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 	return false;
 
     EM::HorizonPreLoader& hpl = EM::HPreL();
-    TypeSet<MultiID> selmids;
+    TypeSet<DBKey> selmids;
     hordlg.getChosen( selmids );
 
     uiTaskRunner taskrunner( this );
@@ -169,7 +169,7 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     unloadbut_->setSensitive( true );
     savebut_->setSensitive( true );
     EM::HorizonPreLoader& hpl = EM::HPreL();
-    const MultiID& mid = hpl.getMultiID( listfld_->textOfItem(selidx) );
+    const DBKey& mid = hpl.getDBKey( listfld_->textOfItem(selidx) );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
 	return;
@@ -203,18 +203,18 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	{ uiMSG().message( tr("No valid objects found") ); return; }
 
     PtrMan<IOPar> par = fulliop.subselect( "Hor" );
-    TypeSet<MultiID> selmids;
+    TypeSet<DBKey> selmids;
     for ( int idx=0; idx<par->size(); idx++ )
     {
-	PtrMan<IOPar> multiidpar = par->subselect( idx );
-	if ( !multiidpar )
+	PtrMan<IOPar> dbkeypar = par->subselect( idx );
+	if ( !dbkeypar )
 	    continue;
 
-	const char* id = multiidpar->find( sKey::ID() );
+	const char* id = dbkeypar->find( sKey::ID() );
 	if ( !id || !*id )
 	    continue;
 
-	const MultiID mid( id );
+	const DBKey mid( id );
 	selmids += mid;
     }
 
@@ -225,7 +225,7 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 }
 
 
-void uiHorizonPreLoadDlg::loadSavedHorizon( const TypeSet<MultiID>& savedmids )
+void uiHorizonPreLoadDlg::loadSavedHorizon( const TypeSet<DBKey>& savedmids )
 {
     if ( savedmids.isEmpty() )
 	return;
@@ -264,7 +264,7 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     const int size = hornames.size();
     for ( int lhidx=0; lhidx<size; lhidx++ )
     {
-	const MultiID& mid = hpl.getMultiID( hornames.get( lhidx ) );
+	const DBKey& mid = hpl.getDBKey( hornames.get( lhidx ) );
 	if ( mid.isUdf() )
 	    continue;
 

@@ -31,7 +31,7 @@ mExpClass(Well) Writer
 { mODTextTranslationClass(Well::Writer)
 public:
 
-			Writer(const MultiID&,const Data&);
+			Writer(const DBKey&,const Data&);
 			Writer(const IOObj&,const Data&);
 			~Writer();
     bool		isUsable() const	{ return wa_; }
@@ -50,7 +50,7 @@ public:
 
     bool		isFunctional() const;
 
-    static bool		isFunctional(const MultiID&);
+    static bool		isFunctional(const DBKey&);
     static bool		isFunctional(const IOObj&);
 
 protected:

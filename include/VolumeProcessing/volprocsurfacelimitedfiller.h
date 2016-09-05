@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "volumeprocessingmod.h"
 #include "volprocstep.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 namespace Geometry { class FaultStickSurface; }
 namespace EM { class Fault; class Horizon; class Horizon3D; }
@@ -43,14 +43,14 @@ public:
 
     bool		isOK() const;
 
-    bool		setSurfaces(const TypeSet<MultiID>&,
+    bool		setSurfaces(const TypeSet<DBKey>&,
 				    const TypeSet<char>& fillside);
 			/*Assume going down increases z.
 			  For horizons, side = 1 if go below, -1 if go above.*/
 
     int			nrOfSurfaces() const		 {return side_.size();}
     char		getSurfaceFillSide(int idx) const{ return side_[idx]; }
-    const MultiID*	getSurfaceID(int idx) const;
+    const DBKey*	getSurfaceID(int idx) const;
 
 			//Start value/grid stuff
     bool		usesStartValue() const	    { return usestartval_; }
@@ -59,8 +59,8 @@ public:
     float		getStartValue() const	    { return fixedstartval_; }
     void		setStartValue(float vel)    { fixedstartval_ = vel; }
 
-    bool		setStartValueHorizon(const MultiID*);
-    const MultiID*	getStartValueHorizonID() const;
+    bool		setStartValueHorizon(const DBKey*);
+    const DBKey*	getStartValueHorizonID() const;
     int			getStartAuxdataIdx() const {return startauxdataselidx_;}
     void		setStartAuxdataIdx(int i)  { startauxdataselidx_ = i; }
 
@@ -74,8 +74,8 @@ public:
     float		getGradient() const	{ return fixedgradient_; }
     void		setGradient(float grd)	{ fixedgradient_ = grd; }
 
-    bool		setGradientHorizon(const MultiID*);
-    const MultiID*	getGradientHorizonID() const;
+    bool		setGradientHorizon(const DBKey*);
+    const DBKey*	getGradientHorizonID() const;
     int			getGradAuxdataIdx()	{ return gradauxdataselidx_; }
     void		setGradAuxdataIdx(int i){ gradauxdataselidx_ = i; }
 
@@ -86,8 +86,8 @@ public:
     void		setRefZValue(float zv)		{ refz_ = zv; }
     float		getRefZValue() const		{ return refz_; }
 
-    bool		setRefHorizon(const MultiID*);
-    const MultiID*	getRefHorizonID() const;
+    bool		setRefHorizon(const DBKey*);
+    const DBKey*	getRefHorizonID() const;
 
     bool		useHorInterFillerPar(const IOPar&);
 
@@ -110,12 +110,12 @@ protected:
     virtual od_int64	extraMemoryUsage(OutputSlotID,const TrcKeySampling&,
 					 const StepInterval<int>&) const;
 
-    EM::Horizon*	loadHorizon(const MultiID&) const;
+    EM::Horizon*	loadHorizon(const DBKey&) const;
 			//!<\note horizon is reffed on return.
-    int			setDataHorizon(const MultiID&,EM::Horizon3D*&,
+    int			setDataHorizon(const DBKey&,EM::Horizon3D*&,
 				       int auxdataidx) const;
 
-    MultiID		gradhormid_;
+    DBKey		gradhormid_;
     EM::Horizon3D*	gradhorizon_;
     int			gradauxdataselidx_;
     int			gradauxidx_;
@@ -123,14 +123,14 @@ protected:
     bool		usegradient_;
     bool		gradvertical_;
 
-    MultiID		starthormid_;
+    DBKey		starthormid_;
     EM::Horizon3D*	starthorizon_;
     int			startauxdataselidx_;
     int			startauxidx_;
     float		fixedstartval_;
     bool		usestartval_;
 
-    MultiID		refhormid_;
+    DBKey		refhormid_;
     EM::Horizon*	refhorizon_;
     float		refz_;
     bool		userefz_;
@@ -139,7 +139,7 @@ protected:
 			/* The following four have the same size, for any idx,
 			      faults_[idx] or hors_[idx] is 0. */
     TypeSet<char>	side_;
-    TypeSet<MultiID>	surfacelist_;
+    TypeSet<DBKey>	surfacelist_;
     ObjectSet<EM::Horizon> hors_;
     ObjectSet<Geometry::FaultStickSurface> faults_;
 

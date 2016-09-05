@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 using namespace Attrib;
-MultiID storhint_;
+DBKey storhint_;
 
 
 class uiSelExternalAttrInps : public uiDialog
@@ -372,5 +372,5 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
 }
 
 
-void AttributeSetCreator::setStorageHint( const MultiID& m )
+void AttributeSetCreator::setStorageHint( const DBKey& m )
 { storhint_ = m; }

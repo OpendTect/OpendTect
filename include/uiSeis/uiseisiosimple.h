@@ -10,7 +10,7 @@
 #include "uidialog.h"
 #include "samplingdata.h"
 #include "seisiosimple.h"
-#include "multiid.h"
+#include "dbkey.h"
 class IOObjContext;
 class uiLabel;
 class uiScaler;

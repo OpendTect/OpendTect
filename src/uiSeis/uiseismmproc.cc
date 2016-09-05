@@ -114,7 +114,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 			  "\nThis may mean the job is not fit for "
 			  "Multi-Job/Machine execution") )
 
-    const MultiID outid( idres );
+    const DBKey outid( idres );
     outioobjinfo_ = new uiSeisIOObjInfo( outid );
     if ( !outioobjinfo_->isOK() )
 	mRetInvJobSpec(tr("Cannot find output cube (%1) in object management.")

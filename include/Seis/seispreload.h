@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "datachar.h"
 #include "datapackbase.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ranges.h"
 #include "task.h"
 
@@ -29,10 +29,10 @@ namespace Seis
 mExpClass(Seis) PreLoader
 { mODTextTranslationClass(PreLoader);
 public:
-			PreLoader(const MultiID&,Pos::GeomID =-1,
+			PreLoader(const DBKey&,Pos::GeomID =-1,
 				  TaskRunner* =0);
 
-    const MultiID&	id() const			{ return mid_; }
+    const DBKey&	id() const			{ return mid_; }
     Pos::GeomID		geomID() const			{ return geomid_; }
     void		setTaskRunner( TaskRunner& t )	{ tr_ = &t; }
 
@@ -69,7 +69,7 @@ public:
 
 protected:
 
-    MultiID		mid_;
+    DBKey		mid_;
     Pos::GeomID		geomid_;
     TaskRunner*		tr_;
     TaskRunner		deftr_;
@@ -83,11 +83,11 @@ protected:
 mExpClass(Seis) PreLoadDataEntry
 {
 public:
-			PreLoadDataEntry(const MultiID&,Pos::GeomID,int dpid);
+			PreLoadDataEntry(const DBKey&,Pos::GeomID,int dpid);
 
-    bool		equals(const MultiID&,Pos::GeomID) const;
+    bool		equals(const DBKey&,Pos::GeomID) const;
 
-    MultiID		mid_;
+    DBKey		mid_;
     Pos::GeomID		geomid_;
     int			dpid_;
     bool		is2d_;
@@ -98,24 +98,24 @@ public:
 mExpClass(Seis) PreLoadDataManager
 {
 public:
-    void			add(const MultiID&,DataPack*);
-    void			add(const MultiID&,Pos::GeomID,DataPack*);
-    void			remove(const MultiID&,Pos::GeomID =-1);
+    void			add(const DBKey&,DataPack*);
+    void			add(const DBKey&,Pos::GeomID,DataPack*);
+    void			remove(const DBKey&,Pos::GeomID =-1);
     void			remove(int dpid);
     void			removeAll();
 
-    RefMan<DataPack>		get(const MultiID&,Pos::GeomID =-1);
+    RefMan<DataPack>		get(const DBKey&,Pos::GeomID =-1);
     RefMan<DataPack>		get(int dpid);
-    ConstRefMan<DataPack>	get(const MultiID&,Pos::GeomID =-1) const;
+    ConstRefMan<DataPack>	get(const DBKey&,Pos::GeomID =-1) const;
     ConstRefMan<DataPack>	get(int dpid) const;
     template<class T>
-    inline RefMan<T>		getAndCast(const MultiID&,Pos::GeomID =-1);
+    inline RefMan<T>		getAndCast(const DBKey&,Pos::GeomID =-1);
 
-    void			getInfo(const MultiID&,Pos::GeomID,
+    void			getInfo(const DBKey&,Pos::GeomID,
 					BufferString&) const;
 
-    void			getIDs(TypeSet<MultiID>&) const;
-    bool			isPresent(const MultiID&,Pos::GeomID =-1) const;
+    void			getIDs(TypeSet<DBKey>&) const;
+    bool			isPresent(const DBKey&,Pos::GeomID =-1) const;
 
     const ObjectSet<PreLoadDataEntry>& getEntries() const;
 
@@ -133,7 +133,7 @@ mGlobal(Seis) PreLoadDataManager& PLDM();
 
 
 template <class T> inline
-RefMan<T> PreLoadDataManager::getAndCast(const MultiID& mid, Pos::GeomID gid)
+RefMan<T> PreLoadDataManager::getAndCast(const DBKey& mid, Pos::GeomID gid)
 {
     RefMan<DataPack> dp = get( mid, gid );
     mDynamicCastGet( T*, casted, dp.ptr() );

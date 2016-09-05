@@ -28,7 +28,7 @@ public:
 				  "WellT2D", toUiString(sFactoryKeyword()));
 
 				WellT2DTransform();
-				WellT2DTransform(const MultiID&);
+				WellT2DTransform(const DBKey&);
 
     bool			isOK() const;
     void			transformTrc(const TrcKey&,
@@ -44,7 +44,7 @@ public:
     Interval<float>		getZInterval(bool time) const;
     bool			needsVolumeOfInterest() const { return false; }
 
-    bool			setWellID(const MultiID&);
+    bool			setWellID(const DBKey&);
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

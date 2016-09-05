@@ -33,7 +33,7 @@ static const char* rcsID = "$Id$";
 
 static EM::Horizon* load3DHorizon( const char* id, BufferString& err )
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
@@ -49,7 +49,7 @@ static EM::Horizon* load3DHorizon( const char* id, BufferString& err )
 
     EM::EMObject* emobj = EM::Horizon3D::create( EM::EMM() );
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
-    emobj->setMultiID( ioobj->key() );
+    emobj->setDBKey( ioobj->key() );
     reader->setOutput( *horizon );
     reader->setReadOnlyZ( true );
     reader->execute( &std::cerr );
@@ -62,7 +62,7 @@ static EM::Horizon* load3DHorizon( const char* id, BufferString& err )
 
 static EM::Horizon* load2DHorizon( const char* id, BufferString& err )
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
@@ -78,7 +78,7 @@ static EM::Horizon* load2DHorizon( const char* id, BufferString& err )
 
     EM::EMObject* emobj = EM::Horizon2D::create( EM::EMM() );
     mDynamicCastGet(EM::Horizon2D*,horizon,emobj)
-    emobj->setMultiID( ioobj->key() );
+    emobj->setDBKey( ioobj->key() );
     reader->setOutput( *horizon );
     reader->setReadOnlyZ( true );
     reader->execute( &std::cerr );

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "trckeyzsampling.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 namespace EM { class Horizon; }
 
@@ -34,25 +34,25 @@ public:
 						  bool allowcnstrsabsent);
     void			getSortedHorizons(
 					ObjectSet<EM::Horizon>&) const;
-    void			getSortedHorizonIDs(TypeSet<MultiID>&) const;
-    void			setConstSelected(const TypeSet<MultiID>&);
+    void			getSortedHorizonIDs(TypeSet<DBKey>&) const;
+    void			setConstSelected(const TypeSet<DBKey>&);
     TrcKeyZSampling		getBoundingBox() const	{ return bbox_; }
 
 protected:
 
     bool			acceptOK();
-    void			getSelectedHorizons(TypeSet<MultiID>&) const;
-    void			updateRelationTree(const TypeSet<MultiID>&);
-    bool			sortFromRelationTree(const TypeSet<MultiID>&);
+    void			getSelectedHorizons(TypeSet<DBKey>&) const;
+    void			updateRelationTree(const TypeSet<DBKey>&);
+    bool			sortFromRelationTree(const TypeSet<DBKey>&);
 
     uiSurfaceSel*		horsel_;
 
     bool			is2d_;
     bool			loadneeded_;
     TrcKeyZSampling		bbox_;
-    TypeSet<MultiID>		constselids_;
+    TypeSet<DBKey>		constselids_;
     ObjectSet<EM::Horizon>	horizons_;
-    TypeSet<MultiID>		horids_;
+    TypeSet<DBKey>		horids_;
 
 };
 

@@ -43,7 +43,7 @@ public :
     Notifier<uiSEGYReadDlg> writeParsReq;
     Notifier<uiSEGYReadDlg> preScanReq;
 
-    virtual MultiID	outputID() const	= 0;
+    virtual DBKey	outputID() const	= 0;
 
 protected:
 

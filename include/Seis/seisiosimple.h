@@ -8,7 +8,7 @@
 
 #include "seiscommon.h"
 #include "samplingdata.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "position.h"
 #include "executor.h"
 #include "od_iosfwd.h"
@@ -35,7 +35,7 @@ public:
 	Data&		operator =(const Data&);
 
 	BufferString	fname_;
-	MultiID		seiskey_;
+	DBKey		seiskey_;
 
 	bool		isasc_;
 	Seis::GeomType	geom_;

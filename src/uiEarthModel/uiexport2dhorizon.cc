@@ -107,7 +107,7 @@ bool uiExport2DHorizon::doExport()
     if ( horidx < 0 || horidx > hinfos_.size() )
 	mErrRet(tr("Invalid Horizon"))
 
-    MultiID horid = hinfos_[horidx]->multiid;
+    DBKey horid = hinfos_[horidx]->dbkey;
     EM::EMManager& em = EM::EMM();
     EM::EMObject* obj = em.getObject( em.getObjectID(horid) );
     if ( !obj )
@@ -282,7 +282,7 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
     if ( horidx < 0 || horidx > hinfos_.size() )
 	return;
 
-    MultiID horid = hinfos_[horidx]->multiid;
+    DBKey horid = hinfos_[horidx]->dbkey;
 
     PtrMan<IOObj> ioobj = IOM().get( horid );
     if ( !ioobj ) return;

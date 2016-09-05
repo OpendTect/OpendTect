@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "enums.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "staticsdesc.h"
 #include "uistring.h"
 
@@ -26,7 +26,7 @@ To tag a velocity volume as a velocity, this class can be used to do the work:
 \code
     VelocityDesc desc( VelocityDesc::Interval );
 
-    PtrMan<IOObj> ioobj = IOM().get( multiid );
+    PtrMan<IOObj> ioobj = IOM().get( dbkey );
     desc.fillPar( ioobj->pars() );
     IOM().commitChanges( ioobj );
 

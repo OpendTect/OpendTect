@@ -701,7 +701,7 @@ void uiMarkerDlg::exportCB( CallBacker* )
 }
 
 
-bool uiMarkerDlg::getKey( MultiID& mid ) const
+bool uiMarkerDlg::getKey( DBKey& mid ) const
 {
     IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
     IOObj* obj = IOM().getLocal( track_.name(), "Well" );
@@ -715,7 +715,7 @@ bool uiMarkerDlg::getKey( MultiID& mid ) const
 
 void uiMarkerDlg::updateDisplayCB( CallBacker* )
 {
-    MultiID mid;
+    DBKey mid;
     if ( !getKey(mid) )
 	return;
 
@@ -733,7 +733,7 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
 
 bool uiMarkerDlg::rejectOK()
 {
-    MultiID mid;
+    DBKey mid;
     if ( !getKey(mid) )
 	return true;
 

@@ -15,11 +15,11 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "executor.h"
 #include "isopachmaker.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "survinfo.h"
 #include "moddepmgr.h"
 
-static bool loadHorizon( const MultiID& mid, od_ostream& strm )
+static bool loadHorizon( const DBKey& mid, od_ostream& strm )
 {
     EM::EMManager& em = EM::EMM();
     strm << "Loading horizon '" << em.objectName( mid ) << "'" << od_newline;
@@ -40,7 +40,7 @@ bool BatchProgram::go( od_ostream& strm )
     OD::ModDeps().ensureLoaded( "EarthModel" );
 
     strm << "Loading Horizons ..." << od_newline;
-    MultiID mid1;
+    DBKey mid1;
     pars().get( IsochronMaker::sKeyHorizonID(), mid1 );
     if ( !loadHorizon( mid1, strm ) )
 	return false;
@@ -52,7 +52,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !horizon1 )
 	return false;
 
-    MultiID mid2;
+    DBKey mid2;
     pars().get( IsochronMaker::sKeyCalculateToHorID(), mid2 );
     if ( !loadHorizon( mid2, strm ) )
 	return false;

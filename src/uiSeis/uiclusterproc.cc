@@ -303,7 +303,7 @@ void uiClusterProc::progressCB( CallBacker* )
 bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
 				 BufferString& msg, bool withdelete )
 {
-    MultiID key;
+    DBKey key;
     if ( !pars.get(uiClusterJobProv::sKeyOutputID(),key) )
 	mErrRet("Missing ID of Temporary storage in the parameters file")
     PtrMan<IOObj> inobj = IOM().get( key );
@@ -327,7 +327,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
     if ( !withdelete )
 	return true;
 
-    MultiID tempid;
+    DBKey tempid;
     if ( pars.get("Output.0.Seismic.ID",tempid) )
     {
 	IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );
@@ -345,7 +345,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
 bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
                                uiString& msg, bool withdelete )
 {
-    MultiID key;
+    DBKey key;
     if ( !pars.get(uiClusterJobProv::sKeyOutputID(),key) )
       msg = tr("Missing ID of Temporary storage in the parameters file");
     PtrMan<IOObj> inobj = IOM().get( key );
@@ -369,7 +369,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
     if ( !withdelete )
  return true;
 
-    MultiID tempid;
+    DBKey tempid;
     if ( pars.get("Output.0.Seismic.ID",tempid) )
     {
  IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );

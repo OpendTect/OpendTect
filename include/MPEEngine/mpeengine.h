@@ -40,8 +40,8 @@ public:
     virtual		~TrackSettingsValidator()			{}
     virtual bool	checkInVolumeTrackMode() const			= 0;
     virtual bool	checkActiveTracker() const			= 0;
-    virtual bool	checkStoredData(Attrib::SelSpec&,MultiID&) const = 0;
-    virtual bool	checkPreloadedData(const MultiID&) const	= 0;
+    virtual bool	checkStoredData(Attrib::SelSpec&,DBKey&) const = 0;
+    virtual bool	checkPreloadedData(const DBKey&) const	= 0;
 };
 
 
@@ -75,7 +75,7 @@ public:
     Pos::GeomID			activeGeomID() const;
 
     Notifier<Engine>		loadEMObject;
-    MultiID			midtoload;
+    DBKey			midtoload;
 
     void			updateSeedOnlyPropagation(bool);
 
@@ -154,7 +154,7 @@ public:
     void			setValidator(TrackSettingsValidator*);
     const char*			errMsg() const;
 
-    BufferString		setupFileName(const MultiID&) const;
+    BufferString		setupFileName(const DBKey&) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

@@ -45,7 +45,7 @@ public:
 			~uiTieWinMGRDlg();
 
     void		delWins();
-    const MultiID&	getWellId() const;
+    const DBKey&	getWellId() const;
 
 protected:
 
@@ -73,7 +73,7 @@ protected:
     bool		getVelLogInSetup() const;
     bool		getDenLogInSetup() const;
     bool		initSetup();
-    void		saveWellTieSetup(const MultiID&,
+    void		saveWellTieSetup(const DBKey&,
 					 const WellTie::Setup&) const;
 
     void		onFinalise(CallBacker*);
@@ -85,7 +85,7 @@ protected:
     void		wellSelChg(CallBacker*);
     void		wellTieDlgClosed(CallBacker*);
     bool		selIs2D() const;
-    bool		seisIDIs3D(MultiID) const;
+    bool		seisIDIs3D(DBKey) const;
 };
 
 } // namespace WellTie

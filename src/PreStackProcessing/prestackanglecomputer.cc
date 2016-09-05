@@ -408,7 +408,7 @@ VelocityBasedAngleComputer::~VelocityBasedAngleComputer()
 }
 
 
-bool VelocityBasedAngleComputer::setMultiID( const MultiID& mid )
+bool VelocityBasedAngleComputer::setDBKey( const DBKey& mid )
 {
     if ( velsource_ ) velsource_->unRef();
     velsource_ = Vel::FunctionSource::factory().create( 0, mid, false );

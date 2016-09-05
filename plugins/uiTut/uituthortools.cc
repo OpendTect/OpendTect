@@ -90,7 +90,7 @@ bool uiTutHorTools::checkAttribName() const
     int attridx = -1;
     BufferString attrnm = attribnamefld_->text();
     const bool top = selfld_->getBoolValue();
-    const MultiID key = top ? inpfld_->key() : inpfld2_->key();
+    const DBKey key = top ? inpfld_->key() : inpfld2_->key();
     EM::SurfaceIOData sd;
     uiString errmsg;
     if ( !EM::EMM().getSurfaceData(key,sd,errmsg) )

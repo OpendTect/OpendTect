@@ -38,7 +38,7 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& psid, uiFlatViewWin* win,
 {
     if ( psid > 0 )
     {
-	MultiID setid( IOObjContext::getStdDirData(IOObjContext::Loc)->id_ );
+	DBKey setid( IOObjContext::getStdDirData(IOObjContext::Loc)->id_ );
 	setid.add( psid );
 	RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( setid );
 	if ( ps )
@@ -398,7 +398,7 @@ bool VW2DPickSet::fillPar( IOPar& iop ) const
 bool VW2DPickSet::usePar( const IOPar& iop )
 {
     Vw2DDataObject::usePar( iop );
-    MultiID mid;
+    DBKey mid;
     iop.get( sKeyMID(), mid );
 
     RefMan<Pick::Set> newps = Pick::SetMGR().fetchForEdit( mid );
@@ -410,7 +410,7 @@ bool VW2DPickSet::usePar( const IOPar& iop )
 }
 
 
-MultiID VW2DPickSet::pickSetID() const
+DBKey VW2DPickSet::pickSetID() const
 {
-    return pickset_ ? Pick::SetMGR().getID( *pickset_ ) : MultiID::udf();
+    return pickset_ ? Pick::SetMGR().getID( *pickset_ ) : DBKey::udf();
 }

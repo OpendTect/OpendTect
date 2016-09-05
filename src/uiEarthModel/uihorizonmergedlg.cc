@@ -54,13 +54,13 @@ uiHorizonMergeDlg::~uiHorizonMergeDlg()
 {}
 
 
-void uiHorizonMergeDlg::setInputHors( const TypeSet<MultiID>& mids )
+void uiHorizonMergeDlg::setInputHors( const TypeSet<DBKey>& mids )
 {
      horselfld_->setSelSurfaceIds( mids );
 }
 
 
-MultiID uiHorizonMergeDlg::getNewHorMid() const
+DBKey uiHorizonMergeDlg::getNewHorMid() const
 {
     return outfld_->getObjSel()->key();
 }
@@ -70,7 +70,7 @@ bool uiHorizonMergeDlg::acceptOK()
 {
     uiTaskRunner uitr( this );
 
-    TypeSet<MultiID> mids;
+    TypeSet<DBKey> mids;
     horselfld_->getSelSurfaceIds( mids );
     if ( mids.size() < 2 )
     {
@@ -115,7 +115,7 @@ bool uiHorizonMergeDlg::acceptOK()
 
     hor3d->setPreferredColor( outfld_->getColor() );
     hor3d->setStratLevelID( outfld_->getStratLevelID() );
-    hor3d->setMultiID( ioobj->key() );
+    hor3d->setDBKey( ioobj->key() );
     PtrMan<Executor> saver = hor3d->saver();
     if ( !saver || !TaskRunner::execute( &uitr, *saver ) )
     {

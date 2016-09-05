@@ -29,7 +29,7 @@ uiSeisIOObjInfo::uiSeisIOObjInfo( const IOObj& ioobj, bool errs )
 }
 
 
-uiSeisIOObjInfo::uiSeisIOObjInfo( const MultiID& key, bool errs )
+uiSeisIOObjInfo::uiSeisIOObjInfo( const DBKey& key, bool errs )
 	: sii(key)
 	, doerrs(errs)
 {

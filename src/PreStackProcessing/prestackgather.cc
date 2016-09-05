@@ -76,7 +76,7 @@ Gather::~Gather()
 {}
 
 
-bool Gather::readFrom( const MultiID& mid, const TrcKey& tk, int comp,
+bool Gather::readFrom( const DBKey& mid, const TrcKey& tk, int comp,
 		       uiString* errmsg )
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
@@ -108,7 +108,7 @@ bool Gather::readFrom( const IOObj& ioobj, const TrcKey& tk, int comp,
 
 
 
-bool Gather::readFrom( const MultiID& mid, const BinID& bid, int comp,
+bool Gather::readFrom( const DBKey& mid, const BinID& bid, int comp,
 		       uiString* errmsg )
 {
     TrcKey tk( bid );
@@ -124,7 +124,7 @@ bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
 }
 
 
-bool Gather::readFrom( const MultiID& mid, const int trcnr,
+bool Gather::readFrom( const DBKey& mid, const int trcnr,
 		       const char* linename, int comp, uiString* errmsg )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( linename );
@@ -321,7 +321,7 @@ OffsetAzimuth Gather::getOffsetAzimuth( int idx ) const
 }
 
 
-bool Gather::getVelocityID(const MultiID& stor, MultiID& vid )
+bool Gather::getVelocityID(const DBKey& stor, DBKey& vid )
 {
     PtrMan<IOObj> ioobj = IOM().get( stor );
     return ioobj && GetVelocityVolumeTag( *ioobj, vid );

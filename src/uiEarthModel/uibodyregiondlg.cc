@@ -60,7 +60,7 @@ static const char* rcsID mUsedVar = "$Id: uibodyregiondlg.cc 37872 2015-01-15 12
 class BodyExtractorFromHorizons : public ParallelTask
 { mODTextTranslationClass(BodyExtractorFromHorizons)
 public:
-BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
+BodyExtractorFromHorizons( const TypeSet<DBKey>& hlist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
 	const TrcKeyZSampling& cs, Array3D<float>& res,
 	const ODPolygon<float>& p )
@@ -157,7 +157,7 @@ const ODPolygon<float>&				plg_;
 class ImplicitBodyRegionExtractor : public ParallelTask
 { mODTextTranslationClass(ImplicitBodyRegionExtractor)
 public:
-ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
+ImplicitBodyRegionExtractor( const TypeSet<DBKey>& surflist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
 	const TrcKeyZSampling& cs, Array3D<float>& res,
 	const ODPolygon<float>& p )
@@ -779,7 +779,7 @@ void uiBodyRegionGrp::addSurfaceCB( CallBacker* cb )
     const int nrsel = dlg->nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	const MultiID& mid = dlg->chosenID( idx );
+	const DBKey& mid = dlg->chosenID( idx );
 	if ( region3d_.hasBoundary(mid) )
 	    continue;
 
@@ -946,7 +946,7 @@ uiBodyRegionDlg::~uiBodyRegionDlg()
 {}
 
 
-MultiID uiBodyRegionDlg::getBodyMid() const
+DBKey uiBodyRegionDlg::getBodyMid() const
 {
     return outputfld_->key();
 }
@@ -1010,7 +1010,7 @@ bool uiBodyRegionDlg::createImplicitBody()
 	    SamplingData<int>(cs.hsamp_.start_.crl(),cs.hsamp_.step_.crl()));
     emcs->setZSampling(SamplingData<float>(cs.zsamp_.start,cs.zsamp_.step));
 
-    emcs->setMultiID( outputfld_->key() );
+    emcs->setDBKey( outputfld_->key() );
     emcs->setName( outputfld_->getInput() );
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();
@@ -1020,7 +1020,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     if ( !exec )
 	mRetErrDelHoridx( uiStrings::sSaveBodyFail() )
 
-    MultiID key = emcs->multiID();
+    DBKey key = emcs->multiID();
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj->pars().find( sKey::Type() ) )
     {

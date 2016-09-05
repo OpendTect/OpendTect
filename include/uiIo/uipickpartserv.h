@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "trckeysampling.h"
 #include "ranges.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "pickset.h"
 
 class BinIDValueSet;
@@ -50,11 +50,11 @@ public:
 					//!< 0=all, -1 no poly's, 1 only poly's
     bool			storePickSet(const Pick::Set&);
     bool			storePickSetAs(const Pick::Set&);
-    void			mergePickSets(MultiID&);
+    void			mergePickSets(DBKey&);
 
     void			fetchHors(bool);
-    RefMan<Pick::Set>		loadSet(const MultiID&);
-    bool			loadSets(TypeSet<MultiID>&,bool polygons,
+    RefMan<Pick::Set>		loadSet(const DBKey&);
+    bool			loadSets(TypeSet<DBKey>&,bool polygons,
 					 const char* cat=0);
 					//!< You have to ref/unref the sets
     RefMan<Pick::Set>		createEmptySet(bool aspolygon);
@@ -72,13 +72,13 @@ public:
 
 				// Interaction stuff
     BinIDValueSet&			genDef()	{ return gendef_; }
-    MultiID			pickSetID() const	{ return picksetid_; }
+    DBKey			pickSetID() const	{ return picksetid_; }
 
     ObjectSet<SurfaceInfo>&	horInfos()		{ return hinfos_; }
-    const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
+    const ObjectSet<DBKey>&	selHorIDs() const	{ return selhorids_; }
     TrcKeySampling		selTrcKeySampling() const
 				{ return selhs_; }
-    MultiID			horID()			{ return horid_; }
+    DBKey			horID()			{ return horid_; }
 
     TypeSet<BufferStringSet>&	lineNames()		{ return linenms_; }
     BufferStringSet&		selectLines()		{ return selectlines_; }
@@ -91,11 +91,11 @@ protected:
     BinIDValueSet&		gendef_;
 
     ObjectSet<SurfaceInfo>	hinfos_;
-    ObjectSet<MultiID>		selhorids_;
+    ObjectSet<DBKey>		selhorids_;
     TrcKeySampling		selhs_;
     Pick::Set*			ps_;
-    MultiID			picksetid_;
-    MultiID			horid_;
+    DBKey			picksetid_;
+    DBKey			horid_;
 
     TypeSet<BufferStringSet>	linenms_;
     BufferStringSet		selectlines_;
@@ -110,8 +110,8 @@ protected:
     void			survChangedCB(CallBacker*);
     void			importReadyCB(CallBacker*);
     void                        mkRandLocs2D(CallBacker*);
-    bool			doLoadSets(TypeSet<MultiID>&);
-    bool			doSaveAs(const MultiID&,const Pick::Set*);
+    bool			doLoadSets(TypeSet<DBKey>&);
+    bool			doSaveAs(const DBKey&,const Pick::Set*);
 
 };
 

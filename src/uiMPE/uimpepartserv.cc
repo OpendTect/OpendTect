@@ -319,7 +319,7 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* )
 	setupgrp_->commitToTracker();
 
 
-    saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
+    saveSetup( EM::EMM().getDBKey( trackercurrentobject_) );
 
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
 
@@ -590,7 +590,7 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
 }
 
 
-bool uiMPEPartServer::prepareSaveSetupAs( const MultiID& oldmid )
+bool uiMPEPartServer::prepareSaveSetupAs( const DBKey& oldmid )
 {
     const EM::ObjectID emid = EM::EMM().getObjectID( oldmid );
     if ( getTrackerID(emid) >= 0 )
@@ -606,7 +606,7 @@ bool uiMPEPartServer::prepareSaveSetupAs( const MultiID& oldmid )
 }
 
 
-bool uiMPEPartServer::saveSetupAs( const MultiID& newmid )
+bool uiMPEPartServer::saveSetupAs( const DBKey& newmid )
 {
     const int res = saveSetup( newmid );
     MPE::engine().removeTracker( temptrackerid_ );
@@ -615,7 +615,7 @@ bool uiMPEPartServer::saveSetupAs( const MultiID& newmid )
 }
 
 
-bool uiMPEPartServer::saveSetup( const MultiID& mid )
+bool uiMPEPartServer::saveSetup( const DBKey& mid )
 {
     const EM::ObjectID emid = EM::EMM().getObjectID( mid );
     const int trackerid = getTrackerID( emid );
@@ -710,7 +710,7 @@ void uiMPEPartServer::trackerToBeRemovedCB( CallBacker* cb )
 }
 
 
-bool uiMPEPartServer::readSetup( const MultiID& mid )
+bool uiMPEPartServer::readSetup( const DBKey& mid )
 {
     BufferString setupfilenm = MPE::engine().setupFileName( mid );
     if ( !File::exists(setupfilenm) ) return false;
@@ -764,7 +764,7 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 		Attrib::Desc::getParamString( as->defString(), "id", idstr );
 		Attrib::DescSet* storedads =
 		    Attrib::eDSHolder().getDescSet( tracker.is2D() , true );
-		storedads->getStoredID( MultiID(idstr.buf()) );
+		storedads->getStoredID( DBKey(idstr.buf()) );
 			// will try to add if fail
 
 		Attrib::SelSpec newas( *as );

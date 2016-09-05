@@ -259,7 +259,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
 				      const Pos::GeomID geomid )
     : desiredvolume_(cs)
     , auxpars_(0)
-    , storid_(*new MultiID)
+    , storid_(*new DBKey)
     , writer_(0)
     , trc_(0)
     , prevpos_(-1,-1)
@@ -285,7 +285,7 @@ bool SeisTrcStorOutput::wantsOutput( const BinID& bid ) const
 }
 
 
-bool SeisTrcStorOutput::setStorageID( const MultiID& storid )
+bool SeisTrcStorOutput::setStorageID( const DBKey& storid )
 {
     if ( !storid.isEmpty() )
     {

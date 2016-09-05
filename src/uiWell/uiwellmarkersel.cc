@@ -299,7 +299,7 @@ void uiWellMarkersDlg::getWellNames( BufferStringSet& wllnms )
 }
 
 
-void uiWellMarkersDlg::getWellIDs( TypeSet<MultiID>& wllids )
+void uiWellMarkersDlg::getWellIDs( TypeSet<DBKey>& wllids )
 {
     if ( wellselgrp_ )
 	wellselgrp_->getChosen( wllids );

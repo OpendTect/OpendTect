@@ -34,7 +34,7 @@ public:
     void		setPickSet( const Pick::Set* ps )	{ ps_ = ps; }
     void		setHorizon(EM::Horizon3D*);
 
-    bool		setHorizon(const MultiID&,TaskRunner* tr=0);
+    bool		setHorizon(const DBKey&,TaskRunner* tr=0);
 
     float		getM3(float,bool upward,bool usenegvals);
     const char*		dispText(float m3,bool zinft);

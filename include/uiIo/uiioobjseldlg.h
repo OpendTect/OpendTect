@@ -59,8 +59,8 @@ public:
 			~uiIOObjSelDlg();
 
     int			nrChosen() const	{ return selgrp_->nrChosen(); }
-    const MultiID&	chosenID(int i=0) const { return selgrp_->chosenID(i); }
-    void		getChosen( TypeSet<MultiID>& ids ) const
+    const DBKey&	chosenID(int i=0) const { return selgrp_->chosenID(i); }
+    void		getChosen( TypeSet<DBKey>& ids ) const
 						{ selgrp_->getChosen( ids ); }
     void		getChosen( BufferStringSet& nms ) const
 						{ selgrp_->getChosen( nms ); }

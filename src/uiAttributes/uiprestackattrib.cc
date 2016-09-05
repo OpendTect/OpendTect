@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribstorprovider.h"
 #include "ctxtioobj.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "prestackanglecomputer.h"
 #include "prestackanglemute.h"
 #include "prestackprop.h"
@@ -195,7 +195,7 @@ bool uiPreStackAttrib::setParameters( const Desc& desc )
 
     prestackinpfld_->setInput( aps->psID() );
 
-    const MultiID ppid = aps->preProcID();
+    const DBKey ppid = aps->preProcID();
     if ( !ppid.isEmpty() && ppid.subID(0)!=0 )
     {
 	dopreprocessfld_->setValue( true );
@@ -300,11 +300,11 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 	uiMSG().error( errmsg_ );
 	return false;
     }
-    mSetString(Attrib::StorageProvider::keyStr(),prestackinpfld_->getMultiID())
+    mSetString(Attrib::StorageProvider::keyStr(),prestackinpfld_->getDBKey())
 
     if ( dopreprocessfld_->getBoolValue() )
     {
-	MultiID mid;
+	DBKey mid;
 	if ( !preprocsel_->getSel(mid))
 	    { errmsg_ = uiStrings::phrSelect(tr("preprocessing setup"));
 								return false; }

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
-class MultiID;
+class DBKey;
 namespace VolProc { class Chain; class uiChain; }
 
 /*!
@@ -31,7 +31,7 @@ public:
 
     const char*		name() const			{ return "VolProc"; }
 
-    void		doVolProc(bool is2d,const MultiID*,
+    void		doVolProc(bool is2d,const DBKey*,
 				  const char* steptype=0);
     void		createVolProcOutput(bool is2d,const IOObj*);
 

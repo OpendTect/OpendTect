@@ -67,9 +67,9 @@ void EventTracker::setMute( bool inner, MuteDef* mutedef,
 #define mErrRet( msg ) { errmsg_ = msg; return false; }
 
 
-bool EventTracker::setMute( bool inner, const MultiID& mid )
+bool EventTracker::setMute( bool inner, const DBKey& mid )
 {
-    MultiID& myid = inner ? innermuteid_ : outermuteid_;
+    DBKey& myid = inner ? innermuteid_ : outermuteid_;
     myid.setEmpty();
 
     PreStack::MuteDef* mutedef = 0;
@@ -118,7 +118,7 @@ void EventTracker::fillPar( IOPar& par ) const
 
 bool EventTracker::usePar( const IOPar& par )
 {
-    MultiID imid, omid;
+    DBKey imid, omid;
     if ( !par.get( sKeyInnerMute(), imid ) ||
 	 !par.get( sKeyOuterMute(), omid ) )
     {

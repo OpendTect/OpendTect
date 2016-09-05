@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "bufstringset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uigroup.h"
 
 class uiHorizonAuxDataDlg;
@@ -35,15 +35,15 @@ public:
 			~HorizonAuxDataInfo();
 					
 	BufferStringSet			hornms_;
-	TypeSet<MultiID>		mids_;
+	TypeSet<DBKey>		mids_;
 	TypeSet<BufferStringSet>	auxdatanms_;		    
     };
 
-    			uiHorizonAuxDataSel(uiParent*,const MultiID&,int auxidx,
+    			uiHorizonAuxDataSel(uiParent*,const DBKey&,int auxidx,
 				const HorizonAuxDataInfo* auxinfo = 0);
 
     int			nrHorizonsWithData() const { return nrhorswithdata_; }
-    const MultiID&	selectedID() const	   { return selmid_; }
+    const DBKey&	selectedID() const	   { return selmid_; }
     int			auxdataidx() const	   { return auxidx_; }
 protected:
 
@@ -53,7 +53,7 @@ protected:
     uiPushButton*	selbut_;
     uiGenInput*		horfld_;
     uiGenInput*		auxfld_;
-    MultiID		selmid_;
+    DBKey		selmid_;
     int			auxidx_;
     int			nrhorswithdata_;
     uiHorizonAuxDataDlg* dlg_; 

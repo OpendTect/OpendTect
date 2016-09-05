@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uistring.h"
 #include "trckeysampling.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class SeisTrc;
 class SeisTrcBuf;
@@ -45,19 +45,19 @@ public:
 
 			uiSynthToRealScale(uiParent*,bool is2d,
 					   const SeisTrcBuf&,
-					   const MultiID& wvltid,
+					   const DBKey& wvltid,
 					   const char* reflvlnm);
 			~uiSynthToRealScale();
 
-    const MultiID&	inpWvltID() const	{ return inpwvltid_; }
-    const MultiID&	selWvltID() const	{ return outwvltid_; }
+    const DBKey&	inpWvltID() const	{ return inpwvltid_; }
+    const DBKey&	selWvltID() const	{ return outwvltid_; }
 
 protected:
 
     bool		is2d_;
     const SeisTrcBuf&	synth_;
-    MultiID		inpwvltid_;
-    MultiID		outwvltid_;
+    DBKey		inpwvltid_;
+    DBKey		outwvltid_;
 
     ODPolygon<float>*	polygon_;
     TrcKeySampling		polyhs_;

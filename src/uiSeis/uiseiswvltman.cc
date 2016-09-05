@@ -177,7 +177,7 @@ void uiSeisWvltMan::matchPush( CallBacker* )
 {
     uiWaveletMatchDlg dlg( this );
     if ( dlg.go() )
-	selgrp_->fullUpdate( dlg.getMultiID() );
+	selgrp_->fullUpdate( dlg.getDBKey() );
 }
 
 
@@ -252,7 +252,7 @@ void uiSeisWvltMan::mkFileInfo()
 	txt.add( msg );
 	wvlt = 0;
 
-	MultiID orgid; MultiID horid; MultiID seisid; BufferString lvlnm;
+	DBKey orgid; DBKey horid; DBKey seisid; BufferString lvlnm;
 	if ( WaveletMGR().getScalingInfo(curioobj_->key(),
 			    orgid,horid,seisid,lvlnm) )
 	{
@@ -326,7 +326,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 
 
 #define mPrepWvltChg() \
-    const MultiID ky( curioobj_->key() ); \
+    const DBKey ky( curioobj_->key() ); \
     RefMan<Wavelet> wvlt = WaveletMGR().fetchForEdit( ky ); \
     if ( !wvlt ) \
 	return

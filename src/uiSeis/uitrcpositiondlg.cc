@@ -139,7 +139,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
-				    bool is2d, const MultiID& mid )
+				    bool is2d, const DBKey& mid )
     : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
 				   uiStrings::sEmptyString(),
                                    mODHelpKey(mTrcPositionDlgHelpID) )

@@ -138,7 +138,7 @@ void FaultStickSetEditor::setScaleVector( const Coord3& scalevec )
 
 
 float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
-			const MultiID* pickedmid, const char* pickednm,
+			const DBKey* pickedmid, const char* pickednm,
 			Pos::GeomID pickedgeomid, const Coord3& mousepos,
 			const Coord3* posnormal ) const
 {
@@ -161,7 +161,7 @@ float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
     }
     else if ( !fssg.pickedOnPlane(sid,sticknr) )
     {
-	const MultiID* mid = fssg.pickedMultiID( sid, sticknr );
+	const DBKey* mid = fssg.pickedDBKey( sid, sticknr );
 	if ( !pickedmid || !mid || *pickedmid!=*mid )
 	    return mUdf(float);
 
@@ -219,7 +219,7 @@ float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
 
 
 void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
-			const MultiID* pickedmid, const char* pickednm,
+			const DBKey* pickedmid, const char* pickednm,
 			Pos::GeomID pickedgeomid, const Coord3& mousepos,
 			const Coord3* posnormal ) const
 {
@@ -259,7 +259,7 @@ const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos,
     const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
 			? sowingpivot_ : mousepos;
 
-    MultiID pickedmid;
+    DBKey pickedmid;
 
     if ( getNearestStick(sticknr,sid,&pickedmid,"",pickedgeomid,pos, normal) )
 	getPidsOnStick( pid, sticknr, sid, pos );
@@ -322,7 +322,7 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 
 
 bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
-			const MultiID* pickedmid, const char* pickednm,
+			const DBKey* pickedmid, const char* pickednm,
 			Pos::GeomID pickedgeomid, const Coord3& mousepos,
 			const Coord3* posnormal) const
 {
@@ -500,7 +500,7 @@ void FaultStickSetEditor::cloneMovingNode()
     const EM::SectionID& sid = movingnode_.sectionID();
     const int sticknr = movingnode_.getRowCol().row();
     Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
-    const MultiID* pickedmid = fssg.pickedMultiID( sid, sticknr );
+    const DBKey* pickedmid = fssg.pickedDBKey( sid, sticknr );
     const Pos::GeomID pickedgeomid = fssg.pickedGeomID( sid, sticknr );
     const char* pickednm = fssg.pickedName( sid, sticknr );
     const Coord3& normal = fss->getEditPlaneNormal( sticknr );

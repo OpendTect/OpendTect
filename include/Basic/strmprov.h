@@ -87,10 +87,10 @@ public:
     static bool		isPreLoaded(const char*,bool isid);
 			    //!< If isid, a single hit will return true
     static bool		preLoad(const char*,TaskRunner&,const char* id);
-			    //!< id can be anything, usually MultiID though
+			    //!< id can be anything, usually DBKey though
     static bool		preLoad(const BufferStringSet&,TaskRunner&,
 				const char* id);
-			    //!< id can be anything, usually MultiID though
+			    //!< id can be anything, usually DBKey though
     static void		getPreLoadedIDs(BufferStringSet&);
     static void		getPreLoadedFileNames(const char* id,BufferStringSet&);
 			    //!< pass null id for all files

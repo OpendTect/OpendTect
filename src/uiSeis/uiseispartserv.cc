@@ -223,13 +223,13 @@ bool uiSeisPartServer::exportSeis( int opt )
 { return ioSeis( opt, false ); }
 
 
-MultiID uiSeisPartServer::getDefault2DDataID() const
+DBKey uiSeisPartServer::getDefault2DDataID() const
 {
     BufferString key( IOPar::compKey(sKey::Default(),
 		      SeisTrc2DTranslatorGroup::sKeyDefault()) );
     BufferString midstr( SI().pars().find(key) );
     if ( !midstr.isEmpty() )
-	return MultiID( midstr.buf() );
+	return DBKey( midstr.buf() );
 
     const IOObjContext ctxt( SeisTrc2DTranslatorGroup::ioContext() );
     const IODir iodir ( ctxt.getSelKey() );
@@ -265,7 +265,7 @@ MultiID uiSeisPartServer::getDefault2DDataID() const
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc2D);
     uiIOObjSelDlg dlg( parent(), su, *ctio );
     if ( !dlg.go() )
-	return MultiID::udf();
+	return DBKey::udf();
 
     PtrMan<IOObj> seisobj = dlg.ioObj()->clone();
     seisobj->setSurveyDefault();
@@ -273,7 +273,7 @@ MultiID uiSeisPartServer::getDefault2DDataID() const
 }
 
 
-MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
+DBKey uiSeisPartServer::getDefaultDataID( bool is2d ) const
 {
     if ( is2d )
 	return getDefault2DDataID();
@@ -282,7 +282,7 @@ MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
 		      SeisTrcTranslatorGroup::sKeyDefault3D()) );
     BufferString midstr( SI().pars().find(key) );
     if ( !midstr.isEmpty() )
-	return MultiID( midstr.buf() );
+	return DBKey( midstr.buf() );
 
     const IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
     const IODir iodir ( ctxt.getSelKey() );
@@ -306,7 +306,7 @@ MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
 						"Do you want to set it now?") );
     const bool tomanage = uiMSG().askGoOn( msg );
     if ( !tomanage )
-	return MultiID::udf();
+	return DBKey::udf();
 
     uiIOObjSelDlg::Setup su( tr("Set default seismic data") );
     su.allowsetsurvdefault( false );
@@ -373,7 +373,7 @@ void uiSeisPartServer::manageWavelets()
 }
 
 
-bool uiSeisPartServer::select2DSeis( MultiID& mid )
+bool uiSeisPartServer::select2DSeis( DBKey& mid )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc2D);
     uiSeisSel::Setup setup(Seis::Line);
@@ -429,7 +429,7 @@ void uiSeisPartServer::get2DStoredAttribs( const char* linenm,
 }
 
 
-bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
+bool uiSeisPartServer::create2DOutput( const DBKey& mid, const char* linekey,
 				       TrcKeyZSampling& cs, SeisTrcBuf& buf )
 {
     mGet2DDataSet(false)
@@ -450,7 +450,7 @@ void uiSeisPartServer::getStoredGathersList( bool for3d,
 					     BufferStringSet& nms ) const
 {
     const IODir iodir(
-	MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_) );
+	DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id_) );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
 
     for ( int idx=0; idx<ioobjs.size(); idx++ )

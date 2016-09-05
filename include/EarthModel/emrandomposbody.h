@@ -67,7 +67,7 @@ public:
     ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
     bool			getBodyRange(TrcKeyZSampling&);
 
-    MultiID			storageID() const;
+    DBKey			storageID() const;
     BufferString		storageName() const;
 
     void			refBody();

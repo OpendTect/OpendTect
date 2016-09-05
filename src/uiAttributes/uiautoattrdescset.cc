@@ -46,7 +46,7 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
         , ctio_(*mMkCtxtIOObj(AttribDescSet))
 	, is2d_(is2d)
 {
-    bool douse = false; MultiID id;
+    bool douse = false; DBKey id;
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
     id = is2d_ ? SI().pars().find( uiAttribDescSetEd::sKeyAuto2DAttrSetID )
 	       : SI().pars().find( uiAttribDescSetEd::sKeyAuto3DAttrSetID );

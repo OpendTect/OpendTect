@@ -186,7 +186,7 @@ IOPar& ODSession::attrpars( bool is2d, bool isstored )
 }
 
 
-void ODSession::getStartupData( bool& douse, MultiID& mid )
+void ODSession::getStartupData( bool& douse, DBKey& mid )
 {
     Settings::common().getYN( sKeyUseStartup(), douse );
     mid.setUdf();
@@ -194,9 +194,9 @@ void ODSession::getStartupData( bool& douse, MultiID& mid )
 }
 
 
-void ODSession::setStartupData( bool douse, const MultiID& id )
+void ODSession::setStartupData( bool douse, const DBKey& id )
 {
-    bool curuse = false; MultiID curid;
+    bool curuse = false; DBKey curid;
     getStartupData( curuse, curid );
     if ( curuse != douse )
     {

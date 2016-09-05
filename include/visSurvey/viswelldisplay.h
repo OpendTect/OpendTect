@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "viswell.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ranges.h"
 #include "welllogdisp.h"
 #include "factory.h"
@@ -60,8 +60,8 @@ public:
 				    "WellDisplay",
 				    toUiString(sFactoryKeyword()) )
 
-    bool			setMultiID(const MultiID&);
-    MultiID			getMultiID() const	{ return wellid_; }
+    bool			setDBKey(const DBKey&);
+    DBKey			getDBKey() const	{ return wellid_; }
 
     //track
     void			fillTrackParams(visBase::Well::TrackParams&);
@@ -166,7 +166,7 @@ protected:
 
     Coord3			mousepressposition_;
     const mVisTrans*		transformation_;
-    MultiID			wellid_;
+    DBKey			wellid_;
     visBase::EventCatcher*	eventcatcher_;
     visBase::MarkerSet*		markerset_;
     visBase::Well*		well_;

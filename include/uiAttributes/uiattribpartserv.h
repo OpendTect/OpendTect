@@ -99,7 +99,7 @@ public:
     bool		selectRGBAttribs(TypeSet<Attrib::SelSpec>&,
 					 const ZDomain::Info*,Pos::GeomID);
     bool		setPickSetDirs(Pick::Set&,const NLAModel*,float vel);
-    void		outputVol(const MultiID&,bool is2d,bool multioutput);
+    void		outputVol(const DBKey&,bool is2d,bool multioutput);
     bool		replaceSet(const IOPar&,bool is2d);
     bool		addToDescSet(const char*,bool is2d);
     int			getSliceIdx() const		{ return sliceidx_; }
@@ -126,7 +126,7 @@ public:
 					    const ZDomain::Def& zdef,
 					    const BufferStringSet& compnames=0);
 
-    Attrib::DescID	getStoredID(const MultiID&,bool is2d,
+    Attrib::DescID	getStoredID(const DBKey&,bool is2d,
 				    int selout=-1) const;
     IOObj*		getIOObj(const Attrib::SelSpec&) const;
 
@@ -157,12 +157,12 @@ public:
 					  int steerpol );
 
     bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&,bool&);
-    bool		handleMultiComp(const MultiID&,bool,bool,
+    bool		handleMultiComp(const DBKey&,bool,bool,
 					BufferStringSet&,Attrib::DescID&,
 					TypeSet<int>&);
     void		info2DAttribSubMenu(int mnuid,BufferString& attbnm,
 					    bool& steering,bool& stored);
-    bool		prepMultCompSpecs(TypeSet<int>,const MultiID&,
+    bool		prepMultCompSpecs(TypeSet<int>,const DBKey&,
 					  bool,bool);
 
     void		setEvaluateInfo(bool ae,bool as)

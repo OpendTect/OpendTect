@@ -11,8 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 
 
-Grav::HorCalc::HorCalc( const MultiID& calc, const MultiID* top,
-			const MultiID* bot, float ang )
+Grav::HorCalc::HorCalc( const DBKey& calc, const DBKey* top,
+			const DBKey* bot, float ang )
     : Executor("Calculate gravity on horizon")
     , calchor_(0)
     , tophor_(0)

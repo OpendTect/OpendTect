@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "callback.h"
 #include "menuhandler.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uistring.h"
 
 class uiVisPartServer;
@@ -44,7 +44,7 @@ public:
     static const char*		sKeyViewerPrefix()  { return "Viewer "; }
     static const char*		sKey2DViewers()	    { return "PS2DViewers";}
     static const char*		sKeyNrWindows()	    { return "Nr Viewers"; }
-    static const char*		sKeyMultiID()	    { return "Data ID"; }
+    static const char*		sKeyDBKey()	    { return "Data ID"; }
     static const char*		sKeyBinID()	    { return "Position"; }
     static const char*		sKeyIsVolumeData()  { return "Is Volume Data"; }
     static const char*		sKeyTraceNr()	    { return "TraceNr"; }

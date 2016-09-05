@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ptrman.h"
 #include "seis2ddata.h"
 #include "seisselection.h"
@@ -44,7 +44,7 @@ ________________________________________________________________________
 using namespace Attrib;
 
 uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
-				  const NLAModel* n, const MultiID& mid,
+				  const NLAModel* n, const DBKey& mid,
 				  bool usesinglehor )
     : uiAttrEMOut( p, ad, n, mid, "Create Horizon delimited cube output" )
     , ctio_( mkCtxtIOObjHor(ad.is2D()) )
@@ -117,7 +117,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
     su.seltxt( tr("and bottom Horizon") );
     ctio2_.ctxt_.forread_ = true;
     obj2fld_ = new uiIOObjSel( pargrp_, ctio2_, su );
-    obj2fld_->setInput( MultiID("") );
+    obj2fld_->setInput( DBKey("") );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
@@ -520,7 +520,7 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 	    desc = ads_->getFirstStored();
 	if ( desc )
 	{
-	    PtrMan<IOObj> ioobj = IOM().get( MultiID(desc->getStoredID(true)) );
+	    PtrMan<IOObj> ioobj = IOM().get( DBKey(desc->getStoredID(true)) );
 	    if ( ioobj )
 		seissubselfld_->setInput( *ioobj );
 	}

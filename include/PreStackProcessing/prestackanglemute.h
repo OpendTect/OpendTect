@@ -39,7 +39,7 @@ public:
 					
     float 			mutecutoff_;
     Interval<int>		anglerange_;
-    MultiID			velvolmid_;   
+    DBKey			velvolmid_;   
     IOPar			raypar_;
     IOPar			smoothingpar_;
 };

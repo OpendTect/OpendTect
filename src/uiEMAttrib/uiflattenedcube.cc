@@ -41,7 +41,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
                  uiStrings::phrCreate(tr("Seismics flattened on '%2'")
 			   .arg(getHorNm(horid)))
 			  , mODHelpKey(mFlattenedCubeHelpID) ))
-	, hormid_(EM::EMM().getMultiID(horid))
+	, hormid_(EM::EMM().getDBKey(horid))
 	, pp_(*new Pos::EMSurfaceProvider3D)
 	, seisselin_(0)
 {
@@ -77,7 +77,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
 
 BufferString uiWriteFlattenedCube::getHorNm( EM::ObjectID horid )
 {
-    MultiID mid( EM::EMM().getMultiID( horid ) );
+    DBKey mid( EM::EMM().getDBKey( horid ) );
     return EM::EMM().objectName( mid );
 }
 

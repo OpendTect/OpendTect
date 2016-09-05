@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "emposid.h"
 #include "trckeysampling.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "position.h"
 #include "uiapplserv.h"
 #include "uistring.h"
@@ -70,8 +70,8 @@ public:
     bool		exportFaultStickSet();
     void		createHorWithConstZ(bool is2d);
 
-    MultiID		getStorageID(const EM::ObjectID&) const;
-    EM::ObjectID	getObjectID(const MultiID&) const;
+    DBKey		getStorageID(const EM::ObjectID&) const;
+    EM::ObjectID	getObjectID(const DBKey&) const;
 
     uiString		getName(const EM::ObjectID&) const;
     uiString		getType(const EM::ObjectID&) const;
@@ -83,12 +83,12 @@ public:
     bool		isFullResolution(const EM::ObjectID&) const;
     bool		isFullyLoaded(const EM::ObjectID&) const;
 
-    void		displayEMObject(const MultiID&);
+    void		displayEMObject(const DBKey&);
     bool		fillHoles(const EM::ObjectID&,bool);
 			/*!<return bool is overwrite old horizon or not. */
     bool		filterSurface(const EM::ObjectID&);
 			/*!<return bool is overwrite old horizon or not. */
-    void		fillPickSet(Pick::Set&,MultiID);
+    void		fillPickSet(Pick::Set&,DBKey);
     void		deriveHor3DFrom2D(const EM::ObjectID&);
     bool		askUserToSave(const EM::ObjectID&,bool withcancl) const;
 			/*!< If object has changed, user is asked whether
@@ -126,14 +126,14 @@ public:
     void		manageFaultStickSets();
     void		manage3DFaults();
     void		manageBodies();
-    bool		loadSurface(const MultiID&,
+    bool		loadSurface(const DBKey&,
 				    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
     static void         getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
     void		getSurfaceDef3D(const TypeSet<EM::ObjectID>&,
 				        BinIDValueSet&,
 				        const TrcKeySampling&) const;
-    void		getSurfaceDef2D(const ObjectSet<MultiID>&,
+    void		getSurfaceDef2D(const ObjectSet<DBKey>&,
 					const BufferStringSet& sellines,
 					TypeSet<Coord>&,
 					TypeSet<Pos::SurvID>&,
@@ -142,7 +142,7 @@ public:
     bool		storeObject(const EM::ObjectID&,
 				    bool storeas=false) const;
     bool		storeObject(const EM::ObjectID&,bool storeas,
-				    MultiID& storagekey,
+				    DBKey& storagekey,
 				    float shift=0) const;
     bool		storeAuxData(const EM::ObjectID&,
 				     BufferString& auxdataname,

@@ -32,7 +32,7 @@ if ( !mIsEqual(muteval,chkval,1e-5f) ) \
 }
 
 //check for Top Mute created in different versions
-bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid )
+bool odTestSameMuteInDiffVersion( od_ostream& strm, const DBKey& muteid )
 {
     PtrMan<IOObj> muteobj = IOM().get( muteid );
     if ( !muteobj )
@@ -133,7 +133,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
-    MultiID muteid;
+    DBKey muteid;
     if ( !pars().get(sKeyTestMute41(),muteid) )
     {
 	strm << "Can not find mute for V4.1 in parameter file"<<od_newline;

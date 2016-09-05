@@ -133,8 +133,8 @@ void uiElasticModelProvider::sourceSel( CallBacker* cb )
 
 
 void uiElasticModelProvider::setInputMIDs(
-	const MultiID& pwmid, const MultiID& swmid, const MultiID& aimid,
-	const MultiID& simid, const MultiID& denmid ) 
+	const DBKey& pwmid, const DBKey& swmid, const DBKey& aimid,
+	const DBKey& simid, const DBKey& denmid ) 
 {
     const bool iselastic = !simid.isUdf() || !swmid.isUdf();
     const int sourceoptidx = aimid.isUdf() ? 0 : 1;
@@ -157,18 +157,18 @@ void uiElasticModelProvider::setInputMIDs(
 }
 
 
-bool uiElasticModelProvider::getInputMIDs( MultiID& pwmid, MultiID& swmid,
-					   MultiID& aimid, MultiID& simid,
-					   MultiID& denmid ) const
+bool uiElasticModelProvider::getInputMIDs( DBKey& pwmid, DBKey& swmid,
+					   DBKey& aimid, DBKey& simid,
+					   DBKey& denmid ) const
 {
     pwmid = pwavefld_->attachObj()->isDisplayed() ? pwavefld_->key()
-						  : MultiID::udf();
+						  : DBKey::udf();
     swmid = swavefld_->attachObj()->isDisplayed() ? swavefld_->key()
-						 : MultiID::udf();
+						 : DBKey::udf();
     aimid = aifld_->attachObj()->isDisplayed() ? aifld_->key()
-					       : MultiID::udf();
+					       : DBKey::udf();
     simid = sifld_->attachObj()->isDisplayed() ? sifld_->key()
-					       : MultiID::udf();
+					       : DBKey::udf();
 
     const bool isac = inptypefld_->getBoolValue();
     const bool needsi = !isac && inpsourceelfld_->getIntValue() == 1;
@@ -176,7 +176,7 @@ bool uiElasticModelProvider::getInputMIDs( MultiID& pwmid, MultiID& swmid,
 			     : inpsourceelfld_->getIntValue() == 1;
 
     denmid = needai ? optdensityfld_->isChecked() ? optdensityfld_->key()
-						  : MultiID::udf()
+						  : DBKey::udf()
 		    : densityfld_->key();
 
     uiString basestr  = tr( "Selected inputs are not in adequation with \n"

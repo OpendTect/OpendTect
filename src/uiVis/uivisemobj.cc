@@ -57,7 +57,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
     visSurvey::Scene* scene = emod->getScene();
     mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
-    const MultiID mid = emod->getMultiID();
+    const DBKey mid = emod->getDBKey();
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
 
     uiTaskRunner dlg( uiparent_ );
@@ -248,7 +248,7 @@ const char* uiVisEMObject::getObjectType( int id )
     RefMan<EM::EMObject> emobj = EM::EMM().getObject( obj->getObjectID() );
     return emobj
 	? emobj->getTypeStr()
-	: EM::EMM().objectType( obj->getMultiID() );
+	: EM::EMM().objectType( obj->getDBKey() );
 }
 
 

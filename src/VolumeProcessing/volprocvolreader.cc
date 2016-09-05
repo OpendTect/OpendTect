@@ -45,7 +45,7 @@ Task* VolumeReader::createTask()
 }
 
 
-bool VolumeReader::setVolumeID( const MultiID& mid )
+bool VolumeReader::setVolumeID( const DBKey& mid )
 {
     mid_ = mid;
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
@@ -65,7 +65,7 @@ bool VolumeReader::usePar( const IOPar& pars )
     if ( !Step::usePar( pars ) )
 	return false;
 
-    MultiID mid;
+    DBKey mid;
     pars.get( sKeyVolumeID(), mid );
     return setVolumeID( mid );
 }

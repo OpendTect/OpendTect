@@ -78,7 +78,7 @@ public:
     virtual bool	isFullResolution() const;
     virtual Executor*	loader(const SurfaceIODataSelection* s=0);
     virtual Executor*	saver(const SurfaceIODataSelection* s=0,
-			      const MultiID* key=0);
+			      const DBKey* key=0);
 
     virtual int		findPos(const SectionID&,const Interval<float>& x,
 				const Interval<float>& y,

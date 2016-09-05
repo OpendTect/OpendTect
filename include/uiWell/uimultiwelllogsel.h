@@ -136,7 +136,7 @@ public:
 					  const BufferStringSet* wellnms=0,
 					  const BufferStringSet* lognms=0);
 			uiMultiWellLogSel(uiParent*,const Setup&,
-					const MultiID& singlewid);
+					const DBKey& singlewid);
 			~uiMultiWellLogSel();
 
     void		selectOnlyWritableWells();
@@ -144,12 +144,12 @@ public:
     void		getSelLogNames(BufferStringSet&) const;
     void		getSelWellNames(BufferStringSet&) const;
     void		getSelWellIDs(BufferStringSet&) const;
-    void		getSelWellIDs(TypeSet<MultiID>&) const;
+    void		getSelWellIDs(TypeSet<DBKey>&) const;
 
     void		setSelLogNames(const BufferStringSet&);
     void		setSelWellNames(const BufferStringSet&);
     void		setSelWellIDs(const BufferStringSet&);
-    void		setSelWellIDs(const TypeSet<MultiID>&);
+    void		setSelWellIDs(const TypeSet<DBKey>&);
 
     void		update(); //call this when data changed
 
@@ -157,7 +157,7 @@ protected:
 
     ObjectSet<IOObj>	wellobjs_;
 
-    const MultiID*	singlewid_;
+    const DBKey*	singlewid_;
 
     uiListBox*		wellsfld_;
     uiListBox*		logsfld_;

@@ -114,7 +114,7 @@ void StoredFunctionSource::setData( const BinIDValueSet& bvs,
 }
 
 
-bool StoredFunctionSource::store( const MultiID& velid )
+bool StoredFunctionSource::store( const DBKey& velid )
 {
     if ( velid != mid_ )
     {
@@ -159,7 +159,7 @@ void StoredFunctionSource::fillIOObjPar( IOPar& par ) const
 }
 
 
-bool StoredFunctionSource::load( const MultiID& velid )
+bool StoredFunctionSource::load( const DBKey& velid )
 {
     uiRetVal uirv = uiRetVal::OK();
     ConstRefMan< ::Pick::Set > ps = ::Pick::SetMGR().fetch( velid, uirv );
@@ -210,7 +210,7 @@ StoredFunction* StoredFunctionSource::createFunction( const BinID& binid )
 }
 
 
-FunctionSource* StoredFunctionSource::create( const MultiID& mid )
+FunctionSource* StoredFunctionSource::create( const DBKey& mid )
 {
     StoredFunctionSource* res = new StoredFunctionSource;
     if ( !res->load( mid ) )

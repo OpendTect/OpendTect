@@ -15,7 +15,7 @@
 #include "threadwork.h"
 #include "seistrctr.h"
 
-SeisRandomProvider::SeisRandomProvider( const MultiID& mid )
+SeisRandomProvider::SeisRandomProvider( const DBKey& mid )
     : reader_( 0 )
     , translator_( 0 )
     , wantedbids_( 0, false )

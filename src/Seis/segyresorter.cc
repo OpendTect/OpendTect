@@ -17,7 +17,7 @@
 #include "strmoper.h"
 #include "od_istream.h"
 
-SEGY::ReSorter::Setup::Setup( Seis::GeomType gt, const MultiID& ky,
+SEGY::ReSorter::Setup::Setup( Seis::GeomType gt, const DBKey& ky,
 			      const char* fnm )
     : geom_(gt)
     , inpkey_(ky)

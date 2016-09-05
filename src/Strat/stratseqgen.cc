@@ -228,13 +228,13 @@ void Strat::LayerSequenceGenDesc::setPropSelection(
 }
 
 
-void Strat::LayerSequenceGenDesc::setElasticPropSel( const MultiID& mid )
+void Strat::LayerSequenceGenDesc::setElasticPropSel( const DBKey& mid )
 {
     elasticpropselmid_ = mid;
 }
 
 
-const MultiID& Strat::LayerSequenceGenDesc::elasticPropSel() const
+const DBKey& Strat::LayerSequenceGenDesc::elasticPropSel() const
 {
     return elasticpropselmid_;
 }

@@ -114,7 +114,7 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
     char buf[1024]; char valbuf[80];
     HorLine2D* linedata = 0;
 
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     PtrMan<IOObj> lsetobj = IOM().getLocal( linesetnm );
     BufferString msg( "Cannot find LineSet: " ); msg += linesetnm; 
     if ( !lsetobj ) return prError( msg );
@@ -181,7 +181,7 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
     return data.size();
 }
 
-int addLine( EM::Horizon2D* hor, HorLine2D* horline, const MultiID& lsetkey,
+int addLine( EM::Horizon2D* hor, HorLine2D* horline, const DBKey& lsetkey,
 						     TypeSet<Coord>& pos )
 {
     pos += horline->pos_[0];
@@ -211,7 +211,7 @@ int addLine( EM::Horizon2D* hor, HorLine2D* horline, const MultiID& lsetkey,
 }
 
 
-void makeHorizons( ObjectSet<HorLine2D>& data, const MultiID& lsetkey,
+void makeHorizons( ObjectSet<HorLine2D>& data, const DBKey& lsetkey,
 		   ObjectSet<EM::Horizon2D>& horizons )
 {
     for ( int ldx=0; ldx<data.size(); ldx++ )
@@ -299,9 +299,9 @@ static int doWork( int argc, char** argv )
 
     if ( !horizons.size() ) return 1;
 
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     PtrMan<IOObj> lsetobj = IOM().getLocal( argv[2] );
-    const MultiID lsetkey = lsetobj->key();
+    const DBKey lsetkey = lsetobj->key();
     makeHorizons( data, lsetkey, horizons );
 
     std::cerr << "Saving data ..." << std::endl;

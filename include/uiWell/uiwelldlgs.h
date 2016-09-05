@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uiselsimple.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ranges.h"
 #include "position.h"
 #include "uistring.h"

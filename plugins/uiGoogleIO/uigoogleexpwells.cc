@@ -56,7 +56,7 @@ void uiGoogleExportWells::initWin( CallBacker* )
 	if ( de && de->ioobj_ )
 	{
 	    selfld_->addItem( mToUiStringTodo(de->name()) );
-	    wellids_ += new MultiID( de->ioobj_->key() );
+	    wellids_ += new DBKey( de->ioobj_->key() );
 	}
     }
     selfld_->chooseAll( true );

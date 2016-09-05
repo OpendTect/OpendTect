@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uicompoundparsel.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 
 /*! \brief Dialog for surface aux data selection. */
@@ -22,9 +22,9 @@ mExpClass(uiEarthModel) uiEMAuxDataSel : public uiCompoundParSel
 { mODTextTranslationClass(uiEMAuxDataSel);
 public:
 			uiEMAuxDataSel(uiParent*,const uiString& label,
-				       const MultiID* =0,
+				       const DBKey* =0,
 				       const char* auxdata=0 );
-    const MultiID&	getSurfaceID() const;
+    const DBKey&	getSurfaceID() const;
     const char*		getAuxDataSel() const;
 
 protected:
@@ -32,7 +32,7 @@ protected:
     virtual BufferString	getSummary() const;
     bool			butPushCB(CallBacker*);
 
-    MultiID			hormid_;
+    DBKey			hormid_;
     const char*			auxdatanm_;
 };
 

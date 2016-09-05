@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "indexedshape.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "position.h"
 #include "positionlist.h"
 #include "ptrman.h"
@@ -220,7 +220,7 @@ TypeSet<Coord3> GMTFault::getCornersOfZSlice( float zval ) const
 bool GMTFault::calcOnHorizon( const Geometry::ExplFaultStickSurface& expfault,
 			      Coord3ListImpl& clist ) const
 {
-    MultiID mid;
+    DBKey mid;
     get( ODGMT::sKeyHorizonID(), mid );
     RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
     if ( !emobj )
@@ -293,7 +293,7 @@ bool GMTFault::loadFaults( uiString& errmsg )
 
     for ( int idx=0; idx<fltpar->size(); idx++ )
     {
-	MultiID mid;
+	DBKey mid;
 	if ( !fltpar->get( toString(idx), mid ) )
 	    break;
 

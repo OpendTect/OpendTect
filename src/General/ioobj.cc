@@ -45,7 +45,7 @@ class IOXProducer : public IOObjProducer
 {
     bool	canMake( const char* typ ) const
 		{ return FixedString(typ)==XConn::sType(); }
-    IOObj*	make( const char* nm, const MultiID& ky, bool fd ) const
+    IOObj*	make( const char* nm, const DBKey& ky, bool fd ) const
 		{ return new IOX(nm,ky,fd); }
 };
 
@@ -117,7 +117,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky,
     FileMultiString fms = astream.value();
     const int dirid = toInt( dirky );
     const int leafid = fms.getIValue( 0 );
-    MultiID objkey( dirid, leafid );
+    DBKey objkey( dirid, leafid );
     bool reject = dirid < 0 || leafid < 1;
     if ( rejectoldtmps && isTmpLeafID(leafid) )
     {
@@ -181,7 +181,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky,
 }
 
 
-IOObj* IOObj::produce( const char* typ, const char* nm, const MultiID& ky,
+IOObj* IOObj::produce( const char* typ, const char* nm, const DBKey& ky,
 			bool gendef )
 {
     if ( !typ || !*typ )
@@ -236,7 +236,7 @@ IOObj* IOObj::clone() const
 }
 
 
-void IOObj::acquireNewKeyIn( const MultiID& dirky )
+void IOObj::acquireNewKeyIn( const DBKey& dirky )
 {
     key_ = IOM().createNewKey( dirky );
 }
@@ -316,7 +316,7 @@ void IOObj::setSurveyDefault( const char* subsel ) const
 }
 
 
-bool IOObj::isSurveyDefault( const MultiID& ky )
+bool IOObj::isSurveyDefault( const DBKey& ky )
 {
     IOPar* dpar = SI().pars().subselect( sKey::Default() );
     bool ret = false;
@@ -344,7 +344,7 @@ bool areEqual( const IOObj* o1, const IOObj* o2 )
 }
 
 
-static void mkStd( MultiID& ky )
+static void mkStd( DBKey& ky )
 {
     if ( ky.isEmpty() )
 	ky.set( "0" );
@@ -353,9 +353,9 @@ static void mkStd( MultiID& ky )
 }
 
 
-bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
+bool equalIOObj( const DBKey& ky1, const DBKey& ky2 )
 {
-    MultiID k1( ky1 ); MultiID k2( ky2 );
+    DBKey k1( ky1 ); DBKey k2( ky2 );
     mkStd( k1 ); mkStd( k2 );
     return k1 == k2;
 }
@@ -423,7 +423,7 @@ IOX::~IOX()
 }
 
 
-void IOX::setOwnKey( const MultiID& ky )
+void IOX::setOwnKey( const DBKey& ky )
 {
     ownkey_ = ky;
 }

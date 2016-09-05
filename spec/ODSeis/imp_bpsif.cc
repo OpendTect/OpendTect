@@ -7,7 +7,7 @@ static const char* rcsID = "$Id$";
 
 #include "prog.h"
 #include "seisimpbpsif.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 
 static int doWork( int argc, char** argv )
@@ -19,7 +19,7 @@ static int doWork( int argc, char** argv )
 	return 1;
     }
 
-    SeisImpBPSIF imp( argv[1], MultiID(argv[2]) );
+    SeisImpBPSIF imp( argv[1], DBKey(argv[2]) );
     const int maxinloffs = argc < 4 ? -1 : toInt(argv[3]);
     if ( maxinloffs > 0 )
 	od_cout() << "Max inl offset: " << maxinloffs << od_endl;

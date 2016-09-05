@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "datacoldef.h"
 #include "emposid.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ranges.h"
 
 namespace Attrib { class DescSet; }
@@ -57,7 +57,7 @@ public:
 
     void			snapHorizon(const EM::ObjectID&,bool is2d);
 
-    void			setNLA( const NLAModel* mdl, const MultiID& id )
+    void			setNLA( const NLAModel* mdl, const DBKey& id )
 				{ nlamodel_ = mdl; nlaid_ = id; }
     void			setDescSet( const Attrib::DescSet* ads )
 				{ descset_ = ads; }
@@ -95,7 +95,7 @@ protected:
 
     const NLAModel*		nlamodel_;
     const Attrib::DescSet*	descset_;
-    MultiID			nlaid_;
+    DBKey			nlaid_;
     uiHorizonShiftDialog*	horshiftdlg_;
     uiSeisEventSnapper*		uiseisevsnapdlg_;
     uiImportHorizon2D*		uiimphor2ddlg_;

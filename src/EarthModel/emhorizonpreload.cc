@@ -16,10 +16,10 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "executor.h"
 #include "ioman.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ptrman.h"
 
-static const MultiID udfmid( "-1" );
+static const DBKey udfmid( "-1" );
 
 namespace EM
 {
@@ -45,7 +45,7 @@ HorizonPreLoader::~HorizonPreLoader()
 }
 
 
-bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
+bool HorizonPreLoader::load( const TypeSet<DBKey>& newmids, TaskRunner* tr )
 {
     errmsg_ = "";
     if ( newmids.isEmpty() )
@@ -111,14 +111,14 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
 }
 
 
-const TypeSet<MultiID>& HorizonPreLoader::getPreloadedIDs() const
+const TypeSet<DBKey>& HorizonPreLoader::getPreloadedIDs() const
 { return loadedmids_; }
 
 const BufferStringSet& HorizonPreLoader::getPreloadedNames() const
 { return loadednms_; }
 
 
-const MultiID& HorizonPreLoader::getMultiID( const char* horname ) const
+const DBKey& HorizonPreLoader::getDBKey( const char* horname ) const
 {
     const int mididx = loadednms_.indexOf( horname );
     return mididx < 0 ? udfmid : loadedmids_[mididx];
@@ -137,7 +137,7 @@ void HorizonPreLoader::unload( const BufferStringSet& hornames )
 	if ( selidx < 0 )
 	    continue;
 
-	const MultiID mid = loadedmids_[selidx];
+	const DBKey mid = loadedmids_[selidx];
 	EM::ObjectID emid = EM::EMM().getObjectID( mid );
 	EM::EMObject* emobj = EM::EMM().getObject( emid );
 	if ( emobj )

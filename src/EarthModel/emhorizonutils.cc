@@ -112,7 +112,7 @@ float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface,
 }
 
 
-Surface* HorizonUtils::getSurface( const MultiID& id )
+Surface* HorizonUtils::getSurface( const DBKey& id )
 {
     EMManager& em = EMM();
     const ObjectID objid = em.getObjectID(id);
@@ -122,7 +122,7 @@ Surface* HorizonUtils::getSurface( const MultiID& id )
 }
 
 
-void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
+void HorizonUtils::getPositions( od_ostream& strm, const DBKey& id,
 				 ObjectSet<BinIDValueSet>& data )
 {
     Surface* surface = getSurface(id);
@@ -159,7 +159,7 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
 }
 
 
-void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
+void HorizonUtils::getExactCoords( od_ostream& strm, const DBKey& id,
 			   Pos::GeomID geomid, const TrcKeySampling& hsamp,
 			   ObjectSet<DataPointSet>& data )
 {
@@ -224,7 +224,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 
 
 void HorizonUtils::getWantedPositions( od_ostream& strm,
-				       ObjectSet<MultiID>& midset,
+				       ObjectSet<DBKey>& midset,
 				       BinIDValueSet& wantedposbivs,
 				       const TrcKeySampling& hs,
 				       const Interval<float>& extraz,
@@ -346,7 +346,7 @@ bool HorizonUtils::SolveIntersect( float& topz, float& botz, int nrinterpsamp,
 }
 
 
-void HorizonUtils::addSurfaceData( const MultiID& id,
+void HorizonUtils::addSurfaceData( const DBKey& id,
 				   const BufferStringSet& attrnms,
 				   const ObjectSet<BinIDValueSet>& data )
 {
@@ -388,7 +388,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
     }
 
 void HorizonUtils::getWantedPos2D( od_ostream& strm,
-				   ObjectSet<MultiID>& midset,
+				   ObjectSet<DBKey>& midset,
 				   DataPointSet* dtps,
 				   const TrcKeySampling& horsamp,
 				   const Interval<float>& extraz,

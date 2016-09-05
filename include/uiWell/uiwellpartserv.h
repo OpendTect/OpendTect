@@ -55,21 +55,21 @@ public:
 
     void			manageWells();
     void			launchRockPhysics();
-    bool			selectWells(TypeSet<MultiID>&);
+    bool			selectWells(TypeSet<DBKey>&);
 
-    bool			hasLogs(const MultiID&) const;
-    void			getLogNames(const MultiID&,
+    bool			hasLogs(const DBKey&) const;
+    void			getLogNames(const DBKey&,
 					    BufferStringSet&) const;
 
-    bool			editDisplayProperties(const MultiID&);
-    void			displayIn2DViewer(const MultiID&);
+    bool			editDisplayProperties(const DBKey&);
+    void			displayIn2DViewer(const DBKey&);
 
     bool			dispLineOnCreation(){ return disponcreation_; }
-    const char*			getRandLineMultiID()   { return multiid_; }
+    const char*			getRandLineDBKey()   { return dbkey_; }
     void			selectWellCoordsForRdmLine();
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
-    void			closePropDlg(const MultiID&);
+    void			closePropDlg(const DBKey&);
     Notifier<uiWellPartServer>	randLineDlgClosed;
     Notifier<uiWellPartServer>	uiwellpropDlgClosed;
     void			setPreviewIds( const TypeSet<int>& ids )
@@ -85,7 +85,7 @@ public:
     const char*			askWellName();
     bool			setupNewWell(BufferString&,Color&);
     bool			storeWell(const TypeSet<Coord3>&,const char* nm,
-					  MultiID&,bool addwellhead=false);
+					  DBKey&,bool addwellhead=false);
 
     static int		        evPreviewRdmLine();
     static int			evCleanPreview();
@@ -109,7 +109,7 @@ protected:
     BufferStringSet		crwellids_; // for uiSimpleMultiWellCreate
 
     bool			disponcreation_;
-    const char*			multiid_;
+    const char*			dbkey_;
     bool			allapplied_;
 
     void			importReadyCB(CallBacker*);
@@ -118,11 +118,11 @@ protected:
     void			wellPropDlgClosed(CallBacker*);
     void			saveWellDispProps(const Well::Data*);
     void			saveWellDispProps(const Well::Data&,
-						  const MultiID&);
+						  const DBKey&);
     void			applyAll(CallBacker*);
     void			simpImp(CallBacker*);
     void			survChangedCB(CallBacker*);
-    int				getPropDlgIndex(const MultiID&);
+    int				getPropDlgIndex(const DBKey&);
 
 };
 

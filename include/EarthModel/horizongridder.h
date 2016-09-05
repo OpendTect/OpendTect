@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "array2dinterpolimpl.h"
 #include "contcurvinterpol.h"
 #include "trckeysampling.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "emposid.h"
 #include "earthmodelmod.h"
 
@@ -36,7 +36,7 @@ public:
     virtual		~HorizonGridder();
     uiString		infoMsg() const	{ return infomsg_; }
 
-    void		setFaultIds(const TypeSet<MultiID>&);
+    void		setFaultIds(const TypeSet<DBKey>&);
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
@@ -59,7 +59,7 @@ protected:
 
     uiString	        infomsg_;
     TrcKeySampling	hs_;
-    TypeSet<MultiID>	faultids_;
+    TypeSet<DBKey>	faultids_;
 
     bool		init(TaskRunner*);
     bool		blockSrcPoints(const float*,const od_int64*,int,

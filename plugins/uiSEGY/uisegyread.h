@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uisegycommon.h"
 #include "uivarwizard.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uistring.h"
 
 class IOObj;
@@ -67,7 +67,7 @@ public:
     void		fillPar(IOPar&) const;
     SEGY::Scanner*	getScanner()		//!< Becomes yours
 			{ SEGY::Scanner* s = scanner_; scanner_ = 0; return s; }
-    MultiID		outputID() const	{ return outid_; }
+    DBKey		outputID() const	{ return outid_; }
 
     static CtxtIOObj*	getCtio(bool,Seis::GeomType);
 
@@ -79,7 +79,7 @@ protected:
     RevType		rev_;
     int			revpolnr_;
     SEGY::Scanner*	scanner_;
-    MultiID		outid_;
+    DBKey		outid_;
 
     uiSEGYDefDlg*	defdlg_;
     uiSEGYImpDlg*	impdlg_;

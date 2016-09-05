@@ -47,14 +47,14 @@ uiHorizonSortDlg::~uiHorizonSortDlg()
 { deepUnRef( horizons_ ); }
 
 
-void uiHorizonSortDlg::setConstSelected( const TypeSet<MultiID>& horids )
+void uiHorizonSortDlg::setConstSelected( const TypeSet<DBKey>& horids )
 {
     constselids_ = horids;
     horsel_->removeFromList( horids );
 }
 
 
-void uiHorizonSortDlg::getSelectedHorizons( TypeSet<MultiID>& horids ) const
+void uiHorizonSortDlg::getSelectedHorizons( TypeSet<DBKey>& horids ) const
 {
     horsel_->getSelSurfaceIds( horids );
     horids.append( constselids_ );
@@ -67,7 +67,7 @@ void uiHorizonSortDlg::getSortedHorizons( ObjectSet<EM::Horizon>& hors ) const
 }
 
 
-void uiHorizonSortDlg::getSortedHorizonIDs( TypeSet<MultiID>& horids ) const
+void uiHorizonSortDlg::getSortedHorizonIDs( TypeSet<DBKey>& horids ) const
 {
     horids = horids_;
 }
@@ -75,7 +75,7 @@ void uiHorizonSortDlg::getSortedHorizonIDs( TypeSet<MultiID>& horids ) const
 
 bool uiHorizonSortDlg::acceptOK()
 {
-    TypeSet<MultiID> horids;
+    TypeSet<DBKey> horids;
     getSelectedHorizons( horids );
     if ( horids.size() < 2 )
     {
@@ -88,7 +88,7 @@ bool uiHorizonSortDlg::acceptOK()
     PtrMan<Executor> horreader = 0;
     if ( !sorted || loadneeded_ )
     {
-	TypeSet<MultiID> loadids;
+	TypeSet<DBKey> loadids;
 	for ( int idx=0; idx<horids.size(); idx++ )
 	{
 	    const EM::ObjectID oid = EM::EMM().getObjectID( horids[idx] );
@@ -151,10 +151,10 @@ bool uiHorizonSortDlg::acceptOK()
 }
 
 
-bool uiHorizonSortDlg::sortFromRelationTree( const TypeSet<MultiID>& ids )
+bool uiHorizonSortDlg::sortFromRelationTree( const TypeSet<DBKey>& ids )
 {
     EM::RelationTree reltree( is2d_ );
-    TypeSet<MultiID> sortedids;
+    TypeSet<DBKey> sortedids;
     reltree.getSorted( ids, sortedids );
     if ( sortedids.size() != ids.size() )
 	return false;
@@ -164,7 +164,7 @@ bool uiHorizonSortDlg::sortFromRelationTree( const TypeSet<MultiID>& ids )
 }
 
 
-void uiHorizonSortDlg::updateRelationTree( const TypeSet<MultiID>& ids )
+void uiHorizonSortDlg::updateRelationTree( const TypeSet<DBKey>& ids )
 {
     if ( ids.size() < 2 )
 	return;

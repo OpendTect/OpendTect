@@ -29,7 +29,7 @@ class SeisTrcReader;
 mExpClass(Seis) SeisRandomProvider : public CallBacker
 {
 public:
-					SeisRandomProvider(const MultiID& mid);
+					SeisRandomProvider(const DBKey& mid);
 					~SeisRandomProvider();
 
 
@@ -60,7 +60,7 @@ protected:
 mExpClass(Seis) SeisRandomRepository : public CallBacker
 {
 public:
-				SeisRandomRepository( const MultiID& mid );
+				SeisRandomRepository( const DBKey& mid );
 
     void			addInterest(const BinID&);
     void			removeInterest(const BinID);

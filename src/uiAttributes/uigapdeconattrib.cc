@@ -44,7 +44,7 @@ class uiGDPositionDlg: public uiDialog
 { mODTextTranslationClass(uiGDPositionDlg)
     public:
 			uiGDPositionDlg(uiParent*,const TrcKeyZSampling&,bool,
-					const MultiID&);
+					const DBKey&);
 			~uiGDPositionDlg();
 
     void                popUpPosDlg();
@@ -61,7 +61,7 @@ class uiGDPositionDlg: public uiDialog
     TrcKeyZSampling*	prefcs_;
     uiSliceSelDlg*	posdlg_;
     bool		is2d_;
-    MultiID		mid_;
+    DBKey		mid_;
     IOPar		prevpar_;
 };
 
@@ -284,7 +284,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     }
     cs.zsamp_.limitTo( gate );
 
-    MultiID mid;
+    DBKey mid;
     getInputMID( mid );
     if ( positiondlg_ ) delete positiondlg_;
     positiondlg_ = new uiGDPositionDlg( this, cs, ads_->is2D(), mid );
@@ -587,7 +587,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     }
     cs.zsamp_.limitTo( gate );
 
-    MultiID mid;
+    DBKey mid;
     getInputMID(mid);
     if ( positiondlg_ ) delete positiondlg_;
     positiondlg_ = new uiGDPositionDlg( this, cs, ads_->is2D(), mid );
@@ -632,19 +632,19 @@ void uiGapDeconAttrib::prepareInputDescs( DescID& inp0id, DescID& inp1id,
 }
 
 
-void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
+void uiGapDeconAttrib::getInputMID( DBKey& mid ) const
 {
     if ( !ads_->is2D() ) return;
 
     Desc* tmpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !tmpdesc ) return;
-    mid = MultiID( tmpdesc->getStoredID().buf() );
+    mid = DBKey( tmpdesc->getStoredID().buf() );
 }
 
 //-----------------------------------------------------------------------------
 
 uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
-				  bool is2d, const MultiID& mid )
+				  bool is2d, const DBKey& mid )
     : uiDialog( p, uiDialog::Setup(tr("Gap Decon viewer position"),
                                    mNoDlgTitle, mNoHelpKey) )
     , tkzs_( cs )

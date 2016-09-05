@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 
-#include "multiid.h"
+#include "dbkey.h"
 #include "uidialog.h"
 
 class uiFunctionDisplay;
@@ -26,7 +26,7 @@ public:
 			uiWaveletMatchDlg(uiParent*);
 			~uiWaveletMatchDlg();
 
-    const MultiID&	getMultiID() const	{ return wvltid_; }
+    const DBKey&	getDBKey() const	{ return wvltid_; }
 
 protected:
 
@@ -45,7 +45,7 @@ protected:
     uiWaveletIOObjSel*	wvltoutfld_;
     uiGenInput*		filterszfld_;
 
-    MultiID		wvltid_;
+    DBKey		wvltid_;
     Wavelet&		outputwvlt_;
 };
 

@@ -190,10 +190,10 @@ void SectionTracker::useAdjuster(bool yn)
 bool SectionTracker::adjusterUsed() const
 { return useadjuster_; }
 
-void SectionTracker::setSetupID( const MultiID& id )
+void SectionTracker::setSetupID( const DBKey& id )
 { setupid_ = id; }
 
-const MultiID& SectionTracker::setupID() const
+const DBKey& SectionTracker::setupID() const
 { return setupid_; }
 
 bool SectionTracker::hasInitializedSetup() const

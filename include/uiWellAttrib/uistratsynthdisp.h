@@ -49,7 +49,7 @@ public:
 
     const Strat::LayerModel& layerModel() const;
     const char*		levelName() const;
-    MultiID		waveletID() const;
+    DBKey		waveletID() const;
     const Wavelet*	getWavelet() const;
     inline const StratSynth& curSS() const
 			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }

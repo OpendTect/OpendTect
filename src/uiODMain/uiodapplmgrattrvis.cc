@@ -52,7 +52,7 @@ bool uiODApplMgrAttrVisHandler::editNLA( bool is2d )
 void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
 {
     am_.emattrserv_->setDescSet( am_.attrserv_->curDescSet(is2d) );
-    MultiID nlaid; const NLAModel* nlamdl = 0;
+    DBKey nlaid; const NLAModel* nlamdl = 0;
     if ( am_.nlaserv_ )
     {
 	am_.nlaserv_->set2DEvent( is2d );
@@ -71,7 +71,7 @@ void uiODApplMgrAttrVisHandler::createHorOutput( int tp, bool is2d )
 
 void uiODApplMgrAttrVisHandler::createVol( bool is2d, bool multiattrib )
 {
-    MultiID nlaid;
+    DBKey nlaid;
     if ( am_.nlaserv_ )
     {
 	am_.nlaserv_->set2DEvent( is2d );

@@ -25,9 +25,9 @@ mExpClass(uiPreStackProcessing) uiProcSel : public uiGroup
 { mODTextTranslationClass(uiProcSel);
 public:
 			uiProcSel(uiParent*,const uiString& label,
-				  const MultiID*,bool withedit=true);
-    void		setSel(const MultiID&);
-    bool		getSel(MultiID&) const;
+				  const DBKey*,bool withedit=true);
+    void		setSel(const DBKey&);
+    bool		getSel(DBKey&) const;
 
     Notifier<uiProcSel> selectionDone;
 

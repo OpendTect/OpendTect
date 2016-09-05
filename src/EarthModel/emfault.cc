@@ -71,7 +71,7 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
 		{
 		    destfssg.insertStick( destsid, sticknr, knotnr, pos,
 					  getEditPlaneNormal(sid,rc.row()),
-					  pickedMultiID(sid,rc.row()),
+					  pickedDBKey(sid,rc.row()),
 					  pickedName(sid,rc.row()),
 					  addtohistory );
 		}

@@ -226,7 +226,7 @@ bool EMTracker::usePar( const IOPar& iopar )
 	SectionTracker* st = getSectionTracker( (EM::SectionID)sid, true );
 	if ( !st ) { idx++; continue; }
 
-	MultiID setupid;
+	DBKey setupid;
 	if ( !localpar->get(setupidStr(),setupid) )
 	{
 	    st->usePar( *localpar );

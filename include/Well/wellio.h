@@ -47,7 +47,7 @@ public:
     static const char*	sExtWellTieSetup();
 
     static const char*	getMainFileName(const IOObj&);
-    static const char*	getMainFileName(const MultiID&);
+    static const char*	getMainFileName(const DBKey&);
 
     const uiString&	errMsg() const		{ return errmsg_; }
 

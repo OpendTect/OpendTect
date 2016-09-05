@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "elasticpropsel.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seistrctr.h"
@@ -218,7 +218,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
     const IOObj* wellobj = wellfld_->ioobj(true);
     if ( !wellobj ) return;
     const char* wllfilenm = Well::odIO::getMainFileName( *wellobj );
-    const MultiID& wellid = wellobj->key();
+    const DBKey& wellid = wellobj->key();
     if ( wd_ )
 	wd_->unRef();
 
@@ -277,7 +277,7 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* cb )
 
     if ( seisfld->isChecked() )
     {
-	const MultiID& seisid = seisfld->key();
+	const DBKey& seisid = seisfld->key();
 	if ( seisid.isEmpty() )
             mErrRet(uiStrings::phrSelect(
                 uiStrings::phrInput(uiStrings::sVolDataName(true,true,false))));
@@ -369,7 +369,7 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 		mErrRet(tr("Cannot restore the seismic data from the setup"))
 	    }
 
-	    const MultiID& actualseisid = seisfld->key(true);
+	    const DBKey& actualseisid = seisfld->key(true);
 	    const bool commitfailed = actualseisid != wtsetup_.seisid_;
 	    if ( commitfailed )
 		seisfld->setInput( actualseisid );
@@ -440,7 +440,7 @@ bool uiTieWinMGRDlg::getDenLogInSetup() const
 }
 
 
-void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
+void uiTieWinMGRDlg::saveWellTieSetup( const DBKey& key,
 				      const WellTie::Setup& wts ) const
 {
     WellTie::Writer wtr( Well::odIO::getMainFileName(key) );
@@ -463,7 +463,7 @@ bool uiTieWinMGRDlg::initSetup()
     if ( wtsetup_.wvltid_.isUdf() )
 	return false;
 
-    const MultiID& wellid = wellfld_->ctxtIOObj().ioobj_->key();
+    const DBKey& wellid = wellfld_->ctxtIOObj().ioobj_->key();
     if ( wd_ )
 	wd_->unRef();
 
@@ -488,7 +488,7 @@ bool uiTieWinMGRDlg::initSetup()
 
     if ( seisfld->isChecked() )
     {
-	const MultiID& seisid = seisfld->key();
+	const DBKey& seisid = seisfld->key();
 	if ( seisid.isEmpty() )
 	    mErrRet(uiStrings::phrSelect(uiStrings::phrInput(
 					  mJoinUiStrs(sWell(),sData()))))
@@ -602,7 +602,7 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
     const int idx = welltiedlgset_.indexOf( tiewin );
     if ( !tiewin || idx<0 ) return;
 
-    const MultiID wellid = tiewin->welltieSetup().wellid_;
+    const DBKey wellid = tiewin->welltieSetup().wellid_;
     WellTie::Writer wtr( Well::odIO::getMainFileName(wellid) );
     IOPar par; tiewin->fillPar( par );
     wtr.putIOPar( par, uiTieWin::sKeyWinPar() );
@@ -611,7 +611,7 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 }
 
 
-bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
+bool uiTieWinMGRDlg::seisIDIs3D( DBKey seisid ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( seisid );
     if ( !ioobj )
@@ -623,7 +623,7 @@ bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
     return !is2D && !islineset;
 }
 
-const MultiID& uiTieWinMGRDlg::getWellId() const
+const DBKey& uiTieWinMGRDlg::getWellId() const
 {
     return wtsetup_.wellid_;
 }

@@ -117,7 +117,7 @@ void uiConvolveAttrib::kernelSel( CallBacker* cb )
 
 static void setFldInp( uiIOObjSel* fld, const char* str )
 {
-    IOObj* ioobj = IOM().get( MultiID(str) );
+    IOObj* ioobj = IOM().get( DBKey(str) );
     if ( !ioobj ) return;
     fld->ctxtIOObj( true ).setObj( ioobj );
     fld->updateInput();
@@ -173,7 +173,7 @@ bool uiConvolveAttrib::getParameters( Desc& desc )
     }
     else if ( typeval == 3 )
     {
-	const MultiID ky( waveletfld_->key(true) );
+	const DBKey ky( waveletfld_->key(true) );
 	if ( !ky.isUdf() )
 	    mSetString( Convolve::waveletStr(), ky.buf() );
     }

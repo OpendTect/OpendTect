@@ -632,7 +632,7 @@ bool uiStratLayerModel::checkUnscaledWavelet()
 	return true;
     else if ( choice == 1 )
     {
-	WaveletMGR().setScalingInfo( synthdisp_->waveletID(), &MultiID::udf() );
+	WaveletMGR().setScalingInfo( synthdisp_->waveletID(), &DBKey::udf() );
 	return true;
     }
 
@@ -823,9 +823,9 @@ bool uiStratLayerModel::openGenDesc()
 }
 
 
-MultiID uiStratLayerModel::genDescID() const
+DBKey uiStratLayerModel::genDescID() const
 {
-    MultiID ret;
+    DBKey ret;
     if ( descctio_.ioobj_ )
 	ret = descctio_.ioobj_->key();
     return ret;

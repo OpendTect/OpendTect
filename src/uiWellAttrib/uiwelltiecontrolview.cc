@@ -280,7 +280,7 @@ void uiControlView::loadHorizons( CallBacker* )
 	uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
 	selhordlg_ = new uiIOObjSelDlg( this, sdsu, horctxt );
     }
-    TypeSet<MultiID> horselids;
+    TypeSet<DBKey> horselids;
     if ( selhordlg_->go() )
 	selhordlg_->getChosen( horselids );
 

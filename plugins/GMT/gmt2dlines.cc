@@ -239,7 +239,7 @@ bool GMTRandLines::fillLegendPar( IOPar& par ) const
 
 bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 {
-    MultiID id;
+    DBKey id;
     get( sKey::ID(), id );
     const IOObj* ioobj = IOM().get( id );
     if ( !ioobj ) mErrStrmRet("Cannot find lineset")

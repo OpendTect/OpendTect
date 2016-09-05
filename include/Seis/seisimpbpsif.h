@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "strmdata.h"
 #include "bufstringset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "executor.h"
 #include "uistring.h"
 class SeisTrc;
@@ -66,7 +66,7 @@ mExpClass(Seis) SeisImpBPSIF : public Executor
 { mODTextTranslationClass(SeisImpBPSIF);
 public:
 
-			SeisImpBPSIF(const char* filenm,const MultiID&);
+			SeisImpBPSIF(const char* filenm,const DBKey&);
     virtual		~SeisImpBPSIF();
     void		setMaxInlOffset(int);
 

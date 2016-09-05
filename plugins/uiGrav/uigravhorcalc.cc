@@ -29,7 +29,7 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     , topfld_(0)
     , t2dfld_(0)
 {
-    MultiID horid = EM::EMM().getMultiID( enobjid );
+    DBKey horid = EM::EMM().getDBKey( enobjid );
     horioobj_ = IOM().get( horid );
     if ( !horioobj_ )
 	{ new uiLabel(this,tr("Internal: Cannot find horizon")); return; }
@@ -60,7 +60,7 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
 
     su.seltxt_ = uiStrings::sBottomHor();
     botfld_ = new uiIOObjSel( inpgrp, ctxt, su );
-    botfld_->setInput( MultiID("") );
+    botfld_->setInput( DBKey("") );
     botfld_->attach( alignedBelow, denattrfld_ );
     inpgrp->setHAlignObj( botfld_ );
 

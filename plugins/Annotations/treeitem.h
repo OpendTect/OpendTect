@@ -83,7 +83,7 @@ mClass(Annotations) SubItem : public uiODDisplayTreeItem
 public:
     static bool		doesNameExist(const char*);
     static char		createIOEntry(const char* nm,bool overwrite,
-	    			    MultiID&,const char* mannm);
+	    			    DBKey&,const char* mannm);
     			/*!<\retval -1 error
 			    \retval 0 name exists and overwrite is not set.
 			    \retval 1 success.

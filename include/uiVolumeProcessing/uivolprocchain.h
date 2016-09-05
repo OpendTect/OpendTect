@@ -39,7 +39,7 @@ public:
 
     void			setChain(Chain&);
     const Chain&		getChain() const	{ return chain_; }
-    const MultiID&		storageID() const;
+    const DBKey&		storageID() const;
     void			addStep(const char* steptype);
     void			emptyChain();
 

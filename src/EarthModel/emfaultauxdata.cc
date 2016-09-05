@@ -66,7 +66,7 @@ FaultAuxData::FaultAuxData( const Fault3D& flt )
 }
 
 
-FaultAuxData::FaultAuxData( const MultiID& mid )
+FaultAuxData::FaultAuxData( const DBKey& mid )
     : faultmid_(mid)
 {
     fltfullnm_.setEmpty();

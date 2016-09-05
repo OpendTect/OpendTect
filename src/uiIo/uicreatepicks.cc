@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "picksetmanager.h"
 #include "posprovider.h"
 #include "randcolor.h"
@@ -90,7 +90,7 @@ RefMan<Pick::Set> uiNewPickSetDlg::getEmptyPickSet() const
 	ret = new Pick::Set( nm );
     else
     {
-	const MultiID setid = Pick::SetMGR().getIDByName( nm );
+	const DBKey setid = Pick::SetMGR().getIDByName( nm );
 	uiString msg = tr("A Pick Set with that name already exists.\n");
 	if ( Pick::SetMGR().isLoaded( setid ) )
 	{

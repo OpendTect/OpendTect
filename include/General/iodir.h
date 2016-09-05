@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 
-#include "multiid.h"
+#include "dbkey.h"
 #include "objectset.h"
 #include "namedobj.h"
 #include "od_iosfwd.h"
@@ -42,16 +42,16 @@ mExpClass(General) IODir : public NamedObject
 public:
 
     typedef ObjectSet<IOObj>::size_type	size_type;
-    typedef MultiID::SubID		SubID;
+    typedef DBKey::SubID		SubID;
 
 			IODir(const char*);
-			IODir(const MultiID&);
+			IODir(const DBKey&);
 			IODir(const IODir&);
 			~IODir();
     IODir&		operator =(const IODir&);
 
     bool		isBad() const;
-    const MultiID&	key() const		{ return key_; }
+    const DBKey&	key() const		{ return key_; }
     const char*		dirName() const		{ return dirname_; }
     const IOObj*	main() const;
 
@@ -61,21 +61,21 @@ public:
     const ObjectSet<IOObj>& getObjs() const	{ return objs_; }
 			//!< Use only when MT is not an issue
 
-    bool		isPresent(const MultiID&) const;
-    size_type		indexOf(const MultiID&) const;
-    const IOObj*	get(const MultiID&) const;
+    bool		isPresent(const DBKey&) const;
+    size_type		indexOf(const DBKey&) const;
+    const IOObj*	get(const DBKey&) const;
     const IOObj*	get(const char* nm,const char* trgrpnm=0) const;
 				//!< Without trgrpnm, just returns first
 
     bool		commitChanges(const IOObj*);
-    bool		permRemove(const MultiID&);
+    bool		permRemove(const DBKey&);
     bool		ensureUniqueName(IOObj&) const;
 
-    static MultiID	getNewTmpKey(const IOObjContext&);
-    static IOObj*	getObj(const MultiID&,uiString& errmsg);
+    static DBKey	getNewTmpKey(const IOObjContext&);
+    static IOObj*	getObj(const DBKey&,uiString& errmsg);
     static IOObj*	getMain(const char*,uiString& errmsg);
-    static MultiID	dirKeyFor(const MultiID&);
-    MultiID		newTmpKey() const;
+    static DBKey	dirKeyFor(const DBKey&);
+    DBKey		newTmpKey() const;
 
     uiString		errMsg() const		{ return errmsg_; }
 
@@ -84,7 +84,7 @@ private:
     bool		isok_;
     ObjectSet<IOObj>	objs_;
     const BufferString	dirname_;
-    const MultiID	key_;
+    const DBKey	key_;
     mutable SubID	curid_;
     mutable SubID	curtmpid_;
     mutable uiString	errmsg_;
@@ -100,18 +100,18 @@ private:
 
     static void		setDirName(IOObj&,const char*);
 
-    void		init(const MultiID&,bool);
+    void		init(const DBKey&,bool);
     bool		build(bool);
     bool		doAddObj(IOObj*,bool);
     bool		doWrite() const;
     bool		wrOmf(od_ostream&) const;
-    const IOObj*	doGet(const MultiID&) const;
+    const IOObj*	doGet(const DBKey&) const;
     const IOObj*	doGet(const char*,const char*) const;
-    size_type		gtIdxOf(const MultiID&) const;
+    size_type		gtIdxOf(const DBKey&) const;
     bool		doEnsureUniqueName(IOObj&) const;
 
-    MultiID		gtNewKey(const size_type&) const;
-    MultiID		newKey() const;		//!< locked, as it's 'public'
+    DBKey		gtNewKey(const size_type&) const;
+    DBKey		newKey() const;		//!< locked, as it's 'public'
 
     friend class	IOMan;
     friend class	IOObj;
@@ -128,7 +128,7 @@ public:
     bool		addObj(IOObj*,bool immediate_store=true);
 				// usually done by IOM()
 				//!< after call, IOObj is mine
-    static void		getTmpIOObjs(const MultiID&,ObjectSet<IOObj>&,
+    static void		getTmpIOObjs(const DBKey&,ObjectSet<IOObj>&,
 					const IOObjSelConstraints* c=0);
 
 };

@@ -1120,7 +1120,7 @@ Color Seis2DDisplay::getAnnotColor() const
 }
 
 
-Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
+Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const DBKey& lineset,
 						const char* linenmptr )
 {
     FixedString linenm = linenmptr;

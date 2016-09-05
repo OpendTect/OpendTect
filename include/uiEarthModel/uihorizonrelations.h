@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 #include "bufstringset.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiListBox;
 class uiPushButton;
@@ -32,7 +32,7 @@ protected:
     uiPushButton*	waterbut_;
 
     BufferStringSet	hornames_;
-    TypeSet<MultiID>	horids_;
+    TypeSet<DBKey>	horids_;
     bool		is2d_;
 
     void		fillRelationField(const BufferStringSet&);

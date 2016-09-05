@@ -70,7 +70,7 @@ bool BatchProgram::go( od_ostream& strm )
 	mRetError(tr("\nGeometry is not prestack"));
     }
 
-    MultiID setupmid;
+    DBKey setupmid;
     if ( !pars().get(ProcessManager::sKeySetup(),setupmid) )
     {
 	mRetError(tr("\nCannot read setup"));
@@ -102,7 +102,7 @@ bool BatchProgram::go( od_ostream& strm )
     PtrMan<IOObj> inputioobj = 0;
     if ( procman->needsPreStackInput() )
     {
-	MultiID inputmid;
+	DBKey inputmid;
 	if ( !pars().get(ProcessManager::sKeyInputData(),inputmid) )
 	{
 	    mRetError(tr("\nCannot read input id"));
@@ -115,7 +115,7 @@ bool BatchProgram::go( od_ostream& strm )
 	}
     }
 
-    MultiID outputmid;
+    DBKey outputmid;
     if ( !pars().get(ProcessManager::sKeyOutputData(),outputmid) )
     {
 	mRetError(tr("\nCannot read output id"));

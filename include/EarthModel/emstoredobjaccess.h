@@ -36,11 +36,11 @@ mExpClass(EarthModel) StoredObjAccess
 public:
 
 		StoredObjAccess();
-		StoredObjAccess(const MultiID&);
+		StoredObjAccess(const DBKey&);
     virtual	~StoredObjAccess();
 
     void	setLoadHint(const SurfaceIODataSelection&);
-    bool	set(const MultiID&);
+    bool	set(const DBKey&);
 
     bool	isReady(int iobj=-1) const;
     bool	isError(int iobj=-1) const;
@@ -56,14 +56,14 @@ public:
 		// Interesting for multi-read only
     int		size() const		{ return data_.size(); }
     bool	isEmpty() const		{ return data_.isEmpty(); }
-    bool	add(const MultiID&);
-    void	dismiss(const MultiID&);
+    bool	add(const DBKey&);
+    void	dismiss(const DBKey&);
 
 protected:
 
     ObjectSet<StoredObjAccessData>	data_;
     SurfaceIODataSelection*		surfiodsel_;
-    StoredObjAccessData*		get(const MultiID&);
+    StoredObjAccessData*		get(const DBKey&);
 
 };
 

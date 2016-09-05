@@ -58,8 +58,8 @@ public:
     const VelocityDesc&         getDesc() const         { return desc_; }
 
     bool                        zIsTime() const;
-    bool                        load(const MultiID&);
-    bool                        store(const MultiID&);
+    bool                        load(const DBKey&);
+    bool                        store(const DBKey&);
 
     StoredFunction*            	createFunction(const BinID&);
 
@@ -77,7 +77,7 @@ public:
 protected:
     void			fillIOObjPar(IOPar&) const;
 
-    static FunctionSource* 	create(const MultiID&);
+    static FunctionSource* 	create(const DBKey&);
 				~StoredFunctionSource();
 
     BinIDValueSet		veldata_;

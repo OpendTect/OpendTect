@@ -109,7 +109,7 @@ uiTreeItem* TreeItemFactory::create( int visid, uiTreeItem* treeitem ) const
     if ( treeitem->findChild( visid ) )
 	return 0;
 
-    const MultiID mid = ld->getMultiID();
+    const DBKey mid = ld->getDBKey();
     const char* factoryname = 0;
 
     mDynamicCastGet(ImageDisplay*,id,dataobj);
@@ -255,7 +255,7 @@ bool AnnotTreeItem::showSubMenu()
 			" exists.\nDo you wish to overwrite it?" ) )
 		continue;
 
-	    MultiID mid;
+	    DBKey mid;
 	    if ( SubItem::createIOEntry(txt,true,mid,managerName())!=1 )
 		return false;
 
@@ -452,7 +452,7 @@ bool SubItem::doesNameExist( const char* nm )
 }
 
 
-char SubItem::createIOEntry( const char* nm, bool overwrite, MultiID& mid,
+char SubItem::createIOEntry( const char* nm, bool overwrite, DBKey& mid,
 			     const char* mannm )
 {
     if ( !overwrite && doesNameExist(nm) )
@@ -478,7 +478,7 @@ void SubItem::storeAs( bool trywitoutdlg ) const
     const int setidx = mgr.indexOf( *set_ );
 
     const char* nm = set_->name();
-    MultiID mid;
+    DBKey mid;
 
     if ( trywitoutdlg )
     {

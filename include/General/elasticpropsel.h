@@ -39,7 +39,7 @@ public:
     const ElasticPropertyRef&	get( ElasticFormula::Type tp ) const
 							{ return gt(tp); }
 
-    static ElasticPropSelection* get(const MultiID&);
+    static ElasticPropSelection* get(const DBKey&);
     static ElasticPropSelection* get(const IOObj*);
     bool	put(const IOObj*) const;
 

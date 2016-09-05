@@ -44,7 +44,7 @@ public:
 			~uiImportHorizon();
 
     bool		doDisplay() const;
-    MultiID		getSelID() const;
+    DBKey		getSelID() const;
 
     Notifier<uiImportHorizon>	importReady;
 

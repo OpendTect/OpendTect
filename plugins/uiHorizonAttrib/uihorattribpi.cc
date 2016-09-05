@@ -185,7 +185,7 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
 	       tr("Attribute to contour")), mNoDlgTitle, mNoHelpKey))
 {
-    const MultiID mid = EM::EMM().getMultiID( id );
+    const DBKey mid = EM::EMM().getDBKey( id );
     PtrMan<IOObj> emioobj = IOM().get( mid );
     EM::IOObjInfo eminfo( mid );
     BufferStringSet attrnms;

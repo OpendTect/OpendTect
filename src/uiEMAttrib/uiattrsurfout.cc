@@ -36,7 +36,7 @@ ________________________________________________________________________
 using namespace Attrib;
 
 uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
-				    const NLAModel* n, const MultiID& mid )
+				    const NLAModel* n, const DBKey& mid )
     : uiAttrEMOut( p, ad, n, mid, "Calculate Horizon Data" )
     , interpol_(0)
 {

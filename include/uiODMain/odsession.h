@@ -43,8 +43,8 @@ public:
     bool		usePar(const IOPar&);
     void		fillPar(IOPar& par) const;
 
-    static void		getStartupData(bool& douse,MultiID&);
-    static void		setStartupData(bool,const MultiID&);
+    static void		getStartupData(bool& douse,DBKey&);
+    static void		setStartupData(bool,const DBKey&);
 
 protected:
 

@@ -63,7 +63,7 @@ bool uiExp2DGeom::acceptOK()
     }
 
     BufferString outstr;
-    TypeSet<MultiID> mids; geomfld_->getChosen( mids );
+    TypeSet<DBKey> mids; geomfld_->getChosen( mids );
     for ( int gidx=0; gidx<mids.size(); gidx++ )
     {
 	const Survey::Geometry* geom = Survey::GM().getGeometry( mids[gidx] );

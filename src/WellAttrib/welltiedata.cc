@@ -182,7 +182,7 @@ void Data::computeExtractionRange()
 
 
 
-void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
+void HorizonMgr::setUpHorizons( const TypeSet<DBKey>& horids,
 				uiString& errms, TaskRunner& taskr )
 {
     horizons_.erase();
@@ -273,7 +273,7 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 
 
 
-WellDataMgr::WellDataMgr( const MultiID& wellid )
+WellDataMgr::WellDataMgr( const DBKey& wellid )
     : wellid_(wellid)
     , wd_(0)
     , datadeleted_(this)
@@ -304,7 +304,7 @@ Well::Data* WellDataMgr::wellData() const
 
 
 
-DataWriter::DataWriter( Well::Data& wd, const MultiID& wellid )
+DataWriter::DataWriter( Well::Data& wd, const DBKey& wellid )
     : wtr_(0)
     , wd_(&wd)
     , wellid_(wellid)

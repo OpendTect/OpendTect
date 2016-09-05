@@ -296,10 +296,10 @@ BufferString IOObjContext::getDataDirName( StdSelType sst )
 }
 
 
-MultiID IOObjContext::getSelKey() const
+DBKey IOObjContext::getSelKey() const
 {
     return selkey_.isEmpty()
-	? MultiID( stdseltype_ == None ? "" : getStdDirData(stdseltype_)->id_ )
+	? DBKey( stdseltype_ == None ? "" : getStdDirData(stdseltype_)->id_ )
 	: selkey_;
 }
 
@@ -374,7 +374,7 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 
 
 IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
-					    const MultiID& ky ) const
+					    const DBKey& ky ) const
 {
     fillTrGroup();
 
@@ -447,7 +447,7 @@ void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
 {
     const char* kystr = SI().pars().find( parky );
     if ( kystr && *kystr )
-	setObj( IOM().get(MultiID(kystr)) );
+	setObj( IOM().get(DBKey(kystr)) );
 
     if ( !ioobj_ && oone2 )
 	fillIfOnlyOne();
@@ -466,7 +466,7 @@ void CtxtIOObj::setObj( IOObj* obj )
 }
 
 
-void CtxtIOObj::setObj( const MultiID& id )
+void CtxtIOObj::setObj( const DBKey& id )
 {
     delete ioobj_; ioobj_ = IOM().get( id );
 }

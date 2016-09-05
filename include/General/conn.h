@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 
 #include "generalmod.h"
-#include "multiid.h"
+#include "dbkey.h"
 class IOObj;
 class StreamConn;
 
@@ -52,8 +52,8 @@ public:
     inline const Conn*	conn() const		{ return gtConn(); }
 			//!< Returns the actual connection doing the work
 
-    const MultiID&	linkedTo() const	{ return ioobjid_; }
-    void		setLinkedTo( const MultiID& id ) { ioobjid_ = id; }
+    const DBKey&	linkedTo() const	{ return ioobjid_; }
+    void		setLinkedTo( const DBKey& id ) { ioobjid_ = id; }
 
 			// to fill 'forread' variables
     static const bool	Read;	// true
@@ -63,7 +63,7 @@ protected:
 
 			Conn()			{}
 
-    MultiID		ioobjid_;
+    DBKey		ioobjid_;
 
     virtual Conn*	gtConn() const	{ return const_cast<Conn*>(this); }
 

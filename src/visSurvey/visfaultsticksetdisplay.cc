@@ -238,9 +238,9 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 }
 
 
-MultiID FaultStickSetDisplay::getMultiID() const
+DBKey FaultStickSetDisplay::getDBKey() const
 {
-    return fault_ ? fault_->multiID() : MultiID();
+    return fault_ ? fault_->multiID() : DBKey();
 }
 
 
@@ -561,11 +561,11 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     Seis2DDisplay* s2dd = 0;
     RandomTrackDisplay* rdtd = 0;
     HorizonDisplay* hordisp = 0;
-    const MultiID* pickedmid = 0;
+    const DBKey* pickedmid = 0;
     Pos::GeomID pickedgeomid = Survey::GeometryManager::cUndefGeomID();
     const char* pickednm = 0;
     PtrMan<Coord3> normal = 0;
-    ConstPtrMan<MultiID> horid;
+    ConstPtrMan<DBKey> horid;
     BufferString horshiftname;
     Coord3 pos;
 
@@ -573,7 +573,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     {
 	const int sticknr = mousepid.getRowCol().row();
 	pos = fault_->getPos( mousepid );
-	pickedmid = fssg.pickedMultiID( mousepid.sectionID(), sticknr );
+	pickedmid = fssg.pickedDBKey( mousepid.sectionID(), sticknr );
 	pickednm = fssg.pickedName( mousepid.sectionID(), sticknr );
 	pickedgeomid = fssg.pickedGeomID( mousepid.sectionID(), sticknr );
 	zdragoffset = 0;
@@ -594,7 +594,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    mDynamicCast(HorizonDisplay*,hordisp,dataobj);
 	    if ( hordisp )
 	    {
-		horid = new MultiID( hordisp->getMultiID() );
+		horid = new DBKey( hordisp->getDBKey() );
 		pickedmid = horid;
 		horshiftname = hordisp->getTranslation().z *
 		    scene_->zDomainInfo().userFactor();
@@ -780,7 +780,7 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 	EM::SectionID sid = cbdata.pid0.sectionID();
 	RowCol rc = cbdata.pid0.getRowCol();
 
-	const MultiID* mid = emfss->geometry().pickedMultiID( sid, rc.row() );
+	const DBKey* mid = emfss->geometry().pickedDBKey( sid, rc.row() );
 	const Pos::GeomID geomid = emfss->geometry().pickedGeomID( sid,
 								    rc.row() );
 	if ( !emfss->geometry().pickedOnPlane(sid, rc.row()) )
@@ -1192,7 +1192,7 @@ void FaultStickSetDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
-    par.set( sKeyEarthModelID(), getMultiID() );
+    par.set( sKeyEarthModelID(), getDBKey() );
     par.setYN( sKeyDisplayOnlyAtSections(), displayonlyatsections_ );
     par.set( sKey::Color(), (int) getColor().rgb() );
 }
@@ -1204,7 +1204,7 @@ bool FaultStickSetDisplay::usePar( const IOPar& par )
 	 !visSurvey::SurveyObject::usePar( par ) )
 	return false;
 
-    MultiID newmid;
+    DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
 	EM::ObjectID emid = EM::EMM().getObjectID( newmid );

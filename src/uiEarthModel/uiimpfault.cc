@@ -338,9 +338,9 @@ bool uiImportFault::checkInpFlds()
 }
 
 
-MultiID uiImportFault::getSelID() const
+DBKey uiImportFault::getSelID() const
 {
-    MultiID mid = ctio_.ioobj_ ? ctio_.ioobj_->key() : -1;
+    DBKey mid = ctio_.ioobj_ ? ctio_.ioobj_->key() : -1;
     return mid;
 }
 

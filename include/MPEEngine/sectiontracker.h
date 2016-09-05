@@ -65,8 +65,8 @@ public:
     void			useAdjuster(bool yn);
     bool			adjusterUsed() const;
 
-    void			setSetupID(const MultiID& id);
-    const MultiID&		setupID() const;
+    void			setSetupID(const DBKey& id);
+    const DBKey&		setupID() const;
     bool			hasInitializedSetup() const;
 
     void			setSeedOnlyPropagation(bool yn);
@@ -91,7 +91,7 @@ protected:
 
     BufferString		errmsg_;
     bool			useadjuster_;
-    MultiID			setupid_;
+    DBKey			setupid_;
     Attrib::SelSpec&		displayas_;
     bool			seedonlypropagation_;
 

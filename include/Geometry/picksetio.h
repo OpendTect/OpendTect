@@ -33,8 +33,8 @@ mExpClass(Geometry) SetLoader
 {
 public:
 
-			SetLoader(const MultiID&);
-			SetLoader(const TypeSet<MultiID>&);
+			SetLoader(const DBKey&);
+			SetLoader(const TypeSet<DBKey>&);
 
     void		setCategory( const char* cat )	{ category_ = cat; }
 
@@ -45,14 +45,14 @@ public:
 			{ return available_.size() == toload_.size(); }
 
     const uiStringSet&	errMsgs() const		{ return errmsgs_; }
-    const TypeSet<MultiID>& requested() const	{ return toload_; }
-    const TypeSet<MultiID>& available() const	{ return available_; }
+    const TypeSet<DBKey>& requested() const	{ return toload_; }
+    const TypeSet<DBKey>& available() const	{ return available_; }
 
 protected:
 
-    TypeSet<MultiID>	toload_;
+    TypeSet<DBKey>	toload_;
     BufferString	category_;
-    mutable TypeSet<MultiID> available_;
+    mutable TypeSet<DBKey> available_;
     mutable uiStringSet	errmsgs_;
     friend class	SetLoaderExec;
 

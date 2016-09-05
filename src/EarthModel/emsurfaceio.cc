@@ -277,7 +277,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	for ( int idx=0; idx<lineids.size(); idx++ )
 	{
 	    BufferString linesetkey(Horizon2DGeometry::sKeyLineSets(),idx);
-	    MultiID mid;
+	    DBKey mid;
 	    par_->get( linesetkey, mid );
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( !ioobj )
@@ -1492,7 +1492,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     , surface_(surface)
     , filetype_(filetype)
     , binary_(binary)
-    , objectmid_(ioobj ? ioobj->key() : MultiID::udf() )
+    , objectmid_(ioobj ? ioobj->key() : DBKey::udf() )
 {
     init( ioobj ? ioobj->fullUserExpr(false) : 0 );
 }
@@ -1506,7 +1506,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const char* fulluserexpr,
     , surface_(surface)
     , filetype_(filetype)
     , binary_(binary)
-    , objectmid_(MultiID::udf())
+    , objectmid_(DBKey::udf())
 {
     init( fulluserexpr );
 }

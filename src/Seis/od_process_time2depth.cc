@@ -12,7 +12,7 @@
 #include "ioman.h"
 #include "iopar.h"
 #include "ioobj.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "progressmeterimpl.h"
 #include "seiszaxisstretcher.h"
 #include "survinfo.h"
@@ -37,7 +37,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
 
-    MultiID inputmid;
+    DBKey inputmid;
     if ( !pars().get( ProcessTime2Depth::sKeyInputVolume(), inputmid) )
     {
 	strm << "Cannot read input volume id";
@@ -51,7 +51,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    MultiID outputmid;
+    DBKey outputmid;
     if ( !pars().get( ProcessTime2Depth::sKeyOutputVolume(), outputmid ) )
     {
 	strm << "Cannot read output volume id";

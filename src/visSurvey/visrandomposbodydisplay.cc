@@ -146,9 +146,9 @@ bool RandomPosBodyDisplay::updateVisFromEM()
 }
 
 
-MultiID RandomPosBodyDisplay::getMultiID() const
+DBKey RandomPosBodyDisplay::getDBKey() const
 {
-    return embody_ ? embody_->multiID() : MultiID();
+    return embody_ ? embody_->multiID() : DBKey();
 }
 
 
@@ -171,7 +171,7 @@ void RandomPosBodyDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
-    par.set( sKeyPSEarthModelID(), getMultiID() );
+    par.set( sKeyPSEarthModelID(), getDBKey() );
 }
 
 
@@ -181,7 +181,7 @@ bool RandomPosBodyDisplay::usePar( const IOPar& par )
 	 !visSurvey::SurveyObject::usePar( par ) )
 	return false;
 
-    MultiID newmid;
+    DBKey newmid;
     if ( par.get(sKeyPSEarthModelID(),newmid) )
     {
 	EM::ObjectID emid = EM::EMM().getObjectID( newmid );

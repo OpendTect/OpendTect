@@ -557,9 +557,9 @@ bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* runner )
 }
 
 
-MultiID MarchingCubesDisplay::getMultiID() const
+DBKey MarchingCubesDisplay::getDBKey() const
 {
-    return emsurface_ ? emsurface_->multiID() : MultiID();
+    return emsurface_ ? emsurface_->multiID() : DBKey();
 }
 
 
@@ -582,7 +582,7 @@ void MarchingCubesDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
-    par.set( sKeyEarthModelID(), getMultiID() );
+    par.set( sKeyEarthModelID(), getDBKey() );
     par.setYN( sKeyUseTexture(), usestexture_ );
 
     IOPar attribpar;
@@ -617,7 +617,7 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
 	 !visSurvey::SurveyObject::usePar( par ) )
 	 return false;
 
-    MultiID newmid;
+    DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
 	EM::ObjectID emid = EM::EMM().getObjectID( newmid );

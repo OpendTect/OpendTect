@@ -706,7 +706,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->key(true),levelname);
     if ( dlg.go() )
     {
-	MultiID mid( dlg.selWvltID() );
+	DBKey mid( dlg.selWvltID() );
 	if ( mid.isEmpty() )
 	    pErrMsg( "Huh" );
 	else
@@ -1493,7 +1493,7 @@ const Wavelet* uiStratSynthDisp::getWavelet() const
 }
 
 
-MultiID uiStratSynthDisp::waveletID() const
+DBKey uiStratSynthDisp::waveletID() const
 {
     return wvltfld_->key( true );
 }

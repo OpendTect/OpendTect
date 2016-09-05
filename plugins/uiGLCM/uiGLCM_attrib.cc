@@ -259,7 +259,7 @@ void uiGLCM_attrib::getEvalParams( TypeSet<EvalParam>& params ) const
 class uiSubSelForAnalysis : public uiDialog
 { mODTextTranslationClass(uiSubSelForAnalysis);
 public:
-uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d )
+uiSubSelForAnalysis( uiParent* p,const DBKey& mid, bool is2d )
     : uiDialog(p,uiDialog::Setup(tr("Select data"),tr("For analysis"),
 				 mNoHelpKey))
     , linesfld_(0)
@@ -324,7 +324,7 @@ void uiGLCM_attrib::analyseData( CallBacker* )
     if ( !inpdesc )
 	return;
 
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(inpdesc->getStoredID(true)) );
+    PtrMan<IOObj> ioobj = IOM().get( DBKey(inpdesc->getStoredID(true)) );
     if ( !ioobj )
     {
 	uiMSG().error( tr("Select a valid input") );

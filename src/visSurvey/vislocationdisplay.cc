@@ -109,11 +109,11 @@ void LocationDisplay::setSet( Pick::Set* ps )
 }
 
 
-MultiID LocationDisplay::getMultiID() const
+DBKey LocationDisplay::getDBKey() const
 {
     if ( set_ )
 	return Pick::SetMGR().getID( *set_ );
-    return MultiID::udf();
+    return DBKey::udf();
 }
 
 
@@ -842,7 +842,7 @@ bool LocationDisplay::usePar( const IOPar& par )
     par.getYN( sKeyShowAll(), shwallpicks );
     showAll( shwallpicks );
 
-    MultiID setid;
+    DBKey setid;
     if ( !par.get(sKeyID(),setid) )
 	return false;
     RefMan<Pick::Set> newps = Pick::SetMGR().fetchForEdit( setid );

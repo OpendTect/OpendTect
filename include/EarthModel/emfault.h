@@ -44,7 +44,7 @@ public:
 
     virtual const Coord3&	getEditPlaneNormal(const SectionID&,
 						   int sticknr) const;
-    virtual const MultiID*	pickedMultiID(const SectionID&,int stcknr) const
+    virtual const DBKey*	pickedDBKey(const SectionID&,int stcknr) const
 							{ return 0; }
     virtual const char*		pickedName(const SectionID&,int sticknr) const
 							{ return 0; }

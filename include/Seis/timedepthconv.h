@@ -31,7 +31,7 @@ template <class T> class ValueSeries;
 mExpClass(Seis) VelocityStretcher : public ZAxisTransform
 { mODTextTranslationClass(VelocityStretcher);
 public:
-    virtual bool		setVelData(const MultiID&)		= 0;
+    virtual bool		setVelData(const DBKey&)		= 0;
 
     bool			canTransformSurv(Pos::SurvID sid) const
 				{ return sid!=TrcKey::std2DSurvID(); }
@@ -56,7 +56,7 @@ public:
 				  toUiString(sFactoryKeyword()));
 
 			Time2DepthStretcher();
-    bool		setVelData(const MultiID&);
+    bool		setVelData(const DBKey&);
     bool		isOK() const;
 
     bool		needsVolumeOfInterest() const	{ return true; }
@@ -115,7 +115,7 @@ public:
 				  toUiString(sFactoryKeyword()));
 
 			Depth2TimeStretcher();
-    bool		setVelData(const MultiID&);
+    bool		setVelData(const DBKey&);
     bool		isOK() const;
 
     bool		needsVolumeOfInterest() const;

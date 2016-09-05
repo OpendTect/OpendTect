@@ -116,7 +116,7 @@ ODPolygon<double>* uiPickSetIOObjSel::getCoordPolygon() const
 
 
 
-uiMergePickSets::uiMergePickSets( uiParent* p, MultiID& setid )
+uiMergePickSets::uiMergePickSets( uiParent* p, DBKey& setid )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrMerge(uiStrings::sPickSet()),
 				 tr("Specify sets to merge"),
 				 mODHelpKey(mMergePickSetsHelpID) ))
@@ -151,7 +151,7 @@ bool uiMergePickSets::acceptOK()
     if ( !ps )
 	return false;
 
-    const MultiID setid( outioobj->key() );
+    const DBKey setid( outioobj->key() );
     uiRetVal uirv = ::Pick::SetMGR().store( *ps, setid, &ioobjpars );
     if ( uirv.isError() )
 	{ uiMSG().error( uirv ); return false; }
@@ -163,13 +163,13 @@ bool uiMergePickSets::acceptOK()
 
 RefMan<Pick::Set> uiMergePickSets::getMerged( IOPar& ioobjpars ) const
 {
-    TypeSet<MultiID> inpids;
+    TypeSet<DBKey> inpids;
     selfld_->getChosen( inpids );
 
     RefMan<Pick::Set> outps = new Pick::Set;
     for ( int idx=0; idx<inpids.size(); idx++ )
     {
-	const MultiID id = inpids[idx];
+	const DBKey id = inpids[idx];
 	uiRetVal uirv = uiRetVal::OK();
 	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, uirv );
 	if ( !ps )

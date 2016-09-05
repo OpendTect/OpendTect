@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "notify.h"
 #include "typeset.h"
 #include "objectset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "groupedid.h"
 
 namespace OD
@@ -62,14 +62,14 @@ public:
     virtual				~ObjPresentationInfo()	{}
     virtual void			fillPar(IOPar&) const;
     virtual bool			usePar(const IOPar&);
-    void				setStoredID(const MultiID& id)
+    void				setStoredID(const DBKey& id)
 					{ storedid_ = id; }
-    const MultiID&			storedID() const
+    const DBKey&			storedID() const
 					{ return storedid_; }
     const char*				objTypeKey() const
 					{ return objtypekey_; }
 protected:
-    MultiID				storedid_;
+    DBKey				storedid_;
     BufferString			objtypekey_;
 };
 

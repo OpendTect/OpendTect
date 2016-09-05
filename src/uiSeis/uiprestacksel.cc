@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
 			const TypeSet<DataPack::FullID>& dpfids,
-			const MultiID& selid )
+			const DBKey& selid )
     : uiDialog(p,uiDialog::Setup(tr("Select Data"),mNoDlgTitle,mNoHelpKey))
     , dpfids_(dpfids)
     , selid_(selid)
@@ -40,7 +40,7 @@ uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
 bool uiPreStackDataPackSelDlg::acceptOK()
 {
     const int selidx = datapackinpfld_->currentItem();
-    selid_ = dpfids_.validIdx( selidx ) ? dpfids_[selidx] : MultiID::udf();
+    selid_ = dpfids_.validIdx( selidx ) ? dpfids_[selidx] : DBKey::udf();
     return true;
 }
 
@@ -48,7 +48,7 @@ bool uiPreStackDataPackSelDlg::acceptOK()
 
 uiPreStackSel::uiPreStackSel( uiParent* p, bool is2d )
     : uiGroup(p, "Prestack data selector")
-    , selid_(MultiID::udf())
+    , selid_(DBKey::udf())
 {
     const uiSeisSel::Setup sssu( is2d, true );
     const IOObjContext ctxt( uiSeisSel::ioContext(sssu.geom_, true ) );
@@ -75,7 +75,7 @@ void uiPreStackSel::usePar( const IOPar& par )
 }
 
 
-void uiPreStackSel::setInput( const MultiID& mid )
+void uiPreStackSel::setInput( const DBKey& mid )
 {
     if ( dpfids_.isEmpty() )
 	seisinpfld_->setInput( mid );
@@ -88,7 +88,7 @@ void uiPreStackSel::setInput( const MultiID& mid )
 }
 
 
-MultiID uiPreStackSel::getMultiID() const
+DBKey uiPreStackSel::getDBKey() const
 {
     if ( dpfids_.isEmpty() )
 	return selid_;
@@ -102,7 +102,7 @@ void uiPreStackSel::doSelDataPack( CallBacker* )
 {
     uiPreStackDataPackSelDlg dlg( this, dpfids_, selid_ );
     if ( dlg.go() )
-	setInput( dlg.getMultiID() );
+	setInput( dlg.getDBKey() );
 }
 
 

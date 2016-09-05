@@ -112,10 +112,10 @@ bool uiGenRanLinesByContour::dispOnCreation()
 }
 
 
-MultiID uiGenRanLinesByContour::getNewSetID() const
+DBKey uiGenRanLinesByContour::getNewSetID() const
 {
     const IOObj* ioobj = outfld_->ioobj( true );
-    return ioobj ? ioobj->key() : MultiID::udf();
+    return ioobj ? ioobj->key() : DBKey::udf();
 }
 
 
@@ -233,10 +233,10 @@ bool uiGenRanLinesByShift::dispOnCreation()
 }
 
 
-MultiID uiGenRanLinesByShift::getNewSetID() const
+DBKey uiGenRanLinesByShift::getNewSetID() const
 {
     const IOObj* ioobj = outfld_->ioobj( true );
-    return ioobj ? ioobj->key() : MultiID::udf();
+    return ioobj ? ioobj->key() : DBKey::udf();
 }
 
 
@@ -301,10 +301,10 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
 }
 
 
-MultiID uiGenRanLineFromPolygon::getNewSetID() const
+DBKey uiGenRanLineFromPolygon::getNewSetID() const
 {
     const IOObj* ioobj = outfld_->ioobj( true );
-    return ioobj ? ioobj->key() : MultiID::udf();
+    return ioobj ? ioobj->key() : DBKey::udf();
 }
 
 

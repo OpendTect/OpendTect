@@ -372,7 +372,7 @@ void uiODApplMgr::surveyChanged( CallBacker* )
 {
     dispatcher_.survChg(false); attrvishandler_.survChg(false);
     bool douse = false;
-    MultiID id;
+    DBKey id;
     ODSession::getStartupData( douse, id );
     if ( !douse || id.isUdf() )
 	sceneMgr().addScene( true );
@@ -463,7 +463,7 @@ void uiODApplMgr::createMultiCubeDS( CallBacker* )
 { seisserv_->createMultiCubeDataStore(); }
 
 void uiODApplMgr::createMultiAttribVol( CallBacker* )
-{ attrserv_->outputVol( MultiID::udf(), false, true ); }
+{ attrserv_->outputVol( DBKey::udf(), false, true ); }
 
 void uiODApplMgr::setStereoOffset()
 {
@@ -531,7 +531,7 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
     RefMan<ZAxisTransform> transform = emserv_->getHorizonZAxisTransform(is2d);
     if ( !transform ) return;
 
-    const MultiID hormid( transform->fromZDomainInfo().getID() );
+    const DBKey hormid( transform->fromZDomainInfo().getID() );
     PtrMan<IOObj> ioobj = IOM().get( hormid );
     const BufferString hornm = ioobj
 		? ioobj->name().buf()
@@ -556,7 +556,7 @@ void uiODApplMgr::setWorkingArea()
 }
 
 
-void uiODApplMgr::selectWells( TypeSet<MultiID>& wellids )
+void uiODApplMgr::selectWells( TypeSet<DBKey>& wellids )
 { wellserv_->selectWells( wellids ); }
 
 bool uiODApplMgr::storePickSets( int polyopt, const char* cat )
@@ -716,7 +716,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 bool uiODApplMgr::getDefaultDescID( Attrib::DescID& descid, bool is2d ) const
 {
-    const MultiID mid = seisServer()->getDefaultDataID( is2d );
+    const DBKey mid = seisServer()->getDefaultDataID( is2d );
     if ( mid.isUdf() )
 	return false;
 
@@ -822,7 +822,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     DataPackMgr& dpm = DPM(DataPackMgr::PointID());
     if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
     {
-	const MultiID surfmid = visserv_->getMultiID(visid);
+	const DBKey surfmid = visserv_->getDBKey(visid);
 	const EM::ObjectID emid = emserv_->getObjectID(surfmid);
 	const int auxdatanr = emserv_->loadAuxData( emid, myas.userRef() );
         if ( auxdatanr>=0 )
@@ -1094,7 +1094,7 @@ bool uiODApplMgr::handleWellServEv( int evid )
 
 	const BufferStringSet& wellids = wellserv_->createdWellIDs();
 	for ( int idx=0; idx<wellids.size(); idx++ )
-	    sceneMgr().addWellItem( MultiID(wellids.get(idx)), sceneid );
+	    sceneMgr().addWellItem( DBKey(wellids.get(idx)), sceneid );
     }
 
     return true;
@@ -1241,7 +1241,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	visserv_->getRandomPosCache( visid, attribidx, data );
 	if ( data.isEmpty() ) return false;
 
-	const MultiID mid = visserv_->getMultiID( visid );
+	const DBKey mid = visserv_->getDBKey( visid );
 	const EM::ObjectID emid = emserv_->getObjectID( mid );
 	const int nrvals = data.bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )
@@ -1364,10 +1364,10 @@ bool uiODApplMgr::handlePickServEv( int evid )
     else if ( evid == uiPickPartServer::evGetHorDef3D() )
     {
 	TypeSet<EM::ObjectID> horids;
-	const ObjectSet<MultiID>& storids = pickserv_->selHorIDs();
+	const ObjectSet<DBKey>& storids = pickserv_->selHorIDs();
 	for ( int idx=0; idx<storids.size(); idx++ )
 	{
-	    const MultiID horid = *storids[idx];
+	    const DBKey horid = *storids[idx];
 	    const EM::ObjectID id = emserv_->getObjectID(horid);
 	    if ( id<0 || !emserv_->isFullyLoaded(id) )
 		emserv_->loadSurface( horid );
@@ -1738,7 +1738,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	visserv_->getRandomPosCache( visid, attrnr, data );
 	if ( data.isEmpty() ) return false;
 
-	const MultiID mid = visserv_->getMultiID( visid );
+	const DBKey mid = visserv_->getDBKey( visid );
 	const EM::ObjectID emid = emserv_->getObjectID( mid );
 	const float shift = (float) visserv_->getTranslation(visid).z;
 	const TypeSet<Attrib::SelSpec>& specs = attrserv_->getTargetSelSpecs();
@@ -1859,7 +1859,7 @@ void uiODApplMgr::storeEMObject( bool saveasreq )
     if ( !surface ) return;
 
     const EM::ObjectID emid = surface->getObjectID();
-    MultiID mid = emserv_->getStorageID( emid );
+    DBKey mid = emserv_->getStorageID( emid );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     const bool saveas = mid.isEmpty() || !ioobj || saveasreq;
     emserv_->storeObject( emid, saveas );
@@ -1886,7 +1886,7 @@ void uiODApplMgr::manSurvCB( CallBacker* )
 }
 
 void uiODApplMgr::tieWellToSeismic( CallBacker* )
-{ wellattrserv_->createD2TModel(MultiID()); }
+{ wellattrserv_->createD2TModel(DBKey()); }
 void uiODApplMgr::doWellLogTools( CallBacker* )
 { wellserv_->doLogTools(); }
 void uiODApplMgr::launchRockPhysics( CallBacker* )
@@ -1900,7 +1900,7 @@ void uiODApplMgr::doVolProc2DCB( CallBacker* )
 { volprocserv_->doVolProc( true, 0 ); }
 void uiODApplMgr::doVolProc3DCB( CallBacker* )
 { volprocserv_->doVolProc( false, 0 ); }
-void uiODApplMgr::doVolProc( const MultiID& mid )
+void uiODApplMgr::doVolProc( const DBKey& mid )
 { volprocserv_->doVolProc( false, &mid ); }
 void uiODApplMgr::createVolProcOutput( bool is2d )
 { volprocserv_->createVolProcOutput( is2d, 0 ); }

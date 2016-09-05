@@ -35,7 +35,7 @@ extern "C" void od_Seis_initStdClasses();
 { mexErrMsgTxt( BufferString(msg,"\n") ); return; }
 
 
-static MultiID getKey( const char* nm )
+static DBKey getKey( const char* nm )
 {
     IOObjContext ctxt = mIOObjContext(SeisTrc);
     ctxt.fixTranslator( mSEGYDirectTranslNm );
@@ -46,7 +46,7 @@ static MultiID getKey( const char* nm )
     if ( ctio.ioobj )
 	IOM().commitChanges( *ctio.ioobj );
 
-    return ctio.ioobj ? ctio.ioobj->key() : MultiID::udf();
+    return ctio.ioobj ? ctio.ioobj->key() : DBKey::udf();
 }
 
 
@@ -116,7 +116,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     }
     mexEvalString("pause(.001);");
 
-    const MultiID mid = getKey( indexnm );
+    const DBKey mid = getKey( indexnm );
     IOPar segypars;
     segypars.set( sKey::FileName(), segyfnm );
     segypars.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyIndex3DVol() );

@@ -58,7 +58,7 @@ const char* cannotloadstr = "Cannot load ";
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     : uiDialog(p,Setup(tr("Seismic Data Pre-load Manager"),mNoDlgTitle,
 			mODHelpKey(mSeisPreLoadMgrHelpID) ))
-    , initmid_(MultiID::udf())
+    , initmid_(DBKey::udf())
 {
     setCtrlStyle( CloseOnly );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
@@ -135,7 +135,7 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
     if ( !entries.validIdx(selidx) )
     { infofld_->setText(""); return; }
 
-    const MultiID mid = entries[selidx]->mid_;
+    const DBKey mid = entries[selidx]->mid_;
     SeisIOObjInfo ioinf( mid );
     if ( !ioinf.isOK() )
 	{ infofld_->setText(tr("Internal error: IOObj not OK")); return; }
@@ -162,7 +162,7 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 
     const IOObj* ioobj = dlg.getIOObj();
     mCheckIOObjExistance( ioobj );
-    const MultiID key = ioobj->key();
+    const DBKey key = ioobj->key();
     if ( PLDM().isPresent(key) )
     {
 	uiString msg( ioobj->uiName() );
@@ -201,7 +201,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     DataCharacteristics dc; dlg.getDataChar( dc );
     TypeSet<Pos::GeomID> geomids;
     dlg.selectedGeomIDs( geomids );
-    const MultiID key = ioobj->key();
+    const DBKey key = ioobj->key();
     TypeSet<Pos::GeomID> loadedgeomids;
     for ( int idx=0; idx<geomids.size(); idx++ )
 	if ( PLDM().isPresent(key,geomids[idx]) )
@@ -435,7 +435,7 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 
 // uiSeisPreLoadSel
 uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
-				    const MultiID& input )
+				    const DBKey& input )
     : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
 					mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
     , scaler_(new LinScaler(0,1))

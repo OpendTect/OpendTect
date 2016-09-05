@@ -68,7 +68,7 @@ bool uiWellLogToolWinMgr::acceptOK()
     BufferStringSet msgs;
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
-	const MultiID& wmid = wellids[idx]->buf();
+	const DBKey& wmid = wellids[idx]->buf();
 	RefMan<Well::Data> wd = Well::MGR().get( wmid );
 	if ( !wd )
 	{

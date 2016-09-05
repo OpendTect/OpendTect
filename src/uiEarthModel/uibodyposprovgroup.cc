@@ -113,7 +113,7 @@ void uiBodyPosProvGroup::getSummary( BufferString& txt ) const
 }
 
 
-bool uiBodyPosProvGroup::getID( MultiID& ky ) const
+bool uiBodyPosProvGroup::getID( DBKey& ky ) const
 {
     if ( !bodyfld_->commitInput() || !ctio_.ioobj_ )
 	return false;

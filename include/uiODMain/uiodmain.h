@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uimainwin.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class CtxtIOObj;
 class IOObj;
@@ -92,7 +92,7 @@ protected:
     bool		restoringsess_;
     BufferString	programname_;
 
-    MultiID		cursessid_;
+    DBKey		cursessid_;
     bool		failed_;
 
     virtual bool	closeOK();

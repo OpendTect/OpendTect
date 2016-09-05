@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ctxtioobj.h"
 #include "iodir.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"
 #include "seispsmerge.h"
@@ -219,7 +219,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	int volidx = allvolsnames_.indexOf( txt );
 	if ( volidx < 0 ) continue;
 
-	const MultiID id = allvolsids_[volidx];
+	const DBKey id = allvolsids_[volidx];
 	IOObj* ioobj = IOM().get( id );
 	if ( !ioobj ) continue;
 
@@ -385,7 +385,7 @@ bool uiPreStackOutputGroup::go()
 }
 
 
-uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
+uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const DBKey& key )
     : uiDialog(p,uiDialog::Setup(tr("Copy Prestack Data"),
 				 uiString::emptyString(),
                                  mODHelpKey(mPreStackCopyDlgHelpID) ))

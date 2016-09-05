@@ -34,7 +34,7 @@ HorizonModifier::~HorizonModifier()
 }
 
 
-bool HorizonModifier::setHorizons( const MultiID& mid1, const MultiID& mid2 )
+bool HorizonModifier::setHorizons( const DBKey& mid1, const DBKey& mid2 )
 {
     EM::ObjectID objid = EM::EMM().getObjectID( mid1 );
     mDynamicCastGet(EM::Horizon*,tophor,EM::EMM().getObject(objid))

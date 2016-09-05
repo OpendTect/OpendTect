@@ -260,7 +260,7 @@ bool uiODAnnotSubItem::init()
 }
 
 
-MultiID uiODAnnotSubItem::getSetID() const
+DBKey uiODAnnotSubItem::getSetID() const
 {
     return Pick::SetMGR().getID( set_ );
 }
@@ -268,7 +268,7 @@ MultiID uiODAnnotSubItem::getSetID() const
 
 void uiODAnnotSubItem::createMenu( MenuHandler* menu, bool istb )
 {
-    const MultiID setid = getSetID();
+    const DBKey setid = getSetID();
     if ( !menu || menu->menuID()!=displayID() || setid.isUdf() )
 	return;
 

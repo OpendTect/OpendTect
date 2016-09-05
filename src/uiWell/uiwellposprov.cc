@@ -102,7 +102,7 @@ void uiWellPosProvGroup::setExtractionDefaults()
 }
 
 
-bool uiWellPosProvGroup::getIDs( TypeSet<MultiID>& ids ) const
+bool uiWellPosProvGroup::getIDs( TypeSet<DBKey>& ids ) const
 { wellfld_->getSelected( ids ); return ids.size(); }
 
 

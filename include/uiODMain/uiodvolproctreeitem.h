@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddatatreeitem.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 namespace VolProc
 {
@@ -23,7 +23,7 @@ mExpClass(uiODMain) uiDataTreeItem : public uiODDataTreeItem
 public:
    static void			initClass();
 				uiDataTreeItem(const char* parenttype,
-					       const MultiID* setupmid=0);
+					       const DBKey* setupmid=0);
 				~uiDataTreeItem();
 
     bool			selectSetup();
@@ -45,7 +45,7 @@ protected:
     MenuItem			reloadmenuitem_;
     MenuItem			editmenuitem_;
 
-    MultiID			mid_;
+    DBKey			mid_;
 
 };
 

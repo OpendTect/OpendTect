@@ -53,7 +53,7 @@ bool uiODPSEventsParentTreeItem::showSubMenu()
     if ( mnusel == 0 )
     {
 	BufferString eventname;
-	MultiID key;
+	DBKey key;
 	if ( !loadPSEvent(key,eventname) )
 	    return false;
 
@@ -66,7 +66,7 @@ bool uiODPSEventsParentTreeItem::showSubMenu()
 }
 
 
-bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
+bool uiODPSEventsParentTreeItem::loadPSEvent( DBKey& key,
 					      BufferString& eventname )
 {
     CtxtIOObj context = PSEventTranslatorGroup::ioContext();
@@ -117,7 +117,7 @@ const char* uiODPSEventsParentTreeItem::parentType() const
 
 // uiODPSEventsTreeItem
 
-uiODPSEventsTreeItem::uiODPSEventsTreeItem( const MultiID& key,
+uiODPSEventsTreeItem::uiODPSEventsTreeItem( const DBKey& key,
 					    const char* eventname )
     : key_(key)
     , psem_(*new PreStack::EventManager)

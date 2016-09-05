@@ -45,10 +45,10 @@ public:
     bool		getFrom(const char* fnm);
     bool		putTo(const char* fnm) const;
 
-    static bool		readData(const char* fnm,ObjectSet<MultiID>&,
+    static bool		readData(const char* fnm,ObjectSet<DBKey>&,
 				  TypeSet<float>&,TypeSet<int>&,
 				  uiString& emsg);
-    static bool		writeData(const char* fnm,const ObjectSet<MultiID>&,
+    static bool		writeData(const char* fnm,const ObjectSet<DBKey>&,
 				  const TypeSet<float>&,const TypeSet<int>&,
 				  uiString& emsg);
 

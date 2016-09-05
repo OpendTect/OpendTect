@@ -79,7 +79,7 @@ protected:
     void		prepareInputDescs(Attrib::DescID&,Attrib::DescID&,
 					  Attrib::DescSet*);
     void		fillInGDDescParams(Attrib::Desc*);
-    void		getInputMID(MultiID&) const;
+    void		getInputMID(DBKey&) const;
 
 			mDeclReqAttribUIFns
 };

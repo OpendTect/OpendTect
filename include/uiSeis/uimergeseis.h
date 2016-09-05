@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class IOObj;
 class uiGenInput;
@@ -26,7 +26,7 @@ mExpClass(uiSeis) uiMergeSeis : public uiDialog
 public:
                         uiMergeSeis(uiParent*);
 
-    void		setInputIds(const TypeSet<MultiID>& mids);
+    void		setInputIds(const TypeSet<DBKey>& mids);
 
 protected:
 

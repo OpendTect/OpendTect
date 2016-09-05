@@ -226,7 +226,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     const bool isshifted =
 		!mIsZero( visserv_->getTranslation(displayID()).z, 1e-5 );
-    const MultiID mid = EM::EMM().getMultiID( emid_ );
+    const DBKey mid = EM::EMM().getDBKey( emid_ );
     const bool enab = trackmenuitem_.nrItems() && !isshifted && isChecked()
 			&& EM::canOverwrite( mid );
     mAddMenuItem( menu, &trackmenuitem_, enab, false );
@@ -255,7 +255,7 @@ int uiODEarthModelSurfaceTreeItem::reloadEMObject()
     delete uivisemobj_; uivisemobj_ = 0;
 
     uiEMPartServer* ems = applMgr()->EMServer();
-    const MultiID mid = ems->getStorageID(emid_);
+    const DBKey mid = ems->getStorageID(emid_);
     if ( !ems->loadSurface(mid) )
 	return -1;
 
@@ -294,19 +294,19 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==saveasmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	const MultiID oldmid = ems->getStorageID(emid_);
+	const DBKey oldmid = ems->getStorageID(emid_);
 	mps->prepareSaveSetupAs( oldmid );
 
-	MultiID storedmid;
+	DBKey storedmid;
 	ems->storeObject( emid_, true, storedmid,
 		(float) visserv_->getTranslation(displayID()).z);
 	applMgr()->visServer()->setObjectName( displayid_,
 	    ems->getName(emid_) );
 
-	const MultiID midintree = ems->getStorageID(emid_);
-	EM::EMM().getObject(emid_)->setMultiID( storedmid );
+	const DBKey midintree = ems->getStorageID(emid_);
+	EM::EMM().getObject(emid_)->setDBKey( storedmid );
 	mps->saveSetupAs( storedmid );
-	EM::EMM().getObject(emid_)->setMultiID( midintree );
+	EM::EMM().getObject(emid_)->setDBKey( midintree );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
@@ -371,10 +371,10 @@ void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
     if ( !ems->isChanged( emid_ ) )
 	return;
 
-    bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+    bool savewithname = EM::EMM().getDBKey( emid_ ).isEmpty();
     if ( !savewithname )
     {
-	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
+	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getDBKey(emid_) );
 	savewithname = !ioobj;
     }
 
@@ -407,10 +407,10 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 	    return;
     }
 
-    bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+    bool savewithname = EM::EMM().getDBKey( emid_ ).isEmpty();
     if ( !savewithname )
     {
-	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
+	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getDBKey(emid_) );
 	savewithname = !ioobj;
     }
 
@@ -418,7 +418,7 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 	NotSavedPrompter::NSP().reportSuccessfullSave();
 
     applMgr()->visServer()->setObjectName( displayid_, ems->getName(emid_) );
-    const MultiID mid = ems->getStorageID(emid_);
+    const DBKey mid = ems->getStorageID(emid_);
     mps->saveSetup( mid );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }

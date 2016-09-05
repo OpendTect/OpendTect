@@ -78,7 +78,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     const int geosz = surfacefiller_->nrOfSurfaces();
     for ( int idx=0; idx<geosz; idx++ )
     {
-	const MultiID* mid = surfacefiller_->getSurfaceID(idx);
+	const DBKey* mid = surfacefiller_->getSurfaceID(idx);
 	PtrMan<IOObj> ioobj = IOM().get(*mid);
 	const char dir = surfacefiller_->getSurfaceFillSide(idx);
 	addSurfaceTableEntry( *ioobj, false, dir );
@@ -113,8 +113,8 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	usestartvalfld_->attach( ensureBelow, table_ );
 	startvalfld_->attach( alignedBelow, usestartvalfld_ );
 
-	const MultiID* starthorid = surfacefiller_->getStartValueHorizonID();
-	const MultiID& startmid = starthorid ? *starthorid : "-1";
+	const DBKey* starthorid = surfacefiller_->getStartValueHorizonID();
+	const DBKey& startmid = starthorid ? *starthorid : "-1";
 	startgridfld_ = new uiHorizonAuxDataSel( this, startmid,
 		slf->getStartAuxdataIdx(), &auxdatainfo );
 	startgridfld_->attach( alignedBelow, usestartvalfld_ );
@@ -133,8 +133,8 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	usegradientfld_->attach( alignedBelow, startvalfld_ );
 	gradientfld_->attach( alignedBelow, usegradientfld_ );
 
-	const MultiID* gradhorid = surfacefiller_->getGradientHorizonID();
-	const MultiID& gradmid = gradhorid ? *gradhorid : "-1";
+	const DBKey* gradhorid = surfacefiller_->getGradientHorizonID();
+	const DBKey& gradmid = gradhorid ? *gradhorid : "-1";
 	gradgridfld_ = new uiHorizonAuxDataSel( this, gradmid,
 		slf->getGradAuxdataIdx(), &auxdatainfo );
 	gradgridfld_->attach( alignedBelow, usegradientfld_ );
@@ -194,7 +194,7 @@ void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )
     const int nrsel = dlg.nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	const MultiID mid( dlg.chosenID(idx) );
+	const DBKey mid( dlg.chosenID(idx) );
 	if ( !surfacelist_.isPresent(mid) )
 	{
 	    IOObj* ioobj = IOM().get( mid );
@@ -394,7 +394,7 @@ bool uiSurfaceLimitedFiller::acceptOK()
 	if ( !obj )
 	    mErrRet(tr("Reference horizon does not exit"))
 
-	const MultiID mid = obj->key();
+	const DBKey mid = obj->key();
 	if ( !surfacefiller_->setRefHorizon( &mid ) )
 	    mErrRet(tr("Cannot set reference horizon"))
     }

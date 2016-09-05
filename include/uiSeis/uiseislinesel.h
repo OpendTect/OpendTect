@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "bufstring.h"
 #include "bufstringset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ranges.h"
 #include "posinfo2dsurv.h"
 
@@ -94,7 +94,7 @@ public:
     void		setSelGeomIDs(const TypeSet<Pos::GeomID>&);
     void		setSelLineNames(const BufferStringSet&);
 
-    virtual void	setInput(const MultiID&);
+    virtual void	setInput(const DBKey&);
     virtual void	setInput(const BufferStringSet& lnms);
     virtual void	setInput(const TypeSet<Pos::GeomID>& geomid);
 
@@ -130,7 +130,7 @@ public:
     Pos::GeomID		getInputGeomID() const;
     void		setInput(const char*);
     void		setInputGeomID(Pos::GeomID);
-    void		setDataSet(const MultiID&); //!< Only when forread
+    void		setDataSet(const DBKey&); //!< Only when forread
     void		fillWithAll();
 
     Notifier<uiSeis2DLineNameSel>	nameChanged;
@@ -139,9 +139,9 @@ protected:
 
     uiComboBox*		fld_;
     bool		forread_;
-    MultiID		dsid_;
+    DBKey		dsid_;
 
-    void		addLineNames(const MultiID&);
+    void		addLineNames(const DBKey&);
     void		selChg( CallBacker* )	{ nameChanged.trigger(); }
 
 };
@@ -162,7 +162,7 @@ public:
     StepInterval<float> getZRange(Pos::GeomID) const;
     StepInterval<int>	getTrcRange(Pos::GeomID) const;
 
-    void		setInput(const MultiID&);
+    void		setInput(const DBKey&);
     void		setInput(const BufferStringSet& lnms);
     void		setInput(const TypeSet<Pos::GeomID>& geomid);
 
@@ -187,7 +187,7 @@ protected:
     bool		withz_;
 
     void		clearAll();
-    void		initRanges(const MultiID* datasetid=0);
+    void		initRanges(const DBKey* datasetid=0);
 
     void		selPush(CallBacker*);
 };

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 
 #include "enums.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "wellio.h"
 #include "welld2tmodel.h"
 #include "od_iosfwd.h"
@@ -56,9 +56,9 @@ public:
 				    , corrtype_(setup.corrtype_)
 				    {}
 
-    MultiID			wellid_;
-    MultiID			seisid_;
-    MultiID			wvltid_;
+    DBKey			wellid_;
+    DBKey			seisid_;
+    DBKey			wvltid_;
     BufferString		linenm_;
     BufferString		seisnm_;
     BufferString		vellognm_;

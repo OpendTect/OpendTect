@@ -365,6 +365,6 @@ void uiObjFileMan::updateCB( CallBacker* )
 {
     mEnsureExecutedInMainThread( uiObjFileMan::updateCB );
 
-    const MultiID curmid = selgrp_->currentID();
+    const DBKey curmid = selgrp_->currentID();
     selgrp_->fullUpdate( curmid );
 }

@@ -266,7 +266,7 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
     if ( nontexturecolisset_ )
 	emobject_->setPreferredColor( nontexturecol_ );
 
-    restoresessupdate_ = !editor_ && parmid_!=MultiID(-1);
+    restoresessupdate_ = !editor_ && parmid_!=DBKey(-1);
     bool res = updateFromEM( tr );
     restoresessupdate_ = false;
     
@@ -288,7 +288,7 @@ EM::ObjectID EMObjectDisplay::getObjectID() const
 }
 
 
-MultiID EMObjectDisplay::getMultiID() const
+DBKey EMObjectDisplay::getDBKey() const
 {
     if ( !emobject_ ) return parmid_;
 
@@ -570,7 +570,7 @@ void EMObjectDisplay::fillPar( IOPar& par ) const
     if ( emobject_ && !emobject_->isFullyLoaded() )
 	par.set( sKeySections(), displayedSections() );
 
-    par.set( sKeyEarthModelID(), getMultiID() );
+    par.set( sKeyEarthModelID(), getDBKey() );
     par.setYN( sKeyEdit(), isEditingEnabled() );
     par.setYN( sKeyOnlyAtSections(), displayedOnlyAtSections() );
     par.set( sKey::Color(), (int)getColor().rgb() );

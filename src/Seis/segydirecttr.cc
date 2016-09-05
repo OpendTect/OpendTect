@@ -594,7 +594,7 @@ bool SEGYDirectSeisTrcTranslator::goTo( const BinID& bid )
 
 
 IOObj* SEGYDirectSeisTrcTranslator::createWriteIOObj( const IOObjContext& ctxt,
-					      const MultiID& ioobjkey ) const
+					      const DBKey& ioobjkey ) const
 {
     IOObj* ioobj = ctxt.crDefaultWriteObj( *this, ioobjkey );
 

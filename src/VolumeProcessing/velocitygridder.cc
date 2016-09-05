@@ -582,7 +582,7 @@ bool VelocityGridder::usePar( const IOPar& par )
 	    return false;
 	}
 
-	MultiID mid;
+	DBKey mid;
 	if ( !sourcepar->get(sKeyID(),mid) )
 	{
 	    errmsg_ = parseerror;

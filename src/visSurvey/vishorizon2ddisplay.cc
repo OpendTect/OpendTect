@@ -673,7 +673,7 @@ bool Horizon2DDisplay::calcLine2DIntersections(
 
 void Horizon2DDisplay::calcLine2DInterSectionSet()
 {
-    const MultiID mid( IOObjContext::getStdDirData(IOObjContext::Geom)->id_ );
+    const DBKey mid( IOObjContext::getStdDirData(IOObjContext::Geom)->id_ );
     const IODir iodir( mid );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     const bool needcalc = nr2dlines_ !=ioobjs.size() ? true : false;

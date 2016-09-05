@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "attributesmod.h"
 #include "attribprovider.h"
 #include "prestackprop.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "datapack.h"
 #include "prestackgather.h"
 
@@ -83,9 +83,9 @@ public:
 			mDeclareEnumUtils(XaxisUnit)
 
     const PreStack::PropCalc::Setup&	setup() const	{ return setup_; }
-    const MultiID&			psID() const	{ return psid_; }
-    const MultiID&			preProcID() const { return preprocid_; }
-    const MultiID&			velocityID() const
+    const DBKey&			psID() const	{ return psid_; }
+    const DBKey&			preProcID() const { return preprocid_; }
+    const DBKey&			velocityID() const
 					{ return velocityid_; }
 
     void		updateCSIfNeeded(TrcKeyZSampling&) const;
@@ -113,7 +113,7 @@ protected:
                                       RefMan<PreStack::Gather>& gather,
 	    			      RefMan<PreStack::Gather>& anggleg);
 
-    MultiID			psid_;
+    DBKey			psid_;
     IOObj*			psioobj_;
     SeisPSReader*		psrdr_;
     int				component_;
@@ -123,10 +123,10 @@ protected:
     PreStack::AngleComputer*    anglecomp_;
     int				anglegsdpid_;
 
-    MultiID			preprocid_;
+    DBKey			preprocid_;
     int				dataidx_;
     const DataHolder*		inputdata_;
-    MultiID			velocityid_;
+    DBKey			velocityid_;
 
     RefObjectSet<PreStack::Gather>    gatherset_;
 };

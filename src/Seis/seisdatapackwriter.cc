@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 
-SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
+SeisDataPackWriter::SeisDataPackWriter( const DBKey& mid,
 				  const RegularSeisDataPack& dp,
 				  const TypeSet<int>& compidxs )
     : Executor( "Attribute volume writer" )

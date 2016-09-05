@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "emposid.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ranges.h"
 #include "posinfo2dsurv.h"
 
@@ -33,7 +33,7 @@ public:
 
     enum ModifyMode		{ Shift, Remove };
 
-    bool			setHorizons(const MultiID&,const MultiID&);
+    bool			setHorizons(const DBKey&,const DBKey&);
     void			setStaticHorizon(bool tophor);
     void			setMode(ModifyMode);
 

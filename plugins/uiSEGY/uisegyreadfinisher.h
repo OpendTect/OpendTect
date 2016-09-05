@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uisegycommon.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiIOObjSel;
 class uiSeisSel;
@@ -47,7 +47,7 @@ protected:
 
     FullSpec		fs_;
     BufferString	objname_;
-    MultiID		outputid_;
+    DBKey		outputid_;
 
     uiIOObjSel*		outwllfld_;
     uiComboBox*		lognmfld_;

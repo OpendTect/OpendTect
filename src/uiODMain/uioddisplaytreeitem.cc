@@ -470,7 +470,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 
 void uiODDisplayTreeItem::deleteObject()
 {
-    const MultiID mid = visserv_->getMultiID( displayid_ );
+    const DBKey mid = visserv_->getDBKey( displayid_ );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) return;
 

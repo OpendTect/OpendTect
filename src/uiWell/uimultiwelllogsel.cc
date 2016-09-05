@@ -388,7 +388,7 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
 
 
 uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
-				      const MultiID& singlewid )
+				      const DBKey& singlewid )
     : uiWellExtractParams(p,s)
     , singlewid_(&singlewid)
 {
@@ -486,7 +486,7 @@ void uiMultiWellLogSel::update()
 
     for ( int iid=0; iid<wic.ids().size(); iid++ )
     {
-	const MultiID& mid = *wic.ids()[iid];
+	const DBKey& mid = *wic.ids()[iid];
 	IOObj* ioobj = IOM().get( mid );
 	if ( !ioobj || ( singlewid_ && mid != *singlewid_ ) )
 	    continue;
@@ -504,7 +504,7 @@ void uiMultiWellLogSel::update()
 void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 {
     logsfld_->setEmpty();
-    TypeSet<MultiID> mids;
+    TypeSet<DBKey> mids;
     getSelWellIDs( mids );
     if ( mids.isEmpty() )
 	return;
@@ -513,7 +513,7 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
     BufferStringSet availablemrkrs;
     for ( int midx=0; midx<mids.size(); midx++ )
     {
-	const MultiID wmid = mids[midx];
+	const DBKey wmid = mids[midx];
 	RefMan<Well::Data> wd = new Well::Data;
 	BufferStringSet lognms;
 	if ( Well::MGR().isLoaded(wmid) )
@@ -558,7 +558,7 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 }
 
 
-void uiMultiWellLogSel::getSelWellIDs( TypeSet<MultiID>& mids ) const
+void uiMultiWellLogSel::getSelWellIDs( TypeSet<DBKey>& mids ) const
 {
     if ( singlewid_ && !wellobjs_.isEmpty() )
     {
@@ -577,7 +577,7 @@ void uiMultiWellLogSel::getSelWellIDs( TypeSet<MultiID>& mids ) const
 
 void uiMultiWellLogSel::getSelWellIDs( BufferStringSet& wids ) const
 {
-    TypeSet<MultiID> mids;
+    TypeSet<DBKey> mids;
     getSelWellIDs( mids );
     for ( int idx=0; idx<mids.size(); idx++ )
 	wids.add( mids[idx] );
@@ -586,15 +586,15 @@ void uiMultiWellLogSel::getSelWellIDs( BufferStringSet& wids ) const
 
 void uiMultiWellLogSel::setSelWellIDs( const BufferStringSet& idstrs )
 {
-    TypeSet<MultiID> mids;
+    TypeSet<DBKey> mids;
     for ( int idx=0; idx<idstrs.size(); idx++ )
-	mids += MultiID( idstrs.get(idx) );
+	mids += DBKey( idstrs.get(idx) );
 
     setSelWellIDs( mids );
 }
 
 
-void uiMultiWellLogSel::setSelWellIDs( const TypeSet<MultiID>& ids )
+void uiMultiWellLogSel::setSelWellIDs( const TypeSet<DBKey>& ids )
 {
     BufferStringSet wellnms;
     for ( int idx=0; idx<ids.size(); idx++ )
@@ -630,9 +630,9 @@ void uiMultiWellLogSel::readWellChoiceDone( CallBacker* )
 {
     if ( !wellschoiceio_ ) return;
 
-    TypeSet<MultiID> mids;
+    TypeSet<DBKey> mids;
     for ( int idx=0; idx<wellschoiceio_->chosenKeys().size(); idx++ )
-	mids += MultiID( wellschoiceio_->chosenKeys().get(idx).buf() );
+	mids += DBKey( wellschoiceio_->chosenKeys().get(idx).buf() );
     setSelWellIDs( mids );
 }
 

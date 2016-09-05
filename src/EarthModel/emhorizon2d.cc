@@ -359,7 +359,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	BufferString linesetkey = sKeyLineSets();
 	linesetkey += idx;
 
-	MultiID mid;
+	DBKey mid;
 	if ( !par.get(linesetkey.buf(),mid) ) continue;
 
 	PtrMan<IOObj> ioobj = IOM().get( mid );

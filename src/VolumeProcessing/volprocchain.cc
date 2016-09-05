@@ -392,7 +392,7 @@ bool VolProc::Chain::usePar( const IOPar& par )
 }
 
 
-void VolProc::Chain::setStorageID( const MultiID& mid )
+void VolProc::Chain::setStorageID( const DBKey& mid )
 {
     storageid_ = mid;
 }

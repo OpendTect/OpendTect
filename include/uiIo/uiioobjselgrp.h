@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uigroup.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "bufstringset.h"
 
 
@@ -90,16 +90,16 @@ public:
 
 			// mostly interesting for read
     int			currentItem() const;
-    MultiID		currentID() const;
+    DBKey		currentID() const;
     int			nrChosen() const;
     bool		isChosen(int) const;
-    const MultiID&	chosenID(int idx=0) const;
-    void		getChosen(TypeSet<MultiID>&) const;
+    const DBKey&	chosenID(int idx=0) const;
+    void		getChosen(TypeSet<DBKey>&) const;
     void		getChosen(BufferStringSet&) const;
     void		setCurrent(int);
-    void		setCurrent(const MultiID&);
+    void		setCurrent(const DBKey&);
     void		setChosen(int,bool yn=true);
-    void		setChosen(const TypeSet<MultiID>&);
+    void		setChosen(const TypeSet<DBKey>&);
     void		chooseAll(bool yn=true);
 
     bool		updateCtxtIOObj(); //!< mostly interesting for write
@@ -113,7 +113,7 @@ public:
     uiGenInput*		getFilterField()		{ return filtfld_; }
     uiListBox*		getListField()			{ return listfld_; }
     uiIOObjManipGroup*	getManipGroup();
-    const ObjectSet<MultiID>& getIOObjIds() const	{ return ioobjids_; }
+    const ObjectSet<DBKey>& getIOObjIds() const	{ return ioobjids_; }
 
     void		setConfirmOverwrite( bool yn )
 				{ setup_.confirmoverwrite_ = yn; }
@@ -131,14 +131,14 @@ public:
 				/*!< Triggers when there is a new message for
 				     statusbars and similar */
 
-    void		fullUpdate(const MultiID& kpselected);
+    void		fullUpdate(const DBKey& kpselected);
     void		fullUpdate(int);
 
 protected:
 
     CtxtIOObj&		ctio_;
     Setup		setup_;
-    ObjectSet<MultiID>	ioobjids_;
+    ObjectSet<DBKey>	ioobjids_;
     BufferStringSet	ioobjnms_;
     BufferStringSet	dispnms_;
     BufferString	surveydefaultsubsel_;

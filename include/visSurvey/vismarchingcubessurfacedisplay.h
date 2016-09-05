@@ -37,7 +37,7 @@ public:
 				 "MarchingCubesDisplay",
 				 ::toUiString(sFactoryKeyword()) );
 
-    MultiID			getMultiID() const;
+    DBKey			getDBKey() const;
     bool			isInlCrl() const	{ return true; }
 
     bool			hasColor() const	{ return true; }

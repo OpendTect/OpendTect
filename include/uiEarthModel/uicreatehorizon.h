@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiGenInput;
 class uiSurfaceWrite;
@@ -28,7 +28,7 @@ public:
 			uiCreateHorizon(uiParent*,bool is2d);
 			~uiCreateHorizon();
 
-    MultiID		getSelID() const;
+    DBKey		getSelID() const;
 
     Notifier<uiCreateHorizon> ready;
 

@@ -61,7 +61,7 @@ uiMultCompSel::~uiMultCompSel()
 }
 
 
-void uiMultCompSel::setUpList( const MultiID& mid )
+void uiMultCompSel::setUpList( const DBKey& mid )
 {
     compnms_.erase();
     SeisIOObjInfo::getCompNames( mid, compnms_ );

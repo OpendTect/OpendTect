@@ -61,7 +61,7 @@ public:
 
     Executor*		loader(const SurfaceIODataSelection* s=0);
     Executor*		saver(const SurfaceIODataSelection* s=0,
-			       const MultiID* key=0);
+			       const DBKey* key=0);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -90,7 +90,7 @@ public:
     ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
     bool			getBodyRange(TrcKeyZSampling&);
 
-    MultiID			storageID() const;
+    DBKey			storageID() const;
     BufferString		storageName() const;
 
     void			refBody();

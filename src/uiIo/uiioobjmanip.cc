@@ -144,7 +144,7 @@ void uiIOObjManipGroup::triggerButton( uiManipButGrp::Type tp )
 
 void uiIOObjManipGroup::selChg()
 {
-    const MultiID curid = subj_.currentID();
+    const DBKey curid = subj_.currentID();
     IOObj* curioobj = IOM().get( curid );
     if ( !curioobj )
     {
@@ -155,7 +155,7 @@ void uiIOObjManipGroup::selChg()
 	return;
     }
 
-    TypeSet<MultiID> chosenids; subj_.getChosenIDs( chosenids );
+    TypeSet<DBKey> chosenids; subj_.getChosenIDs( chosenids );
     BufferStringSet chosennames; subj_.getChosenNames( chosennames );
     if ( chosenids.isEmpty() )
 	return;
@@ -212,7 +212,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     mDynamicCastGet(uiToolButton*,tb,c)
     if ( !tb )
 	{ pErrMsg("CallBacker is not uiToolButton!"); return; }
-    const MultiID curid = subj_.currentID();
+    const DBKey curid = subj_.currentID();
     if ( curid.isEmpty() )
 	return;
 
@@ -222,7 +222,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     const bool isremove = tb == rembut;
     const bool issingle = isreloc || isrename;
 
-    TypeSet<MultiID> chosenids;
+    TypeSet<DBKey> chosenids;
     if ( !issingle )
 	subj_.getChosenIDs( chosenids );
     IOObj* firstioobj = IOM().get( issingle ? curid : chosenids[0] );

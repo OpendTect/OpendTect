@@ -30,7 +30,7 @@ mExpClass(uiSeis) uiWaveletExtraction : public uiDialog
 public:
 				uiWaveletExtraction(uiParent*,bool is2d);
 				~uiWaveletExtraction();
-    MultiID			storeKey() const;
+    DBKey			storeKey() const;
     bool			is2D() const;
 
     Notifier<uiWaveletExtraction>	extractionDone;

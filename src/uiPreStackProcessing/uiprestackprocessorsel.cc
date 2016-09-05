@@ -19,7 +19,7 @@
 namespace PreStack
 {
 
-uiProcSel::uiProcSel( uiParent* p, const uiString& lbl, const MultiID* mid,
+uiProcSel::uiProcSel( uiParent* p, const uiString& lbl, const DBKey* mid,
 		      bool withedit )
     : uiGroup( p )
     , editbut_(0)
@@ -48,13 +48,13 @@ uiProcSel::~uiProcSel()
 }
 
 
-void uiProcSel::setSel( const MultiID& mid )
+void uiProcSel::setSel( const DBKey& mid )
 {
     selfld_->setInput( mid );
 }
 
 
-bool uiProcSel::getSel( MultiID& mid ) const
+bool uiProcSel::getSel( DBKey& mid ) const
 {
     const IOObj* ioobj = selfld_->ioobj();
     if ( !ioobj )
@@ -101,7 +101,7 @@ void uiProcSel::editPushCB( CallBacker* )
     dlg.enableSaveButton(tr("Save on OK"));
     dlg.setSaveButtonChecked( true );
     PreStack::uiProcessorManager* grp = new uiProcessorManager( &dlg, man );
-    grp->setLastMid( ioobj ? ioobj->key() : MultiID() );
+    grp->setLastMid( ioobj ? ioobj->key() : DBKey() );
 
     while ( dlg.go() )
     {

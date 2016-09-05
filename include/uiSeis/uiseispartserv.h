@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uiapplserv.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uistring.h"
 
 class BufferStringSet;
@@ -46,15 +46,15 @@ public:
     bool		importSeis(int opt);
     bool		exportSeis(int opt);
 
-    MultiID		getDefaultDataID(bool is2d) const;
-    bool		select2DSeis(MultiID&);
+    DBKey		getDefaultDataID(bool is2d) const;
+    bool		select2DSeis(DBKey&);
     bool		select2DLines(TypeSet<Pos::GeomID>&,int& action);
     static void		get2DStoredAttribs(const char* linenm,
 				       BufferStringSet& attribs,int steerpol=2);
     void		get2DZdomainAttribs(const char* linenm,
 					    const char* zdomainstr,
 					    BufferStringSet& attribs);
-    bool		create2DOutput(const MultiID&,const char* linekey,
+    bool		create2DOutput(const DBKey&,const char* linekey,
 				       TrcKeyZSampling&,SeisTrcBuf&);
     void		getStoredGathersList(bool for3d,BufferStringSet&) const;
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
@@ -76,7 +76,7 @@ protected:
 
     bool		ioSeis(int,bool);
     void		survChangedCB(CallBacker*);
-    MultiID		getDefault2DDataID() const;
+    DBKey		getDefault2DDataID() const;
 
     uiSeisFileMan*	man2dseisdlg_;
     uiSeisFileMan*	man3dseisdlg_;

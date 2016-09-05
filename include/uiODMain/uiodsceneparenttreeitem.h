@@ -29,7 +29,7 @@ protected:
     uiODApplMgr*	applMgr();
     int			sceneID() const;
 
-    virtual void	addChildItem(const MultiID&)			=0;
+    virtual void	addChildItem(const DBKey&)			=0;
 };
 
 #endif

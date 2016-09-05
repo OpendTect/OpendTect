@@ -30,7 +30,7 @@
 #include "ioman.h"
 #include "iopar.h"
 #include "ptrman.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "sorting.h"
 #include "envvars.h"
 #include "binidvalue.h"
@@ -98,7 +98,7 @@ int Well::InfoCollector::nextStep()
 	return Finished();
 
     const IOObj* ioobj = (*direntries_)[curidx_]->ioobj_;
-    const MultiID wmid( ioobj->key() );
+    const DBKey wmid( ioobj->key() );
     const bool isloaded = Well::MGR().isLoaded( wmid );
 
     BufferStringSet lognms;
@@ -127,7 +127,7 @@ int Well::InfoCollector::nextStep()
     if ( !res )
 	return ++curidx_ >= totalnr_ ? Finished() : MoreToDo();
 
-    ids_ += new MultiID( wmid );
+    ids_ += new DBKey( wmid );
     infos_ += new Well::Info( wd->info() );
     if ( dotracks_ )
     {
@@ -481,7 +481,7 @@ int Well::TrackSampler::nextStep()
 	dahcolnr_ = dps->nrCols() - 1;
     }
 
-    RefMan<Well::Data> wd = Well::MGR().get( MultiID(ids_.get(curid_)) );
+    RefMan<Well::Data> wd = Well::MGR().get( DBKey(ids_.get(curid_)) );
     if ( !wd )
     {
 	errmsg_ = mToUiStringTodo(Well::MGR().errMsg());
@@ -666,7 +666,7 @@ int Well::LogDataExtracter::nextStep()
     DataPointSet& dps = *dpss_[curid_];
     if ( dps.isEmpty() ) mRetNext()
 
-    RefMan<Well::Data> wd = Well::MGR().get( MultiID(ids_.get(curid_)) );
+    RefMan<Well::Data> wd = Well::MGR().get( DBKey(ids_.get(curid_)) );
     Well::Track* track = 0;
     if ( !wd )
     {

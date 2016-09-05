@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "arrayndinfo.h"
 #include "enums.h"
 #include "iopar.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "paralleltask.h"
 #include "trigonometry.h"
 
@@ -60,7 +60,7 @@ public:
 			   triangulated body for a set of random points. Users
 			   don't have to set any action or body. */
 
-    void		setInput(bool body0,const MultiID&);
+    void		setInput(bool body0,const DBKey&);
     void		setInput(bool body0,BodyOperator*);
 			//!<BodyOperator becomes mine
     BodyOperator*	getChildOprt(bool body0) const;
@@ -84,10 +84,10 @@ protected:
 
     ImplicitBody*	getOperandBody(bool body0,TaskRunner* tr) const;
 
-    MultiID		inputbody0_;
+    DBKey		inputbody0_;
     BodyOperator*	inputbodyop0_;
 
-    MultiID		inputbody1_;
+    DBKey		inputbody1_;
     BodyOperator*	inputbodyop1_;
 
     int			id_;

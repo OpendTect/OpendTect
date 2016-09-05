@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "volumeprocessingmod.h"
 #include "volprocstep.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "refcount.h"
 #include "threadlock.h"
 
@@ -101,8 +101,8 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    void			setStorageID(const MultiID& mid);
-    const MultiID&		storageID() const { return storageid_; }
+    void			setStorageID(const DBKey& mid);
+    const DBKey&		storageID() const { return storageid_; }
     uiString			name() const;
 
     bool			areSamplesIndependent() const;
@@ -126,7 +126,7 @@ private:
     Step::ID			outputstepid_;
     Step::OutputSlotID		outputslotid_;
 
-    MultiID			storageid_;
+    DBKey			storageid_;
     ObjectSet<Step>		steps_;
     Web				web_;
 

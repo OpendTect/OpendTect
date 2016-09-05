@@ -64,7 +64,7 @@ bool uiHor2DFrom3DDlg::acceptOK()
     if ( !checkFlds() )
 	return false;
 
-    const MultiID mid = hor3dsel_->selIOObj()->key();
+    const DBKey mid = hor3dsel_->selIOObj()->key();
     const EM::ObjectID oid = EM::EMM().getObjectID( mid );
     RefMan<EM::EMObject> emobj = EM::EMM().getObject( oid );
     if ( !emobj || !emobj->isFullyLoaded() )
@@ -76,7 +76,7 @@ bool uiHor2DFrom3DDlg::acceptOK()
 	    return false;
 	}
 
-	emobj->setMultiID( mid );
+	emobj->setDBKey( mid );
 	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
 	uiTaskRunner taskrunner( this );
 	if ( !TaskRunner::execute( &taskrunner, *loader ) )
@@ -115,7 +115,7 @@ EM::Horizon2D* uiHor2DFrom3DDlg::create2dHorizon( const char* horizonnm )
     EM::EMManager& em = EM::EMM();
     emobjid_ = em.createObject( EM::Horizon2D::typeStr(), horizonnm );
     mDynamicCastGet( EM::Horizon2D*, horizon, em.getObject(emobjid_) );
-    horizon->setMultiID( out2dfld_->selIOObj()->key() );
+    horizon->setDBKey( out2dfld_->selIOObj()->key() );
     return horizon;
 }
 

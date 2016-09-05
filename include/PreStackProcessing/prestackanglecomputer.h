@@ -104,7 +104,7 @@ public:
 				VelocityBasedAngleComputer();
 				~VelocityBasedAngleComputer();
 
-    bool			setMultiID(const MultiID&);
+    bool			setDBKey(const DBKey&);
     bool			isOK() const { return velsource_; }
 
     RefMan<Gather>		computeAngles();

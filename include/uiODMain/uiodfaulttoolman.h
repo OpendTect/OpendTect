@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "bufstringset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "timer.h"
 #include "uidialog.h"
 

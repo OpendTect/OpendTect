@@ -162,7 +162,7 @@ bool RegionZBoundary::usePar( const IOPar& par )
 
 
 // RegionHor3DBoundary
-RegionHor3DBoundary::RegionHor3DBoundary( const MultiID& mid )
+RegionHor3DBoundary::RegionHor3DBoundary( const DBKey& mid )
     : RegionBoundary()
     , hor_(0)
 {
@@ -180,7 +180,7 @@ const char* RegionHor3DBoundary::type() const
 { return sKey::Horizon(); }
 
 
-void RegionHor3DBoundary::setKey( const MultiID& mid )
+void RegionHor3DBoundary::setKey( const DBKey& mid )
 {
     key_ = mid;
     setName( IOM().nameOf(key_) );
@@ -227,7 +227,7 @@ bool RegionHor3DBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
 
-    MultiID mid = MultiID::udf();
+    DBKey mid = DBKey::udf();
     par.get( sKey::ID(), mid );
     setKey( mid );
     return true;
@@ -235,7 +235,7 @@ bool RegionHor3DBoundary::usePar( const IOPar& par )
 
 
 // RegionFaultBoundary
-RegionFaultBoundary::RegionFaultBoundary( const MultiID& mid )
+RegionFaultBoundary::RegionFaultBoundary( const DBKey& mid )
     : RegionBoundary()
     , flt_(0)
     , prov_(*new FaultTrcDataProvider)
@@ -256,7 +256,7 @@ const char* RegionFaultBoundary::type() const
 { return sKey::Fault(); }
 
 
-void RegionFaultBoundary::setKey( const MultiID& mid )
+void RegionFaultBoundary::setKey( const DBKey& mid )
 {
     key_ = mid;
     setName( IOM().nameOf(key_) );
@@ -271,7 +271,7 @@ bool RegionFaultBoundary::init( TaskRunner* taskrunner )
     mDynamicCast(EM::Fault3D*,flt_,emobj.ptr())
     if ( flt_ ) flt_->ref();
 
-    TypeSet<MultiID> keys;  keys.add( key_ );
+    TypeSet<DBKey> keys;  keys.add( key_ );
     if ( !prov_.init(keys,TrcKeySampling(),taskrunner) )
 	return false;
 
@@ -326,7 +326,7 @@ bool RegionFaultBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
 
-    MultiID mid = MultiID::udf();
+    DBKey mid = DBKey::udf();
     par.get( sKey::ID(), mid );
     setKey( mid );
     return true;
@@ -334,7 +334,7 @@ bool RegionFaultBoundary::usePar( const IOPar& par )
 
 
 // RegionPolygonBoundary
-RegionPolygonBoundary::RegionPolygonBoundary( const MultiID& mid )
+RegionPolygonBoundary::RegionPolygonBoundary( const DBKey& mid )
     : RegionBoundary()
     , polygon_(0)
 {
@@ -352,7 +352,7 @@ const char* RegionPolygonBoundary::type() const
 { return sKey::Polygon(); }
 
 
-void RegionPolygonBoundary::setKey( const MultiID& mid )
+void RegionPolygonBoundary::setKey( const DBKey& mid )
 {
     key_ = mid;
     setName( IOM().nameOf(key_) );
@@ -388,7 +388,7 @@ bool RegionPolygonBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
 
-    MultiID mid = MultiID::udf();
+    DBKey mid = DBKey::udf();
     par.get( sKey::ID(), mid );
     setKey( mid );
 
@@ -428,7 +428,7 @@ void Region3D::setEmpty()
 { deepErase( boundaries_ ); }
 
 
-bool Region3D::hasBoundary( const MultiID& mid ) const
+bool Region3D::hasBoundary( const DBKey& mid ) const
 {
     for ( int idx=0; idx<boundaries_.size(); idx++ )
     {
@@ -490,7 +490,7 @@ static RegionBoundary* createBoundary( const char* tp )
     if ( type==sKey::Crossline() ) return new RegionCrlBoundary;
     if ( type==sKey::ZSlice() ) return new RegionZBoundary;
 
-    const MultiID udf = MultiID::udf();
+    const DBKey udf = DBKey::udf();
     if ( type==sKey::Horizon() ) return new RegionHor3DBoundary(udf);
     if ( type==sKey::Fault() ) return new RegionFaultBoundary(udf);
     if ( type==sKey::Polygon() ) return new RegionPolygonBoundary(udf);

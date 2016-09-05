@@ -383,7 +383,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     Pos::Provider3D* prov = Pos::Provider3D::make( rangepar );
     BufferString surfkey = IOPar::compKey( sKey::Surface(),
 					   Pos::EMSurfaceProvider::id1Key() );
-    MultiID surf1mid, surf2mid;
+    DBKey surf1mid, surf2mid;
     if ( !surfacepar.get( surfkey.buf(), surf1mid ) )
 	return false;
 
@@ -480,7 +480,7 @@ bool uiWaveletExtraction::getSelData( const IOPar& rangepar,
 }
 
 
-MultiID uiWaveletExtraction::storeKey() const
+DBKey uiWaveletExtraction::storeKey() const
 {
     return outputwvltfld_->key( true );
 }

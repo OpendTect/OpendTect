@@ -166,7 +166,7 @@ void uiAttribPartServer::handleAutoSet()
 
 void uiAttribPartServer::useAutoSet( bool is2d )
 {
-    MultiID id;
+    DBKey id;
     const char* idkey = is2d ? uiAttribDescSetEd::sKeyAuto2DAttrSetID
 			     : uiAttribDescSetEd::sKeyAuto3DAttrSetID;
     DescSetMan* setmgr = eDSHolder().getDescSetMan(is2d);
@@ -568,7 +568,7 @@ void uiAttribPartServer::saveSet( bool is2d )
 	dlgobj->show(); \
     }
 
-void uiAttribPartServer::outputVol( const MultiID& nlaid, bool is2d,
+void uiAttribPartServer::outputVol( const DBKey& nlaid, bool is2d,
 				    bool multiattrib )
 {
     const DescSet* dset = DSHolder().getDescSet( is2d, false );
@@ -760,7 +760,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     {
 	if ( targetdesc && targetdesc->isStored() )
 	{
-	    const MultiID mid( targetdesc->getStoredID() );
+	    const DBKey mid( targetdesc->getStoredID() );
 	    RefMan<RegularSeisDataPack> sdp =
 		Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
 	    if ( sdp )
@@ -889,7 +889,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
     if ( targetdesc )
     {
-	const MultiID mid( targetdesc->getStoredID() );
+	const DBKey mid( targetdesc->getStoredID() );
 	RefMan<RegularSeisDataPack> sdp =
 	    Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
 
@@ -1132,7 +1132,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 	const Desc* targetdesc = curds->getDesc( targetID(true) );
 	if ( targetdesc )
 	{
-	    const MultiID mid( targetdesc->getStoredID() );
+	    const DBKey mid( targetdesc->getStoredID() );
 	    RefMan<RegularSeisDataPack> sdp =
 		Seis::PLDM().getAndCast<RegularSeisDataPack>(mid,geomid);
 
@@ -1211,11 +1211,11 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 }
 
 
-DescID uiAttribPartServer::getStoredID( const MultiID& multiid,
+DescID uiAttribPartServer::getStoredID( const DBKey& dbkey,
 						bool is2d, int selout ) const
 {
     DescSet* ds = eDSHolder().getDescSet( is2d, true );
-    return ds ? ds->getStoredID( multiid, selout ) : DescID::undef();
+    return ds ? ds->getStoredID( dbkey, selout ) : DescID::undef();
 }
 
 
@@ -1267,7 +1267,7 @@ static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
 	const BufferString& nm = nms.get( idx );
 	MenuItem* itm = new MenuItem( toUiString(nm) );
 	itm->checkable = true;
-	if ( ids && Seis::PLDM().isPresent(MultiID(ids->get(idx))) )
+	if ( ids && Seis::PLDM().isPresent(DBKey(ids->get(idx))) )
 	    itm->iconfnm = "preloaded";
 	const bool docheck = correcttype && nm == cursel;
 	if ( docheck ) checkparent = true;
@@ -1497,7 +1497,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	    if ( !desc )
 		continue;
 
-	    MultiID mid( desc->getStoredID(true) );
+	    DBKey mid( desc->getStoredID(true) );
 	    PtrMan<IOObj> seisobj = IOM().get( mid );
 	    if ( !seisobj )
 		continue;
@@ -1544,22 +1544,22 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     int outputnr = -1;
     bool isnla = false;
     bool isstored = false;
-    MultiID multiid = MultiID::udf();
+    DBKey dbkey = DBKey::udf();
 
     if ( stored3dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = stored3dmnuitem_.findItem(mnuid);
 	const int idx = attrinf.ioobjnms_.indexOf(item->text.getFullString());
-	multiid = attrinf.ioobjids_.get(idx);
-	attribid = eDSHolder().getDescSet(false,true)->getStoredID( multiid );
+	dbkey = attrinf.ioobjids_.get(idx);
+	attribid = eDSHolder().getDescSet(false,true)->getStoredID( dbkey );
 	isstored = true;
     }
     else if ( steering3dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = steering3dmnuitem_.findItem( mnuid );
 	const int idx = attrinf.steernms_.indexOf( item->text.getFullString() );
-	multiid = attrinf.steerids_.get( idx );
-	attribid = eDSHolder().getDescSet(false,true)->getStoredID( multiid );
+	dbkey = attrinf.steerids_.get( idx );
+	attribid = eDSHolder().getDescSet(false,true)->getStoredID( dbkey );
 	isstored = true;
     }
     else if ( stored2dmnuitem_.findItem(mnuid) ||
@@ -1572,11 +1572,11 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	const BufferString& itmnm = item->text.getFullString();
 	const int idx = issteering ? attrinf.steernms_.indexOf( itmnm )
 				   : attrinf.ioobjnms_.indexOf( itmnm );
-	multiid = issteering ? attrinf.steerids_.get(idx)
+	dbkey = issteering ? attrinf.steerids_.get(idx)
 			     : attrinf.ioobjids_.get(idx);
 	const int selout = issteering ? 1 : -1;
 	attribid =
-	    eDSHolder().getDescSet(true,true)->getStoredID( multiid, selout );
+	    eDSHolder().getDescSet(true,true)->getStoredID( dbkey, selout );
 	    isstored = true;
 	}
     else if ( calcmnuitem->findItem(mnuid) )
@@ -1595,12 +1595,12 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	if ( is2d )
 	    return false;
 	const MenuItem* item = zdomainmnuitem->findItem( mnuid );
-	IOM().to(MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
+	IOM().to(DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
 	PtrMan<IOObj> ioobj = IOM().getLocal( item->text.getFullString(), 0 );
 	if ( ioobj )
 	{
-	    multiid = ioobj->key();
-	    attribid = eDSHolder().getDescSet(false,true)->getStoredID(multiid);
+	    dbkey = ioobj->key();
+	    attribid = eDSHolder().getDescSet(false,true)->getStoredID(dbkey);
 	    isstored = true;
 	}
     }
@@ -1611,11 +1611,11 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     if ( isstored && !nocompsel )
     {
 	BufferStringSet complist;
-	SeisIOObjInfo::getCompNames( multiid.buf(), complist );
+	SeisIOObjInfo::getCompNames( dbkey.buf(), complist );
 	if ( complist.size()>1 )
 	{
 	    TypeSet<int> selcomps;
-	    if ( !handleMultiComp( multiid, is2d, issteering, complist,
+	    if ( !handleMultiComp( dbkey, is2d, issteering, complist,
 				   attribid, selcomps ) )
 		return false;
 
@@ -1690,7 +1690,7 @@ void uiAttribPartServer::info2DAttribSubMenu( int mnuid, BufferString& attbnm,
     desc->setUserRef( strpair.getCompString() ); \
 }
 
-bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
+bool uiAttribPartServer::handleMultiComp( const DBKey& dbkey, bool is2d,
 					  bool issteering,
 					  BufferStringSet& complist,
 					  DescID& attribid,
@@ -1716,7 +1716,7 @@ bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
 	{
 	    //Using const_cast for compiler but ads won't be modified anyway
 	    attribid = const_cast<DescSet*>(ads)
-			->getStoredID( multiid, selectedcomps[0], false );
+			->getStoredID( dbkey, selectedcomps[0], false );
 	    //Trick for old steering cubes: fake good component names
 	    if ( !is2d && issteering )
 	    {
@@ -1728,7 +1728,7 @@ bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
 
 	    return true;
 	}
-	prepMultCompSpecs( selectedcomps, multiid, is2d, issteering );
+	prepMultCompSpecs( selectedcomps, dbkey, is2d, issteering );
     }
     else
 	return false;
@@ -1738,14 +1738,14 @@ bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
 
 
 bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
-					    const MultiID& multiid, bool is2d,
+					    const DBKey& dbkey, bool is2d,
 					    bool issteering )
 {
     targetspecs_.erase();
     DescSet* ads = eDSHolder().getDescSet( is2d, true );
     for ( int idx=0; idx<selectedcomps.size(); idx++ )
     {
-	DescID did = ads->getStoredID( multiid, selectedcomps[idx], true );
+	DescID did = ads->getStoredID( dbkey, selectedcomps[idx], true );
 	SelSpec as( 0, did );
 	BufferString bfs;
 	Desc* desc = ads->getDesc(did);
@@ -1795,7 +1795,7 @@ IOObj* uiAttribPartServer::getIOObj( const SelSpec& as ) const
     BufferString storedid = desc->getStoredID();
     if ( !desc->isStored() || storedid.isEmpty() ) return 0;
 
-    return IOM().get( MultiID(storedid.buf()) );
+    return IOM().get( DBKey(storedid.buf()) );
 }
 
 

@@ -903,7 +903,7 @@ bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
     bool needsetwvlt = synthgenpar.wvltnm_.isEmpty();
     if ( !needsetwvlt )
     {
-	const MultiID ky = WaveletMGR().getIDByName( synthgenpar.wvltnm_ );
+	const DBKey ky = WaveletMGR().getIDByName( synthgenpar.wvltnm_ );
 	synthgen.setWavelet( WaveletMGR().fetch(ky) );
     }
 

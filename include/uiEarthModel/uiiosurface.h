@@ -51,7 +51,7 @@ public:
     const IOObj*	selIOObj() const;
     void		getSelection(EM::SurfaceIODataSelection&) const;
     void		getSelAttributes( BufferStringSet&) const;
-    void		setInput(const MultiID&) const;
+    void		setInput(const DBKey&) const;
     void		setSelAttributes(const BufferStringSet&) const;
 
     virtual bool	processInput()		{ return true; }
@@ -66,7 +66,7 @@ protected:
 				    const char* type);
 
     void		fillFields(const EM::SurfaceIOData&);
-    bool		getSurfaceIOData(const MultiID&,EM::SurfaceIOData&,
+    bool		getSurfaceIOData(const DBKey&,EM::SurfaceIOData&,
 					 bool showmsg=true) const;
     bool		getSurfaceIOData(const EM::ObjectID&,
 					 EM::SurfaceIOData&) const;
@@ -173,7 +173,7 @@ public:
 			uiSurfaceRead(uiParent*,const Setup&);
 
     virtual bool	processInput();
-    void		setIOObj(const MultiID&);
+    void		setIOObj(const DBKey&);
 
     Notifier<uiIOSurface> inpChange;
 
@@ -191,8 +191,8 @@ public:
 						bool withclear=false);
 				~uiHorizonParSel();
 
-    void			setSelected(const TypeSet<MultiID>&);
-    const TypeSet<MultiID>&	getSelected() const;
+    void			setSelected(const TypeSet<DBKey>&);
+    const TypeSet<DBKey>&	getSelected() const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -205,7 +205,7 @@ protected:
     void			doDlg(CallBacker*);
 
     bool			is2d_;
-    TypeSet<MultiID>		selids_;
+    TypeSet<DBKey>		selids_;
 };
 
 
@@ -221,10 +221,10 @@ public:
 					      int defaultoptidx=0);
     const TypeSet<int>&		getSelectedOptIndies() const { return optids_; }
 
-    void			setSelectedFaults(const TypeSet<MultiID>&,
+    void			setSelectedFaults(const TypeSet<DBKey>&,
 					const TypeSet<FaultTrace::Act>* =0);
     BufferString		getSummary() const;
-    const TypeSet<MultiID>&	selFaultIDs() const { return selfaultids_; }
+    const TypeSet<DBKey>&	selFaultIDs() const { return selfaultids_; }
 
     void			setEmpty();
     void			setGeomIDs(const TypeSet<Pos::GeomID>&);
@@ -240,7 +240,7 @@ protected:
 
     bool			is2d_;
     BufferStringSet		selfaultnms_;
-    TypeSet<MultiID>		selfaultids_;
+    TypeSet<DBKey>		selfaultids_;
     TypeSet<Pos::GeomID>	geomids_;
 
     bool			useoptions_;

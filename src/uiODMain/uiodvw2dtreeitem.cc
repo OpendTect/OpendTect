@@ -436,7 +436,7 @@ uiODViewer2D* uiODVw2DParentTreeItem::viewer2D()
 
 
 void uiODVw2DParentTreeItem::getVwr2DOjIDs(
-	const MultiID& mid, TypeSet<int>& vw2dobjids ) const
+	const DBKey& mid, TypeSet<int>& vw2dobjids ) const
 {
     if ( mid.isUdf() )
 	return;

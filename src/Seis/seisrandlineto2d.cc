@@ -224,7 +224,7 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
 {
     rln_.ref();
 
-    MultiID inpid, outpid;
+    DBKey inpid, outpid;
     if ( !par.get(SeisRandLineTo2DGrid::sKeyInputID(),inpid) )
 	mNotOKRet("Error: Input ID is missing")
 

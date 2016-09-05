@@ -11,7 +11,7 @@
 #include "ioman.h"
 #include "iopar.h"
 #include "ioobj.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "moddepmgr.h"
 #include "progressmeterimpl.h"
 #include "seisioobjinfo.h"
@@ -29,7 +29,7 @@ bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded("Velocity");
 
-    MultiID inputmid;
+    DBKey inputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyInput(), inputmid) )
 	mErrRet( "Cannot read input volume id" )
 
@@ -46,7 +46,7 @@ bool BatchProgram::go( od_ostream& strm )
 	hrg = cs.hsamp_;
     }
 
-    MultiID outputmid;
+    DBKey outputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyOutput(), outputmid ) )
 	mErrRet( "Cannot read output volume id" )
 

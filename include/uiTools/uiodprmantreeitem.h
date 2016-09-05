@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uiodtreeitem.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "odpresentationmgr.h"
 
 namespace OD { class PresentationManagedViewer; }
@@ -26,12 +26,12 @@ public:
     virtual		~uiODPrManagedParentTreeItem();
     void		setPRManagedViewer(OD::PresentationManagedViewer&);
 
-    void		getLoadedChildren(TypeSet<MultiID>&) const;
-    void		showHideChildren(const MultiID&,bool);
-    void		removeChildren(const MultiID&);
-    void		addChildren(const TypeSet<MultiID>&);
-    bool		selectChild(const MultiID&);
-    void		emitChildPRRequest(const MultiID&,
+    void		getLoadedChildren(TypeSet<DBKey>&) const;
+    void		showHideChildren(const DBKey&,bool);
+    void		removeChildren(const DBKey&);
+    void		addChildren(const TypeSet<DBKey>&);
+    bool		selectChild(const DBKey&);
+    void		emitChildPRRequest(const DBKey&,
 					   OD::PresentationRequestType);
 
     virtual const char* childObjTypeKey() const			=0;
@@ -42,7 +42,7 @@ protected:
     virtual void	objHiddenCB(CallBacker*);
     virtual void	objOrphanedCB(CallBacker*);
 
-    virtual void	addChildItem(const MultiID&)		{}
+    virtual void	addChildItem(const DBKey&)		{}
 };
 
 
@@ -50,12 +50,12 @@ mExpClass(uiTools) uiODPrManagedTreeItem : public uiODTreeItem
 { mODTextTranslationClass(uiODPrManagedTreeItem)
 public:
 			uiODPrManagedTreeItem(const uiString&);
-    const MultiID&	storedID() const		{ return storedid_; }
+    const DBKey&	storedID() const		{ return storedid_; }
     void		emitPRRequest(OD::PresentationRequestType);
     virtual void	handleItemCheck(bool triggerdispreq=true)	{}
 
 protected:
-    MultiID			storedid_;
+    DBKey			storedid_;
 
     virtual OD::ViewerID	getViewerID() const		=0;
     virtual OD::ObjPresentationInfo* getObjPRInfo()		{ return 0; }

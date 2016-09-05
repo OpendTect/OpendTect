@@ -24,11 +24,11 @@ mExpClass(WellAttrib) LogCubeCreator : public ParallelTask
 { mODTextTranslationClass(LogCubeCreator)
 public:
 			LogCubeCreator(const BufferStringSet& lognms,
-				       const MultiID& wllid,
+				       const DBKey& wllid,
 				       const Well::ExtractParams& pars,
 				       int nrtrcs=1);
 			LogCubeCreator(const BufferStringSet& lognms,
-				       const TypeSet<MultiID>& wllids,
+				       const TypeSet<DBKey>& wllids,
 				       const Well::ExtractParams& pars,
 				       int nrtrcs=1);
 			~LogCubeCreator();
@@ -70,7 +70,7 @@ protected:
 
     mStruct(WellAttrib) WellData : public CallBacker
     {
-				WellData(const MultiID& wid);
+				WellData(const DBKey& wid);
 				~WellData();
 
 	bool			isOK() const { return errmsg_.isEmpty(); }
@@ -93,7 +93,7 @@ protected:
     od_int64			nrdone_;
 
     bool			init(const BufferStringSet& lognms,
-				     const TypeSet<MultiID>& wllids);
+				     const TypeSet<DBKey>& wllids);
     bool			doPrepare(int);
     bool			doWork(od_int64,od_int64,int);
     bool			doFinish(bool);

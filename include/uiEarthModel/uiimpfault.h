@@ -30,7 +30,7 @@ mExpClass(uiEarthModel) uiImportFault : public uiDialog
 { mODTextTranslationClass(uiImportFault);
 public:
 			~uiImportFault();
-    MultiID		getSelID() const;
+    DBKey		getSelID() const;
 
     Notifier<uiImportFault> importReady;
 

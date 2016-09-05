@@ -90,7 +90,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 #   define mErrCont(s) { errmsg_ = s; continue; }
     while ( !atEndOfSection(astrm.next()) )
     {
-	MultiID mid( astrm.keyWord() );
+	DBKey mid( astrm.keyWord() );
 
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
@@ -133,12 +133,12 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 
 bool MultiCubeSeisPSReader::putTo( const char* fnm ) const
 {
-    ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
+    ObjectSet<DBKey> keys; TypeSet<float> offs; TypeSet<int> comps;
     for ( int irdr=0; irdr<rdrs_.size(); irdr++ )
     {
 	const IOObj* ioobj = rdrs_[irdr]->ioObj();
 	if ( !ioobj ) continue;
-	keys += new MultiID( ioobj->key() );
+	keys += new DBKey( ioobj->key() );
 	offs += offs_[irdr];
 	comps += comps_[irdr];
     }
@@ -152,7 +152,7 @@ bool MultiCubeSeisPSReader::putTo( const char* fnm ) const
 }
 
 
-bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<MultiID>& keys,
+bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<DBKey>& keys,
 		TypeSet<float>& offs, TypeSet<int>& comps, uiString& emsg )
 {
     od_istream strm( fnm );
@@ -167,7 +167,7 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<MultiID>& keys,
 
     while ( !atEndOfSection(astrm.next()) )
     {
-	const MultiID ky( astrm.keyWord() );
+	const DBKey ky( astrm.keyWord() );
 	const FileMultiString fms( astrm.value() );
 	if ( ky.isEmpty() || fms.size() < 1 )
 	    continue;
@@ -180,7 +180,7 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<MultiID>& keys,
 	if ( mIsUdf(offset) || offset < 0 || icomp < 0 )
 	    continue;
 
-	keys += new MultiID( ky );
+	keys += new DBKey( ky );
 	offs += offset; comps += icomp;
     }
 
@@ -194,7 +194,7 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<MultiID>& keys,
 
 
 bool MultiCubeSeisPSReader::writeData( const char* fnm,
-	const ObjectSet<MultiID>& keys, const TypeSet<float>& offs,
+	const ObjectSet<DBKey>& keys, const TypeSet<float>& offs,
 	const TypeSet<int>& comps, uiString& emsg )
 {
     od_ostream strm( fnm );

@@ -62,14 +62,14 @@ uiHorizonAuxDataDlg( uiParent* p,
 ~uiHorizonAuxDataDlg()
 { delete auxinfo_; }
 
-const MultiID&	selected() const
+const DBKey&	selected() const
 { return selmid_; }
 
 int dataidx()
 { return auxidx_; }
 
 
-void setSelection( const MultiID& mid, int auxidx )
+void setSelection( const DBKey& mid, int auxidx )
 {
     if ( auxidx_==auxidx && selmid_==mid )
 	return;
@@ -114,7 +114,7 @@ void selChg( CallBacker* )
     uiListBox*			horlistfld_;
     uiListBox*			datalistfld_;
     int				auxidx_;
-    MultiID			selmid_;
+    DBKey			selmid_;
     uiHorizonAuxDataSel::HorizonAuxDataInfo* auxinfo_;
 };
 
@@ -160,7 +160,7 @@ uiHorizonAuxDataSel::HorizonAuxDataInfo::~HorizonAuxDataInfo()
 }
 
 
-uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
+uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const DBKey& mid,
 	int auxidx, const HorizonAuxDataInfo* auxinfo )
     : uiGroup( p )
     , selmid_( mid )

@@ -36,12 +36,12 @@ public:
     Conn*		getConn(bool) const;
     IOObj*		getIOObj() const;
 
-    const MultiID&	ownKey() const			{ return ownkey_; }
-    void		setOwnKey(const MultiID&);
+    const DBKey&	ownKey() const			{ return ownkey_; }
+    void		setOwnKey(const DBKey&);
 
 protected:
 
-    MultiID		ownkey_;
+    DBKey		ownkey_;
 
     bool		getFrom(ascistream&);
     bool		putTo(ascostream&) const;

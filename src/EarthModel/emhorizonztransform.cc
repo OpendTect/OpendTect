@@ -163,7 +163,7 @@ bool HorizonZTransform::usePar( const IOPar& par )
     if ( !ZAxisTransform::usePar( par ) )
 	return false;
 
-    MultiID mid;
+    DBKey mid;
     if ( !par.get( sKeyHorizonID(), mid ) )
 	return true;
 

@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "bufstring.h"
 #include "uistring.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ranges.h"
 #include "sets.h"
 #include "uistring.h"
@@ -65,7 +65,7 @@ public:
 			//!< Not usable in 'normal' work.
     void		preparePreSet(IOPar&,const char*) const;
 
-    const MultiID&	outputID() const	{ return seisoutid_; }
+    const DBKey&	outputID() const	{ return seisoutid_; }
 
     static BufferString	getDefTempStorDir(const char* storpth=0);
     static const char*	outputKey(const IOPar&);
@@ -83,8 +83,8 @@ protected:
     CtxtIOObj&		ctio_;
     bool		is2d_;
     BufferString	seisoutkey_;
-    MultiID		seisoutid_;
-    MultiID		tmpstorid_;
+    DBKey		seisoutid_;
+    DBKey		tmpstorid_;
     const BufferString	progname_;
     mutable uiString	errmsg_;
     int			nrrunners_;
@@ -95,7 +95,7 @@ protected:
     JobDescProv*	mk2DJobProv();
     JobDescProv*	mk3DJobProv(int ninlperjob);
     void		getMissingLines(TypeSet<int>&) const;
-    MultiID		tempStorID() const;
+    DBKey		tempStorID() const;
 
 };
 

@@ -444,7 +444,7 @@ SaveableManager::IdxType SaveableManager::size() const
 }
 
 
-MultiID SaveableManager::getIDByIndex( IdxType idx ) const
+DBKey SaveableManager::getIDByIndex( IdxType idx ) const
 {
     mLock4Read();
     return savers_.validIdx(idx) ? savers_[idx]->key() : ObjID::udf();

@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "emposid.h"
 #include "enums.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ranges.h"
 #include "rowcol.h"
 
@@ -112,7 +112,7 @@ public:
     bool			store(const IOObj*);
 				/*!< ioobj is not transferred */
 
-    const MultiID&		storageID() const;
+    const DBKey&		storageID() const;
     bool			zIsTime() const		{ return zit_; }
 
     Smoother1D<float>*		getSmoother()		{ return smoother_; }
@@ -131,11 +131,11 @@ public:
     float			refOffset() const	{ return refoffset_; }
     void			setReferenceOffset(float n);
 
-    const MultiID&		gatherID() const;
-    void			setGatherID(const MultiID&);
+    const DBKey&		gatherID() const;
+    void			setGatherID(const DBKey&);
 
 
-    void			addHorizon(const MultiID&,
+    void			addHorizon(const DBKey&,
 					   bool addzeroonfail=false);
     void			addHorizon(EM::Horizon3D*);
     int				nrHorizons() const;
@@ -180,10 +180,10 @@ protected:
     void			horizonChangeCB(CallBacker*);
 
     float			refoffset_;
-    MultiID			gatherid_;
+    DBKey			gatherid_;
     bool			load(const IOObj*);
     StepInterval<float>		snapper_;
-    MultiID			storageid_;
+    DBKey			storageid_;
     MultiDimStorage<Pick>	picks_;
 
     Undo*			undo_;
@@ -207,7 +207,7 @@ public:
 				PicksMgr();
 				~PicksMgr();
 
-    Picks*			get(const MultiID&,bool gathermid,
+    Picks*			get(const DBKey&,bool gathermid,
 				    bool create, bool forcefromstorage );
 
     const char*			errMsg() const;

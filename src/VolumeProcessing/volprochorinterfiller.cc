@@ -11,7 +11,7 @@
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "mousecursor.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 
@@ -44,7 +44,7 @@ void HorInterFiller::releaseData()
 }
 
 
-bool HorInterFiller::setTopHorizon( const MultiID* tmid )
+bool HorInterFiller::setTopHorizon( const DBKey* tmid )
 {
     if ( !tmid )
     {
@@ -62,7 +62,7 @@ bool HorInterFiller::setTopHorizon( const MultiID* tmid )
 }
 
 
-const MultiID* HorInterFiller::getTopHorizonID() const
+const DBKey* HorInterFiller::getTopHorizonID() const
 { return tophorizon_ ? &tophorizon_->multiID() : 0; }
 
 
@@ -70,7 +70,7 @@ float HorInterFiller::getTopValue() const
 { return topvalue_; }
 
 
-const MultiID* HorInterFiller::getBottomHorizonID() const
+const DBKey* HorInterFiller::getBottomHorizonID() const
 { return bottomhorizon_ ? &bottomhorizon_->multiID() : 0; }
 
 
@@ -102,7 +102,7 @@ void HorInterFiller::setGradient( float g )
 { gradient_ = g; }
 
 
-bool HorInterFiller::setBottomHorizon( const MultiID* bmid )
+bool HorInterFiller::setBottomHorizon( const DBKey* bmid )
 {
     if ( !bmid )
     {
@@ -120,7 +120,7 @@ bool HorInterFiller::setBottomHorizon( const MultiID* bmid )
 }
 
 
-EM::Horizon* HorInterFiller::loadHorizon( const MultiID& mid ) const
+EM::Horizon* HorInterFiller::loadHorizon( const DBKey& mid ) const
 {
     RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
     mDynamicCastGet( EM::Horizon*, newhor, emobj.ptr() );
@@ -287,11 +287,11 @@ bool HorInterFiller::usePar( const IOPar& pars )
     pars.get( sKeyBotValue(), bottomvalue_ );
     pars.get( sKeyTopValue(), topvalue_ );
 
-    MultiID tophorid;
+    DBKey tophorid;
     if ( pars.get( sKeyTopHorID(), tophorid) && !setTopHorizon( &tophorid ) )
 	return false;
 
-    MultiID bottomhorid;
+    DBKey bottomhorid;
     if ( pars.get( sKeyBotHorID(), bottomhorid ) &&
 	 !setBottomHorizon( &bottomhorid ) )
 	return false;

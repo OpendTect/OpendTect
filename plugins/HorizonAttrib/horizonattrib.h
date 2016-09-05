@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "horizonattribmod.h"
 #include "attribprovider.h"
 #include "bufstring.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 namespace EM { class Horizon; }
 
@@ -53,7 +53,7 @@ protected:
 
     void		fillLineID();
 
-    MultiID		horid_;
+    DBKey		horid_;
     BufferString	surfdatanm_;
     int			outtype_;
     bool		relz_;

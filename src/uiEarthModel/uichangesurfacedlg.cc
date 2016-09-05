@@ -87,7 +87,7 @@ bool uiChangeHorizonDlg::readHorizon()
     if ( !inputfld_->ctxtIOObj().ioobj_ )
 	return false;
 
-    const MultiID& mid = inputfld_->ctxtIOObj().ioobj_->key();
+    const DBKey& mid = inputfld_->ctxtIOObj().ioobj_->key();
     EM::Horizon* hor = savefldgrp_->readHorizon( mid );
     if ( !hor ) return false;
 

@@ -53,7 +53,7 @@ mExpClass(uiSeis) uiPreStackCopyDlg : public uiDialog
 { mODTextTranslationClass(uiPreStackCopyDlg);
 public:
 
-			uiPreStackCopyDlg(uiParent*,const MultiID&);
+			uiPreStackCopyDlg(uiParent*,const DBKey&);
 
     uiPreStackOutputGroup* outputGroup()		{ return outgrp_; }
 

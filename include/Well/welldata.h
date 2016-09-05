@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "wellcommon.h"
 #include "sharedobject.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 
 namespace Well
@@ -43,8 +43,8 @@ public:
 				mDeclMonitorableAssignment(Data);
 				mDeclInstanceCreatedNotifierAccess(Data);
 
-    const MultiID&		multiID() const		{ return mid_; }
-    void			setMultiID( const MultiID& mid ) const
+    const DBKey&		multiID() const		{ return mid_; }
+    void			setDBKey( const DBKey& mid ) const
 				{ mid_ = mid; }
 
     const Info&			info() const		{ return info_; }
@@ -117,7 +117,7 @@ protected:
     D2TModel*		gtMdlPtr(bool) const;
 
     // has to go:
-    mutable MultiID	mid_;
+    mutable DBKey	mid_;
 
 };
 
@@ -126,13 +126,13 @@ mExpClass(Well) ManData
 {
 public:
 
-			ManData(const MultiID&);
+			ManData(const DBKey&);
 
     bool		isAvailable() const;
     Well::Data&		data();
     const Well::Data&	data() const;
 
-    MultiID		id_;
+    DBKey		id_;
 
 };
 

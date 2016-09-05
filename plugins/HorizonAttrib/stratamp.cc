@@ -117,7 +117,7 @@ int StratAmpCalc::init( const IOPar& pars )
     {
 	const StringPair strpair( targetdesc->getValParam(
 			Attrib::StorageProvider::keyStr())->getStringValue(0) );
-	const MultiID key( strpair.first() );
+	const DBKey key( strpair.first() );
 	PtrMan<IOObj> seisobj = IOM().get( key );
 	rdr_ = new SeisTrcReader( seisobj );
 	TrcKeyZSampling cs;

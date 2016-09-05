@@ -674,7 +674,7 @@ bool EMImplicitBodyProvider::initialize( TaskRunner* taskr )
 
 void EMImplicitBodyProvider::usePar( const IOPar& iop )
 {
-    MultiID mid;
+    DBKey mid;
     if ( !iop.get( mGetBodyKey("ID"), mid ) )
 	return;
 

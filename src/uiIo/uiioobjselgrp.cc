@@ -35,7 +35,7 @@ ________________________________________________________________________
 
 #define mObjTypeName ctio_.ctxt_.objectTypeName()
 
-static const MultiID udfmid( "-1" );
+static const DBKey udfmid( "-1" );
 
 
 
@@ -53,13 +53,13 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
 }
 
 
-MultiID currentID() const
+DBKey currentID() const
 {
     return selgrp_->currentID();
 }
 
 
-void getChosenIDs( TypeSet<MultiID>& mids ) const
+void getChosenIDs( TypeSet<DBKey>& mids ) const
 {
     selgrp_->getChosen( mids );
 }
@@ -310,14 +310,14 @@ void uiIOObjSelGrp::setChosen( int idx, bool yn )
 void uiIOObjSelGrp::chooseAll( bool yn ) { listfld_->chooseAll(yn);}
 
 
-MultiID uiIOObjSelGrp::currentID() const
+DBKey uiIOObjSelGrp::currentID() const
 {
     const int selidx = listfld_->currentItem();
-    return ioobjids_.validIdx(selidx) ?  *ioobjids_[selidx] : MultiID("");
+    return ioobjids_.validIdx(selidx) ?  *ioobjids_[selidx] : DBKey("");
 }
 
 
-const MultiID& uiIOObjSelGrp::chosenID( int objnr ) const
+const DBKey& uiIOObjSelGrp::chosenID( int objnr ) const
 {
     for ( int idx=0; idx<listfld_->size(); idx++ )
     {
@@ -334,7 +334,7 @@ const MultiID& uiIOObjSelGrp::chosenID( int objnr ) const
 }
 
 
-void uiIOObjSelGrp::getChosen( TypeSet<MultiID>& mids ) const
+void uiIOObjSelGrp::getChosen( TypeSet<DBKey>& mids ) const
 {
     mids.setEmpty();
     const int nrchosen = nrChosen();
@@ -364,7 +364,7 @@ void uiIOObjSelGrp::setCurrent( int curidx )
 }
 
 
-void uiIOObjSelGrp::setCurrent( const MultiID& mid )
+void uiIOObjSelGrp::setCurrent( const DBKey& mid )
 {
     const int idx = indexOf( ioobjids_, mid );
     if ( idx >= 0 )
@@ -372,7 +372,7 @@ void uiIOObjSelGrp::setCurrent( const MultiID& mid )
 }
 
 
-void uiIOObjSelGrp::setChosen( const TypeSet<MultiID>& mids )
+void uiIOObjSelGrp::setChosen( const TypeSet<DBKey>& mids )
 {
     if ( mids.isEmpty() )
 	return;
@@ -416,7 +416,7 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	    uiMSG().error(tr("Internal error: "
 			     "Cannot retrieve %1 details from data store")
 			.arg(mObjTypeName));
-	    IOM().to( MultiID(0) );
+	    IOM().to( DBKey(0) );
 	    fullUpdate( -1 );
 	    return false;
 	}
@@ -518,7 +518,7 @@ bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
 	iop.set( sKey::ID(), ctio_.ioobj_->key() );
     else
     {
-	TypeSet<MultiID> mids; getChosen( mids );
+	TypeSet<DBKey> mids; getChosen( mids );
 	iop.set( sKey::Size(), mids.size() );
 	for ( int idx=0; idx<mids.size(); idx++ )
 	    iop.set( IOPar::compKey(sKey::ID(),idx), mids[idx] );
@@ -535,7 +535,7 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
 	const char* res = iop.find( sKey::ID() );
 	if ( !res || !*res ) return;
 
-	const int selidx = indexOf( ioobjids_, MultiID(res) );
+	const int selidx = indexOf( ioobjids_, DBKey(res) );
 	if ( selidx >= 0 )
 	    setCurrent( selidx );
     }
@@ -543,10 +543,10 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
     {
 	int nrids;
 	iop.get( sKey::Size(), nrids );
-	TypeSet<MultiID> mids;
+	TypeSet<DBKey> mids;
 	for ( int idx=0; idx<nrids; idx++ )
 	{
-	    MultiID mid;
+	    DBKey mid;
 	    if ( iop.get(IOPar::compKey(sKey::ID(),idx),mid) )
 		mids += mid;
 	}
@@ -556,7 +556,7 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
 }
 
 
-void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
+void uiIOObjSelGrp::fullUpdate( const DBKey& ky )
 {
     int selidx = indexOf( ioobjids_, ky );
     fullUpdate( selidx );
@@ -591,7 +591,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	// 'uiIOObjEntryInfo'
 	BufferString dispnm( del[idx]->name() );
 	BufferString ioobjnm;
-	MultiID objid( udfmid );
+	DBKey objid( udfmid );
 	const char* icnm = 0;
 
 	if ( !ioobj )
@@ -626,7 +626,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	}
 
 	//TODO cleaner is to put this into one object: uiIOObjEntryInfo
-	ioobjids_ += new MultiID( objid );
+	ioobjids_ += new DBKey( objid );
 	ioobjnms_.add( ioobjnm );
 	dispnms_.add( dispnm );
 	if ( icsel_ )
@@ -682,7 +682,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
 
     ioobjnms_.add( ioobj->name() );
     dispnms_.add( ioobj->name() );
-    ioobjids_ += new MultiID( ioobj->key() );
+    ioobjids_ += new DBKey( ioobj->key() );
     fillListBox();
     listfld_->setCurrentItem( ioobj->name() );
     if ( nmfld_ && ioobj->name() != seltxt )
@@ -800,7 +800,7 @@ void uiIOObjSelGrp::filtChg( CallBacker* )
 
 void uiIOObjSelGrp::objInserted( CallBacker* cb )
 {
-    mCBCapsuleUnpack( MultiID, ky, cb );
+    mCBCapsuleUnpack( DBKey, ky, cb );
     if ( !ky.isEmpty() )
 	fullUpdate( ky );
 }
@@ -831,7 +831,7 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
     ioobj->setSurveyDefault( surveydefaultsubsel_.str() );
 
     const int cursel = currentItem();
-    TypeSet<MultiID> chosenmids;
+    TypeSet<DBKey> chosenmids;
     getChosen( chosenmids );
     fullUpdate( 0 );
     setChosen( chosenmids );
@@ -843,9 +843,9 @@ void uiIOObjSelGrp::readChoiceDone( CallBacker* )
 {
     if ( !lbchoiceio_ ) return;
 
-    TypeSet<MultiID> mids;
+    TypeSet<DBKey> mids;
     for ( int idx=0; idx<lbchoiceio_->chosenKeys().size(); idx++ )
-	mids += MultiID( lbchoiceio_->chosenKeys().get(idx).buf() );
+	mids += DBKey( lbchoiceio_->chosenKeys().get(idx).buf() );
     setChosen( mids );
 }
 

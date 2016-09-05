@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiemattribmod.h"
 #include "attribdescid.h"
 #include "uibatchprocdlg.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class NLAModel;
 class uiAttrSel;
@@ -32,11 +32,11 @@ mExpClass(uiEMAttrib) uiAttrEMOut : public uiBatchProcDlg
 { mODTextTranslationClass(uiAttrEMOut);
 public:
     			uiAttrEMOut(uiParent*,const Attrib::DescSet&,
-				    const NLAModel*,const MultiID&,const char*);
+				    const NLAModel*,const DBKey&,const char*);
 			~uiAttrEMOut();
     void		updateAttributes(const Attrib::DescSet& descset,
 					 const NLAModel* nlamodel,
-					 const MultiID& nlaid );
+					 const DBKey& nlaid );
 protected:
 
     virtual void	attribSel(CallBacker*)		=0;
@@ -47,7 +47,7 @@ protected:
 	    			   const char* idlbl,const char* outid);
 
     Attrib::DescSet*	ads_;
-    MultiID		nlaid_;
+    DBKey		nlaid_;
     Attrib::DescID	nladescid_;
     const NLAModel*	nlamodel_;
 

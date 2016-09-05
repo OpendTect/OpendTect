@@ -160,7 +160,7 @@ float PreStack::EventsAPIMgr::crlDistance() const
 
 int PreStack::EventsAPIMgr::openReader( const char* reference )
 {
-    const MultiID mid( reference );
+    const DBKey mid( reference );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) return -1;
 

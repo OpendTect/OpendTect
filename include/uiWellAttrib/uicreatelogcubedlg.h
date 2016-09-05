@@ -24,7 +24,7 @@ class uiMultiWellLogSel;
 mExpClass(uiWellAttrib) uiCreateLogCubeDlg : public uiDialog
 { mODTextTranslationClass(uiCreateLogCubeDlg);
 public:
-				uiCreateLogCubeDlg(uiParent*,const MultiID*);
+				uiCreateLogCubeDlg(uiParent*,const DBKey*);
 
 protected:
 

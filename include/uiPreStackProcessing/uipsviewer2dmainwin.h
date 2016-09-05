@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 #include "uistring.h"
 
-#include "multiid.h"
+#include "dbkey.h"
 #include "trckeyzsampling.h"
 #include "flatview.h"
 
@@ -132,10 +132,10 @@ public:
 			uiStoredViewer2DMainWin(uiParent*,const char* title,
 						bool is2d=false);
 
-    void 		init(const MultiID&,const BinID& bid,bool isinl,
+    void 		init(const DBKey&,const BinID& bid,bool isinl,
 			     const StepInterval<int>&,const char* linename=0);
-    void 		setIDs(const TypeSet<MultiID>&);
-    void 		getIDs(TypeSet<MultiID>& mids) const 
+    void 		setIDs(const TypeSet<DBKey>&);
+    void 		getIDs(TypeSet<DBKey>& mids) const 
 			{ mids.copy( mids_ ); }
     void		getGatherNames(BufferStringSet& nms) const;
     virtual bool	is2D() const	{ return is2d_; }
@@ -144,7 +144,7 @@ public:
     void		angleDataCB(CallBacker*);
     
 protected:
-    TypeSet<MultiID> 	mids_;
+    TypeSet<DBKey> 	mids_;
 
     bool		is2d_;
     BufferString	linename_;

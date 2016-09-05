@@ -21,12 +21,12 @@ _______________________________________________________________________
 #include "uistring.h"
 
 #include "createlogcube.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "od_helpids.h"
 
 
 // uiCreateLogCubeDlg
-uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* key )
+uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const DBKey* key )
     : uiDialog(p,uiDialog::Setup(tr("Create Log Cube"),
 				 tr("Select logs to create new cubes"),
 				 key ? mODHelpKey(mCreateLogCubeDlgHelpID)
@@ -53,7 +53,7 @@ bool uiCreateLogCubeDlg::acceptOK()
     const Well::ExtractParams& extractparams = welllogsel_->params();
     const int nrtrcs = outputgrp_->getNrRepeatTrcs();
 
-    TypeSet<MultiID> wids;
+    TypeSet<DBKey> wids;
     welllogsel_->getSelWellIDs( wids );
     if ( wids.isEmpty() )
 	mErrRet(tr("No well selected") );

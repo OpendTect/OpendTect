@@ -223,7 +223,7 @@ IOObj* uiODViewer2DPosGrp::get2DObj()
     if ( !desc ) desc = ads.getFirstStored();
     if ( !desc ) return 0;
 
-    const MultiID stored2did( desc->getStoredID(true) );
+    const DBKey stored2did( desc->getStoredID(true) );
     return IOM().get( stored2did );
 }
 
@@ -269,7 +269,7 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 	    const IOObj* rdlobj = rdmlinefld_->ioobj(!emiterror);
 	    if ( !rdlobj )
 		return false;
-	    posdatasel_->rdmlinemultiid_ = rdlobj->key();
+	    posdatasel_->rdmlinedbkey_ = rdlobj->key();
 	    posdatasel_->rdmlineid_ =
 		Geometry::RLM().get( rdlobj->key() )->ID();
 	    break;
@@ -333,7 +333,7 @@ void uiODViewer2DPosGrp::updateTrcKeySampFld()
 	    sliceselflds_[2]->setTrcKeyZSampling( tkzs );
 	    break;
 	case Viewer2DPosDataSel::RdmLine:
-	    rdmlinefld_->setInput( posdatasel_->rdmlinemultiid_ );
+	    rdmlinefld_->setInput( posdatasel_->rdmlinedbkey_ );
 	    break;
     }
 }
@@ -343,7 +343,7 @@ void uiODViewer2DPosGrp::gen2DLine( CallBacker* )
 {
     if ( !applmgr_ ) return;
 
-    MultiID newseis2did;
+    DBKey newseis2did;
     Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
     if ( applmgr_->wellAttribServer()->create2DFromWells(newseis2did,geomid) &&
 	 geomid != Survey::GeometryManager::cUndefGeomID() )
@@ -370,10 +370,10 @@ void uiODViewer2DPosGrp::rdmLineDlgClosed( CallBacker* )
 {
     if ( !applmgr_ ) return;
 
-    const char* multiid = applmgr_->wellServer()->getRandLineMultiID();
-    if ( multiid && rdmlinefld_ )
+    const char* dbkey = applmgr_->wellServer()->getRandLineDBKey();
+    if ( dbkey && rdmlinefld_ )
     {
-	MultiID mid( multiid );
+	DBKey mid( dbkey );
 	rdmlinefld_->setInput( mid );
     }
 
@@ -434,7 +434,7 @@ void Viewer2DPosDataSel::fillPar( IOPar& iop ) const
     selspec_.fillPar( iop );
     if ( postype_ == Viewer2DPosDataSel::RdmLine )
     {
-	iop.set( sKeyRdmLineMultiID(), rdmlinemultiid_ );
+	iop.set( sKeyRdmLineDBKey(), rdmlinedbkey_ );
 	iop.set( sKeyRdmLineID(), rdmlineid_ );
     }
 
@@ -452,10 +452,10 @@ void Viewer2DPosDataSel::usePar( const IOPar& iop )
     if ( postype_ == Viewer2DPosDataSel::RdmLine )
     {
 	iop.get( sKeyRdmLineID(), rdmlineid_ );
-	iop.get( sKeyRdmLineMultiID(), rdmlinemultiid_ );
+	iop.get( sKeyRdmLineDBKey(), rdmlinedbkey_ );
     }
     else
-	rdmlinemultiid_.setUdf();
+	rdmlinedbkey_.setUdf();
 
     iop.getYN( sKeySelectData(), selectdata_ );
     iop.get( sKey::GeomID(), geomid_ );

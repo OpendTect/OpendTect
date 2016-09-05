@@ -35,7 +35,7 @@
 
 
 #define mGoToSeisDir() \
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_) )
+    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id_) )
 
 #define mGetDataSet(nm,rv) \
     if ( !isOK() || !is2D() || isPS() ) return rv; \
@@ -50,7 +50,7 @@ SeisIOObjInfo::SeisIOObjInfo( const IOObj* ioobj )
 	: ioobj_(ioobj ? ioobj->clone() : 0)		{ setType(); }
 SeisIOObjInfo::SeisIOObjInfo( const IOObj& ioobj )
 	: ioobj_(ioobj.clone())				{ setType(); }
-SeisIOObjInfo::SeisIOObjInfo( const MultiID& id )
+SeisIOObjInfo::SeisIOObjInfo( const DBKey& id )
 	: ioobj_(IOM().get(id))				{ setType(); }
 
 
@@ -445,9 +445,9 @@ static BufferStringSet& getTypes()
     return types;
 }
 
-static TypeSet<MultiID>& getIDs()
+static TypeSet<DBKey>& getIDs()
 {
-    mDefineStaticLocalObject( TypeSet<MultiID>, ids, );
+    mDefineStaticLocalObject( TypeSet<DBKey>, ids, );
     return ids;
 }
 
@@ -472,18 +472,18 @@ void SeisIOObjInfo::initDefault( const char* typ )
 }
 
 
-const MultiID& SeisIOObjInfo::getDefault( const char* typ )
+const DBKey& SeisIOObjInfo::getDefault( const char* typ )
 {
-    mDefineStaticLocalObject( const MultiID, noid, ("") );
+    mDefineStaticLocalObject( const DBKey, noid, ("") );
     const int typidx = getTypes().indexOf( typ );
     return typidx < 0 ? noid : getIDs()[typidx];
 }
 
 
-void SeisIOObjInfo::setDefault( const MultiID& id, const char* typ )
+void SeisIOObjInfo::setDefault( const DBKey& id, const char* typ )
 {
     BufferStringSet& typs = getTypes();
-    TypeSet<MultiID>& ids = getIDs();
+    TypeSet<DBKey>& ids = getIDs();
 
     const int typidx = typs.indexOf( typ );
     if ( typidx > -1 )
@@ -509,7 +509,7 @@ void SeisIOObjInfo::getComponentNames( BufferStringSet& nms,
 }
 
 
-void SeisIOObjInfo::getCompNames( const MultiID& mid, BufferStringSet& nms )
+void SeisIOObjInfo::getCompNames( const DBKey& mid, BufferStringSet& nms )
 {
     SeisIOObjInfo ioobjinf( mid );
     ioobjinf.getComponentNames( nms, Survey::GM().cUndefGeomID() );
@@ -583,7 +583,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 {
     const char* linenm = Survey::GM().getName( geomid );
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
+    const DBKey mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
     const IODir iodir( mid );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
@@ -676,7 +676,7 @@ void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
     Survey::GM().getList( lnms, gids, true );
     BoolTypeSet hasdata( gids.size(), false );
 
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
+    const DBKey mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
     const IODir iodir( mid );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )

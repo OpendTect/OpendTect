@@ -68,7 +68,7 @@ bool uiPreStackMMProc::initWork( bool retry )
 	    			PreStack::ProcessManager::sKeyInputData() );
     if ( !inpidstr || !*inpidstr )
 	mErrRet(tr("Key for input data store missing in job specification") )
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(inpidstr) );
+    PtrMan<IOObj> ioobj = IOM().get( DBKey(inpidstr) );
     if ( !ioobj )
 	mErrRet(tr("Cannot find data store with ID: %1").arg(inpidstr)) 
 

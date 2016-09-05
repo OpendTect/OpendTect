@@ -93,7 +93,7 @@ private:
 };
 
 
-/*!\brief Makes geometries accessible from a geometry ID, or a MultiID.  */
+/*!\brief Makes geometries accessible from a geometry ID, or a DBKey.  */
 
 mExpClass(Basic) GeometryManager
 { mODTextTranslationClass(GeometryManager)
@@ -104,7 +104,7 @@ public:
 
     const Geometry*		getGeometry(Geometry::ID) const;
     const Geometry*		getGeometry(const char*) const;
-    const Geometry*		getGeometry(const MultiID&) const;
+    const Geometry*		getGeometry(const DBKey&) const;
 
     const Geometry3D*		getGeometry3D(Pos::SurvID) const;
 

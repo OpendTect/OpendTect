@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 
-#include "multiid.h"
+#include "dbkey.h"
 #include "namedobj.h"
 #include "notify.h"
 #include "uistring.h"
@@ -44,7 +44,7 @@ public:
     uiString		errMsg() const		{ return errmsg_; }
 
 			//! Next functions return a new (unmanaged) IOObj
-    IOObj*		get(const MultiID&) const;
+    IOObj*		get(const DBKey&) const;
     IOObj*		getLocal(const char* objname,const char* tgname) const;
     IOObj*		getOfGroup(const char* tgname,bool first=true,
 				   bool onlyifsingle=false) const;
@@ -57,22 +57,22 @@ public:
 				   BufferString& errmsg) const;
     IOObj*		get(const char* objname,const char* tgname) const;
 
-    bool		isPresent(const MultiID&) const;
+    bool		isPresent(const DBKey&) const;
     bool		isPresent(const char*,const char* tgname=0) const;
 			/*!< Use before creating a named object
 			    \param tgname: example:
 			     EMHorizon3DTranslatorGroup::sGroupName().str() */
 
-    const MultiID&	key() const;		//!< of current IODir
+    const DBKey&	key() const;		//!< of current IODir
     const char*		curDirName() const;	//!< OS dir name
     const char*		rootDir() const		{ return rootdir_; }
     bool		isKey(const char* keystr) const;
     const char*		nameOf(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
 
-    MultiID		createNewKey(const MultiID& dirkey);
+    DBKey		createNewKey(const DBKey& dirkey);
 
-    bool		to(const MultiID&,bool force_reread=false);
+    bool		to(const DBKey&,bool force_reread=false);
     bool		toRoot(bool force_reread=false)
 			{ return to(0,force_reread); }
 
@@ -80,7 +80,7 @@ public:
 				 int translidxingroup=-1);
 				//!< will create a new entry if necessary
     bool		commitChanges(const IOObj&);
-    bool		permRemove(const MultiID&);
+    bool		permRemove(const DBKey&);
 				//!< Removes only entry in IODir
 
     const char*		surveyName() const;
@@ -94,7 +94,7 @@ public:
 			    , dirname_(dirnm)
 			    , desc_(desc)		{}
 
-	MultiID		selkey_; //!< Make sure your selkey > 200000
+	DBKey		selkey_; //!< Make sure your selkey > 200000
 				 //!< Lower than that will be refused!
 				 //!< Example: "218745"
 	BufferString	dirname_; //!< The subdirectory name in the tree
@@ -105,7 +105,7 @@ public:
 			{ return selkey_ == cdd.selkey_; }
     };
 
-    static const MultiID& addCustomDataDir(const CustomDirData&,
+    static const DBKey& addCustomDataDir(const CustomDirData&,
 					   uiString& errmsg);
 			//!< Need to do this only once per OD run
 			//!< At survey change, dir will automatically be added
@@ -118,8 +118,8 @@ public:
 			// IOMan will send out Monitorable events, but also
 			// these ones for convenience
     Notifier<IOMan>	newIODir;
-    CNotifier<IOMan,MultiID> entryAdded;
-    CNotifier<IOMan,MultiID> entryRemoved;
+    CNotifier<IOMan,DBKey> entryAdded;
+    CNotifier<IOMan,DBKey> entryRemoved;
     static ChangeType	cNewIODirChangeType()		{ return 1; }
     static ChangeType	cEntryAddedChangeType()		{ return 2; }
     static ChangeType	cEntryRemovedChangeType()	{ return 3; }
@@ -149,9 +149,9 @@ private:
 			// Not locked:
     inline bool		gtIsBad() const		{ return state_ != Good; }
     bool		setDir(const char*);
-    bool		goTo(const MultiID&,bool,AccessLockHandler&) const;
+    bool		goTo(const DBKey&,bool,AccessLockHandler&) const;
     bool		goTo(const IOSubDir*,bool,AccessLockHandler&) const;
-    IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
+    IOObj*		crWriteIOObj(const CtxtIOObj&,const DBKey&,int) const;
 
     friend class	SurveyDataTreePreparer;
     friend mGlobal(General) IOMan& IOM();

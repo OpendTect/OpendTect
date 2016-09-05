@@ -50,7 +50,7 @@ IODir::IODir( const IODir& oth )
 }
 
 
-IODir::IODir( const MultiID& ky )
+IODir::IODir( const DBKey& ky )
 	: dirname_("")
 	, key_("")
 	, mInitVarList
@@ -60,7 +60,7 @@ IODir::IODir( const MultiID& ky )
 
 
 
-void IODir::init( const MultiID& ky, bool inc_old_tmps )
+void IODir::init( const DBKey& ky, bool inc_old_tmps )
 {
     IOObj* ioobj = getObj( ky, errmsg_ );
     if ( !ioobj )
@@ -94,7 +94,7 @@ IODir& IODir::operator =( const IODir& oth )
 	Threads::Locker mylocker( oth.lock_ );
 	Threads::Locker othlocker( oth.lock_ );
 	const_cast<BufferString&>(dirname_).set( oth.dirname_ );
-	const_cast<MultiID&>(key_).set( oth.key_ );
+	const_cast<DBKey&>(key_).set( oth.key_ );
 	isok_ = oth.isok_;
 	deepCopyClone( objs_, oth.objs_ );
 	curid_ = oth.curid_;
@@ -133,7 +133,7 @@ const IOObj* IODir::get( size_type idx ) const
 }
 
 
-const IOObj* IODir::get( const MultiID& ky ) const
+const IOObj* IODir::get( const DBKey& ky ) const
 {
     Threads::Locker locker( lock_ );
     return doGet( ky );
@@ -210,12 +210,12 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     ascistream astream( strm );
     astream.next();
     FileMultiString fms( astream.value() );
-    MultiID dirky( fms[0] );
+    DBKey dirky( fms[0] );
     if ( dirky == "0" )
 	dirky = "";
     if ( dirptr )
     {
-	const_cast<MultiID&>(dirptr->key_) = dirky;
+	const_cast<DBKey&>(dirptr->key_) = dirky;
 	const SubID newid = fms.getIValue( 1 );
 	dirptr->curid_ = mIsUdf(newid) ? 0 : newid;
 	if ( IOObj::isTmpLeafID(dirptr->curid_) )
@@ -230,7 +230,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 	if ( !obj || obj->isBad() )
 	    { delete obj; continue; }
 
-	MultiID ky( obj->key() );
+	DBKey ky( obj->key() );
 	const SubID subid = ky.leafID();
 
 	if ( dirptr )
@@ -265,7 +265,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 }
 
 
-IOObj* IODir::getObj( const MultiID& ky, uiString& errmsg )
+IOObj* IODir::getObj( const DBKey& ky, uiString& errmsg )
 {
     Threads::Locker locker( static_read_lock );
 
@@ -311,14 +311,14 @@ const IOObj* IODir::doGet( const char* nm, const char* trgrpnm ) const
 }
 
 
-IODir::size_type IODir::indexOf( const MultiID& ky ) const
+IODir::size_type IODir::indexOf( const DBKey& ky ) const
 {
     Threads::Locker locker( lock_ );
     return gtIdxOf( ky );
 }
 
 
-IODir::size_type IODir::gtIdxOf( const MultiID& ky ) const
+IODir::size_type IODir::gtIdxOf( const DBKey& ky ) const
 {
     for ( size_type idx=0; idx<objs_.size(); idx++ )
     {
@@ -331,13 +331,13 @@ IODir::size_type IODir::gtIdxOf( const MultiID& ky ) const
 }
 
 
-bool IODir::isPresent( const MultiID& ky ) const
+bool IODir::isPresent( const DBKey& ky ) const
 {
     return indexOf( ky ) >= 0;
 }
 
 
-const IOObj* IODir::doGet( const MultiID& ky ) const
+const IOObj* IODir::doGet( const DBKey& ky ) const
 {
     const size_type idxof = gtIdxOf( ky );
     return idxof < 0 ? 0 : objs_[idxof];
@@ -359,7 +359,7 @@ void IODir::doReRead()
 }
 
 
-bool IODir::permRemove( const MultiID& ky )
+bool IODir::permRemove( const DBKey& ky )
 {
     Threads::Locker locker( lock_ );
     doReRead();
@@ -547,37 +547,37 @@ bool IODir::doWrite() const
 }
 
 
-MultiID IODir::newKey() const
+DBKey IODir::newKey() const
 {
     Threads::Locker locker( lock_ );
     return gtNewKey( curid_ );
 }
 
 
-MultiID IODir::newTmpKey() const
+DBKey IODir::newTmpKey() const
 {
     Threads::Locker locker( lock_ );
     return gtNewKey( curtmpid_ );
 }
 
 
-MultiID IODir::gtNewKey( const size_type& id ) const
+DBKey IODir::gtNewKey( const size_type& id ) const
 {
-    MultiID ret = key_;
+    DBKey ret = key_;
     const_cast<int&>(id)++;
     ret.add( id );
     return ret;
 }
 
 
-MultiID IODir::getNewTmpKey( const IOObjContext& ctxt )
+DBKey IODir::getNewTmpKey( const IOObjContext& ctxt )
 {
-    const IODir iodir( MultiID(ctxt.getSelKey()) );
+    const IODir iodir( DBKey(ctxt.getSelKey()) );
     return iodir.newTmpKey();
 }
 
 
-void IODir::getTmpIOObjs( const MultiID& ky, ObjectSet<IOObj>& ioobjs,
+void IODir::getTmpIOObjs( const DBKey& ky, ObjectSet<IOObj>& ioobjs,
 			  const IOObjSelConstraints* cnstrnts )
 {
     IODir iodir;
@@ -594,9 +594,9 @@ void IODir::getTmpIOObjs( const MultiID& ky, ObjectSet<IOObj>& ioobjs,
 }
 
 
-MultiID IODir::dirKeyFor( const MultiID& ky )
+DBKey IODir::dirKeyFor( const DBKey& ky )
 {
-    MultiID ret( ky.key(0) );
+    DBKey ret( ky.key(0) );
     if ( toInt(ret) < 100000 )
 	ret.setEmpty();
     return ret;

@@ -35,14 +35,14 @@ bool RemoveVelocityTag( IOObj& ioobj )
 }
 
 
-bool SetVelocityVolumeTag( IOObj& ioobj, const MultiID& velvol )
+bool SetVelocityVolumeTag( IOObj& ioobj, const DBKey& velvol )
 {
     ioobj.pars().set( VelocityDesc::sKeyVelocityVolume(), velvol );
     return IOM().commitChanges( ioobj );
 }
 
 
-bool GetVelocityVolumeTag( const IOObj& ioobj, MultiID& velvol )
+bool GetVelocityVolumeTag( const IOObj& ioobj, DBKey& velvol )
 {
     return ioobj.pars().get( VelocityDesc::sKeyVelocityVolume(), velvol );
 }
@@ -65,7 +65,7 @@ bool SetZDomainTag( IOObj& ioobj, const char* zdomain )
 }
 
 
-bool SetDepthTag( IOObj& ioobj, const MultiID* velocity )
+bool SetDepthTag( IOObj& ioobj, const DBKey* velocity )
 {
     if ( velocity && !SetVelocityVolumeTag( ioobj, *velocity ) )
 	return false;
@@ -74,7 +74,7 @@ bool SetDepthTag( IOObj& ioobj, const MultiID* velocity )
 }
 
 
-bool SetTimeTag( IOObj& ioobj, const MultiID* velocity )
+bool SetTimeTag( IOObj& ioobj, const DBKey* velocity )
 {
     if ( velocity && !SetVelocityVolumeTag( ioobj, *velocity ) )
 	return false;

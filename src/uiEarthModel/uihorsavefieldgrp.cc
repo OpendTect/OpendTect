@@ -118,7 +118,7 @@ bool uiHorSaveFieldGrp::needsFullSurveyArray() const
 
 #define mErrRet(msg) { if ( !msg.isEmpty() ) uiMSG().error( msg ); return 0; }
 
-EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
+EM::Horizon* uiHorSaveFieldGrp::readHorizon( const DBKey& mid )
 {
     EM::ObjectID oid = EM::EMM().getObjectID( mid );
     EM::EMObject* emobj = EM::EMM().getObject( oid );
@@ -199,7 +199,7 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 
     newhorizon_ = horizon;
     newhorizon_->ref();
-    newhorizon_->setMultiID( horizon_->multiID() );
+    newhorizon_->setDBKey( horizon_->multiID() );
 
     EM::SurfaceIOData sd;
     uiString errmsg;
@@ -213,7 +213,7 @@ bool uiHorSaveFieldGrp::createNewHorizon()
     if ( !loader || !TaskRunner::execute( &taskrunner, *loader ) )
 	mErrRet( tr("New horizon data loading failed") );
 
-    newhorizon_->setMultiID( outputfld_->ioobj()->key() );
+    newhorizon_->setDBKey( outputfld_->ioobj()->key() );
     File::copy( horizon_->name(), newhorizon_->name() );
 
     if ( needsFullSurveyArray() )

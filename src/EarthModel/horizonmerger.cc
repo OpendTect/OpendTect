@@ -37,7 +37,7 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
 	mDynamicCastGet(Horizon3D*,hor,EMM().getObject(objid))
 	if ( !hor ) continue;
 	inputhors_ += hor;
-	IOObjInfo oi( EMM().getMultiID(objid) );
+	IOObjInfo oi( EMM().getDBKey(objid) );
 	SurfaceIOData sd;
 	uiString errmsg;
 	if ( oi.getSurfaceData(sd,errmsg) )

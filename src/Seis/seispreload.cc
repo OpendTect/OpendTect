@@ -30,7 +30,7 @@ namespace Seis
 const char* PreLoader::sKeyLines()	{ return "Lines"; }
 const char* PreLoader::sKeyUserType()	{ return "User Type"; }
 
-PreLoader::PreLoader( const MultiID& mid, Pos::GeomID geomid, TaskRunner* trn )
+PreLoader::PreLoader( const DBKey& mid, Pos::GeomID geomid, TaskRunner* trn )
     : mid_(mid), geomid_(geomid), tr_(trn)
 {}
 
@@ -244,7 +244,7 @@ void PreLoader::load( const IOPar& iniop, TaskRunner* tr )
 
 void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 {
-    MultiID mid = MultiID::udf();
+    DBKey mid = DBKey::udf();
     iop.get( sKey::ID(), mid );
     if ( mid.isUdf() )
 	return;
@@ -349,7 +349,7 @@ void PreLoader::fillPar( IOPar& iop ) const
 
 
 // PreLoadDataEntry
-PreLoadDataEntry::PreLoadDataEntry( const MultiID& mid, Pos::GeomID geomid,
+PreLoadDataEntry::PreLoadDataEntry( const DBKey& mid, Pos::GeomID geomid,
 				    int dpid )
     : mid_(mid), geomid_(geomid), dpid_(dpid), is2d_(geomid!=-1)
 {
@@ -364,7 +364,7 @@ PreLoadDataEntry::PreLoadDataEntry( const MultiID& mid, Pos::GeomID geomid,
 }
 
 
-bool PreLoadDataEntry::equals( const MultiID& mid, Pos::GeomID geomid ) const
+bool PreLoadDataEntry::equals( const DBKey& mid, Pos::GeomID geomid ) const
 {
     return mid_==mid && geomid_==geomid;
 }
@@ -383,11 +383,11 @@ PreLoadDataManager::~PreLoadDataManager()
 }
 
 
-void PreLoadDataManager::add( const MultiID& mid, DataPack* dp )
+void PreLoadDataManager::add( const DBKey& mid, DataPack* dp )
 { add( mid, -1, dp ); }
 
 
-void PreLoadDataManager::add( const MultiID& mid, Pos::GeomID geomid,
+void PreLoadDataManager::add( const DBKey& mid, Pos::GeomID geomid,
 			      DataPack* dp )
 {
     if ( !dp ) return;
@@ -399,7 +399,7 @@ void PreLoadDataManager::add( const MultiID& mid, Pos::GeomID geomid,
 }
 
 
-void PreLoadDataManager::remove( const MultiID& mid, Pos::GeomID geomid )
+void PreLoadDataManager::remove( const DBKey& mid, Pos::GeomID geomid )
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
@@ -434,7 +434,7 @@ void PreLoadDataManager::removeAll()
 
 
 RefMan<DataPack>
-PreLoadDataManager::get( const MultiID& mid, Pos::GeomID geomid )
+PreLoadDataManager::get( const DBKey& mid, Pos::GeomID geomid )
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
@@ -446,7 +446,7 @@ PreLoadDataManager::get( const MultiID& mid, Pos::GeomID geomid )
 }
 
 
-ConstRefMan<DataPack> PreLoadDataManager::get( const MultiID& mid,
+ConstRefMan<DataPack> PreLoadDataManager::get( const DBKey& mid,
 					 Pos::GeomID geomid ) const
 { return const_cast<PreLoadDataManager*>(this)->get( mid, geomid ); }
 
@@ -461,7 +461,7 @@ ConstRefMan<DataPack> PreLoadDataManager::get( int dpid ) const
 { return const_cast<PreLoadDataManager*>(this)->get( dpid ); }
 
 
-void PreLoadDataManager::getInfo( const MultiID& mid, Pos::GeomID geomid,
+void PreLoadDataManager::getInfo( const DBKey& mid, Pos::GeomID geomid,
 				  BufferString& info ) const
 {
     const DataPack* dp = get( mid, geomid );
@@ -472,14 +472,14 @@ void PreLoadDataManager::getInfo( const MultiID& mid, Pos::GeomID geomid,
 }
 
 
-void PreLoadDataManager::getIDs( TypeSet<MultiID>& ids ) const
+void PreLoadDataManager::getIDs( TypeSet<DBKey>& ids ) const
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
 	ids += entries_[idx]->mid_;
 }
 
 
-bool PreLoadDataManager::isPresent( const MultiID& mid,
+bool PreLoadDataManager::isPresent( const DBKey& mid,
 				    Pos::GeomID geomid ) const
 {
     for ( int idx=0; idx<entries_.size(); idx++ )

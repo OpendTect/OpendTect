@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uiodprmantreeitem.h"
 #include "uistrings.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "odpresentationmgr.h"
 
 class TrcKeyZSampling;
@@ -92,7 +92,7 @@ public:
 			~uiODVw2DParentTreeItem();
     bool		init();
 
-    void		getVwr2DOjIDs(const MultiID& mid,
+    void		getVwr2DOjIDs(const DBKey& mid,
 				       TypeSet<int>& vw2ids) const;
 protected:
     uiODViewer2D*	viewer2D();

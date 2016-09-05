@@ -33,7 +33,7 @@ public:
 
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
-			SeisIOObjInfo(const MultiID&);
+			SeisIOObjInfo(const DBKey&);
 			SeisIOObjInfo(const char* ioobjnm,Seis::GeomType);
 			SeisIOObjInfo(const SeisIOObjInfo&);
 			~SeisIOObjInfo();
@@ -98,8 +98,8 @@ public:
 
     static void		initDefault(const char* type=0);
 			//!< Only does something if there is not yet a default
-    static const MultiID& getDefault(const char* type=0);
-    static void		setDefault(const MultiID&,const char* type=0);
+    static const DBKey& getDefault(const char* type=0);
+    static void		setDefault(const DBKey&,const char* type=0);
 
     static bool		hasData(Pos::GeomID);
     static void		getDataSetNamesForLine( Pos::GeomID geomid,
@@ -108,9 +108,9 @@ public:
     static void		getDataSetNamesForLine( const char* nm,
 						BufferStringSet& b,
 						Opts2D o2d=Opts2D() );
-    static void		getCompNames(const MultiID&,BufferStringSet&);
+    static void		getCompNames(const DBKey&,BufferStringSet&);
 			//!< Function useful in attribute environments
-			//!< The 'MultiID' must be IOObj_ID
+			//!< The 'DBKey' must be IOObj_ID
     static void		getLinesWithData(BufferStringSet& lnms,
 					 TypeSet<Pos::GeomID>& gids);
 

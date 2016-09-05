@@ -163,7 +163,7 @@ void uiSeisPreStackMan::copyPush( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
-    const MultiID key( curioobj_->key() );
+    const DBKey key( curioobj_->key() );
     uiPreStackCopyDlg dlg( this, key );
     dlg.go();
     selgrp_->fullUpdate( key );
@@ -174,7 +174,7 @@ void uiSeisPreStackMan::mergePush( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
-    const MultiID key( curioobj_->key() );
+    const DBKey key( curioobj_->key() );
     uiPreStackMergeDlg dlg( this );
     BufferStringSet selnms;
     selgrp_->getChosen( selnms );
@@ -186,7 +186,7 @@ void uiSeisPreStackMan::mergePush( CallBacker* )
 
 void uiSeisPreStackMan::mkMultiPush( CallBacker* )
 {
-    MultiID key; const char* toedit = 0;
+    DBKey key; const char* toedit = 0;
     if ( curioobj_ )
     {
 	key = curioobj_->key();

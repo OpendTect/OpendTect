@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "bufstringset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "seisselection.h"
 #include "uidialog.h"
 #include "uigroup.h"
@@ -53,7 +53,7 @@ public:
     virtual void	clear();
     virtual void	setInput(const IOObj&)				= 0;
     void		setInput(const TrcKeySampling&);
-    void		setInput(const MultiID&);
+    void		setInput(const DBKey&);
     void		setInput(const StepInterval<float>& zrg);
     void		setInput(const TrcKeyZSampling&);
 
@@ -121,7 +121,7 @@ protected:
     uiSeis2DLineNameSel*	singlelnmsel_;
 
     bool		multiln_;
-    MultiID		inpkey_;
+    DBKey		inpkey_;
 
     void		lineChg(CallBacker*);
 };

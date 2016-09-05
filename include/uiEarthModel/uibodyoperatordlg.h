@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uidialog.h"
 #include "uiioobjsel.h"
 
@@ -33,7 +33,7 @@ public:
     			uiBodyOperatorDlg(uiParent*);
  			~uiBodyOperatorDlg();
 
-    MultiID		getBodyMid() const { return outputfld_->key(); }
+    DBKey		getBodyMid() const { return outputfld_->key(); }
 
 protected:
 
@@ -60,7 +60,7 @@ protected:
 	bool		operator==(const BodyOperand&) const;
 	bool		isOK() const;
 
-	MultiID		mid_;
+	DBKey		mid_;
 	char 		act_;
 	bool		defined_;
     };
@@ -84,7 +84,7 @@ mExpClass(uiEarthModel) uiImplicitBodyValueSwitchDlg : public uiDialog
 public:
     			uiImplicitBodyValueSwitchDlg(uiParent*,const IOObj*);
 
-    MultiID		getBodyMid() const	{ return outputfld_->key(); }
+    DBKey		getBodyMid() const	{ return outputfld_->key(); }
 
 protected:
 

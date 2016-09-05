@@ -31,8 +31,8 @@
 
 
 IOMan* IOMan::theinst_	= 0;
-static const MultiID emptykey( "" );
-static const MultiID rootkey( "1" );
+static const DBKey emptykey( "" );
+static const DBKey rootkey( "1" );
 
 
 IOMan& IOM()
@@ -113,7 +113,7 @@ void IOMan::init()
 	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
 	const IOObjContext::StdDirData* dd
 			    = IOObjContext::getStdDirData( stdseltyp );
-	const IOObj* dirioobj = dirptr_->get( MultiID(dd->id_) );
+	const IOObj* dirioobj = dirptr_->get( DBKey(dd->id_) );
 	if ( dirioobj )
 	{
 	    if ( needsurvtype && stdseltyp == IOObjContext::Seis )
@@ -190,7 +190,7 @@ void IOMan::init()
 	iosd->key_ = dd->id_;
 	iosd->dirnm_ = rootdir_;
 	const IOObj* previoobj = prevdd
-			       ? dirptr_->get( MultiID(prevdd->id_) )
+			       ? dirptr_->get( DBKey(prevdd->id_) )
 			       : dirptr_->main();
 	int idxof = dirptr_->objs_.indexOf( (IOObj*)previoobj );
 	dirptr_->objs_.insertAfter( iosd, idxof );
@@ -499,20 +499,20 @@ bool IOMan::goTo( const IOSubDir* sd, bool forcereread,
 }
 
 
-MultiID IOMan::createNewKey( const MultiID& dirkey )
+DBKey IOMan::createNewKey( const DBKey& dirkey )
 {
     mLock4Read();
     if ( !mGoTo(dirkey,true) )
-	return MultiID::udf();
+	return DBKey::udf();
 
     if ( !dirptr_ )
-	return MultiID::udf();
+	return DBKey::udf();
 
     return dirptr_->newKey();
 }
 
 
-bool IOMan::to( const MultiID& ky, bool forcereread )
+bool IOMan::to( const DBKey& ky, bool forcereread )
 {
     mLock4Read();
     return mGoTo( ky, forcereread );
@@ -539,13 +539,13 @@ static int gtLevelOf( const char* dirnm, int startat )
 }
 
 
-bool IOMan::goTo( const MultiID& ky, bool forcereread,
+bool IOMan::goTo( const DBKey& ky, bool forcereread,
 		    AccessLockHandler& mAccessLockHandler() ) const
 {
     if ( rootdir_.isEmpty() )
 	return false;
 
-    const MultiID dirkey( IODir::dirKeyFor(ky) );
+    const DBKey dirkey( IODir::dirKeyFor(ky) );
     const bool issamedir = dirptr_ && dirkey == dirptr_->key();
     if ( !forcereread && issamedir )
 	return true;
@@ -576,12 +576,12 @@ bool IOMan::goTo( const MultiID& ky, bool forcereread,
 }
 
 
-IOObj* IOMan::get( const MultiID& k ) const
+IOObj* IOMan::get( const DBKey& k ) const
 {
     if ( !isKey(k) )
 	return 0;
 
-    MultiID ky( k );
+    DBKey ky( k );
     char* ptr = firstOcc( ky.getCStr(), '|' );
     if ( ptr ) *ptr = '\0';
     ptr = firstOcc( ky.getCStr(), ' ' );
@@ -628,7 +628,7 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
 	BufferString oky( objname+4 );
 	char* ptr = oky.find( '>' );
 	if ( ptr ) *ptr = '\0';
-	return get( MultiID(oky.buf()) );
+	return get( DBKey(oky.buf()) );
     }
 
     mLock4Read();
@@ -641,7 +641,7 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
     mUnlockAllAccess();
 
     if ( isKey(objname) )
-	return get( MultiID(objname) );
+	return get( DBKey(objname) );
 
     return 0;
 }
@@ -719,7 +719,7 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 	}
     }
 
-    IOObj* ioobj = get( MultiID(res.buf()) );
+    IOObj* ioobj = get( DBKey(res.buf()) );
     if ( !ioobj )
 	errmsg = BufferString( "Value for ", iopkey, " is invalid." );
 
@@ -756,7 +756,7 @@ const char* IOMan::nameOf( const char* id ) const
     mDeclStaticString( ret );
     ret.setEmpty();
 
-    IOObj* ioobj = get( MultiID(id) );
+    IOObj* ioobj = get( DBKey(id) );
     if ( !ioobj )
 	{ ret = "ID=<"; ret += id; ret += ">"; }
     else
@@ -776,7 +776,7 @@ const char* IOMan::curDirName() const
 }
 
 
-const MultiID& IOMan::key() const
+const DBKey& IOMan::key() const
 {
     mLock4Read();
     return dirptr_ ? dirptr_->key() : emptykey;
@@ -828,7 +828,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
     bool needstrigger = false;
     if ( !ioobj )
     {
-	const MultiID newky( mktmp ? dirptr_->newTmpKey() : dirptr_->newKey() );
+	const DBKey newky( mktmp ? dirptr_->newTmpKey() : dirptr_->newKey() );
 	ioobj = crWriteIOObj( ctio, newky, translidx );
 	if ( ioobj )
 	{
@@ -853,7 +853,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 	    transl->userName(),ctio.ctxt_.toselect_.allowtransls_) \
 	    && transl->isUserSelectable(false)
 
-IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
+IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const DBKey& newkey,
 			    int translidx ) const
 {
     const ObjectSet<const Translator>& templs =
@@ -922,7 +922,7 @@ IOObj* IOMan::get( const char* objname, const char* tgname ) const
 }
 
 
-bool IOMan::isPresent( const MultiID& id ) const
+bool IOMan::isPresent( const DBKey& id ) const
 {
     PtrMan<IOObj> obj = get( id );
     return obj != 0;
@@ -952,9 +952,9 @@ bool IOMan::commitChanges( const IOObj& ioobj )
 }
 
 
-bool IOMan::permRemove( const MultiID& ky )
+bool IOMan::permRemove( const DBKey& ky )
 {
-    const MultiID dirkey( IODir::dirKeyFor(ky) );
+    const DBKey dirkey( IODir::dirKeyFor(ky) );
     mLock4Read();
     const bool issamedir = dirptr_ && dirkey == dirptr_->key();
     bool removesucceeded;
@@ -1116,14 +1116,14 @@ static TypeSet<IOMan::CustomDirData>& getCDDs()
 }
 
 
-const MultiID& IOMan::addCustomDataDir( const IOMan::CustomDirData& dd,
+const DBKey& IOMan::addCustomDataDir( const IOMan::CustomDirData& dd,
 					uiString& errmsg )
 {
     SurveyDataTreePreparer sdtp( dd );
     if ( !sdtp.prepDirData() )
     {
 	errmsg = sdtp.errmsg_;
-	mDefineStaticLocalObject( MultiID, none, ("") );
+	mDefineStaticLocalObject( DBKey, none, ("") );
 	return none;
     }
 
@@ -1221,6 +1221,6 @@ void IOMan::findTempObjs( ObjectSet<IOObj>& ioobjs,
 	const IOObjContext::StdSelType st = (IOObjContext::StdSelType)iseltyp;
 	const IOObjContext::StdDirData* sdd = IOObjContext::getStdDirData( st );
 	if ( sdd )
-	    IODir::getTmpIOObjs( MultiID(sdd->id_), ioobjs, cnstrts );
+	    IODir::getTmpIOObjs( DBKey(sdd->id_), ioobjs, cnstrts );
     }
 }

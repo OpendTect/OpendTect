@@ -12,7 +12,7 @@ ________________________________________________________________________
 */
 
 #include "algomod.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 
 /*!
@@ -25,7 +25,7 @@ mExpClass(Algo) StaticsDesc
 public:
 			StaticsDesc();
 
-    MultiID		horizon_;
+    DBKey		horizon_;
     float		vel_;
     BufferString	velattrib_;	//attrib on statichorizon_
     					//if empty, use vel

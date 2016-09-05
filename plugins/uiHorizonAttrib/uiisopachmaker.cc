@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "iopar.h"
 #include "isopachmaker.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "posvecdataset.h"
 #include "survinfo.h"
 
@@ -53,7 +53,7 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     horsel_->selectionDone.notify( mCB(this,uiIsochronMakerGrp,toHorSel) );
     if ( !baseemobj_ )
     {
-	horsel_->setInput( MultiID("") );
+	horsel_->setInput( DBKey("") );
 	horsel_->attach( alignedBelow, basesel_ );
     }
 
@@ -77,7 +77,7 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
 
 BufferString uiIsochronMakerGrp::getHorNm( EM::ObjectID horid )
 {
-    MultiID mid( EM::EMM().getMultiID( horid ) );
+    DBKey mid( EM::EMM().getDBKey( horid ) );
     return EM::EMM().objectName( mid );
 }
 
@@ -162,7 +162,7 @@ bool uiIsochronMakerBatch::fillPar()
     if ( !grp_->fillPar( par ) )
 	return false;
 
-    MultiID mid;
+    DBKey mid;
     par.get( IsochronMaker::sKeyHorizonID(), mid );
     EM::IOObjInfo eminfo( mid );
     BufferStringSet attrnms;
@@ -227,7 +227,7 @@ bool uiIsochronMakerDlg::doWork()
 {
     IOPar par;
     grp_->fillPar(par);
-    MultiID mid1, mid2;
+    DBKey mid1, mid2;
     par.get( IsochronMaker::sKeyHorizonID(), mid1 );
     par.get( IsochronMaker::sKeyCalculateToHorID(), mid2 );
     uiTaskRunner taskrunner( this );

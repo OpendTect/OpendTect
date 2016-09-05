@@ -39,7 +39,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     , tkzs_(new TrcKeyZSampling())
     , posdlg_(0)
     , funcvals_(0)
-    , multiid_(s.multiid_)
+    , dbkey_(s.dbkey_)
 {
     setCtrlStyle( CloseOnly );
 
@@ -120,7 +120,7 @@ protected:
 { uiMSG().error(msg); return; }
 void uiFreqTaperDlg::previewPushed(CallBacker*)
 {
-    SeisIOObjInfo objinfo( multiid_ );
+    SeisIOObjInfo objinfo( dbkey_ );
     if ( !objinfo.isOK() )
 	mErrRet( tr("Cannot read input data, "
 		 "please make sure you selected valid data") );

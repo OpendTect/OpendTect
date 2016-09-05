@@ -33,11 +33,11 @@ mStruct(uiSeis) FreqTaperSetup
 		    FreqTaperSetup()
 			: hasmin_(false)
 			, hasmax_(true)
-			, multiid_(MultiID::udf())
+			, dbkey_(DBKey::udf())
 			, allfreqssetable_(false)
 			{}
 
-    MultiID		multiid_;
+    DBKey		dbkey_;
     bool		hasmin_;
     bool		hasmax_;
     Interval<float>	minfreqrg_;
@@ -194,7 +194,7 @@ protected:
     uiFuncTaperDisp*    drawer_;
     Array1DImpl<float>* funcvals_;
 
-    MultiID		multiid_;
+    DBKey		dbkey_;
     uiPushButton*	previewfld_;
     uiSliceSelDlg*	posdlg_;
     TrcKeyZSampling*	tkzs_;
@@ -212,8 +212,8 @@ public:
 
     Interval<float>	freqValues() const;
 
-    void		setMultiID( const MultiID& multiid )
-			{ freqsetup_.multiid_ = multiid; }
+    void		setDBKey( const DBKey& dbkey )
+			{ freqsetup_.dbkey_ = dbkey; }
     void		setIsMinMaxFreq(bool,bool);
     void		setInputFreqValue(float,int);
     void		setRefFreqs(Interval<float>);

@@ -69,7 +69,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	return;
     }
 
-    const MultiID key( storstr );
+    const DBKey key( storstr );
     PtrMan<IOObj> ioobj = IOM().get( key );
     SeisTrcReader rdr( ioobj );
     if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) || rdr.psIOProv() )
@@ -214,7 +214,7 @@ bool StorageProvider::checkInpAndParsAtStart()
     }
 
     const StringPair strpair( desc_.getValParam(keyStr())->getStringValue(0) );
-    const MultiID mid( strpair.first() );
+    const DBKey mid( strpair.first() );
     if ( !isOK() ) return false;
     mscprov_ = new SeisMSCProvider( mid );
 

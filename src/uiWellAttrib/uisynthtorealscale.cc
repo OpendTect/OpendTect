@@ -133,7 +133,7 @@ void drawMarkerLine( float val )
 
 uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 					const SeisTrcBuf& tb,
-					const MultiID& wid, const char* lvlnm )
+					const DBKey& wid, const char* lvlnm )
     : uiDialog(p,Setup(tr("Scale synthetics"),
 		       tr("Determine scaling for synthetics"),
 			mODHelpKey(mSynthToRealScaleHelpID) ))
@@ -525,8 +525,8 @@ bool uiSynthToRealScale::acceptOK()
 	return false;
 
     outwvltid_ = wvltfld_->key(true);
-    const MultiID horid( horfld_->key(true) );
-    const MultiID seisid( seisfld_->key(true) );
+    const DBKey horid( horfld_->key(true) );
+    const DBKey seisid( seisfld_->key(true) );
     WaveletMGR().setScalingInfo( outwvltid_, &inpwvltid_, &horid, &seisid,
 				 evfld_->levelName() );
     return true;

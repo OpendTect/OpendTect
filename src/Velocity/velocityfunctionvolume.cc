@@ -167,7 +167,7 @@ bool VolumeFunctionSource::zIsTime() const
 { return zit_; }
 
 
-bool VolumeFunctionSource::setFrom( const MultiID& velid )
+bool VolumeFunctionSource::setFrom( const DBKey& velid )
 {
     deepErase( velreader_ );
     threads_.erase();
@@ -296,7 +296,7 @@ VolumeFunctionSource::createFunction(const BinID& binid)
 }
 
 
-FunctionSource* VolumeFunctionSource::create(const MultiID& mid)
+FunctionSource* VolumeFunctionSource::create(const DBKey& mid)
 {
     VolumeFunctionSource* res = new VolumeFunctionSource;
     if ( !res->setFrom( mid ) )

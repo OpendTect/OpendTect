@@ -31,7 +31,7 @@ CrossPlot manager
 mExpClass(uiIo) DPSMergerProp 
 { mODTextTranslationClass(DPSMergerProp);
 public:
-    				DPSMergerProp( const MultiID& id, int mid,
+    				DPSMergerProp( const DBKey& id, int mid,
 					       int sid )
 				    : masterdpsid_(mid), slavedpsid_(sid)
 			       	    , newdpsid_(id), maxz_(mUdf(float))
@@ -53,7 +53,7 @@ public:
 
    int 				masterDPID() const	{ return masterdpsid_;}
    int 				slaveDPID() const	{ return slavedpsid_; }
-   const MultiID&		newDPSID() const	{ return newdpsid_; }
+   const DBKey&		newDPSID() const	{ return newdpsid_; }
    const TypeSet<int>&		masterColIDs() const	{return mastercolids_;}
    const TypeSet<int>&		slaveColIDs() const	{ return slavecolids_;}
 
@@ -80,7 +80,7 @@ protected:
    int 				slavedpsid_;
    TypeSet<int>			mastercolids_;
    TypeSet<int>			slavecolids_;
-   MultiID			newdpsid_;
+   DBKey			newdpsid_;
    float			maxhordist_;
    float			maxz_;
 };

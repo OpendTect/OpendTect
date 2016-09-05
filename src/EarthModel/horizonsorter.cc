@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 
-HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
+HorizonSorter::HorizonSorter( const TypeSet<DBKey>& ids, bool is2d )
     : Executor("Sort horizons")
     , unsortedids_(ids)
     , totalnr_(-1)
@@ -129,13 +129,13 @@ void HorizonSorter::sort()
 
 		if ( nrbelow > nrabove )
 		{
-		    MultiID mid = sortedids_[idx0];
+		    DBKey mid = sortedids_[idx0];
 		    sortedids_.removeSingle( idx0 );
 		    sortedids_.insert( idx1, mid );
 		}
 		else if ( nrbelow < nrabove )
 		{
-		    MultiID mid = sortedids_[idx1];
+		    DBKey mid = sortedids_[idx1];
 		    sortedids_.removeSingle( idx1 );
 		    sortedids_.insert( idx0, mid );
 		}
@@ -152,14 +152,14 @@ void HorizonSorter::sort()
 }
 
 
-void HorizonSorter::getSortedList( TypeSet<MultiID>& ids )
+void HorizonSorter::getSortedList( TypeSet<DBKey>& ids )
 {
     ids = sortedids_;
 }
 
 
-int HorizonSorter::getNrCrossings( const MultiID& mid1,
-				   const MultiID& mid2 ) const
+int HorizonSorter::getNrCrossings( const DBKey& mid1,
+				   const DBKey& mid2 ) const
 {
     const int idx1 = unsortedids_.indexOf( mid1 );
     const int idx2 = unsortedids_.indexOf( mid2 );

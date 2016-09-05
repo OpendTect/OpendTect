@@ -43,7 +43,7 @@ mExpClass(General) SaveableManager : public NamedMonitorable
 { mODTextTranslationClass(SaveableManager)
 public:
 
-    typedef ::MultiID				ObjID;
+    typedef ::DBKey				ObjID;
     typedef ObjectSet<Saveable>::size_type	size_type;
     typedef size_type				IdxType;
 
@@ -82,7 +82,7 @@ public:
     bool		useChangeRecord(const ObjID&,bool forundo);
 
     enum DispOpt	{ Show, Hide, Vanish };
-    void		displayRequest(const MultiID&,DispOpt=Show);
+    void		displayRequest(const DBKey&,DispOpt=Show);
 
 protected:
 

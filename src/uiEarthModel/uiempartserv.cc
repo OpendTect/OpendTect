@@ -149,13 +149,13 @@ void uiEMPartServer::survChangedCB( CallBacker* )
 }
 
 
-MultiID uiEMPartServer::getStorageID( const EM::ObjectID& emid ) const
+DBKey uiEMPartServer::getStorageID( const EM::ObjectID& emid ) const
 {
-    return em_.getMultiID(emid);
+    return em_.getDBKey(emid);
 }
 
 
-EM::ObjectID uiEMPartServer::getObjectID( const MultiID& mid ) const
+EM::ObjectID uiEMPartServer::getObjectID( const DBKey& mid ) const
 {
     return em_.getObjectID(mid);
 }
@@ -243,7 +243,7 @@ bool uiEMPartServer::import3DHorGeom( bool bulk )
 
 void uiEMPartServer::importReadyCB( CallBacker* cb )
 {
-    MultiID mid = MultiID::udf();
+    DBKey mid = DBKey::udf();
     mDynamicCastGet(uiImportHorizon*,dlg,cb)
     if ( dlg && dlg->doDisplay() )
 	mid = dlg->getSelID();
@@ -442,7 +442,7 @@ bool uiEMPartServer::isFullyLoaded( const EM::ObjectID& emid ) const
 }
 
 
-void uiEMPartServer::displayEMObject( const MultiID& mid )
+void uiEMPartServer::displayEMObject( const DBKey& mid )
 {
     selemid_ = em_.getObjectID(mid);
 
@@ -579,7 +579,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
     if ( !dlg.go() )
 	return;
 
-    TypeSet<MultiID> mids;
+    TypeSet<DBKey> mids;
     dlg.getChosen( mids );
     if ( mids.isEmpty() )
 	return;
@@ -601,7 +601,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
 	if ( !object ) continue;
 
 	object->ref();
-	object->setMultiID( mids[idx] );
+	object->setDBKey( mids[idx] );
 	objs += object;
 	loaders.add( object->loader() );
     }
@@ -621,7 +621,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     uiMultiSurfaceReadDlg dlg( parent(), typ );
     if ( !dlg.go() ) return;
 
-    TypeSet<MultiID> surfaceids;
+    TypeSet<DBKey> surfaceids;
     dlg.iogrp()->getSurfaceIds( surfaceids );
 
     EM::SurfaceIOData sd;
@@ -633,7 +633,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     if ( hor3d )
 	selectedrg_ = sel.rg;
 
-    TypeSet<MultiID> idstobeloaded;
+    TypeSet<DBKey> idstobeloaded;
     PtrMan<Executor> exec = em_.objectLoader(surfaceids,hor3d ? &sel : &orisel,
 					     &idstobeloaded);
 
@@ -704,7 +704,7 @@ int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm,
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d ) return -1;
 
-    const MultiID mid = em_.getMultiID( id );
+    const DBKey mid = em_.getDBKey( id );
     EM::IOObjInfo eminfo( mid );
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
@@ -727,7 +727,7 @@ int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm,
 bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 			const BufferStringSet& selattrnms, bool removeold )
 {
-    const MultiID mid = em_.getMultiID( id );
+    const DBKey mid = em_.getDBKey( id );
     EM::IOObjInfo eminfo( mid );
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
@@ -821,7 +821,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     if ( !hor3d )
 	return false;
 
-    const MultiID mid = em_.getMultiID( id );
+    const DBKey mid = em_.getDBKey( id );
     EM::IOObjInfo eminfo( mid );
     BufferStringSet atrrnms;
     eminfo.getAttribNames( atrrnms );
@@ -853,13 +853,13 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 
 bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
 {
-    MultiID dummykey;
+    DBKey dummykey;
     return storeObject( id, storeas, dummykey );
 }
 
 
 bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
-				  MultiID& storagekey,
+				  DBKey& storagekey,
 				  float shift ) const
 {
     EM::EMObject* object = em_.getObject( id );
@@ -869,7 +869,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
     mDynamicCastGet(EM::Body*,body,object);
 
     PtrMan<Executor> exec = 0;
-    MultiID key = object->multiID();
+    DBKey key = object->multiID();
 
     if ( storeas )
     {
@@ -886,7 +886,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	    key = dlg.ioObj() ? dlg.ioObj()->key() : "";
 	    exec = surface->geometry().saver( &sel, &key );
 	    if ( exec && dlg.replaceInTree() )
-		    surface->setMultiID( key );
+		    surface->setDBKey( key );
 
 	    mDynamicCastGet( EM::dgbSurfaceWriter*, writer, exec.ptr() );
 	    if ( writer ) writer->setShift( shift );
@@ -909,7 +909,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	    if ( dlg.ioObj() )
 	    {
 		key = dlg.ioObj()->key();
-		object->setMultiID( key );
+		object->setDBKey( key );
 	    }
 
 	    exec = object->saver();
@@ -1366,7 +1366,7 @@ void uiEMPartServer::removeUndo()
 }
 
 
-bool uiEMPartServer::loadSurface( const MultiID& mid,
+bool uiEMPartServer::loadSurface( const DBKey& mid,
 				  const EM::SurfaceIODataSelection* newsel )
 {
     if ( em_.getObject(em_.getObjectID(mid)) )
@@ -1444,7 +1444,7 @@ ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
     uiIOObjSel* horfld = new uiIOObjSel( &dlg, ctxt );
     if ( !dlg.go() || !horfld->ioobj() ) return 0;
 
-    const MultiID hormid = horfld->key();
+    const DBKey hormid = horfld->key();
     EM::ObjectID emid = getObjectID( hormid );
     if ( emid<0 || !isFullyLoaded(emid) )
     {
@@ -1480,7 +1480,7 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d )
 {
     const IODir iodir(
-	MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
+	DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
     FixedString groupstr = is2d
 	? EMHorizon2DTranslatorGroup::sGroupName()
 	: EMHorizon3DTranslatorGroup::sGroupName();
@@ -1576,13 +1576,13 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 
 #define mGetObjId( num, id ) \
 { \
-    MultiID horid = *selhorids[num]; \
+    DBKey horid = *selhorids[num]; \
     id = getObjectID(horid); \
     if ( id<0 || !isFullyLoaded(id) ) \
 	loadSurface( horid ); \
     id = getObjectID(horid); \
 }
-void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
+void uiEMPartServer::getSurfaceDef2D( const ObjectSet<DBKey>& selhorids,
 				  const BufferStringSet& selectlines,
 				  TypeSet<Coord>& coords,
 				  TypeSet<Pos::GeomID>& geomids,
@@ -1636,7 +1636,7 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 }
 
 
-void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
+void uiEMPartServer::fillPickSet( Pick::Set& ps, DBKey horid )
 {
     EM::ObjectID id = getObjectID( horid );
     if ( id<0 || !isFullyLoaded(id) )
@@ -1685,7 +1685,7 @@ void uiEMPartServer::managePreLoad()
 
 void uiEMPartServer::fillPar( IOPar& par ) const
 {
-    const TypeSet<MultiID>& mids = EM::HPreL().getPreloadedIDs();
+    const TypeSet<DBKey>& mids = EM::HPreL().getPreloadedIDs();
     for ( int idx=0; idx<mids.size(); idx++ )
 	par.set( IOPar::compKey(sKeyPreLoad(),idx), mids[idx] );
 }
@@ -1694,10 +1694,10 @@ void uiEMPartServer::fillPar( IOPar& par ) const
 bool uiEMPartServer::usePar( const IOPar& par )
 {
     const int maxnr2pl = 1000;
-    TypeSet<MultiID> mids;
+    TypeSet<DBKey> mids;
     for ( int idx=0; idx<maxnr2pl; idx++ )
     {
-	MultiID mid = MultiID::udf();
+	DBKey mid = DBKey::udf();
 	par.get( IOPar::compKey(sKeyPreLoad(),idx), mid );
 	if ( mid.isUdf() )
 	    break;

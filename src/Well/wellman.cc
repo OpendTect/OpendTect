@@ -42,16 +42,16 @@ void Well::Man::removeObject( const Well::Data* wd )
 }
 
 
-void Well::Man::add( const MultiID& key, Well::Data* wll )
+void Well::Man::add( const DBKey& key, Well::Data* wll )
 {
     if ( !wll ) return;
 
-    wll->setMultiID( key );
+    wll->setDBKey( key );
     wells_ += wll;
 }
 
 
-Well::Data* Well::Man::release( const MultiID& key )
+Well::Data* Well::Man::release( const DBKey& key )
 {
     const int idx = gtByKey( key );
     if ( idx < 0 ) return 0;
@@ -60,7 +60,7 @@ Well::Data* Well::Man::release( const MultiID& key )
 }
 
 
-Well::Data* Well::Man::get( const MultiID& key )
+Well::Data* Well::Man::get( const DBKey& key )
 {
     msg_.setEmpty();
 
@@ -85,13 +85,13 @@ Well::Data* Well::Man::get( const MultiID& key )
 }
 
 
-bool Well::Man::isLoaded( const MultiID& key ) const
+bool Well::Man::isLoaded( const DBKey& key ) const
 {
     return gtByKey( key ) >= 0;
 }
 
 
-bool Well::Man::reload( const MultiID& key )
+bool Well::Man::reload( const DBKey& key )
 {
     msg_.setEmpty();
     const int wdidx = gtByKey( key );
@@ -114,7 +114,7 @@ bool Well::Man::reload( const MultiID& key )
 }
 
 
-int Well::Man::gtByKey( const MultiID& key ) const
+int Well::Man::gtByKey( const DBKey& key ) const
 {
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
@@ -125,7 +125,7 @@ int Well::Man::gtByKey( const MultiID& key ) const
 }
 
 
-bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms )
+bool Well::Man::getLogNames( const DBKey& ky, BufferStringSet& nms )
 {
     nms.setEmpty();
     if ( MGR().isLoaded(ky) )
@@ -150,7 +150,7 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms )
 bool Well::Man::getMarkerNames( BufferStringSet& nms )
 {
     nms.setEmpty();
-    const MultiID mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
+    const DBKey mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
     const IODir iodir( mid );
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
     const IODirEntryList del( iodir, ctio->ctxt_ );
@@ -174,7 +174,7 @@ bool Well::Man::getMarkerNames( BufferStringSet& nms )
 
 IOObj* Well::findIOObj( const char* nm, const char* uwi )
 {
-    const MultiID mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
+    const DBKey mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
     const IODir iodir( mid );
     if ( nm && *nm )
     {
@@ -202,7 +202,7 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
 }
 
 
-Well::ManData::ManData( const MultiID& id )
+Well::ManData::ManData( const DBKey& id )
     : id_(id)
 {
 }

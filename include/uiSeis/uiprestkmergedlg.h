@@ -52,7 +52,7 @@ protected:
     void		setToolButtonProperty();
 
     BufferStringSet     allvolsnames_;
-    TypeSet<MultiID>    allvolsids_;
+    TypeSet<DBKey>    allvolsids_;
     ObjectSet<IOObj>    selobjs_;
 
     uiListBox*		volsbox_;

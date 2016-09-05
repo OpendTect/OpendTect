@@ -62,10 +62,10 @@ public:
     virtual bool	forRead() const;
 
     void		setInput(const IOObj&);
-    void		setInput(const MultiID&);
+    void		setInput(const DBKey&);
     virtual void	setEmpty();
 
-    MultiID		key(bool noerr=false) const;
+    DBKey		key(bool noerr=false) const;
     const IOObj*	ioobj(bool noerr=false) const;
     IOObj*		getIOObj(bool noerr=false); //!< My IOObj becomes yours
 
@@ -87,7 +87,7 @@ public:
 					//!< returns false is typed input is
 					//!< not an existing IOObj name
 
-    virtual MultiID	validKey() const; //!< no side-effects
+    virtual DBKey	validKey() const; //!< no side-effects
     virtual uiObject*	endObj(bool left);
 
     static IOObjContext	getWriteIOObjCtxt(IOObjContext);

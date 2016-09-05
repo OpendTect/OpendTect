@@ -51,7 +51,7 @@ bool uiTrackSettingsValidator::checkActiveTracker() const
 
 
 bool uiTrackSettingsValidator::checkStoredData( Attrib::SelSpec& as,
-						MultiID& key ) const
+						DBKey& key ) const
 {
     const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
     const Attrib::Desc* desc = ads ? ads->getDesc( as.id() ) : 0;
@@ -61,7 +61,7 @@ bool uiTrackSettingsValidator::checkStoredData( Attrib::SelSpec& as,
 	desc = ads ? ads->getDesc( as.id() ) : 0;
     }
 
-    key = desc ? MultiID(desc->getStoredID(false)) : MultiID::udf();
+    key = desc ? DBKey(desc->getStoredID(false)) : DBKey::udf();
     if ( key.isUdf() )
     {
 	uiMSG().error(
@@ -80,7 +80,7 @@ bool uiTrackSettingsValidator::checkStoredData( Attrib::SelSpec& as,
 }
 
 
-bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
+bool uiTrackSettingsValidator::checkPreloadedData( const DBKey& key ) const
 {
     if ( Seis::PLDM().isPresent(key) )
 	return true;

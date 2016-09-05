@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class IOObj;
 class uiIOObjSel;
@@ -88,7 +88,7 @@ public:
 				uiBodyRegionDlg(uiParent*,bool is2d);
 				~uiBodyRegionDlg();
 
-    MultiID			getBodyMid() const;
+    DBKey			getBodyMid() const;
 
 protected:
     bool			acceptOK();

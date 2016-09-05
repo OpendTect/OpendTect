@@ -202,14 +202,14 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 }
 
 
-static uiTreeItem* gtItm( const MultiID& mid, ObjectSet<uiTreeItem>& itms )
+static uiTreeItem* gtItm( const DBKey& mid, ObjectSet<uiTreeItem>& itms )
 {
     for ( int idx=0; idx<itms.size(); idx++ )
     {
 	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,itm,itms[idx])
 	const EM::ObjectID emid = itm && itm->visEMObject() ?
 		     itm->visEMObject()->getObjectID() : -1;
-	if ( mid == EM::EMM().getMultiID(emid) )
+	if ( mid == EM::EMM().getDBKey(emid) )
 	    return itms[idx];
     }
 
@@ -221,7 +221,7 @@ void uiODHorizonParentTreeItem::sort()
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
-    TypeSet<MultiID> mids, sortedmids;
+    TypeSet<DBKey> mids, sortedmids;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,itm,children_[idx])
@@ -229,7 +229,7 @@ void uiODHorizonParentTreeItem::sort()
 	    continue;
 
 	const EM::ObjectID emid = itm->visEMObject()->getObjectID();
-	mids += EM::EMM().getMultiID( emid );
+	mids += EM::EMM().getDBKey( emid );
     }
 
     EM::IOObjInfo::sortHorizonsOnZValues( mids, sortedmids );
@@ -761,7 +761,7 @@ void uiODHorizon2DParentTreeItem::sort()
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
-    TypeSet<MultiID> mids, sortedmids;
+    TypeSet<DBKey> mids, sortedmids;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,itm,children_[idx])
@@ -769,7 +769,7 @@ void uiODHorizon2DParentTreeItem::sort()
 	    continue;
 
 	const EM::ObjectID emid = itm->visEMObject()->getObjectID();
-	mids += EM::EMM().getMultiID( emid );
+	mids += EM::EMM().getDBKey( emid );
     }
 
     EM::IOObjInfo::sortHorizonsOnZValues( mids, sortedmids );

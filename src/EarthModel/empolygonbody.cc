@@ -238,7 +238,7 @@ const IOObjContext& PolygonBody::getIOObjContext() const
 }
 
 
-MultiID PolygonBody::storageID() const
+DBKey PolygonBody::storageID() const
 { return EMObject::multiID(); }
 
 
@@ -311,9 +311,9 @@ PolygonBodyGeometry::~PolygonBodyGeometry()
 
 
 Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
-				      const MultiID* key )
+				      const DBKey* key )
 {
-    const MultiID& mid = key && !(*key=="") ? *key : surface_.multiID();
+    const DBKey& mid = key && !(*key=="") ? *key : surface_.multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) { surface_.setErrMsg(uiStrings::sCantFindSurf() ); return 0; }
 

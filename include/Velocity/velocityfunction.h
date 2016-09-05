@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "velocitymod.h"
 #include "enums.h"
 #include "factory.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "position.h"
 #include "ranges.h"
 #include "refcount.h"
@@ -82,7 +82,7 @@ mExpClass(Velocity) FunctionSource : public RefCount::Referenced
 {
 public:
 				mDefineFactory1ParamInClass(
-					FunctionSource,const MultiID&,factory)
+					FunctionSource,const DBKey&,factory)
 
     virtual BufferString	userName() const;
     virtual const VelocityDesc&	getDesc() const				= 0;
@@ -93,7 +93,7 @@ public:
     ConstRefMan<Function>	getFunction(const BinID&);
     virtual Function*		createFunction(const BinID&)		= 0;
 
-    const MultiID&		multiID() const		{ return mid_; }
+    const DBKey&		multiID() const		{ return mid_; }
 
     virtual NotifierAccess*	changeNotifier()	{ return 0; }
     virtual BinID		changeBinID() const	{ return BinID(-1,-1); }
@@ -112,7 +112,7 @@ protected:
 				//!<Caller must readlock before calling
 
 
-    MultiID				mid_;
+    DBKey				mid_;
     BufferString			errmsg_;
 
     ObjectSet<Function>			functions_;

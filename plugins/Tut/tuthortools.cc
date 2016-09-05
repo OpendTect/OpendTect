@@ -160,7 +160,7 @@ int Tut::HorSmoother::nextStep()
 }
 
 
-Executor* Tut::HorSmoother::dataSaver( const MultiID& id )
+Executor* Tut::HorSmoother::dataSaver( const DBKey& id )
 {
     return horizon1_->geometry().saver( 0, &id );
 }

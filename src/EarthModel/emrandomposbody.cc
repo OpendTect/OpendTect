@@ -198,7 +198,7 @@ RandomPosBody::~RandomPosBody()
 {}
 
 
-MultiID RandomPosBody::storageID() const
+DBKey RandomPosBody::storageID() const
 { return EMObject::multiID(); }
 
 

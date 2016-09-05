@@ -276,7 +276,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 
     MouseCursorChanger chgr( MouseCursor::Wait );
     uiStringSet msgs;
-    TypeSet<MultiID> selids;
+    TypeSet<DBKey> selids;
     selgrp_->getChosen( selids );
     for ( int idx=0; idx<selids.size(); idx++ )
     {
@@ -314,7 +314,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     }
 
     chgr.restore();
-    selgrp_->fullUpdate( MultiID::udf() );
+    selgrp_->fullUpdate( DBKey::udf() );
 
     if ( !msgs.isEmpty() )
 	uiMSG().errorWithDetails(msgs);

@@ -559,7 +559,7 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
 }
 
 
-SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
+SEGY::FileIndexer::FileIndexer( const DBKey& mid, bool isvol,
 					const FileSpec& sgyfile, bool is2d,
 				        const IOPar& segypar )
     : Executor( "SEGY Indexer" )

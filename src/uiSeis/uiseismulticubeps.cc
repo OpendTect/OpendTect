@@ -60,7 +60,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     ctio_.ctxt_.forread_ = false;
     ctio_.ctxt_.fixTranslator( "MultiCube" );
     if ( ky && *ky )
-	ctio_.setObj( MultiID(ky) );
+	ctio_.setObj( DBKey(ky) );
     else
 	ctio_.setObj( 0 );
 
@@ -173,7 +173,7 @@ void uiSeisMultiCubePS::setInitial( CallBacker* cb )
 	return;
 
     uiString emsg;
-    ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
+    ObjectSet<DBKey> keys; TypeSet<float> offs; TypeSet<int> comps;
     if ( !MultiCubeSeisPSReader::readData(ctio_.ioobj_->fullUserExpr(false),
 		keys,offs,comps,emsg) )
 	{ uiMSG().error( emsg ); return; }
@@ -349,11 +349,11 @@ bool uiSeisMultiCubePS::acceptOK()
     const float convfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
     offset.scale( convfactor );
 
-    ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
+    ObjectSet<DBKey> keys; TypeSet<float> offs; TypeSet<int> comps;
     for ( int idx=0; idx<selentries_.size(); idx++ )
     {
 	const uiSeisMultiCubePSEntry& entry = *selentries_[idx];
-	keys += new MultiID( entry.ioobj_->key() );
+	keys += new DBKey( entry.ioobj_->key() );
 	offs += offset.atIndex( idx );
 	comps += entry.comp_;
     }

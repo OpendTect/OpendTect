@@ -48,10 +48,10 @@ VolProc::ChainOutput::~ChainOutput()
 }
 
 
-void VolProc::ChainOutput::setChainID( const MultiID& chainid )
+void VolProc::ChainOutput::setChainID( const DBKey& chainid )
 { chainid_ = chainid; }
 
-void VolProc::ChainOutput::setOutputID( const MultiID& outid )
+void VolProc::ChainOutput::setOutputID( const DBKey& outid )
 { outid_ = outid; }
 
 void VolProc::ChainOutput::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )

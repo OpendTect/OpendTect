@@ -80,7 +80,7 @@ void SynthGenBase::fillPar( IOPar& par ) const
 
 bool SynthGenBase::usePar( const IOPar& par )
 {
-    MultiID waveletid;
+    DBKey waveletid;
     if ( par.get(sKey::WaveletID(),waveletid) )
 	wavelet_ = WaveletMGR().fetch( waveletid );
 

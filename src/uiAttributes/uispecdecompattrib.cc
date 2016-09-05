@@ -267,7 +267,7 @@ void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
 
     if ( !dpfids_.size() )
     {
-	MultiID mid;
+	DBKey mid;
 	getInputMID( mid );
 	TrcKeyZSampling cs;
 	inpfld_->getRanges( cs );
@@ -361,14 +361,14 @@ void uiSpecDecompAttrib::setPrevSel()
 }
 
 
-void uiSpecDecompAttrib::getInputMID( MultiID& mid ) const
+void uiSpecDecompAttrib::getInputMID( DBKey& mid ) const
 {
     if ( !is2D() ) return;
 
     Desc* tmpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : 0;
     if ( !tmpdesc ) return;
 
-    mid = MultiID( tmpdesc->getStoredID().buf() );
+    mid = DBKey( tmpdesc->getStoredID().buf() );
 }
 
 

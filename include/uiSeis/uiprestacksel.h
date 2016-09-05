@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "datapack.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uidialog.h"
 #include "uigroup.h"
 #include "uistring.h"
@@ -28,15 +28,15 @@ public:
 
 			uiPreStackDataPackSelDlg(uiParent*,
 				const TypeSet<DataPack::FullID>& dpfids,
-				const MultiID& selid);
+				const DBKey& selid);
 
-    const MultiID&	getMultiID() const	{ return selid_; }
+    const DBKey&	getDBKey() const	{ return selid_; }
 
 protected:
 
     uiListBox*		datapackinpfld_;
     const TypeSet<DataPack::FullID>& dpfids_;
-    MultiID		selid_;
+    DBKey		selid_;
 
     bool		acceptOK();
 };
@@ -51,8 +51,8 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
-    void		setInput(const MultiID&);
-    MultiID		getMultiID() const;
+    void		setInput(const DBKey&);
+    DBKey		getDBKey() const;
 
     void		setDataPackInp(const TypeSet<DataPack::FullID>& ids);
     bool		commitInput();
@@ -64,7 +64,7 @@ protected:
 
     void		doSelDataPack(CallBacker*);
 
-    MultiID		selid_;
+    DBKey		selid_;
     TypeSet<DataPack::FullID> dpfids_;
 };
 

@@ -494,7 +494,7 @@ void uiODFaultToolMan::addRemoveEMObjCB( CallBacker* )
 
 struct DisplayCacheObj
 {
-    MultiID mid_;
+    DBKey mid_;
     int sceneid_;
     bool isdisplayed_;
 };
@@ -852,7 +852,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 
 	if ( currentColor() || inheritColor() )
 	{
-	    MultiID mid = auxfaultwrite_->getObjSel()->validKey();
+	    DBKey mid = auxfaultwrite_->getObjSel()->validKey();
 	    if ( !isOutputNameUsed(auxfaultwrite_) )
 		mid = auxfsswrite_->getObjSel()->validKey();
 
@@ -988,7 +988,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	return;
     }
 
-    const MultiID destmid = getObjSel()->key();
+    const DBKey destmid = getObjSel()->key();
     if ( destmid.isEmpty() )
 	return;
 
@@ -1108,7 +1108,7 @@ void uiODFaultToolMan::afterTransferUpdate()
 
 #define mGetDisplayVars( objsel, destmid, curid, sceneid ) \
 \
-    MultiID destmid = objsel->validKey(); \
+    DBKey destmid = objsel->validKey(); \
 \
     const int curid = curfltd_ ? curfltd_->id() : \
 				 ( curfssd_ ? curfssd_->id() : -1 ); \

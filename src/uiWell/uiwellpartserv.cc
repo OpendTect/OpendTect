@@ -48,7 +48,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ptrman.h"
 #include "survinfo.h"
 
@@ -63,7 +63,7 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , rdmlinedlg_(0)
     , uiwellimpdlg_(0)
     , disponcreation_(false)
-    , multiid_(0)
+    , dbkey_(0)
     , randLineDlgClosed(this)
     , uiwellpropDlgClosed(this)
     , manwelldlg_(0)
@@ -169,7 +169,7 @@ void uiWellPartServer::importMarkers()
     wellseldlg.setCaption( tr("Import Markers") );
     if ( !wellseldlg.go() ) return;
 
-    const MultiID mid = wellseldlg.chosenID();
+    const DBKey mid = wellseldlg.chosenID();
     RefMan<Well::Data> wd = Well::MGR().get( mid );
     if ( !wd ) return;
 
@@ -201,7 +201,7 @@ void uiWellPartServer::importReadyCB( CallBacker* cb )
 }
 
 
-bool uiWellPartServer::selectWells( TypeSet<MultiID>& wellids )
+bool uiWellPartServer::selectWells( TypeSet<DBKey>& wellids )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->ctxt_.forread_ = true;
@@ -215,7 +215,7 @@ bool uiWellPartServer::selectWells( TypeSet<MultiID>& wellids )
 }
 
 
-bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
+bool uiWellPartServer::editDisplayProperties( const DBKey& mid )
 {
     allapplied_ = false;
     RefMan<Well::Data> wd = Well::MGR().get( mid );
@@ -239,14 +239,14 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
 }
 
 
-int uiWellPartServer::getPropDlgIndex( const MultiID& mid )
+int uiWellPartServer::getPropDlgIndex( const DBKey& mid )
 {
     for ( int idx=0; idx<wellpropdlgs_.size(); idx++ )
     {
 	if ( !wellpropdlgs_[idx]->wellData() )
 	    continue;
 
-	const MultiID dlgid = wellpropdlgs_[idx]->wellData()->multiID();
+	const DBKey dlgid = wellpropdlgs_[idx]->wellData()->multiID();
 	if ( dlgid == mid )
 	    return idx;
     }
@@ -255,7 +255,7 @@ int uiWellPartServer::getPropDlgIndex( const MultiID& mid )
 }
 
 
-void uiWellPartServer::closePropDlg( const MultiID& mid )
+void uiWellPartServer::closePropDlg( const DBKey& mid )
 {
     const int dlgidx = getPropDlgIndex( mid );
     if ( dlgidx != -1 )
@@ -296,7 +296,7 @@ void uiWellPartServer::saveWellDispProps( const Well::Data* wd )
 }
 
 
-void uiWellPartServer::saveWellDispProps(const Well::Data& w,const MultiID& key)
+void uiWellPartServer::saveWellDispProps(const Well::Data& w,const DBKey& key)
 {
     Well::Writer wr( key, w );
     if ( !wr.putDispProps() )
@@ -326,21 +326,21 @@ void uiWellPartServer::applyAll( CallBacker* cb )
 }
 
 
-void uiWellPartServer::displayIn2DViewer( const MultiID& mid )
+void uiWellPartServer::displayIn2DViewer( const DBKey& mid )
 {
     uiWellDisplayWin* welldispwin = new uiWellDisplayWin( parent(), mid );
     welldispwin->show();
 }
 
 
-bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
+bool uiWellPartServer::hasLogs( const DBKey& wellid ) const
 {
     ConstRefMan<Well::Data> wd = Well::MGR().get( wellid );
     return wd && wd->logs().size();
 }
 
 
-void uiWellPartServer::getLogNames( const MultiID& wellid,
+void uiWellPartServer::getLogNames( const DBKey& wellid,
 					BufferStringSet& lognms ) const
 {
     ConstRefMan<Well::Data> wd = Well::MGR().get( wellid );
@@ -375,7 +375,7 @@ uiWellRockPhysLauncher( uiParent* p )
 
 bool acceptOK()
 {
-    TypeSet<MultiID> mids;
+    TypeSet<DBKey> mids;
     selgrp_->getChosen( mids );
     if ( mids.isEmpty() )
 	return false;
@@ -401,7 +401,7 @@ void uiWellPartServer::launchRockPhysics()
     else
     {
 	dlg.selgrp_->chooseAll();
-	TypeSet<MultiID> mids; dlg.selgrp_->getChosen( mids );
+	TypeSet<DBKey> mids; dlg.selgrp_->getChosen( mids );
 	uiWellLogCalc lcdlg( parent(), mids, true );
 	lcdlg.go();
     }
@@ -427,7 +427,7 @@ void uiWellPartServer::simpImp( CallBacker* cb )
     mDynamicCastGet(uiWellMan*,wm,mw)
     if ( !wm ) return;
 
-    wm->selGroup()->fullUpdate( MultiID(crwellids_.get(0)) );
+    wm->selGroup()->fullUpdate( DBKey(crwellids_.get(0)) );
 }
 
 
@@ -457,7 +457,7 @@ void uiWellPartServer::rdmlnDlgDeleted( CallBacker* )
 
 void uiWellPartServer::rdmlnDlgClosed( CallBacker* )
 {
-    multiid_ = rdmlinedlg_->getRandLineID();
+    dbkey_ = rdmlinedlg_->getRandLineID();
     disponcreation_ = rdmlinedlg_->dispOnCreation();
     sendEvent( evCleanPreview() );
     randLineDlgClosed.trigger();
@@ -513,7 +513,7 @@ static void makeTimeDepthModel( bool addwellhead, double z0, double srddepth,
 
 
 bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
-				  const char* wellname, MultiID& mid,
+				  const char* wellname, DBKey& mid,
 				  bool addwellhead )
 {
     if ( coords.isEmpty() )

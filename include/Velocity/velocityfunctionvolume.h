@@ -69,7 +69,7 @@ public:
     const VelocityDesc&		getDesc() const 	{ return desc_; }
 
     bool			zIsTime() const;
-    bool			setFrom(const MultiID& vel);
+    bool			setFrom(const DBKey& vel);
 
     VolumeFunction*		createFunction(const BinID&);
 
@@ -80,7 +80,7 @@ public:
     static const char*		sKeyZIsTime() { return "Z is Time"; }
 
 protected:
-    static FunctionSource*	create(const MultiID&);
+    static FunctionSource*	create(const DBKey&);
     				~VolumeFunctionSource();
 
     SeisTrcReader*		getReader();

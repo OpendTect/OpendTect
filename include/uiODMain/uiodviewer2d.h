@@ -198,12 +198,12 @@ public:
     void			setupNewTempFaultSS2D(EM::ObjectID emid);
 
     //PickSets
-    void			getPickSetVwr2DIDs(const MultiID& mid,
+    void			getPickSetVwr2DIDs(const DBKey& mid,
 						   TypeSet<int>& vw2ids ) const;
-    void			removePickSet(const MultiID&);
-    void			getLoadedPickSets(TypeSet<MultiID>&) const;
-    void			addPickSets(const TypeSet<MultiID>&);
-    void			setupNewPickSet(const MultiID&);
+    void			removePickSet(const DBKey&);
+    void			getLoadedPickSets(TypeSet<DBKey>&) const;
+    void			addPickSets(const TypeSet<DBKey>&);
+    void			setupNewPickSet(const DBKey&);
 
 protected:
 

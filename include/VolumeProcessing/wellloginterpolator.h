@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "volprocstep.h"
 
 #include "enums.h"
-#include "multiid.h"
+#include "dbkey.h"
 class BufferStringSet;
 class Gridder2D;
 class InterpolationLayerModel;
@@ -45,10 +45,10 @@ public:
 
     bool			is2D() const;
 
-    void			setWellData(const TypeSet<MultiID>&,
+    void			setWellData(const TypeSet<DBKey>&,
 					    const char* lognm);
     void			getWellNames(BufferStringSet&) const;
-    void			getWellIDs(TypeSet<MultiID>&) const;
+    void			getWellIDs(TypeSet<DBKey>&) const;
     const char*			getLogName() const;
 
     void			setGridder(const char* nm,float radius=0);
@@ -88,7 +88,7 @@ protected:
     InterpolationLayerModel*	layermodel_;
     Gridder2D*			gridder_;
     ObjectSet<WellLogInfo>	infos_;
-    TypeSet<MultiID>		wellmids_;
+    TypeSet<DBKey>		wellmids_;
     BufferString		logname_;
 
     ExtensionModel		extension_;

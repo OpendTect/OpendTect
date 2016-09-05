@@ -514,7 +514,7 @@ bool Picks::usePar( const IOPar& par )
 	BufferString key = sKeyHorizonPrefix();
 	key += idx;
 
-	MultiID mid;
+	DBKey mid;
 	if ( !par.get( key.buf(), mid ) )
 	    continue;
 
@@ -584,7 +584,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
 }
 
 
-void Picks::addHorizon( const MultiID& mid, bool addzeroonfail )
+void Picks::addHorizon( const DBKey& mid, bool addzeroonfail )
 {
     RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobj.ptr() );
@@ -829,7 +829,7 @@ bool Picks::load( const IOObj* ioobj )
 }
 
 
-const MultiID& Picks::storageID() const
+const DBKey& Picks::storageID() const
 { return storageid_; }
 
 
@@ -1044,11 +1044,11 @@ void Picks::setAll( float vel, bool addtoundo )
 }
 
 
-const MultiID& Picks::gatherID() const
+const DBKey& Picks::gatherID() const
 { return gatherid_; }
 
 
-void Picks::setGatherID( const MultiID& m )
+void Picks::setGatherID( const DBKey& m )
 { gatherid_ = m; }
 
 
@@ -1096,7 +1096,7 @@ PicksMgr::~PicksMgr()
 { IOM().surveyToBeChanged.remove( mCB(this,PicksMgr,surveyChange) ); }
 
 
-Picks* PicksMgr::get( const MultiID& mid, bool sgmid, bool create,
+Picks* PicksMgr::get( const DBKey& mid, bool sgmid, bool create,
 		      bool forceread )
 {
     Picks* res = 0;

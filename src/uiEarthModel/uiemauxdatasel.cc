@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 
 uiEMAuxDataSel::uiEMAuxDataSel( uiParent* p, const uiString& lbl,
-				const MultiID* hormid, const char* auxdatanm )
+				const DBKey* hormid, const char* auxdatanm )
     : uiCompoundParSel( p, lbl )
     , hormid_(hormid ? *hormid : -1)
     , auxdatanm_(auxdatanm)
@@ -59,7 +59,7 @@ bool uiEMAuxDataSel::butPushCB( CallBacker* )
 }
 
 
-const MultiID& uiEMAuxDataSel::getSurfaceID() const
+const DBKey& uiEMAuxDataSel::getSurfaceID() const
 { return hormid_; }
 
 

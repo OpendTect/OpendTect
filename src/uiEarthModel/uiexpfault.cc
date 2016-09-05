@@ -150,7 +150,7 @@ bool uiExportFault::writeAscii()
     RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( ioobj->group() );
     if ( !emobj ) mErrRet(tr("Cannot add fault to EarthModel"))
 
-    emobj->setMultiID( ioobj->key() );
+    emobj->setDBKey( ioobj->key() );
     mDynamicCastGet(EM::Fault3D*,f3d,emobj.ptr())
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj.ptr())
     if ( !f3d && !fss ) return false;

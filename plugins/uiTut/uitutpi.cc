@@ -119,7 +119,7 @@ void uiTutMgr::doWells( CallBacker* )
     if ( !wd )
 	return;
 
-    const MultiID wellid = wd->getMultiID();
+    const DBKey wellid = wd->getDBKey();
     PtrMan<IOObj> ioobj = IOM().get( wellid );
     if ( !ioobj )
     {

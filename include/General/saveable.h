@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "sharedobject.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "iopar.h"
 #include "uistring.h"
 class IOObj;
@@ -33,7 +33,7 @@ public:
     bool		objectAlive() const	{ return objectalive_; }
     void		setObject(const SharedObject&);
 
-    mImplSimpleMonitoredGetSet(inline,key,setKey,MultiID,storekey_,0)
+    mImplSimpleMonitoredGetSet(inline,key,setKey,DBKey,storekey_,0)
     mImplSimpleMonitoredGetSet(inline,ioObjPars,setIOObjPars,IOPar,ioobjpars_,0)
 			// The pars will be merge()'d with the IOObj's current
 
@@ -55,7 +55,7 @@ protected:
 
     const SharedObject* object_;
     Threads::Atomic<bool> objectalive_;
-    MultiID		storekey_;
+    DBKey		storekey_;
     IOPar		ioobjpars_;
     mutable uiString	errmsg_;
     mutable Threads::Atomic<DirtyCountType> lastsavedirtycount_;

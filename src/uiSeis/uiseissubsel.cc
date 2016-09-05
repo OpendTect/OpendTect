@@ -117,7 +117,7 @@ void uiSeisSubSel::clear()
 }
 
 
-void uiSeisSubSel::setInput( const MultiID& id )
+void uiSeisSubSel::setInput( const DBKey& id )
 {
     IOObj* ioobj = IOM().get( id );
     if ( ioobj )

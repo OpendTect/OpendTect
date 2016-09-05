@@ -283,7 +283,7 @@ const char* Translator::connType() const
 
 
 IOObj* Translator::createWriteIOObj( const IOObjContext& ctxt,
-				     const MultiID& ky ) const
+				     const DBKey& ky ) const
 {
     return ctxt.crDefaultWriteObj( *this, ky );
 }

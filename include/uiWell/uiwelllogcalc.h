@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "propertyref.h"
 
 class uiUnitSel;
@@ -31,7 +31,7 @@ namespace Well { class D2TModel; class Log; class LogSet; class Track;}
 mExpClass(uiWell) uiWellLogCalc : public uiDialog
 { mODTextTranslationClass(uiWellLogCalc);
 public:
-				uiWellLogCalc(uiParent*,const TypeSet<MultiID>&,
+				uiWellLogCalc(uiParent*,const TypeSet<DBKey>&,
 					      bool rockphysmode=false);
 				~uiWellLogCalc();
 
@@ -53,7 +53,7 @@ protected:
     Math::Formula&		form_;
     float			zsampintv_;
     BufferStringSet		lognms_;
-    const TypeSet<MultiID>	wellids_;
+    const TypeSet<DBKey>	wellids_;
     bool			havenew_;
 
     struct InpData

@@ -91,7 +91,7 @@ Well::Reader::Reader( const IOObj& ioobj, Well::Data& wd )
 }
 
 
-Well::Reader::Reader( const MultiID& ky, Well::Data& wd )
+Well::Reader::Reader( const DBKey& ky, Well::Data& wd )
     : ra_(0)
 {
     IOObj* ioobj = IOM().get( ky );
@@ -240,7 +240,7 @@ const char* Well::odIO::getMainFileName( const IOObj& ioobj )
 }
 
 
-const char* Well::odIO::getMainFileName( const MultiID& mid )
+const char* Well::odIO::getMainFileName( const DBKey& mid )
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) return 0;
@@ -310,7 +310,7 @@ Well::odReader::odReader( const IOObj& ioobj, Well::Data& w, uiString& e )
     , Well::ReadAccess(w)
 {
     wd_.info().setName( ioobj.name() );
-    wd_.setMultiID( ioobj.key() );
+    wd_.setDBKey( ioobj.key() );
 }
 
 

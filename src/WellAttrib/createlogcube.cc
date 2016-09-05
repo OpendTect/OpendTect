@@ -91,7 +91,7 @@ bool LogCubeCreator::LogCube::doWrite( const SeisTrcBuf& trcs ) const
 
 
 
-LogCubeCreator::WellData::WellData( const MultiID& wid )
+LogCubeCreator::WellData::WellData( const DBKey& wid )
     : wd_(Well::MGR().get(wid))
 {
     if ( !wd_ )
@@ -121,19 +121,19 @@ LogCubeCreator::WellData::~WellData()
 
 
 LogCubeCreator::LogCubeCreator( const BufferStringSet& lognms,
-				const MultiID& wllid,
+				const DBKey& wllid,
 				const Well::ExtractParams& pars, int nrtrcs )
     : extractparams_(pars)
     , stepout_(nrtrcs)
 {
-    TypeSet<MultiID> wllids;
+    TypeSet<DBKey> wllids;
     wllids += wllid;
     init( lognms, wllids );
 }
 
 
 LogCubeCreator::LogCubeCreator( const BufferStringSet& lognms,
-				const TypeSet<MultiID>& wllids,
+				const TypeSet<DBKey>& wllids,
 				const Well::ExtractParams& pars, int nrtrcs )
     : extractparams_(pars)
     , stepout_(nrtrcs)
@@ -150,7 +150,7 @@ LogCubeCreator::~LogCubeCreator()
 
 
 bool LogCubeCreator::init( const BufferStringSet& lognms,
-			   const TypeSet<MultiID>& wllids )
+			   const TypeSet<DBKey>& wllids )
 {
     for ( int ilog=0; ilog<lognms.size(); ilog++ )
     {
@@ -167,7 +167,7 @@ bool LogCubeCreator::init( const BufferStringSet& lognms,
     TypeSet<int> goodwells;
     for ( int iwell=0; iwell<wllids.size(); iwell++ )
     {
-	const MultiID& wllid = wllids[iwell];
+	const DBKey& wllid = wllids[iwell];
 	WellData* welldata = new WellData( wllid );
 	if ( !welldata->isOK() )
 	{

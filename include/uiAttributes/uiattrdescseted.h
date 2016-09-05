@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 
 namespace Attrib
@@ -59,7 +59,7 @@ public:
 
     void		setDescSetMan(Attrib::DescSetMan*);
     Attrib::DescSet*	getSet()		{ return attrset_; }
-    const MultiID&	curSetID() const	{ return setid_; }
+    const DBKey&	curSetID() const	{ return setid_; }
 
     uiAttrDescEd*	curDescEd();
 			//!< Use during operation only!
@@ -97,12 +97,12 @@ protected:
     Attrib::DescSetMan*		adsman_;
     Attrib::DescSet*		attrset_;
     Attrib::Desc*		prevdesc_;
-    MultiID			setid_;
+    DBKey			setid_;
     ObjectSet<uiAttrDescEd>	desceds_;
     ObjectSet<Attrib::Desc>	attrdescs_;
     BufferStringSet&		userattrnames_;
     CtxtIOObj&			setctio_;
-    MultiID			cancelsetid_;
+    DBKey			cancelsetid_;
     bool			updating_fields_;
     bool			attrsneedupdt_;
     static BufferString		nmprefgrp_;

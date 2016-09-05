@@ -497,7 +497,7 @@ float ElasticPropGen::getVal( const ElasticFormula& ef,
 
 
 
-ElasticPropSelection* ElasticPropSelection::get( const MultiID& mid )
+ElasticPropSelection* ElasticPropSelection::get( const DBKey& mid )
 {
     const IOObj* obj = mid.isEmpty() ? 0 : IOM().get( mid );
     return obj ? get( obj ) : 0;

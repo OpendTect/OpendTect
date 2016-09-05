@@ -415,10 +415,10 @@ void uiVisPartServer::findObject( const std::type_info& ti, TypeSet<int>& res )
 }
 
 
-void uiVisPartServer::findObject( const MultiID& mid, TypeSet<int>& res )
+void uiVisPartServer::findObject( const DBKey& mid, TypeSet<int>& res )
 {
     res.erase();
-    if ( mid == MultiID(-1) )
+    if ( mid == DBKey(-1) )
 	return;
 
     for ( int idx=visBase::DM().nrObjects()-1; idx>=0; idx-- )
@@ -426,7 +426,7 @@ void uiVisPartServer::findObject( const MultiID& mid, TypeSet<int>& res )
 	const visBase::DataObject* datobj = visBase::DM().getIndexedObject(idx);
 	mDynamicCastGet( const visSurvey::SurveyObject*, survobj, datobj );
 
-	if ( survobj && mid==survobj->getMultiID() )
+	if ( survobj && mid==survobj->getDBKey() )
 	    res += datobj->id();
     }
 }
@@ -486,10 +486,10 @@ NotifierAccess& uiVisPartServer::removeAllNotifier()
 }
 
 
-MultiID uiVisPartServer::getMultiID( int id ) const
+DBKey uiVisPartServer::getDBKey( int id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getMultiID() : MultiID::udf();
+    return so ? so->getDBKey() : DBKey::udf();
 }
 
 

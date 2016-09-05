@@ -30,7 +30,7 @@ mGlobal(General) bool GetVelocityTag(const IOObj&,VelocityDesc&);
 
 
 /*! Writes velocity volume information to an IOObj. */
-mGlobal(General) bool SetVelocityVolumeTag(IOObj&,const MultiID&);
+mGlobal(General) bool SetVelocityVolumeTag(IOObj&,const DBKey&);
 
 
 /*! Removes velocity volume information from an IOObj. */
@@ -38,7 +38,7 @@ mGlobal(General) bool RemoveVelocityVolumeTag(IOObj&);
     
 
 /*! Reads velocity volume information from an IOObj. */
-mGlobal(General) bool GetVelocityVolumeTag(const IOObj&,MultiID&);
+mGlobal(General) bool GetVelocityVolumeTag(const IOObj&,DBKey&);
 
 
 /*! Writes zdomain information to an IOObj. */
@@ -46,11 +46,11 @@ mGlobal(General) bool SetZDomainTag(IOObj&,const char* zdomain);
 
 
 /*! Writes depth information to an IOObj. */
-mGlobal(General) bool SetDepthTag(IOObj&,const MultiID* velocity=0);
+mGlobal(General) bool SetDepthTag(IOObj&,const DBKey* velocity=0);
 
 
 /*! Writes time information to an IOObj. */
-mGlobal(General) bool SetTimeTag(IOObj&,const MultiID* velocity=0);
+mGlobal(General) bool SetTimeTag(IOObj&,const DBKey* velocity=0);
 
 
 /*! Reads zdomain information from an IOObj. */

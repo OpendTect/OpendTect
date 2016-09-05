@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 #include "bufstringset.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class IOObjContext;
 class uiListBox;
@@ -25,11 +25,11 @@ mExpClass(uiEarthModel) uiSurfaceSel : public uiGroup
 public:
 			~uiSurfaceSel();
 
-    virtual void	getSelSurfaceIds(TypeSet<MultiID>&) const;
-    void		setSelSurfaceIds(const TypeSet<MultiID>&);
+    virtual void	getSelSurfaceIds(TypeSet<DBKey>&) const;
+    void		setSelSurfaceIds(const TypeSet<DBKey>&);
     int 		getSelItems() const;
 
-    void		removeFromList(const TypeSet<MultiID>&);
+    void		removeFromList(const TypeSet<DBKey>&);
     void		clearList();
 
 protected:
@@ -38,7 +38,7 @@ protected:
     void		getFullList();
 
     uiListBox*		listfld_;
-    TypeSet<MultiID>	mids_;
+    TypeSet<DBKey>	mids_;
     BufferStringSet	names_;
 
     IOObjContext&	ctxt_;

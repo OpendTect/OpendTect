@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "prestackprocessingmod.h"
 
 #include "mathfunc.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "namedobj.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -60,14 +60,14 @@ public:
     bool				isChanged() const { return ischanged_; }
     void				setChanged(bool yn) { ischanged_=yn; }
 
-    void				setReferenceHorizon(const MultiID&);
-    const MultiID&			getReferenceHorizon() const;
+    void				setReferenceHorizon(const DBKey&);
+    const DBKey&			getReferenceHorizon() const;
 
 protected:
 
     ObjectSet<PointBasedMathFunction>	fns_;
     TypeSet<BinID>			pos_;
-    MultiID				refhor_;
+    DBKey				refhor_;
 
     bool				ischanged_;
 

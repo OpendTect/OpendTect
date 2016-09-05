@@ -66,7 +66,7 @@ protected:
     bool			setAsRegMarkersCB(CallBacker*);
     float			zFactor() const;
     void			exportCB(CallBacker*);
-    bool			getKey(MultiID&) const;
+    bool			getKey(DBKey&) const;
     void			updateDisplayCB(CallBacker*);
     bool			rejectOK();
     bool			updateMarkerDepths(int rowidx,bool md2tvdss);

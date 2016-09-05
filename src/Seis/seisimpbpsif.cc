@@ -20,7 +20,7 @@
 #include <iostream>
 
 
-SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& id )
+SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const DBKey& id )
 	: Executor("Importing BPSIF data")
 	, datamgr_(*new SeisPSImpDataMgr(id))
 	, curfileidx_(-1)

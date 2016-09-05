@@ -60,7 +60,7 @@ public:
 			{ return &transl_ == &trl; }
 
     Notifier<uiIOObjInserter>	objectInserted;
-				//!< pass a CBCapsule<MultiID> in trigger(),
+				//!< pass a CBCapsule<DBKey> in trigger(),
 
 protected:
 

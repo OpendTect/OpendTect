@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "notify.h"
 #include "color.h"
 #include "iopar.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uistring.h"
 #include "welldisp.h"
 #include "wellmarker.h"
@@ -169,7 +169,7 @@ protected:
 mExpClass(WellAttrib) WellDataMgr : public CallBacker
 { mODTextTranslationClass(WellDataMgr);
 public:
-				WellDataMgr(const MultiID&);
+				WellDataMgr(const DBKey&);
 				~WellDataMgr();
 
     Well::Data*			wd()		{ return wellData(); }
@@ -180,7 +180,7 @@ protected:
     Well::Data*			wellData() const;
 
     Well::Data*			wd_;
-    const MultiID		wellid_;
+    const DBKey		wellid_;
     void			wellDataDelNotify(CallBacker*);
 };
 
@@ -188,7 +188,7 @@ protected:
 mExpClass(WellAttrib) DataWriter
 { mODTextTranslationClass(DataWriter);
 public:
-				DataWriter(Well::Data&,const MultiID&);
+				DataWriter(Well::Data&,const DBKey&);
 				~DataWriter();
 
     bool			writeD2TM() const;
@@ -203,7 +203,7 @@ protected:
 
     Well::Writer*		wtr_;
     Well::Data*			wd_;
-    const MultiID&		wellid_;
+    const DBKey&		wellid_;
 
     void			setWellWriter();
 };
@@ -226,7 +226,7 @@ public:
 
     void			matchHorWithMarkers(TypeSet<PosCouple>&,
 							bool bynames) const;
-    void			setUpHorizons(const TypeSet<MultiID>&,
+    void			setUpHorizons(const TypeSet<DBKey>&,
 						  uiString&,TaskRunner&);
     void			setWD( const Well::Data* wd)
 				{ wd_ = wd; }
@@ -247,7 +247,7 @@ public :
     const Well::Data*		wd() const	{ return data_->wd_; }
     Well::Data*			wd()		{ return data_->wd_; }
 
-    const MultiID&		wellID() const	{ return wellid_; }
+    const DBKey&		wellID() const	{ return wellid_; }
 
     PickSetMgr&			pickMgr()	{ return *pickmgr_; }
     D2TModelMgr&		d2TModelMgr()	{ return *d2tmgr_; }
@@ -282,7 +282,7 @@ protected :
     D2TModelMgr*		d2tmgr_;
     DataWriter*			datawriter_;
     Data*			data_;
-    MultiID			wellid_;
+    DBKey			wellid_;
 
     uiString			errmsg_;
     mutable uiString		warnmsg_;

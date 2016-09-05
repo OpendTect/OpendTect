@@ -126,7 +126,7 @@ bool uiSeisWvltImp::acceptOK()
 }
 
 
-MultiID uiSeisWvltImp::selKey() const
+DBKey uiSeisWvltImp::selKey() const
 {
     return wvltfld_->key( true );
 }

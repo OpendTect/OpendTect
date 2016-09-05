@@ -13,7 +13,7 @@ _________________________________________________________________________
 -*/
 
 #include "volumeprocessing.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 namespace VolProc
 {

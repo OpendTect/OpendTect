@@ -321,7 +321,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 				     const Interval<float>& ozr,
 				     const char* lognm )
 {
-    const MultiID key(	wellfld_->key() );
+    const DBKey key(	wellfld_->key() );
     const bool wasloaded = Well::MGR().isLoaded( key );
 
     RefMan<Well::Data> wd = Well::MGR().get( key );

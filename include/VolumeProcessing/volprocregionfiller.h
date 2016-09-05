@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "volumeprocessingmod.h"
 #include "volprocstep.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 namespace EM { class Region3D; }
 
@@ -42,10 +42,10 @@ public:
     float			getOutsideValue() const;
 
     float			getStartValue() const;
-    const MultiID&		getStartValueHorizonID() const;
+    const DBKey&		getStartValueHorizonID() const;
     int				getStartValueAuxDataIdx() const;
     float			getGradientValue() const;
-    const MultiID&		getGradientHorizonID() const;
+    const DBKey&		getGradientHorizonID() const;
     int				getGradientAuxDataIdx() const;
 
     EM::Region3D&		region();
@@ -75,8 +75,8 @@ protected:
 
     float			startval_;
     float			gradval_;
-    MultiID			startvalkey_;
-    MultiID			gradvalkey_;
+    DBKey			startvalkey_;
+    DBKey			gradvalkey_;
     int				startvalauxidx_;
     int				gradvalauxidx_;
 

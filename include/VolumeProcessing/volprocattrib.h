@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribprovider.h"
 #include "externalattrib.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uistring.h"
 
 namespace VolProc { class Chain; class ChainExecutor; }
@@ -47,7 +47,7 @@ protected:
     virtual void	prepareForComputeData();
 
     VolProc::Chain*	chain_;
-    MultiID		setupmid_;
+    DBKey		setupmid_;
     VolProc::ChainExecutor* executor_;
 };
 
@@ -71,7 +71,7 @@ public:
     static const char*	sAttribName()	{ return "Volume_Processing"; }
     static const char*	sKeySetup()	{ return "volprocsetup"; }
 
-    static BufferString	createDefinition(const MultiID& setup);
+    static BufferString	createDefinition(const DBKey& setup);
 
     bool		setTargetSelSpec(const Attrib::SelSpec&);
 
@@ -91,7 +91,7 @@ protected:
     static Attrib::ExtAttribCalc* create(const Attrib::SelSpec&);
 
     Chain*			chain_;
-    MultiID			rendermid_;
+    DBKey			rendermid_;
 
 };
 

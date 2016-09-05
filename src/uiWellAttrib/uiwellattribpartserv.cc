@@ -103,7 +103,7 @@ void uiWellAttribPartServer::previewWellto2DLine( CallBacker* )
 }
 
 
-bool uiWellAttribPartServer::create2DFromWells( MultiID& seisid,
+bool uiWellAttribPartServer::create2DFromWells( DBKey& seisid,
 						Pos::GeomID& geomid )
 {
     if ( !wellto2ddlg_ )
@@ -165,7 +165,7 @@ void uiWellAttribPartServer::doXPlot()
 }
 
 
-bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid )
+bool uiWellAttribPartServer::createAttribLog( const DBKey& wellid )
 {
     Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd )
@@ -188,7 +188,7 @@ bool uiWellAttribPartServer::createAttribLog( const BufferStringSet& wellnames )
 }
 
 
-bool uiWellAttribPartServer::createLogCube( const MultiID& wellid )
+bool uiWellAttribPartServer::createLogCube( const DBKey& wellid )
 {
     if ( wellid.isUdf() )
 	return false;
@@ -205,7 +205,7 @@ bool uiWellAttribPartServer::createLogCube( const MultiID& wellid )
 }
 
 
-bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
+bool uiWellAttribPartServer::createD2TModel( const DBKey& wid )
 {
     WellTie::Setup* wtsetup = new WellTie::Setup();
     wtsetup->wellid_ = wid;
@@ -225,7 +225,7 @@ bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiWellAttribPartServer::showAmplSpectrum( const MultiID& mid,
+bool uiWellAttribPartServer::showAmplSpectrum( const DBKey& mid,
 					       const char* lognm )
 {
     const RefMan<Well::Data> wd = Well::MGR().get( mid );

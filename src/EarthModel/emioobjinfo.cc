@@ -53,7 +53,7 @@ IOObjInfo::IOObjInfo( const IOObj& ioobj )
 }
 
 
-IOObjInfo::IOObjInfo( const MultiID& id )
+IOObjInfo::IOObjInfo( const DBKey& id )
     : ioobj_(IOM().get(id))
     , reader_(0)
 {
@@ -342,9 +342,9 @@ IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 }
 
 
-void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, TypeSet<MultiID>& ids )
+void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, TypeSet<DBKey>& ids )
 {
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
+    const DBKey mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
     const IODir iodir( mid );
     for ( int idx=0; idx<iodir.size(); idx++ )
     {
@@ -363,10 +363,10 @@ IOObjInfo::LevelID IOObjInfo::levelID() const
 
 
 void IOObjInfo::getTiedToLevelID( LevelID lvlid,
-				  TypeSet<MultiID>& ids, bool is2d )
+				  TypeSet<DBKey>& ids, bool is2d )
 {
     ids.erase();
-    TypeSet<MultiID> candidates;
+    TypeSet<DBKey> candidates;
     if ( is2d )
 	getIDs( Horizon2D, candidates );
     else
@@ -381,8 +381,8 @@ void IOObjInfo::getTiedToLevelID( LevelID lvlid,
 }
 
 
-bool IOObjInfo::sortHorizonsOnZValues( const TypeSet<MultiID>& list,
-				       TypeSet<MultiID>& sorted )
+bool IOObjInfo::sortHorizonsOnZValues( const TypeSet<DBKey>& list,
+				       TypeSet<DBKey>& sorted )
 {
     sorted.erase();
     if ( list.isEmpty() )

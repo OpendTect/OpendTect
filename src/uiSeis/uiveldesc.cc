@@ -299,7 +299,7 @@ void uiVelSel::editCB(CallBacker*)
 }
 
 
-void uiVelSel::setInput( const MultiID& mid )
+void uiVelSel::setInput( const DBKey& mid )
 {
     uiIOObjSel::setInput( mid );
     updateEditButton();

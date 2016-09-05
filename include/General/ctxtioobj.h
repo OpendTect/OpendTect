@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "namedobj.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "enums.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -80,7 +80,7 @@ public:
 
     //! this selection only
     bool		forread_;
-    MultiID		selkey_;	//!< If set, overrules the 'standard'
+    DBKey		selkey_;	//!< If set, overrules the 'standard'
     bool		maydooper_;	//!< Will we allow add/remove etc?
     BufferString	deftransl_;	//!< Translator to use for new entry
     IOObjSelConstraints toselect_;
@@ -110,9 +110,9 @@ public:
     FixedString		objectTypeName() const;
     FixedString		translatorGroupName() const;
     inline bool		hasStdSelKey() const	{ return stdseltype_ != None; }
-    MultiID		getSelKey() const;
+    DBKey		getSelKey() const;
     IOStream*		crDefaultWriteObj(const Translator&,
-					  const MultiID&) const;
+					  const DBKey&) const;
     void		fillTrGroup() const;
 			//!< Uses stdseltype_ to make a trgroup_
 			//!< Should never be necessary
@@ -124,7 +124,7 @@ public:
     mDeprecated int&			newonlevel;
     mDeprecated bool&			multi;
     mDeprecated bool&			forread;
-    mDeprecated MultiID&		selkey;
+    mDeprecated DBKey&		selkey;
     mDeprecated bool&			maydooper;
     mDeprecated BufferString&		deftransl;
     mDeprecated IOObjSelConstraints&	toselect;
@@ -162,7 +162,7 @@ public:
     virtual BufferString getName() const	{ return ctxt_.getName(); }
 
     void		setObj(IOObj*); //!< destroys previous
-    void		setObj(const MultiID&); //!< destroys previous
+    void		setObj(const DBKey&); //!< destroys previous
     void		setPar(IOPar*); //!< destroys previous
     int			fillObj(bool mktmpifnew=false,int translidxfornew=-1);
 			//!< If ioobj not valid, fills using ctxt.name()

@@ -252,7 +252,7 @@ bool uiCopySurface::acceptOK()
 
     RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( ioobj->group() );
     if ( !emobj ) mErrRet(uiStrings::phrCannotCreate(tr("Object")))
-    emobj->setMultiID( ioobj->key() );
+    emobj->setDBKey( ioobj->key() );
 
     mDynamicCastGet(EM::Surface*,surface,emobj.ptr())
     PtrMan<Executor> loader = surface->geometry().loader( &sdsel );
@@ -277,8 +277,8 @@ bool uiCopySurface::acceptOK()
 	outsdsel.rg = rp3d->sampling().hsamp_;
 
     IOObj* newioobj = outfld->ctxtIOObj().ioobj_;
-    const MultiID& mid = newioobj->key();
-    emobj->setMultiID( mid );
+    const DBKey& mid = newioobj->key();
+    emobj->setDBKey( mid );
     PtrMan<Executor> saver = surface->geometry().saver( &outsdsel, &mid );
     if ( !saver ) mErrRet(uiStrings::phrCannotSave(uiStrings::sSurface()))
 

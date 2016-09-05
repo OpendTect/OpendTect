@@ -290,7 +290,7 @@ bool Engine::prepareForTrackInVolume( uiString& errmsg )
 	 seedpicker->getTrackMode()!=EMSeedPicker::TrackFromSeeds )
 	return false;
 
-    MultiID key = MultiID::udf();
+    DBKey key = DBKey::udf();
     Attrib::SelSpec as( *seedpicker->getSelSpec() );
     if ( validator_ && !validator_->checkStoredData(as,key) )
 	return false;
@@ -943,7 +943,7 @@ const char* Engine::errMsg() const
 { return errmsg_.str(); }
 
 
-BufferString Engine::setupFileName( const MultiID& mid ) const
+BufferString Engine::setupFileName( const DBKey& mid ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
     return ioobj.ptr() ? EM::Surface::getSetupFileName(*ioobj)
@@ -960,7 +960,7 @@ void Engine::fillPar( IOPar& iopar ) const
 	if ( !tracker ) continue;
 
 	IOPar localpar;
-	localpar.set( sKeyObjectID(),EM::EMM().getMultiID(tracker->objectID()));
+	localpar.set( sKeyObjectID(),EM::EMM().getDBKey(tracker->objectID()));
 	localpar.setYN( sKeyEnabled(), tracker->isEnabled() );
 
 	EMSeedPicker* seedpicker =

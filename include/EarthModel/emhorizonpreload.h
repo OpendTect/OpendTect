@@ -32,9 +32,9 @@ public:
 				HorizonPreLoader();
 				~HorizonPreLoader();
 
-    bool			load(const TypeSet<MultiID>&,TaskRunner* tr=0);
-    const MultiID&		getMultiID(const char* name) const;
-    const TypeSet<MultiID>&	getPreloadedIDs() const;
+    bool			load(const TypeSet<DBKey>&,TaskRunner* tr=0);
+    const DBKey&		getDBKey(const char* name) const;
+    const TypeSet<DBKey>&	getPreloadedIDs() const;
     const BufferStringSet&	getPreloadedNames() const;
     const char*			errorMsg() const	    { return errmsg_; }
     void			unload(const BufferStringSet& hornms);
@@ -42,7 +42,7 @@ public:
 protected:
     void		surveyChgCB(CallBacker*);
 
-    TypeSet<MultiID>	loadedmids_;
+    TypeSet<DBKey>	loadedmids_;
     BufferStringSet	loadednms_;
     BufferString	errmsg_;
 };

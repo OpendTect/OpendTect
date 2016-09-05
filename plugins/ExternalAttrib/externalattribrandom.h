@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "attribparam.h"
 #include "externalattrib.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "menuhandler.h"
 #include "uioddatatreeitem.h"
 

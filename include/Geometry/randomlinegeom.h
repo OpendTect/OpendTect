@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "geometrymod.h"
 #include "binid.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "namedobj.h"
 #include "notify.h"
 #include "ranges.h"
@@ -68,8 +68,8 @@ public:
 			{ zrange_ = rg; zrangeChanged.trigger(); }
     Interval<float>	zRange() const		{ return zrange_; }
 
-    void		setMultiID(const MultiID&);
-    MultiID		getMultiID() const			{ return mid_; }
+    void		setDBKey(const DBKey&);
+    DBKey		getDBKey() const			{ return mid_; }
 
     void		setLocked( bool yn )		{ locked_ = yn; }
     bool		isLocked() const		{ return locked_; }
@@ -104,7 +104,7 @@ protected:
 
     TypeSet<BinID>	nodes_;
     Interval<float>	zrange_;
-    MultiID		mid_;
+    DBKey		mid_;
     RandomLineSet*	lset_;
     bool		locked_;
 
@@ -151,7 +151,7 @@ protected:
 					    double dist);
 
 public:
-    static void		getGeometry(const MultiID&,TypeSet<BinID>& knots,
+    static void		getGeometry(const DBKey&,TypeSet<BinID>& knots,
 				    StepInterval<float>* zrg=0);
 };
 
@@ -161,10 +161,10 @@ mExpClass(Geometry) RandomLineManager : public CallBacker
 public:
 			~RandomLineManager();
 
-    RandomLine*		get(const MultiID&);
+    RandomLine*		get(const DBKey&);
     RandomLine*		get(int id);
     const RandomLine*	get(int id) const;
-    bool		isLoaded(const MultiID&) const;
+    bool		isLoaded(const DBKey&) const;
     bool		isLoaded(int id) const;
 
     int			add(RandomLine*);
@@ -178,7 +178,7 @@ protected:
 			RandomLineManager();
     mGlobal(Geometry) friend RandomLineManager& RLM();
 
-    int			indexOf(const MultiID&) const;
+    int			indexOf(const DBKey&) const;
 
     ObjectSet<RandomLine>	lines_;
 };

@@ -33,7 +33,7 @@ mExpClass(EarthModel) FaultAuxData
 { mODTextTranslationClass(FaultAuxData);
 public:
 			FaultAuxData(const Fault3D&);
-			FaultAuxData(const MultiID&);
+			FaultAuxData(const DBKey&);
 			~FaultAuxData();
 
     bool		init();
@@ -72,7 +72,7 @@ protected:
     void		readSDInfoFile(ObjectSet<IOPar>&);
     BufferString	createFltDataName(const char* base,int sdidx);
 
-    const MultiID&	faultmid_;
+    const DBKey&	faultmid_;
     BufferString	fltfullnm_;
     uiString	        errmsg_;
 

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "prestackprocessingmod.h"
 #include "arrayndimpl.h"
 #include "datapackbase.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "offsetazimuth.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -41,7 +41,7 @@ public:
 
     bool			is3D() const	{ return !trckey_.is2D(); }
 
-    bool			readFrom(const MultiID&,const TrcKey&,
+    bool			readFrom(const DBKey&,const TrcKey&,
 					 int component=0,
 					 uiString* errmsg=0);
     bool			readFrom(const IOObj&,const TrcKey&,
@@ -68,7 +68,7 @@ public:
     void			setTrcKey(const TrcKey& tk )
 				{ trckey_ = tk; }
 
-    const MultiID&		getStoredID() const	{ return storagemid_; }
+    const DBKey&		getStoredID() const	{ return storagemid_; }
     const StepInterval<float>&	zRange() const		{ return zrg_; }
     void			setZRange( const StepInterval<float>& zrg )
 				{ zrg_ = zrg; }
@@ -91,11 +91,11 @@ public:
     bool			zIsTime() const		{ return zit_; }
 
 
-    const MultiID&		getVelocityID() const	{ return velocitymid_; }
-    const MultiID&		getStorageID() const    { return storagemid_; }
-    const MultiID&		getStaticsID() const	{ return staticsmid_; }
+    const DBKey&		getVelocityID() const	{ return velocitymid_; }
+    const DBKey&		getStorageID() const    { return storagemid_; }
+    const DBKey&		getStaticsID() const	{ return staticsmid_; }
 
-    static bool			getVelocityID(const MultiID& stor,MultiID& vid);
+    static bool			getVelocityID(const DBKey& stor,DBKey& vid);
 
     static const char*		sDataPackCategory();
     static const char*		sKeyIsAngleGather();
@@ -111,7 +111,7 @@ public:
 				{ azimuths_ = azimuths; }
 
 				// Will be removed after this version.
-    mDeprecated bool		readFrom(const MultiID&,const BinID&,
+    mDeprecated bool		readFrom(const DBKey&,const BinID&,
 					 int component=0,
 					 uiString* errmsg=0);
     mDeprecated bool		readFrom(const IOObj&,const BinID&,
@@ -120,7 +120,7 @@ public:
     mDeprecated bool		readFrom(const IOObj&,SeisPSReader& rdr,
 					 const BinID&,int component=0,
 					 uiString* errmsg=0);
-    mDeprecated bool		readFrom(const MultiID&, const int tracenr,
+    mDeprecated bool		readFrom(const DBKey&, const int tracenr,
 					 const char* linename,int comp,
 					 uiString* errmsg=0);
     mDeprecated bool		readFrom(const IOObj&, const int tracenr,
@@ -134,9 +134,9 @@ public:
 protected:
 				~Gather();
 
-    MultiID			velocitymid_;
-    MultiID			storagemid_;
-    MultiID			staticsmid_;
+    DBKey			velocitymid_;
+    DBKey			storagemid_;
+    DBKey			staticsmid_;
     bool			offsetisangle_;
     bool			iscorr_;
 

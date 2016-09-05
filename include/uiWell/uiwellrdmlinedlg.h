@@ -35,7 +35,7 @@ public:
 			uiWellSelGrp(uiParent*,bool withpos=true);
 
     void		getCoordinates(TypeSet<Coord>&);
-    const TypeSet<MultiID>&	getSelWells() const { return selwellsids_; }
+    const TypeSet<DBKey>&	getSelWells() const { return selwellsids_; }
     void		setSelectedWells();
 
 protected:
@@ -55,8 +55,8 @@ protected:
     bool		withpos_;
 
     BufferStringSet	allwellsnames_;
-    TypeSet<MultiID>	allwellsids_;
-    TypeSet<MultiID>    selwellsids_;
+    TypeSet<DBKey>	allwellsids_;
+    TypeSet<DBKey>    selwellsids_;
     TypeSet<int>	selwellstypes_;
 
     uiListBox*		wellsbox_;

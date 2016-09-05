@@ -135,7 +135,7 @@ uiWellImportAsc::~uiWellImportAsc()
 }
 
 
-MultiID uiWellImportAsc::getWellID() const
+DBKey uiWellImportAsc::getWellID() const
 { return outfld_->key(); }
 
 

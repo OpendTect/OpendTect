@@ -236,7 +236,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 }
 
 
-MultiID uiSEGYScanDlg::outputID() const
+DBKey uiSEGYScanDlg::outputID() const
 {
-    return outfld_ ? outfld_->key(true) : MultiID::udf();
+    return outfld_ ? outfld_->key(true) : DBKey::udf();
 }

@@ -166,7 +166,7 @@ bool WaveletManager::isScaled( const ObjID& id ) const
 
 
 bool WaveletManager::getScalingInfo( const ObjID& id, ObjID& orgid,
-		MultiID& horid, MultiID& seisid, BufferString& lvlnm ) const
+		DBKey& horid, DBKey& seisid, BufferString& lvlnm ) const
 {
     if ( id.isUdf() )
 	return false;
@@ -186,7 +186,7 @@ bool WaveletManager::getScalingInfo( const ObjID& id, ObjID& orgid,
 
 
 void WaveletManager::setScalingInfo( const ObjID& id, const ObjID* orgid,
-		const MultiID* horid, const MultiID* seisid, const char* lvlnm )
+		const DBKey* horid, const DBKey* seisid, const char* lvlnm )
 {
     IOPar iop( getIOObjPars(id) );
     if ( !orgid )

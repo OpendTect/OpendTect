@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiCheckBox;
 class uiD2TModelGroup;
@@ -36,7 +36,7 @@ public:
 			uiWellImportAsc(uiParent*);
 			~uiWellImportAsc();
 
-    MultiID		getWellID() const;
+    DBKey		getWellID() const;
     Notifier<uiWellImportAsc> importReady;
 
 protected:

@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "seistype.h"
 
 class BufferStringSet;
@@ -53,7 +53,7 @@ protected:
     void		openPush(CallBacker*);
     void		savePush(CallBacker*);
 
-    MultiID		initmid_;
+    DBKey		initmid_;
 };
 
 
@@ -61,7 +61,7 @@ mExpClass(uiSeis) uiSeisPreLoadSel : public uiDialog
 { mODTextTranslationClass(uiSeisPreLoadSel)
 public:
 			uiSeisPreLoadSel(uiParent*,Seis::GeomType,
-					 const MultiID& input);
+					 const DBKey& input);
 			~uiSeisPreLoadSel();
 
     const IOObj*	getIOObj() const;

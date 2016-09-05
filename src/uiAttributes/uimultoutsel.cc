@@ -114,7 +114,7 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
     uiMultCompDlg compdlg( parent, complist );
     if ( compdlg.go() )
     {
-	MultiID mid;
+	DBKey mid;
 	BufferString userrefstr ( inpdesc->userRef() );
 	userrefstr.trimBlanks();
 	if ( stringEndsWith( "|ALL", userrefstr.buf() ))

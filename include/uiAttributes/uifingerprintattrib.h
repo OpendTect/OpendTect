@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uiattrdesced.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "position.h"
 #include "stattype.h"
 

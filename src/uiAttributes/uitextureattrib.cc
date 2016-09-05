@@ -195,7 +195,7 @@ void uiTextureAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 class uiSubSelForAnalysis : public uiDialog
 { mODTextTranslationClass(uiSubSelForAnalysis);
 public:
-uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d )
+uiSubSelForAnalysis( uiParent* p,const DBKey& mid, bool is2d )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(tr("data for analysis")),
 				 mNoDlgTitle,mNoHelpKey))
     , linesfld_(0)
@@ -257,7 +257,7 @@ void uiTextureAttrib::analyseCB( CallBacker* )
     if ( !inpdesc )
 	return;
 
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(inpdesc->getStoredID(true)) );
+    PtrMan<IOObj> ioobj = IOM().get( DBKey(inpdesc->getStoredID(true)) );
     if ( !ioobj )
     {
 	uiMSG().error( tr("Select a valid input") );

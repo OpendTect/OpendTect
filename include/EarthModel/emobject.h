@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "draw.h"
 #include "emposid.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "coord.h"
 #include "uistring.h"
 
@@ -120,8 +120,8 @@ public:
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const			= 0;
     virtual uiString		getUserTypeStr() const			= 0;
-    const MultiID&		multiID() const		{ return storageid_; }
-    void			setMultiID(const MultiID&);
+    const DBKey&		multiID() const		{ return storageid_; }
+    void			setDBKey(const DBKey&);
 
     virtual bool		isOK() const		{ return true; }
 
@@ -263,7 +263,7 @@ protected:
     void			useDisplayPars(const IOPar&);
     BufferString		objname_;
     ObjectID			id_;
-    MultiID			storageid_;
+    DBKey			storageid_;
     class EMManager&		manager_;
     uiString			errmsg_;
 

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 #include "emposid.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class IOObj;
 namespace Pos { class EMSurfaceProvider3D; }
@@ -38,7 +38,7 @@ protected:
     uiSeisSel*		seisselout_;
     uiGenInput*		zvalfld_;
 
-    MultiID		hormid_;
+    DBKey		hormid_;
     float		defzval_;
     Interval<float>	horzrg_;
     Pos::EMSurfaceProvider3D& pp_;

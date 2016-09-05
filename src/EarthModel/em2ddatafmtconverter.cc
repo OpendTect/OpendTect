@@ -51,7 +51,7 @@ mGlobal(EarthModel) void OD_Convert_EM2DData()
 void OD_2DEMDataConverter_FromOD4ToOD5::convertData( 
                                             EM::IOObjInfo::ObjectType ftype )
 {
-    TypeSet<MultiID> ioobjids;
+    TypeSet<DBKey> ioobjids;
     EM::IOObjInfo::getIDs( ftype, ioobjids );
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {
@@ -105,8 +105,8 @@ void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDToFSSPara(
 	{
 	    mDefStickKey("Picked name",linekey,secids[secididx],stickidx);
 	    surfacepara_->get( linekey.buf(), linename );
-	    mDefStickKey("Picked MultiID",lsetkey,secids[secididx],stickidx);
-	    MultiID lsid;
+	    mDefStickKey("Picked DBKey",lsetkey,secids[secididx],stickidx);
+	    DBKey lsid;
 	    surfacepara_->get( lsetkey.buf(), lsid );
 	    IOObj* lsioobj = IOM().get(lsid);
 	    if ( !lsioobj ) continue;

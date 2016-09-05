@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uidlggroup.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiCheckBox;
 namespace PreStack { class ProcessManager; }

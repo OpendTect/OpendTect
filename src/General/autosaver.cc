@@ -141,7 +141,7 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
     if ( objusersaved || objautosaved )
 	return 0;
 
-    const MultiID saverkey( saver_->key() );
+    const DBKey saverkey( saver_->key() );
     const IODir iodir( saverkey );
     const IOObj* orgioobj = iodir.get( saverkey );
     if ( !orgioobj )
@@ -288,7 +288,7 @@ void OD::AutoSaver::setNrSecondsBetweenSaves( int nrsecs )
 
 bool OD::AutoSaver::restore( IOStream& iostrm, const char* newnm )
 {
-    const MultiID tmpky( iostrm.key() );
+    const DBKey tmpky( iostrm.key() );
 
     IOStream tmpiostrm( iostrm );
     tmpiostrm.setName( newnm );

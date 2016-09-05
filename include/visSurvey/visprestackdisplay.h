@@ -47,7 +47,7 @@ public:
 				    toUiString(sFactoryKeyword()) );
 
     void			allowShading(bool yn);
-    void			setMultiID(const MultiID& mid);
+    void			setDBKey(const DBKey& mid);
     BufferString		getObjectName() const;
     bool			isInlCrl() const	{ return true; }
     bool			isOrientationInline() const;
@@ -95,7 +95,7 @@ public:
     float                       getWidth() { return width_; }
     void			setWidth(float width);
     BinID			getBinID() const { return trckey_.position(); }
-    virtual MultiID		getMultiID() const { return mid_; }
+    virtual DBKey		getDBKey() const { return mid_; }
 
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
     virtual void		getMousePosInfo( const visBase::EventInfo& ei,
@@ -143,7 +143,7 @@ protected:
     visBase::FlatViewer*	flatviewer_;
     PreStack::ProcessManager&	preprocmgr_;
 
-    MultiID			mid_;
+    DBKey			mid_;
     PlaneDataDisplay*		section_;
     Seis2DDisplay*		seis2d_;
     Coord			basedirection_;

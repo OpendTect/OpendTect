@@ -57,7 +57,7 @@ public:
     const IOObjContext&		getBodyContext() const;
     virtual bool		getBodyRange(TrcKeyZSampling&) = 0;
 
-    virtual MultiID		storageID() const	= 0;
+    virtual DBKey		storageID() const	= 0;
     virtual BufferString	storageName()const	= 0;
 
     virtual void		refBody()	= 0;

@@ -58,8 +58,8 @@ uiCreateHorizon::~uiCreateHorizon()
 }
 
 
-MultiID uiCreateHorizon::getSelID() const
-{ return outfld_->selIOObj() ? outfld_->selIOObj()->key() : MultiID::udf(); }
+DBKey uiCreateHorizon::getSelID() const
+{ return outfld_->selIOObj() ? outfld_->selIOObj()->key() : DBKey::udf(); }
 
 
 bool uiCreateHorizon::acceptOK()
@@ -93,7 +93,7 @@ bool uiCreateHorizon::acceptOK()
     if ( !hor3d ) return false;
 
     uiTaskRunner uitr( this );
-    hor3d->setMultiID( outfld_->selIOObj()->key() );
+    hor3d->setDBKey( outfld_->selIOObj()->key() );
     PtrMan<Executor> saver = hor3d->saver();
     if ( !saver || !uitr.execute(*saver) )
     {

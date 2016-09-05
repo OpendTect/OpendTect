@@ -348,9 +348,9 @@ void DescSet::fillPar( IOPar& par ) const
 	if ( !dsc.getDefStr(defstr) ) continue;
 
         const BufferString storeid = dsc.getStoredID( true );
-	const bool isvalidmultiid = !storeid.isEmpty() && storeid[0] != '#';
-        PtrMan<IOObj> ioobj = IOM().get( MultiID(storeid.buf()) );
-	if ( isvalidmultiid && !ioobj )
+	const bool isvaliddbkey = !storeid.isEmpty() && storeid[0] != '#';
+        PtrMan<IOObj> ioobj = IOM().get( DBKey(storeid.buf()) );
+	if ( isvaliddbkey && !ioobj )
             continue;
 
 	apar.set( definitionStr(), defstr );
@@ -558,7 +558,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     {
 	const ValParam* keypar = dsc->getValParam( StorageProvider::keyStr() );
 	const StringPair storkey( keypar->getStringValue() );
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(storkey.first()) );
+	PtrMan<IOObj> ioobj = IOM().get( DBKey(storkey.first()) );
 	if ( ioobj.ptr() )
 	{
 	    BufferString tentativeuserref = (BufferString)ioobj->name();
@@ -929,7 +929,7 @@ DescID DescSet::getFreeID() const
 }
 
 
-DescID DescSet::getStoredID( const MultiID& multiid, int selout, bool create,
+DescID DescSet::getStoredID( const DBKey& dbkey, int selout, bool create,
 			     bool blindcomp, const char* blindcompnm )
 {
     TypeSet<int> outsreadyforthislk;
@@ -942,7 +942,7 @@ DescID DescSet::getStoredID( const MultiID& multiid, int selout, bool create,
 	    continue;
 
 	const ValParam& keypar = *dsc.getValParam( StorageProvider::keyStr() );
-	if ( multiid == keypar.getStringValue() )
+	if ( dbkey == keypar.getStringValue() )
 	{
 	    if ( selout>=0 ) return dsc.id();
 	    outsreadyforthislk += dsc.selectedOutput();
@@ -954,15 +954,15 @@ DescID DescSet::getStoredID( const MultiID& multiid, int selout, bool create,
 	return DescID::undef();
 
     if ( blindcomp )
-	return createStoredDesc( multiid, selout, BufferString(
+	return createStoredDesc( dbkey, selout, BufferString(
 					    blindcompnm ? blindcompnm :"") );
 
     const int out0idx = outsreadyforthislk.indexOf( 0 );
-    BufferStringSet bss; SeisIOObjInfo::getCompNames( multiid.buf(), bss );
+    BufferStringSet bss; SeisIOObjInfo::getCompNames( dbkey.buf(), bss );
     const int nrcomps = bss.size();
     if ( nrcomps < 2 )
 	return out0idx != -1 ? outsreadyids[out0idx]
-			     : createStoredDesc( multiid, 0, BufferString("") );
+			     : createStoredDesc( dbkey, 0, BufferString("") );
 
     const int startidx = selout<0 ? 0 : selout;
     const int stopidx = selout<0 ? nrcomps : selout;
@@ -970,19 +970,19 @@ DescID DescSet::getStoredID( const MultiID& multiid, int selout, bool create,
 				? bss.get(startidx) : BufferString::empty();
     const DescID retid = out0idx != -1
 			? outsreadyids[out0idx]
-			: createStoredDesc( multiid, startidx, curstr );
+			: createStoredDesc( dbkey, startidx, curstr );
     for ( int idx=startidx+1; idx<stopidx; idx++ )
 	if ( !outsreadyforthislk.isPresent(idx) )
-	    createStoredDesc( multiid, idx, *bss[idx] );
+	    createStoredDesc( dbkey, idx, *bss[idx] );
 
     return retid;
 }
 
 
-DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
+DescID DescSet::createStoredDesc( const DBKey& dbkey, int selout,
 				  const BufferString& compnm )
 {
-    const char* linenm = multiid.buf();
+    const char* linenm = dbkey.buf();
     BufferString objnm;
     if ( linenm && *linenm == '#' )
     {
@@ -994,7 +994,7 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
     }
     else
     {
-	PtrMan<IOObj> ioobj = IOM().get( multiid );
+	PtrMan<IOObj> ioobj = IOM().get( dbkey );
 	if ( !ioobj ) return DescID::undef();
 
 	objnm = ioobj->name();
@@ -1009,7 +1009,7 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
     newdesc->setUserRef( strpair.getCompString() );
     newdesc->selectOutput( selout );
     ValParam& keypar = *newdesc->getValParam( StorageProvider::keyStr() );
-    keypar.setValue( multiid );
+    keypar.setValue( dbkey );
     newdesc->updateParams();
     return addDesc( newdesc );
 }
@@ -1154,7 +1154,7 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 	BufferString storedid = dsc.getStoredID();
 	if ( storedid.isEmpty() ) continue;
 
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
+	PtrMan<IOObj> ioobj = IOM().get( DBKey(storedid.buf()) );
 	const char* res = ioobj ? ioobj->pars().find( "Type" ) : 0;
 	const bool issteer = res && *res == 'S';
 	if ( !usesteering && issteer ) continue;
@@ -1167,13 +1167,13 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 }
 
 
-MultiID DescSet::getStoredKey( const DescID& did ) const
+DBKey DescSet::getStoredKey( const DescID& did ) const
 {
     const Desc* dsc = getDesc( did );
     if ( !dsc || !dsc->isStored() )
-	return MultiID::udf();
+	return DBKey::udf();
 
-    return MultiID(dsc->getStoredID().buf());
+    return DBKey(dsc->getStoredID().buf());
 }
 
 
@@ -1229,7 +1229,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( const StringPair& inpstr )
 	int compnr = 0;
 	if ( !inpstr.second().isEmpty() )
 	{
-	    MultiID mid( storedidstr.buf() );
+	    DBKey mid( storedidstr.buf() );
 	    IOObj* inpobj = IOM().get( mid );
 	    if ( inpobj )
 	    {

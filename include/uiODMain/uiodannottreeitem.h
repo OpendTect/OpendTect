@@ -80,7 +80,7 @@ mExpClass(uiODMain) uiODAnnotSubItem : public uiODDisplayTreeItem
 {mODTextTranslationClass(uiODAnnotSubItem)
 public:
 
-    MultiID		getSetID() const;
+    DBKey		getSetID() const;
     Pick::Set&		getSet()			{ return set_; }
 
 protected:

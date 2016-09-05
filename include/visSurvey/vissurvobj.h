@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "datapack.h"
 #include "gendefs.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "position.h"
 #include "ranges.h"
 #include "survinfo.h"
@@ -120,7 +120,7 @@ public:
     virtual bool		canDuplicate() const	{ return false;}
     virtual SurveyObject*	duplicate(TaskRunner*) const	{ return 0; }
 
-    virtual MultiID		getMultiID() const { return MultiID::udf(); }
+    virtual DBKey		getDBKey() const { return DBKey::udf(); }
 
     virtual bool		hasPosModeManipulator() const	{ return false;}
     virtual void		showManipulator(bool yn)	{}

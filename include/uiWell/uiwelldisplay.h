@@ -59,7 +59,7 @@ public:
 
 //				uiWellDisplay(uiParent*,Well::Data& wd,
 //							const Setup& su );
-				uiWellDisplay(uiParent*,const MultiID&,
+				uiWellDisplay(uiParent*,const DBKey&,
 					      const Setup&);
 				~uiWellDisplay();
 
@@ -121,7 +121,7 @@ private:
 mExpClass(uiWell) uiWellDisplayWin : public uiMainWin
 {mODTextTranslationClass(uiWellDisplayWin);
 public :
-				uiWellDisplayWin(uiParent*,const MultiID&,
+				uiWellDisplayWin(uiParent*,const DBKey&,
 						 bool withcontrol=true);
 				~uiWellDisplayWin();
 
@@ -134,7 +134,7 @@ protected:
 
 private:
 
-    uiString			getWinTitle(const MultiID&,bool);
+    uiString			getWinTitle(const DBKey&,bool);
 
 };
 

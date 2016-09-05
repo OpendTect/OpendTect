@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uimpemod.h"
 #include "callback.h"
 #include "trckeyzsampling.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "position.h"
 #include "uistring.h"
 

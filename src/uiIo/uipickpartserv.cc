@@ -119,11 +119,11 @@ void uiPickPartServer::exportSet()
 bool uiPickPartServer::storePickSets( int polyopt, const char* cat )
 {
     // Store all sets that have changed
-    TypeSet<MultiID> setids;
+    TypeSet<DBKey> setids;
     MonitorLock ml( Pick::SetMGR() );
     for ( int idx=0; idx<Pick::SetMGR().size(); idx++ )
     {
-	const MultiID setid = Pick::SetMGR().getIDByIndex( idx );
+	const DBKey setid = Pick::SetMGR().getIDByIndex( idx );
 	if ( !Pick::SetMGR().hasCategory(setid,cat) )
 	    continue;
 	if ( polyopt )
@@ -201,7 +201,7 @@ bool uiPickPartServer::storePickSetAs( const Pick::Set& ps )
 
 
 
-bool uiPickPartServer::doSaveAs( const MultiID& setid, const Pick::Set* ps )
+bool uiPickPartServer::doSaveAs( const DBKey& setid, const Pick::Set* ps )
 {
     ConstRefMan<Pick::Set> psref;
     if ( !ps )
@@ -225,7 +225,7 @@ bool uiPickPartServer::doSaveAs( const MultiID& setid, const Pick::Set* ps )
 }
 
 
-void uiPickPartServer::mergePickSets( MultiID& mid )
+void uiPickPartServer::mergePickSets( DBKey& mid )
 {
     uiMergePickSets dlg( parent(), mid );
     dlg.go();
@@ -239,14 +239,14 @@ void uiPickPartServer::fetchHors( bool is2d )
 }
 
 
-RefMan<Pick::Set> uiPickPartServer::loadSet( const MultiID& mid )
+RefMan<Pick::Set> uiPickPartServer::loadSet( const DBKey& mid )
 {
-    TypeSet<MultiID> psids( 1, mid );
+    TypeSet<DBKey> psids( 1, mid );
     return doLoadSets(psids) ? Pick::SetMGR().fetchForEdit(mid) : 0;
 }
 
 
-bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly,
+bool uiPickPartServer::loadSets( TypeSet<DBKey>& psids, bool poly,
 				 const char* cat )
 {
     psids.setEmpty();
@@ -259,7 +259,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly,
     if ( !dlg.go() )
 	return false;
 
-    TypeSet<MultiID> chosenids;
+    TypeSet<DBKey> chosenids;
     dlg.getChosen( chosenids );
     if ( chosenids.isEmpty() )
 	return true;
@@ -272,7 +272,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly,
 }
 
 
-bool uiPickPartServer::doLoadSets( TypeSet<MultiID>& psids )
+bool uiPickPartServer::doLoadSets( TypeSet<DBKey>& psids )
 {
     Pick::SetLoader psloader( psids );
     uiTaskRunner taskrunner( parent() );
@@ -345,9 +345,9 @@ void uiPickPartServer::mkRandLocs2D( CallBacker* cb )
     coords2d_.erase(); geomids2d_.erase();
     if ( rp.needhor_ )
     {
-	selhorids_ += new MultiID( hinfos_[rp.horidx_]->multiid );
+	selhorids_ += new DBKey( hinfos_[rp.horidx_]->dbkey );
 	if ( rp.horidx2_ >= 0 )
-	    selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
+	    selhorids_ += new DBKey( hinfos_[rp.horidx2_]->dbkey );
 
 	hor2dzrgs_.erase();
 	sendEvent( evGetHorDef2D() );
@@ -428,6 +428,6 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
 void uiPickPartServer::fillZValsFrmHor( Pick::Set* ps, int horidx )
 {
     ps_ = ps;
-    horid_ = hinfos_[horidx]->multiid;
+    horid_ = hinfos_[horidx]->dbkey;
     sendEvent( evFillPickSet() );
 }

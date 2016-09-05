@@ -30,7 +30,7 @@ RandomLine::RandomLine( const char* nm )
     , nodeChanged(this)
     , zrangeChanged(this)
     , lset_(0)
-    , mid_(MultiID::udf())
+    , mid_(DBKey::udf())
     , locked_(false)
     , survid_( Survey::GM().default3DSurvID() )
 {
@@ -53,7 +53,7 @@ RandomLine::~RandomLine()
 }
 
 
-void RandomLine::setMultiID( const MultiID& mid )
+void RandomLine::setDBKey( const DBKey& mid )
 {
     mid_ = mid;
     if ( !mid_.isUdf() )
@@ -514,7 +514,7 @@ void RandomLineSet::limitTo( const TrcKeyZSampling& cs )
 }
 
 
-void RandomLineSet::getGeometry( const MultiID& rdlsid, TypeSet<BinID>& knots,
+void RandomLineSet::getGeometry( const DBKey& rdlsid, TypeSet<BinID>& knots,
 				 StepInterval<float>* zrg )
 {
     Geometry::RandomLineSet rls; uiString errmsg;
@@ -559,11 +559,11 @@ RandomLineManager::~RandomLineManager()
 }
 
 
-int RandomLineManager::indexOf( const MultiID& mid ) const
+int RandomLineManager::indexOf( const DBKey& mid ) const
 {
     for ( int idx=0; idx<lines_.size(); idx++ )
     {
-	if ( lines_[idx]->getMultiID() == mid )
+	if ( lines_[idx]->getDBKey() == mid )
 	    return idx;
     }
 
@@ -571,7 +571,7 @@ int RandomLineManager::indexOf( const MultiID& mid ) const
 }
 
 
-RandomLine* RandomLineManager::get( const MultiID& mid )
+RandomLine* RandomLineManager::get( const DBKey& mid )
 {
     if ( mid.isUdf() ) return 0;
     const int rlidx = indexOf( mid );
@@ -588,7 +588,7 @@ RandomLine* RandomLineManager::get( const MultiID& mid )
     if ( !res || rdlset.isEmpty() ) return 0;
 
     rl = rdlset.getRandomLine( 0 );
-    rl->setMultiID( mid );
+    rl->setDBKey( mid );
     add( rl );
     return rl;
 }
@@ -610,7 +610,7 @@ const RandomLine* RandomLineManager::get( int id ) const
 { return const_cast<RandomLineManager*>(this)->get( id ); }
 
 
-bool RandomLineManager::isLoaded( const MultiID& mid ) const
+bool RandomLineManager::isLoaded( const DBKey& mid ) const
 {
     const int rlidx = indexOf( mid );
     return lines_.validIdx( rlidx );

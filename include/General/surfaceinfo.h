@@ -13,18 +13,18 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "bufstring.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 /*!\brief Surface info name/attribname with an ID (usually the EM-ID). */
 
 mClass(General) SurfaceInfo
 {
 public:
-		   	 SurfaceInfo( const char* nm, MultiID mi, int vi=-1, 
+		   	 SurfaceInfo( const char* nm, DBKey mi, int vi=-1, 
 				      const char* attr=0)
-		    	: multiid(mi), visid(vi), name(nm), attrnm(attr) {}
+		    	: dbkey(mi), visid(vi), name(nm), attrnm(attr) {}
 
-    MultiID		multiid;
+    DBKey		dbkey;
     int			visid;
     BufferString	name;
     BufferString	attrnm;

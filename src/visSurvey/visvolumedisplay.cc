@@ -711,17 +711,17 @@ void VolumeDisplay::setSeedAboveIsovalue( const mVisMCSurf* mcd, bool above )
 }
 
 
-MultiID  VolumeDisplay::getSeedsID( const mVisMCSurf* mcd ) const
+DBKey  VolumeDisplay::getSeedsID( const mVisMCSurf* mcd ) const
 {
     const int idx = isosurfaces_.indexOf( mcd );
     if ( idx<0 || idx>=isosurfaces_.size() )
-	return MultiID();
+	return DBKey();
 
     return isosurfsettings_[idx].seedsid_;
 }
 
 
-void VolumeDisplay::setSeedsID( const mVisMCSurf* mcd, MultiID mid )
+void VolumeDisplay::setSeedsID( const mVisMCSurf* mcd, DBKey mid )
 {
     const int idx = isosurfaces_.indexOf( mcd );
     if ( idx<0 || idx>=isosurfaces_.size() )
@@ -1356,7 +1356,7 @@ VolumeDisplay::IsosurfaceSetting::IsosurfaceSetting()
 {
     mode_ = 1;
     seedsaboveisoval_ = -1;
-    seedsid_ = MultiID();
+    seedsid_ = DBKey();
 }
 
 
@@ -1551,7 +1551,7 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	    isosurfsettings_[idx].seedsaboveisoval_ = mCast( char, aboveisov );
 
 	    str = sKeySeedsMid(); str += idx;
-	    MultiID mid;
+	    DBKey mid;
 	    par.get( str, mid );
 	    isosurfsettings_[idx].seedsid_ = mid;
 	}

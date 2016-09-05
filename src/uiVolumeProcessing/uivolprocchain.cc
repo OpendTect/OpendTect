@@ -332,7 +332,7 @@ void uiChain::updObj( const IOObj& ioobj )
 }
 
 
-const MultiID& uiChain::storageID() const
+const DBKey& uiChain::storageID() const
 {
     return chain_.storageID();
 }

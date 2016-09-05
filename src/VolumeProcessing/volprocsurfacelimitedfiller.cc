@@ -94,23 +94,23 @@ void SurfaceLimitedFiller::releaseData()
 }
 
 
-const MultiID* SurfaceLimitedFiller::getSurfaceID( int idx ) const
+const DBKey* SurfaceLimitedFiller::getSurfaceID( int idx ) const
 { return surfacelist_.validIdx(idx) ? &surfacelist_[idx] : 0; }
 
 
-const MultiID* SurfaceLimitedFiller::getStartValueHorizonID() const
+const DBKey* SurfaceLimitedFiller::getStartValueHorizonID() const
 { return starthormid_ && !starthormid_.isEmpty() ? &starthormid_ : 0; }
 
 
-const MultiID* SurfaceLimitedFiller::getGradientHorizonID() const
+const DBKey* SurfaceLimitedFiller::getGradientHorizonID() const
 { return gradhormid_ && !gradhormid_.isEmpty() ? &gradhormid_ : 0; }
 
 
-const MultiID* SurfaceLimitedFiller::getRefHorizonID() const
+const DBKey* SurfaceLimitedFiller::getRefHorizonID() const
 { return refhormid_ && !refhormid_.isEmpty() ? &refhormid_ : 0; }
 
 
-static bool setTargetMultiID( const MultiID* mid, MultiID& targetmid )
+static bool setTargetDBKey( const DBKey* mid, DBKey& targetmid )
 {
     if ( !mid || mid->isEmpty() )
 	return false;
@@ -120,19 +120,19 @@ static bool setTargetMultiID( const MultiID* mid, MultiID& targetmid )
 }
 
 
-bool SurfaceLimitedFiller::setStartValueHorizon( const MultiID* mid )
-{ return setTargetMultiID( mid, starthormid_ ); }
+bool SurfaceLimitedFiller::setStartValueHorizon( const DBKey* mid )
+{ return setTargetDBKey( mid, starthormid_ ); }
 
 
-bool SurfaceLimitedFiller::setGradientHorizon( const MultiID* mid )
-{ return setTargetMultiID( mid, gradhormid_ ); }
+bool SurfaceLimitedFiller::setGradientHorizon( const DBKey* mid )
+{ return setTargetDBKey( mid, gradhormid_ ); }
 
 
-bool SurfaceLimitedFiller::setRefHorizon( const MultiID* mid )
-{ return setTargetMultiID( mid, refhormid_ ); }
+bool SurfaceLimitedFiller::setRefHorizon( const DBKey* mid )
+{ return setTargetDBKey( mid, refhormid_ ); }
 
 
-bool SurfaceLimitedFiller::setSurfaces( const TypeSet<MultiID>& hids,
+bool SurfaceLimitedFiller::setSurfaces( const TypeSet<DBKey>& hids,
 				      const TypeSet<char>& geofillside )
 {
     deepUnRef( hors_ );
@@ -161,7 +161,7 @@ bool SurfaceLimitedFiller::setSurfaces( const TypeSet<MultiID>& hids,
 }
 
 
-EM::Horizon* SurfaceLimitedFiller::loadHorizon( const MultiID& mid ) const
+EM::Horizon* SurfaceLimitedFiller::loadHorizon( const DBKey& mid ) const
 {
     RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
     mDynamicCastGet( EM::Horizon*, newhor, emobj.ptr() );
@@ -172,7 +172,7 @@ EM::Horizon* SurfaceLimitedFiller::loadHorizon( const MultiID& mid ) const
 }
 
 
-int SurfaceLimitedFiller::setDataHorizon( const MultiID& mid,
+int SurfaceLimitedFiller::setDataHorizon( const DBKey& mid,
 				  EM::Horizon3D*& hor3d, int auxdataidx ) const
 {
     if ( mid.isEmpty() ) return -1;
@@ -454,8 +454,8 @@ bool SurfaceLimitedFiller::useHorInterFillerPar( const IOPar& pars )
     if (usegradient && pars.get(sKeyGradient(),gradient) && !mIsUdf(gradient))
 	fixedgradient_ = gradient;
 
-    TypeSet<MultiID> horids;
-    MultiID tophorid;
+    TypeSet<DBKey> horids;
+    DBKey tophorid;
     if ( pars.get(sKeyTopHorID(), tophorid) )
     {
 	horids += tophorid;
@@ -464,7 +464,7 @@ bool SurfaceLimitedFiller::useHorInterFillerPar( const IOPar& pars )
 	    return false;
     }
 
-    MultiID bottomhorid;
+    DBKey bottomhorid;
     if ( pars.get(sKeyBotHorID(), bottomhorid) )
 	horids += bottomhorid;
 
@@ -503,14 +503,14 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 
     int nrhors = 0;
     pars.get( sKeyNrSurfaces(), nrhors );
-    TypeSet<MultiID> horbds;
+    TypeSet<DBKey> horbds;
     TypeSet<char> sides;
     for ( int idx=0; idx<nrhors; idx++ )
     {
 	BufferString midkey = sKeySurfaceID();
 	midkey += idx;
 
-	MultiID mid;
+	DBKey mid;
 	pars.get( midkey, mid );
 	horbds += mid;
 
@@ -530,7 +530,7 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 	pars.get( sKeyStartValue(), fixedstartval_ );
     else
     {
-	MultiID mid;
+	DBKey mid;
 	if ( !pars.get(sKeyStartValHorID(),mid) )
 	    return false;
 
@@ -547,7 +547,7 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 	pars.get( sKeyGradValue(), fixedgradient_ );
     else
     {
-	MultiID mid;
+	DBKey mid;
 	if ( !pars.get(sKeyGradHorID(),mid) )
 	    return false;
 
@@ -563,7 +563,7 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 	pars.get( sKeyRefZ(), refz_ );
     else
     {
-	MultiID mid;
+	DBKey mid;
 	if ( !pars.get(sKeyRefHorID(),mid) )
 	    return false;
 

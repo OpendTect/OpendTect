@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "survgeom.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "position.h"
 #include "seistype.h"
 #include "samplingdata.h"
@@ -41,8 +41,8 @@ public :
     mExpClass(uiSeis) Setup : public uiDialog::Setup
     { mODTextTranslationClass(Setup)
     public:
-			Setup(const MultiID&,Seis::GeomType);
-	mDefSetupMemb(MultiID,id)
+			Setup(const DBKey&,Seis::GeomType);
+	mDefSetupMemb(DBKey,id)
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(BinID,startpos)
 	mDefSetupMemb(float,startz)

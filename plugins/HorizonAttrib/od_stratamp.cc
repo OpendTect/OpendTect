@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "genc.h"
 #include "iopar.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "stratamp.h"
 #include "stattype.h"
 #include "moddepmgr.h"
@@ -37,7 +37,7 @@ static bool getHorsampling( const IOPar& par, TrcKeySampling& hs )
 }
 
 
-static EM::Horizon3D* loadHorizon( const MultiID& mid, const TrcKeySampling& hs,
+static EM::Horizon3D* loadHorizon( const DBKey& mid, const TrcKeySampling& hs,
 				   od_ostream& strm )
 {
     EM::EMManager& em = EM::EMM();
@@ -80,7 +80,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     bool usesingle = false;
     pars().getYN( StratAmpCalc::sKeySingleHorizonYN(), usesingle );
-    MultiID mid1;
+    DBKey mid1;
     pars().get( StratAmpCalc::sKeyTopHorizonID(), mid1 );
     strm << GetProjectVersionName() << od_newline;
     strm << "Loading horizons ..." << od_newline;
@@ -91,7 +91,7 @@ bool BatchProgram::go( od_ostream& strm )
     EM::Horizon3D* bothor = 0;
     if ( !usesingle )
     {
-	MultiID mid2;
+	DBKey mid2;
 	pars().get( StratAmpCalc::sKeyBottomHorizonID(), mid2 );
 	bothor = loadHorizon( mid2, hs, strm );
 	if ( !bothor )

@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ranges.h"
 #include "statruncalc.h"
 
@@ -56,7 +56,7 @@ public:
 
 protected:
 
-    void		findDataSetID(MultiID&) const;
+    void		findDataSetID(DBKey&) const;
     Attrib::EngineMan*	createEngineMan();
     void		extractAndSaveValsAndRanges();
     void		saveValsAndRanges(const TypeSet<float>&,
@@ -75,7 +75,7 @@ protected:
     uiParent*		parent_;
     BufferString	rgpickset_;
     int			rgreftype_;
-    static void		create2DRandPicks(const MultiID& dsetid,
+    static void		create2DRandPicks(const DBKey& dsetid,
 					  BinIDValueSet* rangesset);
 
 };

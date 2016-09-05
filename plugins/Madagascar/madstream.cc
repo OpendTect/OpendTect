@@ -195,7 +195,7 @@ void MadStream::initRead( IOPar* par )
     Seis::GeomType gt = Seis::geomTypeOf( inptyp );
     is2d_ = gt == Seis::Line || gt == Seis::LinePS;
     isps_ = gt == Seis::VolPS || gt == Seis::LinePS;
-    MultiID inpid;
+    DBKey inpid;
     if (!par->get(sKey::ID(), inpid)) mErrRet(tr("Input ID missing"));
 
     PtrMan<IOObj> ioobj = IOM().get( inpid );
@@ -234,7 +234,7 @@ void MadStream::initWrite( IOPar* par )
     is2d_ = gt == Seis::Line || gt == Seis::LinePS;
     isps_ = gt == Seis::VolPS || gt == Seis::LinePS;
     istrm_ = new od_istream( &std::cin );
-    MultiID outpid;
+    DBKey outpid;
     if (!par->get(sKey::ID(), outpid))
 	mErrRet(uiStrings::phrCannotRead( tr("paramter file")) );
 

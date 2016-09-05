@@ -234,7 +234,7 @@ bool uiExportHorizon::writeAscii()
     RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
     if ( !emobj ) mErrRet(uiStrings::sCantCreateHor())
 
-    emobj->setMultiID( ioobj->key() );
+    emobj->setDBKey( ioobj->key() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
     PtrMan<Executor> loader = hor->geometry().loader( &sels );
     if ( !loader ) mErrRet( uiStrings::phrCannotRead( uiStrings::sHorizon() ) )

@@ -278,7 +278,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     }
 
     mIfGetString( FingerPrint::valpicksetStr(), pickidstr,
-		  IOObj* ioobj = IOM().get( MultiID(pickidstr) );
+		  IOObj* ioobj = IOM().get( DBKey(pickidstr) );
 		  if ( ioobj ) picksetfld_->setInput( *ioobj ) );
 
     mIfGetInt( FingerPrint::valreftypeStr(), type, refgrp_->selectButton(type) )
@@ -663,7 +663,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 
     picksetfld_ = new uiPickSetIOObjSel( this );
     picksetfld_->attach( alignedBelow, (uiParent*)rangesgrp_ );
-    picksetfld_->setInput( MultiID(calcobj_.getRgRefPick().buf()) );
+    picksetfld_->setInput( DBKey(calcobj_.getRgRefPick().buf()) );
     picksetfld_->display( true );
 
     uiGroup* attrvalsgrp = new uiGroup( this, "Attrib inputs" );

@@ -169,7 +169,7 @@ mDefODInitPlugin(uiGMT)
     IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey(), ODGMT::sKeyGMT(),
 			      "GMT data" );
     uiString errmsg;
-    MultiID id = IOMan::addCustomDataDir( cdd, errmsg );
+    DBKey id = IOMan::addCustomDataDir( cdd, errmsg );
     if ( errmsg.isSet() )
 	return errmsg.getFullString().str();
 

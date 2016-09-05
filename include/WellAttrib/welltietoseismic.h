@@ -32,7 +32,7 @@ class Data;
 mExpClass(WellAttrib) DataPlayer
 { mODTextTranslationClass(DataPlayer);
 public:
-			DataPlayer(Data&,const MultiID&,
+			DataPlayer(Data&,const DBKey&,
 				   const BufferString& linenm);
 			~DataPlayer();
 
@@ -67,7 +67,7 @@ protected:
     ElasticModel	aimodel_;
     ReflectivityModel	refmodel_;
     Data&		data_;
-    const MultiID&	seisid_;
+    const DBKey&	seisid_;
     const BufferString& linenm_;
     Interval<float>	zrg_; //!< time range for cross-correlation
     float_complex*	refarr_; //!< reflectivity in the cross-corr window

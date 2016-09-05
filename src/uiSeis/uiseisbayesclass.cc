@@ -45,7 +45,7 @@ static const uiString sKeyBayesClss()
 static ProbDenFunc* getPDF( const char* id, uiString& emsg )
 {
     if ( !id || !*id ) { emsg = od_static_tr("getPDF","No ID"); return 0; }
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
+    PtrMan<IOObj> ioobj = IOM().get( DBKey(id) );
     if ( !ioobj ) { emsg = od_static_tr("getPDF","No IOObj"); return 0; }
     return ProbDenFuncTranslator::read(*ioobj,&emsg);
 }
@@ -138,7 +138,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	const bool haveid = id && *id;
 	if ( haveid || idx )
 	{
-	    fld->setInput( MultiID(id) );
+	    fld->setInput( DBKey(id) );
 	    if ( haveid ) nrdisp_ = idx+1;
 	}
 
@@ -291,7 +291,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 
 	uiIOObjSel* os = new uiIOObjSel( this, ctxt, fldtxt );
 	res = pars_.find( mGetSeisBayesAPProbIDKey(idx) );
-	os->setInput( MultiID(res) );
+	os->setInput( DBKey(res) );
 	os->attach( alignedBelow, alobj );
 	apflds_ += os;
 	if ( !res.isEmpty() )
@@ -436,7 +436,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
 	    su.seltxt_ = tr("Input for '%1'").arg( pdf->dimName(idx) );
 	    uiSeisSel* fld = new uiSeisSel( this, ctxt, su );
 	    const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(idx) );
-	    fld->setInput( MultiID(id) );
+	    fld->setInput( DBKey(id) );
 	    if ( idx )
 		fld->attach( alignedBelow, flds3d_[idx-1] );
 	    flds3d_ += fld;
@@ -536,7 +536,7 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
     subselfld_->attach( alignedBelow, flds3d_[ flds3d_.size()-1 ] );
     const char* id = pars_.find( mGetSeisBayesSeisInpIDKey(0) );
     if ( id && *id )
-	subselfld_->setInput( MultiID(id) );
+	subselfld_->setInput( DBKey(id) );
     subselfld_->usePar( pars_ );
 }
 
@@ -556,7 +556,7 @@ void addOut( const char* nm, bool ispdf )
     if ( !ispdf && !haveclass_ ) curidx += 2;
     uiSeisSel* fld = new uiSeisSel( this, ctxt, su );
     const char* id = pars_.find( mGetSeisBayesSeisOutIDKey(curidx) );
-    fld->setInput( MultiID(id) );
+    fld->setInput( DBKey(id) );
     if ( fld->ctxtIOObj(true).ioobj_ )
 	fld->setChecked( true );
     if ( nrflds > 0 )

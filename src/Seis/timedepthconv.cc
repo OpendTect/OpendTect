@@ -51,7 +51,7 @@ Time2DepthStretcher::~Time2DepthStretcher()
 { releaseData(); }
 
 
-bool Time2DepthStretcher::setVelData( const MultiID& mid )
+bool Time2DepthStretcher::setVelData( const DBKey& mid )
 {
     releaseData();
     PtrMan<IOObj> velioobj = IOM().get( mid );
@@ -127,7 +127,7 @@ bool Time2DepthStretcher::usePar( const IOPar& par )
     if ( !ZAxisTransform::usePar( par ) )
 	return false;
 
-    MultiID vid;
+    DBKey vid;
     if ( par.get( VelocityDesc::sKeyVelocityVolume(), vid ) &&
 		  !setVelData( vid ) )
 	return false;
@@ -650,7 +650,7 @@ Depth2TimeStretcher::Depth2TimeStretcher()
 {}
 
 
-bool Depth2TimeStretcher::setVelData( const MultiID& mid )
+bool Depth2TimeStretcher::setVelData( const DBKey& mid )
 { return stretcher_->setVelData( mid ); }
 
 

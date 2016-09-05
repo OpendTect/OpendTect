@@ -105,7 +105,7 @@ bool uiProcessorManager::restore()
 }
 
 
-void uiProcessorManager::setLastMid( const MultiID& mid )
+void uiProcessorManager::setLastMid( const DBKey& mid )
 {
     lastmid_ = mid;
 }

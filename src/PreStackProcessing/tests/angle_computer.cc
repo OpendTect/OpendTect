@@ -11,7 +11,7 @@
 #include "ioman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "prestackanglecomputer.h"
 #include "prestackgather.h"
 #include "windowfunction.h"
@@ -130,14 +130,14 @@ bool BatchProgram::go( od_ostream& strm )
     RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				    new PreStack::VelocityBasedAngleComputer;
 
-    PtrMan<IOObj> velobj = IOM().get( MultiID("100010.8") );
+    PtrMan<IOObj> velobj = IOM().get( DBKey("100010.8") );
     if ( !velobj )
     {
 	od_cout() << " Input data is not available.\n";
 	return false;
     }
 
-    computer->setMultiID( velobj->key() );
+    computer->setDBKey( velobj->key() );
     StepInterval<double> zrange(0,1.1,0.004), offsetrange(0,2500,500);
     FlatPosData fp;
     fp.setRange( true, offsetrange );
@@ -214,7 +214,7 @@ bool testAnglesForDifferentSurveys()
 	RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				new PreStack::VelocityBasedAngleComputer;
 
-	PtrMan<IOObj> velobj = IOM().get( MultiID("100010.8") );
+	PtrMan<IOObj> velobj = IOM().get( DBKey("100010.8") );
 	if ( !velobj )
 	{
 	    od_cout() << survnames[idx];
@@ -222,7 +222,7 @@ bool testAnglesForDifferentSurveys()
 	    return false;
 	}
 
-	computer->setMultiID( velobj->key() );
+	computer->setDBKey( velobj->key() );
 	StepInterval<double> zrange(zrgs[idx]), offsetrange(0,2500,500);
 	FlatPosData fp;
 	fp.setRange( true, offsetrange );

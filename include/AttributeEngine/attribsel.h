@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 #include "ranges.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "bufstringset.h"
 #include "attribdescid.h"
 #include "typeset.h"
@@ -136,7 +136,7 @@ public:
 			: attrid_(DescID(-1,true)), outputnr_(-1)	{}
 
     DescID		attrid_;
-    MultiID		ioobjkey_;
+    DBKey		ioobjkey_;
     int			outputnr_; // For NLA or attribute nr in 2D
 
 };

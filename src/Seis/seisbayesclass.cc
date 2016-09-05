@@ -92,7 +92,7 @@ bool SeisBayesClass::getPDFs()
 	if ( !id || !*id )
 	    break;
 
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
+	PtrMan<IOObj> ioobj = IOM().get( DBKey(id) );
 	if ( !ioobj )
 	{
 	    msg_ = tr("Cannot find object for %1 PDF in data store")
@@ -171,7 +171,7 @@ void SeisBayesClass::preScalePDFs()
 
 SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
 {
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
+    PtrMan<IOObj> ioobj = IOM().get( DBKey(id) );
     if ( !ioobj )
     {
 	const ProbDenFunc& pdf0 = *inppdfs_[0];
@@ -238,7 +238,7 @@ bool SeisBayesClass::getWriters()
 	else
 	    haveoutput = true;
 
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
+	PtrMan<IOObj> ioobj = IOM().get( DBKey(id) );
 	if ( !ioobj )
 	{
 	    msg_ = tr("Cannot find output cube for %1"

@@ -80,7 +80,7 @@ void uiSeis2DLineChoose::objInserted( CallBacker* cb )
 {
     if ( !cb ) return;
 
-    mCBCapsuleUnpack(MultiID,dsid,cb);
+    mCBCapsuleUnpack(DBKey,dsid,cb);
     PtrMan<IOObj> dsobj = IOM().get( dsid );
     if ( !dsobj )
 	return;
@@ -323,7 +323,7 @@ void uiSeis2DLineSel::setInput( const TypeSet<Pos::GeomID>& geomids )
 }
 
 
-void uiSeis2DLineSel::setInput( const MultiID& datasetid )
+void uiSeis2DLineSel::setInput( const DBKey& datasetid )
 {
     const SeisIOObjInfo oi( datasetid );
     BufferStringSet lnms; oi.getLineNames( lnms );
@@ -459,7 +459,7 @@ void uiSeis2DLineNameSel::fillWithAll()
 }
 
 
-void uiSeis2DLineNameSel::addLineNames( const MultiID& ky )
+void uiSeis2DLineNameSel::addLineNames( const DBKey& ky )
 {
     const SeisIOObjInfo oi( ky );
     if ( !oi.isOK() || !oi.is2D() ) return;
@@ -505,7 +505,7 @@ void uiSeis2DLineNameSel::setInput( const char* nm )
 }
 
 
-void uiSeis2DLineNameSel::setDataSet( const MultiID& ky )
+void uiSeis2DLineNameSel::setDataSet( const DBKey& ky )
 {
     dsid_ = ky;
     fld_->setEmpty();
@@ -762,7 +762,7 @@ void uiSeis2DMultiLineSel::setInput( const TypeSet<Pos::GeomID>& geomids )
 }
 
 
-void uiSeis2DMultiLineSel::setInput( const MultiID& datasetid )
+void uiSeis2DMultiLineSel::setInput( const DBKey& datasetid )
 {
     selectionChanged.disable();
     const SeisIOObjInfo oi( datasetid );
@@ -774,7 +774,7 @@ void uiSeis2DMultiLineSel::setInput( const MultiID& datasetid )
 }
 
 
-void uiSeis2DMultiLineSel::initRanges( const MultiID* datasetid )
+void uiSeis2DMultiLineSel::initRanges( const DBKey* datasetid )
 {
     zrgs_.erase(); trcrgs_.erase();
     maxzrgs_.erase(); maxtrcrgs_.erase();
@@ -852,7 +852,7 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 {
     isall_ = false;
     BufferString lsetname; // For backward compatibility.
-    MultiID lsetkey;
+    DBKey lsetkey;
     if ( par.get("LineSet.ID",lsetkey) )
     {
 	PtrMan<IOObj> lsobj = IOM().get( lsetkey );

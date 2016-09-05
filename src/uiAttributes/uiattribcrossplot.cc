@@ -120,7 +120,7 @@ void uiAttribCrossPlot::adsChg()
 
     for ( int idx=0; idx<attrinfo_->ioobjids_.size(); idx++ )
     {
-	SeisIOObjInfo sii( MultiID( attrinfo_->ioobjids_.get(idx) ) );
+	SeisIOObjInfo sii( DBKey( attrinfo_->ioobjids_.get(idx) ) );
 	if ( sii.isPS() && sii.is2D() )
 	{
 	    attrinfo_->ioobjids_.removeSingle( idx );
@@ -152,11 +152,11 @@ void uiAttribCrossPlot::initWin( CallBacker* )
 }
 
 
-MultiID uiAttribCrossPlot::getSelectedID() const
+DBKey uiAttribCrossPlot::getSelectedID() const
 {
     const int curitem = attrsfld_->currentItem();
     if ( !attrinfo_ || curitem<0 )
-	return MultiID();
+	return DBKey();
 
     const int attrsz = attrinfo_->attrnms_.size();
     const bool isstored = curitem >= attrsz;
@@ -164,9 +164,9 @@ MultiID uiAttribCrossPlot::getSelectedID() const
     {
 	const int ioobjidx = curitem - attrsz;
 	if ( attrinfo_->ioobjids_.validIdx(ioobjidx) )
-	    return MultiID( attrinfo_->ioobjids_[ioobjidx]->buf() );
+	    return DBKey( attrinfo_->ioobjids_[ioobjidx]->buf() );
 
-	return MultiID();
+	return DBKey();
     }
     else
     {
@@ -175,16 +175,16 @@ MultiID uiAttribCrossPlot::getSelectedID() const
 							  : Attrib::DescID();
 	const Attrib::Desc* desc = ads_.getDesc( descid );
 	if ( !desc )
-	    return MultiID();
+	    return DBKey();
 
 	if ( desc->isPS() )
 	{
-	    MultiID psid;
+	    DBKey psid;
 	    mGetStringFromDesc( (*desc), psid, "id" );
 	    return psid;
 	}
 
-	MultiID mid( desc->getStoredID(true) );
+	DBKey mid( desc->getStoredID(true) );
 	return mid;
     }
 }
@@ -192,7 +192,7 @@ MultiID uiAttribCrossPlot::getSelectedID() const
 
 void uiAttribCrossPlot::getLineNames( BufferStringSet& linenames )
 {
-    const MultiID mid = getSelectedID();
+    const DBKey mid = getSelectedID();
     const SeisIOObjInfo seisinfo( mid );
     seisinfo.getLineNames( linenames );
 }
@@ -200,7 +200,7 @@ void uiAttribCrossPlot::getLineNames( BufferStringSet& linenames )
 
 void uiAttribCrossPlot::lineChecked( CallBacker* )
 {
-    MultiID selid = getSelectedID();
+    DBKey selid = getSelectedID();
     const int selitem = selidxs_.indexOf( attrsfld_->currentItem() );
     if ( selitem < 0 ) return;
 
@@ -215,7 +215,7 @@ void uiAttribCrossPlot::lineChecked( CallBacker* )
 
 void uiAttribCrossPlot::attrChecked( CallBacker* )
 {
-    MultiID selid = getSelectedID();
+    DBKey selid = getSelectedID();
     const bool ischked = attrsfld_->isChosen( attrsfld_->currentItem() );
     if ( ischked && selidxs_.addIfNew(attrsfld_->currentItem()) )
     {

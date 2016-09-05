@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "rowcol.h"
 
 

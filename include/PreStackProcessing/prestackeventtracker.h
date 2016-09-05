@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "prestackprocessingmod.h"
 #include "factory.h"
 #include "odmemory.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "bufstring.h"
 
 
@@ -37,7 +37,7 @@ public:
 			//!<Should be called after each survey change
 			
     virtual void	setMute(bool inner,MuteDef*,OD::PtrPolicy);
-    virtual bool	setMute(bool inner,const MultiID&);
+    virtual bool	setMute(bool inner,const DBKey&);
 
     virtual bool	trackEvents(const Gather&,ObjectSet<Event>&) const = 0;
 
@@ -59,8 +59,8 @@ protected:
     bool			ownsinnermute_;
     bool			ownsoutermute_;
 
-    MultiID			innermuteid_;
-    MultiID			outermuteid_;
+    DBKey			innermuteid_;
+    DBKey			outermuteid_;
 
     uiString			errmsg_;
 };

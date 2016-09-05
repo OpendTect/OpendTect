@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiemattribmod.h"
 #include "uidialog.h"
 #include "emposid.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class BufferStringSet;
 class Horizon2DScanner;
@@ -61,7 +61,7 @@ protected:
     Table::FormatDesc&  fd_;
     Horizon2DScanner*	scanner_;
     BufferStringSet&	linesetnms_;
-    TypeSet<MultiID>	setids_;
+    TypeSet<DBKey>	setids_;
     TypeSet<EM::ObjectID> emobjids_;
 
     ObjectSet<SurfaceInfo>	horinfos_;

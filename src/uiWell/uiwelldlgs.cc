@@ -60,7 +60,7 @@ static const int cMDTrackCol = 3;
 
 
 uiString getWinTitle( const uiString& objtyp,
-				      const MultiID& wllky, bool& iswr )
+				      const DBKey& wllky, bool& iswr )
 {
     iswr = Well::Writer::isFunctional( wllky );
     return toUiString("%1 %2").arg(iswr ? uiStrings::sEdit() :

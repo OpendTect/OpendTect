@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "elasticpropsel.h"
 #include "uistring.h"
 #include "uigroup.h"
@@ -105,7 +105,7 @@ public:
 				~uiElasticPropSelDlg();
 
     const ElasticPropSelection&	elasticSel() const	{ return elpropsel_; }
-    const MultiID&		storedKey() const	{ return storedmid_; }
+    const DBKey&		storedKey() const	{ return storedmid_; }
     bool			propSaved() const	{ return propsaved_; }
 
 protected:
@@ -119,10 +119,10 @@ protected:
 
     ElasticPropSelection&	elpropsel_;
     ElasticPropSelection&	orgelpropsel_;
-    MultiID			storedmid_;
+    DBKey			storedmid_;
     bool			propsaved_;
 
-    bool			doRead(const MultiID&);
+    bool			doRead(const DBKey&);
     bool			doStore(const IOObj&);
 
     void			updateFields();

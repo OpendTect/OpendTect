@@ -39,7 +39,7 @@ public:
     void			allowOverWrite(bool);
     EM::Horizon*		getNewHorizon() const	{ return newhorizon_; }
 
-    EM::Horizon*		readHorizon(const MultiID&);
+    EM::Horizon*		readHorizon(const DBKey&);
     bool			saveHorizon();
 
     void			setHorRange(const Interval<int>& newinlrg,

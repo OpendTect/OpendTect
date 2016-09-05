@@ -128,7 +128,7 @@ void uiIOSurface::fillFields( const EM::SurfaceIOData& sd )
     fillRangeFld( sd.rg );
 }
 
-bool uiIOSurface::getSurfaceIOData(const MultiID& mid, EM::SurfaceIOData& sd,
+bool uiIOSurface::getSurfaceIOData(const DBKey& mid, EM::SurfaceIOData& sd,
     bool showmsg ) const
 {
     if ( forread_ )
@@ -194,7 +194,7 @@ void uiIOSurface::setSelAttributes( const BufferStringSet& attribnames ) const
 }
 
 
-void uiIOSurface::setInput( const MultiID& mid ) const
+void uiIOSurface::setInput( const DBKey& mid ) const
 {
     objfld_->setInput( mid );
 }
@@ -504,7 +504,7 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
 }
 
 
-void uiSurfaceRead::setIOObj( const MultiID& mid )
+void uiSurfaceRead::setIOObj( const DBKey& mid )
 {
     objfld_->setInput( mid );
     objSel( 0 );
@@ -547,14 +547,14 @@ uiHorizonParSel::~uiHorizonParSel()
 }
 
 
-void uiHorizonParSel::setSelected( const TypeSet<MultiID>& ids )
+void uiHorizonParSel::setSelected( const TypeSet<DBKey>& ids )
 {
     selids_ = ids;
     updateSummary();
 }
 
 
-const TypeSet<MultiID>& uiHorizonParSel::getSelected() const
+const TypeSet<DBKey>& uiHorizonParSel::getSelected() const
 { return selids_; }
 
 
@@ -604,8 +604,8 @@ void uiHorizonParSel::fillPar( IOPar& par ) const
 
 bool uiHorizonParSel::usePar( const IOPar& par )
 {
-    TypeSet<MultiID> mids;
-    MultiID mid;
+    TypeSet<DBKey> mids;
+    DBKey mid;
     for ( int idx=0; ; idx++ )
     {
 	const bool res = par.get( IOPar::compKey(sKey::Horizon(),idx), mid );
@@ -678,7 +678,7 @@ public:
 	fsslistfld_->addItems( validfss_ );
     }
 
-    void getSelected( BufferStringSet& nms, TypeSet<MultiID>& mids )
+    void getSelected( BufferStringSet& nms, TypeSet<DBKey>& mids )
     {
 	TypeSet<int> selids;
 	fsslistfld_->getChosen( selids );
@@ -695,7 +695,7 @@ public:
 
     uiListBox*		fsslistfld_;
     BufferStringSet	validfss_;
-    TypeSet<MultiID>	validmids_;
+    TypeSet<DBKey>	validmids_;
 };
 
 
@@ -761,7 +761,7 @@ public:
 	const int nrsel = dlg.nrChosen();
 	for ( int idx=0; idx<nrsel; idx++ )
 	{
-	    const MultiID& mid = dlg.chosenID( idx );
+	    const DBKey& mid = dlg.chosenID( idx );
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( !ioobj || fltpar_.selfaultnms_.isPresent(ioobj->name()) )
 		continue;
@@ -881,7 +881,7 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions,
 }
 
 
-void uiFaultParSel::setSelectedFaults( const TypeSet<MultiID>& ids,
+void uiFaultParSel::setSelectedFaults( const TypeSet<DBKey>& ids,
 				       const TypeSet<FaultTrace::Act>* act )
 {
     selfaultids_.erase();

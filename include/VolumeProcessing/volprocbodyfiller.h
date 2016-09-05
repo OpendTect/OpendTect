@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "coord.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "trckeyzsampling.h"
 
 namespace EM { class EMObject; class Body; class ImplicitBody; }
@@ -52,8 +52,8 @@ public:
     void			setOutsideValue(float);
     float			getOutsideValue() const;
 
-    bool			setSurface(const MultiID&);
-    MultiID			getSurfaceID() { return mid_; }
+    bool			setSurface(const DBKey&);
+    DBKey			getSurfaceID() { return mid_; }
 
     static const char*		sKeyOldType();
 
@@ -79,7 +79,7 @@ protected:
     EM::Body*			body_;
     EM::EMObject*		emobj_;
     EM::ImplicitBody*		implicitbody_;
-    MultiID			mid_;
+    DBKey			mid_;
 
     ValueType			insidevaltype_;
     ValueType			outsidevaltype_;
@@ -95,10 +95,10 @@ protected:
     double			epsilon_;
     ODPolygon<double>*		polygon_;
 
-    static const char*		sKeyOldMultiID();
+    static const char*		sKeyOldDBKey();
     static const char*		sKeyOldInsideOutsideValue();
 
-    static const char*		sKeyMultiID();
+    static const char*		sKeyDBKey();
     static const char*		sKeyInsideType();
     static const char*		sKeyOutsideType();
     static const char*		sKeyInsideValue();

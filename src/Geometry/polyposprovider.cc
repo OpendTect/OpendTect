@@ -22,7 +22,7 @@ Pos::PolyProvider3D::PolyProvider3D()
     : poly_(*new ODPolygon<float>)
     , hs_(*new TrcKeySampling(true))
     , zrg_(SI().zRange(false))
-    , mid_(MultiID::udf())
+    , mid_(DBKey::udf())
 {
 }
 
@@ -144,7 +144,7 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
     ODPolygon<float>* ret = 0;
     if ( res && *res )
     {
-	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( MultiID(res) );
+	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( DBKey(res) );
 	if ( ps )
 	{
 	    ret = new ODPolygon<float>;

@@ -40,7 +40,7 @@ public:
 				    bool addtohistory);
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
-				    const MultiID* pickedmid,
+				    const DBKey* pickedmid,
 				    const char* pickednm,bool addtohistory);
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
@@ -56,7 +56,7 @@ public:
     bool		pickedOn2DLine(const SectionID&,int sticknr) const;
     bool		pickedOnHorizon(const SectionID&,int sticknr) const;
 
-    const MultiID*	pickedMultiID(const SectionID&,int sticknr) const;
+    const DBKey*	pickedDBKey(const SectionID&,int sticknr) const;
     const char*		pickedName(const SectionID&,int sticknr) const;
     Pos::GeomID		pickedGeomID(const SectionID&,int sticknr)const;
 
@@ -83,7 +83,7 @@ protected:
 	int			sid;
 	int			sticknr;
 	Pos::GeomID		pickedgeomid;
-	MultiID			pickedmid;
+	DBKey			pickedmid;
 	BufferString		pickednm;
     };
 

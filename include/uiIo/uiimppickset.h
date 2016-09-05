@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiCheckBox;
 class uiColorInput;
@@ -33,7 +33,7 @@ public:
 			uiImpExpPickSet(uiParent*,uiPickPartServer*,bool);
 			~uiImpExpPickSet();
 
-    const MultiID&	getStoredID() const	{ return storedid_; }
+    const DBKey&	getStoredID() const	{ return storedid_; }
 
     Notifier<uiImpExpPickSet> importReady;
 
@@ -61,7 +61,7 @@ protected:
     bool		import_;
     Table::FormatDesc&  fd_;
 
-    MultiID		storedid_;
+    DBKey		storedid_;
 private:
     static uiString	sPicksetPolygon() { return tr("Pickset/Polygon"); }
 };

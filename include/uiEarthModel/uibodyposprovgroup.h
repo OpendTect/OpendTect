@@ -33,7 +33,7 @@ public:
     virtual bool		fillPar(IOPar&) const;
     void			getSummary(BufferString&) const;
 
-    bool			getID(MultiID&) const;
+    bool			getID(DBKey&) const;
 
 protected:
 

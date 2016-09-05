@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "prestackprocessingmod.h"
 #include "prestackprocessor.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 
 namespace PreStack

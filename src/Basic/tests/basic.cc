@@ -8,7 +8,7 @@
 
 #include "testprog.h"
 
-#include "multiid.h"
+#include "dbkey.h"
 
 
 bool testPointerCast()
@@ -66,7 +66,7 @@ bool testPointerAlignment()
 
 bool testCompoundKey()
 {
-    mRunStandardTest( MultiID::udf().isUdf(), "Undefined multiid" );
+    mRunStandardTest( DBKey::udf().isUdf(), "Undefined dbkey" );
 
     return true;
 }

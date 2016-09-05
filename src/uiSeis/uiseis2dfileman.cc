@@ -393,7 +393,7 @@ bool acceptOK()
 
 void uiSeis2DFileMan::redoAllLists()
 {
-    const MultiID lsid( objinfo_->ioObj()->key() );
+    const DBKey lsid( objinfo_->ioObj()->key() );
     delete objinfo_;
     objinfo_ = new uiSeisIOObjInfo( lsid );
     if ( objinfo_->isOK() )

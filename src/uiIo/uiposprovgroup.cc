@@ -250,7 +250,7 @@ void uiPolyPosProvGroup::setExtractionDefaults()
 }
 
 
-bool uiPolyPosProvGroup::getID( MultiID& ky ) const
+bool uiPolyPosProvGroup::getID( DBKey& ky ) const
 {
     const IOObj* ioobj = polyfld_->ioobj( true );
     if ( !ioobj )
@@ -310,7 +310,7 @@ void uiTablePosProvGroup::usePar( const IOPar& iop )
     const bool isfnm = fnmres && *fnmres;
     selfld_->setValue( !isfnm );
     if ( idres )
-	psfld_->setInput( MultiID(idres) );
+	psfld_->setInput( DBKey(idres) );
     if ( fnmres )
 	tffld_->setFileName( fnmres );
 }
@@ -345,7 +345,7 @@ void uiTablePosProvGroup::getSummary( BufferString& txt ) const
 }
 
 
-bool uiTablePosProvGroup::getID( MultiID& ky ) const
+bool uiTablePosProvGroup::getID( DBKey& ky ) const
 {
     if ( !selfld_->getBoolValue() )
 	return false;

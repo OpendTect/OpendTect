@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "bufstringset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uistring.h"
 
 namespace Attrib { class Desc; class DescSet; };
@@ -28,7 +28,7 @@ public:
 					    Attrib::DescSet*);
 
     bool		create();
-    static void		setStorageHint( const MultiID& m );
+    static void		setStorageHint( const DBKey& m );
 
 protected:
 

@@ -134,7 +134,7 @@ bool uiWellLogInterpolator::acceptOK()
 	: TriangulatedGridder2D::sFactoryKeyword();
     hwinterpolator_.setGridder( nm, radius );
 
-    TypeSet<MultiID> wellids;
+    TypeSet<DBKey> wellids;
     BufferStringSet lognms;
     welllogsel_->getSelWellIDs( wellids );
     welllogsel_->getSelLogNames( lognms );

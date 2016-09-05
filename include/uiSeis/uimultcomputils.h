@@ -44,7 +44,7 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
 			uiMultCompSel(uiParent*);
 			~uiMultCompSel();
 
-    void		setUpList(const MultiID&);
+    void		setUpList(const DBKey&);
     void		setUpList(const BufferStringSet&);
     bool		allowChoice() const	{ return compnms_.size()>1; }
 

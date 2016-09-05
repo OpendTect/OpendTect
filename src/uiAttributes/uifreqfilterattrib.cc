@@ -70,7 +70,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	    const Attrib::DescSet& attrset = inpfld_->getAttrSet();
 	    const Attrib::Desc* inpdesc = attrset.getDesc(inpfld_->attribID());
 	    if ( inpdesc )
-		freqsu.multiid_ = inpdesc->getStoredID( true );
+		freqsu.dbkey_ = inpdesc->getStoredID( true );
 	    winflds_ += new uiFreqTaperSel( this, su, freqsu );
 	}
 	else
@@ -107,9 +107,9 @@ void uiFreqFilterAttrib::selectionDoneCB( CallBacker* cb )
     
     const Attrib::DescSet& attrset = inpfld_->getAttrSet();
     const Attrib::Desc* inpdesc = attrset.getDesc( inpfld_->attribID() );
-    const MultiID multiid = inpdesc ? MultiID(inpdesc->getStoredID(true))
-				    : MultiID::udf();
-    freqtapersel->setMultiID( multiid );
+    const DBKey dbkey = inpdesc ? DBKey(inpdesc->getStoredID(true))
+				    : DBKey::udf();
+    freqtapersel->setDBKey( dbkey );
 }
 
 

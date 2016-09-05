@@ -71,7 +71,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 {
     handleStandardItems( menuid );
 
-    TypeSet<MultiID> setids;
+    TypeSet<DBKey> setids;
     RefMan<Pick::Set> newps = 0;
     if ( menuid == 1  )
     {
@@ -100,7 +100,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 }
 
 
-void uiODVw2DPickSetParentTreeItem::addChildItem( const MultiID& setid )
+void uiODVw2DPickSetParentTreeItem::addChildItem( const DBKey& setid )
 {
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( setid );
     ps.setNoDelete( true );

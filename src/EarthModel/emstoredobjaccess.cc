@@ -21,13 +21,13 @@ class StoredObjAccessData : public CallBacker
 { mODTextTranslationClass(StoredObjAccessData)
 public:
 
-			StoredObjAccessData(const MultiID&,
+			StoredObjAccessData(const DBKey&,
 					    const SurfaceIODataSelection*);
 			~StoredObjAccessData();
 
     bool		isErr() const	{ return !errmsg_.isEmpty(); }
 
-    MultiID		key_;
+    DBKey		key_;
     EM::EMObject*	obj_;
     Executor*		rdr_;
     Threads::Work*	work_;
@@ -48,7 +48,7 @@ EM::EMObject* EM::StoredObjAccessData::getEMObjFromEMM()
 }
 
 
-EM::StoredObjAccessData::StoredObjAccessData( const MultiID& ky,
+EM::StoredObjAccessData::StoredObjAccessData( const DBKey& ky,
 				    const EM::SurfaceIODataSelection* siods )
     : key_(ky)
     , obj_(0)
@@ -114,7 +114,7 @@ EM::StoredObjAccess::StoredObjAccess()
 }
 
 
-EM::StoredObjAccess::StoredObjAccess( const MultiID& ky )
+EM::StoredObjAccess::StoredObjAccess( const DBKey& ky )
 {
     add( ky );
 }
@@ -134,7 +134,7 @@ void EM::StoredObjAccess::setLoadHint( const EM::SurfaceIODataSelection& sio )
 }
 
 
-EM::StoredObjAccessData* EM::StoredObjAccess::get( const MultiID& ky )
+EM::StoredObjAccessData* EM::StoredObjAccess::get( const DBKey& ky )
 {
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -146,7 +146,7 @@ EM::StoredObjAccessData* EM::StoredObjAccess::get( const MultiID& ky )
 }
 
 
-bool EM::StoredObjAccess::set( const MultiID& ky )
+bool EM::StoredObjAccess::set( const DBKey& ky )
 {
     StoredObjAccessData* data = get( ky );
     if ( data )
@@ -159,7 +159,7 @@ bool EM::StoredObjAccess::set( const MultiID& ky )
 }
 
 
-bool EM::StoredObjAccess::add( const MultiID& ky )
+bool EM::StoredObjAccess::add( const DBKey& ky )
 {
     StoredObjAccessData* data = get( ky );
     if ( data )
@@ -171,7 +171,7 @@ bool EM::StoredObjAccess::add( const MultiID& ky )
 }
 
 
-void EM::StoredObjAccess::dismiss( const MultiID& ky )
+void EM::StoredObjAccess::dismiss( const DBKey& ky )
 {
     StoredObjAccessData* data = get( ky );
     if ( data )

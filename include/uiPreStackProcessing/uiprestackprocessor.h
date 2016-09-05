@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 #include "factory.h"
 #include "iopar.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiButton;
 class uiListBox;
@@ -39,8 +39,8 @@ public:
     Notifier<uiProcessorManager>change;
 
     bool			restore();
-    const MultiID&		lastMid() const		{ return lastmid_; }
-    void 			setLastMid(const MultiID& mid);
+    const DBKey&		lastMid() const		{ return lastmid_; }
+    void 			setLastMid(const DBKey& mid);
     bool			isChanged() const	{ return changed_; }
     				/*!<Returns if processmanager is changed since
 				    last save or load. */
@@ -72,7 +72,7 @@ protected:
     IOPar			restorepar_;
 
     ProcessManager&		manager_;
-    MultiID			lastmid_;
+    DBKey			lastmid_;
 
     uiListBox*			factorylist_;
     uiButton*			addprocessorbutton_;

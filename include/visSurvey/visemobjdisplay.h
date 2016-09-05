@@ -92,7 +92,7 @@ public:
 				     with a marker. */
     const char*			errMsg() const { return errmsg_.str(); }
 
-    MultiID			getMultiID() const;
+    DBKey			getDBKey() const;
     BufferStringSet		displayedSections() const;
 
     virtual void		setOnlyAtSectionsDisplay(bool yn);
@@ -182,7 +182,7 @@ protected:
 
     EM::EMManager&			em_;
     EM::EMObject*			emobject_;
-    MultiID				parmid_;
+    DBKey				parmid_;
     BufferStringSet			parsections_;
 
     MPEEditor*				editor_;

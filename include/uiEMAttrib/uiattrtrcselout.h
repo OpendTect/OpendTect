@@ -35,7 +35,7 @@ mExpClass(uiEMAttrib) uiAttrTrcSelOut : public uiAttrEMOut
 { mODTextTranslationClass(uiAttrTrcSelOut)
 public:
 			uiAttrTrcSelOut(uiParent*,const Attrib::DescSet&,
-				      const NLAModel*,const MultiID&,bool);
+				      const NLAModel*,const DBKey&,bool);
 			~uiAttrTrcSelOut();
 
     void		getComputableSurf(TrcKeySampling&);

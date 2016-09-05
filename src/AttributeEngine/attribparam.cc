@@ -305,7 +305,7 @@ bool SeisStorageRefParam::isOK() const
 	return DPM(fid).haveID( fid );
     }
 
-    const MultiID mid( storstr );
+    const DBKey mid( storstr );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     return ioobj;
 }

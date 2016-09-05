@@ -38,7 +38,7 @@ VolProcAttrib::VolProcAttrib( Desc& ds )
     , executor_(0)
 {
     const char* idstr = desc_.getValParam( sKeySetup() )->getStringValue();
-    setupmid_ = MultiID( idstr );
+    setupmid_ = DBKey( idstr );
 }
 
 
@@ -146,7 +146,7 @@ ExternalAttribCalculator::~ExternalAttribCalculator()
 }
 
 
-BufferString ExternalAttribCalculator::createDefinition( const MultiID& setup )
+BufferString ExternalAttribCalculator::createDefinition( const DBKey& setup )
 {
     BufferString res = sAttribName();
     res += " ";
@@ -171,7 +171,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     if ( !Attrib::Desc::getParamString( definition, sKeySetup(), midstring ) )
 	return false;
 
-    MultiID mid = midstring.buf();
+    DBKey mid = midstring.buf();
     PtrMan<IOObj>  ioobj = IOM().get( mid );
     if ( !ioobj )
     {

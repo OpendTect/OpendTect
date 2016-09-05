@@ -450,7 +450,7 @@ void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 
 void uiODVw2DHor3DTreeItem::renameVisObj()
 {
-    const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
+    const DBKey midintree = applMgr()->EMServer()->getStorageID(emid_);
     TypeSet<int> visobjids;
     applMgr()->visServer()->findObject( midintree, visobjids );
     for ( int idx=0; idx<visobjids.size(); idx++ )

@@ -25,7 +25,7 @@ mExpClass(Seis) WaveletLoader
 { mODTextTranslationClass(WaveletLoader)
 public:
 
-			WaveletLoader(const MultiID&);
+			WaveletLoader(const DBKey&);
 			WaveletLoader(const IOObj*);
 			~WaveletLoader();
 
@@ -38,7 +38,7 @@ protected:
 public:
 
     uiRetVal		read(Wavelet*&);
-    bool		addToMGR(Wavelet*,const MultiID&);
+    bool		addToMGR(Wavelet*,const DBKey&);
 
 };
 

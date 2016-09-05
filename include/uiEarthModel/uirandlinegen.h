@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiGenInput;
 class uiIOObjSel;
@@ -32,7 +32,7 @@ mExpClass(uiEarthModel) uiGenRanLinesByContour : public uiDialog
 public:
 			uiGenRanLinesByContour(uiParent*);
 
-    MultiID		getNewSetID() const;
+    DBKey		getNewSetID() const;
     bool		dispOnCreation();
 
 protected:
@@ -68,7 +68,7 @@ mExpClass(uiEarthModel) uiGenRanLinesByShift : public uiDialog
 public:
 			uiGenRanLinesByShift(uiParent*);
 
-    MultiID		getNewSetID() const;
+    DBKey		getNewSetID() const;
     bool		dispOnCreation();
 
 protected:
@@ -91,7 +91,7 @@ mExpClass(uiEarthModel) uiGenRanLineFromPolygon : public uiDialog
 public:
 			uiGenRanLineFromPolygon(uiParent*);
 
-    MultiID		getNewSetID() const;
+    DBKey		getNewSetID() const;
     bool		dispOnCreation();
 
 protected:

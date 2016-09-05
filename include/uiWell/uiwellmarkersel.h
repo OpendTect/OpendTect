@@ -110,7 +110,7 @@ public:
 			//Available after dlg.go():
     void		getNames(BufferStringSet&);
     void		getWellNames(BufferStringSet&);
-    void		getWellIDs(TypeSet<MultiID>&);
+    void		getWellIDs(TypeSet<DBKey>&);
 
 protected:
 

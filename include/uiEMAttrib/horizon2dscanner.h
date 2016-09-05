@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "posinfo2d.h"
 #include "ranges.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class BinIDValueSet;
 namespace Survey { class Geometry2D; }

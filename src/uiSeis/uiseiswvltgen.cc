@@ -50,7 +50,7 @@ bool uiSeisWvltCreate::putWvlt( const Wavelet& wvlt )
 }
 
 
-MultiID uiSeisWvltCreate::storeKey() const
+DBKey uiSeisWvltCreate::storeKey() const
 {
     return wvltfld_->key( true );
 }

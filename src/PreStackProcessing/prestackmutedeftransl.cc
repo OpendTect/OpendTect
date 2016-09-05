@@ -111,7 +111,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     if ( hasiopar )
     {
 	IOPar pars( astrm );
-	MultiID hormid;
+	DBKey hormid;
 	pars.get( sKeyRefHor(), hormid );
 	md.setReferenceHorizon( hormid );
     }
@@ -129,7 +129,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     {
 	if ( astrm.hasKeyword(sKeyRefHor()) )
 	{
-	    MultiID hormid = astrm.value();
+	    DBKey hormid = astrm.value();
 	    md.setReferenceHorizon( hormid );
 	    astrm.next();
 	}

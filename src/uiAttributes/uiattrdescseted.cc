@@ -302,7 +302,7 @@ void uiAttribDescSetEd::init()
     IOM().to( setctio_.ctxt_.getSelKey() );
     setctio_.setObj( IOM().get(setid_) );
     bool autoset = false;
-    MultiID autoid;
+    DBKey autoid;
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, autoset );
     const char* autoidkey = is2D() ? uiAttribDescSetEd::sKeyAuto2DAttrSetID
 				   : uiAttribDescSetEd::sKeyAuto3DAttrSetID;
@@ -324,7 +324,7 @@ void uiAttribDescSetEd::init()
 		    IOObj* ioobj = dlg.getObj();
 		    if ( dlg.isAuto() )
 		    {
-			MultiID id = ioobj ? ioobj->key() : "";
+			DBKey id = ioobj ? ioobj->key() : "";
 			SI().getPars().set( autoidkey, id );
 			SI().savePars();
 		    }
@@ -470,7 +470,7 @@ void uiAttribDescSetEd::autoSet( CallBacker* )
     {
 	const bool douse = dlg.useAuto();
 	IOObj* ioobj = dlg.getObj();
-	const MultiID id( ioobj ? ioobj->key() : MultiID("") );
+	const DBKey id( ioobj ? ioobj->key() : DBKey("") );
 	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
 	Settings::common().write();
 	IOPar& par = SI().getPars();

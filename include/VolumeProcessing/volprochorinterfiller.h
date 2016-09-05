@@ -41,11 +41,11 @@ public:
 
     bool			isOK() const;
 
-    bool			setTopHorizon(const MultiID*);
-    const MultiID*		getTopHorizonID() const;
+    bool			setTopHorizon(const DBKey*);
+    const DBKey*		getTopHorizonID() const;
 
-    bool			setBottomHorizon(const MultiID*);
-    const MultiID*		getBottomHorizonID() const;
+    bool			setBottomHorizon(const DBKey*);
+    const DBKey*		getBottomHorizonID() const;
 
     float			getTopValue() const;
     void			setTopValue(float);
@@ -78,7 +78,7 @@ protected:
 					const TrcKeySampling&,
 					const StepInterval<int>&) const;
 
-    EM::Horizon*		loadHorizon(const MultiID&) const;
+    EM::Horizon*		loadHorizon(const DBKey&) const;
 
     float			topvalue_;
     float			bottomvalue_;

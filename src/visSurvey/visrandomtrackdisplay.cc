@@ -1370,9 +1370,9 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 }
 
 
-MultiID RandomTrackDisplay::getMultiID() const
+DBKey RandomTrackDisplay::getDBKey() const
 {
-    return rl_ ? rl_->getMultiID() : MultiID::udf();
+    return rl_ ? rl_->getDBKey() : DBKey::udf();
 }
 
 

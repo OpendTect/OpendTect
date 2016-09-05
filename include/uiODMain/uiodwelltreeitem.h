@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "sets.h"
 
 class uiCreateAttribLogDlg;
@@ -52,7 +52,7 @@ mExpClass(uiODMain) uiODWellTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODWellTreeItem)
 public:
     			uiODWellTreeItem( int );
-    			uiODWellTreeItem( const MultiID& mid );
+    			uiODWellTreeItem( const DBKey& mid );
     			~uiODWellTreeItem();
 
 protected:
@@ -64,7 +64,7 @@ protected:
     const char*		parentType() const
 			{ return typeid(uiODWellParentTreeItem).name(); }
 
-    MultiID		mid_;
+    DBKey		mid_;
     MenuItem		attrmnuitem_;
     MenuItem		logcubemnuitem_;
     MenuItem		sellogmnuitem_;

@@ -111,8 +111,8 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 
 
 static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
-		     ObjectSet<MultiID>& midset, BufferString& errmsg,
-		     bool iscubeoutp, MultiID& outpid  )
+		     ObjectSet<DBKey>& midset, BufferString& errmsg,
+		     bool iscubeoutp, DBKey& outpid  )
 {
     strm << "Preparing processing" << od_endl;
     BufferString lpartstr = IOPar::compKey( sKey::Output(), 0 );
@@ -123,7 +123,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 
     if ( !iscubeoutp )
     {
-	MultiID* mid = new MultiID(objidstr.buf());
+	DBKey* mid = new DBKey(objidstr.buf());
 	midset += mid;
 	BufferString newattrnm;
 	iopar.get( sKey::Target(), newattrnm );
@@ -142,7 +142,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) )
 	    return false;
 
-	MultiID* mid = new MultiID( objidstr.buf() );
+	DBKey* mid = new DBKey( objidstr.buf() );
 	midset += mid;
 
 	BufferString hor2str = IOPar::compKey(basehorstr,1);
@@ -151,7 +151,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 
 	if ( objidstr.size() )
 	{
-	    MultiID* mid2 = new MultiID( objidstr.buf() );
+	    DBKey* mid2 = new DBKey( objidstr.buf() );
 	    midset += mid2;
 	}
     }
@@ -170,7 +170,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 
 
 static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
-		    const MultiID& outid = 0 , SeisTrcBuf* tbuf = 0 )
+		    const DBKey& outid = 0 , SeisTrcBuf* tbuf = 0 )
 {
     if ( !proc ) return false;
 
@@ -323,8 +323,8 @@ bool BatchProgram::go( od_ostream& strm )
     const bool iscubeoutp = type == Output::tskey();
 
     BufferString errmsg;
-    MultiID outpid;
-    ObjectSet<MultiID> midset;
+    DBKey outpid;
+    ObjectSet<DBKey> midset;
     if ( !prepare( strm, pars(),
 		   iscubeoutp ? SeisTrcStorOutput::seisidkey()
 			      : LocationOutput::surfidkey(),
@@ -349,7 +349,7 @@ bool BatchProgram::go( od_ostream& strm )
     ObjectSet<EMObject> objects;
     for ( int idx=0; idx<midset.size(); idx++ )
     {
-	MultiID* mid = midset[idx];
+	DBKey* mid = midset[idx];
 	strm << "Loading: " << mid->buf() << "\n\n";
 
 	SurfaceIOData sd;

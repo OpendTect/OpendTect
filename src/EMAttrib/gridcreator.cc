@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "randomlinegeom.h"
 #include "seis2ddata.h"
 #include "seisrandlineto2d.h"
@@ -148,7 +148,7 @@ uiString Seis2DGridCreator::uiNrDoneText() const
 
 bool Seis2DGridCreator::init( const IOPar& par )
 {
-    MultiID key;
+    DBKey key;
     par.get( Seis2DGridCreator::sKeyInput(), key );
     PtrMan<IOObj> input = IOM().get( key );
 
@@ -373,7 +373,7 @@ bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* taskrunner )
     BufferString prefix;
     par.get( Horizon2DGridCreator::sKeyPrefix(), prefix );
 
-    MultiID dsid;
+    DBKey dsid;
     par.get( Horizon2DGridCreator::sKeySeisID(), dsid );
     PtrMan<IOObj> dsioobj = IOM().get( dsid );
     if ( !dsioobj ) return false;
@@ -387,7 +387,7 @@ bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* taskrunner )
     EM::EMManager& em = EM::EMM();
     for ( int idx=0; idx<horids.size(); idx++ )
     {
-	MultiID mid( horids.get(idx) );
+	DBKey mid( horids.get(idx) );
 	RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( mid, taskrunner );
 
 	mDynamicCastGet(EM::Horizon3D*,horizon3d,emobj.ptr());

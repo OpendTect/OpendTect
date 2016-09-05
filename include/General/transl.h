@@ -150,7 +150,7 @@ public:
     virtual bool		isUserSelectable( bool forread=true ) const
 				{ return true; }
     virtual IOObj*		createWriteIOObj(const IOObjContext&,
-						 const MultiID&) const;
+						 const DBKey&) const;
     virtual const char*		iconName() const	{ return "od"; }
     const char*			getDisplayName() const; //!< "username [group]"
     static const Translator*	getTemplateInstance(const char* displayname);

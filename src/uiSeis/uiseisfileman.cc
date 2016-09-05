@@ -417,8 +417,8 @@ void uiSeisFileMan::mergePush( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
-    const MultiID key( curioobj_->key() );
-    TypeSet<MultiID> chsnmids;
+    const DBKey key( curioobj_->key() );
+    TypeSet<DBKey> chsnmids;
     selgrp_->getChosen( chsnmids );
     uiMergeSeis dlg( this );
     dlg.setInputIds( chsnmids );
@@ -442,7 +442,7 @@ void uiSeisFileMan::man2DPush( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
-    const MultiID key( curioobj_->key() );
+    const DBKey key( curioobj_->key() );
     uiSeis2DFileMan dlg( this, *curioobj_ );
     dlg.go();
 
@@ -455,7 +455,7 @@ void uiSeisFileMan::copyPush( CallBacker* )
     if ( !curioobj_ )
 	return;
 
-    const MultiID key( curioobj_->key() );
+    const DBKey key( curioobj_->key() );
     bool needrefresh = false;
     if ( is2d_ )
     {

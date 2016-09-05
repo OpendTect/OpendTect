@@ -63,7 +63,7 @@ uiHor3DFrom2DDlg::~uiHor3DFrom2DDlg()
 }
 
 
-MultiID uiHor3DFrom2DDlg::getSelID() const
+DBKey uiHor3DFrom2DDlg::getSelID() const
 {
     return selid_;
 }
@@ -107,7 +107,7 @@ bool uiHor3DFrom2DDlg::acceptOK()
 
     hor3d_->ref();
     hor3d_->setPreferredColor( hor2d_.preferredColor() );
-    hor3d_->setMultiID( ioobj->key() );
+    hor3d_->setDBKey( ioobj->key() );
 
     Array2DInterpol* interpolator = interpolsel_->getResult();
     if ( !interpolator )

@@ -308,7 +308,7 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
     const int nrsel = mutesel.nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	const MultiID& muteid = mutesel.chosenID( idx );
+	const DBKey& muteid = mutesel.chosenID( idx );
 	PtrMan<IOObj> muteioobj = IOM().get( muteid );
 	if ( !muteioobj )
 	    continue;
@@ -861,7 +861,7 @@ void uiStoredViewer2DMainWin::getGatherNames( BufferStringSet& nms) const
 }
 
 
-void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
+void uiStoredViewer2DMainWin::init( const DBKey& mid, const BinID& bid,
 	bool isinl, const StepInterval<int>& trcrg, const char* linename )
 {
     mids_ += mid;
@@ -927,7 +927,7 @@ void uiStoredViewer2DMainWin::setUpNewPositions(bool isinl, const BinID& posbid,
 }
 
 
-void uiStoredViewer2DMainWin::setIDs( const TypeSet<MultiID>& mids  )
+void uiStoredViewer2DMainWin::setIDs( const TypeSet<DBKey>& mids  )
 {
     mids_ = mids;
     setUpNewIDs();
@@ -1037,7 +1037,7 @@ uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
 
     if ( !gather ) return 0;
     PreStack::VelocityBasedAngleComputer velangcomp;
-    velangcomp.setMultiID( angleparams_->velvolmid_ );
+    velangcomp.setDBKey( angleparams_->velvolmid_ );
     velangcomp.setRayTracer( angleparams_->raypar_ );
     velangcomp.setSmoothingPars( angleparams_->smoothingpar_ );
     const FlatPosData& fp = gather->posData();

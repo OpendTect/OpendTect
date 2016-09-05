@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uioddisplaytreeitem.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiODPSEventsTreeItem;
 namespace PreStack { class EventManager; }
@@ -31,7 +31,7 @@ protected:
     const char*			parentType() const;
     const char*			iconName() const;
     virtual bool		showSubMenu();
-    bool			loadPSEvent(MultiID&,BufferString&);
+    bool			loadPSEvent(DBKey&,BufferString&);
     uiODPSEventsTreeItem*	child_;
 };
 
@@ -50,7 +50,7 @@ public:
 mExpClass(uiODMain) uiODPSEventsTreeItem : public uiODDisplayTreeItem
 {
 public:
-			uiODPSEventsTreeItem(const MultiID& key,const char*);
+			uiODPSEventsTreeItem(const DBKey& key,const char*);
 			~uiODPSEventsTreeItem();
     void		updateScaleFactor(float);
     void		updateColorMode(int mode);
@@ -76,7 +76,7 @@ protected:
     Coord			dir_;
     visSurvey::PSEventDisplay*	eventdisplay_;
     MenuItem*			coloritem_;
-    MultiID			key_;
+    DBKey			key_;
     int				coloridx_;
     int				dispidx_;
 };

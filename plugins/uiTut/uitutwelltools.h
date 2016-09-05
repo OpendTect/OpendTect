@@ -8,7 +8,7 @@
 
 #include "uitutmod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiGenInput;
 class uiListBox;
@@ -21,7 +21,7 @@ mExpClass(uiTut) uiTutWellTools : public uiDialog
 { mODTextTranslationClass(uiTutWellTools);
 public:
 
-    			uiTutWellTools(uiParent*,const MultiID& wellid);
+    			uiTutWellTools(uiParent*,const DBKey& wellid);
 			~uiTutWellTools();
 
 protected:
@@ -32,7 +32,7 @@ protected:
     BufferString	inlognm_;
     BufferString        outlognm_;
     Well::Data*		wd_;
-    MultiID		wellid_;
+    DBKey		wellid_;
 
     void		inpchg(CallBacker*);
     void		wellToBeDeleted(CallBacker*);

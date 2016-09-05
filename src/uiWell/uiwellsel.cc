@@ -75,14 +75,14 @@ uiWellParSel::~uiWellParSel()
 }
 
 
-void uiWellParSel::setSelected( const TypeSet<MultiID>& ids )
+void uiWellParSel::setSelected( const TypeSet<DBKey>& ids )
 {
     selids_ = ids;
     updSummary(0);
 }
 
 
-void uiWellParSel::getSelected( TypeSet<MultiID>& ids ) const
+void uiWellParSel::getSelected( TypeSet<DBKey>& ids ) const
 { ids = selids_; }
 
 
@@ -118,7 +118,7 @@ bool uiWellParSel::usePar( const IOPar& iop )
     iopar_.get( sKey::Size(), nrids );
     for ( int idx=0; idx<nrids; idx++ )
     {
-	MultiID mid;
+	DBKey mid;
 	if ( iopar_.get(IOPar::compKey(sKey::ID(),idx),mid) )
 	    selids_ += mid;
     }

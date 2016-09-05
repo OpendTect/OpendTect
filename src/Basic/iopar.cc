@@ -6,7 +6,7 @@
 
 
 #include "iopar.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "keystrs.h"
 #include "od_iostream.h"
 #include "globexpr.h"
@@ -1036,7 +1036,7 @@ void IOPar::set( const char* keyw, const BufferStringSet& bss )
 }
 
 
-bool IOPar::get( const char* keyw, MultiID& mid ) const
+bool IOPar::get( const char* keyw, DBKey& mid ) const
 {
     mGetStartNotEmpty(pval);
     mid = pval;
@@ -1044,7 +1044,7 @@ bool IOPar::get( const char* keyw, MultiID& mid ) const
 }
 
 
-void IOPar::set( const char* keyw, const MultiID& mid )
+void IOPar::set( const char* keyw, const DBKey& mid )
 {
     set( keyw, mid.buf() );
 }

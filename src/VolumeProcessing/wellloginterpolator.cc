@@ -35,7 +35,7 @@ static const char* sKeyLayerModel()	{ return "Layer Model"; }
 class WellLogInfo
 {
 public:
-WellLogInfo( const MultiID& mid, const char* lognm )
+WellLogInfo( const DBKey& mid, const char* lognm )
     : mid_(mid), logname_(lognm)
 {}
 
@@ -108,7 +108,7 @@ void computeLayerModelIntersection(
 
 Well::Track*	track_;
 TrcKeyZSampling bbox_;
-MultiID		mid_;
+DBKey		mid_;
 BufferString	logname_;
 ConstRefMan<Well::Log>	log_;
 TypeSet<float>	intersections_;
@@ -206,7 +206,7 @@ bool WellLogInterpolator::is2D() const
 { return false; }
 
 
-void WellLogInterpolator::setWellData( const TypeSet<MultiID>& ids,
+void WellLogInterpolator::setWellData( const TypeSet<DBKey>& ids,
 				       const char* lognm )
 {
     wellmids_ = ids;
@@ -228,7 +228,7 @@ void WellLogInterpolator::getWellNames( BufferStringSet& res ) const
 const char* WellLogInterpolator::getLogName() const
 { return logname_.buf(); }
 
-void WellLogInterpolator::getWellIDs( TypeSet<MultiID>& ids ) const
+void WellLogInterpolator::getWellIDs( TypeSet<DBKey>& ids ) const
 { ids = wellmids_; }
 
 
@@ -420,7 +420,7 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
     pars.get( sKeyNrWells(), nrwells );
     for ( int idx=0; idx<nrwells; idx++ )
     {
-	MultiID mid;
+	DBKey mid;
 	const BufferString key = IOPar::compKey( sKeyWellLogID(), idx );
 	if ( pars.get(key,mid) )
 	    wellmids_ += mid;

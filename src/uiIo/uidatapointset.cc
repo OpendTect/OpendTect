@@ -1492,7 +1492,7 @@ void uiDataPointSet::manage( CallBacker* )
 {
     uiDataPointSetMan dlg( this );
     dlg.go();
-    MultiID mid;
+    DBKey mid;
     if ( curseldlg_ && curseldlg_->ioObj() )
 	mid = curseldlg_->ioObj()->key();
     curseldlg_->selGrp()->fullUpdate( mid );

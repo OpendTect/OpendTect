@@ -335,7 +335,7 @@ protected:
 
     uiString			msg_;
     BufferString		fulluserexpr_;
-    MultiID			objectmid_;
+    DBKey			objectmid_;
     int				nrdone_;
 
     int				sectionindex_;

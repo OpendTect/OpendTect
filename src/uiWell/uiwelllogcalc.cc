@@ -75,7 +75,7 @@ static Math::SpecVarSet& getSpecVars()
 }
 
 
-static uiString getDlgUiTitle( const TypeSet<MultiID>& wllids )
+static uiString getDlgUiTitle( const TypeSet<DBKey>& wllids )
 {
     const int sz = wllids.size();
     if ( sz < 1 )
@@ -90,7 +90,7 @@ static uiString getDlgUiTitle( const TypeSet<MultiID>& wllids )
 }
 
 
-uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
+uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<DBKey>& wllids,
 			      bool rockphysmode )
 	: uiDialog(p,uiDialog::Setup(tr("Calculate new logs"),
 				     getDlgUiTitle(wllids),
@@ -185,7 +185,7 @@ void uiWellLogCalc::getAllLogs()
 {
     for ( int idx=0; idx<wellids_.size(); idx++ )
     {
-	const MultiID wmid = wellids_[idx];
+	const DBKey wmid = wellids_[idx];
 	RefMan<Well::Data> wd = new Well::Data;
 	PtrMan<Well::Reader> wrdr;
 	BufferStringSet nms;
@@ -439,7 +439,7 @@ bool uiWellLogCalc::acceptOK()
     bool successfulonce = false;
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
     {
-	const MultiID wmid = wellids_[iwell];
+	const DBKey wmid = wellids_[iwell];
 
 	RefMan<Well::Data> wd = Well::MGR().get( wmid );
 	bool isinplogunitsi = true;

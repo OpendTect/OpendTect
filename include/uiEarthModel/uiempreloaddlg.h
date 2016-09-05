@@ -48,7 +48,7 @@ protected:
     void		selCB(CallBacker*);
     void		openPushCB(CallBacker*);
     void		savePushCB(CallBacker*);
-    void		loadSavedHorizon(const TypeSet<MultiID>&);
+    void		loadSavedHorizon(const TypeSet<DBKey>&);
 };
 
 

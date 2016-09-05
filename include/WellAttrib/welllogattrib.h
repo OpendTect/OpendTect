@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "wellattribmod.h"
 #include "attribprovider.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "ranges.h"
 #include "stattype.h"
 
@@ -60,7 +60,7 @@ protected:
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int t0,int nrsamples,int threadid) const;
 
-    MultiID		wellid_;
+    DBKey		wellid_;
     BufferString	logname_;
     int			upscaletype_; // Stats::UpscaleType
     Array1D<float>*	logvals_;

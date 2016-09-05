@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 #include "attribsel.h"
 #include "ioman.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "survgeom.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
@@ -53,7 +53,7 @@ mStruct(uiODMain) Viewer2DPosDataSel
 			    selspec_	    = sd.selspec_;
 			    tkzs_	    = sd.tkzs_;
 			    rdmlineid_	    = sd.rdmlineid_;
-			    rdmlinemultiid_ = sd.rdmlinemultiid_;
+			    rdmlinedbkey_ = sd.rdmlinedbkey_;
 			    geomid_	    = sd.geomid_;
 			    selectdata_	    = sd.selectdata_;
 			}
@@ -66,7 +66,7 @@ mStruct(uiODMain) Viewer2DPosDataSel
 			    selspec_	    = Attrib::SelSpec();
 			    tkzs_.init( !IOM().isBad() );
 			    rdmlineid_	    = -1;
-			    rdmlinemultiid_ = MultiID::udf();
+			    rdmlinedbkey_ = DBKey::udf();
 			    rdmlineid_ = mUdf(int);
 			    geomid_ = Survey::GeometryManager::cUndefGeomID();
 			    selectdata_	    = true;
@@ -76,11 +76,11 @@ mStruct(uiODMain) Viewer2DPosDataSel
     Attrib::SelSpec	selspec_;
     TrcKeyZSampling	tkzs_;
     Pos::GeomID		geomid_;
-    MultiID		rdmlinemultiid_;
+    DBKey		rdmlinedbkey_;
     int			rdmlineid_;
     bool		selectdata_;
 
-    static const char*	sKeyRdmLineMultiID(){ return "Random Line MultiID"; }
+    static const char*	sKeyRdmLineDBKey(){ return "Random Line DBKey"; }
     static const char*  sKeyRdmLineID()	    { return "Random Line ID"; }
     static const char*	sKeySelectData()    { return "Select Data"; }
 

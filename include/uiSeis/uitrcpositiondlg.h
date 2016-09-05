@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 #include "trckeyzsampling.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "datapackbase.h"
 
 class uiLabeledSpinBox;
@@ -50,7 +50,7 @@ public:
 				uiTrcPositionDlg(uiParent*,
 						 const DataPack::FullID&);
 				uiTrcPositionDlg(uiParent*,const TrcKeyZSampling&,
-						 bool,const MultiID&);
+						 bool,const DBKey&);
 				~uiTrcPositionDlg();
 
     TrcKeyZSampling		getTrcKeyZSampling() const;
@@ -62,7 +62,7 @@ public:
     uiSpinBox*			crlfld_;
     uiSeis2DLineNameSel*	linesfld_;
     uiFlatDPPosSel*		fdpposfld_;
-    MultiID			mid_;
+    DBKey			mid_;
 
 protected:
     void			lineSel(CallBacker*);

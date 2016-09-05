@@ -310,7 +310,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 
     visSurvey::PreStackDisplay* viewer = new visSurvey::PreStackDisplay;
     viewer->ref();
-    viewer->setMultiID( ioobj->key() );
+    viewer->setDBKey( ioobj->key() );
     visserv_->addObject( viewer, sceneid, true );
 
     const Coord3 pickedpos = menu->getPickedPos();
@@ -455,7 +455,7 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
 uiStoredViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer(
 				    const visSurvey::PreStackDisplay& psv )
 {
-    const MultiID mid = psv.getMultiID();
+    const DBKey mid = psv.getDBKey();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
        return 0;
@@ -490,7 +490,7 @@ void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
 	{ pErrMsg( "Can not find viewer" ); return; }
 
     uiSeisPartServer* seisserv = ODMainWin()->applMgr().seisServer();
-    BufferStringSet selgnms, allgnms; TypeSet<MultiID> selids;
+    BufferStringSet selgnms, allgnms; TypeSet<DBKey> selids;
     win->getIDs( selids );
     for( int idx=0; idx<selids.size(); idx++ )
     {
@@ -632,18 +632,18 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	if ( !viewerpar )
 	    continue;
 
-	MultiID mid;
+	DBKey mid;
 	bool is3d;
 	int trcnr;
 	BinID bid;
 	BufferString name2d;
-	if ( !viewerpar->get( sKeyMultiID(), mid ) ||
+	if ( !viewerpar->get( sKeyDBKey(), mid ) ||
 	     !viewerpar->get( sKeyBinID(), bid ) ||
 	     !viewerpar->get( sKeyTraceNr(), trcnr ) ||
 	     !viewerpar->get( sKeyLineName(), name2d ) ||
 	     !viewerpar->getYN( sKeyIsVolumeData(), is3d ) )
 	{
-	    if ( !viewerpar->get( "uiFlatViewWin MultiID", mid ) ||
+	    if ( !viewerpar->get( "uiFlatViewWin DBKey", mid ) ||
 		 !viewerpar->get( "uiFlatViewWin binid", bid ) ||
 		 !viewerpar->get( "Seis2D TraceNr", trcnr ) ||
 		 !viewerpar->get( "Seis2D Name", name2d ) ||
@@ -720,7 +720,7 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
 	IOPar viewerpar;
 	viewers2d_[idx]->viewer().fillAppearancePar( viewerpar );
 	viewerpar.set( sKeyBinID(), gather->getBinID() );
-	viewerpar.set( sKeyMultiID(), gather->getStorageID() );
+	viewerpar.set( sKeyDBKey(), gather->getStorageID() );
 	viewerpar.set( sKeyTraceNr(), gather->getTrcKey().trcNr() );
 	viewerpar.set( sKeyLineName(),
 			Survey::GM().getName(gather->getTrcKey().geomID()) );

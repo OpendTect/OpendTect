@@ -10,7 +10,7 @@
 #include "testprog.h"
 #include "bufstringset.h"
 #include "iopar.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 
 #define mRunTest( desc, test ) mRunStandardTest( test, desc );
@@ -251,8 +251,8 @@ bool testEmptyStringComparison()
     mRunStandardTest( bfstr=="", "Empty string comparison - BufferString");
     FixedString fxdstr;
     mRunStandardTest( fxdstr=="", "Empty string comparison - FixedString");
-    MultiID mid;
-    mRunStandardTest( mid=="", "Empty string comparison - MultiID");
+    DBKey mid;
+    mRunStandardTest( mid=="", "Empty string comparison - DBKey");
 
     return true;
 }

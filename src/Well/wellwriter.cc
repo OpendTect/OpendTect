@@ -27,7 +27,7 @@
 #include "ioman.h"
 
 
-bool Well::Writer::isFunctional( const MultiID& ky )
+bool Well::Writer::isFunctional( const DBKey& ky )
 {
     PtrMan<IOObj> ioobj = IOM().get( ky );
     return ioobj ? isFunctional(*ioobj) : false;
@@ -49,7 +49,7 @@ Well::Writer::Writer( const IOObj& ioobj, const Well::Data& wd )
 }
 
 
-Well::Writer::Writer( const MultiID& ky, const Well::Data& wd )
+Well::Writer::Writer( const DBKey& ky, const Well::Data& wd )
     : wa_(0)
 {
     IOObj* ioobj = IOM().get( ky );
@@ -124,7 +124,7 @@ Well::odWriter::odWriter( const IOObj& ioobj, const Well::Data& w,
     : Well::odIO(ioobj.fullUserExpr(false),e)
     , Well::WriteAccess(w)
 {
-    wd_.setMultiID( ioobj.key() );
+    wd_.setDBKey( ioobj.key() );
     init();
     ioobj.pars().getYN( sKeyLogStorage(), binwrlogs_ );
 }

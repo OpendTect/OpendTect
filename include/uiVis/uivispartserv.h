@@ -81,7 +81,7 @@ public:
 				   bool saveinsessions);
     void		shareObject(int sceneid,int id);
     void		findObject(const std::type_info&,TypeSet<int>&);
-    void		findObject(const MultiID&, TypeSet<int>& );
+    void		findObject(const DBKey&, TypeSet<int>& );
     void		removeObject(visBase::DataObject*,int sceneid);
     void		removeObject(int id,int sceneid);
     void		setObjectName(int,const uiString&);
@@ -212,7 +212,7 @@ public:
     MenuHandler*	getMenuHandler();
     MenuHandler*	getToolBarHandler();
 
-    MultiID		getMultiID(int) const;
+    DBKey		getDBKey(int) const;
 
     int			getSelObjectId() const;
     int			getSelAttribNr() const;

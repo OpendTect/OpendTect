@@ -32,7 +32,7 @@ mExpClass(uiEMAttrib) uiAttrSurfaceOut : public uiAttrEMOut
 { mODTextTranslationClass(uiAttrSurfaceOut);
 public:
     			uiAttrSurfaceOut(uiParent*,const Attrib::DescSet&,
-					 const NLAModel*,const MultiID&);
+					 const NLAModel*,const DBKey&);
 			~uiAttrSurfaceOut();
 
    void			fillGridPar(IOPar&) const;

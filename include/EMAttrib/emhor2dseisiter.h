@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "emattribmod.h"
-#include "multiid.h"
+#include "dbkey.h"
 class Seis2DDataSet;
 namespace EM { class Horizon2D; class Horizon2DGeometry; }
 
@@ -29,7 +29,7 @@ mExpClass(EMAttrib) Hor2DSeisLineIterator
 public:
 
 			Hor2DSeisLineIterator(const Horizon2D&);
-			Hor2DSeisLineIterator(const MultiID&);
+			Hor2DSeisLineIterator(const DBKey&);
     virtual		~Hor2DSeisLineIterator();
 
     bool		next();
@@ -38,7 +38,7 @@ public:
     int			nrLines() const			{ return nrlines_; }
     int			nrLinesDone() const		{ return lineidx_+1; }
     const char*		lineName() const;
-    const MultiID&	lineSetKey()			{ return curlsid_; }
+    const DBKey&	lineSetKey()			{ return curlsid_; }
 
     const Horizon2D*	horizon() const			{ return h2d_; }
     const Horizon2DGeometry& geometry() const		{ return *geom_; }
@@ -52,7 +52,7 @@ protected:
     int				lineidx_;
     const int			nrlines_;
     Seis2DDataSet*		dataset_;
-    MultiID			curlsid_;
+    DBKey			curlsid_;
 
 private:
 

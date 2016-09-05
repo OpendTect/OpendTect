@@ -139,7 +139,7 @@ void uiSynthSeisGrp::usePar( const IOPar& iopar )
     TypeSet<float> offsets;
     iopar.get( RayTracer1D::sKeyOffset(), offsets );
     const bool iszerooofset = mIsZeroOffset(offsets);
-    MultiID waveletid;
+    DBKey waveletid;
     if ( iopar.get(sKey::WaveletID(),waveletid) )
 	wvltfld_->setInput( waveletid );
 

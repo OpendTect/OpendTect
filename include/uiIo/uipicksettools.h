@@ -22,13 +22,13 @@ mExpClass(uiIo) uiMergePickSets : public uiDialog
 { mODTextTranslationClass(uiMergePickSets);
 public:
 
-			uiMergePickSets(uiParent*,MultiID&);
+			uiMergePickSets(uiParent*,DBKey&);
 
 protected:
 
     uiIOObjSelGrp*	selfld_;
     uiIOObjSel*		outfld_;
-    MultiID&		setid_;
+    DBKey&		setid_;
 
     bool		acceptOK();
     RefMan<Pick::Set>	getMerged(IOPar&) const;

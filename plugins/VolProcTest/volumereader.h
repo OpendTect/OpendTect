@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "volumeprocessing.h"
 
-#include "multiid.h"
+#include "dbkey.h"
 #include "seistrc.h"
 
 
@@ -32,8 +32,8 @@ public:
 
 				VolumeReader(ProcessingChain&);
 
-    void			setStorage(const MultiID&);
-    const MultiID&		getStorage() const;
+    void			setStorage(const DBKey&);
+    const DBKey&		getStorage() const;
 
     const char*			type() const;
     bool			needsInput(const HorSampling&) const; 
@@ -52,7 +52,7 @@ public:
 protected:
     static ProcessingStep*	create(ProcessingChain& pc);
 
-    MultiID			storageid_;
+    DBKey			storageid_;
     SeisTrcReader*		reader_;
     BufferString		errmsg_;
     SeisTrc			curtrc_;

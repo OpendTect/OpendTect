@@ -64,7 +64,7 @@ uiHorGeom2Attr::~uiHorGeom2Attr()
 BufferStringSet& uiHorGeom2Attr::getItems( const EM::Horizon3D& hor )
 {
     itmnms_ = new BufferStringSet;
-    EM::IOObjInfo eminfo( EM::EMM().getMultiID(hor.id()) );
+    EM::IOObjInfo eminfo( EM::EMM().getDBKey(hor.id()) );
     eminfo.getAttribNames( *itmnms_ );
     return *itmnms_;
 }

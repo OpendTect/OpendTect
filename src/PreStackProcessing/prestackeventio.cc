@@ -479,7 +479,7 @@ bool EventReader::readAuxData(const char* fnm)
 
 	eventmanager_->addHorizon( id );
 
-	MultiID emref;
+	DBKey emref;
 	if ( horpar->get( EventReader::sKeyHorizonRef(), emref ) )
 	    eventmanager_->setHorizonEMReference( id, emref );
     }

@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class uiCheckList;
 class uiSpinBox;
@@ -26,14 +26,14 @@ mExpClass(uiIo) uiProbDenFuncGen : public uiDialog
 public:
 			uiProbDenFuncGen(uiParent*);
 
-    MultiID		newObjKey() const	{ return ioobjky_; }
+    DBKey		newObjKey() const	{ return ioobjky_; }
 
 protected:
 
     uiCheckList*	choicefld_;
     uiSpinBox*		nrdimfld_;
 
-    MultiID		ioobjky_;
+    DBKey		ioobjky_;
 
     void		choiceSel(CallBacker*);
     bool		acceptOK();

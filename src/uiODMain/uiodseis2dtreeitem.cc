@@ -980,19 +980,19 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
-    const MultiID& multiid = objinfo.ioObj()->key();
+    const DBKey& dbkey = objinfo.ioObj()->key();
     //First time to ensure all components are available
-    Attrib::DescID attribid = attrserv->getStoredID( multiid, true );
+    Attrib::DescID attribid = attrserv->getStoredID( dbkey, true );
 
     BufferStringSet complist;
     SeisIOObjInfo::getCompNames( objinfo.ioObj()->key(), complist );
     if ( complist.size()>1 && component<0 )
     {
 	if ( ( !selcomps.size() &&
-	       !attrserv->handleMultiComp( multiid, true, false, complist,
+	       !attrserv->handleMultiComp( dbkey, true, false, complist,
 					   attribid, selcomps ) )
 	     || ( selcomps.size() && !attrserv->prepMultCompSpecs(
-		     selcomps, multiid, true, false ) ) )
+		     selcomps, dbkey, true, false ) ) )
 	    return false;
 
 	if ( selcomps.size()>1 )
@@ -1013,7 +1013,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	}
     }
     else
-	attribid = attrserv->getStoredID( multiid, true, component );
+	attribid = attrserv->getStoredID( dbkey, true, component );
 
     if ( !attribid.isValid() ) return false;
 

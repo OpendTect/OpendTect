@@ -32,7 +32,7 @@ EM::EMManager& EM::EMM()
     return *emm;
 }
 
-bool EM::canOverwrite( const MultiID& mid )
+bool EM::canOverwrite( const DBKey& mid )
 {
     const IOObj* ioobj = IOM().get( mid );
     if ( !ioobj )
@@ -94,7 +94,7 @@ const Undo& EMManager::undo() const	{ return undo_; }
 Undo& EMManager::undo()			{ return undo_; }
 
 
-BufferString EMManager::objectName( const MultiID& mid ) const
+BufferString EMManager::objectName( const DBKey& mid ) const
 {
     if ( getObject(getObjectID(mid)) )
 	return getObject(getObjectID(mid))->name();
@@ -106,7 +106,7 @@ BufferString EMManager::objectName( const MultiID& mid ) const
 }
 
 
-const char* EMManager::objectType( const MultiID& mid ) const
+const char* EMManager::objectType( const DBKey& mid ) const
 {
     if ( getObject(getObjectID(mid)) )
 	return getObject(getObjectID(mid))->getTypeStr();
@@ -139,7 +139,7 @@ ObjectID EMManager::createObject( const char* type, const char* name )
     ctio.setName( name );
     if ( ctio.fillObj() )
     {
-	object->setMultiID( ctio.ioobj_->key() );
+	object->setDBKey( ctio.ioobj_->key() );
 	delete ctio.ioobj_;
     }
 
@@ -164,7 +164,7 @@ const EMObject* EMManager::getObject( const ObjectID& id ) const
 { return const_cast<EMManager*>(this)->getObject(id); }
 
 
-ObjectID EMManager::getObjectID( const MultiID& mid ) const
+ObjectID EMManager::getObjectID( const DBKey& mid ) const
 {
     ObjectID res = -1;
     for ( int idx=0; idx<objects_.size(); idx++ )
@@ -183,10 +183,10 @@ ObjectID EMManager::getObjectID( const MultiID& mid ) const
 }
 
 
-MultiID EMManager::getMultiID( const ObjectID& oid ) const
+DBKey EMManager::getDBKey( const ObjectID& oid ) const
 {
     const EMObject* emobj = getObject(oid);
-    return emobj ? emobj->multiID() : MultiID(-1);
+    return emobj ? emobj->multiID() : DBKey(-1);
 }
 
 
@@ -228,9 +228,9 @@ ObjectID EMManager::objectID( int idx ) const
 { return idx>=0 && idx<objects_.size() ? objects_[idx]->id() : -1; }
 
 
-Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
+Executor* EMManager::objectLoader( const TypeSet<DBKey>& mids,
 				   const SurfaceIODataSelection* iosel,
-				   TypeSet<MultiID>* idstobeloaded )
+				   TypeSet<DBKey>* idstobeloaded )
 {
     ExecutorGroup* execgrp = mids.size()>1 ? new ExecutorGroup( "Reading" ) : 0;
     for ( int idx=0; idx<mids.size(); idx++ )
@@ -268,7 +268,7 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 }
 
 
-Executor* EMManager::objectLoader( const MultiID& mid,
+Executor* EMManager::objectLoader( const DBKey& mid,
 				   const SurfaceIODataSelection* iosel )
 {
     const ObjectID id = getObjectID( mid );
@@ -285,7 +285,7 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 
 	obj = EMOF().create( typenm, *this );
 	if ( !obj ) return 0;
-	obj->setMultiID( mid );
+	obj->setDBKey( mid );
     }
 
     mDynamicCastGet(Surface*,surface,obj)
@@ -315,7 +315,7 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 
 
 
-EMObject* EMManager::loadIfNotFullyLoaded( const MultiID& mid,
+EMObject* EMManager::loadIfNotFullyLoaded( const DBKey& mid,
 					   TaskRunner* taskrunner )
 {
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
@@ -370,7 +370,7 @@ void EMManager::removeSelected( const ObjectID& id,
 }
 
 
-bool EMManager::readDisplayPars( const MultiID& mid, IOPar& outpar ) const
+bool EMManager::readDisplayPars( const DBKey& mid, IOPar& outpar ) const
 {
     if( !readParsFromDisplayInfoFile(mid,outpar) )
 	return readParsFromGeometryInfoFile( mid, outpar );
@@ -380,7 +380,7 @@ bool EMManager::readDisplayPars( const MultiID& mid, IOPar& outpar ) const
 }
 
 
-bool EMManager::readParsFromDisplayInfoFile( const MultiID& mid,
+bool EMManager::readParsFromDisplayInfoFile( const DBKey& mid,
 					     IOPar& outpar ) const
 {
     outpar.setEmpty();
@@ -401,7 +401,7 @@ bool EMManager::readParsFromDisplayInfoFile( const MultiID& mid,
 }
 
 
-bool EMManager::readParsFromGeometryInfoFile( const MultiID& mid,
+bool EMManager::readParsFromGeometryInfoFile( const DBKey& mid,
 					      IOPar& outpar ) const
 {
     outpar.setEmpty();
@@ -431,7 +431,7 @@ bool EMManager::readParsFromGeometryInfoFile( const MultiID& mid,
 }
 
 
-bool EMManager::writeDisplayPars( const MultiID& mid,const IOPar& inpar ) const
+bool EMManager::writeDisplayPars( const DBKey& mid,const IOPar& inpar ) const
 {
     IOObjInfo ioobjinfo( mid );
     if( !ioobjinfo.isOK() )
@@ -447,7 +447,7 @@ bool EMManager::writeDisplayPars( const MultiID& mid,const IOPar& inpar ) const
 }
 
 
-bool EMManager::getSurfaceData( const MultiID& mid, SurfaceIOData& sd,
+bool EMManager::getSurfaceData( const DBKey& mid, SurfaceIOData& sd,
 				uiString& errmsg ) const
 {
     EM::IOObjInfo oi( mid );

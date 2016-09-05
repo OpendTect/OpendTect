@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiearthmodelmod.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 #include "uidialog.h"
 
@@ -34,7 +34,7 @@ public:
 				~uiHor3DFrom2DDlg();
 
     bool			doDisplay() const;
-    MultiID			getSelID() const;
+    DBKey			getSelID() const;
     EM::Horizon3D* 		getHor3D() { return hor3d_; }
 
 protected:
@@ -50,7 +50,7 @@ protected:
     uiIOObjSel*			outfld_;
     uiCheckBox*			displayfld_;
 
-    MultiID			selid_;
+    DBKey			selid_;
 };
 
 #endif

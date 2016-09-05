@@ -40,19 +40,19 @@ public:
 
     static float 	getZ(const RowCol&,const Surface*);
     static float 	getMissingZ(const RowCol&,const Surface*,int);
-    static Surface* 	getSurface(const MultiID&);
-    static void 	getPositions(od_ostream&,const MultiID&,
+    static Surface* 	getSurface(const DBKey&);
+    static void 	getPositions(od_ostream&,const DBKey&,
 				     ObjectSet<BinIDValueSet>&);
-    static void 	getExactCoords(od_ostream&,const MultiID&,
+    static void 	getExactCoords(od_ostream&,const DBKey&,
 				       Pos::GeomID,const TrcKeySampling&,
 				       ObjectSet<DataPointSet>&);
-    static void 	getWantedPositions(od_ostream&,ObjectSet<MultiID>&,
+    static void 	getWantedPositions(od_ostream&,ObjectSet<DBKey>&,
 					   BinIDValueSet&,const TrcKeySampling&,
 					   const Interval<float>& extraz,
 					   int nrinterpsamp,int mainhoridx,
 					   float extrawidth,
 					   Pos::Provider* provider=0);
-    static void 	getWantedPos2D(od_ostream&,ObjectSet<MultiID>&,
+    static void 	getWantedPos2D(od_ostream&,ObjectSet<DBKey>&,
 				       DataPointSet*,const TrcKeySampling&,
 				       const Interval<float>& extraz,
 				       Pos::GeomID);
@@ -64,7 +64,7 @@ public:
     static bool		SolveIntersect(float& topz,float& botz,int nrinterpsamp,
 	    			       int is1main,float extrawidth,
 				       bool is1interp,bool is2interp);
-    static void 	addSurfaceData(const MultiID&,const BufferStringSet&,
+    static void 	addSurfaceData(const DBKey&,const BufferStringSet&,
 				       const ObjectSet<BinIDValueSet>&);
 
 protected:

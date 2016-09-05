@@ -33,7 +33,7 @@ HorizonGridder::~HorizonGridder()
 { delete fltdataprov_; }
 
 
-void HorizonGridder::setFaultIds( const TypeSet<MultiID>& mids )
+void HorizonGridder::setFaultIds( const TypeSet<DBKey>& mids )
 { faultids_ = mids; }
 
 
@@ -161,7 +161,7 @@ bool HorizonGridder::usePar( const IOPar& par )
 
     for ( int idx=0; idx<nrfaults; idx++ )
     {
-	MultiID fltid;
+	DBKey fltid;
 	if ( !par.get(IOPar::compKey(sKeyFaultID(),idx),fltid) )
 	    return false;
 

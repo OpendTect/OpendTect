@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "stratmod.h"
 #include "objectset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "propertyref.h"
 #include "iopar.h"
 #include "od_iosfwd.h"
@@ -49,8 +49,8 @@ public:
     void		setPropSelection(const PropertyRefSelection&);
     float		startDepth() const	{ return startdepth_; }
     void		setStartDepth( float z)	{ startdepth_ = z; }
-    const MultiID& 	elasticPropSel() const;
-    void		setElasticPropSel(const MultiID&);
+    const DBKey& 	elasticPropSel() const;
+    void		setElasticPropSel(const DBKey&);
 
     bool		getFrom(od_istream&);
     bool		putTo(od_ostream&) const;
@@ -70,7 +70,7 @@ protected:
 
     const RefTree&	rt_;
     PropertyRefSelection propsel_;
-    MultiID		elasticpropselmid_;
+    DBKey		elasticpropselmid_;
     float		startdepth_;
 
     static const char*	sKeyWorkBenchParams();

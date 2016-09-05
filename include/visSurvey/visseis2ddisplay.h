@@ -144,7 +144,7 @@ public:
     NotifierAccess*		getManipulationNotifier()
 				{ return &geomidchanged_; }
 
-    static Seis2DDisplay*	getSeis2DDisplay(const MultiID&,const char*);
+    static Seis2DDisplay*	getSeis2DDisplay(const DBKey&,const char*);
     static Seis2DDisplay*	getSeis2DDisplay(Pos::GeomID);
 
     virtual void		annotateNextUpdateStage(bool yn);
@@ -194,7 +194,7 @@ protected:
     RefObjectSet<RegularSeisDataPack>	datapacks_;
     RefObjectSet<RegularSeisDataPack>	transformedpacks_;
 
-    MultiID			datasetid_;
+    DBKey			datasetid_;
 
     PosInfo::Line2DData&	geometry_;
 

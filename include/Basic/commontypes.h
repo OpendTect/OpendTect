@@ -22,7 +22,7 @@ class Coord;
 class Coord3;
 class TrcKey;
 class IdxPair;
-class MultiID;
+class DBKey;
 class FixedString;
 class BufferString;
 namespace OD { class String; }

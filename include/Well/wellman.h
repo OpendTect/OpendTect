@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
-class MultiID;
+class DBKey;
 class BufferStringSet;
 
 namespace Well
@@ -31,18 +31,18 @@ public:
 			~Man();
 
     void		removeObject( const Well::Data* );
-    Data*		get(const MultiID&);
-    void		add(const MultiID&,Data*);
+    Data*		get(const DBKey&);
+    void		add(const DBKey&,Data*);
 			//!< Data becomes mine
-    Data*		release(const MultiID&);
+    Data*		release(const DBKey&);
 			//!< Data becomes yours
-    bool		isLoaded(const MultiID&) const;
-    bool		reload(const MultiID&);
+    bool		isLoaded(const DBKey&) const;
+    bool		reload(const DBKey&);
 
     const uiString&	errMsg() const		{ return msg_; }
     ObjectSet<Data>&	wells()			{ return wells_; }
 
-    static bool		getLogNames(const MultiID&,BufferStringSet&);
+    static bool		getLogNames(const DBKey&,BufferStringSet&);
     static bool		getMarkerNames(BufferStringSet&);
 
 protected:
@@ -54,7 +54,7 @@ protected:
     ObjectSet<Data>	wells_;
     uiString		msg_;
 
-    int			gtByKey(const MultiID&) const;
+    int			gtByKey(const DBKey&) const;
 };
 
 mGlobal(Well) Man& MGR();

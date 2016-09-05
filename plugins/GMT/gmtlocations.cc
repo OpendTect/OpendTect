@@ -168,7 +168,7 @@ bool GMTLocations::fillLegendPar( IOPar& par ) const
 
 bool GMTLocations::execute( od_ostream& strm, const char* fnm )
 {
-    MultiID id;
+    DBKey id;
     get( sKey::ID(), id );
 
     uiRetVal uirv = uiRetVal::OK();
@@ -265,7 +265,7 @@ bool GMTPolyline::fillLegendPar( IOPar& par ) const
 
 bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
 {
-    MultiID id; get( sKey::ID(), id );
+    DBKey id; get( sKey::ID(), id );
     uiRetVal uirv = uiRetVal::OK();
     ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, uirv );
     if ( !ps )
@@ -433,7 +433,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     TypeSet<Coord> surfcoords;
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::WllInf)->id_) );
+    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::WllInf)->id_) );
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
 	const IOObj* ioobj = IOM().getLocal( wellnms.get(idx), "Well" );

@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "seiscommon.h"
 #include "trckeyzsampling.h"
 #include "executor.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 namespace PosInfo { class CubeData; }
 class RegularSeisDataPack;
@@ -25,7 +25,7 @@ class SeisTrc;
 mExpClass(Seis) SeisDataPackWriter : public Executor
 { mODTextTranslationClass(SeisDataPackWriter);
 public:
-			SeisDataPackWriter(const MultiID&,
+			SeisDataPackWriter(const DBKey&,
 			       const RegularSeisDataPack&,
 			       const TypeSet<int>& components=TypeSet<int>());
 			~SeisDataPackWriter();
@@ -48,7 +48,7 @@ public:
 private:
 
     TypeSet<int>			compidxs_;
-    MultiID				mid_;
+    DBKey				mid_;
     ConstRefMan<RegularSeisDataPack>	dp_;
 
     int				nrdone_;

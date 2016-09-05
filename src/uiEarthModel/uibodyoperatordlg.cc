@@ -322,7 +322,7 @@ bool uiBodyOperatorDlg::acceptOK()
     if ( !emcs->regenerateMCBody( &taskrunner ) )
 	mRetErr(tr("Generating body failed"))
 
-    emcs->setMultiID( outputfld_->key() );
+    emcs->setDBKey( outputfld_->key() );
     emcs->setName( outputfld_->getInput() );
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();
@@ -332,7 +332,7 @@ bool uiBodyOperatorDlg::acceptOK()
     if ( !exec )
 	mRetErr(uiStrings::sSaveBodyFail())
 
-    MultiID key = emcs->multiID();
+    DBKey key = emcs->multiID();
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj->pars().find( sKey::Type() ) )
     {
@@ -474,7 +474,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     emcs->setCrlSampling( SamplingData<int>(impbd->tkzs_.hsamp_.crlRange()) );
     emcs->setZSampling( SamplingData<float>(impbd->tkzs_.zsamp_) );
 
-    emcs->setMultiID( outputfld_->key() );
+    emcs->setDBKey( outputfld_->key() );
     emcs->setName( outputfld_->getInput() );
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();

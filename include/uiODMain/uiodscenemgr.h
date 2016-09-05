@@ -157,19 +157,19 @@ public:
     void			disabRightClick( bool yn );
     void			disabTrees( bool yn );
 
-    void			getLoadedPickSetIDs(TypeSet<MultiID>&,bool poly,
+    void			getLoadedPickSetIDs(TypeSet<DBKey>&,bool poly,
 						    int scnid=-1) const;
     void			getLoadedEMIDs(TypeSet<EM::ObjectID>&,
 					       const char* emtypestr=0,
 					       int sceneid=-1) const;
 				// if sceneid==-1, then all scenes
     int				addEMItem(const EM::ObjectID&,int sceneid=-1);
-    int				addPickSetItem(const MultiID&,int sceneid=-1);
+    int				addPickSetItem(const DBKey&,int sceneid=-1);
     int				addPickSetItem(Pick::Set&,int sceneid=-1);
     int				addRandomLineItem(int rlid,int sceneid=-1);
-    int				addWellItem(const MultiID&,int sceneid=-1);
+    int				addWellItem(const DBKey&,int sceneid=-1);
     int				add2DLineItem(Pos::GeomID,int sceneid=-1);
-    int				add2DLineItem(const MultiID&,int sceneid=-1);
+    int				add2DLineItem(const DBKey&,int sceneid=-1);
     int				addInlCrlItem(OD::SliceType,int nr,
 					      int sceneid=-1);
     int				addZSliceItem(DataPack::ID,
@@ -233,9 +233,9 @@ protected:
 					      TypeSet<EM::ObjectID>&,
 					      const char* emtypestr) const;
     void			gtLoadedPickSetIDs(const uiODScene&,
-				    TypeSet<MultiID>&, bool poly) const;
+				    TypeSet<DBKey>&, bool poly) const;
     void			gtLoadedPickSetIDs(const uiTreeItem&,
-				    TypeSet<MultiID>&,bool poly) const;
+				    TypeSet<DBKey>&,bool poly) const;
 
     Timer*			tiletimer_;
     void			tileTimerCB(CallBacker*);

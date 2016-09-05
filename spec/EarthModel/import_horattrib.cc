@@ -43,7 +43,7 @@ static int prError( const char* msg )
 
 static EM::Horizon3D* loadHorizon( const char* id, BufferString& err )
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 

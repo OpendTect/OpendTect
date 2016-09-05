@@ -35,7 +35,7 @@ public:
     void		clearPicks();
     void		enablePainting(bool yn);
     void		selected();
-    MultiID		pickSetID() const;
+    DBKey		pickSetID() const;
     void		setPickSet(Pick::Set*);
 
     bool		fillPar(IOPar&) const;

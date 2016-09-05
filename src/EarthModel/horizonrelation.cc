@@ -27,7 +27,7 @@ const char* RelationTree::Node::sKeyChildIDs()	{ return "Child IDs"; }
 const char* RelationTree::Node::sKeyLastModified()
 { return "Last Modified"; }
 
-RelationTree::Node::Node( const MultiID& id )
+RelationTree::Node::Node( const DBKey& id )
     : id_(id)
 {}
 
@@ -77,7 +77,7 @@ void RelationTree::Node::fillChildren( const FileMultiString& fms,
     children_.erase();
     for ( int idx=0; idx<fms.size(); idx++ )
     {
-	MultiID id( fms[idx] );
+	DBKey id( fms[idx] );
 	const RelationTree::Node* node = tree.getNode( id );
 	if ( !node )
 	    continue;
@@ -104,7 +104,7 @@ RelationTree::~RelationTree()
 { deepErase( nodes_ ); }
 
 
-int RelationTree::findNode( const MultiID& id ) const
+int RelationTree::findNode( const DBKey& id ) const
 {
     for ( int idx=0; idx<nodes_.size(); idx++ )
     {
@@ -116,7 +116,7 @@ int RelationTree::findNode( const MultiID& id ) const
 }
 
 
-const RelationTree::Node* RelationTree::getNode( const MultiID& id ) const
+const RelationTree::Node* RelationTree::getNode( const DBKey& id ) const
 {
     const int idx = findNode( id );
     return idx < 0 ? 0 : nodes_[idx];
@@ -137,7 +137,7 @@ void RelationTree::getParents( int index, TypeSet<int>& parents ) const
 }
 
 
-int RelationTree::findRelation( const MultiID& id1, const MultiID& id2	) const
+int RelationTree::findRelation( const DBKey& id1, const DBKey& id2	) const
 {
     const RelationTree::Node* node1 = getNode( id1 );
     const RelationTree::Node* node2 = getNode( id2 );
@@ -153,7 +153,7 @@ int RelationTree::findRelation( const MultiID& id1, const MultiID& id2	) const
 }
 
 
-void RelationTree::removeNode( const MultiID& id, bool dowrite )
+void RelationTree::removeNode( const DBKey& id, bool dowrite )
 {
     const int index = findNode( id );
     if ( index < 0 )
@@ -182,7 +182,7 @@ void RelationTree::removeNode( const MultiID& id, bool dowrite )
 }
 
 
-void RelationTree::addRelation( const MultiID& id1, const MultiID& id2,
+void RelationTree::addRelation( const DBKey& id1, const DBKey& id2,
 				bool dowrite )
 {
     const int idx1 = findNode( id1 );
@@ -231,7 +231,7 @@ bool RelationTree::write() const
 }
 
 
-static bool hasBeenModified( const MultiID& id, const char* datestamp )
+static bool hasBeenModified( const DBKey& id, const char* datestamp )
 {
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj )
@@ -261,7 +261,7 @@ bool RelationTree::read( bool removeoutdated )
 
     for ( int idx=0; idx<1000000; idx++ )
     {
-	MultiID id;
+	DBKey id;
 	PtrMan<IOPar> nodepar = subpar->subselect( idx );
 	if ( !nodepar || !nodepar->get(sKey::ID(),id) )
 	    break;
@@ -270,7 +270,7 @@ bool RelationTree::read( bool removeoutdated )
 	nodes_ += node;
     }
 
-    TypeSet<MultiID> outdatednodes;
+    TypeSet<DBKey> outdatednodes;
     for ( int idx=0; idx<nodes_.size(); idx++ )
     {
 	FileMultiString fms;
@@ -298,12 +298,12 @@ bool RelationTree::read( bool removeoutdated )
 }
 
 
-bool RelationTree::getSorted( const TypeSet<MultiID>& unsortedids,
-			      TypeSet<MultiID>& sortedids ) const
+bool RelationTree::getSorted( const TypeSet<DBKey>& unsortedids,
+			      TypeSet<DBKey>& sortedids ) const
 {
     for ( int idx=0; idx<unsortedids.size(); idx++ )
     {
-	const MultiID& mid = unsortedids[idx];
+	const DBKey& mid = unsortedids[idx];
 	if ( !sortedids.size() )
 	{
 	    if ( getNode(mid) )
@@ -314,7 +314,7 @@ bool RelationTree::getSorted( const TypeSet<MultiID>& unsortedids,
 
 	for ( int idy=0; idy<sortedids.size(); idy++ )
 	{
-	    const MultiID& sortedmid = sortedids[idy];
+	    const DBKey& sortedmid = sortedids[idy];
 	    const int rel = findRelation( mid, sortedmid );
 	    if ( !rel )
 		break;
@@ -335,8 +335,8 @@ bool RelationTree::getSorted( const TypeSet<MultiID>& unsortedids,
 }
 
 
-bool RelationTree::sortHorizons( bool is2d, const TypeSet<MultiID>& unsortedids,
-				 TypeSet<MultiID>& sortedids )
+bool RelationTree::sortHorizons( bool is2d, const TypeSet<DBKey>& unsortedids,
+				 TypeSet<DBKey>& sortedids )
 {
     RelationTree reltree( is2d, false );
     reltree.read( false );

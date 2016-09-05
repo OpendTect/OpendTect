@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "vissurveymod.h"
 #include "emposid.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "visemobjdisplay.h"
 
 namespace visBase { class PolyLine3D; class PointSet; class MarkerSet; }

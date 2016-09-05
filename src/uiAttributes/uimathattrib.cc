@@ -113,7 +113,7 @@ void uiMathAttrib::inpSel( CallBacker* cb )
     if ( !inpdesc || !inpdesc->isStored() )
 	return;
 
-    MultiID mid = inpdesc->getStoredID( false ).buf();
+    DBKey mid = inpdesc->getStoredID( false ).buf();
     IOObj* inpobj = IOM().get( mid );
     if ( !inpobj ) return;
 
@@ -250,7 +250,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		    formfld_->inpFld(varinpidx)->use( form_ );
 		    varinplastidx = varinpidx+1;
 
-		    MultiID mid = inpdsc->getStoredID( false ).buf();
+		    DBKey mid = inpdsc->getStoredID( false ).buf();
 		    IOObj* inpobj = IOM().get( mid );
 		    if ( !inpobj ) break;
 

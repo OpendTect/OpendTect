@@ -124,7 +124,7 @@ mDefODInitPlugin(uiCustomIODir)
     // in every survey
 
     IOMan::CustomDirData cdd( sSelKey, "CustomDir", "Custom data" );
-    MultiID id = IOMan::addCustomDataDir( cdd );
+    DBKey id = IOMan::addCustomDataDir( cdd );
     if ( id != sSelKey )
 	return "The 'Custom data' storage directory could not be created";
 

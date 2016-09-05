@@ -128,7 +128,7 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 
 bool uiImportLogsDlg::acceptOK()
 {
-    const MultiID wmid = wellfld_->key();
+    const DBKey wmid = wellfld_->key();
     RefMan<Well::Data> wd = new Well::Data;
     if ( Well::MGR().isLoaded(wmid) )
     {

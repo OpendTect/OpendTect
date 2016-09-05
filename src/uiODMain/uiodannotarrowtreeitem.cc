@@ -48,7 +48,7 @@ bool ArrowSubItem::init()
     if ( !ad )
 	return false;
 
-    const MultiID setid = getSetID();
+    const DBKey setid = getSetID();
     const IOPar psiop( set_.pars() );
     const IOPar ioobjiop( Pick::SetMGR().getIOObjPars(setid) );
     if ( !ioobjiop.get(sKeyArrowType(),arrowtype_) )

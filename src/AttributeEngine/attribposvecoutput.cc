@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 
 namespace Attrib

@@ -55,7 +55,7 @@ public:
 				    toUiString(sFactoryKeyword()))
 
 
-    MultiID			getMultiID() const;
+    DBKey			getDBKey() const;
     bool			isInlCrl() const	{ return false; }
 
     bool			hasColor() const		{ return true; }

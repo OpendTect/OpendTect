@@ -30,7 +30,7 @@ mExpClass(Well) Reader
 { mODTextTranslationClass(Reader);
 public:
 
-			Reader(const MultiID&,Data&);
+			Reader(const DBKey&,Data&);
 			Reader(const IOObj&,Data&);
 			~Reader();
     bool		isUsable() const	{ return ra_; }

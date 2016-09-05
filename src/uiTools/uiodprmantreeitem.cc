@@ -66,11 +66,11 @@ void uiODPrManagedParentTreeItem::objAddedCB( CallBacker* cber )
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODPrManagedParentTreeItem::objAddedCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
-    const MultiID mid = prinfo->storedID();
+    const DBKey mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
-    TypeSet<MultiID> setids;
+    TypeSet<DBKey> setids;
     setids += mid;
     addChildren( setids );
 }
@@ -87,7 +87,7 @@ void uiODPrManagedParentTreeItem::objVanishedCB( CallBacker* cber )
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODPrManagedParentTreeItem::objVanishedCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
-    const MultiID mid = prinfo->storedID();
+    const DBKey mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
@@ -106,7 +106,7 @@ void uiODPrManagedParentTreeItem::objShownCB( CallBacker* cber )
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODPrManagedParentTreeItem::objShownCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
-    const MultiID mid = prinfo->storedID();
+    const DBKey mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
@@ -125,7 +125,7 @@ void uiODPrManagedParentTreeItem::objHiddenCB( CallBacker* cber )
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODPrManagedParentTreeItem::objHiddenCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
-    const MultiID mid = prinfo->storedID();
+    const DBKey mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
 
@@ -144,7 +144,7 @@ void uiODPrManagedParentTreeItem::objOrphanedCB( CallBacker* cber )
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODPrManagedParentTreeItem::objHiddenCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
-    const MultiID mid = prinfo->storedID();
+    const DBKey mid = prinfo->storedID();
     if ( mid.isUdf() )
 	return;
     //TODO do something when we have clearer idea what to do when it happens
@@ -152,7 +152,7 @@ void uiODPrManagedParentTreeItem::objOrphanedCB( CallBacker* cber )
 
 
 void uiODPrManagedParentTreeItem::emitChildPRRequest(
-	const MultiID& mid, OD::PresentationRequestType req )
+	const DBKey& mid, OD::PresentationRequestType req )
 {
     if ( mid.isUdf() )
 	return;
@@ -169,7 +169,7 @@ void uiODPrManagedParentTreeItem::emitChildPRRequest(
 }
 
 
-void uiODPrManagedParentTreeItem::showHideChildren( const MultiID& mid,
+void uiODPrManagedParentTreeItem::showHideChildren( const DBKey& mid,
 						    bool show )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
@@ -184,7 +184,7 @@ void uiODPrManagedParentTreeItem::showHideChildren( const MultiID& mid,
 }
 
 
-void uiODPrManagedParentTreeItem::removeChildren( const MultiID& mid )
+void uiODPrManagedParentTreeItem::removeChildren( const DBKey& mid )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -199,7 +199,7 @@ void uiODPrManagedParentTreeItem::removeChildren( const MultiID& mid )
 
 
 void uiODPrManagedParentTreeItem::getLoadedChildren(
-	TypeSet<MultiID>& mids ) const
+	TypeSet<DBKey>& mids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -212,9 +212,9 @@ void uiODPrManagedParentTreeItem::getLoadedChildren(
 }
 
 
-bool uiODPrManagedParentTreeItem::selectChild( const MultiID& mid )
+bool uiODPrManagedParentTreeItem::selectChild( const DBKey& mid )
 {
-    TypeSet<MultiID> midsloaded;
+    TypeSet<DBKey> midsloaded;
     getLoadedChildren( midsloaded );
     if ( !midsloaded.isPresent(mid) )
 	return false;
@@ -233,9 +233,9 @@ bool uiODPrManagedParentTreeItem::selectChild( const MultiID& mid )
 }
 
 
-void uiODPrManagedParentTreeItem::addChildren( const TypeSet<MultiID>& setids )
+void uiODPrManagedParentTreeItem::addChildren( const TypeSet<DBKey>& setids )
 {
-    TypeSet<MultiID> setidstobeloaded, setidsloaded;
+    TypeSet<DBKey> setidstobeloaded, setidsloaded;
     getLoadedChildren( setidsloaded );
     for ( int idx=0; idx<setids.size(); idx++ )
     {

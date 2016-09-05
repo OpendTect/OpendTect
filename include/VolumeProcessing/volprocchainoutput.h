@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "volumeprocessingmod.h"
 #include "executor.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "trckeyzsampling.h"
 #include "threadlock.h"
 class SeisDataPackWriter;
@@ -37,8 +37,8 @@ public:
 				ChainOutput();
 				~ChainOutput();
 
-    void			setChainID(const MultiID&);
-    void			setOutputID(const MultiID&);
+    void			setChainID(const DBKey&);
+    void			setOutputID(const DBKey&);
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
 
     bool			setCalculationScope(const TrcKeySampling&,
@@ -57,8 +57,8 @@ public:
 
 protected:
 
-    MultiID			chainid_;
-    MultiID			outid_;
+    DBKey			chainid_;
+    DBKey			outid_;
     TrcKeyZSampling		tkzs_;
 
     Chain*			chain_;

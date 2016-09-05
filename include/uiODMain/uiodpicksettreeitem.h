@@ -26,7 +26,7 @@ mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODSceneParentTreeItem
     mShowMenu;
     mMenuOnAnyButton;
 		~uiODPickSetParentTreeItem();
-    void	addChildItem(const MultiID&);
+    void	addChildItem(const DBKey&);
     const char* childObjTypeKey() const;
 };
 
@@ -90,7 +90,7 @@ mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODSceneParentTreeItem
 
 		~uiODPolygonParentTreeItem();
 
-    void	addChildItem(const MultiID&);
+    void	addChildItem(const DBKey&);
     const char* childObjTypeKey() const;
     OD::ObjPresentationInfo*	getObjPRInfo();
 };

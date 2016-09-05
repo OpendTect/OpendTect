@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "nlamod.h"
 #include "nladesign.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "bufstringset.h"
 #include "iopar.h"
 #include "enums.h"
@@ -37,7 +37,7 @@ public:
 
     NLADesign		design;
     bool		doextraction;
-    MultiID		vdsid;
+    DBKey		vdsid;
     float		ratiotst;
     BufferStringSet	outids;
 			//!< different from design outputs if unsupervised

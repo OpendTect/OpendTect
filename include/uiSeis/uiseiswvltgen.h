@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "bufstringset.h"
 #include "mathfunc.h"
 #include "uistring.h"
@@ -32,7 +32,7 @@ public:
 			uiSeisWvltCreate(uiParent*,uiDialog::Setup);
 			~uiSeisWvltCreate();
 
-    MultiID		storeKey() const;
+    DBKey		storeKey() const;
 
 protected:
 

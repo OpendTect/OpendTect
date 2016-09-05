@@ -1479,7 +1479,7 @@ void uiODViewer2D::addNewTempFaultSS2D( EM::ObjectID emid )
 
 
 
-void uiODViewer2D::getPickSetVwr2DIDs( const MultiID& mid,
+void uiODViewer2D::getPickSetVwr2DIDs( const DBKey& mid,
 				       TypeSet<int>& vw2dobjids ) const
 {
     if ( !treetp_ ) return;
@@ -1494,7 +1494,7 @@ void uiODViewer2D::getPickSetVwr2DIDs( const MultiID& mid,
 }
 
 
-void uiODViewer2D::removePickSet( const MultiID& mid )
+void uiODViewer2D::removePickSet( const DBKey& mid )
 {
     if ( !treetp_ ) return;
 
@@ -1508,7 +1508,7 @@ void uiODViewer2D::removePickSet( const MultiID& mid )
 }
 
 
-void uiODViewer2D::getLoadedPickSets( TypeSet<MultiID>& mids ) const
+void uiODViewer2D::getLoadedPickSets( TypeSet<DBKey>& mids ) const
 {
     if ( !treetp_ ) return;
 
@@ -1522,7 +1522,7 @@ void uiODViewer2D::getLoadedPickSets( TypeSet<MultiID>& mids ) const
 }
 
 
-void uiODViewer2D::addPickSets( const TypeSet<MultiID>& mids )
+void uiODViewer2D::addPickSets( const TypeSet<DBKey>& mids )
 {
     if ( !treetp_ ) return;
 
@@ -1536,7 +1536,7 @@ void uiODViewer2D::addPickSets( const TypeSet<MultiID>& mids )
 }
 
 
-void uiODViewer2D::setupNewPickSet( const MultiID& pickid )
+void uiODViewer2D::setupNewPickSet( const DBKey& pickid )
 {
     if ( !treetp_ ) return;
 
@@ -1546,7 +1546,7 @@ void uiODViewer2D::setupNewPickSet( const MultiID& pickid )
 			treetp_->getChild(idx))
 	if ( pickpitem )
 	{
-	    TypeSet<MultiID> pickids;
+	    TypeSet<DBKey> pickids;
 	    pickids += pickid;
 	    pickpitem->addChildren( pickids );
 	    if ( viewstdcontrol_->editToolBar() &&

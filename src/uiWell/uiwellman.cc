@@ -167,7 +167,7 @@ void uiWellMan::getCurrentWells()
     curfnms_.erase();
     deepErase( currdrs_ );
     deepUnRef( curwds_ );
-    curmultiids_.erase();
+    curdbkeys_.erase();
 
     if ( !curioobj_ )
 	return;
@@ -178,7 +178,7 @@ void uiWellMan::getCurrentWells()
 	const IOObj* obj = IOM().get( selgrp_->chosenID(idx) );
 	if ( !obj ) continue;
 
-	curmultiids_ += obj->key();
+	curdbkeys_ += obj->key();
 	curfnms_.add( BufferString( obj->fullUserExpr( true ) ) );
 	Well::Data* wd = new Well::Data;
 	curwds_ += wd;
@@ -278,7 +278,7 @@ void uiWellMan::setLogToolButtonProperties()
     logdownbut_->setSensitive( iswritable_ && curidx>=0 && curidx<nrlogs-1 );
     logupbut_->setSensitive( iswritable_ && curidx>0 );
 
-    TypeSet<MultiID> wellids; selGroup()->getChosen( wellids );
+    TypeSet<DBKey> wellids; selGroup()->getChosen( wellids );
     BufferStringSet lognms; logsfld_->getChosen( lognms );
     const int nrchosenlogs = lognms.size();
     const int nrchosenwells = wellids.size();
@@ -353,7 +353,7 @@ void uiWellMan::edMarkers( CallBacker* )
     if ( !curioobj_ )
 	return;
 
-    MultiID curmid( curioobj_->key() );
+    DBKey curmid( curioobj_->key() );
     RefMan<Well::Data> wd = new Well::Data;
     PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
 
@@ -405,7 +405,7 @@ void uiWellMan::edWellTrack( CallBacker* )
     if ( !dlg.go() || !iswritable_ )
 	return;
 
-    MultiID curmid( curioobj_->key() );
+    DBKey curmid( curioobj_->key() );
     Well::Writer wtr( curmid, *wd );
     if ( !wtr.putInfoAndTrack( ) )
     {
@@ -454,7 +454,7 @@ void uiWellMan::defD2T( bool chkshot )
 	return;
 
     uiString errmsg;
-    MultiID curmid( curioobj_->key() );
+    DBKey curmid( curioobj_->key() );
     Well::Writer wtr( curmid, *wd );
     if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
     {
@@ -489,7 +489,7 @@ void uiWellMan::logTools( CallBacker* )
 {
     BufferStringSet wellnms, lognms;
     logsfld_->getChosen( lognms );
-    TypeSet<MultiID> chosnmids;
+    TypeSet<DBKey> chosnmids;
     selGroup()->getChosen( chosnmids );
     for ( int midx=0; midx<chosnmids.size(); midx ++ )
     {
@@ -518,10 +518,10 @@ void uiWellMan::importLogs( CallBacker* )
 void uiWellMan::calcLogs( CallBacker* )
 {
     if ( curwds_.isEmpty() || currdrs_.isEmpty()
-	|| availablelognms_.isEmpty() || curmultiids_.isEmpty() ) return;
+	|| availablelognms_.isEmpty() || curdbkeys_.isEmpty() ) return;
 
     currdrs_[0]->getLogs();
-    uiWellLogCalc dlg( this, curmultiids_ );
+    uiWellLogCalc dlg( this, curdbkeys_ );
     dlg.go();
     if ( dlg.haveNewLogs() )
 	wellsChgd();
@@ -605,7 +605,7 @@ void uiWellMan::writeLogs()
 {
     for ( int idwell=0; idwell<curwds_.size(); idwell++ )
     {
-	Well::Writer wwr( curmultiids_[idwell], *curwds_[idwell] );
+	Well::Writer wwr( curdbkeys_[idwell], *curwds_[idwell] );
 	if ( !wwr.putLogs() )
 	    uiMSG().error( mToUiStringTodo(wwr.errMsg()) );
     }
@@ -618,7 +618,7 @@ void uiWellMan::wellsChgd()
     for ( int idwell=0; idwell<curwds_.size(); idwell++ )
     {
 	fillLogsFld();
-	Well::MGR().reload( curmultiids_[idwell] );
+	Well::MGR().reload( curdbkeys_[idwell] );
 	mDeleteLogs(idwell);
     }
 }
@@ -741,7 +741,7 @@ void uiWellMan::exportLogs( CallBacker* )
     {
 	currdrs_[idwell]->getLogs();
 	currdrs_[idwell]->getD2T();
-	const IOObj* obj = IOM().get( curmultiids_[idwell] );
+	const IOObj* obj = IOM().get( curdbkeys_[idwell] );
 	if ( obj )
 	    curwds_[idwell]->info().setName( obj->name() );
     }

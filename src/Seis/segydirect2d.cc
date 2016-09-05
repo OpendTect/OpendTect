@@ -375,7 +375,7 @@ const char* SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID()
 Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
 				const IOObj& ioobj, uiString& errmsg ) const
 {
-    MultiID segydirectid;
+    DBKey segydirectid;
     if ( !ioobj.pars().get(sKeySEGYDirectID(),segydirectid) )
 	return 0;
 

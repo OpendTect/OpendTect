@@ -243,7 +243,7 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 }
 
 
-MultiID SeisJobExecProv::tempStorID() const
+DBKey SeisJobExecProv::tempStorID() const
 {
     FilePath fp( iopar_.find(sKey::TmpStor()) );
 
@@ -262,7 +262,7 @@ MultiID SeisJobExecProv::tempStorID() const
 	    return iostrm->key();
     }
 
-    MultiID ret;
+    DBKey ret;
     BufferString objnm( "~" );
     objnm += fp.fileName();
     ctio_.setName( objnm );

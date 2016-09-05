@@ -102,7 +102,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 	if ( !processInput() ) return;
 	for ( int idx=0; idx<nrsel; idx++ )
 	{
-	    const MultiID& mid = ioobjselgrp_->chosenID( idx );
+	    const DBKey& mid = ioobjselgrp_->chosenID( idx );
 
 	    EM::IOObjInfo eminfo( mid );
 	    if ( !eminfo.isOK() ) continue;
@@ -128,14 +128,14 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 }
 
 
-void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
+void uiMultiSurfaceRead::getSurfaceIds( TypeSet<DBKey>& mids ) const
 {
     mids.erase();
     const int nrsel = ioobjselgrp_->nrChosen();
     uiString errormsgstr;
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	const MultiID mid = ioobjselgrp_->chosenID( idx );
+	const DBKey mid = ioobjselgrp_->chosenID( idx );
 	const EM::IOObjInfo info( mid );
 	EM::SurfaceIOData sd;
 	uiString errmsg;
@@ -173,7 +173,7 @@ void uiMultiSurfaceRead::getSurfaceSelection(
     if ( ioobjselgrp_->nrChosen() != 1 )
 	return;
 
-    const MultiID mid = ioobjselgrp_->chosenID( 0 );
+    const DBKey mid = ioobjselgrp_->chosenID( 0 );
     const EM::IOObjInfo info( mid );
     EM::SurfaceIOData sd;
     uiString errmsg;

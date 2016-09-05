@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "posinfo2dsurv.h"
 
 #include "keystrs.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "survinfo.h"
 #include "task.h"
 
@@ -170,7 +170,7 @@ const Geometry3D* GeometryManager::getGeometry3D( Pos::SurvID sid ) const
 }
 
 
-const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
+const Geometry* GeometryManager::getGeometry( const DBKey& mid ) const
 {
     if ( mid.nrKeys() == 2 )
 	return getGeometry( mid.subID(1) );

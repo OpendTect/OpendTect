@@ -147,11 +147,11 @@ public:
 
     // Tree menu services
     // Selections
-    void			selectWells(TypeSet<MultiID>&);
-    void			selectHorizon(MultiID&);
-    void			selectFault(MultiID&);
-    void			selectPolygonSurface(MultiID&);
-    void			selectStickSet(MultiID&);
+    void			selectWells(TypeSet<DBKey>&);
+    void			selectHorizon(DBKey&);
+    void			selectFault(DBKey&);
+    void			selectPolygonSurface(DBKey&);
+    void			selectStickSet(DBKey&);
     bool			selectAttrib(int id,int attrib);
 
     // PickSets
@@ -193,7 +193,7 @@ public:
 
     void			doVolProc2DCB(CallBacker*);
     void			doVolProc3DCB(CallBacker*);
-    void			doVolProc(const MultiID&);
+    void			doVolProc(const DBKey&);
     void			tieWellToSeismic(CallBacker*);
     void			doWellLogTools(CallBacker*);
     void			launchRockPhysics(CallBacker*);

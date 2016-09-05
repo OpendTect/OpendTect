@@ -9,7 +9,7 @@
 #include "executor.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "od_ostream.h"
 #include "survgeom.h"
 #include "trckeyzsampling.h"
@@ -38,7 +38,7 @@ bool VolProc::Processor::run( od_ostream& strm )
 	return vco.go( strm );
     }
 
-    MultiID chainid, outid;
+    DBKey chainid, outid;
     if ( !procpars_.get(VolProcessingTranslatorGroup::sKeyChainID(),chainid)
 	    || !procpars_.get("Output.0.Seismic.ID",outid) )
 	return false;
@@ -89,7 +89,7 @@ bool VolProc::Processor::run( TaskRunner* trunner )
 	return TaskRunner::execute( trunner, vco );
     }
 
-    MultiID chainid, outid;
+    DBKey chainid, outid;
     if ( !procpars_.get(VolProcessingTranslatorGroup::sKeyChainID(),chainid)
 	    || !procpars_.get("Output.0.Seismic.ID",outid) )
 	return false;

@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uibatchprocdlg.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "bufstringset.h"
 
 class IOObj;
@@ -37,7 +37,7 @@ mExpClass(uiAttributes) uiAttrVolOut : public uiBatchProcDlg
 public:
 			uiAttrVolOut(uiParent*,const Attrib::DescSet&,
 				     bool multioutput,
-				     const NLAModel*,const MultiID& nlaid);
+				     const NLAModel*,const DBKey& nlaid);
 			~uiAttrVolOut();
 
     const IOPar&	subSelPar() const		{ return subselpar_; }
@@ -47,14 +47,14 @@ public:
     static const char*  sKeyMaxInlRg();
     void		updateAttributes(const Attrib::DescSet& descst,
 					 const NLAModel* nlamodel,
-					 const MultiID& nlaid);
+					 const DBKey& nlaid);
 
 protected:
 
     Attrib::CurrentSel&	sel_;
     IOPar&		subselpar_;
     Attrib::DescSet*	ads_;
-    MultiID		nlaid_;
+    DBKey		nlaid_;
     const NLAModel*	nlamodel_;
 
     uiAttrSel*		todofld_;

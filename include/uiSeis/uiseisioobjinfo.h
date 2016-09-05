@@ -19,7 +19,7 @@ mExpClass(uiSeis) uiSeisIOObjInfo
 public:
 
 			uiSeisIOObjInfo(const IOObj&,bool error_feedback=true);
-			uiSeisIOObjInfo(const MultiID&,bool err_feedback=true);
+			uiSeisIOObjInfo(const DBKey&,bool err_feedback=true);
 
     bool		isOK() const		{ return sii.isOK(); }
     bool		is2D() const		{ return sii.is2D(); }

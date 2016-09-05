@@ -96,7 +96,7 @@ public:
 					 const uiSeisSel::Setup&,
 					 bool iseditbutton=true);
 
-    void			setInput(const MultiID&);
+    void			setInput(const DBKey&);
     static const IOObjContext&	ioContext();
 
     Interval<float>		getVelocityTopRange() const	{ return trg_; }
@@ -123,7 +123,7 @@ public:
     ZAxisTransform*		getSelection();
 
     const char*			selName() const;
-    const MultiID&		selID() const { return selkey_; }
+    const DBKey&		selID() const { return selkey_; }
 
     bool			canBeField() const { return true; }
 protected:
@@ -137,7 +137,7 @@ protected:
 
     VelocityStretcher*		transform_;
     BufferString		selname_;
-    MultiID			selkey_;
+    DBKey			selkey_;
 
     uiVelSel*			velsel_;
 };

@@ -47,7 +47,7 @@ public:
     Pick::Set*			getSet()		{ return set_; }
     const Pick::Set*		getSet() const		{ return set_; }
 
-    MultiID			getMultiID() const;
+    DBKey			getDBKey() const;
 
     const char*			errMsg() const { return errmsg_.str(); }
 

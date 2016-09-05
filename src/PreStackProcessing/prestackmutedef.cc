@@ -187,11 +187,11 @@ void MuteDef::getAllZVals( TypeSet<float>& zvals ) const
 }
 
 
-void MuteDef::setReferenceHorizon( const MultiID& mid )
+void MuteDef::setReferenceHorizon( const DBKey& mid )
 { refhor_ = mid; }
 
 
-const MultiID& MuteDef::getReferenceHorizon() const
+const DBKey& MuteDef::getReferenceHorizon() const
 { return refhor_; }
 
 } // namespace PreStack

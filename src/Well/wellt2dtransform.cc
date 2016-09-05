@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "interpol1d.h"
 #include "binidvalue.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "position.h"
 #include "survinfo.h"
 #include "welldata.h"
@@ -31,7 +31,7 @@ WellT2DTransform::WellT2DTransform()
 }
 
 
-WellT2DTransform::WellT2DTransform( const MultiID& wllid )
+WellT2DTransform::WellT2DTransform( const DBKey& wllid )
     : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
     , data_(0)
 {
@@ -152,7 +152,7 @@ Interval<float> WellT2DTransform::getZRange( bool time ) const
 }
 
 
-bool WellT2DTransform::setWellID( const MultiID& mid )
+bool WellT2DTransform::setWellID( const DBKey& mid )
 {
     tozdomaininfo_.pars_.set( sKey::ID(), mid );
 
@@ -186,7 +186,7 @@ bool WellT2DTransform::usePar( const IOPar& par )
     if ( !tozdomaininfo_.hasID() )
 	{ errmsg_ = tr("Z Transform: No ID for Well provided"); return false; }
 
-    if ( !setWellID(MultiID(tozdomaininfo_.getID() ) ) )
+    if ( !setWellID(DBKey(tozdomaininfo_.getID() ) ) )
 	return false;
 
     return true;

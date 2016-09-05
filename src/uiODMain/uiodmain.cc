@@ -371,7 +371,7 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
     else
     {
 	delete ctio->ioobj_; ctio->ioobj_ = dlg.ioObj()->clone();
-	const MultiID id( ctio->ioobj_ ? ctio->ioobj_->key() : MultiID("") );
+	const DBKey id( ctio->ioobj_ ? ctio->ioobj_->key() : DBKey("") );
 	cursessid_ = id;
     }
 
@@ -444,7 +444,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
     : uiDialog(p,uiDialog::Setup(tr("Auto-load session"),mNoDlgTitle,
                                  mODHelpKey(mODMainAutoSessionDlgHelpID) ))
 {
-    bool douse = false; MultiID id;
+    bool douse = false; DBKey id;
     ODSession::getStartupData( douse, id );
 
     usefld_ = new uiGenInput( this, tr("Auto-load session mode"),
@@ -484,7 +484,7 @@ bool acceptOK()
     const bool dosel = douse ? doselfld_->getBoolValue() : false;
     if ( !dosel )
     {
-	ODSession::setStartupData( douse, MultiID::udf() );
+	ODSession::setStartupData( douse, DBKey::udf() );
 	return true;
     }
 
@@ -607,7 +607,7 @@ void uiODMain::doRestoreSession()
 void uiODMain::handleStartupSession()
 {
     bool douse = false;
-    MultiID id;
+    DBKey id;
     ODSession::getStartupData( douse, id );
     if ( !douse || id.isEmpty() )
 	return;

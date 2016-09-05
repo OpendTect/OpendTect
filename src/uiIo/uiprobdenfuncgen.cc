@@ -48,7 +48,7 @@ class uiProbDenFuncGenSampled : public uiDialog
 public:
 
 			uiProbDenFuncGenSampled(uiParent*,int nrdim,bool gauss,
-						MultiID&);
+						DBKey&);
 
     uiSpinBox*		nrbinsfld_;
     ObjectSet<uiGenInput> nmflds_;
@@ -57,7 +57,7 @@ public:
     ObjectSet<uiGenInput> ccflds_;
     uiIOObjSel*		outfld_;
 
-    MultiID&		ioobjky_;
+    DBKey&		ioobjky_;
     const int		nrdims_;
     int			nrbins_;
     TypeSet<Interval<float> > rgs_;
@@ -80,10 +80,10 @@ class uiProbDenFuncGenGaussian : public uiDialog
 { mODTextTranslationClass(uiProbDenFuncGenGaussian);
 public:
 
-			uiProbDenFuncGenGaussian(uiParent*,int nrdim,MultiID&);
+			uiProbDenFuncGenGaussian(uiParent*,int nrdim,DBKey&);
 			~uiProbDenFuncGenGaussian();
 
-    MultiID&		ioobjky_;
+    DBKey&		ioobjky_;
 
     ProbDenFunc*	pdf_;
     uiEditGaussianProbDenFunc* pdffld_;
@@ -145,7 +145,7 @@ bool uiProbDenFuncGen::acceptOK()
 
 
 uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
-						  bool isgauss, MultiID& ky )
+						  bool isgauss, DBKey& ky )
                                                   : uiDialog(p,
                                              Setup(tr("Generate editable PDF"),
                         mNoDlgTitle, mODHelpKey(mProbDenFuncGenSampledHelpID)))
@@ -436,7 +436,7 @@ bool uiProbDenFuncGenSampled::acceptOK()
 
 
 uiProbDenFuncGenGaussian::uiProbDenFuncGenGaussian( uiParent* p, int nrdim,
-						    MultiID& ky )
+						    DBKey& ky )
 : uiDialog(p, Setup(tr("Generate Gaussian PDF"), mNoDlgTitle,
 mODHelpKey(mProbDenFuncGenGaussianHelpID)))
     , ioobjky_(ky)

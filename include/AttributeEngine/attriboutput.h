@@ -155,7 +155,7 @@ public:
     virtual TypeSet< Interval<int> > getLocalZRanges(const BinID&,float,
 						     TypeSet<float>&) const;
 				mImplDefAttribOutputFns(Coord)
-    bool			setStorageID(const MultiID&);
+    bool			setStorageID(const DBKey&);
     void			setGeometry( const TrcKeyZSampling& cs )
 				{ doSetGeometry(cs); }
 
@@ -182,7 +182,7 @@ public:
 
 protected:
 
-    MultiID&			storid_;
+    DBKey&			storid_;
     TrcKeyZSampling		desiredvolume_;
     TypeSet< Interval<int> >	sampleinterval_;
     IOPar*			auxpars_;

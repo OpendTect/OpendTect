@@ -102,7 +102,7 @@ void uiHorizonRelationsDlg::fillRelationField( const BufferStringSet& strs )
 class HorizonModifyDlg : public uiDialog
 { mODTextTranslationClass(HorizonModifyDlg)
 public:
-HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
+HorizonModifyDlg( uiParent* p, const DBKey& mid1, const DBKey& mid2,
 		  bool is2d, int nrcross )
     : uiDialog(p,Setup(tr("Horizon relations (Solve crossings)"),
 		       uiString::emptyString(),
@@ -166,7 +166,7 @@ void saveCB( CallBacker* )
 void horSel( CallBacker* )
 {
     const bool topisstatic = horizonfld_->getIntValue() == 1;
-    const MultiID& targetmid = topisstatic ? mid2_ : mid1_;
+    const DBKey& targetmid = topisstatic ? mid2_ : mid1_;
     BufferString hornm = EM::EMM().objectName( targetmid );
     hornm += "_edited";
     objfld_->setInputText( hornm );
@@ -185,7 +185,7 @@ bool acceptOK()
     const EM::ObjectID objid =
 		EM::EMM().getObjectID( topisstatic ? mid2_ : mid1_ );
     EM::EMObject* emobj = EM::EMM().getObject( objid );
-    MultiID outmid;
+    DBKey outmid;
     EM::EMObject* outemobj = 0;
 
     if ( saveas )
@@ -213,7 +213,7 @@ bool acceptOK()
 			 hor3d->geometry().colRange().start );
 	    BinID step( hor3d->geometry().step().row(),
 			hor3d->geometry().step().col() );
-	    outhor3d->setMultiID( outmid );
+	    outhor3d->setDBKey( outmid );
 	    outhor3d->geometry().sectionGeometry(EM::SectionID(0))->setArray(
 		    start, step, arr2d, true );
 	}
@@ -252,8 +252,8 @@ bool acceptOK()
 
 protected:
     bool	is2d_;
-    MultiID	mid1_;
-    MultiID	mid2_;
+    DBKey	mid1_;
+    DBKey	mid2_;
 
     CtxtIOObj*	ctio_;
 
@@ -283,7 +283,7 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 							   horids_[idy] );
 	    if ( nrcrossings == 0 ) continue;
 
-	    TypeSet<MultiID> sortedids;
+	    TypeSet<DBKey> sortedids;
 	    sorter.getSortedList( sortedids );
 	    const int idx1 = sortedids.indexOf( horids_[idx] );
 	    const int idx2 = sortedids.indexOf( horids_[idy] );

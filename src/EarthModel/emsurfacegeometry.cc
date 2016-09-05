@@ -1005,9 +1005,9 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 
 
 Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
-			          const MultiID* key )
+			          const DBKey* key )
 {
-    const MultiID& mid = key && !(*key=="") ? *key : surface_.multiID();
+    const DBKey& mid = key && !(*key=="") ? *key : surface_.multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
 	{ surface_.errmsg_ = uiStrings::sCantFindSurf(); return 0; }

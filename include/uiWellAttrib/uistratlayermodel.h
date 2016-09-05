@@ -66,7 +66,7 @@ public:
     const PropertyRefSelection&		modelProperties() const;
     const ObjectSet<const TimeDepthModel>& d2TModels() const;
     const Wavelet*			wavelet() const;
-    MultiID				genDescID() const;
+    DBKey				genDescID() const;
 
     Notifier<uiStratLayerModel>	newModels;
     Notifier<uiStratLayerModel>	waveletChanged;

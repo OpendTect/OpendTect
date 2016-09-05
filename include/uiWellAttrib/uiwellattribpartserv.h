@@ -44,16 +44,16 @@ public:
     const char*			name() const		{ return "Wells"; }
 
     				// Services
-    bool			createAttribLog(const MultiID&);
+    bool			createAttribLog(const DBKey&);
     bool			createAttribLog(const BufferStringSet&);
-    bool			createLogCube(const MultiID&);
-    bool			create2DFromWells(MultiID& newseisid,
+    bool			createLogCube(const DBKey&);
+    bool			create2DFromWells(DBKey& newseisid,
 						  Pos::GeomID& newlinegid);
     void			doXPlot();
 
     void 			setDPSDispMgr(DataPointSetDisplayMgr* dispmgr )
 				{ dpsdispmgr_ = dispmgr; }
-    bool			createD2TModel(const MultiID&);
+    bool			createD2TModel(const DBKey&);
 
     Pos::GeomID			new2DFromWellGeomID() const;
     bool			getPrev2DFromWellCoords(TypeSet<Coord>&);
@@ -62,7 +62,7 @@ public:
     static int			evShow2DFromWells();
     static int			evCleanPreview();
 
-    bool			showAmplSpectrum(const MultiID&,
+    bool			showAmplSpectrum(const DBKey&,
 						 const char* lognm);
 
 protected:

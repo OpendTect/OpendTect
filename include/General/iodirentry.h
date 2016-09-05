@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
  
 #include "generalmod.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "namedobj.h"
 #include "objectset.h"
 class IOObj;
@@ -46,7 +46,7 @@ public:
 
     void		fill(const IODir&,const char* nmfiltglobexpr=0);
 			//!<IODir is expected to remain alive
-    void		setSelected(const MultiID&);
+    void		setSelected(const DBKey&);
     void		sort();
     void		setCurrent( int idx )	{ cur_ = idx; }
     const IODirEntry*	current() const	
@@ -59,7 +59,7 @@ public:
     int			indexOf( const IODirEntry* e ) const
 			{ return ObjectSet<IODirEntry>::indexOf(e); }
 
-    MultiID		lastiokey;
+    DBKey		lastiokey;
     IOObjContext&	ctxt;
 
 protected:

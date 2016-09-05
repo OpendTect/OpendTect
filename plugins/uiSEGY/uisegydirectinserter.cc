@@ -63,8 +63,8 @@ void uiSEGYDirectVolInserter::scanComplete( CallBacker* )
     if ( segyread_->state() != uiVarWizard::cFinished() )
 	return;
 
-    const MultiID outky( segyread_->outputID() );
-    CBCapsule<MultiID> caps( outky, this );
+    const DBKey outky( segyread_->outputID() );
+    CBCapsule<DBKey> caps( outky, this );
     objectInserted.trigger( &caps );
 }
 
@@ -122,8 +122,8 @@ void uiSEGYDirect2DInserter::scanComplete( CallBacker* )
     if ( segyread_->state() != uiVarWizard::cFinished() )
 	return;
 
-    const MultiID outky( segyread_->outputID() );
-    CBCapsule<MultiID> caps( outky, this );
+    const DBKey outky( segyread_->outputID() );
+    CBCapsule<DBKey> caps( outky, this );
     objectInserted.trigger( &caps );
 }
 
@@ -182,8 +182,8 @@ void uiSEGYDirectPS3DInserter::scanComplete( CallBacker* )
     if ( segyread_->state() != uiVarWizard::cFinished() )
 	return;
 
-    const MultiID outky( segyread_->outputID() );
-    CBCapsule<MultiID> caps( outky, this );
+    const DBKey outky( segyread_->outputID() );
+    CBCapsule<DBKey> caps( outky, this );
     objectInserted.trigger( &caps );
 }
 

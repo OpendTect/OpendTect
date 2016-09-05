@@ -48,7 +48,7 @@ protected:
     const Attrib::DescSet& 		ads_;
     Attrib::SelInfo*			attrinfo_;
     TypeSet<int>			selidxs_;
-    TypeSet<MultiID>			selids_;
+    TypeSet<DBKey>			selids_;
     TypeSet<BufferStringSet>		linenmsset_;
 
     uiListBox*				attrsfld_;
@@ -60,7 +60,7 @@ protected:
     ObjectSet<uiDataPointSet>		dpsset_;
 
     void				adsChg();
-    MultiID				getSelectedID() const;
+    DBKey				getSelectedID() const;
     void				getLineNames(BufferStringSet&);
     void				initWin(CallBacker*);
     void				lineChecked(CallBacker*);

@@ -24,7 +24,7 @@
 
 static const IOObj* nullioobj = 0;
 
-SeisMSCProvider::SeisMSCProvider( const MultiID& id )
+SeisMSCProvider::SeisMSCProvider( const DBKey& id )
 	: rdr_(*new SeisTrcReader(nullioobj))
 {
     IOObj* ioobj = IOM().get( id );
@@ -515,7 +515,7 @@ int nextStep()
 };
 
 
-SeisFixedCubeProvider::SeisFixedCubeProvider( const MultiID& key )
+SeisFixedCubeProvider::SeisFixedCubeProvider( const DBKey& key )
     : tkzs_(false)
     , data_(0)
     , ioobj_(IOM().get(key))

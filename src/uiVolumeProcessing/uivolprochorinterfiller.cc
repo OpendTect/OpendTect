@@ -140,7 +140,7 @@ bool uiHorInterFiller::acceptOK()
 	horinterfiller_->setTopHorizon( 0 );
     else
     {
-	const MultiID mid = tophorfld_->ctxtIOObj().ioobj_->key();
+	const DBKey mid = tophorfld_->ctxtIOObj().ioobj_->key();
 	if ( !horinterfiller_->setTopHorizon( &mid ) )
 	    mErrRet(tr("Cannot use top horizon"))
     }
@@ -149,7 +149,7 @@ bool uiHorInterFiller::acceptOK()
 	horinterfiller_->setBottomHorizon( 0 );
     else
     {
-	const MultiID mid = bottomhorfld_->ctxtIOObj().ioobj_->key();
+	const DBKey mid = bottomhorfld_->ctxtIOObj().ioobj_->key();
 	if ( !horinterfiller_->setBottomHorizon( &mid ) )
 	    mErrRet(tr("Cannot use bottom horizon"))
     }

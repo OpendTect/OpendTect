@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "attribdescid.h"
 #include "notify.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "uistring.h"
 
 class BufferStringSet;
@@ -82,11 +82,11 @@ public:
 			      bool usestorinfo=false) const;
     void		getIds(TypeSet<DescID>&) const;
     void		getStoredIds(TypeSet<DescID>&) const;
-    DescID		getStoredID(const MultiID&,int selout=-1,
+    DescID		getStoredID(const DBKey&,int selout=-1,
 				    bool create=true,bool blindcomp=false,
 				    const char* blindcompnm=0);
     Desc*		getFirstStored(bool usesteering=true) const;
-    MultiID		getStoredKey(const DescID&) const;
+    DBKey		getStoredKey(const DescID&) const;
 
     void		removeDesc(const DescID&);
     void		moveDescUpDown(const DescID&,bool);
@@ -108,7 +108,7 @@ public:
 				   const BufferString&,uiStringSet*);
     Desc*		createDesc(const BufferString&, const IOPar&,
 				   const BufferString& );
-    DescID		createStoredDesc(const MultiID&,int selout,
+    DescID		createStoredDesc(const DBKey&,int selout,
 					 const BufferString& compnm);
     bool		setAllInputDescs(int, const IOPar&,uiStringSet*);
     void		handleStorageOldFormat(IOPar&);

@@ -111,7 +111,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     if ( mnuid == cAddIdx )
     {
-	TypeSet<MultiID> emwellids;
+	TypeSet<DBKey> emwellids;
 	applMgr()->selectWells( emwellids );
 	if ( emwellids.isEmpty() )
 	    return false;
@@ -125,7 +125,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
     else if ( mnuid == cTieIdx )
     {
-	 MultiID wid;
+	 DBKey wid;
 	 ODMainWin()->applMgr().wellAttribServer()->createD2TModel( wid );
     }
 
@@ -196,7 +196,7 @@ uiODWellTreeItem::uiODWellTreeItem( int did )
 }
 
 
-uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid )
+uiODWellTreeItem::uiODWellTreeItem( const DBKey& mid )
 {
     mid_ = mid;
     initMenuItems();
@@ -246,7 +246,7 @@ bool uiODWellTreeItem::init()
 	visSurvey::WellDisplay* wd = new visSurvey::WellDisplay;
 	displayid_ = wd->id();
 	visserv_->addObject( wd, sceneID(), true );
-	if ( !wd->setMultiID(mid_) )
+	if ( !wd->setDBKey(mid_) )
 	{
 	    visserv_->removeObject( wd, sceneID() );
 	    PtrMan<IOObj> ioobj = IOM().get( mid_ );
@@ -302,13 +302,13 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &showmnuitem_, &markernamemnuitem_, wd->canShowMarkers(),
 		  wd->canShowMarkers() && wd->markerNameShown() );
     mAddMenuItem( &showmnuitem_, &showlogmnuitem_,
-		  applMgr()->wellServer()->hasLogs(wd->getMultiID()),
+		  applMgr()->wellServer()->hasLogs(wd->getDBKey()),
 		  wd->logsShown() );
 
     deepErase( logmnuitems_ );
     mAddMenuItem( &displaymnuitem_, &amplspectrummnuitem_, true, false );
     BufferStringSet lognms;
-    applMgr()->wellServer()->getLogNames( wd->getMultiID(), lognms );
+    applMgr()->wellServer()->getLogNames( wd->getDBKey(), lognms );
     for ( int logidx=0; logidx<lognms.size(); logidx++ )
     {
     logmnuitems_ += new MenuItem( toUiString(lognms.get( logidx ) ));
@@ -334,7 +334,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_))
-    const MultiID& wellid = wd->getMultiID();
+    const DBKey& wellid = wd->getDBKey();
     if ( mnuid == attrmnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -401,7 +401,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	if ( res )
 	{
 	    wd->setChanged( false );
-	    wd->setMultiID( mid_ );
+	    wd->setDBKey( mid_ );
 	}
     }
     else if ( mnuid == editmnuitem_.id )

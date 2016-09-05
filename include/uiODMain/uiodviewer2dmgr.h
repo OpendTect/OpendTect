@@ -130,11 +130,11 @@ public:
 	   				 TypeSet<EM::ObjectID>&) const;
     
     //PickSets
-    void			getPickSetVwr2DIDs(const MultiID& mid,
+    void			getPickSetVwr2DIDs(const DBKey& mid,
 						   TypeSet<int>& vw2ids) const;
-    void			removePickSet(const MultiID&);
-    void			getLoadedPickSets(TypeSet<MultiID>&) const;
-    void			addPickSets(const TypeSet<MultiID>&);
+    void			removePickSet(const DBKey&);
+    void			getLoadedPickSets(TypeSet<DBKey>&) const;
+    void			addPickSets(const TypeSet<DBKey>&);
 
 
     static int			cNameColumn()		{ return 0; }

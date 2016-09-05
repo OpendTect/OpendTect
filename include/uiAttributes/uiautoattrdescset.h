@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "bufstringset.h"
 
 class uiAttrDescEd;

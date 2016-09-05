@@ -161,7 +161,7 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 					 int firstcol, const Coord3& pos,
 					 const Coord3& editnormal,
-					 const MultiID* pickedmid,
+					 const DBKey* pickedmid,
 					 const char* pickednm,
 					 bool addtohistory )
 {
@@ -184,7 +184,7 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
     stickinfo_.insertAt( new StickInfo, 0 );
     stickinfo_[0]->sid = sid;
     stickinfo_[0]->sticknr = sticknr;
-    stickinfo_[0]->pickedmid = pickedmid ? *pickedmid : MultiID(-1);
+    stickinfo_[0]->pickedmid = pickedmid ? *pickedmid : DBKey(-1);
     stickinfo_[0]->pickednm = pickednm;
     if ( addtohistory )
     {
@@ -332,7 +332,7 @@ bool FaultStickSetGeometry::removeKnot( const SectionID& sid,
 bool FaultStickSetGeometry::pickedOnPlane( const SectionID& sid,
 					   int sticknr ) const
 {
-    if ( pickedMultiID(sid,sticknr) || pickedOn2DLine(sid,sticknr) )
+    if ( pickedDBKey(sid,sticknr) || pickedOn2DLine(sid,sticknr) )
 	return false;
 
     const Coord3& editnorm = getEditPlaneNormal( sid, sticknr );
@@ -356,14 +356,14 @@ bool FaultStickSetGeometry::pickedOn2DLine( const SectionID& sid,
 }
 
 
-const MultiID* FaultStickSetGeometry::pickedMultiID( const SectionID& sid,
+const DBKey* FaultStickSetGeometry::pickedDBKey( const SectionID& sid,
 						     int sticknr) const
 {
     int idx = indexOf(sid,sticknr);
     if ( idx >= 0 )
     {
-	const MultiID& pickedmid = stickinfo_[idx]->pickedmid;
-	return pickedmid==MultiID(-1) ? 0 : &pickedmid;
+	const DBKey& pickedmid = stickinfo_[idx]->pickedmid;
+	return pickedmid==DBKey(-1) ? 0 : &pickedmid;
     }
     
     return 0;
@@ -405,8 +405,8 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID( const SectionID& sid,
     mDefStickInfoStr( "Line set", linesetstr, sid, sticknr )
 #define mDefLineNameStr( linenamestr, sid, sticknr ) \
     mDefStickInfoStr( "Line name", linenamestr, sid, sticknr )
-#define mDefPickedMultiIDStr( pickedmidstr, sid, sticknr ) \
-    mDefStickInfoStr( "Picked MultiID", pickedmidstr, sid, sticknr )
+#define mDefPickedDBKeyStr( pickedmidstr, sid, sticknr ) \
+    mDefStickInfoStr( "Picked DBKey", pickedmidstr, sid, sticknr )
 #define mDefPickedNameStr( pickednmstr, sid, sticknr ) \
     mDefStickInfoStr( "Picked name", pickednmstr, sid, sticknr )
 #define mDefPickedGeomIDStr( pickedgeomidstr, sid, sticknr ) \
@@ -429,10 +429,10 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 	{
 	    mDefEditNormalStr( editnormalstr, sid, sticknr );
 	    par.set( editnormalstr.buf(), fss->getEditPlaneNormal(sticknr) );
-	    const MultiID* pickedmid = pickedMultiID( sid, sticknr );
+	    const DBKey* pickedmid = pickedDBKey( sid, sticknr );
 	    if ( pickedmid )
 	    {
-		mDefPickedMultiIDStr( pickedmidstr, sid, sticknr );
+		mDefPickedDBKeyStr( pickedmidstr, sid, sticknr );
 		par.set( pickedmidstr.buf(), *pickedmid );
 	    }
 
@@ -493,7 +493,7 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 		continue;
 	    }
 
-	    mDefPickedMultiIDStr( pickedmidstr, sid, sticknr );
+	    mDefPickedDBKeyStr( pickedmidstr, sid, sticknr );
 	    mDefLineSetStr( linesetstr, sid, sticknr );
 	    if ( !par.get(pickedmidstr.buf(), stickinfo_[0]->pickedmid))
 		par.get( linesetstr.buf(), stickinfo_[0]->pickedmid );

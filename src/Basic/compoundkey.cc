@@ -6,7 +6,7 @@
 -*/
 
 
-#include "multiid.h"
+#include "dbkey.h"
 #include "perthreadrepos.h"
 
 
@@ -112,7 +112,7 @@ bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 }
 
 
-MultiID::MultiID( SubID id1, SubID id2 )
+DBKey::DBKey( SubID id1, SubID id2 )
 {
     if ( id1 == 0 && id2 == 0 )
 	add( id1 );
@@ -126,14 +126,14 @@ MultiID::MultiID( SubID id1, SubID id2 )
 }
 
 
-MultiID::SubID MultiID::getIDAt( int lvl ) const
+DBKey::SubID DBKey::getIDAt( int lvl ) const
 {
     const BufferString idstr( key(lvl) );
     return idstr.isEmpty() ? 0 : idstr.toInt();
 }
 
 
-MultiID::SubID MultiID::leafID() const
+DBKey::SubID DBKey::leafID() const
 {
     if ( isEmpty() )
 	return 0;
@@ -144,40 +144,40 @@ MultiID::SubID MultiID::leafID() const
 }
 
 
-MultiID MultiID::parent() const
+DBKey DBKey::parent() const
 {
-    return MultiID( upLevel().buf() );
+    return DBKey( upLevel().buf() );
 }
 
 
-const MultiID& MultiID::udf()
+const DBKey& DBKey::udf()
 {
-   mDefineStaticLocalObject( MultiID, _udf, (-1) );
+   mDefineStaticLocalObject( DBKey, _udf, (-1) );
    return _udf;
 }
 
 
-bool MultiID::isUdf() const
+bool DBKey::isUdf() const
 {
     return impl_.isEmpty() || impl_ == udf().impl_;
 }
 
 
-od_int64 MultiID::toInt64() const
+od_int64 DBKey::toInt64() const
 {
     if ( isEmpty() )
 	return 0;
 
     const SubID ileaf = leafID();
-    const MultiID par( parent() );
+    const DBKey par( parent() );
     const SubID ipar = par.isEmpty() ? 0 : parent().leafID();
     return (((od_uint64)ipar) << 32) + (((od_uint64)ileaf) & 0xFFFFFFFF);
 }
 
 
-MultiID MultiID::fromInt64( od_int64 i64 )
+DBKey DBKey::fromInt64( od_int64 i64 )
 {
     const SubID ipar = (SubID)(i64 >> 32);
     const SubID ileaf = (SubID)(i64 & 0xFFFFFFFF);
-    return MultiID( ipar, ileaf );
+    return DBKey( ipar, ileaf );
 }

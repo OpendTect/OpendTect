@@ -328,7 +328,7 @@ void uiIOObjSel::survChangedCB( CallBacker* )
 
 void uiIOObjSel::iomChg( CallBacker* cb )
 {
-    mCBCapsuleUnpack( MultiID, id, cb );
+    mCBCapsuleUnpack( DBKey, id, cb );
     if ( id.isUdf() )
 	return;
 
@@ -404,7 +404,7 @@ IOObjContext uiIOObjSel::getWriteIOObjCtxt( IOObjContext ctxt )
 bool uiIOObjSel::fillPar( IOPar& iopar ) const
 {
     iopar.set( sKey::ID(),
-	       workctio_.ioobj_ ? workctio_.ioobj_->key() : MultiID() );
+	       workctio_.ioobj_ ? workctio_.ioobj_->key() : DBKey() );
     return true;
 }
 
@@ -422,8 +422,8 @@ void uiIOObjSel::usePar( const IOPar& iopar )
     const char* res = iopar.find( sKey::ID() );
     if ( res && *res )
     {
-	workctio_.setObj( MultiID(res) );
-	setInput( MultiID(res) );
+	workctio_.setObj( DBKey(res) );
+	setInput( DBKey(res) );
     }
 }
 
@@ -444,7 +444,7 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* bky )
 }
 
 
-void uiIOObjSel::setInput( const MultiID& mid )
+void uiIOObjSel::setInput( const DBKey& mid )
 {
     workctio_.setObj( IOM().get( mid ) );
     uiIOSelect::setInput( mid.buf() );
@@ -460,7 +460,7 @@ void uiIOObjSel::setInput( const IOObj& ioob )
 
 void uiIOObjSel::updateInput()
 {
-    setInput( workctio_.ioobj_ ? workctio_.ioobj_->key() : MultiID("") );
+    setInput( workctio_.ioobj_ ? workctio_.ioobj_->key() : DBKey("") );
 }
 
 
@@ -521,7 +521,7 @@ bool uiIOObjSel::existingUsrName( const char* nm ) const
 }
 
 
-MultiID uiIOObjSel::validKey() const
+DBKey uiIOObjSel::validKey() const
 {
     const IODir iodir( workctio_.ctxt_.getSelKey() );
     const IOObj* ioob = iodir.get( getInput(),
@@ -530,7 +530,7 @@ MultiID uiIOObjSel::validKey() const
     if ( ioob && workctio_.ctxt_.validIOObj(*ioob) )
 	return ioob->key();
 
-    return MultiID();
+    return DBKey();
 }
 
 
@@ -548,10 +548,10 @@ void uiIOObjSel::doCommit( bool noerr ) const
 }
 
 
-MultiID uiIOObjSel::key( bool noerr ) const
+DBKey uiIOObjSel::key( bool noerr ) const
 {
     doCommit(noerr);
-    return inctio_.ioobj_ ? inctio_.ioobj_->key() : MultiID::udf();
+    return inctio_.ioobj_ ? inctio_.ioobj_->key() : DBKey::udf();
 }
 
 
@@ -666,7 +666,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 
 void uiIOObjSel::objInserted( CallBacker* cb )
 {
-    mCBCapsuleUnpack( MultiID, ky, cb );
+    mCBCapsuleUnpack( DBKey, ky, cb );
     if ( !ky.isEmpty() )
 	setInput( ky );
 }

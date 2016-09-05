@@ -41,8 +41,8 @@ uiODVw2DEMTreeItem::~uiODVw2DEMTreeItem()
 void uiODVw2DEMTreeItem::doSave()
 {
     bool savewithname = false;
-    if ( !EM::EMM().getMultiID( emid_ ).isEmpty() )
-	savewithname = !IOM().get( EM::EMM().getMultiID(emid_) );
+    if ( !EM::EMM().getDBKey( emid_ ).isEmpty() )
+	savewithname = !IOM().get( EM::EMM().getDBKey(emid_) );
     doStoreObject( savewithname );
 
     if ( MPE::engine().hasTracker(emid_) )
@@ -64,7 +64,7 @@ void uiODVw2DEMTreeItem::doSaveAs()
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	if ( mps ) 
 	{
-	   const MultiID oldmid = applMgr()->EMServer()->getStorageID( emid_ );
+	   const DBKey oldmid = applMgr()->EMServer()->getStorageID( emid_ );
 	   mps->prepareSaveSetupAs( oldmid );
 	   mps->saveSetupAs( EM::EMM().getObject(emid_)->multiID() );
 	}
@@ -81,7 +81,7 @@ void uiODVw2DEMTreeItem::doStoreObject( bool saveas )
 
 void uiODVw2DEMTreeItem::renameVisObj()
 {
-    const MultiID midintree = applMgr()->EMServer()->getStorageID( emid_ );
+    const DBKey midintree = applMgr()->EMServer()->getStorageID( emid_ );
     TypeSet<int> visobjids;
     applMgr()->visServer()->findObject( midintree, visobjids );
     name_ = ::toUiString( applMgr()->EMServer()->getName( emid_ ) );

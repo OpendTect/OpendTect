@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "nladesign.h"
 #include "nlamodel.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 #include "uiattrsel.h"
 #include "uibatchjobdispatchersel.h"
@@ -30,7 +30,7 @@ ________________________________________________________________________
 using namespace Attrib;
 
 uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
-			  const NLAModel* model, const MultiID& mid,
+			  const NLAModel* model, const DBKey& mid,
 			  const char* dlgnm )
     : uiBatchProcDlg(p,uiStrings::sEmptyString(),false,
 		     Batch::JobSpec::AttribEM )
@@ -150,7 +150,7 @@ bool uiAttrEMOut::addNLA( DescID& id )
 
 void uiAttrEMOut::updateAttributes( const Attrib::DescSet& descset,
 				    const NLAModel* nlamodel,
-				    const MultiID& nlaid )
+				    const DBKey& nlaid )
 {
     delete ads_;
     ads_ = new Attrib::DescSet( descset );

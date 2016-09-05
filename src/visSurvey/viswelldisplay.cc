@@ -243,9 +243,9 @@ void WellDisplay::fullRedraw( CallBacker* )
 
 
 #define mErrRet(s) { errmsg_ = s; return false; }
-bool WellDisplay::setMultiID( const MultiID& multiid )
+bool WellDisplay::setDBKey( const DBKey& dbkey )
 {
-    wellid_ = multiid; wd_ = 0;
+    wellid_ = dbkey; wd_ = 0;
     mGetWD(return false);
     const Well::D2TModel& d2t = wd->d2TModel();
     const bool trackabovesrd = wd->track().zRange().stop <
@@ -253,7 +253,7 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
     if ( zistime_ && d2t.isEmpty() && !trackabovesrd )
 	mErrRet( "No depth to time model defined" )
 
-    wellid_ = multiid;
+    wellid_ = dbkey;
     fullRedraw(0);
     changed_.trigger();
     return true;
@@ -982,11 +982,11 @@ bool WellDisplay::usePar( const IOPar& par )
 	  !visSurvey::SurveyObject::usePar( par ) )
 	  return false;
 
-    MultiID newmid;
+    DBKey newmid;
     if ( !par.get(sKeyEarthModelID,newmid) )
 	return false;
 
-    if ( !setMultiID(newmid) )
+    if ( !setDBKey(newmid) )
     {
 	return 1;
     }

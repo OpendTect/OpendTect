@@ -49,7 +49,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,modeChangeCB) );
 
     seedselfld_ = new uiIOObjSel( this, *mMkCtxtIOObj(PickSet), tr("Seeds") );
-    MultiID mid = vd->getSeedsID( isosurface );
+    DBKey mid = vd->getSeedsID( isosurface );
     if ( !mid.isEmpty() )
     	seedselfld_->setInput( mid );
 
@@ -147,7 +147,7 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
 
     const bool fullmode = modefld_->getBoolValue();
     const bool aboveisoval = aboveisovaluefld_->getBoolValue();
-    MultiID mid( 0 );
+    DBKey mid( 0 );
     mid.setEmpty();
     if ( !fullmode && seedselfld_->commitInput() &&
 	  seedselfld_->ctxtIOObj().ioobj_ )

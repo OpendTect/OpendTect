@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uistrings.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 static const char* joinstring = "%1 %2";
 

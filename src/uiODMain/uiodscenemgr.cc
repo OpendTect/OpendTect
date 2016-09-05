@@ -1075,7 +1075,7 @@ void uiODSceneMgr::disabTrees( bool yn )
     } \
     if ( !scene ) return -1;
 
-int uiODSceneMgr::addWellItem( const MultiID& mid, int sceneid )
+int uiODSceneMgr::addWellItem( const DBKey& mid, int sceneid )
 {
     mGetOrAskForScene
 
@@ -1091,7 +1091,7 @@ int uiODSceneMgr::addWellItem( const MultiID& mid, int sceneid )
 }
 
 
-void uiODSceneMgr::getLoadedPickSetIDs( TypeSet<MultiID>& picks, bool poly,
+void uiODSceneMgr::getLoadedPickSetIDs( TypeSet<DBKey>& picks, bool poly,
 					int sceneid ) const
 {
     if ( sceneid>=0 )
@@ -1110,7 +1110,7 @@ void uiODSceneMgr::getLoadedPickSetIDs( TypeSet<MultiID>& picks, bool poly,
 
 
 void uiODSceneMgr::gtLoadedPickSetIDs( const uiODScene& scene,
-	TypeSet<MultiID>& picks, bool poly ) const
+	TypeSet<DBKey>& picks, bool poly ) const
 {
     for ( int chidx=0; chidx<scene.itemmanager_->nrChildren(); chidx++ )
     {
@@ -1124,12 +1124,12 @@ void uiODSceneMgr::gtLoadedPickSetIDs( const uiODScene& scene,
 
 
 void uiODSceneMgr::gtLoadedPickSetIDs( const uiTreeItem& topitm,
-	TypeSet<MultiID>& picks, bool poly ) const
+	TypeSet<DBKey>& picks, bool poly ) const
 {
     for ( int chidx=0; chidx<topitm.nrChildren(); chidx++ )
     {
 	const uiTreeItem* chlditm = topitm.getChild( chidx );
-	MultiID setid;
+	DBKey setid;
 	if ( poly )
 	{
 	    mDynamicCastGet(const uiODPolygonTreeItem*,polyitem,chlditm)
@@ -1244,7 +1244,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 }
 
 
-int uiODSceneMgr::addPickSetItem( const MultiID& setid, int sceneid )
+int uiODSceneMgr::addPickSetItem( const DBKey& setid, int sceneid )
 {
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( setid );
     if ( !ps )
@@ -1291,7 +1291,7 @@ int uiODSceneMgr::add2DLineItem( Pos::GeomID geomid, int sceneid )
 }
 
 
-int uiODSceneMgr::add2DLineItem( const MultiID& mid , int sceneid )
+int uiODSceneMgr::add2DLineItem( const DBKey& mid , int sceneid )
 {
     mGetOrAskForScene
     const Survey::Geometry* geom = Survey::GM().getGeometry( mid );

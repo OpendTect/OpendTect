@@ -30,7 +30,7 @@ EM::Hor2DSeisLineIterator::Hor2DSeisLineIterator( const EM::Horizon2D& h2d )
 }
 
 
-EM::Hor2DSeisLineIterator::Hor2DSeisLineIterator( const MultiID& mid )
+EM::Hor2DSeisLineIterator::Hor2DSeisLineIterator( const DBKey& mid )
     : nrlines_(0)
 {
     EM::EMObject* emobj = mGetEMObjPtr( mid );

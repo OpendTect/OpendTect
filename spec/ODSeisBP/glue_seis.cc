@@ -364,7 +364,7 @@ bool BatchProgram::go( std::ostream& strm_ )
 	const char* res = iop ? iop->find( "ID" ) : 0;
 	if ( !res || !*res )
 	    { if ( idx ) break; continue; }
-	SeisMSCProvider* prov = new SeisMSCProvider( MultiID(res) );
+	SeisMSCProvider* prov = new SeisMSCProvider( DBKey(res) );
 	prov->reader().usePar( *iop );
 	SeisMSCProvider::AdvanceState advst = prov->advance();
 	while ( advst == SeisMSCProvider::Buffering )

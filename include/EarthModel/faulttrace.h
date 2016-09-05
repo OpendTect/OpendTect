@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "paralleltask.h"
 #include "trckeysampling.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "positionlist.h"
 #include "sets.h"
 #include "posinfo2dsurv.h"
@@ -226,7 +226,7 @@ public:
 			FaultTrcDataProvider(Pos::GeomID);
 			~FaultTrcDataProvider();
 
-    bool		init(const TypeSet<MultiID>&,const TrcKeySampling&,
+    bool		init(const TypeSet<DBKey>&,const TrcKeySampling&,
 			     TaskRunner* =0);
 
     bool		is2D() const		{ return is2d_; }
@@ -250,7 +250,7 @@ public:
 protected:
 
     bool		calcFaultBBox(const EM::Fault&,TrcKeySampling&) const;
-    bool		get2DTraces(const TypeSet<MultiID>&,TaskRunner*);
+    bool		get2DTraces(const TypeSet<DBKey>&,TaskRunner*);
 
     ObjectSet<FaultTrcHolder>	holders_;
 

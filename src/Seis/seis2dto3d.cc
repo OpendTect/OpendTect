@@ -112,7 +112,7 @@ bool Seis2DTo3D::usePar( const IOPar& pars )
 
 bool Seis2DTo3D::setIO( const IOPar& pars )
 {
-    MultiID key;
+    DBKey key;
     pars.get( sKeyInput(), key );
     inioobj_ = IOM().get( key );
     if ( !inioobj_ )

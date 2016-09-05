@@ -72,7 +72,7 @@ protected:
 };
 
 
-uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
+uiSeisBrowser::Setup::Setup( const DBKey& ky, Seis::GeomType gt )
     : uiDialog::Setup(uiString::emptyString(),mNoDlgTitle,
                       mODHelpKey(mSeisBrowserHelpID) )
     , id_(ky)

@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "color.h"
 #include "mathfunc.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "arrayndalgo.h"
 #include "arrayndimpl.h"
 #include "uistring.h"

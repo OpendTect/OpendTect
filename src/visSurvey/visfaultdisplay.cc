@@ -381,9 +381,9 @@ bool FaultDisplay::removeSelections( TaskRunner* taskr )
 }
 
 
-MultiID FaultDisplay::getMultiID() const
+DBKey FaultDisplay::getDBKey() const
 {
-    return fault_ ? fault_->multiID() : MultiID();
+    return fault_ ? fault_->multiID() : DBKey();
 }
 
 
@@ -666,7 +666,7 @@ void FaultDisplay::fillPar( IOPar& par ) const
 {
     visSurvey::MultiTextureSurveyObject::fillPar( par );
 
-    par.set( sKeyEarthModelID(), getMultiID() );
+    par.set( sKeyEarthModelID(), getDBKey() );
     par.set( sKeyTriProjection(), triangulateAlg() );
 
     par.setYN( sKeyDisplayPanels(), displaypanels_ );
@@ -690,7 +690,7 @@ bool FaultDisplay::usePar( const IOPar& par )
     if ( !visSurvey::MultiTextureSurveyObject::usePar( par ) )
 	return false;
 
-    MultiID newmid;
+    DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
 	EM::ObjectID emid = EM::EMM().getObjectID( newmid );

@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "seisposkey.h"
 #include "executor.h"
 #include "ranges.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "strmdata.h"
 #include "bufstringset.h"
 namespace Pos		{ class Filter; }
@@ -41,11 +41,11 @@ public:
     {
     public:
 
-			Setup(Seis::GeomType gt,const MultiID&,
+			Setup(Seis::GeomType gt,const DBKey&,
 			      const char* outputfnm);
 
 	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(MultiID,inpkey)
+	mDefSetupMemb(DBKey,inpkey)
 	mDefSetupMemb(BufferString,outfnm)
 	mDefSetupMemb(int,newfileeach)
 	mDefSetupMemb(bool,inlnames)

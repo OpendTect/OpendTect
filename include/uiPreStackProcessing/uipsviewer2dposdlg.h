@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "multiid.h"
+#include "dbkey.h"
 #include "bufstringset.h"
 #include "rowcol.h"
 #include "uistring.h"
@@ -33,7 +33,7 @@ mStruct(uiPreStackProcessing) GatherInfo
 			, wvadpid_(-1), bid_(mUdf(int),mUdf(int))	{}
     bool		isstored_;
     bool		isselected_;
-    MultiID		mid_;
+    DBKey		mid_;
     int			vddpid_;
     int			wvadpid_;
     BufferString	gathernm_;

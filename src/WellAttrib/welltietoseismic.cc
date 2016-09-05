@@ -46,7 +46,7 @@ namespace WellTie
     return false; \
 }
 
-DataPlayer::DataPlayer( Data& data, const MultiID& seisid,
+DataPlayer::DataPlayer( Data& data, const DBKey& seisid,
 			const BufferString& lnm )
     : data_(data)
     , seisid_(seisid)

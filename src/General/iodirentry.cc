@@ -103,13 +103,13 @@ void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
 }
 
 
-void IODirEntryList::setSelected( const MultiID& iniokey )
+void IODirEntryList::setSelected( const DBKey& iniokey )
 {
     bool matches = false;
     for ( int idx=0; idx<size(); idx++ )
     {
 	IODirEntry* entry = (*this)[idx];
-	MultiID iokey( iniokey );
+	DBKey iokey( iniokey );
 	if ( !entry->ioobj_ )
 	{
 	    if ( iokey.isEmpty() )

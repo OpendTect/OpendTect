@@ -77,7 +77,7 @@ calcFingParsObject::~calcFingParsObject()
 }
 
 
-void calcFingParsObject::create2DRandPicks( const MultiID& dsetid,
+void calcFingParsObject::create2DRandPicks( const DBKey& dsetid,
 						      BinIDValueSet* rangesset )
 {
     PtrMan<IOObj> ioobj = IOM().get( dsetid );
@@ -119,7 +119,7 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
     BinIDValueSet* retset = 0;
     if ( rgreftype_ == 1 )
     {
-	const MultiID setid( getRgRefPick() );
+	const DBKey setid( getRgRefPick() );
 	uiRetVal uirv = uiRetVal::OK();
 	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, uirv );
 	if ( !ps )
@@ -138,7 +138,7 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
 	retset = new BinIDValueSet( 2, true );
 	if ( attrset_->is2D() )
 	{
-	    MultiID datasetid;
+	    DBKey datasetid;
 	    findDataSetID( datasetid );
 	    create2DRandPicks( datasetid, retset );
 	}
@@ -152,7 +152,7 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
 }
 
 
-void calcFingParsObject::findDataSetID( MultiID& linesetid ) const
+void calcFingParsObject::findDataSetID( DBKey& linesetid ) const
 {
     BufferString firstinp = reflist_->get(0);
     for ( int idxdesc=0; idxdesc<attrset_->size(); idxdesc++ )
@@ -162,7 +162,7 @@ void calcFingParsObject::findDataSetID( MultiID& linesetid ) const
 	    Desc* dsc = attrset_->desc(idxdesc);
 	    const char* key = StorageProvider::keyStr();
 	    if ( dsc->isStored() )
-		linesetid = MultiID( dsc->getValParam(key)->getStringValue() );
+		linesetid = DBKey( dsc->getValParam(key)->getStringValue() );
 	    else
 	    {
 		bool foundstored = false;
@@ -172,7 +172,7 @@ void calcFingParsObject::findDataSetID( MultiID& linesetid ) const
 		    Desc* inpdsc = dsc->getInput(0);
 		    if ( inpdsc->isStored() )
 		    {
-			linesetid = MultiID( inpdsc->getValParam(key)
+			linesetid = DBKey( inpdsc->getValParam(key)
 							 ->getStringValue() );
 			foundstored = true;
 		    }

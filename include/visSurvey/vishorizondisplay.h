@@ -180,7 +180,7 @@ public:
     bool			displaysIntersectionLines() const;
     const visBase::HorizonSection*	getSection(int id) const;
 
-    static HorizonDisplay*	getHorizonDisplay(const MultiID&);
+    static HorizonDisplay*	getHorizonDisplay(const DBKey&);
 
     void			doOtherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,

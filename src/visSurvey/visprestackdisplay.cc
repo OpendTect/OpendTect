@@ -41,7 +41,7 @@ _______________________________________________________________________________
 
 #define mDefaultWidth ((SI().inlDistance() + SI().crlDistance() ) * 100)
 
-static const char* sKeyMultiID()	{ return "Data ID"; }
+static const char* sKeyDBKey()	{ return "Data ID"; }
 static const char* sKeyTraceNr()	{ return "TraceNr"; }
 
 namespace visSurvey
@@ -150,7 +150,7 @@ BufferString PreStackDisplay::getObjectName() const
 { return ioobj_->name(); }
 
 
-void PreStackDisplay::setMultiID( const MultiID& mid )
+void PreStackDisplay::setDBKey( const DBKey& mid )
 {
     mid_ = mid;
     delete ioobj_; ioobj_ = IOM().get( mid_ );
@@ -961,7 +961,7 @@ void PreStackDisplay::fillPar( IOPar& par ) const
 	par.set( sKeyTraceNr(), trckey_.trcNr() );
     }
 
-    par.set( sKeyMultiID(), mid_ );
+    par.set( sKeyDBKey(), mid_ );
     par.setYN( sKeyAutoWidth(), autowidth_ );
     par.setYN( sKeySide(), posside_ );
 
@@ -992,16 +992,16 @@ bool PreStackDisplay::usePar( const IOPar& par )
     visBase::DataObject* parent = visBase::DM().getObject( parentid );
     if ( !parent ) return false;
 
-    MultiID mid;
-    if ( !par.get( sKeyMultiID(), mid ) )
+    DBKey mid;
+    if ( !par.get( sKeyDBKey(), mid ) )
     {
-	if ( !par.get("PreStack MultiID",mid) )
+	if ( !par.get("PreStack DBKey",mid) )
 	{
 	    return false;
 	}
     }
 
-    setMultiID( mid );
+    setDBKey( mid );
 
     mDynamicCastGet( PlaneDataDisplay*, pdd, parent );
     mDynamicCastGet( Seis2DDisplay*, s2d, parent );

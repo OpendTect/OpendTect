@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "callback.h"
 #include "color.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "threadlock.h"
 #include "multidimstorage.h"
 #include "offsetazimuth.h"
@@ -97,7 +97,7 @@ protected:
 
 /*!
 \brief A EventManager is a set of EventsSet on multiple PreStack gathers, and
-are identified under the same MultiID.
+are identified under the same DBKey.
 */
 
 mExpClass(PreStackProcessing) EventManager : public RefCount::Referenced
@@ -114,7 +114,7 @@ public:
 	bool		operator==(const DipSource& b) const;
 
 	Type		type_;
-	MultiID		mid_;
+	DBKey		mid_;
 
 	void		fill(BufferString&) const;
 	bool		use(const char*);
@@ -127,8 +127,8 @@ public:
 				//!<\note id argument is only for internal use
 				//!<	  i.e. the reader
     bool			removeHorizon(int id);
-    const MultiID&		horizonEMReference(int id) const;
-    void			setHorizonEMReference(int id,const MultiID&);
+    const DBKey&		horizonEMReference(int id) const;
+    void			setHorizonEMReference(int id,const DBKey&);
     int				nextHorizonID(bool usethis);
     void			setNextHorizonID(int);
 
@@ -138,7 +138,7 @@ public:
     void			setDipSource(const DipSource&,bool primary);
     const DipSource&		getDipSource(bool primary) const;
 
-    Executor*			setStorageID(const MultiID& mid,
+    Executor*			setStorageID(const DBKey& mid,
 					     bool reload );
 				/*!<Sets the storage id.
 				    \param reload if true,
@@ -149,7 +149,7 @@ public:
 				    Note that no data on disk is
 				    changed/duplicated. That can be done with
 				    the translator. */
-    const MultiID&		getStorageID() const;
+    const DBKey&		getStorageID() const;
 
     bool			getHorRanges(TrcKeySampling&) const;
     bool			getLocations(BinIDValueSet&) const;
@@ -214,13 +214,13 @@ protected:
 
     MultiDimStorage<EventSet*>	events_;
     Threads::Lock		eventlock_;
-    MultiID			storageid_;
+    DBKey			storageid_;
     VelocityPicks*		velpicks_;
 
     Color			color_;
 
     TypeSet<int>		horids_;
-    TypeSet<MultiID>		horrefs_;
+    TypeSet<DBKey>		horrefs_;
     ObjectSet<EM::Horizon3D>	emhorizons_;
 
     BinID			changebid_;

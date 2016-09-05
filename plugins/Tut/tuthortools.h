@@ -77,7 +77,7 @@ public:
 			   
     int			nextStep();
     void		setWeak( bool yn )	{ weak_ = yn; }
-    Executor*		dataSaver(const MultiID&);
+    Executor*		dataSaver(const DBKey&);
 
     uiString		uiMessage() const	{ return tr("Smoothing"); }
 

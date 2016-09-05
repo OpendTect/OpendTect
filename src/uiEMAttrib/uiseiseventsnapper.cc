@@ -91,7 +91,7 @@ bool uiSeisEventSnapper::readHorizon()
     if ( !horinfld_->ioobj() )
 	return false;
 
-    const MultiID& mid = horinfld_->key();
+    const DBKey& mid = horinfld_->key();
     EM::Horizon* hor = savefldgrp_->readHorizon( mid );
     if ( !hor ) mErrRet( uiStrings::phrCannotLoad(
 					    uiStrings::sHorizon().toLower()) );

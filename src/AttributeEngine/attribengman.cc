@@ -618,7 +618,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 	    if ( !descid.isValid() )
 	    {
 		// It could be 'storage', but it's not yet in the set ...
-		PtrMan<IOObj> ioobj = IOM().get( MultiID(inpname) );
+		PtrMan<IOObj> ioobj = IOM().get( DBKey(inpname) );
 		if ( ioobj )
 		{
 		    Desc* stordesc =
@@ -959,7 +959,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 
     const StringPair storkey( storeddesc->getValParam(
 			      StorageProvider::keyStr())->getStringValue(0) );
-    const MultiID key( storkey.first() );
+    const DBKey key( storkey.first() );
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj ) return;
 

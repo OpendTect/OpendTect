@@ -24,8 +24,8 @@ public:
 			uiHorizonMergeDlg(uiParent*,bool is2d);
 			~uiHorizonMergeDlg();
 
-    MultiID		getNewHorMid() const;
-    void		setInputHors(const TypeSet<MultiID>& mids);
+    DBKey		getNewHorMid() const;
+    void		setInputHors(const TypeSet<DBKey>& mids);
 
 protected:
 

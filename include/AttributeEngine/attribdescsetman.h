@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 
 namespace Attrib
@@ -45,7 +45,7 @@ public:
     void		fillHist();
     IOPar&		inputHistory()			{ return inpselhist_; }
 
-    MultiID		attrsetid_;
+    DBKey		attrsetid_;
 
 protected:
 

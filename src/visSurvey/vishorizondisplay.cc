@@ -2380,7 +2380,7 @@ const visBase::HorizonSection* HorizonDisplay::getSection( int horsecid ) const
 }
 
 
-HorizonDisplay* HorizonDisplay::getHorizonDisplay( const MultiID& mid )
+HorizonDisplay* HorizonDisplay::getHorizonDisplay( const DBKey& mid )
 {
     TypeSet<int> ids;
     visBase::DM().getIDs( typeid(visSurvey::HorizonDisplay), ids );
@@ -2389,7 +2389,7 @@ HorizonDisplay* HorizonDisplay::getHorizonDisplay( const MultiID& mid )
     {
 	DataObject* dataobj = visBase::DM().getObject( ids[idx] );
 	mDynamicCastGet( HorizonDisplay*, hordisp, dataobj );
-	if ( hordisp && mid==hordisp->getMultiID() )
+	if ( hordisp && mid==hordisp->getDBKey() )
 	    return hordisp;
     }
     return 0;

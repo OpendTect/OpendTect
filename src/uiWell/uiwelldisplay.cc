@@ -34,7 +34,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
 */
 
 
-uiWellDisplay::uiWellDisplay( uiParent* p, const MultiID& id, const Setup& s )
+uiWellDisplay::uiWellDisplay( uiParent* p, const DBKey& id, const Setup& s )
     : uiGroup(p,"Well display")
     , setup_(s)
     , mandata_(id)
@@ -229,7 +229,7 @@ void uiWellDisplay::wellReloadCB( CallBacker* )
 }
 
 
-uiWellDisplayWin::uiWellDisplayWin( uiParent* p, const MultiID& id,
+uiWellDisplayWin::uiWellDisplayWin( uiParent* p, const DBKey& id,
 				    bool withcontrol )
     : uiMainWin(p,getWinTitle(id,withcontrol))
 {
@@ -255,7 +255,7 @@ uiWellDisplayWin::~uiWellDisplayWin()
 }
 
 
-uiString uiWellDisplayWin::getWinTitle( const MultiID& id, bool foredit )
+uiString uiWellDisplayWin::getWinTitle( const DBKey& id, bool foredit )
 {
     return tr( "%1 '%2'" ).arg( foredit ? uiStrings::sEdit()
 					 : uiStrings::sDisplay() )

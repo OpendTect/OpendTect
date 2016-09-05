@@ -11,7 +11,7 @@
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "oddirs.h"
 #include "ptrman.h"
 #include "segybatchio.h"
@@ -87,7 +87,7 @@ bool BatchProgram::doExport( od_ostream& strm, IOPar& iop, bool is2d )
 
 static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
 {
-    MultiID mid;
+    DBKey mid;
     iop.get( sKey::Output(), mid );
     if ( mid.isEmpty() )
     {

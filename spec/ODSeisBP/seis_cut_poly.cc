@@ -53,7 +53,7 @@ bool BatchProgram::go( std::ostream& strm )
     ODPolygon<double> poly;
     if ( vrtcspsid )
     {
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(vrtcspsid) );
+	PtrMan<IOObj> ioobj = IOM().get( DBKey(vrtcspsid) );
 	if ( !ioobj )
 	    mErrRet("Cannot find pickset ID in object manager")
 	Translator* tr = ioobj->getTranslator();

@@ -71,7 +71,7 @@ bool Mute::prepareWork()
 
 void Mute::setEmptyMute()
 {
-    id_ = MultiID::udf();
+    id_ = DBKey::udf();
     while ( def_.size() )
 	def_.remove( 0 );
 }
@@ -85,7 +85,7 @@ void Mute::setTaperLength( float l )
 { taperlen_ = l; delete muter_; muter_ = 0; }
 
 
-bool Mute::setMuteDefID( const MultiID& mid )
+bool Mute::setMuteDefID( const DBKey& mid )
 {
     if ( id_==mid )
 	return true;
@@ -131,7 +131,7 @@ bool Mute::usePar( const IOPar& par )
     if ( par.getYN( sTailMute(), tail ) )
 	setTailMute( tail );
 
-    MultiID mid;
+    DBKey mid;
     if ( par.get(sMuteDef(),mid) && !setMuteDefID(mid) )
     {
 	errmsg_ = tr("No Mute definition ID found.");

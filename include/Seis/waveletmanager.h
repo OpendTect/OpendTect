@@ -44,13 +44,13 @@ public:
 
     bool		isScaled(const ObjID&) const;
     bool		getScalingInfo(const ObjID&,ObjID& orgid,
-				MultiID& horid,MultiID& seisid,
+				DBKey& horid,DBKey& seisid,
 				BufferString& lvlnm) const;
 			//!< returns false if unscaled
 			//!< orgid == udf when external scaling
     void		setScalingInfo(const ObjID&,
-				const ObjID* orgid=0,const MultiID* horid=0,
-				const MultiID* seisid=0,const char* lvlnm=0);
+				const ObjID* orgid=0,const DBKey* horid=0,
+				const DBKey* seisid=0,const char* lvlnm=0);
 			//!< orgid == null => unscaled
 			//!< *orgid == udf => external scaling
 

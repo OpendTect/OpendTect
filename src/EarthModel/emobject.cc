@@ -39,7 +39,7 @@ EMObject::EMObject( EMManager& emm )
     : manager_( emm )
     , change( this )
     , id_( -1 )
-    , storageid_(MultiID::udf())
+    , storageid_(DBKey::udf())
     , preferredcolor_( *new Color(Color::Green()) )
     , changed_( false )
     , fullyloaded_( false )
@@ -87,7 +87,7 @@ BufferString EMObject::name() const
 void EMObject::setNewName()
 { setName("<New EM Object>"); }
 
-void EMObject::setMultiID( const MultiID& mid )
+void EMObject::setDBKey( const DBKey& mid )
 { storageid_ = mid; }
 
 

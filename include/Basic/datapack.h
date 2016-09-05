@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "namedobj.h"
 #include "manobjectset.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "notify.h"
 #include "od_iosfwd.h"
 #include "ptrman.h"
@@ -36,14 +36,14 @@ mExpClass(Basic) DataPack : public RefCount::Referenced
 {
 public:
 
-    mExpClass(Basic) FullID : public MultiID
+    mExpClass(Basic) FullID : public DBKey
     {
     public:
 				FullID()			{}
 				FullID( const char* s )
-				    : MultiID(s)		{}
+				    : DBKey(s)		{}
 				FullID( SubID mgrid, SubID packid )
-				    : MultiID(mgrid,packid)	{}
+				    : DBKey(mgrid,packid)	{}
 	SubID			mgrID() const		{ return subID(0); }
 	SubID			packID() const		{ return subID(1); }
     };

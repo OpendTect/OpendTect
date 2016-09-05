@@ -29,8 +29,8 @@ RegionFiller::RegionFiller()
     , outsideval_(mUdf(float))
     , startval_(mUdf(float))
     , gradval_(0)
-    , startvalkey_(MultiID::udf())
-    , gradvalkey_(MultiID::udf())
+    , startvalkey_(DBKey::udf())
+    , gradvalkey_(DBKey::udf())
     , startvalauxidx_(-1)
     , gradvalauxidx_(-1)
 {}
@@ -94,7 +94,7 @@ float RegionFiller::getOutsideValue() const
 float RegionFiller::getStartValue() const
 { return startval_; }
 
-const MultiID& RegionFiller::getStartValueHorizonID() const
+const DBKey& RegionFiller::getStartValueHorizonID() const
 { return startvalkey_; }
 
 int RegionFiller::getStartValueAuxDataIdx() const
@@ -103,7 +103,7 @@ int RegionFiller::getStartValueAuxDataIdx() const
 float RegionFiller::getGradientValue() const
 { return gradval_; }
 
-const MultiID& RegionFiller::getGradientHorizonID() const
+const DBKey& RegionFiller::getGradientHorizonID() const
 { return gradvalkey_; }
 
 int RegionFiller::getGradientAuxDataIdx() const

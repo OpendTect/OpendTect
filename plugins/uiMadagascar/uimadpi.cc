@@ -151,7 +151,7 @@ mDefODInitPlugin(uiMadagascar)
     IOMan::CustomDirData cdd( ODMad::sKeyMadSelKey(), ODMad::sKeyMadagascar(),
 			      "Madagascar data" );
     uiString errmsg;
-    MultiID id = IOMan::addCustomDataDir( cdd, errmsg );
+    DBKey id = IOMan::addCustomDataDir( cdd, errmsg );
     if ( errmsg.isSet() )
 	return errmsg.getFullString().str();
 

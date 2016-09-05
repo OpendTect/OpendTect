@@ -40,7 +40,7 @@ void Poly2HorVol::setHorizon( EM::Horizon3D* hor )
 }
 
 
-bool Poly2HorVol::setHorizon( const MultiID& mid, TaskRunner* tr )
+bool Poly2HorVol::setHorizon( const DBKey& mid, TaskRunner* tr )
 {
     if ( hor_ )
 	{ hor_->unRef(); hor_ = 0; }

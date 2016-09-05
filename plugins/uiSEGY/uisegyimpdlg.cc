@@ -113,7 +113,7 @@ void uiSEGYImpDlg::use( const IOObj* ioobj, bool force )
 }
 
 
-MultiID uiSEGYImpDlg::outputID() const
+DBKey uiSEGYImpDlg::outputID() const
 {
     return seissel_->key( true );
 }

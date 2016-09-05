@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "namedobj.h"
 
-#include "multiid.h"
+#include "dbkey.h"
 #include "polygon.h"
 #include "position.h"
 #include "trckeyzsampling.h"
@@ -133,12 +133,12 @@ public:
 mExpClass(EarthModel) RegionHor3DBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionHor3DBoundary)
 public:
-			RegionHor3DBoundary(const MultiID&);
+			RegionHor3DBoundary(const DBKey&);
 			~RegionHor3DBoundary();
 
     const char*		type() const;
-    void		setKey(const MultiID&);
-    const MultiID&	key() const		{ return key_; }
+    void		setKey(const DBKey&);
+    const DBKey&	key() const		{ return key_; }
     bool		hasName() const			{ return true; }
     bool		init(TaskRunner*);
     void		getSideStrs(uiStringSet&) const;
@@ -148,7 +148,7 @@ public:
     bool		usePar(const IOPar&);
 
 protected:
-    MultiID		key_;
+    DBKey		key_;
     EM::Horizon3D*	hor_;
 };
 
@@ -156,12 +156,12 @@ protected:
 mExpClass(EarthModel) RegionFaultBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionFaultBoundary)
 public:
-			RegionFaultBoundary(const MultiID&);
+			RegionFaultBoundary(const DBKey&);
 			~RegionFaultBoundary();
 
     const char*		type() const;
-    void		setKey(const MultiID&);
-    const MultiID&	key() const		{ return key_; }
+    void		setKey(const DBKey&);
+    const DBKey&	key() const		{ return key_; }
     bool		hasName() const			{ return true; }
     bool		init(TaskRunner*);
     void		getSideStrs(uiStringSet&) const;
@@ -171,7 +171,7 @@ public:
     bool		usePar(const IOPar&);
 
 protected:
-    MultiID			key_;
+    DBKey			key_;
     const EM::Fault*		flt_;
     FaultTrcDataProvider&	prov_;
 
@@ -181,12 +181,12 @@ protected:
 mExpClass(EarthModel) RegionPolygonBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionPolygonBoundary)
 public:
-			RegionPolygonBoundary(const MultiID&);
+			RegionPolygonBoundary(const DBKey&);
 			~RegionPolygonBoundary();
 
     const char*		type() const;
-    void		setKey(const MultiID&);
-    const MultiID&	key() const		{ return key_; }
+    void		setKey(const DBKey&);
+    const DBKey&	key() const		{ return key_; }
     bool		hasName() const			{ return true; }
     void		getSideStrs(uiStringSet&) const;
     bool		onRightSide(const TrcKey&,float z) const;
@@ -194,7 +194,7 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    MultiID			key_;
+    DBKey			key_;
     const ODPolygon<float>*	polygon_;
 };
 
@@ -209,7 +209,7 @@ public:
     RegionBoundary*	getBoundary(int idx);
     void		removeBoundary(int idx);
     void		removeBoundary(RegionBoundary&);
-    bool		hasBoundary(const MultiID&) const;
+    bool		hasBoundary(const DBKey&) const;
     int			size() const;
     bool		isEmpty() const;
     void		setEmpty();

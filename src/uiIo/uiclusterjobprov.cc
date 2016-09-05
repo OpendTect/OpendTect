@@ -248,8 +248,8 @@ bool uiClusterJobProv::acceptOK()
     if ( tempstordir_ != tmpdir )
 	File::remove( tempstordir_.buf() );
 
-    const MultiID tmpid = getTmpID( tmpdir.buf() );
-    MultiID outseisid;
+    const DBKey tmpid = getTmpID( tmpdir.buf() );
+    DBKey outseisid;
     iopar_.get( getOutPutIDKey(), outseisid );
     iopar_.set( getOutPutIDKey(), tmpid );
     delete jobprov_;
@@ -308,7 +308,7 @@ const char* uiClusterJobProv::getOutPutIDKey() const
 }
 
 
-MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
+DBKey uiClusterJobProv::getTmpID( const char* tmpdir ) const
 {
     CtxtIOObj ctio( IOObjContext(&TranslatorGroup::getGroup("Seismic Data")) );
     ctio.ctxt_.stdseltype_ = IOObjContext::Seis;
@@ -319,12 +319,12 @@ MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
     IOM().to( ctio.ctxt_.getSelKey() );
     IOM().getEntry( ctio );
     if ( !ctio.ioobj_ )
-	return MultiID(-1);
+	return DBKey(-1);
 
     fp.add( "i.*");
-    MultiID ret = ctio.ioobj_->key();
+    DBKey ret = ctio.ioobj_->key();
     mDynamicCastGet(IOStream*,iostrm,ctio.ioobj_)
-    if ( !iostrm ) return MultiID(-1);
+    if ( !iostrm ) return DBKey(-1);
 
     StepInterval<int> fnrs;
     jobprov_->getRange( fnrs );

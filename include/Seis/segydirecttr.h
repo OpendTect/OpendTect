@@ -179,7 +179,7 @@ public:
     virtual bool	close();
     virtual void	cleanUp();
     virtual IOObj*	createWriteIOObj(const IOObjContext&,
-					 const MultiID&) const;
+					 const DBKey&) const;
     virtual const char*	iconName() const		{ return "segy"; }
 
     virtual bool	getGeometryInfo(PosInfo::CubeData&) const;

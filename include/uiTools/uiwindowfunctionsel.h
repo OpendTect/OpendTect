@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "multiid.h"
+#include "dbkey.h"
 
 class WindowFunction;
 class uiGenInput;

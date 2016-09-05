@@ -517,7 +517,7 @@ bool BodyOperator::isOK() const
 }
 
 
-void BodyOperator::setInput( bool body0, const MultiID& mid )
+void BodyOperator::setInput( bool body0, const DBKey& mid )
 {
     if ( body0 )
     {
@@ -540,13 +540,13 @@ void BodyOperator::setInput( bool body0, BodyOperator* bo )
     {
 	if ( inputbodyop0_ ) delete inputbodyop0_;
 	inputbodyop0_ = bo;
-	inputbody0_ = MultiID(0);
+	inputbody0_ = DBKey(0);
     }
     else
     {
 	if ( inputbodyop1_ ) delete inputbodyop1_;
 	inputbodyop1_ = bo;
-	inputbody1_ = MultiID(0);
+	inputbody1_ = DBKey(0);
     }
 }
 
@@ -583,14 +583,14 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
     BodyOperator* oprt = body0 ? inputbodyop0_ : inputbodyop1_;
     if ( !oprt )
     {
-	const MultiID mid = body0 ? inputbody0_ : inputbody1_;
+	const DBKey mid = body0 ? inputbody0_ : inputbody1_;
 	const BufferString translt = EMM().objectType(mid);
 	EM::EMObject* obj = EMM().createTempObject( translt );
 
 	if ( !obj ) return 0;
 	obj->ref();
 
-	obj->setMultiID( mid );
+	obj->setDBKey( mid );
 	if ( !obj->loader() || !obj->loader()->execute() )
 	{
 	    obj->unRef();

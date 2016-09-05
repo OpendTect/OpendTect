@@ -100,10 +100,10 @@ public:
     				/*<-1 undefined, 1 above, 0 below. */
     void			setSeedAboveIsovalue(
 				    const visBase::MarchingCubesSurface*,bool);
-    MultiID			getSeedsID(
+    DBKey			getSeedsID(
 	    			    const visBase::MarchingCubesSurface*) const;
     void			setSeedsID(const visBase::MarchingCubesSurface*,
-					   MultiID);
+					   DBKey);
 
     bool                        turnOn(bool yn);
     bool                        isOn() const;
@@ -253,7 +253,7 @@ protected:
 	float			isovalue_;
 	char			mode_;
 	char			seedsaboveisoval_;
-	MultiID			seedsid_;
+	DBKey			seedsid_;
     };
 
     TypeSet<IsosurfaceSetting>	isosurfsettings_;

@@ -24,7 +24,7 @@ uiString WaveletTranslatorGroup::sTypeName( int num )
 { return uiStrings::sWavelet(num); }
 
 
-WaveletLoader::WaveletLoader( const MultiID& id )
+WaveletLoader::WaveletLoader( const DBKey& id )
     : ioobj_(IOM().get(id))
 {
 }
@@ -94,7 +94,7 @@ uiRetVal WaveletLoader::load()
 }
 
 
-bool WaveletLoader::addToMGR( Wavelet* wvlt, const MultiID& ky )
+bool WaveletLoader::addToMGR( Wavelet* wvlt, const DBKey& ky )
 {
     WaveletManager& mgr = WaveletMGR();
     if ( mgr.isLoaded(ioobj_->key()) )

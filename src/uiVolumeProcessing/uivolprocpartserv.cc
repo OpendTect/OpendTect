@@ -41,7 +41,7 @@ uiVolProcPartServer::~uiVolProcPartServer()
 }
 
 
-void uiVolProcPartServer::doVolProc( bool is2d, const MultiID* mid,
+void uiVolProcPartServer::doVolProc( bool is2d, const DBKey* mid,
 				     const char* steptype )
 {
     VolProc::Chain*& vprocchain = is2d ? volprocchain2d_ : volprocchain_;

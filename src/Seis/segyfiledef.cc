@@ -56,7 +56,7 @@ static const char* allsegyfmtoptions[] = {
 IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
 {
     IOStream* iostrm;
-    const MultiID dirky( mIOObjContext(SeisTrc).getSelKey() );
+    const DBKey dirky( mIOObjContext(SeisTrc).getSelKey() );
     if ( tmp )
 	iostrm = new IOStream( usrStr(), IODir(dirky).newTmpKey() );
     else

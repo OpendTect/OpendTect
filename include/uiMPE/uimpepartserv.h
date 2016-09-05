@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uimpemod.h"
 #include "attribsel.h"
 #include "uiapplserv.h"
-#include "multiid.h"
+#include "dbkey.h"
 #include "trckeyzsampling.h"
 #include "datapack.h"
 #include "emposid.h"
@@ -102,10 +102,10 @@ public:
     static int			evSetupClosed();
     static int			evInitFromSession();
 
-    bool 			prepareSaveSetupAs(const MultiID&);
-    bool 			saveSetupAs(const MultiID&);
-    bool 			saveSetup(const MultiID&);
-    bool 			readSetup(const MultiID&);
+    bool 			prepareSaveSetupAs(const DBKey&);
+    bool 			saveSetupAs(const DBKey&);
+    bool 			saveSetup(const DBKey&);
+    bool 			readSetup(const DBKey&);
 
     bool			sendMPEEvent(int);
 

@@ -199,7 +199,7 @@ public:
     virtual void	cleanUp();
 			//!< Prepare for new initialisation.
 
-    static bool		getRanges(const MultiID&,TrcKeyZSampling&,
+    static bool		getRanges(const DBKey&,TrcKeyZSampling&,
 				  const char* linekey=0);
     static bool		getRanges(const IOObj&,TrcKeyZSampling&,
 				  const char* linekey=0);
