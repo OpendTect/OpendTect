@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "isocontourtracer.h"
 #include "axislayout.h"
+#include "math.h"
 #include "mousecursor.h"
 #include "polygon.h"
 #include "survinfo.h"
@@ -62,6 +63,45 @@ static const int cMaxNrDiplayedLabels = 1000;
 
 const char* uiContourTreeItem::sKeyContourDefString(){return "Contour Display";}
 const char* uiContourTreeItem::sKeyZValue()	     { return "Z Values"; }
+
+static int getInitialDec( const float val )
+{
+    const float logval = Math::Log10( val>0 ? val : -val );
+    if ( mIsUdf(logval) )
+	return 0;
+
+    const int nrdigits = mNINT32( Math::Ceil(logval) );
+    if ( nrdigits > 6 )
+	return 0;
+
+    return 6-nrdigits;
+}
+
+static float getNiceNumber( float val, int& nrdec )
+{
+    nrdec = 0;
+    const float logval = Math::Log10( val>0 ? val : -val );
+    if ( mIsUdf(logval) )
+	return val;
+
+    const int nrdigits = mNINT32( Math::Ceil(logval) );
+    if ( nrdigits > 6 )
+	return mCast(float, mNINT32(val/1e6) * 1e6);
+
+    const float multiplier = Math::PowerOf( 10.f,
+					    (float)(6-nrdigits) );
+    const int rounded = mNINT32( val * multiplier );
+    nrdec = 6-nrdigits;
+    int divider = 10;
+    while ( rounded % divider == 0 )
+    {
+	nrdec--;
+	divider *= 10;
+    }
+
+    if ( nrdec < 0 ) nrdec = 0;
+    return mCast(float, rounded / multiplier);
+}
 
 
 class uiContourTreeItemContourData
@@ -316,11 +356,13 @@ bool uiContourTreeItemContourGenerator::generateContours( int contouridx,
     // if having label, add label into contour data
     if ( lblpositionrg.stop > lblpositionrg.start )
     {
-	const float labelval =
+	float labelval =
 	    uicitem_->attrnm_==uiContourTreeItem::sKeyZValue()
 	    ? (contourval+uicitem_->zshift_) * zfactor_ : contourval;
 	contourdata.labelranges_.add( lblpositionrg );
-	contourdata.labels_.add( toString(labelval) );
+	int nrdec = 0;
+	labelval = getNiceNumber( labelval, nrdec );
+	contourdata.labels_.add( toString(labelval,nrdec) );
     }
 
     return true;
@@ -547,12 +589,12 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     alignlblfld_ = new uiLabel( this, tr("Label alignment") );
     alignlblfld_->attach( leftOf, alignbutsfld_ );
 
-    uiRadioButton* leftbut = new uiRadioButton( alignbutsfld_, 
+    uiRadioButton* leftbut = new uiRadioButton( alignbutsfld_,
 							   uiStrings::sLeft() );
     leftbut->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
     uiRadioButton* centerbut = new uiRadioButton( alignbutsfld_, tr("Center") );
     centerbut->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
-    uiRadioButton* rightbut = new uiRadioButton( alignbutsfld_, 
+    uiRadioButton* rightbut = new uiRadioButton( alignbutsfld_,
 							  uiStrings::sRight() );
     rightbut->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
     alignbutsfld_->selectButton( 0 );
@@ -572,7 +614,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 				mCB(this,uiContourParsDlg,uiDisplayCB) );
     disableLabelElevation();
 
-    intvChanged( 0 );
+    postFinalise().notify( mCB( this,uiContourParsDlg,finaliseCB) );
 }
 
 
@@ -693,6 +735,25 @@ void elevationChg( CallBacker* )
     elevationfld_->box()->valueChanged.trigger();     // to call snapToStep(.)
 }
 
+
+void setInitialDecNr()
+{
+    StepInterval<float> intv = intvfld_->getFStepInterval();
+    const int nrdecstart = getInitialDec( intv.start );
+    const int nrdecstop = getInitialDec( intv.start );
+    const int initnrdec = nrdecstart>nrdecstop ? nrdecstart : nrdecstop;
+    intvfld_->setNrDecimals( initnrdec, 0 );
+}
+
+void finaliseCB( CallBacker* cb )
+{
+    setInitialDecNr();
+    int nrdec=0;
+    const float startval = getNiceNumber( contourintv_.start, nrdec );
+    intvfld_->setText( toString(startval, nrdec), 0 );
+    const float stopval = getNiceNumber( contourintv_.stop, nrdec );
+    intvfld_->setText( toString(stopval, nrdec) , 1 );
+}
 
 void intvChanged( CallBacker* cb )
 {
@@ -948,7 +1009,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
         TypeSet<float> zvals, areas;
         getZVSAreaValues( zvals, areas );
 
-        uiDialog dlg( ODMainWin(), uiDialog::Setup(tr("Countour areas"), 
+	uiDialog dlg( ODMainWin(), uiDialog::Setup(tr("Countour areas"),
 				   uiString::emptyString(), mNoHelpKey ) );
         dlg.setCancelText( uiString::emptyString() );
 
@@ -1044,10 +1105,12 @@ void uiContourTreeItem::saveAreasAsCB(CallBacker*)
 void uiContourTreeItem::updateUICContours( const StepInterval<float>& newintv )
 {
     StepInterval<float> oldintv = contourintv_;
+    const int nrsignificant = getInitialDec( newintv.start );
+    const float eps = Math::PowerOf( 10.f, -mCast(float,nrsignificant) );
     oldintv += Interval<float>( zshift_, zshift_ );
-    const bool intvchgd = !mIsEqual(newintv.start,oldintv.start,1e-4) ||
-			  !mIsEqual(newintv.stop,oldintv.stop,1e-4) ||
-			  !mIsEqual(newintv.step,oldintv.step,1e-4);
+    const bool intvchgd = !mIsEqual(newintv.start,oldintv.start,eps) ||
+			  !mIsEqual(newintv.stop,oldintv.stop,eps) ||
+			  !mIsEqual(newintv.step,oldintv.step,eps);
 
     if ( intvchgd )
     {

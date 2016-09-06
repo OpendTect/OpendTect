@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uistrings.h"
 
+#include "commondefs.h"
 #include "datainpspec.h"
 #include "survinfo.h"
 #include "binidvalue.h"
@@ -1213,12 +1214,25 @@ void uiGenInput::setNrDecimals( int nrdec, int fldnr )
     if ( !flds_.validIdx(fldnr) ) return;
 
     mDynamicCastGet(uiTextInputFld*,textinp,flds_[fldnr])
-    if ( !textinp ) return;
-    mDynamicCastGet(uiLineEdit*,lineedit,textinp->mainObj())
-    if ( !lineedit ) return;
+    if ( textinp )
+    {
+	mDynamicCastGet(uiLineEdit*,le,textinp->mainObj())
+	uiFloatValidator fv; fv.nrdecimals_ = nrdec;
+	le->setValidator( fv );
+	return;
+    }
+    else
+    {
+	int nrelements = flds_[fldnr]->nElems();
+	for ( int idx=0; idx<nrelements; idx++ )
+	{
+	    mDynamicCastGet(uiLineEdit*,lineedit,flds_[fldnr]->element(idx))
+	    if ( !lineedit ) return;
 
-    uiFloatValidator fv; fv.nrdecimals_ = nrdec;
-    lineedit->setValidator( fv );
+	    uiFloatValidator fv; fv.nrdecimals_ = nrdec;
+	    lineedit->setValidator( fv );
+	}
+    }
 }
 
 
