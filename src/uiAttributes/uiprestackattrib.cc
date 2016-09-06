@@ -260,12 +260,12 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
 
     valaxtypefld_->setValue( (int)aps->setup().valaxis_ );
     useanglefld_->setChecked( aps->setup().useangle_ );
+    mIfGetEnum(PSAttrib::gathertypeStr(),gtp,gathertypefld_->setValue(gtp));
     if ( aps->setup().useangle_ && !setAngleParameters(desc) )
 	return false;
 
     if ( !aps->setup().useangle_ )
     {
-	mIfGetEnum(PSAttrib::gathertypeStr(),gtp,gathertypefld_->setValue(gtp));
 	mIfGetEnum(PSAttrib::xaxisunitStr(),xut,xunitfld_->setValue(xut));
 	Interval<float> offsrg( aps->setup().offsrg_ );
 	if ( SI().xyInFeet() && !offsrg.isUdf() &&
@@ -372,13 +372,14 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 
     const bool useangle = useanglefld_->isChecked();
     mSetBool(Attrib::PSAttrib::useangleStr(),useangle)
+    const int gathertype = gathertypefld_->getIntValue();
+    mSetEnum(Attrib::PSAttrib::gathertypeStr(),gathertype)
+
     if ( useangle && !getAngleParameters(desc) )
 	return false;
 
     if ( !useangle )
     {
-	const int gathertype = gathertypefld_->getIntValue();
-	mSetEnum(Attrib::PSAttrib::gathertypeStr(),gathertype)
 	mSetEnum(Attrib::PSAttrib::xaxisunitStr(),xunitfld_->getIntValue());
 	Interval<float> offsrg = xrgfld_->getFInterval();
 	if ( SI().xyInFeet() && !offsrg.isUdf() && gathertype == 0 )
@@ -420,12 +421,14 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
     const bool isoffset = gathertypefld_->getIntValue() == 0;
     uiString xlbl = isoffset ? tr("Offset range (empty=all)") : 
 						tr("Angle range (empty=all)");
-
+    
     xrgfld_->setTitleText(xlbl);
+
     if ( isoffset )
     	xrglbl_->setText( SI().getUiXYUnitString(false,false) );
     else
     {
+	useanglefld_->setChecked( false );
 	xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
 	gatherUnitSel( 0 );
     }
@@ -481,7 +484,7 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
 void uiPreStackAttrib::gatherUnitSel( CallBacker* )
 {
     const bool isdegrees = xunitfld_->getIntValue() == 0;
-    if ( xunitfld_->rightObj()->isDisplayed() )
+    if ( xunitfld_->isDisplayed() )
 	xrglbl_->setText( isdegrees ? tr("degrees") : tr("radians") );
 }
 

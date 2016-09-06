@@ -151,6 +151,7 @@ float PropCalc::getVal( float z ) const
 	axisvalrg.start -= eps;
     if ( !mIsUdf(axisvalrg.stop) )
 	axisvalrg.stop += eps;
+    axisvalrg.scale( setup_.xscaler_ ); 
     axisvalrg.sort();
 
     const int nroffsets = gather_->size( !gather_->offsetDim() );
