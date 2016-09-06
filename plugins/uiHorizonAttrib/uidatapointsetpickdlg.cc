@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "array2dinterpol.h"
+#include "arrayndalgo.h"
 #include "bidvsetarrayadapter.h"
 #include "ctxtioobj.h"
 #include "datacoldef.h"
@@ -442,25 +443,31 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
     if ( dataidx_ < 0 )
 	dataidx_ = addSurfaceData();
 
-    BinIDValueSet& bivs = emdps_.bivSet();
-    BIDValSetArrAdapter adapter( bivs, 2, tks_.step_ );
-    adapter.setAll( mUdf(float) );
+    int nrinl = tks_.nrInl();
+    int nrcrl = tks_.nrCrl();
+    Array2DImpl<float> arr( nrinl, nrcrl );
+    arr.setAll( mUdf(float) );
     for ( int idx=0; idx<dps_.size(); idx++ )
     {
 	DataPointSet::Pos pos = dps_.pos( idx );
 	const int inlidx = tks_.inlIdx( pos.binid_.inl() );
 	const int crlidx = tks_.crlIdx( pos.binid_.crl() );
 	const float* vals = dps_.getValues( idx );
-	adapter.set( inlidx, crlidx, vals[0] );
-    }
+	arr.set( inlidx, crlidx, vals[0] );
+    }		     
 
     uiTaskRunner uitr( this );
-    if ( !interpol_->setArray(adapter,&uitr) )
+    if ( !interpol_->setArray(arr,&uitr) )
 	return;
-
+    
     if ( !uitr.execute(*interpol_) )
 	return;
-
+    
+    BinIDValueSet& bivs = emdps_.bivSet();
+    BIDValSetArrAdapter adapter( bivs, 2, tks_.step_ );
+    Array2DCopier<float> copier( arr, tks_, tks_, adapter );
+    copier.executeParallel( true );
+   
     readyForDisplay.trigger();
 }
 
