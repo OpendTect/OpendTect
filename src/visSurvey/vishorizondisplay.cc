@@ -136,9 +136,9 @@ HorizonDisplay::HorizonDisplay()
     , enabletextureinterp_( true )
     , displaysurfacegrid_( false )
     , translationpos_( Coord3().udf() )
-    , parentline_(0)
-    , selections_(0)
-    , lockedpts_(0)
+    , parentline_( 0 )
+    , selections_( 0 )
+    , lockedpts_( 0 )
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
@@ -1618,7 +1618,10 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
                                             horgeom->averageTrcDist() );
             }
 
-            EM::SubID horsubid = hortrc.isUdf()
+	    if ( !hor->range().includes(hortrc) )
+		continue;
+
+	    EM::SubID horsubid = hortrc.isUdf()
                     ? mUdf(EM::SubID)
                     : hortrc.pos().toInt64();
 
