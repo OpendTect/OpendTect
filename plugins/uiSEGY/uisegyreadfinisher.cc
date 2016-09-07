@@ -580,9 +580,8 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 	if ( choice > 2 )
 	    overwr_warn = false;
     }
-    if ( choice == 2 || choice == 4 )
-	overwr = false;
 
+    overwr = choice == 1 || choice == 3;
     if ( overwr )
     {
 	Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
