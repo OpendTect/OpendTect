@@ -64,19 +64,24 @@ QNetworkReplyConn( QNetworkReply* sndr, Network::HttpRequestProcess* rec )
 
 private slots:
 
-void downloadProgress(qint64 nrdone,qint64 totalnr)
-{}
+void downloadProgress(qint64 bytes,qint64 totalbytes)
+{
+    RefMan<Network::HttpRequestProcess> receiver = receiver_;
+    if ( receiver ) receiver->reportDownloadProgress( bytes, totalbytes );
+}
+
 
 void error(QNetworkReply::NetworkError)
 {
     RefMan<Network::HttpRequestProcess> receiver = receiver_;
-    if ( receiver ) receiver->error.trigger();
+    if ( receiver ) receiver->reportError();
 }
+
 
 void finished()
 {
     RefMan<Network::HttpRequestProcess> receiver = receiver_;
-    if ( receiver ) receiver->finished.trigger();
+    if ( receiver ) receiver->reportFinished();
 }
 
 void metaDataChanged()
@@ -85,12 +90,7 @@ void metaDataChanged()
 void uploadProgress(qint64 bytes,qint64 totalbytes)
 {
     RefMan<Network::HttpRequestProcess> receiver = receiver_;
-    if ( !receiver )
-	return;
-
-    receiver->setBytesUploaded( bytes );
-    receiver->setTotalBytesToUpload( totalbytes );
-    receiver->uploadProgress.trigger();
+    if ( receiver ) receiver->reportUploadProgress( bytes, totalbytes );
 }
 
 void aboutToClose()
@@ -105,7 +105,7 @@ void readChannelFinished()
 void readyRead()
 {
     RefMan<Network::HttpRequestProcess> receiver = receiver_;
-    if ( receiver ) receiver->downloadDataAvailable.trigger();
+    if ( receiver ) receiver->reportReadyRead();
 }
 
 

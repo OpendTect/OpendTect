@@ -38,12 +38,9 @@ HttpRequestProcess::HttpRequestProcess()
     , bytesuploaded_( 0 )
     , receiveddata_( 0 )
     , receiveddatalock_( true )
-{
-    error.notify( mCB(this,HttpRequestProcess,errorOccurred) );
-    finished.notify( mCB(this,HttpRequestProcess,finish) );
-    downloadDataAvailable.notify( mCB(this,HttpRequestProcess,dataAvailable) );
-    uploadProgress.notify( mCB(this,HttpRequestProcess,uploadStatus) );
-}
+    , bytesdownloaded_( 0 )
+    , totalbytestodownload_( 0 )
+{ }
 
 
 HttpRequestProcess::~HttpRequestProcess()
@@ -73,14 +70,6 @@ od_int64 HttpRequestProcess::getTotalBytesToUpload() const
 { return totalbytestoupload_; }
 
 
-void HttpRequestProcess::setBytesUploaded(const od_int64 bytes)
-{ bytesuploaded_ = bytes; }
-
-
-void HttpRequestProcess::setTotalBytesToUpload(const od_int64 bytes)
-{ totalbytestoupload_ = bytes; }
-
-
 void HttpRequestProcess::setQNetowrkReply( QNetworkReply* qnr )
 {
 #ifndef OD_NO_QT
@@ -103,41 +92,62 @@ void HttpRequestProcess::waitForFinish()
 }
 
 
-void HttpRequestProcess::errorOccurred(CallBacker*)
+void HttpRequestProcess::reportDownloadProgress(od_int64 bytes,
+						od_int64 totalbytes)
 {
-#ifndef OD_NO_QT
+    bytesdownloaded_ = bytes;
+    totalbytestodownload_ = totalbytes;
+}
+
+
+void HttpRequestProcess::reportError()
+{
     statuslock_.lock();
     status_ = Error;
     errmsg_.setFrom( qnetworkreply_->errorString() );
     statuslock_.signal( true );
     statuslock_.unLock();
-#endif
+
+    error.trigger();
 }
 
-
-void HttpRequestProcess::finish(CallBacker* cber)
+void HttpRequestProcess::reportUploadProgress( od_int64 bytes,
+					       od_int64 totalbytes )
 {
-#ifndef OD_NO_QT
+    bytesuploaded_ = bytes;
+    totalbytestoupload_ = totalbytes;
+
+    uploadProgress.trigger();
+}
+
+void HttpRequestProcess::reportFinished()
+{
     statuslock_.lock();
     if ( status_==Running ) status_ = Finished;
     statuslock_.signal( true );
     statuslock_.unLock();
-#endif
+
+    finished.trigger();
 }
 
 
-void HttpRequestProcess::dataAvailable( CallBacker* )
+void HttpRequestProcess::reportReadyRead()
 {
     Threads::Locker locker(receiveddatalock_);
     if (!receiveddata_)
 	receiveddata_ = new QByteArray;
 
     receiveddata_->append(qnetworkreply_->readAll());
+
+    locker.unlockNow();
+
+    downloadDataAvailable.trigger();
 }
 
 
 od_int64 HttpRequestProcess::getContentLengthHeader() const
 {
+    //Threadsafe ?
     return
       qnetworkreply_->header(QNetworkRequest::ContentLengthHeader).toLongLong();
 }
@@ -145,7 +155,7 @@ od_int64 HttpRequestProcess::getContentLengthHeader() const
 
 od_int64 HttpRequestProcess::downloadBytesAvailable() const
 {
-    return qnetworkreply_->bytesAvailable();
+    return receiveddata_ ? receiveddata_->length() : 0;
 }
 
 
@@ -165,6 +175,7 @@ od_int64 HttpRequestProcess::read( char* data, od_int64 bufsize )
 
 bool HttpRequestProcess::waitForDownloadData( int timeout_ms )
 {
+    //Threadsafe ?
     return qnetworkreply_->waitForReadyRead( timeout_ms );
 }
 
@@ -183,10 +194,6 @@ BufferString HttpRequestProcess::readAll()
     return res;
 }
 
-
-void HttpRequestProcess::uploadStatus( CallBacker* )
-{
-}
 
 //Network::HttpRequest implementation
 HttpRequest::HttpRequest( const char* url )
@@ -258,8 +265,9 @@ HttpRequestManager::HttpRequestManager()
     , qnam_( 0 )
     , eventloop_( 0 )
 {
-    thread_ = new Threads::Thread( mCB(this,HttpRequestManager,threadFuncCB),
-				   "HttpRequestManager" );
+    thread_ = new Threads::Thread(
+	    mCB(this,HttpRequestManager,threadFuncCB),
+	    "HttpRequestManager" );
     lock_.lock();
     while (!eventloop_)
 	lock_.wait();
@@ -278,7 +286,10 @@ void HttpRequestManager::shutDownThreading()
     if ( eventloop_ )
     {
 	eventloop_->exit();
+    }
 
+    if ( thread_ )
+    {
 	thread_->waitForFinish();
 	deleteAndZeroPtr( thread_ );
     }
@@ -304,15 +315,16 @@ RefMan<HttpRequestProcess> HttpRequestManager::head( const HttpRequest& req )
 }
 
 
-RefMan<HttpRequestProcess> HttpRequestManager::request( const HttpRequest& req,
-						       AccessType accesstype )
+RefMan<HttpRequestProcess>
+HttpRequestManager::request( const HttpRequest& req,AccessType accesstype )
 {
     RequestData rq( this, req, accesstype );
-    CallBack::addToThread(thread_->threadID(), mCB(this, HttpRequestManager, doRequestCB), &rq);
+    CallBack::addToThread(thread_->threadID(),
+	    		mCB(this, HttpRequestManager, doRequestCB), &rq);
     
     rq.wait();
    
-    return rq.reply_;
+   return rq.reply_;
 }
 
 
@@ -320,13 +332,16 @@ void HttpRequestManager::threadFuncCB(CallBacker*)
 {
 #ifndef OD_NO_QT
     createReceiverForCurrentThread();
+
+    Network::setHttpProxyFromSettings();
+
     lock_.lock();
 
-    qnam_ = new QNetworkAccessManager;
-    eventloop_ = new QEventLoop( qnam_ );
-    Network::setHttpProxyFromSettings();
+    eventloop_ = new QEventLoop( 0 );
+    qnam_ = new QNetworkAccessManager( eventloop_ );
     lock_.signal(true);
     lock_.unLock();
+
 
     eventloop_->exec();
 
@@ -338,15 +353,16 @@ void HttpRequestManager::threadFuncCB(CallBacker*)
     eventloop_->processEvents();
 
     removeReceiverForCurrentThread();
+    qnam_ = 0; //Deleted with eventloop_
     deleteAndZeroPtr( eventloop_ );
-    deleteAndZeroPtr( qnam_ );
 #endif
 }
 
 
 void HttpRequestManager::doRequestCB(CallBacker* cb)
 {
-    HttpRequestManager::RequestData* rd = (HttpRequestManager::RequestData*) cb;
+    HttpRequestManager::RequestData* rd =
+	(HttpRequestManager::RequestData*) cb;
 
     QNetworkRequest qreq;
     rd->req_.fillRequest(qreq);

@@ -102,7 +102,8 @@ private:
 
     struct RequestData : public CallBacker
     {
-	RequestData(HttpRequestManager* hrm, const HttpRequest& req, AccessType at )
+	RequestData(HttpRequestManager* hrm,
+		    const HttpRequest& req, AccessType at )
 	    : req_(req)
 	    , at_( at )
 	    , reply_( 0 )
@@ -168,8 +169,13 @@ private:
 				//Interface from QNetworkReplyConn
     friend			class ::QNetworkReplyConn;
 
-    void			setBytesUploaded(const od_int64 bytes);
-    void			setTotalBytesToUpload(const od_int64 bytes);
+    void			reportDownloadProgress(od_int64 nrdone,
+	    					       od_int64 totalnr);
+    void			reportError();
+    void			reportFinished();
+    void			reportUploadProgress(od_int64 bytes,
+	    					     od_int64 totalbytes);
+    void			reportReadyRead();
 
 				//Interface from NetworkAccessManager
     friend			class HttpRequestManager;
@@ -183,13 +189,10 @@ private:
     Threads::ConditionVar	statuslock_;
     enum Status			{ Running, Error, Finished } status_;
 
-    void			errorOccurred(CallBacker*);
-    void			finish(CallBacker*);
-    void			dataAvailable(CallBacker*);
-    void			uploadStatus(CallBacker*);
-
     Threads::Atomic<od_int64>	bytesuploaded_;
     Threads::Atomic<od_int64>	totalbytestoupload_;
+    Threads::Atomic<od_int64>	bytesdownloaded_;
+    Threads::Atomic<od_int64>	totalbytestodownload_;
 
     QNetworkReplyConn*		qnetworkreplyconn_;
     QNetworkReply*		qnetworkreply_;
