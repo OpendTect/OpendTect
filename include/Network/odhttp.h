@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "uistring.h"
 #include "iopar.h"
+#include "limits.h"
 
 class QEventLoop;
 class QNetworkReply;
@@ -27,10 +28,13 @@ class QNetworkAccessManager;
 class DataBuffer;
 class QByteArray;
 
+
 namespace Network
 {
 class HttpRequestProcess;
 class HttpRequestManager;
+class HttpRequestManagerObj;
+class RequestEvent;
 
 /*!Description of an HTTP request, including headers and post-data */
 
@@ -54,6 +58,7 @@ public:
 private:
 
     friend			class HttpRequestManager;
+    friend			class HttpRequestManagerObj;
 
     void			fillRequest(QNetworkRequest&) const;
     QByteArray*			postdata_;
@@ -78,13 +83,15 @@ public:
 				HttpRequestManager();
 				~HttpRequestManager();
 
+    void			shutDownThreading();
+
     RefMan<HttpRequestProcess>	head(const HttpRequest&);
     RefMan<HttpRequestProcess>	get(const HttpRequest&);
     RefMan<HttpRequestProcess>	post(const HttpRequest&);
 
 private:
     enum AccessType		{ Get, Post, Head };
-    RefMan<HttpRequestProcess>	access(const HttpRequest&,AccessType);
+    RefMan<HttpRequestProcess>	request(const HttpRequest&,AccessType);
 
     void			threadFuncCB(CallBacker*);
 
@@ -93,12 +100,32 @@ private:
     QNetworkAccessManager*	qnam_;
     Threads::ConditionVar	lock_;
 
-    const QNetworkRequest*	curreq_;
-    const QByteArray*		curpostdata_;
-    AccessType			accesstype_;
+    struct RequestData : public CallBacker
+    {
+	RequestData(HttpRequestManager* hrm, const HttpRequest& req, AccessType at )
+	    : req_(req)
+	    , at_( at )
+	    , reply_( 0 )
+	    , isrun_( false )
+	{}
 
-    RefMan<HttpRequestProcess>	curreply_;
-    bool			stopflag_;
+	void wait()
+	{
+	    isrunlock_.lock();
+	    while (!isrun_)
+		isrunlock_.wait();
+	    isrunlock_.unLock();
+	}
+
+	const AccessType		at_;
+	const HttpRequest&		req_;
+	RefMan<HttpRequestProcess>	reply_;
+	bool				isrun_;
+	Threads::ConditionVar		isrunlock_;
+    };
+
+    void			doRequestCB(CallBacker*);
+				//Only called in thread_. CB must be RequestData
 };
 
 
@@ -140,11 +167,13 @@ private:
 
 				//Interface from QNetworkReplyConn
     friend			class ::QNetworkReplyConn;
+
     void			setBytesUploaded(const od_int64 bytes);
     void			setTotalBytesToUpload(const od_int64 bytes);
 
 				//Interface from NetworkAccessManager
     friend			class HttpRequestManager;
+    friend			class HttpRequestManagerObj;
     void			setQNetowrkReply(QNetworkReply*);
 				//!<Becomes mine
 
@@ -165,8 +194,10 @@ private:
     QNetworkReplyConn*		qnetworkreplyconn_;
     QNetworkReply*		qnetworkreply_;
 
-    uiString			errmsg_;
+    QByteArray*			receiveddata_;
+    Threads::Lock		receiveddatalock_;
 
+    uiString			errmsg_;
 };
 
 }; //namespace Network

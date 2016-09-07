@@ -11,15 +11,20 @@ ________________________________________________________________________
 #include "odhttp.h"
 
 #include "databuf.h"
+#include "genc.h"
 #include "odnetworkaccess.h" //Proxy settings
 
 #ifndef OD_NO_QT
 #include "i_odhttpconn.h"
 
 #include <QEventLoop>
+#include <qcoreapplication.h>
+#include <qevent.h>
 #endif
 
 using namespace Network;
+
+static Threads::Atomic<int> nractivereplies = 0;
 
 HttpRequestProcess::HttpRequestProcess()
     : finished( this )
@@ -32,6 +37,8 @@ HttpRequestProcess::HttpRequestProcess()
     , qnetworkreplyconn_(0)
 #endif
     , bytesuploaded_( 0 )
+    , receiveddata_( 0 )
+    , receiveddatalock_( true )
 {
     error.notify( mCB(this,HttpRequestProcess,errorOccurred) );
     finished.notify( mCB(this,HttpRequestProcess,finish) );
@@ -43,11 +50,17 @@ HttpRequestProcess::HttpRequestProcess()
 HttpRequestProcess::~HttpRequestProcess()
 {
 #ifndef OD_NO_QT
-    if ( qnetworkreply_ )
+    if (qnetworkreply_)
+    {
 	qnetworkreply_->deleteLater();
+	nractivereplies--;
+    }
 
     if ( qnetworkreplyconn_ )
 	qnetworkreplyconn_->deleteLater();
+
+    Threads::Locker locker(receiveddatalock_);
+    deleteAndZeroPtr(receiveddata_);
 
 #endif
 }
@@ -72,6 +85,7 @@ void HttpRequestProcess::setTotalBytesToUpload(const od_int64 bytes)
 void HttpRequestProcess::setQNetowrkReply( QNetworkReply* qnr )
 {
 #ifndef OD_NO_QT
+    nractivereplies++;
     qnetworkreply_ = qnr;
     qnetworkreplyconn_ = new QNetworkReplyConn(qnetworkreply_, this);
 #endif
@@ -115,6 +129,11 @@ void HttpRequestProcess::finish(CallBacker* cber)
 
 void HttpRequestProcess::dataAvailable( CallBacker* )
 {
+    Threads::Locker locker(receiveddatalock_);
+    if (!receiveddata_)
+	receiveddata_ = new QByteArray;
+
+    receiveddata_->append(qnetworkreply_->readAll());
 }
 
 
@@ -133,7 +152,15 @@ od_int64 HttpRequestProcess::downloadBytesAvailable() const
 
 od_int64 HttpRequestProcess::read( char* data, od_int64 bufsize )
 {
-    return qnetworkreply_->read( data, bufsize );
+    Threads::Locker locker(receiveddatalock_);
+    if (!receiveddata_)
+	return 0;
+
+    const int readsize = mMIN( bufsize, receiveddata_->length());
+
+    memcpy(data, receiveddata_->data(), readsize );
+    receiveddata_->remove(0, readsize);
+    return readsize;
 }
 
 
@@ -146,7 +173,14 @@ bool HttpRequestProcess::waitForDownloadData( int timeout_ms )
 BufferString HttpRequestProcess::readAll()
 {
     BufferString res;
-    res = QString( qnetworkreply_->readAll() );
+    Threads::Locker locker(receiveddatalock_);
+    if (!receiveddata_)
+	return res;
+
+    res = QString( *receiveddata_ );
+    receiveddata_->clear();
+    locker.unlockNow();
+
     return res;
 }
 
@@ -223,124 +257,123 @@ void HttpRequest::fillRequest( QNetworkRequest& req ) const
 HttpRequestManager::HttpRequestManager()
     : thread_( 0 )
     , qnam_( 0 )
-    , curreq_( 0 )
-    , curreply_( 0 )
-    , stopflag_( false )
     , eventloop_( 0 )
 {
     thread_ = new Threads::Thread( mCB(this,HttpRequestManager,threadFuncCB),
 				   "HttpRequestManager" );
+    lock_.lock();
+    while (!eventloop_)
+	lock_.wait();
+    lock_.unLock();
 }
 
 
 HttpRequestManager::~HttpRequestManager()
 {
-    lock_.lock();
-    stopflag_ = true;
-    eventloop_->exit();
-    lock_.unLock();
+    shutDownThreading();
+}
 
-    thread_->waitForFinish();
-    delete thread_;
+
+void HttpRequestManager::shutDownThreading()
+{
+    if ( eventloop_ )
+    {
+	eventloop_->exit();
+
+	thread_->waitForFinish();
+	deleteAndZeroPtr( thread_ );
+    }
 }
 
 
 RefMan<HttpRequestProcess> HttpRequestManager::get( const HttpRequest& req )
 {
-    return access( req, Get );
+    return request(req, Get);
 }
 
 
 RefMan<HttpRequestProcess> HttpRequestManager::post( const HttpRequest& req )
-{ return access( req, Post ); }
+{
+    return request(req, Post);
+}
 
 
 
 RefMan<HttpRequestProcess> HttpRequestManager::head( const HttpRequest& req )
 {
-    return access( req, Head );
+    return request( req, Head );
 }
 
 
-RefMan<HttpRequestProcess> HttpRequestManager::access( const HttpRequest& req,
+RefMan<HttpRequestProcess> HttpRequestManager::request( const HttpRequest& req,
 						       AccessType accesstype )
 {
-    QNetworkRequest qreq;
-    req.fillRequest( qreq );
-
-    lock_.lock();
-    while ( !eventloop_ && !stopflag_ && curreq_ && curreply_ )
-	lock_.wait();
-
-    if ( stopflag_ )
-    {
-	lock_.unLock();
-	return 0;
-    }
-
-    curreq_ = &qreq;
-
-    curpostdata_ = req.postdata_;
-    accesstype_ = accesstype;
-
-    if ( eventloop_ )
-	eventloop_->exit();
-
-    while ( !stopflag_ && !curreply_ )
-	lock_.wait();
-
-    if ( stopflag_ )
-	{ lock_.unLock(); return 0; }
-
-    RefMan<HttpRequestProcess> res = curreply_;
-    curreply_ = 0;
-    lock_.signal( true );
-    lock_.unLock();
-
-    return res;
+    RequestData rq( this, req, accesstype );
+    CallBack::addToThread(thread_->threadID(), mCB(this, HttpRequestManager, doRequestCB), &rq);
+    
+    rq.wait();
+   
+    return rq.reply_;
 }
 
 
 void HttpRequestManager::threadFuncCB(CallBacker*)
 {
 #ifndef OD_NO_QT
+    createReceiverForCurrentThread();
     lock_.lock();
+
     qnam_ = new QNetworkAccessManager;
     eventloop_ = new QEventLoop( qnam_ );
     Network::setHttpProxyFromSettings();
+    lock_.signal(true);
+    lock_.unLock();
 
+    eventloop_->exec();
 
-    while ( !stopflag_ )
+    while (nractivereplies)
     {
-	if ( curreq_ && !curreply_ )
-	{
-	    curreply_ = new HttpRequestProcess;
-	    if ( accesstype_==Get )
-		curreply_->setQNetowrkReply( qnam_->get( *curreq_ ) );
-	    else if ( accesstype_==Post )
-		curreply_->setQNetowrkReply( qnam_->post( *curreq_,
-							  *curpostdata_ ) );
-	    else
-		curreply_->setQNetowrkReply( qnam_->head( *curreq_ ) );
-
-	    curreq_ = 0;
-	    curpostdata_ = 0;
-	}
-	else
-	{
-	    lock_.signal( true );
-	    lock_.unLock();
-	    eventloop_->exec();
-	    lock_.lock();
-	}
+	int a = 2 + 1;
     }
 
-    delete qnam_;
+    eventloop_->processEvents(); //Ensure everyting is processed (i.e. deletion of replies).
+
+    removeReceiverForCurrentThread();
+    deleteAndZeroPtr( eventloop_ );
+    deleteAndZeroPtr( qnam_ );
 #endif
+}
+
+
+void HttpRequestManager::doRequestCB(CallBacker* cb)
+{
+    HttpRequestManager::RequestData* rd = (HttpRequestManager::RequestData*) cb;
+
+    QNetworkRequest qreq;
+    rd->req_.fillRequest(qreq);
+
+    rd->reply_ = new HttpRequestProcess;
+    if (rd->at_ == Get)
+	rd->reply_->setQNetowrkReply(qnam_->get(qreq));
+    else if (rd->at_ == Post)
+	rd->reply_->setQNetowrkReply(qnam_->post(qreq,
+				     *rd->req_.postdata_ ));
+    else
+	rd->reply_->setQNetowrkReply(qnam_->head(qreq));
+
+    rd->isrunlock_.lock();
+    rd->isrun_ = true;
+    rd->isrunlock_.signal(true);
+    rd->isrunlock_.unLock();
 }
 
 static Threads::SpinLock namlock;
 static PtrMan<HttpRequestManager> nam;
+
+static void CloseInstance()
+{
+    HttpRequestManager::instance().shutDownThreading();
+}
 
 
 HttpRequestManager& HttpRequestManager::instance()
@@ -349,6 +382,7 @@ HttpRequestManager& HttpRequestManager::instance()
     if ( !nam )
     {
 	nam = new HttpRequestManager;
+	NotifyExitProgram(CloseInstance);
     }
 
     namlock.unLock();

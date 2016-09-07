@@ -17,15 +17,22 @@ ________________________________________________________________________
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QEvent>
 #include <ptrman.h>
+#include <thread.h>
 
 QT_BEGIN_NAMESPACE
 
 
 class QNetworkReplyConn : public QObject
 {
+public:
+    static void setReadEventType(int);
+
+private:
     Q_OBJECT
     friend class Network::HttpRequestProcess;
+    static int readeventtype;
 
 protected:
 
@@ -53,6 +60,7 @@ QNetworkReplyConn( QNetworkReply* sndr, Network::HttpRequestProcess* rec )
     connect( sender_, SIGNAL(readChannelFinished()),
 	    this, SLOT(readChannelFinished()) );
 }
+
 
 private slots:
 
