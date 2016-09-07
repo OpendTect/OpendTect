@@ -87,7 +87,7 @@ public:
 			//!< regardless of which task we are working on
     const ::Threads::Work* getTask() const { return &task_; }
 
-    const void*		threadID() const { return thread_->threadID(); }
+    Threads::ThreadID	threadID() const { return thread_->threadID(); }
 
 protected:
 

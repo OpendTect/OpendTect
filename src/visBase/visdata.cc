@@ -28,7 +28,7 @@
 
 using namespace visBase;
 
-const void* DataObject::visualizationthread_ = 0;
+Threads::ThreadID DataObject::visualizationthread_ = 0;
 osgViewer::CompositeViewer* DataObject::commonviewer_ = 0;
 
 
@@ -319,7 +319,7 @@ bool DataObject::isVisualizationThread()
 }
 
 
-void DataObject::setVisualizationThread(const void* thread)
+void DataObject::setVisualizationThread(Threads::ThreadID thread)
 {
     if ( visualizationthread_ )
     {

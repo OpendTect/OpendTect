@@ -31,6 +31,8 @@ simply too big and dependent.
 namespace Threads
 {
 
+typedef const void* ThreadID;
+
 /*!
 \brief Is a lock that allows a thread to have exlusive rights to something.
 
@@ -64,7 +66,7 @@ protected:
 
     mQtclass(QMutex*)		qmutex_;
 
-    const void*			lockingthread_;
+    ThreadID			lockingthread_;
 				//!<Only set in debug-mode
     int				count_;
 				//!<Only set in debug-mode
@@ -290,7 +292,7 @@ public:
 				Thread(const CallBack&,const char* nm);
     virtual			~Thread();
 
-    const void*			threadID() const;
+    ThreadID			threadID() const;
 
     void			waitForFinish();
 				/*!< Stop the thread with this function.
@@ -311,7 +313,7 @@ protected:
 
 mGlobal(Basic) int getSystemNrProcessors();
 mGlobal(Basic) int getNrProcessors();
-mGlobal(Basic) const void* currentThread();
+mGlobal(Basic) ThreadID currentThread();
 mGlobal(Basic) void setCurrentThreadProcessorAffinity( int cpu );
 /*!<Tells the current thread to always run on a certain cpu. Set to
 -1 to remove binding.  Not guaranteed to work on all platforms. */

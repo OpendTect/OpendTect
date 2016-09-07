@@ -634,7 +634,7 @@ void uiMain::formatNameToolTipString( BufferString& namestr )
 }
 
 
-bool isMainThread( const void* thread )
+bool isMainThread(Threads::ThreadID thread)
 {
     return uiMain::theMain().thread() == thread;
 }

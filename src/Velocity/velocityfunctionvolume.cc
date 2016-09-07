@@ -195,7 +195,7 @@ bool VolumeFunctionSource::setFrom( const DBKey& velid )
 SeisTrcReader* VolumeFunctionSource::getReader()
 {
     Threads::Locker lckr( readerlock_ );
-    const void* thread = Threads::currentThread();
+    const Threads::ThreadID thread = Threads::currentThread();
 
     const int idx = threads_.indexOf( thread );
     if ( threads_.validIdx(idx) )

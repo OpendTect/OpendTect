@@ -94,7 +94,7 @@ protected:
 };
 
 
-mGlobal(uiBase) bool isMainThread(const void*);
+mGlobal(uiBase) bool isMainThread(Threads::ThreadID);
 mGlobal(uiBase) bool isMainThreadCurrent();
 
 #endif

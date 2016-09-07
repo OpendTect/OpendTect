@@ -153,7 +153,7 @@ public:
     NodeState*			removeNodeState(NodeState*);
     NodeState*			getNodeState( int idx );
 
-    static void			setVisualizationThread(const void*);
+    static void			setVisualizationThread(Threads::ThreadID);
 				//!<Call only once from initialization
     static bool			isVisualizationThread();
 
@@ -200,7 +200,7 @@ private:
     bool				ison_;
     uiString				name_;
     unsigned int			enabledmask_;
-    static const void*			visualizationthread_;
+    static Threads::ThreadID		visualizationthread_;
     static osgViewer::CompositeViewer*	commonviewer_;
 };
 

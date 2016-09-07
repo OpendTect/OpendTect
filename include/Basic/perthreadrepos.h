@@ -63,7 +63,7 @@ mGlobal(Basic) bool isStaticString(const OD::String*);
 template <class T>
 T& PerThreadObjectRepository<T>::getObject()
 {
-    const void* threadid = Threads::currentThread();
+    const Threads::ThreadID threadid = Threads::currentThread();
     Threads::Locker lock( lock_ );
     int idx = threadids_.indexOf( threadid );
     if ( idx<0 )

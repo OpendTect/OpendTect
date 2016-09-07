@@ -330,7 +330,7 @@ Threads::SpinLock::~SpinLock()
 
 void Threads::SpinLock::lock()
 {
-    const void* currentthread = currentThread();
+    const ThreadID currentthread = currentThread();
     if ( recursive_ && lockingthread_ == currentthread )
     {
 	count_ ++;
@@ -367,7 +367,7 @@ void Threads::SpinLock::unLock()
 
 bool Threads::SpinLock::tryLock()
 {
-    const void* currentthread = currentThread();
+    const ThreadID currentthread = currentThread();
     if ( recursive_ && lockingthread_ == currentthread )
     {
 	count_ ++;
@@ -861,7 +861,7 @@ Threads::Thread::Thread( const CallBack& cb, const char* nm )
 }
 
 
-const void* Threads::Thread::threadID() const
+Threads::ThreadID Threads::Thread::threadID() const
 {
     return thread_;
 }
@@ -881,7 +881,7 @@ const char* Threads::Thread::getName() const
 }
 
 
-const void* Threads::currentThread()
+Threads::ThreadID Threads::currentThread()
 {
 #ifndef OD_NO_QT
     return QThread::currentThread();

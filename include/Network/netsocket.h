@@ -102,7 +102,7 @@ public:
     Notifier<Socket> error;
 
 
-    const void*			thread() const { return thread_; }
+    Threads::ThreadID		thread() const { return thread_; }
 
     mQtclass(QTcpSocket)*	qSocket() { return qtcpsocket_; }
 private:
@@ -125,7 +125,7 @@ private:
 
     mQtclass(QTcpSocketComm)*	socketcomm_;
 
-    const void*			thread_;
+    const Threads::ThreadID	thread_;
 };
 
 
