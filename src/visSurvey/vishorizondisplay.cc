@@ -128,11 +128,11 @@ HorizonDisplay::HorizonDisplay()
     , enabletextureinterp_( true )
     , displaysurfacegrid_( false )
     , translationpos_( Coord3().udf() )
-    , parentline_(0)
-    , selections_(0)
-    , lockedpts_(0)
-    , sectionlockedpts_(0)
-    , newseeds_(false)
+    , parentline_( 0 )
+    , selections_( 0 )
+    , lockedpts_( 0 )
+    , sectionlockedpts_( 0 )
+    , newseeds_( false )
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
@@ -1592,6 +1592,9 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
                 hortrc = horgeom->getTrace( intersectioncoord,
                                             horgeom->averageTrcDist() );
             }
+
+	    if ( !hor->range().includes(hortrc) )
+		continue;
 
             EM::SubID horsubid = hortrc.isUdf()
                     ? mUdf(EM::SubID)
