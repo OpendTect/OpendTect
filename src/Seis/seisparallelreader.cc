@@ -386,18 +386,18 @@ bool ParallelReader2D::init()
     totalnr_ = tkzs_.hsamp_.totalNr();
 
     dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true), &dc_ );
+    DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
     dp_->setSampling( tkzs_ );
     if ( scaler_ )
 	dp_->setScaler( *scaler_ );
 
     if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
     {
-	dp_->release(); dp_ = 0;
+	DPM( DataPackMgr::SeisID() ).release( dp_ );
 	return false;
     }
 
     msg_ = uiStrings::phrReading( ioobj_->uiName() );
-
     return true;
 }
 
@@ -406,6 +406,8 @@ ParallelReader2D::~ParallelReader2D()
 {
     delete ioobj_;
     delete scaler_;
+
+    DPM( DataPackMgr::SeisID() ).release( dp_ );
 }
 
 
