@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 #include <QEventLoop>
 #include <qcoreapplication.h>
-#include <qevent.h>
 #endif
 
 using namespace Network;
@@ -333,10 +332,10 @@ void HttpRequestManager::threadFuncCB(CallBacker*)
 
     while (nractivereplies)
     {
-	int a = 2 + 1;
     }
 
-    eventloop_->processEvents(); //Ensure everyting is processed (i.e. deletion of replies).
+    //Ensure everyting is processed (i.e. deletion of replies).
+    eventloop_->processEvents();
 
     removeReceiverForCurrentThread();
     deleteAndZeroPtr( eventloop_ );
