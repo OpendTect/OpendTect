@@ -818,6 +818,9 @@ protected:
 				func_( 0 );
 			    else
 				cb_.doCall( 0 );
+
+			    //Just to be sure....
+			    CallBacker::removeReceiverForCurrentThread();
 			}
 
     ThreadFunc		func_;

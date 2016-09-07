@@ -60,7 +60,7 @@ HorizonPainter3D::~HorizonPainter3D()
     removeSelections();
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 
-    CallBack::removeFromMainThread( this );
+    CallBack::removeFromThreadCalls( this );
 }
 
 

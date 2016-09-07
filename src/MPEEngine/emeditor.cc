@@ -38,7 +38,7 @@ ObjectEditor::ObjectEditor( EM::EMObject& emobj )
 
 ObjectEditor::~ObjectEditor()
 {
-    CallBack::removeFromMainThread( this );
+    CallBack::removeFromThreadCalls( this );
     deepErase( geeditors_ );
 }
 

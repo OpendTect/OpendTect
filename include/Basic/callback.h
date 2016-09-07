@@ -45,6 +45,9 @@ typedef void (*StaticCallBackFunction)(CallBacker*);
 #define mSCB(fn) CallBack( ((StaticCallBackFunction)(&fn)) )
 
 
+class QCallBackEventReceiver;
+
+
 /*!
 \brief CallBacks object-oriented (object + method).
 
@@ -79,18 +82,24 @@ public:
 
     static bool		addToMainThread(const CallBack&, CallBacker* =0);
                         /*!< Unconditionally add this to main event loop.
-                         For thread safety, the removeFromMainThread()
+                         For thread safety, the removeFromThreadCalls()
                          must be called in the destructor. */
+    static bool		addToThread(Threads::ThreadID,const CallBack&,CallBacker* = 0);
+			/*!< Unconditionally add this to event loop of the other thread.
+			     For thread safety, the removeFromThreadCalls()
+			     must be called in the destructor. */
 
     static bool		callInMainThread(const CallBack&, CallBacker* =0);
                         /*!<If in main thread or no event-loop is present, it
                             will be called directly. Otherwise, it will be
                             put on event loop.
-                            For thread safety, the removeFromMainThread()
+                            For thread safety, the removeFromThreadCalls()
                             must be called in the destructor.
                             \returns true if the callback was called directly.
                         */
-    static void		removeFromMainThread(const CallBacker*);
+
+    static void		removeFromThreadCalls(const CallBacker*);
+			/* Removes callbacker from all event loops in all threads*/
 
 
     // See also mEnsureExecutedInMainThread macro
@@ -100,6 +109,7 @@ protected:
     CallBacker*				obj_;
     CallBackFunction			fn_;
     StaticCallBackFunction		sfn_;
+    static Threads::ThreadID		mainthread_;
 
 public:
 
@@ -109,7 +119,8 @@ public:
 							CallBacker* =0);
 					/*!< If not in main thread, queue it.
 					   return whether CB was queued. */
-
+    static mDeprecated void		removeFromMainThread(const CallBacker* cber)
+					{ removeFromThreadCalls(cber); }
 };
 
 #define mMainThreadCall( func ) \
@@ -202,10 +213,24 @@ protected:
 private:
 
     bool		notifyShutdown(NotifierAccess*,bool wait);
-			//!<\returns false only if wait and no lock could be got
+			/*!<\returns false only if wait and no lock could be
+				     obtained. */
 
-    ObjectSet<NotifierAccess>	attachednotifiers_;
-    mutable Threads::Lock	attachednotifierslock_;
+    ObjectSet<QCallBackEventReceiver>	receivers_;
+    Threads::Lock			receiverslock_;
+
+    ObjectSet<NotifierAccess>		attachednotifiers_;
+    mutable Threads::Lock		attachednotifierslock_;
+
+public:
+    static void				createReceiverForCurrentThread();
+					/*!<Must be called if you wish to send
+					   callbacks to this thread. */
+    static void				removeReceiverForCurrentThread();
+					/*!<Call from your thread before it
+					    closes if you have called
+					    createReceiverForCurrentThread()
+					    in the thread. */
 
 };
 
@@ -271,7 +296,6 @@ PayLoadType var = cb##caps->data
 mCBCapsuleGet(PayLoadType,cb##caps,cb) \
 PayLoadType var = cb##caps->data; \
 CallBacker* cber = cb##caps->caller
-
 
 
 #endif

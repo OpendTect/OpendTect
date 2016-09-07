@@ -8,22 +8,33 @@
 #include "notify.h"
 #include "thread.h"
 #include "ptrman.h"
+#include "manobjectset.h"
 
 
 #define mOneMilliSecond 0.001
 
 #ifndef OD_NO_QT
 #include <QCoreApplication>
+#include <qpointer.h>
 
-class QEventLoopReceiver : public QObject
+static QEvent::Type eventtype = QEvent::None;
+
+class QCallBackEventReceiver : public QObject
 {
 public:
-    QEventLoopReceiver()
+    QCallBackEventReceiver( Threads::ThreadID threadid)
 	: receiverlock_( true )
+	, threadid_( threadid )
     { cbers_.allowNull( true ); }
 
-    bool event( QEvent* )
+    Threads::ThreadID threadID() const
+    { return threadid_; }
+
+    bool event( QEvent* ev )
     {
+	if (ev->type() != eventtype )
+	    return false;
+
 	Threads::Locker locker( receiverlock_ );
 	if ( queue_.size() )
 	{
@@ -58,7 +69,7 @@ public:
 
 	if ( cbs_.isEmpty() )
 	{
-	    QCoreApplication::postEvent( this, new QEvent(QEvent::None) );
+	    QCoreApplication::postEvent( this, new QEvent(eventtype) );
 	}
 
         toremove_.addIfNew( cb.cbObj() );
@@ -122,14 +133,66 @@ private:
     ObjectSet<const CallBacker>	toremove_;
 
     Threads::Lock		receiverlock_;
+    const Threads::ThreadID	threadid_;
 };
 
 
-static PtrMan<QEventLoopReceiver> currentreceiver = 0;
+static Threads::Lock callbackeventreceiverslock;
+static ObjectSet<QCallBackEventReceiver> callbackeventreceivers;
+
+static QCallBackEventReceiver* getQCBER( Threads::ThreadID thread )
+{
+    for (int idx = 0; idx < callbackeventreceivers.size(); idx++)
+    {
+	if (callbackeventreceivers[idx]->threadID() == thread)
+	    return callbackeventreceivers[idx];
+    }
+
+    return 0;
+}
 
 
-static QEventLoopReceiver* getQELR()
-{ return currentreceiver.createIfNull(); }
+void CallBacker::createReceiverForCurrentThread()
+{
+    const Threads::ThreadID curthread = Threads::currentThread();
+
+    Threads::Locker locker(callbackeventreceiverslock);
+
+    if ( getQCBER(curthread) )
+	return;
+
+    QCallBackEventReceiver* res = new QCallBackEventReceiver(curthread);
+    callbackeventreceivers += res;
+}
+
+
+void CallBacker::removeReceiverForCurrentThread()
+{
+    const Threads::ThreadID curthread = Threads::currentThread();
+
+    Threads::Locker locker(callbackeventreceiverslock);
+    for (int idx = 0; idx < callbackeventreceivers.size(); idx++)
+    {
+	if (callbackeventreceivers[idx]->threadID() == curthread)
+	{
+	    delete callbackeventreceivers.removeSingle(idx);
+	    break;
+	}
+    }
+}
+
+
+static bool isPresent(const CallBacker* cber)
+{
+    Threads::Locker locker(callbackeventreceiverslock);
+    for (int idx = 0; idx < callbackeventreceivers.size(); idx++)
+    {
+	if (callbackeventreceivers[idx]->isPresent(cber))
+	    return true;
+    }
+    return false;
+}
+
 
 #endif // OD_NO_QT
 
@@ -149,8 +212,7 @@ CallBacker::CallBacker( const CallBacker& )
 CallBacker::~CallBacker()
 {
 #ifndef OD_NO_QT
-    QEventLoopReceiver* rec = getQELR();
-    if ( attachednotifiers_.size() || rec->isPresent(this) )
+    if ( attachednotifiers_.size() || isPresent(this) )
     {
 	pErrMsg("Notifiers not disconnected.");
 	/* Notifiers should be removed in the class where they were attached,
@@ -172,7 +234,7 @@ CallBacker::~CallBacker()
 
 void CallBacker::detachAllNotifiers()
 {
-    CallBack::removeFromMainThread( this );
+    CallBack::removeFromThreadCalls( this );
 
     /*Avoid deadlocks (will happen if one thread deletes the notifier while
      the other thread deletes the callbacker at the same time) by using
@@ -286,6 +348,7 @@ bool CallBacker::isNotifierAttached( NotifierAccess* na ) const
 }
 
 
+
 #define mGetLocker( thelock, wait ) \
     Threads::Locker lckr( thelock, wait ? Threads::Locker::WaitIfLocked \
 					: Threads::Locker::DontWaitForLock ); \
@@ -301,11 +364,15 @@ bool CallBacker::notifyShutdown( NotifierAccess* na, bool wait )
 
 
 //---- CallBack
+Threads::ThreadID CallBack::mainthread_ = 0;
+
 
 void CallBack::initClass()
 {
 #ifndef OD_NO_QT
-    getQELR(); //Force creation
+    mainthread_ = Threads::currentThread();
+    eventtype = (QEvent::Type) QEvent::registerEventType();
+    CallBacker::createReceiverForCurrentThread(); //Force creation
 #endif
 }
 
@@ -324,21 +391,37 @@ bool CallBack::addToMainThread( const CallBack& cb, CallBacker* cber )
 #ifdef OD_NO_QT
     return false;
 #else
-    QEventLoopReceiver* rec = getQELR();
-    rec->add( cb, cber );
-    return true;
+    return addToThread( mainthread_, cb, cber);
 #endif
+}
+
+
+bool CallBack::addToThread(Threads::ThreadID threadid, const CallBack& cb, CallBacker* cber)
+{
+    Threads::Locker locker(callbackeventreceiverslock);
+    QCallBackEventReceiver* rec = getQCBER(threadid);
+
+    if (!rec)
+    {
+	pFreeFnErrMsg("Thread does not have a receiver. Create in the thread by calling CallBacker::createReceiverForCurrentThread()");
+	return false;
+    }
+    
+    rec->add(cb, cber);
+    return true;
 }
 
 
 bool CallBack::queueIfNotInMainThread( CallBack cb, CallBacker* cber )
 {
 #ifndef OD_NO_QT
-    QCoreApplication* instance = QCoreApplication::instance();
-    if ( instance && instance->thread()!=Threads::currentThread() )
+    if ( mainthread_!=Threads::currentThread() )
     {
-	QEventLoopReceiver* rec = getQELR();
-	rec->add( cb, cber );
+	if (!addToThread(mainthread_, cb, cber))
+	{
+	    pFreeFnErrMsg("Main thread not initialized.");
+	}
+
 	return true;
     }
 #endif
@@ -357,11 +440,14 @@ bool CallBack::callInMainThread( const CallBack& cb, CallBacker* cber )
 }
 
 
-void CallBack::removeFromMainThread( const CallBacker* cber )
+void CallBack::removeFromThreadCalls(const CallBacker* cber)
 {
 #ifndef OD_NO_QT
-    QEventLoopReceiver* rec = getQELR();
-    rec->removeBy( cber );
+    Threads::Locker locker(callbackeventreceiverslock);
+    for (int idx = 0; idx < callbackeventreceivers.size(); idx++)
+    {
+	callbackeventreceivers[idx]->removeBy(cber);
+    }
 #endif
 }
 

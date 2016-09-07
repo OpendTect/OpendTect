@@ -197,7 +197,7 @@ public:
 
     ~InMainThreadTester()
     {
-        CallBack::removeFromMainThread( this );
+        CallBack::removeFromThreadCalls( this );
 
     }
 

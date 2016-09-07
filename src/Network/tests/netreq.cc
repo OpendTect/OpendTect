@@ -37,7 +37,7 @@ public:
     ~Tester()
     {
 	detachAllNotifiers();
-	CallBack::removeFromMainThread( this );
+	CallBack::removeFromThreadCalls( this );
     }
 
     void runEventLoopTest(CallBacker*)
