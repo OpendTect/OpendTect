@@ -66,12 +66,12 @@ public:
     				/* 0 -> no relation
     				   1 -> first horizon is at the top
 				   2 -> second horizon is at the top */
-    bool			getSorted(const TypeSet<DBKey>& unsortedids,
-	    				  TypeSet<DBKey>& sortedids ) const;
+    bool			getSorted(const DBKeySet& unsortedids,
+	    				  DBKeySet& sortedids ) const;
 
     static bool			sortHorizons(bool is2d,
-				     const TypeSet<DBKey>& unsortedids,
-				     TypeSet<DBKey>& sortedids);
+				     const DBKeySet& unsortedids,
+				     DBKeySet& sortedids);
 				/*!< Much faster if you only need RelationTree
 				     for sorting and unsortedids is a small
 				     subset of all horizons in the survey. */

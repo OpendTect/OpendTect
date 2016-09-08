@@ -418,7 +418,7 @@ void uiSeisFileMan::mergePush( CallBacker* )
     if ( !curioobj_ ) return;
 
     const DBKey key( curioobj_->key() );
-    TypeSet<DBKey> chsnmids;
+    DBKeySet chsnmids;
     selgrp_->getChosen( chsnmids );
     uiMergeSeis dlg( this );
     dlg.setInputIds( chsnmids );

@@ -54,7 +54,7 @@ public:
 
     void			fetchHors(bool);
     RefMan<Pick::Set>		loadSet(const DBKey&);
-    bool			loadSets(TypeSet<DBKey>&,bool polygons,
+    bool			loadSets(DBKeySet&,bool polygons,
 					 const char* cat=0);
 					//!< You have to ref/unref the sets
     RefMan<Pick::Set>		createEmptySet(bool aspolygon);
@@ -110,7 +110,7 @@ protected:
     void			survChangedCB(CallBacker*);
     void			importReadyCB(CallBacker*);
     void                        mkRandLocs2D(CallBacker*);
-    bool			doLoadSets(TypeSet<DBKey>&);
+    bool			doLoadSets(DBKeySet&);
     bool			doSaveAs(const DBKey&,const Pick::Set*);
 
 };

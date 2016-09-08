@@ -119,7 +119,7 @@ void uiPickPartServer::exportSet()
 bool uiPickPartServer::storePickSets( int polyopt, const char* cat )
 {
     // Store all sets that have changed
-    TypeSet<DBKey> setids;
+    DBKeySet setids;
     MonitorLock ml( Pick::SetMGR() );
     for ( int idx=0; idx<Pick::SetMGR().size(); idx++ )
     {
@@ -241,12 +241,12 @@ void uiPickPartServer::fetchHors( bool is2d )
 
 RefMan<Pick::Set> uiPickPartServer::loadSet( const DBKey& mid )
 {
-    TypeSet<DBKey> psids( 1, mid );
+    DBKeySet psids( 1, mid );
     return doLoadSets(psids) ? Pick::SetMGR().fetchForEdit(mid) : 0;
 }
 
 
-bool uiPickPartServer::loadSets( TypeSet<DBKey>& psids, bool poly,
+bool uiPickPartServer::loadSets( DBKeySet& psids, bool poly,
 				 const char* cat )
 {
     psids.setEmpty();
@@ -259,7 +259,7 @@ bool uiPickPartServer::loadSets( TypeSet<DBKey>& psids, bool poly,
     if ( !dlg.go() )
 	return false;
 
-    TypeSet<DBKey> chosenids;
+    DBKeySet chosenids;
     dlg.getChosen( chosenids );
     if ( chosenids.isEmpty() )
 	return true;
@@ -272,7 +272,7 @@ bool uiPickPartServer::loadSets( TypeSet<DBKey>& psids, bool poly,
 }
 
 
-bool uiPickPartServer::doLoadSets( TypeSet<DBKey>& psids )
+bool uiPickPartServer::doLoadSets( DBKeySet& psids )
 {
     Pick::SetLoader psloader( psids );
     uiTaskRunner taskrunner( parent() );

@@ -138,7 +138,7 @@ Pick::SetLoader::SetLoader( const DBKey& ky )
 }
 
 
-Pick::SetLoader::SetLoader( const TypeSet<DBKey>& kys )
+Pick::SetLoader::SetLoader( const DBKeySet& kys )
     : toload_(kys)
 {
 }

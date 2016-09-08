@@ -36,7 +36,7 @@ public:
     virtual		~HorizonGridder();
     uiString		infoMsg() const	{ return infomsg_; }
 
-    void		setFaultIds(const TypeSet<DBKey>&);
+    void		setFaultIds(const DBKeySet&);
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
@@ -59,7 +59,7 @@ protected:
 
     uiString	        infomsg_;
     TrcKeySampling	hs_;
-    TypeSet<DBKey>	faultids_;
+    DBKeySet	faultids_;
 
     bool		init(TaskRunner*);
     bool		blockSrcPoints(const float*,const od_int64*,int,

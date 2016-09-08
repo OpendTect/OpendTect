@@ -226,7 +226,7 @@ public:
 
     void			matchHorWithMarkers(TypeSet<PosCouple>&,
 							bool bynames) const;
-    void			setUpHorizons(const TypeSet<DBKey>&,
+    void			setUpHorizons(const DBKeySet&,
 						  uiString&,TaskRunner&);
     void			setWD( const Well::Data* wd)
 				{ wd_ = wd; }

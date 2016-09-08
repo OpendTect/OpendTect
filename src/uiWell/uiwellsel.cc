@@ -75,14 +75,14 @@ uiWellParSel::~uiWellParSel()
 }
 
 
-void uiWellParSel::setSelected( const TypeSet<DBKey>& ids )
+void uiWellParSel::setSelected( const DBKeySet& ids )
 {
     selids_ = ids;
     updSummary(0);
 }
 
 
-void uiWellParSel::getSelected( TypeSet<DBKey>& ids ) const
+void uiWellParSel::getSelected( DBKeySet& ids ) const
 { ids = selids_; }
 
 

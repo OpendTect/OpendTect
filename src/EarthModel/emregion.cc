@@ -271,7 +271,7 @@ bool RegionFaultBoundary::init( TaskRunner* taskrunner )
     mDynamicCast(EM::Fault3D*,flt_,emobj.ptr())
     if ( flt_ ) flt_->ref();
 
-    TypeSet<DBKey> keys;  keys.add( key_ );
+    DBKeySet keys;  keys.add( key_ );
     if ( !prov_.init(keys,TrcKeySampling(),taskrunner) )
 	return false;
 

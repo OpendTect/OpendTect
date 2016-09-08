@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uiobjfileman.h"
 #include "bufstringset.h"
+#include "dbkey.h"
 
 class uiListBox;
 class uiButton;
@@ -31,7 +32,7 @@ public:
 
     mDeclInstanceCreatedNotifierAccess(uiWellMan);
 
-    const TypeSet<DBKey>&	getSelWells() const	{ return curdbkeys_; }
+    const DBKeySet&	getSelWells() const	{ return curdbkeys_; }
     void			getSelLogs(BufferStringSet&) const;
     const BufferStringSet&	getAvailableLogs() const;
     static void			setButToolTip(uiButton* but,
@@ -47,7 +48,7 @@ protected:
     bool			iswritable_;
     ObjectSet<Well::Data>	curwds_;
     ObjectSet<Well::Reader>	currdrs_;
-    TypeSet<DBKey>		curdbkeys_;
+    DBKeySet			curdbkeys_;
     BufferStringSet		curfnms_;
     BufferStringSet		availablelognms_;
 

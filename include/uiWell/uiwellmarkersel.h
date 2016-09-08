@@ -21,6 +21,7 @@ class uiGenInput;
 class uiIOObjSelGrp;
 class uiListBox;
 class BufferStringSet;
+class DBKeySet;
 namespace Well { class Marker; class MarkerSet; }
 
 
@@ -110,7 +111,7 @@ public:
 			//Available after dlg.go():
     void		getNames(BufferStringSet&);
     void		getWellNames(BufferStringSet&);
-    void		getWellIDs(TypeSet<DBKey>&);
+    void		getWellIDs(DBKeySet&);
 
 protected:
 

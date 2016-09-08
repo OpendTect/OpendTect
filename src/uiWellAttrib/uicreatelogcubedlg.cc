@@ -53,7 +53,7 @@ bool uiCreateLogCubeDlg::acceptOK()
     const Well::ExtractParams& extractparams = welllogsel_->params();
     const int nrtrcs = outputgrp_->getNrRepeatTrcs();
 
-    TypeSet<DBKey> wids;
+    DBKeySet wids;
     welllogsel_->getSelWellIDs( wids );
     if ( wids.isEmpty() )
 	mErrRet(tr("No well selected") );

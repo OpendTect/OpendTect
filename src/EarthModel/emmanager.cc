@@ -228,9 +228,9 @@ ObjectID EMManager::objectID( int idx ) const
 { return idx>=0 && idx<objects_.size() ? objects_[idx]->id() : -1; }
 
 
-Executor* EMManager::objectLoader( const TypeSet<DBKey>& mids,
+Executor* EMManager::objectLoader( const DBKeySet& mids,
 				   const SurfaceIODataSelection* iosel,
-				   TypeSet<DBKey>* idstobeloaded )
+				   DBKeySet* idstobeloaded )
 {
     ExecutorGroup* execgrp = mids.size()>1 ? new ExecutorGroup( "Reading" ) : 0;
     for ( int idx=0; idx<mids.size(); idx++ )

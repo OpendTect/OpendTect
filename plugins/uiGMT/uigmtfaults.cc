@@ -161,7 +161,7 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 	return false;
 
     faultfld_->chooseAll( false );
-    TypeSet<DBKey> tosel;
+    DBKeySet tosel;
     for ( int idx=0; idx<fltpar->size(); idx++ )
     {
 	DBKey mid;

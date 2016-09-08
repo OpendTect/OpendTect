@@ -28,7 +28,7 @@ public:
 
     uiIOObjSelGrp*	objselGrp()		{ return ioobjselgrp_;}
 
-    void		getSurfaceIds(TypeSet<DBKey>&) const;
+    void		getSurfaceIds(DBKeySet&) const;
     void		getSurfaceSelection(EM::SurfaceIODataSelection&) const;
 
     Notifier<uiMultiSurfaceRead>	singleSurfaceSelected;

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
+class DBKeySet;
 class uiCheckBox;
 class uiGenInput;
 class uiLabel;
@@ -144,12 +145,12 @@ public:
     void		getSelLogNames(BufferStringSet&) const;
     void		getSelWellNames(BufferStringSet&) const;
     void		getSelWellIDs(BufferStringSet&) const;
-    void		getSelWellIDs(TypeSet<DBKey>&) const;
+    void		getSelWellIDs(DBKeySet&) const;
 
     void		setSelLogNames(const BufferStringSet&);
     void		setSelWellNames(const BufferStringSet&);
     void		setSelWellIDs(const BufferStringSet&);
-    void		setSelWellIDs(const TypeSet<DBKey>&);
+    void		setSelWellIDs(const DBKeySet&);
 
     void		update(); //call this when data changed
 

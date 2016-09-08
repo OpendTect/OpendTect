@@ -70,7 +70,7 @@ void uiODPrManagedParentTreeItem::objAddedCB( CallBacker* cber )
     if ( mid.isUdf() )
 	return;
 
-    TypeSet<DBKey> setids;
+    DBKeySet setids;
     setids += mid;
     addChildren( setids );
 }
@@ -199,7 +199,7 @@ void uiODPrManagedParentTreeItem::removeChildren( const DBKey& mid )
 
 
 void uiODPrManagedParentTreeItem::getLoadedChildren(
-	TypeSet<DBKey>& mids ) const
+	DBKeySet& mids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -214,7 +214,7 @@ void uiODPrManagedParentTreeItem::getLoadedChildren(
 
 bool uiODPrManagedParentTreeItem::selectChild( const DBKey& mid )
 {
-    TypeSet<DBKey> midsloaded;
+    DBKeySet midsloaded;
     getLoadedChildren( midsloaded );
     if ( !midsloaded.isPresent(mid) )
 	return false;
@@ -233,9 +233,9 @@ bool uiODPrManagedParentTreeItem::selectChild( const DBKey& mid )
 }
 
 
-void uiODPrManagedParentTreeItem::addChildren( const TypeSet<DBKey>& setids )
+void uiODPrManagedParentTreeItem::addChildren( const DBKeySet& setids )
 {
-    TypeSet<DBKey> setidstobeloaded, setidsloaded;
+    DBKeySet setidstobeloaded, setidsloaded;
     getLoadedChildren( setidsloaded );
     for ( int idx=0; idx<setids.size(); idx++ )
     {

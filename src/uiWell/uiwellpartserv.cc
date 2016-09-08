@@ -201,7 +201,7 @@ void uiWellPartServer::importReadyCB( CallBacker* cb )
 }
 
 
-bool uiWellPartServer::selectWells( TypeSet<DBKey>& wellids )
+bool uiWellPartServer::selectWells( DBKeySet& wellids )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->ctxt_.forread_ = true;
@@ -375,7 +375,7 @@ uiWellRockPhysLauncher( uiParent* p )
 
 bool acceptOK()
 {
-    TypeSet<DBKey> mids;
+    DBKeySet mids;
     selgrp_->getChosen( mids );
     if ( mids.isEmpty() )
 	return false;
@@ -401,7 +401,7 @@ void uiWellPartServer::launchRockPhysics()
     else
     {
 	dlg.selgrp_->chooseAll();
-	TypeSet<DBKey> mids; dlg.selgrp_->getChosen( mids );
+	DBKeySet mids; dlg.selgrp_->getChosen( mids );
 	uiWellLogCalc lcdlg( parent(), mids, true );
 	lcdlg.go();
     }

@@ -1341,7 +1341,7 @@ bool FaultTrcDataProvider::calcFaultBBox( const EM::Fault& flt,
 # define mErrRet( str ) \
 { errmsg_.setEmpty(); errmsg_ = str; return false; }
 
-bool FaultTrcDataProvider::init( const TypeSet<DBKey>& faultids,
+bool FaultTrcDataProvider::init( const DBKeySet& faultids,
 				 const TrcKeySampling& hrg,
 				 TaskRunner* taskrunner )
 {
@@ -1390,7 +1390,7 @@ bool FaultTrcDataProvider::init( const TypeSet<DBKey>& faultids,
 }
 
 
-bool FaultTrcDataProvider::get2DTraces( const TypeSet<DBKey>& faultids,
+bool FaultTrcDataProvider::get2DTraces( const DBKeySet& faultids,
 					TaskRunner* taskrunner )
 {
     TaskGroup taskgrp;

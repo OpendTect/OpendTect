@@ -547,7 +547,7 @@ bool uiInvDistHor3DInterpol::fillPar( IOPar& par ) const
 	return false;
     }
 
-    const TypeSet<DBKey>& selfaultids = fltselfld_->selFaultIDs();
+    const DBKeySet& selfaultids = fltselfld_->selFaultIDs();
     par.set( HorizonGridder::sKeyNrFaults(), selfaultids.size() );
     for ( int idx=0; idx<selfaultids.size(); idx++ )
 	par.set( IOPar::compKey(HorizonGridder::sKeyFaultID(),idx),
@@ -623,7 +623,7 @@ bool uiTriangulationHor3DInterpol::fillPar( IOPar& par ) const
 	return false;
     }
 
-    const TypeSet<DBKey>& selfaultids = fltselfld_->selFaultIDs();
+    const DBKeySet& selfaultids = fltselfld_->selFaultIDs();
     par.set( HorizonGridder::sKeyNrFaults(), selfaultids.size() );
     for ( int idx=0; idx<selfaultids.size(); idx++ )
 	par.set( IOPar::compKey(HorizonGridder::sKeyFaultID(),idx),

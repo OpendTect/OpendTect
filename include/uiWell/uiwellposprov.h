@@ -35,7 +35,7 @@ public:
 
     void		setExtractionDefaults();
 
-    bool		getIDs(TypeSet<DBKey>&) const;
+    bool		getIDs(DBKeySet&) const;
     void		getZRange(StepInterval<float>&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)

@@ -218,7 +218,7 @@ void uiODViewer2DMgr::setupFaultSSs( uiODViewer2D* vwr2d )
 
 void uiODViewer2DMgr::setupPickSets( uiODViewer2D* vwr2d )
 {
-    TypeSet<DBKey> pickmids;
+    DBKeySet pickmids;
     getLoadedPickSets( pickmids );
     appl_.sceneMgr().getLoadedPickSetIDs(
 	    pickmids, false, vwr2d->getSyncSceneID() );
@@ -1538,7 +1538,7 @@ void uiODViewer2DMgr::removePickSet( const DBKey& mid )
 }
 
 
-void uiODViewer2DMgr::getLoadedPickSets( TypeSet<DBKey>& mids ) const
+void uiODViewer2DMgr::getLoadedPickSets( DBKeySet& mids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1548,7 +1548,7 @@ void uiODViewer2DMgr::getLoadedPickSets( TypeSet<DBKey>& mids ) const
 }
 
 
-void uiODViewer2DMgr::addPickSets( const TypeSet<DBKey>& mids )
+void uiODViewer2DMgr::addPickSets( const DBKeySet& mids )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {

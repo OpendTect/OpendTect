@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uibuttongroup.h"
+#include "dbkey.h"
 
 class IOObj;
 class IOStream;
@@ -65,7 +66,7 @@ public:
 				    : obj_(o), grp_(0)		{}
 
     virtual DBKey		currentID() const			= 0;
-    virtual void		getChosenIDs(TypeSet<DBKey>&) const	= 0;
+    virtual void		getChosenIDs(DBKeySet&) const	= 0;
     virtual void		getChosenNames(BufferStringSet&) const	= 0;
     virtual const char*		defExt() const				= 0;
     virtual const BufferStringSet& names() const			= 0;

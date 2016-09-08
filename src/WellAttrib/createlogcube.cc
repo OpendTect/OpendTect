@@ -126,14 +126,14 @@ LogCubeCreator::LogCubeCreator( const BufferStringSet& lognms,
     : extractparams_(pars)
     , stepout_(nrtrcs)
 {
-    TypeSet<DBKey> wllids;
+    DBKeySet wllids;
     wllids += wllid;
     init( lognms, wllids );
 }
 
 
 LogCubeCreator::LogCubeCreator( const BufferStringSet& lognms,
-				const TypeSet<DBKey>& wllids,
+				const DBKeySet& wllids,
 				const Well::ExtractParams& pars, int nrtrcs )
     : extractparams_(pars)
     , stepout_(nrtrcs)
@@ -150,7 +150,7 @@ LogCubeCreator::~LogCubeCreator()
 
 
 bool LogCubeCreator::init( const BufferStringSet& lognms,
-			   const TypeSet<DBKey>& wllids )
+			   const DBKeySet& wllids )
 {
     for ( int ilog=0; ilog<lognms.size(); ilog++ )
     {

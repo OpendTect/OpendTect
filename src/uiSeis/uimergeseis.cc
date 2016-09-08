@@ -72,7 +72,7 @@ bool uiMergeSeis::acceptOK()
 }
 
 
-void uiMergeSeis::setInputIds( const TypeSet<DBKey>& mids )
+void uiMergeSeis::setInputIds( const DBKeySet& mids )
 {
     inpfld_->setChosen( mids );
 }
@@ -84,7 +84,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     if ( !outioobj )
         return false;
 
-    TypeSet<DBKey> chosenids;
+    DBKeySet chosenids;
     inpfld_->getChosen( chosenids );
     if ( chosenids.size()  < 2 )
 	{ uiMSG().error( uiStrings::phrSelect(tr("at least 2 inputs")) ); 

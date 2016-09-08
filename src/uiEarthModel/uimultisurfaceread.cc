@@ -128,7 +128,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 }
 
 
-void uiMultiSurfaceRead::getSurfaceIds( TypeSet<DBKey>& mids ) const
+void uiMultiSurfaceRead::getSurfaceIds( DBKeySet& mids ) const
 {
     mids.erase();
     const int nrsel = ioobjselgrp_->nrChosen();

@@ -122,7 +122,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
     if ( mnuid==mLoadIdx )
     {
-	TypeSet<DBKey> mids;
+	DBKeySet mids;
 	if ( !applMgr()->pickServer()->loadSets(mids,false) )
 	    return false;
 
@@ -525,7 +525,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 
     if ( mnuid==mLoadPolyIdx )
     {
-	TypeSet<DBKey> setids;
+	DBKeySet setids;
 	if ( !applMgr()->pickServer()->loadSets(setids,true) )
 	    return false;
 	for ( int idx=0; idx<setids.size(); idx++ )

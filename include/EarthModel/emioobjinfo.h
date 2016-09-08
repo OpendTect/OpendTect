@@ -50,7 +50,7 @@ public:
 			  FaultStickSet, Fault, Body };
 			mDeclareEnumUtils(ObjectType)
 
-    static void		getIDs(ObjectType,TypeSet<DBKey>&);
+    static void		getIDs(ObjectType,DBKeySet&);
 			//!< Does not erase the IDs at start
 
     bool		isOK() const;
@@ -76,10 +76,10 @@ public:
     inline bool		isHorizon() const	{ return type_ < FaultStickSet;}
     inline bool		is2DHorizon() const	{ return type_ == Horizon2D; }
     LevelID		levelID() const;
-    static void		getTiedToLevelID(LevelID lvlid,TypeSet<DBKey>&,
+    static void		getTiedToLevelID(LevelID lvlid,DBKeySet&,
 					 bool is2d);
-    static bool		sortHorizonsOnZValues(const TypeSet<DBKey>&,
-					      TypeSet<DBKey>&);
+    static bool		sortHorizonsOnZValues(const DBKeySet&,
+					      DBKeySet&);
 
     // 2D Horizons
     bool		getLineNames(BufferStringSet&) const;

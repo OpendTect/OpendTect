@@ -45,10 +45,10 @@ public:
 
     bool			is2D() const;
 
-    void			setWellData(const TypeSet<DBKey>&,
+    void			setWellData(const DBKeySet&,
 					    const char* lognm);
     void			getWellNames(BufferStringSet&) const;
-    void			getWellIDs(TypeSet<DBKey>&) const;
+    void			getWellIDs(DBKeySet&) const;
     const char*			getLogName() const;
 
     void			setGridder(const char* nm,float radius=0);
@@ -88,7 +88,7 @@ protected:
     InterpolationLayerModel*	layermodel_;
     Gridder2D*			gridder_;
     ObjectSet<WellLogInfo>	infos_;
-    TypeSet<DBKey>		wellmids_;
+    DBKeySet		wellmids_;
     BufferString		logname_;
 
     ExtensionModel		extension_;

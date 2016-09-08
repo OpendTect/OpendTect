@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 
+class DBKeySet;
 class uiListBox;
 class uiPushButton;
 class uiTextEdit;
@@ -48,7 +49,7 @@ protected:
     void		selCB(CallBacker*);
     void		openPushCB(CallBacker*);
     void		savePushCB(CallBacker*);
-    void		loadSavedHorizon(const TypeSet<DBKey>&);
+    void		loadSavedHorizon(const DBKeySet&);
 };
 
 

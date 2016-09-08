@@ -191,8 +191,8 @@ public:
 						bool withclear=false);
 				~uiHorizonParSel();
 
-    void			setSelected(const TypeSet<DBKey>&);
-    const TypeSet<DBKey>&	getSelected() const;
+    void			setSelected(const DBKeySet&);
+    const DBKeySet&	getSelected() const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -205,7 +205,7 @@ protected:
     void			doDlg(CallBacker*);
 
     bool			is2d_;
-    TypeSet<DBKey>		selids_;
+    DBKeySet		selids_;
 };
 
 
@@ -221,10 +221,10 @@ public:
 					      int defaultoptidx=0);
     const TypeSet<int>&		getSelectedOptIndies() const { return optids_; }
 
-    void			setSelectedFaults(const TypeSet<DBKey>&,
+    void			setSelectedFaults(const DBKeySet&,
 					const TypeSet<FaultTrace::Act>* =0);
     BufferString		getSummary() const;
-    const TypeSet<DBKey>&	selFaultIDs() const { return selfaultids_; }
+    const DBKeySet&	selFaultIDs() const { return selfaultids_; }
 
     void			setEmpty();
     void			setGeomIDs(const TypeSet<Pos::GeomID>&);
@@ -240,7 +240,7 @@ protected:
 
     bool			is2d_;
     BufferStringSet		selfaultnms_;
-    TypeSet<DBKey>		selfaultids_;
+    DBKeySet		selfaultids_;
     TypeSet<Pos::GeomID>	geomids_;
 
     bool			useoptions_;

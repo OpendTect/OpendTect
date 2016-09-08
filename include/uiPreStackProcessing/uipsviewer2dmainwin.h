@@ -134,8 +134,8 @@ public:
 
     void 		init(const DBKey&,const BinID& bid,bool isinl,
 			     const StepInterval<int>&,const char* linename=0);
-    void 		setIDs(const TypeSet<DBKey>&);
-    void 		getIDs(TypeSet<DBKey>& mids) const 
+    void 		setIDs(const DBKeySet&);
+    void 		getIDs(DBKeySet& mids) const 
 			{ mids.copy( mids_ ); }
     void		getGatherNames(BufferStringSet& nms) const;
     virtual bool	is2D() const	{ return is2d_; }
@@ -144,7 +144,7 @@ public:
     void		angleDataCB(CallBacker*);
     
 protected:
-    TypeSet<DBKey> 	mids_;
+    DBKeySet 	mids_;
 
     bool		is2d_;
     BufferString	linename_;

@@ -72,7 +72,7 @@ public:
 protected:
 
     void		setHS();
-    TypeSet<DBKey>	wellids_;
+    DBKeySet	wellids_;
     ObjectSet<Well::Data> welldata_;
 
     bool		onlysurfacecoords_;

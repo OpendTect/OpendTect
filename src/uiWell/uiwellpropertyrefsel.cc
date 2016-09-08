@@ -369,7 +369,7 @@ void uiWellPropSel::createLogPushed( CallBacker* cb )
     if ( !propflds_.validIdx( idxofbut ) )
 	return;
 
-    TypeSet<DBKey> idset; idset += wellid_;
+    DBKeySet idset; idset += wellid_;
     uiWellLogCalc dlg( this, idset );
     dlg.setOutputLogName( propflds_[idxofbut]->selPropRef().name() );
     dlg.go();

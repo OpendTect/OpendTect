@@ -33,7 +33,7 @@ HorizonGridder::~HorizonGridder()
 { delete fltdataprov_; }
 
 
-void HorizonGridder::setFaultIds( const TypeSet<DBKey>& mids )
+void HorizonGridder::setFaultIds( const DBKeySet& mids )
 { faultids_ = mids; }
 
 

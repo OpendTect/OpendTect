@@ -45,7 +45,7 @@ HorizonPreLoader::~HorizonPreLoader()
 }
 
 
-bool HorizonPreLoader::load( const TypeSet<DBKey>& newmids, TaskRunner* tr )
+bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tr )
 {
     errmsg_ = "";
     if ( newmids.isEmpty() )
@@ -111,7 +111,7 @@ bool HorizonPreLoader::load( const TypeSet<DBKey>& newmids, TaskRunner* tr )
 }
 
 
-const TypeSet<DBKey>& HorizonPreLoader::getPreloadedIDs() const
+const DBKeySet& HorizonPreLoader::getPreloadedIDs() const
 { return loadedmids_; }
 
 const BufferStringSet& HorizonPreLoader::getPreloadedNames() const

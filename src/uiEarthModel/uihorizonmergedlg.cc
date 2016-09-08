@@ -54,7 +54,7 @@ uiHorizonMergeDlg::~uiHorizonMergeDlg()
 {}
 
 
-void uiHorizonMergeDlg::setInputHors( const TypeSet<DBKey>& mids )
+void uiHorizonMergeDlg::setInputHors( const DBKeySet& mids )
 {
      horselfld_->setSelSurfaceIds( mids );
 }
@@ -70,7 +70,7 @@ bool uiHorizonMergeDlg::acceptOK()
 {
     uiTaskRunner uitr( this );
 
-    TypeSet<DBKey> mids;
+    DBKeySet mids;
     horselfld_->getSelSurfaceIds( mids );
     if ( mids.size() < 2 )
     {

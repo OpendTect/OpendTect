@@ -60,7 +60,7 @@ static const char* rcsID mUsedVar = "$Id: uibodyregiondlg.cc 37872 2015-01-15 12
 class BodyExtractorFromHorizons : public ParallelTask
 { mODTextTranslationClass(BodyExtractorFromHorizons)
 public:
-BodyExtractorFromHorizons( const TypeSet<DBKey>& hlist,
+BodyExtractorFromHorizons( const DBKeySet& hlist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
 	const TrcKeyZSampling& cs, Array3D<float>& res,
 	const ODPolygon<float>& p )
@@ -157,7 +157,7 @@ const ODPolygon<float>&				plg_;
 class ImplicitBodyRegionExtractor : public ParallelTask
 { mODTextTranslationClass(ImplicitBodyRegionExtractor)
 public:
-ImplicitBodyRegionExtractor( const TypeSet<DBKey>& surflist,
+ImplicitBodyRegionExtractor( const DBKeySet& surflist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
 	const TrcKeyZSampling& cs, Array3D<float>& res,
 	const ODPolygon<float>& p )

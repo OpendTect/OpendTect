@@ -490,7 +490,7 @@ void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
 	{ pErrMsg( "Can not find viewer" ); return; }
 
     uiSeisPartServer* seisserv = ODMainWin()->applMgr().seisServer();
-    BufferStringSet selgnms, allgnms; TypeSet<DBKey> selids;
+    BufferStringSet selgnms, allgnms; DBKeySet selids;
     win->getIDs( selids );
     for( int idx=0; idx<selids.size(); idx++ )
     {

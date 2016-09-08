@@ -71,7 +71,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 {
     handleStandardItems( menuid );
 
-    TypeSet<DBKey> setids;
+    DBKeySet setids;
     RefMan<Pick::Set> newps = 0;
     if ( menuid == 1  )
     {

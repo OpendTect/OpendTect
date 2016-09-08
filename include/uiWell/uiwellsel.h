@@ -41,8 +41,8 @@ public:
 			~uiWellParSel();
 
     int			nrSelected() const	{ return selids_.size(); }
-    void		setSelected(const TypeSet<DBKey>&);
-    void		getSelected(TypeSet<DBKey>&) const;
+    void		setSelected(const DBKeySet&);
+    void		getSelected(DBKeySet&) const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -52,7 +52,7 @@ protected:
     void		doDlg(CallBacker*);
     BufferString	getSummary() const;
 
-    TypeSet<DBKey>	selids_;
+    DBKeySet	selids_;
     IOPar&		iopar_;
 };
 

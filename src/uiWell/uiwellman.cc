@@ -278,7 +278,7 @@ void uiWellMan::setLogToolButtonProperties()
     logdownbut_->setSensitive( iswritable_ && curidx>=0 && curidx<nrlogs-1 );
     logupbut_->setSensitive( iswritable_ && curidx>0 );
 
-    TypeSet<DBKey> wellids; selGroup()->getChosen( wellids );
+    DBKeySet wellids; selGroup()->getChosen( wellids );
     BufferStringSet lognms; logsfld_->getChosen( lognms );
     const int nrchosenlogs = lognms.size();
     const int nrchosenwells = wellids.size();
@@ -489,7 +489,7 @@ void uiWellMan::logTools( CallBacker* )
 {
     BufferStringSet wellnms, lognms;
     logsfld_->getChosen( lognms );
-    TypeSet<DBKey> chosnmids;
+    DBKeySet chosnmids;
     selGroup()->getChosen( chosnmids );
     for ( int midx=0; midx<chosnmids.size(); midx ++ )
     {

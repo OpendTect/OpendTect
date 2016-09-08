@@ -25,11 +25,11 @@ mExpClass(uiEarthModel) uiSurfaceSel : public uiGroup
 public:
 			~uiSurfaceSel();
 
-    virtual void	getSelSurfaceIds(TypeSet<DBKey>&) const;
-    void		setSelSurfaceIds(const TypeSet<DBKey>&);
+    virtual void	getSelSurfaceIds(DBKeySet&) const;
+    void		setSelSurfaceIds(const DBKeySet&);
     int 		getSelItems() const;
 
-    void		removeFromList(const TypeSet<DBKey>&);
+    void		removeFromList(const DBKeySet&);
     void		clearList();
 
 protected:
@@ -38,7 +38,7 @@ protected:
     void		getFullList();
 
     uiListBox*		listfld_;
-    TypeSet<DBKey>	mids_;
+    DBKeySet	mids_;
     BufferStringSet	names_;
 
     IOObjContext&	ctxt_;

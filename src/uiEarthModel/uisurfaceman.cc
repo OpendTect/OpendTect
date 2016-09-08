@@ -343,7 +343,7 @@ void uiSurfaceMan::copyCB( CallBacker* )
 void uiSurfaceMan::merge3dCB( CallBacker* )
 {
     uiHorizonMergeDlg dlg( this, false );
-    TypeSet<DBKey> chsnmids;
+    DBKeySet chsnmids;
     selgrp_->getChosen( chsnmids );
     dlg.setInputHors( chsnmids );
     if ( dlg.go() )
@@ -517,7 +517,7 @@ void uiSurfaceMan::fillAttribList()
     if ( !attribfld_ ) return;
 
     attribfld_->setEmpty();
-    TypeSet<DBKey> mids;
+    DBKeySet mids;
     selgrp_->getChosen( mids );
     if ( mids.isEmpty() )
 	return;

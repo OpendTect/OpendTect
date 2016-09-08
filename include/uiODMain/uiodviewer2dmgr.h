@@ -133,8 +133,8 @@ public:
     void			getPickSetVwr2DIDs(const DBKey& mid,
 						   TypeSet<int>& vw2ids) const;
     void			removePickSet(const DBKey&);
-    void			getLoadedPickSets(TypeSet<DBKey>&) const;
-    void			addPickSets(const TypeSet<DBKey>&);
+    void			getLoadedPickSets(DBKeySet&) const;
+    void			addPickSets(const DBKeySet&);
 
 
     static int			cNameColumn()		{ return 0; }

@@ -26,7 +26,7 @@ mExpClass(uiSeis) uiMergeSeis : public uiDialog
 public:
                         uiMergeSeis(uiParent*);
 
-    void		setInputIds(const TypeSet<DBKey>& mids);
+    void		setInputIds(const DBKeySet& mids);
 
 protected:
 

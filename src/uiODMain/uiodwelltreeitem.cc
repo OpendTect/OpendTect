@@ -111,7 +111,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     if ( mnuid == cAddIdx )
     {
-	TypeSet<DBKey> emwellids;
+	DBKeySet emwellids;
 	applMgr()->selectWells( emwellids );
 	if ( emwellids.isEmpty() )
 	    return false;

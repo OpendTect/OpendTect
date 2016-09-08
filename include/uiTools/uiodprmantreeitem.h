@@ -26,10 +26,10 @@ public:
     virtual		~uiODPrManagedParentTreeItem();
     void		setPRManagedViewer(OD::PresentationManagedViewer&);
 
-    void		getLoadedChildren(TypeSet<DBKey>&) const;
+    void		getLoadedChildren(DBKeySet&) const;
     void		showHideChildren(const DBKey&,bool);
     void		removeChildren(const DBKey&);
-    void		addChildren(const TypeSet<DBKey>&);
+    void		addChildren(const DBKeySet&);
     bool		selectChild(const DBKey&);
     void		emitChildPRRequest(const DBKey&,
 					   OD::PresentationRequestType);

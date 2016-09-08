@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "compoundkey.h"
 #include "string2.h"
 #include "fixedstring.h"
+#include "typeset.h"
 
 
 /*!\brief Compound key consisting of ints */
@@ -75,5 +76,17 @@ public:
     bool		isInvalid() const;
 
 };
+
+
+mExpClass(Basic) DBKeySet : public TypeSet<DBKey>
+{
+public:
+			DBKeySet() : TypeSet<DBKey>()		    {}
+			DBKeySet( const DBKeySet& oth )
+			    : TypeSet<DBKey>(oth)		    {}
+			DBKeySet( size_type sz, DBKey ky )
+			    : TypeSet<DBKey>(sz,ky)		    {}
+};
+
 
 #endif

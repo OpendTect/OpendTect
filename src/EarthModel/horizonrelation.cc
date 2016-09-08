@@ -270,7 +270,7 @@ bool RelationTree::read( bool removeoutdated )
 	nodes_ += node;
     }
 
-    TypeSet<DBKey> outdatednodes;
+    DBKeySet outdatednodes;
     for ( int idx=0; idx<nodes_.size(); idx++ )
     {
 	FileMultiString fms;
@@ -298,8 +298,8 @@ bool RelationTree::read( bool removeoutdated )
 }
 
 
-bool RelationTree::getSorted( const TypeSet<DBKey>& unsortedids,
-			      TypeSet<DBKey>& sortedids ) const
+bool RelationTree::getSorted( const DBKeySet& unsortedids,
+			      DBKeySet& sortedids ) const
 {
     for ( int idx=0; idx<unsortedids.size(); idx++ )
     {
@@ -335,8 +335,8 @@ bool RelationTree::getSorted( const TypeSet<DBKey>& unsortedids,
 }
 
 
-bool RelationTree::sortHorizons( bool is2d, const TypeSet<DBKey>& unsortedids,
-				 TypeSet<DBKey>& sortedids )
+bool RelationTree::sortHorizons( bool is2d, const DBKeySet& unsortedids,
+				 DBKeySet& sortedids )
 {
     RelationTree reltree( is2d, false );
     reltree.read( false );

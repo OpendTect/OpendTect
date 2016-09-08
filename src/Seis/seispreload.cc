@@ -472,7 +472,7 @@ void PreLoadDataManager::getInfo( const DBKey& mid, Pos::GeomID geomid,
 }
 
 
-void PreLoadDataManager::getIDs( TypeSet<DBKey>& ids ) const
+void PreLoadDataManager::getIDs( DBKeySet& ids ) const
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
 	ids += entries_[idx]->mid_;

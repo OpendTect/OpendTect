@@ -48,7 +48,7 @@ protected:
     const Attrib::DescSet& 		ads_;
     Attrib::SelInfo*			attrinfo_;
     TypeSet<int>			selidxs_;
-    TypeSet<DBKey>			selids_;
+    DBKeySet			selids_;
     TypeSet<BufferStringSet>		linenmsset_;
 
     uiListBox*				attrsfld_;

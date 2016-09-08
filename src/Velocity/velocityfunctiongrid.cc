@@ -522,7 +522,7 @@ void GriddedSource::setSource( ObjectSet<FunctionSource>& nvfs )
 }
 
 
-void GriddedSource::setSource( const TypeSet<DBKey>& mids )
+void GriddedSource::setSource( const DBKeySet& mids )
 {
     ObjectSet<FunctionSource> newsources;
     for ( int idx=0; idx<mids.size(); idx++ )
@@ -538,7 +538,7 @@ void GriddedSource::setSource( const TypeSet<DBKey>& mids )
 }
 
 
-void GriddedSource::getSources( TypeSet<DBKey>& mids ) const
+void GriddedSource::getSources( DBKeySet& mids ) const
 {
     for ( int idx=0; idx<datasources_.size(); idx++ )
     {

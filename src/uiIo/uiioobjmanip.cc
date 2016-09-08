@@ -155,7 +155,7 @@ void uiIOObjManipGroup::selChg()
 	return;
     }
 
-    TypeSet<DBKey> chosenids; subj_.getChosenIDs( chosenids );
+    DBKeySet chosenids; subj_.getChosenIDs( chosenids );
     BufferStringSet chosennames; subj_.getChosenNames( chosennames );
     if ( chosenids.isEmpty() )
 	return;
@@ -222,7 +222,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     const bool isremove = tb == rembut;
     const bool issingle = isreloc || isrename;
 
-    TypeSet<DBKey> chosenids;
+    DBKeySet chosenids;
     if ( !issingle )
 	subj_.getChosenIDs( chosenids );
     IOObj* firstioobj = IOM().get( issingle ? curid : chosenids[0] );

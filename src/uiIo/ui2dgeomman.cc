@@ -276,7 +276,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 
     MouseCursorChanger chgr( MouseCursor::Wait );
     uiStringSet msgs;
-    TypeSet<DBKey> selids;
+    DBKeySet selids;
     selgrp_->getChosen( selids );
     for ( int idx=0; idx<selids.size(); idx++ )
     {

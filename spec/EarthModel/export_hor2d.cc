@@ -80,7 +80,7 @@ static int doWork( int argc, char** argv )
     IOObjContext ctxt = EMHorizon2DTranslatorGroup::ioContext();
     IOM().to( ctxt.getSelKey() );
     IODirEntryList list( IOM().dirPtr(), ctxt );
-    TypeSet<DBKey> horids;
+    DBKeySet horids;
     for ( int idx=0; idx<list.size(); idx++ )
 	horids += list[idx]->ioobj->key();
 

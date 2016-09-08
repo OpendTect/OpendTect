@@ -32,7 +32,7 @@ protected:
     uiPushButton*	waterbut_;
 
     BufferStringSet	hornames_;
-    TypeSet<DBKey>	horids_;
+    DBKeySet	horids_;
     bool		is2d_;
 
     void		fillRelationField(const BufferStringSet&);

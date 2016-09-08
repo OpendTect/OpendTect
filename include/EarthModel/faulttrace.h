@@ -226,7 +226,7 @@ public:
 			FaultTrcDataProvider(Pos::GeomID);
 			~FaultTrcDataProvider();
 
-    bool		init(const TypeSet<DBKey>&,const TrcKeySampling&,
+    bool		init(const DBKeySet&,const TrcKeySampling&,
 			     TaskRunner* =0);
 
     bool		is2D() const		{ return is2d_; }
@@ -250,7 +250,7 @@ public:
 protected:
 
     bool		calcFaultBBox(const EM::Fault&,TrcKeySampling&) const;
-    bool		get2DTraces(const TypeSet<DBKey>&,TaskRunner*);
+    bool		get2DTraces(const DBKeySet&,TaskRunner*);
 
     ObjectSet<FaultTrcHolder>	holders_;
 

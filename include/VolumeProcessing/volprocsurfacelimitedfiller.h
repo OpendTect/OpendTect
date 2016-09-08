@@ -43,7 +43,7 @@ public:
 
     bool		isOK() const;
 
-    bool		setSurfaces(const TypeSet<DBKey>&,
+    bool		setSurfaces(const DBKeySet&,
 				    const TypeSet<char>& fillside);
 			/*Assume going down increases z.
 			  For horizons, side = 1 if go below, -1 if go above.*/
@@ -139,7 +139,7 @@ protected:
 			/* The following four have the same size, for any idx,
 			      faults_[idx] or hors_[idx] is 0. */
     TypeSet<char>	side_;
-    TypeSet<DBKey>	surfacelist_;
+    DBKeySet	surfacelist_;
     ObjectSet<EM::Horizon> hors_;
     ObjectSet<Geometry::FaultStickSurface> faults_;
 

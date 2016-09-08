@@ -35,7 +35,7 @@ public:
 			~HorizonAuxDataInfo();
 					
 	BufferStringSet			hornms_;
-	TypeSet<DBKey>		mids_;
+	DBKeySet		mids_;
 	TypeSet<BufferStringSet>	auxdatanms_;		    
     };
 

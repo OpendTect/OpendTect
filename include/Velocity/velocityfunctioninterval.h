@@ -56,7 +56,7 @@ public:
     static const char*	sType() { return "Interval"; }
 
     void		setInput(FunctionSource*);
-    void		getSources(TypeSet<DBKey>&) const;
+    void		getSources(DBKeySet&) const;
     void		getAvailablePositions(BinIDValueSet&) const;
 
     NotifierAccess*	changeNotifier();

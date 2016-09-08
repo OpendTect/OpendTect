@@ -445,9 +445,9 @@ static BufferStringSet& getTypes()
     return types;
 }
 
-static TypeSet<DBKey>& getIDs()
+static DBKeySet& getIDs()
 {
-    mDefineStaticLocalObject( TypeSet<DBKey>, ids, );
+    mDefineStaticLocalObject( DBKeySet, ids, );
     return ids;
 }
 
@@ -483,7 +483,7 @@ const DBKey& SeisIOObjInfo::getDefault( const char* typ )
 void SeisIOObjInfo::setDefault( const DBKey& id, const char* typ )
 {
     BufferStringSet& typs = getTypes();
-    TypeSet<DBKey>& ids = getIDs();
+    DBKeySet& ids = getIDs();
 
     const int typidx = typs.indexOf( typ );
     if ( typidx > -1 )

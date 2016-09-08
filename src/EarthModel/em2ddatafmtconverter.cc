@@ -51,7 +51,7 @@ mGlobal(EarthModel) void OD_Convert_EM2DData()
 void OD_2DEMDataConverter_FromOD4ToOD5::convertData( 
                                             EM::IOObjInfo::ObjectType ftype )
 {
-    TypeSet<DBKey> ioobjids;
+    DBKeySet ioobjids;
     EM::IOObjInfo::getIDs( ftype, ioobjids );
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {

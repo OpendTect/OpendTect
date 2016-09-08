@@ -547,14 +547,14 @@ uiHorizonParSel::~uiHorizonParSel()
 }
 
 
-void uiHorizonParSel::setSelected( const TypeSet<DBKey>& ids )
+void uiHorizonParSel::setSelected( const DBKeySet& ids )
 {
     selids_ = ids;
     updateSummary();
 }
 
 
-const TypeSet<DBKey>& uiHorizonParSel::getSelected() const
+const DBKeySet& uiHorizonParSel::getSelected() const
 { return selids_; }
 
 
@@ -604,7 +604,7 @@ void uiHorizonParSel::fillPar( IOPar& par ) const
 
 bool uiHorizonParSel::usePar( const IOPar& par )
 {
-    TypeSet<DBKey> mids;
+    DBKeySet mids;
     DBKey mid;
     for ( int idx=0; ; idx++ )
     {
@@ -678,7 +678,7 @@ public:
 	fsslistfld_->addItems( validfss_ );
     }
 
-    void getSelected( BufferStringSet& nms, TypeSet<DBKey>& mids )
+    void getSelected( BufferStringSet& nms, DBKeySet& mids )
     {
 	TypeSet<int> selids;
 	fsslistfld_->getChosen( selids );
@@ -695,7 +695,7 @@ public:
 
     uiListBox*		fsslistfld_;
     BufferStringSet	validfss_;
-    TypeSet<DBKey>	validmids_;
+    DBKeySet	validmids_;
 };
 
 
@@ -881,7 +881,7 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions,
 }
 
 
-void uiFaultParSel::setSelectedFaults( const TypeSet<DBKey>& ids,
+void uiFaultParSel::setSelectedFaults( const DBKeySet& ids,
 				       const TypeSet<FaultTrace::Act>* act )
 {
     selfaultids_.erase();

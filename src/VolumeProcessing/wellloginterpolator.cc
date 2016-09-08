@@ -206,7 +206,7 @@ bool WellLogInterpolator::is2D() const
 { return false; }
 
 
-void WellLogInterpolator::setWellData( const TypeSet<DBKey>& ids,
+void WellLogInterpolator::setWellData( const DBKeySet& ids,
 				       const char* lognm )
 {
     wellmids_ = ids;
@@ -228,7 +228,7 @@ void WellLogInterpolator::getWellNames( BufferStringSet& res ) const
 const char* WellLogInterpolator::getLogName() const
 { return logname_.buf(); }
 
-void WellLogInterpolator::getWellIDs( TypeSet<DBKey>& ids ) const
+void WellLogInterpolator::getWellIDs( DBKeySet& ids ) const
 { ids = wellmids_; }
 
 

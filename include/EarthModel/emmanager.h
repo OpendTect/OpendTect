@@ -107,9 +107,9 @@ public:
 
     Executor*		objectLoader(const DBKey&,
 				     const SurfaceIODataSelection* =0);
-    Executor*		objectLoader(const TypeSet<DBKey>&,
+    Executor*		objectLoader(const DBKeySet&,
 				     const SurfaceIODataSelection* =0,
-				     TypeSet<DBKey>* idstobeloaded =0);
+				     DBKeySet* idstobeloaded =0);
 		/*!< idstobeloaded are the ids for which the objects
 			     will be actually loaded */
 

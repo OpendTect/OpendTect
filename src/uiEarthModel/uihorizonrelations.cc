@@ -283,7 +283,7 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 							   horids_[idy] );
 	    if ( nrcrossings == 0 ) continue;
 
-	    TypeSet<DBKey> sortedids;
+	    DBKeySet sortedids;
 	    sorter.getSortedList( sortedids );
 	    const int idx1 = sortedids.indexOf( horids_[idx] );
 	    const int idx2 = sortedids.indexOf( horids_[idy] );

@@ -157,7 +157,7 @@ public:
     void			disabRightClick( bool yn );
     void			disabTrees( bool yn );
 
-    void			getLoadedPickSetIDs(TypeSet<DBKey>&,bool poly,
+    void			getLoadedPickSetIDs(DBKeySet&,bool poly,
 						    int scnid=-1) const;
     void			getLoadedEMIDs(TypeSet<EM::ObjectID>&,
 					       const char* emtypestr=0,
@@ -233,9 +233,9 @@ protected:
 					      TypeSet<EM::ObjectID>&,
 					      const char* emtypestr) const;
     void			gtLoadedPickSetIDs(const uiODScene&,
-				    TypeSet<DBKey>&, bool poly) const;
+				    DBKeySet&, bool poly) const;
     void			gtLoadedPickSetIDs(const uiTreeItem&,
-				    TypeSet<DBKey>&,bool poly) const;
+				    DBKeySet&,bool poly) const;
 
     Timer*			tiletimer_;
     void			tileTimerCB(CallBacker*);

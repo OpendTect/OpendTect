@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 
-HorizonSorter::HorizonSorter( const TypeSet<DBKey>& ids, bool is2d )
+HorizonSorter::HorizonSorter( const DBKeySet& ids, bool is2d )
     : Executor("Sort horizons")
     , unsortedids_(ids)
     , totalnr_(-1)
@@ -152,7 +152,7 @@ void HorizonSorter::sort()
 }
 
 
-void HorizonSorter::getSortedList( TypeSet<DBKey>& ids )
+void HorizonSorter::getSortedList( DBKeySet& ids )
 {
     ids = sortedids_;
 }

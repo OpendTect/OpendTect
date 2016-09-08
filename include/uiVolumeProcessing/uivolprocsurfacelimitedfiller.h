@@ -58,7 +58,7 @@ protected:
     void			useRefValCB(CallBacker*);
 
     SurfaceLimitedFiller*	surfacefiller_;
-    TypeSet<DBKey>		surfacelist_;
+    DBKeySet		surfacelist_;
 
     uiTable*			table_;
     uiPushButton*		addbutton_;

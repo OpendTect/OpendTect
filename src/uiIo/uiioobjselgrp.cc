@@ -59,7 +59,7 @@ DBKey currentID() const
 }
 
 
-void getChosenIDs( TypeSet<DBKey>& mids ) const
+void getChosenIDs( DBKeySet& mids ) const
 {
     selgrp_->getChosen( mids );
 }
@@ -334,7 +334,7 @@ const DBKey& uiIOObjSelGrp::chosenID( int objnr ) const
 }
 
 
-void uiIOObjSelGrp::getChosen( TypeSet<DBKey>& mids ) const
+void uiIOObjSelGrp::getChosen( DBKeySet& mids ) const
 {
     mids.setEmpty();
     const int nrchosen = nrChosen();
@@ -372,7 +372,7 @@ void uiIOObjSelGrp::setCurrent( const DBKey& mid )
 }
 
 
-void uiIOObjSelGrp::setChosen( const TypeSet<DBKey>& mids )
+void uiIOObjSelGrp::setChosen( const DBKeySet& mids )
 {
     if ( mids.isEmpty() )
 	return;
@@ -518,7 +518,7 @@ bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
 	iop.set( sKey::ID(), ctio_.ioobj_->key() );
     else
     {
-	TypeSet<DBKey> mids; getChosen( mids );
+	DBKeySet mids; getChosen( mids );
 	iop.set( sKey::Size(), mids.size() );
 	for ( int idx=0; idx<mids.size(); idx++ )
 	    iop.set( IOPar::compKey(sKey::ID(),idx), mids[idx] );
@@ -543,7 +543,7 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
     {
 	int nrids;
 	iop.get( sKey::Size(), nrids );
-	TypeSet<DBKey> mids;
+	DBKeySet mids;
 	for ( int idx=0; idx<nrids; idx++ )
 	{
 	    DBKey mid;
@@ -831,7 +831,7 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
     ioobj->setSurveyDefault( surveydefaultsubsel_.str() );
 
     const int cursel = currentItem();
-    TypeSet<DBKey> chosenmids;
+    DBKeySet chosenmids;
     getChosen( chosenmids );
     fullUpdate( 0 );
     setChosen( chosenmids );
@@ -843,7 +843,7 @@ void uiIOObjSelGrp::readChoiceDone( CallBacker* )
 {
     if ( !lbchoiceio_ ) return;
 
-    TypeSet<DBKey> mids;
+    DBKeySet mids;
     for ( int idx=0; idx<lbchoiceio_->chosenKeys().size(); idx++ )
 	mids += DBKey( lbchoiceio_->chosenKeys().get(idx).buf() );
     setChosen( mids );

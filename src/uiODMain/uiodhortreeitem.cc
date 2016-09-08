@@ -221,7 +221,7 @@ void uiODHorizonParentTreeItem::sort()
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
-    TypeSet<DBKey> mids, sortedmids;
+    DBKeySet mids, sortedmids;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,itm,children_[idx])
@@ -761,7 +761,7 @@ void uiODHorizon2DParentTreeItem::sort()
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
-    TypeSet<DBKey> mids, sortedmids;
+    DBKeySet mids, sortedmids;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,itm,children_[idx])

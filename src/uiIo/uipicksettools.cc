@@ -163,7 +163,7 @@ bool uiMergePickSets::acceptOK()
 
 RefMan<Pick::Set> uiMergePickSets::getMerged( IOPar& ioobjpars ) const
 {
-    TypeSet<DBKey> inpids;
+    DBKeySet inpids;
     selfld_->getChosen( inpids );
 
     RefMan<Pick::Set> outps = new Pick::Set;

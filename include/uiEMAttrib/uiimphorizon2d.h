@@ -61,7 +61,7 @@ protected:
     Table::FormatDesc&  fd_;
     Horizon2DScanner*	scanner_;
     BufferStringSet&	linesetnms_;
-    TypeSet<DBKey>	setids_;
+    DBKeySet	setids_;
     TypeSet<EM::ObjectID> emobjids_;
 
     ObjectSet<SurfaceInfo>	horinfos_;

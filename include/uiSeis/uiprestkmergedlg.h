@@ -14,9 +14,10 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
+#include "dbkey.h"
 
-class CtxtIOObj;
 class IOObj;
+class CtxtIOObj;
 class uiIOObjSel;
 class uiPosSubSel;
 class uiGenInput;
@@ -52,7 +53,7 @@ protected:
     void		setToolButtonProperty();
 
     BufferStringSet     allvolsnames_;
-    TypeSet<DBKey>    allvolsids_;
+    DBKeySet    allvolsids_;
     ObjectSet<IOObj>    selobjs_;
 
     uiListBox*		volsbox_;

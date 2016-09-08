@@ -75,7 +75,7 @@ static Math::SpecVarSet& getSpecVars()
 }
 
 
-static uiString getDlgUiTitle( const TypeSet<DBKey>& wllids )
+static uiString getDlgUiTitle( const DBKeySet& wllids )
 {
     const int sz = wllids.size();
     if ( sz < 1 )
@@ -90,7 +90,7 @@ static uiString getDlgUiTitle( const TypeSet<DBKey>& wllids )
 }
 
 
-uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<DBKey>& wllids,
+uiWellLogCalc::uiWellLogCalc( uiParent* p, const DBKeySet& wllids,
 			      bool rockphysmode )
 	: uiDialog(p,uiDialog::Setup(tr("Calculate new logs"),
 				     getDlgUiTitle(wllids),

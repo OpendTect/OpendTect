@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 #include "bufstringset.h"
+#include "dbkey.h"
 #include "uistring.h"
 
 class IOObj;
@@ -35,7 +36,7 @@ public:
 			uiWellSelGrp(uiParent*,bool withpos=true);
 
     void		getCoordinates(TypeSet<Coord>&);
-    const TypeSet<DBKey>&	getSelWells() const { return selwellsids_; }
+    const DBKeySet&	getSelWells() const { return selwellsids_; }
     void		setSelectedWells();
 
 protected:
@@ -55,8 +56,8 @@ protected:
     bool		withpos_;
 
     BufferStringSet	allwellsnames_;
-    TypeSet<DBKey>	allwellsids_;
-    TypeSet<DBKey>    selwellsids_;
+    DBKeySet		allwellsids_;
+    DBKeySet		selwellsids_;
     TypeSet<int>	selwellstypes_;
 
     uiListBox*		wellsbox_;

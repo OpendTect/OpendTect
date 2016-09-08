@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 namespace Well { class Data; class LogDisplayParSet; }
 
+class DBKeySet;
 class uiBulkD2TModelImport;
 class uiBulkLogImport;
 class uiBulkMarkerImport;
@@ -55,7 +56,7 @@ public:
 
     void			manageWells();
     void			launchRockPhysics();
-    bool			selectWells(TypeSet<DBKey>&);
+    bool			selectWells(DBKeySet&);
 
     bool			hasLogs(const DBKey&) const;
     void			getLogNames(const DBKey&,

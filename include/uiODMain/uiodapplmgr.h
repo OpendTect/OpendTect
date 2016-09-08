@@ -147,7 +147,7 @@ public:
 
     // Tree menu services
     // Selections
-    void			selectWells(TypeSet<DBKey>&);
+    void			selectWells(DBKeySet&);
     void			selectHorizon(DBKey&);
     void			selectFault(DBKey&);
     void			selectPolygonSurface(DBKey&);

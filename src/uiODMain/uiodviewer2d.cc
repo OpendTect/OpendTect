@@ -1508,7 +1508,7 @@ void uiODViewer2D::removePickSet( const DBKey& mid )
 }
 
 
-void uiODViewer2D::getLoadedPickSets( TypeSet<DBKey>& mids ) const
+void uiODViewer2D::getLoadedPickSets( DBKeySet& mids ) const
 {
     if ( !treetp_ ) return;
 
@@ -1522,7 +1522,7 @@ void uiODViewer2D::getLoadedPickSets( TypeSet<DBKey>& mids ) const
 }
 
 
-void uiODViewer2D::addPickSets( const TypeSet<DBKey>& mids )
+void uiODViewer2D::addPickSets( const DBKeySet& mids )
 {
     if ( !treetp_ ) return;
 
@@ -1546,7 +1546,7 @@ void uiODViewer2D::setupNewPickSet( const DBKey& pickid )
 			treetp_->getChild(idx))
 	if ( pickpitem )
 	{
-	    TypeSet<DBKey> pickids;
+	    DBKeySet pickids;
 	    pickids += pickid;
 	    pickpitem->addChildren( pickids );
 	    if ( viewstdcontrol_->editToolBar() &&

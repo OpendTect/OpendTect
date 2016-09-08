@@ -132,7 +132,7 @@ bool SurfaceLimitedFiller::setRefHorizon( const DBKey* mid )
 { return setTargetDBKey( mid, refhormid_ ); }
 
 
-bool SurfaceLimitedFiller::setSurfaces( const TypeSet<DBKey>& hids,
+bool SurfaceLimitedFiller::setSurfaces( const DBKeySet& hids,
 				      const TypeSet<char>& geofillside )
 {
     deepUnRef( hors_ );
@@ -454,7 +454,7 @@ bool SurfaceLimitedFiller::useHorInterFillerPar( const IOPar& pars )
     if (usegradient && pars.get(sKeyGradient(),gradient) && !mIsUdf(gradient))
 	fixedgradient_ = gradient;
 
-    TypeSet<DBKey> horids;
+    DBKeySet horids;
     DBKey tophorid;
     if ( pars.get(sKeyTopHorID(), tophorid) )
     {
@@ -503,7 +503,7 @@ bool SurfaceLimitedFiller::usePar( const IOPar& pars )
 
     int nrhors = 0;
     pars.get( sKeyNrSurfaces(), nrhors );
-    TypeSet<DBKey> horbds;
+    DBKeySet horbds;
     TypeSet<char> sides;
     for ( int idx=0; idx<nrhors; idx++ )
     {

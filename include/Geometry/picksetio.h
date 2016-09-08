@@ -34,7 +34,7 @@ mExpClass(Geometry) SetLoader
 public:
 
 			SetLoader(const DBKey&);
-			SetLoader(const TypeSet<DBKey>&);
+			SetLoader(const DBKeySet&);
 
     void		setCategory( const char* cat )	{ category_ = cat; }
 
@@ -45,14 +45,14 @@ public:
 			{ return available_.size() == toload_.size(); }
 
     const uiStringSet&	errMsgs() const		{ return errmsgs_; }
-    const TypeSet<DBKey>& requested() const	{ return toload_; }
-    const TypeSet<DBKey>& available() const	{ return available_; }
+    const DBKeySet& requested() const	{ return toload_; }
+    const DBKeySet& available() const	{ return available_; }
 
 protected:
 
-    TypeSet<DBKey>	toload_;
+    DBKeySet	toload_;
     BufferString	category_;
-    mutable TypeSet<DBKey> available_;
+    mutable DBKeySet available_;
     mutable uiStringSet	errmsgs_;
     friend class	SetLoaderExec;
 

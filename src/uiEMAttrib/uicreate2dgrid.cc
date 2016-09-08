@@ -678,7 +678,7 @@ void uiCreate2DGrid::fillSeisPar( IOPar& par )
 
 void uiCreate2DGrid::fillHorPar( IOPar& par )
 {
-    const TypeSet<DBKey>& horids = horselfld_->getSelected();
+    const DBKeySet& horids = horselfld_->getSelected();
     BufferStringSet horidstrs;
     for ( int idx=0; idx<horids.size(); idx++ )
 	horidstrs.add( horids[idx].buf() );

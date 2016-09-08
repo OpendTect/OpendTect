@@ -927,7 +927,7 @@ void uiStoredViewer2DMainWin::setUpNewPositions(bool isinl, const BinID& posbid,
 }
 
 
-void uiStoredViewer2DMainWin::setIDs( const TypeSet<DBKey>& mids  )
+void uiStoredViewer2DMainWin::setIDs( const DBKeySet& mids  )
 {
     mids_ = mids;
     setUpNewIDs();

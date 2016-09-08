@@ -60,7 +60,7 @@ void uiSurfaceSel::getFullList()
 }
 
 
-void uiSurfaceSel::removeFromList( const TypeSet<DBKey>& ids )
+void uiSurfaceSel::removeFromList( const DBKeySet& ids )
 {
     for ( int idx=0; idx<ids.size(); idx++ )
     {
@@ -74,7 +74,7 @@ void uiSurfaceSel::removeFromList( const TypeSet<DBKey>& ids )
 }
 
 
-void uiSurfaceSel::getSelSurfaceIds( TypeSet<DBKey>& mids ) const
+void uiSurfaceSel::getSelSurfaceIds( DBKeySet& mids ) const
 {
     TypeSet<int> selidxs;
     listfld_->getChosen( selidxs );
@@ -83,7 +83,7 @@ void uiSurfaceSel::getSelSurfaceIds( TypeSet<DBKey>& mids ) const
 }
 
 
-void uiSurfaceSel::setSelSurfaceIds( const TypeSet<DBKey>& mids )
+void uiSurfaceSel::setSelSurfaceIds( const DBKeySet& mids )
 {
     TypeSet<int> selidxs;
     for ( int idx=0; idx<mids.size(); idx++ )

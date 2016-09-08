@@ -88,7 +88,7 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
     } \
     else if ( mnuid==2 ) \
     { \
-	TypeSet<DBKey> wellids; \
+	DBKeySet wellids; \
 	if ( !applMgr()->wellServer()->selectWells(wellids) ) \
 	    return true; \
 	for ( int idx=0; idx<wellids.size(); idx++ ) \

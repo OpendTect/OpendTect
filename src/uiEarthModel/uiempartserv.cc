@@ -579,7 +579,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
     if ( !dlg.go() )
 	return;
 
-    TypeSet<DBKey> mids;
+    DBKeySet mids;
     dlg.getChosen( mids );
     if ( mids.isEmpty() )
 	return;
@@ -621,7 +621,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     uiMultiSurfaceReadDlg dlg( parent(), typ );
     if ( !dlg.go() ) return;
 
-    TypeSet<DBKey> surfaceids;
+    DBKeySet surfaceids;
     dlg.iogrp()->getSurfaceIds( surfaceids );
 
     EM::SurfaceIOData sd;
@@ -633,7 +633,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     if ( hor3d )
 	selectedrg_ = sel.rg;
 
-    TypeSet<DBKey> idstobeloaded;
+    DBKeySet idstobeloaded;
     PtrMan<Executor> exec = em_.objectLoader(surfaceids,hor3d ? &sel : &orisel,
 					     &idstobeloaded);
 
@@ -1685,7 +1685,7 @@ void uiEMPartServer::managePreLoad()
 
 void uiEMPartServer::fillPar( IOPar& par ) const
 {
-    const TypeSet<DBKey>& mids = EM::HPreL().getPreloadedIDs();
+    const DBKeySet& mids = EM::HPreL().getPreloadedIDs();
     for ( int idx=0; idx<mids.size(); idx++ )
 	par.set( IOPar::compKey(sKeyPreLoad(),idx), mids[idx] );
 }
@@ -1694,7 +1694,7 @@ void uiEMPartServer::fillPar( IOPar& par ) const
 bool uiEMPartServer::usePar( const IOPar& par )
 {
     const int maxnr2pl = 1000;
-    TypeSet<DBKey> mids;
+    DBKeySet mids;
     for ( int idx=0; idx<maxnr2pl; idx++ )
     {
 	DBKey mid = DBKey::getInvalid();

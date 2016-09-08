@@ -76,8 +76,8 @@ public:
     void			setGridder(Gridder2D*); //!<Becomes mine
 
     void			setSource(ObjectSet<FunctionSource>&);
-    void			setSource(const TypeSet<DBKey>&);
-    void			getSources(TypeSet<DBKey>&) const;
+    void			setSource(const DBKeySet&);
+    void			getSources(DBKeySet&) const;
 
     void			setLayerModel(const InterpolationLayerModel*);
 

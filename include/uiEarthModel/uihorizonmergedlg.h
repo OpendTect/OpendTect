@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 
+class DBKeySet;
 class uiGenInput;
 class uiHorizon3DSel;
 class uiSurfaceWrite;
@@ -25,7 +26,7 @@ public:
 			~uiHorizonMergeDlg();
 
     DBKey		getNewHorMid() const;
-    void		setInputHors(const TypeSet<DBKey>& mids);
+    void		setInputHors(const DBKeySet& mids);
 
 protected:
 

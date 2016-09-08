@@ -1091,7 +1091,7 @@ int uiODSceneMgr::addWellItem( const DBKey& mid, int sceneid )
 }
 
 
-void uiODSceneMgr::getLoadedPickSetIDs( TypeSet<DBKey>& picks, bool poly,
+void uiODSceneMgr::getLoadedPickSetIDs( DBKeySet& picks, bool poly,
 					int sceneid ) const
 {
     if ( sceneid>=0 )
@@ -1110,7 +1110,7 @@ void uiODSceneMgr::getLoadedPickSetIDs( TypeSet<DBKey>& picks, bool poly,
 
 
 void uiODSceneMgr::gtLoadedPickSetIDs( const uiODScene& scene,
-	TypeSet<DBKey>& picks, bool poly ) const
+	DBKeySet& picks, bool poly ) const
 {
     for ( int chidx=0; chidx<scene.itemmanager_->nrChildren(); chidx++ )
     {
@@ -1124,7 +1124,7 @@ void uiODSceneMgr::gtLoadedPickSetIDs( const uiODScene& scene,
 
 
 void uiODSceneMgr::gtLoadedPickSetIDs( const uiTreeItem& topitm,
-	TypeSet<DBKey>& picks, bool poly ) const
+	DBKeySet& picks, bool poly ) const
 {
     for ( int chidx=0; chidx<topitm.nrChildren(); chidx++ )
     {

@@ -556,7 +556,7 @@ void uiODApplMgr::setWorkingArea()
 }
 
 
-void uiODApplMgr::selectWells( TypeSet<DBKey>& wellids )
+void uiODApplMgr::selectWells( DBKeySet& wellids )
 { wellserv_->selectWells( wellids ); }
 
 bool uiODApplMgr::storePickSets( int polyopt, const char* cat )

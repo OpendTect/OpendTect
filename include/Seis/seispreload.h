@@ -114,7 +114,7 @@ public:
     void			getInfo(const DBKey&,Pos::GeomID,
 					BufferString&) const;
 
-    void			getIDs(TypeSet<DBKey>&) const;
+    void			getIDs(DBKeySet&) const;
     bool			isPresent(const DBKey&,Pos::GeomID =-1) const;
 
     const ObjectSet<PreLoadDataEntry>& getEntries() const;

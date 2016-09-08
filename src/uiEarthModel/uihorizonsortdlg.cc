@@ -47,14 +47,14 @@ uiHorizonSortDlg::~uiHorizonSortDlg()
 { deepUnRef( horizons_ ); }
 
 
-void uiHorizonSortDlg::setConstSelected( const TypeSet<DBKey>& horids )
+void uiHorizonSortDlg::setConstSelected( const DBKeySet& horids )
 {
     constselids_ = horids;
     horsel_->removeFromList( horids );
 }
 
 
-void uiHorizonSortDlg::getSelectedHorizons( TypeSet<DBKey>& horids ) const
+void uiHorizonSortDlg::getSelectedHorizons( DBKeySet& horids ) const
 {
     horsel_->getSelSurfaceIds( horids );
     horids.append( constselids_ );
@@ -67,7 +67,7 @@ void uiHorizonSortDlg::getSortedHorizons( ObjectSet<EM::Horizon>& hors ) const
 }
 
 
-void uiHorizonSortDlg::getSortedHorizonIDs( TypeSet<DBKey>& horids ) const
+void uiHorizonSortDlg::getSortedHorizonIDs( DBKeySet& horids ) const
 {
     horids = horids_;
 }
@@ -75,7 +75,7 @@ void uiHorizonSortDlg::getSortedHorizonIDs( TypeSet<DBKey>& horids ) const
 
 bool uiHorizonSortDlg::acceptOK()
 {
-    TypeSet<DBKey> horids;
+    DBKeySet horids;
     getSelectedHorizons( horids );
     if ( horids.size() < 2 )
     {
@@ -88,7 +88,7 @@ bool uiHorizonSortDlg::acceptOK()
     PtrMan<Executor> horreader = 0;
     if ( !sorted || loadneeded_ )
     {
-	TypeSet<DBKey> loadids;
+	DBKeySet loadids;
 	for ( int idx=0; idx<horids.size(); idx++ )
 	{
 	    const EM::ObjectID oid = EM::EMM().getObjectID( horids[idx] );
@@ -151,10 +151,10 @@ bool uiHorizonSortDlg::acceptOK()
 }
 
 
-bool uiHorizonSortDlg::sortFromRelationTree( const TypeSet<DBKey>& ids )
+bool uiHorizonSortDlg::sortFromRelationTree( const DBKeySet& ids )
 {
     EM::RelationTree reltree( is2d_ );
-    TypeSet<DBKey> sortedids;
+    DBKeySet sortedids;
     reltree.getSorted( ids, sortedids );
     if ( sortedids.size() != ids.size() )
 	return false;
@@ -164,7 +164,7 @@ bool uiHorizonSortDlg::sortFromRelationTree( const TypeSet<DBKey>& ids )
 }
 
 
-void uiHorizonSortDlg::updateRelationTree( const TypeSet<DBKey>& ids )
+void uiHorizonSortDlg::updateRelationTree( const DBKeySet& ids )
 {
     if ( ids.size() < 2 )
 	return;

@@ -342,7 +342,7 @@ IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 }
 
 
-void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, TypeSet<DBKey>& ids )
+void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, DBKeySet& ids )
 {
     const DBKey mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
     const IODir iodir( mid );
@@ -363,10 +363,10 @@ IOObjInfo::LevelID IOObjInfo::levelID() const
 
 
 void IOObjInfo::getTiedToLevelID( LevelID lvlid,
-				  TypeSet<DBKey>& ids, bool is2d )
+				  DBKeySet& ids, bool is2d )
 {
     ids.erase();
-    TypeSet<DBKey> candidates;
+    DBKeySet candidates;
     if ( is2d )
 	getIDs( Horizon2D, candidates );
     else
@@ -381,8 +381,8 @@ void IOObjInfo::getTiedToLevelID( LevelID lvlid,
 }
 
 
-bool IOObjInfo::sortHorizonsOnZValues( const TypeSet<DBKey>& list,
-				       TypeSet<DBKey>& sorted )
+bool IOObjInfo::sortHorizonsOnZValues( const DBKeySet& list,
+				       DBKeySet& sorted )
 {
     sorted.erase();
     if ( list.isEmpty() )

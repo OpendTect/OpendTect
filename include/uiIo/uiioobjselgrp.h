@@ -94,12 +94,12 @@ public:
     int			nrChosen() const;
     bool		isChosen(int) const;
     const DBKey&	chosenID(int idx=0) const;
-    void		getChosen(TypeSet<DBKey>&) const;
+    void		getChosen(DBKeySet&) const;
     void		getChosen(BufferStringSet&) const;
     void		setCurrent(int);
     void		setCurrent(const DBKey&);
     void		setChosen(int,bool yn=true);
-    void		setChosen(const TypeSet<DBKey>&);
+    void		setChosen(const DBKeySet&);
     void		chooseAll(bool yn=true);
 
     bool		updateCtxtIOObj(); //!< mostly interesting for write

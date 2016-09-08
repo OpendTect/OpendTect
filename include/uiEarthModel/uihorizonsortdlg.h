@@ -34,25 +34,25 @@ public:
 						  bool allowcnstrsabsent);
     void			getSortedHorizons(
 					ObjectSet<EM::Horizon>&) const;
-    void			getSortedHorizonIDs(TypeSet<DBKey>&) const;
-    void			setConstSelected(const TypeSet<DBKey>&);
+    void			getSortedHorizonIDs(DBKeySet&) const;
+    void			setConstSelected(const DBKeySet&);
     TrcKeyZSampling		getBoundingBox() const	{ return bbox_; }
 
 protected:
 
     bool			acceptOK();
-    void			getSelectedHorizons(TypeSet<DBKey>&) const;
-    void			updateRelationTree(const TypeSet<DBKey>&);
-    bool			sortFromRelationTree(const TypeSet<DBKey>&);
+    void			getSelectedHorizons(DBKeySet&) const;
+    void			updateRelationTree(const DBKeySet&);
+    bool			sortFromRelationTree(const DBKeySet&);
 
     uiSurfaceSel*		horsel_;
 
     bool			is2d_;
     bool			loadneeded_;
     TrcKeyZSampling		bbox_;
-    TypeSet<DBKey>		constselids_;
+    DBKeySet		constselids_;
     ObjectSet<EM::Horizon>	horizons_;
-    TypeSet<DBKey>		horids_;
+    DBKeySet		horids_;
 
 };
 

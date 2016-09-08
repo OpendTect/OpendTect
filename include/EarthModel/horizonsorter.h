@@ -32,13 +32,13 @@ mExpClass(EarthModel) HorizonSorter : public Executor
 { mODTextTranslationClass(HorizonSorter);
 public:
 
-				HorizonSorter(const TypeSet<DBKey>&,
+				HorizonSorter(const DBKeySet&,
 					      bool is2d=false);
 				~HorizonSorter();
 
     void			setTaskRunner(TaskRunner&);
 
-    void			getSortedList(TypeSet<DBKey>&);
+    void			getSortedList(DBKeySet&);
     const TrcKeySampling&		getBoundingBox() const	{ return tks_; }
     int				getNrCrossings(const DBKey&,
 					       const DBKey&) const;
@@ -67,8 +67,8 @@ protected:
     TrcKeySampling			tks_;
     ObjectSet<EM::Horizon>	horizons_;
     Array3D<int>*		result_;
-    TypeSet<DBKey>		unsortedids_;
-    TypeSet<DBKey>		sortedids_;
+    DBKeySet		unsortedids_;
+    DBKeySet		sortedids_;
     TaskRunner*			taskrun_;
 
     uiString			message_;

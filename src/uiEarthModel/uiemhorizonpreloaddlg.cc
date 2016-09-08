@@ -118,7 +118,7 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 	return false;
 
     EM::HorizonPreLoader& hpl = EM::HPreL();
-    TypeSet<DBKey> selmids;
+    DBKeySet selmids;
     hordlg.getChosen( selmids );
 
     uiTaskRunner taskrunner( this );
@@ -203,7 +203,7 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	{ uiMSG().message( tr("No valid objects found") ); return; }
 
     PtrMan<IOPar> par = fulliop.subselect( "Hor" );
-    TypeSet<DBKey> selmids;
+    DBKeySet selmids;
     for ( int idx=0; idx<par->size(); idx++ )
     {
 	PtrMan<IOPar> dbkeypar = par->subselect( idx );
@@ -225,7 +225,7 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 }
 
 
-void uiHorizonPreLoadDlg::loadSavedHorizon( const TypeSet<DBKey>& savedmids )
+void uiHorizonPreLoadDlg::loadSavedHorizon( const DBKeySet& savedmids )
 {
     if ( savedmids.isEmpty() )
 	return;

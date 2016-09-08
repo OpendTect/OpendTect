@@ -60,7 +60,7 @@ public:
 
     int			nrChosen() const	{ return selgrp_->nrChosen(); }
     const DBKey&	chosenID(int i=0) const { return selgrp_->chosenID(i); }
-    void		getChosen( TypeSet<DBKey>& ids ) const
+    void		getChosen( DBKeySet& ids ) const
 						{ selgrp_->getChosen( ids ); }
     void		getChosen( BufferStringSet& nms ) const
 						{ selgrp_->getChosen( nms ); }

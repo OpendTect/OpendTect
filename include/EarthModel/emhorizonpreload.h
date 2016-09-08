@@ -13,9 +13,9 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "callback.h"
-
 #include "bufstringset.h"
-#include "typeset.h"
+#include "dbkey.h"
+
 
 class TaskRunner;
 
@@ -32,19 +32,21 @@ public:
 				HorizonPreLoader();
 				~HorizonPreLoader();
 
-    bool			load(const TypeSet<DBKey>&,TaskRunner* tr=0);
+    bool			load(const DBKeySet&,TaskRunner* tr=0);
     const DBKey&		getDBKey(const char* name) const;
-    const TypeSet<DBKey>&	getPreloadedIDs() const;
+    const DBKeySet&		getPreloadedIDs() const;
     const BufferStringSet&	getPreloadedNames() const;
     const char*			errorMsg() const	    { return errmsg_; }
     void			unload(const BufferStringSet& hornms);
 
 protected:
+
     void		surveyChgCB(CallBacker*);
 
-    TypeSet<DBKey>	loadedmids_;
+    DBKeySet		loadedmids_;
     BufferStringSet	loadednms_;
     BufferString	errmsg_;
+
 };
 
 

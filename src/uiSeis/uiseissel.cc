@@ -111,7 +111,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 
 	if ( c.ioobj_)
 	{
-	    TypeSet<DBKey> selmids;
+	    DBKeySet selmids;
 	    selmids += c.ioobj_->key();
 	    selgrp_->setChosen( selmids );
 	}

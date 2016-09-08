@@ -31,7 +31,7 @@ namespace Well { class D2TModel; class Log; class LogSet; class Track;}
 mExpClass(uiWell) uiWellLogCalc : public uiDialog
 { mODTextTranslationClass(uiWellLogCalc);
 public:
-				uiWellLogCalc(uiParent*,const TypeSet<DBKey>&,
+				uiWellLogCalc(uiParent*,const DBKeySet&,
 					      bool rockphysmode=false);
 				~uiWellLogCalc();
 
@@ -53,7 +53,7 @@ protected:
     Math::Formula&		form_;
     float			zsampintv_;
     BufferStringSet		lognms_;
-    const TypeSet<DBKey>	wellids_;
+    const DBKeySet	wellids_;
     bool			havenew_;
 
     struct InpData

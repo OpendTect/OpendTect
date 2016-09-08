@@ -182,7 +182,7 @@ void Data::computeExtractionRange()
 
 
 
-void HorizonMgr::setUpHorizons( const TypeSet<DBKey>& horids,
+void HorizonMgr::setUpHorizons( const DBKeySet& horids,
 				uiString& errms, TaskRunner& taskr )
 {
     horizons_.erase();
