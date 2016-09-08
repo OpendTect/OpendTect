@@ -442,6 +442,14 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
 	    defstring.replace( initialstr, finalstr );
 	}
     }
+    if ( attribname == "Frequency" )
+    {
+	BufferStringSet keys;
+	BufferStringSet vals;
+	Attrib::Desc::getKeysVals( defstring.buf(), keys, vals );
+	if ( !keys.isPresent( "smoothspect" ) )
+	    defstring.add( " smoothspect=No" );
+    }
 }
 
 

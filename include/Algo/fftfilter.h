@@ -55,6 +55,9 @@ public:
     bool		apply(Array1DImpl<float>&);
     bool		apply(Array1DImpl<float_complex>&,bool dopreproc=true);
 
+    Array1DImpl<float_complex>* getFreqDomainArr() const;
+    void		requestStayInFreqDomain()	{ stayinfreq_ = true; }
+
     Type		getFilterType() const;
     bool		isLowPass() const;
     bool		isHighPass() const;
@@ -67,6 +70,7 @@ protected:
     float		df_;
     float		step_;
     float		cutfreq_[4];
+    bool		stayinfreq_;
 
     Fourier::CC*	fft_;
     ArrayNDWindow*	timewindow_;
@@ -75,6 +79,7 @@ protected:
     Array1DImpl<float>*	trendimag_;
     BoolTypeSet		isudfreal_;
     BoolTypeSet		isudfimag_;
+    Array1DImpl<float_complex>* freqdomain_;
 
     void		buildFreqTaperWin();
 

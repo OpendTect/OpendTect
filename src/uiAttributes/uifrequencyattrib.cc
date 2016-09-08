@@ -44,27 +44,31 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mFrequencyAttribHelpID) )
 
 {
-    inpfld = createImagInpFld( is2d );
+    inpfld_ = createImagInpFld( is2d );
 
-    gatefld = new uiGenInput( this, gateLabel(), 
+    gatefld_ = new uiGenInput( this, gateLabel(),
 	    		      FloatInpIntervalSpec().setName("Z start",0)
 			      			    .setName("Z stop",1) );
-    gatefld->attach( alignedBelow, inpfld );
+    gatefld_->attach( alignedBelow, inpfld_ );
 
-    normfld = new uiGenInput( this, tr("Normalize"), BoolInpSpec(false) );
-    normfld->attach( alignedBelow, gatefld );
+    normfld_ = new uiGenInput( this, tr("Normalize"), BoolInpSpec(false) );
+    normfld_->attach( alignedBelow, gatefld_ );
 
     uiWindowFunctionSel::Setup su; su.label_ = "Window/Taper";
     su.winname_ = "CosTaper"; su.winparam_ = .05;
-    winfld = new uiWindowFunctionSel( this, su );
-    winfld->attach( alignedBelow, normfld ); 
+    winfld_ = new uiWindowFunctionSel( this, su );
+    winfld_->attach( alignedBelow, normfld_ );
 
-    outpfld = new uiGenInput( this, uiStrings::sOutput(), 
+    smoothspectrumfld_ = new uiGenInput( this, tr("Smooth Spectrum"),
+					 BoolInpSpec(true) );
+    smoothspectrumfld_->attach( alignedBelow, winfld_ );
+
+    outpfld_ = new uiGenInput( this, uiStrings::sOutput(),
                               StringListInpSpec(outpstrs) );
-    outpfld->setElemSzPol( uiObject::WideVar );
-    outpfld->attach( alignedBelow, winfld );
+    outpfld_->setElemSzPol( uiObject::WideVar );
+    outpfld_->attach( alignedBelow, smoothspectrumfld_ );
 
-    setHAlignObj( inpfld );
+    setHAlignObj( inpfld_ );
 }
 
 
@@ -73,14 +77,17 @@ bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )
     if ( desc.attribName() != Frequency::attribName() )
 	return false;
 
-    mIfGetFloatInterval( Frequency::gateStr(), gate, gatefld->setValue(gate) );
+    mIfGetFloatInterval( Frequency::gateStr(), gate, gatefld_->setValue(gate) );
     mIfGetBool( Frequency::normalizeStr(), normalize,
-	        normfld->setValue(normalize) );
+		normfld_->setValue(normalize) );
     mIfGetString( Frequency::windowStr(), window,
-	        winfld->setWindowName(window) );
+		winfld_->setWindowName(window) );
     mIfGetFloat( Frequency::paramvalStr(), variable,
 	   const float resvar = float( mNINT32((1-variable)*1000) )/1000.0f;
-	   winfld->setWindowParamValue(resvar) );
+	   winfld_->setWindowParamValue(resvar) );
+
+    mIfGetBool( Frequency::smoothspectrumStr(), sspec,
+		smoothspectrumfld_->setValue(sspec) );
 
     return true;
 }
@@ -88,14 +95,14 @@ bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )
 
 bool uiFrequencyAttrib::setInput( const Attrib::Desc& desc )
 {
-    putInp( inpfld, desc, 0 );
+    putInp( inpfld_, desc, 0 );
     return true;
 }
 
 
 bool uiFrequencyAttrib::setOutput( const Attrib::Desc& desc )
 {
-    outpfld->setValue( desc.selectedOutput() );
+    outpfld_->setValue( desc.selectedOutput() );
     return true;
 }
 
@@ -105,11 +112,13 @@ bool uiFrequencyAttrib::getParameters( Attrib::Desc& desc )
     if ( desc.attribName() != Frequency::attribName() )
 	return false;
 
-    mSetFloatInterval( Frequency::gateStr(), gatefld->getFInterval() );
-    mSetBool( Frequency::normalizeStr(), normfld->getBoolValue() );
-    mSetString( Frequency::windowStr(), winfld->windowName() );
+    mSetFloatInterval( Frequency::gateStr(), gatefld_->getFInterval() );
+    mSetBool( Frequency::normalizeStr(), normfld_->getBoolValue() );
+    mSetBool( Frequency::smoothspectrumStr(),
+	      smoothspectrumfld_->getBoolValue() );
+    mSetString( Frequency::windowStr(), winfld_->windowName() );
     const float resvar =
-		float( mNINT32( (1-winfld->windowParamValue())*1000) )/1000.0f;
+		float( mNINT32( (1-winfld_->windowParamValue())*1000) )/1000.0f;
     mSetFloat( Frequency::paramvalStr(), resvar );
 
     return true;
@@ -118,14 +127,14 @@ bool uiFrequencyAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiFrequencyAttrib::getInput( Attrib::Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
+    fillInp( inpfld_, desc, 0 );
     return true;
 }
 
 
 bool uiFrequencyAttrib::getOutput( Attrib::Desc& desc )
 {
-    fillOutput( desc, outpfld->getIntValue() );
+    fillOutput( desc, outpfld_->getIntValue() );
     return true;
 }
 
@@ -138,9 +147,9 @@ void uiFrequencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 bool uiFrequencyAttrib::areUIParsOK()
 {
-    if ( FixedString(winfld->windowName()) == "CosTaper" )
+    if ( FixedString(winfld_->windowName()) == "CosTaper" )
     {
-	float paramval = winfld->windowParamValue();
+	float paramval = winfld_->windowParamValue();
 	if ( paramval<0 || paramval>1  )
 	{
 	    errmsg_ = tr("Variable 'Taper length' is not\n"

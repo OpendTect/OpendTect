@@ -24,6 +24,7 @@ ________________________________________________________________________
 
 class ArrayNDWindow;
 template<class T> class Array1DImpl;
+class FFTFilter;
 
 namespace Attrib
 {
@@ -75,6 +76,7 @@ public:
     static const char*		windowStr()		{ return "window"; }
     static const char*          paramvalStr()           { return "paramval"; }
     static const char*		dumptofileStr()		{ return "dumptofile"; }
+    static const char*		smoothspectrumStr()	{ return "smoothspect";}
 
     void                        prepPriorToBoundsCalc();
 
@@ -99,9 +101,18 @@ protected:
     Interval<float>		gate_;
     Interval<int>		samplegate_;
     bool			dumptofile_;
-    ArrayNDWindow*		window_;
     BufferString		windowtype_;
-    float			df_;
+    bool			smoothspectrum_;
+
+    //smoothspectrum_==true
+    FFTFilter*			fftfilter_;
+    //else
+    ArrayNDWindow*		window_;
+    bool			fftisinit_;
+    int				fftsz_;
+    Fourier::CC*		fft_;
+    Array1DImpl<float_complex>* timedomain_;
+    Array1DImpl<float_complex>* freqdomain_;
 
     bool			normalize_;
     float			variable_;
@@ -112,13 +123,8 @@ protected:
     int				imagidx_;
 
     BufferStringSet		dumpset_;
-    bool			fftisinit_;
-    int				fftsz_;
-    Fourier::CC*		fft_;
 
     Array1DImpl<float_complex>*	signal_;
-    Array1DImpl<float_complex>*	timedomain_;
-    Array1DImpl<float_complex>*	freqdomain_;
 
     mExpClass(Attributes) FreqFunc : public FloatMathFunction
     {

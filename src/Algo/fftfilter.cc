@@ -29,6 +29,8 @@ FFTFilter::FFTFilter( int sz, float step )
     , freqwindow_(0)
     , trendreal_(0)
     , trendimag_(0)
+    , stayinfreq_(false)
+    , freqdomain_(0)
 {
     MemSetter<float> initfreq( cutfreq_, mUdf(float), 4 );
     initfreq.execute();
@@ -41,14 +43,11 @@ FFTFilter::FFTFilter( int sz, float step )
 FFTFilter::~FFTFilter()
 {
     delete fft_;
-    if ( timewindow_ )
-	delete timewindow_;
-    if ( freqwindow_ )
-	delete freqwindow_;
-    if ( trendreal_ )
-	delete trendreal_;
-    if ( trendimag_ )
-	delete trendimag_;
+    delete timewindow_;
+    delete freqwindow_;
+    delete trendreal_;
+    delete trendimag_;
+    delete freqdomain_;
 }
 
 
@@ -235,12 +234,16 @@ bool FFTFilter::apply( Array1DImpl<float_complex>& outp, bool dopreproc )
     for ( int idy=0; idy<sz_; idy++ )
 	timedomain.set( sz_+idy, inp->get( idy ) );
 
-    Array1DImpl<float_complex> freqdomain( fftsz_ );
-    mDoFFT( true, timedomain.getData(), freqdomain.getData() );
+    delete freqdomain_;
+    freqdomain_ = new Array1DImpl<float_complex> ( fftsz_ );
+    mDoFFT( true, timedomain.getData(), freqdomain_->getData() );
     if ( freqwindow_ )
-	freqwindow_->apply( &freqdomain );
+	freqwindow_->apply( freqdomain_ );
 
-    mDoFFT( false, freqdomain.getData(), timedomain.getData() );
+    if ( stayinfreq_ )
+	return true;
+
+    mDoFFT( false, freqdomain_->getData(), timedomain.getData() );
     for ( int idy=0; idy<sz_; idy++ )
 	inp->set( idy, timedomain.get( sz_ + idy ) );
 
@@ -605,4 +608,10 @@ void FFTFilter::restoreSize( const Array1DImpl<float>& inp,
     const int shift = mNINT32((float) sz_/2) - mNINT32((float) sz/2);
     for ( int idx=0; idx<sz; idx++ )
 	outp.set( idx, inp.get( idx + shift ) );
+}
+
+
+Array1DImpl<float_complex>* FFTFilter::getFreqDomainArr() const
+{
+    return freqdomain_;
 }

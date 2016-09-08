@@ -31,11 +31,12 @@ public:
 
 protected:
 
-    uiImagAttrSel*	inpfld;
-    uiGenInput*         gatefld;
-    uiGenInput*		normfld;
-    uiWindowFunctionSel* winfld;
-    uiGenInput*		outpfld;
+    uiImagAttrSel*	inpfld_;
+    uiGenInput*		gatefld_;
+    uiGenInput*		normfld_;
+    uiWindowFunctionSel* winfld_;
+    uiGenInput*		outpfld_;
+    uiGenInput*		smoothspectrumfld_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
