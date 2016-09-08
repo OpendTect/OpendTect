@@ -59,7 +59,7 @@ bool FaultAuxData::DataInfo::operator==( const DataInfo& di )
 
 
 FaultAuxData::FaultAuxData( const Fault3D& flt )
-    : faultmid_(flt.multiID())
+    : faultmid_(flt.dbKey())
 {
     fltfullnm_.setEmpty();
     init();

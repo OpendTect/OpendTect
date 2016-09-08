@@ -654,7 +654,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	    return false;
 
 	if ( !emhorizons_[horidx] ||
-	      emhorizons_[horidx]->multiID()!=horrefs_[horidx] )
+	      emhorizons_[horidx]->dbKey()!=horrefs_[horidx] )
 	{
 	    if ( emhorizons_[horidx] )
 	    {

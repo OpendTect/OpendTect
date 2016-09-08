@@ -74,7 +74,7 @@ uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
     if ( source_ )
     {
 	source_->ref();
-	funcsel_->setInput( source_->multiID() );
+	funcsel_->setInput( source_->dbKey() );
     }
 
     setHAlignObj( funcsel_ );

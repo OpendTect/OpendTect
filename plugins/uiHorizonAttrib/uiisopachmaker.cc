@@ -120,7 +120,7 @@ bool uiIsochronMakerGrp::chkInputFlds()
 bool uiIsochronMakerGrp::fillPar( IOPar& par )
 {
     par.set( IsochronMaker::sKeyHorizonID(), basesel_ ? basesel_->ioobj()->key()
-						      : baseemobj_->multiID() );
+						      : baseemobj_->dbKey() );
     par.set( IsochronMaker::sKeyCalculateToHorID(), horsel_->ioobj()->key() );
     par.set( IsochronMaker::sKeyAttribName(), attrnmfld_->text() );
     if ( msecsfld_ )

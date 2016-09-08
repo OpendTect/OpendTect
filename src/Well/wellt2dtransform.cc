@@ -174,7 +174,7 @@ void WellT2DTransform::fillPar( IOPar& par ) const
 {
     ZAxisTransform::fillPar( par );
     if ( data_ )
-	par.set( sKey::ID(), data_->multiID() );
+	par.set( sKey::ID(), data_->dbKey() );
 }
 
 

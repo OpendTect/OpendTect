@@ -148,7 +148,7 @@ bool RandomPosBodyDisplay::updateVisFromEM()
 
 DBKey RandomPosBodyDisplay::getDBKey() const
 {
-    return embody_ ? embody_->multiID() : DBKey();
+    return embody_ ? embody_->dbKey() : DBKey();
 }
 
 

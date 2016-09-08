@@ -1808,7 +1808,7 @@ int dgbSurfaceWriter::nextStep()
     if ( sectionindex_>=sectionsel_.size() )
     {
 	const int res = ExecutorGroup::nextStep();
-	if ( !res && objectmid_==surface_.multiID() )
+	if ( !res && objectmid_==surface_.dbKey() )
 	    const_cast<Surface*>(&surface_)->resetChangedFlag();
 	if ( res == Finished() )
 	    finishWriting();

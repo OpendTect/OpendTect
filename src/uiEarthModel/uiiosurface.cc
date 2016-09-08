@@ -386,7 +386,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
     }
 
     EM::SurfaceIOData sd;
-    if ( !getSurfaceIOData(surf.multiID(),sd) )
+    if ( !getSurfaceIOData(surf.dbKey(),sd) )
 	getSurfaceIOData( surf.id(), sd );
     fillFields( sd );
 

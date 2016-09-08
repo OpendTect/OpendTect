@@ -199,7 +199,7 @@ RandomPosBody::~RandomPosBody()
 
 
 DBKey RandomPosBody::storageID() const
-{ return EMObject::multiID(); }
+{ return EMObject::dbKey(); }
 
 
 BufferString RandomPosBody::storageName() const
@@ -334,7 +334,7 @@ Executor* RandomPosBody::saver( IOObj* inpioobj )
 	ioobj = inpioobj;
     else
     {
-	myioobj = IOM().get( multiID() );
+	myioobj = IOM().get( dbKey() );
 	ioobj = myioobj;
     }
 
@@ -349,7 +349,7 @@ Executor* RandomPosBody::saver()
 
 Executor* RandomPosBody::loader()
 {
-    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( dbKey() );
     Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
     return conn ? new RandomPosBodyReader( *this, conn ) : 0;
 }

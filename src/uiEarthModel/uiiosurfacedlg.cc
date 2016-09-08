@@ -148,7 +148,7 @@ bool uiStoreAuxData::acceptOK()
 
 bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 {
-    EM::IOObjInfo eminfo( surface_.multiID() );
+    EM::IOObjInfo eminfo( surface_.dbKey() );
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
 

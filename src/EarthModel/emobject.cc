@@ -79,7 +79,7 @@ void EMObject::prepareForDelete()
 
 BufferString EMObject::name() const
 {
-    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( dbKey() );
     return ioobj ? BufferString(ioobj->name()) : objname_;
 }
 

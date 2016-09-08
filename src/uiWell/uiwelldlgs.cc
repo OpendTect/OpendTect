@@ -69,7 +69,7 @@ uiString getWinTitle( const uiString& objtyp,
 }
 
 #define mGetDlgSetup(wd,objtyp,hid) \
-    uiDialog::Setup( getWinTitle(objtyp,wd.multiID(),writable_), \
+    uiDialog::Setup( getWinTitle(objtyp,wd.dbKey(),writable_), \
 		     mNoDlgTitle, mODHelpKey(hid) )
 #define mTDName(iscksh) iscksh ? uiWellTrackDlg::sCkShotData() \
 			       : uiWellTrackDlg::sTimeDepthModel()

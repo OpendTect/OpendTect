@@ -61,8 +61,8 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
     const_cast<Horizon*>(horizon_)
 	->change.notify( mCB(this,HorizonZTransform,horChangeCB) );
 
-    fromzdomaininfo_.setID( horizon_->multiID() );
-    tozdomaininfo_.setID( horizon_->multiID() );
+    fromzdomaininfo_.setID( horizon_->dbKey() );
+    tozdomaininfo_.setID( horizon_->dbKey() );
 
     horchanged_ = true;
     calculateHorizonRange();
@@ -154,7 +154,7 @@ void HorizonZTransform::fillPar( IOPar& par ) const
     ZAxisTransform::fillPar( par );
 
     if ( horizon_ )
-	par.set( sKeyHorizonID(), horizon_->multiID() );
+	par.set( sKeyHorizonID(), horizon_->dbKey() );
 }
 
 

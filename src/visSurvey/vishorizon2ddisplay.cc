@@ -428,7 +428,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     }
 
     TypeSet<Pos::GeomID> geomids;
-    EM::IOObjInfo info( emobject_->multiID() );
+    EM::IOObjInfo info( emobject_->dbKey() );
     info.getGeomIDs( geomids );
 
     LineRanges linergs;

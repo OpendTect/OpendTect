@@ -414,7 +414,7 @@ int uiEMPartServer::nrAttributes( const EM::ObjectID& emid ) const
     EM::EMObject* emobj = em_.getObject( emid );
     if ( !emobj ) return 0;
 
-    EM::IOObjInfo eminfo( emobj->multiID() );
+    EM::IOObjInfo eminfo( emobj->dbKey() );
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
     return eminfo.isOK() ? attrnms.size() : 0;
@@ -477,7 +477,7 @@ void uiEMPartServer::displayOnCreateCB( CallBacker* cb )
     uiHorSaveFieldGrp* horfldsavegrp = interpoldlg ? interpoldlg->saveFldGrp()
 						   : filterdlg->saveFldGrp();
     if ( horfldsavegrp->displayNewHorizon() )
-	displayEMObject( horfldsavegrp->getNewHorizon()->multiID() );
+	displayEMObject( horfldsavegrp->getNewHorizon()->dbKey() );
 
     horfldsavegrp->overwriteHorizon();
 }
@@ -530,7 +530,7 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
 				    bool withcancel ) const
 {
     EM::EMObject* emobj = em_.getObject(emid);
-    if ( !emobj || !emobj->isChanged() || !EM::canOverwrite(emobj->multiID()) )
+    if ( !emobj || !emobj->isChanged() || !EM::canOverwrite(emobj->dbKey()) )
 	return true;
 
     PtrMan<IOObj> ioobj = IOM().get( getStorageID(emid) );
@@ -869,7 +869,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
     mDynamicCastGet(EM::Body*,body,object);
 
     PtrMan<Executor> exec = 0;
-    DBKey key = object->multiID();
+    DBKey key = object->dbKey();
 
     if ( storeas )
     {
@@ -895,7 +895,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	{
 	    CtxtIOObj ctio( body ? EMBodyTranslatorGroup::ioContext()
 				 : object->getIOObjContext(),
-				 IOM().get(object->multiID()) );
+				 IOM().get(object->dbKey()) );
 
 	    ctio.ctxt_.forread_ = false;
 
@@ -1342,7 +1342,7 @@ bool uiEMPartServer::attr2Geom( const EM::ObjectID& oid,
 
     if ( dlg.saveFldGrp()->displayNewHorizon() &&
 	 dlg.saveFldGrp()->getNewHorizon( ) )
-	displayEMObject( dlg.saveFldGrp()->getNewHorizon()->multiID() );
+	displayEMObject( dlg.saveFldGrp()->getNewHorizon()->dbKey() );
 
     return true;
 }
@@ -1471,7 +1471,7 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
     {
 	mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(em_.objectID(idx)));
 	if ( hor3d )
-	    hinfos += new SurfaceInfo( hor3d->name(), hor3d->multiID() );
+	    hinfos += new SurfaceInfo( hor3d->name(), hor3d->dbKey() );
     }
 }
 

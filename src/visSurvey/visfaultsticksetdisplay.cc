@@ -240,7 +240,7 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 
 DBKey FaultStickSetDisplay::getDBKey() const
 {
-    return fault_ ? fault_->multiID() : DBKey();
+    return fault_ ? fault_->dbKey() : DBKey();
 }
 
 

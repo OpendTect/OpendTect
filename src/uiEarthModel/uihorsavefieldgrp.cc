@@ -58,7 +58,7 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
 
     setHAlignObj( savefld_ );
 
-    const bool allowovrwrt = horizon_ ? EM::canOverwrite(horizon_->multiID())
+    const bool allowovrwrt = horizon_ ? EM::canOverwrite(horizon_->dbKey())
 				      : false ;
     allowOverWrite( allowovrwrt );
 }
@@ -199,11 +199,11 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 
     newhorizon_ = horizon;
     newhorizon_->ref();
-    newhorizon_->setDBKey( horizon_->multiID() );
+    newhorizon_->setDBKey( horizon_->dbKey() );
 
     EM::SurfaceIOData sd;
     uiString errmsg;
-    if ( !em.getSurfaceData(horizon_->multiID(),sd,errmsg) )
+    if ( !em.getSurfaceData(horizon_->dbKey(),sd,errmsg) )
 	mErrRet( errmsg )
 
     EM::SurfaceIODataSelection sdsel( sd );

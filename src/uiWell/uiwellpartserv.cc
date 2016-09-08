@@ -246,7 +246,7 @@ int uiWellPartServer::getPropDlgIndex( const DBKey& mid )
 	if ( !wellpropdlgs_[idx]->wellData() )
 	    continue;
 
-	const DBKey dlgid = wellpropdlgs_[idx]->wellData()->multiID();
+	const DBKey dlgid = wellpropdlgs_[idx]->wellData()->dbKey();
 	if ( dlgid == mid )
 	    return idx;
     }
@@ -291,7 +291,7 @@ void uiWellPartServer::saveWellDispProps( const Well::Data* wd )
 	Well::Data& curwd = *wds[iwll];
 	if ( wd && &curwd != wd )
 	   continue;
-	saveWellDispProps( curwd, curwd.multiID() );
+	saveWellDispProps( curwd, curwd.dbKey() );
     }
 }
 

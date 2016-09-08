@@ -259,7 +259,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     if ( !ioobj ) return;
 
     TrcKeySampling hs = subselfld_->envelope().hsamp_;
-    if ( ( !hor_ || hor_->multiID()!=ioobj->key() ) && !loadHor() )
+    if ( ( !hor_ || hor_->dbKey()!=ioobj->key() ) && !loadHor() )
 	return;
 
     BufferString attrnm = attribfld_->textOfItem( attribfld_->currentItem() );

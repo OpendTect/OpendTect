@@ -66,7 +66,7 @@ void uiODVw2DEMTreeItem::doSaveAs()
 	{
 	   const DBKey oldmid = applMgr()->EMServer()->getStorageID( emid_ );
 	   mps->prepareSaveSetupAs( oldmid );
-	   mps->saveSetupAs( EM::EMM().getObject(emid_)->multiID() );
+	   mps->saveSetupAs( EM::EMM().getObject(emid_)->dbKey() );
 	}
     }
 }

@@ -43,7 +43,7 @@ public:
 				mDeclMonitorableAssignment(Data);
 				mDeclInstanceCreatedNotifierAccess(Data);
 
-    const DBKey&		multiID() const		{ return mid_; }
+    const DBKey&		dbKey() const		{ return mid_; }
     void			setDBKey( const DBKey& mid ) const
 				{ mid_ = mid; }
 

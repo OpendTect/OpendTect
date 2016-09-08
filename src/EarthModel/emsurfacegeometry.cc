@@ -958,7 +958,7 @@ bool SurfaceGeometry::isFullResolution() const
 
 Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 {
-    PtrMan<IOObj> ioobj = IOM().get( surface_.multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( surface_.dbKey() );
     if ( !ioobj )
 	{ surface_.errmsg_ = uiStrings::sCantFindSurf(); return 0; }
 
@@ -1007,7 +1007,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 			          const DBKey* key )
 {
-    const DBKey& mid = key && !(*key=="") ? *key : surface_.multiID();
+    const DBKey& mid = key && !(*key=="") ? *key : surface_.dbKey();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
 	{ surface_.errmsg_ = uiStrings::sCantFindSurf(); return 0; }

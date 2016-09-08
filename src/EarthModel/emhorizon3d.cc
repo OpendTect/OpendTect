@@ -420,7 +420,7 @@ Interval<float> Horizon3D::getZRange() const
 {
     if ( isFullyLoaded() )
     {
-	IOObjInfo ioobjinfo( multiID() );
+	IOObjInfo ioobjinfo( dbKey() );
 	return ioobjinfo.getZRange();
     }
     else
@@ -707,7 +707,7 @@ bool Horizon3D::saveParentArray()
     const od_int64* data = parents_->getData();
     if ( totalsz<1 || !data ) return false;
 
-    IOObjInfo ioobjinfo( multiID() );
+    IOObjInfo ioobjinfo( dbKey() );
     if ( !ioobjinfo.ioObj() ) return false;
 
     od_ostream strm( getParentChildFileName(*ioobjinfo.ioObj()) );
@@ -731,7 +731,7 @@ bool Horizon3D::saveParentArray()
 
 bool Horizon3D::readParentArray()
 {
-    IOObjInfo ioobjinfo( multiID() );
+    IOObjInfo ioobjinfo( dbKey() );
     if ( !ioobjinfo.ioObj() ) return false;
 
     od_istream strm( getParentChildFileName(*ioobjinfo.ioObj()) );

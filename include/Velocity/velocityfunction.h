@@ -93,7 +93,7 @@ public:
     ConstRefMan<Function>	getFunction(const BinID&);
     virtual Function*		createFunction(const BinID&)		= 0;
 
-    const DBKey&		multiID() const		{ return mid_; }
+    const DBKey&		dbKey() const		{ return mid_; }
 
     virtual NotifierAccess*	changeNotifier()	{ return 0; }
     virtual BinID		changeBinID() const	{ return BinID(-1,-1); }

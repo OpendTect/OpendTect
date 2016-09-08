@@ -229,7 +229,7 @@ void SurfaceAuxData::resetChangedFlag()
 
 Executor* SurfaceAuxData::auxDataLoader( int selidx )
 {
-    PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( horizon_.dbKey() );
     if ( !ioobj )
     {
 	horizon_.setErrMsg( uiStrings::sCantFindSurf() );
@@ -274,7 +274,7 @@ BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
 
 Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 {
-    PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( horizon_.dbKey() );
     if ( !ioobj )
     {
 	horizon_.setErrMsg( uiStrings::sCantFindSurf() );
@@ -346,14 +346,14 @@ bool SurfaceAuxData::removeFile( const IOObj& ioobj, const char* attrnm )
 
 BufferString SurfaceAuxData::getFileName( const char* attrnm ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( horizon_.dbKey() );
     return ioobj ? SurfaceAuxData::getFileName( *ioobj, attrnm ) : "";
 }
 
 
 bool SurfaceAuxData::removeFile( const char* attrnm ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( horizon_.dbKey() );
     return ioobj ? SurfaceAuxData::removeFile( *ioobj, attrnm ) : false;
 }
 

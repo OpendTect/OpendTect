@@ -239,7 +239,7 @@ const IOObjContext& PolygonBody::getIOObjContext() const
 
 
 DBKey PolygonBody::storageID() const
-{ return EMObject::multiID(); }
+{ return EMObject::dbKey(); }
 
 
 BufferString PolygonBody::storageName() const
@@ -285,7 +285,7 @@ Executor* PolygonBody::saver( IOObj* inpioobj )
 
 Executor* PolygonBody::loader()
 {
-    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( dbKey() );
     if ( !ioobj ) { errmsg_ = uiStrings::sCantFindSurf(); return 0; }
 
     EM::dgbSurfaceReader* rd = new EM::dgbSurfaceReader( *ioobj, typeStr() );
@@ -313,7 +313,7 @@ PolygonBodyGeometry::~PolygonBodyGeometry()
 Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
 				      const DBKey* key )
 {
-    const DBKey& mid = key && !(*key=="") ? *key : surface_.multiID();
+    const DBKey& mid = key && !(*key=="") ? *key : surface_.dbKey();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) { surface_.setErrMsg(uiStrings::sCantFindSurf() ); return 0; }
 

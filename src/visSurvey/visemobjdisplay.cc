@@ -292,7 +292,7 @@ DBKey EMObjectDisplay::getDBKey() const
 {
     if ( !emobject_ ) return parmid_;
 
-    return emobject_->multiID();
+    return emobject_->dbKey();
 }
 
 

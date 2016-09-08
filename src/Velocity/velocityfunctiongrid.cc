@@ -515,7 +515,7 @@ void GriddedSource::setSource( ObjectSet<FunctionSource>& nvfs )
 		    mCB( this, GriddedSource, sourceChangeCB ));
     }
 
-    if ( datasources_.size() ) mid_ = datasources_[0]->multiID();
+    if ( datasources_.size() ) mid_ = datasources_[0]->dbKey();
 
     gridderinited_ = false;
     initGridder();
@@ -542,7 +542,7 @@ void GriddedSource::getSources( DBKeySet& mids ) const
 {
     for ( int idx=0; idx<datasources_.size(); idx++ )
     {
-	const DBKey& mid = datasources_[idx]->multiID();
+	const DBKey& mid = datasources_[idx]->dbKey();
 	if ( mid.isEmpty() )
 	    continue;
 

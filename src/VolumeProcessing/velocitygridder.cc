@@ -528,7 +528,7 @@ void VelocityGridder::fillPar( IOPar& par ) const
     {
 	IOPar sourcepar;
 	sourcepar.set( sKeyType(), sources_[idx]->factoryKeyword() );
-	sourcepar.set( sKeyID(), sources_[idx]->multiID() );
+	sourcepar.set( sKeyID(), sources_[idx]->dbKey() );
 	sources_[idx]->fillPar(sourcepar);
 
 	const BufferString idxstr( 0, idx, 0 );

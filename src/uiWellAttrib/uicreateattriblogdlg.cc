@@ -170,7 +170,7 @@ bool uiCreateAttribLogDlg::acceptOK()
 	if ( !attriblog.doWork( *wd, errmsg ) )
 	    mErrRet( errmsg )
 
-	PtrMan<IOObj> ioobj = IOM().get( wd->multiID() );
+	PtrMan<IOObj> ioobj = IOM().get( wd->dbKey() );
 	if ( !ioobj ) mErrRet(tr("Cannot find well in object manager"))
 
 	Well::Writer wtr( *ioobj, *wd );

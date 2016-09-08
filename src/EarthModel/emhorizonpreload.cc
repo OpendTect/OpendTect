@@ -102,7 +102,7 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tr )
 
     for ( int idx=0; idx<emobjects.size(); idx++ )
     {
-	loadedmids_ += emobjects[idx]->multiID();
+	loadedmids_ += emobjects[idx]->dbKey();
 	loadednms_.add( emobjects[idx]->name() );
 	emobjects[idx]->ref();
     }

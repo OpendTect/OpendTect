@@ -169,7 +169,7 @@ ObjectID EMManager::getObjectID( const DBKey& mid ) const
     ObjectID res = -1;
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	if ( objects_[idx]->multiID()==mid )
+	if ( objects_[idx]->dbKey()==mid )
 	{
 	    if ( objects_[idx]->isFullyLoaded() )
 		return objects_[idx]->id();
@@ -186,7 +186,7 @@ ObjectID EMManager::getObjectID( const DBKey& mid ) const
 DBKey EMManager::getDBKey( const ObjectID& oid ) const
 {
     const EMObject* emobj = getObject(oid);
-    return emobj ? emobj->multiID() : DBKey(-1);
+    return emobj ? emobj->dbKey() : DBKey(-1);
 }
 
 

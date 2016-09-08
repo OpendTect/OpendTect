@@ -468,7 +468,7 @@ void Picks::fillPar( IOPar& par ) const
 	BufferString key = sKeyHorizonPrefix();
 	key += idx;
 
-	par.set( key.buf(), horizons_[idx]->multiID() );
+	par.set( key.buf(), horizons_[idx]->dbKey() );
     }
 
     par.setYN(sKeyIsTime(),zit_);

@@ -1020,7 +1020,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     if ( !exec )
 	mRetErrDelHoridx( uiStrings::sSaveBodyFail() )
 
-    DBKey key = emcs->multiID();
+    DBKey key = emcs->dbKey();
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj->pars().find( sKey::Type() ) )
     {

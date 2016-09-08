@@ -63,7 +63,7 @@ bool HorInterFiller::setTopHorizon( const DBKey* tmid )
 
 
 const DBKey* HorInterFiller::getTopHorizonID() const
-{ return tophorizon_ ? &tophorizon_->multiID() : 0; }
+{ return tophorizon_ ? &tophorizon_->dbKey() : 0; }
 
 
 float HorInterFiller::getTopValue() const
@@ -71,7 +71,7 @@ float HorInterFiller::getTopValue() const
 
 
 const DBKey* HorInterFiller::getBottomHorizonID() const
-{ return bottomhorizon_ ? &bottomhorizon_->multiID() : 0; }
+{ return bottomhorizon_ ? &bottomhorizon_->dbKey() : 0; }
 
 
 float HorInterFiller::getBottomValue() const
@@ -260,8 +260,8 @@ void HorInterFiller::fillPar( IOPar& pars ) const
 {
     Step::fillPar( pars );
 
-    if ( tophorizon_ ) pars.set( sKeyTopHorID(), tophorizon_->multiID() );
-    if ( bottomhorizon_ ) pars.set( sKeyBotHorID(), bottomhorizon_->multiID() );
+    if ( tophorizon_ ) pars.set( sKeyTopHorID(), tophorizon_->dbKey() );
+    if ( bottomhorizon_ ) pars.set( sKeyBotHorID(), bottomhorizon_->dbKey() );
 
     pars.set( sKeyTopValue(), topvalue_ );
     pars.set( sKeyBotValue(), bottomvalue_ );

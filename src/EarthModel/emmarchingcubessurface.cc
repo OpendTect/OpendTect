@@ -288,7 +288,7 @@ void MarchingCubesSurface::unRefBody()
 
 
 DBKey MarchingCubesSurface::storageID() const
-{ return EMObject::multiID(); }
+{ return EMObject::dbKey(); }
 
 
 BufferString MarchingCubesSurface::storageName() const
@@ -297,7 +297,7 @@ BufferString MarchingCubesSurface::storageName() const
 
 Executor* MarchingCubesSurface::loader()
 {
-    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( dbKey() );
     Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
     return conn ? new MarchingCubesSurfaceReader( *this, conn ) : 0;
 }
@@ -315,7 +315,7 @@ Executor* MarchingCubesSurface::saver( IOObj* inpioobj )
 	ioobj = inpioobj;
     else
     {
-	myioobj = IOM().get( multiID() );
+	myioobj = IOM().get( dbKey() );
 	ioobj = myioobj;
     }
 

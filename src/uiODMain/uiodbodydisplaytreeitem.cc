@@ -147,7 +147,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	     stype != "MarchingCubesSurface" )
 	    continue;
 
-	const DBKey& mid = objs[idx]->multiID();
+	const DBKey& mid = objs[idx]->dbKey();
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	PtrMan<Conn> conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
 	if ( !conn )

@@ -383,7 +383,7 @@ bool FaultDisplay::removeSelections( TaskRunner* taskr )
 
 DBKey FaultDisplay::getDBKey() const
 {
-    return fault_ ? fault_->multiID() : DBKey();
+    return fault_ ? fault_->dbKey() : DBKey();
 }
 
 

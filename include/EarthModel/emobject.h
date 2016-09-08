@@ -120,7 +120,8 @@ public:
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const			= 0;
     virtual uiString		getUserTypeStr() const			= 0;
-    const DBKey&		multiID() const		{ return storageid_; }
+    const DBKey&		dbKey() const		{ return storageid_; }
+    mDeprecated const DBKey&	multiID() const		{ return storageid_; }
     void			setDBKey(const DBKey&);
 
     virtual bool		isOK() const		{ return true; }

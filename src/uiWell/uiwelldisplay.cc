@@ -27,7 +27,7 @@ ________________________________________________________________________
 uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     : uiGroup(p,"Well display")
     , setup_(s)
-    , mandata_(w.data().multiID())
+    , mandata_(w.data().dbKey())
 {
     init( s );
 }

@@ -533,7 +533,7 @@ void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
     if ( !emobj )
 	return;
 
-    readSetup( emobj->multiID() );
+    readSetup( emobj->dbKey() );
 
     MPE::SectionTracker* sectiontracker =
 			 tracker ? tracker->getSectionTracker( sid, true ) : 0;
@@ -682,7 +682,7 @@ void uiMPEPartServer::trackerAddRemoveCB( CallBacker* )
     const MPE::SectionTracker* sectracker =
 			tracker->getSectionTracker( sid, false );
     if ( sectracker && !sectracker->hasInitializedSetup() )
-	readSetup( emobj->multiID() );
+	readSetup( emobj->dbKey() );
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker();
     if ( seedpicker )
