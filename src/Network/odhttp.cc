@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "i_odhttpconn.h"
 
 #include <QEventLoop>
+#include <QSslError>
 #include <qcoreapplication.h>
 #endif
 
@@ -74,7 +75,7 @@ bool HttpRequestProcess::isRunning() const
 }
 
 
-bool HttpRequestProcess::isFinished() const 
+bool HttpRequestProcess::isFinished() const
 {
     Threads::MutexLocker locker( statuslock_ );
     return status_==Finished;
@@ -263,7 +264,7 @@ bool HttpRequestProcess::waitForDownloadData( int timeout )
     }
 
     const bool res = receiveddata_ && receiveddata_->size();
-    
+
     receiveddatalock_.unLock();
 
     return res;
@@ -415,9 +416,9 @@ HttpRequestManager::request( const HttpRequest* req )
     activeeventslock_.unLock();
 
     CallBack::addToThread(thread_->threadID(),
-	    		mCB(this, HttpRequestManager, doRequestCB), res.ptr() );
-   
-    const bool success = res->waitForRequestStart(); 
+			mCB(this, HttpRequestManager, doRequestCB), res.ptr() );
+
+    const bool success = res->waitForRequestStart();
 
     activeeventslock_.lock();
     activeevents_ -= res.ptr();
