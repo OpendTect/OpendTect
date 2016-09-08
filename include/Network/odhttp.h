@@ -15,10 +15,11 @@ ________________________________________________________________________
 #include "networkmod.h"
 
 #include "callback.h"
-#include "ptrman.h"
-#include "uistring.h"
 #include "iopar.h"
 #include "limits.h"
+#include "manobjectset.h"
+#include "ptrman.h"
+#include "uistring.h"
 
 class QEventLoop;
 class QNetworkReply;
@@ -27,23 +28,24 @@ class QNetworkRequest;
 class QNetworkAccessManager;
 class DataBuffer;
 class QByteArray;
+class QSslError;
+template <class T> class QList;
 
 
 namespace Network
 {
 class HttpRequestProcess;
 class HttpRequestManager;
-class HttpRequestManagerObj;
-class RequestEvent;
 
 /*!Description of an HTTP request, including headers and post-data */
 
-mExpClass(Network) HttpRequest
+mExpClass(Network) HttpRequest : public RefCount::Referenced
 {
 public:
-				HttpRequest(const char* url);
+    enum AccessType		{ Get, Post, Head };
+				HttpRequest(const char* url,
+					    AccessType);
 				HttpRequest(const HttpRequest&);
-				~HttpRequest();
 
     HttpRequest&		postData(const DataBuffer&);
     HttpRequest&		contentType(const BufferString&);
@@ -55,23 +57,25 @@ public:
     void			setContentType(const BufferString&);
     void			setRawHeader(const char* key,
 					     const char* val);
+protected:
+				~HttpRequest();
 private:
 
     friend			class HttpRequestManager;
-    friend			class HttpRequestManagerObj;
 
     void			fillRequest(QNetworkRequest&) const;
     QByteArray*			postdata_;
     BufferString		url_;
     BufferString		contenttype_;
     IOPar			rawheaders_;
+    const AccessType		accesstype_;
 };
 
 
 /*! Main entrypoint of http(s) connections. A new request is
- created by calling either head(), get() or post().
+ created by calling either head(), get() or request().
 
- The call will return a RequestProcess, which can be queried
+ The call will return a HttpRequestProcess, which can be queried
  about the results.
  */
 
@@ -83,54 +87,33 @@ public:
 				HttpRequestManager();
 				~HttpRequestManager();
 
-    void			shutDownThreading();
-
-    RefMan<HttpRequestProcess>	head(const HttpRequest&);
-    RefMan<HttpRequestProcess>	get(const HttpRequest&);
-    RefMan<HttpRequestProcess>	post(const HttpRequest&);
+    RefMan<HttpRequestProcess>	request(const HttpRequest*);
+    RefMan<HttpRequestProcess>	get(const char* url);
+    RefMan<HttpRequestProcess>	head(const char* url);
 
 private:
-    enum AccessType		{ Get, Post, Head };
-    RefMan<HttpRequestProcess>	request(const HttpRequest&,AccessType);
+    static void			CloseInstance();
+    void			shutDownThreading();
 
     void			threadFuncCB(CallBacker*);
 
     Threads::Thread*		thread_;
-    QEventLoop*			eventloop_;
     QNetworkAccessManager*	qnam_;
-    Threads::ConditionVar	lock_;
-
-    struct RequestData : public CallBacker
-    {
-	RequestData(HttpRequestManager* hrm,
-		    const HttpRequest& req, AccessType at )
-	    : req_(req)
-	    , at_( at )
-	    , reply_( 0 )
-	    , isrun_( false )
-	{}
-
-	void wait()
-	{
-	    isrunlock_.lock();
-	    while (!isrun_)
-		isrunlock_.wait();
-	    isrunlock_.unLock();
-	}
-
-	const AccessType		at_;
-	const HttpRequest&		req_;
-	RefMan<HttpRequestProcess>	reply_;
-	bool				isrun_;
-	Threads::ConditionVar		isrunlock_;
-    };
+    QEventLoop*			eventloop_;
+    Threads::ConditionVar*	eventlooplock_;
+    				//Temporary, only used in constructor
 
     void			doRequestCB(CallBacker*);
-				//Only called in thread_. CB must be RequestData
+				//Only called in thread_.
+				//CB must be HttpRequestProcess
+				
+    RefObjectSet<HttpRequestProcess>	activeevents_;
+    Threads::SpinLock			activeeventslock_;
 };
 
 
-/*The upload or download process. Can be queried for progress, data and errors*/
+/*!The upload or download process. Can be queried for progress, data and
+  errors*/
 mExpClass(Network) HttpRequestProcess : public RefCount::Referenced,
 					public CallBacker
 {
@@ -139,22 +122,22 @@ public:
     Notifier<HttpRequestProcess> finished;
     Notifier<HttpRequestProcess> error;
 
+    bool			isRunning() const;
+    bool			isFinished() const;
+    bool			isError() const;
 
-    bool			isRunning() const { return status_==Running; }
-    bool			isFinished() const { return status_==Finished; }
-    bool			isError() const { return status_==Error; }
-
-    void			waitForFinish();
+    void			waitForFinish(int timeout_in_ms=-1);
 				//<Waits for error or Finish
 
 				//Download access
     Notifier<HttpRequestProcess> downloadDataAvailable;
-    bool			waitForDownloadData(int timeout_ms);
+    bool			waitForDownloadData(int timeout_ms=-1);
 				//Returns false if timeout was hit
     od_int64			downloadBytesAvailable() const;
     od_int64			read(char*,od_int64 bufsize);
 				//!<Returns nr bytes read
     BufferString		readAll();
+
     od_int64			getContentLengthHeader() const;
 
 				//Upload access
@@ -162,7 +145,7 @@ public:
     od_int64			getBytesUploaded() const;
     od_int64			getTotalBytesToUpload() const;
 
-    uiString			errMsg() const { return errmsg_; }
+    uiString			errMsg() const;
 
 private:
 
@@ -172,35 +155,48 @@ private:
     void			reportDownloadProgress(od_int64 nrdone,
 	    					       od_int64 totalnr);
     void			reportError();
+    void			reportSSLErrors(const QList<QSslError>&);
     void			reportFinished();
     void			reportUploadProgress(od_int64 bytes,
 	    					     od_int64 totalbytes);
+    void			reportMetaDataChanged();
     void			reportReadyRead();
 
 				//Interface from NetworkAccessManager
     friend			class HttpRequestManager;
-    friend			class HttpRequestManagerObj;
-    void			setQNetowrkReply(QNetworkReply*);
-				//!<Becomes mine
+    void			setQNetworkReply(QNetworkReply*);
+				/*!<Becomes mine. Also signals start of
+				    the request.  */
+				
+    bool			waitForRequestStart();
+    				/*!<Wait for the request to start in the
+				    networking thread.
+				    \returns if request was created */
 
-				HttpRequestProcess();
+				HttpRequestProcess(const HttpRequest*);
 				~HttpRequestProcess();
 
-    Threads::ConditionVar	statuslock_;
-    enum Status			{ Running, Error, Finished } status_;
+    enum Status			{ NotStarted, //Before setQNetworkReply
+				  Running, Error, Finished };
 
-    Threads::Atomic<od_int64>	bytesuploaded_;
-    Threads::Atomic<od_int64>	totalbytestoupload_;
-    Threads::Atomic<od_int64>	bytesdownloaded_;
-    Threads::Atomic<od_int64>	totalbytestodownload_;
+    Status					status_;
+    mutable Threads::ConditionVar		statuslock_;
 
-    QNetworkReplyConn*		qnetworkreplyconn_;
-    QNetworkReply*		qnetworkreply_;
+    ConstRefMan<HttpRequest>			request_;
 
-    QByteArray*			receiveddata_;
-    Threads::Lock		receiveddatalock_;
+    Threads::Atomic<od_int64>			bytesuploaded_;
+    Threads::Atomic<od_int64>			totalbytestoupload_;
+    Threads::Atomic<od_int64>			bytesdownloaded_;
+    Threads::Atomic<od_int64>			totalbytestodownload_;
+    Threads::Atomic<od_int64>			contentlengthheader_;
 
-    uiString			errmsg_;
+    QNetworkReplyConn*				qnetworkreplyconn_;
+    QNetworkReply*				qnetworkreply_;
+
+    QByteArray*					receiveddata_;
+    Threads::ConditionVar			receiveddatalock_;
+
+    uiString					errmsg_;
 };
 
 }; //namespace Network

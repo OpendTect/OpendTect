@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "file.h"
 #include <streambuf>
 #ifndef OD_NO_QT
-# include <QEventLoop>
 # include <QNetworkAccessManager>
 # include <QNetworkReply>
 # include <QNetworkRequest>
@@ -49,8 +48,8 @@ private:
     od_int64		getSz(const char*);
     bool		fillBlock(BlockIdxType);
     bool		fillSingle(FileChunkType);
-    ChunkSizeType	getReplies(FileChunkSetType&,ReplySet&,QEventLoop&);
-    bool		waitForFinish(ReplySet&,QEventLoop&);
+    ChunkSizeType	getReplies(FileChunkSetType&,ReplySet&);
+    bool		waitForFinish(ReplySet&);
     void		getDataFromReplies(const FileChunkSetType&,ReplySet&,
 					   ChunkSizeType);
 
@@ -131,11 +130,10 @@ bool Network::FileDownloadMgr::fill( const FileChunkSetType& reqchunks )
 #ifndef OD_NO_QT
 
     FileChunkSetType chunks = reqchunks; ReplySet replies;
-    QEventLoop qevloop;
-    const ChunkSizeType maxsz = getReplies( chunks, replies, qevloop );
+    const ChunkSizeType maxsz = getReplies( chunks, replies );
     if ( maxsz < 1 )
 	return true;
-    else if ( !waitForFinish(replies,qevloop) )
+    else if ( !waitForFinish(replies) )
 	return false;
 
     getDataFromReplies( chunks, replies, maxsz );
@@ -147,7 +145,7 @@ bool Network::FileDownloadMgr::fill( const FileChunkSetType& reqchunks )
 
 
 Network::FileDownloadMgr::ChunkSizeType Network::FileDownloadMgr::getReplies(
-	FileChunkSetType& chunks, ReplySet& replies, QEventLoop& qevloop )
+	FileChunkSetType& chunks, ReplySet& replies )
 {
     ChunkSizeType maxsz = 0;
 
@@ -161,12 +159,13 @@ Network::FileDownloadMgr::ChunkSizeType Network::FileDownloadMgr::getReplies(
 	else if ( intvsz > maxsz )
 	    maxsz = intvsz;
 
-	Network::HttpRequest req( url_ );
+	RefMan<Network::HttpRequest> req =
+	    new Network::HttpRequest( url_, Network::HttpRequest::Get );
 	BufferString hdrstr( "bytes=", chunk.start, "-" );
 	hdrstr.add( chunk.stop );
-	req.setRawHeader( "Range", hdrstr.str() );
+	req->setRawHeader( "Range", hdrstr.str() );
 
-	replies += Network::HttpRequestManager::instance().get(req);
+	replies += Network::HttpRequestManager::instance().request(req);
     }
 #endif // !OD_NO_QT
 
@@ -174,8 +173,7 @@ Network::FileDownloadMgr::ChunkSizeType Network::FileDownloadMgr::getReplies(
 }
 
 
-bool Network::FileDownloadMgr::waitForFinish( ReplySet& replies,
-					      QEventLoop& qevloop )
+bool Network::FileDownloadMgr::waitForFinish( ReplySet& replies )
 {
     bool haveerr = false;
 
@@ -183,7 +181,6 @@ bool Network::FileDownloadMgr::waitForFinish( ReplySet& replies,
     const int nrreplies = replies.size();
     while ( true )
     {
-	qevloop.exec();
 	bool allfinished = true;
 	for ( int ireply=0; ireply<nrreplies; ireply++ )
 	{

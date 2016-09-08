@@ -23,7 +23,6 @@ ________________________________________________________________________
 
 #ifndef OD_NO_QT
 # include <QByteArray>
-# include <QEventLoop>
 # include <QNetworkProxy>
 #endif
 
@@ -187,8 +186,8 @@ int FileDownloader::nextStep()
 	if ( !urls_.validIdx( nrfilesdownloaded_ ) )
 	    return Finished();
 
-	odnr_ = Network::HttpRequestManager::instance().get(
-		    Network::HttpRequest(urls_.get(nrfilesdownloaded_).buf()) );
+	const char* url = urls_.get(nrfilesdownloaded_).buf();
+	odnr_ = Network::HttpRequestManager::instance().get( url );
     }
 
     if ( odnr_->isError() )
@@ -218,8 +217,8 @@ od_int64 FileDownloader::getDownloadSize()
     od_int64 totalbytes = 0;
     for ( int idx=0; idx<urls_.size(); idx++ )
     {
-	odnr_ = Network::HttpRequestManager::instance().head(
-			    Network::HttpRequest( urls_.get(idx).buf()) );
+	const char* url = urls_.get(idx).buf();
+	odnr_ = Network::HttpRequestManager::instance().head( url );
 	odnr_->waitForFinish();
 
 	if ( odnr_->isError() )
@@ -453,11 +452,12 @@ int DataUploader::nextStep()
 #ifndef OD_NO_QT
     if ( init_ )
     {
-	Network::HttpRequest req = Network::HttpRequest( url_ )
-				.contentType( header_ )
-				.postData( data_ );
+	RefMan<Network::HttpRequest> req = new Network::HttpRequest( url_,
+	       				       Network::HttpRequest::Post );
+	req->contentType( header_ );
+	req->postData( data_ );
 
-	odnr_ = Network::HttpRequestManager::instance().post(req);
+	odnr_ = Network::HttpRequestManager::instance().request(req);
 	init_ = false;
     }
 

@@ -41,6 +41,8 @@ QNetworkReplyConn( QNetworkReply* sndr, Network::HttpRequestProcess* rec )
 {
     connect( sender_, SIGNAL(downloadProgress(qint64,qint64)),
 	     this, SLOT(downloadProgress(qint64,qint64)) );
+    connect( sender_, SIGNAL(sslErrors(const QList<QSslError> &)),
+	     this, SLOT(sslErrors(const QList<QSslError> &)) );
     connect( sender_, SIGNAL(error(QNetworkReply::NetworkError)),
 	     this, SLOT(error(QNetworkReply::NetworkError)) );
     connect( sender_, SIGNAL(finished()),
@@ -77,6 +79,12 @@ void error(QNetworkReply::NetworkError)
     if ( receiver ) receiver->reportError();
 }
 
+void sslErrors(const QList<QSslError>& errors)
+{
+    RefMan<Network::HttpRequestProcess> receiver = receiver_;
+    if ( receiver ) receiver->reportSSLErrors( errors );
+}
+
 
 void finished()
 {
@@ -85,7 +93,10 @@ void finished()
 }
 
 void metaDataChanged()
-{}
+{
+    RefMan<Network::HttpRequestProcess> receiver = receiver_;
+    if ( receiver ) receiver->reportMetaDataChanged();
+}
 
 void uploadProgress(qint64 bytes,qint64 totalbytes)
 {
