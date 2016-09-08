@@ -54,6 +54,7 @@ static HiddenParam< RandomTrackDisplay, TrcKeyPath* > trckeypaths( 0 );
 static HiddenParam<RandomTrackDisplay,int> pickstartnodeidx_( 0 );
 static HiddenParam<RandomTrackDisplay,char> ispicking_( 0 );
 static HiddenParam<RandomTrackDisplay,int> oldstyledoubleclicked_( 0 );
+static HiddenParam<RandomTrackDisplay,TypeSet<BinID>* > trcspathbids_( 0 );
 
 RandomTrackDisplay::RandomTrackDisplay()
     : MultiTextureSurveyObject()
@@ -81,6 +82,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     oldstyledoubleclicked_.setParam( this, 0 );
 
     trckeypaths.setParam( this, new TrcKeyPath() );
+    trcspathbids_.setParam( this, new TypeSet<BinID> );
+
     TypeSet<int> randomlines;
     visBase::DM().getIDs( typeid(*this), randomlines );
     int highestnamenr = 0;
@@ -213,6 +216,9 @@ RandomTrackDisplay::~RandomTrackDisplay()
     pickstartnodeidx_.removeParam( this );
     ispicking_.removeParam( this );
     oldstyledoubleclicked_.removeParam( this );
+
+    delete trcspathbids_.getParam( this );
+    trcspathbids_.removeParam( this );
 }
 
 
@@ -873,8 +879,9 @@ void RandomTrackDisplay::updatePanelStripPath()
     if ( nodes_.size()<2 || getUpdateStageNr() )
 	return;
 
-    TypeSet<BinID> trcbids;
-    getDataTraceBids( trcbids );	// Will update trcspath_
+    TypeSet<BinID>* trcpath = trcspathbids_.getParam(this);
+    trcpath->setEmpty();
+    getDataTraceBids( *trcpath );// Will update trcspath_
 
     TypeSet<Coord> pathcrds;
     TypeSet<float> mapping;
@@ -1336,9 +1343,10 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
     utm2display->transformBack( pos, xytpos );
     BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
 
-    TypeSet<BinID> bids;
-    getDataTraceBids( bids );
-    if ( !bids.isPresent(binid) )
+    TypeSet<BinID>* trcpath = trcspathbids_.getParam(this);
+    if ( trcpath->isEmpty() )
+	getDataTraceBids( *trcpath );
+    if ( !trcpath->isPresent(binid) )
 	return mUdf(float);
 
     float zdiff = 0;
