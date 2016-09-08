@@ -76,6 +76,7 @@ public:
     static const char*		windowStr()		{ return "window"; }
     static const char*          paramvalStr()           { return "paramval"; }
     static const char*		dumptofileStr()		{ return "dumptofile"; }
+    static const char*		smoothspectrumStr()	{ return "smoothspect";}
 
     void                        prepPriorToBoundsCalc();
 

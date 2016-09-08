@@ -418,6 +418,14 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
     }
     if ( attribname == "Math" && odversion<500 )
 	handleOldMathExpression( descpar, defstring, odversion );
+    if ( attribname == "Frequency" )
+    {
+	BufferStringSet keys;
+	BufferStringSet vals;
+	Attrib::Desc::getKeysValsPublic( defstring.buf(), keys, vals );
+	if ( !keys.isPresent( "smoothspect" ) )
+	    defstring.add( " smoothspect=No" );
+    }
 }
 
 

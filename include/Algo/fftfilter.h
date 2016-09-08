@@ -56,6 +56,9 @@ public:
     bool		apply(Array1DImpl<float>&);
     bool		apply(Array1DImpl<float_complex>&,bool dopreproc=true);
 
+    Array1DImpl<float_complex>* getFreqDomainArr();
+    void		requestStayInFreqDomain();
+
     Type		getFilterType() const;
     bool		isLowPass() const;
     bool		isHighPass() const;

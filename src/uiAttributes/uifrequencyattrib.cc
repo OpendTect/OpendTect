@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwindowfunctionsel.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+
 using namespace Attrib;
 
 static const char* outpstrs[] =
@@ -37,6 +39,7 @@ static const char* outpstrs[] =
 	0
 };
 
+HiddenParam<uiFrequencyAttrib,uiGenInput*> smoothspectrumfld_(0);
 
 mInitAttribUI(uiFrequencyAttrib,Frequency,"Frequency",sKeyFreqGrp())
 
@@ -60,10 +63,15 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
     winfld = new uiWindowFunctionSel( this, su );
     winfld->attach( alignedBelow, normfld ); 
 
-    outpfld = new uiGenInput( this, uiStrings::sOutput(), 
+    uiGenInput* smoothspectrumfld = new uiGenInput( this, tr("Smooth Spectrum"),
+						    BoolInpSpec(true) );
+    smoothspectrumfld->attach( alignedBelow, winfld );
+    smoothspectrumfld_.setParam(this, smoothspectrumfld );
+
+    outpfld = new uiGenInput( this, uiStrings::sOutput(),
                               StringListInpSpec(outpstrs) );
     outpfld->setElemSzPol( uiObject::WideVar );
-    outpfld->attach( alignedBelow, winfld );
+    outpfld->attach( alignedBelow, smoothspectrumfld_.getParam(this) );
 
     setHAlignObj( inpfld );
 }
@@ -82,6 +90,8 @@ bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetFloat( Frequency::paramvalStr(), variable,
 	   const float resvar = float( mNINT32((1-variable)*1000) )/1000.0f;
 	   winfld->setWindowParamValue(resvar) );
+    mIfGetBool( Frequency::smoothspectrumStr(), sspec,
+		smoothspectrumfld_.getParam(this)->setValue(sspec) );
 
     return true;
 }
@@ -108,6 +118,8 @@ bool uiFrequencyAttrib::getParameters( Attrib::Desc& desc )
 
     mSetFloatInterval( Frequency::gateStr(), gatefld->getFInterval() );
     mSetBool( Frequency::normalizeStr(), normfld->getBoolValue() );
+    mSetBool( Frequency::smoothspectrumStr(),
+	      smoothspectrumfld_.getParam(this)->getBoolValue() );
     mSetString( Frequency::windowStr(), winfld->windowName() );
     const float resvar =
 		float( mNINT32( (1-winfld->windowParamValue())*1000) )/1000.0f;

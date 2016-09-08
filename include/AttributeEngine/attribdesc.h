@@ -203,6 +203,16 @@ public:
     //of the same input cube (different offsets for instance)
     Desc*			cloneDescAndPropagateInput(const DescID&,
 							   BufferString);
+    //6.0 only, next versions will see the protected member
+    //become public instead
+    static void			getKeysValsPublic(const char* defstr,
+				    BufferStringSet& keys,
+				    BufferStringSet& vals,
+				    const char* onlyneedkey=0)
+				{ getKeysVals(defstr,keys, vals, onlyneedkey); }
+				/*!<Fills \akeys and \avals with pairs of
+				    parameters from the defstr. */
+
 
     static const char*		sKeyInlDipComp();
     static const char*		sKeyCrlDipComp();
