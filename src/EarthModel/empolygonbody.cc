@@ -273,7 +273,10 @@ void PolygonBody::fillBodyPar( IOPar& par ) const
 
 
 Executor* PolygonBody::saver()
-{ return saver(0); }
+{   
+    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    return saver( ioobj ); 
+}
 
 
 Executor* PolygonBody::saver( IOObj* inpioobj )
