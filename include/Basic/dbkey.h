@@ -81,11 +81,14 @@ public:
 mExpClass(Basic) DBKeySet : public TypeSet<DBKey>
 {
 public:
-			DBKeySet() : TypeSet<DBKey>()		    {}
+			DBKeySet() : TypeSet<DBKey>()		{}
 			DBKeySet( const DBKeySet& oth )
-			    : TypeSet<DBKey>(oth)		    {}
+			    : TypeSet<DBKey>(oth)		{}
 			DBKeySet( size_type sz, DBKey ky )
-			    : TypeSet<DBKey>(sz,ky)		    {}
+			    : TypeSet<DBKey>(sz,ky)		{}
+    inline DBKeySet&	operator =( const DBKeySet& oth )
+			{ copy( oth ); return *this; }
+
 };
 
 
