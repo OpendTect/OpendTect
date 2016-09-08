@@ -165,7 +165,7 @@ void uiSeisWvltMan::extractPush( CallBacker* )
 
     if ( !extrdlg_ )
     {
-	extrdlg_ = new uiWaveletExtraction( parent(), is2d );
+	extrdlg_ = new uiWaveletExtraction( this, is2d );
 	mAttachCB( extrdlg_->extractionDone, uiSeisWvltMan::wvltExtractedCB );
 	mAttachCB( extrdlg_->windowClosed, uiSeisWvltMan::extrDlgCloseCB );
     }
