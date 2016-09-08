@@ -167,7 +167,7 @@ void uiSeisWvltMan::extractPush( CallBacker* )
 	    is2d = res == 1;
     }
 
-    wvltext_ = new uiWaveletExtraction( parent(), is2d );
+    wvltext_ = new uiWaveletExtraction( this, is2d );
     wvltext_->extractionDone.notify( mCB(this,uiSeisWvltMan,wvltCreatedCB) );
     wvltext_->show();
 }
