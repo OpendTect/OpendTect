@@ -1632,9 +1632,6 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
 
     if ( needrestore )
 	*d2t = *orgd2t_;
-
-    wd_.d2tchanged.trigger();
-    wd_.trackchanged.trigger();
 }
 
 
