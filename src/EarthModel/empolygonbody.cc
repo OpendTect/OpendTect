@@ -277,7 +277,7 @@ Executor* PolygonBody::saver()
 }
 
 
-Executor* PolygonBody::saver( const IOObj* inpioobj )
+Executor* PolygonBody::saver( IOObj* inpioobj )
 {
     EM::dgbSurfaceWriter* res =
 	new EM::dgbSurfaceWriter( inpioobj, typeStr(), *this, false );

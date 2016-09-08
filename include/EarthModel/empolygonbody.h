@@ -85,7 +85,7 @@ public:
     const char*			type() const	{ return typeStr(); }
     virtual Executor*		loader();
     virtual Executor*		saver();
-    virtual Executor*		saver(const IOObj*);
+    virtual Executor*		saver(IOObj*);
 
     ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
     bool			getBodyRange(TrcKeyZSampling&);
