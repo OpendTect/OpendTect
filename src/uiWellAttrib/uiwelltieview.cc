@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uiworld2ui.h"
 
 #include "flatposdata.h"
+#include "integerid.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seisbufadapters.h"
@@ -170,7 +171,7 @@ void uiTieView::setLogsParams()
 	data.zistime_ = params_.iszintime_;
 	logsdisp_[idx]->setData( data );
     }
-    const float zfac = mCast( float, SI().zDomain().userFactor() );
+    const float zfac =1;
     Interval<float> zrg( zrange_.start*zfac, zrange_.stop*zfac );
     setLogsRanges( zrg );
 }
@@ -180,7 +181,7 @@ void uiTieView::drawLog( const char* nm, bool first, int dispnr, bool reversed )
 {
     uiWellLogDisplay::LogData& wldld = logsdisp_[dispnr]->logData( first );
     wldld.setLog( data_.logset_.getLogByName( nm ) );
-    wldld.disp_.setColor( Color::stdDrawColor( first ? 0 : 1 ) );
+    wldld.col_ =  Color::stdDrawColor( first ? 0 : 1 );
     wldld.disp_.setFillLeft( false );
     wldld.disp_.setFillRight( false );
     wldld.xrev_ = reversed;
@@ -243,9 +244,31 @@ void uiTieView::setLogsRanges( Interval<float> rg )
 void uiTieView::zoomChg( CallBacker* )
 {
     const uiWorldRect& curwr = vwr_->curView();
-    const float userfac = SI().showZ2UserFactor();;
-    Interval<float> zrg( (float) curwr.top()*userfac,
-					    (float) curwr.bottom()*userfac );
+    const float userfac = SI().showZ2UserFactor();
+    Interval<float> zrg;
+    		
+    if ( !params_.iszintime_  && SI().depthsInFeet() )
+    {
+	float zrgstart = data_.wd_->d2TModel().getDah( 
+				mCast(float, curwr.top()), data_.wd_->track() );
+	float zrgstop = data_.wd_->d2TModel().getDah( 
+			    mCast(float, curwr.bottom()), data_.wd_->track() );
+	if ( mIsUdf(zrgstop) )
+	{
+	    const int sz = data_.wd_->d2TModel().size();
+	    Well::D2TModel::PointID pid = data_.wd_->d2TModel().pointIDFor(sz-1);
+	    zrgstop = data_.wd_->d2TModel().dah(pid);
+	}
+	zrgstart = (float) data_.wd_->track().getPos(zrgstart).z;
+	zrgstop = (float) data_.wd_->track().getPos(zrgstop).z;
+	zrg.start = zrgstart;
+	zrg.stop = zrgstop;
+    }
+    else
+    {
+	zrg.start = (float) curwr.top()*userfac;
+	zrg.stop = (float) curwr.bottom()*userfac;
+    }
     setLogsRanges( zrg );
 }
 
