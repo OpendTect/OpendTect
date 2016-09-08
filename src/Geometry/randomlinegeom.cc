@@ -30,7 +30,7 @@ RandomLine::RandomLine( const char* nm )
     , nodeChanged(this)
     , zrangeChanged(this)
     , lset_(0)
-    , mid_(DBKey::udf())
+    , mid_(DBKey::getInvalid())
     , locked_(false)
     , survid_( Survey::GM().default3DSurvID() )
 {

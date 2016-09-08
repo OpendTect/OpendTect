@@ -412,5 +412,5 @@ bool VW2DPickSet::usePar( const IOPar& iop )
 
 DBKey VW2DPickSet::pickSetID() const
 {
-    return pickset_ ? Pick::SetMGR().getID( *pickset_ ) : DBKey::udf();
+    return pickset_ ? Pick::SetMGR().getID( *pickset_ ) : DBKey::getInvalid();
 }

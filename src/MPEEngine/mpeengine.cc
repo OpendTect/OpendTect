@@ -290,7 +290,7 @@ bool Engine::prepareForTrackInVolume( uiString& errmsg )
 	 seedpicker->getTrackMode()!=EMSeedPicker::TrackFromSeeds )
 	return false;
 
-    DBKey key = DBKey::udf();
+    DBKey key = DBKey::getInvalid();
     Attrib::SelSpec as( *seedpicker->getSelSpec() );
     if ( validator_ && !validator_->checkStoredData(as,key) )
 	return false;

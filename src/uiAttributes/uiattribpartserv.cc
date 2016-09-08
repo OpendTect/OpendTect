@@ -1544,7 +1544,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     int outputnr = -1;
     bool isnla = false;
     bool isstored = false;
-    DBKey dbkey = DBKey::udf();
+    DBKey dbkey = DBKey::getInvalid();
 
     if ( stored3dmnuitem_.findItem(mnuid) )
     {

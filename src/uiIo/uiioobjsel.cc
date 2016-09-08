@@ -551,7 +551,7 @@ void uiIOObjSel::doCommit( bool noerr ) const
 DBKey uiIOObjSel::key( bool noerr ) const
 {
     doCommit(noerr);
-    return inctio_.ioobj_ ? inctio_.ioobj_->key() : DBKey::udf();
+    return inctio_.ioobj_ ? inctio_.ioobj_->key() : DBKey::getInvalid();
 }
 
 

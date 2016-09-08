@@ -108,7 +108,7 @@ void uiFreqFilterAttrib::selectionDoneCB( CallBacker* cb )
     const Attrib::DescSet& attrset = inpfld_->getAttrSet();
     const Attrib::Desc* inpdesc = attrset.getDesc( inpfld_->attribID() );
     const DBKey dbkey = inpdesc ? DBKey(inpdesc->getStoredID(true))
-				    : DBKey::udf();
+				    : DBKey::getInvalid();
     freqtapersel->setDBKey( dbkey );
 }
 

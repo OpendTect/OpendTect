@@ -63,7 +63,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     , constzfld_(0)
     , dataselfld_(0)
     , importReady(this)
-    , storedid_(DBKey::udf())
+    , storedid_(DBKey::getInvalid())
 {
     setOkCancelText( import_ ? uiStrings::sImport() : uiStrings::sExport(),
 		     uiStrings::sClose() );

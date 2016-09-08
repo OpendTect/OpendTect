@@ -1171,7 +1171,7 @@ DBKey DescSet::getStoredKey( const DescID& did ) const
 {
     const Desc* dsc = getDesc( did );
     if ( !dsc || !dsc->isStored() )
-	return DBKey::udf();
+	return DBKey::getInvalid();
 
     return DBKey(dsc->getStoredID().buf());
 }

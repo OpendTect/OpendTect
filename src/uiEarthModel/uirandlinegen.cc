@@ -115,7 +115,7 @@ bool uiGenRanLinesByContour::dispOnCreation()
 DBKey uiGenRanLinesByContour::getNewSetID() const
 {
     const IOObj* ioobj = outfld_->ioobj( true );
-    return ioobj ? ioobj->key() : DBKey::udf();
+    return ioobj ? ioobj->key() : DBKey::getInvalid();
 }
 
 
@@ -236,7 +236,7 @@ bool uiGenRanLinesByShift::dispOnCreation()
 DBKey uiGenRanLinesByShift::getNewSetID() const
 {
     const IOObj* ioobj = outfld_->ioobj( true );
-    return ioobj ? ioobj->key() : DBKey::udf();
+    return ioobj ? ioobj->key() : DBKey::getInvalid();
 }
 
 
@@ -304,7 +304,7 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
 DBKey uiGenRanLineFromPolygon::getNewSetID() const
 {
     const IOObj* ioobj = outfld_->ioobj( true );
-    return ioobj ? ioobj->key() : DBKey::udf();
+    return ioobj ? ioobj->key() : DBKey::getInvalid();
 }
 
 

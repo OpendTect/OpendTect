@@ -243,7 +243,7 @@ bool uiEMPartServer::import3DHorGeom( bool bulk )
 
 void uiEMPartServer::importReadyCB( CallBacker* cb )
 {
-    DBKey mid = DBKey::udf();
+    DBKey mid = DBKey::getInvalid();
     mDynamicCastGet(uiImportHorizon*,dlg,cb)
     if ( dlg && dlg->doDisplay() )
 	mid = dlg->getSelID();
@@ -1697,7 +1697,7 @@ bool uiEMPartServer::usePar( const IOPar& par )
     TypeSet<DBKey> mids;
     for ( int idx=0; idx<maxnr2pl; idx++ )
     {
-	DBKey mid = DBKey::udf();
+	DBKey mid = DBKey::getInvalid();
 	par.get( IOPar::compKey(sKeyPreLoad(),idx), mid );
 	if ( mid.isUdf() )
 	    break;

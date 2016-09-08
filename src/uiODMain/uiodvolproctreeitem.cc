@@ -38,7 +38,7 @@ uiDataTreeItem::uiDataTreeItem( const char* parenttype, const DBKey* key )
     , selmenuitem_( m3Dots(tr("Select Setup")), true )
     , reloadmenuitem_( uiStrings::sReload(), true )
     , editmenuitem_( uiStrings::sEdit(), true )
-    , mid_(key ? *key : DBKey::udf())
+    , mid_(key ? *key : DBKey::getInvalid())
 {
     editmenuitem_.iconfnm = VolProc::uiChain::pixmapFileName();
     reloadmenuitem_.iconfnm = "refresh";
@@ -81,7 +81,7 @@ uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
 
     const char* parkey = VolProc::ExternalAttribCalculator::sKeySetup();
     BufferString setupmidstr;
-    DBKey setupmid = DBKey::udf();
+    DBKey setupmid = DBKey::getInvalid();
     if ( Attrib::Desc::getParamString(defstr,parkey,setupmidstr) )
 	setupmid = DBKey( setupmidstr.buf() );
 

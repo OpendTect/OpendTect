@@ -58,7 +58,7 @@ const char* cannotloadstr = "Cannot load ";
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     : uiDialog(p,Setup(tr("Seismic Data Pre-load Manager"),mNoDlgTitle,
 			mODHelpKey(mSeisPreLoadMgrHelpID) ))
-    , initmid_(DBKey::udf())
+    , initmid_(DBKey::getInvalid())
 {
     setCtrlStyle( CloseOnly );
     uiGroup* topgrp = new uiGroup( this, "Top group" );

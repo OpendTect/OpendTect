@@ -128,7 +128,7 @@ void uiAttrSelData::fillSelSpec( SelSpec& as ) const
 	, in_action_(false) \
 	, showsteerdata_(stp.showsteeringdata_) \
 	, usedasinput_(stp.isinp4otherattrib_)\
-	, insertedobjmid_(DBKey::udf())
+	, insertedobjmid_(DBKey::getInvalid())
 
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,

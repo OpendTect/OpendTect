@@ -67,9 +67,12 @@ public:
     od_int64		toInt64() const;
     static DBKey	fromInt64(od_int64);
 
-    static const DBKey& udf();
-    inline void		setUdf()		{ *this = udf(); }
-    bool		isUdf() const;
+    static const DBKey& getInvalid();
+    mDeprecated static const DBKey& udf()	{ return getInvalid(); }
+    inline void		setUdf()		{ setInvalid(); }
+    inline void		setInvalid()		{ *this = getInvalid(); }
+    bool		isUdf() const		{ return isInvalid(); }
+    bool		isInvalid() const;
 
 };
 

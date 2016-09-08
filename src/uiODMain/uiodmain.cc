@@ -484,7 +484,7 @@ bool acceptOK()
     const bool dosel = douse ? doselfld_->getBoolValue() : false;
     if ( !dosel )
     {
-	ODSession::setStartupData( douse, DBKey::udf() );
+	ODSession::setStartupData( douse, DBKey::getInvalid() );
 	return true;
     }
 

@@ -61,7 +61,7 @@ bool uiTrackSettingsValidator::checkStoredData( Attrib::SelSpec& as,
 	desc = ads ? ads->getDesc( as.id() ) : 0;
     }
 
-    key = desc ? DBKey(desc->getStoredID(false)) : DBKey::udf();
+    key = desc ? DBKey(desc->getStoredID(false)) : DBKey::getInvalid();
     if ( key.isUdf() )
     {
 	uiMSG().error(

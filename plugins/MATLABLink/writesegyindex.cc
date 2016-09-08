@@ -46,7 +46,7 @@ static DBKey getKey( const char* nm )
     if ( ctio.ioobj )
 	IOM().commitChanges( *ctio.ioobj );
 
-    return ctio.ioobj ? ctio.ioobj->key() : DBKey::udf();
+    return ctio.ioobj ? ctio.ioobj->key() : DBKey::getInvalid();
 }
 
 

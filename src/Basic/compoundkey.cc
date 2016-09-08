@@ -150,16 +150,16 @@ DBKey DBKey::parent() const
 }
 
 
-const DBKey& DBKey::udf()
+const DBKey& DBKey::getInvalid()
 {
-   mDefineStaticLocalObject( DBKey, _udf, (-1) );
-   return _udf;
+   mDefineStaticLocalObject( DBKey, _invalid, (-1) );
+   return _invalid;
 }
 
 
-bool DBKey::isUdf() const
+bool DBKey::isInvalid() const
 {
-    return impl_.isEmpty() || impl_ == udf().impl_;
+    return impl_.isEmpty() || impl_ == getInvalid().impl_;
 }
 
 

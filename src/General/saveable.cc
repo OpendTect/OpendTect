@@ -269,7 +269,7 @@ bool SaveableManager::needsSave( const SharedObject& obj ) const
 SaveableManager::ObjID SaveableManager::getIDByName( const char* nm ) const
 {
     if ( !nm || !*nm )
-	return ObjID::udf();
+	return ObjID::getInvalid();
 
     mLock4Read();
 
@@ -285,7 +285,7 @@ SaveableManager::ObjID SaveableManager::getIDByName( const char* nm ) const
     if ( ioobj )
 	return ioobj->key();
 
-    return ObjID::udf();
+    return ObjID::getInvalid();
 }
 
 
@@ -294,7 +294,7 @@ SaveableManager::ObjID SaveableManager::getID( const SharedObject& obj ) const
     mLock4Read();
 
     const IdxType idxof = gtIdx( obj );
-    return idxof < 0 ? ObjID::udf() : savers_[idxof]->key();
+    return idxof < 0 ? ObjID::getInvalid() : savers_[idxof]->key();
 }
 
 
@@ -447,7 +447,7 @@ SaveableManager::IdxType SaveableManager::size() const
 DBKey SaveableManager::getIDByIndex( IdxType idx ) const
 {
     mLock4Read();
-    return savers_.validIdx(idx) ? savers_[idx]->key() : ObjID::udf();
+    return savers_.validIdx(idx) ? savers_[idx]->key() : ObjID::getInvalid();
 }
 
 

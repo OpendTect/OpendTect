@@ -503,10 +503,10 @@ DBKey IOMan::createNewKey( const DBKey& dirkey )
 {
     mLock4Read();
     if ( !mGoTo(dirkey,true) )
-	return DBKey::udf();
+	return DBKey::getInvalid();
 
     if ( !dirptr_ )
-	return DBKey::udf();
+	return DBKey::getInvalid();
 
     return dirptr_->newKey();
 }

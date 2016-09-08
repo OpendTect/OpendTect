@@ -314,7 +314,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     }
 
     chgr.restore();
-    selgrp_->fullUpdate( DBKey::udf() );
+    selgrp_->fullUpdate( DBKey::getInvalid() );
 
     if ( !msgs.isEmpty() )
 	uiMSG().errorWithDetails(msgs);

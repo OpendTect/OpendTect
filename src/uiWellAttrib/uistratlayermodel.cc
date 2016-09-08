@@ -632,7 +632,7 @@ bool uiStratLayerModel::checkUnscaledWavelet()
 	return true;
     else if ( choice == 1 )
     {
-	WaveletMGR().setScalingInfo( synthdisp_->waveletID(), &DBKey::udf() );
+	WaveletMGR().setScalingInfo( synthdisp_->waveletID(), &DBKey::getInvalid() );
 	return true;
     }
 

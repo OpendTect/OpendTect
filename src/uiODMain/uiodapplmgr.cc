@@ -463,7 +463,7 @@ void uiODApplMgr::createMultiCubeDS( CallBacker* )
 { seisserv_->createMultiCubeDataStore(); }
 
 void uiODApplMgr::createMultiAttribVol( CallBacker* )
-{ attrserv_->outputVol( DBKey::udf(), false, true ); }
+{ attrserv_->outputVol( DBKey::getInvalid(), false, true ); }
 
 void uiODApplMgr::setStereoOffset()
 {

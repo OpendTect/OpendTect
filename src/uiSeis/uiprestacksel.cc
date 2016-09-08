@@ -40,7 +40,7 @@ uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
 bool uiPreStackDataPackSelDlg::acceptOK()
 {
     const int selidx = datapackinpfld_->currentItem();
-    selid_ = dpfids_.validIdx( selidx ) ? dpfids_[selidx] : DBKey::udf();
+    selid_ = dpfids_.validIdx( selidx ) ? dpfids_[selidx] : DBKey::getInvalid();
     return true;
 }
 
@@ -48,7 +48,7 @@ bool uiPreStackDataPackSelDlg::acceptOK()
 
 uiPreStackSel::uiPreStackSel( uiParent* p, bool is2d )
     : uiGroup(p, "Prestack data selector")
-    , selid_(DBKey::udf())
+    , selid_(DBKey::getInvalid())
 {
     const uiSeisSel::Setup sssu( is2d, true );
     const IOObjContext ctxt( uiSeisSel::ioContext(sssu.geom_, true ) );

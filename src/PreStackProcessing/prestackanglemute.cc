@@ -30,7 +30,7 @@ namespace PreStack
 AngleCompParams::AngleCompParams()
     : mutecutoff_(30)
     , anglerange_(0,30)
-    , velvolmid_(DBKey::udf())
+    , velvolmid_(DBKey::getInvalid())
 {
     smoothingpar_.set( AngleComputer::sKeySmoothType(),
 		       AngleComputer::FFTFilter );

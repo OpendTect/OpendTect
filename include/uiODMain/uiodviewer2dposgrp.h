@@ -66,7 +66,7 @@ mStruct(uiODMain) Viewer2DPosDataSel
 			    selspec_	    = Attrib::SelSpec();
 			    tkzs_.init( !IOM().isBad() );
 			    rdmlineid_	    = -1;
-			    rdmlinedbkey_ = DBKey::udf();
+			    rdmlinedbkey_ = DBKey::getInvalid();
 			    rdmlineid_ = mUdf(int);
 			    geomid_ = Survey::GeometryManager::cUndefGeomID();
 			    selectdata_	    = true;

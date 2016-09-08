@@ -244,7 +244,7 @@ void PreLoader::load( const IOPar& iniop, TaskRunner* tr )
 
 void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 {
-    DBKey mid = DBKey::udf();
+    DBKey mid = DBKey::getInvalid();
     iop.get( sKey::ID(), mid );
     if ( mid.isUdf() )
 	return;

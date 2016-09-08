@@ -265,7 +265,7 @@ DBKey uiSeisPartServer::getDefault2DDataID() const
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc2D);
     uiIOObjSelDlg dlg( parent(), su, *ctio );
     if ( !dlg.go() )
-	return DBKey::udf();
+	return DBKey::getInvalid();
 
     PtrMan<IOObj> seisobj = dlg.ioObj()->clone();
     seisobj->setSurveyDefault();
@@ -306,7 +306,7 @@ DBKey uiSeisPartServer::getDefaultDataID( bool is2d ) const
 						"Do you want to set it now?") );
     const bool tomanage = uiMSG().askGoOn( msg );
     if ( !tomanage )
-	return DBKey::udf();
+	return DBKey::getInvalid();
 
     uiIOObjSelDlg::Setup su( tr("Set default seismic data") );
     su.allowsetsurvdefault( false );

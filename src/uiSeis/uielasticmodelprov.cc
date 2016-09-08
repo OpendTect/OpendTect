@@ -162,13 +162,13 @@ bool uiElasticModelProvider::getInputMIDs( DBKey& pwmid, DBKey& swmid,
 					   DBKey& denmid ) const
 {
     pwmid = pwavefld_->attachObj()->isDisplayed() ? pwavefld_->key()
-						  : DBKey::udf();
+						  : DBKey::getInvalid();
     swmid = swavefld_->attachObj()->isDisplayed() ? swavefld_->key()
-						 : DBKey::udf();
+						 : DBKey::getInvalid();
     aimid = aifld_->attachObj()->isDisplayed() ? aifld_->key()
-					       : DBKey::udf();
+					       : DBKey::getInvalid();
     simid = sifld_->attachObj()->isDisplayed() ? sifld_->key()
-					       : DBKey::udf();
+					       : DBKey::getInvalid();
 
     const bool isac = inptypefld_->getBoolValue();
     const bool needsi = !isac && inpsourceelfld_->getIntValue() == 1;
@@ -176,7 +176,7 @@ bool uiElasticModelProvider::getInputMIDs( DBKey& pwmid, DBKey& swmid,
 			     : inpsourceelfld_->getIntValue() == 1;
 
     denmid = needai ? optdensityfld_->isChecked() ? optdensityfld_->key()
-						  : DBKey::udf()
+						  : DBKey::getInvalid()
 		    : densityfld_->key();
 
     uiString basestr  = tr( "Selected inputs are not in adequation with \n"

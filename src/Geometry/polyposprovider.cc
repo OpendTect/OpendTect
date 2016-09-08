@@ -22,7 +22,7 @@ Pos::PolyProvider3D::PolyProvider3D()
     : poly_(*new ODPolygon<float>)
     , hs_(*new TrcKeySampling(true))
     , zrg_(SI().zRange(false))
-    , mid_(DBKey::udf())
+    , mid_(DBKey::getInvalid())
 {
 }
 

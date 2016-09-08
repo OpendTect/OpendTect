@@ -489,7 +489,7 @@ NotifierAccess& uiVisPartServer::removeAllNotifier()
 DBKey uiVisPartServer::getDBKey( int id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDBKey() : DBKey::udf();
+    return so ? so->getDBKey() : DBKey::getInvalid();
 }
 
 

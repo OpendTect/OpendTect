@@ -113,7 +113,7 @@ DBKey LocationDisplay::getDBKey() const
 {
     if ( set_ )
 	return Pick::SetMGR().getID( *set_ );
-    return DBKey::udf();
+    return DBKey::getInvalid();
 }
 
 

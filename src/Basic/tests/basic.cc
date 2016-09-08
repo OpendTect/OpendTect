@@ -66,7 +66,7 @@ bool testPointerAlignment()
 
 bool testCompoundKey()
 {
-    mRunStandardTest( DBKey::udf().isUdf(), "Undefined dbkey" );
+    mRunStandardTest( DBKey::getInvalid().isUdf(), "Undefined dbkey" );
 
     return true;
 }

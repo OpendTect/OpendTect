@@ -238,5 +238,5 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 
 DBKey uiSEGYScanDlg::outputID() const
 {
-    return outfld_ ? outfld_->key(true) : DBKey::udf();
+    return outfld_ ? outfld_->key(true) : DBKey::getInvalid();
 }

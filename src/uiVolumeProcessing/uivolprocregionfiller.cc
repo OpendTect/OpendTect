@@ -74,7 +74,7 @@ uiGroup* uiRegionFiller::createVelGrp()
     const uiString fromhorattribstr = tr("From Horizon Data");
 
     const DBKey& starthorid = regionfiller_->getStartValueHorizonID();
-    const bool conststartval = starthorid==DBKey::udf();
+    const bool conststartval = starthorid==DBKey::getInvalid();
     startvalselfld_ = new uiGenInput( grp, tr("Start value"),
         BoolInpSpec(conststartval,uiStrings::sConstant(),
                         fromhorattribstr) );
@@ -94,7 +94,7 @@ uiGroup* uiRegionFiller::createVelGrp()
     starthorfld_->attach( alignedBelow, startvalselfld_ );
 
     const DBKey& gradhorid = regionfiller_->getGradientHorizonID();
-    const bool constgrad = gradhorid==DBKey::udf();
+    const bool constgrad = gradhorid==DBKey::getInvalid();
     gradvalselfld_ = new uiGenInput( grp, tr("Gradient"),
         BoolInpSpec(constgrad,uiStrings::sConstant(),fromhorattribstr) );
     gradvalselfld_->setSensitive( hasauxdata );

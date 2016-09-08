@@ -1492,7 +1492,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     , surface_(surface)
     , filetype_(filetype)
     , binary_(binary)
-    , objectmid_(ioobj ? ioobj->key() : DBKey::udf() )
+    , objectmid_(ioobj ? ioobj->key() : DBKey::getInvalid() )
 {
     init( ioobj ? ioobj->fullUserExpr(false) : 0 );
 }
@@ -1506,7 +1506,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const char* fulluserexpr,
     , surface_(surface)
     , filetype_(filetype)
     , binary_(binary)
-    , objectmid_(DBKey::udf())
+    , objectmid_(DBKey::getInvalid())
 {
     init( fulluserexpr );
 }

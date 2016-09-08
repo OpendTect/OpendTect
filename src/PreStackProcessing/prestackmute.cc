@@ -71,7 +71,7 @@ bool Mute::prepareWork()
 
 void Mute::setEmptyMute()
 {
-    id_ = DBKey::udf();
+    id_ = DBKey::getInvalid();
     while ( def_.size() )
 	def_.remove( 0 );
 }

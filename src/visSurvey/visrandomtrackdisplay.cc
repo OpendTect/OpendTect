@@ -1372,7 +1372,7 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 
 DBKey RandomTrackDisplay::getDBKey() const
 {
-    return rl_ ? rl_->getDBKey() : DBKey::udf();
+    return rl_ ? rl_->getDBKey() : DBKey::getInvalid();
 }
 
 

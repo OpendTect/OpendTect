@@ -120,7 +120,7 @@ public:
     virtual bool		canDuplicate() const	{ return false;}
     virtual SurveyObject*	duplicate(TaskRunner*) const	{ return 0; }
 
-    virtual DBKey		getDBKey() const { return DBKey::udf(); }
+    virtual DBKey		getDBKey() const { return DBKey::getInvalid(); }
 
     virtual bool		hasPosModeManipulator() const	{ return false;}
     virtual void		showManipulator(bool yn)	{}
@@ -288,7 +288,7 @@ public:
     virtual void		getTraceKeyPath(TrcKeyPath&,
                                                 TypeSet<Coord>* = 0) const {}
                                 /*!<If Coordinates are different from the
-                                   trckeys, they can be delivered in the 
+                                   trckeys, they can be delivered in the
                                    TypeSet<Coord>* */
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
     virtual Interval<float>	getDataTraceRange() const

@@ -227,7 +227,7 @@ bool RegionHor3DBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
 
-    DBKey mid = DBKey::udf();
+    DBKey mid = DBKey::getInvalid();
     par.get( sKey::ID(), mid );
     setKey( mid );
     return true;
@@ -326,7 +326,7 @@ bool RegionFaultBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
 
-    DBKey mid = DBKey::udf();
+    DBKey mid = DBKey::getInvalid();
     par.get( sKey::ID(), mid );
     setKey( mid );
     return true;
@@ -388,7 +388,7 @@ bool RegionPolygonBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
 
-    DBKey mid = DBKey::udf();
+    DBKey mid = DBKey::getInvalid();
     par.get( sKey::ID(), mid );
     setKey( mid );
 
@@ -490,7 +490,7 @@ static RegionBoundary* createBoundary( const char* tp )
     if ( type==sKey::Crossline() ) return new RegionCrlBoundary;
     if ( type==sKey::ZSlice() ) return new RegionZBoundary;
 
-    const DBKey udf = DBKey::udf();
+    const DBKey udf = DBKey::getInvalid();
     if ( type==sKey::Horizon() ) return new RegionHor3DBoundary(udf);
     if ( type==sKey::Fault() ) return new RegionFaultBoundary(udf);
     if ( type==sKey::Polygon() ) return new RegionPolygonBoundary(udf);
