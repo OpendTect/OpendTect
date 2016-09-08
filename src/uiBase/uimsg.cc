@@ -603,7 +603,6 @@ void uiMsg::dispWarnMsgCB( CallBacker* cber )
     mDynamicCastGet( CBCapsule<uiStringSet>*, caps, cber )
     mEnsureExecutedInMainThreadWithCapsule( uiMsg::dispWarnMsgCB, caps );
     mCBCapsuleUnpack( uiStringSet, uistrset, caps ); 
-    mDynamicCastGet(uiMainWin*, parent, caps->caller);
     showMessageBox( Warning, popParnt(), uistrset[0], uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
 		    tr("Warning") );
