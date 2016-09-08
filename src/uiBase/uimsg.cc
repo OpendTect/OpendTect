@@ -51,6 +51,8 @@ uiMsg& uiMSG()
 
 uiMsg::uiMsg()
 	: uimainwin_(0)
+	, lock_(true)
+	, msgdisplock_(true)
 {
 }
 
@@ -321,7 +323,8 @@ void uiMsg::warning( const uiRetVal& rv )
 	msg = rv.messages().cat();
     else if ( rv.isError() )
 	msg = rv;
-    warning( msg );
+    uiStringSet	uistrset; uistrset += msg;
+    showMsg( uimainwin_, WarningMsg, uistrset ); 
 }
 
 
@@ -360,7 +363,7 @@ void uiMsg::errorWithDetails( const uiStringSet& bss,
 	strings += before;
 
     strings.append( bss );
-    errorWithDetails( strings );
+    showMsg( uimainwin_, ErrorWithDetails,  strings );
 }
 
 
@@ -388,8 +391,14 @@ void uiMsg::errorWithDetails( const uiStringSet& strings )
 	return;
 
     mPrepCursor();
-    const uiString oktxt = uiStrings::sOk();
+    showMsg( uimainwin_, ErrorWithDetails,  strings );
+}
+
+
+void uiMsg::errorWithDetailProc( uiStringSet& strings )
+{
     mCapt( tr("Error") );
+    const uiString oktxt = uiStrings::sOk();
     const int refnr = beginCmdRecEvent( utfwintitle );
     // Use of QMessageBox::Abort enables close and escape actions by the user
     PtrMan<QMessageBox> mb = createMessageBox( Critical, popParnt(), strings[0],
@@ -563,3 +572,39 @@ int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 
 uiString uiMsg::sDontShowAgain()
 { return tr("Don't show this message again"); }
+
+
+void uiMsg::showMsg( uiMainWin* p, msgType msgtyp, const uiStringSet& strset )
+{
+    Threads::Locker lckr( lock_ );
+    CBCapsule<uiStringSet> caps( strset, this );	
+    if ( p ) uimainwin_ = p;
+    if ( msgtyp == ErrorWithDetails || msgtyp == ErrorMsg )
+	dispErrMsgCB( &caps );
+    else if ( msgtyp == WarningMsg )
+	dispWarnMsgCB( &caps );
+}
+
+
+void uiMsg::dispErrMsgCB( CallBacker* cber )
+{   
+    Threads::Locker lckr( msgdisplock_ );
+    mDynamicCastGet( CBCapsule<uiStringSet>*, caps, cber )
+    mEnsureExecutedInMainThreadWithCapsule( uiMsg::dispErrMsgCB, caps );
+    mCBCapsuleUnpack( uiStringSet, uistrset, caps );
+    mCapt( tr("Error") );
+    errorWithDetailProc(uistrset);
+}
+
+
+void uiMsg::dispWarnMsgCB( CallBacker* cber )
+{
+    Threads::Locker lckr( msgdisplock_ );
+    mDynamicCastGet( CBCapsule<uiStringSet>*, caps, cber )
+    mEnsureExecutedInMainThreadWithCapsule( uiMsg::dispWarnMsgCB, caps );
+    mCBCapsuleUnpack( uiStringSet, uistrset, caps ); 
+    mDynamicCastGet(uiMainWin*, parent, caps->caller);
+    showMessageBox( Warning, popParnt(), uistrset[0], uiStrings::sOk(),
+		    uiString::emptyString(), uiString::emptyString(),
+		    tr("Warning") );
+}

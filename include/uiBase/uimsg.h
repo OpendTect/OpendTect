@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "gendefs.h"
 #include "uistring.h"
+#include "uiparent.h"
+#include "typeset.h"
 class uiMainWin;
 class uiStatusBar;
 mFDQtclass(QWidget)
@@ -22,7 +24,7 @@ class FileMultiString;
 class uiString;
 
 
-mExpClass(uiBase) uiMsg
+mExpClass(uiBase) uiMsg	: public CallBacker
 { mODTextTranslationClass(uiMsg)
 
 friend class uiMain;
@@ -126,7 +128,12 @@ public:
 		   be filled in. */
 
     static uiString	sDontShowAgain();
-
+    enum msgType	{ WarningMsg, ErrorWithDetails, ErrorMsg, Info };
+			    mDeclareEnumUtils(msgType);
+    void		showMsg(uiMainWin*, msgType, const uiStringSet&);
+    void		dispErrMsgCB(CallBacker*);
+    void		dispWarnMsgCB(CallBacker*);
+    void		errorWithDetailProc(uiStringSet&);
 protected:
 
 			uiMsg();
@@ -134,6 +141,8 @@ protected:
     mQtclass(QWidget*)	popParnt();
 
     static uiMsg*	theinst_;
+    Threads::Lock	lock_;
+    Threads::Lock	msgdisplock_;
 
 private:
 
