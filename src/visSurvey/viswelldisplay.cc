@@ -275,9 +275,12 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
 	return;
 
     const bool needsconversiontotime = needsConversionToTime();
-    if ( needsconversiontotime && !timetrack_ )
+    if ( needsconversiontotime )
     {
-	timetrack_ = new Well::Track( wd->track() );
+	if ( !timetrack_ )
+	    timetrack_ = new Well::Track( wd->track() );
+	else
+	    *timetrack_ = wd->track();
 	timetrack_->toTime( *wd );
     }
 
