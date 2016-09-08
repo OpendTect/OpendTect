@@ -59,7 +59,7 @@ void uiGMTInfoDlg::gmtPushCB( CallBacker* )
 {
     uiDesktopServices::openUrl(
 	    __islinux__ ? "http://www.opendtect.org/index.php/download"
-			: "http://www.soest.hawaii.edu" );
+		: "http://gmt.soest.hawaii.edu/projects/gmt/wiki/Download" );
 }
 
 
