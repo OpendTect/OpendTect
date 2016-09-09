@@ -18,8 +18,10 @@ ________________________________________________________________________
 #include "i_odhttpconn.h"
 
 #include <QEventLoop>
+
 #include <QSslError>
-#include <qcoreapplication.h>
+#include <QCoreApplication>
+
 #endif
 
 using namespace Network;
@@ -167,8 +169,11 @@ void HttpRequestProcess::reportSSLErrors( const QList<QSslError>& list )
 {
     pErrMsg("SSL error occurred - SSL error handling not implemented");
     QString errmsg( "SSL Error");
+
+#ifndef QT_NO_OPENSSL
     if ( list.size() )
 	errmsg = list[0].errorString();
+#endif
 
     statuslock_.lock();
     status_ = Error;
