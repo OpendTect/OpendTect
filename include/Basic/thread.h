@@ -146,6 +146,10 @@ public:
 			ReadWriteLock(const ReadWriteLock&);
     virtual		~ReadWriteLock();
 
+    bool		isLocked() const		{ return status_ != 0;}
+    bool		isLockedForWrite() const	{ return status_ < 0; }
+    bool		isLockedForRead() const		{ return status_ > 0; }
+
     void		readLock();
 			//!<No writers will be active.
     bool		tryReadLock();

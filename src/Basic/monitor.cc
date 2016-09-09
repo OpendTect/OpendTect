@@ -157,6 +157,8 @@ MonitorLock::MonitorLock( const Monitorable& obj )
     , unlocked_(false)
 {
     obj_.nrmonitors_++;
+    while ( obj_.accesslock_.readWriteLock().isLockedForWrite() )
+	Threads::sleep( 1 );
 }
 
 
