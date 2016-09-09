@@ -32,7 +32,7 @@ void ColTab::IndexedLookUpTable::update()
     mDefParallelCalcBody(
 	const float dx = 1.f/(sz_-1)
 ,
-	cols_[idx] = seq_.color( idx*dx )
+	cols_[(TypeSet<Color>::size_type)idx] = seq_.color( idx*dx )
 ,
 	)
 
