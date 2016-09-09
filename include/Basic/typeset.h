@@ -105,6 +105,14 @@ protected:
 
 };
 
+				// useful for iterating over any OD::Set
+template <class T,class I>
+mGlobal(Basic) inline T& getRef( TypeSetBase<T,I>& ts, I i )
+{ return ts.get( i ); }
+template <class T,class I>
+mGlobal(Basic) inline const T& getRef( const TypeSetBase<T,I>& ts, I i )
+{ return ts.get( i ); }
+
 
 /*!\brief Set of (small) copyable elements.
 
@@ -281,11 +289,23 @@ bool TypeSetBase<T,I>::validIdx( od_int64 idx ) const
 
 template <class T, class I> inline
 T& TypeSetBase<T,I>::get( I idx )
-{ return vec_[idx]; }
+{
+#ifdef __debug__
+    if ( !validIdx(idx) )
+	DBG::forceCrash(true);
+#endif
+    return vec_[idx];
+}
 
 template <class T, class I> inline
 const T& TypeSetBase<T,I>::get( I idx ) const
-{ return vec_[idx]; }
+{
+#ifdef __debug__
+    if ( !validIdx(idx) )
+	DBG::forceCrash(true);
+#endif
+    return vec_[idx];
+}
 
 template <class T, class I> inline
 T& TypeSetBase<T,I>::first()

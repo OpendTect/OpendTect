@@ -31,6 +31,7 @@ public:
 
 			BufferStringSet(size_type n=0,const char* s=0);
 			BufferStringSet(const char* arr[],size_type len=-1);
+    virtual		~BufferStringSet()	{}
     bool		operator ==(const BufferStringSet&) const;
 
     inline size_type	size() const		{ return strs_.size(); }

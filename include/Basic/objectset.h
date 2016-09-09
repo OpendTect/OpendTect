@@ -98,6 +98,14 @@ public:
 				/*!< Not virtual. Don't use casually. */
 };
 
+				// useful for iterating over any OD::Set
+template <class T>
+mGlobal(Basic) inline T& getRef( ObjectSet<T>& objset, int i )
+{ return *objset.get( i ); }
+template <class T>
+mGlobal(Basic) inline const T& getRef( const ObjectSet<T>& objset, int i )
+{ return *objset.get( i ); }
+
 
 #define mObjectSetApplyToAll( os, op ) \
     mODSetApplyToAll( ObjectSet<int>::size_type, os, op )
