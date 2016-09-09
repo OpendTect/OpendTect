@@ -19,6 +19,8 @@ uiBatchProcDlg::uiBatchProcDlg( uiParent* p, const uiString& dlgnm,
 				const Batch::JobSpec::ProcType& pt )
     : uiDialog(p,Setup(dlgnm, mNoDlgTitle, mNoHelpKey).modal(false))
 {
+    setCtrlStyle( RunAndClose );
+
     pargrp_ = new uiGroup( this, "Parmeters group" );
     batchgrp_ = new uiGroup( this, "Batch group" );
     batchgrp_->attach( alignedBelow, pargrp_ );
