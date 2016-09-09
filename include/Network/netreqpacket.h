@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "networkmod.h"
 #include "bufstringset.h"
+#include "refcount.h"
 
 #define mRequestPacketHeaderSize		10
 
@@ -35,12 +36,11 @@ namespace Network
 
   */
 
-mExpClass(Network) RequestPacket
+mExpClass(Network) RequestPacket : public RefCount::Referenced
 {
 public:
 			RequestPacket(od_int32 payloadsize=0);
 			RequestPacket(const RequestPacket&);
-			~RequestPacket();
 
     od_int32		requestID() const;
     bool		isNewRequest() const { return subID()==cBeginSubID(); }
@@ -68,6 +68,7 @@ public:
     static void		setSystemSizeLimit(od_int32);	//< no limit set to 0
 
 protected:
+			~RequestPacket();
 
     union Header
     {

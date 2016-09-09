@@ -39,7 +39,7 @@ QTcpSocketComm( QTcpSocket* qtcpsocket, Network::Socket* netsocket )
     connect( qtcpsocket, SIGNAL(readyRead()), this, SLOT(trigReadyRead()) );
     connect(qtcpsocket, SIGNAL(error(QAbstractSocket::SocketError)),
 	this, SLOT(handleError(QAbstractSocket::SocketError)));
-    connect(qtcpsocket, SIGNAL(stateChange(QAbstractSocket::SocketState)),
+    connect(qtcpsocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
 	this, SLOT(handleStateChange(QAbstractSocket::SocketState)));
 }
 

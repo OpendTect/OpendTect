@@ -20,12 +20,12 @@
 
 static BufferString packetString( const char* prefix,
 				  const char* start,
-				  const Network::RequestPacket& packet )
+				  const Network::RequestPacket* packet )
 {
     BufferString ret = prefix;
     ret.add( start );
-    ret.add( " Request " ).add( packet.requestID() )
-       .add( " SubID " ).add( packet.subID() );
+    ret.add( " Request " ).add( packet->requestID() )
+       .add( " SubID " ).add( packet->subID() );
 
     return ret;
 }
@@ -57,65 +57,65 @@ public:
 	conn_ = &conn;
 	mAttachCB( conn.packetArrived, Tester::packetArrivedCB );
 
-	Network::RequestPacket packet;
+	RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
 	BufferString sentmessage = "Hello World";
-	packet.setIsNewRequest();
-	packet.setStringPayload( sentmessage );
+	packet->setIsNewRequest();
+	packet->setStringPayload( sentmessage );
 
-	mRunStandardTestWithError( conn.sendPacket( packet ),
+	mRunStandardTestWithError( conn.sendPacket( *packet ),
 	      packetString( prefix_, "Sending", packet ),
 	      conn.errMsg().getFullString() );
 
-	Network::RequestPacket largepacket;
-	largepacket.setIsNewRequest();
+	RefMan<Network::RequestPacket> largepacket = new Network::RequestPacket;
+	largepacket->setIsNewRequest();
 	mAllocLargeVarLenArr( char, payload, mLargePayload+1 );
 	memset( payload, ' ', mLargePayload );
 	payload[mLargePayload] = 0;
 
-	largepacket.setStringPayload( payload );
+	largepacket->setStringPayload( payload );
 
-	mRunStandardTestWithError( conn.sendPacket( largepacket ),
+	mRunStandardTestWithError( conn.sendPacket( *largepacket ),
 	      packetString( prefix_, "Sending large packet", largepacket ),
 	      conn.errMsg().getFullString() );
 
-	Network::RequestPacket packet2;
-	packet2.setRequestID( packet.requestID() );
-	packet2.setSubID( 1 );
+	RefMan<Network::RequestPacket> packet2 = new Network::RequestPacket;
+	packet2->setRequestID( packet->requestID() );
+	packet2->setSubID( 1 );
 	BufferString sentmessage2 = "Peace on Earth!";
-	packet2.setStringPayload( sentmessage2 );
+	packet2->setStringPayload( sentmessage2 );
 
-	mRunStandardTestWithError( conn.sendPacket( packet2 ),
+	mRunStandardTestWithError( conn.sendPacket( *packet2 ),
 	  packetString( prefix_, "Sending", packet2 ),
 	  conn.errMsg().getFullString() );
 
-	PtrMan<Network::RequestPacket> receivedpacket = 0;
+	RefMan<Network::RequestPacket> receivedpacket = 0;
 
 	mRunStandardTestWithError(
-	    receivedpacket=conn.pickupPacket( packet.requestID(), 20000 ),
+	    receivedpacket=conn.pickupPacket( packet->requestID(), 20000 ),
 	    packetString( prefix_, "Receiving", packet ),
 	    conn.errMsg().getFullString() );
 
 	BufferString receivedmessage1;
 	receivedpacket->getStringPayload( receivedmessage1 );
 	mRunStandardTest( receivedmessage1==sentmessage &&
-			 receivedpacket->requestID()==packet.requestID() &&
-			 receivedpacket->subID()==packet.subID(),
+			 receivedpacket->requestID()==packet->requestID() &&
+			 receivedpacket->subID()==packet->subID(),
 			 packetString( prefix_, "Received content", packet ) );
 
 	mRunStandardTestWithError(
-		  receivedpacket=conn.pickupPacket( packet.requestID(), 20000 ),
+		  receivedpacket=conn.pickupPacket( packet->requestID(), 20000 ),
 		  packetString( prefix_, "Receiving", packet2 ),
 		  conn.errMsg().getFullString() );
 
 	BufferString receivedmessage2;
 	receivedpacket->getStringPayload( receivedmessage2 );
 	mRunStandardTest( receivedmessage2==sentmessage2 &&
-			 receivedpacket->requestID()==packet2.requestID() &&
-			 receivedpacket->subID()==packet2.subID(),
+			 receivedpacket->requestID()==packet2->requestID() &&
+			 receivedpacket->subID()==packet2->subID(),
 			 packetString( prefix_, "Received content", packet2 ) );
 
 	mRunStandardTestWithError(
-	    receivedpacket=conn.pickupPacket( largepacket.requestID(), 20000 ),
+	    receivedpacket=conn.pickupPacket( largepacket->requestID(), 20000 ),
 	    packetString( prefix_, "Receiving large", largepacket ),
 	    conn.errMsg().getFullString() );
 
@@ -123,8 +123,8 @@ public:
 	receivedpacket->getStringPayload( receivedlongmessage );
 	mRunStandardTest(
 	     receivedlongmessage==payload &&
-	     receivedpacket->requestID()==largepacket.requestID() &&
-	     receivedpacket->subID()==largepacket.subID(),
+	     receivedpacket->requestID()==largepacket->requestID() &&
+	     receivedpacket->subID()==largepacket->subID(),
 	     packetString( prefix_, "Large packet content", largepacket ));
 
 	if ( !sendPacketInOtherThread() )
@@ -141,17 +141,17 @@ public:
 	      BufferString( prefix_, "Connection 2 is OK"),
 	      conn.errMsg().getFullString() );
 
-	    Network::RequestPacket disconnectpacket;
-	    disconnectpacket.setIsNewRequest();
-	    disconnectpacket.setStringPayload( "Disconnect" );
+	    RefMan<Network::RequestPacket> disconnectpacket = new Network::RequestPacket;
+	    disconnectpacket->setIsNewRequest();
+	    disconnectpacket->setStringPayload( "Disconnect" );
 
-	    mRunStandardTestWithError( conn2.sendPacket( disconnectpacket ),
+	    mRunStandardTestWithError( conn2.sendPacket( *disconnectpacket ),
 	      packetString( prefix_, "Sending disconnect", disconnectpacket ),
 	      conn2.errMsg().getFullString() );
 
 	    int errorcode = 0;
 	    mRunStandardTest(
-	      !(receivedpacket=conn2.pickupPacket(disconnectpacket.requestID(),
+	      !(receivedpacket=conn2.pickupPacket(disconnectpacket->requestID(),
 		  20000, &errorcode )),
 	      packetString( prefix_, "Receiving disconnect should fail",
 		  disconnectpacket ) );
@@ -163,11 +163,11 @@ public:
 
 	if ( sendkill )
 	{
-	    Network::RequestPacket killpacket;
-	    killpacket.setStringPayload("Kill");
-	    killpacket.setIsNewRequest();
+	    RefMan<Network::RequestPacket> killpacket = new Network::RequestPacket;
+	    killpacket->setStringPayload("Kill");
+	    killpacket->setIsNewRequest();
 
-	    mRunStandardTestWithError( conn.sendPacket( killpacket ),
+	    mRunStandardTestWithError( conn.sendPacket( *killpacket ),
 			  BufferString( prefix_, "Sending kill packet"),
 			   conn.errMsg().getFullString() );
 	}
@@ -180,7 +180,7 @@ public:
     {
 	mCBCapsuleUnpackWithCaller( od_int32, reqid, cber, cb );
 	mDynamicCastGet(Network::RequestConnection*, conn, cber );
-	PtrMan<Network::RequestPacket> packet = conn->getNextExternalPacket();
+	RefMan<Network::RequestPacket> packet = conn->getNextExternalPacket();
 	if ( packet )
 	{
 	    Threads::MutexLocker locker( condvar_ );
@@ -206,20 +206,20 @@ public:
 
     bool sendMessageInThread()
     {
-	Network::RequestPacket packet;
+	RefMan<Network::RequestPacket> packet = new Network::RequestPacket;
 	BufferString sentmessage = "Hello World";
-	packet.setIsNewRequest();
-	packet.setStringPayload( sentmessage );
+	packet->setIsNewRequest();
+	packet->setStringPayload( sentmessage );
 
 	mRunStandardTestWithError(
-	      conn_->sendPacket( packet )==conn_->isMultiThreaded(),
+	      conn_->sendPacket( *packet )==conn_->isMultiThreaded(),
 	      packetString( prefix_, "Sending from other thread", packet ),
 	      conn_->errMsg().getFullString() );
 
-	PtrMan<Network::RequestPacket> receivedpacket =
-	    conn_->pickupPacket( packet.requestID(), 20000 );
+	RefMan<Network::RequestPacket> receivedpacket =
+	    conn_->pickupPacket( packet->requestID(), 20000 );
 	mRunStandardTestWithError(
-	    ((bool) receivedpacket.ptr())==conn_->isMultiThreaded(),
+	    ((bool) receivedpacket)==conn_->isMultiThreaded(),
 	    packetString( prefix_, "Receiving from other thread", packet ),
 	    conn_->errMsg().getFullString() );
 
@@ -228,8 +228,8 @@ public:
 	    BufferString receivedmessage1;
 	    receivedpacket->getStringPayload( receivedmessage1 );
 	    mRunStandardTest( receivedmessage1==sentmessage &&
-		 receivedpacket->requestID()==packet.requestID() &&
-		 receivedpacket->subID()==packet.subID(),
+		 receivedpacket->requestID()==packet->requestID() &&
+		 receivedpacket->subID()==packet->subID(),
 		 packetString( prefix_, "Received content from other thread",
 			       packet ) );
 	}

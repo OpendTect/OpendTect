@@ -20,52 +20,23 @@ ________________________________________________________________________
 #ifndef OD_NO_QT
 # include <QObject>
 # include <QCoreApplication>
-# include "qtcpsocketcomm.h"
+# include <QTcpSocket>
 #endif
 
 namespace Network
 {
 
-class RequestConnectionSender : public QObject
+struct PacketSendData : public RefCount::Referenced
 {
-public:
-    RequestConnectionSender( RequestConnection& conn )
-	: conn_( conn )
-    {}
+    PacketSendData(const RequestPacket&,bool wait);
+    ConstRefMan<RequestPacket>  packet_;
+    bool                        waitforfinish_;
 
-    void addToQueue( RequestConnection::PacketSendData* psd )
-    {
-	lock_.lock();
-	queue_ += psd;
-	lock_.unLock();
-	QCoreApplication::postEvent( this, new QEvent(QEvent::None) );
-    }
-
-    bool event( QEvent* ) { sendQueue(); return true; }
-
-    void sendQueue()
-    {
-	lock_.lock();
-	RefObjectSet<RequestConnection::PacketSendData> localqueue = queue_;
-	queue_.erase();
-	lock_.unLock();
-
-	for ( int idx=0; idx<localqueue.size(); idx++ )
-	{
-	    localqueue[idx]->trySend( conn_ );
-	}
-    }
-
-    Threads::SpinLock					lock_;
-    RefObjectSet<RequestConnection::PacketSendData>	queue_;
-    RequestConnection&					conn_;
+    enum SendStatus             { NotAttempted, Sent, Failed };
+    SendStatus			sendstatus_;
+				//Protected by connections' lock_
 };
 
-}; //Network namespace
-
-
-
-using namespace Network;
 
 static Threads::Atomic<int> connid;
 
@@ -82,18 +53,22 @@ RequestConnection::RequestConnection( const char* servername,
     , packetArrived( this )
     , id_( connid++ )
     , socketthread_( 0 )
-    , packetsender_( 0 )
     , eventloop_( 0 )
     , timeout_( timeout )
 {
     if ( multithreaded )
     {
-	Threads::MutexLocker locker( lock_ );
 	socketthread_ =
 	    new Threads::Thread( mCB(this,RequestConnection,socketThreadFunc),
 				 "RequestConnection socket thread" );
+
+	Threads::ConditionVar eventlooplock;
+        eventlooplock.lock();
+	eventlooplock_ = &eventlooplock;
 	while ( !eventloop_ )
-	    lock_.wait(); //Wait for thread to create connection.
+	    eventlooplock.wait(); //Wait for thread to create connection.
+        eventlooplock.unLock();
+	eventlooplock_ = 0;
     }
     else
     {
@@ -110,7 +85,6 @@ RequestConnection::RequestConnection( Network::Socket* sock )
     , packetArrived( this )
     , id_( connid++ )
     , socketthread_( 0 )
-    , packetsender_( 0 )
     , eventloop_( 0 )
     , timeout_( 0 )
 {
@@ -137,34 +111,19 @@ RequestConnection::~RequestConnection()
     {
 	deleteAndZeroPtr( socket_, ownssocket_ );
     }
-
-    deepErase( receivedpackets_ );
+    
+    if ( sendqueue_.size() )
+    {
+        pErrMsg("Queue should be empty");
+    }
 }
 
 
-RequestConnection::PacketSendData::PacketSendData( const RequestPacket& packet,
-						   bool wait )
-    : packet_( packet )
+PacketSendData::PacketSendData( const RequestPacket& packet, bool wait )
+    : packet_( &packet )
     , waitforfinish_( wait )
     , sendstatus_( NotAttempted )
 {}
-
-
-void RequestConnection::PacketSendData::trySend( RequestConnection& conn )
-{
-    if ( sendstatus_!=NotAttempted )   //Threadsafe as only I will set it
-				       //apart from constructor
-	return;
-
-    conn.lock_.lock();
-
-    sendstatus_ = conn.doSendPacket( packet_, waitforfinish_ )
-	 ? Sent
-	 : Failed;
-
-    conn.lock_.signal( true );
-    conn.lock_.unLock();
-}
 
 
 void RequestConnection::socketThreadFunc( CallBacker* )
@@ -179,18 +138,34 @@ void RequestConnection::socketThreadFunc( CallBacker* )
 
     mAttachCB(socket_->disconnected,RequestConnection::connCloseCB);
     mAttachCB(socket_->readyRead,RequestConnection::dataArrivedCB);
-    eventloop_ = new QEventLoop( socket_->qSocket() );
-    packetsender_ = new RequestConnectionSender( *this );
+    QEventLoop* eventloop = new QEventLoop( socket_->qSocket() );
+
+    createReceiverForCurrentThread();
+    
 
     //Tell constructor we are up and running!
-    lock_.lock();
-    lock_.signal( true );
-    lock_.unLock();
+    eventlooplock_->lock();
+    eventloop_ = eventloop;
+    eventlooplock_->signal( true );
+    eventlooplock_->unLock();
 
     eventloop_->exec();
 
+
+    //Go through send queue and make sure eventual waiting threads are
+    //notified
+    lock_.lock();
+
+    for ( int idx=0; idx<=sendqueue_.size(); idx++ )
+	sendqueue_[idx]->sendstatus_ = PacketSendData::Failed;
+
+    lock_.signal( true );
+
+    deepUnRef( sendqueue_ );
+    lock_.unLock();
+
+    removeReceiverForCurrentThread();
     deleteAndZeroPtr( eventloop_ );
-    deleteAndZeroPtr( packetsender_ );
     deleteAndZeroPtr( socket_, ownssocket_ );
 }
 
@@ -243,7 +218,7 @@ bool RequestConnection::readFromSocket()
 {
     while ( isOK() )
     {
-	PtrMan<RequestPacket> nextreceived = new RequestPacket;
+	RefMan<RequestPacket> nextreceived = new RequestPacket;
 	Network::Socket::ReadStatus readres = socket_->read( *nextreceived );
 
 	if ( readres==Network::Socket::ReadOK )
@@ -306,6 +281,32 @@ bool RequestConnection::doSendPacket( const RequestPacket& pkt,
 }
 
 
+void RequestConnection::sendQueueCB(CallBacker*)
+{
+    lock_.lock();
+    RefObjectSet<PacketSendData> localqueue = sendqueue_;
+    deepUnRef( sendqueue_ );
+    lock_.unLock();
+
+    for ( int idx=0; idx<localqueue.size(); idx++ )
+    {
+	if ( localqueue[idx]->sendstatus_!=PacketSendData::NotAttempted )
+	   //Threadsafe as only I will set it
+	   //apart from constructor
+	    continue;
+
+	lock_.lock();
+
+	localqueue[idx]->sendstatus_ = doSendPacket( *localqueue[idx]->packet_,
+					       localqueue[idx]->waitforfinish_ )
+	     ? PacketSendData::Sent
+	     : PacketSendData::Failed;
+
+	lock_.signal( true );
+	lock_.unLock();
+    }
+}
+
 
 bool RequestConnection::sendPacket( const RequestPacket& pkt,
 				    bool waitforfinish )
@@ -339,7 +340,16 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
     }
 
     RefMan<PacketSendData> senddata = new PacketSendData(pkt,waitforfinish);
-    packetsender_->addToQueue( senddata );
+    sendqueue_ += senddata;
+    senddata->ref(); //Class assumes all objects in sendqueue is reffed
+
+    //Trigger thread if I'm first. If size is larger, it should already be
+    //triggered
+    if ( sendqueue_.size()==1 )
+    {
+	CallBack::addToThread( socketthread_->threadID(),
+			   mCB(this, RequestConnection, sendQueueCB) );
+    }
 
     if ( !waitforfinish )
 	return true;
@@ -354,7 +364,8 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
 }
 
 
-RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
+RefMan<RequestPacket> RequestConnection::pickupPacket( od_int32 reqid,
+						int timeout,
 						int* errorcode )
 {
     if ( !socketthread_ && Threads::currentThread()!=socket_->thread() )
@@ -368,7 +379,7 @@ RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
 	return 0;
     }
 
-    RequestPacket* pkt = getNextAlreadyRead( reqid );
+    RefMan<RequestPacket> pkt = getNextAlreadyRead( reqid );
     if ( !pkt )
     {
 	const int starttm = Time::getMilliSeconds();
@@ -423,28 +434,36 @@ RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
 }
 
 
-RequestPacket* RequestConnection::getNextAlreadyRead( int reqid )
+RefMan<RequestPacket> RequestConnection::getNextAlreadyRead( int reqid )
 {
     for ( int idx=0; idx<receivedpackets_.size(); idx++ )
     {
-	if ( reqid < 0 || receivedpackets_[idx]->requestID()==reqid )
-	    return receivedpackets_.removeSingle( idx );
+	RequestPacket* pkg = receivedpackets_[idx];
+	if ( reqid<0 || pkg->requestID()==reqid )
+	{
+	    receivedpackets_.removeSingle( idx );
+	    return pkg;
+	}
     }
 
     return 0;
 }
 
 
-RequestPacket* RequestConnection::getNextExternalPacket()
+RefMan<RequestPacket> RequestConnection::getNextExternalPacket()
 {
     Threads::MutexLocker locker( lock_ );
 
     for ( int idx=0; idx<receivedpackets_.size(); idx++ )
     {
-	RequestPacket* pkt = receivedpackets_[idx];
+	RefMan<RequestPacket> pkt = receivedpackets_[idx];
 	if ( !ourrequestids_.isPresent(pkt->requestID()) )
-	    return receivedpackets_.removeSingle(idx);
+	{
+	    receivedpackets_.removeSingle(idx);
+	    return pkt;
+	}
     }
+
     return 0;
 }
 
@@ -456,7 +475,7 @@ void RequestConnection::requestEnded( od_int32 reqid )
     for ( int idx=receivedpackets_.size()-1; idx>=0; idx-- )
     {
 	if ( receivedpackets_[idx]->requestID()==reqid )
-	    delete receivedpackets_.removeSingle( idx );
+	    receivedpackets_.removeSingle( idx );
     }
 }
 
@@ -526,3 +545,5 @@ void RequestServer::newConnectionCB(CallBacker* cb)
 
     newConnection.trigger();
 }
+
+}; //Network

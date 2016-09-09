@@ -74,7 +74,7 @@ public:
 
 	RequestConnection* conn = static_cast<RequestConnection*>( cber );
 
-	PtrMan<RequestPacket> packet = conn->pickupPacket( reqid, 200 );
+	RefMan<RequestPacket> packet = conn->pickupPacket( reqid, 200 );
 	if ( !packet )
 	{
 	    packet = conn->getNextExternalPacket();
@@ -106,11 +106,12 @@ public:
 	}
 	else if ( packetstring=="New" )
 	{
-	    Network::RequestPacket newpacket;
+	    RefMan<Network::RequestPacket> newpacket =
+		new Network::RequestPacket;
 	    BufferString sentmessage = "The answer is 42";
-	    newpacket.setIsNewRequest();
-	    newpacket.setStringPayload( sentmessage );
-	    conn->sendPacket( newpacket );
+	    newpacket->setIsNewRequest();
+	    newpacket->setStringPayload( sentmessage );
+	    conn->sendPacket( *newpacket );
 	}
 	else
 	{
@@ -119,7 +120,7 @@ public:
 		  << " sent packet "
 		  << packet->subID() << " size " << packet->payloadSize()
 		  << od_endl;
-	    packet.release();
+	    packet = 0;
 	}
     }
 

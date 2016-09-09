@@ -14,7 +14,8 @@ ________________________________________________________________________
 #include "networkmod.h"
 
 #include "refcount.h"
-#include "netreqpacket.h"
+#include "ptrman.h"
+#include "manobjectset.h"
 #include "gendefs.h"
 #include "thread.h"
 #include "objectset.h"
@@ -29,7 +30,7 @@ namespace Network
 class Socket;
 class Server;
 class RequestPacket;
-class RequestConnectionSender;
+struct PacketSendData;
 
 
 /*\brief
@@ -73,13 +74,13 @@ public:
 			    'multithreaded' flag was set on constructor.
 			*/
 
-    RequestPacket*	pickupPacket(od_int32 reqid,int timeout /* in ms */,
+    RefMan<RequestPacket> pickupPacket(od_int32 reqid,int timeout /* in ms */,
 				     int* errorcode=0);
 			/*!<Must be called from same thread as construcor unless
 			    'multithreaded' flag was set on constructor.
 			*/
 
-    RequestPacket*	getNextExternalPacket();
+    RefMan<RequestPacket> getNextExternalPacket();
 
     static int		cInvalidRequest()	{ return 1; }
     static int		cTimeout()		{ return 2; }
@@ -110,20 +111,13 @@ private:
     BufferString		servername_;
     unsigned short		serverport_;
 
-    struct PacketSendData : public RefCount::Referenced
-    {
-				PacketSendData(const RequestPacket&,bool wait);
-	void			trySend(RequestConnection&);
-	RequestPacket		packet_;
-	bool			waitforfinish_;
-
-	enum SendStatus		{ NotAttempted, Sent, Failed } sendstatus_;
-				//Protected by connections' lock_
-    };
-
     Threads::Thread*		socketthread_;
-    RequestConnectionSender*	packetsender_;
     QEventLoop*			eventloop_;
+    Threads::ConditionVar*	eventlooplock_;
+
+    ObjectSet<PacketSendData>	sendqueue_;
+    void			sendQueueCB(CallBacker*);
+    				//Called from socketthread
 
     void			socketThreadFunc(CallBacker*);
     void			connectToHost( bool witheventloop );
@@ -137,8 +131,7 @@ private:
     bool			readFromSocket();
     bool			writeToSocket();
 
-    Network::RequestPacket*	readConnection(int);
-    Network::RequestPacket*	getNextAlreadyRead(int);
+    RefMan<RequestPacket>	getNextAlreadyRead(int);
     void			requestEnded(od_int32);
 
     friend struct		PacketSendData;
