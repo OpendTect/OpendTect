@@ -45,8 +45,10 @@ public:
 			/*!<EnumDef is assumed to remain in mem*/
     virtual		~uiComboBox();
 
-    virtual void        setReadOnly( bool = true );
-    virtual bool        isReadOnly() const;
+    virtual void	setReadOnly(bool yn=true);
+    virtual bool	isReadOnly() const;
+    void		setEditable(bool yn);
+    bool		isEditable() const;
 
     int			size() const;
     inline bool		isEmpty() const		{ return size() == 0; }
@@ -87,7 +89,7 @@ public:
 
 protected:
 
-    virtual void        setvalue_( int i )	{ setCurrentItem(i); }
+    virtual void	setvalue_( int i )	{ setCurrentItem(i); }
     virtual int		getvalue_() const	{ return currentItem(); }
 
     virtual bool	notifyUpdateRequested_(const CallBack&) {return false;}
@@ -100,7 +102,7 @@ private:
     int			oldnritems_;
     int			oldcuritem_;
     TypeSet<int>	itemids_;
-    uiStringSet	itemstrings_;
+    uiStringSet		itemstrings_;
 
     mutable BufferString rettxt_;
 
