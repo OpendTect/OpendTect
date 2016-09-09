@@ -43,6 +43,7 @@ public:
 			IDWithGroup( GroupID gid, ObjID oid )
 			    : groupnr_(gid.getI())
 			    , objnr_(oid.getI())	{}
+    virtual		~IDWithGroup()			{}
     static inline IDWithGroup get( GroupNrT grpnr, ObjNrT objnr )
 			{ return IDWithGroup(grpnr,objnr); }
 
