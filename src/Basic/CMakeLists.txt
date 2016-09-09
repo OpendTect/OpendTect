@@ -62,6 +62,7 @@ set( OD_MODULE_SOURCES
 	commandlineparser.cc
 	dateinfo.cc
 	datapack.cc
+	dbkey.cc
 	debug.cc
 	dirlist.cc
 	enums.cc

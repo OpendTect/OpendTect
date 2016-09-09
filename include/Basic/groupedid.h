@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "integerid.h"
+#include "bufstring.h"
 
 
 /*!\brief A unique identifier for an object consisting of a group and an ID
@@ -23,6 +24,9 @@ both group ID and the object ID need to be integer numbers.
 
 Usually there are a lot less groups than possible objects, so the group ID can
 be represented by a short int.
+
+The most standard GroupedID class (used for o.a. DataPack IDs) is a typedef for
+IDWithGroup<short,int>.
 
 */
 
@@ -72,8 +76,16 @@ public:
     static inline IDWithGroup getInvalid()
 				{ return IDWithGroup(-1,-1); }
 
+			// serialization to string
+    BufferString	toString() const;
+    static bool		isValidString(const char*);
+    void		fromString(const char*);
+    static IDWithGroup	getFromString(const char*);
+			// serialization to int64
+			// need I say only upto int types will fit in int64?
     od_int64		toInt64() const;
-    static IDWithGroup	fromInt64(od_int64);
+    void		fromInt64(od_int64);
+    static IDWithGroup	getFromInt64(od_int64);
 
 protected:
 
@@ -89,19 +101,70 @@ protected:
 typedef IDWithGroup<short,int> GroupedID;
 
 
-template <class GroupNrT,class ObjNrT>
-inline od_int64 IDWithGroup<GroupNrT,ObjNrT>::toInt64() const
+
+		// these functions allow a trailer afteer a pipe symbol
+		// example: 124.8|the_trailer
+mGlobal(Basic) bool isValidGroupedIDString(const char*);
+mGlobal(Basic) void getGroupedIDNumbers(const char*,od_int64&,od_int64&,
+					BufferString* trailer=0);
+
+
+template <class GroupNrT,class ObjNrT> inline
+BufferString IDWithGroup<GroupNrT,ObjNrT>::toString() const
+{
+    return BufferString( groupnr_, ".", objnr_ );
+}
+
+
+template <class GroupNrT,class ObjNrT> inline
+bool IDWithGroup<GroupNrT,ObjNrT>::isValidString( const char* str )
+{
+    return isValidGroupedIDString( str );
+}
+
+
+template <class GroupNrT,class ObjNrT> inline
+void IDWithGroup<GroupNrT,ObjNrT>::fromString( const char* str )
+{
+    od_int64 gnr, onr;
+    getGroupedIDNumbers( str, gnr, onr );
+    groupnr_ = (GroupNrT)gnr;
+    objnr_ = (ObjNrT)onr;
+}
+
+
+template <class GroupNrT,class ObjNrT> inline
+IDWithGroup<GroupNrT,ObjNrT>
+IDWithGroup<GroupNrT,ObjNrT>::getFromString( const char* str )
+{
+    IDWithGroup ret = getInvalid();
+    ret.fromString( str );
+    return ret;
+}
+
+
+template <class GroupNrT,class ObjNrT> inline
+od_int64 IDWithGroup<GroupNrT,ObjNrT>::toInt64() const
 {
     return (((od_uint64)groupnr_) << 32) + (((od_uint64)objnr_) & 0xFFFFFFFF);
 }
 
 
-template <class GroupNrT,class ObjNrT>
-inline IDWithGroup<GroupNrT,ObjNrT>
-IDWithGroup<GroupNrT,ObjNrT>::fromInt64( od_int64 i64 )
+template <class GroupNrT,class ObjNrT> inline
+void IDWithGroup<GroupNrT,ObjNrT>::fromInt64( od_int64 i64 )
 {
-    return IDWithGroup<GroupNrT,ObjNrT>( (GroupNrT)(i64 >> 32),
-					 (ObjNrT)(i64 & 0xFFFFFFFF) );
+    groupnr_ = (GroupNrT)(i64 >> 32);
+    objnr_ = (ObjNrT)(i64 & 0xFFFFFFFF);
+}
+
+
+template <class GroupNrT,class ObjNrT> inline
+IDWithGroup<GroupNrT,ObjNrT>
+IDWithGroup<GroupNrT,ObjNrT>::getFromInt64( od_int64 i64 )
+{
+    IDWithGroup ret = getInvalid();
+    ret.fromInt64( i64 );
+    return ret;
 }
 
 

@@ -1005,9 +1005,10 @@ bool getFromString( type& i, const char* s, type undef ) \
 }
 
 
-mImplGetFromStrFunc(int, strtol(s,&e,10) )
-mImplGetFromStrFunc(float, strtod(s,&e) )
-mImplGetFromStrFunc(double, strtod(s,&e) )
+mImplGetFromStrFunc( int, strtol(s,&e,0) )
+mImplGetFromStrFunc( od_int64, strtoll(s,&e,0) )
+mImplGetFromStrFunc( float, strtod(s,&e) )
+mImplGetFromStrFunc( double, strtod(s,&e) )
 
 #undef mImplGetFromStrFunc
 

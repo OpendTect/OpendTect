@@ -51,6 +51,7 @@ mGlobal(Basic) const char* toString(const OD::String&);
 mGlobal(Basic) const char* toString(const CompoundKey&);
 
 mGlobal(Basic) bool getFromString(int&,const char*,int udfval);
+mGlobal(Basic) bool getFromString(od_int64&,const char*,od_int64 udfval);
 mGlobal(Basic) bool getFromString(float&,const char*,float udfval);
 mGlobal(Basic) bool getFromString(double&,const char*,double udfval);
 mGlobal(Basic) bool getFromString(bool&,const char*);
@@ -67,6 +68,9 @@ inline double toDouble( const char* s, double defval=0 )
 
 inline int toInt( const char* s, int defval=0 )
 { int ret = defval; getFromString( ret, s, ret ); return ret; }
+
+inline od_int64 toInt64( const char* s, od_int64 defval=0 )
+{ od_int64 ret = defval; getFromString( ret, s, ret ); return ret; }
 
 
 /*!\brief Advances given pointer to first non-whitespace */
