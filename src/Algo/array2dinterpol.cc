@@ -764,8 +764,8 @@ mDefParallelCalc4Pars( ArrPolyCropper, od_static_tr("ArrPolyCropper",
 mDefParallelCalcBody
 (
     ,
-	const int iidx = idx / nrcols_;
-	const int iidy = idx % nrcols_;
+	const int iidx = (int)(idx / nrcols_);
+	const int iidy = (int)(idx % nrcols_);
 	Geom::Point2D<double> pos( mCast(double,iidx + origin_.inl()),
 				   mCast(double,iidy + origin_.crl()) );
 	if ( !poly_->isInside(pos,true,0) )
