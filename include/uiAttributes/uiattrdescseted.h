@@ -114,6 +114,7 @@ protected:
 
     uiPushButton*		addbut_;
     uiToolButton*		dispbut_;
+    uiToolButton*		procbut_;
     uiGenInput*			attrnmfld_;
     uiGenInput*			attrsetfld_;
     uiToolButton*		helpbut_;
@@ -147,6 +148,7 @@ protected:
     void			job2Set(CallBacker*);
     void			crossPlot(CallBacker*);
     void			directShow(CallBacker*);
+    void			procAttrib(CallBacker*);
     void			evalAttribute(CallBacker*);
     void			crossEvalAttrs(CallBacker*);
     void			importFromFile(const char*);

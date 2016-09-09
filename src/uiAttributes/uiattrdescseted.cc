@@ -43,6 +43,7 @@ ________________________________________________________________________
 #include "uiattribfactory.h"
 #include "uiattrinpdlg.h"
 #include "uiattrtypesel.h"
+#include "uiattrvolout.h"
 #include "uiautoattrdescset.h"
 #include "uicombobox.h"
 #include "uidesktopservices.h"
@@ -278,6 +279,10 @@ void uiAttribDescSetEd::createGroups()
 	tr("Recalculate this attribute on selected element"),
 	mCB(this,uiAttribDescSetEd,directShow) );
     dispbut_->attach( rightTo, addbut_ );
+
+    procbut_ = new uiToolButton( rightgrp, "seisout",
+	tr("Process this attribute"), mCB(this,uiAttribDescSetEd,procAttrib) );
+    procbut_->attach( rightTo, dispbut_ );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
@@ -1251,6 +1256,20 @@ void uiAttribDescSetEd::directShow( CallBacker* )
     if ( doCommit() )
 	dirshowcb.trigger();
     updateFields();
+}
+
+
+void uiAttribDescSetEd::procAttrib( CallBacker* )
+{
+    if ( !curDesc() )
+	mErrRet( tr("Please add this attribute first") )
+
+    if ( !doCommit() ) return;
+
+    uiAttrVolOut* dlg = new uiAttrVolOut( this, *attrset_, false,
+					  0, DBKey::getInvalid() );
+    dlg->setInput( curDesc()->id() );
+    dlg->show();
 }
 
 
