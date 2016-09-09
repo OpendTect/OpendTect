@@ -51,8 +51,10 @@ mExpClass(uiTools) uiODPrManagedTreeItem : public uiODTreeItem
 public:
 			uiODPrManagedTreeItem(const uiString&);
     const DBKey&	storedID() const		{ return storedid_; }
+    virtual		~uiODPrManagedTreeItem();
     void		emitPRRequest(OD::PresentationRequestType);
     virtual void	handleItemCheck(bool triggerdispreq=true)	{}
+    virtual void	prepareForShutdown();
 
 protected:
     DBKey			storedid_;

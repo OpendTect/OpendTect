@@ -232,8 +232,8 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
     , survinfo_(0)
     , title_(0)
 {
-    view_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
-    view_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
+    view_->setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
+    view_->setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 
     survbox_ = new uiSurveyBoxObject( 0 );
     addObject( survbox_ );
@@ -241,7 +241,7 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
     const mDeclAlignment( txtalign, Left, Top );
     if ( withtitle )
     {
-	title_ = view_.scene().addItem(
+	title_ = view_->scene().addItem(
 		new uiTextItem(uiPoint(10,10),mJoinUiStrs(sSurvey(),sName()),
 								    txtalign) );
 	title_->setPenColor( Color::Black() );

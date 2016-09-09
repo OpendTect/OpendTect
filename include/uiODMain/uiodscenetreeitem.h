@@ -28,6 +28,7 @@ public:
     bool		anyButtonClick(uiTreeViewItem*);
 
     int			sceneID() const;
+    void		prepareForShutdown();
 protected:
 
     uiODApplMgr*	applMgr();

@@ -570,13 +570,13 @@ uiGroup* uiCreate2DGrid::createPreviewGroup()
     preview_ = new uiGrid2DMapObject;
     preview_->graphItem().setZValue( 1 );
     previewmap_->addObject( preview_ );
-    previewmap_->setStretch( 0, 0 );
-    previewmap_->setPrefWidth( 300 );
-    previewmap_->setPrefHeight( 300 );
+    previewmap_->attachGroup().setStretch( 0, 0 );
+    previewmap_->attachGroup().setPrefWidth( 300 );
+    previewmap_->attachGroup().setPrefHeight( 300 );
 
     nrinlinesfld_ = new uiLabel( grp, uiStrings::sEmptyString() );
     nrinlinesfld_->setPrefWidthInChar( 40 );
-    nrinlinesfld_->attach( centeredBelow, previewmap_ );
+    nrinlinesfld_->attach( centeredBelow, &previewmap_->attachGroup() );
     nrcrlinesfld_ = new uiLabel( grp, uiStrings::sEmptyString() );
     nrcrlinesfld_->setPrefWidthInChar( 40 );
     nrcrlinesfld_->attach( centeredBelow, nrinlinesfld_ );

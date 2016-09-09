@@ -151,6 +151,9 @@ void uiODTreeItem::removeAllItems()
     {
 	if ( !children_[0] ) continue;
 	children_[0]->prepareForShutdown();
+	mDynamicCastGet(uiODTreeItem*,odtreeitem,children_[0]);
+	if ( odtreeitem && odtreeitem->nrChildren() )
+	    odtreeitem->removeAllItems();
 	removeChild( children_[0] );
     }
 }

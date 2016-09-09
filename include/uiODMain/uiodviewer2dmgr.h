@@ -37,8 +37,9 @@ mExpClass(uiODMain) uiODViewer2DMgr : public OD::VwrTypePresentationMgr
 { mODTextTranslationClass(uiODViewer2DMgr);
 public:
 
-    OD::ViewerTypeID		viewerTypeID()	{ return theViewerTypeID(); }
-    static OD::ViewerTypeID		theViewerTypeID()
+    OD::ViewerTypeID		viewerTypeID()	const
+    				{ return theViewerTypeID(); }
+    static OD::ViewerTypeID	theViewerTypeID()
 				{ return theViewer2DTypeID; }
 
     static void			initClass();

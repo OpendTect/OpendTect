@@ -17,6 +17,19 @@ uiODPrManagedTreeItem::uiODPrManagedTreeItem( const uiString& nm )
 }
 
 
+uiODPrManagedTreeItem::~uiODPrManagedTreeItem()
+{
+}
+
+
+
+void uiODPrManagedTreeItem::prepareForShutdown()
+{
+    uiTreeItem::prepareForShutdown();
+    emitPRRequest( OD::Vanish );
+}
+
+
 void uiODPrManagedTreeItem::emitPRRequest( OD::PresentationRequestType req )
 {
     PtrMan<OD::ObjPresentationInfo> objprinfo = getObjPRInfo();
@@ -192,7 +205,6 @@ void uiODPrManagedParentTreeItem::removeChildren( const DBKey& mid )
 	if ( !childitem || mid!=childitem->storedID() )
 	    continue;
 
-	childitem->prepareForShutdown();
 	removeChild( childitem );
     }
 }

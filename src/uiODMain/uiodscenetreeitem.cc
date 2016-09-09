@@ -122,6 +122,12 @@ uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm )
 {}
 
 
+void uiODSceneTreeItem::prepareForShutdown()
+{
+    uiODPrManagedTreeItem::prepareForShutdown();
+}
+
+
 bool uiODSceneTreeItem::anyButtonClick( uiTreeViewItem* item )
 {
     if ( item!=uitreeviewitem_ )

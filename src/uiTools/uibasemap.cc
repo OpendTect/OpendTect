@@ -343,25 +343,25 @@ void uiBaseMapObject::updateStyle()
 
 // uiBaseMap
 uiBaseMap::uiBaseMap( uiParent* p )
-    : uiGroup(p,"Basemap")
-    , view_(*new uiGraphicsView(this,"Basemap"))
-    , w2ui_(*new uiWorld2Ui)
+    : w2ui_(*new uiWorld2Ui)
     , worlditem_(*new uiGraphicsItem())
     , changed_(false)
     , objectAdded(this)
     , objectRemoved(this)
     , centerworlditem_(false)
 {
-    view_.scene().addItem( &worlditem_ );
-    view_.reSize.notify( mCB(this,uiBaseMap,reSizeCB) );
+    bmgroup_ = new uiGroup( p, "Basemap" );
+    view_ = new uiGraphicsView( bmgroup_,"Basemap" );
+    view_->scene().addItem( &worlditem_ );
+    view_->reSize.notify( mCB(this,uiBaseMap,reSizeCB) );
 }
 
 
 uiBaseMap::~uiBaseMap()
 {
     deepErase( objects_ );
-    view_.scene().removeItem( &worlditem_ );
-    delete &view_;
+    view_->scene().removeItem( &worlditem_ );
+    delete view_;
     delete &w2ui_;
 }
 
@@ -381,8 +381,8 @@ void uiBaseMap::setView( const uiWorldRect& wr )
 
 void uiBaseMap::updateTransform()
 {
-    const uiRect viewrect( 0, 0, (int)view_.scene().width(),
-				 (int)view_.scene().height() );
+    const uiRect viewrect( 0, 0, (int)view_->scene().width(),
+				 (int)view_->scene().height() );
 
     double wrwidth = wr_.width();
     double wrheight = wr_.bottom() - wr_.top();
@@ -542,7 +542,7 @@ void uiBaseMap::reDraw( bool )
 
 const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
 {
-    const uiGraphicsItem* itm = view_.scene().itemAt( pt );
+    const uiGraphicsItem* itm = view_->scene().itemAt( pt );
     if ( !itm ) return 0;
 
     mDynamicCastGet(const uiTextItem*,txtitm,itm)
@@ -562,7 +562,7 @@ const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
 
 
 uiGraphicsScene& uiBaseMap::scene()
-{ return view_.scene(); }
+{ return view_->scene(); }
 
 
 void uiBaseMap::centerWorldItem( bool yn )

@@ -152,7 +152,6 @@ uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
     detachAllNotifiers();
     if ( vw2dpickset_ )
 	viewer2D()->dataMgr()->removeObject( vw2dpickset_ );
-    emitPRRequest( OD::Vanish );
     pickset_.unRef();
 }
 
@@ -245,6 +244,7 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
 		    doSave();
 	    }
 
+	    this->prepareForShutdown();
 	    parent_->removeChild( this );
 	} break;
     }

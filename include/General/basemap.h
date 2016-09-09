@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "namedobj.h"
 #include "notify.h"
+#include "odpresentationmgr.h"
 
 namespace OD
 {
@@ -116,12 +117,18 @@ protected:
     BufferString		typenm_;
 };
 
+static OD::ViewerTypeID theViewerBasemapTypeID( OD::ViewerTypeID::get(2) );
 
 /*!Base class for a Basemap. */
-mExpClass(General) BaseMap
+mExpClass(General) BaseMap : public OD::PresentationManagedViewer
 {
 public:
 
+    				BaseMap();
+    OD::ViewerTypeID		viewerTypeID() const
+    				{ return theViewerTypeID(); }
+    static OD::ViewerTypeID	theViewerTypeID()
+				{ return theViewerBasemapTypeID; }
     virtual void		addObject(BaseMapObject*)		= 0;
 				/*!<Object maintained by caller. Adding an
 				    existing will trigger update */

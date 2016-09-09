@@ -131,7 +131,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     {
 	uiSplitter* spl = new uiSplitter( botgrp_ );
 	survmap_->view().setPrefWidth( mDefSize );
-	spl->addGroup( survmap_ );
+	spl->addGroup( &survmap_->attachGroup() );
 	spl->addGroup( amplgrp );
 	spl->attach( ensureBelow, infofld_ );
     }

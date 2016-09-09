@@ -230,7 +230,6 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
 {
     detachAllNotifiers();
-    emitPRRequest( OD::Vanish );
     set_.unRef();
 }
 

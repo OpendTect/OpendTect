@@ -121,3 +121,11 @@ void BaseMapMarkers::getPoints( int shapeidx, TypeSet<Coord>& res ) const
 
 void BaseMapMarkers::updateGeometry()
 { changed.trigger(); }
+
+
+BaseMap::BaseMap()
+    : OD::PresentationManagedViewer()
+{
+    mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
+    viewerobjid_ = OD::ViewerObjID::get( vwrid++ );
+}

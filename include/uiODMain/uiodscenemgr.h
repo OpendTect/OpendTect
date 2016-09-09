@@ -66,7 +66,8 @@ mExpClass(uiODMain) uiODSceneMgr : public OD::VwrTypePresentationMgr
 { mODTextTranslationClass(uiODSceneMgr)
 public:
 
-    OD::ViewerTypeID		viewerTypeID()	{ return theViewerTypeID(); }
+    OD::ViewerTypeID		viewerTypeID()	const
+    				{ return theViewerTypeID(); }
     static OD::ViewerTypeID	theViewerTypeID()
 				{ return sSceneViewerTypeID; }
 

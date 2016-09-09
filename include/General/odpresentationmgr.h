@@ -117,7 +117,7 @@ protected:
 mExpClass(General) VwrTypePresentationMgr : public CallBacker
 {
 public:
-    virtual ViewerTypeID	viewerTypeID()		=0;
+    virtual ViewerTypeID	viewerTypeID() const		=0;
     void			request(PresentationRequestType,
 					const IOPar&,
 				    ViewerObjID skipvwrid

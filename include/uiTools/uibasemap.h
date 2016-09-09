@@ -69,7 +69,7 @@ private:
 };
 
 
-mExpClass(uiTools) uiBaseMap : public BaseMap, public uiGroup
+mExpClass(uiTools) uiBaseMap : public BaseMap
 {
 public:
 				uiBaseMap(uiParent*);
@@ -95,7 +95,8 @@ public:
 
     uiGraphicsItem&		worldItem()		{ return worlditem_;}
     void			centerWorldItem(bool);
-    inline uiGraphicsView&	view()			{ return view_; }
+    inline uiGroup&		attachGroup()		{ return *bmgroup_; }
+    inline uiGraphicsView&	view()			{ return *view_; }
     uiGraphicsScene&		scene();
     inline const uiWorld2Ui&	getWorld2Ui() const	{ return w2ui_; }
 
@@ -106,7 +107,8 @@ protected:
 
     int				indexOf(const BaseMapObject*) const;
 
-    uiGraphicsView&		view_;
+    uiGroup*			bmgroup_;
+    uiGraphicsView*		view_;
     uiGraphicsItem&		worlditem_;
     ObjectSet<uiBaseMapObject>	objects_;
     bool			changed_;

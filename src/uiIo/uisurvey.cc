@@ -523,8 +523,8 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
 void uiSurvey::fillRightGroup( uiGroup* grp )
 {
     survmap_ = new uiSurveyMap( grp );
-    survmap_->setPrefWidth( sMapWidth );
-    survmap_->setPrefHeight( sMapHeight );
+    survmap_->attachGroup().setPrefWidth( sMapWidth );
+    survmap_->attachGroup().setPrefHeight( sMapHeight );
 
     uiButton* lastbut = 0;
     ObjectSet<uiSurvey::Util>& utils = getUtils();
@@ -537,7 +537,7 @@ void uiSurvey::fillRightGroup( uiGroup* grp )
 	but->setToolTip( util.tooltip_ );
 	utilbuts_ += but;
 	if ( !lastbut )
-	    but->attach( rightTo, survmap_ );
+	    but->attach( rightTo, &survmap_->attachGroup() );
 	else
 	    but->attach( alignedBelow, lastbut );
 	lastbut = but;
