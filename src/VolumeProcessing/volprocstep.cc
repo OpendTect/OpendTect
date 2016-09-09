@@ -116,7 +116,11 @@ void VolProc::Step::resetInput()
     inputslotids_.erase();
     for ( int idx=0; idx<getNrInputs(); idx++ )
     {
-	inputs_ += 0;
+	if ( inputs_.validIdx(idx) )
+	    inputs_.replace( idx, 0 );
+	else
+	    inputs_ += 0;
+
 	inputslotids_ += idx;
     }
 }
