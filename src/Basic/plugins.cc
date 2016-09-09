@@ -445,14 +445,18 @@ void PluginManager::mkALOList()
 
 
 static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
-			const char* libnm )
+			const char* libnm, bool mandatory )
 {
     mGetFn(ArgcArgvCCRetFn,sla,"Init","Plugin",libnm);
     if ( !fn ) // their bad
     {
-	const BufferString libnmonly = FilePath(libnm).fileName();
-	ErrMsg( BufferString( libnmonly,
-		    " does not have a InitPlugin function"));
+	if ( mandatory )
+	{
+	    const BufferString libnmonly = FilePath(libnm).fileName();
+	    ErrMsg( BufferString( libnmonly,
+			" does not have a InitPlugin function"));
+	}
+
 	return false;
     }
 
@@ -507,7 +511,7 @@ bool PluginManager::load( const char* libnm )
 	    return false;
 	}
 
-	if ( !loadPlugin(existing->sla_,GetArgC(),GetArgV(),libnmonly) )
+	if ( !loadPlugin(existing->sla_,GetArgC(),GetArgV(),libnmonly,true) )
 	{
 	    existing->info_ = 0;
 	    existing->sla_->close();
@@ -519,7 +523,7 @@ bool PluginManager::load( const char* libnm )
     }
     else
     {
-	if ( !loadPlugin(data->sla_,GetArgC(),GetArgV(),libnmonly) )
+	if ( !loadPlugin(data->sla_,GetArgC(),GetArgV(),libnmonly,true) )
 	{
 	    data->sla_->close();
 	    delete data;
@@ -553,7 +557,7 @@ void PluginManager::loadAuto( bool late )
 	if ( data.info_ && dontloadlist.isPresent(modnm) )
 	    continue;
 
-	if ( !loadPlugin(data.sla_,GetArgC(),GetArgV(),data.name_) )
+	if ( !loadPlugin(data.sla_,GetArgC(),GetArgV(),data.name_,false) )
 	{
 	    data.info_ = 0;
 	    data.sla_->close();
