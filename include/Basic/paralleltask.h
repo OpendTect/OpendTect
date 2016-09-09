@@ -280,7 +280,7 @@ interp.execute();
 	    bool doWork( od_int64 start, od_int64 stop, int ) \
 	    { \
 		preop; \
-		for ( int idx=(int) start; idx<=stop; idx++ ) \
+		for ( od_int64 idx=start; idx<=stop; idx++ ) \
 		    { impl; if ( reportprogress_ ) quickAddToNrDone(idx); } \
 		postop; \
 		return true; \
