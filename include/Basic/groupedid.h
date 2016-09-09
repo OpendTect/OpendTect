@@ -77,14 +77,13 @@ public:
 				{ return IDWithGroup(-1,-1); }
 
 			// serialization to string
-    BufferString	toString() const;
+    virtual BufferString toString() const;
     static bool		isValidString(const char*);
-    void		fromString(const char*);
+    virtual void	fromString(const char*);
     static IDWithGroup	getFromString(const char*);
 			// serialization to int64
-			// need I say only upto int types will fit in int64?
-    od_int64		toInt64() const;
-    void		fromInt64(od_int64);
+    virtual od_int64	toInt64() const;
+    virtual void	fromInt64(od_int64);
     static IDWithGroup	getFromInt64(od_int64);
 
 protected:
@@ -112,7 +111,9 @@ mGlobal(Basic) void getGroupedIDNumbers(const char*,od_int64&,od_int64&,
 template <class GroupNrT,class ObjNrT> inline
 BufferString IDWithGroup<GroupNrT,ObjNrT>::toString() const
 {
-    return BufferString( groupnr_, ".", objnr_ );
+    BufferString ret( groupnr_, "." );
+    ret.add( objnr_ );
+    return ret;
 }
 
 
