@@ -68,9 +68,9 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     const bool is2d = ad.is2D();
     const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
 
-    setCaption( is2d ? tr("Create Data Attribute") :
+    setCaption( is2d ? tr("Create 2D Data Attribute") :
        ( multioutput ? tr("Create Multi-attribute Output")
-		     : tr("Create Volume Attribute")) );
+		     : tr("Create 3D Volume Attribute")) );
 
     setHelpKey( is2d ? mODHelpKey(mAttrVolOut2DHelpID)
 		     : mODHelpKey(mAttrVolOutHelpID) );
@@ -156,6 +156,13 @@ uiAttrVolOut::~uiAttrVolOut()
     delete &subselpar_;
     delete ads_;
     delete nlamodel_;
+}
+
+void uiAttrVolOut::setInput( const Attrib::DescID& descid )
+{
+    Attrib::Desc* desc = ads_->getDesc( descid );
+    todofld_->setDesc( desc );
+    attrSel( 0 );
 }
 
 
