@@ -103,7 +103,7 @@ public:
     void		getRelevant(PropertyRef::StdType,
 				    BufferStringSet&) const;
 
-    const Formula*	get( const char* nm ) const
+    const Formula*	getByName( const char* nm ) const
 			{
 			    const int idxof = getIndexOf( nm );
 			    return idxof<0 ? 0 : (*this)[idxof];

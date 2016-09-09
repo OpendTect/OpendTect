@@ -2,7 +2,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	J.C. Glas 
+ Author:	J.C. Glas
  Date:		January 2009
 ________________________________________________________________________
 
@@ -55,7 +55,7 @@ bool ObjectFinder::findNodes( NodeTag tag,
 
 	ObjectSet<const CallBacker> entities;
 	toolbars[tbidx]->getEntityList( entities );
-	
+
 	for ( int objidx=0; objidx<entities.size(); objidx++ )
 	{
 	    if ( findNodes(entities[objidx], nodelist, searchexpr, false) )
@@ -75,7 +75,7 @@ bool ObjectFinder::findNodes( NodeTag tag,
 
     if ( tag!=Everything && tag!=CurWinTopGrp )
 	return res;
-	
+
     uiGroupObj* curwintopgrp = *const_cast<uiMainWin&>(curwin_).topGroup();
     return findNodes( curwintopgrp, nodelist, searchexpr) || res;
 }
@@ -95,13 +95,13 @@ static void addAlias( BufferString& name, BufferStringSet& aliases )
     {
 	if ( aliases[idx-1]->size() >= aliases[idx]->size() )
 	    return;
-	aliases.swap( idx-1, idx );
+	aliases.getStringSet().swap( idx-1, idx );
     }
 }
 
 
 void ObjectFinder::getAliases( const CallBacker& entity,
-			       BufferStringSet& aliases ) 
+			       BufferStringSet& aliases )
 {
     aliases.erase();
     const UIEntity uientity( &entity );
@@ -110,11 +110,11 @@ void ObjectFinder::getAliases( const CallBacker& entity,
     BufferString tiptext = uientity.toolTip();
     BufferString alttext;
 
-    mDynamicCastGet( const uiLabel*, uilabel, uientity.object() ); 
+    mDynamicCastGet( const uiLabel*, uilabel, uientity.object() );
     if ( uilabel )
 	alttext = uilabel->text().getFullString();
 
-    mDynamicCastGet( const uiButton*, uibut, uientity.object() ); 
+    mDynamicCastGet( const uiButton*, uibut, uientity.object() );
     if ( uibut )
     {
 	alttext = const_cast<uiButton*>(uibut)->text().getFullString();
@@ -136,9 +136,9 @@ void ObjectFinder::getAliases( const CallBacker& entity,
 }
 
 
-bool ObjectFinder::findNodes( const CallBacker* root,  
+bool ObjectFinder::findNodes( const CallBacker* root,
 			      ObjectSet<const CallBacker>* nodelist,
-       			      const char* searchexpr, bool visonly ) const
+			      const char* searchexpr, bool visonly ) const
 {
     bool res = false;
     const UIEntity uientity( root );
@@ -176,7 +176,7 @@ bool ObjectFinder::findNodes( const CallBacker* root,
     for ( int idx=0; children && idx<children->size(); idx++ )
     {
 	mDynamicCastGet( const uiObject*, uiobj, (*children)[idx] );
-	if ( !uiobj ) 
+	if ( !uiobj )
 	    continue;
 	if ( findNodes(uiobj, nodelist, searchexpr, visonly) )
 	    mResTrue(res,nodelist);
@@ -243,7 +243,7 @@ bool ObjectFinder::getAncestor( NodeTag& curtag,
 {
     if ( curtag==CurWinTopGrp || curtag==AllToolbars || curtag==AllDockWins )
 	mReturnTag( Everything );
-    
+
     const ObjectSet<uiToolBar>& toolbars = curwin_.toolBars();
     if ( curtag>=ToolbarBase && curtag<ToolbarBase+toolbars.size() )
 	mReturnTag( AllToolbars );
@@ -270,15 +270,15 @@ bool ObjectFinder::getAncestor( NodeTag& curtag,
 	curtag = (NodeTag)(DockWinBase+dockwinidx);
 
     if ( curnode == *const_cast<uiMainWin&>(curwin_).topGroup() )
-    	curtag = CurWinTopGrp;
-    
+	curtag = CurWinTopGrp;
+
     return true;
 }
 
 
 bool ObjectFinder::selectNodes( ObjectSet<const CallBacker>& nodesfound,
 				const FileMultiString& keys,
-       				int* unfoundkeyidx ) const
+				int* unfoundkeyidx ) const
 {
     for ( int keyidx=0; keyidx<mSepStrSize(keys); keyidx++ )
     {
@@ -289,7 +289,7 @@ bool ObjectFinder::selectNodes( ObjectSet<const CallBacker>& nodesfound,
 	{
 	    NodeTag curtag = UiObjNode;
 	    const CallBacker* curnode = nodesfound[idx];
-	    
+
 	    while ( true )
 	    {
 		if ( isKeyInTree(curtag, curnode, keys[keyidx]) )
@@ -305,7 +305,7 @@ bool ObjectFinder::selectNodes( ObjectSet<const CallBacker>& nodesfound,
 		    if ( unfoundkeyidx )
 			*unfoundkeyidx = keyidx;
 		    return false;
-		}	    
+		}
 	    }
 	}
 
@@ -341,7 +341,7 @@ int ObjectFinder::deleteGreys( ObjectSet<const CallBacker>& objsfound, bool yn )
     int nrgreyfound = 0;
     for ( int idx=objsfound.size()-1; idx>=0; idx-- )
     {
-	if ( !UIEntity(objsfound[idx]).sensitive() ) 
+	if ( !UIEntity(objsfound[idx]).sensitive() )
 	{
 	    nrgreyfound++;
 	    if ( yn )

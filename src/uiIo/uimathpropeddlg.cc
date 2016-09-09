@@ -42,7 +42,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     formfld_->setNonSpecInputs( availpropnms );
 
     uiToolButtonSetup tbsu( "rockphys", tr("Choose RockPhysics Formula"),
-		    mCB(this,uiMathPropEdDlg,rockPhysReq), 
+		    mCB(this,uiMathPropEdDlg,rockPhysReq),
 		    uiStrings::sRockPhy() );
     formfld_->addButton( tbsu );
 }
@@ -75,7 +75,7 @@ void uiMathPropEdDlg::setPType4Inp( int inpidx )
     if ( formfld_->isSpec(inpidx) || formfld_->isConst(inpidx) )
 	return;
 
-    const PropertyRef* pr = prs_.get( formfld_->getInput(inpidx) );
+    const PropertyRef* pr = prs_.getByName( formfld_->getInput(inpidx) );
     PropertyRef::StdType ptyp = pr ? pr->stdType() : PropertyRef::Other;
     formfld_->inpFld(inpidx)->setPropType( ptyp );
 }

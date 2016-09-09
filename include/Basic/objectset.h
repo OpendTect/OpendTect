@@ -38,7 +38,7 @@ public:
     typedef int			size_type;
     typedef T			object_type;
 
-    inline 			ObjectSet();
+    inline			ObjectSet();
     inline			ObjectSet(const ObjectSet<T>&);
     inline virtual		~ObjectSet()		{}
     inline ObjectSet<T>&	operator=(const ObjectSet<T>&);
@@ -49,25 +49,18 @@ public:
     inline size_type		size() const		{ return vec_.size(); }
     inline virtual od_int64	nrItems() const		{ return size(); }
 
-#ifdef __MAC_LLVM_COMPILER_ERROR__
-    inline T*			operator[](size_type);
-    inline const T*		operator[](size_type) const;
-#else
-    inline virtual T*		operator[](size_type);
-    inline virtual const T*	operator[](size_type) const;
-#endif
-    inline virtual T*		operator[](const T*) const; //!< check & unconst
-
     inline virtual bool		validIdx(od_int64) const;
     inline virtual bool		isPresent(const T*) const;
     inline virtual size_type	indexOf(const T*) const;
+    inline virtual T*		get(size_type);
+    inline virtual const T*	get(size_type) const;
+    inline virtual T*		get(const T*) const; //!< check & unconst
     inline T*			first();
     inline const T*		first() const;
     inline T*			last();
     inline const T*		last() const;
 
     inline ObjectSet<T>&	add( T* t )		{ return doAdd(t); }
-    inline ObjectSet<T>&	operator +=( T* t )	{ return doAdd( t ); }
     inline void			push( T* t )		{ doAdd( t ); }
     inline bool			addIfNew(T*);
     inline virtual T*		replace(size_type idx,T*);
@@ -77,14 +70,19 @@ public:
     inline virtual void		copy(const ObjectSet<T>&);
     inline virtual void		append(const ObjectSet<T>&);
     inline virtual void		swap(od_int64,od_int64);
-    inline virtual void		reverse(); 
-    
+    inline virtual void		reverse();
+
 
     inline virtual void		erase()			{ plainErase(); }
     inline virtual T*		pop();
     virtual inline T*		removeSingle(size_type,bool keep_order=true);
-    				/*!<\returns the removed pointer. */
+				/*!<\returns the removed pointer. */
     virtual void		removeRange(size_type from,size_type to);
+
+    inline ObjectSet<T>&	operator +=( T* t )	{ return doAdd( t ); }
+    inline T*			operator[]( size_type i )	{return get(i);}
+    inline const T*		operator[]( size_type i ) const	{return get(i);}
+    inline const T*		operator[]( const T* t ) const	{return get(t);}
     virtual ObjectSet<T>&	operator -=(T*);
 
 protected:
@@ -303,7 +301,7 @@ bool ObjectSet<T>::validIdx( od_int64 idx ) const
 
 
 template <class T> inline
-T* ObjectSet<T>::operator[]( size_type idx )
+T* ObjectSet<T>::get( size_type idx )
 {
 #ifdef __debug__
     if ( !validIdx(idx) )
@@ -314,7 +312,7 @@ T* ObjectSet<T>::operator[]( size_type idx )
 
 
 template <class T> inline
-const T* ObjectSet<T>::operator[]( size_type idx ) const
+const T* ObjectSet<T>::get( size_type idx ) const
 {
 #ifdef __debug__
     if ( !validIdx(idx) )
@@ -325,7 +323,7 @@ const T* ObjectSet<T>::operator[]( size_type idx ) const
 
 
 template <class T> inline
-T* ObjectSet<T>::operator[]( const T* t ) const
+T* ObjectSet<T>::get( const T* t ) const
 {
     const size_type idx = indexOf(t);
     return idx < 0 ? 0 : const_cast<T*>(t);

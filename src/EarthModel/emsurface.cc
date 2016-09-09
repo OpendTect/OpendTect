@@ -39,12 +39,12 @@ void SurfaceIOData::clear()
 {
     rg.init(false);
     dbinfo = "";
-    deepErase(valnames);
-    deepErase(sections);
-    deepErase(linenames);
-    deepErase(linesets);
-    geomids.erase();
-    trcranges.erase();
+    valnames.setEmpty();
+    sections.setEmpty();
+    linenames.setEmpty();
+    linesets.setEmpty();
+    geomids.setEmpty();
+    trcranges.setEmpty();
 }
 
 
@@ -73,10 +73,10 @@ void SurfaceIOData::use( const Surface& surf )
 	    valnames += new BufferString( horizon->auxdata.auxDataName(idx) );
     }
 
-    linenames.erase();
-    linesets.erase();
-    geomids.erase();
-    trcranges.erase();
+    linenames.setEmpty();
+    linesets.setEmpty();
+    geomids.setEmpty();
+    trcranges.setEmpty();
     mDynamicCastGet(const Horizon2D*,horizon2d,&surf);
     if ( horizon2d )
     {
@@ -187,7 +187,7 @@ void SurfaceIODataSelection::setDefault()
 {
     rg = sd.rg;
     seltrcranges = sd.trcranges;
-    selvalues.erase(); selsections.erase();
+    selvalues.setEmpty(); selsections.setEmpty();
     for ( int idx=0; idx<sd.valnames.size(); idx++ )
 	selvalues += idx;
     for ( int idx=0; idx<sd.sections.size(); idx++ )

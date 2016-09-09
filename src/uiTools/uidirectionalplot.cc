@@ -121,7 +121,7 @@ void uiDirectionalPlot::gatherInfo()
 	    if ( isempty_ )
 	    {
 		isempty_ = false;
-		const Stats::SectorPartData& spd = data_.get(isect,0);
+		const Stats::SectorPartData& spd = data_.getPartData(isect,0);
 		posrg_.start = posrg_.stop = spd.pos_;
 		maxcount_ = spd.count_;
 	    }
@@ -263,7 +263,7 @@ void uiDirectionalPlot::drawHeader()
 	{ delete hdrannotitm1_; hdrannotitm1_ = 0; }
     else if ( !hdrannotitm1_ )
     {
-	hdrannotitm1_ = scene().addItem( 
+	hdrannotitm1_ = scene().addItem(
 			new uiTextItem(toUiString(setup_.nameforval_),al));
 	hdrannotitm1_->setPos( uiPoint(0,0) );
     }
@@ -273,7 +273,7 @@ void uiDirectionalPlot::drawHeader()
     else if ( !hdrannotitm2_ )
     {
 	al.set( OD::Alignment::Right );
-	hdrannotitm2_ = scene().addItem( 
+	hdrannotitm2_ = scene().addItem(
 			new uiTextItem(mToUiStringTodo(setup_.hdrannot_),al) );
     }
 
@@ -321,15 +321,15 @@ void uiDirectionalPlot::drawDirAnnot()
 	for ( int idx=0; idx<4; idx++ )
 	{
 	    const bool isew = idx % 2;
-	    const uiString txt = idx == 0 ? uiStrings::sNorth(true) 
-			      : (idx == 1 ? uiStrings::sEast(true) 
+	    const uiString txt = idx == 0 ? uiStrings::sNorth(true)
+			      : (idx == 1 ? uiStrings::sEast(true)
 			      : (idx == 2 ? uiStrings::sSouth(true)
-			      		  : uiStrings::sWest(true)));
-	    OD::Alignment al( isew ? (idx==1 ? OD::Alignment::Left : 
+					  : uiStrings::sWest(true)));
+	    OD::Alignment al( isew ? (idx==1 ? OD::Alignment::Left :
 				OD::Alignment::Right) : OD::Alignment::HCenter,
 		          isew ? OD::Alignment::VCenter
-			  : (idx == 2 ? OD::Alignment::Top : 
-			  			  OD::Alignment::Bottom) );
+			  : (idx == 2 ? OD::Alignment::Top :
+						  OD::Alignment::Bottom) );
 	    uiTextItem* ti = scene().addItem( new uiTextItem(txt,al) );
 	    dirtxtitms_ += ti;
 

@@ -72,7 +72,6 @@ int CBVSIOMgr::getFileNr( const char* fnm )
 
 CBVSIOMgr::~CBVSIOMgr()
 {
-    deepErase( fnames_ );
 }
 
 

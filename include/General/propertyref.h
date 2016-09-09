@@ -189,7 +189,7 @@ public:
     inline bool		isPresent( const PropertyRef* pr ) const
 			{ return ObjectSet<const PropertyRef>::isPresent(pr); }
 
-    inline const PropertyRef* get( const char* nm ) const
+    inline const PropertyRef* getByName( const char* nm ) const
 			{ const int idx = indexOf(nm);
 			  return idx < 0 ? 0 : (*this)[idx]; }
 

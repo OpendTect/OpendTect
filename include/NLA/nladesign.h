@@ -36,8 +36,8 @@ public:
 			{
 			    if ( this != &sd )
 			    {
-				deepCopy( inputs, sd.inputs );
-				deepCopy( outputs, sd.outputs );
+				inputs = sd.inputs;
+				outputs = sd.outputs;
 				hiddensz = sd.hiddensz;
 				classification = sd.classification;
 			    }
@@ -46,11 +46,11 @@ public:
 
     inline void		clear()
 			{
-			    deepErase(inputs); deepErase(outputs);
+			    inputs.setEmpty(); outputs.setEmpty();
 			    hiddensz = 0; classification = false;
 			}
     inline bool		isSupervised() const
-			{ return outputs.size(); }
+			{ return !outputs.isEmpty(); }
 
     static inline int	finalNrHiddenNodes( int usrsz, int nrinp )
 			{

@@ -73,7 +73,6 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 
 uiIOSelect::~uiIOSelect()
 {
-    deepErase( entries_ );
 }
 
 
@@ -165,7 +164,7 @@ void uiIOSelect::updateFromEntries()
 
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
-	const char* usrnm = userNameFromKey(*entries_[idx]);
+	const char* usrnm = userNameFromKey( entries_.get(idx) );
 	if ( usrnm )
 	    inp_->addItem( toUiString(usrnm) );
 	else
@@ -189,7 +188,7 @@ bool uiIOSelect::haveEntry( const char* key ) const
 	return haveempty_;
 
     for ( int idx=0; idx<entries_.size(); idx++ )
-	if ( *entries_[idx] == key ) return true;
+	if ( entries_.get(idx) == key ) return true;
 
     return false;
 }
@@ -210,7 +209,8 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
     for ( int idx=0; idx<nrentries; idx++ )
     {
 	const char* key = entries_.get( idx ).buf();
-	if ( iopar.findKeyFor(key) ) continue;
+	if ( iopar.findKeyFor(key) )
+	    continue;
 
 	lastidx++;
 	iopar.set( IOPar::compKey(sKey::IOSelection(),lastidx), key );
@@ -428,7 +428,7 @@ void uiIOSelect::selDone( CallBacker* )
 void uiIOSelect::setEmpty()
 {
     inp_->setEmpty();
-    entries_.erase();
+    entries_.setEmpty();
 }
 
 

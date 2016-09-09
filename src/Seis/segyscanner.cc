@@ -256,9 +256,8 @@ int SEGY::Scanner::finish( bool allok )
 void SEGY::Scanner::addFailed( const uiString& errmsg )
 {
     failerrmsgs_.add( errmsg );
-    BufferString* bs = fnms_[curfidx_];
-    failedfnms_ += new BufferString( *bs );
-    fnms_ -= bs;
+    failedfnms_.add( fnms_.get(curfidx_) );
+    fnms_.removeSingle( curfidx_ );
     curfidx_--;
     closeTr();
 }

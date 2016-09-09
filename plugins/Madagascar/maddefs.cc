@@ -238,14 +238,14 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 	{
 	    strm.getLine( line );
 	    groups_.addIfNew( line );
-	    def->group_ = find( groups_, line );
+	    def->group_ = find( groups_.getStringSet(), line );
 	}
     }
 
     if ( !def->group_ )
     {
 	groups_.addIfNew( "<unknown>" );
-	def->group_ = find( groups_, "<unknown>" );
+	def->group_ = find( groups_.getStringSet(), "<unknown>" );
     }
 
     defs_ += def;

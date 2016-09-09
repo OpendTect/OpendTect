@@ -50,7 +50,7 @@ Language:
 Byte order:
 
 	__little__	little-endian
- 
+
 Always defined:
 
 	__islittle__	'true' if little endian machine, false otherwise
@@ -79,28 +79,7 @@ Always defined:
 
 #if defined( __mac__ )
 # define __unix__ 1
-
-//This is a fix to fix the bug 6644037 at bugreport.apple.com
-//This bug makes the compiler not link the objectset's virtual functions under
-//some conditions.
-# if defined( __clang__) 
-#  if ( __clang_major__==5 ) && ( __clang_minor__==1 )
-#    ifndef __MAC_LLVM_COMPILER_ERROR__
-#     define LLVM_ERROR
-#    endif
-#   endif
-#  endif
-#  if ( __clang_major__==6 ) && ( __clang_minor__==0 )
-#   ifndef __MAC_LLVM_COMPILER_ERROR__
-#    define LLVM_ERROR
-#   endif
-#  endif
-# endif
-
-# ifdef LLVM_ERROR
-#  pragma message "This version of clang is prone to errors " \
-		    "Set __MAC_LLVM_COMPILER_ERROR__ to fix it"
-# endif
+#endif
 
 #ifndef __unix__
 #ifndef __win__

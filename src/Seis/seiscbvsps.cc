@@ -104,7 +104,7 @@ bool CBVSSeisPSIOProvider::getGeomIDs( const char* dirnm,
 bool CBVSSeisPSIOProvider::getLineNames( const char* dirnm,
 					 BufferStringSet& linenms) const
 {
-    deepErase( linenms );
+    linenms.setEmpty();
     TypeSet<Pos::GeomID> geomids;
     if ( !getGeomIDs(dirnm,geomids) )
 	return false;
@@ -112,7 +112,7 @@ bool CBVSSeisPSIOProvider::getLineNames( const char* dirnm,
     for ( int idx=0; idx<geomids.size(); idx++ )
 	linenms.add( Survey::GM().getName(geomids[idx]) );
 
-    return linenms.size();
+    return !linenms.isEmpty();
 }
 
 

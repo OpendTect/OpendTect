@@ -705,15 +705,15 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 	BufferString gathertoberemoved = oldgathernms.get( 0 );
 	const int newgatheridx = newgathernms.indexOf( gathertoberemoved );
 	if ( newgatheridx>=0 )
-	    delete newgathernms.removeSingle( newgatheridx );
-	delete oldgathernms.removeSingle( 0 );
+	    newgathernms.removeSingle( newgatheridx );
+	oldgathernms.removeSingle( 0 );
     }
 
     while ( newgathernms.size() )
     {
 	PSViewAppearance psapp;
 	psapp.datanm_ = newgathernms.get( 0 );
-	delete newgathernms.removeSingle( 0 );
+	newgathernms.removeSingle( 0 );
 	if ( appearances_.isEmpty() && !getStoredAppearance(psapp) )
 	{
 	    if ( !isStored() )

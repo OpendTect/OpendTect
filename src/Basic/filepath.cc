@@ -145,12 +145,13 @@ FilePath& FilePath::add( const char* fnm )
 
 FilePath& FilePath::insert( const char* fnm )
 {
-    if ( !fnm || !*fnm ) return *this;
-    ObjectSet<BufferString> oldlvls;
-    oldlvls.append( lvls_ );
-    lvls_.ObjectSet<BufferString>::erase();
+    if ( !fnm || !*fnm )
+	return *this;
+
+    BufferStringSet oldlvls( lvls_ );
+    lvls_.setEmpty();
     set( fnm );
-    lvls_.ObjectSet<BufferString>::append( oldlvls );
+    lvls_.append( oldlvls );
     return *this;
 }
 

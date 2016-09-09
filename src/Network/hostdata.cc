@@ -662,9 +662,8 @@ void HostDataList::handleLocal()
 	lochd.addAlias( oldnm );
 	for ( int idx=0; idx<lochd.aliases_.size(); idx++ )
 	{
-	    BufferString* al = lochd.aliases_[idx];
-	    if ( *al == hnm )
-		lochd.aliases_ -= al;
+	    if ( lochd.aliases_.get(idx) == hnm )
+		{ lochd.aliases_.removeSingle( idx ); idx--; }
 	}
     }
 

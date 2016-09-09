@@ -195,13 +195,13 @@ public:
 			    , fileidx_(0)
 			    , filesonly_(filesonly)
 			{
-			    if ( !externallist )
+			    if ( externallist )
+				filelist_ = *externallist;
+			    else
 			    {
 				filelist_.add( dirname_ );
-				makeRecursiveFileList( dirname_, filelist_  );
+				makeRecursiveFileList( dirname_, filelist_ );
 			    }
-			    else
-				filelist_.copy( *externallist );
 
 			    totalnr_ = filelist_.size();
 			}

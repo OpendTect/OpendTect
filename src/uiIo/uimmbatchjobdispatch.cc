@@ -487,7 +487,7 @@ void uiMMBatchJobDispatcher::updateCurMachs()
 
     BufferStringSet machs;
     jobrunner_->showMachStatus( machs );
-    sort( machs );
+    machs.sort();
 
     const int oldsz = usedmachfld_->size();
     const int newsz = machs.size();

@@ -35,7 +35,7 @@ bool SeisTrcReaderSet::getSingle( int irdr, SeisTrcInfo& ti, int& res )
 }
 
 
-int SeisTrcReaderSet::get( ObjectSet<SeisTrcInfo>& tis )
+int SeisTrcReaderSet::getInfos( ObjectSet<SeisTrcInfo>& tis )
 {
     if ( isEmpty() )
 	return 0;
@@ -63,7 +63,7 @@ int SeisTrcReaderSet::get( ObjectSet<SeisTrcInfo>& tis )
 }
 
 
-bool SeisTrcReaderSet::get( ObjectSet<SeisTrc>& trcs )
+bool SeisTrcReaderSet::getTraces( ObjectSet<SeisTrc>& trcs )
 {
     if ( isEmpty() )
 	return false;

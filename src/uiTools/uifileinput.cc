@@ -236,7 +236,7 @@ void uiFileInput::doSelect( CallBacker* )
 	dlg->getFileNames( filenames );
 	uiFileDialog::list2String( filenames, newfname );
 	setFileName( newfname );
-	deepErase( filenames );
+	filenames.setEmpty();
     }
     else
     {

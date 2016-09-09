@@ -50,8 +50,8 @@ SurfaceAuxData::~SurfaceAuxData()
 
 void SurfaceAuxData::removeAll()
 {
-    deepErase( auxdatanames_ );
-    deepErase( auxdatainfo_ );
+    auxdatanames_.setEmpty();
+    auxdatainfo_.setEmpty();
     auxdatashift_.erase();
     auxdatatypes_.erase();
 
@@ -91,7 +91,7 @@ float SurfaceAuxData::auxDataShift( int dataidx ) const
 void SurfaceAuxData::setAuxDataName( int dataidx, const char* name )
 {
     if ( auxdatanames_[dataidx] )
-	auxdatanames_.replace( dataidx, new BufferString(name) );
+	auxdatanames_.get( dataidx ).set( name );
 }
 
 
@@ -129,7 +129,7 @@ int SurfaceAuxData::addAuxData( const char* name )
 
 void SurfaceAuxData::removeAuxData( int dataidx )
 {
-    auxdatanames_.replace( dataidx, 0 );
+    auxdatanames_.set( dataidx, 0 );
     auxdatashift_[dataidx] = 0.0;
     auxdatatypes_[dataidx] = NoType;
 
@@ -165,8 +165,8 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
 				    bool onlynewpos )
 {
     const TrcKey tk = BinID::fromInt64( posid.subID() );
-    if ( !auxdatanames_.validIdx(dataidx) || 
-	tk.isUdf() || 
+    if ( !auxdatanames_.validIdx(dataidx) ||
+	tk.isUdf() ||
 	horizon_.isNodeLocked(tk) )
 	return;
 

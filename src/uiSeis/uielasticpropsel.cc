@@ -339,7 +339,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 	tgs += new uiGroup( ts_->tabGroup(), props.get(idx) );
 	TypeSet<ElasticFormula> formulas;
 	ElFR().getByType( tp, formulas );
-	ElasticPropertyRef& epr = elpropsel_.get(tp);
+	ElasticPropertyRef& epr = elpropsel_.getByType(tp);
 	propflds_ += new uiElasticPropSelGrp(tgs[idx], propnms_, epr, formulas);
 	ts_->addTab( tgs[idx], ElasticFormula::TypeDef().toUiString(tp) );
     }
@@ -402,7 +402,7 @@ bool uiElasticPropSelDlg::screenSelectionChanged( CallBacker* )
 void uiElasticPropSelDlg::elasticPropSelectionChanged( CallBacker* )
 {
     for ( int idx=0; idx<propflds_.size(); idx++ )
-	propflds_[idx]->setPropRef( elpropsel_.get( idx ) );
+	propflds_[idx]->setPropRef( elpropsel_.getByIdx( idx ) );
 
     for ( int idx=0; idx<propflds_.size(); idx++ )
 	propflds_[idx]->putToScreen();
@@ -487,7 +487,7 @@ bool uiElasticPropSelDlg::openPropSel()
 
 bool uiElasticPropSelDlg::doRead( const DBKey& mid )
 {
-    ElasticPropSelection* elp = elpropsel_.get( mid );
+    ElasticPropSelection* elp = elpropsel_.getByDBKey( mid );
     ctio_.setObj( IOM().get( mid ) );
 
     if ( !elp ) return false;
@@ -496,7 +496,7 @@ bool uiElasticPropSelDlg::doRead( const DBKey& mid )
     propnms_ = orgpropnms_;
     for ( int idx=0; idx<elpropsel_.size(); idx++ )
     {
-	const ElasticPropertyRef& epr = elpropsel_.get(idx);
+	const ElasticPropertyRef& epr = elpropsel_.getByIdx(idx);
 	propnms_.addIfNew( epr.name() );
     }
 

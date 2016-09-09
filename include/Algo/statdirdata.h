@@ -19,14 +19,14 @@ namespace Stats
 {
 
 /*!
-\brief Part of a data sector. 
+\brief Part of a data sector.
 */
 
 mClass(Algo) SectorPartData
 {
 public:
 
-    			SectorPartData( float v=0, float p=0.5, int cnt=0 )
+			SectorPartData( float v=0, float p=0.5, int cnt=0 )
 			    : val_(v), pos_(p), count_(cnt)  {}
     bool		operator ==( const SectorPartData& spd ) const
 			{ return pos_ == spd.pos_; }
@@ -43,7 +43,7 @@ typedef TypeSet<SectorPartData> SectorData;
 
 /*!
 \brief A circle of data.
- 
+
   The circle is subdivided in sectors, which are subdivided in sector parts.
   The relative 'pos_' from the sector part can be scaled with usrposrg_ to get
   user positions.
@@ -58,10 +58,10 @@ public:
     mClass(Algo) Setup
     {
     public:
-    			Setup()
+			Setup()
 			    : usrposrg_(0,1)
-    			    , angle0_(0)
-    			    , angletype_(Angle::UsrDeg)	{}
+			    , angle0_(0)
+			    , angletype_(Angle::UsrDeg)	{}
 
 	Interval<float>	usrposrg_;
 	float		angle0_;
@@ -70,9 +70,9 @@ public:
 
 			DirectionalData(int nrsectors=0,int nrparts=0);
 
-    SectorPartData&	get( int isect, int ipart )
+    SectorPartData&	getPartData( int isect, int ipart )
 			{ return (*((*this)[isect]))[ipart]; }
-    const SectorPartData& get( int isect, int ipart ) const
+    const SectorPartData& getPartData( int isect, int ipart ) const
 			{ return (*((*this)[isect]))[ipart]; }
     inline int		nrSectors() const
 			{ return size(); }
@@ -80,7 +80,7 @@ public:
 			{ return ((*this)[isect])->size(); }
     inline float	angle(int isect,int bound=0) const;
     inline float	angle(int isect,Angle::Type,int bound=0) const;
-    			//!< bound: -1=start, 1=stop, 0=center
+			//!< bound: -1=start, 1=stop, 0=center
     int			sector(float ang) const;
     int			sector(float ang,Angle::Type) const;
 

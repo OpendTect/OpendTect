@@ -201,7 +201,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     setCtrlStyle( RunAndClose );
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(), 
+    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
 				     uiFileInput::Setup()
 				     .withexamine(true)
 				     .forread(true) );
@@ -275,7 +275,7 @@ void uiImportHorizon2D::formatSel( CallBacker* cb )
 
 void uiImportHorizon2D::addHor( CallBacker* )
 {
-    uiGenInputDlg dlg( this, uiStrings::phrAdd(uiStrings::sHorizon()), 
+    uiGenInputDlg dlg( this, uiStrings::phrAdd(uiStrings::sHorizon()),
 		       uiStrings::sName(), new StringInpSpec() );
     if ( !dlg.go() ) return;
 
@@ -472,7 +472,7 @@ bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 	{
 	    uiString errmsg = uiStrings::phrCannotFind(tr("input file:\n%1")
 	                    .arg(fnm));
-	    deepErase( filenames );
+	    filenames.setEmpty();
 	    mErrRet( errmsg );
 	}
     }

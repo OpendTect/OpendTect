@@ -44,8 +44,8 @@ public:
     inline void			setAll(T);
     inline void			replace(T,T);
 
-    inline T&			operator[](size_type);
-    inline const T&		operator[](size_type) const;
+    inline T&			get(size_type);
+    inline const T&		get(size_type) const;
     inline T&			first();
     inline const T&		first() const;
     inline T&			last();
@@ -60,7 +60,6 @@ public:
     inline virtual void		insert(size_type,const T&);
     inline bool			push(const T&);
     inline T			pop();
-    inline TypeSetBase<T,I>&	operator+=( const T& t ) { return add(t); }
     inline virtual bool		append(const T*,size_type);
     inline virtual bool		append(const TypeSetBase<T,I>&);
     inline virtual bool		addIfNew(const T&);
@@ -80,7 +79,6 @@ public:
     inline virtual void		erase();
     inline virtual void		removeSingle(size_type,
 					     bool preserver_order=true);
-    inline TypeSetBase<T,I>&	operator -=(const T&);
     inline virtual void		removeRange(size_type from,size_type to);
 
 				//! 3rd party access
@@ -88,6 +86,11 @@ public:
     inline virtual const T*	arr() const	{ return gtArr(); }
     inline std::vector<T>&	vec();
     inline const std::vector<T>& vec() const;
+
+    inline T&			operator[](size_type i)	      { return get(i); }
+    inline const T&		operator[](size_type i) const { return get(i); }
+    inline TypeSetBase<T,I>&	operator+=(const T& t)	      { return add(t); }
+    inline TypeSetBase<T,I>&	operator-=(const T& t);
 
 protected:
 
@@ -277,11 +280,11 @@ bool TypeSetBase<T,I>::validIdx( od_int64 idx ) const
 { return vec_.validIdx( (I)idx ); }
 
 template <class T, class I> inline
-T& TypeSetBase<T,I>::operator[]( I idx )
+T& TypeSetBase<T,I>::get( I idx )
 { return vec_[idx]; }
 
 template <class T, class I> inline
-const T& TypeSetBase<T,I>::operator[]( I idx ) const
+const T& TypeSetBase<T,I>::get( I idx ) const
 { return vec_[idx]; }
 
 template <class T, class I> inline

@@ -53,13 +53,13 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const TrcKeyZSampling* cs,
 	    break;
 
 	foundone = true;
-	if ( !addReader(fname,cs,glob_info_only,forceusecbvsinfo) )
+	if ( addReader(fname,cs,glob_info_only,forceusecbvsinfo) )
+	    fnames_.add( fname );
+	else
 	{
-	    if ( *(const char*)errmsg_ )
+	    if ( !errmsg_.isEmpty() )
 		return;
 	}
-	else
-	    fnames_ += new BufferString( fname );
 
 	if ( single_file ) break;
     }

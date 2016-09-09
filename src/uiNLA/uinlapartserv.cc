@@ -70,7 +70,6 @@ uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 
 uiNLAPartServer::~uiNLAPartServer()
 {
-    deepErase( inpnms_ );
     delete uidps_;
     delete &storepars_;
 }

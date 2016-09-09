@@ -1039,7 +1039,7 @@ void uiStratLayerModel::setElasticProps()
 
     if ( !elpropsel_ )
     {
-	elpropsel_ = ElasticPropSelection::get( desc_.elasticPropSel() );
+	elpropsel_ = ElasticPropSelection::getByDBKey( desc_.elasticPropSel() );
 	if ( !elpropsel_ )
 	{
 	    elpropsel_ = new ElasticPropSelection;

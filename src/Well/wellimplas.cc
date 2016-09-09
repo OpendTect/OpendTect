@@ -267,7 +267,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm,
     {
 	const int colnr = idx + (idx >= lfi.depthcolnr ? 1 : 0);
 	const BufferString& lognm = inplfi.lognms.get(idx);
-	const bool ispresent = indexOf( lfi.lognms, lognm ) >= 0;
+	const bool ispresent = lfi.lognms.isPresent( lognm );
 	if ( !ispresent )
 	    continue;
 

@@ -221,7 +221,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     if ( par.find(sKeyOverWrite()) )
 	par.getYN( sKeyOverWrite(), dooverwrite );
     FixedString inlstr = par.find( sKeyInlPrefix() );
-    deepErase( failedlines_ );
+    failedlines_.setEmpty();
     for ( int idx=0; idx<inlines.size(); idx++ )
     {
 	TrcKeyZSampling cs = bbox;
@@ -288,7 +288,7 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
     if ( !grid.totalSize() )
 	return false;
 
-    deepErase( failedlines_ );
+    failedlines_.setEmpty();
     BufferString attribname;
     par.get( sKey::Attribute(), attribname );
     bool dooverwrite = false;

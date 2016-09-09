@@ -98,13 +98,10 @@ void EnumDef::remove( const char* key )
 {
     const int idx = keys_.indexOf( key );
     if ( idx<0 )
-    {
-        pErrMsg("Removing missing enum");
-        return;
-    }
+	{ pErrMsg("Removing missing enum"); return; }
 
     uistrings_.removeSingle( idx, true );
-    keys_.removeSingle(idx,true);
+    keys_.removeSingle( idx );
     enums_.removeSingle( idx, true );
     if ( iconfiles_.size() )
 	iconfiles_.removeSingle( idx );

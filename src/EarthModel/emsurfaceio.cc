@@ -357,7 +357,8 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 	BufferString sectionname;
 	par_->get(key.buf(),sectionname);
 
-	sectionnames_ += sectionname.size() ? new BufferString(sectionname) : 0;
+	sectionnames_.add( sectionname.isEmpty() ? 0
+				: new BufferString(sectionname) );
     }
 
     par_->get( sKeyRowRange(), rowrange_ );
@@ -427,11 +428,6 @@ const char* dgbSurfaceReader::dbInfo() const
 
 dgbSurfaceReader::~dgbSurfaceReader()
 {
-    deepErase( sectionnames_ );
-    deepErase( linenames_ );
-    deepErase( auxdatanames_ );
-    deepErase( auxdataexecs_ );
-
     delete par_;
     delete conn_;
     delete readrowrange_;

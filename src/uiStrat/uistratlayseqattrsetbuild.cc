@@ -101,7 +101,7 @@ void uiStratLaySeqAttribSetBuild::editReq( bool isadd )
 	attr = attrset_.attr( nm );
     else
     {
-	const PropertyRef* prop = props_.get( nm );
+	const PropertyRef* prop = props_.getByName( nm );
 	if ( !prop ) return;
 	attr = new Strat::LaySeqAttrib( attrset_, *prop );
 	for ( int idx=0; idx<reftree_.lithologies().size(); idx++ )
@@ -171,7 +171,7 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
     if ( !rv )
     {
 	uiMSG().error(tr("Error during %1 file")
-		    .arg(forsave ? tr("write to output") 
+		    .arg(forsave ? tr("write to output")
 				 : tr("read from input ")));
 	return false;
     }

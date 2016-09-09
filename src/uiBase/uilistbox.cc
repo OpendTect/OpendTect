@@ -572,8 +572,6 @@ void uiListBox::mkLabel( const uiString& txt, LblPos pos )
 	labl = cur;
 	nrleft--;
     }
-
-    deepErase( txts );
 }
 
 

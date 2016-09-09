@@ -272,7 +272,7 @@ uiFuncSelDraw* uiSeisWvltMerge::getCurrentDrawer()
 
 void uiSeisWvltMerge::reloadWvlts()
 {
-    deepUnRef( wvltset_ ); deepErase( namelist_ );
+    deepUnRef( wvltset_ ); namelist_.setEmpty();
     stackedwvlt_ = 0;
     const IOObjContext ctxt( mIOObjContext(Wavelet) );
     const IODir iodir( ctxt.getSelKey() );

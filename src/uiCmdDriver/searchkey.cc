@@ -52,7 +52,7 @@ bool SearchKey::isMatching( const char* nameptr ) const
     if ( isMatch(key, name, name) )
     {
 	wildcardlist_.add( name );
-	wildcardlist_.reverse();
+	wildcardlist_.getStringSet().reverse();
 	return true;
     }
 

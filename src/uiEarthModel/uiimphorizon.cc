@@ -287,7 +287,7 @@ void uiImportHorizon::clearListCB( CallBacker* )
 void uiImportHorizon::scanPush( CallBacker* )
 {
     if ( !isgeom_ && !attrlistfld_->nrChosen() )
-	{ uiMSG().error(uiStrings::phrSelect(tr("at least one attribute"))); 
+	{ uiMSG().error(uiStrings::phrSelect(tr("at least one attribute")));
 								return; }
     if ( !dataselfld_->commit() || !doScan() )
 	return;
@@ -538,7 +538,7 @@ bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
 	    uiString errmsg = uiStrings::phrCannotFind(toUiString("%1:\n%2")
 			      .arg(uiStrings::sInputFile().toLower())
 			      .arg(fnm));
-	    deepErase( filenames );
+	    filenames.setEmpty();
 	    mErrRet( errmsg );
 	}
     }

@@ -37,17 +37,17 @@ public:
 			    , color_(c.color_)				{}
 
     Content&		operator =( const Content& c )
-			{ 
-			    setName(c.name()); 
-			    pattern_=c.pattern_; 
-			    color_ = c.color_; 
+			{
+			    setName(c.name());
+			    pattern_=c.pattern_;
+			    color_ = c.color_;
 			    return *this;
 			}
     bool		operator ==( const Content& c ) const
-    			{ return name() == c.name(); }
+			{ return name() == c.name(); }
 
     inline bool		isUnspecified() const
-    			{ return this == &unspecified(); }
+			{ return this == &unspecified(); }
 
     static const Content& unspecified();
 
@@ -73,7 +73,7 @@ mExpClass(Strat) ContentSet : public ObjectSet<Content>
 {
 public:
 
-    			~ContentSet()		{ deepErase(*this); }
+			~ContentSet()		{ deepErase(*this); }
 
     int			getIndexOf(const char*) const;
 
@@ -82,7 +82,7 @@ public:
     const Content*	getByName( const char* s ) const
     { return const_cast<ContentSet*>(this)->getByName(s); }
 
-    const Content&	get( const char* s ) const
+    const Content&	getContent( const char* s ) const
     { const Content* c = getByName(s); return c ? *c : Content::unspecified(); }
 
 };

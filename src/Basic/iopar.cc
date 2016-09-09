@@ -175,7 +175,8 @@ void IOPar::setValue( int nr, const char* s )
 
 void IOPar::setEmpty()
 {
-    deepErase( keys_ ); deepErase( vals_ );
+    keys_.setEmpty();
+    vals_.setEmpty();
 }
 
 

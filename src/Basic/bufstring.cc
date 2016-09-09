@@ -531,15 +531,15 @@ const OD::String& StringPair::getCompString() const
 }
 
 
-BufferStringSet::BufferStringSet( int nelem, const char* s )
+BufferStringSet::BufferStringSet( size_type nelem, const char* s )
 {
-    for ( int idx=0; idx<nelem; idx++ )
+    for ( size_type idx=0; idx<nelem; idx++ )
 	add( s );
 }
 
 
 
-BufferStringSet::BufferStringSet( const char* arr[], int len )
+BufferStringSet::BufferStringSet( const char* arr[], size_type len )
 {
     add( arr, len );
 }
@@ -547,9 +547,11 @@ BufferStringSet::BufferStringSet( const char* arr[], int len )
 
 bool BufferStringSet::operator ==( const BufferStringSet& bss ) const
 {
-    if ( size() != bss.size() ) return false;
+    if ( size() != bss.size() )
+	return false;
 
-    for ( int idx=0; idx<size(); idx++ )
+    const size_type sz = size();
+    for ( size_type idx=0; idx<sz; idx++ )
 	if ( get(idx) != bss.get(idx) )
 	    return false;
 
@@ -557,19 +559,25 @@ bool BufferStringSet::operator ==( const BufferStringSet& bss ) const
 }
 
 
-int BufferStringSet::indexOf( const char* s ) const
+BufferStringSet::size_type BufferStringSet::indexOf( const char* s ) const
 {
-    if ( !s ) s = "";
-    return ::indexOf( *this, s );
+    if ( s )
+    {
+	const size_type sz = size();
+	for ( size_type idx=0; idx<sz; idx++ )
+	    if ( get(idx) == s )
+		return idx;
+    }
+    return -1;
 }
 
 
-int BufferStringSet::indexOf( const GlobExpr& ge ) const
+BufferStringSet::size_type BufferStringSet::indexOf( const GlobExpr& ge ) const
 {
-    const int sz = size();
-    for ( int idx=0; idx<sz; idx++ )
+    const size_type sz = size();
+    for ( size_type idx=0; idx<sz; idx++ )
     {
-	if ( ge.matches( (*this)[idx]->str() ) )
+	if ( ge.matches( strs_[idx]->str() ) )
 	    return idx;
     }
     return -1;
@@ -577,25 +585,27 @@ int BufferStringSet::indexOf( const GlobExpr& ge ) const
 
 
 // Levenshtein distance
-static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
+static BufferStringSet::size_type getMatchDist( const BufferString& bs,
+			    const char* s, bool casesens )
 {
-    const int len1 = bs.size();
-    const int len2 = FixedString(s).size();
+    typedef BufferStringSet::size_type size_type;
+    const size_type len1 = bs.size();
+    const size_type len2 = FixedString(s).size();
     if ( len1 == 0 ) return len2;
     if ( len2 == 0 ) return len1;
     const char* s1 = bs.str();
     const char* s2 = s;
 
-    Array2DImpl<int> d( len1+1, len2+1 );
+    Array2DImpl<size_type> d( len1+1, len2+1 );
 
-    for ( int idx1=0; idx1<=len1; idx1++ )
+    for ( size_type idx1=0; idx1<=len1; idx1++ )
 	d.set( idx1, 0, idx1 );
-    for ( int idx2=0; idx2<=len2; idx2++ )
+    for ( size_type idx2=0; idx2<=len2; idx2++ )
 	d.set( 0, idx2, idx2 );
 
-    for ( int idx2=1; idx2<=len2; idx2++ )
+    for ( size_type idx2=1; idx2<=len2; idx2++ )
     {
-	for ( int idx1=1; idx1<=len1; idx1++ )
+	for ( size_type idx1=1; idx1<=len1; idx1++ )
 	{
 	    const bool iseq = casesens ? s1[idx1-1] == s2[idx2-1]
 			: toupper(s1[idx1-1]) == toupper(s2[idx2-1]);
@@ -603,9 +613,9 @@ static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
 		d.set( idx1, idx2, d.get(idx1-1,idx2-1) );
 	    else
 	    {
-		const int delval = d.get( idx1-1, idx2 );
-		const int insval = d.get( idx1, idx2-1 );
-		const int substval = d.get( idx1-1, idx2-1 );
+		const size_type delval = d.get( idx1-1, idx2 );
+		const size_type insval = d.get( idx1, idx2-1 );
+		const size_type substval = d.get( idx1-1, idx2-1 );
 		d.set( idx1, idx2, 1 + (delval < insval
 			? (delval<substval ? delval : substval)
 		        : (insval<substval ? insval : substval)) );
@@ -617,9 +627,10 @@ static int getMatchDist( const BufferString& bs, const char* s, bool casesens )
 }
 
 
-BufferString BufferStringSet::getDispString( int maxnritems, bool quoted ) const
+BufferString BufferStringSet::getDispString( size_type maxnritems,
+					     bool quoted ) const
 {
-    const int sz = size();
+    const size_type sz = size();
     BufferString ret;
     if ( sz < 1 )
 	{ ret.set( "-" ); return ret; }
@@ -634,7 +645,7 @@ BufferString BufferStringSet::getDispString( int maxnritems, bool quoted ) const
 	ret.add( get(idx) )
 
     mAddItm2Str(0);
-    for ( int idx=1; idx<maxnritems; idx++ )
+    for ( size_type idx=1; idx<maxnritems; idx++ )
     {
 	ret.add( idx == sz-1 ? " and " : ", " );
 	mAddItm2Str( idx );
@@ -647,37 +658,38 @@ BufferString BufferStringSet::getDispString( int maxnritems, bool quoted ) const
 }
 
 
-int BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
+BufferStringSet::size_type BufferStringSet::nearestMatch( const char* s,
+					bool caseinsens ) const
 {
-    const int sz = size();
+    const size_type sz = size();
     if ( sz < 2 )
 	return sz - 1;
     if ( !s ) s = "";
 
     const CaseSensitivity cs = caseinsens ? CaseInsensitive : CaseSensitive;
-    TypeSet<int> candidates;
+    TypeSet<size_type> candidates;
     if ( FixedString(s).size() > 1 )
     {
-	for ( int idx=0; idx<sz; idx++ )
+	for ( size_type idx=0; idx<sz; idx++ )
 	    if ( get(idx).startsWith(s,cs) )
 		candidates += idx;
 	if ( candidates.isEmpty() )
 	{
 	    const BufferString matchstr( "*", s, "*" );
-	    for ( int idx=0; idx<sz; idx++ )
+	    for ( size_type idx=0; idx<sz; idx++ )
 		if ( get(idx).matches(matchstr,cs) )
 		    candidates += idx;
 	}
     }
     if ( candidates.isEmpty() )
-	for ( int idx=0; idx<sz; idx++ )
+	for ( size_type idx=0; idx<sz; idx++ )
 	    candidates += idx;
 
-    int mindist = -1; int minidx = -1;
-    for ( int idx=0; idx<candidates.size(); idx++ )
+    size_type mindist = -1; size_type minidx = -1;
+    for ( size_type idx=0; idx<candidates.size(); idx++ )
     {
-	const int myidx = candidates[idx];
-	const int curdist = getMatchDist( get(myidx), s, !caseinsens );
+	const size_type myidx = candidates[idx];
+	const size_type curdist = getMatchDist( get(myidx), s, !caseinsens );
 	if ( idx == 0 || curdist < mindist  )
 	    { mindist = curdist; minidx = myidx; }
     }
@@ -687,9 +699,9 @@ int BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
 
 bool BufferStringSet::isSubsetOf( const BufferStringSet& bss ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    for ( size_type idx=0; idx<size(); idx++ )
     {
-	if ( !bss.isPresent((*this)[idx]->buf()) )
+	if ( !bss.isPresent(strs_[idx]->buf()) )
 	    return false;
     }
 
@@ -699,7 +711,7 @@ bool BufferStringSet::isSubsetOf( const BufferStringSet& bss ) const
 
 BufferStringSet& BufferStringSet::add( const char* s )
 {
-    *this += new BufferString(s);
+    strs_.add( new BufferString(s) );
     return *this;
 }
 
@@ -719,7 +731,7 @@ BufferStringSet& BufferStringSet::add( const QString& qstr )
 BufferStringSet& BufferStringSet::add( const BufferStringSet& bss,
 				       bool allowdup )
 {
-    for ( int idx=0; idx<bss.size(); idx++ )
+    for ( size_type idx=0; idx<bss.size(); idx++ )
     {
 	const char* s = bss.get( idx );
 	if ( allowdup || !isPresent(s) )
@@ -729,13 +741,13 @@ BufferStringSet& BufferStringSet::add( const BufferStringSet& bss,
 }
 
 
-BufferStringSet& BufferStringSet::add( const char* arr[], int len )
+BufferStringSet& BufferStringSet::add( const char* arr[], size_type len )
 {
     if ( len < 0 )
-	for ( int idx=0; arr[idx]; idx++ )
+	for ( size_type idx=0; arr[idx]; idx++ )
 	    add( arr[idx] );
     else
-	for ( int idx=0; idx<len; idx++ )
+	for ( size_type idx=0; idx<len; idx++ )
 	    add( arr[idx] );
 
     return *this;
@@ -761,7 +773,7 @@ BufferStringSet& BufferStringSet::addToAll( const char* str, bool infront )
     if ( !str || !*str )
 	return *this;
 
-    for ( int idx=0; idx<size(); idx++ )
+    for ( size_type idx=0; idx<size(); idx++ )
     {
 	BufferString& itm = get( idx );
 	if ( infront )
@@ -774,12 +786,12 @@ BufferStringSet& BufferStringSet::addToAll( const char* str, bool infront )
 }
 
 
-int BufferStringSet::maxLength() const
+BufferStringSet::size_type BufferStringSet::maxLength() const
 {
-    int ret = 0;
-    for ( int idx=0; idx<size(); idx++ )
+    size_type ret = 0;
+    for ( size_type idx=0; idx<size(); idx++ )
     {
-	const int len = get(idx).size();
+	const size_type len = get(idx).size();
 	if ( len > ret )
 	    ret = len;
     }
@@ -789,62 +801,66 @@ int BufferStringSet::maxLength() const
 
 void BufferStringSet::sort( bool caseinsens, bool asc )
 {
-    int* idxs = getSortIndexes( caseinsens, asc );
+    size_type* idxs = getSortIndexes( caseinsens, asc );
     useIndexes( idxs );
     delete [] idxs;
 }
 
 
-void BufferStringSet::useIndexes( const int* idxs )
+void BufferStringSet::useIndexes( const size_type* idxs )
 {
-    const int sz = size();
-    if ( !idxs || sz < 2 ) return;
+    const size_type sz = size();
+    if ( !idxs || sz < 2 )
+	return;
 
     ObjectSet<BufferString> tmp;
-    for ( int idx=0; idx<sz; idx++ )
-	tmp += (*this)[idx];
-    ObjectSet<BufferString>::erase();
+    for ( size_type idx=0; idx<sz; idx++ )
+	tmp.add( strs_[idx] );
 
-    for ( int idx=0; idx<sz; idx++ )
-	*this += tmp[ idxs[idx] ];
+    strs_.plainErase();
+
+    for ( size_type idx=0; idx<sz; idx++ )
+	strs_.add( tmp[ idxs[idx] ] );
 }
 
 
-int* BufferStringSet::getSortIndexes( bool caseinsens, bool asc ) const
+BufferStringSet::size_type* BufferStringSet::getSortIndexes(
+					bool caseinsens, bool asc ) const
 {
-    const int sz = size();
-    if ( sz < 1 ) return 0;
+    const size_type sz = size();
+    if ( sz < 1 )
+	return 0;
 
-    mGetIdxArr( int, idxs, sz );
+    mGetIdxArr( size_type, idxs, sz );
     if ( !idxs || sz < 2 )
 	return idxs;
 
-    BufferStringSet uppcasebss;
-    const BufferStringSet* bss = this;
+    BufferStringSet uppercaseset;
+    const BufferStringSet* tosort = this;
     if ( caseinsens )
     {
-	bss = &uppcasebss;
-	for ( int idx=0; idx<sz; idx++ )
+	tosort = &uppercaseset;
+	for ( size_type idx=0; idx<sz; idx++ )
 	{
-	    BufferString* newbs = new BufferString( get(idx) );
-	    const int len = newbs->size();
-	    char* buf = newbs->getCStr();
-	    for ( int ich=0; ich<len; ich++ )
-		buf[ich] = (char) toupper(buf[ich]);
-	    uppcasebss += newbs;
+	    BufferString newbs( get(idx) );
+	    const size_type len = newbs.size();
+	    char* buf = newbs.getCStr();
+	    for ( size_type ich=0; ich<len; ich++ )
+		buf[ich] = (char)toupper(buf[ich]);
+	    uppercaseset.add( newbs );
 	}
     }
 
-    for ( int d=sz/2; d>0; d=d/2 )
-	for ( int i=d; i<sz; i++ )
-	    for ( int j=i-d;
-		  j>=0 && bss->get(idxs[j]) > bss->get(idxs[j+d]); j-=d )
+    for ( size_type d=sz/2; d>0; d=d/2 )
+	for ( size_type i=d; i<sz; i++ )
+	    for ( size_type j=i-d;
+		  j>=0 && tosort->get(idxs[j]) > tosort->get(idxs[j+d]); j-=d )
 		Swap( idxs[j+d], idxs[j] );
 
     if ( !asc )
     {
-	const int hsz = sz/2;
-	for ( int idx=0; idx<hsz; idx++ )
+	const size_type hsz = sz/2;
+	for ( size_type idx=0; idx<hsz; idx++ )
 	    Swap( idxs[idx], idxs[sz-idx-1] );
     }
     return idxs;
@@ -854,7 +870,7 @@ int* BufferStringSet::getSortIndexes( bool caseinsens, bool asc ) const
 void BufferStringSet::fillPar( IOPar& iopar ) const
 {
     BufferString key;
-    for ( int idx=0; idx<size(); idx++ )
+    for ( size_type idx=0; idx<size(); idx++ )
     {
 	key.set( idx );
 	iopar.set( key, get(idx) );
@@ -865,10 +881,10 @@ void BufferStringSet::fillPar( IOPar& iopar ) const
 void BufferStringSet::usePar( const IOPar& iopar )
 {
     BufferString key;
-    for ( int idx=0; ; idx++ )
+    for ( size_type idx=0; ; idx++ )
     {
 	key.set( idx );
-	const int idxof = iopar.indexOf( key );
+	const size_type idxof = iopar.indexOf( key );
 	if ( idxof < 0 )
 	    break;
 
@@ -881,7 +897,7 @@ void BufferStringSet::fill( uiStringSet& res ) const
 {
     res.erase();
 
-    for ( int idx=0; idx<size(); idx++ )
+    for ( size_type idx=0; idx<size(); idx++ )
 	res += toUiString( get(idx) );
 }
 
@@ -891,7 +907,7 @@ void BufferStringSet::use( const uiStringSet& from )
 {
     erase();
 
-    for ( int idx=0; idx<from.size(); idx++ )
+    for ( size_type idx=0; idx<from.size(); idx++ )
 	add( from[idx].getFullString() );
 }
 
@@ -899,7 +915,7 @@ void BufferStringSet::use( const uiStringSet& from )
 BufferString BufferStringSet::cat( const char* sepstr ) const
 {
     BufferString ret;
-    for ( int idx=0; idx<size(); idx++ )
+    for ( size_type idx=0; idx<size(); idx++ )
     {
 	if ( idx )
 	    ret.add( sepstr );
@@ -911,7 +927,7 @@ BufferString BufferStringSet::cat( const char* sepstr ) const
 
 void BufferStringSet::unCat( const char* inpstr, const char* sepstr )
 {
-    const int sepstrsz = FixedString(sepstr).size();
+    const size_type sepstrsz = FixedString(sepstr).size();
     if ( sepstrsz < 1 )
 	{ add( inpstr ); return; }
 

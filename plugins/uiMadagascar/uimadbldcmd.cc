@@ -378,7 +378,8 @@ void uiMadagascarBldCmd::auxSel( CallBacker* )
 void uiMadagascarBldCmd::groupChg( CallBacker* c )
 {
     const BufferString prognm = progfld_->getText();
-    const BufferString* curgrp = find( ODMad::PI().groups(), groupfld_->text());
+    const BufferString* curgrp = find( ODMad::PI().groups().getStringSet(),
+				    groupfld_->text());
     setGroupProgs( curgrp );
 
     if ( !progfld_->isPresent(prognm) )

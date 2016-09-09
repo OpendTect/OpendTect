@@ -32,7 +32,7 @@ NLACreationDesc& NLACreationDesc::operator =(
     if ( this != &sd )
     {
 	design = sd.design;
-	deepCopy( outids, sd.outids );
+	outids = sd.outids;
 	doextraction = sd.doextraction;
 	vdsid = sd.vdsid;
 	ratiotst = sd.ratiotst;
@@ -45,7 +45,7 @@ NLACreationDesc& NLACreationDesc::operator =(
 void NLACreationDesc::clear()
 {
     design.clear();
-    deepErase(outids);
+    outids.setEmpty();
     vdsid = "";
     doextraction = true;
     isdirect = false;

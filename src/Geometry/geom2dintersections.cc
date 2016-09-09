@@ -114,7 +114,8 @@ void Line2DInterSection::addPoint( Pos::GeomID geomid, int mynr, int linenr )
 }
 
 
-const Line2DInterSection* Line2DInterSectionSet::get( Pos::GeomID geomid ) const
+const Line2DInterSection* Line2DInterSectionSet::getByGeomID(
+						    Pos::GeomID geomid ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {

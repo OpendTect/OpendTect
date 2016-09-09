@@ -99,11 +99,11 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 }
 
 
-uiString AttribParamGroup::sInit() 
+uiString AttribParamGroup::sInit()
 { return tr("Initial value"); }
 
 
-uiString AttribParamGroup::sIncr() 
+uiString AttribParamGroup::sIncr()
 { return tr("Increment"); }
 
 
@@ -349,7 +349,6 @@ void uiEvaluateDlg::doFinalise( CallBacker* )
 
 uiEvaluateDlg::~uiEvaluateDlg()
 {
-    deepErase( lbls_ );
 }
 
 

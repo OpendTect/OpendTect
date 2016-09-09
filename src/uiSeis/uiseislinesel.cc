@@ -234,7 +234,7 @@ void uiSeis2DLineSel::getSelGeomIDs( TypeSet<Pos::GeomID>& selids ) const
 
 void uiSeis2DLineSel::getSelLineNames( BufferStringSet& selnms ) const
 {
-    deepErase( selnms );
+    selnms.setEmpty();
     for ( int idx=0; idx<selidxs_.size(); idx++ )
 	selnms.add( lnms_.get(selidxs_[idx]) );
 }
@@ -366,7 +366,7 @@ bool uiSeis2DLineSel::inputOK( bool doerr ) const
 
 void uiSeis2DLineSel::clearAll()
 {
-    deepErase( lnms_ );
+    lnms_.setEmpty();
     geomids_.erase();
     clearSelection();
 }
@@ -778,10 +778,10 @@ void uiSeis2DMultiLineSel::initRanges( const DBKey* datasetid )
 {
     zrgs_.erase(); trcrgs_.erase();
     maxzrgs_.erase(); maxtrcrgs_.erase();
-    
+
     PtrMan<IOObj> ioobj = datasetid ? IOM().get( *datasetid ) : 0;
     PtrMan<Seis2DDataSet> dataset = ioobj ?  new Seis2DDataSet( *ioobj ) : 0;
-    
+
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
 	StepInterval<int> trcrg(0,0,1);
