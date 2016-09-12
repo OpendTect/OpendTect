@@ -454,6 +454,8 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
     sprintf( depthstr.getCStr(), "%6.0f", depth );
     depthstr += SI().depthsInFeet() ? "(ft)" : "(m)";
     statusbarmsg.set( "Depth", depthstr );
+    if ( SI().depthsInFeet() )
+	depth *= mFromFeetFactorF;
 
     if ( selseq >0 && selseq<=layerModel().size() )
     {
