@@ -730,10 +730,9 @@ void FlatView::Viewer::storeDefaults( const char* ky ) const
 void FlatView::Viewer::useStoredDefaults( const char* ky )
 {
     Settings& setts = Settings::fetch( "flatview" );
-    IOPar* iop = setts.subselect( ky );
-    if ( iop && iop->size() )
+    ConstPtrMan<IOPar> iop = setts.subselect( ky );
+    if ( iop && !iop->isEmpty() )
 	useAppearancePar( *iop );
-    delete iop;
 }
 
 

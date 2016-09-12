@@ -106,6 +106,7 @@ namespace sKey
     inline FixedString Shortcuts()	{ return "Shortcuts"; }
     inline FixedString Size()		{ return "Size"; }
     inline FixedString SpaceString()	{ return " "; }
+    inline FixedString StackOrder()	{ return "Stack order"; }
     inline FixedString Steering()	{ return "Steering"; }
     inline FixedString Stored()		{ return "Stored"; }
     inline FixedString StratRef()	{ return "Strat Level"; }

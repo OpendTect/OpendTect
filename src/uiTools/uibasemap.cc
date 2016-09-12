@@ -94,7 +94,7 @@ void uiBaseMapObject::changedZValueCB( CallBacker* )
 {
     changed_ = true;
     graphitem_.setZValue( bmobject_->getDepth() );
-    labelitem_.setZValue( bmobject_->getDepth() );
+    labelitem_.setZValue( bmobject_->getDepth()-1 );
 }
 
 
