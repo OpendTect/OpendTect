@@ -124,6 +124,7 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 		continue;
 
 	    equalpos = stridx + 1;
+	    break;
 	}
 
 
