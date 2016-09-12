@@ -11,7 +11,8 @@ ________________________________________________________________________
 // this header file only be used in the classes related to Horzonsection .
 // don't include it in somewhere else !!!
 
-
+#include "visbasemod.h"
+#include "vishorizonsectiondef.h"
 #include "threadwork.h"
 #include "paralleltask.h"
 #include "thread.h"
@@ -28,6 +29,43 @@ namespace visBase
 {
     class HorizonSection;
     class HorizonSectionTile;
+/*!
+\brief HorizonTileResolutionTesselator class is an independent usage for 
+tesselating coordinates, normals and primitive set of horizon tiles. it is 
+specifically for exporting horizon to Pdf3D in which the exported horizon has 
+no relation with the existing displayed horizon in coordinates, normals and 
+primitive set. thus we can export horizon into different resolution without 
+influence current displayed horizon in the secne.
+note: the class doesn't do anything with texture.
+*/
+
+mExpClass(visBase) HorizonTileResolutionTesselator: public ParallelTask
+{ mODTextTranslationClass(HorizonTileResolutionTesselator);
+public:
+    HorizonTileResolutionTesselator(const HorizonSection* hrsection,char res);
+    ~HorizonTileResolutionTesselator();
+    od_int64		    nrIterations() const { return nrtiles_; }
+    uiString		    uiMessage() const 
+			    { return tr("Tessellating horizon"); }
+    uiString		    uiNrDoneText() const 
+			    { return tr("Parts completed"); }
+
+    bool		    doPrepare(int);
+    bool		    doWork(od_int64,od_int64,int);
+
+    bool		    getTitleCoordinates(int,TypeSet<Coord3>&) const;
+    bool		    getTitleNormals(int,TypeSet<Coord3>&) const;
+    bool		    getTitlePrimitiveSet(int,TypeSet<int>&,
+						 GeometryType) const;
+
+private:
+    bool		    createTiles();
+    ObjectSet<HorizonSectionTile>   hrtiles_;
+    const HorizonSection*	horsection_;
+    int				nrtiles_;
+    char			resolution_;
+    int				nrthreads_;
+};
 
 
 class HorizonTileRenderPreparer: public ParallelTask

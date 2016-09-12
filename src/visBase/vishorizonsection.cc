@@ -788,17 +788,6 @@ bool HorizonSection::checkTileIndex( int tidx ) const
 }
 
 
-bool HorizonSection::getTitleCoordinates(
-    int titleidx, TypeSet<Coord3>& coords ) const
-{
-    if ( !checkTileIndex(titleidx) ) return false;
-
-    if ( tiles_.getData() && titleidx<tiles_.info().getTotalSz() )
-	return tiles_.getData()[titleidx]->getResolutionCoordinates( coords );
-    return false;
-}
-
-
 const unsigned char* HorizonSection::getTextureData(
     int titleidx, int& width, int& height ) const
 {
@@ -827,28 +816,12 @@ int HorizonSection::getTexturePixelSizeInBits() const
 }
 
 
-bool HorizonSection::getTitleNormals( int titleidx,
-	TypeSet<Coord3>& normals ) const
-{
-    if ( !checkTileIndex(titleidx) ) return false;
-    return tiles_.getData()[titleidx]->getResolutionNormals( normals );
-}
-
-
 bool HorizonSection::getTitleTextureCoordinates(
 	int titleidx, TypeSet<Coord>& coords ) const
 {
     if ( !checkTileIndex(titleidx) ) return false;
     return tiles_.getData()[titleidx]->getResolutionTextureCoordinates(coords);
 
-}
-
-
-bool HorizonSection::getTitlePrimitiveSet( int titleidx, TypeSet<int>& ps,
-    GeometryType type ) const
-{
-    if ( !checkTileIndex(titleidx) ) return false;
-    return tiles_.getData()[titleidx]->getResolutionPrimitiveSet( ps, type );
 }
 
 

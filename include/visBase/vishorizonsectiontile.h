@@ -96,7 +96,7 @@ protected:
     bool			getResolutionNormals(TypeSet<Coord3>&) const;
     bool			getResolutionTextureCoordinates(
 							TypeSet<Coord>&) const;
-    bool			getResolutionPrimitiveSet(
+    bool			getResolutionPrimitiveSet( char res,
 					     TypeSet<int>&,GeometryType) const;
     bool			getResolutionCoordinates(TypeSet<Coord3>&)const;
 
@@ -117,7 +117,7 @@ protected:
     friend class		HorizonSectionTileGlue;
     friend class		HorizonTextureHandler;
     friend class		TileCoordinatesUpdator;
-
+    friend class		HorizonTileResolutionTesselator;
 
     void			updateBBox();
     void			buildOsgGeometries();

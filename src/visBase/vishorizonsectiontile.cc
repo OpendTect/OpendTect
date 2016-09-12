@@ -746,9 +746,8 @@ bool HorizonSectionTile::getResolutionTextureCoordinates(
 
 
 bool HorizonSectionTile::getResolutionPrimitiveSet(
-    TypeSet<int>& ps,GeometryType type) const
+    char res, TypeSet<int>& ps,GeometryType type) const
 {
-    char res = getActualResolution();
     if ( res==-1 ) res = 0;
 
     const osg::PrimitiveSet* osgps =

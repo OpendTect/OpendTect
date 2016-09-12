@@ -645,7 +645,10 @@ TileResolutionData::getPrimitiveSet( GeometryType type ) const
 
     osg::Geometry* geom = mGetOsgGeometry( geode );
     if ( !geom || geom->getNumPrimitiveSets()==0 ) 
+    {
+	if ( trianglesps_ && trianglesps_->size()>0 )
+	    return trianglesps_;
 	return 0;
-
+    }
     return geom->getPrimitiveSet( 0 );
 }
