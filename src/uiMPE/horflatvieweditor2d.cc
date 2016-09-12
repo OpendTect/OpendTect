@@ -55,6 +55,7 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
     , pickedpos_(TrcKey::udf())
     , updseedpkingstatus_(this)
     , patchdata_(0)
+    , sowingmode_( false )
 {
     curcs_.setEmpty();
     horpainter_->abouttorepaint_.notify(
@@ -63,6 +64,8 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
 	    mCB(this,HorizonFlatViewEditor2D,horRepaintedCB) );
     mAttachCB( editor_->sower().sowingEnd,
 	HorizonFlatViewEditor2D::sowingFinishedCB );
+    mAttachCB( editor_->sower().sowing,
+	HorizonFlatViewEditor2D::sowingModeCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
     mAttachCB( editor_->movementFinished, 
 	HorizonFlatViewEditor2D::polygonFinishedCB );
@@ -464,6 +467,8 @@ void HorizonFlatViewEditor2D::redo()
 
 void HorizonFlatViewEditor2D::sowingFinishedCB( CallBacker* )
 {
+    sowingmode_ = false;
+
     MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
     if ( !seedpicker || !mehandler_ )
 	return;
@@ -475,7 +480,12 @@ void HorizonFlatViewEditor2D::sowingFinishedCB( CallBacker* )
     emobj->setBurstAlert( false );
     seedpicker->endPatch( doerase );
     updatePatchDisplay();
+}
 
+
+void HorizonFlatViewEditor2D::sowingModeCB( CallBacker* )
+{
+    sowingmode_ = true;
 }
 
 
@@ -689,8 +699,14 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 		    updatePatchDisplay();
 	    }
 	}
-	else if ( spk.addSeed(tkv,drop,tkv2) )
+	else
+	{
+	    if ( !sowingmode_ )
+		spk.addSeed( tkv, drop, tkv2 );
+	    else 
+		spk.addSeedToPatch( tkv, false );
 	    return true;
+	}
     }
     else if ( mev.shiftStatus() || mev.ctrlStatus() )
     {

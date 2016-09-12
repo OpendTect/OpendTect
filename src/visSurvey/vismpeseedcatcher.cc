@@ -45,6 +45,7 @@ MPEClickCatcher::MPEClickCatcher()
     , editor_( 0 )
     , cureventinfo_( 0 )
     , endSowing( this )
+    , sowing( this )
 {
 }
 
@@ -543,7 +544,11 @@ void MPEClickCatcher::setEditor( MPEEditor* mpeeditor )
     }
     editor_ = mpeeditor;
     if ( editor_ )
+    {
+	mAttachCB(editor_->sower().sowing,MPEClickCatcher::sowingCB);
+	mAttachCB(editor_->sower().sowingEnd,MPEClickCatcher::sowingEndCB);
 	editor_->ref();
+    }
 }
 
 
@@ -552,7 +557,6 @@ bool MPEClickCatcher::activateSower( const Color& color,
 {
     if ( editor_ && cureventinfo_ )
     {
-	mAttachCB( editor_->sower().sowingEnd, MPEClickCatcher::sowingEnd );
 	return editor_->sower().activate( color, *cureventinfo_,
 					  info_.getObjID(), workrange );
     }
@@ -560,7 +564,13 @@ bool MPEClickCatcher::activateSower( const Color& color,
 }
 
 
-void MPEClickCatcher::sowingEnd( CallBacker* )
+void MPEClickCatcher::sowingCB( CallBacker* )
+{
+    sowing.trigger();
+}
+
+
+void MPEClickCatcher::sowingEndCB( CallBacker* )
 {
     endSowing.trigger();
 }

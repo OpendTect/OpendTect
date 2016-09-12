@@ -65,6 +65,7 @@ public:
     void		setEraserMask(bool yn=true,
 				    OD::ButtonState mask=mCtrlLeftButton);
     Notifier<Sower>	sowingEnd;
+    Notifier<Sower>	sowing;
 
 protected:
     			Sower(AuxDataEditor&,MouseEventHandler&);

@@ -128,8 +128,14 @@ Coord3 Patch::seedCoord( int idx ) const
 }
 
 
-int Patch::addSeed( const TrcKeyValue& tckv )
+int Patch::addSeed( const TrcKeyValue& tckv, bool sort )
 {
+    if ( !sort )
+    {
+	seeds_ += tckv;
+	return seeds_.size()-1;
+    }
+
     const EM::EMObject* emobj = seedpicker_->emTracker().emObject();
 
     BinID dir;
@@ -444,14 +450,14 @@ bool EMSeedPicker::stopSeedPick()
 }
 
 
-void EMSeedPicker::addSeedToPatch( const TrcKeyValue& tckv )
+void EMSeedPicker::addSeedToPatch( const TrcKeyValue& tckv, bool sort )
 {
     if ( !patch_ )
     {
 	patch_ = new Patch( this );
 	patch_->ref();
     }
-    const int idx = patch_->addSeed( tckv );
+    const int idx = patch_->addSeed( tckv, sort );
     if ( idx <0  )
 	return;
     PatchUndoEvent* undoevent = new PatchUndoEvent( patch_, tckv, idx );

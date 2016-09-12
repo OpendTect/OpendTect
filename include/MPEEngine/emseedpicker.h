@@ -35,7 +35,7 @@ public:
     void		    getTrcKeySampling(TrcKeySampling&) const;
     int                     nrSeeds();
     Coord3                  seedCoord(int) const;
-    int			    addSeed(const TrcKeyValue&);
+    int			    addSeed(const TrcKeyValue&,bool sort=true);
     void		    removeSeed(int);
     void		    clear();
 
@@ -70,7 +70,7 @@ public:
     virtual void	endPatch(bool);
     bool		stopSeedPick();
 
-    void		addSeedToPatch(const TrcKeyValue&);
+    void		addSeedToPatch(const TrcKeyValue&,bool sort=true);
     bool		addSeed(const TrcKeyValue&,bool drop=false);
     virtual bool	addSeed(const TrcKeyValue& seedcrd,bool drop,
 				const TrcKeyValue& seedkey)	{ return false;}

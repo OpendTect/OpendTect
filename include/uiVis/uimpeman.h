@@ -105,10 +105,12 @@ protected:
     void			updateClickCatcher(bool create=true);
     void			cleanPatchDisplay();
     void			sowingFinishedCB(CallBacker*);
+    void			sowingModeCB(CallBacker*);
     void			updatePatchDisplay();
 
     bool			seedpickwason_;
     TrcKeyZSampling		oldactivevol_;
+    bool			sowingmode_;
 };
 
 #endif

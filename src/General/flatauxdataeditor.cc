@@ -730,6 +730,7 @@ Sower::Sower( AuxDataEditor& ade, MouseEventHandler& meh )
     , curknotid_( -1 )
     , curknotstamp_( mUdf(int) )
     , sowingEnd( this )
+    , sowing( this )
 {
     sowingline_ = editor_.viewer().createAuxData( 0 );
     editor_.viewer().addAuxData( sowingline_ );
@@ -957,6 +958,10 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
     mode_ = FirstSowing;
     int count = 0;
     const bool sow = bendpoints_.size()>1;
+
+    if ( bendpoints_.size()>2 )
+	sowing.trigger();
+
     while ( bendpoints_.size() )
     {
 	int idx = bendpoints_[0];

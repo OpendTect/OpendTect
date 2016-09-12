@@ -51,6 +51,7 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
     , dodropnext_(false)
     , pickedpos_(TrcKey::udf())
     , patchdata_(0)
+    , sowingmode_(0)
 {
     curcs_.setEmpty();
     horpainter_->abouttorepaint_.notify(
@@ -59,6 +60,8 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 	    mCB(this,HorizonFlatViewEditor3D,horRepaintedCB) );
     mAttachCB( editor_->sower().sowingEnd,
 	HorizonFlatViewEditor3D::sowingFinishedCB );
+    mAttachCB( editor_->sower().sowing,
+	HorizonFlatViewEditor3D::sowingModeCB );
     mAttachCB( editor_->movementFinished, 
 	HorizonFlatViewEditor3D::polygonFinishedCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
@@ -573,6 +576,8 @@ void HorizonFlatViewEditor3D::redo()
 
 void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 {
+    sowingmode_ = false;
+
     if ( !mehandler_ )
 	return;
 
@@ -580,6 +585,12 @@ void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
     const bool doerase =
 	!mouseevent.shiftStatus() && mouseevent.ctrlStatus();
     makePatchEnd( doerase );
+}
+
+
+void HorizonFlatViewEditor3D::sowingModeCB( CallBacker* )
+{
+    sowingmode_ = true;
 }
 
 
@@ -717,8 +728,14 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 		    updatePatchDisplay();
 	    }
 	}
-	else if ( spk.addSeed(tkv,drop,tkv2) )
+	else
+	{
+	    if ( !sowingmode_ )
+		spk.addSeed( tkv, drop, tkv2 );
+	    else 
+		spk.addSeedToPatch( tkv, false );
 	    return true;
+	}
     }
     else if ( mev.shiftStatus() || mev.ctrlStatus() )
     {

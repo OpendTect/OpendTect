@@ -130,6 +130,7 @@ public:
 
     Notifier<MPEClickCatcher>	click;
     Notifier<MPEClickCatcher>	endSowing;
+    Notifier<MPEClickCatcher>	sowing;
 
     const MPEClickInfo&		info() const;
     MPEClickInfo&		info();
@@ -158,7 +159,8 @@ protected:
 					const visBase::EventInfo&);
 
     void			allowPickBasedReselection();
-    void			sowingEnd(CallBacker*);
+    void			sowingEndCB(CallBacker*);
+    void			sowingCB(CallBacker*);
 
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;

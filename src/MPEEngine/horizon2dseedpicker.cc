@@ -208,6 +208,9 @@ int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
 
 bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
 {
+    if ( trackmode_ == TrackFromSeeds && !doerase )
+	return addPatchSowingSeeds();
+
     if ( trackmode_ != DrawBetweenSeeds && 
 	trackmode_ !=DrawAndSnap && !doerase )
 	return false;
@@ -238,6 +241,28 @@ bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
 	seedlist_ += path[idx].tk_;
     }
     interpolateSeeds();
+    hor2d->setBurstAlert( false );
+
+    EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().currentEventID());
+    return true;
+}
+
+
+bool Horizon2DSeedPicker::addPatchSowingSeeds()
+{
+    mGetHorizon( hor2d, false )
+    hor2d->setBurstAlert(true);
+
+    TypeSet<TrcKeyValue> path = patch_->getPath();
+    int firstthreebendpoints_ = 0;
+    for ( int idx=0; idx<patch_->nrSeeds(); idx++ )
+    {
+	// for the first three seeds they are always are seeds
+	sowermode_ = firstthreebendpoints_>2 ? true : false;
+	const TrcKeyValue seed = path[idx];
+	addSeed( seed, false, seed );
+	firstthreebendpoints_++;
+    }
     hor2d->setBurstAlert( false );
     EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().currentEventID());
     return true;

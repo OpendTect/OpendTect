@@ -62,7 +62,7 @@ protected:
     TrcKeyZSampling	getTrackBox() const;
     bool		getNextSeed(const BinID& seedbid,const BinID& dir,
 				    BinID& nextseedbid) const;
-
+    bool		addPatchSowingSeeds();
     const FaultTrcDataProvider* fltdataprov_;
 
 private:

@@ -63,6 +63,7 @@ protected:
     TrcKeyZSampling		getTrackBox() const;
     bool			getNextSeedPos(int seedpos,int dirstep,
 					       int& nextseedpos) const;
+    bool			addPatchSowingSeeds();
 
     Pos::GeomID			geomid_;
 };

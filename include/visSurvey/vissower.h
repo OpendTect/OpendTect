@@ -69,6 +69,7 @@ public:
 	    			 int underlyingobjid=-1,
 				 const TrcKeySampling* workrange=0);
     Notifier<Sower>	sowingEnd;
+    Notifier<Sower>	sowing;
 
 protected:
 

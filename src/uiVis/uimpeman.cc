@@ -59,6 +59,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , seedpickwason_(false)
     , oldactivevol_(false)
     , cureventnr_(mUdf(int))
+    , sowingmode_( false )
 {
     mAttachCB( engine().trackeraddremove, uiMPEMan::trackerAddedRemovedCB );
     mAttachCB( engine().actionCalled, uiMPEMan::mpeActionCalledCB );
@@ -646,8 +647,13 @@ void uiMPEMan::seedClick( CallBacker* )
 	}
 	else
 	{
-	    if ( seedpicker->addSeed( seedpos, false ) )
+	    if ( !sowingmode_ && seedpicker->addSeed(seedpos,false) )
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	    else if ( sowingmode_ )
+	    {
+		seedpicker->addSeedToPatch( seedpos, false );
+		engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	    }
 	}
     }
     else
@@ -661,8 +667,13 @@ void uiMPEMan::seedClick( CallBacker* )
 	    seedpicker->addSeedToPatch( seedpos );
 	    updatePatchDisplay();
 	}
-	else if ( seedpicker->addSeed(seedpos,shiftclicked) )
+	else if ( !sowingmode_ && seedpicker->addSeed(seedpos,shiftclicked) )
 	    engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	else if ( sowingmode_ )
+	{
+	    seedpicker->addSeedToPatch( seedpos, false );
+	    engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	}
     }
     if ( !clickcatcher_->moreToSow() )
 	endSeedClickEvent( emobj );
@@ -846,6 +857,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 	clickcatcher_->click.notify(mCB(this,uiMPEMan,seedClick));
 	clickcatcher_->turnOn( false );
 	mAttachCB( clickcatcher_->endSowing, uiMPEMan::sowingFinishedCB );
+	mAttachCB( clickcatcher_->sowing, uiMPEMan::sowingModeCB );
     }
 
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
@@ -868,6 +880,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 
 void uiMPEMan::sowingFinishedCB( CallBacker* )
 {
+    sowingmode_ = false;
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker ) return;
@@ -876,6 +889,12 @@ void uiMPEMan::sowingFinishedCB( CallBacker* )
     const bool doerase = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
     seedpicker->endPatch( doerase );
     cleanPatchDisplay();
+}
+
+
+void uiMPEMan::sowingModeCB( CallBacker* )
+{
+    sowingmode_ = true;
 }
 
 

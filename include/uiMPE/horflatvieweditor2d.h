@@ -85,6 +85,7 @@ protected:
     TrcKey		getTrcKey(const Coord&) const;
     void		setupPatchDisplay();
     void		updatePatchDisplay();
+    void		sowingModeCB(CallBacker*);
     void		sowingFinishedCB(CallBacker*);
     void		keyPressedCB(CallBacker*);
     void		polygonFinishedCB(CallBacker*);
@@ -122,6 +123,7 @@ protected:
     mutable bool		dodropnext_;
     FlatView::AuxData*		patchdata_;
     TypeSet<EM::PosID>		pointselections_;
+    bool			sowingmode_;
 
 };
 

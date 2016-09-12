@@ -79,6 +79,7 @@ protected:
     bool		getPosID(const Coord3&,EM::PosID&) const;
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
 	    			  const MouseEvent&);
+    void		sowingModeCB(CallBacker*);
     void		sowingFinishedCB(CallBacker*);
     void		keyPressedCB(CallBacker*);
     void		polygonFinishedCB(CallBacker*);
@@ -115,6 +116,7 @@ protected:
     mutable bool		dodropnext_;
     FlatView::AuxData*		patchdata_;
     TypeSet<EM::PosID>		pointselections_;
+    bool			sowingmode_;
 };
 
 } //namespace MPE

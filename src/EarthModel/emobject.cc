@@ -410,7 +410,9 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
 	EMM().undo().addEvent( event, 0 );
     }
 
-    change.trigger( cbdata );
+    if ( !hasBurstAlert() )
+	change.trigger( cbdata );
+
     changed_ = true;
 }
 
