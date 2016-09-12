@@ -41,7 +41,7 @@ protected:
 
     bool			allowParallelComputation() const
 				{ return true; }
-    const Interval<int>*        desZSampMargin(int input,int output) const
+    const Interval<int>*	desZSampMargin(int input,int output) const
 				{ return &zmargin_; }
 
     const DataHolder*		inputdata_;
@@ -53,6 +53,6 @@ protected:
     const float*		hilbfilter_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 #endif
