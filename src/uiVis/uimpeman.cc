@@ -48,8 +48,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransmgr.h"
 #include "vismpeeditor.h"
 #include "visevent.h"
+#include "hiddenparam.h"
 
 using namespace MPE;
+
+static HiddenParam<uiMPEMan,char> sowingmode_( false );
 
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : parent_(p)
@@ -71,6 +74,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     mAttachCB( visserv_->keyEvent, uiMPEMan::keyEventCB );
     mAttachCB( visSurvey::STM().mouseCursorCall, uiMPEMan::mouseCursorCallCB );
     mAttachCB( *visserv_->planeMovedEventNotifer(), uiMPEMan::planeChangedCB );
+    sowingmode_.setParam( this, false );
 }
 
 
@@ -78,6 +82,7 @@ uiMPEMan::~uiMPEMan()
 {
     detachAllNotifiers();
     deleteVisObjects();
+    sowingmode_.removeParam( this );
 }
 
 
@@ -648,12 +653,19 @@ void uiMPEMan::seedClick( CallBacker* )
 	}
 	else
 	{
-	    if ( seedpicker->addSeed( seedpos, false ) )
+	    const bool dosowing = sowingmode_.getParam(this);
+	    if ( !dosowing && seedpicker->addSeed(seedpos,false) )
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	    else if ( dosowing )
+	    {
+		seedpicker->addSeedToPatch( seedpos, false );
+		engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	    }
 	}
     }
     else
     {
+	const bool dosowing = sowingmode_.getParam(this);
 	const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
 	const bool doerase = OD::ctrlKeyboardButton(eventinfo->buttonstate_);
 	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
@@ -663,8 +675,13 @@ void uiMPEMan::seedClick( CallBacker* )
 	    seedpicker->addSeedToPatch( seedpos );
 	    updatePatchDisplay();
 	}
-	else if ( seedpicker->addSeed(seedpos,shiftclicked) )
+	else if ( !dosowing && seedpicker->addSeed(seedpos,shiftclicked) )
 	    engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	else if ( dosowing )
+	{
+	    seedpicker->addSeedToPatch( seedpos, false );
+	    engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	}
     }
     if ( !clickcatcher_->moreToSow() )
 	endSeedClickEvent( emobj );
@@ -848,6 +865,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 	clickcatcher_->click.notify(mCB(this,uiMPEMan,seedClick));
 	clickcatcher_->turnOn( false );
 	mAttachCB( clickcatcher_->endSowing, uiMPEMan::sowingFinishedCB );
+	mAttachCB( clickcatcher_->sowingNotifer(), uiMPEMan::sowingModeCB );
     }
 
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
@@ -870,6 +888,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 
 void uiMPEMan::sowingFinishedCB( CallBacker* )
 {
+    sowingmode_.setParam( this, false );
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker ) return;
@@ -878,6 +897,12 @@ void uiMPEMan::sowingFinishedCB( CallBacker* )
     const bool doerase = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
     seedpicker->endPatch( doerase );
     cleanPatchDisplay();
+}
+
+
+void uiMPEMan::sowingModeCB( CallBacker* )
+{
+    sowingmode_.setParam( this, true );
 }
 
 

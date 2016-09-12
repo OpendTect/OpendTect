@@ -86,6 +86,7 @@ protected:
     TrcKey		getTrcKey(const Coord&) const;
     void		setupPatchDisplay();
     void		updatePatchDisplay();
+    void		sowingModeCB(CallBacker*);
     void		sowingFinishedCB(CallBacker*);
     void		keyPressedCB(CallBacker*);
     void		polygonFinishedCB(CallBacker*);

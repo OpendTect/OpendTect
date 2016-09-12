@@ -65,6 +65,7 @@ public:
 				    OD::ButtonState mask=OD::LeftButton);
     void		setEraserMask(bool yn=true,
 				    OD::ButtonState mask=mCtrlLeftButton);
+    Notifier<Sower>&	sowingNotifier() const;
     Notifier<Sower>	sowingEnd;
 
 protected:

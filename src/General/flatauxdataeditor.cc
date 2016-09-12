@@ -18,11 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "polygon.h"
 #include "timefun.h"
-
+#include "hiddenparam.h"
 
 namespace FlatView
 {
 
+static HiddenParam<Sower,Notifier<Sower>* > sowing_(0);
 AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     : viewer_( v )
     , mousehandler_( meh )
@@ -733,6 +734,7 @@ Sower::Sower( AuxDataEditor& ade, MouseEventHandler& meh )
     , curknotstamp_( mUdf(int) )
     , sowingEnd( this )
 {
+    sowing_.setParam( this, new Notifier<Sower>(this) );
     sowingline_ = editor_.viewer().createAuxData( 0 );
     editor_.viewer().addAuxData( sowingline_ );
     reInitSettings();
@@ -743,6 +745,14 @@ Sower::~Sower()
 {
     deepErase( eventlist_ );
     delete editor_.viewer().removeAuxData( sowingline_ );
+    delete sowing_.getParam(this);
+    sowing_.removeParam( this );
+}
+
+
+Notifier<Sower>& Sower::sowingNotifier() const
+{
+    return *sowing_.getParam(this);
 }
 
 
@@ -959,6 +969,10 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
     mode_ = FirstSowing;
     int count = 0;
     const bool sow = bendpoints_.size()>1;
+
+    if ( bendpoints_.size()>2 )
+	sowing_.getParam(this)->trigger();
+
     while ( bendpoints_.size() )
     {
 	int idx = bendpoints_[0];

@@ -332,6 +332,9 @@ void Horizon3DSeedPicker::processJunctions()
 
 bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
 {
+    if ( trackmode_ == TrackFromSeeds && !doerase )
+	return addPatchSowingSeeds();
+
     if ( trackmode_ != DrawBetweenSeeds && 
 	trackmode_ != DrawAndSnap && !doerase )
 	return false;
@@ -366,6 +369,28 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
     interpolateSeeds();
     hor3d->setBurstAlert( false );
     EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().currentEventID());
+    return true;
+}
+
+
+bool Horizon3DSeedPicker::addPatchSowingSeeds()
+{
+    mGetHorizon( hor3d, false )
+    hor3d->setBurstAlert( true );
+
+    const TypeSet<TrcKeyValue>& path = patch_->getPath();
+    int firstthreebendpoints_ = 0;
+    for ( int idx=0; idx<patch_->nrSeeds(); idx++ )
+    {
+	// for the first three seeds they are always are seeds
+	sowermode_ = firstthreebendpoints_>2 ? true : false;
+	const TrcKeyValue& seed = path[idx];
+	addSeed( seed, false, seed );
+	firstthreebendpoints_++;
+    }
+    hor3d->setBurstAlert( false );
+
+    EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().currentEventID() );
     return true;
 }
 

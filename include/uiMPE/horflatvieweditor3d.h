@@ -100,6 +100,7 @@ protected:
     EM::SectionID		getSectionID(int markerid);
     void			setupPatchDisplay();
     void			updatePatchDisplay();
+    void			sowingModeCB(CallBacker*);
 
     EM::ObjectID		emid_;
     EM::HorizonPainter3D*	horpainter_;

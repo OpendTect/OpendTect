@@ -42,6 +42,7 @@ namespace visSurvey
 
 static HiddenParam< MPEClickInfo, const TrcKeyPath* > rdmtkpaths( 0 );
 static HiddenParam< MPEClickInfo, int > rdlids( -1 );
+static HiddenParam< MPEClickCatcher, Notifier<MPEClickCatcher>* > sowing_( 0 );
 
 MPEClickCatcher::MPEClickCatcher()
     : visBase::VisualObjectImpl( false )
@@ -54,6 +55,7 @@ MPEClickCatcher::MPEClickCatcher()
     , endSowing( this )
 {
     rdmtkpaths.setParam( &info_, 0 );
+    sowing_.setParam( this, new Notifier<MPEClickCatcher>(this) );
 }
 
 
@@ -64,6 +66,8 @@ MPEClickCatcher::~MPEClickCatcher()
     setEditor( 0 );
     rdmtkpaths.removeParam( &info_ );
     rdlids.removeParam( &info_ );
+    delete sowing_.getParam( this );
+    sowing_.removeParam( this );
 }
 
 
@@ -553,7 +557,17 @@ void MPEClickCatcher::setEditor( MPEEditor* mpeeditor )
     }
     editor_ = mpeeditor;
     if ( editor_ )
+    {
+	mAttachCB(editor_->sower().sowingNotifier(),MPEClickCatcher::sowingCB);
+	mAttachCB( editor_->sower().sowingend, MPEClickCatcher::sowingEnd );
 	editor_->ref();
+    }
+}
+
+
+Notifier<MPEClickCatcher>& MPEClickCatcher::sowingNotifer() const
+{
+    return *sowing_.getParam( this );
 }
 
 
@@ -562,11 +576,16 @@ bool MPEClickCatcher::activateSower( const Color& color,
 {
     if ( editor_ && cureventinfo_ )
     {
-	mAttachCB( editor_->sower().sowingend, MPEClickCatcher::sowingEnd );
 	return editor_->sower().activate( color, *cureventinfo_,
 					  info_.getObjID(), workrange );
     }
     return false;
+}
+
+
+void MPEClickCatcher::sowingCB( CallBacker* )
+{
+    sowing_.getParam(this)->trigger();
 }
 
 

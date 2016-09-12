@@ -107,6 +107,7 @@ protected:
     void			updateClickCatcher(bool create=true);
     void			cleanPatchDisplay();
     void			sowingFinishedCB(CallBacker*);
+    void			sowingModeCB(CallBacker*);
     void			updatePatchDisplay();
 
     bool			seedpickwason_;

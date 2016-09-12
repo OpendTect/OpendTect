@@ -43,7 +43,7 @@ namespace MPE
 {
  static HiddenParam<HorizonFlatViewEditor2D,TypeSet<EM::PosID>* >
 					    pointselections_( 0 );
-
+ static HiddenParam<HorizonFlatViewEditor2D,char> sowingmode_( false );
 
 HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
 						  const EM::ObjectID& emid )
@@ -68,6 +68,8 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
 	    mCB(this,HorizonFlatViewEditor2D,horRepaintedCB) );
     mAttachCB( editor_->sower().sowingEnd, 
 	HorizonFlatViewEditor2D::sowingFinishedCB );
+    mAttachCB( editor_->sower().sowingNotifier(),
+	HorizonFlatViewEditor2D::sowingModeCB );
     mAttachCB( editor_->movementFinished, 
 	HorizonFlatViewEditor2D::polygonFinishedCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
@@ -76,6 +78,7 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
 	vwr->rgbCanvas().getKeyboardEventHandler().keyPressed,
 	HorizonFlatViewEditor2D::keyPressedCB );
     pointselections_.setParam( this, new TypeSet<EM::PosID>() );
+    sowingmode_.setParam( this, false );
 }
 
 
@@ -107,7 +110,8 @@ HorizonFlatViewEditor2D::~HorizonFlatViewEditor2D()
     }
 
     delete pointselections_.getParam( this );
-    pointselections_.removeParam(this);
+    pointselections_.removeParam( this );
+    sowingmode_.removeParam( this );
 
 }
 
@@ -475,6 +479,8 @@ void HorizonFlatViewEditor2D::redo()
 
 void HorizonFlatViewEditor2D::sowingFinishedCB( CallBacker* )
 {
+    sowingmode_.setParam( this, false );
+
     MPE::EMSeedPicker* seedpicker = getEMSeedPicker();
     if ( !seedpicker || !mehandler_ )
 	return;
@@ -486,6 +492,12 @@ void HorizonFlatViewEditor2D::sowingFinishedCB( CallBacker* )
     emobj->setBurstAlert( false );
     seedpicker->endPatch( doerase );
     updatePatchDisplay();
+}
+
+
+void HorizonFlatViewEditor2D::sowingModeCB( CallBacker* )
+{
+    sowingmode_.setParam( this, true );
 }
 
 
@@ -700,8 +712,14 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 		    updatePatchDisplay();
 	    }
 	}
-	else if ( spk.addSeed(tkv,drop,tkv2) )
-	    return true;    
+	else
+	{
+	    if ( !sowingmode_.getParam(this) )
+		spk.addSeed( tkv, drop, tkv2 );
+	    else 
+		spk.addSeedToPatch( tkv, false );
+	    return true;
+	}
     }
     else if ( mev.shiftStatus() || mev.ctrlStatus() )
     {

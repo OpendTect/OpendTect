@@ -128,6 +128,7 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
 
     const mVisTrans*		getDisplayTransformation() const;
+    Notifier<MPEClickCatcher>&	sowingNotifer() const;
 
     Notifier<MPEClickCatcher>	click;
     Notifier<MPEClickCatcher>	endSowing;
@@ -160,6 +161,7 @@ protected:
 
     void			allowPickBasedReselection();
     void			sowingEnd(CallBacker*);
+    void			sowingCB(CallBacker*);
 
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;

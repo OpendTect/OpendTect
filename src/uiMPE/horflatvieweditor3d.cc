@@ -40,6 +40,7 @@ namespace MPE
 {
 static HiddenParam<HorizonFlatViewEditor3D,TypeSet<EM::PosID>* >
 					pointselections_( 0 );
+static HiddenParam<HorizonFlatViewEditor3D,char> sowingmode_( false );
 
 HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 						  const EM::ObjectID& emid )
@@ -63,6 +64,8 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 	    mCB(this,HorizonFlatViewEditor3D,horRepaintedCB) );
     mAttachCB( editor_->sower().sowingEnd,
 	HorizonFlatViewEditor3D::sowingFinishedCB );
+    mAttachCB( editor_->sower().sowingNotifier(),
+	HorizonFlatViewEditor3D::sowingModeCB );
     mAttachCB( editor_->movementFinished, 
 	HorizonFlatViewEditor3D::polygonFinishedCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
@@ -71,6 +74,7 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 	vwr->rgbCanvas().getKeyboardEventHandler().keyPressed,
 	HorizonFlatViewEditor3D::keyPressedCB );
     pointselections_.setParam( this, new TypeSet<EM::PosID>() );
+    sowingmode_.setParam( this, false );
 }
 
 
@@ -104,6 +108,7 @@ HorizonFlatViewEditor3D::~HorizonFlatViewEditor3D()
 
     delete pointselections_.getParam( this );
     pointselections_.removeParam( this );
+    sowingmode_.removeParam( this );
 }
 
 
@@ -576,12 +581,19 @@ void HorizonFlatViewEditor3D::redo()
 
 void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 {
+    sowingmode_.setParam( this, false );
     if ( !mehandler_ ) return;
     const MouseEvent& mouseevent = mehandler_->event();
     const bool doerase =
 	!mouseevent.shiftStatus() && mouseevent.ctrlStatus();
     makePatchEnd( doerase );
 
+}
+
+
+void HorizonFlatViewEditor3D::sowingModeCB( CallBacker* )
+{
+    sowingmode_.setParam( this, true );
 }
 
 
@@ -719,8 +731,14 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 		    updatePatchDisplay();
 	    }
 	}
-	else if ( spk.addSeed(tkv,drop,tkv2) )
+	else
+	{
+	    if ( !sowingmode_.getParam(this) )
+		spk.addSeed( tkv, drop, tkv2 );
+	    else 
+		spk.addSeedToPatch( tkv, false );
 	    return true;
+	}
     }
     else if ( mev.shiftStatus() || mev.ctrlStatus() )
     {

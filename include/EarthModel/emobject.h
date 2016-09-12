@@ -49,7 +49,7 @@ public:
 		    : pid0( 0, 0, 0 )
 		    , pid1( 0, 0, 0 )
 		    , attrib( -1 )
-		    , flagfor2dviewer(false)
+		    , flagfor2dviewer( false )
 		    , event( EMObjectCallbackData::Undef )
 		{}
 

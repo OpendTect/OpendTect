@@ -39,7 +39,9 @@ public:
     void		    getTrcKeySampling(TrcKeySampling&) const;
     int                     nrSeeds();
     Coord3                  seedCoord(int) const;
+    int			    addSeed(const TrcKeyValue&,bool sort);
     int			    addSeed(const TrcKeyValue&);
+			    /*!<don't use it, only for keep ABI. */
     void		    removeSeed(int);
     void		    clear();
     
@@ -74,7 +76,10 @@ public:
     virtual void	endPatch(bool);
     bool		stopSeedPick();
 
+    void		addSeedToPatch(const TrcKeyValue&,bool sort);
     void		addSeedToPatch(const TrcKeyValue&);
+			 /*!<don't use it, only for keep ABI. */
+
     bool		addSeed(const TrcKeyValue&,bool drop=false);
     virtual bool	addSeed(const TrcKeyValue& seedcrd,bool drop,
 				const TrcKeyValue& seedkey)	{ return false;}

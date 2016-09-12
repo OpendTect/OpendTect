@@ -197,7 +197,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 		setPosAttrib( pid, attribs_[idx], false, addtoundo );
 	}
     }
-
+    
     if ( addtoundo )
     {
 	UndoEvent* undo = new SetPosUndoEvent( oldpos, pid );
@@ -424,7 +424,8 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
 	EMM().undo().addEvent( event, 0 );
     }
 
-    change.trigger( cbdata );
+    if ( !hasBurstAlert() )
+	change.trigger( cbdata );
     changed_ = true;
 }
 

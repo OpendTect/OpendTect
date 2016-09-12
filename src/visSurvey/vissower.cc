@@ -27,11 +27,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvscene.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
-
+#include "hiddenparam.h"
 
 namespace visSurvey
 {
-
+static HiddenParam<Sower,Notifier<Sower>* > sowing_( 0 );
 
 Sower::Sower( const visBase::VisualObjectImpl* editobj )
     : visBase::VisualObjectImpl(false)
@@ -48,6 +48,7 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
     , underlyingobjid_(-1)
     , sowingend(this)
 {
+    sowing_.setParam( this, new Notifier<Sower>(this) );
     sowingline_->ref();
     sowingline_->setMaterial( new visBase::Material );
     sowingline_->setLineStyle( LineStyle(LineStyle::Solid,1) );
@@ -68,6 +69,8 @@ Sower::~Sower()
 	delete workrange_;
 	workrange_ = 0;
     }
+    delete sowing_.getParam(this);
+    sowing_.removeParam( this );
 }
 
 
@@ -221,6 +224,12 @@ void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
     eventinfo.pickdepth = t;
     scene->getTempZStretchTransform()->transformBack( pos );
     transformation_->transformBack( pos, eventinfo.worldpickedpos );
+}
+
+
+Notifier<Sower>& Sower::sowingNotifier() const
+{
+    return *sowing_.getParam( this );
 }
 
 
@@ -427,6 +436,9 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
     mode_ = FirstSowing;
     int count = 0;
     const bool sow = bendpoints_.size()>1;
+    if ( bendpoints_.size()>2 )
+	sowing_.getParam(this)->trigger();
+
     while ( bendpoints_.size() )
     {
 	int eventidx = bendpoints_[0];
