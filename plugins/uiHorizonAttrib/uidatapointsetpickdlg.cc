@@ -480,16 +480,15 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
 
 void uiEMDataPointSetPickDlg::settCB( CallBacker* )
 {
-    uiSingleGroupDlg dlg( this,
-		uiDialog::Setup( tr("Interpolate Horizon Data"),
-		mNoDlgTitle,mODHelpKey(muiEMDataPointSetPickDlgHelpID)) );
-    uiArray2DInterpolSel* settings =
-	new uiArray2DInterpolSel( &dlg, false, false, true, interpol_, false );
-    dlg.setGroup( settings );
+    uiSingleGroupDlg<uiArray2DInterpolSel> dlg( this,
+           new uiArray2DInterpolSel( 0, false, false, true, interpol_, false ));
+    dlg.setCaption( tr("Interpolate Horizon Data") );
+    dlg.setHelpKey( mODHelpKey(muiEMDataPointSetPickDlgHelpID) );
+    
     if ( !dlg.go() ) return;
 
-    delete interpol_;
-    interpol_ = settings->getResult();
+    deleteAndZeroPtr( interpol_ );
+    interpol_ = dlg.getDlgGroup()->getResult();
     if ( !interpol_ ) return;
 
     interpol_->setFillType( Array2DInterpol::Full );

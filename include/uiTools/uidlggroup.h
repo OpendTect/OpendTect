@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 
 /*!
-Dialog that either can be used standalone (with uiSingleGroupDlg) or
+Dialog that either can be used standalone (with uiSingleGroupDlg<>) or
 in a tabstack (uiTabStackDlg) */
 
 
@@ -54,30 +54,46 @@ protected:
 
 };
 
-/*! Dialog with one uiDlgGroup. */
-
-mExpClass(uiTools) uiSingleGroupDlg : public uiDialog
+/*! Dialog with one uiDlgGroup. Normally not used directly, as uiS */
+mExpClass(uiTools) uiSingleGroupDlgBase : public uiDialog
 {
 public:
-		uiSingleGroupDlg( uiParent* p,const uiDialog::Setup& st )
-		    : uiDialog(p,st)
-		    , grp_(0)			{}
-    void	setGroup( uiDlgGroup* grp )	{ grp_ = grp; }
+    void	setGroup( uiDlgGroup* grp );
 
-
-    HelpKey	helpKey() const
-		{
-		    if ( !grp_->helpKey().isEmpty() )
-			return grp_->helpKey();
-
-		    return uiDialog::helpKey();
-		}
+    HelpKey	helpKey() const;
 
 protected:
-    bool	acceptOK()		{ return grp_->acceptOK(); }
-    bool	rejectOK()		{ return grp_->rejectOK(); }
+                uiSingleGroupDlgBase(uiParent*,uiDlgGroup*);
+                uiSingleGroupDlgBase(uiParent*,const uiDialog::Setup&);
+
+    bool	acceptOK();
+    bool	rejectOK();
 
     uiDlgGroup*	grp_;
+};
+
+
+/*!Dialog with one uiDlgGroup. Normally contructed as:
+ \code
+ uiSingleGroupDlg<myDlgGroup> dlg( parent, new myDlgGroup( 0, args ) );
+ if ( dlg.go() )
+ {
+     dlg.getDlgGroup()->getTheData();
+ }
+ \endcode
+ */
+
+template <class T=uiDlgGroup>
+mClass(uiTools) uiSingleGroupDlg : public uiSingleGroupDlgBase
+{
+public:
+    		uiSingleGroupDlg( uiParent* p,T* ptr)
+                    : uiSingleGroupDlgBase(p,ptr)
+    		{}
+    		uiSingleGroupDlg(uiParent* p,const uiDialog::Setup& s)
+                    : uiSingleGroupDlgBase( p, s ) {}
+    T*		getDlgGroup() { return (T*) grp_; }
+
 };
 
 

@@ -192,18 +192,19 @@ void uiImportHorizon::descChg( CallBacker* cb )
 
 void uiImportHorizon::interpolSettingsCB( CallBacker* )
 {
-    uiSingleGroupDlg dlg( this, uiDialog::Setup(tr("Interpolation settings"),
-			  uiStrings::sEmptyString(), mNoHelpKey ) );
+    uiSingleGroupDlg<uiArray2DInterpolSel> dlg( this,
+                new uiArray2DInterpolSel( 0, true, true, false, interpol_ ));
+    
+    dlg.setCaption( uiStrings::sInterpolation() );
+    dlg.setTitleText( uiStrings::sSettings() );
 
-    uiArray2DInterpolSel* arr2dinterpfld =
-	new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
-    arr2dinterpfld->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
-    dlg.setGroup( arr2dinterpfld );
+    dlg.getDlgGroup()->setDistanceUnit(
+                                SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
 
     if ( dlg.go() )
     {
 	delete interpol_;
-	interpol_ = arr2dinterpfld->getResult();
+	interpol_ = dlg.getDlgGroup()->getResult();
     }
 }
 

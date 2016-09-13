@@ -1257,18 +1257,15 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     uiTaskRunner execdlg( parent() );
     if ( interpolate )
     {
-	uiSingleGroupDlg dlg( parent(),
-		uiDialog::Setup( tr("Interpolate horizon Data"),
-				 tr("Interpolation parameters"),
-				  mNoHelpKey ) );
+        uiSingleGroupDlg<uiArray2DInterpolSel> dlg( parent(),
+                new uiArray2DInterpolSel( 0, false, false, true, 0 ) );
+        
+        dlg.setCaption( uiStrings::sInterpolation() );
+        dlg.setTitleText( uiStrings::sSettings() );
 
-	uiArray2DInterpolSel* settings =
-	    new uiArray2DInterpolSel( &dlg, false, false, true, 0 );
-
-	dlg.setGroup( settings );
 	if ( !dlg.go() ) return false;
 
-	Array2DInterpol* interp = settings->getResult();
+	Array2DInterpol* interp = dlg.getDlgGroup()->getResult();
 	if ( !interp )
 	    return false;
 

@@ -360,10 +360,11 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	const int surfobjid = vd->addIsoSurface( 0, false );
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
-	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
-	uiDialog::Setup( tr("Iso value selection"), mNoDlgTitle,
-                                mODHelpKey(mVolrenTreeItemHelpID) ) );
-	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd,attribNr()) );
+        
+        uiSingleGroupDlg<> dlg( applMgr()->applService().parent(),
+                     new uiVisIsoSurfaceThresholdDlg( 0,mcs,vd,attribNr()));
+        dlg.setHelpKey( mODHelpKey(mVolrenTreeItemHelpID) );
+
 	if ( !dlg.go() )
 	{
 	    vd->removeChild( surfobjid );
@@ -549,11 +550,10 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
 			visserv_->getObject(getParentDisplayID()));
 
-	uiSingleGroupDlg dlg( getUiParent(),
-	uiDialog::Setup( tr("Iso Value Selection"), mNoDlgTitle,
-			     mNoHelpKey ) );
-	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg, isosurface, vd,
-						      getParentAttribNr()) );
+        uiSingleGroupDlg<> dlg( getUiParent(),
+            new uiVisIsoSurfaceThresholdDlg( 0, isosurface, vd,
+                                            getParentAttribNr()));
+
 	if ( dlg.go() )
 	    updateColumnText( uiODSceneMgr::cColorColumn() );
     }

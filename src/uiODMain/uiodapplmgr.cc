@@ -476,25 +476,23 @@ void uiODApplMgr::setStereoOffset()
 
 void uiODApplMgr::addTimeDepthScene()
 {
-    uiDialog::Setup setup(tr("Velocity model"),
-		tr("Select velocity model to base scene on"),
-                mODHelpKey(mODApplMgraddTimeDepthSceneHelpID) );
-
-    uiSingleGroupDlg dlg( &appl_, setup );
-
     uiZAxisTransformSel* uitrans = SI().zIsTime()
-	? new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyTime(),
-				   ZDomain::sKeyDepth(), true )
-	: new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyDepth(),
-				   ZDomain::sKeyTime(), true );
-
+        ? new uiZAxisTransformSel( 0, false, ZDomain::sKeyTime(),
+                                  ZDomain::sKeyDepth(), true )
+        : new uiZAxisTransformSel( 0, false, ZDomain::sKeyDepth(),
+                                  ZDomain::sKeyTime(), true );
+    
     if ( !uitrans->isOK() )
     {
-	uiMSG().error(tr("No suitable transforms found"));
-	return;
+        uiMSG().error(tr("No suitable transforms found"));
+        return;
     }
+    
+    uiSingleGroupDlg<> dlg( &appl_, uitrans);
+    dlg.setCaption( tr("Velocity model") );
+    dlg.setTitleText( tr("Select velocity model to base scene on") );
+    dlg.setHelpKey( mODHelpKey(mODApplMgraddTimeDepthSceneHelpID) );
 
-    dlg.setGroup( uitrans );
     if ( !dlg.go() ) return;
 
     RefMan<ZAxisTransform> ztrans = uitrans->getSelection();

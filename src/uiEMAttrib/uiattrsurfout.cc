@@ -91,22 +91,21 @@ void uiAttrSurfaceOut::fillUdfSelCB( CallBacker* )
 
 void uiAttrSurfaceOut::settingsCB( CallBacker* )
 {
-    uiSingleGroupDlg dlg( this, uiDialog::Setup(tr("Interpolation"),
-					        tr("Interpolation Settings"),
-                                                mNoHelpKey) );
-    uiArray2DInterpolSel* interpolsel =
-		new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
-    dlg.setGroup( interpolsel );
+    uiSingleGroupDlg<uiArray2DInterpolSel> dlg( this,
+                new uiArray2DInterpolSel( 0, true, true, false, interpol_));
+    dlg.setCaption( uiStrings::sInterpolation() );
+    dlg.setTitleText( uiStrings::sSettings() );
+    
     if ( !dlg.go() )
 	return;
 
     IOPar iop;
-    interpolsel->fillPar( iop );
+    dlg.getDlgGroup()->fillPar( iop );
     iop.get( sKey::Name(), methodname_ );
 
     if ( interpol_ ) delete interpol_;
 
-    interpol_ = interpolsel->getResult();
+    interpol_ = dlg.getDlgGroup()->getResult();
 }
 
 

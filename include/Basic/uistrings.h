@@ -326,6 +326,7 @@ public:
     static uiString sInsert();
     static uiString sInvalid();
     static uiString sInvInpFile()	{ return tr("Invalid input file"); }
+    static uiString sInterpolation()	{ return tr("Interpolation"); }
     static uiString sLat()		{ return tr("Latitude"); }
     static uiString sLayer(int num=1)	{ return tr("Layer",0,num); }
     static uiString sLine(int num=1)	{ return tr("Line",0,num); }
