@@ -168,12 +168,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 			    mCB(this,uiSurveyInfoEditor,appButPushed), true );
     applybut->attach( alignedBelow, crdgrp_ );
 
-    xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
-    xyinftfld_->attach( rightTo, applybut );
-    xyinftfld_->attach( rightBorder );
-    xyinftfld_->setChecked( si_.xyInFeet() );
-    xyinftfld_->activated.notify( mCB(this,uiSurveyInfoEditor,updZUnit) );
-
     postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
     sipCB(0);
 }
@@ -414,7 +408,6 @@ void uiSurveyInfoEditor::setValues()
     zunitfld_->setCurrentItem( zistime	? 0 : (zinfeet ? 2 : 1) );
     depthdispfld_->setValue( !zinfeet );
     depthdispfld_->setSensitive( zistime && !xyinfeet );
-    xyinftfld_->setChecked( xyinfeet );
 
     const float srd = si_.seismicReferenceDatum();
     const UnitOfMeasure* datauom = zistime || !zinfeet ? UoMR().get( "Meter" )
@@ -675,10 +668,9 @@ bool uiSurveyInfoEditor::setRanges()
 
     const bool zistime = zunitfld_->currentItem() == 0;
     const bool zinfeet = !depthdispfld_->getBoolValue();
-    const bool xyinft = xyinftfld_->isChecked();
+
     si_.setZUnit( zistime, zinfeet );
     si_.defaultPars().setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
-    si_.setXYInFeet( xyinft );
 
     const float srd = refdatumfld_->getFValue();
     const UnitOfMeasure* datauom = zistime || !zinfeet ? UoMR().get( "Meter" )
@@ -760,12 +752,6 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     if ( !sip->getInfo(dlg,cs,crd) )
 	return;
 
-    IOPar& pars = si_.defaultPars();
-    sip->fillPar( pars );
-    Coord llcrd; LatLong llll;
-    if ( sip->getLatLongAnchor(llcrd,llll) )
-	si_.getLatlong2Coord().set( llll, llcrd );
-
     const bool xyinfeet = sip->xyInFeet();
     uiSurvInfoProvider::TDInfo tdinfo = sip->tdInfo();
     bool zistime = si_.zIsTime();
@@ -781,8 +767,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 	zinfeet = sip->tdInfo() == uiSurvInfoProvider::DepthFeet;
 
     si_.setZUnit( zistime, zinfeet );
-    pars.setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
-    si_.setXYInFeet( xyinfeet );
+    si_.defaultPars().setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
 
     float srd = 0.f;
     if ( sip->getSRD(srd) && !mIsUdf(srd) )
@@ -900,11 +885,10 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
 
     const bool zintime = zunitfld_->currentItem() == 0;
     const bool zinft = zunitfld_->currentItem() == 2;
-    const bool xyinft = xyinftfld_->isChecked();
-    depthdispfld_->setSensitive( zintime && !xyinft );
+
+    depthdispfld_->setSensitive( zintime );
     if ( zintime )
     {
-	if ( xyinft )
 	    depthdispfld_->setValue( false );
     }
     else

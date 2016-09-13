@@ -88,7 +88,6 @@ protected:
     uiGroup*		rangegrp_;
     uiComboBox*		sipfld_;
     uiCheckBox*		overrulefld_;
-    uiCheckBox*		xyinftfld_;
     uiGenInput*		depthdispfld_;
     uiGenInput*		refdatumfld_;
 

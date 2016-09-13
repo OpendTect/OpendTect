@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "rangeposprovider.h"
 #include "mathproperty.h"
 #include "ioman.h"
+#include "coordsystem.h"
 #include "elasticpropseltransl.h"
 #include "mathformulatransl.h"
 #include "ioobjselectiontransl.h"
@@ -57,4 +58,7 @@ mDefModInitFn(General)
     dgbSurvGeom2DTranslator::initClass();
 
     IOM(); //Trigger creation & reading of geometries
+
+    //After IOM is created
+    Coords::PositionSystem::initRepository( &IOM().afterSurveyChange );
 }

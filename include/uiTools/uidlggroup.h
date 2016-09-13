@@ -53,7 +53,9 @@ protected:
 
 };
 
-/*! Dialog with one uiDlgGroup. Normally not used directly, as uiS */
+/*! Dialog with one uiDlgGroup. Normally not used directly, but as
+    uiSingleGroupDlg */
+
 mExpClass(uiTools) uiSingleGroupDlgBase : public uiDialog
 {
 public:

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
+#include "coordsystem.h"
 #include "trckeyzsampling.h"
 #include "latlong.h"
 #include "undefval.h"
@@ -34,6 +35,7 @@ static const char* sKeyYTransf = "Coord-Y-BinID";
 static const char* sKeyDefsFile = ".defs";
 static const char* sKeySurvDefs = "Survey defaults";
 static const char* sKeyLatLongAnchor = "Lat/Long anchor";
+static const char* sKeySetPointPrefix = "Set Point";
 const char* SurveyInfo::sKeyInlRange()	    { return "In-line range"; }
 const char* SurveyInfo::sKeyCrlRange()	    { return "Cross-line range"; }
 const char* SurveyInfo::sKeyXRange()	    { return "X range"; }
@@ -43,6 +45,7 @@ const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
+static const char* sKeyCoordinateSystem = "Coordinate system";
 
 mDefineInstanceCreatedNotifierAccess(SurveyInfo);
 
@@ -364,9 +367,7 @@ SurveyInfo::SurveyInfo()
     , wcs_(*new TrcKeyZSampling(false))
     , zdef_(*new ZDomain::Def(ZDomain::Time()) )
     , depthsinfeet_(false)
-    , xyinfeet_(false)
-    , pars_(*new IOPar(sKeySurvDefs))
-    , ll2c_(*new LatLong2Coord)
+    , surveydefaultpars_(sKeySurvDefs)
     , workRangeChg(this)
     , survdatatype_(Both2DAnd3D)
     , survdatatypeknown_(false)
@@ -391,9 +392,8 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     : NamedMonitorable( si )
     , tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
-    , pars_(*new IOPar(sKeySurvDefs))
+    , surveydefaultpars_(sKeySurvDefs)
     , zdef_(*new ZDomain::Def( si.zDomain() ) )
-    , ll2c_(*new LatLong2Coord)
     , workRangeChg(this)
 {
     *this = si;
@@ -405,8 +405,6 @@ SurveyInfo::~SurveyInfo()
 {
     sendDelNotif();
 
-    delete &pars_;
-    delete &ll2c_;
     delete &tkzs_;
     delete &wcs_;
     delete &zdef_;
@@ -428,7 +426,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     zdef_ = si.zdef_;
     datadir_ = si.datadir_;
     dirname_ = si.dirname_;
-    xyinfeet_ = si.xyinfeet_;
+    coordsystem_ = si.coordsystem_;
     depthsinfeet_ = si.depthsinfeet_;
     b2c_ = si.b2c_;
     survdatatype_ = si.survdatatype_;
@@ -438,7 +436,9 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 	set3binids_[idx] = si.set3binids_[idx];
 	set3coords_[idx] = si.set3coords_[idx];
     }
-    tkzs_ = si.tkzs_; wcs_ = si.wcs_; pars_ = si.pars_; ll2c_ = si.ll2c_;
+    tkzs_ = si.tkzs_;
+    wcs_ = si.wcs_;
+    surveydefaultpars_ = si.surveydefaultpars_;
     seisrefdatum_ = si.seisrefdatum_;
     rdxtr_ = si.rdxtr_; rdytr_ = si.rdytr_;
     sipnm_ = si.sipnm_;
@@ -472,6 +472,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiString& errmsg )
     }
 
     astream.next();
+
     BufferString keyw = astream.keyWord();
     SurveyInfo* si = new SurveyInfo;
     si->setName( FilePath(survdir).fileName() ); // good default
@@ -488,68 +489,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiString& errmsg )
     si->datadir_ = fpsurvdir.pathOnly();
     if ( !survdir || si->dirname_.isEmpty() ) return si;
 
-    while ( !atEndOfSection(astream) )
-    {
-	keyw = astream.keyWord();
-	if ( keyw == sKey::Name() )
-	    si->setName( astream.value() );
-	else if ( keyw == sKeyInlRange() )
-	{
-	    FileMultiString fms( astream.value() );
-	    si->tkzs_.hsamp_.start_.inl() = fms.getIValue( 0 );
-	    si->tkzs_.hsamp_.stop_.inl() = fms.getIValue( 1 );
-	    si->tkzs_.hsamp_.step_.inl() = fms.getIValue( 2 );
-	}
-	else if ( keyw == sKeyCrlRange() )
-	{
-	    FileMultiString fms( astream.value() );
-	    si->tkzs_.hsamp_.start_.crl() = fms.getIValue( 0 );
-	    si->tkzs_.hsamp_.stop_.crl() = fms.getIValue( 1 );
-	    si->tkzs_.hsamp_.step_.crl() = fms.getIValue( 2 );
-	}
-	else if ( keyw == sKeyZRange() )
-	{
-	    FileMultiString fms( astream.value() );
-	    si->tkzs_.zsamp_.start = fms.getFValue( 0 );
-	    si->tkzs_.zsamp_.stop = fms.getFValue( 1 );
-	    si->tkzs_.zsamp_.step = fms.getFValue( 2 );
-	    if ( Values::isUdf(si->tkzs_.zsamp_.step)
-	      || mIsZero(si->tkzs_.zsamp_.step,mDefEps) )
-		si->tkzs_.zsamp_.step = 0.004;
-	    if ( fms.size() > 3 )
-	    {
-		if ( *fms[3] == 'T' )
-		{
-		    si->zdef_ = ZDomain::Time();
-		    si->depthsinfeet_ = false;
-		    si->defaultPars().getYN( sKeyDpthInFt(),si->depthsinfeet_ );
-		}
-		else
-		{
-		    si->zdef_ = ZDomain::Depth();
-		    si->depthsinfeet_ = *fms[3] == 'F';
-		}
-	    }
-	}
-	else if ( keyw == sKeySurvDataType() )
-	{
-	    Pol2D var;
-	    if ( !Pol2DDef().parse( astream.value(), var ) )
-		var = Both2DAnd3D;
-
-	    si->setSurvDataType( var );
-	}
-	else if ( keyw == sKeyXYInFt() )
-	    si->xyinfeet_ = astream.getYN();
-	else if ( keyw == sKeySeismicRefDatum() )
-	    si->seisrefdatum_ = astream.getFValue();
-	else
-	    si->handleLineRead( keyw, astream.value() );
-
-	astream.next();
-    }
-    si->tkzs_.normalise();
-    si->wcs_ = si->tkzs_;
+    const IOPar survpar( astream );
+    si->usePar(survpar);
 
     BufferString line;
     while ( astream.stream().getLine(line) )
@@ -564,6 +505,119 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiString& errmsg )
     { delete si; return 0; }
 
     return si;
+}
+
+
+bool SurveyInfo::usePar( const IOPar& par )
+{
+    par.get( sKey::Name(), name_ );
+    par.get( sKeyInlRange(),
+	    tkzs_.hsamp_.start_.inl(),
+	    tkzs_.hsamp_.stop_.inl(),
+	    tkzs_.hsamp_.step_.inl() );
+
+    par.get( sKeyCrlRange(),
+	    tkzs_.hsamp_.start_.crl(),
+	    tkzs_.hsamp_.stop_.crl(),
+	    tkzs_.hsamp_.step_.crl() );
+
+    FileMultiString fms;
+    if ( par.get( sKeyZRange(), fms ) )
+    {
+	tkzs_.zsamp_.start = fms.getFValue( 0 );
+	tkzs_.zsamp_.stop = fms.getFValue( 1 );
+	tkzs_.zsamp_.step = fms.getFValue( 2 );
+	if ( Values::isUdf(tkzs_.zsamp_.step)
+	       || mIsZero(tkzs_.zsamp_.step,mDefEps) )
+	{
+	    tkzs_.zsamp_.step = 0.004f;
+	}
+	if ( fms.size() > 3 )
+	{
+	    if ( *fms[3] == 'T' )
+	    {
+		zdef_ = ZDomain::Time();
+		depthsinfeet_ = false;
+		defaultPars().getYN( sKeyDpthInFt(), depthsinfeet_ );
+	    }
+	    else
+	    {
+		zdef_ = ZDomain::Depth();
+		depthsinfeet_ = *fms[3] == 'F';
+	    }
+	}
+    }
+
+    BufferString survdatatype;
+    if ( par.get( sKeySurvDataType(), survdatatype) )
+    {
+	Pol2D var;
+	if ( !Pol2DDef().parse( survdatatype, var ) )
+	    var = Both2DAnd3D;
+
+	setSurvDataType( var );
+    }
+
+    PtrMan<IOPar> coordsystempar = par.subselect( sKeyCoordinateSystem );
+    if ( coordsystempar )
+    {
+	coordsystem_ = Coords::PositionSystem::createSystem( *coordsystempar );
+    }
+
+    if ( !coordsystem_ )
+    {
+	RefMan<Coords::UnlocatedXY> coordsystem = new Coords::UnlocatedXY;
+	coordsystem_ = coordsystem;
+
+	/*Try to read the parameters, there should be reference latlog and
+	  Coordinates in there. */
+	if ( !coordsystempar || !coordsystem->usePar( *coordsystempar ) )
+	{
+	    //Read from old format keys
+	    bool xyinfeet = false;
+	    par.getYN( sKeyXYInFt(), xyinfeet );
+	    coordsystem->setIsFeet( xyinfeet );
+
+	    BufferString anchor;
+	    if ( par.get(sKeyLatLongAnchor,anchor) )
+	    {
+		char* ptr = anchor.find( '=' );
+		if ( !ptr ) return false;
+		*ptr++ = '\0';
+		Coord c; LatLong l;
+		if ( !c.fromString(anchor) || !l.fromString(ptr) )
+		    return false;
+		else if ( mIsZero(c.x_,1e-3) && mIsZero(c.y_,1e-3) )
+		    return false;
+
+		coordsystem->setLatLongEstimate( l, c );
+	    }
+	}
+    }
+
+    par.get( sKeySeismicRefDatum(), seisrefdatum_ );
+
+    par.get( sKeyXTransf, rdxtr_.a, rdxtr_.b, rdxtr_.c );
+    par.get( sKeyYTransf, rdytr_.a, rdytr_.b, rdytr_.c );
+
+    PtrMan<IOPar> setpts = par.subselect( sKeySetPointPrefix );
+    if ( setpts )
+    {
+	for ( int idx=1; idx<=3; idx++ )
+	{
+	    BufferString key( ::toString(idx) );
+	    par.get( key, fms );
+	    if ( fms.size() >= 2 )
+	    {
+		set3binids_[idx].fromString( fms[0] );
+		set3coords_[idx].fromString( fms[1] );
+	    }
+	}
+    }
+
+    tkzs_.normalise();
+    wcs_ = tkzs_;
+    return true;
 }
 
 
@@ -582,29 +636,6 @@ bool SurveyInfo::wrapUpRead()
     }
 
     return true;
-}
-
-
-void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
-{
-    if ( keyw == sKeyXTransf )
-	setTr( rdxtr_, val );
-    else if ( keyw == sKeyYTransf )
-	setTr( rdytr_, val );
-    else if ( keyw == sKeyLatLongAnchor )
-	ll2c_.fromString( val );
-    else if ( keyw.startsWith("Set Point") )
-    {
-	const char* ptr = firstOcc( (const char*)keyw, '.' );
-	if ( !ptr ) return;
-	int ptidx = toInt( ptr + 1 ) - 1;
-	if ( ptidx < 0 ) ptidx = 0;
-	if ( ptidx > 3 ) ptidx = 2;
-	FileMultiString fms( val );
-	if ( fms.size() < 2 ) return;
-	set3binids_[ptidx].fromString( fms[0] );
-	set3coords_[ptidx].fromString( fms[1] );
-    }
 }
 
 
@@ -850,7 +881,7 @@ bool SurveyInfo::zIsTime() const
 
 
 SurveyInfo::Unit SurveyInfo::xyUnit() const
-{ return xyinfeet_ ? Feet : Meter; }
+{ return xyInFeet() ? Feet : Meter; }
 
 
 SurveyInfo::Unit SurveyInfo::zUnit() const
@@ -872,13 +903,13 @@ const ZDomain::Def& SurveyInfo::zDomain() const
 
 const char* SurveyInfo::getXYUnitString( bool wb ) const
 {
-    return getDistUnitString( xyinfeet_, wb );
+    return getDistUnitString( xyInFeet(), wb );
 }
 
 
 uiString SurveyInfo::getUiXYUnitString( bool abbrvt, bool wb ) const
 {
-    return uiStrings::sDistUnitString( xyinfeet_, abbrvt, wb );
+    return uiStrings::sDistUnitString( xyInFeet(), abbrvt, wb );
 }
 
 
@@ -1022,22 +1053,14 @@ void SurveyInfo::snapZ( float& z, int dir ) const
 }
 
 
-void SurveyInfo::setTr( Pos::IdxPair2Coord::DirTransform& trans,
-			const char* str )
+static void putTr( const Pos::IdxPair2Coord::DirTransform& trans,
+		   IOPar& par, const char* key )
 {
-    FileMultiString fms( str );
-    trans.a = fms.getDValue(0);
-    trans.b = fms.getDValue(1);
-    trans.c = fms.getDValue(2);
-}
+    BufferString res;
 
-
-void SurveyInfo::putTr( const Pos::IdxPair2Coord::DirTransform& trans,
-			  ascostream& astream, const char* key ) const
-{
-    char buf[1024];
-    sprintf( buf, "%.10lg`%.10lg`%.10lg", trans.a, trans.b, trans.c );
-    astream.put( key, buf );
+    snprintf( res.getCStr(), res.bufSize(), "%.10lg`%.10lg`%.10lg",
+	      trans.a, trans.b, trans.c );
+    par.set( key, res );
 }
 
 
@@ -1061,31 +1084,17 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     od_ostream& strm = sfio.ostrm();
-    ascostream astream( strm );
-    if ( !astream.putHeader(sKeySI) )
+    IOPar par;
+    fillPar( par );
+
+
+    if ( !par.write( strm, sKeySI ) )
     {
 	ErrMsg( "Cannot write to survey info file!" );
 	return false;
     }
 
-    astream.put( sKey::Name(), name() );
-    astream.put( sKeySurvDataType(), toString( survDataType()) );
-    FileMultiString fms;
-    fms += tkzs_.hsamp_.start_.inl(); fms += tkzs_.hsamp_.stop_.inl();
-				fms += tkzs_.hsamp_.step_.inl();
-    astream.put( sKeyInlRange(), fms );
-    fms = "";
-    fms += tkzs_.hsamp_.start_.crl(); fms += tkzs_.hsamp_.stop_.crl();
-				fms += tkzs_.hsamp_.step_.crl();
-    astream.put( sKeyCrlRange(), fms );
-    fms = ""; fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
-    fms += tkzs_.zsamp_.step;
-    fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
-    astream.put( sKeyZRange(), fms );
-
-    writeSpecLines( astream );
-
-    astream.newParagraph();
+    ascostream astream( strm );
     const char* ptr = (const char*)comment_;
     if ( *ptr )
     {
@@ -1122,31 +1131,50 @@ bool SurveyInfo::write( const char* basedir ) const
 	return false;
     }
 
-    fp.set( basedir ); fp.add( dirname_ );
+    fp.set( basedir );
+    fp.add( dirname_ );
     saveDefaultPars( fp.fullPath() );
     return true;
 }
 
 
-void SurveyInfo::writeSpecLines( ascostream& astream ) const
+void SurveyInfo::fillPar( IOPar& par ) const
 {
-    putTr( b2c_.getTransform(true), astream, sKeyXTransf );
-    putTr( b2c_.getTransform(false), astream, sKeyYTransf );
-    FileMultiString fms;
+    par.set( sKey::Name(), name() );
+    par.set( sKeySurvDataType(), toString( survDataType()) );
+    par.set( sKeyInlRange(), tkzs_.hsamp_.start_.inl(),
+	     tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.step_.inl() );
+    par.set( sKeyCrlRange(), tkzs_.hsamp_.start_.crl(),
+	     tkzs_.hsamp_.stop_.crl(), tkzs_.hsamp_.step_.crl() );
+
+
+    FileMultiString fms = "";
+    fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
+    fms += tkzs_.zsamp_.step;
+    fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
+    par.set( sKeyZRange(), fms );
+
+    putTr( b2c_.getTransform(true), par, sKeyXTransf );
+    putTr( b2c_.getTransform(false), par, sKeyYTransf );
+
     for ( int idx=0; idx<3; idx++ )
     {
-	SeparString ky( "Set Point", '.' );
+	SeparString ky( sKeySetPointPrefix, '.' );
 	ky += idx + 1;
 	fms = set3binids_[idx].toString();
 	fms += set3coords_[idx].toString();
-	astream.put( ky.buf(), fms.buf() );
+	par.set( ky.buf(), fms.buf() );
     }
 
-    if ( ll2c_.isOK() )
-	astream.put( sKeyLatLongAnchor, ll2c_.toString() );
-    astream.putYN( sKeyXYInFt(), xyinfeet_ );
-    astream.put( sKeySeismicRefDatum(), seisrefdatum_ );
+    IOPar coordsystempar;
+    coordsystem_->fillPar( coordsystempar );
+    par.mergeComp( coordsystempar, sKeyCoordinateSystem );
+    par.set( sKeySeismicRefDatum(), seisrefdatum_ );
 }
+
+
+const IOPar& SurveyInfo::defaultPars() const
+{ return const_cast<SurveyInfo*>(this)->defaultPars(); }
 
 
 #define uiErrMsg(s) { \
@@ -1174,12 +1202,12 @@ void SurveyInfo::saveDefaultPars( const char* basedir ) const
 	surveypath = basedir;
 
     const BufferString defsfnm( FilePath(surveypath,sKeyDefsFile).fullPath() );
-    if ( pars_.isEmpty() )
+    if ( surveydefaultpars_.isEmpty() )
     {
 	if ( File::exists(defsfnm) )
 	    File::remove( defsfnm );
     }
-    else if ( !pars_.write( defsfnm, sKeySurvDefs ) )
+    else if ( !surveydefaultpars_.write( defsfnm, sKeySurvDefs ) )
 	uiErrMsg( defsfnm );
 }
 
@@ -1238,4 +1266,28 @@ bool SurveyInfo::isInside( const BinID& bid, bool work ) const
     const Interval<int> inlrg( inlRange(work) );
     const Interval<int> crlrg( crlRange(work) );
     return inlrg.includes(bid.inl(),false) && crlrg.includes(bid.crl(),false);
+}
+
+
+RefMan<Coords::PositionSystem> SurveyInfo::getCoordSystem()
+{ return coordsystem_; }
+
+
+ConstRefMan<Coords::PositionSystem> SurveyInfo::getCoordSystem() const
+{ return coordsystem_; }
+
+
+bool SurveyInfo::xyInFeet() const
+{
+    return coordsystem_ && coordsystem_->isFeet();
+}
+
+
+bool SurveyInfo::setCoordSystem( Coords::PositionSystem* system )
+{
+    if ( system && !system->isOrthogonal() )
+	return false;
+
+    coordsystem_ = system;
+    return false;
 }

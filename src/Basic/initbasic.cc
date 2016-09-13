@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "posinfo2dsurv.h"
 #include "filepath.h"
 #include "legal.h"
+#include "coordsystem.h"
 #ifdef __win__
 # include <stdio.h> // for _set_output_format
 #endif
@@ -55,6 +56,7 @@ mDefModInitFn(Basic)
 #endif
 
     PosInfo::Survey2D::initClass();
+    Coords::UnlocatedXY::initClass();
 
 #ifdef mUseCrashDumper
     //Force init of handler.

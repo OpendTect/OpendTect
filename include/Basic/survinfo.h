@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "survgeom3d.h"
 
 class ascostream;
-class LatLong2Coord;
 
+namespace Coords { class PositionSystem; }
 
 
 /*!
@@ -67,11 +67,11 @@ public:
     const TrcKeyZSampling&	sampling( bool work ) const
 			{ return work ? wcs_ : tkzs_; }
 
-    Coord		transform( const BinID& b ) const;
+    Coord		transform(const BinID&) const;
     BinID		transform(const Coord&) const;
 			/*!<\note BinID will be snapped using work step. */
 
-    inline bool		xyInFeet() const	{ return xyinfeet_;}
+    bool		xyInFeet() const;
     const char*		getXYUnitString(bool withparens=true) const;
     uiString		getUiXYUnitString(bool abbrviated=true,
 						    bool withparens=true) const;
@@ -130,10 +130,13 @@ public:
 			    from sea level. Always in meters for time surveys */
     void		setSeismicReferenceDatum( float d ) { seisrefdatum_=d; }
 
-    const IOPar&	defaultPars() const		{ return pars_; }
+    const IOPar&	defaultPars() const;
     void		putZDomain(IOPar&) const;
 
-    RefMan<Survey::Geometry3D> get3DGeometry(bool work) const;
+    RefMan<Survey::Geometry3D>		get3DGeometry(bool work) const;
+    RefMan<Coords::PositionSystem>	getCoordSystem();
+    ConstRefMan<Coords::PositionSystem> getCoordSystem() const;
+    bool				setCoordSystem(Coords::PositionSystem*);
 
     enum Pol2D	{ No2D=0, Both2DAnd3D=1, Only2D=2 };
 
@@ -148,18 +151,20 @@ protected:
     BufferString	dirname_;
 
     ZDomain::Def&	zdef_;
-    bool		xyinfeet_;
+
     bool		depthsinfeet_;
     TrcKeyZSampling&	tkzs_;
     TrcKeyZSampling&	wcs_;
     float		seisrefdatum_;
-    IOPar&		pars_;
+    IOPar		surveydefaultpars_;
+
+    RefMan<Coords::PositionSystem>			coordsystem_;
 
     mutable Threads::AtomicPointer<Survey::Geometry3D>	s3dgeom_;
     mutable Threads::AtomicPointer<Survey::Geometry3D>	work_s3dgeom_;
 
     Pos::IdxPair2Coord	b2c_;
-    LatLong2Coord&	ll2c_;
+
     BinID		set3binids_[3];
     Coord		set3coords_[3];
 
@@ -169,13 +174,7 @@ protected:
     BufferString	comment_;
     BufferString	sipnm_;
 
-    void		handleLineRead(const BufferString&,const char*);
     bool		wrapUpRead();
-    void		writeSpecLines(ascostream&) const;
-
-    void		setTr(Pos::IdxPair2Coord::DirTransform&,const char*);
-    void		putTr(const Pos::IdxPair2Coord::DirTransform&,
-				ascostream&,const char*) const;
 
 private:
 
@@ -203,7 +202,7 @@ public:
 
     const Pos::IdxPair2Coord&	binID2Coord() const	{ return b2c_; }
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
-    const LatLong2Coord& latlong2Coord() const	{ return ll2c_; }
+
     bool		isClockWise() const { return isRightHandSystem(); }
 			//!<Don't use. Will be removed
     bool		isRightHandSystem() const;
@@ -212,7 +211,6 @@ public:
     float		angleXInl() const;
 			/*!< It's the angle between the X-axis (East) and
 			     an Inline */
-    void		setXYInFeet( bool yn=true ) { xyinfeet_ = yn; }
     void		setDepthInFeet( bool yn=true ) { depthsinfeet_ = yn; }
     void		setZUnit(bool istime,bool infeet=false);
     static float	defaultXYtoZScale(Unit,Unit);
@@ -256,11 +254,8 @@ public:
 
     Pos::IdxPair2Coord&	getBinID2Coord() const
 			{ return const_cast<SurveyInfo*>(this)->b2c_; }
-    LatLong2Coord&	getLatlong2Coord() const
-			{ return const_cast<SurveyInfo*>(this)->ll2c_; }
-
-    IOPar&		defaultPars() { return pars_; }
-    			//Saved in .defs file
+    IOPar&		defaultPars() { return surveydefaultpars_; }
+			//Saved in .defs file
 
     bool		write(const char* basedir=0) const;
 			//!< Write to .survey file
@@ -272,6 +267,9 @@ public:
     const uiString	set3PtsUiMsg(const Coord c[3],const BinID b[2],int);
     void		gen3Pts();
     void		update3DGeometry();
+
+    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
 
     static const char*	curSurveyName();
 
@@ -294,7 +292,6 @@ public:
     mDeprecated IOPar&		getPars() const;
 
     mDeclInstanceCreatedNotifierAccess(SurveyInfo);
-
 };
 
 

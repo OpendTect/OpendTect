@@ -9,16 +9,18 @@ ________________________________________________________________________
 -*/
 
 #include "moddepmgr.h"
-#include "uibatchjobdispatcherlauncher.h"
-#include "uibatchlaunch.h"
-#include "uiclusterjobprov.h"
-#include "uimsg.h"
-#include "uiposprovgroupstd.h"
-#include "uiposfiltgroupstd.h"
+
 #include "envvars.h"
 #include "mmbatchjobdispatch.h"
 #include "oddirs.h"
 #include "settings.h"
+#include "uibatchjobdispatcherlauncher.h"
+#include "uibatchlaunch.h"
+#include "uiclusterjobprov.h"
+#include "uicoordsystem.h"
+#include "uimsg.h"
+#include "uiposprovgroupstd.h"
+#include "uiposfiltgroupstd.h"
 
 
 static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
@@ -98,4 +100,5 @@ mDefModInitFn(uiIo)
 	uiClusterJobDispatcherLauncher::initClass();
 
     uiProcSettings::initClass();
+    Coords::uiUnlocatedXYSystem::initClass();
 }

@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id";
 #include "survinfo.h"
 #include "latlong.h"
 #include "color.h"
+#include "coordsystem.h"
 #include "od_ostream.h"
 #include "uistrings.h"
 
@@ -128,7 +129,7 @@ void ODGoogle::XMLWriter::writeIconStyles( const char* iconnm, int xpixoffs,
 void ODGoogle::XMLWriter::writePlaceMark( const char* iconnm, const Coord& crd,
 					  const char* nm )
 {
-    writePlaceMark( iconnm, SI().latlong2Coord().transform(crd), nm );
+    writePlaceMark( iconnm, SI().getCoordSystem()->toGeographicWGS84(crd), nm );
 }
 
 
@@ -176,7 +177,7 @@ void ODGoogle::XMLWriter::writeLine( const char* iconnm,
 
     for ( int idx=0; idx<crds.size(); idx++ )
     {
-	const LatLong ll( SI().latlong2Coord().transform(crds[idx]) );
+	const LatLong ll( SI().getCoordSystem()->toGeographicWGS84(crds[idx]) );
 	strm() << ll.lng_ << ','; // keep sep from next line
 	strm() << ll.lat_ << ",0 ";
     }
@@ -225,7 +226,7 @@ void ODGoogle::XMLWriter::writePoly( const char* stylnm, const char* nm,
 
     for ( int idx=0; idx<coords.size(); idx++ )
     {
-	const LatLong ll( si->latlong2Coord().transform(coords[idx]) );
+	const LatLong ll(si->getCoordSystem()->toGeographicWGS84(coords[idx]));
 	strm() << "\t\t\t\t\t\t" << ll.lng_; // keep sep from next line
 	strm() << ',' << ll.lat_ << ',' << hght << '\n';
     }

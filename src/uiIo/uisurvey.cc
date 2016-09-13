@@ -14,12 +14,12 @@ ________________________________________________________________________
 #include "uichecklist.h"
 #include "uicombobox.h"
 #include "uiconvpos.h"
+#include "uicoordsystem.h"
 #include "uidesktopservices.h"
 #include "uifileinput.h"
 #include "uifont.h"
 #include "uigroup.h"
 #include "uilabel.h"
-#include "uilatlong2coord.h"
 #include "uilineedit.h"
 #include "uilistbox.h"
 #include "uimain.h"
@@ -988,11 +988,17 @@ void uiSurvey::utilButPush( CallBacker* cb )
     else if ( butidx == 1 )
     {
 	if ( !cursurvinfo_ ) return;
-	uiLatLong2CoordDlg dlg( this, cursurvinfo_->latlong2Coord(),
-					cursurvinfo_ );
-	if ( dlg.go() && !cursurvinfo_->write() )
-	    mErrRetVoid(uiStrings::phrCannotWrite(
-						uiStrings::sSetup().toLower()))
+
+	uiSingleGroupDlg<Coords::uiPositionSystemSel> dlg( this,
+	    new Coords::uiPositionSystemSel( 0, true, cursurvinfo_,
+					     cursurvinfo_->getCoordSystem() ));
+	if ( dlg.go() )
+	{
+	    cursurvinfo_->setCoordSystem( dlg.getDlgGroup()->outputSystem() );
+	    if ( !cursurvinfo_->write() )
+		mErrRetVoid(uiStrings::phrCannotWrite(
+					 uiStrings::sSetup().toLower()));
+	}
     }
     else
     {
