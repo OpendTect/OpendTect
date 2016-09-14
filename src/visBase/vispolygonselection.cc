@@ -64,6 +64,28 @@ PolygonSelection::PolygonSelection()
 }
 
 
+PolygonSelection::PolygonSelection( const osgGeo::PolygonSelection* selector)
+    : VisualObjectImpl( false )
+    , utm2disptransform_( 0 )
+    , selector_( new osgGeo::PolygonSelection(*selector) )
+    , drawstyle_( new DrawStyle )
+    , polygon_( 0 )
+    , mastercamera_( 0 )
+    , selectorcb_( 0 )
+
+{
+    drawstyle_->ref();
+    selector_->ref();
+    addChild( selector_ );
+    selectorcb_ = new SelectionCallBack;
+    selectorcb_->ref();
+    selector_->addCallBack( selectorcb_ );
+    mAttachCB( *PolygonSelection::polygonFinished(),
+		PolygonSelection::polygonChangeCB );
+}
+
+
+
 PolygonSelection::~PolygonSelection()
 {
     detachAllNotifiers();
@@ -79,16 +101,9 @@ PolygonSelection::~PolygonSelection()
 
 PolygonSelection* PolygonSelection::copy() const
 {
-    if ( !hasPolygon() )
+    if ( !selector_ || !hasPolygon() )
 	return 0;
-    PolygonSelection* polsel = PolygonSelection::create();
-    if ( polsel->selector_ )
-    {
-	polsel->selector_->removeCallBack( polsel->selectorcb_ );
-	polsel->selector_->unref();
-    }
-    polsel->selector_ = new osgGeo::PolygonSelection( *selector_ );
-    polsel->selector_->addCallBack( polsel->selectorcb_ );
+    PolygonSelection* polsel = new PolygonSelection( selector_ );
     polsel->setUTMCoordinateTransform( utm2disptransform_ );
     return polsel;
 }

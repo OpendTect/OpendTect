@@ -39,6 +39,7 @@ inside or outside the polygon.
 mExpClass(visBase) PolygonSelection : public VisualObjectImpl
 {
 public:
+  
     static PolygonSelection*	create()
 				mCreateDataObj(PolygonSelection);
     enum			SelectionType { Off, Rectangle, Polygon };
@@ -82,10 +83,11 @@ public:
     PolygonSelection*		copy() const;
 
 protected:
-
+				    PolygonSelection(
+					const osgGeo::PolygonSelection*);
+				    ~PolygonSelection();
     void			polygonChangeCB(CallBacker*);
 
-					~PolygonSelection();
 
 
     const mVisTrans*			utm2disptransform_;
