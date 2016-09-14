@@ -19,7 +19,6 @@
 #include "ioobjctxt.h"
 #include "ioobj.h"
 #include "survinfo.h"
-#include "od_helpids.h"
 
 static const char* actions[] = { "Scale", "Square", "Smooth",
 				 "Replace sampling", 0 };
@@ -28,7 +27,7 @@ static const char* actions[] = { "Scale", "Square", "Smooth",
 uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
 	: uiDialog( p, Setup( tr("Tut seismic tools"),
 			      tr("Specify process parameters"),
-			      mNoHelpKey ) )
+			      HelpKey("tut","seis") ) )
 	, geom_(gt)
 	, tst_(*new Tut::SeisTools)
 {

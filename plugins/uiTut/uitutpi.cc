@@ -11,6 +11,7 @@
 #include "uitutseistools.h"
 #include "uitutwelltools.h"
 
+#include "uihelpview.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
@@ -18,8 +19,10 @@
 #include "uivispartserv.h"
 #include "viswelldisplay.h"
 
+#include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "oddirs.h"
 #include "ptrman.h"
 #include "seistype.h"
 #include "survinfo.h"
@@ -133,6 +136,30 @@ void uiTutMgr::doWells( CallBacker* )
 }
 
 
+class TutHelpProvider : public SimpleHelpProvider
+{
+public:
+TutHelpProvider( const char* baseurl, const char* linkfnm )
+    : SimpleHelpProvider(baseurl,linkfnm)
+{}
+
+static void initClass()
+{
+    HelpProvider::factory().addCreator( TutHelpProvider::createInstance, "tut");
+}
+
+static HelpProvider* createInstance()
+{
+    FilePath fp( GetDocFileDir(""), "User", "tut" );
+    BufferString baseurl( "file:///" );
+    baseurl.add( fp.fullPath() ).add( "/" );
+    fp.add( "KeyLinkTable.txt" );
+    BufferString tablefnm = fp.fullPath();
+    return new TutHelpProvider( baseurl.buf(), tablefnm.buf() );
+}
+
+};
+
 mDefODInitPlugin(uiTut)
 {
     mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_, = 0 );
@@ -143,6 +170,7 @@ mDefODInitPlugin(uiTut)
 	return "Cannot instantiate Tutorial plugin";
 
     uiTutorialAttrib::initClass();
+    TutHelpProvider::initClass();
 
     return 0;
 }

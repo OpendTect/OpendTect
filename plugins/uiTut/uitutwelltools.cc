@@ -21,15 +21,13 @@
 #include "wellman.h"
 #include "wellwriter.h"
 #include "tutlogtools.h"
-#include "od_helpids.h"
-
 
 static const StepInterval<int> sSampleGateRange( 3, 99, 2 );
 
 uiTutWellTools::uiTutWellTools( uiParent* p, const DBKey& wellid )
 	: uiDialog( p, Setup( tr("Log Smoothing"),
 			      tr("Specify parameters for smoothing"),
-			      mODHelpKey(mStorePicksHelpID) ) )
+			      HelpKey("tut","well") ) )
 	, wellid_(wellid)
 	, wd_(Well::MGR().get(wellid))
 {
