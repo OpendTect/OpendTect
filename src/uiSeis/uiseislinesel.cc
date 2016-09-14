@@ -45,6 +45,17 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
     , lbchoiceio_(0)
 {
     SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
+    const int* idxs = lnms_.getSortIndexes( false );
+    const int sz = lnms_.size();
+    BufferStringSet lnmstmp = lnms_;
+    TypeSet<Pos::GeomID> geomidstmp = geomids_;
+    lnms_.erase(); geomids_.erase();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	lnms_.add( lnmstmp[ idxs[idx] ]->buf() );
+	geomids_.add( geomidstmp[ idxs[idx] ] );
+    }
+
     init( cm );
 
     CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc2D );
