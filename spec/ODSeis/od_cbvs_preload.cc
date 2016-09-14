@@ -5,8 +5,6 @@
  * RCS      : $Id$
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "seistrc.h"
 #include "seiscbvs.h"
 #include "seisselectionimpl.h"
@@ -20,8 +18,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 #include "prog.h"
+#include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seisparallelreader.h"
+#include "seisread.h"
 
 
 int main( int argc, char** argv )
@@ -31,17 +31,17 @@ int main( int argc, char** argv )
     {
 	std::cerr << "Usage: " << argv[0]
 	     << " objectid method\n";
-	std::cerr << "method: 0-parallel 1-sequential"
+	std::cerr << "method: 0-parallel 1-sequential 2-trcbuf"
 		  << std::endl;
 	ExitProgram( 1 );
     }
 
     OD::ModDeps().ensureLoaded( "Seis" );
-    const DBKey seismid( argv[1] );
+    const DBKey seismid = DBKey::getFromString( argv[1] );
     PtrMan<IOObj> ioobj = IOM().get( seismid );
     if ( !ioobj )
     {
-	std::cerr << "Cannot read seismic data with ID " << seismid.buf()
+	std::cerr << "Cannot read seismic data with ID " << seismid.toString()
 		  << std::endl;
 	ExitProgram( 1 );
     }
@@ -60,10 +60,18 @@ int main( int argc, char** argv )
 	Seis::ParallelReader rdr( *ioobj, tkzs );
 	rdr.execute();
     }
-    else
+    else if ( method==1 )
     {
 	Seis::SequentialReader rdr( *ioobj );
 	rdr.execute();
+    }
+    else
+    {
+	SeisTrcBuf sbuf( true );
+	SeisTrcReader trcrdr( ioobj );
+	trcrdr.setSelData( new Seis::RangeSelData(tkzs) );
+	SeisBufReader bufrdr( trcrdr, sbuf );
+	bufrdr.execute();
     }
 
     std::cerr << "Total time: " << counter.elapsed() << std::endl;
