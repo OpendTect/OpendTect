@@ -13,6 +13,7 @@
 #include "attribsel.h"
 #include "attribstorprovider.h"
 #include "bufstringset.h"
+#include "compoundkey.h"
 #include "datacoldef.h"
 #include "datapack.h"
 #include "datapointset.h"
@@ -124,8 +125,8 @@ DescID DescSet::ensureDefStoredPresent() const
 	if ( allstored )
 	    const_cast<DescSet*>(this)->removeAll( false );
 
-	retid = const_cast<DescSet*>(this)->getStoredID( idstr.buf(), 0, true,
-							 true );
+	retid = const_cast<DescSet*>(this)->getStoredID(
+				DBKey::getFromString(idstr), 0, true, true );
     }
 
     defidstr_ = idstr;
@@ -347,9 +348,9 @@ void DescSet::fillPar( IOPar& par ) const
 	BufferString defstr;
 	if ( !dsc.getDefStr(defstr) ) continue;
 
-        const BufferString storeid = dsc.getStoredID( true );
-	const bool isvaliddbkey = !storeid.isEmpty() && storeid[0] != '#';
-        PtrMan<IOObj> ioobj = IOM().get( DBKey(storeid.buf()) );
+	const DBKey dbky = dsc.getStoredID( true );
+	const bool isvaliddbkey = dbky.isValid();
+	PtrMan<IOObj> ioobj = IOM().get( dbky );
 	if ( isvaliddbkey && !ioobj )
             continue;
 
@@ -566,7 +567,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     {
 	const ValParam* keypar = dsc->getValParam( StorageProvider::keyStr() );
 	const StringPair storkey( keypar->getStringValue() );
-	PtrMan<IOObj> ioobj = IOM().get( DBKey(storkey.first()) );
+	PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(storkey.first()));
 	if ( ioobj.ptr() )
 	{
 	    BufferString tentativeuserref = (BufferString)ioobj->name();
@@ -666,13 +667,13 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 		bool found = true;
 		while ( found )
 		{
-		    CompoundKey compkey =
-			tmpcpypar.findKeyFor( toString( ids_[idx].asInt() ) );
+		    const CompoundKey compkey =
+			tmpcpypar.findKeyFor( toString(ids_[idx].asInt()) );
 		    found = !compkey.isEmpty();
 		    if ( found )
 		    {
 			if ( compkey.nrKeys()>1
-			  && compkey.key(1)==sKey::Input() )
+			  && compkey.key(1) == sKey::Input() )
 			{
 			    CompoundKey usrrefkey(compkey.key(0));
 			    usrrefkey += userRefStr();
@@ -950,9 +951,10 @@ DescID DescSet::getStoredID( const DBKey& dbkey, int selout, bool create,
 	    continue;
 
 	const ValParam& keypar = *dsc.getValParam( StorageProvider::keyStr() );
-	if ( dbkey == keypar.getStringValue() )
+	if ( dbkey.toString() == keypar.getStringValue() )
 	{
-	    if ( selout>=0 ) return dsc.id();
+	    if ( selout>=0 )
+		return dsc.id();
 	    outsreadyforthislk += dsc.selectedOutput();
 	    outsreadyids += dsc.id();
 	}
@@ -966,7 +968,7 @@ DescID DescSet::getStoredID( const DBKey& dbkey, int selout, bool create,
 					    blindcompnm ? blindcompnm :"") );
 
     const int out0idx = outsreadyforthislk.indexOf( 0 );
-    BufferStringSet bss; SeisIOObjInfo::getCompNames( dbkey.buf(), bss );
+    BufferStringSet bss; SeisIOObjInfo::getCompNames( dbkey, bss );
     const int nrcomps = bss.size();
     if ( nrcomps < 2 )
 	return out0idx != -1 ? outsreadyids[out0idx]
@@ -990,11 +992,10 @@ DescID DescSet::getStoredID( const DBKey& dbkey, int selout, bool create,
 DescID DescSet::createStoredDesc( const DBKey& dbkey, int selout,
 				  const BufferString& compnm )
 {
-    const char* linenm = dbkey.buf();
     BufferString objnm;
-    if ( linenm && *linenm == '#' )
+    if ( DataPack::FullID::isInDBKey(dbkey) )
     {
-	DataPack::FullID fid( linenm+1 );
+	DataPack::FullID fid = DataPack::FullID::getFromDBKey( dbkey );
 	if ( !DPM(fid).haveID( fid ) )
 	    return DescID::undef();
 
@@ -1003,7 +1004,8 @@ DescID DescSet::createStoredDesc( const DBKey& dbkey, int selout,
     else
     {
 	PtrMan<IOObj> ioobj = IOM().get( dbkey );
-	if ( !ioobj ) return DescID::undef();
+	if ( !ioobj )
+	    return DescID::undef();
 
 	objnm = ioobj->name();
     }
@@ -1017,7 +1019,7 @@ DescID DescSet::createStoredDesc( const DBKey& dbkey, int selout,
     newdesc->setUserRef( strpair.getCompString() );
     newdesc->selectOutput( selout );
     ValParam& keypar = *newdesc->getValParam( StorageProvider::keyStr() );
-    keypar.setValue( dbkey );
+    keypar.setValue( dbkey.toString() );
     newdesc->updateParams();
     return addDesc( newdesc );
 }
@@ -1127,7 +1129,9 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 	    {
 		const ValParam* keypar =
 			dsc.getValParam( StorageProvider::keyStr() );
-		PtrMan<IOObj> ioobj = IOM().get( keypar->getStringValue() );
+		const DBKey dbky = DBKey::getFromString(
+					keypar->getStringValue() );
+		PtrMan<IOObj> ioobj = IOM().get( dbky );
 		if ( remstored || !ioobj || !ioobj->implExists(true) )
 		    iscandidate = true;
 	    }
@@ -1159,10 +1163,10 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 	const Desc& dsc = *descs_[idx];
 	if ( !dsc.isStored() ) continue;
 
-	BufferString storedid = dsc.getStoredID();
-	if ( storedid.isEmpty() ) continue;
+	DBKey storedid = dsc.getStoredID();
+	if ( storedid.isInvalid() ) continue;
 
-	PtrMan<IOObj> ioobj = IOM().get( DBKey(storedid.buf()) );
+	PtrMan<IOObj> ioobj = IOM().get( storedid );
 	const char* res = ioobj ? ioobj->pars().find( "Type" ) : 0;
 	const bool issteer = res && *res == 'S';
 	if ( !usesteering && issteer ) continue;
@@ -1181,7 +1185,7 @@ DBKey DescSet::getStoredKey( const DescID& did ) const
     if ( !dsc || !dsc->isStored() )
 	return DBKey::getInvalid();
 
-    return DBKey(dsc->getStoredID().buf());
+    return dsc->getStoredID();
 }
 
 
@@ -1199,7 +1203,7 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
     }
     for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
-	const char* defkey = attrinf.ioobjids_.get(idx).buf();
+	const BufferString defkey = attrinf.ioobjids_.get(idx).toString();
 	const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
 	FileMultiString fms( BufferString("[",ioobjnm,"]") );
 	fms += defkey;
@@ -1233,12 +1237,11 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( const StringPair& inpstr )
 	int iidx = attrinf.ioobjnms_.indexOf( stornm.buf() );
 	if ( iidx < 0 ) return 0;
 
-	BufferString storedidstr = attrinf.ioobjids_.get( iidx );
+	const DBKey dbky = attrinf.ioobjids_.get( iidx );
 	int compnr = 0;
 	if ( !inpstr.second().isEmpty() )
 	{
-	    DBKey mid( storedidstr.buf() );
-	    IOObj* inpobj = IOM().get( mid );
+	    IOObj* inpobj = IOM().get( dbky );
 	    if ( inpobj )
 	    {
 		SeisIOObjInfo seisinfo( inpobj );
@@ -1249,8 +1252,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( const StringPair& inpstr )
 	    }
 	}
 
-	const Attrib::DescID retid = getStoredID( storedidstr.buf(),
-						  compnr, true, true,
+	const Attrib::DescID retid = getStoredID( dbky, compnr, true, true,
 						  inpstr.second() );
 	return getDesc( retid );
     }

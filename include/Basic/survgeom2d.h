@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "survgeom.h"
 
+class DBKey;
 namespace PosInfo { class Line2DData; }
 
 
@@ -49,6 +50,7 @@ public:
     RelationType		compare(const Geometry&,bool usezrg) const;
 
     Geometry2D*			as2D()			{ return this; }
+    static ID			getIDFrom(const DBKey&);
 
 private:
 

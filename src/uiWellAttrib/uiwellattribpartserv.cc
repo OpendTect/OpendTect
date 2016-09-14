@@ -190,7 +190,7 @@ bool uiWellAttribPartServer::createAttribLog( const BufferStringSet& wellnames )
 
 bool uiWellAttribPartServer::createLogCube( const DBKey& wellid )
 {
-    if ( wellid.isUdf() )
+    if ( wellid.isInvalid() )
 	return false;
 
     if ( !crlogcubedlg_ )

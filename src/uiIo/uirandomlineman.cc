@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uirandomlineman.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "randomlinetr.h"
 #include "od_helpids.h"
 

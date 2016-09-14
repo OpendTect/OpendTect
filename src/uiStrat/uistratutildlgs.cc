@@ -783,7 +783,6 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
 						Strat::LeavedUnitRef& ur )
     : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
 		mNoDlgTitle, mODHelpKey(mStratLinkLvlUnitDlgHelpID) ))
-    , lvlid_(LevelID::getInvalid())
     , unit_(ur)
 {
     uiString msg = tr("Link Marker to %1").arg(ur.code());

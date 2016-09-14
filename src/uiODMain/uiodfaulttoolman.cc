@@ -856,7 +856,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 	    if ( !isOutputNameUsed(auxfaultwrite_) )
 		mid = auxfsswrite_->getObjSel()->validKey();
 
-	    if ( !mid.isEmpty() )
+	    if ( mid.isValid() )
 	    {
 		const EM::ObjectID emid  = EM::EMM().getObjectID( mid );
 		const EM::EMObject* emobj = EM::EMM().getObject( emid );
@@ -989,7 +989,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     }
 
     const DBKey destmid = getObjSel()->key();
-    if ( destmid.isEmpty() )
+    if ( destmid.isInvalid() )
 	return;
 
     EM::EMM().loadIfNotFullyLoaded( destmid );
@@ -1119,7 +1119,7 @@ void uiODFaultToolMan::afterTransferUpdate()
 void uiODFaultToolMan::displayUpdate()
 {
     mGetDisplayVars( getObjSel(), destmid, curid, sceneid );
-    if ( destmid.isEmpty() || isOutputDisplayed() )
+    if ( destmid.isInvalid() || isOutputDisplayed() )
 	return;
 
     if ( displayAfterwards() )
@@ -1138,7 +1138,7 @@ bool uiODFaultToolMan::isOutputDisplayed( uiSurfaceWrite* uisw ) const
 
     mGetDisplayVars( objsel, destmid, curid, sceneid );
 
-    if ( destmid.isEmpty() || curid<0 || sceneid<0 )
+    if ( destmid.isInvalid() || curid<0 || sceneid<0 )
 	return false;
 
     for ( int idx=0; idx<displaycache_.size(); idx++ )
@@ -1430,7 +1430,7 @@ void uiODFaultToolMan::redoCB( CallBacker* )
 
 static void keyDown( bool yn )
 {
-    if ( uiMain::keyboardEventHandler().hasEvent() && 
+    if ( uiMain::keyboardEventHandler().hasEvent() &&
 	uiMain::keyboardEventHandler().event().key_ == '`' )
 	MPE::ObjectEditor::enableNodeCloning( yn );
 }

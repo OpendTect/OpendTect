@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiprestackprocessingmod.h"
 #include "position.h"
+#include "datapack.h"
 #include "uiobjectitemview.h"
 #include "uigroup.h"
 
@@ -30,13 +31,13 @@ possibility.
 mExpClass(uiPreStackProcessing) uiGatherDisplay : public uiGroup
 {
 public:
-    				uiGatherDisplay(uiParent*);
-    				~uiGatherDisplay();
+				uiGatherDisplay(uiParent*);
+				~uiGatherDisplay();
 
     virtual void                setPosition(const BinID&,
 					    const Interval<double>* zrg=0);
-    void			setVDGather(int);
-    void			setWVAGather(int);
+    void			setVDGather(DataPack::ID);
+    void			setWVAGather(DataPack::ID);
 
     void                        displayAnnotation(bool yn);
     bool                        displaysAnnotation() const;
@@ -48,7 +49,7 @@ public:
     const Interval<double>*     getZRange() const	{ return zrg_; }
     const Interval<float>&      getZDataRange() const	{ return zdatarange_; }
 
-    uiFlatViewer*               getUiFlatViewer() 	{ return viewer_; }
+    uiFlatViewer*		getUiFlatViewer()	{ return viewer_; }
     BinID			getBinID() const;
 
     void			setInitialSize(const uiSize&);
@@ -58,11 +59,11 @@ public:
 protected:
 
     uiFlatViewer*               viewer_;
-    Viewer2DGatherPainter* 	gatherpainter_;
+    Viewer2DGatherPainter*	gatherpainter_;
 
     bool                        fixedoffset_;
     Interval<float>             offsetrange_;
-    Interval<float>           	zdatarange_;
+    Interval<float>	zdatarange_;
     Interval<double>*           zrg_;
     BinID			bid_;
     bool                        displayannotation_;
@@ -74,15 +75,16 @@ protected:
 
 mExpClass(uiPreStackProcessing) uiViewer2D : public uiObjectItemView
 {
-public: 
+public:
 				uiViewer2D(uiParent*);
 				~uiViewer2D();
 
-    uiGatherDisplay*		addGatherDisplay(int vdid, int wvaid=-1);
+    uiGatherDisplay*		addGatherDisplay(DataPack::ID vdid,
+				 DataPack::ID wvaid=DataPack::ID::getInvalid());
     void			addGatherDisplay(uiGatherDisplay*);
-    void 			removeGatherDisplay(const uiGatherDisplay*);
-    uiGatherDisplay& 		getGatherDisplay(int idx);
-    uiGatherDisplay* 		getGatherDisplay(const BinID&);
+    void			removeGatherDisplay(const uiGatherDisplay*);
+    uiGatherDisplay&		getGatherDisplay(int idx);
+    uiGatherDisplay*		getGatherDisplay(const BinID&);
     void			removeAllGatherDisplays();
     void			enableScrollBars(bool);
     void			enableReSizeDraw(bool);

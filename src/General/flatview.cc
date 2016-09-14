@@ -622,7 +622,7 @@ const FlatDataPack* FlatView::Viewer::obtainPack(
 
     if ( !res && checkother )
 	res = wva ? vdpack_.get() : wvapack_.get();
-    
+
     refPtr( res );
     dpm_.add( const_cast<FlatDataPack*>(res.ptr()) );
     return res;

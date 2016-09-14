@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "bufstringset.h"
 #include "rowcol.h"
+#include "datapack.h"
 #include "uistring.h"
 #include "uiprestackprocessingmod.h"
 #include "uislicesel.h"
@@ -28,22 +29,23 @@ namespace PreStackView
 
 mStruct(uiPreStackProcessing) GatherInfo
 {
-    			GatherInfo()
-			: isstored_(true), isselected_( false ), vddpid_(-1)
-			, wvadpid_(-1), bid_(mUdf(int),mUdf(int))	{}
+			GatherInfo()
+			: isstored_(true), isselected_( false )
+			, bid_(mUdf(int),mUdf(int))	{}
     bool		isstored_;
     bool		isselected_;
     DBKey		mid_;
-    int			vddpid_;
-    int			wvadpid_;
+    DataPack::ID	vddpid_;
+    DataPack::ID	wvadpid_;
     BufferString	gathernm_;
     BinID		bid_;
-bool operator==( const GatherInfo& info ) const
-{
-    return isstored_==info.isstored_ && bid_==info.bid_ &&
-	   (isstored_ ? mid_==info.mid_
-	   	      : (gathernm_==info.gathernm_));
-}
+    inline bool		operator==( const GatherInfo& info ) const
+			{
+			    return isstored_==info.isstored_
+				&& bid_==info.bid_ &&
+				   (isstored_ ? mid_==info.mid_
+					      : (gathernm_==info.gathernm_));
+			}
 
 };
 
@@ -56,17 +58,17 @@ public:
 						    const BufferStringSet&,
 						    bool issynthetic=false);
 
-    const TrcKeyZSampling&		cubeSampling();	
+    const TrcKeyZSampling&		cubeSampling();
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
-    void 			setStep(int);	
-    int 			step() const;	
+    void			setStep(int);
+    int			step() const;
 
     void			enableZDisplay(bool);
     void			getSelGatherInfos(TypeSet<GatherInfo>&);
     void			setSelGatherInfos(const TypeSet<GatherInfo>&);
 
 protected:
-    uiLabeledSpinBox* 		stepfld_;
+    uiLabeledSpinBox*		stepfld_;
     uiPushButton*		updbut_;
     uiTable*			posseltbl_;
     BufferStringSet		gathernms_;
@@ -116,19 +118,19 @@ protected:
 
 mExpClass(uiPreStackProcessing) uiViewer2DSelDataDlg : public uiDialog
 { mODTextTranslationClass(uiViewer2DSelDataDlg);
-public: 	
+public:
 			    uiViewer2DSelDataDlg(uiParent*,
 				    const BufferStringSet&,BufferStringSet&);
 protected:
 
     uiListBox*			allgatherfld_;
     uiListBox*			selgatherfld_;
-    uiToolButton*		toselect_;	
+    uiToolButton*		toselect_;
     uiToolButton*		fromselect_;
 
-    BufferStringSet&		selgathers_;	
+    BufferStringSet&		selgathers_;
 
-    void 			selButPush(CallBacker*);
+    void			selButPush(CallBacker*);
     bool			acceptOK();
 };
 

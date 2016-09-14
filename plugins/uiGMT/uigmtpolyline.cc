@@ -56,7 +56,7 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     lsfld_->attach( alignedBelow, namefld_ );
 
     fillcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
-	   				.lbltxt(tr("Fill Color"))
+					.lbltxt(tr("Fill Color"))
                                         .withcheck(true) );
     fillcolfld_->attach( alignedBelow, lsfld_ );
 }

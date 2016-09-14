@@ -63,13 +63,14 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     const BufferString storstr = strpair.first();
     if (  storstr.firstChar() == '#' )
     {
-	DataPack::FullID fid( storstr.buf()+1 );
+	DataPack::FullID fid = DataPack::FullID::getFromString(
+							storstr.buf()+1 );
 	if ( !DPM(fid).haveID( fid ) )
 	    desc.setErrMsg( "Cannot find data in memory" );
 	return;
     }
 
-    const DBKey key( storstr );
+    const DBKey key = DBKey::getFromString( storstr );
     PtrMan<IOObj> ioobj = IOM().get( key );
     SeisTrcReader rdr( ioobj );
     if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) || rdr.psIOProv() )
@@ -173,10 +174,11 @@ StorageProvider::StorageProvider( Desc& desc )
 {
     const StringPair strpair( desc.getValParam(keyStr())->getStringValue(0) );
     const BufferString storstr = strpair.first();
-    if (  storstr.firstChar() == '#' )
+    if ( storstr.firstChar() == '#' )
     {
-	DataPack::FullID fid( storstr.buf()+1 );
-	isondisc_ =  !DPM(fid).haveID( fid );
+	DataPack::FullID fid = DataPack::FullID::getFromString(
+							storstr.buf()+1 );
+	isondisc_ = !DPM(fid).haveID( fid );
     }
 }
 
@@ -214,8 +216,9 @@ bool StorageProvider::checkInpAndParsAtStart()
     }
 
     const StringPair strpair( desc_.getValParam(keyStr())->getStringValue(0) );
-    const DBKey mid( strpair.first() );
-    if ( !isOK() ) return false;
+    const DBKey mid = DBKey::getFromString( strpair.first() );
+    if ( !isOK() )
+	return false;
     mscprov_ = new SeisMSCProvider( mid );
 
     if ( !initMSCProvider() )
@@ -751,10 +754,10 @@ DataPack::FullID StorageProvider::getDPID() const
     const StringPair strpair( desc_.getValParam(keyStr())->getStringValue(0) );
 
     const BufferString storstr = strpair.first();
-    if (  storstr.firstChar() != '#' )
-	return 0;
+    if ( storstr.firstChar() != '#' )
+	return DataPack::FullID::getInvalid();
 
-    DataPack::FullID fid( storstr.buf()+1 );
+    DataPack::FullID fid = DataPack::FullID::getFromString( storstr.buf()+1 );
     return fid;
 }
 

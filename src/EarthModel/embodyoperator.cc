@@ -468,8 +468,8 @@ bool Expl2ImplBodyExtracter::doP2P( od_int64 start, od_int64 stop )
 BodyOperator::BodyOperator()
     : inputbodyop0_( 0 )
     , inputbodyop1_( 0 )
-    , inputbody0_( 0 )
-    , inputbody1_( 0 )
+    , inputbody0_( DBKey::getInvalid() )
+    , inputbody1_( DBKey::getInvalid() )
     , id_( getFreeID() )
     , action_( Union )
 {}
@@ -540,13 +540,13 @@ void BodyOperator::setInput( bool body0, BodyOperator* bo )
     {
 	if ( inputbodyop0_ ) delete inputbodyop0_;
 	inputbodyop0_ = bo;
-	inputbody0_ = DBKey(0);
+	inputbody0_ = DBKey::getInvalid();
     }
     else
     {
 	if ( inputbodyop1_ ) delete inputbodyop1_;
 	inputbodyop1_ = bo;
-	inputbody1_ = DBKey(0);
+	inputbody1_ = DBKey::getInvalid();
     }
 }
 

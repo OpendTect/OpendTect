@@ -228,7 +228,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuOrTBItem( istb, 0, menu, &displaymnuitem_, true, false );
     const DataPack::ID dpid =
 	visserv_->getDisplayedDataPackID( displayID(), attribNr() );
-    const bool hasdatapack = dpid>DataPack::cNoID();
+    const bool hasdatapack = dpid.isValid();
     const bool isvert = visserv_->isVerticalDisp( displayID() );
     if ( hasdatapack )
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_,

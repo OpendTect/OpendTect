@@ -40,7 +40,6 @@ static void initFunctionDisplay( uiFunctionDisplay& fd )
 
 uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Match Wavelets"),mNoDlgTitle,mNoHelpKey))
-    , wvltid_(DBKey::getInvalid())
     , outputwvlt_(*new Wavelet)
 {
     uiFunctionDisplay::Setup fds;

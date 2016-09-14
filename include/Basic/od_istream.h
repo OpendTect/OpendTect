@@ -16,6 +16,7 @@ ________________________________________________________________________
 class SeparString;
 class CompoundKey;
 class FixedString;
+class DBKey;
 
 
 /*!\brief OD class for stream read */
@@ -68,6 +69,7 @@ public:
     od_istream&		get(IOPar&);
     od_istream&		get(SeparString&);
     od_istream&		get(CompoundKey&);
+    od_istream&		get(DBKey&);
 
     od_istream&		getC(char*,int maxnrchar);
     od_istream&		get(char*); //!< unsafe - use getC instead -> pErrMsg

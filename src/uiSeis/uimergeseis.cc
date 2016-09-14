@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "seiscbvs.h"
 #include "seismerge.h"
 #include "seistrctr.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"

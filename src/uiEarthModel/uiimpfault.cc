@@ -47,7 +47,7 @@ ________________________________________________________________________
     mODHelpKey(mImportFaultHelpID) )
 
 uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
-                              : uiDialog(p,uiDialog::Setup(mGet( type, (is2d 
+			      : uiDialog(p,uiDialog::Setup(mGet( type, (is2d
                               ? tr("Import FaultStickSet 2D")
                               : tr("Import FaultStickSet")),
 	                        tr("Import Fault") ),mNoDlgTitle,
@@ -79,7 +79,7 @@ const char* uiImportFault::sKeyFileOrder()	{ return "File order"; }
 
 void uiImportFault::createUI()
 {
-    infld_ = new uiFileInput( this, 
+    infld_ = new uiFileInput( this,
 		uiStrings::sInputASCIIFile(),
 		uiFileInput::Setup().withexamine(true)
 		.defseldir(GetDataDir()) );
@@ -88,7 +88,7 @@ void uiImportFault::createUI()
     if ( !isfss_ )
     {
 	BufferStringSet types; types.add( "Plain ASCII" );
-	typefld_ = new uiGenInput( this, uiStrings::sType(), 
+	typefld_ = new uiGenInput( this, uiStrings::sType(),
                                    StringListInpSpec(types) );
 	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
 	typefld_->attach( alignedBelow, infld_ );
@@ -118,7 +118,7 @@ void uiImportFault::createUI()
 	sortsticksfld_->attach( alignedBelow, stickselfld_ );
     }
 
-    dataselfld_ = new uiTableImpDataSel( this, *fd_, isfss_ ? (is2d_ ? 
+    dataselfld_ = new uiTableImpDataSel( this, *fd_, isfss_ ? (is2d_ ?
                   mODHelpKey(mTableImpDataSelFaultStickSet2DHelpID) :
                   mODHelpKey(mTableImpDataSelFaultStickSet3DHelpID) )
 		: mODHelpKey(mTableImpDataSelFaultsHelpID) );
@@ -268,7 +268,7 @@ bool uiImportFault::handleAscii()
 		      "\n\nDo you want to import more %1?")
 		      .arg(tp);
     bool ret= uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );     
+				tr("No, close window") );
     return !ret;
 }
 
@@ -340,8 +340,7 @@ bool uiImportFault::checkInpFlds()
 
 DBKey uiImportFault::getSelID() const
 {
-    DBKey mid = ctio_.ioobj_ ? ctio_.ioobj_->key() : -1;
-    return mid;
+    return ctio_.ioobj_ ? ctio_.ioobj_->key() : DBKey::getInvalid();
 }
 
 

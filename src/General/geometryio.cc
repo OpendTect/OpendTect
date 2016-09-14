@@ -7,7 +7,7 @@
 
 #include "geometryio.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "survgeom2d.h"
@@ -99,7 +99,7 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
 	return false;
 
     PtrMan< IOObj > ioobj = createEntry( geom2d->data().lineName().buf() );
-    if ( !ioobj || ioobj->key().nrKeys() != 2)
+    if ( !ioobj || !ioobj->key().hasValidObjID() )
 	return false;
 
     PtrMan<Translator> transl = ioobj->createTranslator();
@@ -144,7 +144,7 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 			     TaskRunner* tr ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SurvGeom2D);
-    const IODir iodir( iocontext.getSelKey() );
+    const IODir iodir( iocontext.getSelDirID() );
     if ( iodir.isBad() )
 	return false;
 
@@ -161,7 +161,7 @@ bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
 	return false;
 
     const IOObjContext& iocontext = mIOObjContext(SurvGeom2D);
-    const IODir iodir( iocontext.getSelKey() );
+    const IODir iodir( iocontext.getSelDirID() );
     if ( iodir.isBad() )
 	return false;
 

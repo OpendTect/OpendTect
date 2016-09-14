@@ -168,7 +168,7 @@ static void addDCDs( uiListBox* lb, ObjectSet<DataColDef>& dcds,
 
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
-bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
+bool uiWellLogExtractGrp::extractWellData( const DBKeySet& ioobjids,
 					     const BufferStringSet& lognms,
 					     ObjectSet<DataPointSet>& dpss )
 {
@@ -254,7 +254,7 @@ bool uiWellLogExtractGrp::extractDPS()
     if ( ads_ )
 	addDCDs( attrsfld_, dcds,  attrnms );
 
-    BufferStringSet ioobjids, wellnms;
+    DBKeySet ioobjids; BufferStringSet wellnms;
     welllogselfld_->getSelWellNames( wellnms );
     welllogselfld_->getSelWellIDs( ioobjids );
     if ( ioobjids.isEmpty() )

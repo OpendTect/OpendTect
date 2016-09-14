@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uiseis2dgeom.h"
 
 #include "bufstringset.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioobj.h"
 #include "seisselection.h"
 #include "seistrctr.h"

@@ -344,11 +344,10 @@ IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 
 void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, DBKeySet& ids )
 {
-    const DBKey mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::Surf );
     for ( int idx=0; idx<iodir.size(); idx++ )
     {
-	const IOObj* ioobj = iodir.get( idx );
+	const IOObj* ioobj = iodir.getByIdx( idx );
 	if ( objectTypeOfIOObjGroup(ioobj->group()) == reqtyp )
 	    ids += ioobj->key();
     }
@@ -362,8 +361,7 @@ IOObjInfo::LevelID IOObjInfo::levelID() const
 }
 
 
-void IOObjInfo::getTiedToLevelID( LevelID lvlid,
-				  DBKeySet& ids, bool is2d )
+void IOObjInfo::getTiedToLevelID( LevelID lvlid, DBKeySet& ids, bool is2d )
 {
     ids.erase();
     DBKeySet candidates;
@@ -381,8 +379,7 @@ void IOObjInfo::getTiedToLevelID( LevelID lvlid,
 }
 
 
-bool IOObjInfo::sortHorizonsOnZValues( const DBKeySet& list,
-				       DBKeySet& sorted )
+bool IOObjInfo::sortHorizonsOnZValues( const DBKeySet& list, DBKeySet& sorted )
 {
     sorted.erase();
     if ( list.isEmpty() )

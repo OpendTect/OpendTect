@@ -371,10 +371,11 @@ void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
     if ( !ems->isChanged( emid_ ) )
 	return;
 
-    bool savewithname = EM::EMM().getDBKey( emid_ ).isEmpty();
+    const DBKey dbky = EM::EMM().getDBKey( emid_ );
+    bool savewithname = dbky.isInvalid();
     if ( !savewithname )
     {
-	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getDBKey(emid_) );
+	PtrMan<IOObj> ioobj = IOM().get( dbky );
 	savewithname = !ioobj;
     }
 
@@ -407,10 +408,11 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 	    return;
     }
 
-    bool savewithname = EM::EMM().getDBKey( emid_ ).isEmpty();
+    DBKey dbky = EM::EMM().getDBKey( emid_ );
+    bool savewithname = dbky.isInvalid();
     if ( !savewithname )
     {
-	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getDBKey(emid_) );
+	PtrMan<IOObj> ioobj = IOM().get( dbky );
 	savewithname = !ioobj;
     }
 
@@ -418,8 +420,8 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 	NotSavedPrompter::NSP().reportSuccessfullSave();
 
     applMgr()->visServer()->setObjectName( displayid_, ems->getName(emid_) );
-    const DBKey mid = ems->getStorageID(emid_);
-    mps->saveSetup( mid );
+    dbky = ems->getStorageID(emid_);
+    mps->saveSetup( dbky );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 

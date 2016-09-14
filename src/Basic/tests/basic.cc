@@ -64,13 +64,6 @@ bool testPointerAlignment()
 }
 
 
-bool testCompoundKey()
-{
-    mRunStandardTest( DBKey::getInvalid().isUdf(), "Undefined dbkey" );
-
-    return true;
-}
-
 
 bool testOSVersion()
 {
@@ -99,7 +92,6 @@ int testMain( int argc, char** argv )
     // really fit anywhere else.
 
     if ( !testPointerCast()
-	|| !testCompoundKey()
 	|| !testOSVersion()
         || !testPointerAlignment()
 	|| !testFuncName() )

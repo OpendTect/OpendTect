@@ -24,7 +24,7 @@ RandomPosBodyDisplay::RandomPosBodyDisplay()
     : VisualObjectImpl(true)
     , embody_( 0 )
     , displaybody_( 0 )
-    , transform_( 0 )		       
+    , transform_( 0 )
 {
     getMaterial()->setAmbience( 0.5 );
     setColor( getRandomColor( false ) );
@@ -35,7 +35,7 @@ RandomPosBodyDisplay::~RandomPosBodyDisplay()
 {
     if ( transform_ ) transform_->unRef();
     if ( embody_ ) embody_->unRef();
-    if ( displaybody_ ) 
+    if ( displaybody_ )
     {
 	removeChild( displaybody_->osgNode() );
 	displaybody_->unRef();
@@ -53,11 +53,11 @@ bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
 	displaybody_->unRef();
 	displaybody_ = 0;
     }
-	
-    if ( embody_ ) 
+
+    if ( embody_ )
     {
 	embody_->unRef();
-    	embody_ = 0;
+	embody_ = 0;
     }
 
     mTryAlloc( embody_, EM::RandomPosBody(EM::EMM()) );
@@ -85,7 +85,7 @@ bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
 
     displaybody_->setMaterial( 0 );
     embody_->setPreferredColor( getMaterial()->getColor() );
-    
+
     return true;
 }
 
@@ -99,7 +99,7 @@ bool RandomPosBodyDisplay::setEMID( const EM::ObjectID& emid )
     if ( embody_ )
     {
 	embody_->unRef();
-    	embody_ = 0;
+	embody_ = 0;
     }
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
@@ -148,7 +148,7 @@ bool RandomPosBodyDisplay::updateVisFromEM()
 
 DBKey RandomPosBodyDisplay::getDBKey() const
 {
-    return embody_ ? embody_->dbKey() : DBKey();
+    return embody_ ? embody_->dbKey() : DBKey::getInvalid();
 }
 
 

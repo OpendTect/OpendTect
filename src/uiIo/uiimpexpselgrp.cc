@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "";
 #include "ascstream.h"
 #include "bufstring.h"
 #include "color.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "file.h"
 #include "odver.h"
 #include "safefileio.h"

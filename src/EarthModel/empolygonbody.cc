@@ -316,9 +316,10 @@ PolygonBodyGeometry::~PolygonBodyGeometry()
 Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
 				      const DBKey* key )
 {
-    const DBKey& mid = key && !(*key=="") ? *key : surface_.dbKey();
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) { surface_.setErrMsg(uiStrings::sCantFindSurf() ); return 0; }
+    const DBKey dbky = key && key->isValid() ? *key : surface_.dbKey();
+    PtrMan<IOObj> ioobj = IOM().get( dbky );
+    if ( !ioobj )
+	{ surface_.setErrMsg(uiStrings::sCantFindSurf() ); return 0; }
 
     return surface_.saver( ioobj );
 }

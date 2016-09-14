@@ -681,7 +681,7 @@ void uiCreate2DGrid::fillHorPar( IOPar& par )
     const DBKeySet& horids = horselfld_->getSelected();
     BufferStringSet horidstrs;
     for ( int idx=0; idx<horids.size(); idx++ )
-	horidstrs.add( horids[idx].buf() );
+	horidstrs.add( horids[idx].toString() );
 
     par.set( Horizon2DGridCreator::sKeyInputIDs(), horidstrs );
     par.set( Horizon2DGridCreator::sKeySeisID(), outfld_->key() );

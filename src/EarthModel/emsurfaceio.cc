@@ -1502,7 +1502,6 @@ dgbSurfaceWriter::dgbSurfaceWriter( const char* fulluserexpr,
     , surface_(surface)
     , filetype_(filetype)
     , binary_(binary)
-    , objectmid_(DBKey::getInvalid())
 {
     init( fulluserexpr );
 }

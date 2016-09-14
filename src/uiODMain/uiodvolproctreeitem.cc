@@ -81,9 +81,9 @@ uiODDataTreeItem* uiDataTreeItem::create( const Attrib::SelSpec& as,
 
     const char* parkey = VolProc::ExternalAttribCalculator::sKeySetup();
     BufferString setupmidstr;
-    DBKey setupmid = DBKey::getInvalid();
+    DBKey setupmid;
     if ( Attrib::Desc::getParamString(defstr,parkey,setupmidstr) )
-	setupmid = DBKey( setupmidstr.buf() );
+	setupmid = DBKey::getFromString( setupmidstr.buf() );
 
     return new uiDataTreeItem( parenttype, &setupmid );
 }

@@ -638,7 +638,7 @@ void uiGapDeconAttrib::getInputMID( DBKey& mid ) const
 
     Desc* tmpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !tmpdesc ) return;
-    mid = DBKey( tmpdesc->getStoredID().buf() );
+    mid = tmpdesc->getStoredID();
 }
 
 //-----------------------------------------------------------------------------

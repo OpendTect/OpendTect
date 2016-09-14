@@ -24,7 +24,7 @@ namespace Vel
 void uiStoredFunction::initClass()
 {
     uiFunctionSettings::factory().addCreator( create, "Stored",
-	    				      tr("Stored Functions") );
+					      tr("Stored Functions") );
 }
 
 

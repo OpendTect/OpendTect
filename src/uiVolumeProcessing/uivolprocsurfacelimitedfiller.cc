@@ -114,7 +114,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	startvalfld_->attach( alignedBelow, usestartvalfld_ );
 
 	const DBKey* starthorid = surfacefiller_->getStartValueHorizonID();
-	const DBKey& startmid = starthorid ? *starthorid : "-1";
+	const DBKey startmid = starthorid ? *starthorid : DBKey::getInvalid();
 	startgridfld_ = new uiHorizonAuxDataSel( this, startmid,
 		slf->getStartAuxdataIdx(), &auxdatainfo );
 	startgridfld_->attach( alignedBelow, usestartvalfld_ );
@@ -134,7 +134,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	gradientfld_->attach( alignedBelow, usegradientfld_ );
 
 	const DBKey* gradhorid = surfacefiller_->getGradientHorizonID();
-	const DBKey& gradmid = gradhorid ? *gradhorid : "-1";
+	const DBKey gradmid = gradhorid ? *gradhorid : DBKey::getInvalid();
 	gradgridfld_ = new uiHorizonAuxDataSel( this, gradmid,
 		slf->getGradAuxdataIdx(), &auxdatainfo );
 	gradgridfld_->attach( alignedBelow, usegradientfld_ );

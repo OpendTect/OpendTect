@@ -117,7 +117,7 @@ int StratAmpCalc::init( const IOPar& pars )
     {
 	const StringPair strpair( targetdesc->getValParam(
 			Attrib::StorageProvider::keyStr())->getStringValue(0) );
-	const DBKey key( strpair.first() );
+	const DBKey key = DBKey::getFromString( strpair.first() );
 	PtrMan<IOObj> seisobj = IOM().get( key );
 	rdr_ = new SeisTrcReader( seisobj );
 	TrcKeyZSampling cs;
@@ -199,7 +199,7 @@ int StratAmpCalc::nextStep()
     StepInterval<float> sampintv( z1, z2, trc->info().sampling_.step );
     sampintv.sort();
     sampintv.limitTo( trc->zRange() );
-    
+
     Stats::CalcSetup rcsetup;
     rcsetup.require( stattyp_ );
     Stats::RunCalc<float> runcalc( rcsetup );

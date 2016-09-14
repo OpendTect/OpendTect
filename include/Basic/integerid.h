@@ -1,5 +1,5 @@
-#ifndef opaqueid_h
-#define opaqueid_h
+#ifndef integerid_h
+#define integerid_h
 
 /*+
 ________________________________________________________________________
@@ -51,29 +51,30 @@ public:
 
     typedef IntType	IDType;
 
+    inline		IntegerID() : nr_(-1)	{}
     static inline IntegerID get( IntType i )
-					{ return IntegerID(i); }
+						{ return IntegerID(i); }
 
-    inline IntType	getI() const	{ return id_; }
-    inline void		setI( IntType i ) { id_ = i; }
+    inline IntType	getI() const		{ return nr_; }
+    inline void		setI( IntType i )	{ nr_ = i; }
 
     inline bool		operator ==( const IntegerID& oth ) const
-					{ return id_ == oth.id_;};
+					{ return nr_ == oth.nr_;};
     inline bool		operator !=( const IntegerID& oth ) const
-					{ return id_ != oth.id_;};
+					{ return nr_ != oth.nr_;};
 				// Do not add '>' or similar!
 
-    inline bool		isInvalid() const	{ return id_ < 0; }
+    inline bool		isInvalid() const	{ return nr_ < 0; }
     inline bool		isValid() const		{ return !isInvalid(); }
-    inline void		setInvalid()		{ id_ = -1; }
+    inline void		setInvalid()		{ nr_ = -1; }
     static inline IntegerID getInvalid()	{ return IntegerID(-1); }
 
 protected:
 
-    IntType		id_;
+    IntType		nr_;
 
-    inline		IntegerID( IntType i=0 )
-			    : id_(i)	{ /* keep private! */ }
+    inline		IntegerID( IntType i )
+			    : nr_(i)	{ /* keep this constructor private! */ }
 
     friend class	TypeSet<IntType>;
 
@@ -85,6 +86,8 @@ protected:
 class classname : public IntegerID<IntType> \
 { \
 public: \
+ \
+    inline		classname()	{} \
  \
     static inline classname get( IntType i ) \
 					{ return classname(i); } \
@@ -98,7 +101,7 @@ public: \
  \
 protected: \
  \
-    inline		classname( IntType i=0 ) \
+    inline		classname( IntType i ) \
 			    : IntegerID<IntType>(i)	{} \
  \
     friend class	TypeSet<classname>; \

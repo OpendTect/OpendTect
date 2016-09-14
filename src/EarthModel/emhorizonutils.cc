@@ -224,7 +224,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const DBKey& id,
 
 
 void HorizonUtils::getWantedPositions( od_ostream& strm,
-				       ObjectSet<DBKey>& midset,
+				       DBKeySet& dbkeyset,
 				       BinIDValueSet& wantedposbivs,
 				       const TrcKeySampling& hs,
 				       const Interval<float>& extraz,
@@ -232,13 +232,14 @@ void HorizonUtils::getWantedPositions( od_ostream& strm,
 				       float extrawidth,
 				       Pos::Provider* provider )
 {
-    Surface* surface1 = getSurface(*(midset[0]));
-    if ( !surface1 ) return;
+    Surface* surface1 = getSurface( dbkeyset[0] );
+    if ( !surface1 )
+	return;
 
     Surface* surface2 = 0;
-    if ( midset.size() == 2 )
+    if ( dbkeyset.size() == 2 )
     {
-	surface2 = getSurface(*(midset[1]));
+	surface2 = getSurface( dbkeyset[1] );
 	if ( !surface2 ) return;
     }
 
@@ -388,7 +389,7 @@ void HorizonUtils::addSurfaceData( const DBKey& id,
     }
 
 void HorizonUtils::getWantedPos2D( od_ostream& strm,
-				   ObjectSet<DBKey>& midset,
+				   DBKeySet& dbkeyset,
 				   DataPointSet* dtps,
 				   const TrcKeySampling& horsamp,
 				   const Interval<float>& extraz,
@@ -396,14 +397,14 @@ void HorizonUtils::getWantedPos2D( od_ostream& strm,
 {
     ObjectSet<DataPointSet> possurf0;
     ObjectSet<DataPointSet> possurf1;
-    getExactCoords( strm, *(midset[0]), geomid, horsamp, possurf0 );
-    bool use2hor = midset.size() == 2;
+    getExactCoords( strm, dbkeyset[0], geomid, horsamp, possurf0 );
+    bool use2hor = dbkeyset.size() == 2;
 
     if ( use2hor )
-	getExactCoords( strm, *(midset[1]), geomid, horsamp, possurf1 );
+	getExactCoords( strm, dbkeyset[1], geomid, horsamp, possurf1 );
 
-    mIsEmptyErr( possurf0.isEmpty(), *(midset[0]) )
-    mIsEmptyErr( use2hor && possurf1.isEmpty(), *(midset[1]) )
+    mIsEmptyErr( possurf0.isEmpty(), dbkeyset[0] )
+    mIsEmptyErr( use2hor && possurf1.isEmpty(), dbkeyset[1] )
 
     //Remark: multiple sections for the same horizon not fully used here;
     //	  loop over the different sections but use only the first Z

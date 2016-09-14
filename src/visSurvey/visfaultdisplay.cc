@@ -210,9 +210,9 @@ EM::ObjectID FaultDisplay::getEMObjectID() const
 
 
 EM::Fault3D* FaultDisplay::emFault()
-{ 
+{
     mDynamicCastGet(EM::Fault3D*,flt,fault_);
-    return flt; 
+    return flt;
 }
 
 
@@ -383,7 +383,7 @@ bool FaultDisplay::removeSelections( TaskRunner* taskr )
 
 DBKey FaultDisplay::getDBKey() const
 {
-    return fault_ ? fault_->dbKey() : DBKey();
+    return fault_ ? fault_->dbKey() : DBKey::getInvalid();
 }
 
 
@@ -1304,7 +1304,7 @@ bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
 
 void FaultDisplay::addCache()
 {
-    datapackids_ += 0;
+    datapackids_ += DataPack::ID::getInvalid();
 }
 
 void FaultDisplay::removeCache( int attrib )
@@ -1930,7 +1930,7 @@ void FaultDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-int FaultDisplay::addDataPack( const DataPointSet& dpset ) const
+DataPack::ID FaultDisplay::addDataPack( const DataPointSet& dpset ) const
 {
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
     DataPointSet* newdpset = new DataPointSet( dpset );
@@ -1952,7 +1952,7 @@ bool FaultDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 	return false;
 
     DataPack::ID oldid = datapackids_[attrib];
-    
+
     datapack->ref();
     datapackids_[attrib] = dpid;
     dpman.unRef( oldid );

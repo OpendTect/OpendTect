@@ -21,7 +21,8 @@ ________________________________________________________________________
 mExpClass(General) IOX : public IOObj
 {
 public:
-			IOX(const char* nm=0,const char* ky=0,bool =0);
+			IOX(const char* nm=0,DBKey id=DBKey::getInvalid(),
+			    bool =0);
     virtual		~IOX();
     bool		isBad() const;
 

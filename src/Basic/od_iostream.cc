@@ -9,6 +9,7 @@
 #include "ascstream.h"
 #include "bufstring.h"
 #include "compoundkey.h"
+#include "dbkey.h"
 #include "filepath.h"
 #include "fixedstring.h"
 #include "fixedstreambuf.h"
@@ -678,6 +679,14 @@ mImplStrmAddFn(const CompoundKey&,t.buf())
 od_istream& od_istream::get( CompoundKey& ck )
 {
     BufferString bs; get( bs ); ck = bs.buf();
+    return *this;
+}
+
+
+mImplStrmAddFn(const DBKey&,t.toString())
+od_istream& od_istream::get( DBKey& dbky )
+{
+    BufferString bs; get( bs ); dbky.fromString( bs );
     return *this;
 }
 

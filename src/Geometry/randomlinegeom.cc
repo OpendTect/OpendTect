@@ -30,7 +30,6 @@ RandomLine::RandomLine( const char* nm )
     , nodeChanged(this)
     , zrangeChanged(this)
     , lset_(0)
-    , mid_(DBKey::getInvalid())
     , locked_(false)
     , survid_( Survey::GM().default3DSurvID() )
 {
@@ -53,11 +52,11 @@ RandomLine::~RandomLine()
 }
 
 
-void RandomLine::setDBKey( const DBKey& mid )
+void RandomLine::setDBKey( const DBKey& dbky )
 {
-    mid_ = mid;
-    if ( !mid_.isUdf() )
-	setName( IOM().nameOf(mid) );
+    dbky_ = dbky;
+    if ( !dbky_.isInvalid() )
+	setName( IOM().nameOf(dbky_) );
 }
 
 
@@ -559,11 +558,11 @@ RandomLineManager::~RandomLineManager()
 }
 
 
-int RandomLineManager::indexOf( const DBKey& mid ) const
+int RandomLineManager::indexOf( const DBKey& dbky ) const
 {
     for ( int idx=0; idx<lines_.size(); idx++ )
     {
-	if ( lines_[idx]->getDBKey() == mid )
+	if ( lines_[idx]->getDBKey() == dbky )
 	    return idx;
     }
 
@@ -571,15 +570,16 @@ int RandomLineManager::indexOf( const DBKey& mid ) const
 }
 
 
-RandomLine* RandomLineManager::get( const DBKey& mid )
+RandomLine* RandomLineManager::get( const DBKey& dbky )
 {
-    if ( mid.isUdf() ) return 0;
-    const int rlidx = indexOf( mid );
+    if ( dbky.isInvalid() )
+	return 0;
+    const int rlidx = indexOf( dbky );
     RandomLine* rl = lines_.validIdx(rlidx) ? lines_[rlidx] : 0;
     if ( rl )
 	return rl;
 
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = IOM().get( dbky );
     if ( !ioobj ) return 0;
 
     RandomLineSet rdlset;
@@ -588,7 +588,7 @@ RandomLine* RandomLineManager::get( const DBKey& mid )
     if ( !res || rdlset.isEmpty() ) return 0;
 
     rl = rdlset.getRandomLine( 0 );
-    rl->setDBKey( mid );
+    rl->setDBKey( dbky );
     add( rl );
     return rl;
 }
@@ -610,9 +610,9 @@ const RandomLine* RandomLineManager::get( int id ) const
 { return const_cast<RandomLineManager*>(this)->get( id ); }
 
 
-bool RandomLineManager::isLoaded( const DBKey& mid ) const
+bool RandomLineManager::isLoaded( const DBKey& dbky ) const
 {
-    const int rlidx = indexOf( mid );
+    const int rlidx = indexOf( dbky );
     return lines_.validIdx( rlidx );
 }
 

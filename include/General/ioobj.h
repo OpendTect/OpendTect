@@ -58,14 +58,15 @@ mExpClass(General) IOObj : public NamedObject
 {
 public:
 
-    typedef DBKey		Key;
-    typedef DBKey::SubID	SubID;
+    typedef DBKey::ObjID	ObjID;
+    typedef DBKey::ObjNrType	ObjNrType;
+    typedef DBKey::GroupID	DirID;
 
     uiString			uiName() const { return toUiString(name()); }
 
     IOObj*			clone() const;
-    virtual const Key&		key() const		{ return key_; }
-    virtual SubID		leafID() const		{ return key_.leafID();}
+    virtual const DBKey&	key() const		{ return key_; }
+    virtual ObjID		objID() const		{ return key_.objID();}
 
     virtual			~IOObj();
     virtual bool		isBad() const			= 0;
@@ -100,7 +101,7 @@ public:
     static bool			isKey(const char*);
 				//!< Returns whether given string may be a valid
 				//!< key
-    static bool			isSurveyDefault(const Key&);
+    static bool			isSurveyDefault(const DBKey&);
 				//!<Checks the 'Default.' entries in SI().pars()
     void			setSurveyDefault(const char* subsel = 0) const;
 				/*!<\param subsel may be a subselection lower
@@ -110,29 +111,30 @@ public:
     Translator*			createTranslator() const;
 				//!< returns a subclass of Translator according
 				//!< to the translator name and group.
-    void			acquireNewKeyIn(const Key&);
+    void			acquireNewKeyIn(const DirID&);
 				//!< This will give the IOObj a new (free) ID
 
-    inline bool			isTmp() const	{ return isTmpLeafID(leafID());}
+    inline bool			isTmp() const
+				{ return isTmpObjNr(objID().getI());}
     bool			isProcTmp() const;
     bool			isUserSelectable(bool forread=true) const;
     bool			isInCurrentSurvey() const;
 
-    static inline SubID		tmpLeafIDStart()	{ return 999999; }
-    static inline bool		isTmpLeafID( int id )
-				{ return id >= tmpLeafIDStart(); }
+    static inline ObjNrType	tmpObjNrStart()     { return 999999; }
+    static inline bool		isTmpObjNr( ObjNrType nr )
+				{ return nr >= tmpObjNrStart(); }
 
 protected:
 
     BufferString	dirnm_;
-    Key			key_;
+    DBKey		key_;
     BufferString	transl_;
     BufferString	group_;
 
-			IOObj(const char* nm=0,const char* ky=0);
+			IOObj(const char* nm=0,DBKey ky=DBKey::getInvalid());
 			IOObj(const IOObj&);
-    static IOObj*	get(ascistream&,const char*,const char*,
-	    		    bool rejoldtmp=true);
+    static IOObj*	get(ascistream&,const char*,DBKey::DirID::IDType,
+			    bool rejoldtmp=true);
     bool		put(ascostream&) const;
     virtual bool	getFrom(ascistream&)		= 0;
     virtual bool	putTo(ascostream&) const	= 0;
@@ -149,7 +151,7 @@ private:
 
 public:
 
-    void		setKey( const Key& ky )		{ key_ = ky; }
+    void		setKey( const DBKey& ky )	{ key_ = ky; }
     virtual void	setDirName( const char* s )	{ dirnm_ = s; }
     virtual bool	isSubdir() const		{ return false; }
     static int		addProducer(IOObjProducer*);
@@ -157,7 +159,7 @@ public:
 
 };
 
-mGlobal(General) bool equalIOObj(const IOObj::Key&,const IOObj::Key&);
+mGlobal(General) bool equalIOObj(const DBKey&,const DBKey&);
 mGlobal(General) bool areEqual(const IOObj*,const IOObj*);
 mGlobal(General) bool fullImplRemove(const IOObj&);
 

@@ -31,7 +31,7 @@
 static void convert2DPSData()
 {
     IOObjContext oldctxt( mIOObjContext(SeisPS2D) );
-    const IODir oldiodir( oldctxt.getSelKey() );
+    const IODir oldiodir( oldctxt.getSelDirID() );
     const IODirEntryList olddel( oldiodir, oldctxt );
     BufferStringSet lsnms;
     S2DPOS().getLineSets( lsnms );
@@ -73,7 +73,7 @@ static void convert2DPSData()
 static void convertSeis2DTranslators()
 {
     IOObjContext ctxt( mIOObjContext(SeisTrc) );
-    IODir iodir( ctxt.getSelKey() );
+    IODir iodir( ctxt.getSelDirID() );
     const ObjectSet<IOObj>& oldobjs = iodir.getObjs();
     for ( int idx=0; idx<oldobjs.size(); idx++ )
     {
@@ -197,7 +197,7 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
     oldctxt.fixTranslator( TwoDSeisTrcTranslator::translKey() );
     oldctxt.toselect_.allownonuserselectable_ = true;
-    const IODir oldiodir( oldctxt.getSelKey() );
+    const IODir oldiodir( oldctxt.getSelDirID() );
     if ( !oldiodir.isBad() )
     {
 	const IODirEntryList olddel( oldiodir, oldctxt );
@@ -207,7 +207,7 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
 
     IOObjContext psctxt( mIOObjContext(SeisPS2D) );
     psctxt.fixTranslator( CBVSSeisPS2DTranslator::translKey() );
-    const IODir psiodir( psctxt.getSelKey() );
+    const IODir psiodir( psctxt.getSelDirID() );
     if ( !psiodir.isBad() )
     {
 	const IODirEntryList psdel( psiodir, psctxt );
@@ -224,7 +224,7 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
 
     IOObjContext newctxt( mIOObjContext(SeisTrc2D) );
     newctxt.toselect_.allowtransls_ = CBVSSeisTrc2DTranslator::translKey();
-    const IODir newiodir( newctxt.getSelKey() );
+    const IODir newiodir( newctxt.getSelDirID() );
     const IODirEntryList newdel( newiodir, newctxt );
     return hasold2d && newdel.isEmpty() ? 1 : 2;
 }
@@ -271,7 +271,7 @@ void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets(
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
     oldctxt.fixTranslator( TwoDSeisTrcTranslator::translKey() );
     oldctxt.toselect_.allownonuserselectable_ = true;
-    const IODir oldiodir( oldctxt.getSelKey() );
+    const IODir oldiodir( oldctxt.getSelDirID() );
     const IODirEntryList olddel( oldiodir, oldctxt );
     if ( olddel.isEmpty() )
 	return;
@@ -345,7 +345,8 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 							IOPar& iop ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SeisTrc2D);
-    if ( !IOM().to(iocontext.getSelKey()) ) return BufferString::empty();
+    if ( !IOM().to(iocontext.getSelDirID()) )
+	return BufferString::empty();
     CtxtIOObj ctio( iocontext );
     ctio.ctxt_.deftransl_ = CBVSSeisTrc2DTranslator::translKey();
     if ( iop.find(sKey::DataType()) )

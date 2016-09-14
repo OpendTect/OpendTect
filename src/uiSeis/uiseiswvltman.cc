@@ -257,7 +257,7 @@ void uiSeisWvltMan::mkFileInfo()
 			    orgid,horid,seisid,lvlnm) )
 	{
 	    msg = "Scaled: ";
-	    if ( orgid.isUdf() )
+	    if ( orgid.isInvalid() )
 		msg.add( "Outside OpendTect" );
 	    else
 	    {

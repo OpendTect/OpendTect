@@ -122,7 +122,7 @@ void SeisIOSimple::Data::clear( bool survchg )
 	return;
 
     subselpars_.setEmpty();
-    fname_ = GetDataDir(); seiskey_ = ""; geomid_ = mUdfGeomID;
+    fname_ = GetDataDir(); seiskey_.setInvalid(); geomid_ = mUdfGeomID;
     sd_.start = (float)SI().zRange(false).start;
     sd_.step = (float)SI().zRange(false).step;
     nrsamples_ = SI().zRange(false).nrSteps() + 1;

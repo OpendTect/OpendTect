@@ -65,7 +65,7 @@ int PointSetDisplay::getPointSize() const
 { return pointset_->getPointSize(); }
 
 
-bool PointSetDisplay::setDataPack( int dpsid )
+bool PointSetDisplay::setDataPack( DataPack::ID dpsid )
 {
     DataPack* pack = DPM( DataPackMgr::PointID() ).obtain( dpsid );
     if ( !pack ) return false;

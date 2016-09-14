@@ -412,7 +412,7 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 
 
 const char* Desc::errMsg() const
-{ 
+{
     const char* msg;
     if ( !isStored() )
     {
@@ -649,14 +649,15 @@ bool Desc::isStored() const
 }
 
 
-BufferString Desc::getStoredID( bool recursive ) const
+DBKey Desc::getStoredID( bool recursive ) const
 {
-    BufferString str;
+    DBKey dbky;
+
     if ( isStored() )
     {
 	const ValParam* keypar = getValParam( StorageProvider::keyStr() );
 	if ( keypar )
-	    str = keypar->getStringValue();
+	    dbky.fromString( keypar->getStringValue() );
     }
     else if ( recursive )
     {
@@ -664,13 +665,13 @@ BufferString Desc::getStoredID( bool recursive ) const
 	{
 	    const Desc* tmpdesc = getInput( idx );
 	    if ( tmpdesc )
-		str = tmpdesc->getStoredID( true );
-	    if ( !str.isEmpty() )
+		dbky = tmpdesc->getStoredID( true );
+	    if ( dbky.isValid() )
 		break;
 	}
     }
 
-    return str;
+    return dbky;
 }
 
 
@@ -750,12 +751,13 @@ void Desc::getKeysVals( const char* ds, BufferStringSet& keys,
 }
 
 
-void Desc::changeStoredID( const char* newid )
+void Desc::changeStoredID( const DBKey& newid )
 {
-    if ( !isStored() ) return;
+    if ( !isStored() )
+	return;
 
     ValParam* keypar = getValParam( StorageProvider::keyStr() );
-    keypar->setValue( newid );
+    keypar->setValue( newid.toString() );
 }
 
 

@@ -43,14 +43,14 @@ uiMute::uiMute( uiParent* p, Mute* mute )
 
     const IOObjContext ctxt = mIOObjContext( MuteDef );
     mutedeffld_ = new uiIOObjSel( this, ctxt, mutesu );
-    mutedeffld_->setChecked(!mute || !mute->muteDefID().isUdf());
+    mutedeffld_->setChecked( !mute || mute->muteDefID().isValid() );
 
     topfld_ = new uiGenInput( this, tr("Mute type"),
 			      BoolInpSpec(true,tr("Outer"),tr("Inner")) );
     topfld_->attach( alignedBelow, mutedeffld_ );
 
     taperlenfld_ = new uiGenInput( this, tr("Taper length (in samples)"),
-	    			   FloatInpSpec() );
+				   FloatInpSpec() );
     taperlenfld_->attach( alignedBelow, topfld_ );
 
     if( mutedeffld_->isChecked() )

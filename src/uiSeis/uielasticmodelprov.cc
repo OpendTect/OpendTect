@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uielasticmodelprov.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseissel.h"
@@ -134,10 +134,10 @@ void uiElasticModelProvider::sourceSel( CallBacker* cb )
 
 void uiElasticModelProvider::setInputMIDs(
 	const DBKey& pwmid, const DBKey& swmid, const DBKey& aimid,
-	const DBKey& simid, const DBKey& denmid ) 
+	const DBKey& simid, const DBKey& denmid )
 {
-    const bool iselastic = !simid.isUdf() || !swmid.isUdf();
-    const int sourceoptidx = aimid.isUdf() ? 0 : 1;
+    const bool iselastic = simid.isValid() || swmid.isValid();
+    const int sourceoptidx = aimid.isInvalid() ? 0 : 1;
     inptypefld_->setValue( !iselastic );
     inpsourceacfld_->display( !iselastic );
     inpsourceelfld_->display( iselastic );
@@ -153,7 +153,7 @@ void uiElasticModelProvider::setInputMIDs(
     aifld_->setInput( aimid );
     sifld_->setInput( simid );
     densityfld_->setInput( denmid );
-    optdensityfld_->setChecked( !denmid.isUdf() );
+    optdensityfld_->setChecked( denmid.isValid() );
 }
 
 
@@ -182,19 +182,19 @@ bool uiElasticModelProvider::getInputMIDs( DBKey& pwmid, DBKey& swmid,
     uiString basestr  = tr( "Selected inputs are not in adequation with \n"
 			    "chosen model type and source." );
     uiString reasonstr;
-    if ( needai && aimid.isUdf() )
+    if ( needai && aimid.isInvalid() )
 	reasonstr.append( tr( "Acoustic Impedance input is missing"), true );
 
-    if ( needsi && simid.isUdf() )
+    if ( needsi && simid.isInvalid() )
 	reasonstr.append( tr("Shear Impedance input is missing" ), true );
 
-    if ( !needai && denmid.isUdf() )
+    if ( !needai && denmid.isInvalid() )
 	reasonstr.append( tr("Density input is missing" ), true );
 
-    if ( !needai && pwmid.isUdf() )
+    if ( !needai && pwmid.isInvalid() )
 	reasonstr.append( tr("P-Wave input is missing" ), true );
 
-    if ( !isac && !needsi && swmid.isUdf() )
+    if ( !isac && !needsi && swmid.isInvalid() )
 	reasonstr.append( tr("S-Wave input is missing" ), true );
 
     if ( !reasonstr.isEmpty() )

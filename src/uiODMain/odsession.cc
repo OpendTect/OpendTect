@@ -189,7 +189,7 @@ IOPar& ODSession::attrpars( bool is2d, bool isstored )
 void ODSession::getStartupData( bool& douse, DBKey& mid )
 {
     Settings::common().getYN( sKeyUseStartup(), douse );
-    mid.setUdf();
+    mid.setInvalid();
     SI().pars().get( sKeyStartupID(), mid );
 }
 
@@ -206,7 +206,7 @@ void ODSession::setStartupData( bool douse, const DBKey& id )
 
     if ( curid != id )
     {
-	SI().getPars().set( sKeyStartupID(), (const char*)id );
+	SI().getPars().set( sKeyStartupID(), id );
 	SI().savePars();
     }
 }

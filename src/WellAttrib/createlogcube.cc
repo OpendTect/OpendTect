@@ -52,7 +52,7 @@ bool LogCubeCreator::LogCube::mkIOObj()
     ctxt.forread_ = false;
     ctxt.deftransl_ = CBVSSeisTrcTranslator::translKey();
 
-    IOM().to( ctxt.getSelKey() );
+    IOM().to( ctxt.getSelDirID() );
     CtxtIOObj ctio( ctxt );
     ctio.setName( fnm_ );
     IOM().getEntry( ctio );

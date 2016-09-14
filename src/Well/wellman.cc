@@ -150,8 +150,7 @@ bool Well::Man::getLogNames( const DBKey& ky, BufferStringSet& nms )
 bool Well::Man::getMarkerNames( BufferStringSet& nms )
 {
     nms.setEmpty();
-    const DBKey mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::WllInf );
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
     const IODirEntryList del( iodir, ctio->ctxt_ );
     RefMan<Well::Data> data = new Well::Data;
@@ -174,11 +173,10 @@ bool Well::Man::getMarkerNames( BufferStringSet& nms )
 
 IOObj* Well::findIOObj( const char* nm, const char* uwi )
 {
-    const DBKey mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::WllInf );
     if ( nm && *nm )
     {
-	const IOObj* ioobj = iodir.get( nm, "Well" );
+	const IOObj* ioobj = iodir.getByName( nm, "Well" );
 	if ( ioobj ) return ioobj->clone();
     }
 

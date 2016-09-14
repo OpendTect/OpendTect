@@ -16,7 +16,7 @@ namespace ODMad
 {
 
 mExtern(Madagascar) const char* sKeyMadagascar();
-mExtern(Madagascar) const char* sKeyMadSelKey();
+mExtern(Madagascar) int cMadDirIDNr();
 
 /*!\brief Specifies file name and optional mask filename */
 
@@ -24,7 +24,7 @@ mExpClass(Madagascar) FileSpec
 { mODTextTranslationClass(FileSpec);
 public:
 
-    			FileSpec(bool forread);
+			FileSpec(bool forread);
     bool		set(const char* fnm,const char* maskfnm=0);
 
     const char*		fileName() const	{ return fnm_; }

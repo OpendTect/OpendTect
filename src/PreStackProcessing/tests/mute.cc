@@ -37,8 +37,8 @@ bool odTestSameMuteInDiffVersion( od_ostream& strm, const DBKey& muteid )
     PtrMan<IOObj> muteobj = IOM().get( muteid );
     if ( !muteobj )
     {
-	strm<<"Mute object with id "<<muteid.buf()
-		     <<" not found"<<od_newline;
+	strm << "Mute object with id " << muteid.toString()
+		     << " not found" << od_newline;
 	return false;
     }
 

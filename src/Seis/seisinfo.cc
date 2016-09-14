@@ -21,7 +21,7 @@
 #include "envvars.h"
 #include "keystrs.h"
 #include "timeser.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seis2dlineio.h"

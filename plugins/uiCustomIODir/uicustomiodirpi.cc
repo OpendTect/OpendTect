@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenu.h"
 #include "uidialog.h"
 #include "uimsg.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioman.h"
 #include "transl.h"
 #include "odplugin.h"
@@ -42,15 +42,14 @@ public:
 };
 
 
-// The selection key is how to get to the custom directory using
-// the IOM() object manager
-#define sSelKey "207543"
+// Has to be > 200000
+#define cSelDirNr 207543
 
 // The following lines add a new data type and format
 // Note that this is more or less bypassing the Translator system
 // but my guess is that that is exactly what you want.
 mDeclEmptyTranslatorBundle(uiCustomIODir,MyObj,MyFmt,"myo")
-mDefSimpleTranslatorsWithSelKey(MyObj,"My Object",MyFmt,None,sSelKey)
+mDefSimpleTranslatorsWithSelKey(MyObj,"My Object",MyFmt,None,cSelDirNr)
 
 
 
@@ -123,9 +122,9 @@ mDefODInitPlugin(uiCustomIODir)
     // The following code assures your data directory will be available
     // in every survey
 
-    IOMan::CustomDirData cdd( sSelKey, "CustomDir", "Custom data" );
-    DBKey id = IOMan::addCustomDataDir( cdd );
-    if ( id != sSelKey )
+    IOMan::CustomDirData cdd( cSelDirNr, "CustomDir", "Custom data" );
+    DBKey::DirID id = IOMan::addCustomDataDir( cdd );
+    if ( id.getI() != cSelDirNr )
 	return "The 'Custom data' storage directory could not be created";
 
     // Tip one: To create an object, press 'Select' for the output, fill in a

@@ -1144,7 +1144,7 @@ void uiODSceneMgr::gtLoadedPickSetIDs( const uiTreeItem& topitm,
 		continue;
 	    setid = Pick::SetMGR().getID( pickitem->getSet() );
 	}
-	if ( !setid.isUdf() )
+	if ( setid.isValid() )
 	    picks.addIfNew( setid );
     }
 }

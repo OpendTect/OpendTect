@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "callback.h"
 #include "menuhandler.h"
-#include "dbkey.h"
+#include "datapack.h"
 #include "uistring.h"
 
 class uiVisPartServer;
@@ -58,13 +58,13 @@ protected:
 
     uiStoredViewer2DMainWin*	createMultiGather2DViewer(
 					const visSurvey::PreStackDisplay&);
-    uiFlatViewMainWin*	create2DViewer(const uiString&,int dpid);
+    uiFlatViewMainWin*	create2DViewer(const uiString&,DataPack::ID);
 
     int			getSceneID(int mnid);
     static void		getSeis2DTitle(int trnr,const uiString&,uiString&);
     static void		getSeis3DTitle(const BinID&,const uiString&,uiString&);
     bool		add3DViewer(const uiMenuHandler*,int scnid,int mnuidx);
-    void		removeViewWin(int dpid);
+    void		removeViewWin(DataPack::ID);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     uiViewer3DPositionDlg* mkNewPosDialog(const uiMenuHandler*,

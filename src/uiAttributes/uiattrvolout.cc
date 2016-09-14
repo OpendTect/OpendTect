@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "trckeyzsampling.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -241,7 +241,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    PtrMan<IOObj> ioobj = 0;
 	    if ( prov )
 	    {
-		DBKey mid( desc->getStoredID(true).buf() );
+		DBKey mid( desc->getStoredID(true) );
 		ioobj = IOM().get( mid );
 	    }
 
@@ -348,10 +348,10 @@ bool uiAttrVolOut::prepareProcessing()
 
 	TypeSet<Attrib::DescID> ids;
 	attrselfld_->getSelIds( ids );
-	ObjectSet<DBKey> mids; TypeSet<float> offs; TypeSet<int> comps;
+	DBKeySet mids; TypeSet<float> offs; TypeSet<int> comps;
 	for ( int idx=0; idx<ids.size(); idx++ )
 	{
-	    mids += new DBKey( outioobj->key() );
+	    mids += outioobj->key();
 	    offs += offsetfld_->getFValue(0) + idx*offsetfld_->getFValue(1);
 	    comps += idx;
 	}
@@ -360,12 +360,8 @@ bool uiAttrVolOut::prepareProcessing()
 	const bool res = MultiCubeSeisPSReader::writeData(
 		datastorefld_->ioobj()->fullUserExpr(false),
 		mids, offs, comps, errmsg );
-	deepErase( mids );
 	if ( !res )
-	{
-	    uiMSG().error( errmsg );
-	    return false;
-	}
+	    { uiMSG().error( errmsg ); return false; }
     }
 
     uiSeisIOObjInfo ioobjinfo( *outioobj, true );
@@ -383,7 +379,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     Attrib::DescID nlamodel_id(-1, false);
     if ( nlamodel_ && todofld_ && todofld_->outputNr() >= 0 )
     {
-	if ( !nlaid_ || !(*nlaid_) )
+	if ( nlaid_.isInvalid() )
 	{
 	    uiMSG().message(tr("NN needs to be stored before creating volume"));
 	    return 0;
@@ -505,8 +501,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 			      : ads_->getDesc( todofld_->attribID() );
 	if ( desc )
 	{
-	    BufferString storedid = desc->getStoredID();
-	    if ( !storedid.isEmpty() )
+	    DBKey storedid = desc->getStoredID();
+	    if ( storedid.isValid() )
 		iop.set( "Input Line Set", storedid );
 	}
     }

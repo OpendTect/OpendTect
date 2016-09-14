@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
+#include "dbkey.h"
 
 class IOObj;
 class uiCheckBox;
@@ -35,7 +36,7 @@ public:
 protected:
 
     IOObj*		outioobj_;
-    const BufferString	tmpid_;
+    const DBKey		tmpid_;
 
     uiGenInput*		typefld_;
     uiGenInput*		modefld_;

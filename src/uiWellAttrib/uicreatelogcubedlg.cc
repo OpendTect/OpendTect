@@ -34,7 +34,7 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const DBKey* key )
 {
     setCtrlStyle( RunAndClose );
 
-    const bool validinpwell = key && !key->isUdf();
+    const bool validinpwell = key && key->isValid();
     uiWellExtractParams::Setup su;
     su.withzstep(false).withsampling(true).withextractintime(false);
     welllogsel_ = validinpwell ? new uiMultiWellLogSel( this, su, *key )

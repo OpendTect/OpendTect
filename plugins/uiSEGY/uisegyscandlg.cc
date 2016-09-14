@@ -116,9 +116,9 @@ SEGY::Scanner* uiSEGYScanDlg::getScanner()
 
 
 #define mErrRet(s1,s2)  \
-{ 			 \
+{			 \
     if ( !s1.isEmpty() ) uiMSG().error(s1,s2); \
-    return false; 	  \
+    return false;	  \
 }
 
 

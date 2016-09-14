@@ -83,9 +83,7 @@ public:
 
 			Marker(float z)
 			    : zpos_(z)
-			    , size_(2)
-			    , id_(LevelID::getInvalid())
-			{}
+			    , size_(2)	    {}
 
     Color		color_;
     float		zpos_;

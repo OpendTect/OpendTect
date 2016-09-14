@@ -132,7 +132,7 @@ public:
 
     bool			isStored() const;
     bool			isStoredInMem() const;
-    BufferString		getStoredID(bool recursive=false) const;
+    DBKey			getStoredID(bool recursive=false) const;
 
     void			setNeedProvInit( bool yn=true )
 				{ needprovinit_ = yn; }
@@ -181,7 +181,7 @@ public:
 
     void			updateParams();
     void			updateDefaultParams();
-    void			changeStoredID(const char*);
+    void			changeStoredID(const DBKey&);
 
     void			addInput(const InputSpec&);
     bool			removeInput(int idx);

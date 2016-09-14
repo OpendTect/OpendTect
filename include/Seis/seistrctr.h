@@ -15,7 +15,7 @@ Translators for seismic traces.
 
 #include "seisinfo.h"
 #include "transl.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "samplingdata.h"
 #include "basiccompinfo.h"
 

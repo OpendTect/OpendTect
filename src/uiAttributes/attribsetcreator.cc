@@ -250,7 +250,7 @@ bool AttributeSetCreator::create()
 	}
     }
 
-    if ( !stored && !storhint_.isEmpty() )
+    if ( !stored && storhint_.isValid() )
     {
 	DescID did = attrset->createStoredDesc( storhint_, 0,
 						BufferString("") );

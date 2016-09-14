@@ -46,9 +46,7 @@ namespace PosInfo { class Line2DData; }
 template <class T> class Array2D;
 
 
-/*!
-\brief Earth Model UI Part Server
-*/
+/*!\brief Earth Model UI Part Server */
 
 mExpClass(uiEarthModel) uiEMPartServer : public uiApplPartServer
 { mODTextTranslationClass(uiEMPartServer);
@@ -133,7 +131,7 @@ public:
     void		getSurfaceDef3D(const TypeSet<EM::ObjectID>&,
 				        BinIDValueSet&,
 				        const TrcKeySampling&) const;
-    void		getSurfaceDef2D(const ObjectSet<DBKey>&,
+    void		getSurfaceDef2D(const DBKeySet&,
 					const BufferStringSet& sellines,
 					TypeSet<Coord>&,
 					TypeSet<Pos::SurvID>&,
@@ -166,7 +164,7 @@ public:
     bool		geom2Attr(const EM::ObjectID&);
     ZAxisTransform*	getHorizonZAxisTransform(bool is2d);
 
-    const char*		genRandLine(int opt);
+    DBKey		genRandLine(int opt);
     bool		dispLineOnCreation()	{ return disponcreation_; }
 
     void		removeUndo();

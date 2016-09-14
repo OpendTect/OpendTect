@@ -344,10 +344,6 @@ bool TrcKey::is2D( SurvID sid )
 
 #define mGetGeomID( sid, pos ) return is2D(sid) ? pos.lineNr() : sid;
 
-Pos::GeomID& TrcKey::geomID()
-{ mGetGeomID( survid_, pos_ ); }
-
-
 Pos::GeomID TrcKey::geomID() const
 { mGetGeomID( survid_, pos_ ); }
 

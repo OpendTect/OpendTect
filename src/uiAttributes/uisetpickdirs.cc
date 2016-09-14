@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribstorprovider.h"
 #include "attribsel.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "executor.h"
@@ -395,7 +395,7 @@ void uiSetPickDirs::createSteeringDesc( int dipnr, const DescID& did )
     desc->setHidden( true );
     desc->selectOutput( dipnr );
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
-    keypar->setValue( steerfld_->ioobj(true)->key() );
+    keypar->setValue( steerfld_->ioobj(true)->key().toString() );
 
     BufferString userref = steerfld_->ioobj(true)->name();
     userref += dipnr==0 ? "_inline_dip" : "_crline_dip";

@@ -186,7 +186,7 @@ ObjectID EMManager::getObjectID( const DBKey& mid ) const
 DBKey EMManager::getDBKey( const ObjectID& oid ) const
 {
     const EMObject* emobj = getObject(oid);
-    return emobj ? emobj->dbKey() : DBKey(-1);
+    return emobj ? emobj->dbKey() : DBKey::getInvalid();
 }
 
 

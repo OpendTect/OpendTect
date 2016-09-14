@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "seiswrite.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "filepath.h"
 #include "file.h"
 #include "dirlist.h"

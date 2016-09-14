@@ -22,7 +22,7 @@
 #include "hostdata.h"
 #include "plugins.h"
 #include "strmprov.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "jobcommunic.h"
 #include "keystrs.h"
 #include "ascstream.h"

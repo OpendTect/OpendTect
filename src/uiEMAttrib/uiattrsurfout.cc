@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "array2dinterpolimpl.h"
 #include "attriboutput.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfauxdataio.h"
@@ -49,12 +49,12 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     attrnmfld_->attach( alignedBelow, attrfld_ );
 
     filludffld_ = new uiGenInput( pargrp_, tr("Fill undefined parts"),
-	    			  BoolInpSpec(false) );
+				  BoolInpSpec(false) );
     filludffld_->valuechanged.notify( mCB(this,uiAttrSurfaceOut,fillUdfSelCB) );
     filludffld_->attach( alignedBelow, attrnmfld_ );
 
     settingsbut_ = new uiPushButton( pargrp_, uiStrings::sSettings(),
-	    			 mCB(this,uiAttrSurfaceOut,settingsCB), false);
+				 mCB(this,uiAttrSurfaceOut,settingsCB), false);
     settingsbut_->display( false );
     settingsbut_->attach( rightOf, filludffld_ );
 
@@ -78,7 +78,7 @@ void uiAttrSurfaceOut::fillUdfSelCB( CallBacker* )
     if ( settingsbut_->isDisplayed() )
     {
 	InverseDistanceArray2DInterpol* tempinterpol =
-	    				new InverseDistanceArray2DInterpol;
+					new InverseDistanceArray2DInterpol;
 	const float defradius = 10*(SI().inlDistance()+SI().crlDistance());
 	tempinterpol->setSearchRadius( defradius );
 	tempinterpol->setFillType( Array2DInterpol::ConvexHull );
@@ -162,7 +162,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 	fillGridPar( iopar );
 
     fillOutPar( iopar, Output::surfkey(),
-		LocationOutput::surfidkey(), ioobj->key() );
+		LocationOutput::surfidkey(), ioobj->key().toString() );
 
     BufferString attrnm = attrnmfld_->text();
     if ( attrnm.isEmpty() )

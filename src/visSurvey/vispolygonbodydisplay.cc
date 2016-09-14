@@ -366,7 +366,7 @@ bool PolygonBodyDisplay::removeSelections( TaskRunner* )
 
 DBKey PolygonBodyDisplay::getDBKey() const
 {
-    return empolygonsurf_ ? empolygonsurf_->dbKey() : DBKey();
+    return empolygonsurf_ ? empolygonsurf_->dbKey() : DBKey::getInvalid();
 }
 
 

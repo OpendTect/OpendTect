@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "notify.h"
 #include "bufstringset.h"
+#include "dbkey.h"
 #include "uistring.h"
 
 namespace Well { class Data; class LogDisplayParSet; }
@@ -66,7 +67,7 @@ public:
     void			displayIn2DViewer(const DBKey&);
 
     bool			dispLineOnCreation(){ return disponcreation_; }
-    const char*			getRandLineDBKey()   { return dbkey_; }
+    DBKey			getRandLineDBKey()   { return dbkey_; }
     void			selectWellCoordsForRdmLine();
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
@@ -78,7 +79,7 @@ public:
     TypeSet<int>&		getPreviewIds()	{ return previewids_; }
 
     void			createSimpleWells()	{ simpImp(0); }
-    const BufferStringSet&	createdWellIDs()	{ return crwellids_; }
+    const DBKeySet&		createdWellIDs()	{ return crwellids_; }
 
     void			doLogTools();
 
@@ -107,10 +108,10 @@ protected:
     uiWellMan*			manwelldlg_;
     TypeSet<int>		previewids_;
 
-    BufferStringSet		crwellids_; // for uiSimpleMultiWellCreate
+    DBKeySet			crwellids_; // for uiSimpleMultiWellCreate
 
     bool			disponcreation_;
-    const char*			dbkey_;
+    DBKey			dbkey_;
     bool			allapplied_;
 
     void			importReadyCB(CallBacker*);

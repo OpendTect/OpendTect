@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistrings.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "posvecdatasettr.h"
 #include "ioobj.h"
 #include "file.h"

@@ -65,12 +65,12 @@ bool uiPreStackMMProc::initWork( bool retry )
     }
 
     const char* inpidstr = jobpars_.find(
-	    			PreStack::ProcessManager::sKeyInputData() );
+				PreStack::ProcessManager::sKeyInputData() );
     if ( !inpidstr || !*inpidstr )
 	mErrRet(tr("Key for input data store missing in job specification") )
-    PtrMan<IOObj> ioobj = IOM().get( DBKey(inpidstr) );
+    PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(inpidstr) );
     if ( !ioobj )
-	mErrRet(tr("Cannot find data store with ID: %1").arg(inpidstr)) 
+	mErrRet(tr("Cannot find data store with ID: %1").arg(inpidstr))
 
     PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *ioobj );
     if ( !rdr )

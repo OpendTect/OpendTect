@@ -127,8 +127,7 @@ void uiAttrSelData::fillSelSpec( SelSpec& as ) const
 	, zdomoutfld_(0) \
 	, in_action_(false) \
 	, showsteerdata_(stp.showsteeringdata_) \
-	, usedasinput_(stp.isinp4otherattrib_)\
-	, insertedobjmid_(DBKey::getInvalid())
+	, usedasinput_(stp.isinp4otherattrib_)
 
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
@@ -434,7 +433,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     if ( seltyp==2 || seltyp==3 )
 	return;
 
-    BufferString ioobjkey;
+    DBKey ioobjkey;
     if ( seltyp==0 )
     {
 	const int curitem = storoutfld_->currentItem();
@@ -457,19 +456,19 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	    IOM().to(
 		 DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
 	    PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
-	    if ( ioobj ) ioobjkey = ioobj->key();
+	    if ( ioobj )
+		ioobjkey = ioobj->key();
 	}
     }
 
-    const bool is2d = ioobjkey.isEmpty()
-	? false : SelInfo::is2D( ioobjkey.buf() );
+    const bool is2d = ioobjkey.isInvalid()
+	? false : SelInfo::is2D( ioobjkey.toString() );
     const bool isstoreddata = seltyp==0 || seltyp==1;
     filtfld_->display( !is2d && isstoreddata );
 
     compfld_->box()->setCurrentItem(0);
-    const DBKey key( ioobjkey.buf() );
     BufferStringSet compnms;
-    SeisIOObjInfo::getCompNames( key, compnms );
+    SeisIOObjInfo::getCompNames( ioobjkey, compnms );
     compfld_->box()->setEmpty();
     if ( !showsteerdata_ )	//trick to prevent ALL coming to the display
 	compfld_->box()->addItem( uiStrings::sAll() );
@@ -485,10 +484,11 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     attrdata_.attribid_ = DescID::undef();
     attrdata_.outputnr_ = -1;
 
-    if ( !insertedobjmid_.isUdf() )
+    if ( insertedobjmid_.isValid() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( insertedobjmid_ );
-	if ( !ioobj ) return false;
+	if ( !ioobj )
+	    return false;
 
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
@@ -541,7 +541,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	attrdata_.compnr_ = canuseallcomps ? curselitmidx -1 : curselitmidx;
 	if ( attrdata_.compnr_< 0 && !canuseallcomps )
 	    attrdata_.compnr_ = 0;
-	const char* ioobjkey = seltyp==0 ? attrinf_->ioobjids_.get( selidx )
+	const DBKey ioobjkey = seltyp==0 ? attrinf_->ioobjids_.get( selidx )
 					 : attrinf_->steerids_.get( selidx );
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
@@ -582,20 +582,21 @@ void uiAttrSelDlg::replaceStoredByInMem()
     attrinf_->ioobjnms_.erase();
     attrinf_->ioobjids_.erase();
 
-    BufferStringSet ioobjnmscopy;
-    BufferStringSet ioobjidscopy;
+    BufferStringSet ioobjnms;
+    DBKeySet ioobjids;
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {
-	ioobjnmscopy.add( DataPackMgr::nameOf( dpfids_[idx] ) );
-	BufferString tmpstr = "#"; tmpstr += dpfids_[idx];
-	ioobjidscopy.add( tmpstr );
+	ioobjnms.add( DataPackMgr::nameOf( dpfids_[idx] ) );
+	DBKey dbky;
+	dpfids_[idx].putInDBKey( dbky );
+	ioobjids.add( dbky );
     }
 
-    int* sortindexes = ioobjnmscopy.getSortIndexes();
-    for ( int idx=0; idx<ioobjnmscopy.size(); idx++ )
+    int* sortindexes = ioobjnms.getSortIndexes();
+    for ( int idx=0; idx<ioobjnms.size(); idx++ )
     {
-	attrinf_->ioobjnms_.add( ioobjnmscopy.get(sortindexes[idx]) );
-	attrinf_->ioobjids_.add( ioobjidscopy.get(sortindexes[idx]) );
+	attrinf_->ioobjnms_.add( ioobjnms.get(sortindexes[idx]) );
+	attrinf_->ioobjids_.add( ioobjids.get(sortindexes[idx]) );
     }
 
     delete [] sortindexes;
@@ -605,7 +606,7 @@ void uiAttrSelDlg::replaceStoredByInMem()
 void uiAttrSelDlg::objInserted( CallBacker* cb )
 {
     mCBCapsuleUnpack( DBKey, ky, cb );
-    if ( !ky.isEmpty() )
+    if ( ky.isValid() )
     {
 	insertedobjmid_ = ky;
 	accept( 0 );
@@ -714,7 +715,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     if ( !txt || !*txt ) return "";
 
     if ( *txt == '#' )
-	return DataPackMgr::nameOf( DataPack::FullID(txt+1) );
+	return DataPackMgr::nameOf( DataPack::FullID::getFromString(txt+1) );
 
     SeparString bs( txt, ':' );
     if ( bs.size() < 3 ) return "";
@@ -732,7 +733,9 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 	    return "<error>";
 
 	const char* nm = attrdata_.nlamodel_->design().outputs[outnr]->buf();
-	return IOObj::isKey(nm) ? IOM().nameOf(nm) : nm;
+	mDeclStaticString(ret);
+	ret = IOM().nameFor( nm );
+	return ret.buf();
     }
 
     const DescSet& descset = attrid.isStored() ?
@@ -805,14 +808,11 @@ void uiAttrSel::processInput()
     if ( !attrdata_.attribid_.isValid() && attrdata_.nlamodel_ )
     {
 	const BufferStringSet& outnms( attrdata_.nlamodel_->design().outputs );
-	const BufferString nodenm = IOObj::isKey(inp) ? IOM().nameOf(inp)
-							: inp.buf();
+	const BufferString nodenm = IOM().nameFor( inp );
 	for ( int idx=0; idx<outnms.size(); idx++ )
 	{
-	    const BufferString& outstr = *outnms[idx];
-	    const char* desnm = IOObj::isKey(outstr) ? IOM().nameOf(outstr)
-						     : outstr.buf();
-	    if ( nodenm == desnm )
+	    const BufferString desnm = IOM().nameFor( outnms.get(idx) );
+	    if ( desnm == nodenm )
 		{ attrdata_.outputnr_ = idx; break; }
 	}
     }
@@ -883,9 +883,10 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
     }
 
     //use the first fid as default data
-    BufferString fidstr = "#"; fidstr += ids[0];
+    DBKey dbky;
+    ids[0].putInDBKey( dbky );
     attrdata_.attribid_ = const_cast<Attrib::DescSet*>(&getAttrSet())
-					->getStoredID( fidstr.buf(), 0, true );
+					->getStoredID( dbky, 0, true );
     updateInput();
 }
 

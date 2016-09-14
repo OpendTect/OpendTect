@@ -32,7 +32,7 @@ public:
 			TrcKeySampling(Pos::GeomID);
 
     bool		is2D() const	{ return TrcKey::is2D(survid_); }
-    Pos::GeomID		getGeomID() const;
+    Pos::GeomID getGeomID() const;
 
     TrcKeySampling&	set(const Interval<int>& linerg,
 			    const Interval<int>& trcnrrg);

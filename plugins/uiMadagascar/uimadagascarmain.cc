@@ -319,14 +319,14 @@ void uiMadagascarMain::updateCaption()
     const char* flowname = procflow_.name();
     uiString cptn = tr( "Madagascar processing   [%1]" )
         .arg( flowname && *flowname ? flowname : "New Flow" );
-    
+
     setCaption( cptn );
 }
 
 
 void uiMadagascarMain::exportFlow( CallBacker* )
 {
-    IOM().to( ODMad::sKeyMadSelKey() );
+    IOM().to( DBKey::DirID::get(ODMad::cMadDirIDNr()) );
     uiFileDialog dlg( this, false );
     dlg.setDirectory( IOM().curDirName() );
     if ( !dlg.go() ) return;

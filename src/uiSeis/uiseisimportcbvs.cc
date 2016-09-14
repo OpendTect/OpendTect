@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uiseisimportcbvs.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioman.h"
 #include "iodir.h"
 #include "iostrm.h"
@@ -78,7 +78,7 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     sssu.enabotherdomain( true );
     IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );
     outctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
-    IOM().to( outctxt.getSelKey() );
+    IOM().to( outctxt.getSelDirID() );
     outfld_ = new uiSeisSel( this, outctxt, sssu );
     outfld_->attach( alignedBelow, transffld_ );
 
@@ -137,7 +137,7 @@ void uiSeisImportCBVS::inpSel( CallBacker* )
 }
 
 
-#define rmTmpIOObj() IOM().permRemove( DBKey(tmpid_.buf()) );
+#define rmTmpIOObj() IOM().permRemove( tmpid_)
 
 bool uiSeisImportCBVS::acceptOK()
 {

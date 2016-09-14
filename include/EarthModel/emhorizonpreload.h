@@ -33,7 +33,7 @@ public:
 				~HorizonPreLoader();
 
     bool			load(const DBKeySet&,TaskRunner* tr=0);
-    const DBKey&		getDBKey(const char* name) const;
+    DBKey			getDBKey(const char* name) const;
     const DBKeySet&		getPreloadedIDs() const;
     const BufferStringSet&	getPreloadedNames() const;
     const char*			errorMsg() const	    { return errmsg_; }

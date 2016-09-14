@@ -142,7 +142,7 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
 	return 0;
 
     const DBKey saverkey( saver_->key() );
-    const IODir iodir( saverkey );
+    const IODir iodir( saverkey.dirID() );
     const IOObj* orgioobj = iodir.get( saverkey );
     if ( !orgioobj )
 	return 0;
@@ -154,7 +154,8 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
     newstoreioobj->setDirName( orgioobj->dirName() );
     newstoreioobj->setTranslator( orgioobj->translator() );
     newstoreioobj->pars() = orgioobj->pars();
-    newstoreioobj->pars().set( sKey::CrFrom(), saverkey, orgioobj->name() );
+    newstoreioobj->pars().set( sKey::CrFrom(), saverkey.toString(),
+				orgioobj->name() );
     newstoreioobj->pars().set( AutoSaver::sKeyAutosaved(), sKey::Yes() );
     FileMultiString fms;
     fms.add( GetLocalHostName() ).add( GetPID() );
@@ -305,7 +306,7 @@ bool OD::AutoSaver::restore( IOStream& iostrm, const char* newnm )
     iostrm.pars().removeWithKey( sKeyAutosaved() );
     iostrm.updateCreationPars();
 
-    iostrm.acquireNewKeyIn( tmpky.parent() );
+    iostrm.acquireNewKeyIn( tmpky.dirID() );
     if ( IOM().commitChanges(iostrm) )
     {
 	IOM().permRemove( tmpky );

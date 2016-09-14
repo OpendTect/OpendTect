@@ -148,14 +148,14 @@ mDefODInitPlugin(uiMadagascar)
     if ( !theinst_ )
 	return ODMad::PI().errMsg().getFullString().str();
 
-    IOMan::CustomDirData cdd( ODMad::sKeyMadSelKey(), ODMad::sKeyMadagascar(),
+    IOMan::CustomDirData cdd( ODMad::cMadDirIDNr(), ODMad::sKeyMadagascar(),
 			      "Madagascar data" );
     uiString errmsg;
-    DBKey id = IOMan::addCustomDataDir( cdd, errmsg );
+    DBKey::DirID dirid = IOMan::addCustomDataDir( cdd, errmsg );
     if ( errmsg.isSet() )
 	return errmsg.getFullString().str();
 
-    if ( id != ODMad::sKeyMadSelKey() )
+    if ( dirid.getI() != ODMad::cMadDirIDNr() )
 	return "Cannot create 'Madagascar' directory in survey";
 
 #ifdef MAD_UIMSG_IF_FAIL

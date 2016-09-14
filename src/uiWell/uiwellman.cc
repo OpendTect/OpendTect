@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "file.h"
 #include "filepath.h"
 #include "ptrman.h"

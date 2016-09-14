@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id: uiodviewer2dposgrp.cc 38687 2015-03-30
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "attribdesc.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "randomlinetr.h"
 #include "randomlinegeom.h"
 #include "zdomain.h"
@@ -370,12 +370,9 @@ void uiODViewer2DPosGrp::rdmLineDlgClosed( CallBacker* )
 {
     if ( !applmgr_ ) return;
 
-    const char* dbkey = applmgr_->wellServer()->getRandLineDBKey();
-    if ( dbkey && rdmlinefld_ )
-    {
-	DBKey mid( dbkey );
-	rdmlinefld_->setInput( mid );
-    }
+    const DBKey dbky = applmgr_->wellServer()->getRandLineDBKey();
+    if ( dbky.isValid() && rdmlinefld_ )
+	rdmlinefld_->setInput( dbky );
 
     inpSelected.trigger();
 }
@@ -455,7 +452,7 @@ void Viewer2DPosDataSel::usePar( const IOPar& iop )
 	iop.get( sKeyRdmLineDBKey(), rdmlinedbkey_ );
     }
     else
-	rdmlinedbkey_.setUdf();
+	rdmlinedbkey_.setInvalid();
 
     iop.getYN( sKeySelectData(), selectdata_ );
     iop.get( sKey::GeomID(), geomid_ );

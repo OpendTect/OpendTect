@@ -210,7 +210,7 @@ void uiWellSelGrp::fillListBox()
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->ctxt_.forread_ = true;
-    const IODir iodir ( ctio->ctxt_.getSelKey() );
+    const IODir iodir ( ctio->ctxt_.getSelDirID() );
     IODirEntryList entrylist( iodir, ctio->ctxt_ );
 
     for ( int idx=0; idx<entrylist.size(); idx++ )
@@ -511,10 +511,7 @@ bool uiWell2RandomLineDlg::acceptOK()
 }
 
 
-const char* uiWell2RandomLineDlg::getRandLineID() const
+DBKey uiWell2RandomLineDlg::getRandLineID() const
 {
-    if ( !outctio_.ioobj_ )
-	return 0;
-    BufferString* multid = new BufferString( outctio_.ioobj_->key().buf() );
-    return multid->buf();
+    return outctio_.ioobj_ ? outctio_.ioobj_->key() : DBKey::getInvalid();
 }

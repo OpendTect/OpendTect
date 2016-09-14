@@ -46,7 +46,7 @@ uiEMPreLoadDlg::uiEMPreLoadDlg( uiParent* p, const Setup& s )
 
 // uiHorizonPreLoadDlg
 uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
-    : uiEMPreLoadDlg( p,uiDialog::Setup( tr("Horizon Pre-load Manager"), 
+    : uiEMPreLoadDlg( p,uiDialog::Setup( tr("Horizon Pre-load Manager"),
 		     mNoDlgTitle, mODHelpKey(mHorizonPreLoadDlgHelpID)) )
 {
     setCtrlStyle( CloseOnly );
@@ -142,7 +142,7 @@ void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
     uiString msg = tr( "Unload checked horizon(s)?\n"
 		  "(This will not delete the file(s) from disk)", 0,
 		  selhornms.size() );
-    
+
     if ( !uiMSG().askGoOn( msg ) )
 	return;
 
@@ -210,12 +210,11 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 	if ( !dbkeypar )
 	    continue;
 
-	const char* id = dbkeypar->find( sKey::ID() );
-	if ( !id || !*id )
+	const char* idstr = dbkeypar->find( sKey::ID() );
+	if ( !DBKey::isValidString(idstr) )
 	    continue;
 
-	const DBKey mid( id );
-	selmids += mid;
+	selmids += DBKey::getFromString( idstr );
     }
 
     if ( selmids.isEmpty() )
@@ -264,8 +263,8 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     const int size = hornames.size();
     for ( int lhidx=0; lhidx<size; lhidx++ )
     {
-	const DBKey& mid = hpl.getDBKey( hornames.get( lhidx ) );
-	if ( mid.isUdf() )
+	const DBKey mid = hpl.getDBKey( hornames.get( lhidx ) );
+	if ( mid.isInvalid() )
 	    continue;
 
 	BufferString key( "Hor." , lhidx, ".ID" );

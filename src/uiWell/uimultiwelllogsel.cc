@@ -486,9 +486,9 @@ void uiMultiWellLogSel::update()
 
     for ( int iid=0; iid<wic.ids().size(); iid++ )
     {
-	const DBKey& mid = *wic.ids()[iid];
-	IOObj* ioobj = IOM().get( mid );
-	if ( !ioobj || ( singlewid_ && mid != *singlewid_ ) )
+	const DBKey dbky = wic.ids()[iid];
+	IOObj* ioobj = IOM().get( dbky );
+	if ( !ioobj || ( singlewid_ && dbky != *singlewid_ ) )
 	    continue;
 
 	wellobjs_ += ioobj;
@@ -580,7 +580,7 @@ void uiMultiWellLogSel::getSelWellIDs( BufferStringSet& wids ) const
     DBKeySet mids;
     getSelWellIDs( mids );
     for ( int idx=0; idx<mids.size(); idx++ )
-	wids.add( mids[idx] );
+	wids.add( mids[idx].toString() );
 }
 
 
@@ -588,7 +588,7 @@ void uiMultiWellLogSel::setSelWellIDs( const BufferStringSet& idstrs )
 {
     DBKeySet mids;
     for ( int idx=0; idx<idstrs.size(); idx++ )
-	mids += DBKey( idstrs.get(idx) );
+	mids += DBKey::getFromString( idstrs.get(idx) );
 
     setSelWellIDs( mids );
 }
@@ -632,7 +632,7 @@ void uiMultiWellLogSel::readWellChoiceDone( CallBacker* )
 
     DBKeySet mids;
     for ( int idx=0; idx<wellschoiceio_->chosenKeys().size(); idx++ )
-	mids += DBKey( wellschoiceio_->chosenKeys().get(idx).buf() );
+	mids += DBKey::getFromString( wellschoiceio_->chosenKeys().get(idx) );
     setSelWellIDs( mids );
 }
 
@@ -643,5 +643,5 @@ void uiMultiWellLogSel::writeWellChoiceReq( CallBacker* )
 
     wellschoiceio_->keys().setEmpty();
     for ( int idx=0; idx<wellobjs_.size(); idx++ )
-	wellschoiceio_->keys().add( wellobjs_[idx]->key().buf() );
+	wellschoiceio_->keys().add( wellobjs_[idx]->key().toString() );
 }

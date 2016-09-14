@@ -21,7 +21,7 @@
 class OD_2DEMDataConverter_FromOD4ToOD5
 {
 public:
-			    OD_2DEMDataConverter_FromOD4ToOD5()    
+			    OD_2DEMDataConverter_FromOD4ToOD5()
 			    {
 				surfacepara_ = 0;
 			    }
@@ -48,7 +48,7 @@ mGlobal(EarthModel) void OD_Convert_EM2DData()
 }
 
 
-void OD_2DEMDataConverter_FromOD4ToOD5::convertData( 
+void OD_2DEMDataConverter_FromOD4ToOD5::convertData(
                                             EM::IOObjInfo::ObjectType ftype )
 {
     DBKeySet ioobjids;
@@ -91,7 +91,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDTo2DHorPara(
     strname += sid; strname += " sticknr "; strname += sticknr;
 
 
-void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDToFSSPara( 
+void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDToFSSPara(
                                                     EM::IOObjInfo& ioobjinfo )
 {
     TypeSet<EM::SectionID> secids;
@@ -120,7 +120,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDToFSSPara(
 }
 
 
-void OD_2DEMDataConverter_FromOD4ToOD5::writeToFile( const char* fullpath, 
+void OD_2DEMDataConverter_FromOD4ToOD5::writeToFile( const char* fullpath,
                                                      int pos )
 {
     FilePath fp( fullpath );

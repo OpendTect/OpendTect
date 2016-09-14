@@ -51,10 +51,10 @@ Time2DepthStretcher::~Time2DepthStretcher()
 { releaseData(); }
 
 
-bool Time2DepthStretcher::setVelData( const DBKey& mid )
+bool Time2DepthStretcher::setVelData( const DBKey& dbkey )
 {
     releaseData();
-    PtrMan<IOObj> velioobj = IOM().get( mid );
+    PtrMan<IOObj> velioobj = IOM().get( dbkey );
     if ( !velioobj )
 	return false;
 
@@ -65,8 +65,8 @@ bool Time2DepthStretcher::setVelData( const DBKey& mid )
 	return false;
     }
 
-    fromzdomaininfo_.setID( mid );
-    tozdomaininfo_.setID( mid );
+    fromzdomaininfo_.setID( dbkey.toString() );
+    tozdomaininfo_.setID( dbkey.toString() );
 
     veldesc_.type_ = VelocityDesc::Interval;
     veldesc_.usePar( velioobj->pars() );
@@ -622,9 +622,13 @@ float Time2DepthStretcher::getGoodZStep() const
 
 const char* Time2DepthStretcher::getZDomainID() const
 {
-    return velreader_ && velreader_->ioObj()
-	? velreader_->ioObj()->key().buf()
-	: 0;
+    if ( velreader_ && velreader_->ioObj() )
+    {
+	mDeclStaticString( ret );
+	ret.set( velreader_->ioObj()->key().toString() );
+	return ret.buf();
+    }
+    return 0;
 }
 
 
@@ -650,8 +654,8 @@ Depth2TimeStretcher::Depth2TimeStretcher()
 {}
 
 
-bool Depth2TimeStretcher::setVelData( const DBKey& mid )
-{ return stretcher_->setVelData( mid ); }
+bool Depth2TimeStretcher::setVelData( const DBKey& dbkey )
+{ return stretcher_->setVelData( dbkey ); }
 
 
 bool Depth2TimeStretcher::isOK() const

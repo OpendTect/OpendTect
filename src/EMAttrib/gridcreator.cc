@@ -387,8 +387,8 @@ bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* taskrunner )
     EM::EMManager& em = EM::EMM();
     for ( int idx=0; idx<horids.size(); idx++ )
     {
-	DBKey mid( horids.get(idx) );
-	RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( mid, taskrunner );
+	const DBKey dbky = DBKey::getFromString( horids.get(idx) );
+	RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( dbky, taskrunner);
 
 	mDynamicCastGet(EM::Horizon3D*,horizon3d,emobj.ptr());
 	if ( !horizon3d ) continue;

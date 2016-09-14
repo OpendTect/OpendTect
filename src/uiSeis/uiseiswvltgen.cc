@@ -275,7 +275,7 @@ void uiSeisWvltMerge::reloadWvlts()
     deepUnRef( wvltset_ ); namelist_.setEmpty();
     stackedwvlt_ = 0;
     const IOObjContext ctxt( mIOObjContext(Wavelet) );
-    const IODir iodir( ctxt.getSelKey() );
+    const IODir iodir( ctxt.getSelDirID() );
     const IODirEntryList del( iodir, ctxt );
     if ( del.size() < 2 )
 	{ uiMSG().error( tr("not enough wavelets available") ); return; }

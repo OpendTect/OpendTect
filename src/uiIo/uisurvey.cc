@@ -40,7 +40,7 @@ ________________________________________________________________________
 #include "ui2dsip.h"
 
 #include "angles.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "trckeyzsampling.h"
 #include "dirlist.h"
 #include "envvars.h"
@@ -696,7 +696,7 @@ bool uiSurvey::acceptOK()
 	const uiString askq = impsip_->importAskUiQuestion();
 	if ( !askq.isEmpty() && uiMSG().askGoOn(askq) )
 	{
-	    IOM().to( "100010" );
+	    IOM().to( DBKey::getFromString("100010") );
 	    impsip_->startImport( parent(), *impiop_ );
 	}
     }

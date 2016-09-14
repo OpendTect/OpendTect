@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
@@ -62,7 +62,7 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
 
     uiStringSet strs;
     getOutputNames( strs, true );
-    typefld_ = new uiGenInput( this, uiStrings::sOutput(), 
+    typefld_ = new uiGenInput( this, uiStrings::sOutput(),
 			       StringListInpSpec(strs) );
     typefld_->valuechanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
     typefld_->attach( alignedBelow, horfld_ );
@@ -71,9 +71,9 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     isrelbox_->attach( rightOf, typefld_ );
 
     surfdatafld_ = new uiGenInput( this, tr("Select Horizon Data"),
-	    			   StringListInpSpec() );
+				   StringListInpSpec() );
     surfdatafld_->attach( alignedBelow, typefld_ );
-    
+
     setHAlignObj( inpfld_ );
     typeSel(0);
 }
@@ -90,16 +90,16 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
 	return false;
 
     mIfGetString( Horizon::sKeyHorID(), horidstr,
-	    	  if ( horidstr && *horidstr )
-		      horfld_->setInput( DBKey(horidstr) ); );
+		  if ( horidstr && *horidstr )
+		      horfld_->setInput( DBKey::getFromString(horidstr) ); );
 
     if ( horfld_->ioobj(true) )
 	horSel(0);
-    
+
     mIfGetEnum(Horizon::sKeyType(), typ, typefld_->setValue(typ));
 
-    mIfGetString( Horizon::sKeySurfDataName(), surfdtnm, 
-		  surfdatafld_->setValue( !surfdatanms_.isPresent( surfdtnm ) 
+    mIfGetString( Horizon::sKeySurfDataName(), surfdtnm,
+		  surfdatafld_->setValue( !surfdatanms_.isPresent( surfdtnm )
 		      ? 0 : surfdatanms_.indexOf(surfdtnm) ) );
 
     mIfGetBool(Horizon::sKeyRelZ(), isrel, isrelbox_->setChecked(isrel));
@@ -122,8 +122,9 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
     if ( FixedString(desc.attribName())!=Horizon::attribName() )
 	return false;
 
+    const IOObj* hioobj = horfld_->ioobj( true );
     mSetString( Horizon::sKeyHorID(),
-	        horfld_->ioobj(true) ? horfld_->ioobj()->key().buf() : "" );
+		hioobj ? hioobj->key().toString().str() : "" );
     const int typ = typefld_->getIntValue();
     mSetEnum( Horizon::sKeyType(), typ );
     if ( typ==0 )
@@ -139,7 +140,7 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 	    mSetString( Horizon::sKeySurfDataName(), surfdatanm )
 	}
     }
-    
+
     return true;
 }
 
@@ -171,7 +172,7 @@ void uiHorizonAttrib::horSel( CallBacker* )
     for ( int idx=0; idx<attrnms.size(); idx++ )
 	surfdatanms_.add( attrnms.get(idx).buf() );
     surfdatafld_->newSpec( StringListInpSpec(surfdatanms_), 0 );
-    
+
     const bool actionreq = (surfdatanms_.size() && nrouttypes_<2) ||
 			   (!surfdatanms_.size() && nrouttypes_>1);
     if ( actionreq )

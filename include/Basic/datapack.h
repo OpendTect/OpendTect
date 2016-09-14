@@ -36,19 +36,29 @@ mExpClass(Basic) DataPack : public RefCount::Referenced
 {
 public:
 
-    mExpClass(Basic) FullID : public DBKey
+    mExpClass(Basic) FullID : public GroupedID
     {
     public:
-				FullID()			{}
-				FullID( const char* s )
-				    : DBKey(s)		{}
-				FullID( SubID mgrid, SubID packid )
-				    : DBKey(mgrid,packid)	{}
-	SubID			mgrID() const		{ return subID(0); }
-	SubID			packID() const		{ return subID(1); }
+
+	typedef GroupID		MgrID;
+	typedef ObjID		PackID;
+
+				FullID()		{}
+				FullID( MgrID mgrid, PackID packid )
+				    : GroupedID(mgrid,packid) {}
+	static FullID		getFromString(const char*);
+	static FullID		getInvalid();
+	static bool		isInDBKey(const DBKey&);
+	static FullID		getFromDBKey(const DBKey&);
+	void			putInDBKey(DBKey&) const;
+
+				// aliases
+	MgrID			mgrID() const		{ return groupID(); }
+	PackID			packID() const		{ return objID(); }
     };
 
-    typedef FullID::SubID	ID;
+    typedef FullID::PackID	ID;
+    typedef FullID::MgrID	MgrID;
 
 
 			DataPack( const char* categry )
@@ -64,14 +74,15 @@ public:
     virtual		~DataPack()		{ sendDelNotif(); }
 
     ID			id() const		{ return id_; }
-    FullID		fullID( int mgrid ) const { return FullID(mgrid,id()); }
+    FullID		fullID( MgrID mgrid ) const
+						{ return FullID(mgrid,id()); }
     virtual const char*	category() const	{ return category_.buf(); }
 
     virtual float	nrKBytes() const	= 0;
     virtual void	dumpInfo(IOPar&) const;
 
     static const char*	sKeyCategory();
-    static ID		cNoID()			{ return 0; }
+    static ID		cNoID()			{ return ID::getInvalid(); }
 
     virtual bool	isOK() const		{ return true; }
 
@@ -79,14 +90,14 @@ public:
 
 protected:
 
-    void			setManager(const DataPackMgr*);
-    const ID			id_;
+    void		setManager(const DataPackMgr*);
+    const ID		id_;
     const BufferString		category_;
 
-    mutable Threads::Lock	updatelock_;
-    const DataPackMgr*		manager_;
+    mutable Threads::Lock updatelock_;
+    const DataPackMgr*	manager_;
 
-    static ID			getNewID();  //!< ensures a global data pack ID
+    static ID		getNewID();  //!< ensures a global data pack ID
     static float		sKb2MbFac(); //!< 1 / 1024
 
     void			setCategory( const char* c )
@@ -157,29 +168,29 @@ public:
 			// You can, but normally should not, construct
 			// a manager. In general, leave it to DPM() - see below.
 
-    typedef int		ID;		//!< Each Mgr has its own ID
+    typedef DataPack::FullID::MgrID	ID;
     inline static ID	getID( const DataPack::FullID& fid )
-						{ return fid.subID(0); }
+						{ return fid.groupID(); }
 
     bool		haveID(DataPack::ID) const;
     inline bool		haveID( const DataPack::FullID& fid ) const
-			{ return id() == fid.subID(0)
-			      && haveID( fid.subID(1) ); }
+			{ return id() == fid.groupID()
+			      && haveID( fid.objID() ); }
 
     template <class T>
     inline T*		add(T* p)		{ doAdd(p); return p; }
     template <class T>
     inline T*		add(RefMan<T>& p)	{ doAdd(p.ptr()); return p; }
-    RefMan<DataPack>	get(DataPack::ID dpid) const;
+    RefMan<DataPack>	get(DataPack::ID) const;
 
     template <class T>
-    inline RefMan<T>	getAndCast(DataPack::ID dpid) const;
+    inline RefMan<T>	getAndCast(DataPack::ID) const;
 			//!<Dynamic casts to T and returns results
 
-    WeakPtr<DataPack>	observe(DataPack::ID dpid) const;
+    WeakPtr<DataPack>	observe(DataPack::ID) const;
 
     template <class T>
-    inline WeakPtr<T>	observeAndCast(DataPack::ID dpid) const;
+    inline WeakPtr<T>	observeAndCast(DataPack::ID) const;
 			//!<Dynamic casts to T and returns results
 
     bool		ref(DataPack::ID dpid);
@@ -212,16 +223,17 @@ public:
     void		getPackIDs(TypeSet<DataPack::ID>&) const;
 
 protected:
-    void				doAdd(DataPack*);
+
+    void		doAdd(DataPack*);
+
+    ID			id_;
 
     mutable Threads::Atomic<int>	nrnull_;
     mutable Threads::SpinRWLock		packslock_;
     TypeSet<WeakPtr<DataPack> >		packs_;
 
-    ID					id_;
-
-    DataPack*				doObtain(ID,bool) const;
-    int					indexOf(ID) const;
+    DataPack*				doObtain(DataPack::ID,bool) const;
+    int					indexOf(DataPack::ID) const;
 					//!<Object should be readlocked
 
     static Threads::Lock	mgrlistlock_;
@@ -358,7 +370,7 @@ mObtainDataPack( var, type, mgrid, newid ); \
 //Implementations
 
 template <class T> inline
-RefMan<T> DataPackMgr::getAndCast(DataPack::ID dpid) const
+RefMan<T> DataPackMgr::getAndCast( DataPack::ID dpid ) const
 {
     RefMan<DataPack> pack = get( dpid );
     mDynamicCastGet( T*, casted, pack.ptr() );
@@ -378,8 +390,8 @@ WeakPtr<T> DataPackMgr::observeAndCast( DataPack::ID dpid ) const
 
 
 template <class T> inline
-ConstDataPackRef<T>::ConstDataPackRef(const DataPack* p)
-    : dp_(const_cast<DataPack*>(p) )
+ConstDataPackRef<T>::ConstDataPackRef( const DataPack* dp )
+    : dp_(const_cast<DataPack*>(dp) )
     , ptr_( 0 )
 {
     mDynamicCast(T*, ptr_, dp_ );
@@ -387,7 +399,7 @@ ConstDataPackRef<T>::ConstDataPackRef(const DataPack* p)
 
 
 template <class T> inline
-ConstDataPackRef<T>::ConstDataPackRef(const ConstDataPackRef<T>& dpr)
+ConstDataPackRef<T>::ConstDataPackRef( const ConstDataPackRef<T>& dpr )
     : ptr_( dpr.ptr_ )
     , dp_( dpr.dp_ )
 {
@@ -397,7 +409,7 @@ ConstDataPackRef<T>::ConstDataPackRef(const ConstDataPackRef<T>& dpr)
 
 template <class T> inline
 ConstDataPackRef<T>&
-ConstDataPackRef<T>::operator=(const ConstDataPackRef<T>& dpr)
+ConstDataPackRef<T>::operator=( const ConstDataPackRef<T>& dpr )
 {
     releaseNow();
     ptr_ = dpr.ptr_;
@@ -421,21 +433,21 @@ void ConstDataPackRef<T>::releaseNow()
 
 
 template <class T> inline
-DataPackRef<T>::DataPackRef(DataPack* p)
+DataPackRef<T>::DataPackRef( DataPack* p )
     : ConstDataPackRef<T>( p )
 { }
 
 
 template <class T> inline
-DataPackRef<T>::DataPackRef(const DataPackRef<T>& dpr)
+DataPackRef<T>::DataPackRef( const DataPackRef<T>& dpr )
     : ConstDataPackRef<T>( dpr )
 { }
 
 
 template <class T> inline
-DataPackRef<T>& DataPackRef<T>::operator=(const DataPackRef<T>& dpr)
+DataPackRef<T>& DataPackRef<T>::operator=( const DataPackRef<T>& dpr )
 {
-    ConstDataPackRef<T>::operator=(dpr);
+    ConstDataPackRef<T>::operator=( dpr );
     return *this;
 }
 

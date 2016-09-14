@@ -16,7 +16,7 @@
 #include "seistrctr.h"
 #include "seistype.h"
 #include "seisselection.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioobj.h"
 #include "survinfo.h"
 #include "od_helpids.h"

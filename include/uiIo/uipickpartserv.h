@@ -75,7 +75,7 @@ public:
     DBKey			pickSetID() const	{ return picksetid_; }
 
     ObjectSet<SurfaceInfo>&	horInfos()		{ return hinfos_; }
-    const ObjectSet<DBKey>&	selHorIDs() const	{ return selhorids_; }
+    const DBKeySet&		selHorIDs() const	{ return selhorids_; }
     TrcKeySampling		selTrcKeySampling() const
 				{ return selhs_; }
     DBKey			horID()			{ return horid_; }
@@ -91,7 +91,7 @@ protected:
     BinIDValueSet&		gendef_;
 
     ObjectSet<SurfaceInfo>	hinfos_;
-    ObjectSet<DBKey>		selhorids_;
+    DBKeySet			selhorids_;
     TrcKeySampling		selhs_;
     Pick::Set*			ps_;
     DBKey			picksetid_;

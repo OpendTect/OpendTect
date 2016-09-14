@@ -22,7 +22,7 @@ ________________________________________________________________________
 uiEMAuxDataSel::uiEMAuxDataSel( uiParent* p, const uiString& lbl,
 				const DBKey* hormid, const char* auxdatanm )
     : uiCompoundParSel( p, lbl )
-    , hormid_(hormid ? *hormid : -1)
+    , hormid_(hormid ? *hormid : DBKey::getInvalid())
     , auxdatanm_(auxdatanm)
 {
     butPush.notify( mCB(this,uiEMAuxDataSel,butPushCB) );

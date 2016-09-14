@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uistaticsdesc.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emioobjinfo.h"
 #include "emsurfacetr.h"
 #include "emsurfaceiodata.h"

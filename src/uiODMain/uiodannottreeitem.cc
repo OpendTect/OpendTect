@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "vislocationdisplay.h"
 #include "vissurvscene.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -269,7 +269,7 @@ DBKey uiODAnnotSubItem::getSetID() const
 void uiODAnnotSubItem::createMenu( MenuHandler* menu, bool istb )
 {
     const DBKey setid = getSetID();
-    if ( !menu || menu->menuID()!=displayID() || setid.isUdf() )
+    if ( !menu || menu->menuID()!=displayID() || setid.isInvalid() )
 	return;
 
     const bool islocked = visserv_->isLocked( displayid_ );

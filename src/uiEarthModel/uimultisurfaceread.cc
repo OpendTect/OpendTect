@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uipossubsel.h"
 #include "uimsg.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"

@@ -6,7 +6,7 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
- Date:		7-1-1996
+ Date:		Aug 1996 / Sep 2016
 ________________________________________________________________________
 
 -*/
@@ -47,19 +47,21 @@ public:
 };
 
 
-/*!
-\brief Holds the context for selecting and/or creating IOObjs.
+/*!\brief Holds the context for selecting and/or creating IOObjs.
 
   Usually, this object is obtained by calling the ioContext() method of a
   certain TranslatorGroup.
 
-  Note, that if the StdSelType is set to None, you must provide the selkey or
+  Note, that if the StdSelType is set to None, you must provide the groupnr_ or
   we'll be blobbing stuff in the root of the survey.
 */
 
 mExpClass(General) IOObjContext : public NamedObject
 {
 public:
+
+    typedef DBKey::GroupNrType	DBGroupNrType;
+    typedef DBKey::DirID	DBDirID;
 
     enum StdSelType	{ Seis=0, Surf, Loc, Feat, WllInf, NLA, Misc, Attr, Mdl,
 			  Geom, None };
@@ -79,7 +81,7 @@ public:
 
     //! this selection only
     bool		forread_;
-    DBKey		selkey_;	//!< If set, overrules the 'standard'
+    DBDirID		dirid_;		//!< If set, overrules the 'standard'
     bool		maydooper_;	//!< Will we allow add/remove etc?
     BufferString	deftransl_;	//!< Translator to use for new entry
     IOObjSelConstraints toselect_;
@@ -88,17 +90,12 @@ public:
 
     struct StdDirData
     {
-					StdDirData(const char*,const char*,
-						   const char*);
+			StdDirData(DBGroupNrType,const char*,const char*);
 
-	const char*			id_;
-	const char*			dirnm_;
-	const char*			desc_;
+	DBDirID		id_;
+	const char*	dirnm_;
+	const char*	desc_;
 					//!< Can be converted to StdSelType
-
-	mDeprecated const char*&	id;
-	mDeprecated const char*&	dirnm;
-	mDeprecated const char*&	desc;
     };
 
     static int			totalNrStdDirs();
@@ -108,8 +105,8 @@ public:
 
     FixedString		objectTypeName() const;
     FixedString		translatorGroupName() const;
-    inline bool		hasStdSelKey() const	{ return stdseltype_ != None; }
-    DBKey		getSelKey() const;
+    inline bool		hasStdSelDirID() const { return stdseltype_ != None; }
+    DBDirID		getSelDirID() const;
     IOStream*		crDefaultWriteObj(const Translator&,
 					  const DBKey&) const;
     void		fillTrGroup() const;
@@ -123,10 +120,11 @@ public:
     mDeprecated int&			newonlevel;
     mDeprecated bool&			multi;
     mDeprecated bool&			forread;
-    mDeprecated DBKey&		selkey;
     mDeprecated bool&			maydooper;
     mDeprecated BufferString&		deftransl;
     mDeprecated IOObjSelConstraints&	toselect;
+    mDeprecated DBDirID			getSelKey() const
+					{ return getSelDirID(); }
 };
 
 

@@ -538,15 +538,13 @@ void GriddedSource::setSource( const DBKeySet& mids )
 }
 
 
-void GriddedSource::getSources( DBKeySet& mids ) const
+void GriddedSource::getSources( DBKeySet& dbkys ) const
 {
     for ( int idx=0; idx<datasources_.size(); idx++ )
     {
-	const DBKey& mid = datasources_[idx]->dbKey();
-	if ( mid.isEmpty() )
-	    continue;
-
-	mids += mid;
+	const DBKey dbky = datasources_[idx]->dbKey();
+	if ( dbky.isValid() )
+	    dbkys += dbky;
     }
 }
 

@@ -52,7 +52,7 @@ SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps, bool is_2d )
 	, psioprov_(0)
 {
     IOStream iostrm( "_tmp_SeisStoreAccess",
-	    		IODir::getNewTmpKey(mIOObjContext(SeisTrc)) );
+			IODir::getNewTmpKey(mIOObjContext(SeisTrc)) );
     iostrm.setGroup( !isps ?
 	   ( is2d_ ? mTranslGroupName(SeisTrc2D) : mTranslGroupName(SeisTrc) )
 	 : ( is2d_ ? mTranslGroupName(SeisPS2D) : mTranslGroupName(SeisPS3D)) );
@@ -159,7 +159,7 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 	res = iopar.find( sKey::Name() );
 	if ( res && *res )
 	{
-	    IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );
+	    IOM().to( SeisTrcTranslatorGroup::ioContext().getSelDirID() );
 	    const IOObj* tryioobj_ = IOM().getLocal( res, 0 );
 	    if ( !tryioobj_ )
 		res = 0;
@@ -173,7 +173,7 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 
     if ( res && *res )
     {
-	IOObj* ioob = IOM().get( res );
+	IOObj* ioob = IOM().get( DBKey::getFromString(res) );
 	if ( ioob && (!ioobj_ || ioobj_->key() != ioob->key()) )
 	    setIOObj( ioob );
 	delete ioob;

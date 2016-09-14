@@ -191,7 +191,8 @@ void EngineMan::setExecutorName( Executor* ex )
     if ( !ex ) return;
 
     BufferString usernm( getCurUserRef() );
-    if ( usernm.isEmpty() || !inpattrset_ ) return;
+    if ( usernm.isEmpty() || !inpattrset_ )
+	return;
 
     if ( curattridx_ < 0 || curattridx_ >= attrspecs_.size() )
 	ex->setName( "Processing attribute" );
@@ -204,7 +205,7 @@ void EngineMan::setExecutorName( Executor* ex )
 	nm += nlamodel_->nlaType(true);
 	nm += ": calculating";
 	if ( IOObj::isKey(usernm) )
-	    usernm = IOM().nameOf( usernm );
+	    usernm = IOM().nameOf( DBKey::getFromString(usernm) );
     }
     else
     {
@@ -618,7 +619,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 	    if ( !descid.isValid() )
 	    {
 		// It could be 'storage', but it's not yet in the set ...
-		PtrMan<IOObj> ioobj = IOM().get( DBKey(inpname) );
+		PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(inpname));
 		if ( ioobj )
 		{
 		    Desc* stordesc =
@@ -959,7 +960,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 
     const StringPair storkey( storeddesc->getValParam(
 			      StorageProvider::keyStr())->getStringValue(0) );
-    const DBKey key( storkey.first() );
+    const DBKey key = DBKey::getFromString( storkey.first() );
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj ) return;
 
@@ -1264,8 +1265,9 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    if ( refidx > -1 )
 	    {
 		FileMultiString fms( attrrefs.get(refidx) );
+		const DBKey dbky = DBKey::getFromString( fms[1] );
 		descid = const_cast<DescSet&>(descset).
-				    getStoredID( fms[1], 0, true );
+				    getStoredID( dbky, 0, true );
 	    }
 	    if ( descid == DescID::undef() )
 		mErrRet( tr("Cannot find specified '%1'",

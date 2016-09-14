@@ -183,7 +183,7 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 
 void uiPreStackMergeDlg::fillListBox()
 {
-    const IODir iodir( inctio_.ctxt_.getSelKey() );
+    const IODir iodir( inctio_.ctxt_.getSelDirID() );
     IODirEntryList entrylist( iodir, inctio_.ctxt_ );
 
     for ( int idx=0; idx<entrylist.size(); idx++ )

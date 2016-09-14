@@ -182,9 +182,7 @@ void uiODLine2DParentTreeItem::createMenu( MenuHandler* menu, bool istb )
 	    if ( ds && ds->isNLA() )
 	    {
 		attribname = ds->objectRef();
-		const char* nodenm = ds->userRef();
-		if ( IOObj::isKey(ds->userRef()) )
-		    nodenm = IOM().nameOf( ds->userRef() );
+		const BufferString nodenm = IOM().nameFor( ds->userRef() );
 		attribname += " ("; attribname += nodenm; attribname += ")";
 	    }
 
@@ -375,7 +373,7 @@ bool uiODLine2DParentTreeItem::loadDefaultData()
 	ads = Attrib::eDSHolder().getDescSet( true, true );
 	if ( !ads )
 	    return false;
-	
+
 	desc = ads->getDesc( descid );
 	if ( !desc )
 	    return false;
@@ -734,14 +732,14 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 	}
 
 	uiTaskRunner uitr( ODMainWin() );
-	dp = calc->createAttrib( tkzs, 0, &uitr );
+	dp = calc->createAttrib( tkzs, DataPack::ID::get(0), &uitr );
     }
     else
     {
 	applMgr()->attrServer()->setTargetSelSpecs( as );
 	const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
 	ConstRefMan<RegularSeisDataPack> regsdp =
-	    		dpm.get( s2d->getDataPackID(attribnr) );
+			dpm.get( s2d->getDataPackID(attribnr) );
 	dp = applMgr()->attrServer()->createOutput( tkzs, regsdp );
     }
 
@@ -860,7 +858,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     MenuItem* attrmenu = attrserv->calcAttribMenuItem( as, true, false );
     attrserv->filter2DMenuItems( *attrmenu, as, s2d->getGeomID(), false, 2 );
     mAddMenuItem( &selattrmnuitem_, attrmenu, attrmenu->nrItems(),
-	    	  attrmenu->checked );
+		  attrmenu->checked );
 
     MenuItem* nla = attrserv->nlaAttribMenuItem( as, true, false );
     if ( nla && nla->nrItems() )
@@ -1038,8 +1036,9 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     const FixedString zdomainkey = as[0].zDomainKey();
     const bool alreadytransformed = scene && zdomainkey == scene->zDomainKey();
     const DataPack::ID dpid = attrserv->createOutput(
-			s2d->getTrcKeyZSampling(alreadytransformed), 0 );
-    if ( dpid == DataPack::cNoID() )
+			s2d->getTrcKeyZSampling(alreadytransformed),
+			DataPack::ID::get( 0 ) );
+    if ( dpid.isInvalid() )
 	return false;
 
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
@@ -1065,8 +1064,9 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
 
     applMgr()->attrServer()->setTargetSelSpec( myas );
     const DataPack::ID dpid = applMgr()->attrServer()->createOutput(
-					s2d->getTrcKeyZSampling(false), 0 );
-    if ( dpid == DataPack::cNoID() )
+					s2d->getTrcKeyZSampling(false),
+					DataPack::ID::get(0) );
+    if ( dpid.isInvalid() )
 	return;
 
     s2d->setSelSpecs( attribNr(), TypeSet<Attrib::SelSpec>(1,myas) );

@@ -206,8 +206,7 @@ public:
 
 			LeavedUnitRef( NodeUnitRef* up, const char* c,
 				     const char* d=0 )
-			: NodeUnitRef(up,c,d)
-			, levelid_(LevelID::getInvalid()) {}
+			: NodeUnitRef(up,c,d)	{}
 
     virtual Type	type() const		{ return Leaved; }
     virtual bool	hasLeaves() const	{ return true; }

@@ -7,7 +7,7 @@
 
 #include "uivolprocchain.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "datainpspec.h"
 #include "ioman.h"
 #include "ioobj.h"

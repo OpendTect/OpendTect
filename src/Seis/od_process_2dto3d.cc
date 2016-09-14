@@ -82,7 +82,7 @@ bool BatchProgram::go( od_ostream& strm )
 	strm << " ..." << od_newline;
     else
     {
-	PtrMan<IOObj> ioobj = IOM().get( seisid );
+	PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(seisid) );
 	if ( !ioobj )
 	{
 	    BufferString msg( "Cannot find output Seismic Object with ID '" );
@@ -206,7 +206,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     mDestroyWorkers
 
-    PtrMan<IOObj> ioobj = IOM().get( seisid );
+    PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(seisid) );
     if ( ioobj )
     {
 	FilePath fp( ioobj->fullUserExpr() );

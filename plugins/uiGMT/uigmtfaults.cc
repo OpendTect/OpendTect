@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 
 #include "bufstring.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "draw.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"

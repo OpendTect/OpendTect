@@ -210,7 +210,7 @@ int VolProc::ChainOutput::nextStep()
 
 int VolProc::ChainOutput::getChain()
 {
-    if ( chainid_.isEmpty() )
+    if ( chainid_.isInvalid() )
 	return retError( tr("No Volume Processing ID specified") );
 
     PtrMan<IOObj> ioobj = IOM().get( chainid_ );
@@ -245,8 +245,8 @@ int VolProc::ChainOutput::setupChunking()
 
     const float zstep = chain_->getZStep();
     outputzrg_ = StepInterval<int>( mNINT32(tkzs_.zsamp_.start/zstep),
-				 mNINT32(Math::Ceil(tkzs_.zsamp_.stop/zstep)),
-			   mMAX(mNINT32(Math::Ceil(tkzs_.zsamp_.step/zstep)),1) );
+			mNINT32(Math::Ceil(tkzs_.zsamp_.stop/zstep)),
+			mMAX(mNINT32(Math::Ceil(tkzs_.zsamp_.step/zstep)),1) );
 			   //real -> index, outputzrg_ is the index of z-samples
 
     // We will be writing while a new chunk will be calculated
@@ -300,7 +300,7 @@ int VolProc::ChainOutput::setNextChunk()
     if ( curexecnr_ > 0 )
 	createNewChainExec();
 
-    const TrcKeySampling hsamp( tkzs_.hsamp_.getLineChunk(nrexecs_,curexecnr_) );
+    const TrcKeySampling hsamp( tkzs_.hsamp_.getLineChunk(nrexecs_,curexecnr_));
 
     if ( !chainexec_->setCalculationScope(hsamp,outputzrg_) )
     {

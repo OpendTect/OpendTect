@@ -138,7 +138,7 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
 void uiODApplMgrAttrVisHandler::setHistogram( int visid, int attrib )
 {
     am_.appl_.colTabEd().setHistogram(
-	    	am_.visserv_->getHistogram(visid,attrib) );
+		am_.visserv_->getHistogram(visid,attrib) );
 }
 
 
@@ -146,7 +146,7 @@ void uiODApplMgrAttrVisHandler::setRandomPosData( int visid, int attrib,
 						 const DataPointSet& data )
 {
     DataPack::ID cacheid = am_.visserv_->getDataPackID( visid, attrib );
-    if ( cacheid == -1 )
+    if ( cacheid.isInvalid() )
 	am_.useDefColTab( visid, attrib );
 
     am_.visserv_->setRandomPosData( visid, attrib, &data );
@@ -185,7 +185,7 @@ void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
 	am_.appl_.colTabEd().setColTab( so, attrib, mUdf(int) );
     else
     {
- 	am_.appl_.colTabEd().setColTab(
+	am_.appl_.colTabEd().setColTab(
 	    am_.visserv_->getColTabSequence( visid, attrib ),
 	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
 	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
@@ -215,7 +215,7 @@ void uiODApplMgrAttrVisHandler::colMapperChg()
 	am_.appl_.colTabEd().setColTab( so, attrib, mUdf(int) );
     else
     {
- 	am_.appl_.colTabEd().setColTab(
+	am_.appl_.colTabEd().setColTab(
 	    am_.visserv_->getColTabSequence( visid, attrib ),
 	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
 	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
@@ -269,10 +269,10 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 	SeisIOObjInfo seisobj( ioobj );
 	IOPar iop;
 	if ( seisobj.getDisplayPars( iop ) )
-    	{
-    	    const char* ctname = iop.find( sKey::Name() );
-    	    seq = ColTab::Sequence( ctname );
-    	    mapper.usePar( iop );
+	{
+	    const char* ctname = iop.find( sKey::Name() );
+	    seq = ColTab::Sequence( ctname );
+	    mapper.usePar( iop );
 	}
 
 	DataPackMgr& dpm = DPM(DataPackMgr::SeisID());

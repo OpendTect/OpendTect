@@ -81,7 +81,7 @@ bool ParentTreeItem::init()
 {
     bool ret = uiTreeItem::init();
     if ( !ret ) return false;
-    
+
     addChild( new ArrowParentItem(), true );
     addChild( new ImageParentItem(), true );
     addChild( new ScaleBarParentItem(), true );
@@ -239,7 +239,7 @@ bool AnnotTreeItem::showSubMenu()
     if ( mnusel == 0 )
     {
 	BufferString title = typestr_; title += " Annotations";
-	uiGenInputDlg dlg( getUiParent(), title, "Group name", 
+	uiGenInputDlg dlg( getUiParent(), title, "Group name",
 			   new StringInpSpec );
 	dlg.setCaption( "Annotations" );
 
@@ -285,7 +285,7 @@ bool AnnotTreeItem::readPicks( Pick::Set& ps )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
-    ctio->ctxt.toselect.require_.set( sKey::Type(), managerName(), oldSelKey() );
+    ctio->ctxt.toselect.require_.set( sKey::Type(), managerName(), oldSelKey());
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
 	mDelCtioRet;
@@ -350,7 +350,7 @@ void SubItem::prepareForShutdown()
 bool SubItem::init()
 {
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( ld )
     {
 	ld->setSetMgr( &Pick::SetMgr::getMgr( managerName()) );
@@ -388,17 +388,17 @@ void SubItem::handleMenuCB( CallBacker* cb )
 	return;
 
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( !ld ) return;
 
     if ( mnuid==scalemnuitem_.id )
     {
 	menu->setIsHandled(true);
 	uiDialog dlg( getUiParent(), uiDialog::Setup("Set size","Size",
-		    				     mNoHelpID) );
-	uiSliderExtra* sliderfld = new uiSliderExtra( &dlg, 
+						     mNoHelpID) );
+	uiSliderExtra* sliderfld = new uiSliderExtra( &dlg,
 			uiSliderExtra::Setup("Size").nrdec(1).logscale(true),
-	       		"Size" );
+			"Size" );
 	sliderfld->sldr()->setMinValue( 0.1 );
 	sliderfld->sldr()->setMaxValue( 10 );
 	sliderfld->sldr()->setValue( 1 );
@@ -446,7 +446,7 @@ void SubItem::store() const
 
 bool SubItem::doesNameExist( const char* nm )
 {
-    IOM().to( PickSetTranslatorGroup::ioContext().getSelKey() );
+    IOM().to( PickSetTranslatorGroup::ioContext().getSelDirID() );
     PtrMan<IOObj> local = IOM().getLocal( nm );
     return local;
 }
@@ -515,7 +515,7 @@ void SubItem::storeAs( bool trywitoutdlg ) const
 void SubItem::setScale( float ns )
 {
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( !ld ) return;
 
     const int newscale = mNINT32( ns );
@@ -532,7 +532,7 @@ void SubItem::setScale( float ns )
 void SubItem::setColor( Color nc )
 {
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( !ld ) return;
 
     Pick::Set* set = ld->getSet();
@@ -608,7 +608,7 @@ bool TextSubItem::init()
 	{
 	    if ( orientation[0] == '1' )
 		(*set_)[idx].dir_ = crldir;
-	    else 
+	    else
 		(*set_)[idx].dir_ = inldir;
 	}
 
@@ -626,7 +626,7 @@ void TextSubItem::createMenu( MenuHandler* menu, bool istb )
 	return;
 
     mDynamicCastGet(uiMenuHandler*,uimenu,menu)
-    mAddMenuItem( menu, &changetextmnuitem_, uimenu && uimenu->getPath(), false );
+    mAddMenuItem( menu, &changetextmnuitem_, uimenu && uimenu->getPath(),false);
     mAddMenuItem( menu, &changecolormnuitem_, true, false );
 }
 

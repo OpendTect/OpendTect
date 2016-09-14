@@ -384,7 +384,7 @@ void uiBodyOperatorDlg::setOperator( uiTreeViewItem* lv, EM::BodyOperator& opt )
 uiBodyOperatorDlg::BodyOperand::BodyOperand()
 {
     defined_ = false;
-    mid_ = 0;
+    mid_.setInvalid();
     act_ = sKeyUdf();
 }
 
@@ -395,10 +395,11 @@ bool uiBodyOperatorDlg::BodyOperand::operator==( const BodyOperand& v ) const
 
 bool uiBodyOperatorDlg::BodyOperand::isOK() const
 {
-    if ( !defined_ ) return false;
+    if ( !defined_ )
+	return false;
 
-    return (!mid_.isEmpty() && act_==sKeyUdf()) ||
-           (mid_.isEmpty() && act_!=sKeyUdf());
+    return (mid_.isValid() && act_==sKeyUdf()) ||
+	   (!mid_.isValid() && act_!=sKeyUdf());
 }
 
 
@@ -503,8 +504,8 @@ const IOObj* uiImplicitBodyValueSwitchDlg::getIfMCSurfaceObj() const
 {
     const char* inpstr = inputfld_->getInput();
     const CtxtIOObj workctio = mIOObjContext( EMBody );
-    const IODir iodir( workctio.ctxt_.getSelKey() );
-    const IOObj* inpiobj = iodir.get( inpstr );
+    const IODir iodir( workctio.ctxt_.getSelDirID() );
+    const IOObj* inpiobj = iodir.getByName( inpstr );
     if ( !inpiobj )
 	return 0;
 

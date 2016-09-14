@@ -59,7 +59,7 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiWellLogToolWinMgr::acceptOK()
 {
-    BufferStringSet wellids; welllogselfld_->getSelWellIDs( wellids );
+    DBKeySet wellids; welllogselfld_->getSelWellIDs( wellids );
     BufferStringSet wellnms; welllogselfld_->getSelWellNames( wellnms );
     if ( wellids.isEmpty() )
 	mErrRet( uiStrings::phrSelect(tr("at least one well")) )
@@ -68,7 +68,7 @@ bool uiWellLogToolWinMgr::acceptOK()
     BufferStringSet msgs;
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
-	const DBKey& wmid = wellids[idx]->buf();
+	const DBKey wmid = wellids[idx];
 	RefMan<Well::Data> wd = Well::MGR().get( wmid );
 	if ( !wd )
 	{
@@ -256,7 +256,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     horSepar->attach( stretchedBelow, actiongrp );
 
     okbut_ = uiButton::getStd( this, OD::Ok,
-	    			mCB(this,uiWellLogToolWin,okPushedCB), true );
+				mCB(this,uiWellLogToolWin,okPushedCB), true );
     okbut_->attach( leftBorder, 20 );
     okbut_->attach( ensureBelow, horSepar );
     okbut_->setSensitive( false );

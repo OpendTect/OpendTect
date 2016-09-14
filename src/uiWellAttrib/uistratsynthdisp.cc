@@ -706,13 +706,13 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->key(true),levelname);
     if ( dlg.go() )
     {
-	DBKey mid( dlg.selWvltID() );
-	if ( mid.isEmpty() )
+	const DBKey wvltid( dlg.selWvltID() );
+	if ( wvltid.isInvalid() )
 	    pErrMsg( "Huh" );
 	else
 	{
 	    rv = true;
-	    wvltfld_->setInput( mid );
+	    wvltfld_->setInput( wvltid );
 	}
 	vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
     }

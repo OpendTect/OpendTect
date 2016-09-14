@@ -237,8 +237,8 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
 
 void uiODRandomLineParentTreeItem::genRandLine( int opt )
 {
-    const char* dbkey = applMgr()->EMServer()->genRandLine( opt );
-    if ( dbkey && applMgr()->EMServer()->dispLineOnCreation() )
+    DBKey dbkey = applMgr()->EMServer()->genRandLine( opt );
+    if ( dbkey.isValid() && applMgr()->EMServer()->dispLineOnCreation() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( dbkey );
 	load( *ioobj, (int)uiODRandomLineTreeItem::Empty );
@@ -349,8 +349,8 @@ void uiODRandomLineParentTreeItem::rdlPolyLineDlgCloseCB( CallBacker* )
 
 void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 {
-    const char* dbkey =  applMgr()->wellServer()->getRandLineDBKey();
-    if ( dbkey && applMgr()->wellServer()->dispLineOnCreation() )
+    const DBKey dbkey =  applMgr()->wellServer()->getRandLineDBKey();
+    if ( dbkey.isValid() && applMgr()->wellServer()->dispLineOnCreation() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( dbkey );
 	load( *ioobj, (int)uiODRandomLineTreeItem::Empty );

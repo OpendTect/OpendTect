@@ -37,7 +37,8 @@ bool BatchProgram::doImport( od_ostream& strm, IOPar& iop, bool is2d )
     IOObj* inioobj = fs.getIOObj( true );
     if ( !inioobj )
 	{ strm << "Input file spec is not OK" << od_endl; return false; }
-    PtrMan<IOObj> outioobj = IOM().get( outpar->find(sKey::ID()) );
+    const DBKey dbky = DBKey::getFromString( outpar->find(sKey::ID()) );
+    PtrMan<IOObj> outioobj = IOM().get( dbky );
     if ( !outioobj )
 	{ strm << "Output object spec is not OK" << od_endl; return false; }
 
@@ -62,7 +63,9 @@ bool BatchProgram::doExport( od_ostream& strm, IOPar& iop, bool is2d )
     if ( !outpar || outpar->isEmpty() )
 	{ strm << "Batch parameters 'Ouput' empty" << od_endl; return false; }
 
-    PtrMan<IOObj> inioobj = IOM().get( inppar->find(sKey::ID()) );
+    DBKey indbky;
+    inppar->get( sKey::ID(), indbky );
+    PtrMan<IOObj> inioobj = IOM().get( indbky );
     if ( !inioobj )
 	{ strm << "Input seismics is not OK" << od_endl; return false; }
 
@@ -87,12 +90,12 @@ bool BatchProgram::doExport( od_ostream& strm, IOPar& iop, bool is2d )
 
 static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
 {
-    DBKey mid;
-    iop.get( sKey::Output(), mid );
-    if ( mid.isEmpty() )
+    DBKey dbky;
+    iop.get( sKey::Output(), dbky );
+    if ( dbky.isInvalid() )
     {
-	iop.get( IOPar::compKey(sKey::Output(),sKey::ID()), mid );
-	if ( mid.isEmpty() )
+	iop.get( IOPar::compKey(sKey::Output(),sKey::ID()), dbky );
+	if ( dbky.isInvalid() )
 	{
 	    strm << "Parameter file lacks key 'Output[.ID]'" << od_endl;
 	    return false;
@@ -107,11 +110,11 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
     }
     SEGY::FileSpec::makePathsRelative( iop );
 
-    SEGY::FileIndexer indexer( mid, !isps, filespec, is2d, iop );
+    SEGY::FileIndexer indexer( dbky, !isps, filespec, is2d, iop );
     if ( !indexer.go(strm) )
     {
 	strm << indexer.uiMessage().getFullString();
-	IOM().permRemove( mid );
+	IOM().permRemove( dbky );
 	return false;
     }
 

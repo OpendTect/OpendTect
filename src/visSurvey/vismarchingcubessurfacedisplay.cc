@@ -559,7 +559,7 @@ bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* runner )
 
 DBKey MarchingCubesDisplay::getDBKey() const
 {
-    return emsurface_ ? emsurface_->dbKey() : DBKey();
+    return emsurface_ ? emsurface_->dbKey() : DBKey::getInvalid();
 }
 
 

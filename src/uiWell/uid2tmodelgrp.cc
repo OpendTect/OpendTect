@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uimsg.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "helpview.h"
 #include "od_istream.h"
 #include "survinfo.h"

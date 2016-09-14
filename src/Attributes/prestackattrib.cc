@@ -114,8 +114,10 @@ void PSAttrib::initClass()
 
 void PSAttrib::updateDesc( Desc& desc )
 {
-    const DBKey procid = desc.getValParam(preProcessStr())->getStringValue();
-    const bool dopreproc = !procid.isEmpty() && !procid.isUdf();
+    const BufferString procidstr
+		    = desc.getValParam(preProcessStr())->getStringValue();
+    const DBKey procid = DBKey::getFromString( procidstr );
+    const bool dopreproc = !procid.isInvalid();
     desc.setParamEnabled( preProcessStr(), dopreproc );
 
     const int calctype = desc.getValParam( calctypeStr() )->getIntValue();
@@ -162,32 +164,27 @@ PSAttrib::PSAttrib( Desc& ds )
     , preprocessor_(0)
     , propcalc_(0)
     , anglecomp_(0)
-    , anglegsdpid_(-1)
 {
     if ( !isOK() ) return;
 
     const char* res;
     mGetString(res,"id")
-    psid_ = res;
+    psid_.fromString( res );
 
     BufferString preprocessstr;
     mGetString( preprocessstr, preProcessStr() );
-    preprocid_ = preprocessstr;
+    preprocid_.fromString( preprocessstr );
     PtrMan<IOObj> preprociopar = IOM().get( preprocid_ );
-    if ( preprociopar )
+    if ( !preprociopar )
+	preprocid_.setInvalid();
+    else
     {
 	preprocessor_ = new PreStack::ProcessManager;
 	uiString errmsg;
 	if ( !PreStackProcTranslator::retrieve( *preprocessor_,preprociopar,
 					       errmsg ) )
-	{
-	    errmsg_ = errmsg;
-	    delete preprocessor_;
-	    preprocessor_ = 0;
-	}
+	    { errmsg_ = errmsg; delete preprocessor_; preprocessor_ = 0; }
     }
-    else
-	preprocid_.setEmpty();
 
     mGetInt( component_, componentStr() );
     mGetInt( setup_.aperture_, apertureStr() );
@@ -213,11 +210,15 @@ PSAttrib::PSAttrib( Desc& ds )
     bool useangle = setup_.useangle_;
     mGetBool( useangle, useangleStr() );
     setup_.useangle_ = useangle;
-    mGetInt(anglegsdpid_,angleDPIDStr());
-    if ( setup_.useangle_ && anglegsdpid_<0 )
+    DataPack::ID::IDType anglegsdpid = anglegsdpid_.getI();
+    mGetInt(anglegsdpid,angleDPIDStr());
+    anglegsdpid_.setI( anglegsdpid );
+    if ( setup_.useangle_ && anglegsdpid_.isInvalid() )
     {
-	mGetString( velocityid_, velocityIDStr() );
-	if ( !velocityid_.isEmpty() && !velocityid_.isUdf() )
+	BufferString velocityidstr;
+	mGetString( velocityidstr, velocityIDStr() );
+	velocityid_.fromString( velocityidstr );
+	if ( velocityid_.isValid() )
 	{
 	    PreStack::VelocityBasedAngleComputer* velangcomp =
 		new PreStack::VelocityBasedAngleComputer;
@@ -225,8 +226,6 @@ PSAttrib::PSAttrib( Desc& ds )
 	    anglecomp_ = velangcomp;
 	    anglecomp_->ref();
 	}
-	else
-	    velocityid_.setEmpty();
 
 	if ( anglecomp_ )
 	{
@@ -256,7 +255,7 @@ PSAttrib::PSAttrib( Desc& ds )
 	mGetEnum( xaxisunit, xaxisunitStr() );
 	setup_.xscaler_ = getXscaler( gathertype == PSAttrib::Off,
 				      xaxisunit == PSAttrib::Deg );
-	if ( gathertype == (int)(PSAttrib::Ang) && anglegsdpid_>=0 )
+	if ( gathertype == (int)(PSAttrib::Ang) && anglegsdpid_.isValid() )
 	{
 	    if ( xaxisunit == (int)(PSAttrib::Rad) )
 	    {
@@ -387,7 +386,7 @@ bool PSAttrib::getGatherData( const BinID& bid,
     if ( gatherset_.size() )
     {
 	const PreStack::GatherSetDataPack* anglegsdp = 0;
-	if ( anglegsdpid_>= 0 )
+	if ( anglegsdpid_.isValid() )
 	{
 	    ConstRefMan<DataPack> angledp =
 		DPM( DataPackMgr::SeisID() ).get( anglegsdpid_ );
@@ -544,10 +543,11 @@ void PSAttrib::prepPriorToBoundsCalc()
     delete psioobj_;
 
     bool isondisc = true;
-    const char* fullidstr = psid_.buf();
-    if ( fullidstr && *fullidstr == '#' )
+    const BufferString fullidstr = psid_.toString();
+    if ( fullidstr.firstChar() == '#' )
     {
-	const DataPack::FullID fid( fullidstr+1 );
+	const DataPack::FullID fid = DataPack::FullID::getFromString(
+							    fullidstr.str()+1 );
         RefMan<PreStack::GatherSetDataPack> psgdtp =
             DPM( fid ).getAndCast<PreStack::GatherSetDataPack>( fid.packID() );
 

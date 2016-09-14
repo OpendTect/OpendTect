@@ -41,7 +41,7 @@ EM::Hor2DSeisLineIterator::Hor2DSeisLineIterator( const DBKey& mid )
 
 void EM::Hor2DSeisLineIterator::init( const Horizon2D* h2d )
 {
-    dataset_ = 0; curlsid_ = "0"; lineidx_ = -1;
+    dataset_ = 0; curlsid_.setInvalid(); lineidx_ = -1;
 
     h2d_ = h2d;
     if ( h2d_ )

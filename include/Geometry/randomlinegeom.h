@@ -69,7 +69,7 @@ public:
     Interval<float>	zRange() const		{ return zrange_; }
 
     void		setDBKey(const DBKey&);
-    DBKey		getDBKey() const			{ return mid_; }
+    DBKey		getDBKey() const		{ return dbky_; }
 
     void		setLocked( bool yn )		{ locked_ = yn; }
     bool		isLocked() const		{ return locked_; }
@@ -104,7 +104,7 @@ protected:
 
     TypeSet<BinID>	nodes_;
     Interval<float>	zrange_;
-    DBKey		mid_;
+    DBKey		dbky_;
     RandomLineSet*	lset_;
     bool		locked_;
 

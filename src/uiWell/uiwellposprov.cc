@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uistepoutsel.h"
 #include "uiwellsel.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "trckeyzsampling.h"
 #include "ioobj.h"
 #include "iopar.h"

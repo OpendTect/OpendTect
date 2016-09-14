@@ -374,7 +374,7 @@ void uiODApplMgr::surveyChanged( CallBacker* )
     bool douse = false;
     DBKey id;
     ODSession::getStartupData( douse, id );
-    if ( !douse || id.isUdf() )
+    if ( !douse || id.isInvalid() )
 	sceneMgr().addScene( true );
 
     attrserv_ = new uiAttribPartServer( applservice_ );
@@ -531,7 +531,8 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
     RefMan<ZAxisTransform> transform = emserv_->getHorizonZAxisTransform(is2d);
     if ( !transform ) return;
 
-    const DBKey hormid( transform->fromZDomainInfo().getID() );
+    const DBKey hormid = DBKey::getFromString(
+			    transform->fromZDomainInfo().getID() );
     PtrMan<IOObj> ioobj = IOM().get( hormid );
     const BufferString hornm = ioobj
 		? ioobj->name().buf()
@@ -680,7 +681,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    const DataPack::ID newid = attrserv_->createRdmTrcsOutput(
 		    zrg, rdmtdisp->getRandomLineID() );
 	    res = true;
-	    if ( newid == -1 )
+	    if ( newid.isInvalid() )
 		res = false;
 	    visserv_->setDataPackID( visid, attrib, newid );
 	    break;
@@ -717,7 +718,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 bool uiODApplMgr::getDefaultDescID( Attrib::DescID& descid, bool is2d ) const
 {
     const DBKey mid = seisServer()->getDefaultDataID( is2d );
-    if ( mid.isUdf() )
+    if ( mid.isInvalid() )
 	return false;
 
     descid = attrServer()->getStoredID( mid, is2d );
@@ -858,7 +859,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,visserv_->getObject(visid))
     if ( fd )
     {
-	const int id = fd->addDataPack( *data );
+	const DataPack::ID id = fd->addDataPack( *data );
 	fd->setDataPackID( attrib, id, 0 );
 	fd->setRandomPosData( attrib, data.ptr(), 0 );
 	if ( visServer()->getSelAttribNr() == attrib )
@@ -923,8 +924,9 @@ bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
     if ( !s2d ) return false;
 
     const DataPack::ID dpid = attrserv_->createOutput(
-					s2d->getTrcKeyZSampling(false), 0 );
-    if ( dpid == DataPack::cNoID() )
+					s2d->getTrcKeyZSampling(false),
+					DataPack::ID::get(0) );
+    if ( dpid.isInvalid() )
 	return false;
 
     s2d->setDataPackID( attrib, dpid, 0 );
@@ -1092,9 +1094,9 @@ bool uiODApplMgr::handleWellServEv( int evid )
 	const int sceneid = sceneMgr().askSelectScene();
 	if ( sceneid<0 ) return false;
 
-	const BufferStringSet& wellids = wellserv_->createdWellIDs();
+	const DBKeySet& wellids = wellserv_->createdWellIDs();
 	for ( int idx=0; idx<wellids.size(); idx++ )
-	    sceneMgr().addWellItem( DBKey(wellids.get(idx)), sceneid );
+	    sceneMgr().addWellItem( wellids.get(idx), sceneid );
     }
 
     return true;
@@ -1364,15 +1366,15 @@ bool uiODApplMgr::handlePickServEv( int evid )
     else if ( evid == uiPickPartServer::evGetHorDef3D() )
     {
 	TypeSet<EM::ObjectID> horids;
-	const ObjectSet<DBKey>& storids = pickserv_->selHorIDs();
+	const DBKeySet& storids = pickserv_->selHorIDs();
 	for ( int idx=0; idx<storids.size(); idx++ )
 	{
-	    const DBKey horid = *storids[idx];
+	    const DBKey horid = storids[idx];
 	    const EM::ObjectID id = emserv_->getObjectID(horid);
 	    if ( id<0 || !emserv_->isFullyLoaded(id) )
 		emserv_->loadSurface( horid );
 
-	    horids += emserv_->getObjectID(horid);
+	    horids += emserv_->getObjectID( horid );
 	}
 
 	emserv_->getSurfaceDef3D( horids, pickserv_->genDef(),
@@ -1861,7 +1863,7 @@ void uiODApplMgr::storeEMObject( bool saveasreq )
     const EM::ObjectID emid = surface->getObjectID();
     DBKey mid = emserv_->getStorageID( emid );
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    const bool saveas = mid.isEmpty() || !ioobj || saveasreq;
+    const bool saveas = mid.isInvalid() || !ioobj || saveasreq;
     emserv_->storeObject( emid, saveas );
     BufferString auxdatanm;
     emserv_->storeAuxData( emid, auxdatanm );

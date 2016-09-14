@@ -32,7 +32,7 @@ class EMManager;
 mExpClass(EarthModel) HorizonGeometry : public RowColSurfaceGeometry
 {
 protected:
-    				HorizonGeometry( Surface& surf )
+				HorizonGeometry( Surface& surf )
 				    : RowColSurfaceGeometry(surf)	{}
 public:
     virtual PosID		getPosID(const TrcKey&) const		= 0;
@@ -53,7 +53,7 @@ public:
     virtual HorizonGeometry&		geometry()			= 0;
     virtual const HorizonGeometry&	geometry() const
 					{ return const_cast<Horizon*>(this)
-					    			->geometry(); }
+								->geometry(); }
 
     virtual float	getZ(const TrcKey&) const			= 0;
     virtual bool	setZ(const TrcKey&,float z,bool addtohist)	= 0;
@@ -85,9 +85,8 @@ public:
     virtual TrcKey::SurvID getSurveyID() const				= 0;
 
 protected:
-    			Horizon( EMManager& emm )
-			    : Surface(emm)
-			    , stratlevelid_(LevelID::getInvalid())	{}
+			Horizon( EMManager& emm )
+			    : Surface(emm)				{}
 
     virtual const IOObjContext&	getIOObjContext() const			= 0;
 

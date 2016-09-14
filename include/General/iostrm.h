@@ -25,8 +25,8 @@ class StreamProvider;
 mExpClass(General) IOStream : public IOObj
 {
 public:
-			IOStream(const char* nm=0,const char* id=0,
-				 bool =false);
+			IOStream(const char* nm=0,DBKey id=DBKey::getInvalid(),
+				 bool gendefimpl=false);
 			IOStream(const IOStream&);
     virtual bool	isBad() const;
 

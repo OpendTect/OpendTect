@@ -24,7 +24,6 @@ Well::Marker::Marker( const char* nm, float dh, Color col )
     : SharedObject(nm)
     , dah_(dh)
     , color_(col)
-    , levelid_(LevelID::getInvalid())
 {
     mTriggerInstanceCreatedNotifier();
 }
@@ -42,7 +41,6 @@ Well::Marker::Marker( LevelID lvlid, ZType dh )
 
 Well::Marker::Marker( const Marker& oth )
     : SharedObject(oth)
-    , levelid_(LevelID::getInvalid())
 {
     copyAll( oth );
     mTriggerInstanceCreatedNotifier();

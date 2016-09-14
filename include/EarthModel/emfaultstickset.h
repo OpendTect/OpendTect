@@ -29,10 +29,10 @@ class EMManager;
 mExpClass(EarthModel) FaultStickSetGeometry : public FaultGeometry
 {
 public:
-    			FaultStickSetGeometry(Surface&);
+			FaultStickSetGeometry(Surface&);
 			~FaultStickSetGeometry();
 
-    int 		nrSticks(const SectionID&) const;
+    int		nrSticks(const SectionID&) const;
     int			nrKnots(const SectionID&,int sticknr) const;
 
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
@@ -40,7 +40,7 @@ public:
 				    bool addtohistory);
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
-				    const DBKey* pickedmid,
+				    const DBKey* pickeddbkey,
 				    const char* pickednm,bool addtohistory);
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
@@ -83,7 +83,7 @@ protected:
 	int			sid;
 	int			sticknr;
 	Pos::GeomID		pickedgeomid;
-	DBKey			pickedmid;
+	DBKey			pickeddbkey;
 	BufferString		pickednm;
     };
 

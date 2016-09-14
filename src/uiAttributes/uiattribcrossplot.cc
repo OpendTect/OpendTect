@@ -156,7 +156,7 @@ DBKey uiAttribCrossPlot::getSelectedID() const
 {
     const int curitem = attrsfld_->currentItem();
     if ( !attrinfo_ || curitem<0 )
-	return DBKey();
+	return DBKey::getInvalid();
 
     const int attrsz = attrinfo_->attrnms_.size();
     const bool isstored = curitem >= attrsz;
@@ -164,9 +164,9 @@ DBKey uiAttribCrossPlot::getSelectedID() const
     {
 	const int ioobjidx = curitem - attrsz;
 	if ( attrinfo_->ioobjids_.validIdx(ioobjidx) )
-	    return DBKey( attrinfo_->ioobjids_[ioobjidx]->buf() );
+	    return attrinfo_->ioobjids_[ioobjidx];
 
-	return DBKey();
+	return DBKey::getInvalid();
     }
     else
     {
@@ -175,34 +175,32 @@ DBKey uiAttribCrossPlot::getSelectedID() const
 							  : Attrib::DescID();
 	const Attrib::Desc* desc = ads_.getDesc( descid );
 	if ( !desc )
-	    return DBKey();
+	    return DBKey::getInvalid();
 
 	if ( desc->isPS() )
 	{
-	    DBKey psid;
-	    mGetStringFromDesc( (*desc), psid, "id" );
-	    return psid;
+	    BufferString psidstr;
+	    mGetStringFromDesc( (*desc), psidstr, "id" );
+	    return DBKey::getFromString( psidstr );
 	}
 
-	DBKey mid( desc->getStoredID(true) );
-	return mid;
+	return desc->getStoredID(true);
     }
 }
 
 
 void uiAttribCrossPlot::getLineNames( BufferStringSet& linenames )
 {
-    const DBKey mid = getSelectedID();
-    const SeisIOObjInfo seisinfo( mid );
+    const SeisIOObjInfo seisinfo( getSelectedID() );
     seisinfo.getLineNames( linenames );
 }
 
 
 void uiAttribCrossPlot::lineChecked( CallBacker* )
 {
-    DBKey selid = getSelectedID();
     const int selitem = selidxs_.indexOf( attrsfld_->currentItem() );
-    if ( selitem < 0 ) return;
+    if ( selitem < 0 )
+	return;
 
     linenmsset_[selitem].erase();
     for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
@@ -215,7 +213,7 @@ void uiAttribCrossPlot::lineChecked( CallBacker* )
 
 void uiAttribCrossPlot::attrChecked( CallBacker* )
 {
-    DBKey selid = getSelectedID();
+    const DBKey selid = getSelectedID();
     const bool ischked = attrsfld_->isChosen( attrsfld_->currentItem() );
     if ( ischked && selidxs_.addIfNew(attrsfld_->currentItem()) )
     {

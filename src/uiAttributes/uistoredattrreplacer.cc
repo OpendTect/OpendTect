@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribparam.h"
 #include "attribstorprovider.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "bufstringset.h"
@@ -138,7 +138,7 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 	if ( compstoragemid.size() > 1 ) // OD4 format 2D storage
 	{
 	    const IOObjContext ioctxt = mIOObjContext(SeisTrc2D);
-	    IOM().to( ioctxt.getSelKey() );
+	    IOM().to( ioctxt.getSelDirID() );
 	    PtrMan<IOObj> obj = IOM().getLocal( compstoragemid[1],
 						mTranslGroupName(SeisTrc) );
 	    if ( !obj ) continue;
@@ -213,10 +213,10 @@ static void setDefinitionKey( IOPar& par, const char* key )
 }
 
 
-void uiStoredAttribReplacer::setStoredKey( IOPar* par, const char* key )
+void uiStoredAttribReplacer::setStoredKey( IOPar* par, const DBKey& ky )
 {
-    if ( !par || !key ) return;
-    setDefinitionKey( *par, key );
+    if ( !par ) return;
+    setDefinitionKey( *par, ky.toString() );
 }
 
 
@@ -238,9 +238,9 @@ int uiStoredAttribReplacer::getOutPut( int descid )
 }
 
 void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
-					  const char* key, const char* userref )
+				      const DBKey& dbky, const char* userref )
 {
-    if ( !key || !userref )
+    if ( dbky.isInvalid() || !userref )
     {
 	uiMSG().error( tr("No valid steering input selected") );
 	return;
@@ -250,7 +250,7 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
     if ( output==0 )
     {
 	IOPar* inlpar = iopar_->subselect( storeentry.firstid_.asInt() );
-	setStoredKey( inlpar, key );
+	setStoredKey( inlpar, dbky );
 	BufferString steerref = userref;
 	steerref += "_inline_dip";
 	inlpar->set( "UserRef", steerref );
@@ -258,7 +258,7 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
 	iopar_->mergeComp( *inlpar, inlidstr );
 
 	IOPar* crlpar = iopar_->subselect( storeentry.secondid_.asInt());
-	setStoredKey( crlpar, key );
+	setStoredKey( crlpar, dbky );
 	steerref = userref;
 	steerref += "_crline_dip";
 	crlpar->set( "UserRef", steerref );
@@ -268,7 +268,7 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
     else
     {
 	IOPar* inlpar = iopar_->subselect( storeentry.secondid_.asInt());
-	setStoredKey( inlpar, key );
+	setStoredKey( inlpar, dbky );
 	BufferString steerref = userref;
 	steerref += "_inline_dip";
 	inlpar->set( "UserRef", steerref );
@@ -276,7 +276,7 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
 	iopar_->mergeComp( *inlpar, inlidstr );
 
 	IOPar* crlpar = iopar_->subselect( storeentry.firstid_.asInt() );
-	setStoredKey( crlpar, key );
+	setStoredKey( crlpar, dbky );
 	steerref = userref;
 	steerref += "_crline_dip";
 	crlpar->set( "UserRef", steerref );
@@ -296,7 +296,7 @@ void uiStoredAttribReplacer::go()
 class uiDataPackReplacerDlg : public uiDialog
 { mODTextTranslationClass(uiDataPackReplacerDlg)
 public:
-uiDataPackReplacerDlg( uiParent* p, 
+uiDataPackReplacerDlg( uiParent* p,
 		  TypeSet<uiStoredAttribReplacer::StoredEntry>& storedids,
 		  const TypeSet<DataPack::FullID>& dpfids )
     : uiDialog(p,uiDialog::Setup(tr("Select data for input"),tr(""),mNoHelpKey))
@@ -340,19 +340,19 @@ bool acceptOK()
 
 	uiComboBox* inpfld = inpflds_[inpfldidx]->box();
 	const int seldpidx = inpfld->currentItem();
-	BufferString dpidstr( "#" );
-	dpidstr += dpfids_[seldpidx];
+	DBKey dpdbky;
+	dpfids_[seldpidx].putInDBKey( dpdbky );
 	FixedString dpnm( DataPackMgr::nameOf(dpfids_[seldpidx]) );
 	if ( attrset_ )
 	{
 	    Desc* ad = attrset_->getDesc( storedid.firstid_ );
-	    ad->changeStoredID( dpidstr );
+	    ad->changeStoredID( dpdbky );
 	    ad->setUserRef( dpnm );
 	}
 	else
 	{
 	    IOPar* descpar = attrdspar_->subselect( storedid.firstid_.asInt() );
-	    setDefinitionKey( *descpar, dpidstr );
+	    setDefinitionKey( *descpar, dpdbky.toString() );
 	    descpar->set( "UserRef", dpnm );
 	    BufferString idstr;
 	    idstr+= storedid.firstid_.asInt();

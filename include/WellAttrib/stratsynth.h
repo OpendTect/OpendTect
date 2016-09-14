@@ -39,7 +39,7 @@ namespace Seis { class RaySynthGenerator; }
 typedef Seis::RaySynthGenerator::RayModel SynthRayModel;
 typedef ObjectSet<SynthRayModel> RayModelSet;
 
-mExpClass(WellAttrib) SynthRayModelManager 
+mExpClass(WellAttrib) SynthRayModelManager
 { mODTextTranslationClass(SynthRayModelManager);
 public:
     ObjectSet<SynthRayModel>*	getRayModelSet(const IOPar&);
@@ -48,7 +48,7 @@ public:
     void			removeRayModelSet(const IOPar&);
     void			clearRayModels();
     bool			haveSameRM(const IOPar& par1,
-	    				   const IOPar& par2) const;
+					   const IOPar& par2) const;
 protected:
     ObjectSet<RayModelSet>	raymodels_;
     TypeSet<IOPar>		synthraypars_;
@@ -59,57 +59,57 @@ protected:
 mExpClass(WellAttrib) StratSynth
 { mODTextTranslationClass(StratSynth);
 public:
-    				StratSynth(const Strat::LayerModelProvider&,
+				StratSynth(const Strat::LayerModelProvider&,
 					   bool useed);
-    				~StratSynth();
+				~StratSynth();
 
-    int			nrSynthetics() const; 
-    SyntheticData*	addSynthetic(); 
-    SyntheticData*	addSynthetic(const SynthGenParams&); 
+    int			nrSynthetics() const;
+    SyntheticData*	addSynthetic();
+    SyntheticData*	addSynthetic(const SynthGenParams&);
     bool		removeSynthetic(const char*);
     bool		disableSynthetic(const char*);
     SyntheticData*	replaceSynthetic(int id);
-    SyntheticData*	addDefaultSynthetic(); 
+    SyntheticData*	addDefaultSynthetic();
     int			syntheticIdx(const char* nm) const;
     int			syntheticIdx(const PropertyRef&) const;
-    SyntheticData* 	getSynthetic(const char* nm);
+    SyntheticData*	getSynthetic(const char* nm);
     inline const SyntheticData* getSynthetic( const char* nm ) const
 			{ const int idx = syntheticIdx( nm );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
-			      				   : 0; }
+							   : 0; }
     void		getSyntheticNames(BufferStringSet&,
 					  SynthGenParams::SynthType) const;
     void		getSyntheticNames(BufferStringSet&,bool wantpres) const;
-    SyntheticData* 	getSynthetic(int id);
-    SyntheticData* 	getSynthetic(const PropertyRef&);
+    SyntheticData*	getSynthetic(int id);
+    SyntheticData*	getSynthetic(const PropertyRef&);
     inline const SyntheticData* getSynthetic( const PropertyRef& prf ) const
 			{ const int idx = syntheticIdx( prf );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
-			      				   : 0; }
-    SyntheticData* 	getSyntheticByIdx(int idx);
+							   : 0; }
+    SyntheticData*	getSyntheticByIdx(int idx);
     const SyntheticData* getSyntheticByIdx(int idx) const;
     void		clearSynthetics();
     void		generateOtherQuantities();
     bool		createElasticModels();
     void		clearElasticModels()
-    					{ aimodels_.erase(); }
+					{ aimodels_.erase(); }
     bool		hasElasticModels() const
-    					{ return !aimodels_.isEmpty(); }
+					{ return !aimodels_.isEmpty(); }
 
     const ObjectSet<SyntheticData>& synthetics() const
-    					{ return synthetics_; }
+					{ return synthetics_; }
 
     void		setWavelet(const Wavelet*);
     const Wavelet*	wavelet() const { return wvlt_; }
-    SynthGenParams&	genParams()  	{ return genparams_; }
+    SynthGenParams&	genParams()	{ return genparams_; }
     const SynthGenParams& genParams() const
-    			{ return genparams_; }
+			{ return genparams_; }
 
     void		setLevel(const StratSynthLevel*);
     const StratSynthLevel* getLevel() const { return level_; }
 
     void		getLevelDepths(const Strat::Level&,
-	    				TypeSet<float>&) const;
+					TypeSet<float>&) const;
     void		getLevelTimes(const Strat::Level&,
 				const ObjectSet<const TimeDepthModel>&,
 				TypeSet<float>&) const;
@@ -124,23 +124,23 @@ public:
 				   float zskip) const;
     void		decimateTraces(SeisTrcBuf&,int fac) const;
     void		clearRayModels()
-    			{ synthrmmgr_.clearRayModels(); }
+			{ synthrmmgr_.clearRayModels(); }
 
     void		setTaskRunner(TaskRunner* taskr) { taskr_ = taskr; }
     uiString		errMsg() const;
-    uiString	 	infoMsg() const;
+    uiString		infoMsg() const;
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
-    
+
     static const char*	sKeyFRNameSuffix()	{ return " after FR"; }
 
 protected:
 
     const Strat::LayerModelProvider& lmp_;
     const bool			useed_;
-    const StratSynthLevel* 	level_;
+    const StratSynthLevel*	level_;
     SynthGenParams		genparams_;
     PropertyRefSelection	props_;
-    ObjectSet<SyntheticData> 	synthetics_;
+    ObjectSet<SyntheticData>	synthetics_;
     TypeSet<ElasticModel>	aimodels_;
     int				lastsyntheticid_;
     bool			swaveinfomsgshown_;
@@ -157,29 +157,32 @@ protected:
 					 ElasticModel&,int seqidx);
     bool		adjustElasticModel(const Strat::LayerModel&,
 					   TypeSet<ElasticModel>&,bool chksvel);
-    void		generateOtherQuantities( 
-	    			const PostStackSyntheticData& sd,
-	    			const Strat::LayerModel&);
-    SyntheticData* 	generateSD();
-    SyntheticData* 	generateSD( const SynthGenParams&);
+    void		generateOtherQuantities(
+				const PostStackSyntheticData& sd,
+				const Strat::LayerModel&);
+    SyntheticData*	generateSD();
+    SyntheticData*	generateSD( const SynthGenParams&);
     bool		runSynthGen(Seis::RaySynthGenerator&,
 				    const SynthGenParams&);
+    void		createAngleData(PreStackSyntheticData&,
+					const ObjectSet<RayTracer1D>&);
     SyntheticData*	createAngleStack(const SyntheticData& sd,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
     SyntheticData*	createAVOGradient(const SyntheticData& sd,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
-    void		createAngleData(PreStackSyntheticData&,
-	    				const ObjectSet<RayTracer1D>&);
+    SyntheticData*	createSynthData(const SyntheticData& sd,
+					 const TrcKeyZSampling&,
+					 const SynthGenParams&,bool);
 
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
     void		putD2TModelsInSD(SyntheticData&,
-	    				 ObjectSet<SynthRayModel>&);
+					 ObjectSet<SynthRayModel>&);
 
     const PreStack::GatherSetDataPack*	getRelevantAngleData(
-	    					const IOPar& raypar) const;
-    
+						const IOPar& raypar) const;
+
 public:
     static uiString	sErrRetMsg() { return uiStrings::phrCannotCreate(tr
 				       ("synthetics %1 : %2\n")); }

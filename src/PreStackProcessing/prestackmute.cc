@@ -90,7 +90,7 @@ bool Mute::setMuteDefID( const DBKey& mid )
     if ( id_==mid )
 	return true;
 
-    if ( mid.isEmpty() )
+    if ( mid.isInvalid() )
 	mErrRet( tr("No MuteDef ID provided.") )
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )

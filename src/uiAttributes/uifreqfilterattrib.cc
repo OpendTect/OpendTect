@@ -104,7 +104,7 @@ void uiFreqFilterAttrib::selectionDoneCB( CallBacker* cb )
 {
     mDynamicCastGet(uiFreqTaperSel*,freqtapersel,winflds_[1]);
     if ( !freqtapersel ) return;
-    
+
     const Attrib::DescSet& attrset = inpfld_->getAttrSet();
     const Attrib::Desc* inpdesc = attrset.getDesc( inpfld_->attribID() );
     const DBKey dbkey = inpdesc ? DBKey(inpdesc->getStoredID(true))
@@ -287,11 +287,11 @@ bool uiFreqFilterAttrib::areUIParsOK()
     {
 	Interval<float> freqresvar = taper->freqValues();
 	if ( freqresvar.start < 0 )
-	{ 
+	{
             errmsg_= tr("min frequency cannot be negative");
             mErrWinFreqMsg()
         }
-	
+
 	if ( freqresvar.start > freqfld_->freqRange().start )
 	{
             errmsg_ = tr("Taper min frequency must be lower than this of the"

@@ -7,7 +7,7 @@
 
 #include "uivolprocbatchsetup.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "seisselection.h"

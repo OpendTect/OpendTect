@@ -22,7 +22,7 @@ _______________________________________________________________________
 #include "uimsg.h"
 #include "uitaskrunner.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emmanager.h"
 #include "emhorizon2d.h"
 #include "ioman.h"

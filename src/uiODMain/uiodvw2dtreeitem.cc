@@ -25,7 +25,7 @@ ________________________________________________________________________
 #define mAddIdx		0
 #define mAddInAllIdx	1
 
-const char* uiODVw2DTreeTop::viewer2dptr() 		{ return "Viewer2D"; }
+const char* uiODVw2DTreeTop::viewer2dptr()		{ return "Viewer2D"; }
 const char* uiODVw2DTreeTop::applmgrstr()		{ return "Applmgr"; }
 
 
@@ -438,7 +438,7 @@ uiODViewer2D* uiODVw2DParentTreeItem::viewer2D()
 void uiODVw2DParentTreeItem::getVwr2DOjIDs(
 	const DBKey& mid, TypeSet<int>& vw2dobjids ) const
 {
-    if ( mid.isUdf() )
+    if ( mid.isInvalid() )
 	return;
 
     for ( int idx=0; idx<nrChildren(); idx++ )

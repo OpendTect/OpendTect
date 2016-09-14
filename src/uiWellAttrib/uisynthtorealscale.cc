@@ -151,7 +151,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 	{ new uiLabel( this, msg ); return; }
     mNoDealRet( Strat::LVLS().isEmpty(), tr("No Stratigraphic Levels defined") )
     mNoDealRet( tb.isEmpty(), tr("Generate models first") )
-    mNoDealRet( inpwvltid_.isEmpty(), uiStrings::phrCreate(
+    mNoDealRet( inpwvltid_.isInvalid(), uiStrings::phrCreate(
 							tr("a Wavelet first")) )
     mNoDealRet( !lvlnm || !*lvlnm || (*lvlnm == '-' && *(lvlnm+1) == '-'),
 				   uiStrings::phrSelect(tr("Stratigraphic Level"

@@ -28,14 +28,14 @@ class uiHorizonAuxDataDlg: public uiDialog
 public:
 uiHorizonAuxDataDlg( uiParent* p,
 		     const uiHorizonAuxDataSel::HorizonAuxDataInfo& info )
-    : uiDialog( p 
+    : uiDialog( p
     , uiDialog::Setup(toUiString("%1 %2 %3").arg(uiStrings::sHorizon())
 					    .arg(uiStrings::sData())
 					    .arg(uiStrings::sSelection())
 					    , mNoDlgTitle
 					    , mNoHelpKey ))
     , auxidx_( 0 )
-    , selmid_( 0 )
+    , selmid_( DBKey::getInvalid() )
     , auxinfo_( new uiHorizonAuxDataSel::HorizonAuxDataInfo(info) )
 {
     uiGroup* grp = new uiGroup( this, "Group" );
@@ -78,7 +78,7 @@ void setSelection( const DBKey& mid, int auxidx )
     if ( auxidx_>=0 )
 	datalistfld_->setCurrentItem( auxidx_ );
 
-    const bool hchanged = !selmid_.isEmpty() && selmid_==mid;
+    const bool hchanged = selmid_.isValid() && selmid_ != mid;
     selmid_ = mid;
     for ( int idx=0; idx<auxinfo_->mids_.size(); idx++ )
     {
@@ -125,7 +125,7 @@ uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo( bool load )
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     PtrMan<CtxtIOObj> allhorio =  mMkCtxtIOObj(EMHorizon3D);
-    const IODir iodir( allhorio->ctxt_.getSelKey() );
+    const IODir iodir( allhorio->ctxt_.getSelDirID() );
     const IODirEntryList horlist( iodir, allhorio->ctxt_ );
 
     for ( int idx=0; idx<horlist.size(); idx++ )
@@ -174,7 +174,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const DBKey& mid,
 
     StringListInpSpec str;
     PtrMan<IOObj> obj = IOM().get(mid);
-    const bool hasobj = !mid.isEmpty() && obj;
+    const bool hasobj = mid.isValid() && obj;
     if ( hasobj )
     {
 	EM::IOObjInfo eminfo( mid );

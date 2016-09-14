@@ -340,7 +340,7 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 
 bool uiSimpleMultiWellCreate::acceptOK()
 {
-    crwellids_.erase();
+    crwellids_.setEmpty();
     vel_ = velfld_ ? velfld_->getFValue() : getGUIDefaultVelocity();
     if ( zinft_ && SI().zIsTime() && zun_ )
 	vel_ = zun_->internalValue( vel_ );
@@ -349,7 +349,7 @@ bool uiSimpleMultiWellCreate::acceptOK()
 	{ uiMSG().error(uiStrings::phrEnter(tr("a valid velocity")));
 								return false; }
 
-    IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
+    IOM().to( WellTranslatorGroup::ioContext().getSelDirID() );
 
     for ( int irow=0; ; irow++ )
     {

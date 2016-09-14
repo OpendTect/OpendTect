@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "ptrman.h"
 
-static const DBKey udfmid( "-1" );
 
 namespace EM
 {
@@ -118,10 +117,10 @@ const BufferStringSet& HorizonPreLoader::getPreloadedNames() const
 { return loadednms_; }
 
 
-const DBKey& HorizonPreLoader::getDBKey( const char* horname ) const
+DBKey HorizonPreLoader::getDBKey( const char* horname ) const
 {
     const int mididx = loadednms_.indexOf( horname );
-    return mididx < 0 ? udfmid : loadedmids_[mididx];
+    return mididx < 0 ? DBKey::getInvalid() : loadedmids_[mididx];
 }
 
 

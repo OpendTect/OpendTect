@@ -50,8 +50,8 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 
     seedselfld_ = new uiIOObjSel( this, *mMkCtxtIOObj(PickSet), tr("Seeds") );
     DBKey mid = vd->getSeedsID( isosurface );
-    if ( !mid.isEmpty() )
-    	seedselfld_->setInput( mid );
+    if ( mid.isValid() )
+	seedselfld_->setInput( mid );
 
     seedselfld_->display( !fullmode );
     seedselfld_->attach( alignedBelow, modefld_ );
@@ -81,7 +81,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 	    mCB( this,uiVisIsoSurfaceThresholdDlg,reDrawCB) );
 
     thresholdfld_ = new uiGenInput( this, tr("Iso value"),
-	    			    FloatInpSpec(initialvalue_) );
+				    FloatInpSpec(initialvalue_) );
     thresholdfld_->setValue( vd->isoValue(isosurface) );
     thresholdfld_->attach( leftAlignedBelow, statsdisplay_ );
     updatebutton_ = new uiPushButton( this, tr("Update"),
@@ -110,7 +110,7 @@ bool uiVisIsoSurfaceThresholdDlg::acceptOK()
     updatePressed( 0 );
 
     if ( !vd_->isFullMode(isosurfacedisplay_) &&
-	  vd_->getSeedsID(isosurfacedisplay_).isEmpty() )
+	  vd_->getSeedsID(isosurfacedisplay_).isInvalid() )
 	return false;
 
     return true;
@@ -147,11 +147,10 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
 
     const bool fullmode = modefld_->getBoolValue();
     const bool aboveisoval = aboveisovaluefld_->getBoolValue();
-    DBKey mid( 0 );
-    mid.setEmpty();
+    DBKey dbky;
     if ( !fullmode && seedselfld_->commitInput() &&
 	  seedselfld_->ctxtIOObj().ioobj_ )
-	mid = seedselfld_->ctxtIOObj().ioobj_->key();
+	dbky = seedselfld_->ctxtIOObj().ioobj_->key();
 
     if ( isosurfacedisplay_->getSurface() &&
 	!isosurfacedisplay_->getSurface()->isEmpty() )
@@ -163,13 +162,13 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
 	    if ( fullmode )
 	    {
 		if ( vd_->isFullMode(isosurfacedisplay_) == 1 )
-    		    return;
+		    return;
 	    }
 	    else if ( !vd_->isFullMode(isosurfacedisplay_) )
 	    {
 		bool isseedabv = vd_->seedAboveIsovalue(isosurfacedisplay_)==1;
 		if ( aboveisoval==isseedabv &&
-		     mid==vd_->getSeedsID(isosurfacedisplay_) )
+		     dbky==vd_->getSeedsID(isosurfacedisplay_) )
 		    return;
 	    }
 	}
@@ -178,7 +177,7 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
     vd_->setFullMode( isosurfacedisplay_, fullmode );
     if ( !fullmode )
     {
-	if ( mid.isEmpty() )
+	if ( dbky.isInvalid() )
 	{
 	    uiMSG().error(tr("Cannot find input seeds"));
 	    return;
@@ -186,7 +185,7 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
 
 	vd_->setSeedAboveIsovalue( isosurfacedisplay_, aboveisoval );
 	if ( seedselfld_->ctxtIOObj().ioobj_ )
-    	    vd_->setSeedsID( isosurfacedisplay_, mid );
+	    vd_->setSeedsID( isosurfacedisplay_, dbky );
     }
 
     updateIsoDisplay( newthreshold );

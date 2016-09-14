@@ -9,7 +9,7 @@
 #include "uimsg.h"
 #include "volprocvolreader.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "seistrctr.h"
 #include "mousecursor.h"
 #include "uigeninput.h"

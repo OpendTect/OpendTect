@@ -56,7 +56,7 @@ uiImportMute::uiImportMute( uiParent* p )
 				 PositionInpSpec(PositionInpSpec::Setup()) );
     inlcrlfld_->attach( alignedBelow, inpfilehaveposfld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
 				    mODHelpKey(mPreStackImportMuteParsHelpID) );
     dataselfld_->attach( alignedBelow, inlcrlfld_ );
 

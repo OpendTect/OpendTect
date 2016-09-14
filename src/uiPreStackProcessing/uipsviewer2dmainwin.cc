@@ -747,7 +747,7 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
 {
     if ( !preprocmgr_->prepareWork() )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     const BinID stepout = preprocmgr_->getInputStepout();
     BinID relbid;
@@ -777,7 +777,7 @@ DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
     if ( !preprocmgr_->process() )
     {
 	uiMSG().error( preprocmgr_->errMsg() );
-	return -1;
+	return DataPack::ID::getInvalid();
     }
 
     return preprocmgr_->getOutput();
@@ -808,8 +808,8 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	    return;
 	const GatherInfo& inputginfo = gatherinfos_[gidx];
 	preprocmgr_->setInput( relbid,
-			       inputginfo.vddpid_>=0 ? inputginfo.wvadpid_
-						     : inputginfo.vddpid_ );
+			       inputginfo.vddpid_.isValid()
+			       ? inputginfo.wvadpid_ : inputginfo.vddpid_ );
     }
 }
 
@@ -1197,20 +1197,22 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 
     if ( gather->readFrom(gatherinfo.mid_,tk) )
     {
-	DataPack::ID ppgatherid = -1;
+	DataPack::ID ppgatherid;
 	if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	    ppgatherid = getPreProcessedID( gatherinfo );
 
-	const int gatherid = ppgatherid>=0 ? ppgatherid : gather->id();
+	const DataPack::ID gatherid = ppgatherid.isValid()
+					? ppgatherid : gather->id();
 	RefMan<PreStack::Gather> anglegather = getAngleData( gatherid );
 	gd->setVDGather( hasangledata_ ? anglegather->id() : gatherid );
-	gd->setWVAGather( hasangledata_ ? gatherid : -1 );
+	gd->setWVAGather( hasangledata_ ? gatherid
+					: DataPack::ID::getInvalid() );
 	if ( mIsUdf( zrg.start ) )
 	   zrg = gd->getZDataRange();
 	zrg.include( gd->getZDataRange() );
     }
     else
-	gd->setVDGather( -1 );
+	gd->setVDGather( DataPack::ID::getInvalid() );
 
     uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
     setGatherInfo( gdi, gatherinfo );
@@ -1367,24 +1369,23 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 
     if ( !vdgather && !wvagather  )
     {
-	gd->setVDGather( -1 );
-	gd->setWVAGather( -1 );
+	gd->setVDGather( DataPack::ID::getInvalid() );
+	gd->setWVAGather( DataPack::ID::getInvalid() );
 	return;
     }
 
     if ( !posdlg_ )
 	tkzs_.zsamp_.include( wvagather ? wvagather->zRange()
 				        : vdgather->zRange(), false );
-    DataPack::ID ppgatherid = -1;
+    DataPack::ID ppgatherid;
     if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	ppgatherid = getPreProcessedID( ginfo );
 
-    gd->setVDGather( ginfo.vddpid_<0 ? ppgatherid>=0 ? ppgatherid
-						     : ginfo.wvadpid_
-				     : ginfo.vddpid_ );
-    gd->setWVAGather( ginfo.vddpid_>=0 ? ppgatherid>=0 ? ppgatherid
-						       : ginfo.wvadpid_
-				       : -1 );
+    gd->setVDGather( ginfo.vddpid_.isInvalid() ?
+	(ppgatherid.isValid() ? ppgatherid : ginfo.wvadpid_) : ginfo.vddpid_ );
+    gd->setWVAGather( ginfo.vddpid_.isValid() ?
+		(ppgatherid.isValid() ? ppgatherid : ginfo.wvadpid_)
+				       : DataPack::ID::getInvalid() );
     uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
     setGatherInfo( gdi, ginfo );
     gdi->setOffsetRange( gd->getOffsetRange() );

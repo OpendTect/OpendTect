@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uirandlinegen.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emrandlinegen.h"
@@ -48,7 +48,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 			 mODHelpKey(mGenRanLinesByContourHelpID) ) )
 {
     IOObjContext horctxt( mIOObjContext(EMHorizon3D) );
-    IOM().to( horctxt.getSelKey() );
+    IOM().to( horctxt.getSelDirID() );
 
     infld_ = new uiIOObjSel( this, horctxt );
     uiIOObjSel::Setup osu( tr("Within polygon") ); osu.optional( true );

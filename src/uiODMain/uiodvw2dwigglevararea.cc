@@ -261,7 +261,8 @@ DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true );
-    if ( !dp ) return false;
+    if ( !dp )
+	return DataPack::ID::getInvalid();
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     attrserv->setTargetSelSpec( selas );
@@ -274,7 +275,7 @@ DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
 	{
 	    const SeisIOObjInfo objinfo( attrbnm, Seis::Line );
 	    if ( !objinfo.ioObj() )
-		return DataPack::cNoID();
+		return DataPack::ID::getInvalid();
 
 	    Attrib::DescID attribid = attrserv->getStoredID(
 			    objinfo.ioObj()->key(), true, steering ? 1 : 0 );
@@ -300,7 +301,7 @@ DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
     {
 	const DataPack::ID dpid =
 	    attrserv->createRdmTrcsOutput( randfdp->getZRange(),
-		    			   randfdp->getRandomLineID() );
+					   randfdp->getRandomLineID() );
 	return viewer2D()->createFlatDataPack( dpid, 0 );
     }
 

@@ -163,9 +163,9 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
 
     ioobj.pars().getYN(sKeyZisTime(),zit_);
 
-    velocitymid_.setEmpty();
+    velocitymid_.setInvalid();
     GetVelocityVolumeTag( ioobj, velocitymid_ );
-    staticsmid_.setEmpty();
+    staticsmid_.setInvalid();
     ioobj.pars().get( sKeyStaticsID(), staticsmid_ );
 
     offsetisangle_ = false;

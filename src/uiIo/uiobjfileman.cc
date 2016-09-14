@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
@@ -57,7 +57,7 @@ uiObjFileMan::~uiObjFileMan()
 void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
 {
     listgrp_ = new uiGroup( this, "List Group" );
-    IOM().to( ctxt_.getSelKey(), true );
+    IOM().to( ctxt_.getSelDirID(), true );
     uiIOObjSelGrp::Setup sgsu( multisel ? OD::ChooseAtLeastOne
 					: OD::ChooseOnlyOne );
     sgsu.allowreloc( withreloc ).allowremove( withrm ).allowsetdefault( true );

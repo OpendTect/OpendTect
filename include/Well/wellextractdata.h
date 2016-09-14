@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "stattype.h"
 #include "survinfo.h"
 #include "uistrings.h"
+#include "dbkey.h"
 
 class DataPointSet;
 class IODirEntryList;
@@ -147,7 +148,7 @@ public:
     od_int64		nrDone() const		{ return curidx_; }
     od_int64		totalNr() const		{ return totalnr_; }
 
-    const ObjectSet<DBKey>&	ids() const	{ return ids_; }
+    const DBKeySet&		ids() const	{ return ids_; }
     const ObjectSet<Info>&	infos() const	{ return infos_; }
 				//!< Same size as ids()
     const ObjectSet<MarkerSet>&	markers() const	{ return markers_; }
@@ -158,7 +159,7 @@ public:
 
 protected:
 
-    ObjectSet<DBKey>		ids_;
+    DBKeySet			ids_;
     ObjectSet<Info>		infos_;
     ObjectSet<MarkerSet>	markers_;
     ObjectSet<BufferStringSet>	logs_;
@@ -184,7 +185,7 @@ mExpClass(Well) TrackSampler : public ::Executor
 { mODTextTranslationClass(TrackSampler);
 public:
 
-			TrackSampler(const BufferStringSet& ioobjids,
+			TrackSampler(const DBKeySet& ioobjids,
 				     ObjectSet<DataPointSet>&,
 				     bool zvalsintime);
 
@@ -199,17 +200,17 @@ public:
     void		usePar(const IOPar&);
 
     int			nextStep();
-    uiString	uiMessage() const   { return tr("Scanning well tracks"); }
-    uiString	uiNrDoneText() const { return tr("Wells inspected"); }
-    od_int64		nrDone() const	   { return curid_; }
-    od_int64		totalNr() const	   { return ids_.size(); }
+    uiString		uiMessage() const { return tr("Scanning well tracks"); }
+    uiString		uiNrDoneText() const { return tr("Wells inspected"); }
+    od_int64		nrDone() const	  { return curid_; }
+    od_int64		totalNr() const   { return ids_.size(); }
 
     uiString		errMsg() const
 			{ return errmsg_.isEmpty() ? uiString::emptyString()
 						   : errmsg_; }
 
-    const BufferStringSet&	ioObjIds() const	{ return ids_; }
-    ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss_; }
+    const DBKeySet&	ioObjIds() const	{ return ids_; }
+    ObjectSet<DataPointSet>&	dataPointSets() { return dpss_; }
 
     static const char*	sKeySelRadius();
     static const char*	sKeyDahCol();
@@ -218,7 +219,7 @@ public:
 
 protected:
 
-    const BufferStringSet&	ids_;
+    const DBKeySet		ids_;
     ObjectSet<DataPointSet>&	dpss_;
     int				curid_;
     const bool			zistime_;
@@ -243,7 +244,7 @@ mExpClass(Well) LogDataExtracter : public ::Executor
 { mODTextTranslationClass(LogDataExtracter);
 public:
 
-			LogDataExtracter(const BufferStringSet& ioobjids,
+			LogDataExtracter(const DBKeySet& ioobjids,
 					 ObjectSet<DataPointSet>&,
 					 bool zvalsintime);
 
@@ -254,19 +255,19 @@ public:
     void		usePar(const IOPar&);
 
     int			nextStep();
-    uiString		uiMessage() const   { return msg_; }
-    uiString		uiNrDoneText() const { return tr("Wells handled"); }
-    od_int64		nrDone() const	   { return curid_; }
-    od_int64		totalNr() const	   { return ids_.size(); }
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const	{ return tr("Wells handled"); }
+    od_int64		nrDone() const		{ return curid_; }
+    od_int64		totalNr() const		{ return ids_.size(); }
 
-    const BufferStringSet&	ioObjIds() const	{ return ids_; }
+    const DBKeySet&	ioObjIds() const	{ return ids_; }
 
     static float	calcVal(const Log&,float dah,float winsz,
 					Stats::UpscaleType samppol);
 
 protected:
 
-    const BufferStringSet&	ids_;
+    DBKeySet		ids_;
     ObjectSet<DataPointSet>&	dpss_;
     int				curid_;
     const bool			zistime_;

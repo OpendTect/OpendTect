@@ -93,7 +93,7 @@ public:
     DBKey		currentID() const;
     int			nrChosen() const;
     bool		isChosen(int) const;
-    const DBKey&	chosenID(int idx=0) const;
+    DBKey		chosenID(int idx=0) const;
     void		getChosen(DBKeySet&) const;
     void		getChosen(BufferStringSet&) const;
     void		setCurrent(int);
@@ -113,7 +113,7 @@ public:
     uiGenInput*		getFilterField()		{ return filtfld_; }
     uiListBox*		getListField()			{ return listfld_; }
     uiIOObjManipGroup*	getManipGroup();
-    const ObjectSet<DBKey>& getIOObjIds() const	{ return ioobjids_; }
+    const DBKeySet&	getIOObjIds() const		{ return ioobjids_; }
 
     void		setConfirmOverwrite( bool yn )
 				{ setup_.confirmoverwrite_ = yn; }
@@ -138,7 +138,7 @@ protected:
 
     CtxtIOObj&		ctio_;
     Setup		setup_;
-    ObjectSet<DBKey>	ioobjids_;
+    DBKeySet		ioobjids_;
     BufferStringSet	ioobjnms_;
     BufferStringSet	dispnms_;
     BufferString	surveydefaultsubsel_;

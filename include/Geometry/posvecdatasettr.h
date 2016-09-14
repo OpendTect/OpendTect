@@ -14,7 +14,7 @@ ________________________________________________________________________
  
 #include "geometrymod.h"
 #include "transl.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include <iosfwd>
 class PosVecDataSet;
 

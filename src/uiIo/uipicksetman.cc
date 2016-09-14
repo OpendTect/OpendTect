@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "draw.h"
 #include "picksetmanager.h"
 #include "picksettr.h"

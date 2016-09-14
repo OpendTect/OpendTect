@@ -29,8 +29,8 @@ class IOStreamProducer : public IOObjProducer
 int IOStreamProducer::factoryid_ = IOObj::addProducer( new IOStreamProducer );
 
 
-IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
-	: IOObj(nm,uid)
+IOStream::IOStream( const char* nm, DBKey ky, bool mkdef )
+	: IOObj(nm,ky)
 	, curfidx_(0)
 {
     if ( mkdef )

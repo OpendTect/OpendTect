@@ -33,28 +33,25 @@ public:
 			mDeclareEnumUtils(CorrType)
 
 			Setup()
-			    : wellid_(-1)
-			    , seisid_()
-			    , wvltid_(-1)
-			    , linenm_(*new BufferString) //empty = data is 3D
+			    : linenm_(*new BufferString) //empty = data is 3D
 			    , issonic_(true)
 			    , useexistingd2tm_(true)
 			    , corrtype_(Automatic)
 			    {}
 
 
-				Setup( const Setup& setup )
-				    : wellid_(setup.wellid_)
-				    , seisid_(setup.seisid_)
-				    , wvltid_(setup.wvltid_)
-				    , linenm_(setup.linenm_)
-				    , issonic_(setup.issonic_)
-				    , seisnm_(setup.seisnm_)
-				    , vellognm_(setup.vellognm_)
-				    , denlognm_(setup.denlognm_)
-				    , useexistingd2tm_(setup.useexistingd2tm_)
-				    , corrtype_(setup.corrtype_)
-				    {}
+			Setup( const Setup& setup )
+			    : wellid_(setup.wellid_)
+			    , seisid_(setup.seisid_)
+			    , wvltid_(setup.wvltid_)
+			    , linenm_(setup.linenm_)
+			    , issonic_(setup.issonic_)
+			    , seisnm_(setup.seisnm_)
+			    , vellognm_(setup.vellognm_)
+			    , denlognm_(setup.denlognm_)
+			    , useexistingd2tm_(setup.useexistingd2tm_)
+			    , corrtype_(setup.corrtype_)
+			    {}
 
     DBKey			wellid_;
     DBKey			seisid_;

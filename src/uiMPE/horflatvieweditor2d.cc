@@ -67,7 +67,7 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
     mAttachCB( editor_->sower().sowing,
 	HorizonFlatViewEditor2D::sowingModeCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
-    mAttachCB( editor_->movementFinished, 
+    mAttachCB( editor_->movementFinished,
 	HorizonFlatViewEditor2D::polygonFinishedCB );
     if ( vwr )
     mAttachCB(
@@ -653,7 +653,7 @@ bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
     if ( h2dsp )
 	h2dsp->setSelSpec( as );
 
-    if ( dp.id() > DataPack::cNoID() )
+    if ( dp.id().isValid() )
 	MPE::engine().setAttribData( *as, dp.id() );
 
     if ( !h2dsp || !h2dsp->canAddSeed(*as) )

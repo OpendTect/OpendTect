@@ -75,7 +75,7 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     , curidx_(0)
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    iodir_ = new IODir( ctio->ctxt_.getSelKey() );
+    iodir_ = new IODir( ctio->ctxt_.getSelDirID() );
     direntries_ = new IODirEntryList( *iodir_, ctio->ctxt_ );
     totalnr_ = direntries_->size();
     curmsg_ = totalnr_ ? tr("Gathering information") : tr("No wells");
@@ -98,14 +98,14 @@ int Well::InfoCollector::nextStep()
 	return Finished();
 
     const IOObj* ioobj = (*direntries_)[curidx_]->ioobj_;
-    const DBKey wmid( ioobj->key() );
-    const bool isloaded = Well::MGR().isLoaded( wmid );
+    const DBKey wky( ioobj->key() );
+    const bool isloaded = Well::MGR().isLoaded( wky );
 
     BufferStringSet lognms;
     RefMan<Well::Data> wd = 0;
     if ( isloaded )
     {
-	wd = Well::MGR().get( wmid );
+	wd = Well::MGR().get( wky );
 	if ( wd && dologs_ )
 	    wd->logs().getNames( lognms );
     }
@@ -114,7 +114,7 @@ int Well::InfoCollector::nextStep()
     if ( !wd )
     {
 	wd = new Well::Data;
-	Well::Reader rdr( wmid, *wd );
+	Well::Reader rdr( wky, *wd );
 	res = rdr.getInfo();
 	if ( dotracks_ )
 	    res = res && rdr.getTrack();
@@ -127,7 +127,7 @@ int Well::InfoCollector::nextStep()
     if ( !res )
 	return ++curidx_ >= totalnr_ ? Finished() : MoreToDo();
 
-    ids_ += new DBKey( wmid );
+    ids_ += wky;
     infos_ += new Well::Info( wd->info() );
     if ( dotracks_ )
     {
@@ -422,7 +422,7 @@ void Well::ExtractParams::fillPar( IOPar& pars ) const
 
 
 
-Well::TrackSampler::TrackSampler( const BufferStringSet& i,
+Well::TrackSampler::TrackSampler( const DBKeySet& i,
 				  ObjectSet<DataPointSet>& d,
 				  bool ztm )
 	: Executor("Well data extraction")
@@ -481,7 +481,7 @@ int Well::TrackSampler::nextStep()
 	dahcolnr_ = dps->nrCols() - 1;
     }
 
-    RefMan<Well::Data> wd = Well::MGR().get( DBKey(ids_.get(curid_)) );
+    RefMan<Well::Data> wd = Well::MGR().get( ids_[curid_] );
     if ( !wd )
     {
 	errmsg_ = mToUiStringTodo(Well::MGR().errMsg());
@@ -626,7 +626,7 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
 }
 
 
-Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
+Well::LogDataExtracter::LogDataExtracter( const DBKeySet& i,
 					  ObjectSet<DataPointSet>& d,
 					  bool ztm )
 	: Executor("Well log data extraction")
@@ -666,7 +666,7 @@ int Well::LogDataExtracter::nextStep()
     DataPointSet& dps = *dpss_[curid_];
     if ( dps.isEmpty() ) mRetNext()
 
-    RefMan<Well::Data> wd = Well::MGR().get( DBKey(ids_.get(curid_)) );
+    RefMan<Well::Data> wd = Well::MGR().get( ids_[curid_] );
     Well::Track* track = 0;
     if ( !wd )
     {

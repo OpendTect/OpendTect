@@ -63,7 +63,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
     seisoutkey_ = outputKey( iopar_ );
 
     FixedString res = iopar_.find( seisoutkey_ );
-    IOObj* outioobj = IOM().get( res );
+    IOObj* outioobj = IOM().get( DBKey::getFromString(res) );
     if ( !outioobj )
 	errmsg_ = tr("Cannot find specified output seismic ID");
     else
@@ -162,7 +162,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     }
 
     tmpstorid_ = tempStorID();
-    if ( tmpstorid_.isEmpty() )
+    if ( tmpstorid_.isInvalid() )
 	return 0;
 
     IOPar jpiopar( iopar_ );
@@ -248,7 +248,7 @@ DBKey SeisJobExecProv::tempStorID() const
     FilePath fp( iopar_.find(sKey::TmpStor()) );
 
     // Is there already an entry?
-    const IODir iodir( ctio_.ctxt_.getSelKey() );
+    const IODir iodir( ctio_.ctxt_.getSelDirID() );
     const IODirEntryList el( iodir, ctio_.ctxt_ );
     const BufferString fnm( fp.fullPath() );
     for ( int idx=0; idx<el.size(); idx++ )
@@ -282,7 +282,7 @@ DBKey SeisJobExecProv::tempStorID() const
 	    inls.stop = SI().sampling(false).hsamp_.stop_.inl();
 	    inls.step = SI().sampling(false).hsamp_.step_.inl();
 	}
-	
+
 	iostrm->fileSpec().setFileName( fp.fullPath() );
 	iostrm->fileSpec().nrs_ = inls;
 

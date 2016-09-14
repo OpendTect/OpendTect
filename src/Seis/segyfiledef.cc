@@ -15,7 +15,7 @@
 #include "filepath.h"
 #include "keystrs.h"
 #include "separstr.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "seistrctr.h"
 #include "perthreadrepos.h"
 
@@ -56,13 +56,13 @@ static const char* allsegyfmtoptions[] = {
 IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
 {
     IOStream* iostrm;
-    const DBKey dirky( mIOObjContext(SeisTrc).getSelKey() );
+    const DBKey::DirID dirid( mIOObjContext(SeisTrc).getSelDirID() );
     if ( tmp )
-	iostrm = new IOStream( usrStr(), IODir(dirky).newTmpKey() );
+	iostrm = new IOStream( usrStr(), IODir(dirid).newTmpKey());
     else
     {
 	iostrm = new IOStream( usrStr() );
-	iostrm->acquireNewKeyIn( dirky );
+	iostrm->acquireNewKeyIn( dirid );
     }
 
     iostrm->fileSpec() = *this;

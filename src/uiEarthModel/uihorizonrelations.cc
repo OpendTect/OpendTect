@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emobject.h"
 #include "emsurfacetr.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "horizonmodifier.h"
 #include "horizonsorter.h"
 #include "ioman.h"
@@ -120,7 +120,7 @@ HorizonModifyDlg( uiParent* p, const DBKey& mid1, const DBKey& mid2,
                  .arg(hornms.get(1)).arg( nrcross );
     uiLabel* lbl = new uiLabel( this, msg );
 
-    horizonfld_ = new uiGenInput( this, 
+    horizonfld_ = new uiGenInput( this,
 				  uiStrings::phrModify(uiStrings::sHorizon(1)),
 				  StringListInpSpec(hornms) );
     horizonfld_->valuechanged.notify( mCB(this,HorizonModifyDlg,horSel) );

@@ -62,7 +62,7 @@ bool uiTrackSettingsValidator::checkStoredData( Attrib::SelSpec& as,
     }
 
     key = desc ? DBKey(desc->getStoredID(false)) : DBKey::getInvalid();
-    if ( key.isUdf() )
+    if ( key.isInvalid() )
     {
 	uiMSG().error(
 		tr("Volume tracking can only be done on stored volumes.") );

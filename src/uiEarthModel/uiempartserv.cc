@@ -243,7 +243,7 @@ bool uiEMPartServer::import3DHorGeom( bool bulk )
 
 void uiEMPartServer::importReadyCB( CallBacker* cb )
 {
-    DBKey mid = DBKey::getInvalid();
+    DBKey mid;
     mDynamicCastGet(uiImportHorizon*,dlg,cb)
     if ( dlg && dlg->doDisplay() )
 	mid = dlg->getSelID();
@@ -256,7 +256,8 @@ void uiEMPartServer::importReadyCB( CallBacker* cb )
     if ( crdlg && crdlg->saveButtonChecked() )
 	mid = crdlg->getSelID();
 
-    if ( mid.isUdf() ) return;
+    if ( mid.isInvalid() )
+	return;
 
     selemid_ = em_.getObjectID( mid );
     EM::EMObject* emobj = em_.getObject( selemid_ );
@@ -883,7 +884,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	    EM::SurfaceIODataSelection sel( sd );
 	    dlg.getSelection( sel );
 
-	    key = dlg.ioObj() ? dlg.ioObj()->key() : "";
+	    key = dlg.ioObj() ? dlg.ioObj()->key() : DBKey::getInvalid();
 	    exec = surface->geometry().saver( &sel, &key );
 	    if ( exec && dlg.replaceInTree() )
 		    surface->setDBKey( key );
@@ -1376,8 +1377,8 @@ bool uiEMPartServer::loadSurface( const DBKey& mid,
     if ( !exec )
     {
 	PtrMan<IOObj> ioobj = IOM().get(mid);
-	BufferString nm = ioobj ? (const char*) ioobj->name()
-				: (const char*) mid;
+	BufferString nm = ioobj ? (const char*)ioobj->name()
+				: (const char*)mid.toString().str();
 	uiString msg = tr( "Cannot load '%1'" ).arg( nm );
 	uiMSG().error( msg );
 	return false;
@@ -1398,9 +1399,9 @@ bool uiEMPartServer::loadSurface( const DBKey& mid,
 }
 
 
-const char* uiEMPartServer::genRandLine( int opt )
+DBKey uiEMPartServer::genRandLine( int opt )
 {
-    const char* res = 0;
+    DBKey res;
     if ( opt == 0 )
     {
 	uiGenRanLinesByShift dlg( parent() );
@@ -1479,8 +1480,7 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d )
 {
-    const IODir iodir(
-	DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
+    const IODir iodir( IOObjContext::Surf );
     FixedString groupstr = is2d
 	? EMHorizon2DTranslatorGroup::sGroupName()
 	: EMHorizon3DTranslatorGroup::sGroupName();
@@ -1576,19 +1576,20 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 
 #define mGetObjId( num, id ) \
 { \
-    DBKey horid = *selhorids[num]; \
+    const DBKey horid = selhorids[num]; \
     id = getObjectID(horid); \
     if ( id<0 || !isFullyLoaded(id) ) \
 	loadSurface( horid ); \
     id = getObjectID(horid); \
 }
-void uiEMPartServer::getSurfaceDef2D( const ObjectSet<DBKey>& selhorids,
+void uiEMPartServer::getSurfaceDef2D( const DBKeySet& selhorids,
 				  const BufferStringSet& selectlines,
 				  TypeSet<Coord>& coords,
 				  TypeSet<Pos::GeomID>& geomids,
 				  TypeSet< Interval<float> >& zrgs )
 {
-    if ( !selhorids.size() ) return;
+    if ( selhorids.isEmpty() )
+	return;
 
     EM::ObjectID id;
     const bool issecondhor = selhorids.size()>1;
@@ -1697,9 +1698,9 @@ bool uiEMPartServer::usePar( const IOPar& par )
     DBKeySet mids;
     for ( int idx=0; idx<maxnr2pl; idx++ )
     {
-	DBKey mid = DBKey::getInvalid();
+	DBKey mid;
 	par.get( IOPar::compKey(sKeyPreLoad(),idx), mid );
-	if ( mid.isUdf() )
+	if ( mid.isInvalid() )
 	    break;
 
 	mids += mid;

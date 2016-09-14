@@ -23,7 +23,6 @@ DescSetMan::DescSetMan( bool is2d, DescSet* ads, bool destr )
     , unsaved_(false)
     , ads_(ads)
     , is2d_(is2d)
-    , attrsetid_("")
     , destrondel_(destr)
 {
     if ( !ads_ )

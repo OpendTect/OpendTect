@@ -157,7 +157,7 @@ bool MultiTextureSurveyObject::addAttrib()
     if ( getAllowedDataType() == Only2D )
     {
 	as.set2DFlag( true );
-	as.setObjectRef( getDBKey() );
+	as.setObjectRef( getDBKey().toString() );
     }
     as_ += new TypeSet<Attrib::SelSpec>( 1, as );
     addCache();
@@ -415,7 +415,7 @@ MultiTextureSurveyObject::getColTabMapperSetup( int attrib, int version ) const
 	return 0;
 
     if ( mIsUdf(version) || version<0
-	    		 || version >= channels_->nrVersions(attrib) )
+			 || version >= channels_->nrVersions(attrib) )
 	version = channels_->currentVersion( attrib );
 
     return &channels_->getColTabMapperSetup( attrib, version );

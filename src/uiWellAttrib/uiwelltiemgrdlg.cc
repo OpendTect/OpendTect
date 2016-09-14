@@ -74,7 +74,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 
     const IOObjContext wellctxt = mIOObjContext(Well);
     wellfld_ = new uiIOObjSel( this, wellctxt );
-    if ( !wtsetup_.wellid_.isEmpty() )
+    if ( wtsetup_.wellid_.isValid() )
 	wellfld_->setInput( wtsetup_.wellid_ );
 
     const CallBack wllselcb( mCB(this,uiTieWinMGRDlg,wellSelChg) );
@@ -120,7 +120,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 
 	seislinefld_ = new uiSeis2DLineNameSel( seisgrp, true );
 	seislinefld_->display( !has3d );
-	if ( !seis2dfld_->key().isEmpty() )
+	if ( seis2dfld_->key().isValid() )
 	    seislinefld_->setDataSet( seis2dfld_->key() );
 
 	seislinefld_->attach( alignedBelow, seis2dfld_ );
@@ -278,7 +278,7 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* cb )
     if ( seisfld->isChecked() )
     {
 	const DBKey& seisid = seisfld->key();
-	if ( seisid.isEmpty() )
+	if ( seisid.isInvalid() )
             mErrRet(uiStrings::phrSelect(
                 uiStrings::phrInput(uiStrings::sVolDataName(true,true,false))));
 
@@ -314,7 +314,7 @@ void uiTieWinMGRDlg::getSetup( const char* nm )
     getVelLogInSetup();
     getDenLogInSetup();
 
-    if ( !wtsetup_.wvltid_.isEmpty() )
+    if ( wtsetup_.wvltid_.isValid() )
 	wvltfld_->setInput( wtsetup_.wvltid_ );
 
     if ( !wtsetup_.useexistingd2tm_ )
@@ -331,7 +331,7 @@ void uiTieWinMGRDlg::getSetup( const char* nm )
 
 bool uiTieWinMGRDlg::getSeismicInSetup()
 {
-    if ( !wtsetup_.seisid_.isEmpty() )
+    if ( wtsetup_.seisid_.isValid() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( wtsetup_.seisid_ );
 	if ( !ioobj )
@@ -363,7 +363,7 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 	if ( seisfld )
 	{
 	    seisfld->setInput( wtsetup_.seisid_ );
-	    if ( seisfld->key().isEmpty() )
+	    if ( seisfld->key().isInvalid() )
 	    {
 		seisfld->setEmpty();
 		mErrRet(tr("Cannot restore the seismic data from the setup"))
@@ -460,7 +460,7 @@ bool uiTieWinMGRDlg::initSetup()
 	mErrRet(uiStrings::phrSelect(tr("a valid well")))
 
     wtsetup_.wvltid_ = wvltfld_->key();
-    if ( wtsetup_.wvltid_.isUdf() )
+    if ( wtsetup_.wvltid_.isInvalid() )
 	return false;
 
     const DBKey& wellid = wellfld_->ctxtIOObj().ioobj_->key();
@@ -489,7 +489,7 @@ bool uiTieWinMGRDlg::initSetup()
     if ( seisfld->isChecked() )
     {
 	const DBKey& seisid = seisfld->key();
-	if ( seisid.isEmpty() )
+	if ( seisid.isInvalid() )
 	    mErrRet(uiStrings::phrSelect(uiStrings::phrInput(
 					  mJoinUiStrs(sWell(),sData()))))
 	    // msg required because the seismic is optional
@@ -503,7 +503,7 @@ bool uiTieWinMGRDlg::initSetup()
     }
     else
     {
-	wtsetup_.seisid_ = 0;
+	wtsetup_.seisid_.setInvalid();
 	if ( is2d )
 	    wtsetup_.linenm_.setEmpty();
 

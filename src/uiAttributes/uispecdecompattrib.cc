@@ -368,7 +368,7 @@ void uiSpecDecompAttrib::getInputMID( DBKey& mid ) const
     Desc* tmpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : 0;
     if ( !tmpdesc ) return;
 
-    mid = DBKey( tmpdesc->getStoredID().buf() );
+    mid = tmpdesc->getStoredID();
 }
 
 

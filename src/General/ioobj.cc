@@ -21,6 +21,7 @@
 #include "transl.h"
 #include "keystrs.h"
 #include "dateinfo.h"
+#include "compoundkey.h"
 #include "perthreadrepos.h"
 
 static const int cKpTmpObjsInDays = 7;
@@ -62,7 +63,7 @@ int IOObj::addProducer( IOObjProducer* prod )
 
 
 
-IOObj::IOObj( const char* nm, const char* ky )
+IOObj::IOObj( const char* nm, DBKey ky )
 	: NamedObject(nm)
 	, key_(ky)
 	, dirnm_("")
@@ -103,8 +104,8 @@ void IOObj::copyFrom( const IOObj* obj )
 
 
 
-IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky,
-       		   bool rejectoldtmps )
+IOObj* IOObj::get( ascistream& astream, const char* dirnm,
+		    DBKey::DirID::IDType dirnr, bool rejectoldtmps )
 {
     if ( atEndOfSection(astream) )
 	astream.next();
@@ -115,11 +116,10 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky,
 
     BufferString nm( astream.keyWord() );
     FileMultiString fms = astream.value();
-    const int dirid = toInt( dirky );
-    const int leafid = fms.getIValue( 0 );
-    DBKey objkey( dirid, leafid );
-    bool reject = dirid < 0 || leafid < 1;
-    if ( rejectoldtmps && isTmpLeafID(leafid) )
+    const DBKey::ObjNrType objnr = fms.getIValue( 0 );
+    DBKey objkey( DBKey::DirID::get(dirnr), DBKey::ObjID::get(objnr) );
+    bool reject = dirnr < 0 || objnr < 1;
+    if ( rejectoldtmps && isTmpObjNr(objnr) )
     {
 	const int dikey = fms.getIValue( 1 );
 	if ( dikey < DateInfo().key()-cKpTmpObjsInDays )
@@ -189,7 +189,7 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const DBKey& ky,
 
     if ( !nm || !*nm )
 	nm = "?";
-    if ( ky.isEmpty() )
+    if ( ky.isInvalid() )
 	{ pFreeFnErrMsg( "IOObj : Empty key given"); return 0; }
 
     const ObjectSet<const IOObjProducer>& prods = getProducers();
@@ -225,7 +225,7 @@ IOObj* IOObj::clone() const
     if ( isSubdir() )
 	return new IOSubDir( *((IOSubDir*)this) );
 
-    if ( key().isEmpty() )
+    if ( key().isInvalid() )
 	return 0;
 
     IOObj* ret = produce( connType(), name(), key(), false );
@@ -236,16 +236,18 @@ IOObj* IOObj::clone() const
 }
 
 
-void IOObj::acquireNewKeyIn( const DBKey& dirky )
+void IOObj::acquireNewKeyIn( const DirID& dirid )
 {
-    key_ = IOM().createNewKey( dirky );
+    key_ = IOM().createNewKey( dirid );
 }
 
 
 
 
 bool IOObj::isKey( const char* ky )
-{ return IOM().isKey(ky); }
+{
+    return DBKey::isValidString( ky );
+}
 
 
 void IOObj::updateCreationPars() const
@@ -260,10 +262,10 @@ bool IOObj::put( ascostream& astream ) const
     {
 	FileMultiString fms;
 	if ( !isTmp() )
-	    astream.put( name(), leafID() );
+	    astream.put( name(), objID().getI() );
 	else
 	{
-	    fms.set( leafID() );
+	    fms.set( objID().getI() );
 	    fms.add( DateInfo().key() );
 	    astream.put( name(), fms );
 	}
@@ -293,7 +295,7 @@ bool IOObj::isProcTmp() const
 
 bool IOObj::isUserSelectable( bool forread ) const
 {
-    if ( leafID() < 2 || isSubdir() || isTmp() )
+    if ( objID().getI() < 2 || isSubdir() || isTmp() )
 	return false;
 
     PtrMan<Translator> tr = createTranslator();
@@ -321,7 +323,7 @@ bool IOObj::isSurveyDefault( const DBKey& ky )
     IOPar* dpar = SI().pars().subselect( sKey::Default() );
     bool ret = false;
     if ( dpar && !dpar->isEmpty() )
-	ret = dpar->findKeyFor( ky );
+	ret = dpar->findKeyFor( ky.toString() );
     delete dpar;
     return ret;
 }
@@ -346,10 +348,10 @@ bool areEqual( const IOObj* o1, const IOObj* o2 )
 
 static void mkStd( DBKey& ky )
 {
-    if ( ky.isEmpty() )
-	ky.set( "0" );
-    else if ( ky.leafID() == 1 )
-	ky.set( ky.upLevel() );
+    if ( ky.isInvalid() )
+	ky = DBKey::getFromString( "0" );
+    else if ( ky.objID().getI() == 1 )
+	ky.setInvalidObj();
 }
 
 
@@ -387,7 +389,7 @@ IOSubDir::IOSubDir( const IOSubDir& oth )
 IOSubDir* IOSubDir::get( ascistream& strm, const char* dirnm )
 {
     IOSubDir* ret = new IOSubDir( strm.value() );
-    ret->key_ = strm.keyWord() + 1;
+    ret->key_ = DBKey::getFromString( strm.keyWord() + 1 );
     ret->dirnm_ = dirnm;
     ret->isbad_ = !File::isDirectory( ret->dirName() );
     strm.next(); return ret;
@@ -405,15 +407,14 @@ const char* IOSubDir::fullUserExpr( bool ) const
 bool IOSubDir::putTo( ascostream& stream ) const
 {
     if ( isBad() ) return false;
-    const BufferString str( "@", leafID() );
+    const BufferString str( "@", objID().getI() );
     stream.put( str, name() );
     return true;
 }
 
 
-IOX::IOX( const char* nm, const char* ky, bool )
+IOX::IOX( const char* nm, const DBKey ky, bool )
 	: IOObj(nm,ky)
-	, ownkey_("")
 {
 }
 
@@ -437,7 +438,7 @@ const char* IOX::connType() const
 
 bool IOX::isBad() const
 {
-    return ownkey_ == "";
+    return ownkey_.isInvalid();
 }
 
 
@@ -491,13 +492,13 @@ Conn* IOX::getConn( bool forread ) const
 
 IOObj* IOX::getIOObj() const
 {
-    return ownkey_ == "" ? 0 : IOM().get( ownkey_ );
+    return ownkey_.isInvalid() ? 0 : IOM().get( ownkey_ );
 }
 
 
 bool IOX::getFrom( ascistream& stream )
 {
-    ownkey_ = stream.value();
+    ownkey_.fromString( stream.value() );
     stream.next();
     return true;
 }
@@ -506,7 +507,7 @@ bool IOX::getFrom( ascistream& stream )
 bool IOX::putTo( ascostream& stream ) const
 {
     stream.stream() << '$';
-    stream.put( "ID", ownkey_ );
+    stream.put( "ID", ownkey_.toString() );
     return true;
 }
 

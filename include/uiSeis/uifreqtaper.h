@@ -33,7 +33,6 @@ mStruct(uiSeis) FreqTaperSetup
 		    FreqTaperSetup()
 			: hasmin_(false)
 			, hasmax_(true)
-			, dbkey_(DBKey::getInvalid())
 			, allfreqssetable_(false)
 			{}
 

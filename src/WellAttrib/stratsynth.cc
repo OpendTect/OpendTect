@@ -531,6 +531,7 @@ int StratSynth::nrSynthetics() const
 SyntheticData* StratSynth::generateSD()
 { return generateSD( genparams_ ); }
 
+
 #define mSetBool( str, newval ) \
 { \
     mDynamicCastGet(Attrib::BoolParam*,param,psdesc->getValParam(str)) \
@@ -558,76 +559,88 @@ SyntheticData* StratSynth::generateSD()
 }
 
 
-#define mCreateDesc() \
-if ( !sd.isPS() ) return 0; \
-mDynamicCastGet(const PreStackSyntheticData&,presd,sd); \
-BufferString dpidstring( "#" ); \
-SeparString fullidstr( toString(DataPackMgr::SeisID()), '.' ); \
-const PreStack::GatherSetDataPack& gdp = presd.preStackPack(); \
-fullidstr.add( toString(gdp.id()) ); \
-dpidstring.add( fullidstr.buf() ); \
-Attrib::Desc* psdesc = \
-    Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName()); \
-mSetString(Attrib::StorageProvider::keyStr(),dpidstring.buf());
+SyntheticData* StratSynth::createSynthData( const SyntheticData& sd,
+					    const TrcKeyZSampling& cs,
+					    const SynthGenParams& synthgenpar,
+					    bool isanglestack )
+{
+    if ( !sd.isPS() )
+	return 0;
 
+    mDynamicCastGet(const PreStackSyntheticData&,presd,sd);
+    const PreStack::GatherSetDataPack& gdp = presd.preStackPack();
+    DataPack::FullID dpfid( DataPackMgr::SeisID(), gdp.id() );
+    const BufferString dpidstring( "#", dpfid.toString() );
+    Attrib::Desc* psdesc =
+	Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName());
+    mSetString( Attrib::StorageProvider::keyStr(), dpidstring.buf() );
 
-#define mSetProc() \
-mSetBool(Attrib::PSAttrib::useangleStr(), true ); \
-mSetFloat(Attrib::PSAttrib::offStartStr(), synthgenpar.anglerg_.start ); \
-mSetFloat(Attrib::PSAttrib::offStopStr(), synthgenpar.anglerg_.stop ); \
-mSetFloat(Attrib::PSAttrib::gathertypeStr(), Attrib::PSAttrib::Ang ); \
-mSetFloat(Attrib::PSAttrib::xaxisunitStr(), Attrib::PSAttrib::Deg ); \
-mSetFloat(Attrib::PSAttrib::angleDPIDStr(), presd.angleData().id() ); \
-psdesc->setUserRef( synthgenpar.name_ ); \
-psdesc->updateParams(); \
-PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false ); \
-if ( !descset ) return 0; \
-Attrib::DescID attribid = descset->addDesc( psdesc ); \
-PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan; \
-TypeSet<Attrib::SelSpec> attribspecs; \
-Attrib::SelSpec sp( 0, attribid ); \
-sp.set( *psdesc ); \
-attribspecs += sp; \
-aem->setAttribSet( descset ); \
-aem->setAttribSpecs( attribspecs ); \
-aem->setTrcKeyZSampling( cs ); \
-BinIDValueSet bidvals( 0, false ); \
-const ObjectSet<PreStack::Gather>& gathers = gdp.getGathers(); \
-for ( int idx=0; idx<gathers.size(); idx++ ) \
-    bidvals.add( gathers[idx]->getBinID() ); \
-SeisTrcBuf* dptrcbufs = new SeisTrcBuf( true ); \
-Interval<float> zrg( cs.zsamp_ ); \
-uiString errmsg; \
-PtrMan<Attrib::Processor> proc = \
-    aem->createTrcSelOutput( errmsg, bidvals, *dptrcbufs, 0, &zrg); \
-if ( !proc || !proc->getProvider() ) \
-    mErrRet( errmsg, return 0 ) ; \
-proc->getProvider()->setDesiredVolume( cs ); \
-proc->getProvider()->setPossibleVolume( cs ); \
-mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider()); \
-if ( !psattr ) \
-    mErrRet( proc->uiMessage(), return 0 ) ;
+    if ( isanglestack )
+    {
+	mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::Stats);
+	mSetEnum(Attrib::PSAttrib::stattypeStr(), Stats::Average );
+    }
+    else
+    {
+	mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::LLSQ);
+	mSetEnum(Attrib::PSAttrib::offsaxisStr(),PreStack::PropCalc::Sinsq);
+	mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::Coeff );
+    }
 
+    mSetBool(Attrib::PSAttrib::useangleStr(), true );
+    mSetFloat(Attrib::PSAttrib::offStartStr(), synthgenpar.anglerg_.start );
+    mSetFloat(Attrib::PSAttrib::offStopStr(), synthgenpar.anglerg_.stop );
+    mSetFloat(Attrib::PSAttrib::gathertypeStr(), Attrib::PSAttrib::Ang );
+    mSetFloat(Attrib::PSAttrib::xaxisunitStr(), Attrib::PSAttrib::Deg );
+    mSetFloat(Attrib::PSAttrib::angleDPIDStr(), presd.angleData().id().getI() );
+    psdesc->setUserRef( synthgenpar.name_ );
+    psdesc->updateParams();
+    PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false );
+    if ( !descset ) return 0;
+    Attrib::DescID attribid = descset->addDesc( psdesc );
+    PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
+    TypeSet<Attrib::SelSpec> attribspecs;
+    Attrib::SelSpec sp( 0, attribid );
+    sp.set( *psdesc );
+    attribspecs += sp;
+    aem->setAttribSet( descset );
+    aem->setAttribSpecs( attribspecs );
+    aem->setTrcKeyZSampling( cs );
+    BinIDValueSet bidvals( 0, false );
+    const ObjectSet<PreStack::Gather>& gathers = gdp.getGathers();
+    for ( int idx=0; idx<gathers.size(); idx++ )
+	bidvals.add( gathers[idx]->getBinID() );
+    SeisTrcBuf* dptrcbufs = new SeisTrcBuf( true );
+    Interval<float> zrg( cs.zsamp_ );
+    uiString errmsg;
+    PtrMan<Attrib::Processor> proc =
+	aem->createTrcSelOutput( errmsg, bidvals, *dptrcbufs, 0, &zrg);
+    if ( !proc || !proc->getProvider() )
+	mErrRet( errmsg, return 0 ) ;
+    proc->getProvider()->setDesiredVolume( cs );
+    proc->getProvider()->setPossibleVolume( cs );
+    mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider());
+    if ( !psattr )
+	mErrRet( proc->uiMessage(), return 0 );
 
-#define mCreateSeisBuf() \
-if ( !TaskRunner::execute(taskr_,*proc) ) \
-    mErrRet( proc->uiMessage(), return 0 ) ; \
-SeisTrcBufDataPack* angledp = \
-    new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
-			    SeisTrcInfo::TrcNr, synthgenpar.name_ ); \
+    if ( !TaskRunner::execute(taskr_,*proc) )
+	mErrRet( proc->uiMessage(), return 0 ) ;
+    SeisTrcBufDataPack* angledp =
+	new SeisTrcBufDataPack( dptrcbufs, Seis::Line,
+				SeisTrcInfo::TrcNr, synthgenpar.name_ );
+
+    if ( isanglestack )
+	return new AngleStackSyntheticData( synthgenpar, *angledp );
+    else
+	return new AVOGradSyntheticData( synthgenpar, *angledp );
+}
+
 
 SyntheticData* StratSynth::createAVOGradient( const SyntheticData& sd,
 					     const TrcKeyZSampling& cs,
 					     const SynthGenParams& synthgenpar )
 {
-    mCreateDesc()
-    mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::LLSQ);
-    mSetEnum(Attrib::PSAttrib::offsaxisStr(),PreStack::PropCalc::Sinsq);
-    mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::Coeff );
-
-    mSetProc();
-    mCreateSeisBuf();
-    return new AVOGradSyntheticData( synthgenpar, *angledp );
+    return createSynthData( sd, cs, synthgenpar, false );
 }
 
 
@@ -635,13 +648,7 @@ SyntheticData* StratSynth::createAngleStack( const SyntheticData& sd,
 					     const TrcKeyZSampling& cs,
 					     const SynthGenParams& synthgenpar )
 {
-    mCreateDesc();
-    mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::Stats);
-    mSetEnum(Attrib::PSAttrib::stattypeStr(), Stats::Average );
-
-    mSetProc();
-    mCreateSeisBuf();
-    return new AngleStackSyntheticData( synthgenpar, *angledp );
+    return createSynthData( sd, cs, synthgenpar, true );
 }
 
 

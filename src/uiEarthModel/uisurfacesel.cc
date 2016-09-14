@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uilistbox.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emsurfacetr.h"
 #include "emioobjinfo.h"
 #include "emhorizon2d.h"
@@ -41,7 +41,7 @@ uiSurfaceSel::~uiSurfaceSel()
 
 void uiSurfaceSel::getFullList()
 {
-    const IODir iodir( ctxt_.getSelKey() );
+    const IODir iodir( ctxt_.getSelDirID() );
     const IODirEntryList del( iodir, ctxt_ );
 
     names_.erase();

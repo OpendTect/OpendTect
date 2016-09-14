@@ -548,7 +548,7 @@ void uiDataPointSet::handleAxisColChg()
 {
     updColNames();
     disptb_->setSensitive( xplottbid_, !xplotwin_ && (xcol_>=0 && (ycol_>=0 ||
-		    						   y2col_>=0)));
+								   y2col_>=0)));
     if ( xplotwin_ )
 	xplotwin_->handleAxisChg( xcol_, ycol_, y2col_ );
 
@@ -559,7 +559,7 @@ void uiDataPointSet::initWin( CallBacker* c )
 {
     setSortedCol( nrPosCols() );
     disptb_->setSensitive( xplottbid_, !xplotwin_ && (xcol_>=0 && (ycol_>=0 ||
-		    						   y2col_>=0)));
+								   y2col_>=0)));
 }
 
 

@@ -329,10 +329,10 @@ void uiIOObjSel::survChangedCB( CallBacker* )
 void uiIOObjSel::iomChg( CallBacker* cb )
 {
     mCBCapsuleUnpack( DBKey, id, cb );
-    if ( id.isUdf() )
+    if ( id.isInvalid() )
 	return;
 
-    if ( workctio_.ctxt_.getSelKey() == id.parent() )
+    if ( workctio_.ctxt_.getSelDirID() == id.dirID() )
 	initRead();
 }
 
@@ -372,7 +372,7 @@ void uiIOObjSel::fillEntries()
 
     const bool hadselioobj = workctio_.ioobj_;
 
-    const IODir iodir ( inctio_.ctxt_.getSelKey() );
+    const IODir iodir( inctio_.ctxt_.getSelDirID() );
     IODirEntryList del( iodir, inctio_.ctxt_ );
     BufferStringSet keys, names;
     if ( setup_.withclear_ || !setup_.filldef_ )
@@ -384,8 +384,8 @@ void uiIOObjSel::fillEntries()
 	if ( !obj )
 	    continue;
 
-	keys.add( obj->key().buf() );
-	names.add( obj->name().buf() );
+	keys.add( obj->key().toString() );
+	names.add( obj->name() );
     }
 
     setEntries( keys, names );
@@ -422,8 +422,9 @@ void uiIOObjSel::usePar( const IOPar& iopar )
     const char* res = iopar.find( sKey::ID() );
     if ( res && *res )
     {
-	workctio_.setObj( DBKey(res) );
-	setInput( DBKey(res) );
+	const DBKey dbky = DBKey::getFromString( res );
+	workctio_.setObj( dbky );
+	setInput( dbky );
     }
 }
 
@@ -444,23 +445,23 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* bky )
 }
 
 
-void uiIOObjSel::setInput( const DBKey& mid )
+void uiIOObjSel::setInput( const DBKey& dbky )
 {
-    workctio_.setObj( IOM().get( mid ) );
-    uiIOSelect::setInput( mid.buf() );
+    workctio_.setObj( IOM().get(dbky) );
+    uiIOSelect::setInput( dbky.toString() );
 }
 
 
 void uiIOObjSel::setInput( const IOObj& ioob )
 {
     workctio_.setObj( ioob.clone() );
-    uiIOSelect::setInput( ioob.key() );
+    uiIOSelect::setInput( ioob.key().toString() );
 }
 
 
 void uiIOObjSel::updateInput()
 {
-    setInput( workctio_.ioobj_ ? workctio_.ioobj_->key() : DBKey("") );
+    setInput( workctio_.ioobj_ ? workctio_.ioobj_->key() : DBKey::getInvalid());
 }
 
 
@@ -472,13 +473,14 @@ void uiIOObjSel::setEmpty()
 }
 
 
-const char* uiIOObjSel::userNameFromKey( const char* ky ) const
+const char* uiIOObjSel::userNameFromKey( const char* kystr ) const
 {
     mDeclStaticString( nm );
-    nm = "";
-    if ( ky && *ky )
-	nm = IOM().nameOf( ky );
-    return (const char*)nm;
+    nm.setEmpty();
+    const DBKey dbky = DBKey::getFromString( kystr );
+    if ( dbky.isValid() )
+	nm = IOM().nameOf( dbky );
+    return nm.buf();
 }
 
 
@@ -498,8 +500,8 @@ void uiIOObjSel::obtainIOObj()
 	    return;
     }
 
-    const IODir iodir( workctio_.ctxt_.getSelKey() );
-    const IOObj* ioob = iodir.get( inp.buf(),
+    const IODir iodir( workctio_.ctxt_.getSelDirID() );
+    const IOObj* ioob = iodir.getByName( inp,
 				   workctio_.ctxt_.translatorGroupName() );
     workctio_.setObj( ioob && workctio_.ctxt_.validIOObj(*ioob)
 		    ? ioob->clone() : 0 );
@@ -516,16 +518,16 @@ void uiIOObjSel::processInput()
 
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
-    const IODir iodir ( workctio_.ctxt_.getSelKey() );
-    return iodir.get( nm, workctio_.ctxt_.translatorGroupName() );
+    const IODir iodir( workctio_.ctxt_.getSelDirID() );
+    return iodir.getByName( nm, workctio_.ctxt_.translatorGroupName() );
 }
 
 
 DBKey uiIOObjSel::validKey() const
 {
-    const IODir iodir( workctio_.ctxt_.getSelKey() );
-    const IOObj* ioob = iodir.get( getInput(),
-				   workctio_.ctxt_.translatorGroupName() );
+    const IODir iodir( workctio_.ctxt_.getSelDirID() );
+    const IOObj* ioob = iodir.getByName( getInput(),
+				workctio_.ctxt_.translatorGroupName() );
 
     if ( ioob && workctio_.ctxt_.validIOObj(*ioob) )
 	return ioob->key();
@@ -667,7 +669,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 void uiIOObjSel::objInserted( CallBacker* cb )
 {
     mCBCapsuleUnpack( DBKey, ky, cb );
-    if ( !ky.isEmpty() )
+    if ( ky.isValid() )
 	setInput( ky );
 }
 
@@ -678,7 +680,7 @@ void uiIOObjSel::objSel()
     if ( !ky || !*ky )
 	workctio_.setObj( 0 );
     else
-	workctio_.setObj( IOM().get(ky) );
+	workctio_.setObj( IOM().get( DBKey::getFromString(ky) ) );
 }
 
 

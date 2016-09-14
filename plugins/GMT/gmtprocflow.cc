@@ -18,7 +18,7 @@ uiString ODGMTProcFlowTranslatorGroup::sTypeName(int num)
 
 defineTranslator(dgb,ODGMTProcFlow,mDGBKey);
 mDefSimpleTranslatorioContextWithExtra(ODGMTProcFlow,None,
-					ctxt->selkey_ = ODGMT::sKeyGMTSelKey())
+				    ctxt->dirid_.setI(ODGMT::cGMTSelDirIDNr()))
 
 
 ODGMT::ProcFlow::ProcFlow( const char* nm )

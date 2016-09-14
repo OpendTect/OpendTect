@@ -346,7 +346,7 @@ public:
 			//!< Does not add new packs, just selects from added
     void		removePack(::DataPack::ID);
 			//!< Releases DataPack after removing from the list.
-    void		setPack(bool wva,::DataPack::ID id,bool usedefs=true)
+    void		setPack( bool wva, ::DataPack::ID id, bool usedefs=true)
 			{ addPack( id ); usePack( wva, id, usedefs ); }
     void		clearAllPacks();
 

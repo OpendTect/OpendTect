@@ -166,14 +166,14 @@ mDefODInitPlugin(uiGMT)
     if ( !theinst_ )
 	return "Cannot instantiate GMT plugin";
 
-    IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey(), ODGMT::sKeyGMT(),
+    IOMan::CustomDirData cdd( ODGMT::cGMTSelDirIDNr(), ODGMT::sKeyGMT(),
 			      "GMT data" );
     uiString errmsg;
-    DBKey id = IOMan::addCustomDataDir( cdd, errmsg );
+    DBKey::DirID dirid = IOMan::addCustomDataDir( cdd, errmsg );
     if ( errmsg.isSet() )
 	return errmsg.getFullString().str();
 
-    if ( id != ODGMT::sKeyGMTSelKey() )
+    if ( dirid.getI() != ODGMT::cGMTSelDirIDNr() )
 	return "Cannot create 'GMT' directory in survey";
 
     uiGMTContourGrp::initClass();

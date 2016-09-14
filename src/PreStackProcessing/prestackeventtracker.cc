@@ -70,11 +70,11 @@ void EventTracker::setMute( bool inner, MuteDef* mutedef,
 bool EventTracker::setMute( bool inner, const DBKey& mid )
 {
     DBKey& myid = inner ? innermuteid_ : outermuteid_;
-    myid.setEmpty();
+    myid.setInvalid();
 
     PreStack::MuteDef* mutedef = 0;
 
-    if ( !mid.isEmpty() )
+    if ( mid.isValid() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
@@ -83,7 +83,7 @@ bool EventTracker::setMute( bool inner, const DBKey& mid )
 
 	if ( !mutedef )
 	    mErrRet( uiStrings::phrCannotCreate(tr("new mute definition")) );
-				     
+
 	if ( !MuteDefTranslator::retrieve( *mutedef, ioobj, errmsg_ ) )
 	{
 	    delete mutedef;

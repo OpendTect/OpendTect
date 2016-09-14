@@ -8,7 +8,7 @@
 #include "transl.h"
 #include "preloads.h"
 #include "streamconn.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "fixedstring.h"
 #include "iostrm.h"
 #include "iopar.h"
@@ -106,7 +106,7 @@ public:
     const IOObjContext& ioCtxt() const		{ return ctxt; }
     int objSelector( const char* ) const	{ return mObjSelUnrelated; }
     FixedString groupName() const	{ return FixedString::empty(); }
-    uiString typeName(int) const		{ return uiString::emptyString(); }
+    uiString typeName(int) const	{ return uiString::emptyString(); }
 
    IOObjContext ctxt;
 

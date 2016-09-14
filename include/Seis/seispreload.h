@@ -32,7 +32,7 @@ public:
 			PreLoader(const DBKey&,Pos::GeomID =-1,
 				  TaskRunner* =0);
 
-    const DBKey&	id() const			{ return mid_; }
+    const DBKey&	id() const			{ return dbkey_; }
     Pos::GeomID		geomID() const			{ return geomid_; }
     void		setTaskRunner( TaskRunner& t )	{ tr_ = &t; }
 
@@ -69,7 +69,7 @@ public:
 
 protected:
 
-    DBKey		mid_;
+    DBKey		dbkey_;
     Pos::GeomID		geomid_;
     TaskRunner*		tr_;
     TaskRunner		deftr_;
@@ -87,7 +87,7 @@ public:
 
     bool		equals(const DBKey&,Pos::GeomID) const;
 
-    DBKey		mid_;
+    DBKey		dbkey_;
     Pos::GeomID		geomid_;
     int			dpid_;
     bool		is2d_;
@@ -133,7 +133,7 @@ mGlobal(Seis) PreLoadDataManager& PLDM();
 
 
 template <class T> inline
-RefMan<T> PreLoadDataManager::getAndCast(const DBKey& mid, Pos::GeomID gid)
+RefMan<T> PreLoadDataManager::getAndCast( const DBKey& mid, Pos::GeomID gid )
 {
     RefMan<DataPack> dp = get( mid, gid );
     mDynamicCastGet( T*, casted, dp.ptr() );

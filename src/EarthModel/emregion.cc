@@ -227,9 +227,9 @@ bool RegionHor3DBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
 
-    DBKey mid = DBKey::getInvalid();
-    par.get( sKey::ID(), mid );
-    setKey( mid );
+    DBKey dbky;
+    par.get( sKey::ID(), dbky );
+    setKey( dbky );
     return true;
 }
 
@@ -326,19 +326,19 @@ bool RegionFaultBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
 
-    DBKey mid = DBKey::getInvalid();
-    par.get( sKey::ID(), mid );
-    setKey( mid );
+    DBKey dbky = DBKey::getInvalid();
+    par.get( sKey::ID(), dbky );
+    setKey( dbky );
     return true;
 }
 
 
 // RegionPolygonBoundary
-RegionPolygonBoundary::RegionPolygonBoundary( const DBKey& mid )
+RegionPolygonBoundary::RegionPolygonBoundary( const DBKey& dbky )
     : RegionBoundary()
     , polygon_(0)
 {
-    setKey( mid );
+    setKey( dbky );
 }
 
 
@@ -352,9 +352,9 @@ const char* RegionPolygonBoundary::type() const
 { return sKey::Polygon(); }
 
 
-void RegionPolygonBoundary::setKey( const DBKey& mid )
+void RegionPolygonBoundary::setKey( const DBKey& dbky )
 {
-    key_ = mid;
+    key_ = dbky;
     setName( IOM().nameOf(key_) );
 }
 
@@ -388,9 +388,9 @@ bool RegionPolygonBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
 
-    DBKey mid = DBKey::getInvalid();
-    par.get( sKey::ID(), mid );
-    setKey( mid );
+    DBKey dbky = DBKey::getInvalid();
+    par.get( sKey::ID(), dbky );
+    setKey( dbky );
 
     return true;
 }

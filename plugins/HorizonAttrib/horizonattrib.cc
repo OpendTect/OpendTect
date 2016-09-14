@@ -32,13 +32,13 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(Horizon)
-    
+
 void Horizon::initClass()
 {
     mAttrStartInitClassWithUpdate
 
     desc->addParam( new StringParam(sKeyHorID()) );
-    
+
     EnumParam* type = new EnumParam( sKeyType() );
     //Note: Ordering must be the same as numbering!
     type->addEnum( outTypeNamesStr(mOutTypeZ) );
@@ -46,7 +46,7 @@ void Horizon::initClass()
     desc->addParam( type );
 
     desc->addParam( new BoolParam( sKeyRelZ(), false, false ) );
-    
+
     StringParam* surfidpar = new StringParam( sKeySurfDataName() );
     surfidpar->setEnabled( false );
     desc->addParam( surfidpar );
@@ -75,9 +75,9 @@ Horizon::Horizon( Desc& dsc )
     , horizon_(0)
     , horizon2dlineid_( mUdf(int) )
     , relz_(false)
-{ 
+{
     BufferString idstr = desc_.getValParam( sKeyHorID() )->getStringValue();
-    horid_ = DBKey( idstr.buf() );
+    horid_ = DBKey::getFromString( idstr.buf() );
 
     mGetEnum( outtype_, sKeyType() );
     if ( outtype_ == mOutTypeSurfData )
@@ -150,8 +150,8 @@ void Horizon::prepareForComputeData()
 
 	loader = em.objectLoader( horid_, &sel );
 	if ( !loader ) mRet
-	
-	loader->execute();	
+
+	loader->execute();
 	objid = em.getObjectID( horid_ );
     }
 
@@ -207,7 +207,7 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
     }
 
     const EM::PosID posid( horizon_->id(), horizon_->sectionID(0),
-	    		   rc.toInt64() );
+			   rc.toInt64() );
     const float zval = (float) horizon_->getPos( posid ).z;
 
     const bool isz = outtype_ == mOutTypeZ;

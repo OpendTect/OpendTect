@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "welldata.h"
 #include "wellreader.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 
 
 mDefineNameSpaceEnumUtils(ODGMT,Shape,"Shapes")

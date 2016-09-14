@@ -415,10 +415,10 @@ void uiVisPartServer::findObject( const std::type_info& ti, TypeSet<int>& res )
 }
 
 
-void uiVisPartServer::findObject( const DBKey& mid, TypeSet<int>& res )
+void uiVisPartServer::findObject( const DBKey& dbky, TypeSet<int>& res )
 {
     res.erase();
-    if ( mid == DBKey(-1) )
+    if ( dbky.isInvalid() )
 	return;
 
     for ( int idx=visBase::DM().nrObjects()-1; idx>=0; idx-- )
@@ -426,7 +426,7 @@ void uiVisPartServer::findObject( const DBKey& mid, TypeSet<int>& res )
 	const visBase::DataObject* datobj = visBase::DM().getIndexedObject(idx);
 	mDynamicCastGet( const visSurvey::SurveyObject*, survobj, datobj );
 
-	if ( survobj && mid==survobj->getDBKey() )
+	if ( survobj && dbky==survobj->getDBKey() )
 	    res += datobj->id();
     }
 }
@@ -715,21 +715,22 @@ TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( int id,
 DataPack::ID uiVisPartServer::getDataPackID( int id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDataPackID( attrib ) : -1;
+    return so ? so->getDataPackID( attrib ) : DataPack::ID::getInvalid();
 }
 
 
 DataPack::ID uiVisPartServer::getDisplayedDataPackID( int id, int attrib )const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDisplayedDataPackID( attrib ) : -1;
+    return so ? so->getDisplayedDataPackID( attrib )
+	      : DataPack::ID::getInvalid();
 }
 
 
 DataPackMgr::ID	uiVisPartServer::getDataPackMgrID( int id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDataPackMgrID() : -1;
+    return so ? so->getDataPackMgrID() : DataPackMgr::ID::getInvalid();
 }
 
 
@@ -2253,7 +2254,7 @@ void uiVisPartServer::displayMapperRangeEditForAttrbs( int displayid )
     }
 
     const DataPackMgr::ID dpmid = getDataPackMgrID( displayid );
-    if ( dpmid < 1 )
+    if ( dpmid.isInvalid() )
     {
 	uiMSG().error( tr("Cannot display histograms for this type of data") );
 	return;
@@ -2268,7 +2269,7 @@ void uiVisPartServer::displayMapperRangeEditForAttrbs( int displayid )
     for ( int idx=0; idx<getNrAttribs(displayid); idx++ )
     {
 	const DataPack::ID dpid = getDataPackID( displayid, idx );
-	if ( dpid < 1 )
+	if ( dpid.getI() < 1 )
 	    continue;
 
 	multirgeditwin_->setDataPackID( idx, dpid );

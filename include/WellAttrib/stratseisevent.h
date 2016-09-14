@@ -37,8 +37,7 @@ public:
 			    , evtype_(evtyp)
 			    , offs_(0)
 			    , extrwin_(0,0)
-			    , extrstep_(mUdf(float))
-			    , downtolevelid_(LevelID::getInvalid())	{}
+			    , extrstep_(mUdf(float))	    {}
 
     float		snappedTime(const SeisTrc&) const;
     bool		snapPick(SeisTrc&) const;

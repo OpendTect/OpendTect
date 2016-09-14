@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsettr.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "survinfo.h"
 #include "od_helpids.h"
 

@@ -287,7 +287,7 @@ bool SeisTrcStorOutput::wantsOutput( const BinID& bid ) const
 
 bool SeisTrcStorOutput::setStorageID( const DBKey& storid )
 {
-    if ( !storid.isEmpty() )
+    if ( storid.isValid() )
     {
 	PtrMan<IOObj> ioseisout = IOM().get( storid );
 	if ( !ioseisout )
@@ -335,19 +335,20 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars, int outidx )
     }
 
     const char* storid = outppar->find( seisidkey() );
-    if ( !setStorageID(storid) )
+    DBKey dbky = DBKey::getFromString( storid );
+    if ( !setStorageID(dbky) )
     {
 	errmsg_ = uiStrings::phrCannotFind(tr("Output ID: %1").arg( storid ));
         return false;
     }
 
-    SeparString sepstr( storid, '|' );
-
-    if ( sepstr[1] && *sepstr[1] )
-	attribname_ = sepstr[1];
-
-    if ( sepstr[2] && *sepstr[2] && isDataType(sepstr[2]) )
-	datatype_ += sepstr[2];
+    if ( dbky.hasAuxKey() )
+    {
+	SeparString sepstr( dbky.auxKey(), '|' );
+	attribname_ = sepstr[0];
+	if ( sepstr[1] && *sepstr[1] && isDataType(sepstr[1]) )
+	    datatype_ += sepstr[1];
+    }
 
     const char* res = outppar->find( scalekey() );
     if ( res )
@@ -359,14 +360,14 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars, int outidx )
 
     auxpars_ = pars.subselect("Aux");
     return doInit();
-}//warning, only a small part of the old taken, see if some more is required
+} //warning, only a small part of the old taken, see if some more is required
 
 
 bool SeisTrcStorOutput::doInit()
 {
     ensureSelType( Seis::Range );
 
-    if ( *storid_.buf() )
+    if ( storid_.isValid() )
     {
 	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
 	if ( !ioseisout )
@@ -380,7 +381,6 @@ bool SeisTrcStorOutput::doInit()
 
 	if ( is2d_ && !datatype_.isEmpty() )
 	    writer_->setDataType( datatype_.buf() );
-
 
 	if ( auxpars_ )
 	{
@@ -981,7 +981,7 @@ void Trc2DVarZStorOutput::setTrcsBounds( Interval<float> intv )
 bool Trc2DVarZStorOutput::doInit()
 {
     ensureSelType( Seis::Range );
-    if ( *storid_.buf() )
+    if ( storid_.isValid() )
     {
 	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
 	if ( !ioseisout )

@@ -13,7 +13,7 @@ ________________________________________________________________________
  
 #include "attributeenginemod.h"
 #include "transl.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "uistring.h"
 
 class Conn;

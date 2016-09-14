@@ -23,7 +23,7 @@ ________________________________________________________________________
 namespace EM {
 
 mImplementEMObjFuncs(FaultStickSet,EMFaultStickSetTranslatorGroup::sGroupName())
-    
+
 FaultStickSet::FaultStickSet( EMManager& em )
     : Fault(em)
     , geometry_( *this )
@@ -89,7 +89,6 @@ const IOObjContext& FaultStickSet::getIOObjContext() const
 
 FaultStickSetGeometry::StickInfo::StickInfo()
     : pickedgeomid(Survey::GeometryManager::cUndefGeomID())
-    , pickedmid(-1)
 {}
 
 
@@ -154,20 +153,20 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 					 bool addtohistory )
 {
     return insertStick( sid, sticknr, firstcol, pos, editnormal, 0, 0,
-	    		addtohistory );
+			addtohistory );
 }
 
 
 bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 					 int firstcol, const Coord3& pos,
 					 const Coord3& editnormal,
-					 const DBKey* pickedmid,
+					 const DBKey* pickeddbkey,
 					 const char* pickednm,
 					 bool addtohistory )
 {
     Geometry::FaultStickSet* fss = sectionGeometry( sid );
 
-    if ( !fss ) 
+    if ( !fss )
 	return false;
 
     const bool firstrowchange = sticknr < fss->rowRange().start;
@@ -184,7 +183,8 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
     stickinfo_.insertAt( new StickInfo, 0 );
     stickinfo_[0]->sid = sid;
     stickinfo_[0]->sticknr = sticknr;
-    stickinfo_[0]->pickedmid = pickedmid ? *pickedmid : DBKey(-1);
+    stickinfo_[0]->pickeddbkey = pickeddbkey ? *pickeddbkey
+					     : DBKey::getInvalid();
     stickinfo_[0]->pickednm = pickednm;
     if ( addtohistory )
     {
@@ -362,10 +362,10 @@ const DBKey* FaultStickSetGeometry::pickedDBKey( const SectionID& sid,
     int idx = indexOf(sid,sticknr);
     if ( idx >= 0 )
     {
-	const DBKey& pickedmid = stickinfo_[idx]->pickedmid;
-	return pickedmid==DBKey(-1) ? 0 : &pickedmid;
+	const DBKey& pickeddbkey = stickinfo_[idx]->pickeddbkey;
+	return pickeddbkey==DBKey::getInvalid() ? 0 : &pickeddbkey;
     }
-    
+
     return 0;
 }
 
@@ -390,7 +390,7 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID( const SectionID& sid,
     int idx = indexOf(sid,sticknr);
     if ( idx >= 0 )
 	return stickinfo_[idx]->pickedgeomid;
-	
+
     return Survey::GeometryManager::cUndefGeomID();
 }
 
@@ -405,8 +405,8 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID( const SectionID& sid,
     mDefStickInfoStr( "Line set", linesetstr, sid, sticknr )
 #define mDefLineNameStr( linenamestr, sid, sticknr ) \
     mDefStickInfoStr( "Line name", linenamestr, sid, sticknr )
-#define mDefPickedDBKeyStr( pickedmidstr, sid, sticknr ) \
-    mDefStickInfoStr( "Picked DBKey", pickedmidstr, sid, sticknr )
+#define mDefPickedDBKeyStr( pickeddbkeystr, sid, sticknr ) \
+    mDefStickInfoStr( "Picked DBKey", pickeddbkeystr, sid, sticknr )
 #define mDefPickedNameStr( pickednmstr, sid, sticknr ) \
     mDefStickInfoStr( "Picked name", pickednmstr, sid, sticknr )
 #define mDefPickedGeomIDStr( pickedgeomidstr, sid, sticknr ) \
@@ -429,11 +429,11 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 	{
 	    mDefEditNormalStr( editnormalstr, sid, sticknr );
 	    par.set( editnormalstr.buf(), fss->getEditPlaneNormal(sticknr) );
-	    const DBKey* pickedmid = pickedDBKey( sid, sticknr );
-	    if ( pickedmid )
+	    const DBKey* pickeddbkey = pickedDBKey( sid, sticknr );
+	    if ( pickeddbkey )
 	    {
-		mDefPickedDBKeyStr( pickedmidstr, sid, sticknr );
-		par.set( pickedmidstr.buf(), *pickedmid );
+		mDefPickedDBKeyStr( pickeddbkeystr, sid, sticknr );
+		par.set( pickeddbkeystr.buf(), *pickeddbkey );
 	    }
 
 	    const char* pickednm = pickedName( sid, sticknr );
@@ -493,17 +493,17 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 		continue;
 	    }
 
-	    mDefPickedDBKeyStr( pickedmidstr, sid, sticknr );
+	    mDefPickedDBKeyStr( pickeddbkeystr, sid, sticknr );
 	    mDefLineSetStr( linesetstr, sid, sticknr );
-	    if ( !par.get(pickedmidstr.buf(), stickinfo_[0]->pickedmid))
-		par.get( linesetstr.buf(), stickinfo_[0]->pickedmid );
+	    if ( !par.get(pickeddbkeystr.buf(), stickinfo_[0]->pickeddbkey))
+		par.get( linesetstr.buf(), stickinfo_[0]->pickeddbkey );
 	    mDefPickedNameStr( pickednmstr, sid, sticknr );
 	    mDefLineNameStr( linenamestr, sid, sticknr );
 
 	    if ( !par.get(pickednmstr.buf(), stickinfo_[0]->pickednm) )
 		par.get( linenamestr.buf(), stickinfo_[0]->pickednm );
 
-	    PtrMan<IOObj> pickedioobj = IOM().get( stickinfo_[0]->pickedmid );
+	    PtrMan<IOObj> pickedioobj = IOM().get( stickinfo_[0]->pickeddbkey );
 	    if ( pickedioobj )
 		stickinfo_[0]->pickedgeomid =
 			Survey::GM().getGeomID( pickedioobj->name(),
@@ -522,7 +522,7 @@ int FaultStickSetGeometry::indexOf( const SectionID& sid, int sticknr ) const
 	if ( stickinfo_[idx]->sid==sid && stickinfo_[idx]->sticknr==sticknr )
 	    return idx;
     }
-	
+
     return -1;
 }
 

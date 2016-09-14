@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 #include "color.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "trckeyzsampling.h"
 #include "datainpspec.h"
 #include "iodir.h"

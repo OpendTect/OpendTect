@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 
 #include "horizonrelation.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -55,7 +55,7 @@ void RelationTree::Node::fillPar( IOPar& par ) const
 {
     BufferStringSet childids;
     for ( int idx=0; idx<children_.size(); idx++ )
-	childids.addIfNew( children_[idx]->id_.buf() );
+	childids.addIfNew( children_[idx]->id_.toString() );
 
     par.set( sKey::ID(), id_ );
     par.set( sKeyChildIDs(), childids );
@@ -72,12 +72,12 @@ void RelationTree::Node::fillPar( IOPar& par ) const
 
 
 void RelationTree::Node::fillChildren( const FileMultiString& fms,
-       				 const RelationTree& tree )
+				 const RelationTree& tree )
 {
     children_.erase();
     for ( int idx=0; idx<fms.size(); idx++ )
     {
-	DBKey id( fms[idx] );
+	const DBKey id = DBKey::getFromString( fms[idx] );
 	const RelationTree::Node* node = tree.getNode( id );
 	if ( !node )
 	    continue;
@@ -165,12 +165,12 @@ void RelationTree::removeNode( const DBKey& id, bool dowrite )
     for ( int idx=0; idx<parents.size(); idx++ )
     {
 	RelationTree::Node* parentnode = nodes_[parents[idx]];
-	parentnode->children_.removeSingle( 
+	parentnode->children_.removeSingle(
 		parentnode->children_.indexOf(node) );
 	for ( int cdx=0; cdx<node->children_.size(); cdx++ )
 	{
 	    const RelationTree::Node* childnode = node->children_[cdx];
-	    if ( !parentnode->hasChild(childnode) && 
+	    if ( !parentnode->hasChild(childnode) &&
 		 !childnode->hasChild(parentnode) )
 		parentnode->children_ += childnode;
 	}

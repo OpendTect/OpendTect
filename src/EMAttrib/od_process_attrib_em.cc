@@ -91,9 +91,11 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 	errmsg += " defined in parameter file";
 	return false;
     }
-    else if ( objid )
+    else if ( !*objid )
+	objidstr.setEmpty();
+    else
     {
-	PtrMan<IOObj> ioobj = IOM().get( objid );
+	PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(objid) );
 	if ( !ioobj )
 	{
 	    errmsg = "Cannot find object for '"; errmsg += objid;
@@ -103,15 +105,13 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 
 	objidstr = objid;
     }
-    else
-	objidstr = "";
 
     return true;
 }
 
 
 static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
-		     ObjectSet<DBKey>& midset, BufferString& errmsg,
+		     DBKeySet& midset, BufferString& errmsg,
 		     bool iscubeoutp, DBKey& outpid  )
 {
     strm << "Preparing processing" << od_endl;
@@ -123,17 +123,17 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 
     if ( !iscubeoutp )
     {
-	DBKey* mid = new DBKey(objidstr.buf());
-	midset += mid;
+	midset += DBKey::getFromString( objidstr );
 	BufferString newattrnm;
 	iopar.get( sKey::Target(), newattrnm );
 	strm << "Calculating Horizon Data '" << newattrnm << "'." << od_endl;
     }
     else
     {
-	outpid = objidstr.buf();
+	outpid = DBKey::getFromString( objidstr );
 	PtrMan<IOObj> ioobj = IOM().get( outpid ); //check already done
-	if ( !ioobj ) return false;
+	if ( !ioobj )
+	    return false;
 
 	strm << "Calculating '" << ioobj->name() << "'." << od_endl;
 	BufferString basehorstr(
@@ -142,18 +142,14 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) )
 	    return false;
 
-	DBKey* mid = new DBKey( objidstr.buf() );
-	midset += mid;
+	midset += DBKey::getFromString( objidstr );
 
 	BufferString hor2str = IOPar::compKey(basehorstr,1);
 	if( !getObjectID( iopar, hor2str, false, errmsg, objidstr ) )
 	    return false;
 
-	if ( objidstr.size() )
-	{
-	    DBKey* mid2 = new DBKey( objidstr.buf() );
-	    midset += mid2;
-	}
+	if ( !objidstr.isEmpty() )
+	    midset += DBKey::getFromString( objidstr );
     }
     return true;
 }
@@ -170,7 +166,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 
 
 static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
-		    const DBKey& outid = 0 , SeisTrcBuf* tbuf = 0 )
+		    const DBKey* outid = 0, SeisTrcBuf* tbuf = 0 )
 {
     if ( !proc ) return false;
 
@@ -190,9 +186,9 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 		 <<"(regular survey): " << proc->totalNr() << od_newline;
 	    strm << "Loading cube data ..." << od_newline;
 
-	    if ( !useoutwfunc && tbuf )
+	    if ( !useoutwfunc && tbuf && outid )
 	    {
-		PtrMan<IOObj> ioseisout = IOM().get( outid );
+		PtrMan<IOObj> ioseisout = IOM().get( *outid );
 		writer = new SeisTrcWriter( ioseisout );
 		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
 		{
@@ -324,7 +320,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     BufferString errmsg;
     DBKey outpid;
-    ObjectSet<DBKey> midset;
+    DBKeySet midset;
     if ( !prepare( strm, pars(),
 		   iscubeoutp ? SeisTrcStorOutput::seisidkey()
 			      : LocationOutput::surfidkey(),
@@ -349,14 +345,14 @@ bool BatchProgram::go( od_ostream& strm )
     ObjectSet<EMObject> objects;
     for ( int idx=0; idx<midset.size(); idx++ )
     {
-	DBKey* mid = midset[idx];
-	strm << "Loading: " << mid->buf() << "\n\n";
+	const DBKey dbky = midset[idx];
+	strm << "Loading: " << dbky.toString() << "\n\n";
 
 	SurfaceIOData sd;
 	uiString uierr;
-	if ( !EM::EMM().getSurfaceData(*mid,sd,uierr) )
+	if ( !EM::EMM().getSurfaceData(dbky,sd,uierr) )
 	{
-	    BufferString errstr( "Cannot load horizon ", mid->buf(), ": " );
+	    BufferString errstr( "Cannot load horizon ", dbky.toString(), ": ");
 	    errstr += uierr.getFullString();
 	    mErrRetNoProc( errstr.buf() );
 	}
@@ -367,11 +363,11 @@ bool BatchProgram::go( od_ostream& strm )
 	    sels.selsections += ids;
 	sels.rg = hsamp;
 	PtrMan<Executor> loader =
-			EMM().objectLoader( *mid, iscubeoutp ? &sels : 0 );
+			EMM().objectLoader( dbky, iscubeoutp ? &sels : 0 );
 	if ( !loader || !loader->go(strm) )
 	{
 	    BufferString errstr = "Cannot load horizon:";
-	    errstr += mid->buf();
+	    errstr += dbky.toString();
 	    mErrRetNoProc( errstr.buf() );
 	}
 
@@ -390,7 +386,7 @@ bool BatchProgram::go( od_ostream& strm )
 		zbounds4mmproc = sd.zrg;
 	}
 
-	EMObject* emobj = EMM().getObject( EMM().getObjectID(*mid) );
+	EMObject* emobj = EMM().getObject( EMM().getObjectID(dbky) );
 	if ( emobj ) emobj->ref();
 	objects += emobj;
     }
@@ -443,14 +439,14 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !iscubeoutp )
     {
 	ObjectSet<BinIDValueSet> bivs;
-	HorizonUtils::getPositions( strm, *(midset[0]), bivs );
+	HorizonUtils::getPositions( strm, midset[0], bivs );
 	uiString uierrmsg;
 	Processor* proc = aem.createLocationOutput( uierrmsg, bivs );
 	if ( !proc ) mErrRet( uierrmsg.getFullString() );
 
 	if ( !process( strm, proc, false ) ) return false;
-        HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
-	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
+	HorizonUtils::addSurfaceData( midset[0], attribrefs, bivs );
+	EMObject* obj = EMM().getObject( EMM().getObjectID(midset[0]) );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
 	if ( !horizon ) mErrRet( "Huh" );
 
@@ -530,7 +526,7 @@ bool BatchProgram::go( od_ostream& strm )
 		Processor* proc = aem.create2DVarZOutput( uierrmsg, pars(),
 				dtps, outval, zboundsset ? &zbounds : 0 );
 		if ( !proc ) mErrRet( uierrmsg.getFullString() );
-		if ( !process(strm,proc,is2d,outpid,&seisoutp) )
+		if ( !process(strm,proc,is2d,&outpid,&seisoutp) )
 		    return false;
 
 		delete dtps;
@@ -549,13 +545,13 @@ bool BatchProgram::go( od_ostream& strm )
 	    Processor* proc = aem.createTrcSelOutput( uierrmsg, bivs, seisoutp,
 					outval, zboundsset ? &zbounds : 0 );
 	    if ( !proc ) mErrRet( uierrmsg.getFullString() );
-	    if ( !process( strm, proc, is2d, outpid, &seisoutp ) ) return false;
+	    if ( !process( strm, proc, is2d, &outpid, &seisoutp ) )
+		return false;
 	}
     }
 
     strm << "Successfully saved data." << od_newline;
 
-    deepErase(midset);
     deepUnRef( objects );
 
     return true;

@@ -213,7 +213,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     if ( !tb )
 	{ pErrMsg("CallBacker is not uiToolButton!"); return; }
     const DBKey curid = subj_.currentID();
-    if ( curid.isEmpty() )
+    if ( curid.isInvalid() )
 	return;
 
     const bool isreloc = tb == locbut;

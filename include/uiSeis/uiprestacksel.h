@@ -55,7 +55,7 @@ public:
     DBKey		getDBKey() const;
 
     void		setDataPackInp(const TypeSet<DataPack::FullID>& ids);
-    bool		commitInput();
+    bool		inputOK();
 
 protected:
 
@@ -64,8 +64,8 @@ protected:
 
     void		doSelDataPack(CallBacker*);
 
-    DBKey		selid_;
     TypeSet<DataPack::FullID> dpfids_;
+
 };
 
 

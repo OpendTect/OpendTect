@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uiioobjsel.h"
 #include "wavelet.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 class uiWaveletExtraction;
 
 

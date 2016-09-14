@@ -87,7 +87,7 @@ public:
 			~uiWell2RandomLineDlg();
 
     void		getCoordinates(TypeSet<Coord>&);
-    const char*		getRandLineID() const;
+    DBKey		getRandLineID() const;
     bool		dispOnCreation();
 
 protected:
@@ -99,8 +99,8 @@ protected:
     bool		acceptOK();
 
     uiGenInput*		extendfld_;
-    uiIOObjSel*	outfld_;
-    uiCheckBox*	dispfld_;
+    uiIOObjSel*		outfld_;
+    uiCheckBox*		dispfld_;
 
     CtxtIOObj&		outctio_;
 

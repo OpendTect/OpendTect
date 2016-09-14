@@ -240,7 +240,7 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 
 DBKey FaultStickSetDisplay::getDBKey() const
 {
-    return fault_ ? fault_->dbKey() : DBKey();
+    return fault_ ? fault_->dbKey() : DBKey::getInvalid();
 }
 
 
@@ -561,7 +561,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     Seis2DDisplay* s2dd = 0;
     RandomTrackDisplay* rdtd = 0;
     HorizonDisplay* hordisp = 0;
-    const DBKey* pickedmid = 0;
+    const DBKey* pickeddbkey = 0;
     Pos::GeomID pickedgeomid = Survey::GeometryManager::cUndefGeomID();
     const char* pickednm = 0;
     PtrMan<Coord3> normal = 0;
@@ -573,7 +573,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     {
 	const int sticknr = mousepid.getRowCol().row();
 	pos = fault_->getPos( mousepid );
-	pickedmid = fssg.pickedDBKey( mousepid.sectionID(), sticknr );
+	pickeddbkey = fssg.pickedDBKey( mousepid.sectionID(), sticknr );
 	pickednm = fssg.pickedName( mousepid.sectionID(), sticknr );
 	pickedgeomid = fssg.pickedGeomID( mousepid.sectionID(), sticknr );
 	zdragoffset = 0;
@@ -595,7 +595,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    if ( hordisp )
 	    {
 		horid = new DBKey( hordisp->getDBKey() );
-		pickedmid = horid;
+		pickeddbkey = horid;
 		horshiftname = hordisp->getTranslation().z *
 		    scene_->zDomainInfo().userFactor();
 		pickednm = horshiftname.buf();
@@ -607,7 +607,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 		normal = new Coord3( plane->getNormal(Coord3::udf()) );
 		break;
 	    }
-    	    mDynamicCast(RandomTrackDisplay*,rdtd,dataobj);
+	    mDynamicCast(RandomTrackDisplay*,rdtd,dataobj);
 	    if ( rdtd )
 	    {
 		normal =
@@ -630,7 +630,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     EM::PosID insertpid;
     fsseditor_->setZScale( mZScale() );
-    fsseditor_->getInteractionInfo( insertpid, pickedmid, pickednm,
+    fsseditor_->getInteractionInfo( insertpid, pickeddbkey, pickednm,
 				    pickedgeomid, pos, normal);
 
     if ( mousepid.isUdf() && !viseditor_->isDragging() )
@@ -704,7 +704,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
 	if ( pickedgeomid == Survey::GeometryManager::cUndefGeomID() )
 	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
-			      pickedmid, pickednm, true );
+			      pickeddbkey, pickednm, true );
 	else
 	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
 			      pickedgeomid, true );

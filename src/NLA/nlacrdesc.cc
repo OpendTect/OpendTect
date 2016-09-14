@@ -46,7 +46,7 @@ void NLACreationDesc::clear()
 {
     design.clear();
     outids.setEmpty();
-    vdsid = "";
+    vdsid.setInvalid();
     doextraction = true;
     isdirect = false;
 }
@@ -64,8 +64,10 @@ static bool haveColNmMatch( BufferString& colnm, const char* inpnodenm )
     if ( colnm == nodenm )
 	return true;
 
-    if ( IOObj::isKey(colnm) ) colnm = IOM().nameOf( colnm );
-    if ( IOObj::isKey(nodenm) ) nodenm = IOM().nameOf( nodenm );
+    if ( IOObj::isKey(colnm) )
+	colnm = IOM().nameOf( DBKey::getFromString(colnm) );
+    if ( IOObj::isKey(nodenm) )
+	nodenm = IOM().nameOf( DBKey::getFromString(nodenm) );
     return colnm == nodenm;
 }
 
@@ -155,7 +157,7 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 	{
 	    BufferString psnm = outids.get( iout );
 	    if ( IOObj::isKey(psnm) )
-		psnm = IOM().nameOf( psnm );
+		psnm = IOM().nameOf( DBKey::getFromString(psnm) );
             dps.dataSet().add( new DataColDef( psnm, *outids[iout] ) );
 	}
     }

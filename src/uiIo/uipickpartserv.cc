@@ -61,7 +61,6 @@ uiPickPartServer::~uiPickPartServer()
 {
     detachAllNotifiers();
     delete &gendef_;
-    deepErase( selhorids_ );
     delete manpicksetsdlg_;
 }
 
@@ -168,7 +167,7 @@ bool uiPickPartServer::storePickSets( int polyopt, const char* cat )
 bool uiPickPartServer::storePickSet( const Pick::Set& ps )
 {
     Pick::SetManager::ObjID setid = Pick::SetMGR().getID( ps );
-    if ( setid.isUdf() )
+    if ( setid.isInvalid() )
     {
 	uiMSG().error( tr("Internal: Request to store an unmanaged PickSet") );
 	return false;
@@ -190,7 +189,7 @@ bool uiPickPartServer::storePickSet( const Pick::Set& ps )
 bool uiPickPartServer::storePickSetAs( const Pick::Set& ps )
 {
     Pick::SetManager::ObjID setid = Pick::SetMGR().getID( ps );
-    if ( setid.isUdf() )
+    if ( setid.isInvalid() )
     {
 	uiMSG().error( tr("Internal: Request to Save-As an unmanaged PickSet"));
 	return false;
@@ -234,7 +233,7 @@ void uiPickPartServer::mergePickSets( DBKey& mid )
 
 void uiPickPartServer::fetchHors( bool is2d )
 {
-    deepErase( hinfos_ );
+    hinfos_.setEmpty();
     sendEvent( is2d ? evGetHorInfo2D() : evGetHorInfo3D() );
 }
 
@@ -341,13 +340,13 @@ void uiPickPartServer::mkRandLocs2D( CallBacker* cb )
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     selectlines_ = rp.linenms_;
-    deepErase( selhorids_ );
+    selhorids_.setEmpty();
     coords2d_.erase(); geomids2d_.erase();
     if ( rp.needhor_ )
     {
-	selhorids_ += new DBKey( hinfos_[rp.horidx_]->dbkey );
+	selhorids_ += hinfos_[rp.horidx_]->dbkey;
 	if ( rp.horidx2_ >= 0 )
-	    selhorids_ += new DBKey( hinfos_[rp.horidx2_]->dbkey );
+	    selhorids_ += hinfos_[rp.horidx2_]->dbkey;
 
 	hor2dzrgs_.erase();
 	sendEvent( evGetHorDef2D() );
@@ -406,7 +405,8 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
 {
     const char* sKeyMisClass = "Misclassified [NN]";
     Pick::SetManager::ObjID id = Pick::SetMGR().getIDByName( sKeyMisClass );
-    RefMan<Pick::Set> ps = id.isUdf() ? 0 : Pick::SetMGR().fetchForEdit( id );
+    RefMan<Pick::Set> ps = id.isInvalid() ? 0
+			 : Pick::SetMGR().fetchForEdit( id );
     if ( ps )
 	ps->setEmpty();
     else

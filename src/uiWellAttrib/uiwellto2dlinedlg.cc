@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "uiseisrandto2dline.h"
 #include "uiwellrdmlinedlg.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "randomlinetr.h"
 #include "seisrandlineto2d.h"
 #include "survgeometry.h"

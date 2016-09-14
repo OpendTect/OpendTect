@@ -138,7 +138,7 @@ void FaultStickSetEditor::setScaleVector( const Coord3& scalevec )
 
 
 float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
-			const DBKey* pickedmid, const char* pickednm,
+			const DBKey* pickeddbkey, const char* pickednm,
 			Pos::GeomID pickedgeomid, const Coord3& mousepos,
 			const Coord3* posnormal ) const
 {
@@ -162,7 +162,7 @@ float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
     else if ( !fssg.pickedOnPlane(sid,sticknr) )
     {
 	const DBKey* mid = fssg.pickedDBKey( sid, sticknr );
-	if ( !pickedmid || !mid || *pickedmid!=*mid )
+	if ( !pickeddbkey || !mid || *pickeddbkey!=*mid )
 	    return mUdf(float);
 
 	const FixedString nm( fssg.pickedName(sid,sticknr) );
@@ -219,7 +219,7 @@ float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
 
 
 void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
-			const DBKey* pickedmid, const char* pickednm,
+			const DBKey* pickeddbkey, const char* pickednm,
 			Pos::GeomID pickedgeomid, const Coord3& mousepos,
 			const Coord3* posnormal ) const
 {
@@ -235,7 +235,7 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
     {
 	sid = lastclickedpid_.sectionID();
 
-	const float dist = distToStick( sticknr, sid, pickedmid, pickednm,
+	const float dist = distToStick( sticknr, sid, pickeddbkey, pickednm,
 					pickedgeomid, pos, posnormal );
 	if ( !mIsUdf(dist) )
 	{
@@ -244,13 +244,13 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 	}
     }
 
-    if ( getNearestStick(sticknr,sid,pickedmid,pickednm,pickedgeomid,pos,
+    if ( getNearestStick(sticknr,sid,pickeddbkey,pickednm,pickedgeomid,pos,
 			 posnormal) )
 	getPidsOnStick( insertpid, sticknr, sid, pos );
 }
 
 
-const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos, 
+const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos,
     Pos::GeomID pickedgeomid, const Coord3* normal ) const
 {
     EM::PosID pid = EM::PosID::udf();
@@ -259,11 +259,11 @@ const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos,
     const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
 			? sowingpivot_ : mousepos;
 
-    DBKey pickedmid;
+    DBKey pickeddbkey;
 
-    if ( getNearestStick(sticknr,sid,&pickedmid,"",pickedgeomid,pos, normal) )
+    if ( getNearestStick(sticknr,sid,&pickeddbkey,"",pickedgeomid,pos, normal) )
 	getPidsOnStick( pid, sticknr, sid, pos );
-    
+
     return pid;
 }
 
@@ -322,7 +322,7 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 
 
 bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
-			const DBKey* pickedmid, const char* pickednm,
+			const DBKey* pickeddbkey, const char* pickednm,
 			Pos::GeomID pickedgeomid, const Coord3& mousepos,
 			const Coord3* posnormal) const
 {
@@ -351,8 +351,8 @@ bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
 	{
 
 	    const int cursticknr = rowrange.atIndex(stickidx);
-	    const float disttoline = distToStick( cursticknr, cursid, pickedmid,
-				pickednm, pickedgeomid, mousepos, posnormal );
+	    const float disttoline = distToStick( cursticknr, cursid,
+		    pickeddbkey, pickednm, pickedgeomid, mousepos, posnormal );
 	    if ( !mIsUdf(disttoline) )
 	    {
 		if ( mIsUdf(minlinedist) || disttoline<minlinedist )
@@ -500,12 +500,12 @@ void FaultStickSetEditor::cloneMovingNode()
     const EM::SectionID& sid = movingnode_.sectionID();
     const int sticknr = movingnode_.getRowCol().row();
     Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
-    const DBKey* pickedmid = fssg.pickedDBKey( sid, sticknr );
+    const DBKey* pickeddbkey = fssg.pickedDBKey( sid, sticknr );
     const Pos::GeomID pickedgeomid = fssg.pickedGeomID( sid, sticknr );
     const char* pickednm = fssg.pickedName( sid, sticknr );
     const Coord3& normal = fss->getEditPlaneNormal( sticknr );
     EM::PosID insertpid;
-    getInteractionInfo( insertpid, pickedmid, pickednm, pickedgeomid,
+    getInteractionInfo( insertpid, pickeddbkey, pickednm, pickedgeomid,
 			startpos_, &normal );
     if ( insertpid.isUdf() )
 	return;

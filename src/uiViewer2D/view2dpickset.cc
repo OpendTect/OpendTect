@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "flatposdata.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "picksetmanager.h"
 #include "seisdatapack.h"
 #include "separstr.h"
@@ -38,8 +38,9 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& psid, uiFlatViewWin* win,
 {
     if ( psid > 0 )
     {
-	DBKey setid( IOObjContext::getStdDirData(IOObjContext::Loc)->id_ );
-	setid.add( psid );
+	// Bert: very fishy
+	const DBKey setid( IOObjContext::getStdDirData(IOObjContext::Loc)->id_,
+			    DBKey::ObjID::get(psid) );
 	RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( setid );
 	if ( ps )
 	    setPickSet( ps );

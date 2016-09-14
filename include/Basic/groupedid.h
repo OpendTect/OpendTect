@@ -18,9 +18,10 @@ ________________________________________________________________________
 /*!\brief A unique identifier for an object consisting of a group and an ID
 	within the group.
 
-In many places there is a need for an ID consisting of not only an object ID but also a group ID. If the groups were closed, an enum would be sufficient. But
-if the number of groups is not fixed (e.g. because they are in a factory) then
-both group ID and the object ID need to be integer numbers.
+In many places there is a need for an ID consisting of not only an object ID
+but also a group ID. If the groups were closed, an enum would be sufficient.
+But if the number of groups is not fixed (e.g. because they are in a factory)
+then both group ID and the object ID need to be integer numbers.
 
 Usually there are a lot less groups than possible objects, so the group ID can
 be represented by a short int.
@@ -40,6 +41,8 @@ public:
     mDefIntegerIDType(GroupNrT,	GroupID);
     mDefIntegerIDType(ObjNrT,	ObjID);
 
+			IDWithGroup()
+			    : groupnr_(-1), objnr_(-1)	{}
 			IDWithGroup( GroupID gid, ObjID oid )
 			    : groupnr_(gid.getI())
 			    , objnr_(oid.getI())	{}
@@ -65,7 +68,7 @@ public:
 				{ return groupnr_ != oth.groupnr_ ||
 					 objnr_ != oth.objnr_; }
 
-    inline bool		isInvalid() const
+    virtual bool	isInvalid() const
 				{ return groupnr_<0 || objnr_<0; }
     inline bool		isValid() const			{ return !isInvalid(); }
     inline bool		hasValidGroupID() const		{ return groupnr_>=0; }
@@ -92,7 +95,7 @@ protected:
     GroupNrT		groupnr_;
     ObjNrT		objnr_;
 
-    inline		IDWithGroup( GroupNrT gnr=0, ObjNrT onr=0 )
+    inline		IDWithGroup( GroupNrT gnr, ObjNrT onr )
 			    : groupnr_(gnr), objnr_(onr) { /* keep private! */ }
 
 };

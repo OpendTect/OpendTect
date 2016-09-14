@@ -43,10 +43,6 @@ public:
 				mDeclMonitorableAssignment(Data);
 				mDeclInstanceCreatedNotifierAccess(Data);
 
-    const DBKey&		dbKey() const		{ return mid_; }
-    void			setDBKey( const DBKey& mid ) const
-				{ mid_ = mid; }
-
     const Info&			info() const		{ return info_; }
     Info&			info()			{ return info_; }
 
@@ -101,6 +97,12 @@ public:
 
     virtual void		touch() const;
     virtual DirtyCountType	dirtyCount() const;
+
+    const DBKey&		dbKey() const		{ return mid_; }
+    void			setDBKey( const DBKey& mid ) const
+				{ mid_ = mid; }
+    mDeprecated const DBKey&	multiID() const		{ return mid_; }
+    mDeprecated void		setMultiID( const DBKey& k ) { setDBKey(k); }
 
 protected:
 

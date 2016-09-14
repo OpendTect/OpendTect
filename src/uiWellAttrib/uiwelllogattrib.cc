@@ -60,7 +60,7 @@ void uiWellLogAttrib::selDone( CallBacker* )
 {
     logsfld_->setEmpty();
     const DBKey wellid = wellfld_->key( true );
-    if ( wellid.isUdf() )
+    if ( wellid.isInvalid() )
 	return;
 
     BufferStringSet lognms;
@@ -76,7 +76,7 @@ bool uiWellLogAttrib::setParameters( const Desc& desc )
 
     const ValParam* par = desc.getValParam( WellLog::keyStr() );
     if ( par )
-	wellfld_->setInput( DBKey(par->getStringValue(0)) );
+	wellfld_->setInput( DBKey::getFromString(par->getStringValue(0)) );
 
     selDone( 0 );
     par = desc.getValParam( WellLog::logName() );
@@ -106,7 +106,7 @@ bool uiWellLogAttrib::getParameters( Desc& desc )
     if ( desc.attribName() != WellLog::attribName() )
 	return false;
 
-    mSetString( WellLog::keyStr(), wellfld_->key().buf() );
+    mSetString( WellLog::keyStr(), wellfld_->key().toString() );
     mSetString( WellLog::logName(), logsfld_->getText() );
     mSetEnum( WellLog::upscaleType(), sampfld_->getIntValue() );
 

@@ -237,7 +237,7 @@ bool Seis2DLineMerger::nextAttr()
     curattridx_++;
     if ( !attrnms_.validIdx(curattridx_) )
 	return false;
-    IOM().to( SeisTrc2DTranslatorGroup::ioContext().getSelKey() );
+    IOM().to( SeisTrc2DTranslatorGroup::ioContext().getSelDirID() );
     PtrMan<IOObj> seisobj =
 	IOM().getLocal( attrnms_.get(curattridx_).buf(),
 			mTranslGroupName(SeisTrc2D) );

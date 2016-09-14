@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "datainpspec.h"
 #include "hilbertattrib.h"
 #include "iodir.h"

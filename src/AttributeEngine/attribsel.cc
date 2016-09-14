@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 #include "bindatadesc.h"
 #include "bufstringset.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "globexpr.h"
 #include "iodir.h"
 #include "ioman.h"
@@ -67,14 +67,13 @@ bool SelSpec::operator!=( const SelSpec& ss ) const
 void SelSpec::setZDomainKey( const Desc& desc )
 {
     zdomainkey_.setEmpty();
-    BufferString storedid = desc.getStoredID();
-    if ( storedid.isEmpty() ) return;
-
-    PtrMan<IOObj> ioobj = IOM().get( DBKey(storedid.buf()) );
-    if ( !ioobj )
+    const DBKey storedid = desc.getStoredID();
+    if ( storedid.isInvalid() )
 	return;
 
-    ioobj->pars().get( ZDomain::sKey(), zdomainkey_ );
+    PtrMan<IOObj> ioobj = IOM().get( storedid );
+    if ( ioobj )
+	ioobj->pars().get( ZDomain::sKey(), zdomainkey_ );
 }
 
 
@@ -169,8 +168,8 @@ void SelSpec::setRefFromID( const DescSet& ds )
     {
 	if ( desc->isStored() )
 	{
-	    DBKey mid( desc->getStoredID(false) );
-	    PtrMan<IOObj> ioobj = IOM().get( mid );
+	    const DBKey dbky = desc->getStoredID( false );
+	    PtrMan<IOObj> ioobj = IOM().get( dbky );
 	    if ( ioobj )
 	    {
 		Desc* ncdesc = const_cast<Desc*>( desc );
@@ -241,10 +240,9 @@ const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid ) const
     if ( !desc )
 	return 0;
 
-    const DBKey mid( desc->getStoredID() );
-
+    const DBKey dbky = desc->getStoredID();
     RefMan<SeisDataPack> sdp =
-	Seis::PLDM().getAndCast<SeisDataPack>(mid,geomid);
+	Seis::PLDM().getAndCast<SeisDataPack>(dbky,geomid);
 
     return sdp ? &sdp->getDataDesc() : 0;
 }
@@ -288,7 +286,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	{
 	    BufferString nm( *nlamod->design().outputs[idx] );
 	    if ( IOObj::isKey(nm) )
-		nm = IOM().nameOf( nm );
+		nm = IOM().nameOf( DBKey::getFromString(nm) );
 	    nlaoutnms_.add( nm );
 	}
     }
@@ -298,13 +296,12 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 void SelInfo::fillStored( bool steerdata, const char* filter )
 {
     BufferStringSet& nms = steerdata ? steernms_ : ioobjnms_;
-    BufferStringSet& ids = steerdata ? steerids_ : ioobjids_;
+    DBKeySet& ids = steerdata ? steerids_ : ioobjids_;
     nms.erase(); ids.erase();
     BufferStringSet ioobjnmscopy;
-    BufferStringSet ioobjidscopy;
+    DBKeySet ioobjidscopy;
 
-    const DBKey mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::Seis );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     GlobExpr* ge = filter && *filter ? new GlobExpr( filter ) : 0;
 
@@ -339,8 +336,10 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	    if ( is2d )
 	    {
 		BufferStringSet attrnms;
-		SelInfo::getAttrNames( ioobj.key(), attrnms, steerdata, true );
-		if ( attrnms.isEmpty() ) continue;
+		SelInfo::getAttrNames( ioobj.key().toString(), attrnms,
+					steerdata, true );
+		if ( attrnms.isEmpty() )
+		    continue;
 	    }
 	    else
 	    {
@@ -350,7 +349,7 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	}
 
 	ioobjnmscopy.add( ioobjnm );
-	ioobjidscopy.add( (const char*)ioobj.key() );
+	ioobjidscopy.add( ioobj.key() );
     }
 
     if ( ioobjnmscopy.size() > 1 )
@@ -401,7 +400,7 @@ SelInfo& SelInfo::operator=( const SelInfo& asi )
 
 bool SelInfo::is2D( const char* defstr )
 {
-    PtrMan<IOObj> ioobj = IOM().get( DBKey(defstr) );
+    PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(defstr) );
     return ioobj ? SeisTrcTranslator::is2D(*ioobj,true) : false;
 }
 
@@ -410,7 +409,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 			    bool issteer, bool onlymulticomp )
 {
     nms.erase();
-    PtrMan<IOObj> ioobj = IOM().get( DBKey(defstr) );
+    PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(defstr) );
     if ( !ioobj || !SeisTrcTranslator::is2D(*ioobj,true) )
 	return;
 
@@ -433,8 +432,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 void SelInfo::getZDomainItems( const ZDomain::Info& zinf,
 			       BufferStringSet& nms )
 {
-    const DBKey mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::Seis );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {

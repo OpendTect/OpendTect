@@ -119,7 +119,7 @@ Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     : rt_(rt)
     , startdepth_(0)
 {
-    elasticpropselmid_.setEmpty();
+    elasticpropseldbkey_.setInvalid();
     int pidx = PROPS().indexOf( PropertyRef::Den );
     if ( pidx >= 0 ) propsel_ += PROPS()[pidx];
     pidx = PROPS().indexOf( PropertyRef::Vel );
@@ -144,7 +144,7 @@ Strat::LayerSequenceGenDesc& Strat::LayerSequenceGenDesc::operator=(
 	*this += other[idx]->clone();
     setPropSelection( other.propsel_ );
     workbenchparams_ = other.workbenchparams_;
-    elasticpropselmid_ = other.elasticpropselmid_;
+    elasticpropseldbkey_ = other.elasticpropseldbkey_;
     startdepth_ = other.startdepth_;
     return *this;
 }
@@ -160,7 +160,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
 
     IOPar iop; iop.getFrom(astrm);
     iop.get( sKeyTopdepth, startdepth_ );
-    iop.get( sKeyElasticPropSelID, elasticpropselmid_ );
+    iop.get( sKeyElasticPropSelID, elasticpropseldbkey_ );
     PtrMan<IOPar> workbenchpars = iop.subselect( sKeyWorkBenchParams() );
     if ( !workbenchpars || workbenchpars->isEmpty() )
 	workbenchpars = iop.subselect( "Workbench parameters" );
@@ -205,7 +205,7 @@ bool Strat::LayerSequenceGenDesc::putTo( od_ostream& strm ) const
 
     IOPar iop;
     iop.set( sKeyTopdepth, startdepth_ );
-    iop.set( sKeyElasticPropSelID, elasticpropselmid_ );
+    iop.set( sKeyElasticPropSelID, elasticpropseldbkey_ );
     iop.mergeComp( workbenchparams_, sKeyWorkBenchParams() );
     iop.putTo( astrm );
 
@@ -228,15 +228,15 @@ void Strat::LayerSequenceGenDesc::setPropSelection(
 }
 
 
-void Strat::LayerSequenceGenDesc::setElasticPropSel( const DBKey& mid )
+void Strat::LayerSequenceGenDesc::setElasticPropSel( const DBKey& dbky )
 {
-    elasticpropselmid_ = mid;
+    elasticpropseldbkey_ = dbky;
 }
 
 
 const DBKey& Strat::LayerSequenceGenDesc::elasticPropSel() const
 {
-    return elasticpropselmid_;
+    return elasticpropseldbkey_;
 }
 
 

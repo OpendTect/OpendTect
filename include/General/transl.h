@@ -48,7 +48,7 @@ mGlobal(General) int defaultSelector(const char*,const char*);
   static int selector(const char*);
      -> whether a certain group name matches. Can usually return defaultSelector
   static const IOObjContext& ioContext();
-     -> Returns the IO context. See ctxtioobj.h for details.
+     -> Returns the IO context. See ioobjctxt.h for details.
 
  */
 
@@ -91,7 +91,7 @@ public:
     virtual const char*		translationApplication() const;
 
 protected:
-    				~TranslatorGroup();
+				~TranslatorGroup();
 
     const OD::String&		clssName() const	{ return clssname_; }
 
@@ -343,7 +343,7 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
   //! Therefore it's the one you want to use if you have your own data sub-dir.
 #define mDefSimpleTranslatorsWithSelKey(clss,usrnm,fmt,stdtyp,selky) \
     mDefSimpleTranslatorsWithCtioExtra(clss,usrnm,fmt,stdtyp, \
-		ctxt->selkey_ = selky)
+		ctxt->dirid_ = DBKey::DirID::get(selky))
 
 
 // Convenience macros when using Translator(Group)-related classes

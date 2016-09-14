@@ -518,7 +518,7 @@ void RandomTrackDisplay::removeAllNodes()
     }
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	setDataPackID( idx, -1, 0 );
+	setDataPackID( idx, DataPack::ID::getInvalid(), 0 );
 
     nodes_.erase();
     updatePanelStripPath();
@@ -637,7 +637,7 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
 
     RefMan<RandomSeisDataPack> randsdp =
-    	dpm.getAndCast<RandomSeisDataPack>(dpid);
+	dpm.getAndCast<RandomSeisDataPack>(dpid);
 
     if ( !randsdp || randsdp->isEmpty() )
     {
@@ -657,7 +657,7 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 DataPack::ID RandomTrackDisplay::getDataPackID( int attrib ) const
 {
     return datapacks_.validIdx(attrib) && datapacks_[attrib]
-    	? datapacks_[attrib]->id()
+	? datapacks_[attrib]->id()
 	: DataPack::cNoID();
 }
 

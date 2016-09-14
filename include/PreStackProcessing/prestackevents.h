@@ -220,7 +220,7 @@ protected:
     Color			color_;
 
     TypeSet<int>		horids_;
-    DBKeySet		horrefs_;
+    DBKeySet			horrefs_;
     ObjectSet<EM::Horizon3D>	emhorizons_;
 
     BinID			changebid_;

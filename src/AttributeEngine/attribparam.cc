@@ -301,13 +301,15 @@ bool SeisStorageRefParam::isOK() const
     const BufferString storstr = compstr.first();
     if ( !storstr.isEmpty() && storstr[0] == '#' )
     {
-	DataPack::FullID fid( storstr.buf()+1 );
+	DataPack::FullID fid = DataPack::FullID::getFromString(
+							storstr.buf()+1 );
 	return DPM(fid).haveID( fid );
     }
 
-    const DBKey mid( storstr );
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    const DBKey storid = DBKey::getFromString( storstr );
+    PtrMan<IOObj> ioobj = IOM().get( storid );
     return ioobj;
 }
+
 
 }; // namespace Attrib

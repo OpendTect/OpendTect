@@ -135,7 +135,7 @@ bool EMSurfaceProvider::initialize( TaskRunner* taskr )
 
     getSurfRanges( *surf1_, hs_, zrg1_, estnrpos_ );
 
-    if ( !id2_.isEmpty() )
+    if ( id2_.isValid() )
     {
 	emobj = EM::EMM().getObject( EM::EMM().getObjectID(id2_) );
 	if ( !emobj )
@@ -240,18 +240,22 @@ void EMSurfaceProvider::usePar( const IOPar& iop )
     iop.get( mGetSurfKey(zstepKey()), zstep_ );
     iop.get( mGetSurfKey(extraZKey()), extraz_ );
 
-    if ( id1_.isEmpty() ) return;
+    if ( !id1_.isValid() )
+	return;
     EM::SurfaceIOData sd;
     EM::IOObjInfo eminfo( id1_ );
-    if ( !eminfo.isOK() ) return;
+    if ( !eminfo.isOK() )
+	return;
 
     TrcKeySampling hs;
     hs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
     hs_ = hs;
 
-    if ( id2_.isEmpty() ) return;
+    if ( !id2_.isValid() )
+	return;
     eminfo = EM::IOObjInfo( id2_ );
-    if ( !eminfo.isOK() ) return;
+    if ( !eminfo.isOK() )
+	return;
     hs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
     hs_.limitTo( hs );
     // TODO: get zrg's
@@ -310,7 +314,7 @@ int EMSurfaceProvider::estNrZPerPos() const
 int EMSurfaceProvider::nrSurfaces() const
 {
     if ( !surf1_ )
-	return id1_.isEmpty() ? 0 : (id2_.isEmpty() ? 1 : 2);
+	return id1_.isInvalid() ? 0 : (id2_.isInvalid() ? 1 : 2);
     return surf2_ ? 2 : 1;
 }
 

@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "array1dinterpol.h"
 #include "array2dinterpol.h"
 #include "arraynd.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "datainpspec.h"
 #include "executor.h"
 #include "emhorizon3d.h"

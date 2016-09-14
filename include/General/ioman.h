@@ -39,6 +39,8 @@ mExpClass(General) IOMan : public NamedMonitorable
 { mODTextTranslationClass(IOMan);
 public:
 
+    typedef DBKey::DirID DirID;
+
     bool		isBad() const;
     bool		isReady() const;
     uiString		errMsg() const		{ return errmsg_; }
@@ -55,7 +57,7 @@ public:
     IOObj*		getFromPar(const IOPar&,const char* basekey,
 				   const IOObjContext&,bool mknew,
 				   BufferString& errmsg) const;
-    IOObj*		get(const char* objname,const char* tgname) const;
+    IOObj*		getByName(const char* objname,const char* tgname) const;
 
     bool		isPresent(const DBKey&) const;
     bool		isPresent(const char*,const char* tgname=0) const;
@@ -63,18 +65,20 @@ public:
 			    \param tgname: example:
 			     EMHorizon3DTranslatorGroup::sGroupName().str() */
 
-    const DBKey&	key() const;		//!< of current IODir
+    DirID		dirID() const;
     const char*		curDirName() const;	//!< OS dir name
     const char*		rootDir() const		{ return rootdir_; }
-    bool		isKey(const char* keystr) const;
-    const char*		nameOf(const char* keystr) const;
+    BufferString	nameOf(const DBKey&) const;
+    bool		isKeyString(const char*) const;
+    BufferString	nameFor(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
 
-    DBKey		createNewKey(const DBKey& dirkey);
+    DBKey		createNewKey(DBKey::GroupID);
 
+    bool		to(DirID,bool force_reread=false);
     bool		to(const DBKey&,bool force_reread=false);
     bool		toRoot(bool force_reread=false)
-			{ return to(0,force_reread); }
+			{ return to(DBKey::getInvalid(),force_reread); }
 
     void		getEntry(CtxtIOObj&,bool newistmp=false,
 				 int translidxingroup=-1);
@@ -88,24 +92,27 @@ public:
     mExpClass(General) CustomDirData
     {
     public:
-			CustomDirData( const char* selkey, const char* dirnm,
-					const char* desc="Custom data" )
-			    : selkey_(selkey)
+
+	typedef DBKey::GroupNrType  GroupNrType;
+
+			CustomDirData( GroupNrType gnr, const char* dirnm,
+					const char* desc )
+			    : dirnr_(gnr)
 			    , dirname_(dirnm)
 			    , desc_(desc)		{}
 
-	DBKey		selkey_; //!< Make sure your selkey > 200000
+	GroupNrType	dirnr_; //!< Make sure your dirnr_ > 200000
 				 //!< Lower than that will be refused!
-				 //!< Example: "218745"
+				 //!< Example: 218745
 	BufferString	dirname_; //!< The subdirectory name in the tree
 	BufferString	desc_; //!< Short description, mainly for error messages
 			       //!< Example: "Geostatistical data"
 
 	bool		operator ==( const CustomDirData& cdd ) const
-			{ return selkey_ == cdd.selkey_; }
+			{ return dirnr_ == cdd.dirnr_; }
     };
 
-    static const DBKey& addCustomDataDir(const CustomDirData&,
+    static DirID	addCustomDataDir(const CustomDirData&,
 					   uiString& errmsg);
 			//!< Need to do this only once per OD run
 			//!< At survey change, dir will automatically be added
@@ -126,6 +133,9 @@ public:
 
     static bool		isValidDataRoot(const char* dirnm);
     static bool		isValidSurveyDir(const char* dirnm);
+
+    mDeprecated BufferString	nameOf( const char* keystr ) const
+				{ return nameFor( keystr ); }
 
 private:
 
@@ -149,7 +159,7 @@ private:
 			// Not locked:
     inline bool		gtIsBad() const		{ return state_ != Good; }
     bool		setDir(const char*);
-    bool		goTo(const DBKey&,bool,AccessLockHandler&) const;
+    bool		goTo(DirID,bool,AccessLockHandler&) const;
     bool		goTo(const IOSubDir*,bool,AccessLockHandler&) const;
     IOObj*		crWriteIOObj(const CtxtIOObj&,const DBKey&,int) const;
 

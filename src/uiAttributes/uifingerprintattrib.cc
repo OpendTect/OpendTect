@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "binidvalset.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "oddirs.h"
@@ -278,7 +278,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     }
 
     mIfGetString( FingerPrint::valpicksetStr(), pickidstr,
-		  IOObj* ioobj = IOM().get( DBKey(pickidstr) );
+		  IOObj* ioobj = IOM().get( DBKey::getFromString(pickidstr) );
 		  if ( ioobj ) picksetfld_->setInput( *ioobj ) );
 
     mIfGetInt( FingerPrint::valreftypeStr(), type, refgrp_->selectButton(type) )
@@ -364,7 +364,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	calcobj_->setWeights( weights );
     }
 
-    mIfGetString( FingerPrint::rgpicksetStr(), rgp, calcobj_->setRgRefPick(rgp))
+    mIfGetString( FingerPrint::rgpicksetStr(), rgp,
+		calcobj_->setRgRefPick(DBKey::getFromString(rgp)))
 
     mIfGetInt(FingerPrint::rgreftypeStr(), rgtyp, calcobj_->setRgRefType(rgtyp))
 
@@ -406,7 +407,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 		  Stats::TypeDef().indexOf( statsfld_->currentItem() ) );
 	if ( picksetfld_->ioobj(true) )
 	    mSetString( FingerPrint::valpicksetStr(),
-			picksetfld_->key() )
+			picksetfld_->key().toString() )
     }
 
     TypeSet<float> values = calcobj_->getValues();
@@ -441,7 +442,8 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 
     mSetInt( FingerPrint::rgreftypeStr(), calcobj_->getRgRefType() );
     if ( calcobj_->getRgRefType() == 1 )
-	mSetString( FingerPrint::rgpicksetStr(), calcobj_->getRgRefPick() )
+	mSetString( FingerPrint::rgpicksetStr(),
+		    calcobj_->getRgRefPick().toString() )
 
     return true;
 }
@@ -532,7 +534,7 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 {
     uiString errmsg;
     BinIDValueSet* valuesset = createValuesBinIDSet( errmsg );
-    if ( calcobj_->getRgRefType()==1 && calcobj_->getRgRefPick().isEmpty() )
+    if ( calcobj_->getRgRefType()==1 && calcobj_->getRgRefPick().isInvalid() )
     {
 	uiMSG().error(uiStrings::phrSelect(tr("the pickset from which\n"
 	                 "the ranges will be computed")));
@@ -663,7 +665,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 
     picksetfld_ = new uiPickSetIOObjSel( this );
     picksetfld_->attach( alignedBelow, (uiParent*)rangesgrp_ );
-    picksetfld_->setInput( DBKey(calcobj_.getRgRefPick().buf()) );
+    picksetfld_->setInput( calcobj_.getRgRefPick() );
     picksetfld_->display( true );
 
     uiGroup* attrvalsgrp = new uiGroup( this, "Attrib inputs" );
@@ -758,7 +760,7 @@ void uiFPAdvancedDlg::calcPush( CallBacker* cb )
 			 "the ranges will be computed");
 	    mRetIfErr;
 	}
-	calcobj_.setRgRefPick( ioobj->key().buf() );
+	calcobj_.setRgRefPick( ioobj->key() );
     }
 
     BinIDValueSet* rangesset = calcobj_.createRangesBinIDSet();

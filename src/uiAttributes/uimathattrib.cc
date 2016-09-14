@@ -78,7 +78,7 @@ DataPack::FullID uiMathAttrib::getInputDPID() const
 DataPack::FullID uiMathAttrib::getInputDPID(int inpidx ) const
 {
     DataPack::FullID undefid;
-    undefid.setUdf();
+    undefid.setInvalid();
     if ( dpfids_.isEmpty() )
 	return undefid;
 
@@ -105,16 +105,15 @@ void uiMathAttrib::inpSel( CallBacker* cb )
     int inpidx = formfld_->inpSelNotifNr();
     if ( inpidx<0 || inpidx>=formfld_->nrInpFlds() || !dpfids_.isEmpty() )
 	return;
-    
+
     formfld_->setNonSpecSubInputs( BufferStringSet(), inpidx );
-    
+
     Desc* inpdesc = ads_->getDescFromUIListEntry(
 				    formfld_->inpFld(inpidx)->getInput() );
     if ( !inpdesc || !inpdesc->isStored() )
 	return;
 
-    DBKey mid = inpdesc->getStoredID( false ).buf();
-    IOObj* inpobj = IOM().get( mid );
+    IOObj* inpobj = IOM().get( inpdesc->getStoredID(false) );
     if ( !inpobj ) return;
 
     SeisIOObjInfo seisinfo( inpobj );
@@ -237,7 +236,8 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		BufferString dpidstr = inpdsc->getValParam(
 			Attrib::StorageProvider::keyStr() )->getStringValue(0);
 		dpidstr.remove( '#' );
-		DataPack::FullID dpfid( dpidstr.buf() );
+		DataPack::FullID dpfid
+			= DataPack::FullID::getFromString( dpidstr );
 		refstr = DataPackMgr::nameOf( dpfid );
 	    }
 
@@ -250,7 +250,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		    formfld_->inpFld(varinpidx)->use( form_ );
 		    varinplastidx = varinpidx+1;
 
-		    DBKey mid = inpdsc->getStoredID( false ).buf();
+		    DBKey mid = inpdsc->getStoredID( false );
 		    IOObj* inpobj = IOM().get( mid );
 		    if ( !inpobj ) break;
 
@@ -332,10 +332,10 @@ bool uiMathAttrib::getInput( Desc& desc )
 	    if ( !dpfids_.isEmpty() )
 	    {
 		DataPack::FullID inpdpfid = getInputDPID( attrinpidx );
-		if ( inpdpfid.isUdf() )
+		if ( inpdpfid.isInvalid() )
 		    return false;
 		BufferString dpidstr( "#" );
-		dpidstr.add( inpdpfid.buf() );
+		dpidstr.add( inpdpfid.toString() );
 		inpdesc = Attrib::PF().createDescCopy(
 				    StorageProvider::attribName() );
 		Attrib::ValParam* param =

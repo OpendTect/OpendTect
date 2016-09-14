@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "polygon.h"
 #include "uiioobjsel.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 
 
 /*!\brief selects pick set or polygon. */

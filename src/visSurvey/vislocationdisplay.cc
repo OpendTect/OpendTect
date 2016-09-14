@@ -56,8 +56,6 @@ LocationDisplay::LocationDisplay()
     , showall_( true )
     , set_( 0 )
     , manip_( this )
-    , directionlocationid_(LocID::getInvalid())
-    , movinglocationid_(LocID::getInvalid())
     , datatransform_( 0 )
     , pickedsurvobjid_(-1)
     , voiidx_(-1)
@@ -111,9 +109,7 @@ void LocationDisplay::setSet( Pick::Set* ps )
 
 DBKey LocationDisplay::getDBKey() const
 {
-    if ( set_ )
-	return Pick::SetMGR().getID( *set_ );
-    return DBKey::getInvalid();
+    return set_ ? Pick::SetMGR().getID( *set_ ) : DBKey::getInvalid();
 }
 
 

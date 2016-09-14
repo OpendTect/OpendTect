@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "prestackmutedeftransl.h"
 
 #include "ascstream.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "mathfunc.h"
@@ -129,8 +129,8 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     {
 	if ( astrm.hasKeyword(sKeyRefHor()) )
 	{
-	    DBKey hormid = astrm.value();
-	    md.setReferenceHorizon( hormid );
+	    DBKey horky = DBKey::getFromString( astrm.value() );
+	    md.setReferenceHorizon( horky );
 	    astrm.next();
 	}
 
@@ -244,7 +244,7 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
     for ( int imd=0; imd<md.size(); imd++ )
     {
 	if ( !imd && !hasiopar )
-	    astrm.put( sKeyRefHor(), md.getReferenceHorizon() );
+	    astrm.put( sKeyRefHor(), md.getReferenceHorizon().toString() );
 
 	astrm.put( sKey::Position(), md.getPos(imd).toString() );
 	const PointBasedMathFunction& pbmf = md.getFn( imd );

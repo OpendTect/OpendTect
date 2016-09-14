@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uitaskrunner.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "datapointset.h"
 #include "emrandomposbody.h"
 #include "emmanager.h"

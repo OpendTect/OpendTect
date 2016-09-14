@@ -7,7 +7,7 @@
 
 #include "uivelocityvolumeconversion.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "seisbounds.h"
 #include "seistrctr.h"
 #include "seisread.h"

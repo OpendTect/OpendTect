@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiselsurvranges.h"
 #include "uimsg.h"
 #include "trckeyzsampling.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "file.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -310,7 +310,7 @@ void uiTablePosProvGroup::usePar( const IOPar& iop )
     const bool isfnm = fnmres && *fnmres;
     selfld_->setValue( !isfnm );
     if ( idres )
-	psfld_->setInput( DBKey(idres) );
+	psfld_->setInput( DBKey::getFromString(idres) );
     if ( fnmres )
 	tffld_->setFileName( fnmres );
 }

@@ -120,7 +120,7 @@ bool HorizonTileResolutionTesselator:: doPrepare( int nrthreads )
 }
 
 
-bool HorizonTileResolutionTesselator::doWork( 
+bool HorizonTileResolutionTesselator::doWork(
     od_int64 start, od_int64 stop, int )
 {
     mDefineRCRange( horsection_,-> );
@@ -141,7 +141,7 @@ bool HorizonTileResolutionTesselator::doWork(
 	{
 	    const int row = origin.row() + rowidx*rrg.step;
 	    const bool rowok = rrg.includes(row, false);
-	    const StepInterval<int> geocolrg = 
+	    const StepInterval<int> geocolrg =
 		horsection_->geometry_->colRange( row );
 	    const StepInterval<int> colrg(
 		mMAX(geocolrg.start,crg.start),
@@ -175,6 +175,7 @@ bool HorizonTileResolutionTesselator::createTiles()
     if ( rrg.width(false)<0 || crg.width(false)<0 )
 	return false;
 
+    // RowCol origin = RowCol( rrg.start, crg.start );
     const int nrrows = nrBlocks( rrg.nrSteps()+1,
 				 horsection_->nrcoordspertileside_, 1 );
     const int nrcols = nrBlocks( crg.nrSteps()+1,
@@ -190,18 +191,18 @@ bool HorizonTileResolutionTesselator::createTiles()
 		horsection_->origin_.col() +
 		tilecolidx*horsection_->tilesidesize_*step.col() );
 
-	    HorizonSectionTile* tile = 
+	    HorizonSectionTile* tile =
 		new HorizonSectionTile( *horsection_, tileorigin );
 	    tile->setResolution( resolution_ );
 	    hrtiles_ += tile;
 	}
     }
-    
+
     return true;
 }
 
 
-bool HorizonTileResolutionTesselator::getTitleCoordinates( int idx, 
+bool HorizonTileResolutionTesselator::getTitleCoordinates( int idx,
     TypeSet<Coord3>& coords ) const
 {
     if ( idx>=0 && idx<hrtiles_.size() )
@@ -211,7 +212,7 @@ bool HorizonTileResolutionTesselator::getTitleCoordinates( int idx,
 }
 
 
-bool HorizonTileResolutionTesselator::getTitleNormals( 
+bool HorizonTileResolutionTesselator::getTitleNormals(
     int idx, TypeSet<Coord3>& normals ) const
 {
     if ( idx>=0 && idx<hrtiles_.size() )
@@ -221,7 +222,7 @@ bool HorizonTileResolutionTesselator::getTitleNormals(
 }
 
 
-bool HorizonTileResolutionTesselator::getTitlePrimitiveSet( int idx, 
+bool HorizonTileResolutionTesselator::getTitlePrimitiveSet( int idx,
     TypeSet<int>& ps, GeometryType type ) const
 {
     if ( idx>=0 && idx<hrtiles_.size() )

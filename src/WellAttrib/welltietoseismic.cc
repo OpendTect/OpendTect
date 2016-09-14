@@ -19,7 +19,8 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seistrc.h"
 #include "statruncalc.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
+#include "ioobj.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "wellelasticmodelcomputer.h"
@@ -424,7 +425,7 @@ bool DataPlayer::isOKSeismic() const
 
 bool DataPlayer::hasSeisId() const
 {
-    return !seisid_.isEmpty();
+    return seisid_.isValid();
 }
 
 
@@ -524,7 +525,7 @@ bool DataPlayer::copyDataToLogSet()
     for ( int idx=0; idx<aimodel_.size(); idx++ )
     {
 	const float twt = data_.getModelRange().atIndex(idx);
-	const float dah = data_.wd_->d2TModel().getDah( twt, data_.wd_->track());
+	const float dah = data_.wd_->d2TModel().getDah(twt,data_.wd_->track());
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
@@ -547,7 +548,7 @@ bool DataPlayer::copyDataToLogSet()
 	    continue;
 
 	const float twt = spike.correctedtime_;
-	const float dah = data_.wd_->d2TModel().getDah( twt, data_.wd_->track());
+	const float dah = data_.wd_->d2TModel().getDah(twt, data_.wd_->track());
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
@@ -563,7 +564,7 @@ bool DataPlayer::copyDataToLogSet()
     for ( int idx=0; idx<=data_.synthtrc_.size(); idx++ )
     {
 	const float twt = tracerg.atIndex( idx );
-	const float dah = data_.wd_->d2TModel().getDah( twt, data_.wd_->track());
+	const float dah = data_.wd_->d2TModel().getDah(twt,data_.wd_->track());
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
@@ -573,9 +574,9 @@ bool DataPlayer::copyDataToLogSet()
 
     createLog( data_.sKeySynthetic(), dahsynth.arr(), synth.arr(),synth.size());
 
-    const Well::Log* sonlog = data_.wd_->logs().getLogByName( data_.sKeySonic());
+    const Well::Log* sonlog = data_.wd_->logs().getLogByName(data_.sKeySonic());
     const UnitOfMeasure* sonuom = sonlog ? sonlog->unitOfMeasure() : 0;
-    Well::Log* vellogfrommodel = data_.logset_.getLogByName( data_.sKeySonic() );
+    Well::Log* vellogfrommodel = data_.logset_.getLogByName(data_.sKeySonic());
     if ( vellogfrommodel && sonlog )
     {
 	if ( data_.isSonic() )

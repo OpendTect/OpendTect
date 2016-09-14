@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "ioobjctxt.h"
 #include "prestackgather.h"
 #include "prestackprocessor.h"
 #include "settings.h"
@@ -294,7 +295,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     if ( !menu )
 	return false;
 
-    IOM().to( "100010" );
+    IOM().to( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
     PtrMan<IOObj> ioobj = IOM().getLocal(
 	    selectpsdatamenuitem_.getItem(mnuidx)->text.getFullString(), 0 );
     if ( !ioobj )
@@ -423,7 +424,7 @@ uiViewer3DPositionDlg*
 #define mErrRes(msg) { uiMSG().error(msg); return 0; }
 
 uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
-						int dpid )
+						DataPack::ID dpid )
 {
     uiFlatViewMainWin* viewwin = new uiFlatViewMainWin(
 	ODMainWin(), uiFlatViewMainWin::Setup(title) );
@@ -553,7 +554,7 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 	visSurvey::PreStackDisplay* psv = viewers3d_[idx];
 	visBase::Scene* scene = psv->getScene();
 
-	int dpid = psv->getDataPackID();
+	DataPack::ID dpid = psv->getDataPackID();
 	const visSurvey::PlaneDataDisplay* pdd = psv->getSectionDisplay();
 	const visSurvey::Seis2DDisplay*    s2d = psv->getSeis2DDisplay();
 	if ( pdd && (!scene || scene->getFirstIdx( pdd )==-1 ) )
@@ -581,7 +582,7 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 }
 
 
-void uiViewer3DMgr::removeViewWin( int dpid )
+void uiViewer3DMgr::removeViewWin( DataPack::ID dpid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
@@ -656,7 +657,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	    continue;
 
 	RefMan<PreStack::Gather> gather = new PreStack::Gather;
-	int dpid;
+	DataPack::ID dpid;
 	TrcKey tk( bid );
 	if ( !is3d )
 	{

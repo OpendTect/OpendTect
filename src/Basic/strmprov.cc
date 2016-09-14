@@ -109,7 +109,8 @@ static inline const char* remExecCmd()
 
 
 //---- StreamSource management ----
-struct StreamProviderRepos : public ObjectSet<const StreamProvider::StreamSource>
+struct StreamProviderRepos
+		: public ObjectSet<const StreamProvider::StreamSource>
 {
     ~StreamProviderRepos() { deepErase( *this ); }
 };
@@ -450,18 +451,19 @@ void StreamProvider::getPreLoadedFileNames( const char* id,
 }
 
 
-int StreamProvider::getPreLoadedDataPackID( const char* fnm )
+BufferString StreamProvider::getPreLoadedDataPackID( const char* fnm )
 {
     ObjectSet<StreamProviderPreLoadedData>& plds = PLDs();
+    BufferString ret;
     for ( int idx=0; idx<plds.size(); idx++ )
     {
 	const StreamProviderPreLoadedData& pld = *plds[idx];
 	if ( !pld.isOK() ) continue;
 
 	if ( pld.fileName() == fnm )
-	    return pld.dp_->id();
+	    { ret.add( pld.dp_->id().getI() ); break ; }
     }
-    return -1;
+    return ret;
 }
 
 

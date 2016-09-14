@@ -27,24 +27,24 @@ Viewer2DGatherPainter::~Viewer2DGatherPainter()
 
 BinID Viewer2DGatherPainter::getBinID() const
 { return inputwvagather_ ? inputwvagather_->getBinID()
-    			 : inputvdgather_ ? inputvdgather_->getBinID()
-			     		  : BinID(-1,-1); }
+			 : inputvdgather_ ? inputvdgather_->getBinID()
+					  : BinID(-1,-1); }
 
 
 void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
 {
-    if ( inputvdgather_ && inputvdgather_->id()==vdid ) 
+    if ( inputvdgather_ && inputvdgather_->id()==vdid )
 	return;
 
     const bool hadpack = inputvdgather_;
     if ( inputvdgather_ )
 	viewer_.removePack( inputvdgather_->id() );
-    
+
     inputvdgather_ =
-    	DPM( DataPackMgr::FlatID() ).getAndCast<PreStack::Gather>( vdid );
-    
+	DPM( DataPackMgr::FlatID() ).getAndCast<PreStack::Gather>( vdid );
+
     viewer_.appearance().ddpars_.vd_.show_ = inputvdgather_;
-    
+
     if ( inputvdgather_ )
         viewer_.setPack( false, vdid, !hadpack );
 }
@@ -53,18 +53,18 @@ void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
 
 void Viewer2DGatherPainter::setWVAGather( DataPack::ID wvaid )
 {
-    if ( wvaid<0 &&inputwvagather_ && inputwvagather_->id()==wvaid )
+    if ( wvaid.isInvalid() &&inputwvagather_ && inputwvagather_->id()==wvaid )
 	return;
 
     const bool hadpack = inputwvagather_;
     if ( inputwvagather_ )
 	viewer_.removePack( inputwvagather_->id() );
-    
+
     inputwvagather_ =
-    	DPM( DataPackMgr::FlatID() ).getAndCast<PreStack::Gather>( wvaid );
+	DPM( DataPackMgr::FlatID() ).getAndCast<PreStack::Gather>( wvaid );
 
     viewer_.appearance().ddpars_.wva_.show_ = inputwvagather_;
-    
+
     if ( inputwvagather_ )
 	viewer_.setPack( true, wvaid, !hadpack );
 }

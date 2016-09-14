@@ -42,11 +42,11 @@ SetCategoryFromTypeInOMFPutter()
 
 void doWork( CallBacker* )
 {
-    const IODir iodir( DBKey( mIOObjContext(PickSet)
-				.getStdDirData(IOObjContext::Loc)->id_ ) );
+    const IODir iodir( mIOObjContext(PickSet)
+			.getStdDirData(IOObjContext::Loc)->id_ );
     for ( int idx=0; idx<iodir.size(); idx++ )
     {
-	const IOObj& ioobj = *iodir.get( idx );
+	const IOObj& ioobj = *iodir.getByIdx( idx );
 	if ( ioobj.group() != mTranslGroupName(PickSet) )
 	    continue;
 

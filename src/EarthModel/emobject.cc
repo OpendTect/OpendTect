@@ -39,7 +39,6 @@ EMObject::EMObject( EMManager& emm )
     : manager_( emm )
     , change( this )
     , id_( -1 )
-    , storageid_(DBKey::getInvalid())
     , preferredcolor_( *new Color(Color::Green()) )
     , changed_( false )
     , fullyloaded_( false )
@@ -637,7 +636,7 @@ void EMObject::useDisplayPars( const IOPar& par )
     OD::MarkerStyle3D mkst;
     if( displaypar.get(sKey::MarkerStyle(),mkststr) )
     {
-	const double versionnr = 
+	const double versionnr =
 	    displaypar.majorVersion()+displaypar.minorVersion()*0.1;
 	mkst.fromString( mkststr, versionnr>0 && versionnr<=6.0 );
 	setPreferredMarkerStyle3D( mkst );

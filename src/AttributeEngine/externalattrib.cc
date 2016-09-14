@@ -20,8 +20,8 @@ namespace Attrib
 mImplFactory1Param( ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
 
 
-RefMan<RegularSeisDataPack> ExtAttribCalc::createAttrib( const TrcKeyZSampling&, DataPack::ID,
-					  TaskRunner* )
+RefMan<RegularSeisDataPack> ExtAttribCalc::createAttrib( const TrcKeyZSampling&,
+				DataPack::ID, TaskRunner* )
 { return 0; }
 
 

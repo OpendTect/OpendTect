@@ -32,12 +32,12 @@ public:
 			//!<Use for single or multi input case - old fashioned
 			~uiAttrInpDlg();
 
-    bool		is2D() const 		{ return is2d_ ; }
+    bool		is2D() const		{ return is2d_ ; }
 
     const char*		getSeisRef(int) const;
     const char*		getSteerRef(int) const;
-    const char*		getSeisKey(int) const;
-    const char*		getSteerKey(int) const;
+    DBKey		getSeisKey(int) const;
+    DBKey		getSteerKey(int) const;
 
 protected:
 

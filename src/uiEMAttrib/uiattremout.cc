@@ -73,12 +73,13 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 {
     if ( nlamodel_ && attrfld_->outputNr() >= 0 )
     {
-	if ( !nlaid_ || !(*nlaid_) )
+	if ( nlaid_.isInvalid() )
 	{
 	    uiMSG().message(tr("NN needs to be stored before creating volume"));
 	    return false;
 	}
-	if ( !addNLA( nladescid_ ) )	return false;
+	if ( !addNLA( nladescid_ ) )
+	    return false;
     }
 
     const DescID targetid = nladescid_.isValid() ? nladescid_
@@ -99,9 +100,9 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 
 	const Desc* desc = nlamodel_ ? descset.getFirstStored()
 				     : clonedset->getFirstStored();
-	BufferString storedid = desc ? desc->getStoredID() : "";
-	if ( !storedid.isEmpty() )
-	    iopar.set( "Input Line Set", storedid.buf() );
+	DBKey storedid = desc ? desc->getStoredID() : DBKey::getInvalid();
+	if ( storedid.isValid() )
+	    iopar.set( "Input Line Set", storedid );
     }
 
     ads_->removeDesc( nladescid_ );
@@ -125,7 +126,7 @@ void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
     tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey() );
     key = IOPar::compKey( tmpkey.buf(), 0 );
     iopar.set( key, nladescid_.isValid() ? nladescid_.asInt()
-	    				 : attrfld_->attribID().asInt() );
+					 : attrfld_->attribID().asInt() );
 
     key = IOPar::compKey( keybase.buf(), idlbl );
     iopar.set( key, outid );

@@ -205,8 +205,7 @@ int EventSet::indexOf( int horid ) const
 
 
 EventManager::EventManager()
-    : storageid_( -1 )
-    , events_( 2, 1 )
+    : events_( 2, 1 )
     , changebid_( -1, -1 )
     , forceReload( this )
     , change( this )
@@ -218,6 +217,7 @@ EventManager::EventManager()
     , primarydipreader_( 0 )
     , secondarydipreader_( 0 )
     , color_( getRandomColor() )
+    , storageid_( DBKey::getInvalid() )
 {
     events_.allowDuplicates( true );
     emhorizons_.allowNull( true );
@@ -650,7 +650,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
     if ( ds.type_==DipSource::Horizon )
     {
 	const int horidx = horids_.indexOf( horid );
-	if ( horidx==-1 || horrefs_[horidx].isEmpty() )
+	if ( horidx==-1 || horrefs_[horidx].isInvalid() )
 	    return false;
 
 	if ( !emhorizons_[horidx] ||
@@ -710,7 +710,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 
     if ( ds.type_==DipSource::SteeringVolume )
     {
-	if ( ds.mid_.isEmpty() )
+	if ( ds.mid_.isInvalid() )
 	    return false;
 
 	SeisTrcReader*& reader =
@@ -779,7 +779,7 @@ void EventManager::DipSource::fill( BufferString& buf ) const
 {
     FileMultiString fms;
     fms += TypeDef().getKey( type_ );
-    fms += mid_;
+    fms += mid_.toString();
     buf = fms;
 }
 
@@ -798,10 +798,10 @@ bool EventManager::DipSource::use( const char* str )
     if ( typeenum==SteeringVolume )
     {
 	const char* midstr = fms[1];
-	if ( !midstr )
+	if ( !midstr || !*midstr )
 	    return false;
 
-	mid_ = midstr;
+	mid_.fromString( midstr );
     }
 
     type_ = typeenum;

@@ -86,8 +86,7 @@ const IOObjContext& Body::getBodyContext() const
 /*False: already converted; True: need conversion. */
 mGlobal(EarthModel) bool OD_Get_Body_Conversion_Status()
 {
-    const DBKey mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::Surf );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
@@ -114,8 +113,7 @@ mGlobal(EarthModel) bool OD_Get_Body_Conversion_Status()
 
 mGlobal(EarthModel) bool OD_Convert_Body_To_OD5( uiString& errmsg )
 {
-    const DBKey mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::Surf );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {

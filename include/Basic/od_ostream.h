@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "od_stream.h"
 
+class DBKey;
 class SeparString;
 class CompoundKey;
 class FixedString;
@@ -70,6 +71,7 @@ public:
     od_ostream&		add(const IOPar&);
     od_ostream&		add(const SeparString&);
     od_ostream&		add(const CompoundKey&);
+    od_ostream&		add(const DBKey&);
 
     od_ostream&		add(const void*); //!< produces pErrMsg but works
     od_ostream&		addPtr(const void*);

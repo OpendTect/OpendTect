@@ -19,18 +19,16 @@
 
 #include <iostream>
 
-DataPackMgr::ID DataPackMgr::BufID()		{ return 1; }
-DataPackMgr::ID DataPackMgr::PointID()		{ return 2; }
-DataPackMgr::ID DataPackMgr::SeisID()		{ return 3; }
-DataPackMgr::ID DataPackMgr::FlatID()		{ return 4; }
-DataPackMgr::ID DataPackMgr::SurfID()		{ return 5; }
-const char* DataPack::sKeyCategory()		{ return "Category"; }
-float DataPack::sKb2MbFac()			{ return 0.0009765625; }
+DataPackMgr::ID DataPackMgr::BufID()	{ return ID::get(1); }
+DataPackMgr::ID DataPackMgr::PointID()	{ return ID::get(2); }
+DataPackMgr::ID DataPackMgr::SeisID()	{ return ID::get(3); }
+DataPackMgr::ID DataPackMgr::FlatID()	{ return ID::get(4); }
+DataPackMgr::ID DataPackMgr::SurfID()	{ return ID::get(5); }
+const char* DataPack::sKeyCategory()	{ return "Category"; }
+float DataPack::sKb2MbFac()		{ return 0.0009765625; }
 
 Threads::Lock DataPackMgr::mgrlistlock_;
 ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
-
-Threads::Atomic<int> curid( DataPack::cNoID() );
 
 #ifdef __debug__
 # define mTrackDPMsg(msg) \
@@ -54,9 +52,57 @@ static bool trackDataPacks()
 }
 
 
+DataPack::FullID DataPack::FullID::getFromString( const char* str )
+{
+    FullID fid = getInvalid();
+    if ( !isValidString(str) )
+	return fid;
+    fid.fromString( str );
+    return fid;
+}
+
+
+DataPack::FullID DataPack::FullID::getInvalid()
+{
+    const GroupedID grid = GroupedID::getInvalid();
+    return FullID( grid.groupID(), grid.objID() );
+}
+
+
+bool DataPack::FullID::isInDBKey( const DBKey& dbky )
+{
+    if ( !dbky.hasAuxKey() )
+	return false;
+    const BufferString auxval = dbky.auxKey();
+    if ( auxval.firstChar() != '#' )
+	return false;
+
+    const char* dpstr = auxval.str() + 1;
+    return isValidString( dpstr );
+}
+
+
+DataPack::FullID DataPack::FullID::getFromDBKey( const DBKey& dbky )
+{
+    if ( !dbky.hasAuxKey() )
+	return getInvalid();
+    return getFromString( dbky.auxKey() );
+}
+
+
+void DataPack::FullID::putInDBKey( DBKey& dbky ) const
+{
+    const BufferString aux( "#", toString() );
+    dbky.setAuxKey( aux );
+}
+
+
+
+static Threads::Atomic<int> curdpidnr( 0 );
+
 DataPack::ID DataPack::getNewID()
 {
-    return ++curid;
+    return ID::get( ++curdpidnr );
 }
 
 
@@ -107,7 +153,7 @@ DataPackMgr& DPM( DataPackMgr::ID dpid )
 
 DataPackMgr& DPM( const DataPack::FullID& fid )
 {
-    const DataPackMgr::ID manid = fid.subID( 0 );
+    const DataPackMgr::ID manid = fid.mgrID();
     DataPackMgr* dpm = DataPackMgr::gtDPM( manid, false );
     if ( dpm ) return *dpm;
 
@@ -165,7 +211,7 @@ DataPackMgr::~DataPackMgr()
 	    continue;
 
 	//Using std C++ function because we cannot use pErrMsg or BufferString
-	std::cerr << "(PE) DataPackMgr | Datapack " << pack->id();
+	std::cerr << "(PE) DataPackMgr | Datapack " << pack->id().getI();
 	if ( pack->category() )
 	    std::cerr << " with category " << pack->category();
 	std::cerr << " is still referenced.\n";
@@ -226,7 +272,7 @@ WeakPtr<DataPack> DataPackMgr::observe( DataPack::ID dpid ) const
 
 
 
-void DataPackMgr::getPackIDs(TypeSet<DataPack::ID>& ids) const
+void DataPackMgr::getPackIDs( TypeSet<DataPack::ID>& ids ) const
 {
     packslock_.readLock();
     for ( int idx=0; idx<packs_.size(); idx++ )
@@ -246,7 +292,7 @@ void DataPackMgr::getPackIDs(TypeSet<DataPack::ID>& ids) const
 
 void DataPackMgr::dumpInfo( od_ostream& strm ) const
 {
-    strm << "Manager.ID: " << id() << od_newline;
+    strm << "Manager.ID: " << id().getI() << od_newline;
     const od_int64 nrkb = mCast(od_int64,nrKBytes());
     strm << "Total memory: " << File::getFileSizeString(nrkb)
 			     << od_newline;
@@ -294,7 +340,7 @@ void DataPackMgr::doAdd( DataPack* dp )
 
     packslock_.writeUnlock();
 
-    mTrackDPMsg( BufferString("[DP]: add ",dp->id(),
+    mTrackDPMsg( BufferString("[DP]: add ",dp->id().getI(),
 		 BufferString(" '",dp->name(),"'")) );
 
     newPack.trigger( dp );
@@ -312,14 +358,14 @@ DataPack* DataPackMgr::addAndObtain( DataPack* dp )
     const int idx = packs_.indexOf( dp );
     if ( idx==-1 )
     {
-	mTrackDPMsg( BufferString("[DP]: add+obtain ",dp->id(),
+	mTrackDPMsg( BufferString("[DP]: add+obtain ",dp->id().getI(),
 		     BufferString(" '",dp->name(),"'")) );
 	packs_ += dp;
     }
     else
     {
-	mTrackDPMsg( BufferString("[DP]: add+obtain [existing!] ",dp->id(),
-			BufferString(" nrusers=",dp->nrRefs())) );
+	mTrackDPMsg( BufferString("[DP]: add+obtain [existing!] ",
+		    dp->id().getI(), BufferString(" nrusers=",dp->nrRefs())) );
     }
     packslock_.writeUnlock();
 
@@ -342,7 +388,7 @@ bool DataPackMgr::ref( DataPack::ID dpid )
 	if ( pack )
 	{
 	    pack->ref();
-	    mTrackDPMsg( BufferString("[DP]: ref ",pack->id(),
+	    mTrackDPMsg( BufferString("[DP]: ref ",pack->id().getI(),
 			 BufferString(" nrusers=",pack->nrRefs())) );
 
 	}
@@ -373,7 +419,7 @@ bool DataPackMgr::unRef( DataPack::ID dpid )
             //We have reffed in the refman above
             //Hence the 'real' number is actual refs -1
 
-	    mTrackDPMsg( BufferString("[DP]: unRef ",pack->id(),
+	    mTrackDPMsg( BufferString("[DP]: unRef ",pack->id().getI(),
 			 BufferString(" nrusers=",pack->nrRefs()-1)) );
 
 	}
@@ -406,7 +452,7 @@ DataPack* DataPackMgr::doObtain( DataPack::ID dpid, bool obs ) const
 	    res->ref();
             //Real number of refs is one higher, as we have a refman in the
             //function
-	    mTrackDPMsg( BufferString("[DP]: obtain ",res->id(),
+	    mTrackDPMsg( BufferString("[DP]: obtain ",res->id().getI(),
 			 BufferString(" nrusers=",res->nrRefs()-1)) );
 	}
         else
@@ -434,7 +480,7 @@ int DataPackMgr::indexOf( DataPack::ID dpid ) const
 	const DataPack* pack =(const DataPack*) refPtr(packs_[idx].get().ptr());
 	if ( pack )
 	{
-	    if ( pack->id()==dpid )
+	    if ( pack->id() == dpid )
 	    {
 		res = idx;
 		pack->unRefNoDelete();
@@ -470,7 +516,7 @@ void DataPackMgr::release( DataPack::ID dpid )
 
 	if ( pack->nrRefs()>1 ) //1 is our own ref
 	{
-	    mTrackDPMsg( BufferString("[DP]: release ",pack->id(),
+	    mTrackDPMsg( BufferString("[DP]: release ",pack->id().getI(),
                          BufferString(" nrusers=",pack->nrRefs()-1)) );
 	    return;
 	}

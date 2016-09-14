@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 
 #include "binidvalset.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"

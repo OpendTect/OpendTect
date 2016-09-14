@@ -90,11 +90,12 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 #   define mErrCont(s) { errmsg_ = s; continue; }
     while ( !atEndOfSection(astrm.next()) )
     {
-	DBKey mid( astrm.keyWord() );
+	DBKey dbky( DBKey::getFromString(astrm.keyWord()) );
 
-	PtrMan<IOObj> ioobj = IOM().get( mid );
+	PtrMan<IOObj> ioobj = IOM().get( dbky );
 	if ( !ioobj )
-	    mErrCont(uiStrings::phrCannotFindDBEntry( toUiString(mid)) )
+	    mErrCont(uiStrings::phrCannotFindDBEntry(
+						toUiString(astrm.keyWord())) )
 
 	FileMultiString fms( astrm.value() );
 	const int fmssz = fms.size();
@@ -133,26 +134,27 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 
 bool MultiCubeSeisPSReader::putTo( const char* fnm ) const
 {
-    ObjectSet<DBKey> keys; TypeSet<float> offs; TypeSet<int> comps;
+    DBKeySet keys; TypeSet<float> offs; TypeSet<int> comps;
     for ( int irdr=0; irdr<rdrs_.size(); irdr++ )
     {
 	const IOObj* ioobj = rdrs_[irdr]->ioObj();
-	if ( !ioobj ) continue;
-	keys += new DBKey( ioobj->key() );
-	offs += offs_[irdr];
-	comps += comps_[irdr];
+	if ( ioobj )
+	{
+	    keys += ioobj->key();
+	    offs += offs_[irdr];
+	    comps += comps_[irdr];
+	}
     }
 
     uiString emsg;
     bool rv = writeData( fnm, keys, offs, comps, emsg );
     if ( !rv )
 	errmsg_ = emsg;
-    deepErase( keys );
     return rv;
 }
 
 
-bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<DBKey>& keys,
+bool MultiCubeSeisPSReader::readData( const char* fnm, DBKeySet& keys,
 		TypeSet<float>& offs, TypeSet<int>& comps, uiString& emsg )
 {
     od_istream strm( fnm );
@@ -167,9 +169,9 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<DBKey>& keys,
 
     while ( !atEndOfSection(astrm.next()) )
     {
-	const DBKey ky( astrm.keyWord() );
+	const DBKey ky( DBKey::getFromString(astrm.keyWord()) );
 	const FileMultiString fms( astrm.value() );
-	if ( ky.isEmpty() || fms.size() < 1 )
+	if ( ky.isInvalid() || fms.size() < 1 )
 	    continue;
 	PtrMan<IOObj> ioobj = IOM().get( ky );
 	if ( !ioobj || ioobj->isBad() )
@@ -180,7 +182,7 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<DBKey>& keys,
 	if ( mIsUdf(offset) || offset < 0 || icomp < 0 )
 	    continue;
 
-	keys += new DBKey( ky );
+	keys += ky;
 	offs += offset; comps += icomp;
     }
 
@@ -194,7 +196,7 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<DBKey>& keys,
 
 
 bool MultiCubeSeisPSReader::writeData( const char* fnm,
-	const ObjectSet<DBKey>& keys, const TypeSet<float>& offs,
+	const DBKeySet& keys, const TypeSet<float>& offs,
 	const TypeSet<int>& comps, uiString& emsg )
 {
     od_ostream strm( fnm );
@@ -209,7 +211,7 @@ bool MultiCubeSeisPSReader::writeData( const char* fnm,
     {
 	FileMultiString fms;
 	fms += offs[idx]; fms += comps[idx];
-	astrm.put( *keys[idx], fms );
+	astrm.put( keys[idx].toString(), fms );
     }
 
     if ( !strm.isOK() )

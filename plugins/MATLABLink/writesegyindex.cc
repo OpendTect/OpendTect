@@ -40,7 +40,7 @@ static DBKey getKey( const char* nm )
     IOObjContext ctxt = mIOObjContext(SeisTrc);
     ctxt.fixTranslator( mSEGYDirectTranslNm );
     CtxtIOObj ctio( ctxt );
-    IOM().to( ctio.ctxt.getSelKey() );
+    IOM().to( ctio.ctxt.getSelDirID() );
     ctio.setName( nm );
     IOM().getEntry( ctio );
     if ( ctio.ioobj )

@@ -98,7 +98,7 @@ public:
 
     static void		initDefault(const char* type=0);
 			//!< Only does something if there is not yet a default
-    static const DBKey& getDefault(const char* type=0);
+    static DBKey	getDefault(const char* type=0);
     static void		setDefault(const DBKey&,const char* type=0);
 
     static bool		hasData(Pos::GeomID);

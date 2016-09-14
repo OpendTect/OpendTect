@@ -502,8 +502,8 @@ float ElasticPropGen::getVal( const ElasticFormula& ef,
 
 ElasticPropSelection* ElasticPropSelection::getByDBKey( const DBKey& mid )
 {
-    const IOObj* obj = mid.isEmpty() ? 0 : IOM().get( mid );
-    return obj ? getByIOObj( obj ) : 0;
+    PtrMan<IOObj> ioobj = mid.isInvalid() ? 0 : IOM().get( mid );
+    return ioobj ? getByIOObj( ioobj ) : 0;
 }
 
 

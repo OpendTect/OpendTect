@@ -53,7 +53,7 @@ EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
     , em_( EM::EMM() )
     , emobject_( 0 )
-    , parmid_( -1 )
+    , parmid_( DBKey::getInvalid() )
     , editor_( 0 )
     , eventcatcher_( 0 )
     , transformation_( 0 )
@@ -266,14 +266,14 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
     if ( nontexturecolisset_ )
 	emobject_->setPreferredColor( nontexturecol_ );
 
-    restoresessupdate_ = !editor_ && parmid_!=DBKey(-1);
+    restoresessupdate_ = !editor_ && parmid_.isValid();
     bool res = updateFromEM( tr );
     restoresessupdate_ = false;
-    
+
     mDynamicCastGet( const EM::Horizon*, hor, emobject_ );
     if ( hor && editor_ )
     {
-	editor_->sower().setSequentSowMask( 
+	editor_->sower().setSequentSowMask(
 	    true, OD::ButtonState(OD::LeftButton+OD::ControlButton) );
     }
 
@@ -515,12 +515,12 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
 	emchangedata_.addCallBackData( &cbdata );
     }
-    
+
     mEnsureExecutedInMainThread( EMObjectDisplay::emChangeCB );
 
     for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
-	const EM::EMObjectCallbackData* cbdata = 
+	const EM::EMObjectCallbackData* cbdata =
 	    emchangedata_.getCallBackData( idx );
 	if ( !cbdata )
 	    continue;

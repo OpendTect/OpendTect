@@ -37,7 +37,7 @@ namespace Vel
 
 uiImportVelFunc::uiImportVelFunc( uiParent* p )
     : uiDialog( p,uiDialog::Setup(tr("Import Velocity Function"),
-				  mNoDlgTitle, 
+				  mNoDlgTitle,
 				  mODHelpKey(mImportVelFuncHelpID) )
 			    .modal(false))
     , ctio_( *new CtxtIOObj( StoredFunctionSource::ioContext() ) )
@@ -45,7 +45,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(), 
+    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
 			       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
@@ -59,7 +59,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, typefld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
                                         mODHelpKey(mImportVelFuncParsHelpID) );
     dataselfld_->attach( alignedBelow, typefld_ );
     dataselfld_->attach( ensureBelow, sep );

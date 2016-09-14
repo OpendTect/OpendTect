@@ -200,13 +200,13 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
     ctio_.setObj( 0 );
 
     if ( ioobj.group() == EMFault3DTranslatorGroup::sGroupName() )
-	outfld = new uiIOObjSel( this, ctio_, 
+	outfld = new uiIOObjSel( this, ctio_,
 				 uiStrings::phrOutput(uiStrings::sFault()) );
     else if ( ioobj.group() != EM::FaultStickSet::typeStr() )
-	outfld = new uiIOObjSel( this, ctio_, 
+	outfld = new uiIOObjSel( this, ctio_,
 				 uiStrings::phrOutput(uiStrings::sSurface()) );
     else
-	outfld = new uiIOObjSel( this, ctio_,  
+	outfld = new uiIOObjSel( this, ctio_,
 			    uiStrings::phrOutput(uiStrings::sFaultStickSet()) );
 
     outfld->attach( alignedBelow, inpfld );

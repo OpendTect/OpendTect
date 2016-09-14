@@ -26,22 +26,22 @@ namespace Attrib { class EngineMan; class DescSet; }
 mExpClass(uiAttributes) calcFingParsObject
 { mODTextTranslationClass(calcFingParsObject);
 public:
-    			calcFingParsObject(uiParent*);
+			calcFingParsObject(uiParent*);
 			~calcFingParsObject();
     void		setUserRefList( BufferStringSet* refset )
-    							{ reflist_ = refset; }
+							{ reflist_ = refset; }
     void		setDescSet( Attrib::DescSet* ds ) { attrset_ = ds; }
     void		setWeights( TypeSet<int> wgs )	{ weights_ = wgs; }
     void		setRanges(TypeSet<Interval<float> > rg) {ranges_ = rg;}
     void		setValues( TypeSet<float> vals ){ values_ = vals; }
-    void		setRgRefPick(const char* pickid){ rgpickset_ = pickid; }
+    void		setRgRefPick( const DBKey& id ) { rgpickset_ = id; }
     void		setRgRefType( int type )	{ rgreftype_ = type; }
     void		setValStatsType( Stats::Type typ ) { statstype_ = typ; }
 
     TypeSet<int>	getWeights() const		{ return weights_; }
     TypeSet<float>	getValues() const		{ return values_; }
     TypeSet< Interval<float> >	getRanges() const	{ return ranges_; }
-    BufferString	getRgRefPick() const		{ return rgpickset_; }
+    DBKey		getRgRefPick() const		{ return rgpickset_; }
     int			getRgRefType() const		{ return rgreftype_; }
 
     void		clearValues()			{ values_.erase(); }
@@ -73,7 +73,7 @@ protected:
     TypeSet< Interval<float> > ranges_;
     ObjectSet<BinIDValueSet> posset_;
     uiParent*		parent_;
-    BufferString	rgpickset_;
+    DBKey		rgpickset_;
     int			rgreftype_;
     static void		create2DRandPicks(const DBKey& dsetid,
 					  BinIDValueSet* rangesset);

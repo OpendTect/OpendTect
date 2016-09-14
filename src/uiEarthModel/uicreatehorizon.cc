@@ -59,7 +59,10 @@ uiCreateHorizon::~uiCreateHorizon()
 
 
 DBKey uiCreateHorizon::getSelID() const
-{ return outfld_->selIOObj() ? outfld_->selIOObj()->key() : DBKey::getInvalid(); }
+{
+    return outfld_->selIOObj() ? outfld_->selIOObj()->key()
+			       : DBKey::getInvalid();
+}
 
 
 bool uiCreateHorizon::acceptOK()

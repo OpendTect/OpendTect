@@ -24,7 +24,7 @@ class BinDataDesc;
 namespace ZDomain { class Info; }
 
 
-namespace Attrib 
+namespace Attrib
 {
 
 class Desc;
@@ -74,8 +74,8 @@ public:
 			    { zdomainkey_ = key; }
     void		setZDomainKey(const Desc&);
 
-    void		set( const char* r, DescID i, bool isnla, 
-	    		     const char* objr )
+    void		set( const char* r, DescID i, bool isnla,
+			     const char* objr )
 			{ ref_ = r; id_ = i; isnla_ = isnla; objref_ = objr;
 		          defstring_ = ""; zdomainkey_ = ""; }
 
@@ -159,21 +159,21 @@ public:
     SelInfo&		operator=(const SelInfo&);
 
     BufferStringSet	ioobjnms_;
-    BufferStringSet	ioobjids_;
     BufferStringSet	steernms_;
-    BufferStringSet	steerids_;
     BufferStringSet	attrnms_;
-    TypeSet<DescID>	attrids_;
     BufferStringSet	nlaoutnms_;
+    TypeSet<DescID>	attrids_;
+    DBKeySet		ioobjids_;
+    DBKeySet		steerids_;
 
     void		fillStored(bool steerdata,const char* filter=0);
     static bool		is2D(const char* defstr_or_ioobjid);
     static void		getZDomainItems(const ZDomain::Info&,
 					BufferStringSet& objnms);
 
-    			//!< 2D only
+			//!< 2D only
     static void		getAttrNames(const char* defstr_or_ioobjid,
-	    			     BufferStringSet&,bool issteer=false,
+				     BufferStringSet&,bool issteer=false,
 				     bool onlymulticomp=false);
 
 protected:

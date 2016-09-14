@@ -242,7 +242,7 @@ void uiODDisplayTreeItem::handleItemCheck( bool triggerdispreq )
 {
     if ( !visserv_->isSoloMode() )
 	visserv_->turnOn( displayid_, isChecked() );
-    if ( triggerdispreq && !storedid_.isUdf() && objectTypeKey() )
+    if ( triggerdispreq && storedid_.isValid() && objectTypeKey() )
     {
 	OD::PresentationRequestType req = isChecked() ? OD::Show : OD::Hide;
 	emitPRRequest( req );

@@ -13,7 +13,7 @@ static const char* rcsID = "$Id$";
 
 #include "prog.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "cubesampling.h"
 #include "emmanager.h"
 #include "emhorizon.h"

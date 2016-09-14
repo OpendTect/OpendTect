@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "uilabel.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "file.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -703,7 +703,7 @@ void uiMarkerDlg::exportCB( CallBacker* )
 
 bool uiMarkerDlg::getKey( DBKey& mid ) const
 {
-    IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
+    IOM().to( WellTranslatorGroup::ioContext().getSelDirID() );
     IOObj* obj = IOM().getLocal( track_.name(), "Well" );
     if ( !obj )
 	return false;

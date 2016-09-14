@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 #include "array2dinterpol.h"
 #include "array2dfilter.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"

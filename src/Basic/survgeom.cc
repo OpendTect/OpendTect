@@ -36,7 +36,7 @@ const GeometryManager& GM()
 
 
 Geometry::Geometry()
-    : id_(mUdf(ID))
+    : id_(GeometryManager::cUndefGeomID())
     , sampling_(false)
 {}
 
@@ -63,6 +63,12 @@ bool Geometry::includes( const TrcKey& tk ) const
 {
     return tk.geomID() == getID()
 	&& includes( tk.lineNr(), tk.trcNr() );
+}
+
+
+Geometry::ID Geometry2D::getIDFrom( const DBKey& dbky )
+{
+    return dbky.objID().getI();
 }
 
 
@@ -170,10 +176,10 @@ const Geometry3D* GeometryManager::getGeometry3D( Pos::SurvID sid ) const
 }
 
 
-const Geometry* GeometryManager::getGeometry( const DBKey& mid ) const
+const Geometry* GeometryManager::getGeometry( const DBKey& dbky ) const
 {
-    if ( mid.nrKeys() == 2 )
-	return getGeometry( mid.subID(1) );
+    if ( dbky.hasValidObjID() )
+	return getGeometry( dbky.objID().getI() );
 
     return 0;
 }
@@ -244,7 +250,8 @@ TrcKey GeometryManager::traceKey( Geometry::ID geomid, Pos::LineID lid,
 }
 
 
-TrcKey GeometryManager::traceKey( Geometry::ID geomid, Pos::TraceID tid ) const
+TrcKey GeometryManager::traceKey( Geometry::ID geomid,
+				    Pos::TraceID tid ) const
 {
     mGetConstGeom(geom,geomid);
     if ( !geom || !geom->is2D() )
@@ -440,7 +447,7 @@ bool GeometryManager::updateGeometries( TaskRunner* taskrunner )
 
 
 bool GeometryManager::getList( BufferStringSet& names,
-			       TypeSet<Geometry::ID>& geomids, bool is2d ) const
+			   TypeSet<Geometry::ID>& geomids, bool is2d ) const
 {
     names.erase();
     geomids.erase();

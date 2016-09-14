@@ -107,11 +107,11 @@ protected:
     void		prepPriorToBoundsCalc();
     void		setSmootheningPar();
     float		getXscaler(bool isoffset, bool isindegrees) const;
-    
+
     RefMan<PreStack::Gather>	getPreProcessed(const BinID& relbid);
     bool			getGatherData(const BinID& bid,
                                       RefMan<PreStack::Gather>& gather,
-	    			      RefMan<PreStack::Gather>& anggleg);
+				      RefMan<PreStack::Gather>& anggleg);
 
     DBKey			psid_;
     IOObj*			psioobj_;
@@ -121,7 +121,7 @@ protected:
     PreStack::PropCalc*		propcalc_;
     PreStack::PropCalc::Setup	setup_;
     PreStack::AngleComputer*    anglecomp_;
-    int				anglegsdpid_;
+    DataPack::ID		anglegsdpid_;
 
     DBKey			preprocid_;
     int				dataidx_;

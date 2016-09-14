@@ -26,8 +26,8 @@ uiString ODMadProcFlowTranslatorGroup::sTypeName(int)
 { return tr("Madagascar process flow"); }
 
 defineTranslator(dgb,ODMadProcFlow,mDGBKey);
-mDefSimpleTranslatorioContextWithExtra(ODMadProcFlow,None,
-					ctxt->selkey_ = ODMad::sKeyMadSelKey())
+mDefSimpleTranslatorioContextWithExtra( ODMadProcFlow, None,
+				ctxt->dirid_.setI( ODMad::cMadDirIDNr() ) )
 
 
 ODMad::ProcFlow::ProcFlow( const char* nm )

@@ -71,7 +71,6 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     , tkzs_(wd_.checkShotModelPtr())
     , orgcs_(0)
     , isedit_(false)
-    , movingpointid_(PointID::getInvalid())
     , driftcurve_(new DriftCurve)
     , newdriftcurve_(new DriftCurve("User defined Drift Curve"))
 {

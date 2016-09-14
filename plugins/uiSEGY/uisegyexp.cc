@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitoolbutton.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"

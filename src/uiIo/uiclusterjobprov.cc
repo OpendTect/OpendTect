@@ -316,15 +316,15 @@ DBKey uiClusterJobProv::getTmpID( const char* tmpdir ) const
     BufferString objnm( "~" );
     objnm += fp.fileName();
     ctio.setName( objnm );
-    IOM().to( ctio.ctxt_.getSelKey() );
+    IOM().to( ctio.ctxt_.getSelDirID() );
     IOM().getEntry( ctio );
     if ( !ctio.ioobj_ )
-	return DBKey(-1);
+	return DBKey::getInvalid();
 
     fp.add( "i.*");
     DBKey ret = ctio.ioobj_->key();
     mDynamicCastGet(IOStream*,iostrm,ctio.ioobj_)
-    if ( !iostrm ) return DBKey(-1);
+    if ( !iostrm ) return DBKey::getInvalid();
 
     StepInterval<int> fnrs;
     jobprov_->getRange( fnrs );

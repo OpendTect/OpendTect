@@ -31,6 +31,7 @@ set( OD_TEST_PROGS
 	callback.cc
 	commandlineparser.cc
 	datapack.cc
+	dbkey.cc
 	file.cc
 	geometry.cc
 	globexpr.cc

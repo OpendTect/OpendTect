@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "convert.h"
 
 class BufferStringSet;
+class DBKey;
 
 /*!
 \brief %List encoded in a string.
@@ -60,6 +61,7 @@ public:
 
     SeparString&	add(const BufferStringSet&);	//!< Concatenation
     SeparString&	add(const SeparString&);	//!< Concatenation
+    SeparString&	add(const DBKey&);
     SeparString&	add(const char* unescapedstr);
     inline SeparString&	add( const OD::String& ods )
 			{ return add( ods.buf() ); }

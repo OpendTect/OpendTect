@@ -34,9 +34,8 @@ Saveable::Saveable( const Saveable& oth )
 
 Saveable::~Saveable()
 {
-    detachCBFromObj();
-    sendDelNotif();
     detachAllNotifiers();
+    sendDelNotif();
 }
 
 
@@ -132,10 +131,10 @@ bool Saveable::save() const
 	}
     }
 
-    if ( storekey_.isEmpty() )
-	errmsg_ = tr("Cannot save object without database key");
-    else
+    if ( storekey_.isValid() )
 	errmsg_ = tr("Cannot find database entry for: %1").arg(storekey_);
+    else
+	errmsg_ = tr("Cannot save object without database key");
     return false;
 }
 
@@ -181,9 +180,9 @@ SaveableManager::SaveableManager( const IOObjContext& ctxt, bool withautosave )
 
 SaveableManager::~SaveableManager()
 {
+    detachAllNotifiers();
     sendDelNotif();
     setEmpty();
-    detachAllNotifiers();
     delete const_cast<IOObjContext*>( &ctxt_ );
 }
 
@@ -300,7 +299,7 @@ SaveableManager::ObjID SaveableManager::getID( const SharedObject& obj ) const
 
 IOPar SaveableManager::getIOObjPars( const ObjID& id ) const
 {
-    if ( id.isUdf() )
+    if ( id.isInvalid() )
 	return IOPar();
 
     mLock4Read();
@@ -319,8 +318,8 @@ IOObj* SaveableManager::getIOObj( const char* nm ) const
     if ( !nm || !*nm )
 	return 0;
 
-    IODir iodir( ctxt_.getSelKey() );
-    const IOObj* ioobj = iodir.get( nm, ctxt_.translatorGroupName() );
+    IODir iodir( ctxt_.getSelDirID() );
+    const IOObj* ioobj = iodir.getByName( nm, ctxt_.translatorGroupName() );
     return ioobj ? ioobj->clone() : 0;
 }
 
@@ -364,7 +363,7 @@ uiRetVal SaveableManager::store( const SharedObject& newobj,
 uiRetVal SaveableManager::store( const SharedObject& newobj, const ObjID& id,
 				 const IOPar* ioobjpars ) const
 {
-    if ( id.isUdf() )
+    if ( id.isInvalid() )
 	return store( newobj, ioobjpars );
 
     if ( !isLoaded(id) )
@@ -430,7 +429,7 @@ bool SaveableManager::isLoaded( const char* nm ) const
 
 bool SaveableManager::isLoaded( const ObjID& id ) const
 {
-    if ( id.isUdf() )
+    if ( id.isInvalid() )
 	return false;
     mLock4Read();
     return gtIdx( id ) >= 0;

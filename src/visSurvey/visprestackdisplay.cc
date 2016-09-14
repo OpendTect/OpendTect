@@ -53,7 +53,7 @@ PreStackDisplay::PreStackDisplay()
     , flatviewer_( visBase::FlatViewer::create() )
     , draggermoving( this )
     , draggerpos_( -1, -1 )
-    , mid_( 0 )
+    , mid_( DBKey::getInvalid() )
     , section_( 0 )
     , seis2d_( 0 )
     , factor_( 1 )
@@ -183,13 +183,13 @@ void PreStackDisplay::setDBKey( const DBKey& mid )
 DataPack::ID PreStackDisplay::preProcess()
 {
     if ( !ioobj_ || !reader_ )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     if ( !preprocmgr_.nrProcessors() || !preprocmgr_.reset() )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     if ( !preprocmgr_.prepareWork() )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     const BinID stepout = preprocmgr_.getInputStepout();
 
@@ -216,7 +216,7 @@ DataPack::ID PreStackDisplay::preProcess()
     }
 
     if ( !preprocmgr_.process() )
-	return -1;
+	return DataPack::ID::getInvalid();
 
     return preprocmgr_.getOutput();
 }

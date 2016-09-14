@@ -45,8 +45,8 @@ bool uiVolProcAttrib::setParameters( const Desc& desc )
     const ValParam* par = desc.getValParam( VolProcAttrib::sKeySetup() );
     if ( !par ) return false;
 
-    const DBKey mid( par->getStringValue(0) );
-    setupfld_->setInput( mid );
+    const DBKey setupid = DBKey::getFromString( par->getStringValue(0) );
+    setupfld_->setInput( setupid );
 
     return true;
 }
@@ -57,6 +57,6 @@ bool uiVolProcAttrib::getParameters( Desc& desc )
     if ( desc.attribName() != VolProcAttrib::attribName() )
 	return false;
 
-    mSetString( VolProcAttrib::sKeySetup(), setupfld_->key() );
+    mSetString( VolProcAttrib::sKeySetup(), setupfld_->key().toString() );
     return true;
 }

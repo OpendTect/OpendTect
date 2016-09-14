@@ -376,11 +376,11 @@ uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
     , subvolfld_(0)
     , dpfid_(dpfid)
 {
-    const int dpmid = dpfid_.mgrID();
+    const DataPack::MgrID dpmid = dpfid_.mgrID();
     if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::SeisID() )
 	{ pErrMsg( "Only Flat & Cube DataPacks supported" ); return; }
 
-    const bool is2d = dpmid==DataPackMgr::FlatID();
+    const bool is2d = dpmid == DataPackMgr::FlatID();
     createSelFields( is2d ? DataPack2D : DataPack3D );
 }
 
@@ -417,8 +417,8 @@ void createSelFields( DataType type )
     nrtrcfld_ = new uiGenInput( this, tr("Nr of Traces for Examination"),
 				nrtrcinpspec );
 
-    const DataPack::FullID::SubID mgrid = dpfid_.mgrID();
-    const DataPack::FullID::SubID dpid = dpfid_.packID();
+    const DataPack::FullID::MgrID mgrid = dpfid_.mgrID();
+    const DataPack::FullID::PackID dpid = dpfid_.packID();
     if ( type==uiSelectPositionDlg::Stored2D )
     {
 	linesfld_ = new uiSeis2DLineNameSel( this, true );
@@ -440,7 +440,7 @@ void createSelFields( DataType type )
 	if ( type==uiSelectPositionDlg::DataPack3D )
 	{
             RefMan<RegularSeisDataPack> cdp =
-	DPM(mgrid).getAndCast<RegularSeisDataPack>(dpid);
+	    DPM(mgrid).getAndCast<RegularSeisDataPack>(dpid);
 
 	    cs = cdp->sampling();
 	}

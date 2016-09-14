@@ -63,7 +63,6 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , rdmlinedlg_(0)
     , uiwellimpdlg_(0)
     , disponcreation_(false)
-    , dbkey_(0)
     , randLineDlgClosed(this)
     , uiwellpropDlgClosed(this)
     , manwelldlg_(0)
@@ -195,7 +194,7 @@ void uiWellPartServer::importReadyCB( CallBacker* cb )
     if ( uiwellimpdlg_ && cb==uiwellimpdlg_ )
     {
 	crwellids_.erase();
-	crwellids_.add( uiwellimpdlg_->getWellID().buf() );
+	crwellids_.add( uiwellimpdlg_->getWellID() );
 	sendEvent( evDisplayWell() );
     }
 }
@@ -417,7 +416,8 @@ void uiWellPartServer::simpImp( CallBacker* cb )
 	return;
 
     crwellids_ = impsimpledlg_->createdWellIDs();
-    if ( crwellids_.isEmpty() ) return;
+    if ( crwellids_.isEmpty() )
+	return;
 
     if ( impsimpledlg_->wantDisplay() )
 	sendEvent( evDisplayWell() );
@@ -427,7 +427,7 @@ void uiWellPartServer::simpImp( CallBacker* cb )
     mDynamicCastGet(uiWellMan*,wm,mw)
     if ( !wm ) return;
 
-    wm->selGroup()->fullUpdate( DBKey(crwellids_.get(0)) );
+    wm->selGroup()->fullUpdate( crwellids_.get(0) );
 }
 
 

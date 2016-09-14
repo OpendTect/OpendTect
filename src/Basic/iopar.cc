@@ -1037,17 +1037,26 @@ void IOPar::set( const char* keyw, const BufferStringSet& bss )
 }
 
 
-bool IOPar::get( const char* keyw, DBKey& mid ) const
+bool IOPar::get( const char* keyw, DBKey& dbky ) const
 {
     mGetStartNotEmpty(pval);
-    mid = pval;
+    dbky.fromString( pval );
     return true;
 }
 
 
-void IOPar::set( const char* keyw, const DBKey& mid )
+void IOPar::set( const char* keyw, const DBKey& dbky )
 {
-    set( keyw, mid.buf() );
+    set( keyw, dbky.toString() );
+}
+
+
+void IOPar::update( const char* keyw, const DBKey& dbky )
+{
+    if ( dbky.isValid() )
+	update( keyw, dbky.toString() );
+    else
+	update( keyw, 0 );
 }
 
 

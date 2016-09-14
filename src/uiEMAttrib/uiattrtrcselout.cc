@@ -117,7 +117,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
     su.seltxt( tr("and bottom Horizon") );
     ctio2_.ctxt_.forread_ = true;
     obj2fld_ = new uiIOObjSel( pargrp_, ctio2_, su );
-    obj2fld_->setInput( DBKey("") );
+    obj2fld_->setInput( DBKey::getInvalid() );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 

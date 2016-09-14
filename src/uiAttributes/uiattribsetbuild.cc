@@ -176,7 +176,8 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 					Attrib::StorageProvider::keyStr() )
 		    const StringPair strpair( idval );
 		    BufferString bstring = strpair.first();
-		    const DataPack::FullID fid( bstring.buf()+1 );
+		    const DataPack::FullID fid
+			= DataPack::FullID::getFromString( bstring.buf()+1 );
 		    if ( psdpfids_.isPresent(fid) )
 			descset_.removeDesc( tmpdesc->id() );
 		}
@@ -215,7 +216,8 @@ void uiAttribDescSetBuild::removeReq()
 const char* uiAttribDescSetBuild::avFromDef( const char* attrnm ) const
 {
     Attrib::DescID did( descset_.getID(attrnm,true) );
-    if ( !did.isValid() ) return 0;
+    if ( !did.isValid() )
+	return 0;
     const char* clssnm = descset_.getDesc(did)->attribName();
     return uiAF().dispNameOf( clssnm );
 }

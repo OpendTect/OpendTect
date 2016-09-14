@@ -60,7 +60,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     ctio_.ctxt_.forread_ = false;
     ctio_.ctxt_.fixTranslator( "MultiCube" );
     if ( ky && *ky )
-	ctio_.setObj( DBKey(ky) );
+	ctio_.setObj( DBKey::getFromString(ky) );
     else
 	ctio_.setObj( 0 );
 
@@ -141,7 +141,7 @@ const IOObj* uiSeisMultiCubePS::createdIOObj() const
 
 void uiSeisMultiCubePS::fillEntries()
 {
-    const IODir iodir( ctio_.ctxt_.getSelKey() );
+    const IODir iodir( ctio_.ctxt_.getSelDirID() );
     PtrMan<IOObjContext> ctxt = Seis::getIOObjContext( Seis::Vol, true );
     const IODirEntryList del( iodir, *ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
@@ -173,14 +173,14 @@ void uiSeisMultiCubePS::setInitial( CallBacker* cb )
 	return;
 
     uiString emsg;
-    ObjectSet<DBKey> keys; TypeSet<float> offs; TypeSet<int> comps;
+    DBKeySet keys; TypeSet<float> offs; TypeSet<int> comps;
     if ( !MultiCubeSeisPSReader::readData(ctio_.ioobj_->fullUserExpr(false),
 		keys,offs,comps,emsg) )
 	{ uiMSG().error( emsg ); return; }
 
     for ( int idx=0; idx<keys.size(); idx++ )
     {
-	IOObj* ioobj = IOM().get( *keys[idx] );
+	IOObj* ioobj = IOM().get( keys[idx] );
 	if ( !ioobj )
 	    continue;
 	uiSeisMultiCubePSEntry* entry = new uiSeisMultiCubePSEntry( ioobj );
@@ -188,7 +188,6 @@ void uiSeisMultiCubePS::setInitial( CallBacker* cb )
 	selentries_ += entry;
     }
 
-    deepErase( keys );
     curselidx_ = selentries_.size() - 1;
     fullUpdate();
 }
@@ -349,11 +348,11 @@ bool uiSeisMultiCubePS::acceptOK()
     const float convfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
     offset.scale( convfactor );
 
-    ObjectSet<DBKey> keys; TypeSet<float> offs; TypeSet<int> comps;
+    DBKeySet keys; TypeSet<float> offs; TypeSet<int> comps;
     for ( int idx=0; idx<selentries_.size(); idx++ )
     {
 	const uiSeisMultiCubePSEntry& entry = *selentries_[idx];
-	keys += new DBKey( entry.ioobj_->key() );
+	keys += entry.ioobj_->key();
 	offs += offset.atIndex( idx );
 	comps += entry.comp_;
     }
@@ -361,7 +360,6 @@ bool uiSeisMultiCubePS::acceptOK()
     uiString emsg;
     const bool ret = MultiCubeSeisPSReader::writeData(
 		ctio_.ioobj_->fullUserExpr(false), keys, offs, comps, emsg );
-    deepErase( keys );
     if ( !ret )
 	mErrRet(emsg)
 

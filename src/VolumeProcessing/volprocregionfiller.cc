@@ -29,8 +29,6 @@ RegionFiller::RegionFiller()
     , outsideval_(mUdf(float))
     , startval_(mUdf(float))
     , gradval_(0)
-    , startvalkey_(DBKey::getInvalid())
-    , gradvalkey_(DBKey::getInvalid())
     , startvalauxidx_(-1)
     , gradvalauxidx_(-1)
 {}

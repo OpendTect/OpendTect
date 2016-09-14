@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uiexport2dhorizon.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emsurfaceiodata.h"

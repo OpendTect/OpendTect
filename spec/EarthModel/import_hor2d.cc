@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        R. K. Singh
- Date:          Aug 2007
+ Author:	R. K. Singh
+ Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
@@ -11,7 +11,7 @@ static const char* rcsID = "$Id$";
 
 #include "prog.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emposid.h"
@@ -104,7 +104,7 @@ bool getPos( const PosInfo::Line2DData& line, int trcnr, Coord& xypos )
 
 
 bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
-  		   const char* linesetnm, const int nrhors )
+		   const char* linesetnm, const int nrhors )
 {
     StreamProvider sp( filename );
     StreamData sd = sp.makeIStream();
@@ -308,7 +308,7 @@ static int doWork( int argc, char** argv )
     for ( int hdx=0; hdx<horizons.size(); hdx++ )
     {
 	PtrMan<Executor> saver = horizons[hdx]->saver();
-    	saver->execute();
+	saver->execute();
 	horizons[hdx]->unRef();
     }
     

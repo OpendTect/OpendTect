@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uigroup.h"
 class IOObj;
+class DBKeySet;
 class uiListBox;
 class uiGenInput;
 class DataPointSet;
@@ -44,7 +45,7 @@ public:
 				uiWellLogExtractGrp(uiParent*,
 					const uiWellLogExtractGrp::Setup&,
 					const Attrib::DescSet* ads=0);
-						
+
 				~uiWellLogExtractGrp();
 
     void			setDescSet(const Attrib::DescSet*);
@@ -72,8 +73,8 @@ protected:
     RefMan<DataPointSet> curdps_;
 
     void		adsChg();
-    bool		extractWellData(const BufferStringSet&,
-	    				const BufferStringSet&,
+    bool		extractWellData(const DBKeySet&,
+					const BufferStringSet&,
 					ObjectSet<DataPointSet>&);
     bool		extractAttribData(DataPointSet&,int);
 };

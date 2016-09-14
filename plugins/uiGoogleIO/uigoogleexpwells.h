@@ -20,7 +20,7 @@ public:
 
 protected:
 
-    ObjectSet<DBKey>	wellids_;
+    DBKeySet		wellids_;
 
     uiListBox*		selfld_;
 

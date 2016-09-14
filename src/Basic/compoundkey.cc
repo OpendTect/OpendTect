@@ -6,7 +6,7 @@
 -*/
 
 
-#include "dbkey.h"
+#include "compoundkey.h"
 #include "perthreadrepos.h"
 
 
@@ -109,75 +109,4 @@ CompoundKey CompoundKey::upLevel() const
 bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 {
     return nrKeys() < ky.nrKeys() && impl_.isStartOf( ky.impl_ );
-}
-
-
-DBKey::DBKey( SubID id1, SubID id2 )
-{
-    if ( id1 == 0 && id2 == 0 )
-	add( id1 );
-    else
-    {
-	if ( id1 != 0 )
-	    add( id1 );
-	if ( id2 != 0 )
-	    add( id2 );
-    }
-}
-
-
-DBKey::SubID DBKey::getIDAt( int lvl ) const
-{
-    const BufferString idstr( key(lvl) );
-    return idstr.isEmpty() ? 0 : idstr.toInt();
-}
-
-
-DBKey::SubID DBKey::leafID() const
-{
-    if ( isEmpty() )
-	return 0;
-
-    const char* dotptr = lastOcc( impl_.str(), '.' );
-    const char* ptr = dotptr ? dotptr + 1 : str();
-    return ptr && *ptr ? ::toInt( ptr ) : 0;
-}
-
-
-DBKey DBKey::parent() const
-{
-    return DBKey( upLevel().buf() );
-}
-
-
-const DBKey& DBKey::getInvalid()
-{
-   mDefineStaticLocalObject( DBKey, _invalid, (-1) );
-   return _invalid;
-}
-
-
-bool DBKey::isInvalid() const
-{
-    return impl_.isEmpty() || impl_ == getInvalid().impl_;
-}
-
-
-od_int64 DBKey::toInt64() const
-{
-    if ( isEmpty() )
-	return 0;
-
-    const SubID ileaf = leafID();
-    const DBKey par( parent() );
-    const SubID ipar = par.isEmpty() ? 0 : parent().leafID();
-    return (((od_uint64)ipar) << 32) + (((od_uint64)ileaf) & 0xFFFFFFFF);
-}
-
-
-DBKey DBKey::fromInt64( od_int64 i64 )
-{
-    const SubID ipar = (SubID)(i64 >> 32);
-    const SubID ileaf = (SubID)(i64 & 0xFFFFFFFF);
-    return DBKey( ipar, ileaf );
 }

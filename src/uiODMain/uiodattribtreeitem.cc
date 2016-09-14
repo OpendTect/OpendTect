@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -254,7 +254,7 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 	dispname = toUiString(as->objectRef());
 	uiString nodenm = toUiString( as->userRef());
 	if ( IOObj::isKey(as->userRef()) )
-	    nodenm = toUiString(IOM().nameOf( as->userRef() ));
+	    nodenm = toUiString(IOM().nameFor( as->userRef() ));
 	dispname = toUiString("%1 (%2)").arg( as->objectRef() ).arg( nodenm );
     }
 

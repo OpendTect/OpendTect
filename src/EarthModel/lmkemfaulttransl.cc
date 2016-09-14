@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ascstream.h"
 #include "od_istream.h"
 #include "uistrings.h"

@@ -48,7 +48,7 @@ uiGoogleExportWells::~uiGoogleExportWells()
 
 void uiGoogleExportWells::initWin( CallBacker* )
 {
-    const IODir iodir( WellTranslatorGroup::ioContext().getSelKey() );
+    const IODir iodir( WellTranslatorGroup::ioContext().getSelDirID() );
     const IODirEntryList del( iodir, WellTranslatorGroup::ioContext() );
     for ( int idx=0; idx<del.size(); idx++ )
     {
@@ -56,7 +56,7 @@ void uiGoogleExportWells::initWin( CallBacker* )
 	if ( de && de->ioobj_ )
 	{
 	    selfld_->addItem( mToUiStringTodo(de->name()) );
-	    wellids_ += new DBKey( de->ioobj_->key() );
+	    wellids_ += de->ioobj_->key();
 	}
     }
     selfld_->chooseAll( true );
@@ -75,7 +75,7 @@ bool uiGoogleExportWells::acceptOK()
 	    continue;
 
 	RefMan<Well::Data> wd = new Well::Data;
-	Well::Reader wllrdr( *wellids_[idx], *wd );
+	Well::Reader wllrdr( wellids_[idx], *wd );
 	Coord coord;
 	if ( !wllrdr.getMapLocation(coord) )
 	    continue;

@@ -59,10 +59,10 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     uiString lbltxt = tr("Z Offset %1 Top").arg(SI().getUiZUnitString());
     tophorshiftfld_ = new uiGenInput( this, lbltxt,
-	    			      FloatInpSpec(0).setName("Top") );
+				      FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
     tophorshiftfld_->setElemSzPol( uiObject::Small );
-    bothorshiftfld_ = new uiGenInput( this, uiStrings::sBottom(), 
+    bothorshiftfld_ = new uiGenInput( this, uiStrings::sBottom(),
                                       FloatInpSpec(0) );
     bothorshiftfld_->attach( rightTo, tophorshiftfld_ );
     bothorshiftfld_->setElemSzPol( uiObject::Small );
@@ -71,7 +71,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     rangefld_->attach( alignedBelow, tophorshiftfld_ );
 
     ampoptionfld_ = new uiLabeledComboBox( this, statstrs,
-	    				   tr("Amplitude Option") );
+					   tr("Amplitude Option") );
     ampoptionfld_->attach( alignedBelow, rangefld_ );
 
     selfld_= new uiGenInput( this, tr("Add result as an attribute to"),
@@ -81,13 +81,13 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
     foldfld_ = new uiGenInput( this, tr("Output fold as an extra attribute"),
-	    		       BoolInpSpec(false) ) ;
+			       BoolInpSpec(false) ) ;
     foldfld_->attach( alignedBelow, selfld_ );
 
     attribnamefld_ = new uiGenInput( this, uiStrings::sAttribName(),
 			             StringInpSpec("Stratal Amplitude") );
     attribnamefld_->valuechanged.notify(
-	    			mCB(this,uiStratAmpCalc,setParFileNameCB) );
+				mCB(this,uiStratAmpCalc,setParFileNameCB) );
     attribnamefld_->attach( alignedBelow, foldfld_ );
 
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
@@ -175,7 +175,7 @@ bool uiStratAmpCalc::checkInpFlds()
 {
     if ( inpfld_->isEmpty() )
 mErrRet( tr("Missing Input\nPlease select the input attribute / seismics"));
-    
+
     if ( usesingle_ && !horfld1_->commitInput() )
 	mErrRet( tr("Missing Input\nPlease select the input Horizon") );
 
@@ -260,9 +260,9 @@ bool uiStratAmpCalc::fillPar()
     }
 
     Attrib::Desc* desc = clonedset->getDesc( targetid );
-    BufferString storedid = desc ? desc->getStoredID() : "";
-    if ( !storedid.isEmpty() )
-	iop.set( "Input Line Set", storedid.buf() );
+    DBKey storedid = desc ? desc->getStoredID() : DBKey::getInvalid();
+    if ( storedid.isValid() )
+	iop.set( "Input Line Set", storedid );
 
     const BufferString keybase = IOPar::compKey( Attrib::Output::outputstr(),0);
     const BufferString attribkey =

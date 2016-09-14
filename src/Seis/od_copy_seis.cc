@@ -26,7 +26,8 @@ bool BatchProgram::go( od_ostream& strm )
     PtrMan<IOPar> inpar = pars().subselect( sKey::Input() );
     if ( !inpar || inpar->isEmpty() )
 	{ strm << "Batch parameters 'Input' empty" << od_endl; return false; }
-    PtrMan<IOObj> inioobj = IOM().get( inpar->find(sKey::ID()) );
+    PtrMan<IOObj> inioobj = IOM().get(
+			DBKey::getFromString(inpar->find(sKey::ID())) );
     if ( !inioobj )
 	{ strm << "Input object spec is not OK" << od_endl; return false; }
     SeisIOObjInfo ioobjinfo( *inioobj );
@@ -38,7 +39,8 @@ bool BatchProgram::go( od_ostream& strm )
     PtrMan<IOPar> outpar = pars().subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )
 	{ strm << "Batch parameters 'Ouput' empty" << od_endl; return false; }
-    PtrMan<IOObj> outioobj = IOM().get( outpar->find(sKey::ID()) );
+    PtrMan<IOObj> outioobj = IOM().get(
+			DBKey::getFromString(outpar->find(sKey::ID())) );
     if ( !outioobj )
 	{ strm << "Output object spec is not OK" << od_endl; return false; }
 

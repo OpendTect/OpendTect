@@ -267,10 +267,12 @@ public:
     virtual bool		setDataPackID(int attrib,DataPack::ID,
 					      TaskRunner*)
 				{ return false; }
-    virtual DataPack::ID	getDataPackID(int attrib) const { return -1; }
+    virtual DataPack::ID	getDataPackID(int attrib) const
+				{ return DataPack::ID::getInvalid(); }
     virtual DataPack::ID	getDisplayedDataPackID(int attrib) const
-				{ return -1; }
-    virtual DataPackMgr::ID	getDataPackMgrID() const	{ return -1; }
+				{ return DataPack::ID::getInvalid(); }
+    virtual DataPackMgr::ID	getDataPackMgrID() const
+				{ return DataPackMgr::ID::getInvalid(); }
 
 				//Volume data
     virtual TrcKeyZSampling	getTrcKeyZSampling( int attrib ) const

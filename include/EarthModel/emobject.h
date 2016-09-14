@@ -117,11 +117,11 @@ mExpClass(EarthModel) EMObject	: public RefCount::Referenced
 				, public CallBacker
 {
 public:
+
     const ObjectID&		id() const		{ return id_; }
-    virtual const char*		getTypeStr() const			= 0;
-    virtual uiString		getUserTypeStr() const			= 0;
+    virtual const char*		getTypeStr() const	= 0;
+    virtual uiString		getUserTypeStr() const	= 0;
     const DBKey&		dbKey() const		{ return storageid_; }
-    mDeprecated const DBKey&	multiID() const		{ return storageid_; }
     void			setDBKey(const DBKey&);
 
     virtual bool		isOK() const		{ return true; }
@@ -132,15 +132,15 @@ public:
     uiString			uiName() const { return toUiString(name()); }
     virtual void		setNewName();
 
-    virtual int			nrSections() const			= 0;
-    virtual SectionID		sectionID(int) const			= 0;
+    virtual int			nrSections() const	= 0;
+    virtual SectionID		sectionID(int) const	= 0;
     virtual BufferString	sectionName(const SectionID&) const;
     virtual bool		canSetSectionName() const;
     virtual bool		setSectionName(const SectionID&,const char*,
 					       bool addtohistory);
     virtual int			sectionIndex(const SectionID&) const;
     virtual bool		removeSection(SectionID,bool hist )
-					{ return false; }
+							{ return false; }
 
     const Geometry::Element*	sectionGeometry(const SectionID&) const;
     Geometry::Element*		sectionGeometry(const SectionID&);
@@ -289,6 +289,12 @@ protected:
     static const char*		posattrprefixstr();
     static const char*		posattrsectionstr();
     static const char*		posattrposidstr();
+
+public:
+
+    mDeprecated const DBKey&	multiID() const		{ return storageid_; }
+    mDeprecated void		setMultiID( const DBKey& k ) { setDBKey(k); }
+
 };
 
 } // namespace EM

@@ -53,7 +53,7 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     horsel_->selectionDone.notify( mCB(this,uiIsochronMakerGrp,toHorSel) );
     if ( !baseemobj_ )
     {
-	horsel_->setInput( DBKey("") );
+	horsel_->setInput( DBKey::getInvalid() );
 	horsel_->attach( alignedBelow, basesel_ );
     }
 

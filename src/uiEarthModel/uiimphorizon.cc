@@ -387,8 +387,7 @@ bool uiImportHorizon::doDisplay() const
 
 DBKey uiImportHorizon::getSelID() const
 {
-    DBKey mid = ctio_.ioobj_ ? ctio_.ioobj_->key() : -1;
-    return mid;
+    return ctio_.ioobj_ ? ctio_.ioobj_->key() : DBKey::getInvalid();
 }
 
 

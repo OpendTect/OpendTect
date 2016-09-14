@@ -370,9 +370,8 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
 	{ delete ctio->ioobj_; delete ctio; ctio = 0; }
     else
     {
-	delete ctio->ioobj_; ctio->ioobj_ = dlg.ioObj()->clone();
-	const DBKey id( ctio->ioobj_ ? ctio->ioobj_->key() : DBKey("") );
-	cursessid_ = id;
+	ctio->setObj( dlg.ioObj()->clone() );
+	cursessid_ = ctio->ioobj_ ? ctio->ioobj_->key() : DBKey();
     }
 
     return ctio;
@@ -451,7 +450,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
 	  BoolInpSpec(douse,uiStrings::sEnabled(),uiStrings::sDisabled() ));
     usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_ = new uiGenInput( this, tr("Use one for this survey"),
-			        BoolInpSpec(!id.isEmpty()) );
+				BoolInpSpec(id.isValid()) );
     doselfld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_->attach( alignedBelow, usefld_ );
 
@@ -609,7 +608,7 @@ void uiODMain::handleStartupSession()
     bool douse = false;
     DBKey id;
     ODSession::getStartupData( douse, id );
-    if ( !douse || id.isEmpty() )
+    if ( !douse || id.isInvalid() )
 	return;
 
     PtrMan<IOObj> ioobj = IOM().get( id );

@@ -34,19 +34,13 @@ namespace OD
 mExpClass(General) ViewerID : public GroupedID
 {
 public:
-				ViewerID()
-				    : GroupedID(GroupedID::getInvalid())
-				{}
+				ViewerID()	    {}
 
 				ViewerID( ViewerTypeID vwrtypeid,
 					  ViewerObjID vwrobjid )
-				    : GroupedID(GroupedID::getInvalid())
-				{
-				    setGroupID( vwrtypeid );
-				    setObjID( vwrobjid );
-				}
-				ViewerID(GroupNrType vwrtypeid, ObjNrType vwrid)
-				    : GroupedID(GroupedID::get(vwrtypeid,vwrid))
+				    : GroupedID(vwrtypeid,vwrobjid) {}
+				ViewerID(GroupNrType vwrtypenr, ObjNrType vwrnr)
+				    : GroupedID(vwrtypenr,vwrnr)
 				{}
 
     ViewerTypeID		viewerTypeID()	{ return groupID(); }

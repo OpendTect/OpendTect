@@ -226,6 +226,7 @@ public:
     void		set(const char*,IntegerID<IdxType>);
     template<class IdxType>
     void		update(const char*,IntegerID<IdxType>);
+    void		update(const char*,const DBKey&);
 
     void		set(const char*,int,int,float);
     void		setPtr(const char*,void*);

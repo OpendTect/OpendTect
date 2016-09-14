@@ -736,7 +736,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     // TODO: adapt to multi-attrib
     if ( idx<0 || idx>=isosurfaces_.size() || !attribs_[0]->cache_ ||
 	 mIsUdf(isosurfsettings_[idx].isovalue_) ||
-	 isosurfsettings_[idx].seedsid_.isEmpty() )
+	 isosurfsettings_[idx].seedsid_.isInvalid() )
 	return false;
 
     ConstRefMan<Pick::Set> seeds

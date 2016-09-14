@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitaskrunner.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"

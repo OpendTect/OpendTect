@@ -24,30 +24,30 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
-       						DataPackMgr::ID dmid )
+						DataPackMgr::ID dmid )
     : uiDialog( p,uiDialog::Setup(uiStrings::sHistogram(),
-				  mNoDlgTitle,
-                                  mODHelpKey(mMultiMapperRangeEditWinHelpID) )
-                                  .modal(false)
-							.menubar(true) )
+				mNoDlgTitle,
+				mODHelpKey(mMultiMapperRangeEditWinHelpID) )
+				.modal(false)
+				.menubar(true) )
     , activeattrbid_(-1)
-    , activectbmapper_(0)	      
+    , activectbmapper_(0)
     , rangeChange(this)
-    , dpm_(DPM(dmid))		       
+    , dpm_(DPM(dmid))
 {
     setCtrlStyle( CloseOnly );
 
-    datapackids_.setSize( nr );
+    datapackids_.setSize( nr, DataPack::ID::getInvalid() );
     uiSeparator* sephor = 0;
 
     uiToolBar* tb = new uiToolBar( this, tr("Stats") );
     tb->addButton( "info", tr("Statistics"),
-	    	   mCB(this,uiMultiMapperRangeEditWin,showStatDlg) );
+		   mCB(this,uiMultiMapperRangeEditWin,showStatDlg) );
 
     for ( int idx=0; idx<nr; idx++ )
     {
 	uiMapperRangeEditor* rangeeditor =
-	    			new uiMapperRangeEditor( this, idx );
+				new uiMapperRangeEditor( this, idx );
 	rangeeditor->rangeChanged.notify(
 		mCB(this,uiMultiMapperRangeEditWin,rangeChanged) );
 	mapperrgeditors_ += rangeeditor;
@@ -117,18 +117,18 @@ void uiMultiMapperRangeEditWin::setColTabMapperSetup( int idx,
 {
     if ( !mapperrgeditors_.validIdx(idx) )
 	return;
-   
-    mapperrgeditors_[idx]->setColTabMapperSetup( ms ); 
+
+    mapperrgeditors_[idx]->setColTabMapperSetup( ms );
 }
 
 
-void uiMultiMapperRangeEditWin::setColTabSeq( int idx, 
+void uiMultiMapperRangeEditWin::setColTabSeq( int idx,
 						const ColTab::Sequence& ctseq )
 {
     if ( !mapperrgeditors_.validIdx(idx) )
 	return;
 
-    mapperrgeditors_[idx]->setColTabSeq( ctseq ); 
+    mapperrgeditors_[idx]->setColTabSeq( ctseq );
 }
 
 

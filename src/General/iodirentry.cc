@@ -5,7 +5,7 @@
  * FUNCTION : IODir entries for selectors
 
 -*/
- 
+
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -96,7 +96,7 @@ void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
 
     delete ge;
     sort();
-    if ( lastiokey.isEmpty() )
+    if ( !lastiokey.isValid() )
 	{ if ( size() > curset ) setCurrent( curset ); }
     else
 	setSelected( lastiokey );
@@ -112,23 +112,13 @@ void IODirEntryList::setSelected( const DBKey& iniokey )
 	DBKey iokey( iniokey );
 	if ( !entry->ioobj_ )
 	{
-	    if ( iokey.isEmpty() )
+	    if ( !iokey.isValid() )
 		matches = true;
 	}
 	else
 	{
 	    if ( iokey == entry->ioobj_->key() )
 		matches = true;
-	    else
-	    {
-		while ( 1 )
-		{
-		    iokey = iokey.upLevel();
-		    if ( iokey.isEmpty() ) break;
-		    if ( iokey == entry->ioobj_->key() )
-			matches = true;
-		}
-	    }
 	}
 	if ( matches )
 	{

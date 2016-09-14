@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 #include "axislayout.h"
 #include "coltabsequence.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"

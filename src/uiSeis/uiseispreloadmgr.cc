@@ -58,7 +58,6 @@ const char* cannotloadstr = "Cannot load ";
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     : uiDialog(p,Setup(tr("Seismic Data Pre-load Manager"),mNoDlgTitle,
 			mODHelpKey(mSeisPreLoadMgrHelpID) ))
-    , initmid_(DBKey::getInvalid())
 {
     setCtrlStyle( CloseOnly );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
@@ -133,9 +132,9 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
     const int selidx = listfld_->currentItem();
     const ObjectSet<PreLoadDataEntry>& entries = PLDM().getEntries();
     if ( !entries.validIdx(selidx) )
-    { infofld_->setText(""); return; }
+	{ infofld_->setText(""); return; }
 
-    const DBKey mid = entries[selidx]->mid_;
+    const DBKey mid = entries[selidx]->dbkey_;
     SeisIOObjInfo ioinf( mid );
     if ( !ioinf.isOK() )
 	{ infofld_->setText(tr("Internal error: IOObj not OK")); return; }
@@ -365,7 +364,7 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
     for ( int idx=selitms.size()-1; idx>=0; idx-- )
     {
 	const int selidx = selitms[idx];
-	PreLoader spl( entries[selidx]->mid_, entries[selidx]->geomid_ );
+	PreLoader spl( entries[selidx]->dbkey_, entries[selidx]->geomid_ );
 	spl.unLoad();
     }
 
@@ -421,7 +420,7 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
     for ( int idx=0; idx<entries.size(); idx++ )
     {
 	IOPar iop;
-	PreLoader spl( entries[idx]->mid_, entries[idx]->geomid_ );
+	PreLoader spl( entries[idx]->dbkey_, entries[idx]->geomid_ );
 	spl.fillPar( iop );
 	alliop.mergeComp( iop, IOPar::compKey("Seis",idx) );
     }
@@ -447,7 +446,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     uiSeisSel::Setup sssu( geom );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
     seissel_ = new uiSeisSel( leftgrp, ctxt, sssu );
-    if ( !input.isUdf() )
+    if ( !input.isValid() )
 	seissel_->setInput( input );
     seissel_->selectionDone.notify( mCB(this,uiSeisPreLoadSel,seisSel) );
 

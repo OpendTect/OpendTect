@@ -11,7 +11,7 @@ static const char* rcsID = "$Id$";
 
 #include "prog.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emposid.h"
@@ -78,7 +78,7 @@ static int doWork( int argc, char** argv )
     s2dls.getGeometry( lsdata );
 
     IOObjContext ctxt = EMHorizon2DTranslatorGroup::ioContext();
-    IOM().to( ctxt.getSelKey() );
+    IOM().to( ctxt.getSelDirID() );
     IODirEntryList list( IOM().dirPtr(), ctxt );
     DBKeySet horids;
     for ( int idx=0; idx<list.size(); idx++ )

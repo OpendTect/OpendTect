@@ -5,75 +5,92 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
- Date:		15-1-2000
+ Author:	Bert
+ Date:		Sep 2016
 ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
-#include "compoundkey.h"
-#include "string2.h"
-#include "fixedstring.h"
+#include "groupedid.h"
+#include "bufstring.h"
+#include "uistring.h"
 #include "typeset.h"
 
+class BufferStringSet;
 
-/*!\brief Compound key consisting of ints */
 
-mExpClass(Basic) DBKey : public CompoundKey
+/*!\brief Full key to any object in the OpendTect data store.
+
+  The OpendTect data store is a meta-datastore. It is defined only by interfaces
+  to store and retreive the data. All objects have at least one default storage
+  in the flat-file default data storage - for example seismic data can be
+  stored in CBVS files. Just as well, it can be stored in other data stores.
+
+  To identify the storage of objects, every object somewhere in a data store
+  accessible for opendTect, you need its DBKey.
+
+  Previously, the key was a string-based class called MultiID. The DBKey
+  replaces it with the safer and more compact IDWithGroup.
+
+*/
+
+mExpClass(Basic) DBKey : public IDWithGroup<int,int>
 {
 public:
 
-    typedef int		SubID;
+    typedef GroupID	DirID;
 
-			DBKey(const FixedString& s)
-			: CompoundKey(s)	{}
-			DBKey( const char* s=0 )
-			: CompoundKey(s)	{}
-			DBKey( const DBKey& mid )
-			: CompoundKey(mid)	{}
-			DBKey( SubID id )
-			{ add(id); }
-			DBKey(SubID,SubID);
+			DBKey()
+			    : auxkey_(0)	{}
+			DBKey( const DBKey& oth )
+			    : auxkey_(0)	{ *this = oth; }
+			DBKey( GroupID gid, ObjID oid=ObjID::getInvalid() )
+			    : IDWithGroup<int,int>(gid,oid)
+			    , auxkey_(0)	{}
+			~DBKey();
 
-    inline DBKey&	operator =( const DBKey& mi )
-			{ impl_ = mi.impl_; return *this; }
-    inline DBKey&	operator =( const CompoundKey& ck )
-			{ impl_ = ck.buf(); return *this; }
-    inline DBKey&	operator =( const FixedString& fs )
-			{ impl_ = fs.str(); return *this; }
-    inline DBKey&	operator =( const char* s )
-			{ impl_ = s; return *this; }
+    DBKey&		operator =(const DBKey&);
+    bool		operator ==(const DBKey&) const;
+    inline bool		operator !=( const DBKey& oth ) const
+			{ return !(oth == *this); }
 
-    inline bool		operator==( const DBKey& m ) const
-			{ return impl_ == m.impl_; }
-    inline bool		operator==( const char* s ) const
-			{ return impl_ == s; }
+    static DBKey	getInvalid()		{ return DBKey(-1,-1); }
+    static DBKey	get( GroupNrType gnr, ObjNrType onr=-1 )
+						{ return DBKey(gnr,onr); }
+    static DBKey	getFromString(const char*);
+    static DBKey	getFromInt64(od_int64);
 
-    inline SubID	subID( IdxType idx ) const
-			{ return key(idx).toInt(); }
-    inline void		setSubID( IdxType idx, SubID id )
-			{ setKey( idx, toString(id) ); }
-    SubID		getIDAt(int lvl) const;
-    SubID		leafID() const;
-    DBKey		parent() const;
+    virtual bool	isInvalid() const	{ return groupnr_ < 0; }
 
-    inline DBKey&	set( const DBKey& oth )
-			{ *this = oth; return *this; }
-    inline DBKey&	set( const char* s )
-			{ *this = s; return *this; }
-    inline DBKey&	add( SubID id )
-			{ *this += toString(id); return *this; }
+			// aliases
+    inline bool		hasValidDirID() const	{ return hasValidGroupID(); }
+    inline DirID	dirID() const		{ return groupID(); }
+    inline void		setDirID( DirID id )	{ setGroupID( id ); }
 
-    od_int64		toInt64() const;
-    static DBKey	fromInt64(od_int64);
+    virtual BufferString toString() const;
+    virtual void	fromString(const char*);
 
-    static const DBKey& getInvalid();
-    mDeprecated static const DBKey& udf()	{ return getInvalid(); }
-    inline void		setUdf()		{ setInvalid(); }
-    inline void		setInvalid()		{ *this = getInvalid(); }
-    bool		isUdf() const		{ return isInvalid(); }
-    bool		isInvalid() const;
+    uiString		toUiString() const;
+
+    bool		hasAuxKey() const	{ return auxkey_; }
+    BufferString	auxKey() const;
+    void		setAuxKey(const char*);
+
+    mDeprecated		DBKey(const char*);
+    mDeprecated static DBKey udf()		{ return getInvalid(); }
+    mDeprecated bool	isEmpty() const		{ return isInvalid(); }
+    mDeprecated bool	isUdf() const		{ return isInvalid(); }
+    mDeprecated void	setEmpty()		{ setInvalid(); }
+
+protected:
+
+			DBKey( GroupNrType gnr, ObjNrType onr=-1 )
+			    : IDWithGroup<int,int>(gnr,onr)
+			    , auxkey_(0)	{}
+
+    BufferString*	auxkey_;
+
+    static void		doGetfromString(DBKey&,const char*);
 
 };
 
@@ -81,15 +98,24 @@ public:
 mExpClass(Basic) DBKeySet : public TypeSet<DBKey>
 {
 public:
-			DBKeySet() : TypeSet<DBKey>()		{}
-			DBKeySet( const DBKeySet& oth )
-			    : TypeSet<DBKey>(oth)		{}
-			DBKeySet( size_type sz, DBKey ky )
-			    : TypeSet<DBKey>(sz,ky)		{}
+
+    inline		DBKeySet() : TypeSet<DBKey>()		    {}
+    inline		DBKeySet( const DBKeySet& oth )
+			    : TypeSet<DBKey>(oth)		    {}
+    inline		DBKeySet( size_type sz, DBKey ky )
+			    : TypeSet<DBKey>(sz,ky)		    {}
+
     inline DBKeySet&	operator =( const DBKeySet& oth )
 			{ copy( oth ); return *this; }
 
+    void		addTo(BufferStringSet&) const;
 };
+
+
+mGlobal(Basic) inline BufferString toString( const DBKey& ky )
+{ return ky.toString(); }
+mGlobal(Basic) inline uiString toUiString( const DBKey& ky )
+{ return ky.toUiString(); }
 
 
 #endif

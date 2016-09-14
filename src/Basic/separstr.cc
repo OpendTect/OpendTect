@@ -8,6 +8,7 @@
 
 #include "separstr.h"
 #include "keystrs.h"
+#include "dbkey.h"
 #include "bufstringset.h"
 #include <string.h>
 
@@ -213,6 +214,12 @@ SeparString& SeparString::add( const char* str )
     if ( !str || !*str ) str = " ";
     rep_ += getEscaped( str , sep_[0] );
     return *this;
+}
+
+
+SeparString& SeparString::add( const DBKey& dbky )
+{
+    return add( dbky.toString() );
 }
 
 

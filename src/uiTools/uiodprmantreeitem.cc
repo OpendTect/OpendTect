@@ -80,7 +80,7 @@ void uiODPrManagedParentTreeItem::objAddedCB( CallBacker* cber )
 	    uiODPrManagedParentTreeItem::objAddedCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
     const DBKey mid = prinfo->storedID();
-    if ( mid.isUdf() )
+    if ( mid.isInvalid() )
 	return;
 
     DBKeySet setids;
@@ -101,7 +101,7 @@ void uiODPrManagedParentTreeItem::objVanishedCB( CallBacker* cber )
 	    uiODPrManagedParentTreeItem::objVanishedCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
     const DBKey mid = prinfo->storedID();
-    if ( mid.isUdf() )
+    if ( mid.isInvalid() )
 	return;
 
     removeChildren( mid );
@@ -120,7 +120,7 @@ void uiODPrManagedParentTreeItem::objShownCB( CallBacker* cber )
 	    uiODPrManagedParentTreeItem::objShownCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
     const DBKey mid = prinfo->storedID();
-    if ( mid.isUdf() )
+    if ( mid.isInvalid() )
 	return;
 
     showHideChildren( mid, true );
@@ -139,7 +139,7 @@ void uiODPrManagedParentTreeItem::objHiddenCB( CallBacker* cber )
 	    uiODPrManagedParentTreeItem::objHiddenCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
     const DBKey mid = prinfo->storedID();
-    if ( mid.isUdf() )
+    if ( mid.isInvalid() )
 	return;
 
     showHideChildren( mid, false );
@@ -158,7 +158,7 @@ void uiODPrManagedParentTreeItem::objOrphanedCB( CallBacker* cber )
 	    uiODPrManagedParentTreeItem::objHiddenCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
     const DBKey mid = prinfo->storedID();
-    if ( mid.isUdf() )
+    if ( mid.isInvalid() )
 	return;
     //TODO do something when we have clearer idea what to do when it happens
 }
@@ -167,7 +167,7 @@ void uiODPrManagedParentTreeItem::objOrphanedCB( CallBacker* cber )
 void uiODPrManagedParentTreeItem::emitChildPRRequest(
 	const DBKey& mid, OD::PresentationRequestType req )
 {
-    if ( mid.isUdf() )
+    if ( mid.isInvalid() )
 	return;
 
     for ( int idx=0; idx<nrChildren(); idx++ )

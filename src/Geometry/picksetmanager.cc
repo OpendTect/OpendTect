@@ -129,7 +129,7 @@ bool Pick::SetManager::needsSave( const Set& ps ) const
 
 bool Pick::SetManager::isPolygon( const ObjID& id ) const
 {
-    if ( id.isUdf() )
+    if ( id.isInvalid() )
 	return false;
 
     mLock4Read();
@@ -149,7 +149,7 @@ bool Pick::SetManager::isPolygon( const ObjID& id ) const
 
 bool Pick::SetManager::hasCategory( const ObjID& id, const char* cat ) const
 {
-    if ( id.isUdf() )
+    if ( id.isInvalid() )
 	return false;
 
     mLock4Read();

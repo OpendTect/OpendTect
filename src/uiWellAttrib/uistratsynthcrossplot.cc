@@ -363,11 +363,9 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 	    if ( !psattrib )
 		continue;
 
-	    BufferString inputpsidstr( psattrib->psID() );
-	    const char* dpbuf = inputpsidstr.buf();
-	    dpbuf++;
-	    inputpsidstr = dpbuf;
-	    DataPack::FullID inputdpid( inputpsidstr );
+	    DBKey inppsky = psattrib->psID();
+	    DataPack::FullID inputdpid
+			    = DataPack::FullID::getFromDBKey( inppsky );
 
 	    int inpsdidx = sddpfids.indexOf( inputdpid );
 	    if ( inpsdidx<0 || !synthdatas_.validIdx(inpsdidx) )
@@ -380,7 +378,7 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 
 	    mDynamicCastGet(Attrib::IntParam*,angledpparam,
 			    desc.getValParam(Attrib::PSAttrib::angleDPIDStr()))
-	    angledpparam->setValue( pssd->angleData().id() );
+	    angledpparam->setValue( pssd->angleData().id().getI() );
 	}
     }
 }
@@ -546,7 +544,7 @@ bool uiStratSynthCrossplot::acceptOK()
 					  : mUdf(float);
     const Strat::Level lvl = Strat::LVLS().get( evfld_->event().levelID() );
     const Strat::Level downtolevel = Strat::LVLS().get(
-	    				evfld_->event().downToLevelID() );
+					evfld_->event().downToLevelID() );
     const Strat::Level* stoplvl = downtolevel.id().isValid() ? &downtolevel : 0;
     RefMan<DataPointSet> dps =
 		getData( seisattrs, seqattrs, lvl, extrwin, zstep, stoplvl );

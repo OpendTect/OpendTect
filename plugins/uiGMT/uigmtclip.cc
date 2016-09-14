@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uigmtclip.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "draw.h"
 #include "gmtpar.h"
 #include "pickset.h"

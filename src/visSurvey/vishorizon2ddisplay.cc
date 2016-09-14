@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "iopar.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "iodir.h"
 #include "keystrs.h"
 #include "rowcolsurface.h"
@@ -69,7 +69,7 @@ Horizon2DDisplay::~Horizon2DDisplay()
 
     if ( selections_ )
 	selections_->unRef();
-     
+
     emchangedata_.clearData();
 }
 
@@ -484,7 +484,7 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
        mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
        emchangedata_.addCallBackData( new EM::EMObjectCallbackData(cbdata) );
     }
-    
+
     mEnsureExecutedInMainThread( Horizon2DDisplay::emChangeCB );
     for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
@@ -501,7 +501,7 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
     }
 
     emchangedata_.clearData();
-    updateintsectmarkers_ = true; 
+    updateintsectmarkers_ = true;
 }
 
 
@@ -512,8 +512,7 @@ bool Horizon2DDisplay::shouldDisplayIntersections(
     {
 	const bool hasattribenable = seisdisp.isAttribEnabled(idx);
 	const DataPack::ID dpid = seisdisp.getDataPackID(idx);
-
-	if ( hasattribenable && dpid!=0 )
+	if ( hasattribenable && dpid.isValid() )
 	    return true;
     }
     return false;
@@ -673,10 +672,9 @@ bool Horizon2DDisplay::calcLine2DIntersections(
 
 void Horizon2DDisplay::calcLine2DInterSectionSet()
 {
-    const DBKey mid( IOObjContext::getStdDirData(IOObjContext::Geom)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::Geom );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    const bool needcalc = nr2dlines_ !=ioobjs.size() ? true : false;
+    const bool needcalc = nr2dlines_ != ioobjs.size() ? true : false;
     nr2dlines_ = ioobjs.size();
 
     if ( needcalc )
@@ -917,7 +915,7 @@ void Horizon2DDisplay::updateSelections()
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
     selections_->addPrimitiveSet( pointsetps );
-    selections_->getMaterial()->setColor( 
+    selections_->getMaterial()->setColor(
 	h2d->getSelectionColor() );
     selections_->turnOn( true );
 }

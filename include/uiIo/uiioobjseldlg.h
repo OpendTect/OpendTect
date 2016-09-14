@@ -59,7 +59,7 @@ public:
 			~uiIOObjSelDlg();
 
     int			nrChosen() const	{ return selgrp_->nrChosen(); }
-    const DBKey&	chosenID(int i=0) const { return selgrp_->chosenID(i); }
+    DBKey		chosenID(int i=0) const { return selgrp_->chosenID(i); }
     void		getChosen( DBKeySet& ids ) const
 						{ selgrp_->getChosen( ids ); }
     void		getChosen( BufferStringSet& nms ) const

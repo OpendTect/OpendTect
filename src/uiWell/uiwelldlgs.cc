@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "uiunitsel.h"
 #include "uiwellsel.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "file.h"
 #include "iodir.h"
 #include "ioobj.h"
@@ -1684,7 +1684,7 @@ const BufferStringSet& uiNewWellDlg::mkWellNms()
 {
     nms_ = new BufferStringSet;
     IOObjContext ctxt( WellTranslatorGroup::ioContext() );
-    const IODir iodir( ctxt.getSelKey() );
+    const IODir iodir( ctxt.getSelDirID() );
     const IODirEntryList del( iodir, ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
     {

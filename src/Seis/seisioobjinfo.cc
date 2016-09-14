@@ -472,11 +472,10 @@ void SeisIOObjInfo::initDefault( const char* typ )
 }
 
 
-const DBKey& SeisIOObjInfo::getDefault( const char* typ )
+DBKey SeisIOObjInfo::getDefault( const char* typ )
 {
-    mDefineStaticLocalObject( const DBKey, noid, ("") );
     const int typidx = getTypes().indexOf( typ );
-    return typidx < 0 ? noid : getIDs()[typidx];
+    return typidx < 0 ? DBKey::getInvalid() : getIDs()[typidx];
 }
 
 
@@ -583,8 +582,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 {
     const char* linenm = Survey::GM().getName( geomid );
-    const DBKey mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::Seis );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
@@ -624,7 +622,7 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 	return;
 
     IOObjContext ctxt( mIOObjContext(SeisTrc2D) );
-    const IODir iodir( ctxt.getSelKey() );
+    const IODir iodir( ctxt.getSelDirID() );
     const IODirEntryList del( iodir, ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
     {
@@ -676,8 +674,7 @@ void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
     Survey::GM().getList( lnms, gids, true );
     BoolTypeSet hasdata( gids.size(), false );
 
-    const DBKey mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::Seis );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {

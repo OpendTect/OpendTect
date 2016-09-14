@@ -23,16 +23,6 @@ ________________________________________________________________________
 
 #include  "uimainwin.h"
 
-/*
-uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
-    : uiGroup(p,"Well display")
-    , setup_(s)
-    , mandata_(w.data().dbKey())
-{
-    init( s );
-}
-*/
-
 
 uiWellDisplay::uiWellDisplay( uiParent* p, const DBKey& id, const Setup& s )
     : uiGroup(p,"Well display")

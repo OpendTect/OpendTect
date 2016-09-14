@@ -60,9 +60,7 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 	    mCB(this,HorizonFlatViewEditor3D,horRepaintedCB) );
     mAttachCB( editor_->sower().sowingEnd,
 	HorizonFlatViewEditor3D::sowingFinishedCB );
-    mAttachCB( editor_->sower().sowing,
-	HorizonFlatViewEditor3D::sowingModeCB );
-    mAttachCB( editor_->movementFinished, 
+    mAttachCB( editor_->movementFinished,
 	HorizonFlatViewEditor3D::polygonFinishedCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
     if ( vwr )
@@ -451,7 +449,7 @@ void HorizonFlatViewEditor3D::makePatchEnd( bool doerase )
 
     TrcKeySampling tckpath;
     patch->getTrcKeySampling( tckpath );
-    if ( tckpath.isEmpty() ) 
+    if ( tckpath.isEmpty() )
 	return;
 
     horpainter_->setUpdateTrcKeySampling( tckpath );
@@ -664,7 +662,7 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
 
     seedpicker.setSelSpec( as );
 
-    if ( dp.id() > DataPack::cNoID() )
+    if ( dp.id().isValid() )
 	MPE::engine().setAttribData( *as, dp.id() );
 
     MPE::engine().activevolumechange.trigger();

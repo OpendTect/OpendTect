@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -290,7 +290,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
     if ( !workctio_.ioobj_ )
 	return DescID::undef();
 
-    const BufferString storkey( workctio_.ioobj_->key() );
+    const BufferString storkey( workctio_.ioobj_->key().toString() );
     for ( int idx=0; idx<ads.size(); idx++ )
     {
 	const DescID descid = ads.getID( idx );
@@ -335,7 +335,7 @@ void uiSteerAttrSel::setDesc( const Desc* desc )
 
     const ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     const StringPair storkey( keypar->getStringValue() );
-    const DBKey mid( storkey.first() );
+    const DBKey mid( DBKey::getFromString( storkey.first() ) );
     PtrMan<IOObj> ioob = IOM().get( mid );
     workctio_.setObj( ioob ? ioob->clone() : 0 );
     updateInput();

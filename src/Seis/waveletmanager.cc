@@ -156,7 +156,7 @@ Saveable* WaveletManager::getSaver( const SharedObject& obj ) const
 
 bool WaveletManager::isScaled( const ObjID& id ) const
 {
-    if ( id.isUdf() )
+    if ( id.isInvalid() )
 	return false;
 
     IOPar iop( getIOObjPars(id) );
@@ -168,7 +168,7 @@ bool WaveletManager::isScaled( const ObjID& id ) const
 bool WaveletManager::getScalingInfo( const ObjID& id, ObjID& orgid,
 		DBKey& horid, DBKey& seisid, BufferString& lvlnm ) const
 {
-    if ( id.isUdf() )
+    if ( id.isInvalid() )
 	return false;
 
     IOPar iop( getIOObjPars(id) );
@@ -178,9 +178,12 @@ bool WaveletManager::getScalingInfo( const ObjID& id, ObjID& orgid,
 
     FileMultiString fms( res );
     if ( fms.size() < 3 )
-	{ orgid.setUdf(); return true; }
+	{ orgid.setInvalid(); return true; }
 
-    orgid = fms[0]; horid = fms[1]; seisid = fms[2]; lvlnm = fms[3];
+    orgid.fromString( fms[0] );
+    horid.fromString( fms[1] );
+    seisid.fromString( fms[2] );
+    lvlnm = fms[3];
     return true;
 }
 
@@ -191,11 +194,12 @@ void WaveletManager::setScalingInfo( const ObjID& id, const ObjID* orgid,
     IOPar iop( getIOObjPars(id) );
     if ( !orgid )
 	iop.removeWithKey( sKeyScaled );
-    else if ( orgid->isUdf() )
+    else if ( orgid->isInvalid() )
 	iop.set( sKeyScaled, "External" );
     else
     {
-	FileMultiString fms( orgid->buf() );
+	FileMultiString fms;
+	fms.add( orgid );
 	if ( horid )
 	    fms.add( *horid );
 	if ( seisid )

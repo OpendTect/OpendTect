@@ -8,7 +8,7 @@
 
 #include "uiwellmod.h"
 #include "uidialog.h"
-#include "bufstringset.h"
+#include "dbkey.h"
 
 class IOObj;
 class UnitOfMeasure;
@@ -23,7 +23,7 @@ public:
 			uiSimpleMultiWellCreate(uiParent*);
 
     bool		wantDisplay() const;
-    const BufferStringSet& createdWellIDs() const	{ return crwellids_; }
+    const DBKeySet&	createdWellIDs() const	{ return crwellids_; }
 
 protected:
 
@@ -33,7 +33,7 @@ protected:
     int			overwritepol_;
     float		vel_;
     Interval<float>	defzrg_;
-    BufferStringSet	crwellids_;
+    DBKeySet		crwellids_;
     const UnitOfMeasure* zun_;
 
     bool		acceptOK();

@@ -251,8 +251,6 @@ bool testEmptyStringComparison()
     mRunStandardTest( bfstr=="", "Empty string comparison - BufferString");
     FixedString fxdstr;
     mRunStandardTest( fxdstr=="", "Empty string comparison - FixedString");
-    DBKey mid;
-    mRunStandardTest( mid=="", "Empty string comparison - DBKey");
 
     return true;
 }

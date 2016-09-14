@@ -508,10 +508,10 @@ void uiMPEMan::seedClick( CallBacker* )
 		const bool res = uiMSG().askContinue( msg );
 		if ( res )
 		{
-		    DataPack::ID datapackid =
-				clickcatcher_->info().getObjDataPackID();
-		    if ( datapackid > DataPack::cNoID() )
-			engine.setAttribData( *clickedas, datapackid );
+		    const DataPack::ID dpid
+				= clickcatcher_->info().getObjDataPackID();
+		    if ( dpid.isValid() )
+			engine.setAttribData( *clickedas, dpid );
 		    seedpicker->setSelSpec( clickedas );
 		}
 		mSeedClickReturn();
@@ -561,7 +561,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	engine.setActive2DLine( geomid );
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
-	DataPack::ID datapackid = clickcatcher_->info().getObjDataPackID();
+	const DataPack::ID dpid = clickcatcher_->info().getObjDataPackID();
 
 	if ( h2dsp )
 	    h2dsp->setSelSpec( clickedas );
@@ -572,8 +572,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	    mSeedClickReturn();
 	}
 
-	if ( datapackid > DataPack::cNoID() )
-	    engine.setAttribData( *clickedas, datapackid );
+	if ( dpid.isValid() )
+	    engine.setAttribData( *clickedas, dpid );
 
 	h2dsp->setLine( geomid );
 	if ( !h2dsp->startSeedPick() )
@@ -605,10 +605,10 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	    if ( clickedas )
 	    {
-		DataPack::ID datapackid =
+		const DataPack::ID dpid =
 				clickcatcher_->info().getObjDataPackID();
-		if ( datapackid > DataPack::cNoID() )
-		    engine.setAttribData( *clickedas, datapackid );
+		if ( dpid.isValid() )
+		    engine.setAttribData( *clickedas, dpid );
 	    }
 
 	    engine.setOneActiveTracker( tracker );
@@ -685,8 +685,8 @@ void uiMPEMan::planeChangedCB( CallBacker* )
     MPE::EMTracker* tracker = getSelectedTracker();
     if( !tracker ) return;
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    if ( !seedpicker || !seedpicker->getPatch() || 
-	seedpicker->getPatch()->getPath().size()<=0 ) 
+    if ( !seedpicker || !seedpicker->getPatch() ||
+	seedpicker->getPatch()->getPath().size()<=0 )
 	return;
 
     seedpicker->endPatch( false );

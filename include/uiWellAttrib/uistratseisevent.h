@@ -32,8 +32,7 @@ public:
     public:
 			Setup( bool wew=false )
 			    : withextrwin_(wew)
-			    , allowlayerbased_(false)
-			    , fixedlevelid_(LevelID::getInvalid())	{}
+			    , allowlayerbased_(false)	    {}
 
 	mDefSetupMemb(LevelID,fixedlevelid)
 	mDefSetupMemb(bool,withextrwin)

@@ -27,23 +27,22 @@ uiString SurvGeom2DTranslatorGroup::sTypeName(int num)
 
 Pos::GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )
 {
-    return ioobj.leafID();
+    return ioobj.objID().getI();
 }
 
 
 IOObj* SurvGeom2DTranslator::getIOObj( Pos::GeomID geomid )
 {
     IOObjContext ioctxt( mIOObjContext(SurvGeom2D) );
-    DBKey mid = ioctxt.getSelKey();
-    mid.add( geomid );
-    return IOM().get( mid );
+    const DBKey dbky( ioctxt.getSelDirID(), DBKey::ObjID::get(geomid) );
+    return IOM().get( dbky );
 }
 
 
 IOObj* SurvGeom2DTranslator::createEntry( const char* name, const char* trkey )
 {
     IOObjContext iocontext( mIOObjContext(SurvGeom2D) );
-    if ( !IOM().to(iocontext.getSelKey()) )
+    if ( !IOM().to(iocontext.getSelDirID()) )
 	return 0;
 
     if ( trkey && *trkey )
@@ -67,9 +66,9 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
 
     PosInfo::Line2DData* data = new PosInfo::Line2DData;
     if ( !data->read(strm,false) )
-    { delete data; return 0; }
+	{ delete data; return 0; }
 
-    const Survey::Geometry::ID geomid = ioobj.key().leafID();
+    const Survey::Geometry::ID geomid = ioobj.key().objID().getI();
     data->setLineName( ioobj.name() );
     Survey::Geometry2D* geom = new Survey::Geometry2D( data );
     geom->setID( geomid );
@@ -87,7 +86,7 @@ bool dgbSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
     if ( !geom2d )
 	return false;
 
-    geom2d->setID( ioobj.key().leafID() );
+    geom2d->setID( ioobj.key().objID().getI() );
     od_ostream strm( ioobj.fullUserExpr() );
     const bool res = !strm.isOK() ? false
 		   : geom2d->data().write( strm, false, true );

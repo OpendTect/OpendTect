@@ -70,7 +70,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     if ( su.withz_ )
     {
 	txt = tr("Extra Z");
-	extrazfld_ = new uiSelZRange( this, false, true, 
+	extrazfld_ = new uiSelZRange( this, false, true,
 						      mFromUiStringTodo(txt) );
 	if ( zstepfld_ )
 	    extrazfld_->attach( alignedBelow, zstepfld_ );
@@ -111,11 +111,11 @@ void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 {
     if ( !surf1fld_ ) return;
 
-    surf1fld_->setInput( DBKey(iop.find(mGetSurfKey(id1))) );
+    surf1fld_->setInput( DBKey::getFromString(iop.find(mGetSurfKey(id1))) );
     const char* res = iop.find( mGetSurfKey(id2) );
     const bool issing = !res || !*res;
     if ( !issing )
-	surf2fld_->setInput( DBKey(res) );
+	surf2fld_->setInput( DBKey::getFromString(res) );
     issingfld_->setValue( issing );
 
     if ( zstepfld_ )

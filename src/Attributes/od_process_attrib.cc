@@ -85,8 +85,9 @@ bool BatchProgram::go( od_ostream& strm )
 
 	const char* seisid = outpar->find( "Seismic.ID" );
 	if ( !seisid ) break;
+	DBKey seisdbky = DBKey::getFromString( seisid );
 
-	PtrMan<IOObj> seisioobj = IOM().get( seisid );
+	PtrMan<IOObj> seisioobj = IOM().get( seisdbky );
 	if ( !seisioobj )
 	{
 	    BufferString msg( "Cannot find output Seismic Object with ID '" );
@@ -118,7 +119,7 @@ bool BatchProgram::go( od_ostream& strm )
 	const char* setid = pars().find( "Attribute Set" );
 	if ( setid && *setid )
 	{
-	    PtrMan<IOObj> ioobj = IOM().get( setid );
+	    PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(setid) );
 	    if ( !ioobj )
 		mRetHostErr( "Cannot find provided attrib set ID" )
 	    uiString msg;
@@ -324,7 +325,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    mDestroyWorkers
 	}
 
-	PtrMan<IOObj> ioobj = IOM().get( seisid );
+	PtrMan<IOObj> ioobj = IOM().get( seisdbky );
 	if ( ioobj )
 	{
 	    FilePath fp( ioobj->fullUserExpr() );

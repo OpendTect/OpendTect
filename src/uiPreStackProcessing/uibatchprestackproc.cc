@@ -7,7 +7,7 @@
 
 #include "uibatchprestackproc.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "prestackprocessor.h"

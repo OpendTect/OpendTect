@@ -229,10 +229,10 @@ DBKey uiSeisPartServer::getDefault2DDataID() const
 		      SeisTrc2DTranslatorGroup::sKeyDefault()) );
     BufferString midstr( SI().pars().find(key) );
     if ( !midstr.isEmpty() )
-	return DBKey( midstr.buf() );
+	return DBKey::getFromString( midstr.buf() );
 
     const IOObjContext ctxt( SeisTrc2DTranslatorGroup::ioContext() );
-    const IODir iodir ( ctxt.getSelKey() );
+    const IODir iodir ( ctxt.getSelDirID() );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     int nrod2d = 0;
     int def2didx = 0;
@@ -258,7 +258,7 @@ DBKey uiSeisPartServer::getDefault2DDataID() const
 					       "Do you want to set it now?") );
     const bool tomanage = uiMSG().askGoOn( msg );
     if ( !tomanage )
-	return false;
+	return DBKey::getInvalid();
 
     uiIOObjSelDlg::Setup su( tr("Set default 2D seismic data") );
     su.allowsetsurvdefault( false );
@@ -282,10 +282,10 @@ DBKey uiSeisPartServer::getDefaultDataID( bool is2d ) const
 		      SeisTrcTranslatorGroup::sKeyDefault3D()) );
     BufferString midstr( SI().pars().find(key) );
     if ( !midstr.isEmpty() )
-	return DBKey( midstr.buf() );
+	return DBKey::getFromString( midstr.buf() );
 
     const IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
-    const IODir iodir ( ctxt.getSelKey() );
+    const IODir iodir ( ctxt.getSelDirID() );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     int nrod3d = 0;
     int def3didx = 0;
@@ -313,7 +313,7 @@ DBKey uiSeisPartServer::getDefaultDataID( bool is2d ) const
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
     uiIOObjSelDlg dlg( parent(), su, *ctio );
     if ( !dlg.go() )
-	return false;
+	return DBKey::getInvalid();
 
     PtrMan<IOObj> seisobj = dlg.ioObj()->clone();
     seisobj->setSurveyDefault();
@@ -449,10 +449,8 @@ bool uiSeisPartServer::create2DOutput( const DBKey& mid, const char* linekey,
 void uiSeisPartServer::getStoredGathersList( bool for3d,
 					     BufferStringSet& nms ) const
 {
-    const IODir iodir(
-	DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id_) );
+    const IODir iodir( IOObjContext::Seis );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
@@ -508,7 +506,7 @@ void uiSeisPartServer::fillPar( IOPar& par ) const
     for ( int idx=0; idx<pls.size(); idx++ )
     {
 	IOPar iop;
-	Seis::PreLoader spl( pls[idx]->mid_, pls[idx]->geomid_ );
+	Seis::PreLoader spl( pls[idx]->dbkey_, pls[idx]->geomid_ );
 	spl.fillPar( iop );
 	const BufferString parkey = IOPar::compKey( sKeyPreLoad(), idx );
 	par.mergeComp( iop, parkey );

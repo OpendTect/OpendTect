@@ -160,7 +160,7 @@ float PreStack::EventsAPIMgr::crlDistance() const
 
 int PreStack::EventsAPIMgr::openReader( const char* reference )
 {
-    const DBKey mid( reference );
+    const DBKey mid = DBKey::getFromString( reference );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) return -1;
 

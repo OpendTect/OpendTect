@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribparam.h"
 #include "attribstorprovider.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "dbkey.h"
 #include "prestackanglecomputer.h"
 #include "prestackanglemute.h"
@@ -121,8 +121,8 @@ uiPreStackAttrib::~uiPreStackAttrib()
 
 bool uiPreStackAttrib::setAngleParameters( const Desc& desc )
 {
-    mIfGetString( PSAttrib::velocityIDStr(), mid,
-		  params_.velvolmid_=mid )
+    mIfGetString( PSAttrib::velocityIDStr(), idstr,
+		  params_.velvolmid_=DBKey::getFromString(idstr) )
 
     Interval<int> anglerange, normalanglevalrange( 0, 90 );
     mIfGetInt( PSAttrib::angleStartStr(), start,
@@ -196,7 +196,7 @@ bool uiPreStackAttrib::setParameters( const Desc& desc )
     prestackinpfld_->setInput( aps->psID() );
 
     const DBKey ppid = aps->preProcID();
-    if ( !ppid.isEmpty() && ppid.subID(0)!=0 )
+    if ( ppid.isValid() && ppid.dirID().getI() != 0 )
     {
 	dopreprocessfld_->setValue( true );
 	preprocsel_->setSel( ppid );
@@ -241,7 +241,7 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
     if ( !anglecompgrp_->acceptOK() )
 	return false;
 
-    mSetString(PSAttrib::velocityIDStr(), params_.velvolmid_ );
+    mSetString(PSAttrib::velocityIDStr(), params_.velvolmid_.toString() );
     Interval<int>& anglerg = params_.anglerange_;
     if ( mIsUdf(anglerg.start) ) anglerg.start = 0;
     mSetInt(PSAttrib::angleStartStr(),anglerg.start)
@@ -288,8 +288,10 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
 
 bool uiPreStackAttrib::getParameters( Desc& desc )
 {
-    if ( !prestackinpfld_->commitInput() )
+    const DBKey dbky = prestackinpfld_->getDBKey();
+    if ( dbky.isInvalid() && !dbky.hasAuxKey() )
 	return false;
+
     StepInterval<float> xrgfldint = xrgfld_->getFStepInterval();
     bool isoffset = gathertypefld_->getIntValue() == 0;
     if ( xrgfldint.start > xrgfldint.stop )
@@ -300,7 +302,7 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 	uiMSG().error( errmsg_ );
 	return false;
     }
-    mSetString(Attrib::StorageProvider::keyStr(),prestackinpfld_->getDBKey())
+    mSetString(Attrib::StorageProvider::keyStr(), dbky.toString())
 
     if ( dopreprocessfld_->getBoolValue() )
     {
@@ -308,7 +310,7 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 	if ( !preprocsel_->getSel(mid))
 	    { errmsg_ = uiStrings::phrSelect(tr("preprocessing setup"));
 								return false; }
-	mSetString(PSAttrib::preProcessStr(), mid );
+	mSetString(PSAttrib::preProcessStr(), mid.toString() );
     }
 
     const int calctyp = calctypefld_->getIntValue();
@@ -378,7 +380,7 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
 				      .arg(toUiString(gathertypefld_->text()));
     xrgfld_->setTitleText( xlbl );
     if ( isoffset )
-    	xrglbl_->setText( SI().getUiXYUnitString(false,false) );
+	xrglbl_->setText( SI().getUiXYUnitString(false,false) );
     else
     {
 	xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
@@ -403,7 +405,7 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
 
     const bool isoffset = gathertypefld_->getIntValue() == 0;
     const bool iscomputeangle = useanglefld_->isChecked();
-    
+
     xrgfld_->setSensitive( !iscomputeangle || !isoffset );
     xrglbl_->setSensitive( !iscomputeangle || !isoffset );
     anglecompgrp_->display( isoffset && iscomputeangle );
@@ -412,13 +414,13 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
 	if ( !isoffset || iscomputeangle )
 	    xaxistypefld_->setValue( PreStack::PropCalc::Sinsq );
 	if ( isoffset || !iscomputeangle )
-    	    xaxistypefld_->setValue( PreStack::PropCalc::Norm ); 
+	    xaxistypefld_->setValue( PreStack::PropCalc::Norm );
 	xrgfld_->setEmpty();
     }
 
     xaxistypefld_->setSensitive( isoffset && !iscomputeangle );
 
-    
+
 }
 
 

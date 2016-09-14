@@ -161,8 +161,11 @@ bool init()
 }
 
 
-int totalNrJobs()
-{ return jobs_.size(); };
+int totalNrJobs() const
+{
+    return jobs_.size();
+};
+
 
 void checkProgress( int& nrjobsfinished, int& nrjobswitherr, BufferString& msg)
 {
@@ -232,7 +235,7 @@ uiClusterProc::uiClusterProc( uiParent* p, const IOPar& iop )
     totalnr_ = proc_.totalNrJobs();
     progbar_->setTotalSteps( totalnr_ );
 
-    uiString labeltxt = sNrDoneText(toUiString("XXXX"), toUiString("XXXX"), 
+    uiString labeltxt = sNrDoneText(toUiString("XXXX"), toUiString("XXXX"),
 							    toUiString("XXXX"));
     label_ = new uiLabel( this, labeltxt );
     label_->attach( alignedBelow, progbar_ );
@@ -253,10 +256,10 @@ uiClusterProc::~uiClusterProc()
 }
 
 
-uiString uiClusterProc::sNrDoneText( const uiString& nrdone, 
+uiString uiClusterProc::sNrDoneText( const uiString& nrdone,
 				const uiString& totnr, const uiString& nrerror )
 {
-  return tr( "Number of jobs finished: %1 out of %2 (%3 with error) ")
+    return tr( "Number of jobs finished: %1 out of %2 (%3 with error) ")
 					.arg(nrdone).arg(totnr).arg(nrerror);
 }
 void uiClusterProc::progressCB( CallBacker* )
@@ -267,7 +270,7 @@ void uiClusterProc::progressCB( CallBacker* )
     progbar_->setProgress( nrjobsdone + nrjobswitherr );
     if ( !msg.isEmpty() )
 	msgfld_->append( msg.buf() );
-   uiString labeltxt = sNrDoneText(toUiString(nrjobsdone + nrjobswitherr), 
+    uiString labeltxt = sNrDoneText(toUiString(nrjobsdone + nrjobswitherr),
 			       toUiString(totalnr_), toUiString(nrjobswitherr));
     label_->setText( labeltxt );
     if ( totalnr_ && (nrjobsdone + nrjobswitherr) == totalnr_ )
@@ -330,7 +333,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
     DBKey tempid;
     if ( pars.get("Output.0.Seismic.ID",tempid) )
     {
-	IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );
+	IOM().to( SeisTrcTranslatorGroup::ioContext().getSelDirID() );
 	IOM().permRemove( tempid );
     }
 
@@ -347,38 +350,38 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
 {
     DBKey key;
     if ( !pars.get(uiClusterJobProv::sKeyOutputID(),key) )
-      msg = tr("Missing ID of Temporary storage in the parameters file");
+	msg = tr("Missing ID of Temporary storage in the parameters file");
     PtrMan<IOObj> inobj = IOM().get( key );
     if ( !pars.get("Output.ID",key) )
-      msg = tr("Missing ID of output dataset in the parameters file");
+	msg = tr("Missing ID of output dataset in the parameters file");
     PtrMan<IOObj> outobj = IOM().get( key );
     if ( !inobj || !outobj )
-      msg = uiStrings::phrCannotOpen(uiStrings::sOutput().toLower());
+	msg = uiStrings::phrCannotOpen(uiStrings::sOutput().toLower());
     PtrMan<SeisSingleTraceProc> exec = new SeisSingleTraceProc( *inobj, *outobj,
-          "Data transfer", &pars, uiStrings::phrWriting(tr(
-          "results to output cube")) );
+		  "Data transfer", &pars, uiStrings::phrWriting(
+				tr("results to output cube")) );
 
     if ( !exec )
- return false;
+	return false;
 
     if ( !TaskRunner::execute( trans, *exec ) )
-      msg = tr("Cannot merge output data");
+	msg = tr("Cannot merge output data");
     else
-      msg = tr("Merging output data complete");
+	msg = tr("Merging output data complete");
 
     if ( !withdelete )
- return true;
+	return true;
 
     DBKey tempid;
     if ( pars.get("Output.0.Seismic.ID",tempid) )
     {
- IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );
- IOM().permRemove( tempid );
+	 IOM().to( SeisTrcTranslatorGroup::ioContext().getSelDirID() );
+	 IOM().permRemove( tempid );
     }
 
     FixedString tmpdir = pars.find( sKey::TmpStor() );
     if ( tmpdir && File::isDirectory(tmpdir.str()) )
- File::removeDir( tmpdir.str() );
+	File::removeDir( tmpdir.str() );
 
     return true;
 }

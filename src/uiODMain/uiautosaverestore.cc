@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "iostrm.h"
 #include "transl.h"
 #include "autosaver.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "od_helpids.h"
 #include "separstr.h"
 #include "genc.h"

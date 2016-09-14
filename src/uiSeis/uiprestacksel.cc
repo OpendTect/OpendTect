@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uiprestacksel.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uilistbox.h"
@@ -26,21 +26,27 @@ uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
 {
     datapackinpfld_ = new uiListBox( this );
 
+    int curidx = 0;
+    DataPack::FullID curfid = DataPack::FullID::getFromDBKey( selid );
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {
 	datapackinpfld_->addItem(toUiString(DataPackMgr::nameOf(dpfids_[idx])));
-	if ( dpfids_[idx] == selid )
-	    datapackinpfld_->setCurrentItem( idx );
+	if ( dpfids_[idx] == curfid )
+	    curidx = idx;
     }
-    if ( selid.isUdf() && !dpfids_.isEmpty() )
-	datapackinpfld_->setCurrentItem( 0 );
+    if ( !dpfids_.isEmpty() )
+	datapackinpfld_->setCurrentItem( curidx );
 }
 
 
 bool uiPreStackDataPackSelDlg::acceptOK()
 {
-    const int selidx = datapackinpfld_->currentItem();
-    selid_ = dpfids_.validIdx( selidx ) ? dpfids_[selidx] : DBKey::getInvalid();
+    const int curidx = datapackinpfld_->currentItem();
+    if ( curidx < 0 )
+	return false;
+
+    selid_.setInvalid();
+    dpfids_[curidx].putInDBKey( selid_ );
     return true;
 }
 
@@ -48,7 +54,6 @@ bool uiPreStackDataPackSelDlg::acceptOK()
 
 uiPreStackSel::uiPreStackSel( uiParent* p, bool is2d )
     : uiGroup(p, "Prestack data selector")
-    , selid_(DBKey::getInvalid())
 {
     const uiSeisSel::Setup sssu( is2d, true );
     const IOObjContext ctxt( uiSeisSel::ioContext(sssu.geom_, true ) );
@@ -75,32 +80,38 @@ void uiPreStackSel::usePar( const IOPar& par )
 }
 
 
-void uiPreStackSel::setInput( const DBKey& mid )
+void uiPreStackSel::setInput( const DBKey& dbky )
 {
-    if ( dpfids_.isEmpty() )
-	seisinpfld_->setInput( mid );
-    else
+    if ( dbky.isValid() )
+	seisinpfld_->setInput( dbky );
+    if ( dbky.hasAuxKey() )
     {
-	const DataPack::FullID fid( mid.subID(0), mid.subID(1) );
-	datapackinpfld_->setInput( DataPackMgr::nameOf(fid) );
+	const DataPack::FullID fid = DataPack::FullID::getFromDBKey( dbky );
+	datapackinpfld_->setInput( fid.toString() );
     }
-    selid_ = mid;
 }
 
 
 DBKey uiPreStackSel::getDBKey() const
 {
+    DBKey ret;
     if ( dpfids_.isEmpty() )
-	return selid_;
-
-    BufferString mid( "#", selid_ );
-    return mid.buf();
+	ret = seisinpfld_->key( true );
+    else
+    {
+	const BufferString dpidstr( datapackinpfld_->getKey() );
+	DataPack::FullID fid = DataPack::FullID::getFromString( dpidstr );
+	ret = DBKey::getInvalid();
+	fid.putInDBKey( ret );
+    }
+    return ret;
 }
 
 
 void uiPreStackSel::doSelDataPack( CallBacker* )
 {
-    uiPreStackDataPackSelDlg dlg( this, dpfids_, selid_ );
+    DBKey dbky = getDBKey();
+    uiPreStackDataPackSelDlg dlg( this, dpfids_, dbky );
     if ( dlg.go() )
 	setInput( dlg.getDBKey() );
 }
@@ -108,20 +119,11 @@ void uiPreStackSel::doSelDataPack( CallBacker* )
 
 #define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
-bool uiPreStackSel::commitInput()
+bool uiPreStackSel::inputOK()
 {
-    if ( dpfids_.isEmpty() )
-    {
-	const IOObj* ioobj = seisinpfld_->ioobj();
-	if ( !ioobj )
-	    return false;
-
-	selid_ = ioobj->key();
-    }
-
-    if ( selid_.isUdf() )
+    DBKey dbky = getDBKey();
+    if ( !dbky.isValid() && !dbky.hasAuxKey() )
 	mErrRet( uiStrings::phrSelect(tr("a valid input")) )
-
     return true;
 }
 
@@ -129,19 +131,21 @@ bool uiPreStackSel::commitInput()
 void uiPreStackSel::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
 {
     dpfids_ = ids;
-    for ( int idx=0; idx<ids.size(); idx++ )
+
+    const bool havedps = dpfids_.isEmpty();
+    if ( havedps )
     {
-	BufferString mid; mid += ids[0];
-	if ( *mid.buf() == '#' )
+	BufferStringSet kys, nms;
+	for ( int idx=0; idx<dpfids_.size(); idx++ )
 	{
-	    const char* newmid = mid.buf() + 1;
-	    dpfids_[idx] = newmid;
+	    const DataPack::FullID fid = dpfids_[idx];
+	    kys.add( fid.toString() );
+	    nms.add( DPM(fid).nameOf(fid) );
 	}
+	datapackinpfld_->setEntries( kys, nms );
+	datapackinpfld_->setInputText( nms.get(0) );
     }
 
-    if ( !dpfids_.isEmpty() )
-	setInput( dpfids_[0] );
-
-    datapackinpfld_->display( true );
-    seisinpfld_->display( false );
+    datapackinpfld_->display( havedps );
+    seisinpfld_->display( !havedps );
 }

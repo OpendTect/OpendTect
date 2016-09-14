@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uisurfaceman.h"
 
 #include "ascstream.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "file.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -673,7 +673,7 @@ od_int64 uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
 class uiSurfaceStratDlg : public uiDialog
 { mODTextTranslationClass(uiSurfaceStratDlg);
 public:
-uiSurfaceStratDlg( uiParent* p,  const ObjectSet<DBKey>& ids )
+uiSurfaceStratDlg( uiParent* p,  const DBKeySet& ids )
     : uiDialog(p,uiDialog::Setup(uiStrings::sStratigraphy(),mNoDlgTitle,
                                  mNoHelpKey))
     , objids_(ids)
@@ -698,9 +698,9 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<DBKey>& ids )
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	par.setEmpty();
-	if ( !EM::EMM().readDisplayPars(*ids[idx],par) )
+	if ( !EM::EMM().readDisplayPars(ids[idx],par) )
 	    continue;
-	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(*ids[idx]) );
+	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(ids[idx]) );
 
 	Color col( Color::White() );
 	par.get( sKey::Color(), col );
@@ -772,7 +772,7 @@ bool acceptOK()
 	IOPar displaypar;
 	displaypar.set( sKey::StratRef(), lvlid );
 	displaypar.set( sKey::Color(), col );
-	EM::EMM().writeDisplayPars( *objids_[idx], displaypar );
+	EM::EMM().writeDisplayPars( objids_[idx], displaypar );
     }
 
     return true;
@@ -780,15 +780,14 @@ bool acceptOK()
 
 
     uiTable*	tbl_;
-    const ObjectSet<DBKey>& objids_;
+    const DBKeySet& objids_;
 
 };
 
 
 void uiSurfaceMan::stratSel( CallBacker* )
 {
-    const ObjectSet<DBKey>& ids = selgrp_->getIOObjIds();
-    uiSurfaceStratDlg dlg( this, ids );
+    uiSurfaceStratDlg dlg( this, selgrp_->getIOObjIds() );
     dlg.go();
 }
 

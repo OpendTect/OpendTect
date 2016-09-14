@@ -28,7 +28,7 @@ namespace Attrib
 mExpClass(uiAttributes) uiStoredAttribReplacer
 { mODTextTranslationClass(uiStoredAttribReplacer);
 public:
-    
+
     struct StoredEntry
     {
 				StoredEntry(Attrib::DescID id1,
@@ -62,13 +62,13 @@ public:
 						       bool is2d=false);
     void			go();
     void			setDataPackIDs(
-	    				const TypeSet<DataPack::FullID>& dpfids)
+					const TypeSet<DataPack::FullID>& dpfids)
 				{ dpfids_ = dpfids; }
 protected:
 
     void			usePar(const IOPar&);
-    void			setStoredKey(IOPar*,const char*);
-    void			setSteerPar(StoredEntry,const char*,
+    void			setStoredKey(IOPar*,const DBKey&);
+    void			setSteerPar(StoredEntry,const DBKey&,
 					    const char*);
     void			setUserRef(IOPar*,const char*);
     void			getUserRefs(const IOPar&);

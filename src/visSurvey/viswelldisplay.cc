@@ -55,7 +55,6 @@ WellDisplay::WellDisplay()
     : VisualObjectImpl(true)
     , well_(0)
     , wd_(0)
-    , wellid_(-1)
     , zistime_( SI().zIsTime() )
     , zinfeet_( SI().zInFeet() )
     , eventcatcher_(0)
@@ -824,7 +823,8 @@ void WellDisplay::addPick( const Coord3& pos )
 	for ( int idx=0; idx<wcoords.size(); idx++ )
 	{
 	    const int mid = markerset_->addPos( wcoords[idx] );
-	    markerset_->getMaterial()->setColor( lineStyle()->color_, mid, false ) ;
+	    markerset_->getMaterial()->setColor( lineStyle()->color_, mid,
+						 false ) ;
 	}
     }
 }

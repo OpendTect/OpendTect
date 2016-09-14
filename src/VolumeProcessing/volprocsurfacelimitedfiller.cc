@@ -46,9 +46,9 @@ SurfaceLimitedFiller::SurfaceLimitedFiller()
     , gradhorizon_( 0 )
     , refhorizon_( 0 )
     , starthorizon_( 0 )
-    , gradhormid_( 0 )
-    , starthormid_( 0 )
-    , refhormid_( 0 )
+    , gradhormid_( DBKey::getInvalid() )
+    , starthormid_( DBKey::getInvalid() )
+    , refhormid_( DBKey::getInvalid() )
     , usebottomval_( false  )
     , usegradient_( true )
     , usestartval_( true )
@@ -99,20 +99,20 @@ const DBKey* SurfaceLimitedFiller::getSurfaceID( int idx ) const
 
 
 const DBKey* SurfaceLimitedFiller::getStartValueHorizonID() const
-{ return starthormid_ && !starthormid_.isEmpty() ? &starthormid_ : 0; }
+{ return starthormid_.isValid() ? &starthormid_ : 0; }
 
 
 const DBKey* SurfaceLimitedFiller::getGradientHorizonID() const
-{ return gradhormid_ && !gradhormid_.isEmpty() ? &gradhormid_ : 0; }
+{ return gradhormid_.isValid() ? &gradhormid_ : 0; }
 
 
 const DBKey* SurfaceLimitedFiller::getRefHorizonID() const
-{ return refhormid_ && !refhormid_.isEmpty() ? &refhormid_ : 0; }
+{ return refhormid_.isValid() ? &refhormid_ : 0; }
 
 
 static bool setTargetDBKey( const DBKey* mid, DBKey& targetmid )
 {
-    if ( !mid || mid->isEmpty() )
+    if ( !mid || mid->isInvalid() )
 	return false;
 
     targetmid = *mid;
@@ -175,15 +175,14 @@ EM::Horizon* SurfaceLimitedFiller::loadHorizon( const DBKey& mid ) const
 int SurfaceLimitedFiller::setDataHorizon( const DBKey& mid,
 				  EM::Horizon3D*& hor3d, int auxdataidx ) const
 {
-    if ( mid.isEmpty() ) return -1;
+    if ( mid.isInvalid() )
+	return -1;
 
     EM::SurfaceIOData surfiod;
     uiString emsg;
     if ( !EM::EMM().getSurfaceData( mid, surfiod, emsg ) ||
 	 !surfiod.valnames.validIdx(auxdataidx))
-    {
 	return -1;
-    }
 
     const BufferString auxdataname = surfiod.valnames.get(auxdataidx);
 
@@ -229,7 +228,7 @@ bool SurfaceLimitedFiller::prepareComp( int )
 
     if ( !userefz_ )
     {
-	if ( refhormid_.isEmpty() )
+	if ( refhormid_.isInvalid() )
 	    return false;
 
 	EM::Horizon* hor = loadHorizon( refhormid_ );

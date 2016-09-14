@@ -70,7 +70,7 @@ protected:
 
     const RefTree&	rt_;
     PropertyRefSelection propsel_;
-    DBKey		elasticpropselmid_;
+    DBKey		elasticpropseldbkey_;
     float		startdepth_;
 
     static const char*	sKeyWorkBenchParams();

@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitblimpexpdatasel.h"
 
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -63,7 +63,6 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     , constzfld_(0)
     , dataselfld_(0)
     , importReady(this)
-    , storedid_(DBKey::getInvalid())
 {
     setOkCancelText( import_ ? uiStrings::sImport() : uiStrings::sExport(),
 		     uiStrings::sClose() );
@@ -145,7 +144,7 @@ uiImpExpPickSet::~uiImpExpPickSet()
 
 void uiImpExpPickSet::inputChgd( CallBacker* )
 {
-    storedid_.setUdf();
+    storedid_.setInvalid();
     FilePath fnmfp( filefld_->fileName() );
     objfld_->setInputText( fnmfp.baseName() );
 }

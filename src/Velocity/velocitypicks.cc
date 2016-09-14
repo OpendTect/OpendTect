@@ -75,8 +75,7 @@ const char* Picks::sKeyPickType()	{ return "Pick Type"; }
 const char* Picks::sKeyIsTime()	{ return "Z is time"; }
 
 Picks::Picks()
-    : storageid_(-1)
-    , change(this)
+    : change(this)
     , changelate(this)
     , picks_( 2, 1 )
     , snapper_( SI().zRange(true) )
@@ -86,6 +85,8 @@ Picks::Picks()
     , smoother_( 0 )
     , undo_( 0 )
     , refoffset_(0)
+    , storageid_( DBKey::getInvalid() )
+    , gatherid_( DBKey::getInvalid() )
     , color_( getRandomColor(false) )
 {
     getDefaultColor( color_ );
@@ -96,8 +97,7 @@ Picks::Picks()
 
 
 Picks::Picks( bool zit )
-    : storageid_(-1)
-    , change(this)
+    : change(this)
     , changelate(this)
     , picks_( 2, 1 )
     , snapper_( SI().zRange(true) )
@@ -106,6 +106,8 @@ Picks::Picks( bool zit )
     , picktype_( zit ? RMS : RMO )
     , smoother_( 0 )
     , undo_( 0 )
+    , storageid_( DBKey::getInvalid() )
+    , gatherid_( DBKey::getInvalid() )
     , color_( getRandomColor(false) )
 {
     getDefaultColor( color_ );
@@ -226,7 +228,7 @@ void Picks::removeAll( bool addtoundo, bool interactionend )
 	undo().setUserInteractionEnd( lastevent, interactionend );
 
     changed_ = false;
-    storageid_ = -1;
+    storageid_.setInvalid();
     change.trigger(BinID(-1,-1));
     changelate.trigger(BinID(-1,-1));
 }

@@ -304,7 +304,7 @@ void uiAttribDescSetEd::init()
     adsman_->setSaved( inoutadsman_->isSaved() );
 
     setid_ = inoutadsman_->attrsetid_;
-    IOM().to( setctio_.ctxt_.getSelKey() );
+    IOM().to( setctio_.ctxt_.getSelDirID() );
     setctio_.setObj( IOM().get(setid_) );
     bool autoset = false;
     DBKey autoid;
@@ -329,7 +329,7 @@ void uiAttribDescSetEd::init()
 		    IOObj* ioobj = dlg.getObj();
 		    if ( dlg.isAuto() )
 		    {
-			DBKey id = ioobj ? ioobj->key() : "";
+			DBKey id = ioobj ? ioobj->key() : DBKey::getInvalid();
 			SI().getPars().set( autoidkey, id );
 			SI().savePars();
 		    }
@@ -475,12 +475,13 @@ void uiAttribDescSetEd::autoSet( CallBacker* )
     {
 	const bool douse = dlg.useAuto();
 	IOObj* ioobj = dlg.getObj();
-	const DBKey id( ioobj ? ioobj->key() : DBKey("") );
+	const DBKey id = ioobj ? ioobj->key() : DBKey::getInvalid();
 	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
 	Settings::common().write();
 	IOPar& par = SI().getPars();
-	is2d ? par.set(uiAttribDescSetEd::sKeyAuto2DAttrSetID, (const char*)id)
-	     : par.set(uiAttribDescSetEd::sKeyAuto3DAttrSetID, (const char*)id);
+	const BufferString idstr = id.toString();
+	is2d ? par.set(uiAttribDescSetEd::sKeyAuto2DAttrSetID, idstr.str() )
+	     : par.set(uiAttribDescSetEd::sKeyAuto3DAttrSetID, idstr.str() );
 	SI().savePars();
 	if ( dlg.loadAuto() )
 	{
@@ -936,7 +937,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 {
     if ( !setctio_.ioobj_ )
     {
-	if ( setid_.isEmpty() ) return false;
+	if ( setid_.isInvalid() ) return false;
 
 	setctio_.ioobj_ = IOM().get( setid_ );
 	if ( !setctio_.ioobj_ )
@@ -982,7 +983,7 @@ void uiAttribDescSetEd::newSet( CallBacker* )
 
     attrset_->removeAll( true );
     setctio_.ioobj_ = 0;
-    setid_ = -1;
+    setid_.setInvalid();
     updateUserRefs();
     newList( -1 );
     attrsetfld_->setText( sKeyNotSaved );

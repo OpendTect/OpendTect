@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "bufstring.h"
 #include "oscommand.h"
+#include "datapack.h"
 class CallBack;
 class TaskRunner;
 class BufferStringSet;
@@ -94,7 +95,7 @@ public:
     static void		getPreLoadedIDs(BufferStringSet&);
     static void		getPreLoadedFileNames(const char* id,BufferStringSet&);
 			    //!< pass null id for all files
-    static int		getPreLoadedDataPackID(const char*);
+    static BufferString getPreLoadedDataPackID(const char*);
     static void		unLoad(const char*,bool isid=false);
 			    //!< If isid, unload all with this id
     static void		unLoadAll();

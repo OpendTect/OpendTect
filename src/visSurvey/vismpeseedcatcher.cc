@@ -248,7 +248,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		unsigned char transpar =
 		    rtd->getAttribTransparency( attrib );
 		datapackid = rtd->getDataPackID( attrib );
-		if ( (datapackid > DataPack::cNoID()) &&
+		if ( datapackid.isValid() &&
 		     rtd->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
@@ -281,7 +281,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		attrib--;
 		datapackid = pdd->getDataPackID( attrib );
 		unsigned char transpar = pdd->getAttribTransparency( attrib );
-		if ( (datapackid > DataPack::cNoID()) &&
+		if ( datapackid.isValid() &&
 		     pdd->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
@@ -317,7 +317,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		unsigned char transpar =
 		    seis2ddisp->getAttribTransparency( attrib );
 		datapackid = seis2ddisp->getDataPackID( attrib );
-		if ( (datapackid > DataPack::cNoID()) &&
+		if ( datapackid.isValid() &&
 		     seis2ddisp->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
@@ -420,7 +420,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	    unsigned char transpar =
 		seis2dclosest->getAttribTransparency( attrib );
 	    datapackid = seis2dclosest->getDataPackID( attrib );
-	    if ( (datapackid > DataPack::cNoID()) &&
+	    if ( datapackid.isValid() &&
 		 seis2dclosest->isAttribEnabled(attrib) && (transpar<198) )
 		break;
 	}
@@ -487,7 +487,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 		attrib--;
 		unsigned char transpar = pdd->getAttribTransparency( attrib );
 		datapackid = pdd->getDataPackID( attrib );
-		if ( (datapackid > DataPack::cNoID()) &&
+		if ( datapackid.isValid() &&
 		     pdd->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
@@ -519,7 +519,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    attrib--;
 	    unsigned char transpar = rtd->getAttribTransparency( attrib );
 	    datapackid = rtd->getDataPackID( attrib );
-	    if ( (datapackid > DataPack::cNoID()) &&
+	    if ( datapackid.isValid() &&
 		 rtd->isAttribEnabled(attrib) && (transpar<198) )
 		break;
 	}

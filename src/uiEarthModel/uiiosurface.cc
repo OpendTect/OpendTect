@@ -144,7 +144,8 @@ bool uiIOSurface::getSurfaceIOData(const DBKey& mid, EM::SurfaceIOData& sd,
     }
     else
     {
-	if ( mid.isUdf() ) return false;
+	if ( mid.isInvalid() )
+	    return false;
 	const EM::ObjectID emid = EM::EMM().getObjectID( mid );
 	return getSurfaceIOData( emid, sd );
     }
@@ -156,12 +157,12 @@ bool uiIOSurface::getSurfaceIOData(const DBKey& mid, EM::SurfaceIOData& sd,
 bool uiIOSurface::getSurfaceIOData(const EM::ObjectID& objid,
     EM::SurfaceIOData& sd ) const
 {
-    mDynamicCastGet( EM::Surface*, emsurf,EM::EMM().getObject(objid) );
+    mDynamicCastGet( EM::Surface*, emsurf, EM::EMM().getObject(objid) );
     if ( emsurf )
 	sd.use(*emsurf);
     else
     {
-	uiMSG().error( tr("Temporal surface not existing") );
+	uiMSG().error( tr("Surface does not exist") );
 	    return false;
     }
 
@@ -266,8 +267,7 @@ void uiIOSurface::objSel( CallBacker* )
 {
     if ( !objfld_ ) return;
 
-    objfld_->commitInput();
-    IOObj* ioobj = objfld_->ctxtIOObj().ioobj_;
+    const IOObj* ioobj = objfld_->ioobj( true );
     if ( !ioobj ) return;
 
     EM::SurfaceIOData sd;
@@ -630,7 +630,7 @@ public:
 		    tr("Available for 2D lines"),mNoHelpKey))
     {
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMFaultStickSet);
-	const IODir iodir( ctio->ctxt_.getSelKey() );
+	const IODir iodir( ctio->ctxt_.getSelDirID() );
 	const IODirEntryList entlst( iodir, ctio->ctxt_ );
 
 	for ( int idx=0; idx<entlst.size(); idx++ )

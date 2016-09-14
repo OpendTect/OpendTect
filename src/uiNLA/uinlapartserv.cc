@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uinlapartserv.h"
 
 #include "binidvalset.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "datacoldef.h"
 #include "debug.h"
 #include "ioman.h"
@@ -87,6 +87,12 @@ const BufferStringSet& uiNLAPartServer::modelInputs() const
 }
 
 
+#define mGetOutIDs() \
+	DBKeySet outids; \
+	for ( int idx=0; idx<crdesc.outids.size(); idx++ ) \
+	    outids += DBKey::getFromString( crdesc.outids.get( idx ) );
+
+
 void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 {
     const NLACreationDesc& crdesc = creationDesc();
@@ -96,7 +102,7 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	for ( int idesc=0; idesc<crdesc.outids.size(); idesc++ )
 	{
 	    uiRetVal uirv = uiRetVal::OK();
-	    const DBKey setid( crdesc.outids.get(idesc) );
+	    const DBKey setid = DBKey::getFromString( crdesc.outids.get(idesc));
 	    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, uirv );
 	    if ( !ps )
 		return;
@@ -116,7 +122,8 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
     }
     else
     {
-	Well::TrackSampler* ts = new Well::TrackSampler( crdesc.outids, dpss,
+	mGetOutIDs();
+	Well::TrackSampler* ts = new Well::TrackSampler( outids, dpss,
 							 SI().zIsTime() );
 	ts->for2d_ = is2d_;
 	ts->usePar( crdesc.pars );
@@ -133,7 +140,7 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	{
 	    BufferString psnm = crdesc.design.inputs.get( iinp );
 	    if ( IOObj::isKey(psnm) )
-		psnm = IOM().nameOf( psnm );
+		psnm = IOM().nameFor( psnm );
 	    vds.add( new DataColDef(psnm) );
 	}
     }
@@ -293,7 +300,8 @@ bool uiNLAPartServer::extractDirectData( ObjectSet<DataPointSet>& dpss )
 	return false;
     }
 
-    Well::LogDataExtracter lde( crdesc.outids, dpss, SI().zIsTime() );
+    mGetOutIDs();
+    Well::LogDataExtracter lde( outids, dpss, SI().zIsTime() );
     lde.usePar( crdesc.pars );
     uiTaskRunner uiex( appserv().parent() );
     return TaskRunner::execute( &uiex, lde );

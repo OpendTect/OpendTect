@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "seistrctr.h"
 #include "seisselection.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioman.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -179,27 +179,27 @@ const char* uiAttrInpDlg::getSteerRef( int idx ) const
 }
 
 
-const char* uiAttrInpDlg::getSeisKey( int idx ) const
+DBKey uiAttrInpDlg::getSeisKey( int idx ) const
 {
     if ( seisinpflds_.size()<=idx || !seisinpflds_[idx] )
-	return 0;
+	return DBKey::getInvalid();
 
     const IOObj* ioobj = seisinpflds_[idx]->ioobj( true );
     if ( !ioobj )
-	return 0;
+	return DBKey::getInvalid();
 
-    return ioobj->key().buf();
+    return ioobj->key();
 }
 
 
-const char* uiAttrInpDlg::getSteerKey( int idx ) const
+DBKey uiAttrInpDlg::getSteerKey( int idx ) const
 {
     if ( steerinpflds_.size()<=idx || !steerinpflds_[idx] )
-	return 0;
+	return DBKey::getInvalid();
 
     const IOObj* ioobj = steerinpflds_[idx]->ioobj( true );
     if ( !ioobj )
-	return 0;
+	return DBKey::getInvalid();
 
-    return ioobj->key().buf();
+    return ioobj->key();
 }

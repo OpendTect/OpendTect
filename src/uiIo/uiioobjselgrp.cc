@@ -35,9 +35,6 @@ ________________________________________________________________________
 
 #define mObjTypeName ctio_.ctxt_.objectTypeName()
 
-static const DBKey udfmid( "-1" );
-
-
 
 class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
 { mODTextTranslationClass(uiIOObjSelGrpManipSubj);
@@ -160,7 +157,7 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;
     if ( !ctio_.ctxt_.forread_ )
 	setup_.choicemode( OD::ChooseOnlyOne );
-    IOM().to( ctio_.ctxt_.getSelKey() );
+    IOM().to( ctio_.ctxt_.getSelDirID() );
 
     mkTopFlds( seltxt );
     if ( !ctio_.ctxt_.forread_ )
@@ -287,7 +284,6 @@ void uiIOObjSelGrp::mkManipulators()
 
 uiIOObjSelGrp::~uiIOObjSelGrp()
 {
-    deepErase( ioobjids_ );
     deepErase( inserters_ );
     if ( manipgrpsubj )
     {
@@ -313,24 +309,24 @@ void uiIOObjSelGrp::chooseAll( bool yn ) { listfld_->chooseAll(yn);}
 DBKey uiIOObjSelGrp::currentID() const
 {
     const int selidx = listfld_->currentItem();
-    return ioobjids_.validIdx(selidx) ?  *ioobjids_[selidx] : DBKey("");
+    return ioobjids_.validIdx(selidx) ? ioobjids_[selidx] : DBKey::getInvalid();
 }
 
 
-const DBKey& uiIOObjSelGrp::chosenID( int objnr ) const
+DBKey uiIOObjSelGrp::chosenID( int objnr ) const
 {
     for ( int idx=0; idx<listfld_->size(); idx++ )
     {
 	if ( isChosen(idx) )
 	    objnr--;
 	if ( objnr < 0 )
-	    return *ioobjids_[idx];
+	    return ioobjids_[idx];
     }
 
     BufferString msg( "Should not reach. objnr=" );
     msg += objnr; msg += " nrChosen()="; msg += nrChosen();
     pErrMsg( msg );
-    return udfmid;
+    return DBKey::getInvalid();
 }
 
 
@@ -366,15 +362,15 @@ void uiIOObjSelGrp::setCurrent( int curidx )
 
 void uiIOObjSelGrp::setCurrent( const DBKey& mid )
 {
-    const int idx = indexOf( ioobjids_, mid );
+    const int idx = ioobjids_.indexOf( mid );
     if ( idx >= 0 )
 	setCurrent( idx );
 }
 
 
-void uiIOObjSelGrp::setChosen( const DBKeySet& mids )
+void uiIOObjSelGrp::setChosen( const DBKeySet& dbkys )
 {
-    if ( mids.isEmpty() )
+    if ( dbkys.isEmpty() )
 	return;
 
     NotifyStopper ns1( listfld_->selectionChanged );
@@ -382,9 +378,9 @@ void uiIOObjSelGrp::setChosen( const DBKeySet& mids )
     if ( isMultiChoice() )
 	listfld_->chooseAll( false );
 
-    for ( int idx=0; idx<mids.size(); idx++ )
+    for ( int idx=0; idx<dbkys.size(); idx++ )
     {
-	const int selidx = indexOf( ioobjids_, mids[idx] );
+	const int selidx = ioobjids_.indexOf( dbkys[idx] );
 	if ( selidx >= 0 )
 	    listfld_->setChosen( selidx, true );
     }
@@ -416,7 +412,7 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	    uiMSG().error(tr("Internal error: "
 			     "Cannot retrieve %1 details from data store")
 			.arg(mObjTypeName));
-	    IOM().to( DBKey(0) );
+	    IOM().toRoot();
 	    fullUpdate( -1 );
 	    return false;
 	}
@@ -518,10 +514,10 @@ bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
 	iop.set( sKey::ID(), ctio_.ioobj_->key() );
     else
     {
-	DBKeySet mids; getChosen( mids );
-	iop.set( sKey::Size(), mids.size() );
-	for ( int idx=0; idx<mids.size(); idx++ )
-	    iop.set( IOPar::compKey(sKey::ID(),idx), mids[idx] );
+	DBKeySet dbkys; getChosen( dbkys );
+	iop.set( sKey::Size(), dbkys.size() );
+	for ( int idx=0; idx<dbkys.size(); idx++ )
+	    iop.set( IOPar::compKey(sKey::ID(),idx), dbkys[idx] );
     }
 
     return true;
@@ -535,7 +531,7 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
 	const char* res = iop.find( sKey::ID() );
 	if ( !res || !*res ) return;
 
-	const int selidx = indexOf( ioobjids_, DBKey(res) );
+	const int selidx = ioobjids_.indexOf( DBKey::getFromString(res) );
 	if ( selidx >= 0 )
 	    setCurrent( selidx );
     }
@@ -543,27 +539,27 @@ void uiIOObjSelGrp::usePar( const IOPar& iop )
     {
 	int nrids;
 	iop.get( sKey::Size(), nrids );
-	DBKeySet mids;
+	DBKeySet dbkys;
 	for ( int idx=0; idx<nrids; idx++ )
 	{
 	    DBKey mid;
 	    if ( iop.get(IOPar::compKey(sKey::ID(),idx),mid) )
-		mids += mid;
+		dbkys += mid;
 	}
 
-	setChosen( mids );
+	setChosen( dbkys );
     }
 }
 
 
 void uiIOObjSelGrp::fullUpdate( const DBKey& ky )
 {
-    int selidx = indexOf( ioobjids_, ky );
+    int selidx = ioobjids_.indexOf( ky );
     fullUpdate( selidx );
     // Maybe a new one has been added
     if ( selidx < 0 )
     {
-	selidx = indexOf( ioobjids_, ky );
+	selidx = ioobjids_.indexOf( ky );
 	if ( selidx >= 0 )
 	    setCurrent( selidx );
     }
@@ -572,7 +568,7 @@ void uiIOObjSelGrp::fullUpdate( const DBKey& ky )
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
-    const IODir iodir ( ctio_.ctxt_.getSelKey() );
+    const IODir iodir ( ctio_.ctxt_.getSelDirID() );
     IODirEntryList del( iodir, ctio_.ctxt_ );
     BufferString nmflt = filtfld_->text();
     if ( !nmflt.isEmpty() && nmflt != "*" )
@@ -580,10 +576,8 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 
     mDefineStaticLocalObject( const bool, icsel_,
 			      = Settings::common().isTrue("Ui.Icons.ObjSel") );
-    ioobjnms_.erase();
-    dispnms_.erase();
-    iconnms_.erase();
-    deepErase( ioobjids_ );
+    ioobjnms_.setEmpty(); dispnms_.setEmpty(); iconnms_.setEmpty();
+    ioobjids_.setEmpty();
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* ioobj = del[idx]->ioobj_;
@@ -591,7 +585,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	// 'uiIOObjEntryInfo'
 	BufferString dispnm( del[idx]->name() );
 	BufferString ioobjnm;
-	DBKey objid( udfmid );
+	DBKey objid( DBKey::getInvalid() );
 	const char* icnm = 0;
 
 	if ( !ioobj )
@@ -601,7 +595,8 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	    objid = del[idx]->ioobj_->key();
 	    const bool issel = ctio_.ioobj_ && ctio_.ioobj_->key() == objid;
 	    const bool isdef = IOObj::isSurveyDefault( objid );
-	    const bool ispl = StreamProvider::isPreLoaded( objid.buf(), true );
+	    const bool ispl = StreamProvider::isPreLoaded( objid.toString(),
+							    true );
 
 	    ioobjnm = ioobj->name();
 	    dispnm.setEmpty();
@@ -625,8 +620,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	    }
 	}
 
-	//TODO cleaner is to put this into one object: uiIOObjEntryInfo
-	ioobjids_ += new DBKey( objid );
+	ioobjids_.add( objid );
 	ioobjnms_.add( ioobjnm );
 	dispnms_.add( dispnm );
 	if ( icsel_ )
@@ -659,7 +653,7 @@ void uiIOObjSelGrp::fillListBox()
 
 IOObj* uiIOObjSelGrp::getIOObj( int idx )
 {
-    return ioobjids_.validIdx(idx) ? IOM().get( *ioobjids_[idx] ) : 0;
+    return ioobjids_.validIdx(idx) ? IOM().get( ioobjids_[idx] ) : 0;
 }
 
 
@@ -682,7 +676,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
 
     ioobjnms_.add( ioobj->name() );
     dispnms_.add( ioobj->name() );
-    ioobjids_ += new DBKey( ioobj->key() );
+    ioobjids_.add( ioobj->key() );
     fillListBox();
     listfld_->setCurrentItem( ioobj->name() );
     if ( nmfld_ && ioobj->name() != seltxt )
@@ -801,7 +795,7 @@ void uiIOObjSelGrp::filtChg( CallBacker* )
 void uiIOObjSelGrp::objInserted( CallBacker* cb )
 {
     mCBCapsuleUnpack( DBKey, ky, cb );
-    if ( !ky.isEmpty() )
+    if ( ky.isValid() )
 	fullUpdate( ky );
 }
 
@@ -831,10 +825,10 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
     ioobj->setSurveyDefault( surveydefaultsubsel_.str() );
 
     const int cursel = currentItem();
-    DBKeySet chosenmids;
-    getChosen( chosenmids );
+    DBKeySet chosendbkys;
+    getChosen( chosendbkys );
     fullUpdate( 0 );
-    setChosen( chosenmids );
+    setChosen( chosendbkys );
     setCurrent( cursel );
 }
 
@@ -843,10 +837,14 @@ void uiIOObjSelGrp::readChoiceDone( CallBacker* )
 {
     if ( !lbchoiceio_ ) return;
 
-    DBKeySet mids;
+    DBKeySet dbkys;
     for ( int idx=0; idx<lbchoiceio_->chosenKeys().size(); idx++ )
-	mids += DBKey( lbchoiceio_->chosenKeys().get(idx).buf() );
-    setChosen( mids );
+    {
+	const BufferString kystr( lbchoiceio_->chosenKeys().get(idx) );
+	if ( DBKey::isValidString(kystr) )
+	    dbkys += DBKey::getFromString( kystr );
+    }
+    setChosen( dbkys );
 }
 
 
@@ -856,5 +854,5 @@ void uiIOObjSelGrp::writeChoiceReq( CallBacker* )
 
     lbchoiceio_->keys().setEmpty();
     for ( int idx=0; idx<ioobjids_.size(); idx++ )
-	lbchoiceio_->keys().add( ioobjids_[idx]->buf() );
+	lbchoiceio_->keys().add( ioobjids_[idx].toString() );
 }

@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emhor2dto3d.h"
 #include "array2dinterpol.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioman.h"
 #include "survinfo.h"
 #include "od_helpids.h"

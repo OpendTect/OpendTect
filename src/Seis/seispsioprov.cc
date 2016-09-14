@@ -108,12 +108,12 @@ void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
     if ( ioobj.pars().find(SeisPSIOProvider::sKeyCubeID) )
 	return;
 
-    IODir iodir( ioobj.key() );
+    IODir iodir( ioobj.key().dirID() );
     BufferString nm( "{" ); nm += ioobj.name(); nm += "}";
     IOX* iox = new IOX( nm );
     iox->setTranslator( mTranslKey(SeisTrc,SeisPSCube) );
     iox->setGroup( mTranslGroupName(SeisTrc) );
-    iox->acquireNewKeyIn( iodir.key() );
+    iox->acquireNewKeyIn( iodir.dirID() );
     ioobj.pars().set( SeisPSIOProvider::sKeyCubeID, iox->key() );
     iodir.commitChanges( &ioobj );
     iox->setOwnKey( ioobj.key() );
@@ -274,7 +274,7 @@ bool SeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 	const FixedString res = ioobj->pars().find(
 					SeisPSIOProvider::sKeyCubeID );
 	if ( !res.isEmpty() )
-	    IOM().permRemove( DBKey(res) );
+	    IOM().permRemove( DBKey::getFromString(res) );
     }
     return true;
 }

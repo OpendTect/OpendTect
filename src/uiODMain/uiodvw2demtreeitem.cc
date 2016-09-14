@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emobject.h"
 #include "ptrman.h"
+#include "ioobj.h"
 
 
 uiODVw2DEMTreeItem::uiODVw2DEMTreeItem( const EM::ObjectID& emid )
@@ -41,14 +42,17 @@ uiODVw2DEMTreeItem::~uiODVw2DEMTreeItem()
 void uiODVw2DEMTreeItem::doSave()
 {
     bool savewithname = false;
-    if ( !EM::EMM().getDBKey( emid_ ).isEmpty() )
-	savewithname = !IOM().get( EM::EMM().getDBKey(emid_) );
+    if ( EM::EMM().getDBKey( emid_ ).isValid() )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getDBKey(emid_) );
+	savewithname = !ioobj;
+    }
     doStoreObject( savewithname );
 
     if ( MPE::engine().hasTracker(emid_) )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	if ( mps ) 
+	if ( mps )
 	    mps->saveSetup( applMgr()->EMServer()->getStorageID(emid_) );
     }
 
@@ -62,7 +66,7 @@ void uiODVw2DEMTreeItem::doSaveAs()
     if ( MPE::engine().hasTracker(emid_) )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	if ( mps ) 
+	if ( mps )
 	{
 	   const DBKey oldmid = applMgr()->EMServer()->getStorageID( emid_ );
 	   mps->prepareSaveSetupAs( oldmid );
@@ -90,4 +94,3 @@ void uiODVw2DEMTreeItem::renameVisObj()
     uiTreeItem::updateColumnText(uiODViewer2DMgr::cNameColumn());
     applMgr()->visServer()->triggerTreeUpdate();
 }
-

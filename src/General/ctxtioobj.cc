@@ -35,47 +35,34 @@ mDefineEnumUtils(IOObjContext,StdSelType,"Std sel type") {
 	0
 
 };
-#define mStdDirD IOObjContext::StdDirData
+
+#define mStdDirD(nr,dirnm,typ) \
+    IOObjContext::StdDirData( nr, dirnm, \
+	    IOObjContext::StdSelTypeDef().getKey(IOObjContext::typ) )
 
 static const IOObjContext::StdDirData stddirdata[] = {
-    mStdDirD( "100010", "Seismics",
-	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::Seis)),
-    mStdDirD( "100020", "Surfaces",
-	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::Surf) ),
-    mStdDirD( "100030", "Locations",
-	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::Loc) ),
-    mStdDirD( "100040", "Features",
-	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::Feat) ),
-    mStdDirD( "100050", "WellInfo",
-	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::WllInf) ),
-    mStdDirD( "100060", "NLAs",
-	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::NLA) ),
-    mStdDirD( "100070", "Misc",
-	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::Misc) ),
-    mStdDirD( "100080", "Attribs",
-	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::Attr) ),
-    mStdDirD( "100090", "Models",
-	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::Mdl) ),
-    mStdDirD( "100100", "Geometry",
-	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::Geom) ),
-    mStdDirD( "", "None",
-	      IOObjContext::StdSelTypeDef().getKey(IOObjContext::None) ),
-    mStdDirD( 0, 0, 0 )
+    mStdDirD( 100010, "Seismics", Seis ),
+    mStdDirD( 100020, "Surfaces", Surf ),
+    mStdDirD( 100030, "Locations", Loc ),
+    mStdDirD( 100040, "Features", Feat ),
+    mStdDirD( 100050, "WellInfo", WllInf ),
+    mStdDirD( 100060, "NLAs", NLA ),
+    mStdDirD( 100070, "Misc", Misc ),
+    mStdDirD( 100080, "Attribs", Attr ),
+    mStdDirD( 100090, "Models", Mdl ),
+    mStdDirD( 100100, "Geometry", Geom ),
+    mStdDirD( -1, "None", None ),
+    mStdDirD( 0, 0, Seis )
 };
 
 
-mStartAllowDeprecatedSection
-IOObjContext::StdDirData::StdDirData( const char* theid, const char* thedirnm,
+IOObjContext::StdDirData::StdDirData( DBGroupNrType dirnr, const char* thedirnm,
 				      const char* thedesc )
-    : id_( theid )
-    , dirnm_( thedirnm )
-    , desc_( thedesc )
-    , id( id_ )
-    , dirnm( dirnm_ )
-    , desc( desc_ )
+    : id_(DBDirID::get(dirnr))
+    , dirnm_(thedirnm)
+    , desc_(thedesc)
 {
 }
-mStopAllowDeprecatedSection
 
 
 int IOObjContext::totalNrStdDirs() { return 10; }
@@ -230,7 +217,6 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
 , newonlevel( newonlevel_ ) \
 , multi( multi_ )\
 , forread( forread_ ) \
-, selkey( selkey_ ) \
 , maydooper( maydooper_ ) \
 , deftransl( deftransl_ ) \
 , toselect( toselect_ )
@@ -238,11 +224,11 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
 mStartAllowDeprecatedSection
 
 IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
-	: NamedObject(prefname)
-	, trgroup_(trg)
-	, newonlevel_(1)
-	, stdseltype_(None)
-	, mInitRefs
+    : NamedObject(prefname)
+    , trgroup_(trg)
+    , newonlevel_(1)
+    , stdseltype_(None)
+    , mInitRefs
 {
     multi_ = false;
     forread_ = maydooper_ = true;
@@ -265,7 +251,7 @@ IOObjContext& IOObjContext::operator =( const IOObjContext& oth )
     {
 	mCpMemb(stdseltype_); mCpMemb(trgroup_); mCpMemb(newonlevel_);
 	mCpMemb(multi_); mCpMemb(forread_);
-	mCpMemb(selkey_); mCpMemb(maydooper_); mCpMemb(deftransl_);
+	mCpMemb(dirid_); mCpMemb(maydooper_); mCpMemb(deftransl_);
 	mCpMemb(toselect_);
     }
     return *this;
@@ -296,11 +282,16 @@ BufferString IOObjContext::getDataDirName( StdSelType sst )
 }
 
 
-DBKey IOObjContext::getSelKey() const
+IOObjContext::DBDirID IOObjContext::getSelDirID() const
 {
-    return selkey_.isEmpty()
-	? DBKey( stdseltype_ == None ? "" : getStdDirData(stdseltype_)->id_ )
-	: selkey_;
+    DBDirID dirid = dirid_;
+    if ( !dirid.isValid() )
+    {
+	if ( stdseltype_ == None )
+	    return DBKey::getInvalid().groupID();
+	dirid = getStdDirData(stdseltype_)->id_;
+    }
+    return dirid;
 }
 
 
@@ -388,7 +379,7 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 	iostrm->setDirName( dirnm );
     iostrm->setExt( transl.defExtension() );
 
-    IODir iodir( ky );
+    IODir iodir( ky.dirID() );
     iodir.ensureUniqueName( *iostrm );
     const BufferString uniqnm( iostrm->name() );
     int ifnm = 0;
@@ -411,11 +402,11 @@ void CtxtIOObj::fillIfOnlyOne()
 {
     ctxt_.fillTrGroup();
 
-    const IODir iodir( ctxt_.getSelKey() );
+    const IODir iodir( ctxt_.getSelDirID() );
     int ivalid = -1;
     for ( int idx=0; idx<iodir.size(); idx++ )
     {
-	if ( ctxt_.validIOObj(*iodir.get(idx)) )
+	if ( ctxt_.validIOObj(*iodir.getByIdx(idx)) )
 	{
 	    if ( ivalid >= 0 )
 		return;
@@ -425,7 +416,7 @@ void CtxtIOObj::fillIfOnlyOne()
     }
 
     if ( ivalid >= 0 )
-	setObj( iodir.get(ivalid)->clone() );
+	setObj( iodir.getByIdx(ivalid)->clone() );
 }
 
 
@@ -447,7 +438,10 @@ void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
 {
     const char* kystr = SI().pars().find( parky );
     if ( kystr && *kystr )
-	setObj( IOM().get(DBKey(kystr)) );
+    {
+	DBKey dbky = DBKey::getFromString( kystr );
+	setObj( IOM().get(dbky) );
+    }
 
     if ( !ioobj_ && oone2 )
 	fillIfOnlyOne();
@@ -456,27 +450,25 @@ void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
 
 void CtxtIOObj::setObj( IOObj* obj )
 {
-    if ( obj == ioobj_ ) return;
+    if ( obj == ioobj_ )
+	return;
 
     delete ioobj_; ioobj_ = obj;
-    if ( ioobj_ )
-	ctxt_.selkey_ = ctxt_.hasStdSelKey()
-	    ? ""
-	    : ioobj_->key().upLevel().buf();
+    if ( ioobj_ && !ctxt_.hasStdSelDirID() )
+	ctxt_.dirid_ = ioobj_->key().dirID();
 }
 
 
 void CtxtIOObj::setObj( const DBKey& id )
 {
-    delete ioobj_; ioobj_ = IOM().get( id );
+    setObj( IOM().get(id) );
 }
 
 
 void CtxtIOObj::setPar( IOPar* iop )
 {
-    if ( iop == iopar_ ) return;
-
-    delete iopar_; iopar_ = iop;
+    if ( iop != iopar_ )
+	{ delete iopar_; iopar_ = iop; }
 }
 
 

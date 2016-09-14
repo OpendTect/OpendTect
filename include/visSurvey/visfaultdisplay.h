@@ -140,9 +140,9 @@ public:
     const OD::LineStyle*		lineStyle() const;
     void			setLineStyle(const OD::LineStyle&);
     virtual void		getMousePosInfo(const visBase::EventInfo& ei,
-	    					IOPar& iop ) const
+						IOPar& iop ) const
 				{ return MultiTextureSurveyObject
-				    	::getMousePosInfo(ei,iop); }
+					::getMousePosInfo(ei,iop); }
     void			getMousePosInfo(const visBase::EventInfo&,
 					Coord3& xyzpos,BufferString& val,
 						BufferString& info) const;
@@ -150,9 +150,9 @@ public:
     bool			allowsPicks() const		{ return true; }
     bool			isVerticalPlane() const		{return false;}
     bool			canBDispOn2DViewer() const	{return false;}
-    int				addDataPack(const DataPointSet&) const ;
+    DataPack::ID		addDataPack(const DataPointSet&) const ;
     bool			setDataPackID(int attrib,DataPack::ID,
-	    				      TaskRunner*);
+					      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
     DataPackMgr::ID		getDataPackMgrID() const
 				{ return DataPackMgr::SurfID(); }
@@ -181,10 +181,10 @@ protected:
 
     virtual			~FaultDisplay();
     void			otherObjectsMoved(
-	    			    const ObjectSet<const SurveyObject>&,
+				    const ObjectSet<const SurveyObject>&,
 				    int whichobj);
     void			setRandomPosDataInternal(int attrib,
-	    						 const DataPointSet*,
+							 const DataPointSet*,
 							 int column,
 							 TaskRunner*);
     void			updatePanelDisplay();
@@ -214,9 +214,9 @@ protected:
 					const Coord3& markerworldpos ) const;
 
     void			setActiveStick(const EM::PosID&);
-    void 			updateActiveStickMarker();
+    void			updateActiveStickMarker();
     void			updateHorizonIntersections( int whichobj,
-	    				const ObjectSet<const SurveyObject>&);
+					const ObjectSet<const SurveyObject>&);
     void			updateEditorMarkers();
 
     Coord3			disp2world(const Coord3& displaypos) const;

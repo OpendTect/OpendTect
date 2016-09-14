@@ -88,9 +88,9 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	    if ( IOObj::isSurveyDefault(ioobj_.key()) )
 	    {
 		PtrMan<Translator> trl = ioobj_.createTranslator();
-		CompoundKey defaultkey(
+		const BufferString defaultkey(
 				   trl->group()->getSurveyDefaultKey(&ioobj_) );
-		SI().getPars().removeWithKey( defaultkey.buf() );
+		SI().getPars().removeWithKey( defaultkey );
 		SI().savePars();
 	    }
 	}
@@ -111,8 +111,9 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
 
     const BufferString nm = ctio.getName();
 
-    const IODir iodir( ctio.ctxt_.getSelKey() );
-    const IOObj* existioobj = iodir.get( nm, ctio.ctxt_.translatorGroupName() );
+    const IODir iodir( ctio.ctxt_.getSelDirID() );
+    const IOObj* existioobj = iodir.getByName( nm,
+				    ctio.ctxt_.translatorGroupName() );
     if ( !existioobj )
     {
 	ctio.setObj( 0 );

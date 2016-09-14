@@ -537,7 +537,6 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , contitms_(*new uiGraphicsItemSet)
     , selseqitm_(0)
     , selseqad_(0)
-    , selectedlevel_(Strat::Level::ID::getInvalid())
     , selectedcontent_(0)
     , allcontents_(false)
 {

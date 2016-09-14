@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 #include "ascstream.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "ioobj.h"
 #include "probdenfunctr.h"
 #include "sampledprobdenfunc.h"

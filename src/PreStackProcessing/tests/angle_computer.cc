@@ -130,7 +130,7 @@ bool BatchProgram::go( od_ostream& strm )
     RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				    new PreStack::VelocityBasedAngleComputer;
 
-    PtrMan<IOObj> velobj = IOM().get( DBKey("100010.8") );
+    PtrMan<IOObj> velobj = IOM().get( DBKey::getFromString("100010.8") );
     if ( !velobj )
     {
 	od_cout() << " Input data is not available.\n";
@@ -192,10 +192,10 @@ bool BatchProgram::go( od_ostream& strm )
 bool testAnglesForDifferentSurveys()
 {
     const int nrsurveys = 6;
-    const char* survnames[] = { "F3_Test_Survey", "F3_Test_Survey_DepthFT", 
-				"F3_Test_Survey_DepthFT__XYinft_", 
+    const char* survnames[] = { "F3_Test_Survey", "F3_Test_Survey_DepthFT",
+				"F3_Test_Survey_DepthFT__XYinft_",
 				"F3_Test_Survey_DepthM",
-				"F3_Test_Survey_DepthM_XYinft", 
+				"F3_Test_Survey_DepthM_XYinft",
 				"F3_Test_Survey_XYinft" };
 
     TypeSet<StepInterval<double> > zrgs;
@@ -214,7 +214,7 @@ bool testAnglesForDifferentSurveys()
 	RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				new PreStack::VelocityBasedAngleComputer;
 
-	PtrMan<IOObj> velobj = IOM().get( DBKey("100010.8") );
+	PtrMan<IOObj> velobj = IOM().get( DBKey::getFromString("100010.8") );
 	if ( !velobj )
 	{
 	    od_cout() << survnames[idx];
@@ -253,7 +253,7 @@ bool testAnglesForDifferentSurveys()
 		anglevals += angle;
 	    }
 	}
-	
+
 	if ( !compareAngles(angles,zids[idx]) )
 	{
 	    od_cout() << survnames[idx];
