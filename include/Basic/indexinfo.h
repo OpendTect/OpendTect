@@ -1,5 +1,4 @@
-#ifndef indexinfo_h
-#define indexinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -109,4 +108,3 @@ void IndexInfo::set( const SamplingData<X>& sd, Y y, int nr )
 }
 
 
-#endif

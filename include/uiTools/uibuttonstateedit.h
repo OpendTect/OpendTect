@@ -1,5 +1,4 @@
-#ifndef uibuttonstateedit_h
-#define uibuttonstateedit_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -30,4 +29,3 @@ protected:
     TypeSet<int>	states_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uipicksetsel_h
-#define uipicksetsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ public:
 };
 
 
-#endif

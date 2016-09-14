@@ -1,5 +1,4 @@
-#ifndef vismpeseedcatcher_h
-#define vismpeseedcatcher_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -173,4 +172,3 @@ protected:
 
 } // namespace visSurvey
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef posinfodetector_h
-#define posinfodetector_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -171,4 +170,3 @@ protected:
 
 } // namespace PosInfo
 
-#endif

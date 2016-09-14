@@ -1,5 +1,4 @@
-#ifndef hor2dfrom3dcreator_h
-#define hor2dfrom3dcreator_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -64,4 +63,3 @@ protected:
     const Survey::Geometry2D*	geom2d_;
 };
 
-#endif

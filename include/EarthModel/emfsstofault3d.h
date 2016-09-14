@@ -1,5 +1,4 @@
-#ifndef emfsstofault3d_h
-#define emfsstofault3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -96,4 +95,3 @@ protected:
 
 } // namespace EM
 
-#endif

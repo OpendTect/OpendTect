@@ -1,5 +1,4 @@
-#ifndef uiwindowfuncseldlg_h
-#define uiwindowfuncseldlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -160,4 +159,3 @@ protected:
     WindowFunction* 	getWindowFuncByName(const char*); 
 };
 
-#endif

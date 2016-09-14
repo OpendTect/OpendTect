@@ -1,5 +1,4 @@
-#ifndef uiprestackanglemutecomputer_h
-#define uiprestackanglemutecomputer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ protected:
 
 }; //namespace
 
-#endif

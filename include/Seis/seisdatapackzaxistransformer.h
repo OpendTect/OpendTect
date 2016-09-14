@@ -1,5 +1,4 @@
-#ifndef seisdatapackzaxistransformer_h
-#define seisdatapackzaxistransformer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
     RefMan<SeisDataPack>	outputdp_;
 };
 
-#endif

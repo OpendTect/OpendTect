@@ -1,5 +1,4 @@
-#ifndef sortedlist_h
-#define sortedlist_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -226,4 +225,3 @@ void SortedList<T>::removeRange( size_type p1, size_type p2 )
 }
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiattribpartserv_h
-#define uiattribpartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -266,4 +265,3 @@ private:
 				//!< Use createOutput() instead.
 };
 
-#endif

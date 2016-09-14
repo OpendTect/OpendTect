@@ -1,5 +1,4 @@
-#ifndef uiodattribtreeitem_h
-#define uiodattribtreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -44,4 +43,3 @@ protected:
     MenuItem		colsettingsmnuitem_;
 };
 
-#endif

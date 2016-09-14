@@ -1,5 +1,4 @@
-#ifndef idxpair_h
-#define idxpair_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -62,4 +61,3 @@ inline bool IdxPair::operator ==( const IdxPair& oth ) const
 }
 
 
-#endif

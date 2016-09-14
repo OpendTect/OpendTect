@@ -1,5 +1,4 @@
-#ifndef uiseiswvltattr_h
-#define uiseiswvltattr_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -129,4 +128,3 @@ protected:
     uiWaveletDispProp*		properties_;
 };
 
-#endif

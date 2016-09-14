@@ -1,5 +1,4 @@
-#ifndef delaunay_h
-#define delaunay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -294,4 +293,3 @@ inline  bool PolygonTriangulate( const TypeSet<Coord>& knots,TypeSet<int>& res )
     return true;
 }
 
-#endif

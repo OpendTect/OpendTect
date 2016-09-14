@@ -1,5 +1,4 @@
-#ifndef wellwriteaccess_h
-#define wellwriteaccess_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ protected:
 }; // namespace Well
 
 
-#endif

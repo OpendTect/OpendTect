@@ -1,5 +1,4 @@
-#ifndef velocitypicksundo_h
-#define velocitypicksundo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -83,4 +82,3 @@ protected:
 
 } // namespace Vel
 
-#endif

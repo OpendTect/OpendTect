@@ -1,5 +1,4 @@
-#ifndef uiwellmarkersel_h
-#define uiwellmarkersel_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -124,4 +123,3 @@ protected:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiwelllogtools_h
-#define uiwelllogtools_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -143,4 +142,3 @@ protected:
     bool		changed_;
 };
 
-#endif

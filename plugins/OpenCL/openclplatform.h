@@ -1,5 +1,4 @@
-#ifndef openclplatform_h
-#define openclplatform_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -68,4 +67,3 @@ namespace OpenCL
 }  //namespace
 
 
-#endif

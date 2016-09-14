@@ -1,5 +1,4 @@
-#ifndef uieventattrib_h
-#define uieventattrib_h
+#pragma once
 
 /*+
  ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
 			mDeclReqAttribUIFns
 };
 
-#endif

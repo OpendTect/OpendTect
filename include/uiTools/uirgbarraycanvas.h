@@ -1,5 +1,4 @@
-#ifndef uirgbarraycanvas_h
-#define uirgbarraycanvas_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -80,4 +79,3 @@ protected:
 };
 
 
-#endif

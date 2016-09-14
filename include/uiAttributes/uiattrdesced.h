@@ -1,5 +1,4 @@
-#ifndef uiattrdesced_h
-#define uiattrdesced_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -242,4 +241,3 @@ const char* clss::attribName() const \
     mInitAttribUIPars(clss,attr,displaynm,grp,uiAttrDescEd::Both, \
 	    	      uiAttrDescEd::AnyDim)
 
-#endif

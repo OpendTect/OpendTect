@@ -1,5 +1,4 @@
-#ifndef callback_h
-#define callback_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -298,4 +297,3 @@ PayLoadType var = cb##caps->data; \
 CallBacker* cber = cb##caps->caller
 
 
-#endif

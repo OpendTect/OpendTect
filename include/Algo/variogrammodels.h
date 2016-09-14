@@ -1,5 +1,4 @@
-#ifndef variogrammodels_h
-#define variogrammodels_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ inline void getVariogramModel( const char* typestr, float nugget, float sill,
 }
 
 
-#endif

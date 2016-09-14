@@ -1,5 +1,4 @@
-#ifndef probdenfunc_h
-#define probdenfunc_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -165,4 +164,3 @@ protected:
 };
 
 
-#endif

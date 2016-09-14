@@ -1,5 +1,4 @@
-#ifndef polynd_h
-#define polynd_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -236,4 +235,3 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
     return true;
 }
 
-#endif

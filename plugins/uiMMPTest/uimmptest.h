@@ -1,5 +1,4 @@
-#ifndef uimmptest_h
-#define uimmptest_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -68,4 +67,3 @@ protected:
     virtual bool	acceptOK();
 };
 
-#endif

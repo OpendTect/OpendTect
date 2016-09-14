@@ -1,5 +1,4 @@
-#ifndef uiodannottreeitem_h
-#define uiodannottreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -224,4 +223,3 @@ mDefineParentItem(Image,uiODAnnotParentTreeItem::sImage(),1000);
 mDefineParentItem(ScaleBar,uiODAnnotParentTreeItem::sScalebar(),1000);
 
 
-#endif

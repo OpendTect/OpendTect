@@ -1,5 +1,4 @@
-#ifndef emsurfauxdataio_h
-#define emsurfauxdataio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -144,4 +143,3 @@ protected:
 
 };
 
-#endif

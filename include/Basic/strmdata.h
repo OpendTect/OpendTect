@@ -1,5 +1,4 @@
-#ifndef strmdata_h
-#define strmdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ private:
 };
 
 
-#endif

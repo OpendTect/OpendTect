@@ -1,5 +1,4 @@
-#ifndef attribposvecoutput_h
-#define attribposvecoutput_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -62,4 +61,3 @@ protected:
 
 }; // namespace Attrib
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef _execbatch_h
-#define _execbatch_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -128,4 +127,3 @@ int Execute_batch( int* pargc, char** argv )
     return allok ? 0 : 1;	// never reached.
 }
 
-#endif

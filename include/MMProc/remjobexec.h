@@ -1,5 +1,4 @@
-#ifndef remjobexec_h
-#define remjobexec_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -44,4 +43,3 @@ protected:
 };
 
 
-#endif

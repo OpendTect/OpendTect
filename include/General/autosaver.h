@@ -1,5 +1,4 @@
-#ifndef autosaver_h
-#define autosaver_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -141,4 +140,3 @@ mGlobal(General) inline AutoSaver& AUTOSAVE()
 
 }; //namespace OD
 
-#endif

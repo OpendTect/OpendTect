@@ -1,5 +1,4 @@
-#ifndef uiamplspectrum_h
-#define uiamplspectrum_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -94,4 +93,3 @@ protected:
     void			ceptrumCB(CallBacker*);
 };
 
-#endif

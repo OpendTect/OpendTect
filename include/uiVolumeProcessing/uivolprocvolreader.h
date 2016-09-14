@@ -1,5 +1,4 @@
-#ifndef uivolprocvolreader_h
-#define uivolprocvolreader_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

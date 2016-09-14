@@ -1,5 +1,4 @@
-#ifndef uiscaler_h
-#define uiscaler_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
 };
 
 
-#endif

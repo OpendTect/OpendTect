@@ -1,5 +1,4 @@
-#ifndef volprocprocessor_h
-#define volprocprocessor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -40,4 +39,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

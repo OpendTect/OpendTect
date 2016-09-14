@@ -1,5 +1,4 @@
-#ifndef horizon2dline_h
-#define horizon2dline_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -97,4 +96,3 @@ protected:
 
 } // namespace Geometry
 
-#endif

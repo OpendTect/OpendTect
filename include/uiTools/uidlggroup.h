@@ -1,5 +1,4 @@
-#ifndef uidlggroup_h
-#define uidlggroup_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -134,4 +133,3 @@ protected:
     uiTabStack*			tabstack_;
 };
 
-#endif

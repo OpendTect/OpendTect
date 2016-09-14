@@ -1,5 +1,4 @@
-#ifndef uiprobdenfunvarsel_h
-#define uiprobdenfunvarsel_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -57,4 +56,3 @@ protected:
     void			rangeChanged(CallBacker*);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uivolprocstepdlg_h
-#define uivolprocstepdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uimanprops_h
-#define uimanprops_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -104,4 +103,3 @@ protected:
     bool			acceptOK();
 };
 
-#endif

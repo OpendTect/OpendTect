@@ -1,5 +1,4 @@
-#ifndef uiautoattrdescset_h
-#define uiautoattrdescset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -90,4 +89,3 @@ protected:
 
 };
 
-#endif

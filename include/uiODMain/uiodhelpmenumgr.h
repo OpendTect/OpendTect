@@ -1,5 +1,4 @@
-#ifndef uiodhelpmenumgr_h
-#define uiodhelpmenumgr_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -40,4 +39,3 @@ protected:
     uiMenu*		docmnu_;
 };
 
-#endif

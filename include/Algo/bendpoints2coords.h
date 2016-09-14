@@ -1,5 +1,4 @@
-#ifndef bendpoints2coords_h
-#define bendpoints2coords_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
     void		getIndexes(float,Interval<int>&) const;
 };
 
-#endif

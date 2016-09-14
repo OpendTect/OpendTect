@@ -1,5 +1,4 @@
-#ifndef uievaluatedlg_h
-#define uievaluatedlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -112,4 +111,3 @@ protected:
 };
 
 
-#endif

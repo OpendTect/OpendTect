@@ -1,5 +1,4 @@
-#ifndef faultsticksurface_h
-#define faultsticksurface_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ protected:
 
 } // namespace Geometry
 
-#endif

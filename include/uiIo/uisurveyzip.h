@@ -1,5 +1,4 @@
-#ifndef uisurveyzip_h
-#define uisurveyzip_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -25,4 +24,3 @@ mGlobal(uiIo) bool uiSurvey_ZipDirectory(uiParent*,const char* survdirnm=0,
 // Returns true if zip file successfully created
 
 
-#endif

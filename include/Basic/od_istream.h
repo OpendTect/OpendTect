@@ -1,5 +1,4 @@
-#ifndef od_istream_h
-#define od_istream_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -113,4 +112,3 @@ inline od_istream& od_istream::getBin( T& t )
 }
 
 
-#endif

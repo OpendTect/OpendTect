@@ -1,5 +1,4 @@
-#ifndef uiwellsel_h
-#define uiwellsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -56,4 +55,3 @@ protected:
     IOPar&		iopar_;
 };
 
-#endif

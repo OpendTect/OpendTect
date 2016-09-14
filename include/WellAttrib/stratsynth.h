@@ -1,5 +1,4 @@
-#ifndef stratsynth_h
-#define stratsynth_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -188,4 +187,3 @@ public:
 				       ("synthetics %1 : %2\n")); }
 };
 
-#endif

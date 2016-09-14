@@ -1,5 +1,4 @@
-#ifndef valseries_h
-#define valseries_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -596,4 +595,3 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 
 #undef mChunkSize
 
-#endif

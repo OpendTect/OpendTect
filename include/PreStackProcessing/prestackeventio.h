@@ -1,5 +1,4 @@
-#ifndef prestackeventio_h
-#define prestackeventio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -160,4 +159,3 @@ protected:
 
 }; //namespace
 
-#endif

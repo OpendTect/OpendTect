@@ -1,5 +1,4 @@
-#ifndef uiimppvds_h
-#define uiimppvds_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
 };
 
 
-#endif

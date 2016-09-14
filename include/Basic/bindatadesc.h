@@ -1,5 +1,4 @@
-#ifndef bindatadesc_h
-#define bindatadesc_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -130,4 +129,3 @@ protected:
 #undef mDeclBinDataDescConstr
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef histequalizer_h
-#define histequalizer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -40,4 +39,3 @@ protected:
     void		getSegmentSizes(TypeSet<int>&);
 };
 
-#endif

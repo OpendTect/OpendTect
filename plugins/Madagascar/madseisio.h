@@ -1,5 +1,4 @@
-#ifndef madseisio_h
-#define madseisio_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
@@ -88,4 +87,3 @@ protected:
 
 } // namespace ODMad
 
-#endif

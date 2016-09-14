@@ -1,5 +1,4 @@
-#ifndef uiattribsetbuild_h
-#define uiattribsetbuild_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -73,4 +72,3 @@ protected:
 };
 
 
-#endif

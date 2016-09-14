@@ -1,5 +1,4 @@
-#ifndef matchdeltaattrib_h
-#define matchdeltaattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

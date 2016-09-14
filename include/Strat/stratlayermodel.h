@@ -1,5 +1,4 @@
-#ifndef stratlayermodel_h
-#define stratlayermodel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -100,4 +99,3 @@ public:
 
 }; // namespace Strat
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef arrayndsubsel_h
-#define arrayndsubsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -202,4 +201,3 @@ const Array3DInfo& Array3DSubSelection<T>::info() const
 
 
 
-#endif

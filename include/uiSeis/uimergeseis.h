@@ -1,5 +1,4 @@
-#ifndef uimergeseis_h
-#define uimergeseis_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -40,4 +39,3 @@ protected:
 };
 
 
-#endif

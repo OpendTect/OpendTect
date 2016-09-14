@@ -1,5 +1,4 @@
-#ifndef uicolortable_h
-#define uicolortable_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -150,4 +149,3 @@ private:
     void		init();
 };
 
-#endif

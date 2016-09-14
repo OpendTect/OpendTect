@@ -1,5 +1,4 @@
-#ifndef volproctrans_h
-#define volproctrans_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -134,4 +133,3 @@ public:
 };
 
 
-#endif

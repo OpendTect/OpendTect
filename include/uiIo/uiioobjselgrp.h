@@ -1,5 +1,4 @@
-#ifndef uiioobjselgrp_h
-#define uiioobjselgrp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -186,4 +185,3 @@ private:
 };
 
 
-#endif

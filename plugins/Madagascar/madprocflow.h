@@ -1,5 +1,4 @@
-#ifndef madprocflow_h
-#define madprocflow_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
@@ -57,4 +56,3 @@ protected:
 
 } // namespace ODMad
 
-#endif

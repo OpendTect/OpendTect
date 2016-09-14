@@ -1,5 +1,4 @@
-#ifndef batchjobdispatch_h
-#define batchjobdispatch_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -111,4 +110,3 @@ protected:
 
 } // namespace Batch
 
-#endif

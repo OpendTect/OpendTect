@@ -1,5 +1,4 @@
-#ifndef seisstor_h
-#define seisstor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -97,4 +96,3 @@ protected:
 };
 
 
-#endif

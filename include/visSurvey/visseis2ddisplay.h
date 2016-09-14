@@ -1,5 +1,4 @@
-#ifndef visseis2ddisplay_h
-#define visseis2ddisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -238,4 +237,3 @@ protected:
 
 } // namespace visSurvey
 
-#endif

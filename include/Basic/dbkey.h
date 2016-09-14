@@ -1,5 +1,4 @@
-#ifndef dbkey_h
-#define dbkey_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -118,4 +117,3 @@ mGlobal(Basic) inline uiString toUiString( const DBKey& ky )
 { return ky.toUiString(); }
 
 
-#endif

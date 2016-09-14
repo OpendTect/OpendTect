@@ -1,5 +1,4 @@
-#ifndef emsurfacegeometry_h
-#define emsurfacegeometry_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -143,4 +142,3 @@ public:
 
 } // namespace EM
 
-#endif

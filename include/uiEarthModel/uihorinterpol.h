@@ -1,5 +1,4 @@
-#ifndef uihorinterpol_h
-#define uihorinterpol_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -206,4 +205,3 @@ protected:
 
 };
 
-#endif

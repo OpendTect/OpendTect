@@ -1,5 +1,4 @@
-#ifndef uiattrgetfile_h
-#define uiattrgetfile_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -64,4 +63,3 @@ protected:
     uiIOObjSel*		attrsetfld_;
 };
 
-#endif

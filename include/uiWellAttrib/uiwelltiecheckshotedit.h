@@ -1,5 +1,4 @@
-#ifndef uiwelltiecheckshotedit_h
-#define uiwelltiecheckshotedit_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -117,4 +116,3 @@ protected:
 
 } // namespace WellTie
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiprestackmmproc_h
-#define uiprestackmmproc_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -30,4 +29,3 @@ protected:
 
 };
 
-#endif

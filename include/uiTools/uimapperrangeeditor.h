@@ -1,5 +1,4 @@
-#ifndef uimapperrangeeditor_h
-#define uimapperrangeeditor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ protected:
     void			histDRChanged(CallBacker*);
 };
 
-#endif

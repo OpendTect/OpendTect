@@ -1,5 +1,4 @@
-#ifndef stratamp_h
-#define stratamp_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -71,4 +70,3 @@ protected:
     Attrib::DescSet*		descset_;
     Attrib::Processor*		proc_;
 };
-#endif

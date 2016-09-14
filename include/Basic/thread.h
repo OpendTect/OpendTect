@@ -1,5 +1,4 @@
-#ifndef thread_h
-#define thread_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -328,4 +327,3 @@ mGlobal(Basic) void sleep(double seconds);
 
 } //namespace
 
-#endif

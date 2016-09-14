@@ -1,5 +1,4 @@
-#ifndef coltabsequence_h
-#define coltabsequence_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -185,4 +184,3 @@ mGlobal(General) SeqMgr& SM();
 } // namespace ColTab
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef cbvswriter_h
-#define cbvswriter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -111,4 +110,3 @@ private:
 };
 
 
-#endif

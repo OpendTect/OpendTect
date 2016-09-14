@@ -1,5 +1,4 @@
-#ifndef interpolnd_h
-#define interpolnd_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -104,4 +103,3 @@ inline T linearRegND( int N, const T* v, const T* pos )
 
 } // namespace Interpolate
 
-#endif

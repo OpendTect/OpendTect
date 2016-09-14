@@ -1,5 +1,4 @@
-#ifndef cubicbeziercurve_h
-#define cubicbeziercurve_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -110,4 +109,3 @@ inline Coord3 cubicDeCasteljauTangent( const Coord3* p, char i0, char di,
 
 };
 
-#endif

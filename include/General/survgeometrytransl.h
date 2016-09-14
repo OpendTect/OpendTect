@@ -1,5 +1,4 @@
-#ifndef survgeometrytransl_h
-#define survgeometrytransl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ public:
 };
 
 
-#endif

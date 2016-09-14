@@ -1,5 +1,4 @@
-#ifndef picksetchangerecorder_h
-#define picksetchangerecorder_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -126,4 +125,3 @@ protected:
 } // namespace Pick
 
 
-#endif

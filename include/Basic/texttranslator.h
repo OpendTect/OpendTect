@@ -1,5 +1,4 @@
-#ifndef texttranslator_h
-#define texttranslator_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -100,4 +99,3 @@ protected:
 
 mGlobal(Basic) TextTranslateMgr& TrMgr();
 
-#endif

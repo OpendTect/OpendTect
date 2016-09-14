@@ -1,5 +1,4 @@
-#ifndef seis2dlineio_h
-#define seis2dlineio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -194,4 +193,3 @@ public:
 };
 
 
-#endif

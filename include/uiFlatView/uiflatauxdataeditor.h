@@ -1,5 +1,4 @@
-#ifndef uiflatauxdataeditor_h
-#define uiflatauxdataeditor_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -33,4 +32,3 @@ protected:
     uiFlatViewer& uivwr_;
 };
 
-#endif

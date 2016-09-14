@@ -1,5 +1,4 @@
-#ifndef uimpe_h
-#define uimpe_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -132,4 +131,3 @@ mGlobal(uiMPE) uiMPEEngine& uiMPE();
 
 } // namespace MPE
 
-#endif

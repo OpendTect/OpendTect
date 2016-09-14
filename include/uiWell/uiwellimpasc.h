@@ -1,5 +1,4 @@
-#ifndef uiwellimpasc_h
-#define uiwellimpasc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
 };
 
 
-#endif

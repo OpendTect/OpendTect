@@ -1,5 +1,4 @@
-#ifndef uimadagcattrib_h
-#define uimadagcattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uitoolbutton_h
-#define uitoolbutton_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -105,4 +104,3 @@ public:
 
 };
 
-#endif

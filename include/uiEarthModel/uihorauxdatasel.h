@@ -1,5 +1,4 @@
-#ifndef uihorauxdatasel_h
-#define uihorauxdatasel_h
+#pragma once
 /*+
 ___________________________________________________________________________
 
@@ -60,4 +59,3 @@ protected:
 };
 
 
-#endif

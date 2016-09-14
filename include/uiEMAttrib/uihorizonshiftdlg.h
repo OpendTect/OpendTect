@@ -1,5 +1,4 @@
-#ifndef uihorizonshiftdlg_h
-#define uihorizonshiftdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -75,4 +74,3 @@ protected:
     int				visid_;
 };
 
-#endif

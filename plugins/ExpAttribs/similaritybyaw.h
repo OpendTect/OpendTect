@@ -1,5 +1,4 @@
-#ifndef SimilaritybyAW_h
-#define SimilaritybyAW_h
+#pragma once
 
 
 /*+
@@ -77,4 +76,3 @@ protected:
 
 }
 
-#endif

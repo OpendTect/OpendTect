@@ -1,5 +1,4 @@
-#ifndef welllogdisp_h
-#define welllogdisp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -90,4 +89,3 @@ protected:
 
 }; // namespace Well
 
-#endif

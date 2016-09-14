@@ -1,5 +1,4 @@
-#ifndef fourier_h
-#define fourier_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -163,4 +162,3 @@ protected:
 
 } // namespace Fourier
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef geom2dascio_h
-#define geom2dascio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ protected:
     od_istream&			strm_;
 };
 
-#endif

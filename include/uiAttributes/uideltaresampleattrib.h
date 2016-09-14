@@ -1,5 +1,4 @@
-#ifndef uideltaresampleattrib_h
-#define uideltaresampleattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -41,4 +40,3 @@ protected:
 };
 
 
-#endif

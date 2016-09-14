@@ -1,5 +1,4 @@
-#ifndef uitextedit_h
-#define uitextedit_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -149,4 +148,3 @@ private:
     uiTextBrowserBody&	mkbody(uiParent*,const char*,bool);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef emhorizonutils_h
-#define emhorizonutils_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ protected:
 
 } // namespace EM
 
-#endif

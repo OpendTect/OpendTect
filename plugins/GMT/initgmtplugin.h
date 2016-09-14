@@ -1,5 +1,4 @@
-#ifndef initgmtplugin_h
-#define initgmtplugin_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -17,4 +16,3 @@ namespace GMT
 {
     mGlobal(GMT) void initStdClasses();
 }
-#endif

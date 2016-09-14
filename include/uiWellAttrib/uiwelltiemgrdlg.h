@@ -1,5 +1,4 @@
-#ifndef uiwelltiemgrdlg_h
-#define uiwelltiemgrdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -90,4 +89,3 @@ protected:
 
 } // namespace WellTie
 
-#endif

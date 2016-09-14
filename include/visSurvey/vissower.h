@@ -1,5 +1,4 @@
-#ifndef vissower_h
-#define vissower_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -120,4 +119,3 @@ protected:
 
 }; // namespace visSurvey
 
-#endif

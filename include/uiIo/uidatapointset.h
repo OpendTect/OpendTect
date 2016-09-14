@@ -1,5 +1,4 @@
-#ifndef uidatapointset_h
-#define uidatapointset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -269,4 +268,3 @@ public:
 };
 
 
-#endif

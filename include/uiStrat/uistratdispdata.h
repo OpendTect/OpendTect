@@ -1,5 +1,4 @@
-#ifndef uistratdispdata_h
-#define uistratdispdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -205,4 +204,3 @@ protected:
     uiStratRefTree&     uitree_;
 };
 
-#endif

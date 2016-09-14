@@ -1,5 +1,4 @@
-#ifndef uifreqfilter_h
-#define uifreqfilter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ private:
 };
 
 
-#endif

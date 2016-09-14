@@ -1,5 +1,4 @@
-#ifndef coltabmapper_h
-#define coltabmapper_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -275,4 +274,3 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 
 } // namespace ColTab
 
-#endif

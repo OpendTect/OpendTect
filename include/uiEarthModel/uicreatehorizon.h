@@ -1,5 +1,4 @@
-#ifndef uicreatehorizon_h
-#define uicreatehorizon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -40,4 +39,3 @@ protected:
     uiSurfaceWrite*	outfld_;
 };
 
-#endif

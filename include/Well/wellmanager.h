@@ -1,5 +1,4 @@
-#ifndef picksetmanager_h
-#define picksetmanager_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -99,4 +98,3 @@ protected:
 
 
 
-#endif

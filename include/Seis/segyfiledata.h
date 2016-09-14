@@ -1,5 +1,4 @@
-#ifndef segyfiledata_h
-#define segyfiledata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -164,4 +163,3 @@ protected:
 } // namespace
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef visdepthtabplanedragger_h
-#define visdepthtabplanedragger_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -129,4 +128,3 @@ protected:
 
 };
 
-#endif

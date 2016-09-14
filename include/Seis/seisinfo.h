@@ -1,5 +1,4 @@
-#ifndef seisinfo_h
-#define seisinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -97,4 +96,3 @@ public:
 };
 
 
-#endif

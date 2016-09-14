@@ -1,5 +1,4 @@
-#ifndef similarityattrib_h
-#define similarityattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -162,4 +161,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

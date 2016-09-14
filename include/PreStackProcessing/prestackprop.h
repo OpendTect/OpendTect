@@ -1,5 +1,4 @@
-#ifndef prestackprop_h
-#define prestackprop_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -100,4 +99,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

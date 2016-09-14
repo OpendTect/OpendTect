@@ -1,5 +1,4 @@
-#ifndef gridder2d_h
-#define gridder2d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -225,4 +224,3 @@ protected:
 				   TypeSet<int>* usedpoints=0) const;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef visscalebar_h
-#define visscalebar_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -68,4 +67,3 @@ protected:
 
 } //visBase
 
-#endif

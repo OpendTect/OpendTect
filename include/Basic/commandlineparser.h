@@ -1,5 +1,4 @@
-#ifndef commandlineparser_h
-#define commandlineparser_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -137,4 +136,3 @@ bool CommandLineParser::getVal( const char* key, T& val,
 }
 
 
-#endif

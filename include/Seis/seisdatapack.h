@@ -1,5 +1,4 @@
-#ifndef seisdatapack_h
-#define seisdatapack_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -224,4 +223,3 @@ protected:
     const TrcKeyPath&		path_;
 };
 
-#endif

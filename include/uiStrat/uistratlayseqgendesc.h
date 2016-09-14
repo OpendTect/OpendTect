@@ -1,5 +1,4 @@
-#ifndef uistratlayseqgendesc_h
-#define uistratlayseqgendesc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ public: \
     static void		initClass() { factory().addCreator(create,typeStr()); }
 
 
-#endif

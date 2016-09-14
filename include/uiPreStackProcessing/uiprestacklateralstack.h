@@ -1,5 +1,4 @@
-#ifndef uiprestacklateralstack_h
-#define uiprestacklateralstack_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -40,4 +39,3 @@ protected:
 
 }; //namespace
 
-#endif

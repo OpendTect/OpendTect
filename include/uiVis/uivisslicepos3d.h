@@ -1,5 +1,4 @@
-#ifndef uivisslicepos3d_h
-#define uivisslicepos3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
     void			setStepBoxValue();
 };
 
-#endif

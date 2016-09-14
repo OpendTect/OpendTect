@@ -1,5 +1,4 @@
-#ifndef uiodtreeitem_h
-#define uiodtreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -44,4 +43,3 @@ protected:
     MenuItem		collapseallitems_;
 };
 
-#endif

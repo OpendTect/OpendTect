@@ -1,5 +1,4 @@
-#ifndef monitorchangerecorder_h
-#define monitorchangerecorder_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -73,4 +72,3 @@ private:
 
 };
 
-#endif

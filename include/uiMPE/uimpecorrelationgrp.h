@@ -1,5 +1,4 @@
-#ifndef uimpecorrelationgrp_h
-#define uimpecorrelationgrp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ protected:
 
 } // namespace MPE
 
-#endif

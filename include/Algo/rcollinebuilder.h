@@ -1,5 +1,4 @@
-#ifndef rcollinebuilder_h
-#define rcollinebuilder_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -136,4 +135,3 @@ bool makeLine( const T& start, const T& stop, const T& step, TypeSet<T>& output)
 }
 
 
-#endif

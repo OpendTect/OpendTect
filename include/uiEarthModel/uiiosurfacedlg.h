@@ -1,5 +1,4 @@
-#ifndef uiiosurfacedlg_h
-#define uiiosurfacedlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -103,4 +102,3 @@ protected:
 };
 
 
-#endif

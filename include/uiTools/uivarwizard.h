@@ -1,5 +1,4 @@
-#ifndef uivarwizard_h
-#define uivarwizard_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -80,4 +79,3 @@ protected:
 
 
 
-#endif

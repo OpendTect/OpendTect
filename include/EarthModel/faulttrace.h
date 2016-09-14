@@ -1,5 +1,4 @@
-#ifndef faulttrace_h
-#define faulttrace_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -259,4 +258,3 @@ protected:
     bool		is2d_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef emrandomposbody_h
-#define emrandomposbody_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ protected:
 
 } // namespace EM
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef wavelettrans_h
-#define wavelettrans_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -216,4 +215,3 @@ protected:
     TypeSet<int>	outfreqidxs_;
 };
 
-#endif

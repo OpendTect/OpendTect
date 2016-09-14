@@ -1,5 +1,4 @@
-#ifndef gmtbasemap_h
-#define gmtbasemap_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -76,4 +75,3 @@ protected:
     static int		factoryid_;
 };
 
-#endif

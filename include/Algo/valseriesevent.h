@@ -1,5 +1,4 @@
-#ifndef valseriesevent_h
-#define valseriesevent_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -410,4 +409,3 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 #undef mIncSampIdx
 #undef mDecrOccAtZero
 
-#endif

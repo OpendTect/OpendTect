@@ -1,5 +1,4 @@
-#ifndef welltied2tmodelmanager_h
-#define welltied2tmodelmanager_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ protected:
 
 } // namespace WellTie
 
-#endif

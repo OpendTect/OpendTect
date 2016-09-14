@@ -1,5 +1,4 @@
-#ifndef uiprmantreeitem_h
-#define uiprmantreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ protected:
     virtual OD::ObjPresentationInfo* getObjPRInfo()		{ return 0; }
 };
 
-#endif

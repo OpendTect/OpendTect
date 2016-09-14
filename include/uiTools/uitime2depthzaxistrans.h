@@ -1,5 +1,4 @@
-#ifndef uitime2depthzaxistrans_h
-#define uitime2depthzaxistrans_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -36,4 +35,3 @@ protected:
     bool		rangechanged_;
 };
 
-#endif

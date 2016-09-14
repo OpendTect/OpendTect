@@ -1,5 +1,4 @@
-#ifndef uiseisioobjinfo_h
-#define uiseisioobjinfo_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -55,4 +54,3 @@ protected:
 };
 
 
-#endif

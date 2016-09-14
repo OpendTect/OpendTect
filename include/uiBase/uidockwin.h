@@ -1,5 +1,4 @@
-#ifndef uidockwin_h
-#define uidockwin_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ protected:
     uiParent *		parent_;
 };
 
-#endif

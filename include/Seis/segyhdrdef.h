@@ -1,5 +1,4 @@
-#ifndef segyhdrdef_h
-#define segyhdrdef_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -109,4 +108,3 @@ protected:
 
 } // namespace
 
-#endif

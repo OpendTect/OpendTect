@@ -1,5 +1,4 @@
-#ifndef uisegyscandlg_h
-#define uisegyscandlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -49,4 +48,3 @@ protected:
 };
 
 
-#endif

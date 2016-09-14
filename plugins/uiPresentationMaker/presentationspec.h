@@ -1,5 +1,4 @@
-#ifndef presentationspec_h
-#define presentationspec_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -102,4 +101,3 @@ protected:
     SlideLayout			slidelayout_;
 };
 
-#endif

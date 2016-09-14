@@ -1,5 +1,4 @@
-#ifndef uishiftattrib_h
-#define uishiftattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-#endif

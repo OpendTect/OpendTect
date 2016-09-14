@@ -1,5 +1,4 @@
-#ifndef array2dinterpolimpl_h
-#define array2dinterpolimpl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -225,4 +224,3 @@ protected:
     friend class Extension2DInterpolExecutor;
 };
 
-#endif

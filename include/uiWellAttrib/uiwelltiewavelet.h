@@ -1,5 +1,4 @@
-#ifndef uiwelltiewavelet_h
-#define uiwelltiewavelet_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -87,4 +86,3 @@ protected:
 
 } // namespace WellTie
 
-#endif

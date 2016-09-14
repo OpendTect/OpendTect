@@ -1,5 +1,4 @@
-#ifndef uiodvw2demtreeitem_h
-#define uiodvw2demtreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -38,4 +37,3 @@ private:
 };
 
 
-#endif

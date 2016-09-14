@@ -1,5 +1,4 @@
-#ifndef uiseisrandto2dline_h
-#define uiseisrandto2dline_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ protected:
     bool			acceptOK();
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uidpscrossplotpropdlg_h
-#define uidpscrossplotpropdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -46,4 +45,3 @@ protected:
 
 };
 
-#endif

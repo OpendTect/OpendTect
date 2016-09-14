@@ -1,5 +1,4 @@
-#ifndef uisaveimagedlg_h
-#define uisaveimagedlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -117,4 +116,3 @@ protected:
 };
 
 
-#endif

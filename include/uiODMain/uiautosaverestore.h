@@ -1,5 +1,4 @@
-#ifndef uiautosaverestore_h
-#define uiautosaverestore_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef segyfiledef_h
-#define segyfiledef_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -184,4 +183,3 @@ protected:
 } // namespace SEGY
 
 
-#endif

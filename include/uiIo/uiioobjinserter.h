@@ -1,5 +1,4 @@
-#ifndef uiioobjinserter_h
-#define uiioobjinserter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
 };
 
 
-#endif

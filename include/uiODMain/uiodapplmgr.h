@@ -1,5 +1,4 @@
-#ifndef uiodapplmgr_h
-#define uiodapplmgr_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -311,4 +310,3 @@ protected:
     friend class		uiODApplMgrAttrVisHandler;
 };
 
-#endif

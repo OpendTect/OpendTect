@@ -1,5 +1,4 @@
-#ifndef uiwellimpsegyvsp_h
-#define uiwellimpsegyvsp_h
+#pragma once
 /*+
  ________________________________________________________________________
 
@@ -66,4 +65,3 @@ protected:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uivispickretriever_h
-#define uivispickretriever_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -60,4 +59,3 @@ protected:
     uiVisPartServer*            visserv_;
 };
 
-#endif

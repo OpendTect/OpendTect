@@ -1,5 +1,4 @@
-#ifndef uiattrsel_h
-#define uiattrsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -245,4 +244,3 @@ public:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uisegyreadstarter_h
-#define uisegyreadstarter_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -159,4 +158,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uipickpropdlg_h
-#define uipickpropdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -46,4 +45,3 @@ protected:
 
 };
 
-#endif

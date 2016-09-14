@@ -1,5 +1,4 @@
-#ifndef arrayndalgo_h
-#define arrayndalgo_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -1585,4 +1584,3 @@ void PolyTrend::apply( const Coord& pos, bool dir, T& val ) const
     val = (T)inp;
 }
 
-#endif

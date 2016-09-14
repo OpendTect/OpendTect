@@ -1,5 +1,4 @@
-#ifndef rowcolsurface_h
-#define rowcolsurface_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ public:
 
 };
 
-#endif

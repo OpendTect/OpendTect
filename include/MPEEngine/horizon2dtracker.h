@@ -1,5 +1,4 @@
-#ifndef horizon2dtracker_h
-#define horizon2dtracker_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -51,4 +50,3 @@ protected:
 
 } // namespace MPE
 
-#endif

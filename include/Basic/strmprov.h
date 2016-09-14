@@ -1,5 +1,4 @@
-#ifndef strmprov_h
-#define strmprov_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -130,4 +129,3 @@ protected:
 
 
 
-#endif

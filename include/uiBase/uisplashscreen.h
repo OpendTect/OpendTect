@@ -1,5 +1,4 @@
-#ifndef uisplashscreen_h
-#define uisplashscreen_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -32,4 +31,3 @@ protected:
     mQtclass(QSplashScreen*)	qsplashscreen_;
 };
 
-#endif

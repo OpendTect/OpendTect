@@ -1,5 +1,4 @@
-#ifndef uiattrsetman_h
-#define uiattrsetman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -32,4 +31,3 @@ protected:
     void			mkFileInfo();
 };
 
-#endif

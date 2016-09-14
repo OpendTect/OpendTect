@@ -1,5 +1,4 @@
-#ifndef bitmapmgr_h
-#define bitmapmgr_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -86,4 +85,3 @@ protected:
     const Geom::Size2D<int>&		availpixels_;
 };
 
-#endif

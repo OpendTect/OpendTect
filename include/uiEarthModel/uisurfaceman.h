@@ -1,5 +1,4 @@
-#ifndef uisurfaceman_h
-#define uisurfaceman_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -79,4 +78,3 @@ private:
 };
 
 
-#endif

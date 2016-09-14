@@ -1,5 +1,4 @@
-#ifndef uichecklist_h
-#define uichecklist_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -85,4 +84,3 @@ public:
 };
 
 
-#endif

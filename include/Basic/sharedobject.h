@@ -1,5 +1,4 @@
-#ifndef sharedobject_h
-#define sharedobject_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiseis2dgeom_h
-#define uiseis2dgeom_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -37,4 +36,3 @@ protected:
 };
 
 
-#endif

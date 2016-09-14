@@ -1,5 +1,4 @@
-#ifndef uisegydefdlg_h
-#define uisegydefdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -103,4 +102,3 @@ protected:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiseis2dfileman_h
-#define uiseis2dfileman_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -58,4 +57,3 @@ protected:
 };
 
 
-#endif

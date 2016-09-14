@@ -1,5 +1,4 @@
-#ifndef safefileio_h
-#define safefileio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -125,4 +124,3 @@ protected:
 };
 
 
-#endif

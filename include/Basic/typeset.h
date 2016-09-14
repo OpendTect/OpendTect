@@ -1,5 +1,4 @@
-#ifndef typeset_h
-#define typeset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -505,4 +504,3 @@ void TypeSetBase<T,I>::removeSingle( I idx, bool kporder )
 }
 
 
-#endif

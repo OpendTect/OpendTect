@@ -1,5 +1,4 @@
-#ifndef uiodvw2dvariabledensity_h
-#define uiodvw2dvariabledensity_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ public:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef strattransl_h
-#define strattransl_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -16,4 +15,3 @@ mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceGenDesc,od,"sgd")
 mDeclEmptyTranslatorBundle(Strat,StratLayerSequenceAttribSet,od,"lsa")
 
 
-#endif

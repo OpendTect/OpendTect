@@ -1,5 +1,4 @@
-#ifndef monitor_h
-#define monitor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -346,4 +345,3 @@ inline void Monitorable::setMemberSimple( TMember& memb, TSetTo setto,
 }
 
 
-#endif

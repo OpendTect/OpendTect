@@ -1,5 +1,4 @@
-#ifndef uiwaveletsel_h
-#define uiwaveletsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -67,4 +66,3 @@ private:
 };
 
 
-#endif

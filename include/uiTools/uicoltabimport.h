@@ -1,5 +1,4 @@
-#ifndef uicoltabimport_h
-#define uicoltabimport_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -52,4 +51,3 @@ private :
     static uiString		getLabel(bool);
 };
 
-#endif

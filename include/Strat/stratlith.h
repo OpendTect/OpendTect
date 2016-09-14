@@ -1,5 +1,4 @@
-#ifndef stratlith_h
-#define stratlith_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -120,4 +119,3 @@ public:
 
 }; // namespace Strat
 
-#endif

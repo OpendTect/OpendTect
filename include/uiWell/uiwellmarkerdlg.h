@@ -1,5 +1,4 @@
-#ifndef uiwellmarkerdlg_h
-#define uiwellmarkerdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -95,4 +94,3 @@ protected:
 };
 
 
-#endif

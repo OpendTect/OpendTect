@@ -1,5 +1,4 @@
-#ifndef od_strstream_h
-#define od_strstream_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ public:
 };
 
 
-#endif

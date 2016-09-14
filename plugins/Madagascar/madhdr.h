@@ -1,5 +1,4 @@
-#ifndef madhdr_h
-#define madhdr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -150,4 +149,3 @@ protected:
 
 } // namespace
 
-#endif

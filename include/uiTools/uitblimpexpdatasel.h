@@ -1,5 +1,4 @@
-#ifndef uitblimpexpdatasel_h
-#define uitblimpexpdatasel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ protected:
     void			openFmt(CallBacker*);
 };
 
-#endif

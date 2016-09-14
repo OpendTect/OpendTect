@@ -1,5 +1,4 @@
-#ifndef uiwelltiesavedatadlg_h
-#define uiwelltiesavedatadlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ protected :
 
 } // namespace WellTie
 
-#endif

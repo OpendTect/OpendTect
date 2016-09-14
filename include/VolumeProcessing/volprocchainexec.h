@@ -1,5 +1,4 @@
-#ifndef volprocchainexec_h
-#define volprocchainexec_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -97,4 +96,3 @@ private:
 
 } // namespace VolProc
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef vistransform_h
-#define vistransform_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -127,4 +126,3 @@ private:
 
 }
 
-#endif

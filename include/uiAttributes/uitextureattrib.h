@@ -1,5 +1,4 @@
-#ifndef uitextureattrib_h
-#define uitextureattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
 				mDeclReqAttribUIFns
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uisegywriteopts_h
-#define uisegywriteopts_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -64,4 +63,3 @@ protected:
 };
 
 
-#endif

@@ -1,6 +1,4 @@
-
-#ifndef viscoord_h
-#define viscoord_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -161,4 +159,3 @@ protected:
 
 };
 
-#endif

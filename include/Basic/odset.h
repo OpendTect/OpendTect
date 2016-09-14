@@ -1,5 +1,4 @@
-#ifndef odset_h
-#define odset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ inline void addNames( const ODSET& inp, WITHADD& withadd )
     }
 
 
-#endif

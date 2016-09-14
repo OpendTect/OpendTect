@@ -1,5 +1,4 @@
-#ifndef emrandlinegen_h
-#define emrandlinegen_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -94,4 +93,3 @@ protected:
 
 } // namespace EM
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiprestackagc_h
-#define uiprestackagc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -39,4 +38,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

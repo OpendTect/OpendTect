@@ -1,5 +1,4 @@
-#ifndef uisegyreadstartinfo_h
-#define uisegyreadstartinfo_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -111,4 +110,3 @@ protected:
 };
 
 
-#endif

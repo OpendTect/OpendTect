@@ -1,5 +1,4 @@
-#ifndef welld2tmodel_h
-#define welld2tmodel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -145,4 +144,3 @@ public:
 } // namespace Well
 
 
-#endif

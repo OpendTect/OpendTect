@@ -1,5 +1,4 @@
-#ifndef array2dresample_h
-#define array2dresample_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -274,4 +273,3 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
 #undef mUpdateResampler
 
 
-#endif

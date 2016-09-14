@@ -1,5 +1,4 @@
-#ifndef sighndl_h
-#define sighndl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -77,4 +76,3 @@ protected:
 };
 
 
-#endif

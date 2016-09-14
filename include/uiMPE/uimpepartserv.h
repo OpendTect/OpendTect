@@ -1,5 +1,4 @@
-#ifndef uimpepartserv_h
-#define uimpepartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -160,4 +159,3 @@ private:
     static uiString		sNoAskGoOnStr();
 };
 
-#endif

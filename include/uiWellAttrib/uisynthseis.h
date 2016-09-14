@@ -1,5 +1,4 @@
-#ifndef uisynthseis_h
-#define uisynthseis_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ protected:
     void			parsChanged(CallBacker*);
 };
 
-#endif

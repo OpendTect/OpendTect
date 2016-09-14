@@ -1,5 +1,4 @@
-#ifndef uiimpbodycaldlg_h
-#define uiimpbodycaldlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -38,4 +37,3 @@ protected:
 };
 
 
-#endif

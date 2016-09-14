@@ -1,5 +1,4 @@
-#ifndef gaussianprobdenfunc_h
-#define gaussianprobdenfunc_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -170,4 +169,3 @@ protected:
 };
 
 
-#endif

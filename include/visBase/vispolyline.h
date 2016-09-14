@@ -1,5 +1,4 @@
-#ifndef vispolyline_h
-#define vispolyline_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -96,4 +95,3 @@ protected:
 }; // Namespace
 
 
-#endif

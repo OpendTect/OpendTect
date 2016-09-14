@@ -1,5 +1,4 @@
-#ifndef odiconfile_h
-#define odiconfile_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -95,4 +94,3 @@ private:
 
 } // namespace OD
 
-#endif

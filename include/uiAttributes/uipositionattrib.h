@@ -1,5 +1,4 @@
-#ifndef uipositionattrib_h
-#define uipositionattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-#endif

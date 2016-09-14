@@ -1,5 +1,4 @@
-#ifndef segyuiscandata_h
-#define segyuiscandata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -256,4 +255,3 @@ protected:
 } // namespace SEGY
 
 
-#endif

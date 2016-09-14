@@ -1,5 +1,4 @@
-#ifndef view2ddata_h
-#define view2ddata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -124,4 +123,3 @@ mImplVisVwr2DInitClass( clss );					\
 mCreateVw2DFactoryEntryNoInitClass( clss );
 
 
-#endif

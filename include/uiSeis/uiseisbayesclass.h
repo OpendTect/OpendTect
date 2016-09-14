@@ -1,5 +1,4 @@
-#ifndef uiseisbayesclass_h
-#define uiseisbayesclass_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ protected:
 };
 
 
-#endif

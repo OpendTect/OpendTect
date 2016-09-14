@@ -1,5 +1,4 @@
-#ifndef array2dmatrix_h
-#define array2dmatrix_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -315,4 +314,3 @@ inline bool Array2DMatrix<fT>::getCholesky( Array2DMatrix& out ) const
     return true;
 }
 
-#endif

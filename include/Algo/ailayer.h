@@ -1,5 +1,4 @@
-#ifndef ailayer_h
-#define ailayer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -214,4 +213,3 @@ inline const Interval<float> validImpRange()
 	    validDensityRange().stop*validVelocityRange().stop );
 }
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef view2dhorizon2d_h
-#define view2dhorizon2d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ protected:
     Notifier<Vw2DHorizon2D>		deselted_;
 };
 
-#endif

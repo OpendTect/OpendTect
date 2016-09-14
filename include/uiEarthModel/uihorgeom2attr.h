@@ -1,5 +1,4 @@
-#ifndef uihorgeom2attr_h
-#define uihorgeom2attr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ protected:
 };
 
 
-#endif

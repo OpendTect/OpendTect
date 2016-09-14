@@ -1,5 +1,4 @@
-#ifndef embodyoperator_h
-#define embodyoperator_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -131,4 +130,3 @@ private:
 
 } // namespace EM
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef mpefssflatvieweditor_h
-#define mpefssflatvieweditor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -101,4 +100,3 @@ protected:
 
 } //namespace MPE
 
-#endif

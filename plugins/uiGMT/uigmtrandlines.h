@@ -1,5 +1,4 @@
-#ifndef uigmtrandlines_h
-#define uigmtrandlines_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
     void		labelSel(CallBacker*);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef cbvsinfo_h
-#define cbvsinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -92,4 +91,3 @@ protected:
 };
 
 
-#endif

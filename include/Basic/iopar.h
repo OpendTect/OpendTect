@@ -1,5 +1,4 @@
-#ifndef iopar_h
-#define iopar_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -371,4 +370,3 @@ void IOPar::update( const char* ky, IntegerID<IdxType> id )
 }
 
 
-#endif

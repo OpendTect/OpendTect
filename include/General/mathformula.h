@@ -1,5 +1,4 @@
-#ifndef mathformula_h
-#define mathformula_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -193,4 +192,3 @@ protected:
 } // namespace Math
 
 
-#endif

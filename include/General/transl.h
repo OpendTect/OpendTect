@@ -1,5 +1,4 @@
-#ifndef transl_h
-#define transl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -371,4 +370,3 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 	trgrp##TranslatorGroup::theInst().selHist()
 
 
-#endif

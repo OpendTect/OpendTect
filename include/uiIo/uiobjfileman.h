@@ -1,5 +1,4 @@
-#ifndef uiobjfileman_h
-#define uiobjfileman_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -70,4 +69,3 @@ protected:
 };
 
 
-#endif

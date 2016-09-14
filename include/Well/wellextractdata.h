@@ -1,5 +1,4 @@
-#ifndef wellextractdata_h
-#define wellextractdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -391,4 +390,3 @@ protected:
 }; // namespace Well
 
 
-#endif

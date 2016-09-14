@@ -1,5 +1,4 @@
-#ifndef uilistboxchoiceio_h
-#define uilistboxchoiceio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ protected:
 
 
 
-#endif

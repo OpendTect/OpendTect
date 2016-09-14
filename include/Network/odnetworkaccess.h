@@ -1,5 +1,4 @@
-#ifndef odnetworkaccess_h
-#define odnetworkaccess_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -179,4 +178,3 @@ protected:
 };
 
 
-#endif

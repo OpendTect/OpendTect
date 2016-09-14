@@ -1,5 +1,4 @@
-#ifndef uieventfreqattrib_h
-#define uieventfreqattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -43,4 +42,3 @@ protected:
 };
 
 
-#endif

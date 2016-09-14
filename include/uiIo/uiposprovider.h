@@ -1,5 +1,4 @@
-#ifndef uiposprovider_h
-#define uiposprovider_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -110,4 +109,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uigeom_h
-#define uigeom_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -313,4 +312,3 @@ inline int GetGoldenMinor( int inp )
 }
 
 
-#endif

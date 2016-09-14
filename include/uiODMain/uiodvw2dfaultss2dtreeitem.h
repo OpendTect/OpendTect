@@ -1,5 +1,4 @@
-#ifndef uiodvw2dfaultss2dtreeitem_h
-#define uiodvw2dfaultss2dtreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ protected:
 };
 
 
-#endif

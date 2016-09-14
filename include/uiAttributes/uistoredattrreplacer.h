@@ -1,5 +1,4 @@
-#ifndef uistoredattrreplacer_h
-#define uistoredattrreplacer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -93,4 +92,3 @@ protected:
     bool			multiinpcube_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiflattenedcube_h
-#define uiflattenedcube_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
 };
 
 
-#endif

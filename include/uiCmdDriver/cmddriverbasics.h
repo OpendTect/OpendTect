@@ -1,5 +1,4 @@
-#ifndef cmddriverbasics_h
-#define cmddriverbasics_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -249,4 +248,3 @@ protected:
 
 }; // namespace CmdDrive
 
-#endif

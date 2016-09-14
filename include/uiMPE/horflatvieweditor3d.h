@@ -1,5 +1,4 @@
-#ifndef horflatvieweditor3d_h
-#define horflatvieweditor3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -122,4 +121,3 @@ protected:
 } //namespace MPE
 
 
-#endif

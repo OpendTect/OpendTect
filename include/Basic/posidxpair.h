@@ -1,5 +1,4 @@
-#ifndef posidxpair_h
-#define posidxpair_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -99,4 +98,3 @@ inline IdxPair IdxPair::fromInt64( od_int64 i64 )
 
 } // namespace Pos
 
-#endif

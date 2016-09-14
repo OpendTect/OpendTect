@@ -1,5 +1,4 @@
-#ifndef seismerge_h
-#define seismerge_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -72,4 +71,3 @@ protected:
 };
 
 
-#endif

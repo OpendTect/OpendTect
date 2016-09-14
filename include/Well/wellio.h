@@ -1,5 +1,4 @@
-#ifndef wellio_h
-#define wellio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -68,4 +67,3 @@ public:
 
 }; // namespace Well
 
-#endif

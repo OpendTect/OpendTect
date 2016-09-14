@@ -1,5 +1,4 @@
-#ifndef uihistogramdisplay_h
-#define uihistogramdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
 };
 
 
-#endif

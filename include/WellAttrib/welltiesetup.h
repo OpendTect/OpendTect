@@ -1,5 +1,4 @@
-#ifndef welltiesetup_h
-#define welltiesetup_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -134,4 +133,3 @@ protected:
 
 } // namespace WellTie
 
-#endif

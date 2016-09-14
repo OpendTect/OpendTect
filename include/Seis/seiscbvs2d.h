@@ -1,5 +1,4 @@
-#ifndef seiscbvs2d_h
-#define seiscbvs2d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -101,4 +100,3 @@ protected:
 
 };
 
-#endif

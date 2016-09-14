@@ -1,5 +1,4 @@
-#ifndef linsolv_h
-#define linsolv_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -271,4 +270,3 @@ void LinSolver<T>::apply( const T* b, T* x ) const
 
 }
 
-#endif

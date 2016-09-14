@@ -1,5 +1,4 @@
-#ifndef faulthorintersect_h
-#define faulthorintersect_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ private:
 };
 
 
-#endif

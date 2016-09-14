@@ -1,5 +1,4 @@
-#ifndef mathattrib_h
-#define mathattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ private:
 
 }; // namespace Attrib
 
-#endif

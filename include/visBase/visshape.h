@@ -1,5 +1,4 @@
-#ifndef visshape_h
-#define visshape_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -196,4 +195,3 @@ class PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
 
 }
 
-#endif

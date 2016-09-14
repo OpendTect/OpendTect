@@ -1,5 +1,4 @@
-#ifndef uiodparenttreeitem_h
-#define uiodparenttreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -32,4 +31,3 @@ protected:
     virtual void	addChildItem(const DBKey&)			=0;
 };
 
-#endif

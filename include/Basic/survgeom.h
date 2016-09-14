@@ -1,5 +1,4 @@
-#ifndef survgeom_h
-#define survgeom_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -211,4 +210,3 @@ public:
 #define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
 //To cut the long story short.
 
-#endif

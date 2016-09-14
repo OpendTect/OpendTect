@@ -1,5 +1,4 @@
-#ifndef uiseissingtrcdisp_h
-#define uiseissingtrcdisp_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -42,4 +41,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uitable_h
-#define uitable_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -367,4 +366,3 @@ public:
 			{ return getFValue( rc ); }
 };
 
-#endif

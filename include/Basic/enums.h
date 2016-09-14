@@ -1,5 +1,4 @@
-#ifndef enums_h
-#define enums_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -348,4 +347,3 @@ void EnumDefImpl<ENUM>::init()
 }
 
 
-#endif

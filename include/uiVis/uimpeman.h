@@ -1,5 +1,4 @@
-#ifndef uimpeman_h
-#define uimpeman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -113,4 +112,3 @@ protected:
     bool			sowingmode_;
 };
 
-#endif

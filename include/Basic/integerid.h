@@ -1,5 +1,4 @@
-#ifndef integerid_h
-#define integerid_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -109,4 +108,3 @@ protected: \
 }
 
 
-#endif

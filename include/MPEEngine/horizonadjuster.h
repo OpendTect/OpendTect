@@ -1,5 +1,4 @@
-#ifndef horizonadjuster_h
-#define horizonadjuster_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -100,4 +99,3 @@ private:
 
 } // namespace MPE
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef netreqcommunic_h
-#define netreqcommunic_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -176,4 +175,3 @@ private:
 }; //Namespace
 
 
-#endif

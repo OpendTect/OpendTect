@@ -1,5 +1,4 @@
-#ifndef uiflatviewer_h
-#define uiflatviewer_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -148,4 +147,3 @@ protected:
 
 };
 
-#endif

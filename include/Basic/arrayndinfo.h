@@ -1,5 +1,4 @@
-#ifndef arrayndinfo_h
-#define arrayndinfo_h
+#pragma once
 /*
 ________________________________________________________________________
 
@@ -260,4 +259,3 @@ inline int Array3DInfoImpl::getSize( int dim ) const
 }
 
 
-#endif

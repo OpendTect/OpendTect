@@ -1,5 +1,4 @@
-#ifndef uimain_h
-#define uimain_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -97,4 +96,3 @@ protected:
 mGlobal(uiBase) bool isMainThread(Threads::ThreadID);
 mGlobal(uiBase) bool isMainThreadCurrent();
 
-#endif

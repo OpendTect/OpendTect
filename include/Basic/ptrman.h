@@ -1,5 +1,4 @@
-#ifndef ptrman_h
-#define ptrman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -627,4 +626,3 @@ template <class T> inline
 void ConstRefMan<T>::unRefNoDelete(T* p)
 { unRefNoDeletePtr((RefCount::Referenced*) p ); }
 
-#endif

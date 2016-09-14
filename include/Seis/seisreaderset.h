@@ -1,5 +1,4 @@
-#ifndef seisreaderset_h
-#define seisreaderset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
 };
 
 
-#endif

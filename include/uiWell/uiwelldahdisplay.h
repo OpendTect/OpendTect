@@ -1,5 +1,4 @@
-#ifndef uiwelldahdisplay_h
-#define uiwelldahdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -222,4 +221,3 @@ protected:
 };
 
 
-#endif

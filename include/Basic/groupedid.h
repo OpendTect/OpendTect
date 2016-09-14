@@ -1,5 +1,4 @@
-#ifndef groupedid_h
-#define groupedid_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -173,4 +172,3 @@ IDWithGroup<GroupNrT,ObjNrT>::getFromInt64( od_int64 i64 )
 }
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef datapack_h
-#define datapack_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -452,4 +451,3 @@ DataPackRef<T>& DataPackRef<T>::operator=( const DataPackRef<T>& dpr )
 }
 
 
-#endif

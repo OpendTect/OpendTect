@@ -1,5 +1,4 @@
-#ifndef stratcontent_h
-#define stratcontent_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -90,4 +89,3 @@ public:
 
 } // namespace Strat
 
-#endif

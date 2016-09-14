@@ -1,5 +1,4 @@
-#ifndef uigraphicsscalebar_h
-#define uigraphicsscalebar_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ private:
     int			preferablepxwidth_;
 
 };
-#endif

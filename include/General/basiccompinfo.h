@@ -1,5 +1,4 @@
-#ifndef basiccompinfo_h
-#define basiccompinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ public:
 };
 
 
-#endif

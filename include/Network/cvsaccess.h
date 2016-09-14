@@ -1,5 +1,4 @@
-#ifndef cvsaccess_h
-#define cvsaccess_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -68,4 +67,3 @@ protected:
 
 };
 
-#endif

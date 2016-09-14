@@ -1,5 +1,4 @@
-#ifndef cbvsreadmgr_h
-#define cbvsreadmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -95,4 +94,3 @@ private:
 };
 
 
-#endif

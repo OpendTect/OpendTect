@@ -1,5 +1,4 @@
-#ifndef uisurvtopbotimg_h
-#define uisurvtopbotimg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -40,4 +39,3 @@ protected:
 
 };
 
-#endif

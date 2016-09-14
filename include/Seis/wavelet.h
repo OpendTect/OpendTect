@@ -1,5 +1,4 @@
-#ifndef wavelet_h
-#define wavelet_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -139,4 +138,3 @@ protected:
 
 
 
-#endif

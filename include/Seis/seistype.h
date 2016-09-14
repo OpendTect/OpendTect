@@ -1,5 +1,4 @@
-#ifndef seistype_h
-#define seistype_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -64,4 +63,3 @@ namespace Seis
 } // namespace Seis
 
 
-#endif

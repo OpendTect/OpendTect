@@ -1,5 +1,4 @@
-#ifndef measuretoolman_h
-#define measuretoolman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
     int			butidx_;
 };
 
-#endif

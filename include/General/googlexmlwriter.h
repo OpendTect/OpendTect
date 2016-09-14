@@ -1,5 +1,4 @@
-#ifndef googlexmlwriter_h
-#define googlexmlwriter_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
@@ -73,4 +72,3 @@ protected:
 
 } // namespace ODGoogle
 
-#endif

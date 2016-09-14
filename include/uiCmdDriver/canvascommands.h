@@ -1,5 +1,4 @@
-#ifndef canvascommands_h
-#define canvascommands_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ mEndDeclComposerClass
 
 }; // namespace CmdDrive
 
-#endif

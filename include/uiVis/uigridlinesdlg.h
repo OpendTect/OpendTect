@@ -1,5 +1,4 @@
-#ifndef uigridlinesdlg_h
-#define uigridlinesdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -43,4 +42,3 @@ protected:
     visSurvey::PlaneDataDisplay*	pdd_;
 };
 
-#endif

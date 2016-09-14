@@ -1,5 +1,4 @@
-#ifndef uistatsdisplaywin_h
-#define uistatsdisplaywin_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ protected:
 };
 
 
-#endif

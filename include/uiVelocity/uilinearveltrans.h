@@ -1,5 +1,4 @@
-#ifndef uilinearveltrans_h
-#define uilinearveltrans_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ protected:
 }; //namespace
 
 
-#endif

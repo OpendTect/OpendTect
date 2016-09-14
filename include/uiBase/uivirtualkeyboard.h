@@ -1,5 +1,4 @@
-#ifndef uivirtualkeyboard_h
-#define uivirtualkeyboard_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -71,4 +70,3 @@ protected:
 };
 
 
-#endif

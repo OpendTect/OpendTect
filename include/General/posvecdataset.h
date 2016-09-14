@@ -1,5 +1,4 @@
-#ifndef posvecdataset_h
-#define posvecdataset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ protected:
 #define mPosVecDataSetFileType "Positioned Vector Data"
 
 
-#endif

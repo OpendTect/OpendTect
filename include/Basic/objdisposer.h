@@ -1,5 +1,4 @@
-#ifndef objdisposer_h
-#define objdisposer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ protected:
 mGlobal(Basic) ObjDisposer* OBJDISP();
 
 
-#endif

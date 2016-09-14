@@ -1,5 +1,4 @@
-#ifndef posprovider_h
-#define posprovider_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -115,4 +114,3 @@ public:
 
 } // namespace
 
-#endif

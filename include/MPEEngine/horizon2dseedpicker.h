@@ -1,5 +1,4 @@
-#ifndef horizon2dseedpicker_h
-#define horizon2dseedpicker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ protected:
 
 } // namespace MPE
 
-#endif

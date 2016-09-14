@@ -1,5 +1,4 @@
-#ifndef datainpspec_h
-#define datainpspec_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -809,4 +808,3 @@ protected:
     void		setVal(Setup&,int,float);
 };
 
-#endif

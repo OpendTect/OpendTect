@@ -1,5 +1,4 @@
-#ifndef systeminfo_h
-#define systeminfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ namespace System
 					*/
 }
 
-#endif

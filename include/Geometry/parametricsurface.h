@@ -1,5 +1,4 @@
-#ifndef parametricsurface_h
-#define parametricsurface_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -107,4 +106,3 @@ protected:
 
 };
 
-#endif

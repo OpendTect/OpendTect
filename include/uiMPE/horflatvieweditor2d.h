@@ -1,5 +1,4 @@
-#ifndef horflatvieweditor2d_h
-#define horflatvieweditor2d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -129,4 +128,3 @@ protected:
 
 } // namepace MPE
 
-#endif

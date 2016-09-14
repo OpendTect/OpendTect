@@ -1,5 +1,4 @@
-#ifndef mathfunc_h
-#define mathfunc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -533,4 +532,3 @@ mYT BendPointBasedMathFunction<mXT,mYT>::interpVal( mXT x ) const
 				     (float) x2, v2, (float) x );
 }
 
-#endif

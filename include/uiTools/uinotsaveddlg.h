@@ -1,5 +1,4 @@
-#ifndef uinotsaveddlg_h
-#define uinotsaveddlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -142,4 +141,3 @@ protected:
 };
 
 
-#endif

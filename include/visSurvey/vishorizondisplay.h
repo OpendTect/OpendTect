@@ -1,5 +1,4 @@
-#ifndef vishorizondisplay_h
-#define vishorizondisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -339,4 +338,3 @@ private:
 
 } // namespace visSurvey
 
-#endif

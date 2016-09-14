@@ -1,5 +1,4 @@
-#ifndef ascbinstream_h
-#define ascbinstream_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -146,4 +145,3 @@ inline ascbinistream& ascbinistream::getArr( T* arr, IT sz )
 }
 
 
-#endif

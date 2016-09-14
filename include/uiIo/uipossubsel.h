@@ -1,5 +1,4 @@
-#ifndef uipossubsel_h
-#define uipossubsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -84,4 +83,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uidirectionalplot_h
-#define uidirectionalplot_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -150,4 +149,3 @@ protected:
 };
 
 
-#endif

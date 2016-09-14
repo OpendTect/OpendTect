@@ -1,5 +1,4 @@
-#ifndef seisimporter_h
-#define seisimporter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -130,4 +129,3 @@ protected:
 };
 
 
-#endif

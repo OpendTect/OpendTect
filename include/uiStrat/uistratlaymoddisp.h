@@ -1,5 +1,4 @@
-#ifndef uistratlaymoddisp_h
-#define uistratlaymoddisp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -126,4 +125,3 @@ protected:
 };
 
 
-#endif

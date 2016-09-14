@@ -1,5 +1,4 @@
-#ifndef semblanceattrib_h
-#define semblanceattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -103,4 +102,3 @@ protected:
 
 } // namespace Attrib
 
-#endif

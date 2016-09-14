@@ -1,5 +1,4 @@
-#ifndef uiwelldisplay_h
-#define uiwelldisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -138,4 +137,3 @@ private:
 
 };
 
-#endif

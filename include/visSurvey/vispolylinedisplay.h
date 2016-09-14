@@ -1,5 +1,4 @@
-#ifndef vispolylinedisplay_h
-#define vispolylinedisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
     
 };//namespace
 
-#endif

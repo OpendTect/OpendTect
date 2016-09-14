@@ -1,5 +1,4 @@
-#ifndef interpollayermodel_h
-#define interpollayermodel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ protected:
     TrcKeyZSampling	tkzs_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef undefval_h
-#define undefval_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -286,4 +285,3 @@ mGlobal(Basic) bool isUdfImpl(double);
 # define mIsUdf(val) isUdfImpl(val)
 
 
-#endif

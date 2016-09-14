@@ -1,5 +1,4 @@
-#ifndef arraytesselator_h
-#define arraytesselator_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ protected:
 };
 
 }; // namespace
-#endif

@@ -1,5 +1,4 @@
-#ifndef linekey_h
-#define linekey_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -42,4 +41,3 @@ public:
     static const char*	sKeyDefAttrib()		{ return ""; }
 };
 
-#endif

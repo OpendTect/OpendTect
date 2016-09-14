@@ -1,5 +1,4 @@
-#ifndef coincommands_h
-#define coincommands_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -44,4 +43,3 @@ mEndDeclComposerClass
 
 }; // namespace CmdDrive
 
-#endif

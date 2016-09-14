@@ -1,5 +1,4 @@
-#ifndef segydirecttr_h
-#define segydirecttr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -214,4 +213,3 @@ protected:
 };
 
 
-#endif

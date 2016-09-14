@@ -1,5 +1,4 @@
-#ifndef volprocregionfiller_h
-#define volprocregionfiller_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -84,4 +83,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

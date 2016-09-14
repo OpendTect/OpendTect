@@ -1,5 +1,4 @@
-#ifndef uiattribtransdlg_h
-#define uiattribtransdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -33,4 +32,3 @@ protected:
     uiSlider*			slider_;
 };
 
-#endif

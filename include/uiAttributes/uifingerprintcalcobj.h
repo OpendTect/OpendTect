@@ -1,5 +1,4 @@
-#ifndef uifingerprintcalcobj_h
-#define uifingerprintcalcobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -80,4 +79,3 @@ protected:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiscalingattrib_h
-#define uiscalingattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-#endif

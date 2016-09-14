@@ -1,5 +1,4 @@
-#ifndef randcolor_h
-#define randcolor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -39,4 +38,3 @@ inline Color getRandStdDrawColor()
     return Color::stdDrawColor( curidx );
 }
 
-#endif

@@ -1,6 +1,4 @@
-
-#ifndef uiprestackimpmute_h
-#define uiprestackimpmut _h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +52,3 @@ protected:
 
 
 }; //namespace Prestack
-#endif

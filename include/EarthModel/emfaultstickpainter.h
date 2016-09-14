@@ -1,5 +1,4 @@
-#ifndef emfaultstickpainter_h
-#define emfaultstickpainter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -131,4 +130,3 @@ protected:
 
 } //namespace EM
 
-#endif

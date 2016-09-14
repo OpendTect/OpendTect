@@ -1,5 +1,4 @@
-#ifndef gpuprog_h
-#define gpuprog_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ mGlobal(Basic) void setPlatforms(ObjectSet<Platform>&);
 
 }  //namespace
 
-#endif

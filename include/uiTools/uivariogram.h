@@ -1,5 +1,4 @@
-#ifndef uivariogram_h
-#define uivariogram_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -70,4 +69,3 @@ protected:
 	void			fieldChangedCB(CallBacker*);
 };
 
-#endif

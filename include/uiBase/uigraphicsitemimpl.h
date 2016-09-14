@@ -1,5 +1,4 @@
-#ifndef uigraphicsitemimpl_h
-#define uigraphicsitemimpl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -470,4 +469,3 @@ protected:
 };
 
 
-#endif

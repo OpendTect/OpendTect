@@ -1,5 +1,4 @@
-#ifndef uiodcommon_h
-#define uiodcommon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -93,4 +92,3 @@ inline bool isOptional( OD::ChoiceMode cm )
 				{ return cm == OD::ChooseZeroOrMore; }
 
 
-#endif

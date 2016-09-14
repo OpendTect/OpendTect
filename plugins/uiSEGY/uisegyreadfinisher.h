@@ -1,5 +1,4 @@
-#ifndef uisegyreadfinisher_h
-#define uisegyreadfinisher_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -101,4 +100,3 @@ protected:
 };
 
 
-#endif

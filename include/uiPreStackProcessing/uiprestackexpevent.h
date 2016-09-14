@@ -1,5 +1,4 @@
-#ifndef uiprestackexpevent_h
-#define uiprestackexpevent_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -37,4 +36,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

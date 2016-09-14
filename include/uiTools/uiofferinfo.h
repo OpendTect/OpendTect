@@ -1,5 +1,4 @@
-#ifndef uiofferinfo_h
-#define uiofferinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ protected:
 };
 
 
-#endif

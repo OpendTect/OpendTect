@@ -1,5 +1,4 @@
-#ifndef uistrings_h
-#define uistrings_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -536,4 +535,3 @@ public:
 #define mTODONotImplPhrase() uiStrings::phrTODONotImpl( ::className(*this) )
 
 
-#endif

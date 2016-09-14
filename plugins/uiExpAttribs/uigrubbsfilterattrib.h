@@ -1,5 +1,4 @@
-#ifndef uigrubbsfilterattrib_h
-#define uigrubbsfilterattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
 };
 
 
-#endif

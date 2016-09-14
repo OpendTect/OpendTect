@@ -1,5 +1,4 @@
-#ifndef staticsdesc_h
-#define staticsdesc_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -43,4 +42,3 @@ public:
 };
 
 
-#endif

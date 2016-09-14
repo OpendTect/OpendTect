@@ -1,5 +1,4 @@
-#ifndef mpesetup_h
-#define mpesetup_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -100,4 +99,3 @@ public:
 
 };
 
-#endif

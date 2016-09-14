@@ -1,5 +1,4 @@
-#ifndef uiwellposprov_h
-#define uiwellposprov_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uihelpview_h
-#define uihelpview_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -107,4 +106,3 @@ private:
     void			provideHelp(const char* arg) const;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiobj_h
-#define uiobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -193,4 +192,3 @@ private:
 #define mUsrEvPopUpReady   mQtclass(QEvent)::Type( mQtclass(QEvent)::User + 1 )
 #define mUsrEvLongTabletPress  mQtclass(QEvent)::Type(mQtclass(QEvent)::User+2)
 
-#endif

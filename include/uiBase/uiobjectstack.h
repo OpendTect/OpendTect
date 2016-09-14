@@ -1,5 +1,4 @@
-#ifndef uiobjectstack_h
-#define uiobjectstack_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ private:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef valseriesinterpol_h
-#define valseriesinterpol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -112,4 +111,3 @@ inline T ValueSeriesInterpolator<T>::value( const ValueSeries<T>& vda,
 #undef mChkVSIRg
 
 
-#endif

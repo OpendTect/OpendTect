@@ -1,5 +1,4 @@
-#ifndef uipsviewershapetab_h
-#define uipsviewershapetab_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ protected:
 
 } // namespace
 
-#endif

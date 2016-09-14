@@ -1,5 +1,4 @@
-#ifndef uihorizonattrib_h
-#define uihorizonattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
 };
 
 
-#endif

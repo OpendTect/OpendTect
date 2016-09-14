@@ -1,5 +1,4 @@
-#ifndef uigmtsymbolpars_h
-#define uigmtsymbolpars_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -40,4 +39,3 @@ protected:
 };
 
 
-#endif

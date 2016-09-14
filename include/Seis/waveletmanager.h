@@ -1,5 +1,4 @@
-#ifndef waveletmanager_h
-#define waveletmanager_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -79,4 +78,3 @@ inline WaveletManager& WaveletMGR()
 }
 
 
-#endif

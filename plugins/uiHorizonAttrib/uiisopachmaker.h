@@ -1,5 +1,4 @@
-#ifndef uiisopachmaker_h
-#define uiisopachmaker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -83,4 +82,3 @@ protected:
     DataPointSet*	dps_;
 };
 
-#endif

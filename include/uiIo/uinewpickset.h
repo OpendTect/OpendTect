@@ -1,5 +1,4 @@
-#ifndef uinewpickset_h
-#define uinewpickset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -49,4 +48,3 @@ protected:
 };
 
 
-#endif

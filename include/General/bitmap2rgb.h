@@ -1,5 +1,4 @@
-#ifndef bitmap2rgb_h
-#define bitmap2rgb_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -49,4 +48,3 @@ protected:
     void		drawWVA(const A2DBitMap&,const Geom::Point2D<int>&);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uisamplevalueattrib_h
-#define uisamplevalueattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -33,4 +32,3 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-#endif

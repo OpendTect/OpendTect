@@ -1,5 +1,4 @@
-#ifndef visarrowdisplay_h
-#define visarrowdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
 
 } // namespace visSurvey
 
-#endif

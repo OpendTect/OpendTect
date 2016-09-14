@@ -1,5 +1,4 @@
-#ifndef filepath_h
-#define filepath_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -103,4 +102,3 @@ protected:
 };
 
 
-#endif

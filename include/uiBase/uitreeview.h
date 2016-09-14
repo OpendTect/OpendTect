@@ -1,5 +1,4 @@
-#ifndef uitreeview_h
-#define uitreeview_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -348,4 +347,3 @@ protected:
     bool			checked_;
 };
 
-#endif

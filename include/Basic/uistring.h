@@ -1,5 +1,4 @@
-#ifndef uistring_h
-#define uistring_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -335,4 +334,3 @@ uiString& uiString::arg( const T& var )
 
 
 
-#endif

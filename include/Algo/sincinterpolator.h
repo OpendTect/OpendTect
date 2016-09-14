@@ -1,5 +1,4 @@
-#ifndef sincinterpolator_h
-#define sincinterpolator_h
+#pragma once
 
 #include "algomod.h"
 #include "arrayndimpl.h"
@@ -643,4 +642,3 @@ RT SincInterpolator3D<RT,PT>::getValue( PT x, PT y, PT z ) const
     return mCast(RT,out);
 }
 
-#endif

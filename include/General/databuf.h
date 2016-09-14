@@ -1,5 +1,4 @@
-#ifndef databuf_h
-#define databuf_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -60,4 +59,3 @@ protected:
 };
 
 
-#endif

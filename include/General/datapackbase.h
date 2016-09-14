@@ -1,5 +1,4 @@
-#ifndef datapackbase_h
-#define datapackbase_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -268,4 +267,3 @@ protected:
     const Scaler*			scaler_;
 };
 
-#endif

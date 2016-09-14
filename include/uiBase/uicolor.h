@@ -1,5 +1,4 @@
-#ifndef uicolor_h
-#define uicolor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -103,4 +102,3 @@ private:
     void			transpChg(CallBacker*);
 };
 
-#endif

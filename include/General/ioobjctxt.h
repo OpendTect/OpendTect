@@ -1,5 +1,4 @@
-#ifndef ioobjctxt_h
-#define ioobjctxt_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -128,4 +127,3 @@ public:
 };
 
 
-#endif

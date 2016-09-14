@@ -1,5 +1,4 @@
-#ifndef uimouseeventblockerbygesture_h
-#define uimouseeventblockerbygesture_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -49,4 +48,3 @@ private:
     od_int64			delaytime_;
 };
 
-#endif

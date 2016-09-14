@@ -1,5 +1,4 @@
-#ifndef emtracker_h
-#define emtracker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -96,4 +95,3 @@ mDefineFactory1Param( MPEEngine, EMTracker, EM::EMObject*, TrackerFactory );
 
 } // namespace MPE
 
-#endif

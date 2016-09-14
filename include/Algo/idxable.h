@@ -1,5 +1,4 @@
-#ifndef idxable_h
-#define idxable_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -397,4 +396,3 @@ void calibrateArray( const T* input, int sz,
 
 } // namespace IdxAble
 
-#endif

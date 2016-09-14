@@ -1,5 +1,4 @@
-#ifndef uibinidtable_h
-#define uibinidtable_h
+#pragma once
 
 /*+
  ________________________________________________________________________
@@ -37,4 +36,3 @@ protected:
     bool		withz_;
 };
 
-#endif

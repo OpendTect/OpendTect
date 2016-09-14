@@ -1,5 +1,4 @@
-#ifndef uiunitsel_h
-#define uiunitsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -118,4 +117,3 @@ private:
 };
 
 
-#endif

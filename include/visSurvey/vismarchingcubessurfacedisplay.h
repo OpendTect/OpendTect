@@ -1,5 +1,4 @@
-#ifndef vismarchingcubessurfacedisplay_h
-#define vismarchingcubessurfacedisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -157,4 +156,3 @@ protected:
 
 } // namespace visSurvey
 
-#endif

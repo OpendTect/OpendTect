@@ -1,5 +1,4 @@
-#ifndef uiodsceneobjtreeitem_h
-#define uiodsceneobjtreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
     MenuItem		dumpivitem_;
 };
 
-#endif

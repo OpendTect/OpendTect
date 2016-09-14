@@ -1,5 +1,4 @@
-#ifndef uigoogleexppolygon_h
-#define uigoogleexppolygon_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
@@ -30,4 +29,3 @@ protected:
 };
 
 
-#endif

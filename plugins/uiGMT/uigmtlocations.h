@@ -1,5 +1,4 @@
-#ifndef uigmtlocations_h
-#define uigmtlocations_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -44,4 +43,3 @@ protected:
     void		objSel(CallBacker*);
 };
 
-#endif

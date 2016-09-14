@@ -1,5 +1,4 @@
-#ifndef dpsdispmgr_h
-#define dpsdispmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -145,4 +144,3 @@ protected:
 };
 
 
-#endif

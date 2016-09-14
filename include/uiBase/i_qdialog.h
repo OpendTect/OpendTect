@@ -1,5 +1,4 @@
-#ifndef i_qdialog_h
-#define i_qdialog_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ private:
 
 QT_END_NAMESPACE
 
-#endif

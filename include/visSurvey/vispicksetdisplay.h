@@ -1,5 +1,4 @@
-#ifndef vispicksetdisplay_h
-#define vispicksetdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -135,4 +134,3 @@ private:
 
 } // namespace visSurvey
 
-#endif

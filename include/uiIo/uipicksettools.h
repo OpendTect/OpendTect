@@ -1,5 +1,4 @@
-#ifndef uipicksettools_h
-#define uipicksettools_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -36,4 +35,3 @@ protected:
 };
 
 
-#endif

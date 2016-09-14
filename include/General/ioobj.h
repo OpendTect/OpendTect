@@ -1,5 +1,4 @@
-#ifndef ioobj_h
-#define ioobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -164,4 +163,3 @@ mGlobal(General) bool areEqual(const IOObj*,const IOObj*);
 mGlobal(General) bool fullImplRemove(const IOObj&);
 
 
-#endif

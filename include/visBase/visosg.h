@@ -1,5 +1,4 @@
-#ifndef visosg_h
-#define visosg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -172,4 +171,3 @@ public:
 
 #endif
 
-#endif

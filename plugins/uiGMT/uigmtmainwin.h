@@ -1,5 +1,4 @@
-#ifndef uigmtmainwin_h
-#define uigmtmainwin_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -76,4 +75,3 @@ protected:
     bool		usePar( const IOPar&);
 };
 
-#endif

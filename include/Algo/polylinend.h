@@ -1,5 +1,4 @@
-#ifndef polylinend_h
-#define polylinend_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -241,4 +240,3 @@ T PolyLineND<T>::getPoint( double arclen ) const
 }
 
 
-#endif

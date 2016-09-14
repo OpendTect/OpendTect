@@ -1,5 +1,4 @@
-#ifndef freqfilterattrib_h
-#define freqfilterattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -100,4 +99,3 @@ protected:
 
 }; // namespace Attrib
 
-#endif

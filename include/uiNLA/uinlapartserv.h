@@ -1,5 +1,4 @@
-#ifndef uinlapartserv_h
-#define uinlapartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -130,4 +129,3 @@ protected:
 
 };
 
-#endif

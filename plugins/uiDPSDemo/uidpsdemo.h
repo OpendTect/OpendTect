@@ -1,5 +1,4 @@
-#ifndef uidpsdemo_h
-#define uidpsdemo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -56,4 +55,3 @@ protected:
 };
 
 
-#endif

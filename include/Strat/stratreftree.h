@@ -1,5 +1,4 @@
-#ifndef stratreftree_h
-#define stratreftree_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -105,4 +104,3 @@ mGlobal(Strat) void setRT(RefTree*);
 }; // namespace Strat
 
 
-#endif

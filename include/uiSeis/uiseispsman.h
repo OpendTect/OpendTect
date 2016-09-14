@@ -1,5 +1,4 @@
-#ifndef uiseispsman_h
-#define uiseispsman_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -40,4 +39,3 @@ protected:
 };
 
 
-#endif

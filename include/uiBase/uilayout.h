@@ -1,5 +1,4 @@
-#ifndef uilayout_h
-#define uilayout_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
     bool		enabled_;
 };
 
-#endif

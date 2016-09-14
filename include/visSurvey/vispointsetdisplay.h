@@ -1,5 +1,4 @@
-#ifndef vispointsetdisplay_h
-#define vispointsetdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ protected:
 };
 
 
-#endif

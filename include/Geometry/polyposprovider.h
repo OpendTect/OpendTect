@@ -1,5 +1,4 @@
-#ifndef polyposprovider_h
-#define polyposprovider_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ public:
 
 } // namespace
 
-#endif

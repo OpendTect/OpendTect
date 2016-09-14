@@ -1,5 +1,4 @@
-#ifndef horizonattrib_h
-#define horizonattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -67,4 +66,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

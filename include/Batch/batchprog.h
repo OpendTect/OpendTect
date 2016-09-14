@@ -1,5 +1,4 @@
-#ifndef batchprog_h
-#define batchprog_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -151,6 +150,7 @@ if ( comm_ ) \
 # ifdef __win__
 #  include "_execbatch.h"
 # endif
+#define mMainIsDefined
     int main( int argc, char** argv )
     {
 	SetProgramArgs( argc, argv );
@@ -161,4 +161,3 @@ if ( comm_ ) \
 
 #endif // __prog__
 
-#endif

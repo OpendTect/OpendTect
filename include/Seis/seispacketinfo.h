@@ -1,5 +1,4 @@
-#ifndef seispacketinfo_h
-#define seispacketinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ public:
 };
 
 
-#endif

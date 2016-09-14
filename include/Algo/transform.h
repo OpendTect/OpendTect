@@ -1,5 +1,4 @@
-#ifndef transform_h
-#define transform_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -125,4 +124,3 @@ protected:
     };
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef attribsel_h
-#define attribsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -187,4 +186,3 @@ protected:
 
 } // namespace Attrib
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef prestackattrib_h
-#define prestackattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -133,4 +132,3 @@ protected:
 
 }; // namespace Attrib
 
-#endif

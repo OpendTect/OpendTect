@@ -1,5 +1,4 @@
-#ifndef uigainanalysiswin_h
-#define uigainanalysiswin_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
 };
 
 
-#endif

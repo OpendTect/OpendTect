@@ -1,5 +1,4 @@
-#ifndef fingerprintattrib_h
-#define fingerprintattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

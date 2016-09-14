@@ -1,5 +1,4 @@
-#ifndef uiwellstratdisplay_h
-#define uiwellstratdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -84,4 +83,3 @@ protected:
 };
 
 
-#endif

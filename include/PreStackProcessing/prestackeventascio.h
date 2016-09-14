@@ -1,5 +1,4 @@
-#ifndef prestackeventascio_h
-#define prestackeventascio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -132,4 +131,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

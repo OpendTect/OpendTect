@@ -1,5 +1,4 @@
-#ifndef array2dbitmap_h
-#define array2dbitmap_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -228,4 +227,3 @@ protected:
 };
 
 
-#endif

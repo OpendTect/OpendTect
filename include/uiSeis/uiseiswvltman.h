@@ -1,5 +1,4 @@
-#ifndef uiseiswvltman_h
-#define uiseiswvltman_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -63,4 +62,3 @@ protected:
     void			rotUpdateCB(CallBacker*);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiodviewer2d_h
-#define uiodviewer2d_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -260,4 +259,3 @@ protected:
     void			mouseMoveCB(CallBacker*);
 };
 
-#endif

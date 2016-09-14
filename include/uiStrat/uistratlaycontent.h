@@ -1,5 +1,4 @@
-#ifndef uistratlaycontent_h
-#define uistratlaycontent_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ protected:
 };
 
 
-#endif

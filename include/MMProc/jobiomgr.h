@@ -1,5 +1,4 @@
-#ifndef jobiomgr_h
-#define jobiomgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -138,4 +137,3 @@ private:
 
 };
 
-#endif

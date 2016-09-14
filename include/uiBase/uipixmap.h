@@ -1,5 +1,4 @@
-#ifndef uipixmap_h
-#define uipixmap_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -78,4 +77,3 @@ mGlobal(uiBase) void getImageFormatDescs(BufferStringSet& descs,bool forread,
 mGlobal(uiBase) void getImageFileFilter(BufferString& filter,bool forread,
 					bool withprintformats=false);
 
-#endif

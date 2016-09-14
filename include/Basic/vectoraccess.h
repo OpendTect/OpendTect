@@ -1,5 +1,4 @@
-#ifndef vectoraccess_h
-#define vectoraccess_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -290,4 +289,3 @@ bool VectorAccess<T,I>::isPresent( const T& t ) const
     return std::find( v_.begin(), end, t )!=end;
 }
 
-#endif

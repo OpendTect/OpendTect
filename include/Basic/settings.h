@@ -1,5 +1,4 @@
-#ifndef settings_h
-#define settings_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ mExternC( Basic ) const char* GetSettingsDataDir(void);
 #define mSettWrite() \
 	Settings::common().write();
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef gendefs_h
-#define gendefs_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -56,4 +55,3 @@ namespace OD
 #endif
 
 
-#endif

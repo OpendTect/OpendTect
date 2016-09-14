@@ -1,5 +1,4 @@
-#ifndef uiparentbody_h
-#define uiparentbody_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ private:
     bool			finalised_;
 };
 
-#endif

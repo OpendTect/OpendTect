@@ -1,5 +1,4 @@
-#ifndef seisrandomprovider_h
-#define seisrandomprovider_h
+#pragma once
 
 /*
  ________________________________________________________________________
@@ -88,4 +87,3 @@ protected:
     BinID				newtracebid_;
 };
 
-#endif

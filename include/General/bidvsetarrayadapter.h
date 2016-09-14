@@ -1,5 +1,4 @@
-#ifndef bidvsetarrayadapter_h
-#define bidvsetarrayadapter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -41,4 +40,3 @@ protected:
 };
 
 
-#endif

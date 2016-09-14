@@ -1,5 +1,4 @@
-#ifndef bufstring_h
-#define bufstring_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -281,4 +280,3 @@ protected:
 
 
 
-#endif

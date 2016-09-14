@@ -1,5 +1,4 @@
-#ifndef uicreateattriblogdlg_h
-#define uicreateattriblogdlg_h
+#pragma once
 /*+
  ________________________________________________________________________
 
@@ -49,4 +48,3 @@ protected:
     void			selDone(CallBacker*);
 };
 
-#endif

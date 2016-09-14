@@ -1,5 +1,4 @@
-#ifndef uit2dconvsel_h
-#define uit2dconvsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
     void				inpSel(CallBacker*);
 };
 
-#endif

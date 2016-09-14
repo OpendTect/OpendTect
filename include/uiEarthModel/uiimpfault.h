@@ -1,5 +1,4 @@
-#ifndef uiimpfault_h
-#define uiimpfault_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -96,4 +95,3 @@ protected:
 };
 
 
-#endif

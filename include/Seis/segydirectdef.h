@@ -1,5 +1,4 @@
-#ifndef segydirectdef_h
-#define segydirectdef_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -136,4 +135,3 @@ protected:
 
 }; //Namespace
 
-#endif

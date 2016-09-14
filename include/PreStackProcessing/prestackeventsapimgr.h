@@ -1,5 +1,4 @@
-#ifndef prestackeventsapimgr_h
-#define prestackeventsapimgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -72,4 +71,3 @@ protected:
 }; //namespace
 
 
-#endif

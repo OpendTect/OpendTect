@@ -1,5 +1,4 @@
-#ifndef uiodfaulttreeitem_h
-#define uiodfaulttreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -162,4 +161,3 @@ protected:
     EM::ObjectID	emid_;
 };
 
-#endif

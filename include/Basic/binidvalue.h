@@ -1,5 +1,4 @@
-#ifndef binidvalue_h
-#define binidvalue_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -80,4 +79,3 @@ public:
 };
 
 
-#endif

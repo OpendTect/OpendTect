@@ -1,5 +1,4 @@
-#ifndef veldesc_h
-#define veldesc_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -72,4 +71,3 @@ public:
 };
 
 
-#endif

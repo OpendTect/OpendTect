@@ -1,5 +1,4 @@
-#ifndef uid2tmodelgrp_h
-#define uid2tmodelgrp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ mGlobal(uiWell)	float	getGUIDefaultVelocity();
                         //!< of velocity when initializing velocity fields
 
 
-#endif

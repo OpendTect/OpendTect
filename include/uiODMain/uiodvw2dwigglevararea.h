@@ -1,5 +1,4 @@
-#ifndef uiodvw2dwigglevararea_h
-#define uiodvw2dwigglevararea_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ public:
 };
 
 
-#endif

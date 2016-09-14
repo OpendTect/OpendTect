@@ -1,5 +1,4 @@
-#ifndef uiautosaverdlg_h
-#define uiautosaverdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -36,4 +35,3 @@ private:
 
 };
 
-#endif

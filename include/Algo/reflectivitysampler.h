@@ -1,5 +1,4 @@
-#ifndef reflectivitysampler_h
-#define reflectivitysampler_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ protected:
 };
 
 
-#endif

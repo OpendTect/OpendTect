@@ -1,5 +1,4 @@
-#ifndef tableposprovider_h
-#define tableposprovider_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -78,4 +77,3 @@ public:
 
 } // namespace
 
-#endif

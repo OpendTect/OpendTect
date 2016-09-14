@@ -1,5 +1,4 @@
-#ifndef samplfunc_h
-#define samplfunc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -134,4 +133,3 @@ protected:
     bool		interpolate_;
 };
 
-#endif

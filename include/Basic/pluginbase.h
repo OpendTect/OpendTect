@@ -1,5 +1,4 @@
-#ifndef pluginbase_h
-#define pluginbase_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -72,4 +71,3 @@ struct PluginInfo
 
 /* } -- for the extern "C" */
 
-#endif

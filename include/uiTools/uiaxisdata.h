@@ -1,5 +1,4 @@
-#ifndef uiaxisdata_h
-#define uiaxisdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ public:
 					  int w,int h,const Interval<float>*);
 };
 
-#endif

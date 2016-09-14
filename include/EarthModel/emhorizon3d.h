@@ -1,5 +1,4 @@
-#ifndef emhorizon3d_h
-#define emhorizon3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -252,4 +251,3 @@ protected:
 
 } // namespace EM
 
-#endif

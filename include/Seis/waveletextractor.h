@@ -1,5 +1,4 @@
-#ifndef waveletextractor_h
-#define waveletextractor_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -74,4 +73,3 @@ protected:
     uiString			msg_;
 };
 
-#endif

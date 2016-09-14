@@ -1,5 +1,4 @@
-#ifndef volstatsattrib_h
-#define volstatsattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -166,4 +165,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

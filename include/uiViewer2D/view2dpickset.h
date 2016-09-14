@@ -1,5 +1,4 @@
-#ifndef view2dpickset_h
-#define view2dpickset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -60,4 +59,3 @@ protected:
 
 };
 
-#endif

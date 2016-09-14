@@ -1,5 +1,4 @@
-#ifndef uistereodlg_h
-#define uistereodlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -35,4 +34,3 @@ protected:
     void		doFinalise(CallBacker*);
 };
 
-#endif

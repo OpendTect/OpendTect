@@ -1,5 +1,4 @@
-#ifndef seispscubetr_h
-#define seispscubetr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ protected:
 };
 
 
-#endif

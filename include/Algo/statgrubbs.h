@@ -1,5 +1,4 @@
-#ifndef statgrubbs_h
-#define statgrubbs_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -78,4 +77,3 @@ inline T Stats::Grubbs::getMax( T* arr, SzTp sz, SzTp& idxof )
 
 } // namespace Stats
 
-#endif

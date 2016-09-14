@@ -1,5 +1,4 @@
-#ifndef prestackprocessortransl_h
-#define prestackprocessortransl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ public:
 };
 
 
-#endif

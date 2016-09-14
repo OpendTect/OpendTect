@@ -1,5 +1,4 @@
-#ifndef attribdescid_h
-#define attribdescid_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
 
 } // namespace Attrib
 
-#endif

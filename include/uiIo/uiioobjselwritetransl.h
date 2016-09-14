@@ -1,5 +1,4 @@
-#ifndef uiioobjselwritetransl_h
-#define uiioobjselwritetransl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -115,4 +114,3 @@ protected:
 };
 
 
-#endif

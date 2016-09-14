@@ -1,5 +1,4 @@
-#ifndef stratlayersequence_h
-#define stratlayersequence_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -96,4 +95,3 @@ protected:
 
 }; // namespace Strat
 
-#endif

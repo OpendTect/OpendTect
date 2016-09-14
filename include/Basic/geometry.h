@@ -1,5 +1,4 @@
-#ifndef geometry_h
-#define geometry_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -920,4 +919,3 @@ inline void Rectangle<T>::include( const Point2D<T>& p )
 
 }; // namespace Geom
 
-#endif

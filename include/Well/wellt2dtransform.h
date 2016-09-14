@@ -1,5 +1,4 @@
-#ifndef wellt2dtransform_h
-#define wellt2dtransform_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ protected:
 					    int sz,float*,bool) const;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef wellman_h
-#define wellman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ mGlobal(Well) IOObj* findIOObj(const char* wellnm,const char* uwi);
 
 } // namespace Well
 
-#endif

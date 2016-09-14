@@ -1,5 +1,4 @@
-#ifndef prestackagc_h
-#define prestackagc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

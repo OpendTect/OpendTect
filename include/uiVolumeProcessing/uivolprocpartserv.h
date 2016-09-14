@@ -1,5 +1,4 @@
-#ifndef uivolprocpartserv_h
-#define uivolprocpartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
     VolProc::uiChain*	volprocchaindlg2d_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uigmt2dlines_h
-#define uigmt2dlines_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
     void		labelSel(CallBacker*);
 };
 
-#endif

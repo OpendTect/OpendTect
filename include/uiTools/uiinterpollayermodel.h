@@ -1,5 +1,4 @@
-#ifndef uiinterpollayermodel_h
-#define uiinterpollayermodel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
     ObjectSet<uiInterpolationLayerModelGrp>	grps_;
 };
 
-#endif

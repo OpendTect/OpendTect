@@ -1,5 +1,4 @@
-#ifndef uistratamp_h
-#define uistratamp_h
+#pragma once
 
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -59,4 +58,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef visimagerect_h
-#define visimagerect_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
 
 }; // namespace visBase
 
-#endif

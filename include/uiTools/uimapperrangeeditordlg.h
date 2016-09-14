@@ -1,6 +1,4 @@
-
-#ifndef uimapperrangeeditordlg_h
-#define uimapperrangeeditordlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +52,3 @@ protected:
     void				dataPackDeleted(CallBacker*); 
 };
 
-#endif

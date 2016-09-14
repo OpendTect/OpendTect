@@ -1,5 +1,4 @@
-#ifndef prestackevents_h
-#define prestackevents_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -308,4 +307,3 @@ protected:
 
 }; //namespace
 
-#endif

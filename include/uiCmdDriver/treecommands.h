@@ -1,5 +1,4 @@
-#ifndef treecommands_h
-#define treecommands_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -112,4 +111,3 @@ mEndDeclComposerClass
 
 }; // namespace CmdDrive
 
-#endif

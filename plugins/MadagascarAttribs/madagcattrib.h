@@ -1,5 +1,4 @@
-#ifndef madagcattrib_h
-#define madagcattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

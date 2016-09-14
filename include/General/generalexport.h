@@ -1,5 +1,4 @@
-#ifndef generalexport_h
-#define generalexport_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -17,4 +16,3 @@ ________________________________________________________________________
 mExportTemplClassInst( General ) Array2D<float>;
 
 # endif
-#endif

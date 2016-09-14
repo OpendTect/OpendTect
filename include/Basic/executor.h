@@ -1,5 +1,4 @@
-#ifndef executor_h
-#define executor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -133,4 +132,3 @@ protected:
 };
 
 
-#endif

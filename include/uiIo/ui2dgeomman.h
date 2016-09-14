@@ -1,5 +1,4 @@
-#ifndef ui2dgeomman_h
-#define ui2dgeomman_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -63,4 +62,3 @@ protected:
 
 };
 
-#endif

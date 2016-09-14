@@ -1,5 +1,4 @@
-#ifndef statrand_h
-#define statrand_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -123,4 +122,3 @@ inline void Stats::RandGen::subselect( ODSET& ods, od_int64 targetsz ) const
 }; // namespace Stats
 
 
-#endif

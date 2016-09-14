@@ -1,5 +1,4 @@
-#ifndef deltaresampleattrib_h
-#define deltaresampleattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef odpresentationmgr_h
-#define odpresentationmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -163,4 +162,3 @@ mGlobal(General) PresentationManager& PrMan();
 }
 //namedpace OD
 
-#endif

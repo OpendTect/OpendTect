@@ -1,5 +1,4 @@
-#ifndef uiaxishandler_h
-#define uiaxishandler_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -204,4 +203,3 @@ mGlobal(uiTools) void setLine(uiLineItem&,const LineParameters<float>&,
 			const Interval<float>* xvalrg = 0);
 
 
-#endif

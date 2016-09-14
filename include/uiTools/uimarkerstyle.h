@@ -1,5 +1,4 @@
-#ifndef uimarkerstyle_h
-#define uimarkerstyle_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -83,4 +82,3 @@ public:
 };
 
 
-#endif

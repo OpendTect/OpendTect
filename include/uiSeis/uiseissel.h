@@ -1,5 +1,4 @@
-#ifndef uiseissel_h
-#define uiseissel_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -150,4 +149,3 @@ protected:
 };
 
 
-#endif

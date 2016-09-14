@@ -1,5 +1,4 @@
-#ifndef uiseisimportcbvs_h
-#define uiseisimportcbvs_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -55,4 +54,3 @@ protected:
 };
 
 
-#endif

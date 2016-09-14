@@ -1,5 +1,4 @@
-#ifndef refcount_h
-#define refcount_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -314,4 +313,3 @@ RefMan<T> WeakPtr<T>::get() const
 }
 
 
-#endif

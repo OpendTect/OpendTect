@@ -1,5 +1,4 @@
-#ifndef prestackmuteasciio_h
-#define prestackmuteasciio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

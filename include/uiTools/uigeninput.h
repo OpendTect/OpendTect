@@ -1,5 +1,4 @@
-#ifndef uigeninput_h
-#define uigeninput_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -282,4 +281,3 @@ public:
 };
 
 
-#endif

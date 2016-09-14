@@ -1,5 +1,4 @@
-#ifndef linerectangleclipper_h
-#define linerectangleclipper_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -191,4 +190,3 @@ const Geom::Point2D<T>& LineRectangleClipper<T>::getStop() const
 { return stop_; }
 
 
-#endif

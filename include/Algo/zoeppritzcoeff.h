@@ -1,5 +1,4 @@
-#ifndef zoeppritzcoeff_h
-#define zoeppritzcoeff_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
 mGlobal(Algo) float_complex getFastCoeff(float p, const ElasticLayer& el_layer1,
 					    const ElasticLayer& el_layer2 );
 
-#endif

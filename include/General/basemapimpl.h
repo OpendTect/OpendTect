@@ -1,5 +1,4 @@
-#ifndef basemapimpl_h
-#define basemapimpl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -44,4 +43,3 @@ protected:
 
 };
 
-#endif

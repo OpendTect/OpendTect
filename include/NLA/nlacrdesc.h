@@ -1,5 +1,4 @@
-#ifndef nlacrdesc_h
-#define nlacrdesc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ public:
 };
 
 
-#endif

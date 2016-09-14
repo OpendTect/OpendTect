@@ -1,5 +1,4 @@
-#ifndef uifileinput_h
-#define uifileinput_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -117,4 +116,3 @@ protected:
 };
 
 
-#endif

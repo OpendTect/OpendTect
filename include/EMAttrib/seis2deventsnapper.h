@@ -1,5 +1,4 @@
-#ifndef seis2deventsnapper_h
-#define seis2deventsnapper_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -90,4 +89,3 @@ protected:
     EM::Hor2DSeisLineIterator*	hor2diterator_;
 };
 
-#endif

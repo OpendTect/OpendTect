@@ -1,5 +1,4 @@
-#ifndef scalingattrib_h
-#define scalingattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -117,4 +116,3 @@ protected:
 
 }; // namespace Attrib
 
-#endif

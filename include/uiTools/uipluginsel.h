@@ -1,5 +1,4 @@
-#ifndef uipluginsel_h
-#define uipluginsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
     uiTreeView*			treefld_;
 };
 
-#endif

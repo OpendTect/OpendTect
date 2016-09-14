@@ -1,5 +1,4 @@
-#ifndef uigmtoverlay_h
-#define uigmtoverlay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -73,4 +72,3 @@ uiGMTOverlayGrpFactory& uiGMTOF();
     str += "/"; str += (int) col.g(); \
     str += "/"; str += (int) col.b();
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef vishorthreadworks_h
-#define vishorthreadworks_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -149,4 +148,3 @@ public:
 
 }
 
-#endif

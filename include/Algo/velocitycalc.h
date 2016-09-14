@@ -1,5 +1,4 @@
-#ifndef velocitycalc_h
-#define velocitycalc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -373,4 +372,3 @@ mGlobal(Algo) bool convertToVintIfNeeded(const float* inpvel,
 					const StepInterval<float>& zrange,
 					float* outvel);
 
-#endif

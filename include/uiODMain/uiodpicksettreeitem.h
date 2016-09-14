@@ -1,5 +1,4 @@
-#ifndef uiodpicksettreeitem_h
-#define uiodpicksettreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -142,4 +141,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef seisscanner_h
-#define seisscanner_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -116,4 +115,3 @@ protected:
     uiString		msg_;
 };
 
-#endif

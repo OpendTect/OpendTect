@@ -1,5 +1,4 @@
-#ifndef uiseislinesel_h
-#define uiseislinesel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -192,4 +191,3 @@ protected:
     void		selPush(CallBacker*);
 };
 
-#endif

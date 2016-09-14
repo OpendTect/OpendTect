@@ -1,5 +1,4 @@
-#ifndef uistratlaymodtools_h
-#define uistratlaymodtools_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -173,4 +172,3 @@ protected:
 };
 
 
-#endif

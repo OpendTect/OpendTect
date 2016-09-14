@@ -1,5 +1,4 @@
-#ifndef randomlinetr_h
-#define randomlinetr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -60,4 +59,3 @@ public:
 };
 
 
-#endif

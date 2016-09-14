@@ -1,5 +1,4 @@
-#ifndef multidimstorage_h
-#define multidimstorage_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -831,4 +830,3 @@ bool MultiDimStorage<T>::sort( TypeSet<IDXS>& indices ) const
 }
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uisrchprocfiles_h
-#define uisrchprocfiles_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -43,4 +42,3 @@ protected:
 };
 
 
-#endif

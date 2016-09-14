@@ -1,5 +1,4 @@
-#ifndef uistepoutsel_h
-#define uistepoutsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -115,4 +114,3 @@ protected:
 };
 
 
-#endif

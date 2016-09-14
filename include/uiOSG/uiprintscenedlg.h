@@ -1,5 +1,4 @@
-#ifndef uiprintscenedlg_h
-#define uiprintscenedlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -80,4 +79,3 @@ protected:
     const ObjectSet<ui3DViewer>& viewers_;
 };
 
-#endif

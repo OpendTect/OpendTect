@@ -1,5 +1,4 @@
-#ifndef emfaultsticksetflatvieweditor_h
-#define emfaultsticksetflatvieweditor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -41,4 +40,3 @@ protected:
 
 } //namespace EM
 
-#endif

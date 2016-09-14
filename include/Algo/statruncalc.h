@@ -1,5 +1,4 @@
-#ifndef statruncalc_h
-#define statruncalc_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -853,4 +852,3 @@ inline WindowedCalc<T>&	WindowedCalc<T>::addValue( T val, T wt )
 
 }; // namespace Stats
 
-#endif

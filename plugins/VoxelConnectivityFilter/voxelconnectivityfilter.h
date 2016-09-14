@@ -1,5 +1,4 @@
-#ifndef voxelconnectivityfilter_h
-#define voxelconnectivityfilter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -96,4 +95,3 @@ protected:
 
 }; //namespace
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef gridcreator_h
-#define gridcreator_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -93,4 +92,3 @@ protected:
 };
 
 
-#endif

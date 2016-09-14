@@ -1,5 +1,4 @@
-#ifndef welldata_h
-#define welldata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -141,4 +140,3 @@ public:
 
 } // namespace Well
 
-#endif

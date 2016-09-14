@@ -1,5 +1,4 @@
-#ifndef volprocstatscomputer_h
-#define volprocstatscomputer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -110,4 +109,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

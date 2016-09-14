@@ -1,5 +1,4 @@
-#ifndef webfile_h
-#define webfile_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -33,4 +32,3 @@ mGlobal(Basic) void	setWebHandlers(ExistsFn,GetSizeFn,GetContentFn);
 } // namespace File
 
 
-#endif

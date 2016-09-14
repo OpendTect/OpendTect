@@ -1,5 +1,4 @@
-#ifndef uienergyattrib_h
-#define uienergyattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-#endif

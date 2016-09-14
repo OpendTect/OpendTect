@@ -1,5 +1,4 @@
-#ifndef uigoogleexpsurv_h
-#define uigoogleexpsurv_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
@@ -32,4 +31,3 @@ protected:
 };
 
 
-#endif

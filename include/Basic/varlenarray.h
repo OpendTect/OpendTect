@@ -1,5 +1,4 @@
-#ifndef varlenarray_h
-#define varlenarray_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -67,4 +66,3 @@ ArrPtrMan<type> varnm; \
 
 #undef __varlenwithptr__
 
-#endif

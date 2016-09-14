@@ -1,5 +1,4 @@
-#ifndef uiseisamplspectrum_h
-#define uiseisamplspectrum_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -29,4 +28,3 @@ public:
     void			setDataPackID(DataPack::ID,DataPackMgr::ID);
 };
 
-#endif

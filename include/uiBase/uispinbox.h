@@ -1,5 +1,4 @@
-#ifndef uispinbox_h
-#define uispinbox_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -140,4 +139,3 @@ protected:
     uiLabel*		lbl_;
 };
 
-#endif

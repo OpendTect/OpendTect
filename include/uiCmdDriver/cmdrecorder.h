@@ -1,5 +1,4 @@
-#ifndef cmdrecorder_h
-#define cmdrecorder_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -134,4 +133,3 @@ protected:
 }; // namespace CmdDrive
 
 
-#endif

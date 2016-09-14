@@ -1,5 +1,4 @@
-#ifndef positionattrib_h
-#define positionattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -96,4 +95,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

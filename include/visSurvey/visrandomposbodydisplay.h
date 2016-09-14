@@ -1,5 +1,4 @@
-#ifndef visrandomposbodydisplay_h
-#define visrandomposbodydisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ protected:
 };
 
 
-#endif

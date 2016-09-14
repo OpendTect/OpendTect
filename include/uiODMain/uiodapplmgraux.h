@@ -1,5 +1,4 @@
-#ifndef uiodapplmgraux_h
-#define uiodapplmgraux_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -137,4 +136,3 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef faultstickseteditor_h
-#define faultstickseteditor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -87,4 +86,3 @@ protected:
 
 } // namespace MPE
 
-#endif

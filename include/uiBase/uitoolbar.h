@@ -1,5 +1,4 @@
-#ifndef uitoolbar_h
-#define uitoolbar_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -139,4 +138,3 @@ public:
 			//!<Legacy, use addObject instead
 };
 
-#endif

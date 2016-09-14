@@ -1,5 +1,4 @@
-#ifndef uivarwizarddlg_h
-#define uivarwizarddlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -43,4 +42,3 @@ protected:
 };
 
 
-#endif

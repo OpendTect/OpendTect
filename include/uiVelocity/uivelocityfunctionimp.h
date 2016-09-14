@@ -1,5 +1,4 @@
-#ifndef uivelocityfunctionimp_h
-#define uivelocityfunctionimp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
 } //namespace Vel
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef odcomplex_h
-#define odcomplex_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ mGlobal(Basic) const char* toString(float_complex);
 namespace Conv { mConvDeclFromStrToSimpleType(float_complex); }
 
 
-#endif

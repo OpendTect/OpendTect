@@ -1,5 +1,4 @@
-#ifndef attribslice_h
-#define attribslice_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -77,4 +76,3 @@ protected:
 
 }; //namespace
 
-#endif

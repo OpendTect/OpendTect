@@ -1,5 +1,4 @@
-#ifndef uivelocityfunctionvolume_h
-#define uivelocityfunctionvolume_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ protected:
 
 }; //namespace
 
-#endif

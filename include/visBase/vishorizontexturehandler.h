@@ -1,5 +1,4 @@
-#ifndef vishorizontexturehandler_h
-#define vishorizontexturehandler_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -84,4 +83,3 @@ protected:
 
 };
 }
-#endif

@@ -1,5 +1,4 @@
-#ifndef visvolumedisplay_h
-#define visvolumedisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -323,4 +322,3 @@ protected:
 } // namespace visSurvey
 
 
-#endif

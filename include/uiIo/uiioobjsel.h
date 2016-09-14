@@ -1,5 +1,4 @@
-#ifndef uiioobjsel_h
-#define uiioobjsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -161,4 +160,3 @@ default).
     (forread ? mIOObjContext(clss) : mWriteIOObjContext(clss))
 
 
-#endif

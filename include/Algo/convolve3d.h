@@ -1,5 +1,4 @@
-#ifndef convolve3d_h
-#define convolve3d_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -285,4 +284,3 @@ bool Convolver3D<float>::shouldFFT() const
 }
 
 
-#endif

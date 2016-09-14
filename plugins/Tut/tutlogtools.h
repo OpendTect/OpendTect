@@ -1,5 +1,4 @@
-#ifndef tutlogtools_h
-#define tutlogtools_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh
@@ -32,4 +31,3 @@ protected:
 
 } // namespace
 
-#endif

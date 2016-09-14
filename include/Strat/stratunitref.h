@@ -1,5 +1,4 @@
-#ifndef stratunitref_h
-#define stratunitref_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -280,4 +279,3 @@ inline const NodeUnitRef* UnitRef::topNode() const
 
 }; // namespace Strat
 
-#endif

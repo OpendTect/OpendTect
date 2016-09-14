@@ -1,5 +1,4 @@
-#ifndef posidxpairvalset_h
-#define posidxpairvalset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -209,4 +208,3 @@ protected:
 } // namespace Pos
 
 
-#endif

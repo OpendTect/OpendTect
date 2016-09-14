@@ -1,5 +1,4 @@
-#ifndef welllogset_h
-#define welllogset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -119,4 +118,3 @@ public:
 
 } // namespace Well
 
-#endif

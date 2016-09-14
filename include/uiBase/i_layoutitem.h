@@ -1,5 +1,4 @@
-#ifndef i_layoutitem_h
-#define i_layoutitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -194,4 +193,3 @@ protected:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef seistrcprop_h
-#define seistrcprop_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -76,4 +75,3 @@ protected:
 };
 
 
-#endif

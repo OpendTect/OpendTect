@@ -1,5 +1,4 @@
-#ifndef variogramcomputers_h
-#define variogramcomputers_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -97,4 +96,3 @@ protected:
     };
 };
 
-#endif

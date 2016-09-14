@@ -1,5 +1,4 @@
-#ifndef uimultisurfaceread_h
-#define uimultisurfaceread_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ protected:
     uiMultiSurfaceRead*	surfacefld_;
 };
 
-#endif

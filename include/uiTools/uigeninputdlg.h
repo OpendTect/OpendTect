@@ -1,5 +1,4 @@
-#ifndef uigeninputdlg_h
-#define uigeninputdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -112,4 +111,3 @@ public:
     mDeprecated double	getdValue(int i=0)	{ return getDValue(i); }
 };
 
-#endif

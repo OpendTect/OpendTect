@@ -1,5 +1,4 @@
-#ifndef menuhandler_h
-#define menuhandler_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -309,4 +308,3 @@ mAddMenuItemWithManageFlag( parent, item, true, enab, check )
 	istoolbar?(MenuItemHolder*)(tbparent):(MenuItemHolder*)(popupparent), \
 	    item, enab, check )
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uigmtinfodlg_h
-#define uigmtinfodlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -32,4 +31,3 @@ protected:
     uiLabel*		label_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef mathspecvars_h
-#define mathspecvars_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ public:
 } // namespace Math
 
 
-#endif

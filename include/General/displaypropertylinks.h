@@ -1,5 +1,4 @@
-#ifndef displaypropertylinks_h
-#define displaypropertylinks_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -138,4 +137,3 @@ protected:
     ObjectSet<DisplayPropertyHolder>	holders_;
 };
 
-#endif

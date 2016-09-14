@@ -1,5 +1,4 @@
-#ifndef uivolprocregionfiller_h
-#define uivolprocregionfiller_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

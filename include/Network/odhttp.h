@@ -1,5 +1,4 @@
-#ifndef odhttp_h
-#define odhttp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -202,4 +201,3 @@ private:
 }; //namespace Network
 
 
-#endif

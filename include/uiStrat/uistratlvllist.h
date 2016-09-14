@@ -1,5 +1,4 @@
-#ifndef uistratlvllist_h
-#define uistratlvllist_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ private:
 
 };
 
-#endif

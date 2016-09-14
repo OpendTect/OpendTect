@@ -1,5 +1,4 @@
-#ifndef uiscenecolorbarmgr_h
-#define uiscenecolorbarmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -34,4 +33,3 @@ protected:
     void		posChangedCB(CallBacker*);
 };
 
-#endif

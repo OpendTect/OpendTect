@@ -1,5 +1,4 @@
-#ifndef classify_h
-#define classify_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -89,4 +88,3 @@ inline int WeightedClassCounter<T>::result() const
 }
 
 
-#endif

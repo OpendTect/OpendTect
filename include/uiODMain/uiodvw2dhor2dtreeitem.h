@@ -1,5 +1,4 @@
-#ifndef uiodvw2dhor2dtreeitem_h
-#define uiodvw2dhor2dtreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ protected:
     Vw2DHorizon2D*	horview_;
 };
 
-#endif

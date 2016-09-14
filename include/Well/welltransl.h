@@ -1,5 +1,4 @@
-#ifndef welltransl_h
-#define welltransl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -62,4 +61,3 @@ public:
 };
 
 
-#endif

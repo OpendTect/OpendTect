@@ -1,5 +1,4 @@
-#ifndef welltiegeocalculator_h
-#define welltiegeocalculator_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -43,4 +42,3 @@ public :
 
 } // namespace WellTie
 
-#endif

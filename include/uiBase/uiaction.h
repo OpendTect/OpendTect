@@ -1,5 +1,4 @@
-#ifndef uiaction_h
-#define uiaction_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -215,4 +214,3 @@ public:
 			//!<Legacy
 };
 
-#endif

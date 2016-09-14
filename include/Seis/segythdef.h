@@ -1,5 +1,4 @@
-#ifndef segythdef_h
-#define segythdef_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ public:
 
 } // namespace
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef compoundkey_h
-#define compoundkey_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -76,4 +75,3 @@ inline CompoundKey& CompoundKey::operator +=( const char* s )
 }
 
 
-#endif

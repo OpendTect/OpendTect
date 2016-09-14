@@ -1,5 +1,4 @@
-#ifndef uiimpexp2dgeom_h
-#define uiimpexp2dgeom_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -31,4 +30,3 @@ protected:
     uiFileInput*	outfld_;
 };
 
-#endif

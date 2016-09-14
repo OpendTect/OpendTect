@@ -1,5 +1,4 @@
-#ifndef uiwellrdmlinedlg_h
-#define uiwellrdmlinedlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -110,4 +109,3 @@ protected:
     uiWellPartServer*	wellserv_;
 };
 
-#endif

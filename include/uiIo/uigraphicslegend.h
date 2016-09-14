@@ -1,5 +1,4 @@
-#ifndef uigraphicslegend_h
-#define uigraphicslegend_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ private:
     const uiString	sMap()		    { return tr("Map"); }
 };
 
-#endif

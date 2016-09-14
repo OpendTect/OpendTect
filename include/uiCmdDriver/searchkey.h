@@ -1,5 +1,4 @@
-#ifndef searchkey_h
-#define searchkey_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ protected:
 }; // namespace CmdDrive
 
 
-#endif

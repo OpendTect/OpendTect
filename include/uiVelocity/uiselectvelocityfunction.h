@@ -1,5 +1,4 @@
-#ifndef uiselectvelocityfunction_h
-#define uiselectvelocityfunction_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -107,4 +106,3 @@ public:
 }; //namespace
 
 
-#endif

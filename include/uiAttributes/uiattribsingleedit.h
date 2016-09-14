@@ -1,5 +1,4 @@
-#ifndef uiattribsingleedit_h
-#define uiattribsingleedit_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
 
 };
 
-#endif

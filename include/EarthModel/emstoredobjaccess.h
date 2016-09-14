@@ -1,5 +1,4 @@
-#ifndef emstoredobjaccess_h
-#define emstoredobjaccess_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -72,4 +71,3 @@ protected:
 } // namespace EM
 
 
-#endif

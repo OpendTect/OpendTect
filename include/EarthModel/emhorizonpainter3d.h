@@ -1,5 +1,4 @@
-#ifndef emhorizonpainter3d_h
-#define emhorizonpainter3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -105,4 +104,3 @@ protected:
 
 } //namespace EM
 
-#endif

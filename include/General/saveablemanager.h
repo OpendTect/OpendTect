@@ -1,5 +1,4 @@
-#ifndef saveablemanager_h
-#define saveablemanager_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -167,4 +166,3 @@ typ& typ::getInstance() \
     bool		needsSave(const typ&) const
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uisegytool_h
-#define uisegytool_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -41,4 +40,3 @@ protected:
 };
 
 
-#endif

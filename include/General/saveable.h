@@ -1,5 +1,4 @@
-#ifndef saveable_h
-#define saveable_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -72,4 +71,3 @@ private:
 };
 
 
-#endif

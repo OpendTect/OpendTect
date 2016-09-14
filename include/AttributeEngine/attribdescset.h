@@ -1,5 +1,4 @@
-#ifndef attribdescset_h
-#define attribdescset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -188,4 +187,3 @@ public:
 
 } // namespace Attrib
 
-#endif

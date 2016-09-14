@@ -1,5 +1,4 @@
-#ifndef uiempartserv_h
-#define uiempartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -221,4 +220,3 @@ protected:
     uiSurfaceMan*	manbodydlg_;
 };
 
-#endif

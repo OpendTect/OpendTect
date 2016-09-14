@@ -1,5 +1,4 @@
-#ifndef uigapdeconattrib_h
-#define uigapdeconattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -85,4 +84,3 @@ protected:
 };
 
 
-#endif

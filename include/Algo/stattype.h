@@ -1,5 +1,4 @@
-#ifndef stattype_h
-#define stattype_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -57,4 +56,3 @@ inline UpscaleType upscaleTypeFor( Type st )
 }; // namespace Stats
 
 
-#endif

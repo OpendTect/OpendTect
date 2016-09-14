@@ -1,5 +1,4 @@
-#ifndef undefarray_h
-#define undefarray_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -199,4 +198,3 @@ bool filterUndef(const T* input, T* output, int sz )
     return true;
 }
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef probdenfuncdraw_h
-#define probdenfuncdraw_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
 };
 
 
-#endif

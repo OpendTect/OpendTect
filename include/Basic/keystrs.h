@@ -1,5 +1,4 @@
-#ifndef keystrs_h
-#define keystrs_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -176,4 +175,3 @@ namespace sKey
 
 
 
-#endif

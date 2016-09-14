@@ -1,5 +1,4 @@
-#ifndef uiodscenetreeitem_h
-#define uiodscenetreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -99,4 +98,3 @@ public: \
 			uiOD##type##TreeItem()
 
 
-#endif

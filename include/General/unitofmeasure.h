@@ -1,5 +1,4 @@
-#ifndef unitofmeasure_h
-#define unitofmeasure_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -221,4 +220,3 @@ template <class T> inline T getConvertedValue( T val,
     return val;
 }
 
-#endif

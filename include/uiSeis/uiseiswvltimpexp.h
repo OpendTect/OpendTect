@@ -1,5 +1,4 @@
-#ifndef uiseiswvltimpexp_h
-#define uiseiswvltimpexp_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -60,4 +59,3 @@ protected:
 };
 
 
-#endif

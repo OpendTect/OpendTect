@@ -1,5 +1,4 @@
-#ifndef uiwelltieeventstretch_h
-#define uiwelltieeventstretch_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
 
 } // namespace WellTie
 
-#endif

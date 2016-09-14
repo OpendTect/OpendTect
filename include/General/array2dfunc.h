@@ -1,5 +1,4 @@
-#ifndef array2dfunc_h
-#define array2dfunc_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -111,4 +110,3 @@ RT Array2DFunc<RT,PT,T>::getValue( PT x, PT y ) const
 	    xrelpos, yrelpos );
 }
 
-#endif

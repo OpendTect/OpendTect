@@ -1,5 +1,4 @@
-#ifndef emeditor_h
-#define emeditor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -151,4 +150,3 @@ mDefineFactory1Param( MPEEngine, ObjectEditor, EM::EMObject&, EditorFactory );
 
 } // namespace MPE
 
-#endif

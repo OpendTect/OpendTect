@@ -1,5 +1,4 @@
-#ifndef picksetascio_h
-#define picksetascio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -32,4 +31,3 @@ public:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uimultiflatviewcontrol_h
-#define uimultiflatviewcontrol_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -88,4 +87,3 @@ protected:
     void		pinchZoomCB(CallBacker*);
 };
 
-#endif

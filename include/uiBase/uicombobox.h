@@ -1,5 +1,4 @@
-#ifndef uicombobox_h
-#define uicombobox_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -154,4 +153,3 @@ protected:
 
 };
 
-#endif

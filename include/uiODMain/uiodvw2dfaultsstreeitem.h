@@ -1,5 +1,4 @@
-#ifndef uiodvw2dfaultsstreeitem_h
-#define uiodvw2dfaultsstreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -87,4 +86,3 @@ protected:
     VW2DFaultSS3D*	fssview_;
 };
 
-#endif

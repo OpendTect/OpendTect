@@ -1,5 +1,4 @@
-#ifndef seisexport_h
-#define seisexport_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -18,4 +17,3 @@ ________________________________________________________________________
 mExportTemplClassInst( Seis ) ValueSeries<float>;
 
 # endif
-#endif

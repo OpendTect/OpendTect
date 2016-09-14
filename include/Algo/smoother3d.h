@@ -1,5 +1,4 @@
-#ifndef smoother3d_h
-#define smoother3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -195,4 +194,3 @@ template <class T> inline
 Task::Control Smoother3D<T>::getState() const
 { return convolver_.getState(); }
 
-#endif

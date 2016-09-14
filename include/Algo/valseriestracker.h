@@ -1,5 +1,4 @@
-#ifndef valseriestracker_h
-#define valseriestracker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -208,4 +207,3 @@ protected:
 
 };
 
-#endif

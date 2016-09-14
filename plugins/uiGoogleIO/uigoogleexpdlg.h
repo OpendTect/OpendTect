@@ -1,5 +1,4 @@
-#ifndef uigoogleexpdlg_h
-#define uigoogleexpdlg_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
@@ -35,4 +34,3 @@ class uiFileInput;
 	{ uiMSG().error(wrr.errMsg()); return false; }
 
 
-#endif

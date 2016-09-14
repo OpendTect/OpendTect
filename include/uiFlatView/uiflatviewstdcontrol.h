@@ -1,5 +1,4 @@
-#ifndef uiflatviewstdcontrol_h
-#define uiflatviewstdcontrol_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -173,4 +172,3 @@ protected:
     HelpKey		helpkey_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uistratlayermodel_h
-#define uistratlayermodel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -161,4 +160,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef seisbufadapters_h
-#define seisbufadapters_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -105,4 +104,3 @@ protected:
 };
 
 
-#endif

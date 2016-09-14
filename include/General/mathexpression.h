@@ -1,5 +1,4 @@
-#ifndef mathexpression_h
-#define mathexpression_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -185,4 +184,3 @@ public:
 
 } // namespace Math
 
-#endif

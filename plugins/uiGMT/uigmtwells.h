@@ -1,5 +1,4 @@
-#ifndef uigmtwells_h
-#define uigmtwells_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
     void		choiceSel(CallBacker*);
 };
 
-#endif

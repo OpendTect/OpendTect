@@ -1,5 +1,4 @@
-#ifndef seispreload_h
-#define seispreload_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -142,4 +141,3 @@ RefMan<T> PreLoadDataManager::getAndCast( const DBKey& mid, Pos::GeomID gid )
 
 } // namespace Seis
 
-#endif

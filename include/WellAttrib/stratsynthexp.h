@@ -1,5 +1,4 @@
-#ifndef stratsynthexp_h
-#define stratsynthexp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -58,4 +57,3 @@ protected:
     int					postobedone_;
 };
 
-#endif

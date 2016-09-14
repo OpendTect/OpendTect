@@ -1,5 +1,4 @@
-#ifndef statdirdata_h
-#define statdirdata_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -136,4 +135,3 @@ inline DirectionalData::DirectionalData( int nrsect, int nrparts )
 
 }; // namespace Stats
 
-#endif

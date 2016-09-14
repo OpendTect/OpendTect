@@ -1,5 +1,4 @@
-#ifndef uiclusterjobprov_h
-#define uiclusterjobprov_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -91,4 +90,3 @@ protected:
 };
 
 
-#endif

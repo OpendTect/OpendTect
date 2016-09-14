@@ -1,5 +1,4 @@
-#ifndef envvars_h
-#define envvars_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -42,4 +41,3 @@ mGlobal(Basic) bool WriteEnvVar(const char* env,const char* val);
 		     or data/Envvars for SysAdm */
 
 
-#endif

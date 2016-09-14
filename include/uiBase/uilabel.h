@@ -1,5 +1,4 @@
-#ifndef uilabel_h
-#define uilabel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ private:
     bool		isrequired_;
 };
 
-#endif

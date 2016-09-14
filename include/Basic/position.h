@@ -1,5 +1,4 @@
-#ifndef position_h
-#define position_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -20,4 +19,3 @@ class BinIDValues;
 class TrcKeyValue;
 
 
-#endif

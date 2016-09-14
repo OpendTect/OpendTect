@@ -1,5 +1,4 @@
-#ifndef volprocchainoutput_h
-#define volprocchainoutput_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -92,4 +91,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

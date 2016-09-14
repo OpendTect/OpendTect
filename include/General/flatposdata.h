@@ -1,5 +1,4 @@
-#ifndef flatposdata_h
-#define flatposdata_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -80,4 +79,3 @@ protected:
 };
 
 
-#endif

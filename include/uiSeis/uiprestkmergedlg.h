@@ -1,5 +1,4 @@
-#ifndef uiprestkmergedlg_h
-#define uiprestkmergedlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ protected:
 };
 
 
-#endif

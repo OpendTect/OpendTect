@@ -1,5 +1,4 @@
-#ifndef gmtcontour_h
-#define gmtcontour_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -37,4 +36,3 @@ protected:
     bool		makeCPT(const char*) const;
 };
 
-#endif

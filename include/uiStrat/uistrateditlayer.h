@@ -1,5 +1,4 @@
-#ifndef uistrateditlayer_h
-#define uistrateditlayer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -49,4 +48,3 @@ protected:
 };
 
 
-#endif

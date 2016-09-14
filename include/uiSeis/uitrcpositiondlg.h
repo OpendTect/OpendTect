@@ -1,5 +1,4 @@
-#ifndef uitrcpositiondlg_h
-#define uitrcpositiondlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -74,4 +73,3 @@ protected:
     PickRetriever*		pickretriever_;
 };
 
-#endif

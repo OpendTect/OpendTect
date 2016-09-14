@@ -1,5 +1,4 @@
-#ifndef wellhorpos_h
-#define wellhorpos_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
     float			intersectPosHor(const Coord3&) const;
 };
 
-#endif

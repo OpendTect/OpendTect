@@ -1,5 +1,4 @@
-#ifndef uiimphorizon_h
-#define uiimphorizon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ private:
     uiString		goOnMsg();
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef convmemvalseries_h
-#define convmemvalseries_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -185,4 +184,3 @@ BinDataDesc ConvMemValueSeries<T>::dataDesc() const
 { return interpreter_.dataChar(); }
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef webstreamsource_h
-#define webstreamsource_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -34,4 +33,3 @@ public:
 };
 
 
-#endif

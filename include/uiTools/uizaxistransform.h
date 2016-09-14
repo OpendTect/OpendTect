@@ -1,5 +1,4 @@
-#ifndef uizaxistransform_h
-#define uizaxistransform_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -99,4 +98,3 @@ protected:
 };
 
 
-#endif

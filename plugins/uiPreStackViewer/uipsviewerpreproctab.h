@@ -1,5 +1,4 @@
-#ifndef uipsviewerpreproctab_h
-#define uipsviewerpreproctab_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -52,4 +51,3 @@ protected:
 
 }; //namespace
 
-#endif

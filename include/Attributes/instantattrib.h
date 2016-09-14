@@ -1,5 +1,4 @@
-#ifndef instantattrib_h
-#define instantattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -72,4 +71,3 @@ private:
 
 }; // namespace Attrib
 
-#endif

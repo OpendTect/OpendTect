@@ -1,5 +1,4 @@
-#ifndef welltiedata_h
-#define welltiedata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -291,4 +290,3 @@ protected :
 
 } // namespace WellTie
 
-#endif

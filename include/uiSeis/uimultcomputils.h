@@ -1,5 +1,4 @@
-#ifndef uimultcomputils_h
-#define uimultcomputils_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -69,4 +68,3 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
 };
 
 
-#endif

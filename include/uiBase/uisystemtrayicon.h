@@ -1,5 +1,4 @@
-#ifndef uisystemtrayicon_h
-#define uisystemtrayicon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
     uiMenu*		menu_;
 };
 
-#endif

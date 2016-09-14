@@ -1,5 +1,4 @@
-#ifndef rowcol_h
-#define rowcol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -139,4 +138,3 @@ inline bool RowCol::fromString( const char* str )
 
 
 
-#endif

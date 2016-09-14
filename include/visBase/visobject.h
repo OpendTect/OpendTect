@@ -1,5 +1,4 @@
-#ifndef visobject_h
-#define visobject_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -128,4 +127,3 @@ mLockerClassImpl( visBase, VisualWriteLockLocker, VisualObjectImpl,
 		  writeLock(), writeUnLock(), tryWriteLock() )
 };
 
-#endif

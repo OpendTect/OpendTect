@@ -1,5 +1,4 @@
-#ifndef sectionadjuster_h
-#define sectionadjuster_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -93,4 +92,3 @@ protected:
 
 } // namespace MPE
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiseispartserv_h
-#define uiseispartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -99,4 +98,3 @@ private:
     uiString		mkDlgCaption( bool forread, bool is2d, bool isps );
 };
 
-#endif

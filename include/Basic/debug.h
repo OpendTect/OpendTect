@@ -1,5 +1,4 @@
-#ifndef debug_h
-#define debug_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -113,4 +112,3 @@ private:
 #define	DBG_FILEPATH	0x0100	// File name handling, conversion, etc.
 
 
-#endif

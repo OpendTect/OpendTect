@@ -1,5 +1,4 @@
-#ifndef uiwelldisplaycontrol_h
-#define uiwelldisplaycontrol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -86,4 +85,3 @@ protected:
     void			setSelMarkerCB(CallBacker*);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef posidxpair2coord_h
-#define posidxpair2coord_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -95,4 +94,3 @@ protected:
 
 } // namespace Pos
 
-#endif

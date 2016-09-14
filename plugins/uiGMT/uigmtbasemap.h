@@ -1,5 +1,4 @@
-#ifndef uigmtbasemap_h
-#define uigmtbasemap_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
     void		updateFlds(bool);
 };
 
-#endif

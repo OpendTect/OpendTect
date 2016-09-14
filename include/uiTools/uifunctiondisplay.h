@@ -1,5 +1,4 @@
-#ifndef uifunctiondisplay_h
-#define uifunctiondisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -243,4 +242,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef odqtobjset_h
-#define odqtobjset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ QT* ODQtObjectSet<OD,QT>::getQtObject( int idx )
 }
 
 
-#endif

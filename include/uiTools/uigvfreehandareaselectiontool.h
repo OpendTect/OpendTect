@@ -1,5 +1,4 @@
-#ifndef uigvfreehandareaselectiontool_h
-#define uigvfreehandareaselectiontool_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -62,4 +61,3 @@ protected:
 };
 
 
-#endif

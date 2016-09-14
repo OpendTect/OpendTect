@@ -1,5 +1,4 @@
-#ifndef array2dfilter_h
-#define array2dfilter_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -279,4 +278,3 @@ inline void Array2DFilterer<T>::doPoint( int row, int col )
 }
 
 
-#endif

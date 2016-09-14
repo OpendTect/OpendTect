@@ -1,5 +1,4 @@
-#ifndef dateinfo_h
-#define dateinfo_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -129,4 +128,3 @@ inline int operator -( const DateInfo& di1, const DateInfo& di2 )
 { return di1.days1900_ - di2.days1900_; }
 
 
-#endif

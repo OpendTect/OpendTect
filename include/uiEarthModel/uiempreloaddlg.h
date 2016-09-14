@@ -1,5 +1,4 @@
-#ifndef uiempreloaddlg_h
-#define uiempreloaddlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
 };
 
 
-#endif

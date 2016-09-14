@@ -1,5 +1,4 @@
-#ifndef vishortilescreatorandupdator_h
-#define vishortilescreatorandupdator_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -60,4 +59,3 @@ private:
 
 
 }
-#endif

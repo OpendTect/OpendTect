@@ -1,5 +1,4 @@
-#ifndef trigonometry_h
-#define trigonometry_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -634,4 +633,3 @@ bool ParamLineBase<T>::isOnLine(const T& pt) const
 }
 
 
-#endif

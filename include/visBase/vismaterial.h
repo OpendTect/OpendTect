@@ -1,5 +1,4 @@
-#ifndef vismaterial_h
-#define vismaterial_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -151,4 +150,3 @@ private:
 } // namespace visBase
 
 
-#endif

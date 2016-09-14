@@ -1,5 +1,4 @@
-#ifndef vispolygonselection_h
-#define vispolygonselection_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -127,4 +126,3 @@ protected:
 };
 
 
-#endif

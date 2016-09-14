@@ -1,5 +1,4 @@
-#ifndef uiodviewer2dposdlg_h
-#define uiodviewer2dposdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -37,4 +36,3 @@ protected:
 
 };
 
-#endif

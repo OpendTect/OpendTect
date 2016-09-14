@@ -1,5 +1,4 @@
-#ifndef stratseisevent_h
-#define stratseisevent_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -72,4 +71,3 @@ protected:
 
 } // namespace
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uivelocitygridder_h
-#define uivelocitygridder_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

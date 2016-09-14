@@ -1,5 +1,4 @@
-#ifndef binid_h
-#define binid_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -114,4 +113,3 @@ inline bool BinID::fromString( const char* str )
     return IdxPair::parseUsrStr( str, "", "/", "" );
 }
 
-#endif

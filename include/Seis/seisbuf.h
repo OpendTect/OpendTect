@@ -1,5 +1,4 @@
-#ifndef seisbuf_h
-#define seisbuf_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -125,4 +124,3 @@ protected:
 };
 
 
-#endif

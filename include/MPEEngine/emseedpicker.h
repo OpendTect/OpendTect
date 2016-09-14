@@ -1,5 +1,4 @@
-#ifndef emseedpicker_h
-#define emseedpicker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -149,4 +148,3 @@ protected:
 
 } // namespace MPE
 
-#endif

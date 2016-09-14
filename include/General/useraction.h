@@ -1,5 +1,4 @@
-#ifndef useraction_h
-#define useraction_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -90,4 +89,3 @@ protected:
     bool			ishandled_;
 };
 
-#endif

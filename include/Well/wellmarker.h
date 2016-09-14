@@ -1,5 +1,4 @@
-#ifndef wellmarker_h
-#define wellmarker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -193,4 +192,3 @@ public:
 
 } // namespace Well
 
-#endif

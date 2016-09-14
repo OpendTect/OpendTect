@@ -1,5 +1,4 @@
-#ifndef notify_h
-#define notify_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -229,4 +228,3 @@ Notifier<clss>& clss::instanceCreated() \
     instanceCreated().trigger( this )
 
 
-#endif

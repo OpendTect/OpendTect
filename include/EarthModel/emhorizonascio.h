@@ -1,5 +1,4 @@
-#ifndef emhorizonascio_h
-#define emhorizonascio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ protected:
 
 } // namespace EM
 
-#endif

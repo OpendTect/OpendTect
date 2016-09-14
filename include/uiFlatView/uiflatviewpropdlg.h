@@ -1,5 +1,4 @@
-#ifndef uiflatviewpropdlg_h
-#define uiflatviewpropdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -58,4 +57,3 @@ protected:
 
 };
 
-#endif

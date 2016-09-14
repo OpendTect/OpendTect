@@ -1,5 +1,4 @@
-#ifndef testprog_h
-#define testprog_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -30,7 +29,8 @@ ________________________________________________________________________
 
 int testMain( int argc, char** argv );
 
-#ifndef batchprog_h
+#ifndef mMainIsDefined
+#define mMainIsDefined
 int main(int argc, char** argv)
 {
     ExitProgram( testMain( argc, argv ) );
@@ -87,4 +87,3 @@ else \
 	mRunStandardTestWithError( test, desc, BufferString().str() )
 
 
-#endif

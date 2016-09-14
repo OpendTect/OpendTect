@@ -1,5 +1,4 @@
-#ifndef uiimpexppdf_h
-#define uiimpexppdf_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -71,4 +70,3 @@ protected:
 };
 
 
-#endif

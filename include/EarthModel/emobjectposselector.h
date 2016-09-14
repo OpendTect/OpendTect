@@ -1,5 +1,4 @@
-#ifndef emobjectposselector_h
-#define emobjectposselector_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -73,4 +72,3 @@ protected:
 
 } // namespace EM
 
-#endif

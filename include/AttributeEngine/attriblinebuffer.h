@@ -1,5 +1,4 @@
-#ifndef attriblinebuffer_h
-#define attriblinebuffer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
 }; //Namespace
 
 
-#endif

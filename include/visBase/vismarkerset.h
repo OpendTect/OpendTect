@@ -1,5 +1,4 @@
-#ifndef vismarkerset_h
-#define vismarkerset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -149,4 +148,3 @@ protected:
 
 } // namespace visBase
 
-#endif

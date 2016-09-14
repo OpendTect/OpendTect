@@ -1,5 +1,4 @@
-#ifndef sampledextremefindernd_h
-#define sampledextremefindernd_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -199,4 +198,3 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 }
 
 
-#endif

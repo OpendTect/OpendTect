@@ -1,5 +1,4 @@
-#ifndef posidxpairvalue_h
-#define posidxpairvalue_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -229,4 +228,3 @@ bool IdxPairValues<IPT,FT>::isUdf( bool anyvaludf ) const
 } // namespace Pos
 
 
-#endif

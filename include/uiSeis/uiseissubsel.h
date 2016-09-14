@@ -1,5 +1,4 @@
-#ifndef uiseissubsel_h
-#define uiseissubsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -126,4 +125,3 @@ protected:
     void		lineChg(CallBacker*);
 };
 
-#endif

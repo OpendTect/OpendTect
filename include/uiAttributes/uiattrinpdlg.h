@@ -1,5 +1,4 @@
-#ifndef uiattrinpdlg_h
-#define uiattrinpdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -50,4 +49,3 @@ protected:
 
 };
 
-#endif

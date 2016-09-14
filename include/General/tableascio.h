@@ -1,5 +1,4 @@
-#ifndef tableascio_h
-#define tableascio_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -141,4 +140,3 @@ protected:
 }; // namespace Table
 
 
-#endif

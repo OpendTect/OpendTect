@@ -1,5 +1,4 @@
-#ifndef attribfactory_h
-#define attribfactory_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ mGlobal(AttributeEngine) extern ProviderFactory& PF();
 
 }; //Namespace
 
-#endif

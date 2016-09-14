@@ -1,5 +1,4 @@
-#ifndef grubbsfilterattrib_h
-#define grubbsfilterattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

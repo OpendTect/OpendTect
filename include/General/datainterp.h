@@ -1,5 +1,4 @@
-#ifndef datainterp_h
-#define datainterp_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -160,4 +159,3 @@ protected:
 };
 
 
-#endif

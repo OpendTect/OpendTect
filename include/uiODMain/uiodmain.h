@@ -1,5 +1,4 @@
-#ifndef uiodmain_h
-#define uiodmain_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -136,4 +135,3 @@ public:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef vishortileresolutiondata_h
-#define vishortileresolutiondata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -115,4 +114,3 @@ private:
 };
 
 }
-#endif

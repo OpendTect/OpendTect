@@ -1,5 +1,4 @@
-#ifndef uivolprocbatchsetup_h
-#define uivolprocbatchsetup_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -74,4 +73,3 @@ public:
 
 } // namespace Batch
 
-#endif

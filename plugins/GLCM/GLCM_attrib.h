@@ -1,6 +1,5 @@
+#pragma once
 
-#ifndef GLCM_attrib_h
-#define GLCM_attrib_h
 /*+
  * (C) JOANNEUM RESEARCH; http://www.joanneum.at
  * AUTHOR   : Christoph Eichkitz; http://www.joanneum.at/resources/gph/
@@ -171,4 +170,3 @@ private:
 
 };
 
-#endif

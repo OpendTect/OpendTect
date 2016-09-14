@@ -1,5 +1,4 @@
-#ifndef attribsteering_h
-#define attribsteering_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -25,4 +24,3 @@ mGlobal(AttributeEngine) int getSteeringIndex( const BinID& );
 }; //Namespace
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiattribcrossplot_h
-#define uiattribcrossplot_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -71,4 +70,3 @@ protected:
 };
 
 
-#endif

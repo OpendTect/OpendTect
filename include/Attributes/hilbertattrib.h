@@ -1,5 +1,4 @@
-#ifndef hilbertattrib_h
-#define hilbertattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
 
 } // namespace Attrib
 
-#endif

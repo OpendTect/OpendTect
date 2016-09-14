@@ -1,5 +1,4 @@
-#ifndef wellcommon_h
-#define wellcommon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ mGlobal(Well) float	getDefaultVelocity();
 
 } // namespace Well
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiwellattribxplot_h
-#define uiwellattribxplot_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -43,4 +42,3 @@ protected:
 };
 
 
-#endif

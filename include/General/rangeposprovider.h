@@ -1,5 +1,4 @@
-#ifndef rangeposprovider_h
-#define rangeposprovider_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -147,4 +146,3 @@ public:
 
 } // namespace
 
-#endif

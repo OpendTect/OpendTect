@@ -1,5 +1,4 @@
-#ifndef seisseqio_h
-#define seisseqio_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
@@ -158,4 +157,3 @@ public:
 } // namespace Seis
 
 
-#endif

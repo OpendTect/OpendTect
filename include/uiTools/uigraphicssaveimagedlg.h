@@ -1,5 +1,4 @@
-#ifndef uigraphicssaveimagedlg_h
-#define uigraphicssaveimagedlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -30,4 +29,3 @@ protected:
     bool		acceptOK();
 };
 
-#endif

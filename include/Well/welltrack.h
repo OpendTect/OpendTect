@@ -1,5 +1,4 @@
-#ifndef welltrack_h
-#define welltrack_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -107,4 +106,3 @@ public:
 
 } // namespace Well
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uidpsselgrpdlg_h
-#define uidpsselgrpdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -39,4 +38,3 @@ protected:
     void				calcSelectedness(CallBacker*);
 };
 
-# endif

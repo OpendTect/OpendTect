@@ -1,5 +1,4 @@
-#ifndef horizon3dtesselator_h
-#define horizon3dtesselator_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -68,4 +67,3 @@ protected:
 
 
 
-#endif

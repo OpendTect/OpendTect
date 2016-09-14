@@ -1,5 +1,4 @@
-#ifndef emhor2dseisiter_h
-#define emhor2dseisiter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -62,4 +61,3 @@ private:
 
 } // namespace EM
 
-#endif

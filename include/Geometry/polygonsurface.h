@@ -1,5 +1,4 @@
-#ifndef polygonsurface_h
-#define polygonsurface_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -94,4 +93,3 @@ protected:
 
 };
 
-#endif

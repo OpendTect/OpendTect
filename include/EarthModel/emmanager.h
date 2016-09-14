@@ -1,5 +1,4 @@
-#ifndef emmanager_h
-#define emmanager_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -134,4 +133,3 @@ mGlobal(EarthModel) bool canOverwrite(const DBKey&);
 
 } // namespace EM
 
-#endif

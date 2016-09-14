@@ -1,5 +1,4 @@
-#ifndef uiinstantattrib_h
-#define uiinstantattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -50,4 +49,3 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uilayseqattribed_h
-#define uilayseqattribed_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
 
 };
 
-#endif

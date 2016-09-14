@@ -1,5 +1,4 @@
-#ifndef attribengman_h
-#define attribengman_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -149,4 +148,3 @@ private:
 
 } // namespace Attrib
 
-#endif

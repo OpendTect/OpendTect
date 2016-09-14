@@ -1,5 +1,4 @@
-#ifndef uitutodmad_h
-#define uitutodmad_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -39,4 +38,3 @@ protected:
 };
 
 
-#endif

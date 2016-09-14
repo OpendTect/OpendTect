@@ -1,5 +1,4 @@
-#ifndef rockphysics_h
-#define rockphysics_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -125,4 +124,3 @@ mGlobal(General) inline RockPhysics::FormulaSet& eROCKPHYSFORMS()
 { return const_cast<RockPhysics::FormulaSet&>( ROCKPHYSFORMS() ); }
 
 
-#endif

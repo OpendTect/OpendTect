@@ -1,5 +1,4 @@
-#ifndef emstickset_h
-#define emstickset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ protected:
 
 } // namespace EM
 
-#endif

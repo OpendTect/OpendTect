@@ -1,5 +1,4 @@
-#ifndef reflectivitymodel_h
-#define reflectivitymodel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ inline float ReflectivitySpike::time( bool isnmo ) const
     return isnmo ? correctedtime_ : time_;
 }
 
-#endif

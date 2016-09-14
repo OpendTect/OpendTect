@@ -1,5 +1,4 @@
-#ifndef arrayndwrapper_h
-#define arrayndwrapper_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -111,4 +110,3 @@ T Array3DWrapper<T>::get( int i0, int i1, int i2 ) const
     return srcarr_.getND( posnd.arr() );
 }
 
-#endif

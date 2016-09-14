@@ -1,5 +1,4 @@
-#ifndef jobdescprov_h
-#define jobdescprov_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -197,4 +196,3 @@ public:
     const char*		objName(int) const;
 };
 
-#endif

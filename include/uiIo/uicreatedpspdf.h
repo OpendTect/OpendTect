@@ -1,5 +1,4 @@
-#ifndef uicreatedpspdf_h
-#define uicreatedpspdf_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
 };
 
 
-#endif

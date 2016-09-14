@@ -1,5 +1,4 @@
-#ifndef nladesign_h
-#define nladesign_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -71,4 +70,3 @@ public:
 };
 
 
-#endif

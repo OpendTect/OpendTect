@@ -1,5 +1,4 @@
-#ifndef cubesampling_h
-#define cubesampling_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -16,4 +15,3 @@ ________________________________________________________________________
 typedef TrcKeyZSampling CubeSampling;
 
 
-#endif

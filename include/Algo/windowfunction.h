@@ -1,5 +1,4 @@
-#ifndef windowfunction_h
-#define windowfunction_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -136,4 +135,3 @@ protected:
 mDefineFactory(Algo,WindowFunction,WINFUNCS);
 
 
-#endif

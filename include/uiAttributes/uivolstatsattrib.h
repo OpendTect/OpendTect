@@ -1,5 +1,4 @@
-#ifndef uivolstatsattrib_h
-#define uivolstatsattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -62,4 +61,3 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-#endif

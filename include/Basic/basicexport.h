@@ -1,5 +1,4 @@
-#ifndef basicexport_h
-#define basicexport_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -26,4 +25,3 @@ mExportTemplClassInst( Basic ) Geom::Point2D<double>;
 mExportTemplClassInst( Basic ) PerThreadObjectRepository<BufferString>;
 
 # endif
-#endif

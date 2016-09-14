@@ -1,5 +1,4 @@
-#ifndef uibodyoperatordlg_h
-#define uibodyoperatordlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -98,4 +97,3 @@ protected:
 };
 
 
-#endif

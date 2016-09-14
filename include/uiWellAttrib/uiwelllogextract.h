@@ -1,5 +1,4 @@
-#ifndef uiwelllogextract_h
-#define uiwelllogextract_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -80,4 +79,3 @@ protected:
 };
 
 
-#endif

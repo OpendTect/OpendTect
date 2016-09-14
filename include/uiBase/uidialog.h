@@ -1,5 +1,4 @@
-#ifndef uidialog_h
-#define uidialog_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -171,4 +170,3 @@ protected:
     static int		titlepos_;
 };
 
-#endif

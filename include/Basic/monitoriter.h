@@ -1,5 +1,4 @@
-#ifndef monitoriter_h
-#define monitoriter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -135,4 +134,3 @@ void MonitorableIter<ITyp>::reInit( bool toend )
 }
 
 
-#endif

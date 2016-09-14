@@ -1,5 +1,4 @@
-#ifndef uistrattreewin_h
-#define uistrattreewin_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -109,4 +108,3 @@ public:
 };
 
 
-#endif

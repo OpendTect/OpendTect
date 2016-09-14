@@ -1,5 +1,4 @@
-#ifndef netsocket_h
-#define netsocket_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -132,4 +131,3 @@ private:
 } // namespace Network
 
 
-#endif

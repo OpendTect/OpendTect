@@ -1,5 +1,4 @@
-#ifndef math2_h
-#define math2_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -144,4 +143,3 @@ mGlobal(Basic) float IntPowerOf(float,int);
 } // namespace Math
 
 
-#endif

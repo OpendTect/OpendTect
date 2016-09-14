@@ -1,5 +1,4 @@
-#ifndef uiiosel_h
-#define uiiosel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -132,4 +131,3 @@ protected:
 };
 
 
-#endif

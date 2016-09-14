@@ -1,5 +1,4 @@
-#ifndef uibaseexport_h
-#define uibaseexport_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -19,4 +18,3 @@ mExportTemplClassInst( uiBase ) Geom::Size2D<int>;
 mExportTemplClassInst( uiBase ) Geom::PixRectangle<int>;
 
 # endif
-#endif

@@ -1,5 +1,4 @@
-#ifndef inputcommands_h
-#define inputcommands_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -100,4 +99,3 @@ mEndDeclComposerClass
 
 }; // namespace CmdDrive
 
-#endif

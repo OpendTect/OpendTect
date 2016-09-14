@@ -1,5 +1,4 @@
-#ifndef gmtprocflowtr_h
-#define gmtprocflowtr_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Raman Singh
@@ -54,4 +53,3 @@ public:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uibatchjobdispatchersel_h
-#define uibatchjobdispatchersel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -71,4 +70,3 @@ protected:
 };
 
 
-#endif

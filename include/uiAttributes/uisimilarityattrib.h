@@ -1,5 +1,4 @@
-#ifndef uisimilarityattrib_h
-#define uisimilarityattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -78,4 +77,3 @@ protected:
 };
 
 
-#endif

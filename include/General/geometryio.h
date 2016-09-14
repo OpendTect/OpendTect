@@ -1,5 +1,4 @@
-#ifndef geometryio_h
-#define geometryio_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -87,4 +86,3 @@ public:
 
 } // namespace Survey
 
-#endif

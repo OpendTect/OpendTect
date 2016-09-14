@@ -1,5 +1,4 @@
-#ifndef view2dfaultss3d_h
-#define view2dfaultss3d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ protected:
     Notifier<VW2DFaultSS3D>	deselted_;
 };
 
-#endif

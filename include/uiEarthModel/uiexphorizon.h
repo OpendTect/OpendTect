@@ -1,5 +1,4 @@
-#ifndef uiexphorizon_h
-#define uiexphorizon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ protected:
 };
 
 
-#endif

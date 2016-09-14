@@ -1,5 +1,4 @@
-#ifndef uiseismmproc_h
-#define uiseismmproc_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -49,4 +48,3 @@ protected:
 
 };
 
-#endif

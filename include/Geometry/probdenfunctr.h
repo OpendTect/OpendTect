@@ -1,5 +1,4 @@
-#ifndef probdenfunctr_h
-#define probdenfunctr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -58,4 +57,3 @@ public:
 };
 
 
-#endif

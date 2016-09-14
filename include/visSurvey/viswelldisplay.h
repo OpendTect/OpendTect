@@ -1,5 +1,4 @@
-#ifndef viswelldisplay_h
-#define viswelldisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -193,4 +192,3 @@ protected:
 } // namespace visSurvey
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef semblancealgo_h
-#define semblancealgo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ public:
 
 }; //namespace
 
-#endif

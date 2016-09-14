@@ -1,5 +1,4 @@
-#ifndef uibitmapdisplay_h
-#define uibitmapdisplay_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -83,4 +82,3 @@ private:
     CallBack			finishedcb_;
 };
 
-#endif

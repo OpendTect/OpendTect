@@ -1,5 +1,4 @@
-#ifndef uiemauxdatasel_h
-#define uiemauxdatasel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -36,4 +35,3 @@ protected:
     const char*			auxdatanm_;
 };
 
-#endif

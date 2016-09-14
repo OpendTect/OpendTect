@@ -1,5 +1,4 @@
-#ifndef uimathformula_h
-#define uimathformula_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -121,4 +120,3 @@ protected:
 };
 
 
-#endif

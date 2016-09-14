@@ -1,5 +1,4 @@
-#ifndef uifillpattern_h
-#define uifillpattern_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
 };
 
 
-#endif

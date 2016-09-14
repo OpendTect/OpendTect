@@ -1,5 +1,4 @@
-#ifndef uivelocityfunctionstored_h
-#define uivelocityfunctionstored_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ protected:
 
 }; //namespace
 
-#endif

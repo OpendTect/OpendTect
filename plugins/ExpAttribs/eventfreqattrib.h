@@ -1,5 +1,4 @@
-#ifndef eventfreqattrib_h
-#define eventfreqattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ protected:
 } // namespace Attrib
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef sectionselectorimpl_h
-#define sectionselectorimpl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
 
 } // namespace MPE
 
-#endif

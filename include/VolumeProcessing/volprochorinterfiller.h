@@ -1,5 +1,4 @@
-#ifndef volprochorinterfiller_h
-#define volprochorinterfiller_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -98,4 +97,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

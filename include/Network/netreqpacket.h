@@ -1,5 +1,4 @@
-#ifndef netreqpacket_h
-#define netreqpacket_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -392,4 +391,3 @@ inline void PacketInterpreter::getBytes( void* ptr, int nrbytes ) const
 }; //Namespace Network
 
 
-#endif

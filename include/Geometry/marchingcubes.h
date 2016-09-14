@@ -1,5 +1,4 @@
-#ifndef marchingcubes_h
-#define marchingcubes_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -199,4 +198,3 @@ protected:
 };
 
 
-#endif

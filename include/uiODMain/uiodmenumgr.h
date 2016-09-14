@@ -1,5 +1,4 @@
-#ifndef uiodmenumgr_h
-#define uiodmenumgr_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -189,4 +188,3 @@ protected:
 };
 
 
-#endif

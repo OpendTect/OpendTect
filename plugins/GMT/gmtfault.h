@@ -1,5 +1,4 @@
-#ifndef gmtfault_h
-#define gmtfault_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ protected:
     ObjectSet<EM::Fault3D>	flts_;
 };
 
-#endif

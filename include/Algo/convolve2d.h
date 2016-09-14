@@ -1,5 +1,4 @@
-#ifndef convolve2d_h
-#define convolve2d_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -276,4 +275,3 @@ bool Convolver2D<T>::doNonFFTWork( od_int64 start, od_int64 stop, int )
 }
 
 
-#endif

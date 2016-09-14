@@ -1,5 +1,4 @@
-#ifndef uigdexamacorr_h
-#define uigdexamacorr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ protected:
     FlatDataPack*		fddatapackexam_;
 };
 
-#endif

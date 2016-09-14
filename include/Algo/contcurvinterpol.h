@@ -1,5 +1,4 @@
-#ifndef contcurvinterpol_h
-#define contcurvinterpol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -124,4 +123,3 @@ private:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef oscommand_h
-#define oscommand_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -206,4 +205,3 @@ mGlobal(Basic) bool ExecODProgram(const char* prognm,const char* args=0,
 				  OS::LaunchType lt=OS::RunInBG);
 
 
-#endif

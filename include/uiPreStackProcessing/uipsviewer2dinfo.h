@@ -1,5 +1,4 @@
-#ifndef uipsviewer2dinfo_h
-#define uipsviewer2dinfo_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -39,4 +38,3 @@ protected:
 
 }; //namespace
 
-#endif

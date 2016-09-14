@@ -1,5 +1,4 @@
-#ifndef errmsg_h
-#define errmsg_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -52,4 +51,3 @@ namespace OD {
     //!< Usual access point for programmer error messages in free functions
 
 
-#endif

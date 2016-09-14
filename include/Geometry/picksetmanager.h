@@ -1,5 +1,4 @@
-#ifndef picksetmanager_h
-#define picksetmanager_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -85,4 +84,3 @@ inline SetManager& SetMGR()
 
 
 
-#endif

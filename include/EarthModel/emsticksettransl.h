@@ -1,5 +1,4 @@
-#ifndef emsticksettransl_h
-#define emsticksettransl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -175,4 +174,3 @@ protected:
 #define mLMK_END_PT		3
 #define mLMK_CONTROL_PT		4
 
-#endif

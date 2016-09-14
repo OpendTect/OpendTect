@@ -1,5 +1,4 @@
-#ifndef vispolygonbodydisplay_h
-#define vispolygonbodydisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -158,4 +157,3 @@ protected:
 };
 
 
-#endif

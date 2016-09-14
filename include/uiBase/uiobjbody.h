@@ -1,5 +1,4 @@
-#ifndef uiobjbody_h
-#define uiobjbody_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -244,4 +243,3 @@ public:
 
 };
 
-#endif

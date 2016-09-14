@@ -1,5 +1,4 @@
-#ifndef welltieextractdata_h
-#define welltieextractdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ protected:
 
 } // namespace WellTie
 
-#endif

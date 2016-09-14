@@ -1,5 +1,4 @@
-#ifndef seisbounds_h
-#define seisbounds_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -98,4 +97,3 @@ public:
 
 } // namespace Seis
 
-#endif

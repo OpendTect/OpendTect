@@ -1,5 +1,4 @@
-#ifndef uigmtarray2dinterpol_h
-#define uigmtarray2dinterpol_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
     uiGenInput*			radiusfld_;
 };
 
-#endif

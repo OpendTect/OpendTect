@@ -1,5 +1,4 @@
-#ifndef uigraphicsview_h
-#define uigraphicsview_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ protected:
     void 			printImageCB(CallBacker*);
 };
 
-#endif

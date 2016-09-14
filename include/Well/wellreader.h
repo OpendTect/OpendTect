@@ -1,5 +1,4 @@
-#ifndef wellreader_h
-#define wellreader_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -70,4 +69,3 @@ private:
 }; // namespace Well
 
 
-#endif

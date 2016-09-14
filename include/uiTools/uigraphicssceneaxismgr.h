@@ -1,5 +1,4 @@
-#ifndef uigraphicssceneaxismgr_h
-#define uigraphicssceneaxismgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -168,4 +167,3 @@ protected:
     void			updateFontSizeCB(CallBacker*);
 };
 
-#endif

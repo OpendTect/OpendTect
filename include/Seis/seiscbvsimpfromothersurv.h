@@ -1,5 +1,4 @@
-#ifndef seiscbvsimpfromothersurv_h
-#define seiscbvsimpfromothersurv_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -95,4 +94,3 @@ protected:
     void		sincInterpol(ObjectSet<SeisTrc>&) const;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiselsurvranges_h
-#define uiselsurvranges_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -173,4 +172,3 @@ public:
 };
 
 
-#endif

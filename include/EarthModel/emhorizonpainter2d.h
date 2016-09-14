@@ -1,5 +1,4 @@
-#ifndef emhorizonpainter2d_h
-#define emhorizonpainter2d_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -107,4 +106,3 @@ private:
 
 } // namespace EM
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uisemblancealgo_h
-#define uisemblancealgo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -36,4 +35,3 @@ protected:
 
 }; //namespace
 
-#endif

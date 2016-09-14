@@ -1,5 +1,4 @@
-#ifndef uitabstack_h
-#define uitabstack_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -67,4 +66,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiconvolveattrib_h
-#define uiconvolveattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
 };
 
 
-#endif

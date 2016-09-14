@@ -1,5 +1,4 @@
-#ifndef uiodbodydisplaytreeitem_h
-#define uiodbodydisplaytreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -100,4 +99,3 @@ protected:
 
 
 
-#endif

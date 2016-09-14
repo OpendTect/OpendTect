@@ -1,5 +1,4 @@
-#ifndef uiattribpanel_h
-#define uiattribpanel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -56,4 +55,3 @@ protected:
     uiParent*			parent_;
 };
 
-#endif

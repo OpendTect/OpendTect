@@ -1,5 +1,4 @@
-#ifndef polygonsurfeditor_h
-#define polygonsurfeditor_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ protected:
 
 };  // namespace MPE
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef attribdataholderarray_h
-#define attribdataholderarray_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -55,4 +54,3 @@ protected:
 
 } // namespace Attrib
 
-#endif

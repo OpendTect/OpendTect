@@ -1,5 +1,4 @@
-#ifndef uivispartserv_h
-#define uivispartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -501,4 +500,3 @@ protected:
 	uiVisPartServer&	visserv;
 };
 
-#endif

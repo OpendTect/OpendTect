@@ -1,5 +1,4 @@
-#ifndef visscene_h
-#define visscene_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -107,4 +106,3 @@ private:
 
 }
 
-#endif

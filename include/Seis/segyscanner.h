@@ -1,5 +1,4 @@
-#ifndef segyscanner_h
-#define segyscanner_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -98,4 +97,3 @@ protected:
 
 } // namespace
 
-#endif

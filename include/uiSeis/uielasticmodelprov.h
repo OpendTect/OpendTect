@@ -1,5 +1,4 @@
-#ifndef uielasticmodelprov_h
-#define uielasticmodelprov_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -52,4 +51,3 @@ protected:
 
 };
 
-#endif

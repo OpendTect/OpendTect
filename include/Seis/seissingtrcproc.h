@@ -1,5 +1,4 @@
-#ifndef seissingtrcproc_h
-#define seissingtrcproc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -131,4 +130,3 @@ protected:
 };
 
 
-#endif

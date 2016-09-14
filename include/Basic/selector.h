@@ -1,5 +1,4 @@
-#ifndef selector_h
-#define selector_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -179,4 +178,3 @@ char SingleSelector<T>::includesRange( const T& start, const T& stop ) const
     return 0;
 }
 
-#endif

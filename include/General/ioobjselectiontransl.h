@@ -1,5 +1,4 @@
-#ifndef ioobjselectiontransl_h
-#define ioobjselectiontransl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -15,4 +14,3 @@ ________________________________________________________________________
 
 mDeclEmptyTranslatorBundle(General,IOObjSelection,od,"objsel")
 
-#endif

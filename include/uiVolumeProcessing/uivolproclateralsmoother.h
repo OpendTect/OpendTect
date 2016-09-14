@@ -1,5 +1,4 @@
-#ifndef uivolproclateralsmoother_h
-#define uivolproclateralsmoother_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -60,4 +59,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

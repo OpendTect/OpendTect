@@ -1,5 +1,4 @@
-#ifndef ziparchiveinfo_h
-#define ziparchiveinfo_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
 };
 
 
-#endif

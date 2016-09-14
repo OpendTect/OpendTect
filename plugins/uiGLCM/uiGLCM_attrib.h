@@ -1,6 +1,4 @@
-
-#ifndef uiGLCM_attrib_h
-#define uiGLCM_attrib_h
+#pragma once
 /*+
  * (C) JOANNEUM RESEARCH; http://www.joanneum.at
  * AUTHOR   : Christoph Eichkitz
@@ -59,4 +57,3 @@ protected:
 			mDeclReqAttribUIFns
 };
 
-#endif

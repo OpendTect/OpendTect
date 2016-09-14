@@ -1,5 +1,4 @@
-#ifndef visdata_h
-#define visdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -235,4 +234,3 @@ void clss::initClass()						\
 
 
 
-#endif

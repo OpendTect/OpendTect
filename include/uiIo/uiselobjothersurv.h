@@ -1,5 +1,4 @@
-#ifndef uiselobjfromothersurv_h
-#define uiselobjfromothersurv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -44,4 +43,3 @@ protected:
     bool		acceptOK();
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef genc_h
-#define genc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -94,4 +93,3 @@ inline void EmptyFunction()			{}
 }
 
 
-#endif

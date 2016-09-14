@@ -1,5 +1,4 @@
-#ifndef od_ostream_h
-#define od_ostream_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -127,4 +126,3 @@ inline od_ostream& od_ostream::addBin( const T& t )
 }
 
 
-#endif

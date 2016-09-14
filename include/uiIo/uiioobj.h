@@ -1,5 +1,4 @@
-#ifndef uiioobj_h
-#define uiioobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ protected:
 
 };
 
-#endif

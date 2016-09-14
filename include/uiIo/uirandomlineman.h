@@ -1,5 +1,4 @@
-#ifndef uirandomlineman_h
-#define uirandomlineman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -33,4 +32,3 @@ protected:
 
 };
 
-#endif

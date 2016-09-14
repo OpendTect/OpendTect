@@ -1,5 +1,4 @@
-#ifndef uiattrtypesel_h
-#define uiattrtypesel_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -65,4 +64,3 @@ protected:
 };
 
 
-#endif

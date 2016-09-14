@@ -1,5 +1,4 @@
-#ifndef uizrangefld_h
-#define uizrangefld_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -44,4 +43,3 @@ void uiZRangeInput::setZRange( T range )
 
 
 
-#endif

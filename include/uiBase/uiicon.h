@@ -1,5 +1,4 @@
-#ifndef uiicon_h
-#define uiicon_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ protected:
     BufferString		srcnm_;
 };
 
-#endif

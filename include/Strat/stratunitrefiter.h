@@ -1,5 +1,4 @@
-#ifndef stratunitrefiter_h
-#define stratunitrefiter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -62,4 +61,3 @@ protected:
 
 } // namespace
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uimatchdeltaattrib_h
-#define uimatchdeltaattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -43,4 +42,3 @@ protected:
 };
 
 
-#endif

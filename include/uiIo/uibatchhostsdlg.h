@@ -1,5 +1,4 @@
-#ifndef uibatchhostsdlg_h
-#define uibatchhostsdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
     void		dataRootChanged(int row);
 };
 
-#endif

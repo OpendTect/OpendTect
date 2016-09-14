@@ -1,5 +1,4 @@
-#ifndef uiodsysadmcoltabs_h
-#define uiodsysadmcoltabs_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -39,4 +38,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uihor3dfrom2ddlg_h
-#define uihor3dfrom2ddlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
     DBKey			selid_;
 };
 
-#endif

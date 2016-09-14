@@ -1,5 +1,4 @@
-#ifndef uiconvpos_h
-#define uiconvpos_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -46,4 +45,3 @@ private:
     void		convFile(CallBacker*);
 };
 
-#endif

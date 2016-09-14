@@ -1,5 +1,4 @@
-#ifndef interpol2d_h
-#define interpol2d_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -575,4 +574,3 @@ T PolyReg2DWithUdf<T>::apply( float x, float y ) const
 
 }// namespace Interpolate
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef emregion_h
-#define emregion_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -226,4 +225,3 @@ protected:
 
 } // namespace EM
 
-#endif

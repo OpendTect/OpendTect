@@ -1,5 +1,4 @@
-#ifndef plfdefs_h
-#define plfdefs_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -223,4 +222,3 @@ Always defined:
 #endif
 
 
-#endif

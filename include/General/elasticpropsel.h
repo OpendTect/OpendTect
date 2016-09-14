@@ -1,5 +1,4 @@
-#ifndef elasticpropsel_h
-#define elasticpropsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -110,4 +109,3 @@ protected:
 };
 
 
-#endif

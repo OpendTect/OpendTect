@@ -1,5 +1,4 @@
-#ifndef geomelement_h
-#define geomelement_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -92,4 +91,3 @@ private:
 
 } // namespace Geometry
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiworld2ui_h
-#define uiworld2ui_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -130,4 +129,3 @@ private:
 };
 
 
-#endif

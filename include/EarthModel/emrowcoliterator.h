@@ -1,5 +1,4 @@
-#ifndef emrowcoliterator_h
-#define emrowcoliterator_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -60,4 +59,3 @@ protected:
 } // namespace EM
 
 
-#endif

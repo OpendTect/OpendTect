@@ -1,5 +1,4 @@
-#ifndef uiodviewer2dmgr_h
-#define uiodviewer2dmgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -211,4 +210,3 @@ protected:
     friend class                uiODMain;
 };
 
-#endif

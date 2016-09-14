@@ -1,5 +1,4 @@
-#ifndef emsurface_h
-#define emsurface_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -84,4 +83,3 @@ protected:
 
 } // namespace EM
 
-#endif

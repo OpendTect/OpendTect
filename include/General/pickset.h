@@ -1,5 +1,4 @@
-#ifndef pickset_h
-#define pickset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -248,4 +247,3 @@ public:
 } // namespace Pick
 
 
-#endif

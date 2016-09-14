@@ -1,5 +1,4 @@
-#ifndef uistratbasiclayseqgendesc_h
-#define uistratbasiclayseqgendesc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ protected:
 };
 
 
-#endif

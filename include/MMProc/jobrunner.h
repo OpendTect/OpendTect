@@ -1,5 +1,4 @@
-#ifndef jobrunner_h
-#define jobrunner_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -168,4 +167,3 @@ protected:
 
 mGlobal(MMProc) int& MMJob_getTempFileNr();
 
-#endif

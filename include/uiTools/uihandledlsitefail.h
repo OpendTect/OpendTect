@@ -1,5 +1,4 @@
-#ifndef uihandledlsitefail_h
-#define uihandledlsitefail_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -59,4 +58,3 @@ protected:
 };
 
 
-#endif

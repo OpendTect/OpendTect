@@ -1,5 +1,4 @@
-#ifndef uiarrowdlg_h
-#define uiarrowdlg_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -47,4 +46,3 @@ protected:
     void		changeCB(CallBacker*);
 };
 
-#endif

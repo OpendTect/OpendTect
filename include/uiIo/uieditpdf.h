@@ -1,5 +1,4 @@
-#ifndef uieditpdf_h
-#define uieditpdf_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -153,4 +152,3 @@ protected:
 
 
 
-#endif

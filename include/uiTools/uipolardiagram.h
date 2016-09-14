@@ -1,5 +1,4 @@
-#ifndef uipolardiagram_h
-#define uipolardiagram_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -62,4 +61,3 @@ protected:
 };
 
 
-#endif

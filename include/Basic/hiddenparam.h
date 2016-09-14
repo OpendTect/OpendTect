@@ -1,5 +1,4 @@
-#ifndef hiddenparam_h
-#define hiddenparam_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -165,4 +164,3 @@ void HiddenParam<O,V>::removeParam( O* obj )
     objects_.removeSingle( idx );
 }
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uitextfile_h
-#define uitextfile_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -132,4 +131,3 @@ protected:
 };
 
 
-#endif

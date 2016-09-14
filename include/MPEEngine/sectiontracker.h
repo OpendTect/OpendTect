@@ -1,5 +1,4 @@
-#ifndef sectiontracker_h
-#define sectiontracker_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -107,4 +106,3 @@ protected:
 
 } // namespace MPE
 
-#endif

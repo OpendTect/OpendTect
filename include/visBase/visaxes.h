@@ -1,5 +1,4 @@
-#ifndef visaxes_h
-#define visaxes_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -53,4 +52,3 @@ protected:
 };
 
 } // namespace visBase
-#endif

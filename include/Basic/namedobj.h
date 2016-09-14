@@ -1,5 +1,4 @@
-#ifndef namedobj_h
-#define namedobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -95,4 +94,3 @@ mGlobal(Basic) inline bool operator >( const NamedObject& obj1,
 }
 
 
-#endif

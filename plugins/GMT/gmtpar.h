@@ -1,5 +1,4 @@
-#ifndef gmtpar_h
-#define gmtpar_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -123,4 +122,3 @@ mGlobal(GMT) GMTParFactory& GMTPF();
 	default: break; \
     }
 
-#endif

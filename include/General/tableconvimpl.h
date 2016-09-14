@@ -1,5 +1,4 @@
-#ifndef tableconvimpl_h
-#define tableconvimpl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -242,4 +241,3 @@ protected:
 
 }; // namespace Table
 
-#endif

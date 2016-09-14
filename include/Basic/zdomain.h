@@ -1,5 +1,4 @@
-#ifndef zdomain_h
-#define zdomain_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -124,4 +123,3 @@ mGlobal(Basic) const char*	sKeyDepth();
 
 } // namespace ZDomain
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uimathpropeddlg_h
-#define uimathpropeddlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -43,4 +42,3 @@ protected:
 
 };
 
-#endif

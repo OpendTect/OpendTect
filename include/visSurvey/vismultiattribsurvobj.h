@@ -1,5 +1,4 @@
-#ifndef vismultiattribsurvobj_h
-#define vismultiattribsurvobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -143,4 +142,3 @@ private:
 
 } // namespace visSurvey
 
-#endif

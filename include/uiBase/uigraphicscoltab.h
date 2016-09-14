@@ -1,5 +1,4 @@
-#ifndef uigraphicscoltab_h
-#define uigraphicscoltab_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ protected:
     uiAdvancedTextItem* maxvalitm_;
 };
 
-#endif

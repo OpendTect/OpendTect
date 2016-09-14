@@ -1,5 +1,4 @@
-#ifndef vishorizonsectiontile_h
-#define vishorizonsectiontile_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -167,4 +166,3 @@ protected:
 };
 
 }
-#endif

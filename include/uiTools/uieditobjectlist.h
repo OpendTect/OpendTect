@@ -1,5 +1,4 @@
-#ifndef uieditobjectlist_h
-#define uieditobjectlist_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -63,4 +62,3 @@ protected:
 };
 
 
-#endif

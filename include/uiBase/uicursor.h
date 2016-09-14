@@ -1,5 +1,4 @@
-#ifndef uicursor_h
-#define uicursor_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -43,4 +42,3 @@ protected:
     void	restoreInternal();
 };
 
-#endif

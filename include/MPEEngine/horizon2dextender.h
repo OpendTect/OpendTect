@@ -1,5 +1,4 @@
-#ifndef horizon2dextender_h
-#define horizon2dextender_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -64,4 +63,3 @@ protected:
 
 } // namespace MPE
 
-#endif

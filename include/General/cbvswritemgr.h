@@ -1,5 +1,4 @@
-#ifndef cbvswritemgr_h
-#define cbvswritemgr_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
 };
 
 
-#endif

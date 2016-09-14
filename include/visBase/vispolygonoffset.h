@@ -1,5 +1,4 @@
-#ifndef vispolygonoffset_h
-#define vispolygonoffset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ private:
 
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uisettings_h
-#define uisettings_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -174,4 +173,3 @@ protected:
 
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uieventfilter_h
-#define uieventfilter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -201,4 +200,3 @@ protected:
 };
 
 
-#endif

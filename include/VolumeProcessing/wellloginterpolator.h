@@ -1,5 +1,4 @@
-#ifndef wellloginterpolator_h
-#define wellloginterpolator_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -102,4 +101,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

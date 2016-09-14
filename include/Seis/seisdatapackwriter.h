@@ -1,5 +1,4 @@
-#ifndef seisdatapackwriter_h
-#define seisdatapackwriter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ private:
 };
 
 
-#endif

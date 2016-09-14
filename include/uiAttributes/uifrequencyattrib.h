@@ -1,5 +1,4 @@
-#ifndef uifrequencyattrib_h
-#define uifrequencyattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ protected:
     			mDeclReqAttribUIFns
 };
 
-#endif

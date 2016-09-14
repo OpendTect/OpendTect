@@ -1,5 +1,4 @@
-#ifndef polygonsurfaceedit_h
-#define polygonsurfaceedit_h
+#pragma once
                                                                                 
 /*+
 ________________________________________________________________________
@@ -35,4 +34,3 @@ protected:
 
 };
 
-#endif

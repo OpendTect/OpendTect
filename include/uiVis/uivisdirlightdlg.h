@@ -1,5 +1,4 @@
-#ifndef uivisdirlightdlg_h
-#define uivisdirlightdlg_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -108,4 +107,3 @@ protected:
 
 };
 
-#endif

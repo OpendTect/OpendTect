@@ -1,5 +1,4 @@
-#ifndef elasticprop_h
-#define elasticprop_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -129,4 +128,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef mouseevent_h
-#define mouseevent_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -297,4 +296,3 @@ private:
 
 
 
-#endif

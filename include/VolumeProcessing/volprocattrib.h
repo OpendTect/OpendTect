@@ -1,5 +1,4 @@
-#ifndef volprocattrib_h
-#define volprocattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -97,4 +96,3 @@ protected:
 
 } // namespace VolProc
 
-#endif

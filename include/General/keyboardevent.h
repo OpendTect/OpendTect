@@ -1,5 +1,4 @@
-#ifndef keyboardevent_h
-#define keyboardevent_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -66,4 +65,3 @@ protected:
 };
 
 
-#endif

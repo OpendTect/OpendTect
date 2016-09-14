@@ -1,5 +1,4 @@
-#ifndef seiscopy_h
-#define seiscopy_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -109,4 +108,3 @@ protected:
 
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uidatapointsetcrossplot_h
-#define uidatapointsetcrossplot_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -358,4 +357,3 @@ protected:
     void                        mouseReleasedCB(CallBacker*);
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef seisjobexecprov_h
-#define seisjobexecprov_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -100,4 +99,3 @@ protected:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef visemsticksetdisplay_h
-#define visemsticksetdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -82,4 +81,3 @@ protected:
 };
 
 
-#endif

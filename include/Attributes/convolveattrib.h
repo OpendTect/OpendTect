@@ -1,5 +1,4 @@
-#ifndef convolveattrib_h
-#define convolveattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -130,4 +129,3 @@ protected:
 }; // namespace Attrib
 
 
-#endif

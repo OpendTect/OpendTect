@@ -1,5 +1,4 @@
-#ifndef odver_h
-#define odver_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -33,4 +32,3 @@ void mGlobal(Basic) GetSpecificODVersion(const char* typ,BufferString&);
 /*!< 'typ' can be "doc" or other like vendor name. if null -> platform */
 
 
-#endif

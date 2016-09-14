@@ -1,5 +1,4 @@
-#ifndef visgridlines_h
-#define visgridlines_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -90,4 +89,3 @@ protected:
 
 } // Namespace visBase
 
-#endif

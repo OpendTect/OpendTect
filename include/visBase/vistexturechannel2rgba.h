@@ -1,5 +1,4 @@
-#ifndef vistexturechannel2rgba_h
-#define vistexturechannel2rgba_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -138,4 +137,3 @@ protected:
 
 } //namespace
 
-#endif

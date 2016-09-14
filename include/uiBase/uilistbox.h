@@ -1,5 +1,4 @@
-#ifndef uilistbox_h
-#define uilistbox_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -265,4 +264,3 @@ public:
     bool		isItemChecked(int) const;
 };
 
-#endif

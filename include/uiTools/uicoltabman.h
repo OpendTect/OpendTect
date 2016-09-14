@@ -1,5 +1,4 @@
-#ifndef uicoltabman_h
-#define uicoltabman_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -104,4 +103,3 @@ private:
     uiString			sKeyOwn();
 };
 
-#endif

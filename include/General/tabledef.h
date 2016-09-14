@@ -1,5 +1,4 @@
-#ifndef tabledef_h
-#define tabledef_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -255,4 +254,3 @@ public:
 }; // namespace Table
 
 
-#endif

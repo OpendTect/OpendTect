@@ -1,5 +1,4 @@
-#ifndef samplingdata_h
-#define samplingdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -185,4 +184,3 @@ template <class T> inline
 bool SamplingData<T>::isUdf() const
 { return mIsUdf(start) || mIsUdf(step); }
 
-#endif

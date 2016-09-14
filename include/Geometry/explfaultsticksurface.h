@@ -1,5 +1,4 @@
-#ifndef explfaultsticksurface_h
-#define explfaultsticksurface_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -145,4 +144,3 @@ protected:
 
 };
 
-#endif

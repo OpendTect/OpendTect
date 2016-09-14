@@ -1,5 +1,4 @@
-#ifndef timefun_h
-#define timefun_h
+#pragma once
 
 /*@+
 ________________________________________________________________________
@@ -61,4 +60,3 @@ namespace Time
 } // namespace Time
 
 
-#endif

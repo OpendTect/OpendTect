@@ -1,5 +1,4 @@
-#ifndef dirlist_h
-#define dirlist_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ private:
 };
 
 
-#endif

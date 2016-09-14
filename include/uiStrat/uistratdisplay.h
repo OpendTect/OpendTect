@@ -1,5 +1,4 @@
-#ifndef uistratdisplay_h
-#define uistratdisplay_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -209,4 +208,3 @@ protected:
     void			wheelMoveCB(CallBacker*);
 };
 
-#endif

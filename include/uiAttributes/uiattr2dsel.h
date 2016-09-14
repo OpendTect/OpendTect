@@ -1,5 +1,4 @@
-#ifndef uiattr2dsel_h
-#define uiattr2dsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ protected:
 };
 
 
-#endif

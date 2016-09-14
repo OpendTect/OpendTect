@@ -1,5 +1,4 @@
-#ifndef posimpexppars_h
-#define posimpexppars_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -112,4 +111,3 @@ public:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uidpscrossplottools_h
-#define uidpscrossplottools_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -95,4 +94,3 @@ protected:
 	TypeSet<SelectionArea> selareas_;
 };
 
-#endif

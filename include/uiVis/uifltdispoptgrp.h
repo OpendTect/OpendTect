@@ -1,5 +1,4 @@
-#ifndef uifltdispoptgrp_h
-#define uifltdispoptgrp_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -38,4 +37,3 @@ protected:
 };
 
 
-#endif

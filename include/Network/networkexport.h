@@ -1,5 +1,4 @@
-#ifndef networkexport_h
-#define networkexport_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -18,4 +17,3 @@ ________________________________________________________________________
 mExportTemplClassInst( Network ) ManagedObjectSet<HostData>;
 
 # endif
-#endif

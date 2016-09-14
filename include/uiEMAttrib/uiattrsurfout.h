@@ -1,5 +1,4 @@
-#ifndef uiattrsurfout_h
-#define uiattrsurfout_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -54,4 +53,3 @@ protected:
     BufferString	methodname_;
 };
 
-#endif

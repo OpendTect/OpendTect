@@ -1,5 +1,4 @@
-#ifndef uiodscenemgr_h
-#define uiodscenemgr_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -270,4 +269,3 @@ private:
     bool		initialmousewheelreversal_;
 };
 
-#endif

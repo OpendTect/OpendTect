@@ -1,5 +1,4 @@
-#ifndef uicompoundparsel_h
-#define uicompoundparsel_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -91,4 +90,3 @@ protected:
 };
 
 
-#endif

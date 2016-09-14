@@ -1,5 +1,4 @@
-#ifndef prestacklateralstack_h
-#define prestacklateralstack_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

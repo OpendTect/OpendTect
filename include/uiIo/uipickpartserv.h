@@ -1,5 +1,4 @@
-#ifndef uipickpartserv_h
-#define uipickpartserv_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -115,4 +114,3 @@ protected:
 
 };
 
-#endif

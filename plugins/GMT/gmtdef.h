@@ -1,5 +1,4 @@
-#ifndef gmtdef_h
-#define gmtdef_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -178,4 +177,3 @@ mGlobal(GMT) const GMTWellSymbolRepository& GMTWSR();
     Settings::fetch("GMT").fn(key,var); \
     Settings::fetch("GMT").write();
 
-#endif

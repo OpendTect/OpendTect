@@ -1,5 +1,4 @@
-#ifndef seisselectionimpl_h
-#define seisselectionimpl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -180,4 +179,3 @@ protected:
 
 } // namespace
 
-#endif

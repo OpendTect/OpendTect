@@ -1,5 +1,4 @@
-#ifndef seisbayesclass_h
-#define seisbayesclass_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -121,4 +120,3 @@ protected:
 #define mGetSeisBayesSeisOutIDKey(nr) mGetSeisBayesIDKey(SeisOut,nr)
 
 
-#endif

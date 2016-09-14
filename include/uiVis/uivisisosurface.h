@@ -1,5 +1,4 @@
-#ifndef uivisisosurface_h
-#define uivisisosurface_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -71,4 +70,3 @@ protected:
     uiHistogramDisplay&	funcDisp();
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef elasticpropseltransl_h
-#define elasticpropseltransl_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -15,4 +14,3 @@ ________________________________________________________________________
 
 mDeclEmptyTranslatorBundle(General,ElasticPropSelection,od,"elas")
 
-#endif

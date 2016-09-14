@@ -1,5 +1,4 @@
-#ifndef tuthortools_h
-#define tuthortools_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R.K. Singh / Karthika
@@ -90,4 +89,3 @@ protected:
 
 } // namespace
 
-#endif

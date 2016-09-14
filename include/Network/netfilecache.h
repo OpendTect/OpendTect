@@ -1,5 +1,4 @@
-#ifndef netfilecache_h
-#define netfilecache_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -168,4 +167,3 @@ protected:
 
 } // namespace Network
 
-#endif

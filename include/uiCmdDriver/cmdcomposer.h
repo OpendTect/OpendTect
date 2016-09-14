@@ -1,5 +1,4 @@
-#ifndef cmdcomposer_h
-#define cmdcomposer_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -256,4 +255,3 @@ public: \
 }; // namespace CmdDrive
 
 
-#endif

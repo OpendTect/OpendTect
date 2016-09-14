@@ -1,5 +1,4 @@
-#ifndef emobject_h
-#define emobject_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -346,4 +345,3 @@ void clss::setNewName() \
     setName( nm ); \
 }
 
-#endif

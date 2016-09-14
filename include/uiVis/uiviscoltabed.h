@@ -1,5 +1,4 @@
-#ifndef uiviscoltabed_h
-#define uiviscoltabed_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ protected:
 };
 
 
-#endif

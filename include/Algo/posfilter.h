@@ -1,5 +1,4 @@
-#ifndef posfilter_h
-#define posfilter_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -121,4 +120,3 @@ protected:
 
 } // namespace
 
-#endif

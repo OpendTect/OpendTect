@@ -1,5 +1,4 @@
-#ifndef welldahobj_h
-#define welldahobj_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -154,4 +153,3 @@ public:
 
 }; // namespace Well
 
-#endif

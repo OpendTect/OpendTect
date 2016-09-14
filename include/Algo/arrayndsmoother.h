@@ -1,5 +1,4 @@
-#ifndef arrayndsmoother_h
-#define arrayndsmoother_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -113,4 +112,3 @@ int ArrayNDGentleSmoother<T>::nextStep()
 
 
 
-#endif

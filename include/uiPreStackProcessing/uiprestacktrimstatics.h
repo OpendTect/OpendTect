@@ -1,5 +1,4 @@
-#ifndef uiprestacktrimstatics_h
-#define uiprestacktrimstatics_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -55,4 +54,3 @@ protected:
 
 } // namespace PreStack
 
-#endif

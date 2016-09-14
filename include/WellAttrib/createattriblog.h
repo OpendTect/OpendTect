@@ -1,5 +1,4 @@
-#ifndef createattriblog_h
-#define createattriblog_h
+#pragma once
 /*+
  ________________________________________________________________________
 
@@ -93,4 +92,3 @@ protected:
 
 
 
-#endif

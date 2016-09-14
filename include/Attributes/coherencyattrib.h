@@ -1,5 +1,4 @@
-#ifndef coherencyattrib_h
-#define coherencyattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -101,4 +100,3 @@ protected:
 }; // namespace Attrib
 
 
-#endif

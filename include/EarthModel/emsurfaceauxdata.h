@@ -1,5 +1,4 @@
-#ifndef emsurfaceauxdata_h
-#define emsurfaceauxdata_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -118,4 +117,3 @@ protected:
 
 } // namespace EM
 
-#endif

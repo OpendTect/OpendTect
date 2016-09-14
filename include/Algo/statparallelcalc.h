@@ -1,5 +1,4 @@
-#ifndef statparallelcalc_h
-#define statparallelcalc_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -358,4 +357,3 @@ inline double ParallelCalc<float_complex>::variance() const
 }
 
 } //namespace Stats
-#endif

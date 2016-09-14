@@ -1,5 +1,4 @@
-#ifndef nladataprep_h
-#define nladataprep_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -51,4 +50,3 @@ protected:
 };
 
 
-#endif

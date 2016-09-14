@@ -1,5 +1,4 @@
-#ifndef vismarchingcubessurface_h
-#define vismarchingcubessurface_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -88,4 +87,3 @@ protected:
 
 };
 	
-#endif

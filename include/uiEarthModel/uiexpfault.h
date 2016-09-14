@@ -1,5 +1,4 @@
-#ifndef uiexpfault_h
-#define uiexpfault_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -45,4 +44,3 @@ protected:
     bool		writeAscii();
 };
 
-#endif

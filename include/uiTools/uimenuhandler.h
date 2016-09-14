@@ -1,5 +1,4 @@
-#ifndef uimenuhandler_h
-#define uimenuhandler_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -102,4 +101,3 @@ protected:
     uiParent*			uiparent_;
 };
 
-#endif

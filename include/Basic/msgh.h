@@ -1,5 +1,4 @@
-#ifndef msgh_h
-#define msgh_h
+#pragma once
 
 /*
 ________________________________________________________________________
@@ -47,4 +46,3 @@ mGlobal(Basic)  void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
 
 
 
-#endif

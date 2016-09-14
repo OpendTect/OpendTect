@@ -1,5 +1,4 @@
-#ifndef uistatusbar_h
-#define uistatusbar_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ private:
 };
 
 
-#endif

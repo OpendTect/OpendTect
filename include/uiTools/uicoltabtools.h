@@ -1,5 +1,4 @@
-#ifndef uicoltabtools_h
-#define uicoltabtools_h
+#pragma once
 
 #include "uitoolsmod.h"
 #include "callback.h"
@@ -34,4 +33,3 @@ protected:
     uiRGBArray&			mkRGBArr(bool wa);
 };
 
-#endif

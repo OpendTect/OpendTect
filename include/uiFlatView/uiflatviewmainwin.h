@@ -1,5 +1,4 @@
-#ifndef uiflatviewmainwin_h
-#define uiflatviewmainwin_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -54,4 +53,3 @@ public:
 
 };
 
-#endif

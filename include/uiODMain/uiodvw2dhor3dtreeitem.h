@@ -1,5 +1,4 @@
-#ifndef uiodvw2dhor3dtreeitem_h
-#define uiodvw2dhor3dtreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -94,4 +93,3 @@ protected:
     void		emobjAbtToDelCB(CallBacker*);
 };
 
-#endif

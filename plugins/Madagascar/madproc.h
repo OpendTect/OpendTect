@@ -1,5 +1,4 @@
-#ifndef madproc_h
-#define madproc_h
+#pragma once
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Raman Singh
@@ -59,4 +58,3 @@ protected:
 
 } // namespace ODMad
 
-#endif

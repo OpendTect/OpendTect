@@ -1,5 +1,4 @@
-#ifndef uielasticpropsel_h
-#define uielasticpropsel_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -138,4 +137,3 @@ protected:
 
 
 
-#endif

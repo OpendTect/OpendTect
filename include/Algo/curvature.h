@@ -1,5 +1,4 @@
-#ifndef curvature_h
-#define curvature_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -68,4 +67,3 @@ public:
 };
 
 
-#endif

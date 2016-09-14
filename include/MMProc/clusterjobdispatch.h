@@ -1,5 +1,4 @@
-#ifndef clusterjobdispatch_h
-#define clusterjobdispatch_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -65,4 +64,3 @@ protected:
 } // namespace Batch
 
 
-#endif

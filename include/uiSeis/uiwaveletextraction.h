@@ -1,5 +1,4 @@
-#ifndef uiwaveletextraction_h
-#define uiwaveletextraction_h
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -66,4 +65,3 @@ protected:
     int				wvltsize_;
 };
 
-#endif

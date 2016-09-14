@@ -1,5 +1,4 @@
-#ifndef helpview_h
-#define helpview_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -69,4 +68,3 @@ public:
 #define mODHelpKey( arg ) HelpKey( "od", ::toString(arg) )
 
 
-#endif

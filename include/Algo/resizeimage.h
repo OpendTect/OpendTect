@@ -1,5 +1,4 @@
-#ifndef resizeimage_h
-#define resizeimage_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -58,4 +57,3 @@ protected:
 };
 
 
-#endif

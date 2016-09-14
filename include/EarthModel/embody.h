@@ -1,5 +1,4 @@
-#ifndef embody_h
-#define embody_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -75,4 +74,3 @@ protected:
 
 } // namespace EM
 
-#endif

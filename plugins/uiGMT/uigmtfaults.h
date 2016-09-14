@@ -1,5 +1,4 @@
-#ifndef uigmtfaults_h
-#define uigmtfaults_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
     uiColorInput*		colorfld_;
 };
 
-#endif

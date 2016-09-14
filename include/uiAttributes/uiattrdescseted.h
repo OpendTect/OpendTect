@@ -1,5 +1,4 @@
-#ifndef uiattrdescseted_h
-#define uiattrdescseted_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -189,4 +188,3 @@ public:
     void			updtAllEntries();
 };
 
-#endif

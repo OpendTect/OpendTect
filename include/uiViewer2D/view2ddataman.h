@@ -1,5 +1,4 @@
-#ifndef view2ddataman_h
-#define view2ddataman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -65,4 +64,3 @@ protected:
 					const Vw2DDataObject*) const;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef ioman_h
-#define ioman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -198,4 +197,3 @@ public:
 mGlobal(General) IOMan&	IOM();
 
 
-#endif

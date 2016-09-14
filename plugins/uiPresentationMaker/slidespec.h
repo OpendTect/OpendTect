@@ -1,5 +1,4 @@
-#ifndef slidespec_h
-#define slidespec_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,4 +56,3 @@ public:
     int			layoutindex_;
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef uiwellman_h
-#define uiwellman_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -96,4 +95,3 @@ protected:
 
 };
 
-#endif

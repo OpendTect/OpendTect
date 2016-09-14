@@ -1,5 +1,4 @@
-#ifndef datapointset_h
-#define datapointset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -252,4 +251,3 @@ protected:
     DataColDef&		gtColDef(ColID) const;
 };
 
-#endif

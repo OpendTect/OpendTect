@@ -1,5 +1,4 @@
-#ifndef manobjectset_h
-#define manobjectset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -239,4 +238,3 @@ ObjectSet<T>& RefObjectSet<T>::doAdd( T *ptr )
 
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef samplevalueattrib_h
-#define samplevalueattrib_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -48,4 +47,3 @@ protected:
 
 } // namespace Attrib
 
-#endif

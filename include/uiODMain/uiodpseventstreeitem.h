@@ -1,5 +1,4 @@
-#ifndef uiodpseventstreeitem_h
-#define uiodpseventstreeitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -81,4 +80,3 @@ protected:
     int				dispidx_;
 };
 
-#endif

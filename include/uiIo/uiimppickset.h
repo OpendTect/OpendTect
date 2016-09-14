@@ -1,5 +1,4 @@
-#ifndef uiimppickset_h
-#define uiimppickset_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -67,4 +66,3 @@ private:
 };
 
 
-#endif

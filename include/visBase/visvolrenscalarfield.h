@@ -1,5 +1,4 @@
-#ifndef visvolrenscalarfield_h
-#define visvolrenscalarfield_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -155,4 +154,3 @@ protected:
 
 }
 
-#endif
