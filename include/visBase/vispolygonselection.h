@@ -81,12 +81,13 @@ public:
     void			setMasterCamera(Camera*);
     void			setHUDCamera(Camera*);
     PolygonSelection*		copy() const;
-
+    
 protected:
+				PolygonSelection(
+				    const osgGeo::PolygonSelection*);
+				~PolygonSelection();
 
     void			polygonChangeCB(CallBacker*);
-
-					~PolygonSelection();
 
 
     const mVisTrans*			utm2disptransform_;
