@@ -498,7 +498,7 @@ bool IOMan::goTo( const IOSubDir* sd, bool forcereread,
 }
 
 
-DBKey IOMan::createNewKey( DBKey::GroupID dirid )
+DBKey IOMan::createNewKey( DirID dirid )
 {
     mLock4Read();
     if ( !mGoTo(dirid,true) || !dirptr_ )

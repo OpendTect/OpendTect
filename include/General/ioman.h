@@ -73,7 +73,7 @@ public:
     BufferString	nameFor(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
 
-    DBKey		createNewKey(DBKey::GroupID);
+    DBKey		createNewKey(DirID);
 
     bool		to(DirID,bool force_reread=false);
     bool		to(const DBKey&,bool force_reread=false);
@@ -134,8 +134,8 @@ public:
     static bool		isValidDataRoot(const char* dirnm);
     static bool		isValidSurveyDir(const char* dirnm);
 
-    mDeprecated BufferString	nameOf( const char* keystr ) const
-				{ return nameFor( keystr ); }
+    mDeprecated BufferString nameOf( const char* keystr ) const
+			{ return nameFor( keystr ); }
 
 private:
 
