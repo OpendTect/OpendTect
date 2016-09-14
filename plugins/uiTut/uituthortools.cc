@@ -7,7 +7,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uituthortools.h" 
+#include "uituthortools.h"
 #include "tuthortools.h"
 
 #include "ctxtioobj.h"
@@ -24,17 +24,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
-#include "od_helpids.h"
-
 
 uiTutHorTools::uiTutHorTools( uiParent* p )
 	: uiDialog( p, Setup( tr("Tut Horizon tools"),
 			      tr("Specify process parameters"),
-			      mNoHelpKey ) )
+			      HelpKey("tut","hor") ) )
 {
     taskfld_= new uiGenInput( this, tr("Task"),
-	    		BoolInpSpec(true,tr("Thickness between two horizons"),
-			    		 tr("Smooth a horizon")) );
+			BoolInpSpec(true,tr("Thickness between two horizons"),
+					 tr("Smooth a horizon")) );
     taskfld_->valuechanged.notify( mCB(this,uiTutHorTools,choiceSel) );
 
     IOObjContext ctxt = mIOObjContext(EMHorizon3D);
@@ -46,12 +44,12 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     inpfld2_->attach( alignedBelow, inpfld_ );
 
     selfld_= new uiGenInput( this, tr("Add Result as an Attribute to "),
-	                BoolInpSpec(true, uiStrings::sTopHor(), 
-                                    uiStrings::sBottomHor()) ); 
+			BoolInpSpec(true, uiStrings::sTopHor(),
+				    uiStrings::sBottomHor()) );
     selfld_->attach( alignedBelow, inpfld2_ );
 
     attribnamefld_ = new uiGenInput( this, uiStrings::sAttribName(),
-	    		StringInpSpec( sKey::Thickness() ) );
+			StringInpSpec( sKey::Thickness() ) );
     attribnamefld_->attach( alignedBelow, selfld_ );
 
     // For smoothing
@@ -61,7 +59,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     outfld_->attach( alignedBelow, inpfld_ );
 
     strengthfld_ = new uiGenInput( this, tr("Filter Strength"),
-	    		BoolInpSpec(true, tr("Low"), tr("High")) );
+			BoolInpSpec(true, tr("Low"), tr("High")) );
     strengthfld_->attach( alignedBelow, outfld_ );
 
     postFinalise().notify( mCB(this,uiTutHorTools,choiceSel) );
@@ -76,7 +74,7 @@ uiTutHorTools::~uiTutHorTools()
 void uiTutHorTools::choiceSel( CallBacker* )
 {
     const bool isthick = taskfld_->getBoolValue();
-    inpfld_->setLabelText( isthick ? uiStrings::sTopHor() 
+    inpfld_->setLabelText( isthick ? uiStrings::sTopHor()
 				   : tr("Input Horizon") );
     inpfld2_->display( isthick );
     selfld_->display( isthick );
@@ -168,7 +166,7 @@ bool uiTutHorTools::doSmoother()
     Tut::HorSmoother* calc = new Tut::HorSmoother;
     mGetHor( hor, inpfld_ );
     calc->setHorizons( hor );
-    calc->setWeak( strengthfld_->getBoolValue() ); 
+    calc->setWeak( strengthfld_->getBoolValue() );
 
     if ( !taskrunner.execute(*calc) )
 	return false;

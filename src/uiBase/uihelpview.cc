@@ -22,8 +22,40 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "uimsg.h"
 
-static IOPar urltable;
 
+SimpleHelpProvider::SimpleHelpProvider( const char* baseurl, const char* fnm )
+    : baseurl_(baseurl)
+{
+    if ( fnm && *fnm )
+	keylinks_.read( fnm, 0 );
+}
+
+
+void SimpleHelpProvider::addKeyLink( const char* key, const char* lnk )
+{
+    keylinks_.set( key, lnk );
+}
+
+
+bool SimpleHelpProvider::hasHelp( const char* key ) const
+{
+    return keylinks_.hasKey( key );
+}
+
+
+void SimpleHelpProvider::provideHelp( const char* key ) const
+{
+    BufferString link;
+    if ( !keylinks_.get(key,link) )
+	return;
+
+    BufferString url( baseurl_ );
+    url.add( link );
+    uiDesktopServices::openUrl( url );
+}
+
+
+static IOPar urltable;
 
 void FlareHelpProvider::initClass( const char* factorykey, const char* baseurl )
 {

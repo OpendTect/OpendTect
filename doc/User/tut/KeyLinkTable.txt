@@ -1,0 +1,5 @@
+seis: tutseistools.html
+hor: tuthortools.html
+well: tutwelltools.html
+attrib: tutorialattrib.html
+!

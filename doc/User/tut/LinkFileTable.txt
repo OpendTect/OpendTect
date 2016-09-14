@@ -1,3 +1,0 @@
-link-Tut.Tools.Seis tutseistools.html
-link-Tut.Tools.Hor tuthortools.html
-link-Tut.Tools.Well tutwelltools.html
