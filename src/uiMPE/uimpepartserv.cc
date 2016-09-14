@@ -315,9 +315,6 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* )
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     if ( !tracker ) return;
 
-    if ( setupgrp_ )
-	setupgrp_->commitToTracker();
-
 
     saveSetup( EM::EMM().getDBKey( trackercurrentobject_) );
 
