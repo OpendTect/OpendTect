@@ -54,9 +54,14 @@ od_uint64 uniqueSystemID()
 
     addresses.sort();
 
-    const BufferString address = addresses.get(0);
+    const char* virtboxaddress = "0A:00:27:00:00:00";
+    BufferString address = addresses.get( 0 );
+    if ( address==virtboxaddress && addresses.validIdx(1) )
+	address = addresses.get( 1 );
+
     return checksum64( (const unsigned char*) address.buf(), address.size() );
 }
+
 
 const char* localHostName()
 {
@@ -231,7 +236,7 @@ void getFreeMBOnDiskMsg( int mb, uiString& str )
     			"Free space on disk: %1")
 	.arg( converter.getString( bytes ) );
 }
-  
+
 
 void getFreeMBOnDiskUiMsg( int mb, uiString& msg )
 {
