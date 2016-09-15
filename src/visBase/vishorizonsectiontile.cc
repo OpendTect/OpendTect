@@ -211,8 +211,7 @@ void HorizonSectionTile::enableGeometryTypeDisplay( GeometryType type, bool yn )
     {
 	if ( !tileresolutiondata_.validIdx(res) )
 	    continue;
-
-        visBase::TileResolutionData* tileres = tileresolutiondata_[res];
+	visBase::TileResolutionData* tileres = tileresolutiondata_[res];
 	if ( tileres )
 	    tileres->enableGeometryTypeDisplay( type, yn );
     }
@@ -225,8 +224,7 @@ void HorizonSectionTile::setWireframeColor( Color& color )
     {
 	if ( !tileresolutiondata_.validIdx(res) )
 	    continue;
-
-        visBase::TileResolutionData* tileres = tileresolutiondata_[res];
+	visBase::TileResolutionData* tileres = tileresolutiondata_[res];
 	if ( tileres )
 	    tileres->setWireframeColor( color );
     }
@@ -347,7 +345,7 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
 	updatenewpoint_ =  false;
     }
     else
-        tileresolutiondata_[res]->tesselateResolution( onlyifabsness );
+	tileresolutiondata_[res]->tesselateResolution( onlyifabsness );
 
     datalock_.unLock();
 }
@@ -411,7 +409,7 @@ void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 		bbox_.expandBy( (*osgvertices)[crdidx] );
 		computeNormal( crdidx,(*mGetOsgVec3Arr(normals_))[crdidx] );
 	    }
- 	    crdidx++;
+	    crdidx++;
        }
     }
 
@@ -750,7 +748,14 @@ bool HorizonSectionTile::getResolutionTextureCoordinates(
 bool HorizonSectionTile::getResolutionPrimitiveSet(
     TypeSet<int>& ps,GeometryType type) const
 {
-    char res = getActualResolution();
+    const char res = getActualResolution();
+    return getResolutionPrimitiveSet( res, ps, type ); 
+}
+
+
+bool HorizonSectionTile::getResolutionPrimitiveSet(
+    char res, TypeSet<int>& ps,GeometryType type) const
+{
     if ( res==-1 ) res = 0;
 
     const osg::PrimitiveSet* osgps =
@@ -763,3 +768,4 @@ bool HorizonSectionTile::getResolutionPrimitiveSet(
 
     return true;
 }
+

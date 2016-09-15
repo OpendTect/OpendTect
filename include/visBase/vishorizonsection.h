@@ -134,17 +134,20 @@ public:
 
     int				getNrTitles() const;
     bool			getTitleCoordinates(int,TypeSet<Coord3>&) const;
+				/*!<don't use it, only for ABI*/
     const unsigned char*	getTextureData(int titleidx,int& w,int& h)const;
     bool			getTitleNormals(
 				    int titleidx,TypeSet<Coord3>&) const;
+				/*!<don't use it, only for ABI*/
     bool			getTitleTextureCoordinates(
 				    int titleidx,TypeSet<Coord>&) const;
     bool			getTitlePrimitiveSet(int titleidx,
 				    TypeSet<int>&,GeometryType) const;
+				/*!<don't use it, only for ABI*/
     int				getTexturePixelSizeInBits() const;
     void			setUsingNeighborsInIsolatedLine(bool);
     bool			usingNeighborsInIsolatedLine() const;
-
+    
 protected:
 				~HorizonSection();
 
@@ -157,6 +160,7 @@ protected:
     friend class		HorizonSectionTileGlue;
     friend class		HorizonSectionTilePosSetup;
     friend class		TileCoordinatesUpdator;
+    friend class		HorizonTileResolutionTesselator;
 
     void			surfaceChangeCB(CallBacker*);
     void			surfaceChange(const TypeSet<GeomPosID>*,

@@ -99,6 +99,9 @@ protected:
 							TypeSet<Coord>&) const;
     bool			getResolutionPrimitiveSet(
 					     TypeSet<int>&,GeometryType) const;
+				/*!<don't use it, only for ABI. */
+  bool				getResolutionPrimitiveSet( char res,
+					     TypeSet<int>&,GeometryType) const;
     bool			getResolutionCoordinates(TypeSet<Coord3>&)const;
 
     void			dirtyGeometry();
@@ -118,7 +121,7 @@ protected:
     friend class		HorizonSectionTileGlue;
     friend class		HorizonTextureHandler;
     friend class		TileCoordinatesUpdator;
-
+    friend class		HorizonTileResolutionTesselator;
 
     void			updateBBox();
     void			buildOsgGeometries();
