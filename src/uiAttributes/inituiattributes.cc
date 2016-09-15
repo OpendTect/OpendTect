@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uiprestackattrib.h"
 #include "uipositionattrib.h"
 #include "uireferenceattrib.h"
+#include "uireliefattrib.h"
 #include "uisamplevalueattrib.h"
 #include "uiscalingattrib.h"
 #include "uisemblanceattrib.h"
@@ -52,6 +53,7 @@ mDefModInitFn(uiAttributes)
     uiPreStackAttrib::initClass();
     uiPositionAttrib::initClass();
     uiReferenceAttrib::initClass();
+    uiReliefAttrib::initClass();
     uiSampleValueAttrib::initClass();
     uiScalingAttrib::initClass();
     uiSemblanceAttrib::initClass();
