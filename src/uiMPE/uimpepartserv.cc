@@ -360,9 +360,6 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* )
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     if ( !seedpicker ) return;
 
-    if ( setupgrp_ )
-	setupgrp_->commitToTracker();
-
     saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
 
 
