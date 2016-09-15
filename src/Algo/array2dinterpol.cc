@@ -757,19 +757,24 @@ bool Array2DInterpol::trimArray( int step, Array2D<char>& edgesmask )
 }
 
 
-mDefParallelCalc4Pars( ArrPolyCropper, od_static_tr("ArrPolyCropper",
+mDefParallelCalc5Pars( ArrPolyCropper, od_static_tr("ArrPolyCropper",
 	    "Crop array along polygon"),
-	const ODPolygon<double>*, poly, Array2D<float>&, arr,
+	const ODPolygon<double>*, poly, Array2D<float>&, arr, int, nrrows,
 	int, nrcols, const BinID&, origin )
 mDefParallelCalcBody
 (
+	const Array2DInfoImpl info2d( nrrows_, nrcols_ );
+	ArrayNDIter iter( info2d );
+	iter.setGlobalPos( start );
     ,
-	const int iidx = (int)(idx / nrcols_);
-	const int iidy = (int)(idx % nrcols_);
+	const int iidx = iter[0];
+	const int iidy = iter[1];
 	Geom::Point2D<double> pos( mCast(double,iidx + origin_.inl()),
 				   mCast(double,iidy + origin_.crl()) );
 	if ( !poly_->isInside(pos,true,0) )
 	    arr_.set( iidx, iidy, mUdf(float) );
+
+	iter.next();
     ,
 )
 
@@ -779,7 +784,8 @@ bool Array2DInterpol::doFinish( bool success )
     if ( filltype_==Polygon && poly_ && croppoly_ && arr_ )
     {
 	//arrsetter_ is not considered since its never been finished
-	ArrPolyCropper polycrop( nrcells_, poly_, *arr_, nrcols_, origin_ );
+	ArrPolyCropper polycrop( nrcells_, poly_, *arr_, nrrows_, nrcols_,
+				 origin_ );
 	polycrop.execute();
     }
 
