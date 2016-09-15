@@ -147,6 +147,7 @@ protected:
     void			job2Set(CallBacker*);
     void			crossPlot(CallBacker*);
     void			directShow(CallBacker*);
+    void			procAttribute(CallBacker*);
     void			evalAttribute(CallBacker*);
     void			crossEvalAttrs(CallBacker*);
     void			importFromFile(const char*);

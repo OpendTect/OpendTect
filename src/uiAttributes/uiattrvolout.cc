@@ -159,6 +159,13 @@ uiAttrVolOut::~uiAttrVolOut()
     delete nlamodel_;
 }
 
+void uiAttrVolOut::setInput( const Attrib::DescID& descid )
+{
+    Attrib::Desc* desc = ads_->getDesc( descid );
+    todofld_->setDesc( desc );
+    attrSel( 0 );
+}
+
 
 void uiAttrVolOut::updateAttributes( const Attrib::DescSet& descset,
 				     const NLAModel* nlamodel,

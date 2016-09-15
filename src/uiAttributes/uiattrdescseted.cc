@@ -44,6 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribfactory.h"
 #include "uiattrinpdlg.h"
 #include "uiattrtypesel.h"
+#include "uiattrvolout.h"
 #include "uiautoattrdescset.h"
 #include "uicombobox.h"
 #include "uidesktopservices.h"
@@ -279,6 +280,11 @@ void uiAttribDescSetEd::createGroups()
 	tr("Recalculate this attribute on selected element"),
 	mCB(this,uiAttribDescSetEd,directShow) );
     dispbut_->attach( rightTo, addbut_ );
+
+    uiToolButton* procbut = new uiToolButton( rightgrp, "seisout",
+	tr("Process this attribute"),
+	mCB(this,uiAttribDescSetEd,procAttribute) );
+    procbut->attach( rightTo, dispbut_ );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
@@ -1249,6 +1255,20 @@ void uiAttribDescSetEd::directShow( CallBacker* )
     if ( doCommit() )
 	dirshowcb.trigger();
     updateFields();
+}
+
+
+void uiAttribDescSetEd::procAttribute( CallBacker* )
+{
+    if ( !curDesc() )
+	mErrRet( tr("Please add this attribute first") )
+
+    if ( !doCommit() ) return;
+
+    uiAttrVolOut* dlg = new uiAttrVolOut( this, *attrset_, false,
+					  0, MultiID::udf() );
+    dlg->setInput( curDesc()->id() );
+    dlg->show();
 }
 
 

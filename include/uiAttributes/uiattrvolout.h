@@ -40,6 +40,7 @@ public:
 				     bool multioutput,
 				     const NLAModel*,const MultiID& nlaid);
 			~uiAttrVolOut();
+    void		setInput(const Attrib::DescID&);
 
     const IOPar&	subSelPar() const		{ return subselpar_; }
     const Attrib::CurrentSel& outputSelection() const	{ return sel_; }
