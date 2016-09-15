@@ -177,7 +177,6 @@ bool HorizonTileResolutionTesselator::createTiles()
     if ( rrg.width(false)<0 || crg.width(false)<0 )
 	return false;
 
-    RowCol origin = RowCol( rrg.start, crg.start );
     const int nrrows = nrBlocks( rrg.nrSteps()+1,
 				 horsection_->nrcoordspertileside_, 1 );
     const int nrcols = nrBlocks( crg.nrSteps()+1,
