@@ -33,8 +33,6 @@
 <h1>OpendTect plugins</h1>
 <a href=#intro>Intro</a>
 | <a href=#concept>Concept</a>
-| <a href=#helloworld>Hello World</a>
-| <a href=#mnudlg>Menus and Dialogs</a>
 | <a href=#tutplugin>The Tutorial plugin</a>
 | <a href=#helpdoc>Help Doc Creation</a>
 | <a href=#autoload>Installation and auto-loading</a>
@@ -116,241 +114,28 @@ objects (and always after the static objects are initialised). The
 second function simply provides info for the users of your plugin.
 </p>
 
-<a name="helloworld"><h3 id="heading3">Hello world</h3></a>
-
-<p id="text"> Note that the standard plugin functions must be declared 'extern "C"', as you
-can see in the first example plugin "Hello": </p>
-
-<pre id="code"><code>#include &lt;iostream&gt;
-extern "C" const char* InitHelloPlugin( int, char** )
-{
-    std::cout &lt;&lt; "Hello world" &lt;&lt; std::endl;
-    return 0; // All OK - no error messages
-}
-</code></pre>
-
-<p id="text"> You'll find this example plugin in the plugins directory of your
-work environment. Those 6 lines are enough to constitute a plugin for
-OpendTect. The CMakeLists.txt to build the plugin looks like this: </p>
-
-<p id="text">
-<pre id="code"><code>SET(OD_MODULE_DEPS Basic)
-SET(OD_IS_PLUGIN yes)
-SET(OD_MODULE_SOURCES
-        hellopi.cc)
-SET( OD_PLUGIN_EXECS ${OD_MAIN_EXEC} )
-SET( OD_NO_ALO_ENTRY 1 )
-OD_INIT_MODULE()
-</code></pre>
-</p>
-
-<p id="text"> First try <code>make -n</code> (make sure you have <a
-href="http://cmake.org">CMake</a> initialised!). Notice that CMake makes an
-awful big Makefile with a small specification. This is because the CMakeLists.txt includes loads of stuff.</p>
 <p id="text">An important remark here is that CMake supports plugin generation fully when the subdirectory name is the same as the plugin (base-)name. Thus, subdirectory MyPlugin generates libMyPlugin.so (or libMyPlugin.dylib or MyPlugin.dll) which should contain an InitMyPlugin() function.</p>
 <p id="text">Anyway, after typing
 <code>make</code> the plugin should be generated. The new plugin can
 be loaded from within OpendTect (Menu Utilities-Plugins; press the
-'Load new' button). If you have set the OD_I_AM_AN_OPENDTECT_DEVELOPER variable, then the message 'Hello world' should appear on stdout, otherwise it will appear in the log file. </p>
-
-<p id="text"> To make this a UI - based program we'll need to use functionality
-from the <code>uiBase</code> module. In this case, we use the
-<code>uiMSG()</code> utility: </p>
-
-
-<pre id="code"><code>#include "uimsg.h"
-extern "C" const char* InituiHelloPlugin( int*, char** )
-{
-    uiMSG().message( "Hello world" );
-    return 0; // All OK - no error messages
-}
-</code></pre>
-
-<p id="text">Again 6 lines, but now, when you load it, you'll get a popup
-message with an OK button. </p>
-
-<p id="text">In this case we actually use stuff from OpendTect libraries, so the
-Makefile needs to change. We need change the module dependency:
-
-<pre id="code"><code>SET(OD_MODULE_DEPS uiODMain)</code></pre>
-
-<p id="text">If you really want to see this simple thing working, make sure you add <code>OWNC++FLAGS=-DPLAN_A</code> to the make command line.</p>
+'Load new' button).</p>
 
 <h3 id="heading3">Macros to define the required functions</h3>
 
-<p id="text">As of version 4.2, there are macros available to define the plugin functions. They make it easier to read and maintain these functions. They are in odplugin.h. You'll use 2 of them for late (UI) plugins, 3 for early:</p>
+<p id="text">There are macros available to define the plugin functions. They make it easier to read and maintain these functions. They are in odplugin.h. You'll use 2 of them for late (UI) plugins, 3 for early:</p>
 <ul>
 <li><code>mDefODPluginEarlyLoad(PluginName)</code>
 <li><code>mDefODPluginInfo(PluginName)</code>
 <li><code>mDefODInitPlugin(PluginName)</code>
 </ul>
 </code>
-<p id="text">uiHello can be changed to:</p>
-<pre id="code"><code>#include "uimsg.h"
-mDefODInitPlugin(uiHello)
-{
-    uiMSG().message( "Hello world" );
-    return 0; // All OK - no error messages
-}
-</code></pre>
+<p id="text">See the Tutorial plugin code for example.</p>
 
-
-<br>
-<h2 id="heading2">Realistic examples</h2>
-
-<a name="mnudlg"><h3 id="heading3">Menus and Dialogs</h3></a>
-
-<h3 id="heading3">Intro</h3>
-
-<p id="text"> Adding menu items popping up your own dialogs is pretty easy once
-you get the hang of it. Although we fear that you might be scared by this code when you first see it, we hope that after the explanations below you will see
-some beauty in it and start to like it.</p>
-
-<p id="text">Look in uihellopi.cc - the else of the PLAN_A part. First of all,
-we nicely define the other standard plugin functions:</p>
-
-<pre id="code"><code>
-mDefODPluginInfo(uiHello)
-{
-    static PluginInfo retpi = {
-	"uiHello plugin - plan B",
-	"Bert",
-	"1.1.1",
-	"This is the more extensive variant of the uiHello example.\n"
-   	"See the plugin manual for details." };
-    return &retpi;
-}
-</pre></code>
-
-<p id="text">The plugin will now <a href=#autoload>auto-load</a> late when added to the auto-loaded plugins, and show up in the Utilties-Plugins window with a proper name and description.</p>
-
-<p id="text"> The idea is to add a menu item 'Display Hello Message ...' to the
-'Utilities' menu of OpendTect. The CMakeLists.txt and the example code are
-already prepared for this.
-
-</p>
-
-<h3 id="heading3">Problems</h3>
-
-<p id="text">The two problems we are faced with are:</p>
-
-<ol>
-<li>How to add a new menu item
-<li>How to create a dialog
-</ol>
-
-<p id="text"> The real problem behind the first is not so much how to make the
-item itself, but how to get hold of the parent menu it must be
-inserted into. This is a threshold that needs to be conquered for
-every new system: you'll need an entry point, a seed to get you going.
-In OpendTect, the entry point is the global instance of the uiODMain
-class that can be accessed through the <code>uiODMain*
-ODMainWin()</code> global function. Once you have that, you can reach
-any object you need.</p>
-
-<p id="text"> To see where things start, go to the InituiHelloPlugin
-function at the bottom of uihellopi.cc to find: </p>
-
-<pre id="code"><code>mDefODInitPlugin(uiHello)
-{
-    (void)new uiHelloMgr( ODMainWin() );
-    return 0; // All OK - no error messages
-}
-</pre></code>
-
-<p id="text"> As you can see, the ODMainWin() instance is passed to a new
-instance of <code>uiHelloMgr</code> which is programmed in the lines
-above it. This Manager object is needed as you will find that most
-non-trivial GUI plugin will need some kind of top-level 'application
-management' object to drive it. </p>
-
-<h3 id="heading3">The <code>uiHelloMgr</code></h3>
-
-<p id="text"> An important part of any GUI system is callback handling. In
-OpendTect, callbacks are basic objects used throughout the system, not
-only in the User Interface. In any case, because callbacks can only be
-sent to objects that are <code>CallBacker</code>s, we have made
-<code>uiHelloMgr</code> a descendent of <code>CallBacker</code>, so it
-can receive the callback from the menu. When the uiHelloMgr is
-constructed, it will add a menu item to the OpendTect menu: </p>
-
-<code><pre id="code">
-    uiMenuItem* newitem = new uiMenuItem( "&amp;Diplay Hello Message ...",
-                                          mCB(this,uiHelloMgr,dispMsg) );
-    appl.menuMgr().utilMnu()->insertItem( newitem );
-</code></pre>
-
-<p id="text">The new menu item is defined by the display text (the '&amp;'
-makes the 'D' the shortcut key) and the CallBack that needs to be
-called when the item is activated (by the user). Note the
-<code>mCB</code> which is a macro that makes the rather difficult C++
-notation easy to understand. See callback.h in the <code>Basic</code>
-include directory if you're really interested. </p>
-
-<p id="text"> The next line inserts the item into the 'Utilities' menu. You'll
-find a bunch of methods in the <code>uiODMenuMgr</code> class to
-access all menus and toolbars. </p>
-
-<h3 id="heading3">The <code>uiHelloMsgBringer</code></h3>
-
-<p id="text"> Most dialog windows in OpendTect are objects of type
-<code>uiDialog</code>. <code>uiDialog</code> inherits from <code>uiMainWin</code>, the base class without Ok and Cancel buttons, a window title,
-and so forth (all of those are optional BTW).
-The <code>uiHelloMsgBringer</code> class is such a <code>uiDialog</code>.
-The class contains a field for user input of the string
-to display as message. To make the example a bit lively, we added a
-field whether the message should be, eh, just a message, or a warning.
-You can see the <code>uiGenInput</code> class will serve both input
-fields nicely, you just need to define another <code>InpSpec</code>
-instance: </p>
-
-<code><pre id="code">txtfld = new uiGenInput( this, "Hello message",
-                         StringInpSpec("Hello world") );
-typfld = new uiGenInput( this, "Message type",
-                         BoolInpSpec(true,"Info","Warning") );
-typfld->attach( alignedBelow, txtfld );
-</code></pre>
-
-<p id="text"> Note that "Hello world" is the inital string displayed in
-<code>txtfld</code>. Another feature of the OpendTect UI is the
-automatic layout: we program the positions of the various fields by
-attaching them in certain ways - most commonly
-<code>alignedBelow</code>. </p>
-
-<p id="text"> The actual message is displayed when the user presses Ok on the
-dialog that pops up. When nothing is filled in, we give the user the
-finger with the "Please type a text" message, and we do not accept the
-Ok, i.e. the dialog remains on the screen and the user can either be a
-good girl (or boy) and fill in something or press cancel.</p>
-
-<code><pre id="code">if ( ! *typedtxt )
-{
-    uiMSG().error( "Please type a message text" );
-    return false;
-}
-</code></pre>
-
-<p id="text"> When a message is present, we do as we're told: </p>
-
-
-<code><pre id="code">if ( typfld->getBoolValue() )
-    uiMSG().message( typedtxt );
-else
-    uiMSG().warning( typedtxt );
-return true;
-</code></pre>
-
-
-<p id="text">and the dialog disappears immediately after the message appears on
-the screen and the user clicks OK.</p>
-
-<br>
-<br>
 <a name="tutplugin"><h3 id="heading3">The Tutorial plugin</h3></a>
 
 <h3 id="heading3">Intro</h3>
 
-<p id="text">Now that we've seen some basic plugin stuff, and some basic GUI stuff, we can move on to a real plugin that looks like something that could actually be useful. For this purpose, we have created the Tutorial plugins. As is common in OpendTect, there is a plugin 'Tut' for non-ui, real-work stuff, and the 'uiTut' for the GUI part.</p>
+<p id="text">We have created the Tutorial plugins that you can find in your work environment. As is common in OpendTect, there is a plugin 'Tut' for non-ui, real-work stuff, and the 'uiTut' for the GUI part.</p>
 <p id="text">The idea of the tutorial plugins is to show a variety of common things that one might want to do, rather than make something useful for end-users. For that we'll make the following tools:</p>
 <ul>
 <li>Manipulating some seismic data (read, process, write)
@@ -370,15 +155,15 @@ the screen and the user clicks OK.</p>
 
 <h3 id="heading3">The <code>uiTut</code> plugin</h3>
 
-<p id="text">In the uiHello plugin, you have already seen how to add a menu item and how to create a dialog. In uiTut, the GUI consists of two parts. One is similar to that in uiHello and deals with opening an independent dialog box via a menu item in the 'Utilities' menu. The other part gets the 'Tutorial' attribute listed in the 'Edit Attributes' dialog and creates the input fields in the same dialog box. It also sends the input parameters to <a href=#tutattrib><code>Tutorial</code></a> for attribute computation</p>
+<p id="text">In uiTut, the GUI consists of two parts. One deals with opening an independent dialog box via a menu item in the 'Utilities' menu. The other part gets the 'Tutorial' attribute listed in the 'Edit Attributes' dialog and creates the input fields in the same dialog box. It also sends the input parameters to <a href=#tutattrib><code>Tutorial</code></a> for attribute computation</p>
 
-<p id="text">Let us first have a look at the independent dialog part which in turn has two parts -- one for seismic tools and the other for horizon tools. the insertion of menu item and opening of dialog is similar to that in uiHello. The only interesting part is the <code>uiIOObjSel</code> class which allows you to select an item from a set -- a horizon or a seismic cube ( subclass <code>uiSeisSel</code> is used for seismic cube selection).</p>
+<p id="text">Let us first have a look at the independent dialog part which in turn has two parts -- one for seismic tools and the other for horizon tools. The only interesting part is the <code>uiIOObjSel</code> class which allows you to select an item from a set -- a horizon or a seismic cube ( subclass <code>uiSeisSel</code> is used for seismic cube selection).</p>
 
 <p id="text"> Both <code>uiSeisTools</code> and <code>uiHorTools</code> use the class <code><a href="Generated/uiTools/classuiTaskRunner.html">uiTaskRunner</a></code>, which triggers the <code>Executor</code>'s in the <b><code><a href=#tut>Tut</a></code></b> plugin. The class <code>uiTaskRunner</code> also displays a progress bar which keeps the user informed about the progress of the process.</p>
 
-<p id="text"> Now we come to the attribute part. In the uitutorialattrib.cc file we see that although uiAttrDescEd is not a uiDialog like the the uiHello example, it still is a valid parent (being a uiGroup) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the inpfld is a special Attribute UI class which is handled just like any pre-defined uiBase or uiTools class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.</p>
+<p id="text"> Now we come to the attribute part. In the uitutorialattrib.cc file we see that although uiAttrDescEd is not a uiDialog like the the uiHorTools, it still is a valid parent (being a uiGroup) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the inpfld is a special Attribute UI class which is handled just like any pre-defined uiBase or uiTools class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.</p>
 
-<p id="text">Coming to the plugin 'main' file <code>uitutpi.cc</code>, you will find it very similar to <code>uihellopi.cc</code>. Like any typical UI plugin, uiTut is a LATE plugin, which means that it will be loaded only after the rest of the UI is already in place. Thus, you must not put mDefODPluginEarlyLoad().</p>
+<p id="text">Coming to the plugin 'main' file <code>uitutpi.cc</code>, like any typical UI plugin, uiTut is a LATE plugin, which means that it will be loaded only after the rest of the UI is already in place. Thus, you must not put mDefODPluginEarlyLoad().</p>
 
 <p id="text"> Then comes the second 'special' plugin function <code>GetxxxPluginInfo()</code>. You may want to refer to the definition of the class <code>PluginInfo</code> for a better understanding of the above function. It allows the plugin manager to make this info available to the world.</p>
 
@@ -748,30 +533,52 @@ named 'z0_' in the corresponding DataHolders.</p>
 
 <h3 id="heading3">The help system</h3>
 
-<p id="text"> Like any other commercial application, our plugin also needs a help document which a user can see by clicking on a button in the user interface. In OpendTect, the help documents are stored in <i>$WORK/doc/User/###</i> directories. In case of our <i>Tutorial</i> plugin, the directory is called <i>tut</i>. There are 4 key files in this directory:</p>
-<ul>
-<li>.mnuinfo 			: This contains the name and start page of the help document as seen in the <i>Index</i> menu.
-<li>WindowLinkTable.txt		: This file contains the window links and corresponding codes as used in the UI.
-<li>LinkFileTable.txt		: Relates the links to the actual files.
-<li>index.html			: This is the start page.
-</ul></pre>
-<p id="text"> The codes of these help documents as mentioned in the <code>WindowLinkTable.txt</code> can be passed as a parameter during creation of the UI dialog. For example,
-<code><pre id="code">uiTutSeisTools::uiTutSeisTools( uiParent* p )
-        : uiDialog( p, Setup( "Tut seismic tools",
-                              "Specify process parameters",
-                              "tut:105.0.1") )
-</pre></code>  
-<p id="text">In the above code, <code>"tut:105.0.1"</code> is passed as the <i>help id</i>, where <code>tut</code> refers to the directory and <code>105.0.1</code> is the window link code of the corresponding help document.</p>
+<p id="text">Like any other commercial application, our plugin also needs a help document which a user can see by clicking on a button in the user interface. The OpendTect help system is quite flexible and allows a plugin to define its own way of showing help information. But in most cases all you want is to open an HTML file either stored locally or on the web. For this purpose we have a class called SimpleHelpProvider that provides a key-link based help system. The idea is to have a common base URL (can be a local file path) and then append links for individual help documents to this base URL, based on keys.<p>
 
-<h3 id="heading3">The 'credits' documentation</h3>
-<p id="text">From 3.3.2, OpendTect has the 'Credits' documentation, for aknowledging
-helpers, sponsors, idols, ....
-The structure is different from the user documentation described earlier. The base directory is <code>$WORK/doc/Credits</code>.</p>
-<p id="text">If you want to tie certain windows to specific credits (as we want in OpendTect base), you can use the Help ID as reference. This should then go in the <code>index.txt</code> file. All files are opened by the browser via that key. It's easy to see, for example in <code>Credits/tut/index.txt</code> how this works. Note that the IDs in index.txt need no scope, the scope is already used to for the subdirectory (no scope is as usual 'base'). Then, and this is essential, you'll have to use <code>setHaveCredits( true );</code> in the constructor of your dialog. This will add the 'credits' button to the dialog.
-</p>
-<p id="text">
-If you want to add credits, you should at least make an <code>index.html</code>. If it is present, an entry will be made in the top-level Help-Credits menu.
-</p>
+<p id="text"> So, you need to define your own HelpProvider class as a subclass of SimpleHelpProvider and initialize it when the plugin loads. A good example is the TutHelpProvider defined in uitutpi.cc:<p>
+
+<code><pre id="code">
+class TutHelpProvider : public SimpleHelpProvider
+{
+public:
+TutHelpProvider( const char* baseurl, const char* linkfnm )
+    : SimpleHelpProvider(baseurl,linkfnm)
+{}
+
+static void initClass()
+{
+    HelpProvider::factory().addCreator( TutHelpProvider::createInstance, "tut");
+}
+
+static HelpProvider* createInstance()
+{
+    FilePath fp( GetDocFileDir(""), "User", "tut" );
+    BufferString baseurl( "file:///" );
+    baseurl.add( fp.fullPath() ).add( "/" );
+
+    fp.add( "KeyLinkTable.txt" );
+    BufferString tablefnm = fp.fullPath();
+
+    return new TutHelpProvider( baseurl.buf(), tablefnm.buf() );
+}
+
+};
+</pre></code>
+
+<p id="text">The three key elements of this class are:<ul><li>The provider key: 'tut' in this case.
+    <li>The base URL: Here it is a local path inside the OpendTect installation. But it can as well be a web URL like 'http://doc.opendtect.org/'
+    <li>The key-link table, which is read from a file 'KeyLinkTable.txt' here. But you can also make it on-the-fly using the function addKeyLink. That is rather convenient if you are doing it just for a couple of plugins.
+</ul>
+
+<p id="text">Then in the UI you can use a HelpKey comprising of two parts: the provider key ('tut' for example) and the key for the individual UI, like 'hor' in uiHorTools:<p>
+<code><pre id="code">
+uiTutHorTools::uiTutHorTools( uiParent* p )
+	: uiDialog( p, Setup( tr("Tut Horizon tools"),
+			      tr("Specify process parameters"),
+			      HelpKey("tut","hor") ) )
+</pre><code>
+<p id="text">When the user clicks on the help button the HelpProvider will look for the link for the corresponding key, append the link to the base URL and open the document<p>   
+
 
 <a name="autoload"><h2 id="heading2">Installation and auto-loading</h2></a>
 
