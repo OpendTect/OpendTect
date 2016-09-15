@@ -843,12 +843,19 @@ mDefParallelCalc3Pars( VSDataFlipper, tr("Flipping data"),
 mDefParallelCalcBody( ,
 	newstor_->setValue( idx, threshold_ - arrstor_->value(idx) ); , )
 
-mDefParallelCalc4Pars( ArrDataFlipper, tr("Flipping data"),
+mDefParallelCalc3Pars( ArrDataFlipper, tr("Flipping data"),
 	const Array3D<float>&, inpdata, Array3D<float>&, newdata,
-	float, threshold, int, n2 )
-mDefParallelCalcBody( ,
-        const int iidx = idx/n2_; const int iidy = idx%n2_;
-	newdata_.set( iidx, iidy, idx, threshold_-inpdata_.get(iidx,iidy,idx));
+	float, threshold )
+mDefParallelCalcBody(
+	const Array2DInfoImpl info2d( inpdata_.info().getSize(0),
+				      inpdata_.info().getSize(1) );
+	ArrayNDIter iter( info2d );
+	iter.setGlobalPos( start );
+	,
+	const int iidx = iter[0];
+	const int iidy = iter[1];
+	const int idz = mCast(int,idx);
+	newdata_.set( iidx, iidy, idz, threshold_-inpdata_.get(iidx,iidy,idz));
 	, )
 
 
@@ -907,11 +914,13 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 	    }
 	    else
 	    {
-		const int sz1 = arr.info().getSize(1);
-		const od_int64 hsz = arr.info().getSize(0) * sz1;
-		ArrDataFlipper adf( hsz, arr, *newarr, threshold, sz1 );
-		if ( !adf.execute() )
-		    return;
+		const int nrz = arr.info().getSize( 2 );
+		if ( nrz > 0 )
+		{
+		    ArrDataFlipper adf( size / nrz, arr, *newarr, threshold );
+		    if ( !adf.execute() )
+			return;
+		}
 	    }
 
 	    isosurfaces_[idx]->getSurface()->setVolumeData(0,0,0,*newarr,0,tr);
@@ -921,7 +930,6 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 	    if ( !updateSeedBasedSurface( idx, tr ) )
 		return;
 	}
-
     }
 
     updateIsoSurfColor();

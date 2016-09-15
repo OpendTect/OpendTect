@@ -549,7 +549,7 @@ mDefParallelCalc5Pars( ArrPolyCropper, od_static_tr("ArrPolyCropper",
 	int, nrcols, const BinID&, origin )
 mDefParallelCalcBody
 (
-	Array2DInfoImpl info2d( nrrows_, nrcols_ );
+	const Array2DInfoImpl info2d( nrrows_, nrcols_ );
 	ArrayNDIter iter( info2d );
 	iter.setGlobalPos( start );
      ,
