@@ -126,7 +126,7 @@ static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid )
     // the scaling and even replace the Energy attribute by a simple Math
     // attribute
     Interval<float> zgate( 0, 0 );
-    zgate.scale( SI().zDomain().userFactor() );
+    zgate.scale( mCast(float,SI().zDomain().userFactor()) );
     mDynamicCastGet(ZGateParam*,param,newdesc->getParam(Energy::gateStr()))
     if ( param ) param->setValue( zgate );
     newdesc->setUserRef( usrref );
