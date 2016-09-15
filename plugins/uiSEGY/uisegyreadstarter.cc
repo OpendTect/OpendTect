@@ -1002,7 +1002,7 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 
     if ( bfi.ns_ < 1 )
 	bfi.ns_ = (int)thdr->nrSamples();
-    if ( bfi.ns_ > mMaxReasonableNS )
+    if ( bfi.ns_ > SEGY::cMaxReasonableNrSamples() )
 	mErrRetResetStream(
 	    tr("File:\n%1\nNo proper 'number of samples per trace' found") )
 

@@ -19,6 +19,19 @@ ________________________________________________________________________
 static const char* sKeyZInFeet = "Z in feet";
 static const char* sKeyIsVSP = "Is Zero-offset VSP";
 static const char* sKeySuppress = "SEGY.Suppress Warnings";
+static const char* sKeyMaxReasNrSamps = "SEGY.Max Reasonable Nr Samples";
+static int maxreasnrsamps_ = -1;
+
+
+int SEGY::cMaxReasonableNrSamples()
+{
+    if ( maxreasnrsamps_ < 0 )
+    {
+	maxreasnrsamps_ = 25000;
+	Settings::common().get( sKeyMaxReasNrSamps, maxreasnrsamps_ );
+    }
+    return maxreasnrsamps_;
+}
 
 
 SEGY::FullSpec::FullSpec( Seis::GeomType gt, bool isvsp )

@@ -14,12 +14,13 @@ ________________________________________________________________________
 #include "segyfiledef.h"
 class uiParent;
 
-#define mMaxReasonableNS 25000
-	// Time: 50 (2ms) or 100 seconds (4ms); Depth: 25 km (1m), 100 km (4m)
-
 
 namespace SEGY
 {
+
+mGlobal(uiSEGY) int cMaxReasonableNrSamples();
+	// default value is 25000 samples.
+	// Time: 50 (2ms) or 100 seconds (4ms); Depth: 25 km (1m), 100 km (4m)
 
 
 mExpClass(uiSEGY) FullSpec
