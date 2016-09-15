@@ -148,7 +148,7 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
     inft = binhdr.isInFeet();
 
     ns_ = binhdr.nrSamples();
-    if ( ns_ < 1 || ns_ > mMaxReasonableNS )
+    if ( ns_ < 1 || ns_ > SEGY::cMaxReasonableNrSamples() )
 	ns_ = -1;
     revision_ = binhdr.revision();
     short fmt = binhdr.format();
@@ -164,7 +164,7 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 
     if ( ns_ < 1 )
 	ns_ = (int)thdr->nrSamples();
-    if ( ns_ > mMaxReasonableNS )
+    if ( ns_ > SEGY::cMaxReasonableNrSamples() )
 	mErrRetWithFileName(
 	    "No proper 'number of samples per trace' found" )
 
