@@ -222,7 +222,7 @@ void uiSEGYReadStartInfo::mkBasicInfoFlds()
     mAdd2Tbl( fmtfld_, mDataFormatRow, mUseCol );
 
     nsfld_ = new uiSpinBox( 0, 0, "Samples" );
-    nsfld_->setInterval( 1, mMaxReasonableNS, 1 );
+    nsfld_->setInterval( 1, SEGY::cMaxReasonableNrSamples(), 1 );
     nsfld_->valueChanged.notify( parchgcb );
     mAdd2Tbl( nsfld_, mNrSamplesRow, mUseCol );
 
