@@ -22,6 +22,4 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     res = main( __argc, __argv ); // __argc and __argv defined in windows.h
     return res;
 }
-
-#endif
 	
