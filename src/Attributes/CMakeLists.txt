@@ -28,6 +28,7 @@ set(OD_MODULE_SOURCES
 	prestackattrib.cc
 	positionattrib.cc
 	referenceattrib.cc
+	reliefattrib.cc
 	samplevalueattrib.cc
 	scalingattrib.cc
 	semblanceattrib.cc

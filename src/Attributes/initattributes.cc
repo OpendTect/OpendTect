@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackattrib.h"
 #include "positionattrib.h"
 #include "referenceattrib.h"
+#include "reliefattrib.h"
 #include "samplevalueattrib.h"
 #include "scalingattrib.h"
 #include "semblanceattrib.h"
@@ -55,6 +56,7 @@ mDefModInitFn(Attributes)
     Attrib::PSAttrib::initClass();
     Attrib::Position::initClass();
     Attrib::Reference::initClass();
+    Attrib::Relief::initClass();
     Attrib::SampleValue::initClass();
     Attrib::Scaling::initClass();
     Attrib::Semblance::initClass();
