@@ -1,5 +1,4 @@
-#ifndef @OD_MODULE_NAME_LOWER@mod_h
-#define @OD_MODULE_NAME_LOWER@mod_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -57,7 +56,5 @@ ________________________________________________________________________
 #if defined ( do_import_export )
 
 @MODFILEHEADER@
-
-#endif
 
 #endif
