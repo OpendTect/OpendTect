@@ -118,7 +118,7 @@ Frequency::Frequency( Desc& ds )
     mGetString( windowtype_, windowStr() );
     mGetFloat( variable_, paramvalStr() );
     mGetBool( dumptofile_, dumptofileStr() );
-    bool smoothspectrum;
+    bool smoothspectrum = true;
     mGetBool( smoothspectrum, smoothspectrumStr() );
     smoothspectrum_.setParam( this, smoothspectrum );
     samplegate_ = Interval<int>(mNINT32(gate_.start/SI().zStep()),
