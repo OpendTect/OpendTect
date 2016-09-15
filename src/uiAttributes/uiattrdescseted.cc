@@ -281,7 +281,8 @@ void uiAttribDescSetEd::createGroups()
     dispbut_->attach( rightTo, addbut_ );
 
     procbut_ = new uiToolButton( rightgrp, "seisout",
-	tr("Process this attribute"), mCB(this,uiAttribDescSetEd,procAttrib) );
+	tr("Process this attribute"),
+	mCB(this,uiAttribDescSetEd,procAttribute) );
     procbut_->attach( rightTo, dispbut_ );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
@@ -1260,7 +1261,7 @@ void uiAttribDescSetEd::directShow( CallBacker* )
 }
 
 
-void uiAttribDescSetEd::procAttrib( CallBacker* )
+void uiAttribDescSetEd::procAttribute( CallBacker* )
 {
     if ( !curDesc() )
 	mErrRet( tr("Please add this attribute first") )
