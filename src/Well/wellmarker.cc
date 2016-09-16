@@ -253,7 +253,7 @@ Well::MarkerSet::MarkerID Well::MarkerSet::set( const Marker& newmrkr )
 }
 
 
-void Well::MarkerSet::setName( MarkerID mrkrid , const char* nm )
+void Well::MarkerSet::setNameByID( MarkerID mrkrid , const char* nm )
 {
     mLock4Write();
     const IdxType idx = gtIdxFor( mrkrid );
@@ -284,7 +284,7 @@ Color Well::MarkerSet::getColor( MarkerID mrkrid ) const
 }
 
 
-BufferString Well::MarkerSet::getName( MarkerID mrkrid ) const
+BufferString Well::MarkerSet::getNameByID( MarkerID mrkrid ) const
 {
     mLock4Read();
     const IdxType idx = gtIdxFor( mrkrid );

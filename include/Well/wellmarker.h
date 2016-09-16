@@ -99,8 +99,8 @@ public:
     MarkerID		add(const Marker&);
     Marker		get(MarkerID) const;
     MarkerID		set(const Marker&);
-    BufferString	getName(MarkerID) const;
-    void		setName(MarkerID,const char*);
+    BufferString	getNameByID(MarkerID) const;
+    void		setNameByID(MarkerID,const char*);
     Color		getColor(MarkerID) const;
     void		setColor(MarkerID,const Color&);
     float		getDah(MarkerID) const;
