@@ -145,11 +145,11 @@ void Scene::setup()
     annot_->setFont( fd );
     annot_->allowShading( SettingsAccess().doesUserWantShading(false) );
 
-   if ( !SI().getPars().get(
+   if ( !SI().defaultPars().get(
 	IOPar::compKey(sKeyZScale(), zDomainInfo().key()), curzstretch_ ) )
     {
-	if ( !SI().pars().get(sKeyZStretch(),curzstretch_) )
-	    SI().pars().get( sKeyZScale(), curzstretch_ );
+	if ( !SI().defaultPars().get(sKeyZStretch(),curzstretch_) )
+	    SI().defaultPars().get( sKeyZScale(), curzstretch_ );
     }
 
     const TrcKeyZSampling& tkzs = SI().sampling(true);
@@ -930,7 +930,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 	setZDomainInfo( zat->toZDomainInfo() );
 	setZScale( zat->toZScale() );
-	usedefaultzstretch = SI().getPars().get(
+	usedefaultzstretch = SI().defaultPars().get(
 	    IOPar::compKey(sKeyZScale(), zDomainInfo().key()), curzstretch_ );
 
     }

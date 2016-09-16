@@ -49,8 +49,8 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
     bool douse = false;
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
     BufferString idstr = is2d_
-		? SI().pars().find( uiAttribDescSetEd::sKeyAuto2DAttrSetID )
-		: SI().pars().find( uiAttribDescSetEd::sKeyAuto3DAttrSetID );
+	    ? SI().defaultPars().find( uiAttribDescSetEd::sKeyAuto2DAttrSetID )
+	    : SI().defaultPars().find( uiAttribDescSetEd::sKeyAuto3DAttrSetID );
 
     usefld_ = new uiGenInput( this, tr("Enable auto-load Attribute Set"),
                                   BoolInpSpec(true) );

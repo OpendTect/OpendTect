@@ -313,14 +313,14 @@ void IOObj::setSurveyDefault( const char* subsel ) const
     if ( subsel )
 	defaultkey += subsel;
 
-    SI().getPars().set( defaultkey.buf(), key() );
-    SI().savePars();
+    eSI().defaultPars().set( defaultkey.buf(), key() );
+    SI().saveDefaultPars();
 }
 
 
 bool IOObj::isSurveyDefault( const DBKey& ky )
 {
-    IOPar* dpar = SI().pars().subselect( sKey::Default() );
+    IOPar* dpar = SI().defaultPars().subselect( sKey::Default() );
     bool ret = false;
     if ( dpar && !dpar->isEmpty() )
 	ret = dpar->findKeyFor( ky.toString() );

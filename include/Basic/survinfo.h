@@ -130,7 +130,7 @@ public:
 			    from sea level. Always in meters for time surveys */
     void		setSeismicReferenceDatum( float d ) { seisrefdatum_=d; }
 
-    const IOPar&	pars() const			{ return pars_; }
+    const IOPar&	defaultPars() const		{ return pars_; }
     void		putZDomain(IOPar&) const;
 
     RefMan<Survey::Geometry3D> get3DGeometry(bool work) const;
@@ -258,12 +258,13 @@ public:
 			{ return const_cast<SurveyInfo*>(this)->b2c_; }
     LatLong2Coord&	getLatlong2Coord() const
 			{ return const_cast<SurveyInfo*>(this)->ll2c_; }
-    IOPar&		getPars() const
-			{ return const_cast<SurveyInfo*>(this)->pars_; }
+
+    IOPar&		defaultPars() { return pars_; }
+    			//Saved in .defs file
 
     bool		write(const char* basedir=0) const;
 			//!< Write to .survey file
-    void		savePars(const char* basedir=0) const;
+    void		saveDefaultPars(const char* basedir=0) const;
 			//!< Write to .defs file
     static SurveyInfo*	read(const char*,uiString& errmsg);
     void		setRange(const TrcKeyZSampling&,bool);
@@ -286,6 +287,11 @@ public:
 			/*!<Shortcut to popSI, with deletion of the object */
     static void		deleteOriginal();
 			/*!<Removes the first SI from the stack */
+
+    mDeprecated const IOPar&	pars() const { return defaultPars(); }
+    mDeprecated void		savePars(const char* basedir = 0) const
+				{ saveDefaultPars(basedir); }
+    mDeprecated IOPar&		getPars() const;
 
     mDeclInstanceCreatedNotifierAccess(SurveyInfo);
 

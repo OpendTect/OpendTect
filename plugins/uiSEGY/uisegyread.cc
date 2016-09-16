@@ -355,8 +355,8 @@ bool acceptOK()
     int storepol = dontaskfld_->isChecked() ? -pol_ : pol_;
     if ( storepol != initialpol_ )
     {
-	SI().getPars().set( sKeySEGYRev1Pol, storepol );
-	SI().savePars();
+	eSI().defaultPars().set( sKeySEGYRev1Pol, storepol );
+	SI().saveDefaultPars();
     }
     pol_--;
     return true;
@@ -417,7 +417,7 @@ void uiSEGYRead::basicOptsGot()
     bool needimmediatedet = true;
     if ( rev_ != Rev0 )
     {
-	if ( !SI().pars().get(sKeySEGYRev1Pol,revpolnr_) )
+	if ( !SI().defaultPars().get(sKeySEGYRev1Pol,revpolnr_) )
 	    revpolnr_ = 2;
 	if ( revpolnr_ < 0 )
 	    revpolnr_ = -revpolnr_ - 1;

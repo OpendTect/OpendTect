@@ -115,7 +115,7 @@ int uiSettings::getChgdSettIdx( const char* nm ) const
 
 const IOPar& uiSettings::orgPar() const
 {
-    const IOPar* iop = &SI().getPars();
+    const IOPar* iop = &SI().defaultPars();
     if ( !issurvdefs_ )
     {
 	const BufferString grp( grpfld_ ? grpfld_->text() : sKeyCommon );
@@ -233,8 +233,8 @@ bool uiSettings::acceptOK()
 
     if ( issurvdefs_ )
     {
-	SI().getPars() = *chgdsetts_[0];
-	SI().savePars();
+	eSI().defaultPars() = *chgdsetts_[0];
+	SI().saveDefaultPars();
 	PosImpExpPars::refresh();
     }
     else

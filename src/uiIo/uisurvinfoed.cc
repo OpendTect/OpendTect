@@ -675,7 +675,7 @@ bool uiSurveyInfoEditor::setRanges()
     const bool zinfeet = !depthdispfld_->getBoolValue();
     const bool xyinft = xyinftfld_->isChecked();
     si_.setZUnit( zistime, zinfeet );
-    si_.getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
+    si_.defaultPars().setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
     si_.setXYInFeet( xyinft );
 
     const float srd = refdatumfld_->getFValue();
@@ -758,7 +758,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     if ( !sip->getInfo(dlg,cs,crd) )
 	return;
 
-    IOPar& pars = si_.getPars();
+    IOPar& pars = si_.defaultPars();
     sip->fillPar( pars );
     Coord llcrd; LatLong llll;
     if ( sip->getLatLongAnchor(llcrd,llll) )

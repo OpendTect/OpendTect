@@ -101,7 +101,7 @@ DescID DescSet::ensureDefStoredPresent() const
     if ( IOM().isBad() )
 	return defattribid_;
 
-    PtrMan<IOPar> defpars = SI().pars().subselect( sKey::Default() );
+    PtrMan<IOPar> defpars = SI().defaultPars().subselect( sKey::Default() );
     if ( defpars )
     {
 	if ( is2d_ )

@@ -1362,7 +1362,8 @@ bool ui3DViewerBody::useCameraPos( const IOPar& par )
 {
     if ( par.isEmpty() ) return false;
 
-    const PtrMan<IOPar> survhomepospar = SI().pars().subselect( sKeyHomePos() );
+    const PtrMan<IOPar> survhomepospar =
+	SI().defaultPars().subselect( sKeyHomePos() );
     if ( !survhomepospar )
 	  fillCameraPos( homepos_ );
 
@@ -1400,13 +1401,13 @@ void ui3DViewerBody::saveHomePos()
     homepos_.setEmpty();
     fillCameraPos( homepos_ );
 
-    if ( SI().getPars().isPresent( preOdHomePosition() ) )
+    if ( SI().defaultPars().isPresent( preOdHomePosition() ) )
     {
-	SI().getPars().removeSubSelection( sKeyHomePos() );
+	eSI().defaultPars().removeSubSelection( sKeyHomePos() );
     }
 
-    SI().getPars().mergeComp( homepos_, sKeyHomePos() );
-    SI().savePars();
+    eSI().defaultPars().mergeComp( homepos_, sKeyHomePos() );
+    SI().saveDefaultPars();
 }
 
 
@@ -1517,7 +1518,7 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
     , pageupdown(this)
     , vmcb(0)
 {
-    PtrMan<IOPar> homepospar = SI().pars().subselect( sKeyHomePos() );
+    PtrMan<IOPar> homepospar = SI().defaultPars().subselect( sKeyHomePos() );
     if ( homepospar )
 	osgbody_->setHomePos( *homepospar) ;
 

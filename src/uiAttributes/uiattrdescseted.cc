@@ -292,8 +292,8 @@ void uiAttribDescSetEd::createGroups()
 
 
 #define mUnsetAuto \
-    SI().getPars().removeWithKey( autoidkey ); \
-    SI().savePars()
+    eSI().defaultPars().removeWithKey( autoidkey ); \
+    SI().saveDefaultPars()
 
 void uiAttribDescSetEd::init()
 {
@@ -312,7 +312,8 @@ void uiAttribDescSetEd::init()
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, autoset );
     const char* autoidkey = is2D() ? uiAttribDescSetEd::sKeyAuto2DAttrSetID
 				   : uiAttribDescSetEd::sKeyAuto3DAttrSetID;
-    if ( autoset && SI().pars().get(autoidkey,autoid) && autoid != setid_ )
+    if ( autoset && SI().defaultPars().get(autoidkey,autoid) &&
+	 autoid != setid_ )
     {
 	uiString msg = tr("The Attribute-set selected for Auto-load"
 			  " is no longer valid.\n Load another now?");
@@ -331,8 +332,8 @@ void uiAttribDescSetEd::init()
 		    if ( dlg.isAuto() )
 		    {
 			DBKey id = ioobj ? ioobj->key() : DBKey::getInvalid();
-			SI().getPars().set( autoidkey, id );
-			SI().savePars();
+			eSI().defaultPars().set( autoidkey, id );
+			SI().saveDefaultPars();
 		    }
 		    else
 		    {
@@ -479,11 +480,11 @@ void uiAttribDescSetEd::autoSet( CallBacker* )
 	const DBKey id = ioobj ? ioobj->key() : DBKey::getInvalid();
 	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
 	Settings::common().write();
-	IOPar& par = SI().getPars();
+	IOPar& par = eSI().defaultPars();
 	const BufferString idstr = id.toString();
 	is2d ? par.set(uiAttribDescSetEd::sKeyAuto2DAttrSetID, idstr.str() )
 	     : par.set(uiAttribDescSetEd::sKeyAuto3DAttrSetID, idstr.str() );
-	SI().savePars();
+	SI().saveDefaultPars();
 	if ( dlg.loadAuto() )
 	{
 	    if ( !offerSetSave() ) return;

@@ -354,6 +354,10 @@ void SurveyInfo::deleteOriginal()
 }
 
 
+IOPar& SurveyInfo::getPars() const
+{ return const_cast<SurveyInfo*>(this)->defaultPars(); }
+
+
 
 SurveyInfo::SurveyInfo()
     : tkzs_(*new TrcKeyZSampling(false))
@@ -474,11 +478,11 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiString& errmsg )
 
     //Read params here, so we can look at the pars below
     fp = fpsurvdir; fp.add( sKeyDefsFile );
-    si->getPars().read( fp.fullPath(), sKeySurvDefs, true );
-    si->getPars().setName( sKeySurvDefs );
+    si->defaultPars().read( fp.fullPath(), sKeySurvDefs, true );
+    si->defaultPars().setName( sKeySurvDefs );
 
     //Scrub away old settings (confusing to users)
-    si->getPars().removeWithKey( "Depth in feet" );
+    si->defaultPars().removeWithKey( "Depth in feet" );
 
     si->dirname_ = fpsurvdir.fileName();
     si->datadir_ = fpsurvdir.pathOnly();
@@ -518,7 +522,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiString& errmsg )
 		{
 		    si->zdef_ = ZDomain::Time();
 		    si->depthsinfeet_ = false;
-		    si->getPars().getYN( sKeyDpthInFt(), si->depthsinfeet_ );
+		    si->defaultPars().getYN( sKeyDpthInFt(),si->depthsinfeet_ );
 		}
 		else
 		{
@@ -1119,7 +1123,7 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     fp.set( basedir ); fp.add( dirname_ );
-    savePars( fp.fullPath() );
+    saveDefaultPars( fp.fullPath() );
     return true;
 }
 
@@ -1158,7 +1162,7 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
     OS::ExecCommand( cmd ); \
 }
 
-void SurveyInfo::savePars( const char* basedir ) const
+void SurveyInfo::saveDefaultPars( const char* basedir ) const
 {
     BufferString surveypath;
     if ( !basedir || !*basedir )

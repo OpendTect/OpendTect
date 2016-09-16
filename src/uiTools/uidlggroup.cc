@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        K. Tingdahl
- Date:          November 2006
+ Author:	K. Tingdahl
+ Date:		November 2006
 ________________________________________________________________________
 
 -*/
@@ -108,17 +108,16 @@ bool uiTabStackDlg::rejectOK()
 
 uiSingleGroupDlgBase::uiSingleGroupDlgBase( uiParent* p, uiDlgGroup* grp )
 : uiDialog( p, uiDialog::Setup(  uiString::emptyString(),
-                                 mNoDlgTitle,
-                                 mNoHelpKey ))
+				 mNoDlgTitle,
+				 mNoHelpKey ))
     , grp_( grp )
 {
     setGroup( grp );
 }
 
 
-
 uiSingleGroupDlgBase::uiSingleGroupDlgBase( uiParent* p,
-                                            const uiDialog::Setup& st )
+					    const uiDialog::Setup& st )
     : uiDialog(p,st)
     , grp_(0)
 {}
@@ -128,28 +127,27 @@ void uiSingleGroupDlgBase::setGroup( uiDlgGroup* grp )
 {
     if ( grp )
     {
-        uiObject& uiobj = (*grp);
-        uiobj.reParent( this );
-        setCaption( grp->getCaption() );
+	uiObject& uiobj = (*grp);
+	uiobj.reParent( this );
+	setCaption( grp->getCaption() );
     }
     grp_ = grp;
 }
     
     
-HelpKey	uiSingleGroupDlgBase::helpKey() const
+HelpKey uiSingleGroupDlgBase::helpKey() const
 {
     if ( !grp_->helpKey().isEmpty() )
-        return grp_->helpKey();
+	return grp_->helpKey();
     
     return uiDialog::helpKey();
 }
 
 
-bool	uiSingleGroupDlgBase::acceptOK()
+bool uiSingleGroupDlgBase::acceptOK()
 { return grp_->acceptOK(); }
 
 
-bool	uiSingleGroupDlgBase::rejectOK()
+bool uiSingleGroupDlgBase::rejectOK()
 { return grp_->rejectOK(); }
-
 

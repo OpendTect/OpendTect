@@ -436,7 +436,7 @@ void CtxtIOObj::fillDefault( bool oone2 )
 
 void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
 {
-    const char* kystr = SI().pars().find( parky );
+    const char* kystr = SI().defaultPars().find( parky );
     if ( kystr && *kystr )
     {
 	DBKey dbky = DBKey::getFromString( kystr );

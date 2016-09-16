@@ -190,7 +190,7 @@ void ODSession::getStartupData( bool& douse, DBKey& mid )
 {
     Settings::common().getYN( sKeyUseStartup(), douse );
     mid.setInvalid();
-    SI().pars().get( sKeyStartupID(), mid );
+    SI().defaultPars().get( sKeyStartupID(), mid );
 }
 
 
@@ -206,8 +206,8 @@ void ODSession::setStartupData( bool douse, const DBKey& id )
 
     if ( curid != id )
     {
-	SI().getPars().set( sKeyStartupID(), id );
-	SI().savePars();
+	eSI().defaultPars().set( sKeyStartupID(), id );
+	SI().saveDefaultPars();
     }
 }
 
