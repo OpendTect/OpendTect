@@ -639,7 +639,7 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 
     const Interval<float> trackdahrg = wd_.track().dahRange();
     const bool havetrack = !wd_.track().isEmpty();
-    wd_.markers().erase();
+    wd_.markers().setEmpty();
     BufferString bs;
     for ( int idx=1;  ; idx++ )
     {
@@ -647,29 +647,29 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 	BufferString key = IOPar::compKey( basekey, sKey::Name() );
 	if ( !iopar.get(key,bs) ) break;
 
-	Well::Marker* wm = new Well::Marker( bs );
+	Well::Marker wm( bs );
 
 	key = IOPar::compKey( basekey, Well::Marker::sKeyDah() );
 	if ( !iopar.get(key,bs) )
-	    { delete wm; continue; }
+	    { continue; }
 	const float val = bs.toFloat();
-	wm->setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactorF)
+	wm.setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactorF)
 						      : val );
 	key = IOPar::compKey( basekey, sKey::StratRef() );
 	Well::Marker::LevelID lvlid = Well::Marker::LevelID::getInvalid();
 	iopar.get( key, lvlid );
-	wm->setLevelID( lvlid );
+	wm.setLevelID( lvlid );
 
 	key = IOPar::compKey( basekey, sKey::Color() );
 	if ( iopar.get(key,bs) )
 	{
-	    Color col( wm->color() );
+	    Color col( wm.color() );
 	    col.use( bs.buf() );
-	    wm->setColor( col );
+	    wm.setColor( col );
 	}
 
-	if ( !trackdahrg.includes(wm->dah(),false) && havetrack )
-	    delete wm;
+	if ( !trackdahrg.includes(wm.dah(),false) && havetrack )
+	    continue;
 	else
 	    wd_.markers().insertNew( wm );
     }

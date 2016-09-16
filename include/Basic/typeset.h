@@ -73,6 +73,8 @@ public:
 				//!< Removes all items present in other set.
 
     inline virtual void		swap(od_int64,od_int64);
+    inline virtual void		move(size_type from,size_type to);
+
     inline virtual void		reverse();
 
     inline virtual void		erase();
@@ -86,9 +88,9 @@ public:
     inline std::vector<T>&	vec();
     inline const std::vector<T>& vec() const;
 
-    inline T&			operator[](size_type i)	      { return get(i); }
+    inline T&			operator[](size_type i)	    { return get(i); }
     inline const T&		operator[](size_type i) const { return get(i); }
-    inline TypeSetBase<T,I>&	operator+=(const T& t)	      { return add(t); }
+    inline TypeSetBase<T,I>&	operator+=(const T& t)	    { return add(t); }
     inline TypeSetBase<T,I>&	operator-=(const T& t);
 
 protected:
@@ -388,6 +390,18 @@ void TypeSetBase<T,I>::swap( od_int64 idx0, od_int64 idx1 )
     T tmp = vec_[(I)idx0];
     vec_[(I)idx0] = vec_[(I)idx1];
     vec_[(I)idx1] = tmp;
+}
+
+
+template <class T, class I> inline
+void TypeSetBase<T,I>::move( I idxfrom, I idxto )
+{
+    if ( !validIdx(idxfrom) || !validIdx(idxto) )
+	return;
+    
+    T tmp = vec_[idxfrom];
+    insert( idxto, tmp );
+    vec_.remove( idxfrom < idxto ? idxfrom : idxfrom+1 );
 }
 
 

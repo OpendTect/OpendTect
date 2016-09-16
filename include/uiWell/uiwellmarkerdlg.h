@@ -69,10 +69,9 @@ protected:
     void			updateDisplayCB(CallBacker*);
     bool			rejectOK();
     bool			updateMarkerDepths(int rowidx,bool md2tvdss);
-    float			getOldMarkerVal(Well::Marker*) const;
+    float			getOldMarkerVal(const Well::Marker&) const;
 
-				//This marker is now yours
-    Well::Marker*		getMarker(int rowidx,bool fromname) const;
+    Well::Marker		getMarker(int rowidx,bool fromname) const;
 
 };
 

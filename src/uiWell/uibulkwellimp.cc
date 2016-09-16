@@ -381,15 +381,19 @@ bool uiBulkMarkerImport::acceptOK()
 
 	if ( doconv )
 	{
-	    MarkerSet& ms = *markersets[idx];
-	    for ( int ids=0; ids<ms.size(); ids++ )
+	    RefMan<MarkerSet> newms = new MarkerSet( *markersets[idx] );
+	    MarkerSetIter4Edit msiter( *newms );
+	    while( msiter.next() )
 	    {
-		float dah = ms[ids]->dah();
+	    	float dah = msiter.getDah();
 		dah = wd->track().getDahForTVD( dah );
-		ms[ids]->setDah( dah );
+		newms->setDah( msiter.ID(), dah );
 	    }
+	    
+	    msiter.retire();
+	    *markersets[idx] = *newms;
 	}
-
+	
 	wd->markers() = *markersets[idx];
 	Well::Writer ww( *ioobj, *wd );
 	if ( !ww.putMarkers() )
@@ -433,7 +437,7 @@ void uiBulkMarkerImport::readFile( od_istream& istrm,
 	}
 
 	MarkerSet* mset = markersets[wellidx];
-	Marker* marker = new Marker( markernm, md );
+	Marker marker( markernm, md );
 	mset->insertNew( marker );
     }
 }

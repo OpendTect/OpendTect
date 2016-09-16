@@ -35,6 +35,9 @@ public:
     typedef IdxType	size_type;
 
     inline		MonitorableIter(const Monitorable&,IdxType startidx);
+    inline		MonitorableIter(const Monitorable&,IdxType startidx,
+							   IdxType stopidx);
+
     inline		MonitorableIter(const MonitorableIter&);
     inline virtual	~MonitorableIter()	{ retire(); }
     inline const Monitorable& monitored() const	{ return obj_; }
@@ -45,7 +48,7 @@ public:
     inline bool		prev();
 
     inline bool		isValid() const;
-    inline bool		atFirst() const		{ return curidx_ == 0; }
+    inline bool		atFirst() const		{ return curidx_ == startidx_; }
     inline bool		atLast() const;
 
     inline void		retire();
@@ -54,6 +57,8 @@ public:
 protected:
 
     const Monitorable&	obj_;
+    IdxType		startidx_;
+    IdxType		stopidx_;
     IdxType		curidx_;
     MonitorLock		ml_;
 
@@ -65,8 +70,23 @@ protected:
 template <class ITyp> inline
 MonitorableIter<ITyp>::MonitorableIter( const Monitorable& obj, ITyp startidx )
     : obj_(obj)
-    , curidx_(startidx)
     , ml_(obj)
+    , startidx_(startidx)
+    , stopidx_(-1)
+    , curidx_(startidx)
+{
+}
+
+
+template <class ITyp> inline
+MonitorableIter<ITyp>::MonitorableIter( const Monitorable& obj,
+					ITyp startidx,
+					ITyp stopidx )
+    : obj_(obj)
+    , ml_(obj)
+    , startidx_(startidx)
+    , stopidx_(stopidx)
+    , curidx_(startidx)
 {
 }
 
@@ -74,8 +94,11 @@ MonitorableIter<ITyp>::MonitorableIter( const Monitorable& obj, ITyp startidx )
 template <class ITyp> inline
 MonitorableIter<ITyp>::MonitorableIter( const MonitorableIter& oth )
     : obj_(oth.monitored())
-    , curidx_(oth.curidx_)
     , ml_(oth.monitored())
+    , startidx_(oth.startidx_)
+    , stopidx_(oth.stopidx_)
+    , curidx_(oth.curidx_)
+
 {
 }
 
@@ -93,7 +116,7 @@ template <class ITyp> inline
 bool MonitorableIter<ITyp>::next()
 {
     curidx_++;
-    return curidx_ < size();
+    return curidx_ < ( stopidx_ < 0 ? size() : stopidx_ );
 }
 
 
@@ -101,21 +124,22 @@ template <class ITyp> inline
 bool MonitorableIter<ITyp>::prev()
 {
     curidx_--;
-    return curidx_ >= 0 ;
+    return curidx_ >= startidx_+1;
 }
 
 
 template <class ITyp> inline
 bool MonitorableIter<ITyp>::isValid() const
 {
-    return curidx_ >= 0 && curidx_ < size();
+    return curidx_ >= startidx_+1 && curidx_ < ( stopidx_ < 0 ? size()
+							      : stopidx_ );
 }
 
 
 template <class ITyp> inline
 bool MonitorableIter<ITyp>::atLast() const
 {
-    return curidx_ == size() - 1;
+    return curidx_ == ( stopidx_ < 0 ? size() : stopidx_ );
 }
 
 
@@ -130,7 +154,7 @@ template <class ITyp> inline
 void MonitorableIter<ITyp>::reInit( bool toend )
 {
     ml_.reLock();
-    curidx_ = toend ? size() : -1;
+    curidx_ = toend ? ( stopidx_ < 0 ? size() : stopidx_ ) : startidx_;
 }
 
 

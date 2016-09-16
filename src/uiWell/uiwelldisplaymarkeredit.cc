@@ -159,12 +159,12 @@ void uiDispEditMarkerDlg::addMoveMarker( int iset, float dah, const char* nm )
 {
     const bool ispresent = markerssets_[iset]->isPresent( nm );
 
-    Well::Marker* mrk = 0;
+    Well::Marker mrk("");
     Well::MarkerSet& markers = *markerssets_[iset];
     if ( ispresent )
     {
 	mrk = markers.getByName( nm  );
-	mrk->setDah( dah );
+	mrk.setDah( dah );
     }
     else
     {
@@ -173,8 +173,8 @@ void uiDispEditMarkerDlg::addMoveMarker( int iset, float dah, const char* nm )
 	if ( mrks.isEmpty() )
 	    mErrRet( tr("No marker found"), return );
 
-	mrk = new Well::Marker( *mrks[0] );
-	mrk->setDah( dah );
+	mrk = Well::Marker( *mrks[0] );
+	mrk.setDah( dah );
 	markers.insertNew( mrk );
     }
 
@@ -189,8 +189,8 @@ void uiDispEditMarkerDlg::addMoveMarker( int iset, float dah, const char* nm )
 void uiDispEditMarkerDlg::removeMarker( int idset, const char* nm )
 {
     Well::MarkerSet& mrkset = *markerssets_[idset];
-    if ( mrkset.isPresent( nm ) )
-	delete mrkset.removeSingle( mrkset.indexOf( nm ),true );
+    if ( mrkset.isPresent(nm) )
+	mrkset.removeSingle( mrkset.markerIDFromName(nm) );
 }
 
 
@@ -282,9 +282,9 @@ void uiDispEditMarkerDlg::getMarkerFromAll( ObjectSet<Well::Marker>& mrks,
     for ( int idwd=0; idwd<markerssets_.size(); idwd++ )
     {
 	Well::MarkerSet& mrkset = *markerssets_[idwd];;
-	Well::Marker* mrk = mrkset.getByName( mrknm );
-	if ( mrk )
-	    mrks += mrk;
+	Well::Marker mrk = mrkset.getByName( mrknm );
+	if ( mrk.isUdf() )
+	    mrks += new Well::Marker( mrk );
     }
     Well::Marker* tmpmrk = getMarkerFromTmpList( mrknm );
     if ( tmpmrk ) mrks += tmpmrk;
@@ -314,7 +314,7 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
 	    Well::MarkerSet& mrkset = *markerssets_[idx];
 	    if ( mrkset.isPresent( mrknm ) )
 	    {
-		delete mrkset.removeSingle( mrkset.indexOf( mrknm ),true );
+		mrkset.removeSingleByIdx( mrkset.indexOf(mrknm) );
 	    }
 	}
 	hasedited_ = true;
@@ -370,9 +370,10 @@ if ( mrknms.addIfNew( mrk.name() ) )\
     for ( int idwd=0; idwd<markerssets_.size(); idwd++ )
     {
 	const Well::MarkerSet& mrkset = *markerssets_[idwd];
-	for ( int idmrk=0; idmrk<mrkset.size(); idmrk++ )
+	Well::MarkerSetIter miter( mrkset );
+	while( miter.next() )
 	{
-	    const Well::Marker& mrk = *mrkset[idmrk];
+	    const Well::Marker& mrk = miter.get();
 	    mAddMrkToList( mrk )
 	}
     }
@@ -469,10 +470,10 @@ void uiWellDispCtrlEditMarkerDlg::handleCtrlChangeCB( CallBacker* cb )
     curwd_ = ( widx >=0 && widx<wds_.size() ) ? wds_[widx] : 0;
     if ( curctrl_ && curwd_ )
     {
-	ObjectSet<Well::Marker>& mrkset = curwd_->markers();
-	int curmrkidx = mrkset.indexOf( curctrl_->selMarker() );
-	if ( curmrkidx >=0 )
-	    curmrk_ = mrkset[curmrkidx];
+	Well::MarkerSet& mrkset = curwd_->markers();
+	int curmrkidx = mrkset.indexOf( curctrl_->selMarker()->name() );
+	/*if ( curmrkidx >=0 ) 
+	    curmrk_ = &mrkset.get( curmrkidx ); //TODO revisist*/
     }
 }
 

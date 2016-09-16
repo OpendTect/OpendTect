@@ -146,9 +146,11 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
 
     const float kbelev = trck.getKbElev();
     const float zfac = uiMarkerDlgzFactor( cb );
-    for ( int idx=0; idx<mset.size(); idx++ )
+  
+    Well::MarkerSetIter miter( mset );
+    while( miter.next() )
     {
-	const Well::Marker& mrkr = *mset[idx];
+	const Well::Marker& mrkr = miter.get();
 	const float dah = mrkr.dah();
 	const float tvdss = mCast(float,trck.getPos(dah).z);
 	const float tvd = tvdss + kbelev;
@@ -396,22 +398,26 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	    table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
 	}
 
-	const Well::Marker* marker = markers.validIdx(idx) ? markers[idx] : 0;
-	if ( marker )
+	const Well::Marker marker = markers.validIdx(idx)? markers.getByIdx(idx)
+							  : Well::Marker::udf();
+	if ( !marker.isUdf() )
 	{
-	    if ( !Strat::LVLS().isPresent( marker->levelID() ) )
-		const_cast<Well::Marker*>(markers[idx])->setLevelID(
-					       Strat::Level::ID::getInvalid() );
+	    if ( !Strat::LVLS().isPresent(marker.levelID()) )
+	    {
+		Well::Marker mrkr = markers.getByIdx( idx );
+		mrkr.setLevelID( Strat::Level::ID::getInvalid() );
+		const_cast<Well::MarkerSet&>( markers).set( mrkr );
+	    }
 
-	    levelsel->setID( marker->levelID() );
-	    const float dah = marker->dah();
+	    levelsel->setID( marker.levelID() );
+	    const float dah = marker.dah();
 	    table_->setValue( RowCol(irow,cDepthCol), dah * zfac );
 	    const float tvdss = mCast(float,track_.getPos(dah).z);
 	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev) * zfac );
 	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss * zfac );
-	    table_->setText( RowCol(irow,cNameCol), marker->name() );
-	    table_->setColor( RowCol(irow,cColorCol), marker->color() );
-	    if ( marker->levelID().isValid() )
+	    table_->setText( RowCol(irow,cNameCol), marker.name() );
+	    table_->setColor( RowCol(irow,cColorCol), marker.color() );
+	    if ( marker.levelID().isValid() )
 		updateFromLevel( irow, levelsel );
 
 	    continue;
@@ -536,7 +542,7 @@ void uiMarkerDlg::rdFile( CallBacker* )
 
 bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 {
-    deepErase( markers );
+    markers.setEmpty();
     BufferStringSet markernms;
     uiString errmsg;
     const float zfac = zFactor();
@@ -560,13 +566,13 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 	}
 
 	dah /= zfac;
-	Well::Marker* marker = new Well::Marker( markernm, dah );
-	marker->setColor( table_->getColor(RowCol(rowidx,cColorCol)) );
+	Well::Marker marker( markernm, dah );
+	marker.setColor( table_->getColor(RowCol(rowidx,cColorCol)) );
 	uiGroup* grp = table_->getCellGroup( RowCol(rowidx,cLevelCol) );
 	mDynamicCastGet(uiStratLevelSel*,levelsel,grp)
-	marker->setLevelID( levelsel ? levelsel->getID()
+	marker.setLevelID( levelsel ? levelsel->getID()
 				     : Strat::Level::ID::getInvalid() );
-	markers += marker;
+	markers.add( marker );
     }
 
     return true;
@@ -582,11 +588,12 @@ bool uiMarkerDlg::acceptOK()
     const float zfac = zFactor();
     dahrg.scale( zFactor() );
     uiString errmsg;
-    for ( int midx=0; midx<markers.size(); midx++ )
+    Well::MarkerSetIter miter( markers );
+    while( miter.next() )
     {
-	const float val = markers[midx]->dah() * zfac;
+	const float val = miter.getDah() * zfac;
 	if ( !dahrg.includes(val,true) )
-	    errmsg = tr("'%1'%2").arg(markers[midx]->name());
+	    errmsg = tr("'%1'%2").arg(miter.markerName());
     }
 
     if ( !errmsg.isEmpty() )
@@ -612,8 +619,12 @@ uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
 {
     list_ = new uiListBox( this, "Markers" );
     list_->setMultiChoice( true );
-    for ( int idx=0; idx<mset.size(); idx++ )
-	list_->addItem( toUiString(mset[idx]->name()), mset[idx]->color() );
+    Well::MarkerSetIter miter( mset );
+    while( miter.next() )
+    {
+	const Well::Marker mrkr = miter.get();
+	list_->addItem( toUiString(mrkr.name()), mrkr.color() );
+    }
 }
 
 void getSelIDs( TypeSet<int>& items )
@@ -627,7 +638,7 @@ protected:
 bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 {
     Well::MarkerSet mset;
-    if ( !getMarkerSet( mset ) ) return false;
+    if ( !getMarkerSet(mset) ) return false;
 
     if ( !mset.size() )
     {
@@ -646,19 +657,22 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 	return false;
     }
 
+    MonitorLock ml( mset );
     Strat::LevelSet& lvls = Strat::eLVLS();
     uiString msg;
     int mid = 0;
     for ( int idx=0; idx<selitems.size(); idx++ )
     {
 	const int selidx = selitems[idx];
-	if ( lvls.isPresent(mset[selidx]->name()) )
+	const FixedString markername = mset.getByIdx(selidx).name();
+	if ( lvls.isPresent(markername) )
 	{
-	    msg = tr( "'%1' %2" ).arg( mset[selidx]->name() );
+	    msg = tr( "'%1' %2" ).arg( markername );
 	    mid++;
 	}
     }
 
+    ml.unlockNow();
     if ( !msg.isEmpty() )
     {
 	msg.arg(tr("%1already set as regional marker(s)."
@@ -668,17 +682,18 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 	if ( !res ) return false;
     }
 
-    //TODO MonitorLock ml( mset );
+    ml.reLock();
     for ( int idx=0; idx<selitems.size(); idx++ )
     {
 	const int selidx = selitems[idx];
-	const Well::Marker mrkr = *mset[selidx]; //TODO mset.getByIdx( selidx );
+	Well::Marker mrkr = mset.getByIdx(selidx);
 	Strat::Level level( mrkr.name(), mrkr.color() );
 	Strat::Level::ID lvlid = lvls.set( level );
 	lvls.store( Repos::Survey );
-	mset[selidx]->setLevelID( lvlid );
+	mrkr.setLevelID( lvlid );
+	mset.set( mrkr );
     }
-    //TODO ml.unlockNow();
+    ml.unlockNow();
 
     setMarkerSet( mset, false );
     return true;
@@ -743,15 +758,13 @@ bool uiMarkerDlg::rejectOK()
 
     if ( oldmrkrs_ )
     {
-	deepCopy<Well::Marker,Well::Marker>( wd->markers(),*oldmrkrs_ );
+	wd->markers() = *oldmrkrs_;
 	wd->markerschanged.trigger();
     }
 
     return true;
 }
 
-
-#define mDelRet { if (marker) delete marker; return false; }
 
 
 bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
@@ -777,14 +790,14 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
 			true,false))
 			.arg( md2tvdss ? sKeyMD() : istvd ? sKeyTVD()
 							  : sKeyTVDSS() );
-	Well::Marker* marker = getMarker( row, true );
+	Well::Marker marker = getMarker( row, true );
 	uiMSG().error( errmsg );
-	if ( marker )
+	if ( !marker.isUdf() )
 	    table_->setValue( rcin, getOldMarkerVal(marker) );
 	else
 	    table_->setText(rcin, uiStrings::sEmptyString());
 
-	mDelRet;
+	return false;
     }
 
     const float dah = md2tvdss ? inval : track_.getDahForTVD( inval );
@@ -803,7 +816,7 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
 }
 
 
-Well::Marker* uiMarkerDlg::getMarker( int row, bool fromname ) const
+Well::Marker uiMarkerDlg::getMarker( int row, bool fromname ) const
 {
     Well::MarkerSet markers;
     if ( !getMarkerSet(markers) )
@@ -816,21 +829,20 @@ Well::Marker* uiMarkerDlg::getMarker( int row, bool fromname ) const
 	return 0;
 
     const int markeridx = markers.getIdxAbove( dah / zFactor() );
-    if ( ( fromname && !markers.getByName(markernm) ) ||
+    if ( ( fromname && markers.getByName(markernm).isUdf() ) ||
 	 (!fromname && !markers.validIdx(markeridx) ) )
 	return 0;
 
-    Well::Marker* marker = new Well::Marker("");
-    *marker = fromname ? *(markers.getByName( markernm ))
-		       : *(markers[markeridx]);
-
+    Well::Marker marker("");
+    marker = fromname ? markers.getByName( markernm )
+		      : markers.getByIdx( markeridx );
     return marker;
 }
 
 
-float uiMarkerDlg::getOldMarkerVal( Well::Marker* marker ) const
+float uiMarkerDlg::getOldMarkerVal( const Well::Marker& marker ) const
 {
-    if ( !marker )
+    if ( marker.isUdf() )
 	return mUdf(float);
 
     const RowCol rc = table_->notifiedCell();
@@ -838,7 +850,7 @@ float uiMarkerDlg::getOldMarkerVal( Well::Marker* marker ) const
     const bool istvd = rc.col() == cTVDCol;
     const float kbelev = track_.getKbElev();
 
-    const float olddah = marker->dah();
+    const float olddah = marker.dah();
     const float oldtvdss = mCast(float,track_.getPos(olddah).z);
     const float oldtvd = oldtvdss + kbelev;
     const float oldval = ismd ? olddah : istvd ? oldtvd : oldtvdss;
@@ -870,10 +882,11 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
     const float zfac = uiMarkerDlgzFactor();
     const Well::Track& trck = wd_->track();
     const float kbelev = trck.getKbElev();
-
-    for ( int irow=0; irow<nrmrks; irow++ )
+    Well::MarkerSetIter miter( mset );
+    while( miter.next() )
     {
-	const Well::Marker& mrkr = *mset[irow];
+	const Well::Marker& mrkr = miter.get();
+	const int irow = miter.currIdx();
 	table_->setText( RowCol(irow,cNameCol), mrkr.name() );
 	table_->setColor( RowCol(irow,cColorCol), mrkr.color() );
 

@@ -128,10 +128,10 @@ void WellStratUnitGen::gatherLeavedUnits()
 	    mDynamicCastGet( const Strat::LeavedUnitRef*, lur,ur );
 	    if ( !lur || lur->levelID().isInvalid() )
 		continue;
-	    const Well::Marker* mrk = getMarkerFromLvlID( lur->levelID() );
-	    if ( mrk )
+	    const Well::Marker& mrk = getMarkerFromLvlID( lur->levelID() );
+	    if ( !mrk.isUdf() )
 	    {
-		float pos = mrk->dah();
+		float pos = mrk.dah();
 		if ( SI().zIsTime() && d2tmodel_ )
 		    pos = d2tmodel_->getTime(pos, track_)*
 			  SI().zDomain().userFactor();
@@ -155,21 +155,21 @@ void WellStratUnitGen::gatherLeavedUnits()
 
 
 
-const Well::Marker* WellStratUnitGen::getMarkerFromLvlID(
+Well::Marker WellStratUnitGen::getMarkerFromLvlID(
 						  Strat::Level::ID lvlid ) const
 {
-    for ( int idx=0; idx<markers_.size(); idx++ )
+    Well::MarkerSetIter miter( markers_ );
+    while( miter.next() )
     {
-	const Well::Marker* curmrk = markers_[idx];
-	if ( curmrk && curmrk->levelID().isValid() )
+	const Well::Marker& curmrk = miter.get();
+	if ( curmrk.levelID().isValid() )
 	{
-	    if ( lvlid == curmrk->levelID() )
-	    {
+	    if ( lvlid == curmrk.levelID() )
 		return curmrk;
-	    }
 	}
     }
-    return 0;
+
+    return Well::Marker::udf();
 }
 
 

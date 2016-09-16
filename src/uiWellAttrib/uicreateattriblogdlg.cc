@@ -117,7 +117,8 @@ void uiCreateAttribLogDlg::init( CallBacker* )
 	    mrkrs.append( wdtmp->markers() );
     }
 
-    sort( mrkrs ); zrangeselfld_->setMarkers( mrkrs );
+    //sort( mrkrs ); do later
+    zrangeselfld_->setMarkers( mrkrs );
 }
 
 

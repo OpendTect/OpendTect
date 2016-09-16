@@ -600,13 +600,9 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     choicefld_->valuechanged.notify( mCB(this,uiInfoDlg,zrgChanged) );
 
     markernames_.add( Well::ExtractParams::sKeyDataStart() );
-    mGetWD(return)
-    if ( wd && wd->haveMarkers() )
-    {
-	for ( int idx=0; idx<wd->markers().size(); idx++)
-	    markernames_.add( wd->markers()[idx]->name() );
-    }
-
+    mGetWD(return);
+    const Well::MarkerSet& markers = wd->markers();
+    markers.getNames( markernames_ );
     markernames_.add( Well::ExtractParams::sKeyDataEnd() );
     StringListInpSpec slis( markernames_ );
     const char* markernms[] = { "Top Marker", "Bottom Marker", 0 };
@@ -713,11 +709,11 @@ void uiInfoDlg::putToScreen()
 	if ( !wd || !wd->markers().size() )
 	    mErrRet( tr("No Well marker found") )
 
-	const Well::Marker* topmarkr = wd->markers().getByName( startmrknm_ );
-	const Well::Marker* basemarkr = wd->markers().getByName( stopmrknm_ );
-	if ( !topmarkr || !basemarkr )
+	const Well::Marker topmarkr = wd->markers().getByName( startmrknm_ );
+	const Well::Marker basemarkr = wd->markers().getByName( stopmrknm_ );
+	if ( !topmarkr.isUdf() || !basemarkr.isUdf() )
 	{
-	    if ( !topmarkr )
+	    if ( !topmarkr.isUdf() )
 	    {
 		if ( !startmrknm_.startsWith(
 				  Well::ZRangeSelector::sKeyDataStart()) )
@@ -727,7 +723,7 @@ void uiInfoDlg::putToScreen()
 		zrangeflds_[selidx_]->setValue( 0, 0 );
 	    }
 
-	    if ( !basemarkr )
+	    if ( !basemarkr.isUdf() )
 	    {
 		if ( !stopmrknm_.startsWith(
 				  Well::ZRangeSelector::sKeyDataEnd()) )
@@ -737,7 +733,7 @@ void uiInfoDlg::putToScreen()
 		zrangeflds_[selidx_]->setValue( lastmarkeridx, 1 );
 	    }
 	}
-	else if( topmarkr->dah() >= basemarkr->dah() )
+	else if( topmarkr.dah() >= basemarkr.dah() )
 	{
 	    uiMSG().warning(
 		    tr("Inconsistency between top/base marker from setup."));
@@ -964,25 +960,25 @@ bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
     if ( mintv.start >= mintv.stop )
 	mErrRetYN( tr("Top marker must be above base marker.") )
 
-    const Well::Marker* topmarkr =
+    const Well::Marker topmarkr =
 		wd->markers().getByName( zrangeflds_[mMarkerFldIdx]->text(0) );
-    if ( !topmarkr && mintv.start )
+    if ( topmarkr.isUdf() && mintv.start )
     {
 	zrangeflds_[mMarkerFldIdx]->setValue(0,0);
 	uiMSG().warning( tr("Cannot not find the top marker in the well.") );
     }
 
-    const Well::Marker* botmarkr =
+    const Well::Marker botmarkr =
 		wd->markers().getByName( zrangeflds_[mMarkerFldIdx]->text(1) );
     const int lastmarkeridx = markernames_.size()-1;
-    if ( !botmarkr && mintv.stop != lastmarkeridx )
+    if ( botmarkr.isUdf() && mintv.stop != lastmarkeridx )
     {
 	zrangeflds_[mMarkerFldIdx]->setValue( lastmarkeridx, 1 );
 	uiMSG().warning( tr("Cannot not find the base marker in the well.") );
     }
 
-    zrg.start = topmarkr ? topmarkr->dah() : data_.getDahRange().start;
-    zrg.stop = botmarkr ? botmarkr->dah() : data_.getDahRange().stop;
+    zrg.start = !topmarkr.isUdf() ? topmarkr.dah() : data_.getDahRange().start;
+    zrg.stop = !botmarkr.isUdf() ? botmarkr.dah() : data_.getDahRange().stop;
 
     return true;
 }

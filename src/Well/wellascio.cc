@@ -332,7 +332,7 @@ Table::FormatDesc* MarkerSetAscIO::getDesc()
 bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
 				const Track& trck ) const
 {
-    ms.erase();
+    ms.setEmpty();
 
     const int dpthcol = columnOf( false, 0, 0 );
     const int nmcol = columnOf( false, 1, 0 );
@@ -373,7 +373,7 @@ bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
 	    fullnm += " "; fullnm += namepart;
 	}
 
-	ms += new Marker( fullnm, dah );
+	ms.add( Marker(fullnm,dah) );
     }
 
     return true;

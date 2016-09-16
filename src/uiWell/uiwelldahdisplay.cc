@@ -383,9 +383,11 @@ void uiWellDahDisplay::drawMarkers()
     if ( !markers() ) return;
 
     const BufferStringSet selmrkrnms( mrkdisp_.selMarkerNames() );
-    for ( int idx=0; idx<markers()->size(); idx++ )
+    const Well::MarkerSet& mrkrs = *markers();
+    Well::MarkerSetIter miter( mrkrs );
+    while( miter.next() )
     {
-	const Well::Marker& mrkr = *((*markers())[idx]);
+	const Well::Marker& mrkr = miter.get();
 	if ( !selmrkrnms.isPresent( mrkr.name() ) )
 	    continue;
 
@@ -466,7 +468,8 @@ void uiWellDahDisplay::drawZPicks()
 	Color lcol( setup_.pickls_.color_ );
 	if ( pd.color_ != Color::NoColor() )
 	    lcol = pd.color_;
-	li->setPenStyle( OD::LineStyle(setup_.pickls_.type_,setup_.pickls_.width_,
+	li->setPenStyle(
+		    OD::LineStyle(setup_.pickls_.type_,setup_.pickls_.width_,
 			lcol) );
 	li->setZValue( 2 );
 	zpickitms_.add( li );

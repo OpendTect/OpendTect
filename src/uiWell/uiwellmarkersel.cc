@@ -91,8 +91,7 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 void uiWellMarkerSel::setMarkers( const Well::MarkerSet& wms )
 {
     BufferStringSet nms;
-    for ( int idx=0; idx<wms.size(); idx++ )
-	nms.add( wms[idx]->name() );
+    wms.getNames( nms );
     setMarkers( nms );
 }
 

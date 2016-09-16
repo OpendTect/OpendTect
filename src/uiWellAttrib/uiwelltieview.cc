@@ -256,7 +256,8 @@ void uiTieView::zoomChg( CallBacker* )
 	if ( mIsUdf(zrgstop) )
 	{
 	    const int sz = data_.wd_->d2TModel().size();
-	    Well::D2TModel::PointID pid = data_.wd_->d2TModel().pointIDFor(sz-1);
+	    Well::D2TModel::PointID pid =
+					 data_.wd_->d2TModel().pointIDFor(sz-1);
 	    zrgstop = data_.wd_->d2TModel().dah(pid);
 	}
 	zrgstart = (float) data_.wd_->track().getPos(zrgstart).z;
@@ -316,26 +317,28 @@ void uiTieView::drawViewerWellMarkers()
 
     const Well::MarkerDispProps& mrkdisp = data_.dispparams_.mrkdisp_;
     const BufferStringSet selmrknms = mrkdisp.selMarkerNames();
-    for ( int midx=0; midx<wd->markers().size(); midx++ )
+    const Well::MarkerSet& markers = wd->markers();
+    Well::MarkerSetIter miter( markers );
+    while( miter.next() )
     {
-	const Well::Marker* marker = wd->markers()[midx];
-	if ( !marker  ) continue;
+	const Well::Marker& marker = miter.get();
+	if ( marker.isUdf()  ) continue;
 
-	if ( !selmrknms.isPresent( marker->name() ) )
+	if ( !selmrknms.isPresent( marker.name() ) )
 	    continue;
 
-	const float zpos = d2tm.getTime( marker->dah(), wd->track() );
+	const float zpos = d2tm.getTime( marker.dah(), wd->track() );
 
 	if ( !zrange_.includes( zpos, true ) )
 	    continue;
 
 	const Color col = mrkdisp.singleColor() ? mrkdisp.color()
-						: marker->color();
+						: marker.color();
 
 	if ( col == Color::NoColor() || col == Color::White() )
 	    continue;
 
-	FlatView::AuxData* auxdata = vwr_->createAuxData( marker->name() );
+	FlatView::AuxData* auxdata = vwr_->createAuxData( marker.name() );
 	if ( !auxdata ) continue;
 
 	wellmarkerauxdatas_ += auxdata;
@@ -349,12 +352,13 @@ void uiTieView::drawViewerWellMarkers()
 	    ls.type_ = OD::LineStyle::Dash;
 	auxdata->linestyle_ = ls;
 
-	BufferString mtxt( marker->name() );
+	BufferString mtxt( marker.name() );
 	mtxt.insertAt( 0, " " );
 	if ( !params_.dispmrkfullnames_ && mtxt.size()>4 )
 	    mtxt[4] = '\0';
 	auxdata->name_ = mtxt;
-	auxdata->namealignment_ = OD::Alignment(OD::Alignment::Left,OD::Alignment::Top);
+	auxdata->namealignment_ =
+			OD::Alignment(OD::Alignment::Left,OD::Alignment::Top);
 	auxdata->namepos_ = 0;
 
 	drawMarker( auxdata, true, zpos );
@@ -383,7 +387,8 @@ void uiTieView::drawUserPicks( const TypeSet<Marker>& pickset, bool issynth )
     for ( int idx=0; idx<pickset.size(); idx++ )
     {
 	const Marker& pick = pickset[idx];
-	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Solid, pick.size_, pick.color_ );
+	OD::LineStyle ls = OD::LineStyle(
+				OD::LineStyle::Solid, pick.size_, pick.color_ );
 	userpickauxdatas_[idx]->linestyle_ = ls;
 	drawMarker(userpickauxdatas_[idx], issynth, pick.zpos_ );
     }
@@ -409,7 +414,8 @@ void uiTieView::drawHorizons()
 	if ( !params_.disphorfullnames_ && mtxt.size() > 3 )
 	    mtxt[3] = '\0';
 	auxdata->name_ = mtxt;
-	auxdata->namealignment_ = OD::Alignment(OD::Alignment::HCenter,OD::Alignment::Top);
+	auxdata->namealignment_ =
+		    OD::Alignment(OD::Alignment::HCenter,OD::Alignment::Top);
 	auxdata->namepos_ = 0;
 	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Dot, 2, hor.color_ );
 	auxdata->linestyle_ = ls;

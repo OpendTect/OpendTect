@@ -226,7 +226,7 @@ void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb )
     for ( int idx=0; idx<seldisp_->markerdraws_.size(); idx++ )
     {
 	uiWellDahDisplay::MarkerDraw& markerdraw = *seldisp_->markerdraws_[idx];
-	const Well::Marker& mrk = markerdraw.mrk_;
+	const Well::Marker mrk = markerdraw.mrk_;
 	uiLineItem& li = *markerdraw.lineitm_;
 
 	if ( abs(li.lineRect().centre().y-mousepos) < 2 )

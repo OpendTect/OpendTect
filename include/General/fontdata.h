@@ -47,11 +47,13 @@ public:
 
     static const char*	defaultFamily();
     static int		defaultPointSize();
+    static int		default3DPointSize();
     static Weight	defaultWeight();
     static bool		defaultItalic();
 
     static void		setDefaultFamily( const char* f );
     static void		setDefaultPointSize( int ps );
+    static void		setDefault3DPointSize( int ps );
     static void		setDefaultWeight( Weight w );
     static void		setDefaultItalic( bool yn );
 

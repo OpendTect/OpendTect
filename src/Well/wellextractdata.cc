@@ -363,11 +363,7 @@ void Well::ZRangeSelector::getLimitPos( const MarkerSet& markers,
     else
     {
 	mSetUdf(val);
-	for ( int idx=0; idx<markers.size(); idx++ )
-	{
-	    if ( markers[idx]->name() == mrknm )
-		{ val = markers[idx]->dah(); break; }
-	}
+	val = markers.getDahFromMarkerName( mrknm );
     }
     if ( mIsUdf(val) )
 	return;

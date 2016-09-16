@@ -343,11 +343,14 @@ bool Well::odWriter::putMarkers( od_ostream& strm ) const
     ascostream astrm( strm );
     astrm.put( Well::Info::sKeyDepthUnit(),
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
-    for ( int idx=0; idx<wd_.markers().size(); idx++ )
+
+    const Well::MarkerSet&  markerset = wd_.markers();
+    Well::MarkerSetIter miter( markerset );
+    while( miter.next() )
     {
-	BufferString basekey; basekey += idx+1;
-	const Well::Marker& wm = *wd_.markers()[idx];
-	const float dah = wm.dah();
+	BufferString basekey; basekey += miter.currIdx()+1;
+	const Well::Marker wm = miter.get();
+       	const float dah = wm.dah();
 	if ( mIsUdf(dah) )
 	    continue;
 

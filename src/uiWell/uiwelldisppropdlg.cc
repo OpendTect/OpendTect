@@ -63,9 +63,8 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
     propflds_ += wlp2;
 
     BufferStringSet allmarkernms;
-    for ( int idx=0; idx<wd_->markers().size(); idx++ )
-	allmarkernms.add( wd_->markers()[idx]->name() );
-
+    wd->markers().getNames( allmarkernms );
+    
     propflds_ += new uiWellMarkersDispProperties( tgs[2],
 	uiWellDispProperties::Setup( tr("Marker size"), tr("Marker color") )
 	.onlyfor2ddisplay(is2d), props.markers(), allmarkernms );
@@ -262,9 +261,7 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 	else if ( mrkfld )
 	{
 	    BufferStringSet allmarkernms;
-	    for ( int idy=0; idy<wd_->markers().size(); idy++ )
-		allmarkernms.add( wd_->markers()[idy]->name() );
-
+	    wd_->markers().getNames( allmarkernms );
 	    mrkfld->setAllMarkerNames( allmarkernms );
 	    mrkfld->resetProps( prop.markers() );
 	}

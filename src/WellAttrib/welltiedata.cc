@@ -131,10 +131,13 @@ Data::Data( const Setup& wts, Well::Data& wdata )
 
     tracerg_.set( 0.f, stoptime, cDefSeisSr() );
     computeExtractionRange();
-    for ( int idx=0; idx<wdata.markers().size(); idx++ )
+    const Well::MarkerSet& markers = wdata.markers();
+    Well::MarkerSetIter miter( markers );
+    while( miter.next() )
     {
-	dispparams_.allmarkernms_.add( wdata.markers()[idx]->name() );
-	dispparams_.mrkdisp_.addSelMarkerName( wdata.markers()[idx]->name() );
+	const BufferString markername = miter.markerName();
+	dispparams_.allmarkernms_.add( markername );
+	dispparams_.mrkdisp_.addSelMarkerName( markername );
     }
 
     initwvlt_->reSample( cDefSeisSr() );
@@ -247,10 +250,12 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
     const Well::D2TModel* dtm = wd_ ? &wd_->d2TModel() : 0;
     if ( dtm && dtm->isEmpty() )
 	dtm = 0;
-
-    for ( int idmrk=0; idmrk<wd_->markers().size(); idmrk++ )
+    
+    const Well::MarkerSet& markers = wd_->markers();
+    Well::MarkerSetIter miter( markers );
+    while( miter.next() )
     {
-	const Well::Marker& mrk = *wd_->markers()[idmrk];
+	const Well::Marker& mrk = miter.get();
 	for ( int idhor=0; idhor<horizons_.size(); idhor++ )
 	{
 	    Marker& hd = horizons_[idhor];

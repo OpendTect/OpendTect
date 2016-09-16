@@ -310,21 +310,24 @@ void WellDisplay::updateMarkers( CallBacker* )
 						       : wd->track();
     const BufferStringSet selnms(
 		wd->displayProperties(false).markers().selMarkerNames() );
-    for ( int idx=0; idx<wd->markers().size(); idx++ )
+
+    const Well::MarkerSet& markers = wd->markers();
+    Well::MarkerSetIter miter( markers );
+    while( miter.next() )
     {
-	Well::Marker* wellmarker = wd->markers()[idx];
-	if ( !selnms.isPresent( wellmarker->name() ) )
+	const Well::Marker& wellmarker = miter.get();
+	if ( !selnms.isPresent(wellmarker.name()) )
 	    continue;
 
-	Coord3 pos = track.getPos( wellmarker->dah() );
+	Coord3 pos = track.getPos( wellmarker.dah() );
 	if ( pos.isUdf() )
 	    continue;
 
 	mp.pos_ = &pos;
-	mp.name_ = toUiString(wellmarker->name());
+	mp.name_ = toUiString(wellmarker.name());
 
 	if ( !mGetMarkersDispPar(singleColor) )
-	    mp.col_ = wellmarker->color();
+	    mp.col_ = wellmarker.color();
 	if ( mGetMarkersDispPar(sameNameCol) )
 	    mp.namecol_  = mp.col_;
 
@@ -644,14 +647,16 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
     const float zstep2 = zfactor*SI().zStep()/2;
-    for ( int idx=0; idx<wd->markers().size(); idx++ )
+    const Well::MarkerSet& markers = wd->markers();
+    Well::MarkerSetIter miter( markers );
+    while( miter.next() )
     {
-	Well::Marker* wellmarker = wd->markers()[idx];
-	if ( !mIsEqual(wellmarker->dah(),dah,zstep2) )
+	const Well::Marker& wellmarker = miter.get();
+	if ( !mIsEqual(wellmarker.dah(),dah,zstep2) )
 	    continue;
 
 	info += ", Marker: ";
-	info += wellmarker->name();
+	info += wellmarker.name();
 	break;
     }
 }

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "sharedobject.h"
 #include "color.h"
 #include "ranges.h"
-#include "manobjectset.h"
+#include "monitoriter.h"
 #include "stratlevel.h"
 
 class TaskRunner;
@@ -31,7 +31,7 @@ typedef Monitorable::DirtyCountType DirtyCountType;
 /*!\brief Marker, can be attached to Strat level. When not attached, uses
   the object's own (fallback) name and color. */
 
-mExpClass(Well) Marker : public ::SharedObject
+mExpClass(Well) Marker : public ::NamedMonitorable
 {
 public:
 
@@ -63,6 +63,9 @@ public:
     static ChangeType	cLevelChange()		{ return 3; }
     static ChangeType	cDahChange()		{ return 4; } // like DahObj
 
+    static const Marker& udf();
+    bool		isUdf() const	{ return *this == udf(); }
+
 protected:
 
     float		dah_;
@@ -78,54 +81,175 @@ protected:
 
 /*!\brief Set of Markers */
 
-mExpClass(Well) MarkerSet : public ManagedObjectSet<Marker>
+mExpClass(Well) MarkerSet : public ::SharedObject
 {
 public:
 
     typedef Marker::LevelID	LevelID;
+    typedef TypeSet<Marker>::size_type    size_type;
+    typedef size_type		IdxType;
+    mDefIntegerIDType(IdxType,	 MarkerID);
 
-			MarkerSet()			{}
-    void		fillWithAll(TaskRunner* tr=0);
 
-    const Marker*	getByName(const char* nm) const { return gtByName(nm); }
-    Marker*		getByName(const char* nm)	{ return gtByName(nm); }
-    const Marker*	getByLvlID(LevelID id) const	{ return gtByLvlID(id);}
-    Marker*		getByLvlID(LevelID id)		{ return gtByLvlID(id);}
-    int			getIdxAbove(float z,const Well::Track* trck=0) const;
-			//!< is trck provided, compares TVDs
+			MarkerSet();		
+			mDeclInstanceCreatedNotifierAccess(MarkerSet);
+			mDeclAbstractMonitorableAssignment(MarkerSet);
+			~MarkerSet();
 
-    bool		isPresent(const char* n) const	{ return getByName(n); }
-    int			indexOf(const char*) const;
-    bool		insertNew(Well::Marker*); //becomes mine
-    void		addSameWell(const ObjectSet<Marker>&);
-    void		mergeOtherWell(const ObjectSet<Marker>&);
-    virtual void	append( const ObjectSet<Marker>& ms )
-							{ mergeOtherWell(ms); }
+    MarkerID		add(const Marker&);
+    Marker		get(MarkerID) const;
+    MarkerID		set(const Marker&);
+    BufferString	getName(MarkerID) const;
+    void		setName(MarkerID,const char*);
+    Color		getColor(MarkerID) const;
+    void		setColor(MarkerID,const Color&);
+    float		getDah(MarkerID) const;
+    void		setDah(MarkerID,float);
+    void		removeSingle(MarkerID);
 
-    int			indexOf( const Marker* m ) const
-			{ return ObjectSet<Marker>::indexOf(m); }
-    bool		isPresent( const Marker* m ) const
-			{ return ObjectSet<Marker>::isPresent(m); }
+    Marker		getByIdx(IdxType) const;
+    void		removeSingleByIdx(IdxType);
+    float		getDahByIdx(IdxType) const;
+    void		setDahByIdx(IdxType,float);
+    
+    float		getDahFromMarkerName(const char*) const;
+    Marker		first() const;
+    Marker		last() const;
+
+    IdxType		indexOf(const char* nm) const;
+    Marker		getByName(const char* nm) const;
+    Marker		getByLvlID(LevelID id) const;
+    MarkerID		markerIDFor(IdxType) const;
+    MarkerID		markerIDFromName(const char*) const;
+    IdxType		getIdxFor(MarkerID) const;
+    bool		validIdx(IdxType) const;
+
+    bool		isPresent(const char* n) const;
+    bool		isEmpty() const;
+    void		setEmpty();
+    size_type		size() const;
 
     void		getNames(BufferStringSet&) const;
     void		getColors(TypeSet<Color>&) const;
+    
+    void		fillWithAll(TaskRunner* tr=0);
+    bool		insertNew(const Well::Marker&);
+    void		addSameWell(const MarkerSet&);
+    void		mergeOtherWell(const MarkerSet&);
+    void		append(const MarkerSet& ms)
+							{ mergeOtherWell(ms); }
+    int			getIdxAbove(float z,const Well::Track* trck=0) const;
+			//!< is trck provided, compares TVDs
+    
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    //TODO remove when object becomes a true NamedMonitorable
-    void touch() const {}
-    DirtyCountType dirtyCount() const { return 0; }
+   
+    static ChangeType	cMarkerAdded()		{ return 2; }
+    static ChangeType	cMarkerRemoved()	{ return 3; }
+    static ChangeType	cMarkerChanged()	{ return 4; }
+
 
 protected:
+    
+    TypeSet<Marker>	markers_;
+    TypeSet<MarkerID>	markerids_;
+    mutable Threads::Atomic<IdxType> curmrkridnr_;
 
-    virtual ObjectSet<Marker>& doAdd(Marker*);
-    Marker*		gtByName(const char*) const;
-    Marker*		gtByLvlID(LevelID) const;
-    void		addCopy(const ObjectSet<Marker>&,int,float);
-    void		alignOrderingWith(const ObjectSet<Marker>&);
+    Marker		gtByName(const char*) const; //without locks for own use
+    Marker		gtByIndex(IdxType) const;
+    Marker		gtByLvlID(LevelID) const;
+    IdxType		idxOf(const char*) const;
+    IdxType		gtIdxFor(MarkerID) const;
+    IdxType		gtIdxForDah(float) const;
+    Marker		gtByID(MarkerID) const;
+    MarkerID		mrkrIDFor(IdxType) const;
+    
+    void		addCopy(const MarkerSet&,int,float);
+    void		alignOrderingWith(const MarkerSet&);
     void		moveBlock(int,int,const TypeSet<int>&);
-    void		insertNewAfter(int,ObjectSet<Marker>&);
+    bool		insrtNew(const Well::Marker&);
+    void		insrtNewAfter(int,const MarkerSet&);
+    void		insrtAt(IdxType,const Marker&);
+    void		insrtAfter(IdxType,const Marker&);
+    void		rmoveSingle(IdxType);
+    bool		isPrsnt(const char* n) const;
+    size_type		gtSize() const;
+   
+    friend class	MarkerSetIter;
+    friend class	MarkerSetIter4Edit;
+};
 
+/*!\brief const MarkerSet iterator. */
+
+mExpClass(Well) MarkerSetIter :	public MonitorableIter<MarkerSet::IdxType>
+{
+public:
+			MarkerSetIter(const MarkerSet&,bool dorev=false);
+			MarkerSetIter(const MarkerSet&,MarkerSet::MarkerID,
+						       MarkerSet::MarkerID,
+						       bool dorev=false);
+			MarkerSetIter(const MarkerSet&,const char*,const char*,
+				      bool dorev=false);
+
+			MarkerSetIter(const MarkerSetIter&);
+
+    const MarkerSet&	markerSet() const;
+    size_type		size() const;
+
+    MarkerSet::MarkerID	ID() const;
+    MarkerSet::IdxType	currIdx() const;
+
+    const Marker&	get() const;
+    float		getDah() const;
+    BufferString	markerName() const;
+
+
+private:
+
+    MarkerSetIter&	operator =(const MarkerSetIter&); // pErrMsg
+};
+
+
+mExpClass(Well) MarkerSetIter4Edit
+{
+public:
+			MarkerSetIter4Edit(MarkerSet&,bool dorev=false);
+			MarkerSetIter4Edit(MarkerSet&,
+					const Interval<int>&, bool dorev=false);
+			MarkerSetIter4Edit(MarkerSet&,
+				const char*,const char*,bool dorev=false);
+			
+			MarkerSetIter4Edit(const MarkerSetIter4Edit&);
+
+    MarkerSetIter4Edit&	operator =(const MarkerSetIter4Edit&);
+    MarkerSet&		markerSet() const
+			{ return const_cast<MarkerSet&>(*markerset_); }
+
+    bool		next();
+
+    bool		isValid() const;
+    bool		atFirst() const	    { return curidx_ == 0; }
+    bool		atLast() const;
+    MarkerSet::MarkerID	ID() const;
+    MarkerSet::IdxType	currIdx() const;
+    Marker&		get() const;
+    float		getDah() const;
+    void		setDah(float);
+    void		setColor(const Color&);
+    BufferString	markerName() const;
+
+    void		removeCurrent();
+    void		insert(const Marker&);
+
+    void		reInit();
+    void		retire()	{}
+
+private:
+
+    RefMan<MarkerSet>	markerset_;
+    MarkerSet::IdxType	curidx_;
+    MarkerSet::IdxType	stopidx_;
 };
 
 
@@ -135,36 +259,32 @@ mExpClass(Well) MarkerRange
 {
 public:
 
-			MarkerRange(const MarkerSet&,
-			    const Interval<int>& idxrg=Interval<int>(-1,-1));
-			MarkerRange(const MarkerSet&,
-				const char*,const char*);
+			MarkerRange(const MarkerSet&, MarkerSet::MarkerID
+						    , MarkerSet::MarkerID);
 
-    inline int		size() const		{ return rg_.width(false) + 1; }
+    int	    		size() const;
     bool		isValid() const;
 
-    inline bool		isIncluded( int i ) const
-						{ return rg_.includes(i,false);}
+    bool		isIncluded(int) const;
+    bool		isIncluded(MarkerSet::MarkerID) const;
+					
     bool		isIncluded(const char*) const;
     bool		isIncluded(float z) const;
 
     void		getNames(BufferStringSet&) const;
     MarkerSet*		getResultSet() const; //!< returns new set
 
+    const MarkerSet&	markers() const		{ return markerset_; }
 
-    const MarkerSet&	markers() const		{ return markers_; }
-    const Interval<int>& idxRange() const	{ return rg_; }
-    Interval<int>&	idxRange()		{ return rg_; }
+    void		setRangeForIDs(MarkerSet::MarkerID,MarkerSet::MarkerID);
     float		thickness() const;
 
 protected:
 
-    const MarkerSet&	markers_;
-    Interval<int>	rg_;
-    bool		isconst_;
-
-    void		init(const Interval<int>&);
-
+    Interval<int>	idxRange() const;
+    const MarkerSet&	markerset_;
+    MarkerSet::MarkerID	topid_;
+    MarkerSet::MarkerID	botid_;
 };
 
 
@@ -174,18 +294,22 @@ mExpClass(Well) MarkerChgRange : public MarkerRange
 {
 public:
 
-			MarkerChgRange( MarkerSet& ms,
-			    const Interval<int>& idxrg=Interval<int>(-1,-1) )
-			    : MarkerRange(ms,idxrg)	{}
-			MarkerChgRange( MarkerSet& ms, const char* m1,
-							const char* m2 )
-			    : MarkerRange(ms,m1,m2)	{}
+			MarkerChgRange( MarkerSet& ms, MarkerSet::MarkerID tpid,
+						       MarkerSet::MarkerID btid)
+			    : MarkerRange(ms,tpid,btid)	{}
+
+			MarkerChgRange( MarkerSet& ms, const char* topmrkr,
+						       const char* botmrkr)
+			    : MarkerRange(ms,ms.markerIDFromName(topmrkr)
+					    ,ms.markerIDFromName(botmrkr))
+			{}
+
 
     void		setThickness(float);
     void		remove();
 
     inline MarkerSet&	getMarkers()
-			{ return const_cast<MarkerSet&>(markers_); }
+			{ return const_cast<MarkerSet&>(markerset_); }
 
 };
 

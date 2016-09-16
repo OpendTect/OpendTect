@@ -39,13 +39,13 @@ protected:
     ObjectSet<const Strat::NodeOnlyUnitRef> units_;
 
     StratDispData&		data_;
-    const ObjectSet<Well::Marker>& markers_;
+    const Well::MarkerSet&	markers_;
     const Well::D2TModel*	d2tmodel_;
     const Well::Track& 		track_;
 
     void 			assignTimesToLeavedUnits();
     void 			assignTimesToAllUnits();
-    const Well::Marker* 	getMarkerFromLvlID(Strat::Level::ID) const;
+    Well::Marker	 	getMarkerFromLvlID(Strat::Level::ID) const;
     void 			gatherLeavedUnits();
     bool			areLeavedTied(const Strat::LeavedUnitRef&,
 					    const Strat::LeavedUnitRef&) const;
