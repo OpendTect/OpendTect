@@ -269,6 +269,7 @@ public:
     static uiString sDefine()		{ return tr("Define"); }
     static uiString sDelete();
     static uiString sDepth()	        { return tr("Depth"); }
+    static uiString sDescription()	{ return tr("Description"); }
     static uiString sDip()		{ return tr("Dip"); }
     static uiString sDisabled()		{ return tr("Disabled"); }
     static uiString sDisplay()		{ return tr("Display"); }
@@ -472,6 +473,7 @@ public:
     static uiString sTraceNumber()	{ return tr("Trace number"); }
     static uiString sTrack();
     static uiString sTracking()		{ return tr("Tracking"); }
+    static uiString sTransform()	{ return tr("Transform"); }
     static uiString sTransparency()     { return tr("Transparency"); }
     static uiString sType()             { return tr("Type"); }
     static uiString sUndefVal()		{ return tr("Undefined Value"); }

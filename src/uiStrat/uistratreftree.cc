@@ -43,9 +43,9 @@ uiStratRefTree::uiStratRefTree( uiParent* p )
     , anychange_(false)
 {
     lv_ = new uiTreeView( p, "RefTree viewer" );
-    BufferStringSet labels;
-    labels.add( "Unit" );
-    labels.add( "Description" );
+    uiStringSet labels;
+    labels.add( uiStrings::sUnit() );
+    labels.add( uiStrings::sDescription() );
     lv_->addColumns( labels );
     mAddCol( 300, 0 );
     mAddCol( 200, 1 );
