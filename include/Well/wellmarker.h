@@ -43,7 +43,7 @@ public:
 			~Marker();
 			mDeclInstanceCreatedNotifierAccess(Marker);
 			mDeclAbstractMonitorableAssignment(Marker);
-    inline bool		operator ==(const Marker&) const;
+    bool		operator ==(const Marker&) const;
     bool                operator >(const Marker&) const;
 
     virtual const OD::String& name() const;
