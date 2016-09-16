@@ -471,8 +471,8 @@ void uiWellDispCtrlEditMarkerDlg::handleCtrlChangeCB( CallBacker* cb )
     if ( curctrl_ && curwd_ )
     {
 	Well::MarkerSet& mrkset = curwd_->markers();
-	int curmrkidx = mrkset.indexOf( curctrl_->selMarker()->name() );
-	/*if ( curmrkidx >=0 ) 
+	/*int curmrkidx = mrkset.indexOf( curctrl_->selMarker()->name() );
+	if ( curmrkidx >=0 ) 
 	    curmrk_ = &mrkset.get( curmrkidx ); //TODO revisist*/
     }
 }

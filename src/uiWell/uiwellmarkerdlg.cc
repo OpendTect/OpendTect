@@ -664,7 +664,7 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
     for ( int idx=0; idx<selitems.size(); idx++ )
     {
 	const int selidx = selitems[idx];
-	const FixedString markername = mset.getByIdx(selidx).name();
+	const FixedString markername = mset.getByIdx(selidx).name().buf();
 	if ( lvls.isPresent(markername) )
 	{
 	    msg = tr( "'%1' %2" ).arg( markername );
