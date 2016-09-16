@@ -43,7 +43,8 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     , entrancename_(unit.code())
 {
     unitnmfld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
-    unitdescfld_ = new uiGenInput( this, tr("Description"), StringInpSpec() );
+    unitdescfld_ = new uiGenInput( this, uiStrings::sDescription(),
+	    			   StringInpSpec() );
     unitdescfld_->attach( alignedBelow, unitnmfld_ );
 
     colfld_ = new uiColorInput( this,
