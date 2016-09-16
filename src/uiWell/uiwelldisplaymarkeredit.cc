@@ -460,7 +460,7 @@ void uiWellDispCtrlEditMarkerDlg::triggerWDsMarkerChanged()
 
 void uiWellDispCtrlEditMarkerDlg::handleCtrlChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller(BufferString,mesg,caller,cb);
+    /*mCBCapsuleUnpackWithCaller(BufferString,mesg,caller,cb);
     mDynamicCastGet(uiWellDisplayControl*,ctrl,caller)
     curctrl_ = 0; curmrk_ = 0; curwd_ = 0;
     if ( !ctrl || !ctrl->mouseEventHandler()
@@ -473,8 +473,8 @@ void uiWellDispCtrlEditMarkerDlg::handleCtrlChangeCB( CallBacker* cb )
 	Well::MarkerSet& mrkset = curwd_->markers();
 	/*int curmrkidx = mrkset.indexOf( curctrl_->selMarker()->name() );
 	if ( curmrkidx >=0 ) 
-	    curmrk_ = &mrkset.get( curmrkidx ); //TODO revisist*/
-    }
+	    curmrk_ = &mrkset.get( curmrkidx ); //TODO revisist
+    }*/
 }
 
 
