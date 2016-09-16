@@ -886,6 +886,12 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
 }
 
 
+uiFaultParSel::~uiFaultParSel()
+{
+    clearbuttons.removeParam( this );
+}
+
+
 void uiFaultParSel::hideClearButton( bool yn )
 {
     uiPushButton* clearbut = clearbuttons.getParam( this );

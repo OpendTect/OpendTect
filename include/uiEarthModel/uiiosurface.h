@@ -206,6 +206,7 @@ mExpClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
 public:
 				uiFaultParSel(uiParent*,bool is2d,
 					      bool use_act_option=false);
+				~uiFaultParSel();
 
 				/*Set my own options on selected, optional*/
     void			setActOptions(const BufferStringSet&,
