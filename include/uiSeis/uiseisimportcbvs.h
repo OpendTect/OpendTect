@@ -52,5 +52,3 @@ protected:
     bool		acceptOK();
 
 };
-
-

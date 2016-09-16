@@ -193,4 +193,3 @@ bool Smoother3D<T>::execute()
 template <class T> inline
 Task::Control Smoother3D<T>::getState() const
 { return convolver_.getState(); }
-

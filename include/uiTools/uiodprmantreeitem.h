@@ -61,4 +61,3 @@ protected:
     virtual OD::ViewerID	getViewerID() const		=0;
     virtual OD::ObjPresentationInfo* getObjPRInfo()		{ return 0; }
 };
-

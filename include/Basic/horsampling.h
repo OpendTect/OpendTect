@@ -19,4 +19,3 @@ typedef TrcKeySampling HorSampling;
 
 //!Old name, use the new one in all new code
 typedef TrcKeySamplingIterator HorSamplingIterator;
-

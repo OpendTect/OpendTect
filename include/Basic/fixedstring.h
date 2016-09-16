@@ -97,5 +97,3 @@ inline FixedString& FixedString::operator=(const OD::String&)
 { OD_Undef_FixedString_eq_bs_finder(); return *this; }
 
 #endif
-
-

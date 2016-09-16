@@ -37,5 +37,3 @@ protected:
     void		fillSel(CallBacker*);
     void		fillShapes();
 };
-
-

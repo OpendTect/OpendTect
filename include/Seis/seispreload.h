@@ -140,4 +140,3 @@ RefMan<T> PreLoadDataManager::getAndCast( const DBKey& mid, Pos::GeomID gid )
 }
 
 } // namespace Seis
-

@@ -280,4 +280,3 @@ protected:
 };
 
 } // namespace Seis
-

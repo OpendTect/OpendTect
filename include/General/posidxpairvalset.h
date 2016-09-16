@@ -206,5 +206,3 @@ protected:
 
 
 } // namespace Pos
-
-

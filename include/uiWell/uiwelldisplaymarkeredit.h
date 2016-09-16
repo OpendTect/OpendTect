@@ -130,5 +130,3 @@ protected:
     void			handleCtrlChangeCB(CallBacker*);
     bool			rejectOK();
 };
-
-

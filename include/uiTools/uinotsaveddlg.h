@@ -139,5 +139,3 @@ protected:
     uiNotSavedDlg*				dlg_;
     int						queueid_;
 };
-
-

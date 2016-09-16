@@ -81,5 +81,3 @@ protected:
     MenuItem		amplspectrummnuitem_;
     ObjectSet<MenuItem>	logmnuitems_;
 };
-
-

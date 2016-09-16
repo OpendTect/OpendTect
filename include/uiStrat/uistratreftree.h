@@ -96,5 +96,3 @@ protected:
 
     friend class 	uiStratDispToTree;
 };
-
-

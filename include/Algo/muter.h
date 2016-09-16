@@ -53,4 +53,3 @@ protected:
     void		itvMute(ValueSeries<float>&,int,Interval<float>) const;
 
 };
-

@@ -124,4 +124,3 @@ protected:
 
     void		lineChg(CallBacker*);
 };
-

@@ -222,5 +222,3 @@ namespace Conv \
 	    Values::setUdf( _to ); \
     } \
 }
-
-

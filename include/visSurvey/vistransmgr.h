@@ -54,5 +54,3 @@ protected:
 mGlobal(visSurvey) SceneTransformManager& STM();
 
 } // namespace visSurvey
-
-

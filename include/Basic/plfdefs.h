@@ -220,5 +220,3 @@ Always defined:
 #ifndef _ANSI_C_SOURCE
 # define _ANSI_C_SOURCE 1
 #endif
-
-

@@ -44,6 +44,3 @@ protected:
     const char*		classnm_;
     uiVisPartServer&	visserv_;
 };
-
-
-

@@ -35,5 +35,3 @@ protected:
     uiIOObjSel*		outfld_;
     uiGenInput*		strengthfld_;
 };
-
-

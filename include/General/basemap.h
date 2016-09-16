@@ -135,5 +135,3 @@ public:
     virtual void		removeObject(const BaseMapObject*)	= 0;
 
 };
-
-

@@ -35,4 +35,3 @@ protected:
     void			mergeSets(CallBacker*);
 
 };
-

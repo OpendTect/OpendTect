@@ -83,5 +83,3 @@ protected:
 
    RefMan<DataPack>			datapack_;
 };
-
-

@@ -59,5 +59,3 @@ inline bool IdxPair::operator ==( const IdxPair& oth ) const
 {
     return first == oth.first && second == oth.second;
 }
-
-

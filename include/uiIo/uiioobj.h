@@ -43,4 +43,3 @@ protected:
     bool			silent_;
 
 };
-

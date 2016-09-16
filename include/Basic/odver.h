@@ -30,5 +30,3 @@ mGlobal(Basic) const char* GetQtVersion();
 
 void mGlobal(Basic) GetSpecificODVersion(const char* typ,BufferString&);
 /*!< 'typ' can be "doc" or other like vendor name. if null -> platform */
-
-

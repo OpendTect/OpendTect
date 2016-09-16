@@ -132,4 +132,3 @@ mGlobal(EarthModel) EMManager& EMM();
 mGlobal(EarthModel) bool canOverwrite(const DBKey&);
 
 } // namespace EM
-

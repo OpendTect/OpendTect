@@ -149,6 +149,3 @@ protected:
     void		rmPush(CallBacker*);
 
 };
-
-
-

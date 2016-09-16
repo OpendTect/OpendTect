@@ -67,5 +67,3 @@ protected:
     virtual void		ownSelChg()		{}
     void			updateCB(CallBacker*);
 };
-
-

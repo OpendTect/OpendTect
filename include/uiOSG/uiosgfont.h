@@ -21,4 +21,3 @@ public:
     static void			initClass();
     osgText::Font*		createFont(const FontData&);
 };
-

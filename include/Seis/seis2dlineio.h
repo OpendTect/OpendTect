@@ -191,5 +191,3 @@ public:
     virtual bool	isUserSelectable(bool fr) const { return fr; }
     virtual const char* iconName() const		{ return "segy"; }
 };
-
-

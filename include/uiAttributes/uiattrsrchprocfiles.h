@@ -25,4 +25,3 @@ protected:
     CtxtIOObj&		mkCtio(bool);
 
 };
-

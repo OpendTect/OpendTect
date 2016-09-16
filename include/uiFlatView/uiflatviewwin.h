@@ -58,5 +58,3 @@ protected:
 
     virtual void		handleNewViewer(uiFlatViewer*)	{}
 };
-
-

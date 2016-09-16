@@ -58,4 +58,3 @@ protected:
     uiCheckBox*			savewllnmfld_;
 
 };
-

@@ -36,5 +36,3 @@ protected:
 
     uiListBox*		listfld;
 };
-
-

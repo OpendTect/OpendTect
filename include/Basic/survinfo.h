@@ -303,6 +303,3 @@ mGlobal(Basic) inline SurveyInfo& eSI()
 			{ return const_cast<SurveyInfo&>(SI()); }
 
 mExternC( Basic ) const char* GetSurveyName(void);
-
-
-

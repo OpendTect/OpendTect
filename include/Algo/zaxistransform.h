@@ -163,4 +163,3 @@ protected:
     int				firstcachesample_;
 
 };
-

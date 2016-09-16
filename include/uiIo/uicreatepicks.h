@@ -103,5 +103,3 @@ protected:
     void		horSel(uiComboBox*,uiComboBox*);
 
 };
-
-

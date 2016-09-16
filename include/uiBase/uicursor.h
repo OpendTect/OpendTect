@@ -41,4 +41,3 @@ protected:
 	    			int hotx,int hoty, bool replace);
     void	restoreInternal();
 };
-

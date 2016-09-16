@@ -222,5 +222,3 @@ public:
 			SampledNDProbDenFunc();
 
 };
-
-

@@ -38,4 +38,3 @@ protected:
     uiGenInput*		zfld_;
     uiSurfaceWrite*	outfld_;
 };
-

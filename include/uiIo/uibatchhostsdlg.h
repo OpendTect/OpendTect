@@ -53,4 +53,3 @@ protected:
     void		platformChanged(int row);
     void		dataRootChanged(int row);
 };
-

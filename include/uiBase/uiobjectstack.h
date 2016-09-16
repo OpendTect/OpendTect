@@ -33,4 +33,3 @@ private:
     uiObjStackBody&	mkbody(uiParent*,const char*);
 
 };
-

@@ -62,4 +62,3 @@ protected:
     const BufferString	reposdir_;
 
 };
-

@@ -75,5 +75,3 @@ public:
 				{ return tr("Proceed to import?"); }
 
 };
-
-

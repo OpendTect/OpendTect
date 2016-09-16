@@ -33,4 +33,3 @@ protected:
     static void		offerUnzipSurv(uiParent*,const char*);
 
 };
-

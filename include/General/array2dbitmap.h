@@ -225,5 +225,3 @@ protected:
 
     virtual void		doFill()		= 0;
 };
-
-

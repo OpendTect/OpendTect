@@ -34,4 +34,3 @@ private:
     uiSeparatorBody&	mkbody(uiParent*, const char*, bool, bool);
 
 };
-

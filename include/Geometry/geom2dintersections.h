@@ -125,4 +125,3 @@ protected:
     bool		doFinish(bool success);
     Threads::Lock	lock_;
 };
-

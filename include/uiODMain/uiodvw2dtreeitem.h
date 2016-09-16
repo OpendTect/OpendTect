@@ -136,5 +136,3 @@ protected:
     uiTreeFactorySet*		tfs_;
     bool			selectWithKey(int);
 };
-
-

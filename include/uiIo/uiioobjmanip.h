@@ -114,5 +114,3 @@ protected:
     bool		doReloc(Translator*,IOStream&,IOStream&);
 
 };
-
-

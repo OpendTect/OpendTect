@@ -38,4 +38,3 @@ protected:
     uiMenu*		helpmnu_;
     uiMenu*		docmnu_;
 };
-

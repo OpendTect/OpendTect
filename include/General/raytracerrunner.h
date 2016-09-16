@@ -51,4 +51,3 @@ protected:
     ObjectSet<RayTracer1D>	raytracers_;
     od_int64			totalnr_;
 };
-

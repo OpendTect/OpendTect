@@ -320,5 +320,3 @@ protected:
 };
 
 } // namespace visSurvey
-
-

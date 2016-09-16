@@ -102,5 +102,3 @@ inline void PosID::setSubID( SubID id )
 
 
 } // namespace EM
-
-

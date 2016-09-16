@@ -117,6 +117,3 @@ inline T DataSqueezer<T>::value( T v ) const
 
     return v;
 }
-
-
-

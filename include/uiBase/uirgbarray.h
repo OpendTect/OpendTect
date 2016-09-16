@@ -63,4 +63,3 @@ private:
 			uiRGBImageLoader();
     OD::RGBImage*	loadImage(const char*,uiString&) const;
 };
-

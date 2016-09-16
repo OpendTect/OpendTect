@@ -158,5 +158,3 @@ public:
 			{ return add( ods.buf() ); }
 
 };
-
-

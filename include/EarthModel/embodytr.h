@@ -82,6 +82,3 @@ public: \
 mDefineIndividualBodyTranslator(mc)
 mDefineIndividualBodyTranslator(polygon)
 mDefineIndividualBodyTranslator(randpos)
-
-
-

@@ -129,5 +129,3 @@ protected:
     int			doMsg(const char*,bool iserr=true);
     int			doMsg(const uiString&,bool iserr=true);
 };
-
-

@@ -66,5 +66,3 @@ public:
     mDeprecated IOObj*&		ioobj;
     mDeprecated IOPar*&		iopar;
 };
-
-

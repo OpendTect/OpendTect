@@ -29,4 +29,3 @@ protected:
     uiIOObjSelGrp*	geomfld_;
     uiFileInput*	outfld_;
 };
-

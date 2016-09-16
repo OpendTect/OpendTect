@@ -208,4 +208,3 @@ protected:
 };
 
 } // namespace Seis
-

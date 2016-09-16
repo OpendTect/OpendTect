@@ -109,5 +109,3 @@ protected:
     ManagedObjectSet<BufferString>  strs_;
 
 };
-
-

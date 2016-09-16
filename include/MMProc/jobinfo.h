@@ -57,5 +57,3 @@ protected:
     int			starttime_;
     int			recvtime_;
 };
-
-

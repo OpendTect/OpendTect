@@ -35,4 +35,3 @@ protected:
     uiGenInput*		duplicatefld_;
     uiSurfaceWrite*	outfld_;
 };
-

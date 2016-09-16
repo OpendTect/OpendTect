@@ -281,5 +281,3 @@ namespace Threads
 	*__curptr operation; \
     } \
 }
-
-

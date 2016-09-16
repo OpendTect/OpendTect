@@ -53,4 +53,3 @@ protected:
     float		sr_;
     void		getWaveletArrForPhase(Array1DImpl<float>&) const;
 };
-

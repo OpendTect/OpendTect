@@ -37,4 +37,3 @@ protected:
     void				changeColCB(CallBacker*);
     void				calcSelectedness(CallBacker*);
 };
-

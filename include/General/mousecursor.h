@@ -148,5 +148,3 @@ public:
 protected:
     bool	active_;
 };
-
-

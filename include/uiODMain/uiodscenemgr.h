@@ -268,4 +268,3 @@ private:
     float		initialzoomfactor_;
     bool		initialmousewheelreversal_;
 };
-

@@ -62,5 +62,3 @@ protected:
 
     void			clear();
 };
-
-

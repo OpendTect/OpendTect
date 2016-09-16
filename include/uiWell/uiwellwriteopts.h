@@ -29,5 +29,3 @@ protected:
     bool		defbinwrite_;
 
 };
-
-

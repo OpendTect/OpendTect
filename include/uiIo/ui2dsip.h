@@ -31,5 +31,3 @@ protected:
 
     bool		xyft_;
 };
-
-

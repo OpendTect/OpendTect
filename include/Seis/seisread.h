@@ -135,5 +135,3 @@ protected:
     bool		initBounds2D(const PosInfo::Line2DData&,
 				     Seis::Bounds2D&) const;
 };
-
-

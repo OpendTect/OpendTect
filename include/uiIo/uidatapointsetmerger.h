@@ -144,4 +144,3 @@ protected:
     void			attribChangedCB(CallBacker*);
     void			matchPolChangedCB(CallBacker*);
 };
-

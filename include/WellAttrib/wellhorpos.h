@@ -45,4 +45,3 @@ protected:
 
     float			intersectPosHor(const Coord3&) const;
 };
-

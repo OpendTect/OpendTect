@@ -121,5 +121,3 @@ Vw2DDataObject* clss::createInternal(const EM::ObjectID& oid,	\
 #define mCreateVw2DFactoryEntry( clss)			\
 mImplVisVwr2DInitClass( clss );					\
 mCreateVw2DFactoryEntryNoInitClass( clss );
-
-

@@ -198,5 +198,3 @@ protected:
     uiEventFilterImpl*		impl_;
 
 };
-
-

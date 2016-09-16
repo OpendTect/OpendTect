@@ -114,4 +114,3 @@ protected:
     od_int64		nrdone_;
     uiString		msg_;
 };
-

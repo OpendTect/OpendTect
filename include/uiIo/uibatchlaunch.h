@@ -78,5 +78,3 @@ private:
 
     static const uiString	sKeyNoParFiles();
 };
-
-

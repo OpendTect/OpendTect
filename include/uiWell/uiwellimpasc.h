@@ -66,5 +66,3 @@ protected:
 
     friend class	uiWellImportAscOptDlg;
 };
-
-

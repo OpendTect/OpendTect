@@ -102,5 +102,3 @@ protected:
     TypeSet<SeisTrcInfo::Fld>	flds_;
 
 };
-
-

@@ -37,5 +37,3 @@ protected:
     uiToolButton*	copybut_;
     uiToolButton*	mergebut_;
 };
-
-

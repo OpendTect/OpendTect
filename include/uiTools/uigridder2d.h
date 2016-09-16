@@ -62,5 +62,3 @@ protected:
 
 mDefineFactory2Param( uiTools, uiDlgGroup, uiParent*, Gridder2D*,
 		      uiGridder2DFact );
-
-

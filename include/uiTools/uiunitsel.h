@@ -115,5 +115,3 @@ private:
     void			init();
 
 };
-
-

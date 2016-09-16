@@ -631,5 +631,3 @@ bool ParamLineBase<T>::isOnLine(const T& pt) const
 {
     return sqDistanceToPoint(pt)<0.0001;
 }
-
-

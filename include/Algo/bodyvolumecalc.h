@@ -46,4 +46,3 @@ protected:
     float		volsum_;
     Threads::Lock	lock_;
 };
-

@@ -159,5 +159,3 @@ protected:
     void		doAdd(float);
     BufferString	getClipRgStr(float) const;
 };
-
-

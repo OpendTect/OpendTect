@@ -72,5 +72,3 @@ protected:
     BufferString	usrstr_;
 
 };
-
-

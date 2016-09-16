@@ -190,4 +190,3 @@ protected:
 
     void		selPush(CallBacker*);
 };
-

@@ -135,6 +135,3 @@ inline bool RowCol::fromString( const char* str )
 {
     return Pos::IdxPair::parseUsrStr( str, "", "/", "" );
 }
-
-
-

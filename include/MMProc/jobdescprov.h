@@ -195,4 +195,3 @@ public:
     const char*		objType() const		{ return "Line"; }
     const char*		objName(int) const;
 };
-

@@ -158,4 +158,3 @@ protected:
     
     WindowFunction* 	getWindowFuncByName(const char*); 
 };
-

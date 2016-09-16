@@ -84,5 +84,3 @@ protected:
     VW2DPickSet*	vw2dpickset_;
 
 };
-
-

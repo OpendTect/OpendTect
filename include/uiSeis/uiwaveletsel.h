@@ -64,5 +64,3 @@ private:
     void		init(const Setup&,bool);
 
 };
-
-

@@ -76,5 +76,3 @@ protected:
     double		lngdist_;
     double		scalefac_;
 };
-
-

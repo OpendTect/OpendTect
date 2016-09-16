@@ -118,5 +118,3 @@ protected:
     friend class	SeisIOSimpleImportReader;
 
 };
-
-

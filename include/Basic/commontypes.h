@@ -53,4 +53,3 @@ typedef double		Ordinate_Type;
 typedef double		Distance_Type;
 
 }
-

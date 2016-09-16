@@ -121,4 +121,3 @@ mGlobal(GMT) GMTParFactory& GMTPF();
 	    break; \
 	default: break; \
     }
-

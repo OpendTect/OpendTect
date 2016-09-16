@@ -145,4 +145,3 @@ protected:
     MenuItem		snapeventmnuitem_;
     MenuItem		interpolatemnuitem_;
 };
-

@@ -276,5 +276,3 @@ protected:
     virtual bool		writeOnlyZ() const		{ return false;}
     virtual bool		hasRangeSelection() const	{ return false;}
 };
-
-

@@ -63,4 +63,3 @@ protected:
     const BrowserDef*	getBrowserDef() const;
 
 };
-

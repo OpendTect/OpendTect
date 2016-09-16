@@ -229,5 +229,3 @@ ________________________________________________________________________
 #define mAttribMatrixMnuItm	(mHelpMnuBase + 7)
 #define mShortcutsMnuItm	(mHelpMnuBase + 8)
 #define mLegalMnuItm		(mHelpMnuBase + 9)
-
-

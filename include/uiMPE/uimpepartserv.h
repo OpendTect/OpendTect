@@ -158,4 +158,3 @@ private:
     static uiString		sYesAskGoOnStr();
     static uiString		sNoAskGoOnStr();
 };
-

@@ -227,4 +227,3 @@ protected:
 
     bool				mapview_;
 };
-

@@ -143,5 +143,3 @@ protected:
     TypeSet<int>        removedids_;
     TypeSet<Coord3>     coords_;
 };
-
-

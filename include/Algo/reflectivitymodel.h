@@ -73,4 +73,3 @@ inline float ReflectivitySpike::time( bool isnmo ) const
 {
     return isnmo ? correctedtime_ : time_;
 }
-

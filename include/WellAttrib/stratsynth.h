@@ -186,4 +186,3 @@ public:
     static uiString	sErrRetMsg() { return uiStrings::phrCannotCreate(tr
 				       ("synthetics %1 : %2\n")); }
 };
-

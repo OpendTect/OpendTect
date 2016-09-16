@@ -98,5 +98,3 @@ protected:
 			{ return imp ? outimpfld_ : outscanfld_; }
 
 };
-
-

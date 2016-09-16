@@ -64,5 +64,3 @@ protected:
     uiGroup*		crProcGroup(uiGroup*);
     bool		acceptOK();
 };
-
-

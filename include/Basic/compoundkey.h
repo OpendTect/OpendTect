@@ -73,5 +73,3 @@ inline CompoundKey& CompoundKey::operator +=( const char* s )
     impl_.add( s );
     return *this;
 }
-
-

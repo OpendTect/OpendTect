@@ -74,5 +74,3 @@ protected:
 mGlobal(visBase) DataManager& DM();
 
 };
-
-

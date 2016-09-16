@@ -35,4 +35,3 @@ protected:
 
     bool		withz_;
 };
-

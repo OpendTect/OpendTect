@@ -158,5 +158,3 @@ protected:
     void			helpCB(CallBacker*);
 
 };
-
-

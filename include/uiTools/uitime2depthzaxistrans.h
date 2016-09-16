@@ -34,4 +34,3 @@ protected:
     uiZRangeInput*	rangefld_;
     bool		rangechanged_;
 };
-

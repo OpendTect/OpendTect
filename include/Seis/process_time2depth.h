@@ -22,5 +22,3 @@ struct ProcessTime2Depth
     static const char*	sKeyZTransPar()		{ return "ZTrans"; }
     static const char*	sKeyIsTimeToDepth()	{ return "Time to depth"; }
 };
-
-

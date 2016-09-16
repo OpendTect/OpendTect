@@ -46,5 +46,3 @@ protected:
     virtual bool	doWork(const IOObj&);
 
 };
-
-

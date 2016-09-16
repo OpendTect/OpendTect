@@ -115,5 +115,3 @@ inline bool PosKey::operator ==( const PosKey& oth ) const
 
 
 } // namespace Seis
-
-

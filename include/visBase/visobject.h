@@ -126,4 +126,3 @@ mLockerClassImpl( visBase, VisualReadLockLocker, VisualObjectImpl,
 mLockerClassImpl( visBase, VisualWriteLockLocker, VisualObjectImpl,
 		  writeLock(), writeUnLock(), tryWriteLock() )
 };
-

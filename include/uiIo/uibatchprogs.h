@@ -43,5 +43,3 @@ protected:
     bool		acceptOK();
     void		filenmUpd(CallBacker*);
 };
-
-

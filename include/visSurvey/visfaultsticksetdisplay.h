@@ -171,4 +171,3 @@ protected:
 };
 
 } // namespace VisSurvey
-

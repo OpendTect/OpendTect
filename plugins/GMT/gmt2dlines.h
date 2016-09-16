@@ -55,5 +55,3 @@ protected:
     static GMTPar*	createInstance(const IOPar&);
     static int		factoryid_;
 };
-
-

@@ -50,4 +50,3 @@ protected:
     EM::Horizon*		horizon_;
 
 };
-

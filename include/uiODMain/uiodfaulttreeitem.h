@@ -160,4 +160,3 @@ protected:
     bool		changed_;
     EM::ObjectID	emid_;
 };
-

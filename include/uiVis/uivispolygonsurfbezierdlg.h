@@ -35,5 +35,3 @@ protected:
     uiGenInput*         		bezierfld_;
     uiPushButton*			applybut_;
 };
-
-

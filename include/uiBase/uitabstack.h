@@ -64,5 +64,3 @@ protected:
 
     void		tabSel(CallBacker* cb);
 };
-
-

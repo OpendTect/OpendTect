@@ -110,4 +110,3 @@ public:
     mDeprecated float	getfValue(int i=0)	{ return getFValue(i); }
     mDeprecated double	getdValue(int i=0)	{ return getDValue(i); }
 };
-

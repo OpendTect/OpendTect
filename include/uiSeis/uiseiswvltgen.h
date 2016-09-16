@@ -106,6 +106,3 @@ protected:
     void		funcSelChg(CallBacker*);
     void		reloadAll(CallBacker*);
 };
-
-
-

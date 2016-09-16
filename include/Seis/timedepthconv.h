@@ -251,4 +251,3 @@ public:
     bool			needsVolumeOfInterest() const
 				{ return false; }
 };
-

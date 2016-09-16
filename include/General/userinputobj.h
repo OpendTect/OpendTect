@@ -117,4 +117,3 @@ protected:
     virtual T		getvalue_() const		= 0;
 
 };
-

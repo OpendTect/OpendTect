@@ -126,4 +126,3 @@ protected:
     int				getPropDlgIndex(const DBKey&);
 
 };
-

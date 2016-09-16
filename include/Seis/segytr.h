@@ -123,5 +123,3 @@ protected:
     bool		othdomain_;
 
 };
-
-

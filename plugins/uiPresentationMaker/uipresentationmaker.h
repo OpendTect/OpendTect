@@ -58,4 +58,3 @@ protected:
     uiFileInput*	masterfld_;
     uiFileInput*	outputfld_;
 };
-

@@ -32,4 +32,3 @@ protected:
     void		sizeChangedCB(CallBacker*);
     void		posChangedCB(CallBacker*);
 };
-

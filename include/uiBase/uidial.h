@@ -105,4 +105,3 @@ protected:
     void                editRetPress(CallBacker*);
     void                sliderMove(CallBacker*);
 };
-

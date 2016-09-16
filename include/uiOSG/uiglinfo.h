@@ -60,5 +60,3 @@ protected:
 };
 
 mGlobal(uiOSG) uiGLInfo& uiGLI();
-
-

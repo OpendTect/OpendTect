@@ -13,4 +13,3 @@ ________________________________________________________________________
 #include "transl.h"
 
 mDeclEmptyTranslatorBundle(General,ElasticPropSelection,od,"elas")
-

@@ -149,4 +149,3 @@ private:
 mDefineFactory1Param( MPEEngine, ObjectEditor, EM::EMObject&, EditorFactory );
 
 } // namespace MPE
-

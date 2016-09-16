@@ -110,5 +110,3 @@ private:
 #define	DBG_SETTINGS	0x0040	// User settings
 #define	DBG_PROGSTART	0x0080	// Program start and stop
 #define	DBG_FILEPATH	0x0100	// File name handling, conversion, etc.
-
-

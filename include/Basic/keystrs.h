@@ -172,6 +172,3 @@ namespace sKey
     inline FixedString CrInfo()		{ return "Created.Info"; }
 
 };
-
-
-

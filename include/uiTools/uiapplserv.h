@@ -65,5 +65,3 @@ private:
     uiApplService&	uias_;
 
 };
-
-

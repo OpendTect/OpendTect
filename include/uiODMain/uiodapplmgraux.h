@@ -134,5 +134,3 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     uiODApplMgr&	am_;
     uiParent*		par_;
 };
-
-

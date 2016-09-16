@@ -76,5 +76,3 @@ inline WaveletManager& WaveletMGR()
 {
     return WaveletManager::getInstance();
 }
-
-

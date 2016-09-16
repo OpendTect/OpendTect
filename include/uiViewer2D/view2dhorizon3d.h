@@ -59,5 +59,3 @@ protected:
     ObjectSet<MPE::HorizonFlatViewEditor3D>     horeds_;
     Notifier<Vw2DHorizon3D>		deselted_;
 };
-
-

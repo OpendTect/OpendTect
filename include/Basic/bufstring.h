@@ -277,6 +277,3 @@ protected:
     BufferString	second_;
 
 };
-
-
-

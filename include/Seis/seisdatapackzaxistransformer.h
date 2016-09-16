@@ -50,4 +50,3 @@ protected:
     ConstRefMan<DataPack>	inputdp_;
     RefMan<SeisDataPack>	outputdp_;
 };
-

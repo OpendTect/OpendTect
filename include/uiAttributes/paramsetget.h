@@ -176,5 +176,3 @@ if ( valparam##var ) \
     }\
     setfunc; \
 }
-
-

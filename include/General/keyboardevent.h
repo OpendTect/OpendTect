@@ -63,5 +63,3 @@ protected:
     const KeyboardEvent*	event_;
     bool			ishandled_;
 };
-
-

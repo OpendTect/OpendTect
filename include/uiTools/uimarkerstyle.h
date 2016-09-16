@@ -80,5 +80,3 @@ public:
     void		getMarkerStyle(OD::MarkerStyle3D&) const;
 
 };
-
-

@@ -172,5 +172,3 @@ protected:
     uiMainWin*		oldparent_;
     bool		isset_;
 };
-
-

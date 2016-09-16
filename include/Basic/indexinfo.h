@@ -106,5 +106,3 @@ void IndexInfo::set( const SamplingData<X>& sd, Y y, int nr )
 {
     return set( StepInterval<X>( sd.start, sd.atIndex(nr-1), sd.step ), y );
 }
-
-

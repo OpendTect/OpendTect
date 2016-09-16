@@ -57,5 +57,3 @@ public:
     const char*		read(Geometry::RandomLineSet&,Conn&);
     const char*		write(const Geometry::RandomLineSet&,Conn&);
 };
-
-

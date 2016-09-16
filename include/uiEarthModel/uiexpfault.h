@@ -43,4 +43,3 @@ protected:
     virtual bool	acceptOK();
     bool		writeAscii();
 };
-

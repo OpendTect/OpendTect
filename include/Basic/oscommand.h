@@ -203,5 +203,3 @@ mGlobal(Basic) bool ExecCommand(const char* cmd,LaunchType lt=Wait4Finish,
 /*! convenience function executing a program from the OD bindir */
 mGlobal(Basic) bool ExecODProgram(const char* prognm,const char* args=0,
 				  OS::LaunchType lt=OS::RunInBG);
-
-

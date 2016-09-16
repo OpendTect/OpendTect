@@ -34,4 +34,3 @@ protected:
     DBKey			hormid_;
     const char*			auxdatanm_;
 };
-

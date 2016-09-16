@@ -433,4 +433,3 @@ Attrib::Provider* clss::createInstance( Attrib::Desc& desc ) \
 #define mAttrEndInitClass \
     Attrib::PF().addDesc( desc, createInstance ); \
     desc->unRef();
-

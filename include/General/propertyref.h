@@ -199,5 +199,3 @@ public:
     static PropertyRefSelection getAll(PropertyRef::StdType);
 
 };
-
-

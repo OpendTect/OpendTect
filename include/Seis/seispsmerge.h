@@ -82,5 +82,3 @@ protected:
     ObjectSet<const IOObj>&	mkObjs(const IOObj&);
 
 };
-
-

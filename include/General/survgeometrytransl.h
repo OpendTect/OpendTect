@@ -54,5 +54,3 @@ public:
     bool		writeGeometry(IOObj&,Survey::Geometry&,uiString&) const;
 
 };
-
-

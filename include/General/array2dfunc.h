@@ -109,4 +109,3 @@ RT Array2DFunc<RT,PT,T>::getValue( PT x, PT y ) const
 	    arr_->get( ix0+2, iy0+1 ),
 	    xrelpos, yrelpos );
 }
-

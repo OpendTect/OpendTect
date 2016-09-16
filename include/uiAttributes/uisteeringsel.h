@@ -92,4 +92,3 @@ protected:
     void			doFinalise(CallBacker*);
     virtual void		typeSel(CallBacker*);
 };
-

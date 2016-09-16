@@ -47,4 +47,3 @@ protected:
     DBKey		wvltid_;
     Wavelet&		outputwvlt_;
 };
-

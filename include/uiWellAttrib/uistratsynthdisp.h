@@ -231,4 +231,3 @@ protected:
 
     StepInterval<float>	limitsampling_;
 };
-

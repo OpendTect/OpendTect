@@ -42,5 +42,3 @@ private:
     BufferString	mask_;
 
 };
-
-

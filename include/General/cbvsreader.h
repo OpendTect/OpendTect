@@ -112,5 +112,3 @@ private:
     void		updCurBinID() const;
 
 };
-
-

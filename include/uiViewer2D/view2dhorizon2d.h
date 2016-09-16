@@ -62,4 +62,3 @@ protected:
     ObjectSet<MPE::HorizonFlatViewEditor2D>	horeds_;
     Notifier<Vw2DHorizon2D>		deselted_;
 };
-

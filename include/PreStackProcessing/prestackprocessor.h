@@ -217,4 +217,3 @@ protected:
 }
 
 } // namespace PreStack
-

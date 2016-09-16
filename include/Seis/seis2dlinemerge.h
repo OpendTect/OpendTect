@@ -83,5 +83,3 @@ protected:
     void		doMerge(const TypeSet<int>&,bool);
 
 };
-
-

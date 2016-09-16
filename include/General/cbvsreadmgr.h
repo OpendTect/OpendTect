@@ -92,5 +92,3 @@ private:
     bool		handleInfo(CBVSReader*,int);
 
 };
-
-

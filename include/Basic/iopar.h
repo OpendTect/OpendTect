@@ -368,5 +368,3 @@ void IOPar::update( const char* ky, IntegerID<IdxType> id )
     else
 	set( ky, id.getI() );
 }
-
-

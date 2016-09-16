@@ -42,4 +42,3 @@ protected:
     MenuItem		selattrmnuitem_;
     MenuItem		colsettingsmnuitem_;
 };
-

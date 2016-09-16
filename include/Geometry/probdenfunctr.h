@@ -55,5 +55,3 @@ public:
     bool		write(const ProbDenFunc&,od_ostream&);
 
 };
-
-

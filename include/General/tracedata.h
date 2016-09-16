@@ -94,6 +94,3 @@ protected:
     int			nrcomp_;
 
 };
-
-
-

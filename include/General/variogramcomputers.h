@@ -95,4 +95,3 @@ protected:
 		    { return md_ == challenger.md_; }
     };
 };
-

@@ -111,4 +111,3 @@ protected:
     TrcKeyZSampling		oldactivevol_;
     bool			sowingmode_;
 };
-

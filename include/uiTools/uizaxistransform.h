@@ -96,5 +96,3 @@ protected:
     uiGenInput*			selfld_;
     ObjectSet<uiZAxisTransform>	transflds_;
 };
-
-

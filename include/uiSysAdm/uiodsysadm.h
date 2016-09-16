@@ -87,5 +87,3 @@ protected:
     void		doAttribSets(CallBacker*);
 
 };
-
-

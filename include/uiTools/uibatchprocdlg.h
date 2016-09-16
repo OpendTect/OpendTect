@@ -38,4 +38,3 @@ protected:
     uiGroup*			batchgrp_;
     uiBatchJobDispatcherSel*	batchjobfld_;
 };
-

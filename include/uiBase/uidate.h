@@ -57,6 +57,3 @@ protected:
     uiLineEdit*		yearfld_;
     uiPushButton*	showcalendarbut_;
 };
-
-
-

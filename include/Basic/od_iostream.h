@@ -13,5 +13,3 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "od_istream.h"
 #include "od_ostream.h"
-
-

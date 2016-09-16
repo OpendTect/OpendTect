@@ -73,5 +73,3 @@ public:
     virtual bool	isUserSelectable( bool fr ) const { return fr; }
     virtual const char*	defExtension() const		  { return "mcps"; }
 };
-
-

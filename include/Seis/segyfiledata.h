@@ -161,5 +161,3 @@ protected:
 };
 
 } // namespace
-
-

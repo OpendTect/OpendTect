@@ -48,5 +48,3 @@ protected:
 	    			const Interval<float>*);
 
 };
-
-

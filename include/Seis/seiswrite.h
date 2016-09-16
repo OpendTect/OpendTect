@@ -156,5 +156,3 @@ protected:
     uiString			errmsg_;
 
 };
-
-

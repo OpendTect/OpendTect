@@ -72,5 +72,3 @@ protected:
 };
 
 mGlobal(Well) WellDataIOProviderFactory& WDIOPF();
-
-

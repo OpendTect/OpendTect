@@ -28,5 +28,3 @@ protected:
 
     Notifier<VW2DSeis>	deselted_;
 };
-
-

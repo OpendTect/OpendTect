@@ -77,5 +77,3 @@ protected:
     ObjectSet<WindowFunction>	windowfuncs_;
 
 };
-
-

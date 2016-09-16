@@ -95,5 +95,3 @@ protected:
     void		setVariable(const char*,bool);
 
 };
-
-

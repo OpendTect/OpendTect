@@ -152,4 +152,3 @@ public:
     bool		usePar(const IOPar&);
 
 };
-

@@ -58,4 +58,3 @@ protected:
     void		rmCube(CallBacker*);
     bool		acceptOK();
 };
-

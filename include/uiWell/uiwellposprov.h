@@ -48,4 +48,3 @@ protected:
     uiSelZRange*	zrgfld_;
 
 };
-

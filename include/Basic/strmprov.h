@@ -126,6 +126,3 @@ protected:
     static void		sendCBMsg(const CallBack*,const char*);
 
 };
-
-
-

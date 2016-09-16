@@ -182,5 +182,3 @@ mGlobal(General) SeqMgr& SM();
 
 
 } // namespace ColTab
-
-

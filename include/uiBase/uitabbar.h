@@ -75,4 +75,3 @@ protected:
     uiGroup&		grp_;
     uiString		caption_;
 };
-

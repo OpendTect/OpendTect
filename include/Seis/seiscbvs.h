@@ -108,5 +108,3 @@ private:
     void		destroyVars(int);
 
 };
-
-

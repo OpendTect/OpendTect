@@ -212,4 +212,3 @@ inline const Interval<float> validImpRange()
 	    validDensityRange().start*validVelocityRange().start,
 	    validDensityRange().stop*validVelocityRange().stop );
 }
-

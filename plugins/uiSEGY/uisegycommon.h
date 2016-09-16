@@ -58,6 +58,3 @@ bool displayWarnings(const BufferStringSet&,bool withstop=false);
 void displayReport(uiParent*,const IOPar&,const char* fnm=0);
 
 } // namespace uiSEGY
-
-
-

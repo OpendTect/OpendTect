@@ -112,5 +112,3 @@ protected:
     uiIOObjTranslatorWriteOpts* getCurOptFld() const;
 
 };
-
-

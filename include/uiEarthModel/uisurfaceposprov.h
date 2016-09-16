@@ -51,5 +51,3 @@ protected:
 
     void		selChg(CallBacker*);
 };
-
-

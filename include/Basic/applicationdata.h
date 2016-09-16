@@ -53,5 +53,3 @@ protected:
     mQtclass(QCoreApplication)* application_;
 
 };
-
-

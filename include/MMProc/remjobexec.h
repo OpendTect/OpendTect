@@ -41,5 +41,3 @@ protected:
     const char*		host_;
 
 };
-
-

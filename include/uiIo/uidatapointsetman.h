@@ -33,4 +33,3 @@ public:
     static uiString		sSelDataSetEmpty();
 
 };
-

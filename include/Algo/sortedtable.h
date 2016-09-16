@@ -205,5 +205,3 @@ void SortedPointers<T>::erase()
     vals_.erase();
     ids_.erase();
 }
-
-

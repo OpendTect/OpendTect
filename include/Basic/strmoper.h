@@ -52,5 +52,3 @@ namespace StrmOper
     mGlobal(Basic) uiString	getErrorMessage(const StreamData&);
 
 }
-
-

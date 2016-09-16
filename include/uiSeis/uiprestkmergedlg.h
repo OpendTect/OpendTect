@@ -71,5 +71,3 @@ protected:
     CtxtIOObj&          inctio_;
     CtxtIOObj&          outctio_;
 };
-
-

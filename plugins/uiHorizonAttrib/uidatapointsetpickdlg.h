@@ -88,4 +88,3 @@ protected:
 
     TrcKeySampling	tks_;
 };
-

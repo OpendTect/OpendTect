@@ -46,4 +46,3 @@ private:
     uiSplitterBody*	body_;
     uiSplitterBody&	mkbody(uiParent*,const char*);
 };
-

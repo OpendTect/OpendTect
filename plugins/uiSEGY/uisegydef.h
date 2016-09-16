@@ -249,5 +249,3 @@ public:
     const uiString	sPreScanFiles() { return tr("Pre-scan the files"); }
 
 };
-
-

@@ -252,5 +252,3 @@ public:
 };
 
 }; // namespace Table
-
-

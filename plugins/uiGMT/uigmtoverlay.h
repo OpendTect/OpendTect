@@ -71,4 +71,3 @@ uiGMTOverlayGrpFactory& uiGMTOF();
     str = (int) col.r(); \
     str += "/"; str += (int) col.g(); \
     str += "/"; str += (int) col.b();
-

@@ -141,5 +141,3 @@ mGlobal(Basic) float IntPowerOf(float,int);
 
 
 } // namespace Math
-
-

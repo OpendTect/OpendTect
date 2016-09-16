@@ -368,5 +368,3 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 
 #define mSelHist(trgrp) \
 	trgrp##TranslatorGroup::theInst().selHist()
-
-

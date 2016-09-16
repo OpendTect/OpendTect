@@ -49,5 +49,3 @@ public:
     static const DataColDef&	unknown();
 
 };
-
-

@@ -105,4 +105,3 @@ private:
     bool			hasHelp(const char* arg) const;
     void			provideHelp(const char* arg) const;
 };
-

@@ -66,5 +66,3 @@ protected:
     void			updateAndDraw();
     void			updateHistogram();
 };
-
-

@@ -59,4 +59,3 @@ protected:
     void 			saveImageCB(CallBacker*);
     void 			printImageCB(CallBacker*);
 };
-

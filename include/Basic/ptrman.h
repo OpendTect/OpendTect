@@ -625,4 +625,3 @@ void ConstRefMan<T>::unRef(T* p) { unRefPtr((RefCount::Referenced*) p); }
 template <class T> inline
 void ConstRefMan<T>::unRefNoDelete(T* p)
 { unRefNoDeletePtr((RefCount::Referenced*) p ); }
-

@@ -42,5 +42,3 @@ public:
 				   bool forread=true,const char* cat=0);
 
 };
-
-

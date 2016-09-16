@@ -261,5 +261,3 @@ inline Coord3 Coord3::normalize() const
 
     return *this / absval;
 }
-
-

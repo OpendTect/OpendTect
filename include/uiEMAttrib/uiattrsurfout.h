@@ -52,4 +52,3 @@ protected:
     Array2DInterpol*	interpol_;
     BufferString	methodname_;
 };
-

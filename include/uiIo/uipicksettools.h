@@ -33,5 +33,3 @@ protected:
     RefMan<Pick::Set>	getMerged(IOPar&) const;
 
 };
-
-

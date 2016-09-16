@@ -105,5 +105,3 @@ public:
 
     static bool			isInStopperList(const uiBaseObject* obj);
 };
-
-

@@ -135,6 +135,3 @@ protected:
     MonitorLock			ml_;
 
 };
-
-
-

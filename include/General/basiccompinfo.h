@@ -47,5 +47,3 @@ public:
     DataCharacteristics	datachar;
 
 };
-
-

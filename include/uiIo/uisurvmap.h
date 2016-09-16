@@ -97,4 +97,3 @@ protected:
 
     virtual void	reDraw(bool deep=true);
 };
-

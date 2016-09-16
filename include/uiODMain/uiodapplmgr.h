@@ -309,4 +309,3 @@ protected:
     friend class		uiODApplMgrDispatcher;
     friend class		uiODApplMgrAttrVisHandler;
 };
-

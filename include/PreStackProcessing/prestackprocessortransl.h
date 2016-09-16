@@ -71,5 +71,3 @@ public:
     uiString		write(const PreStack::ProcessManager&,Conn&);
 
 };
-
-

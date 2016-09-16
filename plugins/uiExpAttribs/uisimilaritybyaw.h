@@ -46,4 +46,3 @@ protected:
     uiStepOutSel*	stepoutfld_;
     uiGenInput*		attributefld_;
 };
-

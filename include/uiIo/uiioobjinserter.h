@@ -66,5 +66,3 @@ protected:
     const Translator&	transl_;
 
 };
-
-

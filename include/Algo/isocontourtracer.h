@@ -56,5 +56,3 @@ protected:
     unsigned int		edge_;
     const ODPolygon<float>*	polyroi_;
 };
-
-

@@ -343,5 +343,3 @@ inline void Monitorable::setMemberSimple( TMember& memb, TSetTo setto,
 	mSendChgNotif( typ, id );
     }
 }
-
-

@@ -123,4 +123,3 @@ protected:
 	float*			routput_;
     };
 };
-

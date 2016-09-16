@@ -126,5 +126,3 @@ mGlobal(Basic) bool		launchViewer(const char*,
 
 
 } // namespace File
-
-

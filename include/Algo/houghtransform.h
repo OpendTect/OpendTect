@@ -140,5 +140,3 @@ public:
     int				toplistnr_; 
     Interval<float>		anglerg_;
 };
-
-

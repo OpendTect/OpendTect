@@ -136,4 +136,3 @@ private:
     uiString			getWinTitle(const DBKey&,bool);
 
 };
-

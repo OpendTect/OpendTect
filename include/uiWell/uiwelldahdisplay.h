@@ -219,5 +219,3 @@ protected:
     friend class                uiWellDisplay;
     friend class                uiWellDisplayControl;
 };
-
-

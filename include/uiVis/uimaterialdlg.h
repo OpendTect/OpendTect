@@ -99,4 +99,3 @@ protected:
     visSurvey::SurveyObject*	survobj_;
     visBase::VisualObject*	visobj_;
 };
-

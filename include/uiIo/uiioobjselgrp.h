@@ -183,5 +183,3 @@ private:
     friend class	uiIOObjSelGrpManipSubj;
 
 };
-
-

@@ -86,4 +86,3 @@ protected:
     void		wheelMoveCB(CallBacker*);
     void		pinchZoomCB(CallBacker*);
 };
-

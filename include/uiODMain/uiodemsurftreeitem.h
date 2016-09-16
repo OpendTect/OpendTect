@@ -99,5 +99,3 @@ protected:
     EM::ObjectID	emid_;
     uiVisEMObject*	uivisemobj_;
 };
-
-

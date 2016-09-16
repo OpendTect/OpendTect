@@ -69,5 +69,3 @@ public:
     static const char*	sKeyRefHor() { return "Reference Horizon";  }
     static bool		hasIOPar(int majorversion,int minorversion);
 };
-
-

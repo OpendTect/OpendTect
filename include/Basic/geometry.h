@@ -918,4 +918,3 @@ inline void Rectangle<T>::include( const Point2D<T>& p )
 }
 
 }; // namespace Geom
-

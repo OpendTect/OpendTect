@@ -258,4 +258,3 @@ protected:
     void			mouseCursorCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
 };
-

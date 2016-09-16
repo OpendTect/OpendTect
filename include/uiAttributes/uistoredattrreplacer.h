@@ -91,4 +91,3 @@ protected:
     int				noofseis_;
     bool			multiinpcube_;
 };
-

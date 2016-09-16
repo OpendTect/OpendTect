@@ -160,4 +160,3 @@ if ( comm_ ) \
     }
 
 #endif // __prog__
-

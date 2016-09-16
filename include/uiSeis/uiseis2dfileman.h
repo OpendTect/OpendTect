@@ -55,5 +55,3 @@ protected:
     const bool		zistm;
 
 };
-
-

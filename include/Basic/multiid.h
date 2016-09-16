@@ -13,5 +13,3 @@ ________________________________________________________________________
 #include "dbkey.h"
 
 mDeprecated typedef DBKey MultiID;
-
-

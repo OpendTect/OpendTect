@@ -59,5 +59,3 @@ protected:
 
     static bool		starMatches(const char*,const char*,const char*&,bool);
 };
-
-

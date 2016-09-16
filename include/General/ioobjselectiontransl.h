@@ -13,4 +13,3 @@ ________________________________________________________________________
 #include "transl.h"
 
 mDeclEmptyTranslatorBundle(General,IOObjSelection,od,"objsel")
-

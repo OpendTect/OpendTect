@@ -59,5 +59,3 @@ public:
     static Notifier<Timer>*	timerShot();
 
 };
-
-

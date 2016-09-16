@@ -189,6 +189,3 @@ protected:
      bool		anychg_;
 
 };
-
-
-

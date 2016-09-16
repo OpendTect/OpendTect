@@ -43,5 +43,3 @@ protected:
 };
 
 mGlobal(Basic) ObjDisposer* OBJDISP();
-
-

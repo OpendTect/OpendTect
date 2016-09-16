@@ -171,4 +171,3 @@ protected:
 
     HelpKey		helpkey_;
 };
-

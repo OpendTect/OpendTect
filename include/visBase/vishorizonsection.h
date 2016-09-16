@@ -225,4 +225,3 @@ protected:
 };
 
 } // namespace visBase
-

@@ -264,4 +264,3 @@ private:
 					       const Pos::GeomID&,TaskRunner&);
 				//!< Use createOutput() instead.
 };
-

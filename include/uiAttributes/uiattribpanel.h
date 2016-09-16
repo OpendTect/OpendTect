@@ -54,4 +54,3 @@ protected:
     Attrib::DescSet*	dset_;
     uiParent*			parent_;
 };
-

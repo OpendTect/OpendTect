@@ -125,5 +125,3 @@ protected:
     int			getComponentInfo(Pos::GeomID,BufferStringSet*) const;
 
 };
-
-

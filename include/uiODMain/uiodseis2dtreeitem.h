@@ -119,4 +119,3 @@ protected:
     MenuItem		zattritm_;
     MenuItem		attrnoneitm_;
 };
-

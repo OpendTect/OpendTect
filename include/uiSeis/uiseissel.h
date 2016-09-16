@@ -147,5 +147,3 @@ protected:
     virtual const char*		getDefaultKey(Seis::GeomType gt) const;
 
 };
-
-

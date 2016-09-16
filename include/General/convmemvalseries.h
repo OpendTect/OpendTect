@@ -182,5 +182,3 @@ const char* ConvMemValueSeries<T>::storArr() const
 template <class T> inline
 BinDataDesc ConvMemValueSeries<T>::dataDesc() const
 { return interpreter_.dataChar(); }
-
-

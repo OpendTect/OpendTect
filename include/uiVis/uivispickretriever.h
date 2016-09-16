@@ -58,4 +58,3 @@ protected:
     Notifier<uiVisPickRetriever> finished_;
     uiVisPartServer*            visserv_;
 };
-

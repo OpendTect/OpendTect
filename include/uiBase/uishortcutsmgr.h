@@ -147,4 +147,3 @@ protected:
     int			val_;
     uiString		extralbl_;
 };
-

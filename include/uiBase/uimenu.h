@@ -138,4 +138,3 @@ public:
 				const uiString& txt=uiString::emptyString(),
 				const char* iconfilenm=0);
 };
-

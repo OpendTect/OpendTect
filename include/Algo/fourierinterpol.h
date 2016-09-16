@@ -176,5 +176,3 @@ protected:
 
     ObjectSet< Array3DImpl<float_complex> > arrs_;
 };
-
-

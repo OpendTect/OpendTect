@@ -63,5 +63,3 @@ private:
 
     void			getPosInfo();
 };
-
-

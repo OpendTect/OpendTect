@@ -41,5 +41,3 @@ protected:
     uiIOObjSel*		polygonfld_;
     uiGenInput*		optionfld_;
 };
-
-

@@ -42,4 +42,3 @@ protected:
     TypeSet<Coord>		positions_;
 
 };
-

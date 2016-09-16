@@ -186,5 +186,3 @@ protected:
     void		addIconMnuItems(const DirList&,uiMenu*,
 					BufferStringSet&);
 };
-
-

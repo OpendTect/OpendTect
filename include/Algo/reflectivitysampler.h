@@ -60,5 +60,3 @@ protected:
 
     ObjectSet<float_complex>	buffers_;
 };
-
-

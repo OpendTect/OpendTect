@@ -166,4 +166,3 @@ protected:
 
     void			updateFontSizeCB(CallBacker*);
 };
-

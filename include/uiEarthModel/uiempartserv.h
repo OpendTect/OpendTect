@@ -219,4 +219,3 @@ protected:
     uiSurfaceMan*	manfssdlg_;
     uiSurfaceMan*	manbodydlg_;
 };
-

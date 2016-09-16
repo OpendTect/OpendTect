@@ -140,5 +140,3 @@ public:
 protected:
     const PropertyRef& 		prop_;
 };
-
-

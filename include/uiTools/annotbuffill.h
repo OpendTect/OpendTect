@@ -72,5 +72,3 @@ protected:
 	    				 const uiWorldRect&)const;
     void		dummytest();
 };
-
-

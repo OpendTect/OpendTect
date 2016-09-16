@@ -161,4 +161,3 @@ mGlobal(General) PresentationManager& PrMan();
 
 }
 //namedpace OD
-

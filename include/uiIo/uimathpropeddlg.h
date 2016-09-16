@@ -41,4 +41,3 @@ protected:
     void		setPType4Inp(int);
 
 };
-

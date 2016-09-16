@@ -70,5 +70,3 @@ protected:
     virtual const char*	avFromDef(const char*) const;
 
 };
-
-

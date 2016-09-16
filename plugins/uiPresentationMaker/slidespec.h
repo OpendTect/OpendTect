@@ -55,4 +55,3 @@ public:
     int			index_;
     int			layoutindex_;
 };
-

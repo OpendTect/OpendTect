@@ -75,4 +75,3 @@ protected:
     bool		acceptOK();
 
 };
-

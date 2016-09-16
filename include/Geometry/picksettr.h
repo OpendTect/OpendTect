@@ -63,5 +63,3 @@ protected:
     uiString		write(const Pick::Set&,Conn&);
 
 };
-
-

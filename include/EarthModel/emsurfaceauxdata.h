@@ -116,4 +116,3 @@ protected:
 };
 
 } // namespace EM
-

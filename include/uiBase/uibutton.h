@@ -171,4 +171,3 @@ protected:
     virtual void	notifyHandler(notifyTp)		= 0;
 
 };
-

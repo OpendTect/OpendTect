@@ -76,5 +76,3 @@ private:
     uiString		sRenameSelData();
     uiString		sRemoveSelData();
 };
-
-

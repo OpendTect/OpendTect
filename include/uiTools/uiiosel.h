@@ -129,5 +129,3 @@ protected:
 
     void		doFinalise(CallBacker*);
 };
-
-

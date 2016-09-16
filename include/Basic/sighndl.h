@@ -74,5 +74,3 @@ protected:
     friend void				DBG::forceCrash(bool);
 
 };
-
-

@@ -69,4 +69,3 @@ protected:
     void		prevCB(CallBacker*);
     void		nextCB(CallBacker*);
 };
-

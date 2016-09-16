@@ -214,4 +214,3 @@ protected:
     StepInterval<float> freqrg_;
     TypeSet<int>	outfreqidxs_;
 };
-

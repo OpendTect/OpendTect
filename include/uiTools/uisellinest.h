@@ -82,4 +82,3 @@ private:
     void			init(const Setup&);
 
 };
-

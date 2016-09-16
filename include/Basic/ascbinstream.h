@@ -143,5 +143,3 @@ inline ascbinistream& ascbinistream::getArr( T* arr, IT sz )
 	strm_ >> arr[idx];
     return *this;
 }
-
-

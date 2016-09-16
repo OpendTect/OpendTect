@@ -208,5 +208,3 @@ public:
     mDefPropertyFns(RangeProperty,"Range");
 
 };
-
-

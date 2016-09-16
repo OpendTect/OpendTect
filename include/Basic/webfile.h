@@ -30,5 +30,3 @@ mGlobal(Basic) void	setWebHandlers(ExistsFn,GetSizeFn,GetContentFn);
 
 
 } // namespace File
-
-

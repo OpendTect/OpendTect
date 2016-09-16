@@ -65,5 +65,3 @@ protected:
 
     uiMainWin*		mainwin_;
 };
-
-

@@ -163,5 +163,3 @@ mGlobal(Basic) const char* getAreaString(float m2,bool parensonunit,
 mGlobal(Basic) char* truncateString(char* str, int maxlen );
 	/*!<If str is longer than maxlen-4, string will be truncated and a
 	 * " ..." will be appended". */
-
-

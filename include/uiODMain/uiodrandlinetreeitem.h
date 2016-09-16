@@ -88,5 +88,3 @@ protected:
     Type		type_;
     int			rlid_;
 };
-
-

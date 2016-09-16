@@ -65,5 +65,3 @@ protected:
 
     ObjectSet<SurfaceInfo>	horinfos_;
 };
-
-

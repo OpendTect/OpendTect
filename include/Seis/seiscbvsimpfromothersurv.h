@@ -93,4 +93,3 @@ protected:
     SeisTrc*		readTrc(const BinID&) const;
     void		sincInterpol(ObjectSet<SeisTrc>&) const;
 };
-

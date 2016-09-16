@@ -38,4 +38,3 @@ protected:
 
     void		getSegmentSizes(TypeSet<int>&);
 };
-

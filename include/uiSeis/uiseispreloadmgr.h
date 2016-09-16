@@ -92,4 +92,3 @@ protected:
     uiGenInput*			fromrgfld_;
     uiGenInput*			torgfld_;
 };
-

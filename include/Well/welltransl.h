@@ -59,5 +59,3 @@ public:
     virtual bool		implSetReadOnly(const IOObj*,bool) const;
 
 };
-
-

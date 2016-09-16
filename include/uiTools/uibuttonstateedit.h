@@ -28,4 +28,3 @@ protected:
     uiGenInput*		combobox_;
     TypeSet<int>	states_;
 };
-

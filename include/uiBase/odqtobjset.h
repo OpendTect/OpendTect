@@ -85,5 +85,3 @@ QT* ODQtObjectSet<OD,QT>::getQtObject( int idx )
 {
     return qtobjs_.validIdx(idx) ? qtobjs_[idx] : 0;
 }
-
-

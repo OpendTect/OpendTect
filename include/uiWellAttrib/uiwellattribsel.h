@@ -57,6 +57,3 @@ protected:
 
     int				sellogidx_;
 };
-
-
-

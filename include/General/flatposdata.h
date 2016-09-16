@@ -77,5 +77,3 @@ protected:
     inline StepInterval<double>& rg( bool forx1 )
 				{ return forx1 ? x1rg_ : x2rg_; }
 };
-
-

@@ -74,4 +74,3 @@ protected:
     uiCheckBox*			animationfld_;
     uiGenInput*			wheelmodefld_;
 };
-

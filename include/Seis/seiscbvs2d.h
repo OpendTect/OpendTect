@@ -99,4 +99,3 @@ protected:
     Pos::GeomID			geomid_;
 
 };
-

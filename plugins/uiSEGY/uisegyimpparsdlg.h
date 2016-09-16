@@ -92,6 +92,3 @@ protected:
     virtual void	selectionChanged();
 
 };
-
-
-

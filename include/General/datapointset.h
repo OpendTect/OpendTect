@@ -250,4 +250,3 @@ protected:
 
     DataColDef&		gtColDef(ColID) const;
 };
-

@@ -30,4 +30,3 @@ public:
 protected:
     mQtclass(QSplashScreen*)	qsplashscreen_;
 };
-

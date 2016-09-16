@@ -93,5 +93,3 @@ protected:
     bool		getFromAscIO(od_istream&,EM::Fault&);
 
 };
-
-

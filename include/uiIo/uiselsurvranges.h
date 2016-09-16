@@ -170,5 +170,3 @@ public:
     uiSelZRange*	zfld_;
 
 };
-
-

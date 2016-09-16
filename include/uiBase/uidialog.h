@@ -169,4 +169,3 @@ protected:
     CtrlStyle		ctrlstyle_;
     static int		titlepos_;
 };
-

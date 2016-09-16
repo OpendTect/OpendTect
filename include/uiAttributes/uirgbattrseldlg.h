@@ -35,4 +35,3 @@ protected:
     uiAttrSel*		tfld_;
 
 };
-

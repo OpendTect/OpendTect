@@ -101,5 +101,3 @@ protected:
     void			setMultiColorCB(CallBacker*);
     void			changeColCB(CallBacker*);
 };
-
-

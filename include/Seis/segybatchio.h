@@ -34,5 +34,3 @@ namespace IO
 } // namespace IO
 
 } // namespace SEGY
-
-

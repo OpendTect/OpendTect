@@ -93,4 +93,3 @@ public:
 protected:
 	TypeSet<SelectionArea> selareas_;
 };
-

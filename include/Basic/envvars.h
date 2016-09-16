@@ -39,5 +39,3 @@ mGlobal(Basic) void SetEnvVar(const char* env,const char* val);
 mGlobal(Basic) bool WriteEnvVar(const char* env,const char* val);
 		/*!< Writes environment variable to .od/envvars for user
 		     or data/Envvars for SysAdm */
-
-

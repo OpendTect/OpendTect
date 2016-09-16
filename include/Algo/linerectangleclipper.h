@@ -188,5 +188,3 @@ const Geom::Point2D<T>& LineRectangleClipper<T>::getStart() const
 template <class T> inline
 const Geom::Point2D<T>& LineRectangleClipper<T>::getStop() const
 { return stop_; }
-
-

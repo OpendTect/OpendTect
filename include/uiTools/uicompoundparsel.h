@@ -88,5 +88,3 @@ protected:
     void		checkCB(CallBacker*);
 
 };
-
-

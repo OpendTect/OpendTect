@@ -86,5 +86,3 @@ inline int WeightedClassCounter<T>::result() const
     }
     return res;
 }
-
-

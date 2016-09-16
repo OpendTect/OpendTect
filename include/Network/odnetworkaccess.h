@@ -176,5 +176,3 @@ protected:
 
     static NetworkUserQuery*	inst_;
 };
-
-

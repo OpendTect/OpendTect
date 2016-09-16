@@ -118,5 +118,3 @@ protected:
 
     void		annotate(bool);
 };
-
-

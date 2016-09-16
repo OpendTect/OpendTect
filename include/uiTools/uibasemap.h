@@ -122,4 +122,3 @@ protected:
 private:
     uiWorld2Ui&			w2ui_;
 };
-

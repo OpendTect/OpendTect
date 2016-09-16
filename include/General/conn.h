@@ -111,5 +111,3 @@ protected:
     Conn*		gtConn() const	{ return const_cast<Conn*>(conn_); }
 
 };
-
-

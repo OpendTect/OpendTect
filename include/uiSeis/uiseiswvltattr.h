@@ -127,4 +127,3 @@ protected:
 
     uiWaveletDispProp*		properties_;
 };
-

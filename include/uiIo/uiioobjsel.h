@@ -158,5 +158,3 @@ default).
     uiIOObjSel::getWriteIOObjCtxt(mIOObjContext(clss))
 #define mRWIOObjContext(clss,forread) \
     (forread ? mIOObjContext(clss) : mWriteIOObjContext(clss))
-
-

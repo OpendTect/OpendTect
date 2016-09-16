@@ -126,5 +126,3 @@ protected:
     ElasticFormula      formula_;
 
 };
-
-

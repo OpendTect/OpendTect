@@ -499,4 +499,3 @@ protected:
 
 	uiVisPartServer&	visserv;
 };
-

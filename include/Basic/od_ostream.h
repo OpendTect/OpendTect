@@ -124,5 +124,3 @@ inline od_ostream& od_ostream::addBin( const T& t )
     addBin( &t, sizeof(T) );
     return *this;
 }
-
-

@@ -73,5 +73,3 @@ protected:
     inline SeisTrc&	mtrc()	{ return const_cast<SeisTrc&>(trc); }
 
 };
-
-

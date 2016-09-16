@@ -89,4 +89,3 @@ protected:
 
     Vw2DHorizon2D*	horview_;
 };
-

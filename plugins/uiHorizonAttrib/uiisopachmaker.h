@@ -81,4 +81,3 @@ protected:
     uiIsochronMakerGrp*	grp_;
     DataPointSet*	dps_;
 };
-

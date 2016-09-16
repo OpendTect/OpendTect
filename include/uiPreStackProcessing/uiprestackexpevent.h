@@ -35,4 +35,3 @@ protected:
 };
 
 } // namespace PreStack
-

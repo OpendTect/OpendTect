@@ -794,4 +794,3 @@ inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 
 mDefFltisCompat(float)
 mDefFltisCompat(double)
-

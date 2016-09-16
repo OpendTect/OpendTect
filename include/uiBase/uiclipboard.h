@@ -34,5 +34,3 @@ public:
     static void		setImage(const QImage&);
     static void		setImage(const OD::RGBImage&);
 };
-
-

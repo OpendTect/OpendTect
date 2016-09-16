@@ -126,4 +126,3 @@ int Execute_batch( int* pargc, char** argv )
 
     return allok ? 0 : 1;	// never reached.
 }
-

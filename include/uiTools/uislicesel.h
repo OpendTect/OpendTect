@@ -139,4 +139,3 @@ protected:
     bool		is2d_;
     IOPar		prevpar_;
 };
-

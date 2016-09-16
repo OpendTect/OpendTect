@@ -91,5 +91,3 @@ protected:
     friend class	uiSEGYFileManipDataExtracter;
 
 };
-
-

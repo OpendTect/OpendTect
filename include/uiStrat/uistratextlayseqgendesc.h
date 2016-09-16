@@ -77,4 +77,3 @@ protected: \
 public: \
     virtual void	descHasChanged()
     
-

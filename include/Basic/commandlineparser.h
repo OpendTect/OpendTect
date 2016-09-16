@@ -134,5 +134,3 @@ bool CommandLineParser::getVal( const char* key, T& val,
 
     return getFromString( val, argv_[validx]->buf(), mUdf(T) );
 }
-
-

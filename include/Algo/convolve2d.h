@@ -273,5 +273,3 @@ bool Convolver2D<T>::doNonFFTWork( od_int64 start, od_int64 stop, int )
 
     return true;
 }
-
-

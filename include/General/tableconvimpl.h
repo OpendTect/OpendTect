@@ -240,4 +240,3 @@ protected:
 };
 
 }; // namespace Table
-

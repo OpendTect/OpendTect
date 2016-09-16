@@ -371,4 +371,3 @@ mGlobal(Algo) bool convertToVintIfNeeded(const float* inpvel,
 					const VelocityDesc& veldesc,
 					const StepInterval<float>& zrange,
 					float* outvel);
-

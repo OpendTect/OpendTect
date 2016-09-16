@@ -74,4 +74,3 @@ protected:
 
     bool					isrectangleselection_;
 };
-

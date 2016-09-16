@@ -82,5 +82,3 @@ protected:
     bool			enabstore_;
     bool			haspars_;
 };
-
-

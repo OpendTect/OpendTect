@@ -93,5 +93,3 @@ protected:
 		{ return const_cast<uiStratSelUnits*>(this)->find(ur); }
 
 };
-
-

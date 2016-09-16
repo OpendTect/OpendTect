@@ -79,4 +79,3 @@ protected:
     bool		getPositions(int pos,TypeSet<float>& posidxs);
     void		extrapolate(bool start);
 };
-

@@ -27,4 +27,3 @@ public:
 
     void			setDataPackID(DataPack::ID,DataPackMgr::ID);
 };
-

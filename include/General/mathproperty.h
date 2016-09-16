@@ -70,5 +70,3 @@ protected:
     void			setPreV5Def(const char*);
 
 };
-
-

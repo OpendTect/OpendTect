@@ -45,4 +45,3 @@ protected:
     uiGenInput*				maxgapszfld_;
     uiComboBox*				methodsel_;
 };
-

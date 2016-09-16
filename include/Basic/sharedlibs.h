@@ -51,5 +51,3 @@ protected:
     BufferString	errmsg_;
 
 };
-
-

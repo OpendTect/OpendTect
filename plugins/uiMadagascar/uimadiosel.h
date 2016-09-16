@@ -97,5 +97,3 @@ protected:
     bool		getInp();
     bool		acceptOK();
 };
-
-

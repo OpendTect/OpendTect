@@ -121,5 +121,3 @@ public:
     mDeprecated DBDirID			getSelKey() const
 					{ return getSelDirID(); }
 };
-
-

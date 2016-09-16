@@ -52,5 +52,3 @@ protected:
     void		selCB(CallBacker*);
     void		extChgCB(CallBacker*);
 };
-
-

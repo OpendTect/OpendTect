@@ -34,5 +34,3 @@ protected:
 
     void		seisSel(CallBacker*);
 };
-
-

@@ -78,4 +78,3 @@ protected:
     void		addNLA(Attrib::DescID&);
 
 };
-

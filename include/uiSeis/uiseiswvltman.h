@@ -61,4 +61,3 @@ protected:
     void			propDlgCloseCB(CallBacker*);
     void			rotUpdateCB(CallBacker*);
 };
-

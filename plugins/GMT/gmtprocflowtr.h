@@ -51,5 +51,3 @@ public:
     const char*		write(const ODGMT::ProcFlow&,Conn&);
 
 };
-
-

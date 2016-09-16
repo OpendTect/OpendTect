@@ -40,5 +40,3 @@ protected:
     friend class	uiVarWizard;
 
 };
-
-

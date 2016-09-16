@@ -50,4 +50,3 @@ protected:
     uiString		errmsg_;
 
 };
-

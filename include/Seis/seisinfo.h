@@ -94,5 +94,3 @@ public:
 			//!< in new code, use binID()/setBinID() instead
 
 };
-
-

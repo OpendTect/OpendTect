@@ -97,4 +97,3 @@ protected:
     uiSeisAmplSpectrum*		ampspectrumwin_;
     uiFKSpectrum*		fkspectrumwin_;
 };
-

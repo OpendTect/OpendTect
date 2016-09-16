@@ -34,5 +34,3 @@ mExpClass(Basic) TableTrcKeySelection : public TrcKeySelection
 {
     BinIDValueSet		table_;
 };
-
-

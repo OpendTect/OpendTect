@@ -177,4 +177,3 @@ char SingleSelector<T>::includesRange( const T& start, const T& stop ) const
 
     return 0;
 }
-

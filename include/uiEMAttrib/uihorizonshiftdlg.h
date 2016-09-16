@@ -73,4 +73,3 @@ protected:
     EM::ObjectID		emid_;
     int				visid_;
 };
-

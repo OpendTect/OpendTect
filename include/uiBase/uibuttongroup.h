@@ -53,4 +53,3 @@ protected:
     OD::Orientation		orientation_;
 
 };
-

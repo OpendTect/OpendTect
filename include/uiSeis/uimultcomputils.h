@@ -66,5 +66,3 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
     BufferStringSet	compnms_;
     MCompDlg*		dlg_;
 };
-
-

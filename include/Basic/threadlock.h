@@ -135,5 +135,3 @@ mGlobal(Basic) void unlockSimpleSpinLock(volatile int& lock);
 
 
 } // namespace Threads
-
-

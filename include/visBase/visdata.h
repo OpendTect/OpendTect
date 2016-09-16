@@ -231,6 +231,3 @@ const char* clss::sFactoryKeyword() { return #clss; }		\
 void clss::initClass()						\
 { visBase::DataManager::factory().addCreator(			\
 		    createInternal, getStaticClassName() ); }
-
-
-

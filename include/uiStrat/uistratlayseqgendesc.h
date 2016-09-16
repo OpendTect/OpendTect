@@ -74,5 +74,3 @@ public: \
 					   Strat::LayerSequenceGenDesc& gd ) \
 						    { return new clss(p,gd); } \
     static void		initClass() { factory().addCreator(create,typeStr()); }
-
-

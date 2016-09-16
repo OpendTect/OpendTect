@@ -165,5 +165,3 @@ protected:
     bool			checkInput(IOPar&) const;
     bool			acceptOK();
 };
-
-

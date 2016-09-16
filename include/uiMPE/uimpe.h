@@ -130,4 +130,3 @@ public:
 mGlobal(uiMPE) uiMPEEngine& uiMPE();
 
 } // namespace MPE
-

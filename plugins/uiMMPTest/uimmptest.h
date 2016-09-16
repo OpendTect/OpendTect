@@ -66,4 +66,3 @@ protected:
     virtual bool	needConfirmEarlyStop() const	{ return false; }
     virtual bool	acceptOK();
 };
-

@@ -72,5 +72,3 @@ public:
 			{ return new uiODVW2DVariableDensityTreeItem(); }
     uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
 };
-
-

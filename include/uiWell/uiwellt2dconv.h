@@ -40,4 +40,3 @@ protected:
     uiIOObjSel* 		fld_;
     WellT2DTransform*		transform_;
 };
-

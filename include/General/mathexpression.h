@@ -183,4 +183,3 @@ public:
 };
 
 } // namespace Math
-

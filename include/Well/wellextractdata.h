@@ -388,5 +388,3 @@ protected:
 };
 
 }; // namespace Well
-
-

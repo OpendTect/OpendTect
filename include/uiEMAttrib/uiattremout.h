@@ -53,4 +53,3 @@ protected:
     uiAttrSel*		attrfld_;
     uiBatchJobDispatcherSel* batchfld_;
 };
-

@@ -65,5 +65,3 @@ public:
 			    "40 lines of 80 characters"); }
 
 };
-
-

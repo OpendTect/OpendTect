@@ -45,6 +45,3 @@ protected:
 };
 
 }; //namespace
-
-
-

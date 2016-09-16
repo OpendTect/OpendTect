@@ -44,5 +44,3 @@ protected:
     bool		getSingle(int,SeisTrcInfo&,int& res);
 
 };
-
-

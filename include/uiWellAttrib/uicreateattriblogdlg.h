@@ -47,4 +47,3 @@ protected:
     void			init(CallBacker*);
     void			selDone(CallBacker*);
 };
-

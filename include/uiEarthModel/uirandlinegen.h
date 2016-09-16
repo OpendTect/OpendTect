@@ -103,5 +103,3 @@ protected:
     bool		acceptOK();
 
 };
-
-

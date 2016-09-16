@@ -359,4 +359,3 @@ protected:
 };
 
 } // namespace Pos
-

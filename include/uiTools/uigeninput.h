@@ -279,5 +279,3 @@ public:
     /*mDeprecated*/ bool isChecked();
     /*mDeprecated*/ bool isCheckable()		{ return withchk_ || cbox_; }
 };
-
-

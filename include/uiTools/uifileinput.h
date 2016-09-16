@@ -114,5 +114,3 @@ protected:
     void		isFinalised(CallBacker*);
     void		fnmEntered(CallBacker*);
 };
-
-

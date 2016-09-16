@@ -55,4 +55,3 @@ protected:
 
     uiMultiSurfaceRead*	surfacefld_;
 };
-

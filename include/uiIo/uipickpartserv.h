@@ -113,4 +113,3 @@ protected:
     bool			doSaveAs(const DBKey&,const Pick::Set*);
 
 };
-

@@ -51,4 +51,3 @@ protected:
     uiMeasureDlg*	measuredlg_;
     int			butidx_;
 };
-

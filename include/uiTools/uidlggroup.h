@@ -132,4 +132,3 @@ protected:
     ObjectSet<uiDlgGroup>	groups_;
     uiTabStack*			tabstack_;
 };
-

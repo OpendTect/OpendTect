@@ -183,5 +183,3 @@ protected:
     void		setAxisRelations();
     void		plotAxis(CallBacker*);
 };
-
-

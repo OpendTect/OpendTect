@@ -103,4 +103,3 @@ protected:
     virtual const char*         getPanelName();
 
 };
-

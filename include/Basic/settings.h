@@ -80,4 +80,3 @@ mExternC( Basic ) const char* GetSettingsDataDir(void);
 //!> macro for easy write of Settings::common()
 #define mSettWrite() \
 	Settings::common().write();
-

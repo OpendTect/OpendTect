@@ -15,4 +15,3 @@ ________________________________________________________________________
 #include "gendefs.h"
 
 mGlobal(visBase) const char* GetOSGVersion();
-

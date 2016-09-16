@@ -115,4 +115,3 @@ public:
 
     static const MarchingCubeLookupTable& get();
 };
-

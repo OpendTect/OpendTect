@@ -52,4 +52,3 @@ protected:
     ObjectSet<PluginVendor>	vendors_;
     uiTreeView*			treefld_;
 };
-

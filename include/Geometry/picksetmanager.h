@@ -81,6 +81,3 @@ inline SetManager& SetMGR()
 }
 
 } // namespace Pick
-
-
-

@@ -345,5 +345,3 @@ void EnumDefImpl<ENUM>::init()
 {
      fillUiStrings();
 }
-
-

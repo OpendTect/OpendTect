@@ -22,5 +22,3 @@ int last checksum in the prevsum argument.
 mGlobal(Algo) od_uint64 checksum64(const unsigned char*,od_uint64 arrsize,
 				   od_uint64 prevsum=0);
 mGlobal(Algo) void initChecksum();
-
-

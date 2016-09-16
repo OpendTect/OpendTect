@@ -65,5 +65,3 @@ public:
 
     Setup	setup_;
 };
-
-

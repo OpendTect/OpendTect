@@ -62,5 +62,3 @@ private:
     uiStatusBarBody&	mkbody(uiMainWin*, const char*,
 			       mQtclass(QStatusBar&));
 };
-
-

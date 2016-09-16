@@ -225,4 +225,3 @@ protected :
     void		windowClosed(CallBacker*);
     void		setSelFreqs(CallBacker*);
 };
-

@@ -77,5 +77,3 @@ public:
     bool		operator!=(const BinID&) const;
 
 };
-
-

@@ -92,5 +92,3 @@ protected:
 
     bool		mk2DLines(const Geometry::RandomLineSet&,bool);
 };
-
-

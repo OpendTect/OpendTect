@@ -196,5 +196,3 @@ protected:
     bool*					newfloodfillers_;
     TypeSet<od_int64>				activefloodfillers_;
 };
-
-

@@ -79,5 +79,3 @@ protected:
     virtual const char*		undoText() const { return "filtering"; }
 
 };
-
-

@@ -50,4 +50,3 @@ protected:
     bool		getOutput(Attrib::Desc&);
 				mDeclReqAttribUIFns
 };
-

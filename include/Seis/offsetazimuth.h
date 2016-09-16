@@ -50,5 +50,3 @@ protected:
     int			offsetazi_;
 
 };
-
-

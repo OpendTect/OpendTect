@@ -205,4 +205,3 @@ protected:
     const Well::LogSet*  wls_;
 
 };
-

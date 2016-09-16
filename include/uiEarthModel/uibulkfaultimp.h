@@ -29,4 +29,3 @@ protected:
     uiTableImpDataSel*	dataselfld_;
     Table::FormatDesc*	fd_;
 };
-

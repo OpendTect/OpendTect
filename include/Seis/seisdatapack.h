@@ -222,4 +222,3 @@ protected:
     void			setTrcInfoFlds();
     const TrcKeyPath&		path_;
 };
-

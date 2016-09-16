@@ -100,5 +100,3 @@ protected:
     void		compress(int sl=0);
     void		conv2TrueDirIfLink();
 };
-
-

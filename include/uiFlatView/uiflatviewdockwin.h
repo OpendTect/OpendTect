@@ -41,5 +41,3 @@ public:
     virtual uiParent*	viewerParent()			{ return this; }
 
 };
-
-

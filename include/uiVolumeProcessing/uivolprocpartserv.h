@@ -45,4 +45,3 @@ protected:
     VolProc::uiChain*	volprocchaindlg_;
     VolProc::uiChain*	volprocchaindlg2d_;
 };
-

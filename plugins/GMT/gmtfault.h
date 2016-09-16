@@ -43,4 +43,3 @@ protected:
     bool		loadFaults(uiString&);
     ObjectSet<EM::Fault3D>	flts_;
 };
-

@@ -201,5 +201,3 @@ protected:
 mGlobal(uiTools) void setLine(uiLineItem&,const LineParameters<float>&,
 			const uiAxisHandler& xah,const uiAxisHandler& yah,
 			const Interval<float>* xvalrg = 0);
-
-

@@ -37,4 +37,3 @@ inline Color getRandStdDrawColor()
 
     return Color::stdDrawColor( curidx );
 }
-

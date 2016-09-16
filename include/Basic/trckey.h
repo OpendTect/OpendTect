@@ -93,5 +93,3 @@ private:
     BinID		pos_;
 
 };
-
-

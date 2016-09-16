@@ -206,5 +206,3 @@ protected:
     bool		ensureTr(const SeisTrc&);
 
 };
-
-

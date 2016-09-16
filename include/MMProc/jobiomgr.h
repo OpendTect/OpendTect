@@ -136,4 +136,3 @@ private:
     const HostData&	hstdata_;
 
 };
-

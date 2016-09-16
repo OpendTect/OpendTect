@@ -32,4 +32,3 @@ protected:
 	void			mapperChg(CallBacker*);
 	bool			acceptOK();
 };
-

@@ -44,5 +44,3 @@ protected:
     void		doFinalise(CallBacker*);
     void		typeSel(CallBacker*);
 };
-
-

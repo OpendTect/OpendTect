@@ -74,4 +74,3 @@ protected:
     void                        mouseMove(CallBacker*);
     void                        markerChgd(CallBacker*);
 };
-

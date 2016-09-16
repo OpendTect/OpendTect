@@ -76,4 +76,3 @@ protected:
     bool		italic_;
 
 };
-

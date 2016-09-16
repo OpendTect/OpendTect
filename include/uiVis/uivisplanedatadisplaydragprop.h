@@ -32,4 +32,3 @@ protected:
     const int				initialscrollstate_;
     const int				initialpanstate_;
 };
-

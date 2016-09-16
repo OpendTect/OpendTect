@@ -167,5 +167,3 @@ protected:
     Array2DMatrix<float>*	cholesky_;
 
 };
-
-

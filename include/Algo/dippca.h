@@ -133,4 +133,3 @@ protected:
     const float			ydist_;
     const float			zdist_;
 };
-

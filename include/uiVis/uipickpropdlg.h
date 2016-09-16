@@ -44,4 +44,3 @@ protected:
     visSurvey::PickSetDisplay*	psd_;
 
 };
-

@@ -91,5 +91,3 @@ inline void EmptyFunction()			{}
 /* Used in some macros and ifdefs */
 
 }
-
-

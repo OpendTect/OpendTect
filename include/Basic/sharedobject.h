@@ -32,5 +32,3 @@ protected:
     virtual		~SharedObject();
 
 };
-
-

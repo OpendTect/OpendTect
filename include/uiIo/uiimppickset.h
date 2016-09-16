@@ -64,5 +64,3 @@ protected:
 private:
     static uiString	sPicksetPolygon() { return tr("Pickset/Polygon"); }
 };
-
-

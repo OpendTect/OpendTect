@@ -266,5 +266,3 @@ public:
 				{ unsavedchgs_ = chg; }
     int				nrPosCols() const;
 };
-
-

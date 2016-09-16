@@ -68,5 +68,3 @@ protected:
 
     bool				acceptOK();
 };
-
-

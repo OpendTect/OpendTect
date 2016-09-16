@@ -43,6 +43,3 @@ public:
 
 mGlobal(Basic)  void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
 //!< Will pass the message to the appropriate destination.
-
-
-

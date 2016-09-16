@@ -74,5 +74,3 @@ protected:
     BufferString	getSummary() const;
 
 };
-
-

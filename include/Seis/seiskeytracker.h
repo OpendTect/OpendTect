@@ -244,4 +244,3 @@ protected:
 
 
 } // namespace Seis
-

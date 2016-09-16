@@ -50,5 +50,3 @@ protected:
     void		savePushCB(CallBacker*);
     void		loadSavedHorizon(const DBKeySet&);
 };
-
-

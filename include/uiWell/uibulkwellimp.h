@@ -91,4 +91,3 @@ protected:
 
     Table::FormatDesc*	fd_;
 };
-

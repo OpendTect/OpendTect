@@ -29,5 +29,3 @@ protected:
 			mDecluiGoogleExpStd;
 
 };
-
-

@@ -47,4 +47,3 @@ protected:
     bool		isRestart() const	{ return !tmpstordirfld_; }
 
 };
-

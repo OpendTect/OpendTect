@@ -164,5 +164,3 @@ public:
 mGlobal(General) bool equalIOObj(const DBKey&,const DBKey&);
 mGlobal(General) bool areEqual(const IOObj*,const IOObj*);
 mGlobal(General) bool fullImplRemove(const IOObj&);
-
-

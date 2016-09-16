@@ -213,4 +213,3 @@ public:
     void		removeItem(int id) { removeAction(id); }
 			//!<Legacy
 };
-

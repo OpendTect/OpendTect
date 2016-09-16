@@ -139,4 +139,3 @@ mGlobal(General) inline AutoSaver& AUTOSAVE()
 
 
 }; //namespace OD
-

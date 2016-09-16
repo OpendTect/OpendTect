@@ -109,6 +109,3 @@ int ArrayNDGentleSmoother<T>::nextStep()
 
     return it_.next() ? MoreToDo() : Finished();
 }
-
-
-

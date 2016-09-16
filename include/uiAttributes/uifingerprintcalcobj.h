@@ -78,4 +78,3 @@ protected:
 					  BinIDValueSet* rangesset);
 
 };
-

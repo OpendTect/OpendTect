@@ -101,4 +101,3 @@ private:
     void			descSel(CallBacker*);
     void			transpChg(CallBacker*);
 };
-

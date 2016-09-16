@@ -61,4 +61,3 @@ protected:
     static bool		confirmOverwrite(const BufferStringSet&);
 
 };
-

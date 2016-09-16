@@ -127,5 +127,3 @@ protected:
     Scaler*		scaler_;
 
 };
-
-

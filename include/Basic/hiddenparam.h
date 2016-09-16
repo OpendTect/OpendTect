@@ -163,4 +163,3 @@ void HiddenParam<O,V>::removeParam( O* obj )
     params_.removeSingle( idx );
     objects_.removeSingle( idx );
 }
-

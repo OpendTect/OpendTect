@@ -41,4 +41,3 @@ ________________________________________________________________________
 #define atoll		_atoi64
 
 # define mMaxFilePathLength		_MAX_PATH
-

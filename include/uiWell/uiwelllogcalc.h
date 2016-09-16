@@ -91,5 +91,3 @@ protected:
     bool		acceptOK();
 
 };
-
-

@@ -35,5 +35,3 @@ private:
     void		doStoreObject(bool);
 
 };
-
-

@@ -52,4 +52,3 @@ protected:
     uiTable*			vartable_;
     bool			withmathop_;
 };
-

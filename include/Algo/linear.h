@@ -117,5 +117,3 @@ protected:
     TypeSet<Coord3>	points_;
     Coord3		centroid_;
 };
-
-

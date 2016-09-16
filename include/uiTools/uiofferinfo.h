@@ -71,5 +71,3 @@ protected:
     void		winClose(CallBacker*);
 
 };
-
-

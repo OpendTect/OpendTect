@@ -86,4 +86,3 @@ protected:
     void			histogramResized(CallBacker*);
     void			histDRChanged(CallBacker*);
 };
-

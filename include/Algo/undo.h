@@ -134,5 +134,3 @@ public:
     virtual const BinID&	getBinID() const;
 
 };
-
-

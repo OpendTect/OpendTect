@@ -133,5 +133,3 @@ public:
     virtual void	setSize(const uiSize&);
 
 };
-
-

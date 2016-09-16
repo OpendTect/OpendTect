@@ -147,5 +147,3 @@ protected:
     uiPoint			usrUIPos(float r,float ang) const;
 
 };
-
-

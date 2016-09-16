@@ -76,4 +76,3 @@ inline T Stats::Grubbs::getMax( T* arr, SzTp sz, SzTp& idxof )
 }
 
 } // namespace Stats
-

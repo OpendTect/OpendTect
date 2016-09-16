@@ -113,4 +113,3 @@ protected:
     virtual void	saveProperties(FlatView::Viewer&);
 
 };
-

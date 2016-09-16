@@ -282,5 +282,3 @@ inline bool IdxPairDataSet::SPos::operator <( const SPos& oth ) const
 
 
 } // namespace Pos
-
-

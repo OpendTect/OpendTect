@@ -238,5 +238,3 @@ T PolyLineND<T>::getPoint( double arclen ) const
 
     return T::udf();
 }
-
-

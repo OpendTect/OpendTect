@@ -226,5 +226,3 @@ Notifier<clss>& clss::instanceCreated() \
 
 #define mTriggerInstanceCreatedNotifier() \
     instanceCreated().trigger( this )
-
-

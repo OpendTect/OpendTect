@@ -36,5 +36,3 @@ protected:
     void		loadPush(CallBacker*);
 
 };
-
-

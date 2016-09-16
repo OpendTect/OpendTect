@@ -152,4 +152,3 @@ protected:
     uiLabel*	labl_;
 
 };
-

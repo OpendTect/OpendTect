@@ -140,5 +140,3 @@ private:
 
 inline bool atEndOfSection( const ascistream& strm )
 { return strm.atEOS(); }
-
-

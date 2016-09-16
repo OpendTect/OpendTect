@@ -141,4 +141,3 @@ protected:
 
     bool		changed_;
 };
-

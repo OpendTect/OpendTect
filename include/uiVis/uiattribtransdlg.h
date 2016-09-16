@@ -31,4 +31,3 @@ protected:
     visSurvey::SurveyObject&	so_;
     uiSlider*			slider_;
 };
-

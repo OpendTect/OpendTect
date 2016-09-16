@@ -310,5 +310,3 @@ inline int GetGoldenMinor( int inp )
     const float val = inp / mGoldenRatio;
     return inp > 0 ? (int)(val+.5f) : (int)(val - .5f);
 }
-
-

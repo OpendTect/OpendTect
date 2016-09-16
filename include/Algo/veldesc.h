@@ -69,5 +69,3 @@ public:
     static uiString	getVelUnit(bool withparens=true);
     static uiString	getVelVolumeLabel();
 };
-
-

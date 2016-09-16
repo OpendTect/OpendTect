@@ -75,5 +75,3 @@ protected:
 
     uiSimiSteeringSel*	steerfld_;
 };
-
-

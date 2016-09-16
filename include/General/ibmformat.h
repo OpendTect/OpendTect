@@ -32,5 +32,3 @@ public:
     static void			putFloat(float,void*);
 
 };
-
-

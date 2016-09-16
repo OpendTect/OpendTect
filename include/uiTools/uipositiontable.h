@@ -49,4 +49,3 @@ protected:
     bool		withic_;
     bool		withz_;
 };
-

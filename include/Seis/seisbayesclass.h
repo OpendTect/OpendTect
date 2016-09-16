@@ -118,5 +118,3 @@ protected:
 #define mGetSeisBayesAPProbIDKey(nr) mGetSeisBayesIDKey(APProb,nr)
 #define mGetSeisBayesSeisInpIDKey(nr) mGetSeisBayesIDKey(SeisInp,nr)
 #define mGetSeisBayesSeisOutIDKey(nr) mGetSeisBayesIDKey(SeisOut,nr)
-
-

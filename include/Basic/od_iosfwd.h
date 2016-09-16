@@ -21,5 +21,3 @@ typedef od_int64	od_stream_Pos;
 #define od_space	' '
 #define od_tab		'\t'
 #define od_newline	'\n'
-
-

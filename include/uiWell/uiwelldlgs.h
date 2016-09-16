@@ -188,5 +188,3 @@ protected:
 			     const BufferStringSet& lognms);
     bool		setUoMValues();
 };
-
-

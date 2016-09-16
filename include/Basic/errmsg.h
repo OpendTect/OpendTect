@@ -49,5 +49,3 @@ namespace OD {
 # define pFreeFnErrMsg(msg) \
     OD::programmerErrMsg( msg, __func__, __FILE__, __LINE__ )
     //!< Usual access point for programmer error messages in free functions
-
-

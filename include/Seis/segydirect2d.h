@@ -116,4 +116,3 @@ public:
     static const char*	sKeySEGYDirectID();
 
 };
-

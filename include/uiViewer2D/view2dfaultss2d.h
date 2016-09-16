@@ -50,4 +50,3 @@ protected:
     ObjectSet<MPE::FaultStickSetFlatViewEditor> fsseds_;
     Notifier<VW2DFaultSS2D>	deselted_;
 };
-

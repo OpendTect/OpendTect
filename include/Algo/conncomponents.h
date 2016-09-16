@@ -96,5 +96,3 @@ protected:
     ObjectSet< ObjectSet<VPos> > components_;
     TypeSet<int>		sortedindex_;
 };
-
-

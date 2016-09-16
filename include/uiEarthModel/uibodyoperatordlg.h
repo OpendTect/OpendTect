@@ -95,5 +95,3 @@ protected:
     uiIOObjSel*		inputfld_;
     uiIOObjSel*		outputfld_;
 };
-
-

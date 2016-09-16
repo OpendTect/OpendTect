@@ -388,4 +388,3 @@ protected:
 };
 
 } // namespace Attrib
-

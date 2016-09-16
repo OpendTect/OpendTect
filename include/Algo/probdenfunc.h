@@ -162,5 +162,3 @@ protected:
     virtual void	drwRandPos(float&,float&) const = 0;
 
 };
-
-

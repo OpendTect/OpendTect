@@ -822,4 +822,3 @@ void ODPolygon<T>::keepBendPoints( float eps )
     if ( closed_ && poly_.size()>1 && poly_.first() != poly_.last() )
 	poly_ += poly_.first();
 }
-

@@ -68,5 +68,3 @@ protected:
 
     bool		noLaunchersAvailable() const	{ return !optsbut_; }
 };
-
-

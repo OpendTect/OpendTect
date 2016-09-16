@@ -42,4 +42,3 @@ protected:
 
     void		objSel(CallBacker*);
 };
-

@@ -61,4 +61,3 @@ private:
 
     bool		isrequired_;
 };
-

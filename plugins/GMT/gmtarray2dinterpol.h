@@ -87,4 +87,3 @@ public:
 protected:
     float			radius_;
 };
-

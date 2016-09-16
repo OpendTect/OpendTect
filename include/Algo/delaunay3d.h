@@ -166,5 +166,3 @@ protected:
     bool		israndom_;
     DAGTetrahedraTree&	tree_;
 };
-
-

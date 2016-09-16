@@ -51,4 +51,3 @@ protected:
     void				showStatDlg(CallBacker*);   
     void				dataPackDeleted(CallBacker*); 
 };
-

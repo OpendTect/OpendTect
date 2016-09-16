@@ -46,4 +46,3 @@ protected:
 
     uiMenu*		menu_;
 };
-

@@ -64,5 +64,3 @@ protected:
 
     void			setData(const Stats::ParallelCalc<float>&);
 };
-
-

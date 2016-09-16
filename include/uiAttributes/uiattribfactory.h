@@ -82,5 +82,3 @@ protected:
 };
 
 mGlobal(uiAttributes) uiAttributeFactory& uiAF();
-
-

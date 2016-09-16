@@ -307,4 +307,3 @@ mAddMenuItemWithManageFlag( parent, item, true, enab, check )
     mAddMenuItem( \
 	istoolbar?(MenuItemHolder*)(tbparent):(MenuItemHolder*)(popupparent), \
 	    item, enab, check )
-

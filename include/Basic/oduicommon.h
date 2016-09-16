@@ -90,5 +90,3 @@ inline bool isMultiChoice( OD::ChoiceMode cm )
 				{ return cm > 1; }
 inline bool isOptional( OD::ChoiceMode cm )
 				{ return cm == OD::ChooseZeroOrMore; }
-
-

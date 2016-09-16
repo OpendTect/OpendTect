@@ -97,5 +97,3 @@ protected:
     DBKey		tempStorID() const;
 
 };
-
-

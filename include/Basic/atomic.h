@@ -952,4 +952,3 @@ mImplAtomicPointerOperator( operator--(int), old-1, old );
 
 
 } //namespace
-

@@ -62,5 +62,3 @@ protected:
     TypeSet<int>	trcnrs_;
 
 };
-
-

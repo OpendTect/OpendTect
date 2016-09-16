@@ -176,4 +176,3 @@ mGlobal(GMT) const GMTWellSymbolRepository& GMTWSR();
 #define mSetDefault( key, fn, var ) \
     Settings::fetch("GMT").fn(key,var); \
     Settings::fetch("GMT").write();
-

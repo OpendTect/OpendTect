@@ -166,5 +166,3 @@ protected:
     uiGraphicsItem&		itm_;
     bool			remove_;
 };
-
-

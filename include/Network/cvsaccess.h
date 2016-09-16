@@ -66,4 +66,3 @@ protected:
 				 const char*, const char*);
 
 };
-

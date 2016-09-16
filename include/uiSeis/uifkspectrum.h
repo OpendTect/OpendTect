@@ -61,4 +61,3 @@ protected:
     uiGenInput*			maxfld_;
     uiToolButton*		maxsetbut_;
 };
-

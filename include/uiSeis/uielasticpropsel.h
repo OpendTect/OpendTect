@@ -134,6 +134,3 @@ protected:
     void			elasticPropSelectionChanged(CallBacker*);
     bool			screenSelectionChanged(CallBacker*);
 };
-
-
-

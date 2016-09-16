@@ -233,5 +233,3 @@ protected:
     TypeSet<Interval<double> >				x2rgs_;
     int							currentaux_;
 };
-
-

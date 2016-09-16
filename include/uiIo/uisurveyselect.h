@@ -74,4 +74,3 @@ protected:
     bool		forread_;
     bool		needvalidrootdir_;
 };
-

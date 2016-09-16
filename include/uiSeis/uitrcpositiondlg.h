@@ -72,4 +72,3 @@ protected:
     uiToolButton*		getposbut_;
     PickRetriever*		pickretriever_;
 };
-

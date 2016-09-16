@@ -58,4 +58,3 @@ protected:
     const EM::SectionID		sectid2_;
     bool			inmsec_;
 };
-

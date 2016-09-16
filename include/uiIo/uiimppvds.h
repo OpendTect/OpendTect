@@ -45,5 +45,3 @@ protected:
     bool		writeData(const DataPointSet&,const IOObj&);
 
 };
-
-

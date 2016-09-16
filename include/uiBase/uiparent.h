@@ -120,4 +120,3 @@ protected:
 
     virtual uiObject*	mainobject()	{ return 0; }
 };
-

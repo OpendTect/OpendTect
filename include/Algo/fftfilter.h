@@ -102,4 +102,3 @@ protected:
     void		restoreSize(const Array1DImpl<float>& inp,
 				    Array1DImpl<float>& outp) const;
 };
-

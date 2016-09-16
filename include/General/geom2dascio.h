@@ -33,4 +33,3 @@ protected:
 
     od_istream&			strm_;
 };
-

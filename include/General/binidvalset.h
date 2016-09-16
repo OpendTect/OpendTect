@@ -62,5 +62,3 @@ protected:
 			{ return BinID( ip.first, ip.second ); }
 
 };
-
-

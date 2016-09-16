@@ -79,4 +79,3 @@ protected:
     void	createMenuCB(CallBacker*);
     void	handleMenuCB(CallBacker*);
 };
-

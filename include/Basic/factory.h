@@ -508,4 +508,3 @@ virtual const char* factoryKeyword() const { return kw; }
 
 #undef mCreateImpl
 #undef mAddCreator
-

@@ -257,4 +257,3 @@ protected:
     uiString	        errmsg_;
     bool		is2d_;
 };
-

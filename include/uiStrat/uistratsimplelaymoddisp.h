@@ -96,5 +96,3 @@ protected:
     int			totalNrLayersToDisplay() const;
 
 };
-
-

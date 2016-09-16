@@ -62,4 +62,3 @@ private:
     const uiString	sSignature()	    { return tr("Signature"); }
     const uiString	sMap()		    { return tr("Map"); }
 };
-

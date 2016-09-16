@@ -90,5 +90,3 @@ protected:
     MenuItem		hidemnuitem_;
     MenuItem		histogrammnuitem_;
 };
-
-

@@ -37,4 +37,3 @@ protected:
     ObjectSet<uiLabeledSpinBox> lblspinboxes_;
     uiShortcutsList&	scl_;
 };
-

@@ -110,4 +110,3 @@ private:
     friend class	uiContourTreeItemContourGenerator;
 
 };
-

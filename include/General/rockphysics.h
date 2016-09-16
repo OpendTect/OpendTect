@@ -122,5 +122,3 @@ public:
 mGlobal(General) const RockPhysics::FormulaSet& ROCKPHYSFORMS();
 mGlobal(General) inline RockPhysics::FormulaSet& eROCKPHYSFORMS()
 { return const_cast<RockPhysics::FormulaSet&>( ROCKPHYSFORMS() ); }
-
-

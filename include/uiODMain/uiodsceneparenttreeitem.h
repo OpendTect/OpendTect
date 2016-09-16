@@ -30,4 +30,3 @@ protected:
 
     virtual void	addChildItem(const DBKey&)			=0;
 };
-

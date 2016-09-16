@@ -295,5 +295,3 @@ PayLoadType var = cb##caps->data
 mCBCapsuleGet(PayLoadType,cb##caps,cb) \
 PayLoadType var = cb##caps->data; \
 CallBacker* cber = cb##caps->caller
-
-

@@ -26,4 +26,3 @@ public:
 };
 
 } //namspace visBase
-

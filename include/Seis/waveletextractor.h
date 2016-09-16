@@ -72,4 +72,3 @@ protected:
     od_int64			totalnr_;
     uiString			msg_;
 };
-

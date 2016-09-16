@@ -206,4 +206,3 @@ protected:
     static const char*		sKeySnapToEvent();
 
 };
-

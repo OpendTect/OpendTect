@@ -32,4 +32,3 @@ protected:
     uiSeis2DSubSel*	subselfld_;
     uiSeisSel*		data2dfld_;
 };
-

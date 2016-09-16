@@ -64,4 +64,3 @@ protected:
     float			datastep_;
     int				wvltsize_;
 };
-

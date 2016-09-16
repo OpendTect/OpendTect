@@ -40,5 +40,3 @@ public:
     static const char*	sKeyVelocity();
     static const char*	sKeyVelocityAttrib();
 };
-
-

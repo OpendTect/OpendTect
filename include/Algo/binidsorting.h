@@ -83,4 +83,3 @@ protected:
     uiString	        errmsg_;
 
 };
-

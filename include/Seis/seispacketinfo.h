@@ -48,5 +48,3 @@ public:
     static BufferString	defaultusrinfo;
 
 };
-
-

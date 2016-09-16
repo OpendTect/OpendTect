@@ -154,4 +154,3 @@ void PCA::getEigenVector(int idy, IDXABL& vec ) const
     for ( int idx=0; idx<nrvars_; idx++ )
 	vec[idx] = covariancematrix_.get(idx, eigenvecindexes_[idy] );
 }
-

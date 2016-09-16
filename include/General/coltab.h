@@ -29,4 +29,3 @@ namespace ColTab
 						      bool histeq=false);
     mGlobal(General) bool	    defHistEq();
 }
-

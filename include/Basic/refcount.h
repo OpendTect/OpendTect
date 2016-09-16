@@ -311,5 +311,3 @@ RefMan<T> WeakPtr<T>::get() const
 
     return res;
 }
-
-

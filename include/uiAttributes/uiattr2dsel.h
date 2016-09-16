@@ -72,5 +72,3 @@ protected:
     virtual bool	acceptOK();
     int			selType() const;
 };
-
-

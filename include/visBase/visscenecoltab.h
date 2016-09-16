@@ -74,5 +74,3 @@ protected:
 };
 
 } // class visBase
-
-

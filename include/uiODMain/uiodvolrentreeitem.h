@@ -107,4 +107,3 @@ protected:
     MenuItem		resetisosurfacemnuitem_;
     MenuItem		convertisotobodymnuitem_;
 };
-

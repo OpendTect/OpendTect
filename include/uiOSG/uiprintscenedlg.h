@@ -78,4 +78,3 @@ protected:
 
     const ObjectSet<ui3DViewer>& viewers_;
 };
-

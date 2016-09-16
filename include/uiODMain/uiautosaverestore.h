@@ -43,5 +43,3 @@ protected:
     static void		doRestore(IOObj&,const char*);
 
 };
-
-

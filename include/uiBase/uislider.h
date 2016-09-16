@@ -143,4 +143,3 @@ private:
 public:
     /*mDeprecated*/ float	getValue() const	{ return getFValue(); }
 };
-

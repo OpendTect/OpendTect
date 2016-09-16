@@ -63,4 +63,3 @@ protected:
     BinIDValueSet&		positions_;
     SeisMSCProvider*		mscprov_;
 };
-

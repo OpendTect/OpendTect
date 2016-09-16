@@ -89,4 +89,3 @@ protected:
 private:
     uiString		goOnMsg();
 };
-

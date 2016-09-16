@@ -47,5 +47,3 @@ protected:
     bool		doExport();
     void		writeHeader(od_ostream&);
 };
-
-

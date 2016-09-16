@@ -127,5 +127,3 @@ private:
 			void getAppropriateRange( float min, float max,
 						 float& newmin, float& newmax );
 };
-
-

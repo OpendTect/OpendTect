@@ -53,5 +53,3 @@ protected:
     bool		getSeisData(const IOObj&,DataPointSet&,TaskRunner&);
 
 };
-
-

@@ -33,4 +33,3 @@ protected:
     void		sliderMove(CallBacker*);
     void		doFinalise(CallBacker*);
 };
-

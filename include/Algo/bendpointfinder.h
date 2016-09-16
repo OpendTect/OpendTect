@@ -138,4 +138,3 @@ protected:
     const Coord3*	coords_;
     const Coord3	scale_;
 };
-

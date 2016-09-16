@@ -94,4 +94,3 @@ mDefineFactory2Param( MPEEngine, SectionExtender, EM::EMObject*,
 		      EM::SectionID, ExtenderFactory );
 
 } // namespace MPE
-

@@ -37,5 +37,3 @@ public:
 			/*!Force to skip progress info. */
     virtual void	skipProgress(bool yn)		{}
 };
-
-

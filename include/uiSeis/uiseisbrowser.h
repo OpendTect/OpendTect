@@ -134,5 +134,3 @@ private:
     SeisTrcBuf&		tbufbefore_;
     SeisTrcBuf&		tbufafter_;
 };
-
-

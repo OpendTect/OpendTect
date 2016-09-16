@@ -235,6 +235,3 @@ void RefObjectSet<T>::insertAt( T *ptr, int idx )
 template <class T> inline
 ObjectSet<T>& RefObjectSet<T>::doAdd( T *ptr )
 { refPtr( ptr ); return ObjectSet<T>::doAdd(ptr); }
-
-
-

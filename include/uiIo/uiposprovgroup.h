@@ -49,4 +49,3 @@ public:
     mDefineFactory2ParamInClass(uiPosProvGroup,uiParent*,const Setup&,factory);
 
 };
-

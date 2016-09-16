@@ -190,5 +190,3 @@ protected:
 
 
 } // namespace Math
-
-

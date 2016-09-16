@@ -116,5 +116,3 @@ protected:
     void			logSetCB(CallBacker*);
 
 };
-
-

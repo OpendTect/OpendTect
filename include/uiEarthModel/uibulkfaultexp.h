@@ -22,4 +22,3 @@ protected:
 
     uiFileInput*	outfld_;
 };
-

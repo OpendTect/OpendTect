@@ -73,4 +73,3 @@ protected:
     void			getAdvancedPush(CallBacker*);
     void			parsChanged(CallBacker*);
 };
-

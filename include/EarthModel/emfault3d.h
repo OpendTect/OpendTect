@@ -133,5 +133,3 @@ public:
 };
 
 } // namespace EM
-
-

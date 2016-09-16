@@ -117,5 +117,3 @@ protected:
     void		rmItm(int,bool);
 
 };
-
-

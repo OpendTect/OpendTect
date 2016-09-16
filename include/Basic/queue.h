@@ -124,5 +124,3 @@ protected:
     QueueEntry<T>*	tail;
 
 };
-
-

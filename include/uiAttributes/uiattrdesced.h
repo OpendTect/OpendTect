@@ -240,4 +240,3 @@ const char* clss::attribName() const \
 #define mInitAttribUI( clss, attr, displaynm, grp ) \
     mInitAttribUIPars(clss,attr,displaynm,grp,uiAttrDescEd::Both, \
 	    	      uiAttrDescEd::AnyDim)
-

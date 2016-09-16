@@ -74,4 +74,3 @@ protected:
     bool		fillPar();
     bool		usePar( const IOPar&);
 };
-

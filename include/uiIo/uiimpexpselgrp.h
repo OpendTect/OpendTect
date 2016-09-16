@@ -219,4 +219,3 @@ protected:
     bool				acceptOK();
 
 };
-

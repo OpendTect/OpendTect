@@ -132,4 +132,3 @@ protected:
     bool		hasudfs_;
     bool		interpolate_;
 };
-

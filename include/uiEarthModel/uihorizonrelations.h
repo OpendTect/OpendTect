@@ -40,4 +40,3 @@ protected:
     void		checkCrossingsCB(CallBacker*);
     void		makeWatertightCB(CallBacker*);
 };
-

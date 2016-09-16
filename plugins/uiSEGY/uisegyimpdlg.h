@@ -45,5 +45,3 @@ protected:
     bool		impFile(const IOObj&,const IOObj&,const char*);
 
 };
-
-

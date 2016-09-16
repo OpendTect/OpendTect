@@ -47,5 +47,3 @@ protected:
     uiSeisSel*			outputdepthsel_;
     uiBatchJobDispatcherSel*	batchfld_;
 };
-
-

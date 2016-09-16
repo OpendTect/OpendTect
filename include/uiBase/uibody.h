@@ -75,4 +75,3 @@ private:
     C&			handle_;
 
 };
-

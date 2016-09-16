@@ -170,5 +170,3 @@ IDWithGroup<GroupNrT,ObjNrT>::getFromInt64( od_int64 i64 )
     ret.fromInt64( i64 );
     return ret;
 }
-
-

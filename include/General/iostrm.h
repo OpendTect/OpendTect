@@ -75,5 +75,3 @@ public:
     virtual void	setDirName(const char*);
 
 };
-
-

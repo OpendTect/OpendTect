@@ -62,4 +62,3 @@ protected:
     
     const Survey::Geometry2D*	geom2d_;
 };
-

@@ -292,7 +292,3 @@ private:
     const GestureEvent*		    currentevent_;
     bool			    ishandled_;
 };
-
-
-
-

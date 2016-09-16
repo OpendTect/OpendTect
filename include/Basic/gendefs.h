@@ -53,5 +53,3 @@ namespace OD
 }
 
 #endif
-
-

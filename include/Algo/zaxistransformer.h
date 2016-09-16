@@ -63,6 +63,3 @@ protected:
     Array3D<float>*		output_;
     TrcKeyZSampling		outputcs_;
 };
-
-
-

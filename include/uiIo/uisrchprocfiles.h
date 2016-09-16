@@ -40,5 +40,3 @@ protected:
     void		srchDir(CallBacker*);
     bool		acceptOK();
 };
-
-

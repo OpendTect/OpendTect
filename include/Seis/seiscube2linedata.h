@@ -57,5 +57,3 @@ protected:
     int			handleTrace();
 
 };
-
-

@@ -49,4 +49,3 @@ protected:
     ObjectSet<MPE::Fault3DFlatViewEditor> faulteds_;
     Notifier<VW2DFault>		deselted_;
 };
-

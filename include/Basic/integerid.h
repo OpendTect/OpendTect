@@ -106,5 +106,3 @@ protected: \
     friend class	TypeSet<classname>; \
  \
 }
-
-

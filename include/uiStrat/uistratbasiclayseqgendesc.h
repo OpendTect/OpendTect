@@ -56,5 +56,3 @@ protected:
     DispUnit*		curUnit();
 
 };
-
-

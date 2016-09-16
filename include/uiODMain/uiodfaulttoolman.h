@@ -227,5 +227,3 @@ protected:
     static uiString		sKeyMergeWithExisting();
     static uiString		sKeyReplaceExisting();
 };
-
-

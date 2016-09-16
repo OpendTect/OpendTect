@@ -57,5 +57,3 @@ protected:
     int			nrhorswithdata_;
     uiHorizonAuxDataDlg* dlg_; 
 };
-
-

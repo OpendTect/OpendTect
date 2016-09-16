@@ -228,4 +228,3 @@ public:
     static void		programActiveWindow(uiMainWin*);
     static uiMainWin*	programmedActiveWindow();
 };
-

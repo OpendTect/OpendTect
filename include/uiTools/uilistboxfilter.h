@@ -40,6 +40,3 @@ protected:
     void		filtChg(CallBacker*);
 
 };
-
-
-

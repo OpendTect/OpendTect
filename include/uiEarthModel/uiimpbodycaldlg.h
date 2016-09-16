@@ -35,5 +35,3 @@ protected:
     uiGenInput*		velfld_;
     uiGenInput*		volfld_;
 };
-
-

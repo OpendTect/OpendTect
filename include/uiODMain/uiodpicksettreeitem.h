@@ -139,5 +139,3 @@ protected:
     MenuItem		propertymnuitem_;
     MenuItem		closepolyitem_;
 };
-
-

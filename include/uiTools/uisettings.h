@@ -170,6 +170,3 @@ protected:
     bool		enablemipmapping_;
     int			anisotropicpower_;
 };
-
-
-

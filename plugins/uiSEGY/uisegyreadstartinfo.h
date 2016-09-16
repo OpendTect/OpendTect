@@ -108,5 +108,3 @@ protected:
     void		parChg(CallBacker*);
 
 };
-
-

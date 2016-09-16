@@ -66,5 +66,3 @@ public:
 			{ return new uiODVW2DWiggleVarAreaTreeItem(); }
     uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
 };
-
-

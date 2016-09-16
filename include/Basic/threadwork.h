@@ -248,4 +248,3 @@ inline bool Threads::Work::doRun()
 
     return true;
 }
-

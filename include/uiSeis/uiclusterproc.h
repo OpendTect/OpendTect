@@ -51,4 +51,3 @@ protected:
     void		progressCB(CallBacker*);
     bool		submitJobs();
 };
-

@@ -38,5 +38,3 @@ protected:
     void		getFinalSelectedLineNames();
 
 };
-
-

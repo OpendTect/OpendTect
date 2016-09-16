@@ -807,4 +807,3 @@ protected:
     float		getVal(const Setup&,int) const;
     void		setVal(Setup&,int,float);
 };
-

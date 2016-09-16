@@ -50,5 +50,3 @@ protected:
     void		unChg(CallBacker*);
 
 };
-
-

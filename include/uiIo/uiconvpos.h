@@ -44,4 +44,3 @@ private:
     void		getBinID(CallBacker*);
     void		convFile(CallBacker*);
 };
-

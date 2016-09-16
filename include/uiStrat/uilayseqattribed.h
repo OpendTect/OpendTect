@@ -80,4 +80,3 @@ protected:
     bool		acceptOK();
 
 };
-

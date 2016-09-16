@@ -180,5 +180,3 @@ protected:
     od_istream*			istrm_;
     
 };
-
-

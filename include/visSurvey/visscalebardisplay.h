@@ -73,4 +73,3 @@ protected:
 
 
 } // namespace visSurvey
-

@@ -214,4 +214,3 @@ const Array2DImpl<T>* QRSolver<T>::getR() const
 
      return arr;
 }
-

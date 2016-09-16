@@ -57,5 +57,3 @@ protected:
 				~PickRetriever();
     static RefMan<PickRetriever> instance_;
 };
-
-

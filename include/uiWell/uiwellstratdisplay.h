@@ -81,5 +81,3 @@ protected:
     void			gatherInfo();
     void			draw();
 };
-
-

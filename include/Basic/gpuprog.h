@@ -68,4 +68,3 @@ mGlobal(Basic) void setPlatforms(ObjectSet<Platform>&);
 
 
 }  //namespace
-

@@ -46,4 +46,3 @@ protected:
     void			setPosBoxValue();
     void			setStepBoxValue();
 };
-

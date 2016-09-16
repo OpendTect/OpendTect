@@ -288,4 +288,3 @@ bool VectorAccess<T,I>::isPresent( const T& t ) const
     const typename std::vector<T>::const_iterator end = v_.end();
     return std::find( v_.begin(), end, t )!=end;
 }
-

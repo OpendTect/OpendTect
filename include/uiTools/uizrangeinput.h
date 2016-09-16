@@ -40,6 +40,3 @@ void uiZRangeInput::setZRange( T range )
     
     setValue( range );
 }
-
-
-

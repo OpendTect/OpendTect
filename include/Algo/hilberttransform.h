@@ -81,4 +81,3 @@ protected:
 
     mutable uiString    errmsg_;
 };
-

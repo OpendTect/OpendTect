@@ -152,5 +152,3 @@ protected:
     virtual bool	rejectOK();
 
 };
-
-

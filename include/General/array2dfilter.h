@@ -276,5 +276,3 @@ inline void Array2DFilterer<T>::doPoint( int row, int col )
     output_.set( row-origin_.row(), col-origin_.col(),
 		 (T) calc_->getValue(pars_.type_));
 }
-
-

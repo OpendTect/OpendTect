@@ -52,5 +52,3 @@ protected:
     friend class	uiSeisFmtScaleComp;
 
 };
-
-

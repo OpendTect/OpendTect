@@ -54,4 +54,3 @@ protected:
     DBKeySet	selids_;
     IOPar&		iopar_;
 };
-

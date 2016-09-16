@@ -88,4 +88,3 @@ protected:
     int				visid_;
     bool			ishandled_;
 };
-

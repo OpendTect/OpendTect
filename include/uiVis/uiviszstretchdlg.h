@@ -65,4 +65,3 @@ protected:
     void		sceneSel(CallBacker*);
 
 };
-

@@ -123,4 +123,3 @@ private:
     int			nrdecimals_;
 
 };
-

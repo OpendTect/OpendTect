@@ -230,4 +230,3 @@ bool Smoother2D<T>::execute()
 template <class T> inline
 Task::Control Smoother2D<T>::getState() const
 { return convolver_.getState(); }
-

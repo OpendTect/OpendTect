@@ -47,4 +47,3 @@ private:
     GestureStatus		gesturestatus_;
     od_int64			delaytime_;
 };
-

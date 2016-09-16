@@ -35,4 +35,3 @@ protected:
 
     bool		makeLLRangeFile(const char*,od_ostream&);
 };
-

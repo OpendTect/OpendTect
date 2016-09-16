@@ -44,5 +44,3 @@ protected:
     void		getBendPoints(const float*,int);
 
 };
-
-

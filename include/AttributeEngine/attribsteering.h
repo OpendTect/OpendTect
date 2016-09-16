@@ -22,5 +22,3 @@ mGlobal(AttributeEngine) int getSteeringIndex( const BinID& );
 
 
 }; //Namespace
-
-

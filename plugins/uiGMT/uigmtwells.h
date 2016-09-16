@@ -45,4 +45,3 @@ protected:
 
     void		choiceSel(CallBacker*);
 };
-

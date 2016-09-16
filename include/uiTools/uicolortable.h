@@ -148,4 +148,3 @@ public:
 private:
     void		init();
 };
-

@@ -68,5 +68,3 @@ public:
     bool		classification;
 
 };
-
-

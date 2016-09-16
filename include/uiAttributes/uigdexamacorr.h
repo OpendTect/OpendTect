@@ -62,4 +62,3 @@ protected:
     FlatDataPack*		fddatapackqc_;
     FlatDataPack*		fddatapackexam_;
 };
-

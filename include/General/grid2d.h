@@ -65,5 +65,3 @@ protected:
 					    const TrcKeySampling&,
 					    ObjectSet<Grid2D::Line>& );
 };
-
-

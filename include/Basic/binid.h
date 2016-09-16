@@ -112,4 +112,3 @@ inline bool BinID::fromString( const char* str )
 {
     return IdxPair::parseUsrStr( str, "", "/", "" );
 }
-

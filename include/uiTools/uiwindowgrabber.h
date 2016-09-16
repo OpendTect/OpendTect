@@ -75,5 +75,3 @@ protected:
     int			quality_;
     Timer*		tmr_;
 };
-
-

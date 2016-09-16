@@ -81,4 +81,3 @@ protected:
     uiListBox*		attribfld_;
     uiListBox*		selfld_;
 };
-

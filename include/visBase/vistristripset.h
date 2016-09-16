@@ -24,5 +24,3 @@ public:
 				mCreateDataObj( TriangleStripSet );
 };
 };
-
-

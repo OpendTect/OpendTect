@@ -43,4 +43,3 @@ protected:
     uiGenInput*			inoutbut_;
     uiPosSubSel*                outsidergfld_;
 };
-

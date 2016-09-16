@@ -48,5 +48,3 @@ protected:
 
     static int		prodid; //!< for factory implementation
 };
-
-

@@ -89,4 +89,3 @@ private:
 
     bool			finalised_;
 };
-

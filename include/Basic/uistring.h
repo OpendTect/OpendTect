@@ -330,7 +330,3 @@ uiString& uiString::arg( const T& var )
 {
     return arg( toUiString(var) );
 }
-
-
-
-

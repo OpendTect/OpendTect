@@ -80,5 +80,3 @@ protected:
 
     mutable uiString	curmsg_;
 };
-
-

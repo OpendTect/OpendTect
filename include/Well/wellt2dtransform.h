@@ -61,4 +61,3 @@ protected:
     void			doTransform(const SamplingData<float>&,
 					    int sz,float*,bool) const;
 };
-

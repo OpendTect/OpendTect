@@ -59,5 +59,3 @@ protected:
     ObjectSet<uiTextItem>	diptextitms_;
 
 };
-
-

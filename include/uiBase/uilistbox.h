@@ -263,4 +263,3 @@ public:
 			//!To be called by CmdDriver only, not for casual use.
     bool		isItemChecked(int) const;
 };
-

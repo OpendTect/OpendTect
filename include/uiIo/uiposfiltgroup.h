@@ -39,5 +39,3 @@ public:
     mDefineFactory2ParamInClass(uiPosFiltGroup,uiParent*,const Setup&,factory);
 
 };
-
-

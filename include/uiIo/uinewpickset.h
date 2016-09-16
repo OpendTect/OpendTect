@@ -46,5 +46,3 @@ protected:
     RefMan<Pick::Set>	getEmptyPickSet() const;
 
 };
-
-

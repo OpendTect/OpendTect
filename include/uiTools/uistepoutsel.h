@@ -112,5 +112,3 @@ protected:
     uiSpinBox*		fld3_;
 
 };
-
-

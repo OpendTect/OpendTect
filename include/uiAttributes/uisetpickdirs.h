@@ -65,5 +65,3 @@ protected:
     void			wrapPhi(float&);
     void			wrapTheta(float&);
 };
-
-

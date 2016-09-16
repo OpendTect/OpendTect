@@ -48,4 +48,3 @@ protected:
     void		init(const TypeSet<Coord>&,const int*);
     void		getIndexes(float,Interval<int>&) const;
 };
-

@@ -292,4 +292,3 @@ inline  bool PolygonTriangulate( const TypeSet<Coord>& knots,TypeSet<int>& res )
 
     return true;
 }
-

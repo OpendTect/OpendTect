@@ -130,5 +130,3 @@ protected:
     od_ostream&		strm_;
 
 };
-
-

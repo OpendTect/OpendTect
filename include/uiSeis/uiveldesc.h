@@ -162,8 +162,3 @@ public:
 
 				uiDepth2Time(uiParent*);
 };
-
-
-
-
-

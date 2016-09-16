@@ -131,5 +131,3 @@ public:
     const char*		write(const VolProc::Chain&,Conn&);
 
 };
-
-

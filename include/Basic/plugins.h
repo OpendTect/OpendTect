@@ -155,5 +155,3 @@ private:
 };
 
 mGlobal(Basic) PluginManager& PIM();
-
-

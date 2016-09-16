@@ -56,5 +56,3 @@ protected:
     bool		isoverwrite_;
     uiBatchJobDispatcherSel*	batchfld_;
 };
-
-

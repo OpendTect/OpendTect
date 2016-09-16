@@ -144,5 +144,3 @@ mStartDeclFunClass( WildcardStr,	Function )	mEndDeclFunClass
 mStartDeclFunClass( CurWindow,	Function )	mEndDeclFunClass
 
 }; // namespace CmdDrive
-
-

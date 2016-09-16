@@ -102,4 +102,3 @@ private:
     void		removeTempResults();
 
 };
-

@@ -52,5 +52,3 @@ protected:
     ArrayND<float_complex>*	tempout_;
     Fourier::CC*		fft_;
 };
-
-

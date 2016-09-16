@@ -56,5 +56,3 @@ mGlobal(Basic) bool isUdfImpl(float_complex);
 mGlobal(Basic) const char* toString(float_complex);
 
 namespace Conv { mConvDeclFromStrToSimpleType(float_complex); }
-
-

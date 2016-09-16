@@ -95,4 +95,3 @@ protected:
 
 mGlobal(uiBase) bool isMainThread(Threads::ThreadID);
 mGlobal(uiBase) bool isMainThreadCurrent();
-

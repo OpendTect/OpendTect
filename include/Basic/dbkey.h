@@ -115,5 +115,3 @@ mGlobal(Basic) inline BufferString toString( const DBKey& ky )
 { return ky.toString(); }
 mGlobal(Basic) inline uiString toUiString( const DBKey& ky )
 { return ky.toUiString(); }
-
-

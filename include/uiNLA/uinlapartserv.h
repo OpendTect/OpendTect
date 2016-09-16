@@ -128,4 +128,3 @@ protected:
     RefMan<DataPointSet>	gtDps() const;
 
 };
-

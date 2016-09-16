@@ -71,4 +71,3 @@ private:
     void		init();
 
 };
-

@@ -82,5 +82,3 @@ public:
     const uiCheckBox*	box( int idx ) const	{ return boxs_[idx]; }
 
 };
-
-

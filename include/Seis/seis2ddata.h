@@ -100,4 +100,3 @@ private:
 
     bool		getGeometry(Pos::GeomID,PosInfo::Line2DData&) const;
 };
-

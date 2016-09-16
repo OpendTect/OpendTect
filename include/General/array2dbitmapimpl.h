@@ -145,5 +145,3 @@ protected:
 
     TypeSet<int>		stripstodraw_;
 };
-
-

@@ -113,4 +113,3 @@ private:
     int			beginCmdRecEvent( const char* wintitle );
     void		endCmdRecEvent(int refnr, bool ok);
 };
-

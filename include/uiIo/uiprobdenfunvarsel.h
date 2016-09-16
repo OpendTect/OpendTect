@@ -55,4 +55,3 @@ protected:
     void			nrBinChanged(CallBacker*);
     void			rangeChanged(CallBacker*);
 };
-

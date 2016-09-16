@@ -28,4 +28,3 @@ protected:
     virtual bool	initWork(bool);
 
 };
-

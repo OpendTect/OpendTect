@@ -56,5 +56,3 @@ protected:
 
     FixedString		getZDomain() const;
 };
-
-

@@ -138,4 +138,3 @@ protected:
 };
 
 } // namespace visBase
-

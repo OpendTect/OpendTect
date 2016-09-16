@@ -146,4 +146,3 @@ protected:
     ObjectSet<FlatView::uiAuxDataDisplay>	auxdata_;
 
 };
-

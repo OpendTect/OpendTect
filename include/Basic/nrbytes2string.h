@@ -45,5 +45,3 @@ protected:
     Unit		unit_;
 
 };
-
-

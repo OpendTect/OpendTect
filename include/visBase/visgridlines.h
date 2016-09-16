@@ -88,4 +88,3 @@ protected:
 
 
 } // Namespace visBase
-

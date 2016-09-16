@@ -37,5 +37,3 @@ protected:
     virtual bool	acceptOK();
     bool		getInput(ObjectSet<IOPar>&,IOPar&);
 };
-
-

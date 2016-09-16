@@ -94,5 +94,3 @@ protected:
     SeisTrcTranslator*		strl() const;
 
 };
-
-

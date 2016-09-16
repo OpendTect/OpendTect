@@ -41,4 +41,3 @@ protected:
     void		cubeSel(CallBacker*);
     void		interpSelDone(CallBacker*);
 };
-

@@ -50,4 +50,3 @@ protected:
     uiPushButton*		setbut_;
     uiTable*			vartable_;
 };
-

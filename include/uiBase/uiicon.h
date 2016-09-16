@@ -44,4 +44,3 @@ protected:
     mQtclass(QIcon&)		qicon_;
     BufferString		srcnm_;
 };
-

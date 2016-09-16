@@ -89,5 +89,3 @@ protected:
     friend class	uiSynthToRealScaleRealStatCollector;
 
 };
-
-

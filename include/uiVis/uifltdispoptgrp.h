@@ -35,5 +35,3 @@ protected:
     uiPushButton*		applybut_;
     visSurvey::FaultDisplay*	fltdisp_;
 };
-
-

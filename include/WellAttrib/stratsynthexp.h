@@ -56,4 +56,3 @@ protected:
     int					posdone_;
     int					postobedone_;
 };
-

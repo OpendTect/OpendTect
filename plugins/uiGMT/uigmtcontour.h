@@ -67,4 +67,3 @@ protected:
 
     bool		loadHor();
 };
-

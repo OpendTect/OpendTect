@@ -535,5 +535,3 @@ public:
    uiStrings::phrJoinStrings( uiStrings::txt1, uiStrings::txt2 )
 
 #define mTODONotImplPhrase() uiStrings::phrTODONotImpl( ::className(*this) )
-
-

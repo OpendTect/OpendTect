@@ -96,5 +96,3 @@ const char*	parentType() const \
 { return typeid(uiOD##parentitem).name();} \
 public: \
 			uiOD##type##TreeItem()
-
-

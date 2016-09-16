@@ -233,5 +233,3 @@ private:
     const int			itermax_;
     const FloatMathFunctionND&	func_;
 };
-
-

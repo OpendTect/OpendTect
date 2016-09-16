@@ -31,5 +31,3 @@ public:
     VSEvent::Type  	snapev_;
 
 };
-
-

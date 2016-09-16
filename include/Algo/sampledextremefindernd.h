@@ -196,5 +196,3 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 
     return anychange;
 }
-
-

@@ -61,4 +61,3 @@ protected:
     void		setGroupProgs(const BufferString*);
 
 };
-

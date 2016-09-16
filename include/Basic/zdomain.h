@@ -122,4 +122,3 @@ mGlobal(Basic) const char*	sKeyTime();
 mGlobal(Basic) const char*	sKeyDepth();
 
 } // namespace ZDomain
-

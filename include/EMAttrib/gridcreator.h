@@ -90,5 +90,3 @@ protected:
     od_int64		totalnr_;
 
 };
-
-

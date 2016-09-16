@@ -92,4 +92,3 @@ protected:
     Vw2DHorizon3D*	horview_;
     void		emobjAbtToDelCB(CallBacker*);
 };
-

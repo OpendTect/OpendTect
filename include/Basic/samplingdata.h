@@ -183,4 +183,3 @@ void SamplingData<T>::scale( T scl )
 template <class T> inline
 bool SamplingData<T>::isUdf() const
 { return mIsUdf(start) || mIsUdf(step); }
-

@@ -207,5 +207,3 @@ protected:
     bool		execres_;
 
 };
-
-

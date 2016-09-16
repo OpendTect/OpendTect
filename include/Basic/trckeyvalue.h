@@ -56,4 +56,3 @@ public:
 
 inline bool TrcKeyValue::isDefined() const
 { return !tk_.isUdf() && !mIsUdf(val_); }
-

@@ -58,4 +58,3 @@ protected:
     ObjectSet<uiFlatViewer>		viewers_;
 
 };
-

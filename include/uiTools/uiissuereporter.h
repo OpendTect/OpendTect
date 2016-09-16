@@ -53,5 +53,3 @@ protected:
     BufferString		filename_;
 
 };
-
-

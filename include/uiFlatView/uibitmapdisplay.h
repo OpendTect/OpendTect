@@ -81,4 +81,3 @@ private:
 
     CallBack			finishedcb_;
 };
-

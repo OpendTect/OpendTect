@@ -221,5 +221,3 @@ protected: \
 mDefineParentItem(Arrow,uiODAnnotParentTreeItem::sArrows(),1000);
 mDefineParentItem(Image,uiODAnnotParentTreeItem::sImage(),1000);
 mDefineParentItem(ScaleBar,uiODAnnotParentTreeItem::sScalebar(),1000);
-
-

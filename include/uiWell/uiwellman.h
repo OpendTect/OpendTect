@@ -94,4 +94,3 @@ protected:
     void			defD2T(bool);
 
 };
-

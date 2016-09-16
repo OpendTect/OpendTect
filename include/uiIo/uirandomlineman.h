@@ -31,4 +31,3 @@ protected:
     void			mkFileInfo();
 
 };
-

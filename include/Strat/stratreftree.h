@@ -102,5 +102,3 @@ mGlobal(Strat) void setRT(RefTree*);
 
 
 }; // namespace Strat
-
-

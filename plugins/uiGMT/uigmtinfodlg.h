@@ -30,4 +30,3 @@ protected:
     uiFileInput*	gmtpath_;
     uiLabel*		label_;
 };
-

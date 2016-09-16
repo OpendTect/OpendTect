@@ -108,4 +108,3 @@ inline Coord3 cubicDeCasteljauTangent( const Coord3* p, char i0, char di,
 }
 
 };
-

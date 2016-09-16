@@ -115,4 +115,3 @@ private:
     void		fillLeftGroup(uiGroup*);
     void		fillRightGroup(uiGroup*);
 };
-

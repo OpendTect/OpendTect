@@ -269,4 +269,3 @@ void LinSolver<T>::apply( const T* b, T* x ) const
     }
 
 }
-

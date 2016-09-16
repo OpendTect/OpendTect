@@ -145,4 +145,3 @@ protected:
     void		inpSel(CallBacker*);
     void		attr2DSelected(CallBacker*);
 };
-

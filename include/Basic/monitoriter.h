@@ -156,5 +156,3 @@ void MonitorableIter<ITyp>::reInit( bool toend )
     ml_.reLock();
     curidx_ = toend ? ( stopidx_ < 0 ? size() : stopidx_ ) : startidx_;
 }
-
-

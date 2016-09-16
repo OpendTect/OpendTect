@@ -156,5 +156,3 @@ protected:
     bool		commit(bool permissive=false);
 
 };
-
-

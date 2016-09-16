@@ -41,5 +41,3 @@ protected:
     Network::Server&	server_;
 
 };
-
-

@@ -51,5 +51,3 @@ protected:
     const SeisTrcBuf&		trcbuf_;
 
 };
-
-

@@ -61,4 +61,3 @@ public:
 		: ElementEditorImpl( elem,  Coord3::udf(), normal ) {}
 };
 };
-

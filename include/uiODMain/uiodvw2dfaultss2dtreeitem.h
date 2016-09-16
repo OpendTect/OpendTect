@@ -88,5 +88,3 @@ protected:
 
     VW2DFaultSS2D*	fssview_;
 };
-
-

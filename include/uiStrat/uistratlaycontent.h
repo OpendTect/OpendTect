@@ -42,5 +42,3 @@ protected:
     void		contSel(CallBacker*);
 
 };
-
-

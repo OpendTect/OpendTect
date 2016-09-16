@@ -83,5 +83,3 @@ protected:
     virtual void		setWDNotifiers(bool yn);
     void			onClose(CallBacker*);
 };
-
-

@@ -50,5 +50,3 @@ protected:
 			/*!<\param maxdph Maximum allowed phase difference
 			  between consecutive frequencies, in radians */
 };
-
-

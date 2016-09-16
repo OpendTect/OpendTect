@@ -85,5 +85,3 @@ protected:
     bool			closeOK();
     uiVisColTabEd*		coltabed_;
 };
-
-

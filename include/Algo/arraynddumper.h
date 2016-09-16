@@ -108,5 +108,3 @@ void ArrayNDDumper<T>::dump( od_ostream& strm ) const
 	    { strm.add(od_newline).flush(); break; }
     }
 }
-
-

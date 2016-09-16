@@ -63,4 +63,3 @@ protected:
     uiAdvancedTextItem* minvalitm_;
     uiAdvancedTextItem* maxvalitm_;
 };
-

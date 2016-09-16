@@ -211,5 +211,3 @@ protected:
     bool		positionTranslator();
 
 };
-
-

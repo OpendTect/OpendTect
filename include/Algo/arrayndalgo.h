@@ -1583,4 +1583,3 @@ void PolyTrend::apply( const Coord& pos, bool dir, T& val ) const
     inp += fact * ( f11_ * dx2 + f12_ * dxy + f22_ * dyy );
     val = (T)inp;
 }
-

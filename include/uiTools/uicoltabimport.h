@@ -50,4 +50,3 @@ protected:
 private :
     static uiString		getLabel(bool);
 };
-

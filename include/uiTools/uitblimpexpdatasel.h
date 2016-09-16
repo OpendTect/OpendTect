@@ -68,4 +68,3 @@ protected:
     void			descChg(CallBacker*);
     void			openFmt(CallBacker*);
 };
-

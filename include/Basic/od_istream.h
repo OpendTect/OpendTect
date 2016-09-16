@@ -110,5 +110,3 @@ inline od_istream& od_istream::getBin( T& t )
     getBin( &t, sizeof(T) );
     return *this;
 }
-
-

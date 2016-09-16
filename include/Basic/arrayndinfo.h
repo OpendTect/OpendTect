@@ -257,5 +257,3 @@ inline int Array3DInfoImpl::getSize( int dim ) const
 {
     return dim>2 || dim<0 ? 0 : dimsz_[dim];
 }
-
-

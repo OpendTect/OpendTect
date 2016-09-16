@@ -57,5 +57,3 @@ bool operator==( const SynthGenParams& gp ) const
            raypars_==gp.raypars_ && hassameanglerg && hassameinput; }
 
 };
-
-

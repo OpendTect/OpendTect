@@ -154,4 +154,3 @@ T AxisLayout<T>::findEnd( T datastop ) const
     T wdth = nrsteps * worksd.step;
     return sd_.start + (rev ? -wdth : wdth);
 }
-

@@ -125,5 +125,3 @@ inline bool ChangeTracker::update( T& val, const U& newval )
     val = newval;
     return ret;
 }
-
-

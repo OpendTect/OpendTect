@@ -95,5 +95,3 @@ protected:
     void		psSel(CallBacker*);
 
 };
-
-

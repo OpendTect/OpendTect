@@ -102,4 +102,3 @@ protected:
     void			getLogNames(BufferStringSet&) const;
     void			addUniqueTrace(const SeisTrc&,SeisTrcBuf&)const;
 };
-

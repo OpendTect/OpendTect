@@ -346,4 +346,3 @@ protected:
     bool			isenabled_;
     bool			checked_;
 };
-

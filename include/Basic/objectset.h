@@ -488,5 +488,3 @@ template <class T> inline T* ObjectSet<T>::last()
 { return isEmpty() ? 0 : (*this)[size()-1]; }
 template <class T> inline const T* ObjectSet<T>::last() const
 { return isEmpty() ? 0 : (*this)[size()-1]; }
-
-

@@ -13,5 +13,3 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 typedef TrcKeyZSampling CubeSampling;
-
-

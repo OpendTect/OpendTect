@@ -75,5 +75,3 @@ protected:
 
 #define mPlf(ptyp) OD::Platform(OD::Platform::ptyp)
 #define mPlfShortName(ptyp) mPlf(ptyp).shortName()
-
-

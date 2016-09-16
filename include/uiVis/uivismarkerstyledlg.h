@@ -30,4 +30,3 @@ protected:
     virtual void	colSel(CallBacker*)		=0;
 
 };
-

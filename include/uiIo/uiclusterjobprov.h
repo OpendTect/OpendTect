@@ -88,5 +88,3 @@ protected:
     Batch::ClusterJobDispatcher&	jd_;
 
 };
-
-

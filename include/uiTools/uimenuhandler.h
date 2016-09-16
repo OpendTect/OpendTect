@@ -100,4 +100,3 @@ protected:
     uiToolBar*			tb_;
     uiParent*			uiparent_;
 };
-

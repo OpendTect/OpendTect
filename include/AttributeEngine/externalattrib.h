@@ -59,4 +59,3 @@ mDefineFactory1Param( AttributeEngine, ExtAttribCalc, const Attrib::SelSpec&,
 
 
 } // namespace Attrib
-

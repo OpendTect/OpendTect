@@ -52,5 +52,3 @@ protected:
 };
 
 }; // namespace Attrib
-
-

@@ -62,4 +62,3 @@ public:
     void			renewAxis(const uiString&,uiGraphicsScene*,
 					  int w,int h,const Interval<float>*);
 };
-

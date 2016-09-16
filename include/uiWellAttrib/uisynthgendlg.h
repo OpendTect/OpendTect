@@ -69,4 +69,3 @@ protected:
     bool			rejectOK();
     void			finaliseDone(CallBacker*);
 };
-

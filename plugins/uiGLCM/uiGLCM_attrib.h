@@ -56,4 +56,3 @@ protected:
 
 			mDeclReqAttribUIFns
 };
-

@@ -247,5 +247,3 @@ protected:
     TypeSet<int>		optids_;
     int				defaultoptidx_;
 };
-
-

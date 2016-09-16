@@ -36,5 +36,3 @@ protected:
     IOPar		iop_;
     SeisTrcBufDataPack* bufdtpack_;
 };
-
-

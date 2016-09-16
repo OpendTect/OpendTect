@@ -198,6 +198,3 @@ bool Array3DSubSelection<T>::isOK() const
 template <class T>
 const Array3DInfo& Array3DSubSelection<T>::info() const
 { return info_; }
-
-
-

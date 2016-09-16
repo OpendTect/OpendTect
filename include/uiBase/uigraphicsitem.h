@@ -196,5 +196,3 @@ protected:
 			{ return !items_.validIdx(idx) ? 0
 			: const_cast<uiGraphicsItemGroup*>(this)->items_[idx]; }
 };
-
-

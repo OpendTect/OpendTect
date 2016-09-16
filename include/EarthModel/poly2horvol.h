@@ -44,5 +44,3 @@ protected:
     EM::Horizon3D*	hor_;
 
 };
-
-

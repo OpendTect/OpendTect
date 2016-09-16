@@ -74,5 +74,3 @@ inline void addNames( const ODSET& inp, WITHADD& withadd )
     { \
         op; \
     }
-
-

@@ -40,5 +40,3 @@ protected:
     SliceDir		curorientation_;
     ZDomain::Info	zdomaininfo_;
 };
-
-

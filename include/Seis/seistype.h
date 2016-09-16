@@ -61,5 +61,3 @@ namespace Seis
     mGlobal(Seis) WaveType	waveTypeOf(const char*);
 
 } // namespace Seis
-
-

@@ -223,4 +223,3 @@ protected:
     Extension2DInterpolExecutor* executor_;
     friend class Extension2DInterpolExecutor;
 };
-

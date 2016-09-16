@@ -96,6 +96,3 @@ protected:
     MenuItem		depthattribmnuitem_;
     MenuItem		isochronmnuitem_;
 };
-
-
-

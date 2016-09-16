@@ -49,6 +49,3 @@ public:
     uiArr2DFilterPars*	fld;
 
 };
-
-
-

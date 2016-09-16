@@ -96,4 +96,3 @@ protected:
     uiBodyRegionGrp*		grp_;
     uiIOObjSel*			outputfld_;
 };
-

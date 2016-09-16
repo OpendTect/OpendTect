@@ -108,4 +108,3 @@ protected:
     uiWellSelGrp*	selgrp_;
     uiWellPartServer*	wellserv_;
 };
-

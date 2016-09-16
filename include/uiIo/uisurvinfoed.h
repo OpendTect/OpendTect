@@ -145,4 +145,3 @@ protected:
     BufferStringSet	survlist_;
 
 };
-

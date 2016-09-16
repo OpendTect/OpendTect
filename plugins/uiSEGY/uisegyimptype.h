@@ -77,6 +77,3 @@ protected:
     void		typChg( CallBacker* )	{ typeChanged.trigger(); }
 
 };
-
-
-

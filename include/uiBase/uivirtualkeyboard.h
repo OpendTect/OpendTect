@@ -68,5 +68,3 @@ protected:
     int				selectionstart_;
     int				selectionlength_;
 };
-
-

@@ -136,4 +136,3 @@ private:
     uiObjectBody&	mkBody(uiParent*,bool direct,const char*);
 
 };
-

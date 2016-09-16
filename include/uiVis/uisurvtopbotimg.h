@@ -38,4 +38,3 @@ protected:
     friend class	uiSurvTopBotImageGrp;
 
 };
-

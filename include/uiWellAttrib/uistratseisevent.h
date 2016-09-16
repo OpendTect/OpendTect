@@ -73,5 +73,3 @@ protected:
     void		stepSelCB(CallBacker*);
 
 };
-
-

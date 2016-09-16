@@ -62,4 +62,3 @@ protected:
     uiFileInput*	fileinpfld_;
     uiIOObjSel*		attrsetfld_;
 };
-

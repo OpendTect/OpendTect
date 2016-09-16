@@ -223,4 +223,3 @@ protected:
     bool		setWeights(const Coord&,TypeSet<double>& weights,
 				   TypeSet<int>* usedpoints=0) const;
 };
-

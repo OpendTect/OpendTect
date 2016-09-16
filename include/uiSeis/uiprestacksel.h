@@ -66,5 +66,3 @@ protected:
     TypeSet<DataPack::FullID> dpfids_;
 
 };
-
-

@@ -54,4 +54,3 @@ protected:
 
     float				getVal(int colid,int rowid) const;
 };
-

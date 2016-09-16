@@ -216,7 +216,3 @@ inline int TrcKeySampling::trcIdx( Pos::TraceID trcid ) const
 	? (trcid-start_.trcNr()) / step_.trcNr()
 	: (trcid==start_.trcNr() ? 0 : -1);
 }
-
-
-
-

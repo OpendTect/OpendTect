@@ -166,4 +166,3 @@ protected:
 };
 
 mGlobal(MMProc) int& MMJob_getTempFileNr();
-

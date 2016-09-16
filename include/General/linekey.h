@@ -40,4 +40,3 @@ public:
 
     static const char*	sKeyDefAttrib()		{ return ""; }
 };
-

@@ -343,4 +343,3 @@ protected:
     mGetFloatIntervalFromDesc( desc_, var, varstring )
 #define mGetDouble( var, varstring ) \
     mGetDoubleFromDesc( desc_, var, varstring )
-

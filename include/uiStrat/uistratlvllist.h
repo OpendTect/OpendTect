@@ -49,4 +49,3 @@ private:
     static const char*	sNoLevelTxt()		{return "--- None ---"; }
 
 };
-

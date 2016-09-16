@@ -108,5 +108,3 @@ public:
     bool			put(od_ostream&) const;
 
 };
-
-

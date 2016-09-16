@@ -121,5 +121,3 @@ private:
     ArrPtrMan<BriggsData>   briggs_;
 
 };
-
-

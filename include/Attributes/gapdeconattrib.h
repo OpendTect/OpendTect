@@ -80,4 +80,3 @@ protected:
 };
 
 } // namespace Attrib
-

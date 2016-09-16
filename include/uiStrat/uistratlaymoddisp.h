@@ -123,5 +123,3 @@ protected:
     				//!< returns whether layermodel has changed
 
 };
-
-

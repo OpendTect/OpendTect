@@ -76,6 +76,3 @@ protected:
 	dlg = 0; \
 	mSetVWState( doleave ? cCancelled() : ((int)backstate) ); \
     }
-
-
-

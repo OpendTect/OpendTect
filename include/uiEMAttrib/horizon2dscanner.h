@@ -65,5 +65,3 @@ protected:
     BufferStringSet	invalidnms_;
     BinIDValueSet*	bvalset_;
 };
-
-

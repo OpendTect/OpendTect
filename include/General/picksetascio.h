@@ -29,5 +29,3 @@ public:
     bool			get(od_istream&,Pick::Set&,bool iszreq,
 				    float zval) const;
 };
-
-

@@ -282,5 +282,3 @@ bool Convolver3D<float>::shouldFFT() const
     return fftsz<tradsz;
     */
 }
-
-

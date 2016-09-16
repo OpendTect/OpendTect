@@ -54,4 +54,3 @@ protected:
     DBKeySet		horids_;
 
 };
-

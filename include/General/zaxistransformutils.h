@@ -49,4 +49,3 @@ protected:
     ZAxisTransform&		transform_;
     DataPointSet*		dps_;
 };
-

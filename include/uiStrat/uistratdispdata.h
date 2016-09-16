@@ -203,4 +203,3 @@ protected:
 
     uiStratRefTree&     uitree_;
 };
-

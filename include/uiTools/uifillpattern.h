@@ -44,5 +44,3 @@ protected:
     void			selChg(CallBacker*);
 
 };
-
-

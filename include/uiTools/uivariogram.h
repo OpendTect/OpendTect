@@ -68,4 +68,3 @@ protected:
 	void			labelChangedCB(CallBacker*);
 	void			fieldChangedCB(CallBacker*);
 };
-

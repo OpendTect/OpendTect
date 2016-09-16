@@ -127,5 +127,3 @@ protected:
     int				nrdone_;
     bool                        isok_;
 };
-
-

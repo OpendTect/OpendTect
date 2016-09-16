@@ -74,4 +74,3 @@ T& PerThreadObjectRepository<T>::getObject()
 
     return *objects_[idx];
 }
-

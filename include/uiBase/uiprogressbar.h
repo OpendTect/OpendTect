@@ -32,4 +32,3 @@ private:
     uiProgressBarBody*	body_;
     uiProgressBarBody&	mkbody(uiParent*,const char*);
 };
-

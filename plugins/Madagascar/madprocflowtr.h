@@ -48,5 +48,3 @@ public:
     const char*		write(const ODMad::ProcFlow&,Conn&);
 
 };
-
-

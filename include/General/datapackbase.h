@@ -266,4 +266,3 @@ protected:
     BinDataDesc				desc_;
     const Scaler*			scaler_;
 };
-

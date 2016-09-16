@@ -138,5 +138,3 @@ protected:
 
     RayTracer1D::Setup		setup_;
 };
-
-

@@ -47,4 +47,3 @@ protected:
     uiArrowItem*        arrowitem2_;
     uiBorder		extraborder_;
 };
-

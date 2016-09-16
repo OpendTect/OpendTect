@@ -242,5 +242,3 @@ public:
     Attrib::DescID	imagID() const;
 
 };
-
-

@@ -77,5 +77,3 @@ protected:
 					ObjectSet<DataPointSet>&);
     bool		extractAttribData(DataPointSet&,int);
 };
-
-

@@ -114,5 +114,3 @@ protected:
     void		setFldVals(CallBacker*);
     bool		acceptOK();
 };
-
-

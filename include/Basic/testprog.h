@@ -85,5 +85,3 @@ else \
 
 #define mRunStandardTest( test, desc ) \
 	mRunStandardTestWithError( test, desc, BufferString().str() )
-
-

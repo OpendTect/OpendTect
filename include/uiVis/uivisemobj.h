@@ -108,4 +108,3 @@ protected:
     int			resolution_;
     BufferString	coltabnm_;
 };
-

@@ -138,4 +138,3 @@ protected:
     uiSpinBox*		sb_;
     uiLabel*		lbl_;
 };
-

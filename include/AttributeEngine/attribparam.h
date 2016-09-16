@@ -411,5 +411,3 @@ public:
 
 
 }; // namespace Attrib
-
-

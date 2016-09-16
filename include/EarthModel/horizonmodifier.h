@@ -59,5 +59,3 @@ protected:
     ModifyMode			modifymode_;
     bool			topisstatic_;
 };
-
-

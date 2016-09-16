@@ -54,5 +54,3 @@ protected:
     bool		is3d;
 
 };
-
-

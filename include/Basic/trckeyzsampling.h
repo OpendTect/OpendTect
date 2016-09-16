@@ -155,5 +155,3 @@ inline int dimension( TrcKeyZSampling::Dir slctype,
 
 
 typedef TrcKeyZSampling CubeSampling;
-
-

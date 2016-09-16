@@ -47,4 +47,3 @@ protected:
     void		drawVD(const A2DBitMap&,const Geom::Point2D<int>&);
     void		drawWVA(const A2DBitMap&,const Geom::Point2D<int>&);
 };
-

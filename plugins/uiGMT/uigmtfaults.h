@@ -46,4 +46,3 @@ protected:
     uiCheckBox*			usecolorbut_;
     uiColorInput*		colorfld_;
 };
-

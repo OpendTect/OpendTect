@@ -43,5 +43,3 @@ protected:
     void			mouseMoveCB(CallBacker*);
     int				currentdispidx_;
 };
-
-

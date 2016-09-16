@@ -53,5 +53,3 @@ public:
     virtual bool	write(const IOObj&,const PosVecDataSet&);
 
 };
-
-

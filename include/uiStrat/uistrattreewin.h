@@ -106,5 +106,3 @@ public:
     void			changeLayerModelNumber(bool add);
 
 };
-
-

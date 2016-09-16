@@ -161,4 +161,3 @@ protected:
 
     bool		calcTrcDist(const Pos::GeomID);
 };
-

@@ -337,4 +337,3 @@ private:
 };
 
 } // namespace visSurvey
-

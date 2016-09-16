@@ -84,4 +84,3 @@ protected:
     const Geom::Size2D<int>&		bufwrsz_;
     const Geom::Size2D<int>&		availpixels_;
 };
-

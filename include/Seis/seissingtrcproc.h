@@ -128,5 +128,3 @@ protected:
     bool		writeTrc();
     void		prepareNullFilling();
 };
-
-

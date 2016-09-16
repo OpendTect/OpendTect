@@ -137,4 +137,3 @@ public:
     void		addButton(uiButton*);
 			//!<Legacy, use addObject instead
 };
-

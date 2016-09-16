@@ -79,4 +79,3 @@ protected:
     int				coloridx_;
     int				dispidx_;
 };
-

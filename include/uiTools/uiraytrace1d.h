@@ -110,5 +110,3 @@ protected:
     void		selRayTraceCB(CallBacker*);
     void		offsChangedCB(CallBacker*);
 };
-
-

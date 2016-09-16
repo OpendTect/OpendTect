@@ -57,5 +57,3 @@ protected:
     buf_type*		data_;
 
 };
-
-

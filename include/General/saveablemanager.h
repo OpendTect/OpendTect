@@ -164,5 +164,3 @@ typ& typ::getInstance() \
     uiRetVal		store(const typ&,const ObjID&,const IOPar* p=0) const; \
     uiRetVal		save(const typ&) const; \
     bool		needsSave(const typ&) const
-
-

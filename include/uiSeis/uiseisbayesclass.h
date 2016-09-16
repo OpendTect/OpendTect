@@ -56,5 +56,3 @@ protected:
     void		outputDone(CallBacker*);
 
 };
-
-

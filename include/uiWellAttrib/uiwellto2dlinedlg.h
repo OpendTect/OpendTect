@@ -57,4 +57,3 @@ protected:
     void		previewPush(CallBacker*);
 
 };
-

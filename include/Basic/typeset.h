@@ -516,5 +516,3 @@ void TypeSetBase<T,I>::removeSingle( I idx, bool kporder )
 	vec_.remove( lastidx );
     }
 }
-
-

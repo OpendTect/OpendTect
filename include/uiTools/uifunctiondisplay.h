@@ -240,5 +240,3 @@ protected:
 					      const Interval<float>& setuprg,
 					      Interval<float>&) const;
 };
-
-

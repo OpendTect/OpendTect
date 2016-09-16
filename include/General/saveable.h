@@ -69,5 +69,3 @@ private:
     void		objDelCB(CallBacker*);
 
 };
-
-

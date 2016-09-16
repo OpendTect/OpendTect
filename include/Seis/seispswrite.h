@@ -48,5 +48,3 @@ public:
     virtual void	close()				{}
 
 };
-
-

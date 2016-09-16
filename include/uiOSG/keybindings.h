@@ -97,4 +97,3 @@ protected:
 
     osg::ref_ptr<osgGeo::TrackballManipulator> manipulator_;
 };
-

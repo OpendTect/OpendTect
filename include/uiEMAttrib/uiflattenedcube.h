@@ -49,5 +49,3 @@ protected:
 
     friend class	uiWriteFlattenedCubeWriter;
 };
-
-

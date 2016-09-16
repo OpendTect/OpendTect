@@ -344,4 +344,3 @@ void clss::setNewName() \
     nm.add( objnr++ ).add( ">" ); \
     setName( nm ); \
 }
-

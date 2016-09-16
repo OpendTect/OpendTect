@@ -61,5 +61,3 @@ protected:
     BufferString	getFormText(const RockPhysics::Formula&,bool) const;
 
 };
-
-

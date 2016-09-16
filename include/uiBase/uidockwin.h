@@ -55,4 +55,3 @@ protected:
 
     uiParent *		parent_;
 };
-

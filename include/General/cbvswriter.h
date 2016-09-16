@@ -108,5 +108,3 @@ private:
     bool		writeAuxInfo();
 
 };
-
-

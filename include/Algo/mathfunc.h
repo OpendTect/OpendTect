@@ -531,4 +531,3 @@ mYT BendPointBasedMathFunction<mXT,mYT>::interpVal( mXT x ) const
 				     (float) x1, v1,
 				     (float) x2, v2, (float) x );
 }
-

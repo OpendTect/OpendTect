@@ -48,4 +48,3 @@ protected:
     MenuItem		coltabitem_;
     MenuItem		dumpivitem_;
 };
-

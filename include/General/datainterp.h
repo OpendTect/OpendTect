@@ -157,5 +157,3 @@ protected:
     void		swpSwap();
 
 };
-
-

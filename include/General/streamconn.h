@@ -66,5 +66,3 @@ private:
     void		fillCrMsg(od_stream*);
 
 };
-
-

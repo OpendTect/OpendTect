@@ -120,4 +120,3 @@ protected:
 
     void			readyForDisplayCB(CallBacker*);
 };
-

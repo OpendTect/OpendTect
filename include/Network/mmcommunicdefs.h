@@ -40,5 +40,3 @@ Defines for MM job communication status tags and codes
 #define mRSP_WORK	'W'
 #define mRSP_STOP	'S'
 #define mRSP_PAUSE	'P'
-
-

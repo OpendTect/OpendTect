@@ -242,4 +242,3 @@ public:
 #include		"i_uiobjqtbody.h"
 
 };
-

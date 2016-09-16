@@ -87,6 +87,3 @@ protected:
     BufferString	getFileName(const char*) const;
     bool		getLocalFile(const char*,const char*);
 };
-
-
-

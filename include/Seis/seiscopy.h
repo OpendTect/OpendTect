@@ -105,6 +105,3 @@ protected:
     bool			initNextLine();
 
 };
-
-
-

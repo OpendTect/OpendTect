@@ -449,5 +449,3 @@ DataPackRef<T>& DataPackRef<T>::operator=( const DataPackRef<T>& dpr )
     ConstDataPackRef<T>::operator=( dpr );
     return *this;
 }
-
-

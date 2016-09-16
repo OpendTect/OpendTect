@@ -39,5 +39,3 @@ protected:
     void		cleanUp();
 
 };
-
-

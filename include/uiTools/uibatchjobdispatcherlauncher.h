@@ -84,5 +84,3 @@ protected:
     HostDataList			hdl_;
 
 };
-
-

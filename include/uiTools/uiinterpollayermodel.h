@@ -67,4 +67,3 @@ protected:
     uiGenInput*					layermodelfld_;
     ObjectSet<uiInterpolationLayerModelGrp>	grps_;
 };
-

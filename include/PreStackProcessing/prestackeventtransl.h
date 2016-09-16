@@ -74,5 +74,3 @@ public:
     Executor*		createOptimizer(IOObj*) { return 0; }
 
 };
-
-

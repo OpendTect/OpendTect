@@ -133,5 +133,3 @@ protected:
 
 
 mDefineFactory(Algo,WindowFunction,WINFUNCS);
-
-

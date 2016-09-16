@@ -101,4 +101,3 @@ public:
 			// tree or when Scenes-menu overlaps workspace)
     bool		paralyse(bool yn);
 };
-

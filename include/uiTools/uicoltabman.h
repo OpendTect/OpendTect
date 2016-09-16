@@ -102,4 +102,3 @@ private:
     uiString			sKeyEdited();
     uiString			sKeyOwn();
 };
-

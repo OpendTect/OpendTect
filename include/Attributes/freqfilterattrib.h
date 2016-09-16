@@ -98,4 +98,3 @@ protected:
 };
 
 }; // namespace Attrib
-

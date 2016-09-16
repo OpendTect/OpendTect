@@ -47,4 +47,3 @@ protected:
     virtual bool	fillPar();
     virtual bool	acceptOK();
 };
-

@@ -107,5 +107,3 @@ protected:
     void		setProvFromCS();
     void		mkNewProv(bool updsumm=true);
 };
-
-

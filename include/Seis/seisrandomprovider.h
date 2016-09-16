@@ -86,4 +86,3 @@ protected:
     MultiDimStorage<TraceHolder*>	storage_;
     BinID				newtracebid_;
 };
-

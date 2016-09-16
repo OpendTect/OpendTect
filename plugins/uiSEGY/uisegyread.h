@@ -108,5 +108,3 @@ protected:
     CtxtIOObj*		getCtio(bool) const;
 
 };
-
-

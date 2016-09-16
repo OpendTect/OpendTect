@@ -211,5 +211,3 @@ public:
 
     bool		implRemove(const IOObj*) const;
 };
-
-

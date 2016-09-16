@@ -84,4 +84,3 @@ protected:
     void			setSelDahDisplay(CallBacker*);
     void			setSelMarkerCB(CallBacker*);
 };
-

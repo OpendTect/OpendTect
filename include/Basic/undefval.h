@@ -283,5 +283,3 @@ mGlobal(Basic) bool isUdfImpl(double);
 
 //! Use mIsUdf to check for undefinedness of simple types
 # define mIsUdf(val) isUdfImpl(val)
-
-

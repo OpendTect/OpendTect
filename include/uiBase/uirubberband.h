@@ -48,4 +48,3 @@ protected:
 
     void		handleEv(mQtclass(QMouseEvent*),bool);
 };
-

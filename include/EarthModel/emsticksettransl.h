@@ -173,4 +173,3 @@ protected:
 #define mLMK_INTERMED_PT	2
 #define mLMK_END_PT		3
 #define mLMK_CONTROL_PT		4
-

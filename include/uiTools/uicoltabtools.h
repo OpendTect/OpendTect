@@ -32,4 +32,3 @@ protected:
 
     uiRGBArray&			mkRGBArr(bool wa);
 };
-

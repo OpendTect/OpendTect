@@ -92,5 +92,3 @@ mGlobal(Basic) inline bool operator >( const NamedObject& obj1,
 {
     return obj1.getName() > obj2.getName();
 }
-
-

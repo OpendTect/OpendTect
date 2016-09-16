@@ -69,5 +69,3 @@ protected:
 
     void			updateStatus(int);
 };
-
-

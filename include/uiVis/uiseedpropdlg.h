@@ -32,4 +32,3 @@ protected:
     void		colSel(CallBacker*);
     void		updateMarkerStyle();
 };
-

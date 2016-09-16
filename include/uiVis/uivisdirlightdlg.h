@@ -106,4 +106,3 @@ protected:
     TypeSet<InitInfoType>	initinfo_;
 
 };
-

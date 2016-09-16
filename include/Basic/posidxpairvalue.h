@@ -226,5 +226,3 @@ bool IdxPairValues<IPT,FT>::isUdf( bool anyvaludf ) const
 
 
 } // namespace Pos
-
-

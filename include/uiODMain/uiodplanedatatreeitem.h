@@ -166,5 +166,3 @@ protected:
     const char*		parentType() const
 			{ return typeid(uiODZsliceParentTreeItem).name(); }
 };
-
-

@@ -181,5 +181,3 @@ protected:
 
 
 } // namespace SEGY
-
-

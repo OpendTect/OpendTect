@@ -107,5 +107,3 @@ protected:
     void		viewLogPushed(CallBacker*);
 
 };
-
-

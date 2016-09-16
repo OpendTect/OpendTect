@@ -137,4 +137,3 @@ private:
 
 #undef mReturn
 #undef mTryMaxtries
-

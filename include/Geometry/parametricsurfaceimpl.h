@@ -95,5 +95,3 @@ for ( int idx=0; new##variable && idx<curnrrows; idx++ ) \
     } \
 } \
 mReplaceVariable( variable )
-
-

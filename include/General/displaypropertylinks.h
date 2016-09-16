@@ -136,4 +136,3 @@ protected:
 
     ObjectSet<DisplayPropertyHolder>	holders_;
 };
-

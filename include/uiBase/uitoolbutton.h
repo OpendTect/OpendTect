@@ -103,4 +103,3 @@ public:
     uiPushButton*	getPushButton(uiParent*,bool withicon=true) const;
 
 };
-

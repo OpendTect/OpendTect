@@ -88,4 +88,3 @@ protected:
     EM::Horizon2D*		newhor_;
     EM::Hor2DSeisLineIterator*	hor2diterator_;
 };
-

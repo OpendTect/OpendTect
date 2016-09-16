@@ -85,5 +85,3 @@ protected:
     void		enableKnotsCB(CallBacker*);
     VW2DFault*		faultview_;
 };
-
-

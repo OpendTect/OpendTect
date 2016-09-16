@@ -29,5 +29,3 @@ public:
     BufferString	attrnm;
 
 };
-
-

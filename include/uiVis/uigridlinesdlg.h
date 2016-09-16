@@ -41,4 +41,3 @@ protected:
 
     visSurvey::PlaneDataDisplay*	pdd_;
 };
-

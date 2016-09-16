@@ -109,5 +109,3 @@ public:
     static const char*	fullKey(const char*,bool true_is_scale_else_offs);
 
 };
-
-

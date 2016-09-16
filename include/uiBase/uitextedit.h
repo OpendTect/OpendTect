@@ -147,4 +147,3 @@ private:
     uiTextBrowserBody*	body_;
     uiTextBrowserBody&	mkbody(uiParent*,const char*,bool);
 };
-

@@ -43,4 +43,3 @@ protected:
     void		scaleChanged(CallBacker*);
 
 };
-

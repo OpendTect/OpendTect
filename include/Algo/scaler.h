@@ -178,5 +178,3 @@ protected:
 
     double		factor;
 };
-
-

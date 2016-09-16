@@ -28,5 +28,3 @@ namespace Seis
 					//!< Undef *not* supported
 
 } // namespace Seis
-
-

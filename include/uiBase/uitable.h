@@ -365,4 +365,3 @@ public:
     mDeprecated float	getfValue( const RowCol& rc ) const
 			{ return getFValue( rc ); }
 };
-

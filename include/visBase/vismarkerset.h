@@ -147,4 +147,3 @@ protected:
 };
 
 } // namespace visBase
-

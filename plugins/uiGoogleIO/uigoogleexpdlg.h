@@ -32,5 +32,3 @@ class uiFileInput;
     ODGoogle::XMLWriter wrr( typ, fnm, survnm ); \
     if ( !wrr.isOK() ) \
 	{ uiMSG().error(wrr.errMsg()); return false; }
-
-

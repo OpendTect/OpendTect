@@ -52,4 +52,3 @@ protected:
     int                 margin_;
     bool		enabled_;
 };
-

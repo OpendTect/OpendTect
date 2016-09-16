@@ -52,5 +52,3 @@ protected:
 private:
     const uiString	sMinMax();
 };
-
-

@@ -62,4 +62,3 @@ protected:
 
     TrcKeyZSampling	tkzs_;
 };
-

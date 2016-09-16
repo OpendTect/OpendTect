@@ -66,5 +66,3 @@ protected:
     void			handleDisp(CallBacker*);
     bool			acceptOK();
 };
-
-

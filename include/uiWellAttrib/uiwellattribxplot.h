@@ -40,5 +40,3 @@ protected:
 
     bool				acceptOK();
 };
-
-
