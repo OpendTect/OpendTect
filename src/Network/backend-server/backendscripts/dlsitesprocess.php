@@ -175,7 +175,13 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
     $archivetext = '';
     foreach ( $outputarray as $listing )
     {
-	$machash = array_key_exists( 'i', $listing ) ? $listing['i'] : '';
+	$machash = '';
+	//Read machash. If not available, try old variable name.
+	if ( array_key_exists( 'machash', $listing ) )
+	    $machash = $listing['machash'];
+	else if ( array_key_exists( 'i', $listing ) )
+	    $machash = $listing['i'];
+
 	$platform = array_key_exists( 'p', $listing ) ? $listing['p'] : '';
 	$country =  array_key_exists( 'country', $listing ) ? $listing['country'] : '';
 	$nrcpu =  array_key_exists( 'c', $listing ) ? $listing['c'] : "NULL";
