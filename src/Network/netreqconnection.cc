@@ -111,7 +111,7 @@ RequestConnection::~RequestConnection()
     {
 	deleteAndZeroPtr( socket_, ownssocket_ );
     }
-    
+
     if ( sendqueue_.size() )
     {
         pErrMsg("Queue should be empty");
@@ -141,7 +141,7 @@ void RequestConnection::socketThreadFunc( CallBacker* )
     QEventLoop* eventloop = new QEventLoop( socket_->qSocket() );
 
     createReceiverForCurrentThread();
-    
+
 
     //Tell constructor we are up and running!
     eventlooplock_->lock();
@@ -156,7 +156,7 @@ void RequestConnection::socketThreadFunc( CallBacker* )
     //notified
     lock_.lock();
 
-    for ( int idx=0; idx<=sendqueue_.size(); idx++ )
+    for ( int idx=0; idx<sendqueue_.size(); idx++ )
 	sendqueue_[idx]->sendstatus_ = PacketSendData::Failed;
 
     lock_.signal( true );
