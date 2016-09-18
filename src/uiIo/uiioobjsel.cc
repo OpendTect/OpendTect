@@ -515,9 +515,9 @@ void uiIOObjSel::processInput()
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
     const IODir iodir( workctio_.ctxt_.getSelDirID() );
-    PtrMan<IOObj> ioobj =
+    PtrMan<IOObj> obj =
 	iodir.getEntryByName( nm, workctio_.ctxt_.translatorGroupName() );
-    return ioobj;
+    return obj;
 }
 
 
