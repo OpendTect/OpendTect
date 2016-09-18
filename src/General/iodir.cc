@@ -416,42 +416,42 @@ bool IODir::permRemove( const DBKey& ky )
 }
 
 
-bool IODir::commitChanges( const IOObj* ioobj )
+bool IODir::commitChanges( const IOObj* inpioobj )
 {
-    if ( !ioobj )
+    if ( !inpioobj )
 	return true;
 
     mLock4Write();
 
-    if ( ioobj->isSubdir() )
+    if ( inpioobj->isSubdir() )
     {
-	IOObj* obj = const_cast<IOObj*>( gtObj(ioobj->key()) );
-	if ( obj != ioobj )
-	    obj->copyFrom( ioobj );
+	IOObj* obj = const_cast<IOObj*>( gtObj(inpioobj->key()) );
+	if ( obj != inpioobj )
+	    obj->copyFrom( inpioobj );
 	return doWrite();
     }
 
-    IOObj* clone = ioobj->clone();
-    if ( !clone )
+    IOObj* ioobj = inpioobj->clone();
+    if ( !ioobj )
 	return false;
     if ( !doReRead(false) && mIsBad() )
-	{ delete clone; return false; }
+	{ delete ioobj; return false; }
 
     const size_type sz = objs_.size();
     bool found = false;
     for ( size_type idx=0; idx<sz; idx++ )
     {
 	IOObj* obj = objs_[idx];
-	if ( obj->key() == clone->key() )
+	if ( obj->key() == ioobj->key() )
 	{
-	    delete objs_.replace( idx, clone );
+	    delete objs_.replace( idx, ioobj );
 	    found = true;
 	    break;
 	}
     }
 
     if ( !found )
-	objs_ += clone;
+	objs_ += ioobj;
 
     return doWrite();
 }

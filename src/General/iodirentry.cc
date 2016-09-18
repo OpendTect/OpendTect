@@ -59,11 +59,11 @@ void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
     IODirIter iter( iodir );
     while ( iter.next() )
     {
-	const IOObj& ioobj = iter.ioObj();
-	if ( !ioobj.isTmp() && ctxt_.validIOObj(ioobj) )
+	const IOObj& obj = iter.ioObj();
+	if ( !obj.isTmp() && ctxt_.validIOObj(obj) )
 	{
-	    if ( !ge || ge->matches(ioobj.name()) )
-		entries_ += ioobj.clone();
+	    if ( !ge || ge->matches(obj.name()) )
+		entries_ += obj.clone();
 	}
     }
 
@@ -93,9 +93,9 @@ BufferString IODirEntryList::dispName( IdxType idx ) const
     if ( !entries_.validIdx(idx) )
 	return BufferString::empty();
 
-    const IOObj& ioobj = *entries_[idx];
+    const IOObj& obj = *entries_[idx];
     const DBKey dbky = entries_[idx]->key();
-    const BufferString nm( ioobj.name() );
+    const BufferString nm( obj.name() );
     if ( IOObj::isSurveyDefault(dbky) )
 	return BufferString( "> ", nm, " <" );
     else if ( StreamProvider::isPreLoaded(dbky.toString(),true) )
@@ -108,8 +108,8 @@ BufferString IODirEntryList::iconName( IdxType idx ) const
 {
     if ( entries_.validIdx(idx) )
     {
-	const IOObj& ioobj = *entries_[idx];
-	PtrMan<Translator> transl = ioobj.createTranslator();
+	const IOObj& obj = *entries_[idx];
+	PtrMan<Translator> transl = obj.createTranslator();
 	if ( transl )
 	    return BufferString( transl->iconName() );
     }
