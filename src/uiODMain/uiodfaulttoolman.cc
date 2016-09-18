@@ -852,9 +852,9 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 
 	if ( currentColor() || inheritColor() )
 	{
-	    DBKey mid = auxfaultwrite_->getObjSel()->validKey();
+	    DBKey mid = auxfaultwrite_->getObjSel()->getKeyOnly();
 	    if ( !isOutputNameUsed(auxfaultwrite_) )
-		mid = auxfsswrite_->getObjSel()->validKey();
+		mid = auxfsswrite_->getObjSel()->getKeyOnly();
 
 	    if ( mid.isValid() )
 	    {
@@ -1108,7 +1108,7 @@ void uiODFaultToolMan::afterTransferUpdate()
 
 #define mGetDisplayVars( objsel, destmid, curid, sceneid ) \
 \
-    DBKey destmid = objsel->validKey(); \
+    DBKey destmid = objsel->getKeyOnly(); \
 \
     const int curid = curfltd_ ? curfltd_->id() : \
 				 ( curfssd_ ? curfssd_->id() : -1 ); \

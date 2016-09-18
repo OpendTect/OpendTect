@@ -338,7 +338,7 @@ bool uiSEGYReadFinisher::doVSP()
     const bool ismd = idom == 2;
     const bool inft = isdpth && isfeetfld_->isChecked();
 
-    const DBKey& wllkey( wllioobj->key() );
+    const DBKey wllkey( wllioobj->key() );
     const bool wasloaded = Well::MGR().isLoaded( wllkey );
     RefMan<Well::Data> wd = Well::MGR().get( wllkey );
     if ( !wd )

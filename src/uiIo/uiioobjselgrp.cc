@@ -162,8 +162,7 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     mkTopFlds( seltxt );
     if ( !ctio_.ctxt_.forread_ )
 	mkWriteFlds();
-    if ( ctio_.ctxt_.maydooper_ )
-	mkManipulators();
+    mkManipulators();
 
     setHAlignObj( topgrp_ );
     postFinalise().notify( mCB(this,uiIOObjSelGrp,setInitial) );
@@ -568,63 +567,37 @@ void uiIOObjSelGrp::fullUpdate( const DBKey& ky )
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
-    const IODir iodir ( ctio_.ctxt_.getSelDirID() );
-    IODirEntryList del( iodir, ctio_.ctxt_ );
-    BufferString nmflt = filtfld_->text();
-    if ( !nmflt.isEmpty() && nmflt != "*" )
-	del.fill( iodir, nmflt );
 
     mDefineStaticLocalObject( const bool, icsel_,
 			      = Settings::common().isTrue("Ui.Icons.ObjSel") );
     ioobjnms_.setEmpty(); dispnms_.setEmpty(); iconnms_.setEmpty();
     ioobjids_.setEmpty();
-    for ( int idx=0; idx<del.size(); idx++ )
+
+    IODirEntryList entrylist( ctio_.ctxt_ );
+    entrylist.fill( IODir(ctio_.ctxt_.getSelDirID()), filtfld_->text() );
+
+    for ( int idx=0; idx<entrylist.size(); idx++ )
     {
-	const IOObj* ioobj = del[idx]->ioobj_;
+	const IOObj& ioobj = entrylist.ioobj( idx );
+	const DBKey objid( ioobj.key() );
 
-	// 'uiIOObjEntryInfo'
-	BufferString dispnm( del[idx]->name() );
-	BufferString ioobjnm;
-	DBKey objid( DBKey::getInvalid() );
-	const char* icnm = 0;
-
-	if ( !ioobj )
-	    ioobjnm = dispnm;
-	else
+	if ( curidx < 0 )
 	{
-	    objid = del[idx]->ioobj_->key();
 	    const bool issel = ctio_.ioobj_ && ctio_.ioobj_->key() == objid;
-	    const bool isdef = IOObj::isSurveyDefault( objid );
-	    const bool ispl = StreamProvider::isPreLoaded( objid.toString(),
-							    true );
-
-	    ioobjnm = ioobj->name();
-	    dispnm.setEmpty();
-	    if ( isdef ) dispnm += "> ";
-	    if ( ispl ) dispnm += "/ ";
-	    dispnm += ioobj->name();
-	    if ( ispl ) dispnm += " \\";
-	    if ( isdef ) dispnm += " <";
-
-	    if ( curidx < 0 )
-	    {
-		if ( issel || (isdef && !ctio_.ioobj_ && ctio_.ctxt_.forread_) )
+	    if ( issel )
 		curidx = idx;
-	    }
-
-	    if ( icsel_ )
+	    else if ( !ctio_.ioobj_ && ctio_.ctxt_.forread_ )
 	    {
-		PtrMan<Translator> transl = ioobj->createTranslator();
-		if ( transl )
-		    icnm = transl->iconName();
+		if ( IOObj::isSurveyDefault(objid) )
+		    curidx = idx;
 	    }
 	}
 
 	ioobjids_.add( objid );
-	ioobjnms_.add( ioobjnm );
-	dispnms_.add( dispnm );
+	ioobjnms_.add( ioobj.name() );
+	dispnms_.add( entrylist.dispName(idx) );
 	if ( icsel_ )
-	    iconnms_ += icnm;
+	    iconnms_.add( entrylist.iconName(idx) );
     }
 
     fillListBox();
@@ -642,8 +615,9 @@ void uiIOObjSelGrp::fillListBox()
     listfld_->addItems( dispnms_ );
     for ( int idx=0; idx<iconnms_.size(); idx++ )
     {
-	const char* icnm = iconnms_[idx];
-	if ( !icnm ) icnm = "empty";
+	BufferString icnm = iconnms_[idx];
+	if ( icnm.isEmpty() )
+	    icnm = "empty";
 	listfld_->setIcon( idx, icnm );
     }
 

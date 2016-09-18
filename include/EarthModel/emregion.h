@@ -137,8 +137,8 @@ public:
 
     const char*		type() const;
     void		setKey(const DBKey&);
-    const DBKey&	key() const		{ return key_; }
-    bool		hasName() const			{ return true; }
+    DBKey		key() const		{ return key_; }
+    bool		hasName() const		{ return true; }
     bool		init(TaskRunner*);
     void		getSideStrs(uiStringSet&) const;
     bool		onRightSide(const TrcKey&,float z) const;
@@ -147,8 +147,10 @@ public:
     bool		usePar(const IOPar&);
 
 protected:
+
     DBKey		key_;
     EM::Horizon3D*	hor_;
+
 };
 
 
@@ -160,8 +162,8 @@ public:
 
     const char*		type() const;
     void		setKey(const DBKey&);
-    const DBKey&	key() const		{ return key_; }
-    bool		hasName() const			{ return true; }
+    DBKey		key() const		{ return key_; }
+    bool		hasName() const		{ return true; }
     bool		init(TaskRunner*);
     void		getSideStrs(uiStringSet&) const;
     bool		onRightSide(const TrcKey&,float z) const;
@@ -170,6 +172,7 @@ public:
     bool		usePar(const IOPar&);
 
 protected:
+
     DBKey			key_;
     const EM::Fault*		flt_;
     FaultTrcDataProvider&	prov_;
@@ -185,8 +188,8 @@ public:
 
     const char*		type() const;
     void		setKey(const DBKey&);
-    const DBKey&	key() const		{ return key_; }
-    bool		hasName() const			{ return true; }
+    DBKey		key() const		{ return key_; }
+    bool		hasName() const		{ return true; }
     void		getSideStrs(uiStringSet&) const;
     bool		onRightSide(const TrcKey&,float z) const;
 

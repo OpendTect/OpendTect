@@ -12,10 +12,10 @@ ________________________________________________________________________
 
 
 #include "generalmod.h"
-
+#include "sharedobject.h"
+#include "monitoriter.h"
 #include "dbkey.h"
 #include "objectset.h"
-#include "namedobj.h"
 #include "od_iosfwd.h"
 #include "threadlock.h"
 #include "uistring.h"
@@ -34,37 +34,39 @@ the service access point.
 */
 
 
-mExpClass(General) IODir : public NamedObject
+mExpClass(General) IODir : public SharedObject
 { mODTextTranslationClass(IODir);
 public:
 
     typedef ObjectSet<IOObj>::size_type	size_type;
+    typedef size_type			IdxType;
     typedef DBKey::ObjNrType		ObjNrType;
-    typedef DBKey::GroupID		DirID;
+    typedef DBKey::DirID		DirID;
+    typedef DBKey::ObjID		ObjID;
 
-			IODir(const char*);
+			IODir(const char* dirname);
 			IODir(DirID);
 			IODir(IOObjContext::StdSelType);
-			IODir(const IODir&);
 			~IODir();
-    IODir&		operator =(const IODir&);
+			mDeclMonitorableAssignment(IODir);
 
     bool		isBad() const;
+    bool		isOutdated() const;
     DirID		dirID() const		{ return dirid_; }
     const char*		dirName() const		{ return dirname_; }
-    const IOObj*	main() const;
+    od_int64		readTime() const	{ return readtime_; }
 
     size_type		size() const;
-    size_type		isEmpty() const		{ return size() < 1; }
-    const IOObj*	getByIdx(size_type) const;
-    const ObjectSet<IOObj>& getObjs() const	{ return objs_; }
-			//!< Use only when MT is not an issue
+    bool		isEmpty() const		{ return size() < 1; }
 
     bool		isPresent(const DBKey&) const;
-    size_type		indexOf(const DBKey&) const;
-    const IOObj*	get(const DBKey&) const;
-    const IOObj*	getByName(const char* nm,const char* trgrpnm=0) const;
-				//!< Without trgrpnm, just returns first
+    IdxType		indexOf(const DBKey&) const;
+
+
+    IOObj*		getEntry(const DBKey&) const;
+    IOObj*		getEntryByName(const char* nm,
+					const char* trgrpnm=0) const;
+    IOObj*		getEntryByIdx(IdxType) const;
 
     bool		commitChanges(const IOObj*);
     bool		permRemove(const DBKey&);
@@ -72,7 +74,7 @@ public:
 
     static DBKey	getNewTmpKey(const IOObjContext&);
     static IOObj*	getObj(const DBKey&,uiString& errmsg);
-    static IOObj*	getMain(const char*,uiString& errmsg);
+    // static IOObj*	getMain(const char*,uiString& errmsg);
     DBKey		newTmpKey() const;
 
     uiString		errMsg() const		{ return errmsg_; }
@@ -83,6 +85,7 @@ private:
     ObjectSet<IOObj>	objs_;
     const DirID		dirid_;
     const BufferString	dirname_;
+    od_int64		readtime_;
     mutable ObjNrType	curnr_;
     mutable ObjNrType	curtmpnr_;
     mutable uiString	errmsg_;
@@ -91,28 +94,31 @@ private:
 			IODir();
 
 			// No locks, lock if necessary
-    void		doReRead();
+    bool		doReRead(bool force=false);
     static IOObj*	doRead(const char*,IODir*,uiString& errmsg,ObjNrType,
 				bool incoldtmps=false);
     static IOObj*	readOmf(od_istream&,const char*,IODir*,ObjNrType,bool);
-
-    static void		setDirName(IOObj&,const char*);
+    static void		setDirNameFor(IOObj&,const char*);
 
     void		init(DirID,bool);
     bool		build(bool);
     bool		doAddObj(IOObj*,bool);
     bool		doWrite() const;
     bool		wrOmf(od_ostream&) const;
-    const IOObj*	doGet(const DBKey&) const;
-    const IOObj*	doGet(const char*,const char*) const;
-    size_type		gtIdxOf(const DBKey&) const;
+    const IOObj*	gtObj(const DBKey&) const;
+    const IOObj*	gtObjByName(const char*,const char*) const;
+    IdxType		gtIdxOf(const DBKey&) const;
+    bool		gtIsOutdated() const;
     bool		doEnsureUniqueName(IOObj&) const;
+    const IOObj*	main() const;
 
     DBKey		gtNewKey(const ObjNrType&) const;
     DBKey		newKey() const;		//!< locked, as it's 'public'
 
     friend class	IOMan;
     friend class	IOObj;
+    friend class	IODirIter;
+    friend class	IODirEntryList;
 
 public:
 
@@ -132,3 +138,23 @@ public:
 };
 
 
+
+mExpClass(General) IODirIter : public MonitorableIter< IODir::size_type >
+{
+public:
+
+			IODirIter(const IODir&);
+			IODirIter(const IODirIter&);
+
+    virtual size_type	size() const	    { return ioDir().size(); }
+    const IODir&	ioDir() const;
+
+    const IOObj&	ioObj() const;
+    DBKey		key() const;
+
+private:
+
+    IODirIter&		operator =(const IODirIter&);
+
+
+};

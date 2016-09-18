@@ -1259,7 +1259,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     {
         uiSingleGroupDlg<uiArray2DInterpolSel> dlg( parent(),
                 new uiArray2DInterpolSel( 0, false, false, true, 0 ) );
-        
+
         dlg.setCaption( uiStrings::sInterpolation() );
         dlg.setTitleText( uiStrings::sSettings() );
 
@@ -1481,13 +1481,12 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
     FixedString groupstr = is2d
 	? EMHorizon2DTranslatorGroup::sGroupName()
 	: EMHorizon3DTranslatorGroup::sGroupName();
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    IODirIter iter( iodir );
+    while ( iter.next() )
     {
-	const IOObj* ioobj = ioobjs[idx];
-	if ( ioobj->translator() != "dGB" ) continue;
-	if ( ioobj->group() == groupstr  )
-	    hinfos += new SurfaceInfo( ioobj->name(), ioobj->key() );
+	const IOObj& ioobj = iter.ioObj();
+	if ( ioobj.group() == groupstr )
+	    hinfos += new SurfaceInfo( ioobj.name(), ioobj.key() );
     }
 }
 

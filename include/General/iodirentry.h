@@ -9,64 +9,51 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "generalmod.h"
 #include "dbkey.h"
-#include "namedobj.h"
 #include "objectset.h"
 class IOObj;
 class IODir;
 class IOObjContext;
 class TranslatorGroup;
 
-/*!\brief needed for manipulation. Used by user interface IOObj management. */
 
-mExpClass(General) IODirEntry : public NamedObject
+/*!\brief list of IODir entries, sorted by name, conforming to a context.
+    Can be Filtered using GlobExpr. */
+
+mExpClass(General) IODirEntryList
 {
 public:
-			IODirEntry(const IOObj*);
-    const IOObj*	ioobj_;
-};
 
+    typedef ObjectSet<IOObj>::size_type	size_type;
+    typedef size_type			IdxType;
 
-/*!\brief list of dir entries. */
-
-mExpClass(General) IODirEntryList : public ObjectSet<IODirEntry>
-{
-public:
+			IODirEntryList(const IOObjContext&);
+					//!< empty; needs to be filled
 			IODirEntryList(const IODir&,const IOObjContext&);
-			//!<IODir is expected to remain alive
 			IODirEntryList(const IODir&,const TranslatorGroup*,
-					bool maychgdir,
 					const char* translator_globexpr=0);
-			//!<IODir is expected to remain alive
 			~IODirEntryList();
     const char*		name() const	{ return name_; }
+    size_type		size() const	{ return entries_.size(); }
+    bool		isEmpty() const	{ return entries_.isEmpty(); }
 
     void		fill(const IODir&,const char* nmfiltglobexpr=0);
-			//!<IODir is expected to remain alive
-    void		setSelected(const DBKey&);
-    void		sort();
-    void		setCurrent( int idx )	{ cur_ = idx; }
-    const IODirEntry*	current() const	
-    			{ return cur_ < 0 || cur_ >= size() ? 0
-			    	: (*(IODirEntryList*)this)[cur_]; }
-    const IOObj*	selected() const
-			{ return current() ? current()->ioobj_ : 0 ; }
-    void		removeWithTranslator(const char*);
-    int			indexOf(const char*) const;
-    int			indexOf( const IODirEntry* e ) const
-			{ return ObjectSet<IODirEntry>::indexOf(e); }
+    IdxType		indexOf(const char*) const;
 
-    DBKey		lastiokey;
-    IOObjContext&	ctxt;
+    const IOObj&	ioobj( IdxType idx ) const { return *entries_[idx]; }
+    DBKey		key(IdxType) const;
+    BufferString	name(IdxType) const;
+    BufferString	dispName(IdxType) const;
+    BufferString	iconName(IdxType) const;
 
 protected:
 
-    int			cur_;
-    bool		maycd_;
+    ObjectSet<IOObj>	entries_;
+    IOObjContext&	ctxt_;
     BufferString	name_;
 
+    void		sort();
+
 };
-
-

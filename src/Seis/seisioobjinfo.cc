@@ -583,10 +583,10 @@ bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 {
     const char* linenm = Survey::GM().getName( geomid );
     const IODir iodir( IOObjContext::Seis );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    IODirIter iter( iodir );
+    while ( iter.next() )
     {
-	const IOObj& ioobj = *ioobjs[idx];
+	const IOObj& ioobj = iter.ioObj();
 	if ( SeisTrcTranslator::isPS(ioobj) )
 	{
 	    BufferStringSet linenames;
@@ -626,28 +626,26 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
     const IODirEntryList del( iodir, ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	const IOObj* ioobj = del[idx]->ioobj_;
-	if ( !ioobj )
-	    continue;
+	const IOObj& ioobj = del.ioobj( idx );
 
 	if ( !o2d.zdomky_.isEmpty() )
 	{
-	    const FixedString zdomkey = ioobj->pars().find( ZDomain::sKey() );
+	    const FixedString zdomkey = ioobj.pars().find( ZDomain::sKey() );
 	    if ( o2d.zdomky_ != zdomkey )
 		continue;
 	}
 
 	if ( o2d.steerpol_ != 2 )
 	{
-	    const FixedString dt = ioobj->pars().find( sKey::Type() );
+	    const FixedString dt = ioobj.pars().find( sKey::Type() );
 	    const bool issteering = dt==sKey::Steering();
 	    const bool wantsteering = o2d.steerpol_ == 1;
 	    if ( issteering != wantsteering ) continue;
 	}
 
-	Seis2DDataSet ds( *ioobj );
+	Seis2DDataSet ds( ioobj );
 	if ( ds.isPresent(geomid) )
-	    datasets.add( ioobj->name() );
+	    datasets.add( ioobj.name() );
     }
 }
 
@@ -675,10 +673,10 @@ void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
     BoolTypeSet hasdata( gids.size(), false );
 
     const IODir iodir( IOObjContext::Seis );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    IODirIter iter( iodir );
+    while ( iter.next() )
     {
-	const IOObj& ioobj = *ioobjs[idx];
+	const IOObj& ioobj = iter.ioObj();
 	TypeSet<Pos::GeomID> dsgids;
 	if ( SeisTrcTranslator::isPS(ioobj) )
 	    SPSIOPF().getGeomIDs( ioobj, dsgids );

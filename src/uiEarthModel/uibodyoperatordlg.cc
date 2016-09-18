@@ -505,7 +505,7 @@ const IOObj* uiImplicitBodyValueSwitchDlg::getIfMCSurfaceObj() const
     const char* inpstr = inputfld_->getInput();
     const CtxtIOObj workctio = mIOObjContext( EMBody );
     const IODir iodir( workctio.ctxt_.getSelDirID() );
-    const IOObj* inpiobj = iodir.getByName( inpstr );
+    PtrMan<IOObj> inpiobj = iodir.getEntryByName( inpstr );
     if ( !inpiobj )
 	return 0;
 
@@ -513,5 +513,5 @@ const IOObj* uiImplicitBodyValueSwitchDlg::getIfMCSurfaceObj() const
     if ( res == mObjSelUnrelated )
 	return 0;
 
-    return inpiobj->clone();
+    return inpiobj.release();
 }

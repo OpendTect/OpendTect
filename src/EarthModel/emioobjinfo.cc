@@ -345,11 +345,12 @@ IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, DBKeySet& ids )
 {
     const IODir iodir( IOObjContext::Surf );
-    for ( int idx=0; idx<iodir.size(); idx++ )
+    IODirIter iter( iodir );
+    while ( iter.next() )
     {
-	const IOObj* ioobj = iodir.getByIdx( idx );
-	if ( objectTypeOfIOObjGroup(ioobj->group()) == reqtyp )
-	    ids += ioobj->key();
+	const IOObj& ioobj = iter.ioObj();
+	if ( objectTypeOfIOObjGroup(ioobj.group()) == reqtyp )
+	    ids += ioobj.key();
     }
 }
 

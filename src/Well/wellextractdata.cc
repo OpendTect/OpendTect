@@ -97,8 +97,7 @@ int Well::InfoCollector::nextStep()
     if ( curidx_ >= totalnr_ )
 	return Finished();
 
-    const IOObj* ioobj = (*direntries_)[curidx_]->ioobj_;
-    const DBKey wky( ioobj->key() );
+    const DBKey wky( direntries_->key(curidx_) );
     const bool isloaded = Well::MGR().isLoaded( wky );
 
     BufferStringSet lognms;

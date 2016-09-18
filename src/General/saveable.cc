@@ -319,8 +319,7 @@ IOObj* SaveableManager::getIOObj( const char* nm ) const
 	return 0;
 
     IODir iodir( ctxt_.getSelDirID() );
-    const IOObj* ioobj = iodir.getByName( nm, ctxt_.translatorGroupName() );
-    return ioobj ? ioobj->clone() : 0;
+    return iodir.getEntryByName( nm, ctxt_.translatorGroupName() );
 }
 
 

@@ -143,7 +143,7 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
 
     const DBKey saverkey( saver_->key() );
     const IODir iodir( saverkey.dirID() );
-    const IOObj* orgioobj = iodir.get( saverkey );
+    PtrMan<IOObj> orgioobj = iodir.getEntry( saverkey );
     if ( !orgioobj )
 	return 0;
 

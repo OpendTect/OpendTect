@@ -978,7 +978,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
-    const DBKey& dbkey = objinfo.ioObj()->key();
+    const DBKey dbkey = objinfo.ioObj()->key();
     //First time to ensure all components are available
     Attrib::DescID attribid = attrserv->getStoredID( dbkey, true );
 

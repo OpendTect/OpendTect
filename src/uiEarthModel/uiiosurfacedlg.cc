@@ -277,7 +277,7 @@ bool uiCopySurface::acceptOK()
 	outsdsel.rg = rp3d->sampling().hsamp_;
 
     IOObj* newioobj = outfld->ctxtIOObj().ioobj_;
-    const DBKey& mid = newioobj->key();
+    const DBKey mid = newioobj->key();
     emobj->setDBKey( mid );
     PtrMan<Executor> saver = surface->geometry().saver( &outsdsel, &mid );
     if ( !saver ) mErrRet(uiStrings::phrCannotSave(uiStrings::sSurface()))

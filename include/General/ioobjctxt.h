@@ -75,13 +75,11 @@ public:
     //! intrinsics
     StdSelType		stdseltype_;
     const TranslatorGroup* trgroup_;	//!< Mandatory, must never be 0
-    int			newonlevel_;	//!< level 0 is survey dir
     bool		multi_;		//!< If true, multi allowed
 
     //! this selection only
     bool		forread_;
     DBDirID		dirid_;		//!< If set, overrules the 'standard'
-    bool		maydooper_;	//!< Will we allow add/remove etc?
     BufferString	deftransl_;	//!< Translator to use for new entry
     IOObjSelConstraints toselect_;
 
@@ -116,10 +114,8 @@ public:
 
     mDeprecated StdSelType&		stdseltype;
     mDeprecated const TranslatorGroup*& trgroup;
-    mDeprecated int&			newonlevel;
     mDeprecated bool&			multi;
     mDeprecated bool&			forread;
-    mDeprecated bool&			maydooper;
     mDeprecated BufferString&		deftransl;
     mDeprecated IOObjSelConstraints&	toselect;
     mDeprecated DBDirID			getSelKey() const

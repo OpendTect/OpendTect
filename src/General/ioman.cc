@@ -112,7 +112,7 @@ void IOMan::init()
 	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
 	const IOObjContext::StdDirData* dd
 			    = IOObjContext::getStdDirData( stdseltyp );
-	const IOObj* dirioobj = dirptr_->get( DBKey(dd->id_) );
+	PtrMan<IOObj> dirioobj = dirptr_->getEntry( DBKey(dd->id_) );
 	if ( dirioobj )
 	{
 	    if ( needsurvtype && stdseltyp == IOObjContext::Seis )
@@ -122,9 +122,10 @@ void IOMan::init()
 		const BufferString seisstr( "Seismic Data" );
 		const BufferString tr2dstr( "2D" );
 		const BufferString trsegystr( "SEG-Y" );
-		for ( int iobj=0; iobj<seisiodir.size(); iobj++ )
+		IODirIter iter( seisiodir );
+		while ( iter.next() )
 		{
-		    const IOObj& subioobj = *seisiodir.getByIdx( iobj );
+		    const IOObj& subioobj = iter.ioObj();
 		    if ( seisstr != subioobj.group() ||
 			 trsegystr == subioobj.translator() ) continue;
 
@@ -188,10 +189,10 @@ void IOMan::init()
 	IOSubDir* iosd = new IOSubDir( dd->dirnm_ );
 	iosd->key_ = dd->id_;
 	iosd->dirnm_ = rootdir_;
-	const IOObj* previoobj = prevdd
-			       ? dirptr_->get( DBKey(prevdd->id_) )
-			       : dirptr_->main();
-	int idxof = dirptr_->objs_.indexOf( (IOObj*)previoobj );
+	PtrMan<IOObj> previoobj = prevdd
+			       ? dirptr_->getEntry( DBKey(prevdd->id_) )
+			       : dirptr_->getEntryByIdx( 0 );
+	int idxof = dirptr_->indexOf( previoobj->key() );
 	dirptr_->objs_.insertAfter( iosd, idxof );
 
 	prevdd = dd;
@@ -591,22 +592,24 @@ IOObj* IOMan::getOfGroup( const char* tgname, bool first,
     if ( gtIsBad() || !tgname || !dirptr_ )
 	return 0;
 
-    const IOObj* ioobj = 0;
-    for ( int idx=0; idx<dirptr_->size(); idx++ )
+    IOObj* ioobj = 0;
+    IODirIter iter( *dirptr_ );
+    while ( iter.next() )
     {
-	if ( dirptr_->getByIdx(idx)->group() == tgname )
+	const IOObj& curioobj = iter.ioObj();
+	if ( curioobj.group() == tgname )
 	{
 	    if ( onlyifsingle && ioobj )
-		return 0;
+		{ delete ioobj; return 0; }
 
-	    ioobj = dirptr_->getByIdx( idx );
+	    ioobj = curioobj.clone();
 	    if ( first && !onlyifsingle )
 		break;
 	}
     }
     mUnlockAllAccess();
 
-    return ioobj ? ioobj->clone() : 0;
+    return ioobj;
 }
 
 
@@ -626,11 +629,7 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
 
     mLock4Read();
     if ( dirptr_ )
-    {
-	const IOObj* ioobj = dirptr_->getByName( objname, trgrpnm );
-	if ( ioobj )
-	    return ioobj->clone();
-    }
+	return dirptr_->getEntryByName( objname, trgrpnm );
     mUnlockAllAccess();
 
     if ( DBKey::isValidString(objname) )
@@ -651,15 +650,15 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
     if ( !mGoTo(ctxt.getSelDirID(),false) || !dirptr_ )
 	return 0;
 
-    const ObjectSet<IOObj>& ioobjs = dirptr_->getObjs();
     IOObj* ret = 0;
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    IODirIter iter( *dirptr_ );
+    while ( iter.next() )
     {
-	const IOObj* ioobj = ioobjs[idx];
-	if ( ctxt.validIOObj(*ioobj) )
+	const IOObj& ioobj = iter.ioObj();
+	if ( ctxt.validIOObj(ioobj) )
 	{
 	    if ( !ret )
-		ret = ioobj->clone();
+		ret = ioobj.clone();
 	    if ( nrfound )
 		(*nrfound)++;
 	    else
@@ -700,7 +699,7 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 		return 0;
 	    if ( !dirptr_ )
 		return 0;
-	    const IOObj* ioob = dirptr_->getByName( res.buf(), 0 );
+	    PtrMan<IOObj> ioob = dirptr_->getEntryByName( res.buf(), 0 );
 	    mUnlockAllAccess();
 	    if ( ioob )
 		res = ioob->key().toString();
@@ -804,9 +803,9 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
     if ( !mGoTo(ctio.ctxt_.getSelDirID(),false) || !dirptr_ )
 	return;
 
-    const IOObj* ioobj = dirptr_->getByName( ctio.ctxt_.name(),
-					ctio.ctxt_.translatorGroupName() );
     ctio.ctxt_.fillTrGroup();
+    PtrMan<IOObj> ioobj = dirptr_->getEntryByName( ctio.ctxt_.name(),
+					ctio.ctxt_.translatorGroupName() );
     if ( ioobj && ctio.ctxt_.translatorGroupName() != ioobj->group() )
 	ioobj = 0;
 
@@ -823,12 +822,12 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 	}
     }
 
-    ctio.setObj( ioobj ? ioobj->clone() : 0 );
+    ctio.setObj( ioobj.release() );
 
     if ( needstrigger )
     {
 	mSendChgNotif( cEntryAddedChangeType(), -1 );
-	entryAdded.trigger( ioobj->key() );
+	entryAdded.trigger( ctio.ioobj_->key() );
     }
 }
 
@@ -896,11 +895,9 @@ IOObj* IOMan::getByName( const char* objname, const char* tgname ) const
 	if ( iodir.isBad() )
 	    continue;
 
-	const IOObj* res = iodir.getByName( objname, tgname );
-	if ( !res )
-	    continue;
-
-	return res->clone();
+	IOObj* res = iodir.getEntryByName( objname, tgname );
+	if ( res )
+	    return res;
     }
 
     return 0;
@@ -1017,7 +1014,7 @@ bool SurveyDataTreePreparer::prepSurv()
 
     MonitorLock ml( IOM() );
     IODir* topdir = IOM().dirptr_;
-    if ( !topdir || !topdir->main() || topdir->main()->name() == "Appl dir" )
+    if ( !topdir || topdir->name() != "Appl dir" )
 	return true;
 
     if ( !createDataTree() )

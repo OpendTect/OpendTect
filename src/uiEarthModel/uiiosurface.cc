@@ -64,7 +64,7 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
     else if ( typ == EMFault3DTranslatorGroup::sGroupName() )
 	ctio_ = mMkCtxtIOObj(EMFault3D);
     else
-	ctio_ = new CtxtIOObj( EMBodyTranslatorGroup::ioContext() );
+	ctio_ = mMkCtxtIOObj(EMBody);
 
     postFinalise().notify( mCB(this,uiIOSurface,objSel) );
 }
@@ -629,16 +629,15 @@ public:
 	: uiDialog(p,uiDialog::Setup(tr("FaultStickSet selection"),
 		    tr("Available for 2D lines"),mNoHelpKey))
     {
-	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMFaultStickSet);
-	const IODir iodir( ctio->ctxt_.getSelDirID() );
-	const IODirEntryList entlst( iodir, ctio->ctxt_ );
+	IOObjContext ctxt = mIOObjContext(EMFaultStickSet);
+	const IODir iodir( ctxt.getSelDirID() );
+	const IODirEntryList entlst( iodir, ctxt );
 
 	for ( int idx=0; idx<entlst.size(); idx++ )
 	{
-	    const IOObj* obj = entlst[idx]->ioobj_;
-	    if ( !obj ) continue;
+	    const IOObj& obj = entlst.ioobj( idx );
 
-	    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(obj->key());
+	    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(obj.key());
 	    mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
 	    if ( !fss ) continue;
 
@@ -668,7 +667,7 @@ public:
 	    if ( fssvalid )
 	    {
 		validfss_.add( fss->name() );
-		validmids_ += obj->key();
+		validmids_ += obj.key();
 	    }
 	}
 

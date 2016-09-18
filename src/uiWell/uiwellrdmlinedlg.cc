@@ -208,16 +208,14 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 
 void uiWellSelGrp::fillListBox()
 {
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    ctio->ctxt_.forread_ = true;
-    const IODir iodir ( ctio->ctxt_.getSelDirID() );
-    IODirEntryList entrylist( iodir, ctio->ctxt_ );
-
+    IOObjContext ctxt( mIOObjContext( Well ) );
+    ctxt.forread_ = true;
+    const IODir iodir ( ctxt.getSelDirID() );
+    IODirEntryList entrylist( iodir, ctxt );
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
-	entrylist.setCurrent( idx );
-	allwellsids_ += entrylist.selected()->key();
-	allwellsnames_.add( entrylist[idx]->name() );
+	allwellsids_.add( entrylist.key(idx) );
+	allwellsnames_.add( entrylist.name(idx) );
     }
 
     wellsbox_->addItems( allwellsnames_ );

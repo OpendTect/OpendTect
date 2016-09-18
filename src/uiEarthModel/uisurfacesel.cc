@@ -49,11 +49,12 @@ void uiSurfaceSel::getFullList()
     listfld_->setEmpty();
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	const IOObj* ioobj = del[idx]->ioobj_;
-	if ( !ioobj || !ioobj->implExists(true) ) continue;
-
-	mids_ += ioobj->key();
-	names_.add( ioobj->name() );
+	const IOObj& ioobj = del.ioobj( idx );
+	if ( ioobj.implExists(true) )
+	{
+	    mids_ += ioobj.key();
+	    names_.add( del.dispName(idx) );
+	}
     }
 
     listfld_->addItems( names_ );

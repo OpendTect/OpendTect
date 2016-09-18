@@ -36,8 +36,12 @@ namespace Time
     };
 
 
-    mGlobal(Basic) int getMilliSeconds();          //!< From day start
+    mGlobal(Basic) int getMilliSeconds();
+				//!< From day start.
     mGlobal(Basic) int passedSince(int);
+				//!< ... since the getMilliSeconds() before.
+    mGlobal(Basic) od_int64 getFileTimeInSeconds();
+				//!< Can be compared to File::getTimeInSeconds()
 
 
     mGlobal(Basic) const char*	defDateTimeFmt();
@@ -52,7 +56,7 @@ namespace Time
 					      bool local=true);
 
     mGlobal(Basic) bool isEarlier(const char* first, const char* second,
-	    		   const char* fmt=defDateTimeFmt());
+			   const char* fmt=defDateTimeFmt());
 			/*! returns true if the first DateTime string is
 			  earlier than the second */
 

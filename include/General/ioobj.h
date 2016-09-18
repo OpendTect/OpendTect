@@ -29,7 +29,8 @@ class Translator;
 mExpClass(General) IOObjProducer
 {
 public:
-virtual		~IOObjProducer()		{}
+
+    virtual		~IOObjProducer()		{}
     virtual bool	canMake(const char*) const	= 0;
     virtual IOObj*	make(const char*,const DBKey&,
 			     bool fill_defs) const	= 0;
@@ -64,7 +65,7 @@ public:
     uiString			uiName() const { return toUiString(name()); }
 
     IOObj*			clone() const;
-    virtual const DBKey&	key() const		{ return key_; }
+    virtual DBKey		key() const		{ return key_; }
     virtual ObjID		objID() const		{ return key_.objID();}
 
     virtual			~IOObj();
@@ -119,6 +120,8 @@ public:
     bool			isUserSelectable(bool forread=true) const;
     bool			isInCurrentSurvey() const;
 
+    inline bool			isInvalid() const   { return key().isInvalid();}
+    static const IOObj&		getInvalid();
     static inline ObjNrType	tmpObjNrStart()     { return 999999; }
     static inline bool		isTmpObjNr( ObjNrType nr )
 				{ return nr >= tmpObjNrStart(); }

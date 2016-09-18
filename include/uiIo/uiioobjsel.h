@@ -86,7 +86,7 @@ public:
 					//!< returns false is typed input is
 					//!< not an existing IOObj name
 
-    virtual DBKey	validKey() const; //!< no side-effects
+    virtual DBKey	getKeyOnly() const; //!< no side-effects
     virtual uiObject*	endObj(bool left);
 
     static IOObjContext	getWriteIOObjCtxt(IOObjContext);

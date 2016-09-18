@@ -81,6 +81,16 @@ int passedSince( int timestamp )
 }
 
 
+od_int64 getFileTimeInSeconds()
+{
+#ifndef OD_NO_QT
+    return QDateTime::currentDateTime().toTime_t();
+#else
+    return mUdf(od_int64);
+#endif
+}
+
+
 const char* defDateTimeFmt()	{ return "ddd dd MMM yyyy, hh:mm:ss"; }
 const char* defDateFmt()	{ return "ddd dd MMM yyyy"; }
 const char* defTimeFmt()	{ return "hh:mm:ss"; }

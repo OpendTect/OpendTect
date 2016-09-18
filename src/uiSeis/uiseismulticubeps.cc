@@ -145,13 +145,7 @@ void uiSeisMultiCubePS::fillEntries()
     PtrMan<IOObjContext> ctxt = Seis::getIOObjContext( Seis::Vol, true );
     const IODirEntryList del( iodir, *ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
-    {
-	const IODirEntry& de = *del[idx];
-	if ( !de.ioobj_ || !de.ioobj_->isUserSelectable() )
-	    continue;
-
-	entries_ += new uiSeisMultiCubePSEntry( de.ioobj_->clone() );
-    }
+	entries_ += new uiSeisMultiCubePSEntry( del.ioobj(idx).clone() );
 }
 
 

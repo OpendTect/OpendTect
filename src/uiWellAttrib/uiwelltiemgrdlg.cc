@@ -218,7 +218,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
     const IOObj* wellobj = wellfld_->ioobj(true);
     if ( !wellobj ) return;
     const char* wllfilenm = Well::odIO::getMainFileName( *wellobj );
-    const DBKey& wellid = wellobj->key();
+    const DBKey wellid = wellobj->key();
     if ( wd_ )
 	wd_->unRef();
 
@@ -277,7 +277,7 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* cb )
 
     if ( seisfld->isChecked() )
     {
-	const DBKey& seisid = seisfld->key();
+	const DBKey seisid = seisfld->key();
 	if ( seisid.isInvalid() )
             mErrRet(uiStrings::phrSelect(
                 uiStrings::phrInput(uiStrings::sVolDataName(true,true,false))));
@@ -463,7 +463,7 @@ bool uiTieWinMGRDlg::initSetup()
     if ( wtsetup_.wvltid_.isInvalid() )
 	return false;
 
-    const DBKey& wellid = wellfld_->ctxtIOObj().ioobj_->key();
+    const DBKey wellid = wellfld_->ctxtIOObj().ioobj_->key();
     if ( wd_ )
 	wd_->unRef();
 
@@ -488,7 +488,7 @@ bool uiTieWinMGRDlg::initSetup()
 
     if ( seisfld->isChecked() )
     {
-	const DBKey& seisid = seisfld->key();
+	const DBKey seisid = seisfld->key();
 	if ( seisid.isInvalid() )
 	    mErrRet(uiStrings::phrSelect(uiStrings::phrInput(
 					  mJoinUiStrs(sWell(),sData()))))

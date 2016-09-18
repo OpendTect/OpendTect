@@ -188,11 +188,8 @@ void uiPreStackMergeDlg::fillListBox()
 
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
-	entrylist.setCurrent( idx );
-	allvolsids_ += entrylist.selected()->key();
-	IOObj* ioobj = IOM().get(entrylist.selected()->key());
-	allvolsnames_.add( entrylist[idx]->name() );
-	delete ioobj;
+	allvolsids_.add( entrylist.key(idx) );
+	allvolsnames_.add( entrylist.dispName(idx) );
     }
 
     volsbox_->addItems( allvolsnames_ );

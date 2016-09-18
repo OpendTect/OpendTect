@@ -373,19 +373,15 @@ void uiIOObjSel::fillEntries()
     const bool hadselioobj = workctio_.ioobj_;
 
     const IODir iodir( inctio_.ctxt_.getSelDirID() );
-    IODirEntryList del( iodir, inctio_.ctxt_ );
+    IODirEntryList entrylist( iodir, inctio_.ctxt_ );
     BufferStringSet keys, names;
     if ( setup_.withclear_ || !setup_.filldef_ )
 	{ keys.add( "" ); names.add( "" ); }
 
-    for ( int idx=0; idx<del.size(); idx++ )
+    for ( int idx=0; idx<entrylist.size(); idx++ )
     {
-	const IOObj* obj = del[idx]->ioobj_;
-	if ( !obj )
-	    continue;
-
-	keys.add( obj->key().toString() );
-	names.add( obj->name() );
+	keys.add( entrylist.key(idx).toString() );
+	names.add( entrylist.dispName(idx) );
     }
 
     setEntries( keys, names );
@@ -501,10 +497,10 @@ void uiIOObjSel::obtainIOObj()
     }
 
     const IODir iodir( workctio_.ctxt_.getSelDirID() );
-    const IOObj* ioob = iodir.getByName( inp,
+    PtrMan<IOObj> ioob = iodir.getEntryByName( inp,
 				   workctio_.ctxt_.translatorGroupName() );
     workctio_.setObj( ioob && workctio_.ctxt_.validIOObj(*ioob)
-		    ? ioob->clone() : 0 );
+		    ? ioob.release() : 0 );
 }
 
 
@@ -519,14 +515,16 @@ void uiIOObjSel::processInput()
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
     const IODir iodir( workctio_.ctxt_.getSelDirID() );
-    return iodir.getByName( nm, workctio_.ctxt_.translatorGroupName() );
+    PtrMan<IOObj> ioobj =
+	iodir.getEntryByName( nm, workctio_.ctxt_.translatorGroupName() );
+    return ioobj;
 }
 
 
-DBKey uiIOObjSel::validKey() const
+DBKey uiIOObjSel::getKeyOnly() const
 {
     const IODir iodir( workctio_.ctxt_.getSelDirID() );
-    const IOObj* ioob = iodir.getByName( getInput(),
+    PtrMan<IOObj> ioob = iodir.getEntryByName( getInput(),
 				workctio_.ctxt_.translatorGroupName() );
 
     if ( ioob && workctio_.ctxt_.validIOObj(*ioob) )

@@ -37,9 +37,8 @@ static void convert2DPSData()
     S2DPOS().getLineSets( lsnms );
     for ( int idx=0; idx<olddel.size(); idx++ )
     {
-	const IOObj* psobj = olddel[idx]->ioobj_;
-	if ( !psobj ) continue;
-	const FixedString psdir = psobj->fullUserExpr( true );
+	const IOObj& psobj = olddel.ioobj( idx );
+	const FixedString psdir = psobj.fullUserExpr( true );
 	if ( psdir.isEmpty() || !File::isDirectory(psdir) )
 	    continue;
 
@@ -72,28 +71,25 @@ static void convert2DPSData()
 
 static void convertSeis2DTranslators()
 {
-    IOObjContext ctxt( mIOObjContext(SeisTrc) );
-    IODir iodir( ctxt.getSelDirID() );
-    const ObjectSet<IOObj>& oldobjs = iodir.getObjs();
-    for ( int idx=0; idx<oldobjs.size(); idx++ )
+    IODir iodir( IOObjContext::Seis );
+    IODirIter iter( iodir );
+    while ( iter.next() )
     {
-	PtrMan<IOObj> ioobj = oldobjs[idx] ? oldobjs[idx]->clone() : 0;
-	if ( !ioobj ) continue;
-
-	if ( ioobj->translator() == TwoDDataSeisTrcTranslator::translKey() )
+	const IOObj& ioobj = iter.ioObj();
+	if ( ioobj.translator() == TwoDDataSeisTrcTranslator::translKey() )
 	{
-	    PtrMan<IOObj> duplobj = IOM().getLocal( ioobj->name().buf(),
+	    const IODir iodircheck( IOObjContext::Seis );
+	    PtrMan<IOObj> duplobj = iodircheck.getEntryByName( ioobj.name(),
 						mTranslGroupName(SeisTrc2D) );
 	    if ( duplobj )
 		continue;
 
-	    ioobj->setGroup( mTranslGroupName(SeisTrc2D) );
-	    ioobj->setTranslator( CBVSSeisTrc2DTranslator::translKey() );
-	    iodir.commitChanges( ioobj );
+	    PtrMan<IOObj> edioobj = ioobj.clone();
+	    edioobj->setGroup( mTranslGroupName(SeisTrc2D) );
+	    edioobj->setTranslator( CBVSSeisTrc2DTranslator::translKey() );
+	    iodir.commitChanges( edioobj );
 	}
     }
-
-    IOM().toRoot();
 }
 
 
@@ -278,8 +274,7 @@ void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets(
 
     for ( int idx=0; idx<olddel.size(); idx++ )
     {
-	IOObj* ioobj = olddel[idx]->ioobj_ ? olddel[idx]->ioobj_->clone() : 0;
-	if ( !ioobj ) continue;
+	IOObj* ioobj = olddel.ioobj( idx ).clone();
 	ioobjlist += ioobj;
 	ObjectSet<IOPar>* obset = new ObjectSet<IOPar>();
 	all2dseisiopars_ += obset;

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
 #include "iodir.h"
+#include "iodirentry.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -233,26 +234,25 @@ DBKey uiSeisPartServer::getDefault2DDataID() const
 
     const IOObjContext ctxt( SeisTrc2DTranslatorGroup::ioContext() );
     const IODir iodir ( ctxt.getSelDirID() );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     int nrod2d = 0;
-    int def2didx = 0;
-    int seisidx = -1;
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    DBKey def2dky; DBKey seisky;
+    IODirEntryList entrylist( iodir, ctxt );
+    for ( int idx=0; idx<entrylist.size(); idx++ )
     {
-	SeisIOObjInfo seisinfo( ioobjs[idx] );
+	SeisIOObjInfo seisinfo( entrylist.ioobj(idx) );
 	if ( seisinfo.isOK() )
 	{
 	    nrod2d++;
-	    def2didx = idx;
-	    if ( ioobjs[idx]->name() == "Seis" )
-		seisidx = idx;
+	    def2dky = entrylist.key(idx);
+	    if ( entrylist.name(idx) == "Seis" )
+		seisky = def2dky;
 	}
     }
 
     if ( nrod2d == 1 )
-	return ioobjs[def2didx]->key();
-    else if ( seisidx >= 0 )
-	return ioobjs[seisidx]->key();
+	return def2dky;
+    else if ( seisky.isValid() )
+	return seisky;
 
     uiString msg = uiStrings::phrCannotFind(tr("valid default 2D data.\n"
 					       "Do you want to set it now?") );
@@ -286,21 +286,20 @@ DBKey uiSeisPartServer::getDefaultDataID( bool is2d ) const
 
     const IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
     const IODir iodir ( ctxt.getSelDirID() );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    int nrod3d = 0;
-    int def3didx = 0;
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    int nrod3d = 0; DBKey def3dky;
+    IODirEntryList entrylist( iodir, ctxt );
+    for ( int idx=0; idx<entrylist.size(); idx++ )
     {
-	SeisIOObjInfo seisinfo( ioobjs[idx] );
+	SeisIOObjInfo seisinfo( entrylist.ioobj(idx) );
 	if ( seisinfo.isOK() && !seisinfo.is2D() )
 	{
 	    nrod3d++;
-	    def3didx = idx;
+	    def3dky = entrylist.key( idx );
 	}
     }
 
     if ( nrod3d == 1 )
-	return ioobjs[def3didx]->key();
+	return def3dky;
 
     uiString msg = uiStrings::phrCannotFind( tr("valid default volume."
 						"Do you want to set it now?") );
@@ -450,13 +449,13 @@ void uiSeisPartServer::getStoredGathersList( bool for3d,
 					     BufferStringSet& nms ) const
 {
     const IODir iodir( IOObjContext::Seis );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    IODirIter iter( iodir );
+    while ( iter.next() )
     {
-	const IOObj& ioobj = *ioobjs[idx];
+	const IOObj& ioobj = iter.ioObj();
 	if ( SeisTrcTranslator::isPS(ioobj)
 	  && SeisTrcTranslator::is2D(ioobj) != for3d )
-	    nms.add( (const char*)ioobj.name() );
+	    nms.add( ioobj.name() );
     }
 
     nms.sort();

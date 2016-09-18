@@ -8,6 +8,7 @@
 #include "iodir.h"
 
 #include "ascstream.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "iosubdir.h"
@@ -15,27 +16,27 @@
 #include "separstr.h"
 #include "uistrings.h"
 
-
 static Threads::Lock static_read_lock;
 
-#define mInitVarList \
-	  isok_(false) \
-	, curnr_(0) \
-	, curtmpnr_(IOObj::tmpObjNrStart())
+#define mIsBad() (readtime_ < 0)
 
-IODir::IODir( const char* dirnm )
-	: dirname_(dirnm)
-	, mInitVarList
+
+static BufferString omfFileName( const char* dirnm )
 {
-    if ( build(false) )
-	isok_ = true;
+    return BufferString( FilePath(dirnm,".omf").fullPath() );
 }
 
 
+#define mInitVarList \
+	  curnr_(0) \
+	, readtime_(-1) \
+	, curtmpnr_(IOObj::tmpObjNrStart())
+
+
 IODir::IODir()
-	: dirname_("")
-	, mInitVarList
+	: mInitVarList
 {
+    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -43,24 +44,34 @@ IODir::IODir( const IODir& oth )
 	: dirname_(oth.dirname_)
 	, dirid_(oth.dirid_)
 {
-    *this = oth;
+    copyAll( oth );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+IODir::IODir( const char* dirnm )
+	: dirname_(dirnm)
+	, mInitVarList
+{
+    build( false );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 IODir::IODir( DirID dirid )
-	: dirname_("")
-	, mInitVarList
+	: mInitVarList
 {
     init( dirid, false );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 IODir::IODir( IOObjContext::StdSelType seltyp )
-	: dirname_("")
-	, dirid_(IOObjContext::getStdDirData(seltyp)->id_)
+	: dirid_(IOObjContext::getStdDirData(seltyp)->id_)
 	, mInitVarList
 {
     init( dirid_, false );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -83,67 +94,80 @@ void IODir::init( DirID dirid, bool inc_old_tmps )
     delete ioobj;
     const_cast<BufferString&>(dirname_).set( dirnm );
 
-    if ( build(inc_old_tmps) )
-	isok_ = true;
+    build( inc_old_tmps );
+    const_cast<DirID&>(dirid_) = dirid; // superfluous if .omf is ok ...
 }
 
 
 IODir::~IODir()
 {
+    sendDelNotif();
     deepErase( objs_ );
 }
 
 
-IODir& IODir::operator =( const IODir& oth )
-{
-    if ( this != &oth )
-    {
-	Threads::Locker mylocker( oth.lock_ );
-	Threads::Locker othlocker( oth.lock_ );
-	const_cast<BufferString&>(dirname_).set( oth.dirname_ );
-	const_cast<DirID&>(dirid_) = oth.dirid_;
-	isok_ = oth.isok_;
-	deepCopyClone( objs_, oth.objs_ );
-	curnr_ = oth.curnr_;
-	curtmpnr_ = oth.curtmpnr_;
-	errmsg_ = oth.errmsg_;
-    }
-    return *this;
-}
+mImplMonitorableAssignment( IODir, SharedObject )
 
 
-void IODir::reRead()
+void IODir::copyClassData( const IODir& oth )
 {
-    Threads::Locker locker( lock_ );
-    doReRead();
+    const_cast<BufferString&>(dirname_).set( oth.dirname_ );
+    const_cast<DirID&>(dirid_) = oth.dirid_;
+    readtime_ = oth.readtime_;
+    deepCopyClone( objs_, oth.objs_ );
+    curnr_ = oth.curnr_;
+    curtmpnr_ = oth.curtmpnr_;
+    errmsg_ = oth.errmsg_;
 }
 
 
 bool IODir::isBad() const
 {
-    Threads::Locker locker( lock_ );
-    return !isok_;
+    mLock4Read();
+    return mIsBad();
+}
+
+
+bool IODir::gtIsOutdated() const
+{
+    return readtime_ < 0
+	|| File::getTimeInSeconds( omfFileName(dirname_) ) > readtime_;
+}
+
+
+bool IODir::isOutdated() const
+{
+    mLock4Read();
+    return gtIsOutdated();
 }
 
 
 IODir::size_type IODir::size() const
 {
-    Threads::Locker locker( lock_ );
+    mLock4Read();
     return objs_.size();
 }
 
 
-const IOObj* IODir::getByIdx( size_type idx ) const
+IOObj* IODir::getEntryByIdx( size_type idx ) const
 {
-    Threads::Locker locker( lock_ );
-    return objs_[idx];
+    mLock4Read();
+    return objs_[idx] ? objs_[idx]->clone() : 0;
 }
 
 
-const IOObj* IODir::get( const DBKey& ky ) const
+IOObj* IODir::getEntry( const DBKey& ky ) const
 {
-    Threads::Locker locker( lock_ );
-    return doGet( ky );
+    mLock4Read();
+    const IOObj* obj = gtObj( ky );
+    return obj ? obj->clone() : 0;
+}
+
+
+void IODir::reRead()
+{
+    mLock4Write();
+    doReRead( true );
 }
 
 
@@ -155,22 +179,26 @@ bool IODir::build( bool inc_old_tmps )
 }
 
 
+/*
+
 IOObj* IODir::getMain( const char* dirnm, uiString& errmsg )
 {
     Threads::Locker locker( static_read_lock );
     return doRead( dirnm, 0, errmsg, 1 );
 }
 
+*/
+
+
 bool IODir::writeNow() const
 {
-    Threads::Locker locker( lock_ );
+    mLock4Read();
     return doWrite();
 }
 
 
 const IOObj* IODir::main() const
 {
-    Threads::Locker locker( lock_ );
     for ( size_type idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
@@ -184,23 +212,24 @@ const IOObj* IODir::main() const
 IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, uiString& errmsg,
 		      ObjNrType reqobjnr, bool incl_old_tmp )
 {
-    SafeFileIO sfio( FilePath(dirnm,".omf").fullPath(), false );
+    SafeFileIO sfio( omfFileName(dirnm), false );
     if ( !sfio.open(true) )
-    {
-	errmsg = sfio.errMsg();
-	return 0;
-    }
+	{ errmsg = sfio.errMsg(); return 0; }
 
     IOObj* ret = readOmf( sfio.istrm(), dirnm, dirptr, reqobjnr, incl_old_tmp );
-    if ( ret )
-	sfio.closeSuccess();
-    else
+    if ( !ret )
 	sfio.closeFail();
+    else
+    {
+	if ( dirptr )
+	    dirptr->readtime_ = Time::getFileTimeInSeconds();
+	sfio.closeSuccess();
+    }
     return ret;
 }
 
 
-void IODir::setDirName( IOObj& ioobj, const char* dirnm )
+void IODir::setDirNameFor( IOObj& ioobj, const char* dirnm )
 {
     if ( ioobj.isSubdir() )
 	ioobj.dirnm_ = dirnm;
@@ -268,7 +297,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     }
 
     if ( retobj )
-	setDirName( *retobj, dirnm );
+	setDirNameFor( *retobj, dirnm );
     return retobj;
 }
 
@@ -292,14 +321,15 @@ IOObj* IODir::getObj( const DBKey& ky, uiString& errmsg )
 }
 
 
-const IOObj* IODir::getByName( const char* nm, const char* trgrpnm ) const
+IOObj* IODir::getEntryByName( const char* nm, const char* trgrpnm ) const
 {
-    Threads::Locker locker( lock_ );
-    return doGet( nm, trgrpnm );
+    mLock4Read();
+    const IOObj* obj = gtObjByName( nm, trgrpnm );
+    return obj ? obj->clone() : 0;
 }
 
 
-const IOObj* IODir::doGet( const char* nm, const char* trgrpnm ) const
+const IOObj* IODir::gtObjByName( const char* nm, const char* trgrpnm ) const
 {
     for ( size_type idx=0; idx<objs_.size(); idx++ )
     {
@@ -340,33 +370,34 @@ bool IODir::isPresent( const DBKey& ky ) const
 }
 
 
-const IOObj* IODir::doGet( const DBKey& ky ) const
+const IOObj* IODir::gtObj( const DBKey& ky ) const
 {
     const size_type idxof = gtIdxOf( ky );
-    return idxof < 0 ? 0 : objs_[idxof];
+    return idxof < 0 ? 0 : objs_[idxof]->clone();
 }
 
 
-void IODir::doReRead()
+bool IODir::doReRead( bool force )
 {
+    if ( !force && !gtIsOutdated() )
+	return false;
+
     IODir rdiodir( dirname_ );
-    if ( rdiodir.isok_ && rdiodir.main() && rdiodir.size() > 1 )
+    if ( !rdiodir.isBad() && rdiodir.size() > 1 )
     {
-	deepErase( objs_ );
-	objs_ = rdiodir.objs_;
-	rdiodir.objs_.erase();
-	curnr_ = rdiodir.curnr_;
-	curtmpnr_ = rdiodir.curtmpnr_;
-	isok_ = true;
+	copyAll( rdiodir );
+	return true;
     }
+
+    return false;
 }
 
 
 bool IODir::permRemove( const DBKey& ky )
 {
-    Threads::Locker locker( lock_ );
-    doReRead();
-    if ( !isok_ )
+    mLock4Write();
+
+    if ( doReRead(false) && mIsBad() )
 	return false;
 
     size_type sz = objs_.size();
@@ -380,6 +411,7 @@ bool IODir::permRemove( const DBKey& ky )
 	    break;
 	}
     }
+
     return doWrite();
 }
 
@@ -389,11 +421,11 @@ bool IODir::commitChanges( const IOObj* ioobj )
     if ( !ioobj )
 	return true;
 
-    Threads::Locker locker( lock_ );
+    mLock4Write();
 
     if ( ioobj->isSubdir() )
     {
-	IOObj* obj = const_cast<IOObj*>( doGet(ioobj->key()) );
+	IOObj* obj = const_cast<IOObj*>( gtObj(ioobj->key()) );
 	if ( obj != ioobj )
 	    obj->copyFrom( ioobj );
 	return doWrite();
@@ -402,8 +434,7 @@ bool IODir::commitChanges( const IOObj* ioobj )
     IOObj* clone = ioobj->clone();
     if ( !clone )
 	return false;
-    doReRead();
-    if ( !isok_ )
+    if ( !doReRead(false) && mIsBad() )
 	{ delete clone; return false; }
 
     const size_type sz = objs_.size();
@@ -418,15 +449,17 @@ bool IODir::commitChanges( const IOObj* ioobj )
 	    break;
 	}
     }
+
     if ( !found )
 	objs_ += clone;
+
     return doWrite();
 }
 
 
 bool IODir::addObj( IOObj* ioobj, bool persist )
 {
-    Threads::Locker locker( lock_ );
+    mLock4Write();
     return doAddObj( ioobj, persist );
 }
 
@@ -435,8 +468,7 @@ bool IODir::doAddObj( IOObj* ioobj, bool persist )
 {
     if ( persist )
     {
-	doReRead();
-	if ( !isok_ )
+	if ( !doReRead() && mIsBad() )
 	    return false;
     }
 
@@ -446,7 +478,7 @@ bool IODir::doAddObj( IOObj* ioobj, bool persist )
     doEnsureUniqueName( *ioobj );
 
     objs_ += ioobj;
-    setDirName( *ioobj, dirName() );
+    setDirNameFor( *ioobj, dirName() );
 
     return persist ? doWrite() : true;
 }
@@ -454,7 +486,7 @@ bool IODir::doAddObj( IOObj* ioobj, bool persist )
 
 bool IODir::ensureUniqueName( IOObj& ioobj ) const
 {
-    Threads::Locker locker( lock_ );
+    mLock4Read();
     return doEnsureUniqueName( ioobj );
 }
 
@@ -464,7 +496,7 @@ bool IODir::doEnsureUniqueName( IOObj& ioobj ) const
     BufferString nm( ioobj.name() );
 
     size_type nr = 1;
-    while ( doGet(nm.buf(),ioobj.translator().buf()) )
+    while ( gtObjByName(nm.buf(),ioobj.translator().buf()) )
     {
 	nr++;
 	nm.set( ioobj.name() ).add( " (" ).add( nr ).add( ")" );
@@ -538,7 +570,7 @@ bool IODir::wrOmf( od_ostream& strm ) const
 
 bool IODir::doWrite() const
 {
-    SafeFileIO sfio( FilePath(dirname_,".omf").fullPath(), false );
+    SafeFileIO sfio( omfFileName(dirname_), false );
     if ( !sfio.open(false) )
 	mErrRet()
 
@@ -554,14 +586,14 @@ bool IODir::doWrite() const
 
 DBKey IODir::newKey() const
 {
-    Threads::Locker locker( lock_ );
+    mLock4Write();
     return gtNewKey( curnr_ );
 }
 
 
 DBKey IODir::newTmpKey() const
 {
-    Threads::Locker locker( lock_ );
+    mLock4Write();
     return gtNewKey( curtmpnr_ );
 }
 
@@ -594,4 +626,41 @@ void IODir::getTmpIOObjs( DirID dirid, ObjectSet<IOObj>& ioobjs,
 	if ( !cnstrnts || cnstrnts->isGood(ioobj) )
 	    ioobjs += ioobj.clone();
     }
+}
+
+
+IODirIter::IODirIter( const IODir& iodir )
+    : MonitorableIter<IODir::size_type>(iodir,-1)
+{
+}
+
+
+IODirIter::IODirIter( const IODirIter& oth )
+    : MonitorableIter<IODir::size_type>(oth)
+{
+}
+
+
+const IODir& IODirIter::ioDir() const
+{
+    return static_cast<const IODir&>( monitored() );
+}
+
+
+IODirIter& IODirIter::operator =( const IODirIter& oth )
+{
+    pErrMsg( "No assignment" );
+    return *this;
+}
+
+
+const IOObj& IODirIter::ioObj() const
+{
+    return isValid() ? *ioDir().objs_[curidx_] : IOObj::getInvalid();
+}
+
+
+DBKey IODirIter::key() const
+{
+    return isValid() ? ioDir().objs_[curidx_]->key() : DBKey::getInvalid();
 }

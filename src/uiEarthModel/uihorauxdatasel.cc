@@ -124,20 +124,19 @@ uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo( bool load )
     if ( !load ) return;
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    PtrMan<CtxtIOObj> allhorio =  mMkCtxtIOObj(EMHorizon3D);
-    const IODir iodir( allhorio->ctxt_.getSelDirID() );
-    const IODirEntryList horlist( iodir, allhorio->ctxt_ );
-
+    const IOObjContext horctxt( mIOObjContext(EMHorizon3D) );
+    const IODir iodir( horctxt.getSelDirID() );
+    const IODirEntryList horlist( iodir, horctxt );
     for ( int idx=0; idx<horlist.size(); idx++ )
     {
-	const IOObj* obj = horlist[idx]->ioobj_;
-	EM::IOObjInfo eminfo( obj->key() );
+	const IOObj& obj = horlist.ioobj( idx );
+	EM::IOObjInfo eminfo( obj.key() );
 	BufferStringSet attrnms;
 	eminfo.getAttribNames( attrnms );
 	if ( attrnms.size() )
 	{
-	    mids_ += obj->key();
-	    hornms_.add( obj->name() );
+	    mids_ += obj.key();
+	    hornms_.add( obj.name() );
 	    auxdatanms_ += attrnms;
 	}
     }

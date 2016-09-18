@@ -282,16 +282,14 @@ void uiSeisWvltMerge::reloadWvlts()
 
     for ( int delidx=0; delidx<del.size(); delidx++ )
     {
-	const IOObj* ioobj = del[delidx]->ioobj_;
-	if ( !ioobj )
-	    continue;
-	ConstRefMan<Wavelet> sharedwvlt = WaveletMGR().fetch( ioobj->key() );
+	const IOObj& ioobj = del.ioobj( delidx );
+	ConstRefMan<Wavelet> sharedwvlt = WaveletMGR().fetch( ioobj.key() );
 	if ( !sharedwvlt )
 	    continue;
 
 	Wavelet* wvlt = sharedwvlt->clone();
 	wvltset_ += wvlt;
-	namelist_.add( ioobj->name() );
+	namelist_.add( ioobj.name() );
 
 	if ( normalizefld_->isChecked() )
 	    wvlt->normalize();

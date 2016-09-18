@@ -112,7 +112,7 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
     const BufferString nm = ctio.getName();
 
     const IODir iodir( ctio.ctxt_.getSelDirID() );
-    const IOObj* existioobj = iodir.getByName( nm,
+    PtrMan<IOObj> existioobj = iodir.getEntryByName( nm,
 				    ctio.ctxt_.translatorGroupName() );
     if ( !existioobj )
     {
@@ -128,6 +128,6 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
 	    return false;
     }
 
-    ctio.setObj( existioobj->clone() );
+    ctio.setObj( existioobj.release() );
     return true;
 }

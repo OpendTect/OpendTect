@@ -151,20 +151,18 @@ bool Well::Man::getMarkerNames( BufferStringSet& nms )
 {
     nms.setEmpty();
     const IODir iodir( IOObjContext::WllInf );
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
-    const IODirEntryList del( iodir, ctio->ctxt_ );
-    RefMan<Well::Data> data = new Well::Data;
-    for ( int idx=0; idx<del.size(); idx++ )
+    IODirEntryList entrylist( iodir, &WellTranslatorGroup::theInst() );
+    for ( IODirEntryList::IdxType idx=0; idx<entrylist.size(); idx++ )
     {
-	const IOObj* ioobj = del[idx]->ioobj_;
-	if ( !ioobj ) continue;
-
-	Well::Reader rdr( *ioobj, *data );
-	if ( !rdr.getTrack() || !rdr.getMarkers() ) continue;
-
-	BufferStringSet wllmarkernms;
-	data->markers().getNames( wllmarkernms );
-	nms.add( wllmarkernms, false );
+	const IOObj& ioobj = entrylist.ioobj( idx );
+	RefMan<Well::Data> data = new Well::Data;
+	Well::Reader rdr( ioobj, *data );
+	if ( rdr.getTrack() && rdr.getMarkers() )
+	{
+	    BufferStringSet wllmarkernms;
+	    data->markers().getNames( wllmarkernms );
+	    nms.add( wllmarkernms, false );
+	}
     }
 
     return true;
@@ -176,23 +174,21 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
     const IODir iodir( IOObjContext::WllInf );
     if ( nm && *nm )
     {
-	const IOObj* ioobj = iodir.getByName( nm, "Well" );
-	if ( ioobj ) return ioobj->clone();
+	const IOObj* ioobj = iodir.getEntryByName( nm, "Well" );
+	if ( ioobj )
+	    return ioobj->clone();
     }
 
     if ( uwi && *uwi )
     {
-	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
-	const IODirEntryList del( iodir, ctio->ctxt_ );
-	RefMan<Well::Data> data = new Well::Data;
-	for ( int idx=0; idx<del.size(); idx++ )
+	IODirEntryList entrylist( iodir, &WellTranslatorGroup::theInst() );
+	for ( IODirEntryList::IdxType idx=0; idx<entrylist.size(); idx++ )
 	{
-	    const IOObj* ioobj = del[idx]->ioobj_;
-	    if ( !ioobj ) continue;
-
-	    Well::Reader rdr( *ioobj, *data );
+	    const IOObj& ioobj = entrylist.ioobj( idx );
+	    RefMan<Well::Data> data = new Well::Data;
+	    Well::Reader rdr( ioobj, *data );
 	    if ( rdr.getInfo() && data->info().UWI() == uwi )
-		return ioobj->clone();
+		return ioobj.clone();
 	}
     }
 

@@ -673,9 +673,8 @@ bool Horizon2DDisplay::calcLine2DIntersections(
 void Horizon2DDisplay::calcLine2DInterSectionSet()
 {
     const IODir iodir( IOObjContext::Geom );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    const bool needcalc = nr2dlines_ != ioobjs.size() ? true : false;
-    nr2dlines_ = ioobjs.size();
+    const bool needcalc = nr2dlines_ != iodir.size() ? true : false;
+    nr2dlines_ = iodir.size();
 
     if ( needcalc )
     {

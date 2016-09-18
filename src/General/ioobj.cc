@@ -27,6 +27,29 @@
 static const int cKpTmpObjsInDays = 7;
 
 
+class InvalidIOObj : public IOObj
+{
+public:
+
+    virtual bool	isBad() const			{ return true; }
+    virtual void	copyFrom(const IOObj*)		{}
+    virtual bool	hasConnType(const char*) const	{ return false; }
+    virtual const char*	connType() const		{ return ""; }
+    virtual Conn*	getConn(bool) const		{ return 0; }
+    virtual const char*	fullUserExpr(bool) const	{ return "<Undef>"; }
+    virtual bool	implExists(bool) const		{ return false; }
+
+protected:
+
+    virtual bool	getFrom(ascistream&)		{ return false; }
+    virtual bool	putTo(ascostream&) const	{ return false; }
+
+};
+
+static InvalidIOObj theinst_;
+const IOObj& IOObj::getInvalid() { return theinst_; }
+
+
 class OwnedProducerList : public ObjectSet<const IOObjProducer>
 {
     public:

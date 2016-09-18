@@ -8,167 +8,138 @@
 
 
 #include "iodirentry.h"
-#include "ctxtioobj.h"
+#include "ioobjctxt.h"
 #include "transl.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "strmprov.h"
 #include "globexpr.h"
-#include "filepath.h"
 
 
 
-IODirEntry::IODirEntry( const IOObj* iob )
-    : NamedObject("")
-    , ioobj_(iob)
+IODirEntryList::IODirEntryList( const IOObjContext& ct )
+    : ctxt_(*new IOObjContext(ct))
 {
-    setName( ioobj_ ? ioobj_->name().str() : ".." );
-}
-
-
-IODirEntryList::IODirEntryList( const IODir& id, const TranslatorGroup* tr,
-				bool maycd, const char* f )
-    : ctxt(*new IOObjContext(tr))
-    , cur_(-1)
-    , maycd_(maycd)
-{
-    ctxt.toselect_.allowtransls_ = f;
-    fill( id );
 }
 
 
 IODirEntryList::IODirEntryList( const IODir& id, const IOObjContext& ct )
-    : ctxt(*new IOObjContext(ct))
-    , cur_(-1)
-    , maycd_(false)
+    : ctxt_(*new IOObjContext(ct))
 {
+    fill( id );
+}
+
+
+IODirEntryList::IODirEntryList( const IODir& id, const TranslatorGroup* tr,
+				const char* allowedtransls )
+    : ctxt_(*new IOObjContext(tr))
+{
+    ctxt_.toselect_.allowtransls_ = allowedtransls;
     fill( id );
 }
 
 
 IODirEntryList::~IODirEntryList()
 {
-    deepErase(*this);
-    delete &ctxt;
+    deepErase( entries_ );
+    delete &ctxt_;
 }
 
 
 void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
 {
     if ( iodir.isBad() )
-    {
-	pErrMsg("Bad iodir" );
-	return;
-    }
+	{ pErrMsg("Bad IODir" ); return; }
 
-    deepErase(*this);
-    name_ = iodir.main() ? (const char*)iodir.main()->name() : "Objects";
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-
-    int curset = 0;
-    if ( maycd_ && FilePath(iodir.dirName()) != FilePath(IOM().rootDir()) )
-    {
-        *this += new IODirEntry( 0 );
-	curset++;
-    }
-
+    deepErase( entries_ );
+    name_ = iodir.name();
     GlobExpr* ge = nmfilt && *nmfilt ? new GlobExpr(nmfilt) : 0;
 
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    IODirIter iter( iodir );
+    while ( iter.next() )
     {
-	const IOObj* ioobj = ioobjs[idx];
-	if ( ioobj->isTmp() )
-	    continue;
-
-	int selres = 2;
-	if ( ctxt.trgroup_ )
+	const IOObj& ioobj = iter.ioObj();
+	if ( !ioobj.isTmp() && ctxt_.validIOObj(ioobj) )
 	{
-	    selres = ctxt.trgroup_->objSelector( ioobj->group() );
-	    if ( selres == mObjSelUnrelated )
-		continue;
-	}
-	if ( ctxt.validIOObj(*ioobj) )
-	{
-	    if ( !ge || ge->matches(ioobj->name()) )
-		*this += new IODirEntry( ioobj );
+	    if ( !ge || ge->matches(ioobj.name()) )
+		entries_ += ioobj.clone();
 	}
     }
 
     delete ge;
     sort();
-    if ( !lastiokey.isValid() )
-	{ if ( size() > curset ) setCurrent( curset ); }
-    else
-	setSelected( lastiokey );
 }
 
 
-void IODirEntryList::setSelected( const DBKey& iniokey )
+DBKey IODirEntryList::key( IdxType idx ) const
 {
-    bool matches = false;
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	IODirEntry* entry = (*this)[idx];
-	DBKey iokey( iniokey );
-	if ( !entry->ioobj_ )
-	{
-	    if ( !iokey.isValid() )
-		matches = true;
-	}
-	else
-	{
-	    if ( iokey == entry->ioobj_->key() )
-		matches = true;
-	}
-	if ( matches )
-	{
-	    setCurrent( idx );
-	    lastiokey = iokey;
-	    return;
-	}
-    }
+    if ( !entries_.validIdx(idx) )
+	return DBKey::getInvalid();
+    return entries_[idx]->key();
 }
 
 
-void IODirEntryList::removeWithTranslator( const char* trnm )
+BufferString IODirEntryList::name( IdxType idx ) const
 {
-    BufferString nm = trnm;
-    for ( int idx=0; idx<size(); idx++ )
+    if ( !entries_.validIdx(idx) )
+	return BufferString::empty();
+    return entries_[idx]->name();
+}
+
+
+BufferString IODirEntryList::dispName( IdxType idx ) const
+{
+    if ( !entries_.validIdx(idx) )
+	return BufferString::empty();
+
+    const IOObj& ioobj = *entries_[idx];
+    const DBKey dbky = entries_[idx]->key();
+    const BufferString nm( ioobj.name() );
+    if ( IOObj::isSurveyDefault(dbky) )
+	return BufferString( "> ", nm, " <" );
+    else if ( StreamProvider::isPreLoaded(dbky.toString(),true) )
+	return BufferString( "/ ", nm, " \\" );
+    return nm;
+}
+
+
+BufferString IODirEntryList::iconName( IdxType idx ) const
+{
+    if ( entries_.validIdx(idx) )
     {
-	IODirEntry* entry = (*this)[idx];
-	if ( entry->ioobj_ && nm == entry->ioobj_->translator() )
-	{
-	    if ( idx == cur_ )
-		cur_--;
-	    *this -= entry;
-	    idx--;
-	}
+	const IOObj& ioobj = *entries_[idx];
+	PtrMan<Translator> transl = ioobj.createTranslator();
+	if ( transl )
+	    return BufferString( transl->iconName() );
     }
-    if ( cur_ < 0 ) cur_ = size() - 1;
+
+    return BufferString::empty();
 }
 
 
 void IODirEntryList::sort()
 {
-    BufferStringSet nms; const int sz = size();
-    for ( int idx=0; idx<sz; idx++ )
-	nms.add( (*this)[idx]->name() );
-    int* idxs = nms.getSortIndexes();
+    BufferStringSet nms; const size_type sz = size();
+    for ( IdxType idx=0; idx<sz; idx++ )
+	nms.add( entries_[idx]->name() );
 
-    ObjectSet<IODirEntry> tmp( *this );
-    erase();
-    for ( int idx=0; idx<sz; idx++ )
-	*this += tmp[ idxs[idx] ];
+    IdxType* idxs = nms.getSortIndexes();
+
+    ObjectSet<IOObj> tmp( entries_ );
+    entries_.erase();
+    for ( IdxType idx=0; idx<sz; idx++ )
+	entries_ += tmp[ idxs[idx] ];
     delete [] idxs;
 }
 
 
-int IODirEntryList::indexOf( const char* nm ) const
+IODirEntryList::IdxType IODirEntryList::indexOf( const char* nm ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    for ( IdxType idx=0; idx<size(); idx++ )
     {
-	const IODirEntry* entry = (*this)[idx];
-	if ( entry->name() == nm )
+	const IOObj& entry = *entries_[idx];
+	if ( entry.name() == nm )
 	    return idx;
     }
     return -1;

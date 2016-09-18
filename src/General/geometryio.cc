@@ -27,10 +27,10 @@ class GeomFileReader : public Executor
 {
 public:
 
-    GeomFileReader( const ObjectSet<IOObj>& objs,
+    GeomFileReader( const IODir& iodir,
 		    ObjectSet<Geometry>& geometries, bool updateonly )
 	: Executor( "Loading Files" )
-	, objs_(objs)
+	, iodir_(iodir)
 	, geometries_(geometries)
 	, nrdone_(0)
 	, updateonly_(updateonly)
@@ -42,7 +42,7 @@ public:
 
 
     od_int64 totalNr() const
-    { return objs_.size(); }
+    { return iodir_.size(); }
 
 protected:
 
@@ -57,7 +57,7 @@ protected:
 
     int nextStep()
     {
-	const IOObj* ioobj = objs_[mCast(int,nrdone_)];
+	PtrMan<IOObj> ioobj = iodir_.getEntryByIdx( mCast(int,nrdone_) );
 	const Geometry::ID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );
 	if ( updateonly_ && isLoaded(geomid) )
 	    mReturn
@@ -78,7 +78,7 @@ protected:
 	mReturn
     }
 
-    const ObjectSet<IOObj>&	objs_;
+    const IODir&		iodir_;
     ObjectSet<Geometry>&	geometries_;
     od_int64			nrdone_;
     bool			updateonly_;
@@ -98,7 +98,7 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
     if ( !geom2d )
 	return false;
 
-    PtrMan< IOObj > ioobj = createEntry( geom2d->data().lineName().buf() );
+    PtrMan<IOObj> ioobj = createEntry( geom2d->data().lineName().buf() );
     if ( !ioobj || !ioobj->key().hasValidObjID() )
 	return false;
 
@@ -148,8 +148,7 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
     if ( iodir.isBad() )
 	return false;
 
-    const ObjectSet<IOObj>& objs = iodir.getObjs();
-    GeomFileReader gfr( objs, geometries, false );
+    GeomFileReader gfr( iodir, geometries, false );
     return TaskRunner::execute( tr, gfr );
 }
 
@@ -165,11 +164,10 @@ bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
     if ( iodir.isBad() )
 	return false;
 
-    const ObjectSet<IOObj>& objs = iodir.getObjs();
-    if ( objs.size() == geometries.size() )
+    if ( iodir.size() == geometries.size() )
 	return true; //TODO: Update existing geometries if modified.
 
-    GeomFileReader gfr( objs, geometries, true );
+    GeomFileReader gfr( iodir, geometries, true );
     return TaskRunner::execute( tr, gfr );
 }
 

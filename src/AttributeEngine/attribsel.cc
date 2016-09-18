@@ -302,14 +302,15 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
     DBKeySet ioobjidscopy;
 
     const IODir iodir( IOObjContext::Seis );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    IODirIter iter( iodir );
     GlobExpr* ge = filter && *filter ? new GlobExpr( filter ) : 0;
-
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    while ( iter.next() )
     {
-	const IOObj& ioobj = *ioobjs[idx];
-	if ( *ioobj.group() == 'W' ) continue;
-	if ( SeisTrcTranslator::isPS( ioobj ) ) continue;
+	const IOObj& ioobj = iter.ioObj();
+	if ( *ioobj.group() == 'W' )
+	    continue;
+	if ( SeisTrcTranslator::isPS(ioobj) )
+	    continue;
 	const bool is2d = SeisTrcTranslator::is2D(ioobj,true);
 	const bool islineset = SeisTrcTranslator::isLineSet(ioobj);
 	const bool isvalid3d = !is2d  && !islineset && ioobj.isUserSelectable();
@@ -433,10 +434,10 @@ void SelInfo::getZDomainItems( const ZDomain::Info& zinf,
 			       BufferStringSet& nms )
 {
     const IODir iodir( IOObjContext::Seis );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    IODirIter iter( iodir );
+    while ( iter.next() )
     {
-	const IOObj& ioobj = *ioobjs[idx];
+	const IOObj& ioobj = iter.ioObj();
 	if ( ioobj.isUserSelectable() && zinf.isCompatibleWith(ioobj.pars()) )
 	    nms.add( ioobj.name() );
     }

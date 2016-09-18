@@ -30,11 +30,11 @@ ________________________________________________________________________
 
 uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
                                         bool is2d, const uiString& txt )
-    : uiDialog (p, Setup(txt,mNoDlgTitle, 
+    : uiDialog (p, Setup(txt,mNoDlgTitle,
                          mODHelpKey(mChangeSurfaceDlgHelpID) ) )
     , horizon_( hor )
-    , is2d_( is2d )		   
-    , savefldgrp_( 0 )		   
+    , is2d_( is2d )
+    , savefldgrp_( 0 )
     , inputfld_( 0 )
     , parsgrp_( 0 )
     , horReadyFroDisplay( this )
@@ -46,11 +46,11 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
     else
     {
 	IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
-	    			 : EMHorizon3DTranslatorGroup::ioContext();
+				 : EMHorizon3DTranslatorGroup::ioContext();
 	ctxt.forread_ = true;
 	inputfld_ =
 	    new uiIOObjSel( this, ctxt,
-		    	    uiStrings::phrInput(uiStrings::sHorizon(1)) );
+			    uiStrings::phrInput(uiStrings::sHorizon(1)) );
     }
 
     savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_ );
@@ -64,7 +64,7 @@ void uiChangeHorizonDlg::attachPars()
 
     if ( inputfld_ )
 	parsgrp_->attach( alignedBelow, inputfld_ );
-    
+
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, parsgrp_ );
 
@@ -87,7 +87,7 @@ bool uiChangeHorizonDlg::readHorizon()
     if ( !inputfld_->ctxtIOObj().ioobj_ )
 	return false;
 
-    const DBKey& mid = inputfld_->ctxtIOObj().ioobj_->key();
+    const DBKey mid = inputfld_->ctxtIOObj().ioobj_->key();
     EM::Horizon* hor = savefldgrp_->readHorizon( mid );
     if ( !hor ) return false;
 
@@ -117,7 +117,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
        savefldgrp_->getNewHorizon() : horizon_;
     mDynamicCastGet(EM::Horizon3D*,usedhor3d,usedhor)
-    
+
     mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
     if ( !hor3d )
 	return false;
@@ -175,7 +175,7 @@ bool uiChangeHorizonDlg::acceptOK()
 				    sInput().toLower(),sHorizon().toLower())) );
 	return false;
     }
-	 
+
 
     if ( !horizon_ && !readHorizon() )
     {
@@ -183,7 +183,7 @@ bool uiChangeHorizonDlg::acceptOK()
 					    uiStrings::sHorizon().toLower()));
 	return false;
     }
-   
+
     if ( !savefldgrp_->acceptOK() )
 	return false;
 

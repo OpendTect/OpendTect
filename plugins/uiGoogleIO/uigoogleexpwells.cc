@@ -52,12 +52,8 @@ void uiGoogleExportWells::initWin( CallBacker* )
     const IODirEntryList del( iodir, WellTranslatorGroup::ioContext() );
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	const IODirEntry* de = del[idx];
-	if ( de && de->ioobj_ )
-	{
-	    selfld_->addItem( mToUiStringTodo(de->name()) );
-	    wellids_ += de->ioobj_->key();
-	}
+	selfld_->addItem( mToUiStringTodo(del.dispName(idx)) );
+	wellids_ += del.key( idx );
     }
     selfld_->chooseAll( true );
 }

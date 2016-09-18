@@ -253,10 +253,10 @@ DBKey SeisJobExecProv::tempStorID() const
     const BufferString fnm( fp.fullPath() );
     for ( int idx=0; idx<el.size(); idx++ )
     {
-	const IOObj* ioobj = el[idx]->ioobj_;
-	if ( !ioobj ) continue;
-	mDynamicCastGet(const IOStream*,iostrm,ioobj)
-	if ( !iostrm || !iostrm->isMulti() ) continue;
+	const IOObj& ioobj = el.ioobj( idx );
+	mDynamicCastGet(const IOStream*,iostrm,&ioobj)
+	if ( !iostrm || !iostrm->isMulti() )
+	    continue;
 
 	if ( fnm == iostrm->fileSpec().fileName() )
 	    return iostrm->key();

@@ -1687,11 +1687,7 @@ const BufferStringSet& uiNewWellDlg::mkWellNms()
     const IODir iodir( ctxt.getSelDirID() );
     const IODirEntryList del( iodir, ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
-    {
-	const IOObj* ioobj = del[idx]->ioobj_;
-	if ( ioobj )
-	    nms_->add( ioobj->name() );
-    }
+	nms_->add( del.ioobj(idx).name() );
     return *nms_;
 }
 

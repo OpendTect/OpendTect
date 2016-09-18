@@ -68,7 +68,7 @@ IOObjContext::StdDirData::StdDirData( DBGroupNrType dirnr, const char* thedirnm,
 int IOObjContext::totalNrStdDirs() { return 10; }
 const IOObjContext::StdDirData* IOObjContext::getStdDirData(
 	IOObjContext::StdSelType sst )
-{ return stddirdata + (int)sst; }
+{ return &stddirdata[(int)sst]; }
 
 
 IOObjSelConstraints::IOObjSelConstraints()
@@ -214,10 +214,8 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
 #define mInitRefs \
   stdseltype( stdseltype_ ) \
 , trgroup( trgroup_ ) \
-, newonlevel( newonlevel_ ) \
 , multi( multi_ )\
 , forread( forread_ ) \
-, maydooper( maydooper_ ) \
 , deftransl( deftransl_ ) \
 , toselect( toselect_ )
 
@@ -226,12 +224,11 @@ mStartAllowDeprecatedSection
 IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
     : NamedObject(prefname)
     , trgroup_(trg)
-    , newonlevel_(1)
     , stdseltype_(None)
     , mInitRefs
 {
     multi_ = false;
-    forread_ = maydooper_ = true;
+    forread_ = true;
 }
 
 
@@ -249,9 +246,8 @@ IOObjContext& IOObjContext::operator =( const IOObjContext& oth )
 {
     if ( this != &oth )
     {
-	mCpMemb(stdseltype_); mCpMemb(trgroup_); mCpMemb(newonlevel_);
-	mCpMemb(multi_); mCpMemb(forread_);
-	mCpMemb(dirid_); mCpMemb(maydooper_); mCpMemb(deftransl_);
+	mCpMemb(stdseltype_); mCpMemb(trgroup_); mCpMemb(multi_);
+	mCpMemb(forread_); mCpMemb(dirid_); mCpMemb(deftransl_);
 	mCpMemb(toselect_);
     }
     return *this;
@@ -403,20 +399,21 @@ void CtxtIOObj::fillIfOnlyOne()
     ctxt_.fillTrGroup();
 
     const IODir iodir( ctxt_.getSelDirID() );
-    int ivalid = -1;
-    for ( int idx=0; idx<iodir.size(); idx++ )
+    IODirIter iter( iodir );
+    DBKey dbky;
+    while ( iter.next() )
     {
-	if ( ctxt_.validIOObj(*iodir.getByIdx(idx)) )
+	if ( ctxt_.validIOObj(iter.ioObj()) )
 	{
-	    if ( ivalid >= 0 )
-		return;
+	    if ( dbky.isValid() )
+		return; // more than one
 	    else
-		ivalid = idx;
+		dbky = iter.key();
 	}
     }
 
-    if ( ivalid >= 0 )
-	setObj( iodir.getByIdx(ivalid)->clone() );
+    if ( dbky.isValid() )
+	setObj( iodir.getEntry(dbky) );
 }
 
 
