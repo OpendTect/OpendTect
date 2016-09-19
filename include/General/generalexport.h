@@ -12,7 +12,9 @@ ________________________________________________________________________
 
 # ifdef do_import_export
 #  include <arraynd.h>
+#  include <monitoriter.h>
 
 mExportTemplClassInst( General ) Array2D<float>;
+mExportTemplClassInst( General ) MonitorableIter<int>;
 
 # endif
