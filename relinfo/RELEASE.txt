@@ -3,7 +3,7 @@ OpendTect V6.0.x : Release info
 In general, all fixes in the stable 5.0 are also applied in the 6.0 releases.
 
 ----
-v6.0.4: August 1, 2016
+v6.0.4: September 19, 2016
  * Fix for displaying saved pre-stack events in scene
  * Fix for crash while creating horizon with a non-integer
    Inline/Crossline step
