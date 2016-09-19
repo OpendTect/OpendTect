@@ -201,8 +201,19 @@ bool HilbertTransform::transform( const float* input, int szin,
 	maskerarr[idx] = masker[idx];
     }
 
-    if ( !nrsampforavg || sum == 0.f )
+    if ( !nrsampforavg )
+    {
+	for ( int idx=0; idx<szout; idx++ )
+	    output[idx] = mUdf(float);
 	return true;
+    }
+
+    if ( sum == 0.f )
+    {
+	for ( int idx=0; idx<szout; idx++ )
+	    output[idx] = 0.f;
+	return true;
+    }
 
     const float avg = sum / nrsampforavg;
     for ( int idx=0; idx<szin; idx++ )
