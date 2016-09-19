@@ -44,4 +44,4 @@ enum	GeometryType{ Triangle = 0, Line,Point, WireFrame };
     const StepInterval<int> rrg = section op userchangedisplayrg_ ?\
     section op displayrrg_ : section op geometry_->rowRange(); \
     const StepInterval<int>  crg = section op userchangedisplayrg_ ?\
-    section op displaycrg_ : section op geometry_->colRange();\
+    section op displaycrg_ : section op geometry_->colRange();
