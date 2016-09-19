@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "objectset.h"
 #include "od_iosfwd.h"
-#include "threadlock.h"
 #include "uistring.h"
 #include "ioobjctxt.h"
 

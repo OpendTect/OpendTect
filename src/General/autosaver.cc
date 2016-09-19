@@ -142,7 +142,7 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
 	return 0;
 
     const DBKey saverkey( saver_->key() );
-    const IODir iodir( saverkey.dirID() );
+    IODir iodir( saverkey.dirID() );
     PtrMan<IOObj> orgioobj = iodir.getEntry( saverkey );
     if ( !orgioobj )
 	return 0;
@@ -162,7 +162,7 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
     newstoreioobj->pars().set( sKey::CrInfo(), fms );
     newstoreioobj->updateCreationPars();
 
-    const bool commitok = IOM().commitChanges( *newstoreioobj );
+    const bool commitok = iodir.commitChanges( newstoreioobj );
     const bool saveok = commitok && saver_->store( *newstoreioobj );
     if ( !saveok )
     {
