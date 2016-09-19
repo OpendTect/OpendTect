@@ -153,7 +153,6 @@ void uiSEGYReadStarter::createTools()
     uiToolButton* openbut = new uiToolButton( toolgrp, "open",
 				tr("Use Saved SEG-Y setup"),
 				mCB(this,uiSEGYReadStarter,readParsCB) );
-    openbut->attach( rightOf, infofld_ );
     uiToolButton* savebut = new uiToolButton( toolgrp, "save",
 				tr("Store this setup"),
 				mCB(this,uiSEGYReadStarter,writeParsCB) );
@@ -234,6 +233,7 @@ void uiSEGYReadStarter::createTools()
 			    mCB(this,uiSEGYReadStarter,coordscaleChg) );
     coordscalefld_->attach( alignedBelow, lowest );
     lowest = coordscalefld_;
+    toolgrp->attach( rightOf, infofld_ );
 }
 
 
