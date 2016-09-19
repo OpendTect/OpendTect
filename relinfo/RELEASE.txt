@@ -76,6 +76,10 @@ v6.0.4: August 1, 2016
    after restarting OpendTect
  * Fix for displaying saved annotation arrows
  * Fix for sign reversal in Pre-stack gradient attribute
+ * Fix for removing seed while tracking horizon
+ * Fix for Horizon Data import not reading all the samples
+ * Fix for 2D Seismic pre-loading not following user-defined format
+ * Fix for extraction of 2D Seismic traces in Well-tie module
 
 v6.0.3: June 1, 2016
  * Fix for displaying geo bodies range information
