@@ -415,6 +415,9 @@ bool SeisTrcReader::get( SeisTrc& trc )
     }
 
     reduceComps( trc, selcomp_ );
+    if ( trc.info().survID() == TrcKey::cUndefSurvID() )
+	trc.info().trckey_.setSurvID( TrcKey::std3DSurvID() );
+
     return true;
 }
 
@@ -496,6 +499,9 @@ bool SeisTrcReader::getPS( SeisTrc& trc )
     if ( !buftrc )
 	{ pErrMsg("Huh"); return false; }
     trc.info() = buftrc->info();
+    if ( trc.info().survID() == TrcKey::cUndefSurvID() )
+	trc.info().trckey_.setSurvID( TrcKey::stdSynthSurvID() );
+
     trc.copyDataFrom( *buftrc, -1, forcefloats );
 
     delete tbuf_->remove(0);
@@ -620,6 +626,7 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
     SeisTrcInfo& trcti = tbuf_->get( 0 )->info();
     trcti.new_packet_ = mIsUdf(prev_inl);
     ti = trcti;
+
     prev_inl = 0;
 
     bool isincl = true;
@@ -646,6 +653,9 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
     if ( !buftrc )
 	{ pErrMsg("Huh"); return false; }
     trc.info() = buftrc->info();
+    if ( trc.info().survID() == TrcKey::cUndefSurvID() )
+	trc.info().trckey_.setSurvID( TrcKey::std2DSurvID() );
+
     trc.copyDataFrom( *buftrc, -1, forcefloats );
 
     delete tbuf_->remove(0);
@@ -683,6 +693,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     }
 
     const int rv = get( ti );
+
     if ( rv < 1 )	return rv;
     else if ( rv == 2 )	new_packet = true;
     else		ti.new_packet_ = true;
