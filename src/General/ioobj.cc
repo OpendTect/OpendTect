@@ -96,10 +96,10 @@ IOObj::IOObj( const char* nm, DBKey ky )
 
 
 IOObj::IOObj( const IOObj& oth )
-	: key_(oth.key_)
-	, pars_(*new IOPar)
+    : key_(oth.key_)
+    , pars_(*new IOPar)
 {
-    copyFrom( oth );
+    copyClassData( oth );
 }
 
 
@@ -111,9 +111,15 @@ IOObj::~IOObj()
 
 void IOObj::copyFrom( const IOObj& obj )
 {
+    setName( obj.name() );
+    copyClassData( obj );
+}
+
+
+void IOObj::copyClassData( const IOObj& obj )
+{
     setGroup( obj.group() );
     setTranslator( obj.translator() );
-    setName( obj.name() );
     setDirName( obj.dirName() );
     pars_ = obj.pars_;
 }

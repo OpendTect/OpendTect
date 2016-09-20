@@ -147,6 +147,7 @@ private:
 
     static IOObj*	produce(const char*,const char* nm,const DBKey& ky,
 				bool initdefaults);
+    void		copyClassData(const IOObj&);
     IOPar&		pars_;
 
 public:
