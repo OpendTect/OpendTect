@@ -99,7 +99,7 @@ public:
     {
 
 			Markers()
-			    : BasicProps(15)
+			    : BasicProps(2)
 			    , shapeint_(0)
 			    , cylinderheight_(1)
 			    , issinglecol_(false)
