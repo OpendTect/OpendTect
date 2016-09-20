@@ -261,7 +261,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     IOObj* retobj = 0;
     while ( astream.type() != ascistream::EndOfFile )
     {
-	IOObj* obj = IOObj::get( astream, dirnm, dirid.getI(), !inc_old_tmps );
+	IOObj* obj = IOObj::get( astream, dirnm, dirid, !inc_old_tmps );
 	if ( !obj || obj->isBad() )
 	    { delete obj; continue; }
 
@@ -427,7 +427,7 @@ bool IODir::commitChanges( const IOObj* inpioobj )
     {
 	IOObj* obj = const_cast<IOObj*>( gtObj(inpioobj->key()) );
 	if ( obj != inpioobj )
-	    obj->copyFrom( inpioobj );
+	    obj->copyFrom( *inpioobj );
 	return doWrite();
     }
 

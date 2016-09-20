@@ -40,7 +40,7 @@ IOStream::IOStream( const char* nm, DBKey ky, bool mkdef )
 
 IOStream::IOStream( const IOStream& oth )
 {
-    copyFrom( &oth );
+    copyFrom( oth );
 }
 
 
@@ -63,13 +63,10 @@ bool IOStream::isBad() const
 }
 
 
-void IOStream::copyFrom( const IOObj* obj )
+void IOStream::copyFrom( const IOObj& obj )
 {
-    if ( !obj )
-	return;
-
     IOObj::copyFrom( obj );
-    mDynamicCastGet(const IOStream*,oth,obj)
+    mDynamicCastGet(const IOStream*,oth,&obj)
     if ( oth )
     {
 	fs_ = oth->fs_;

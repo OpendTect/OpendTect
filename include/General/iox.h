@@ -25,7 +25,7 @@ public:
     virtual		~IOX();
     bool		isBad() const;
 
-    void		copyFrom(const IOObj*);
+    void		copyFrom(const IOObj&);
     const char*		fullUserExpr(bool forread=true) const;
     const char*		dirName() const;
 

@@ -309,7 +309,7 @@ bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 	else
 	{
 	    IOStream chiostrm;
-	    chiostrm.copyFrom( iostrm );
+	    chiostrm.copyFrom( *iostrm );
 	    FilePath fp( iostrm->fileSpec().fileName() );
 	    if ( trans )
 		chiostrm.setExt( trans->defExtension() );
@@ -342,7 +342,7 @@ bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 		}
 	    }
 
-	    iostrm->copyFrom( &chiostrm );
+	    iostrm->copyFrom( chiostrm );
 	}
     }
 
@@ -417,7 +417,7 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
     if ( !dlg.go() ) return false;
 
     IOStream chiostrm;
-    chiostrm.copyFrom( &iostrm );
+    chiostrm.copyFrom( iostrm );
     const char* newdir = dlg.fileName();
     if ( !File::isDirectory(newdir) )
     { uiMSG().error(tr("Selected path is not a directory")); return false; }

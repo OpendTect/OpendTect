@@ -35,6 +35,8 @@ list ( APPEND OD_MODULE_SOURCES
 	datainterp.cc
 	datapackbase.cc
 	datapointset.cc
+	dbdir.cc
+	dbman.cc
 	displaypropertylinks.cc
 	draw.cc
 	elasticpropsel.cc

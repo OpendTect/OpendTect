@@ -29,7 +29,7 @@ public:
 			IOStream(const IOStream&);
     virtual bool	isBad() const;
 
-    virtual void	copyFrom(const IOObj*);
+    virtual void	copyFrom(const IOObj&);
     virtual const char*	fullUserExpr(bool forread=true) const;
     virtual const char*	connType() const;
     virtual Conn*	getConn(bool) const;

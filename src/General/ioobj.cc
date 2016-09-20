@@ -32,7 +32,7 @@ class InvalidIOObj : public IOObj
 public:
 
     virtual bool	isBad() const			{ return true; }
-    virtual void	copyFrom(const IOObj*)		{}
+    virtual void	copyFrom(const IOObj&)		{}
     virtual bool	hasConnType(const char*) const	{ return false; }
     virtual const char*	connType() const		{ return ""; }
     virtual Conn*	getConn(bool) const		{ return 0; }
@@ -99,7 +99,7 @@ IOObj::IOObj( const IOObj& oth )
 	: key_(oth.key_)
 	, pars_(*new IOPar)
 {
-    copyStuffFrom( oth );
+    copyFrom( oth );
 }
 
 
@@ -109,7 +109,7 @@ IOObj::~IOObj()
 }
 
 
-void IOObj::copyStuffFrom( const IOObj& obj )
+void IOObj::copyFrom( const IOObj& obj )
 {
     setGroup( obj.group() );
     setTranslator( obj.translator() );
@@ -119,16 +119,9 @@ void IOObj::copyStuffFrom( const IOObj& obj )
 }
 
 
-void IOObj::copyFrom( const IOObj* obj )
-{
-    if ( !obj ) return;
-    copyStuffFrom( *obj );
-}
-
-
 
 IOObj* IOObj::get( ascistream& astream, const char* dirnm,
-		    DBKey::DirID::IDType dirnr, bool rejectoldtmps )
+		    DirID dirid, bool rejectoldtmps )
 {
     if ( atEndOfSection(astream) )
 	astream.next();
@@ -140,8 +133,8 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm,
     BufferString nm( astream.keyWord() );
     FileMultiString fms = astream.value();
     const DBKey::ObjNrType objnr = fms.getIValue( 0 );
-    DBKey objkey( DBKey::DirID::get(dirnr), DBKey::ObjID::get(objnr) );
-    bool reject = dirnr < 0 || objnr < 1;
+    DBKey objkey( dirid, DBKey::ObjID::get(objnr) );
+    bool reject = dirid.getI() < 0 || objnr < 1;
     if ( rejectoldtmps && isTmpObjNr(objnr) )
     {
 	const int dikey = fms.getIValue( 1 );
@@ -254,7 +247,8 @@ IOObj* IOObj::clone() const
     IOObj* ret = produce( connType(), name(), key(), false );
     if ( !ret )
 	{ pErrMsg("Cannot 'produce' IOObj of my own type"); return 0; }
-    ret->copyFrom( this );
+
+    ret->copyFrom( *this );
     return ret;
 }
 
@@ -465,12 +459,10 @@ bool IOX::isBad() const
 }
 
 
-void IOX::copyFrom( const IOObj* obj )
+void IOX::copyFrom( const IOObj& obj )
 {
-    if ( !obj ) return;
-
-    IOObj::copyFrom(obj);
-    mDynamicCastGet(const IOX*,trobj,obj)
+    IOObj::copyFrom( obj );
+    mDynamicCastGet(const IOX*,trobj,&obj)
     if ( trobj )
 	ownkey_ = trobj->ownkey_;
 }

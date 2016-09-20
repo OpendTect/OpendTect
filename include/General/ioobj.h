@@ -70,7 +70,7 @@ public:
 
     virtual			~IOObj();
     virtual bool		isBad() const			= 0;
-    virtual void		copyFrom(const IOObj*)		= 0;
+    virtual void		copyFrom(const IOObj&)		= 0;
     virtual bool		hasConnType( const char* s ) const
 				{ return connType() == s; }
 
@@ -135,8 +135,7 @@ protected:
 
 			IOObj(const char* nm=0,DBKey ky=DBKey::getInvalid());
 			IOObj(const IOObj&);
-    static IOObj*	get(ascistream&,const char*,DBKey::DirID::IDType,
-			    bool rejoldtmp=true);
+    static IOObj*	get(ascistream&,const char*,DirID,bool rejoldtmp=true);
     bool		put(ascostream&) const;
     virtual bool	getFrom(ascistream&)		= 0;
     virtual bool	putTo(ascostream&) const	= 0;
@@ -144,11 +143,10 @@ protected:
 private:
 
     friend class	IODir;
+    friend class	DBDir;
 
     static IOObj*	produce(const char*,const char* nm,const DBKey& ky,
 				bool initdefaults);
-    void		copyStuffFrom(const IOObj&);
-
     IOPar&		pars_;
 
 public:
