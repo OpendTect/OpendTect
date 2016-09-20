@@ -10,12 +10,14 @@ ________________________________________________________________________
 
 #include "visdepthtabplanedragger.h"
 
+#include "dragcontroller.h"
 #include "vistransform.h"
 #include "position.h"
 #include "ranges.h"
 #include "iopar.h"
 #include "keyenum.h"
 #include "mouseevent.h"
+#include "survinfo.h"
 
 #include <osgGeo/TabPlaneDragger>
 #include <osg/Geometry>
@@ -44,13 +46,19 @@ public:
 
 protected:
 
-    void			constrain(bool translated);
+    void			constrain(bool translated,bool is1d);
+
+    void			initDragControl();
+    void			applyDragControl(Coord3& newcenter);
 
     DepthTabPlaneDragger&	dragger_;
 
     osg::Matrix			initialosgmatrix_;
     Coord3			initialcenter_;
     bool			moved_;
+
+    DragController		dragcontroller_;
+    double			maxdragdist_;
 };
 
 
@@ -84,12 +92,13 @@ bool PlaneDraggerCallbackHandler::receive(
 
     if ( cmd.getStage()==osgManipulator::MotionCommand::START )
     {
+	initDragControl();
 	dragger_.started.trigger();
     }
     else if ( cmd.getStage()==osgManipulator::MotionCommand::MOVE )
     {
 	moved_ = true;
-	constrain( translatedinline || translatedinplane );
+	constrain( translatedinline||translatedinplane, translatedinline||s1d );
 	dragger_.motion.trigger();
     }
     else if ( moved_ && cmd.getStage()==osgManipulator::MotionCommand::FINISH )
@@ -104,10 +113,13 @@ bool PlaneDraggerCallbackHandler::receive(
 }
 
 
-void PlaneDraggerCallbackHandler::constrain( bool translated )
+void PlaneDraggerCallbackHandler::constrain( bool translated, bool is1d )
 {
     Coord3 center = dragger_.center();
     Coord3 scale = dragger_.size();
+
+    if ( translated && is1d )
+	applyDragControl( center );
 
     for ( int dim=0; dim<3; dim++ )
     {
@@ -162,6 +174,61 @@ void PlaneDraggerCallbackHandler::constrain( bool translated )
     }
 
     dragger_.setOsgMatrix( scale, center );
+}
+
+
+void PlaneDraggerCallbackHandler::initDragControl()
+{
+    const Coord pos =
+	    Conv::to<Coord>( dragger_.osgdragger_->getPositionOnScreen() );
+
+    const int dim = dragger_.getDim();
+    const double scalefactor = dim==2 ? SI().zStep() :
+			       dim==1 ? SI().crlStep() : SI().inlStep();
+
+    const Coord3 dragdir( dim==0, dim==1, dim==2 );
+    dragcontroller_.init( pos, scalefactor, dragdir );
+    maxdragdist_ = mUdf(double);
+
+    const bool frontalview =
+	    dragger_.osgdragger_->getPlaneNormalAngleToCamera() < M_PI/18.0;
+
+    Coord screendragprojvec = Conv::to<Coord>( frontalview ?
+		    dragger_.osgdragger_->getUpwardPlaneAxisProjOnScreen() :
+		    dragger_.osgdragger_->getPlaneNormalProjOnScreen() );
+
+    if ( screendragprojvec.sqAbs() )
+    {
+	screendragprojvec /= screendragprojvec.sqAbs();
+
+	// Empirical: always move plane to camera if mouse drags downwards
+	if ( dim==0 || (dim==2 && !SI().isRightHandSystem()) )
+	    screendragprojvec = -screendragprojvec;
+
+	const float dragdepth = dim==2 ? SI().zRange(false).width() :
+				dim==1 ? SI().crlRange(false).width() :
+				SI().inlRange(false).width();
+
+	screendragprojvec *= fabs(dragdepth) / scalefactor;
+	dragcontroller_.dragInScreenSpace( frontalview, screendragprojvec );
+    }
+}
+
+
+void PlaneDraggerCallbackHandler::applyDragControl( Coord3& newcenter )
+{
+    Coord3 dragvec = newcenter - initialcenter_;
+
+    const Coord pos =
+	    Conv::to<Coord>( dragger_.osgdragger_->getPositionOnScreen() );
+    dragcontroller_.transform( dragvec, pos, maxdragdist_ );
+    newcenter = initialcenter_ + dragvec;
+
+    maxdragdist_ = -initialcenter_[dragger_.dim_];
+    if ( dragvec[dragger_.dim_] < 0.0 )
+	maxdragdist_ += dragger_.spaceranges_[dragger_.dim_].start;
+    else
+	maxdragdist_ += dragger_.spaceranges_[dragger_.dim_].stop;
 }
 
 

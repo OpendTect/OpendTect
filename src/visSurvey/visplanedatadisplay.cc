@@ -372,7 +372,6 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
     moving_.trigger();
 
     const TrcKeyZSampling dragcs = getTrcKeyZSampling(true,true);
-    const TrcKeyZSampling snappedcs = snapPosition( dragcs );
     const TrcKeyZSampling oldcs = getTrcKeyZSampling(false,true);
 
     bool showplane = false;
@@ -734,6 +733,9 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
     res.hsamp_.step_ = BinID( s3dgeom_->inlStep(), s3dgeom_->crlStep() );
     res.zsamp_.step = s3dgeom_->zRange().step;
     res.hsamp_.survid_ = Survey::GM().default3DSurvID();
+
+    if ( manippos )
+	res = snapPosition( res );
 
     const bool alreadytf = alreadyTransformed( attrib );
     if ( alreadytf )

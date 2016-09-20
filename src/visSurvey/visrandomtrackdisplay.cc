@@ -56,7 +56,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     , polylinemode_(false)
     , nodemoving_(this)
     , moving_(this)
-    , selnodeidx_(-1)
+    , selnodeidx_(mUdf(int))
     , ismanip_(false)
     , interactivetexturedisplay_( false )
     , originalresolution_(-1)
@@ -1055,11 +1055,16 @@ bool RandomTrackDisplay::isManipulatorShown() const
 BufferString RandomTrackDisplay::getManipulationString() const
 {
     BufferString str;
-    int nodeidx = getSelNodeIdx();
-    if ( nodeidx >= 0 )
+    const int sel = getSelNodeIdx();
+
+    const int start = sel>=0 ? sel : -sel-1;
+    const int stop = mMIN( abs(sel), nrNodes()-1 );
+
+    for ( int idx=start; idx<=stop; idx++ )
     {
-	BinID binid = getManipNodePos( nodeidx );
-	str = "Node "; str += nodeidx;
+	str += idx==start ? "" : ", ";
+	const BinID binid = getManipNodePos( idx );
+	str += "Node "; str += idx+1;
 	str += " Inl/Crl: ";
 	str += binid.inl(); str += "/"; str += binid.crl();
     }
@@ -1904,6 +1909,7 @@ void RandomTrackDisplay::draggerMoveFinished( CallBacker* cb )
     dragger_->setDepthRange( zrg );
 
     finishNodeMoveInternal();
+    selnodeidx_ = mUdf(int);
 }
 
 
