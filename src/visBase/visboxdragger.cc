@@ -11,10 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visboxdragger.h"
 
+#include "dragcontroller.h"
 #include "vistransform.h"
 #include "ranges.h"
 #include "iopar.h"
 #include "mouseevent.h"
+#include "survinfo.h"
 
 #include <osg/CullFace>
 #include <osg/Geode>
@@ -49,9 +51,15 @@ protected:
     void			constrain(Coord3 center,Coord3 scale,
 					  bool translated);
 
+    void			initDragControl();
+    void			applyDragControl(Coord3& displacement);
+
     BoxDragger&			dragger_;
     osg::Matrix			initialosgmatrix_;
     Coord3			initialcenter_;
+
+    DragController		dragcontroller_;
+    double			maxdragdist_;
 };
 
 
@@ -82,6 +90,7 @@ bool BoxDraggerCallbackHandler::receive(
 
     if ( cmd.getStage()==osgManipulator::MotionCommand::START )
     {
+	initDragControl();
 	adjustPolygonOffset( true );
 	dragger_.started.trigger();
     }
@@ -93,13 +102,15 @@ bool BoxDraggerCallbackHandler::receive(
 	{
 	    // transform box displacement into push/pull of manipulated plane
 	    Coord3 displacement = center - initialcenter_;
+	    applyDragControl( displacement );
+	    center = initialcenter_ + 0.5*displacement;
+
 	    if ( dragger_.osgboxdragger_->getEventHandlingTabPlaneIdx()%2 )
 		displacement = -displacement;
 	    if ( !dragger_.isRightHandSystem() )
 		displacement.z = -displacement.z;
 
 	    scale += displacement;
-	    center = 0.5 * (initialcenter_+center);
 	}
 
 	constrain( center, scale, translatedinplane );
@@ -202,6 +213,77 @@ void BoxDraggerCallbackHandler::constrain( Coord3 center, Coord3 scale,
     }
 
     dragger_.setOsgMatrix( scale, center );
+}
+
+
+#define mGetEventHandlingTabPlaneInfo( tpd, dim, sense, mousepos ) \
+    const osgGeo::TabPlaneDragger* tpd = \
+			dragger_.osgboxdragger_->getEventHandlingTabPlane(); \
+    if ( !tpd ) return; \
+\
+    const int tpidx = dragger_.osgboxdragger_->getEventHandlingTabPlaneIdx(); \
+    const int dim = ((tpidx/2)+1) % 3; \
+    int sense = tpidx%2 ? -1 : 1; \
+    if ( dim==2 && !SI().isRightHandSystem() ) \
+	sense = -sense; \
+\
+    const Coord mousepos = Conv::to<Coord>( tpd->getPositionOnScreen() );
+
+
+void BoxDraggerCallbackHandler::initDragControl()
+{
+    mGetEventHandlingTabPlaneInfo( tpd, dim, sense, mousepos );
+
+    const double scalefactor = dim==2 ? SI().zStep() :
+			       dim==1 ? SI().crlStep() : SI().inlStep();
+
+    const Coord3 dragdir( dim==0, dim==1, dim==2 );
+    dragcontroller_.init( mousepos, scalefactor, dragdir );
+    maxdragdist_ = mUdf(double);
+
+    const bool frontalview = tpd->getPlaneNormalAngleToCamera() < M_PI/18.0;
+
+    Coord screendragprojvec = Conv::to<Coord>( frontalview ?
+				    tpd->getUpwardPlaneAxisProjOnScreen() :
+				    tpd->getPlaneNormalProjOnScreen() );
+
+    if ( screendragprojvec.sqAbs() )
+    {
+	screendragprojvec /= screendragprojvec.sqAbs();
+
+	const float dragdepth = dim==2 ? SI().zRange(false).width() :
+				dim==1 ? SI().crlRange(false).width() :
+				SI().inlRange(false).width();
+
+	screendragprojvec *= sense * fabs(dragdepth) / scalefactor;
+	dragcontroller_.dragInScreenSpace( frontalview, screendragprojvec );
+    }
+}
+
+
+void BoxDraggerCallbackHandler::applyDragControl( Coord3& displacement )
+{
+    mGetEventHandlingTabPlaneInfo( tpd, dim, sense, mousepos );
+    dragcontroller_.transform( displacement, mousepos, maxdragdist_ );
+
+    const float width = dragger_.width()[dim];
+    double maxboxdragdist = dragger_.widthranges_[dim].stop - width;
+    double offset = 0.5 * width;
+
+    if ( sense*displacement[dim] < 0.0 )
+    {
+	 maxboxdragdist = width - dragger_.widthranges_[dim].start;
+	 offset = -offset;
+    }
+
+    maxdragdist_ = mMIN( maxboxdragdist,
+	    dragger_.spaceranges_[dim].stop - initialcenter_[dim] - offset );
+
+    if ( displacement[dim] < 0.0 )
+    {
+	maxdragdist_ = -1 * mMIN( maxboxdragdist,
+	    initialcenter_[dim] - dragger_.spaceranges_[dim].start - offset );
+    }
 }
 
 

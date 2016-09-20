@@ -42,6 +42,7 @@ set( OD_MODULE_SOURCES
 	delaunay3d.cc
 	extremefinder.cc
 	dippca.cc
+	dragcontroller.cc
 	fftfilter.cc
 	fourier.cc
 	fourierinterpol.cc

@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visrandomtrackdragger.h"
 
+#include "dragcontroller.h"
 #include "visdragger.h"
 #include "visevent.h"
 #include "vismarkerset.h"
@@ -71,7 +72,12 @@ protected:
 						  Coord& worldrightpos) const;
 
     void			slowDownTrans1D(Coord3& newtopleft,
-						Coord3& newbotright) const;
+						Coord3& newbotright,
+						double* maxdragdistptr=0) const;
+
+    void			initDragControl();
+    void			applyDragControl(Coord3& newtopleft,
+						 Coord3& newbotright);
 
     RandomTrackDragger&		rtdragger_;
 
@@ -88,6 +94,9 @@ protected:
 
     osg::Vec3			localdir_;
     osg::Vec2			pickedpos_;
+
+    DragController		dragcontroller_;
+    double			maxdragdist_;
 
     osg::ref_ptr<osgGeo::TabPlaneDragger> planedragger_;
 };
@@ -169,6 +178,7 @@ bool PlaneDragCBHandler::receive( const osgManipulator::MotionCommand& cmd )
 
 	rtdragger_.showRotationAxis( dragmode==Rotate, planeidx,
 				     Conv::to<Coord>(pickedpos_) );
+	initDragControl();
     }
 
     if ( cmd.getStage()==osgManipulator::MotionCommand::MOVE )
@@ -231,7 +241,10 @@ void PlaneDragCBHandler::constrain( int planeidx, DragMode dragmode )
     const Coord initialhordif = initialbotright_ - initialtopleft_;
 
     if ( dragmode == Trans1D )
-	slowDownTrans1D( newtopleft, newbotright );
+    {
+	applyDragControl( newtopleft, newbotright );
+	slowDownTrans1D( newtopleft, newbotright, &maxdragdist_ );
+    }
 
     if ( dragmode == Rotate )
     {
@@ -306,6 +319,9 @@ void PlaneDragCBHandler::constrain( int planeidx, DragMode dragmode )
 	}
     }
 
+    newtopleft.coord()	= rtdragger_.horborder_.moveInside( newtopleft );
+    newbotright.coord() = rtdragger_.horborder_.moveInside( newbotright );
+
     rtdragger_.doSetKnot( planeidx, newtopleft );
     rtdragger_.doSetKnot( planeidx+1, newbotright );
     rtdragger_.setDepthRange( zrg );
@@ -313,7 +329,8 @@ void PlaneDragCBHandler::constrain( int planeidx, DragMode dragmode )
 
 
 void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
-					  Coord3& newbotright ) const
+					  Coord3& newbotright,
+					  double* maxdragdistptr ) const
 {
     int dragdepth = 0;
 
@@ -400,21 +417,70 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
 	    neardist = innerdist;
     }
 
-    if ( dragdist>neardist && dragdepth>0 )
+    double maxdragdist = fardist;
+
+    if ( dragdepth>0 )
     {
 	const double speedfactor = 0.5;			// emperical
 	const double curb = fardist - neardist;
 	const double brakepoint = speedfactor * dragdepth;
 	const double speed = curb<brakepoint ? curb/brakepoint : 1.0;
 
-	if ( dragdist >= neardist + curb/speed )
+	if ( speed > 0.0 )
+	    maxdragdist = neardist + curb/speed;
+
+	if ( dragdist >= maxdragdist )
 	    dragdist = fardist;
-	else
+	else if ( dragdist > neardist )
 	    dragdist = neardist + speed*(dragdist-neardist);
     }
 
     newtopleft.coord() = initialtopleft_.coord() + dragdir*dragdist;
     newbotright.coord() = initialbotright_.coord() + dragdir*dragdist;
+
+    if ( maxdragdistptr )
+	*maxdragdistptr = maxdragdist;
+}
+
+
+void PlaneDragCBHandler::initDragControl()
+{
+    const Coord pos = Conv::to<Coord>( planedragger_->getPositionOnScreen() );
+    const float scalefactor = mMIN( SI().inlStep(), SI().crlStep() );
+    const Coord3 diagonal = initialtopleft_ - initialbotright_;	
+    const Coord3 dragdir = diagonal.cross( Coord3(0.0,0.0,1.0) );
+    dragcontroller_.init( pos, scalefactor, dragdir );
+    maxdragdist_ = mUdf(double);
+
+    const bool frontalview =
+		    planedragger_->getPlaneNormalAngleToCamera() < M_PI/18.0;
+
+    Coord screendragprojvec = Conv::to<Coord>( frontalview ?
+			    planedragger_->getUpwardPlaneAxisProjOnScreen() :
+			    planedragger_->getPlaneNormalProjOnScreen() );
+
+    if ( screendragprojvec.sqAbs() )
+    {
+	screendragprojvec /= screendragprojvec.sqAbs();
+
+	Coord dragdepthvec = dragdir.normalize().coord();
+	dragdepthvec[0] *= SI().inlRange(false).width();
+	dragdepthvec[1] *= SI().crlRange(false).width();
+
+	screendragprojvec *= dragdepthvec.abs() / scalefactor;
+	dragcontroller_.dragInScreenSpace( frontalview, screendragprojvec );
+    }
+}
+
+
+void PlaneDragCBHandler::applyDragControl( Coord3& newtopleft,
+					   Coord3& newbotright )
+{
+    Coord3 dragvec = newtopleft - initialtopleft_;
+    const Coord pos = Conv::to<Coord>( planedragger_->getPositionOnScreen() );
+    dragcontroller_.transform( dragvec, pos, maxdragdist_ );
+    newtopleft = initialtopleft_ + dragvec;
+    newbotright = initialbotright_ + dragvec;
 }
 
 
