@@ -70,7 +70,7 @@ public:
 
     virtual			~IOObj();
     virtual bool		isBad() const			= 0;
-    virtual void		copyFrom(const IOObj&)		= 0;
+    virtual void		copyFrom(const IOObj&);
     virtual bool		hasConnType( const char* s ) const
 				{ return connType() == s; }
 
