@@ -194,7 +194,7 @@ void DragController::manageScreenDragging( double& dragval,
 	 stepproj*prevproj>0.0 && dragsign_*prevproj>0.0 )
     {
 	screendragmode_ = true;
-	screendragfactor_ = dragsign_*prevdragval_ / prevproj;
+	screendragfactor_ = (float) (dragsign_*prevdragval_ / prevproj);
     }
 
     if ( screendragmode_ )
@@ -222,7 +222,7 @@ double DragController::absTransform( double dragval, const Coord& mousepos,
     if ( mousepos==prevmousepos_ || dragval==prevdragval_ )
 	return prevtransval_;
 
-    float delay = Time::passedSince( prevdragtime_ );
+    float delay = (float) Time::passedSince( prevdragtime_ );
     if ( delay <= 0.0 )
 	delay = 0.5;
 
@@ -290,7 +290,7 @@ void DragController::transform( double& realdragval, const Coord& mousepos,
     if ( dragval*dragsign_ < 0.0 )
     {
 	const double frac = prevdragval_ / (fabs(dragval)+prevdragval_);
-	prevdragtime_ += floor( frac * Time::passedSince(prevdragtime_) );
+	prevdragtime_ += (int) floor( frac * Time::passedSince(prevdragtime_) );
 	reInit( prevmousepos_*(1.0-frac) + mousepos*frac );
     }
 
