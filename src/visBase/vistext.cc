@@ -263,6 +263,7 @@ Text2::Text2()
     geode_->setNodeMask( ~visBase::cBBoxTraversalMask() );
     addChild( geode_ );
     mAttachOneFrameCullDisabler( geode_ );
+    setPickable( false, false );
 }
 
 
