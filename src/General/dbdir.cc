@@ -79,11 +79,11 @@ void DBDir::fromDirID( DirID dirid, bool inc_old_tmps )
     if ( dirid.isInvalid() )
 	return;
     ConstRefMan<DBDir> rootdbdir = DBM().fetchRoot();
-    if ( !rootdbdir )
+    if ( !rootdbdir || rootdbdir->isBad() )
 	return;
     else if ( dirid.getI() < 1000 )
 	{ *this = *rootdbdir; return; }
-    const int idx = rootdbdir->gtIdxOf( DBKey(dirid) );
+    const int idx = rootdbdir->gtIdx( ObjID::get(dirid.getI()) );
     if ( idx < 0 )
 	return;
 
@@ -120,108 +120,10 @@ void DBDir::copyClassData( const DBDir& oth )
 }
 
 
-bool DBDir::isBad() const
-{
-    mLock4Read();
-    return mIsBad();
-}
-
-
-bool DBDir::gtIsOutdated() const
-{
-    return readtime_ < 0
-	|| File::getTimeInSeconds( omfFileName(dirname_) ) > readtime_;
-}
-
-
-bool DBDir::isOutdated() const
-{
-    mLock4Read();
-    return gtIsOutdated();
-}
-
-
-DBDir::size_type DBDir::size() const
-{
-    mLock4Read();
-    return objs_.size();
-}
-
-
-IOObj* DBDir::getEntry( const DBKey& ky ) const
-{
-    mLock4Read();
-    const IOObj* obj = gtObj( ky );
-    return obj ? obj->clone() : 0;
-}
-
-
-IOObj* DBDir::getEntryByName( const char* nm, const char* trgrpnm ) const
-{
-    mLock4Read();
-    const IOObj* obj = gtObjByName( nm, trgrpnm );
-    return obj ? obj->clone() : 0;
-}
-
-
-IOObj* DBDir::getEntryByIdx( size_type idx ) const
-{
-    mLock4Read();
-    return objs_[idx] ? objs_[idx]->clone() : 0;
-}
-
-
-bool DBDir::commitChanges( const IOObj& ioobj )
-{
-    if ( ioobj.isSubdir() )
-	{ pErrMsg("Cannot change IOSubDir"); return false; }
-
-    IOObj* newioobj = ioobj.clone();
-    if ( !newioobj )
-	return false;
-
-    return setObj( newioobj, true );
-}
-
-
-bool DBDir::permRemove( const DBKey& dbky )
-{
-    mLock4Write();
-
-    if ( reRead(false) && mIsBad() )
-	return false;
-
-    size_type idxof = gtIdxOf( dbky );
-    if ( idxof < 0 )
-	return false;
-
-    mSendChgNotif( cEntryToBeRemoved(), dbky.toInt64() );
-    mReLock();
-    idxof = gtIdxOf( dbky );
-    if ( idxof < 0 )
-	return false;
-
-    delete objs_.removeSingle( idxof );
-    return writeToFile();
-}
-
-
-void DBDir::forceReRead()
-{
-    mLock4Write();
-    reRead( true );
-}
-
-
-bool DBDir::writeNow() const
-{
-    mLock4Read();
-    return writeToFile();
-}
-
-
 bool DBDir::readFromFile( bool incl_old_tmp )
 {
+    mLock4Write();
+
     SafeFileIO sfio( omfFileName(dirname_), false );
     if ( !sfio.open(true) )
 	{ errmsg_ = sfio.errMsg(); return false; }
@@ -233,6 +135,7 @@ bool DBDir::readFromFile( bool incl_old_tmp )
     {
 	readtime_ = Time::getFileTimeInSeconds();
 	sfio.closeSuccess();
+	mSendEntireObjChgNotif();
     }
     return ret;
 }
@@ -247,6 +150,8 @@ bool DBDir::readOmf( od_istream& strm, bool inc_old_tmps )
     astream.next();
     if ( !strm.isOK() )
 	return false;
+
+    deepErase( objs_ );
 
     FileMultiString fms( astream.value() );
     DirID dirid = DirID::get( toInt(fms[0]) );
@@ -291,19 +196,114 @@ bool DBDir::readOmf( od_istream& strm, bool inc_old_tmps )
 }
 
 
-DBDir::size_type DBDir::indexOf( const DBKey& dbky ) const
+bool DBDir::isBad() const
 {
-    Threads::Locker locker( lock_ );
-    return gtIdxOf( dbky );
+    mLock4Read();
+    return mIsBad();
 }
 
 
-DBDir::size_type DBDir::gtIdxOf( const DBKey& dbky ) const
+bool DBDir::isOutdated() const
+{
+    mLock4Read();
+    return readtime_ < 0
+	|| File::getTimeInSeconds( omfFileName(dirname_) ) > readtime_;
+}
+
+
+#define mPrepUsrAccess(what_to_do_on_fail) \
+    if ( reRead(false) && isBad() ) \
+	{ what_to_do_on_fail; } \
+    mLock4Read()
+
+
+DBDir::size_type DBDir::size() const
+{
+    mPrepUsrAccess( return 0 );
+    return objs_.size();
+}
+
+
+IOObj* DBDir::getEntry( ObjID objid ) const
+{
+    mPrepUsrAccess( return 0 );
+    const size_type idxof = gtIdx( objid );
+    return idxof < 0 ? 0 : objs_[idxof]->clone();
+}
+
+
+IOObj* DBDir::getEntryByName( const char* nm, const char* trgrpnm ) const
+{
+    mPrepUsrAccess( return 0 );
+    const IOObj* obj = gtObjByName( nm, trgrpnm );
+    return obj ? obj->clone() : 0;
+}
+
+
+IOObj* DBDir::getEntryByIdx( size_type idx ) const
+{
+    mPrepUsrAccess( return 0 );
+    return objs_[idx] ? objs_[idx]->clone() : 0;
+}
+
+
+bool DBDir::commitChanges( const IOObj& ioobj )
+{
+    if ( ioobj.isSubdir() )
+	{ pErrMsg("Cannot change IOSubDir"); return false; }
+    else if ( ioobj.key().dirID() != dirid_ )
+	{ pErrMsg("Commit asked for wrong DBDir"); return false; }
+
+    IOObj* newioobj = ioobj.clone();
+    if ( !newioobj )
+	return false;
+
+    return setObj( newioobj, true );
+}
+
+
+bool DBDir::permRemove( ObjID objid )
+{
+    if ( objid.isInvalid() )
+	return true;
+
+    mPrepUsrAccess( return false );
+
+    size_type idxof = gtIdx( objid );
+    if ( idxof < 0 )
+	return true;
+
+    if ( !mLock2Write() )
+    {
+	idxof = gtIdx( objid );
+	if ( idxof < 0 )
+	    return true;
+    }
+
+    mSendChgNotif( cEntryToBeRemoved(), DBKey(dirid_,objid).toInt64() );
+    mReLock();
+    idxof = gtIdx( objid );
+    if ( idxof < 0 )
+	return false;
+
+    delete objs_.removeSingle( idxof );
+    return writeToFile();
+}
+
+
+DBDir::size_type DBDir::indexOf( ObjID objid ) const
+{
+    mPrepUsrAccess( return -1 );
+    return gtIdx( objid );
+}
+
+
+DBDir::size_type DBDir::gtIdx( ObjID objid ) const
 {
     for ( size_type idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
-	if ( ioobj->key() == dbky )
+	if ( ioobj->key().objID() == objid )
 	    return idx;
     }
 
@@ -313,14 +313,13 @@ DBDir::size_type DBDir::gtIdxOf( const DBKey& dbky ) const
 
 bool DBDir::isPresent( const DBKey& dbky ) const
 {
-    return indexOf( dbky ) >= 0;
+    return dbky.dirID() == dirid_ && indexOf( dbky.objID() ) >= 0;
 }
 
 
-const IOObj* DBDir::gtObj( const DBKey& dbky ) const
+bool DBDir::isPresent( ObjID objid ) const
 {
-    const size_type idxof = gtIdxOf( dbky );
-    return idxof < 0 ? 0 : objs_[idxof]->clone();
+    return indexOf( objid ) >= 0;
 }
 
 
@@ -339,14 +338,14 @@ const IOObj* DBDir::gtObjByName( const char* nm, const char* trgrpnm ) const
 }
 
 
-bool DBDir::reRead( bool force )
+bool DBDir::reRead( bool force ) const
 {
-    if ( !force && !gtIsOutdated() )
+    if ( !force && !isOutdated() )
 	return false;
 
     DBDir rddbdir( dirname_ );
     if ( !rddbdir.isBad() && rddbdir.size() > 1 )
-	{ *this = rddbdir; return true; }
+	{ const_cast<DBDir&>(*this) = rddbdir; return true; }
 
     return false;
 }
@@ -355,16 +354,16 @@ bool DBDir::reRead( bool force )
 bool DBDir::setObj( IOObj* ioobj, bool writeafter )
 {
     mLock4Write();
-    reRead( false );
+
     DBKey dbky = ioobj->key();
-    if ( dbky.isInvalid() )
+    if ( dbky.dirID() != dirid_ )
     {
 	dbky = gtNewKey( curnr_ );
 	ioobj->setKey( dbky );
     }
     else
     {
-	const IdxType curidxof = gtIdxOf( dbky );
+	const IdxType curidxof = gtIdx( dbky.objID() );
 	if ( curidxof >= 0 )
 	{
 	    delete objs_.replace( curidxof, ioobj );
@@ -385,7 +384,6 @@ bool DBDir::setObj( IOObj* ioobj, bool writeafter )
 
 bool DBDir::ensureUniqueName( IOObj& ioobj ) const
 {
-
     BufferString nm( ioobj.name() );
     size_type nr = 1;
     while ( gtObjByName(nm,ioobj.translator().buf()) )
@@ -457,6 +455,8 @@ bool DBDir::wrOmf( od_ostream& strm ) const
 
 bool DBDir::writeToFile() const
 {
+    mLock4Read();
+
     SafeFileIO sfio( omfFileName(dirname_), false );
     if ( !sfio.open(false) )
 	mErrRet()
@@ -480,13 +480,6 @@ void DBDir::setObjDirName( IOObj& ioobj )
 }
 
 
-DBKey DBDir::newKey() const
-{
-    mLock4Write();
-    return gtNewKey( curnr_ );
-}
-
-
 DBKey DBDir::newTmpKey() const
 {
     mLock4Write();
@@ -494,10 +487,10 @@ DBKey DBDir::newTmpKey() const
 }
 
 
-DBKey DBDir::gtNewKey( const ObjNrType& id ) const
+DBKey DBDir::gtNewKey( const ObjNrType& nr ) const
 {
-    const_cast<ObjNrType&>(id)++;
-    return DBKey( dirid_, DBKey::ObjID::get(id) );
+    const_cast<ObjNrType&>(nr)++;
+    return DBKey( dirid_, ObjID::get(nr) );
 }
 
 
@@ -553,4 +546,11 @@ const IOObj& DBDirIter::ioObj() const
 DBKey DBDirIter::key() const
 {
     return isValid() ? dbDir().objs_[curidx_]->key() : DBKey::getInvalid();
+}
+
+
+DBDirIter::ObjID DBDirIter::objID() const
+{
+    return isValid() ? dbDir().objs_[curidx_]->key().objID()
+		     : ObjID::getInvalid();
 }

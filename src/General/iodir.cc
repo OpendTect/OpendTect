@@ -346,7 +346,7 @@ const IOObj* IODir::gtObjByName( const char* nm, const char* trgrpnm ) const
 
 IODir::size_type IODir::indexOf( const DBKey& ky ) const
 {
-    Threads::Locker locker( lock_ );
+    mLock4Read();
     return gtIdxOf( ky );
 }
 

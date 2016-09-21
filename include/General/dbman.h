@@ -34,29 +34,15 @@ mExpClass(General) DBMan : public Monitorable
 public:
 
     typedef DBKey::DirID DirID;
-
-    IOObj*		get(DBKey) const;
-    ConstRefMan<DBDir>	fetchRoot() const	{ return rootdbdir_; }
-    ConstRefMan<DBDir>	fetch(DirID);
-
-    bool		isBad() const;
-    uiString		errMsg() const		{ return errmsg_; }
+    typedef DBKey::ObjID ObjID;
 
     bool		isPresent(const DBKey&) const;
     bool		isPresent(const char*,const char* tgname) const;
-
-    IOObj*		get(const DBKey&) const;
+    IOObj*		get(DBKey) const;
     IOObj*		getByName(const char* objname,const char* tgname) const;
-
-    BufferString	rootDir() const		{ return rootdir_; }
-    bool		setRootDir(const char*);
-    BufferString	surveyName() const;
     BufferString	nameOf(const DBKey&) const;
-    bool		isKeyString(const char*) const;
     BufferString	nameFor(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
-
-    DBKey		createNewKey(DirID);
 
     void		getEntry(CtxtIOObj&,bool newistmp=false,
 				 int translidxingroup=-1);
@@ -64,19 +50,32 @@ public:
     bool		setEntry(const IOObj&);
     bool		removeEntry(const DBKey&);
 
+    ConstRefMan<DBDir>	fetchRoot() const	{ return rootdbdir_; }
+    ConstRefMan<DBDir>	fetch(DirID);
+
+    BufferString	rootDir() const		{ return rootdir_; }
+    bool		setRootDir(const char*);
+    BufferString	surveyName() const;
+    bool		isKeyString(const char*) const;
+
+    Notifier<DBMan>	surveyToBeChanged;  //!< Before the change
+    Notifier<DBMan>	surveyChanged;      //!< To restore OD to normal state
+    Notifier<DBMan>	afterSurveyChange;  //!< When operating in normal state
+    Notifier<DBMan>	applicationClosing; //!< 'Final' call ...
+
     mExpClass(General) CustomDirData
     {
     public:
 
-	typedef DBKey::GroupNrType  GroupNrType;
+	typedef DBKey::DirNrType  DirNrType;
 
-			CustomDirData( GroupNrType gnr, const char* dirnm,
+			CustomDirData( DirNrType dnr, const char* dirnm,
 					const char* desc )
-			    : dirnr_(gnr)
+			    : dirnr_(dnr)
 			    , dirname_(dirnm)
 			    , desc_(desc)		{}
 
-	GroupNrType	dirnr_; //!< Make sure your dirnr_ > 200000
+	DirNrType	dirnr_; //!< Make sure your dirnr_ > 200000
 				 //!< Lower than that will be refused!
 				 //!< Example: 218745
 	BufferString	dirname_; //!< The subdirectory name in the tree
@@ -91,14 +90,6 @@ public:
 			//!< Need to do this only once per OD run
 			//!< At survey change, dir will automatically be added
 
-    Notifier<DBMan>	surveyToBeChanged;  //!< Before the change
-    Notifier<DBMan>	surveyChanged;      //!< To restore OD to normal state
-    Notifier<DBMan>	afterSurveyChange;  //!< When operating in normal state
-    Notifier<DBMan>	applicationClosing; //!< 'Final' call ...
-
-    static bool		isValidDataRoot(const char* dirnm);
-    static bool		isValidSurveyDir(const char* dirnm);
-
 private:
 
     BufferString	rootdir_;
@@ -112,14 +103,25 @@ private:
 
     void		handleNewRootDir();
     void		leaveSurvey();
+    void		readDirs();
     static void		setupCustomDataDirs(int,uiString& errmsg);
     BufferString	surveyDirectory() const;
+    DBDir*		gtDir(DirID);
+    const DBDir*	gtDir(DirID) const;
 
     friend mGlobal(General) DBMan& DBM();
 
     void		findTempObjs(ObjectSet<IOObj>&,
 				const IOObjSelConstraints* cnstrts=0) const;
 			//!< set filled with cloned ioobjs. Needs deepErase().
+
+public:
+
+    DBKey		createNewKey(DirID);
+    bool		isBad() const;
+    uiString		errMsg() const		{ return errmsg_; }
+    static bool		isValidDataRoot(const char* dirnm);
+    static bool		isValidSurveyDir(const char* dirnm);
 
 };
 

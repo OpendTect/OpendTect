@@ -88,7 +88,6 @@ private:
     mutable ObjNrType	curnr_;
     mutable ObjNrType	curtmpnr_;
     mutable uiString	errmsg_;
-    mutable Threads::Lock lock_;
 
 			IODir();
 

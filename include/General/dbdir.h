@@ -57,16 +57,17 @@ public:
     size_type		size() const;
     bool		isEmpty() const		{ return size() < 1; }
 
+    bool		isPresent(ObjID) const;
     bool		isPresent(const DBKey&) const;
-    IdxType		indexOf(const DBKey&) const;
+    IdxType		indexOf(ObjID) const;
 
-    IOObj*		getEntry(const DBKey&) const;
+    IOObj*		getEntry(ObjID) const;
     IOObj*		getEntryByName(const char* nm,
 					const char* trgrpnm=0) const;
     IOObj*		getEntryByIdx(IdxType) const;
 
     bool		commitChanges(const IOObj&);
-    bool		permRemove(const DBKey&);
+    bool		permRemove(ObjID);
     DBKey		newTmpKey() const;
 
     static ChangeType	cEntryChanged()		{ return 2; }
@@ -83,30 +84,23 @@ private:
     mutable ObjNrType	curnr_;
     mutable ObjNrType	curtmpnr_;
     mutable uiString	errmsg_;
-    mutable Threads::Lock lock_;
 
 			DBDir();
 
     void		fromDirID(DirID,bool);
     bool		readFromFile(bool);
     bool		readOmf(od_istream&,bool);
-    bool		reRead(bool force);
     bool		writeToFile() const;
     bool		wrOmf(od_ostream&) const;
-    const IOObj*	gtObj(const DBKey&) const;
     const IOObj*	gtObjByName(const char*,const char*) const;
-    IdxType		gtIdxOf(const DBKey&) const;
+    IdxType		gtIdx(ObjID) const;
     bool		gtIsOutdated() const;
     bool		setObj(IOObj*,bool writeafter);
     bool		ensureUniqueName(IOObj&) const;
 
     DBKey		gtNewKey(const ObjNrType&) const;
-    DBKey		newKey() const;		//!< locked, as it's 'public'
 
-    friend class	IOMan;
-    friend class	IOObj;
     friend class	DBDirIter;
-    friend class	DBDirEntryList;
 
     void		setObjDirName(IOObj&);
 
@@ -114,10 +108,8 @@ public:
 
     // 'Usually not needed' section
 
-    void		forceReRead();
+    bool		reRead(bool force) const;
 				// Done a lot already
-    bool		writeNow() const;
-				// write is automatic after commit or remove
 
     static void		getTmpIOObjs(DirID,ObjectSet<IOObj>&,
 					const IOObjSelConstraints* c=0);
@@ -130,6 +122,8 @@ mExpClass(General) DBDirIter : public MonitorableIter<DBDir::size_type>
 {
 public:
 
+    typedef DBDir::ObjID ObjID;
+
 			DBDirIter(const DBDir&);
 			DBDirIter(const DBDirIter&);
 
@@ -137,6 +131,7 @@ public:
     const DBDir&	dbDir() const;
 
     const IOObj&	ioObj() const;
+    ObjID		objID() const;
     DBKey		key() const;
 
 private:

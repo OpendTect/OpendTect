@@ -12,6 +12,7 @@
 #include "filepath.h"
 #include "survinfo.h"
 #include "survgeom.h"
+#include "iosubdir.h"
 
 
 static DBMan* theinst_ = 0;
@@ -79,5 +80,48 @@ void DBMan::handleNewRootDir()
     if ( isBad() )
 	errmsg_ = rootdbdir_->errMsg();
     else
+    {
 	Survey::GMAdmin().fillGeometries(0);
+	readDirs();
+    }
+}
+
+
+bool DBMan::isPresent( const DBKey& dbky ) const
+{
+    mLock4Read();
+    const DBDir* dir = gtDir( dbky.dirID() );
+    return dir && dir->isPresent( dbky.objID() );
+}
+
+
+DBDir* DBMan::gtDir( DirID dirid )
+{
+    for ( int idx=0; idx<dirs_.size(); idx++ )
+	if ( dirs_[idx]->dirID() == dirid )
+	    return dirs_[idx];
+    return 0;
+}
+
+
+const DBDir* DBMan::gtDir( DirID dirid ) const
+{
+    return const_cast<DBMan*>(this)->gtDir( dirid );
+}
+
+
+void DBMan::readDirs()
+{
+    DBDirIter iter( *rootdbdir_ );
+    while ( iter.next() )
+    {
+	mDynamicCastGet( const IOSubDir*, iosubd, &iter.ioObj() );
+	if ( !iosubd )
+	    continue;
+	DBDir* dir = new DBDir( iosubd->dirName() );
+	if ( !dir || dir->isBad() )
+	    delete dir;
+	else
+	    dirs_ += dir;
+    }
 }

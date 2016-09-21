@@ -38,13 +38,14 @@ mExpClass(Basic) DBKey : public IDWithGroup<int,int>
 public:
 
     typedef GroupID	DirID;
+    typedef GroupNrType	DirNrType;
 
 			DBKey()
 			    : auxkey_(0)	{}
 			DBKey( const DBKey& oth )
 			    : auxkey_(0)	{ *this = oth; }
-			DBKey( GroupID gid, ObjID oid=ObjID::getInvalid() )
-			    : IDWithGroup<int,int>(gid,oid)
+			DBKey( DirID dirid, ObjID oid=ObjID::getInvalid() )
+			    : IDWithGroup<int,int>(dirid,oid)
 			    , auxkey_(0)	{}
 			~DBKey();
 
@@ -54,7 +55,7 @@ public:
 			{ return !(oth == *this); }
 
     static DBKey	getInvalid()		{ return DBKey(-1,-1); }
-    static DBKey	get( GroupNrType gnr, ObjNrType onr=-1 )
+    static DBKey	get( DirNrType gnr, ObjNrType onr=-1 )
 						{ return DBKey(gnr,onr); }
     static DBKey	getFromString(const char*);
     static DBKey	getFromInt64(od_int64);
@@ -83,8 +84,8 @@ public:
 
 protected:
 
-			DBKey( GroupNrType gnr, ObjNrType onr=-1 )
-			    : IDWithGroup<int,int>(gnr,onr)
+			DBKey( DirNrType dnr, ObjNrType onr=-1 )
+			    : IDWithGroup<int,int>(dnr,onr)
 			    , auxkey_(0)	{}
 
     BufferString*	auxkey_;
