@@ -261,9 +261,10 @@ int TileGlueTesselator::nextStep()
 
 
 HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
-    ObjectSet<HorizonSectionTile> tiles, HorizonSection* horsection,
+    TypeSet<RowCol>& tiles, TypeSet<RowCol>& indexes,HorizonSection* horsection,
     StepInterval<int>rrg,StepInterval<int>crg )
     : hrtiles_( tiles )
+    , indexes_( indexes )
     , rrg_( rrg )
     , crg_( crg )
     , geo_( 0 )
@@ -298,11 +299,12 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	if ( !hrtiles_[idx] )
+	if ( hrtiles_[idx].isUdf() )
 	     continue;
 
-	const RowCol& origin = hrtiles_[idx]->origin_;
+	const RowCol& origin = hrtiles_[idx];
 	TypeSet<Coord3> positions;
+	bool hasdata = false;
 	positions.setCapacity( (nrcrdspertileside_)*(nrcrdspertileside_),
 			       false );
 	for ( int rowidx=0; rowidx<nrcrdspertileside_ ; rowidx++ )
@@ -320,14 +322,29 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 		Coord3 pos = rowok && colrg.includes(col, false)
 		    ? geo_->getKnot(RowCol(row,col),false)
 		    : Coord3::udf();
+
+		if ( pos.isDefined() )
+		    hasdata = true;
+
 		if ( zaxistransform_ )
 		    pos.z = zaxistransform_->transform( pos );
 		positions += pos;
 	    }
 	}
 
-	hrtiles_[idx]->setPositions( positions );
-	hrtiles_[idx]->tesselateResolution( lowestresidx_, false );
+	HorizonSectionTile* tile = 0;
+	if ( hasdata )
+	{
+	    Threads::Locker locker( lock_ );
+	    tile = new HorizonSectionTile( *horsection_, origin );
+	    tile->setPositions( positions );
+	    tile->tesselateResolution( lowestresidx_, false );
+	    locker.unlockNow();
+	}
+	const RowCol tileindex = indexes_[idx];
+	horsection_->writeLock();
+	horsection_->tiles_.set( tileindex.row(), tileindex.col(), tile );
+	horsection_->writeUnLock();
 	addToNrDone( 1 );
     }
 

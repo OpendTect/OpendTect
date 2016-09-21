@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "vishorizonsectiondef.h"
 #include "threadwork.h"
 #include "paralleltask.h"
+#include "rowcol.h"
 #include "thread.h"
 #include "ranges.h"
 
@@ -112,7 +113,7 @@ public:
 class HorizonSectionTilePosSetup: public ParallelTask
 { mODTextTranslationClass(HorizonSectionTilePosSetup);
 public:
-    HorizonSectionTilePosSetup(ObjectSet<HorizonSectionTile> tiles, 
+    HorizonSectionTilePosSetup(TypeSet<RowCol>& tiles,TypeSet<RowCol>& indexes,
 	HorizonSection* horsection,StepInterval<int>rrg,StepInterval<int>crg );
 
     ~HorizonSectionTilePosSetup();
@@ -128,11 +129,13 @@ protected:
 
     int					nrcrdspertileside_;
     char				lowestresidx_;
-    ObjectSet<HorizonSectionTile>	hrtiles_;
+    TypeSet<RowCol>&			hrtiles_;
+    TypeSet<RowCol>&			indexes_;
     const Geometry::BinIDSurface*	geo_;
     StepInterval<int>			rrg_, crg_;
     ZAxisTransform*			zaxistransform_;
     HorizonSection*			horsection_;
+    Threads::Lock			lock_;
 };
 
 

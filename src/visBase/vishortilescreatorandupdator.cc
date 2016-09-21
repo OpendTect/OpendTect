@@ -50,8 +50,9 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
     const int nrrowsz = horsection_->tiles_.info().getSize(0);
     const int nrcolsz = horsection_->tiles_.info().getSize(1);
 
-    ObjectSet<HorizonSectionTile> fullupdatetiles;
     ObjectSet<HorizonSectionTile> oldupdatetiles;
+    TypeSet<RowCol> fullupdatetiles;
+    TypeSet<RowCol> tileindexes;
 
     for ( int idx=(*gpids).size()-1; idx>=0; idx-- )
     {
@@ -91,10 +92,15 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 						    tilerowidx, tilecolidx );
 	if ( !tile )
 	{
-	    tile = createOneTile( tilerowidx, tilecolidx );
-	    fullupdatetiles += tile;
+	    const RowCol step( rrg.step, crg.step );
+	    const RowCol tileorigin( horsection_->origin_.row() +
+		tilerowidx*horsection_->tilesidesize_*step.row(),
+		horsection_->origin_.col() +
+		tilecolidx*horsection_->tilesidesize_*step.col() );
+	    fullupdatetiles += tileorigin;
+	    tileindexes += RowCol(tilerowidx,tilecolidx);
 	}
-	else if ( fullupdatetiles.indexOf(tile)==-1 )
+	else if ( fullupdatetiles.indexOf(tile->origin_)==-1 )
 	{
 	    tile->setPos( tilerow, tilecol, pos );
 	    if ( horsection_->desiredresolution_!=-1 )
@@ -118,7 +124,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 
 		HorizonSectionTile* nbtile = horsection_->tiles_.get(
 		    nbrow, nbcol );
-		if ( !nbtile || fullupdatetiles.indexOf(nbtile)!=-1)
+		if ( !nbtile || fullupdatetiles.indexOf(nbtile->origin_) !=-1 )
 		    continue;
 
 		nbtile->setPos( tilerow-rowidx*tilesidesize,
@@ -139,17 +145,23 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
     }
 
     horsection_->setUpdateVar( horsection_->forceupdate_,  false );
+    HorizonSectionTilePosSetup postask( fullupdatetiles, tileindexes,
+	horsection_, rrg, crg );
+    TaskRunner::execute( tr, postask );
 
-    HorizonSectionTilePosSetup task( fullupdatetiles, horsection_,rrg, crg );
-    TaskRunner::execute( tr, task );
-
-    for ( int idx = 0; idx< fullupdatetiles.size(); idx++ )
+    for ( int idx=0; idx<fullupdatetiles.size(); idx++ )
     {
-	fullupdatetiles[idx]->addTileGlueTesselator();
+	const int ridx = tileindexes[idx].row();
+	const int cidx = tileindexes[idx].col();
+	HorizonSectionTile* tile = horsection_->tiles_.get( ridx, cidx );
+	if ( !tile || !fullupdatetiles.isPresent(tile->origin_) )
+	    continue;
+	setNeighbors( tile, ridx, cidx );
+	horsection_->osghorizon_->addChild( tile->osgswitchnode_ );
+	tile->addTileGlueTesselator();
     }
 
-
-    //Only for fixed resolutions, which won't be tesselated at render.
+    //Only for fixed resolutions, which won't be tessellated at render.
     if ( oldupdatetiles.size() )
     {
 	TypeSet<Threads::Work> work;
@@ -243,8 +255,16 @@ HorizonSectionTile* HorTilesCreatorAndUpdator::createOneTile( int tilerowidx,
 
     horsection_->writeLock();
     horsection_->tiles_.set( tilerowidx, tilecolidx, tile );
+    horsection_->osghorizon_->addChild( tile->osgswitchnode_ );
     horsection_->writeUnLock();
 
+    return tile;
+}
+
+
+void HorTilesCreatorAndUpdator::setNeighbors( HorizonSectionTile* tile, 
+    int tilerowidx, int tilecolidx )
+{
     for ( int rowidx=-1; rowidx<=1; rowidx++ )
     {
 	const int neighborrow = tilerowidx+rowidx;
@@ -292,11 +312,7 @@ HorizonSectionTile* HorTilesCreatorAndUpdator::createOneTile( int tilerowidx,
 	}
     }
 
-    horsection_->writeLock();
-    horsection_->osghorizon_->addChild( tile->osgswitchnode_ );
-    horsection_->writeUnLock();
 
-    return tile;
 }
 
 
@@ -325,19 +341,45 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
     horsection_->tiles_.setAll( 0 );
     horsection_->writeUnLock();
 
-    ObjectSet<HorizonSectionTile> newtiles;
+    TypeSet<RowCol> createtiles;
+    TypeSet<RowCol> tileindexes;
+
     for ( int tilerowidx=0; tilerowidx<nrrows; tilerowidx++ )
     {
 	for ( int tilecolidx=0; tilecolidx<nrcols; tilecolidx++ )
 	{
-	    newtiles += createOneTile(tilerowidx, tilecolidx);
+	    const RowCol step(rrg.step,crg.step);
+	    const RowCol tileorigin(horsection_->origin_.row() +
+		tilerowidx*horsection_->tilesidesize_*step.row(),
+		horsection_->origin_.col() +
+		tilecolidx*horsection_->tilesidesize_*step.col());
+	    createtiles += tileorigin;
+	    tileindexes += RowCol( tilerowidx, tilecolidx );
 	}
     }
 
-    horsection_->setUpdateVar( horsection_->forceupdate_,  false );
+    horsection_->setUpdateVar( horsection_->forceupdate_, false );
 
-    HorizonSectionTilePosSetup task( newtiles, horsection_,rrg, crg );
-    TaskRunner::execute( tr, task );
+    HorizonSectionTilePosSetup postask( createtiles, tileindexes, 
+	horsection_, rrg, crg );
+    TaskRunner::execute(tr,postask);
+    
+    HorizonSectionTile** tileptrs = horsection_->tiles_.getData();
+    int tidx = 0;
+    for ( int tilerowidx = 0; tilerowidx<nrrows; tilerowidx++ )
+    {
+	for ( int tilecolidx = 0; tilecolidx<nrcols; tilecolidx++ )
+	{
+	    HorizonSectionTile* tile = tileptrs[tidx];
+	    if ( tile )
+	    {
+		setNeighbors( tile, tilerowidx, tilecolidx );
+		horsection_->osghorizon_->addChild(tile->osgswitchnode_ );
+	    }
+	    tidx++;
+	}
+    }
+
 
     horsection_->setUpdateVar( horsection_->forceupdate_,  true );
     horsection_->tesselationlock_ = false;

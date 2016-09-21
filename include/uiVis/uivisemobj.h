@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "menuhandler.h"
 #include "uisettings.h"
 
-namespace EM { class EdgeLineSet; class EdgeLineSegment; }
+namespace EM { class EdgeLineSet; class EdgeLineSegment; class Horizon3D;}
 namespace visSurvey { class EMObjectDisplay; }
 
 class uiColorTableGroup;
@@ -61,6 +61,7 @@ protected:
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     void		keyEventCB(CallBacker*);
+    void		checkHorizonSize(const EM::Horizon3D*);
 
     visSurvey::EMObjectDisplay*		getDisplay();
     const visSurvey::EMObjectDisplay*	getDisplay() const;

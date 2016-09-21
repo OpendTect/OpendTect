@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        K. Tingdahl
- Date:          Jan 2005
+ Author:	K. Tingdahl
+ Date:		Jan 2005
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "simpnumer.h"
 
 #include "uicolortable.h"
 #include "uigeninput.h"
@@ -43,6 +44,7 @@ ________________________________________________________________________
 #include "vishorizonsectiondef.h"
 #include "vismarchingcubessurfacedisplay.h"
 #include "vissurvobj.h"
+#include "vishorizonsectiondef.h"
 
 
 uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
@@ -55,11 +57,16 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod ) return;
 
-    visSurvey::Scene* scene = emod->getScene();
-    mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
     const DBKey mid = emod->getDBKey();
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
 
+    const EM::EMObject* emobj = EM::EMM().getObject( emid );
+    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
+    if ( hor3d )
+	checkHorizonSize( hor3d );
+
+    visSurvey::Scene* scene = emod->getScene();
+    mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
     uiTaskRunner dlg( uiparent_ );
     if ( !EM::EMM().getObject(emid) )
     {
@@ -156,7 +163,10 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     visSurvey::EMObjectDisplay* emod = 0;
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj);
     if ( hor3d )
+    {
+	checkHorizonSize( hor3d );
 	emod = new visSurvey::HorizonDisplay;
+    }
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj);
     if ( hor2d )
 	emod = new visSurvey::Horizon2DDisplay;
@@ -566,3 +576,38 @@ bool uiHorizonSettings::acceptOK()
 		    sKeyHorizonColTab );
     return true;
 }
+
+
+#define cMaxHorTitles 10000
+#define cFullResolution 1
+#define cHalfResolution 2
+
+void uiVisEMObject::checkHorizonSize( const EM::Horizon3D* hor3d )
+{
+    if ( !hor3d ) return;
+
+    const TrcKeySampling tck = hor3d->range();
+    int res = 0;
+    Settings::common().get( sKeyHorizonRes, res );
+    if ( res<=cFullResolution )
+    {
+	const int nrrows = nrBlocks(
+	tck.inlRange().nrSteps()+1, cNumberNodePerTileSide, 1 );
+	const int nrcols = nrBlocks(
+	    tck.crlRange().nrSteps()+1, cNumberNodePerTileSide, 1 );
+
+	const int maxlines = nrrows*nrcols;
+	if ( maxlines >= cMaxHorTitles )
+	{
+	    uiString msg = 
+		tr( "The horizon is too big for display\n"
+		"Yes - using half resolution to save a certain memory.\n"
+		"No - continue using default resolution." );
+	    const int ret = uiMSG().askGoOn( msg );
+	    if ( ret==1 )
+		Settings::common().set(
+		"dTect.Horizon.Resolution",cHalfResolution );
+	}
+    }
+}
+
