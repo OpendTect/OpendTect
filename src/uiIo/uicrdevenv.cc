@@ -67,7 +67,11 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 
 bool uiCrDevEnv::isOK( const char* datadir )
 {
+#ifdef __mac__
+    FilePath datafp( datadir, "Resources" );
+#else
     FilePath datafp( datadir );
+#endif
 
     if ( !datafp.nrLevels() ) return false;
 
@@ -175,7 +179,12 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if ( uiMSG().askGoOn(docmsg) )
 	showProgrDoc();
 
+#ifdef __mac__
+    FilePath fp( swdir, "Resources" );
+#else
     FilePath fp( swdir, "bin" );
+#endif
+
 #ifdef __win__
     BufferString cmd;
     fp.add( "od_cr_dev_env.bat" );
@@ -195,6 +204,10 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     fp.add( "od_cr_dev_env" );
     BufferString cmd( "'", fp.fullPath() );
     cmd += "' '"; cmd += swdir;
+#ifdef __mac__
+    cmd += "/Resources";
+#endif
+
     cmd += "' '"; cmd += workdirnm; cmd += "'";
     system( cmd );
 #endif
