@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "batchjobdispatch.h"
 #include "filepath.h"
+#include "hostdata.h"
 #include "iopar.h"
 #include "jobrunner.h"
 #include "od_ostream.h"
@@ -72,11 +73,36 @@ bool uiMMPTestProc::initWork( bool retry )
 }
 
 
-bool uiMMPTestProc::acceptOK()
+bool uiMMPTestProc::acceptOK( CallBacker* )
 {
     const BufferString filenm = logstrm_->fileName();
     delete logstrm_; logstrm_ = 0;
     uiMSG().message( tr("The log file has been saved as %1").arg(filenm) );
+    return true;
+}
+
+
+bool uiMMPTestProc::rejectOK( CallBacker* )
+{
+    const BufferString filenm = logstrm_->fileName();
+    delete logstrm_; logstrm_ = 0;
+    uiMSG().message( tr("The log file has been saved as %1").arg(filenm) );
+    return true;
+}
+
+
+bool uiMMPTestProc::prepareCurrentJob()
+{
+    const JobInfo& ji = jobrunner_->curJobInfo();
+    BufferString msg( "Attempting to run " );
+    msg += jobrunner_->descProv()->objType();
+    if ( ji.hostdata_ )
+    {
+	msg += " on ";
+	msg += ji.hostdata_->getHostName();
+    }
+
+    *logstrm_ << msg;
     return true;
 }
 

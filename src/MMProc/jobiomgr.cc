@@ -175,6 +175,8 @@ protected:
 void JobIOHandler::listen( int firstport, int maxtries )
 {
     int currentport = firstport;
+    mLogMsg("Initializing TCP server")
+
     for ( int idx=0; idx<maxtries; idx++, currentport++ )
     {
 	server_.listen( System::localAddress(), currentport );
@@ -186,6 +188,15 @@ void JobIOHandler::listen( int firstport, int maxtries )
 	}
 	else
 	    server_.close();
+    }
+
+    if ( logstrm_ )
+    {
+	if ( server_.isListening() )
+	    *logstrm_ << "Listening at port " << usedport_ << od_endl;
+	else
+	    *logstrm_ << "Failed to listen at any of the ports from "
+		<< firstport << " to " << (currentport-1) << od_endl;
     }
 }
 
@@ -318,6 +329,7 @@ void JobIOHandler::socketCB( CallBacker* cb )
 	else
 	{
 	    errmsg = server_.errorMsg();
+	    mLogMsg( errmsg );
 	    ErrMsg( errmsg );
 	}
     }

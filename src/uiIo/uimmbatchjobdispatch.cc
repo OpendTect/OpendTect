@@ -412,6 +412,15 @@ void uiMMBatchJobDispatcher::vwLogPush( CallBacker* )
 
 void uiMMBatchJobDispatcher::jrpSel( CallBacker* )
 {
+    if ( logstrm_ )
+    {
+	jrppolselfld_->display( false );
+	jrpstartfld_->display( false );
+	jrpstopfld_->display( false );
+	jrpworklbl_->display( false );
+	return;
+    }
+
     const bool doschedule = jrppolselfld_->currentItem() == 2;
     jrpstartfld_->display( doschedule );
     jrpstopfld_->display( doschedule );
@@ -582,8 +591,10 @@ bool uiMMBatchJobDispatcher::wrapUp()
 	    return false;
     }
 
-    progrfld_->append( "Processing completed" );
-    mLogMsg( "Processing completed" );
+    BufferString msg( logstrm_ ? "Finished diagnostics"
+				: "Processing completed" );
+    progrfld_->append( msg );
+    mLogMsg( msg );
     setCtrlStyle( CloseOnly );
     uiButton* cancbuttn = button( uiDialog::CANCEL );
     if ( cancbuttn )
@@ -717,7 +728,7 @@ int uiMMBatchJobDispatcher::nrSelMachs() const
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 
-void uiMMBatchJobDispatcher::addPush( CallBacker* )
+void uiMMBatchJobDispatcher::addPush( CallBacker* cb )
 {
     const int nrmach = avmachfld_ ? avmachfld_->size() : 1;
     if ( nrmach < 1 )
@@ -766,6 +777,13 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 	    progrfld_->append( msg.getFullString() );
 	    mLogMsg( msg.getFullString() );
 	}
+    }
+
+    if ( logstrm_ )
+    {
+	mDynamicCastGet(uiPushButton*,pb,cb)
+	if ( pb )
+	    pb->setSensitive( false );
     }
 }
 

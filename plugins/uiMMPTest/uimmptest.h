@@ -64,5 +64,7 @@ protected:
 
     virtual bool	initWork(bool);
     virtual bool	needConfirmEarlyStop() const	{ return false; }
-    virtual bool	acceptOK();
+    virtual bool	prepareCurrentJob();
+    virtual bool	acceptOK(CallBacker*);
+    virtual bool	rejectOK(CallBacker*);
 };
