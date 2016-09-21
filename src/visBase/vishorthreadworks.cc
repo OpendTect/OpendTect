@@ -15,9 +15,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "binidsurface.h"
 #include "position.h"
+#include "thread.h"
+#include "hiddenparam.h"
+
 
 
 using namespace visBase;
+
+static HiddenParam< HorizonSectionTilePosSetup, Threads::Lock*> lock_( 0 );
+static HiddenParam< HorizonSectionTilePosSetup, TypeSet<RowCol>*> hortiles_(0);
+static HiddenParam< HorizonSectionTilePosSetup, TypeSet<RowCol>*> indexes_(0);
 
 
 HorizonTileRenderPreparer::HorizonTileRenderPreparer(
@@ -281,18 +288,88 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
 
     if ( zaxistransform_ ) zaxistransform_->ref();
     setName( BufferString( "Creating horizon surface..." ) );
+    lock_.setParam( this, 0 );
+    hortiles_.setParam( this,0 );
+    indexes_.setParam( this, 0 );
+}
+
+
+HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
+    TypeSet<RowCol>& tiles, TypeSet<RowCol>& indexes,HorizonSection* horsection,
+    StepInterval<int>rrg,StepInterval<int>crg )
+    : rrg_( rrg )
+    , crg_( crg )
+    , geo_( 0 )
+    , horsection_( horsection )
+{
+    lock_.setParam( this, new Threads::Lock );
+    hortiles_.setParam( this, new TypeSet<RowCol>(tiles) );
+    indexes_.setParam( this, new TypeSet<RowCol>(indexes) );
+
+    if ( horsection_ )
+    {
+	zaxistransform_ = horsection_->getZAxisTransform();
+	nrcrdspertileside_ = horsection_->nrcoordspertileside_;
+	lowestresidx_ = horsection_->lowestresidx_;
+	geo_ = horsection_->geometry_;
+    }
+
+    if ( zaxistransform_ ) zaxistransform_->ref();
+    setName( BufferString( "Creating horizon surface..." ) );
 }
 
 
 HorizonSectionTilePosSetup::~HorizonSectionTilePosSetup()
 {
     if ( zaxistransform_ ) zaxistransform_->unRef();
+   
+    if ( lock_.getParam(this) )
+	delete lock_.getParam(this);
+    lock_.removeParam( this );
 
+    if ( hortiles_.getParam(this) )
+	delete hortiles_.getParam(this);
+    hortiles_.removeParam( this );
+
+    if ( indexes_.getParam(this) )
+	delete indexes_.getParam(this);
+    indexes_.removeParam( this );
+
+}
+
+
+od_int64 HorizonSectionTilePosSetup::nrIterations() const 
+{ 
+    TypeSet<RowCol>* tiles = hortiles_.getParam(this);
+    if ( tiles )
+	return tiles->size();
+
+    return hrtiles_.size(); 
 }
 
 
 bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 					 int threadid )
+{
+    if ( hrtiles_.size()>0 )
+	return doOldWork( start, stop, threadid );
+    else
+	return doNewWork( start, stop, threadid );
+}
+
+
+bool HorizonSectionTilePosSetup::doFinish( bool sucess )
+{
+    if ( sucess && horsection_ )
+    {
+	horsection_->forceupdate_ =  true;
+    }
+
+    return sucess;
+}
+
+
+bool HorizonSectionTilePosSetup::doOldWork( od_int64 start, od_int64 stop, int )
 {
     if ( !geo_ )
 	return false;
@@ -336,12 +413,69 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 }
 
 
-bool HorizonSectionTilePosSetup::doFinish( bool sucess )
+bool HorizonSectionTilePosSetup::doNewWork( od_int64 start, od_int64 stop, int )
 {
-    if ( sucess && horsection_ )
+    if ( !geo_ )
+	return false;
+
+    const TypeSet<RowCol>* tilerowcol = hortiles_.getParam(this);
+    const TypeSet<RowCol>* indexes = indexes_.getParam(this);
+    Threads::Lock* lock = lock_.getParam(this);
+
+    if ( !tilerowcol || !lock || !indexes ) 
+	return false;
+
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	horsection_->forceupdate_ =  true;
+	const RowCol& origin = ( *tilerowcol )[idx];
+	if ( origin.isUdf() )
+	     continue;
+
+	TypeSet<Coord3> positions;
+	bool hasdata = false;
+	positions.setCapacity( (nrcrdspertileside_)*(nrcrdspertileside_),
+			       false );
+	for ( int rowidx=0; rowidx<nrcrdspertileside_ ; rowidx++ )
+	{
+	    const int row = origin.row() + rowidx*rrg_.step;
+	    const bool rowok = rrg_.includes(row, false);
+	    const StepInterval<int> geocolrg = geo_->colRange( row );
+	    const StepInterval<int> colrg(
+		mMAX(geocolrg.start,crg_.start),
+		mMIN(geocolrg.stop,crg_.stop), crg_.step );
+
+	    for ( int colidx=0; colidx<nrcrdspertileside_ ; colidx++ )
+	    {
+		const int col = origin.col() + colidx*colrg.step;
+		Coord3 pos = rowok && colrg.includes(col, false)
+		    ? geo_->getKnot(RowCol(row,col),false)
+		    : Coord3::udf();
+
+		if ( pos.isDefined() )
+		    hasdata = true;
+
+		if ( zaxistransform_ )
+		    pos.z = zaxistransform_->transform( pos );
+		positions += pos;
+	    }
+	}
+
+	HorizonSectionTile* tile = 0;
+	if ( hasdata )
+	{
+	    Threads::Locker locker( (*lock) );
+	    tile = new HorizonSectionTile( *horsection_, origin );
+	    tile->setPositions( positions );
+	    tile->tesselateResolution( lowestresidx_, false );
+	    locker.unlockNow();
+	}
+
+	const RowCol tileindex = (*indexes)[idx];
+	horsection_->writeLock();
+	horsection_->tiles_.set( tileindex.row(), tileindex.col(), tile );
+	horsection_->writeUnLock();
+	addToNrDone( 1 );
     }
 
-    return sucess;
+    return true;
 }

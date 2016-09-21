@@ -48,6 +48,9 @@ protected:
     void    updateTileArray(const StepInterval<int>& rrg,
 			    const StepInterval<int>& crg);
     HorizonSectionTile* createOneTile(int tilerowidx, int tilecolidx);
+    void    setNeighbors(HorizonSectionTile* tile, int tilerowidx,
+			 int tilecolidx);
+
 
     HorizonSection*	horsection_;
     Threads::SpinLock	spinlock_;

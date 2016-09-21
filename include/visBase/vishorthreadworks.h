@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "vishorizonsectiondef.h"
 #include "threadwork.h"
 #include "paralleltask.h"
+#include "rowcol.h"
 #include "thread.h"
 #include "ranges.h"
 
@@ -115,10 +116,14 @@ class HorizonSectionTilePosSetup: public ParallelTask
 public:
     HorizonSectionTilePosSetup(ObjectSet<HorizonSectionTile> tiles, 
 	HorizonSection* horsection,StepInterval<int>rrg,StepInterval<int>crg );
+	/*! don't use it, only for keep ABI */
+
+    HorizonSectionTilePosSetup(TypeSet<RowCol>& tiles,TypeSet<RowCol>& indexes,
+	HorizonSection* horsection,StepInterval<int>rrg,StepInterval<int>crg );
 
     ~HorizonSectionTilePosSetup();
 
-    od_int64	nrIterations() const { return hrtiles_.size(); }
+    od_int64	nrIterations() const;
     uiString	uiMessage() const { return tr("Creating Horizon Display"); }
     uiString	uiNrDoneText() const { return tr("Parts completed"); }
 
@@ -127,9 +132,12 @@ protected:
     bool doWork(od_int64, od_int64, int);
     bool doFinish(bool);
 
+    bool doOldWork(od_int64, od_int64, int);
+    bool doNewWork(od_int64, od_int64, int);
     int					nrcrdspertileside_;
     char				lowestresidx_;
     ObjectSet<HorizonSectionTile>	hrtiles_;
+    /*! don't use it, only for keep ABI */
     const Geometry::BinIDSurface*	geo_;
     StepInterval<int>			rrg_, crg_;
     ZAxisTransform*			zaxistransform_;
