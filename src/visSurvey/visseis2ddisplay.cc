@@ -58,7 +58,7 @@ Seis2DDisplay::Seis2DDisplay()
 {
     datapacks_.allowNull();
     transformedpacks_.allowNull();
-    
+
     geometry_.setZRange( StepInterval<float>(mUdf(float),mUdf(float),1) );
 
     polyline_->ref();
@@ -218,14 +218,16 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 
 void Seis2DDisplay::getTraceKeyPath( TrcKeyPath& res,TypeSet<Coord>* ) const
 {
-    if ( !trcdisplayinfo_.alltrcnrs_.validIdx( trcdisplayinfo_.rg_.start ) ||
-	 !trcdisplayinfo_.alltrcnrs_.validIdx( trcdisplayinfo_.rg_.stop ) )
+    if ( trcdisplayinfo_.rg_.isUdf() )
 	return;
 
-    for ( int idx=trcdisplayinfo_.rg_.start;
-	  idx<=trcdisplayinfo_.rg_.stop;
-	  idx++ )
+    for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs_.size(); idx++ )
     {
+	if ( trcdisplayinfo_.alltrcnrs_[idx] < trcdisplayinfo_.rg_.start )
+	    continue;
+	else if ( trcdisplayinfo_.alltrcnrs_[idx] > trcdisplayinfo_.rg_.stop )
+	    break;
+
 	res += TrcKey( geomid_, trcdisplayinfo_.alltrcnrs_[idx] );
     }
 }
@@ -301,8 +303,7 @@ const Interval<int> Seis2DDisplay::getSampleRange() const
 
 void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
 {
-    trcdisplayinfo_.rg_.start = -1;
-    trcdisplayinfo_.rg_.stop = -1;
+    trcdisplayinfo_.rg_.setUdf();
 
     if ( maxtrcnrrg_.isRev() )
 	mRetErrGeo;
@@ -312,11 +313,12 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
     if ( !rg.width() )
 	return;
 
+    int startidx=-1, stopidx=-1;
     for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs_.size(); idx++ )
     {
 	if ( trcdisplayinfo_.alltrcnrs_[idx]>=rg.start )
 	{
-	    trcdisplayinfo_.rg_.start = idx;
+	    startidx = idx;
 	    break;
 	}
     }
@@ -325,27 +327,24 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
     {
 	if ( trcdisplayinfo_.alltrcnrs_[idx]<=rg.stop )
 	{
-	    trcdisplayinfo_.rg_.stop = idx;
+	    stopidx = idx;
 	    break;
 	}
     }
 
-    if ( trcdisplayinfo_.rg_.stop<0 || trcdisplayinfo_.rg_.start<0 )
+    if ( startidx<0 || stopidx<0 )
 	mRetErrGeo;
 
-    trcdisplayinfo_.size_ = trcdisplayinfo_.rg_.width(false) + 1;
+    trcdisplayinfo_.rg_.start = trcdisplayinfo_.alltrcnrs_[startidx];
+    trcdisplayinfo_.rg_.stop = trcdisplayinfo_.alltrcnrs_[stopidx];
+    trcdisplayinfo_.size_ = stopidx - startidx + 1;
     updatePanelStripPath();
 }
 
 
-Interval<int> Seis2DDisplay::getTraceNrRange() const
+const Interval<int>& Seis2DDisplay::getTraceNrRange() const
 {
-    if ( !trcdisplayinfo_.alltrcnrs_.validIdx( trcdisplayinfo_.rg_.start ) ||
-	 !trcdisplayinfo_.alltrcnrs_.validIdx( trcdisplayinfo_.rg_.stop ) )
-	return Interval<int>( mUdf(int), mUdf(int) );
-
-    return Interval<int>( trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.start],
-		          trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.stop]);
+    return trcdisplayinfo_.rg_;
 }
 
 
@@ -358,8 +357,8 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     RefMan<RegularSeisDataPack> regsdp =
-    	dpm.getAndCast<RegularSeisDataPack>( dpid );
-    
+	dpm.getAndCast<RegularSeisDataPack>( dpid );
+
     if ( !regsdp || regsdp->isEmpty() )
     {
 	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, taskr );
@@ -378,7 +377,7 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 DataPack::ID Seis2DDisplay::getDataPackID( int attrib ) const
 {
     return datapacks_.validIdx(attrib) && datapacks_[attrib]
-    	? datapacks_[attrib]->id()
+	? datapacks_[attrib]->id()
         : DataPack::cNoID();
 }
 
@@ -585,9 +584,8 @@ void Seis2DDisplay::updatePanelStripPath()
 
     if ( getUpdateStageNr() )
     {
-	const float diff = mCast(float,
-		tdi.alltrcnrs_[updatestageinfo_.oldtrcrgstart_]-
-		tdi.alltrcnrs_[tdi.rg_.start]);
+	const float diff =
+		mCast(float,updatestageinfo_.oldtrcrgstart_-tdi.rg_.start);
 	panelstrip_->setPathTextureShift( diff*(resolution_+1) );
     }
 
@@ -636,8 +634,9 @@ void Seis2DDisplay::annotateNextUpdateStage( bool yn )
 
 void Seis2DDisplay::updateLineNamePos()
 {
-    const int trcidx = trcdisplayinfo_.rg_.start;
-    if ( !trcdisplayinfo_.alltrcpos_.validIdx(trcidx) )
+    const int trcidx =
+		trcdisplayinfo_.alltrcnrs_.indexOf( trcdisplayinfo_.rg_.start );
+    if ( trcidx < 0 )
 	return;
 
     Coord3 pos( trcdisplayinfo_.alltrcpos_[trcidx],trcdisplayinfo_.zrg_.start );
@@ -1000,10 +999,7 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 {
     if ( geometry_.isEmpty() ) return false;
 
-    const Interval<int> trcnrrg(
-	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.start],
-	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.stop]);
-    const int nidx = geometry_.nearestIdx( pos, trcnrrg );
+    const int nidx = geometry_.nearestIdx( pos, trcdisplayinfo_.rg_ );
     minsqdist = (float) geometry_.positions()[nidx].coord_.sqDistTo( pos );
     trcidx = nidx;
     return trcidx >= 0;
@@ -1264,12 +1260,7 @@ void Seis2DDisplay::fillPar( IOPar& par ) const
     par.setYN( sKeyShowPanel(), isPanelShown() );
     par.setYN( sKeyShowPolyLine(), isPolyLineShown() );
     if ( !trcdisplayinfo_.alltrcnrs_.isEmpty() )
-    {
-	const Interval<int> trcnrrg(
-			trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.start],
-			trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.stop]);
-	par.set( sKeyTrcNrRange(), trcnrrg );
-    }
+	par.set( sKeyTrcNrRange(), trcdisplayinfo_.rg_ );
 
     par.set( sKeyZRange(), trcdisplayinfo_.zrg_ );
 }
@@ -1282,25 +1273,7 @@ bool Seis2DDisplay::usePar( const IOPar& par )
 
     Interval<int> trcnrrg;
     if ( par.get( sKeyTrcNrRange(), trcnrrg ) )
-    {
-	for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs_.size(); idx++ )
-	{
-	    if ( trcdisplayinfo_.alltrcnrs_[idx]>=trcnrrg.start )
-	    {
-		trcdisplayinfo_.rg_.start = idx;
-		break;
-	    }
-	}
-
-	for ( int idx=trcdisplayinfo_.alltrcnrs_.size()-1; idx>=0; idx-- )
-	{
-	    if ( trcdisplayinfo_.alltrcnrs_[idx]<=trcnrrg.start )
-	    {
-		trcdisplayinfo_.rg_.stop = idx;
-		break;
-	    }
-	}
-    }
+	trcdisplayinfo_.rg_ = trcnrrg;
 
     bool doshow = false;
     par.getYN( sKeyShowLineName(), doshow );

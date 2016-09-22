@@ -56,7 +56,7 @@ public:
     Interval<float>		getDataTraceRange() const;
 
     void			setTraceNrRange(const Interval<int>&);
-    Interval<int>		getTraceNrRange() const;
+    const Interval<int>&	getTraceNrRange() const;
     const StepInterval<int>&	getMaxTraceNrRange() const;
 
     bool			setDataPackID(int attrib,DataPack::ID,
@@ -150,7 +150,7 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    visBase::TexturePanelStrip* getTexturePanelStrip() const 
+    visBase::TexturePanelStrip* getTexturePanelStrip() const
 				{ return panelstrip_; }
     bool			isSection() const { return true; }
 
