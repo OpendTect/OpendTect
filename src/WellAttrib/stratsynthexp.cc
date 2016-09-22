@@ -27,6 +27,8 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "transl.h"
 
+#include "prestacksyntheticdata.h"
+
 StratSynthExporter::StratSynthExporter(
 	const ObjectSet<const SyntheticData>& sds, Pos::GeomID geomid,
 	PosInfo::Line2DData* newgeom, const SeparString& prepostfix )
@@ -42,7 +44,7 @@ StratSynthExporter::StratSynthExporter(
     , writer_(0)
 {
     int synthmodelsz = 0;
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sds_[0]);
+    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sds_[0]);
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sds_[0]);
     if ( presd )
 	synthmodelsz = presd->preStackPack().getGathers().size();
@@ -174,7 +176,7 @@ int StratSynthExporter::writePostStackTrace()
 int StratSynthExporter::writePreStackTraces()
 {
     const SyntheticData* sd = sds_[cursdidx_];
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd);
     if ( !presd )
 	mErrRetPErr( "Wrong type (not PreStackSyntheticData)" )
     const PreStack::GatherSetDataPack& gsdp = presd->preStackPack();

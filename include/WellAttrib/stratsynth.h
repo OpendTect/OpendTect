@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "valseriesevent.h"
 #include "uistring.h"
 
-namespace PreStack {  class GatherSetDataPack; }
+namespace PreStack {  class PreStackSyntheticData; class GatherSetDataPack; }
 class SeisTrcBuf;
 class TaskRunner;
 class Wavelet;
@@ -26,7 +26,6 @@ class TrcKeyZSampling;
 class RayTracer1D;
 class StratSynthLevel;
 class PostStackSyntheticData;
-class PreStackSyntheticData;
 
 namespace Strat
 {
@@ -163,7 +162,7 @@ protected:
     SyntheticData*	generateSD( const SynthGenParams&);
     bool		runSynthGen(Seis::RaySynthGenerator&,
 				    const SynthGenParams&);
-    void		createAngleData(PreStackSyntheticData&,
+    void		createAngleData(PreStack::PreStackSyntheticData&,
 					const ObjectSet<RayTracer1D>&);
     SyntheticData*	createAngleStack(const SyntheticData& sd,
 					 const TrcKeyZSampling&,

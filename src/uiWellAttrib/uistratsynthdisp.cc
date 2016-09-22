@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "envvars.h"
+#include "prestacksyntheticdata.h"
 #include "stratsynth.h"
 #include "stratsynthlevel.h"
 #include "stratlith.h"
@@ -867,7 +868,7 @@ void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
 	return;
 
     d2tmodels.erase();
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd);
     if ( !presd || presd->isNMOCorrected() || mIsZero(offset,mDefEps) )
     {
 	d2tmodels = sd->zerooffsd2tmodels_;
@@ -926,7 +927,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     }
 
     vwr_->setVisible( wva, true );
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd);
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
 
     const float offset =
@@ -1069,7 +1070,7 @@ void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
 
     if ( !sd ) return;
     mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,&sd->getPack())
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sd)
+    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd)
     if ( !gsetdp || !presd ) return;
 
     const PreStack::GatherSetDataPack& angledp = presd->angleData();
@@ -1125,7 +1126,7 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
     for ( int idx=0; idx<curSS().nrSynthetics(); idx++ )
     {
 	const SyntheticData* sd = curSS().getSyntheticByIdx( idx );
-	mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+	mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd);
 	if ( !presd ) continue;
 	allgnms.addIfNew( sd->name() );
     }
@@ -1151,7 +1152,7 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
 	    const SyntheticData* sd =
 		curSS().getSynthetic( selgnms[synthidx]->buf() );
 	    if ( !sd ) continue;
-	    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+	    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd);
 	    mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,
 			    &sd->getPack())
 	    if ( !gsetdp || !presd ) continue;
@@ -1222,7 +1223,8 @@ void uiStratSynthDisp::setCurrentSynthetic( bool wva )
 
 void uiStratSynthDisp::updateFields()
 {
-    mDynamicCastGet(const PreStackSyntheticData*,pssd,currentwvasynthetic_);
+    mDynamicCastGet(const PreStack::PreStackSyntheticData*,pssd,
+		    currentwvasynthetic_);
     if ( pssd )
     {
 	StepInterval<float> limits( pssd->offsetRange() );
@@ -1721,8 +1723,8 @@ void uiStratSynthDisp::setDiffData()
 	}
 	else
 	{
-	    mDynamicCastGet(PreStackSyntheticData*,frpresd,frsd)
-	    mDynamicCastGet(const PreStackSyntheticData*,presd,sd)
+	    mDynamicCastGet(PreStack::PreStackSyntheticData*,frpresd,frsd)
+	    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd)
 	    PreStack::GatherSetDataPack& frgdp =frpresd->preStackPack();
 	    ObjectSet<PreStack::Gather>& frgathers = frgdp.getGathers();
 	    StepInterval<float> offrg( frpresd->offsetRange() );

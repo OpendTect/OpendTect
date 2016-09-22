@@ -10,18 +10,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellattribmod.h"
+#include "seismod.h"
 #include "syntheticdata.h"
 
 class RayTracer1D;
 class ElasticModel;
 class SeisTrcBufDataPack;
 class PropertyRef;
+class SeisTrcBuf;
 
-namespace PreStack { class GatherSetDataPack; class Gather; } 
 
-
-mExpClass(WellAttrib) PostStackSyntheticData : public SyntheticData
+mExpClass(Seis) PostStackSyntheticData : public SyntheticData
 {
 public:
 				PostStackSyntheticData(const SynthGenParams&,
@@ -42,7 +41,7 @@ public:
 };
 
 
-mExpClass(WellAttrib) PSBasedPostStackSyntheticData
+mExpClass(Seis) PSBasedPostStackSyntheticData
 				: public PostStackSyntheticData
 {
 public:
@@ -57,7 +56,7 @@ protected:
 };
 
 
-mExpClass(WellAttrib) AVOGradSyntheticData
+mExpClass(Seis) AVOGradSyntheticData
 		: public PSBasedPostStackSyntheticData
 {
 public:
@@ -74,7 +73,7 @@ protected:
 };
 
 
-mExpClass(WellAttrib) AngleStackSyntheticData
+mExpClass(Seis) AngleStackSyntheticData
 		: public PSBasedPostStackSyntheticData
 {
 public:
@@ -90,43 +89,7 @@ public:
 protected:
 };
 
-
-mExpClass(WellAttrib) PreStackSyntheticData : public SyntheticData
-{
-public:
-				PreStackSyntheticData(const SynthGenParams&,
-						PreStack::GatherSetDataPack&);
-				~PreStackSyntheticData();
-
-    bool				isPS() const 	  { return true; }
-    bool				isNMOCorrected() const;
-    bool				hasOffset() const;
-    const Interval<float>		offsetRange() const; 
-    float				offsetRangeStep() const;
-    SynthGenParams::SynthType		synthType() const
-					{ return SynthGenParams::PreStack; }
-
-    void				setAngleData(
-	    				    const ObjectSet<PreStack::Gather>&);
-    const SeisTrc*			getTrace(int seqnr) const
-    					{ return getTrace(seqnr,0); }
-    const SeisTrc*			getTrace(int seqnr,int* offset) const;
-    SeisTrcBuf*				getTrcBuf(float startoffset,
-					    const Interval<float>* of=0) const;
-
-    PreStack::GatherSetDataPack&	preStackPack();
-    const PreStack::GatherSetDataPack&	preStackPack() const;
-    const PreStack::GatherSetDataPack&	angleData() const { return *angledp_; }
-
-protected:
-
-    RefMan<PreStack::GatherSetDataPack> angledp_;
-    void				convertAngleDataToDegrees(
-	    					PreStack::Gather*) const;
-};
-
-
-mExpClass(WellAttrib) StratPropSyntheticData : public PostStackSyntheticData
+mExpClass(Seis) StratPropSyntheticData : public PostStackSyntheticData
 {
 public:
 				StratPropSyntheticData(const SynthGenParams&,

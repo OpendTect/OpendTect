@@ -10,16 +10,17 @@ ________________________________________________________________________
 
 -*/
 
+#include "seismod.h"
 #include "flatview.h"
-#include "wellattribmod.h"
 #include "datapack.h"
 #include "stratsynthgenparams.h"
+#include "reflectivitymodel.h"
 
 class SeisTrc;
 class TimeDepthModel;
 
 
-mStruct(WellAttrib) SynthFVSpecificDispPars
+mStruct(Seis) SynthFVSpecificDispPars
 {
     			SynthFVSpecificDispPars()
 			: overlap_(1)	{}
@@ -33,7 +34,7 @@ mStruct(WellAttrib) SynthFVSpecificDispPars
 
 
 /*! brief the basic synthetic dataset. contains the data cubes*/
-mExpClass(WellAttrib) SyntheticData : public NamedObject 
+mExpClass(Seis) SyntheticData : public NamedObject
 {
 public:
     					~SyntheticData();
@@ -82,4 +83,6 @@ protected:
     void				removePack();
 
    RefMan<DataPack>			datapack_;
+   ObjectSet<const ReflectivityModel>	refmodels_;
+   ObjectSet<const ReflectivityModel>	sampledrefmodels_;
 };

@@ -10,238 +10,32 @@ ________________________________________________________________________
 
 
 #include "stratsynth.h"
-#include "syntheticdataimpl.h"
-#include "stratsynthlevel.h"
 
-#include "array1dinterpol.h"
-#include "angles.h"
-#include "arrayndimpl.h"
-#include "attribsel.h"
 #include "attribengman.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribparam.h"
 #include "attribprocessor.h"
 #include "attribfactory.h"
-#include "attribsel.h"
 #include "attribstorprovider.h"
 #include "binidvalset.h"
-#include "datapackbase.h"
-#include "elasticpropsel.h"
 #include "envvars.h"
-#include "fourier.h"
 #include "fftfilter.h"
-#include "flatposdata.h"
-#include "mathfunc.h"
 #include "prestackattrib.h"
-#include "prestackgather.h"
 #include "prestackanglecomputer.h"
-#include "propertyref.h"
+#include "prestacksyntheticdata.h"
 #include "raytracerrunner.h"
-#include "separstr.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
-#include "survinfo.h"
 #include "statruncalc.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
+#include "stratsynthlevel.h"
+#include "syntheticdataimpl.h"
 #include "unitofmeasure.h"
 #include "timeser.h"
 #include "waveletmanager.h"
-
-static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
-static const char* sKeySynthType()		{ return "Synthetic Type"; }
-static const char* sKeyWaveLetName()		{ return "Wavelet Name"; }
-static const char* sKeyRayPar()			{ return "Ray Parameter"; }
-static const char* sKeyDispPar()		{ return "Display Parameter"; }
-static const char* sKeyInput()			{ return "Input Synthetic"; }
-static const char* sKeyAngleRange()		{ return "Angle Range"; }
-static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
-#define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
-#define sDefaultOffsetRange StepInterval<float>( 0.f, 6000.f, 100.f )
-
-
-mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
-{
-    "Pre Stack",
-    "Zero Offset Stack",
-    "Strat Property",
-    "Angle Stack",
-    "AVO Gradient",
-    0
-};
-
-
-SynthGenParams::SynthGenParams()
-{
-    synthtype_ = ZeroOffset;	//init to avoid nasty crash in generateSD!
-    setDefaultValues();
-}
-
-void SynthGenParams::setDefaultValues()
-{
-    anglerg_ = sDefaultAngleRange;
-    raypars_.setEmpty();
-    FixedString defrayparstr = sKeyAdvancedRayTracer();
-    const BufferStringSet& facnms = RayTracer1D::factory().getNames();
-    if ( !facnms.isEmpty() )
-    {
-	const int typeidx = facnms.indexOf( defrayparstr );
-	FixedString facnm( typeidx>=0 ? facnms.get(typeidx) : facnms.get(0) );
-	raypars_.set( sKey::Type(), facnm );
-    }
-
-    if ( synthtype_==ZeroOffset )
-	RayTracer1D::setIOParsToZeroOffset( raypars_ );
-    else
-    {
-	const StepInterval<float> offsetrg = sDefaultOffsetRange;
-	TypeSet<float> offsets;
-	for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
-	    offsets += offsetrg.atIndex( idx );
-	raypars_.set( RayTracer1D::sKeyOffset(), offsets );
-    }
-}
-
-
-bool SynthGenParams::hasOffsets() const
-{
-    TypeSet<float> offsets;
-    raypars_.get( RayTracer1D::sKeyOffset(), offsets );
-    return offsets.size()>1;
-}
-
-
-void SynthGenParams::fillPar( IOPar& par ) const
-{
-    par.set( sKey::Name(), name_ );
-    par.set( sKeySynthType(), SynthGenParams::toString(synthtype_) );
-    if ( synthtype_ == SynthGenParams::AngleStack ||
-	 synthtype_ == SynthGenParams::AVOGradient )
-    {
-	par.set( sKeyInput(), inpsynthnm_ );
-	par.set( sKeyAngleRange(), anglerg_ );
-    }
-    par.set( sKeyWaveLetName(), wvltnm_ );
-    IOPar raypar;
-    raypar.mergeComp( raypars_, sKeyRayPar() );
-    par.merge( raypar );
-}
-
-
-void SynthGenParams::usePar( const IOPar& par )
-{
-    par.get( sKey::Name(), name_ );
-    par.get( sKeyWaveLetName(), wvltnm_ );
-    PtrMan<IOPar> raypar = par.subselect( sKeyRayPar() );
-    raypars_ = *raypar;
-    if ( par.hasKey( sKeyIsPreStack()) )
-    {
-	bool isps = false;
-	par.getYN( sKeyIsPreStack(), isps );
-	if ( !isps && hasOffsets() )
-	    synthtype_ = SynthGenParams::AngleStack;
-	else if ( !isps )
-	    synthtype_ = SynthGenParams::ZeroOffset;
-	else
-	    synthtype_ = SynthGenParams::PreStack;
-    }
-    else
-    {
-	BufferString typestr;
-	SynthTypeDef().parse( par, sKeySynthType(), synthtype_ );
-	if ( synthtype_ == SynthGenParams::AngleStack ||
-	     synthtype_ == SynthGenParams::AVOGradient )
-	{
-	    par.get( sKeyInput(), inpsynthnm_ );
-	    par.get( sKeyAngleRange(), anglerg_ );
-	}
-    }
-}
-
-
-void SynthGenParams::createName( BufferString& nm ) const
-{
-    if ( synthtype_==SynthGenParams::AngleStack ||
-	 synthtype_==SynthGenParams::AVOGradient )
-    {
-	nm = SynthGenParams::toString( synthtype_ );
-	nm += " ["; nm += anglerg_.start; nm += ",";
-	nm += anglerg_.stop; nm += "] degrees";
-	return;
-    }
-    nm = wvltnm_;
-    TypeSet<float> offset;
-    raypars_.get( RayTracer1D::sKeyOffset(), offset );
-    const int offsz = offset.size();
-    if ( offsz )
-    {
-	nm += " ";
-	nm += "Offset ";
-	nm += ::toString( offset[0] );
-	if ( offsz > 1 )
-	{
-	    nm += "-"; nm += offset[offsz-1];
-	    bool nmocorrected = true;
-	    if ( raypars_.getYN(Seis::SynthGenBase::sKeyNMO(),nmocorrected) &&
-		 !nmocorrected )
-		nm += " uncorrected";
-	}
-    }
-}
-
-
-
-void SynthFVSpecificDispPars::fillPar( IOPar& par ) const
-{
-    IOPar disppar, vdmapperpar, wvamapperpar;
-    vdmapperpar.set( FlatView::DataDispPars::sKeyColTab(), ctab_ );
-    wvamapperpar.set( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
-    vdmapper_.fillPar( vdmapperpar );
-    disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyVD() );
-    wvamapper_.fillPar( wvamapperpar );
-    disppar.mergeComp( wvamapperpar, FlatView::DataDispPars::sKeyWVA() );
-    par.mergeComp( disppar, sKeyDispPar() );
-}
-
-
-void SynthFVSpecificDispPars::usePar( const IOPar& par )
-{
-    PtrMan<IOPar> disppar = par.subselect( sKeyDispPar() );
-    if ( !disppar )
-	return;
-
-    overlap_ = 1.0f;
-    disppar->get( FlatView::DataDispPars::sKeyColTab(), ctab_ );
-    disppar->get( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
-    PtrMan<IOPar> vdmapperpar =
-	disppar->subselect( FlatView::DataDispPars::sKeyVD() );
-    if ( !vdmapperpar ) // Older par file
-    {
-	vdmapper_.type_ = ColTab::MapperSetup::Fixed;
-	wvamapper_.type_ = ColTab::MapperSetup::Fixed;
-	disppar->get( sKey::Range(), vdmapper_.range_ );
-	disppar->get( sKey::Range(), wvamapper_.range_ );
-    }
-    else
-    {
-	 if ( vdmapperpar )
-	 {
-	     vdmapper_.usePar( *vdmapperpar );
-	     vdmapperpar->get( FlatView::DataDispPars::sKeyColTab(), ctab_ );
-	 }
-	 PtrMan<IOPar> wvamapperpar =
-	     disppar->subselect( FlatView::DataDispPars::sKeyWVA() );
-	 if ( wvamapperpar )
-	 {
-	     wvamapper_.usePar( *wvamapperpar );
-	     wvamapperpar->get(FlatView::DataDispPars::sKeyOverlap(),overlap_);
-	 }
-    }
-}
-
-
 
 StratSynth::StratSynth( const Strat::LayerModelProvider& lmp, bool useed )
     : lmp_(lmp)
@@ -319,7 +113,7 @@ const PreStack::GatherSetDataPack* StratSynth::getRelevantAngleData(
     for ( int idx=0; idx<synthetics_.size(); idx++ )
     {
 	const SyntheticData* sd = synthetics_[idx];
-	mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+	mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd);
 	if ( !presd ) continue;
 	SynthGenParams sgp;
 	sd->fillGenParams( sgp );
@@ -567,7 +361,7 @@ SyntheticData* StratSynth::createSynthData( const SyntheticData& sd,
     if ( !sd.isPS() )
 	return 0;
 
-    mDynamicCastGet(const PreStackSyntheticData&,presd,sd);
+    mDynamicCastGet(const PreStack::PreStackSyntheticData&,presd,sd);
     const PreStack::GatherSetDataPack& gdp = presd.preStackPack();
     DataPack::FullID dpfid( DataPackMgr::SeisID(), gdp.id() );
     const BufferString dpidstring( "#", dpfid.toString() );
@@ -802,7 +596,7 @@ class PSAngleDataCreator : public Executor
 { mODTextTranslationClass(PSAngleDataCreator)
 public:
 
-PSAngleDataCreator( const PreStackSyntheticData& pssd,
+PSAngleDataCreator( const PreStack::PreStackSyntheticData& pssd,
 		    const ObjectSet<RayTracer1D>& rts )
     : Executor("Creating Angle Gather" )
     , gathers_(pssd.preStackPack().getGathers())
@@ -882,7 +676,7 @@ int nextStep()
 
     const ObjectSet<RayTracer1D>&		rts_;
     const RefObjectSet<PreStack::Gather>	gathers_;
-    const PreStackSyntheticData&		pssd_;
+    const PreStack::PreStackSyntheticData&		pssd_;
     RefObjectSet<PreStack::Gather>		anglegathers_;
     PreStack::ModelBasedAngleComputer*		anglecomputer_;
     od_int64					nrdone_;
@@ -890,7 +684,7 @@ int nextStep()
 };
 
 
-void StratSynth::createAngleData( PreStackSyntheticData& pssd,
+void StratSynth::createAngleData( PreStack::PreStackSyntheticData& pssd,
 				  const ObjectSet<RayTracer1D>& rts )
 {
     PSAngleDataCreator angledatacr( pssd, rts );
@@ -977,8 +771,8 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 
 	    deepUnRef( gatherset );
 
-	    sd = new PreStackSyntheticData( synthgenpar, *dp );
-	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
+	    sd = new PreStack::PreStackSyntheticData( synthgenpar, *dp );
+	    mDynamicCastGet(PreStack::PreStackSyntheticData*,presd,sd);
 	    if ( rms )
 	    {
 		const PreStack::GatherSetDataPack* anglegather =
@@ -1066,7 +860,7 @@ void StratSynth::putD2TModelsInSD( SyntheticData& sd,
 	TimeDepthModel* zeroofsetd2tm = new TimeDepthModel();
 	rm->getZeroOffsetD2T( *zeroofsetd2tm );
 	zeroofsetd2tms += zeroofsetd2tm;
-	mDynamicCastGet(const PreStackSyntheticData*,presd,&sd);
+	mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,&sd);
 	if ( presd && !presd->isNMOCorrected() )
 	{
 	    ObjectSet<TimeDepthModel> tmpd2ts, sdd2ts;
@@ -1668,269 +1462,6 @@ void StratSynth::decimateTraces( SeisTrcBuf& tbuf, int fac ) const
 	if ( idx%fac )
 	    delete tbuf.remove( idx );
     }
-}
-
-
-SyntheticData::SyntheticData( const SynthGenParams& sgp, DataPack& dp )
-    : NamedObject(sgp.name_)
-    , datapack_(&dp)
-    , id_(-1)
-{
-}
-
-
-SyntheticData::~SyntheticData()
-{
-    deepErase( d2tmodels_ );
-    deepErase( zerooffsd2tmodels_ );
-    removePack();
-}
-
-
-void SyntheticData::setName( const char* nm )
-{
-    NamedObject::setName( nm );
-    datapack_->setName( nm );
-}
-
-
-void SyntheticData::removePack()
-{
-    datapack_ = 0;
-}
-
-
-float SyntheticData::getTime( float dpt, int seqnr ) const
-{
-    return zerooffsd2tmodels_.validIdx( seqnr )
-	? zerooffsd2tmodels_[seqnr]->getTime( dpt ) : mUdf( float );
-}
-
-
-float SyntheticData::getDepth( float time, int seqnr ) const
-{
-    return zerooffsd2tmodels_.validIdx( seqnr )
-	? zerooffsd2tmodels_[seqnr]->getDepth( time ) : mUdf( float );
-}
-
-
-PostStackSyntheticData::PostStackSyntheticData( const SynthGenParams& sgp,
-						SeisTrcBufDataPack& dp)
-    : SyntheticData(sgp,dp)
-{
-    useGenParams( sgp );
-    DataPackMgr::ID pmid = DataPackMgr::FlatID();
-    DPM( pmid ).add( &dp );
-    datapackid_ = DataPack::FullID( pmid, dp.id());
-}
-
-
-PostStackSyntheticData::~PostStackSyntheticData()
-{
-}
-
-
-const SeisTrc* PostStackSyntheticData::getTrace( int seqnr ) const
-{ return postStackPack().trcBuf().get( seqnr ); }
-
-
-SeisTrcBufDataPack& PostStackSyntheticData::postStackPack()
-{
-    return static_cast<SeisTrcBufDataPack&>( *datapack_ );
-}
-
-
-const SeisTrcBufDataPack& PostStackSyntheticData::postStackPack() const
-{
-    return static_cast<const SeisTrcBufDataPack&>( *datapack_ );
-}
-
-
-PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
-					      PreStack::GatherSetDataPack& dp)
-    : SyntheticData(sgp,dp)
-    , angledp_(0)
-{
-    useGenParams( sgp );
-    DataPackMgr::ID pmid = DataPackMgr::SeisID();
-    DPM( pmid ).add( &dp );
-    datapackid_ = DataPack::FullID( pmid, dp.id());
-    ObjectSet<PreStack::Gather>& gathers = dp.getGathers();
-    for ( int idx=0; idx<gathers.size(); idx++ )
-    {
-	gathers[idx]->setName( name() );
-    }
-}
-
-
-PreStackSyntheticData::~PreStackSyntheticData()
-{}
-
-
-PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack()
-{
-    return static_cast<PreStack::GatherSetDataPack&>( *datapack_ );
-}
-
-
-const PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack() const
-{
-    return static_cast<const PreStack::GatherSetDataPack&>( *datapack_ );
-}
-
-
-void PreStackSyntheticData::convertAngleDataToDegrees(
-					PreStack::Gather* ag ) const
-{
-    Array2D<float>& agdata = ag->data();
-    const int dim0sz = agdata.info().getSize(0);
-    const int dim1sz = agdata.info().getSize(1);
-    for ( int idx=0; idx<dim0sz; idx++ )
-    {
-	for ( int idy=0; idy<dim1sz; idy++ )
-	{
-	    const float radval = agdata.get( idx, idy );
-	    if ( mIsUdf(radval) ) continue;
-	    const float dval =	Math::toDegrees( radval );
-	    agdata.set( idx, idy, dval );
-	}
-    }
-}
-
-
-void PreStackSyntheticData::setAngleData(
-	const ObjectSet<PreStack::Gather>& ags )
-{
-    BufferString angledpnm( name().buf(), " (Angle Gather)" );
-    angledp_ = new PreStack::GatherSetDataPack( angledpnm, ags );
-    DPM( DataPackMgr::SeisID() ).add( angledp_ );
-}
-
-
-float PreStackSyntheticData::offsetRangeStep() const
-{
-    float offsetstep = mUdf(float);
-    const ObjectSet<PreStack::Gather>& gathers = preStackPack().getGathers();
-    if ( !gathers.isEmpty() )
-    {
-	const PreStack::Gather& gather = *gathers[0];
-	offsetstep = gather.getOffset(1)-gather.getOffset(0);
-    }
-
-    return offsetstep;
-}
-
-
-const Interval<float> PreStackSyntheticData::offsetRange() const
-{
-    Interval<float> offrg( 0, 0 );
-    const ObjectSet<PreStack::Gather>& gathers = preStackPack().getGathers();
-    if ( !gathers.isEmpty() )
-    {
-	const PreStack::Gather& gather = *gathers[0];
-	offrg.set(gather.getOffset(0),gather.getOffset( gather.size(true)-1));
-    }
-    return offrg;
-}
-
-
-bool PreStackSyntheticData::hasOffset() const
-{ return offsetRange().width() > 0; }
-
-
-bool PreStackSyntheticData::isNMOCorrected() const
-{
-    bool isnmo = true;
-    raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), isnmo );
-    return isnmo;
-}
-
-
-const SeisTrc* PreStackSyntheticData::getTrace( int seqnr, int* offset ) const
-{ return preStackPack().getTrace( seqnr, offset ? *offset : 0 ); }
-
-
-SeisTrcBuf* PreStackSyntheticData::getTrcBuf( float offset,
-					const Interval<float>* stackrg ) const
-{
-    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-    Interval<float> offrg = stackrg ? *stackrg : Interval<float>(offset,offset);
-    preStackPack().fill( *tbuf, offrg );
-    return tbuf;
-}
-
-
-PSBasedPostStackSyntheticData::PSBasedPostStackSyntheticData(
-	const SynthGenParams& sgp, SeisTrcBufDataPack& sdp )
-    : PostStackSyntheticData(sgp,sdp)
-{
-    useGenParams( sgp );
-}
-
-
-PSBasedPostStackSyntheticData::~PSBasedPostStackSyntheticData()
-{}
-
-
-void PSBasedPostStackSyntheticData::fillGenParams( SynthGenParams& sgp ) const
-{
-    SyntheticData::fillGenParams( sgp );
-    sgp.inpsynthnm_ = inpsynthnm_;
-    sgp.anglerg_ = anglerg_;
-}
-
-
-void PSBasedPostStackSyntheticData::useGenParams( const SynthGenParams& sgp )
-{
-    SyntheticData::useGenParams( sgp );
-    inpsynthnm_ = sgp.inpsynthnm_;
-    anglerg_ = sgp.anglerg_;
-}
-
-
-StratPropSyntheticData::StratPropSyntheticData( const SynthGenParams& sgp,
-						    SeisTrcBufDataPack& dp,
-						    const PropertyRef& pr )
-    : PostStackSyntheticData( sgp, dp )
-    , prop_(pr)
-{}
-
-
-bool SyntheticData::isAngleStack() const
-{
-    TypeSet<float> offsets;
-    raypars_.get( RayTracer1D::sKeyOffset(), offsets );
-    return !isPS() && offsets.size()>1;
-}
-
-
-void SyntheticData::fillGenParams( SynthGenParams& sgp ) const
-{
-    sgp.inpsynthnm_.setEmpty();
-    sgp.raypars_ = raypars_;
-    sgp.wvltnm_ = wvltnm_;
-    sgp.name_ = name();
-    sgp.synthtype_ = synthType();
-}
-
-
-void SyntheticData::useGenParams( const SynthGenParams& sgp )
-{
-    raypars_ = sgp.raypars_;
-    wvltnm_ = sgp.wvltnm_;
-    setName( sgp.name_ );
-}
-
-
-void SyntheticData::fillDispPar( IOPar& par ) const
-{
-    disppars_.fillPar( par );
-}
-
-
-void SyntheticData::useDispPar( const IOPar& par )
-{
-    disppars_.usePar( par );
 }
 
 

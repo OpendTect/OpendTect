@@ -10,12 +10,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellattribmod.h"
+#include "seismod.h"
 #include "iopar.h"
 #include "enums.h"
 
 
-mStruct(WellAttrib) SynthGenParams
+mStruct(Seis) SynthGenParams
 {
 			SynthGenParams();
 

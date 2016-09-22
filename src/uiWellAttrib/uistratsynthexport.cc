@@ -26,8 +26,9 @@ _______________________________________________________________________
 #include "emmanager.h"
 #include "emhorizon2d.h"
 #include "ioman.h"
-#include "prestackgather.h"
 #include "picksetmanager.h"
+#include "prestackgather.h"
+#include "prestacksyntheticdata.h"
 #include "randomlinetr.h"
 #include "randomlinegeom.h"
 #include "seisbufadapters.h"
@@ -300,7 +301,8 @@ void uiStratSynthExport::create2DGeometry( const TypeSet<Coord>& ptlist,
     {
 	if ( !presds_.isEmpty() )
 	{
-	    mDynamicCastGet(const PreStackSyntheticData*,presd,presds_[0]);
+	    mDynamicCastGet(const PreStack::PreStackSyntheticData*,
+			    presd,presds_[0]);
 	    synthmodelsz = presd->preStackPack().getGathers().size();
 	}
     }
@@ -568,7 +570,8 @@ bool uiStratSynthExport::acceptOK()
     }
     else if ( !presds_.isEmpty() )
     {
-	mDynamicCastGet(const PreStackSyntheticData*,presd,presds_[0]);
+	mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,
+			presds_[0]);
 	synthmodelsz = presd->preStackPack().getGathers().size();
     }
 

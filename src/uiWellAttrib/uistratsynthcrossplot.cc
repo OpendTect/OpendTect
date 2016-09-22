@@ -39,6 +39,7 @@ ________________________________________________________________________
 #include "prestackattrib.h"
 #include "paramsetget.h"
 #include "prestackgather.h"
+#include "prestacksyntheticdata.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
@@ -371,7 +372,7 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 	    if ( inpsdidx<0 || !synthdatas_.validIdx(inpsdidx) )
 		continue;
 
-	    mDynamicCastGet(const PreStackSyntheticData*,pssd,
+	    mDynamicCastGet(const PreStack::PreStackSyntheticData*,pssd,
 			    synthdatas_[inpsdidx])
 	    if ( !pssd )
 		continue;
