@@ -247,6 +247,9 @@ Well::MarkerSet::MarkerID Well::MarkerSet::set( const Marker& newmrkr )
 	markerids_.move( idx, idxat );
     }
 
+    if ( idxat >= markerids_.size() )
+	return  markerids_[idx];
+
     const MarkerID chgdid = markerids_[idxat];
     mSendChgNotif( cMarkerChanged(), chgdid.getI() );
     return chgdid;
@@ -429,16 +432,14 @@ Well::MarkerSet::IdxType Well::MarkerSet::gtIdxFor( MarkerID id ) const
 
 Well::MarkerSet::IdxType Well::MarkerSet::gtIdxForDah( float dah ) const
 {
-    IdxType newidx = 0;
     for ( int imrk=0; imrk<markers_.size(); imrk++ )
     {
 	const Well::Marker& mrk = markers_[imrk];
 	if ( dah < mrk.dah() )
-	    break;
-	newidx++;
+	    return imrk;
     }
 
-    return newidx;
+    return markers_.size() ? markers_.size() : -1;
 }
 
 
@@ -634,7 +635,11 @@ void Well::MarkerSet::moveBlock( int fromidx, int toidxblockstart,
 void Well::MarkerSet::insrtAt( IdxType idx, const Marker& mrkr )
 {
     if ( idx < 0 )
+    {
+	markers_.add( mrkr );
+	markerids_.add(MarkerID::get(curmrkridnr_++));
 	return;
+    }
 
     markers_.insert( idx, mrkr );
     markerids_.insert( idx, MarkerID::get(curmrkridnr_++) );
