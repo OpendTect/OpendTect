@@ -162,7 +162,7 @@ void BatchProgram::init()
 
     res = iopar_->find( sKey::DataRoot() );
     if ( !res.isEmpty() && File::exists(res) )
-	SetEnvVar( "DTECT_DATA", res );
+	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", res );
 
     if ( clparser_->getVal(sKeyDataDir(),res) && !res.isEmpty() &&
 	 File::exists(res) )
