@@ -90,6 +90,7 @@ SectionLayerPresentationInfo* SectionLayerPresentationInfoFactory::create(
 
 SurveySectionPresentationInfo::SurveySectionPresentationInfo()
     : ObjPresentationInfo()
+    , sectiontype_(SurveySectionPresentationInfo::InLine)
     , sectionid_(SurveySectionID::getInvalid())
 {
     objtypekey_ = sFactoryKey();
