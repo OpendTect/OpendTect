@@ -29,7 +29,7 @@ namespace OD
 
     enum PresentationRequestType	{ Add, Show, Hide, Vanish };
 
-    const char*				sKeyPresentationObj();
+    mGlobal(General) const char*	sKeyPresentationObj();
 
 mExpClass(General) ViewerID : public GroupedID
 {
