@@ -22,11 +22,11 @@ mExpClass(uiODMain) uiODSceneParentTreeItem : public uiODPrManagedParentTreeItem
 public:
 			uiODSceneParentTreeItem(const uiString&);
     virtual		~uiODSceneParentTreeItem();
+    virtual bool	anyButtonClick(uiTreeViewItem*);
     bool		init();
 
 protected:
     uiODApplMgr*	applMgr();
     int			sceneID() const;
-
-    virtual void	addChildItem(const DBKey&)			=0;
+    void		setMoreObjectsToDoHint(bool yn);
 };

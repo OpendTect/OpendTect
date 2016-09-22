@@ -231,12 +231,11 @@ private:
 };
 
 
-mExpClass(General) SetPresentationInfo : public OD::ObjPresentationInfo
+mExpClass(General) SetPresentationInfo : public OD::SaveableObjPresentationInfo
 {
 public:
+					SetPresentationInfo(const DBKey&);
 					SetPresentationInfo();
-    void				fillPar(IOPar&) const;
-    bool				usePar(const IOPar&);
 
     static OD::ObjPresentationInfo*	createFrom( const IOPar&);
     static void				initClass();

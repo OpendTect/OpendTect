@@ -50,6 +50,7 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
+#include "surveysectionprinfo.h"
 #include "view2ddata.h"
 #include "view2ddataman.h"
 #include "vishorizondisplay.h"
@@ -254,7 +255,7 @@ OD::ViewerObjID uiODViewer2DMgr::displayIn2DViewer(
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel.selspec_ );
     const bool isrl =
-	!mIsUdf(posdatasel.rdmlineid_) || posdatasel.rdmlinedbkey_.isValid();
+	!mIsUdf(posdatasel.rdmlineid_) || !posdatasel.rdmlinedbkey_.isInvalid();
     if ( isrl )
     {
 	Geometry::RandomLine* rdmline = 0;
@@ -264,7 +265,7 @@ OD::ViewerObjID uiODViewer2DMgr::displayIn2DViewer(
 	    rdmline = Geometry::RLM().get( posdatasel.rdmlinedbkey_ );
 
 	if ( !rdmline )
-	    return OD::ViewerObjID::getInvalid();
+	    return OD::ViewerObjID::get( -1 );
 
 	posdatasel.tkzs_.zsamp_ = rdmline->zRange();
 	dpid = attrserv->createRdmTrcsOutput(
@@ -297,6 +298,8 @@ OD::ViewerObjID uiODViewer2DMgr::displayIn2DViewer(
     if ( geom2dids_.size()>0 )
 	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
     attachNotifiersAndSetAuxData( vwr2d );
+    vwr2d->setSurvSectionID( SurveySectionPresentationInfo::getNewSectionID() );
+    vwr2d->emitPRRequest( OD::Add );
     return vwr2d->viewerObjID();
 }
 
@@ -305,8 +308,7 @@ OD::ViewerObjID uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid,
 						bool dowva )
 {
     const DataPack::ID id = visServ().getDisplayedDataPackID( visid, attribid );
-    if ( id.isInvalid() )
-	return OD::ViewerObjID::getInvalid();
+    if ( id.isInvalid() ) return OD::ViewerObjID::get( -1 );
 
     uiODViewer2D* vwr2d = 0; //TODO find relevant 2D Viewer, for now create new
     const bool isnewvwr = !vwr2d;
@@ -710,6 +712,8 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     if ( geom2dids_.size()>0 )
 	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
     attachNotifiersAndSetAuxData( vwr2d );
+    vwr2d->setSurvSectionID( SurveySectionPresentationInfo::getNewSectionID() );
+    vwr2d->emitPRRequest( OD::Add );
     vwr2d->viewControl()->setEditMode( curvwr2d.viewControl()->isEditModeOn() );
 }
 
@@ -1083,7 +1087,7 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
     StepInterval<int> vwrtrcrg = vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
     const uiWorldPoint wperpixel =
 	vwr2d->viewwin()->viewer(0).getWorld2Ui().worldPerPixel();
-    const float eps  = mCast(float,wperpixel.x) * sEPSPixWidth;
+    const float eps  = mCast(float,wperpixel.x) * sEPSPixWidth;	
     TypeSet<Pos::GeomID> datagids;
     getVWR2DDataGeomIDs( vwr2d, datagids );
     for ( int idx=0; idx<int2d->size(); idx++ )
@@ -1556,4 +1560,16 @@ void uiODViewer2DMgr::addPickSets( const DBKeySet& mids )
 	uiODViewer2D* vwr2d = getViewer2D( vwridx );
 	vwr2d->addPickSets( mids );
     }
+}
+
+
+void uiODViewer2DMgr::request( OD::PresentationRequestType req,
+			       const IOPar& prinfopar,OD::ViewerObjID skipvwrid)
+{
+    OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( prinfopar );
+    FixedString survsecprkey( SurveySectionPresentationInfo::sFactoryKey() );
+    if ( survsecprkey==prinfo->objTypeKey() )
+	return;
+
+    OD::VwrTypePresentationMgr::request( req, prinfopar, skipvwrid );
 }

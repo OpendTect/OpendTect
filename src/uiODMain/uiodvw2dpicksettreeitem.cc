@@ -88,21 +88,32 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
     if ( setids.isEmpty() )
 	return true;
 
-    addChildren( setids );
+
+    OD::ObjPresentationInfoSet prinfos;
     for ( int idx=0; idx<setids.size(); idx++ )
-	emitChildPRRequest( setids[idx], OD::Add );
+	prinfos.add( new Pick::SetPresentationInfo(setids[idx]) );
+
+    addChildren( prinfos );
+    for ( int idx=0; idx<prinfos.size(); idx++ )
+	emitChildPRRequest( *prinfos.get(idx), OD::Add );
 
     if ( viewer2D() && viewer2D()->viewControl() )
-	viewer2D()->viewControl()->setEditMode(newps && selectChild(setids[0]));
+	viewer2D()->viewControl()->setEditMode(
+		newps && selectChild(*prinfos.get(0)) );
 
 
     return true;
 }
 
 
-void uiODVw2DPickSetParentTreeItem::addChildItem( const DBKey& setid )
+void uiODVw2DPickSetParentTreeItem::addChildItem(
+	const OD::ObjPresentationInfo& prinfo )
 {
-    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( setid );
+    mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);
+    if ( !pickprinfo )
+	return;
+
+    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( pickprinfo->storedID());
     ps.setNoDelete( true );
     if ( !ps || ps->isPolygon() )
 	return;
@@ -157,16 +168,12 @@ uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
 
 
 
-OD::ObjPresentationInfo* uiODVw2DPickSetTreeItem::getObjPRInfo()
+OD::ObjPresentationInfo* uiODVw2DPickSetTreeItem::getObjPRInfo() const
 {
     Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo;
     psprinfo->setStoredID( storedid_ );
     return psprinfo;
 }
-
-
-const char* uiODVw2DPickSetTreeItem::objectTypeKey() const
-{ return Pick::SetPresentationInfo::sFactoryKey(); }
 
 
 void uiODVw2DPickSetTreeItem::setChangedCB( CallBacker* )

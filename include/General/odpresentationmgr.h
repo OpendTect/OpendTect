@@ -29,17 +29,24 @@ namespace OD
 
     enum PresentationRequestType	{ Add, Show, Hide, Vanish };
 
+    const char*				sKeyPresentationObj();
 
 mExpClass(General) ViewerID : public GroupedID
 {
 public:
-				ViewerID()	    {}
+				ViewerID()
+				    : GroupedID(GroupedID::getInvalid())
+				{}
 
 				ViewerID( ViewerTypeID vwrtypeid,
 					  ViewerObjID vwrobjid )
-				    : GroupedID(vwrtypeid,vwrobjid) {}
-				ViewerID(GroupNrType vwrtypenr, ObjNrType vwrnr)
-				    : GroupedID(vwrtypenr,vwrnr)
+				    : GroupedID(GroupedID::getInvalid())
+				{
+				    setGroupID( vwrtypeid );
+				    setObjID( vwrobjid );
+				}
+				ViewerID(GroupNrType vwrtypeid, ObjNrType vwrid)
+				    : GroupedID(GroupedID::get(vwrtypeid,vwrid))
 				{}
 
     ViewerTypeID		viewerTypeID()	{ return groupID(); }
@@ -53,19 +60,62 @@ mExpClass(General) ObjPresentationInfo
 public:
 
     virtual				~ObjPresentationInfo()	{}
+    virtual uiString			getName() const		=0;
+    ObjPresentationInfo*		clone() const;
+    virtual bool			isSaveable() const	{ return false;}
     virtual void			fillPar(IOPar&) const;
     virtual bool			usePar(const IOPar&);
+    const char*				objTypeKey() const
+					{ return objtypekey_; }
+    virtual bool			isSameObj(
+					const ObjPresentationInfo&) const;
+protected:
+    BufferString			objtypekey_;
+};
+
+
+
+mExpClass(General) SaveableObjPresentationInfo : public ObjPresentationInfo
+{
+public:
+					SaveableObjPresentationInfo(
+						const DBKey& storekey )
+					    : storedid_(storekey)	{}
+					SaveableObjPresentationInfo()
+					    : storedid_(DBKey::getInvalid()) {}
+
+    virtual				~SaveableObjPresentationInfo()	{}
+    virtual bool			isSaveable() const	{ return true;}
+    virtual uiString			getName() const;
+    virtual void			fillPar(IOPar&) const;
+    virtual bool			usePar(const IOPar&);
+    virtual bool			isSameObj(
+					const ObjPresentationInfo&) const;
     void				setStoredID(const DBKey& id)
 					{ storedid_ = id; }
     const DBKey&			storedID() const
 					{ return storedid_; }
-    const char*				objTypeKey() const
-					{ return objtypekey_; }
 protected:
     DBKey				storedid_;
-    BufferString			objtypekey_;
 };
 
+
+mExpClass(General) ObjPresentationInfoSet
+{
+public:
+					~ObjPresentationInfoSet()
+					{ deepErase( prinfoset_ ); }
+    bool				isPresent(
+					const ObjPresentationInfo&) const;
+    int					size() const
+					{ return prinfoset_.size(); }
+    ObjPresentationInfo*		remove(int idx);
+    ObjPresentationInfo*		get(int idx);
+    const ObjPresentationInfo*		get(int idx) const;
+    bool				add(ObjPresentationInfo*);
+protected:
+    ObjectSet<ObjPresentationInfo>	prinfoset_;
+};
 
 
 mExpClass(General) ObjPresentationInfoFactory
@@ -111,7 +161,7 @@ mExpClass(General) VwrTypePresentationMgr : public CallBacker
 {
 public:
     virtual ViewerTypeID	viewerTypeID() const		=0;
-    void			request(PresentationRequestType,
+    virtual void		request(PresentationRequestType,
 					const IOPar&,
 				    ViewerObjID skipvwrid
 				    =ViewerObjID::get(-1));

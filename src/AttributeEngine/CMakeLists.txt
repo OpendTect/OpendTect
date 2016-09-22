@@ -20,6 +20,7 @@ set(OD_MODULE_SOURCES
 		attribparambase.cc
 		attribposvecoutput.cc
 		attribprocessor.cc
+		attribpresentationinfo.cc
 		attribprovider.cc
 		attribsel.cc
 		attribslice.cc

@@ -25,7 +25,7 @@ mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODSceneParentTreeItem
     mShowMenu;
     mMenuOnAnyButton;
 		~uiODPickSetParentTreeItem();
-    void	addChildItem(const DBKey&);
+    void	addChildItem(const OD::ObjPresentationInfo&);
     const char* childObjTypeKey() const;
 };
 
@@ -49,7 +49,7 @@ public:
     virtual bool	actModeWhenSelected() const	{ return true; }
     Pick::Set&		getSet()			{ return set_; }
     const Pick::Set&	getSet() const			{ return set_; }
-    const char*		objectTypeKey() const;
+    OD::ObjPresentationInfo*	getObjPRInfo() const;
 
 protected:
 
@@ -65,8 +65,6 @@ protected:
     virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
     virtual void	keyPressCB(CallBacker*);
-
-    OD::ObjPresentationInfo*	getObjPRInfo();
 
     Pick::Set&		set_;
 
@@ -89,9 +87,8 @@ mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODSceneParentTreeItem
 
 		~uiODPolygonParentTreeItem();
 
-    void	addChildItem(const DBKey&);
+    void	addChildItem(const OD::ObjPresentationInfo&);
     const char* childObjTypeKey() const;
-    OD::ObjPresentationInfo*	getObjPRInfo();
 };
 
 
@@ -114,7 +111,7 @@ public:
     virtual bool	actModeWhenSelected() const	{ return true; }
     Pick::Set&		getSet()			{ return set_; }
     const Pick::Set&	getSet() const			{ return set_; }
-    const char*		objectTypeKey() const;
+    OD::ObjPresentationInfo*	getObjPRInfo() const;
 
 protected:
 
@@ -129,7 +126,6 @@ protected:
     const char*		parentType() const
 			{ return typeid(uiODPolygonParentTreeItem).name(); }
 
-    OD::ObjPresentationInfo*	getObjPRInfo();
 
     Pick::Set&		set_;
 

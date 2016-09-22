@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
+#include "attribpresentationinfo.h"
 #include "coltabsequence.h"
 #include "ioobj.h"
 #include "seisdatapack.h"
@@ -373,6 +374,26 @@ DataPack::ID uiODVW2DVariableDensityTreeItem::createDataPack(
     }
 
     return viewer2D()->createDataPack( selas );
+}
+
+
+AttribPresentationInfo* uiODVW2DVariableDensityTreeItem::getAttribPRInfo()
+{
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    ConstRefMan<FlatDataPack> dp = vwr.getPack( false );
+    if ( !dp ) return 0;
+
+    if ( !vwr.isVisible(false) )
+	return 0;
+
+    AttribPresentationInfo* prinfo = new AttribPresentationInfo;
+    prinfo->setSelSpec( viewer2D()->selSpec(false) );
+    mDynamicCastGet(const SeisFlatDataPack*,seisfdp,dp.ptr());
+    if ( seisfdp )
+	prinfo->setAttribDataPack( seisfdp->getSourceDataPack().id() );
+    prinfo->setColTab( ColTab::Sequence(vwr.appearance().ddpars_.vd_.ctab_) );
+    prinfo->setColTabMapper( vwr.appearance().ddpars_.vd_.mappersetup_ );
+    return prinfo;
 }
 
 

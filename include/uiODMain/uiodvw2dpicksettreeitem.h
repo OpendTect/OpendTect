@@ -36,7 +36,7 @@ protected:
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-    void			addChildItem(const DBKey&);
+    void			addChildItem(const OD::ObjPresentationInfo&);
 };
 
 
@@ -64,7 +64,7 @@ public:
     virtual void	doSaveAs();
 
     void		handleItemCheck(bool triggervwreq);
-    const char*		objectTypeKey() const;
+    OD::ObjPresentationInfo* getObjPRInfo() const;
 
 protected:
 
@@ -78,7 +78,6 @@ protected:
     void		setChangedCB(CallBacker*);
     void		displayMiniCtab();
 
-    OD::ObjPresentationInfo* getObjPRInfo();
 
     Pick::Set&		pickset_;
     VW2DPickSet*	vw2dpickset_;

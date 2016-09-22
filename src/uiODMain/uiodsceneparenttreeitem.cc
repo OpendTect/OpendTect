@@ -12,6 +12,7 @@ ___________________________________________________________________
 #include "uiodscenetreeitem.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uivispartserv.h"
 
 
 uiODSceneParentTreeItem::uiODSceneParentTreeItem( const uiString& nm )
@@ -51,3 +52,19 @@ bool uiODSceneParentTreeItem::init()
     setPRManagedViewer( *scene );
     return uiODTreeItem::init();
 }
+
+
+bool uiODSceneParentTreeItem::anyButtonClick( uiTreeViewItem* item )
+{
+    if ( item!=uitreeviewitem_ )
+	return uiTreeItem::anyButtonClick( item );
+
+    if ( !select() ) return false;
+
+    applMgr()->updateColorTable( -1, -1 );
+    return true;
+}
+
+
+void uiODSceneParentTreeItem::setMoreObjectsToDoHint( bool yn )
+{ applMgr()->visServer()->setMoreObjectsToDoHint( sceneID(), yn ); }

@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class uiMenuHandler;
 class VW2DSeis;
+class AttribPresentationInfo;
 namespace ColTab { class Sequence; };
 
 
@@ -29,6 +30,7 @@ public:
 
     bool                	select();
     bool                        showSubMenu();
+    AttribPresentationInfo*	getAttribPRInfo();
 
 protected:
 

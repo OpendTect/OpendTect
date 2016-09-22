@@ -8,6 +8,9 @@
 #include "odpresentationmgr.h"
 #include "keystrs.h"
 #include "iopar.h"
+#include "ioman.h"
+
+const char* OD::sKeyPresentationObj()	{ return "Presentation Obj"; }
 
 static OD::PresentationManager* prman_ = 0;
 OD::PresentationManager& OD::PrMan()
@@ -144,17 +147,112 @@ void OD::VwrTypePresentationMgr::request( OD::PresentationRequestType req,
 
 void OD::ObjPresentationInfo::fillPar( IOPar& par ) const
 {
-    par.set( sKey::Type(), objtypekey_ );
-    par.set( IOPar::compKey(sKey::Stored(),sKey::ID()), storedid_ );
+    par.set( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+	     objtypekey_ );
 }
 
 
 bool OD::ObjPresentationInfo::usePar( const IOPar& par )
 {
-    if ( !par.get(sKey::Type(),objtypekey_) )
+    return par.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+		    objtypekey_ );
+}
+
+
+bool OD::ObjPresentationInfo::isSameObj(
+	const  OD::ObjPresentationInfo& prinfo ) const
+{ return objtypekey_ == prinfo.objTypeKey(); }
+
+
+OD::ObjPresentationInfo* OD::ObjPresentationInfo::clone() const
+{
+    IOPar prinfopar;
+    fillPar( prinfopar );
+    return OD::PRIFac().create( prinfopar );
+}
+
+
+uiString OD::SaveableObjPresentationInfo::getName() const
+{
+    return toUiString( IOM().nameOf(storedid_) );
+}
+
+
+void OD::SaveableObjPresentationInfo::fillPar( IOPar& par ) const
+{
+    OD::ObjPresentationInfo::fillPar( par );
+    par.set( IOPar::compKey(sKey::Stored(),sKey::ID()), storedid_ );
+}
+
+
+bool OD::SaveableObjPresentationInfo::usePar( const IOPar& par )
+{
+    if ( !OD::ObjPresentationInfo::usePar(par) )
 	return false;
 
     return par.get( IOPar::compKey(sKey::Stored(),sKey::ID()), storedid_ );
+}
+
+
+bool OD::SaveableObjPresentationInfo::isSameObj(
+	const  OD::ObjPresentationInfo& prinfo ) const
+{
+    if ( !OD::ObjPresentationInfo::isSameObj(prinfo) )
+	return false;
+
+    mDynamicCastGet(const OD::SaveableObjPresentationInfo*,saveableprinfo,
+		    &prinfo);
+    if ( !saveableprinfo )
+	return false;
+
+    return storedid_.isInvalid() ? true : storedid_==saveableprinfo->storedID();
+}
+
+
+bool OD::ObjPresentationInfoSet::isPresent(
+	const OD::ObjPresentationInfo& prinfo ) const
+{
+    for ( int idx=0; idx<prinfoset_.size(); idx++ )
+    {
+	if ( prinfoset_[idx]->isSameObj(prinfo) )
+	    return true;
+    }
+
+    return false;
+}
+
+
+bool OD::ObjPresentationInfoSet::add( OD::ObjPresentationInfo* prinfo )
+{
+    if ( !prinfo || isPresent(*prinfo) )
+	return false;
+
+    prinfoset_ += prinfo;
+    return true;
+}
+
+
+OD::ObjPresentationInfo* OD::ObjPresentationInfoSet::get( int idx )
+{
+    if ( !prinfoset_.validIdx(idx) )
+	return 0;
+
+    return prinfoset_[idx];
+}
+
+
+const OD::ObjPresentationInfo* OD::ObjPresentationInfoSet::get( int idx ) const
+{
+    return const_cast<OD::ObjPresentationInfoSet*>(this)->get( idx );
+}
+
+
+OD::ObjPresentationInfo* OD::ObjPresentationInfoSet::remove( int idx )
+{
+    if ( !prinfoset_.validIdx(idx) )
+	return 0;
+
+    return prinfoset_.removeSingle( idx );
 }
 
 
@@ -187,7 +285,8 @@ OD::ObjPresentationInfo* OD::ObjPresentationInfoFactory::create(
 	const IOPar& par )
 {
     BufferString keystr;
-    if ( !par.get(sKey::Type(),keystr) )
+    if ( !par.get(IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+		  keystr) )
 	return 0;
 
     const int keyidx = keys_.indexOf( keystr );

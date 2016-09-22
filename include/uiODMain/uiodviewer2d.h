@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "uigeom.h"
 #include "uistring.h"
-#include "odpresentationmgr.h"
+#include "surveysectionprinfo.h"
 
 class uiFlatViewAuxDataEditor;
 class uiFlatViewStdControl;
@@ -52,6 +52,9 @@ public:
 
     OD::ViewerTypeID		viewerTypeID() const
 				{ return sViewer2DMgrTypeID; }
+    void			setSurvSectionID( SurveySectionID sid)
+				{ surveysectionid_ = sid; }
+    SurveySectionID 		survSectionID() { return surveysectionid_; }
     virtual void		setUpView(DataPack::ID,bool wva);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
     void			setMouseCursorExchange(MouseCursorExchange*);
@@ -204,6 +207,9 @@ public:
     void			addPickSets(const DBKeySet&);
     void			setupNewPickSet(const DBKey&);
 
+    void			emitPRRequest(OD::PresentationRequestType);
+    OD::ObjPresentationInfo*	getObjPRInfo() const;
+
 protected:
 
     uiSlicePos2DView*				slicepos_;
@@ -213,6 +219,7 @@ protected:
     Attrib::SelSpec&		wvaselspec_;
     Attrib::SelSpec&		vdselspec_;
 
+    SurveySectionID		surveysectionid_;
     Vw2DDataManager*		datamgr_;
     uiTreeFactorySet*		tifs_;
     uiODVw2DTreeTop*		treetp_;

@@ -29,11 +29,13 @@ ___________________________________________________________________
 #include "visrgbatexturechannel2rgba.h"
 
 #include "attribdescsetsholder.h"
+#include "attribpresentationinfo.h"
 #include "coltabsequence.h"
 #include "settings.h"
 #include "welldata.h"
 #include "wellinfo.h"
 #include "wellman.h"
+#include "surveysectionprinfo.h"
 
 
 static const int cPositionIdx = 990;
@@ -85,6 +87,7 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
     { \
 	treeitm* newitm = new treeitm(-1,getType(mnuid));\
         addChild( newitm, false ); \
+	newitm->emitPRRequest( OD::Add ); \
     } \
     else if ( mnuid==2 ) \
     { \
@@ -100,6 +103,7 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 	    addChild( itm, false ); \
 	    itm->setAtWellLocation( *wd ); \
 	    itm->displayDefaultData(); \
+	    itm->emitPRRequest( OD::Add ); \
 	} \
     } \
     handleStandardItems( mnuid ); \
@@ -109,6 +113,8 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
     : orient_(o)
     , type_(t)
+    , initprinfo_(0)
+    , surveysectionid_(SurveySectionID::getInvalid())
     , positiondlg_(0)
     , positionmnuitem_(m3Dots(tr("Position")),cPositionIdx)
     , gridlinesmnuitem_(m3Dots(tr("Gridlines")),cGridLinesIdx)
@@ -116,6 +122,30 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
     , addcrlitem_(tr("Add Crl-line"),10002)
     , addzitem_(tr("Add Z-slice"),10001)
 {
+    displayid_ = did;
+    positionmnuitem_.iconfnm = "orientation64";
+    gridlinesmnuitem_.iconfnm = "gridlines";
+    surveysectionid_ = SurveySectionPresentationInfo::getNewSectionID();
+    mAttachCB( uiMain::keyboardEventHandler().keyPressed,
+	uiODPlaneDataTreeItem::keyUnReDoPressedCB );
+}
+
+
+uiODPlaneDataTreeItem::uiODPlaneDataTreeItem(
+	int did, OD::SliceType o, const SurveySectionPresentationInfo& prinfo )
+    : orient_(o)
+    , type_(uiODPlaneDataTreeItem::Presentation)
+    , positiondlg_(0)
+    , initprinfo_(0)
+    , surveysectionid_(SurveySectionID::getInvalid())
+    , positionmnuitem_(m3Dots(tr("Position")),cPositionIdx)
+    , gridlinesmnuitem_(m3Dots(tr("Gridlines")),cGridLinesIdx)
+    , addinlitem_(tr("Add Inl-line"),10003)
+    , addcrlitem_(tr("Add Crl-line"),10002)
+    , addzitem_(tr("Add Z-slice"),10001)
+{
+    mDynamicCast(SurveySectionPresentationInfo*,initprinfo_,prinfo.clone());
+    surveysectionid_ = initprinfo_->sectionID();
     displayid_ = did;
     positionmnuitem_.iconfnm = "orientation64";
     gridlinesmnuitem_.iconfnm = "gridlines";
@@ -140,6 +170,7 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 			mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     visserv_->getUiSlicePos()->setDisplay( -1 );
+    delete initprinfo_;
     delete positiondlg_;
 }
 
@@ -172,10 +203,12 @@ bool uiODPlaneDataTreeItem::init()
 
 	if ( type_ == Default )
 	    displayDefaultData();
-	if ( type_ == Select )
+	else if ( type_ == Select )
 	    displayGuidance();
-	if ( type_ == RGBA )
+	else if ( type_ == RGBA )
 	    selectRGBA();
+	else if ( type_ == Presentation )
+	    displayFromPRInfo();
     }
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
@@ -190,6 +223,39 @@ bool uiODPlaneDataTreeItem::init()
 			mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     return uiODDisplayTreeItem::init();
+}
+
+
+OD::ObjPresentationInfo* uiODPlaneDataTreeItem::getObjPRInfo() const
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv_->getObject(displayid_));
+    if ( !pdd ) return 0;
+
+    SurveySectionPresentationInfo* prinfo = new SurveySectionPresentationInfo;
+    prinfo->setSectionID( surveysectionid_ );
+    SurveySectionPresentationInfo::SectionType sectype;
+    if ( orient_ == OD::InlineSlice )
+	sectype = SurveySectionPresentationInfo::InLine;
+    else if ( orient_ == OD::CrosslineSlice )
+	sectype = SurveySectionPresentationInfo::CrossLine;
+    else
+	sectype = SurveySectionPresentationInfo::ZSlice;
+
+    prinfo->setSectionType( sectype );
+    prinfo->setSectionPos( pdd->getTrcKeyZSampling(true,true) );
+
+    for ( int iattr=0; iattr<pdd->nrAttribs(); iattr++ )
+    {
+	AttribPresentationInfo* attrprinfo = new AttribPresentationInfo;
+	attrprinfo->setSelSpec( *pdd->getSelSpec(iattr) );
+	attrprinfo->setAttribDataPack( pdd->getDataPackID(iattr) );
+	attrprinfo->setColTabMapper( *pdd->getColTabMapperSetup(iattr) );
+	attrprinfo->setColTab( *pdd->getColTabSequence(iattr) );
+	prinfo->addSectionLayer( attrprinfo );
+    }
+
+    return prinfo;
 }
 
 
@@ -219,6 +285,48 @@ void uiODPlaneDataTreeItem::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
     if ( !pdd ) return;
 
     pdd->setTrcKeyZSampling( tkzs );
+}
+
+
+bool uiODPlaneDataTreeItem::displayFromPRInfo()
+{
+    if ( !initprinfo_ )
+	return false;
+
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv_->getObject(displayid_));
+    if ( !pdd )
+	return false;
+
+    pdd->setTrcKeyZSampling( initprinfo_->sectionPos() );
+
+    if ( !initprinfo_->nrLayers() )
+    {
+	displayDefaultData();
+	return true;
+    }
+
+    for ( int idx=0; idx<initprinfo_->nrLayers(); idx++ )
+    {
+	mDynamicCastGet( const AttribPresentationInfo*,attrprinfo,
+			 initprinfo_->getLyerPRInfo(idx) );
+	if ( !attrprinfo )
+	    continue;
+
+	if ( idx )
+	    pdd->addAttrib();
+	visserv_->setSelSpec( displayid_, idx, attrprinfo->getSelSpec() );
+	visserv_->setColTabMapperSetup( displayid_, idx,
+					attrprinfo->getColTabMapper() );
+	visserv_->setColTabSequence( displayid_, idx, attrprinfo->getColTab() );
+	if ( !attrprinfo->getAttribDataPack().isInvalid() )
+	    visserv_->setDataPackID( displayid_, idx,
+				     attrprinfo->getAttribDataPack() );
+	else
+	    visserv_->calculateAttrib( displayid_, idx, false );
+    }
+
+    return false;
 }
 
 
@@ -613,12 +721,16 @@ uiTreeItem*
 
 
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
-    : uiODSceneTreeItem( uiStrings::sInline() )
+    : uiODSceneParentTreeItem( uiStrings::sInline() )
 {}
 
 
 const char* uiODInlineParentTreeItem::iconName() const
 { return "tree-inl"; }
+
+
+const char* uiODInlineParentTreeItem::childObjTypeKey() const
+{ return SurveySectionPresentationInfo::sFactoryKey(); }
 
 
 bool uiODInlineParentTreeItem::showSubMenu()
@@ -634,10 +746,31 @@ bool uiODInlineParentTreeItem::showSubMenu()
 }
 
 
+void uiODInlineParentTreeItem::addChildItem(
+	const OD::ObjPresentationInfo& prinfo )
+{
+    mDynamicCastGet(const SurveySectionPresentationInfo*,inlprinfo,&prinfo)
+    if ( !inlprinfo )
+	return;
+
+    if ( inlprinfo->sectionType()!=SurveySectionPresentationInfo::InLine )
+	return;
+
+    uiODInlineTreeItem* inlitem = new uiODInlineTreeItem( -1, *inlprinfo );
+    addChild( inlitem, false );
+}
+
+
 uiODInlineTreeItem::uiODInlineTreeItem( int id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::InlineSlice, tp )
 {}
 
+
+
+uiODInlineTreeItem::uiODInlineTreeItem(
+	int id, const SurveySectionPresentationInfo& prinfo )
+    : uiODPlaneDataTreeItem( id, OD::InlineSlice, prinfo )
+{}
 
 
 uiTreeItem*
@@ -657,12 +790,16 @@ uiTreeItem*
 
 
 uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
-    : uiODSceneTreeItem( uiStrings::sCrossline() )
+    : uiODSceneParentTreeItem( uiStrings::sCrossline() )
 {}
 
 
 const char* uiODCrosslineParentTreeItem::iconName() const
 { return "tree-crl"; }
+
+
+const char* uiODCrosslineParentTreeItem::childObjTypeKey() const
+{ return SurveySectionPresentationInfo::sFactoryKey(); }
 
 
 bool uiODCrosslineParentTreeItem::showSubMenu()
@@ -678,10 +815,31 @@ bool uiODCrosslineParentTreeItem::showSubMenu()
 }
 
 
+void uiODCrosslineParentTreeItem::addChildItem(
+	const OD::ObjPresentationInfo& prinfo )
+{
+    mDynamicCastGet(const SurveySectionPresentationInfo*,crlprinfo,&prinfo)
+    if ( !crlprinfo )
+	return;
+
+    if ( crlprinfo->sectionType()!=SurveySectionPresentationInfo::CrossLine )
+	return;
+
+    uiODCrosslineTreeItem* crlitem = new uiODCrosslineTreeItem( -1, *crlprinfo);
+    addChild( crlitem, false );
+}
+
+
 uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::CrosslineSlice, tp )
 {}
 
+
+
+uiODCrosslineTreeItem::uiODCrosslineTreeItem(
+	int id, const SurveySectionPresentationInfo& prinfo )
+    : uiODPlaneDataTreeItem( id, OD::CrosslineSlice, prinfo )
+{}
 
 
 uiTreeItem*
@@ -702,12 +860,16 @@ uiTreeItem*
 
 
 uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
-    : uiODSceneTreeItem( uiStrings::sZSlice() )
+    : uiODSceneParentTreeItem( uiStrings::sZSlice() )
 {}
 
 
 const char* uiODZsliceParentTreeItem::iconName() const
 { return "tree-zsl"; }
+
+
+const char* uiODZsliceParentTreeItem::childObjTypeKey() const
+{ return SurveySectionPresentationInfo::sFactoryKey(); }
 
 
 bool uiODZsliceParentTreeItem::showSubMenu()
@@ -722,7 +884,27 @@ bool uiODZsliceParentTreeItem::showSubMenu()
 }
 
 
+void uiODZsliceParentTreeItem::addChildItem(
+	const OD::ObjPresentationInfo& prinfo )
+{
+    mDynamicCastGet(const SurveySectionPresentationInfo*,zsliceprinfo,&prinfo)
+    if ( !zsliceprinfo )
+	return;
+
+    if ( zsliceprinfo->sectionType()!=SurveySectionPresentationInfo::ZSlice )
+	return;
+
+    uiODZsliceTreeItem* zslitem = new uiODZsliceTreeItem( -1, *zsliceprinfo );
+    addChild( zslitem, false );
+}
+
+
 uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::ZSlice, tp )
 {
 }
+
+uiODZsliceTreeItem::uiODZsliceTreeItem(
+	int id, const SurveySectionPresentationInfo& prinfo )
+    : uiODPlaneDataTreeItem( id, OD::ZSlice, prinfo )
+{}

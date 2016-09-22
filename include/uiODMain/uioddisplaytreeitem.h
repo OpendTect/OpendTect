@@ -45,7 +45,6 @@ public:
     virtual void	setOnlyAtSectionsDisplay(bool);
     virtual bool	displayedOnlyAtSections() const;
     virtual void	handleItemCheck(bool triggerdispreq=true);
-    virtual const char* objectTypeKey() const		{ return 0; }
 
 protected:
 

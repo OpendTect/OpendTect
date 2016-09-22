@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "geometryio.h"
 #include "survgeometrytransl.h"
+#include "surveysectionprinfo.h"
 
 
 mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc);
@@ -41,6 +42,7 @@ mDefModInitFn(General)
     odIOObjSelectionTranslator::initClass();
 
     Pick::SetPresentationInfo::initClass();
+    SurveySectionPresentationInfo::initClass();
     Pos::RangeProvider3D::initClass();
     Pos::RangeProvider2D::initClass();
     ValueProperty::initClass();

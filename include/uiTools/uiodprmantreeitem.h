@@ -25,12 +25,12 @@ public:
     virtual		~uiODPrManagedParentTreeItem();
     void		setPRManagedViewer(OD::PresentationManagedViewer&);
 
-    void		getLoadedChildren(DBKeySet&) const;
-    void		showHideChildren(const DBKey&,bool);
-    void		removeChildren(const DBKey&);
-    void		addChildren(const DBKeySet&);
-    bool		selectChild(const DBKey&);
-    void		emitChildPRRequest(const DBKey&,
+    void		getLoadedChildren(OD::ObjPresentationInfoSet&) const;
+    void		showHideChildren(const OD::ObjPresentationInfo&,bool);
+    void		removeChildren(const OD::ObjPresentationInfo&);
+    void		addChildren(const OD::ObjPresentationInfoSet&);
+    bool		selectChild(const OD::ObjPresentationInfo&);
+    void		emitChildPRRequest(const OD::ObjPresentationInfo&,
 					   OD::PresentationRequestType);
 
     virtual const char* childObjTypeKey() const			=0;
@@ -41,7 +41,7 @@ protected:
     virtual void	objHiddenCB(CallBacker*);
     virtual void	objOrphanedCB(CallBacker*);
 
-    virtual void	addChildItem(const DBKey&)		{}
+    virtual void	addChildItem(const OD::ObjPresentationInfo&)	{}
 };
 
 
@@ -49,8 +49,10 @@ mExpClass(uiTools) uiODPrManagedTreeItem : public uiODTreeItem
 { mODTextTranslationClass(uiODPrManagedTreeItem)
 public:
 			uiODPrManagedTreeItem(const uiString&);
-    const DBKey&	storedID() const		{ return storedid_; }
     virtual		~uiODPrManagedTreeItem();
+
+    virtual OD::ObjPresentationInfo* getObjPRInfo() const	{ return 0; }
+    const DBKey&	storedID() const		{ return storedid_; }
     void		emitPRRequest(OD::PresentationRequestType);
     virtual void	handleItemCheck(bool triggerdispreq=true)	{}
     virtual void	prepareForShutdown();
@@ -59,5 +61,4 @@ protected:
     DBKey			storedid_;
 
     virtual OD::ViewerID	getViewerID() const		=0;
-    virtual OD::ObjPresentationInfo* getObjPRInfo()		{ return 0; }
 };

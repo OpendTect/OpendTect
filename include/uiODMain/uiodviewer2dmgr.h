@@ -136,6 +136,9 @@ public:
     void			getLoadedPickSets(DBKeySet&) const;
     void			addPickSets(const DBKeySet&);
 
+    virtual void		request(OD::PresentationRequestType,
+					const IOPar& prinfopar,OD::ViewerObjID);
+
 
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }

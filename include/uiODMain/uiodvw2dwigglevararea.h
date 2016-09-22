@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class uiMenuHandler;
 class VW2DSeis;
+class AttribPresentationInfo;
 
 
 mExpClass(uiODMain) uiODVW2DWiggleVarAreaTreeItem : public uiODVw2DTreeItem
@@ -28,6 +29,7 @@ public:
 
     bool			select();
     bool                        showSubMenu();
+    AttribPresentationInfo*	getAttribPRInfo();
 
 protected:
 	

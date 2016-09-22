@@ -72,20 +72,20 @@ void uiODPrManagedParentTreeItem::objAddedCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
-    objprinfopar.get( sKey::Type(), objtypekey );
+    objprinfopar.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+		      objtypekey );
     if ( objtypekey != childObjTypeKey() )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODPrManagedParentTreeItem::objAddedCB, cbercaps )
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
-    const DBKey mid = prinfo->storedID();
-    if ( mid.isInvalid() )
+    if ( !prinfo )
 	return;
 
-    DBKeySet setids;
-    setids += mid;
-    addChildren( setids );
+    OD::ObjPresentationInfoSet prinfos;
+    prinfos.add( prinfo );
+    addChildren( prinfos );
 }
 
 
@@ -93,18 +93,19 @@ void uiODPrManagedParentTreeItem::objVanishedCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
-    objprinfopar.get( sKey::Type(), objtypekey );
+    objprinfopar.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+		      objtypekey );
     if ( objtypekey != childObjTypeKey() )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODPrManagedParentTreeItem::objVanishedCB, cbercaps )
-    OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
-    const DBKey mid = prinfo->storedID();
-    if ( mid.isInvalid() )
+    PtrMan<OD::ObjPresentationInfo> prinfo =
+			OD::PRIFac().create( objprinfopar );
+    if ( !prinfo )
 	return;
 
-    removeChildren( mid );
+    removeChildren( *prinfo );
 }
 
 
@@ -112,18 +113,19 @@ void uiODPrManagedParentTreeItem::objShownCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
-    objprinfopar.get( sKey::Type(), objtypekey );
+    objprinfopar.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+		      objtypekey );
     if ( objtypekey != childObjTypeKey() )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODPrManagedParentTreeItem::objShownCB, cbercaps )
-    OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
-    const DBKey mid = prinfo->storedID();
-    if ( mid.isInvalid() )
+    PtrMan<OD::ObjPresentationInfo> prinfo =
+			OD::PRIFac().create( objprinfopar );
+    if ( !prinfo )
 	return;
 
-    showHideChildren( mid, true );
+    showHideChildren( *prinfo, true );
 }
 
 
@@ -131,18 +133,19 @@ void uiODPrManagedParentTreeItem::objHiddenCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
-    objprinfopar.get( sKey::Type(), objtypekey );
+    objprinfopar.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+		      objtypekey );
     if ( objtypekey != childObjTypeKey() )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODPrManagedParentTreeItem::objHiddenCB, cbercaps )
-    OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
-    const DBKey mid = prinfo->storedID();
-    if ( mid.isInvalid() )
+    PtrMan<OD::ObjPresentationInfo> prinfo =
+			OD::PRIFac().create( objprinfopar );
+    if ( !prinfo )
 	return;
 
-    showHideChildren( mid, false );
+    showHideChildren( *prinfo, false );
 }
 
 
@@ -150,31 +153,33 @@ void uiODPrManagedParentTreeItem::objOrphanedCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( IOPar,objprinfopar,cber );
     BufferString objtypekey;
-    objprinfopar.get( sKey::Type(), objtypekey );
+    objprinfopar.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+		      objtypekey );
     if ( objtypekey != childObjTypeKey() )
 	return;
 
     mEnsureExecutedInMainThreadWithCapsule(
 	    uiODPrManagedParentTreeItem::objHiddenCB, cbercaps )
-    OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( objprinfopar );
-    const DBKey mid = prinfo->storedID();
-    if ( mid.isInvalid() )
+    PtrMan<OD::ObjPresentationInfo> prinfo =
+			OD::PRIFac().create( objprinfopar );
+    if ( !prinfo )
 	return;
     //TODO do something when we have clearer idea what to do when it happens
 }
 
 
 void uiODPrManagedParentTreeItem::emitChildPRRequest(
-	const DBKey& mid, OD::PresentationRequestType req )
+	const OD::ObjPresentationInfo& prinfo, OD::PresentationRequestType req )
 {
-    if ( mid.isInvalid() )
-	return;
-
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODPrManagedTreeItem*,childitem,
 			getChild(idx))
-	if ( !childitem || childitem->storedID() != mid )
+	if ( !childitem )
+	    continue;
+
+	PtrMan<OD::ObjPresentationInfo> childprinfo = childitem->getObjPRInfo();
+	if ( !childprinfo->isSameObj(prinfo) )
 	    continue;
 
 	childitem->emitPRRequest( req );
@@ -182,13 +187,17 @@ void uiODPrManagedParentTreeItem::emitChildPRRequest(
 }
 
 
-void uiODPrManagedParentTreeItem::showHideChildren( const DBKey& mid,
-						    bool show )
+void uiODPrManagedParentTreeItem::showHideChildren(
+	const OD::ObjPresentationInfo& prinfo, bool show )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODPrManagedTreeItem*,childitem,getChild(idx))
-	if ( !childitem || mid!=childitem->storedID() )
+	if ( !childitem )
+	    continue;
+
+	PtrMan<OD::ObjPresentationInfo> childprinfo = childitem->getObjPRInfo();
+	if ( !childprinfo->isSameObj(prinfo) )
 	    continue;
 
 	childitem->setChecked( show, false );
@@ -197,12 +206,17 @@ void uiODPrManagedParentTreeItem::showHideChildren( const DBKey& mid,
 }
 
 
-void uiODPrManagedParentTreeItem::removeChildren( const DBKey& mid )
+void uiODPrManagedParentTreeItem::removeChildren(
+	const OD::ObjPresentationInfo& prinfo )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODPrManagedTreeItem*,childitem,getChild(idx))
-	if ( !childitem || mid!=childitem->storedID() )
+	if ( !childitem )
+	    continue;
+
+	PtrMan<OD::ObjPresentationInfo> childprinfo = childitem->getObjPRInfo();
+	if ( !childprinfo->isSameObj(prinfo) )
 	    continue;
 
 	removeChild( childitem );
@@ -211,7 +225,7 @@ void uiODPrManagedParentTreeItem::removeChildren( const DBKey& mid )
 
 
 void uiODPrManagedParentTreeItem::getLoadedChildren(
-	DBKeySet& mids ) const
+	OD::ObjPresentationInfoSet& prinfos ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -219,24 +233,29 @@ void uiODPrManagedParentTreeItem::getLoadedChildren(
 	if ( !childitem )
 	    continue;
 
-	mids.addIfNew( childitem->storedID() );
+	prinfos.add( childitem->getObjPRInfo() );
     }
 }
 
 
-bool uiODPrManagedParentTreeItem::selectChild( const DBKey& mid )
+bool uiODPrManagedParentTreeItem::selectChild(
+	const OD::ObjPresentationInfo& prinfo )
 {
-    DBKeySet midsloaded;
-    getLoadedChildren( midsloaded );
-    if ( !midsloaded.isPresent(mid) )
+    OD::ObjPresentationInfoSet objsloaded;
+    getLoadedChildren( objsloaded );
+    if ( !objsloaded.isPresent(prinfo) )
 	return false;
 
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
-	mDynamicCastGet(uiODPrManagedTreeItem*,childtreeitm,getChild(idx))
-	if ( childtreeitm && mid==childtreeitm->storedID() )
+	mDynamicCastGet(uiODPrManagedTreeItem*,childitem,getChild(idx))
+	if ( !childitem )
+	    continue;
+
+	PtrMan<OD::ObjPresentationInfo> childprinfo = childitem->getObjPRInfo();
+	if ( childprinfo->isSameObj(prinfo) )
 	{
-	    childtreeitm->select();
+	    childitem->select();
 	    return true;
 	}
     }
@@ -245,16 +264,17 @@ bool uiODPrManagedParentTreeItem::selectChild( const DBKey& mid )
 }
 
 
-void uiODPrManagedParentTreeItem::addChildren( const DBKeySet& setids )
+void uiODPrManagedParentTreeItem::addChildren(
+    const OD::ObjPresentationInfoSet& prinfos )
 {
-    DBKeySet setidstobeloaded, setidsloaded;
-    getLoadedChildren( setidsloaded );
-    for ( int idx=0; idx<setids.size(); idx++ )
+    OD::ObjPresentationInfoSet prinfostobeloaded, prinfosloaded;
+    getLoadedChildren( prinfosloaded );
+    for ( int idx=0; idx<prinfos.size(); idx++ )
     {
-	if ( !setidsloaded.isPresent(setids[idx]) )
-	    setidstobeloaded.addIfNew( setids[idx] );
+	if ( !prinfosloaded.isPresent(*prinfos.get(idx)) )
+	    prinfostobeloaded.add( prinfos.get(idx)->clone() );
     }
 
-    for ( int idx=0; idx<setidstobeloaded.size(); idx++ )
-	addChildItem( setidstobeloaded[idx] );
+    for ( int idx=0; idx<prinfostobeloaded.size(); idx++ )
+	addChildItem( *prinfostobeloaded.get(idx) );
 }

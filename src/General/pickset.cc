@@ -925,8 +925,15 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 }
 
 
+Pick::SetPresentationInfo::SetPresentationInfo( const DBKey& key )
+    : SaveableObjPresentationInfo(key)
+{
+    objtypekey_ = sFactoryKey();
+}
+
+
 Pick::SetPresentationInfo::SetPresentationInfo()
-    : ObjPresentationInfo()
+    : SaveableObjPresentationInfo()
 {
     objtypekey_ = sFactoryKey();
 }
@@ -935,9 +942,14 @@ Pick::SetPresentationInfo::SetPresentationInfo()
 OD::ObjPresentationInfo* Pick::SetPresentationInfo::createFrom(
 	const IOPar& par )
 {
-    Pick::SetPresentationInfo* psdispinfo = new Pick::SetPresentationInfo;
-    psdispinfo->usePar( par );
-    return psdispinfo;
+    Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo;
+    if ( !psprinfo->usePar(par) )
+    {
+	delete psprinfo;
+	return 0;
+    }
+
+    return psprinfo;
 }
 
 
@@ -950,16 +962,4 @@ const char* Pick::SetPresentationInfo::sFactoryKey()
 void Pick::SetPresentationInfo::initClass()
 {
     OD::PRIFac().addCreateFunc( createFrom, sFactoryKey() );
-}
-
-
-void Pick::SetPresentationInfo::fillPar( IOPar& par ) const
-{
-    OD::ObjPresentationInfo::fillPar( par );
-}
-
-
-bool Pick::SetPresentationInfo::usePar( const IOPar& par )
-{
-    return OD::ObjPresentationInfo::usePar( par );
 }

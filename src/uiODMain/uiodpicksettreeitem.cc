@@ -60,9 +60,14 @@ const char* uiODPickSetParentTreeItem::childObjTypeKey() const
 }
 
 
-void uiODPickSetParentTreeItem::addChildItem( const DBKey& mid )
+void uiODPickSetParentTreeItem::addChildItem(
+	const OD::ObjPresentationInfo& prinfo )
 {
-    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( mid );
+    mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);
+    if ( !pickprinfo )
+	return;
+
+    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( pickprinfo->storedID());
     ps.setNoDelete( true );
     if ( !ps || ps->isPolygon() )
 	return;
@@ -128,8 +133,9 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
 	for ( int chidx=0; chidx<mids.size(); chidx++ )
 	{
-	    addChildItem( mids[chidx] );
-	    emitChildPRRequest( mids[chidx], OD::Add );
+	    Pick::SetPresentationInfo pickprinfo( mids[chidx] );
+	    addChildItem( pickprinfo );
+	    emitChildPRRequest( pickprinfo, OD::Add );
 	}
     }
     else if ( mnuid==mGen3DIdx )
@@ -139,8 +145,9 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    return false;
 
 	const DBKey storedid = Pick::SetMGR().getID( *ps );
-	addChildItem( storedid );
-	emitChildPRRequest( storedid, OD::Add );
+	Pick::SetPresentationInfo pickprinfo( storedid );
+	addChildItem( pickprinfo );
+	emitChildPRRequest( pickprinfo, OD::Add );
     }
     else if ( mnuid==mRandom2DIdx )
     {
@@ -149,8 +156,9 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    return false;
 
 	const DBKey storedid = Pick::SetMGR().getID( *ps );
-	addChildItem( storedid );
-	emitChildPRRequest( storedid, OD::Add );
+	Pick::SetPresentationInfo pickprinfo( storedid );
+	addChildItem( pickprinfo );
+	emitChildPRRequest( pickprinfo, OD::Add );
     }
     else if ( mnuid==mEmptyIdx )
     {
@@ -159,8 +167,9 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    return false;
 
 	const DBKey storedid = Pick::SetMGR().getID( *ps );
-	addChildItem( storedid );
-	emitChildPRRequest( storedid, OD::Add );
+	Pick::SetPresentationInfo pickprinfo( storedid );
+	addChildItem( pickprinfo );
+	emitChildPRRequest( pickprinfo, OD::Add );
     }
     else if ( mnuid==mSaveIdx )
     {
@@ -234,13 +243,7 @@ uiODPickSetTreeItem::~uiODPickSetTreeItem()
 }
 
 
-const char* uiODPickSetTreeItem::objectTypeKey() const
-{
-    return Pick::SetPresentationInfo::sFactoryKey();
-}
-
-
-OD::ObjPresentationInfo* uiODPickSetTreeItem::getObjPRInfo()
+OD::ObjPresentationInfo* uiODPickSetTreeItem::getObjPRInfo() const
 {
     Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo();
     psprinfo->setStoredID( storedid_ );
@@ -472,9 +475,14 @@ const char* uiODPolygonParentTreeItem::childObjTypeKey() const
 }
 
 
-void uiODPolygonParentTreeItem::addChildItem( const DBKey& mid )
+void uiODPolygonParentTreeItem::addChildItem(
+	const OD::ObjPresentationInfo& prinfo )
 {
-    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( mid );
+    mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);
+    if ( !pickprinfo )
+	return;
+
+    RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( pickprinfo->storedID());
     ps.setNoDelete( true );
     if ( !ps || !ps->isPolygon() )
 	return;
@@ -529,8 +537,9 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	    return false;
 	for ( int idx=0; idx<setids.size(); idx++ )
 	{
-	    addChildItem( setids[idx] );
-	    emitChildPRRequest( setids[idx], OD::Add );
+	    Pick::SetPresentationInfo pickprinfo( setids[idx] );
+	    addChildItem( pickprinfo );
+	    emitChildPRRequest( pickprinfo, OD::Add );
 	}
     }
     else if ( mnuid==mNewPolyIdx )
@@ -540,8 +549,9 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	    return false;
 
 	const DBKey& storedid = Pick::SetMGR().getID( *ps );
-	addChildItem( storedid );
-	emitChildPRRequest( storedid, OD::Add );
+	Pick::SetPresentationInfo pickprinfo( storedid );
+	addChildItem( pickprinfo );
+	emitChildPRRequest( pickprinfo, OD::Add );
     }
     else if ( mnuid==mSavePolyIdx )
     {
@@ -606,13 +616,7 @@ uiODPolygonTreeItem::~uiODPolygonTreeItem()
 }
 
 
-const char* uiODPolygonTreeItem::objectTypeKey() const
-{
-    return Pick::SetPresentationInfo::sFactoryKey();
-}
-
-
-OD::ObjPresentationInfo* uiODPolygonTreeItem::getObjPRInfo()
+OD::ObjPresentationInfo* uiODPolygonTreeItem::getObjPRInfo() const
 {
     Pick::SetPresentationInfo* psprinfo = new Pick::SetPresentationInfo();
     psprinfo->setStoredID( storedid_ );

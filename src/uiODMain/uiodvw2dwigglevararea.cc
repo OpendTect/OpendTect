@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
+#include "attribpresentationinfo.h"
 #include "ioobj.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
@@ -306,6 +307,25 @@ DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
     }
 
     return viewer2D()->createDataPack( selas );
+}
+
+
+AttribPresentationInfo* uiODVW2DWiggleVarAreaTreeItem::getAttribPRInfo()
+{
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    ConstRefMan<FlatDataPack> dp = vwr.getPack( true );
+    if ( !dp ) return 0;
+
+    if ( !vwr.isVisible(true) )
+	return 0;
+
+    AttribPresentationInfo* prinfo = new AttribPresentationInfo;
+    prinfo->setSelSpec( viewer2D()->selSpec(true) );
+    mDynamicCastGet(const SeisFlatDataPack*,seisfdp,dp.ptr());
+    if ( seisfdp )
+	prinfo->setAttribDataPack( seisfdp->getSourceDataPack().id() );
+    prinfo->setColTabMapper( vwr.appearance().ddpars_.wva_.mappersetup_ );
+    return prinfo;
 }
 
 

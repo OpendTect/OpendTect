@@ -79,8 +79,6 @@ protected:
     virtual void	removeAllChildren();
     virtual void	doSave() {}
     virtual void	doSaveAs() {}
-
-    virtual OD::ObjPresentationInfo* getObjPRInfo()		{ return 0; }
 };
 
 

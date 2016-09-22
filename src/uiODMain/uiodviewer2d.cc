@@ -29,6 +29,8 @@ ________________________________________________________________________
 #include "uiodvw2dfaultsstreeitem.h"
 #include "uiodvw2dfaultss2dtreeitem.h"
 #include "uiodvw2dpicksettreeitem.h"
+#include "uiodvw2dvariabledensity.h"
+#include "uiodvw2dwigglevararea.h"
 #include "uipixmap.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
@@ -36,6 +38,7 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
+#include "attribpresentationinfo.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "filepath.h"
@@ -52,6 +55,7 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "posvecdataset.h"
+#include "pickset.h"
 #include "randomlinegeom.h"
 
 #include "zaxistransform.h"
@@ -91,6 +95,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl )
     , mousecursorexchange_(0)
     , marker_(0)
     , datatransform_(0)
+    , surveysectionid_(SurveySectionID::getInvalid())
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
     viewerobjid_ = OD::ViewerObjID::get( vwrid++ );
@@ -238,6 +243,16 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     }
 
     viewwin()->start();
+}
+
+
+void uiODViewer2D::emitPRRequest( OD::PresentationRequestType req )
+{
+    OD::ViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(), viewerObjID());
+    OD::ObjPresentationInfo* prinfo = getObjPRInfo();
+    IOPar objprinfopar;
+    prinfo->fillPar( objprinfopar );
+    OD::PrMan().request( vwrid, req, objprinfopar );
 }
 
 
@@ -1503,21 +1518,36 @@ void uiODViewer2D::removePickSet( const DBKey& mid )
 	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
 			treetp_->getChild(idx))
 	if ( pickitem )
-	    pickitem->removeChildren( mid );
+	{
+	    Pick::SetPresentationInfo newpickprinfo( mid );
+	    pickitem->removeChildren( newpickprinfo );
+	}
     }
 }
 
 
-void uiODViewer2D::getLoadedPickSets( DBKeySet& mids ) const
+void uiODViewer2D::getLoadedPickSets( DBKeySet& dbkeys ) const
 {
     if ( !treetp_ ) return;
 
+    OD::ObjPresentationInfoSet loadedobjs;
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
 			treetp_->getChild(idx))
 	if ( pickitem )
-	    pickitem->getLoadedChildren( mids );
+	{
+	    pickitem->getLoadedChildren( loadedobjs );
+	    for ( int lidx=0; lidx<loadedobjs.size(); lidx++ )
+	    {
+		mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,
+				loadedobjs.get(lidx));
+		if ( !pickprinfo )
+		    continue;
+
+		dbkeys += pickprinfo->storedID();
+	    }
+	}
     }
 }
 
@@ -1531,7 +1561,12 @@ void uiODViewer2D::addPickSets( const DBKeySet& mids )
 	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
 			treetp_->getChild(idx))
 	if ( pickitem )
-	    pickitem->addChildren( mids );
+	{
+	    OD::ObjPresentationInfoSet prinfos;
+	    for ( int pidx=0; pidx<mids.size(); pidx++ )
+		prinfos.add( new Pick::SetPresentationInfo(mids[pidx]) );
+	    pickitem->addChildren( prinfos );
+	}
     }
 }
 
@@ -1546,13 +1581,56 @@ void uiODViewer2D::setupNewPickSet( const DBKey& pickid )
 			treetp_->getChild(idx))
 	if ( pickpitem )
 	{
-	    DBKeySet pickids;
-	    pickids += pickid;
-	    pickpitem->addChildren( pickids );
+	    OD::ObjPresentationInfoSet pickprinfos;
+	    Pick::SetPresentationInfo* newpickprinfo =
+		new Pick::SetPresentationInfo( pickid );
+	    pickprinfos.add( newpickprinfo );
+	    pickpitem->addChildren( pickprinfos );
 	    if ( viewstdcontrol_->editToolBar() &&
-		 pickpitem->selectChild(pickid) )
+		 pickpitem->selectChild(*newpickprinfo) )
 		viewstdcontrol_->editToolBar()->setSensitive(
 			 picksettingstbid_, false );
 	}
     }
+}
+
+
+OD::ObjPresentationInfo* uiODViewer2D::getObjPRInfo() const
+{
+    SurveySectionPresentationInfo* prinfo = new SurveySectionPresentationInfo;
+    SurveySectionPresentationInfo::SectionType sectype;
+    if ( tkzs_.is2D() )
+	sectype = SurveySectionPresentationInfo::Line2D;
+    else if ( !mIsUdf(rdmlineid_) )
+	sectype = SurveySectionPresentationInfo::RdmLine;
+    else
+    {
+	TrcKeyZSampling::Dir tkzsdir = tkzs_.defaultDir();
+	if ( tkzsdir==TrcKeyZSampling::Inl )
+	    sectype = SurveySectionPresentationInfo::InLine;
+	else if ( tkzsdir==TrcKeyZSampling::Crl )
+	    sectype = SurveySectionPresentationInfo::CrossLine;
+	else if ( tkzsdir==TrcKeyZSampling::Z )
+	    sectype = SurveySectionPresentationInfo::ZSlice;
+    }
+
+    prinfo->setSectionID( surveysectionid_ );
+    prinfo->setSectionType( sectype );
+    prinfo->setSectionPos( tkzs_ );
+
+    for ( int ich=0; ich<treetp_->nrChildren(); ich++ )
+    {
+	uiTreeItem* itm = treetp_->getChild( ich );
+	mDynamicCastGet(uiODVW2DWiggleVarAreaTreeItem*,wvaitem,itm);
+	mDynamicCastGet(uiODVW2DVariableDensityTreeItem*,vditem,itm);
+	if ( !wvaitem && !vditem )
+	    continue;
+
+	AttribPresentationInfo* attrprinfo =
+	    wvaitem ? wvaitem->getAttribPRInfo() : vditem->getAttribPRInfo();
+	if ( attrprinfo )
+	    prinfo->addSectionLayer( attrprinfo );
+    }
+
+    return prinfo;
 }
