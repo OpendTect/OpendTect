@@ -1598,7 +1598,8 @@ void uiODViewer2D::setupNewPickSet( const DBKey& pickid )
 OD::ObjPresentationInfo* uiODViewer2D::getObjPRInfo() const
 {
     SurveySectionPresentationInfo* prinfo = new SurveySectionPresentationInfo;
-    SurveySectionPresentationInfo::SectionType sectype;
+    SurveySectionPresentationInfo::SectionType sectype =
+	SurveySectionPresentationInfo::InLine;
     if ( tkzs_.is2D() )
 	sectype = SurveySectionPresentationInfo::Line2D;
     else if ( !mIsUdf(rdmlineid_) )
