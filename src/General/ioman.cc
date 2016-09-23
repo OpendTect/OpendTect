@@ -187,8 +187,8 @@ void IOMan::init()
 	// So, we have copied the directory.
 	// Now create an entry in the root omf
 	IOSubDir* iosd = new IOSubDir( dd->dirnm_ );
-	iosd->key_ = dd->id_;
-	iosd->dirnm_ = rootdir_;
+	iosd->setKey( DBKey(dd->id_) );
+	iosd->setDirName( rootdir_ );
 	PtrMan<IOObj> previoobj = prevdd
 			       ? dirptr_->getEntry( DBKey(prevdd->id_) )
 			       : dirptr_->getEntryByIdx( 0 );

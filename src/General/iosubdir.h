@@ -38,14 +38,10 @@ public:
 
     const char*	dirName() const		{ return fullUserExpr(true); }
 
-protected:
-
     bool	isbad_;
 
     bool	getFrom(ascistream&)	{ return true; }
     bool	putTo(ascostream&) const;
-
-   friend class	IOMan;
 
 };
 

@@ -97,11 +97,12 @@ private:
     bool		gtIsOutdated() const;
     bool		setObj(IOObj*,bool writeafter);
     bool		ensureUniqueName(IOObj&) const;
+    bool		addAndWrite(IOObj*);
 
-    DBKey		gtNewKey(const ObjNrType&) const;
-
+    friend class	DBMan;
     friend class	DBDirIter;
 
+    DBKey		gtNewKey(const ObjNrType&) const;
     void		setObjDirName(IOObj&);
 
 public:

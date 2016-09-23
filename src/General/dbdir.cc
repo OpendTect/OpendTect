@@ -78,7 +78,7 @@ void DBDir::fromDirID( DirID dirid, bool inc_old_tmps )
 {
     if ( dirid.isInvalid() )
 	return;
-    ConstRefMan<DBDir> rootdbdir = DBM().fetchRoot();
+    ConstRefMan<DBDir> rootdbdir = DBM().fetchRootDir();
     if ( !rootdbdir || rootdbdir->isBad() )
 	return;
     else if ( dirid.getI() < 1000 )
@@ -379,6 +379,14 @@ bool DBDir::setObj( IOObj* ioobj, bool writeafter )
     mSendChgNotif( cEntryAdded(), dbky.toInt64() );
 
     return !writeafter || writeToFile();
+}
+
+
+bool DBDir::addAndWrite( IOObj* ioobj )
+{
+    mLock4Write();
+    objs_ += ioobj;
+    return writeToFile();
 }
 
 

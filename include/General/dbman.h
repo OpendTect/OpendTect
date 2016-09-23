@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "monitor.h"
 #include "ptrman.h"
+#include "uistring.h"
 class DBDir;
 class IOObj;
 class CtxtIOObj;
@@ -50,11 +51,10 @@ public:
     bool		setEntry(const IOObj&);
     bool		removeEntry(const DBKey&);
 
-    ConstRefMan<DBDir>	fetchRoot() const	{ return rootdbdir_; }
-    ConstRefMan<DBDir>	fetch(DirID);
+    ConstRefMan<DBDir>	fetchRootDir() const	{ return rootdbdir_; }
+    ConstRefMan<DBDir>	fetch(DirID) const;
 
     BufferString	rootDir() const		{ return rootdir_; }
-    bool		setRootDir(const char*);
     BufferString	surveyName() const;
     bool		isKeyString(const char*) const;
 
@@ -85,8 +85,8 @@ public:
 	bool		operator ==( const CustomDirData& cdd ) const
 			{ return dirnr_ == cdd.dirnr_; }
     };
-    static DirID	addCustomDataDir(const CustomDirData&,
-					   uiString& errmsg);
+
+    static uiRetVal	addCustomDataDir(const CustomDirData&);
 			//!< Need to do this only once per OD run
 			//!< At survey change, dir will automatically be added
 
@@ -104,10 +104,11 @@ private:
     void		handleNewRootDir();
     void		leaveSurvey();
     void		readDirs();
-    static void		setupCustomDataDirs(int,uiString& errmsg);
     BufferString	surveyDirectory() const;
     DBDir*		gtDir(DirID);
     const DBDir*	gtDir(DirID) const;
+    uiRetVal		setupCustomDataDirs(int);
+    void		setupCustomDataDir(const CustomDirData&,uiRetVal&);
 
     friend mGlobal(General) DBMan& DBM();
 
@@ -117,14 +118,15 @@ private:
 
 public:
 
-    DBKey		createNewKey(DirID);
+    bool		setRootDir(const char*);
     bool		isBad() const;
     uiString		errMsg() const		{ return errmsg_; }
-    static bool		isValidDataRoot(const char* dirnm);
-    static bool		isValidSurveyDir(const char* dirnm);
+    static uiRetVal	isValidDataRoot(const char* dirnm);
+    static uiRetVal	isValidSurveyDir(const char* dirnm);
+    void		applClosing()		{ applicationClosing.trigger();}
 
 };
 
 
 mGlobal(General) DBMan&	DBM();
-// inline mGlobal(General) DBMan&	IOM()	{ return DBM(); }
+// inline mGlobal(General) mDeprecated DBMan&	IOM()	{ return DBM(); }
