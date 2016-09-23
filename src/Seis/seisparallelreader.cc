@@ -345,7 +345,7 @@ bool ParallelReader2D::doPrepare( int nrthreads )
     const SeisIOObjInfo info( *ioobj_ );
     if ( !info.isOK() ) return false;
     if ( dc_.userType() == DataCharacteristics::Auto )
-    	info.getDataChar( dc_ );
+	info.getDataChar( dc_ );
 
     if ( components_.isEmpty() )
     {
@@ -371,7 +371,7 @@ bool ParallelReader2D::doPrepare( int nrthreads )
 
     if ( !addComponents(*dp_,*ioobj_,components_,msg_) )
 	return false;
-    
+
     msg_ = uiStrings::phrReading( ioobj_->uiName() );
     return true;
 }
@@ -757,6 +757,7 @@ bool SequentialReader::init()
 bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
 				    od_ostream* extstrm )
 {
+    initialized_ = false;
     dp_ = &dp;
     DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
     setDataChar( DataCharacteristics( dp.getDataDesc() ).userType() );
@@ -778,7 +779,7 @@ bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
 	return false;
     }
 
-    return true;
+    return init(); // New datapack, hence re-init of trace reader
 }
 
 
