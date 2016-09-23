@@ -140,6 +140,7 @@ bool DBMan::setRootDir( const char* newdirnm )
 
     surveyChanged.trigger();
     afterSurveyChange.trigger();
+    return true;
 }
 
 
