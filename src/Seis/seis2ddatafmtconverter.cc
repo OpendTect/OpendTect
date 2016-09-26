@@ -78,7 +78,7 @@ static void convertSeis2DTranslators()
 	const IOObj& ioobj = iter.ioObj();
 	if ( ioobj.translator() == TwoDDataSeisTrcTranslator::translKey() )
 	{
-	    const IODir iodircheck( IOObjContext::Seis );
+	    IODir iodircheck( IOObjContext::Seis );
 	    PtrMan<IOObj> duplobj = iodircheck.getEntryByName( ioobj.name(),
 						mTranslGroupName(SeisTrc2D) );
 	    if ( duplobj )
@@ -87,7 +87,7 @@ static void convertSeis2DTranslators()
 	    PtrMan<IOObj> edioobj = ioobj.clone();
 	    edioobj->setGroup( mTranslGroupName(SeisTrc2D) );
 	    edioobj->setTranslator( CBVSSeisTrc2DTranslator::translKey() );
-	    iodir.commitChanges( edioobj );
+	    iodircheck.commitChanges( edioobj );
 	}
     }
 }
