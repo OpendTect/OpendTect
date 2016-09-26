@@ -40,6 +40,7 @@ uiAttribDescSetBuild::Setup::Setup( bool for2d )
     , showtimeonlyattrs_(SI().zIsTime())
     , showhidden_(false)
     , showsteering_(false)
+    , issynth_(false)
 {
 }
 
@@ -113,7 +114,8 @@ void uiAttribDescSetBuild::fillAvailable()
 	    continue;
 	if ( !attrsetup_.is2d_ && dimtyp == uiAttrDescEd::Only2D )
 	    continue;
-
+	if ( attrsetup_.issynth_ && !uiAF().isSyntheticSupported(idx) )
+	    continue;
 	const char* attrnm = uiAF().getAttribName( idx );
 	const Attrib::Desc* desc = Attrib::PF().getDesc( attrnm );
 	if ( !desc )

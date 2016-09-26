@@ -212,7 +212,7 @@ public: \
     static int factoryID() { return factoryid_; }
 
 
-#define mInitAttribUIPars( clss, attr, displaynm, grp, domtyp, dimtyp ) \
+#define mInitAttribUIPars(clss,attr,displaynm,grp,domtyp,dimtyp,supportsynth) \
 \
 int clss::factoryid_ = -1; \
 \
@@ -220,7 +220,8 @@ void clss::initClass() \
 { \
     if ( factoryid_ < 0 ) \
 	factoryid_ = uiAF().add( displaynm, attr::attribName(), grp, \
-		     clss::createInstance, (int)domtyp, (int)dimtyp ); \
+		     clss::createInstance, (int)domtyp, (int)dimtyp, \
+		     (bool)supportsynth ); \
 } \
 \
 uiAttrDescEd* clss::createInstance( uiParent* p, bool is2d ) \
@@ -239,4 +240,4 @@ const char* clss::attribName() const \
 
 #define mInitAttribUI( clss, attr, displaynm, grp ) \
     mInitAttribUIPars(clss,attr,displaynm,grp,uiAttrDescEd::Both, \
-	    	      uiAttrDescEd::AnyDim)
+		      uiAttrDescEd::AnyDim,true)

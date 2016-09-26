@@ -36,6 +36,7 @@ public:
 	mDefSetupMemb(bool,showtimeonlyattrs);
 	mDefSetupMemb(bool,showhidden);
 	mDefSetupMemb(bool,showsteering);
+	mDefSetupMemb(bool,issynth);
     };
 			uiAttribDescSetBuild(uiParent*,const Setup&);
 			~uiAttribDescSetBuild();

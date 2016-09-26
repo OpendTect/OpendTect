@@ -45,7 +45,8 @@ static void getOutputNames( uiStringSet& strs, bool surfdata )
 				      .arg( uiStrings::sData() ) );
 }
 
-mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp())
+mInitAttribUIPars(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp(),
+		  uiAttrDescEd::Both,uiAttrDescEd::AnyDim,false)
 
 
 uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )

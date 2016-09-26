@@ -27,7 +27,8 @@ public:
     virtual		~uiAttributeFactory();
 
     int			add(const char* displaynm,const char* attrnm,
-	    		    const char* grpnm,uiAttrDescEdCreateFunc,int,int);
+			    const char* grpnm,uiAttrDescEdCreateFunc,
+			    int,int,bool);
     uiAttrDescEd*	create(uiParent*,const char* nm, bool,
 	    		       bool dispnm=true) const;
 
@@ -46,6 +47,8 @@ public:
 					{ return entries_[idx]->dimtyp_; }
     				//!< Is, in fact, uiAttrDescEd::DimensionType
     				//!< Not used to avoid dependency
+    bool		isSyntheticSupported(int idx) const
+				    { return entries_[idx]->supportsynthetic_; }
 
     const char*		dispNameOf(const char*) const;
     const char*		attrNameOf(const char*) const;
@@ -57,12 +60,13 @@ protected:
 				Entry(	const char* dn, const char* an,
 					const char* gn,
 					uiAttrDescEdCreateFunc fn,
-				    	int dt, int dimtyp )
+					int dt, int dimtyp, bool supsynth )
 				    : dispnm_(dn)
 				    , attrnm_(an)
 				    , grpnm_(gn)
 				    , domtyp_(dt)
 				    , dimtyp_(dimtyp)
+				    , supportsynthetic_(supsynth)
 				    , crfn_(fn)		{}
 
 	BufferString		dispnm_;
@@ -70,6 +74,7 @@ protected:
 	BufferString		grpnm_;
 	int			domtyp_;
 	int			dimtyp_;
+	bool			supportsynthetic_;
 	uiAttrDescEdCreateFunc	crfn_;
     };
 

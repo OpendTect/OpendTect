@@ -31,7 +31,8 @@ ________________________________________________________________________
 using namespace Attrib;
 
 
-mInitAttribUI(uiWellLogAttrib,WellLog,"Log",sKeyBasicGrp())
+mInitAttribUIPars(uiWellLogAttrib,WellLog,"Log",sKeyBasicGrp(),
+		  uiAttrDescEd::Both,uiAttrDescEd::AnyDim,false)
 
 
 uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )

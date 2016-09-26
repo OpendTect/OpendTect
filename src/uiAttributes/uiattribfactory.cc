@@ -29,7 +29,7 @@ uiAttributeFactory& uiAF()
 
 int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
 			     const char* grpnm, uiAttrDescEdCreateFunc fn,
-       			     int domtyp, int dimtyp )
+			     int domtyp, int dimtyp, bool supportsynth )
 {
     Entry* entry = getEntry( dispnm, true );
     if ( !entry )
@@ -43,10 +43,12 @@ int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
 	entry->crfn_ = fn;
 	entry->domtyp_ = domtyp;
 	entry->dimtyp_ = dimtyp;
+	entry->supportsynthetic_ = supportsynth;
     }
     else
     {
-	entry = new Entry( dispnm, attrnm, grpnm, fn, domtyp, dimtyp );
+	entry = new Entry( dispnm, attrnm, grpnm, fn, domtyp, dimtyp,
+			   supportsynth );
 	entries_ += entry;
     }
 
