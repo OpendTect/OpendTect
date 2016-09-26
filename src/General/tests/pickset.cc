@@ -22,7 +22,7 @@ static void runThread( CallBacker* )
 
     for ( int idx=0; idx<10000; idx++ )
     {
-	const float newz = 999.75f + 0.1 * thrnr;
+	const float newz = (float)(999.75 + 0.1 * thrnr);
 	ps_->setZ( locid1_, newz );
 	const float newerz1 = ps_->get( locid1_ ).z();
 	ps_->setZ( locid2_, newz );
