@@ -209,7 +209,7 @@ OD::AutoSaver::AutoSaver()
 {
     mAttachCB( IOM().surveyToBeChanged, AutoSaver::survChgCB );
     mAttachCB( IOM().applicationClosing, AutoSaver::appExitCB );
-    thread_ = new Threads::Thread( mSCB(AutoSaver::goCB), "AutoSaver");
+    thread_ = new Threads::Thread( mSCB(AutoSaver::goCB), "AutoSaver" );
 }
 
 
