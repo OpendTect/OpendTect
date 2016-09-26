@@ -13,33 +13,31 @@
 static RefMan<Pick::Set> ps_;
 static Pick::Set::LocID locid1_;
 static Pick::Set::LocID locid2_;
-static Threads::Atomic<int> thrnr_( 0 );
+static Threads::Atomic<int> thrnr_( 1 );
 static Threads::Atomic<int> nrthrdsfinished_( 0 );
 
 static void runThread( CallBacker* )
 {
     const int thrnr = thrnr_++;
-    const bool hastext = thrnr % 2 != 0;
-    const int nradds = Stats::randGen().getIndex( 10 );
-
-    for ( int idx=0; idx<nradds; idx++ )
-    {
-	const int addnr = nradds + idx * 25;
-	Pick::Location pl (100001.+addnr, 200001.+addnr, 1001.+addnr );
-	if ( hastext )
-	    pl.setText( BufferString(toString(idx),thrnr," aap") );
-	ps_->add( pl );
-    }
 
     for ( int idx=0; idx<10000; idx++ )
     {
-	float newz = 1000.f;
-	if ( idx % 2 )
-	{
-	    MonitorLock ml( *ps_ );
-	    newz = ps_->getByIndex( 1 ).z();
-	}
+	const float newz = 999.75f + 0.1 * thrnr;
 	ps_->setZ( locid1_, newz );
+	const float newerz1 = ps_->get( locid1_ ).z();
+	ps_->setZ( locid2_, newz );
+	const float newerz2 = ps_->get( locid2_ ).z();
+	if ( newz != newerz1 || newz != newerz2 )
+	{
+	    if ( newz > 1001 || newz < 999 || newerz1 < 999 || newerz1 > 1001
+		|| newerz2 < 999 || newerz2 > 1001 )
+		tstStream( false ) << "Corruption in " << thrnr << od_endl;
+	    else
+	    {
+		Threads::sleep( 0.001 );
+		tstStream( false ) << thrnr;
+	    }
+	}
     }
 
     nrthrdsfinished_++;
@@ -59,15 +57,17 @@ int testMain( int argc, char** argv )
 
     ps_ = new Pick::Set;
     locid1_ = ps_->add( Pick::Location(100000.,200000.,1000.) );
-    locid2_ = ps_->add( Pick::Location(100001.,200001.,1001.) );
+    locid2_ = ps_->add( Pick::Location(100001.,200001.,1000.1) );
 
     startThread( 1 );
     startThread( 2 );
     startThread( 3 );
+    startThread( 4 );
+    startThread( 5 );
 
-    while ( nrthrdsfinished_ < 3 )
-	Threads::sleep( 1 );
+    while ( nrthrdsfinished_ < 5 )
+	Threads::sleep( 0.1 );
 
-    tstStream( false ) << "All threads finished." << od_endl;
+    tstStream( false ) << "\n\nAll threads finished." << od_endl;
     return 0;
 }
