@@ -12,9 +12,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "horizonrelation.h"
 #include "ctxtioobj.h"
+#include "emsurfacetr.h"
 #include "file.h"
 #include "filepath.h"
 #include "hiddenparam.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -42,6 +44,8 @@ RelationTree::Node::Node( const MultiID& id )
 bool RelationTree::Node::hasChild( const RelationTree::Node* descendant ) const
 {
     ObjectSet<const RelationTree::Node> nodes = children_;
+    if ( nodes.isPresent(descendant) )
+	return true;
 
     for ( int idx=0; idx<nodes.size(); idx++ )
     {
@@ -66,20 +70,13 @@ void RelationTree::Node::fillPar( IOPar& par ) const
 
     par.set( sKey::ID(), id_ );
     par.set( sKeyChildIDs(), childids );
-    PtrMan<IOObj> ioobj = IOM().get( id_ );
-    if ( !ioobj )
-	return;
-
-    const char* fnm = ioobj->fullUserExpr( true );
-    if ( !fnm || !*fnm || !File::exists(fnm) )
-	return;
-
-    par.set( sKeyLastModified(), File::timeLastModified(fnm) );
+    BufferString& datestamp = *stampptrs_.getParam( this );
+    par.set( sKeyLastModified(), datestamp );
 }
 
 
 void RelationTree::Node::fillChildren( const FileMultiString& fms,
-       				 const RelationTree& tree )
+				 const RelationTree& tree )
 {
     children_.erase();
     for ( int idx=0; idx<fms.size(); idx++ )
@@ -177,12 +174,12 @@ void RelationTree::removeNode( const MultiID& id, bool dowrite )
     for ( int idx=0; idx<parents.size(); idx++ )
     {
 	RelationTree::Node* parentnode = nodes_[parents[idx]];
-	parentnode->children_.removeSingle( 
+	parentnode->children_.removeSingle(
 		parentnode->children_.indexOf(node) );
 	for ( int cdx=0; cdx<node->children_.size(); cdx++ )
 	{
 	    const RelationTree::Node* childnode = node->children_[cdx];
-	    if ( !parentnode->hasChild(childnode) && 
+	    if ( !parentnode->hasChild(childnode) &&
 		 !childnode->hasChild(parentnode) )
 		parentnode->children_ += childnode;
 	}
@@ -195,6 +192,23 @@ void RelationTree::removeNode( const MultiID& id, bool dowrite )
 }
 
 
+static RelationTree::Node* createNewNode( const MultiID& id )
+{
+    PtrMan<IOObj> ioobj = IOM().get( id );
+    if ( !ioobj )
+	return 0;
+
+    const char* fnm = ioobj->fullUserExpr( true );
+    if ( !fnm || !*fnm || !File::exists(fnm) )
+	return 0;
+
+    RelationTree::Node* node = new RelationTree::Node( id );
+    BufferString& datestamp = *stampptrs_.getParam( node );
+    datestamp = File::timeLastModified( fnm );
+    return node;
+}
+
+
 void RelationTree::addRelation( const MultiID& id1, const MultiID& id2,
 				bool dowrite )
 {
@@ -202,7 +216,10 @@ void RelationTree::addRelation( const MultiID& id1, const MultiID& id2,
     RelationTree::Node* node1 = idx1 < 0 ? 0 : nodes_[idx1];
     if ( idx1 < 0 )
     {
-	node1 = new RelationTree::Node( id1 );
+	node1 = createNewNode( id1 );
+	if ( !node1 )
+	    return;
+
 	nodes_ += node1;
     }
 
@@ -210,7 +227,10 @@ void RelationTree::addRelation( const MultiID& id1, const MultiID& id2,
     RelationTree::Node* node2 = idx2 < 0 ? 0 : nodes_[idx2];
     if ( idx2 < 0 )
     {
-	node2 = new RelationTree::Node( id2 );
+	node1 = createNewNode( id2 );
+	if ( !node2 )
+	    return;
+
 	nodes_ += node2;
     }
 
@@ -244,13 +264,9 @@ bool RelationTree::write() const
 }
 
 
-static bool hasBeenModified( const MultiID& id, const char* datestamp )
+static bool hasBeenModified( const IOObj& ioobj, const char* datestamp )
 {
-    PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( !ioobj )
-	return false;
-
-    const char* fnm = ioobj->fullUserExpr( true );
+    const char* fnm = ioobj.fullUserExpr( true );
     if ( !fnm || !*fnm || !File::exists(fnm) )
 	return false;
 
@@ -284,6 +300,8 @@ bool RelationTree::read( bool removeoutdated )
     }
 
     TypeSet<MultiID> outdatednodes;
+    IOObjContext ctxt( EMAnyHorizonTranslatorGroup::ioContext() );
+    const IODir surfiodir( ctxt.getSelKey() );
     for ( int idx=0; idx<nodes_.size(); idx++ )
     {
 	FileMultiString fms;
@@ -297,7 +315,9 @@ bool RelationTree::read( bool removeoutdated )
 	if ( !nodepar->get(RelationTree::Node::sKeyLastModified(),datestamp) )
 	    continue;
 
-	if ( removeoutdated && hasBeenModified(node->id_,datestamp.buf()) )
+	const IOObj* ioobj = surfiodir.get( node->id_ );
+	if ( removeoutdated &&
+		( !ioobj || hasBeenModified(*ioobj,datestamp.buf()) ) )
 	    outdatednodes += node->id_;
     }
 
@@ -350,18 +370,6 @@ bool RelationTree::sortHorizons( bool is2d, const TypeSet<MultiID>& unsortedids,
 {
     RelationTree reltree( is2d, false );
     reltree.read( false );
-
-    for ( int idx=0; idx<unsortedids.size(); idx++ )
-    {
-	const RelationTree::Node* node = reltree.getNode( unsortedids[idx] );
-	if ( node )
-	{
-	    const BufferString& datestamp = *stampptrs_.getParam( node );
-	    if ( hasBeenModified(node->id_,datestamp.buf()) )
-		reltree.removeNode( node->id_, false );
-	}
-    }
-
     return reltree.getSorted( unsortedids, sortedids );
 }
 
