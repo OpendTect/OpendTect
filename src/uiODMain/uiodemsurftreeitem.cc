@@ -225,7 +225,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
     }
 
     const bool isshifted =
-		!mIsZero( visserv_->getTranslation(displayID()).z, 1e-5 );
+		!mIsZero( visserv_->getTranslation(displayID()).z_, 1e-5 );
     const DBKey mid = EM::EMM().getDBKey( emid_ );
     const bool enab = trackmenuitem_.nrItems() && !isshifted && isChecked()
 			&& EM::canOverwrite( mid );
@@ -299,7 +299,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
 	DBKey storedmid;
 	ems->storeObject( emid_, true, storedmid,
-		(float) visserv_->getTranslation(displayID()).z);
+		(float) visserv_->getTranslation(displayID()).z_);
 	applMgr()->visServer()->setObjectName( displayid_,
 	    ems->getName(emid_) );
 
@@ -534,7 +534,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->getRandomPosCache( visid, attribnr, vals );
 	if ( vals.size() )
 	{
-	    const float shift = (float) visserv->getTranslation( visid ).z;
+	    const float shift = (float) visserv->getTranslation( visid ).z_;
 	    const int validx = visserv->selectedTexture( visid, attribnr ) + 2;
 	    const int auxnr = applMgr()->EMServer()->setAuxData( emid_, vals,
 		    name_.getFullString(), validx, shift );

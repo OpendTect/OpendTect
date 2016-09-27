@@ -241,7 +241,7 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 					Marker3D& marker, int idx )
 {
     ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-    const double z = zat ? zat->transform(crd) : crd.z;
+    const double z = zat ? zat->transform(crd) : crd.z_;
 
     double x = 0.0;
     if ( path_ )
@@ -403,9 +403,9 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 		{
 		    if ( mIsEqual(
 			flatposdata_->position(true,path_->indexOf(trckey)),
-			auxdata->poly_[posidx].x,.001) )
+			auxdata->poly_[posidx].x_,.001) )
 		    {
-			auxdata->poly_[posidx].y = crd.z;
+			auxdata->poly_[posidx].y_ = crd.z_;
 			return;
 		    }
 		    continue;
@@ -413,17 +413,17 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 
 		if ( tkzs_.nrInl() == 1 )
 		{
-		    if ( binid.crl() == auxdata->poly_[posidx].x )
+		    if ( binid.crl() == auxdata->poly_[posidx].x_ )
 		    {
-			auxdata->poly_[posidx].y = crd.z;
+			auxdata->poly_[posidx].y_ = crd.z_;
 			return;
 		    }
 		}
 		else if ( tkzs_.nrCrl() == 1 )
 		{
-		    if ( binid.inl() == auxdata->poly_[posidx].x )
+		    if ( binid.inl() == auxdata->poly_[posidx].x_ )
 		    {
-			auxdata->poly_[posidx].y = crd.z;
+			auxdata->poly_[posidx].y_ = crd.z_;
 			return;
 		    }
 		}
@@ -434,13 +434,13 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 		if ( path_ )
 		{
 		    auxdata->poly_ += FlatView::Point( flatposdata_->position(
-				true,path_->indexOf(trckey)), crd.z );
+				true,path_->indexOf(trckey)), crd.z_ );
 		    continue;
 		}
 		if ( tkzs_.nrInl() == 1 )
-		    auxdata->poly_ += FlatView::Point( binid.crl(), crd.z );
+		    auxdata->poly_ += FlatView::Point( binid.crl(), crd.z_ );
 		else if ( tkzs_.nrCrl() == 1 )
-		    auxdata->poly_ += FlatView::Point( binid.inl(), crd.z );
+		    auxdata->poly_ += FlatView::Point( binid.inl(), crd.z_ );
 	    }
 	}
     }
@@ -529,7 +529,7 @@ void HorizonPainter3D::displaySelections(
     for ( int idx=0; idx<pointselections.size(); idx++ )
     {
 	const Coord3 pos = emobj->getPos( pointselections[idx] );
-	const TrcKey tk = tkzs_.hsamp_.toTrcKey(pos.coord());
+	const TrcKey tk = tkzs_.hsamp_.toTrcKey(pos.getXY());
 	double x = 0.0;
 	if ( tkzs_.nrLines()==1 )
 	    x = tk.crl();
@@ -545,7 +545,7 @@ void HorizonPainter3D::displaySelections(
 	markerstyle_.size_ = ms3d.size_*2;
 	markerstyle_.type_ = OD::MarkerStyle3D::getMS2DType( ms3d.type_ );
 	selectionpoints_->marker_->markerstyles_ += markerstyle_;
-	selectionpoints_->marker_->poly_ += FlatView::Point( x, pos.z );
+	selectionpoints_->marker_->poly_ += FlatView::Point( x, pos.z_ );
     }
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );

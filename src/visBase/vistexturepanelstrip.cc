@@ -73,7 +73,7 @@ void TexturePanelStrip::updatePath()
     {
 	Coord3 dummy( (*pathcoords_)[idx], 0.0 );
 	mVisTrans::transform( displaytrans_, dummy );
-	(*osgpath)[idx] = osg::Vec2( dummy.x, dummy.y );
+	(*osgpath)[idx] = osg::Vec2( dummy.x_, dummy.y_ );
     }
 
     osgpanelstrip_->setPath( *osgpath );
@@ -128,7 +128,7 @@ void TexturePanelStrip::setZRange( const Interval<float>& zrange )
     Coord3 bottomdummy( Coord(), zrange.stop );
     mVisTrans::transform( displaytrans_, bottomdummy );
 
-    osgpanelstrip_->setZRange( topdummy.z, bottomdummy.z );
+    osgpanelstrip_->setZRange( topdummy.z_, bottomdummy.z_ );
 }
 
 
@@ -139,7 +139,7 @@ Interval<float> TexturePanelStrip::getZRange() const
     Coord3 bottomdummy( Coord(), osgpanelstrip_->getBottom() );
     mVisTrans::transformBack( displaytrans_, bottomdummy );
 
-    return Interval<float>(topdummy.z,bottomdummy.z);
+    return Interval<float>(topdummy.z_,bottomdummy.z_);
 }
 
 
@@ -193,7 +193,7 @@ void TexturePanelStrip::setDisplayTransformation( const mVisTrans* tr )
 {
     Coord3 dummy( 0.0, 0.0, 1.0 );
     mVisTrans::transformDir( displaytrans_, dummy );
-    if ( fabs(dummy.normalize().z) < 1.0 )
+    if ( fabs(dummy.normalize().z_) < 1.0 )
     {
 	pErrMsg( "Display transformation violates assumed orthogonality "
 		 "between xy and z." );
@@ -276,7 +276,7 @@ const unsigned char* TexturePanelStrip::getTextureData() const
 bool TexturePanelStrip::calcTextureCoordinates( int geomidx, 
     TypeSet<Coord>& coordout) const
 {
-    const std::vector<osgGeo::Vec2i>& origins = 
+    const std::vector<osgGeo::Vec2i>& origins =
 	osgpanelstrip_->getCompositeCutoutOrigins();
 
     const std::vector<osgGeo::Vec2i>& szs =
@@ -312,8 +312,8 @@ bool TexturePanelStrip::calcTextureCoordinates( int geomidx,
 	    const double y = vtxcoords->at(idy)[1]*szs[geomidx][1];
 
 	    Coord tcrd;
-	    tcrd.x = ( x+origins[geomidx][0] )/width;
-	    tcrd.y = ( y+origins[geomidx][1] )/height;
+	    tcrd.x_ = ( x+origins[geomidx][0] )/width;
+	    tcrd.y_ = ( y+origins[geomidx][1] )/height;
 	    coordout += tcrd;
 	}
     }

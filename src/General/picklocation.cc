@@ -145,7 +145,7 @@ const TrcKey& Pick::Location::trcKey() const
 
     mDefineStaticLocalObject( TrcKey, rettk, );
     rettk.setSurvID( Survey::GM().default3DSurvID() );
-    rettk.setPosition( SI().transform(pos_) );
+    rettk.setPosition( SI().transform(pos_.getXY()) );
     return rettk;
 }
 
@@ -253,7 +253,7 @@ Pick::Location& Pick::Location::setSurvID( Pos::SurvID survid, bool updpos )
 	trckey_ = new TrcKey;
     trckey_->setSurvID( survid );
     if ( updpos )
-	trckey_->setFrom( pos_ );
+	trckey_->setFrom( pos_.getXY() );
     return *this;
 }
 
@@ -391,9 +391,9 @@ bool Pick::Location::fromString( const char* s )
 
     // Then, we always have the actual payload, the coordinate
     Coord3 posread;
-    posread.x = getNextVal( str );
-    posread.y = getNextVal( str );
-    posread.z = getNextVal( str );
+    posread.x_ = getNextVal( str );
+    posread.y_ = getNextVal( str );
+    posread.z_ = getNextVal( str );
     if ( posread.isUdf() )
 	return false;
 
@@ -405,14 +405,14 @@ bool Pick::Location::fromString( const char* s )
     if ( data.count('\t') > 1 )
     {
 	Coord3 dirread;
-	dirread.x = getNextVal( str );
-	dirread.y = getNextVal( str );
-	dirread.z = getNextVal( str );
+	dirread.x_ = getNextVal( str );
+	dirread.y_ = getNextVal( str );
+	dirread.z_ = getNextVal( str );
 
-	if ( !mIsUdf(dirread.y) )
+	if ( !mIsUdf(dirread.y_) )
 	{
-	    if ( mIsUdf(dirread.z) )
-		dirread.z = 0.;
+	    if ( mIsUdf(dirread.z_) )
+		dirread.z_ = 0.;
 	}
 
 	delete dir_;
@@ -430,7 +430,7 @@ bool Pick::Location::fromString( const char* s )
     if ( !trckey_ )
 	trckey_ = new TrcKey;
     trckey_->setGeomID( geom->getID() );
-    trckey_->setFrom( pos_ );
+    trckey_->setFrom( pos_.getXY() );
 
     return true;
 }
@@ -449,22 +449,25 @@ void Pick::Location::toString( BufferString& str, bool forexport ) const
     Coord3 usepos( pos_ );
     if ( forexport )
     {
-	mPIEPAdj(Coord,usepos,false);
+	Coord v = usepos.getXY();
+	mPIEPAdj(Coord,v,false);
+	usepos.x_ = v.x_;
+	usepos.y_ = v.y_;
 	if ( mPIEP.haveZChg() )
 	{
-	    float zval = (float)usepos.z;
+	    float zval = (float)usepos.z_;
 	    mPIEPAdj(Z,zval,false);
-	    usepos.z = zval;
+	    usepos.z_ = zval;
 	}
 
-	usepos.z = usepos.z * SI().showZ2UserFactor();
+	usepos.z_ = usepos.z_ * SI().showZ2UserFactor();
     }
 
-    str.add( usepos.x ).add( od_tab ).add( usepos.y );
-    str.add( od_tab ).add( usepos.z );
+    str.add( usepos.x_ ).add( od_tab ).add( usepos.y_ );
+    str.add( od_tab ).add( usepos.z_ );
     if ( hasDir() )
-	str.add( od_tab ).add( dir_->radius ).add( od_tab )
-	   .add( dir_->theta ).add( od_tab ).add( dir_->phi );
+	str.add( od_tab ).add( dir_->radius_ ).add( od_tab )
+	   .add( dir_->theta_ ).add( od_tab ).add( dir_->phi_ );
 
     if ( trckey_ && !mIsUdf(trckey_->geomID()) )
 	str.add( od_tab ).add( trckey_->geomID() );

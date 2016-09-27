@@ -204,8 +204,8 @@ void PosInfo::Detector::mergeResults( const PosInfo::Detector& oth )
 
 #   define mChkMin(memb) if ( memb > oth.memb ) memb = oth.memb
 #   define mChkMax(memb) if ( memb < oth.memb ) memb = oth.memb
-    mChkMin(mincoord_.x); mChkMin(mincoord_.y);
-    mChkMax(maxcoord_.x); mChkMax(maxcoord_.y);
+    mChkMin(mincoord_.x_); mChkMin(mincoord_.y_);
+    mChkMax(maxcoord_.x_); mChkMax(maxcoord_.y_);
     mChkMin(offsrg_.start); mChkMax(offsrg_.stop);
     mChkMin(start_.inl()); mChkMin(start_.crl());
     mChkMax(stop_.inl()); mChkMax(stop_.crl());
@@ -242,8 +242,8 @@ void PosInfo::Detector::appendResults( const PosInfo::Detector& oth )
 
 #   define mChkMin(memb) if ( memb > oth.memb ) memb = oth.memb
 #   define mChkMax(memb) if ( memb < oth.memb ) memb = oth.memb
-    mChkMin(mincoord_.x); mChkMin(mincoord_.y);
-    mChkMax(maxcoord_.x); mChkMax(maxcoord_.y);
+    mChkMin(mincoord_.x_); mChkMin(mincoord_.y_);
+    mChkMax(maxcoord_.x_); mChkMax(maxcoord_.y_);
     mChkMin(offsrg_.start); mChkMax(offsrg_.stop);
     mChkMin(start_.inl()); mChkMin(start_.crl());
     mChkMax(stop_.inl()); mChkMax(stop_.crl());
@@ -335,21 +335,21 @@ const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 
 	const Coord cmin = minCoord();
 	Coord cmax = maxCoord();
-	const Coord delta( cmax.x - cmin.x, cmax.y - cmin.y );
-	const bool xisinl = delta.x > delta.y;
-	const Coord icdelta( xisinl ? delta.x : delta.y,
-			     xisinl ? delta.y : delta.x );
-	int nrinl = (int)(icdelta.x / grdsp + 1.5);
+	const Coord delta( cmax.x_ - cmin.x_, cmax.y_ - cmin.y_ );
+	const bool xisinl = delta.x_ > delta.y_;
+	const Coord icdelta( xisinl ? delta.x_ : delta.y_,
+			     xisinl ? delta.y_ : delta.x_ );
+	int nrinl = (int)(icdelta.x_ / grdsp + 1.5);
 	if ( nrinl < 3 ) nrinl = 3;
-	int nrcrl = (int)(icdelta.y / grdsp + 1.5);
+	int nrcrl = (int)(icdelta.y_ / grdsp + 1.5);
 	if ( nrcrl < 3 ) nrcrl = 3;
-	cmax = Coord( cmin.x + grdsp * ( (xisinl?nrinl:nrcrl) - 1 ),
-		      cmin.y + grdsp * ( (xisinl?nrcrl:nrinl) - 1 ) );
+	cmax = Coord( cmin.x_ + grdsp * ( (xisinl?nrinl:nrcrl) - 1 ),
+		      cmin.y_ + grdsp * ( (xisinl?nrcrl:nrinl) - 1 ) );
 
 	crd[0] = cmin;
 	crd[1] = cmax;
-	crd[2].x = xisinl ? cmin.x : cmax.x;
-	crd[2].y = xisinl ? cmax.y : cmin.y;
+	crd[2].x_ = xisinl ? cmin.x_ : cmax.x_;
+	crd[2].y_ = xisinl ? cmax.y_ : cmin.y_;
 	hs.start_.inl() = hs.start_.crl() = 10000;
 	hs.step_.inl() = hs.step_.crl() = 1;
 	hs.stop_.inl() = 10000 + nrinl - 1;
@@ -413,21 +413,21 @@ const uiString PosInfo::Detector::getUiSurvInfo( TrcKeySampling& hs,
 
 	const Coord cmin = minCoord();
 	Coord cmax = maxCoord();
-	const Coord delta( cmax.x - cmin.x, cmax.y - cmin.y );
-	const bool xisinl = delta.x > delta.y;
-	const Coord icdelta( xisinl ? delta.x : delta.y,
-			     xisinl ? delta.y : delta.x );
-	int nrinl = (int)(icdelta.x / grdsp + 1.5);
+	const Coord delta( cmax.x_ - cmin.x_, cmax.y_ - cmin.y_ );
+	const bool xisinl = delta.x_ > delta.y_;
+	const Coord icdelta( xisinl ? delta.x_ : delta.y_,
+			     xisinl ? delta.y_ : delta.x_ );
+	int nrinl = (int)(icdelta.x_ / grdsp + 1.5);
 	if ( nrinl < 3 ) nrinl = 3;
-	int nrcrl = (int)(icdelta.y / grdsp + 1.5);
+	int nrcrl = (int)(icdelta.y_ / grdsp + 1.5);
 	if ( nrcrl < 3 ) nrcrl = 3;
-	cmax = Coord( cmin.x + grdsp * ( (xisinl?nrinl:nrcrl) - 1 ),
-		      cmin.y + grdsp * ( (xisinl?nrcrl:nrinl) - 1 ) );
+	cmax = Coord( cmin.x_ + grdsp * ( (xisinl?nrinl:nrcrl) - 1 ),
+		      cmin.y_ + grdsp * ( (xisinl?nrcrl:nrinl) - 1 ) );
 
 	crd[0] = cmin;
 	crd[1] = cmax;
-	crd[2].x = xisinl ? cmin.x : cmax.x;
-	crd[2].y = xisinl ? cmax.y : cmin.y;
+	crd[2].x_ = xisinl ? cmin.x_ : cmax.x_;
+	crd[2].y_ = xisinl ? cmax.y_ : cmin.y_;
 	hs.start_.inl() = hs.start_.crl() = 10000;
 	hs.step_.inl() = hs.step_.crl() = 1;
 	hs.stop_.inl() = 10000 + nrinl - 1;
@@ -530,8 +530,8 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
     setCur( cbo );
     firstcbo_ = prevcbo_ = curcbo_;
     llnstart_ = llnstop_ = curlnstart_ = curcbo_;
-    mincoord_.x = maxcoord_.x = curcbo_.coord_.x;
-    mincoord_.y = maxcoord_.y = curcbo_.coord_.y;
+    mincoord_.x_ = maxcoord_.x_ = curcbo_.coord_.x_;
+    mincoord_.y_ = maxcoord_.y_ = curcbo_.coord_.y_;
     if ( setup_.isps_ )
 	offsrg_.start = offsrg_.stop = cbo.offset_;
     nrpos_ = nruniquepos_ = nroffsthispos_ = 1;
@@ -570,10 +570,10 @@ bool PosInfo::Detector::addNext( const PosInfo::CrdBidOffs& cbo )
     setCur( cbo );
     addPos();
 
-    if ( curcbo_.coord_.x < mincoord_.x ) mincoord_.x = curcbo_.coord_.x;
-    if ( curcbo_.coord_.x > maxcoord_.x ) maxcoord_.x = curcbo_.coord_.x;
-    if ( curcbo_.coord_.y < mincoord_.y ) mincoord_.y = curcbo_.coord_.y;
-    if ( curcbo_.coord_.y > maxcoord_.y ) maxcoord_.y = curcbo_.coord_.y;
+    if ( curcbo_.coord_.x_ < mincoord_.x_ ) mincoord_.x_ = curcbo_.coord_.x_;
+    if ( curcbo_.coord_.x_ > maxcoord_.x_ ) maxcoord_.x_ = curcbo_.coord_.x_;
+    if ( curcbo_.coord_.y_ < mincoord_.y_ ) mincoord_.y_ = curcbo_.coord_.y_;
+    if ( curcbo_.coord_.y_ > maxcoord_.y_ ) maxcoord_.y_ = curcbo_.coord_.y_;
     if ( setup_.isps_ )
 	offsrg_.include( cbo.offset_ );
 
@@ -645,7 +645,7 @@ void PosInfo::Detector::addPos()
 	}
 	if ( setup_.is2d_ )
 	{
-	    const float dist = (float)curcbo_.coord_.distTo( prevcbo_.coord_ );
+	    const float dist = curcbo_.coord_.distTo<float>( prevcbo_.coord_ );
 	    if ( mIsUdf(distrg_.start) )
 		distrg_.start = distrg_.stop = dist;
 	    else
@@ -861,8 +861,8 @@ void PosInfo::Detector::report( IOPar& iop ) const
 
     iop.set( "Total number of positions", nrpos_ );
     iop.set( "Number of unique positions", nruniquepos_ );
-    iop.set( "X-Coordinate range", getRangeStr(mincoord_.x,maxcoord_.x) );
-    iop.set( "Y-Coordinate range", getRangeStr(mincoord_.y,maxcoord_.y) );
+    iop.set( "X-Coordinate range", getRangeStr(mincoord_.x_,maxcoord_.x_) );
+    iop.set( "Y-Coordinate range", getRangeStr(mincoord_.y_,maxcoord_.y_) );
     if ( setup_.is2d_ )
     {
 	iop.set( "Trace numbers",

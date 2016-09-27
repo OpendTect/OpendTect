@@ -123,7 +123,7 @@ Coord3 Patch::seedCoord( int idx ) const
 	    pos = hor2d->getPos(emobj->sectionID(0), tck.geomID(), tck.trcNr());
 	}
     }
-    pos.z = seeds_[idx].val_;
+    pos.z_ = seeds_[idx].val_;
     return pos;
 }
 

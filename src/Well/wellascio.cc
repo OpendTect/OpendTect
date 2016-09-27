@@ -68,20 +68,20 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 	if ( ret == 0 ) break;
 
 	Coord3 curpos;
-	curpos.x = getDValue(0);
-	curpos.y = getDValue(1);
-	if ( !isxy && !mIsUdf(curpos.x) && !mIsUdf(curpos.y) )
+	curpos.x_ = getDValue(0);
+	curpos.y_ = getDValue(1);
+	if ( !isxy && !mIsUdf(curpos.x_) && !mIsUdf(curpos.y_) )
 	{
 	    Coord wc( SI().transform(
-			BinID( mNINT32(curpos.x), mNINT32(curpos.y) ) ) );
-	    curpos.x = wc.x; curpos.y = wc.y;
+			BinID( mNINT32(curpos.x_), mNINT32(curpos.y_) ) ) );
+	    curpos.x_ = wc.x_; curpos.y_ = wc.y_;
 	}
-	if ( mIsUdf(curpos.x) || mIsUdf(curpos.y) )
+	if ( mIsUdf(curpos.x_) || mIsUdf(curpos.y_) )
 	    continue;
 
-	curpos.z = getDValue(2);
+	curpos.z_ = getDValue(2);
 	const double dah = getDValue(3);
-	if ( mIsUdf(curpos.z) && mIsUdf(dah) )
+	if ( mIsUdf(curpos.z_) && mIsUdf(dah) )
 	{
 	    if ( !nozptsfound )
 		warnmsg_.append( nozpts, true );
@@ -93,8 +93,8 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 
 	pos += curpos;
 	mdvals += dah;
-	if ( mIsUdf(kbelevinfile) && !mIsUdf(curpos.z) && !mIsUdf(dah) )
-	    kbelevinfile = dah - curpos.z;
+	if ( mIsUdf(kbelevinfile) && !mIsUdf(curpos.z_) && !mIsUdf(dah) )
+	    kbelevinfile = dah - curpos.z_;
     }
 
     return !pos.isEmpty();
@@ -112,21 +112,21 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 
     Coord3 prevpos = pos[0];
     double prevdah = mdvals[0];
-    if ( mIsUdf(prevpos.z) && mIsUdf(prevdah) )
+    if ( mIsUdf(prevpos.z_) && mIsUdf(prevdah) )
 	return false;
 
     if ( mIsUdf(kbelevinfile) )
 	kbelevinfile = 0.;
 
-    if ( mIsUdf(prevpos.z) )
+    if ( mIsUdf(prevpos.z_) )
     {
-	prevpos.z = prevdah - kbelevinfile;
-	pos[0].z = prevpos.z;
+	prevpos.z_ = prevdah - kbelevinfile;
+	pos[0].z_ = prevpos.z_;
     }
 
     if ( mIsUdf(prevdah) )
     {
-	prevdah = prevpos.z + kbelevinfile;
+	prevdah = prevpos.z_ + kbelevinfile;
 	mdvals[0] = prevdah;
     }
 
@@ -141,7 +141,7 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	else if ( mIsUdf(curpos) )
 	{
 	    const double dist = dah - prevdah;
-	    const double hdist = Coord(curpos).distTo( Coord(prevpos) );
+	    const double hdist = curpos.xyDistTo<double>( prevpos );
 	    if ( dist < hdist )
 	    {
 		const BufferString val = toString( mScaledValue( dah, uom), 2 );
@@ -150,14 +150,15 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 			 .arg(uomlbl) )
 	    }
 
-	    curpos.z = prevpos.z + Math::Sqrt( dist*dist - hdist*hdist );
+	    curpos.z_ = prevpos.z_ + Math::Sqrt( dist*dist - hdist*hdist );
 	}
 	else if ( mIsUdf(dah) )
 	{
-	    const double dist = curpos.distTo( prevpos );
+	    const double dist = curpos.distTo<double>( prevpos );
 	    if ( dist < 0. )
 	    {
-		const BufferString val = toString(mScaledValue(curpos.z,uom),2);
+		const BufferString val =
+				toString(mScaledValue(curpos.z_,uom),2);
 		mErrRet( tr( "Impossible TVD to MD transformation for Z=%1%2" )
 			  .arg(val)
 			  .arg(uomlbl) )
@@ -182,8 +183,8 @@ static void adjustKBIfNecessary( TypeSet<Coord3>& pos, double kbelevinfile,
     const double kbshift = kbelev - kbelevinfile;
     for ( int idz=0; idz<pos.size(); idz++ )
     {
-	if ( !mIsUdf(pos[idz].z) )
-	    pos[idz].z -= kbshift;
+	if ( !mIsUdf(pos[idz].z_) )
+	    pos[idz].z_ -= kbshift;
     }
 }
 
@@ -196,7 +197,7 @@ static void addOriginIfNecessary( TypeSet<Coord3>& pos, TypeSet<double>& mdvals)
 	return;
 
     Coord3 surfloc = pos[0];
-    surfloc.z -= mdvals[0];
+    surfloc.z_ -= mdvals[0];
 
     pos.insert( 0, surfloc );
     mdvals.insert( 0, 0. );
@@ -223,7 +224,7 @@ static void adjustToTDIfNecessary( TypeSet<Coord3>& pos,
 	return;
 
     Coord3 tdpos = pos[sz-1];
-    tdpos.z += td - mdvals[sz-1];
+    tdpos.z_ += td - mdvals[sz-1];
 
     pos += tdpos;
     mdvals += td;
@@ -236,25 +237,25 @@ bool TrackAscIO::adjustSurfaceLocation( TypeSet<Coord3>& pos,
     if ( pos.isEmpty() )
 	return true;
 
-    if ( mIsZero(surfacecoord.x,mDefEps) && mIsZero(surfacecoord.y,mDefEps) )
+    if ( mIsZero(surfacecoord.x_,mDefEps) && mIsZero(surfacecoord.y_,mDefEps) )
     {
-	if ( mIsZero(pos[0].x,mDefEps) && mIsZero(pos[0].y,mDefEps) )
+	if ( mIsZero(pos[0].x_,mDefEps) && mIsZero(pos[0].y_,mDefEps) )
 	{
 	    mErrRet( tr("Relative easting/northing found\n"
 			"Please enter a valid surface coordinate in"
 			" the advanced dialog") )
 	}
 
-	surfacecoord = Coord( pos[0].x, pos[0].y );
+	surfacecoord = Coord( pos[0].x_, pos[0].y_ );
 	return true;
     }
 
-    const double xshift = surfacecoord.x - pos[0].x;
-    const double yshift = surfacecoord.y - pos[0].y;
+    const double xshift = surfacecoord.x_ - pos[0].x_;
+    const double yshift = surfacecoord.y_ - pos[0].y_;
     for ( int idz=0; idz<pos.size(); idz++ )
     {
-	pos[idz].x += xshift;
-	pos[idz].y += yshift;
+	pos[idz].x_ += xshift;
+	pos[idz].y_ += yshift;
     }
 
     return true;
@@ -451,7 +452,7 @@ bool D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
 	    if ( mIsUdf(crd) )
 		continue;
 
-	    zvals += crd.z;
+	    zvals += crd.z_;
 	}
 	else
 	    zvals += zval;
@@ -497,9 +498,9 @@ bool BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float& md,
     if ( ret <= 0 ) return false;
 
     wellnm = text( 0 );
-    crd.x = getDValue( 1 );
-    crd.y = getDValue( 2 );
-    crd.z = getDValue( 3 );
+    crd.x_ = getDValue( 1 );
+    crd.y_ = getDValue( 2 );
+    crd.z_ = getDValue( 3 );
     md = getFValue( 4 );
     uwi = text( 5 );
     return true;
@@ -615,7 +616,7 @@ bool BulkD2TModelAscIO::get( BufferString& wellnm, float& md, float& twt )
     const int tmopt = formOf( false, 1 );
 
     if ( dpthopt == 0 )
-	md = mCast(float,wellsdata_[wellidx]->track().getPos(md).z);
+	md = mCast(float,wellsdata_[wellidx]->track().getPos(md).z_);
     if ( dpthopt == 2 )
 	md -= SI().seismicReferenceDatum();
     if ( dpthopt == 3 )

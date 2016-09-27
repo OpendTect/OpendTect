@@ -191,7 +191,7 @@ bool Well::ElasticModelComputer::computeFromLogs()
     if ( zrgistime_ )
     {
 	const float startdah = ls_->getDah(0);
-	startdepth = mCast(float,wd_.track().getPos( startdah ).z) -
+	startdepth = mCast(float,wd_.track().getPos( startdah ).z_) -
 		     ls_->getThickness(0) / 2.f;
     }
 

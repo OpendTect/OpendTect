@@ -457,16 +457,17 @@ void uiDataPointSetCrossPlotter::drawUserDefPolyLine( bool isy1 )
     for ( int pixvar = 0; pixvar < size; pixvar++ )
     {
 	uiWorldPoint pt = pts[pixvar];
-	if ( mIsUdf(pt.x) || mIsUdf(pt.y) ) continue;
-	if ( mIsUdf(xah->getPix(pt.x)) || mIsUdf(yah->getPix(pt.y)) ) continue;
+	if ( mIsUdf(pt.x_) || mIsUdf(pt.y_) ) continue;
+	if ( mIsUdf(xah->getPix(pt.x_)) || mIsUdf(yah->getPix(pt.y_)) )
+	    continue;
 
 	if ( !mousepressed_ )
 	{
-	    if (!xah->pixRange().includes(xah->getPix(pt.x),false) ) continue;
-	    if (!yah->pixRange().includes(yah->getPix(pt.y),false) ) continue;
+	    if (!xah->pixRange().includes(xah->getPix(pt.x_),false) ) continue;
+	    if (!yah->pixRange().includes(yah->getPix(pt.y_),false) ) continue;
 	}
 
-	pixpts += uiPoint( xah->getPix(pt.x), yah->getPix(pt.y) );
+	pixpts += uiPoint( xah->getPix(pt.x_), yah->getPix(pt.y_) );
     }
 
     curpolylineitem->setPolyLine( pixpts );
@@ -572,15 +573,15 @@ void uiDataPointSetCrossPlotter::mouseMoveCB( CallBacker* )
 
 	LinePars& linepar = drawy2_ ? userdefy2lp_ : userdefy1lp_;
 	const float base =
-	    xah.getVal(stoppos.x) - xah.getVal(startpos_.x);
+	    xah.getVal(stoppos.x_) - xah.getVal(startpos_.x_);
 	const float perpendicular =
-	    yah.getVal(stoppos.y) - yah.getVal(startpos_.y);
+	    yah.getVal(stoppos.y_) - yah.getVal(startpos_.y_);
 
 	if ( !mIsZero(base,1e-6) )
 	{
 	    linepar.ax = perpendicular/base;
-	    linepar.a0 = yah.getVal(startpos_.y) -
-			( linepar.ax * xah.getVal(startpos_.x) );
+	    linepar.a0 = yah.getVal(startpos_.y_) -
+			( linepar.ax * xah.getVal(startpos_.x_) );
 	}
 
 	BufferString& linestr = drawy2_ ? userdefy2str_ : userdefy1str_;
@@ -599,8 +600,10 @@ void uiDataPointSetCrossPlotter::mouseMoveCB( CallBacker* )
 	}
 
 	TypeSet<uiWorldPoint> linepts;
-	linepts+=uiWorldPoint(xah.getVal(startpos_.x),yah.getVal(startpos_.y));
-	linepts+=uiWorldPoint(xah.getVal(stoppos.x),yah.getVal(stoppos.y));
+	linepts += uiWorldPoint( xah.getVal(startpos_.x_),
+				 yah.getVal(startpos_.y_) );
+	linepts += uiWorldPoint( xah.getVal(stoppos.x_),
+				 yah.getVal(stoppos.y_) );
 	setUserDefPolyLine( linepts,drawy2_ );
 	drawUserDefPolyLine( !drawy2_ );
 	lineDrawn.trigger();
@@ -820,12 +823,12 @@ void uiDataPointSetCrossPlotter::setWorldSelArea( int selareaid  )
 	TypeSet<uiPoint> polypts = selpoly.data();
 	for (  int idx=0; idx<polypts.size(); idx++ )
 	{
-	    worldpoly.add( uiWorldPoint(xah.getVal(polypts[idx].x),
-					yah.getVal(polypts[idx].y)) );
+	    worldpoly.add( uiWorldPoint(xah.getVal(polypts[idx].x_),
+					yah.getVal(polypts[idx].y_)) );
 	    if ( selarea.axistype_ == SelectionArea::Both )
 	    {
-		altworldpoly.add( uiWorldPoint(xah.getVal(polypts[idx].x),
-				  y2_.axis_->getVal(polypts[idx].y)) );
+		altworldpoly.add( uiWorldPoint(xah.getVal(polypts[idx].x_),
+				  y2_.axis_->getVal(polypts[idx].y_)) );
 	    }
 	}
 
@@ -898,8 +901,8 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 		const ODPolygon<double>& worldpoly = selarea.worldpoly_;
 		TypeSet<uiWorldPoint> polypts = worldpoly.data();
 		for (  int nrpts=0; nrpts<polypts.size(); nrpts++ )
-		    poly.add( uiPoint(xah.getPix(polypts[nrpts].x),
-				      yah.getPix(polypts[nrpts].y)) );
+		    poly.add( uiPoint(xah.getPix(polypts[nrpts].x_),
+				      yah.getPix(polypts[nrpts].y_)) );
 		selarea.poly_= poly;
 
 		if ( !selpolyitems_ || selpolyitems_->size() <= nrpoly )
@@ -1140,8 +1143,8 @@ int uiDataPointSetCrossPlotter::getRow(
 {
     if ( !x_.axis_ || !ad.axis_ ) return -1;
 
-    const float xpix = x_.axis_->getRelPos( x_.axis_->getVal(pt.x) );
-    const float ypix = ad.axis_->getRelPos( ad.axis_->getVal(pt.y) );
+    const float xpix = x_.axis_->getRelPos( x_.axis_->getVal(pt.x_) );
+    const float ypix = ad.axis_->getRelPos( ad.axis_->getVal(pt.y_) );
     int row = -1; float mindistsq = 1e30;
     for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
     {
@@ -1319,11 +1322,12 @@ void uiDataPointSetCrossPlotter::prepareItems( bool y2 )
 }
 
 
-void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,OD::MarkerStyle2D& mstyle,
-					       uiGraphicsItemGroup* curitmgrp,
-					       uiAxisHandler& yah,
-					       uiDataPointSet::DRowID rid,
-					       bool isy2 )
+void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,
+					       OD::MarkerStyle2D& mstyle,
+				       uiGraphicsItemGroup* curitmgrp,
+				       uiAxisHandler& yah,
+				       uiDataPointSet::DRowID rid,
+				       bool isy2 )
 {
     if ( itmidx >= curitmgrp->size() )
     {
@@ -1345,7 +1349,7 @@ void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,OD::MarkerStyle2D& mst
 void uiDataPointSetCrossPlotter::setItem( uiGraphicsItem* item, bool isy2,
 	const uiPoint& pt )
 {
-    item->setPos( mCast(float,pt.x), mCast(float,pt.y) );
+    item->setPos( mCast(float,pt.x_), mCast(float,pt.y_) );
     item->setVisible( isy2 ? isY2Shown() : true );
 }
 
@@ -1758,7 +1762,7 @@ bool uiDataPointSetCrossPlotter::drawRID( uiDataPointSet::DRowID rid,
 
     const uiPoint pt( xah.getPix(xval), yah.getPix(yval) );
 
-    if ( !xpixrg.includes(pt.x,true) || !ypixrg.includes(pt.y,true) )
+    if ( !xpixrg.includes(pt.x_,true) || !ypixrg.includes(pt.y_,true) )
 	return false;
 
     addItemIfNew( itmidx, mstyle, curitmgrp, yah, rid, isy2 );
@@ -1766,9 +1770,9 @@ bool uiDataPointSetCrossPlotter::drawRID( uiDataPointSet::DRowID rid,
     checkSelection( rid, curitmgrp->getUiItem(itmidx), isy2, yad, remsel );
 
     if ( itmidx > 1 )
-	usedxpixrg_.include( pt.x );
+	usedxpixrg_.include( pt.x_ );
     else
-	usedxpixrg_ = Interval<int>( pt.x, pt.x );
+	usedxpixrg_ = Interval<int>( pt.x_, pt.x_ );
 
     return true;
 }

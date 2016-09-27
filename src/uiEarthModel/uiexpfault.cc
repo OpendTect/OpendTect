@@ -189,18 +189,18 @@ bool uiExportFault::writeAscii()
 
 	    if ( !doxy )
 	    {
-		const BinID bid = SI().transform( crd );
+		const BinID bid = SI().transform( crd.getXY() );
 		*sdo.ostrm << bid.inl() << '\t' << bid.crl();
 	    }
 	    else
 	    {
 		// ostreams print doubles awfully
 		str.setEmpty();
-		str += crd.x; str += "\t"; str += crd.y;
+		str += crd.x_; str += "\t"; str += crd.y_;
 		*sdo.ostrm << str;
 	    }
 
-	    *sdo.ostrm << '\t' << crd.z*zfac;
+	    *sdo.ostrm << '\t' << crd.z_*zfac;
 
 	    if ( inclstickidx )
 		*sdo.ostrm << '\t' << stickidx;

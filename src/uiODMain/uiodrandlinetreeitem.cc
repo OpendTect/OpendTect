@@ -453,7 +453,8 @@ bool uiODRandomLineTreeItem::displayDefaultData()
     mDynamicCastGet( uiMenuHandler*, uimenuhandler, menu ); \
     int panelidx = -1; \
     if ( rtd && uimenuhandler && uimenuhandler->getPath() ) \
-	panelidx = rtd->getClosestPanelIdx(uimenuhandler->getPickedPos() );
+	panelidx = \
+	    rtd->getClosestPanelIdx(uimenuhandler->getPickedPos().getXY() );
 
 #define mAddInsertNodeMnuItm( nodeidx, nodename ) \
     mAddManagedMenuItem( &insertnodemnuitem_, new MenuItem(nodename), \

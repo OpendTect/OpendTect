@@ -624,7 +624,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<nrattrib; idx++ )
 	    isenabled += visserv_->isAttribEnabled( visid, idx );
 
-	float curshift = (float) visserv_->getTranslation( visid ).z;
+	float curshift = (float) visserv_->getTranslation( visid ).z_;
 	if ( mIsUdf( curshift ) ) curshift = 0;
 
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
@@ -639,17 +639,17 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==parentsrdlmnuitem_.id )
     {
-	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
+	const TrcKey tk = SI().transform( uimenu->getPickedPos().getXY() );
 	applMgr()->addMPEParentPath( hd->id(), tk );
     }
     else if ( mnuid==parentsmnuitem_.id )
     {
-	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
+	const TrcKey tk = SI().transform( uimenu->getPickedPos().getXY() );
 	hd->selectParent( tk );
     }
     else if ( mnuid==childrenmnuitem_.id )
     {
-	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
+	const TrcKey tk = SI().transform( uimenu->getPickedPos().getXY() );
 	hor3d->selectChildren( tk );
     }
     else if ( mnuid==delchildrenmnuitem_.id )

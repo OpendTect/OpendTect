@@ -166,13 +166,13 @@ TrcKeyZSampling MPEDisplay::getBoxPosition() const
     Coord3 width = boxdragger_->width();
 
     TrcKeyZSampling cube;
-    cube.hsamp_.start_ = BinID( mNINT32(center.x-width.x/2),
-			    mNINT32(center.y-width.y/2) );
-    cube.hsamp_.stop_ = BinID( mNINT32(center.x+width.x/2),
-			   mNINT32(center.y+width.y/2) );
+    cube.hsamp_.start_ = BinID( mNINT32(center.x_-width.x_/2),
+			    mNINT32(center.y_-width.y_/2) );
+    cube.hsamp_.stop_ = BinID( mNINT32(center.x_+width.x_/2),
+			   mNINT32(center.y_+width.y_/2) );
     cube.hsamp_.step_ = BinID( SI().inlStep(), SI().crlStep() );
-    cube.zsamp_.start = (float) ( center.z - width.z / 2 );
-    cube.zsamp_.stop = (float) ( center.z + width.z / 2 );
+    cube.zsamp_.start = (float) ( center.z_ - width.z_ / 2 );
+    cube.zsamp_.stop = (float) ( center.z_ + width.z_ / 2 );
     cube.zsamp_.step = SI().zStep();
     cube.hsamp_.snapToSurvey();
     SI().snapZ( cube.zsamp_.start, 0 );
@@ -196,7 +196,7 @@ bool MPEDisplay::getPlanePosition( TrcKeyZSampling& planebox ) const
 
     if ( !dim )
     {
-	planebox.hsamp_.start_.inl() = SI().inlRange(true).snap( center.x );
+	planebox.hsamp_.start_.inl() = SI().inlRange(true).snap( center.x_ );
 	planebox.hsamp_.stop_.inl() = planebox.hsamp_.start_.inl();
 
 	planebox.hsamp_.start_.crl() = SI().crlRange(true).snap( sy.start );
@@ -210,7 +210,7 @@ bool MPEDisplay::getPlanePosition( TrcKeyZSampling& planebox ) const
 	planebox.hsamp_.start_.inl() = SI().inlRange(true).snap( sx.start );
 	planebox.hsamp_.stop_.inl() =  SI().inlRange(true).snap( sx.stop );
 
-	planebox.hsamp_.stop_.crl() = SI().crlRange(true).snap( center.y );
+	planebox.hsamp_.stop_.crl() = SI().crlRange(true).snap( center.y_ );
 	planebox.hsamp_.start_.crl() = planebox.hsamp_.stop_.crl();
 
 	planebox.zsamp_.start = SI().zRange(true).snap( sz.start );
@@ -224,7 +224,7 @@ bool MPEDisplay::getPlanePosition( TrcKeyZSampling& planebox ) const
 	planebox.hsamp_.start_.crl() = SI().crlRange(true).snap( sy.start );
 	planebox.hsamp_.stop_.crl() =  SI().crlRange(true).snap( sy.stop );
 
-	planebox.zsamp_.stop = SI().zRange(true).snap( center.z );
+	planebox.zsamp_.stop = SI().zRange(true).snap( center.z_ );
 	planebox.zsamp_.start = planebox.zsamp_.stop;
     }
 
@@ -312,12 +312,12 @@ void MPEDisplay::moveMPEPlane( int nr )
     Interval<float> sx, sy, sz;
     drg->getSpaceLimits( sx, sy, sz );
 
-    center.x = 0.5 * ( SI().inlRange(true).snap( center.x - width.x/2 ) +
-	    	       SI().inlRange(true).snap( center.x + width.x/2 ) );
-    center.y = 0.5 * ( SI().crlRange(true).snap( center.y - width.y/2 ) +
-	    	       SI().crlRange(true).snap( center.y + width.y/2 ) );
-    center.z = 0.5 * ( SI().zRange(true).snap( center.z - width.z/2 ) +
-		       SI().zRange(true).snap( center.z + width.z/2 ) );
+    center.x_ = 0.5 * ( SI().inlRange(true).snap( center.x_ - width.x_/2 ) +
+		       SI().inlRange(true).snap( center.x_ + width.x_/2 ) );
+    center.y_ = 0.5 * ( SI().crlRange(true).snap( center.y_ - width.y_/2 ) +
+		       SI().crlRange(true).snap( center.y_ + width.y_/2 ) );
+    center.z_ = 0.5 * ( SI().zRange(true).snap( center.z_ - width.z_/2 ) +
+		       SI().zRange(true).snap( center.z_ + width.z_/2 ) );
 
     const int nrsteps = abs(nr);
     const float sign = nr > 0 ? 1.001f : -1.001f;
@@ -331,14 +331,14 @@ void MPEDisplay::moveMPEPlane( int nr )
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	if ( !dim )
-	    center.x += sign * SI().inlStep();
+	    center.x_ += sign * SI().inlStep();
 	else if ( dim==1 )
-	    center.y += sign * SI().crlStep();
+	    center.y_ += sign * SI().crlStep();
 	else
-	    center.z += sign * SI().zStep();
+	    center.z_ += sign * SI().zStep();
 
-	if ( !sx.includes(center.x,false) || !sy.includes(center.y,false) ||
-	     !sz.includes(center.z,false) )
+	if ( !sx.includes(center.x_,false) || !sy.includes(center.y_,false) ||
+	     !sz.includes(center.z_,false) )
 	    return;
 
 	slices_[0]->setCenter( center, false );
@@ -580,11 +580,11 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
     // Workaround for deadlock in COIN's polar_decomp() or Math::Sqrt(), which
     // occasionally occurs in case the box has one side of zero length.
     if ( cube.hsamp_.nrInl()==1 )
-	newwidth.x = 0.1 * cube.hsamp_.step_.inl();
+	newwidth.x_ = 0.1 * cube.hsamp_.step_.inl();
     if ( cube.hsamp_.nrCrl()==1 )
-	newwidth.y = 0.1 * cube.hsamp_.step_.crl();
+	newwidth.y_ = 0.1 * cube.hsamp_.step_.crl();
 	if ( cube.zsamp_.nrSteps()==0 )
-	newwidth.z = 0.1 * cube.zsamp_.step;
+	newwidth.z_ = 0.1 * cube.zsamp_.step;
 
     boxdragger_->setWidth( newwidth );
 
@@ -628,7 +628,7 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     Coord3 xytpos;
     utm2display->transformBack( pos, xytpos );
-    const BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
+    const BinID binid = SI().transform( Coord(xytpos.x_,xytpos.y_) );
 
     TrcKeyZSampling cs;
     if ( !getPlanePosition(cs) )
@@ -650,9 +650,9 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
 	     : mMIN( abs(binid.crl()-cs.hsamp_.start_.crl()),
 		     abs( binid.crl()-cs.hsamp_.stop_.crl()) );
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-    zdiff = (float) ( cs.zsamp_.includes(xytpos.z,false)
+    zdiff = (float) ( cs.zsamp_.includes(xytpos.z_,false)
 	     ? 0
-	     : mMIN(xytpos.z-cs.zsamp_.start,xytpos.z-cs.zsamp_.stop) *
+	     : mMIN(xytpos.z_-cs.zsamp_.start,xytpos.z_-cs.zsamp_.stop) *
 	       zfactor  * scene_->getFixedZStretch() );
 
     const float inldist = SI().inlDistance();
@@ -726,11 +726,11 @@ void MPEDisplay::alignSliceToSurvey( visBase::OrthogonalSlice& slice )
     Coord3 center = slice.getDragger()->center();
 
     if ( slice.getDim() == cInLine() )
-	center.x = SI().inlRange(true).snap( center.x );
+	center.x_ = SI().inlRange(true).snap( center.x_ );
     if ( slice.getDim() == cCrossLine() )
-	center.y = SI().crlRange(true).snap( center.y );
+	center.y_ = SI().crlRange(true).snap( center.y_ );
     if ( slice.getDim() == cTimeSlice() )
-	center.z = SI().zRange(true).snap( center.z );
+	center.z_ = SI().zRange(true).snap( center.z_ );
 
     slice.setCenter( center, false );
 }
@@ -961,30 +961,30 @@ TrcKeyZSampling MPEDisplay::getTrcKeyZSampling( bool manippos,
 	Coord3 center = boxdragger_->center();
 	Coord3 width = boxdragger_->width();
 
-	res.hsamp_.start_ = BinID( mNINT32( center.x - width.x / 2 ),
-		mNINT32( center.y - width.y / 2 ) );
+	res.hsamp_.start_ = BinID( mNINT32( center.x_ - width.x_ / 2 ),
+		mNINT32( center.y_ - width.y_ / 2 ) );
 
-	res.hsamp_.stop_ = BinID( mNINT32( center.x + width.x / 2 ),
-		mNINT32( center.y + width.y / 2 ) );
+	res.hsamp_.stop_ = BinID( mNINT32( center.x_ + width.x_ / 2 ),
+		mNINT32( center.y_ + width.y_ / 2 ) );
 
 	res.hsamp_.step_ = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zsamp_.start = (float) ( center.z - width.z / 2 );
-	res.zsamp_.stop = (float) ( center.z + width.z / 2 );
+	res.zsamp_.start = (float) ( center.z_ - width.z_ / 2 );
+	res.zsamp_.stop = (float) ( center.z_ + width.z_ / 2 );
     }
     else
     {
 	const Coord3 transl = curboxcenter_;
 	const Coord3 scale = curboxwidth_;
 
-	res.hsamp_.start_ = BinID( mNINT32(transl.x+scale.x/2),
-		mNINT32(transl.y+scale.y/2) );
-	res.hsamp_.stop_ = BinID( mNINT32(transl.x-scale.x/2),
-		mNINT32(transl.y-scale.y/2) );
+	res.hsamp_.start_ = BinID( mNINT32(transl.x_+scale.x_/2),
+		mNINT32(transl.y_+scale.y_/2) );
+	res.hsamp_.stop_ = BinID( mNINT32(transl.x_-scale.x_/2),
+		mNINT32(transl.y_-scale.y_/2) );
 	res.hsamp_.step_ = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zsamp_.start = (float) ( transl.z+scale.z/2 );
-	res.zsamp_.stop = (float) ( transl.z-scale.z/2 );
+	res.zsamp_.start = (float) ( transl.z_+scale.z_/2 );
+	res.zsamp_.stop = (float) ( transl.z_-scale.z_/2 );
     }
 
     if ( alreadyTransformed(attrib) ) return res;
@@ -1060,11 +1060,11 @@ float MPEDisplay::getValue( const Coord3& pos_ ) const
 {
     if ( !volumecache_ ) return mUdf(float);
 
-    const BinID bid( SI().transform(pos_) );
+    const BinID bid( SI().transform(pos_.getXY()) );
     const TrcKeyZSampling& samp = volumecache_->sampling();
     const int inlidx = samp.inlIdx( bid.inl() );
     const int crlidx = samp.crlIdx( bid.crl() );
-    const int zidx = samp.zsamp_.getIndex( pos_.z );
+    const int zidx = samp.zsamp_.getIndex( pos_.z_ );
 
     const float val = volumecache_->data().get( inlidx, crlidx, zidx );
     return val;
@@ -1254,7 +1254,7 @@ SurveyObject::AttribFormat MPEDisplay::getAttributeFormat( int attrib ) const
 
 int MPEDisplay::nrAttribs() const
 {
-    return ( as_[0].id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() ) ? 0 : 1;
+    return as_[0].id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() ? 0 : 1;
 }
 
 

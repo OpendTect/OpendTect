@@ -64,7 +64,6 @@ public:
 };
 
 
-class Coord3;
 
 /*!\brief Interface for a list of Coord3 with automatically maintained IDs. */
 

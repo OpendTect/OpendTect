@@ -145,12 +145,12 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
 
     Coord c0( dlg->xrgfld_->getDValue(0), dlg->yrgfld_->getDValue(0) );
     Coord c1( dlg->xrgfld_->getDValue(1), dlg->yrgfld_->getDValue(1) );
-    if ( c0.x > c1.x ) Swap( c0.x, c1.x );
-    if ( c0.y > c1.y ) Swap( c0.y, c1.y );
-    const Coord d( c1.x - c0.x, c1.y - c0.y );
+    if ( c0.x_ > c1.x_ ) Swap( c0.x_, c1.x_ );
+    if ( c0.y_ > c1.y_ ) Swap( c0.y_, c1.y_ );
+    const Coord d( c1.x_ - c0.x_, c1.y_ - c0.y_ );
     const double grdsp = dlg->grdspfld_->getDValue();
-    const int nrinl = (int)(d.x / grdsp + 1.5);
-    const int nrcrl = (int)(d.y / grdsp + 1.5);
+    const int nrinl = (int)(d.x_ / grdsp + 1.5);
+    const int nrcrl = (int)(d.y_ / grdsp + 1.5);
     if ( nrinl < 2 && nrcrl < 2 )
 	mErrRet(tr("Coordinate ranges are less than one trace distance"))
 
@@ -159,12 +159,12 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     cs.hsamp_.stop_.inl() = 10000 + nrinl - 1;
     cs.hsamp_.stop_.crl() = 10000 + nrcrl -1;
 
-    Coord cmax( c0.x + grdsp*(nrinl-1), c0.y + grdsp*(nrcrl-1) );
-    if ( cmax.x < c0.x ) Swap( cmax.x, c0.x );
-    if ( cmax.y < c0.y ) Swap( cmax.y, c0.y );
+    Coord cmax( c0.x_ + grdsp*(nrinl-1), c0.y_ + grdsp*(nrcrl-1) );
+    if ( cmax.x_ < c0.x_ ) Swap( cmax.x_, c0.x_ );
+    if ( cmax.y_ < c0.y_ ) Swap( cmax.y_, c0.y_ );
     crd[0] = c0;
     crd[1] = cmax;
-    crd[2] = Coord( c0.x, cmax.y );
+    crd[2] = Coord( c0.x_, cmax.y_ );
 
     const float zfac = SI().showZ2UserFactor();
     cs.zsamp_.start = 0.f;

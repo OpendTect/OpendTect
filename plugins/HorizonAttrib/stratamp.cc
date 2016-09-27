@@ -188,9 +188,9 @@ int StratAmpCalc::nextStep()
 
     const BinID bid = trc->info().binID();
     const EM::SubID subid = bid.toInt64();
-    float z1 = (float) tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
+    float z1 = (float) tophorizon_->getPos(tophorizon_->sectionID(0),subid).z_;
     float z2 = !bothorizon_ ? z1
-	: (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
+	: (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z_;
     if ( mIsUdf(z1) || mIsUdf(z2) )
 	return Executor::MoreToDo();
 

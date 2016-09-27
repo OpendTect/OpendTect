@@ -44,20 +44,20 @@ public:
 class CurveSqDistanceFunction : public FloatMathFunction
 {
 public:
-    			CurveSqDistanceFunction( const ParametricCurve& pc,
-						 const Coord3& ppos )
-			   : curve( pc ) 
-			   , pos( ppos )
-		       {}
+		CurveSqDistanceFunction( const ParametricCurve& pc,
+					 const Coord3& ppos )
+		   : curve_( pc )
+		   , pos_( ppos )
+		{}
 
-    float		getValue( float p ) const
-			{ return (float) curve.computePosition(p).sqDistTo(pos); }
-    float		getValue( const float* p ) const
-			{ return getValue( *p ); }
+    float	getValue( float p ) const
+		{ return (float) curve_.computePosition(p).sqDistTo(pos_); }
+    float	getValue( const float* p ) const
+		{ return getValue( *p ); }
 
 protected:
-    const ParametricCurve&	curve;
-    Coord3			pos;
+    const ParametricCurve&	curve_;
+    Coord3			pos_;
 };
 
 
@@ -111,7 +111,7 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 	{
 	    const Coord3 pos = getPosition(idx);
 	    const float dist =
-		(float) (plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_);
+	     (float) (plane.A_*pos.x_+plane.B_*pos.y_+plane.C_*pos.z_+plane.D_);
 	    if ( fabs(dist)<closestdist )
 	    {
 		closestdist = dist;
@@ -125,10 +125,12 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
     for ( int idx=0; idx<20; idx++ )
     {
 	const Coord3 pos = computePosition(p);
-	float fp = (float)(plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_);
+	float fp = (float)(plane.A_*pos.x_+plane.B_*pos.y_
+			   +plane.C_*pos.z_+plane.D_);
 
 	const Coord3 dir = computeTangent(p);
-	float dp = (float)(plane.A_*dir.x+plane.B_*dir.y+plane.C_*dir.z+plane.D_);
+	float dp = (float)(plane.A_*dir.x_+plane.B_*dir.y_
+			   +plane.C_*dir.z_+plane.D_);
 
 	const float diff = dp/fp;
 	p = p - diff;

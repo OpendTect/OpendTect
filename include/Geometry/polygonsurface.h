@@ -58,8 +58,8 @@ public:
     void		getAllKnots(TypeSet<Coord3>&) const;
 			/*<Only get all the picked positions on the surface. */
 
-    const Coord3&	getPolygonNormal(int polygonnr) const;
-    const Coord3&	getPolygonConcaveDir(int polygonnr) const;
+    Coord3		getPolygonNormal(int polygonnr) const;
+    Coord3		getPolygonConcaveDir(int polygonnr) const;
 
     void		getExceptionEdges(int plg,TypeSet<int>& edges) const;   
     void		getPolygonConcaveTriangles(int plg,TypeSet<int>&) const;

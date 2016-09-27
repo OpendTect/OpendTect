@@ -69,7 +69,7 @@ void ImageRect::setPick( const Pick::Location& loc )
     setCenterPos( loc.pos() );
     if ( loc.hasDir() )
     {
-	const osg::Quat rot( loc.dir().phi, osg::Vec3(0,0,1) );
+	const osg::Quat rot( loc.dir().phi_, osg::Vec3(0,0,1) );
 	texplane_->setRotation( rot );
     }
 }
@@ -79,15 +79,14 @@ void ImageRect::setCenterPos( const Coord3& pos )
 {
     Coord3 newpos;
     Transformation::transform( trans_, pos, newpos );
-    texplane_->setCenter( osg::Vec3(newpos.x, newpos.y, newpos.z) );
+    texplane_->setCenter( Conv::to<osg::Vec3>(newpos) );
 }
 
 
 void ImageRect::setCornerPos( const Coord3& tl, const Coord3& br )
 {
     const Coord3 diff = tl - br;
-    osg::Vec3 width( diff.x, diff.y, diff.z );
-    texplane_->setWidth( width );
+    texplane_->setWidth( Conv::to<osg::Vec3>( diff ) );
 }
 
 

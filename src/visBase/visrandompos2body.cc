@@ -74,14 +74,14 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	vtxshape_->getCoordinates()->setPos( idx, pts[idx] );
-	picks += Coord3(pts[idx].coord(), pts[idx].z*zscale);
+	picks += Coord3(pts[idx].getXY(), pts[idx].z_*zscale);
 
-	BinID bid = SI().transform( pts[idx] );
+	BinID bid = SI().transform( pts[idx].getXY() );
 	if ( idx==0 )
 	{
 	    inl = bid.inl();
 	    crl = bid.crl();
-	    z = pts[idx].z;
+	    z = pts[idx].z_;
 	}
 	else
 	{
@@ -91,7 +91,7 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 	    if ( oncrossline && crl!=bid.crl() )
 		oncrossline = false;
 
-	    if ( onzslice && !mIsEqual(z,pts[idx].z,zeps) )
+	    if ( onzslice && !mIsEqual(z,pts[idx].z_,zeps) )
 		onzslice = false;
 	}
     }
@@ -117,17 +117,17 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 	if ( onzslice )
 	{
 	    for ( int idx=0; idx<pts.size(); idx++ )
-		knots += pts[idx].coord();
+		knots += pts[idx].getXY();
 	}
 	else if ( oninline )
 	{
 	    for ( int idx=0; idx<pts.size(); idx++ )
-		knots += Coord(picks[idx].y,picks[idx].z);
+		knots += Coord(picks[idx].y_,picks[idx].z_);
 	}
 	else
 	{
 	    for ( int idx=0; idx<pts.size(); idx++ )
-		knots += Coord(picks[idx].x,picks[idx].z);
+		knots += Coord(picks[idx].x_,picks[idx].z_);
 	}
 
 	PolygonTriangulate( knots, result );

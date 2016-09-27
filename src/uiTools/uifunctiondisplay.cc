@@ -127,7 +127,8 @@ void uiFunctionDisplay::setTitle( const uiString& title )
     if ( !titleitem_ )
     {
 	titleitem_ = scene().addItem( new uiTextItem() );
-	titleitem_->setAlignment( OD::Alignment(OD::Alignment::HCenter,OD::Alignment::Top));
+	titleitem_->setAlignment(
+		OD::Alignment(OD::Alignment::HCenter,OD::Alignment::Top));
 	titleitem_->setPos( uiPoint(width()/2,0) );
 	titleitem_->setZValue( 2 );
     }
@@ -266,8 +267,8 @@ Geom::Point2D<float> uiFunctionDisplay::getXYFromPix(
     const uiAxisHandler* xaxis = xAxis();
     const uiAxisHandler* yaxis = yAxis( y2 );
     return Geom::Point2D<float>(
-		xaxis ? xaxis->getVal( pix.x ) : mUdf(float),
-		yaxis ? yaxis->getVal( pix.y ) : mUdf(float) );
+		xaxis ? xaxis->getVal( pix.x_ ) : mUdf(float),
+		yaxis ? yaxis->getVal( pix.y_ ) : mUdf(float) );
 }
 
 
@@ -378,14 +379,14 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 	const int ypix = yax->getPix( yval );
 	if ( xpixintv.includes(xpix,true) && ypixintv.includes(ypix,true) )
 	{
-	    pt.x = xpix;
-	    pt.y = ypix;
+	    pt.x_ = xpix;
+	    pt.y_ = ypix;
 	    ptlist += pt;
 	}
     }
 
     if ( setup_.closepolygon_ && fillbelow )
-	ptlist += uiPoint( pt.x, closept.y );
+	ptlist += uiPoint( pt.x_, closept.y_ );
 }
 
 
@@ -509,7 +510,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 	    curitmgrp->add( markeritem );
 	}
 	uiGraphicsItem* itm = curitmgrp->getUiItem(idx);
-	itm->setPos( mCast(float,ptlist[idx].x), mCast(float,ptlist[idx].y) );
+	itm->setPos( mCast(float,ptlist[idx].x_), mCast(float,ptlist[idx].y_) );
 	itm->setPenColor( mst.color_ );
     }
 
@@ -625,8 +626,8 @@ bool uiFunctionDisplay::setSelPt()
     const MouseEvent& ev = getMouseEventHandler().event();
 
     int newsel = -1; float mindistsq = 1e30;
-    const float xpix = xax_->getRelPos( xax_->getVal(ev.pos().x) );
-    const float ypix = yax_->getRelPos( yax_->getVal(ev.pos().y) );
+    const float xpix = xax_->getRelPos( xax_->getVal(ev.pos().x_) );
+    const float ypix = yax_->getRelPos( yax_->getVal(ev.pos().y_) );
     for ( int idx=0; idx<xvals_.size(); idx++ )
     {
 	const float x = xax_->getRelPos( xvals_[idx] );
@@ -693,8 +694,8 @@ void uiFunctionDisplay::mouseMove( CallBacker* )
     mGetMousePos();
     if ( !isnorm || selpt_<0 ) return;
 
-    float xval = xax_->getVal( ev.pos().x );
-    float yval = yax_->getVal( ev.pos().y );
+    float xval = xax_->getVal( ev.pos().x_ );
+    float yval = yax_->getVal( ev.pos().y_ );
 
     if ( selpt_>0 && xvals_[selpt_-1]>=xval )
         xval = xvals_[selpt_-1];
@@ -725,8 +726,8 @@ void uiFunctionDisplay::mouseDClick( CallBacker* )
 
 void uiFunctionDisplay::addPoint( const uiPoint& pt )
 {
-    float xval = xax_->getVal( pt.x );
-    float yval = yax_->getVal( pt.y );
+    float xval = xax_->getVal( pt.x_ );
+    float yval = yax_->getVal( pt.y_ );
 
     if ( xval > xax_->range().stop )
 	xval = xax_->range().stop;

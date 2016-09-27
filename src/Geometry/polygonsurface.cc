@@ -230,7 +230,8 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
     TypeSet<Coord3> knots;
     for ( int idx=0; idx<nrknots; idx++ )
     {
-	Coord3 pos = (*polygons_[polygonidx])[idx]; pos.z *= zscale;
+	Coord3 pos = (*polygons_[polygonidx])[idx];
+	pos.z_ *= zscale;
 	knots += pos;
     }
 
@@ -243,14 +244,14 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
     {
 	const Coord3 prvpos = knots[knot==0 ? nrknots-1 : knot-1];
 	const Coord3 nextpos = knots[knot==nrknots-1 ? 0 : knot+1];
-	curve.setTangentInfluence( (float) ((prvpos-nextpos).abs())/5.0f );
+	curve.setTangentInfluence( ((prvpos-nextpos).abs<float>())/5.0f );
 
 	for ( int nr=0; nr<beziernrpts_+1; nr++ )
 	{
 	    Coord3 pt = curve.computePosition(
 		    knot+nr*1.0f/(float)(beziernrpts_+1) );
 	    
-	    pt.z /= zscale;
+	    pt.z_ /= zscale;
 	    pts += pt;
 	}
     }
@@ -298,7 +299,7 @@ bool PolygonSurface::isKnotDefined( const RowCol& rc ) const
 }
 
 
-const Coord3& PolygonSurface::getPolygonNormal( int polygon ) const
+Coord3 PolygonSurface::getPolygonNormal( int polygon ) const
 {
     mGetValidPolygonIdx( polygonidx, polygon, 0, Coord3::udf() );
     if ( polygonidx < polygonnormals_.size() )
@@ -308,7 +309,7 @@ const Coord3& PolygonSurface::getPolygonNormal( int polygon ) const
 }
 
 
-const Coord3& PolygonSurface::getPolygonConcaveDir( int polygon ) const
+Coord3 PolygonSurface::getPolygonConcaveDir( int polygon ) const
 {
     mGetValidPolygonIdx( polygonidx, polygon, 0, Coord3::udf() );
     if ( polygonidx < concavedirs_.size() )

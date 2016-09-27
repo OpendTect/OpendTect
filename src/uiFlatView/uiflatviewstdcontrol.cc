@@ -516,7 +516,7 @@ void uiFlatViewStdControl::setViewToCustomZoomLevel( uiFlatViewer& vwr )
     uiWorldPoint wp(!ispoppedup? setup_.initialcentre_:vwr.curView().centre());
     if ( wp == uiWorldPoint::udf() ) wp = bb.centre();
 
-    const uiWorldRect wr( wp.x-hwdth, wp.y-hhght, wp.x+hwdth, wp.y+hhght );
+    const uiWorldRect wr( wp.x_-hwdth, wp.y_-hhght, wp.x_+hwdth, wp.y_+hhght );
     vwr.setBoundingRect( uiWorld2Ui(viewrect,wr).transform(bb) );
     vwr.setView( getZoomOrPanRect(wp,wr.size(),wr,bb) );
     updateZoomManager();

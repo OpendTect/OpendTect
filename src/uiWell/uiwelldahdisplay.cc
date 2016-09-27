@@ -220,8 +220,8 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
     }
     else if ( !zdata_.zistime_ && track() )
     {
-	startpos = (float) track()->getPos( startpos ).z;
-	stoppos = (float) track()->getPos( stoppos ).z;
+	startpos = (float) track()->getPos( startpos ).z_;
+	stoppos = (float) track()->getPos( stoppos ).z_;
     }
     ld.zrg_.start = startpos;
     ld.zrg_.stop = stoppos;
@@ -329,7 +329,8 @@ void uiWellDahDisplay::drawCurve( bool first )
 	    ptsforspikes.setCapacity( 3 * sz, false );
 	    for ( int idx=0; idx<pts.size(); idx++ )
 	    {
-		const uiPoint extrapt = uiPoint( ld.xax_.getPix(0),pts[idx].y );
+		const uiPoint extrapt =
+			uiPoint( ld.xax_.getPix(0), pts[idx].y_ );
 		ptsforspikes += extrapt;
 		ptsforspikes += pts[idx];
 		ptsforspikes += extrapt;

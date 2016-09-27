@@ -74,13 +74,13 @@ bool ArrowSubItem::init()
 	    Sphere dir = ploc.dir();
 	    if ( orientation[0] == '2' )
 	    {
-		dir.phi = (float) (-M_PI_2-dir.phi);
-		dir.theta = M_PI_2;
+		dir.phi_ = (float) (-M_PI_2-dir.phi_);
+		dir.theta_ = M_PI_2;
 	    }
 	    else
 	    {
-		dir.phi = (float) (M_PI_2-dir.phi);
-		dir.theta -= M_PI_2;
+		dir.phi_ = (float) (M_PI_2-dir.phi_);
+		dir.theta_ -= M_PI_2;
 	    }
 	    ploc.setDir( dir );
 	}

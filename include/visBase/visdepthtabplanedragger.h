@@ -20,7 +20,7 @@ namespace osgGeo { class TabPlaneDragger; }
 namespace osg { class Switch; }
 
 
-class Coord3;
+
 
 namespace visBase
 {

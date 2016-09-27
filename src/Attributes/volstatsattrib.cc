@@ -501,7 +501,7 @@ void VolStats::getStackPositions( TypeSet<BinID>& pos ) const
 
     //snap the ideal positions to existing BinIDs
     for ( int idx=0; idx<idealpos.size(); idx++ )
-	pos += BinID( mNINT32(idealpos[idx].x), mNINT32(idealpos[idx].y) );
+	pos += BinID( mNINT32(idealpos[idx].x_), mNINT32(idealpos[idx].y_) );
 }
 
 
@@ -566,22 +566,22 @@ void VolStats::getIdealStackPos(
 				       mCast(float,cpos.crl() + optstackstep_));
 
 	//keep 2 points that cross the 'stepout box'
-	pointa = inter1.x>cpos.inl()-optstackstep_
-		     && inter1.x<cpos.inl()+optstackstep_
-		     && inter1.y>cpos.crl()-optstackstep_
-		     && inter1.y<cpos.crl()+optstackstep_
+	pointa = inter1.x_>cpos.inl()-optstackstep_
+		     && inter1.x_<cpos.inl()+optstackstep_
+		     && inter1.y_>cpos.crl()-optstackstep_
+		     && inter1.y_<cpos.crl()+optstackstep_
 			? inter1 : inter3;
 
-	pointb = inter2.x>cpos.inl()-optstackstep_
-		     && inter2.x<cpos.inl()+optstackstep_
-		     && inter2.y>cpos.crl()-optstackstep_
-		     && inter2.y<cpos.crl()+optstackstep_
+	pointb = inter2.x_>cpos.inl()-optstackstep_
+		     && inter2.x_<cpos.inl()+optstackstep_
+		     && inter2.y_>cpos.crl()-optstackstep_
+		     && inter2.y_<cpos.crl()+optstackstep_
 			? inter2 : inter4;
     }
 
     //compute intermediate points, number determined by optstackstep_
-    const float incinl = (pointb.x - pointa.x) / (2*optstackstep_);
-    const float inccrl = (pointb.y - pointa.y) / (2*optstackstep_);
+    const float incinl = (pointb.x_ - pointa.x_) / (2*optstackstep_);
+    const float inccrl = (pointb.y_ - pointa.y_) / (2*optstackstep_);
     for ( int idx=1; idx<optstackstep_; idx++ )
     {
 	idealpos += Geom::Point2D<float>( cpos.inl()-incinl*idx,

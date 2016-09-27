@@ -152,11 +152,11 @@ double SelectionArea::minDisToBorder( uiPoint pt ) const
     if ( isrectangle_ )
     {
 	const int min_dist_vert_lines =
-	    (pt.x-rect_.left()) < (rect_.right()-pt.x) ? pt.x-rect_.left()
-						       : rect_.right()-pt.x;
+	    (pt.x_-rect_.left()) < (rect_.right()-pt.x_) ? pt.x_-rect_.left()
+						       : rect_.right()-pt.x_;
 	const int min_dist_hor_lines =
-	    (pt.y-rect_.top()) < (rect_.bottom()-pt.y) ? pt.y-rect_.top()
-						       : rect_.bottom()-pt.y;
+	    (pt.y_-rect_.top()) < (rect_.bottom()-pt.y_) ? pt.y_-rect_.top()
+						       : rect_.bottom()-pt.y_;
 	return min_dist_vert_lines > min_dist_hor_lines ? min_dist_hor_lines
 							: min_dist_vert_lines;
     }
@@ -169,8 +169,8 @@ bool SelectionArea::isInside( const uiPoint& pos ) const
 {
     if ( !isrectangle_ )
     {
-	if ( !poly_.getRange(true).includes(pos.x,true) ||
-	     !poly_.getRange(false).includes(pos.y,true) )
+	if ( !poly_.getRange(true).includes(pos.x_,true) ||
+	     !poly_.getRange(false).includes(pos.y_,true) )
 	    return false;
     }
 
@@ -283,10 +283,10 @@ void SelectionGrp::fillPar( IOPar& par ) const
 
 		if ( hasaltaxis )
 		    par.set( IOPar::compKey(polygonstr,positionstr),
-			     pts[posidx].x, pts[posidx].y, altpts[posidx].y );
+			     pts[posidx].x_, pts[posidx].y_, altpts[posidx].y_);
 		else
 		    par.set( IOPar::compKey(polygonstr,positionstr),
-			     pts[posidx].x, pts[posidx].y);
+			     pts[posidx].x_, pts[posidx].y_);
 	    }
 
 	}

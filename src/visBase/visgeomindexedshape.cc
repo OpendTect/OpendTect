@@ -375,8 +375,8 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,
 
 	mVisTrans::transform( toinlcrltrans, pos );
 
-	DataPointSet::Pos dpsetpos( BinID(mNINT32(pos.x),mNINT32(pos.y)), 
-	    (float) pos.z );
+	DataPointSet::Pos dpsetpos( BinID(mNINT32(pos.x_),mNINT32(pos.y_)),
+	    (float) pos.z_ );
 	DataPointSet::DataRow datarow( dpsetpos, 1 );
 	datarow.data_.setSize( set.nrCols(), mUdf(float) );
 	datarow.data_[col-set.nrFixedCols()] =  coordid;

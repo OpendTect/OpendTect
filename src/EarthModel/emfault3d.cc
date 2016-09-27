@@ -93,7 +93,7 @@ void Fault3D::apply( const Pos::Filter& pf )
 		  rc.col()-=colrg.step )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
-		if ( !pf.includes( (Coord) pos, (float) pos.z) )
+		if ( !pf.includes( pos.getXY(), (float) pos.z_ ) )
 		    fssg->removeKnot( rc );
 	    }
 	}
@@ -260,8 +260,8 @@ bool Fault3DGeometry::areEditPlanesMostlyCrossline() const
 	for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
 	{
 	    const Coord3& normal = fss->getEditPlaneNormal( sticknr );
-	    if ( fabs(normal.z) < 0.5 && mIsEqual(normal.x,crldir.x,mEps)
-				      && mIsEqual(normal.y,crldir.y,mEps) )
+	    if ( fabs(normal.z_) < 0.5 && mIsEqual(normal.x_,crldir.x_,mEps)
+				      && mIsEqual(normal.y_,crldir.y_,mEps) )
 		nrcrls++;
 	    else
 		nrnoncrls++;
@@ -339,7 +339,7 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 	    Coord3 editnormal( Coord3::udf() );
 	    par.get( editnormstr.buf(), editnormal );
 	    fss->addEditPlaneNormal( editnormal );
-	    if ( editnormal.isDefined() && fabs(editnormal.z)<0.5 )
+	    if ( editnormal.isDefined() && fabs(editnormal.z_)<0.5 )
 		fss->setSticksVertical( true );
 	}
     }
@@ -395,13 +395,14 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	crd.x = getDValue( 0 ); crd.y = getDValue( 1 );
-	if ( !isxy && !mIsUdf(crd.x) && !mIsUdf(crd.y) )
+	crd.x_ = getDValue( 0 );
+	crd.y_ = getDValue( 1 );
+	if ( !isxy && !mIsUdf(crd.x_) && !mIsUdf(crd.y_) )
 	{
-	    Coord wc( SI().transform(BinID(mNINT32(crd.x),mNINT32(crd.y))) );
-	    crd.x = wc.x; crd.y = wc.y;
+	    Coord wc( SI().transform(BinID(mNINT32(crd.x_),mNINT32(crd.y_))) );
+	    crd.x_ = wc.x_; crd.y_ = wc.y_;
 	}
-	crd.z = getDValue( 2 );
+	crd.z_ = getDValue( 2 );
 	if ( !crd.isDefined() ) continue;
 
 	const int stickidx = getIntValue( 3 );
@@ -426,18 +427,18 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	}
 	else
 	{
-	    const BinID curbid = SI().transform( crd );
+	    const BinID curbid = SI().transform( crd.getXY() );
 
 	    oninl = oninl && curbid.inl()==firstbid.inl();
 	    oncrl = oncrl && curbid.crl()==firstbid.crl();
-	    ontms = ontms && fabs(crd.z-firstz) < fabs(0.5*SI().zStep());
+	    ontms = ontms && fabs(crd.z_-firstz) < fabs(0.5*SI().zStep());
 
 	    if ( !oninl && !oncrl && !ontms )
 	    {
 		curstickidx++;
 		sticks += new FaultStick( stickidx );
 
-		firstbid = curbid; firstz = crd.z;
+		firstbid = curbid; firstz = crd.z_;
 		oninl = true; oncrl = true; ontms = true;
 	    }
 	}
@@ -507,17 +508,17 @@ Coord3	FaultStick::getNormal( bool is2d ) const
 
     for ( int idx=0; idx<crds_.size()-1; idx++ )
     {
-	const BinID bid0 = SI().transform( crds_[idx] );
+	const BinID bid0 = SI().transform( crds_[idx].getXY() );
 	for ( int idy=idx+1; idy<crds_.size(); idy++ )
 	{
-	    const BinID bid1 = SI().transform( crds_[idy] );
+	    const BinID bid1 = SI().transform( crds_[idy].getXY() );
 	    const int inldist = abs( bid0.inl()-bid1.inl() );
 	    if ( inldist < maxdist )
 		oninl += maxdist - inldist;
 	    const int crldist = abs( bid0.crl()-bid1.crl() );
 	    if ( crldist < maxdist )
 		oncrl += maxdist - crldist;
-	    const int zdist = mNINT32( fabs(crds_[idx].z-crds_[idy].z) /
+	    const int zdist = mNINT32( fabs(crds_[idx].z_-crds_[idy].z_) /
 			             fabs(SI().zStep()) );
 	    if ( zdist < maxdist )
 		ontms += maxdist - zdist;

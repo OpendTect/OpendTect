@@ -31,7 +31,7 @@ void BendPoints2Coords::readFrom( od_istream& strm )
 
     while ( strm.isOK() )
     {
-	strm >> nr >> crd.x >> crd.y;
+	strm >> nr >> crd.x_ >> crd.y_;
 	if ( strm.isBad() )
 	    break;
 
@@ -90,7 +90,7 @@ Coord BendPoints2Coords::coordAt( float pos ) const
     const Coord c0( coords_[idxs.start] ); const Coord c1( coords_[idxs.stop] );
     const float frac = (pos-nrs_[idxs.start])
 		     / (nrs_[idxs.stop]-nrs_[idxs.start]);
-    return Coord( c0.x + frac * (c1.x - c0.x), c0.y + frac * (c1.y - c0.y) );
+    return Coord( c0.x_ + frac*(c1.x_-c0.x_), c0.y_ + frac*(c1.y_-c0.y_) );
 }
 
 

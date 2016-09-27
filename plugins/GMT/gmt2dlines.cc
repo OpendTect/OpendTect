@@ -102,7 +102,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	for ( int tdx=0; tdx<posns.size(); tdx++ )
 	{
 	    Coord pos = posns[tdx].coord_;
-	    procstrm << pos.x << " " << pos.y << "\n";
+	    procstrm << pos.x_ << " " << pos.y_ << "\n";
 	}
     }
 
@@ -134,7 +134,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	const int nrtrcs = posns.size();
 	Coord pos = posns[0].coord_;
 	Coord cvec = posns[1].coord_ - posns[0].coord_;
-	float angle = mCast(float, Math::Atan2( cvec.y, cvec.x ) );
+	float angle = mCast(float, Math::Atan2( cvec.y_, cvec.x_ ) );
 	float dy = sin( angle );
 	float dx = cos( angle );
 	angle = Math::toDegrees( angle );
@@ -148,7 +148,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	if ( poststart )
 	{
 	    pos -= Coord( distfactor*dx, distfactor*dy );
-	    procstrm << pos.x << " " << pos.y << " " << sz << " " ;
+	    procstrm << pos.x_ << " " << pos.y_ << " " << sz << " " ;
 	    procstrm << rotangle << " " << 4;
 	    procstrm << " " << al.buf() << geom2d->getName() << "\n";
 	}
@@ -159,14 +159,14 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	{
 	    pos = posns[nrtrcs-1].coord_;
 	    cvec = posns[nrtrcs-2].coord_ - pos;
-	    angle = mCast(float, Math::Atan2( cvec.y, cvec.x ) );
+	    angle = mCast(float, Math::Atan2( cvec.y_, cvec.x_ ) );
 	    dy = sin( angle );
 	    dx = cos( angle );
 	    angle = Math::toDegrees( angle );
 	    rotangle = fabs(angle) > 90 ? 180+angle : angle;
 	    pos -= Coord( distfactor*dx, distfactor*dy );
 	    al = fabs(angle) > 90 ? "ML " : "MR ";
-	    procstrm << pos.x << " " << pos.y << " " << sz << " " ;
+	    procstrm << pos.x_ << " " << pos.y_ << " " << sz << " " ;
 	    procstrm << rotangle << " " << 4;
 	    procstrm << " " << al.buf() << geom2d->getName() << "\n";
 	}
@@ -185,11 +185,11 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 		{
 		    cvec = posns[tdx+5].coord_ - posns[tdx-5].coord_;
 		    angle = mCast( float,
-			   Math::toDegrees( Math::Atan2( cvec.y, cvec.x ) ) );
+			   Math::toDegrees( Math::Atan2( cvec.y_, cvec.x_ ) ) );
 		    perpangle = angle > 0 ? angle - 90 : angle + 90;
 		}
 
-		procstrm << posc.x << " " << posc.y << " " << sz << " " ;
+		procstrm << posc.x_ << " " << posc.y_ << " " << sz << " " ;
 		procstrm << perpangle << " " << 4;
 		procstrm << " " << "ML " << lbl.buf() << "\n";
 	    }
@@ -279,7 +279,7 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 	for ( int tdx=0; tdx<rdl->nrNodes(); tdx++ )
 	{
 	    Coord posc = SI().transform( rdl->nodePosition(tdx) );
-	    procstrm << posc.x << " " << posc.y << "\n";
+	    procstrm << posc.x_ << " " << posc.y_ << "\n";
 	}
     }
 
@@ -307,7 +307,7 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 
 	Coord posc = SI().transform( rdl->nodePosition(0) );
 	Coord cvec = SI().transform( rdl->nodePosition(1) ) - posc;
-	float angle = mCast(float, Math::Atan2( cvec.y, cvec.x ) );
+	float angle = mCast(float, Math::Atan2( cvec.y_, cvec.x_ ) );
 	const float dy = cos( angle );
 	const float dx = sin( angle );
 	angle = Math::toDegrees( angle );
@@ -316,7 +316,7 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
 	BufferString al = fabs(angle) > 90 ? "BR " : "BL ";
 	const float distfactor = xrg.width() / 100;
 	posc += Coord( -distfactor*dx, distfactor*dy );
-	procstrm << posc.x << " " << posc.y << " " << sz << " " ;
+	procstrm << posc.x_ << " " << posc.y_ << " " << sz << " " ;
 	procstrm << rotangle << " " << 4;
 	procstrm << " " << al.buf() << rdl->name() << "\n";
     }

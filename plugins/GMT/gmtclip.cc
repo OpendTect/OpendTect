@@ -98,7 +98,7 @@ bool GMTClip::execute( od_ostream& strm, const char* fnm )
     while ( psiter.next() )
     {
 	const Coord pos = psiter.getPos();
-	procstrm << pos.x << " " << pos.y << "\n";
+	procstrm << pos.x_ << " " << pos.y_ << "\n";
     }
 
     strm << "Done" << od_endl;

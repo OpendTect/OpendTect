@@ -71,7 +71,8 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	if ( !pl.hasPos() )
 	    continue;
 
-	pts += pl.pos(); zvals += (float) pl.z();
+	pts += pl.pos().getXY();
+	zvals += (float) pl.z();
 	const BinID& bid = pl.binID();
 	poly.add( mPolyLoc(bid) );
 	if ( psiter.atFirst() )
@@ -107,12 +108,12 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	for ( int isect=0; isect<nrsect; isect++ )
 	{
 	    const EM::SectionID sid = hor_->sectionID( isect );
-	    float horz = (float) hor_->getPos( sid, subid ).z;
+	    float horz = (float) hor_->getPos( sid, subid ).z_;
 	    if ( mIsUdf(horz) && bid.inl()!=hs.stop_.inl() &&
 		 bid.crl()!=hs.stop_.crl() )
 	    { //The very last edges should exclude.
 		horz = (float) hor_->geometry().sectionGeometry(sid)
-		    ->computePosition( pos ).z;
+		    ->computePosition( pos ).z_;
 	    }
 
 	    if ( mIsUdf(horz) )

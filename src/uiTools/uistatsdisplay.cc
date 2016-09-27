@@ -299,9 +299,9 @@ void uiStatsDisplayWin::mouseMoveCB( CallBacker* cb )
     if ( !disp ) return;
 
     const Geom::Point2D<int>& pos = disp->getMouseEventHandler().event().pos();
-    Geom::Point2D<float> val = disp->getFuncXY( pos.x, false );
-    uiString str = tr("Values/Count: %1/%2").arg(toUiString(val.x,4)).
-		   arg(toUiString(val.y,0)); 
+    Geom::Point2D<float> val = disp->getFuncXY( pos.x_, false );
+    uiString str = tr("Values/Count: %1/%2").arg(toUiString(val.x_,4)).
+		   arg(toUiString(val.y_,0));
     toStatusBar( str );
 }
 

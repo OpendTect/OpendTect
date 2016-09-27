@@ -517,14 +517,14 @@ void uiODSceneMgr::updateStatusBar()
     uiString msg;
     if ( haspos  )
     {
-    const BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
+    const BinID bid( SI().transform( xytpos.getXY() ) );
     const float zfact = mCast(float,visServ().zFactor());
-    float zval = (float) (zfact * xytpos.z);
+    float zval = (float) (zfact * xytpos.z_);
     if ( zfact>100 || zval>10 ) zval = mCast( float, mNINT32(zval) );
     msg = toUiString("%1    (%2, %3, %4)")
 	.arg( bid.toString() )
-	.arg( mNINT32(xytpos.x) )
-	.arg( mNINT32(xytpos.y) )
+	.arg( mNINT32(xytpos.x_) )
+	.arg( mNINT32(xytpos.y_) )
 	.arg( zval );
     }
 

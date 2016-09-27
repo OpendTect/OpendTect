@@ -186,7 +186,7 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
     else if ( ev->button() == Qt::LeftButton )
     {
 	uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
-	startpos_ = uiPoint( viewpt.x, viewpt.y );
+	startpos_ = uiPoint( viewpt.x_, viewpt.y_ );
 	buttonstate_ = OD::LeftButton;
 	MouseEvent me( buttonstate_, ev->x(), ev->y() );
 	mousehandler_.triggerButtonPressed( me );
@@ -194,7 +194,7 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
     else if ( ev->button() == Qt::MiddleButton )
     {
 	uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
-	startpos_ = uiPoint( viewpt.x, viewpt.y );
+	startpos_ = uiPoint( viewpt.x_, viewpt.y_ );
 	buttonstate_ = OD::MidButton;
 	MouseEvent me( buttonstate_, ev->x(), ev->y() );
 	mousehandler_.triggerButtonPressed( me );
@@ -238,7 +238,7 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* ev )
 	if ( handle_.isRubberBandingOn() )
 	{
 	    uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
-	    uiPoint stoppos( viewpt.x, viewpt.y );
+	    uiPoint stoppos( viewpt.x_, viewpt.y_ );
 	    uiRect selrect( startpos_, stoppos );
 	    handle_.scene().setSelectionArea( selrect );
 	}
@@ -574,7 +574,7 @@ int uiGraphicsViewBase::height() const
 
 
 void uiGraphicsViewBase::centreOn( uiPoint centre )
-{ body_->centerOn( centre.x, centre.y ); }
+{ body_->centerOn( centre.x_, centre.y_ ); }
 
 
 void uiGraphicsViewBase::setScrollBarPolicy( bool hor, ScrollBarPolicy sbp )
@@ -742,7 +742,7 @@ uiSize uiGraphicsViewBase::scrollBarSize( bool hor ) const
 const uiPoint uiGraphicsViewBase::mapFromScene(
 					const Geom::Point2D<float>& pt ) const
 {
-    QPoint qp = body_->mapFromScene( pt.x, pt.y );
+    QPoint qp = body_->mapFromScene( pt.x_, pt.y_ );
     return uiPoint( qp.x(), qp.y() );
 
 }
@@ -751,7 +751,7 @@ const uiPoint uiGraphicsViewBase::mapFromScene(
 const Geom::Point2D<float> uiGraphicsViewBase::mapToScene(
 						    const uiPoint& pt ) const
 {
-    QPointF qp = body_->mapToScene( pt.x, pt.y );
+    QPointF qp = body_->mapToScene( pt.x_, pt.y_ );
     return Geom::Point2D<float>( qp.x(), qp.y() );
 
 }

@@ -212,7 +212,7 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
     while ( psiter.next() )
     {
 	const Coord pos = psiter.getPos();
-	procstrm << pos.x << " " << pos.y << "\n";
+	procstrm << pos.x_ << " " << pos.y_ << "\n";
     }
     psiter.retire();
 
@@ -313,7 +313,7 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     while ( psiter.next() )
     {
 	const Coord pos = psiter.getPos();
-	procstrm << pos.x << " " << pos.y << "\n";
+	procstrm << pos.x_ << " " << pos.y_ << "\n";
     }
     psiter.retire();
 
@@ -444,7 +444,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
 	    mErrStrmRet(BufferString("Cannot get location for ",ioobj->name()))
 
 	surfcoords += maploc;
-	procstrm << maploc.x << " " << maploc.y << " " << sz << "\n";
+	procstrm << maploc.x_ << " " << maploc.y_ << " " << sz << "\n";
     }
 
     bool postlabel = false;
@@ -481,7 +481,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
 	Coord pos = surfcoords[idx];
-	procstrm << pos.x << " " << pos.y << " " << fontsz << " " << 0 << " ";
+	procstrm << pos.x_ << " " << pos.y_ << " " << fontsz << " " << 0 << " ";
 	procstrm << 4 << " " << alstr << " " << wellnms.get(idx) << "\n";
     }
 

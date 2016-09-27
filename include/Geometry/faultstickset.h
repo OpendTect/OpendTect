@@ -51,7 +51,7 @@ public:
     Coord3		getKnot(const RowCol&) const;
     bool		isKnotDefined(const RowCol&) const;
 
-    const Coord3&	getEditPlaneNormal(int sticknr) const;
+    Coord3		getEditPlaneNormal(int sticknr) const;
     enum ChangeTag	{ StickChange=__mUndefIntVal+1, StickInsert,
 			  StickRemove, StickHide };
     

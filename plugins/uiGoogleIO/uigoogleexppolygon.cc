@@ -52,7 +52,7 @@ bool uiGoogleExportPolygon::acceptOK()
     while ( psiter.next() )
 	coords += psiter.getPos();
     if ( ps_.isPolygon() )
-	coords += ps_.first().pos();
+	coords += ps_.first().pos().getXY();
     psiter.retire();
 
     const float reqwdth = lsfld_->getWidth() * 0.1f;

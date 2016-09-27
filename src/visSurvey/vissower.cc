@@ -241,7 +241,7 @@ bool Sower::isInWorkRange( const visBase::EventInfo& eventinfo ) const
     if ( !workrange_ || !workrange_->isDefined() )
 	return false;
 
-    const BinID eventbid = SI().transform( eventinfo.worldpickedpos );
+    const BinID eventbid = SI().transform( eventinfo.worldpickedpos.getXY() );
     return workrange_->includes(eventbid);
 }
 
@@ -263,7 +263,7 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
 	return;
 
     Coord3& lastworldpos = eventlist_[eventlist_.size()-1]->worldpickedpos;
-    const BinID lastbid = SI().transform( lastworldpos );
+    const BinID lastbid = SI().transform( lastworldpos.getXY() );
     const BinID start = workrange_->start_;
     const BinID stop = workrange_->stop_;
 
@@ -274,8 +274,8 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
     if ( min2 > 100*step*step )
 	return;
 
-    lastworldpos.coord() = lastbid.sqDistTo(start) < lastbid.sqDistTo(stop) ?
-			   SI().transform(start) : SI().transform(stop);
+    lastworldpos.setXY( lastbid.sqDistTo(start) < lastbid.sqDistTo(stop) ?
+		       SI().transform(start) : SI().transform(stop) );
 
     Scene* scene = STM().currentScene();
     if ( transformation_ && scene )
@@ -342,7 +342,8 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 
 	if ( !sz )
 	    singleseeded_ = true;
-	else if ( eventinfo.mousepos.distTo(eventlist_[0]->mousepos) > 5 )
+	else if (
+		eventinfo.mousepos.distTo<float>(eventlist_[0]->mousepos) > 5 )
 	{
 	    singleseeded_ = false;
 	    sowingline_->dirtyCoordinates();

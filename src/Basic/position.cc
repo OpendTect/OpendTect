@@ -24,7 +24,7 @@
 #define mUdfIdx mUdf(IdxPair::IdxType)
 static const IdxPair udfidxpair( mUdfIdx, mUdfIdx );
 static const Pos::IdxPair udfposidxpair( mUdfIdx, mUdfIdx );
-#define mUdfOrd mUdf(Coord::OrdType)
+#define mUdfOrd mUdf(Pos::Ordinate_Type)
 static const Coord udfcoord( mUdfOrd, mUdfOrd );
 static const Coord3 udfcoord3( mUdfOrd, mUdfOrd, mUdfOrd );
 
@@ -88,7 +88,7 @@ bool IdxPair::parseUsrStr( const char* str, const char* prefx,
 
 const Pos::IdxPair& Pos::IdxPair::udf()
 {
-   return udfposidxpair;
+    return udfposidxpair;
 }
 
 
@@ -127,188 +127,6 @@ BinIDValue::BinIDValue( const BinIDValues& bvs, int nr )
 {
     set( bvs, nr );
 }
-
-
-Coord::DistType Coord::sqHorDistTo( const Coord& oth ) const
-{
-    const DistType dx = x-oth.x, dy = y-oth.y;
-    return dx*dx + dy*dy;
-}
-
-
-Coord::DistType Coord::horDistTo( const Coord& oth ) const
-{
-    return Math::Sqrt( sqHorDistTo(oth) );
-}
-
-
-Coord Coord::normalize() const
-{
-    const DistType sqabsval = sqAbs();
-    if ( sqabsval < 1e-16 )
-	return *this;
-
-    return *this / Math::Sqrt(sqabsval);
-}
-
-
-const Coord& Coord::udf()
-{
-   return udfcoord;
-}
-
-
-Coord::DistType Coord::cosAngle( const Coord& from, const Coord& to ) const
-{
-    DistType rsq = sqDistTo( from );
-    DistType lsq = sqDistTo( to );
-    if ( !rsq || !lsq ) return 1;
-
-    DistType osq = from.sqDistTo( to );
-    return (rsq +  lsq - osq) / (2 * Math::Sqrt(rsq) * Math::Sqrt(lsq));
-}
-
-
-#include <iostream>
-
-
-Coord::DistType Coord::angle( const Coord& from, const Coord& to ) const
-{
-    const DistType cosang = cosAngle( from, to );
-    if ( cosang >=  1 ) return 0;
-    if ( cosang <= -1 ) return M_PI;
-
-    const Coord vec1 = from - *this;
-    const Coord vec2 =  to  - *this;
-    const DistType det = vec1.x * vec2.y - vec1.y * vec2.x;
-
-    const DistType ang = Math::ACos( cosang );
-    return det<0 ? 2*M_PI - ang : ang;
-}
-
-
-const char* Coord::toString() const
-{
-    mDeclStaticString( ret );
-    if ( isUdf() )
-	ret.set( "<undef>" );
-    else
-	ret.set( "(" ).add( x ).add( "," ).add( y ).add( ")" );
-    return ret.buf();
-}
-
-
-const char* Coord::toPrettyString( int nrdec ) const
-{
-    mDeclStaticString( ret );
-    if ( isUdf() )
-	ret.set( "<undef>" );
-    else
-    {
-	BufferString xstr = ::toString( x, nrdec );
-	BufferString ystr = ::toString( y, nrdec );
-	ret.set( "(" ).add( xstr ).add( "," ).add( ystr ).add( ")" );
-    }
-    return ret.buf();
-}
-
-
-bool Coord::fromString( const char* s )
-{
-    if ( !s || !*s ) return false;
-    if ( *s == '<' )
-	{ *this = udf(); return true; }
-
-    BufferString str( s );
-    char* ptrx = str.getCStr(); mSkipBlanks( ptrx );
-    if ( *ptrx == '(' ) ptrx++;
-    char* ptry = firstOcc( ptrx, ',' );
-    if ( !ptry ) return false;
-    *ptry++ = '\0';
-    if ( !*ptry ) return false;
-    char* ptrend = firstOcc( ptry, ')' );
-    if ( ptrend ) *ptrend = '\0';
-
-    x = toDouble( ptrx );
-    y = toDouble( ptry );
-    return true;
-}
-
-
-Coord::DistType Coord3::abs() const
-{
-    return Math::Sqrt( x*x + y*y + z*z );
-}
-
-
-Coord::DistType Coord3::sqAbs() const { return x*x + y*y + z*z; }
-
-
-const char* Coord3::toString() const
-{
-    mDeclStaticString( ret );
-    if ( isUdf() )
-	ret.set( "<undef>" );
-    else
-	ret.set("(").add(x).add(",").add(y).add(",").add(z).add(")");
-    return ret.buf();
-}
-
-
-bool Coord3::fromString( const char* str )
-{
-    FixedString fs( str );
-    if ( fs.isEmpty() ) return false;
-
-    const char* endptr = str + fs.size();
-
-    while ( !iswdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
-	str++;
-
-    char* numendptr;
-    x = strtod( str, &numendptr );
-    if ( str==numendptr ) return false;
-
-    str = numendptr;
-    while ( !iswdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
-	str++;
-    y = strtod( str, &numendptr );
-    if ( str==numendptr ) return false;
-
-    str = numendptr;
-    while ( !iswdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
-	str++;
-    z = strtod( str, &numendptr );
-    if ( str==numendptr ) return false;
-
-    return true;
-}
-
-
-Coord::DistType Coord3::distTo( const Coord3& b ) const
-{
-    return Math::Sqrt( Coord3::sqDistTo( b ) );
-}
-
-
-Coord::DistType Coord3::sqDistTo( const Coord3& b ) const
-{
-    const DistType dx = x-b.x, dy = y-b.y, dz = z-b.z;
-    return dx*dx + dy*dy + dz*dz;
-}
-
-
-bool Coord3::isSameAs( const Coord3& pos, const Coord3& eps ) const
-{
-    return fabs(x-pos.x)<eps.x && fabs(y-pos.y)<eps.y && fabs(z-pos.z)<eps.z;
-}
-
-
-const Coord3& Coord3::udf()
-{
-   return udfcoord3;
-}
-
 
 TrcKey::TrcKey( TrcKey::SurvID id, const BinID& bid )
     : survid_( id )
@@ -386,11 +204,11 @@ TrcKey::SurvID TrcKey::cUndefSurvID()
 }
 
 
-double TrcKey::distTo( const TrcKey& trckey ) const
+float TrcKey::distTo( const TrcKey& trckey ) const
 {
     const Coord from = Survey::GM().toCoord( *this );
     const Coord to = Survey::GM().toCoord( trckey );
-    return from.isUdf() || to.isUdf() ? mUdf(double) : from.distTo(to);
+    return from.isUdf() || to.isUdf() ? mUdf(float) : from.distTo<float>(to);
 }
 
 
@@ -493,14 +311,14 @@ bool Pos::IdxPair2Coord::set3Pts( const Coord& c0, const Coord& c1,
 
     DirTransform nxtr, nytr;
     od_int32 cold = ip0.crl() - crl2;
-    nxtr.c = ( c0.x - c2.x ) / cold;
-    nytr.c = ( c0.y - c2.y ) / cold;
+    nxtr.c = ( c0.x_ - c2.x_ ) / cold;
+    nytr.c = ( c0.y_ - c2.y_ ) / cold;
     const od_int32 rowd = ip0.inl() - ip1.inl();
     cold = ip0.crl() - ip1.crl();
-    nxtr.b = ( c0.x - c1.x ) / rowd - ( nxtr.c * cold / rowd );
-    nytr.b = ( c0.y - c1.y ) / rowd - ( nytr.c * cold / rowd );
-    nxtr.a = c0.x - nxtr.b * ip0.inl() - nxtr.c * ip0.crl();
-    nytr.a = c0.y - nytr.b * ip0.inl() - nytr.c * ip0.crl();
+    nxtr.b = ( c0.x_ - c1.x_ ) / rowd - ( nxtr.c * cold / rowd );
+    nytr.b = ( c0.y_ - c1.y_ ) / rowd - ( nytr.c * cold / rowd );
+    nxtr.a = c0.x_ - nxtr.b * ip0.inl() - nxtr.c * ip0.crl();
+    nytr.a = c0.y_ - nytr.b * ip0.inl() - nytr.c * ip0.crl();
 
     if ( mIsZero(nxtr.a,mDefEps) ) nxtr.a = 0;
     if ( mIsZero(nxtr.b,mDefEps) ) nxtr.b = 0;
@@ -527,31 +345,31 @@ Coord Pos::IdxPair2Coord::transform( const Pos::IdxPair& ip ) const
 
 Pos::IdxPair Pos::IdxPair2Coord::transformBack( const Coord& coord ) const
 {
-    if ( mIsUdf(coord.x) || mIsUdf(coord.y) )
+    if ( mIsUdf(coord.x_) || mIsUdf(coord.y_) )
 	return Pos::IdxPair::udf();
     const Coord fip = transformBackNoSnap( coord );
-    if ( mIsUdf(fip.x) || mIsUdf(fip.y) )
+    if ( mIsUdf(fip.x_) || mIsUdf(fip.y_) )
 	return Pos::IdxPair::udf();
 
-    return IdxPair( mRounded(IdxType,fip.x), mRounded(IdxType,fip.y) );
+    return IdxPair( mRounded(IdxType,fip.x_), mRounded(IdxType,fip.y_) );
 }
 
 
 Pos::IdxPair Pos::IdxPair2Coord::transformBack( const Coord& coord,
 			const IdxPair& start, const IdxPairStep& step ) const
 {
-    if ( mIsUdf(coord.x) || mIsUdf(coord.y) )
+    if ( mIsUdf(coord.x_) || mIsUdf(coord.y_) )
 	return Pos::IdxPair::udf();
     const Coord fip = transformBackNoSnap( coord );
-    if ( mIsUdf(fip.x) || mIsUdf(fip.y) )
+    if ( mIsUdf(fip.x_) || mIsUdf(fip.y_) )
 	return Pos::IdxPair::udf();
 
-    Coord frelip( fip.x - start.first, fip.y - start.second );
+    Coord frelip( fip.x_ - start.first, fip.y_ - start.second );
     if ( step.first && step.second )
-	{ frelip.x /= step.first; frelip.y /= step.second; }
+	{ frelip.x_ /= step.first; frelip.y_ /= step.second; }
 
-    const IdxPair relip( mRounded(IdxType,frelip.x),
-			 mRounded(IdxType,frelip.y) );
+    const IdxPair relip( mRounded(IdxType,frelip.x_),
+			 mRounded(IdxType,frelip.y_) );
     return IdxPair( start.first + relip.first * step.first,
 		    start.second + relip.second * step.second );
 }
@@ -559,21 +377,21 @@ Pos::IdxPair Pos::IdxPair2Coord::transformBack( const Coord& coord,
 
 Coord Pos::IdxPair2Coord::transformBackNoSnap( const Coord& coord ) const
 {
-    if ( mIsUdf(coord.x) || mIsUdf(coord.y) )
+    if ( mIsUdf(coord.x_) || mIsUdf(coord.y_) )
 	return Coord::udf();
 
     double det = xtr.det( ytr );
     if ( mIsZero(det,mDefEps) )
 	return Coord::udf();
 
-    const double x = coord.x - xtr.a;
-    const double y = coord.y - ytr.a;
+    const double x = coord.x_ - xtr.a;
+    const double y = coord.y_ - ytr.a;
     return Coord( (x*ytr.c - y*xtr.c) / det, (y*xtr.b - x*ytr.b) / det );
 }
 
 
 Coord Pos::IdxPair2Coord::transform( const Coord& ip_coord ) const
 {
-    return Coord( xtr.a + xtr.b*ip_coord.x + xtr.c*ip_coord.y,
-		  ytr.a + ytr.b*ip_coord.x + ytr.c*ip_coord.y );
+    return Coord( xtr.a + xtr.b*ip_coord.x_ + xtr.c*ip_coord.y_,
+		  ytr.a + ytr.b*ip_coord.x_ + ytr.c*ip_coord.y_ );
 }

@@ -95,7 +95,7 @@ void uiColorTableCanvas::setRGB()
 bool uiColorTableCanvas::handleLongTabletPress()
 {
     const Geom::Point2D<int> pos = TabletInfo::currentState()->globalpos_;
-    MouseEvent me( OD::RightButton, pos.x, pos.y );
+    MouseEvent me( OD::RightButton, pos.x_, pos.y_ );
     const int refnr = beginCmdRecEvent( "rightButtonPressed" );
     getMouseEventHandler().triggerButtonPressed( me );
     endCmdRecEvent( refnr, "rightButtonPressed" );

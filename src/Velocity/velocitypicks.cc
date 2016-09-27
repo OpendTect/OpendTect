@@ -303,7 +303,7 @@ RowCol Picks::set( const BinID& pickbid, const Pick& velpick,
 	if ( hor )
 	{
 	    pick.depth_ = (float) hor->getPos( hor->sectionID(0),
-				       pickbid.toInt64() ).z;
+				       pickbid.toInt64() ).z_;
 	}
 	else if ( mIsUdf( pick.depth_ ) )
 	    return RowCol(-1,-1);
@@ -573,7 +573,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
 	BinID bid;
 	picks_.getPos( rcs[idx], bid );
 	const float depth =
-	    (float) hor->getPos( hor->sectionID(0), bid.toInt64() ).z;
+	    (float) hor->getPos( hor->sectionID(0), bid.toInt64() ).z_;
 
 	if ( mIsUdf(depth) )
 	    continue;
@@ -739,7 +739,7 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 
 	float* vals = res.getVals( pos );
 	vals[0] =
-	    (float)horizon->getPos( horizon->sectionID(0), bid.toInt64() ).z;
+	    (float)horizon->getPos( horizon->sectionID(0), bid.toInt64() ).z_;
 
 	float weightsum = 0;
 	float weightvalsum = 0;
@@ -804,11 +804,11 @@ bool Picks::load( const IOObj* ioobj )
 	if ( !ploc.hasPos() || !ploc.hasDir() )
 	    continue;
 
-	const BinID bid = SI().transform( ploc.pos() );
-	const float z = mCast(float,ploc.pos().z);
+	const BinID bid = SI().transform( ploc.pos().getXY() );
+	const float z = mCast(float,ploc.pos().z_);
 	const Sphere& dir = ploc.dir();
-	Pick pick = version==1	? Pick( z, dir.radius, refoffset_, -1 )
-				: Pick( z, dir.radius, dir.theta-1 );
+	Pick pick = version==1	? Pick( z, dir.radius_, refoffset_, -1 )
+				: Pick( z, dir.radius_, dir.theta_-1 );
 
 	if ( ploc.hasText() )
 	{

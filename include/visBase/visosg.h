@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "visbasemod.h"
 
-class Coord3;
 
 namespace osg { class Vec3f; class Array; class Referenced; }
 
@@ -51,27 +50,27 @@ namespace Conv
 {
     template <>
     inline void set( Coord3& _to, const osg::Vec3f& v )
-    { _to.x = v[0]; _to.y=v[1]; _to.z=v[2]; }
+    { _to.x_ = v[0]; _to.y_=v[1]; _to.z_=v[2]; }
 
     template <>
     inline void set( osg::Vec3f& _to, const Coord3& v )
-    { _to.set( (float) v.x, (float) v.y, (float) v.z ); }
+    { _to.set( (float) v.x_, (float) v.y_, (float) v.z_ ); }
 
     template <>
     inline void set( Coord& _to, const osg::Vec2f& v )
-    { _to.x = v[0]; _to.y=v[1]; }
+    { _to.x_ = v[0]; _to.y_=v[1]; }
 
     template <>
     inline void set( osg::Vec2f& _to, const Coord& v )
-    { _to.set( (float) v.x, (float) v.y ); }
+    { _to.set( (float) v.x_, (float) v.y_ ); }
 
     template <>
     inline void set( Coord3& _to, const osg::Vec3d& v )
-    { _to.x = v[0]; _to.y=v[1]; _to.z=v[2]; }
+    { _to.x_ = v[0]; _to.y_=v[1]; _to.z_=v[2]; }
 
     template <>
     inline void set( osg::Vec3d& _to, const Coord3& v )
-    { _to.set(  v.x, v.y, v.z ); }
+    { _to.set(	v.x_, v.y_, v.z_ ); }
 
 #define mIsOsgVec3Def( pos ) \
 ( pos[0]<mUdf(float) && pos[1]<mUdf(float) && pos[2]<mUdf(float) )

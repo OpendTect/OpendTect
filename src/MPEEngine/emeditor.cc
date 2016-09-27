@@ -150,11 +150,11 @@ bool ObjectEditor::canSnapAfterEdit(const EM::PosID& pid) const
     for ( int idx=0; idx<nodes.size(); idx++ )
     {
 	const Coord3 pos = emobject_->getPos(nodes[idx]);
-	const BinID bid = SI().transform(pos);
+	const BinID bid = SI().transform(pos.getXY());
 
 	if ( !trackvolume.hsamp_.includes( bid ) )
 	    return false;
-	if ( !trackvolume.zsamp_.includes( pos.z,false ) )
+	if ( !trackvolume.zsamp_.includes( pos.z_,false ) )
 	    return false;
     }
 

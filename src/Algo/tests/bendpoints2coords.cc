@@ -33,7 +33,7 @@ static bool testCoordList2D()
     clist.add( Coord(100,100) );
     clist.add( Coord(200,300) );
     const Coord center( clist.center() );
-    return mIsZero(center.x-150,0.01) && mIsZero(center.y-200,0.01);
+    return mIsZero(center.x_-150,0.01) && mIsZero(center.y_-200,0.01);
 }
 
 static bool testCoordList3D()
@@ -42,8 +42,8 @@ static bool testCoordList3D()
     clist.add( Coord3(100,100,500) );
     clist.add( Coord3(200,300,700) );
     const Coord3 center( clist.center() );
-    return mIsZero(center.x-150,0.01) && mIsZero(center.y-200,0.01)
-	&& mIsZero(center.z-600,0.01);
+    return mIsZero(center.x_-150,0.01) && mIsZero(center.y_-200,0.01)
+	&& mIsZero(center.z_-600,0.01);
 }
 
 

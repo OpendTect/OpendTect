@@ -68,9 +68,9 @@ int TabletInfo::postPressTime() const
 
 float TabletInfo::postPressDist() const
 {
-    return ( float )( globalpresspos_.isDefined() 
-				 	? globalpresspos_.distTo(globalpos_)
-				 	: mUdf(float) );
+    return globalpresspos_.isDefined()
+	? globalpresspos_.distTo<float>(globalpos_)
+	: mUdf(float);
 }
 
 

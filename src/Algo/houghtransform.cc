@@ -200,7 +200,7 @@ Plane3 PlaneFrom3DSpaceHoughTransform::getPlane( int planenr ) const
     Coord3 normal = (*normals_)[pos[0]];
     const float dist = (float) ( pos[1] * deltadist_ );
 
-    return Plane3( normal, Coord3(normal.x*dist,normal.y*dist,normal.z*dist),
+    return Plane3( normal, Coord3(normal.x_*dist,normal.y_*dist,normal.z_*dist),
 		   false );
 }
 

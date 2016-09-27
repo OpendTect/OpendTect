@@ -48,7 +48,7 @@ MarkerSet::MarkerSet()
     setMinimumScale( 1.0f );
 
     const Coord worksize = SI().maxCoord(true) - SI().minCoord(true);
-    const float maxscale = mMAX( worksize.x, worksize.y ) / 1e3f;
+    const float maxscale = mMAX( worksize.x_, worksize.y_ ) / 1e3f;
     setMaximumScale( maxscale );
 
     setAutoRotateMode( NO_ROTATION );
@@ -231,7 +231,7 @@ void MarkerSet::setSingleMarkerRotation( const Quaternion& rot, int idx )
     float angle = 0;
     rot.getRotation( axis, angle );
     const osg::Quat osgquat( angle,
-			    osg::Vec3(axis.x,axis.y,axis.z) );
+			    osg::Vec3(axis.x_,axis.y_,axis.z_) );
     markerset_->setSingleMarkerRotation( osgquat, idx ); 
 }
 

@@ -425,7 +425,7 @@ int uiStratLayerModelDisp::getClickedModelNr() const
     if ( layerModel().isEmpty() || !mevh.hasEvent() || mevh.isHandled() )
 	return -1;
     const MouseEvent& mev = mevh.event();
-    const float xsel = vwr_.getWorld2Ui().toWorldX( mev.pos().x );
+    const float xsel = vwr_.getWorld2Ui().toWorldX( mev.pos().x_ );
     int selidx = (int)(ceil( xsel )) - 1;
     if ( selidx < 0 || selidx > layerModel().size() )
 	selidx = -1;
@@ -441,7 +441,7 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
     sprintf( modelnrstr.getCStr(), "%5d", selseq );
     statusbarmsg.set( "Model Number", modelnrstr );
     const MouseEvent& mev = vwr_.rgbCanvas().getMouseEventHandler().event();
-    float depth = vwr_.getWorld2Ui().toWorldY( mev.pos().y );
+    float depth = vwr_.getWorld2Ui().toWorldY( mev.pos().y_ );
     if ( !Math::IsNormalNumber(depth) )
     {
 	mDefineStaticLocalObject( bool, havewarned, = false );
@@ -622,7 +622,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 					layerModel().sequence( selidx ) );
     ObjectSet<Strat::Layer>& lays = ls.layers();
     MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
-    float zsel = vwr_.getWorld2Ui().toWorldY( mevh.event().pos().y );
+    float zsel = vwr_.getWorld2Ui().toWorldY( mevh.event().pos().y_ );
     mGetRealZ( zsel );
     mevh.setHandled( true );
     if ( flattened_ )

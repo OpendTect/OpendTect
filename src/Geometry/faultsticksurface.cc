@@ -26,7 +26,7 @@ bool FaultStickSurface::insertStick( const Coord3& firstpos,
 	return false;
 
     const Coord3 normvec = editnormal.normalize();
-    const bool newstickvert = fabs(normvec.z) < 0.5;
+    const bool newstickvert = fabs(normvec.z_) < 0.5;
 
     if ( sticks_.isEmpty() )
 	sticksvertical_ = newstickvert;

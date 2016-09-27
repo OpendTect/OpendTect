@@ -551,11 +551,11 @@ void Seis2DDisplay::updatePanelStripPath()
 		  posidx<tdi.alljoints_[idx]; posidx++ )
 	    {
 		const Coord pos = tdi.alltrcpos_[posidx];
-		double d0 = pos.distTo( tdi.alltrcpos_[posidx-1] );
-		double d1 = pos.distTo( tdi.alltrcpos_[posidx+1] );
+		float d0 = pos.distTo<float>( tdi.alltrcpos_[posidx-1] );
+		float d1 = pos.distTo<float>( tdi.alltrcpos_[posidx+1] );
 		d0 *= abs( tdi.alltrcnrs_[posidx+1]-tdi.alltrcnrs_[posidx] );
 		d1 *= abs( tdi.alltrcnrs_[posidx-1]-tdi.alltrcnrs_[posidx] );
-		if ( (d0+d1)>0.0 && fabs(d0-d1)/(d0+d1)>0.1 )
+		if ( (d0+d1)>0.0f && fabs(d0-d1)/(d0+d1)>0.1f )
 		    knots += posidx;
 	    }
 	}
@@ -686,9 +686,9 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
 
     StepInterval<float> zrg = getZRange( true );
     float zdif = 0;
-    if ( !zrg.includes(xytpos.z,false) )
+    if ( !zrg.includes(xytpos.z_,false) )
     {
-	zdif = (float) mMIN(fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop));
+	zdif = (float) mMIN(fabs(xytpos.z_-zrg.start),fabs(xytpos.z_-zrg.stop));
 	const float zscale = scene_
 	    ? scene_->getZScale() * scene_->getFixedZStretch()
 	    : SI().zScale();
@@ -821,8 +821,8 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
 {
     par.setEmpty();
     SurveyObject::getMousePosInfo( evinfo, par );
-    par.set( sKey::XCoord(), evinfo.worldpickedpos.x );
-    par.set( sKey::YCoord(), evinfo.worldpickedpos.y );
+    par.set( sKey::XCoord(), evinfo.worldpickedpos.x_ );
+    par.set( sKey::YCoord(), evinfo.worldpickedpos.y_ );
     par.set( sKey::LineKey(), name() );
 
     int dataidx = -1;
@@ -870,7 +870,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
     const int trcnr = geometry_.positions()[traceidx].nr_;
     const TrcKey trckey = Survey::GM().traceKey( geomid_, trcnr );
     const int trcidx = regsdp->getNearestGlobalIdx( trckey );
-    const int sampidx = regsdp->getZRange().nearestIndex( pos.z );
+    const int sampidx = regsdp->getZRange().nearestIndex( pos.z_ );
     const Array3DImpl<float>& array = regsdp->data( version );
     if ( !array.info().validPos(0,trcidx,sampidx) )
 	return false;
@@ -900,7 +900,7 @@ Coord3 Seis2DDisplay::getNearestSubPos( const Coord3& pos,
     const Coord subpos = getCoord(trcnr1st)*(1-frac) + getCoord(trcnr2nd)*frac;
     const Interval<float> zrg = usemaxrange ? getMaxZRange(false) :
 					      getZRange(false);
-    return Coord3( subpos, zrg.limitValue(pos.z) );
+    return Coord3( subpos, zrg.limitValue(pos.z_) );
 }
 
 
@@ -935,8 +935,8 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    posb = posa;
 	}
 
-	const float dist2a = (float) posa.sqDistTo( pos );
-	const float dist2b = (float) posb.sqDistTo( pos );
+	const float dist2a = (float) posa.sqDistTo( pos.getXY() );
+	const float dist2b = (float) posb.sqDistTo( pos.getXY() );
 	const float dist2c = (float) posa.sqDistTo( posb );
 
 	if ( dist2b >= dist2a+dist2c )
@@ -989,8 +989,7 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
 
     if ( trcidx<0 ) return;
 
-    const Coord& crd = geometry_.positions()[trcidx].coord_;
-    pos.x = crd.x; pos.y = crd.y;
+    pos.setXY( geometry_.positions()[trcidx].coord_ );
 }
 
 
@@ -999,8 +998,8 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 {
     if ( geometry_.isEmpty() ) return false;
 
-    const int nidx = geometry_.nearestIdx( pos, trcdisplayinfo_.rg_ );
-    minsqdist = (float) geometry_.positions()[nidx].coord_.sqDistTo( pos );
+    const int nidx = geometry_.nearestIdx( pos.getXY(), trcdisplayinfo_.rg_ );
+    minsqdist = (float) geometry_.positions()[nidx].coord_.sqDistTo(pos.getXY());
     trcidx = nidx;
     return trcidx >= 0;
 }
@@ -1164,8 +1163,8 @@ Coord3 Seis2DDisplay::projectOnNearestPanel( const Coord3& pos,
 	const Coord posa = tdi.alltrcpos_[tdi.alljoints_[idx]];
 	const Coord posb = tdi.alltrcpos_[tdi.alljoints_[idx+1]];
 
-	const float dist2a = (float) posa.sqDistTo( pos );
-	const float dist2b = (float) posb.sqDistTo( pos );
+	const float dist2a = (float) posa.sqDistTo( pos.getXY() );
+	const float dist2b = (float) posb.sqDistTo( pos.getXY() );
 	const float dist2c = (float) posa.sqDistTo( posb );
 
 	if ( dist2b >= dist2a+dist2c )
@@ -1208,7 +1207,7 @@ Coord3 Seis2DDisplay::projectOnNearestPanel( const Coord3& pos,
     if ( nearestpanelidxptr )
 	*nearestpanelidxptr = nearestpanelidx;
 
-    return Coord3( projpos, pos.z );
+    return Coord3( projpos, pos.z_ );
 }
 
 
@@ -1232,9 +1231,11 @@ void Seis2DDisplay::getLineSegmentProjection( const Coord3 pos1,
     for ( int cnt=abs(panelidx2-panelidx1); cnt>=0; cnt-- )
     {
 	const int idx = panelidx2 + (panelidx1<panelidx2 ? 1-cnt : cnt );
-	const Coord pos = cnt ? tdi.alltrcpos_[tdi.alljoints_[idx]] : projpos2;
+	const Coord pos = cnt
+	    ? tdi.alltrcpos_[tdi.alljoints_[idx]]
+	    : Coord(projpos2.getXY());
 
-	const float dist = mCast( float, pos.distTo(projcoords.last()) );
+	const float dist = pos.distTo<float>(projcoords.last().getXY());
 	if ( dist > mDefEps )
 	{
 	    projcoords += Coord3( pos, 0.0 );
@@ -1246,7 +1247,7 @@ void Seis2DDisplay::getLineSegmentProjection( const Coord3 pos1,
     {
 	const float totalarclen = arclen.last();
 	const float frac = totalarclen ? arclen[idx]/totalarclen : 0.5f;
-	projcoords[idx].z = projpos1.z*(1.0-frac) + projpos2.z*frac;
+	projcoords[idx].z_ = projpos1.z_*(1.0-frac) + projpos2.z_*frac;
     }
 }
 

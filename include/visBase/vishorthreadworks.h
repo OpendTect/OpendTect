@@ -64,7 +64,6 @@ private:
     const HorizonSection*	horsection_;
     int				nrtiles_;
     char			resolution_;
-    int				nrthreads_;
 };
 
 

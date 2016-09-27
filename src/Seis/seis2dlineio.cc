@@ -475,9 +475,9 @@ void Seis2DLineMerger::mergeOnCoords()
     const double sqd21 = c21.sqDistTo( c10 ) + c21.sqDistTo( c11 );
     const Coord lnstart( sqd11 > sqd10 ? c11 : c10 );
     const Coord lnend( sqd21 > sqd20 ? c21 : c20 );
-    const Coord lndelta( lnend.x - lnstart.x, lnend.y - lnstart.y );
-    const Coord sqlndelta( lndelta.x * lndelta.x, lndelta.y * lndelta.y );
-    const double sqabs = sqlndelta.x + sqlndelta.y;
+    const Coord lndelta( lnend.x_ - lnstart.x_, lnend.y_ - lnstart.y_ );
+    const Coord sqlndelta( lndelta.x_ * lndelta.x_, lndelta.y_ * lndelta.y_ );
+    const double sqabs = sqlndelta.x_ + sqlndelta.y_;
     if ( sqabs < 0.001 )
 	return;
 
@@ -489,10 +489,10 @@ void Seis2DLineMerger::mergeOnCoords()
 	{
 	    const SeisTrcBuf& tb( ibuf ? tbuf2_ : tbuf1_ );
 	    const Coord& ctrc( tb.get(idx)->info().coord_ );
-	    const Coord crel( ctrc.x - lnstart.x, ctrc.y - lnstart.y );
-	    const double lpar = (lndelta.x * crel.x + lndelta.y * crel.y)
+	    const Coord crel( ctrc.x_ - lnstart.x_, ctrc.y_ - lnstart.y_ );
+	    const double lpar = (lndelta.x_ * crel.x_ + lndelta.y_ * crel.y_)
 			      / sqabs;
-	    // const Coord projrelpt( lpar * lndelta.x, lpar.lndelta.y );
+	    // const Coord projrelpt( lpar * lndelta.x_, lpar.lndelta.y_ );
 
 	    lpars += lpar;
 	    idxs += ibuf ? nrtrcs1 + idx : idx;

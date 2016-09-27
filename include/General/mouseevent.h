@@ -93,8 +93,8 @@ public:
     void			setPressed(bool yn)	{ pressed_ = yn; }
 
     const Geom::Point2D<int>&	pos() const		{ return pos_; }
-    int				x() const		{ return pos_.x; }
-    int				y() const		{ return pos_.y; }
+    int				x() const		{ return pos_.x_; }
+    int				y() const		{ return pos_.y_; }
     float			angle() const		{ return angle_; }
 				//!< used for wheel events
 
@@ -226,8 +226,8 @@ public:
 
 
     const Geom::Point2D<int>&	pos() const	    { return pos_; }
-    int				x() const	    { return pos_.x; }
-    int				y() const	    { return pos_.y; }
+    int				x() const	    { return pos_.x_; }
+    int				y() const	    { return pos_.y_; }
     float			scale() const	    { return scale_; }
     float			angle() const	    { return angle_; }
 

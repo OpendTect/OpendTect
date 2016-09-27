@@ -64,7 +64,7 @@ public:
     bool		hasText() const;
 
     inline const Coord3& pos() const		{ return pos_; }
-    inline float	z() const		{ return (float)pos_.z; }
+    inline float	z() const		{ return (float)pos_.z_; }
     bool		is2D() const;
     Pos::SurvID		survID() const;
     Pos::GeomID		geomID() const;
@@ -78,14 +78,14 @@ public:
     inline Location&	setPos( const Coord3& c )
 			{ pos_ = c; return *this; }
     inline Location&	setPos( const Coord& c )
-			{ pos_.x = c.x; pos_.y = c.y; return *this; }
+			{ pos_.x_ = c.x_; pos_.y_ = c.y_; return *this; }
     inline Location&	setPos( double x, double y, double zval )
 			{ setPos( Coord3(x,y,zval) ); return *this; }
     inline Location&	setPos( const Coord& c, float zval )
-			{ setPos( c.x, c.y, zval ); return *this; }
+			{ setPos( c.x_, c.y_, zval ); return *this; }
     template <class FT>
     inline Location&	setZ( FT zval )
-			{ pos_.z = zval; return *this; }
+			{ pos_.z_ = zval; return *this; }
 
     Location&		setTrcKey(const TrcKey&);
     Location&		setDir(const Sphere&);

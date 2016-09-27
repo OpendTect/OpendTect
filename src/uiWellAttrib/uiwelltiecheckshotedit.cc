@@ -373,7 +373,7 @@ void uiCheckShotEdit::drawPoints()
 	while ( iter.next() )
 	{
 	    const float val = iter.value();
-	    const float z = (float)wd_.track().getPos( iter.dah() ).z;
+	    const float z = (float)wd_.track().getPos( iter.dah() ).z_;
 	    pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(z) );
 	}
 	iter.retire();

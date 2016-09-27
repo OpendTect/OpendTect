@@ -243,8 +243,8 @@ bool uiMapperRangeEditor::changeLinePos( bool firstclick )
     if ( !firstclick && fabs(float(diff)) <= 1 )
 	return false;
 
-    const int mousepix = ev.pos().x;
-    const float mouseposval = xax_->getVal( ev.pos().x );
+    const int mousepix = ev.pos().x_;
+    const float mouseposval = xax_->getVal( ev.pos().x_ );
 
     const Interval<float> histxrg = histogramdisp_->xAxis()->range();
     const bool insiderg = datarg_.includes(mouseposval,true) &&

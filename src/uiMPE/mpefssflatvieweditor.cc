@@ -317,15 +317,15 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
     if ( !vwr ) return false;
 
     Geom::Point2D<double> w2uipos = vwr->getWorld2Ui().transform( mousepos );
-    w2uipos.x = vwr->posRange( true ).limitValue( w2uipos.x );
-    w2uipos.y = vwr->posRange( false ).limitValue( w2uipos.y );
+    w2uipos.x_ = vwr->posRange( true ).limitValue( w2uipos.x_ );
+    w2uipos.y_ = vwr->posRange( false ).limitValue( w2uipos.y_ );
     worldpos = vwr->getCoord( w2uipos );
 
     if ( trcnr )
     {
 	const Survey::Geometry* geometry =
 		Survey::GM().getGeometry( fsspainter_->getGeomID() );
-	*trcnr = geometry ? geometry->nearestTrace(worldpos).trcNr()
+	*trcnr = geometry ? geometry->nearestTrace(worldpos.getXY()).trcNr()
 			  : TrcKey::udf().trcNr();
     }
 
@@ -347,31 +347,31 @@ Coord3 FaultStickSetFlatViewEditor::getScaleVector() const
 	return scalevec;
     }
 
-    const int du = datarect.topLeft().x - datarect.bottomRight().x;
-    const int dv = datarect.topLeft().y - datarect.bottomRight().y;
+    const int du = datarect.topLeft().x_ - datarect.bottomRight().x_;
+    const int dv = datarect.topLeft().y_ - datarect.bottomRight().y_;
     if ( !du || !dv )
 	return scalevec;
 
-    const float dz = (float) ( p2.z - p1.z );
+    const float dz = (float) ( p2.z_ - p1.z_ );
 
     if ( mIsZero(dz,mDefEps) )	// z-slice
     {
-	const Coord eu = (p1-p0) / du;
-	const Coord ev = (p2-p0) / dv;
+	const Coord eu = (p1.getXY()-p0.getXY()) / du;
+	const Coord ev = (p2.getXY()-p0.getXY()) / dv;
 
-	const float det = (float) fabs( eu.x*ev.y - eu.y*ev.x );
+	const float det = (float) fabs( eu.x_*ev.y_ - eu.y_*ev.x_ );
 
-	const Coord ex(  ev.y/det, -eu.y/det );
-	const Coord ey( -ev.x/det,  eu.x/det );
+	const Coord ex(  ev.y_/det, -eu.y_/det );
+	const Coord ey( -ev.x_/det,  eu.x_/det );
 
-	scalevec = Coord3( ex.dot(ey)*det, ey.sqAbs()*det, scalevec.z );
+	scalevec = Coord3( ex.dot(ey)*det, ey.sqAbs()*det, scalevec.z_ );
     }
     else
     {
-	float ds = (float) Coord(p1).distTo(p2);
+	float ds = p1.xyDistTo<float>(p2);
 	// Assumption: straight in case of 2D line
 
-	scalevec.z = fabs( (ds*dv) / (dz*du) );
+	scalevec.z_ = fabs( (ds*dv) / (dz*du) );
     }
 
     return scalevec;
@@ -383,7 +383,7 @@ Coord3 FaultStickSetFlatViewEditor::getNormal( const Coord3* mousepos ) const
     Coord3 normal = Coord3( Coord3::udf() );
     if ( path_ && mousepos )
     {
-	const BinID mousebid = SI().transform( *mousepos );
+	const BinID mousebid = SI().transform( mousepos->getXY() );
 	TrcKey mousetk( mousebid );
 	RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid_ );
 	if ( !rlgeom || !path_ )

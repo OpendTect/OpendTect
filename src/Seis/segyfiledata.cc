@@ -476,8 +476,8 @@ bool SEGY::FileDataSet::readVersion1File( ascistream& astrm )
 		mGetVal(pk.offset(),float)
 	    if ( isrich )
 	    {
-		mGetVal( crd.x, double );
-		mGetVal( crd.y, double );
+		mGetVal( crd.x_, double );
+		mGetVal( crd.y_, double );
 	    }
 
 	    addTrace( fileidx, pk, crd, usable );

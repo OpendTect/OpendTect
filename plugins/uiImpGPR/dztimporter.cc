@@ -85,8 +85,8 @@ void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, Pos::GeomID geomid,
     ti.sampling_.start = position;
     ti.sampling_.step = ((float)range) / (nsamp-1);
     ti.sampling_.scale( cNanoFac );
-    ti.coord_.x = cstart_.x + cstep_.x * trcidx;
-    ti.coord_.y = cstart_.y + cstep_.y * trcidx;
+    ti.coord_.x_ = cstart_.x_ + cstep_.x_ * trcidx;
+    ti.coord_.y_ = cstart_.y_ + cstep_.y_ * trcidx;
 }
 
 

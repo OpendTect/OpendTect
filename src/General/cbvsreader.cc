@@ -39,9 +39,9 @@ The next 8 bytes are reserved for 2 integers:
     auxinf.memb = finterp_.get( buf, 0 )
 
 #define mGetCoordAuxFromStrm(auxinf,buf,strm) \
-    strm.getBin( buf, 2*sizeof(auxinf.coord_.x) ); \
-    auxinf.coord_.x = dinterp_.get( buf, 0 ); \
-    auxinf.coord_.y = dinterp_.get( buf, 1 )
+    strm.getBin( buf, 2*sizeof(auxinf.coord_.x_) ); \
+    auxinf.coord_.x_ = dinterp_.get( buf, 0 ); \
+    auxinf.coord_.y_ = dinterp_.get( buf, 1 )
 
 #define mAuxSetting(ptr,n) (*ptr & (unsigned char)n)
 

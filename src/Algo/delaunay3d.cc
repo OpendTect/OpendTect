@@ -126,15 +126,15 @@ bool DAGTetrahedraTree::computeCoordRanges( const TypeSet<Coord3>& coordlist,
     if ( !coordlist.size() )
 	return false;
 
-    xrg.start = xrg.stop = coordlist[0].x;
-    yrg.start = yrg.stop = coordlist[0].y;
-    zrg.start = zrg.stop = coordlist[0].z;
+    xrg.start = xrg.stop = coordlist[0].x_;
+    yrg.start = yrg.stop = coordlist[0].y_;
+    zrg.start = zrg.stop = coordlist[0].z_;
 
     for ( int idx=1; idx<coordlist.size(); idx++ )
     {
-	xrg.include( coordlist[idx].x );
-	yrg.include( coordlist[idx].y );
-	zrg.include( coordlist[idx].z );
+	xrg.include( coordlist[idx].x_ );
+	yrg.include( coordlist[idx].y_ );
+	zrg.include( coordlist[idx].z_ );
     }
 
     return true;
@@ -190,19 +190,19 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 	const Coord maxcoord = SI().maxCoord( true );
 	if ( narrow[0] )
 	{
-	    center_.x = (mincoord.x+maxcoord.x)/2;
-	    xlength = maxcoord.x-mincoord.x;
+	    center_.x_ = (mincoord.x_+maxcoord.x_)/2;
+	    xlength = maxcoord.x_-mincoord.x_;
 	}
 	
 	if ( narrow[1] )
 	{
-	    center_.y = (mincoord.y+maxcoord.y)/2;
-	    ylength = maxcoord.y-mincoord.y;
+	    center_.y_ = (mincoord.y_+maxcoord.y_)/2;
+	    ylength = maxcoord.y_-mincoord.y_;
 	}
 
 	if ( narrow[2] )
 	{
-	    center_.z = SI().zRange(true).center()*SI().zDomain().userFactor();
+	    center_.z_ = SI().zRange(true).center()*SI().zDomain().userFactor();
 	    zlength = SI().zRange(true).width()*SI().zDomain().userFactor();
 	}
     }
@@ -236,7 +236,7 @@ void DAGTetrahedraTree::setInitSizeFactor( float newfactor )
     if ( initialcoords_[0].isDefined() )
     {
 	const double sq2 = M_SQRT2;
-	double k = (initialcoords_[0].z-center_.z)/6;
+	double k = (initialcoords_[0].z_-center_.z_)/6;
 	k = k * newfactor/initsizefactor_;
 	initialcoords_[0] = center_ + Coord3( 0, 0, 6*k );
 	initialcoords_[1] = center_ + Coord3( 0, 6*sq2*k, -6*k );

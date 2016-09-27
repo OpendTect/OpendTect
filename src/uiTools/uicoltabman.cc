@@ -235,8 +235,8 @@ void uiColorTableMan::updateTransparencyGraph()
 	if ( !transp.isDefined() )
 	    continue;
 
-	xvals += transp.x;
-	yvals += transp.y;
+	xvals += transp.x_;
+	yvals += transp.y_;
     }
 
     cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size()  );
@@ -508,7 +508,7 @@ void uiColorTableMan::rightClick( CallBacker* )
     selidx_ = -1;
     for ( int idx=0; idx<ctab_.size(); idx++ )
     {
-	if ( ctab_.position(idx) > wpt.x )
+	if ( ctab_.position(idx) > wpt.x_ )
 	{
 	    selidx_ = idx;
 	    break;
@@ -516,7 +516,7 @@ void uiColorTableMan::rightClick( CallBacker* )
     }
 
     if ( selidx_<0 ) return;
-    Color col = ctab_.color( (float) wpt.x );
+    Color col = ctab_.color( (float) wpt.x_ );
     if ( selectColor(col,this,tr("Color selection"),false) )
     {
 	ctab_.changeColor( selidx_-1, col.r(), col.g(), col.b() );
@@ -563,10 +563,10 @@ void uiColorTableMan::transptChg( CallBacker* )
 	    if ( !pt.isDefined() )
 		continue;
 
-	    if ( idx==0 && pt.x>0 )
-		pt.x = 0;
-	    else if ( idx==nrpts-1 && pt.x<1 )
-		pt.x = 1;
+	    if ( idx==0 && pt.x_>0 )
+		pt.x_ = 0;
+	    else if ( idx==nrpts-1 && pt.x_<1 )
+		pt.x_ = 1;
 
 	    ctab_.setTransparency( pt );
 	}
@@ -579,14 +579,14 @@ void uiColorTableMan::transptChg( CallBacker* )
 	    return;
 
 	bool reset = false;
-	if ( ptidx==0 && !mIsZero(pt.x,mEps) )
+	if ( ptidx==0 && !mIsZero(pt.x_,mEps) )
 	{
-	    pt.x = 0;
+	    pt.x_ = 0;
 	    reset = true;
 	}
-	else if ( ptidx==nrpts-1 && !mIsZero(pt.x-1,mEps) )
+	else if ( ptidx==nrpts-1 && !mIsZero(pt.x_-1,mEps) )
 	{
-	    pt.x = 1;
+	    pt.x_ = 1;
 	    reset = true;
 	}
 

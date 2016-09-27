@@ -287,16 +287,16 @@ Geom::Point2D<float> uiStratDisplay::getPos() const
 {
     uiStratDisplay* self = const_cast<uiStratDisplay*>( this );
     const float xpos = drawer_.xAxis()->getVal(
-			self->getMouseEventHandler().event().pos().x );
+			self->getMouseEventHandler().event().pos().x_ );
     const float ypos = drawer_.yAxis()->getVal(
-			self->getMouseEventHandler().event().pos().y );
+			self->getMouseEventHandler().event().pos().y_ );
     return Geom::Point2D<float>( xpos, ypos );
 }
 
 
 int uiStratDisplay::getColIdxFromPos() const
 {
-    float xpos = getPos().x;
+    float xpos = getPos().x_;
     Interval<int> borders(0,0);
     for ( int idx=0; idx<data_.nrCols(); idx++ )
     {
@@ -329,7 +329,7 @@ const StratDispData::Unit* uiStratDisplay::getUnitFromPos( int cidx ) const
 	for ( int idunit=0; idunit<data_.nrUnits(cidx); idunit++ )
 	{
 	    const StratDispData::Unit* unit = data_.getUnit( cidx, idunit );
-	    if ( pos.y < unit->zrg_.stop && pos.y >= unit->zrg_.start )
+	    if ( pos.y_ < unit->zrg_.stop && pos.y_ >= unit->zrg_.start )
 		return unit;
 	}
     }
@@ -347,7 +347,7 @@ const StratDispData::Level* uiStratDisplay::getLevelFromPos() const
 	for ( int idlvl=0; idlvl<data_.nrLevels(cidx); idlvl++ )
 	{
 	    const StratDispData::Level* lvl= data_.getLevel( cidx, idlvl );
-	    if ( pos.y < (lvl->zpos_+mEps)  && pos.y > (lvl->zpos_-mEps) )
+	    if ( pos.y_ < (lvl->zpos_+mEps)  && pos.y_ > (lvl->zpos_-mEps) )
 		return lvl;
 	}
     }
@@ -654,7 +654,7 @@ void uiStratViewControl::zoomCB( CallBacker* but )
     const uiRect& allarea = viewer_.getSceneRect();
     LinScaler scaler( allarea.top()+border, range_.start,
 		      allarea.bottom()-border, range_.stop );
-    float rgpos = meh.hasEvent() ? (float)scaler.scale(meh.event().pos().y)
+    float rgpos = meh.hasEvent() ? (float)scaler.scale(meh.event().pos().y_)
 				 : range_.center();
     const float zoomfac = zoomin ? zoomfwdfac : 1/zoomfwdfac;
     const float twdth = (rgpos-range_.start) * zoomfac;
@@ -725,7 +725,7 @@ void uiStratViewControl::handDragStarted( CallBacker* )
     if ( mouseEventHandler().event().rightButton() )
 	return;
     mousepressed_ = true;
-    startdragpos_ = mCast( float, mouseEventHandler().event().pos().y );
+    startdragpos_ = mCast( float, mouseEventHandler().event().pos().y_ );
 }
 
 
@@ -734,7 +734,7 @@ void uiStratViewControl::handDragging( CallBacker* )
     if ( viewer_.dragMode() != uiGraphicsViewBase::ScrollHandDrag
 	|| !mousepressed_ ) return;
 
-    const float newpos = mCast(float,mouseEventHandler().event().pos().y);
+    const float newpos = mCast(float,mouseEventHandler().event().pos().y_);
     const uiRect& allarea = viewer_.getSceneRect();
     LinScaler scaler( allarea.top()+border, range_.start,
 		      allarea.bottom()-border, range_.stop );

@@ -146,8 +146,8 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 	StepInterval<int> trg = h2dl->colRange( currow );
 	trg.limitTo( trcrg );
 
-	const Coord cur0 = h2dl->getKnot( RowCol(currow,trg.start) );
-	const Coord cur1 = h2dl->getKnot( RowCol(currow,trg.stop) );
+	const Coord cur0 = h2dl->getKnot( RowCol(currow,trg.start) ).getXY();
+	const Coord cur1 = h2dl->getKnot( RowCol(currow,trg.stop) ).getXY();
 	if ( !trg.width() || !cur0.isDefined() || !cur1.isDefined() )
 	    continue;
 
@@ -156,9 +156,9 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 	if ( !new0.coord_.isDefined() || !new1.coord_.isDefined() )
 	    continue;
 
-	const float maxdist = (float) (0.1 * cur0.distTo(cur1) / trg.width());
-	if ( cur0.distTo(new0.coord_)>maxdist ||
-	     cur1.distTo(new1.coord_)>maxdist )
+	const float maxdist = 0.1 * cur0.distTo<float>(cur1) / trg.width();
+	if ( cur0.distTo<float>(new0.coord_)>maxdist ||
+	     cur1.distTo<float>(new1.coord_)>maxdist )
 	    continue;
 
 	oldgeomidx = geomidx;
@@ -404,7 +404,7 @@ Horizon2D::~Horizon2D()
 float Horizon2D::getZ( const TrcKey& tk ) const
 {
     const Coord3 pos = getCoord( tk );
-    return pos.isDefined() ? mCast(float,pos.z) : mUdf(float);
+    return pos.isDefined() ? mCast(float,pos.z_) : mUdf(float);
 }
 
 
@@ -479,11 +479,11 @@ float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 	    if ( !knot.isDefined() )
 		continue;
 
-	    const double sqdist = c.sqDistTo( knot );
+	    const double sqdist = c.sqDistTo( knot.getXY() );
 	    if ( mIsZero(sqdist,1e-3) )
-		return (float) knot.z;
+		return (float) knot.z_;
 
-	    closestpoints.addValue( -sqdist, knot.z );
+	    closestpoints.addValue( -sqdist, knot.z_ );
 	}
     }
 
@@ -546,7 +546,7 @@ void Horizon2D::removeSelected( const Selector<Coord3>& selector,
 bool Horizon2D::unSetPos( const PosID& pid, bool addtoundo )
 {
     Coord3 pos = getPos( pid );
-    pos.z = mUdf(float);
+    pos.z_ = mUdf(float);
     return EMObject::setPos( pid, pos, addtoundo );
 }
 
@@ -555,7 +555,7 @@ bool Horizon2D::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
 			  bool addtoundo )
 {
     Coord3 pos = getPos( sid, subid );
-    pos.z = mUdf(float);
+    pos.z_ = mUdf(float);
     return EMObject::setPos( sid, subid, pos, addtoundo );
 }
 
@@ -599,7 +599,7 @@ bool Horizon2D::setPos( EM::SectionID sid, Pos::GeomID geomid, int trcnr,
 
     EM::SubID subid = BinID( lineidx, trcnr ).toInt64();
     Coord3 newpos = EMObject::getPos( sid, subid );
-    newpos.z = z;
+    newpos.z_ = z;
     return EMObject::setPos( sid, subid, newpos, addtohistory );
 }
 
@@ -662,8 +662,8 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
 
 	if ( arr.info().validPos(trcrg.getIndex(col)) )
 	{
-	    float z = arr.get( trcrg.getIndex(col) );
-	    pos.z = z;
+	    const float z = arr.get( trcrg.getIndex(col) );
+	    pos.z_ = z;
 	    geom->setKnot( rc, pos );
 	}
     }
@@ -694,9 +694,9 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid, Pos::GeomID geomid,
     {
 	Coord3 pos = geom->getKnot( RowCol(lineidx,col) );
 	if ( trans )
-	    pos.z = trans->transform( pos );
+	    pos.z_ = trans->transform( pos );
 
-	arr->set( colrg.getIndex(col), (float) pos.z );
+	arr->set( colrg.getIndex(col), (float) pos.z_ );
     }
 
     return arr;
@@ -806,8 +806,8 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
     if ( ret <= 0 ) return ret;
 
     lnm = text( 0 );
-    crd.x = getDValue( 1 );
-    crd.y = getDValue( 2 );
+    crd.x_ = getDValue( 1 );
+    crd.y_ = getDValue( 2 );
     trcnr = getIntValue( 3 );
     const int nrhors = vals_.size() - 4;
     for ( int idx=0; idx<nrhors; idx++ )

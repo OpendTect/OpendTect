@@ -110,7 +110,7 @@ void uiSurveyBoxObject::update()
     for ( int idx=0; idx<labels_.size(); idx++ )
     {
 	const int oppidx = idx < 2 ? idx + 2 : idx - 2;
-	const bool bot = mapcnr[idx].y > mapcnr[oppidx].y;
+	const bool bot = mapcnr[idx].y_ > mapcnr[oppidx].y_;
         BinID bid = si.transform( mapcnr[idx] );
 	OD::Alignment al( OD::Alignment::HCenter,
 		      bot ? OD::Alignment::Top : OD::Alignment::Bottom );
@@ -192,16 +192,16 @@ void uiNorthArrowObject::update()
     float dx = arrowlen * tan( M_PI_2f-mathang );
     const int dxpix = mNINT32( dx );
 
-    const int xmax = uistartposition_.x;
+    const int xmax = uistartposition_.x_;
     const int lastx = xmax - 1 - sideoffs;
     const uiPoint origin( lastx - (northisleft?dxpix:0), arrowlen + yarrowtop );
-    const uiPoint arrowtop( origin.x, yarrowtop );
+    const uiPoint arrowtop( origin.x_, yarrowtop );
 
     arrow_->setTailHeadPos( origin, arrowtop );
     if ( !angleline_ || !anglelabel_ )
 	return;
 
-    angleline_->setLine( origin, uiPoint(origin.x+dxpix,yarrowtop) );
+    angleline_->setLine( origin, uiPoint(origin.x_+dxpix,yarrowtop) );
     float usrang100 = usrang * 100;
     if ( usrang100 < 0 ) usrang100 = -usrang100;
     int iusrang = (int)(usrang100 + .5);
@@ -279,10 +279,10 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
     {
 	const Coord mincoord = survinfo_->minCoord( false );
 	const Coord maxcoord = survinfo_->maxCoord( false );
-	const double diffx = maxcoord.x - mincoord.x;
-	const double diffy = maxcoord.y - mincoord.y;
-	const uiWorldRect wr( mincoord.x-diffx/4, maxcoord.y+diffy/4,
-			      maxcoord.x+diffx/4, mincoord.y-diffy/4 );
+	const double diffx = maxcoord.x_ - mincoord.x_;
+	const double diffy = maxcoord.y_ - mincoord.y_;
+	const uiWorldRect wr( mincoord.x_-diffx/4, maxcoord.y_+diffy/4,
+			      maxcoord.x_+diffx/4, mincoord.y_-diffy/4 );
 	if ( title_ ) title_->setText( toUiString(survinfo_->name()) );
 	setView( wr );
     }

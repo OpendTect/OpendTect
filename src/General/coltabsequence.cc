@@ -179,19 +179,19 @@ float ColTab::Sequence::transparencyAt( float xpos ) const
     const int sz = tr_.size();
     if ( sz == 0 || xpos <= -mDefEps || xpos >= 1+mDefEps )	return 0;
 
-    float x0 = tr_[0].x; float y0 = tr_[0].y;
+    float x0 = tr_[0].x_; float y0 = tr_[0].y_;
     if ( sz == 1 || xpos < x0+mDefEps )			return y0;
-    float x1 = tr_[sz-1].x; float y1 = tr_[sz-1].y;
+    float x1 = tr_[sz-1].x_; float y1 = tr_[sz-1].y_;
     if ( xpos > x1 - mDefEps )				return y1;
 
     for ( int idx=1; idx<sz; idx++ )
     {
-	x1 = tr_[idx].x; y1 = tr_[idx].y;
+	x1 = tr_[idx].x_; y1 = tr_[idx].y_;
 	if ( xpos < x1 + mDefEps )
 	{
 	    if ( mIsEqual(xpos,x1,mDefEps) )
 		return y1;
-	    x0 = tr_[idx-1].x; y0 = tr_[idx-1].y;
+	    x0 = tr_[idx-1].x_; y0 = tr_[idx-1].y_;
 	    const float frac = (xpos-x0) / (x1-x0);
 	    return frac * y1 + (1-frac) * y0;
 	}
@@ -211,7 +211,7 @@ bool ColTab::Sequence::hasTransparency() const
 	return false;
 
     for ( int idx=0; idx<tr_.size(); idx++ )
-	if ( tr_[idx].y > 0.1 ) return true;
+	if ( tr_[idx].y_ > 0.1 ) return true;
 
     return false;
 }
@@ -294,16 +294,16 @@ void ColTab::Sequence::removeAllColors()
 
 void ColTab::Sequence::setTransparency( Geom::Point2D<float> pt )
 {
-    if ( pt.x < 0 ) pt.x = 0; if ( pt.x > 1 ) pt.x = 1;
-    if ( pt.y < 0 ) pt.y = 0; if ( pt.y > 255 ) pt.y = 255;
+    if ( pt.x_ < 0 ) pt.x_ = 0; if ( pt.x_ > 1 ) pt.x_ = 1;
+    if ( pt.y_ < 0 ) pt.y_ = 0; if ( pt.y_ > 255 ) pt.y_ = 255;
 
     bool done = false;
     for ( int idx=0; idx<tr_.size(); idx++ )
     {
-	const float x = tr_[idx].x;
-	if ( mIsEqual(x,pt.x,mDefEps) )
+	const float x = tr_[idx].x_;
+	if ( mIsEqual(x,pt.x_,mDefEps) )
 	    { tr_[idx] = pt; done = true; break; }
-	else if ( pt.x < x )
+	else if ( pt.x_ < x )
 	    { tr_.insert( idx, pt ); done = true; break; }
     }
 
@@ -367,8 +367,8 @@ void ColTab::Sequence::flipTransparency()
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	tr_[idx].x = 1 - oldtr[sz-idx-1].x;
-	tr_[idx].y = oldtr[sz-idx-1].y;
+	tr_[idx].x_ = 1 - oldtr[sz-idx-1].x_;
+	tr_[idx].y_ = oldtr[sz-idx-1].y_;
     }
 }
 
@@ -422,7 +422,7 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
     {
 	BufferString key( sKeyTransparency() );
 	key += "."; key += idx;
-	iopar.set( key, tr_[idx].x, tr_[idx].y );
+	iopar.set( key, tr_[idx].x_, tr_[idx].y_ );
     }
 }
 
@@ -470,7 +470,7 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 	BufferString key( sKeyTransparency() );
 	key += "."; key += idx;
 	Geom::Point2D<float> pt;
-	if ( !iopar.get( key, pt.x, pt.y ) ) break;
+	if ( !iopar.get( key, pt.x_, pt.y_ ) ) break;
 	tr_ += pt;
     }
 

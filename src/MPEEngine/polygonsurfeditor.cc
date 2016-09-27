@@ -79,7 +79,7 @@ void PolygonBodyEditor::setSowingPivot( const Coord3 pos )
 }
 
 
-#define mCompareCoord( crd ) Coord3( crd, crd.z*zfactor )
+#define mCompareCoord( crd ) Coord3( crd.x_, crd.y_, crd.z_*zfactor )
 
 void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 					    EM::PosID& nearestpid1, 
@@ -291,10 +291,10 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 {
     if ( !mpos.isDefined() ) return false;
     
-    const BinID bid = SI().transform( mpos );
+    const BinID bid = SI().transform( mpos.getXY() );
     if ( !SI().inlRange( true ).includes(bid.inl(),false) || 
 	 !SI().crlRange( true ).includes(bid.crl(),false) || 
-	 !SI().zRange( true ).includes(mpos.z,false) )
+	 !SI().zRange( true ).includes(mpos.z_,false) )
 	return false;
 
     const Geometry::Element* ge = emObject().sectionGeometry(pid.sectionID());
@@ -316,14 +316,14 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     const int previdx=rc.col()==colrg.start ? colrg.stop : rc.col()-colrg.step;
     const int nextidx=rc.col()<colrg.stop ? rc.col()+colrg.step : colrg.start;
     
-    Coord3 curpos = mpos; curpos.z *= zscale;
+    Coord3 curpos = mpos; curpos.z_ *= zscale;
     Coord3 prevpos = surface->getKnot( RowCol(rc.row(), previdx) );
     Coord3 nextpos = surface->getKnot( RowCol(rc.row(), nextidx) );
     
     const bool prevdefined = prevpos.isDefined();
     const bool nextdefined = nextpos.isDefined();
-    if ( prevdefined ) prevpos.z *= zscale; 
-    if ( nextdefined ) nextpos.z *= zscale;
+    if ( prevdefined ) prevpos.z_ *= zscale;
+    if ( nextdefined ) nextpos.z_ *= zscale;
 
     for ( int knot=colrg.start; knot<=colrg.stop; knot += colrg.step )
     {
@@ -336,8 +336,8 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 	if ( !v0.isDefined() || !v1.isDefined() )
  	    return false;
 
-	v0.z *= zscale;
-	v1.z *= zscale;
+	v0.z_ *= zscale;
+	v1.z_ *= zscale;
 	if ( previdx==nextknot )
 	{
 	    mRetNotInsideNext
@@ -428,8 +428,8 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	if ( !p0.isDefined() || !p1.isDefined() )
   	    continue;
 
-	p0.z *= zfactor;
-  	p1.z *= zfactor;
+	p0.z_ *= zfactor;
+	p1.z_ *= zfactor;
 
 	const double t = (mp-p0).dot(p1-p0)/(p1-p0).sqAbs();
 	if ( t<0 || t>1 )
@@ -488,8 +488,8 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	{
 	    const bool prevdefined = prevpos.isDefined();
 	    const bool nextdefined = nextpos.isDefined();	
-	    if ( prevdefined ) prevpos.z *= zfactor;
-	    if ( nextdefined ) nextpos.z *= zfactor;
+	    if ( prevdefined ) prevpos.z_ *= zfactor;
+	    if ( nextdefined ) nextpos.z_ *= zfactor;
 
 	    takeprevious = prevdefined && nextdefined &&
 			   sameSide3D(mp,prevpos,nearpos,nextpos,1e-3); 

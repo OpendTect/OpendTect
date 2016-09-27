@@ -1529,7 +1529,7 @@ bool PolyTrend::set( const TypeSet<Coord>& poslist, const IDXABLE& vals )
     if ( order_ == PolyTrend::None )
 	return false;
 
-    f0_ = f1_ = f2_ = f11_ = f12_ = f22_ = posc_.x = posc_.y = 0.;
+    f0_ = f1_ = f2_ = f11_ = f12_ = f22_ = posc_.x_ = posc_.y_ = 0.;
     TypeSet<Coord> posnoudf;
     TypeSet<double> valsnoudf;
     for ( int idx=0; idx<sz; idx++ )
@@ -1568,8 +1568,8 @@ void PolyTrend::apply( const Coord& pos, bool dir, T& val ) const
 	return;
     }
 
-    const double dx = pos.x - posc_.x;
-    const double dy = pos.y - posc_.y;
+    const double dx = pos.x_ - posc_.x_;
+    const double dy = pos.y_ - posc_.y_;
     inp += fact * ( f1_ * dx + f2_ * dy );
     if ( order_ == Order1 )
     {

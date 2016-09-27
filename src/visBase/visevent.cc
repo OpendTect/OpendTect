@@ -139,15 +139,15 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
 
     osg::ref_ptr<osgUtil::LineSegmentIntersector> lineintersector =
 	new osgUtil::LineSegmentIntersector( osgUtil::Intersector::WINDOW,
-				eventinfo.mousepos.x, eventinfo.mousepos.y );
+				eventinfo.mousepos.x_, eventinfo.mousepos.y_ );
 
     const float frustrumPixelRadius = 1.0f;
     osg::ref_ptr<osgUtil::PolytopeIntersector> polyintersector =
 	new osgUtil::PolytopeIntersector( osgUtil::Intersector::WINDOW,
-				    eventinfo.mousepos.x-frustrumPixelRadius,
-				    eventinfo.mousepos.y-frustrumPixelRadius,
-				    eventinfo.mousepos.x+frustrumPixelRadius,
-				    eventinfo.mousepos.y+frustrumPixelRadius );
+				    eventinfo.mousepos.x_-frustrumPixelRadius,
+				    eventinfo.mousepos.y_-frustrumPixelRadius,
+				    eventinfo.mousepos.x_+frustrumPixelRadius,
+				    eventinfo.mousepos.y_+frustrumPixelRadius );
 
     polyintersector->setDimensionMask( osgUtil::PolytopeIntersector::DimZero |
 				       osgUtil::PolytopeIntersector::DimOne );
@@ -361,8 +361,8 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 
     eventinfo.buttonstate_ = (OD::ButtonState) buttonstate;
 
-    eventinfo.mousepos.x = ea.getX();
-    eventinfo.mousepos.y = ea.getY();
+    eventinfo.mousepos.x_ = ea.getX();
+    eventinfo.mousepos.y_ = ea.getY();
 
     mDynamicCastGet( osgViewer::View*, view, &aa );
 

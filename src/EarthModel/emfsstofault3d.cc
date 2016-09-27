@@ -37,11 +37,11 @@ double FSStoFault3DConverter::FaultStick::slope( double zscale ) const
     if ( crds_.size()<2 )
 	return mUdf(double);
 
-    double basedist = Coord(crds_[0]).distTo( crds_[crds_.size()-1] );
+    double basedist = crds_[0].xyDistTo<double>( crds_[crds_.size()-1] );
     if ( mIsZero(basedist,mDefEps) )
 	return MAXDOUBLE;
 
-    return fabs( zscale*(crds_[0].z-crds_[crds_.size()-1].z) / basedist );
+    return fabs( zscale*(crds_[0].z_-crds_[crds_.size()-1].z_) / basedist );
 }
 
 
@@ -52,17 +52,17 @@ Coord3 FSStoFault3DConverter::FaultStick::findPlaneNormal() const
 
     for ( int idx=0; idx<crds_.size()-1; idx++ )
     {
-	const BinID bid0 = SI().transform( crds_[idx] );
+	const BinID bid0 = SI().transform( crds_[idx].getXY() );
 	for ( int idy=idx+1; idy<crds_.size(); idy++ )
 	{
-	    const BinID bid1 = SI().transform( crds_[idy] );
+	    const BinID bid1 = SI().transform( crds_[idy].getXY() );
 	    const int inldist = abs( bid0.inl()-bid1.inl() );
 	    if ( inldist < maxdist )
 		oninl += maxdist - inldist;
 	    const int crldist = abs( bid0.crl()-bid1.crl() );
 	    if ( crldist < maxdist )
 		oncrl += maxdist - crldist;
-	    const int zdist = mNINT32( fabs(crds_[idx].z-crds_[idy].z) /
+	    const int zdist = mNINT32( fabs(crds_[idx].z_-crds_[idy].z_) /
 			              fabs(SI().zStep()) );
 	    if ( zdist < maxdist )
 		ontms += maxdist - zdist;
@@ -84,26 +84,26 @@ Coord3 FSStoFault3DConverter::FaultStick::findPlaneNormal() const
 bool FSStoFault3DConverter::FaultStick::pickedOnInl() const
 {
     return pickedonplane_ && normal_.isDefined() &&
-	   fabs(Coord(normal_).dot(SI().binID2Coord().inlDir()))>0.5;
+	   fabs( normal_.getXY().dot( SI().binID2Coord().inlDir()))>0.5;
 }
 
 
 bool FSStoFault3DConverter::FaultStick::pickedOnCrl() const
 {
     return pickedonplane_ && normal_.isDefined() &&
-	   fabs(Coord(normal_).dot(SI().binID2Coord().colDir()))>0.5;
+	   fabs(normal_.getXY().dot(SI().binID2Coord().colDir()))>0.5;
 }
 
 
 bool FSStoFault3DConverter::FaultStick::pickedOnTimeSlice() const
 {
-    return pickedonplane_ && normal_.isDefined() && fabs(normal_.z)>0.5;
+    return pickedonplane_ && normal_.isDefined() && fabs(normal_.z_)>0.5;
 }
 
 
 bool FSStoFault3DConverter::FaultStick::pickedOnHorizon() const
 {
-    return !pickedonplane_ && normal_.isDefined() && fabs(normal_.z)>0.5;
+    return !pickedonplane_ && normal_.isDefined() && fabs(normal_.z_)>0.5;
 }
 
 
@@ -217,10 +217,10 @@ static void addStickToStick( const TypeSet<Coord3>& src, TypeSet<Coord3>& dest,
     Coord3 dif10 = src.last() - dest.first();
     Coord3 dif11 = src.last() - dest.last();
 
-    dif00.z *= zscale;
-    dif01.z *= zscale;
-    dif10.z *= zscale;
-    dif11.z *= zscale;
+    dif00.z_ *= zscale;
+    dif01.z_ *= zscale;
+    dif10.z_ *= zscale;
+    dif11.z_ *= zscale;
 
     if ( dif00.sqAbs()<=dif01.sqAbs() && dif00.sqAbs()<=dif10.sqAbs() &&
 	 dif00.sqAbs()<=dif11.sqAbs() )
@@ -299,18 +299,18 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 	Interval<double> zrg;
 	for ( int idy=0; idy<=lastidx; idy++ )
 	{
-	    const BinID bid = SI().transform( stickpositions[idy] );
+	    const BinID bid = SI().transform( stickpositions[idy].getXY() );
 	    if ( !idy )
 	    {
 		inlrg.start = inlrg.stop = bid.inl();
 		crlrg.start = crlrg.stop = bid.crl();
-		zrg.start = zrg.stop = stickpositions[idy].z;
+		zrg.start = zrg.stop = stickpositions[idy].z_;
 	    }
 	    else
 	    {
 		inlrg.include( bid.inl() );
 		crlrg.include( bid.crl() );
-		zrg.include( stickpositions[idy].z );
+		zrg.include( stickpositions[idy].z_ );
 	    }
 	}
 
@@ -359,15 +359,15 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 		for ( int idz=0; idz<picksz-1; idz++ )
 		{
 		    Coord3 k0 = sticks_[idy]->crds_[idz]; 
-		    k0.z *= SI().zScale();
+		    k0.z_ *= SI().zScale();
 		    Coord3 k1 = sticks_[idy]->crds_[idz+1];
-		    k1.z *= SI().zScale();
+		    k1.z_ *= SI().zScale();
 		    Line3 segment( k0, k1 );
-		    Coord3 tmp = stickpositions[0]; tmp.z *= SI().zScale();
+		    Coord3 tmp = stickpositions[0]; tmp.z_ *= SI().zScale();
 		    float dist = (float) segment.distanceToPoint(tmp);
 		    if ( dist>epsilon )
 		    {
-			tmp = stickpositions[lastidx]; tmp.z *= SI().zScale();
+			tmp = stickpositions[lastidx]; tmp.z_ *= SI().zScale();
 			dist = (float) segment.sqDistanceToPoint( tmp );
 		    }
 
@@ -404,7 +404,7 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
     for ( int idx=0; idx<singles.size(); idx++ )
     {
 	const Coord3& pos = singles[idx];
-	const BinID bid = SI().transform( pos );
+	const BinID bid = SI().transform( pos.getXY() );
 
 	int nearidx = -1;
 	for ( int idy=0; idy<sz; idy++ )
@@ -412,7 +412,7 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 	    if ( (pickedplane[idy]==mOnInline && inlcrl[idy]==bid.inl()) ||
 	         (pickedplane[idy]==mOnCrlline && inlcrl[idy]==bid.crl()) ||
 	         (pickedplane[idy]==mOnZSlice && 
-		  mIsEqual(pos.z,zs[idy],zepsilon)) )
+		  mIsEqual(pos.z_,zs[idy],zepsilon)) )
 	    {
 		nearidx = idy;
 		sticks_[idy]->crds_ += pos;
@@ -602,7 +602,7 @@ void FSStoFault3DConverter::geometricSort( double zscale, bool forimport )
 	TypeSet<float> zs;
 	for ( int idy=0; idy<nrcrds; idy++ )
 	{
-	    zs += (float) sticks_[idx]->crds_[idy].z;
+	    zs += (float) sticks_[idx]->crds_[idy].z_;
 	    tmp += idy;
 	}
 	
@@ -635,9 +635,9 @@ void FSStoFault3DConverter::untwistSticks( double zscale )
 	    continue;
 
 	Coord3 d0 = sticks_[idx-1]->crds_[0]-sticks_[idx-1]->crds_[nbnrknots-1];
-	d0.z *= zscale;
+	d0.z_ *= zscale;
 	Coord3 d1 = sticks_[idx]->crds_[0]-sticks_[idx]->crds_[nrknots-1];
-	d1.z *= zscale;
+	d1.z_ *= zscale;
 
 	if ( d0.dot(d1) >= 0.0 )
 	    continue;
@@ -661,7 +661,7 @@ void FSStoFault3DConverter::resolveUdfNormals()
 	    Coord3& adjacentnormal = sticks_[idy]->normal_;
 	    if ( !adjacentnormal.isDefined() )
 		continue;
-	    if ( mIsUdf(normal.z) || normal.z==adjacentnormal.z )
+	    if ( mIsUdf(normal.z_) || normal.z_==adjacentnormal.z_ )
 	    {
 		normal = adjacentnormal;
 		break;

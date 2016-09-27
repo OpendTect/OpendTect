@@ -282,7 +282,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     {
 	const EM::SubID subid( iter.curBinID().toInt64() );
 	const EM::PosID posid( hor_->id(), sid, subid );
-	const float val = isz ? (float) hor_->getPos( posid ).z
+	const float val = isz ? (float) hor_->getPos( posid ).z_
 			      : hor_->auxdata.getAuxDataVal( dataidx, posid );
 	if ( !mIsUdf(val) )
 	    rg.include( val, false );

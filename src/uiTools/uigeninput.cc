@@ -193,8 +193,8 @@ void uiPositionInpFld::commitToSetup() const
 	= const_cast<PositionInpSpec&>( posInpSpec() ).setup();
     if ( setup.wantcoords_ )
     {
-	setup.coord_.x = flds_[0]->getDValue();
-	setup.coord_.y = flds_[1]->getDValue();
+	setup.coord_.x_ = flds_[0]->getDValue();
+	setup.coord_.y_ = flds_[1]->getDValue();
 	if ( setup.isps_ )
 	    setup.offs_ = flds_[2]->getFValue();
     }
@@ -230,13 +230,13 @@ bool uiPositionInpFld::update_( const DataInpSpec& dis )
       else flds_[nr]->setValue( val ); }
 
     if ( su.wantcoords_ )
-	mSetFld( 0, su.coord_.x )
+	mSetFld( 0, su.coord_.x_ )
     else
 	mSetFld( 0, su.is2d_ ? su.binid_.crl() : su.binid_.inl() )
     if ( flds_.size() < 2 ) return true;
 
     if ( su.wantcoords_ )
-	mSetFld( 1, su.coord_.y )
+	mSetFld( 1, su.coord_.y_ )
     else if ( su.isps_ )
 	mSetFld( 1, su.is2d_ ? su.offs_ : su.binid_.crl() )
     else

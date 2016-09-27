@@ -300,7 +300,7 @@ bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
 	    continue;
 
 	const Coord& pos = (*points_)[index];
-	const double dist = gridpoint.distTo( pos );
+	const double dist = gridpoint.distTo<double>( pos );
 	if ( useradius && dist > radius_ )
 	    continue;
 
@@ -397,8 +397,8 @@ bool TriangulatedGridder2D::getWeights( const Coord& gridpoint,
     if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) )
 	return false;
 
-    if ( !triangles_ || !xrg.includes(gridpoint.x,false) ||
-			!yrg.includes(gridpoint.y,false) )
+    if ( !triangles_ || !xrg.includes(gridpoint.x_,false) ||
+			!yrg.includes(gridpoint.y_,false) )
     {
 	//fallback to inverse distance without radius
 	relevantpoints = usedpoints_;
@@ -410,7 +410,7 @@ bool TriangulatedGridder2D::getWeights( const Coord& gridpoint,
 		continue;
 
 	    const Coord& pos = (*points_)[index];
-	    const double weight = 1. / gridpoint.distTo( pos );
+	    const double weight = 1. / gridpoint.distTo<double>( pos );
 	    weightsum += weight;
 	    weights += weight;
 	}
@@ -449,8 +449,8 @@ bool TriangulatedGridder2D::pointsChangedCB( CallBacker* )
     TypeSet<Coord>* translatedpoints =
 	new TypeSet<Coord>( points_->size(), Coord::udf() );
 
-    center_.x = xrg.center();
-    center_.y = yrg.center();
+    center_.x_ = xrg.center();
+    center_.y_ = yrg.center();
 
     for ( int idx=points_->size()-1; idx>=0; idx-- )
 	(*translatedpoints)[idx] = (*points_)[idx]-center_;
@@ -462,8 +462,8 @@ bool TriangulatedGridder2D::pointsChangedCB( CallBacker* )
 	return false;
     }
 
-    xrg.shift( -center_.x );
-    yrg.shift( -center_.y );
+    xrg.shift( -center_.x_ );
+    yrg.shift( -center_.y_ );
 
     if ( !triangles_->setBBox( xrg, yrg ) )
     {
@@ -723,8 +723,8 @@ bool RadialBasisFunctionGridder2D::updateSolution()
 double RadialBasisFunctionGridder2D::getRadius( const Coord& pos1,
 						const Coord& pos2 ) const
 {
-    const double xdiff = pos1.x - pos2.x;
-    const double ydiff = pos1.y - pos2.y;
+    const double xdiff = pos1.x_ - pos2.x_;
+    const double ydiff = pos1.y_ - pos2.y_;
     if ( ismetric_ )
     {
 	return Math::Sqrt( m11_ * xdiff * xdiff +

@@ -39,7 +39,8 @@ _______________________________________________________________________________
 
 #include <math.h>
 
-#define mDefaultWidth ((SI().inlDistance() + SI().crlDistance() ) * 100)
+#define mDefaultWidth \
+((s3dgeom_->inlDistance() + s3dgeom_->crlDistance() ) * 100)
 
 static const char* sKeyDBKey()	{ return "Data ID"; }
 static const char* sKeyTraceNr()	{ return "TraceNr"; }
@@ -203,8 +204,9 @@ DataPack::ID PreStackDisplay::preProcess()
 	    if ( !preprocmgr_.wantsInput(relbid) )
 		continue;
 
-	    const BinID relpos = !is3DSeis() ? relbid
-			: relbid * BinID( SI().inlStep(), SI().crlStep() );
+	    const BinID relpos = !is3DSeis()
+		? relbid
+		: relbid * BinID( s3dgeom_->inlStep(), s3dgeom_->crlStep() );
 	    trckey_.setPosition( trckey_.position() + relpos );
 	    RefMan<PreStack::Gather> gather = new PreStack::Gather;
 	    if ( !gather->readFrom(*ioobj_,*reader_,trckey_) )
@@ -476,8 +478,9 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 	return;
 
     const Coord direction = posside_ ? basedirection_ : -basedirection_;
-    const double offsetscale = Coord( basedirection_.x*SI().inlDistance(),
-				     basedirection_.y*SI().crlDistance()).abs();
+    const float offsetscale = Coord( basedirection_.x_*s3dgeom_->inlDistance(),
+				     basedirection_.y_*s3dgeom_->crlDistance())
+				.abs<float>();
 
     ConstRefMan<FlatDataPack> fdp = flatviewer_->getPack( false );
     if ( fdp )
@@ -517,10 +520,12 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 	bool isinline = section_->getOrientation()==OD::InlineSlice;
 	planedragger_->setDim( isinline ? 1 : 0 );
 
-	const float xwidth =
-	    isinline ? (float) fabs(stoppos.x-startpos.x) : SI().inlDistance();
-	const float ywidth =
-	    isinline ?  SI().crlDistance() : (float) fabs(stoppos.y-startpos.y);
+	const float xwidth = isinline
+		? (float) fabs(stoppos.x_-startpos.x_)
+		: s3dgeom_->inlDistance();
+	const float ywidth = isinline
+		?  s3dgeom_->crlDistance()
+		: (float) fabs(stoppos.y_-startpos.y_);
 
 	planedragger_->setSize( Coord3(xwidth,ywidth,zrg_.width(true)) );
 
@@ -532,12 +537,12 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 			      mCast(float, SI().crlRange(true).stop) );
 	if ( isinline )
 	{
-	    xlim.set( mCast(float,startpos.x), mCast(float,stoppos.x) );
+	    xlim.set( mCast(float,startpos.x_), mCast(float,stoppos.x_) );
 	    xlim.sort();
 	}
 	else
 	{
-	    ylim.set( mCast(float,startpos.y), mCast(float,stoppos.y) );
+	    ylim.set( mCast(float,startpos.y_), mCast(float,stoppos.y_) );
 	    ylim.sort();
 	}
 
@@ -809,8 +814,8 @@ void PreStackDisplay::draggerMotion( CallBacker* )
     if ( !section_ )
 	return;
 
-    const int newinl = SI().inlRange( true ).snap( planedragger_->center().x );
-    const int newcrl = SI().crlRange( true ).snap( planedragger_->center().y );
+    const int newinl = SI().inlRange( true ).snap( planedragger_->center().x_ );
+    const int newcrl = SI().crlRange( true ).snap( planedragger_->center().y_ );
 
     const OD::SliceType orientation = section_->getOrientation();
     bool showplane = false;
@@ -836,11 +841,11 @@ void PreStackDisplay::finishedCB( CallBacker* )
     if ( section_->getOrientation() == OD::InlineSlice )
     {
 	newpos.inl() = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.inl();
-	newpos.crl() = SI().crlRange(true).snap( planedragger_->center().y );
+	newpos.crl() = SI().crlRange(true).snap( planedragger_->center().y_ );
     }
     else if ( section_->getOrientation() == OD::CrosslineSlice )
     {
-	newpos.inl() = SI().inlRange(true).snap( planedragger_->center().x );
+	newpos.inl() = SI().inlRange(true).snap( planedragger_->center().x_ );
 	newpos.crl() = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.crl();
     }
     else
@@ -868,22 +873,23 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 
     const FlatPosData& posdata = fdp->posData();
 
-    double offset = mUdf(double);
+    float offset = mUdf(float);
     const StepInterval<double>& rg = posdata.range( true );
 
     if ( seis2d_ )
     {
 	info += "   Tracenr: ";
 	info += trckey_.trcNr();
-	const double displaywidth = seis2dstoppos_.distTo(seis2dpos_);
-	const double curdist =
-	    SI().binID2Coord().transformBackNoSnap( pos ).distTo( seis2dpos_ );
+	const float displaywidth = seis2dstoppos_.distTo<float>(seis2dpos_);
+	const float curdist =
+	    SI().binID2Coord().transformBackNoSnap( pos.getXY() )
+			      .distTo<float>( seis2dpos_ );
 	offset = rg.start + posdata.width(true)*curdist/displaywidth;
-	pos = Coord3( seis2dpos_, pos.z );
+	pos = Coord3( seis2dpos_, pos.z_ );
     }
     else if ( section_ )
     {
-	const BinID bid = SI().transform( pos );
+	const BinID bid = SI().transform( pos.getXY() );
 	const float distance =
 			Math::Sqrt((float)trckey_.position().sqDistTo( bid ));
 
@@ -896,7 +902,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 	else
 	    offset= cal*SI().crlDistance()+rg.start;
 
-	pos = Coord3( trckey_.getCoord(), pos.z );
+	pos = Coord3( trckey_.getCoord(), pos.z_ );
     }
 
     int offsetsample = 0;
@@ -935,7 +941,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     info.add( (float) traceoffset );
     info.add( " " ).add( SI().getXYUnitString(false) );
 
-    const int zsample = posdata.range(false).nearestIndex( pos.z );
+    const int zsample = posdata.range(false).nearestIndex( pos.z_ );
     val = fdp->data().get( offsetsample, zsample );
 
 }

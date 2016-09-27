@@ -25,7 +25,7 @@ void Fault::removeAll()
 }
 
 
-const Coord3& FaultGeometry::getEditPlaneNormal( const SectionID& sid,
+Coord3 FaultGeometry::getEditPlaneNormal( const SectionID& sid,
 						 int sticknr ) const
 {
     mDynamicCastGet( const Geometry::FaultStickSet*,fss,sectionGeometry(sid) );
@@ -63,7 +63,8 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
 
 	    int knotnr = 0;
 
-	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
+		  rc.col()+=colrg.step )
 	    {
 		const Coord3 pos = srcfss->getKnot( rc );
 
@@ -161,7 +162,8 @@ bool FaultGeometry::removeSelStick( int selidx, bool addtohistory,
 	    if ( colrg.isUdf() )
 		continue;
 
-	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
+		  rc.col()+=colrg.step )
 	    {
 
 		if ( rc.col() == colrg.stop )
@@ -207,10 +209,10 @@ int FaultGeometry::nrSelectedSticks() const
 
 static bool isSameKnot( Coord3 pos1, Coord3 pos2 )
 {
-    if ( pos1.Coord::distTo(pos2) > 0.1 * SI().crlDistance() )
+    if ( pos1.xyDistTo<float>(pos2) > 0.1 * SI().crlDistance() )
 	return false;
 
-    return fabs(pos1.z -pos2.z) < 0.1 * SI().zStep();
+    return fabs(pos1.z_ -pos2.z_) < 0.1 * SI().zStep();
 }
 
 
@@ -247,7 +249,8 @@ int FaultGeometry::nrStickDoubles( const SectionID& sid, int sticknr,
 
 	    RowCol uprc( sticknr, srccolrg.start);
 	    RowCol downrc( sticknr, srccolrg.stop);
-	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
+		  rc.col()+=colrg.step )
 	    {
 		if ( isSameKnot(srcfss->getKnot(uprc), reffss->getKnot(rc)) )
 		    uprc.col() += srccolrg.step;

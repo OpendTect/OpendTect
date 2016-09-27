@@ -158,9 +158,9 @@ bool uiExport2DHorizon::doExport()
 	{
 	    Coord3 pos = geom->getKnot( RowCol(lineidx,trcnr) );
 
-	    if ( mIsUdf(pos.x) || mIsUdf(pos.y) )
+	    if ( mIsUdf(pos.x_) || mIsUdf(pos.y_) )
 		continue;
-	    const bool zudf = mIsUdf(pos.z);
+	    const bool zudf = mIsUdf(pos.z_);
 	    if ( zudf && !wrudfs )
 		continue;
 
@@ -171,28 +171,28 @@ bool uiExport2DHorizon::doExport()
 	    if ( zudf )
 	    {
 		if ( !wrlnms )
-		    line.set( pos.x ).add( "\t" ).add( pos.y )
+		    line.set( pos.x_ ).add( "\t" ).add( pos.y_ )
 			.add( "\t" ).add( undefstr );
 		else
 		{
 		    controlstr += "%16.2lf%16.2lf%8d%16s";
 		    sprintf( line.getCStr(), controlstr.buf(), linename.buf(),
-			     pos.x, pos.y, trcnr, undefstr.buf() );
+			     pos.x_, pos.y_, trcnr, undefstr.buf() );
 		}
 	    }
 	    else
 	    {
-		pos.z *= zfac;
+		pos.z_ *= zfac;
 		if ( wrlnms )
 		{
 		    controlstr += "%16.2lf%16.2lf%8d%16.4lf";
 		    sprintf( line.getCStr(), controlstr.buf(),
-			    linename.buf(), pos.x, pos.y, trcnr, pos.z );
+			    linename.buf(), pos.x_, pos.y_, trcnr, pos.z_ );
 		}
 		else
 		{
-		    line.set( pos.x ).add( "\t" ).add( pos.y )
-			.add( "\t" ).add( pos.z );
+		    line.set( pos.x_ ).add( "\t" ).add( pos.y_ )
+			.add( "\t" ).add( pos.z_ );
 		}
 	    }
 

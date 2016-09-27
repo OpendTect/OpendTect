@@ -141,8 +141,8 @@ HorizonDisplay::HorizonDisplay()
 
     setLockable();
     maxintersectionlinethickness_ = 0.02f *
-	mMAX( SI().inlDistance() * SI().inlRange(true).width(),
-	      SI().crlDistance() * SI().crlRange(true).width() );
+	mMAX( s3dgeom_->inlDistance() * s3dgeom_->inlRange().width(),
+	      s3dgeom_->crlDistance() * s3dgeom_->crlRange().width() );
 
     as_ += new TypeSet<Attrib::SelSpec>( 1, Attrib::SelSpec() );
     coltabmappersetups_ += ColTab::MapperSetup();
@@ -315,7 +315,7 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
     if ( transformation_ )
 	transformation_->transformBack( newpos );
 
-    const BinID pickedbid = SI().transform( newpos );
+    const BinID pickedbid = s3dgeom_->transform( newpos.getXY() );
     const EM::SubID pickedsubid = pickedbid.toInt64();
     TypeSet<EM::PosID> closestnodes;
     for ( int idx=sids_.size()-1; idx>=0; idx-- )
@@ -336,7 +336,7 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 	mVisTrans::transform( transformation_, coord, displaypos );
 	mVisTrans::transform( ztrans, displaypos );
 
-	const float dist = (float) displaypos.distTo( pickedpos );
+	const float dist = displaypos.distTo<float>( pickedpos );
 	if ( !idx || dist<mindist )
 	{
 	    closestnode = closestnodes[idx];
@@ -735,7 +735,7 @@ void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* trans ) const
 {
     //data.bivSet().allowDuplicateBids(false);
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->getDataPositions( data, getTranslation().z,
+	sections_[idx]->getDataPositions( data, getTranslation().z_,
 					  sids_[idx], trans );
 
     data.dataChanged();
@@ -913,7 +913,7 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
 
     Coord3 origin( 0, 0, 0 );
     Coord3 aftershift( nt );
-    aftershift.z *= -1;
+    aftershift.z_ *= -1;
 
     mVisTrans::transform( transformation_, origin );
     mVisTrans::transform( transformation_, aftershift );
@@ -1387,7 +1387,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
     mDynamicCastGet(const EM::Horizon3D*,hor,emobject_)
     if ( hor )
     {
-	const BinID bid = SI().transform( xytpos );
+	const BinID bid = s3dgeom_->transform( xytpos.getXY() );
 	const EM::SubID bidid = bid.toInt64();
 	TypeSet<Coord3> positions;
 	for ( int idx=sids_.size()-1; idx>=0; idx-- )
@@ -1405,7 +1405,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 		? scene_->getZScale()
 		: s3dgeom_->zScale();
 	    const Coord3& pos = positions[idx] + getTranslation()/zfactor;
-	    const float dist = (float) fabs(xytpos.z-pos.z);
+	    const float dist = (float) fabs(xytpos.z_-pos.z_);
 	    if ( dist < mindist ) mindist = dist;
 	}
 
@@ -1461,7 +1461,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     if ( sectionidx<0 || sectionidx>=sections_.size() )
 	return;
 
-    const BinID bid( SI().transform(pos) );
+    const BinID bid( s3dgeom_->transform(pos.getXY()) );
 
     for ( int idx=nrAttribs()-1; idx>=0; idx-- )
     {
@@ -1518,7 +1518,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	    }
 
 	    const float zshift =
-	      (float) getTranslation().z*s3dgeom_->zDomain().userFactor();
+	      (float) getTranslation().z_*s3dgeom_->zDomain().userFactor();
 
 	    const bool hasshift = !mIsZero(attribshift,0.1) ||
 				  !mIsZero(zshift,0.1);
@@ -1617,17 +1617,19 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
                 {
                     if ( zaxistransform_ )
 		    {
-                        displayhorpos.z = zaxistransform_->transformTrc( hortrc,
-						      (float) horpos.z );
+			displayhorpos.z_ =
+			    zaxistransform_->transformTrc( hortrc,
+						      (float) horpos.z_ );
 		    }
                 }
 
-                if ( displayhorpos.isDefined() && zrg.includes(horpos.z,false) )
+		if ( displayhorpos.isDefined() &&
+		     zrg.includes(horpos.z_,false) )
                 {
                     //Take coord from intersection, and z from horizon
                     //Gives nice intersection when geometry is different
                     //such as on 2D lines
-                    curline += Coord3( intersectioncoord, displayhorpos.z );
+		    curline += Coord3( intersectioncoord, displayhorpos.z_ );
 		    continue;
 		}
 	    }
@@ -1662,7 +1664,7 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
     mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_);
     if ( !horizon ) return;
 
-    const float zshift = (float) getTranslation().z;
+    const float zshift = (float) getTranslation().z_;
 
     const Geometry::BinIDSurface* geom =
 	horizon->geometry().sectionGeometry( sid );
@@ -1691,8 +1693,8 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
 	for ( int vidx=0; vidx<ic.size(); vidx++ )
 	{
 	    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
-	    Coord vrtxcoord( vertex.x, vertex.y );
-	    vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
+	    Coord vrtxcoord( vertex.x_, vertex.y_ );
+	    vrtxcoord = s3dgeom_->binID2Coord().transform( vrtxcoord );
 	    const Coord3 pos( vrtxcoord, tkzs.zsamp_.start-zshift );
 	    curline += pos;
 	}
@@ -2027,7 +2029,7 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
     for ( int idx=0; idx<parents.size(); idx++ )
     {
 	const TrcKey& curnode = parents[idx];
-	const Coord3 crd( SI().transform(curnode.binID()),
+	const Coord3 crd( s3dgeom_->transform(curnode.binID()),
 			    hor3d->getZ(curnode) );
 	parentline_->getCoordinates()->addPos( crd );
 	idxps.add( cii++ );
@@ -2275,7 +2277,7 @@ void HorizonDisplay::fillPar( IOPar& par ) const
     }
 
     par.setYN( sKeyTexture(), usesTexture() );
-    par.set( sKeyShift(), getTranslation().z );
+    par.set( sKeyShift(), getTranslation().z_ );
     par.set( sKeyResolution(), getResolution() );
     par.set( sKeySurfaceGrid(), displaysSurfaceGrid() );
 
@@ -2321,7 +2323,7 @@ bool HorizonDisplay::usePar( const IOPar& par )
     setResolution( resolution, 0 );
 
     Coord3 shift( 0, 0, 0 );
-    par.get( sKeyShift(), shift.z );
+    par.get( sKeyShift(), shift.z_ );
     setTranslation( shift );
 
     bool displaysurfacegrid =  false;

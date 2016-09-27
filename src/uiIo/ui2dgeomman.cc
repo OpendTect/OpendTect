@@ -188,8 +188,8 @@ void fillTable( const PosInfo::Line2DData& geom )
     for ( int idx=0; idx<positions.size(); idx++ )
     {
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
-	table_->setValue( RowCol(idx,1), positions[idx].coord_.x );
-	table_->setValue( RowCol(idx,2), positions[idx].coord_.y );
+	table_->setValue( RowCol(idx,1), positions[idx].coord_.x_ );
+	table_->setValue( RowCol(idx,2), positions[idx].coord_.y_ );
     }
 }
 
@@ -211,8 +211,8 @@ bool acceptOK()
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
 	PosInfo::Line2DPos l2d( table_->getIntValue(RowCol(idx,0)) );
-	l2d.coord_.x = table_->getDValue( RowCol(idx,1) );
-	l2d.coord_.y = table_->getDValue( RowCol(idx,2) );
+	l2d.coord_.x_ = table_->getDValue( RowCol(idx,1) );
+	l2d.coord_.y_ = table_->getDValue( RowCol(idx,2) );
 	geomdata.add( l2d );
     }
 

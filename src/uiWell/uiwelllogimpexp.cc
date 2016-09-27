@@ -441,20 +441,20 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	else
 	{
 	    const Coord3 pos = wd.track().getPos( md );
-	    if ( !pos.x && !pos.y && !pos.z ) continue;
+	    if ( !pos.x_ && !pos.y_ && !pos.z_ ) continue;
 
 	    if ( dobinid )
 	    {
-		const BinID bid = SI().transform( pos );
+		const BinID bid = SI().transform( pos.getXY() );
 		strm << bid.inl() << od_tab << bid.crl();
 	    }
 	    else
 	    {
-		strm << pos.x << od_tab; // keep sep from next line
-		strm << pos.y;
+		strm << pos.x_ << od_tab; // keep sep from next line
+		strm << pos.y_;
 	    }
 
-	    float z = (float) pos.z;
+	    float z = (float) pos.z_;
 	    if ( infeet ) z *= mToFeetFactorF;
 	    else if (intime )
 	    {

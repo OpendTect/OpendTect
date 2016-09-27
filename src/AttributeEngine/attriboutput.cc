@@ -1087,8 +1087,10 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 	    if ( coord > poszvalues_->coord( idx )
 		&& coord < poszvalues_->coord( idx+1 ) )
 	    {
-		const double distn = coord.distTo( poszvalues_->coord(idx) );
-		const double distnp1 = coord.distTo(poszvalues_->coord(idx+1));
+		const float distn =
+			coord.distTo<float>( poszvalues_->coord(idx) );
+		const float distnp1 =
+			coord.distTo<float>( poszvalues_->coord(idx+1));
 		if ( distn<distnp1 && distn<=maxdisttrcs_/2 )
 		    { rowid = idx; break; }
 		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 )
@@ -1103,8 +1105,8 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
     for ( int idx=rowid; idx<poszvalues_->size(); idx++ )
     {
 	if ( poszvalues_->binID( idx ) != bid ) break;
-	if ( mIsEqual( poszvalues_->coord(idx).x, coord.x, 1e-3 )
-	   &&mIsEqual( poszvalues_->coord(idx).y, coord.y, 1e-3 ) )
+	if ( mIsEqual( poszvalues_->coord(idx).x_, coord.x_, 1e-3 )
+	   &&mIsEqual( poszvalues_->coord(idx).y_, coord.y_, 1e-3 ) )
 	{
 	    Interval<int> interval( mNINT32(poszvalues_->z(idx)/zstep),
 				    mNINT32(poszvalues_->value(0,idx)/zstep) );
@@ -1127,7 +1129,7 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
 {
     //TODO : for some reason horizon coords in 2D are now rounded, check why
-    Coord roundedcoord( (int)coord.x, (int)coord.y );
+    Coord roundedcoord( (int)coord.x_, (int)coord.y_ );
     return poszvalues_->findFirst( roundedcoord ) > -1;
 }
 
@@ -1170,8 +1172,10 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 	    if ( coord > datapointset_.coord(idx) &&
 		 coord < datapointset_.coord(idx+1) )
 	    {
-		const double distn = coord.distTo( datapointset_.coord(idx) );
-		const double distnp1 = coord.distTo(datapointset_.coord(idx+1));
+		const float distn =
+			coord.distTo<float>( datapointset_.coord(idx) );
+		const float distnp1 =
+			coord.distTo<float>(datapointset_.coord(idx+1));
 		if ( distn<distnp1 && distn<=maxdisttrcs_/2 )
 		    { rid = idx; break; }
 		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 )
@@ -1280,8 +1284,10 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 	    if ( coord > datapointset_.coord(idx) &&
 		 coord < datapointset_.coord(idx+1) )
 	    {
-		const double distn = coord.distTo( datapointset_.coord(idx) );
-		const double distnp1 = coord.distTo(datapointset_.coord(idx+1));
+		const float distn =
+			coord.distTo<float>( datapointset_.coord(idx) );
+		const float distnp1 =
+			coord.distTo<float>(datapointset_.coord(idx+1));
 		if ( distn<distnp1 && distn<=maxdisttrcs_/2 &&
 		    ( mIsUdf(distpicktrc_[idx]) || distn<distpicktrc_[idx]) )
 		{
@@ -1301,8 +1307,8 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     }
     else
     {
-	const double dist = coord.distTo(datapointset_.coord(rid));
-	myself->distpicktrc_[rid] = mCast(float,dist);
+	const float dist = coord.distTo<float>(datapointset_.coord(rid));
+	myself->distpicktrc_[rid] = dist;
     }
 
     TypeSet< Interval<int> > sampleinterval;

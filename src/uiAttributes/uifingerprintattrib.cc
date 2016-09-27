@@ -487,7 +487,7 @@ void uiFingerPrintAttrib::pickRetrieved( CallBacker* )
     Coord3 crd = pickretriever_->getPos();
     if ( !is2d_ )
     {
-	const BinID bid = SI().transform( crd );
+	const BinID bid = SI().transform( crd.getXY() );
 	refposfld_->setValue( bid );
     }
     else
@@ -496,7 +496,7 @@ void uiFingerPrintAttrib::pickRetrieved( CallBacker* )
 	linefld_->setSelLine( pickretriever_->getGeomID() );
     }
 
-    refposzfld_->setValue( crd.z*SI().zDomain().userFactor() );
+    refposzfld_->setValue( crd.z_*SI().zDomain().userFactor() );
     getposbut_->setSensitive( true );
     pickretriever_->reset();
 }

@@ -104,12 +104,12 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
     {
 	float md = dahintv.atIndex( idx );
 	Coord3 pos = wd_->track().getPos( md );
-	const BinID bid = SI().transform( pos );
+	const BinID bid = SI().transform( pos.getXY() );
 	if ( !bid.inl() && !bid.crl() ) continue;
 
 	if ( SI().zIsTime() )
-	    pos.z = wd_->d2TModel().getTime( md, wd_->track() );
-	bidset_.add( bid, (float) pos.z, (float)idx );
+	    pos.z_ = wd_->d2TModel().getTime( md, wd_->track() );
+	bidset_.add( bid, (float) pos.z_, (float)idx );
 	depths_ += md;
 	positions_ += BinIDValueSet::SPos(0,0);
     }

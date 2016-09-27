@@ -118,23 +118,24 @@ void uiWellTo2DLineDlg::extendLine( TypeSet<Coord>& coords )
     {
 	const Coord c( coords[0] );
 	coords.erase();
-	coords += Coord( c.x-extradist, c.y );
+	coords += Coord( c.x_-extradist, c.y_ );
 	coords += c;
-	coords += Coord( c.x+extradist, c.y );
+	coords += Coord( c.x_+extradist, c.y_ );
     }
     else
     {
 	TypeSet<Coord> oldcrds( coords );
 	coords.erase();
-	const Coord d0( oldcrds[1].x - oldcrds[0].x,
-			oldcrds[1].y - oldcrds[0].y );
+	const Coord d0( oldcrds[1].x_ - oldcrds[0].x_,
+			oldcrds[1].y_ - oldcrds[0].y_ );
 	float p = (float) Math::Sqrt( extradist * extradist / d0.sqAbs() );
-	const Coord newc0( oldcrds[0].x - p * d0.x, oldcrds[0].y - p * d0.y );
-	const Coord d1( oldcrds[nrcoords-1].x - oldcrds[nrcoords-2].x,
-			oldcrds[nrcoords-1].y - oldcrds[nrcoords-2].y );
+	const Coord newc0( oldcrds[0].x_ - p * d0.x_,
+			   oldcrds[0].y_ - p * d0.y_ );
+	const Coord d1( oldcrds[nrcoords-1].x_ - oldcrds[nrcoords-2].x_,
+			oldcrds[nrcoords-1].y_ - oldcrds[nrcoords-2].y_ );
 	p = (float) Math::Sqrt( extradist * extradist / d1.sqAbs() );
-	const Coord newc1( oldcrds[nrcoords-1].x + p * d1.x,
-			   oldcrds[nrcoords-1].y + p * d1.y );
+	const Coord newc1( oldcrds[nrcoords-1].x_ + p * d1.x_,
+			   oldcrds[nrcoords-1].y_ + p * d1.y_ );
 
 	coords += newc0;
 	for ( int idx=0; idx<oldcrds.size(); idx++ )

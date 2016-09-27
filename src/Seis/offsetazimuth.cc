@@ -126,7 +126,7 @@ float OffsetAzimuth::distanceTo( const OffsetAzimuth& b, bool sq ) const
     if ( !bvec.isDefined() )
 	return mUdf(float);
 
-    return (float) (sq ? myvec.sqDistTo( bvec ) : myvec.distTo( bvec ));
+    return sq ? (float) myvec.sqDistTo( bvec ) : myvec.distTo<float>( bvec );
 }
 
 

@@ -203,11 +203,11 @@ bool PolygonBody::getBodyRange( TrcKeyZSampling& cs )
      surf->getAllKnots( pts );
      for ( int idx=0; idx<pts.size(); idx++ )
      {
-	 cs.hsamp_.include( SI().transform(pts[idx]) );
+	 cs.hsamp_.include( SI().transform(pts[idx].getXY()) );
 	 if ( idx )
-	     cs.zsamp_.include( (float) pts[idx].z );
+	     cs.zsamp_.include( (float) pts[idx].z_ );
 	 else
-	     cs.zsamp_.start = cs.zsamp_.stop = (float) pts[idx].z;
+	     cs.zsamp_.start = cs.zsamp_.stop = (float) pts[idx].z_;
      }
 
      return pts.size();

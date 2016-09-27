@@ -136,7 +136,7 @@ void WellStratUnitGen::gatherLeavedUnits()
 		    pos = d2tmodel_->getTime(pos, track_)*
 			  SI().zDomain().userFactor();
 		else
-		    pos = (float) track_.getPos( pos ).z;
+		    pos = (float) track_.getPos( pos ).z_;
 
 		int idunit = 0;
 		for ( ; idunit<posset_.size(); idunit ++ )

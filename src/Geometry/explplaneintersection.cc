@@ -32,13 +32,13 @@ struct ExplPlaneIntersectionExtractorPlane
 	    polygon_.add( pt );
 	    if ( !idx )
 	    {
-		xrg.start = xrg.stop = pt.x;
-		yrg.start = yrg.stop = pt.y;
+		xrg.start = xrg.stop = pt.x_;
+		yrg.start = yrg.stop = pt.y_;
 		continue;
 	    }
 
-	    xrg.start = mMIN(xrg.start,pt.x); xrg.stop = mMAX(xrg.stop,pt.x);
-	    yrg.start = mMIN(yrg.start,pt.y); yrg.stop = mMAX(yrg.stop,pt.y);
+	    xrg.start = mMIN(xrg.start,pt.x_); xrg.stop = mMAX(xrg.stop,pt.x_);
+	    yrg.start = mMIN(yrg.start,pt.y_); yrg.stop = mMAX(yrg.stop,pt.y_);
 	}
 
 	bbox_.setTopLeft( Coord(xrg.start, yrg.stop) );
@@ -243,9 +243,9 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
     ConstRefMan<Coord3List> coordlist = explsurf_.getShape()->coordList();
     const float zscale = explsurf_.getZScale();
 
-    Coord3 c0 = coordlist->get( lci0 ); c0.z *= zscale;
-    Coord3 c1 = coordlist->get( lci1 ); c1.z *= zscale;
-    Coord3 c2 = coordlist->get( lci2 ); c2.z *= zscale;
+    Coord3 c0 = coordlist->get( lci0 ); c0.z_ *= zscale;
+    Coord3 c1 = coordlist->get( lci1 ); c1.z_ *= zscale;
+    Coord3 c2 = coordlist->get( lci2 ); c2.z_ *= zscale;
     const Coord3 centerpt = (c0+c1+c2)/3;
     c0 -= centerpt;
     c1 -= centerpt;
@@ -371,7 +371,7 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
     else { arraypos[1]=mMIN(lci2,lci0); arraypos[2]=mMAX(lci2,lci0); } 
 
 	int ci0;
-	startpt.z /= zscale;
+	startpt.z_ /= zscale;
 	if ( !startcut )
 	{
 	    mSetArrPos( startedge )
@@ -383,7 +383,7 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	}
 
 	int ci1;
-	stoppt.z /= zscale;
+	stoppt.z_ /= zscale;
 	if ( !stopcut )
 	{
 	    mSetArrPos( stopedge )
@@ -566,7 +566,7 @@ int ExplPlaneIntersection::addPlane( const Coord3& normal,
 
     const int idx = planeids_.size()-1;
     for ( int idy=0; idy<planepts_[idx]->size(); idy++ )
-	(*planepts_[idx])[idy].z *= zscale_;
+	(*planepts_[idx])[idy].z_ *= zscale_;
 
     needsupdate_ = true;
 
@@ -586,7 +586,7 @@ bool ExplPlaneIntersection::setPlane( int id, const Coord3& normal,
     *planepts_[idx] = pts;
 
     for ( int idy=0; idy<planepts_[idx]->size(); idy++ )
-	(*planepts_[idx])[idy].z *= zscale_;
+	(*planepts_[idx])[idy].z_ *= zscale_;
 
     needsupdate_ = true;
     return true;

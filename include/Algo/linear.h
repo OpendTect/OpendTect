@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "coord.h"
 #include "mathfunc.h"
-namespace Geom { template <class T> class Point2D; }
+
 class Plane3;
 
 /*!

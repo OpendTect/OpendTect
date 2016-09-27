@@ -137,11 +137,11 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
     Coord3 vector = spherical2Cartesian( loc.dir(), true );
 
     if ( scene_ )
-	vector.z /= -scene_->getZScale();
+	vector.z_ /= -scene_->getZScale();
     const Coord3 c1 = loc.pos() + vector;
     Coord3 d1 = world2Display( c1 );
     Coord3 displayvector = d1-d0;
-    const double len = displayvector.abs();
+    const double len = displayvector.abs<double>();
     if ( mIsZero(len,1e-3) )
 	return;
 
@@ -151,7 +151,7 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
     d1 = d0+displayvector;
     lines->getCoordinates()->setPos( 1, display2World(d1) );
 
-    const Coord3 planenormal( sin(loc.dir().phi), -cos(loc.dir().phi), 0 );
+    const Coord3 planenormal( sin(loc.dir().phi_), -cos(loc.dir().phi_), 0 );
     const Quaternion plus45rot( planenormal, M_PI/4 );
     const Quaternion minus45rot( planenormal, -M_PI/4 );
     Coord3 arrowheadvec = minus45rot.rotate( displayvector*.3 );

@@ -119,7 +119,7 @@ void PickSetDisplay::setDraggerNormal( const Coord3& normal )
     if ( !mIsEqual(dotproduct,1,1e-3) )
     {
 	const float zaxisangle =
-	    mCast( float, Math::Atan2(normal.y,normal.x) );
+	    mCast( float, Math::Atan2(normal.y_,normal.x_) );
 	Quaternion rotation( defnormal, zaxisangle );
 	rotation *= Quaternion( Coord3(0,1,0), -Math::ACos(dotproduct) );
 	rotation.getRotation( rotationaxis, angle );
@@ -275,8 +275,8 @@ void PickSetDisplay::redrawAll( int drageridx )
     {
 	Coord3 pos = psiter.get().pos();
 	if ( datatransform_ )
-	    pos.z = datatransform_->transform( pos );
-	if ( !mIsUdf(pos.z) )
+	    pos.z_ = datatransform_->transform( pos );
+	if ( !mIsUdf(pos.z_) )
 	    markerset_->addPos( pos );
 
 	if ( idx==drageridx && dragger_ )
@@ -339,8 +339,8 @@ void PickSetDisplay::redrawLine()
     {
 	Coord3 pos = psiter.get().pos();
 	if ( datatransform_ )
-	    pos.z = datatransform_->transform( pos );
-	if ( !mIsUdf(pos.z) )
+	    pos.z_ = datatransform_->transform( pos );
+	if ( !mIsUdf(pos.z_) )
 	    polyline_->addPoint( pos );
     }
     psiter.retire();
@@ -410,10 +410,10 @@ static float getDip( const Pick::Location& ploc, bool inl )
     if ( set_->markerStyle().type_ == OD::MarkerStyle3D::Arrow )
     {
 	const Sphere& dir = loc.dir();
-	const float phi = SI().isRightHandSystem() ? survngle + dir.phi
-						   : survngle - dir.phi;
+	const float phi = SI().isRightHandSystem() ? survngle + dir.phi_
+						   : survngle - dir.phi_;
 	const Quaternion azimuth( Coord3(0,0,1), phi );
-	const Quaternion dip( Coord3(0,1,0), dir.theta );
+	const Quaternion dip( Coord3(0,1,0), dir.theta_ );
 	const Quaternion rot = azimuth * dip;
 	return rot;
     }
@@ -478,7 +478,7 @@ bool PickSetDisplay::setBodyDisplay()
     {
 	Coord3 pck( psiter.get().pos() );
 	if ( datatransform_ )
-	    pck.z = datatransform_->transformBack( pck );
+	    pck.z_ = datatransform_->transformBack( pck );
 	picks += pck;
     }
     psiter.retire();
@@ -561,7 +561,7 @@ bool PickSetDisplay::updateMarkerAtSection( const SurveyObject* obj, int idx )
 	return false;
 
     if ( datatransform_ )
-	pos.z = datatransform_->transform( pos );
+	pos.z_ = datatransform_->transform( pos );
 
     if ( scene_ )
 	scene_->getUTM2DisplayTransform()->transform( pos );

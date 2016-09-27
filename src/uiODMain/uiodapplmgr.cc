@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Feb 2002
+ Author:	Bert
+ Date:		Feb 2002
 ________________________________________________________________________
 
 -*/
@@ -477,15 +477,15 @@ void uiODApplMgr::setStereoOffset()
 void uiODApplMgr::addTimeDepthScene()
 {
     uiZAxisTransformSel* uitrans = SI().zIsTime()
-        ? new uiZAxisTransformSel( 0, false, ZDomain::sKeyTime(),
-                                  ZDomain::sKeyDepth(), true )
-        : new uiZAxisTransformSel( 0, false, ZDomain::sKeyDepth(),
-                                  ZDomain::sKeyTime(), true );
+	? new uiZAxisTransformSel( 0, false, ZDomain::sKeyTime(),
+				  ZDomain::sKeyDepth(), true )
+	: new uiZAxisTransformSel( 0, false, ZDomain::sKeyDepth(),
+				  ZDomain::sKeyTime(), true );
     
     if ( !uitrans->isOK() )
     {
-        uiMSG().error(tr("No suitable transforms found"));
-        return;
+	uiMSG().error(tr("No suitable transforms found"));
+	return;
     }
     
     uiSingleGroupDlg<> dlg( &appl_, uitrans);
@@ -627,7 +627,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		}
 
 		uiTaskRunner progm( &appl_ );
-                RefMan<DataPack> dp =
+		RefMan<DataPack> dp =
 		    calc->createAttrib( cs, cacheid, &progm );
 
 		if ( !dp && !calc->errmsg_.isEmpty() )
@@ -636,7 +636,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    return false;
 		}
 
-                const DataPack::ID dpid = dp ? dp->id() : DataPack::cNoID();
+		const DataPack::ID dpid = dp ? dp->id() : DataPack::cNoID();
 
 		res = dpid != DataPack::cNoID();
 		visserv_->setDataPackID( visid, attrib, dpid );
@@ -824,7 +824,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	const DBKey surfmid = visserv_->getDBKey(visid);
 	const EM::ObjectID emid = emserv_->getObjectID(surfmid);
 	const int auxdatanr = emserv_->loadAuxData( emid, myas.userRef() );
-        if ( auxdatanr>=0 )
+	if ( auxdatanr>=0 )
 	{
 	    RefMan<DataPointSet> data =
 		dpm.add( new DataPointSet(false,true) );
@@ -868,7 +868,8 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	setRandomPosData( visid, attrib, *data );
 	if ( hd )
 	{
-	    TypeSet<float> shifts( 1,(float)visserv_->getTranslation(visid).z );
+	    TypeSet<float> shifts( 1,
+		(float)visserv_->getTranslation(visid).z_ );
 	    hd->setAttribShift( attrib, shifts );
 	}
     }
@@ -1402,7 +1403,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 #define mGetSelTracker( tracker ) \
     const int selobjvisid = visserv_->getSelObjectId(); \
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,\
-	                        visserv_->getObject(selobjvisid));\
+				visserv_->getObject(selobjvisid));\
     const EM::ObjectID emid = emod ? emod->getObjectID() : -1; \
     const int trackerid = mpeserv_->getTrackerID(emid); \
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
@@ -1540,8 +1541,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     else if ( evid == uiNLAPartServer::evPrepareRead() )
     {
 	bool saved = attrserv_->setSaved(nlaserv_->is2DEvent());
-        uiString msg = tr("Current attribute set is not saved.\nSave now?");
-        if ( !saved && uiMSG().askSave( msg ) )
+	uiString msg = tr("Current attribute set is not saved.\nSave now?");
+	if ( !saved && uiMSG().askSave( msg ) )
 	    attrserv_->saveSet(nlaserv_->is2DEvent());
     }
     else if ( evid == uiNLAPartServer::evReadFinished() )
@@ -1568,7 +1569,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	BufferStringSet linekeys;
 	nlaserv_->getNeededStoredInputs( linekeys );
 	for ( int idx=0; idx<linekeys.size(); idx++ )
-            attrserv_->addToDescSet( linekeys.get(idx), nlaserv_->is2DEvent() );
+	    attrserv_->addToDescSet( linekeys.get(idx), nlaserv_->is2DEvent() );
     }
     else if ( evid == uiNLAPartServer::evGetData() )
     {
@@ -1587,17 +1588,17 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    nlaserv_->getDataPointSets( dpss );
 	    if ( dpss.isEmpty() )
 	    {
-                  uiMSG().error(tr("No matching well data found"));
-                  return false;
-            }
+		  uiMSG().error(tr("No matching well data found"));
+		  return false;
+	    }
 	    bool allempty = true;
 	    for ( int idx=0; idx<dpss.size(); idx++ )
 		{ if ( !dpss[idx]->isEmpty() ) { allempty = false; break; } }
 	    if ( allempty )
 	    {
-                    uiMSG().error(tr("No valid data locations found"));
-                    return false;
-            }
+		    uiMSG().error(tr("No valid data locations found"));
+		    return false;
+	    }
 	    if ( !attrserv_->extractData(dpss) )
 		{ deepErase(dpss); return true; }
 	    IOPar& iop = nlaserv_->storePars();
@@ -1659,7 +1660,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
 	    uiMSG().error( uiStrings::phrSelect(tr("an attribute"
-                              " element in the tree")) );
+			      " element in the tree")) );
 	    return false;
 	}
 
@@ -1693,7 +1694,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
 	    uiMSG().error( uiStrings::phrSelect(tr("an attribute"
-                              " element in the tree")) );
+			      " element in the tree")) );
 	    return false;
 	}
 	if ( !calcMultipleAttribs( as ) )
@@ -1740,7 +1741,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 
 	const DBKey mid = visserv_->getDBKey( visid );
 	const EM::ObjectID emid = emserv_->getObjectID( mid );
-	const float shift = (float) visserv_->getTranslation(visid).z;
+	const float shift = (float) visserv_->getTranslation(visid).z_;
 	const TypeSet<Attrib::SelSpec>& specs = attrserv_->getTargetSelSpecs();
 	const int nrvals = data.bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )

@@ -164,8 +164,8 @@ void HorizonModifier::doWork()
 	else
 	{
 	    const EM::SubID subid = binid.toInt64();
-	    topz = (float) tophor_->getPos( tophor_->sectionID(0), subid ).z;
-	    botz = (float) bothor_->getPos( bothor_->sectionID(0), subid ).z;
+	    topz = (float) tophor_->getPos( tophor_->sectionID(0), subid ).z_;
+	    botz = (float) bothor_->getPos( bothor_->sectionID(0), subid ).z_;
 	}
 
 	if ( botz >= topz || mIsUdf(topz) || mIsUdf(botz) ) continue;
@@ -189,7 +189,7 @@ float HorizonModifier::getDepth2D( const EM::Horizon* hor, const BinID& bid )
     mDynamicCastGet(const EM::Horizon2D*,hor2d,hor)
     if ( !hor2d ) return mUdf(float);
 
-    return (float) hor2d->getPos( sid, geomids_[bid.inl()], bid.crl() ).z;
+    return (float) hor2d->getPos( sid, geomids_[bid.inl()], bid.crl() ).z_;
 }
 
 
@@ -218,7 +218,7 @@ void HorizonModifier::shiftNode( const BinID& bid )
 	if ( !statichor2d || !dynamichor2d ) return;
 
 	float newz = (float) statichor2d->getPos( statichor->sectionID(0),
-					  geomids_[bid.inl()], bid.crl() ).z;
+					  geomids_[bid.inl()], bid.crl() ).z_;
 	if ( !mIsUdf(newz) )
 	    newz += (float) extrashift;
 

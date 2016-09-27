@@ -88,8 +88,8 @@ void EM::RandomLineSetByContourGenerator::createLines(
 		for ( int ipt=0; ipt<poly.size(); ipt++ )
 		{
 		    const Geom::Point2D<float> vtx = poly.getVertex( ipt );
-		    bid.inl() = inlrg.snap( vtx.x );
-		    bid.crl() = crlrg.snap( vtx.y );
+		    bid.inl() = inlrg.snap( vtx.x_ );
+		    bid.crl() = crlrg.snap( vtx.y_ );
 		    if ( bid != prevbid )
 		    {
 			rl->addNode( bid );
@@ -200,8 +200,10 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 		    // weighted fusion based on adjacent triangle areas
 		    const Coord prevec = c0 - basecoords[preprevidx];
 		    const Coord nxtvec = c1 - c2;
-		    const double w0 = fabs(prevec.x*dirvec.y-prevec.y*dirvec.x);
-		    const double w1 = fabs(nxtvec.x*dirvec.y-nxtvec.y*dirvec.x);
+		    const double w0 =
+			fabs(prevec.x_*dirvec.y_-prevec.y_*dirvec.x_);
+		    const double w1 =
+			fabs(nxtvec.x_*dirvec.y_-nxtvec.y_*dirvec.x_);
 		    fusioncrds += w0+w1>0 ? (c0*w0+c1*w1)/(w0+w1) : (c0+c1)/2;
 		}
 	    }
@@ -254,13 +256,13 @@ bool EM::RandomLineByShiftGenerator::getShifted( Coord c1, Coord c2,
 {
     cs1 = c1; cs2 = c2;
     c2 -= c1;
-    double r0 = Math::Sqrt( c2.x*c2.x + c2.y * c2.y );
+    double r0 = Math::Sqrt( c2.x_*c2.x_ + c2.y_ * c2.y_ );
     if ( mIsZero(r0,1e-3) ) return false;
 
     double scl = dist_ / r0;
-    Coord vec( scl * c2.y, scl * c2.x );
-    if ( isleft ) vec.x = -vec.x;
-    else	  vec.y = -vec.y;
+    Coord vec( scl * c2.y_, scl * c2.x_ );
+    if ( isleft ) vec.x_ = -vec.x_;
+    else	  vec.y_ = -vec.y_;
 
     cs1 += vec; cs2 += vec;
     return true;
@@ -273,12 +275,12 @@ bool EM::RandomLineByShiftGenerator::getIntersection( Coord c00, Coord c01,
 {
     const Coord dif0 = c00 - c01;
     const Coord dif1 = c10 - c11;
-    const double det = dif0.x*dif1.y - dif0.y*dif1.x;
+    const double det = dif0.x_*dif1.y_ - dif0.y_*dif1.x_;
     if ( mIsZero(det,1e-6) )
 	return false;
 
-    const double det0 = c00.x*c01.y - c00.y*c01.x;
-    const double det1 = c10.x*c11.y - c10.y*c11.x;
+    const double det0 = c00.x_*c01.y_ - c00.y_*c01.x_;
+    const double det1 = c10.x_*c11.y_ - c10.y_*c11.x_;
     cinter = (dif1*det0 - dif0*det1) / det;
 
     return true;

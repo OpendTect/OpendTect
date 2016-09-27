@@ -214,9 +214,9 @@ bool Well::odWriter::putTrack( od_ostream& strm ) const
 	const Coord3 c = iter.pos();
 	    // don't try to do the following in one statement
 	    // (unless for educational purposes)
-	strm << c.x << od_tab;
-	strm << c.y << od_tab;
-	strm << c.z << od_tab;
+	strm << c.x_ << od_tab;
+	strm << c.y_ << od_tab;
+	strm << c.z_ << od_tab;
 	strm << iter.dah() << od_newline;
     }
     if ( !strm.isOK() )

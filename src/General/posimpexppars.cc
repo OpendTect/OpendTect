@@ -102,16 +102,16 @@ void PosImpExpPars::adjustTrcNr( int& tnr, bool inw ) const
 
 void PosImpExpPars::adjustCoord( Coord& crd, bool inw ) const
 {
-    mChkUdf(crd.x); mChkUdf(crd.y);
+    mChkUdf(crd.x_); mChkUdf(crd.y_);
     if ( inw )
     {
-	crd.x *= coordscale_; crd.y *= coordscale_;
+	crd.x_ *= coordscale_; crd.y_ *= coordscale_;
 	crd += coordoffs_;
     }
     else
     {
 	crd -= coordoffs_;
-	crd.x /= coordscale_; crd.y /= coordscale_;
+	crd.x_ /= coordscale_; crd.y_ /= coordscale_;
     }
 }
 
@@ -160,9 +160,9 @@ void PosImpExpPars::adjustX( double& x, bool inw ) const
 {
     mChkUdf(x);
     if ( inw )
-	{ x *= coordscale_; x += coordoffs_.x; }
+	{ x *= coordscale_; x += coordoffs_.x_; }
     else
-	{ x -= coordoffs_.x; x /= coordscale_; }
+	{ x -= coordoffs_.x_; x /= coordscale_; }
 }
 
 
@@ -170,9 +170,9 @@ void PosImpExpPars::adjustY( double& y, bool inw ) const
 {
     mChkUdf(y);
     if ( inw )
-	{ y *= coordscale_; y += coordoffs_.y; }
+	{ y *= coordscale_; y += coordoffs_.y_; }
     else
-	{ y -= coordoffs_.y; y /= coordscale_; }
+	{ y -= coordoffs_.y_; y /= coordscale_; }
 }
 
 
@@ -220,11 +220,11 @@ bool PosImpExpPars::haveCrlChg() const
 
 bool PosImpExpPars::haveXChg() const
 {
-    return !mIsZero(coordscale_-1,1e-6) || !mIsZero(coordoffs_.x,1e-6);
+    return !mIsZero(coordscale_-1,1e-6) || !mIsZero(coordoffs_.x_,1e-6);
 }
 
 
 bool PosImpExpPars::haveYChg() const
 {
-    return !mIsZero(coordscale_-1,1e-6) || !mIsZero(coordoffs_.y,1e-6);
+    return !mIsZero(coordscale_-1,1e-6) || !mIsZero(coordoffs_.y_,1e-6);
 }

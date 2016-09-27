@@ -101,7 +101,7 @@ void SEGYSeisTrcTranslator::cleanUp()
 
     mSetUdf(curbid_.inl()); mSetUdf(prevbid_.inl());
     curtrcnr_ = prevtrcnr_ = -1;
-    prevoffs_ = curoffs_ = -1.f; mSetUdf(curcoord_.x);
+    prevoffs_ = curoffs_ = -1.f; mSetUdf(curcoord_.x_);
 }
 
 
@@ -327,7 +327,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 
     if ( fileopts_.coorddef_ == SEGY::FileReadOpts::Generate )
     {
-	if ( mIsUdf(curcoord_.x) )
+	if ( mIsUdf(curcoord_.x_) )
 	    curcoord_ = fileopts_.startcoord_;
 	else
 	    curcoord_ += fileopts_.stepcoord_;
@@ -365,7 +365,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	ti.coord_ = bp2c_->coordAt( mCast(float,ti.trcNr()) );
     }
 
-    if ( ti.coord_.x > 1e9 || ti.coord_.y > 1e9 )
+    if ( ti.coord_.x_ > 1e9 || ti.coord_.y_ > 1e9 )
 	addWarn( cSEGYWarnSuspiciousCoord, ti.coord_.toPrettyString() );
 }
 
@@ -643,7 +643,7 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 
 
 #define mBadCoord(ti) \
-	(ti.coord_.x < 0.01 && ti.coord_.y < 0.01)
+	(ti.coord_.x_ < 0.01 && ti.coord_.y_ < 0.01)
 #define mBadBid(ti) \
 	(ti.lineNr() <= 0 && ti.trcNr() <= 0)
 #define mSkipThisTrace() { if ( !skipThisTrace(ti,nrbadtrcs) ) return false; }

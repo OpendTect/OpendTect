@@ -207,7 +207,7 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     const Coord c1( SI().transform(bid1) );
     const Coord c2( SI().transform(bid2) );
     distfld_ = new uiGenInput( this, tr("Distance from input"),
-				    FloatInpSpec((float)( 4*c1.distTo(c2)) ));
+				    FloatInpSpec( 4*c1.distTo<float>(c2) ));
     distfld_->attach( alignedBelow, infld_ );
 
     const char* strs[] = { "Left", "Right", "Both", 0 };
@@ -327,7 +327,7 @@ bool uiGenRanLineFromPolygon::acceptOK()
     for ( int idx=0; idx<poly->size(); idx++ )
     {
 	Geom::Point2D<float> pt = poly->getVertex( idx );
-	BinID bid( mNINT32(pt.x), mNINT32(pt.y) );
+	BinID bid( mNINT32(pt.x_), mNINT32(pt.y_) );
 	rl->addNode( bid );
     }
     if ( rl->isEmpty() )

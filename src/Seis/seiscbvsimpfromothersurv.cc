@@ -118,7 +118,7 @@ float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const Pos::IdxPair2Coord& b2c,
     BinID nextbid = BinID( inldir ? step : 0, inldir ? 0 : step );
     const Coord c00 = b2c.transform( orgbid );
     const Coord c10 = b2c.transform( nextbid );
-    return (float) c00.distTo(c10);
+    return c00.distTo<float>(c10);
 }
 
 
@@ -310,10 +310,10 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     const Coord startcrd = trcs[0]->info().coord_;
     const Coord nextcrlcrd = trcs[1]->info().coord_;
     const Coord nextinlcrd = trcs[sz_]->info().coord_;
-    const double xcrldist = (nextcrlcrd.x-startcrd.x)/padfac_;
-    const double ycrldist = (nextcrlcrd.y-startcrd.y)/padfac_;
-    const double xinldist = (nextinlcrd.x-startcrd.x)/padfac_;
-    const double yinldist = (nextinlcrd.y-startcrd.y)/padfac_;
+    const double xcrldist = (nextcrlcrd.x_-startcrd.x_)/padfac_;
+    const double ycrldist = (nextcrlcrd.y_-startcrd.y_)/padfac_;
+    const double xinldist = (nextinlcrd.x_-startcrd.x_)/padfac_;
+    const double yinldist = (nextinlcrd.y_-startcrd.y_)/padfac_;
     const float amplfac = float(padfac_*padfac_);
 
     deepErase( trcs );
@@ -323,8 +323,8 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	{
 	    SeisTrc* trc = new SeisTrc( szz_ );
 	    trc->info().sampling_ = olddata_.tkzs_.zsamp_;
-	    trc->info().coord_.x = startcrd.x + idy*xcrldist + idx*xinldist;
-	    trc->info().coord_.y = startcrd.y + idy*ycrldist + idx*yinldist;
+	    trc->info().coord_.x_ = startcrd.x_ + idy*xcrldist + idx*xinldist;
+	    trc->info().coord_.y_ = startcrd.y_ + idy*ycrldist + idx*yinldist;
 	    trcs += trc;
 	    for ( int idz=0; idz<szz_; idz++ )
 	    {

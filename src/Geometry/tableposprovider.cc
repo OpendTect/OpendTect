@@ -88,7 +88,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	    while ( psiter.next() )
 	    {
 		const Coord3 crd3 = psiter.get().pos();
-		bvs.add( SI().transform(crd3), (float)crd3.z );
+		bvs.add( SI().transform(crd3.getXY()), (float)crd3.z_ );
 	    }
 	}
     }

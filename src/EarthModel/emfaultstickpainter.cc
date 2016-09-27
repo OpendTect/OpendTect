@@ -155,7 +155,7 @@ bool FaultStickPainter::addPolyLine()
 			  rc.col()+=colrg.step )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
-			const BinID bid = SI().transform( pos.coord() );
+			const BinID bid = SI().transform( pos.getXY() );
 			const TrcKey trckey = Survey::GM().traceKey(
 			   Survey::GM().default3DSurvID(),bid.inl(),bid.crl() );
 			Coord3 editnormal( 
@@ -164,9 +164,9 @@ bool FaultStickPainter::addPolyLine()
 			const Coord3 stkednor =
 			    emfss->geometry().getEditPlaneNormal(sid,rc.row());
 			const bool equinormal =
-			    mIsEqual(nzednor.x,stkednor.x,.001) &&
-			    mIsEqual(nzednor.y,stkednor.y,.001) &&
-			    mIsEqual(nzednor.z,stkednor.z,.00001);
+			    mIsEqual(nzednor.x_,stkednor.x_,.001) &&
+			    mIsEqual(nzednor.y_,stkednor.y_,.001) &&
+			    mIsEqual(nzednor.z_,stkednor.z_,.00001);
 
 			if ( !equinormal ) continue;
 
@@ -176,7 +176,7 @@ bool FaultStickPainter::addPolyLine()
 			if ( posidx < 0 )
 			    continue;
 
-			const double z = zat ? zat->transform(pos) : pos.z;
+			const double z = zat ? zat->transform(pos) : pos.z_;
 			stickauxdata->poly_ += FlatView::Point(
 					flatposdata_->position(true,posidx),z );
 		    }
@@ -188,7 +188,7 @@ bool FaultStickPainter::addPolyLine()
 		    {
 			const Coord3 pos = fss->getKnot( rc );
 			float dist;
-			const double z = zat ? zat->transform(pos) : pos.z;
+			const double z = zat ? zat->transform(pos) : pos.z_;
 			if ( getNearestDistance(pos,dist) )
 			    stickauxdata->poly_ += FlatView::Point(dist,z);
 		    }
@@ -209,9 +209,9 @@ bool FaultStickPainter::addPolyLine()
 			emfss->geometry().getEditPlaneNormal(sid,rc.row());
 
 		const bool equinormal =
-		    mIsEqual(nzednor.x,stkednor.x,.001) &&
-		    mIsEqual(nzednor.y,stkednor.y,.001) &&
-		    mIsEqual(nzednor.z,stkednor.z,.00001);
+		    mIsEqual(nzednor.x_,stkednor.x_,.001) &&
+		    mIsEqual(nzednor.y_,stkednor.y_,.001) &&
+		    mIsEqual(nzednor.z_,stkednor.z_,.00001);
 
 		if ( !equinormal ) continue;
 
@@ -242,22 +242,22 @@ bool FaultStickPainter::addPolyLine()
 						rc.col()+=colrg.step )
 		    {
 			const Coord3& pos = fss->getKnot( rc );
-			BinID knotbinid = SI().transform( pos );
-			if (pointOnEdge2D(pos.coord(),extrcoord1,extrcoord2,.5)
+			BinID knotbinid = SI().transform( pos.getXY() );
+			if (pointOnEdge2D(pos.getXY(),extrcoord1,extrcoord2,.5)
 			    || (tkzs_.defaultDir()==TrcKeyZSampling::Inl
 				&& knotbinid.inl()==extrbid1.inl())
 			    || (tkzs_.defaultDir()==TrcKeyZSampling::Crl
 				&& knotbinid.crl()==extrbid1.crl()) )
 			{
 			    const Coord bidf =
-				bid2crd.transformBackNoSnap( pos.coord() );
-			    const double z = zat ? zat->transform(pos) : pos.z;
+				bid2crd.transformBackNoSnap( pos.getXY() );
+			    const double z = zat ? zat->transform(pos) : pos.z_;
 			    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 				stickauxdata->poly_ += FlatView::Point(
-								bidf.y, z );
+								bidf.y_, z );
 			    else if ( tkzs_.defaultDir()==TrcKeyZSampling::Crl )
 				stickauxdata->poly_ += FlatView::Point(
-								bidf.x, z );
+								bidf.x_, z );
 			}
 		    }
 		}
@@ -267,12 +267,13 @@ bool FaultStickPainter::addPolyLine()
 							rc.col()+=colrg.step )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
-			if ( !mIsEqual(pos.z,tkzs_.zsamp_.start,.0001) )
+			if ( !mIsEqual(pos.z_,tkzs_.zsamp_.start,.0001) )
 			    break;
 
 			const Coord bidf =
-			    bid2crd.transformBackNoSnap( pos.coord() );
-			stickauxdata->poly_ += FlatView::Point( bidf.x, bidf.y);
+			    bid2crd.transformBackNoSnap( pos.getXY() );
+			stickauxdata->poly_ +=
+			    FlatView::Point( bidf.x_, bidf.y_);
 		    }
 		}
 	    }
@@ -473,7 +474,7 @@ bool FaultStickPainter::getNearestDistance( const Coord3& pos, float& dist )
 
     for ( int idx=coords_.size()-1; idx>=0; idx-- )
     {
-	const float caldist = (float) pos.Coord::sqDistTo( coords_[idx] );
+	const float caldist = (float) pos.xySqDistTo( coords_[idx] );
 	if ( caldist < dist )
 	{
 	    dist = caldist;
@@ -511,14 +512,14 @@ Coord FaultStickPainter::getNormalToTrace( int trcnr ) const
     else if ( posid-1>=0 )
 	v1 = pos - coords_[posid-1];
 
-    if ( v1.x == 0 )
+    if ( v1.x_ == 0 )
 	return Coord( 1, 0 );
-    else if ( v1.y == 0 )
+    else if ( v1.y_ == 0 )
 	return Coord( 0, 1 );
     else
     {
-	double length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
-	return Coord( -v1.y/length, v1.x/length );
+	double length = Math::Sqrt( v1.x_*v1.x_ + v1.y_*v1.y_ );
+	return Coord( -v1.y_/length, v1.x_/length );
     }
 }
 
@@ -540,7 +541,7 @@ Coord FaultStickPainter::getNormalInRandLine( int idx ) const
 	nextcrd = Survey::GM().toCoord( (*path_)[idx-1] );
 
     Coord direction = nextcrd - pivotcrd;
-    return Coord( -direction.y, direction.x );
+    return Coord( -direction.y_, direction.x_ );
 }
 
 } //namespace EM

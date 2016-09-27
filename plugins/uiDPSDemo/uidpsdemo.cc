@@ -161,14 +161,14 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	if ( needrandsel && dps.bivSet().isValid(bid) )
 	    mNextTry()
 
-	const float z = (float) (mSectGeom(selsect).getKnot(bid,false).z);
+	const float z = (float) (mSectGeom(selsect).getKnot(bid,false).z_);
 	if ( mIsUdf(z) )
 	    mNextTry()
 
 	// Add the position to the set, set will allocate all the columns.
 	// We store section+1 because DataPointSet's groups start at 1
 	DataPointSet::Pos dpspos( bid,
-			    (float) (mSectGeom(selsect).getKnot(bid,false).z) );
+		    (float) (mSectGeom(selsect).getKnot(bid,false).z_) );
 	DataPointSet::DataRow dr( dpspos, selsect+1 );
 	dps.addRow( dr );
     }

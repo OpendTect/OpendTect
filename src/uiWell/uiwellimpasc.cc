@@ -205,7 +205,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     const Well::Info& info = uwia_->wd_.info();
 
     PositionInpSpec::Setup possu( true );
-    if ( !mIsZero(info.surfaceCoord().x,0.1) )
+    if ( !mIsZero(info.surfaceCoord().x_,0.1) )
 	possu.coord_ = info.surfaceCoord();
     coordfld = new uiGenInput( this,
 	tr("Surface Coordinate (if different from first "

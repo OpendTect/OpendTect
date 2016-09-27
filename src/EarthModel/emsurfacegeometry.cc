@@ -376,7 +376,7 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sid,
 
     //TODO Make faster impl
     Coord3 origpos = pos_;
-    if ( t2dfunc ) origpos.z = t2dfunc->getValue( pos_.z );
+    if ( t2dfunc ) origpos.z_ = t2dfunc->getValue( pos_.z_ );
 
     const StepInterval<int> rowrange = rowRange();
     if ( rowrange.width(false)<0 )
@@ -394,7 +394,7 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sid,
 	    {
 		Coord3 pos = surface_.getPos( sid, rc.toInt64() );
 		if ( t2dfunc )
-		    pos.z = t2dfunc->getValue( pos.z );
+		    pos.z_ = t2dfunc->getValue( pos.z_ );
 
 		double dist = pos.distance( origpos );
 		toplist.addValue( dist,
@@ -415,8 +415,9 @@ bool SurfaceGeometry::findClosestMesh( PosID& res, const Coord3& timepos,
     if ( !findClosestNodes(closestnodes,timepos,t2dfunc) )
 	return false;
 
-    const Coord3 pos = t2dfunc ? Coord3( timepos, t2dfunc->getValue(timepos.z) )
-			       : timepos;
+    const Coord3 pos = t2dfunc
+	? Coord3( timepos, t2dfunc->getValue(timepos.z_) )
+	: timepos;
 
     float mindist;
     bool isresset = false;
@@ -563,7 +564,8 @@ if ( !fetched[nodeindex] ) \
     { \
 	while ( coords.size()<=nodeindex ) \
 	    coords += Coord3::udf(); \
-	coords[nodeindex] = Coord3(tpos,t2d ? t2d->getValue(tpos.z) : tpos.z); \
+	coords[nodeindex] = Coord3( tpos, \
+				    t2d ? t2d->getValue(tpos.z_) : tpos.z_); \
 	defnodes[nodeindex] = true; \
     } \
 }
@@ -574,7 +576,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
     const Coord3 nodetpos = surface_.getPos(node);
     const bool defnode = nodetpos.isDefined();
     const Coord3 nodecoord( nodetpos,
-			 t2d&&defnode ? t2d->getValue(nodetpos.z) : nodetpos.z);
+		 t2d&&defnode ? t2d->getValue(nodetpos.z_) : nodetpos.z_);
 
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
     BoolTypeSet defnodes(dirs.size(), false );
@@ -766,8 +768,9 @@ float SurfaceGeometry::normalDistance( const Coord3& timepos,
 	if ( c11def ) {meshvariation->include(plane.distanceToPoint(c11,true));}
     }
 
-    const Coord3 pos = t2dfunc ? Coord3( timepos, t2dfunc->getValue(timepos.z) )
-			       : timepos;
+    const Coord3 pos = t2dfunc
+	? Coord3( timepos, t2dfunc->getValue(timepos.z_) )
+	: timepos;
 
     const Line3 line( pos, meshnormal );
     Coord3 intersection;
@@ -803,7 +806,7 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
     if ( defname ) \
     { \
 	if ( t2dfunc ) \
-	    coordname.z = t2dfunc->getValue(coordname.z); \
+	    coordname.z_ = t2dfunc->getValue(coordname.z_); \
 	break; \
     } \
 } \
@@ -824,7 +827,7 @@ void SurfaceGeometry::getMeshCoords( const PosID& pid,
 
     c00 = surface_.getPos(pid);
     c00def = c00.isDefined();
-    if ( c00def && t2dfunc ) c00.z = t2dfunc->getValue(c00.z);
+    if ( c00def && t2dfunc ) c00.z_ = t2dfunc->getValue(c00.z_);
 
     mGetNeigborCoord( c10, c10def, +step_.row(), +0 );
     mGetNeigborCoord( c01, c01def, +0, +step_.col() );
@@ -899,22 +902,22 @@ int SurfaceGeometry::findPos( const TrcKeyZSampling& cs,
 			  TypeSet<PosID>* res ) const
 {
     Coord xypos = SI().transform(cs.hsamp_.start_);
-    Interval<float> xinterval( (float) xypos.x, (float) xypos.x );
-    Interval<float> yinterval( (float) xypos.y, (float) xypos.y );
+    Interval<float> xinterval( (float) xypos.x_, (float) xypos.x_ );
+    Interval<float> yinterval( (float) xypos.y_, (float) xypos.y_ );
 
     xypos = SI().transform(cs.hsamp_.stop_);
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( (float) xypos.x_ );
+    yinterval.include( (float) xypos.y_ );
 
     xypos = SI().transform(
 	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()) );
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( (float) xypos.x_ );
+    yinterval.include( (float) xypos.y_ );
 
     xypos = SI().transform(
 	BinID(cs.hsamp_.stop_.inl(),cs.hsamp_.start_.crl()) );
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( (float) xypos.x_ );
+    yinterval.include( (float) xypos.y_ );
 
     TypeSet<PosID> posids;
     findPos( xinterval, yinterval, cs.zsamp_, &posids );
@@ -922,7 +925,7 @@ int SurfaceGeometry::findPos( const TrcKeyZSampling& cs,
     for ( int idx=0; idx<posids.size(); idx++ )
     {
 	const PosID& posid = posids[idx];
-	const BinID nodebid = SI().transform(surface_.getPos(posid));
+	const BinID nodebid = SI().transform(surface_.getPos(posid).getXY());
 
 	if ( nodebid.inl()<cs.hsamp_.start_.inl() ||
 	     nodebid.inl()>cs.hsamp_.stop_.inl() ||

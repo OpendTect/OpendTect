@@ -197,15 +197,15 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
     const UnitOfMeasure* uom = UoMR().get( "Feet" );
     for ( int idx=1; idx<size; idx++ )
     {
-	const Coord xy = points[idx].coord();
-	const Coord prevxy = points[idx-1].coord();
+	const Coord xy = points[idx].getXY();
+	const Coord prevxy = points[idx-1].getXY();
 	const BinID bid = SI().transform( xy );
 	const BinID prevbid = SI().transform( prevxy );
-	double zdist = fabs( points[idx-1].z - points[idx].z );
+	double zdist = fabs( points[idx-1].z_ - points[idx].z_ );
 
 	totinldist += abs( bid.inl() - prevbid.inl() );
 	totcrldist += abs( bid.crl() - prevbid.crl() );
-	const double hdist = xy.distTo( prevxy );
+	const double hdist = xy.distTo<double>( prevxy );
 	tothdist += hdist;
 	totzdist += zdist;
 	if ( SI().zIsTime() )

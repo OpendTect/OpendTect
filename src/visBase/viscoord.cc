@@ -376,8 +376,8 @@ void Coordinates::setAllZ( const float* vals, int sz, bool dotransf )
     while ( zvals<stopptr )
     {
 	if ( dotransf && transformation_ && !mIsUdf(*vals) )
-	    *zvals = *vals*transformation_->getScale().z+
-	    transformation_->getTranslation().z;
+	    *zvals = *vals*transformation_->getScale().z_+
+	    transformation_->getTranslation().z_;
 	else
 	    *zvals = *vals;
 	zvals += 3;
@@ -483,9 +483,9 @@ bool CoinFloatVertexAttribList::setSize(int sz,bool cpdata)
 void	CoinFloatVertexAttribList::getCoord( int idx, float* res ) const
 {
     const Coord3 coord = coords_.getPos( idx );
-    res[0] = (float) coord.x;
-    res[1] = (float) coord.y;
-    res[2] = (float) coord.z;
+    res[0] = (float) coord.x_;
+    res[1] = (float) coord.y_;
+    res[2] = (float) coord.z_;
 }
 
 
@@ -505,9 +505,9 @@ void	CoinFloatVertexAttribList::getNormal( int idx, float* res ) const
 	return;
 
     const Coord3 coord = normals_->getNormal( idx );
-    res[0] = (float) coord.x;
-    res[1] = (float) coord.y;
-    res[2] = (float) coord.z;
+    res[0] = (float) coord.x_;
+    res[1] = (float) coord.y_;
+    res[2] = (float) coord.z_;
 }
 
 

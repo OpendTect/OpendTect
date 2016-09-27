@@ -226,7 +226,7 @@ double DragController::absTransform( double dragval, const Coord& mousepos,
     if ( delay <= 0.0 )
 	delay = 0.5;
 
-    const double deltamouse = mousepos.distTo( prevmousepos_ );
+    const double deltamouse = mousepos.distTo<double>( prevmousepos_ );
     const double mousespeed = deltamouse * 1000.0 / delay;
 
     double frac = 0.0;
@@ -317,7 +317,7 @@ void DragController::transform( Coord3& dragvec, const Coord& mousepos,
     const Coord3 normalizeddragdir = dragdir_.normalize();
 
     const int dragsign = normalizeddragdir.dot(dragvec)<0.0 ? -1 : 1;
-    double dragval = dragsign * dragvec.abs();
+    double dragval = dragsign * dragvec.abs<double>();
 
     transform( dragval, mousepos, maxdragdist );
 

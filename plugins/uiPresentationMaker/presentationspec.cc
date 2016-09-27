@@ -174,8 +174,8 @@ void SlideContent::addImage( BufferString& script )
     picfnm.replace( "\\", "/" );
 #endif
     script.add( "picname = os.path.normpath('" ).add( picfnm ).add( "')\n" )
-	  .add( "left = Inches(" ).add( imagepos_.x ).add( ")\n" )
-	  .add( "top = Inches(" ).add( imagepos_.y ).add( ")\n" )
+	  .add( "left = Inches(" ).add( imagepos_.x_ ).add( ")\n" )
+	  .add( "top = Inches(" ).add( imagepos_.y_ ).add( ")\n" )
 	  .add( "width = Inches(" ).add( imagesz_.width() ).add( ")\n" )
 	  .add( "height = Inches(" ).add( imagesz_.height() ).add( ")\n" )
 	  .add( "pic = slide.shapes.add_picture( picname, " )

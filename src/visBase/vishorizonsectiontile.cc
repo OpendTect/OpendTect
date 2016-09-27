@@ -593,8 +593,8 @@ bool HorizonSectionTile::hasDefinedCoordinates( int idx ) const
     { \
 	Coord3 crd; \
 	mVisTrans::transform( hrsection_.transformation_, thispos, crd ); \
-	location##pos.x = ( flag ? -1 : 1 ) * idx * rcdist; \
-	location##pos.y = crd.z; \
+	location##pos.x_ = ( flag ? -1 : 1 ) * idx * rcdist; \
+	location##pos.y_ = crd.z_; \
 	location##found = true; \
     } \
 }
@@ -638,7 +638,7 @@ double HorizonSectionTile::calcGradient( int row, int col,
     }
 
     return !afterfound || !beforefound ? 0
-	: (afterpos.y-beforepos.y)/(afterpos.x-beforepos.x);
+	: (afterpos.y_-beforepos.y_)/(afterpos.x_-beforepos.x_);
 }
 
 
@@ -728,8 +728,8 @@ bool HorizonSectionTile::getResolutionTextureCoordinates(
     const int nrcoords = hrsection_.nrcoordspertileside_;
 
     Coord offset;
-    offset.x = txorigin_[0]/entireimg->s() + entireorigin.x;
-    offset.y = txorigin_[1]/entireimg->t() + entireorigin.y;
+    offset.x_ = txorigin_[0]/entireimg->s() + entireorigin.x_;
+    offset.y_ = txorigin_[1]/entireimg->t() + entireorigin.y_;
 
     for ( int y=0; y<nrcoords; y++ )
     {

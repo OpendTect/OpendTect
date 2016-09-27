@@ -50,18 +50,18 @@ DataPointSet::Pos::Pos( const Coord& c, float _z )
 
 
 DataPointSet::Pos::Pos( const Coord3& c )
-    : binid_(SI().transform(c))
-    , z_(( float ) c.z)
+    : binid_(SI().transform(c.getXY()))
+    , z_(( float ) c.z_)
 {
-    setOffs( c );
+    setOffs( c.getXY() );
 }
 
 
 void DataPointSet::Pos::setOffs( const Coord& c )
 {
     const Coord sc( SI().transform(binid_) );
-    offsx_ = ( float ) (c.x - sc.x);
-    offsy_ = ( float ) (c.y - sc.y);
+    offsx_ = ( float ) (c.x_ - sc.x_);
+    offsy_ = ( float ) (c.y_ - sc.y_);
 }
 
 
@@ -74,8 +74,8 @@ void DataPointSet::Pos::set( const Coord& c )
 
 void DataPointSet::Pos::set( const Coord3& c )
 {
-    z_ = ( float ) c.z;
-    set( ((const Coord&)c) );
+    z_ = ( float ) c.z_;
+    set( c.getXY() );
 }
 
 
@@ -83,7 +83,7 @@ Coord DataPointSet::Pos::coord( ::Pos::SurvID survid ) const
 {
     TrcKey trckey( survid, binid_ );
     Coord sc = trckey.getCoord();
-    sc.x += offsx_; sc.y += offsy_;
+    sc.x_ += offsx_; sc.y_ += offsy_;
     return sc;
 }
 
@@ -887,7 +887,7 @@ DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos,
     {
 	mGetZ( z(rowidx), zinxy );
 	Coord3 poscoord( coord(rowidx), zinxy );
-	const float dist = (float) poscoord.distTo( targetpos );
+	const float dist = poscoord.distTo<float>( targetpos );
 	if ( dist < maxdist  && dist < mindist )
 	{
 	    resrowidx = rowidx;
@@ -917,8 +917,8 @@ DataPointSet::RowID DataPointSet::findFirst( const Coord& crd ) const
     {
 	if ( binID(idx) != bid ) break;
 	Coord c( coord(idx) );
-	if ( mIsEqual( c.x, crd.x, 1e-3 )
-	  && mIsEqual( c.y, crd.y, 1e-3 ) ) return idx;
+	if ( mIsEqual( c.x_, crd.x_, 1e-3 )
+	  && mIsEqual( c.y_, crd.y_, 1e-3 ) ) return idx;
     }
 
     return -1;

@@ -484,7 +484,7 @@ void uiSpinBox::notifyHandler( bool editingfinished )
 bool uiSpinBox::handleLongTabletPress()
 {
     const Geom::Point2D<int> pos = TabletInfo::currentState()->globalpos_;
-    popupVirtualKeyboard( pos.x, pos.y );
+    popupVirtualKeyboard( pos.x_, pos.y_ );
     return true;
 }
 

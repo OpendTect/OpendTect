@@ -207,8 +207,8 @@ void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
 	const Coord mincoord( SI().minCoord(true) );
 	coordsfromfld_->addItem( tr("Generate straight line") );
 	coordsstartfld_ = new uiGenInput( this, tr("Start coordinate"),
-			DoubleInpSpec((double)mNINT64(mincoord.x)),
-			DoubleInpSpec((double)mNINT64(mincoord.y)) );
+			DoubleInpSpec((double)mNINT64(mincoord.x_)),
+			DoubleInpSpec((double)mNINT64(mincoord.y_)) );
 	coordsstartfld_->attach( alignedBelow, lcb );
 	coordsstartfld_->setElemSzPol( uiObject::Small );
 	coordsstepfld_ = new uiGenInput( this, uiStrings::sStep(),
@@ -659,15 +659,15 @@ bool uiSEGYReadFinisher::putCoordChoiceInSpec()
     else
     {
 	const Coord startcrd( coordsstartfld_->getCoord() );
-	if ( mIsUdf(startcrd.x) || mIsUdf(startcrd.y) )
+	if ( mIsUdf(startcrd.x_) || mIsUdf(startcrd.y_) )
 	    mErrRet(uiStrings::phrEnter(tr("the start coordinate")))
 	else if ( !SI().isReasonable(startcrd) )
 	    mErrRet(tr("The start coordinate is too far from the survey"))
 
 	Coord stepcrd( coordsstepfld_->getCoord() );
-	if ( mIsUdf(stepcrd.x) ) stepcrd.x = 0;
-	if ( mIsUdf(stepcrd.y) ) stepcrd.y = 0;
-	if ( mIsZero(stepcrd.x,0.001) && mIsZero(stepcrd.y,0.001) )
+	if ( mIsUdf(stepcrd.x_) ) stepcrd.x_ = 0;
+	if ( mIsUdf(stepcrd.y_) ) stepcrd.y_ = 0;
+	if ( mIsZero(stepcrd.x_,0.001) && mIsZero(stepcrd.y_,0.001) )
 	    mErrRet(tr("The steps cannot both be zero"))
 
 	opts.startcoord_ = startcrd;

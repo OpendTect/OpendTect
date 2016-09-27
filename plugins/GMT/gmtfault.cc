@@ -160,12 +160,12 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 
 	    for ( int cidx=1; cidx<sz; cidx+=2 )
 	    {
-		double x = clist->get( coordps->get(cidx-1) ).x;
-		double y = clist->get( coordps->get(cidx-1) ).y;
+		double x = clist->get( coordps->get(cidx-1) ).x_;
+		double y = clist->get( coordps->get(cidx-1) ).y_;
 		procstrm << x << " " << y << "\n";
 
-		x = clist->get( coordps->get(cidx) ).x;
-		y = clist->get( coordps->get(cidx) ).y;
+		x = clist->get( coordps->get(cidx) ).x_;
+		y = clist->get( coordps->get(cidx) ).y_;
 		procstrm << x << " " << y << "\n";
 
 		procstrm << "> " << "\n";
@@ -188,8 +188,8 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 
 	    for ( int idx=0; idx<csz; idx++ )
 	    {
-		double x = clist.get( idx ).x;
-		double y = clist.get( idx ).y;
+		double x = clist.get( idx ).x_;
+		double y = clist.get( idx ).y_;
 		procstrm << x << " " << y << "\n";
 	    }
 	}

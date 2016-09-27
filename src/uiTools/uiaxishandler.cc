@@ -682,15 +682,15 @@ void uiAxisHandler::updateName()
     if ( isHor() )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
-	pt.x = pixBefore() + axsz_/2;
-	pt.y = istop ? namepos : height_-namepos;
+	pt.x_ = pixBefore() + axsz_/2;
+	pt.y_ = istop ? namepos : height_-namepos;
 	al.set( istop ? OD::Alignment::Top : OD::Alignment::Bottom );
     }
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	pt.x = isleft ? namepos : width_-namepos;
-	pt.y = height_/2 - pixAfter();
+	pt.x_ = isleft ? namepos : width_-namepos;
+	pt.y_ = height_/2 - pixAfter();
 
 	if ( !ynmtxtvertical_ )
 	    nameitm_->setRotation( mCast( float, isleft ? -90 : 90 ) );
@@ -854,8 +854,8 @@ void setLine( uiLineItem& lineitm, const LinePars& lp,
     {
 	const int ypix = yah.getPix( lp.a0 );
 	if ( !ypixrg.includes( ypix,true ) ) return;
-	from.x = xpixrg.start; to.x = xpixrg.stop;
-	from.y = to.y = ypix;
+	from.x_ = xpixrg.start; to.x_ = xpixrg.stop;
+	from.y_ = to.y_ = ypix;
     }
     else
     {
@@ -873,31 +873,31 @@ void setLine( uiLineItem& lineitm, const LinePars& lp,
 
 	if ( yx0ok )
 	{
-	    from.x = xah.getPix( xx0 ); from.y = yah.getPix( yx0 );
+	    from.x_ = xah.getPix( xx0 ); from.y_ = yah.getPix( yx0 );
 	    if ( yx1ok )
-		{ to.x = xah.getPix( xx1 ); to.y = yah.getPix( yx1 ); }
+		{ to.x_ = xah.getPix( xx1 ); to.y_ = yah.getPix( yx1 ); }
 	    else if ( xy0ok )
-		{ to.x = xah.getPix( xy0 ); to.y = yah.getPix( yy0 ); }
+		{ to.x_ = xah.getPix( xy0 ); to.y_ = yah.getPix( yy0 ); }
 	    else if ( xy1ok )
-		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+		{ to.x_ = xah.getPix( xy1 ); to.y_ = yah.getPix( yy1 ); }
 	    else
 		return;
 	}
 	else if ( yx1ok )
 	{
-	    from.x = xah.getPix( xx1 ); from.y = yah.getPix( yx1 );
+	    from.x_ = xah.getPix( xx1 ); from.y_ = yah.getPix( yx1 );
 	    if ( xy0ok )
-		{ to.x = xah.getPix( xy0 ); to.y = yah.getPix( yy0 ); }
+		{ to.x_ = xah.getPix( xy0 ); to.y_ = yah.getPix( yy0 ); }
 	    else if ( xy1ok )
-		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+		{ to.x_ = xah.getPix( xy1 ); to.y_ = yah.getPix( yy1 ); }
 	    else
 		return;
 	}
 	else if ( xy0ok )
 	{
-	    from.x = xah.getPix( xy0 ); from.y = yah.getPix( yy0 );
+	    from.x_ = xah.getPix( xy0 ); from.y_ = yah.getPix( yy0 );
 	    if ( xy1ok )
-		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+		{ to.x_ = xah.getPix( xy1 ); to.y_ = yah.getPix( yy1 ); }
 	    else
 		return;
 	}

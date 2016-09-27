@@ -24,8 +24,8 @@ ________________________________________________________________________
 
 static uiPoint uiPointFromPolar( const uiPoint& c, float r, float angrad )
 {
-    Geom::Point2D<float> fpt( c.x + r * cos(angrad), c.y - r * sin(angrad) );
-    return uiPoint( mNINT32(fpt.x), mNINT32(fpt.y) );
+    Geom::Point2D<float> fpt( c.x_ + r * cos(angrad), c.y_ - r * sin(angrad) );
+    return uiPoint( mNINT32(fpt.x_), mNINT32(fpt.y_) );
 }
 
 
@@ -228,7 +228,7 @@ void uiDirectionalPlot::drawScale()
     delete scalearcitm_; scalearcitm_ = 0;
     const Interval<float> angs( Angle::usrdeg2rad(120.F),
 				Angle::usrdeg2rad(150.F) );
-    const float r = (float)startpt.distTo( endpt );
+    const float r = startpt.distTo<float>( endpt );
     scalearcitm_ = scene().addItem(
 	    new uiCurvedItem(uiPointFromPolar(startpt,r,angs.start)) );
     scalearcitm_->drawTo( uiCurvedItem::ArcSpec(startpt,r,angs) );
@@ -339,10 +339,10 @@ void uiDirectionalPlot::drawDirAnnot()
 	}
     }
 
-    const uiPoint npt( center_.x, center_.y - radius_ - 2 );
-    const uiPoint ept( center_.x + radius_ + 2, center_.y );
-    const uiPoint spt( center_.x, center_.y + radius_ + 2 );
-    const uiPoint wpt( center_.x - radius_ - 2, center_.y );
+    const uiPoint npt( center_.x_, center_.y_ - radius_ - 2 );
+    const uiPoint ept( center_.x_ + radius_ + 2, center_.y_ );
+    const uiPoint spt( center_.x_, center_.y_ + radius_ + 2 );
+    const uiPoint wpt( center_.x_ - radius_ - 2, center_.y_ );
     dirtxtitms_[0]->setPos( npt ); dirlnitms_[0]->setPos( npt );
     dirtxtitms_[1]->setPos( ept ); dirlnitms_[1]->setPos( ept );
     dirtxtitms_[2]->setPos( spt ); dirlnitms_[2]->setPos( spt );
@@ -509,9 +509,9 @@ void uiDirectionalPlot::mouseRelease( CallBacker* )
 {
     mGetMousePos();
     uiPoint relpos( ev.x(), ev.y() ); relpos -= center_;
-    if ( relpos.x == 0 && relpos.y == 0 ) return;
+    if ( relpos.x_ == 0 && relpos.y_ == 0 ) return;
 
-    const float ang = Math::Atan2( (float)-relpos.y, (float)relpos.x );
+    const float ang = Math::Atan2( (float)-relpos.y_, (float)relpos.x_ );
     cursector_ = data_.sector( ang, Angle::Rad );
     if ( setup_.curissel_ )
     {

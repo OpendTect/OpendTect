@@ -98,8 +98,8 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
     if ( seldisp_ )
     {
 	const uiWellDahDisplay::Data& zdata = seldisp_->zData();
-	xpos_ = seldisp_->dahObjData(true).xax_.getVal(mevh->event().pos().x);
-	ypos_ = seldisp_->dahObjData(true).yax_.getVal(mevh->event().pos().y);
+	xpos_ = seldisp_->dahObjData(true).xax_.getVal(mevh->event().pos().x_);
+	ypos_ = seldisp_->dahObjData(true).yax_.getVal(mevh->event().pos().y_);
 	const Well::Track* tr = zdata.track();
 	if ( zdata.zistime_ )
 	{
@@ -142,7 +142,7 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     if ( track )
     {
 	info += "  TVD:";
-	const float tvdss = mCast(float,track->getPos(dah_).z);
+	const float tvdss = mCast(float,track->getPos(dah_).z_);
 	const float tvd = track->getKbElev() + tvdss;
 	info += toString( zinft ? mToFeetFactorF*tvd : tvd, 2 );
 	info += depthunitstr;
@@ -221,7 +221,7 @@ void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb )
 {
     if ( !seldisp_ ) return;
     const MouseEvent& ev = seldisp_->getMouseEventHandler().event();
-    int mousepos = ev.pos().y;
+    int mousepos = ev.pos().y_;
     Well::Marker* selmrk = 0;
     for ( int idx=0; idx<seldisp_->markerdraws_.size(); idx++ )
     {
@@ -229,7 +229,7 @@ void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb )
 	const Well::Marker mrk = markerdraw.mrk_;
 	uiLineItem& li = *markerdraw.lineitm_;
 
-	if ( abs(li.lineRect().centre().y-mousepos) < 2 )
+	if ( abs(li.lineRect().centre().y_-mousepos) < 2 )
 	{
 	    selmrk = const_cast<Well::Marker*>( &mrk );
 	    break;

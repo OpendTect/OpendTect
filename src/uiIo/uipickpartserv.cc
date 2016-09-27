@@ -418,7 +418,7 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
     for ( int idx=0; idx<dps.size(); idx++ )
     {
 	Coord crd = dps.coord( idx );
-	ps->add( Pick::Location(crd.x,crd.y,dps.z(idx)) );
+	ps->add( Pick::Location(crd.x_,crd.y_,dps.z(idx)) );
     }
 
     Pick::SetMGR().store( *ps, id );

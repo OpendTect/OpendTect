@@ -230,8 +230,8 @@ int uiDataPointSet::nrPosCols() const
 	runcalcs_ += 0
 
 #define mGetHPosVal( dcid, drid ) ( dcid == -nrPosCols() ) ? \
-	( showbids_ ? dps_->binID(drid).inl() : dps_->coord(drid).x ) : \
-	( showbids_ ? dps_->binID(drid).crl() : dps_->coord(drid).y )
+	( showbids_ ? dps_->binID(drid).inl() : dps_->coord(drid).x_ ) : \
+	( showbids_ ? dps_->binID(drid).crl() : dps_->coord(drid).y_ )
 
 int uiDataPointSet::initVars()
 {
@@ -792,7 +792,7 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
 	    if ( showbids_ )
 	    {
 		const BinID bid( mCast(int,xval), mCast(int,yval) );
-		if ( ( bid == newbid ) && mIsEqual(zval,newcoord.z,1e-4) )
+		if ( ( bid == newbid ) && mIsEqual(zval,newcoord.z_,1e-4) )
 		{
 		    tbl_->ensureCellVisible( RowCol(rownr,0) );
 		    break;
@@ -802,9 +802,9 @@ void uiDataPointSet::rowAddedCB( CallBacker* cb )
 	    else
 	    {
 		const Coord3 coord(xval,yval,zval/SI().zDomain().userFactor());
-		if ( mIsEqual(coord.x,newcoord.x,2) &&
-		     mIsEqual(coord.y,newcoord.y,2) &&
-		     mIsEqual(coord.z,newcoord.z,1e-4) )
+		if ( mIsEqual(coord.x_,newcoord.x_,2) &&
+		     mIsEqual(coord.y_,newcoord.y_,2) &&
+		     mIsEqual(coord.z_,newcoord.z_,1e-4) )
 		{
 		    tbl_->ensureCellVisible( RowCol(rownr,0) );
 		    break;
@@ -1199,7 +1199,7 @@ void uiDataPointSet::valChg( CallBacker* )
 	    }
 	    else
 	    {
-		double& posval = ( dcid == -nrPosCols() ) ? crd.x : crd.y;
+		double& posval = ( dcid == -nrPosCols() ) ? crd.x_ : crd.y_;
 		posval = tbl_->getDValue(cell);
 	    }
 	    showbids_ ? pos.set( bid ) : pos.set( crd );

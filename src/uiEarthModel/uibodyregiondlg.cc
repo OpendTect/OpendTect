@@ -294,7 +294,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	if ( fltsz )
 	{
 	    for ( int cidx=0; cidx<cornersz; cidx++ )
-		corners[cidx].z = curz;
+		corners[cidx].z_ = curz;
 
 	    for ( int fidx=0; fidx<fltsz; fidx++ )
 	    {
@@ -464,7 +464,7 @@ void getPolygon( int curidx, Geometry::ExplPlaneIntersection* epi,
     for ( int idx=0; idx<sz; idx++ )
     {
 	ids[idx] = crdids[idx];
-	BinID bid = SI().transform( crds[idx] );
+	BinID bid = SI().transform( crds[idx].getXY() );
 	bidpos += Geom::Point2D<float>( mCast(float,bid.inl()),
 					mCast(float,bid.crl()) );
     }
@@ -473,7 +473,7 @@ void getPolygon( int curidx, Geometry::ExplPlaneIntersection* epi,
     for ( int idx=0; idx<sz; idx++ )
 	poly.add( bidpos[ids[idx]] );
 
-    const bool ascending = poly.data()[sz-1].y > poly.data()[0].y;
+    const bool ascending = poly.data()[sz-1].y_ > poly.data()[0].y_;
 
     if ( (side==mToMinInline && ascending) ||
 	 (side==mToMaxCrossline && ascending) )
@@ -589,7 +589,7 @@ void computeFltOuterRange( const Geometry::FaultStickSurface& flt, char side )
 	if ( !stick ) continue;
 
 	for ( int idy=0; idy<stick->size(); idy++ )
-	    hrg.include( SI().transform((*stick)[idy]) );
+	    hrg.include( SI().transform((*stick)[idy].getXY() ) );
     }
 
     Interval<int> insiderg;

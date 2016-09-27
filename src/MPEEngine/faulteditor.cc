@@ -115,10 +115,10 @@ void FaultEditor::setScaleVector( const Coord3& scalevec )
 
 
 #define mWorldScale(crd) \
-    Coord3( crd.x, crd.y, SI().zScale()*crd.z )
+    Coord3( crd.x_, crd.y_, SI().zScale()*crd.z_ )
 
 #define mCustomScale(crd) \
-    Coord3( crd.x, Coord(scalevector_).dot(crd), scalevector_.z*crd.z )
+    Coord3( crd.x_, scalevector_.getXY().dot(crd.getXY()), scalevector_.z_*crd.z_)
 
 
 float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
@@ -144,7 +144,7 @@ float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
 			mWorldScale(mousepos), false );
 
     const double onestepdist =
-		mWorldScale( SI().oneStepTranslation( plane.normal()) ).abs();
+	mWorldScale( SI().oneStepTranslation( plane.normal()) ).abs<double>();
 
     bool insameplane = false;
     double prevdist = 0.0;
@@ -173,7 +173,7 @@ float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
 
     avgpos /= count;
  
-    return (float)(mCustomScale(avgpos).Coord::distTo(mCustomScale(mousepos)));
+    return mCustomScale(avgpos).xyDistTo<float>(mCustomScale(mousepos));
 }
 
 
@@ -205,7 +205,7 @@ float FaultEditor::panelIntersectDist(
 			const Geometry::FaultStickSurface& surface, int sticknr,
 			const Coord3& mousepos, const Coord3& posnormal ) const
 {
-    if ( !mousepos.isDefined() || !posnormal.isDefined() || !posnormal.abs() )
+    if ( !mousepos.isDefined() || !posnormal.isDefined() || !posnormal.sqAbs() )
 	return mUdf(float);
 
     const StepInterval<int> rowrange = surface.rowRange();
@@ -229,7 +229,7 @@ float FaultEditor::panelIntersectDist(
 	return mUdf(float);
 
     const double onestepdist =
-		mWorldScale( SI().oneStepTranslation( plane.normal()) ).abs();
+	  mWorldScale( SI().oneStepTranslation( plane.normal()) ).abs<double>();
 	
     if ( fabs(d0) < 0.5*onestepdist )
 	d0 = 0.0;
@@ -255,7 +255,7 @@ float FaultEditor::panelIntersectDist(
     else if ( d0*d1 > 0.0 )
 	return mUdf(float);
 
-    return (float) (mCustomScale(pos).Coord::distTo( mCustomScale(mousepos) ));
+    return mCustomScale(pos).xyDistTo<float>( mCustomScale(mousepos) );
 }
 
 

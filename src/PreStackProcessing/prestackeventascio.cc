@@ -262,7 +262,7 @@ int EventAscIO::getNextLine( BinID& bid, int& horid,
 
     Coord pos( getDValue(0,udfval_), getDValue(1,udfval_) );
     bid = isxy_ ? SI().transform( pos )
-		: BinID( mNINT32(pos.x), mNINT32(pos.y) );
+		: BinID( mNINT32(pos.x_), mNINT32(pos.y_) );
     horid = getIntValue( 2, mUdf(od_int16) );
     offset = getFValue( 3, udfval_ );
     zval = getFValue( 4, udfval_ );

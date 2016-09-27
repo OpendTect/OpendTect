@@ -163,7 +163,7 @@ void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc )
 void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc, bool add)
 {
     const Coord3 normal = spherical2Cartesian( loc.dir(), true );
-    const bool pickedonz = mIsEqual(normal.z,1,mDefEps);
+    const bool pickedonz = mIsEqual(normal.z_,1,mDefEps);
     if ( idx==0 )
 	setOnInlCrl( !pickedonz );
     else if ( pickedonz == oninlcrl_ )

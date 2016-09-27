@@ -152,7 +152,7 @@ int dgbSurfDataWriter::nextStep()
 		const RowCol rc = meshsurf->getKnotRowCol(idy);
 		const Coord3 coord = meshsurf->getKnot( rc, false );
 
-		const BinID bid = SI().transform(coord);
+		const BinID bid = SI().transform(coord.getXY());
 		if ( sel_ && !sel_->includes(bid) )
 		    continue;
 

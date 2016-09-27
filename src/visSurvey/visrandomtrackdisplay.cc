@@ -382,8 +382,8 @@ BinID RandomTrackDisplay::getNodePos( int nodeidx ) const
 BinID RandomTrackDisplay::getManipNodePos( int nodeidx ) const
 {
     const Coord crd = dragger_->getKnot( nodeidx );
-    return BinID( SI().inlRange(false).snap(crd.x),
-		  SI().crlRange(false).snap(crd.y) );
+    return BinID( SI().inlRange(false).snap(crd.x_),
+		  SI().crlRange(false).snap(crd.y_) );
 }
 
 
@@ -617,13 +617,13 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 	const int nrtraces = nrinl > nrcrl ? nrinl : nrcrl;
 	const Coord startcoord = SI().transform( start );
 	const Coord stopcoord = SI().transform( stop );
-	const float delx = (float) ( stopcoord.x - startcoord.x ) / nrtraces;
-	const float dely = (float) ( stopcoord.y - startcoord.y ) / nrtraces;
+	const float delx = (float) ( stopcoord.x_ - startcoord.x_ ) / nrtraces;
+	const float dely = (float) ( stopcoord.y_ - startcoord.y_ ) / nrtraces;
 
 	for ( int idx=0; idx<nrtraces; idx++ )
 	{
-	    const float x = (float) ( startcoord.x + delx * idx );
-	    const float y = (float) ( startcoord.y + dely * idx );
+	    const float x = (float) ( startcoord.x_ + delx * idx );
+	    const float y = (float) ( startcoord.y_ + dely * idx );
 	    coords += Coord( x, y );
 	}
     }
@@ -1271,7 +1271,7 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     Coord3 xytpos;
     utm2display->transformBack( pos, xytpos );
-    BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
+    BinID binid = s3dgeom_->transform( xytpos.getXY() );
 
     TypeSet<BinID> bids;
     TypeSet<int> segments;
@@ -1293,16 +1293,16 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
     const TypeSet<Coord>& coords = panelstrip_->getPath();
     const Coord pos0 = coords[segments[idx]];
     const Coord pos1 = coords[segments[idx]+1];
-    const BinID bid0( mNINT32(pos0.x), mNINT32(pos0.y));
-    const BinID bid1( mNINT32(pos1.x), mNINT32(pos1.y));
+    const BinID bid0( mNINT32(pos0.x_), mNINT32(pos0.y_));
+    const BinID bid1( mNINT32(pos1.x_), mNINT32(pos1.y_));
 
     const Coord dir = SI().transform(bid0)-SI().transform(bid1);
-    const float dist = (float) dir.abs();
+    const float dist = dir.abs<float>();
 
     if ( dist<=mMIN(SI().inlDistance(),SI().crlDistance()) )
 	return Coord3::udf();
 
-    return Coord3( dir.y, -dir.x, 0 );
+    return Coord3( dir.y_, -dir.x_, 0 );
 }
 
 #undef mFindTrc
@@ -1316,7 +1316,7 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     Coord3 xytpos;
     utm2display->transformBack( pos, xytpos );
-    BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
+    BinID binid = s3dgeom_->transform( xytpos.getXY() );
 
     if ( trcspathbids_.isEmpty() )
 	getDataTraceBids( trcspathbids_ );
@@ -1325,10 +1325,10 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 
     float zdiff = 0;
     const Interval<float> intv = getDataTraceRange();
-    if ( xytpos.z < intv.start )
-	zdiff = (float) ( intv.start - xytpos.z );
-    else if ( xytpos.z > intv.stop )
-	zdiff = (float) ( xytpos.z - intv.stop );
+    if ( xytpos.z_ < intv.start )
+	zdiff = (float) ( intv.start - xytpos.z_ );
+    else if ( xytpos.z_ > intv.stop )
+	zdiff = (float) ( xytpos.z_ - intv.stop );
 
     return zdiff;
 }
@@ -1476,11 +1476,11 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
     if ( !randsdp || randsdp->isEmpty() )
 	return false;
 
-    const BinID bid( SI().transform(pos) );
+    const BinID bid( s3dgeom_->transform(pos.getXY()) );
     const TrcKey trckey = Survey::GM().traceKey(
 	    Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
     const int trcidx = randsdp->getNearestGlobalIdx( trckey );
-    const int sampidx = randsdp->getZRange().nearestIndex( pos.z );
+    const int sampidx = randsdp->getZRange().nearestIndex( pos.z_ );
     const Array3DImpl<float>& array = randsdp->data( version );
     if ( !array.info().validPos(0,trcidx,sampidx) )
 	return false;
@@ -1614,7 +1614,7 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 	if ( pickstartnodeidx_>0 && pickstartnodeidx_<nrNodes()-1 )
 	{
 	    double frac = 0.5;
-	    nodeidx = getClosestPanelIdx( eventinfo.worldpickedpos, &frac );
+	    nodeidx = getClosestPanelIdx(eventinfo.worldpickedpos.getXY(),&frac);
 	    if ( nodeidx==pickstartnodeidx_ || frac>=0.5 )
 		nodeidx++;
 	    if ( nodeidx == pickstartnodeidx_ )
@@ -1644,7 +1644,8 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 
     Coord3 inlcrlnodepos( eventinfo.worldpickedpos );
     const BinID nodebid = getNodePos( nodeidx );
-    inlcrlnodepos.x = nodebid.inl(); inlcrlnodepos.y = nodebid.crl();
+    inlcrlnodepos.x_ = nodebid.inl();
+    inlcrlnodepos.y_ = nodebid.crl();
 
     if ( shiftclick && pickstartnodeidx_<0 )
     {
@@ -1701,8 +1702,9 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 		if ( forward )
 		    curidx++;
 
-		const Coord pos = polyline_->getPoint( posidx );
-		rl_->insertNode( curidx, BinID(mNINT32(pos.x),mNINT32(pos.y)) );
+		const Coord pos = polyline_->getPoint( posidx ).getXY();
+		rl_->insertNode( curidx, BinID(mNINT32(pos.x_),
+				 mNINT32(pos.y_)) );
 	    }
 
 	    int nrremoves = abs(nodeidx-pickstartnodeidx_) - 1;
@@ -1732,8 +1734,8 @@ void RandomTrackDisplay::pickCB( CallBacker* cb )
     if ( ctrlclick && shiftclick )
 	return;
 
-    const BinID bid = s3dgeom_->transform( eventinfo.worldpickedpos );
-    Coord3 inlcrlpos( bid.inl(), bid.crl(), eventinfo.worldpickedpos.z );
+    const BinID bid = s3dgeom_->transform( eventinfo.worldpickedpos.getXY() );
+    Coord3 inlcrlpos( bid.inl(), bid.crl(), eventinfo.worldpickedpos.z_ );
 
     if ( ctrlclick )
     {
@@ -1827,11 +1829,11 @@ void RandomTrackDisplay::addPickPos( const Coord3& pos )
     const int sz = polyline_->size();
     if ( sz )
     {
-	BinID bid( mNINT32(pos.x), mNINT32(pos.y) );
+	BinID bid( mNINT32(pos.x_), mNINT32(pos.y_) );
 	s3dgeom_->snap( bid, BinID(0,0) );
 
 	const Coord3 lastpos = polyline_->getPoint(sz-1);
-	BinID lastbid( mNINT32(lastpos.x), mNINT32(lastpos.y) );
+	BinID lastbid( mNINT32(lastpos.x_), mNINT32(lastpos.y_) );
 	s3dgeom_->snap( bid, BinID(0,0) );
 
 	if ( bid == lastbid )
@@ -1879,8 +1881,8 @@ bool RandomTrackDisplay::createFromPolyLine()
     TypeSet<BinID> bids;
     for ( int idx=0; idx<polyline_->size(); idx++ )
     {
-	Coord pos = polyline_->getPoint( idx );
-	bids += BinID( (int)pos.x, (int)pos.y );
+	Coord pos = polyline_->getPoint( idx ).getXY();
+	bids += BinID( (int)pos.x_, (int)pos.y_ );
     }
 
     rl_->setNodePositions( bids );

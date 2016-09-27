@@ -455,7 +455,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     if ( !nodepos.isDefined() )
 	 nodepos = eventinfo.worldpickedpos;
 
-    const BinID nodebid = SI().transform( nodepos );
+    const BinID nodebid = SI().transform( nodepos.getXY() );
     info().setNode( sequentSowing() ? TrcKey::udf() : nodebid );
 
     TypeSet<int> planesinscene;
@@ -474,7 +474,8 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 
 	const TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
 
-	if ( cs.hsamp_.includes(nodebid) && cs.zsamp_.includes(nodepos.z,false))
+	if ( cs.hsamp_.includes(nodebid) &&
+	     cs.zsamp_.includes(nodepos.z_,false))
 	{
 	    info().setLegalClick( legalclick );
 	    info().setObjID( pdd->id() );

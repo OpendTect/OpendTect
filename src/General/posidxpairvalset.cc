@@ -109,10 +109,10 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 
 	const char* nextword = getNextWord( firstchar, valbuf );
 	Coord coord;
-	coord.x = toDouble( valbuf );
+	coord.x_ = toDouble( valbuf );
 	mSkipBlanks( nextword ); if ( !*nextword ) continue;
 	nextword = getNextWord( nextword, valbuf );
-	coord.y = toInt( valbuf );
+	coord.y_ = toInt( valbuf );
 
 	if ( coordindic < 0 )
 	{
@@ -138,8 +138,8 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 	    tk = survgeom->nearestTrace( coord );
 	else
 	{
-	    tk.setLineNr( (Pos::LineID)(coord.x + 0.5) );
-	    tk.setTrcNr( (Pos::TraceID)(coord.y + 0.5) );
+	    tk.setLineNr( (Pos::LineID)(coord.x_ + 0.5) );
+	    tk.setTrcNr( (Pos::TraceID)(coord.y_ + 0.5) );
 	}
 
 	float* vals = getVals( add(tk.binID()) );

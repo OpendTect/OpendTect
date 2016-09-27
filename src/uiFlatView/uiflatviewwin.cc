@@ -74,25 +74,25 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
     Coord3 crd( Coord3::udf() );
     valstr = pars.find( "X" );
     if ( !valstr ) valstr = pars.find( "X-coordinate" );
-    if ( valstr && *valstr ) crd.x = toDouble( valstr );
+    if ( valstr && *valstr ) crd.x_ = toDouble( valstr );
 
     valstr = pars.find( "Y" );
     if ( !valstr ) valstr = pars.find( "Y-coordinate" );
-    if ( valstr && *valstr ) crd.y = toDouble( valstr );
+    if ( valstr && *valstr ) crd.y_ = toDouble( valstr );
 
     valstr = pars.find( "Z" );
     if ( !valstr ) valstr = pars.find( "Z-Coord" );
-    if ( valstr && *valstr ) crd.z = toDouble( valstr );
+    if ( valstr && *valstr ) crd.z_ = toDouble( valstr );
 
-    if ( !crd.coord().isUdf() )
+    if ( !crd.getXY().isUdf() )
     {
-	mesg.addTab().add( "(" ).add( toString(crd.x,0) );
-	mesg.add( ", " ).add( toString(crd.y,0) );
+	mesg.addTab().add( "(" ).add( toString(crd.x_,0) );
+	mesg.add( ", " ).add( toString(crd.y_,0) );
     }
 
-    if ( !mIsUdf(crd.z) )
-	mesg.add( ", " ).add( toString(crd.z,0) ).add( ")" );
-    else if ( !crd.coord().isUdf() )
+    if ( !mIsUdf(crd.z_) )
+	mesg.add( ", " ).add( toString(crd.z_,0) ).add( ")" );
+    else if ( !crd.getXY().isUdf() )
 	mesg.add( ")" );
     //<-- MapDataPack has valid crd.coord() but invalid crd.z.
 

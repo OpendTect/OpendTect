@@ -226,7 +226,7 @@ inline  bool PolygonTriangulate( const TypeSet<Coord>& knots,TypeSet<int>& res )
     /* Make sure it is a counter-clockwise polygon in ci */
     double area=0;
     for( int idx=nrknots-1, idy=0; idy<nrknots; idx=idy++ )
-      area += (knots[idx].x*knots[idy].y - knots[idy].x*knots[idx].y);
+      area += (knots[idx].x_*knots[idy].y_ - knots[idy].x_*knots[idx].y_);
     area *= 0.5;
 
     TypeSet<int> ci;
@@ -258,8 +258,8 @@ inline  bool PolygonTriangulate( const TypeSet<Coord>& knots,TypeSet<int>& res )
 	const Coord& pos0 = knots[ci[idx0]];
 	const Coord& pos = knots[ci[idx]];
 	const Coord& pos1 = knots[ci[idx1]];
-	if ( (((pos.x-pos0.x)*(pos1.y-pos0.y)) -
-	      ((pos.y-pos0.y)*(pos1.x-pos0.x)))<0 )
+	if ( (((pos.x_-pos0.x_)*(pos1.y_-pos0.y_)) -
+	      ((pos.y_-pos0.y_)*(pos1.x_-pos0.x_)))<0 )
 	    continue;
 
 	bool isvalid = true;

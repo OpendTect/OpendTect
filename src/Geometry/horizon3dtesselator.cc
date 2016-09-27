@@ -173,10 +173,10 @@ int Horizon3DTesselator::nextStep()
 	    }
 	    else
 	    {
-		const float diff0 = (float) (coords_->get(ci11).z-
-				    coords_->get(ci22).z);
-		const float diff1 = (float) (coords_->get(ci12).z-
-				    coords_->get(ci21).z);
+		const float diff0 = (float) (coords_->get(ci11).z_-
+				    coords_->get(ci22).z_);
+		const float diff1 = (float) (coords_->get(ci12).z_-
+				    coords_->get(ci21).z_);
 
 		const bool do11to22 = fabs(diff0) < fabs(diff1);
 		if ( do11to22 )
@@ -236,7 +236,7 @@ void Horizon3DTesselator::computeNormal( int ni, int row, int col )
 	if ( pos.isDefined() )
 	{
 	    posarray += idx*SI().inlDistance();
-	    zarray += (float) pos.z;
+	    zarray += (float) pos.z_;
 	}
     }
 	   
@@ -261,7 +261,7 @@ void Horizon3DTesselator::computeNormal( int ni, int row, int col )
 	if ( pos.isDefined() )
 	{
 	    posarray += idx*SI().crlDistance();
-	    zarray += (float) pos.z;
+	    zarray += (float) pos.z_;
 	}
     }
 

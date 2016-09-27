@@ -413,17 +413,17 @@ bool GriddedSource::initGridder()
     const Interval<int> crlrg = SI().crlRange( true );
     Interval<float> xrg, yrg;
     Coord c = SI().transform( BinID(inlrg.start,crlrg.start) );
-    xrg.start = xrg.stop = (float) c.x;
-    yrg.start = yrg.stop = (float) c.y;
+    xrg.start = xrg.stop = (float) c.x_;
+    yrg.start = yrg.stop = (float) c.y_;
 
     c = SI().transform( BinID(inlrg.start,crlrg.stop) );
-    xrg.include( (float) c.x ); yrg.include( (float) c.y );
+    xrg.include( (float) c.x_ ); yrg.include( (float) c.y_ );
 
     c = SI().transform( BinID(inlrg.stop,crlrg.start) );
-    xrg.include( (float) c.x ); yrg.include( (float) c.y );
+    xrg.include( (float) c.x_ ); yrg.include( (float) c.y_ );
 
     c = SI().transform( BinID(inlrg.stop,crlrg.stop) );
-    xrg.include( (float) c.x ); yrg.include( (float) c.y );
+    xrg.include( (float) c.x_ ); yrg.include( (float) c.y_ );
 
     gridder_->setGridArea( xrg, yrg );
 

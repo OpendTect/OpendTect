@@ -53,10 +53,11 @@ void uiColTabItem::adjustLabel()
 
     if ( setup_.hor_ )
     {
-	const int starty =
-	    setup_.startal_.vPos() == OD::Alignment::VCenter? rect.centre().y
-	 : (setup_.startal_.vPos() == OD::Alignment::Top	? rect.top()
-							: rect.bottom());
+	const int starty = setup_.startal_.vPos() == OD::Alignment::VCenter
+	    ? rect.centre().y_
+	    : (setup_.startal_.vPos() == OD::Alignment::Top
+	       ? rect.top()
+	       : rect.bottom());
 
 	al = OD::Alignment( setup_.startal_.hPos(),
 			OD::Alignment::opposite(setup_.startal_.vPos()) );
@@ -64,9 +65,11 @@ void uiColTabItem::adjustLabel()
 	minvalitm_->setPos( mCast(float,rect.left()), mCast(float,starty) );
 
 	const int stopy =
-	    setup_.stopal_.vPos() == OD::Alignment::VCenter ? rect.centre().y
-	 : (setup_.stopal_.vPos() == OD::Alignment::Top ? rect.top()
-							: rect.bottom());
+	    setup_.stopal_.vPos() == OD::Alignment::VCenter
+		? rect.centre().y_
+		: (setup_.stopal_.vPos() == OD::Alignment::Top
+		   ? rect.top()
+		   : rect.bottom());
 	al = OD::Alignment( setup_.stopal_.hPos(),
 			OD::Alignment::opposite(setup_.stopal_.vPos()) );
 	maxvalitm_->setAlignment( al );
@@ -74,19 +77,21 @@ void uiColTabItem::adjustLabel()
     }
     else
     {
-	const int startx =
-	    setup_.startal_.hPos() == OD::Alignment::HCenter? rect.centre().x
-	 : (setup_.startal_.hPos() == OD::Alignment::Left	? rect.left()
-							: rect.right());
+	const int startx = setup_.startal_.hPos() == OD::Alignment::HCenter
+	    ? rect.centre().x_
+	    : (setup_.startal_.hPos() == OD::Alignment::Left
+		? rect.left()
+		: rect.right());
 	al = OD::Alignment( OD::Alignment::opposite(setup_.startal_.hPos()),
 			setup_.startal_.vPos() );
 	minvalitm_->setAlignment( al );
 	minvalitm_->setPos( mCast(float,startx), mCast(float,rect.top()) );
 
-	const int stopx =
-	    setup_.stopal_.hPos() == OD::Alignment::HCenter ? rect.centre().x
-	 : (setup_.stopal_.hPos() == OD::Alignment::Left	? rect.left()
-							: rect.right());
+	const int stopx = setup_.stopal_.hPos() == OD::Alignment::HCenter
+	    ? rect.centre().x_
+	    : (setup_.stopal_.hPos() == OD::Alignment::Left
+		? rect.left()
+		: rect.right());
 	al = OD::Alignment( OD::Alignment::opposite(setup_.stopal_.hPos()),
 			setup_.stopal_.vPos() );
 	maxvalitm_->setAlignment( al );

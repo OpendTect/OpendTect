@@ -60,7 +60,7 @@ public:
     static SurvID	stdSynthSurvID();
     static SurvID	cUndefSurvID();
 
-    double		distTo(const TrcKey&) const;
+    float		distTo(const TrcKey&) const;
     SurvID		survID() const			{ return survid_; }
     inline TrcKey&	setSurvID( SurvID id )
 			{ survid_ = id; return *this; }

@@ -165,8 +165,8 @@ bool acceptOK()
     importer.fh_.nrdef_.start = nrdeffld_->getIntValue(0);
     importer.fh_.nrdef_.step = nrdeffld_->getIntValue(0);
     importer.fh_.cstart_ = startposfld_->getCoord();
-    importer.fh_.cstep_.x = stepposfld_->getFValue(0);
-    importer.fh_.cstep_.y = stepposfld_->getFValue(1);
+    importer.fh_.cstep_.x_ = stepposfld_->getFValue(0);
+    importer.fh_.cstep_.y_ = stepposfld_->getFValue(1);
     importer.zfac_ = zfacfld_->getFValue();
 
     uiTaskRunner taskrunner( this );

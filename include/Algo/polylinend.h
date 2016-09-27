@@ -164,7 +164,7 @@ double PolyLineND<T>::arcLength( int index, double frac ) const
 	if ( mIsUdf(idy) )
 	     continue;
 
-	const double len = (*this)[idx].distTo( (*this)[idy] );
+	const double len = (*this)[idx].template distTo<double>( (*this)[idy] );
 	if ( idx==index )
 	    return arclen + len * frac;
 
@@ -226,7 +226,7 @@ T PolyLineND<T>::getPoint( double arclen ) const
 	if ( mIsUdf(idy) )
 	     continue;
 
-	const double len = (*this)[idx].distTo( (*this)[idy] );
+	const double len = (*this)[idx].template distTo<double>( (*this)[idy] );
 	if ( arclen <= len )
 	{
 	    const double frac = arclen / len;

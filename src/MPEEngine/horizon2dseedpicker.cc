@@ -101,7 +101,7 @@ bool Horizon2DSeedPicker::startSeedPick()
 
 	for ( int idx=pids.size()-1; idx>=0; idx-- )
 	{
-	    if ( Coord( hor->getPos(pids[idx]) ).isDefined() )
+	    if ( hor->getPos(pids[idx]).getXY().isDefined() )
 		continue;
 
 	    hor->setPosAttrib(pids[idx],EM::EMObject::sSeedNode(),false,false);
@@ -193,7 +193,7 @@ int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
 	{
 	    col += idx*colrg.step;
 	    const Coord3 pos = hor->getPos( sectionid_, geomid_, col );
-	    if ( Coord(pos).isDefined() )
+	    if ( pos.getXY().isDefined() )
 	    {
 		if ( pos.isDefined() )
 		    nrneighbors++;
@@ -554,34 +554,34 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	const Coord3 endpos = hor->getCoord( seedlist_[ sortidx[vtx+1] ] );
 
 	double totarclen = 0.0;
-	Coord prevpos = startpos;
+	Coord prevpos = startpos.getXY();
 	tk.setTrcNr( sortval[vtx] );
 	while ( tk.trcNr()<sortval[vtx+1] )
 	{
 	    tk.setTrcNr( tk.trcNr() + colrg.step );
-	    const Coord curpos = hor->getCoord( tk );
+	    const Coord curpos = hor->getCoord( tk ).getXY();
 	    if ( !curpos.isDefined() )
 		continue;
 
-	    totarclen += prevpos.distTo( curpos );
+	    totarclen += prevpos.distTo<double>( curpos );
 	    prevpos = curpos;
 	}
 
 	double arclen = 0.0;
-	prevpos = startpos;
+	prevpos = startpos.getXY();
 	for ( Pos::TraceID tnr=sortval[vtx] + colrg.step;
 		tnr<sortval[vtx+1]; tnr += colrg.step  )
 	{
 	    tk.setTrcNr( tnr );
-	    const Coord curpos = hor->getCoord( tk );
+	    const Coord curpos = hor->getCoord( tk ).getXY();
 	    if ( !curpos.isDefined() )
 		continue;
 
-	    arclen += prevpos.distTo( curpos );
+	    arclen += prevpos.distTo<double>( curpos );
 	    prevpos = curpos;
 
 	    const double frac = arclen / totarclen;
-	    const double curz = (1-frac) * startpos.z + frac * endpos.z;
+	    const double curz = (1-frac) * startpos.z_ + frac * endpos.z_;
 	    hor->setZ( tk, (float)curz, true );
 	    hor->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 

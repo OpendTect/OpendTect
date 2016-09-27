@@ -55,7 +55,7 @@ void uiObjectItemView::resetViewArea( CallBacker* )
 	h = mMAX(h,objectitems_[idx]->objectSize().height());
     }
     mGetScene(return); 
-    setViewArea( 0, 0, w + sc->layoutPos().x, h + sc->layoutPos().y );
+    setViewArea( 0, 0, w + sc->layoutPos().x_, h + sc->layoutPos().y_ );
     viewareareset.trigger();
 }
 
@@ -114,11 +114,11 @@ uiObjectItem* uiObjectItemView::getItem( int idx )
 uiObjectItem* uiObjectItemView::getItemFromPos( const Geom::Point2D<int>& pos ) 
 {
     mGetScene(return 0)
-    Interval<int> borders(0,sc->layoutPos().x); 
+    Interval<int> borders(0,sc->layoutPos().x_);
     for ( int idx=0; idx<objectitems_.size(); idx++ )
     {
 	borders.stop += objectitems_[idx]->objectSize().width(); 
-	if ( borders.includes( pos.x,true ) ) return objectitems_[idx];
+	if ( borders.includes( pos.x_,true ) ) return objectitems_[idx];
 	borders.start = borders.stop;
     }
     return 0;

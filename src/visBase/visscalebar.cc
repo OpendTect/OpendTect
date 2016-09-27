@@ -140,17 +140,17 @@ Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
 	if ( orientation_ == 1 )
 	{
 	    pos = loc.pos();
-	    pos.z += length_;
+	    pos.z_ += length_;
 	}
 	else if ( loc.hasDir() )
 	{
 	    const Coord3 vector = spherical2Cartesian( loc.dir(), true );
-	    const double signx = vector.x > 0 ? 1 : -1;
-	    const double signy = vector.y > 0 ? 1 : -1;
+	    const double signx = vector.x_ > 0 ? 1 : -1;
+	    const double signy = vector.y_ > 0 ? 1 : -1;
 
 	    const double l2 = length_*length_;
-	    const double vx2 = vector.x*vector.x;
-	    const double vy2 = vector.y*vector.y;
+	    const double vx2 = vector.x_*vector.x_;
+	    const double vy2 = vector.y_*vector.y_;
 	    const double v2 = vx2 + vy2;
 	    const double factor = l2 / v2;
 	    const double dx2 = vx2 * factor;
@@ -164,9 +164,9 @@ Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
     {
 	pos = loc.pos();
 	if ( orientation_ == 0 )
-	    pos.x += length_;
+	    pos.x_ += length_;
 	else
-	    pos.y += length_;
+	    pos.y_ += length_;
     }
 
     return pos;

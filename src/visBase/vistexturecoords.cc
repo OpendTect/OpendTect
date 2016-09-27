@@ -63,7 +63,7 @@ int TextureCoords::size( bool includedeleted ) const
 
 void TextureCoords::setCoord( int idx, const Coord3& pos )
 {
-    setCoord( idx, mCast(Coord,pos) );
+    setCoord( idx, pos.getXY() );
 }
 
 
@@ -108,7 +108,7 @@ void TextureCoords::setPosWithoutLock( int idx,const Coord& pos )
 
 int TextureCoords::addCoord( const Coord3& pos )
 {
-    return addCoord( mCast(Coord,pos) );
+    return addCoord( pos.getXY() );
 }
 
 

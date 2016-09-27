@@ -98,11 +98,11 @@ SEGY::TxtHeader::TxtHeader( int rev )
     putAt( 2, 6, 75, BufferString("Survey: '", SI().name(),"'") );
     BinID bid = SI().sampling(false).hsamp_.start_;
     Coord coord = SI().transform( bid );
-    coord.x = fabs(coord.x); coord.y = fabs(coord.y);
-    if ( !mIsEqual(bid.inl(),coord.x,mDefEps)
-      || !mIsEqual(bid.crl(),coord.x,mDefEps)
-      || !mIsEqual(bid.inl(),coord.y,mDefEps)
-      || !mIsEqual(bid.crl(),coord.y,mDefEps) )
+    coord.x_ = fabs(coord.x_); coord.y_ = fabs(coord.y_);
+    if ( !mIsEqual(bid.inl(),coord.x_,mDefEps)
+      || !mIsEqual(bid.crl(),coord.x_,mDefEps)
+      || !mIsEqual(bid.inl(),coord.y_,mDefEps)
+      || !mIsEqual(bid.crl(),coord.y_,mDefEps) )
     {
 	putAt( 13, 6, 75, "Survey setup:" );
 	coord = SI().transform( bid );
@@ -560,7 +560,7 @@ void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
 void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
 {
     Coord crd( ti.coord_ ); mPIEPAdj(Coord,crd,false);
-    const int icx = mNINT32(crd.x*10); const int icy = mNINT32(crd.y*10);
+    const int icx = mNINT32(crd.x_*10); const int icy = mNINT32(crd.y_*10);
     setEntryVal( EntryXcdp(), icx );
     setEntryVal( EntryYcdp(), icy );
     BinID bid( ti.binID() ); mPIEPAdj(BinID,bid,false);
@@ -600,15 +600,15 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
 	mPIEPAdj(Crl,nr2put,false);
     setEntryVal( EntryCdp(), nr2put );
     Coord crd( ti.coord_ );
-    if ( mIsUdf(crd.x) ) crd.x = crd.y = 0;
+    if ( mIsUdf(crd.x_) ) crd.x_ = crd.y_ = 0;
     mPIEPAdj(Coord,crd,false);
     int iscalco, icx, icy;
     mDefineStaticLocalObject( const bool, noscalco,
 			      = GetEnvVarYN("OD_SEGY_NO_SCALCO") );
     if ( noscalco )
-	{ iscalco = 1; icx = mNINT32(crd.x); icy = mNINT32(crd.y); }
+	{ iscalco = 1; icx = mNINT32(crd.x_); icy = mNINT32(crd.y_); }
     else
-	{ iscalco = -10; icx = mNINT32(crd.x*10); icy = mNINT32(crd.y*10); }
+	{ iscalco = -10; icx = mNINT32(crd.x_*10); icy = mNINT32(crd.y_*10); }
 
     setEntryVal( EntryScalco(), iscalco );
     hdef_.xcoord_.putValue( buf_, icx );
@@ -674,8 +674,8 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
 
 void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti, bool is2d ) const
 {
-    ti.coord_.x = entryVal( EntryXcdp() );
-    ti.coord_.y = entryVal( EntryYcdp() );
+    ti.coord_.x_ = entryVal( EntryXcdp() );
+    ti.coord_.y_ = entryVal( EntryYcdp() );
     BinID tibid( entryVal( EntryInline() ), entryVal( EntryCrossline() ) );
     if ( is2d )
 	ti.trckey_ = TrcKey( 0, EntryTracr() );
@@ -745,9 +745,9 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, bool is2d, float extcoordsc ) const
 	nrfac = 1.f / ((float)(-scalnr));
     mGetFloatVal(refnr,nrfac);
 
-    ti.coord_.x = ti.coord_.y = 0;
-    ti.coord_.x = hdef_.xcoord_.getValue(buf_,needswap_);
-    ti.coord_.y = hdef_.ycoord_.getValue(buf_,needswap_);
+    ti.coord_.x_ = ti.coord_.y_ = 0;
+    ti.coord_.x_ = hdef_.xcoord_.getValue(buf_,needswap_);
+    ti.coord_.y_ = hdef_.ycoord_.getValue(buf_,needswap_);
     ti.offset_ = mCast( float, hdef_.offs_.getValue(buf_,needswap_) );
     if ( ti.offset_ < 0 ) ti.offset_ = -ti.offset_;
     ti.azimuth_ = mCast( float, hdef_.azim_.getValue(buf_,needswap_) );
@@ -789,7 +789,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, bool is2d, float extcoordsc ) const
     }
 
     const double scale = getCoordScale( extcoordsc );
-    ti.coord_.x *= scale; ti.coord_.y *= scale;
+    ti.coord_.x_ *= scale; ti.coord_.y_ *= scale;
     mPIEPAdj(Coord,ti.coord_,true);
 }
 
@@ -807,6 +807,6 @@ Coord SEGY::TrcHeader::getCoord( bool rcv, float extcoordsc ) const
     double scale = getCoordScale( extcoordsc );
     Coord ret(	entryVal( rcv?EntryGx():EntrySx() ),
 		entryVal( rcv?EntryGy():EntrySy() ) );
-    ret.x *= scale; ret.y *= scale;
+    ret.x_ *= scale; ret.y_ *= scale;
     return ret;
 }

@@ -447,7 +447,7 @@ bool uiHor3DInterpolSel::fillPar( IOPar& par ) const
 	{
 	    const Geom::Point2D<float>& node = poly->getVertex(idx);
 	    par.set( IOPar::compKey(Array2DInterpol::sKeyPolyNode(),idx),
-		    Coord(node.x,node.y) );
+		    Coord(node.x_,node.y_) );
 	}
     }
 

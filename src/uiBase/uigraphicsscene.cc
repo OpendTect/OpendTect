@@ -396,7 +396,7 @@ void uiGraphicsScene::setSelectionArea( const uiRect& uirect )
 {
     uiRect rect = uirect;
     rect.sortCorners();
-    const QRectF selrect( rect.topLeft().x, rect.topLeft().y, rect.width(),
+    const QRectF selrect( rect.topLeft().x_, rect.topLeft().y_, rect.width(),
 			  rect.height() );
     QPainterPath selareapath;
     selareapath.addRect( selrect );
@@ -567,9 +567,10 @@ const uiGraphicsItem* uiGraphicsScene::getItem( int id ) const
 uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<float>& pos )
 {
 #if QT_VERSION >= 0x050000
-    QGraphicsItem* qitm = odgraphicsscene_->itemAt( pos.x, pos.y, QTransform());
+    QGraphicsItem* qitm =
+	odgraphicsscene_->itemAt( pos.x_, pos.y_, QTransform());
 #else
-    QGraphicsItem* qitm = odgraphicsscene_->itemAt( pos.x, pos.y );
+    QGraphicsItem* qitm = odgraphicsscene_->itemAt( pos.x_, pos.y_ );
 #endif
     if ( !qitm ) return 0;
 
@@ -605,7 +606,7 @@ uiGraphicsObjectScene::uiGraphicsObjectScene( const char* nm )
 
 void uiGraphicsObjectScene::setLayoutPos( const uiPoint& pt )
 {
-    layoutitem_->setPos( pt.x, pt.y );
+    layoutitem_->setPos( pt.x_, pt.y_ );
 }
 
 

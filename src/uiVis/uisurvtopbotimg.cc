@@ -59,12 +59,12 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     const Coord mincrd = SI().minCoord(true);
     const Coord maxcrd = SI().maxCoord(true);
     tlfld_ = new uiGenInput( this, tr("NorthWest (TopLeft) Coordinate"),
-			     PositionInpSpec(Coord(mincrd.x,maxcrd.y)) );
+			     PositionInpSpec(Coord(mincrd.x_,maxcrd.y_)) );
     tlfld_->attach( leftAlignedBelow, fnmfld_ );
     mAddCoordchgCB( tlfld_->valuechanged );
 
     brfld_ = new uiGenInput( this, tr("SouthEast (BottomRight) Coordinate"),
-			     PositionInpSpec(Coord(maxcrd.x,mincrd.y)) );
+			     PositionInpSpec(Coord(maxcrd.x_,mincrd.y_)) );
     brfld_->attach( alignedBelow, tlfld_ );
     mAddCoordchgCB( brfld_->valuechanged );
 
@@ -98,10 +98,10 @@ void fillCurrent()
     {
 	fnmfld_->setChecked( img_->isOn() );
 	fnmfld_->setFileName( img_->getImageFilename() );
-	tlfld_->setValue( img_->topLeft() );
-	brfld_->setValue( img_->bottomRight() );
+	tlfld_->setValue( img_->topLeft().getXY() );
+	brfld_->setValue( img_->bottomRight().getXY() );
 	transpfld_->setValue( img_->getTransparency()*100 );
-	zposfld_->setValue( mCast(float,img_->topLeft().z) );
+	zposfld_->setValue( mCast(float,img_->topLeft().z_) );
     }
 }
 

@@ -529,24 +529,24 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     TypeSet<Coord3> pos = coords;
     const double srddepth = -1. * SI().seismicReferenceDatum();
     const double refz = SI().zIsTime() ? 0. : srddepth;
-    if ( coords[0].z > refz+mDefEps && addwellhead )
-	pos.insert( 0, Coord3( coords[0].x, coords[0].y, refz ) );
+    if ( coords[0].z_ > refz+mDefEps && addwellhead )
+	pos.insert( 0, Coord3( coords[0].x_, coords[0].y_, refz ) );
 
-    well->info().setSurfaceCoord( Coord( pos[0].x, pos[0].y ) );
+    well->info().setSurfaceCoord( Coord( pos[0].x_, pos[0].y_ ) );
 
     TimeDepthModel tdmodel;
     if ( SI().zIsTime() )
     {
-	makeTimeDepthModel( addwellhead, pos[0].z, srddepth, well->info(),
+	makeTimeDepthModel( addwellhead, pos[0].z_, srddepth, well->info(),
 			    tdmodel );
 	for ( int idx=0; idx<pos.size(); idx++ )
-	    pos[idx].z = mCast( float,tdmodel.getDepth( (float)pos[idx].z ) );
+	    pos[idx].z_ = mCast( float,tdmodel.getDepth( (float)pos[idx].z_ ) );
     }
 
     track.addPoint( pos[0], 0.f );
     for ( int idx=1; idx<pos.size(); idx++ )
     {
-	const float dist = mCast( float, pos[idx].distTo( pos[idx-1] ) );
+	const float dist = pos[idx].distTo<float>( pos[idx-1] );
 	track.addPoint( pos[idx], track.dahByIdx(idx-1) + dist );
     }
 

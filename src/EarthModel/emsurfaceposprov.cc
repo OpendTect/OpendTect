@@ -101,17 +101,17 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
 	while ( posid.objectID() != -1 )
 	{
 	    const Coord3 coord = surf.getPos( posid );
-	    const BinID bid( SI().transform(coord) );
+	    const BinID bid( SI().transform(coord.getXY()) );
 	    if ( veryfirst )
 	    {
 		veryfirst = false;
 		hs.start_ = hs.stop_ = bid;
-		zrg.start = zrg.stop = (float) coord.z;
+		zrg.start = zrg.stop = (float) coord.z_;
 	    }
 	    else
 	    {
-		if ( coord.z < zrg.start ) zrg.start = (float) coord.z;
-		if ( coord.z > zrg.stop ) zrg.stop = (float) coord.z;
+		if ( coord.z_ < zrg.start ) zrg.start = (float) coord.z_;
+		if ( coord.z_ > zrg.stop ) zrg.stop = (float) coord.z_;
 		hs.include( bid );
 	    }
 	    estnrpos++;
@@ -171,11 +171,11 @@ bool EMSurfaceProvider::toNextPos()
     if ( curpos_.objectID() == -1 )
 	return false;
 
-    curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z;
+    curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z_;
     if ( surf2_ )
     {
 	const float stop =
-	    (float) surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z;
+	    (float) surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z_;
 	if ( !mIsUdf(stop) )
 	    curzrg_.stop = stop;
     }
@@ -226,7 +226,7 @@ float EMSurfaceProvider::adjustedZ( const Coord& c, float z ) const
     if ( !hasZAdjustment() ) return z;
 
     const BinID bid = SI().transform( c );
-    return (float) surf1_->getPos( surf1_->sectionID(0), bid.toInt64() ).z;
+    return (float) surf1_->getPos( surf1_->sectionID(0), bid.toInt64() ).z_;
 }
 
 
@@ -341,13 +341,14 @@ bool EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
 	if ( !crd2.isDefined() )
 	    return false;
 
-	zrg.start = (float) crd1.z; zrg.stop = (float) crd2.z;
+	zrg.start = (float) crd1.z_;
+	zrg.stop = (float) crd2.z_;
 	zrg.sort();
     }
     else
     {
-	zrg.start = (float) crd1.z - SI().zStep()/2;
-	zrg.stop = (float) crd1.z + SI().zStep()/2;
+	zrg.start = (float) crd1.z_ - SI().zStep()/2;
+	zrg.stop = (float) crd1.z_ + SI().zStep()/2;
     }
 
     zrg += extraz_;
@@ -386,7 +387,7 @@ int EMSurfaceProvider2D::curNr() const
 
 
 Coord EMSurfaceProvider2D::curCoord() const
-{ return surf1_ ? surf1_->getPos( curpos_ ) : Coord(0,0); }
+{ return surf1_ ? surf1_->getPos( curpos_ ).getXY() : Coord(0,0); }
 
 
 TrcKey EMSurfaceProvider2D::curTrcKey() const
@@ -453,13 +454,14 @@ bool EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
 	if ( !crd2.isDefined() )
 	    return false;
 
-	zrg.start = (float) crd1.z; zrg.stop = (float) crd2.z;
+	zrg.start = (float) crd1.z_;
+	zrg.stop = (float) crd2.z_;
 	zrg.sort();
     }
     else
     {
-	zrg.start = (float) crd1.z - SI().zStep()/2;
-	zrg.stop = (float) crd1.z + SI().zStep()/2;
+	zrg.start = (float) crd1.z_ - SI().zStep()/2;
+	zrg.stop = (float) crd1.z_ + SI().zStep()/2;
     }
 
     zrg += extraz_;
@@ -544,7 +546,11 @@ bool EMSurface2DProvider3D::initialize( TaskRunner* taskr )
 
 
 BinID EMSurface2DProvider3D::curBinID() const
-{ return !surf1_ ? BinID(0,0) : SI().transform( surf1_->getPos(curpos_) ); }
+{
+    return !surf1_
+	? BinID(0,0)
+	: SI().transform( surf1_->getPos(curpos_).getXY() );
+}
 
 
 bool EMSurface2DProvider3D::includes( const BinID& bid, float z ) const

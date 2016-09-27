@@ -596,7 +596,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    {
 		horid = new DBKey( hordisp->getDBKey() );
 		pickeddbkey = horid;
-		horshiftname = hordisp->getTranslation().z *
+		horshiftname = hordisp->getTranslation().z_ *
 		    scene_->zDomainInfo().userFactor();
 		pickednm = horshiftname.buf();
 		break;
@@ -804,19 +804,22 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 		if ( mIsUdf(dist) )
 		{
 		    pos = dragpos;
-		    pos.z += zdragoffset;
+		    pos.z_ += zdragoffset;
 		}
 		else
 		{
-		    pos.z += dist;
-		    pos.z -= hordisp->calcDist( pos );
+		    pos.z_ += dist;
+		    pos.z_ -= hordisp->calcDist( pos );
 
 		    if ( displaytransform_ )
 			displaytransform_->transformBack( pos );
 		    if ( nm )
-			pos.z += toFloat(nm)/scene_->zDomainInfo().userFactor();
+		    {
+			pos.z_ +=
+			    toFloat(nm)/scene_->zDomainInfo().userFactor();
+		    }
 
-		    zdragoffset = (float) ( pos.z - dragpos.z );
+		    zdragoffset = (float) ( pos.z_ - dragpos.z_ );
 		}
 	    }
 

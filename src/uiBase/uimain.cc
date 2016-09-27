@@ -121,10 +121,10 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 	ti.eventtype_ = (TabletInfo::EventType) qte->type();
 	ti.pointertype_ = (TabletInfo::PointerType) qte->pointerType();
 	ti.device_ = (TabletInfo::TabletDevice) qte->device();
-	ti.globalpos_.x = qte->globalX();
-	ti.globalpos_.y = qte->globalY();
-	ti.pos_.x = qte->x();
-	ti.pos_.y = qte->y();
+	ti.globalpos_.x_ = qte->globalX();
+	ti.globalpos_.y_ = qte->globalY();
+	ti.pos_.x_ = qte->x();
+	ti.pos_.y_ = qte->y();
 	ti.pressure_ = qte->pressure();
 	ti.rotation_ = qte->rotation();
 	ti.tangentialpressure_ = qte->tangentialPressure();

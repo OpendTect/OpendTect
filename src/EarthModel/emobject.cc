@@ -532,12 +532,12 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 		removebypolyposbox_.hsamp_.start_ =
 			removebypolyposbox_.hsamp_.stop_ = bid;
 		removebypolyposbox_.zsamp_.start =
-		    removebypolyposbox_.zsamp_.stop = (float) pos.z;
+		    removebypolyposbox_.zsamp_.stop = (float) pos.z_;
 	    }
 	    else
 	    {
 		removebypolyposbox_.hsamp_.include(bid);
-		removebypolyposbox_.zsamp_.include((float) pos.z);
+		removebypolyposbox_.zsamp_.include((float) pos.z_);
 	    }
 
 	    if ( ++poscount >= 10000 )

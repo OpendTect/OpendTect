@@ -245,7 +245,7 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
     , volumeofinterestids_( volumeofinterestids )
 {
     eps_ = mMIN(SI().inlDistance(),SI().crlDistance());
-    eps_ = (float) mMIN(eps_,SI().zRange(true).step*scale_.z )/4;
+    eps_ = (float) mMIN(eps_,SI().zRange(true).step*scale_.z_ )/4;
 
     rowrg_ = surf_->rowRange();
     nriter_ = rowrg_.isRev() ? 0 : rowrg_.nrSteps()+1;
@@ -323,7 +323,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
 	    Coord3 pos = surf_->getKnot( rc );
-	    const float zval = mCast(float,pos.z);
+	    const float zval = mCast(float,pos.z_);
 
 	    if ( !pos.isDefined() || (lineranges_ &&
 		 !Horizon2DDisplay::withinRanges(rc,zval,*lineranges_)) )
@@ -334,9 +334,9 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    else
 	    {
 		if ( zaxt_ )
-		    pos.z = zaxt_->transform( pos );
+		    pos.z_ = zaxt_->transform( pos );
 
-		if ( !mIsUdf(pos.z) )
+		if ( !mIsUdf(pos.z_) )
 		    positions += pos;
 		else if ( positions.size() )
 		    sendPositions( positions );
@@ -550,14 +550,16 @@ void Horizon2DDisplay::updateLinesOnSections(
 		if ( !trcrg.width() || !sp0.isDefined() || !sp1.isDefined() )
 		    continue;
 
-		const Coord hp0 = h2d->getPos( 0, geomid, trcrg.start );
-		const Coord hp1 = h2d->getPos( 0, geomid, trcrg.stop );
+		const Coord hp0 = h2d->getPos( 0, geomid, trcrg.start ).getXY();
+		const Coord hp1 = h2d->getPos( 0, geomid, trcrg.stop ).getXY();
 		if ( !hp0.isDefined() || !hp1.isDefined() )
 		    continue;
 
 		const float maxdist =
-			(float) ( 0.1 * sp0.distTo(sp1) / trcrg.width() );
-		if ( hp0.distTo(sp0)>maxdist || hp1.distTo(sp1)>maxdist )
+			0.1f * sp0.distTo<float>(sp1) / trcrg.width();
+
+		if ( hp0.distTo<float>(sp0)>maxdist ||
+		     hp1.distTo<float>(sp1)>maxdist )
 		    continue;
 	    }
 
@@ -716,7 +718,7 @@ void Horizon2DDisplay::updateSeedsOnSections(
 
 	    Coord3 markerpos = markercoords->getPos( idy, true );
 	    if ( zaxistransform_ )
-		markerpos.z = zaxistransform_->transform( markerpos );
+		markerpos.z_ = zaxistransform_->transform( markerpos );
 	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
 	    {
 		const Seis2DDisplay* s2dd = seis2dlist[idz];

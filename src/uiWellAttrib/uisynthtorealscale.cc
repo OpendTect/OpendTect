@@ -376,9 +376,9 @@ bool getNextPos3D()
 	if ( posid.isUdf() )
 	    return false;
 	const Coord3 crd = dlg_.horizon_->getPos( posid );
-	if ( setBinID(crd) )
+	if ( setBinID(crd.getXY()) )
 	{
-	    z_ = (float)crd.z;
+	    z_ = (float)crd.z_;
 	    break;
 	}
     }
@@ -423,10 +423,10 @@ int getTrc2D()
     TrcKey tk( rdr_.geomID(), trc_.info().trcNr() );
     EM::PosID pid = hor2d->geometry().getPosID( tk );
     const Coord3 crd = dlg_.horizon_->getPos( pid );
-    if ( mIsUdf(crd.z) )
+    if ( mIsUdf(crd.z_) )
 	return MoreToDo();
 
-    z_ = (float)crd.z;
+    z_ = (float)crd.z_;
     return MoreToDo();
 }
 

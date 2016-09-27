@@ -154,7 +154,7 @@ bool HorizonTileResolutionTesselator::doWork(
 		    ? horsection_->geometry_->getKnot(RowCol(row,col),false)
 		    : Coord3::udf();
 		if ( horsection_->zaxistransform_ )
-		    pos.z = horsection_->zaxistransform_->transform( pos );
+		    pos.z_ = horsection_->zaxistransform_->transform( pos );
 		positions += pos;
 	    }
 	}
@@ -327,7 +327,7 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 		    hasdata = true;
 
 		if ( zaxistransform_ )
-		    pos.z = zaxistransform_->transform( pos );
+		    pos.z_ = zaxistransform_->transform( pos );
 		positions += pos;
 	    }
 	}

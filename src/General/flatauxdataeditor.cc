@@ -229,9 +229,9 @@ void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 #define mGetIdxPair2CoordTransform( trans, view, mousearea ) \
     Pos::IdxPair2Coord trans; \
     trans.set3Pts( view.topLeft(), view.topRight(), view.bottomLeft(), \
-	  Pos::IdxPair( mousearea.topLeft().x, mousearea.topLeft().y ), \
-	  Pos::IdxPair( mousearea.topRight().x, mousearea.topRight().y ), \
-	  mousearea.bottomLeft().y );
+	  Pos::IdxPair( mousearea.topLeft().x_, mousearea.topLeft().y_ ), \
+	  Pos::IdxPair( mousearea.topRight().x_, mousearea.topRight().y_ ), \
+	  mousearea.bottomLeft().y_ );
 
 
 void AuxDataEditor::getPointSelections(
@@ -395,7 +395,7 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 		      selptidx_[0]<auxdata_[seldatasetidx_]->poly_.size()
 	   ? (FlatView::Point) auxdata_[seldatasetidx_]->poly_[selptidx_[0]]
            : (FlatView::Point) trans.transform(
-	   Pos::IdxPair(ev.pos().x,ev.pos().y) );    }
+	   Pos::IdxPair(ev.pos().x_,ev.pos().y_) );    }
 
     hasmoved_ = false;
     mousedown_ = true;
@@ -439,7 +439,8 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	    const Rect wr = getWorldRect(ids_[seldatasetidx_]);
 	    mGetIdxPair2CoordTransform( trans, wr, mousearea_ );
 
-	    selptcoord_=trans.transform( Pos::IdxPair(ev.pos().x,ev.pos().y) );
+	    selptcoord_ =
+		trans.transform( Pos::IdxPair(ev.pos().x_, ev.pos().y_) );
 	    movementFinished.trigger();
 	    mousehandler_.setHandled( true );
 	}
@@ -530,7 +531,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	    mousearea_.moveInside(ev.pos());
 
 	selptcoord_ = trans.transform(
-		Pos::IdxPair(mousedisplaypos.x,mousedisplaypos.y ) );
+		Pos::IdxPair(mousedisplaypos.x_,mousedisplaypos.y_ ) );
 
 	if ( movementlimit_ )
 	    selptcoord_ = movementlimit_->moveInside( selptcoord_ );
@@ -566,14 +567,15 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	    AuxData* polysel = viewer_.createAuxData( 0 );
 	    polysel->linestyle_ = polygonsellst_;
 	    polysel->fillcolor_.setTransparency( 255 );
-//polysel->poly_ += trans.transform( Pos::IdxPair(prevpt_.x,prevpt_.y) );
+//polysel->poly_ += trans.transform( Pos::IdxPair(prevpt_.x_,prevpt_.y_) );
 	    polygonsel_ += polysel;
 	    viewer_.addAuxData( polysel );
 	}
 
 	const int polyidx = polygonsel_.size()-1;
 
-	const Point pt = trans.transform( Pos::IdxPair(ev.pos().x,ev.pos().y) );
+	const Point pt =
+		trans.transform( Pos::IdxPair( ev.pos().x_, ev.pos().y_ ) );
 	if ( isselactive_ )
 	{
 
@@ -588,9 +590,9 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 
 		const Point& startpt = polygonsel_[polyidx]->poly_[0];
 
-		polygonsel_[polyidx]->poly_ += Point(pt.x,startpt.y);
+		polygonsel_[polyidx]->poly_ += Point(pt.x_,startpt.y_);
 		polygonsel_[polyidx]->poly_ += pt;
-		polygonsel_[polyidx]->poly_ += Point(startpt.x,pt.y);
+		polygonsel_[polyidx]->poly_ += Point(startpt.x_,pt.y_);
 		polygonsel_[polyidx]->close_ = true;
 		viewer_.handleChange( Viewer::Auxdata );
 	    }
@@ -642,8 +644,8 @@ void AuxDataEditor::findSelection( const Geom::Point2D<int>& pt,
 	    const int markeridx = mMIN(idy,nrmarkerstyles-1);
 
 	    const int rng = auxdata_[idx]->markerstyles_[markeridx].size_;
-	    const Geom::PixRectangle<int> markerrect( pt.x-rng, pt.y-rng,
-						  pt.x+rng, pt.y+rng );
+	    const Geom::PixRectangle<int> markerrect( pt.x_-rng, pt.y_-rng,
+						  pt.x_+rng, pt.y_+rng );
 	    if ( !markerrect.isInside( displaypos ) )
 		continue;
 
@@ -883,7 +885,7 @@ bool Sower::acceptMouse( const MouseEvent& mouseevent, bool released )
 	else
 	{
 	    const Coord prevpos( eventlist_[0]->x(), eventlist_[0]->y() );
-	    if ( mousepos.distTo(prevpos) > 5 )
+	    if ( mousepos.distTo<float>(prevpos) > 5 )
 		singleseeded_ = false;
 	}
 

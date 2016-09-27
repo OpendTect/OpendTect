@@ -861,10 +861,10 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 		if ( b2d->nrrg_.start > nr ) b2d->nrrg_.start = nr;
 		else if ( b2d->nrrg_.stop < nr ) b2d->nrrg_.stop = nr;
 		const Coord c( posns[idx].coord_ );
-		if ( b2d->mincoord_.x > c.x ) b2d->mincoord_.x = c.x;
-		else if ( b2d->maxcoord_.x < c.x ) b2d->maxcoord_.x = c.x;
-		if ( b2d->mincoord_.y > c.y ) b2d->mincoord_.y = c.y;
-		else if ( b2d->maxcoord_.y < c.y ) b2d->maxcoord_.y = c.y;
+		if ( b2d->mincoord_.x_ > c.x_ ) b2d->mincoord_.x_ = c.x_;
+		else if ( b2d->maxcoord_.x_ < c.x_ ) b2d->maxcoord_.x_ = c.x_;
+		if ( b2d->mincoord_.y_ > c.y_ ) b2d->mincoord_.y_ = c.y_;
+		else if ( b2d->maxcoord_.y_ < c.y_ ) b2d->maxcoord_.y_ = c.y_;
 	    } // each position
 	} // each line
     } // iiter = 0 or 1

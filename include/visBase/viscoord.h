@@ -27,6 +27,8 @@ namespace osg { class Array; }
 
 namespace visBase
 {
+
+
 class Transformation;
 class Normals;
 

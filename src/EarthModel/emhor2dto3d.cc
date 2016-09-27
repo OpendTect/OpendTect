@@ -135,7 +135,7 @@ void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 	    if ( posid.objectID() == -1 )
 		break;
 
-	    const Coord coord = hor2d_.getPos( posid );
+	    const Coord coord = hor2d_.getPos( posid ).getXY();
 	    const BinID bid = SI().transform( coord );
 	    if ( mIsUdf(minbid.inl()) )
 		minbid = maxbid = bid;
@@ -185,9 +185,9 @@ void Hor2DTo3D::fillSections()
 		break;
 
 	    const Coord3 coord = hor2d_.getPos( posid );
-	    const BinID bid = SI().transform( coord );
-	    sd.add( bid, (float) coord.z );
-	    lastpos = coord;
+	    const BinID bid = SI().transform( coord.getXY() );
+	    sd.add( bid, (float) coord.z_ );
+	    lastpos = coord.getXY();
 	}
     }
 }

@@ -151,18 +151,18 @@ bool DAGTriangleTree::computeCoordRanges( const TypeSet<Coord>& coordlist,
 
     for ( int idx=0; idx<coordlist.size(); idx++ )
     {
-	if ( mIsUdf(coordlist[idx].x) || mIsUdf(coordlist[idx].y) )
+	if ( mIsUdf(coordlist[idx].x_) || mIsUdf(coordlist[idx].y_) )
 	    continue;
 
 	if ( !rangesaredefined )
 	{
-	    xrg.start = xrg.stop = coordlist[idx].x;
-	    yrg.start = yrg.stop = coordlist[idx].y;
+	    xrg.start = xrg.stop = coordlist[idx].x_;
+	    yrg.start = yrg.stop = coordlist[idx].y_;
 	    rangesaredefined = true;
 	}
 
-	xrg.include( coordlist[idx].x );
-	yrg.include( coordlist[idx].y );
+	xrg.include( coordlist[idx].x_ );
+	yrg.include( coordlist[idx].y_ );
     }
 
     return rangesaredefined;
@@ -214,9 +214,9 @@ bool DAGTriangleTree::setBBox( const Interval<double>& xrg,
     double radius = Math::Sqrt( xlength*xlength+ylength*ylength )/2;
     radius += mDefEps;	// assures no point can be on edge of initial triangle
 
-    initialcoords_[0] = Coord( center.x-radius*sq3, center.y-radius );
-    initialcoords_[1] = Coord( center.x+radius*sq3, center.y-radius );
-    initialcoords_[2] = Coord( center.x, center.y+2*radius );
+    initialcoords_[0] = Coord( center.x_-radius*sq3, center.y_-radius );
+    initialcoords_[1] = Coord( center.x_+radius*sq3, center.y_-radius );
+    initialcoords_[2] = Coord( center.x_, center.y_+2*radius );
 
     DAGTriangle initnode;
     initnode.coordindices_[0] = cInitVertex0();
@@ -309,7 +309,7 @@ bool DAGTriangleTree::insertPoint( int ci, int& dupid )
     dupid = cNoVertex();
     mMultiThread( coordlock_.readLock() );
 
-    if ( mIsUdf((*coordlist_)[ci].x) || mIsUdf((*coordlist_)[ci].y) )
+    if ( mIsUdf((*coordlist_)[ci].x_) || mIsUdf((*coordlist_)[ci].y_) )
     {
 	mMultiThread( coordlock_.readUnLock() );
 	pErrMsg( BufferString("The point ",ci," is not defined!") );
@@ -426,13 +426,13 @@ char DAGTriangleTree::searchFurther( const Coord& pt, int& ti0,
 
 
 static bool clockwise( const Coord& c0, const Coord& c1, const Coord& c2 )
-{ return (c1.x-c0.x)*(c2.y-c1.y)-(c1.y-c0.y)*(c2.x-c1.x) < 0; }
+{ return (c1.x_-c0.x_)*(c2.y_-c1.y_)-(c1.y_-c0.y_)*(c2.x_-c1.x_) < 0; }
 
 
 static bool isPointLeftOfLine( const Coord& p, const Coord& a, const Coord& b )
 {
-    const double det_ap_ab = (p.x-a.x)*(b.y-a.y) - (p.y-a.y)*(b.x-a.x);
-    const double det_ba_bp = (p.y-b.y)*(a.x-b.x) - (p.x-b.x)*(a.y-b.y);
+    const double det_ap_ab = (p.x_-a.x_)*(b.y_-a.y_) - (p.y_-a.y_)*(b.x_-a.x_);
+    const double det_ba_bp = (p.y_-b.y_)*(a.x_-b.x_) - (p.x_-b.x_)*(a.y_-b.y_);
 
     // |sum| is numerically invariant to swap of a and b, only sign toggles.
     const double sum = det_ap_ab + det_ba_bp;
@@ -440,7 +440,7 @@ static bool isPointLeftOfLine( const Coord& p, const Coord& a, const Coord& b )
 	return sum > 0.0;
 
     // exactly on the line: make sure that swap of a and b negates result.
-    return ( a.x>b.x ) || ( a.x==b.x && a.y>b.y );
+    return ( a.x_>b.x_ ) || ( a.x_==b.x_ && a.y_>b.y_ );
 }
 
 
@@ -822,7 +822,7 @@ bool DAGTriangleTree::getWeights( int vertexidx, const TypeSet<int>& conns,
     const Coord& vertex = mCrd(vertexidx);
     for ( int knot=0; knot<conns.size(); knot++ )
     {
-	const double weight = 1./vertex.distTo(mCrd(conns[knot]));
+	const double weight = 1./vertex.distTo<double>(mCrd(conns[knot]));
 	weights += weight;
 	if ( normalize ) sum += weight;
     }
@@ -857,8 +857,8 @@ void DAGTriangleTree::dumpTriangulationToIV( od_ostream& stream ) const
 
     for ( int idx=0; idx<coordlist_->size(); idx++ )
     {
-	stream << (*coordlist_)[idx].x << " "
-	       << (*coordlist_)[idx].y << " "
+	stream << (*coordlist_)[idx].x_ << " "
+	       << (*coordlist_)[idx].y_ << " "
 	       << (idx<coordlist_->size()-1 ? "0,\n" : "0\n");
     }
     stream << "]\n}\n\n";
@@ -989,7 +989,8 @@ Triangle2DInterpolator::Triangle2DInterpolator( const DAGTriangleTree& tri )
     const Coord pt = initcenter_ + Coord(1,0);
     const int psize = perimeter_.size();
     for ( int idx=0; idx<psize; idx++ )
-	perimeterazimuth_ += initcenter_.angle(pt,crdlist[perimeter_[idx]]);
+	perimeterazimuth_ +=
+		initcenter_.angle<double>(pt,crdlist[perimeter_[idx]]);
 
     sort_coupled( perimeterazimuth_.arr(), perimeter_.arr(), psize );
 }
@@ -1112,7 +1113,7 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
 	const Coord& pt, TypeSet<int>& vertices, TypeSet<double>& weights )
 {
     const Coord startpt = initcenter_ + Coord(1,0);
-    const double ptazim = initcenter_.angle( startpt, pt );
+    const double ptazim = initcenter_.angle<double>( startpt, pt );
 
     int preidx = -1, aftidx = -1;
     for ( int idx=0; idx<perimeter_.size(); idx++ )
@@ -1189,12 +1190,12 @@ bool Triangle2DInterpolator::setFromAzimuth( const TypeSet<int>& tmpvertices,
      *						   *(center)
      */
 
-    const double x = intersect1.distTo( inita );
-    const double y = intersect1.distTo( initb );
-    const double f = intersect1.distTo( pt );
-    const double e = intersect0.distTo( pt );
-    const double c = intersect0.distTo( triangles_.coordList()[preidx] );
-    const double d = intersect0.distTo( triangles_.coordList()[aftidx] );
+    const double x = intersect1.distTo<double>( inita );
+    const double y = intersect1.distTo<double>( initb );
+    const double f = intersect1.distTo<double>( pt );
+    const double e = intersect0.distTo<double>( pt );
+    const double c = intersect0.distTo<double>( triangles_.coordList()[preidx]);
+    const double d = intersect0.distTo<double>( triangles_.coordList()[aftidx]);
 
     //Inverse distance weighting.
     vertices += preidx;

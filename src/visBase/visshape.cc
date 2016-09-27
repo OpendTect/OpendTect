@@ -240,7 +240,7 @@ void VertexShape::NodeCallbackHandler::updateTexture()
     laytex->setTextureSizePolicy( osgGeo::LayeredTexture::AnySize );
     laytex->reInitTiling();
     const Coord size( Conv::to<Coord>(laytex->imageEnvelopeSize()) );
-    if ( size.x>laytex->maxTextureSize() || size.y>laytex->maxTextureSize() )
+    if ( size.x_>laytex->maxTextureSize() || size.y_>laytex->maxTextureSize() )
     {
 	pErrMsg( "Texture size overflow, because tiling not yet supported" );
     }

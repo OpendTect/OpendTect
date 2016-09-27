@@ -124,7 +124,7 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	}
 
 	if ( crd.isDefined() )
-	    wd->track().addPoint( crd.coord(), (float) crd.z, md );
+	    wd->track().addPoint( crd.getXY(), (float) crd.z_, md );
     }
 }
 

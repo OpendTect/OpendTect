@@ -202,8 +202,8 @@ void PolyTrend::initOrder1( const TypeSet<Coord>& pos,
     Array1DImpl<double> b( sz );
     for ( int idx=0; idx<sz; idx++ )
     {
-	const double dx = pos[idx].x - posc_.x;
-	const double dy = pos[idx].y - posc_.y;
+	const double dx = pos[idx].x_ - posc_.x_;
+	const double dy = pos[idx].y_ - posc_.y_;
 	a.set( idx, 0, 1. );
 	a.set( idx, 1, dx );
 	a.set( idx, 2, dy );
@@ -240,8 +240,8 @@ void PolyTrend::initOrder2( const TypeSet<Coord>& pos,
     Array1DImpl<double> b( sz );
     for ( int idx=0; idx<sz; idx++ )
     {
-	const double dx = pos[idx].x - posc_.x;
-	const double dy = pos[idx].y - posc_.y;
+	const double dx = pos[idx].x_ - posc_.x_;
+	const double dy = pos[idx].y_ - posc_.y_;
 	a.set( idx, 0, 1. );
 	a.set( idx, 1, dx );
 	a.set( idx, 2, dy );
@@ -276,13 +276,13 @@ void PolyTrend::initCenter( const TypeSet<Coord>& pos )
     const int sz = pos.size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	posc_.x += pos[idx].x;
-	posc_.y += pos[idx].y;
+	posc_.x_ += pos[idx].x_;
+	posc_.y_ += pos[idx].y_;
     }
 
     if ( sz < 2 )
 	return;
 
-    posc_.x /= (double)sz;
-    posc_.y /= (double)sz;
+    posc_.x_ /= (double)sz;
+    posc_.y_ /= (double)sz;
 }

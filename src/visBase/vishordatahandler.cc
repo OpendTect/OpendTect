@@ -59,7 +59,7 @@ void HorizonSectionDataHandler::updateZAxisVOI()
     do
     {
 	const BinID curpos( iter.curBinID() );
-	const float depth = geometry->getKnot(RowCol(curpos),false).z;
+	const float depth = geometry->getKnot(RowCol(curpos),false).z_;
 	if ( mIsUdf(depth) )
 	    continue;
 
@@ -154,7 +154,7 @@ void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
 	if ( !pos.isDefined() )
 	    continue;
 
-	float zval = pos.z;
+	float zval = pos.z_;
 	if ( zshift )
 	{
 	    if ( !zaxistransform_ )

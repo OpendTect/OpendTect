@@ -362,8 +362,8 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
 
     const Coord maxcoord = SI().maxCoord(false);
     const Coord mincoord = SI().minCoord(false);
-    const float maxdim = (float) mMAX( maxcoord.x-mincoord.x,
-				       maxcoord.y-mincoord.y );
+    const float maxdim = (float) mMAX( maxcoord.x_-mincoord.x_,
+				       maxcoord.y_-mincoord.y_ );
     AxisLayout<float> axl( Interval<float>(0,maxdim) );
     pardistfld_->setValue( mNINT32(axl.sd_.step/2) );
     perdistfld_->setValue( mNINT32(axl.sd_.step/2) );

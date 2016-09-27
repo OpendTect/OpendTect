@@ -238,7 +238,7 @@ void uiVisIsoSurfaceThresholdDlg::handleClick( CallBacker* cb, bool isdouble )
     const uiPoint& pt = event.pos();
 
     eventhandler.setHandled( true );
-    const float val = xAxis().getVal( pt.x );
+    const float val = xAxis().getVal( pt.x_ );
     thresholdfld_->setValue( val );
     if ( isdouble )
 	updateIsoDisplay( val );

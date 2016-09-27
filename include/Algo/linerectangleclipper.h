@@ -127,8 +127,8 @@ const T LineRectangleClipper<T>::castDouble2T( double d ) const
 #define mAdjustPoint( which ) \
 { \
     Geom::Point2D<T> newpoint; \
-    newpoint.x = start.x + castDouble2T( dx * t##which ); \
-    newpoint.y = start.y + castDouble2T( dy * t##which ); \
+    newpoint.x_ = start.x_ + castDouble2T( dx * t##which ); \
+    newpoint.y_ = start.y_ + castDouble2T( dy * t##which ); \
     which##changed_ = which##_ != newpoint; \
     which##_ = newpoint; \
 }
@@ -147,13 +147,13 @@ void LineRectangleClipper<T>::setLine(const Geom::Point2D<T>& start,
     double tstart = 0.0; 
     double tstop = 1.0;
 
-    const double dx = stop.x - start.x;
-    mBoundaryClip( -dx, start.x - rect_.left()  );
-    mBoundaryClip(  dx, rect_.right() - start.x );
+    const double dx = stop.x_ - start.x_;
+    mBoundaryClip( -dx, start.x_ - rect_.left()  );
+    mBoundaryClip(  dx, rect_.right() - start.x_ );
 
-    const double dy = stop.y - start.y;
-    mBoundaryClip( -dy, start.y - rect_.top()   );
-    mBoundaryClip(  dy, rect_.bottom() - start.y );
+    const double dy = stop.y_ - start.y_;
+    mBoundaryClip( -dy, start.y_ - rect_.top()	 );
+    mBoundaryClip(  dy, rect_.bottom() - start.y_ );
 
     isintersecting_ = true;
 

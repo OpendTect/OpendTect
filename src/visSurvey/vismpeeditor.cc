@@ -306,7 +306,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 	if ( !mIsEqual( dotproduct, 1, 1e-3 ) )
 	{
 	    const float zaxisangle =
-		mCast(float, Math::Atan2( desnormal.y, desnormal.x ) );
+		mCast(float, Math::Atan2( desnormal.y_, desnormal.x_ ) );
 	    Quaternion rotation( defnormal, zaxisangle );
 	    rotation *= Quaternion( Coord3(0,1,0), -Math::ACos(dotproduct) );
 	    rotation.getRotation( rotationaxis, angle );

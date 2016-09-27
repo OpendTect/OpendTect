@@ -19,9 +19,9 @@ const Sphere& Sphere::nullSphere() { return nullsphere_; }
 
 bool Sphere::isNull() const
 {
-    return mIsZero(radius,mDefEpsF)
-        && mIsZero(theta,mDefEpsF)
-	&& mIsZero(phi,mDefEpsF);
+    return mIsZero(radius_,mDefEpsF)
+	&& mIsZero(theta_,mDefEpsF)
+	&& mIsZero(phi_,mDefEpsF);
 }
 
 
@@ -69,7 +69,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
 	    if ( checkforundefs && !vector.isDefined() )
 		continue;
 
-	    const double len = vector.abs();
+	    const double len = vector.abs<double>();
 	    if ( mIsZero(len,mDefEps) )
 		continue;
 
@@ -92,7 +92,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
     for ( int idx=0; idx<nrusedvectors; idx++ )
 	average += usedvectors[idx];
 
-    const double avglen = average.abs();
+    const double avglen = average.abs<double>();
     if ( !mIsZero(avglen,mDefEps) )
 	return average/avglen;
 
@@ -140,9 +140,9 @@ void Quaternion::setRotation( const Vector3& axis, float angle )
 
     const Coord3 a = axis.normalize();
 
-    vec_.x = a.x * sineval;
-    vec_.y = a.y * sineval;
-    vec_.z = a.z * sineval;
+    vec_.x_ = a.x_ * sineval;
+    vec_.y_ = a.y_ * sineval;
+    vec_.z_ = a.z_ * sineval;
 }
 
 
@@ -170,7 +170,7 @@ Coord3 Quaternion::rotate( const Coord3& v ) const
 Quaternion Quaternion::operator+( const Quaternion& b ) const
 {
     const Vector3 vec = vec_+b.vec_;
-    return Quaternion( s_+b.s_, vec.x, vec.y, vec.z );
+    return Quaternion( s_+b.s_, vec.x_, vec.y_, vec.z_ );
 }
 
 
@@ -185,7 +185,7 @@ Quaternion& Quaternion::operator+=( const Quaternion& b )
 Quaternion Quaternion::operator-( const Quaternion& b ) const
 {
     const Vector3 vec =  vec_-b.vec_;
-    return Quaternion( s_-b.s_, vec.x, vec.y, vec.z );
+    return Quaternion( s_-b.s_, vec.x_, vec.y_, vec.z_ );
 }
 
 
@@ -199,7 +199,7 @@ Quaternion& Quaternion::operator-=( const Quaternion& b )
 Quaternion Quaternion::operator*( const Quaternion& b ) const
 {
     const Vector3 vec = s_*b.vec_ + b.s_*vec_ + vec_.cross(b.vec_);
-    return Quaternion( s_*b.s_-vec_.dot(b.vec_), vec.x, vec.y, vec.z );
+    return Quaternion( s_*b.s_-vec_.dot(b.vec_), vec.x_, vec.y_, vec.z_ );
 }
 
 
@@ -212,7 +212,7 @@ Quaternion& Quaternion::operator*=( const Quaternion& b )
 
 Quaternion Quaternion::inverse() const
 {
-    return Quaternion( s_, -vec_.x, -vec_.y, -vec_.z );
+    return Quaternion( s_, -vec_.x_, -vec_.y_, -vec_.z_ );
 }
 
 
@@ -261,26 +261,25 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
     if ( mIsEqual(direction(true).dot(line.direction(true)),1.0, mDefEpsD) )
 	return Coord::udf();
 
-    double devisor = line.dir_.x*dir_.y-line.dir_.y*dir_.x;
+    double devisor = line.dir_.x_*dir_.y_-line.dir_.y_*dir_.x_;
     if ( mIsZero( devisor, mDefEpsD) )
 	return Coord::udf();
 
     //Compute point on line that crosses this.
     const double u =
-	(dir_.x * (line.p0_.y-p0_.y) +dir_.y*(p0_.x-line.p0_.x))/ devisor ;
+	(dir_.x_ * (line.p0_.y_-p0_.y_) +dir_.y_*(p0_.x_-line.p0_.x_))/devisor ;
     if ( checkinlimits )
     {
 	if ( u<-mDefEpsD || u>oneplus )
 	    return Coord::udf();
 
-	devisor = dir_.x*line.dir_.y-dir_.y*line.dir_.x;
+	devisor = dir_.x_*line.dir_.y_-dir_.y_*line.dir_.x_;
 	if ( mIsZero( devisor, mDefEpsD) )
 	    return Coord::udf();
 
 	//Compute corresponding position on this line
-	const double t =
-	    (line.dir_.x*(p0_.y-line.p0_.y) +line.dir_.y*(line.p0_.x-p0_.x)) /
-		devisor;
+	const double t = (line.dir_.x_*(p0_.y_-line.p0_.y_) +
+			  line.dir_.y_*(line.p0_.x_-p0_.x_)) / devisor;
 
 	if ( t<-mDefEpsD || t>oneplus )
 	     return Coord::udf();
@@ -292,8 +291,8 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 
 void Line2::getPerpendicularLine( Line2& line, const Coord& point ) const
 {
-    line.dir_.x = -dir_.y;
-    line.dir_.y = dir_.x;
+    line.dir_.x_ = -dir_.y_;
+    line.dir_.y_ = dir_.x_;
     line.p0_ = point;
 }
 
@@ -301,7 +300,7 @@ void Line2::getPerpendicularLine( Line2& line, const Coord& point ) const
 void Line2::getParallelLine( Line2& line, double dist ) const
 {
     line = *this;
-    Coord movement = Coord(-dir_.y,dir_.x).normalize() * dist;
+    Coord movement = Coord(-dir_.y_,dir_.x_).normalize() * dist;
     line.p0_ += movement;
 }
 
@@ -311,12 +310,12 @@ Line3::Line3() {}
 Line3::Line3( double x0, double y0, double z0, double alpha, double beta,
 	      double gamma )
 {
-    p0_.x = x0;
-    p0_.y = y0;
-    p0_.z = z0;
-    dir_.x = alpha;
-    dir_.y = beta;
-    dir_.z = gamma;
+    p0_.x_ = x0;
+    p0_.y_ = y0;
+    p0_.z_ = z0;
+    dir_.x_ = alpha;
+    dir_.y_ = beta;
+    dir_.z_ = gamma;
 }
 
 
@@ -363,8 +362,8 @@ void Line3::closestPointToLine( const Line3& line, double& t_this,
 
 bool Line3::intersectWith( const Plane3& b, double& t ) const
 {
-    const double denominator = dir_.x*b.A_ + dir_.y*b.B_ + dir_.z*b.C_;
-    const double dist0 = b.A_*p0_.x + b.B_*p0_.y + b.C_*p0_.z + b.D_;
+    const double denominator = dir_.x_*b.A_ + dir_.y_*b.B_ + dir_.z_*b.C_;
+    const double dist0 = b.A_*p0_.x_ + b.B_*p0_.y_ + b.C_*p0_.z_ + b.D_;
     if ( mIsZero(denominator,mDefEps) )
     {
 	const double test = dist0/Math::Sqrt(b.A_*b.A_+b.B_*b.B_+b.C_*b.C_);
@@ -416,33 +415,33 @@ void Plane3::set( const Vector3& norm, const Coord3& point, bool istwovec )
 {
     if ( istwovec )
     {
-	Vector3 cross = point.cross( norm );
-	A_ = cross.x;
-	B_ = cross.y;
-	C_ = cross.z;
+	const Vector3 cross = point.cross( norm );
+	A_ = cross.x_;
+	B_ = cross.y_;
+	C_ = cross.z_;
 	D_ = 0;
     }
     else
     {
-	A_ = norm.x;
-	B_ = norm.y;
-	C_ = norm.z;
-	D_ =  -(norm.x*point.x) - (norm.y*point.y) - ( norm.z*point.z );
+	A_ = norm.x_;
+	B_ = norm.y_;
+	C_ = norm.z_;
+	D_ =  -(norm.x_*point.x_) - (norm.y_*point.y_) - ( norm.z_*point.z_ );
     }
 }
 
 
 void Plane3::set( const Coord3& a, const Coord3& b, const Coord3& c )
 {
-    Vector3 ab( b.x -a.x, b.y -a.y, b.z -a.z );
-    Vector3 ac( c.x -a.x, c.y -a.y, c.z -a.z );
+    Vector3 ab( b.x_ -a.x_, b.y_ -a.y_, b.z_ -a.z_ );
+    Vector3 ac( c.x_ -a.x_, c.y_ -a.y_, c.z_ -a.z_ );
 
     Vector3 n = ab.cross( ac );
 
-    A_ = n.x;
-    B_ = n.y;
-    C_ = n.z;
-    D_ = A_*(-a.x)  - B_*a.y - C_*a.z;
+    A_ = n.x_;
+    B_ = n.y_;
+    C_ = n.z_;
+    D_ = A_*(-a.x_)  - B_*a.y_ - C_*a.z_;
 }
 
 
@@ -468,9 +467,9 @@ float Plane3::set( const TypeSet<Coord3>& pts )
 	midpt += pts[idx];
     }
 
-    midpt.x /= nrpts;
-    midpt.y /= nrpts;
-    midpt.z /= nrpts;
+    midpt.x_ /= nrpts;
+    midpt.y_ /= nrpts;
+    midpt.z_ /= nrpts;
 
     if ( !pca.calculate() )
 	return -1;
@@ -488,8 +487,8 @@ bool Plane3::operator==(const Plane3& b ) const
     Vector3 a_vec = normal();
     Vector3 b_vec = normal();
 
-    const double a_len = a_vec.abs();
-    const double b_len = b_vec.abs();
+    const double a_len = a_vec.abs<double>();
+    const double b_len = b_vec.abs<double>();
 
     const bool a_iszero = mIsZero(a_len,mDefEps);
     const bool b_iszero = mIsZero(b_len,mDefEps);
@@ -519,13 +518,16 @@ bool Plane3::operator!=(const Plane3& b ) const
 
 Coord3 Plane3::getProjection( const Coord3& pos )
 {
-    const double param = (A_*pos.x+B_*pos.y+C_*pos.z+D_)/(A_*A_+B_*B_+C_*C_);
-    return Coord3( pos.x-A_*param, pos.y-B_*param, pos.z-C_*param );
+    const double param = (A_*pos.x_+B_*pos.y_+C_*pos.z_+D_)/(A_*A_+B_*B_+C_*C_);
+    return Coord3( pos.x_-A_*param, pos.y_-B_*param, pos.z_-C_*param );
 }
 
 
 bool Plane3::onSameSide( const Coord3& p1, const Coord3& p2 )
-{ return (A_*p1.x+B_*p1.y+C_*p1.z+D_) * (A_*p2.x+B_*p2.y+C_*p2.z+D_) >= 0; }
+{
+    return (A_*p1.x_+B_*p1.y_+C_*p1.z_+D_) *
+	   (A_*p2.x_+B_*p2.y_+C_*p2.z_+D_) >= 0;
+}
 
 
 double Plane3::distanceToPoint( const Coord3& point, bool whichside ) const
@@ -537,7 +539,7 @@ double Plane3::distanceToPoint( const Coord3& point, bool whichside ) const
     if ( intersectWith( linetoplane, p0 ) )
     {
 	const Coord3 diff = point-p0;
-	return whichside ? diff.dot(norm) : diff.abs();
+	return whichside ? diff.dot(norm) : diff.abs<double>();
     }
     else
 	return 0;
@@ -561,34 +563,34 @@ bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
     const Coord3 normal0(A_, B_, C_);
     const Coord3 normal1(b.A_, b.B_, b.C_);
     const Coord3 dir = normal0.cross( normal1 );
-    if ( mIsZero(dir.abs(),mDefEps) )
+    if ( mIsZero(dir.abs<double>(),mDefEps) )
 	return false;
 
     res.dir_ = dir;
 
     double deter;
-    if ( !mIsZero(dir.x,mDefEps) )
+    if ( !mIsZero(dir.x_,mDefEps) )
     {
-	deter = dir.x;
-	res.p0_.x = 0;
-	res.p0_.y = (-D_*b.C_+C_*b.D_)/deter;
-	res.p0_.z = (-B_*b.D_+D_*b.B_)/deter;
+	deter = dir.x_;
+	res.p0_.x_ = 0;
+	res.p0_.y_ = (-D_*b.C_+C_*b.D_)/deter;
+	res.p0_.z_ = (-B_*b.D_+D_*b.B_)/deter;
 	return true;
     }
-    else if ( !mIsZero(dir.y,mDefEps) )
+    else if ( !mIsZero(dir.y_,mDefEps) )
     {
-	deter = -dir.y;
-	res.p0_.y = 0;
-	res.p0_.x = (-D_*b.C_+C_*b.D_)/deter;
-	res.p0_.z = (-A_*b.D_+D_*b.A_)/deter;;
+	deter = -dir.y_;
+	res.p0_.y_ = 0;
+	res.p0_.x_ = (-D_*b.C_+C_*b.D_)/deter;
+	res.p0_.z_ = (-A_*b.D_+D_*b.A_)/deter;;
 	return true;
     }
     else
     {
-	deter = dir.z;
-	res.p0_.x = (-D_*b.B_+B_*b.D_)/deter;
-	res.p0_.y = (-A_*b.D_+D_*b.A_)/deter;
-	res.p0_.z = 0;
+	deter = dir.z_;
+	res.p0_.x_ = (-D_*b.B_+B_*b.D_)/deter;
+	res.p0_.y_ = (-A_*b.D_+D_*b.A_)/deter;
+	res.p0_.z_ = 0;
     }
 
     return true;
@@ -601,7 +603,7 @@ Plane3CoordSystem::Plane3CoordSystem(const Coord3& normal, const Coord3& origin,
     , plane_( normal, origin, false )
 {
     vec10_ = pt10-origin;
-    const double vec10len = vec10_.abs();
+    const double vec10len = vec10_.abs<double>();
     isok_ = !mIsZero(vec10len, 1e-5 );
     if ( isok_ )
 	vec10_ /= vec10len;
@@ -616,7 +618,7 @@ bool Plane3CoordSystem::isOK() const { return isok_; }
 Coord Plane3CoordSystem::transform( const Coord3& pt, bool project ) const
 {
     if ( !isok_ )
-	return Coord3::udf();
+	return Coord::udf();
 
     Coord3 v0;
     if ( project )
@@ -628,7 +630,7 @@ Coord Plane3CoordSystem::transform( const Coord3& pt, bool project ) const
     else
 	v0 = pt-origin_;
 
-    const double len = v0.abs();
+    const double len = v0.abs<double>();
     if ( !len )
 	return Coord( 0, 0 );
     const Coord3 dir = v0 / len;
@@ -642,23 +644,23 @@ Coord Plane3CoordSystem::transform( const Coord3& pt, bool project ) const
 
 Coord3 Plane3CoordSystem::transform( const Coord& coord ) const
 {
-    return origin_ + vec10_*coord.x + vec01_*coord.y;
+    return origin_ + vec10_*coord.x_ + vec01_*coord.y_;
 }
 
 
 Sphere cartesian2Spherical( const Coord3& crd, bool math )
 {
     double theta, phi;
-    double rad = crd.abs();
+    double rad = crd.abs<double>();
     if ( math )
     {
-	theta = rad ? Math::ACos( (crd.z / rad) ) : 0;
-	phi = Math::Atan2( crd.y, crd.x );
+	theta = rad ? Math::ACos( (crd.z_ / rad) ) : 0;
+	phi = Math::Atan2( crd.y_, crd.x_ );
     }
     else
     {
-	theta = rad ? Math::ASin( (crd.z / rad) ) : 0;
-	phi = Math::Atan2( crd.x, crd.y );
+	theta = rad ? Math::ASin( (crd.z_ / rad) ) : 0;
+	phi = Math::Atan2( crd.x_, crd.y_ );
     }
 
     return Sphere( (float)rad, (float)theta, (float)phi );
@@ -670,15 +672,15 @@ Coord3 spherical2Cartesian( const Sphere& sph, bool math )
     float x, y, z;
     if ( math )
     {
-	x = sph.radius * cos(sph.phi) * sin(sph.theta);
-	y = sph.radius * sin(sph.phi) * sin(sph.theta);
-	z = sph.radius * cos(sph.theta);
+	x = sph.radius_ * cos(sph.phi_) * sin(sph.theta_);
+	y = sph.radius_ * sin(sph.phi_) * sin(sph.theta_);
+	z = sph.radius_ * cos(sph.theta_);
     }
     else
     {
-	x = sph.radius * sin(sph.phi) * cos(sph.theta);
-	y = sph.radius * cos(sph.phi) * cos(sph.theta);
-	z = sph.radius * sin(sph.theta);
+	x = sph.radius_ * sin(sph.phi_) * cos(sph.theta_);
+	y = sph.radius_ * cos(sph.phi_) * cos(sph.theta_);
+	z = sph.radius_ * sin(sph.theta_);
     }
 
     return Coord3(x,y,z);

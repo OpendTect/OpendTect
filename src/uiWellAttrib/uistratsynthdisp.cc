@@ -758,7 +758,7 @@ float uiStratSynthDisp::centralTrcShift() const
 {
     if ( !dispflattened_ ) return 0.0;
     bool forward = false;
-    int forwardidx = mNINT32( vwr_->curView().centre().x );
+    int forwardidx = mNINT32( vwr_->curView().centre().x_ );
     int backwardidx = forwardidx-1;
     const SeisTrcBuf& trcbuf = curTrcBuf();
     if ( !trcbuf.size() ) return 0.0f;

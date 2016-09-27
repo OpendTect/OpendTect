@@ -181,8 +181,8 @@ bool StoredFunctionSource::load( const DBKey& velid )
 	if ( ploc.hasPos() && ploc.hasDir() )
 	{
 	    float vals[2];
-	    vals[0] = (float)ploc.pos().z;
-	    vals[1] = ploc.dir().radius;
+	    vals[0] = (float)ploc.pos().z_;
+	    vals[1] = ploc.dir().radius_;
 	    veldata_.add( ploc.binID(), vals );
 	}
     }

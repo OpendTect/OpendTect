@@ -298,10 +298,10 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	int prevstart=rowrg.start, prevstop=rowrg.stop;
 	for ( int icol=colrg.start; icol<=colrg.stop; icol++ )
 	{
-	    pt.y = icol;
-	    int irow = pt.x = prevstart;
+	    pt.y_ = icol;
+	    int irow = pt.x_ = prevstart;
 	    if ( icol!=colrg.start && !poly.isInside( pt, true, 0 ) )
-		irow = pt.x = rowrg.start;
+		irow = pt.x_ = rowrg.start;
 
 	    bool hadaninside = false;
 	    bool isinside;
@@ -316,7 +316,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 		if ( !rowrg.includes(irow,false) ) break;
 
 		irow--;
-		pt.x = irow;
+		pt.x_ = irow;
 	    }
 
 	    if ( !hadaninside || !isinside )
@@ -324,18 +324,18 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 
 	    if ( !hadaninside )
 	    {
-		pt.x = irow;
+		pt.x_ = irow;
 		while ( !poly.isInside( pt, true, 0 ) )
 		{
 		    irow++;
-		    pt.x = irow;
+		    pt.x_ = irow;
 		}
 	    }
 
 	    Interval<int> thisrowrg;
 	    thisrowrg.start = prevstart = irow;
 	    irow = prevstop;
-	    pt.x = irow;
+	    pt.x_ = irow;
 	    hadaninside = false;
 
 	    while ( true )
@@ -349,7 +349,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 		if ( !rowrg.includes(irow,false) ) break;
 
 		irow++;
-		pt.x = irow;
+		pt.x_ = irow;
 	    }
 
 	    if ( !hadaninside || !isinside )
@@ -357,11 +357,11 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 
 	    if ( !hadaninside )
 	    {
-		pt.x = irow;
+		pt.x_ = irow;
 		while ( !poly.isInside( pt, true, 0 ) )
 		{
 		    irow--;
-		    pt.x = irow;
+		    pt.x_ = irow;
 		}
 	    }
 
@@ -1526,8 +1526,8 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* taskrunner )
 	coordlistindices_ += corneridx_[idx];
 	if ( usefitplane && !mIsZero(bestfitplane.C_,1e-8) )
 	{
-	    cornerval_[idx] = mCast(float, -(bestfitplane.A_*pos.x +
-			bestfitplane.B_*pos.y +
+	    cornerval_[idx] = mCast(float, -(bestfitplane.A_*pos.x_ +
+			bestfitplane.B_*pos.y_ +
 			bestfitplane.D_)/bestfitplane.C_);
 	}
 	else

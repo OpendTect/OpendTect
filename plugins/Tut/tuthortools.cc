@@ -94,8 +94,8 @@ int Tut::ThicknessCalculator::nextStep()
     const EM::SubID subid( iter_->curBinID().toInt64() );
     for ( EM::SectionID isect=0; isect<nrsect; isect++ )
     {
-	const float z1 = (float) horizon1_->getPos( isect, subid ).z;
-	const float z2 = (float) horizon2_->getPos( isect, subid ).z;
+	const float z1 = (float) horizon1_->getPos( isect, subid ).z_;
+	const float z2 = (float) horizon2_->getPos( isect, subid ).z_;
 
 	float val = mUdf(float);
 	if ( !mIsUdf(z1) && !mIsUdf(z2) )
@@ -142,7 +142,7 @@ int Tut::HorSmoother::nextStep()
 		const BinID binid = BinID( bid.inl() +inloffs *hs_.step_.inl(),
 					   bid.crl() +crloffs *hs_.step_.crl());
 		const EM::SubID subid = binid.toInt64();
-		const float z = (float) horizon1_->getPos( isect, subid ).z;
+		const float z = (float) horizon1_->getPos( isect, subid ).z_;
 		if ( mIsUdf(z) ) continue;
 		sum += z; count++;
 	    }
@@ -151,7 +151,7 @@ int Tut::HorSmoother::nextStep()
 
 	subid_ = bid.toInt64();
 	Coord3 pos = horizon1_->getPos( isect, subid_ );
-	pos.z = val;
+	pos.z_ = val;
 	horizon1_->setPos( isect, subid_, pos, false );
     }
 

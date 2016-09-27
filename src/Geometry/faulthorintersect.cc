@@ -100,14 +100,14 @@ bool findMin( TypeSet<Coord3>& res, int& minidx, bool isx )
 {
     if ( res.size()==0 ) return false;
  
-    double minval = isx ? res[0].x : res[0].y;
+    double minval = isx ? res[0].x_ : res[0].y_;
     minidx = 0;
     Coord3 mincrd;
     double deltaval = 0;
     
     for ( int idx = 1; idx<res.size(); idx++ )
     {
-	const double val = isx ? res[idx].x : res[idx].y;
+	const double val = isx ? res[idx].x_ : res[idx].y_;
 	if ( val < minval )
 	{
 	    minval = val;
@@ -120,14 +120,14 @@ bool findMin( TypeSet<Coord3>& res, int& minidx, bool isx )
 
     for ( int idx = 0; idx<res.size(); idx++ )
     {
-	const double val = isx ? res[idx].x : res[idx].y;
+	const double val = isx ? res[idx].x_ : res[idx].y_;
 	deltaval += val - minval;
 
 	if ( side1 && side2 )
 	    break;
 		
-	const double anotherval = isx ? res[idx].y : res[idx].x;
-	const double minpairval = isx ? res[minidx].y : res[minidx].x;
+	const double anotherval = isx ? res[idx].y_ : res[idx].x_;
+	const double minpairval = isx ? res[minidx].y_ : res[minidx].x_;
 	
 	bool diff = anotherval - minpairval>0 ? true : false;
 	
@@ -171,16 +171,25 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    bool allbelow = true;
 	    for ( int k=0; k<3; k++ )
 	    {
-		BinID bid = SI().transform( v[k] );
+		BinID bid = SI().transform( v[k].getXY() );
 		RowCol rc(surfrrg.snap(bid.inl()),surfcrg.snap(bid.crl()));
 
-		const double pz = surf_.getKnot(rc, false).z + zshift_;
+		const double pz = surf_.getKnot(rc, false).z_ + zshift_;
 		rcz[k] = Coord3( rc.row(), rc.col(), pz );
 		bool defined = !mIsUdf(pz);
 		if ( allabove )
-    		    allabove = defined ? v[k].z>=pz : v[k].z >= surfzrg_.stop;
+		{
+		    allabove = defined
+			? v[k].z_>=pz
+			: v[k].z_ >= surfzrg_.stop;
+		}
+
 		if ( allbelow )
-    		    allbelow = defined ? v[k].z<=pz : v[k].z <= surfzrg_.start;
+		{
+		    allbelow = defined
+			? v[k].z_<=pz
+			: v[k].z_ <= surfzrg_.start;
+		}
 
 		if ( !k )
 		{
@@ -203,7 +212,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    for ( int k=0; k<3; k++ )
 	    {
 		tri[k] = v[k] - center;
-		tri[k].z *= zscale;
+		tri[k].z_ *= zscale;
 	    }
 	    Plane3 triangle( tri[0], tri[1], tri[2] );
 	   
@@ -227,11 +236,11 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		    const int col = smpcrg.atIndex( cidx );
 		    Coord3 pos = surf_.getKnot(RowCol(row,col), false);
 		    float dist = mUdf( float );
-		    if ( !mIsUdf(pos.z) )
+		    if ( !mIsUdf(pos.z_) )
 		    {
-			pos.z += zshift_;
+			pos.z_ += zshift_;
 			pos -= center;
-			pos.z *= zscale;
+			pos.z_ *= zscale;
 			dist = (float) triangle.distanceToPoint(pos,true);
 		    }
 
@@ -254,8 +263,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		for ( int vidx=0; vidx<ic.size(); vidx++ )
 		{
 		    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
-		    if ( !pointInTriangle2D( Coord(vertex.x,vertex.y),
-				rcz[0],rcz[1],rcz[2],0) )
+		    if ( !pointInTriangle2D( Coord(vertex.x_,vertex.y_),
+				rcz[0].getXY(),rcz[1].getXY(),rcz[2].getXY(),0) )
 			continue;
 
 		    Coord3 intersect;
@@ -266,16 +275,16 @@ bool doWork( od_int64 start, od_int64 stop, int )
 			continue;
 
 		    Coord3 temp = intersect - center;
-		    temp.z *= zscale;
+		    temp.z_ *= zscale;
 		    if ( pointInTriangle3D(temp,tri[0],tri[1],tri[2],0) )
 		    {
 			tmp += intersect;
-			if ( isclosed && mIsUdf(firstpos.z) )
+			if ( isclosed && mIsUdf(firstpos.z_) )
 			    firstpos = intersect;
 		    }
 		}
 		
-		if ( isclosed && !mIsUdf(firstpos.z) )
+		if ( isclosed && !mIsUdf(firstpos.z_) )
 		    tmp += firstpos; 
 	    }
 	    if ( tmp.size()>0 )
@@ -291,10 +300,10 @@ protected:
 
 bool getSurfacePos( const Geom::Point2D<float>& vertex, Coord3& res )
 {
-    const int minrow = (int)vertex.x;
-    const int maxrow = minrow < vertex.x ? minrow+1 : minrow;
-    const int mincol = (int)vertex.y;
-    const int maxcol = mincol < vertex.y ? mincol+1 : mincol;
+    const int minrow = (int)vertex.x_;
+    const int maxrow = minrow < vertex.x_ ? minrow+1 : minrow;
+    const int mincol = (int)vertex.y_;
+    const int maxcol = mincol < vertex.y_ ? mincol+1 : mincol;
 
     TypeSet<Coord3> neighbors;
     TypeSet<float> weights;
@@ -304,12 +313,12 @@ bool getSurfacePos( const Geom::Point2D<float>& vertex, Coord3& res )
 	for ( int c=mincol; c<=maxcol; c++ )
 	{
 	    Coord3 pos = surf_.getKnot( RowCol(r,c), false );
-	    if ( mIsUdf(pos.z) )
+	    if ( mIsUdf(pos.z_) )
 		continue;
 	    else
-		pos.z += zshift_;
+		pos.z_ += zshift_;
 
-	    float dist = fabs(r-vertex.x) + fabs(c-vertex.y);
+	    float dist = fabs(r-vertex.x_) + fabs(c-vertex.y_);
 	    if ( mIsZero(dist,1e-5) )
 	    {
 		res = pos;
@@ -408,15 +417,15 @@ void FaultBinIDSurfaceIntersector::compute()
 int FaultBinIDSurfaceIntersector::optimizeOrder( TypeSet<Coord3>& res )
 {
     IntervalND<float> bbox(2);
-    bbox.setRange( Coord(res[0].x,res[0].y) );
+    bbox.setRange( res[0].getXY() );
     int detectnr = 0;
 
     TypeSet<int> idxs;
     for ( int idx = 1; idx<res.size(); idx++ )
     {
-	 const Coord xy( res[idx].x,res[idx].y );
-	 if ( bbox.getRange(0).start<xy.x && bbox.getRange(0).stop>xy.x &&
-	      bbox.getRange(1).start<xy.y && bbox.getRange(1).stop>xy.y )
+	 const Coord xy( res[idx].getXY() );
+	 if ( bbox.getRange(0).start<xy.x_ && bbox.getRange(0).stop>xy.x_ &&
+	      bbox.getRange(1).start<xy.y_ && bbox.getRange(1).stop>xy.y_ )
 	 {
 	     detectnr ++;
 	     idxs += idx;

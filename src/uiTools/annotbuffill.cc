@@ -57,7 +57,7 @@ void AnnotBufferFiller::fillInterWithBufArea( const uiWorldRect& worldarea,
 	if ( worldarea.isOutside( pts[0], 1e-6 ) )
 	    return;
 	iPoint ipt = w2u_->transform( pts[0] );
-	buf.set( ipt.x, ipt.y, line->linestyle_.color_ );
+	buf.set( ipt.x_, ipt.y_, line->linestyle_.color_ );
     }
     else
     {
@@ -74,10 +74,10 @@ void AnnotBufferFiller::fillInterWithBufArea( const uiWorldRect& worldarea,
 void AnnotBufferFiller::setLine( const iPoint& startpt, const iPoint& stoppt,
 				 const LineInfo* line, uiRGBArray& buffer )const
 {
-    const int deltax = abs( stoppt.x - startpt.x );
-    const int deltay = abs( stoppt.y - startpt.y );
-    const int signx = stoppt.x>=startpt.x ? 1 : -1;
-    const int signy = stoppt.y>=startpt.y ? 1 : -1;
+    const int deltax = abs( stoppt.x_ - startpt.x_ );
+    const int deltay = abs( stoppt.y_ - startpt.y_ );
+    const int signx = stoppt.x_>=startpt.x_ ? 1 : -1;
+    const int signy = stoppt.y_>=startpt.y_ ? 1 : -1;
     const bool ismaindirx = deltax >= deltay;
     const int nrpoints = ismaindirx ? deltax + 1 : deltay + 1;
     int discriminator = ismaindirx ? 2*deltay - deltax : 2*deltax - deltay;
@@ -92,12 +92,12 @@ void AnnotBufferFiller::setLine( const iPoint& startpt, const iPoint& stoppt,
     //TODO later on : use line size 
     for ( int idx=0; idx<nrpoints; idx++ )
     {
-	if ( curpt.x>0 && curpt.x<=buffer.getSize(true) && 
-	     curpt.y>0 && curpt.y<=buffer.getSize(false) )
-	    buffer.set( curpt.x, curpt.y, line->linestyle_.color_ );
+	if ( curpt.x_>0 && curpt.x_<=buffer.getSize(true) &&
+	     curpt.y_>0 && curpt.y_<=buffer.getSize(false) )
+	    buffer.set( curpt.x_, curpt.y_, line->linestyle_.color_ );
 	discriminator += discriminator<0 ? dincnegd : dincposd;
-	int xcoord = curpt.x + (discriminator<0 ? xincnegd : xincposd);
-	int ycoord = curpt.y + (discriminator<0 ? yincnegd : yincposd);
+	int xcoord = curpt.x_ + (discriminator<0 ? xincnegd : xincposd);
+	int ycoord = curpt.y_ + (discriminator<0 ? yincnegd : yincposd);
 	curpt.setXY( xcoord, ycoord );
     }
 }
@@ -127,7 +127,8 @@ dPoint AnnotBufferFiller::computeIntersect( const dPoint& pt1,
 }
 
 
-void AnnotBufferFiller::addLineInfo( const OD::LineStyle& ls, TypeSet<dPoint> ptset,
+void AnnotBufferFiller::addLineInfo( const OD::LineStyle& ls,
+				     TypeSet<dPoint> ptset,
 				     bool ishgrid, bool isvgrid )
 {
     LineInfo* linfo = new LineInfo();

@@ -151,15 +151,15 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     Coord spt2 = SI().transform( BinID(sd.rg.start_.inl(),sd.rg.stop_.crl()) );
     Coord spt3 = SI().transform( BinID(sd.rg.stop_.inl(),sd.rg.start_.crl()) );
     Coord spt4 = SI().transform( BinID(sd.rg.stop_.inl(),sd.rg.stop_.crl()) );
-    Coord botleft( mMIN( mMIN( spt1.x, spt2.x ), mMIN( spt3.x, spt4.x ) ),
-		   mMIN( mMIN( spt1.y, spt2.y ), mMIN( spt3.y, spt4.y ) ) );
-    Coord topright( mMAX( mMAX( spt1.x, spt2.x ), mMAX( spt3.x, spt4.x ) ),
-		    mMAX( mMAX( spt1.y, spt2.y ), mMAX( spt3.y, spt4.y ) ) );
+    Coord botleft( mMIN( mMIN(spt1.x_,spt2.x_), mMIN(spt3.x_,spt4.x_) ),
+		   mMIN( mMIN(spt1.y_,spt2.y_), mMIN(spt3.y_,spt4.y_) ) );
+    Coord topright( mMAX( mMAX(spt1.x_,spt2.x_), mMAX(spt3.x_,spt4.x_) ),
+		    mMAX( mMAX(spt1.y_,spt2.y_), mMAX(spt3.y_,spt4.y_) ) );
     fp.setExtension( "gd1" );
     BufferString grd100fnm = fileName( fp.fullPath() );
     BufferString rstr = "-R";
-    rstr += botleft.x; rstr += "/"; rstr += topright.x; rstr += "/";
-    rstr += botleft.y; rstr += "/"; rstr += topright.y;
+    rstr += botleft.x_; rstr += "/"; rstr += topright.x_; rstr += "/";
+    rstr += botleft.y_; rstr += "/"; rstr += topright.y_;
     BufferString comm = "@blockmean "; comm += rstr;
     comm += " -I100 | surface "; comm += rstr; comm += " -I100 -T0.7 -N250 -G";
     comm += grd100fnm;
@@ -178,11 +178,11 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 	if ( !pos.isDefined() )
 	    continue;
 
-	const float val = isz ? (float) pos.z * fac
+	const float val = isz ? (float) pos.z_ * fac
 			      : hor->auxdata.getAuxDataVal( dataidx, posid );
 	if ( mIsUdf(val) ) continue;
 
-	procstrm << pos.x << " " << pos.y << " " << val << "\n";
+	procstrm << pos.x_ << " " << pos.y_ << " " << val << "\n";
     } while ( iter.next() );
 
     procstrm.close();

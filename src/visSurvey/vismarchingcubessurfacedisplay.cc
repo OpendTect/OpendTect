@@ -457,7 +457,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 	return;
 
     const BinIDValueSet& bivset = cache_[valididx]->bivSet();
-    const BinID bid = SI().transform( xyzpos );
+    const BinID bid = s3dgeom_->transform( xyzpos.getXY() );
 
     TypeSet<float> zdist;
     TypeSet<float> vals;
@@ -471,7 +471,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 	const float depth = posvals[0];
 	if ( !mIsUdf(depth) )
 	{
-	    zdist += (float) fabs(depth-xyzpos.z);
+	    zdist += (float) fabs(depth-xyzpos.z_);
 	    vals += posvals[validx];
 	}
 
@@ -484,7 +484,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 
     sort_coupled( zdist.arr(), vals.arr(), zdist.size() );
 
-    if ( zdist[0]>SI().zRange(true).step )
+    if ( zdist[0]>s3dgeom_->zRange().step )
 	return;
 
     val = vals[0];
@@ -759,7 +759,7 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
 	for ( int idy=0; idy<crlsz; idy++ )
 	{
 	    const int crl = crlrg.start+idy*csp.step;
-	    Coord3 pos( SI().transform(BinID(inl,crl)), 0 );
+	    Coord3 pos( s3dgeom_->transform(BinID(inl,crl)), 0 );
 	    for ( int idz=0; idz<zsz; idz++ )
 	    {
 		const int val = arr->get(idx, idy, idz);
@@ -767,7 +767,7 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
 		if ( val>0 )
 		    continue;
 
-		pos.z = zrg.start+idz*zsp.step;
+		pos.z_ = zrg.start+idz*zsp.step;
 		if ( !selector.includes(pos) )
 		    continue;
 

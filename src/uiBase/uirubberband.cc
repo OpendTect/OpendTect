@@ -34,7 +34,7 @@ void uiRubberBand::start( QMouseEvent* event )
 
 void uiRubberBand::handleEv( QMouseEvent* event, bool setgeom )
 {
-    const QPoint qorigin( origin_.x, origin_.y );
+    const QPoint qorigin( origin_.x_, origin_.y_ );
     const QRect geom = QRect( qorigin, event->pos() ).normalized();
     area_ = uiRect( geom.left(), geom.top(), geom.right(), geom.bottom() );
     if ( setgeom )

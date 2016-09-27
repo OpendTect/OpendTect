@@ -95,7 +95,7 @@ bool uiExportMute::writeAscii()
 		const Coord coord = SI().transform( binid );
 		// ostreams print doubles awfully
 		str.setEmpty();
-		str += coord.x; str += "\t"; str += coord.y;
+		str += coord.x_; str += "\t"; str += coord.y_;
 		*sdo.ostrm << str;
 	    }
 

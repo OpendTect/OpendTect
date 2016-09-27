@@ -135,7 +135,8 @@ void Smoother2D<T>::fillPar( IOPar& par ) const
     if ( !mIsUdf(windowparam_) )
 	par.set( sKeyWinParam(), windowparam_ );
 
-    par.set(sKeyWinSize(),window_->info().getSize(0),window_->info().getSize(1));
+    par.set( sKeyWinSize(), window_->info().getSize(0),
+			    window_->info().getSize(1));
 }
 
 
@@ -210,14 +211,15 @@ bool Smoother2D<T>::execute()
 	    {
 		const float pos1 = mCast( float, idx1>hsz1 ? idx1-sz1 : idx1 );
 		pos[1] = pos1/hwinsz1;
-		const float weight = wf->getValue( (float) pos.abs() );
+		const float weight = wf->getValue( pos.abs<float>() );
 		window_->set( idx0, idx1, weight );
 		weightsum += weight;
 	    }
 	}
 
 	if ( weightsum>1 )
-	    mDoArrayPtrOperation( float, window_->getData(), /= (float)weightsum,
+	    mDoArrayPtrOperation( float, window_->getData(),
+			/= (float)weightsum,
 		        window_->info().getTotalSz(), ++ );
 
 	convolver_.setY( *window_, false );

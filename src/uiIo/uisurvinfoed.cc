@@ -395,7 +395,9 @@ void uiSurveyInfoEditor::setValues()
 	ic0fld_->setValue( b[0] );
 	ic1fld_->setValues( b[0].inl(), xline );
 	ic2fld_->setValue( b[1] );
-	if ( !c[0].x && !c[0].y && !c[1].x && !c[1].y && !c[2].x && !c[2].y)
+	if ( !c[0].x_ && !c[0].y_ &&
+	     !c[1].x_ && !c[1].y_ &&
+	     !c[2].x_ && !c[2].y_ )
 	{
 	    c[0] = si_.transform( b[0] );
 	    c[1] = si_.transform( b[1] );

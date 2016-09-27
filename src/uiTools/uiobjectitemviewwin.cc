@@ -530,8 +530,8 @@ void uiObjectItemViewAxisPainter::setZRange( Interval<float> zrg )
 void uiObjectItemViewAxisPainter::setAxisRelations()
 {
     if ( !zax_ || !scene_ ) return;
-    const int widthshift = scene_->layoutPos().x - zax_->pixToEdge(false);
-    const int heightshift = scene_->layoutPos().y;
+    const int widthshift = scene_->layoutPos().x_ - zax_->pixToEdge(false);
+    const int heightshift = scene_->layoutPos().y_;
     uiBorder b( widthshift, heightshift, widthshift, heightshift );
     b += border_;
     zax_->setBorder( b );

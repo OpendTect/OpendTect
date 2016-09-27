@@ -77,9 +77,9 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx )
     fltnm = text( 0 );
     if ( isXY() )
     {
-	crd.x = getDValue( 1, udfval_ );
-	crd.y = getDValue( 2, udfval_ );
-	crd.z = getFValue( 3, udfval_ );
+	crd.x_ = getDValue( 1, udfval_ );
+	crd.y_ = getDValue( 2, udfval_ );
+	crd.z_ = getFValue( 3, udfval_ );
     }
     else
     {
@@ -214,7 +214,7 @@ static void fillFaultSticks( FaultPars& pars, ObjectSet<EM::FaultStick>& sticks)
 	else if ( hasnodeidx )
 	    addnewstick = nodeidx < prevnodeidx;
 	else
-	    addnewstick = crd.z < prevz;
+	    addnewstick = crd.z_ < prevz;
 
 	if ( addnewstick )
 	{

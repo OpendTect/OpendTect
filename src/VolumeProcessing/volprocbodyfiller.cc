@@ -342,20 +342,20 @@ Task* BodyFiller::createTask()
 
     for ( int idx=0; idx<knotsz; idx++ )
     {
-	plgknots_[idx].z *= SI().zScale();
-	const BinID bid = SI().transform( plgknots_[idx] );
-	plgbids_ += Coord3(bid.inl(),bid.crl(),plgknots_[idx].z);
+	plgknots_[idx].z_ *= SI().zScale();
+	const BinID bid = SI().transform( plgknots_[idx].getXY() );
+	plgbids_ += Coord3(bid.inl(),bid.crl(),plgknots_[idx].z_);
 
 	if ( flatpolygon_.isEmpty() )
 	{
 	    flatpolygon_.hsamp_.start_ = flatpolygon_.hsamp_.stop_ = bid;
 	    flatpolygon_.zsamp_.start = flatpolygon_.zsamp_.stop
-				   = (float)plgknots_[idx].z;
+				   = (float)plgknots_[idx].z_;
 	}
 	else
 	{
 	    flatpolygon_.hsamp_.include( bid );
-	    flatpolygon_.zsamp_.include( (float) plgknots_[idx].z );
+	    flatpolygon_.zsamp_.include( (float) plgknots_[idx].z_ );
 	}
     }
 
@@ -366,8 +366,8 @@ Task* BodyFiller::createTask()
 	    plgdir_ = plgIsInline;
 	    for ( int idx=0; idx<plgbids_.size(); idx++ )
 	    {
-		polygon_->add( Geom::Point2D<double>(plgbids_[idx].y,
-						     plgbids_[idx].z) );
+		polygon_->add( Geom::Point2D<double>(plgbids_[idx].y_,
+						     plgbids_[idx].z_) );
 	    }
 	}
 	else if ( !flatpolygon_.hsamp_.crlRange().width() )
@@ -375,8 +375,8 @@ Task* BodyFiller::createTask()
 	    plgdir_ = plgIsCrline;
 	    for ( int idx=0; idx<plgbids_.size(); idx++ )
 	    {
-		polygon_->add( Geom::Point2D<double>(plgbids_[idx].x,
-						     plgbids_[idx].z) );
+		polygon_->add( Geom::Point2D<double>(plgbids_[idx].x_,
+						     plgbids_[idx].z_) );
 	    }
 	}
 	else
@@ -384,8 +384,8 @@ Task* BodyFiller::createTask()
 	    plgdir_ = plgIsZSlice;
 	    for ( int idx=0; idx<plgbids_.size(); idx++ )
 	    {
-		polygon_->add( Geom::Point2D<double>(plgbids_[idx].x,
-						     plgbids_[idx].y) );
+		polygon_->add( Geom::Point2D<double>(plgbids_[idx].x_,
+						     plgbids_[idx].y_) );
 	    }
 	}
 
@@ -393,18 +393,18 @@ Task* BodyFiller::createTask()
 	polygon_ = new ODPolygon<double>();
 	for ( int idx=0; idx<plgbids_.size(); idx++ )
 	{
-	    const double curx = plgdir_==plgIsInline ? plgbids_[idx].y
-						     : plgbids_[idx].x;
-	    const double cury = plgdir_==plgIsZSlice ? plgbids_[idx].y
-						     : plgbids_[idx].z;
+	    const double curx = plgdir_==plgIsInline ? plgbids_[idx].y_
+						     : plgbids_[idx].x_;
+	    const double cury = plgdir_==plgIsZSlice ? plgbids_[idx].y_
+						     : plgbids_[idx].z_;
 	    polygon_->add( Coord(curx,cury) );
 	}
     }
     else
 	plgdir_ = plgIsOther;
 
-    epsilon_ = plgdir_<2 ? plgbids_[0].distTo(plgbids_[1])*0.01
-			 : plgknots_[0].distTo(plgknots_[1])*0.01;
+    epsilon_ = plgdir_<2 ? plgbids_[0].distTo<float>(plgbids_[1])*0.01
+			 : plgknots_[0].distTo<float>(plgknots_[1])*0.01;
 
     return Step::createTask();
 }

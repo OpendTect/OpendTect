@@ -61,7 +61,7 @@ void FaultStickSet::apply( const Pos::Filter& pf )
 							rc.col()-=colrg.step )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
-		if ( !pf.includes( (Coord) pos, (float) pos.z) )
+		if ( !pf.includes( pos.getXY(), (float) pos.z_) )
 		    fssg->removeKnot( rc );
 	    }
 	}
@@ -345,7 +345,7 @@ bool FaultStickSetGeometry::pickedOnHorizon( const SectionID& sid,
 {
     const Coord3& editnorm = getEditPlaneNormal( sid, sticknr );
     return !pickedOnPlane(sid,sticknr) &&
-	   editnorm.isDefined() && fabs(editnorm.z)>0.5;
+	   editnorm.isDefined() && fabs(editnorm.z_)>0.5;
 }
 
 

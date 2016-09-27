@@ -348,13 +348,13 @@ void HorizonTextureHandler::updateTileTextureOrigin()
 		continue;
 
 	    Coord origin( tile->origin_.col(), tile->origin_.row() );
-	    origin.x -= horsection_->texturecolrg_.start;
-	    origin.y -= horsection_->texturerowrg_.start;
+	    origin.x_ -= horsection_->texturecolrg_.start;
+	    origin.y_ -= horsection_->texturerowrg_.start;
 
 	    if ( horsection_->texturecolrg_.step )
-		origin.x /= horsection_->texturecolrg_.step;
+		origin.x_ /= horsection_->texturecolrg_.step;
 	    if ( horsection_->texturerowrg_.step )
-		origin.y /= horsection_->texturerowrg_.step;
+		origin.y_ /= horsection_->texturerowrg_.step;
 
 	    tile->setTexture( origin, origin+Coord(tilesize,tilesize) );
 	}

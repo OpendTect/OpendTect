@@ -134,8 +134,8 @@ bool getLine()
     wcd_.nm_ = text( 0 );
     if ( isXY() )
     {
-	wcd_.coord_.x = getDValue( 1 );
-	wcd_.coord_.y = getDValue( 2 );
+	wcd_.coord_.x_ = getDValue( 1 );
+	wcd_.coord_.y_ = getDValue( 2 );
     }
     else
     {
@@ -144,8 +144,8 @@ bool getLine()
     }
 
     if ( wcd_.nm_.isEmpty()
-      || mIsUdf(wcd_.coord_.x) || mIsUdf(wcd_.coord_.y)
-      || (wcd_.coord_.x == 0 && wcd_.coord_.y == 0) )
+      || mIsUdf(wcd_.coord_.x_) || mIsUdf(wcd_.coord_.y_)
+      || (wcd_.coord_.x_ == 0 && wcd_.coord_.y_ == 0) )
 	return false;
 
     wcd_.elev_ = getFValue( 3 );
@@ -302,9 +302,9 @@ IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 						 uiSMWCData& wcd )
 {
-    wcd.coord_.x = tbl_->getDValue( RowCol(irow,1) );
-    wcd.coord_.y = tbl_->getDValue( RowCol(irow,2) );
-    if ( mIsUdf(wcd.coord_.x) || mIsUdf(wcd.coord_.y) )
+    wcd.coord_.x_ = tbl_->getDValue( RowCol(irow,1) );
+    wcd.coord_.y_ = tbl_->getDValue( RowCol(irow,2) );
+    if ( mIsUdf(wcd.coord_.x_) || mIsUdf(wcd.coord_.y_) )
     {
 	uiMSG().message(tr("No full coordinate for %1"
 			   "\nWell not created").arg(wellnm));
@@ -398,8 +398,8 @@ void uiSimpleMultiWellCreate::addRow( const uiSMWCData& wcd, int& prevrow )
 	tbl_->setNrRows( tbl_->nrRows()+10 );
 
     tbl_->setText( rc, wcd.nm_ ); rc.col()++;
-    tbl_->setValue( rc, wcd.coord_.x ); rc.col()++;
-    tbl_->setValue( rc, wcd.coord_.y ); rc.col()++;
+    tbl_->setValue( rc, wcd.coord_.x_ ); rc.col()++;
+    tbl_->setValue( rc, wcd.coord_.y_ ); rc.col()++;
     float v = wcd.elev_; if ( zinft_ && zun_ ) v = zun_->userValue( v );
     tbl_->setValue( rc, v ); rc.col()++;
     v = wcd.td_; if ( zinft_ && zun_ ) v = zun_->userValue( v );

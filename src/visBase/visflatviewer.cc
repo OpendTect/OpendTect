@@ -181,7 +181,7 @@ void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
 			      const Coord3& c10, const Coord3& c11 )
 {
     const Coord3 center = 0.5 * (c01+c10);
-    if ( (c00+c11-2*center).abs() > 1e-4*(c11-c00).abs() )
+    if ( (c00+c11-2*center).abs<float>() > 1e-4*(c11-c00).abs<float>() )
     {
 	pErrMsg( "Non-rectangular flatviewing not yet implemented" );
     }

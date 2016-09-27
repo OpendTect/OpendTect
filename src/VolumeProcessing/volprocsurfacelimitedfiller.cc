@@ -310,7 +310,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 			.toInt64();
 
     const double fixedz = userefz_ ? refz_ :
-	refhorizon_->getPos( refhorizon_->sectionID(0), bidsq ).z;
+	refhorizon_->getPos( refhorizon_->sectionID(0), bidsq ).z_;
 
     double val0 = fixedstartval_;
     if ( !usestartval_ )
@@ -330,7 +330,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	    bidsq = BinID( hor2d->geometry().lineIndex(bid.inl()), bid.crl() )
 			.toInt64();
 
-	horz += hors_[idy]->getPos(hors_[idy]->sectionID(0),bidsq).z;
+	horz += hors_[idy]->getPos(hors_[idy]->sectionID(0),bidsq).z_;
 	if ( mIsUdf(horz[idy]) )
 	{
 	    allhordefined = false;

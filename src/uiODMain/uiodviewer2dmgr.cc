@@ -365,12 +365,12 @@ OD::ViewerObjID uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid,
     const Coord3 coord = curvwr.getCoord( wp );\
     if ( coord.isUdf() ) return;\
     const uiWorldPoint wperpixel = curvwr.getWorld2Ui().worldPerPixel(); \
-    const float x1eps  = mCast(float,wperpixel.x) * sEPSPixWidth; \
+    const float x1eps  = mCast(float,wperpixel.x_) * sEPSPixWidth; \
     const int x1auxposidx = \
-	curvwr.appearance().annot_.x1_.auxPosIdx( mCast(float,wp.x), x1eps ); \
-    const float x2eps  = mCast(float,wperpixel.y) * sEPSPixWidth; \
+	curvwr.appearance().annot_.x1_.auxPosIdx( mCast(float,wp.x_), x1eps ); \
+    const float x2eps  = mCast(float,wperpixel.y_) * sEPSPixWidth; \
     const int x2auxposidx = \
-	curvwr.appearance().annot_.x2_.auxPosIdx( mCast(float,wp.y), x2eps );
+	curvwr.appearance().annot_.x2_.auxPosIdx( mCast(float,wp.y_), x2eps );
 
 void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 {
@@ -422,7 +422,7 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	const StepInterval<double> xrg =
 	    curvwr2d->viewwin()->viewer().posRange( selauxannot_.isx1_ );
 	const int newposidx = xrg.nearestIndex( selauxannot_.isx1_
-						? wp.x : wp.y);
+						? wp.x_ : wp.y_);
 	const float newpos = mCast(float, xrg.atIndex(newposidx) );
 	selauxannot.pos_ = newpos;
 	TrcKeyZSampling::Dir vwr2ddir =
@@ -565,7 +565,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 
     mGetAuxAnnotIdx
 
-    float samplecrdz = mCast(float,coord.z);
+    float samplecrdz = mCast(float,coord.z_);
     SI().snapZ( samplecrdz );
     if ( meh->event().leftButton() )
     {
@@ -592,7 +592,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	if ( x1auxposidx>=0 &&
 	     curvwr.appearance().annot_.x1_.auxannot_[x1auxposidx].isNormal() )
 	{
-	    intpoint2d = intersectingLineID( curvwr2d, mCast(float,wp.x) );
+	    intpoint2d = intersectingLineID( curvwr2d, mCast(float,wp.x_) );
 	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
 	       return;
 	    const uiString show2dtxt = m3Dots(tr("Show Line '%1'")).arg(
@@ -602,7 +602,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     }
     else
     {
-	const BinID bid = SI().transform( coord );
+	const BinID bid = SI().transform( coord.getXY() );
 	const uiString showinltxt
 			= m3Dots(tr("Show In-line %1")).arg( bid.inl() );
 	const uiString showcrltxt
@@ -625,7 +625,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     const int menuid = menu.exec();
     if ( menuid>=0 && menuid<4 )
     {
-	const BinID bid = SI().transform( coord );
+	const BinID bid = SI().transform( coord .getXY() );
 	uiWorldPoint initialcentre( uiWorldPoint::udf() );
 	TrcKeyZSampling newtkzs = SI().sampling(true);
 	newtkzs.hsamp_.survid_ = tkzs.hsamp_.survid_;
@@ -1087,7 +1087,7 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
     StepInterval<int> vwrtrcrg = vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
     const uiWorldPoint wperpixel =
 	vwr2d->viewwin()->viewer(0).getWorld2Ui().worldPerPixel();
-    const float eps  = mCast(float,wperpixel.x) * sEPSPixWidth;	
+    const float eps  = mCast(float,wperpixel.x_) * sEPSPixWidth;
     TypeSet<Pos::GeomID> datagids;
     getVWR2DDataGeomIDs( vwr2d, datagids );
     for ( int idx=0; idx<int2d->size(); idx++ )

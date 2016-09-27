@@ -170,10 +170,10 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
 
 	float val = wl.valueByIdx( index );
 
-	pt.x = ld.xax_.getPix(val);
-	pt.y = closept.y = ld.yax_.getPix(zpos);
+	pt.x_ = ld.xax_.getPix(val);
+	pt.y_ = closept.y_ = ld.yax_.getPix(zpos);
 
-	if ( mIsUdf(val) || pt.x < closept.x )
+	if ( mIsUdf(val) || pt.x_ < closept.x_ )
 	{
 	    if ( !curpts->isEmpty() )
 	    {
@@ -188,7 +188,7 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
 	*curpts += closept;
     }
     if ( pts.isEmpty() ) return;
-    *pts[pts.size()-1] += uiPoint( closept.x, pt.y );
+    *pts[pts.size()-1] += uiPoint( closept.x_, pt.y_ );
 
     for ( int idx=0; idx<pts.size(); idx++ )
     {
@@ -237,9 +237,9 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     const int pixstart = ld.xax_.getPix( rgstart );
     const int pixstop = ld.xax_.getPix( rgstop );
     uiPoint closept;
-    closept.x = ( first ) ? isfillrev ? pixstart : pixstop
+    closept.x_ = ( first ) ? isfillrev ? pixstart : pixstop
 			  : isfillrev ? pixstop  : pixstart;
-    closept.y = ld.yax_.getPix( zfirst );
+    closept.y_ = ld.yax_.getPix( zfirst );
     float prevcolpos = mUdf(float);
     TypeSet<float> colorposset;
     ObjectSet<TypeSet<uiPoint> > pts;
@@ -274,30 +274,30 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 
 	if ( !mIsUdf(val) )
 	{
-	    pt.x = ld.xax_.getPix(val);
-	    pt.y = ld.yax_.getPix(zpos);
+	    pt.x_ = ld.xax_.getPix(val);
+	    pt.y_ = ld.yax_.getPix(zpos);
 	    if ( curpts->isEmpty() )
-		*curpts += uiPoint( closept.x, pt.y );
+		*curpts += uiPoint( closept.x_, pt.y_ );
 	    *curpts += pt;
 	}
 
 	if ( !mIsEqual(colpos,prevcolpos,mDefEps) )
 	{
-	    *curpts += uiPoint( closept.x, pt.y );
+	    *curpts += uiPoint( closept.x_, pt.y_ );
 	    pts += curpts;
 	    colorposset += prevcolpos;
 	    prevcolpos = colpos;
 
 	    curpts = new TypeSet<uiPoint>;
 	    if ( mIsUdf(colpos) ) continue;
-	    *curpts += uiPoint( closept.x, pt.y );
+	    *curpts += uiPoint( closept.x_, pt.y_ );
 	    *curpts += pt;
 	}
     }
 
     if ( !pts.isEmpty() )
     {
-	*curpts += uiPoint( closept.x, pt.y );
+	*curpts += uiPoint( closept.x_, pt.y_ );
 	pts += curpts;
 	colorposset += prevcolpos;
     }

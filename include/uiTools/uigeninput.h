@@ -179,7 +179,7 @@ Returns true, if changes are accepted.
     inline void		setValues( bool v1, bool v2 )
 			{ setValue(v1,0); setValue(v2,1); }
     inline void		setValue( const Coord& c )
-			{ setValue(c.x,0); setValue(c.y,1); }
+			{ setValue(c.x_,0); setValue(c.y_,1); }
     inline void		setValue( const BinID& b )
 			{ setValue(b.inl(),0); setValue(b.crl(),1); }
     inline void		setValue(const BinIDValue&);

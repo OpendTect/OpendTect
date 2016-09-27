@@ -42,10 +42,14 @@ static float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
 
     const float factor = prod / sq;
     if ( factor<0 || factor>1 )		// projected point outside the segment.
-	return (float) mMIN( p1.distTo(p), p2.distTo(p) );
+    {
+	const float d1 = p1.distTo<float>(p);
+	const float d2 = p2.distTo<float>(p);
+	return mMIN( d1, d2 );
+    }
 
     const Coord3 proj = p1 + vec * factor;
-    return (float) proj.distTo( p );
+    return proj.distTo<float>( p );
 }
 
 
@@ -129,7 +133,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	    if ( loc.hasPos() )
 	    {
 		cs.hsamp_.include( loc.binID() );
-		cs.zsamp_.include( (float)loc.pos().z, false );
+		cs.zsamp_.include( (float)loc.pos().z_, false );
 	    }
 	}
 	psiter.retire();
@@ -268,8 +272,8 @@ void LocationDisplay::handleDirectionEvent( const EventInfo& evinfo )
     {
 	Pick::Location pl( set_->get(directionlocationid_) );
 	Coord3 dir = newpos - pl.pos();
-	const float zscale = scene_ ? scene_->getZScale(): SI().zScale();
-	dir.z *= -zscale; //convert to right dir-domain
+	const float zscale = scene_ ? scene_->getZScale(): s3dgeom_->zScale();
+	dir.z_ *= -zscale; //convert to right dir-domain
 	if ( dir.sqAbs()>=0 )
 	{
 	    pl.setDir( cartesian2Spherical(dir,true) );
@@ -371,7 +375,7 @@ void LocationDisplay::handleMouseUp( const EventInfo& evinfo,
 	    {
 		const Sphere dir = normal.isDefined()
 		    ? cartesian2Spherical(
-			    Coord3(normal.y,-normal.x,normal.z), true)
+			    Coord3(normal.y_,-normal.x_,normal.z_), true)
 		    : Sphere( 1, 0, 0 );
 
 		LocID locid = addPick( newpos, dir );
@@ -428,8 +432,8 @@ bool LocationDisplay::getPickSurface( const EventInfo& evi,
     newpos = evi.worldpickedpos;
     if ( datatransform_ )
     {
-	newpos.z = datatransform_->transformBack( newpos );
-	if ( mIsUdf(newpos.z) )
+	newpos.z_ = datatransform_->transformBack( newpos );
+	if ( mIsUdf(newpos.z_) )
 	    return false;
     }
 

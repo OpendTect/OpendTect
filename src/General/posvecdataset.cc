@@ -609,12 +609,12 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
 	    if ( nrvals>=2 && nrCols()>=2 && colDef(0).name_=="X Offset"
 					  && colDef(1).name_=="Y Offset" )
 	    {
-		crd.x += vals[0];
-		crd.y += vals[1];
+		crd.x_ += vals[0];
+		crd.y_ += vals[1];
 	    }
 
-	    strm << '\t' << toString(crd.x);
-	    strm << '\t' << toString(crd.y);
+	    strm << '\t' << toString(crd.x_);
+	    strm << '\t' << toString(crd.y_);
 	}
 
 	for ( int idx=0; idx<nrvals; idx++ )
@@ -686,12 +686,12 @@ bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
             if ( nrvals>=2 && nrCols()>=2 && colDef(0).name_=="X Offset"
                                           && colDef(1).name_=="Y Offset" )
             {
-                crd.x += vals[0];
-                crd.y += vals[1];
+		crd.x_ += vals[0];
+		crd.y_ += vals[1];
             }
 
-            strm << '\t' << toString(crd.x);
-            strm << '\t' << toString(crd.y);
+	    strm << '\t' << toString(crd.x_);
+	    strm << '\t' << toString(crd.y_);
         }
 
         for ( int idx=0; idx<nrvals; idx++ )

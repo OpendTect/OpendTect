@@ -86,7 +86,7 @@ void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds )
     for ( int idx=0; idx<nrseeds; idx++ )
     {
 	const Coord3 seedpos = emobject_.getPos( (*seedlist)[idx] );
-	const BinID seedbid = SI().transform( seedpos );
+	const BinID seedbid = SI().transform( seedpos.getXY() );
 	if ( (*seedlist)[idx].sectionID()==sid_ &&
 	     engine().activeVolume().hsamp_.includes(seedbid) )
 	{

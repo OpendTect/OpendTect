@@ -168,7 +168,7 @@ float TrcKeySampling::lineDistance() const
     bid.inl() += step_.inl();
     Coord stoppos( toCoord( bid ) );
 
-    return mCast(float, stoppos.distTo(startpos) );
+    return stoppos.distTo<float>(startpos);
 }
 
 
@@ -179,7 +179,7 @@ float TrcKeySampling::trcDistance() const
     bid.crl() += step_.crl();
     Coord stoppos( toCoord( bid ) );
 
-    return mCast(float, stoppos.distTo(startpos) );
+    return stoppos.distTo<float>(startpos);
 }
 
 

@@ -201,12 +201,12 @@ uiLineItem::uiLineItem( int x1, int y1, int x2, int y2 )
 uiLineItem::uiLineItem( const uiPoint& pt, float angle, float len )
     : uiGraphicsItem(mkQtObj())
 {
-    Geom::Point2D<float> ptf( pt.x, pt.y );
+    Geom::Point2D<float> ptf( pt.x_, pt.y_ );
     Geom::Point2D<float> endpt( ptf );
     float delta = len * cos( angle );
-    endpt.x += delta;
+    endpt.x_ += delta;
     delta = -len * sin( angle );
-    endpt.y += delta;
+    endpt.y_ += delta;
 
     setLine( ptf, endpt );
 }
@@ -225,14 +225,14 @@ QGraphicsItem* uiLineItem::mkQtObj()
 
 
 void uiLineItem::setLine( const uiPoint& start, const uiPoint& end )
-{ setLine( start.x, start.y, end.x, end.y ); }
+{ setLine( start.x_, start.y_, end.x_, end.y_ ); }
 
 void uiLineItem::setLine( const Geom::Point2D<float>& start,
 			  const Geom::Point2D<float>& end )
-{ setLine( start.x, start.y, end.x, end.y ); }
+{ setLine( start.x_, start.y_, end.x_, end.y_ ); }
 
 void uiLineItem::setLine( const uiWorldPoint& start, const uiWorldPoint& end )
-{ setLine( (float)start.x, (float)start.y, (float)end.x, (float)end.y ); }
+{ setLine( (float)start.x_, (float)start.y_, (float)end.x_, (float)end.y_ ); }
 
 void uiLineItem::setLine( int x1, int y1, int x2, int y2 )
 { setLine( (float)x1, (float)y1, (float)x2, (float)y2 ); }
@@ -247,16 +247,16 @@ void uiLineItem::setLine( float x1, float y1, float x2, float y2 )
 void uiLineItem::setLine( const Geom::Point2D<float>& centerpos,
 	      float dx1, float dy1, float dx2, float dy2 )
 {
-    setLine( centerpos.x - dx1, centerpos.y + dy1,
-	     centerpos.x + dx2, centerpos.y - dy2 );
+    setLine( centerpos.x_ - dx1, centerpos.y_ + dy1,
+	     centerpos.x_ + dx2, centerpos.y_ - dy2 );
 }
 
 
 void uiLineItem::setLine( const Geom::Point2D<int>& centerpos,
 	      int dx1, int dy1, int dx2, int dy2 )
 {
-    setLine( centerpos.x-dx1, centerpos.y+dy1,
-	     centerpos.x+dx2, centerpos.y-dy2 );
+    setLine( centerpos.x_-dx1, centerpos.y_+dy1,
+	     centerpos.x_+dx2, centerpos.y_-dy2 );
 }
 
 
@@ -426,8 +426,8 @@ void uiPolygonItem::setPolygon( type ptlist ) \
     for ( unsigned int idx=0; idx<ptlist.size(); idx++ )\
     { \
 	if ( ptaccess[idx].isDefined() ) \
-	    qpolygonf += QPointF( (float) ptaccess[idx].x, \
-				  (float) ptaccess[idx].y ); \
+	    qpolygonf += QPointF( (float) ptaccess[idx].x_, \
+				  (float) ptaccess[idx].y_ ); \
     } \
     if ( !ptlist.isEmpty() && !qpolygonf.isClosed() ) \
     qpolygonf += qpolygonf.first(); \
@@ -478,11 +478,11 @@ void uiPolyLineItem::setPolyLine( type ptlist ) \
 	} \
 	if ( newpt ) \
 	{ \
-	    path.moveTo( ptlist[idx].x, ptlist[idx].y ); \
+	    path.moveTo( ptlist[idx].x_, ptlist[idx].y_ ); \
 	    newpt = false; \
 	} \
 	else \
-	    path.lineTo( ptlist[idx].x, ptlist[idx].y ); \
+	    path.lineTo( ptlist[idx].x_, ptlist[idx].y_ ); \
     } \
  \
     odgraphicspath_->set( path ); \
@@ -540,8 +540,8 @@ void uiMultiColorPolyLineItem::setPolyLine( type ptlist ) \
 	if ( !ptlist[idx].isDefined() ) \
 	    qpolygonf += QPointF( mUdf(double), mUdf(double) ); \
 	else \
-	    qpolygonf += QPointF( mCast(double,ptlist[idx].x), \
-				  mCast(double,ptlist[idx].y) ); \
+	    qpolygonf += QPointF( mCast(double,ptlist[idx].x_), \
+				  mCast(double,ptlist[idx].y_) ); \
     } \
     odmulticoloritem_->setPolyLine( qpolygonf ); \
 }
@@ -1036,13 +1036,13 @@ void uiArrowItem::update()
 {
     qarrowitem_->resetTransform();
 
-    float diffx = headpos_.x-tailpos_.x;
-    float diffy = headpos_.y-tailpos_.y;
+    float diffx = headpos_.x_-tailpos_.x_;
+    float diffy = headpos_.y_-tailpos_.y_;
     const float arrsz = Math::Sqrt( diffx*diffx + diffy*diffy );
     setArrowSize( mNINT32(arrsz) );
     setPos( headpos_ );
     const uiPoint relvec( mNINT32(diffx), mNINT32(diffy) );
-    const float ang = Math::Atan2( (float)relvec.y, (float)relvec.x);
+    const float ang = Math::Atan2( (float)relvec.y_, (float)relvec.x_);
     setRotation( Math::toDegrees(ang) );
 }
 
@@ -1051,14 +1051,14 @@ void uiArrowItem::update()
 uiCurvedItem::uiCurvedItem( const uiPoint& pt )
     : uiGraphicsItem(mkQtObj())
 {
-    qppath_->moveTo( QPointF(pt.x,pt.y) );
+    qppath_->moveTo( QPointF(pt.x_,pt.y_) );
 }
 
 
 uiCurvedItem::uiCurvedItem( const Geom::Point2D<float>& pt )
     : uiGraphicsItem(mkQtObj())
 {
-    qppath_->moveTo( QPointF(pt.x,pt.y) );
+    qppath_->moveTo( QPointF(pt.x_,pt.y_) );
     qpathitem_->setPath( *qppath_ );
 }
 
@@ -1071,13 +1071,13 @@ uiCurvedItem::~uiCurvedItem()
 
 void uiCurvedItem::drawTo( const uiPoint& pt )
 {
-    drawTo( Geom::Point2D<float>(pt.x,pt.y) );
+    drawTo( Geom::Point2D<float>(pt.x_,pt.y_) );
 }
 
 
 void uiCurvedItem::drawTo( const Geom::Point2D<float>& pt )
 {
-    qppath_->lineTo( QPointF(pt.x,pt.y) );
+    qppath_->lineTo( QPointF(pt.x_,pt.y_) );
     qpathitem_->setPath( *qppath_ );
 }
 
@@ -1086,7 +1086,7 @@ void uiCurvedItem::drawTo( const ArcSpec& as )
 {
     Interval<float> angs( Math::toDegrees(as.angles_.start),
 			  Math::toDegrees(as.angles_.stop) );
-    QRectF qr( as.center_.x - as.radius_, as.center_.y - as.radius_,
+    QRectF qr( as.center_.x_ - as.radius_, as.center_.y_ - as.radius_,
 	       2*as.radius_, 2*as.radius_ );
     qppath_->arcTo( qr, angs.start, angs.stop - angs.start );
     qpathitem_->setPath( *qppath_ );
@@ -1096,12 +1096,12 @@ void uiCurvedItem::drawTo( const ArcSpec& as )
 void uiCurvedItem::drawTo( const SplineSpec& ss )
 {
     if ( ss.cubic_ )
-	qppath_->cubicTo( QPointF(ss.cp1_.x,ss.cp1_.y),
-			  QPointF(ss.cp2_.x,ss.cp2_.y),
-			  QPointF(ss.end_.x,ss.end_.y) );
+	qppath_->cubicTo( QPointF(ss.cp1_.x_,ss.cp1_.y_),
+			  QPointF(ss.cp2_.x_,ss.cp2_.y_),
+			  QPointF(ss.end_.x_,ss.end_.y_) );
     else
-	qppath_->quadTo( QPointF(ss.cp1_.x,ss.cp1_.y),
-			 QPointF(ss.end_.x,ss.end_.y) );
+	qppath_->quadTo( QPointF(ss.cp1_.x_,ss.cp1_.y_),
+			 QPointF(ss.end_.x_,ss.end_.y_) );
     qpathitem_->setPath( *qppath_ );
 }
 

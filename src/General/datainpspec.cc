@@ -502,7 +502,7 @@ void StringListInpSpec::setDefaultValue( int i, int idx )
 
 #define mGetMembAsFloat(s,idx) ( \
     idx > 1 ? s.offs_ :	( \
-    s.wantcoords_  ? (idx == 0 ? (float)s.coord_.x : (float)s.coord_.y) \
+    s.wantcoords_  ? (idx == 0 ? (float)s.coord_.x_ : (float)s.coord_.y_) \
 	   : (s.is2d_ ? (idx == 0 ? (float)s.binid_.crl() : s.offs_) \
 		      : (float)(idx == 0 ? s.binid_.inl() : s.binid_.crl()) ) \
 			) \
@@ -512,7 +512,7 @@ void StringListInpSpec::setDefaultValue( int i, int idx )
     if ( idx > 1 || (s.is2d_ && !s.wantcoords_ && idx == 1) ) \
 	s.offs_ = f; \
     else if ( s.wantcoords_  ) \
-	(idx == 0 ? s.coord_.x : s.coord_.y) = f; \
+	(idx == 0 ? s.coord_.x_ : s.coord_.y_) = f; \
     else if ( !s.is2d_ && idx == 0 ) \
       s.binid_.inl() = mNINT32(f); \
     else \
@@ -573,7 +573,7 @@ bool PositionInpSpec::isUndef( int idx ) const
 
 Coord PositionInpSpec::getCoord( double udfval ) const
 {
-    return mIsUdf(setup_.coord_.x) ? Coord(udfval,udfval) : setup_.coord_;
+    return mIsUdf(setup_.coord_.x_) ? Coord(udfval,udfval) : setup_.coord_;
 }
 
 

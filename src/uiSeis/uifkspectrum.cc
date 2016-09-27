@@ -151,12 +151,12 @@ void uiFKSpectrum::mouseMoveCB( CallBacker* )
     const uiWorldPoint wp = viewer().getWorld2Ui().transform( ev.pos() );
     lineitm_->poly_ += wp;
     lineitm_->poly_ += FlatView::Point( 0, 0 );
-    lineitm_->poly_ += FlatView::Point( -wp.x, wp.y );
+    lineitm_->poly_ += FlatView::Point( -wp.x_, wp.y_ );
 
     const int nrdec = SI().zIsTime() ? 1 : 3;
-    ffld_->setText( toString(wp.y,nrdec) );
-    kfld_->setText( toString(wp.x,4) );
-    const double vel = mIsZero(wp.x,mDefEpsD)? 0 : Math::Abs(wp.y/wp.x);
+    ffld_->setText( toString(wp.y_,nrdec) );
+    kfld_->setText( toString(wp.x_,4) );
+    const double vel = mIsZero(wp.x_,mDefEpsD)? 0 : Math::Abs(wp.y_/wp.x_);
     velfld_->setText( toString(vel,nrdec) );
 
     viewer().handleChange( FlatView::Viewer::Auxdata );

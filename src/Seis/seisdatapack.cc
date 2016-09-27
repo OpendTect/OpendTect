@@ -439,11 +439,11 @@ double SeisFlatDataPack::getAltDim0Value( int ikey, int i0 ) const
     switch ( tiflds_[ikey] )
     {
 	case SeisTrcInfo::BinIDInl:	return SI().transform(
-						getCoord(i0,0)).inl();
+						getCoord(i0,0).getXY()).inl();
 	case SeisTrcInfo::BinIDCrl:	return SI().transform(
-						getCoord(i0,0)).crl();
-	case SeisTrcInfo::CoordX:	return getCoord(i0,0).x;
-	case SeisTrcInfo::CoordY:	return getCoord(i0,0).y;
+						getCoord(i0,0).getXY()).crl();
+	case SeisTrcInfo::CoordX:	return getCoord(i0,0).x_;
+	case SeisTrcInfo::CoordY:	return getCoord(i0,0).y_;
 	case SeisTrcInfo::TrcNr:	return getPath()[i0].trcNr();
 	case SeisTrcInfo::RefNr:	return source_.getRefNr(i0);
 	default:			return posdata_.position(true,i0);
@@ -454,9 +454,9 @@ double SeisFlatDataPack::getAltDim0Value( int ikey, int i0 ) const
 void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
     const Coord3 crd = getCoord( i0, i1 );
-    iop.set( mKeyCoordX, crd.x );
-    iop.set( mKeyCoordY, crd.y );
-    iop.set( sKey::ZCoord(), crd.z * zDomain().userFactor() );
+    iop.set( mKeyCoordX, crd.x_ );
+    iop.set( mKeyCoordY, crd.y_ );
+    iop.set( sKey::ZCoord(), crd.z_ * zDomain().userFactor() );
 
     if ( is2D() )
     {
@@ -467,7 +467,7 @@ void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     }
     else
     {
-	const BinID bid = SI().transform( crd );
+	const BinID bid = SI().transform( crd.getXY() );
 	iop.set( mKeyInl, bid.inl() );
 	iop.set( mKeyCrl, bid.crl() );
     }
@@ -498,12 +498,12 @@ void SeisFlatDataPack::setPosData()
 	    pos[idx] = mCast(float,(pos[idx-1]));
 	else
 	{
-	    const Coord::DistType dist = prevtk.distTo( trckey );
+	    const float dist = prevtk.distTo( trckey );
 	    if ( mIsUdf(dist) )
-		pos[idx] = mCast(float,(pos[idx-1]));
+		pos[idx] = pos[idx-1];
 	    else
 	    {
-		pos[idx] = mCast(float,(pos[idx-1] + dist));
+		pos[idx] = pos[idx-1] + dist;
 		prevtk = trckey;
 	    }
 	}
@@ -539,7 +539,7 @@ Coord3 RegularFlatDataPack::getCoord( int i0, int i1 ) const
     const int trcidx = isvertical ? (hassingletrace_ ? 0 : i0)
 				  : i0*sampling_.nrTrcs()+i1;
     const Coord c = Survey::GM().toCoord( getTrcKey(trcidx) );
-    return Coord3( c.x, c.y, sampling_.zsamp_.atIndex(isvertical ? i1 : 0) );
+    return Coord3( c.x_, c.y_, sampling_.zsamp_.atIndex(isvertical ? i1 : 0) );
 }
 
 

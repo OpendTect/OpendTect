@@ -220,13 +220,13 @@ void uiStratSynthExport::fillGeomGroup()
     coord0fld_ = new uiGenInput( geomgrp_, tr("Coordinates: from"),
 					DoubleInpSpec(), DoubleInpSpec() );
     coord0fld_->attach( alignedBelow, geomsel_ );
-    coord0fld_->setValue( startcoord.x, 0 );
-    coord0fld_->setValue( startcoord.y, 1 );
+    coord0fld_->setValue( startcoord.x_, 0 );
+    coord0fld_->setValue( startcoord.y_, 1 );
     coord1fld_ = new uiGenInput( geomgrp_, tr("to"),
 					DoubleInpSpec(), DoubleInpSpec() );
     coord1fld_->attach( alignedBelow, coord0fld_ );
-    coord1fld_->setValue( stopcoord.x, 0 );
-    coord1fld_->setValue( stopcoord.y, 1 );
+    coord1fld_->setValue( stopcoord.x_, 0 );
+    coord1fld_->setValue( stopcoord.y_, 1 );
 
     picksetsel_ = new uiPickSetIOObjSel( geomgrp_, true,
 					 uiPickSetIOObjSel::PolygonOnly );
@@ -317,16 +317,16 @@ void uiStratSynthExport::create2DGeometry( const TypeSet<Coord>& ptlist,
     {
 	Coord startpos = ptlist[idx];
 	Coord stoppos = ptlist[idx+1];
-	const double dist = startpos.distTo( stoppos );
+	const float dist = startpos.distTo<float>( stoppos );
 	const double unitdist = mMAX( SI().inlStep() * SI().inlDistance(),
 				      SI().crlStep() * SI().crlDistance() );
 	const int nrsegs = mNINT32( dist / unitdist );
-	const double unitx = ( stoppos.x - startpos.x ) / nrsegs;
-	const double unity = ( stoppos.y - startpos.y ) / nrsegs;
+	const double unitx = ( stoppos.x_ - startpos.x_ ) / nrsegs;
+	const double unity = ( stoppos.y_ - startpos.y_ ) / nrsegs;
 	for ( int nidx=0; nidx<nrsegs; nidx++ )
 	{
-	    const double curx = startpos.x + nidx * unitx;
-	    const double cury = startpos.y + nidx * unity;
+	    const double curx = startpos.x_ + nidx * unitx;
+	    const double cury = startpos.y_ + nidx * unity;
 	    Coord curpos( curx, cury );
 	    trcnr++;
 	    PosInfo::Line2DPos pos( trcnr );
@@ -384,7 +384,7 @@ Pos::GeomID uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 		return mUdfGeomID;
 	    Pick::SetIter psiter( *ps );
 	    while ( psiter.next() )
-		ptlist += psiter.get().pos();
+		ptlist += psiter.get().pos().getXY();
 	    break;
 	}
 	case RandomLine:

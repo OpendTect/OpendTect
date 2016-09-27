@@ -371,13 +371,13 @@ bool Horizon3D::setZ( const TrcKey& tk, float z, bool addtohist )
 { return setPos( sectionID(0), tk.binID().toInt64(), Coord3(0,0,z),addtohist); }
 
 float Horizon3D::getZ( const TrcKey& tk ) const
-{ return (float) getPos( sectionID(0), tk.binID().toInt64() ).z; }
+{ return (float) getPos( sectionID(0), tk.binID().toInt64() ).z_; }
 
 bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 { return setPos( sectionID(0), bid.toInt64(), Coord3(0,0,z), addtohist ); }
 
 float Horizon3D::getZ( const BinID& bid ) const
-{ return (float) getPos( sectionID(0), bid.toInt64() ).z; }
+{ return (float) getPos( sectionID(0), bid.toInt64() ).z_; }
 
 bool Horizon3D::hasZ( const TrcKey& tk ) const
 { return isDefined( sectionID(0), tk.binID().toInt64() ); }
@@ -524,10 +524,10 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
 		   ? arr.get(rowrg.getIndex(row),colrg.getIndex(col))
 		   : mUdf(float);
 
-	    if ( pos.z == val || (mIsUdf(pos.z) && mIsUdf(val)) )
+	    if ( pos.z_ == val || (mIsUdf(pos.z_) && mIsUdf(val)) )
 		continue;
 
-	    pos.z = val;
+	    pos.z_ = val;
 	    setPos( sid, rc.toInt64(), pos, false );
 
 	    if ( ++poscount >= 10000 )
@@ -1258,7 +1258,7 @@ void Horizon3DGeometry::getDataPointSet( const SectionID& sid,
     {
 	const RowCol bid = sectionGeometry( sid )->getKnotRowCol( idx );
 	Coord3 coord = sectionGeometry( sid )->getKnot( bid, false );
-	bidvalset.add( bid, (float) coord.z + shift );
+	bidvalset.add( bid, (float) coord.z_ + shift );
     }
     dps.dataChanged();
 }
@@ -1360,7 +1360,7 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
 	    BinID bid = BinID::fromInt64( pid.subID() );
 	    const bool isinside = prov ? prov->includes( bid ) : true;
 	    if ( isinside )
-		bivs.add( bid, (float) crd.z );
+		bivs.add( bid, (float) crd.z_ );
 	}
     }
 }
@@ -1447,8 +1447,8 @@ int Horizon3DAscIO::getNextLine( Coord& pos, TypeSet<float>& data )
     if ( ret <= 0 || nrattribs < 1 )
 	return ret;
 
-    pos.x = getDValue( 0, udfval_ );
-    pos.y = getDValue( 1, udfval_ );
+    pos.x_ = getDValue( 0, udfval_ );
+    pos.y_ = getDValue( 1, udfval_ );
     for ( int idx=0; idx<nrattribs; idx++ )
 	data += getFValue( idx+2, udfval_ );
 

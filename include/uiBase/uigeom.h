@@ -225,12 +225,12 @@ inline bool uiRect::rightToAtLeast( int ref )
 inline void uiRect::expandTo( const uiRect& oth )
 {
     sortCorners();
-    topleft_.x = mMIN( topleft_.x, oth.topleft_.x );
-    topleft_.y = mMIN( topleft_.y, oth.topleft_.y );
-    bottomright_.x = mMAX( bottomright_.x,
-			   oth.bottomright_.x );
-    bottomright_.y = mMAX( bottomright_.y,
-			   oth.bottomright_.y );
+    topleft_.x_ = mMIN( topleft_.x_, oth.topleft_.x_ );
+    topleft_.y_ = mMIN( topleft_.y_, oth.topleft_.y_ );
+    bottomright_.x_ = mMAX( bottomright_.x_,
+			   oth.bottomright_.x_ );
+    bottomright_.y_ = mMAX( bottomright_.y_,
+			   oth.bottomright_.y_ );
 }
 
 
@@ -251,11 +251,19 @@ inline void uiRect::setVNrPics( int np )
 
 
 inline uiRect::Side uiRect::across( uiRect::Side s )
-{ return uiRect::isHor(s) ? (s == uiRect::Top ? uiRect::Bottom :uiRect::Top)
-			  : (s == uiRect::Left ? uiRect::Right : uiRect::Left); }
+{
+    return uiRect::isHor(s)
+	? (s == uiRect::Top ? uiRect::Bottom :uiRect::Top)
+	: (s == uiRect::Left ? uiRect::Right : uiRect::Left);
+}
+
+
 inline uiRect::Side uiRect::clockWise( uiRect::Side s )
-{ return uiRect::isHor(s) ? (s == uiRect::Top ? uiRect::Left :uiRect::Right)
-			  : (s == uiRect::Left ? uiRect::Bottom : uiRect::Top);}
+{
+    return uiRect::isHor(s)
+	? (s == uiRect::Top ? uiRect::Left :uiRect::Right)
+	: (s == uiRect::Left ? uiRect::Bottom : uiRect::Top);
+}
 
 #define mUIGeomImplSideFns(clss) \
 inline int clss::get( uiRect::Side s ) const \
@@ -271,13 +279,13 @@ mUIGeomImplSideFns(uiBorder)
 
 inline uiPoint uiBorder::drawPt( const uiPoint& relpt ) const
 {
-    return uiPoint( relpt.x+lt_.width(), relpt.y+lt_.height());
+    return uiPoint( relpt.x_+lt_.width(), relpt.y_+lt_.height());
 }
 
 
 inline uiPoint uiBorder::relPt( const uiPoint& dpt ) const
 {
-    return uiPoint( dpt.x-lt_.width(), dpt.y-lt_.height() );
+    return uiPoint( dpt.x_-lt_.width(), dpt.y_-lt_.height() );
 }
 
 

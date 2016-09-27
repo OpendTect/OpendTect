@@ -41,7 +41,7 @@ public:
     virtual bool	removeKnot(const SectionID&,const SubID&,
 				   bool addtohistory)	{ return false; }
 
-    virtual const Coord3&	getEditPlaneNormal(const SectionID&,
+    virtual Coord3	getEditPlaneNormal(const SectionID&,
 						   int sticknr) const;
     virtual const DBKey*	pickedDBKey(const SectionID&,int stcknr) const
 							{ return 0; }

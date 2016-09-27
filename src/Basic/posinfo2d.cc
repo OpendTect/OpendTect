@@ -185,7 +185,9 @@ void PosInfo::Line2DData::dump( od_ostream& strm, bool pretty ) const
     for ( int idx=0; idx<posns_.size(); idx++ )
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
-	strm << pos.nr_ << '\t' << pos.coord_.x << '\t' << pos.coord_.y << '\n';
+	strm << pos.nr_ << '\t'
+	     << pos.coord_.x_ << '\t'
+	     << pos.coord_.y_ << '\n';
     }
     strm.flush();
 }
@@ -217,9 +219,9 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 
 	PosInfo::Line2DPos pos( trcnr );
 	if ( asc )
-	    strm >> pos.coord_.x >> pos.coord_.y;
+	    strm >> pos.coord_.x_ >> pos.coord_.y_;
 	else
-	    strm.getBin( pos.coord_.x ).getBin( pos.coord_.y );
+	    strm.getBin( pos.coord_.x_ ).getBin( pos.coord_.y_ );
 	posns_ += pos;
     }
 
@@ -245,12 +247,12 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
 	if ( !asc )
-	    strm.addBin(pos.nr_).addBin(pos.coord_.x).addBin(pos.coord_.y);
+	    strm.addBin(pos.nr_).addBin(pos.coord_.x_).addBin(pos.coord_.y_);
 	else
 	{
-	    BufferString str; str.set( pos.coord_.x );
+	    BufferString str; str.set( pos.coord_.x_ );
 	    strm << '\t' << pos.nr_ << '\t' << str;
-	    str.set( pos.coord_.y );
+	    str.set( pos.coord_.y_ );
 	    strm << '\t' << str;
 	    if ( withnls && idx < linesz-1 ) strm << od_newline;
 	}
@@ -295,14 +297,14 @@ Coord PosInfo::Line2DData::getNormal( int trcnr ) const
     else if ( posidx-1>=0 )
 	v1 = pos - posns_[posidx-1].coord_;
 
-    if ( v1.x == 0 )
+    if ( v1.x_ == 0 )
 	return Coord( 1, 0 );
-    else if ( v1.y == 0 )
+    else if ( v1.y_ == 0 )
 	return Coord( 0, 1 );
     else
     {
-	const double length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
-	return Coord( -v1.y/length, v1.x/length );
+	const double length = Math::Sqrt( v1.x_*v1.x_ + v1.y_*v1.y_ );
+	return Coord( -v1.y_/length, v1.x_/length );
     }
 }
 
@@ -317,7 +319,7 @@ float PosInfo::Line2DData::distBetween( int starttrcnr, int stoptrcnr ) const
 
     float dist = 0.f;
     for ( int idx=startidx; idx<stopidx; idx++ )
-	dist += (float) posns_[idx+1].coord_.distTo( posns_[idx].coord_ );
+	dist += posns_[idx+1].coord_.distTo<float>( posns_[idx].coord_ );
     return dist;
 }
 
@@ -379,9 +381,13 @@ bool PosInfo::Line2DData::coincidesWith( const PosInfo::Line2DData& oth ) const
 	if ( trcnr == othpos[othidx].nr_ )
 	{
 	    foundcommon = true;
-	    if ( !mIsEqual(mypos[myidx].coord_.x,othpos[othidx].coord_.x,1.0) ||
-		 !mIsEqual(mypos[myidx].coord_.y,othpos[othidx].coord_.y,1.0) )
+	    if ( !mIsEqual(mypos[myidx].coord_.x_,
+			   othpos[othidx].coord_.x_,1.0) ||
+		 !mIsEqual(mypos[myidx].coord_.y_,
+			   othpos[othidx].coord_.y_,1.0) )
+	    {
 		return false;
+	    }
 
 	    myidx++; othidx++;
 	}

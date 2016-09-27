@@ -315,9 +315,8 @@ public:
 
     bool doWork ( od_int64 start, od_int64 stop, int )
     {
-	const double taperangle =  mCast(double,taperangle_) / 180. * M_PI;
-	const double pow = (double) pow_;
-	const double mindist = SI().crlDistance();
+	const float taperangle =  mCast(double,taperangle_) / 180. * M_PI;
+	const float mindist = SI().crlDistance();
 
 	for ( int it=(int)start; it<=stop && shouldContinue(); it++)
 	{
@@ -332,28 +331,28 @@ public:
 			    tkzs_.zsamp_.step*zscale_*idz + refz_.start);
 
 		int nearestidx = 0;
-		double nearest = pos3d.distTo(refpos3d_[0]);
+		float nearest = pos3d.distTo<float>(refpos3d_[0]);
 		for ( int i=1; i<refpos3d_.size(); i++)
 		{
-		    double dist = pos3d.distTo(refpos3d_[i]);
+		    float dist = pos3d.distTo<float>(refpos3d_[i]);
 		    if (dist < nearest)
 		    {
 			nearest = dist;
 			nearestidx = i;
 		    }
 		}
-		const double dist2d =
-				    pos2d.distTo(refpos3d_[nearestidx].coord());
-		double topz = pos3d.z -refz_.start;
-		double bottomz = refz_.stop-pos3d.z;
+		const float dist2d =
+			    pos2d.distTo<float>(refpos3d_[nearestidx].getXY());
+		double topz = pos3d.z_ -refz_.start;
+		double bottomz = refz_.stop-pos3d.z_;
 		if ( topz > tan( taperangle )*dist2d
 			&& bottomz > tan( taperangle )*dist2d )
 		    continue;
 
-		const double dist3d = pos3d.distTo(refpos3d_[nearestidx]);
-		const double valreal = mIsZero(dist3d/1000,mDefEps) ?
-				    10 / (Math::PowerOf(mindist/1000 , pow)):
-				    (1 / (Math::PowerOf(dist3d/1000, pow)));
+		const float dist3d = pos3d.distTo<float>(refpos3d_[nearestidx]);
+		const float valreal = mIsZero(dist3d/1000,mDefEps) ?
+				    10 / (Math::PowerOf(mindist/1000 , pow_)):
+				    (1 / (Math::PowerOf(dist3d/1000, pow_)));
 		butterfly_[offset+idz] = (float) valreal;
 	    }
 

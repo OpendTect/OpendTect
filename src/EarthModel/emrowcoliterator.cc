@@ -84,10 +84,10 @@ PosID RowColIterator::next()
 	    break;
 
 	pos_ = surf_.getPos( sid_, rc_.toInt64() );
-	bid_ = SI().transform( pos_ );
+	bid_ = SI().transform( pos_.getXY() );
 
 	if ( csbound_->hsamp_.includes(bid_) &&
-             csbound_->zsamp_.includes(pos_.z,false) )
+	     csbound_->zsamp_.includes(pos_.z_,false) )
 	    break;
     }
 

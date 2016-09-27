@@ -57,7 +57,7 @@ int HorizonZTransformer::nextStep()
     if ( posid.isUdf() )
 	return Executor::Finished();
 
-    float z = (float) tarhor_.getPos( posid ).z;
+    float z = (float) tarhor_.getPos( posid ).z_;
     if ( !isforward_ && !mIsUdf(z) )
 	z -= refz_;
 

@@ -283,7 +283,7 @@ void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
 	    const BinID bid =
 		    hor3dgeom.sectionGeometry(sid)->getKnotRowCol(idx);
 	    const float realz = (float) (
-		hor3dgeom.sectionGeometry(sid)->getKnot( bid, false ).z );
+		hor3dgeom.sectionGeometry(sid)->getKnot( bid, false ).z_ );
 	    if ( mIsUdf(realz) )
 		continue;
 

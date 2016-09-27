@@ -202,9 +202,9 @@ void TextureRectangle::getTextureCoordinates( TypeSet<Coord3>& coords ) const
     Coord3 center = getCenter();
 
     char thindim = 0;
-    if ( width.x == 0 ) 
+    if ( width.x_ == 0 )
 	thindim = 0;
-    else if ( width.y == 0 ) 
+    else if ( width.y_ == 0 )
 	thindim = 1;
     else thindim = 2;
 
@@ -233,20 +233,20 @@ void TextureRectangle::getTextureCoordinates( TypeSet<Coord3>& coords ) const
 
     for ( int idx=0; idx<4; idx++ )
     {
-	coords[idx].x /= tw;
-	coords[idx].y /= th;
+	coords[idx].x_ /= tw;
+	coords[idx].y_ /= th;
 	coords[idx] -= Coord3( 0.5f, 0.5f, 0.0f );
 
 	if ( textureplane_->areTextureAxesSwapped() )
-	    coords[idx] = Coord3( coords[idx].y, coords[idx].x, 0.0f );
+	    coords[idx] = Coord3( coords[idx].y_, coords[idx].x_, 0.0f );
 	if ( thindim==0 )
-	    coords[idx]  = Coord3( 0.0f, coords[idx].x, coords[idx].y );
+	    coords[idx]  = Coord3( 0.0f, coords[idx].x_, coords[idx].y_ );
 	else if ( thindim==1 )
-	    coords[idx] = Coord3( coords[idx].x, 0.0f, coords[idx].y );
+	    coords[idx] = Coord3( coords[idx].x_, 0.0f, coords[idx].y_ );
 
-	coords[idx].x *= width.x;
-	coords[idx].y *= width.y;
-	coords[idx].z *= width.z;
+	coords[idx].x_ *= width.x_;
+	coords[idx].y_ *= width.y_;
+	coords[idx].z_ *= width.z_;
 
 	osg::Vec3 crd = Conv::to<osg::Vec3>( coords[idx] );
 	crd = rotmt.preMult( crd );

@@ -74,14 +74,15 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	setOutputValue( output, 0, idx, z0, (float) coord.x );
-	setOutputValue( output, 1, idx, z0, (float) coord.y );
+	setOutputValue( output, 0, idx, z0, (float) coord.x_ );
+	setOutputValue( output, 1, idx, z0, (float) coord.y_ );
 	if ( outputinterest_[2] )
 	{
 	    if ( nrsamples==1 )
 	    {
 		int idi = -1;
-		for ( int index=0; index<localcomputezintervals_.size(); index++)
+		for ( int index=0; index<localcomputezintervals_.size();
+		      index++)
 		{
 		    if ( localcomputezintervals_[index].includes( z0, true ) )
 		    {
@@ -114,7 +115,7 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	    if ( isOutputEnabled(8) )
 	    {
-		const int val = z0 - mNINT32(SI().zRange(0).start/step) + idx + 1;
+		const int val = z0 - mNINT32(SI().zRange(0).start/step) +idx +1;
 		setOutputValue( output, 8, idx, z0, mCast(float,val) );
 	    }
 	}
@@ -122,11 +123,12 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	{
 	    setOutputValue( output, 3, idx, z0, mCast(float,truepos.crl()) );
 	    setOutputValue( output, 4, idx, z0, mCast(float,z0+idx+1) );
-	    setOutputValue( output, 5, idx, z0,
-		mCast(float,truepos.crl() - desiredvolume_->hsamp_.start_.crl() + 1) );
+	    setOutputValue( output, 5, idx, z0, mCast(float,
+		truepos.crl() - desiredvolume_->hsamp_.start_.crl() + 1) );
 	    if ( isOutputEnabled(6) )
 	    {
-		const int val = z0 - mNINT32(SI().zRange(0).start/step) + idx + 1;
+		const int val =
+		    z0 - mNINT32(SI().zRange(0).start/step) + idx + 1;
 		setOutputValue( output, 6, idx, z0, mCast(float,val) );
 	    }
 	}

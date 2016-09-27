@@ -340,8 +340,8 @@ void uiAmplSpectrum::valChgd( CallBacker* )
     if ( !specvals_ ) return;
 
     const Geom::Point2D<int>& pos = disp_->getMouseEventHandler().event().pos();
-    Interval<float> rg( disp_->xAxis()->getVal( pos.x ),
-			disp_->yAxis(false)->getVal( pos.y ) );
+    Interval<float> rg( disp_->xAxis()->getVal( pos.x_ ),
+			disp_->yAxis(false)->getVal( pos.y_ ) );
     const bool disp = disp_->xAxis()->range().includes(rg.start,true) &&
 		      disp_->yAxis(false)->range().includes(rg.stop,true);
     valfld_->display( disp );

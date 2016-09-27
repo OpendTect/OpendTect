@@ -253,7 +253,7 @@ bool FaultStickSet::isKnotDefined( const RowCol& rc ) const
 }
 
 
-const Coord3& FaultStickSet::getEditPlaneNormal( int sticknr ) const
+Coord3 FaultStickSet::getEditPlaneNormal( int sticknr ) const
 {
     mGetValidStickIdx( stickidx, sticknr, 0, Coord3::udf() );
     if ( stickidx < editplanenormals_.size() )
@@ -283,9 +283,9 @@ void FaultStickSet::addUdfRow( int sticknr, int firstknotnr, int nrknots )
 static double pointToSegmentDist( const Coord3& point,
 				 const Coord3& end1, const Coord3& end2 )
 {
-    double d01 = point.distTo( end1 );
-    double d02 = point.distTo( end2 );
-    double d12 = end1.distTo( end2 );
+    double d01 = point.distTo<double>( end1 );
+    double d02 = point.distTo<double>( end2 );
+    double d12 = end1.distTo<double>( end2 );
 
     if ( mIsZero(d12,mDefEps) )
 	return d01;
@@ -314,11 +314,11 @@ static double pointToSegmentDist( const Coord3& point,
 \
     if ( zscale==MAXDOUBLE ) \
     { \
-	a0.x=0; a0.y=0; a1.x=0; a1.y=0; b0.x=0; b0.y=0; b1.x=0; b1.y=0; \
+	a0.x_=0; a0.y_=0; a1.x_=0; a1.y_=0; b0.x_=0; b0.y_=0; b1.x_=0; b1.y_=0;\
     } \
     else \
     { \
-	a0.z *= zscale; a1.z *= zscale; b0.z *= zscale; b1.z *= zscale; \
+	a0.z_ *= zscale; a1.z_ *= zscale; b0.z_ *= zscale; b1.z_ *= zscale; \
     } \
 
 double FaultStickSet::interStickDist( int sticknr1, int sticknr2,
@@ -348,7 +348,8 @@ double FaultStickSet::interStickDist( int sticknr1, int sticknr2,
 bool FaultStickSet::isTwisted( int sticknr1, int sticknr2, double zscale ) const
 {
     mGetEndPoints( sticknr1, sticknr2, zscale, a0, a1, b0, b1, false );
-    return (a0.distTo(b0)+a1.distTo(b1) > a0.distTo(b1)+a1.distTo(b0));
+    return (a0.distTo<float>(b0)+a1.distTo<float>(b1) >
+	    a0.distTo<float>(b1)+a1.distTo<float>(b0));
 }
 
 

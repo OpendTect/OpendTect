@@ -303,8 +303,8 @@ bool uiObject::isCursorInside() const
 {
     const uiPoint cursorpos = uiCursorManager::cursorPos();
     const QPoint objpos = mConstBody()->qwidget()->mapToGlobal( QPoint(0,0) );
-    return cursorpos.x>=objpos.x() && cursorpos.x<objpos.x()+width() &&
-	   cursorpos.y>=objpos.y() && cursorpos.y<objpos.y()+height();
+    return cursorpos.x_>=objpos.x() && cursorpos.x_<objpos.x()+width() &&
+	   cursorpos.y_>=objpos.y() && cursorpos.y_<objpos.y()+height();
 }
 
 

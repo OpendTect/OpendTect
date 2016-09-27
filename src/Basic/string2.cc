@@ -939,7 +939,7 @@ static float_complex float_complexFromString( const char* str,
 	return ret;
 
     Coord c; c.fromString( ptrfcstr );
-    ret = float_complex( (float)c.x, (float)c.y );
+    ret = float_complex( (float)c.x_, (float)c.y_ );
 
     return ret;
 }

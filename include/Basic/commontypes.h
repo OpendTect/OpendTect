@@ -17,8 +17,6 @@ ________________________________________________________________________
 class IOPar;
 class Color;
 class BinID;
-class Coord;
-class Coord3;
 class TrcKey;
 class IdxPair;
 class DBKey;
@@ -53,3 +51,17 @@ typedef double		Ordinate_Type;
 typedef double		Distance_Type;
 
 }
+
+namespace Geom
+{
+    template <class T> class Point3D;
+    template <class T> class Point2D;
+}
+
+typedef Geom::Point3D<Pos::Ordinate_Type> Coord3d;
+typedef Geom::Point3D<float> Coord3f;
+typedef Geom::Point2D<Pos::Ordinate_Type> Coord2d;
+typedef Geom::Point2D<float> Coord2f;
+
+typedef Coord2d Coord;
+typedef Coord3d Coord3;

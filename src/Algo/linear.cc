@@ -89,7 +89,7 @@ void LinStats2D::use( const float* xvals, const float* yvals, int nrpts )
 void LinStats2D::use( const Geom::Point2D<float>* vals, int nrpts )
 {
     if ( nrpts < 1 ) return;
-    calcLS( *this, &vals[0].x, &vals[0].y, nrpts,
+    calcLS( *this, &vals[0].x_, &vals[0].y_, nrpts,
 	    sizeof(Geom::Point2D<float>) );
 }
 
@@ -167,11 +167,11 @@ bool Plane3DFit::compute( const TypeSet<Coord3>& pts, Plane3& plane )
     for( int idx=0; idx<3; idx++ )
     {
 	if ( order[idx]==0 )
-	    normal.x = scattermatrix[idx][minindex];
+	    normal.x_ = scattermatrix[idx][minindex];
 	else if ( order[idx]==1 )
-	    normal.y = scattermatrix[idx][minindex];
+	    normal.y_ = scattermatrix[idx][minindex];
 	else
-	    normal.z = scattermatrix[idx][minindex];
+	    normal.z_ = scattermatrix[idx][minindex];
 
 	if ( mIsUdf(scattermatrix[idx][minindex]) ||
 	     mIsUdf(scattermatrix[idx][middleindex]) ||
@@ -195,12 +195,12 @@ void Plane3DFit::setScatterMatrix( double scattermatrix[3][3],  int order[3] )
     for( int idx=0; idx<points_.size(); idx++ )
     {
 	const Coord3 d = points_[idx] - centroid_;
-	scattermatrix[0][0] += d.x*d.x;
-	scattermatrix[0][1] += d.x*d.y;
-	scattermatrix[0][2] += d.x*d.z;
-	scattermatrix[1][1] += d.y*d.y;
-	scattermatrix[1][2] += d.y*d.z;
-	scattermatrix[2][2] += d.z*d.z;
+	scattermatrix[0][0] += d.x_*d.x_;
+	scattermatrix[0][1] += d.x_*d.y_;
+	scattermatrix[0][2] += d.x_*d.z_;
+	scattermatrix[1][1] += d.y_*d.y_;
+	scattermatrix[1][2] += d.y_*d.z_;
+	scattermatrix[2][2] += d.z_*d.z_;
     }
 
     scattermatrix[1][0]=scattermatrix[0][1];

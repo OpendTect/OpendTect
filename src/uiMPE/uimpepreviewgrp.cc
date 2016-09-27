@@ -217,8 +217,8 @@ bool uiPreviewGroup::calcNewWindow()
     const MouseEvent& ev = meh.event();
     const Geom::Point2D<int>& pt = ev.pos();
     uiWorldPoint wpt = vwr_->getWorld2Ui().transform( pt );
-    const double diff = (wpt.y - seedpos_.val_) * SI().zDomain().userFactor();
-    if ( wpt.y < seedpos_.val_ )
+    const double diff = (wpt.y_ - seedpos_.val_) * SI().zDomain().userFactor();
+    if ( wpt.y_ < seedpos_.val_ )
 	manipwinintv_.start = mNINT32( diff );
     else
 	manipwinintv_.stop = mNINT32( diff );

@@ -112,10 +112,10 @@ LatLong LatLong2Coord::transform( const Coord& c ) const
     if ( !isOK() ) return reflatlng_;
     mPrepScaleFac();
 
-    Coord coorddist( (c.x - refcoord_.x) * scalefac_,
-		     (c.y - refcoord_.y) * scalefac_ );
-    LatLong ll( reflatlng_.lat_ + coorddist.y / latdist_,
-		reflatlng_.lng_ + coorddist.x / lngdist_ );
+    Coord coorddist( (c.x_ - refcoord_.x_) * scalefac_,
+		     (c.y_ - refcoord_.y_) * scalefac_ );
+    LatLong ll( reflatlng_.lat_ + coorddist.y_ / latdist_,
+		reflatlng_.lng_ + coorddist.x_ / lngdist_ );
 
     if ( ll.lat_ > 90 )		ll.lat_ = 180 - ll.lat_;
     else if ( ll.lat_ < -90 )	ll.lat_ = -180 - ll.lat_;
@@ -133,8 +133,8 @@ Coord LatLong2Coord::transform( const LatLong& ll ) const
 
     const LatLong latlongdist( ll.lat_ - reflatlng_.lat_,
 			       ll.lng_ - reflatlng_.lng_ );
-    return Coord( refcoord_.x + latlongdist.lng_ * lngdist_ / scalefac_,
-		  refcoord_.y + latlongdist.lat_ * latdist_ / scalefac_ );
+    return Coord( refcoord_.x_ + latlongdist.lng_ * lngdist_ / scalefac_,
+		  refcoord_.y_ + latlongdist.lat_ * latdist_ / scalefac_ );
 }
 
 
@@ -158,7 +158,7 @@ bool LatLong2Coord::fromString( const char* s )
     Coord c; LatLong l;
     if ( !c.fromString(str) || !l.fromString(ptr) )
 	return false;
-    else if ( mIsZero(c.x,1e-3) && mIsZero(c.y,1e-3) )
+    else if ( mIsZero(c.x_,1e-3) && mIsZero(c.y_,1e-3) )
 	return false;
 
     set( l, c );

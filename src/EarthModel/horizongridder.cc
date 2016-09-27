@@ -370,7 +370,7 @@ uiRetVal HorizonGridder::executeGridding(
 	{
 	    const Coord3 pos = hor3d->getPos( posid );
 	    arr->set( hs.inlIdx(bid.inl()), hs.crlIdx(bid.crl()),
-		      (float) pos.z );
+		      (float) pos.z_ );
 	}
     }
 

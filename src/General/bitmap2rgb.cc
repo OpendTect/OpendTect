@@ -91,7 +91,7 @@ void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 	for ( int iy=0; iy<arrsz.height(); iy++ )
 	{
 	    if ( iy >= bmpsz.height() ) break;
-	    const char bmpval = bmp.get( ix + offs.x, iy + offs.y );
+	    const char bmpval = bmp.get( ix + offs.x_, iy + offs.y_ );
 	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
 		continue;
 
@@ -117,7 +117,7 @@ void BitMap2RGB::drawWVA( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 	for ( int iy=0; iy<arrsz.height(); iy++ )
 	{
 	    if ( iy >= bmpsz.height() ) break;
-	    const char bmpval = bmp.get( ix+offs.x, iy+offs.y );
+	    const char bmpval = bmp.get( ix+offs.x_, iy+offs.y_ );
 	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
 		continue;
 

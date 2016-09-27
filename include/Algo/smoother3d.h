@@ -132,7 +132,7 @@ bool Smoother3D<T>::setWindow( const char* nm, float param,
 		pos[2] = hsz2 ? ((double)(idx2-hsz2))/hsz2 : 0;
 
 		window_.set( idx0, idx1, idx2, 
-				    wf->getValue( (float) pos.abs() ) );
+				    wf->getValue( pos.abs<float>() ) );
 	    }
 	}
     }

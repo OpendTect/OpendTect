@@ -254,14 +254,14 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
 	return 0;
 
     Coord3 coords[8];
-    coords[0] = Coord3( start.x, start.y, start.z );
-    coords[1] = Coord3( start.x, start.y, stop.z );
-    coords[2] = Coord3( start.x, stop.y, start.z );
-    coords[3] = Coord3( start.x, stop.y, stop.z );
-    coords[4] = Coord3( stop.x, start.y, start.z );
-    coords[5] = Coord3( stop.x, start.y, stop.z );
-    coords[6] = Coord3( stop.x, stop.y, start.z );
-    coords[7] = Coord3( stop.x, stop.y, stop.z );
+    coords[0] = Coord3( start.x_, start.y_, start.z_ );
+    coords[1] = Coord3( start.x_, start.y_, stop.z_ );
+    coords[2] = Coord3( start.x_, stop.y_, start.z_ );
+    coords[3] = Coord3( start.x_, stop.y_, stop.z_ );
+    coords[4] = Coord3( stop.x_, start.y_, start.z_ );
+    coords[5] = Coord3( stop.x_, start.y_, stop.z_ );
+    coords[6] = Coord3( stop.x_, stop.y_, start.z_ );
+    coords[7] = Coord3( stop.x_, stop.y_, stop.z_ );
 
     if ( !displayspace && utm2disptransform_ )
     {

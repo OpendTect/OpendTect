@@ -81,7 +81,7 @@ public:
 
 	const char* err = "Cannot interprete file";
 
-	strm >> pos.x;
+	strm >> pos.x_;
 	if ( !strm.isOK() )
 	{
 	    if ( !strm.isBad() )
@@ -93,7 +93,7 @@ public:
 	}
 
 	int posid;
-	strm >> pos.y >> pos.z >> posid;
+	strm >> pos.y_ >> pos.z_ >> posid;
 
 	if ( !strm.isOK() )
 	    { errmsg_ = err; return ErrorOccurred(); }
@@ -166,7 +166,7 @@ public:
 	const Coord3& crd( rdposbody_.getPositions()[nrdone_] );
 	const int idx = mCast( int, rdposbody_.posIDs()[nrdone_] );
 	BufferString str;
-	str.add( crd.x ).add( " " ).add( crd.y ).add( " " ).add( crd.z )
+	str.add( crd.x_ ).add( " " ).add( crd.y_ ).add( " " ).add( crd.z_ )
 	    .add( " " ).add ( idx );
 	((StreamConn*)conn_)->oStream() << str.buf() << '\n';
 	nrdone_++;
@@ -387,12 +387,12 @@ bool RandomPosBody::getBodyRange( TrcKeyZSampling& cs )
 {
     for ( int idx=0; idx<locations_.size(); idx++ )
     {
-	cs.hsamp_.include( SI().transform(locations_[idx]) );
+	cs.hsamp_.include( SI().transform(locations_[idx].getXY()) );
 
 	if ( idx )
-	    cs.zsamp_.include( (float) locations_[idx].z );
+	    cs.zsamp_.include( (float) locations_[idx].z_ );
 	else
-	    cs.zsamp_.start = cs.zsamp_.stop = (float) locations_[idx].z;
+	    cs.zsamp_.start = cs.zsamp_.stop = (float) locations_[idx].z_;
     }
 
     return locations_.size();

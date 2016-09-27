@@ -531,8 +531,8 @@ void uiODPlaneDataTreeItem::createMenu( MenuHandler* mh, bool istb )
     if ( !pdd ) return;
 
     const Coord3 pickedpos = uimh->getPickedPos();
-    TrcKey tk( SI().transform(pickedpos) );
-    float zposf = mCast( float, pickedpos.z );
+    TrcKey tk( SI().transform(pickedpos.getXY()) );
+    float zposf = mCast( float, pickedpos.z_ );
     snapToTkzs( pdd->getTrcKeyZSampling(), tk, zposf );
     const int zpos = mNINT32( zposf * SI().zDomain().userFactor() );
 
@@ -602,8 +602,8 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( !uimh ) return;
 
     const Coord3 pickedpos = uimh->getPickedPos();
-    TrcKey tk( SI().transform(pickedpos) );
-    float zpos = mCast( float, pickedpos.z );
+    TrcKey tk( SI().transform(pickedpos.getXY()) );
+    float zpos = mCast( float, pickedpos.z_ );
     snapToTkzs( pdd->getTrcKeyZSampling(), tk, zpos );
 
     TrcKeyZSampling newtkzs( true );

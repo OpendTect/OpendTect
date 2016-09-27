@@ -142,7 +142,8 @@ static void writeGF( od_ostream& strm, const BinID& bid, float z,
     const float gfval = (float) ( mIsUdf(val) ? mGFUndefValue : val );
     const float depth = (float) ( mIsUdf(z) ? mGFUndefValue : z );
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
-	  crd.x, crd.y, segid, 14, depth, crl, crl, bid.crl(), gfval, bid.inl(),
+	  crd.x_, crd.y_, segid, 14, depth,
+	  crl, crl, bid.crl(), gfval, bid.inl(),
 	     "" );
     buf[96] = buf[97] = 'X';
     strm << buf;
@@ -280,17 +281,17 @@ bool uiExportHorizon::writeAscii()
 		if ( !crd.isDefined() )
 		    continue;
 
-		const BinID bid = SI().transform( crd );
+		const BinID bid = SI().transform( crd.getXY() );
 		if ( first )
 		{
 		    first = false;
 		    bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
-		    bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z;
+		    bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z_;
 		}
 		else
 		{
 		    bbox.hsamp_.include( bid );
-		    bbox.zsamp_.include( (float) crd.z );
+		    bbox.zsamp_.include( (float) crd.z_ );
 		}
 	    }
 
@@ -356,46 +357,47 @@ bool uiExportHorizon::writeAscii()
 
 	    Coord3 crd = hor->getPos( posid );
 	    if ( zatf )
-		crd.z = zatf->transform( crd );
+		crd.z_ = zatf->transform( crd );
 
 	    if ( zatf && SI().depthsInFeet() )
 	    {
 		const UnitOfMeasure* uom = UoMR().get( "ft" );
-		crd.z = uom->getSIValue( crd.z );
+		crd.z_ = uom->getSIValue( crd.z_ );
 	    }
 
-	    if ( !mIsUdf(crd.z) && unit )
-		crd.z = unit->userValue( crd.z );
+	    if ( !mIsUdf(crd.z_) && unit )
+		crd.z_ = unit->userValue( crd.z_ );
 
 	    if ( dogf )
 	    {
-		const BinID bid = SI().transform( crd );
+		const BinID bid = SI().transform( crd.getXY() );
 		const float auxvalue = nrattribs > 0
 		    ? hor->auxdata.getAuxDataVal(0,posid) : mUdf(float);
-		writeGF( stream, bid, (float) crd.z, auxvalue, crd, sidx );
+		writeGF( stream, bid, (float) crd.z_, auxvalue,
+			 crd.getXY(), sidx );
 		continue;
 	    }
 
 	    if ( !doxy )
 	    {
-		const BinID bid = SI().transform( crd );
+		const BinID bid = SI().transform( crd.getXY() );
 		stream << bid.inl() << od_tab << bid.crl();
 	    }
 	    else
 	    {
 		// ostreams print doubles awfully
 		str.setEmpty();
-		str += crd.x; str += od_tab; str += crd.y;
+		str += crd.x_; str += od_tab; str += crd.y_;
 		stream << str;
 	    }
 
 	    if ( addzpos )
 	    {
-		if ( mIsUdf(crd.z) )
+		if ( mIsUdf(crd.z_) )
 		    stream << od_tab << udfstr;
 		else
 		{
-		    str = od_tab; str += crd.z;
+		    str = od_tab; str += crd.z_;
 		    stream << str;
 		}
 	    }

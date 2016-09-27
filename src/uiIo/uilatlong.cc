@@ -277,7 +277,7 @@ bool acceptOK()
 
 	if ( toll )
 	{
-	    coord.x = d1; coord.y = d2;
+	    coord.x_ = d1; coord.y_ = d2;
 	    if ( !SI().isReasonable(coord) )
 		continue;
 	    ll = ll2c_.transform( coord );
@@ -289,7 +289,7 @@ bool acceptOK()
 	    coord = ll2c_.transform( ll );
 	    if ( !SI().isReasonable(coord) )
 		continue;
-	    outstrm << coord.x << od_tab << coord.y;
+	    outstrm << coord.x_ << od_tab << coord.y_;
 	}
 	if ( !outstrm.isOK() )
 	    break;
@@ -321,7 +321,8 @@ bool uiLatLong2CoordDlg::getLL2C()
 {
     LatLong ll; latlngfld_->get( ll );
     const Coord crd = coordfld_->getCoord();
-    if ( mIsUdf(ll.lat_) || mIsUdf(ll.lng_) || mIsUdf(crd.x) || mIsUdf(crd.y) )
+    if ( mIsUdf(ll.lat_) || mIsUdf(ll.lng_) ||
+	 mIsUdf(crd.x_) || mIsUdf(crd.y_) )
 	mErrRet(tr("Please fill all fields"))
     if (ll.lat_ > 90 || ll.lat_ < -90)
 	mErrRet(tr("Latitude must be between -90 and 90"))

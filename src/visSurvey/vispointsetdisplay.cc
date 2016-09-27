@@ -247,7 +247,7 @@ void PointSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     else
 	info += data_->colName( dpsdispprop_->dpsColID() );
 
-    BinID binid = SI().transform( pos );
+    BinID binid = s3dgeom_->transform( pos.getXY() );
     DataPointSet::RowID rid = data_->findFirst( binid );
     if ( rid < 0 )
 	return;

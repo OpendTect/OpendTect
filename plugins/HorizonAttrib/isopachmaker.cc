@@ -96,8 +96,8 @@ int IsochronMaker::nextStep()
 
 	const EM::SubID subid = posid.subID();
 	const Coord3 pos1( hor1_.getPos( sectid1_, subid ) );
-	const float z1 = (float) pos1.z;
-	const float z2 = (float) hor2_.getPos( sectid2_, subid ).z;
+	const float z1 = (float) pos1.z_;
+	const float z2 = (float) hor2_.getPos( sectid2_, subid ).z_;
 	if ( mIsUdf(z1) || mIsUdf(z2) )
 	{
 	    if ( dataidx_ != -1 )

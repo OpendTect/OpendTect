@@ -170,7 +170,7 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
     {
 	Line2 bound( svert[idx], idx < 3 ? svert[idx+1] : svert[0] );
 	Coord pt = line.intersection( bound );
-	if ( !mIsUdf(pt.x) && !mIsUdf(pt.y) )
+	if ( !mIsUdf(pt.x_) && !mIsUdf(pt.y_) )
 	    points += pt;
     }
 
@@ -178,8 +178,8 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
 	nodes_.erase();
     else if ( points.size() == 1 )
 	nodes_[startin ? 1 : 0] = geom->transform( points[0] );
-    else if ( geom->transform(nodes_[0]).distTo(points[0])
-	    < geom->transform(nodes_[0]).distTo(points[1]) )
+    else if ( geom->transform(nodes_[0]).distTo<float>(points[0])
+	    < geom->transform(nodes_[0]).distTo<float>(points[1]) )
     {
 	nodes_[0] = geom->transform( points[0] );
 	nodes_[1] = geom->transform( points[1] );
@@ -221,7 +221,7 @@ Coord RandomLine::getNormal( const TrcKeyPath& knots, const TrcKey& trcpos )
     }
 
     const Coord dir = linestart - linestop;
-    return Coord( dir.y, -dir.x );
+    return Coord( dir.y_, -dir.x_ );
 }
 
 
@@ -467,14 +467,14 @@ void RandomLineSet::createParallelLines( const Line2& baseline,
 	    if ( !posfinished )
 	    {
 		const Coord pos = posline.intersection( sbound[bdx] );
-		if ( !mIsUdf(pos.x) && !mIsUdf(pos.y) )
+		if ( !mIsUdf(pos.x_) && !mIsUdf(pos.y_) )
 		    endsposline += pos;
 	    }
 
 	    if ( idx && !negfinished )
 	    {
 		const Coord pos = negline.intersection( sbound[bdx] );
-		if ( !mIsUdf(pos.x) && !mIsUdf(pos.y) )
+		if ( !mIsUdf(pos.x_) && !mIsUdf(pos.y_) )
 		    endsnegline += pos;
 	    }
 	}

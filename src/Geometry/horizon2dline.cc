@@ -97,7 +97,7 @@ void Horizon2DLine::syncRow( Pos::GeomID geomid,
 
     for ( int colidx=rows_[rowidx]->size()-1; colidx>=0; colidx-- )
     {
-	const double z = (*rows_[rowidx])[colidx].z;
+	const double z = (*rows_[rowidx])[colidx].z_;
 	(*rows_[rowidx])[colidx] = Coord3( Coord::udf(), z );
     }
 
@@ -129,19 +129,19 @@ void Horizon2DLine::syncRow( Pos::GeomID geomid,
 	    udfstoadd--;
 	}
 
-	const double z = (*rows_[rowidx])[colidx].z;
+	const double z = (*rows_[rowidx])[colidx].z_;
 	(*rows_[rowidx])[colidx] = Coord3( geom.positions()[tridx].coord_, z );
     }
 
     for ( int colidx=rows_[rowidx]->size()-1; colidx>=0; colidx-- )
     {
-	if ( Coord((*rows_[rowidx])[colidx]).isDefined() )
+	if ( (*rows_[rowidx])[colidx].getXY().isDefined() )
 	    break;
 
 	rows_[rowidx]->removeSingle( colidx );
     }
 
-    while ( rows_[rowidx]->size() && !Coord((*rows_[rowidx])[0]).isDefined() )
+    while ( rows_[rowidx]->size() && !(*rows_[rowidx])[0].getXY().isDefined() )
     {
 	rows_[rowidx]->removeSingle( 0 );
 	colsampling_[rowidx].start += colsampling_[rowidx].step;
@@ -245,7 +245,7 @@ Interval<float> Horizon2DLine::zRange( Pos::GeomID geomid ) const
     for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
     {
 	const int rowidx = getRowIndex( geomid );
-	const float z = (float) getKnot( RowCol(rowidx,col) ).z;
+	const float z = (float) getKnot( RowCol(rowidx,col) ).z_;
 	if ( !mIsUdf(z) )
 	    zrange.include( z, false );
     }
@@ -269,7 +269,7 @@ void Horizon2DLine::geometry( Pos::GeomID geomid,
     {
 	PosInfo::Line2DPos pos;
 	pos.nr_ = colsampling_[rowidx].atIndex( idx );
-	pos.coord_ = (*rows_[rowidx])[idx];
+	pos.coord_ = (*rows_[rowidx])[idx].getXY();
 	ld.add( pos );
     }
 }
@@ -344,7 +344,7 @@ Coord3 Horizon2DLine::computePosition( Pos::GeomID geomid, int col ) const
     if ( position.isDefined() )
 	return position;
 
-    const Coord crd = position.coord();
+    const Coord crd = position.getXY();
     if ( !crd.isDefined() )
 	return Coord3::udf();
 
@@ -365,12 +365,12 @@ Coord3 Horizon2DLine::computePosition( Pos::GeomID geomid, int col ) const
 	if ( col1_ < 0 )
 	{
 	    col1_ = colidx + 1;
-	    z1_ = pos.z;
+	    z1_ = pos.z_;
 	}
 	else if ( col2_ < 0 )
 	{
 	    col2_ = colidx + 1;
-	    z2_ = pos.z;
+	    z2_ = pos.z_;
 	}
 	else
 	    break;
@@ -387,12 +387,12 @@ Coord3 Horizon2DLine::computePosition( Pos::GeomID geomid, int col ) const
 	if ( col1 < 0 )
 	{
 	    col1 = colidx - 1;
-	    z1 = pos.z;
+	    z1 = pos.z_;
 	}
 	else if ( col2 < 0 )
 	{
 	    col2 = colidx - 1;
-	    z2 = pos.z;
+	    z2 = pos.z_;
 	}
 	else
 	    break;
@@ -401,7 +401,7 @@ Coord3 Horizon2DLine::computePosition( Pos::GeomID geomid, int col ) const
     if ( col1_ < 0 || col2_ < 0 || col1 < 0 || col2 < 0 )
 	return Coord3::udf();
 
-    position.z = Interpolate::poly1D<double>( (float)col2_, z2_, (float)col1_,
+    position.z_ = Interpolate::poly1D<double>( (float)col2_, z2_, (float)col1_,
 					      z1_, (float)col1, z1, (float)col2,
 					      z2, (float)curcolidx );
     return position;

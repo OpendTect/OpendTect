@@ -137,7 +137,7 @@ Coord Pick::Set::getPos( LocID id ) const
 {
     mLock4Read();
     const IdxType idx = gtIdxFor( id );
-    return idx != -1 ? locs_[idx].pos() : Coord::udf();
+    return idx != -1 ? Coord(locs_[idx].pos().getXY()) : Coord::udf();
 }
 
 
@@ -145,7 +145,7 @@ double Pick::Set::getZ( LocID id ) const
 {
     mLock4Read();
     const IdxType idx = gtIdxFor( id );
-    return idx != -1 ? locs_[idx].pos().z : mUdf(double);
+    return idx != -1 ? locs_[idx].pos().z_ : mUdf(double);
 }
 
 
@@ -279,8 +279,8 @@ void Pick::Set::getPolygon( ODPolygon<double>& poly ) const
     mPrepRead( sz );
     for ( IdxType idx=0; idx<sz; idx++ )
     {
-	const Coord coord( locs_[idx].pos() );
-	poly.add( Geom::Point2D<double>( coord.x, coord.y ) );
+	const Coord coord( locs_[idx].pos().getXY() );
+	poly.add( Geom::Point2D<double>( coord.x_, coord.y_ ) );
     }
 }
 
@@ -290,9 +290,9 @@ void Pick::Set::getPolygon( ODPolygon<float>& poly ) const
     mPrepRead( sz );
     for ( IdxType idx=0; idx<sz; idx++ )
     {
-	Coord coord( locs_[idx].pos() );
+	Coord coord( locs_[idx].pos().getXY() );
 	coord = SI().binID2Coord().transformBackNoSnap( coord );
-	poly.add( Geom::Point2D<float>( (float)coord.x, (float)coord.y ) );
+	poly.add( Geom::Point2D<float>( (float)coord.x_, (float)coord.y_ ) );
     }
 }
 
@@ -301,7 +301,7 @@ void Pick::Set::getLocations( TypeSet<Coord>& coords ) const
 {
     mPrepRead( sz );
     for ( IdxType idx=0; idx<sz; idx++ )
-	coords += locs_[idx].pos();
+	coords += locs_[idx].pos().getXY();
 }
 
 
@@ -314,8 +314,8 @@ float Pick::Set::getXYArea() const
     TypeSet<Geom::Point2D<float> > posxy;
     for ( IdxType idx=sz-1; idx>=0; idx-- )
     {
-	const Coord localpos = locs_[idx].pos();
-	posxy += Geom::Point2D<float>( (float)localpos.x, (float)localpos.y );
+	const Coord localpos = locs_[idx].pos().getXY();
+	posxy += Geom::Point2D<float>( (float)localpos.x_, (float)localpos.y_ );
     }
 
     ODPolygon<float> polygon( posxy );
@@ -342,7 +342,7 @@ Pick::Set::LocID Pick::Set::find( const TrcKey& tk ) const
 
 Pick::Set::LocID Pick::Set::nearestLocation( const Coord& pos ) const
 {
-    return nearestLocation( Coord3(pos.x,pos.y,0.f), true );
+    return nearestLocation( Coord3(pos.x_,pos.y_,0.f), true );
 }
 
 
@@ -358,8 +358,9 @@ Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
     LocID ret = locids_[0];
     IdxType idx = 0;
     const Coord3& p0 = locs_[idx].pos();
-    double minsqdist = p0.isUdf() ? mUdf(double)
-		     : (ignorez ? pos.sqHorDistTo( p0 ) : pos.sqDistTo( p0 ));
+    double minsqdist = p0.isUdf()
+	? mUdf(double)
+	: (ignorez ? pos.xySqDistTo( p0 ) : pos.sqDistTo( p0 ));
     if ( minsqdist == 0 )
 	return ret;
 
@@ -369,7 +370,7 @@ Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
 	if ( pos.isUdf() )
 	    continue;
 
-	const double sqdist = ignorez ? pos.sqHorDistTo( curpos )
+	const double sqdist = ignorez ? pos.xySqDistTo( curpos )
 				      : pos.sqDistTo( curpos );
 	if ( sqdist == 0 )
 	    return locids_[idx];
@@ -388,7 +389,7 @@ bool Pick::Set::removeWithPolygon( const ODPolygon<double>& wpoly, bool inside )
     int nrchgs = 0;
     while ( psiter.prev() )
     {
-	const Coord pos( psiter.get().pos() );
+	const Coord pos( psiter.get().pos().getXY() );
 	if ( !pos.isDefined() || inside == wpoly.isInside(pos,true,1e-3) )
 	    { psiter.removeCurrent(false); nrchgs++; }
     }
@@ -640,7 +641,7 @@ void Pick::Set::replaceID( LocID from, LocID to )
 static inline bool coordUnchanged( Pick::Set::IdxType idx,
 	const TypeSet<Pick::Location>& locs, const Coord& coord )
 {
-    return idx == -1 || locs[idx].pos().sqHorDistTo(coord) < 0.01;
+    return idx == -1 || locs[idx].pos().xySqDistTo(coord) < 0.01;
 }
 
 
@@ -740,14 +741,15 @@ const Pick::Location& Pick::SetIter::get() const
 
 Coord Pick::SetIter::getPos() const
 {
-    return pickSet().locs_.validIdx(curidx_) ? pickSet().locs_[curidx_].pos()
-					 : Coord::udf();
+    return pickSet().locs_.validIdx(curidx_)
+	? Coord(pickSet().locs_[curidx_].pos().getXY())
+	: Coord::udf();
 }
 
 
 double Pick::SetIter::getZ() const
 {
-    return pickSet().locs_.validIdx(curidx_) ? pickSet().locs_[curidx_].pos().z
+    return pickSet().locs_.validIdx(curidx_) ? pickSet().locs_[curidx_].pos().z_
 					 : mUdf(double);
 }
 

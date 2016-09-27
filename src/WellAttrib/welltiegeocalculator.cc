@@ -170,7 +170,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
 	const float logval = iter.value();
 	if ( !mIsUdf(dah) && !mIsUdf(logval) && dah > startdah+mLocalEps )
 	{
-	    dahs += (float)track.getPos(dah).z;
+	    dahs += (float)track.getPos(dah).z_;
 	    vals += loguom ? loguom->getSIValue( logval ) : logval;
 	}
     }

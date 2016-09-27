@@ -41,7 +41,7 @@ float HorizonUtils::getZ( const RowCol& rc, const Surface* surface )
     for ( int idx=surface->nrSections()-1; idx>=0; idx-- )
     {
 	const EM::SectionID sid = surface->sectionID( idx );
-	const float valz = (float) surface->getPos( sid, subid ).z;
+	const float valz = (float) surface->getPos( sid, subid ).z_;
 	bottomz = ( !mIsUdf(valz) && valz>bottomz ) ? valz : bottomz;
     }
 
@@ -149,8 +149,8 @@ void HorizonUtils::getPositions( od_ostream& strm, const DBKey& id,
 	}
 
 	const Coord3 crd = surface->getPos( pid );
-	const BinID bid = SI().transform(crd);
-	res->add( bid, (float) crd.z );
+	const BinID bid = SI().transform(crd.getXY());
+	res->add( bid, (float) crd.z_ );
 	++pm;
     }
 

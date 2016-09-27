@@ -219,7 +219,7 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 
 	const PosInfo::Line2DData& line2d = geom2d->data();
 	PosInfo::Line2DPos l2dpos;
-	if ( !line2d.getPos( crd, l2dpos, SI().crlDistance() ) )
+	if ( !line2d.getPos( crd.getXY(), l2dpos, SI().crlDistance() ) )
 	{
 	    uiString msg = tr("Please pick trace on line: %1")
 					.arg(geom2d->getName());
@@ -231,7 +231,7 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
     }
     else
     {
-	const BinID bid = SI().transform( crd );
+	const BinID bid = SI().transform( crd.getXY() );
 	inlfld_->box()->setValue( bid.inl() );
 	crlfld_->setValue( bid.crl() );
     }

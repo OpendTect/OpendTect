@@ -182,23 +182,23 @@ int lmkEMFault3DReader::nextStep()
 
 	Coord coord = SI().transform( BinID(inl, crl ));
 
-	pos.y = coord.x;
-	pos.x = coord.y;
+	pos.y_ = coord.x_;
+	pos.x_ = coord.y_;
     }
     else
     {
 	BufferString str(&buffer[xinterval.start-1]);
 	str[xinterval.width()+1] = 0;
-	pos.x = str.toDouble();
+	pos.x_ = str.toDouble();
 
 	str = &buffer[yinterval.start-1];
 	str[yinterval.width()+1] = 0;
-	pos.y = str.toDouble();
+	pos.y_ = str.toDouble();
     }
 
     BufferString str = &buffer[zinterval.start-1];
     str[zinterval.width()+1] = 0;
-    pos.z = str.toDouble();
+    pos.z_ = str.toDouble();
 
     str = &buffer[pointtypeinterval.start-1];
     str[pointtypeinterval.width()+1] = 0;
@@ -225,7 +225,7 @@ int lmkEMFault3DReader::nextStep()
 	    return ErrorOccurred();
 	}
     }
-    pos.z *= zfac;
+    pos.z_ *= zfac;
 
     RowCol newnode( lastnode.row(), lastnode.col()+1 );
     if ( pt==mLMK_START_PT && lastpt!=-1 && lastpt!=mLMK_END_PT )

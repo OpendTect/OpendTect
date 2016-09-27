@@ -476,8 +476,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	cs.hsamp_.setCrlRange( Interval<int>(bid.crl(), bid.crl()) );
 
 	const bool isinl = gather->isOrientationInline();
-	dir.x = (isinl ? offsetscale_ : 0) / SI().inlDistance();
-	dir.y = (isinl ? 0 : offsetscale_ ) / SI().crlDistance();
+	dir.x_ = (isinl ? offsetscale_ : 0) / SI().inlDistance();
+	dir.y_ = (isinl ? 0 : offsetscale_ ) / SI().crlDistance();
     }
     else
     {
@@ -492,8 +492,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
 	fullevent = displaymode_==FullOnSections;
 
-	dir.x = (isinl ? offsetscale_ : 0) / SI().inlDistance();
-	dir.y = (isinl ? 0 : offsetscale_ ) / SI().crlDistance();
+	dir.x_ = (isinl ? offsetscale_ : 0) / SI().inlDistance();
+	dir.y_ = (isinl ? 0 : offsetscale_ ) / SI().crlDistance();
     }
 
     if ( !cs.hsamp_.includes(evntrg) )
@@ -578,8 +578,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		if ( fullevent )
 		{
 		    const Coord offset = dir*offsets[idy];
-		    pos.x += offset.x;
-		    pos.y += offset.y;
+		    pos.x_ += offset.x_;
+		    pos.y_ += offset.y_;
 		}
 
 		pao->markerset_->addPos( pos, false );

@@ -102,7 +102,7 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
     if ( !crd.isDefined() ) return;
 
     if ( vwr.hasZAxisTransform() )
-	crd.z = vwr.getZAxisTransform()->transformBack( crd );
+	crd.z_ = vwr.getZAxisTransform()->transformBack( crd );
 
     Pick::Location newloc( crd );
     ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true );
@@ -112,7 +112,7 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 	if ( seisdp && seisdp->nrTrcs() && seisdp->is2D() )
 	{
 	    const FlatPosData& pd = seisdp->posData();
-	    const IndexInfo ix = pd.indexInfo( true, selpt.x );
+	    const IndexInfo ix = pd.indexInfo( true, selpt.x_ );
 	    const TrcKey trckey = seisdp->getTrcKey( ix.nearest_ );
 	    newloc.setTrcKey( trckey );
 	}
@@ -155,7 +155,8 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 		    {
 			mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 					Survey::GM().getGeometry(geomid) );
-			if ( !geom2d || geom2d->data().nearestIdx(pl.pos())<0 )
+			if ( !geom2d ||
+			     geom2d->data().nearestIdx(pl.pos().getXY())<0 )
 			    continue;
 		    }
 		}
@@ -261,8 +262,8 @@ void VW2DPickSet::draw()
 	{
 	    const Pick::Location& pl = psiter.get();
 	    const Coord3& pos = pl.pos();
-	    const double z = zat ? zat->transform(pos) : pos.z;
-	    const Coord bidf = bid2crd.transformBackNoSnap( pos.coord() );
+	    const double z = zat ? zat->transform(pos) : pos.z_;
+	    const Coord bidf = bid2crd.transformBackNoSnap( pos.getXY() );
 	    if ( regfdp && regfdp->isVertical() )
 	    {
 		BufferString dipval;
@@ -294,7 +295,7 @@ void VW2DPickSet::draw()
 			if ( !geom2d )
 			    continue;
 
-			trcidx = geom2d->data().nearestIdx( pos );
+			trcidx = geom2d->data().nearestIdx( pos.getXY() );
 		    }
 
 		    distance = regfdp->getAltDim0Value( -1, trcidx );
@@ -312,24 +313,24 @@ void VW2DPickSet::draw()
 		const float xfac = nrxpixels / xdiff;
 		markerstyle.rotation_ = mIsUdf(dip) ? 0
 			    : Math::toDegrees( Math::Atan2( 2*depth, xfac ) );
-		FlatView::Point point( regfdp->is2D() ? distance
-						      : oninl ? bidf.y
-							      : bidf.x, z );
+		FlatView::Point point( regfdp->is2D()
+			? distance
+			: oninl ? bidf.y_ : bidf.x_, z );
 		picks->poly_ += point;
 	    }
 	    else if ( regfdp && !regfdp->isVertical() )
 	    {
 		const float vwr2dzpos = regfdp->sampling().zsamp_.start;
 		const float eps = regfdp->sampling().zsamp_.step/2.f;
-		if ( !mIsEqual(vwr2dzpos,pos.z,eps) )
+		if ( !mIsEqual(vwr2dzpos,pos.z_,eps) )
 		    continue;
 
-		FlatView::Point point( bidf.x, bidf.y );
+		FlatView::Point point( bidf.x_, bidf.y_ );
 		picks->poly_ += point;
 	    }
 	    else if ( randfdp )
 	    {
-		const BinID bid = SI().transform(pos);
+		const BinID bid = SI().transform(pos.getXY());
 		const FlatPosData& flatposdata = randfdp->posData();
 		const TrcKey trckey = Survey::GM().traceKey(
 			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );

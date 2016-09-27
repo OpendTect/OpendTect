@@ -150,7 +150,7 @@ Geom::Point2D<int> BitMapMgr::dataOffs(
 	return ret;
 
     // No, we're cool. Return nearest integers
-    ret.x = mNINT32(xoffs); ret.y = mNINT32(yoffs);
+    ret.x_ = mNINT32(xoffs); ret.y_ = mNINT32(yoffs);
     return ret;
 }
 

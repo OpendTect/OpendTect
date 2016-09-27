@@ -260,8 +260,8 @@ void uiTieView::zoomChg( CallBacker* )
 					 data_.wd_->d2TModel().pointIDFor(sz-1);
 	    zrgstop = data_.wd_->d2TModel().dah(pid);
 	}
-	zrgstart = (float) data_.wd_->track().getPos(zrgstart).z;
-	zrgstop = (float) data_.wd_->track().getPos(zrgstop).z;
+	zrgstart = (float) data_.wd_->track().getPos(zrgstart).z_;
+	zrgstop = (float) data_.wd_->track().getPos(zrgstop).z_;
 	zrg.start = zrgstart;
 	zrg.stop = zrgstop;
     }

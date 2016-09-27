@@ -65,13 +65,13 @@ TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
 	if ( sampling_.hsamp_.includes(tk.binID()) )
 	{
 	    const Coord projcoord( transform(tk.binID()) );
-	    *dist = (float)projcoord.distTo( crd );
+	    *dist = projcoord.distTo<float>( crd );
 	}
 	else
 	{
 	    TrcKey nearbid( sampling_.hsamp_.getNearest(tk.binID()) );
 	    const Coord nearcoord( transform(nearbid.binID()) );
-	    *dist = (float)nearcoord.distTo( crd );
+	    *dist = (float)nearcoord.distTo<float>( crd );
 	}
     }
     return tk;
@@ -101,7 +101,7 @@ float Survey::Geometry3D::averageTrcDist() const
     const Coord c00 = transform( BinID(0,0) );
     const Coord c10 = transform( BinID(sampling_.hsamp_.step_.inl(),0) );
     const Coord c01 = transform( BinID(0,sampling_.hsamp_.step_.crl()) );
-    return (float) ( c00.distTo(c10) + c00.distTo(c01) )/2;
+    return ( c00.distTo<float>(c10) + c00.distTo<float>(c01) )/2;
 }
 
 
@@ -241,19 +241,19 @@ Coord3 Survey::Geometry3D::oneStepTranslation( const Coord3& planenormal ) const
 {
     Coord3 translation( 0, 0, 0 );
 
-    if ( fabs(planenormal.z) > 0.5 )
+    if ( fabs(planenormal.z_) > 0.5 )
     {
-	translation.z = zStep();
+	translation.z_ = zStep();
     }
     else
     {
-	Coord norm2d = planenormal;
+	Coord norm2d = Coord(planenormal.x_,planenormal.y_);
 	norm2d.normalize();
 
 	if ( fabs(norm2d.dot(b2c_.inlDir())) > 0.5 )
-	    translation.x = inlDistance();
+	    translation.x_ = inlDistance();
 	else
-	    translation.y = crlDistance();
+	    translation.y_ = crlDistance();
     }
 
     return translation;
@@ -264,7 +264,7 @@ float Survey::Geometry3D::inlDistance() const
 {
     const Coord c00 = transform( BinID(0,0) );
     const Coord c10 = transform( BinID(1,0) );
-    return (float) c00.distTo(c10);
+    return c00.distTo<float>(c10);
 }
 
 
@@ -272,7 +272,7 @@ float Survey::Geometry3D::crlDistance() const
 {
     const Coord c00 = transform( BinID(0,0) );
     const Coord c01 = transform( BinID(0,1) );
-    return (float) c00.distTo(c01);
+    return c00.distTo<float>(c01);
 }
 
 
@@ -668,7 +668,7 @@ float SurveyInfo::crlDistance() const
 
 
 float SurveyInfo::getArea( const Interval<int>& inlrg,
-			       const Interval<int>& crlrg ) const
+			   const Interval<int>& crlrg ) const
 {
     const BinID step = sampling(false).hsamp_.step_;
     const Coord c00 = transform( BinID(inlrg.start,crlrg.start) );
@@ -676,10 +676,10 @@ float SurveyInfo::getArea( const Interval<int>& inlrg,
     const Coord c10 = transform( BinID(inlrg.stop+step.inl(),crlrg.start) );
 
     const float scale = xyInFeet() ? mFromFeetFactorF : 1;
-    const double d01 = c00.distTo( c01 ) * scale;
-    const double d10 = c00.distTo( c10 ) * scale;
+    const float d01 = c00.distTo<float>( c01 ) * scale;
+    const float d10 = c00.distTo<float>( c10 ) * scale;
 
-    return (float)( d01*d10 );
+    return d01*d10;
 }
 
 
@@ -741,7 +741,7 @@ bool SurveyInfo::isReasonable( const BinID& b ) const
 
 bool SurveyInfo::isReasonable( const Coord& crd ) const
 {
-    if ( Values::isUdf(crd.x) || Values::isUdf(crd.y) )
+    if ( Values::isUdf(crd.x_) || Values::isUdf(crd.y_) )
 	return false;
 
     return isReasonable( transform(crd) );
@@ -749,7 +749,7 @@ bool SurveyInfo::isReasonable( const Coord& crd ) const
 
 
 #define mChkCoord(c) \
-    if ( c.x < minc.x ) minc.x = c.x; if ( c.y < minc.y ) minc.y = c.y;
+    if ( c.x_ < minc.x_ ) minc.x_ = c.x_; if ( c.y_ < minc.y_ ) minc.y_ = c.y_;
 
 Coord SurveyInfo::minCoord( bool work ) const
 {
@@ -769,7 +769,7 @@ Coord SurveyInfo::minCoord( bool work ) const
 
 #undef mChkCoord
 #define mChkCoord(c) \
-    if ( c.x > maxc.x ) maxc.x = c.x; if ( c.y > maxc.y ) maxc.y = c.y;
+    if ( c.x_ > maxc.x_ ) maxc.x_ = c.x_; if ( c.y_ > maxc.y_ ) maxc.y_ = c.y_;
 
 Coord SurveyInfo::maxCoord( bool work ) const
 {
@@ -1227,8 +1227,8 @@ float SurveyInfo::angleXInl() const
 {
     Coord xy1 = transform( BinID(inlRange(false).start, crlRange(false).start));
     Coord xy2 = transform( BinID(inlRange(false).start, crlRange(false).stop) );
-    const double xdiff = xy2.x - xy1.x;
-    const double ydiff = xy2.y - xy1.y;
+    const double xdiff = xy2.x_ - xy1.x_;
+    const double ydiff = xy2.y_ - xy1.y_;
     return mCast(float, Math::Atan2( ydiff, xdiff ) );
 }
 

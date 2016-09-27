@@ -964,7 +964,7 @@ void PolygonBodyDisplay::setNewIntersectingPolygon( const Coord3& normal,
 	TypeSet<Coord3> knots;
 	if ( geo.sectionGeometry(sid) )
 	    geo.sectionGeometry(sid)->getCubicBezierCurve(
-						plg, knots, (float) scale.z );
+						plg, knots, (float) scale.z_ );
 
 	const int nrknots = knots.size();
 	if ( !nrknots )

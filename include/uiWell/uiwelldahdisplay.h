@@ -33,7 +33,7 @@ class uiGraphicsScene;
 if ( zdata_.zistime_ && zdata_.d2T() && track() )\
     zpos = d2T()->getTime( zpos, *track() )*SI().zDomain().userFactor();\
 else if ( !zdata_.zistime_ && track() )\
-    zpos = track() ? (float) zdata_.track()->getPos( zpos ).z : 0;
+    zpos = track() ? (float) zdata_.track()->getPos( zpos ).z_ : 0;
 
 #define mDefZPosInLoop(val) \
     float zpos = val;\
@@ -135,7 +135,7 @@ public:
 	    dispzinft_	= d.dispzinft_;
 	    wd_	= d.wd_;
 	}
-	const Well::D2TModel*	d2T() const { return wd_ ? &wd_->d2TModel() : 0;}
+	const Well::D2TModel*	d2T() const {return wd_ ? &wd_->d2TModel() : 0;}
 	const Well::Track*	track() const {return wd_ ? &wd_->track() : 0; }
 	const Well::MarkerSet*	mrks() const {return wd_ ? &wd_->markers() : 0;}
 

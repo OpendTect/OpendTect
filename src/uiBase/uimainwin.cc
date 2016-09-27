@@ -475,7 +475,7 @@ void uiMainWinBody::popTimTick( CallBacker* )
     if ( prefsz_.hNrPics()>0 && prefsz_.vNrPics()>0 )
 	resize( prefsz_.hNrPics(), prefsz_.vNrPics() );
     if ( prefpos_ != uiPoint::udf() )
-	move( prefpos_.x, prefpos_.y );
+	move( prefpos_.x_, prefpos_.y_ );
 }
 
 

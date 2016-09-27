@@ -291,7 +291,7 @@ void uiExtLayerSequenceGenDesc::wheelMoveCB( CallBacker* cb )
     const uiSize scnrectsz = scenerect.size();
     const MouseEvent& mev = mevh.event();
     uiPoint prevmousescnpos = mev.pos();
-    const float relscnposy = mCast(float,(prevmousescnpos.y-scenerect.top()))/
+    const float relscnposy = mCast(float,(prevmousescnpos.y_-scenerect.top()))/
 			     mCast(float,scenerect.height());
 
     const double dheight = scnrectsz.height() * 0.2;
@@ -303,10 +303,10 @@ void uiExtLayerSequenceGenDesc::wheelMoveCB( CallBacker* cb )
     setSceneRect( scenerect );
     const int newmousescnposy =
 	scenerect.top()+(mNINT32(relscnposy*scenerect.height()));
-    const int translate = newmousescnposy - prevmousescnpos.y;
-    const int newcentery = scenerect.centre().y + translate;
+    const int translate = newmousescnposy - prevmousescnpos.y_;
+    const int newcentery = scenerect.centre().y_ + translate;
     reDraw( 0 );
-    centreOn( uiPoint(scenerect.centre().x,newcentery) );
+    centreOn( uiPoint(scenerect.centre().x_,newcentery) );
 }
 
 
@@ -450,7 +450,7 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 						 float& curz )
 {
     const float pixperm = workrect_.height() / totth;
-    uiPoint midpt( workrect_.centre().x, 0 );
+    uiPoint midpt( workrect_.centre().x_, 0 );
     uiPoint leftpt( workrect_.left(), 0 );
     uiPoint rightpt( workrect_.right(), 0 );
 
@@ -477,21 +477,21 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     if ( !disp.gen_->content().isUnspecified() )
 	dispnm.add( "[" ).add( disp.gen_->content().name() ).add( "]" );
     disp.nm_->setText(toUiString(getLimitedDisplayString(dispnm,25, false)));
-    midpt.y = (disp.topy_ + disp.boty_) / 2;
-    disp.nm_->setPos( mCast(float,midpt.x), mCast(float,midpt.y-2) );
+    midpt.y_ = (disp.topy_ + disp.boty_) / 2;
+    disp.nm_->setPos( mCast(float,midpt.x_), mCast(float,midpt.y_-2) );
 	    // the 'y-2' makes the text more nicely centered in the box
 
     const uiSize txtsz( disp.nm_->getTextSize() );
     const int radius = txtsz.height()/7;
     disp.lithcol_->setRadius( radius );
-    disp.lithcol_->setPos( mCast(float,midpt.x - txtsz.width()/2 - radius),
-			   mCast(float,midpt.y) );
+    disp.lithcol_->setPos( mCast(float,midpt.x_ - txtsz.width()/2 - radius),
+			   mCast(float,midpt.y_) );
 
-    leftpt.y = rightpt.y = disp.topy_;
+    leftpt.y_ = rightpt.y_ = disp.topy_;
     disp.top_->setLine( leftpt, rightpt );
     disp.top_->setZValue( 100 );
 
-    uiRect polyrect( leftpt.x+1, disp.topy_+1, rightpt.x-1, disp.boty_-1 );
+    uiRect polyrect( leftpt.x_+1, disp.topy_+1, rightpt.x_-1, disp.boty_-1 );
     TypeSet<uiPoint> pts;
     mDynamicCastGet(const RangeProperty*,rgprop,&thprop)
     if ( !rgprop || mIsEqual(th0,th1,1e-5) )
@@ -557,7 +557,7 @@ int uiBasicLayerSequenceGenDesc::curUnitIdx()
 {
     for ( int idx=0; idx<disps_.size(); idx++ )
     {
-	if ( clickpos_.y < disps_[idx]->boty_ )
+	if ( clickpos_.y_ < disps_[idx]->boty_ )
 	    return idx;
     }
     return disps_.size() - 1;

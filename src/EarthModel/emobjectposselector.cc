@@ -209,28 +209,28 @@ void EMObjectPosSelector::getBoundingCoords( const RowCol& start,
     const int colstep = surf->colRange().step;
 
     Coord coord0 = SI().transform( BinID(start.row(),start.col()) );
-    up.x = down.x = coord0.x;
-    up.y = down.y = coord0.y;
+    up.x_ = down.x_ = coord0.x_;
+    up.y_ = down.y_ = coord0.y_;
 
     Coord coord1 = SI().transform( BinID(start.row(),stop.col()) );
-    if ( up.x < coord1.x ) up.x = coord1.x;
-    if ( up.y < coord1.y ) up.y = coord1.y;
-    if ( coord1.x < down.x ) down.x = coord1.x;
-    if ( coord1.y < down.y ) down.y = coord1.y;
+    if ( up.x_ < coord1.x_ ) up.x_ = coord1.x_;
+    if ( up.y_ < coord1.y_ ) up.y_ = coord1.y_;
+    if ( coord1.x_ < down.x_ ) down.x_ = coord1.x_;
+    if ( coord1.y_ < down.y_ ) down.y_ = coord1.y_;
 
     Coord coord2 = SI().transform( BinID(stop.row(),start.col()) );
-    if ( up.x < coord2.x ) up.x = coord2.x;
-    if ( up.y < coord2.y ) up.y = coord2.y;
-    if ( coord2.x < down.x ) down.x = coord2.x;
-    if ( coord2.y < down.y ) down.y = coord2.y;
+    if ( up.x_ < coord2.x_ ) up.x_ = coord2.x_;
+    if ( up.y_ < coord2.y_ ) up.y_ = coord2.y_;
+    if ( coord2.x_ < down.x_ ) down.x_ = coord2.x_;
+    if ( coord2.y_ < down.y_ ) down.y_ = coord2.y_;
 
     Coord coord3 = SI().transform( BinID(stop.row(),stop.col()) );
-    if ( up.x < coord3.x ) up.x = coord3.x;
-    if ( up.y < coord3.y ) up.y = coord3.y;
-    if ( coord3.x < down.x ) down.x = coord3.x;
-    if ( coord3.y < down.y ) down.y = coord3.y;
+    if ( up.x_ < coord3.x_ ) up.x_ = coord3.x_;
+    if ( up.y_ < coord3.y_ ) up.y_ = coord3.y_;
+    if ( coord3.x_ < down.x_ ) down.x_ = coord3.x_;
+    if ( coord3.y_ < down.y_ ) down.y_ = coord3.y_;
 
-    up.z = down.z = mUdf(float);
+    up.z_ = down.z_ = mUdf(float);
 
     for ( int row=start.row(); row<=stop.row(); row+=rowstep )
     {
@@ -241,10 +241,10 @@ void EMObjectPosSelector::getBoundingCoords( const RowCol& start,
 	    const float val = zvals_[idx];
 	    if ( mIsUdf(val) )
 		continue;
-	    if ( mIsUdf(up.z) || val>up.z )
-		up.z = val;
-	    if ( mIsUdf(down.z) || val<down.z )
-		down.z = val;
+	    if ( mIsUdf(up.z_) || val>up.z_ )
+		up.z_ = val;
+	    if ( mIsUdf(down.z_) || val<down.z_ )
+		down.z_ = val;
 	}
     }
 }

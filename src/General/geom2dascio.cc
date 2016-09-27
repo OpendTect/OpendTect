@@ -42,8 +42,8 @@ bool Geom2dAscIO::getData( PosInfo::Line2DData& geom )
 	     continue;
 
 	 PosInfo::Line2DPos pos( getIntValue(0) );
-	 pos.coord_.x = getDValue( 1 );
-	 pos.coord_.y = getDValue( 2 );
+	 pos.coord_.x_ = getDValue( 1 );
+	 pos.coord_.y_ = getDValue( 2 );
 	 geom.add( pos );
      }
 

@@ -53,12 +53,13 @@ public:
 	    SI().transform( BinID(hsamp_.stop_.inl(),hsamp_.start_.crl()) );
 	const Coord spt4 =
 	    SI().transform( BinID(hsamp_.stop_.inl(),hsamp_.stop_.crl()) );
-	startpt_ = Coord( mMIN( mMIN(spt1.x, spt2.x), mMIN(spt3.x, spt4.x) ),
-		mMIN( mMIN(spt1.y, spt2.y), mMIN(spt3.y, spt4.y) ) );
-	stoppt_ = Coord( mMAX( mMAX(spt1.x, spt2.x), mMAX(spt3.x, spt4.x) ),
-		mMAX( mMAX(spt1.y, spt2.y), mMAX(spt3.y, spt4.y) ) );
-	xstep_ = ( float ) (stoppt_.x - startpt_.x)/length;
-	ystep_ = ( float ) (stoppt_.y - startpt_.y)/width;
+	startpt_ = Coord( mMIN( mMIN(spt1.x_, spt2.x_),
+			  mMIN(spt3.x_, spt4.x_) ),
+		mMIN( mMIN(spt1.y_, spt2.y_), mMIN(spt3.y_, spt4.y_) ) );
+	stoppt_ = Coord( mMAX( mMAX(spt1.x_, spt2.x_), mMAX(spt3.x_, spt4.x_) ),
+		mMAX( mMAX(spt1.y_, spt2.y_), mMAX(spt3.y_, spt4.y_) ) );
+	xstep_ = ( float ) (stoppt_.x_ - startpt_.x_)/length;
+	ystep_ = ( float ) (stoppt_.y_ - startpt_.y_)/width;
     }
 
     od_int64 nrIterations() const
@@ -67,9 +68,9 @@ public:
     bool doFinish( bool success )
     {
 	mdp_.xyrotposdata_.setRange( true,
-		StepInterval<double>(startpt_.x,stoppt_.x,xstep_) );
+		StepInterval<double>(startpt_.x_,stoppt_.x_,xstep_) );
 	mdp_.xyrotposdata_.setRange( false,
-		StepInterval<double>(startpt_.y,stoppt_.y,ystep_) );
+		StepInterval<double>(startpt_.y_,stoppt_.y_,ystep_) );
 
 	return success;
     }
@@ -89,15 +90,15 @@ public:
 		idx++, iter.next(), addToNrDone(1) )
 	{
 	    const int* curpos = iter.getPos();
-	    const Coord coord( startpt_.x+curpos[0]*xstep_,
-			       startpt_.y+curpos[1]*ystep_ );
+	    const Coord coord( startpt_.x_+curpos[0]*xstep_,
+			       startpt_.y_+curpos[1]*ystep_ );
 	    float val = mUdf(float );
 	    const BinID approxbid = SI().transform( coord );
 	    if ( hsamp_.includes(approxbid) )
 	    {
 		const Coord approxcoord = SI().transform( approxbid );
-		float diffx = (float) ((coord.x-approxcoord.x) / xstep_);
-		float diffy = (float) ((coord.y-approxcoord.y) / ystep_);
+		float diffx = (float) ((coord.x_-approxcoord.x_) / xstep_);
+		float diffy = (float) ((coord.y_-approxcoord.y_) / ystep_);
 		toreach00.inl() = diffx>=0 ? 0 : -1;
 		toreach00.crl() = diffy>=0 ? 0 : -1;
 		const int id0v00 = (approxbid.inl() - hsamp_.start_.inl()) /
@@ -225,9 +226,9 @@ void FlatDataPack::dumpInfo( IOPar& iop ) const
     if ( sz0 < 1 || sz1 < 1 ) return;
 
     Coord3 c( getCoord(0,0) );
-    iop.set( "Coord(0,0)", c.x, c.y, c.z );
+    iop.set( "Coord(0,0)", c );
     c = getCoord( sz0-1, sz1-1 );
-    iop.set( "Coord(sz0-1,sz1-1)", c.x, c.y, c.z );
+    iop.set( "Coord(sz0-1,sz1-1)", c );
 }
 
 
@@ -259,12 +260,12 @@ MapDataPack::~MapDataPack()
 void MapDataPack::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 {
     const Coord3 pos = getCoord( idim0, idim1 );
-    const Coord coord = isposcoord_ ? pos.coord() :
-			SI().transform(BinID(mNINT32(pos.x),mNINT32(pos.y)));
-    const BinID bid = isposcoord_ ? SI().transform(pos)
-				  : BinID(mNINT32(pos.x),mNINT32(pos.y));
-    par.set( axeslbls_[0], coord.x );
-    par.set( axeslbls_[1], coord.y );
+    const Coord coord = isposcoord_ ? pos.getXY() :
+			SI().transform(BinID(mNINT32(pos.x_),mNINT32(pos.y_)));
+    const BinID bid = isposcoord_ ? SI().transform(pos.getXY())
+				  : BinID(mNINT32(pos.x_),mNINT32(pos.y_));
+    par.set( axeslbls_[0], coord.x_ );
+    par.set( axeslbls_[1], coord.y_ );
     par.set( axeslbls_[2], bid.inl() );
     par.set( axeslbls_[3], bid.crl() );
 }

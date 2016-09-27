@@ -312,7 +312,7 @@ void uiVisEMObject::checkTrackingStatus()
 float uiVisEMObject::getShift() const
 {
     mDynamicCastGet( const visSurvey::HorizonDisplay*, hordisp, getDisplay() );
-    return hordisp ? (float) hordisp->getTranslation().z : 0;
+    return hordisp ? (float) hordisp->getTranslation().z_ : 0;
 }
 
 

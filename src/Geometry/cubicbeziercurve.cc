@@ -355,7 +355,7 @@ Coord3 CubicBezierCurve::computeTangent( GeomPosID param ) const
     const Coord3& c0 = positions[idx0];
     const Coord3& c1 = positions[idx1];
 
-    if ( c0.distTo(c1)<mEPS )
+    if ( c0.distTo<double>(c1)<mEPS )
 	return Coord3::udf();
 
     return (c1-c0)/diff;

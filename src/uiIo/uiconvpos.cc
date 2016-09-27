@@ -115,8 +115,8 @@ void uiConvertPos::getCoord( CallBacker* )
     }
 
     Coord coord( survinfo.transform( binid ) );
-    xfld->setValue( coord.x );
-    yfld->setValue( coord.y );
+    xfld->setValue( coord.x_ );
+    yfld->setValue( coord.y_ );
     inlfld->setValue( binid.inl() );
     crlfld->setValue( binid.crl() );
 }
@@ -135,8 +135,8 @@ void uiConvertPos::getBinID( CallBacker* )
     BinID binid( survinfo.transform( coord ) );
     inlfld->setValue( binid.inl() );
     crlfld->setValue( binid.crl() );
-    xfld->setValue( coord.x );
-    yfld->setValue( coord.y );
+    xfld->setValue( coord.x_ );
+    yfld->setValue( coord.y_ );
 }
 
 
@@ -162,8 +162,8 @@ void uiConvertPos::convFile( CallBacker* )
     int nrln = 0;
     while ( istream.isOK() )
     {
-        istream.get( c.x );
-        istream.get( c.y );
+	istream.get( c.x_ );
+	istream.get( c.y_ );
 	if ( !istream.isOK() ) break;
 
         istream.getLine( linebuf );
@@ -175,10 +175,10 @@ void uiConvertPos::convFile( CallBacker* )
 	}
 	else
 	{
-	    BinID bid( mNINT32(c.x), mNINT32(c.y) );
+	    BinID bid( mNINT32(c.x_), mNINT32(c.y_) );
 	    c = SI().transform( bid );
-	    ostream << toString(c.x) << ' '; // keep on sep line: toString()
-	    ostream << toString(c.y) << linebuf << '\n';
+	    ostream << toString(c.x_) << ' '; // keep on sep line: toString()
+	    ostream << toString(c.y_) << linebuf << '\n';
 	}
 	nrln++;
     }

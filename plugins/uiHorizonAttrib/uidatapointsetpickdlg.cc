@@ -247,18 +247,18 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
 
     const DataPointSet::Pos pos( dps_.pos(row) );
     const Coord3 dpscrd( pos.coord(dps_.bivSet().survID()), pos.z() );
-    double mindist = mUdf( double );
+    double sqmindist = mUdf( double );
     int locidx = -1;
     Pick::SetIter psiter( *set );
     int idx = -1;
     while ( psiter.next() )
     {
 	idx++;
-	const double dst = dpscrd.distTo( psiter.get().pos() );
-	if ( dst > mindist )
+	const float sqdst = dpscrd.sqDistTo( psiter.get().pos() );
+	if ( sqdst > sqmindist )
 	    continue;
 
-	mindist = dst;
+	sqmindist = sqdst;
 	locidx = idx;
     }
 
@@ -357,8 +357,8 @@ void uiDataPointSetPickDlg::updateTable()
 	const DataPointSet::Pos pos( dps_.pos(idx) );
 	table_->setValue( RowCol(idx,0), pos.binid_.inl() );
 	table_->setValue( RowCol(idx,1), pos.binid_.crl() );
-	table_->setValue( RowCol(idx,2), pos.coord(survid).x );
-	table_->setValue( RowCol(idx,3), pos.coord(survid).y );
+	table_->setValue( RowCol(idx,2), pos.coord(survid).x_ );
+	table_->setValue( RowCol(idx,3), pos.coord(survid).y_ );
 	table_->setValue( RowCol(idx,4), pos.z() );
 	table_->setValue( RowCol(idx,5), dps_.value(0,idx) );
     }
@@ -436,7 +436,7 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
 	if ( pid.objectID()==-1 )
 	    break;
 
-	auxvals[0] = (float) hor3d->getPos( pid ).z;
+	auxvals[0] = (float) hor3d->getPos( pid ).z_;
 	auxvals[2] = mUdf( float );
 	BinID bid = BinID::fromInt64( pid.subID() );
 	emdps_.bivSet().add( bid, auxvals );

@@ -233,13 +233,13 @@ bool DensityCalc::doWork( od_int64 start, od_int64 stop, int )
 	uiPoint pos( x_.axis_->getPix(xval), y_.axis_->getPix(yval) );
 	uiPoint datapt = w2ui_.transform( wpt );
 
-	if ( !xpixrg_.includes(pos.x,true) || !ypixrg_.includes(pos.y,true) )
+	if ( !xpixrg_.includes(pos.x_,true) || !ypixrg_.includes(pos.y_,true) )
 	    continue;
 
 	if ( usedxpixrg_.width() == 0 && usedxpixrg_.start == 0 )
-	    usedxpixrg_ = Interval<int>( pos.x, pos.x );
+	    usedxpixrg_ = Interval<int>( pos.x_, pos.x_ );
 	else
-	    usedxpixrg_.include( pos.x );
+	    usedxpixrg_.include( pos.x_ );
 
 	bool ptselected = false;
 	bool ptremoved = false;
@@ -280,10 +280,10 @@ bool DensityCalc::doWork( od_int64 start, od_int64 stop, int )
 
 	if ( !ptselected )
 	    dps_.setSelected( rid, -1 );
-	if ( !data_->info().validPos(datapt.x,datapt.y) )
+	if ( !data_->info().validPos(datapt.x_,datapt.y_) )
 	    continue;
-	const int freqx = mNINT32(datapt.x/cellxsize_);
-	const int freqy = mNINT32(datapt.y/cellysize_);
+	const int freqx = mNINT32(datapt.x_/cellxsize_);
+	const int freqy = mNINT32(datapt.y_/cellysize_);
 	if ( !areatype_ )
 	    freqdata_->set( freqx, freqy,
 		    ptremoved ? 0 : freqdata_->get(freqx,freqy) + (float)1 );
@@ -303,8 +303,8 @@ bool DensityCalc::doWork( od_int64 start, od_int64 stop, int )
 				freqy*mNINT32(cellysize_)+idy,
 				ptremoved ? 0 : freqdata_->get(freqx,freqy) );
 	    }
-	    if ( indexsz_ < mNINT32(data_->get(datapt.x,datapt.y)) )
-		indexsz_ = mNINT32(data_->get(datapt.x,datapt.y));
+	    if ( indexsz_ < mNINT32(data_->get(datapt.x_,datapt.y_)) )
+		indexsz_ = mNINT32(data_->get(datapt.x_,datapt.y_));
 	}
     }
 

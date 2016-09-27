@@ -898,14 +898,14 @@ void IOPar::setPtr( const char* keyw, void* ptr )
 
 
 bool IOPar::get( const char* keyw, Coord& crd ) const
-{ return get( keyw, crd.x, crd.y ); }
+{ return get( keyw, crd.x_, crd.y_ ); }
 void IOPar::set( const char* keyw, const Coord& crd )
-{ set( keyw, crd.x, crd.y ); }
+{ set( keyw, crd.x_, crd.y_ ); }
 
 bool IOPar::get( const char* keyw, Coord3& crd ) const
-{ return get( keyw, crd.x, crd.y, crd.z ); }
+{ return get( keyw, crd.x_, crd.y_, crd.z_ ); }
 void IOPar::set( const char* keyw, const Coord3& crd )
-{ set( keyw, crd.x, crd.y, crd.z ); }
+{ set( keyw, crd.x_, crd.y_, crd.z_ ); }
 
 bool IOPar::get( const char* keyw, BinID& binid ) const
 { return get( keyw, binid.inl(), binid.crl() ); }

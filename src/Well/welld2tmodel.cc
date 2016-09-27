@@ -119,7 +119,7 @@ Well::D2TModel::TWTType Well::D2TModel::getTime( ZType dh,
     if ( !gtVelocityBoundsForDah(dh,track,depths,times) )
 	return twt;
 
-    double reqz = track.getPos(dh).z;
+    double reqz = track.getPos(dh).z_;
     const double curvel = getVelocityForDah( dh, track );
     twt = times.start + 2.f* (TWTType)( ( reqz - depths.start ) / curvel );
 
@@ -220,8 +220,8 @@ bool Well::D2TModel::gtVelocityBoundsForDah( ZType dh, const Track& track,
     if ( idah <= 0 )
 	return false;
 
-    depths.start = track.getPos(dahs_[idah-1]).z;
-    depths.stop = track.getPos(dahs_[idah]).z;
+    depths.start = track.getPos(dahs_[idah-1]).z_;
+    depths.stop = track.getPos(dahs_[idah]).z_;
     times.start = times_[idah-1];
     times.stop = times_[idah];
 
@@ -246,8 +246,8 @@ bool Well::D2TModel::gtVelocityBoundsForTwt( TWTType twt, const Track& track,
     if ( idah <= 0 )
 	return false;
 
-    depths.start = track.getPos(dahs_[idah-1]).z;
-    depths.stop = track.getPos(dahs_[idah]).z;
+    depths.start = track.getPos(dahs_[idah-1]).z_;
+    depths.stop = track.getPos(dahs_[idah]).z_;
     if ( depths.isUdf() )
 	return false;
 
@@ -283,9 +283,9 @@ int Well::D2TModel::gtVelocityIdx( ZType pos, const Track& track,
 	const TypeSet<Coord3> allpos = track.getAllPos();
 	TypeSet<double> trckposz;
 	for ( int idz=0; idz<trcksz; idz++ )
-	    trckposz += allpos[idz].z;
+	    trckposz += allpos[idz].z_;
 
-	const double reqz = track.getPos( pos ).z;
+	const double reqz = track.getPos( pos ).z_;
 	idx = IdxAble::getUpperIdx( trckposz, trcksz, reqz );
 	if ( idx >= trcksz ) idx--;
 	const double dhtop = (double)track.dahByIdx(idx-1);
@@ -309,14 +309,14 @@ bool Well::D2TModel::getOldVelocityBoundsForDah( ZType dh, const Track& track,
     if ( idah <= 0 )
 	return false;
 
-    depths.start = track.getPos( dahs_[idah-1] ).z;
+    depths.start = track.getPos( dahs_[idah-1] ).z_;
     times.start = times_[idah-1];
     depths.stop = mUdf(double);
     times.stop = mUdf(TWTType);
 
     for ( int idx=idah; idx<dtsize; idx++ )
     {
-	const double curz = track.getPos( dahs_[idx] ).z;
+	const double curz = track.getPos( dahs_[idx] ).z_;
 	const TWTType curtwt = times_[idx];
 	if ( curz > depths.start && curtwt > times.start )
 	{
@@ -334,7 +334,7 @@ bool Well::D2TModel::getOldVelocityBoundsForDah( ZType dh, const Track& track,
 	times.start = mUdf(TWTType);
 	for ( int idx=idah-2; idx>=0; idx-- )
 	{
-	    const double curz = track.getPos( dahs_[idx] ).z;
+	    const double curz = track.getPos( dahs_[idx] ).z_;
 	    const TWTType curtwt = times_[idx];
 	    if ( curz < depths.stop && curtwt < times.stop )
 	    {
@@ -360,14 +360,14 @@ bool Well::D2TModel::getOldVelocityBoundsForTwt( TWTType twt,
     if ( idah <= 0 )
 	return false;
 
-    depths.start = track.getPos( dahs_[idah-1] ).z;
+    depths.start = track.getPos( dahs_[idah-1] ).z_;
     times.start = times_[idah-1];
     depths.stop = mUdf(double);
     times.stop = mUdf(TWTType);
 
     for ( int idx=idah; idx<dtsize; idx++ )
     {
-	const double curz = track.getPos( dahs_[idx] ).z;
+	const double curz = track.getPos( dahs_[idx] ).z_;
 	const TWTType curtwt = times_[idx];
 	if ( curz > depths.start && curtwt > times.start )
 	{
@@ -385,7 +385,7 @@ bool Well::D2TModel::getOldVelocityBoundsForTwt( TWTType twt,
 	times.start = mUdf(TWTType);
 	for ( int idx=idah-2; idx>=0; idx-- )
 	{
-	    const double curz = track.getPos( dahs_[idx] ).z;
+	    const double curz = track.getPos( dahs_[idx] ).z_;
 	    const TWTType curtwt = times_[idx];
 	    if ( curz < depths.stop && curtwt < times.stop )
 	    {
@@ -422,12 +422,14 @@ void Well::D2TModel::makeFromTrack( const Track& track, VelType vel,
     if ( !it.next() )
 	return;
 
-    double tvdmin = it.pos().z;	idofminz = it.ID();
-    double tvdmax = tvdmin;	idofmaxz = idofminz;
+    double tvdmin = it.pos().z_;
+    idofminz = it.ID();
+    double tvdmax = tvdmin;
+    idofmaxz = idofminz;
 
     while ( it.next() )
     {
-	const double zpostrack = it.pos().z;
+	const double zpostrack = it.pos().z_;
 	if ( zpostrack > tvdmax )
 	{
 	    tvdmax = zpostrack;
@@ -471,7 +473,7 @@ bool Well::D2TModel::getTimeDepthModel( const Well::Data& wd,
     while ( iter.next() )
     {
 	const ZType curdah = iter.dah();
-	depths += (ZType)( wd.track().getPos( curdah ).z );
+	depths += (ZType)( wd.track().getPos( curdah ).z_ );
 	times += iter.t();
     }
 
@@ -779,7 +781,7 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
     if ( track.isEmpty() )
 	mErrRet( tr("Cannot get the time-depth model with an empty track") )
 
-    const double zwllhead = track.getPos( 0.f ).z;
+    const double zwllhead = track.getPos( 0.f ).z_;
     const double vreplfile = getVreplFromFile( zvals, tvals, zwllhead );
     Well::Info& wllinfo = const_cast<Well::Info&>( wll.info() );
     checkReplacementVelocity( wllinfo, vreplfile, warnmsg );
@@ -834,7 +836,7 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll, uiString& msg,
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const ZType curdah = dahs_[idx];
-	    *zvals += track.getPos( curdah ).z;
+	    *zvals += track.getPos( curdah ).z_;
 	    *tvals += (double)times_[idx];
 	}
     }

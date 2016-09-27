@@ -289,8 +289,8 @@ const char* Gather::dimName( bool dim0 ) const
 
 void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 {
-    par.set( "X", coord_.x );
-    par.set( "Y", coord_.y );
+    par.set( "X", coord_.x_ );
+    par.set( "Y", coord_.y_ );
     float z = (float) posData().position( false, idim1 );
     if ( zit_ ) z *= 1000;
     par.set( "Z", z );

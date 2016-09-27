@@ -265,7 +265,7 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<ZType>& zrg,bool zistime,
 	    ? wd.track().zRange().start \
 	    : wd.track().zRange().stop ; \
     else \
-	tvd = mCast( ZType, track.getPos( dah ).z ); \
+	tvd = mCast( ZType, track.getPos( dah ).z_ ); \
 }
 
 
@@ -561,15 +561,15 @@ bool Well::TrackSampler::getPos( const Well::Data& wd, float dah,
 
     // Position is between trackidx and trackidx-1
     pos = wd.track().coordAfterIdx( dah, trackidx-1 );
-    biv.set( SI().transform(pos) );
+    biv.set( SI().transform(pos.getXY()) );
     if ( SI().zIsTime() && !wd.d2TModel().isEmpty() )
     {
-	pos.z = mCast( double, wd.d2TModel().getTime( dah, wd.track() ) );
-	if ( mIsUdf(pos.z) )
+	pos.z_ = mCast( double, wd.d2TModel().getTime( dah, wd.track() ) );
+	if ( mIsUdf(pos.z_) )
 	    return false;
     }
 
-    biv.set( (float)pos.z );
+    biv.set( (float)pos.z_ );
     return true;
 }
 
@@ -593,7 +593,7 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
 { \
     stmt; \
     crd = SI().transform( newbiv ); \
-    if ( crd.sqDistTo(precisepos) <= sqrlocradius ) \
+    if ( crd.sqDistTo(precisepos.getXY() ) <= sqrlocradius ) \
 	{ mAddRow(biv,crd); nradded++; } \
 }
 
@@ -947,9 +947,9 @@ int Well::SimpleTrackSampler::nextStep()
 	return Executor::Finished();
 
     Coord3 pos = track_.getPos( dah );
-    pos.z = zval;
+    pos.z_ = zval;
 
-    BinID bid = SI().transform( pos );
+    BinID bid = SI().transform( pos.getXY() );
     const bool withintrack = tracklimits_.includes(zval,true);
     if ( withintrack || extrapolate_ )
     {
@@ -957,14 +957,15 @@ int Well::SimpleTrackSampler::nextStep()
 	{
 	    pos = bidset_.isEmpty() ? track_.posByIdx(0)
 				    : track_.posByIdx(track_.size()-1);
-	    pos.z = zval;
-	    bid = SI().transform( pos );
+	    pos.z_ = zval;
+	    bid = SI().transform( pos.getXY() );
 	}
 	if ( ( isinsidesurvey_ && !SI().includes( bid, zval, false ) )
 		|| !SI().isReasonable( bid ))
 	    { nrdone_++; return Executor::MoreToDo(); }
 
-	bidset_ += bid; coords_ += pos;
+	bidset_ += bid;
+	coords_ += pos.getXY();
     }
 
     nrdone_++;
@@ -1053,7 +1054,7 @@ od_int64 Well::LogSampler::nrIterations() const
 
 #define mGetZ(zvalue,dah,zintime) \
 	zvalue = zintime \
-	       ? mCast( float, track_.getPos( dah ).z ) \
+	       ? mCast( float, track_.getPos( dah ).z_ ) \
 	       : d2t_->getTime( dah, track_ );
 
 #undef mErrRet

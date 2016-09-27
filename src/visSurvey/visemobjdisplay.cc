@@ -215,7 +215,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 	str += " ("; str += closestrc.row();
 	str += ","; str += closestrc.col(); str += ",";
 	const Coord3 pos = emobject_->getPos( closestnode );
-	str += pos.z; str += ", "; str+= pos.y; str += ", "; str+= pos.z;
+	str += pos.x_; str += ", "; str+= pos.y_; str += ", "; str+= pos.z_;
 	str+=")";
 	pErrMsg(str);
     }
@@ -664,7 +664,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 
 	if ( hor3d )
 	{
-	    const BinID pickedbid = SI().transform( pos );
+	    const BinID pickedbid = SI().transform( pos.getXY() );
 	    if ( hor3d->isNodeLocked(TrcKey(pickedbid)) )
 		 clr = hor3d->getLockColor();
 	}

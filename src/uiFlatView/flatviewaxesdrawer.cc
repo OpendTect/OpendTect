@@ -225,7 +225,7 @@ void AxesDrawer::updateViewRect()
 	
 	titletxt_->setVisible( true );
 	const uiRect scenerect = view_.getViewArea();
-	titletxt_->setPos( uiPoint(rect.centre().x,scenerect.top()) );
+	titletxt_->setPos( uiPoint(rect.centre().x_,scenerect.top()) );
     }
     else if ( titletxt_ )
 	titletxt_->setVisible( false );

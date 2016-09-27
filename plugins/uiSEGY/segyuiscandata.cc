@@ -371,8 +371,8 @@ void SEGY::ScanRangeInfo::use( const PosInfo::Detector& dtector )
     const Coord cmin( dtector.minCoord() );
     const Coord cmax( dtector.maxCoord() );
 
-    xrg_.start = cmin.x; xrg_.stop = cmax.x;
-    yrg_.start = cmin.y; yrg_.stop = cmax.y;
+    xrg_.start = cmin.x_; xrg_.stop = cmax.x_;
+    yrg_.start = cmin.y_; yrg_.stop = cmax.y_;
 
     BinID startbid( dtector.start() );
     BinID stopbid( dtector.stop() );

@@ -328,7 +328,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	    bid = SI().transform((SI().transform(hrg.start_)
 				 +SI().transform(hrg.stop_))/2);
 	}
-	else bid = SI().transform( pickedpos );
+	else bid = SI().transform( pickedpos.getXY() );
 
 	settingok = viewer->setPosition( bid );
     }
@@ -358,7 +358,8 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     const ui3DViewer*  sovwr = ODMainWin()->sceneMgr().get3DViewer( sceneid );
     Coord3 campos = sovwr->getCameraPosition();
 	viewer->getScene()->getUTM2DisplayTransform()->transformBack( campos );
-    const BinID dir0 = SI().transform(campos)-SI().transform(pickedpos);
+    const BinID dir0 = SI().transform(campos.getXY())-
+			SI().transform(pickedpos.getXY());
     const Coord dir( dir0.inl(), dir0.crl() );
     viewer->displaysOnPositiveSide( viewer->getBaseDirection().dot(dir)>0 );
 

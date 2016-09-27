@@ -106,7 +106,7 @@ bool BoxDraggerCallbackHandler::receive(
 	    if ( dragger_.osgboxdragger_->getEventHandlingTabPlaneIdx()%2 )
 		displacement = -displacement;
 	    if ( !dragger_.isRightHandSystem() )
-		displacement.z = -displacement.z;
+		displacement.z_ = -displacement.z_;
 
 	    scale += displacement;
 	}

@@ -227,7 +227,7 @@ bool HorizonScanner::analyzeData()
 	    else break;
 	}
 
-	BinID bid( mNINT32(crd.x), mNINT32(crd.y) );
+	BinID bid( mNINT32(crd.x_), mNINT32(crd.y_) );
 
 	bool validplacement = false;
 	if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
@@ -344,8 +344,8 @@ int HorizonScanner::nextStep()
 	bid = SI().transform( crd );
     else
     {
-	bid.inl() = mNINT32( crd.x );
-	bid.crl() = mNINT32( crd.y );
+	bid.inl() = mNINT32( crd.x_ );
+	bid.crl() = mNINT32( crd.y_ );
     }
 
     if ( !SI().isReasonable(bid) )
@@ -378,8 +378,8 @@ int HorizonScanner::nextStep()
 
     else if ( rejectedlines_.size()<1024 )
     {
-	BufferString rej( "", crd.x, "\t" );
-	rej += crd.y;
+	BufferString rej( "", crd.x_, "\t" );
+	rej += crd.y_;
 	if ( isgeom_ )
 	    { rej += "\t"; rej += data[0]; }
 	rejectedlines_.add( rej.buf() );

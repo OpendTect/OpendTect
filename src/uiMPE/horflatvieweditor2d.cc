@@ -246,7 +246,7 @@ void HorizonFlatViewEditor2D::mouseMoveCB( CallBacker* )
 	if ( !seedpicker )
 	    return;
 
-	const TrcKeyValue tkv( SI().transform(coord), (float)coord.z );
+	const TrcKeyValue tkv( SI().transform(coord.getXY()), (float)coord.z_ );
 	pickedpos_ = seedpicker->replaceSeed( pickedpos_, tkv );
 	return;
     }
@@ -311,7 +311,7 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 
 	const uiWorldPoint wp =
 	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
-	pickedpos_ = SI().transform( vwr->getCoord(wp) );
+	pickedpos_ = SI().transform( vwr->getCoord(wp).getXY() );
 	return;
     }
 
@@ -544,7 +544,7 @@ void HorizonFlatViewEditor2D::handleMouseClicked( bool dbl )
     const uiWorldPoint wp = markerpos ? *markerpos :
 			vwr->getWorld2Ui().transform(mousepos);
     Coord3 clickedcrd = vwr->getCoord(wp);
-    clickedcrd.z = wp.y;
+    clickedcrd.z_ = wp.y_;
     doTheSeed( *seedpicker, clickedcrd, mouseevent );
 
     if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() &&
@@ -670,7 +670,7 @@ bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
 bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 					 const MouseEvent& mev )
 {
-    const TrcKeyValue tkv( getTrcKey(crd.coord()), (float)crd.z );
+    const TrcKeyValue tkv( getTrcKey(crd.getXY()), (float)crd.z_ );
     const bool ismarker = editor_->markerPosAt( mev.pos() );
 
     if ( !ismarker )
@@ -866,7 +866,7 @@ bool HorizonFlatViewEditor2D::getPosID( const Coord3& crd,
 	return false;
 
     PosInfo::Line2DPos pos;
-    geom2d->data().getPos( crd, pos, mUdf(float) );
+    geom2d->data().getPos( crd.getXY(), pos, mUdf(float) );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj);
 
     if ( !hor2d ) return false;
@@ -946,7 +946,7 @@ void HorizonFlatViewEditor2D::polygonFinishedCB( CallBacker* )
 	    continue;
 
 	const int posidx = horpainter_->getDistances().indexOf(
-			mCast(float,auxdata->poly_[selectedidxs[ids]].x) );
+			mCast(float,auxdata->poly_[selectedidxs[ids]].x_) );
 	const TypeSet<int>& trcnrs = horpainter_->getTrcNos();
 	if ( !trcnrs.validIdx(posidx) )
 	    continue;

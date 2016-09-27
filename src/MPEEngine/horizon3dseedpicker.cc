@@ -548,7 +548,7 @@ int Horizon3DSeedPicker::nrLineNeighbors( const BinID& bid,
     int total = 0;
     for ( int idx=0; idx<neighpid.size(); idx++ )
     {
-	BinID neighbid = SI().transform( hor3d->getPos(neighpid[idx]) );
+	BinID neighbid = SI().transform( hor3d->getPos(neighpid[idx]).getXY() );
 	if ( bid.isNeighborTo(neighbid,dir) )
 	    total++;
     }
@@ -636,17 +636,17 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 		    continue;
 
 		tk = (*rdlpath)[ startidx + idx ];
-		const double interpz = (1-frac) * seed1.z + frac  * seed2.z;
+		const double interpz = (1-frac) * seed1.z_ + frac  * seed2.z_;
 		interpos = Coord3( SI().transform(tk.binID()), interpz );
 	    }
 	    else
 	    {
 		interpos = (1-frac) * seed1 + frac  * seed2;
-		tk = SI().transform( interpos );
+		tk = SI().transform( interpos.getXY() );
 	    }
 	    if ( tk.isUdf() )
 		continue;
-	    hor3d->setZ( tk, (float)interpos.z, true );
+	    hor3d->setZ( tk, (float)interpos.z_, true );
 	    hor3d->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 
 	    if ( trackmode_ != DrawBetweenSeeds )

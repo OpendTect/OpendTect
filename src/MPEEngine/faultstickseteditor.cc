@@ -131,10 +131,11 @@ void FaultStickSetEditor::setScaleVector( const Coord3& scalevec )
 
 
 #define mWorldScale(crd) \
-    Coord3( crd.x, crd.y, SI().zScale()*crd.z )
+    Coord3( crd.x_, crd.y_, SI().zScale()*crd.z_ )
 
 #define mCustomScale(crd) \
-    Coord3( crd.x, Coord(scalevector_).dot(crd), scalevector_.z*crd.z )
+    Coord3( crd.x_, Coord(scalevector_.getXY()).dot(crd.getXY()), \
+	    scalevector_.z_*crd.z_ )
 
 
 float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
@@ -182,7 +183,7 @@ float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
 	return mUdf(float);
 
     const double onestepdist =
-		mWorldScale( SI().oneStepTranslation(plane.normal()) ).abs();
+	   mWorldScale( SI().oneStepTranslation(plane.normal()) ).abs<double>();
 
     bool insameplane = false;
     double prevdist = 0.0;
@@ -214,7 +215,7 @@ float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
 
     avgpos /= count;
 
-    return (float)(mCustomScale(avgpos).Coord::distTo( mCustomScale(mousepos)));
+    return mCustomScale(avgpos).xyDistTo<float>( mCustomScale(mousepos) );
 }
 
 
@@ -428,10 +429,10 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 	const int defcol = definedknots[nearestknotidx];
 	const Coord3 pos = fss->getKnot( RowCol(sticknr, defcol) );
 
-	const bool isstickvertical = fss->getEditPlaneNormal(sticknr).z < 0.5;
+	const bool isstickvertical = fss->getEditPlaneNormal(sticknr).z_ < 0.5;
 	const int insertcol = defcol + ( isstickvertical
-	    ? mousepos.z>pos.z ? 1 : -1
-	    : mousepos.coord()>pos.coord() ? 1 : -1) * colrange.step;
+	    ? mousepos.z_>pos.z_ ? 1 : -1
+	    : mousepos.getXY()>pos.getXY() ? 1 : -1) * colrange.step;
 
 	insertpid.setObjectID( emObject().id() );
 	insertpid.setSectionID( sid );

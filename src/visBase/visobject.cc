@@ -261,8 +261,8 @@ bool VisualObject::getBoundingBox( Coord3& minpos, Coord3& maxpos ) const
     const SbVec3f min = bbox.getMin();
     const SbVec3f max = bbox.getMax();
 
-    minpos.x = min[0]; minpos.y = min[1]; minpos.z = min[2];
-    maxpos.x = max[0]; maxpos.y = max[1]; maxpos.z = max[2];
+    minpos.x_ = min[0]; minpos.y_ = min[1]; minpos.z_ = min[2];
+    maxpos.x_ = max[0]; maxpos.y_ = max[1]; maxpos.z_ = max[2];
 
     const Transformation* trans =
 	const_cast<VisualObject*>(this)->getDisplayTransformation();

@@ -76,10 +76,10 @@ void TopBotImage::updateCoords()
     Transformation::transform( trans_, pos1_, pos1 );
 
     const Coord3 dif = pos1 - pos0;
-    texplane_->setWidth( osg::Vec3(dif.x, -dif.y, 0.0) );
+    texplane_->setWidth( osg::Vec3(dif.x_, -dif.y_, 0.0) );
 
     const Coord3 avg = 0.5 * (pos0+pos1);
-    texplane_->setCenter( osg::Vec3(avg.x, avg.y, avg.z) );
+    texplane_->setCenter( osg::Vec3(avg.x_, avg.y_, avg.z_) );
 }
 
 

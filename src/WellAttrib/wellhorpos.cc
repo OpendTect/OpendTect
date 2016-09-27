@@ -81,7 +81,7 @@ float WellHorIntersectFinder::findZIntersection() const
 
 float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const 
 {
-    const BinID& bid = SI().transform( pos );
+    const BinID& bid = SI().transform( pos.getXY() );
     if ( !SI().isInside( bid, true ) ) 
        return mUdf( float );	
 
@@ -89,12 +89,12 @@ float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const
     {
 	const EM::SubID subid = bid.toInt64();
 	const Coord3& horpos = hor3d_->getPos( hor3d_->sectionID(0), subid ); 
-	const BinID horbid = SI().transform( horpos );
+	const BinID horbid = SI().transform( horpos.getXY() );
 	if ( bid == horbid )
-	    return (float)horpos.z;
+	    return (float)horpos.z_;
     }
     else if ( hor2d_ )
-	return hor2d_->getZValue( pos );
+	return hor2d_->getZValue( pos.getXY() );
     
     return  mUdf( float );
 }

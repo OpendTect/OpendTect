@@ -83,14 +83,14 @@ bool uiControlView::handleUserClick( int vwridx )
     const MouseEvent& ev = mouseEventHandler(vwridx,true).event();
     const uiWorldPoint wp = vwr_.getWorld2Ui().transform( ev.pos() );
     if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus()
-	&& !ev.altStatus() && editbut_->isOn() && checkIfInside(wp.x,wp.y) )
+	&& !ev.altStatus() && editbut_->isOn() && checkIfInside(wp.x_,wp.y_) )
     {
 	vwr_.getAuxInfo( wp, infopars_ );
 	const uiWorldRect& bbox = vwr_.boundingBox();
-	bool synth = ( wp.x < (bbox.right()-bbox.left())/2 );
+	bool synth = ( wp.x_ < (bbox.right()-bbox.left())/2 );
 	const SeisTrc& trc = synth ? server_.data().synthtrc_
 				   : server_.data().seistrc_;
-	server_.pickMgr().addPick( (float) wp.y, synth, &trc );
+	server_.pickMgr().addPick( (float) wp.y_, synth, &trc );
 	redrawAnnotNeeded.trigger();
 	return true;
     }

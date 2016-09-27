@@ -22,6 +22,10 @@ mExportTemplClassInst( Basic ) Pos::ValueIdxPair<BinID,float>;
 mExportTemplClassInst( Basic ) Pos::IdxPairValues<BinID,float>;
 mExportTemplClassInst( Basic ) Pos::IdxPairValues<Pos::IdxPair,float>;
 mExportTemplClassInst( Basic ) Geom::Point2D<double>;
+mExportTemplClassInst( Basic ) Geom::Point2D<int>;
+mExportTemplClassInst( Basic ) Geom::Point3D<double>;
+mExportTemplClassInst( Basic ) Geom::Point3D<float>;
+mExportTemplClassInst( Basic ) PerThreadObjectRepository<BufferString>;
 mExportTemplClassInst( Basic ) PerThreadObjectRepository<BufferString>;
 
 # endif

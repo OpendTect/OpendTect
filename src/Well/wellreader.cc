@@ -395,13 +395,13 @@ bool Well::odReader::getInfo( od_istream& strm ) const
     }
 
     const Coord surfcoord = wd_.info().surfaceCoord();
-    if ( (mIsZero(surfcoord.x,0.001) && mIsZero(surfcoord.x,0.001))
-	    || (mIsUdf(surfcoord.x) && mIsUdf(surfcoord.x)) )
+    if ( (mIsZero(surfcoord.x_,0.001) && mIsZero(surfcoord.x_,0.001))
+	    || (mIsUdf(surfcoord.x_) && mIsUdf(surfcoord.x_)) )
     {
 	if ( wd_.track().isEmpty() && !getTrack(strm) )
 	    return false;
 
-	wd_.info().setSurfaceCoord( wd_.track().firstPos() );
+	wd_.info().setSurfaceCoord( wd_.track().firstPos().getXY() );
     }
 
     return true;
@@ -414,9 +414,9 @@ bool Well::odReader::getTrack( od_istream& strm ) const
     wd_.track().setEmpty();
     while ( strm.isOK() )
     {
-	strm >> c.x >> c.y >> c.z >> dah;
-	if ( !strm.isOK() || c.distTo(c0) < 1 ) break;
-	wd_.track().addPoint( c, (float) c.z, dah );
+	strm >> c.x_ >> c.y_ >> c.z_ >> dah;
+	if ( !strm.isOK() || c.distTo<float>(c0) < 1 ) break;
+	wd_.track().addPoint( c.getXY(), (float) c.z_, dah );
     }
     if ( wd_.track().isEmpty() )
 	mErrRetStrmOper( tr("find track data") )
@@ -443,8 +443,8 @@ bool Well::odReader::getTrack() const
 	for ( int idx=0; idx<track.size(); idx++ )
 	{
 	    Coord3 pos = track.posByIdx( idx );
-	    pos.z *= mToFeetFactorF;
-	    track.setPoint( track.pointIDFor(idx), pos, (float)pos.z );
+	    pos.z_ *= mToFeetFactorF;
+	    track.setPoint( track.pointIDFor(idx), pos.getXY(), (float)pos.z_ );
 	}
     }
 

@@ -68,8 +68,8 @@ protected:
     bool			getCorners(Coord3& worldtopleft,
 					   Coord3& worldbotright) const;
 
-    void			extendStickyKnots(Coord& worldleftpos,
-						  Coord& worldrightpos) const;
+    void			extendStickyKnots(Coord3& worldleftpos,
+						  Coord3& worldrightpos) const;
 
     void			slowDownTrans1D(Coord3& newtopleft,
 						Coord3& newbotright,
@@ -217,16 +217,16 @@ bool PlaneDragCBHandler::receive( const osgManipulator::MotionCommand& cmd )
 }
 
 
-void PlaneDragCBHandler::extendStickyKnots( Coord& worldleftpos,
-					    Coord& worldrightpos ) const
+void PlaneDragCBHandler::extendStickyKnots( Coord3& worldleftpos,
+					    Coord3& worldrightpos ) const
 {
-    Coord hordir = worldrightpos - worldleftpos;
+    Coord hordir = worldrightpos.getXY() - worldleftpos.getXY();
     hordir.normalize();
 
     if ( isleftsticky_ )
-	worldleftpos -= hordir * extension_;
+	worldleftpos.setXY( worldleftpos.getXY() - hordir * extension_ );
     if ( isrightsticky_ )
-	worldrightpos += hordir * extension_;
+	worldrightpos.setXY( worldrightpos.getXY() + hordir * extension_ );
 }
 
 
@@ -238,7 +238,8 @@ void PlaneDragCBHandler::constrain( int planeidx, DragMode dragmode )
     getCorners( newtopleft, newbotright );
 
     const Coord3 initialcenter = 0.5 * (initialtopleft_+initialbotright_);
-    const Coord initialhordif = initialbotright_ - initialtopleft_;
+    const Coord initialhordif =
+	initialbotright_.getXY() - initialtopleft_.getXY();
 
     if ( dragmode == Trans1D )
     {
@@ -255,21 +256,21 @@ void PlaneDragCBHandler::constrain( int planeidx, DragMode dragmode )
 
 	const Coord dir( cos(angle), sin(angle) );
 	Coord newhordif( initialhordif.dot(dir),
-			 initialhordif.dot(Coord(-dir.y,dir.x)) );
+			 initialhordif.dot(Coord(-dir.y_,dir.x_)) );
 
-	const Coord pivot = initialtopleft_ * (1.0-pickedpos_[0]) +
-			    initialbotright_ * pickedpos_[0];
+	const Coord pivot = initialtopleft_.getXY() * (1.0-pickedpos_[0]) +
+			    initialbotright_.getXY() * pickedpos_[0];
 
-	newtopleft.coord()  = pivot - newhordif * pickedpos_[0];
-	newbotright.coord() = pivot + newhordif * (1.0-pickedpos_[0]);
+	newtopleft.setXY( pivot - newhordif * pickedpos_[0] );
+	newbotright.setXY( pivot + newhordif * (1.0-pickedpos_[0]) );
     }
 
     if ( dragmode==Rotate || dragmode==Trans1D )
 	extendStickyKnots( newtopleft, newbotright );
 
-    clipper.setLine( newtopleft, newbotright );
-    newtopleft.coord() = clipper.getStart();
-    newbotright.coord() = clipper.getStop();
+    clipper.setLine( newtopleft.getXY(), newbotright.getXY() );
+    newtopleft.setXY( clipper.getStart() );
+    newbotright.setXY( clipper.getStop() );
 
     if ( dragmode==Trans2D )
     {
@@ -279,23 +280,23 @@ void PlaneDragCBHandler::constrain( int planeidx, DragMode dragmode )
 				   newbotright.sqDistTo(initialcenter);
 	    if ( movesleft )
 	    {
-		clipper.setLine( newtopleft, initialcenter );
-		newtopleft.coord() = clipper.getStart();
+		clipper.setLine( newtopleft.getXY(), initialcenter.getXY() );
+		newtopleft.setXY( clipper.getStart() );
 	    }
 	    else
 	    {
-		clipper.setLine( initialcenter, newbotright );
-		newbotright.coord() = clipper.getStop();
+		clipper.setLine( initialcenter.getXY(), newbotright.getXY() );
+		newbotright.setXY( clipper.getStop() );
 	    }
 	}
 
 	if ( clipper.isStartChanged() )
-	    newbotright.coord() = newtopleft.coord() + initialhordif;
+	    newbotright.setXY( newtopleft.getXY() + initialhordif );
 	else if ( clipper.isStopChanged() )
-	    newtopleft.coord() = newbotright.coord() - initialhordif;
+	    newtopleft.setXY( newbotright.getXY() - initialhordif );
     }
 
-    Interval<float> zrg( (float) newtopleft.z, (float) newbotright.z );
+    Interval<float> zrg( (float) newtopleft.z_, (float) newbotright.z_ );
     Interval<float>& zborder = rtdragger_.zborder_;
 
     if ( zrg.start < zborder.start )	zrg.start = zborder.start;
@@ -305,25 +306,26 @@ void PlaneDragCBHandler::constrain( int planeidx, DragMode dragmode )
 
     if ( dragmode == Trans2D )
     {
-	const float zlen = fabs( newbotright.z - newtopleft.z );
+	const float zlen = fabs( newbotright.z_ - newtopleft.z_ );
 
 	if ( zrg.start==zborder.start || zrg.start==zborder.stop )
 	{
-	    const int dir = zrg.start<initialcenter.z ? 1 : -1;
+	    const int dir = zrg.start<initialcenter.z_ ? 1 : -1;
 	    zrg.stop = zrg.start + dir*zlen;
 	}
 	else if ( zrg.stop==zborder.start || zrg.stop==zborder.stop )
 	{
-	    const int dir = zrg.stop<initialcenter.z ? 1 : -1;
+	    const int dir = zrg.stop<initialcenter.z_ ? 1 : -1;
 	    zrg.start = zrg.stop + dir*zlen;
 	}
     }
 
-    newtopleft.coord()	= rtdragger_.horborder_.moveInside( newtopleft );
-    newbotright.coord() = rtdragger_.horborder_.moveInside( newbotright );
+    newtopleft.setXY( rtdragger_.horborder_.moveInside( newtopleft.getXY() ) );
+    newbotright.setXY( rtdragger_.horborder_.moveInside( newbotright.getXY() ) );
 
-    rtdragger_.doSetKnot( planeidx, newtopleft );
-    rtdragger_.doSetKnot( planeidx+1, newbotright );
+    rtdragger_.doSetKnot( planeidx, newtopleft.getXY() );
+    rtdragger_.doSetKnot( planeidx+1, newbotright.getXY() );
+
     rtdragger_.setDepthRange( zrg );
 }
 
@@ -336,8 +338,8 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
 
     Geom::Rectangle<double> horborder = rtdragger_.horborder_;
 
-    Coord dragdir = newtopleft - initialtopleft_;
-    double dragdist = dragdir.abs();
+    Coord dragdir = newtopleft.getXY() - initialtopleft_.getXY();
+    double dragdist = dragdir.abs<double>();
     if ( !dragdist )
 	return;
 
@@ -357,10 +359,10 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
 	for ( int count=0; count<50; count++ )
 	{
 	    const double avgdist = 0.5 * (innerdist+outerdist);
-	    Coord avgleftpos = initialtopleft_.coord() + dragdir*avgdist;
-	    Coord avgrightpos = initialbotright_.coord() + dragdir*avgdist;
+	    Coord3 avgleftpos( initialtopleft_.getXY() + dragdir*avgdist, 0 );
+	    Coord3 avgrightpos( initialbotright_.getXY() + dragdir*avgdist, 0 );
 	    extendStickyKnots( avgleftpos, avgrightpos );
-	    clipper.setLine( avgleftpos, avgrightpos );
+	    clipper.setLine( avgleftpos.getXY(), avgrightpos.getXY() );
 
 	    if ( clipper.isIntersecting() )
 	    {
@@ -380,9 +382,9 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
 		return;
 
 	    // flip border rectangle around bounding edge to derive neardist
-	    if ( fabs(dragdir.x) > fabs(dragdir.y) )
+	    if ( fabs(dragdir.x_) > fabs(dragdir.y_) )
 	    {
-		if ( dragdir.x > 0 )
+		if ( dragdir.x_ > 0 )
 		{
 		    horborder.setLeft( horborder.right() );
 		    horborder.setRight( mUdf(double) );
@@ -397,7 +399,7 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
 	    }
 	    else
 	    {
-		if ( dragdir.y > 0 )
+		if ( dragdir.y_ > 0 )
 		{
 		    horborder.setTop( horborder.bottom() );
 		    horborder.setBottom( mUdf(double) );
@@ -435,8 +437,8 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
 	    dragdist = neardist + speed*(dragdist-neardist);
     }
 
-    newtopleft.coord() = initialtopleft_.coord() + dragdir*dragdist;
-    newbotright.coord() = initialbotright_.coord() + dragdir*dragdist;
+    newtopleft.setXY( initialtopleft_.getXY() + dragdir*dragdist );
+    newbotright.setXY( initialbotright_.getXY() + dragdir*dragdist );
 
     if ( maxdragdistptr )
 	*maxdragdistptr = maxdragdist;
@@ -463,11 +465,11 @@ void PlaneDragCBHandler::initDragControl()
     {
 	screendragprojvec /= screendragprojvec.sqAbs();
 
-	Coord dragdepthvec = dragdir.normalize().coord();
+	Coord dragdepthvec = dragdir.normalize().getXY();
 	dragdepthvec[0] *= SI().inlRange(false).width();
 	dragdepthvec[1] *= SI().crlRange(false).width();
 
-	screendragprojvec *= dragdepthvec.abs() / scalefactor;
+	screendragprojvec *= dragdepthvec.abs<double>() / scalefactor;
 	dragcontroller_.dragInScreenSpace( frontalview, screendragprojvec );
     }
 }
@@ -719,14 +721,14 @@ void RandomTrackDragger::followActiveDragger( int activeidx )
     {
 	const int subdraggeridx = activeidx%4;
 	if ( subdraggeridx < 2 )
-	    zrange_.start = newpos.z;
+	    zrange_.start = newpos.z_;
 	else
-	    zrange_.stop = newpos.z;
+	    zrange_.stop = newpos.z_;
 
 	for ( int idx=subdraggeridx; idx<draggers_.size(); idx+=4 )
 	{
 	    Coord3 pos = draggers_[idx]->getPos();
-	    pos.z = mZValue( idx );
+	    pos.z_ = mZValue( idx );
 
 	    draggers_[idx-1]->setPos( pos );
 	    if ( idx != activeidx )
@@ -739,7 +741,7 @@ void RandomTrackDragger::followActiveDragger( int activeidx )
 	for ( int idx=4*knotidx; idx<=4*knotidx+3; idx++ )
 	{
 	    if ( idx != activeidx )
-		draggers_[idx]->setPos( Coord3(newpos, mZValue(idx)) );
+		draggers_[idx]->setPos( Coord3(newpos.getXY(), mZValue(idx)) );
 	}
 
     }
@@ -819,7 +821,7 @@ Coord RandomTrackDragger::getKnot( int knotidx ) const
     if ( !draggers_.validIdx(4*knotidx) )
 	return Coord::udf();
 
-    return draggers_[4*knotidx]->getPos();
+    return draggers_[4*knotidx]->getPos().getXY();
 }
 
 
@@ -951,8 +953,8 @@ void RandomTrackDragger::setLimits( const Coord3& start, const Coord3& stop,
 	draggers_[idx]->setSpaceLimits( limits_[0], limits_[1], limits_[2] );
 
     // Handle undefined borders as incredibly far borders
-    horborder_.setTopLeft( start.coord() );
-    horborder_.setBottomRight( stop.coord() );
+    horborder_.setTopLeft( start.getXY() );
+    horborder_.setBottomRight( stop.getXY() );
     if ( limits_[0].step < 0.0 )
 	horborder_.swapHor();
     if ( limits_[1].step < 0.0 )
@@ -962,9 +964,9 @@ void RandomTrackDragger::setLimits( const Coord3& start, const Coord3& stop,
     if ( mIsUdf(horborder_.top()) )
 	horborder_.setTop( -mUdf(double) );
 
-    zborder_.set( start.z, stop.z );
+    zborder_.set( start.z_, stop.z_ );
     if ( limits_[2].step < 0.0 )
-	zborder_.set( stop.z, start.z );
+	zborder_.set( stop.z_, start.z_ );
     if ( mIsUdf(zborder_.start) )
 	zborder_.start = -mUdf(float);
 
@@ -983,7 +985,7 @@ void RandomTrackDragger::setDepthRange( const Interval<float>& rg )
     for ( int idx=0; idx<draggers_.size(); idx++ )
     {
 	Coord3 pos = draggers_[idx]->getPos();
-	pos.z = mZValue( idx );
+	pos.z_ = mZValue( idx );
 	draggers_[idx]->setPos( pos );
     }
 
@@ -1257,7 +1259,7 @@ bool RandomTrackDragger::canShowPlaneDragger( int planeidx,
 
     const float threshold = mMAX( 0.0, planedraggerminsizeinsteps_-0.5 );
 
-    if ( planeboxsteps.coord().sqAbs() <= threshold*threshold )
+    if ( planeboxsteps.getXY().sqAbs() <= threshold*threshold )
 	horoverlap = true;
 
     if ( !showplanedraggers_ )
@@ -1267,7 +1269,7 @@ bool RandomTrackDragger::canShowPlaneDragger( int planeidx,
     if ( horoverlap )
 	return false;
 
-    return planeboxsteps.z > threshold;
+    return planeboxsteps.z_ > threshold;
 }
 
 
@@ -1318,10 +1320,10 @@ unsigned char RandomTrackDragger::getOnBorderFlags( int knotidx ) const
     const float threshold1 = mIsUdf(limits_[1].step) ?
 					    eps : 0.5*fabs(limits_[1].step);
 
-    if ( fabs(horborder_.left()  -pos.x) < threshold0 ) flags += 1;
-    if ( fabs(horborder_.top()	 -pos.y) < threshold1 ) flags += 2;
-    if ( fabs(horborder_.right() -pos.x) < threshold0 ) flags += 4;
-    if ( fabs(horborder_.bottom()-pos.y) < threshold1 ) flags += 8;
+    if ( fabs(horborder_.left()  -pos.x_) < threshold0 ) flags += 1;
+    if ( fabs(horborder_.top()	 -pos.y_) < threshold1 ) flags += 2;
+    if ( fabs(horborder_.right() -pos.x_) < threshold0 ) flags += 4;
+    if ( fabs(horborder_.bottom()-pos.y_) < threshold1 ) flags += 8;
 
     return flags;
 }
@@ -1378,20 +1380,20 @@ void RandomTrackDragger::showRotationAxis( bool yn, int planeidx,
     const Coord3 botright = draggers_[planeidx*4+6]->getPos();
 
     if ( !SI().isRightHandSystem() )
-	normpickedpos.y = 1.0-normpickedpos.y;
+	normpickedpos.y_ = 1.0-normpickedpos.y_;
 
-    Coord3 pivot = topleft*(1.0-normpickedpos.x) + botright*normpickedpos.x;
-    pivot.z = topleft.z*(1.0-normpickedpos.y) + botright.z*normpickedpos.y;
+    Coord3 pivot = topleft*(1.0-normpickedpos.x_) + botright*normpickedpos.x_;
+    pivot.z_ = topleft.z_*(1.0-normpickedpos.y_) + botright.z_*normpickedpos.y_;
 
     Coord3 pos( pivot );
-    pos.z = 1.1*topleft.z - 0.1*botright.z;
+    pos.z_ = 1.1*topleft.z_ - 0.1*botright.z_;
     mVisTrans::transform( displaytrans_, pos, (*vertices)[0] );
-    const float pivotoffset = 0.05 * (botright.z-topleft.z);
-    pos.z = pivot.z - pivotoffset;
+    const float pivotoffset = 0.05 * (botright.z_-topleft.z_);
+    pos.z_ = pivot.z_ - pivotoffset;
     mVisTrans::transform( displaytrans_, pos, (*vertices)[1] );
-    pos.z = pivot.z + pivotoffset;
+    pos.z_ = pivot.z_ + pivotoffset;
     mVisTrans::transform( displaytrans_, pos, (*vertices)[2] );
-    pos.z = 1.1*botright.z - 0.1*topleft.z;
+    pos.z_ = 1.1*botright.z_ - 0.1*topleft.z_;
     mVisTrans::transform( displaytrans_, pos, (*vertices)[3] );
 }
 

@@ -237,22 +237,22 @@ void uiGraphicsItem::setPos( float x, float y )
 
 
 void uiGraphicsItem::setPos( const uiPoint& p )
-{ stPos( p.x, p.y ); }
+{ stPos( p.x_, p.y_ ); }
 
 
 void uiGraphicsItem::setPos( const uiWorldPoint& p )
-{ stPos( p.x, p.y ); }
+{ stPos( p.x_, p.y_ ); }
 
 
 void uiGraphicsItem::setPos( const Geom::Point2D<float>& p )
-{ stPos(p.x, p.y); }
+{ stPos(p.x_, p.y_); }
 
 
 
 void uiGraphicsItem::stPos( float x, float y )
 {
-    translation_.x = x;
-    translation_.y = y;
+    translation_.x_ = x;
+    translation_.y_ = y;
 
     updateTransform();
 }
@@ -260,8 +260,8 @@ void uiGraphicsItem::stPos( float x, float y )
 
 void uiGraphicsItem::moveBy( float x, float y )
 {
-    translation_.x += x;
-    translation_.y += y;
+    translation_.x_ += x;
+    translation_.y_ += y;
     updateTransform();
 }
 
@@ -274,8 +274,8 @@ float uiGraphicsItem::getRotation()
 
 void uiGraphicsItem::getScale( float &sx, float &sy )
 {
-    sx = scale_.x;
-    sy = scale_.y;
+    sx = scale_.x_;
+    sy = scale_.y_;
 }
 
 
@@ -288,8 +288,8 @@ void uiGraphicsItem::setRotation( float angle )
 
 void uiGraphicsItem::setScale( float sx, float sy )
 {
-    scale_.x = sx;
-    scale_.y = sy;
+    scale_.x_ = sx;
+    scale_.y_ = sy;
 
     updateTransform();
 }
@@ -300,14 +300,14 @@ void uiGraphicsItem::updateTransform()
     if ( !isItemIgnoresTransformationsEnabled() )
     {
 	QTransform transform;
-	transform.translate( translation_.x, translation_.y );
-	transform.scale( scale_.x, scale_.y );
+	transform.translate( translation_.x_, translation_.y_ );
+	transform.scale( scale_.x_, scale_.y_ );
 	transform.rotate( angle_ );
 	qgraphicsitem_->setTransform( transform );
 	qgraphicsitem_->update();
     }
     else
-	qgraphicsitem_->setPos( translation_.x, translation_.y );
+	qgraphicsitem_->setPos( translation_.x_, translation_.y_ );
 }
 
 /*
@@ -370,7 +370,7 @@ void uiGraphicsItem::addChild( uiGraphicsItem* itm )
 
 uiPoint uiGraphicsItem::transformToScenePos( const uiPoint& pt ) const
 {
-    QPointF qpt = qgraphicsitem_->mapToScene( pt.x, pt.y );
+    QPointF qpt = qgraphicsitem_->mapToScene( pt.x_, pt.y_ );
     return uiPoint( mNINT32(qpt.x()),  mNINT32( qpt.y()) );
 }
 
@@ -420,7 +420,8 @@ void uiGraphicsItem::setSelectable( bool yn )
 }
 
 
-void uiGraphicsItem::setPenStyle( const OD::LineStyle& ls, bool usetransparency )
+void uiGraphicsItem::setPenStyle( const OD::LineStyle& ls,
+				  bool usetransparency )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;

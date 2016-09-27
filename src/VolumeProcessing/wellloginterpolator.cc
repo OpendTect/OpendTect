@@ -91,13 +91,14 @@ void computeLayerModelIntersection(
 	    const Coord3 prevpos = track_->getPos( prevdah );
 	    const Coord3 pos = track_->getPos( dah );
 	    const float prevlayerz =
-		layermodel.getZ( SI().transform(prevpos), lidx );
-	    const float layerz = layermodel.getZ( SI().transform(pos), lidx );
+		layermodel.getZ( SI().transform(prevpos.getXY()), lidx );
+	    const float layerz =
+		layermodel.getZ( SI().transform(pos.getXY()), lidx );
 	    const float avgz = (prevlayerz+layerz) / 2;
-	    if ( avgz>=prevpos.z && avgz<pos.z )
+	    if ( avgz>=prevpos.z_ && avgz<pos.z_ )
 	    {
-		const float slope = (dah-prevdah) / float(pos.z-prevpos.z);
-		const float calcdah = prevdah + slope*float(avgz-prevpos.z);
+		const float slope = (dah-prevdah) / float(pos.z_-prevpos.z_);
+		const float calcdah = prevdah + slope*float(avgz-prevpos.z_);
 		intersections_[lidx] = calcdah;
 		break;
 	    }
@@ -330,7 +331,7 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 		if ( mIsUdf(lv) )
 		    continue;
 
-		const Coord pos = info->track_->getPos( mds[idz] );
+		const Coord pos = info->track_->getPos( mds[idz] ).getXY();
 		if ( pos.isUdf() )
 		    continue;
 

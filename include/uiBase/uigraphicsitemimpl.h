@@ -411,7 +411,7 @@ public:
     public:
 			ArcSpec( const uiPoint& c, float r,
 				 const Interval<float>& angs )
-			    : center_((float)c.x,(float)c.y), radius_(r)
+			    : center_((float)c.x_,(float)c.y_), radius_(r)
 			    , angles_(angs), yratio_(1.0f)		{}
 			ArcSpec( const Geom::Point2D<float>& c, float r,
 				 const Interval<float>& angs )
@@ -428,17 +428,17 @@ public:
     {
     public:
 			SplineSpec( const uiPoint& endp, const uiPoint& cp )
-			    : end_((float)endp.x,(float)endp.y)
-			    , cp1_((float)cp.x,(float)cp.y)
+			    : end_((float)endp.x_,(float)endp.y_)
+			    , cp1_((float)cp.x_,(float)cp.y_)
 			    , cubic_(false)				{}
 			SplineSpec( const Geom::Point2D<float>& endp,
 				    const Geom::Point2D<float>& cp )
 			    : end_(endp), cp1_(cp), cubic_(false)	{}
 			SplineSpec( const uiPoint& endp, const uiPoint& p1,
 				    const uiPoint& p2 )
-			    : end_((float)endp.x,(float)endp.y)
-			    , cp1_((float)p1.x,(float)p1.y)
-			    , cp2_((float)p2.x,(float)p2.y), cubic_(true)  {}
+			    : end_((float)endp.x_,(float)endp.y_)
+			    , cp1_((float)p1.x_,(float)p1.y_)
+			    , cp2_((float)p2.x_,(float)p2.y_), cubic_(true)  {}
 			SplineSpec( const Geom::Point2D<float>& endp,
 				    const Geom::Point2D<float>& p1,
 				    const Geom::Point2D<float>& p2 )

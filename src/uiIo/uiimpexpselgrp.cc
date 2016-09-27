@@ -813,14 +813,14 @@ void uiReadSelGrp::fillRectangle( const SelectionArea& selarea,
 	uiWorldRect altrect = hasalt ? selarea.altworldrect_
 				    : selarea.worldrect_;
 	TypeSet<double> ltptval;
-	ltptval += rect.topLeft().x;
-	ltptval += rect.topLeft().y;
-	ltptval += altrect.topLeft().y;
+	ltptval += rect.topLeft().x_;
+	ltptval += rect.topLeft().y_;
+	ltptval += altrect.topLeft().y_;
 
 	TypeSet<double> rbptval;
-	rbptval += rect.bottomRight().x;
-	rbptval += rect.bottomRight().y;
-	rbptval += altrect.bottomRight().y;
+	rbptval += rect.bottomRight().x_;
+	rbptval += rect.bottomRight().y_;
+	rbptval += altrect.bottomRight().y_;
 
 	const bool onlyy2 = actselarea.axistype_ == SelectionArea::Y2;
 	const int yaxisnr = (yaxis<0 || onlyy2) ? y2axis : yaxis;
@@ -863,8 +863,8 @@ void uiReadSelGrp::fillPolygon( const SelectionArea& selarea,
 	for ( int idx=0; idx<pts.size(); idx++ )
 	{
 	   TypeSet<double> ptval;
-	   ptval += pts[idx].x; ptval += pts[idx].y;
-	   ptval += altpts[idx].y;
+	   ptval += pts[idx].x_; ptval += pts[idx].y_;
+	   ptval += altpts[idx].y_;
 	   const bool onlyy2 = actselarea.axistype_ == SelectionArea::Y2;
 	   const int yaxisnr = (yaxis<0 || onlyy2) ? y2axis : yaxis;
 

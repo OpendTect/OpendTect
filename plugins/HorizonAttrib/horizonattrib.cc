@@ -208,7 +208,7 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 
     const EM::PosID posid( horizon_->id(), horizon_->sectionID(0),
 			   rc.toInt64() );
-    const float zval = (float) horizon_->getPos( posid ).z;
+    const float zval = (float) horizon_->getPos( posid ).z_;
 
     const bool isz = outtype_ == mOutTypeZ;
     if ( relz_ && isz )

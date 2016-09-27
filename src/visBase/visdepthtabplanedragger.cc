@@ -399,7 +399,7 @@ Coord3 DepthTabPlaneDragger::center() const
 
 void DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
 {
-    const float abs = scale.abs();
+    const float abs = scale.abs<float>();
     Coord3 newscale( scale[0] ? scale[0] : abs,
     		     scale[1] ? scale[1] : abs,
     		     scale[2] ? scale[2] : abs );
