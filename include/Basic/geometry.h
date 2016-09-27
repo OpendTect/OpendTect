@@ -490,8 +490,62 @@ void Point2D<T>::swapXY()
 }
 
 
+template <> inline
+BufferString Point2D<float>::toString(int nrdec) const
+{
+    BufferString res;
+    if (isUdf())
+	res.set("<undef>");
+    else
+    {
+	res.set("(");
+	if (nrdec<0)
+	{
+	    res.add(x_).add(",").add(y_);
+	}
+	else
+	{
+	    BufferString xstr = ::toString(x_, nrdec);
+	    BufferString ystr = ::toString(y_, nrdec);
+	    res.add(xstr).add(",").add(ystr);
+	}
+
+	res.add(")");
+    }
+
+    return res;
+}
+
+
+template <> inline
+BufferString Point2D<double>::toString(int nrdec) const
+{
+    BufferString res;
+    if (isUdf())
+	res.set("<undef>");
+    else
+    {
+	res.set("(");
+	if (nrdec<0)
+	{
+	    res.add(x_).add(",").add(y_);
+	}
+	else
+	{
+	    BufferString xstr = ::toString(x_, nrdec);
+	    BufferString ystr = ::toString(y_, nrdec);
+	    res.add(xstr).add(",").add(ystr);
+	}
+
+	res.add(")");
+    }
+
+    return res;
+}
+
+
 template <class T> inline
-BufferString Point2D<T>::toString( int nrdec ) const
+BufferString Point2D<T>::toString( int ) const
 {
     BufferString res;
     if ( isUdf() )
@@ -499,17 +553,7 @@ BufferString Point2D<T>::toString( int nrdec ) const
     else
     {
 	res.set( "(" );
-	if ( nrdec<0 )
-	{
-	    res.add( x_ ).add( "," ).add( y_ );
-	}
-	else
-	{
-	    BufferString xstr = ::toString( x_, nrdec );
-	    BufferString ystr = ::toString( y_, nrdec );
-	    res.add( xstr ).add( "," ).add( ystr );
-	}
-
+	res.add( x_ ).add( "," ).add( y_ );
 	res.add( ")" );
     }
 
@@ -536,10 +580,28 @@ bool Point2D<T>::fromString( const char* s )
 
     return getFromString( x_, ptrx, mUdf(T) ) &&
 	   getFromString( y_, ptry, mUdf(T) );
-
-    return true;
 }
 
+template <>
+inline Point2D<double> Point2D<double>::normalize() const
+{
+    const double sqabsval = sqAbs();
+    if (sqabsval == 0)
+	return *this;
+
+    return *this / Math::Sqrt(sqabsval);
+}
+
+
+template <>
+inline Point2D<float> Point2D<float>::normalize() const
+{
+    const float sqabsval = sqAbs();
+    if (sqabsval == 0)
+	return *this;
+
+    return *this / Math::Sqrt(sqabsval);
+}
 
 template <class T>
 inline Point2D<T> Point2D<T>::normalize() const
@@ -548,7 +610,8 @@ inline Point2D<T> Point2D<T>::normalize() const
     if ( sqabsval == 0 )
 	return *this;
 
-    return *this / Math::Sqrt( sqabsval );
+    const float absval = Math::Sqrt((float)sqabsval);
+    return Point2D<T>((T) ( ((float) x_) / absval), (T) (((float) y_) / absval));
 }
 
 
@@ -628,6 +691,14 @@ void Point3D<T>::setXY( T xx, T yy )
 template <class T> inline
 void Point3D<T>::setXY( const Point2D<T>& p )
 { x_ = p.x_ ; y_ = p.y_; }
+
+template <class T> inline
+Point3D<T>& Point3D<T>::zero()
+{
+    x_ =  y_ = z_ = 0; 
+    return *this;
+}
+
 
 
 template <class T> inline
@@ -728,6 +799,12 @@ Point3D<T>::unScaleBy( const Point3D<T>& denominator ) const
 		       z_/denominator.z_ );
 }
 
+
+template <class T> inline
+Point3D<T>& Point3D<T>::operator+=(T dist)
+{
+    x_ += dist; y_ += dist; z_ += dist; return *this;
+}
 
 template <class T> inline
 Point3D<T>& Point3D<T>::operator+=( const Point3D<T>& p )
