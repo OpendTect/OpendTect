@@ -156,7 +156,7 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 	if ( !new0.coord_.isDefined() || !new1.coord_.isDefined() )
 	    continue;
 
-	const float maxdist = 0.1 * cur0.distTo<float>(cur1) / trg.width();
+	const float maxdist = 0.1f * cur0.distTo<float>(cur1) / trg.width();
 	if ( cur0.distTo<float>(new0.coord_)>maxdist ||
 	     cur1.distTo<float>(new1.coord_)>maxdist )
 	    continue;

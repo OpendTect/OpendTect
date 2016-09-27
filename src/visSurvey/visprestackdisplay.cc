@@ -884,7 +884,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 	const float curdist =
 	    SI().binID2Coord().transformBackNoSnap( pos.getXY() )
 			      .distTo<float>( seis2dpos_ );
-	offset = rg.start + posdata.width(true)*curdist/displaywidth;
+	offset = ((float) rg.start) + posdata.width(true)*curdist/displaywidth;
 	pos = Coord3( seis2dpos_, pos.z_ );
     }
     else if ( section_ )
@@ -898,9 +898,9 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 
 	const float cal = posdata.width(true)*distance/width_;
 	if ( section_->getOrientation()==OD::InlineSlice )
-	    offset = cal*SI().inlDistance()+rg.start;
+	    offset = cal*SI().inlDistance()+((float)rg.start);
 	else
-	    offset= cal*SI().crlDistance()+rg.start;
+	    offset= cal*SI().crlDistance()+((float) rg.start);
 
 	pos = Coord3( trckey_.getCoord(), pos.z_ );
     }

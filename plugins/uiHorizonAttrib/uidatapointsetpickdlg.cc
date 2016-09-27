@@ -254,7 +254,7 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
     while ( psiter.next() )
     {
 	idx++;
-	const float sqdst = dpscrd.sqDistTo( psiter.get().pos() );
+	const double sqdst = dpscrd.sqDistTo( psiter.get().pos() );
 	if ( sqdst > sqmindist )
 	    continue;
 

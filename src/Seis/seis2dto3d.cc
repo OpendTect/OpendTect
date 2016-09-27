@@ -315,7 +315,7 @@ public:
 
     bool doWork ( od_int64 start, od_int64 stop, int )
     {
-	const float taperangle =  mCast(double,taperangle_) / 180. * M_PI;
+	const float taperangle =  taperangle_ / 180.0f * M_PIf;
 	const float mindist = SI().crlDistance();
 
 	for ( int it=(int)start; it<=stop && shouldContinue(); it++)
