@@ -591,14 +591,18 @@ RandomLine* RandomLineManager::get( const MultiID& mid )
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) return 0;
 
-    RandomLineSet rdlset;
+    PtrMan<RandomLineSet> rdlset = new RandomLineSet;
     BufferString msg;
-    const bool res = RandomLineSetTranslator::retrieve( rdlset, ioobj, msg );
-    if ( !res || rdlset.isEmpty() ) return 0;
+    const bool res = RandomLineSetTranslator::retrieve( *rdlset, ioobj, msg );
+    if ( !res || rdlset->isEmpty() ) return 0;
 
-    rl = rdlset.getRandomLine( 0 );
+    rl = rdlset->getRandomLine( 0 );
+    rl->ref();
     rl->setMultiID( mid );
     add( rl );
+
+    rdlset = 0;
+    rl->unRefNoDelete();
     return rl;
 }
 
@@ -636,10 +640,7 @@ int RandomLineManager::add( RandomLine* rl )
 
     const bool res = lines_.addIfNew( rl );
     if ( res )
-    {
-	rl->ref();
 	added.trigger( rl->ID() );
-    }
 
     return rl->ID();
 }
@@ -653,7 +654,7 @@ void RandomLineManager::remove( RandomLine* rl )
     if ( rlidx<0 ) return;
 
     removed.trigger( rl->ID() );
-    lines_.removeSingle( rlidx )->unRef();
+    lines_.removeSingle( rlidx );
 }
 
 } //namespace Geometry

@@ -226,8 +226,8 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
 {
     if ( rl_ )
     {
-	rl_->unRef();
 	rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB) );
+	rl_->unRef();
     }
 
     rl_ = Geometry::RLM().get( rlid );
