@@ -20,8 +20,9 @@ static bool testLine2()
     mRunStandardTest( line.getPoint(1)==Coord(2,2) , "Stop position" );
 
     mRunStandardTest( line.direction(false)==Coord(4,4), "Direction" );
-    mRunStandardTest( line.direction(true)==Coord(halfsqrt2,halfsqrt2),
-		      "Normalized Direction" );
+    mRunStandardTest(
+	line.direction(true).sqDistTo(Coord(halfsqrt2,halfsqrt2))< 1e-30,
+	"Normalized Direction" );
 
     mRunStandardTest( mIsEqual( line.closestParam(Coord(-1,1)),0.5,mDefEpsD),
 			      "Closest param" );
@@ -43,10 +44,14 @@ static bool testLine2()
     line.getPerpendicularLine(perpendicular, Coord(1,1));
     mRunStandardTest( perpendicular.getPoint(0)==Coord(1,1),
 		      "Start point of perpendicular line");
-    mRunStandardTest(
-	    perpendicular.direction(true)==Coord(-halfsqrt2,halfsqrt2) ||
-	    perpendicular.direction(true)==Coord(halfsqrt2,-halfsqrt2),
+
+    {
+	const Coord dir = perpendicular.direction(true);
+	mRunStandardTest(
+	    dir.sqDistTo( Coord(-halfsqrt2,halfsqrt2) )<1e-30 ||
+	    dir.sqDistTo( Coord(halfsqrt2,-halfsqrt2) )<1e-30,
 	    "Direction of perpendicular line");
+    }
 
     Line2 parallel;
     line.getParallelLine( parallel, sqrt2 );
