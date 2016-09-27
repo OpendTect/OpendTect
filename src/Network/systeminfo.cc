@@ -43,23 +43,23 @@ ________________________________________________________________________
 namespace System
 {
 
-od_uint64 uniqueSystemID()
+od_uint64 macAddressHash()
 {
     BufferStringSet addresses;
     BufferStringSet names;
     macAddresses( names, addresses, true );
 
+    const char* virtboxaddress = "0A:00:27:00:00:00";
+    const int virtboxidx = addresses.indexOf( virtboxaddress );
+    if ( addresses.validIdx(virtboxidx) )
+	addresses.removeSingle( virtboxidx );
+
     if ( addresses.isEmpty() )
 	return 0;
 
-    addresses.sort();
-
-    const char* virtboxaddress = "0A:00:27:00:00:00";
-    BufferString address = addresses.get( 0 );
-    if ( address==virtboxaddress && addresses.validIdx(1) )
-	address = addresses.get( 1 );
-
-    return checksum64( (const unsigned char*) address.buf(), address.size() );
+    addresses.sort(); // Not really needed, but leave it in for compatibility
+    const BufferString& address = addresses.get( 0 );
+    return checksum64( (const unsigned char*)address.buf(), address.size() );
 }
 
 

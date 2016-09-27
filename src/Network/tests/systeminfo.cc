@@ -14,8 +14,8 @@
 bool testSystemInfo()
 {
     //Dummy test in a sense, as we cannot check the result
-    mRunStandardTest( System::uniqueSystemID(),
-		     "uniqueSystemID" );
+    mRunStandardTest( System::macAddressHash(),
+		     "macAddressHash" );
 
     return true;
 }
