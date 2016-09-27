@@ -46,28 +46,31 @@ uiString BendPointFinder2DGeomSet::uiNrDoneText() const
 
 int BendPointFinder2DGeomSet::nextStep()
 {
+#define mRetMoreToDo() \
+    curidx_++; \
+    return MoreToDo();
+
     if ( curidx_ >= geomids_.size() )
 	return Finished();
 
     mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 		    Survey::GM().getGeometry(geomids_[curidx_]))
     if ( !geom2d )
-	return MoreToDo();
+    { mRetMoreToDo(); }
 
     const float avgtrcdist = geom2d->averageTrcDist();
     if ( mIsUdf(avgtrcdist) || mIsZero(avgtrcdist,1e-3) )
-	return MoreToDo();
+	{ mRetMoreToDo(); }
 
     BendPointFinder2DGeom bpfinder( geom2d->data().positions(), avgtrcdist );
     if ( !bpfinder.execute() )
-	return MoreToDo();
+	{ mRetMoreToDo(); }
 
     BendPoints* bp = new BendPoints;
     bp->geomid_ = geomids_[curidx_];
     bp->idxs_ = bpfinder.bendPoints();
     bendptset_ += bp;
-    curidx_++;
-    return MoreToDo();
+    mRetMoreToDo();
 }
 
 
