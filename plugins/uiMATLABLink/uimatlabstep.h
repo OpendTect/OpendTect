@@ -39,7 +39,7 @@ protected:
 
     void		fileSelCB(CallBacker*);
     void		loadCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK();
 
     void		fillParTable(const BufferStringSet&,
 				     const BufferStringSet&);

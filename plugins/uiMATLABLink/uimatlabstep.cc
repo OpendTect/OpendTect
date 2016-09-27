@@ -169,9 +169,9 @@ bool uiMatlabStep::readTable( BufferStringSet& names,
 }
 
 
-bool uiMatlabStep::acceptOK( CallBacker* cb )
+bool uiMatlabStep::acceptOK()
 {
-    if ( !uiStepDialog::acceptOK(cb) )
+    if ( !uiStepDialog::acceptOK() )
 	return false;
 
     if ( !fileloaded_ )
