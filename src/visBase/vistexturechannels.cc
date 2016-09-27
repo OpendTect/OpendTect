@@ -632,7 +632,7 @@ void TextureChannels::setOrigin( int channel, const Coord& origin )
 	channelinfo_[channel]->setOrigin( origin );
 }
 
-const Coord& TextureChannels::getOrigin( int channel ) const
+Coord TextureChannels::getOrigin( int channel ) const
 {
     if ( !channelinfo_.validIdx(channel) )
 	return Coord::udf();
@@ -648,7 +648,7 @@ void TextureChannels::setScale( int channel, const Coord& scale )
 }
 
 
-const Coord& TextureChannels::getScale( int channel ) const
+Coord TextureChannels::getScale( int channel ) const
 {
     if ( !channelinfo_.validIdx(channel) )
 	return Coord::udf();

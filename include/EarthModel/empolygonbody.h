@@ -48,7 +48,7 @@ public:
 				   const Coord3& pos,bool addtohistory);
     bool		removeKnot(const SectionID&,const SubID&,
 				   bool addtohistory);
-    const Coord3&	getPolygonNormal(const SectionID&,int polygon) const;
+    Coord3		getPolygonNormal(const SectionID&,int polygon) const;
 
     Geometry::PolygonSurface*
 			sectionGeometry(const SectionID&);

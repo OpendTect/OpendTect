@@ -76,9 +76,9 @@ public:
     int				getSize(int channel,unsigned char dim) const;
 
     void			setOrigin(int channel,const Coord& origin);
-    const Coord&		getOrigin(int channel) const;
+    Coord			getOrigin(int channel) const;
     void			setScale(int channel,const Coord& scale);
-    const Coord&		getScale(int channel) const;
+    Coord			getScale(int channel) const;
 
     StepInterval<float>		getEnvelopeRange(unsigned char dim) const;
 

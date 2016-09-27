@@ -451,7 +451,7 @@ bool PolygonBodyGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 }
 
 
-const Coord3& PolygonBodyGeometry::getPolygonNormal( const SectionID& sid,
+Coord3 PolygonBodyGeometry::getPolygonNormal( const SectionID& sid,
 						     int polygonnr ) const
 {
     const Geometry::PolygonSurface* pol = sectionGeometry( sid );
