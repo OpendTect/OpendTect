@@ -245,8 +245,7 @@ uiGroup* uiSEGYReadStarter::createAmplDisp()
 
     uiHistogramDisplay::Setup hdsu;
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
-    hdsu.canvaswidth(mDefSize)
-	.canvasheight( mForSurvSetup ? mSurvMapHeight : mDefSize );
+    hdsu.canvaswidth(mDefSize).canvasheight( mDefSize );
     ampldisp_ = new uiHistogramDisplay( amplgrp, hdsu );
     ampldisp_->setTitle( tr("Amplitudes") );
 
