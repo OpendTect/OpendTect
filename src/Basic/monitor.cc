@@ -118,7 +118,7 @@ Monitorable::ChangeType Monitorable::changeNotificationTypeOf( CallBacker* cb )
 
 
 MonitorLock::MonitorLock( const Monitorable& obj )
-    : locker_(obj,false)
+    : locker_(obj,true)
     , unlocked_(false)
 {
 }
