@@ -60,7 +60,6 @@ void Saveable::setObject( const SharedObject& obj )
     if ( object_ == &obj )
 	return;
 
-    AccessLockHandler alh( obj );
     mLock2Write();
     detachCBFromObj();
     object_ = &obj;

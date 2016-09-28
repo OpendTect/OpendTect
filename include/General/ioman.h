@@ -158,8 +158,8 @@ private:
 			// Not locked:
     inline bool		gtIsBad() const		{ return state_ != Good; }
     bool		setDir(const char*);
-    bool		goTo(DirID,bool,AccessLockHandler&) const;
-    bool		goTo(const IOSubDir*,bool,AccessLockHandler&) const;
+    bool		goTo(DirID,bool,AccessLocker&) const;
+    bool		goTo(const IOSubDir*,bool,AccessLocker&) const;
     IOObj*		crWriteIOObj(const CtxtIOObj&,const DBKey&,int) const;
 
     friend class	SurveyDataTreePreparer;

@@ -259,9 +259,9 @@ Well::Track::ZType Well::Track::nearestDah( const Coord3& posin ) const
     return (ZType)res;
 }
 
-#define mAddPtWithNotif(dh,c) addPt( dh, c, &mAccessLockHandler() )
-#define mDahAfterIdx(idx,c2add)\
-dahs_[idx]+c2add.distTo<ZType>(pos_[idx])
+
+#define mAddPtWithNotif(dh,c) addPt( dh, c, &mAccessLocker() )
+#define mDahAfterIdx(idx,c2add) dahs_[idx]+c2add.distTo<ZType>(pos_[idx])
 
 
 Well::Track::PointID Well::Track::addPoint( Coord3 c2add, ZType dh )
@@ -378,7 +378,7 @@ Well::Track::PointID Well::Track::insertPoint( Coord3 c2add )
 	    idx2insafter = cursz-1;
     }
 
-    return insAfterIdx( idx2insafter, c2add, mAccessLockHandler() );
+    return insAfterIdx( idx2insafter, c2add, mAccessLocker() );
 }
 
 
@@ -569,14 +569,14 @@ void Well::Track::toTime( const Data& wd )
 
 
 Well::Track::PointID Well::Track::addPt( ZType dh, const Coord3& c,
-					    AccessLockHandler* alh )
+					    AccessLocker* alh )
 {
     return insPt( ptids_.size(), dh, c, alh );
 }
 
 
 Well::Track::PointID Well::Track::insPt( IdxType idx, ZType dh, const Coord3& c,
-					    AccessLockHandler* alh )
+					    AccessLocker* alh )
 {
     const PointID ptid = gtNewPointID();
     if ( idx >= gtSize() )
@@ -589,7 +589,7 @@ Well::Track::PointID Well::Track::insPt( IdxType idx, ZType dh, const Coord3& c,
     }
     if ( alh )
     {
-	AccessLockHandler& mAccessLockHandler() = *alh;
+	AccessLocker& mAccessLocker() = *alh;
 	mSendChgNotif( cPointAdd(), ptid.getI() );
     }
     return ptid;
@@ -611,7 +611,7 @@ Coord3 Well::Track::coordAfterIdx( ZType dh, int idx1 ) const
 
 
 Well::Track::PointID Well::Track::insAfterIdx( int idx2insafter,
-		const Coord3& c2add, AccessLockHandler& mAccessLockHandler() )
+		const Coord3& c2add, AccessLocker& mAccessLocker() )
 {
     const int newidx = idx2insafter + 1;
     if ( newidx >= pos_.size() )
@@ -630,7 +630,7 @@ Well::Track::PointID Well::Track::insAfterIdx( int idx2insafter,
     }
 
     const PointID ptid = insPt( newidx, (ZType)newdah, c2add,
-				&mAccessLockHandler() );
+				&mAccessLocker() );
     shiftDahFrom( ptid, (ZType)extradah );
     return ptid;
 }

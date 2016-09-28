@@ -17,47 +17,15 @@ mDefineInstanceCreatedNotifierAccess(Monitorable)
 mDefineInstanceCreatedNotifierAccess(SharedObject)
 
 
-Monitorable::AccessLockHandler::AccessLockHandler( const Monitorable& obj,
-						   bool forread )
-    : obj_(obj)
+Monitorable::AccessLocker::AccessLocker( const Monitorable& obj, bool forread )
+    : Threads::Locker( obj.accesslock_, forread ? Threads::Locker::ReadLock
+						: Threads::Locker::WriteLock )
 {
-    if ( forread )
-	locker_ = new Threads::Locker( obj.accesslock_,
-				       Threads::Locker::ReadLock );
-    else
-    {
-	waitForMonitors();
-	locker_ = new Threads::Locker( obj.accesslock_,
-				       Threads::Locker::WriteLock );
-    }
-}
-
-
-Monitorable::AccessLockHandler::~AccessLockHandler()
-{
-    delete locker_;
-}
-
-
-void Monitorable::AccessLockHandler::waitForMonitors()
-{
-    while ( obj_.nrmonitors_ > 0 )
-	Threads::sleep( 1 );
-}
-
-
-bool Monitorable::AccessLockHandler::convertToWrite()
-{
-    waitForMonitors();
-    bool rv = locker_->convertToWriteLock();
-    waitForMonitors();
-    return rv;
 }
 
 
 Monitorable::Monitorable()
-    : nrmonitors_(0)
-    , dirtycount_(0)
+    : dirtycount_(0)
     , chgnotifblocklevel_(0)
     , chgnotif_(this)
     , delnotif_(this)
@@ -70,7 +38,6 @@ Monitorable::Monitorable()
 
 Monitorable::Monitorable( const Monitorable& oth )
     : CallBacker(oth)
-    , nrmonitors_(0)
     , chgnotifblocklevel_(0)
     , dirtycount_(0)
     , chgnotif_(this)
@@ -84,8 +51,6 @@ Monitorable::Monitorable( const Monitorable& oth )
 
 Monitorable::~Monitorable()
 {
-    if ( nrmonitors_ > 0 )
-	{ pErrMsg(BufferString("Nr monitors should be 0, is ",nrmonitors_)); }
     sendDelNotif();
 }
 
@@ -122,11 +87,11 @@ void Monitorable::sendEntireObjectChangeNotification() const
 }
 
 
-void Monitorable::sendChgNotif( AccessLockHandler& hndlr, ChangeType ct,
+void Monitorable::sendChgNotif( AccessLocker& locker, ChangeType ct,
 				IDType id ) const
 {
     touch();
-    hndlr.unlockNow();
+    locker.unlockNow();
     if ( chgnotifblocklevel_ )
 	return;
 
@@ -153,24 +118,14 @@ Monitorable::ChangeType Monitorable::changeNotificationTypeOf( CallBacker* cb )
 
 
 MonitorLock::MonitorLock( const Monitorable& obj )
-    : obj_(obj)
+    : locker_(obj,false)
     , unlocked_(false)
 {
-    obj_.nrmonitors_++;
-    while ( obj_.accesslock_.readWriteLock().isLockedForWrite() )
-	Threads::sleep( 1 );
 }
 
 
 MonitorLock::~MonitorLock()
 {
-    if ( !unlocked_ )
-    {
-	if ( obj_.nrmonitors_ < 1 )
-	    { pErrMsg(BufferString("Nr monitors == ",obj_.nrmonitors_)); }
-	else
-	    obj_.nrmonitors_--;
-    }
 }
 
 
@@ -179,8 +134,7 @@ void MonitorLock::unlockNow()
     if ( !unlocked_ )
     {
 	unlocked_ = true;
-	if ( obj_.nrmonitors_ > 0 )
-	    obj_.nrmonitors_--;
+	locker_.unlockNow();
     }
 }
 
@@ -190,7 +144,7 @@ void MonitorLock::reLock()
     if ( unlocked_ )
     {
 	unlocked_ = false;
-	obj_.nrmonitors_++;
+	locker_.reLock();
     }
 }
 

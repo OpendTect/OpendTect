@@ -76,10 +76,9 @@ protected:
     virtual void	eraseAux()		{ pos_.erase(); }
 
     void		doSetPoint(IdxType,const Coord3&);
-    PointID		addPt(ZType,const Coord3&,AccessLockHandler*);
-    PointID		insPt(IdxType,ZType,const Coord3&,AccessLockHandler*);
-    PointID		insAfterIdx(IdxType,const Coord3&,
-					AccessLockHandler&);
+    PointID		addPt(ZType,const Coord3&,AccessLocker*);
+    PointID		insPt(IdxType,ZType,const Coord3&,AccessLocker*);
+    PointID		insAfterIdx(IdxType,const Coord3&,AccessLocker&);
     Coord3		coordAfterIdx(ZType,IdxType) const;
     Interval<double>	gtZRangeD() const;
 

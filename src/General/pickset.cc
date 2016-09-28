@@ -499,7 +499,7 @@ Pick::Set& Pick::Set::append( const Set& oth )
 
 
 Pick::Set::LocID Pick::Set::insNewLocID( IdxType idx,
-				    AccessLockHandler& mAccessLockHandler() )
+				    AccessLocker& mAccessLocker() )
 {
     const LocID newlocid = LocID::get( curlocidnr_++ );
     locids_.insert( idx, newlocid );
@@ -514,7 +514,7 @@ Pick::Set::LocID Pick::Set::add( const Location& loc )
     mLock4Write();
 
     locs_ += loc;
-    return insNewLocID( locids_.size(), mAccessLockHandler() );
+    return insNewLocID( locids_.size(), mAccessLocker() );
 }
 
 
@@ -536,7 +536,7 @@ Pick::Set::LocID Pick::Set::insertBefore( LocID id, const Location& loc )
     }
 
     locs_.insert( idx, loc );
-    return insNewLocID( idx, mAccessLockHandler() );
+    return insNewLocID( idx, mAccessLocker() );
 }
 
 

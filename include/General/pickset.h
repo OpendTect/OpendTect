@@ -47,6 +47,7 @@ public:
     mDefIntegerIDType(IdxType,		    LocID);
 
 			Set(const char* nm=0,const char* category=0);
+			mDeclInstanceCreatedNotifierAccess(Set);
 			mDeclMonitorableAssignment(Set);
 
     bool		isPolygon() const;
@@ -138,7 +139,6 @@ public:
     static inline bool	isTempChange( ChangeType ct )
 			{ return ct > 6; }
 
-    mDeclInstanceCreatedNotifierAccess(Set);
     static const Set&	emptySet()		{ return emptyset_; }
     static Set&		dummySet()		{ return dummyset_; }
 
@@ -157,7 +157,7 @@ protected:
     static Set		dummyset_;
 
     IdxType		gtIdxFor(LocID) const;
-    LocID		insNewLocID(IdxType,AccessLockHandler&);
+    LocID		insNewLocID(IdxType,AccessLocker&);
     void		replaceID(LocID from,LocID to);
 
     friend class	SetIter;

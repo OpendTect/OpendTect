@@ -118,25 +118,15 @@ protected:
 			Monitorable();
 
     mutable Threads::Lock accesslock_;
-
-    mExpClass(Basic) AccessLockHandler
+    mExpClass(Basic) AccessLocker : public Threads::Locker
     {
     public:
-			AccessLockHandler(const Monitorable&,
-						  bool forread=true);
-			~AccessLockHandler();
-	bool		convertToWrite();
-	void		unlockNow()	{ locker_->unlockNow(); }
-	void		reLock()	{ locker_->reLock(); }
-    private:
-	const Monitorable& obj_;
-	Threads::Locker* locker_;
-	void		waitForMonitors();
+			AccessLocker(const Monitorable&,bool forread=true);
+	inline bool	convertToWrite()	{ return convertToWriteLock(); }
     };
 
     void		copyAll(const Monitorable&);
-    void		sendChgNotif(AccessLockHandler&,ChangeType,
-				     IDType) const;
+    void		sendChgNotif(AccessLocker&,ChangeType,IDType) const;
 				//!< objectChanged called with released lock
     void		sendDelNotif() const;
     void		stopChangeNotifications() const
@@ -151,7 +141,6 @@ protected:
 private:
 
     mutable Threads::Atomic<DirtyCountType>	dirtycount_;
-    mutable Threads::Atomic<int>		nrmonitors_;
     mutable Threads::Atomic<int>		chgnotifblocklevel_;
 
     mutable CNotifier<Monitorable,ChangeData>	chgnotif_;
@@ -210,7 +199,7 @@ public:
 
 protected:
 
-    const Monitorable&	obj_;
+    Monitorable::AccessLocker locker_;
     bool		unlocked_;
 
 };
@@ -242,13 +231,13 @@ protected:
 
 
 //! For use in subclasses of Monitorable
-#define mLock4Read() AccessLockHandler accesslockhandler_( *this )
-#define mLock4Write() AccessLockHandler accesslockhandler_( *this, false )
-#define mLock2Write() accesslockhandler_.convertToWrite()
-#define mReLock() accesslockhandler_.reLock()
-#define mUnlockAllAccess() accesslockhandler_.unlockNow()
-#define mAccessLockHandler() accesslockhandler_
-#define mSendChgNotif(typ,id) sendChgNotif(accesslockhandler_,typ,id)
+#define mLock4Read() AccessLocker accesslocker_( *this )
+#define mLock4Write() AccessLocker accesslocker_( *this, false )
+#define mLock2Write() accesslocker_.convertToWrite()
+#define mReLock() accesslocker_.reLock()
+#define mUnlockAllAccess() accesslocker_.unlockNow()
+#define mAccessLocker() accesslocker_
+#define mSendChgNotif(typ,id) sendChgNotif(accesslocker_,typ,id)
 #define mSendEntireObjChgNotif() \
     mSendChgNotif( cEntireObjectChangeType(), cEntireObjectChangeID() )
 
@@ -306,7 +295,7 @@ clss& clss::operator =( const clss& oth ) \
     if ( &oth != this ) \
     { \
 	mLock4Write(); \
-	AccessLockHandler lh( oth ); \
+	AccessLocker lckr( oth ); \
 	copyAll( oth ); \
 	touch(); \
 	mUnlockAllAccess(); \
