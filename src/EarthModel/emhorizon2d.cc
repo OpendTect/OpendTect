@@ -693,10 +693,11 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid, Pos::GeomID geomid,
     for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
     {
 	Coord3 pos = geom->getKnot( RowCol(lineidx,col) );
+	float val = (float)pos.z_;
 	if ( trans )
-	    pos.z_ = trans->transform( pos );
+	    val = trans->transformTrc( TrcKey(geomid,col), val );
 
-	arr->set( colrg.getIndex(col), (float) pos.z_ );
+	arr->set( colrg.getIndex(col), val );
     }
 
     return arr;
