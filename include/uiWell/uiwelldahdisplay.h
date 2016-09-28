@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "welldisp.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
+#include "wellmarker.h"
 #include "welltrack.h"
 
 namespace Well { class DahObj; class Marker; class D2TModel; }
@@ -173,6 +174,8 @@ public:
 
     DahObjData&                 dahObjData( bool first )
 				{ return first ? *ld1_ : *ld2_; }
+    const Well::MarkerSet*	markers() const { return zdata_.mrks(); }
+
 protected:
 
     DahObjData*			ld1_;
@@ -180,27 +183,30 @@ protected:
     Data			zdata_;
     Setup                       setup_;
     TypeSet<PickData>           zpicks_;
-    uiGraphicsItemSet	zpickitms_;
+    uiGraphicsItemSet		zpickitms_;
 
     mStruct(uiWell) MarkerDraw
     {
-			    MarkerDraw( const Well::Marker& mrk )
-				: mrk_(mrk)
+			    MarkerDraw( Well::MarkerSet::MarkerID mrkid )
+				: mrkid_(mrkid)
 				{}
 			    ~MarkerDraw();
+	
+	bool		    contains(const Geom::Point2D<int>&) const;
 
-	const Well::Marker&     mrk_;
-	OD::LineStyle               ls_;
+	Well::MarkerSet::MarkerID  mrkid_;
+	OD::LineStyle           ls_;
+	uiGraphicsItem*		grpitm_;
 	uiTextItem*             txtitm_;
-	uiLineItem*             lineitm_;
+	uiPolyLineItem*         lineitm_;
     };
     ObjectSet<MarkerDraw>       markerdraws_;
-    MarkerDraw*                 getMarkerDraw(const Well::Marker&);
+    MarkerDraw*                 getMarkerDraw(Well::MarkerSet::MarkerID);
     Well::MarkerDispProps	mrkdisp_;
+    uiGraphicsItem*		mrkrsceneitems_;
 
     const Well::D2TModel*	d2T() const	{ return zdata_.d2T(); }
     const Well::Track*		track() const	{ return zdata_.track(); }
-    const Well::MarkerSet*	markers() const { return zdata_.mrks(); }
 
     virtual void		draw();
     virtual void		drawCurve(bool);

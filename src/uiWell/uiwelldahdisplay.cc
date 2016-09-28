@@ -123,6 +123,7 @@ uiWellDahDisplay::~uiWellDahDisplay()
 {
     detachAllNotifiers();
     delete ld1_; delete ld2_;
+    deepErase( markerdraws_ );
 }
 
 
@@ -380,7 +381,6 @@ const int y = ld1_->yax_.getPix( zpos )
 void uiWellDahDisplay::drawMarkers()
 {
     deepErase( markerdraws_ );
-
     if ( !markers() ) return;
 
     const BufferStringSet selmrkrnms( mrkdisp_.selMarkerNames() );
@@ -403,11 +403,16 @@ void uiWellDahDisplay::drawMarkers()
 	mDefZPosInLoop( mrkr.dah() );
 	mDefHorLineX1X2Y();
 
-	MarkerDraw* mrkdraw = new MarkerDraw( mrkr );
+	MarkerDraw* mrkdraw = new MarkerDraw( miter.ID() );
 	markerdraws_ += mrkdraw;
 
-	uiLineItem* li = scene().addItem( new uiLineItem(
-	   mCast(float,x1),mCast(float,y),mCast(float,x2),mCast(float,y)));
+	uiPoint p1( x1, y ), p2( x2, y );
+	TypeSet<uiPoint> points; points.add( p1 ).add( p2 );
+	mrkdraw->grpitm_ = scene().addItem( new uiGraphicsItem() );
+	uiPolyLineItem* li = scene().addItem( new uiPolyLineItem(points) );
+	mrkdraw->grpitm_->addChild( li );
+	mrkdraw->grpitm_->setAcceptHoverEvents( true );
+
 	const int shapeint = mrkdisp_.shapeType();
 	const int drawsize = mrkdisp_.size();
 	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Dot, drawsize, col );
@@ -418,6 +423,8 @@ void uiWellDahDisplay::drawMarkers()
 
 	li->setPenStyle( ls );
 	li->setZValue( 2 );
+	li->setAcceptHoverEvents( true );
+
 	mrkdraw->lineitm_ = li;
 	mrkdraw->ls_ = ls;
 
@@ -425,20 +432,22 @@ void uiWellDahDisplay::drawMarkers()
 	if ( setup_.nrmarkerchars_ < mtxt.size() )
 	mtxt[setup_.nrmarkerchars_] = '\0';
 	uiTextItem* ti = scene().addItem(
-	new uiTextItem(toUiString(mtxt),mAlignment(Right,VCenter)) );
+	    new uiTextItem(toUiString(mtxt),mAlignment(Right,VCenter) ));
 	ti->setPos( uiPoint(x1-1,y) );
 	ti->setTextColor( nmcol );
+	ti->setAcceptHoverEvents( true );
+	mrkdraw->grpitm_->addChild( ti );
 	mrkdraw->txtitm_ = ti;
     }
 }
 
 
 uiWellDahDisplay::MarkerDraw* uiWellDahDisplay::getMarkerDraw(
-						const Well::Marker& mrk )
+					const Well::MarkerSet::MarkerID mrkid )
 {
     for ( int idx=0; idx<markerdraws_.size(); idx++)
     {
-	if ( &(markerdraws_[idx]->mrk_) == &mrk )
+	if ( (markerdraws_[idx]->mrkid_) == mrkid )
 	    return markerdraws_[idx];
     }
     return 0;
@@ -478,9 +487,17 @@ void uiWellDahDisplay::drawZPicks()
 }
 
 
+bool uiWellDahDisplay::MarkerDraw::contains( const Geom::Point2D<int>& pt )const
+{
+    const bool contns = lineitm_->boundingRect().contains( pt )
+		    || txtitm_->boundingRect().contains( pt );
+    return contns;
+}
+
+
 uiWellDahDisplay::MarkerDraw::~MarkerDraw()
 {
-    delete txtitm_; delete lineitm_;
+    delete txtitm_; delete lineitm_; delete grpitm_;
 }
 
 

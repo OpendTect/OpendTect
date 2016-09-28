@@ -22,9 +22,9 @@ ________________________________________________________________________
 
 
 uiWellDisplayControl::uiWellDisplayControl( uiWellDahDisplay& l )
-    : selmarker_(0)
+    : selmarker_(*new Well::Marker("",mUdf(float)))
     , seldisp_(0)
-    , lastselmarker_(0)
+    , lastselmarker_(*new Well::Marker("",mUdf(float)))
     , ismousedown_(false)
     , isctrlpressed_(false)
     , xpos_(0)
@@ -129,7 +129,7 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     const uiWellDahDisplay::DahObjData& data2 = seldisp_->dahObjData(false);
     if ( data1.hasData() ) { info += "  "; data1.getInfoForDah(dah_,info); }
     if ( data2.hasData() ) { info += "  "; data2.getInfoForDah(dah_,info); }
-    if ( selmarker_ ) { info += "  Marker:"; info += selmarker_->name(); }
+    if ( !selmarker_.isUdf() ){info += "  Marker:"; info += selmarker_.name(); }
 
     info += "  MD:";
     const uiWellDahDisplay::Data& zdata = seldisp_->zData();
@@ -221,20 +221,19 @@ void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb )
 {
     if ( !seldisp_ ) return;
     const MouseEvent& ev = seldisp_->getMouseEventHandler().event();
-    int mousepos = ev.pos().y_;
-    Well::Marker* selmrk = 0;
+    Well::Marker selmrk = Well::Marker::udf();
+
     for ( int idx=0; idx<seldisp_->markerdraws_.size(); idx++ )
     {
-	uiWellDahDisplay::MarkerDraw& markerdraw = *seldisp_->markerdraws_[idx];
-	const Well::Marker mrk = markerdraw.mrk_;
-	uiLineItem& li = *markerdraw.lineitm_;
-
-	if ( abs(li.lineRect().centre().y_-mousepos) < 2 )
+	const uiWellDahDisplay::MarkerDraw& markerdraw =
+						   *seldisp_->markerdraws_[idx];
+	if ( markerdraw.contains(ev.pos()) )
 	{
-	    selmrk = const_cast<Well::Marker*>( &mrk );
+	    selmrk = seldisp_->markers()->get( markerdraw.mrkid_ );
 	    break;
 	}
     }
+
     bool markerchanged = ( lastselmarker_ != selmrk );
     setSelMarker( selmrk );
     if ( markerchanged )
@@ -242,37 +241,16 @@ void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb )
 }
 
 
-void uiWellDisplayControl::setSelMarker( const Well::Marker* mrk )
+void uiWellDisplayControl::setSelMarker( const Well::Marker mrk )
 {
-    if ( lastselmarker_ && ( lastselmarker_ != mrk ) )
-	highlightMarker( *lastselmarker_, false );
-
-    if ( mrk )
-	highlightMarker( *mrk, true );
-
     selmarker_ = mrk;
 
     if ( seldisp_ )
-	seldisp_->setToolTip( mrk ? toUiString(mrk->name()) :
-						    uiStrings::sEmptyString() );
-
+	seldisp_->setToolTip( selmarker_.isUdf()
+				    ? uiStrings::sEmptyString()
+				    : toUiString(selmarker_.name() ) );
     if ( lastselmarker_ != mrk )
 	lastselmarker_ = mrk;
-}
-
-
-void uiWellDisplayControl::highlightMarker( const Well::Marker& mrk, bool yn )
-{
-    for ( int iddisp=0; iddisp<logdisps_.size(); iddisp++ )
-    {
-	uiWellDahDisplay& ld = *logdisps_[iddisp];
-	uiWellDahDisplay::MarkerDraw* mrkdraw = ld.getMarkerDraw( mrk );
-	if ( !mrkdraw ) continue;
-	const OD::LineStyle& ls = mrkdraw->ls_;
-	uiLineItem& li = *mrkdraw->lineitm_;
-	int width = yn ? ls.width_+2 : ls.width_;
-	li.setPenStyle( OD::LineStyle( ls.type_, width, mrk.color() ) );
-    }
 }
 
 

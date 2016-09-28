@@ -72,7 +72,7 @@ bool Well::Marker::operator ==( const Marker& oth ) const
 	return true;
 
     mLock4Read();
-    const bool iseq = levelid_ == oth.levelid_ && !levelid_.isInvalid()
+    const bool iseq = levelid_ == oth.levelid_ 
 		      && gtName() == oth.gtName() && color_ == oth.color_
 		      && dah_ == oth.dah_;
     

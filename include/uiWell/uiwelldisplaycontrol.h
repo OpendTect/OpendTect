@@ -36,10 +36,9 @@ public:
     void			setCtrlPressed(bool);
 
     const uiWellDahDisplay*	selDahDisplay() const	{ return seldisp_; }
-    const Well::Marker*		selMarker() const	{ return selmarker_; }
-    const Well::Marker*		lastValidMarker() const {return lastselmarker_;}
+    const Well::Marker&		selMarker() const	{ return selmarker_; }
 
-    void			setSelMarker(const Well::Marker*);
+    void			setSelMarker(Well::Marker);
 
     float			time() const	{ return time_; }
     float			dah() const	{ return dah_; }
@@ -63,10 +62,9 @@ protected:
     bool			ismousedown_;
     bool			isctrlpressed_;
 
-    const Well::Marker*	selmarker_;
-    const Well::Marker*	lastselmarker_;
+    Well::Marker&		selmarker_;
+    Well::Marker&		lastselmarker_;
 
-    void			highlightMarker(const Well::Marker&,bool);
     MouseEventHandler&		mouseEventHandler(int);
 
     void			getPosInfo(BufferString&) const;

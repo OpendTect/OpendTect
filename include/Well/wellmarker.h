@@ -44,6 +44,9 @@ public:
 			mDeclInstanceCreatedNotifierAccess(Marker);
 			mDeclAbstractMonitorableAssignment(Marker);
     bool		operator ==(const Marker&) const;
+    bool		operator !=(const Marker& oth) const
+			{ return !( *this == oth ); } 
+
     bool                operator >(const Marker&) const;
 
     virtual const OD::String& name() const;
