@@ -334,7 +334,10 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	    else
 	    {
 		if ( zaxt_ )
-		    pos.z_ = zaxt_->transformTrc(TrcKey(geomid,rc.col()),pos.z);
+		{
+		    const TrcKey tk( geomid, rc.col() );
+		    pos.z_ = zaxt_->transformTrc( tk, pos.z_ );
+		}
 
 		if ( !mIsUdf(pos.z_) )
 		    positions += pos;
