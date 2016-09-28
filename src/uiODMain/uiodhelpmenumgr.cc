@@ -55,6 +55,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 	mInsertItem( docmnu_, tr("Admin"), mAdminMnuItm, 0 );
 
     mInsertItem( helpmnu_, tr("How-To Instructions"), mWorkflowsMnuItm, 0 );
+    mInsertItem( helpmnu_, tr("Training Manual"), mTrainingManualMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Attributes"), mAttribMatrixMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
     mInsertItem( helpmnu_, tr("Keyboard shortcuts"),
@@ -100,6 +101,10 @@ void uiODHelpMenuMgr::handle( int id )
 	    const HelpKey key( WebsiteHelp::sKeyFactoryName(),
 			       WebsiteHelp::sKeySupport() );
 	    HelpProvider::provideHelp( key );
+	} break;
+	case mTrainingManualMnuItm:
+	{
+	    HelpProvider::provideHelp( HelpKey("tm",0) );
 	} break;
 	case mWorkflowsMnuItm:
 	{
