@@ -702,7 +702,7 @@ Array1D<float>* Horizon2D::createArray1D( SectionID sid, Pos::GeomID geomid,
     {
 	Coord3 pos = geom->getKnot( RowCol(lineidx,col) );
 	if ( trans )
-	    pos.z = trans->transform( pos );
+	    pos.z = trans->transformTrc( TrcKey(geomid,col), pos.z );
 
 	arr->set( colrg.getIndex(col), (float) pos.z );
     }
