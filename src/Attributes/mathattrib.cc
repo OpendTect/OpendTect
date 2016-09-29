@@ -235,7 +235,10 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 	    }
 	}
 
-	const float result = mCast( float, mathobj->getValue(inpvals.arr()) );
+	float result = mCast( float, mathobj->getValue(inpvals.arr()) );
+	if ( !Math::IsNormalNumber(result) )
+	    result = mUdf(float);
+
 	setOutputValue( output, 0, idx, z0, result );
     }
 
