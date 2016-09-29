@@ -40,7 +40,8 @@ DBDir::DBDir()
 
 
 DBDir::DBDir( const DBDir& oth )
-	: dirname_(oth.dirname_)
+	: SharedObject(oth)
+    	, dirname_(oth.dirname_)
 	, dirid_(oth.dirid_)
 {
     copyClassData( oth );

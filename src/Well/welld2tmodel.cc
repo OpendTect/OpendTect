@@ -38,6 +38,7 @@ Well::D2TModel::D2TModel( const char* nm )
 
 
 Well::D2TModel::D2TModel( const D2TModel& oth )
+    : DahObj(oth)
 {
     copyClassData( oth );
     mTriggerInstanceCreatedNotifier();

@@ -155,7 +155,7 @@ Well::MarkerSet::MarkerSet()
 
 
 Well::MarkerSet::MarkerSet( const MarkerSet& oth )
-    : SharedObject()
+    : SharedObject(oth)
     , curmrkridnr_(oth.curmrkridnr_)
 {
     copyClassData( oth );

@@ -41,7 +41,8 @@ IODir::IODir()
 
 
 IODir::IODir( const IODir& oth )
-	: dirname_(oth.dirname_)
+	: SharedObject(oth)
+    	, dirname_(oth.dirname_)
 	, dirid_(oth.dirid_)
 {
     copyClassData( oth );

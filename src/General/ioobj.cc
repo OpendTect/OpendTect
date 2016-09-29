@@ -96,7 +96,8 @@ IOObj::IOObj( const char* nm, DBKey ky )
 
 
 IOObj::IOObj( const IOObj& oth )
-    : key_(oth.key_)
+    : NamedObject(oth)
+    , key_(oth.key_)
     , pars_(*new IOPar)
 {
     copyClassData( oth );

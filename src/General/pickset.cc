@@ -51,8 +51,8 @@ mImplMonitorableAssignment( Pick::Set, SharedObject )
 
 void Pick::Set::copyClassData( const Set& oth )
 {
-    locs_.copy( oth.locs_ );
-    locids_.copy( oth.locids_ );
+    locs_ = oth.locs_;
+    locids_ = oth.locids_;
     disp_ = oth.disp_;
     pars_ = oth.pars_;
     curlocidnr_ = oth.curlocidnr_;

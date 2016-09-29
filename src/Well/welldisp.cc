@@ -247,7 +247,8 @@ Well::BasicDispProps::BasicDispProps( SizeType sz )
 
 
 Well::BasicDispProps::BasicDispProps( const BasicDispProps& oth )
-    : font_(*new FontData(cDefaultFontSize()))
+    : Monitorable(oth)
+    , font_(*new FontData(cDefaultFontSize()))
 {
     copyClassData( oth );
 }

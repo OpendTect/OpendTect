@@ -70,7 +70,8 @@ Wavelet::Wavelet( bool isricker, ValueType fpeak, ZType sr, ValueType scale )
 
 
 Wavelet::Wavelet( const Wavelet& oth )
-	: sz_(0)
+	: SharedObject(oth)
+    	, sz_(0)
 	, samps_(0)
 	, intpol_(0)
 {
