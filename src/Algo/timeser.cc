@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "timeser.h"
 #include "threadlock.h"
+#include "math2.h"
 #include <math.h>
 
 
@@ -36,7 +37,8 @@ void BFhighpass( int npoles, float f3db,
 	{
 	    pjm1 = pj;
 	    pj = arrin[j];
-	    arrout[j] = a * (pj-pjm1) - b1*qjm1;
+	    const bool hasudf = mIsUdf(pj) || mIsUdf(pjm1) || mIsUdf(qjm1);
+	    arrout[j] = hasudf ? mUdf(float) : a * (pj-pjm1) - b1*qjm1;
 	    qjm1 = arrout[j];
 	}
     }
@@ -54,7 +56,10 @@ void BFhighpass( int npoles, float f3db,
 	    pjm2 = pjm1;
 	    pjm1 = pj;
 	    pj = arrout[j];
-	    arrout[j] = a * (pj-2*pjm1+pjm2) - b1*qjm1 - b2*qjm2;
+	    const bool hasudf = mIsUdf(pj) || mIsUdf(pjm1) || mIsUdf(pjm2)
+			     || mIsUdf(qjm1) || mIsUdf(qjm2);
+	    arrout[j] = hasudf ? mUdf(float)
+			       : a * (pj-2*pjm1+pjm2) - b1*qjm1 - b2*qjm2;
 	    qjm2 = qjm1;
 	    qjm1 = arrout[j];
 	}
@@ -81,7 +86,8 @@ void BFlowpass( int npoles, float f3db,
 	{
 	    pjm1 = pj;
 	    pj = arrin[j];
-	    arrout[j] = a * (pj+pjm1) - b1*qjm1;
+	    const bool hasudf = mIsUdf(pj) || mIsUdf(pjm1) || mIsUdf(qjm1);
+	    arrout[j] = hasudf ? mUdf(float) : a * (pj+pjm1) - b1*qjm1;
 	    qjm1 = arrout[j];
 	}
     }
@@ -99,7 +105,10 @@ void BFlowpass( int npoles, float f3db,
 	    pjm2 = pjm1;
 	    pjm1 = pj;
 	    pj = arrout[j];
-	    arrout[j] = a * (pj+2.0f*pjm1+pjm2) - b1*qjm1 - b2*qjm2;
+	    const bool hasudf = mIsUdf(pj) || mIsUdf(pjm1) || mIsUdf(pjm2)
+			     || mIsUdf(qjm1) || mIsUdf(qjm2);
+	    arrout[j] = hasudf ? mUdf(float)
+			       : a * (pj+2.0f*pjm1+pjm2) - b1*qjm1 - b2*qjm2;
 	    qjm2 = qjm1;
 	    qjm1 = arrout[j];
 	}
