@@ -23,6 +23,7 @@ public:
 				~uiMeasureDlg();
 
     const LineStyle&		getLineStyle() const	{ return ls_; }
+    bool			doClear() const;
 
     void			fill(const TypeSet<Coord3>&);
     void			reset();

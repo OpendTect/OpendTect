@@ -25,12 +25,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisellinest.h"
 #include "uispinbox.h"
 #include "od_helpids.h"
+#include "hiddenparam.h"
 
 #include <math.h>
 
 
 static const char* sKeyLineStyle = "Measure LineStyle";
-
+static HiddenParam<uiMeasureDlg,uiCheckBox*> clearchkbut_( 0 );
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Measure Distance"),mNoDlgTitle,
@@ -110,13 +111,28 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 				mCB(this,uiMeasureDlg,stylebutCB), false );
     stylebut->attach( rightTo, clearbut );
 
+    uiCheckBox* clearchkbut=new uiCheckBox( botgrp,tr("Clear line on Close") );
+
+    clearchkbut_.setParam( this, clearchkbut );
+    clearchkbut->attach( alignedBelow, clearbut );
+    clearchkbut->setChecked( true );
+    clearchkbut->setSensitive( true );
+
     botgrp->attach( centeredBelow, topgrp );
+
 }
 
 
 uiMeasureDlg::~uiMeasureDlg()
 {
     delete &ls_;
+    clearchkbut_.removeParam( this );
+}
+
+
+bool uiMeasureDlg::doClear() const
+{ 
+   return clearchkbut_.getParam(this)->isChecked();
 }
 
 
