@@ -85,6 +85,8 @@ void MeasureToolMan::objSelected( CallBacker* cb )
 
 void MeasureToolMan::dlgClosed( CallBacker* cb )
 {
+    if ( measuredlg_->doClear() )
+	clearCB( 0 );
     appl_.menuMgr().viewTB()->turnOn( butidx_, false );
     appl_.sceneMgr().setToViewMode( true );
     for ( int idx=0; idx<displayobjs_.size(); idx++ )

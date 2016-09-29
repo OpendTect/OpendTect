@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
     (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-    Author:        Nageswara
-    Date:          May 2008
+    Author: Nageswara
+    Date:   May 2008
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ static const char* sKeyLineStyle = "Measure OD::LineStyle";
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Measure Distance"),mNoDlgTitle,
-                        mODHelpKey(mMeasureDlgHelpID) ).modal(false))
+	mODHelpKey(mMeasureDlgHelpID) ).modal(false))
     , ls_(*new OD::LineStyle(OD::LineStyle::Solid,3))
     , appvelfld_(0)
     , zdist2fld_(0)
@@ -42,6 +42,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     , lineStyleChange(this)
     , clearPressed(this)
     , velocityChange(this)
+    , clearchkbut_( 0 )
 {
     setCtrlStyle( CloseOnly );
     showAlwaysOnTop();
@@ -109,6 +110,11 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 				mCB(this,uiMeasureDlg,stylebutCB), false );
     stylebut->attach( rightTo, clearbut );
 
+    clearchkbut_ = new uiCheckBox( botgrp, tr("Clear line on Close") );
+    clearchkbut_->attach( alignedBelow, clearbut );
+    clearchkbut_->setChecked( true );
+    clearchkbut_->setSensitive( true );
+
     botgrp->attach( centeredBelow, topgrp );
 }
 
@@ -140,7 +146,7 @@ void uiMeasureDlg::clearCB( CallBacker* cb )
 void uiMeasureDlg::stylebutCB( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup(tr("Line Style"),mNoDlgTitle,
-                                        mNoHelpKey) );
+	mNoHelpKey) );
     dlg.setCtrlStyle( uiDialog::CloseOnly );
     uiSelLineStyle* linestylefld = new uiSelLineStyle( &dlg, ls_,
 				   uiSelLineStyle::Setup().drawstyle(false) );
@@ -236,3 +242,10 @@ void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
     inlcrldistfld_->setValue( Interval<int>(totinldist,totcrldist) );
     raise();
 }
+
+
+bool uiMeasureDlg::doClear() const
+{
+    return clearchkbut_->isChecked();
+}
+
