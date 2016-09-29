@@ -1207,7 +1207,7 @@ void uiGenInput::doClear( CallBacker* )
 
 
 void uiGenInput::setWithSelect( bool yn )
-{ selText_ = yn ? tr("&Select") : uiStrings::sEmptyString() ; }
+{ selText_ = yn ? uiStrings::sSelect() : uiStrings::sEmptyString() ; }
 
 
 void uiGenInput::setNrDecimals( int nrdec, int fldnr )
