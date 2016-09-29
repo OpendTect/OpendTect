@@ -294,14 +294,14 @@ BufferString HttpRequestProcess::readAll()
 //Network::HttpRequest implementation
 HttpRequest::HttpRequest( const char* url, AccessType at )
     : url_( url )
-    , postdata_( 0 )
+    , payload_( 0 )
     , accesstype_( at )
 {}
 
 
 HttpRequest::HttpRequest( const HttpRequest& b )
     : url_( b.url_ )
-    , postdata_( b.postdata_ ? new QByteArray(*b.postdata_) : 0  )
+    , payload_( b.payload_ ? new QByteArray(*b.payload_) : 0  )
     , contenttype_( b.contenttype_ )
     , rawheaders_( b.rawheaders_ )
     , accesstype_( b.accesstype_ )
@@ -310,22 +310,22 @@ HttpRequest::HttpRequest( const HttpRequest& b )
 
 HttpRequest::~HttpRequest()
 {
-    delete postdata_;
+    delete payload_;
 }
 
 
-HttpRequest& HttpRequest::postData( const DataBuffer& data )
-{ setPostData( data ); return *this; }
+HttpRequest& HttpRequest::payloadData( const DataBuffer& data )
+{ setPayloadData( data ); return *this; }
 
 
 HttpRequest& HttpRequest::contentType(const BufferString& type )
 { setContentType( type ); return *this; }
 
 
-void HttpRequest::setPostData( const DataBuffer& data )
+void HttpRequest::setPayloadData( const DataBuffer& data )
 {
-    delete postdata_;
-    postdata_ = new QByteArray(mCast(const char*,data.data()),data.size());
+    delete payload_;
+    payload_ = new QByteArray(mCast(const char*,data.data()),data.size());
 }
 
 
@@ -347,8 +347,8 @@ void HttpRequest::fillRequest( QNetworkRequest& req ) const
     if ( !contenttype_.isEmpty() )
 	req.setHeader( QNetworkRequest::ContentTypeHeader, contenttype_.buf() );
 
-    if ( postdata_ )
-	req.setHeader( QNetworkRequest::ContentLengthHeader,postdata_->size());
+    if ( payload_ )
+	req.setHeader( QNetworkRequest::ContentLengthHeader,payload_->size());
 
     for ( int idx=0; idx<rawheaders_.size(); idx++ )
     {
@@ -484,8 +484,12 @@ void HttpRequestManager::doRequestCB(CallBacker* cb)
 
     if (reply->request_->accesstype_ == HttpRequest::Get)
 	reply->setQNetworkReply(qnam_->get(qreq));
+    else if (reply->request_->accesstype_ == HttpRequest::Put)
+	reply->setQNetworkReply(qnam_->put(qreq,*reply->request_->payload_));
     else if (reply->request_->accesstype_ == HttpRequest::Post)
-	reply->setQNetworkReply(qnam_->post(qreq,*reply->request_->postdata_));
+	reply->setQNetworkReply(qnam_->post(qreq,*reply->request_->payload_));
+    else if (reply->request_->accesstype_ == HttpRequest::Delete )
+	reply->setQNetworkReply(qnam_->deleteResource(qreq));
     else
 	reply->setQNetworkReply(qnam_->head(qreq));
 }

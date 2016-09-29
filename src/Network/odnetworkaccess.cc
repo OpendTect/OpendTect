@@ -455,7 +455,7 @@ int DataUploader::nextStep()
 	RefMan<Network::HttpRequest> req = new Network::HttpRequest( url_,
 	       				       Network::HttpRequest::Post );
 	req->contentType( header_ );
-	req->postData( data_ );
+	req->payloadData( data_ );
 
 	odnr_ = Network::HttpRequestManager::instance().request(req);
 	init_ = false;

@@ -41,18 +41,18 @@ class HttpRequestManager;
 mExpClass(Network) HttpRequest : public RefCount::Referenced
 {
 public:
-    enum AccessType		{ Get, Post, Head };
+    enum AccessType		{ Get, Put, Delete, Post, Head };
 				HttpRequest(const char* url,
 					    AccessType);
 				HttpRequest(const HttpRequest&);
 
-    HttpRequest&		postData(const DataBuffer&);
+    HttpRequest&		payloadData(const DataBuffer&);
     HttpRequest&		contentType(const BufferString&);
     HttpRequest&		rawHeader(const char* key,
 					  const char* val);
 
-    void			setPostData(const DataBuffer&);
-				//!<Data is copied
+    void			setPayloadData(const DataBuffer&);
+				//!<For post/put requests Data is copied
     void			setContentType(const BufferString&);
     void			setRawHeader(const char* key,
 					     const char* val);
@@ -63,7 +63,7 @@ private:
     friend			class HttpRequestManager;
 
     void			fillRequest(QNetworkRequest&) const;
-    QByteArray*			postdata_;
+    QByteArray*			payload_;
     BufferString		url_;
     BufferString		contenttype_;
     IOPar			rawheaders_;
