@@ -1029,7 +1029,7 @@ void Horizon3D::setLockColor( const Color& col )
 {
     lockcolor_ = col;
     EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::LockChange;
+    cbdata.event = EMObjectCallbackData::LockColorChange;
     change.trigger( cbdata );
 }
 

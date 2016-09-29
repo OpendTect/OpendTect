@@ -227,7 +227,7 @@ private:
 				    int whichobj );
     void			updateSingleColor();
 
-
+    void			calculateLockedPoints();
     void			initSelectionDisplay(bool erase);
     virtual void		updateSelections();
     void			updateLockedPointsColor();
@@ -294,7 +294,6 @@ private:
 
     visBase::PointSet*			selections_;
     visBase::PointSet*			lockedpts_;
-    bool				newseeds_;
     visBase::PointSet*			sectionlockedpts_;
     visBase::VertexShape*		parentline_;
 
@@ -317,6 +316,7 @@ private:
     bool				validtexture_;
     bool				displayintersectionlines_;
     bool				displaysurfacegrid_;
+    bool				showlock_;
     Threads::Lock			updatelock_;
 
     TypeSet<EM::SectionID>		oldsectionids_;
