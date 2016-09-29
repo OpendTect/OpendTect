@@ -63,6 +63,8 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     objfld_->attach( alignedBelow, filludffld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSelCB) );
     pargrp_->setHAlignObj( objfld_ );
+
+    batchjobfld_->setSensitive( false );
 }
 
 
