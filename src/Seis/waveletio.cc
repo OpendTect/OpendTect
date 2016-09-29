@@ -118,7 +118,7 @@ WaveletSaver::WaveletSaver( const Wavelet& wvlt )
 WaveletSaver::WaveletSaver( const WaveletSaver& oth )
     : Saveable(oth)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

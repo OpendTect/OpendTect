@@ -87,7 +87,7 @@ Well::Info::Info( const char* nm )
 Well::Info::Info( const Info& oth )
     : NamedMonitorable(oth)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -200,7 +200,7 @@ Well::Data::Data( const char* nm )
 Well::Data::Data( const Data& oth )
     : mInitList(oth,"")
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

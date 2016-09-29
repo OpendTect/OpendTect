@@ -146,7 +146,7 @@ Strat::Level::Level( const Level& oth )
     : NamedMonitorable(oth)
     , id_(ID::get(0))
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -234,7 +234,7 @@ Strat::LevelSet::LevelSet( const LevelSet& oth )
     : SharedObject(oth)
     , curlevelid_(0)
 {
-    copyAll( oth );
+    copyClassData( oth );
 }
 
 

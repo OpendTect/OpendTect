@@ -62,7 +62,7 @@ Well::DisplayProperties::DisplayProperties( const char* nm )
 Well::DisplayProperties::DisplayProperties( const DisplayProperties& oth )
     : NamedMonitorable( oth )
 {
-    copyAll( oth );
+    copyClassData( oth );
     init();
 }
 
@@ -249,7 +249,7 @@ Well::BasicDispProps::BasicDispProps( SizeType sz )
 Well::BasicDispProps::BasicDispProps( const BasicDispProps& oth )
     : font_(*new FontData(cDefaultFontSize()))
 {
-    copyAll( oth );
+    copyClassData( oth );
 }
 
 
@@ -313,7 +313,7 @@ Well::TrackDispProps::TrackDispProps()
 Well::TrackDispProps::TrackDispProps( const TrackDispProps& oth )
     : BasicDispProps(1)
 {
-    copyAll( oth );
+    copyClassData( oth );
 }
 
 
@@ -368,7 +368,7 @@ Well::MarkerDispProps::MarkerDispProps()
 Well::MarkerDispProps::MarkerDispProps( const MarkerDispProps& oth )
     : BasicDispProps(oth)
 {
-    copyAll( oth );
+    copyClassData( oth );
 }
 
 
@@ -449,7 +449,7 @@ Well::LogDispProps::LogDispProps()
 Well::LogDispProps::LogDispProps( const LogDispProps& oth )
     : BasicDispProps(oth)
 {
-    copyAll( oth );
+    copyClassData( oth );
 }
 
 

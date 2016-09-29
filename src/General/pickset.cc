@@ -36,7 +36,7 @@ Pick::Set::Set( const Set& oth )
     : SharedObject(oth)
     , curlocidnr_(oth.curlocidnr_)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

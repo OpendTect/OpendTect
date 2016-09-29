@@ -84,7 +84,7 @@ Pick::SetSaver::SetSaver( const Set& ps )
 Pick::SetSaver::SetSaver( const SetSaver& oth )
     : Saveable(oth)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

@@ -227,7 +227,7 @@ ChangeRecorder::~ChangeRecorder()
 
 ChangeRecorder::ChangeRecorder( const ChangeRecorder& oth )
 {
-    copyAll( oth );
+    copyClassData( oth );
 }
 
 mImplMonitorableAssignment(ChangeRecorder,NamedMonitorable)
@@ -366,7 +366,7 @@ SharedObject::SharedObject( const char* nm )
 SharedObject::SharedObject( const SharedObject& oth )
     : NamedMonitorable(oth)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

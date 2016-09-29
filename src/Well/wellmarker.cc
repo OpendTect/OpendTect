@@ -44,7 +44,7 @@ Well::Marker::Marker( LevelID lvlid, ZType dh )
 Well::Marker::Marker( const Marker& oth )
     : NamedMonitorable(oth)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -158,7 +158,7 @@ Well::MarkerSet::MarkerSet( const MarkerSet& oth )
     : SharedObject()
     , curmrkridnr_(oth.curmrkridnr_)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -691,10 +691,7 @@ void Well::MarkerSet::insrtNewAfter( int aftidx, const MarkerSet& mrkrs )
     if ( mrkrs.isEmpty() )
 	return;
     else if ( markers_.isEmpty() )
-    {
-	copyAll( mrkrs );
-	return;
-    }
+	{ copyAll( mrkrs ); return; }
 
     const int mrkrsz = markers_.size();
     Interval<float> dahbounds( markers_[0].dah() - 10,

@@ -169,7 +169,7 @@ Well::Saver::Saver( const Data& wd )
 Well::Saver::Saver( const Well::Saver& oth )
     : Saveable(oth)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

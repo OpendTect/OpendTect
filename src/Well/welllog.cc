@@ -35,7 +35,7 @@ Well::LogSet::LogSet( const LogSet& oth )
     : NamedMonitorable(oth)
     , curlogidnr_(0)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -460,7 +460,7 @@ Well::Log::Log( const char* nm )
 Well::Log::Log( const Log& oth )
     : DahObj(oth)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

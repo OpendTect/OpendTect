@@ -43,7 +43,7 @@ DBDir::DBDir( const DBDir& oth )
 	: dirname_(oth.dirname_)
 	, dirid_(oth.dirid_)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

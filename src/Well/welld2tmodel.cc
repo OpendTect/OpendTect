@@ -39,7 +39,7 @@ Well::D2TModel::D2TModel( const char* nm )
 
 Well::D2TModel::D2TModel( const D2TModel& oth )
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

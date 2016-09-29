@@ -44,7 +44,7 @@ IODir::IODir( const IODir& oth )
 	: dirname_(oth.dirname_)
 	, dirid_(oth.dirid_)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

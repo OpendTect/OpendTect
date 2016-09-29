@@ -74,7 +74,7 @@ Wavelet::Wavelet( const Wavelet& oth )
 	, samps_(0)
 	, intpol_(0)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

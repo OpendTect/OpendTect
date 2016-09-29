@@ -26,8 +26,9 @@ Well::Track::Track( const char* nm )
 
 
 Well::Track::Track( const Track& oth )
+    : DahObj(oth)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 

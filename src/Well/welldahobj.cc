@@ -25,7 +25,7 @@ Well::DahObj::DahObj( const DahObj& oth )
     : NamedMonitorable(oth)
     , curptidnr_(oth.curptidnr_)
 {
-    copyAll( oth );
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 
