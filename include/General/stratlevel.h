@@ -41,7 +41,7 @@ mExpClass(General) Level : public NamedMonitorable
 {
 public:
 
-    typedef IntegerID<int>	ID;
+    mDefIntegerIDType(int,ID);
 
 			Level(const char* nm,const Color&,ID =ID::getInvalid());
 

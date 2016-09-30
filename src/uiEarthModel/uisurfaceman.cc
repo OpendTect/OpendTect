@@ -710,7 +710,7 @@ uiSurfaceStratDlg( uiParent* p,  const DBKeySet& ids )
 						    uiStrings::sEmptyString() );
 	levelsel->selChange.notify( mCB(this,uiSurfaceStratDlg,lvlChg) );
 	tbl_->setCellGroup( RowCol(idx,2), levelsel );
-	Strat::Level::ID lvlid = Strat::Level::ID::getInvalid();
+	Strat::Level::ID lvlid;
 	par.get( sKey::StratRef(), lvlid );
 	levelsel->setID( lvlid );
     }

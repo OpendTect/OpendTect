@@ -919,7 +919,7 @@ void Well::MarkerSet::usePar( const IOPar& iop )
 	mpar->get( sKey::Depth(), dpt );
 	Color col;
 	mpar->get( sKey::Color(), col );
-	LevelID lvlid = LevelID::getInvalid();
+	LevelID lvlid;
 	mpar->get( sKey::Level(), lvlid );
 
 	Marker mrk( nm, dpt, col ); mrk.setLevelID( lvlid );

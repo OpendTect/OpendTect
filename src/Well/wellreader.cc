@@ -656,7 +656,7 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 	wm.setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactorF)
 						      : val );
 	key = IOPar::compKey( basekey, sKey::StratRef() );
-	Well::Marker::LevelID lvlid = Well::Marker::LevelID::getInvalid();
+	Well::Marker::LevelID lvlid;
 	iopar.get( key, lvlid );
 	wm.setLevelID( lvlid );
 
