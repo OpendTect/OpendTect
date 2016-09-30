@@ -74,7 +74,6 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     outfld_->attach( alignedBelow, dataselfld_ );
     outfld_->attach( ensureBelow, sep );
 
-    postFinalise().notify( mCB(this,uiImportVelFunc,formatSel) );
     velTypeChangeCB( 0 );
 }
 
