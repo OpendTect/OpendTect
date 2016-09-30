@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "syntheticdata.h"
 #include "syntheticdataimpl.h"
@@ -48,6 +49,45 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "valseriesevent.h"
 #include "od_helpids.h"
 
+/*Adhoc arrangement for od6.0, later versions should use the issynth parameter
+  in uiAttribDescSetBuild::Setup*/
+
+static const char* unwantedattribnms[] =
+{
+    "Horizon",
+    "Log",
+    "Curvature",
+    "Curvature Gradient",
+    "Dip steered median filter",
+    "Perpendicular dip extractor",
+    "Dip",
+    "HorizonCube Data",
+    "HorizonCube Density",
+    "HorizonCube Dip",
+    "HorizonCube Layer",
+    "HorizonCube Thickness",
+    "Systems Tract",
+    0
+};
+
+
+class uiStratSynthAttribSetBuild : public uiAttribDescSetBuild
+{
+public:
+uiStratSynthAttribSetBuild( uiParent* p, uiAttribDescSetBuild::Setup& setup )
+    : uiAttribDescSetBuild(p,setup)
+{
+    BufferStringSet removeattrnms( unwantedattribnms );
+    for ( int idx=removeattrnms.size()-1; idx>=0; idx-- )
+    {
+	const char* attrnm = removeattrnms.get(idx).buf();
+	if ( avfld_->isPresent(attrnm) )
+	    avfld_->removeItem( attrnm );
+    }
+}
+
+
+};
 
 
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
@@ -84,7 +124,7 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     uiAttribDescSetBuild::Setup bsu( true );
     bsu.showdepthonlyattrs(false).showusingtrcpos(true).showps( psfids.size() )
        .showhidden(false).showsteering(false);
-    seisattrfld_ = new uiAttribDescSetBuild( this, bsu );
+    seisattrfld_ = new uiStratSynthAttribSetBuild( this, bsu );
     seisattrfld_->setDataPackInp( fids, false );
     seisattrfld_->setDataPackInp( psfids, true );
 
