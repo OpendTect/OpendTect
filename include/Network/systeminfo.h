@@ -39,11 +39,13 @@ namespace System
     mGlobal(Network) void		getFreeMBOnDiskMsg(int,uiString&);
     mGlobal(Network) const char*	getFileSystemName(const char* path);
 
+    mGlobal(Network) od_uint64		macAddressHash();
+					/*!<Returns the checksum of the first
+					    'valid' mac address. */
+
     mGlobal(Network) od_uint64		uniqueSystemID();
-					/*!<Returns a string that is unique to
-					    this computer. It is based on a
-					    scrambled version of the mac-address
-					*/
+					/*!<Deprecated. Please use
+					    macAddressHash(). */
 }
 
 #endif
