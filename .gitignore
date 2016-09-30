@@ -1,6 +1,7 @@
 # Known generated files
 .DS_Store
 *mod.h
+*.local.php
 *helpids.h
 about.html
 dtect/linguist.csh
