@@ -21,7 +21,7 @@ uiAttributeFactory::~uiAttributeFactory()
 
 uiAttributeFactory& uiAF()
 {
-    mDefineStaticLocalObject( PtrMan<uiAttributeFactory>, inst, 
+    mDefineStaticLocalObject( PtrMan<uiAttributeFactory>, inst,
 			      = new uiAttributeFactory );
     return *inst;
 }
@@ -98,4 +98,11 @@ const char* uiAttributeFactory::attrNameOf( const char* attrnm ) const
 {
     const Entry* entry = getEntry( attrnm, true );
     return entry ? ((const char*)entry->attrnm_) : 0;
+}
+
+
+bool uiAttributeFactory::isPresent( const char* nm, bool isdispnm ) const
+{
+    Entry* entry = getEntry( nm, isdispnm );
+    return entry;
 }
