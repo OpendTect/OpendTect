@@ -172,34 +172,39 @@ void uiCircleItem::setRadius( int r )
 
 
 // uiLineItem
+
+#define mInit \
+      uiGraphicsItem(mkQtObj()) \
+    , qpen_(* new QPen)
+
 uiLineItem::uiLineItem()
-    : uiGraphicsItem(mkQtObj())
+    : mInit
 {}
 
 
 uiLineItem::uiLineItem( const uiPoint& startpos, const uiPoint& endpos )
-    : uiGraphicsItem(mkQtObj())
+    : mInit
 {
     setLine( startpos, endpos );
 }
 
 
 uiLineItem::uiLineItem( float x1, float y1, float x2, float y2 )
-    : uiGraphicsItem(mkQtObj())
+    : mInit
 {
     setLine( x1, y1, x2, y2 );
 }
 
 
 uiLineItem::uiLineItem( int x1, int y1, int x2, int y2 )
-: uiGraphicsItem(mkQtObj())
+   : mInit
 {
     setLine( x1, y1, x2, y2 );
 }
 
 
 uiLineItem::uiLineItem( const uiPoint& pt, float angle, float len )
-    : uiGraphicsItem(mkQtObj())
+    : mInit
 {
     Geom::Point2D<float> ptf( pt.x_, pt.y_ );
     Geom::Point2D<float> endpt( ptf );
@@ -214,6 +219,7 @@ uiLineItem::uiLineItem( const uiPoint& pt, float angle, float len )
 
 uiLineItem::~uiLineItem()
 {
+    delete &qpen_;
 }
 
 
@@ -272,6 +278,7 @@ void uiLineItem::setPenColor( const Color& col, bool )
 {
     QPen qpen = qlineitem_->pen();
     qpen.setColor( QColor(col.rgb()) );
+    qpen_ = qpen;
     qlineitem_->setPen( qpen );
 }
 
@@ -280,6 +287,23 @@ void uiLineItem::setPenStyle( const OD::LineStyle& ls, bool )
 {
     QBrush qbrush( QColor(QRgb(ls.color_.rgb())) );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
+    qpen_ = qpen;
+    qlineitem_->setPen( qpen );
+}
+
+
+void uiLineItem::highlight()
+{
+    QPen qpen = qlineitem_->pen();
+    qpen.setWidth( qpen_.width() + 2 );
+    qlineitem_->setPen( qpen );
+}
+
+
+void uiLineItem::unHighlight()
+{
+    QPen qpen = qlineitem_->pen();
+    qpen.setWidth( qpen_.width() );
     qlineitem_->setPen( qpen );
 }
 
@@ -497,6 +521,18 @@ QGraphicsItem* uiPolyLineItem::mkQtObj()
 {
     odgraphicspath_ = new ODGraphicsPathItem();
     return odgraphicspath_;
+}
+
+
+void uiPolyLineItem::highlight()
+{
+    odgraphicspath_->highlight();
+}
+
+
+void uiPolyLineItem::unHighlight()
+{
+    odgraphicspath_->unHighlight();
 }
 
 

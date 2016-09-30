@@ -31,6 +31,7 @@ class QGraphicsPixmapItem;
 class QGraphicsProxyWidget;
 class QGraphicsRectItem;
 class QPainterPath;
+class QPen;
 class QPolygonF;
 class QSize;
 
@@ -129,11 +130,14 @@ public:
     void		setLine(const Geom::Point2D<int>& centerpos,
 				int dx1,int dy1,int dx2,int dy2);
     uiRect		lineRect() const;
+    void		highlight();
+    void		unHighlight();
 
 protected:
 
     QGraphicsItem*	mkQtObj();
     QGraphicsLineItem*	qlineitem_;
+    QPen&		qpen_;
 };
 
 
@@ -219,6 +223,9 @@ public:
 
     void		setPolyLine(const TypeSet<uiPoint>&);
     void		setPolyLine(const TypeSet<uiWorldPoint>&);
+    
+    void		highlight();
+    void		unHighlight();
 
 protected:
 

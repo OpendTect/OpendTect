@@ -403,15 +403,11 @@ void uiWellDahDisplay::drawMarkers()
 	mDefZPosInLoop( mrkr.dah() );
 	mDefHorLineX1X2Y();
 
-	MarkerDraw* mrkdraw = new MarkerDraw( miter.ID() );
+	MarkerDraw* mrkdraw = new MarkerDraw( miter.get() );
 	markerdraws_ += mrkdraw;
 
 	uiPoint p1( x1, y ), p2( x2, y );
-	TypeSet<uiPoint> points; points.add( p1 ).add( p2 );
-	mrkdraw->grpitm_ = scene().addItem( new uiGraphicsItem() );
-	uiPolyLineItem* li = scene().addItem( new uiPolyLineItem(points) );
-	mrkdraw->grpitm_->addChild( li );
-	mrkdraw->grpitm_->setAcceptHoverEvents( true );
+	uiLineItem* li = scene().addItem( new uiLineItem(p1,p2) );
 
 	const int shapeint = mrkdisp_.shapeType();
 	const int drawsize = mrkdisp_.size();
@@ -436,18 +432,17 @@ void uiWellDahDisplay::drawMarkers()
 	ti->setPos( uiPoint(x1-1,y) );
 	ti->setTextColor( nmcol );
 	ti->setAcceptHoverEvents( true );
-	mrkdraw->grpitm_->addChild( ti );
 	mrkdraw->txtitm_ = ti;
     }
 }
 
 
 uiWellDahDisplay::MarkerDraw* uiWellDahDisplay::getMarkerDraw(
-					const Well::MarkerSet::MarkerID mrkid )
+					const Well::Marker& mrkr )
 {
-    for ( int idx=0; idx<markerdraws_.size(); idx++)
+    for ( int idx=0; idx<markerdraws_.size(); idx++ )
     {
-	if ( (markerdraws_[idx]->mrkid_) == mrkid )
+	if ( (markerdraws_[idx]->mrkr_) == mrkr )
 	    return markerdraws_[idx];
     }
     return 0;
@@ -495,9 +490,21 @@ bool uiWellDahDisplay::MarkerDraw::contains( const Geom::Point2D<int>& pt )const
 }
 
 
+void uiWellDahDisplay::MarkerDraw::highlight()
+{
+    lineitm_->highlight();
+}
+
+
+void uiWellDahDisplay::MarkerDraw::unHighlight()
+{
+    lineitm_->unHighlight();
+}
+
+
 uiWellDahDisplay::MarkerDraw::~MarkerDraw()
 {
-    delete txtitm_; delete lineitm_; delete grpitm_;
+    delete txtitm_; delete lineitm_;
 }
 
 

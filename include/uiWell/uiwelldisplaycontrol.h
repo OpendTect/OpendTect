@@ -39,6 +39,8 @@ public:
     const Well::Marker&		selMarker() const	{ return selmarker_; }
 
     void			setSelMarker(Well::Marker);
+    void			highlightMarker(Well::Marker,bool);
+
 
     float			time() const	{ return time_; }
     float			dah() const	{ return dah_; }

@@ -131,7 +131,6 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
 uiDispEditMarkerDlg::~uiDispEditMarkerDlg()
 {
     deepErase( tmplist_ );
-    deepErase( orgmarkerssets_ );
 }
 
 
@@ -460,7 +459,7 @@ void uiWellDispCtrlEditMarkerDlg::triggerWDsMarkerChanged()
 
 void uiWellDispCtrlEditMarkerDlg::handleCtrlChangeCB( CallBacker* cb )
 {
-    /*mCBCapsuleUnpackWithCaller(BufferString,mesg,caller,cb);
+    mCBCapsuleUnpackWithCaller(BufferString,mesg,caller,cb);
     mDynamicCastGet(uiWellDisplayControl*,ctrl,caller)
     curctrl_ = 0; curmrk_ = 0; curwd_ = 0;
     if ( !ctrl || !ctrl->mouseEventHandler()
@@ -471,10 +470,8 @@ void uiWellDispCtrlEditMarkerDlg::handleCtrlChangeCB( CallBacker* cb )
     if ( curctrl_ && curwd_ )
     {
 	Well::MarkerSet& mrkset = curwd_->markers();
-	/*int curmrkidx = mrkset.indexOf( curctrl_->selMarker()->name() );
-	if ( curmrkidx >=0 ) 
-	    curmrk_ = &mrkset.get( curmrkidx ); //TODO revisist
-    }*/
+	curmrk_ = mrkset.getByName( curctrl_->selMarker().name() );
+    }
 }
 
 
@@ -494,8 +491,8 @@ void uiWellDispCtrlEditMarkerDlg::handleUsrClickCB( CallBacker* )
 	addMoveMarker( idset, dah, mrknm );
 	curwd_->displayProperties(true).markers().addSelMarkerName( mrknm );
     }
-    else if ( curmrk_ )
-	removeMarker( idset, curmrk_->name() );
+    else if ( !curmrk_.isUdf() )
+	removeMarker( idset, curmrk_.name() );
 
     mevh->setHandled( true);
     hasedited_ = true;

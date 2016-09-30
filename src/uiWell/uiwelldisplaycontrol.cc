@@ -229,7 +229,7 @@ void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb )
 						   *seldisp_->markerdraws_[idx];
 	if ( markerdraw.contains(ev.pos()) )
 	{
-	    selmrk = seldisp_->markers()->get( markerdraw.mrkid_ );
+	    selmrk = markerdraw.mrkr_;
 	    break;
 	}
     }
@@ -241,16 +241,35 @@ void uiWellDisplayControl::setSelMarkerCB( CallBacker* cb )
 }
 
 
-void uiWellDisplayControl::setSelMarker( const Well::Marker mrk )
+void uiWellDisplayControl::setSelMarker( Well::Marker mrk )
 {
+   if ( lastselmarker_ != mrk )
+	highlightMarker( lastselmarker_, false );
+
+    if ( !mrk.isUdf() )
+	highlightMarker( mrk, true );
+
     selmarker_ = mrk;
 
-    if ( seldisp_ )
+   if ( seldisp_ )
 	seldisp_->setToolTip( selmarker_.isUdf()
 				    ? uiStrings::sEmptyString()
 				    : toUiString(selmarker_.name() ) );
     if ( lastselmarker_ != mrk )
 	lastselmarker_ = mrk;
+}
+
+
+void uiWellDisplayControl::highlightMarker( Well::Marker mrk, bool hlt )
+{
+    
+    for ( int iddisp=0; iddisp<logdisps_.size(); iddisp++ )
+    {
+	uiWellDahDisplay& ld = *logdisps_[iddisp];
+	uiWellDahDisplay::MarkerDraw* mrkdraw = ld.getMarkerDraw( mrk );
+	if ( !mrkdraw ) continue;
+	hlt ? mrkdraw->highlight() : mrkdraw->unHighlight();
+    }
 }
 
 

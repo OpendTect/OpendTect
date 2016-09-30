@@ -187,21 +187,22 @@ protected:
 
     mStruct(uiWell) MarkerDraw
     {
-			    MarkerDraw( Well::MarkerSet::MarkerID mrkid )
-				: mrkid_(mrkid)
+			    MarkerDraw( Well::Marker mrkr )
+				: mrkr_(mrkr)
 				{}
 			    ~MarkerDraw();
 	
 	bool		    contains(const Geom::Point2D<int>&) const;
+	void		    highlight();
+	void		    unHighlight();	
 
-	Well::MarkerSet::MarkerID  mrkid_;
+	Well::Marker		mrkr_;
 	OD::LineStyle           ls_;
-	uiGraphicsItem*		grpitm_;
 	uiTextItem*             txtitm_;
-	uiPolyLineItem*         lineitm_;
+	uiLineItem*		lineitm_;
     };
     ObjectSet<MarkerDraw>       markerdraws_;
-    MarkerDraw*                 getMarkerDraw(Well::MarkerSet::MarkerID);
+    MarkerDraw*                 getMarkerDraw(const Well::Marker&);
     Well::MarkerDispProps	mrkdisp_;
     uiGraphicsItem*		mrkrsceneitems_;
 

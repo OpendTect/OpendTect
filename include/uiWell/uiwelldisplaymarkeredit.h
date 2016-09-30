@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "menuhandler.h"
 #include "uidialog.h"
 #include "uistring.h"
+#include "wellmarker.h"
 
 class uiCheckBox;
 class uiColorInput;
@@ -62,7 +63,7 @@ public:
 
 protected:
 
-    Well::Marker*		curmrk_;
+    Well::Marker		curmrk_;
 
     uiGroup*			toolgrp_;
     uiToolButton*		pickbut_;
