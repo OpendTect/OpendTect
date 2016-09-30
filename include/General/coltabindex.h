@@ -35,7 +35,7 @@ public:
 					   const Mapper* m=0);
 
     void		update();
-    			//!< Call when sequence, mapper, or nr cols changed
+			//!< Call when sequence, mapper, or nr cols changed
 
     inline Color	color( float v ) const
 			{ return colorForIndex( indexForValue(v) ); }
@@ -44,7 +44,7 @@ public:
 
     void		setMapper( const Mapper* m )	{ mapper_ = m; }
     void		setNrCols( int n )		{ nrcols_ = n; }
-    int			nrCols()			{ return nrcols_; }
+    int			nrCols() const			{ return nrcols_; }
 
 protected:
 

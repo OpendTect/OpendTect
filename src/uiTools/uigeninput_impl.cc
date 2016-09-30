@@ -156,10 +156,15 @@ bool uiGenInputInputFld::isReadOnly( int idx ) const
 }
 
 
-void uiGenInputInputFld::setReadOnly( bool yn, int idx )
+void uiGenInputInputFld::setReadOnly( bool yn, int elemidx )
 {
-    UserInputObj* obj = element( idx );
-    if ( obj ) obj->setReadOnly( yn );
+    if ( elemidx < 0 )
+	{ mDoAllElems(setReadOnly(yn)) }
+    else
+    {
+	UserInputObj* obj = element( elemidx );
+	if ( obj ) obj->setReadOnly( yn );
+    }
 }
 
 

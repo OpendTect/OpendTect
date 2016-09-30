@@ -624,7 +624,7 @@ bool SeisDataPack::addArray( int sz0, int sz1, int sz2 )
     {
 	arr = new Array3DImpl<float>( 0, 0, 0 );
 	ConvMemValueSeries<float>* stor =
-		new ConvMemValueSeries<float>( 0, desc_ );
+		new ConvMemValueSeries<float>( 0, desc_, scaler_ );
 	arr->setStorage( stor );
 	arr->setSize( sz0, sz1, sz2 );
 	if ( !stor->storArr() )

@@ -427,7 +427,6 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
     trl->toStart();
     curbid = trl->readMgr()->binID();
 
-    const Scaler* scaler = dp_->getScaler();
     const int nrzsamples = tkzs_.zsamp_.nrSteps()+1;
     for ( int idc=0; idc<dp_->nrComponents(); idc++ )
     {
@@ -441,12 +440,6 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 	    curbid.crl() = trcrg.atIndex( mCast(int,idx) );
 	    if ( trl->goTo(curbid) && trl->read(trc) )
 	    {
-		if ( scaler )
-		{
-		    SeisTrcPropChg seistrcpropchg( trc, idc );
-		    seistrcpropchg.scale( *scaler );
-		}
-
 		const BinDataDesc trcdatadesc =
 			trc.data().getInterpreter(idc)->dataChar();
 		if ( storarr && dp_->getDataDesc()==trcdatadesc )
@@ -539,12 +532,6 @@ bool execute()
 	ValueSeries<float>* stor = arr.getStorage();
 	mDynamicCastGet(ConvMemValueSeries<float>*,storptr,stor);
 	char* storarr = storptr ? storptr->storArr() : (char*)stor->arr();
-	if ( dp_.getScaler() )
-	{
-	    SeisTrcPropChg seistrcpropchg( trc_, idcin );
-	    seistrcpropchg.scale( *dp_.getScaler() );
-	}
-
 	const BinDataDesc trcdatadesc =
 		trc_.data().getInterpreter(idcin)->dataChar();
 	if ( storarr && dp_.getDataDesc()==trcdatadesc )

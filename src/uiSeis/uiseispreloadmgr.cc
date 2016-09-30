@@ -472,12 +472,13 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 
     torgfld_ = new uiGenInput( leftgrp, tr("Scale To"),
 	FloatInpIntervalSpec().setName("To start",0).setName("To stop",1) );
+    torgfld_->setReadOnly( true );
     torgfld_->attach( alignedBelow, fromrgfld_ );
 
     uiGroup* rightgrp = new uiGroup( this, "Right Group" );
     rightgrp->attach( rightOf, leftgrp );
     nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"), IntInpSpec(1000) );
-    uiPushButton* scanbut = new uiPushButton( rightgrp, tr("Scan"), true );
+    uiPushButton* scanbut = new uiPushButton( rightgrp, tr("Rescan"), true );
     scanbut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
     scanbut->attach( rightTo, nrtrcsfld_ );
     histfld_ = new uiMapperRangeEditor( rightgrp, -1, false );
@@ -645,6 +646,7 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
     typefld_->setValue( 0 );
     subselfld_->setInput( *ioobj );
     selChangeCB( 0 );
+    fillHist( 0 );
 }
 
 
@@ -669,27 +671,18 @@ void uiSeisPreLoadSel::getDataChar( DataCharacteristics& dc ) const
 }
 
 
-#define mGetExtremeVal( rg, positiveextreme ) \
-    ((samesign && positiveextreme^(rg.start>0)) ? 0 : \
-    (positiveextreme ? mMAX(rg.start,rg.stop) : mMIN(rg.start,rg.stop)));
-
 void uiSeisPreLoadSel::updateScaleFld()
 {
     SeisIOObjInfo info( seissel_->ioobj() );
     DataCharacteristics dcstor; info.getDataChar( dcstor );
     DataCharacteristics dc; getDataChar( dc );
-    Interval<double> intv; intv.setUdf();
-    if ( dc.nrBytes() < dcstor.nrBytes() || dc.isSigned() != dcstor.isSigned() )
-    {
-	intv.start = dc.getLimitValue(false);
-	intv.stop = dc.getLimitValue(true);
-    }
-
-    torgfld_->setValue( intv );
-
-    const DataCharacteristics::UserType type(
-		(DataCharacteristics::UserType)typefld_->getIntValue() );
-    doscalefld_->setValue( type != DataCharacteristics::Auto );
+    const bool doscale = dc.nrBytes()<dcstor.nrBytes() ||
+			 dc.isSigned()!=dcstor.isSigned();
+    if ( doscale )
+	torgfld_->setValue( Interval<double>(dc.getLimitValue(false),
+					     dc.getLimitValue(true)) );
+    doscalefld_->setValue( doscale );
+    doscalefld_->setReadOnly( !doscale );
     doScaleCB( 0 );
 }
 

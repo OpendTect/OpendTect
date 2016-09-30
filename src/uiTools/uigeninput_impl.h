@@ -71,7 +71,7 @@ public:
     void		setEmpty();
     void		display(bool,int elemidx);
     bool		isReadOnly(int idx=0) const;
-    virtual void	setReadOnly(bool yn=true,int idx=0);
+    virtual void	setReadOnly(bool yn=true,int idx=-1);
     void		setSensitive(bool yn,int elemidx=-1);
 
     DataInpSpec&	spec()				{ return spec_; }
