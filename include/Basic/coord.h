@@ -18,32 +18,59 @@ ________________________________________________________________________
 namespace Values {
 
 /*!
-\brief Undefined Coord.
+\brief Undefined Coord2d.
 */
 
 template<>
-mClass(Basic) Undef<Coord>
+mClass(Basic) Undef<Coord2d>
 {
 public:
-    static Coord	val()			{ return Coord::udf(); }
+    static Coord2d	val()			{ return Coord2d::udf(); }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( Coord crd )	{ return !crd.isDefined(); }
-    static void		setUdf( Coord& crd )	{ crd = Coord::udf(); }
+    static bool		isUdf( Coord2d crd )	{ return !crd.isDefined(); }
+    static void		setUdf( Coord2d& crd )	{ crd = Coord2d::udf(); }
 };
 
 
 /*!
-\brief Undefined Coord3.
+\brief Undefined Coord3d.
 */
 
 template<>
-mClass(Basic) Undef<Coord3>
+mClass(Basic) Undef<Coord3d>
 {
 public:
-    static Coord3	val()			{ return Coord3::udf(); }
+    static Coord3d	val()			{ return Coord3d::udf(); }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( Coord3 crd )	{ return !crd.isDefined(); }
-    static void		setUdf( Coord3& crd )	{ crd = Coord3::udf(); }
+    static bool		isUdf( Coord3d crd )	{ return !crd.isDefined(); }
+    static void		setUdf( Coord3d& crd )	{ crd = Coord3d::udf(); }
+};
+    
+    
+    
+template<>
+mClass(Basic) Undef<Coord2f>
+{
+public:
+    static Coord2f	val()			{ return Coord2f::udf(); }
+    static bool		hasUdf()		{ return true; }
+    static bool		isUdf( Coord2f crd )	{ return !crd.isDefined(); }
+    static void		setUdf( Coord2f& crd )	{ crd = Coord2f::udf(); }
+};
+
+
+/*!
+ \brief Undefined Coord3d.
+ */
+
+template<>
+mClass(Basic) Undef<Coord3f>
+{
+public:
+    static Coord3f	val()			{ return Coord3f::udf(); }
+    static bool		hasUdf()		{ return true; }
+    static bool		isUdf( Coord3f crd )	{ return !crd.isDefined(); }
+    static void		setUdf( Coord3f& crd )	{ crd = Coord3f::udf(); }
 };
 
 } // namespace Values

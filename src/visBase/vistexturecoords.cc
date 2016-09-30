@@ -61,13 +61,13 @@ int TextureCoords::size( bool includedeleted ) const
 }
 
 
-void TextureCoords::setCoord( int idx, const Coord3& pos )
+void TextureCoords::setCoord( int idx, const Coord3f& pos )
 {
     setCoord( idx, pos.getXY() );
 }
 
 
-void TextureCoords::setPositions( const Coord* pos, int sz, int start )
+void TextureCoords::setPositions( const Coord2f* pos, int sz, int start )
 {
     Threads::Locker locker( lock_, Threads::Locker::WriteLock );
 
@@ -76,7 +76,7 @@ void TextureCoords::setPositions( const Coord* pos, int sz, int start )
 }
 
 
-void TextureCoords::setCoord( int idx, const Coord& pos )
+void TextureCoords::setCoord( int idx, const Coord2f& pos )
 {
     if ( idx<0 )
 	return;
@@ -87,7 +87,7 @@ void TextureCoords::setCoord( int idx, const Coord& pos )
 }
 
 
-void TextureCoords::setPosWithoutLock( int idx,const Coord& pos )
+void TextureCoords::setPosWithoutLock( int idx,const Coord2f& pos )
 {
     int sz = mGetOsgVec2Arr(osgcoords_)->size();
 
@@ -106,13 +106,13 @@ void TextureCoords::setPosWithoutLock( int idx,const Coord& pos )
 }
 
 
-int TextureCoords::addCoord( const Coord3& pos )
+int TextureCoords::addCoord( const Coord3f& pos )
 {
     return addCoord( pos.getXY() );
 }
 
 
-int TextureCoords::addCoord( const Coord& pos )
+int TextureCoords::addCoord( const Coord2f& pos )
 {
     const int idx = searchFreeIdx();
     setCoord( idx, pos );
@@ -120,15 +120,15 @@ int TextureCoords::addCoord( const Coord& pos )
 }
 
 
-Coord3 TextureCoords::getCoord( int idx ) const
+Coord3f TextureCoords::getCoord( int idx ) const
 {
     Threads::Locker locker( lock_ );
     const int sz = mGetOsgVec2Arr(osgcoords_)->size();
 
     if ( idx<0 || idx>=sz || mIsFreeIdx(idx) )
-	return Coord3::udf();
+	return Coord3f::udf();
 
-    return Coord3( Conv::to<Coord>((*mGetOsgVec2Arr(osgcoords_))[idx]), 0.0 );
+    return Coord3f( Conv::to<Coord2f>((*mGetOsgVec2Arr(osgcoords_))[idx]),0.0f);
 }
 
 
@@ -226,8 +226,8 @@ int TextureCoordListAdapter::nextID( int previd ) const
 { return texturecoords_.nextID( previd ); }
 
 
-int TextureCoordListAdapter::add( const Coord3& p )
-{ return texturecoords_.addCoord( p ); }
+int TextureCoordListAdapter::add( const Coord3d& p )
+{ return texturecoords_.addCoord( Conv::to<Coord3f>(p) ); }
 
 
 void TextureCoordListAdapter::addValue( int, const Coord3& p )
@@ -237,7 +237,7 @@ void TextureCoordListAdapter::addValue( int, const Coord3& p )
 
 
 Coord3 TextureCoordListAdapter::get( int idx ) const
-{ return texturecoords_.getCoord( idx ); }
+    { return Conv::to<Coord3d>(texturecoords_.getCoord( idx )); }
 
 
 bool TextureCoordListAdapter::isDefined( int idx ) const
@@ -245,7 +245,7 @@ bool TextureCoordListAdapter::isDefined( int idx ) const
 
 
 void TextureCoordListAdapter::set( int idx, const Coord3& p )
-{ texturecoords_.setCoord( idx, p ); }
+{ texturecoords_.setCoord( idx, Conv::to<Coord3f>(p) ); }
 
 
 void TextureCoordListAdapter::remove( int idx )

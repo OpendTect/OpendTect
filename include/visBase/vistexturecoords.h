@@ -30,12 +30,12 @@ public:
 				mCreateDataObj(TextureCoords);
     void			copyFrom(const TextureCoords&);
     int				size(bool includedeleted=false) const;
-    void			setCoord(int idx,const Coord3&);
-    void			setCoord(int idx,const Coord&);
-    int				addCoord(const Coord3&);
-    int				addCoord(const Coord&);
-    Coord3			getCoord(int) const;
-    void			setPositions(const Coord*,int sz,int start);
+    void			setCoord(int idx,const Coord3f&);
+    void			setCoord(int idx,const Coord2f&);
+    int				addCoord(const Coord3f&);
+    int				addCoord(const Coord2f&);
+    Coord3f			getCoord(int) const;
+    void			setPositions(const Coord2f*,int sz,int start);
     void			clear();
     int				nextID(int previd) const;
     void			removeCoord(int);
@@ -48,7 +48,7 @@ protected:
 				~TextureCoords();
 
     int				searchFreeIdx();
-    void			setPosWithoutLock(int,const Coord&);
+    void			setPosWithoutLock(int,const Coord2f&);
 				/*!< Object should be locked when calling */
 
     int				lastsearchedidx_;

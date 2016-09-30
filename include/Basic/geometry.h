@@ -683,6 +683,11 @@ Point3D<T>::Point3D( T x, T y, T z)
 {}
 
 
+template <class T> template <class TT> inline
+Point3D<T>& Point3D<T>::setFrom( const Point3D<TT>& a )
+{ x_=a.x_; y_=a.y_; z_=a.z_; 	return *this;}
+
+
 template <class T> inline
 void Point3D<T>::setXY( T xx, T yy )
 { x_ = xx ; y_ = yy; }
@@ -1452,3 +1457,24 @@ inline void Rectangle<T>::include( const Point2D<T>& p )
 }
 
 }; // namespace Geom
+
+
+namespace Conv
+{
+    
+    template <>
+    inline void set( Geom::Point2D<float>& _to, const Geom::Point2D<double>& f )
+    { _to.setFrom( f ); }
+    
+    template <>
+    inline void set( Geom::Point2D<double>& _to, const Geom::Point2D<float>& f )
+    { _to.setFrom( f ); }
+    
+    template <>
+    inline void set( Geom::Point3D<float>& _to, const Geom::Point3D<double>& f )
+    { _to.setFrom( f ); }
+    
+    template <>
+    inline void set( Geom::Point3D<double>& _to, const Geom::Point3D<float>& f )
+    { _to.setFrom( f ); }
+}
