@@ -380,7 +380,7 @@ Point2D<T>::Point2D ( T xx , T yy )
 
 template <class T> template <class TT> inline
 Point2D<T>& Point2D<T>::setFrom( const Point2D<TT>& a )
-{ x_=a.x_; y_=a.y_; return *this;}
+{ x_=(T) a.x_; y_=(T) a.y_; return *this;}
 
 
 template <class T> inline
@@ -685,7 +685,7 @@ Point3D<T>::Point3D( T x, T y, T z)
 
 template <class T> template <class TT> inline
 Point3D<T>& Point3D<T>::setFrom( const Point3D<TT>& a )
-{ x_=a.x_; y_=a.y_; z_=a.z_; 	return *this;}
+{ x_=(T)a.x_; y_=(T)a.y_; z_=(T)a.z_; 	return *this;}
 
 
 template <class T> inline
