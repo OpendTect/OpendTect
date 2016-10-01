@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QAbstractItemView>
 #include <QContextMenuEvent>
+#include <QLineEdit>
 #include <QSize>
 
 mUseQtnamespace
@@ -334,11 +335,25 @@ bool uiComboBox::update_( const DataInpSpec& spec )
 
 
 void uiComboBox::setReadOnly( bool yn )
-{ body_->setEditable( !yn ); }
+{
+    if ( !yn )
+	body_->setEditable( true );
+
+    if ( body_->lineEdit() )
+	body_->lineEdit()->setReadOnly( yn );
+}
 
 
 bool uiComboBox::isReadOnly() const
-{ return !body_->isEditable(); }
+{ return body_->lineEdit() ? body_->lineEdit()->isReadOnly() : false; }
+
+
+void uiComboBox::setEditable( bool yn )
+{ body_->setEditable( yn ); }
+
+
+bool uiComboBox::isEditable() const
+{ return body_->isEditable(); }
 
 
 void uiComboBox::addItem( const uiString& str )
