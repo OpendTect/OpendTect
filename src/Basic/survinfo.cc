@@ -603,10 +603,11 @@ bool SurveyInfo::usePar( const IOPar& par )
     PtrMan<IOPar> setpts = par.subselect( sKeySetPointPrefix );
     if ( setpts )
     {
-	for ( int idx=1; idx<=3; idx++ )
+	for ( int idx=0; idx<3; idx++ )
 	{
-	    BufferString key( ::toString(idx) );
-	    par.get( key, fms );
+	    const int keyidx = idx+1;
+	    const BufferString key( ::toString(keyidx) );
+	    setpts->get( key, fms );
 	    if ( fms.size() >= 2 )
 	    {
 		set3binids_[idx].fromString( fms[0] );
