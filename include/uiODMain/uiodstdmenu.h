@@ -224,9 +224,9 @@ ________________________________________________________________________
 #define mAboutMnuItm		(mHelpMnuBase + 4)
 #define mSupportMnuItm		(mHelpMnuBase + 5)
 #define mWorkflowsMnuItm	(mHelpMnuBase + 6)
-#define mAttribMatrixMnuItm	(mHelpMnuBase + 7)
-#define mShortcutsMnuItm	(mHelpMnuBase + 8)
-#define mLegalMnuItm		(mHelpMnuBase + 9)
-
+#define mTrainingManualMnuItm	(mHelpMnuBase + 7)
+#define mAttribMatrixMnuItm	(mHelpMnuBase + 8)
+#define mShortcutsMnuItm	(mHelpMnuBase + 9)
+#define mLegalMnuItm		(mHelpMnuBase + 10)
 
 #endif

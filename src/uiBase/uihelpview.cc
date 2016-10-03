@@ -121,7 +121,8 @@ void FlareHelpProvider::initHelpSystem( const char* context, const char* path )
 void FlareHelpProvider::initODHelp()
 {
     initHelpSystem( "od", "od_userdoc" );
-    initHelpSystem( "wf", "workflows" );
+    initHelpSystem( "wf", "HTML_WF" );
+    initHelpSystem( "tm", "HTML_TM" );
     //initHelpSystem( "appman", "appmandoc" );
 }
 
@@ -175,7 +176,7 @@ void WebsiteHelp::initClass()
 { HelpProvider::factory().addCreator( createInstance, sKeyFactoryName() ); }
 
 HelpProvider* WebsiteHelp::createInstance()
-{ return new WebsiteHelp; };
+{ return new WebsiteHelp; }
 
 const char* WebsiteHelp::sKeyFactoryName()	{ return "website"; }
 const char* WebsiteHelp::sKeySupport()		{ return "support"; }
