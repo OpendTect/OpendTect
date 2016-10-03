@@ -224,7 +224,7 @@ private:
 				    int whichobj );
     void			updateSingleColor();
 
-
+    void			calculateLockedPoints();
     void			initSelectionDisplay(bool erase);
     virtual void		updateSelections();
     void			handleEmChange(const EM::EMObjectCallbackData&);
