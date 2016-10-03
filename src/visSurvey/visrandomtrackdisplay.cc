@@ -993,6 +993,8 @@ bool RandomTrackDisplay::isManipulated() const
 
 void RandomTrackDisplay::acceptManipulation()
 {
+    NotifyStopper movingnotifystopper( moving_ );
+
     if ( !datatransform_ )
 	setDepthInterval( dragger_->getDepthRange() );
     else
@@ -1011,6 +1013,10 @@ void RandomTrackDisplay::acceptManipulation()
     updatePanelStripPath();
     dragger_->showAllPanels( false );
     ismanip_ = false;
+
+    movingnotifystopper.restore();
+    moving_.trigger();
+
 }
 
 
@@ -1614,7 +1620,7 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 	if ( pickstartnodeidx_>0 && pickstartnodeidx_<nrNodes()-1 )
 	{
 	    double frac = 0.5;
-	    nodeidx = getClosestPanelIdx(eventinfo.worldpickedpos.getXY(),&frac);
+	    nodeidx=getClosestPanelIdx(eventinfo.worldpickedpos.getXY(),&frac);
 	    if ( nodeidx==pickstartnodeidx_ || frac>=0.5 )
 		nodeidx++;
 	    if ( nodeidx == pickstartnodeidx_ )
