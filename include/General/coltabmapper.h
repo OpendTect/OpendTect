@@ -234,15 +234,15 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
     for ( od_int64 idx=start; idx<=stop; idx++, nrdone++ )
     {
 	const float input = unmappedvs_ ? unmappedvs_->value(idx) : *inp;
-	T res;
-	const bool isudf = mIsUdf(input);
-	if ( isudf )
-	    res = mUndefColIdx;
-	else
-	    res = (T) ColTab::Mapper::snappedPosition( &mapper_,input,
-						    nrsteps_, mUndefColIdx );
+	const int snappedpos =
+	    ColTab::Mapper::snappedPosition( &mapper_, input, nrsteps_, -1 );
+
+	const bool isudf = snappedpos < 0;
+	const T res = (T) ( isudf ? mUndefColIdx : snappedpos );
 
 	*valresult = res;
+	valresult += mappedvalsspacing_;
+
 	if ( udfresult )
 	{
 	    *udfresult = isudf ? 0 : mUndefColIdx;
@@ -250,7 +250,6 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 	}
 
 	histogram[res]++;
-	valresult += mappedvalsspacing_;
 	inp++;
 
 	if ( nrdone>10000 )

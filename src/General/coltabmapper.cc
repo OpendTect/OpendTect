@@ -276,10 +276,12 @@ float ColTab::Mapper::position( float val ) const
 {
     mWarnHistEqNotImpl
 
-    if ( mIsZero(setup_.range_.width(),mDefEps) )
+    const float width = setup_.range_.width( false );
+
+    if ( mIsZero(width,mDefEps) )
 	return 0;
 
-    float ret = (val-setup_.range_.start) / setup_.range_.width(false);
+    float ret = (val-setup_.range_.start) / width;
     if ( setup_.nrsegs_ > 0 )
     {
 	ret *= setup_.nrsegs_;
@@ -297,7 +299,7 @@ float ColTab::Mapper::position( float val ) const
 int ColTab::Mapper::snappedPosition( const ColTab::Mapper* mapper,
 	float v, int nrsteps, int udfval )
 {
-    if ( !Math::IsNormalNumber(v) || mIsUdf(v) ) return udfval;
+    if ( mIsUdf(v) ) return udfval;
 
     float ret = mapper ? mapper->position( v ) : v;
     ret *= nrsteps;
