@@ -643,7 +643,7 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 	if ( !o2d.zdomky_.isEmpty() )
 	{
 	    const FixedString zdomkey = ioobj->pars().find( ZDomain::sKey() );
-	    if ( o2d.zdomky_ != zdomkey )
+	    if ( zdomkey && (o2d.zdomky_ != zdomkey) )
 		continue;
 	}
 

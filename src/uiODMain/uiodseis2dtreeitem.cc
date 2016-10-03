@@ -370,9 +370,13 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
 	const TypeSet<Pos::GeomID>& geomids, const char* curattrnm )
 {
     const Attrib::DescSet* ds =
-	applMgr()->attrServer()->curDescSet( true );
+	applMgr()->attrServer()->curDescSet( true );  
     const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
-    uiAttr2DSelDlg dlg( ODMainWin(), ds, geomids, nla, curattrnm );
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID())) 
+    ZDomain::Info info = scene->zDomainInfo();
+       
+    uiAttr2DSelDlg dlg( ODMainWin(), ds, geomids, nla, info, curattrnm );
     if ( !dlg.go() ) return false;
 
     uiTaskRunner uitr( ODMainWin() );

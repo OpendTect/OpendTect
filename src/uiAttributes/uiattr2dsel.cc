@@ -89,6 +89,50 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 }
 
 
+uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
+				const TypeSet<Pos::GeomID>& geomids,
+				const NLAModel* nla, ZDomain::Info& info,
+				const char* curnm )
+    : uiDialog(p,Setup( uiStrings::phrSelect( tr("Dataset") ),
+			mNoDlgTitle,mNoHelpKey))
+    , geomids_(geomids)
+    , nla_(nla)
+    , descid_(-1,true)
+    , curnm_(curnm)
+    , seltype_(0)
+    , selgrp_(0)
+    , steerfld_(0)
+    , nlafld_(0)
+    , storoutfld_(0)
+    , steeroutfld_(0)
+    , attroutfld_(0)
+    , nlaoutfld_(0)
+    , compnr_(-1)
+    , outputnr_(-1)
+{
+    attrinf_ = new SelInfo( ds, nla_, true );
+
+    createSelectionButtons( info );
+    createSelectionFields( info );
+
+    if ( curnm && *curnm )
+    {
+	if ( storoutfld_ && storoutfld_->isPresent(curnm) )
+	    storoutfld_->setCurrentItem( curnm );
+	if ( steeroutfld_ && steeroutfld_->isPresent(curnm) )
+	    steeroutfld_->setCurrentItem( curnm );
+
+	else if ( attroutfld_ && attroutfld_->isPresent(curnm) )
+	{
+	    seltype_ = 1;
+	    attroutfld_->setCurrentItem( curnm );
+	}
+    }
+
+    selgrp_->selectButton( seltype_ );
+    preFinalise().notify( mCB( this,uiAttr2DSelDlg,doFinalise) );
+}
+
 uiAttr2DSelDlg::~uiAttr2DSelDlg()
 {
     delete selgrp_;
@@ -158,6 +202,94 @@ void uiAttr2DSelDlg::createSelectionButtons()
 void uiAttr2DSelDlg::createSelectionFields()
 {
     SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
+    BufferStringSet nms;
+    getDataNames( geomids_, o2d, nms );
+
+    storoutfld_ = new uiListBox( this, "Stored cubes" );
+    storoutfld_->addItems( nms );
+    storoutfld_->setHSzPol( uiObject::Wide );
+    storoutfld_->setCurrentItem( 0 );
+    storoutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
+    storoutfld_->attach( rightOf, selgrp_ );
+
+    o2d.steerpol_ = 1;
+    nms.erase();
+    getDataNames( geomids_, o2d, nms );
+    const bool havesteer = !nms.isEmpty();
+    if ( havesteer )
+    {
+	nms.sort();
+	steeroutfld_ = new uiListBox( this, "Steering" );
+	steeroutfld_->addItems( nms );
+	steeroutfld_->setHSzPol( uiObject::Wide );
+	steeroutfld_->setCurrentItem( 0 );
+	steeroutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
+	steeroutfld_->attach( rightOf, selgrp_ );
+    }
+
+    const bool haveattribs = !attrinf_->attrnms_.isEmpty();
+    if ( haveattribs )
+    {
+	attroutfld_ = new uiListBox( this, "Attributes" );
+	attroutfld_->addItems( attrinf_->attrnms_ );
+	attroutfld_->setHSzPol( uiObject::Wide );
+	attroutfld_->setCurrentItem( 0 );
+	attroutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
+	attroutfld_->attach( rightOf, selgrp_ );
+    }
+
+    if ( !attrinf_->nlaoutnms_.isEmpty() )
+    {
+	nlaoutfld_ = new uiListBox( this, "NLAs" );
+	nlaoutfld_->addItems( attrinf_->nlaoutnms_ );
+	nlaoutfld_->setHSzPol( uiObject::Wide );
+	nlaoutfld_->setCurrentItem( 0 );
+	nlaoutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
+	nlaoutfld_->attach( rightOf, selgrp_ );
+    }
+}
+
+
+void uiAttr2DSelDlg::createSelectionButtons( ZDomain::Info& info )
+{
+    selgrp_ = new uiButtonGroup( this, "Input selection", OD::Vertical );
+
+    SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
+    BufferStringSet nms;
+    o2d.zdomky_ = info.key();
+    getDataNames( geomids_, o2d, nms );
+
+    storfld_ = new uiRadioButton( selgrp_, uiStrings::sStored() );
+    storfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
+    storfld_->setSensitive( nms.size() );
+
+    o2d.steerpol_ = 1;
+    nms.erase();
+    getDataNames( geomids_, o2d, nms );
+    const bool havesteer = !nms.isEmpty();
+    if ( havesteer )
+    {
+	steerfld_ = new uiRadioButton( selgrp_, uiStrings::sSteering() );
+	steerfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
+    }
+
+    const bool haveattribs = attrinf_->attrnms_.size();
+    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttribute(mPlural) );
+    attrfld_->setSensitive( haveattribs );
+    attrfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
+
+    if ( !nla_ ) return;
+
+    nlafld_ = new uiRadioButton( selgrp_, toUiString(nla_->nlaType(false)) );
+    nlafld_->setSensitive( attrinf_->nlaoutnms_.size() );
+    nlafld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
+}
+
+
+void uiAttr2DSelDlg::createSelectionFields( ZDomain::Info& info )
+{
+    SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
+    o2d.zdomky_ = info.key();
     BufferStringSet nms;
     getDataNames( geomids_, o2d, nms );
 

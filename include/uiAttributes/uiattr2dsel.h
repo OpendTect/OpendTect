@@ -35,6 +35,10 @@ public:
 			uiAttr2DSelDlg(uiParent*,const Attrib::DescSet*,
 				       const TypeSet<Pos::GeomID>&,
 				       const NLAModel*,const char* curnm=0);
+			uiAttr2DSelDlg(uiParent*,const Attrib::DescSet*,
+	                                  const TypeSet<Pos::GeomID>&,
+	                                  const NLAModel*, ZDomain::Info&,
+	                                  const char* curnm=0);
 			~uiAttr2DSelDlg();
 
     int			getSelType() const		{ return seltype_; }
@@ -66,13 +70,16 @@ protected:
     uiListBox*		attroutfld_;
     uiListBox*		nlaoutfld_;
 
-    void		createSelectionButtons();
-    void		createSelectionFields();
+    mDeprecated void            createSelectionButtons();
+    mDeprecated void            createSelectionFields();
 
     void		doFinalise( CallBacker* );
     void		selDone(CallBacker*);
     virtual bool	acceptOK(CallBacker*);
     int			selType() const;
+
+    void           createSelectionButtons(ZDomain::Info&);
+    void           createSelectionFields(ZDomain::Info&);
 };
 
 
