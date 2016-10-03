@@ -41,15 +41,44 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "oscommand.h"
 
 
-class uiSlideLayoutDlg : public uiDialog
+class uiPythonInstallGrp : public uiDlgGroup
+{ mODTextTranslationClass(uiPythonInstallGrp)
+public:
+uiPythonInstallGrp( uiParent* p )
+    : uiDlgGroup(p,tr("Python Installation"))
+{
+    uiString msg = tr("This Presentation Maker needs a Python installation.\n"
+		   "Please select Python Executable.");
+    uiLabel* lbl = new uiLabel( this, msg );
+
+    const BufferString filter( __iswin__ ? "Application (*.exe)" : "" );
+    pythonfld_ = new uiFileInput( this, tr("Python Executable") );
+    pythonfld_->setFilter( filter );
+    pythonfld_->setFileName( PresentationSpec::getPyExec() );
+    pythonfld_->attach( leftAlignedBelow, lbl );
+}
+
+
+bool acceptOK()
+{
+    const char* fnm = pythonfld_->fileName();
+    PresentationSpec::setPyExec( fnm );
+    return true;
+}
+
+protected:
+    uiFileInput*	pythonfld_;
+};
+
+
+class uiSlideLayoutGrp : public uiDlgGroup
 { mODTextTranslationClass(uiSlideLayoutDlg)
 public:
-uiSlideLayoutDlg( uiParent* p, PresentationSpec& spec )
-    : uiDialog(p, Setup(tr("Settings"), mNoDlgTitle,
-    mODHelpKey(mSlideLayoutDlgHelpID)))
+uiSlideLayoutGrp( uiParent* p, PresentationSpec& spec )
+    : uiDlgGroup(p,tr("Slide Layout"))
     , spec_(spec)
 {
-    uiLabel* lbl = new uiLabel( this, tr("Slide Format:") );
+    uiLabel* lbl = new uiLabel( this, tr("Custom Slide Format:") );
     lbl->attach( leftBorder );
 
     uiLabeledComboBox* lcc = new uiLabeledComboBox( this, tr("Format") );
@@ -63,7 +92,7 @@ uiSlideLayoutDlg( uiParent* p, PresentationSpec& spec )
 	   .add( tr("Screen 16:9 (2013)") )
 	   .add( tr("User Defined") );
     formatfld_->addItems( formats );
-    formatfld_->selectionChanged.notify( mCB(this,uiSlideLayoutDlg,formatCB) );
+    formatfld_->selectionChanged.notify( mCB(this,uiSlideLayoutGrp,formatCB) );
 
     uiLabeledSpinBox* wf = new uiLabeledSpinBox( this, uiStrings::sWidth(), 2 );
     widthfld_ = wf->box();
@@ -155,6 +184,21 @@ bool acceptOK()
 };
 
 
+
+class uiPresMakerSettings : public uiTabStackDlg
+{ mODTextTranslationClass(uiPresMakerSettings)
+public:
+uiPresMakerSettings( uiParent* p, PresentationSpec& spec )
+    : uiTabStackDlg(p,uiDialog::Setup(tr("OpendTect Settings"),mNoDlgTitle,
+				      mODHelpKey(mSlideLayoutDlgHelpID)))
+{
+    addGroup( new uiSlideLayoutGrp(tabParent(),spec) );
+    addGroup( new uiPythonInstallGrp(tabParent()) );
+}
+
+};
+
+
 uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     : uiDialog(0, Setup(tr("Presentation Maker"), mNoDlgTitle,
     mODHelpKey(mPresentationMakerDlgHelpID)))
@@ -165,6 +209,11 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     titlefld_ = new uiGenInput( this, tr("Presentation Title") );
     titlefld_->setElemSzPol( uiObject::Wide );
 
+    settingsbut_ =
+	new uiToolButton( this, "settings", tr("Slide Layout"),
+			  mCB(this,uiPresentationMakerDlg,settingsCB) );
+    settingsbut_->attach( rightTo, titlefld_ );
+
     const BufferString templfnm = PresentationSpec::getTemplate();
     const bool isblank = templfnm.isEmpty();
     templatefld_ = new uiGenInput( this, tr("Template"),
@@ -173,20 +222,17 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
 		mCB(this,uiPresentationMakerDlg,templateCB) );
     templatefld_->attach( alignedBelow, titlefld_ );
 
-    settingsbut_ =
-	new uiToolButton( this, "settings", tr("Slide Layout"),
-			  mCB(this,uiPresentationMakerDlg,settingsCB) );
-    settingsbut_->attach( rightTo, templatefld_ );
-
     BufferString filter( "PowerPoint (*.pptx)" );
     uiFileInput::Setup fis;
     fis.forread(true).filter( filter );
     masterfld_ = new uiFileInput( this, tr("Template pptx"), fis );
+    masterfld_->setDefaultExtension( "pptx" );
     masterfld_->setFileName( templfnm );
     masterfld_->attach( alignedBelow, templatefld_ );
 
     fis.forread(false);
     outputfld_ = new uiFileInput( this, tr("Output pptx"), fis );
+    outputfld_->setDefaultExtension( "pptx" );
     outputfld_->attach( alignedBelow, masterfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "HorSep", OD::Horizontal );
@@ -235,6 +281,10 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
 	mCB(this,uiPresentationMakerDlg,createCB), true );
     createbut->attach( centeredBelow, slidestbl_ );
 
+    uiPushButton* logbut = new uiPushButton( this, tr("Show Log"),
+	mCB(this,uiPresentationMakerDlg,showLogCB), false );
+    logbut->attach( rightTo, createbut );
+
     templateCB(0);
     imageTypeCB(0);
 }
@@ -277,7 +327,6 @@ void uiPresentationMakerDlg::templateCB( CallBacker* )
 {
     const bool isblank = templatefld_->getBoolValue();
     masterfld_->display( !isblank );
-    settingsbut_->display( !isblank );
 }
 
 
@@ -293,7 +342,7 @@ void uiPresentationMakerDlg::imageTypeCB( CallBacker* )
 
 void uiPresentationMakerDlg::settingsCB( CallBacker* )
 {
-    uiSlideLayoutDlg dlg( this, specs_ );
+    uiPresMakerSettings dlg( this, specs_ );
     dlg.go();
 }
 
@@ -334,7 +383,7 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
 
-    FilePath imagefp( PresentationSpec::getPyDir() );
+    FilePath imagefp( PresentationSpec::getPyScriptDir() );
     imagefp.add( BufferString("image-",Time::getDateTimeString(datefmt)) );
     imagefp.setExtension( "png" );
     const BufferString imagefnm = imagefp.fullPath();
@@ -471,12 +520,18 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
 	specs_.setSlideTitle( idx, slidetitle.buf() );
     }
 
-    BufferString script;
-    specs_.getPythonScript( script );
-    FilePath scriptfp( PresentationSpec::getPyDir() );
+    FilePath scriptfp( PresentationSpec::getPyScriptDir() );
     BufferString fnm( "python-pptx-" );
     fnm.add( Time::getDateTimeString(datefmt) );
     scriptfp.add( fnm ); scriptfp.setExtension( "py" );
+
+    FilePath logfp = scriptfp;
+    logfp.setExtension( "log" );
+    logfilenm_ = logfp.fullPath();
+    specs_.setLogFilename( logfilenm_ );
+
+    BufferString script;
+    specs_.getPythonScript( script );
     od_ostream strm( scriptfp.fullPath() );
     strm << script.buf() << od_endl;
 
@@ -500,4 +555,15 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     if ( !res ) return;
 
     uiDesktopServices::openUrl( outputfnm.buf() );
+}
+
+
+void uiPresentationMakerDlg::showLogCB( CallBacker* )
+{
+    if ( !File::exists(logfilenm_) )
+	return;
+
+    File::ViewPars vp;
+    if ( !File::launchViewer(logfilenm_,vp) )
+	uiMSG().error( tr("Cannot launch file browser") );
 }

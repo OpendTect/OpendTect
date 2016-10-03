@@ -41,12 +41,14 @@ protected:
     void		moveDownCB(CallBacker*);
     void		removeCB(CallBacker*);
     void		createCB(CallBacker*);
+    void		showLogCB(CallBacker*);
 
     void		updateWindowList();
     void		updateSceneList();
 
     PresentationSpec	specs_;
     BufferString	pythonpptxdir_;
+    BufferString	logfilenm_;
 
     uiGenInput*		titlefld_;
     uiGenInput*		templatefld_;

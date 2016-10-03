@@ -82,13 +82,15 @@ public:
 
     void		setOutputFilename(const char*);
     void		setMasterFilename(const char*);
+    void		setLogFilename(const char*);
 
     void		getPythonScript(BufferString&);
 
     static BufferString	getTemplate();
     static void		setTemplate(const char*);
-    static BufferString	getPyDir();
-    static void		setPyDir(const char*);
+    static BufferString	getPyScriptDir();
+    static BufferString	getPyExec();
+    static void		setPyExec(const char*);
 
 protected:
     ObjectSet<SlideContent>	slides_;
@@ -97,6 +99,7 @@ protected:
 
     BufferString		masterfilename_;
     BufferString		outputfilename_;
+    BufferString		logfilename_;
 
     SlideLayout			slidelayout_;
 };

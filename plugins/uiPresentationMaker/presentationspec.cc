@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "perthreadrepos.h"
 #include "settings.h"
 #include "uimain.h"
 #include "uipixmap.h"
@@ -193,9 +194,33 @@ PresentationSpec::~PresentationSpec()
 {}
 
 
-static const char* sTemplate()	{ return "template pptx"; }
+BufferString PresentationSpec::getPyExec()
+{
+    mDeclStaticString( pythonexec );
+#ifdef __unix__
+    pythonexec = "/usr/bin/python";
+#endif
 
-BufferString PresentationSpec::getPyDir()
+    Settings& setts = Settings::fetch( sSettingsKey );
+    const char* key = IOPar::compKey( "Python Exec", __plfsubdir__ );
+    setts.get( key, pythonexec );
+    return pythonexec.buf();
+}
+
+
+void PresentationSpec::setPyExec( const char* pythonexec )
+{
+    if ( !File::exists(pythonexec) )
+	return;
+
+    Settings& setts = Settings::fetch( sSettingsKey );
+    const char* key = IOPar::compKey( "Python Exec", __plfsubdir__ );
+    setts.set( key, pythonexec );
+    setts.write();
+}
+
+
+BufferString PresentationSpec::getPyScriptDir()
 {
     const BufferString dir =
 	FilePath( GetDataDir() ).add("Misc").add("python-pptx").fullPath();
@@ -205,6 +230,8 @@ BufferString PresentationSpec::getPyDir()
     return dir;
 }
 
+
+static const char* sTemplate()	{ return "template pptx"; }
 
 BufferString PresentationSpec::getTemplate()
 {
@@ -265,9 +292,24 @@ void PresentationSpec::setOutputFilename( const char* fnm )
 void PresentationSpec::setMasterFilename( const char* fnm )
 { masterfilename_ = fnm; }
 
+void PresentationSpec::setLogFilename( const char* fnm )
+{ logfilename_ = fnm; }
 
-static void init( BufferString& script, const char* fnm )
+
+static void init( BufferString& script, const char* fnm, const char* lgfnm )
 {
+    script.add(
+	"import os.path\n"
+	"import sys\n\n" );
+
+    BufferString logfnm = lgfnm;
+#ifdef __win__
+    logfnm.replace( "\\", "/" );
+#endif
+    script.add(	"logname = os.path.normpath('" )
+	  .add( logfnm ).add( "')\n" )
+	  .add( "sys.stderr = open( logname, 'w' )\n\n" );
+
     script.add(
 	"from pptx import Presentation\n"
 	"from pptx.util import Inches, Cm\n"
@@ -334,10 +376,19 @@ static void initSlides( BufferString& script, bool isblankpres )
 }
 
 
+static void close( BufferString& script )
+{
+    script.add(
+	"sys.stderr.close()\n"
+	"sys.stderr = sys.__stderr__\n"
+	);
+}
+
+
 void PresentationSpec::getPythonScript( BufferString& script )
 {
     script.setEmpty();
-    init( script, masterfilename_ );
+    init( script, masterfilename_, logfilename_ );
     const bool isblankpres = masterfilename_.isEmpty();
     if ( isblankpres )
     {
@@ -376,5 +427,7 @@ void PresentationSpec::getPythonScript( BufferString& script )
 #endif
     script.add( outputfnm );
     script.add( "')\n" );
-    script.add( "prs.save(outputname)\n" );
+    script.add( "prs.save(outputname)\n\n" );
+
+    close( script );
 }
