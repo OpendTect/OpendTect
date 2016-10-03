@@ -1015,6 +1015,8 @@ bool RandomTrackDisplay::isManipulated() const
 
 void RandomTrackDisplay::acceptManipulation()
 {
+    NotifyStopper movingnotifystopper( moving_ );
+
     if ( !datatransform_ )
 	setDepthInterval( dragger_->getDepthRange() );
     else
@@ -1033,6 +1035,10 @@ void RandomTrackDisplay::acceptManipulation()
     updatePanelStripPath();
     dragger_->showAllPanels( false );
     ismanip_ = false;
+
+    movingnotifystopper.restore();
+    moving_.trigger();
+
 }
 
 
