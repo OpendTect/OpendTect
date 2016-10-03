@@ -355,7 +355,23 @@ bool uiODPlaneDataTreeItem::displayGuidance()
     const bool issi = !zdinf || zdinf->def_.isSI();
     const bool selok = applMgr()->attrServer()->selectAttrib(
 			*as, issi ? 0 : zdinf, geomid, tr("first layer" ) );
-    return selok ? displayDataFromDesc( as->id(), as->isStored() ) : false;
+    if ( selok )
+    {
+	if ( as->isNLA() )
+	{
+	    visserv_->setSelSpec( displayid_, 0, *as );
+	    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+			    visserv_->getObject(displayid_))
+	    if ( !pdd ) return false;
+
+	    return displayDataFromOther( pdd->id() );
+
+	}
+	else
+	    return displayDataFromDesc( as->id(), as->isStored() );
+    }
+    else
+	return false;
 }
 
 
