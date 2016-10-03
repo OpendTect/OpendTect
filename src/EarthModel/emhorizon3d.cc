@@ -49,6 +49,7 @@ static HiddenParam<EM::Horizon3D,char> haslockednodes_( false );
 namespace EM {
 
     Color Horizon3D::sDefaultSelectionColor() { return Color::Orange(); }
+    Color Horizon3D::sDefaultLockColor() { return Color::Blue(); }
 
 class AuxDataImporter : public Executor
 { mODTextTranslationClass(AuxDataImporter);

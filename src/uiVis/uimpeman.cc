@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispreload.h"
 #include "selector.h"
 #include "survinfo.h"
+#include "timer.h"
 
 #include "uicombobox.h"
 #include "uimenu.h"
@@ -53,6 +54,7 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace MPE;
 
 static HiddenParam<uiMPEMan,char> sowingmode_( false );
+static HiddenParam<uiMPEMan,Timer*> timer_( 0 );
 
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : parent_(p)
@@ -75,6 +77,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     mAttachCB( visSurvey::STM().mouseCursorCall, uiMPEMan::mouseCursorCallCB );
     mAttachCB( *visserv_->planeMovedEventNotifer(), uiMPEMan::planeChangedCB );
     sowingmode_.setParam( this, false );
+    timer_.setParam( this, 0 );
 }
 
 
@@ -83,6 +86,14 @@ uiMPEMan::~uiMPEMan()
     detachAllNotifiers();
     deleteVisObjects();
     sowingmode_.removeParam( this );
+
+    Timer* timer = timer_.getParam(this);
+    if ( timer )
+	timer->tick.remove( mCB(this,uiMPEMan,timerHideLockedCB) );
+
+    delete timer;
+    timer_.removeParam( this );
+   
 }
 
 
@@ -302,7 +313,7 @@ void uiMPEMan::handleAction( int res )
     case sDelete: deleteSelection(); break;
     case sUndo: undo(); break;
     case sRedo: redo(); break;
-    case sLock: if ( hor3d ) hor3d->lockAll(); break;
+    case sLock: lockAll(); break;
     case sUnlock: if ( hor3d ) hor3d->unlockAll(); break;
     case sShowLocked: if ( hd3d ) hd3d->showLocked( true ); break;
     case sHideLocked: if ( hd3d ) hd3d->showLocked( false ); break;
@@ -1003,6 +1014,41 @@ void uiMPEMan::redo()
 	 seedpicker->horPatchUndo().reDo();
 	 updatePatchDisplay();
     }
+}
+
+
+#define cLockWaitTime 2000
+
+void uiMPEMan::lockAll()
+{
+    EM::Horizon3D* hor3d = getSelectedHorizon3D();
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    if ( hor3d && hd ) 
+    {
+	hor3d->lockAll();
+	hd->showLocked( true );
+
+	Timer* timer = timer_.getParam(this);
+	if ( timer )
+	    timer->tick.remove( mCB(this,uiMPEMan,timerHideLockedCB) );
+
+	delete timer;
+	timer = new Timer("Lock all");
+	timer_.setParam( this, timer );
+	timer->tick.notify( mCB(this,uiMPEMan,timerHideLockedCB) );
+	timer->start( cLockWaitTime, true );
+    }
+
+    if ( hd && hd->lockedShown() )
+	hd->showLocked( true );
+}
+
+
+void uiMPEMan::timerHideLockedCB( CallBacker* )
+{
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    if ( hd->lockedShown() )
+	hd->showLocked( false );
 }
 
 
