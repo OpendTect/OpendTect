@@ -124,13 +124,17 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
     hwinterpolator_.useLogExtension( logextenfld_->getBoolValue() );
     hwinterpolator_.extensionMethod(
 	    (WellLogInterpolator::ExtensionModel)extensfld_->getIntValue() );
+    
 
     const bool validrad =  !algosel_->getIntValue() &&
 	radiusfld_->isChecked() && !mIsUdf(radiusfld_->getFValue());
     const float radius = validrad ? radiusfld_->getFValue() : mUdf(float);
-    const char* nm = !algosel_->getIntValue()
+    const int algoselint = algosel_->getIntValue();
+    const char* nm = ( algoselint == 0 )
 	? InverseDistanceGridder2D::sFactoryKeyword()
-	: TriangulatedGridder2D::sFactoryKeyword();
+	: ( algoselint == 1 ) ? 
+	  TriangulatedGridder2D::sFactoryKeyword()
+	: RadialBasisFunctionGridder2D::sFactoryKeyword();
     hwinterpolator_.setGridder( nm, radius );
 
     TypeSet<MultiID> wellids;
