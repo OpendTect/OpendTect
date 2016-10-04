@@ -316,10 +316,10 @@ void uiPresentationMakerDlg::installCheck( CallBacker* )
 	return;
     }
 
-    BufferString stdout;
+    BufferString outstr;
     const char* cmd = "pip list";
-    const bool res = OS::ExecCommand( cmd, OS::Wait4Finish, &stdout );
-    if ( !res || !stdout.find("python-pptx") )
+    const bool res = OS::ExecCommand( cmd, OS::Wait4Finish, &outstr );
+    if ( !res || !outstr.find("python-pptx") )
     {
 	uiMSG().error( tr("Could not detect a valid python-pptx installation.\n"
 			  "Please click the Help button for more information\n"
