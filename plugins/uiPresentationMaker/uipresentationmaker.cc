@@ -189,7 +189,8 @@ class uiPresMakerSettings : public uiTabStackDlg
 { mODTextTranslationClass(uiPresMakerSettings)
 public:
 uiPresMakerSettings( uiParent* p, PresentationSpec& spec )
-    : uiTabStackDlg(p,uiDialog::Setup(tr("OpendTect Settings"),mNoDlgTitle,
+    : uiTabStackDlg(p,uiDialog::Setup(tr("Presentation Maker Settings"),
+				      mNoDlgTitle,
 				      mODHelpKey(mSlideLayoutDlgHelpID)))
 {
     addGroup( new uiSlideLayoutGrp(tabParent(),spec) );
@@ -210,7 +211,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     titlefld_->setElemSzPol( uiObject::Wide );
 
     settingsbut_ =
-	new uiToolButton( this, "settings", tr("Slide Layout"),
+	new uiToolButton( this, "settings", tr("Settings"),
 			  mCB(this,uiPresentationMakerDlg,settingsCB) );
     settingsbut_->attach( rightTo, titlefld_ );
 
@@ -287,12 +288,37 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
 
     templateCB(0);
     imageTypeCB(0);
+
+    postFinalise().notify( mCB(this,uiPresentationMakerDlg,installCheck) );
 }
 
 
 uiPresentationMakerDlg::~uiPresentationMakerDlg()
 {
     delete &specs_;
+}
+
+
+void uiPresentationMakerDlg::installCheck( CallBacker* )
+{
+    const BufferString pyexec = PresentationSpec::getPyExec();
+    if ( !File::exists(pyexec) )
+    {
+	uiMSG().error( tr("Could not detect a valid Python installation.\n"
+			  "Please select the Python executable in the\n"
+			  "settings window") );
+	return;
+    }
+
+    BufferString stdout;
+    const char* cmd = "pip list";
+    const bool res = OS::ExecCommand( cmd, OS::Wait4Finish, &stdout );
+    if ( !res || !stdout.find("python-pptx") )
+    {
+	uiMSG().error( tr("Could not detect a valid python-pptx installation.\n"
+			  "Please click the Help button for more information\n"
+			  "on how to install the python-pptx package.") );
+    }
 }
 
 
@@ -535,7 +561,7 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     od_ostream strm( scriptfp.fullPath() );
     strm << script.buf() << od_endl;
 
-    BufferString cmd( "python ", scriptfp.fullPath() );
+    BufferString cmd( PresentationSpec::getPyExec(), " ", scriptfp.fullPath() );
     if ( !OS::ExecCommand(cmd.buf(),OS::Wait4Finish) )
     {
 	uiMSG().error( tr("Could not execute\n: "), mToUiStringTodo(cmd.buf()),
