@@ -46,6 +46,7 @@ protected:
 
     void		updateWindowList();
     void		updateSceneList();
+    void		updateScreenList();
 
     PresentationSpec	specs_;
     BufferString	pythonpptxdir_;
@@ -57,6 +58,7 @@ protected:
     uiButtonGroup*	typegrp_;
     uiComboBox*		windowfld_;
     uiComboBox*		scenefld_;
+    uiComboBox*		screenfld_;
     uiTable*		slidestbl_;
     uiFileInput*	masterfld_;
     uiFileInput*	outputfld_;

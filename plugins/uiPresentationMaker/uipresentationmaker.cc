@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uiodattribtreeitem.h"
 #include "uiodmain.h"
@@ -262,6 +263,11 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     scenefld_->attach( alignedBelow, typegrp_ );
     scenefld_->display( false );
 
+    screenfld_ = new uiComboBox( this, "Screen Names" );
+    screenfld_->setHSzPol( uiObject::Wide );
+    screenfld_->attach( alignedBelow, typegrp_ );
+    screenfld_->display( false );
+
     uiTable::Setup ts( 0, 1 );
     ts.rowdesc("Slide");
     slidestbl_ = new uiTable( this, ts, "Slides table" );
@@ -349,6 +355,19 @@ void uiPresentationMakerDlg::updateSceneList()
 }
 
 
+void uiPresentationMakerDlg::updateScreenList()
+{
+    screenfld_->setEmpty();
+    const int nrscreens = uiMain::theMain().nrScreens();
+    for ( int idx=0; idx<nrscreens; idx++ )
+    {
+	uiString screennm = tr( "Screen %1" );
+	screennm.arg( idx );
+	screenfld_->addItem( screennm );
+    }
+}
+
+
 void uiPresentationMakerDlg::templateCB( CallBacker* )
 {
     const bool isblank = templatefld_->getBoolValue();
@@ -360,9 +379,11 @@ void uiPresentationMakerDlg::imageTypeCB( CallBacker* )
 {
     scenefld_->display( typegrp_->selectedId()==0 );
     windowfld_->display( typegrp_->selectedId()==1 );
+    screenfld_->display( typegrp_->selectedId()==2 );
 
     updateWindowList();
     updateSceneList();
+    updateScreenList();
 }
 
 
