@@ -44,7 +44,8 @@ ________________________________________________________________________
 
 namespace EM {
 
-    Color Horizon3D::sDefaultSelectionColor() { return Color::Pink(); }
+    Color Horizon3D::sDefaultSelectionColor() { return Color::Orange(); }
+    Color Horizon3D::sDefaultLockColor() { return Color::Blue(); }
 
 class AuxDataImporter : public Executor
 { mODTextTranslationClass(AuxDataImporter)
@@ -802,6 +803,7 @@ void Horizon3D::getParents( const TrcKey& node, TypeSet<TrcKey>& parents ) const
 	parents.add( tk );
     }
 }
+
 
 
 class FindTask : public Task

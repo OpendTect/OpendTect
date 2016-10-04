@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "seispreload.h"
 #include "selector.h"
 #include "survinfo.h"
+#include "timer.h"
 
 #include "uicombobox.h"
 #include "uimenu.h"
@@ -60,6 +61,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , oldactivevol_(false)
     , cureventnr_(mUdf(int))
     , sowingmode_( false )
+    , timer_( 0 )
 {
     mAttachCB( engine().trackeraddremove, uiMPEMan::trackerAddedRemovedCB );
     mAttachCB( engine().actionCalled, uiMPEMan::mpeActionCalledCB );
@@ -77,6 +79,9 @@ uiMPEMan::~uiMPEMan()
 {
     detachAllNotifiers();
     deleteVisObjects();
+    if ( timer_ )
+	timer_->tick.remove(mCB( this, uiMPEMan, timerHideLockedCB) );
+    delete timer_;
 }
 
 
@@ -991,14 +996,35 @@ void uiMPEMan::redo()
     }
 }
 
+#define cLockWaitTime 2000
 
 void uiMPEMan::lockAll()
 {
     EM::Horizon3D* hor3d = getSelectedHorizon3D();
     visSurvey::HorizonDisplay* hd = getSelectedDisplay3D();
-    if ( hor3d ) hor3d->lockAll();
+    if ( hor3d && hd ) 
+    {
+	hor3d->lockAll();
+	hd->showLocked( true );
+	if ( timer_ )
+	    timer_->tick.remove( mCB(this, uiMPEMan, timerHideLockedCB) );
+
+	delete timer_;
+	timer_ = new Timer("Lock all");
+	timer_->tick.notify( mCB(this,uiMPEMan,timerHideLockedCB) );
+	timer_->start( cLockWaitTime, true );
+    }
+
     if ( hd && hd->lockedShown() )
 	hd->showLocked( true );
+}
+
+
+void uiMPEMan::timerHideLockedCB( CallBacker* )
+{
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay3D();
+    if ( hd->lockedShown() )
+	hd->showLocked( false );
 }
 
 

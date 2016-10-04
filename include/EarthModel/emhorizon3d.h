@@ -218,6 +218,7 @@ public:
 				//!< Fast: writes to the first section
     TrcKey::SurvID		getSurveyID() const {return getSurveyGeomID();}
     static Color		sDefaultSelectionColor();
+    static Color		sDefaultLockColor();
 };
 
 

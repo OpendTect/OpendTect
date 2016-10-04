@@ -26,6 +26,7 @@ namespace visSurvey
 }
 
 class uiVisPartServer;
+class Timer;
 
 /*! \brief Dialog for tracking properties
 */
@@ -106,8 +107,11 @@ protected:
     void			sowingFinishedCB(CallBacker*);
     void			sowingModeCB(CallBacker*);
     void			updatePatchDisplay();
+    void			timerHideLockedCB(CallBacker*);
 
     bool			seedpickwason_;
     TrcKeyZSampling		oldactivevol_;
     bool			sowingmode_;
+
+    Timer*			timer_;
 };

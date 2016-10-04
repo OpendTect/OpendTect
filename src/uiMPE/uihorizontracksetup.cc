@@ -401,8 +401,8 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
     selectioncolfld_->attach( rightTo, parentcolfld_ );
 
-    lockcolfld_ = new uiColorInput( grp,
-				uiColorInput::Setup(Color::Orange())
+    lockcolfld_ = new uiColorInput( 
+	grp,uiColorInput::Setup(EM::Horizon3D::sDefaultLockColor())
 				.withdesc(false).lbltxt(tr("Locked")) );
     lockcolfld_->colorChanged.notify(
 			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
