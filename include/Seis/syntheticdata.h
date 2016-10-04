@@ -83,6 +83,6 @@ protected:
     void				removePack();
 
    RefMan<DataPack>			datapack_;
-   ObjectSet<const ReflectivityModel>	refmodels_;
-   ObjectSet<const ReflectivityModel>	sampledrefmodels_;
+   RefMan<ReflectivityModelSet>		refmodels_;
+   RefMan<ReflectivityModelSet>		sampledrefmodels_;
 };

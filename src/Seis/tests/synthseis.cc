@@ -124,12 +124,11 @@ bool testTracesAmplitudes( od_ostream& strm,
 	Seis::RaySynthGenerator::RayModel& raymodel = synthgen.result( ipos );
 	ObjectSet<SeisTrc> gather;
 	raymodel.getTraces( gather, false );
-	ObjectSet<const ReflectivityModel> refmodels;
-	raymodel.getRefs( refmodels, false );
-	for ( int ioff=0; ioff<refmodels.size(); ioff++ )
+	RefMan<ReflectivityModelSet> refmodels = raymodel.getRefs( false );
+	for ( int ioff=0; ioff<refmodels->size(); ioff++ )
 	{
 	    const SeisTrc& trout = *gather[ioff];
-	    const ReflectivityModel& refmodel = *refmodels[ioff];
+	    const ReflectivityModel& refmodel = *refmodels->get(ioff);
 	    for ( int idz=0; idz<refmodel.size(); idz++ )
 	    {
 		nr++;

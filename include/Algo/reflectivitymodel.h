@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "odcomplex.h"
 #include "sets.h"
+#include "objectset.h"
+#include "typeset.h"
 
 
 /*!
@@ -45,6 +47,14 @@ public:
 /*!\brief A table of reflectivies vs time and/or depth */
 
 typedef TypeSet<ReflectivitySpike> ReflectivityModel;
+
+
+
+mExpClass(Algo) ReflectivityModelSet :
+				public ObjectSet<const ReflectivityModel>
+			      , public RefCount::Referenced
+{
+};
 
 
 //Implementations

@@ -127,16 +127,15 @@ bool SynthGenBase::isInputOK()
 
 
 bool SynthGenBase::getOutSamplingFromModel(
-			     const ObjectSet<const ReflectivityModel>& models,
-			     StepInterval<float>& sampling,
-			     bool usenmo )
+				const RefMan<ReflectivityModelSet>& models,
+				StepInterval<float>& sampling, bool usenmo )
 {
     const float outputsr = mIsUdf(outputsampling_.step) ? wavelet_->sampleRate()
 							: outputsampling_.step;
     sampling.set( mUdf(float), -mUdf(float), outputsr );
-    for ( int imod=0; imod<models.size(); imod++ )
+    for ( int imod=0; imod<models->size(); imod++ )
     {
-	const ReflectivityModel& model = *models[imod];
+	const ReflectivityModel& model = *models->get( imod );
 	for ( int idz=0; idz<model.size(); idz++ )
 	{
 	    const ReflectivitySpike& spike = model[idz];
@@ -294,9 +293,9 @@ int SynthGenerator::setConvolveSize()
     StepInterval<float> cursampling( outputsampling_ );
     if ( cursampling.isUdf() || applynmo_ )
     {
-	ObjectSet<const ReflectivityModel> mod;
-	mod += refmodel_;
-	if ( mod.isEmpty() )
+	RefMan<ReflectivityModelSet> mod = new ReflectivityModelSet;
+	mod->add( refmodel_ );
+	if ( mod->isEmpty() )
 	    mpErrRet( "No models given to make synthetics", false );
 
 	if ( !SynthGenBase::isInputOK() )
@@ -586,10 +585,10 @@ bool SynthGenerator::doWork()
 }
 
 
-
-
+//MultiTraceSynthGenerator
 MultiTraceSynthGenerator::MultiTraceSynthGenerator()
     : totalnr_( -1 )
+    , sampledrefmodels_(new ReflectivityModelSet)
 {
 }
 
@@ -598,7 +597,6 @@ MultiTraceSynthGenerator::~MultiTraceSynthGenerator()
 {
     deepErase( synthgens_ );
     deepErase( trcs_ );
-    deepErase( sampledrefmodels_ );
 }
 
 
@@ -615,12 +613,12 @@ bool MultiTraceSynthGenerator::doPrepare( int nrthreads )
 
 
 void MultiTraceSynthGenerator::setModels(
-			const ObjectSet<const ReflectivityModel>& refmodels )
+				RefMan<ReflectivityModelSet>& refmodels )
 {
     totalnr_ = 0;
-    models_ = &refmodels;
-    for ( int idx=0; idx<refmodels.size(); idx++ )
-	totalnr_ += refmodels[idx]->size();
+    models_ = refmodels;
+    for ( int idx=0; idx<refmodels->size(); idx++ )
+	totalnr_ += refmodels[idx].size();
 }
 
 
@@ -646,7 +644,7 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 	trcs_ += new SeisTrc( synthgen.result() );
 	ReflectivityModel* sampledrefmodel = new ReflectivityModel();
 	synthgen.getSampledRM( *sampledrefmodel );
-	sampledrefmodels_ += sampledrefmodel;
+	sampledrefmodels_->add( sampledrefmodel );
 	trcidxs_ += idx;
 	lckr.unlockNow();
 
@@ -670,15 +668,17 @@ void MultiTraceSynthGenerator::getResult( ObjectSet<SeisTrc>& trcs )
 
 
 void MultiTraceSynthGenerator::getSampledRMs(
-	ObjectSet<const ReflectivityModel>& sampledrms )
+				RefMan<ReflectivityModelSet>& sampledrms )
 {
     TypeSet<int> sortidxs;
-    for ( int idtrc=0; idtrc<sampledrefmodels_.size(); idtrc++ )
+    for ( int idtrc=0; idtrc<sampledrefmodels_->size(); idtrc++ )
 	sortidxs += idtrc;
     sort_coupled( trcidxs_.arr(), sortidxs.arr(), trcidxs_.size() );
-    for ( int irm=0; irm<sampledrefmodels_.size(); irm++ )
-	sampledrms += sampledrefmodels_[ sortidxs[irm] ];
-    sampledrefmodels_.erase();
+    for ( int irm=0; irm<sampledrefmodels_->size(); irm++ )
+    {
+	const ReflectivityModel* model = sampledrefmodels_->get(sortidxs[irm]);
+	sampledrms->add( model );
+    }
 }
 
 
@@ -766,11 +766,11 @@ bool RaySynthGenerator::doPrepare( int )
     }
 
     resetNrDone();
-    ObjectSet<const ReflectivityModel> models;
+    RefMan<ReflectivityModelSet> models = new ReflectivityModelSet;
     getAllRefls( models );
     const bool zerooffset = offsets_.size() == 1 && equalOffset(offsets_[0],0);
     StepInterval<float> cursampling( outputsampling_ );
-    if ( models.isEmpty() )
+    if ( models->isEmpty() )
 	mErrRet( tr("No models given to make synthetics"), false );
 
     if ( !SynthGenBase::isInputOK() )
@@ -805,7 +805,6 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 
 	RayModel& rm = *(*raymodels_)[idx];
 	deepErase( rm.outtrcs_ );
-	deepErase( rm.sampledrefmodels_ );
 
 	MultiTraceSynthGenerator multitracegen;
 	multitracegen.setModels( rm.refmodels_ );
@@ -858,6 +857,8 @@ uiString RaySynthGenerator::uiNrDoneText() const
 
 RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
     : zerooffset2dmodel_(0)
+    , refmodels_(new ReflectivityModelSet)
+    , sampledrefmodels_(new ReflectivityModelSet)
 {
     for ( int idx=0; idx<nroffsets; idx++ )
     {
@@ -867,7 +868,7 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
 	TimeDepthModel* t2dm = new TimeDepthModel();
 	rt1d.getTDModel( idx, *t2dm );
 
-	refmodels_ += refmodel;
+	refmodels_->add( refmodel );
 	t2dmodels_ += t2dm;
 	if ( !idx )
 	{
@@ -882,8 +883,6 @@ RaySynthGenerator::RayModel::~RayModel()
 {
     deepErase( outtrcs_ );
     deepErase( t2dmodels_ );
-    deepErase( refmodels_ );
-    deepErase( sampledrefmodels_ );
     delete zerooffset2dmodel_;
 }
 
@@ -913,19 +912,20 @@ void RaySynthGenerator::forceReflTimes( const StepInterval<float>& si)
 }
 
 
-void RaySynthGenerator::getAllRefls( ObjectSet<const ReflectivityModel>& refs )
+void RaySynthGenerator::getAllRefls( RefMan<ReflectivityModelSet>& refs,
+				     bool sampled )
 {
     if ( !raymodels_ || raymodels_->isEmpty() ) return;
 
-    refs.setEmpty();
+    refs->setEmpty();
     for ( int imod=0; imod<raymodels_->size(); imod++ )
     {
 	if ( !(*raymodels_)[imod] )
 	    continue;
 
-	ObjectSet<const ReflectivityModel> curraymodel;
-	(*raymodels_)[imod]->getRefs( curraymodel, false );
-	refs.append( curraymodel  );
+	RefMan<ReflectivityModelSet> curraymodel =
+			(*raymodels_)[imod]->getRefs( false );
+	refs->append( *curraymodel );
     }
 }
 
@@ -943,13 +943,10 @@ void RaySynthGenerator::RayModel::getTraces(
 }
 
 
-void RaySynthGenerator::RayModel::getRefs(
-			ObjectSet<const ReflectivityModel>& refmodels,
-			bool steal, bool sampled )
+RefMan<ReflectivityModelSet>& RaySynthGenerator::RayModel::getRefs(
+								bool sampled )
 {
-    ObjectSet<const ReflectivityModel>& rms =
-	sampled ? sampledrefmodels_ : refmodels_;
-    mGet( rms, refmodels, steal );
+    return sampled ? sampledrefmodels_ : refmodels_;
 }
 
 
@@ -968,10 +965,10 @@ void RaySynthGenerator::RayModel::getD2T(
 
 void RaySynthGenerator::RayModel::forceReflTimes( const StepInterval<float>& si)
 {
-    for ( int idx=0; idx<refmodels_.size(); idx++ )
+    for ( int idx=0; idx<refmodels_->size(); idx++ )
     {
-	ReflectivityModel& refmodel
-			= const_cast<ReflectivityModel&>(*refmodels_[idx]);
+	ReflectivityModel& refmodel =
+			const_cast<ReflectivityModel&>(*refmodels_->get(idx));
 	for ( int iref=0; iref<refmodel.size(); iref++ )
 	{
 	    refmodel[iref].time_ = si.atIndex(iref);

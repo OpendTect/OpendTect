@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
 #include "welltrack.h"
+#include "reflectivitymodel.h"
 
 static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
 
@@ -497,12 +498,11 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 		tr("synthetic: %1").arg(gen.errMsg())) )
 
     Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
-    ObjectSet<const ReflectivityModel> refmodels;
-    rm.getRefs( refmodels, true );
-    if ( refmodels.isEmpty() )
+    RefMan<ReflectivityModelSet> refmodels = rm.getRefs( true );
+    if ( refmodels->isEmpty() )
 	mErrRet( tr("Cannot retrieve the reflectivities after ray-tracing") )
 
-    refmodel_ = *refmodels[0];
+    refmodel_ = const_cast<ReflectivityModel&>(*refmodels->get( 0 ));
     data_.synthtrc_ = *rm.stackedTrc();
     data_.setTraceRange( data_.synthtrc_.zRange() );
     //requested range was too small

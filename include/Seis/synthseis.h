@@ -47,9 +47,9 @@ public:
 			/* auto computed + will be overruled if too small */
     virtual bool	setOutSampling(const StepInterval<float>&);
 			/* depends on the wavelet size too */
-    bool		getOutSamplingFromModel
-				(const ObjectSet<const ReflectivityModel>&,
-				 StepInterval<float>&, bool usenmo=false);
+    bool		getOutSamplingFromModel(
+					const RefMan<ReflectivityModelSet>&,
+					StepInterval<float>&,bool usenmo=false);
 
     void		setMuteLength(float n)	{ mutelength_ = n; }
     float		getMuteLength() const	{ return mutelength_; }
@@ -170,12 +170,10 @@ public:
 				MultiTraceSynthGenerator();
 				~MultiTraceSynthGenerator();
 
-    void			setModels(
-				    const ObjectSet<const ReflectivityModel>&);
+    void			setModels(RefMan<ReflectivityModelSet>&);
 
     void			getResult(ObjectSet<SeisTrc>&);
-    void			getSampledRMs(
-					ObjectSet<const ReflectivityModel>&);
+    void			getSampledRMs(RefMan<ReflectivityModelSet>&);
 
     uiString			uiMessage() const {
 				    return m3Dots(tr("Generating synthetics"));
@@ -189,8 +187,8 @@ protected:
     bool                        doPrepare(int);
     virtual bool	doWork(od_int64,od_int64,int);
 
-    const ObjectSet<const ReflectivityModel>*	models_;
-    ObjectSet<const ReflectivityModel>		sampledrefmodels_;
+    RefMan<ReflectivityModelSet>	models_;
+    RefMan<ReflectivityModelSet>	sampledrefmodels_;
     ObjectSet<SynthGenerator>	synthgens_;
     ObjectSet<SeisTrc>		trcs_;
     TypeSet<int>		trcidxs_;
@@ -212,8 +210,7 @@ public:
 	void		getTraces(ObjectSet<SeisTrc>&,bool steal);
 	void		getD2T(ObjectSet<TimeDepthModel>&,bool steal);
 	void		getZeroOffsetD2T(TimeDepthModel&);
-	void		getRefs(ObjectSet<const ReflectivityModel>&,bool steal,
-				bool sampled=false);
+	RefMan<ReflectivityModelSet>&	getRefs(bool sampled=false);
 	void		forceReflTimes(const StepInterval<float>&);
 
 	const SeisTrc*	stackedTrc() const;
@@ -222,8 +219,9 @@ public:
 	ObjectSet<SeisTrc>			outtrcs_; //this is a gather
 	ObjectSet<TimeDepthModel>		t2dmodels_;
 	TimeDepthModel*				zerooffset2dmodel_;
-	ObjectSet<const ReflectivityModel>	refmodels_;
-	ObjectSet<const ReflectivityModel>	sampledrefmodels_;
+
+	RefMan<ReflectivityModelSet>		refmodels_;
+	RefMan<ReflectivityModelSet>		sampledrefmodels_;
 
 	friend class				RaySynthGenerator;
 
@@ -242,7 +240,8 @@ public:
     void		forceReflTimes(const StepInterval<float>&);
 
     //available after initialization
-    void		getAllRefls(ObjectSet<const ReflectivityModel>&);
+    void		getAllRefls(RefMan<ReflectivityModelSet>&,
+				    bool sampled=false);
 
     uiString		uiMessage() const
 			{ return errmsg_.isEmpty() ? message_ : errmsg_; }
