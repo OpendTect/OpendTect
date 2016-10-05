@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "file.h"
 #include "filepath.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -35,6 +36,8 @@ RelationTree::Node::Node( const DBKey& id )
 bool RelationTree::Node::hasChild( const RelationTree::Node* descendant ) const
 {
     ObjectSet<const RelationTree::Node> nodes = children_;
+    if ( nodes.isPresent(descendant) )
+	return true;
 
     for ( int idx=0; idx<nodes.size(); idx++ )
     {
@@ -59,15 +62,7 @@ void RelationTree::Node::fillPar( IOPar& par ) const
 
     par.set( sKey::ID(), id_ );
     par.set( sKeyChildIDs(), childids );
-    PtrMan<IOObj> ioobj = IOM().get( id_ );
-    if ( !ioobj )
-	return;
-
-    const char* fnm = ioobj->fullUserExpr( true );
-    if ( !fnm || !*fnm || !File::exists(fnm) )
-	return;
-
-    par.set( sKeyLastModified(), File::timeLastModified(fnm) );
+    par.set( sKeyLastModified(), datestamp_ );
 }
 
 
@@ -182,6 +177,22 @@ void RelationTree::removeNode( const DBKey& id, bool dowrite )
 }
 
 
+static RelationTree::Node* createNewNode( const DBKey& id )
+{
+    PtrMan<IOObj> ioobj = IOM().get( id );
+    if ( !ioobj )
+	return 0;
+
+    const char* fnm = ioobj->fullUserExpr( true );
+    if ( !fnm || !*fnm || !File::exists(fnm) )
+	return 0;
+
+    RelationTree::Node* node = new RelationTree::Node( id );
+    node->datestamp_ = File::timeLastModified( fnm );
+    return node;
+}
+
+
 void RelationTree::addRelation( const DBKey& id1, const DBKey& id2,
 				bool dowrite )
 {
@@ -189,7 +200,10 @@ void RelationTree::addRelation( const DBKey& id1, const DBKey& id2,
     RelationTree::Node* node1 = idx1 < 0 ? 0 : nodes_[idx1];
     if ( idx1 < 0 )
     {
-	node1 = new RelationTree::Node( id1 );
+	node1 = createNewNode( id1 );
+	if ( !node1 )
+	    return;
+
 	nodes_ += node1;
     }
 
@@ -197,7 +211,10 @@ void RelationTree::addRelation( const DBKey& id1, const DBKey& id2,
     RelationTree::Node* node2 = idx2 < 0 ? 0 : nodes_[idx2];
     if ( idx2 < 0 )
     {
-	node2 = new RelationTree::Node( id2 );
+	node2 = createNewNode( id2 );
+	if ( !node2 )
+	    return;
+
 	nodes_ += node2;
     }
 
@@ -216,7 +233,7 @@ bool RelationTree::write() const
     const FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf),
 		       "horizonrelations.txt" );
     if ( par.read(fp.fullPath(),sKeyHorizonRelations()) )
-	par.removeWithKey( is2d_ ? "Horizon2D" : "Horizon3D" );
+	par.removeSubSelection( is2d_ ? "Horizon2D" : "Horizon3D" );
 
     IOPar subpar;
     for ( int idx=0; idx<nodes_.size(); idx++ )
@@ -231,13 +248,9 @@ bool RelationTree::write() const
 }
 
 
-static bool hasBeenModified( const DBKey& id, const char* datestamp )
+static bool hasBeenModified( const IOObj& ioobj, const char* datestamp )
 {
-    PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( !ioobj )
-	return false;
-
-    const char* fnm = ioobj->fullUserExpr( true );
+    const char* fnm = ioobj.fullUserExpr( true );
     if ( !fnm || !*fnm || !File::exists(fnm) )
 	return false;
 
@@ -271,6 +284,7 @@ bool RelationTree::read( bool removeoutdated )
     }
 
     DBKeySet outdatednodes;
+    const IODir surfiodir( IOObjContext::Surf );
     for ( int idx=0; idx<nodes_.size(); idx++ )
     {
 	FileMultiString fms;
@@ -284,11 +298,10 @@ bool RelationTree::read( bool removeoutdated )
 			   node->datestamp_) )
 	    continue;
 
+	PtrMan<IOObj> ioobj = surfiodir.getEntry( node->id_ );
 	if ( removeoutdated &&
-	     hasBeenModified(node->id_,node->datestamp_.buf()) )
-	{
+		( !ioobj || hasBeenModified(*ioobj,node->datestamp_.buf()) ) )
 	    outdatednodes += node->id_;
-	}
     }
 
     for ( int idx=0; idx<outdatednodes.size(); idx++ )
@@ -340,14 +353,6 @@ bool RelationTree::sortHorizons( bool is2d, const DBKeySet& unsortedids,
 {
     RelationTree reltree( is2d, false );
     reltree.read( false );
-
-    for ( int idx=0; idx<unsortedids.size(); idx++ )
-    {
-	const RelationTree::Node* node = reltree.getNode( unsortedids[idx] );
-	if ( node && hasBeenModified(node->id_,node->datestamp_.buf()) )
-	    reltree.removeNode( node->id_, false );
-    }
-
     return reltree.getSorted( unsortedids, sortedids );
 }
 
