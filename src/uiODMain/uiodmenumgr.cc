@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "measuretoolman.h"
@@ -54,6 +55,8 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyIconSetNm = "Icon set name";
 static const char* ascic = "ascii";
 
+HiddenParam<uiODMenuMgr,uiToolBar*> plugintb_(0);
+HiddenParam<uiODMenuMgr,ObjectSet<uiToolBar>* > customtbs_(0);
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     : appl_(*a)
@@ -76,6 +79,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     viewtb_ = new uiToolBar( &appl_, tr("Graphical Tools"), uiToolBar::Left );
     mantb_ = new uiToolBar( &appl_, uiStrings::phrManage( uiStrings::sData()),
                             uiToolBar::Right );
+    customtbs_.setParam( this, new ObjectSet<uiToolBar> );
 
     faulttoolman_ = new uiODFaultToolMan( appl_ );
 
@@ -94,6 +98,20 @@ uiODMenuMgr::~uiODMenuMgr()
     delete appl_.removeToolBar( dtecttb_ );
     delete appl_.removeToolBar( viewtb_ );
     delete appl_.removeToolBar( mantb_ );
+    uiToolBar* plugintb = plugintb_.getParam( this );
+    if ( plugintb )
+    {
+	plugintb_.removeParam( this );
+	delete appl_.removeToolBar( plugintb );
+    }
+
+    ObjectSet<uiToolBar>* customtbs = customtbs_.getParam( this );
+    customtbs_.removeParam( this );
+    for ( int idx=0; idx<customtbs->size(); idx++ )
+	delete appl_.removeToolBar( (*customtbs)[idx] );
+
+    delete customtbs;
+
     delete helpmgr_;
     delete faulttoolman_;
     delete measuretoolman_;
@@ -1499,10 +1517,45 @@ void uiODMenuMgr::showLogFile()
 }
 
 
+uiToolBar* uiODMenuMgr::pluginTB()
+{
+    uiToolBar* plugintb = plugintb_.getParam( this );
+    if ( !plugintb )
+    {
+	plugintb = new uiToolBar( &appl_, tr("Third-party Plugins") );
+	plugintb_.setParam( this, plugintb );
+    }
+
+    return plugintb;
+}
+
+
+uiToolBar* uiODMenuMgr::customTB( const char* nm )
+{
+    uiToolBar* tb = appl_.findToolBar( nm );
+    if ( !tb )
+    {
+	tb = new uiToolBar( &appl_, toUiString(nm) );
+	ObjectSet<uiToolBar>* customtbs = customtbs_.getParam( this );
+	customtbs->add( tb );
+    }
+
+    return tb;
+}
+
+
 void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 {
     dtecttb_->clear();
     mantb_->clear();
+    uiToolBar* plugintb = plugintb_.getParam( this );
+    if ( plugintb )
+	plugintb->clear();
+
+    ObjectSet<uiToolBar>* customtbs = customtbs_.getParam( this );
+    for ( int idx=0; idx<customtbs->size(); idx++ )
+	(*customtbs)[idx]->clear();
+
     fillDtectTB( &applMgr() );
     fillManTB();
 }
