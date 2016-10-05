@@ -62,6 +62,7 @@ ________________________________________________________________________
 #include <QPixmap>
 #include <QPainter>
 #include <QPrinter>
+#include <QScreen>
 #include <QSettings>
 #include <QStatusBar>
 #include <QWidget>
@@ -1284,6 +1285,32 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 	snapshot = desktopsnapshot.copy( qwin->x(), qwin->y(), width, height );
     }
 
+    return snapshot.save( QString(filenm), format, quality );
+}
+
+
+bool uiMainWin::grabScreen( const char* filenm, const char* format, int quality,
+			    int screenidx )
+{
+    QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.isEmpty() ) return false;
+
+    const int nrscreens = screens.size();
+    QScreen* qscreen = 0;
+    if ( screenidx==-1 )
+	qscreen = QGuiApplication::primaryScreen();
+    else if ( screenidx>=0 && screenidx<nrscreens )
+	qscreen = screens.at( screenidx );
+    else
+	qscreen = screens.first();
+
+    if ( !qscreen ) return false;
+
+    QString screenname = qscreen->name();
+    BufferString scnm( screenname );
+    const QRect geom = qscreen->geometry();
+    QPixmap snapshot = qscreen->grabWindow( 0, geom.left(), geom.top(),
+					    geom.width(), geom.height() );
     return snapshot.save( QString(filenm), format, quality );
 }
 
