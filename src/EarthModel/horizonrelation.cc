@@ -227,7 +227,7 @@ void RelationTree::addRelation( const MultiID& id1, const MultiID& id2,
     RelationTree::Node* node2 = idx2 < 0 ? 0 : nodes_[idx2];
     if ( idx2 < 0 )
     {
-	node1 = createNewNode( id2 );
+	node2 = createNewNode( id2 );
 	if ( !node2 )
 	    return;
 
@@ -249,7 +249,7 @@ bool RelationTree::write() const
     const FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf),
 		       "horizonrelations.txt" );
     if ( par.read(fp.fullPath(),sKeyHorizonRelations()) )
-	par.removeWithKey( is2d_ ? "Horizon2D" : "Horizon3D" );
+	par.removeSubSelection( is2d_ ? "Horizon2D" : "Horizon3D" );
 
     IOPar subpar;
     for ( int idx=0; idx<nodes_.size(); idx++ )
