@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "oddirs.h"
 #include "od_ostream.h"
 #include "oscommand.h"
+#include "timer.h"
 
 
 class uiPythonInstallGrp : public uiDlgGroup
@@ -49,7 +50,7 @@ uiPythonInstallGrp( uiParent* p )
     : uiDlgGroup(p,tr("Python Installation"))
 {
     uiString msg = tr("This Presentation Maker needs a Python installation.\n"
-		   "Please select Python Executable.");
+		   "For more information please click the Help button.");
     uiLabel* lbl = new uiLabel( this, msg );
 
     const BufferString filter( __iswin__ ? "Application (*.exe)" : "" );
@@ -79,7 +80,7 @@ uiSlideLayoutGrp( uiParent* p, PresentationSpec& spec )
     : uiDlgGroup(p,tr("Slide Layout"))
     , spec_(spec)
 {
-    uiLabel* lbl = new uiLabel( this, tr("Custom Slide Format:") );
+    uiLabel* lbl = new uiLabel( this, tr("Custom Template Slide Format:") );
     lbl->attach( leftBorder );
 
     uiLabeledComboBox* lcc = new uiLabeledComboBox( this, tr("Format") );
@@ -203,7 +204,8 @@ uiPresMakerSettings( uiParent* p, PresentationSpec& spec )
 
 uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     : uiDialog(0, Setup(tr("Presentation Maker"), mNoDlgTitle,
-    mODHelpKey(mPresentationMakerDlgHelpID)))
+		mODHelpKey(mPresentationMakerDlgHelpID)))
+    , checktimer_(0)
 {
     setModal( false );
     setCtrlStyle( CloseOnly );
@@ -211,9 +213,8 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     titlefld_ = new uiGenInput( this, tr("Presentation Title") );
     titlefld_->setElemSzPol( uiObject::Wide );
 
-    settingsbut_ =
-	new uiToolButton( this, "settings", tr("Settings"),
-			  mCB(this,uiPresentationMakerDlg,settingsCB) );
+    settingsbut_ = new uiToolButton( this, "settings", tr("Settings"),
+		mCB(this,uiPresentationMakerDlg,settingsCB) );
     settingsbut_->attach( rightTo, titlefld_ );
 
     const BufferString templfnm = PresentationSpec::getTemplate();
@@ -250,7 +251,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     typegrp_->selectButton( 0 );
 
     uiPushButton* addbut = new uiPushButton( this, tr("Add Slide"),
-	mCB(this,uiPresentationMakerDlg,addCB), true );
+		mCB(this,uiPresentationMakerDlg,addCB), true );
     addbut->attach( rightTo, typegrp_ );
 
     windowfld_ = new uiComboBox( this, "Window Names" );
@@ -295,25 +296,40 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     templateCB(0);
     imageTypeCB(0);
 
-    postFinalise().notify( mCB(this,uiPresentationMakerDlg,installCheck) );
+    postFinalise().notify( mCB(this,uiPresentationMakerDlg,finalizeCB) );
 }
 
 
 uiPresentationMakerDlg::~uiPresentationMakerDlg()
 {
+    delete checktimer_;
     delete &specs_;
 }
 
 
-void uiPresentationMakerDlg::installCheck( CallBacker* )
+void uiPresentationMakerDlg::finalizeCB( CallBacker* )
+{
+    checktimer_ = new Timer( "Check Installation Timer" );
+    checktimer_->tick.notify( mCB(this,uiPresentationMakerDlg,checkCB) );
+    checktimer_->start( 250, true );
+}
+
+
+void uiPresentationMakerDlg::checkCB( CallBacker* )
+{ checkInstallation(); }
+
+
+bool uiPresentationMakerDlg::checkInstallation()
 {
     const BufferString pyexec = PresentationSpec::getPyExec();
     if ( !File::exists(pyexec) )
     {
 	uiMSG().error( tr("Could not detect a valid Python installation.\n"
-			  "Please select the Python executable in the\n"
-			  "settings window") );
-	return;
+			"Please click the Help button for more information\n"
+			"on how to install Python.\n"
+			"When installed, select the Python executable in the\n"
+			"settings window.") );
+	return false;
     }
 
     BufferString outstr;
@@ -322,9 +338,12 @@ void uiPresentationMakerDlg::installCheck( CallBacker* )
     if ( !res || !outstr.find("python-pptx") )
     {
 	uiMSG().error( tr("Could not detect a valid python-pptx installation.\n"
-			  "Please click the Help button for more information\n"
-			  "on how to install the python-pptx package.") );
+			"Please click the Help button for more information\n"
+			"on how to install the python-pptx package.") );
+	return false;
     }
+
+    return true;
 }
 
 
@@ -390,7 +409,10 @@ void uiPresentationMakerDlg::imageTypeCB( CallBacker* )
 void uiPresentationMakerDlg::settingsCB( CallBacker* )
 {
     uiPresMakerSettings dlg( this, specs_ );
-    dlg.go();
+    if ( !dlg.go() )
+	return;
+
+    checkInstallation();
 }
 
 
