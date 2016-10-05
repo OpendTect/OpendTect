@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
 #include "welltrack.h"
+#include "raysynthgenerator.h"
 #include "reflectivitymodel.h"
 
 static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
@@ -476,7 +477,7 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     refmodel_.erase();
     TypeSet<ElasticModel> aimodels;
     aimodels += aimodel_;
-    Seis::RaySynthGenerator gen( &aimodels );
+    RaySynthGenerator gen( &aimodels );
     gen.forceReflTimes( data_.getReflRange() );
     gen.setWavelet( &wvlt );
     gen.setOutSampling( data_.getTraceRange() );
@@ -497,7 +498,7 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 	mErrRet( uiStrings::phrCannotCreate(
 		tr("synthetic: %1").arg(gen.errMsg())) )
 
-    Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
+    RaySynthGenerator::RayModel& rm = gen.result( 0 );
     RefMan<ReflectivityModelSet> refmodels = rm.getRefs( true );
     if ( refmodels->isEmpty() )
 	mErrRet( tr("Cannot retrieve the reflectivities after ray-tracing") )

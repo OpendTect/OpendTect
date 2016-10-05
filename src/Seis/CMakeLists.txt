@@ -8,7 +8,6 @@
 set(OD_MODULE_DEPS Geometry MMProc )
 
 set ( OD_TEST_PROGS seisbuf.cc seiskeytracker.cc )
-set ( OD_BATCH_TEST_PROGS synthseis.cc )
 
 set(OD_MODULE_SOURCES
 	initseis.cc

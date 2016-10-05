@@ -694,7 +694,7 @@ void StratSynth::createAngleData( PreStack::PreStackSyntheticData& pssd,
 
 
 
-bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
+bool StratSynth::runSynthGen( RaySynthGenerator& synthgen,
 			      const SynthGenParams& synthgenpar )
 {
     BufferString capt( "Generating ", synthgenpar.name_ );
@@ -736,11 +736,11 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 
     ObjectSet<SynthRayModel>* rms =
 	synthrmmgr_.getRayModelSet( synthgenpar.raypars_ );
-    PtrMan<Seis::RaySynthGenerator> synthgen = 0;
+    PtrMan<RaySynthGenerator> synthgen = 0;
     if ( rms )
-	synthgen = new Seis::RaySynthGenerator( rms );
+	synthgen = new RaySynthGenerator( rms );
     else
-	synthgen = new Seis::RaySynthGenerator( &aimodels_, false );
+	synthgen = new RaySynthGenerator( &aimodels_, false );
     if ( !ispsbased )
     {
 	if ( !runSynthGen(*synthgen,synthgenpar) )
@@ -855,7 +855,7 @@ void StratSynth::putD2TModelsInSD( SyntheticData& sd,
     ObjectSet<TimeDepthModel> zeroofsetd2tms;
     for ( int imdl=0; imdl<aimodels_.size(); imdl++ )
     {
-	Seis::RaySynthGenerator::RayModel* rm = rms[imdl];
+	RaySynthGenerator::RayModel* rm = rms[imdl];
 	if ( !rm ) continue;
 	TimeDepthModel* zeroofsetd2tm = new TimeDepthModel();
 	rm->getZeroOffsetD2T( *zeroofsetd2tm );

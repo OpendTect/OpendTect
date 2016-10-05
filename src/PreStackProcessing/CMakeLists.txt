@@ -9,6 +9,7 @@ set(OD_MODULE_DEPS Velocity)
 set(OD_BATCH_TEST_PROGS
 	angle_computer.cc
 	mute.cc
+	synthseis.cc
 )
 set(OD_MODULE_SOURCES
 	initprestackprocessing.cc
@@ -34,6 +35,7 @@ set(OD_MODULE_SOURCES
 	prestackstacker.cc
 	prestacksyntheticdata.cc
 	prestacktrimstatics.cc
+	raysynthgenerator.cc
 	semblancealgo.cc
 )
 set(OD_MODULE_BATCHPROGS od_process_prestack.cc )

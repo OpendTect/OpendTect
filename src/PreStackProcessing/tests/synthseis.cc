@@ -22,6 +22,7 @@
 #include "seistrc.h"
 #include "survinfo.h"
 #include "waveletmanager.h"
+#include "raysynthgenerator.h"
 
 static const char* sKeyWaveletID()	{ return "Wavelet"; }
 #define cStep 0.004f
@@ -67,7 +68,7 @@ void initTest( bool onespike, bool onemodel, float start_depth,
 
 
 bool testSynthGeneration( od_ostream& strm, bool success,
-			  Seis::RaySynthGenerator& synthgen )
+			  RaySynthGenerator& synthgen )
 {
     BufferString testname( "test Synthetic generation" );
     mTest( testname, success, synthgen.errMsg().getOriginalString() )
@@ -113,7 +114,7 @@ bool testSpike( od_ostream& strm, const SeisTrc& trc,
 
 
 bool testTracesAmplitudes( od_ostream& strm,
-			   Seis::RaySynthGenerator& synthgen, float scal )
+			   RaySynthGenerator& synthgen, float scal )
 {
     BufferString testname( "test Traces amplitudes" );
     bool success = true;
@@ -121,7 +122,8 @@ bool testTracesAmplitudes( od_ostream& strm,
     int nr = -1;
     for ( int ipos=0; ipos<nrpos; ipos++ )
     {
-	Seis::RaySynthGenerator::RayModel& raymodel = synthgen.result( ipos );
+	RaySynthGenerator::RayModel& raymodel =
+						synthgen.result( ipos );
 	ObjectSet<SeisTrc> gather;
 	raymodel.getTraces( gather, false );
 	RefMan<ReflectivityModelSet> refmodels = raymodel.getRefs( false );
@@ -191,7 +193,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    return false;
 
 	const float scal = wav->get( wav->centerSample() );
-	Seis::RaySynthGenerator synthgen( &models );
+	RaySynthGenerator synthgen( &models );
 	synthgen.setWavelet( wav );
 	synthgen.enableFourierDomain( true );
 	synthgen.usePar( *raypar );
@@ -201,7 +203,7 @@ bool BatchProgram::go( od_ostream& strm )
 				  synthgen) )
 	    return false;
 
-	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( nrmodels-1 );
+	RaySynthGenerator::RayModel& rm = synthgen.result( nrmodels-1 );
 	SeisTrc stack = *rm.stackedTrc();
 	if ( !testTraceSize(strm,stack) ||
 	     !testTracesAmplitudes(strm,synthgen,scal) )

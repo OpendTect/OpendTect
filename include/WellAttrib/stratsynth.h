@@ -11,14 +11,16 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
-#include "syntheticdata.h"
 #include "ailayer.h"
 #include "elasticpropsel.h"
+#include "raysynthgenerator.h"
+#include "syntheticdata.h"
 #include "synthseis.h"
 #include "valseriesevent.h"
 #include "uistring.h"
 
 namespace PreStack {  class PreStackSyntheticData; class GatherSetDataPack; }
+class RaySynthGenerator;
 class SeisTrcBuf;
 class TaskRunner;
 class Wavelet;
@@ -32,9 +34,8 @@ namespace Strat
     class LayerModel; class LayerModelProvider; class LayerSequence;
     class Level;
 }
-namespace Seis { class RaySynthGenerator; }
 
-typedef Seis::RaySynthGenerator::RayModel SynthRayModel;
+typedef RaySynthGenerator::RayModel SynthRayModel;
 typedef ObjectSet<SynthRayModel> RayModelSet;
 
 mExpClass(WellAttrib) SynthRayModelManager
@@ -160,8 +161,7 @@ protected:
 				const Strat::LayerModel&);
     SyntheticData*	generateSD();
     SyntheticData*	generateSD( const SynthGenParams&);
-    bool		runSynthGen(Seis::RaySynthGenerator&,
-				    const SynthGenParams&);
+    bool		runSynthGen(RaySynthGenerator&, const SynthGenParams&);
     void		createAngleData(PreStack::PreStackSyntheticData&,
 					const ObjectSet<RayTracer1D>&);
     SyntheticData*	createAngleStack(const SyntheticData& sd,
