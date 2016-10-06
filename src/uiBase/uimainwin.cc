@@ -1292,6 +1292,7 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 bool uiMainWin::grabScreen( const char* filenm, const char* format, int quality,
 			    int screenidx )
 {
+#if QT_VERSION >= 0x050000
     QList<QScreen*> screens = QGuiApplication::screens();
     if ( screens.isEmpty() ) return false;
 
@@ -1309,6 +1310,19 @@ bool uiMainWin::grabScreen( const char* filenm, const char* format, int quality,
     const QRect geom = qscreen->geometry();
     QPixmap snapshot = qscreen->grabWindow( 0, geom.left(), geom.top(),
 					    geom.width(), geom.height() );
+#else
+    QDesktopWidget* desktop = QApplication::desktop();
+    const int nrscreens = desktop->numScreens();
+    if ( screenidx<0 || screenidx>=nrscreens )
+	screenidx = desktop->primaryScreen();
+
+    QWidget* screen = desktop->screen( screenidx );
+    if ( !screen ) return false;
+
+    const QRect geom = screen->geometry();
+    QPixmap snapshot = QPixmap::grabWindow( desktop->winId,
+	geom.left(), geom.top(), geom.width(), geom.height() );
+#endif
     return snapshot.save( QString(filenm), format, quality );
 }
 
