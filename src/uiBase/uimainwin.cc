@@ -1320,7 +1320,7 @@ bool uiMainWin::grabScreen( const char* filenm, const char* format, int quality,
     if ( !screen ) return false;
 
     const QRect geom = screen->geometry();
-    QPixmap snapshot = QPixmap::grabWindow( desktop->winId,
+    QPixmap snapshot = QPixmap::grabWindow( desktop->winId(),
 	geom.left(), geom.top(), geom.width(), geom.height() );
 #endif
     return snapshot.save( QString(filenm), format, quality );
