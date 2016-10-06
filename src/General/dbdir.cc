@@ -220,14 +220,14 @@ bool DBDir::isOutdated() const
 
 DBDir::size_type DBDir::size() const
 {
-    mPrepUsrAccess( return 0 );
+    mLock4Read();
     return objs_.size();
 }
 
 
 IOObj* DBDir::getEntry( ObjID objid ) const
 {
-    mPrepUsrAccess( return 0 );
+    mLock4Read();
     const size_type idxof = gtIdx( objid );
     return idxof < 0 ? 0 : objs_[idxof]->clone();
 }
@@ -235,7 +235,7 @@ IOObj* DBDir::getEntry( ObjID objid ) const
 
 IOObj* DBDir::getEntryByName( const char* nm, const char* trgrpnm ) const
 {
-    mPrepUsrAccess( return 0 );
+    mLock4Read();
     const IOObj* obj = gtObjByName( nm, trgrpnm );
     return obj ? obj->clone() : 0;
 }
@@ -243,7 +243,7 @@ IOObj* DBDir::getEntryByName( const char* nm, const char* trgrpnm ) const
 
 IOObj* DBDir::getEntryByIdx( size_type idx ) const
 {
-    mPrepUsrAccess( return 0 );
+    mLock4Read();
     return objs_[idx] ? objs_[idx]->clone() : 0;
 }
 
@@ -268,7 +268,7 @@ bool DBDir::permRemove( ObjID objid )
     if ( objid.isInvalid() )
 	return true;
 
-    mPrepUsrAccess( return false );
+    mLock4Read();
 
     size_type idxof = gtIdx( objid );
     if ( idxof < 0 )
@@ -298,7 +298,7 @@ bool DBDir::permRemove( ObjID objid )
 
 DBDir::size_type DBDir::indexOf( ObjID objid ) const
 {
-    mPrepUsrAccess( return -1 );
+    mLock4Read();
     return gtIdx( objid );
 }
 

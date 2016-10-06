@@ -414,7 +414,9 @@ IOSubDir::IOSubDir( const IOSubDir& oth )
 IOSubDir* IOSubDir::get( ascistream& strm, const char* dirnm )
 {
     IOSubDir* ret = new IOSubDir( strm.value() );
-    ret->key_ = DBKey::getFromString( strm.keyWord() + 1 );
+    DBKey readky = DBKey::getFromString( strm.keyWord() + 1 );
+    ret->key_.setObjID( DBKey::ObjID::get(readky.dirID().getI()) );
+    ret->key_.setDirID( DBKey::DirID::get( 0 ) );
     ret->dirnm_ = dirnm;
     ret->isbad_ = !File::isDirectory( ret->dirName() );
     strm.next(); return ret;
@@ -476,21 +478,21 @@ void IOX::copyFrom( const IOObj& obj )
 }
 
 
-const char* IOX::fullUserExpr( bool i ) const
+const char* IOX::fullUserExpr( bool forread ) const
 {
     IOObj* ioobj = DBM().get( ownkey_ );
     if ( !ioobj ) return "<invalid>";
-    const char* s = ioobj->fullUserExpr(i);
+    const char* s = ioobj->fullUserExpr( forread );
     delete ioobj;
     return s;
 }
 
 
-bool IOX::implExists( bool i ) const
+bool IOX::implExists( bool forread ) const
 {
     IOObj* ioobj = DBM().get( ownkey_ );
     if ( !ioobj ) return false;
-    bool yn = ioobj->implExists(i);
+    bool yn = ioobj->implExists( forread );
     delete ioobj;
     return yn;
 }
@@ -535,11 +537,13 @@ bool IOX::putTo( ascostream& stream ) const
 }
 
 
+// Beware! used *during* copy of DBDir's, hence you cannot use getIOObj()
 const char* IOX::dirName() const
 {
-    IOObj* ioobj = getIOObj();
-    if ( !ioobj ) return dirnm_;
-    const_cast<IOX*>(this)->dirnm_ = ioobj->dirName();
-    delete ioobj;
-    return dirnm_;
+    if ( ownkey_.isInvalid() )
+	return "";
+
+    const_cast<IOX*>(this)->dirnm_
+		= DBM().getDirectoryNameOf( ownkey_.dirID(), true );
+    return dirnm_.buf();
 }

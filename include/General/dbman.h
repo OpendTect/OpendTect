@@ -138,6 +138,7 @@ public:
     static uiRetVal	isValidDataRoot(const char* dirnm);
     static uiRetVal	isValidSurveyDir(const char* dirnm);
     static uiRetVal	checkSurveySetupValid();
+    BufferString	getDirectoryNameOf(DirID,bool fullpath) const;
     void		findTempObjs(ObjectSet<IOObj>&,
 				const IOObjSelConstraints* cnstrts=0) const;
 			//!< set filled with cloned ioobjs. Needs deepErase().

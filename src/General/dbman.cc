@@ -386,6 +386,23 @@ void DBMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 }
 
 
+BufferString DBMan::getDirectoryNameOf( DirID dirid, bool fullpath ) const
+{
+    BufferString ret;
+    if ( rootdbdir_ )
+    {
+	DBDirIter iter( *rootdbdir_ );
+	while ( iter.next() )
+	{
+	    mDynamicCastGet( const IOSubDir*, iosubd, &iter.ioObj() );
+	    if ( iosubd && iosubd->key().objID().getI() == dirid.getI() )
+		{ ret = iosubd->dirName(); break; }
+	}
+    }
+    return ret;
+}
+
+
 #define mIsValidTransl(transl) \
     IOObjSelConstraints::isAllowedTranslator( \
 	    transl->userName(),ctio.ctxt_.toselect_.allowtransls_) \
@@ -534,8 +551,14 @@ DBDir* DBMan::gtDir( DirID dirid ) const
 	return const_cast<DBDir*>(rootdbdir_);
 
     for ( int idx=0; idx<dirs_.size(); idx++ )
+    {
 	if ( dirs_[idx]->dirID() == dirid )
-	    return const_cast<DBDir*>(dirs_[idx]);
+	{
+	    DBDir* ret = const_cast<DBDir*>( dirs_[idx] );
+	    ret->reRead( false );
+	    return ret;
+	}
+    }
 
     return 0;
 }
