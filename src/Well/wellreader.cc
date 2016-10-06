@@ -117,6 +117,7 @@ void Well::Reader::init( const IOObj& ioobj, Well::Data& wd )
 	    errmsg_ = tr( "Cannot create reader of type %1" )
 		   .arg( ioobj.translator() );
     }
+    getInfo();
 }
 
 
@@ -294,6 +295,10 @@ static const char* rdHdr( od_istream& strm, const char* fileky,
     }
 
 
+#define mGetZFac() \
+    float zfac = 1.f; \
+    if ( SI().zInFeet() != wd_.info().isdepthinfeet_ ) \
+	zfac = wd_.info().isdepthinfeet_ ? mFromFeetFactorF : mToFeetFactorF; 
 
 Well::odReader::odReader( const char* f, Well::Data& w, uiString& e )
     : Well::odIO(f,e)
@@ -365,10 +370,17 @@ bool Well::odReader::getInfo( od_istream& strm ) const
     if ( badhdr )
 	mErrRetStrmOper( tr("find proper file header in main well file") )
 
+    wd_.info().isdepthinfeet_ = SI().zInFeet() && version > 4.195;
+
     ascistream astrm( strm, false );
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( astrm.hasKeyword(Well::Info::sKeyUwid()) )
+	if ( astrm.hasKeyword(Well::Info::sKeyDepthUnit()) )
+	{
+	    BufferString depthstr = astrm.value();
+	    wd_.info().isdepthinfeet_ = depthstr == "Feet";
+	}
+	else if ( astrm.hasKeyword(Well::Info::sKeyUwid()) )
 	    wd_.info().setUWI( astrm.value() );
 	else if ( astrm.hasKeyword(Well::Info::sKeyOper()) )
 	    wd_.info().setWellOperator( astrm.value() );
@@ -412,11 +424,14 @@ bool Well::odReader::getTrack( od_istream& strm ) const
 {
     Coord3 c, c0; float dah;
     wd_.track().setEmpty();
+    
+    mGetZFac();
+
     while ( strm.isOK() )
     {
 	strm >> c.x_ >> c.y_ >> c.z_ >> dah;
 	if ( !strm.isOK() || c.distTo<float>(c0) < 1 ) break;
-	wd_.track().addPoint( c.getXY(), (float) c.z_, dah );
+	wd_.track().addPoint( c.getXY(), (float) c.z_*zfac, dah*zfac );
     }
     if ( wd_.track().isEmpty() )
 	mErrRetStrmOper( tr("find track data") )
@@ -436,8 +451,8 @@ bool Well::odReader::getTrack() const
 			   ((double)astrm.minorVersion()/(double)10);
     IOPar dum; dum.getFrom( astrm );
 
-    const bool isok = getTrack( strm );
-    if ( SI().zInFeet() && version < 4.195 )
+  //  const bool isok = getTrack( strm );
+    /*if ( SI().zInFeet() && version < 4.195 )
     {
 	Well::Track& track = wd_.track();
 	for ( int idx=0; idx<track.size(); idx++ )
@@ -446,9 +461,9 @@ bool Well::odReader::getTrack() const
 	    pos.z_ *= mToFeetFactorF;
 	    track.setPoint( track.pointIDFor(idx), pos.getXY(), (float)pos.z_ );
 	}
-    }
+    } */
 
-    return isok;
+    return getTrack( strm );
 }
 
 
@@ -567,20 +582,33 @@ bool Well::odReader::addLog( od_istream& strm ) const
     TypeSet<float> dahvals, zvals;
     newlog->getData( dahvals, zvals );
 
-    if ( SI().zInFeet() && version < 4.195 )
-    {
-	for ( int idx=0; idx<dahvals.size(); idx++ )
-	    dahvals[idx] *= mToFeetFactorF;
-    }
 
+    mGetZFac();
+    
     if ( wd_.track().isEmpty() )
 	getTrack();
     if ( !wd_.track().isEmpty() )
     {
 	const Interval<float> trackdahrg = wd_.track().dahRange();
 	for ( int idx=0; idx<dahvals.size(); idx++ )
+	{
 	    if ( !trackdahrg.includes(dahvals[idx],false) )
 		dahvals[idx] = mUdf(float);
+	}
+    }
+
+    for ( int idx=0; idx<dahvals.size(); idx++ )
+		dahvals[idx] *= zfac;
+    PropertyRef::StdType proptyp =  newlog->propType();
+    if ( proptyp == PropertyRef::Son ||  proptyp == PropertyRef::Vel )
+    {
+	for ( int idx=0; idx<zvals.size(); idx++ )
+	{
+	    if ( proptyp == PropertyRef::Son )
+		zvals[idx] /= zfac;
+	    else if ( proptyp == PropertyRef::Vel )
+		zvals[idx] *= zfac;
+	}
     }
 
     newlog->setData( dahvals, zvals );
@@ -641,6 +669,9 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
     const bool havetrack = !wd_.track().isEmpty();
     wd_.markers().setEmpty();
     BufferString bs;
+    
+    mGetZFac();
+
     for ( int idx=1;  ; idx++ )
     {
 	BufferString basekey; basekey += idx;
@@ -653,7 +684,7 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 	if ( !iopar.get(key,bs) )
 	    { continue; }
 	const float val = bs.toFloat();
-	wm.setDah( (SI().zInFeet() && version<4.195) ? (val*mToFeetFactorF)
+	wm.setDah( (SI().zInFeet() && version<4.195) ? (val*zfac)
 						      : val );
 	key = IOPar::compKey( basekey, sKey::StratRef() );
 	Well::Marker::LevelID lvlid;
@@ -708,13 +739,15 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 	else if ( astrm.hasKeyword(Well::D2TModel::sKeyDataSrc()) )
 	    d2t.setDataSource( astrm.value() );
     }
-
+    
+    mGetZFac();
+    
     while ( strm.isOK() )
     {
 	float dah, val; strm >> dah >> val;
 	if ( !strm.isOK() )
 	    break;
-	d2t.setValueAt( dah, val );
+	d2t.setValueAt( dah*zfac, val );
     }
 
     if ( !updateDTModel(d2t,csmdl,errmsg_) )

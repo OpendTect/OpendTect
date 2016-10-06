@@ -134,6 +134,7 @@ void Well::Info::fillPar( IOPar& par ) const
     par.set( sKeyState(), state_ );
     par.set( sKeyCounty(), county_ );
     par.set( sKeyWellType(), (int)welltype_ );
+    par.set( sKeyDepthUnit(), isdepthinfeet_ ? "Feet" : "Meter" );
     par.set( sKeyCoord(), surfacecoord_.toString() );
     par.set( sKeyReplVel(), replvel_ );
     par.set( sKeyGroundElev(), groundelev_ );
@@ -150,7 +151,8 @@ void Well::Info::usePar( const IOPar& par )
     int welltype = (int)welltype_;
     par.get( sKeyWellType(), welltype );
     welltype_ = (WellType)welltype;
-
+    BufferString depthtype = 0;
+    par.get( sKeyDepthUnit(), depthtype ); isdepthinfeet_ = depthtype == "Feet";
     surfacecoord_.fromString( par.find(sKeyCoord()) );
     par.get( sKeyReplVel(), replvel_ );
     par.get( sKeyGroundElev(), groundelev_ );

@@ -141,6 +141,9 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     int sz = log.size();
     if ( !sz )
        return;
+    float zfac = 1.f; 
+    if ( SI().zInFeet() != wd.info().isdepthinfeet_ ) 
+	zfac = wd.info().isdepthinfeet_ ? mFromFeetFactorF : mToFeetFactorF;
 
     const UnitOfMeasure* loguom = log.unitOfMeasure();
     bool logisvel = loguom && loguom->propType() == PropertyRef::Vel;
@@ -157,7 +160,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     const float srddah = track.getDahForTVD( srddepth );
     const float replveldz = -1.f * srddepth - track.getKbElev();
     const float startdah = replveldz < 0 ? srddah : track.firstDah();
-    const float replvel = wd.info().replacementVelocity();
+    const float replvel = wd.info().replacementVelocity()*zfac;
     const float bulkshift = replveldz > 0 ? 2.f * replveldz / replvel : 0.f;
 
     TypeSet<float> dahs, vals;
