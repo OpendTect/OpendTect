@@ -494,6 +494,13 @@ void DBDir::setObjDirName( IOObj& ioobj )
 }
 
 
+DBKey DBDir::newKey() const
+{
+    mLock4Write();
+    return gtNewKey( curnr_ );
+}
+
+
 DBKey DBDir::newTmpKey() const
 {
     mLock4Write();

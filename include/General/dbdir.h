@@ -68,6 +68,7 @@ public:
 
     bool		commitChanges(const IOObj&);
     bool		permRemove(ObjID);
+    DBKey		newKey() const;
     DBKey		newTmpKey() const;
 
     static ChangeType	cEntryChanged()		{ return 2; }

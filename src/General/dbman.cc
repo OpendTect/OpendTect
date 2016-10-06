@@ -373,7 +373,7 @@ void DBMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 
     if ( !ioobj )
     {
-	const DBKey newky( mktmp ? dbdir->newTmpKey() : DBKey(dbdir->dirID()) );
+	const DBKey newky( mktmp ? dbdir->newTmpKey() : dbdir->newKey() );
 	ioobj = crWriteIOObj( ctio, newky, translidx );
 	if ( ioobj )
 	{
