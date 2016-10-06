@@ -39,7 +39,7 @@ protected:
 
     void		rootSelCB(CallBacker*);
     void		surveySelCB(CallBacker*);
-    void		fillSurveyList();
+    void		fillSurveyList(bool initial);
     bool		continueAfterErrMsg();
 
     uiFileInput*	datarootfld_;
@@ -48,6 +48,7 @@ protected:
 
     bool		forread_;
     bool		needvalidrootdir_;
+    BufferString	dataroot_;
 };
 
 

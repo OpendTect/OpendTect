@@ -31,19 +31,20 @@ static bool checkIfDataDir( const char* path )
 
 
 uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
-				      const char* survnm, const char* dataroot,
+				      const char* survnm, const char* dr,
 				      bool forread, bool needvalidrootdir )
     : uiDialog(p,uiDialog::Setup(tr("Select Data Root and Survey"),
 		mNoDlgTitle, mODHelpKey(mSurveySelectDlgHelpID)))
     , forread_(forread)
     , needvalidrootdir_(needvalidrootdir)
     , surveyfld_(0)
+    , dataroot_(dr && *dr ? dr : GetBaseDataDir())
 
 {
     datarootfld_ = new uiFileInput( this, tr("%1 Root").arg(uiStrings::sData()),
-		uiFileInput::Setup(uiFileDialog::Gen,dataroot)
+		uiFileInput::Setup(uiFileDialog::Gen,dataroot_)
 		.directories(true) );
-    setDataRoot( dataroot );
+    datarootfld_->setFileName( dataroot_ );
     datarootfld_->valuechanged.notify(
 		mCB(this,uiSurveySelectDlg,rootSelCB) );
 
@@ -59,7 +60,7 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
 	surveyfld_->attach( alignedBelow, surveylistfld_ );
     }
 
-    fillSurveyList();
+    fillSurveyList( true );
     setSurveyName( survnm );
 }
 
@@ -68,23 +69,22 @@ uiSurveySelectDlg::~uiSurveySelectDlg()
 {}
 
 
-void uiSurveySelectDlg::setDataRoot( const char* dataroot )
+const char* uiSurveySelectDlg::getDataRoot() const
 {
-    BufferString basedatadir( dataroot );
-    if ( basedatadir.isEmpty() )
-	basedatadir = GetBaseDataDir();
-    datarootfld_->setText( dataroot );
+    return datarootfld_->fileName();
 }
 
 
-const char* uiSurveySelectDlg::getDataRoot() const
-{ return datarootfld_->text(); }
-
 void uiSurveySelectDlg::setSurveyName( const char* nm )
-{ surveylistfld_->setCurrentItem( nm ); }
+{
+    surveylistfld_->setCurrentItem( nm );
+}
+
 
 const char* uiSurveySelectDlg::getSurveyName() const
-{ return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText(); }
+{
+    return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText();
+}
 
 const BufferString uiSurveySelectDlg::getSurveyPath() const
 {
@@ -102,27 +102,29 @@ bool uiSurveySelectDlg::continueAfterErrMsg()
 
     const bool res = uiMSG().askGoOn(
 	    tr("Selected directory is not a valid Data Root. Do you still "
-	       "want to search for OpendTect Surveys in this location") );
+	       "want to search for OpendTect Surveys in this location?") );
     return res;
 
 }
 
 
-void uiSurveySelectDlg::fillSurveyList()
+void uiSurveySelectDlg::fillSurveyList( bool initial )
 {
     surveylistfld_->setEmpty();
-    if ( !checkIfDataDir(getDataRoot()) && !continueAfterErrMsg()  )
+    if ( !initial )
+	dataroot_ = getDataRoot();
+    if ( !checkIfDataDir(dataroot_) && !continueAfterErrMsg()  )
 	return;
 
     BufferStringSet surveylist;
-    uiSurvey::getSurveyList( surveylist, getDataRoot() );
+    uiSurvey::getSurveyList( surveylist, dataroot_ );
     surveylistfld_->addItems( surveylist );
 }
 
 
 void uiSurveySelectDlg::rootSelCB( CallBacker* )
 {
-    fillSurveyList();
+    fillSurveyList( false );
 }
 
 
