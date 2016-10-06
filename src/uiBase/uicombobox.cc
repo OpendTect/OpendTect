@@ -345,7 +345,7 @@ void uiComboBox::setReadOnly( bool yn )
 
 
 bool uiComboBox::isReadOnly() const
-{ return body_->lineEdit() ? body_->lineEdit()->isReadOnly() : false; }
+{ return body_->lineEdit() ? body_->lineEdit()->isReadOnly() : true; }
 
 
 void uiComboBox::setEditable( bool yn )

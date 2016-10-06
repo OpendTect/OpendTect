@@ -116,7 +116,7 @@ bool GetInputCmd::act( const char* parstr )
     for ( int idx=objsfound.size()-1; idx>=0; idx-- )
     {
 	mDynamicCastGet( const uiComboBox*, uicombo, objsfound[idx] );
-	if ( uicombo && uicombo->isReadOnly() )
+	if ( uicombo && !uicombo->isEditable() )
 	    objsfound.removeSingle( idx );
     }
 
