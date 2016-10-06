@@ -299,7 +299,7 @@ IOObj* DBMan::getFromPar( const IOPar& iop, const char* bky,
 			  const IOObjContext& ctxt, bool mknew,
 			  uiString& errmsg ) const
 {
-    const BufferString basekey( bky, basekey.isEmpty() ? "" : "." );
+    const BufferString basekey( bky, bky && *bky ? "." : "" );
 
     BufferString iopkey( basekey );
     iopkey.add( sKey::ID() );
