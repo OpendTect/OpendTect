@@ -75,6 +75,12 @@ void SlideLayout::forBlankPresentation()
     width_ = 10.f; height_ = 7.5f;
     left_ = right_ = 0.5f;
     top_ = 1.7f; bottom_ = 0.7f;
+
+    Settings& setts = Settings::fetch( sSettingsKey );
+    setts.get( sLeftStr(), left_ );
+    setts.get( sRightStr(), right_ );
+    setts.get( sTopStr(), top_ );
+    setts.get( sBottomStr(), bottom_ );
 }
 
 
@@ -179,8 +185,8 @@ void SlideContent::addImage( BufferString& script )
 	  .add( "top = Inches(" ).add( imagepos_.y_ ).add( ")\n" )
 	  .add( "width = Inches(" ).add( imagesz_.width() ).add( ")\n" )
 	  .add( "height = Inches(" ).add( imagesz_.height() ).add( ")\n" )
-	  .add( "pic = slide.shapes.add_picture( picname, " )
-	  .add( "left, top, width, height )\n\n" );
+	  .add( "pic = slide.shapes.add_picture( picname, "
+		"left, top, width, height )\n" );
 }
 
 
@@ -308,7 +314,15 @@ static void init( BufferString& script, const char* fnm, const char* lgfnm )
 #endif
     script.add(	"logname = os.path.normpath('" )
 	  .add( logfnm ).add( "')\n" )
-	  .add( "sys.stderr = open( logname, 'w' )\n\n" );
+	  .add( "sys.stderr = open( logname, 'w' )\n" )
+	  .add( "strm = sys.stderr" ).addNewLine(2);
+
+    script.add( "import datetime\n"
+	"format = '%a %b %d %H:%M:%S %Y'\n"
+	"today = datetime.datetime.today()\n"
+	"datestr = today.strftime(format)\n"
+	"strm.write( 'OpendTect Presentation Maker - ' + datestr + '\\n' )\n"
+	"strm.write( 'Executing: ' + sys.argv[0]  + '\\n\\n' )\n\n" );
 
     script.add(
 	"from pptx import Presentation\n"
@@ -376,6 +390,16 @@ static void initSlides( BufferString& script, bool isblankpres )
 }
 
 
+static void addLogMessage( BufferString& script, int slideidx )
+{
+    script.add( "strm.write( 'Slide " ).add( slideidx ).add( " - ' " )
+	  .add( "+ title.text + '\\n'" );
+    if ( slideidx!=1 )
+	script.add( " + picname + '\\n'" );
+    script.add( " + '\\n' )\n\n" );
+}
+
+
 static void close( BufferString& script )
 {
     script.add(
@@ -400,6 +424,7 @@ void PresentationSpec::getPythonScript( BufferString& script )
 	slidelayout_.readFromSettings();
 	initTitleSlide( script, title_.buf() );
     }
+    addLogMessage( script, 1 );
 
     if ( !slides_.isEmpty() )
     {
@@ -409,6 +434,7 @@ void PresentationSpec::getPythonScript( BufferString& script )
 	    slides_[0]->addBlankSlide( script );
 	else
 	    slides_[0]->addAsFirstSlide( script );
+	addLogMessage( script, 2 );
 
 	for ( int idx=1; idx<slides_.size(); idx++ )
 	{
@@ -417,6 +443,8 @@ void PresentationSpec::getPythonScript( BufferString& script )
 		slides_[idx]->addBlankSlide( script );
 	    else
 		slides_[idx]->addWithFirstSlideLayout( script );
+
+	    addLogMessage( script, idx+2 );
 	}
     }
 
@@ -425,9 +453,9 @@ void PresentationSpec::getPythonScript( BufferString& script )
 #ifdef __win__
     outputfnm.replace( "\\", "/" );
 #endif
-    script.add( outputfnm );
-    script.add( "')\n" );
-    script.add( "prs.save(outputname)\n\n" );
+    script.add( outputfnm ).add( "')\n"
+	"prs.save(outputname)\n\n"
+	"strm.write( 'Presentation saved to: ' + outputname + '\\n' )\n\n" );
 
     close( script );
 }
