@@ -954,6 +954,13 @@ FaultTrcHolder::~FaultTrcHolder()
 
 const FaultTrace* FaultTrcHolder::getTrc( int linenr, bool isinl ) const
 {
+    if ( hs_.nrInl() == 1 || hs_.nrCrl()==1 )
+    {
+	const bool invalid = traces_.isEmpty() || !traces_[0] ||
+	    traces_[0]->isInl()!=isinl || traces_[0]->lineNr()!=linenr;
+	return invalid ? 0 : traces_[0];
+    }
+
     const int idx = indexOf( linenr, isinl );
     return traces_.validIdx(idx) ? traces_[idx] : 0;
 }
