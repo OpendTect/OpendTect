@@ -562,12 +562,14 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
 				     toUiString("'%1'").arg(toUiString(
 				     log.name())),uiStrings::sLog().toLower()));
     setCaption( dlgcaption );
-    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true);
+    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true); ts.defrowlbl(true);
     table_ = new uiTable( this, ts, "Well log table" );
     table_->setSelectionMode( uiTable::Multi );
     table_->setSelectionBehavior( uiTable::SelectRows );
     table_->valueChanged.notify( mCB(this,uiWellLogEditor,valChgCB) );
-
+    table_->rowDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
+    table_->selectionDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
+    table_->rowInserted.notify( mCB(this,uiWellLogEditor,rowInsertCB) );
     BufferString mdlbl( "MD" );
     mdlbl.add( getDistUnitString(SI().depthsInFeet(), true) );
     BufferString loglbl( log_.name() );
@@ -611,16 +613,94 @@ void uiWellLogEditor::selectMD( float md )
 void uiWellLogEditor::valChgCB( CallBacker* )
 {
     const RowCol& rc = table_->notifiedCell();
+
+    const int initiallogsize = log_.size();
+
     if ( rc.row()<0 || rc.row()>=log_.size() )
 	return;
-
+    const bool mdchanged = rc.col() == 0;
     const float newval = table_->getfValue( rc );
-    const float oldval = log_.value( rc.row() );
+    const float oldval = mdchanged ? log_.dah( rc.row() ) : 
+							log_.value( rc.row() );
     if ( mIsEqual(oldval,newval,mDefEpsF) )
 	return;
 
-    log_.setValue( rc.row(), newval );
+    if ( mdchanged )
+    {
+	float prevmdval = 0.f;
+	float nextmdval = 0.f;
+	bool ismdok = false;
+	
+	if ( rc.row() != 0 )
+	{
+	    prevmdval = log_.dah( rc.row()-1 );
+	    ismdok = newval > prevmdval;
+	    if ( !ismdok )
+	    {
+		uiMSG().error(tr("The MD value entered is less than the "
+				 "previous MD value. Please Change."));
+		return;
+	    }
+		
+	}
+	
+	if ( rc.row() < log_.size()-1 )
+	{
+	    nextmdval = log_.dah( rc.row()+1 );
+	    ismdok = newval < nextmdval;
+	    if ( !ismdok )
+	    {
+		uiMSG().error(tr("The MD value entered is greater than the "
+				 "next MD value. Please Change."));
+		return;
+	    }
+	}
+	
+	if ( ismdok )
+	    log_.dahArr()[rc.row()] = newval;
+    }
+    else
+	log_.setValue( rc.row(), newval );
+
+    const int finallogsize = log_.size();
+
     changed_ = true;
+    valueChanged.trigger();
+}
+
+
+void uiWellLogEditor::rowDelCB( CallBacker* )
+{
+    TypeSet<int> rowidxset = table_->getNotifRCs();
+    for( int idx=rowidxset.size()-1; idx>=0; idx-- )
+    {
+	int rowidx = rowidxset[idx];
+	log_.remove( rowidx );
+    }
+    changed_ = true;
+    valueChanged.trigger();
+}
+
+
+void uiWellLogEditor::rowInsertCB( CallBacker* )
+{
+    int rownr = table_->currentRow();
+
+    const int initiallogsize = log_.size();
+    
+    float prevmdval = 0.f;
+    float nextmdval = 0.f;
+	
+    if ( rownr != 0 )
+	prevmdval = log_.dah( rownr-1 );
+	
+    if ( rownr < log_.size()-1 )
+	nextmdval = log_.dah( rownr );
+
+    log_.insertAtDah( (prevmdval+nextmdval)/2, 0.f );
+    
+    const int finallogsize = log_.size();
+
     valueChanged.trigger();
 }
 

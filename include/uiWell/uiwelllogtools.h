@@ -137,6 +137,8 @@ protected:
     void		fillTable();
     void		valChgCB(CallBacker*);
     bool		acceptOK(CallBacker*);
+    void		rowDelCB(CallBacker*);
+    void		rowInsertCB(CallBacker*);
 
     Well::Log&		log_;
     uiTable*		table_;
