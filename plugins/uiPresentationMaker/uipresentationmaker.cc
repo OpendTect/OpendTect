@@ -380,8 +380,8 @@ void uiPresentationMakerDlg::updateScreenList()
     const int nrscreens = uiMain::theMain().nrScreens();
     for ( int idx=0; idx<nrscreens; idx++ )
     {
-	uiString screennm = tr( "Screen %1" );
-	screennm.arg( idx );
+	uiString screennm = tr( "Screen %1 - %2" );
+	screennm.arg( idx+1 ).arg( uiMain::theMain().getScreenName(idx) );
 	screenfld_->addItem( screennm );
     }
 }
@@ -479,12 +479,19 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
 	if ( windowlist.isEmpty() )
 	    return;
 
-	const int selitm = windowfld_->currentItem();
 	const bool grabdesktop = typegrp_->selectedId()==2;
-	const int zoom = grabdesktop ? 0 : 1;
-	windowlist[selitm]->grab( imagefnm, zoom, "png" );
-	slidename = grabdesktop ? "Desktop"
-		: windowlist[selitm]->caption(true).getFullString();
+	if ( grabdesktop )
+	{
+	    const int screenidx = screenfld_->currentItem();
+	    uiMainWin::grabScreen( imagefnm, "png", -1, screenidx );
+	    slidename = screenfld_->text();
+	}
+	else
+	{
+	    const int selitm = windowfld_->currentItem();
+	    windowlist[selitm]->grab( imagefnm, 1, "png" );
+	    slidename = windowlist[selitm]->caption(true).getFullString();
+	}
     }
 
     SlideContent* ss = new SlideContent( slidename, imagefnm );
