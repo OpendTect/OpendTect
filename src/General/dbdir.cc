@@ -485,6 +485,8 @@ bool DBDir::writeToFile() const
     if ( !sfio.closeSuccess() )
 	mErrRet()
 
+    mLock2Write();
+    const_cast<DBDir*>(this)->readtime_ = Time::getFileTimeInSeconds();
     return true;
 }
 
