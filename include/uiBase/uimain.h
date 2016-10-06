@@ -52,6 +52,7 @@ public:
     static const char*	iconFileName();
 
     int			nrScreens() const;
+    const char*		getScreenName(int screennr) const;
     uiSize		getScreenSize(int screennr,bool availablesz) const;
     uiSize		desktopSize() const;
 			//!<\returns mUdf(int) if unknown

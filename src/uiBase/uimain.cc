@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "oddirs.h"
+#include "perthreadrepos.h"
 #include "settings.h"
 #include "thread.h"
 
@@ -36,6 +37,7 @@ ________________________________________________________________________
 #include <QIcon>
 #include <QMenu>
 #include <QKeyEvent>
+#include <QScreen>
 #include <QStyleFactory>
 #include <QToolTip>
 #include <QTreeWidget>
@@ -517,6 +519,23 @@ Color uiMain::windowColor() const
 
 int uiMain::nrScreens() const
 { return qdesktop_ ? qdesktop_->screenCount() : -1; }
+
+
+const char* uiMain::getScreenName( int screenidx ) const
+{
+    mDeclStaticString(screennm);
+    screennm.set( "Screen " ).add( screenidx );
+#if QT_VERSION >= 0x050000
+    QList<QScreen*> screens = QGuiApplication::screens();
+    if ( !screens.isEmpty() && screenidx>=0 && screenidx<screens.size() )
+    {
+	QScreen* qscreen = screens.at( screenidx );
+	screennm = qscreen->name();
+    }
+#endif
+
+    return screennm.buf();
+}
 
 
 uiSize uiMain::getScreenSize( int screennr, bool available ) const
