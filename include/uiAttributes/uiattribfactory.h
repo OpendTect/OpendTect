@@ -51,6 +51,7 @@ public:
 
     const char*		dispNameOf(const char*) const;
     const char*		attrNameOf(const char*) const;
+    bool		isPresent(const char*,bool dispnm) const;
 
 protected:
 
