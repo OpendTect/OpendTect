@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "binidvalset.h"
 #include "trckeyzsampling.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "flatposdata.h"
 #include "seisbuf.h"
@@ -521,7 +521,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     int nrtrcs = 0;
     if ( !isinpindp )
     {
-	PtrMan<IOObj> ioobj = IOM().get( DBKey(inpdesccp->getStoredID(true)));
+	PtrMan<IOObj> ioobj = DBM().get( DBKey(inpdesccp->getStoredID(true)));
 	if ( !ioobj )
 	{
 	    uiMSG().error( tr("Select a valid input") );

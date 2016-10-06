@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "math.h"
 #include "mathexpression.h"
 #include "rockphysics.h"
@@ -502,7 +502,7 @@ float ElasticPropGen::getVal( const ElasticFormula& ef,
 
 ElasticPropSelection* ElasticPropSelection::getByDBKey( const DBKey& mid )
 {
-    PtrMan<IOObj> ioobj = mid.isInvalid() ? 0 : IOM().get( mid );
+    PtrMan<IOObj> ioobj = mid.isInvalid() ? 0 : DBM().get( mid );
     return ioobj ? getByIOObj( ioobj ) : 0;
 }
 

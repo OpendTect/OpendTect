@@ -23,12 +23,11 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "posinfo.h"
 #include "ptrman.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
-#include "iodir.h"
+#include "dbdir.h"
 #include "dbkey.h"
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"
@@ -183,9 +182,7 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 
 void uiPreStackMergeDlg::fillListBox()
 {
-    const IODir iodir( inctio_.ctxt_.getSelDirID() );
-    IODirEntryList entrylist( iodir, inctio_.ctxt_ );
-
+    DBDirEntryList entrylist( inctio_.ctxt_ );
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
 	allvolsids_.add( entrylist.key(idx) );
@@ -217,7 +214,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	if ( volidx < 0 ) continue;
 
 	const DBKey id = allvolsids_[volidx];
-	IOObj* ioobj = IOM().get( id );
+	IOObj* ioobj = DBM().get( id );
 	if ( !ioobj ) continue;
 
 	if ( selobjs_.isEmpty() )
@@ -241,7 +238,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
     }
 
     outctio_.ioobj_->pars().set( storagekey, storage );
-    IOM().commitChanges( *outctio_.ioobj_ );
+    DBM().setEntry( *outctio_.ioobj_ );
     return true;
 }
 

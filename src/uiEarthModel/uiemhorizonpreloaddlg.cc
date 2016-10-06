@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "filepath.h"
 #include "file.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "dbkey.h"
@@ -170,7 +170,7 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     savebut_->setSensitive( true );
     EM::HorizonPreLoader& hpl = EM::HPreL();
     const DBKey& mid = hpl.getDBKey( listfld_->textOfItem(selidx) );
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( !ioobj )
 	return;
 

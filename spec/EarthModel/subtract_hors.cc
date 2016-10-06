@@ -22,7 +22,7 @@ static const char* rcsID = "$Id$";
 #include "emsurfacegeometry.h"
 #include "emposid.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "position.h"
 #include "ranges.h"
@@ -48,8 +48,8 @@ static int prError( const char* msg )
 
 static EM::Horizon3D* loadHorizon( const char* id, BufferString& err )
 {
-    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    PtrMan<IOObj> ioobj = IOM().get( id );
+    DBM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    PtrMan<IOObj> ioobj = DBM().get( id );
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobjctxt.h"
 #include "file.h"
 #include "filepath.h"
@@ -175,7 +175,7 @@ void uiWellMan::getCurrentWells()
     const int nrsel = selGroup()->nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	const IOObj* obj = IOM().get( selgrp_->chosenID(idx) );
+	const IOObj* obj = DBM().get( selgrp_->chosenID(idx) );
 	if ( !obj ) continue;
 
 	curdbkeys_ += obj->key();
@@ -324,7 +324,7 @@ void uiWellMan::setLogToolButtonProperties()
 	BufferStringSet wellnms;
 	for ( int midx=0; midx<wellids.size(); midx++ )
 	{
-	    IOObj* ioobj = IOM().get( wellids[midx] );
+	    IOObj* ioobj = DBM().get( wellids[midx] );
 	    if ( ioobj )
 		wellnms.add( ioobj->name() );
 	    delete ioobj;
@@ -493,7 +493,7 @@ void uiWellMan::logTools( CallBacker* )
     selGroup()->getChosen( chosnmids );
     for ( int midx=0; midx<chosnmids.size(); midx ++ )
     {
-	const IOObj* ioobj = IOM().get( chosnmids[midx] );
+	const IOObj* ioobj = DBM().get( chosnmids[midx] );
 	if ( ioobj )
 	    wellnms.add( ioobj->name() );
     }
@@ -741,7 +741,7 @@ void uiWellMan::exportLogs( CallBacker* )
     {
 	currdrs_[idwell]->getLogs();
 	currdrs_[idwell]->getD2T();
-	const IOObj* obj = IOM().get( curdbkeys_[idwell] );
+	const IOObj* obj = DBM().get( curdbkeys_[idwell] );
 	if ( obj )
 	    curwds_[idwell]->info().setName( obj->name() );
     }

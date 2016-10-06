@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "nlamodel.h"
 #include "randomlinegeom.h"
 #include "rangeposprovider.h"
@@ -113,7 +113,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     multcomp3d_.checkable = true;
     multcomp2d_.checkable = true;
 
-    mAttachCB( IOM().surveyChanged, uiAttribPartServer::survChangedCB );
+    mAttachCB( DBM().surveyChanged, uiAttribPartServer::survChangedCB );
     handleAutoSet();
 }
 
@@ -172,7 +172,7 @@ void uiAttribPartServer::useAutoSet( bool is2d )
     DescSetMan* setmgr = eDSHolder().getDescSetMan(is2d);
     if ( SI().defaultPars().get(idkey,id) )
     {
-	PtrMan<IOObj> ioobj = IOM().get( id );
+	PtrMan<IOObj> ioobj = DBM().get( id );
 	uiString bs;
 	DescSet* attrset = new DescSet( is2d );
 	if ( !ioobj || !AttribDescSetTranslator::retrieve(*attrset,ioobj,bs)
@@ -402,7 +402,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	objref = nlaname_;
     else if ( !isstored )
     {
-	PtrMan<IOObj> ioobj = IOM().get( adsman->attrsetid_ );
+	PtrMan<IOObj> ioobj = DBM().get( adsman->attrsetid_ );
 	objref = ioobj ? ioobj->name().buf() : "";
 	attrdata.attribid_.setStored( false );
     }
@@ -485,7 +485,7 @@ void uiAttribPartServer::updateSelSpec( SelSpec& ss ) const
 
 	if ( !isstored )
 	{
-	    IOObj* ioobj = IOM().get(
+	    IOObj* ioobj = DBM().get(
 				DSHolder().getDescSetMan(false)->attrsetid_ );
 	    if ( ioobj ) ss.setObjectRef( ioobj->name() );
 	}
@@ -1500,7 +1500,7 @@ void uiAttribPartServer::filter2DMenuItems(
 		continue;
 
 	    DBKey mid( desc->getStoredID(true) );
-	    PtrMan<IOObj> seisobj = IOM().get( mid );
+	    PtrMan<IOObj> seisobj = DBM().get( mid );
 	    if ( !seisobj )
 		continue;
 
@@ -1597,8 +1597,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	if ( is2d )
 	    return false;
 	const MenuItem* item = zdomainmnuitem->findItem( mnuid );
-	IOM().to(DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
-	PtrMan<IOObj> ioobj = IOM().getLocal( item->text.getFullString(), 0 );
+	PtrMan<IOObj> ioobj = DBM().getByName( IOObjContext::Seis,
+						item->text.getFullString() );
 	if ( ioobj )
 	{
 	    dbkey = ioobj->key();
@@ -1633,7 +1633,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	objref = nlaname_;
     else if ( !isstored )
     {
-	PtrMan<IOObj> ioobj = IOM().get( adsman->attrsetid_ );
+	PtrMan<IOObj> ioobj = DBM().get( adsman->attrsetid_ );
 	objref = ioobj ? ioobj->name().buf() : "";
     }
 
@@ -1798,7 +1798,7 @@ IOObj* uiAttribPartServer::getIOObj( const SelSpec& as ) const
     if ( !desc->isStored() || storedid.isInvalid() )
 	return 0;
 
-    return IOM().get( storedid );
+    return DBM().get( storedid );
 }
 
 

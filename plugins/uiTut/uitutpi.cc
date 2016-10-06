@@ -20,7 +20,7 @@
 #include "viswelldisplay.h"
 
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "oddirs.h"
 #include "ptrman.h"
@@ -123,7 +123,7 @@ void uiTutMgr::doWells( CallBacker* )
 	return;
 
     const DBKey wellid = wd->getDBKey();
-    PtrMan<IOObj> ioobj = IOM().get( wellid );
+    PtrMan<IOObj> ioobj = DBM().get( wellid );
     if ( !ioobj )
     {
 	uiMSG().error( tr("Cannot find well in database.\n"

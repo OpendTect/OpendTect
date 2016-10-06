@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uiwelltiecontrolview.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "keyboardevent.h"
 #include "emsurfacetr.h"
 #include "mouseevent.h"
@@ -269,7 +269,7 @@ void uiControlView::reDrawNeeded( CallBacker* )
 
 void uiControlView::loadHorizons( CallBacker* )
 {
-    PtrMan<IOObj> ioobj = IOM().get( server_.data().setup().seisid_ );
+    PtrMan<IOObj> ioobj = DBM().get( server_.data().setup().seisid_ );
     SeisTrcReader rdr( ioobj );
     const bool is2d = rdr.is2D();
 

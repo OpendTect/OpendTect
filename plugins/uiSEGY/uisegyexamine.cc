@@ -36,7 +36,7 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "od_strstream.h"
 #include "oddirs.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "od_helpids.h"
 
 const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
@@ -227,7 +227,7 @@ SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
     if ( !ioobj )
 	return 0;
 
-    IOM().commitChanges( *ioobj );
+    DBM().setEntry( *ioobj );
     su.fp_.fillPar( ioobj->pars() );
 
     SeisTrcReader* rdr = new SeisTrcReader( ioobj );
@@ -251,7 +251,7 @@ SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
     if ( !ioobj )
 	return 0;
 
-    IOM().commitChanges( *ioobj );
+    DBM().setEntry( *ioobj );
     su.fp_.fillPar( ioobj->pars() );
 
     SeisTrcReader* rdr = new SeisTrcReader( ioobj );

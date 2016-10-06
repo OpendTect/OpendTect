@@ -33,7 +33,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "arrayndimpl.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ranges.h"
 #include "safefileio.h"
 #include "seis2ddata.h"
@@ -82,7 +82,7 @@ uiSeisBrowser::Setup::Setup( const DBKey& ky, Seis::GeomType gt )
     , readonly_(true)
 {
     wintitle_ = uiString(tr("Browse %1 '%2'")).arg( Seis::nameOf( gt ) )
-					      .arg(IOM().nameOf( ky ));
+					      .arg(DBM().nameOf( ky ));
 }
 
 
@@ -116,7 +116,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
 	uiString lbltxt = uiStrings::phrCannotOpen(uiStrings::phrInput(
 			  uiStrings::phrData(tr("('%1')\n%2")
 			  .arg(Seis::nameOf(su.geom_))
-			  .arg(IOM().nameOf( su.id_ )))));
+			  .arg(DBM().nameOf( su.id_ )))));
 
 	if ( su.geomid_ != mUdfGeomID )
 	    lbltxt = toUiString("%1 - %2").arg(lbltxt)
@@ -169,7 +169,7 @@ void uiSeisBrowser::setZ( float z )
 bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 {
     uiString emsg;
-    PtrMan<IOObj> ioobj = IOM().get( su.id_ );
+    PtrMan<IOObj> ioobj = DBM().get( su.id_ );
     if ( !ioobj ) return false;
 
     SeisIOObjInfo ioinf( *ioobj );
@@ -636,7 +636,7 @@ uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
     , trc_(*new SeisTrc())
     , msg_(tr("Initialising"))
 {
-    PtrMan<IOObj> ioobj = IOM().get( setup.id_ );
+    PtrMan<IOObj> ioobj = DBM().get( setup.id_ );
     const FilePath fp( ioobj->fullUserExpr(true) );
     safeio_ = new SafeFileIO( fp.fullPath() );
 
@@ -754,7 +754,7 @@ void uiSeisBrowser::dispTracesPush( CallBacker* )
 			 mCB(this,uiSeisBrowser,trcbufViewerClosed) );
 
 	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
-				    IOM().nameOf(setup_.id_), compnr_ );
+				    DBM().nameOf(setup_.id_), compnr_ );
 	trcbufvwr_->start(); trcbufvwr_->handleBufChange();
 
 	if ( (tbuf_.isEmpty()) )
@@ -823,7 +823,7 @@ void uiSeisBrowser::nrTracesChgCB( CallBacker* )
     if ( trcbufvwr_ )
     {
 	trcbufvwr_->setTrcBuf( &tbuf_, setup_.geom_, "Browsed seismic data",
-				    IOM().nameOf(setup_.id_), compnr_ );
+				    DBM().nameOf(setup_.id_), compnr_ );
 	trcbufvwr_->handleBufChange();
     }
 }

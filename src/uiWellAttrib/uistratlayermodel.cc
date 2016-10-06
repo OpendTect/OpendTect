@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "executor.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "objdisposer.h"
 #include "od_helpids.h"
 #include "od_iostream.h"
@@ -82,8 +82,8 @@ public:
 uiStratLayerModelManager()
     : dlg_(0)
 {
-    IOM().surveyToBeChanged.notify(mCB(this,uiStratLayerModelManager,survChg));
-    IOM().applicationClosing.notify(mCB(this,uiStratLayerModelManager,survChg));
+    DBM().surveyToBeChanged.notify(mCB(this,uiStratLayerModelManager,survChg));
+    DBM().applicationClosing.notify(mCB(this,uiStratLayerModelManager,survChg));
 }
 
 

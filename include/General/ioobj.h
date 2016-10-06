@@ -111,8 +111,8 @@ public:
     Translator*			createTranslator() const;
 				//!< returns a subclass of Translator according
 				//!< to the translator name and group.
-    void			acquireNewKeyIn(const DirID&);
-				//!< This will give the IOObj a new (free) ID
+    void			setKeyForNewEntry(DirID);
+				//!< This will mark the IOObj for DBM() as 'new'
 
     inline bool			isTmp() const
 				{ return isTmpObjNr(objID().getI());}
@@ -142,7 +142,6 @@ protected:
 
 private:
 
-    friend class	IODir;
     friend class	DBDir;
 
     static IOObj*	produce(const char*,const char* nm,const DBKey& ky,

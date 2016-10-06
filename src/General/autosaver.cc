@@ -7,9 +7,9 @@
 
 #include "autosaver.h"
 #include "saveable.h"
-#include "iodir.h"
+#include "dbdir.h"
 #include "iostrm.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "settings.h"
 #include "separstr.h"
 #include "timefun.h"
@@ -102,7 +102,7 @@ void OD::AutoSaveObj::removeIOObjAndData( IOStream*& ioobj ) const
 	return;
 
     ioobj->implRemove();
-    IOM().permRemove( ioobj->key() );
+    DBM().removeEntry( ioobj->key() );
     delete ioobj;
     ioobj = 0;
 }
@@ -142,14 +142,16 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
 	return 0;
 
     const DBKey saverkey( saver_->key() );
-    IODir iodir( saverkey.dirID() );
-    PtrMan<IOObj> orgioobj = iodir.getEntry( saverkey );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( saverkey.dirID() );
+    PtrMan<IOObj> orgioobj;
+    if ( dbdir )
+	orgioobj = dbdir->getEntry( saverkey.objID() );
     if ( !orgioobj )
 	return 0;
 
     BufferString storenm( ".autosave_", saverkey, "_" );
     storenm.add( autosavenr_++ );
-    IOStream* newstoreioobj = new IOStream( storenm, iodir.newTmpKey(), true );
+    IOStream* newstoreioobj = new IOStream( storenm, dbdir->newTmpKey(), true );
     newstoreioobj->setGroup( orgioobj->group() );
     newstoreioobj->setDirName( orgioobj->dirName() );
     newstoreioobj->setTranslator( orgioobj->translator() );
@@ -162,7 +164,7 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
     newstoreioobj->pars().set( sKey::CrInfo(), fms );
     newstoreioobj->updateCreationPars();
 
-    const bool commitok = iodir.commitChanges( newstoreioobj );
+    const bool commitok = DBM().setEntry( *newstoreioobj );
     const bool saveok = commitok && saver_->store( *newstoreioobj );
     if ( !saveok )
     {
@@ -207,8 +209,8 @@ OD::AutoSaver::AutoSaver()
     , saveDone(this)
     , saveFailed(this)
 {
-    mAttachCB( IOM().surveyToBeChanged, AutoSaver::survChgCB );
-    mAttachCB( IOM().applicationClosing, AutoSaver::appExitCB );
+    mAttachCB( DBM().surveyToBeChanged, AutoSaver::survChgCB );
+    mAttachCB( DBM().applicationClosing, AutoSaver::appExitCB );
     thread_ = new Threads::Thread( mSCB(AutoSaver::goCB), "AutoSaver" );
 }
 
@@ -306,10 +308,10 @@ bool OD::AutoSaver::restore( IOStream& iostrm, const char* newnm )
     iostrm.pars().removeWithKey( sKeyAutosaved() );
     iostrm.updateCreationPars();
 
-    iostrm.acquireNewKeyIn( tmpky.dirID() );
-    if ( IOM().commitChanges(iostrm) )
+    iostrm.setKeyForNewEntry( tmpky.dirID() );
+    if ( DBM().setEntry(iostrm) )
     {
-	IOM().permRemove( tmpky );
+	DBM().removeEntry( tmpky );
 	return true;
     }
 

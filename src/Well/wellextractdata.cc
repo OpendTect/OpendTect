@@ -20,14 +20,14 @@
 #include "datapointset.h"
 #include "posvecdataset.h"
 #include "survinfo.h"
-#include "iodirentry.h"
+#include "dbdir.h"
 #include "ctxtioobj.h"
 #include "datacoldef.h"
 #include "filepath.h"
 #include "strmprov.h"
-#include "iodir.h"
+#include "dbdir.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "ptrman.h"
 #include "dbkey.h"
@@ -73,12 +73,13 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     , dologs_(dologs)
     , dotracks_(dotracks)
     , curidx_(0)
+    , curmsg_(tr("No wells"))
+    , totalnr_(0)
+    , direntries_(*new DBDirEntryList(mIOObjContext(Well)))
 {
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    iodir_ = new IODir( ctio->ctxt_.getSelDirID() );
-    direntries_ = new IODirEntryList( *iodir_, ctio->ctxt_ );
-    totalnr_ = direntries_->size();
-    curmsg_ = totalnr_ ? tr("Gathering information") : tr("No wells");
+    totalnr_ = direntries_.size();
+    if ( totalnr_ > 0 )
+	curmsg_ = tr( "Gathering information" );
 }
 
 
@@ -87,17 +88,16 @@ Well::InfoCollector::~InfoCollector()
     deepErase( infos_ );
     deepErase( markers_ );
     deepErase( logs_ );
-    delete direntries_;
-    delete iodir_;
+    delete &direntries_;
 }
 
 
 int Well::InfoCollector::nextStep()
 {
     if ( curidx_ >= totalnr_ )
-	return Finished();
+	return totalnr_ > 0 ? Finished() : ErrorOccurred();
 
-    const DBKey wky( direntries_->key(curidx_) );
+    const DBKey wky( direntries_.key(curidx_) );
     const bool isloaded = Well::MGR().isLoaded( wky );
 
     BufferStringSet lognms;

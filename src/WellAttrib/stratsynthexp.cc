@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "prestackgather.h"
 #include "seistrc.h"
 #include "seisbufadapters.h"
@@ -106,8 +106,8 @@ bool StratSynthExporter::prepareWriter()
     }
 
     ctxt->setName( synthnm.buf() );
-    NotifyStopper stopaddentrynot( IOM().entryAdded );
-    IOM().getEntry( *ctxt, false );
+    NotifyStopper stopaddentrynot( DBM().entryAdded );
+    DBM().getEntry( *ctxt, false );
     delete writer_;
     writer_ = new SeisTrcWriter( ctxt->ioobj_ );
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );

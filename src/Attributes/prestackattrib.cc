@@ -24,7 +24,7 @@
 #include "raytrace1d.h"
 #include "windowfunction.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 
 namespace Attrib
@@ -174,7 +174,7 @@ PSAttrib::PSAttrib( Desc& ds )
     BufferString preprocessstr;
     mGetString( preprocessstr, preProcessStr() );
     preprocid_.fromString( preprocessstr );
-    PtrMan<IOObj> preprociopar = IOM().get( preprocid_ );
+    PtrMan<IOObj> preprociopar = DBM().get( preprocid_ );
     if ( !preprociopar )
 	preprocid_.setInvalid();
     else
@@ -559,7 +559,7 @@ void PSAttrib::prepPriorToBoundsCalc()
     }
     else
     {
-	psioobj_ = IOM().get( psid_ );
+	psioobj_ = DBM().get( psid_ );
 	if ( !psioobj_ && isondisc )
 	    mErrRet( uiStrings::phrCannotFindDBEntry( ::toUiString(psid_)) )
 

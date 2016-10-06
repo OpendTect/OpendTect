@@ -33,7 +33,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iostrm.h"
 #include "oddirs.h"
 #include "od_helpids.h"
@@ -317,7 +317,6 @@ bool acceptOK()
 	return false;
     }
 
-    IOM().to( inioobj_.key() );
     return doExp( fp );
 }
 
@@ -513,7 +512,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     execptrman.erase();
 
     if ( tmpioobj )
-	IOM().commitChanges( *tmpioobj );
+	DBM().setEntry( *tmpioobj );
 
     mRet( rv )
 }

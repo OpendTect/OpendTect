@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "trckeyzsampling.h"
 #include "interpol1d.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "datapointset.h"
 #include "samplingdata.h"
 #include "seisbuf.h"

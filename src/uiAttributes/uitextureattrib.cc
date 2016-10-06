@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "trckeyzsampling.h"
 #include "dataclipper.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
@@ -257,7 +257,7 @@ void uiTextureAttrib::analyseCB( CallBacker* )
     if ( !inpdesc )
 	return;
 
-    PtrMan<IOObj> ioobj = IOM().get( DBKey(inpdesc->getStoredID(true)) );
+    PtrMan<IOObj> ioobj = DBM().get( DBKey(inpdesc->getStoredID(true)) );
     if ( !ioobj )
     {
 	uiMSG().error( tr("Select a valid input") );

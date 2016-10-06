@@ -20,8 +20,8 @@
 #include "seisbuf.h"
 #include "iostrm.h"
 #include "iopar.h"
-#include "ioman.h"
-#include "iodir.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "strmprov.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
@@ -51,8 +51,9 @@ SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps, bool is_2d )
 	, is2d_(is_2d)
 	, psioprov_(0)
 {
-    IOStream iostrm( "_tmp_SeisStoreAccess",
-			IODir::getNewTmpKey(mIOObjContext(SeisTrc)) );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
+    IOStream iostrm( "_tmp_SeisStoreAccess", dbdir ? dbdir->newTmpKey()
+						   : DBKey::getInvalid() );
     iostrm.setGroup( !isps ?
 	   ( is2d_ ? mTranslGroupName(SeisTrc2D) : mTranslGroupName(SeisTrc) )
 	 : ( is2d_ ? mTranslGroupName(SeisPS2D) : mTranslGroupName(SeisPS3D)) );
@@ -159,13 +160,12 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 	res = iopar.find( sKey::Name() );
 	if ( res && *res )
 	{
-	    IOM().to( SeisTrcTranslatorGroup::ioContext().getSelDirID() );
-	    const IOObj* tryioobj_ = IOM().getLocal( res, 0 );
-	    if ( !tryioobj_ )
+	    const IOObj* tryioobj = DBM().getByName( IOObjContext::Seis, res );
+	    if ( !tryioobj )
 		res = 0;
 	    else
 	    {
-		tmp = tryioobj_->key();
+		tmp = tryioobj->key();
 		res = tmp.buf();
 	    }
 	}
@@ -173,7 +173,7 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 
     if ( res && *res )
     {
-	IOObj* ioob = IOM().get( DBKey::getFromString(res) );
+	IOObj* ioob = DBM().get( DBKey::getFromString(res) );
 	if ( ioob && (!ioobj_ || ioobj_->key() != ioob->key()) )
 	    setIOObj( ioob );
 	delete ioob;

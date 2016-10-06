@@ -9,7 +9,7 @@
 
 #include "ioobjctxt.h"
 #include "datainpspec.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "settings.h"
 #include "volprocchain.h"

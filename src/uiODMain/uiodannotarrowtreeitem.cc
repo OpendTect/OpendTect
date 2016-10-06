@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiodannottreeitem.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "picksetmanager.h"
 #include "trigonometry.h"

@@ -10,7 +10,7 @@
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -198,7 +198,7 @@ void MadStream::initRead( IOPar* par )
     DBKey inpid;
     if (!par->get(sKey::ID(), inpid)) mErrRet(tr("Input ID missing"));
 
-    PtrMan<IOObj> ioobj = IOM().get( inpid );
+    PtrMan<IOObj> ioobj = DBM().get( inpid );
     if (!ioobj) mErrRet(tr("Cannot find input data"));
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
@@ -238,7 +238,7 @@ void MadStream::initWrite( IOPar* par )
     if (!par->get(sKey::ID(), outpid))
 	mErrRet(uiStrings::phrCannotRead( tr("paramter file")) );
 
-    PtrMan<IOObj> ioobj = IOM().get( outpid );
+    PtrMan<IOObj> ioobj = DBM().get( outpid );
     if (!ioobj) mErrRet( uiStrings::phrCannotFindDBEntry(toUiString(outpid)) );
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );

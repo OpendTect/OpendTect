@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "ptrman.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 
 #define mOutTypeZ		0

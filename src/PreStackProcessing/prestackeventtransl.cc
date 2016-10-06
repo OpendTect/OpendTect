@@ -9,7 +9,7 @@
 
 #include "prestackeventio.h"
 #include "prestackevents.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "uistrings.h"
 
 defineTranslatorGroup(PSEvent, "PreStack Event" );
@@ -98,7 +98,7 @@ Executor* dgbPSEventTranslator::createSaveAs( PreStack::EventManager& pse,
 {
     if ( !newstorage ) return 0;
 
-    PtrMan<IOObj> oldstorage = IOM().get( pse.getStorageID() );
+    PtrMan<IOObj> oldstorage = DBM().get( pse.getStorageID() );
 
     ExecutorGroup* grp = new ExecutorGroup( "Save as", false );
 

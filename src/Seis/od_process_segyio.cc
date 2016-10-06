@@ -9,7 +9,7 @@
 
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "dbkey.h"
 #include "oddirs.h"
@@ -38,7 +38,7 @@ bool BatchProgram::doImport( od_ostream& strm, IOPar& iop, bool is2d )
     if ( !inioobj )
 	{ strm << "Input file spec is not OK" << od_endl; return false; }
     const DBKey dbky = DBKey::getFromString( outpar->find(sKey::ID()) );
-    PtrMan<IOObj> outioobj = IOM().get( dbky );
+    PtrMan<IOObj> outioobj = DBM().get( dbky );
     if ( !outioobj )
 	{ strm << "Output object spec is not OK" << od_endl; return false; }
 
@@ -65,7 +65,7 @@ bool BatchProgram::doExport( od_ostream& strm, IOPar& iop, bool is2d )
 
     DBKey indbky;
     inppar->get( sKey::ID(), indbky );
-    PtrMan<IOObj> inioobj = IOM().get( indbky );
+    PtrMan<IOObj> inioobj = DBM().get( indbky );
     if ( !inioobj )
 	{ strm << "Input seismics is not OK" << od_endl; return false; }
 
@@ -114,7 +114,7 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
     if ( !indexer.go(strm) )
     {
 	strm << indexer.uiMessage().getFullString();
-	IOM().permRemove( dbky );
+	DBM().removeEntry( dbky );
 	return false;
     }
 

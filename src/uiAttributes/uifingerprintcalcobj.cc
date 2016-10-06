@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "attribengman.h"
 #include "uimsg.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "binidvalset.h"
 #include "picksetmanager.h"
 #include "seis2ddata.h"
@@ -80,7 +80,7 @@ calcFingParsObject::~calcFingParsObject()
 void calcFingParsObject::create2DRandPicks( const DBKey& dsetid,
 						      BinIDValueSet* rangesset )
 {
-    PtrMan<IOObj> ioobj = IOM().get( dsetid );
+    PtrMan<IOObj> ioobj = DBM().get( dsetid );
     if ( !ioobj ) mErrRet( tr("2D Dataset ID is not OK") );
     PtrMan<Seis2DDataSet> dset = new Seis2DDataSet( *ioobj );
     const int nrlines = dset->nrLines();

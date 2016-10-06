@@ -15,7 +15,7 @@
 #include "seistrcprop.h"
 #include "dirlist.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "oddirs.h"

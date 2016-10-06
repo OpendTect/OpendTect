@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "cmdrecorder.h"
 #include "envvars.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keyboardevent.h"
 #include "keyenum.h"
 #include "oddirs.h"
@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "oddirs.h"
 #include "timer.h"
 #include "sighndl.h"
@@ -60,8 +60,8 @@ uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
 
     commandLineParsing();
 
-    mAttachCB( IOM().surveyToBeChanged, uiCmdDriverMgr::beforeSurveyChg );
-    mAttachCB( IOM().afterSurveyChange, uiCmdDriverMgr::afterSurveyChg );
+    mAttachCB( DBM().surveyToBeChanged, uiCmdDriverMgr::beforeSurveyChg );
+    mAttachCB( DBM().afterSurveyChange, uiCmdDriverMgr::afterSurveyChg );
     mAttachCB( applwin_.windowClosed, uiCmdDriverMgr::closeDlg );
     mAttachCB( applwin_.runScriptRequest, uiCmdDriverMgr::runScriptCB );
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,

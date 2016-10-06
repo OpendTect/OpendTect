@@ -8,7 +8,7 @@
 #include "uibatchtime2depthsetup.h"
 
 #include "ioobjctxt.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "process_time2depth.h"
 #include "seistrctr.h"
@@ -139,7 +139,7 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 	ZDomain::Time().set( outioobj->pars() );
     }
 
-    IOM().commitChanges( *outioobj );
+    DBM().setEntry( *outioobj );
     return true;
 }
 

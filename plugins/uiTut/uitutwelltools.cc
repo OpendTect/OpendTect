@@ -12,7 +12,7 @@
 #include "uimsg.h"
 #include "bufstring.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "od_ostream.h"
 #include "welldata.h"
 #include "wellio.h"
@@ -95,7 +95,7 @@ bool uiTutWellTools::acceptOK()
     if ( logtool.runSmooth(gate) )
     {
 	Well::LogSet::LogID logid = logset.add( outputlog );
-	PtrMan<IOObj> ioobj = IOM().get( wellid_ );
+	PtrMan<IOObj> ioobj = DBM().get( wellid_ );
 	if ( !ioobj )
 	    mErrRet( uiStrings::phrCannotFind(tr("object in I/O Manager")) )
 

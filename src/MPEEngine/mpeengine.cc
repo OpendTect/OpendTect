@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18
 #include "executor.h"
 #include "flatposdata.h"
 #include "geomelement.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "sectiontracker.h"
@@ -61,7 +61,7 @@ Engine::Engine()
     , state_(Stopped)
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
     , dpm_(DPM(DataPackMgr::SeisID()))
-    , activevolume_(!IOM().isBad())
+    , activevolume_(!DBM().isBad())
     , validator_(0)
 {
     trackers_.allowNull();
@@ -69,7 +69,7 @@ Engine::Engine()
     flatcubescontainer_.allowNull();
 
     init();
-    mAttachCB( IOM().applicationClosing, Engine::applClosingCB );
+    mAttachCB( DBM().applicationClosing, Engine::applClosingCB );
 }
 
 
@@ -945,7 +945,7 @@ const char* Engine::errMsg() const
 
 BufferString Engine::setupFileName( const DBKey& mid ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     return ioobj.ptr() ? EM::Surface::getSetupFileName(*ioobj)
 		       : BufferString("");
 }

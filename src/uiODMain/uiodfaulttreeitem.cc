@@ -16,7 +16,7 @@ ___________________________________________________________________
 #include "emfaultstickset.h"
 #include "emmanager.h"
 #include "mpeengine.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "mousecursor.h"
 #include "randcolor.h"
@@ -357,7 +357,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !saveas )
 	{
 	    PtrMan<IOObj> ioobj =
-		IOM().get( applMgr()->EMServer()->getStorageID(emid_) );
+		DBM().get( applMgr()->EMServer()->getStorageID(emid_) );
 	    saveas = !ioobj;
 	}
 
@@ -646,7 +646,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !saveas )
 	{
 	    PtrMan<IOObj> ioobj =
-		IOM().get( applMgr()->EMServer()->getStorageID(emid_) );
+		DBM().get( applMgr()->EMServer()->getStorageID(emid_) );
 	    saveas = !ioobj;
 	}
 

@@ -18,7 +18,7 @@
 #include "executor.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iostrm.h"
 #include "ptrman.h"
 #include "selector.h"
@@ -34,7 +34,7 @@ EM::EMManager& EM::EMM()
 
 bool EM::canOverwrite( const DBKey& mid )
 {
-    const IOObj* ioobj = IOM().get( mid );
+    const IOObj* ioobj = DBM().get( mid );
     if ( !ioobj )
 	return true;
 
@@ -99,7 +99,7 @@ BufferString EMManager::objectName( const DBKey& mid ) const
     if ( getObject(getObjectID(mid)) )
 	return getObject(getObjectID(mid))->name();
 
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     BufferString res;
     if ( ioobj ) res = ioobj->name();
     return res;
@@ -276,7 +276,7 @@ Executor* EMManager::objectLoader( const DBKey& mid,
 
     if ( !obj )
     {
-	PtrMan<IOObj> ioobj = IOM().get( mid );
+	PtrMan<IOObj> ioobj = DBM().get( mid );
 	if ( !ioobj ) return 0;
 
 	BufferString typenm = ioobj->pars().find( sKey::Type() );

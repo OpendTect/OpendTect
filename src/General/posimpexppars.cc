@@ -8,7 +8,7 @@
 #include "posimpexppars.h"
 #include "survinfo.h"
 #include "keystrs.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "perthreadrepos.h"
 
@@ -27,7 +27,7 @@ const PosImpExpPars& PosImpExpPars::SVY()
 	newthinst->getFromSI();
 
 	if ( thinst.setIfNull(newthinst,true) )
-	    IOM().afterSurveyChange.notify( mCB(thinst,PosImpExpPars,survChg) );
+	    DBM().afterSurveyChange.notify( mCB(thinst,PosImpExpPars,survChg) );
 
     }
 

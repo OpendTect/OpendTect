@@ -11,8 +11,8 @@ ________________________________________________________________________
 #include "uiseisimportcbvs.h"
 
 #include "ioobjctxt.h"
-#include "ioman.h"
-#include "iodir.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "iostrm.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -44,8 +44,10 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     : uiDialog(p,Setup(tr("Import CBVS cube"),mNoDlgTitle,
 		       mODHelpKey(mSeisImpCBVSHelpID)).modal(false))
     , outioobj_(0)
-    , tmpid_(IODir::getNewTmpKey(mIOObjContext(SeisTrc)))
 {
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
+    if ( dbdir )
+	const_cast<DBKey&>(tmpid_) = dbdir->newTmpKey();
     setCtrlStyle( RunAndClose );
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
@@ -78,7 +80,6 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     sssu.enabotherdomain( true );
     IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );
     outctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
-    IOM().to( outctxt.getSelDirID() );
     outfld_ = new uiSeisSel( this, outctxt, sssu );
     outfld_->attach( alignedBelow, transffld_ );
 
@@ -137,7 +138,7 @@ void uiSeisImportCBVS::inpSel( CallBacker* )
 }
 
 
-#define rmTmpIOObj() IOM().permRemove( tmpid_)
+#define rmTmpIOObj() DBM().removeEntry( tmpid_ )
 
 bool uiSeisImportCBVS::acceptOK()
 {
@@ -184,14 +185,14 @@ bool uiSeisImportCBVS::acceptOK()
     else
     {
 	inioobj = getInpIOObj( fname );
-	if ( !IOM().commitChanges(*inioobj) )
+	if ( !DBM().setEntry(*inioobj) )
 	{
 	    uiMSG().error(uiStrings::phrCannotWriteDBEntry(inioobj->uiName()));
 	    return false;
 	}
     }
 
-    if ( !IOM().commitChanges(*outioobj_) )
+    if ( !DBM().setEntry(*outioobj_) )
     {
 	uiMSG().error( uiStrings::phrCannotWriteDBEntry(outioobj_->uiName()) );
 	return false;

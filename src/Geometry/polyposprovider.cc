@@ -12,7 +12,7 @@
 #include "trckeyzsampling.h"
 #include "survinfo.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ptrman.h"
 #include "picksetmanager.h"
 #include <math.h>

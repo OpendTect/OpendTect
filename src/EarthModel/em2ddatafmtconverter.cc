@@ -10,7 +10,7 @@
 #include "emioobjinfo.h"
 #include "emhorizon2d.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "od_ostream.h"
@@ -55,7 +55,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::convertData(
     EM::IOObjInfo::getIDs( ftype, ioobjids );
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {
-	IOObj* ioobj = IOM().get( ioobjids[idx] );
+	IOObj* ioobj = DBM().get( ioobjids[idx] );
 	if ( !ioobj ) continue;
 	EM::IOObjInfo ioobjinfo( ioobj );
 	if ( ioobjinfo.hasGeomIDs() ) continue;
@@ -108,7 +108,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDToFSSPara(
 	    mDefStickKey("Picked DBKey",lsetkey,secids[secididx],stickidx);
 	    DBKey lsid;
 	    surfacepara_->get( lsetkey.buf(), lsid );
-	    IOObj* lsioobj = IOM().get(lsid);
+	    IOObj* lsioobj = DBM().get(lsid);
 	    if ( !lsioobj ) continue;
 
 	    int geomid = Survey::GM().getGeomID( lsioobj->name(),

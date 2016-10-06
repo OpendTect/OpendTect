@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uichecklist.h"
 #include "uimsg.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iostrm.h"
 #include "transl.h"
 #include "autosaver.h"
@@ -37,7 +37,7 @@ public:
 AutoSaved2RealObjectRestorer()
 {
     doWork( 0 );
-    mAttachCB( IOM().surveyChanged, AutoSaved2RealObjectRestorer::doWork );
+    mAttachCB( DBM().surveyChanged, AutoSaved2RealObjectRestorer::doWork );
 }
 
 void doWork( CallBacker* )
@@ -148,7 +148,7 @@ int uiAutoSave2RealObjDlg::run4All( const char* hnm, const char* unm )
     IOObjSelConstraints cnstrts;
     cnstrts.allownonuserselectable_ = true;
     cnstrts.require_.set( "Auto-saved", sKey::Yes() );
-    IOM().findTempObjs( ioobjs, &cnstrts );
+    DBM().findTempObjs( ioobjs, &cnstrts );
     if ( ioobjs.isEmpty() )
 	return 0;
 
@@ -203,7 +203,7 @@ int uiAutoSave2RealObjDlg::run4All( const char* hnm, const char* unm )
 	if ( delthisone || delall )
 	{
 	    ioobj.implRemove();
-	    IOM().permRemove( ioobj.key() );
+	    DBM().removeEntry( ioobj.key() );
 	}
     }
 

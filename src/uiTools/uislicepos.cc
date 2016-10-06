@@ -18,13 +18,13 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "trckeyzsampling.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "survinfo.h"
 
 
 uiSlicePos::uiSlicePos( uiParent* p )
     : positionChg(this)
-    , curcs_(!IOM().isBad())
+    , curcs_(!DBM().isBad())
     , zfactor_(mUdf(int))
 {
     toolbar_ = new uiToolBar( p, uiStrings::phrJoinStrings(uiStrings::sSlice(),
@@ -56,7 +56,7 @@ uiSlicePos::uiSlicePos( uiParent* p )
     toolbar_->addObject( prevbut_ );
     toolbar_->addObject( nextbut_ );
 
-    IOM().surveyChanged.notify( mCB(this,uiSlicePos,initSteps) );
+    DBM().surveyChanged.notify( mCB(this,uiSlicePos,initSteps) );
 
     SCMgr().shortcutsChanged.notify( mCB(this,uiSlicePos,shortcutsChg) );
     initSteps();
@@ -66,7 +66,7 @@ uiSlicePos::uiSlicePos( uiParent* p )
 
 uiSlicePos::~uiSlicePos()
 {
-    IOM().surveyChanged.remove( mCB(this,uiSlicePos,initSteps) );
+    DBM().surveyChanged.remove( mCB(this,uiSlicePos,initSteps) );
     SCMgr().shortcutsChanged.remove( mCB(this,uiSlicePos,shortcutsChg) );
 }
 
@@ -86,7 +86,7 @@ void uiSlicePos::shortcutsChg( CallBacker* )
 
 void uiSlicePos::initSteps( CallBacker* )
 {
-    if ( IOM().isBad() )
+    if ( DBM().isBad() )
 	return;
 
     zfactor_ = mCast(int,SI().zDomain().userFactor());

@@ -18,8 +18,8 @@ ___________________________________________________________________
 #include "empolygonbody.h"
 #include "emrandomposbody.h"
 #include "executor.h"
-#include "iodir.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "marchingcubes.h"
 #include "od_helpids.h"
 
@@ -262,7 +262,7 @@ void uiBodyOperatorDlg::itemClick( CallBacker* )
 	bodyselfld_->display( true );
 	bodyselbut_->display( true );
 	typefld_->box()->setCurrentItem( 0 );
-	PtrMan<IOObj> ioobj = IOM().get( listinfo_[curidx].mid_ );
+	PtrMan<IOObj> ioobj = DBM().get( listinfo_[curidx].mid_ );
 	const BufferString text = ioobj ? ioobj->name().buf() : "";
 	bodyselfld_->setText( text );
     }
@@ -333,11 +333,11 @@ bool uiBodyOperatorDlg::acceptOK()
 	mRetErr(uiStrings::sSaveBodyFail())
 
     DBKey key = emcs->dbKey();
-    PtrMan<IOObj> ioobj = IOM().get( key );
+    PtrMan<IOObj> ioobj = DBM().get( key );
     if ( !ioobj->pars().find( sKey::Type() ) )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
-	if ( !IOM().commitChanges( *ioobj ) )
+	if ( !DBM().setEntry( *ioobj ) )
 	    mRetErr( uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ) )
     }
 
@@ -423,11 +423,11 @@ uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p,
 
 bool uiImplicitBodyValueSwitchDlg::acceptOK()
 {
-    const IOObj* inpiobj = inputfld_->ioobj(true);
+    const IOObj* inpiobj = inputfld_->ioobj();
     if ( !inpiobj )
-	inpiobj = getIfMCSurfaceObj();
-
-    if ( !inpiobj || !outputfld_->ioobj() )
+	return false;
+    const IOObj* outiobj = outputfld_->ioobj();
+    if ( !outiobj )
 	return false;
 
     uiTaskRunner taskrunner( this );
@@ -475,7 +475,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     emcs->setCrlSampling( SamplingData<int>(impbd->tkzs_.hsamp_.crlRange()) );
     emcs->setZSampling( SamplingData<float>(impbd->tkzs_.zsamp_) );
 
-    emcs->setDBKey( outputfld_->key() );
+    emcs->setDBKey( outiobj->key() );
     emcs->setName( outputfld_->getInput() );
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();
@@ -485,12 +485,12 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     if ( !exec )
 	mRetErr( uiStrings::sSaveBodyFail() );
 
-    PtrMan<IOObj> ioobj = IOM().get( outputfld_->key() );
-    if ( !ioobj->pars().find(sKey::Type()) )
+    if ( !outiobj->pars().find(sKey::Type()) )
     {
-	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
-	if ( !IOM().commitChanges(*ioobj) )
-	    mRetErr( uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ) )
+	PtrMan<IOObj> chgioobj = outiobj->clone();
+	chgioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
+	if ( !DBM().setEntry(*chgioobj) )
+	    mRetErr( uiStrings::phrCannotWriteDBEntry( chgioobj->uiName() ) )
     }
 
     if ( !TaskRunner::execute(&taskrunner,*exec) )
@@ -502,16 +502,5 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
 
 const IOObj* uiImplicitBodyValueSwitchDlg::getIfMCSurfaceObj() const
 {
-    const char* inpstr = inputfld_->getInput();
-    const CtxtIOObj workctio = mIOObjContext( EMBody );
-    const IODir iodir( workctio.ctxt_.getSelDirID() );
-    PtrMan<IOObj> inpiobj = iodir.getEntryByName( inpstr );
-    if ( !inpiobj )
-	return 0;
-
-    const int res = workctio.ctxt_.trgroup_->objSelector( inpiobj->group() );
-    if ( res == mObjSelUnrelated )
-	return 0;
-
-    return inpiobj.release();
+    return DBM().getByName( mIOObjContext(EMBody), inputfld_->getInput() );
 }

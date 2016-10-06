@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "convmemvalseries.h"
 #include "datacoldef.h"
 #include "datapointset.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "linesetposinfo.h"
 #include "nladesign.h"
@@ -205,7 +205,7 @@ void EngineMan::setExecutorName( Executor* ex )
 	nm += nlamodel_->nlaType(true);
 	nm += ": calculating";
 	if ( IOObj::isKey(usernm) )
-	    usernm = IOM().nameOf( DBKey::getFromString(usernm) );
+	    usernm = DBM().nameOf( DBKey::getFromString(usernm) );
     }
     else
     {
@@ -619,7 +619,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 	    if ( !descid.isValid() )
 	    {
 		// It could be 'storage', but it's not yet in the set ...
-		PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(inpname));
+		PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(inpname));
 		if ( ioobj )
 		{
 		    Desc* stordesc =
@@ -961,7 +961,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     const StringPair storkey( storeddesc->getValParam(
 			      StorageProvider::keyStr())->getStringValue(0) );
     const DBKey key = DBKey::getFromString( storkey.first() );
-    PtrMan<IOObj> ioobj = IOM().get( key );
+    PtrMan<IOObj> ioobj = DBM().get( key );
     if ( !ioobj ) return;
 
     const Seis2DDataSet dset( *ioobj );

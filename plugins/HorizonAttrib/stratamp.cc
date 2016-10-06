@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "odver.h"
 #include "seisread.h"
@@ -118,7 +118,7 @@ int StratAmpCalc::init( const IOPar& pars )
 	const StringPair strpair( targetdesc->getValParam(
 			Attrib::StorageProvider::keyStr())->getStringValue(0) );
 	const DBKey key = DBKey::getFromString( strpair.first() );
-	PtrMan<IOObj> seisobj = IOM().get( key );
+	PtrMan<IOObj> seisobj = DBM().get( key );
 	rdr_ = new SeisTrcReader( seisobj );
 	TrcKeyZSampling cs;
 	cs.hsamp_ = hs_;

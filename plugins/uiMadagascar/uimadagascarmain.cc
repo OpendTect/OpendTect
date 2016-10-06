@@ -24,7 +24,7 @@
 #include "uimsg.h"
 #include "trckeyzsampling.h"
 #include "keystrs.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "oddirs.h"
 #include "seisioobjinfo.h"
 #include "strmprov.h"
@@ -326,11 +326,9 @@ void uiMadagascarMain::updateCaption()
 
 void uiMadagascarMain::exportFlow( CallBacker* )
 {
-    IOM().to( DBKey::DirID::get(ODMad::cMadDirIDNr()) );
     uiFileDialog dlg( this, false );
-    dlg.setDirectory( IOM().curDirName() );
-    if ( !dlg.go() ) return;
-    uiMSG().error( toUiString("export needs implementation" ) );
+    if ( dlg.go() )
+	uiMSG().error( toUiString("export needs implementation" ) );
 }
 
 

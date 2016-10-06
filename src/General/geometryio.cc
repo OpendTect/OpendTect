@@ -8,8 +8,8 @@
 #include "geometryio.h"
 
 #include "ioobjctxt.h"
-#include "iodir.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "survgeom2d.h"
 #include "posinfo2d.h"
 #include "survgeometrytransl.h"
@@ -27,10 +27,10 @@ class GeomFileReader : public Executor
 {
 public:
 
-    GeomFileReader( const IODir& iodir,
+    GeomFileReader( const DBDir& dbdir,
 		    ObjectSet<Geometry>& geometries, bool updateonly )
 	: Executor( "Loading Files" )
-	, iodir_(iodir)
+	, dbdir_(dbdir)
 	, geometries_(geometries)
 	, nrdone_(0)
 	, updateonly_(updateonly)
@@ -42,7 +42,7 @@ public:
 
 
     od_int64 totalNr() const
-    { return iodir_.size(); }
+    { return dbdir_.size(); }
 
 protected:
 
@@ -57,7 +57,7 @@ protected:
 
     int nextStep()
     {
-	PtrMan<IOObj> ioobj = iodir_.getEntryByIdx( mCast(int,nrdone_) );
+	PtrMan<IOObj> ioobj = dbdir_.getEntryByIdx( mCast(int,nrdone_) );
 	const Geometry::ID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );
 	if ( updateonly_ && isLoaded(geomid) )
 	    mReturn
@@ -78,7 +78,7 @@ protected:
 	mReturn
     }
 
-    const IODir&		iodir_;
+    const DBDir&		dbdir_;
     ObjectSet<Geometry>&	geometries_;
     od_int64			nrdone_;
     bool			updateonly_;
@@ -111,7 +111,7 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
     if ( !crfromstr.isEmpty() )
     {
 	ioobj->pars().set( sKey::CrFrom(), crfromstr );
-	IOM().commitChanges( *ioobj );
+	DBM().setEntry( *ioobj );
     }
 
     return geomtransl->writeGeometry( *ioobj, geom, errmsg );
@@ -143,12 +143,12 @@ void GeometryWriter3D::initClass()
 bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 			     TaskRunner* tr ) const
 {
-    const IOObjContext& iocontext = mIOObjContext(SurvGeom2D);
-    const IODir iodir( iocontext.getSelDirID() );
-    if ( iodir.isBad() )
+    const IOObjContext& ctxt = mIOObjContext(SurvGeom2D);
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( ctxt.getSelDirID() );
+    if ( !dbdir )
 	return false;
 
-    GeomFileReader gfr( iodir, geometries, false );
+    GeomFileReader gfr( *dbdir, geometries, false );
     return TaskRunner::execute( tr, gfr );
 }
 
@@ -156,18 +156,15 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
 					 TaskRunner* tr ) const
 {
-    if ( IOM().isBad() )
+    const IOObjContext& ctxt = mIOObjContext(SurvGeom2D);
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( ctxt.getSelDirID() );
+    if ( !dbdir )
 	return false;
 
-    const IOObjContext& iocontext = mIOObjContext(SurvGeom2D);
-    const IODir iodir( iocontext.getSelDirID() );
-    if ( iodir.isBad() )
-	return false;
-
-    if ( iodir.size() == geometries.size() )
+    if ( dbdir->size() == geometries.size() )
 	return true; //TODO: Update existing geometries if modified.
 
-    GeomFileReader gfr( iodir, geometries, true );
+    GeomFileReader gfr( *dbdir, geometries, true );
     return TaskRunner::execute( tr, gfr );
 }
 

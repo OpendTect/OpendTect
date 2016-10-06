@@ -32,6 +32,9 @@ mGlobal(Basic) const char* GetDataDir(void);
 mGlobal(Basic) const char* GetProcFileName(const char*);
 /*!< Returns file name in GetDataDir()/Proc. Pass null for directory. */
 
+mGlobal(Basic) const char* GetLastSurveyFileName(void);
+/*!< File with last visited survey name */
+
 
 /* Functions delivering files/directies in the 'sytem' scope */
 

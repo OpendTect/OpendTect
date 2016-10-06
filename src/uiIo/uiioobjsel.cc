@@ -15,9 +15,8 @@ ________________________________________________________________________
 #include "uiioobjselwritetransl.h"
 
 #include "ctxtioobj.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "transl.h"
 
@@ -27,6 +26,8 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 #include "settings.h"
+#include "file.h"
+#include "filepath.h"
 
 
 mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
@@ -106,7 +107,9 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
 	    .nrstatusflds(1)) \
     , selgrp_( 0 ) \
-    , crctio_( 0 )
+    , crctio_( 0 ) \
+    , resultioobj_( 0 ) \
+    , dbmpushed_( false )
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const IOObjContext& ctxt )
@@ -140,6 +143,7 @@ uiIOObjSelDlg::~uiIOObjSelDlg()
 {
     if ( crctio_ )
 	{ delete crctio_->ioobj_; delete crctio_; }
+    delete resultioobj_;
 }
 
 
@@ -153,6 +157,21 @@ uiString uiIOObjSelDlg::selTxt( bool forread )
 
 void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 {
+    if ( !setup_.survdir_.isEmpty() && File::isDirectory(setup_.survdir_) )
+    {
+	IOPar iop; FilePath fp( setup_.survdir_ );
+	iop.set( sKey::DataRoot(), fp.pathOnly() );
+	iop.set( sKey::Survey(), fp.fileName() );
+	DBMan* newdbman = DBMan::getEmpty();
+	if ( !newdbman->setDataSource(iop).isOK() )
+	    DBMan::retire( newdbman );
+	else
+	{
+	    DBMan::pushDBM( newdbman );
+	    dbmpushed_ = true;
+	}
+    }
+
     uiIOObjSelGrp::Setup sgsu( ctio.ctxt_.forread_ && setup_.multisel_
 			? OD::ChooseAtLeastOne : OD::ChooseOnlyOne );
     sgsu.allowsetdefault( setup_.allowsetsurvdefault_ );
@@ -208,8 +227,13 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 
 const IOObj* uiIOObjSelDlg::ioObj() const
 {
-    selgrp_->updateCtxtIOObj();
-    return selgrp_->getCtxtIOObj().ioobj_;
+    if ( !resultioobj_ )
+    {
+	selgrp_->updateCtxtIOObj();
+	return selgrp_->getCtxtIOObj().ioobj_;
+    }
+
+    return resultioobj_;
 }
 
 
@@ -220,10 +244,36 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 }
 
 
-void uiIOObjSelDlg::setSurveyDefaultSubsel(const char* subsel)
+void uiIOObjSelDlg::setSurveyDefaultSubsel( const char* subsel )
 {
     selgrp_->setSurveyDefaultSubsel(subsel);
+}
 
+
+bool uiIOObjSelDlg::acceptOK()
+{
+    if ( !selgrp_->isEmpty() )
+    {
+	if ( !resultioobj_ )
+	{
+	    const IOObj* res = ioObj();
+	    if ( !res )
+		return false;
+	    resultioobj_ = res->clone();
+	}
+    }
+
+    if ( dbmpushed_ )
+	DBMan::popDBM();
+    return true;
+}
+
+
+bool uiIOObjSelDlg::rejectOK()
+{
+    if ( dbmpushed_ )
+	DBMan::popDBM();
+    return true;
 }
 
 
@@ -289,9 +339,9 @@ void uiIOObjSel::init()
 	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
     }
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
-    mAttachCB( IOM().afterSurveyChange, uiIOObjSel::survChangedCB );
-    mAttachCB( IOM().entryAdded, uiIOObjSel::iomEntryAddedCB );
-    mAttachCB( IOM().entryRemoved, uiIOObjSel::iomEntryRemovedCB );
+    mAttachCB( DBM().afterSurveyChange, uiIOObjSel::survChangedCB );
+    mAttachCB( DBM().entryAdded, uiIOObjSel::dbmChgCB );
+    mAttachCB( DBM().entryRemoved, uiIOObjSel::dbmChgCB );
 }
 
 
@@ -326,7 +376,7 @@ void uiIOObjSel::survChangedCB( CallBacker* )
 }
 
 
-void uiIOObjSel::iomChg( CallBacker* cb )
+void uiIOObjSel::dbmChgCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( DBKey, id, cb );
     if ( id.isInvalid() )
@@ -372,8 +422,7 @@ void uiIOObjSel::fillEntries()
 
     const bool hadselioobj = workctio_.ioobj_;
 
-    const IODir iodir( inctio_.ctxt_.getSelDirID() );
-    IODirEntryList entrylist( iodir, inctio_.ctxt_ );
+    DBDirEntryList entrylist( inctio_.ctxt_ );
     BufferStringSet keys, names;
     if ( setup_.withclear_ || !setup_.filldef_ )
 	{ keys.add( "" ); names.add( "" ); }
@@ -443,7 +492,7 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* bky )
 
 void uiIOObjSel::setInput( const DBKey& dbky )
 {
-    workctio_.setObj( IOM().get(dbky) );
+    workctio_.setObj( DBM().get(dbky) );
     uiIOSelect::setInput( dbky.toString() );
 }
 
@@ -475,7 +524,7 @@ const char* uiIOObjSel::userNameFromKey( const char* kystr ) const
     nm.setEmpty();
     const DBKey dbky = DBKey::getFromString( kystr );
     if ( dbky.isValid() )
-	nm = IOM().nameOf( dbky );
+	nm = DBM().nameOf( dbky );
     return nm.buf();
 }
 
@@ -496,9 +545,7 @@ void uiIOObjSel::obtainIOObj()
 	    return;
     }
 
-    const IODir iodir( workctio_.ctxt_.getSelDirID() );
-    PtrMan<IOObj> ioob = iodir.getEntryByName( inp,
-				   workctio_.ctxt_.translatorGroupName() );
+    PtrMan<IOObj> ioob = DBM().getByName( workctio_.ctxt_, inp );
     workctio_.setObj( ioob && workctio_.ctxt_.validIOObj(*ioob)
 		    ? ioob.release() : 0 );
 }
@@ -514,23 +561,15 @@ void uiIOObjSel::processInput()
 
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
-    const IODir iodir( workctio_.ctxt_.getSelDirID() );
-    PtrMan<IOObj> obj =
-	iodir.getEntryByName( nm, workctio_.ctxt_.translatorGroupName() );
+    PtrMan<IOObj> obj = DBM().getByName( workctio_.ctxt_, nm );
     return obj;
 }
 
 
 DBKey uiIOObjSel::getKeyOnly() const
 {
-    const IODir iodir( workctio_.ctxt_.getSelDirID() );
-    PtrMan<IOObj> ioob = iodir.getEntryByName( getInput(),
-				workctio_.ctxt_.translatorGroupName() );
-
-    if ( ioob && workctio_.ctxt_.validIOObj(*ioob) )
-	return ioob->key();
-
-    return DBKey();
+    PtrMan<IOObj> ioob = DBM().getByName( workctio_.ctxt_, getInput() );
+    return ioob ? ioob->key() : DBKey();
 }
 
 
@@ -678,7 +717,7 @@ void uiIOObjSel::objSel()
     if ( !ky || !*ky )
 	workctio_.setObj( 0 );
     else
-	workctio_.setObj( IOM().get( DBKey::getFromString(ky) ) );
+	workctio_.setObj( DBM().get( DBKey::getFromString(ky) ) );
 }
 
 

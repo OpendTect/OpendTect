@@ -17,7 +17,7 @@ ___________________________________________________________________
 #include "emobject.h"
 #include "emseedpicker.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "mpeengine.h"
@@ -238,7 +238,7 @@ bool EMTracker::usePar( const IOPar& iopar )
 	else  // old policy for restoring session
 	{
 	    st->setSetupID( setupid );
-	    PtrMan<IOObj> ioobj = IOM().get( setupid );
+	    PtrMan<IOObj> ioobj = DBM().get( setupid );
 	    if ( !ioobj ) { idx++; continue; }
 
 	    MPE::Setup setup;

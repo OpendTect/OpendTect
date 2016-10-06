@@ -9,7 +9,7 @@
 #include "cbvsio.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "perthreadrepos.h"
 #include "seiscbvs.h"
@@ -37,7 +37,7 @@ PreLoader::PreLoader( const DBKey& mid, Pos::GeomID geomid, TaskRunner* trn )
 
 IOObj* PreLoader::getIOObj() const
 {
-    IOObj* ret = IOM().get( dbkey_ );
+    IOObj* ret = DBM().get( dbkey_ );
     if ( !ret )
 	errmsg_ = uiStrings::phrCannotFindDBEntry( toUiString(dbkey_) );
     return ret;
@@ -353,7 +353,7 @@ PreLoadDataEntry::PreLoadDataEntry( const DBKey& dbky, Pos::GeomID geomid,
 				    int dpid )
     : dbkey_(dbky), geomid_(geomid), dpid_(dpid), is2d_(geomid!=-1)
 {
-    name_ = IOM().nameOf( dbky );
+    name_ = DBM().nameOf( dbky );
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
     is2d_ = geom && geom->is2D();
     if ( is2d_ )

@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "uiwelldisplay.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "welldata.h"
 #include "welllogset.h"
 #include "wellmarker.h"
@@ -249,7 +249,7 @@ uiString uiWellDisplayWin::getWinTitle( const DBKey& id, bool foredit )
 {
     return tr( "%1 '%2'" ).arg( foredit ? uiStrings::sEdit()
 					 : uiStrings::sDisplay() )
-					   .arg( IOM().nameOf( id ) );
+					   .arg( DBM().nameOf( id ) );
 }
 
 

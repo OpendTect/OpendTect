@@ -313,22 +313,19 @@ Survey::Geometry::RelationType Survey::Geometry3D::compare(
 //==============================================================================
 
 
-static ManagedObjectSet<SurveyInfo> survinfostack;
+static ManagedObjectSet<SurveyInfo> survinfostack_;
 
 const SurveyInfo& SI()
 {
-    int cursurvinfoidx = survinfostack.size() - 1;
+    int cursurvinfoidx = survinfostack_.size() - 1;
     if ( cursurvinfoidx < 0 )
     {
-	uiString errmsg;
-	SurveyInfo* newsi = SurveyInfo::read( GetDataDir(), errmsg );
-	if ( !newsi )
-	    newsi = new SurveyInfo;
-	survinfostack += newsi;
-	cursurvinfoidx = survinfostack.size() - 1;
+	SurveyInfo* newsi = new SurveyInfo;
+	survinfostack_ += newsi;
+	cursurvinfoidx = 0;
     }
 
-    return *survinfostack[cursurvinfoidx];
+    return *survinfostack_[cursurvinfoidx];
 }
 
 
@@ -337,28 +334,29 @@ void SurveyInfo::pushSI( SurveyInfo* newsi )
     if ( !newsi )
 	pFreeFnErrMsg("Null survinfo pushed");
     else
-	survinfostack += newsi;
+	survinfostack_ += newsi;
 }
 
 
-SurveyInfo* SurveyInfo::popSI()
+bool SurveyInfo::popSI()
 {
-    return survinfostack.isEmpty() ? 0
-	 : survinfostack.removeSingle( survinfostack.size()-1 );
-}
-
-
-void SurveyInfo::deleteOriginal()
-{
-    if ( survinfostack.size() < 2 )
-	return;
-
-    delete survinfostack.removeSingle( 0 );
+    if ( survinfostack_.isEmpty() )
+	return false;
+    survinfostack_.removeSingle( survinfostack_.size()-1 );
+    return true;
 }
 
 
 IOPar& SurveyInfo::getPars() const
-{ return const_cast<SurveyInfo*>(this)->defaultPars(); }
+{
+    return const_cast<SurveyInfo*>(this)->defaultPars();
+}
+
+
+BufferString SurveyInfo::getSurvDirFullPath() const
+{
+    return FilePath( datadir_, dirname_ ).fullPath();
+}
 
 
 
@@ -388,15 +386,15 @@ SurveyInfo::SurveyInfo()
 
 
 
-SurveyInfo::SurveyInfo( const SurveyInfo& si )
-    : NamedMonitorable( si )
+SurveyInfo::SurveyInfo( const SurveyInfo& oth )
+    : NamedMonitorable( oth )
     , tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
     , surveydefaultpars_(sKeySurvDefs)
-    , zdef_(*new ZDomain::Def( si.zDomain() ) )
+    , zdef_(*new ZDomain::Def( oth.zDomain() ) )
     , workRangeChg(this)
 {
-    *this = si;
+    copyClassData( oth );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -417,52 +415,90 @@ SurveyInfo::~SurveyInfo()
 }
 
 
+mImplMonitorableAssignment( SurveyInfo, NamedMonitorable )
 
-SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
+
+void SurveyInfo::copyClassData( const SurveyInfo& oth )
 {
-    if ( &si == this ) return *this;
-
-    setName( si.name() );
-    zdef_ = si.zdef_;
-    datadir_ = si.datadir_;
-    dirname_ = si.dirname_;
-    coordsystem_ = si.coordsystem_;
-    depthsinfeet_ = si.depthsinfeet_;
-    b2c_ = si.b2c_;
-    survdatatype_ = si.survdatatype_;
-    survdatatypeknown_ = si.survdatatypeknown_;
+    zdef_ = oth.zdef_;
+    datadir_ = oth.datadir_;
+    dirname_ = oth.dirname_;
+    coordsystem_ = oth.coordsystem_;
+    depthsinfeet_ = oth.depthsinfeet_;
+    b2c_ = oth.b2c_;
+    survdatatype_ = oth.survdatatype_;
+    survdatatypeknown_ = oth.survdatatypeknown_;
     for ( int idx=0; idx<3; idx++ )
     {
-	set3binids_[idx] = si.set3binids_[idx];
-	set3coords_[idx] = si.set3coords_[idx];
+	set3binids_[idx] = oth.set3binids_[idx];
+	set3coords_[idx] = oth.set3coords_[idx];
     }
-    tkzs_ = si.tkzs_;
-    wcs_ = si.wcs_;
-    surveydefaultpars_ = si.surveydefaultpars_;
-    seisrefdatum_ = si.seisrefdatum_;
-    rdxtr_ = si.rdxtr_; rdytr_ = si.rdytr_;
-    sipnm_ = si.sipnm_;
+    tkzs_ = oth.tkzs_;
+    wcs_ = oth.wcs_;
+    surveydefaultpars_ = oth.surveydefaultpars_;
+    seisrefdatum_ = oth.seisrefdatum_;
+    rdxtr_ = oth.rdxtr_; rdytr_ = oth.rdytr_;
+    sipnm_ = oth.sipnm_;
     update3DGeometry();
-
-    return *this;
 }
 
 
-SurveyInfo* SurveyInfo::read( const char* survdir, uiString& errmsg )
+#define mErrRetDoesntExist(fnm) \
+    { ret.add( uiStrings::phrDoesntExist(::toUiString(fnm)) ); return ret; }
+
+
+uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd )
+{
+    uiRetVal ret = uiRetVal::OK();
+    const BufferString olddataroot = SI().datadir_;
+    const BufferString olddirname = SI().dirname_;
+    BufferString newdataroot( dr ); BufferString newdirname( sd );
+    const bool useolddr = newdataroot.isEmpty() || newdataroot == olddataroot;
+    const bool useoldsd = newdirname.isEmpty() || newdirname == olddirname;
+    if ( useolddr && useoldsd )
+	return ret;
+
+    if ( useolddr )
+	newdataroot = olddataroot;
+    if ( useoldsd )
+	newdirname = olddirname;
+
+    if ( !File::isDirectory(newdataroot) )
+	mErrRetDoesntExist(newdataroot)
+    FilePath fp( newdataroot, newdirname );
+    const BufferString survdir = fp.fullPath();
+    if ( !File::isDirectory(survdir) )
+	mErrRetDoesntExist(survdir)
+    fp.add( ".omf" );
+    const BufferString omffnm = fp.fullPath();
+    if ( !File::exists(omffnm) )
+	mErrRetDoesntExist(omffnm)
+
+    SurveyInfo* newsi = read( survdir, ret );
+    if ( !newsi )
+	return ret;
+    else
+    {
+	while ( popSI() )   { /* clear all */ }
+	pushSI( newsi );
+    }
+
+    return ret;
+}
+
+
+SurveyInfo* SurveyInfo::read( const char* survdir, uiRetVal& uirv )
 {
     FilePath fpsurvdir( survdir );
     FilePath fp( fpsurvdir, sKeySetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(true) )
-    {
-	errmsg = sfio.errMsg();
-	return 0;
-    }
+	{ uirv = sfio.errMsg(); return 0; }
 
     ascistream astream( sfio.istrm() );
     if ( !astream.isOfFileType(sKeySI) )
     {
-	errmsg = tr("Survey definition file cannot be read.\n"
+	uirv = tr("Survey definition file cannot be read.\n"
 		    "Survey file '%1'  has file type '%2'.\n"
 		    "The file may be corrupt or not accessible.")
 		   .arg(fp.fullPath())
@@ -496,13 +532,13 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiString& errmsg )
     while ( astream.stream().getLine(line) )
     {
 	if ( !si->comment_.isEmpty() )
-	    si->comment_ += "\n";
-	si->comment_ += line;
+	    si->comment_.addNewLine();
+	si->comment_.add( line );
     }
     sfio.closeSuccess();
 
     if ( !si->wrapUpRead() )
-    { delete si; return 0; }
+	{ delete si; return 0; }
 
     return si;
 }

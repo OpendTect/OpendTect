@@ -19,11 +19,10 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "uimsg.h"
 #include "ptrman.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
-#include "iodir.h"
-#include "iodirentry.h"
+#include "dbdir.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
 #include "survgeometry.h"
@@ -208,10 +207,7 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 
 void uiWellSelGrp::fillListBox()
 {
-    IOObjContext ctxt( mIOObjContext( Well ) );
-    ctxt.forread_ = true;
-    const IODir iodir ( ctxt.getSelDirID() );
-    IODirEntryList entrylist( iodir, ctxt );
+    DBDirEntryList entrylist( mIOObjContext(Well) );
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
 	allwellsids_.add( entrylist.key(idx) );

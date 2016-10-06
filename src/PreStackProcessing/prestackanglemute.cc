@@ -10,7 +10,7 @@
 #include "ailayer.h"
 #include "arrayndslice.h"
 #include "flatposdata.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "math.h"
 #include "muter.h"
@@ -78,7 +78,7 @@ AngleMuteBase::~AngleMuteBase()
 
 void AngleMuteBase::fillPar( IOPar& par ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( params_->velvolmid_ );
+    PtrMan<IOObj> ioobj = DBM().get( params_->velvolmid_ );
     if ( ioobj ) par.set( sKeyVelVolumeID(), params_->velvolmid_ );
 
     par.merge( params_->raypar_ );
@@ -99,7 +99,7 @@ bool AngleMuteBase::usePar( const IOPar& par  )
 bool AngleMuteBase::setVelocityFunction()
 {
     const DBKey& mid = params_->velvolmid_;
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( !ioobj ) return false;
 
     velsource_->setFrom( mid );

@@ -10,7 +10,7 @@
 #include "picksetmanager.h"
 #include "od_istream.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "survinfo.h"
 #include "survgeom.h"

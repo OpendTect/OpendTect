@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 
 #include "interpol1d.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "randomlinetr.h"
 #include "survgeom3d.h"
@@ -56,7 +56,7 @@ void RandomLine::setDBKey( const DBKey& dbky )
 {
     dbky_ = dbky;
     if ( !dbky_.isInvalid() )
-	setName( IOM().nameOf(dbky_) );
+	setName( DBM().nameOf(dbky_) );
 }
 
 
@@ -517,7 +517,7 @@ void RandomLineSet::getGeometry( const DBKey& rdlsid, TypeSet<BinID>& knots,
 				 StepInterval<float>* zrg )
 {
     Geometry::RandomLineSet rls; uiString errmsg;
-    const PtrMan<IOObj> rdmline = IOM().get( rdlsid );
+    const PtrMan<IOObj> rdmline = DBM().get( rdlsid );
     RandomLineSetTranslator::retrieve( rls, rdmline, errmsg );
     if ( !errmsg.isEmpty() || rls.isEmpty() )
 	return;
@@ -579,7 +579,7 @@ RandomLine* RandomLineManager::get( const DBKey& dbky )
     if ( rl )
 	return rl;
 
-    PtrMan<IOObj> ioobj = IOM().get( dbky );
+    PtrMan<IOObj> ioobj = DBM().get( dbky );
     if ( !ioobj ) return 0;
 
     PtrMan<RandomLineSet> rdlset = new RandomLineSet;

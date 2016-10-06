@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "welltietoseismic.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "envvars.h"
@@ -103,7 +103,7 @@ bool DataPlayer::extractSeismics()
 {
     errmsg_.setEmpty();
 
-    const IOObj& ioobj = *IOM().get( seisid_ );
+    const IOObj& ioobj = *DBM().get( seisid_ );
     IOObj* seisobj = ioobj.clone();
     SeisIOObjInfo oinf( seisid_ );
     if ( !seisobj || !oinf.isOK() )

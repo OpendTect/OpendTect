@@ -12,9 +12,8 @@
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "posinfo2dsurv.h"
@@ -30,9 +29,7 @@
 
 static void convert2DPSData()
 {
-    IOObjContext oldctxt( mIOObjContext(SeisPS2D) );
-    const IODir oldiodir( oldctxt.getSelDirID() );
-    const IODirEntryList olddel( oldiodir, oldctxt );
+    const DBDirEntryList olddel( mIOObjContext(SeisPS2D) );
     BufferStringSet lsnms;
     S2DPOS().getLineSets( lsnms );
     for ( int idx=0; idx<olddel.size(); idx++ )
@@ -71,25 +68,32 @@ static void convert2DPSData()
 
 static void convertSeis2DTranslators()
 {
-    IODir iodir( IOObjContext::Seis );
-    IODirIter iter( iodir );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
+    if ( !dbdir )
+	return;
+
+    ObjectSet<IOObj> newioobjs;
+    DBDirIter iter( *dbdir );
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();
 	if ( ioobj.translator() == TwoDDataSeisTrcTranslator::translKey() )
 	{
-	    IODir iodircheck( IOObjContext::Seis );
-	    PtrMan<IOObj> duplobj = iodircheck.getEntryByName( ioobj.name(),
+	    PtrMan<IOObj> duplobj = dbdir->getEntryByName( ioobj.name(),
 						mTranslGroupName(SeisTrc2D) );
 	    if ( duplobj )
 		continue;
 
-	    PtrMan<IOObj> edioobj = ioobj.clone();
+	    IOObj* edioobj = ioobj.clone();
 	    edioobj->setGroup( mTranslGroupName(SeisTrc2D) );
 	    edioobj->setTranslator( CBVSSeisTrc2DTranslator::translKey() );
-	    iodircheck.commitChanges( edioobj );
+	    newioobjs += edioobj;
 	}
     }
+    iter.retire(); // essential: lifts lock on dbdir
+
+    for ( int idx=0; idx<newioobjs.size(); idx++ )
+	DBM().setEntry( *newioobjs[idx] );
 }
 
 
@@ -98,7 +102,8 @@ static const char* getSurvDefAttrName()
     mDefineStaticLocalObject( BufferString, ret,
 	   = SI().defaultPars().find(IOPar::compKey(sKey::Default(),
 			SeisTrcTranslatorGroup::sKeyDefaultAttrib())) );
-    if ( ret.isEmpty() ) ret = "Seis";
+    if ( ret.isEmpty() )
+	ret = "Seis";
     return ret.buf();
 }
 
@@ -186,42 +191,33 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
 {
     bool hasold2d = false;
     bool has2dps = false;
-    if ( IOM().isBad() )
+    if ( DBM().isBad() )
 	return 0;
 
     convertSeis2DTranslators();
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
     oldctxt.fixTranslator( TwoDSeisTrcTranslator::translKey() );
     oldctxt.toselect_.allownonuserselectable_ = true;
-    const IODir oldiodir( oldctxt.getSelDirID() );
-    if ( !oldiodir.isBad() )
-    {
-	const IODirEntryList olddel( oldiodir, oldctxt );
-	if ( !olddel.isEmpty() )
-	    hasold2d = true;
-    }
+    const DBDirEntryList olddel( oldctxt );
+    if ( !olddel.isEmpty() )
+	hasold2d = true;
 
     IOObjContext psctxt( mIOObjContext(SeisPS2D) );
     psctxt.fixTranslator( CBVSSeisPS2DTranslator::translKey() );
-    const IODir psiodir( psctxt.getSelDirID() );
-    if ( !psiodir.isBad() )
-    {
-	const IODirEntryList psdel( psiodir, psctxt );
-	if ( !psdel.isEmpty() )
-	    has2dps = true;
-    }
+    const DBDirEntryList psdel( psctxt );
+    if ( !psdel.isEmpty() )
+	has2dps = true;
 
     if ( !hasold2d && !has2dps )
 	return 0;
 
-    FilePath geom2dfp( IOM().rootDir(), "2DGeom", "idx.txt" );
+    FilePath geom2dfp( DBM().rootDir(), "2DGeom", "idx.txt" );
     if ( !has2dps && !File::exists(geom2dfp.fullPath()) )
 	return 3; //TODO: Pre 4.2 surveys, extract geometry from cbvs.
 
     IOObjContext newctxt( mIOObjContext(SeisTrc2D) );
     newctxt.toselect_.allowtransls_ = CBVSSeisTrc2DTranslator::translKey();
-    const IODir newiodir( newctxt.getSelDirID() );
-    const IODirEntryList newdel( newiodir, newctxt );
+    const DBDirEntryList newdel( newctxt );
     return hasold2d && newdel.isEmpty() ? 1 : 2;
 }
 
@@ -267,8 +263,7 @@ void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets(
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
     oldctxt.fixTranslator( TwoDSeisTrcTranslator::translKey() );
     oldctxt.toselect_.allownonuserselectable_ = true;
-    const IODir oldiodir( oldctxt.getSelDirID() );
-    const IODirEntryList olddel( oldiodir, oldctxt );
+    const DBDirEntryList olddel( oldctxt );
     if ( olddel.isEmpty() )
 	return;
 
@@ -339,10 +334,7 @@ void OD_2DLineSetTo2DDataSetConverter::fillIOParsFrom2DSFile(
 BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 							IOPar& iop ) const
 {
-    const IOObjContext& iocontext = mIOObjContext(SeisTrc2D);
-    if ( !IOM().to(iocontext.getSelDirID()) )
-	return BufferString::empty();
-    CtxtIOObj ctio( iocontext );
+    CtxtIOObj ctio( mIOObjContext(SeisTrc2D) );
     ctio.ctxt_.deftransl_ = CBVSSeisTrc2DTranslator::translKey();
     if ( iop.find(sKey::DataType()) )
     {

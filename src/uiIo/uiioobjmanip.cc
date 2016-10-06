@@ -12,9 +12,8 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -145,7 +144,7 @@ void uiIOObjManipGroup::triggerButton( uiManipButGrp::Type tp )
 void uiIOObjManipGroup::selChg()
 {
     const DBKey curid = subj_.currentID();
-    IOObj* curioobj = IOM().get( curid );
+    IOObj* curioobj = DBM().get( curid );
     if ( !curioobj )
     {
 	renbut->setSensitive( false );
@@ -160,7 +159,7 @@ void uiIOObjManipGroup::selChg()
     if ( chosenids.isEmpty() )
 	return;
 
-    IOObj* firstchosenioobj = IOM().get( chosenids[0] );
+    IOObj* firstchosenioobj = DBM().get( chosenids[0] );
 
     uiString tt;
 #define mSetTBStateAndTT4Cur(tb,cond,oper) \
@@ -225,7 +224,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     DBKeySet chosenids;
     if ( !issingle )
 	subj_.getChosenIDs( chosenids );
-    IOObj* firstioobj = IOM().get( issingle ? curid : chosenids[0] );
+    IOObj* firstioobj = DBM().get( issingle ? curid : chosenids[0] );
     if ( !firstioobj )
 	return;
 
@@ -242,7 +241,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     {
 	ObjectSet<IOObj> ioobjs;
 	for ( int idx=0; idx<chosenids.size(); idx++ )
-	    ioobjs += IOM().get( chosenids[idx] );
+	    ioobjs += DBM().get( chosenids[idx] );
 
 	if ( issetro )
 	{
@@ -271,7 +270,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 }
 
 
-bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
+bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* trans )
 {
     uiString titl = toUiString("%1 '%2'").arg(uiStrings::sRename())
 					       .arg(ioobj.uiName());
@@ -288,12 +287,12 @@ bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
     }
     else
     {
-	IOObj* lioobj = IOM().getLocal( newnm, ioobj.group() );
-	if ( lioobj )
+	IOObj* existioobj = DBM().getByName( newnm, ioobj.group() );
+	if ( existioobj )
 	{
 	    uiString msg = tr("This name is already used by a %1 object")
-			 .arg(lioobj->translator());
-	    delete lioobj;
+			 .arg(existioobj->translator());
+	    delete existioobj;
 	    uiMSG().error( msg );
 	    return false;
 	}
@@ -346,7 +345,7 @@ bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 	}
     }
 
-    IOM().commitChanges( ioobj );
+    DBM().setEntry( ioobj );
     return true;
 }
 
@@ -372,7 +371,7 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
     }
 
     return exists ? uiIOObj(ioobj).removeImpl( true, shldrm )
-		  : IOM().permRemove( ioobj.key() );
+		  : DBM().removeEntry( ioobj.key() );
 }
 
 
@@ -427,7 +426,7 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
     if (!doReloc(trans, iostrm, chiostrm))
 	return false;
 
-    IOM().commitChanges( ioobj );
+    DBM().setEntry( ioobj );
     return true;
 }
 

@@ -11,7 +11,7 @@
 #include "file.h"
 #include "filepath.h"
 #include "gmtdef.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "uibutton.h"
 #include "uidesktopservices.h"
 #include "uigmtadv.h"
@@ -166,15 +166,15 @@ mDefODInitPlugin(uiGMT)
     if ( !theinst_ )
 	return "Cannot instantiate GMT plugin";
 
-    IOMan::CustomDirData cdd( ODGMT::cGMTSelDirIDNr(), ODGMT::sKeyGMT(),
+    DBMan::CustomDirData cdd( ODGMT::cGMTSelDirIDNr(), ODGMT::sKeyGMT(),
 			      "GMT data" );
-    uiString errmsg;
-    DBKey::DirID dirid = IOMan::addCustomDataDir( cdd, errmsg );
-    if ( errmsg.isSet() )
-	return errmsg.getFullString().str();
-
-    if ( dirid.getI() != ODGMT::cGMTSelDirIDNr() )
-	return "Cannot create 'GMT' directory in survey";
+    uiRetVal uirv = DBMan::addCustomDataDir( cdd );
+    if ( !uirv.isOK() )
+    {
+	mDeclStaticString(ret);
+	ret = uirv.getText();
+	return ret.str();
+    }
 
     uiGMTContourGrp::initClass();
     uiGMTFaultsGrp::initClass();

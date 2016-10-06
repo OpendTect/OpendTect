@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "picksetmanager.h"
 #include "picksettr.h"

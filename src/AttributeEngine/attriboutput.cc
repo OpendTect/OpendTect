@@ -11,7 +11,7 @@
 #include "attribdataholder.h"
 #include "convmemvalseries.h"
 #include "datapointset.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
@@ -289,7 +289,7 @@ bool SeisTrcStorOutput::setStorageID( const DBKey& storid )
 {
     if ( storid.isValid() )
     {
-	PtrMan<IOObj> ioseisout = IOM().get( storid );
+	PtrMan<IOObj> ioseisout = DBM().get( storid );
 	if ( !ioseisout )
 	{
 	    errmsg_ = tr("Cannot find seismic data with ID: %1").arg( storid );
@@ -369,7 +369,7 @@ bool SeisTrcStorOutput::doInit()
 
     if ( storid_.isValid() )
     {
-	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
+	PtrMan<IOObj> ioseisout = DBM().get( storid_ );
 	if ( !ioseisout )
 	{
 	    errmsg_ = tr("Cannot find seismic data with ID: %1").arg( storid_ );
@@ -983,7 +983,7 @@ bool Trc2DVarZStorOutput::doInit()
     ensureSelType( Seis::Range );
     if ( storid_.isValid() )
     {
-	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
+	PtrMan<IOObj> ioseisout = DBM().get( storid_ );
 	if ( !ioseisout )
 	{
 	    errmsg_ = tr("Cannot find seismic data with ID: %1").arg( storid_ );

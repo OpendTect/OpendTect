@@ -12,7 +12,7 @@
 #include "emobject.h"
 #include "emsurfacetr.h"
 #include "emhorizon2d.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "survinfo.h"
 #include "posinfo2dsurv.h"

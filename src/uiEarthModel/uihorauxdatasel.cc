@@ -12,9 +12,8 @@
 #include "datainpspec.h"
 #include "emsurfacetr.h"
 #include "emioobjinfo.h"
-#include "iodir.h"
-#include "ioman.h"
-#include "iodirentry.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "uibutton.h"
 #include "uidialog.h"
 #include "uigeninput.h"
@@ -124,9 +123,7 @@ uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo( bool load )
     if ( !load ) return;
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    const IOObjContext horctxt( mIOObjContext(EMHorizon3D) );
-    const IODir iodir( horctxt.getSelDirID() );
-    const IODirEntryList horlist( iodir, horctxt );
+    const DBDirEntryList horlist( mIOObjContext(EMHorizon3D) );
     for ( int idx=0; idx<horlist.size(); idx++ )
     {
 	const IOObj& obj = horlist.ioobj( idx );
@@ -172,7 +169,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const DBKey& mid,
     selbut_->attach( rightOf, horfld_ );
 
     StringListInpSpec str;
-    PtrMan<IOObj> obj = IOM().get(mid);
+    PtrMan<IOObj> obj = DBM().get(mid);
     const bool hasobj = mid.isValid() && obj;
     if ( hasobj )
     {
@@ -218,7 +215,7 @@ void uiHorizonAuxDataSel::selCB( CallBacker* )
     dlg_->go();
 
     selmid_ = dlg_->selected();
-    PtrMan<IOObj> obj = IOM().get(selmid_);
+    PtrMan<IOObj> obj = DBM().get(selmid_);
     if ( !obj )	return;
 
     horfld_->setText( obj->name() );

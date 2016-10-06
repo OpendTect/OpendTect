@@ -13,7 +13,7 @@
 #include "emmanager.h"
 #include "emobjectposselector.h"
 #include "geomelement.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "rowcolsurface.h"
@@ -78,7 +78,7 @@ void EMObject::prepareForDelete()
 
 BufferString EMObject::name() const
 {
-    PtrMan<IOObj> ioobj = IOM().get( dbKey() );
+    PtrMan<IOObj> ioobj = DBM().get( dbKey() );
     return ioobj ? BufferString(ioobj->name()) : objname_;
 }
 

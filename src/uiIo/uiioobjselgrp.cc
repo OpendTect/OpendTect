@@ -13,9 +13,8 @@ ________________________________________________________________________
 #include "uiioobjselwritetransl.h"
 
 #include "ctxtioobj.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "strmprov.h"
@@ -157,7 +156,6 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;
     if ( !ctio_.ctxt_.forread_ )
 	setup_.choicemode( OD::ChooseOnlyOne );
-    IOM().to( ctio_.ctxt_.getSelDirID() );
 
     mkTopFlds( seltxt );
     if ( !ctio_.ctxt_.forread_ )
@@ -411,7 +409,6 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	    uiMSG().error(tr("Internal error: "
 			     "Cannot retrieve %1 details from data store")
 			.arg(mObjTypeName));
-	    IOM().toRoot();
 	    fullUpdate( -1 );
 	    return false;
 	}
@@ -465,7 +462,7 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
     if ( ctio_.ioobj_ && wrtrselfld_ && !wrtrselfld_->isEmpty() )
     {
 	wrtrselfld_->updatePars( *ctio_.ioobj_ );
-	IOM().commitChanges( *ctio_.ioobj_ );
+	DBM().setEntry( *ctio_.ioobj_ );
     }
 
     return true;
@@ -573,9 +570,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     ioobjnms_.setEmpty(); dispnms_.setEmpty(); iconnms_.setEmpty();
     ioobjids_.setEmpty();
 
-    IODirEntryList entrylist( ctio_.ctxt_ );
-    entrylist.fill( IODir(ctio_.ctxt_.getSelDirID()), filtfld_->text() );
-
+    const DBDirEntryList entrylist( ctio_.ctxt_, filtfld_->text() );
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
 	const IOObj& ioobj = entrylist.ioobj( idx );
@@ -627,7 +622,7 @@ void uiIOObjSelGrp::fillListBox()
 
 IOObj* uiIOObjSelGrp::getIOObj( int idx )
 {
-    return ioobjids_.validIdx(idx) ? IOM().get( ioobjids_[idx] ) : 0;
+    return ioobjids_.validIdx(idx) ? DBM().get( ioobjids_[idx] ) : 0;
 }
 
 
@@ -709,7 +704,7 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 	    if ( wrtrselfld_ )
 	    {
 		if ( !ioobj )
-		    ioobj = IOM().get( currentID() );
+		    ioobj = DBM().get( currentID() );
 		if ( ioobj )
 		    wrtrselfld_->use( *ioobj );
 	    }
@@ -792,7 +787,7 @@ void uiIOObjSelGrp::delPress( CallBacker* )
 
 void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
 {
-    PtrMan<IOObj> ioobj = IOM().get( currentID() );
+    PtrMan<IOObj> ioobj = DBM().get( currentID() );
     if ( !ioobj )
 	return;
 

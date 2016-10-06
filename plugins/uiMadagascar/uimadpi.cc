@@ -15,7 +15,7 @@
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "maddefs.h"
 #include "madio.h"
 #include "odplugin.h"
@@ -77,7 +77,7 @@ uiMadagascarLink::uiMadagascarLink( uiODMain& a )
 {
     mAttachCB( mnumgr.dTectTBChanged, uiMadagascarLink::updateToolBar );
     mAttachCB( mnumgr.dTectMnuChanged, uiMadagascarLink::updateMenu );
-    mAttachCB( IOM().surveyToBeChanged, uiMadagascarLink::survChg );
+    mAttachCB( DBM().surveyToBeChanged, uiMadagascarLink::survChg );
     updateToolBar(0);
     updateMenu(0);
 }
@@ -148,15 +148,15 @@ mDefODInitPlugin(uiMadagascar)
     if ( !theinst_ )
 	return ODMad::PI().errMsg().getFullString().str();
 
-    IOMan::CustomDirData cdd( ODMad::cMadDirIDNr(), ODMad::sKeyMadagascar(),
+    DBMan::CustomDirData cdd( ODMad::cMadDirIDNr(), ODMad::sKeyMadagascar(),
 			      "Madagascar data" );
-    uiString errmsg;
-    DBKey::DirID dirid = IOMan::addCustomDataDir( cdd, errmsg );
-    if ( errmsg.isSet() )
-	return errmsg.getFullString().str();
-
-    if ( dirid.getI() != ODMad::cMadDirIDNr() )
-	return "Cannot create 'Madagascar' directory in survey";
+    uiRetVal uirv = DBMan::addCustomDataDir( cdd );
+    if ( !uirv.isOK() )
+    {
+	mDeclStaticString(ret);
+	ret = uirv.getText();
+	return ret.str();
+    }
 
 #ifdef MAD_UIMSG_IF_FAIL
     if ( ODMad::PI().errMsg().isSet() )

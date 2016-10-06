@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "seisselection.h"
 #include "ioobjctxt.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "keystrs.h"

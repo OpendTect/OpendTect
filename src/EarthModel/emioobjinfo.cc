@@ -16,8 +16,8 @@
 #include "emsurfaceio.h"
 #include "emsurfacetr.h"
 #include "horizonrelation.h"
-#include "iodir.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "uistrings.h"
@@ -54,7 +54,7 @@ IOObjInfo::IOObjInfo( const IOObj& ioobj )
 
 
 IOObjInfo::IOObjInfo( const DBKey& id )
-    : ioobj_(IOM().get(id))
+    : ioobj_(DBM().get(id))
     , reader_(0)
 {
     setType();
@@ -344,8 +344,11 @@ IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 
 void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, DBKeySet& ids )
 {
-    const IODir iodir( IOObjContext::Surf );
-    IODirIter iter( iodir );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Surf );
+    if ( !dbdir )
+	return;
+
+    DBDirIter iter( *dbdir );
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();

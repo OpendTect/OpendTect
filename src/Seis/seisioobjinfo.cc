@@ -13,9 +13,8 @@
 #include "filepath.h"
 #include "keystrs.h"
 #include "globexpr.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
@@ -34,9 +33,6 @@
 #include "zdomain.h"
 
 
-#define mGoToSeisDir() \
-    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id_) )
-
 #define mGetDataSet(nm,rv) \
     if ( !isOK() || !is2D() || isPS() ) return rv; \
  \
@@ -51,31 +47,36 @@ SeisIOObjInfo::SeisIOObjInfo( const IOObj* ioobj )
 SeisIOObjInfo::SeisIOObjInfo( const IOObj& ioobj )
 	: ioobj_(ioobj.clone())				{ setType(); }
 SeisIOObjInfo::SeisIOObjInfo( const DBKey& id )
-	: ioobj_(IOM().get(id))				{ setType(); }
+	: ioobj_(DBM().get(id))				{ setType(); }
 
 
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
 	: ioobj_(0)
 	, geomtype_(geomtype)
 {
-    mGoToSeisDir();
-    switch ( geomtype_ )
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
+    if ( dbdir )
     {
-	case Seis::Vol:
-	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisTrc) );
-	break;
+#	define mGetIOObj(trgrpnm) \
+	    dbdir->getEntryByName( ioobjnm, mTranslGroupName(trgrpnm) );
+	switch ( geomtype_ )
+	{
+	    case Seis::Vol:
+		ioobj_ = mGetIOObj( SeisTrc );
+	    break;
 
-	case Seis::VolPS:
-	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisPS3D) );
-	break;
+	    case Seis::VolPS:
+		ioobj_ = mGetIOObj( SeisPS3D );
+	    break;
 
-	case Seis::Line:
-	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisTrc2D) );
-	break;
+	    case Seis::Line:
+		ioobj_ = mGetIOObj( SeisTrc2D );
+	    break;
 
-	case Seis::LinePS:
-	ioobj_ = IOM().getLocal( ioobjnm, mTranslGroupName(SeisPS2D) );
-	break;
+	    case Seis::LinePS:
+		ioobj_ = mGetIOObj( SeisPS2D );
+	    break;
+	}
     }
 
     setType();
@@ -460,10 +461,10 @@ void SeisIOObjInfo::initDefault( const char* typ )
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
     ctxt.toselect_.require_.set( sKey::Type(), typ );
     int nrpresent = 0;
-    if ( IOM().isBad() )
+    if ( DBM().isBad() )
 	return;
 
-    PtrMan<IOObj> ioobj = IOM().getFirst( ctxt, &nrpresent );
+    PtrMan<IOObj> ioobj = DBM().getFirst( ctxt, &nrpresent );
     if ( !ioobj || nrpresent > 1 )
 	return;
 
@@ -582,8 +583,11 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 {
     const char* linenm = Survey::GM().getName( geomid );
-    const IODir iodir( IOObjContext::Seis );
-    IODirIter iter( iodir );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
+    if ( !dbdir )
+	return false;
+
+    DBDirIter iter( *dbdir );
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();
@@ -622,8 +626,7 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 	return;
 
     IOObjContext ctxt( mIOObjContext(SeisTrc2D) );
-    const IODir iodir( ctxt.getSelDirID() );
-    const IODirEntryList del( iodir, ctxt );
+    const DBDirEntryList del( ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj& ioobj = del.ioobj( idx );
@@ -672,8 +675,11 @@ void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
     Survey::GM().getList( lnms, gids, true );
     BoolTypeSet hasdata( gids.size(), false );
 
-    const IODir iodir( IOObjContext::Seis );
-    IODirIter iter( iodir );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
+    if ( !dbdir )
+	return;
+
+    DBDirIter iter( *dbdir );
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();

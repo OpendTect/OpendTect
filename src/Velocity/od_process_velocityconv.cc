@@ -8,7 +8,7 @@
 #include "batchprog.h"
 #include "velocityvolumeconversion.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "dbkey.h"
@@ -33,7 +33,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !pars().get( Vel::VolumeConverter::sKeyInput(), inputmid) )
 	mErrRet( "Cannot read input volume id" )
 
-    PtrMan<IOObj> inputioobj = IOM().get( inputmid );
+    PtrMan<IOObj> inputioobj = DBM().get( inputmid );
     if ( !inputioobj )
 	mErrRet( "Cannot read input volume object" )
 
@@ -50,7 +50,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !pars().get( Vel::VolumeConverter::sKeyOutput(), outputmid ) )
 	mErrRet( "Cannot read output volume id" )
 
-    PtrMan<IOObj> outputioobj = IOM().get( outputmid );
+    PtrMan<IOObj> outputioobj = DBM().get( outputmid );
     if ( !outputioobj )
 	mErrRet( "Cannot read output volume object" )
 
@@ -75,7 +75,7 @@ bool BatchProgram::go( od_ostream& strm )
     else
 	veldesc.removePars( outputioobj->pars() );
 
-    if ( !IOM().commitChanges(*outputioobj) )
+    if ( !DBM().setEntry(*outputioobj) )
 	mErrRet( uiStrings::phrCannotWrite(tr("velocity information") ) )
 
     return true;

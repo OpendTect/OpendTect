@@ -23,9 +23,9 @@ ________________________________________________________________________
 #include "dbkey.h"
 
 class DataPointSet;
-class IODirEntryList;
 class IOObj;
-class IODir;
+class DBDir;
+class DBDirEntryList;
 template <class T> class Array2DImpl;
 
 
@@ -162,8 +162,7 @@ protected:
     ObjectSet<Info>		infos_;
     ObjectSet<MarkerSet>	markers_;
     ObjectSet<BufferStringSet>	logs_;
-    IODirEntryList*		direntries_;
-    const IODir*		iodir_;
+    DBDirEntryList&		direntries_;
     int				totalnr_;
     int				curidx_;
     uiString			curmsg_;

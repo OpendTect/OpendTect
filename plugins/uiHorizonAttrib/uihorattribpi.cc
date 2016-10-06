@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emioobjinfo.h"
 #include "emhorizon3d.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "odplugin.h"
 #include "survinfo.h"
@@ -121,7 +121,7 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
     uiAction* itm = mnumgr.procMnu()->findAction( gridprocstr );
     if ( !itm || !itm->getMenu() ) return;
 
-    if ( IOM().isBad() || SI().has3D() )
+    if ( DBM().isBad() || SI().has3D() )
 	itm->getMenu()->insertItem(new uiAction(m3Dots(tr("Stratal Amplitude")),
 				     mCB(this,uiHorAttribPIMgr,makeStratAmp)));
 
@@ -186,7 +186,7 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
 	       tr("Attribute to contour")), mNoDlgTitle, mNoHelpKey))
 {
     const DBKey mid = EM::EMM().getDBKey( id );
-    PtrMan<IOObj> emioobj = IOM().get( mid );
+    PtrMan<IOObj> emioobj = DBM().get( mid );
     EM::IOObjInfo eminfo( mid );
     BufferStringSet attrnms;
     attrnms.add( uiContourTreeItem::sKeyZValue() );

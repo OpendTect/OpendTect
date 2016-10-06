@@ -11,7 +11,7 @@
 #include "binidvalset.h"
 #include "trckeyzsampling.h"
 #include "interpol1d.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "survinfo.h"
 
@@ -112,7 +112,7 @@ mImplFactory1Param( FunctionSource, const DBKey&, FunctionSource::factory );
 
 BufferString FunctionSource::userName() const
 {
-    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+    PtrMan<IOObj> ioobj = DBM().get( mid_ );
     if ( ioobj )
 	return ioobj->name();
 

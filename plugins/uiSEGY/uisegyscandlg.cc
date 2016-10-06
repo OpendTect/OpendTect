@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uisegyscandlg.h"
 
 #include "datainpspec.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "segybatchio.h"
@@ -196,7 +196,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 		geomobj->pars().set(
 			SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID(),
 			outfld_->key(true) );
-		IOM().commitChanges( *geomobj );
+		DBM().setEntry( *geomobj );
 		geomid = SurvGeom2DTranslator::getGeomID( *geomobj );
 	    }
 
@@ -218,7 +218,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     if ( !rv )
     {
 	if ( outfld_ )
-	    IOM().permRemove( outfld_->key(true) );
+	    DBM().removeEntry( outfld_->key(true) );
 	return false;
     }
 
@@ -226,7 +226,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     if ( !uiSEGY::displayWarnings(scanner_->warnings(),haveoutput) )
     {
 	if ( haveoutput )
-	    IOM().permRemove( outfld_->key(true) );
+	    DBM().removeEntry( outfld_->key(true) );
 	return false;
     }
 

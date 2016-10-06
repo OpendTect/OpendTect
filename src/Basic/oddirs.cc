@@ -34,13 +34,11 @@ static const char* lostinspace = "C:\\";
 # include <CoreServices/CoreServices.h>
 #endif
 
-static BufferString cur_survey_name;
-
 #define mPrDebug(fn,val) od_debug_message( BufferString(fn,": ",val) );
 
 
 
-const char* SurveyInfo::surveyFileName()
+const char* GetLastSurveyFileName()
 {
     mDeclStaticString( fnm );
 
@@ -55,44 +53,18 @@ const char* SurveyInfo::surveyFileName()
 	fnm = fp.fullPath();
 
 	if ( od_debug_isOn(DBG_SETTINGS) )
-	    mPrDebug( "SurveyInfo::surveyFileName", fnm.buf() );
+	    mPrDebug( "LastSurveyFileName", fnm.buf() );
     }
 
     return fnm.str();
 }
 
 
-void SurveyInfo::setSurveyName( const char* newnm )
-{
-    cur_survey_name = newnm;
-    cur_survey_name.trimBlanks();
-}
-
-
-const char* SurveyInfo::curSurveyName()
-{
-    if ( !cur_survey_name.isEmpty() )
-	return cur_survey_name.buf();
-
-    od_istream strm( SurveyInfo::surveyFileName() );
-    if ( !strm.isOK() )
-	return 0;
-
-    strm.getLine( cur_survey_name );
-    cur_survey_name.trimBlanks();
-    if ( cur_survey_name.isEmpty() )
-	return 0;
-
-    if ( od_debug_isOn(DBG_SETTINGS) )
-	mPrDebug( "SurveyInfo::curSurveyName", cur_survey_name );
-
-    return cur_survey_name.buf();
-}
-
-
 mExternC(Basic) const char* GetSurveyName()
 {
-    return SurveyInfo::curSurveyName();
+    mDeclStaticString(ret);
+    ret = SI().getDirName();
+    return ret.str();
 }
 
 

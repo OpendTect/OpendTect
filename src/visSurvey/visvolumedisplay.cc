@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "array3dfloodfill.h"
 #include "arrayndimpl.h"
 #include "attribsel.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "marchingcubes.h"
 #include "picksetmanager.h"
 #include "od_ostream.h"

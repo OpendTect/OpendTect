@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -520,7 +520,7 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 	    desc = ads_->getFirstStored();
 	if ( desc )
 	{
-	    PtrMan<IOObj> ioobj = IOM().get( DBKey(desc->getStoredID(true)) );
+	    PtrMan<IOObj> ioobj = DBM().get( DBKey(desc->getStoredID(true)) );
 	    if ( ioobj )
 		seissubselfld_->setInput( *ioobj );
 	}

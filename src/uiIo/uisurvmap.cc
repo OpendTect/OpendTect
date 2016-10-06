@@ -259,12 +259,6 @@ uiSurveyBoxObject* uiSurveyMap::getSurveyBox() const
 }
 
 
-SurveyInfo* uiSurveyMap::getEmptySurvInfo()
-{
-    return new SurveyInfo;
-}
-
-
 void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 {
     survinfo_ = si;

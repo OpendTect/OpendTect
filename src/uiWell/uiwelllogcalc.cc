@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "uiunitsel.h"
 #include "uiwelllogdisplay.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "mathformula.h"
 #include "mathspecvars.h"
@@ -81,9 +81,9 @@ static uiString getDlgUiTitle( const DBKeySet& wllids )
     if ( sz < 1 )
 	return od_static_tr( "getDlgUiTitle","No wells selected" );
 
-    BufferString ret( IOM().nameOf(wllids[0]), "'");
+    BufferString ret( DBM().nameOf(wllids[0]), "'");
     for ( int idx=1; idx<sz; idx++ )
-	ret.add( ", '" ).add( IOM().nameOf(wllids[idx]) ).add( "'" );
+	ret.add( ", '" ).add( DBM().nameOf(wllids[idx]) ).add( "'" );
 
     ret = getLimitedDisplayString( ret, 50, true );
     return od_static_tr("getDlgUiTitle","Calculate new logs for '%1").arg(ret);

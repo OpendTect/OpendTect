@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$";
 #include "datacoldef.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "survinfo.h"
 
 #include "uicombobox.h"

@@ -11,7 +11,7 @@ _______________________________________________________________________
 #include "uicreateattriblogdlg.h"
 
 #include "attribsel.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -171,7 +171,7 @@ bool uiCreateAttribLogDlg::acceptOK()
 	if ( !attriblog.doWork( *wd, errmsg ) )
 	    mErrRet( errmsg )
 
-	PtrMan<IOObj> ioobj = IOM().get( wd->dbKey() );
+	PtrMan<IOObj> ioobj = DBM().get( wd->dbKey() );
 	if ( !ioobj ) mErrRet(tr("Cannot find well in object manager"))
 
 	Well::Writer wtr( *ioobj, *wd );

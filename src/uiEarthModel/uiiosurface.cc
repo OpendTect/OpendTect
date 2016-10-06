@@ -32,9 +32,8 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "randcolor.h"
 #include "survinfo.h"
@@ -563,7 +562,7 @@ BufferString uiHorizonParSel::getSummary() const
     SeparString ss;
     for ( int idx=0; idx<selids_.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( selids_[idx] );
+	PtrMan<IOObj> ioobj = DBM().get( selids_[idx] );
 	if ( !ioobj ) continue;
 
 	ss.add( ioobj->name() );
@@ -625,76 +624,76 @@ bool uiHorizonParSel::usePar( const IOPar& par )
 class uiFSS2DLineSelDlg : public uiDialog
 { mODTextTranslationClass(uiFSS2DLineSelDlg)
 public:
-    uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
-	: uiDialog(p,uiDialog::Setup(tr("FaultStickSet selection"),
-		    tr("Available for 2D lines"),mNoHelpKey))
+
+uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
+    : uiDialog(p,uiDialog::Setup(tr("FaultStickSet selection"),
+		tr("Available for 2D lines"),mNoHelpKey))
+{
+    const DBDirEntryList entlst( mIOObjContext(EMFaultStickSet) );
+    for ( int idx=0; idx<entlst.size(); idx++ )
     {
-	IOObjContext ctxt = mIOObjContext(EMFaultStickSet);
-	const IODir iodir( ctxt.getSelDirID() );
-	const IODirEntryList entlst( iodir, ctxt );
+	const IOObj& obj = entlst.ioobj( idx );
 
-	for ( int idx=0; idx<entlst.size(); idx++ )
+	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(obj.key());
+	mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
+	if ( !fss ) continue;
+
+	EM::SectionID sid = fss->sectionID(0);
+	const int nrsticks = fss->geometry().nrSticks( sid );
+
+	bool fssvalid = false;
+	for ( int gidx=0; gidx<geomids.size(); gidx++ )
 	{
-	    const IOObj& obj = entlst.ioobj( idx );
-
-	    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(obj.key());
-	    mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
-	    if ( !fss ) continue;
-
-	    EM::SectionID sid = fss->sectionID(0);
-	    const int nrsticks = fss->geometry().nrSticks( sid );
-
-	    bool fssvalid = false;
-	    for ( int gidx=0; gidx<geomids.size(); gidx++ )
+	    if ( fssvalid ) break;
+	    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	    {
-		if ( fssvalid ) break;
-		for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
-		{
-		    const Geometry::FaultStickSet* fltgeom =
-			fss->geometry().sectionGeometry( sid );
-		    if ( !fltgeom ) continue;
+		const Geometry::FaultStickSet* fltgeom =
+		    fss->geometry().sectionGeometry( sid );
+		if ( !fltgeom ) continue;
 
-		    const int sticknr = fltgeom->rowRange().atIndex( stickidx );
-		    if ( !fss->geometry().pickedOn2DLine(sid, sticknr) )
-			continue;
+		const int sticknr = fltgeom->rowRange().atIndex( stickidx );
+		if ( !fss->geometry().pickedOn2DLine(sid, sticknr) )
+		    continue;
 
-		    if ( geomids[gidx] ==
-				fss->geometry().pickedGeomID(sid,sticknr))
-		    { fssvalid = true; break; }
-		}
-	    }
-
-	    if ( fssvalid )
-	    {
-		validfss_.add( fss->name() );
-		validmids_ += obj.key();
+		if ( geomids[gidx] ==
+			    fss->geometry().pickedGeomID(sid,sticknr))
+		{ fssvalid = true; break; }
 	    }
 	}
 
-	fsslistfld_ = new uiListBox( this, "", OD::ChooseAtLeastOne );
-	fsslistfld_->setNrLines( validmids_.size()+1 );
-	fsslistfld_->setFieldWidth( 20 );
-	fsslistfld_->addItems( validfss_ );
-    }
-
-    void getSelected( BufferStringSet& nms, DBKeySet& mids )
-    {
-	TypeSet<int> selids;
-	fsslistfld_->getChosen( selids );
-	for ( int idx=0; idx<selids.size(); idx++ )
+	if ( fssvalid )
 	{
-	    nms.add( *validfss_[selids[idx]] );
-	    mids += validmids_[selids[idx]];
+	    validfss_.add( fss->name() );
+	    validmids_ += obj.key();
 	}
     }
 
-    void setSelectedItems( BufferStringSet sel )
-    { fsslistfld_->setChosen(sel); }
+    fsslistfld_ = new uiListBox( this, "", OD::ChooseAtLeastOne );
+    fsslistfld_->setNrLines( validmids_.size()+1 );
+    fsslistfld_->setFieldWidth( 20 );
+    fsslistfld_->addItems( validfss_ );
+}
 
+void getSelected( BufferStringSet& nms, DBKeySet& mids )
+{
+    TypeSet<int> selids;
+    fsslistfld_->getChosen( selids );
+    for ( int idx=0; idx<selids.size(); idx++ )
+    {
+	nms.add( *validfss_[selids[idx]] );
+	mids += validmids_[selids[idx]];
+    }
+}
+
+void setSelectedItems( BufferStringSet sel )
+{
+    fsslistfld_->setChosen(sel);
+}
 
     uiListBox*		fsslistfld_;
     BufferStringSet	validfss_;
-    DBKeySet	validmids_;
+    DBKeySet		validmids_;
+
 };
 
 
@@ -742,7 +741,7 @@ public:
 
 	for ( int idx=0; idx<fltpar_.selfaultids_.size(); idx++ )
 	{
-	    PtrMan<IOObj> ioobj = IOM().get( fltpar_.selfaultids_[idx] );
+	    PtrMan<IOObj> ioobj = DBM().get( fltpar_.selfaultids_[idx] );
 	    if ( ioobj )
 		addObjEntry( idx, *ioobj, fltpar_.optids_[idx] );
 	}
@@ -761,7 +760,7 @@ public:
 	for ( int idx=0; idx<nrsel; idx++ )
 	{
 	    const DBKey& mid = dlg.chosenID( idx );
-	    PtrMan<IOObj> ioobj = IOM().get( mid );
+	    PtrMan<IOObj> ioobj = DBM().get( mid );
 	    if ( !ioobj || fltpar_.selfaultnms_.isPresent(ioobj->name()) )
 		continue;
 
@@ -888,7 +887,7 @@ void uiFaultParSel::setSelectedFaults( const DBKeySet& ids,
     optids_.erase();
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( ids[idx] );
+	PtrMan<IOObj> ioobj = DBM().get( ids[idx] );
 	if ( !ioobj ) continue;
 
 	selfaultnms_.add( ioobj->name() );

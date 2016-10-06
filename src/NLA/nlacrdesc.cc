@@ -8,7 +8,7 @@
 #include "nlacrdesc.h"
 
 #include "datacoldef.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "posvecdataset.h"
 #include "datapointset.h"
@@ -65,9 +65,9 @@ static bool haveColNmMatch( BufferString& colnm, const char* inpnodenm )
 	return true;
 
     if ( IOObj::isKey(colnm) )
-	colnm = IOM().nameOf( DBKey::getFromString(colnm) );
+	colnm = DBM().nameOf( DBKey::getFromString(colnm) );
     if ( IOObj::isKey(nodenm) )
-	nodenm = IOM().nameOf( DBKey::getFromString(nodenm) );
+	nodenm = DBM().nameOf( DBKey::getFromString(nodenm) );
     return colnm == nodenm;
 }
 
@@ -110,7 +110,7 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
     }
     else
     {
-	PtrMan<IOObj> ioobj = IOM().get( vdsid );
+	PtrMan<IOObj> ioobj = DBM().get( vdsid );
 	if ( !ioobj )
 	    return tr("Cannot find training data set specified");
 
@@ -157,7 +157,7 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 	{
 	    BufferString psnm = outids.get( iout );
 	    if ( IOObj::isKey(psnm) )
-		psnm = IOM().nameOf( DBKey::getFromString(psnm) );
+		psnm = DBM().nameOf( DBKey::getFromString(psnm) );
             dps.dataSet().add( new DataColDef( psnm, *outids[iout] ) );
 	}
     }

@@ -12,8 +12,8 @@
 #include "commandlineparser.h"
 #include "file.h"
 #include "genc.h"
-#include "ioman.h"
-#include "iodir.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "iopar.h"
 #include "moddepmgr.h"
 #include "strmprov.h"
@@ -151,28 +151,24 @@ void BatchProgram::init()
     if ( !res )
 	iopar_->set( sKey::LogFile(), StreamProvider::sStdErr() );
 
-    res = iopar_->find( sKey::DataRoot() );
-    if ( !res.isEmpty() && File::exists(res) )
-	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", res );
+#define mSetDataRootVar(str) \
+	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", str );
 
-    if ( clparser_->getVal(sKeyDataDir(),res) && !res.isEmpty() &&
-	 File::exists(res) )
-	SetEnvVar( "DTECT_DATA", res );
+    if ( clparser_->getVal(sKeyDataDir(),res) && File::isDirectory(res) )
+	mSetDataRootVar( res );
 
     if ( !iopar_->get(sKey::Survey(),res) )
     {
-	errorMsg( tr("Invalid paramater file %1\n"
-		     "Survey key is missing")
+	errorMsg( tr("Invalid paramater file %1\nSurvey key is missing.")
 			.arg( parfilnm ) );
 	return;
     }
 
-    uiString errmsg;
-    if ( !IOMan::setSurvey(res.str(),&errmsg) )
-	{ errorMsg( errmsg ); return; }
+    uiRetVal uirv = DBM().setDataSource( *iopar_ );
+    if ( !uirv.isOK() )
+	{ errorMsg( uirv ); return; }
 
     killNotify( true );
-
     stillok_ = true;
 }
 
@@ -180,7 +176,7 @@ void BatchProgram::init()
 BatchProgram::~BatchProgram()
 {
     infoMsg( finishmsg_ );
-    IOM().applClosing();
+    DBM().applClosing();
 
     if ( comm_ )
     {
@@ -339,10 +335,14 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 					const IOObjContext& ctxt,
 					bool msgiffail ) const
 {
-    BufferString errmsg;
-    IOObj* ioobj = IOM().getFromPar( pars(), bsky, ctxt, mknew, errmsg );
-    if ( !ioobj && msgiffail && !errmsg.isEmpty() )
-	*sdout_.ostrm << errmsg.buf() << std::endl;
+    uiString errmsg;
+    IOObj* ioobj = DBM().getFromPar( pars(), bsky, ctxt, mknew, errmsg );
+    if ( !ioobj && msgiffail )
+    {
+	if ( errmsg.isEmpty() )
+	    errmsg = tr("Error getting DB info");
+	*sdout_.ostrm << errmsg.getFullString().buf() << std::endl;
+    }
 
     return ioobj;
 }

@@ -50,9 +50,6 @@ list ( APPEND OD_MODULE_SOURCES
 	helpview.cc
 	ibmformat.cc
 	initgeneral.cc
-	iodir.cc
-	iodirentry.cc
-	ioman.cc
 	ioobj.cc
 	ioobjtags.cc
 	iostrm.cc

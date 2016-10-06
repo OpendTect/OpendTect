@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uipixmap.h"
 
 #include "ctxtioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "transl.h"
 
 
@@ -259,7 +259,7 @@ void uiIOObjSelWriteTranslator::updatePars( IOObj& ioobj ) const
 	    return;
 	}
 
-	IOM().commitChanges( ioobj );
+	DBM().setEntry( ioobj );
     }
 }
 

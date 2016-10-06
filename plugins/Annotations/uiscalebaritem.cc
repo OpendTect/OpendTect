@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "treeitem.h"
 
 #include "draw.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "pickset.h"
@@ -166,7 +166,7 @@ bool ScaleBarSubItem::init()
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
-    PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
+    PtrMan<IOObj> ioobj = DBM().get( mgr.id(setidx) );
     if ( !ioobj ) return false;
 
     ad->fromPar( set_->pars_ );

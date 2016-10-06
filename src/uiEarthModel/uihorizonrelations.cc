@@ -32,7 +32,7 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "horizonmodifier.h"
 #include "horizonsorter.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "filepath.h"
 #include "iopar.h"
@@ -80,7 +80,7 @@ void uiHorizonRelationsDlg::readHorizonCB( CallBacker* )
     dlg.getSortedHorizonIDs( horids_ );
     for ( int idx=0; idx<horids_.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( horids_[idx] );
+	PtrMan<IOObj> ioobj = DBM().get( horids_[idx] );
 	if ( !ioobj )
 	    horids_.removeSingle( idx-- );
 

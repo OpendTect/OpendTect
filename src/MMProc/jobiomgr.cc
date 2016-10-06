@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "genc.h"
 #include "hostdata.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "jobinfo.h"
 #include "keystrs.h"
@@ -493,7 +493,7 @@ bool JobIOMgr::mkIOParFile( const FilePath& basefp,
     }
 
     newiop.set( sKey::DataRoot(), remdata.fullPath(machpathstyle) );
-    newiop.set( sKey::Survey(), IOM().surveyName() );
+    newiop.set( sKey::Survey(), DBM().surveyName() );
 
     const BufferString remotelogfnm( logfp.fullPath(machpathstyle) );
     const BufferString remoteiopfnm( iopfp.fullPath() );
@@ -546,7 +546,7 @@ bool JobIOMgr::mkIOParFile( const FilePath& basefp,
 		machine.convPath( HostData::Data, GetBaseDataDir() );
     newiop.set( sKey::DataRoot(),
 		remotedr.fullPath(machine.pathStyle()) );
-    newiop.set( sKey::Survey(), IOM().surveyName() );
+    newiop.set( sKey::Survey(), DBM().surveyName() );
 
     if ( File::exists(iopfnm) ) File::remove( iopfnm );
     if ( File::exists(logfnm) ) File::remove( logfnm );

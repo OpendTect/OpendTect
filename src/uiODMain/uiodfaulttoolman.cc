@@ -18,7 +18,7 @@ ___________________________________________________________________
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keyboardevent.h"
 #include "randcolor.h"
 #include "thread.h"
@@ -439,7 +439,7 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 	processOutputName();
 	enableToolbar( true );
 
-	mAttachCBIfNotAttached( IOM().surveyChanged,
+	mAttachCBIfNotAttached( DBM().surveyChanged,
 				uiODFaultToolMan::surveyChg );
 
 	if ( curfssd_ )

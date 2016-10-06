@@ -12,7 +12,7 @@
 #include "separstr.h"
 #include "keystrs.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 
 static const char* filenamebase = "RockPhysics";
 static const char* sKeyDef = "Formula";
@@ -199,7 +199,7 @@ public:
 RockPhysicsFormulaMgr()
     : fms_(0)
 {
-    IOM().surveyChanged.notify( mCB(this,RockPhysicsFormulaMgr,doNull) );
+    DBM().surveyChanged.notify( mCB(this,RockPhysicsFormulaMgr,doNull) );
 }
 
 ~RockPhysicsFormulaMgr()

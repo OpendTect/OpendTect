@@ -12,7 +12,7 @@ _______________________________________________________________________________
 
 #include "filepath.h"
 #include "flatposdata.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -154,7 +154,7 @@ BufferString PreStackDisplay::getObjectName() const
 void PreStackDisplay::setDBKey( const DBKey& mid )
 {
     mid_ = mid;
-    delete ioobj_; ioobj_ = IOM().get( mid_ );
+    delete ioobj_; ioobj_ = DBM().get( mid_ );
     delete reader_; reader_ = 0;
     if ( !ioobj_ )
 	return;

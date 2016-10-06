@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "moddepmgr.h"
@@ -65,10 +65,7 @@ int main( int argc, char ** argv )
 	return ExitProgram( 1 );
     }
 
-    const char* res = iop.find( sKey::Survey() );
-    if ( res && *res && SI().getDirName() != res )
-	IOMan::setSurvey( res );
-
+    DBM().setDataSource( iop );
     PIM().loadAuto( false );
 
     if ( dosubmit )

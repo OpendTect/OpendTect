@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "uislider.h"
 
 #include "arrayndimpl.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "scaler.h"
 #include "seisbuf.h"
 #include "seisread.h"

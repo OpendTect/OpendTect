@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "emhorizon2d.h"
 #include "emhorizonascio.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "file.h"

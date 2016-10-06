@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "file.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "mousecursor.h"
 #include "seis2dline.h"
 #include "seisioobjinfo.h"
@@ -31,7 +31,7 @@ mGlobal(Seis) void OD_Init_Transf_2DLineGeometry_From_2D_SeisLines()
 {
     mDefineStaticLocalObject( OD_2DLineGeometryFrom2DLinesTransf, transf, );
     transf.doTransf();
-    IOM().surveyChanged.notify(
+    DBM().surveyChanged.notify(
 	    mCB(&transf,OD_2DLineGeometryFrom2DLinesTransf,doTransf) );
 }
 
@@ -48,7 +48,7 @@ void OD_2DLineGeometryFrom2DLinesTransf::doTransf( CallBacker* )
 
     for ( int ils=0; ils<lsids.size(); ils++ )
     {
-	IOObj* ioobj = IOM().get( lsids[ils] );
+	IOObj* ioobj = DBM().get( lsids[ils] );
 	if ( !ioobj ) continue;
 	Seis2DLineSet ls( *ioobj );
 	delete ioobj;

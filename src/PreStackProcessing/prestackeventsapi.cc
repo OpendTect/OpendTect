@@ -11,7 +11,7 @@
 #include "trckeyzsampling.h"
 #include "executor.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "offsetazimuth.h"
 #include "survinfo.h"
 #include "prestackeventsapimgr.h"
@@ -136,13 +136,15 @@ PreStack::EventsAPIMgr::~EventsAPIMgr()
 }
 
 
-int PreStack::EventsAPIMgr::setSurvey( const char* dataroot, const char* survey)
+int PreStack::EventsAPIMgr::setSurvey( const char* dataroot, const char* svynm )
 {
-    if ( !IOM().setRootDir( dataroot ) )
-	return -1;
-
-    IOMan::setSurvey( survey );
-    return 0;
+    IOPar iop;
+    if ( dataroot && *dataroot )
+	iop.set( sKey::DataRoot(), dataroot );
+    if ( svynm && *svynm )
+	iop.set( sKey::Survey(), svynm );
+    uiRetVal uirv = DBM().setDataSource( iop );
+    return uirv.isOK() ? 0 : -1;
 }
 
 
@@ -161,7 +163,7 @@ float PreStack::EventsAPIMgr::crlDistance() const
 int PreStack::EventsAPIMgr::openReader( const char* reference )
 {
     const DBKey mid = DBKey::getFromString( reference );
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( !ioobj ) return -1;
 
     int res = 0;

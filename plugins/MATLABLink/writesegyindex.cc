@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
 #include "oddirs.h"
@@ -40,11 +40,11 @@ static DBKey getKey( const char* nm )
     IOObjContext ctxt = mIOObjContext(SeisTrc);
     ctxt.fixTranslator( mSEGYDirectTranslNm );
     CtxtIOObj ctio( ctxt );
-    IOM().to( ctio.ctxt.getSelDirID() );
+    DBM().to( ctio.ctxt.getSelDirID() );
     ctio.setName( nm );
-    IOM().getEntry( ctio );
+    DBM().getEntry( ctio );
     if ( ctio.ioobj )
-	IOM().commitChanges( *ctio.ioobj );
+	DBM().setEntry( *ctio.ioobj );
 
     return ctio.ioobj ? ctio.ioobj->key() : DBKey::getInvalid();
 }

@@ -11,12 +11,12 @@
 #include "survinfo.h"
 #include "ascstream.h"
 #include "safefileio.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "separstr.h"
 #include "globexpr.h"
 #include "keystrs.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include <typeinfo>
 
 static const char* filenamebase = "Properties";
@@ -86,7 +86,7 @@ PropRef_ThickRef_Man()
 {
     ref_ = new ThicknessPropertyRef();
     setZUnit();
-    IOM().afterSurveyChange.notify( mCB(this,PropRef_ThickRef_Man,setZUnit) );
+    DBM().afterSurveyChange.notify( mCB(this,PropRef_ThickRef_Man,setZUnit) );
 }
 
 
@@ -331,7 +331,7 @@ public:
 PropertyRefSetMgr()
     : prs_(0)
 {
-    IOM().surveyChanged.notify( mCB(this,PropertyRefSetMgr,doNull) );
+    DBM().surveyChanged.notify( mCB(this,PropertyRefSetMgr,doNull) );
 }
 
 ~PropertyRefSetMgr()

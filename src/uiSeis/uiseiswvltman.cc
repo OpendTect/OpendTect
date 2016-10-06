@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uiseiswvltman.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "survinfo.h"
 #include "waveletmanager.h"
@@ -261,9 +261,9 @@ void uiSeisWvltMan::mkFileInfo()
 		msg.add( "Outside OpendTect" );
 	    else
 	    {
-		msg.add( "'").add( IOM().nameOf(orgid) ).add( "'" );
-		msg.add( " scaled to '").add( IOM().nameOf(seisid) ).add( "'" );
-		msg.add( "\n\t(along '").add( IOM().nameOf(horid) ).add( "'" );
+		msg.add( "'").add( DBM().nameOf(orgid) ).add( "'" );
+		msg.add( " scaled to '").add( DBM().nameOf(seisid) ).add( "'" );
+		msg.add( "\n\t(along '").add( DBM().nameOf(horid) ).add( "'" );
 		msg.add( " at '").add( lvlnm ).add( "')" );
 	    }
 	    txt.add( msg ).addNewLine();
@@ -294,27 +294,23 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 
 void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 {
-    CtxtIOObj ctio( mIOObjContext(Wavelet) );
-    ctio.ctxt_.forread_ = true;
-
-    uiSelObjFromOtherSurvey dlg( this, ctio );
-    dlg.setHelpKey(mODHelpKey(mSeisWvltMangetFromOtherSurveyHelpID) );
-    Wavelet* wvlt = 0;
-    bool didsel = dlg.go();
-    dlg.setDirToCurrentSurvey();
-    if ( !didsel )
+    const IOObjContext ctxt( mIOObjContext(Wavelet) );
+    uiSelObjFromOtherSurvey objsel( this, ctxt );
+    if ( !objsel.go() )
 	return;
 
-    WaveletLoader loader( ctio.ioobj_ );
+    Wavelet* wvlt = 0;
+    WaveletLoader loader( objsel.ioObj() );
     uiRetVal rv = loader.read( wvlt );
     if ( rv.isError() )
 	uiMSG().error( rv );
 
+    CtxtIOObj ctio( ctxt );
     if ( !wvlt )
 	mRet(uiStrings::sEmptyString())
 
-    ctio.setObj( 0 );
-    IOM().getEntry( ctio );
+    ctio.setName( wvlt->name() );
+    DBM().getEntry( ctio );
     if ( !ctio.ioobj_ )
 	mRet(uiStrings::phrCannotCreate(tr("new entry in Object Management")))
     else if ( !loader.addToMGR(wvlt,ctio.ioobj_->key()) )

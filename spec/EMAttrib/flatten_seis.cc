@@ -21,7 +21,7 @@ static const char* rcsID = "$Id$";
 #include "emhorizonztransform.h"
 #include "emsurfaceio.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "plugins.h"
 #include "position.h"
@@ -33,8 +33,8 @@ static const char* rcsID = "$Id$";
 
 static EM::Horizon* load3DHorizon( const char* id, BufferString& err )
 {
-    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    PtrMan<IOObj> ioobj = IOM().get( id );
+    DBM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    PtrMan<IOObj> ioobj = DBM().get( id );
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;
@@ -62,8 +62,8 @@ static EM::Horizon* load3DHorizon( const char* id, BufferString& err )
 
 static EM::Horizon* load2DHorizon( const char* id, BufferString& err )
 {
-    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    PtrMan<IOObj> ioobj = IOM().get( id );
+    DBM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    PtrMan<IOObj> ioobj = DBM().get( id );
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;

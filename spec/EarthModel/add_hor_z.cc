@@ -14,7 +14,7 @@ static const char* rcsID = "$Id$";
 #include "emmanager.h"
 #include "prog.h"
 #include "position.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "strmprov.h"
 #include "sets.h"
@@ -38,7 +38,7 @@ static int doWork( int argc, char** argv )
     if ( argc < 4 ) return prUsage();
     bool incudf = argc > 4 && strcmp(argv[4],"--incudf");
 
-    IOObj* ioobj = IOM().get( argv[1] );
+    IOObj* ioobj = DBM().get( argv[1] );
     if ( !ioobj ) return prUsage( "Horizon_ID not OK" );
     DBKey ioobjkey( ioobj->key() );
     delete ioobj;

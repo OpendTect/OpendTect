@@ -11,7 +11,7 @@
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "oddirs.h"
-#include "iodir.h"
+#include "dbdir.h"
 #include "ioobj.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -19,8 +19,7 @@
 #include "welldata.h"
 #include "welltrack.h"
 #include "wellreader.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "latlong.h"
 #include "od_ostream.h"
 #include "od_helpids.h"
@@ -48,8 +47,7 @@ uiGoogleExportWells::~uiGoogleExportWells()
 
 void uiGoogleExportWells::initWin( CallBacker* )
 {
-    const IODir iodir( WellTranslatorGroup::ioContext().getSelDirID() );
-    const IODirEntryList del( iodir, WellTranslatorGroup::ioContext() );
+    const DBDirEntryList del( WellTranslatorGroup::ioContext() );
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	selfld_->addItem( mToUiStringTodo(del.dispName(idx)) );

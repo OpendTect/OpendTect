@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "survinfo.h"
 #include "genericnumer.h"
 #include "convmemvalseries.h"
@@ -113,7 +113,7 @@ void GapDecon::initClass()
     desc->addParam( stepout );
 
     ZGateParam* gate = new ZGateParam( gateStr() );
-    if ( !IOM().isBad() )
+    if ( !DBM().isBad() )
     {
 	StepInterval<float> zrange = SI().zRange( true );
 	zrange.scale( mCast(float,SI().zDomain().userFactor()) );

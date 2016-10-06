@@ -12,7 +12,7 @@
 #include "ioobj.h"
 #include "ioobjtags.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ptrman.h"
 #include "samplfunc.h"
 #include "seisbuf.h"
@@ -79,7 +79,7 @@ Gather::~Gather()
 bool Gather::readFrom( const DBKey& mid, const TrcKey& tk, int comp,
 		       uiString* errmsg )
 {
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( !ioobj )
     {
 	if ( errmsg ) (*errmsg) = tr("No valid gather selected.");
@@ -323,7 +323,7 @@ OffsetAzimuth Gather::getOffsetAzimuth( int idx ) const
 
 bool Gather::getVelocityID(const DBKey& stor, DBKey& vid )
 {
-    PtrMan<IOObj> ioobj = IOM().get( stor );
+    PtrMan<IOObj> ioobj = DBM().get( stor );
     return ioobj && GetVelocityVolumeTag( *ioobj, vid );
 }
 

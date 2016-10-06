@@ -13,7 +13,7 @@
 #include "attribparam.h"
 #include "attribdataholder.h"
 #include "datainpspec.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "linesetposinfo.h"
 #include "seis2ddata.h"
@@ -71,7 +71,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     }
 
     const DBKey key = DBKey::getFromString( storstr );
-    PtrMan<IOObj> ioobj = IOM().get( key );
+    PtrMan<IOObj> ioobj = DBM().get( key );
     SeisTrcReader rdr( ioobj );
     if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) || rdr.psIOProv() )
     {

@@ -17,8 +17,8 @@
 #include "survinfo.h"
 #include "file.h"
 #include "iox.h"
-#include "ioman.h"
-#include "iodir.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "uistrings.h"
@@ -108,16 +108,15 @@ void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
     if ( ioobj.pars().find(SeisPSIOProvider::sKeyCubeID) )
 	return;
 
-    IODir iodir( ioobj.key().dirID() );
     BufferString nm( "{" ); nm += ioobj.name(); nm += "}";
     IOX* iox = new IOX( nm );
     iox->setTranslator( mTranslKey(SeisTrc,SeisPSCube) );
     iox->setGroup( mTranslGroupName(SeisTrc) );
-    iox->acquireNewKeyIn( iodir.dirID() );
-    ioobj.pars().set( SeisPSIOProvider::sKeyCubeID, iox->key() );
-    iodir.commitChanges( &ioobj );
+    iox->setKeyForNewEntry( ioobj.key().dirID() );
     iox->setOwnKey( ioobj.key() );
-    iodir.addObj( iox, true );
+    DBM().setEntry( *iox );
+    ioobj.pars().set( SeisPSIOProvider::sKeyCubeID, iox->key() );
+    DBM().setEntry( ioobj );
 }
 
 
@@ -274,7 +273,7 @@ bool SeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 	const FixedString res = ioobj->pars().find(
 					SeisPSIOProvider::sKeyCubeID );
 	if ( !res.isEmpty() )
-	    IOM().permRemove( DBKey::getFromString(res) );
+	    DBM().removeEntry( DBKey::getFromString(res) );
     }
     return true;
 }
@@ -334,7 +333,7 @@ static const char* sKeyOffsNr = "Default trace nr";
 
 bool SeisPSCubeSeisTrcTranslator::initRead_()
 {
-    PtrMan<IOObj> ioobj = IOM().get( conn_->linkedTo() );
+    PtrMan<IOObj> ioobj = DBM().get( conn_->linkedTo() );
     if ( ioobj )
     {
 	mDynamicCastGet(const IOX*,iox,ioobj.ptr())

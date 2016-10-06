@@ -56,7 +56,7 @@ protected:
 mExpClass(uiIo) uiNorthArrowObject : public uiBaseMapObject
 {
 public:
-    			uiNorthArrowObject(BaseMapObject*,bool);
+			uiNorthArrowObject(BaseMapObject*,bool);
 
     const char*		getType() const			{ return "NorthArrow"; }
 
@@ -87,9 +87,8 @@ public:
 
     uiSurveyBoxObject*	getSurveyBox() const;
 
-    static SurveyInfo*	getEmptySurvInfo();
-
 protected:
+
     uiSurveyBoxObject*	survbox_;
     uiTextItem*		title_;
 

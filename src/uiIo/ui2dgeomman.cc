@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "geom2dascio.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "od_istream.h"
 #include "posinfo2dsurv.h"
 #include "survgeom2d.h"
@@ -280,7 +280,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     selgrp_->getChosen( selids );
     for ( int idx=0; idx<selids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( selids[idx] );
+	PtrMan<IOObj> ioobj = DBM().get( selids[idx] );
 	if ( !ioobj || ioobj->implReadOnly() )
 	    continue;
 
@@ -295,7 +295,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 	    continue;
 	}
 
-	IOM().permRemove( ioobj->key() );
+	DBM().removeEntry( ioobj->key() );
 	Survey::GMAdmin().removeGeometry( geomid );
 	const FixedString crfromstr = ioobj->pars().find( sKey::CrFrom() );
 	if ( !crfromstr.isEmpty() )

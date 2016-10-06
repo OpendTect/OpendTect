@@ -9,7 +9,7 @@
 
 #include "ioobjctxt.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "od_ostream.h"
 #include "prestackeventascio.h"

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "mousecursor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "ptrman.h"
@@ -930,9 +930,10 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 
     BufferString fname = FilePath( GetBaseDataDir() )
 			 .add( seldlg->selFld()->getText() ).fullPath();
-    uiString errmsg;
-    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname, errmsg );
-    if ( !survinfo ) return false;
+    uiRetVal uirv = uiRetVal::OK();
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname, uirv );
+    if ( !survinfo )
+	return false;
 
     cs = survinfo->sampling( false );
     crd[0] = survinfo->transform( cs.hsamp_.start_ );

@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "od_helpids.h"
@@ -64,7 +64,7 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
 
     setSaveButtonChecked( true );
 
-    IOM().afterSurveyChange.notify( mCB(this,uiSaveImageDlg,surveyChanged) );
+    DBM().afterSurveyChange.notify( mCB(this,uiSaveImageDlg,surveyChanged) );
 }
 
 

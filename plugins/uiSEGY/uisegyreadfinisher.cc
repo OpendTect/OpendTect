@@ -44,7 +44,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "iostrm.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 #include "file.h"
@@ -385,7 +385,7 @@ void uiSEGYReadFinisher::updateInIOObjPars( IOObj& inioobj,
     const bool outissidom = ZDomain::isSI( outioobj.pars() );
     if ( !outissidom )
 	ZDomain::Def::get(outioobj.pars()).set( inioobj.pars() );
-    IOM().commitChanges( inioobj );
+    DBM().setEntry( inioobj );
 }
 
 
@@ -434,7 +434,7 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 
     wrr.erase(); // closes output
     if ( !handleWarnings(!doimp,indexer,imp) )
-	{ IOM().permRemove( outioobj.key() ); return false; }
+	{ DBM().removeEntry( outioobj.key() ); return false; }
 
     if ( indexer )
     {
@@ -705,7 +705,7 @@ void uiSEGYReadFinisher::setAsDefaultObj()
     if ( fs_.isVSP() || outputid_.isInvalid() )
 	return;
 
-    PtrMan<IOObj> ioobj = IOM().get( outputid_ );
+    PtrMan<IOObj> ioobj = DBM().get( outputid_ );
     if ( ioobj )
 	ioobj->setSurveyDefault();
 }

@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "grid2d.h"
 #include "hor2dfrom3dcreator.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -150,10 +150,10 @@ bool Seis2DGridCreator::init( const IOPar& par )
 {
     DBKey key;
     par.get( Seis2DGridCreator::sKeyInput(), key );
-    PtrMan<IOObj> input = IOM().get( key );
+    PtrMan<IOObj> input = DBM().get( key );
 
     par.get( Seis2DGridCreator::sKeyOutput(), key );
-    PtrMan<IOObj> output = IOM().get( key );
+    PtrMan<IOObj> output = DBM().get( key );
     if ( !input || !output )
 	return false;
 
@@ -375,7 +375,7 @@ bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* taskrunner )
 
     DBKey dsid;
     par.get( Horizon2DGridCreator::sKeySeisID(), dsid );
-    PtrMan<IOObj> dsioobj = IOM().get( dsid );
+    PtrMan<IOObj> dsioobj = DBM().get( dsid );
     if ( !dsioobj ) return false;
 
     TypeSet<Pos::GeomID> geomids;

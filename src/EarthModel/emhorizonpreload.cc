@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emobject.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "dbkey.h"
 #include "ptrman.h"
 
@@ -34,13 +34,13 @@ HorizonPreLoader& HPreL()
 
 HorizonPreLoader::HorizonPreLoader()
 {
-    IOM().surveyToBeChanged.notify( mCB(this,HorizonPreLoader,surveyChgCB) );
+    DBM().surveyToBeChanged.notify( mCB(this,HorizonPreLoader,surveyChgCB) );
 }
 
 
 HorizonPreLoader::~HorizonPreLoader()
 {
-    IOM().surveyToBeChanged.remove( mCB(this,HorizonPreLoader,surveyChgCB) );
+    DBM().surveyToBeChanged.remove( mCB(this,HorizonPreLoader,surveyChgCB) );
 }
 
 

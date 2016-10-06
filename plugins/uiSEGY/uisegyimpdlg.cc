@@ -34,7 +34,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "file.h"
 #include "dirlist.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iostrm.h"
 #include "zdomain.h"
 #include "segybatchio.h"
@@ -168,7 +168,6 @@ bool acceptOK()
 	return false;
     }
 
-    IOM().to( outioobj_.key() );
     return doImp( fp );
 }
 
@@ -320,7 +319,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     }
 
     if ( tmpioobj )
-	IOM().commitChanges( *tmpioobj );
+	DBM().setEntry( *tmpioobj );
     delete tmpioobj;
     return retval;
 }

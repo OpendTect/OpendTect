@@ -7,9 +7,8 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "testprog.h"
-#include "iodirentry.h"
-#include "ioman.h"
-#include "iodir.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "segydirecttr.h"
 #include "seiscbvs.h"
 #include "separstr.h"
@@ -23,9 +22,9 @@ mExternC(Seis) void od_Seis_initStdClasses();
 static int runIOM( const IOObjContext& ctxt,
 			const BufferStringSet& allowedtransls )
 {
-    IOM().to( ctxt.getSelKey() );
+    DBM().to( ctxt.getSelKey() );
 
-    const ObjectSet<IOObj>& objs = IOM().dirPtr()->getObjs();
+    const ObjectSet<IOObj>& objs = DBM().dirPtr()->getObjs();
     int ret = 0;
     for (int idx=0; idx<objs.size(); idx++ )
     {
@@ -46,7 +45,7 @@ static int runIOM( const IOObjContext& ctxt,
 
 static int runEntryList( const IOObjContext& ctxt )
 {
-    IODirEntryList entrylist( IOM().dirPtr(), ctxt );
+    IODirEntryList entrylist( DBM().dirPtr(), ctxt );
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
 	const IODirEntry& de( *entrylist[idx] );
@@ -70,7 +69,7 @@ int testMain( int argc, char** argv )
     allowedtransls.add( SEGYDirectSeisTrcTranslator::translKey() );
     ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
 
-    od_cout() << "Via IOM():" << od_endl;
+    od_cout() << "Via DBM():" << od_endl;
     const int nritemsiom = runIOM( ctxt, allowedtransls );
     od_cout() << od_endl;
 

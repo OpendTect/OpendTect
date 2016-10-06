@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uipsviewermanager.h"
 
 #include "bufstringset.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "ioobjctxt.h"
 #include "prestackgather.h"
@@ -67,7 +67,7 @@ uiViewer3DMgr::uiViewer3DMgr()
     mAttachCB( visserv_->removeAllNotifier(), uiViewer3DMgr::removeAllCB );
     mAttachCB( visserv_->objectRemoved, uiViewer3DMgr::sceneChangeCB );
 
-    mAttachCB( IOM().surveyToBeChanged, uiViewer3DMgr::surveyToBeChangedCB );
+    mAttachCB( DBM().surveyToBeChanged, uiViewer3DMgr::surveyToBeChangedCB );
     mAttachCB( ODMainWin()->sessionSave, uiViewer3DMgr::sessionSaveCB );
     mAttachCB( ODMainWin()->sessionRestore, uiViewer3DMgr::sessionRestoreCB );
 
@@ -295,9 +295,8 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     if ( !menu )
 	return false;
 
-    IOM().to( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
-    PtrMan<IOObj> ioobj = IOM().getLocal(
-	    selectpsdatamenuitem_.getItem(mnuidx)->text.getFullString(), 0 );
+    PtrMan<IOObj> ioobj = DBM().getByName( IOObjContext::Seis,
+	    selectpsdatamenuitem_.getItem(mnuidx)->text.getFullString() );
     if ( !ioobj )
 	mErrReturn( tr("No object selected") )
 
@@ -458,7 +457,7 @@ uiStoredViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer(
 				    const visSurvey::PreStackDisplay& psv )
 {
     const DBKey mid = psv.getDBKey();
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( !ioobj )
        return 0;
 
@@ -496,7 +495,7 @@ void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
     win->getIDs( selids );
     for( int idx=0; idx<selids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( selids[idx] );
+	PtrMan<IOObj> ioobj = DBM().get( selids[idx] );
 	if ( ioobj )
 	    selgnms.addIfNew( ioobj->name() );
     }
@@ -517,7 +516,8 @@ void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
     {
 	for( int idx=0; idx<selgnms.size(); idx++ )
 	{
-	    IOObj* ioobj = IOM().getLocal( selgnms[idx]->buf(), 0 );
+	    IOObj* ioobj = DBM().getByName( IOObjContext::Seis,
+					    selgnms[idx]->buf(), 0 );
 	    if ( ioobj )
 		selids += ioobj->key();
 	    else
@@ -653,7 +653,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 		continue;
 	}
 
-	PtrMan<IOObj> ioobj = IOM().get( mid );
+	PtrMan<IOObj> ioobj = DBM().get( mid );
 	if ( !ioobj )
 	    continue;
 

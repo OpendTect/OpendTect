@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -427,7 +427,7 @@ bool uiWellImportAsc::doWork()
 
     outioobj->pars().update( sKey::CrFrom(), datasrcnms.cat("`") );
     outioobj->updateCreationPars();
-    IOM().commitChanges( *outioobj );
+    DBM().setEntry( *outioobj );
 
     if ( saveButtonChecked() )
 	importReady.trigger();

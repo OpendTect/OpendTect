@@ -9,7 +9,7 @@
 
 #include "arrayndimpl.h"
 #include "genericnumer.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "posinfo.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"

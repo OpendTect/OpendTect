@@ -13,8 +13,8 @@ ________________________________________________________________________
 #include "picksetmanager.h"
 #include "executor.h"
 #include "uistrings.h"
-#include "ioman.h"
-#include "iodir.h"
+#include "dbman.h"
+#include "dbdir.h"
 
 mDefineInstanceCreatedNotifierAccess(Pick::SetSaver)
 
@@ -37,13 +37,17 @@ public:
 SetCategoryFromTypeInOMFPutter()
 {
     doWork( 0 );
-    mAttachCB( IOM().surveyChanged, SetCategoryFromTypeInOMFPutter::doWork );
+    mAttachCB( DBM().surveyChanged, SetCategoryFromTypeInOMFPutter::doWork );
 }
 
 void doWork( CallBacker* )
 {
-    const IODir iodir( IOObjContext::Loc );
-    IODirIter iter( iodir );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Loc );
+    if ( !dbdir )
+	return;
+
+    ObjectSet<IOObj> toset;
+    DBDirIter iter( *dbdir );
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();
@@ -56,10 +60,14 @@ void doWork( CallBacker* )
 	{
 	    IOObj* replioobj = ioobj.clone();
 	    replioobj->pars().set( sKey::Category(), realcat );
-	    IOM().commitChanges( *replioobj );
-	    delete replioobj;
+	    toset += replioobj;
 	}
     }
+    iter.retire(); // needed, otherwise deadlock
+
+    for ( int idx=0; idx<toset.size(); idx++ )
+	DBM().setEntry( *toset[idx] );
+    deepErase( toset );
 }
 
 }; // class SetCategoryFromTypeInOMFPutter
@@ -204,7 +212,7 @@ int Pick::SetLoaderExec::nextStep()
 	return MoreToDo();
     }
 
-    PtrMan<IOObj> ioobj = IOM().get( id );
+    PtrMan<IOObj> ioobj = DBM().get( id );
     if ( !ioobj )
     {
 	pErrMsg( "Required ID not in IOM. Probably not OK" );

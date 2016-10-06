@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "survinfo.h"
 #include "uiattribfactory.h"

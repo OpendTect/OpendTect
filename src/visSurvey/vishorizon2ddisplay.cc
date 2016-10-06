@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "iopar.h"
 #include "ioobjctxt.h"
-#include "iodir.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "keystrs.h"
 #include "rowcolsurface.h"
 #include "survinfo.h"
@@ -677,9 +678,12 @@ bool Horizon2DDisplay::calcLine2DIntersections(
 
 void Horizon2DDisplay::calcLine2DInterSectionSet()
 {
-    const IODir iodir( IOObjContext::Geom );
-    const bool needcalc = nr2dlines_ != iodir.size() ? true : false;
-    nr2dlines_ = iodir.size();
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Geom );
+    if ( !dbdir )
+	return;
+
+    const bool needcalc = nr2dlines_ != dbdir->size() ? true : false;
+    nr2dlines_ = dbdir->size();
 
     if ( needcalc )
     {

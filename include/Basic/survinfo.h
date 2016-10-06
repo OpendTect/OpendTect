@@ -174,28 +174,34 @@ protected:
     BufferString	comment_;
     BufferString	sipnm_;
 
+    BufferString	getSurvDirFullPath() const;
     bool		wrapUpRead();
 
 private:
 
     // ugly, but hard to avoid:
-    friend class		IOMan;
-    friend class		uiSurvey;
-    friend class		uiSurveyMap;
+    friend class		DBMan;
     friend class		uiSurveyInfoEditor;
 
     Pos::IdxPair2Coord::DirTransform rdxtr_;
     Pos::IdxPair2Coord::DirTransform rdytr_;
 
-				// For IOMan only
-    static void			setSurveyName(const char*);
-				// friends only
-    static const char*		surveyFileName();
+    static void			pushSI(SurveyInfo*);
+				/*!<Adds a SI at the top of the stack.
+				    It thus becomes the SI() */
+    static bool			popSI();
+				/*!<Undo of pushSI: the SI() is removed
+				    Note that there may not remain any SI
+				    in the stack */
+
+				// For DBMan only
+    static uiRetVal		setSurveyLocation(const char*,const char*);
 
 public:
 
 	// These fns are rarely used by non-specialist classes.
 			~SurveyInfo();
+    static SurveyInfo*	getEmpty()	{ return new SurveyInfo; }
 
     void		setWorkRange(const TrcKeyZSampling&);
     Notifier<SurveyInfo> workRangeChg;
@@ -234,6 +240,7 @@ public:
 
     BufferString	getDirName() const	{ return dirname_; }
     BufferString	getDataDirName() const	{ return datadir_; }
+    void		setDataDirName( const char* s )	{ datadir_ = s; }
     void		updateDirName(); //!< May be used after setName()
 
 			mDeclareEnumUtils(Pol2D);
@@ -242,15 +249,12 @@ public:
 			{ survdatatype_ = typ; survdatatypeknown_ = true; }
 
 			// Auxiliary info
-    const char*		comment() const		{ return comment_.buf(); }
-    BufferString	sipName() const		{ return sipnm_; }
-    void		setSipName( BufferString sipnm )     { sipnm_ = sipnm; }
-    void		setComment( const char* s )	{ comment_ = s; }
+    const char*		comment() const			 { return comment_; }
+    BufferString	sipName() const			 { return sipnm_; }
+    void		setSipName( BufferString sipnm ) { sipnm_ = sipnm; }
+    void		setComment( const char* s )	 { comment_ = s; }
 
 	// Following fns are used by specialist classes. Don't use casually.
-
-			SurveyInfo(const SurveyInfo&);
-    SurveyInfo&		operator =(const SurveyInfo&);
 
     Pos::IdxPair2Coord&	getBinID2Coord() const
 			{ return const_cast<SurveyInfo*>(this)->b2c_; }
@@ -261,7 +265,7 @@ public:
 			//!< Write to .survey file
     void		saveDefaultPars(const char* basedir=0) const;
 			//!< Write to .defs file
-    static SurveyInfo*	read(const char*,uiString& errmsg);
+    static SurveyInfo*	read(const char*,uiRetVal&);
     void		setRange(const TrcKeyZSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     const uiString	set3PtsUiMsg(const Coord c[3],const BinID b[2],int);
@@ -273,24 +277,12 @@ public:
 
     static const char*	curSurveyName();
 
-			// No, you really don't need these!
-    static void		pushSI(SurveyInfo*);
-			/*!<Adds a SI at the top of the stack.
-			    It thus becomes THE SI() */
-    static SurveyInfo*	popSI();
-			/*!<Undo of pushSI: THE SI() is removed
-			    Note that there may not remain any SI
-			    in the stack */
-    static void		deleteInstance()		{ delete popSI(); }
-			/*!<Shortcut to popSI, with deletion of the object */
-    static void		deleteOriginal();
-			/*!<Removes the first SI from the stack */
-
     mDeprecated const IOPar&	pars() const { return defaultPars(); }
     mDeprecated void		savePars(const char* basedir = 0) const
 				{ saveDefaultPars(basedir); }
     mDeprecated IOPar&		getPars() const;
 
+    mDeclMonitorableAssignment(SurveyInfo);
     mDeclInstanceCreatedNotifierAccess(SurveyInfo);
 };
 

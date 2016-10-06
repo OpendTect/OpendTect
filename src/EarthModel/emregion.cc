@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id: emregion.cc 38690 2015-03-30 18:00:30Z
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "faulttrace.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "uistrings.h"
 
 
@@ -183,7 +183,7 @@ const char* RegionHor3DBoundary::type() const
 void RegionHor3DBoundary::setKey( const DBKey& mid )
 {
     key_ = mid;
-    setName( IOM().nameOf(key_) );
+    setName( DBM().nameOf(key_) );
 }
 
 
@@ -259,7 +259,7 @@ const char* RegionFaultBoundary::type() const
 void RegionFaultBoundary::setKey( const DBKey& mid )
 {
     key_ = mid;
-    setName( IOM().nameOf(key_) );
+    setName( DBM().nameOf(key_) );
 }
 
 
@@ -355,7 +355,7 @@ const char* RegionPolygonBoundary::type() const
 void RegionPolygonBoundary::setKey( const DBKey& dbky )
 {
     key_ = dbky;
-    setName( IOM().nameOf(key_) );
+    setName( DBM().nameOf(key_) );
 }
 
 

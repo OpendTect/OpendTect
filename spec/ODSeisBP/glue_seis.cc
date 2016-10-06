@@ -7,7 +7,7 @@
 static const char* rcsID = "$Id$";
 #include "prog.h"
 #include "batchprog.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "seiscubeprov.h"
 #include "seisbuf.h"
@@ -371,7 +371,7 @@ bool BatchProgram::go( std::ostream& strm_ )
 	    advst = prov->advance();
 	if ( advst == SeisMSCProvider::EndReached )
 	{
-	    strm << "No valid data in " << IOM().nameOf(res) << std::endl;
+	    strm << "No valid data in " << DBM().nameOf(res) << std::endl;
 	    return false;
 	}
 	if ( advst == SeisMSCProvider::Error )
@@ -392,7 +392,7 @@ bool BatchProgram::go( std::ostream& strm_ )
 	dbgstrm << "Nr providers: " << nrprovs << std::endl;
 
     const char* res = pars()["Output.ID"];
-    IOObj* ioobj = IOM().get( res );
+    IOObj* ioobj = DBM().get( res );
     if ( !ioobj )
     {
 	strm << "Cannot find seismic data with ID: " << res << std::endl;

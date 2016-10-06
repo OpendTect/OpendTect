@@ -16,7 +16,7 @@
 #include "od_iostream.h"
 #include "ascstream.h"
 #include "separstr.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "uistrings.h"
 
 static const char* sKeyFileType = "MultiCube Pre-Stack Seismics";
@@ -92,7 +92,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
     {
 	DBKey dbky( DBKey::getFromString(astrm.keyWord()) );
 
-	PtrMan<IOObj> ioobj = IOM().get( dbky );
+	PtrMan<IOObj> ioobj = DBM().get( dbky );
 	if ( !ioobj )
 	    mErrCont(uiStrings::phrCannotFindDBEntry(
 						toUiString(astrm.keyWord())) )
@@ -173,7 +173,7 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, DBKeySet& keys,
 	const FileMultiString fms( astrm.value() );
 	if ( ky.isInvalid() || fms.size() < 1 )
 	    continue;
-	PtrMan<IOObj> ioobj = IOM().get( ky );
+	PtrMan<IOObj> ioobj = DBM().get( ky );
 	if ( !ioobj || ioobj->isBad() )
 	    continue;
 

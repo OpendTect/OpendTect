@@ -19,7 +19,7 @@
 #include "datapointset.h"
 #include "gendefs.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "mathexpression.h"
@@ -98,7 +98,7 @@ DescID DescSet::ensureDefStoredPresent() const
 {
     BufferString idstr; DescID retid;
 
-    if ( IOM().isBad() )
+    if ( DBM().isBad() )
 	return defattribid_;
 
     PtrMan<IOPar> defpars = SI().defaultPars().subselect( sKey::Default() );
@@ -350,7 +350,7 @@ void DescSet::fillPar( IOPar& par ) const
 
 	const DBKey dbky = dsc.getStoredID( true );
 	const bool isvaliddbkey = dbky.isValid();
-	PtrMan<IOObj> ioobj = IOM().get( dbky );
+	PtrMan<IOObj> ioobj = DBM().get( dbky );
 	if ( isvaliddbkey && !ioobj )
             continue;
 
@@ -567,7 +567,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     {
 	const ValParam* keypar = dsc->getValParam( StorageProvider::keyStr() );
 	const StringPair storkey( keypar->getStringValue() );
-	PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(storkey.first()));
+	PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(storkey.first()));
 	if ( ioobj.ptr() )
 	{
 	    BufferString tentativeuserref = (BufferString)ioobj->name();
@@ -684,7 +684,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 			    tmpcpypar.removeWithKey( compkey.buf() );
 		    }
 		}
-		err = tr( "Impossible to find stored data '%1'"
+		err = tr( "Impossible to find stored data '%1 '"
 			"used as input for another attribute %2 '%3'. \n"
 			"Data might have been deleted or corrupted.\n"
 			"Please check your attribute set "
@@ -1003,7 +1003,7 @@ DescID DescSet::createStoredDesc( const DBKey& dbkey, int selout,
     }
     else
     {
-	PtrMan<IOObj> ioobj = IOM().get( dbkey );
+	PtrMan<IOObj> ioobj = DBM().get( dbkey );
 	if ( !ioobj )
 	    return DescID::undef();
 
@@ -1131,7 +1131,7 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 			dsc.getValParam( StorageProvider::keyStr() );
 		const DBKey dbky = DBKey::getFromString(
 					keypar->getStringValue() );
-		PtrMan<IOObj> ioobj = IOM().get( dbky );
+		PtrMan<IOObj> ioobj = DBM().get( dbky );
 		if ( remstored || !ioobj || !ioobj->implExists(true) )
 		    iscandidate = true;
 	    }
@@ -1166,7 +1166,7 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 	DBKey storedid = dsc.getStoredID();
 	if ( storedid.isInvalid() ) continue;
 
-	PtrMan<IOObj> ioobj = IOM().get( storedid );
+	PtrMan<IOObj> ioobj = DBM().get( storedid );
 	const char* res = ioobj ? ioobj->pars().find( "Type" ) : 0;
 	const bool issteer = res && *res == 'S';
 	if ( !usesteering && issteer ) continue;
@@ -1241,7 +1241,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( const StringPair& inpstr )
 	int compnr = 0;
 	if ( !inpstr.second().isEmpty() )
 	{
-	    IOObj* inpobj = IOM().get( dbky );
+	    IOObj* inpobj = DBM().get( dbky );
 	    if ( inpobj )
 	    {
 		SeisIOObjInfo seisinfo( inpobj );

@@ -9,7 +9,7 @@
 #include "wellreader.h"
 #include "wellwriter.h"
 #include "welltransl.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 
 

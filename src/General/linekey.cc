@@ -7,7 +7,7 @@
 
 #include "linekey.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "posinfo2dsurv.h"
 

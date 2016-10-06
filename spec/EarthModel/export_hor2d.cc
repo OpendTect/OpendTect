@@ -19,8 +19,7 @@ static const char* rcsID = "$Id$";
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
 #include "initearthmodel.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "linesetposinfo.h"
 #include "position.h"
 #include "ptrman.h"
@@ -68,7 +67,7 @@ static int doWork( int argc, char** argv )
 	return 1;
     }
 
-    PtrMan<IOObj> ioobj = IOM().get( argv[1] );
+    PtrMan<IOObj> ioobj = DBM().get( argv[1] );
     if ( !ioobj ) return prError( "No lineset found" );
 
     const float udfval = argc==4 ? toFloat(argv[3]) : mUdf(float);
@@ -78,8 +77,8 @@ static int doWork( int argc, char** argv )
     s2dls.getGeometry( lsdata );
 
     IOObjContext ctxt = EMHorizon2DTranslatorGroup::ioContext();
-    IOM().to( ctxt.getSelDirID() );
-    IODirEntryList list( IOM().dirPtr(), ctxt );
+    DBM().to( ctxt.getSelDirID() );
+    IODirEntryList list( DBM().dirPtr(), ctxt );
     DBKeySet horids;
     for ( int idx=0; idx<list.size(); idx++ )
 	horids += list[idx]->ioobj->key();

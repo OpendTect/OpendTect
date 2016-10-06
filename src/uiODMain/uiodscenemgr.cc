@@ -46,7 +46,7 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmarchingcubessurface.h"
 #include "emrandomposbody.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
 #include "picksetmanager.h"
@@ -1079,7 +1079,7 @@ int uiODSceneMgr::addWellItem( const DBKey& mid, int sceneid )
 {
     mGetOrAskForScene
 
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( !scene || !ioobj ) return -1;
 
     if ( ioobj->group() != mTranslGroupName(Well) )

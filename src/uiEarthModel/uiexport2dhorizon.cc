@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "ptrman.h"
@@ -284,7 +284,7 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
 
     DBKey horid = hinfos_[horidx]->dbkey;
 
-    PtrMan<IOObj> ioobj = IOM().get( horid );
+    PtrMan<IOObj> ioobj = DBM().get( horid );
     if ( !ioobj ) return;
 
     EM::SurfaceIOData emdata; EM::IOObjInfo oi( *ioobj );

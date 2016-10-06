@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uiscaler.h"
 #include "datachar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "scaler.h"
@@ -248,10 +248,7 @@ void uiSeisFmtScale::updateIOObj( IOObj* ioobj, bool commit ) const
 	fillFmtPars( ioobj->pars() );
 
     if ( commit )
-    {
-	IOM().to( ioobj->key() );
-	IOM().commitChanges( *ioobj );
-    }
+	DBM().setEntry( *ioobj );
 }
 
 

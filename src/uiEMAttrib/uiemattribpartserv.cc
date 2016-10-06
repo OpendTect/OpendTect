@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "posvecdataset.h"
 #include "typeset.h"
@@ -127,7 +127,7 @@ void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 
 void uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid, bool is2d )
 {
-    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getDBKey(emid) );
+    PtrMan<IOObj> ioobj = DBM().get( EM::EMM().getDBKey(emid) );
     if ( !ioobj ) return;
 
     if ( uiseisevsnapdlg_ ) delete uiseisevsnapdlg_;

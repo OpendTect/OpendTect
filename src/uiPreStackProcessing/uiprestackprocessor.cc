@@ -7,7 +7,7 @@
 
 #include "uiprestackprocessor.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "prestackprocessor.h"
@@ -324,7 +324,7 @@ void uiProcessorManager::loadCB( CallBacker* )
 
 bool uiProcessorManager::save()
 {
-    PtrMan<IOObj> ioobj = IOM().get( lastmid_ );
+    PtrMan<IOObj> ioobj = DBM().get( lastmid_ );
     if ( ioobj )
 	return doSave( *ioobj );
 
@@ -362,7 +362,7 @@ void uiProcessorManager::saveAsCB( CallBacker* )
 
 void uiProcessorManager::saveCB( CallBacker* )
 {
-    PtrMan<IOObj> ioobj = IOM().get( lastmid_ );
+    PtrMan<IOObj> ioobj = DBM().get( lastmid_ );
     if ( !ioobj )
 	doSaveAs();
     else

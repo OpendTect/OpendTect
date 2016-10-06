@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "elasticpropseltransl.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "mathexpression.h"
 #include "propertyref.h"
 #include "strmprov.h"
@@ -488,7 +488,7 @@ bool uiElasticPropSelDlg::openPropSel()
 bool uiElasticPropSelDlg::doRead( const DBKey& mid )
 {
     ElasticPropSelection* elp = elpropsel_.getByDBKey( mid );
-    ctio_.setObj( IOM().get( mid ) );
+    ctio_.setObj( DBM().get( mid ) );
 
     if ( !elp ) return false;
 

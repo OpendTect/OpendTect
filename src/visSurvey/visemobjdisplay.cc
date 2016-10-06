@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "iopar.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "mpeengine.h"
 #include "randcolor.h"
@@ -594,7 +594,7 @@ bool EMObjectDisplay::usePar( const IOPar& par )
 
 	 return false;
 
-    PtrMan<IOObj> ioobj = IOM().get( parmid_ );
+    PtrMan<IOObj> ioobj = DBM().get( parmid_ );
     if ( !ioobj )
     {
 	errmsg_ = "Cannot locate object ";

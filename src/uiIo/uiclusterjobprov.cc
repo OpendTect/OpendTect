@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "hostdata.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iostrm.h"
 #include "iopar.h"
 #include "jobdescprov.h"
@@ -137,7 +137,7 @@ int nextStep()
     BufferString logfnm = fp.fullPath();
     iop.set( sKey::LogFile(), logfnm );
     iop.set( sKey::DataRoot(), GetBaseDataDir() );
-    iop.set( sKey::Survey(), IOM().surveyName() );
+    iop.set( sKey::Survey(), DBM().surveyName() );
     if ( !iop.write(parfnm.buf(),sKey::Pars()) )
 	return ErrorOccurred();
 
@@ -316,8 +316,7 @@ DBKey uiClusterJobProv::getTmpID( const char* tmpdir ) const
     BufferString objnm( "~" );
     objnm += fp.fileName();
     ctio.setName( objnm );
-    IOM().to( ctio.ctxt_.getSelDirID() );
-    IOM().getEntry( ctio );
+    DBM().getEntry( ctio );
     if ( !ctio.ioobj_ )
 	return DBKey::getInvalid();
 
@@ -330,7 +329,7 @@ DBKey uiClusterJobProv::getTmpID( const char* tmpdir ) const
     jobprov_->getRange( fnrs );
     iostrm->fileSpec().setFileName( fp.fullPath() );
     iostrm->fileSpec().nrs_ = fnrs;
-    IOM().commitChanges( *iostrm );
+    DBM().setEntry( *iostrm );
     return ret;
 }
 
@@ -359,7 +358,7 @@ Batch::JobDispatcher& uiClusterJobDispatcherLauncher::gtDsptchr()
 bool uiClusterJobDispatcherLauncher::go( uiParent* p )
 {
     jobspec_.pars_.set( sKey::DataRoot(), GetBaseDataDir() );
-    jobspec_.pars_.set( sKey::Survey(), IOM().surveyName() );
+    jobspec_.pars_.set( sKey::Survey(), DBM().surveyName() );
     uiClusterJobProv dlg( p, jobspec_.pars_, jobspec_.prognm_,
 			  jd_.parfnm_ );
     return dlg.go();

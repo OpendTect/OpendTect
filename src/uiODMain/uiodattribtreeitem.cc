@@ -15,7 +15,7 @@ ___________________________________________________________________
 #include "coltabsequence.h"
 #include "filepath.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "ptrman.h"
 #include "survinfo.h"
@@ -254,7 +254,7 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 	dispname = toUiString(as->objectRef());
 	uiString nodenm = toUiString( as->userRef());
 	if ( IOObj::isKey(as->userRef()) )
-	    nodenm = toUiString(IOM().nameFor( as->userRef() ));
+	    nodenm = toUiString(DBM().nameFor( as->userRef() ));
 	dispname = toUiString("%1 (%2)").arg( as->objectRef() ).arg( nodenm );
     }
 

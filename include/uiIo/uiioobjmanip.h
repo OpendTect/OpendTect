@@ -18,7 +18,6 @@ class IOObj;
 class IOStream;
 class Translator;
 class uiToolButton;
-class IODirEntryList;
 class BufferStringSet;
 
 

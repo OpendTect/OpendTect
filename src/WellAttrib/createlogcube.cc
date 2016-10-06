@@ -10,7 +10,8 @@ ________________________________________________________________________
 
 #include "createlogcube.h"
 
-#include "ioman.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "seiscbvs.h"
 #include "seisbuf.h"
 #include "seistrcprop.h"
@@ -52,18 +53,11 @@ bool LogCubeCreator::LogCube::mkIOObj()
     ctxt.forread_ = false;
     ctxt.deftransl_ = CBVSSeisTrcTranslator::translKey();
 
-    IOM().to( ctxt.getSelDirID() );
     CtxtIOObj ctio( ctxt );
     ctio.setName( fnm_ );
-    IOM().getEntry( ctio );
+    DBM().getEntry( ctio );
     if ( !ctio.ioobj_ )
 	return false;
-
-    if ( !IOM().commitChanges(*ctio.ioobj_) )
-    {
-	errmsg_ = uiStrings::phrCannotWriteDBEntry( ctio.ioobj_->uiName() );
-	return false;
-    }
 
     seisioobj_ = ctio.ioobj_;
     return true;
@@ -224,6 +218,13 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
 	wellnmsuffix.set( "from well " ).add( welldata_[0]->wd_->name() );
     }
 
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( ctxt );
+    if ( !dbdir )
+    {
+	msg = tr("Database in bad state");
+	mErrRet( msg, true, return false )
+    }
+
     for ( int ilog=0; ilog<logcubes_.size(); ilog++ )
     {
 	BufferString& fnm = logcubes_[ilog]->fnm_;
@@ -233,18 +234,13 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
 	if ( withwllnm )
 	    fnm.addSpace().add( wellnmsuffix );
 
-	const IOObj* presentobj = IOM().getLocal( fnm.buf(),
+	const IOObj* presentobj = dbdir->getEntryByName( fnm.buf(),
 						  ctxt.translatorGroupName() );
-	if ( !presentobj )
-	    continue;
-
-	msg.append( tr( "Volume: '%1' is already present as another type"
-			" and won't be created" ).arg( fnm ), true );
-	if ( ctxt.deftransl_ != presentobj->translator() )
+	if ( presentobj )
+	{
+	    msg.append( tr("Volume: '%1' is already present").arg(fnm), true );
 	    mErrRet( msg, errmsg_.isEmpty(), continue )
-
-	msg.append( tr( "Volume: '%1' is already present" ).arg( fnm ), true );
-	mErrRet( msg, errmsg_.isEmpty(), continue )
+	}
     }
 
     return errmsg_.isEmpty();

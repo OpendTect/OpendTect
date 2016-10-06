@@ -16,7 +16,7 @@
 #include "iopar.h"
 #include "ioobj.h"
 #include "iostrm.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "sorting.h"
 #include "separstr.h"
 #include "scaler.h"
@@ -80,7 +80,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , compnms_(0)
     , warnings_(*new BufferStringSet)
 {
-    if ( !IOM().isBad() )
+    if ( !DBM().isBad() )
 	lastinlwritten_ = SI().sampling(false).hsamp_.start_.inl();
 }
 
@@ -525,7 +525,7 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 bool SeisTrcTranslator::getRanges( const DBKey& ky, TrcKeyZSampling& cs,
 				   const char* lk )
 {
-    PtrMan<IOObj> ioobj = IOM().get( ky );
+    PtrMan<IOObj> ioobj = DBM().get( ky );
     return ioobj ? getRanges( *ioobj, cs, lk ) : false;
 }
 

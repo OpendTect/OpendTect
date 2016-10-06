@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "oddirs.h"
 #include "settings.h"
 #include "oscommand.h"

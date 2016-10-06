@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 #include "indexedshape.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "polyposprovider.h"
 #include "tableposprovider.h"
 #include "picksettr.h"
@@ -23,7 +23,7 @@ mDefModInitFn(Geometry)
 {
     mIfNotFirstTime( return );
 
-    IOM(); //Trigger createion & reading of geometries
+    DBM(); //Trigger createion & reading of geometries
 
     PickSetTranslatorGroup::initClass();
     PosVecDataSetTranslatorGroup::initClass();

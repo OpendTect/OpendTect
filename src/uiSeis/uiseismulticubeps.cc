@@ -25,9 +25,8 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "ctxtioobj.h"
-#include "ioman.h"
-#include "iodir.h"
-#include "iodirentry.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "ioobj.h"
 #include "od_helpids.h"
 
@@ -141,9 +140,8 @@ const IOObj* uiSeisMultiCubePS::createdIOObj() const
 
 void uiSeisMultiCubePS::fillEntries()
 {
-    const IODir iodir( ctio_.ctxt_.getSelDirID() );
     PtrMan<IOObjContext> ctxt = Seis::getIOObjContext( Seis::Vol, true );
-    const IODirEntryList del( iodir, *ctxt );
+    const DBDirEntryList del( *ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
 	entries_ += new uiSeisMultiCubePSEntry( del.ioobj(idx).clone() );
 }
@@ -174,7 +172,7 @@ void uiSeisMultiCubePS::setInitial( CallBacker* cb )
 
     for ( int idx=0; idx<keys.size(); idx++ )
     {
-	IOObj* ioobj = IOM().get( keys[idx] );
+	IOObj* ioobj = DBM().get( keys[idx] );
 	if ( !ioobj )
 	    continue;
 	uiSeisMultiCubePSEntry* entry = new uiSeisMultiCubePSEntry( ioobj );

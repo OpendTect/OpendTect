@@ -25,7 +25,7 @@
 #include "statparallelcalc.h"
 #include "picksettr.h"
 #include "waveletmanager.h"
-#include "ioman.h"
+#include "dbman.h"
 
 #include "uislider.h"
 #include "uistratseisevent.h"
@@ -158,7 +158,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 				   "\nbefore starting this tool")) )
 
     uiString wintitle = tr("Determine scaling for synthetics using '%1'")
-				    .arg(toUiString(IOM().nameOf(inpwvltid_)));
+				    .arg(toUiString(DBM().nameOf(inpwvltid_)));
     setTitleText( wintitle );
 
     uiSeisSel::Setup sssu( is2d_, false );

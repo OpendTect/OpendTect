@@ -26,8 +26,8 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "ctxtioobj.h"
-#include "iodir.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "seis2ddata.h"
 #include "seis2dlineio.h"
@@ -92,7 +92,7 @@ void uiSeis2DLineChoose::objInserted( CallBacker* cb )
     if ( !cb ) return;
 
     mCBCapsuleUnpack(DBKey,dsid,cb);
-    PtrMan<IOObj> dsobj = IOM().get( dsid );
+    PtrMan<IOObj> dsobj = DBM().get( dsid );
     if ( !dsobj )
 	return;
 
@@ -790,7 +790,7 @@ void uiSeis2DMultiLineSel::initRanges( const DBKey* datasetid )
     zrgs_.erase(); trcrgs_.erase();
     maxzrgs_.erase(); maxtrcrgs_.erase();
 
-    PtrMan<IOObj> ioobj = datasetid ? IOM().get( *datasetid ) : 0;
+    PtrMan<IOObj> ioobj = datasetid ? DBM().get( *datasetid ) : 0;
     PtrMan<Seis2DDataSet> dataset = ioobj ?  new Seis2DDataSet( *ioobj ) : 0;
 
     for ( int idx=0; idx<geomids_.size(); idx++ )
@@ -866,7 +866,7 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
     DBKey lsetkey;
     if ( par.get("LineSet.ID",lsetkey) )
     {
-	PtrMan<IOObj> lsobj = IOM().get( lsetkey );
+	PtrMan<IOObj> lsobj = DBM().get( lsetkey );
 	if ( lsobj )
 	    lsetname = lsobj->name();
     }

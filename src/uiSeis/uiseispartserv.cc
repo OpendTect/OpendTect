@@ -12,9 +12,8 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "ctxtioobj.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -90,7 +89,7 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     , expps2dseisdlg_(0)
 {
     SeisIOObjInfo::initDefault( sKey::Steering() );
-    IOM().surveyChanged.notify( mCB(this,uiSeisPartServer,survChangedCB) );
+    DBM().surveyChanged.notify( mCB(this,uiSeisPartServer,survChangedCB) );
 }
 
 
@@ -232,11 +231,10 @@ DBKey uiSeisPartServer::getDefault2DDataID() const
     if ( !midstr.isEmpty() )
 	return DBKey::getFromString( midstr.buf() );
 
-    const IOObjContext ctxt( SeisTrc2DTranslatorGroup::ioContext() );
-    const IODir iodir ( ctxt.getSelDirID() );
+    const IOObjContext ctxt( mIOObjContext(SeisTrc2D) );
     int nrod2d = 0;
     DBKey def2dky; DBKey seisky;
-    IODirEntryList entrylist( iodir, ctxt );
+    DBDirEntryList entrylist( ctxt );
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
 	SeisIOObjInfo seisinfo( entrylist.ioobj(idx) );
@@ -262,8 +260,8 @@ DBKey uiSeisPartServer::getDefault2DDataID() const
 
     uiIOObjSelDlg::Setup su( tr("Set default 2D seismic data") );
     su.allowsetsurvdefault( false );
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc2D);
-    uiIOObjSelDlg dlg( parent(), su, *ctio );
+    CtxtIOObj ctio( ctxt );
+    uiIOObjSelDlg dlg( parent(), su, ctio );
     if ( !dlg.go() )
 	return DBKey::getInvalid();
 
@@ -284,10 +282,9 @@ DBKey uiSeisPartServer::getDefaultDataID( bool is2d ) const
     if ( !midstr.isEmpty() )
 	return DBKey::getFromString( midstr.buf() );
 
-    const IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
-    const IODir iodir ( ctxt.getSelDirID() );
+    const IOObjContext ctxt( mIOObjContext(SeisTrc) );
     int nrod3d = 0; DBKey def3dky;
-    IODirEntryList entrylist( iodir, ctxt );
+    DBDirEntryList entrylist( ctxt );
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
 	SeisIOObjInfo seisinfo( entrylist.ioobj(idx) );
@@ -309,8 +306,8 @@ DBKey uiSeisPartServer::getDefaultDataID( bool is2d ) const
 
     uiIOObjSelDlg::Setup su( tr("Set default seismic data") );
     su.allowsetsurvdefault( false );
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
-    uiIOObjSelDlg dlg( parent(), su, *ctio );
+    CtxtIOObj ctio( ctxt );
+    uiIOObjSelDlg dlg( parent(), su, ctio );
     if ( !dlg.go() )
 	return DBKey::getInvalid();
 
@@ -385,7 +382,7 @@ bool uiSeisPartServer::select2DSeis( DBKey& mid )
 
 
 #define mGet2DDataSet(retval) \
-    PtrMan<IOObj> ioobj = IOM().get( mid ); \
+    PtrMan<IOObj> ioobj = DBM().get( mid ); \
     if ( !ioobj ) return retval; \
     Seis2DDataSet dataset( *ioobj );
 
@@ -448,8 +445,11 @@ bool uiSeisPartServer::create2DOutput( const DBKey& mid, const char* linekey,
 void uiSeisPartServer::getStoredGathersList( bool for3d,
 					     BufferStringSet& nms ) const
 {
-    const IODir iodir( IOObjContext::Seis );
-    IODirIter iter( iodir );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
+    if ( !dbdir )
+	return;
+
+    DBDirIter iter( *dbdir );
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();

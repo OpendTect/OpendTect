@@ -7,8 +7,8 @@
 
 #include "survgeometrytransl.h"
 #include "ctxtioobj.h"
-#include "iodir.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "survgeom2d.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
@@ -35,16 +35,13 @@ IOObj* SurvGeom2DTranslator::getIOObj( Pos::GeomID geomid )
 {
     IOObjContext ioctxt( mIOObjContext(SurvGeom2D) );
     const DBKey dbky( ioctxt.getSelDirID(), DBKey::ObjID::get(geomid) );
-    return IOM().get( dbky );
+    return DBM().get( dbky );
 }
 
 
 IOObj* SurvGeom2DTranslator::createEntry( const char* name, const char* trkey )
 {
     IOObjContext iocontext( mIOObjContext(SurvGeom2D) );
-    if ( !IOM().to(iocontext.getSelDirID()) )
-	return 0;
-
     if ( trkey && *trkey )
 	iocontext.fixTranslator( trkey );
 

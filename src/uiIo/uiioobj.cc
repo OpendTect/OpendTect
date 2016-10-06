@@ -12,8 +12,7 @@ ________________________________________________________________________
 #include "uiioobj.h"
 #include "uimsg.h"
 #include "ctxtioobj.h"
-#include "ioman.h"
-#include "iodir.h"
+#include "dbman.h"
 #include "iostrm.h"
 #include "survinfo.h"
 #include "transl.h"
@@ -82,7 +81,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 
     if ( rmentry )
     {
-	const bool removed = IOM().permRemove( ioobj_.key() );
+	const bool removed = DBM().removeEntry( ioobj_.key() );
 	if ( removed )
 	{
 	    if ( IOObj::isSurveyDefault(ioobj_.key()) )
@@ -111,13 +110,11 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
 
     const BufferString nm = ctio.getName();
 
-    const IODir iodir( ctio.ctxt_.getSelDirID() );
-    PtrMan<IOObj> existioobj = iodir.getEntryByName( nm,
-				    ctio.ctxt_.translatorGroupName() );
+    PtrMan<IOObj> existioobj = DBM().getByName( ctio.ctxt_, nm );
     if ( !existioobj )
     {
 	ctio.setObj( 0 );
-	IOM().getEntry( ctio );
+	DBM().getEntry( ctio );
 	return ctio.ioobj_;
     }
 

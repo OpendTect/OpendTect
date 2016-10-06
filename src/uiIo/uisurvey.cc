@@ -47,7 +47,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "latlong.h"
@@ -405,7 +405,7 @@ uiSurvey::uiSurvey( uiParent* p )
 		"\nor contact support@opendtect.org.") );
     }
 
-    if ( !IOM().isBad() )
+    if ( !DBM().isBad() )
 	setCurrentSurvInfo( new SurveyInfo(SI()) );
 
     mDefineStaticLocalObject( int, sipidx2d, mUnusedVar =
@@ -635,7 +635,7 @@ bool uiSurvey::acceptOK()
     // Step 1: write local changes
     if ( !writeSurvInfoFileIfCommentChanged() )
 	mErrRet(uiString::emptyString())
-    if ( samedataroot && samesurvey && !parschanged_ && !IOM().isBad() )
+    if ( samedataroot && samesurvey && !parschanged_ && !DBM().isBad() )
 	mRetExitWin
 
     // Step 2: write default/current survey file
@@ -647,12 +647,12 @@ bool uiSurvey::acceptOK()
 	updateDataRootInSettings();
 
     // Step 4: Do the IOMan changes necessary
-    if ( samesurvey && !IOM().isBad() )
+    if ( samesurvey && !DBM().isBad() )
     {
 	if ( cursurvinfo_ )
 	    eSI() = *cursurvinfo_;
 
-	IOM().surveyParsChanged();
+	// DBM().surveyParsChanged();
     }
     else
     {
@@ -662,28 +662,24 @@ bool uiSurvey::acceptOK()
 		return false;
 	}
 
-	uiString errmsg;
-	if ( IOMan::newSurvey(cursurvinfo_,&errmsg) )
+	uiRetVal uirv = DBM().setDataSource( dataroot_,
+					     cursurvinfo_->getDirName() );
+	if ( uirv.isOK() )
 	{
-	    cursurvinfo_ = 0; // it's not ours anymore
+	    delete cursurvinfo_; cursurvinfo_ = 0;
 	    if ( survmap_ )
 		survmap_->setSurveyInfo( 0 );
 	}
 	else
 	{
-	    const SurveyInfo* si = &SI();
-	    if ( cursurvinfo_ == si )
+	    if ( cursurvinfo_ == &SI() )
 	    {
 		cursurvinfo_ = 0;
 		if ( survmap_ )
 		    survmap_->setSurveyInfo( 0 );
 	    }
 
-	    cursurvinfo_ = 0;
-	    const bool isblocked = errmsg.isSet();
-	    if ( isblocked )
-		uiMSG().error( errmsg );
-
+	    uiMSG().error( uirv );
 	    return false;
 	}
     }
@@ -695,10 +691,7 @@ bool uiSurvey::acceptOK()
 	readSurvInfoFromFile();
 	const uiString askq = impsip_->importAskUiQuestion();
 	if ( !askq.isEmpty() && uiMSG().askGoOn(askq) )
-	{
-	    IOM().to( DBKey::getFromString("100010") );
 	    impsip_->startImport( parent(), *impiop_ );
-	}
     }
 
     mRetExitWin
@@ -711,7 +704,7 @@ bool uiSurvey::rejectOK()
     {
 	uiString msg(tr("You have removed the current survey.\n"
 	       "No surveys found in the list.\n"
-		"Want to exit from OpendTect") );
+		"Do you want to exit OpendTect?") );
 
 	return uiMSG().askGoOn( msg );
     }
@@ -742,7 +735,7 @@ void uiSurvey::rollbackNewSurvey( const uiString& errmsg )
     if ( !cursurvinfo_ )
 	return;
 
-    FilePath fp( cursurvinfo_->datadir_, cursurvinfo_->dirname_ );
+    FilePath fp( cursurvinfo_->getDataDirName(), cursurvinfo_->getDirName() );
     const bool haverem = File::removeDir( fp.fullPath() );
     setCurrentSurvInfo( 0, false );
     readSurvInfoFromFile();
@@ -769,14 +762,14 @@ void uiSurvey::newButPushed( CallBacker* )
 {
     if ( !rootDirWritable() ) return;
 
-    const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName());
-    uiString errmsg;
-    SurveyInfo* newsurvinfo = SurveyInfo::read( fp.fullPath(), errmsg );
+    const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName() );
+    uiRetVal uirv = uiRetVal::OK();
+    SurveyInfo* newsurvinfo = SurveyInfo::read( fp.fullPath(), uirv );
     if ( !newsurvinfo )
     {
-	uiString msg = tr("Cannot read software default survey\n"
-			  "Try to reinstall the OpendTect package");
-	uiMSG().errorWithDetails( uiStringSet(&errmsg), msg );
+	uirv.insert( tr("Cannot read software default survey\n"
+		      "Try to reinstall the OpendTect package") );
+	uiMSG().error( uirv );
 	return;
     }
 
@@ -795,7 +788,7 @@ void uiSurvey::newButPushed( CallBacker* )
 
     setCurrentSurvInfo( newsurvinfo, false );
 
-    cursurvinfo_->datadir_ = dataroot_;
+    cursurvinfo_->setDataDirName( dataroot_ );
     if ( !File::makeWritable(storagedir,true,true) )
 	mRetRollBackNewSurvey(tr("Cannot set the permissions"
 							"for the new survey"))
@@ -875,12 +868,12 @@ void uiSurvey::copyButPushed( CallBacker* )
     if ( !dlg.go() )
 	return;
 
-    uiString errmsg;
-    setCurrentSurvInfo( SurveyInfo::read(dlg.newdirnm_,errmsg) );
+    uiRetVal uirv = uiRetVal::OK();
+    setCurrentSurvInfo( SurveyInfo::read(dlg.newdirnm_,uirv) );
     if ( !cursurvinfo_ )
     {
-	uiString msg = uiStrings::phrCannotRead(tr("the copied survey"));
-	uiMSG().errorWithDetails( uiStringSet(&errmsg), msg );
+	uirv.insert( uiStrings::phrCannotRead(tr("the copied survey")) );
+	uiMSG().error( uirv );
 	return;
     }
 
@@ -1055,7 +1048,7 @@ bool uiSurvey::writeSettingsSurveyFile()
     if ( !File::exists(FilePath(dataroot_,seltxt).fullPath()) )
 	mErrRet(tr("Survey directory does not exist anymore"))
 
-    const char* survfnm = SurveyInfo::surveyFileName();
+    const char* survfnm = GetLastSurveyFileName();
     if ( !survfnm )
 	mErrRet(tr("Internal error: cannot construct last-survey-filename"))
 
@@ -1079,10 +1072,10 @@ void uiSurvey::readSurvInfoFromFile()
     {
 	const BufferString fname = FilePath( dataroot_ )
 			    .add( selectedSurveyName() ).fullPath();
-	uiString errmsg;
-	newsi = SurveyInfo::read( fname, errmsg );
+	uiRetVal uirv = uiRetVal::OK();
+	newsi = SurveyInfo::read( fname, uirv );
 	if ( !newsi )
-	    uiMSG().error( errmsg );
+	    uiMSG().error( uirv );
     }
 
     if ( newsi )
@@ -1204,7 +1197,7 @@ void uiSurvey::putToScreen()
 	zinfo += " - "; mAdd2ZString( si.zRange(false).step );
 	survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
-	FilePath fp( si.datadir_, si.dirname_ );
+	FilePath fp( si.getDataDirName(), si.getDirName() );
 	fp.makeCanonical();
 	locinfo.add( fp.fullPath() );
 

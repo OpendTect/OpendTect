@@ -8,7 +8,7 @@
 #include "stratlevel.h"
 #include "bufstringset.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "file.h"
 #include "filepath.h"
 #include "color.h"
@@ -46,7 +46,7 @@ public:
 
 LevelSetMgr()
 {
-    IOM().surveyChanged.notify( mCB(this,LevelSetMgr,doNull) );
+    DBM().surveyChanged.notify( mCB(this,LevelSetMgr,doNull) );
 }
 
 ~LevelSetMgr()

@@ -7,9 +7,9 @@
 
 #include "iox.h"
 #include "iosubdir.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
-#include "iodir.h"
+#include "dbdir.h"
 #include "ascstream.h"
 #include "filepath.h"
 #include "file.h"
@@ -260,9 +260,10 @@ IOObj* IOObj::clone() const
 }
 
 
-void IOObj::acquireNewKeyIn( const DirID& dirid )
+void IOObj::setKeyForNewEntry( DirID dirid )
 {
-    key_ = IOM().createNewKey( dirid );
+    key_.setDirID( dirid );
+    key_.setObjID( DBKey::ObjID::getInvalid() );
 }
 
 
@@ -355,7 +356,7 @@ bool IOObj::isSurveyDefault( const DBKey& ky )
 
 bool IOObj::isInCurrentSurvey() const
 {
-    FilePath cursurvfp( IOM().rootDir() ); cursurvfp.makeCanonical();
+    FilePath cursurvfp( DBM().rootDir() ); cursurvfp.makeCanonical();
     FilePath orgfp( fullUserExpr(true) ); orgfp.makeCanonical();
     return orgfp.isSubDirOf(cursurvfp);
 }
@@ -477,7 +478,7 @@ void IOX::copyFrom( const IOObj& obj )
 
 const char* IOX::fullUserExpr( bool i ) const
 {
-    IOObj* ioobj = IOM().get( ownkey_ );
+    IOObj* ioobj = DBM().get( ownkey_ );
     if ( !ioobj ) return "<invalid>";
     const char* s = ioobj->fullUserExpr(i);
     delete ioobj;
@@ -487,7 +488,7 @@ const char* IOX::fullUserExpr( bool i ) const
 
 bool IOX::implExists( bool i ) const
 {
-    IOObj* ioobj = IOM().get( ownkey_ );
+    IOObj* ioobj = DBM().get( ownkey_ );
     if ( !ioobj ) return false;
     bool yn = ioobj->implExists(i);
     delete ioobj;
@@ -514,7 +515,7 @@ Conn* IOX::getConn( bool forread ) const
 
 IOObj* IOX::getIOObj() const
 {
-    return ownkey_.isInvalid() ? 0 : IOM().get( ownkey_ );
+    return ownkey_.isInvalid() ? 0 : DBM().get( ownkey_ );
 }
 
 

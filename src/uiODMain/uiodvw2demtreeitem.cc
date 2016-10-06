@@ -44,7 +44,7 @@ void uiODVw2DEMTreeItem::doSave()
     bool savewithname = false;
     if ( EM::EMM().getDBKey( emid_ ).isValid() )
     {
-	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getDBKey(emid_) );
+	PtrMan<IOObj> ioobj = DBM().get( EM::EMM().getDBKey(emid_) );
 	savewithname = !ioobj;
     }
     doStoreObject( savewithname );

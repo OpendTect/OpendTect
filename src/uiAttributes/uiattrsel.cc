@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 #include "hilbertattrib.h"
 
-#include "ioman.h"
-#include "iodir.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ctxtioobj.h"
@@ -453,9 +453,8 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
 	if ( nms.validIdx(selidx) )
 	{
-	    IOM().to(
-		 DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
-	    PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
+	    PtrMan<IOObj> ioobj = DBM().getByName( IOObjContext::Seis,
+						   nms.get(selidx) );
 	    if ( ioobj )
 		ioobjkey = ioobj->key();
 	}
@@ -486,7 +485,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
     if ( insertedobjmid_.isValid() )
     {
-	PtrMan<IOObj> ioobj = IOM().get( insertedobjmid_ );
+	PtrMan<IOObj> ioobj = DBM().get( insertedobjmid_ );
 	if ( !ioobj )
 	    return false;
 
@@ -523,9 +522,10 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
-	IOM().to(DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
-	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
-	if ( !ioobj ) return false;
+	PtrMan<IOObj> ioobj = DBM().getByName( IOObjContext::Seis,
+						nms.get(selidx) );
+	if ( !ioobj )
+	    return false;
 
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
@@ -734,7 +734,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 
 	const char* nm = attrdata_.nlamodel_->design().outputs[outnr]->buf();
 	mDeclStaticString(ret);
-	ret = IOM().nameFor( nm );
+	ret = DBM().nameFor( nm );
 	return ret.buf();
     }
 
@@ -808,10 +808,10 @@ void uiAttrSel::processInput()
     if ( !attrdata_.attribid_.isValid() && attrdata_.nlamodel_ )
     {
 	const BufferStringSet& outnms( attrdata_.nlamodel_->design().outputs );
-	const BufferString nodenm = IOM().nameFor( inp );
+	const BufferString nodenm = DBM().nameFor( inp );
 	for ( int idx=0; idx<outnms.size(); idx++ )
 	{
-	    const BufferString desnm = IOM().nameFor( outnms.get(idx) );
+	    const BufferString desnm = DBM().nameFor( outnms.get(idx) );
 	    if ( desnm == nodenm )
 		{ attrdata_.outputnr_ = idx; break; }
 	}

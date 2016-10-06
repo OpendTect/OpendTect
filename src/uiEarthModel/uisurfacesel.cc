@@ -18,9 +18,8 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emsurfaceiodata.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "ioobj.h"
 
 
@@ -41,12 +40,11 @@ uiSurfaceSel::~uiSurfaceSel()
 
 void uiSurfaceSel::getFullList()
 {
-    const IODir iodir( ctxt_.getSelDirID() );
-    const IODirEntryList del( iodir, ctxt_ );
-
     names_.erase();
     mids_.erase();
     listfld_->setEmpty();
+
+    const DBDirEntryList del( ctxt_ );
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj& ioobj = del.ioobj( idx );

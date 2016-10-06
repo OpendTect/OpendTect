@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "matlabarray.h"
 #include "moddepmgr.h"
@@ -94,7 +94,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     BufferString errmsg;
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
     PtrMan<IOObj> ioobj =
-	IOM().getFromPar( par, sInpSeisKey, ctxt, false, errmsg );
+	DBM().getFromPar( par, sInpSeisKey, ctxt, false, errmsg );
     if ( !ioobj )
     {
 	if ( errmsg.isEmpty() )

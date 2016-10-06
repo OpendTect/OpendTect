@@ -30,7 +30,7 @@ ________________________________________________________________________
 
 #include "ioobjctxt.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "picksetmanager.h"

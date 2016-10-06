@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "posvecdataset.h"
 #include "datacoldef.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "dbkey.h"
@@ -83,7 +83,7 @@ int PosVecOutputGen::nextStep()
 		BufferString ref = inps_.get( refidx );
 		BufferString nm = ref;
 		if ( IOObj::isKey(ref) )
-		    nm = IOM().nameOf( DBKey::getFromString(ref) );
+		    nm = DBM().nameOf( DBKey::getFromString(ref) );
 		pvds->add( new DataColDef(nm,ref) );
 	    }
 

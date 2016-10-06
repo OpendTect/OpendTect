@@ -27,7 +27,8 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "horizon2dscanner.h"
-#include "ioman.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "randcolor.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
@@ -280,8 +281,8 @@ void uiImportHorizon2D::addHor( CallBacker* )
     if ( !dlg.go() ) return;
 
     const char* hornm = dlg.text();
-    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
-    if ( IOM().getLocal(hornm,0) )
+    PtrMan<IOObj> existioobj = DBM().getByName( IOObjContext::Surf, hornm );
+    if ( hornm )
     {
 	uiMSG().error(tr("Failed to add: a surface already "
                          "exists with name %1").arg(toUiString(hornm)));
@@ -358,66 +359,69 @@ bool uiImportHorizon2D::doImport()
     BufferStringSet hornms;
     horselfld_->getChosen( hornms );
     ObjectSet<EM::Horizon2D> horizons;
-    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
     EM::EMManager& em = EM::EMM();
-    for ( int idx=0; idx<hornms.size(); idx++ )
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Surf );
+    if ( dbdir )
     {
-	BufferString nm = hornms.get( idx );
-	PtrMan<IOObj> ioobj = IOM().getLocal( nm,
-				EMHorizon2DTranslatorGroup::sGroupName() );
-	EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() ) : -1;
-	EM::EMObject* emobj = em.getObject(id);
-	if ( emobj )
-	    emobj->setBurstAlert( true );
-
-	PtrMan<Executor> exec = ioobj ? em.objectLoader( ioobj->key() ) : 0;
-
-	if ( !ioobj || !exec || !exec->execute() )
+	for ( int idx=0; idx<hornms.size(); idx++ )
 	{
-	    id = em.createObject( EM::Horizon2D::typeStr(), nm );
+	    BufferString nm = hornms.get( idx );
+	    PtrMan<IOObj> ioobj = dbdir->getEntryByName( nm,
+				    EMHorizon2DTranslatorGroup::sGroupName() );
+	    EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() ) : -1;
+	    EM::EMObject* emobj = em.getObject( id );
+	    if ( emobj )
+		emobj->setBurstAlert( true );
+
+	    PtrMan<Executor> exec = ioobj ? em.objectLoader( ioobj->key() ) : 0;
+
+	    if ( !ioobj || !exec || !exec->execute() )
+	    {
+		id = em.createObject( EM::Horizon2D::typeStr(), nm );
+		mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
+		if ( ioobj )
+		    hor->setDBKey( ioobj->key() );
+
+		hor->ref();
+		hor->setBurstAlert( true );
+		horizons += hor;
+		continue;
+	    }
+
+	    id = em.getObjectID(ioobj->key());
 	    mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
-	    if ( ioobj )
-		hor->setDBKey( ioobj->key() );
+	    if ( !hor )
+	    {
+		uiMSG().error( uiStrings::phrCannotLoad(
+					    uiStrings::sHorizon().toLower()) );
+		mDeburstRet( false, unRef );
+	    }
+
+	    BufferStringSet existinglines;
+	    for ( int ldx=0; ldx<linenms.size(); ldx++ )
+	    {
+		const BufferString linenm = linenms.get( ldx );
+		if ( hor->geometry().lineIndex(linenm) >= 0 )
+		    existinglines.add( linenm );
+	    }
+
+	    const int nrexist = existinglines.size();
+	    if ( nrexist > 0 )
+	    {
+		uiString msg = tr("Horizon %1 already exists for %2").arg(nm)
+			     .arg((nrexist == 1
+			     ? tr("2D line %1")
+			     : tr("some 2D lines (%1) and will be overwritten"))
+			     .arg(existinglines.getDispString(3, false)));
+		if ( !uiMSG().askOverwrite(msg) )
+		    mDeburstRet( false, unRef );
+	    }
 
 	    hor->ref();
-	    hor->setBurstAlert( true );
 	    horizons += hor;
-	    continue;
+	    if ( !hor->hasBurstAlert() )
+		hor->setBurstAlert( true );
 	}
-
-	id = em.getObjectID(ioobj->key());
-	mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
-	if ( !hor )
-	{
-	    uiMSG().error( uiStrings::phrCannotLoad(
-					    uiStrings::sHorizon().toLower()) );
-	    mDeburstRet( false, unRef );
-	}
-
-	BufferStringSet existinglines;
-	for ( int ldx=0; ldx<linenms.size(); ldx++ )
-	{
-	    const BufferString linenm = linenms.get( ldx );
-	    if ( hor->geometry().lineIndex(linenm) >= 0 )
-		existinglines.add( linenm );
-	}
-
-	const int nrexist = existinglines.size();
-	if ( nrexist > 0 )
-	{
-	    uiString msg = tr("Horizon %1 already exists for %2").arg(nm)
-			 .arg((nrexist == 1
-			 ? tr("2D line %1")
-			 : tr("some 2D lines (%1) and will be overwritten"))
-			 .arg(existinglines.getDispString(3, false)));
-	    if ( !uiMSG().askOverwrite(msg) )
-		mDeburstRet( false, unRef );
-	}
-
-	hor->ref();
-	horizons += hor;
-	if ( !hor->hasBurstAlert() )
-	    hor->setBurstAlert( true );
     }
 
     PtrMan<Horizon2DImporter> exec =

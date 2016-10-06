@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "seisdatapackwriter.h"
 
 #include "arrayndimpl.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "posinfo.h"
 #include "seisdatapack.h"
@@ -49,7 +49,7 @@ SeisDataPackWriter::SeisDataPackWriter( const DBKey& mid,
 	mNINT32(dp_->sampling().zsamp_.start/dp_->sampling().zsamp_.step);
     zrg_ = Interval<int>( startz, startz+dp_->sampling().nrZ()-1 );
 
-    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+    PtrMan<IOObj> ioobj = DBM().get( mid_ );
     writer_ = ioobj ? new SeisTrcWriter( ioobj ) : 0;
     is2d_ = writer_->is2D();
 }

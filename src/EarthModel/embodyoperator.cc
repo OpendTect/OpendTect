@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "task.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "executor.h"
 
@@ -498,7 +498,7 @@ bool BodyOperator::isOK() const
     }
     else
     {
-	if ( !IOM().get(inputbody0_) )
+	if ( !DBM().get(inputbody0_) )
 	    return false;
     }
 
@@ -509,7 +509,7 @@ bool BodyOperator::isOK() const
     }
     else
     {
-	if ( !IOM().get(inputbody1_) )
+	if ( !DBM().get(inputbody1_) )
 	    return false;
     }
 

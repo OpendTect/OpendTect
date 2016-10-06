@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "gmtpar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "picksettr.h"
 

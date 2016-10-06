@@ -836,7 +836,7 @@ void uiSEGYReadStarter::updateSurvMap()
     if ( !survmap_ )
 	return;
 
-    survinfo_ = survmap_->getEmptySurvInfo();
+    survinfo_ = SurveyInfo::getEmpty();
     survinfo_->setName( "No valid scan available" );
     const char* stbarmsg = "";
     if ( scaninfos_ && !scaninfos_->isEmpty() )

@@ -13,7 +13,7 @@
 #include "file.h"
 #include "filepath.h"
 #include "debug.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "uistrings.h"
 
 static const char* filenamebase = "UnitsOfMeasure";
@@ -35,10 +35,10 @@ public:
 
 UnitOfMeasureCurDefsMgr() : iop_(crNew())
 {
-    IOM().surveyChanged.notify( mCB(this,UnitOfMeasureCurDefsMgr,newSrv) );
+    DBM().surveyChanged.notify( mCB(this,UnitOfMeasureCurDefsMgr,newSrv) );
     const CallBack savedefscb( mCB(this,UnitOfMeasureCurDefsMgr,saveDefs) );
-    IOM().surveyToBeChanged.notify( savedefscb );
-    IOM().applicationClosing.notify( savedefscb );
+    DBM().surveyToBeChanged.notify( savedefscb );
+    DBM().applicationClosing.notify( savedefscb );
 }
 
 ~UnitOfMeasureCurDefsMgr()

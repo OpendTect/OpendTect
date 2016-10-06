@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "visselman.h"
 
 #include "draw.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "picksetmanager.h"
 
 static const char* sKeyCategory = "MeasureTool";
@@ -44,7 +44,7 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     mAttachCB( scenemgr.sceneClosed, MeasureToolMan::sceneClosed );
     mAttachCB( scenemgr.activeSceneChanged, MeasureToolMan::sceneChanged );
     mAttachCB( visBase::DM().selMan().selnotifier, MeasureToolMan::objSelected);
-    mAttachCB( IOM().surveyChanged, MeasureToolMan::surveyChanged );
+    mAttachCB( DBM().surveyChanged, MeasureToolMan::surveyChanged );
 }
 
 

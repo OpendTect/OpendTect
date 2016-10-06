@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "pickset.h"
@@ -119,7 +119,7 @@ uiTreeItem* TreeItemFactory::create( int visid, uiTreeItem* treeitem ) const
     int setidx = mgr.indexOf(mid);
     if ( setidx==-1 )
     {
-	PtrMan<IOObj> ioobj = IOM().get( mid );
+	PtrMan<IOObj> ioobj = DBM().get( mid );
 	Pick::Set* ps = new Pick::Set;
 	BufferString bs;
 	PickSetTranslator::retrieve(*ps,ioobj,true,bs);
@@ -425,7 +425,7 @@ void SubItem::store() const
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 
     const int setidx = mgr.indexOf( *set_ );
-    PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
+    PtrMan<IOObj> ioobj = DBM().get( mgr.id(setidx) );
     if ( !ioobj )
     {
 	storeAs( true );
@@ -433,7 +433,7 @@ void SubItem::store() const
     }
 
     ioobj->pars().set( sKey::Type(), managerName() );
-    IOM().commitChanges( *ioobj );
+    DBM().setEntry( *ioobj );
 
     fillStoragePar( set_->pars_ );
     BufferString bs;
@@ -446,8 +446,8 @@ void SubItem::store() const
 
 bool SubItem::doesNameExist( const char* nm )
 {
-    IOM().to( PickSetTranslatorGroup::ioContext().getSelDirID() );
-    PtrMan<IOObj> local = IOM().getLocal( nm );
+    DBM().to( PickSetTranslatorGroup::ioContext().getSelDirID() );
+    PtrMan<IOObj> local = DBM().getLocal( nm );
     return local;
 }
 
@@ -851,7 +851,7 @@ bool ArrowSubItem::init()
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
-    PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
+    PtrMan<IOObj> ioobj = DBM().get( mgr.id(setidx) );
     if ( !ioobj ) return false;
 
     if ( !ioobj->pars().get(sKeyArrowType(),arrowtype_) )
@@ -1000,7 +1000,7 @@ bool ImageSubItem::init()
     {
 	Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	const int setidx = mgr.indexOf( *set_ );
-	PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
+	PtrMan<IOObj> ioobj = DBM().get( mgr.id(setidx) );
 	if ( ioobj )
 	    ioobj->pars().get(sKey::FileName(), filename );
     }

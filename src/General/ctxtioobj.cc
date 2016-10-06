@@ -7,8 +7,8 @@
 
 #include "ctxtioobj.h"
 #include "iostrm.h"
-#include "ioman.h"
-#include "iodir.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "transl.h"
@@ -375,18 +375,21 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 	iostrm->setDirName( dirnm );
     iostrm->setExt( transl.defExtension() );
 
-    IODir iodir( ky.dirID() );
-    iodir.ensureUniqueName( *iostrm );
-    const BufferString uniqnm( iostrm->name() );
-    int ifnm = 0;
-    while ( true )
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( ky.dirID() );
+    if ( dbdir )
     {
-	iostrm->genFileName();
-	if ( !File::exists(iostrm->fullUserExpr()) )
-	    break;
-	ifnm++;
-	iostrm->setName( BufferString(uniqnm,ifnm) );
-	iodir.ensureUniqueName( *iostrm );
+	dbdir->prepObj( *iostrm );
+	const BufferString uniqnm( iostrm->name() );
+	int ifnm = 0;
+	while ( true )
+	{
+	    iostrm->genFileName();
+	    if ( !File::exists(iostrm->fullUserExpr()) )
+		break;
+	    ifnm++;
+	    iostrm->setName( BufferString(uniqnm,ifnm) );
+	    dbdir->prepObj( *iostrm );
+	}
     }
 
     iostrm->updateCreationPars();
@@ -397,9 +400,11 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 void CtxtIOObj::fillIfOnlyOne()
 {
     ctxt_.fillTrGroup();
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( ctxt_.getSelDirID() );
+    if ( !dbdir )
+	return;
 
-    const IODir iodir( ctxt_.getSelDirID() );
-    IODirIter iter( iodir );
+    DBDirIter iter( *dbdir );
     DBKey dbky;
     while ( iter.next() )
     {
@@ -413,7 +418,7 @@ void CtxtIOObj::fillIfOnlyOne()
     }
 
     if ( dbky.isValid() )
-	setObj( iodir.getEntry(dbky) );
+	setObj( dbdir->getEntry(dbky.objID()) );
 }
 
 
@@ -437,7 +442,7 @@ void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
     if ( kystr && *kystr )
     {
 	DBKey dbky = DBKey::getFromString( kystr );
-	setObj( IOM().get(dbky) );
+	setObj( DBM().get(dbky) );
     }
 
     if ( !ioobj_ && oone2 )
@@ -458,7 +463,7 @@ void CtxtIOObj::setObj( IOObj* obj )
 
 void CtxtIOObj::setObj( const DBKey& id )
 {
-    setObj( IOM().get(id) );
+    setObj( DBM().get(id) );
 }
 
 
@@ -485,6 +490,6 @@ int CtxtIOObj::fillObj( bool mktmp, int translidxfornew )
     if ( ioobj_ && (ctxt_.name() == ioobj_->name() || emptynm) )
 	return 1;
 
-    IOM().getEntry( *this, mktmp, translidxfornew );
+    DBM().getEntry( *this, mktmp, translidxfornew );
     return ioobj_ ? 2 : 0;
 }

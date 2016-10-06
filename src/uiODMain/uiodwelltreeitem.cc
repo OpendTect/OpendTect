@@ -25,7 +25,7 @@ ___________________________________________________________________
 
 #include "draw.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "welldata.h"
@@ -249,7 +249,7 @@ bool uiODWellTreeItem::init()
 	if ( !wd->setDBKey(mid_) )
 	{
 	    visserv_->removeObject( wd, sceneID() );
-	    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+	    PtrMan<IOObj> ioobj = DBM().get( mid_ );
 	    const char* nm = ioobj ? ioobj->name().buf() : 0;
 	    uiMSG().error(uiStrings::phrCannotLoad(tr("well %1").arg(nm)) );
 	    return false;

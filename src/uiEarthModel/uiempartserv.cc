@@ -37,8 +37,8 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "iodir.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "parametricsurface.h"
 #include "pickset.h"
@@ -113,7 +113,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , manfssdlg_(0)
     , manbodydlg_(0)
 {
-    IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
+    DBM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
 
 
@@ -534,7 +534,7 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
     if ( !emobj || !emobj->isChanged() || !EM::canOverwrite(emobj->dbKey()) )
 	return true;
 
-    PtrMan<IOObj> ioobj = IOM().get( getStorageID(emid) );
+    PtrMan<IOObj> ioobj = DBM().get( getStorageID(emid) );
     if ( !ioobj && emobj->isEmpty() )
 	return true;
 
@@ -588,7 +588,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
     ExecutorGroup loaders( "Loading Bodies" );
     for ( int idx=0; idx<mids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( mids[idx] );
+	PtrMan<IOObj> ioobj = DBM().get( mids[idx] );
 	if ( !ioobj )
 	    continue;
 
@@ -896,7 +896,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	{
 	    CtxtIOObj ctio( body ? EMBodyTranslatorGroup::ioContext()
 				 : object->getIOObjContext(),
-				 IOM().get(object->dbKey()) );
+				 DBM().get(object->dbKey()) );
 
 	    ctio.ctxt_.forread_ = false;
 
@@ -922,11 +922,11 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
     if ( !exec )
 	return false;
 
-    PtrMan<IOObj> ioobj = IOM().get( key );
+    PtrMan<IOObj> ioobj = DBM().get( key );
     if ( !ioobj->pars().find( sKey::Type() ) )
     {
 	ioobj->pars().set( sKey::Type(), object->getTypeStr() );
-	if ( !IOM().commitChanges( *ioobj ) )
+	if ( !DBM().setEntry( *ioobj ) )
 	{
 	    uiMSG().error( uiStrings::phrCannotWriteDBEntry(ioobj->uiName()) );
 	    return false;
@@ -1373,7 +1373,7 @@ bool uiEMPartServer::loadSurface( const DBKey& mid,
     Executor* exec = em_.objectLoader( mid, newsel );
     if ( !exec )
     {
-	PtrMan<IOObj> ioobj = IOM().get(mid);
+	PtrMan<IOObj> ioobj = DBM().get(mid);
 	BufferString nm = ioobj ? (const char*)ioobj->name()
 				: (const char*)mid.toString().str();
 	uiString msg = tr( "Cannot load '%1'" ).arg( nm );
@@ -1477,11 +1477,14 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d )
 {
-    const IODir iodir( IOObjContext::Surf );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Surf );
+    if ( !dbdir )
+	return;
+
     FixedString groupstr = is2d
 	? EMHorizon2DTranslatorGroup::sGroupName()
 	: EMHorizon3DTranslatorGroup::sGroupName();
-    IODirIter iter( iodir );
+    DBDirIter iter( *dbdir );
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();

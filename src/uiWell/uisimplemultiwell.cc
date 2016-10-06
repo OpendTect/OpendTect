@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uisimplemultiwell.h"
 
 #include "ctxtioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "od_istream.h"
@@ -276,7 +276,8 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 
 IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 {
-    IOObj* ioobj = IOM().getLocal( wellnm, "Well" );
+    const IOObjContext wllctxt( mIOObjContext(Well) );
+    IOObj* ioobj = DBM().getByName( wllctxt, wellnm );
     if ( ioobj )
     {
 	if ( overwritepol_ == 0 )
@@ -290,7 +291,7 @@ IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 
     if ( !ioobj )
     {
-	CtxtIOObj ctio( mIOObjContext(Well) );
+	CtxtIOObj ctio( wllctxt );
 	ctio.setName( wellnm );
 	ctio.fillObj();
 	ioobj = ctio.ioobj_;
@@ -348,8 +349,6 @@ bool uiSimpleMultiWellCreate::acceptOK()
     if ( vel_ < 1e-5 || mIsUdf(vel_) )
 	{ uiMSG().error(uiStrings::phrEnter(tr("a valid velocity")));
 								return false; }
-
-    IOM().to( WellTranslatorGroup::ioContext().getSelDirID() );
 
     for ( int irow=0; ; irow++ )
     {

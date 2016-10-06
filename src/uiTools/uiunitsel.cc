@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "unitofmeasure.h"
 #include "survinfo.h"
-#include "ioman.h"
+#include "dbman.h"
 
 static const char* sDispNone = "-";
 

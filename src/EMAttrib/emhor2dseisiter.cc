@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "seis2ddata.h"
 #include "survinfo.h"
 #include "posinfo2dsurv.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 
 

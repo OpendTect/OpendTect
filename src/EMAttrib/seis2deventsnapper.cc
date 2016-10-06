@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "seistrc.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 
 
 Seis2DLineEventSnapper::Seis2DLineEventSnapper( const EM::Horizon2D& orghor,

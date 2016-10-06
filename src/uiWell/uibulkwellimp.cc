@@ -12,8 +12,8 @@ ________________________________________________________________________
 #include "uibulkwellimp.h"
 
 #include "ctxtioobj.h"
-#include "iodir.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "od_istream.h"
@@ -167,8 +167,7 @@ void uiBulkTrackImport::write( uiStringSet& errors )
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
 	RefMan<Well::Data> wd = wells_[idx];
-	PtrMan<IOObj> ioobj = IOM().getLocal(wd->name(),
-					     ctio->ctxt_.translatorGroupName());
+	PtrMan<IOObj> ioobj = DBM().getByName( ctio->ctxt_, wd->name() );
 	if ( !ioobj )
 	    ioobj = mkEntry( *ctio, wd->name() );
 	if ( !ioobj )
@@ -385,15 +384,15 @@ bool uiBulkMarkerImport::acceptOK()
 	    MarkerSetIter4Edit msiter( *newms );
 	    while( msiter.next() )
 	    {
-	    	float dah = msiter.getDah();
+		float dah = msiter.getDah();
 		dah = wd->track().getDahForTVD( dah );
 		newms->setDah( msiter.ID(), dah );
 	    }
-	    
+
 	    msiter.retire();
 	    *markersets[idx] = *newms;
 	}
-	
+
 	wd->markers() = *markersets[idx];
 	Well::Writer ww( *ioobj, *wd );
 	if ( !ww.putMarkers() )

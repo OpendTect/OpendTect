@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "seismerge.h"
 #include "seistrctr.h"
 #include "ioobjctxt.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -95,7 +95,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     BufferString typestr, zdomstr;
     for ( int idx=0; idx<chosenids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( chosenids[idx] );
+	PtrMan<IOObj> ioobj = DBM().get( chosenids[idx] );
 	if ( !ioobj )
 	    continue;
 
@@ -131,7 +131,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 
     if ( !typestr.isEmpty() ) outioobj->pars().set( sKey::Type(), typestr );
     if ( !zdomstr.isEmpty() ) outioobj->pars().set( ZDomain::sKey(), zdomstr );
-    IOM().commitChanges( *outioobj );
+    DBM().setEntry( *outioobj );
 
     return true;
 }

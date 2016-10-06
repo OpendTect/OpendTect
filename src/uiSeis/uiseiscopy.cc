@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "seiscopy.h"
 #include "keystrs.h"
 #include "scaler.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "zdomain.h"
 #include "seissingtrcproc.h"
 
@@ -104,7 +104,7 @@ bool uiSeisCopyCube::acceptOK()
 	return false;
 
     outioobj->pars().addFrom( inioobj->pars() );
-    IOM().commitChanges( *outioobj );
+    DBM().setEntry( *outioobj );
 
     const int compnr = ismc_ ? compfld_->box()->currentItem()-1 : -1;
 

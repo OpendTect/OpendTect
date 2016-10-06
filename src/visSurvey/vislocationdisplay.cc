@@ -7,7 +7,7 @@
 
 #include "vislocationdisplay.h"
 
-#include "ioman.h"
+#include "dbman.h"
 
 #include "picksetmanager.h"
 #include "selector.h"

@@ -20,7 +20,7 @@
 #include "seispsioprov.h"
 #include "ioobjctxt.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "survinfo.h"
 #include "file.h"
 #include "keystrs.h"
@@ -393,7 +393,7 @@ BufferString uiMadIOSel::getSummary() const
     else if ( iot == ODMad::ProcFlow::Madagascar )
 	ret = iop_.find( sKey::FileName() );
     else
-	ret = IOM().nameFor( iop_.find("ID") );
+	ret = DBM().nameFor( iop_.find("ID") );
 
     return ret;
 }

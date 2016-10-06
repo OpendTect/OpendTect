@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arraynd.h"
 #include "attribdatacubes.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "dbkey.h"
 #include "seisread.h"
@@ -77,7 +77,7 @@ bool VolumeReader::setCurrentCalcPos( const BinID& newbinid )
     
     if ( !reader_ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( storageid_ );
+	PtrMan<IOObj> ioobj = DBM().get( storageid_ );
 	if ( !ioobj )
 	{
 	    errmsg_ = "Could not find entry for ID: ";
@@ -158,7 +158,7 @@ bool VolumeReader::usePar( const IOPar& par )
     if ( !par.get( sKeyStorageID(), storageid_ ) )
 	return false;
 
-    PtrMan<IOObj> ioobj = IOM().get( storageid_ );
+    PtrMan<IOObj> ioobj = DBM().get( storageid_ );
     return ioobj;
 }
 

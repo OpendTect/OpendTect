@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "uigmtwells.h"
 
 #include "gmtpar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "welldata.h"
 #include "wellextractdata.h"
@@ -49,7 +49,7 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     wic.execute();
     for ( int idx=0; idx<wic.ids().size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( wic.ids()[idx] );
+	PtrMan<IOObj> ioobj = DBM().get( wic.ids()[idx] );
 	if ( ioobj )
 	    welllistfld_->addItem( ioobj->uiName() );
     }

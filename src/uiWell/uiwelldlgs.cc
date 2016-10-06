@@ -27,9 +27,8 @@ ________________________________________________________________________
 
 #include "ioobjctxt.h"
 #include "file.h"
-#include "iodir.h"
+#include "dbdir.h"
 #include "ioobj.h"
-#include "iodirentry.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "randcolor.h"
@@ -1685,9 +1684,7 @@ uiNewWellDlg::~uiNewWellDlg()
 const BufferStringSet& uiNewWellDlg::mkWellNms()
 {
     nms_ = new BufferStringSet;
-    IOObjContext ctxt( WellTranslatorGroup::ioContext() );
-    const IODir iodir( ctxt.getSelDirID() );
-    const IODirEntryList del( iodir, ctxt );
+    const DBDirEntryList del( mIOObjContext(Well) );
     for ( int idx=0; idx<del.size(); idx++ )
 	nms_->add( del.ioobj(idx).name() );
     return *nms_;

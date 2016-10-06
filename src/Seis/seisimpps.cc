@@ -11,7 +11,7 @@
 #include "seispswrite.h"
 #include "seisbuf.h"
 #include "seistrc.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "debug.h"
 #include <iostream>
@@ -135,7 +135,7 @@ bool SeisPSImpDataMgr::writeGather()
     bool wrsampnms = false;
     if ( !wrr_ )
     {
-	IOObj* ioobj = IOM().get( wrid_ );
+	IOObj* ioobj = DBM().get( wrid_ );
 	if ( !ioobj )
 	{
 	    errmsg_ = tr("Output data store not in object mgr");

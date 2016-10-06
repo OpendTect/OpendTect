@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidialog.h"
 #include "uimsg.h"
 #include "ioobjctxt.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "transl.h"
 #include "odplugin.h"
 #include "odversion.h"

@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iostrm.h"
 #include "od_iostream.h"
 #include "webstreamsource.h"
@@ -57,7 +57,6 @@ uiObjFileMan::~uiObjFileMan()
 void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
 {
     listgrp_ = new uiGroup( this, "List Group" );
-    IOM().to( ctxt_.getSelDirID(), true );
     uiIOObjSelGrp::Setup sgsu( multisel ? OD::ChooseAtLeastOne
 					: OD::ChooseOnlyOne );
     sgsu.allowreloc( withreloc ).allowremove( withrm ).allowsetdefault( true );
@@ -107,8 +106,8 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     sep->addGroup( listgrp_ );
     sep->addGroup( infogrp_ );
     sep->addGroup( notesgrp );
-    mAttachCB( IOM().entryAdded, uiObjFileMan::updateCB );
-    mAttachCB( IOM().entryRemoved, uiObjFileMan::updateCB );
+    mAttachCB( DBM().entryAdded, uiObjFileMan::updateCB );
+    mAttachCB( DBM().entryRemoved, uiObjFileMan::updateCB );
 }
 
 
@@ -140,7 +139,7 @@ static BufferString getNotesFileName( const IOObj& ioobj )
     if ( !fp.isAbsolute() )
     {
 	fnm.clean( BufferString::NoSpecialChars );
-	fp.set( IOM().rootDir() ); fp.add( ioobj.dirName() );
+	fp.set( DBM().rootDir() ); fp.add( ioobj.dirName() );
 	fp.add( fnm );
     }
     fp.setExtension( "note" );
@@ -196,7 +195,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
 {
     saveNotes(0);
     delete curioobj_;
-    curioobj_ = selgrp_->nrChosen() > 0 ? IOM().get(selgrp_->currentID()) : 0;
+    curioobj_ = selgrp_->nrChosen() > 0 ? DBM().get(selgrp_->currentID()) : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
 
     ownSelChg();

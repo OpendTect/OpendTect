@@ -11,7 +11,7 @@
 #include "keystrs.h"
 #include "seistype.h"
 #include "ascstream.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "uistrings.h"
 
 const char* ODMad::ProcFlow::sKeyInp()		{ return sKey::Input(); }
@@ -230,7 +230,7 @@ const char* dgbODMadProcFlowTranslator::read( ODMad::ProcFlow& pf, Conn& conn )
     if ( atEndOfSection(astrm) )
 	return "Input file is empty";
 
-    pf.setName( IOM().nameOf(conn.linkedTo()) );
+    pf.setName( DBM().nameOf(conn.linkedTo()) );
     IOPar iop( astrm ); pf.usePar( iop );
     return 0;
 }

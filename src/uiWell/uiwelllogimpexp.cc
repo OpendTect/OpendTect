@@ -33,7 +33,7 @@ ________________________________________________________________________
 #include "wellreader.h"
 #include "wellwriter.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 
 
 static const float defundefval = -999.25;
@@ -292,7 +292,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     outfld_->attach( alignedBelow, zunitgrp_ );
     if ( multiwells )
     {
-	outfld_->setFileName( IOM().rootDir() );
+	outfld_->setFileName( DBM().rootDir() );
 	multiwellsnamefld_ = new uiGenInput( this, tr("File name suffix") );
 	multiwellsnamefld_->attach( alignedBelow, outfld_ );
 	multiwellsnamefld_->setText( "logs.dat" );

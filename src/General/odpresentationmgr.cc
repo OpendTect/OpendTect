@@ -8,7 +8,7 @@
 #include "odpresentationmgr.h"
 #include "keystrs.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 
 const char* OD::sKeyPresentationObj()	{ return "Presentation Obj"; }
 
@@ -174,7 +174,7 @@ OD::ObjPresentationInfo* OD::ObjPresentationInfo::clone() const
 
 uiString OD::SaveableObjPresentationInfo::getName() const
 {
-    return toUiString( IOM().nameOf(storedid_) );
+    return toUiString( DBM().nameOf(storedid_) );
 }
 
 

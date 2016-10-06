@@ -44,7 +44,7 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
 #include "mousecursor.h"
@@ -222,7 +222,7 @@ uiODMain::uiODMain( uiMain& a )
     if ( buildUI() )
 	failed_ = false;
 
-    mAttachCB( IOM().afterSurveyChange, uiODMain::afterSurveyChgCB );
+    mAttachCB( DBM().afterSurveyChange, uiODMain::afterSurveyChgCB );
     mAttachCB( sesstimer_.tick, uiODMain::sessTimerCB );
 
     const int systemnrcpus = Threads::getSystemNrProcessors();
@@ -265,7 +265,7 @@ uiODMain::~uiODMain()
 
 bool uiODMain::ensureGoodDataDir()
 {
-    while ( !IOMan::isValidDataRoot(GetBaseDataDir()) )
+    while ( !DBMan::isValidDataRoot(GetBaseDataDir()).isOK() )
     {
 	uiSetDataDir dlg( this );
 	if ( !dlg.go() )
@@ -289,31 +289,31 @@ bool uiODMain::ensureGoodSurveySetup()
 	return false;
 
     int res = 0;
-    uiString errmsg, warnmsg;
-    if ( !IOM().isBad() && !IOMan::validSurveySetup(errmsg,warnmsg) )
+    if ( !DBM().isBad() )
     {
-	std::cerr << errmsg.getFullString() << std::endl;
-	uiMSG().error( errmsg );
-	if ( warnmsg.isSet() )
-	    uiMSG().warning( warnmsg );
-
-	return false;
+	uiRetVal uirv = DBMan::checkSurveySetupValid();
+	if ( !uirv.isOK() )
+	{
+	    std::cerr << uirv.getText() << std::endl;
+	    uiMSG().error( uirv );
+	    return false;
+	}
     }
 
-    if ( IOM().isBad() )
+    if ( !DBM().isBad() )
+	res = 1;
+    else
     {
-	uiMSG().error( IOM().errMsg() );
+	uiMSG().error( DBM().errMsg() );
 	while ( res == 0 )
 	{
 	    res = uiODApplMgr::manageSurvey();
 	    if ( res == 0 && uiMSG().askGoOn( tr("Without a valid survey, %1 "
 				     "cannot start.\nDo you wish to exit?")
 				     .arg( programname_ )) )
-		return false;
+	    return false;
 	}
     }
-    else
-	res = 1;
 
     if ( res == 3 )
     {
@@ -611,7 +611,7 @@ void uiODMain::handleStartupSession()
     if ( !douse || id.isInvalid() )
 	return;
 
-    PtrMan<IOObj> ioobj = IOM().get( id );
+    PtrMan<IOObj> ioobj = DBM().get( id );
     if ( !ioobj ) return;
     cursessid_ = id;
     restoreSession( ioobj );
@@ -789,7 +789,7 @@ void uiODMain::updateCaption()
 	capt.append( tr(" [%1] ").arg( usr ) );
     }
 
-    if ( !IOM().isBad() && !SI().name().isEmpty() )
+    if ( !DBM().isBad() && !SI().name().isEmpty() )
 	capt.append( ": %1" ).arg( SI().name() );
 
     setCaption( capt );
@@ -827,7 +827,7 @@ bool uiODMain::closeOK()
 
 void uiODMain::closeApplication()
 {
-    IOM().applClosing();
+    DBM().applClosing();
 
     sesstimer_.tick.remove( mCB(this,uiODMain,sessTimerCB) );
     delete menumgr_; menumgr_ = 0;

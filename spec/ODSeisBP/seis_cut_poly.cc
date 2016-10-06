@@ -8,7 +8,7 @@ static const char* rcsID = "$Id$";
 
 #include "prog.h"
 #include "batchprog.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "polygon.h"
@@ -53,7 +53,7 @@ bool BatchProgram::go( std::ostream& strm )
     ODPolygon<double> poly;
     if ( vrtcspsid )
     {
-	PtrMan<IOObj> ioobj = IOM().get( DBKey(vrtcspsid) );
+	PtrMan<IOObj> ioobj = DBM().get( DBKey(vrtcspsid) );
 	if ( !ioobj )
 	    mErrRet("Cannot find pickset ID in object manager")
 	Translator* tr = ioobj->getTranslator();

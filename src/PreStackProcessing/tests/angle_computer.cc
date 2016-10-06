@@ -8,7 +8,7 @@
 #include "batchprog.h"
 #include "testprog.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
 #include "dbkey.h"
@@ -130,7 +130,7 @@ bool BatchProgram::go( od_ostream& strm )
     RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				    new PreStack::VelocityBasedAngleComputer;
 
-    PtrMan<IOObj> velobj = IOM().get( DBKey::getFromString("100010.8") );
+    PtrMan<IOObj> velobj = DBM().get( DBKey::getFromString("100010.8") );
     if ( !velobj )
     {
 	od_cout() << " Input data is not available.\n";
@@ -210,11 +210,12 @@ bool testAnglesForDifferentSurveys()
 
     for ( int idx = 0; idx < nrsurveys; idx++ )
     {
-	IOM().setSurvey( survnames[idx] );
+	IOPar surviop; surviop.set( sKey::Survey(), survnames[idx] );
+	DBM().setDataSource( surviop );
 	RefMan<PreStack::VelocityBasedAngleComputer> computer =
 				new PreStack::VelocityBasedAngleComputer;
 
-	PtrMan<IOObj> velobj = IOM().get( DBKey::getFromString("100010.8") );
+	PtrMan<IOObj> velobj = DBM().get( DBKey::getFromString("100010.8") );
 	if ( !velobj )
 	{
 	    od_cout() << survnames[idx];

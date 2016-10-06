@@ -25,9 +25,9 @@ To tag a velocity volume as a velocity, this class can be used to do the work:
 \code
     VelocityDesc desc( VelocityDesc::Interval );
 
-    PtrMan<IOObj> ioobj = IOM().get( dbkey );
+    PtrMan<IOObj> ioobj = DBM().get( dbkey );
     desc.fillPar( ioobj->pars() );
-    IOM().commitChanges( ioobj );
+    DBM().setEntry( ioobj );
 
 \endcode
 

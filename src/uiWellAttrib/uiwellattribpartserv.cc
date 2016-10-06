@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "datapointset.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "nlamodel.h"
 #include "ptrman.h"
 #include "randcolor.h"
@@ -49,7 +49,7 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , wellto2ddlg_(0)
     , crlogcubedlg_(0)
 {
-    IOM().surveyChanged.notify(
+    DBM().surveyChanged.notify(
 	    mCB(this,uiWellAttribPartServer,surveyChangedCB) );
 }
 

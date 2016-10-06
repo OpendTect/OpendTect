@@ -20,7 +20,7 @@
 #include "survinfo.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iostrm.h"
 #include "scaler.h"
 #include "ptrman.h"

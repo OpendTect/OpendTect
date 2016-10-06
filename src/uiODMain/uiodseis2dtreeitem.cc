@@ -33,7 +33,7 @@ ___________________________________________________________________
 #include "attribsel.h"
 #include "emmanager.h"
 #include "externalattrib.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "posinfo2d.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
@@ -182,7 +182,7 @@ void uiODLine2DParentTreeItem::createMenu( MenuHandler* menu, bool istb )
 	    if ( ds && ds->isNLA() )
 	    {
 		attribname = ds->objectRef();
-		const BufferString nodenm = IOM().nameFor( ds->userRef() );
+		const BufferString nodenm = DBM().nameFor( ds->userRef() );
 		attribname += " ("; attribname += nodenm; attribname += ")";
 	    }
 

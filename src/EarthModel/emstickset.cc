@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "emmanager.h"
 #include "emsticksettransl.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "survinfo.h"
@@ -191,7 +191,7 @@ bool EM::StickSet::isLoaded() const
 
 Executor* EM::StickSet::saver()
 {
-    PtrMan<IOObj> ioobj = IOM().get( id() );
+    PtrMan<IOObj> ioobj = DBM().get( id() );
     if ( !ioobj )
     {
 	errmsg = "Cannot find the stickset object";
@@ -204,7 +204,7 @@ Executor* EM::StickSet::saver()
 
 Executor* EM::StickSet::loader()
 {
-    PtrMan<IOObj> ioobj = IOM().get( id() );
+    PtrMan<IOObj> ioobj = DBM().get( id() );
     if ( !ioobj )
     {
 	errmsg = "Cannot find the stickset object";

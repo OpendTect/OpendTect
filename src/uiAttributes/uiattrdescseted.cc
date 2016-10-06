@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
@@ -305,8 +305,7 @@ void uiAttribDescSetEd::init()
     adsman_->setSaved( inoutadsman_->isSaved() );
 
     setid_ = inoutadsman_->attrsetid_;
-    IOM().to( setctio_.ctxt_.getSelDirID() );
-    setctio_.setObj( IOM().get(setid_) );
+    setctio_.setObj( DBM().get(setid_) );
     bool autoset = false;
     DBKey autoid;
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, autoset );
@@ -941,7 +940,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
     {
 	if ( setid_.isInvalid() ) return false;
 
-	setctio_.ioobj_ = IOM().get( setid_ );
+	setctio_.ioobj_ = DBM().get( setid_ );
 	if ( !setctio_.ioobj_ )
 	    mErrRetFalse(tr("Cannot find attribute set in data base"))
     }
@@ -1194,22 +1193,24 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 {
     if ( !offerSetSave() ) return;
 
-    uiSelObjFromOtherSurvey objdlg( this, setctio_ );
-    objdlg.setHelpKey( mODHelpKey(mAttribDescSetEdimportSetHelpID) );
-    IOObj* oldioobj = setctio_.ioobj_; setctio_.ioobj_ = 0;
-    if ( objdlg.go() && setctio_.ioobj_ )
+    uiSelObjFromOtherSurvey objsel( this, setctio_.ctxt_ );
+    if ( objsel.go() )
     {
-	if ( !doSetIO( true ) )
-	    setctio_.setObj( oldioobj );
-	else
+	IOObj* oldioobj = setctio_.ioobj_;
+	setctio_.ioobj_ = objsel.ioObj()->clone();
+	setctio_.ioobj_->setKey( DBKey::getInvalid() );
+	if ( doSetIO(true) )
 	{
 	    delete oldioobj;
-	    setid_ = setctio_.ioobj_->key();
-	    objdlg.setDirToCurrentSurvey();
+	    setctio_.setObj(
+			DBM().getByName(IOObjContext::Attr,setctio_.name()) );
+	    if ( setctio_.ioobj_ )
+		setid_ = setctio_.ioobj_->key();
+	    else
+		setid_.setInvalid();
 	    replaceStoredAttr();
 	    newList( -1 );
 	    attrsetfld_->setText( sKeyNotSaved );
-	    setctio_.ioobj_ = 0;
 	    applycb.trigger();
 	}
     }
@@ -1420,7 +1421,7 @@ void uiAttribDescSetEd::exportToDotCB( CallBacker* )
     }
 
     const BufferString fnm = FilePath::getTempName( "dot" );
-    const char* attrnm = IOM().nameOf( setid_ );
+    const char* attrnm = DBM().nameOf( setid_ );
     attrset_->exportToDot( attrnm, fnm );
 
     FilePath outputfp( fnm );

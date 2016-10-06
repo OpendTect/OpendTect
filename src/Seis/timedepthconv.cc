@@ -13,7 +13,7 @@
 #include "datapackbase.h"
 #include "genericnumer.h"
 #include "indexinfo.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -54,7 +54,7 @@ Time2DepthStretcher::~Time2DepthStretcher()
 bool Time2DepthStretcher::setVelData( const DBKey& dbkey )
 {
     releaseData();
-    PtrMan<IOObj> velioobj = IOM().get( dbkey );
+    PtrMan<IOObj> velioobj = DBM().get( dbkey );
     if ( !velioobj )
 	return false;
 

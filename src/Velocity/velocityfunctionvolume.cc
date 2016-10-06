@@ -10,7 +10,7 @@
 #include "binidvalset.h"
 #include "trckeyzsampling.h"
 #include "idxable.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "posinfo.h"
 #include "seisread.h"
 #include "seistrc.h"
@@ -172,7 +172,7 @@ bool VolumeFunctionSource::setFrom( const DBKey& velid )
     deepErase( velreader_ );
     threads_.erase();
 
-    PtrMan<IOObj> velioobj = IOM().get( velid );
+    PtrMan<IOObj> velioobj = DBM().get( velid );
     if ( !velioobj )
     {
 	errmsg_ = "Velocity volume with id: ";
@@ -201,7 +201,7 @@ SeisTrcReader* VolumeFunctionSource::getReader()
     if ( threads_.validIdx(idx) )
 	return velreader_[idx];
 
-    PtrMan<IOObj> velioobj = IOM().get( mid_ );
+    PtrMan<IOObj> velioobj = DBM().get( mid_ );
     if ( !velioobj )
 	return 0;
 

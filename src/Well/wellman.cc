@@ -7,8 +7,7 @@
 
 #include "wellman.h"
 
-#include "iodir.h"
-#include "iodirentry.h"
+#include "dbdir.h"
 #include "welltransl.h"
 #include "ptrman.h"
 #include "welldata.h"
@@ -150,9 +149,8 @@ bool Well::Man::getLogNames( const DBKey& ky, BufferStringSet& nms )
 bool Well::Man::getMarkerNames( BufferStringSet& nms )
 {
     nms.setEmpty();
-    const IODir iodir( IOObjContext::WllInf );
-    IODirEntryList entrylist( iodir, &WellTranslatorGroup::theInst() );
-    for ( IODirEntryList::IdxType idx=0; idx<entrylist.size(); idx++ )
+    const DBDirEntryList entrylist( WellTranslatorGroup::theInst() );
+    for ( DBDirEntryList::IdxType idx=0; idx<entrylist.size(); idx++ )
     {
 	const IOObj& ioobj = entrylist.ioobj( idx );
 	RefMan<Well::Data> data = new Well::Data;
@@ -171,25 +169,25 @@ bool Well::Man::getMarkerNames( BufferStringSet& nms )
 
 IOObj* Well::findIOObj( const char* nm, const char* uwi )
 {
-    const IODir iodir( IOObjContext::WllInf );
-    if ( nm && *nm )
-    {
-	const IOObj* ioobj = iodir.getEntryByName( nm, "Well" );
-	if ( ioobj )
-	    return ioobj->clone();
-    }
+    const bool findbynm = nm && *nm;
+    const bool findbyuwi = uwi && *uwi;
+    if ( !findbynm && !findbyuwi )
+	return 0;
 
-    if ( uwi && *uwi )
+    const DBDirEntryList entrylist( &WellTranslatorGroup::theInst() );
+    for ( DBDirEntryList::IdxType idx=0; idx<entrylist.size(); idx++ )
     {
-	IODirEntryList entrylist( iodir, &WellTranslatorGroup::theInst() );
-	for ( IODirEntryList::IdxType idx=0; idx<entrylist.size(); idx++ )
+	const IOObj& ioobj = entrylist.ioobj( idx );
+	if ( findbynm && ioobj.name() != nm )
+	    continue;
+	else if ( findbyuwi )
 	{
-	    const IOObj& ioobj = entrylist.ioobj( idx );
 	    RefMan<Well::Data> data = new Well::Data;
 	    Well::Reader rdr( ioobj, *data );
-	    if ( rdr.getInfo() && data->info().UWI() == uwi )
-		return ioobj.clone();
+	    if ( !rdr.getInfo() || data->info().UWI() != uwi )
+		continue;
 	}
+	return ioobj.clone();
     }
 
     return 0;

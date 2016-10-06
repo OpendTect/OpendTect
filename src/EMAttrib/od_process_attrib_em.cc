@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "linesetposinfo.h"
 #include "posinfo2d.h"
@@ -95,7 +95,7 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 	objidstr.setEmpty();
     else
     {
-	PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(objid) );
+	PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(objid) );
 	if ( !ioobj )
 	{
 	    errmsg = "Cannot find object for '"; errmsg += objid;
@@ -131,7 +131,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
     else
     {
 	outpid = DBKey::getFromString( objidstr );
-	PtrMan<IOObj> ioobj = IOM().get( outpid ); //check already done
+	PtrMan<IOObj> ioobj = DBM().get( outpid ); //check already done
 	if ( !ioobj )
 	    return false;
 
@@ -188,7 +188,7 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 
 	    if ( !useoutwfunc && tbuf && outid )
 	    {
-		PtrMan<IOObj> ioseisout = IOM().get( *outid );
+		PtrMan<IOObj> ioseisout = DBM().get( *outid );
 		writer = new SeisTrcWriter( ioseisout );
 		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
 		{

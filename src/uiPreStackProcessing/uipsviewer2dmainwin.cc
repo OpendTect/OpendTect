@@ -35,7 +35,7 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "flatposdata.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "od_helpids.h"
 #include "prestackanglemute.h"
@@ -309,7 +309,7 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	const DBKey& muteid = mutesel.chosenID( idx );
-	PtrMan<IOObj> muteioobj = IOM().get( muteid );
+	PtrMan<IOObj> muteioobj = DBM().get( muteid );
 	if ( !muteioobj )
 	    continue;
 	PreStack::MuteDef* mutedef = new PreStack::MuteDef;
@@ -854,7 +854,7 @@ void uiStoredViewer2DMainWin::getGatherNames( BufferStringSet& nms) const
     nms.erase();
     for ( int idx=0; idx<mids_.size(); idx++ )
     {
-	PtrMan<IOObj> gatherioobj = IOM().get( mids_[idx] );
+	PtrMan<IOObj> gatherioobj = DBM().get( mids_[idx] );
 	if ( !gatherioobj ) continue;
 	nms.add( gatherioobj->name() );
     }
@@ -952,7 +952,7 @@ void uiStoredViewer2DMainWin::setUpNewIDs()
 	    continue;
 	for ( int midx=0; midx<mids_.size(); midx++ )
 	{
-	    PtrMan<IOObj> gatherioobj = IOM().get( mids_[midx] );
+	    PtrMan<IOObj> gatherioobj = DBM().get( mids_[midx] );
 	    if ( !gatherioobj ) continue;
 	    ginfo.gathernm_ = gatherioobj->name();
 	    ginfo.mid_ = mids_[midx];
@@ -980,7 +980,7 @@ void uiStoredViewer2DMainWin::setUpNewIDs()
 void uiStoredViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
 					     const GatherInfo& ginfo )
 {
-    PtrMan<IOObj> ioobj = IOM().get( ginfo.mid_ );
+    PtrMan<IOObj> ioobj = DBM().get( ginfo.mid_ );
     BufferString nm = ioobj ? ioobj->name().buf() : "";
     info->setData( ginfo.bid_, tkzs_.defaultDir()==TrcKeyZSampling::Inl,
 		   is2d_, nm);
@@ -1000,7 +1000,7 @@ void uiStoredViewer2DMainWin::posDlgChgCB( CallBacker* )
 	    GatherInfo& ginfo = gatherinfos_[idx];
 	    for ( int midx=0; midx<mids_.size(); midx++ )
 	    {
-		PtrMan<IOObj> gatherioobj = IOM().get( mids_[midx] );
+		PtrMan<IOObj> gatherioobj = DBM().get( mids_[midx] );
 		if ( !gatherioobj ) continue;
 		if ( ginfo.gathernm_ == gatherioobj->name() )
 		    ginfo.mid_ = mids_[midx];

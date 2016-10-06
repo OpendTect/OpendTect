@@ -23,9 +23,8 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-class CtxtIOObj;
-class IODirEntryList;
 class IOObj;
+class CtxtIOObj;
 
 class uiCheckBox;
 class uiColorInput;

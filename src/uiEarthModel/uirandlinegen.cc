@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emrandlinegen.h"
 #include "emsurfacetr.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
 #include "survinfo.h"
@@ -47,10 +47,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 			 uiGenRanLinesByContour::sSpecGenPar(),
 			 mODHelpKey(mGenRanLinesByContourHelpID) ) )
 {
-    IOObjContext horctxt( mIOObjContext(EMHorizon3D) );
-    IOM().to( horctxt.getSelDirID() );
-
-    infld_ = new uiIOObjSel( this, horctxt );
+    infld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D) );
     uiIOObjSel::Setup osu( tr("Within polygon") ); osu.optional( true );
     polyfld_ = new uiPickSetIOObjSel( this, osu, true,
 				      uiPickSetIOObjSel::PolygonOnly );

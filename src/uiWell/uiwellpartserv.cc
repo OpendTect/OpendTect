@@ -46,7 +46,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "color.h"
 #include "ctxtioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "dbkey.h"
 #include "ptrman.h"
@@ -72,7 +72,7 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , impbulkmrkrdlg_(0)
     , impbulkd2tdlg_(0)
 {
-    IOM().surveyChanged.notify( mCB(this,uiWellPartServer,survChangedCB) );
+    DBM().surveyChanged.notify( mCB(this,uiWellPartServer,survChangedCB) );
 }
 
 

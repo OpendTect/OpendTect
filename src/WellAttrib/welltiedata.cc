@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "ioman.h"
+#include "dbman.h"
 #include "iostrm.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -193,7 +193,7 @@ void HorizonMgr::setUpHorizons( const DBKeySet& horids,
     EM::EMManager& em = EM::EMM();
     for ( int idx=0; idx<horids.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( horids[idx] );
+	PtrMan<IOObj> ioobj = DBM().get( horids[idx] );
 	if ( !ioobj )
 	{
 	    errms.append(tr("Cannot get database entry for "
@@ -327,7 +327,7 @@ DataWriter::~DataWriter()
 void DataWriter::setWellWriter()
 {
     delete wtr_; wtr_ = 0;
-    IOObj* ioobj = IOM().get( wellid_ );
+    IOObj* ioobj = DBM().get( wellid_ );
     if ( ioobj && wd_ )
     {
 	wtr_ = new Well::Writer( *ioobj, *wd_ );

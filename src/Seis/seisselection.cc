@@ -13,7 +13,7 @@
 #include "binidvalset.h"
 #include "polygon.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "survinfo.h"

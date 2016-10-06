@@ -9,7 +9,8 @@
 #include "segyhdr.h"
 #include "iopar.h"
 #include "iostrm.h"
-#include "iodir.h"
+#include "dbman.h"
+#include "dbdir.h"
 #include "oddirs.h"
 #include "file.h"
 #include "filepath.h"
@@ -55,14 +56,18 @@ static const char* allsegyfmtoptions[] = {
 
 IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
 {
-    IOStream* iostrm;
+    IOStream* iostrm = 0;
     const DBKey::DirID dirid( mIOObjContext(SeisTrc).getSelDirID() );
     if ( tmp )
-	iostrm = new IOStream( usrStr(), IODir(dirid).newTmpKey());
-    else
+    {
+	ConstRefMan<DBDir> dbdir = DBM().fetchDir( dirid );
+	if ( dbdir )
+	    iostrm = new IOStream( usrStr(), dbdir->newTmpKey() );
+    }
+    if ( !iostrm )
     {
 	iostrm = new IOStream( usrStr() );
-	iostrm->acquireNewKeyIn( dirid );
+	iostrm->setKeyForNewEntry( dirid );
     }
 
     iostrm->fileSpec() = *this;

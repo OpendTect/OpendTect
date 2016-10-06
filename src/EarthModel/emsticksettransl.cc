@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "position.h"
 #include "survinfo.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "ascstream.h"
 #include "strmprov.h"
@@ -115,7 +115,7 @@ Executor* EMStickSetTranslator::writer( const EM::StickSet& hor,
 
 	formatfilename += ".fault_fmt";
 	ioobj->pars().set( "Format file", formatfilename );
-	IOM().commitChanges( *ioobj );
+	DBM().setEntry( *ioobj );
     }
 
     return tr->writer( hor, conn, formatfilename.buf() );

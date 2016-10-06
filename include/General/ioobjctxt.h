@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class IOObj;
 class IOStream;
+class CtxtIOObj;
 class Translator;
 class TranslatorGroup;
 

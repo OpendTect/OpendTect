@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uiwellsel.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -133,7 +133,7 @@ BufferString uiWellParSel::getSummary() const
     BufferStringSet names;
     for ( int idx=0; idx<selids_.size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( selids_[idx] );
+	PtrMan<IOObj> ioobj = DBM().get( selids_[idx] );
 	if ( !ioobj ) continue;
 
 	names.add( ioobj->name() );

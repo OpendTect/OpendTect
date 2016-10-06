@@ -11,7 +11,7 @@
 #include "attribparam.h"
 #include "attribdescset.h"
 #include "attribstorprovider.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "seistrctr.h"
 #include "survinfo.h"

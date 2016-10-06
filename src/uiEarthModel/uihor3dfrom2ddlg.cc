@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "emhor2dto3d.h"
 #include "array2dinterpol.h"
 #include "ioobjctxt.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "survinfo.h"
 #include "od_helpids.h"
 

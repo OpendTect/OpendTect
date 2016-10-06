@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "flatauxdataeditor.h"
 #include "horizon2dseedpicker.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "linesetposinfo.h"
 #include "mouseevent.h"

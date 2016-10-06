@@ -9,9 +9,8 @@
 #include "saveablemanager.h"
 #include "monitorchangerecorder.h"
 #include "autosaver.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
-#include "iodir.h"
 #include "ctxtioobj.h"
 
 
@@ -111,14 +110,14 @@ bool Saveable::save() const
     if ( !objectalive_ )
 	{ pErrMsg("Attempt to save already deleted object"); return true; }
 
-    PtrMan<IOObj> ioobj = IOM().get( storekey_ );
+    PtrMan<IOObj> ioobj = DBM().get( storekey_ );
     if ( ioobj )
     {
 	if ( !ioobj->pars().includes(ioobjpars_) )
 	{
 	    ioobj->pars().merge( ioobjpars_ );
-	    IOM().commitChanges( *ioobj );
-	    ioobj = IOM().get( storekey_ );
+	    DBM().setEntry( *ioobj );
+	    ioobj = DBM().get( storekey_ );
 	}
 	if ( !store(*ioobj) )
 	    mSendChgNotif( cSaveFailedChangeType(), storekey_.toInt64() );
@@ -171,9 +170,9 @@ SaveableManager::SaveableManager( const IOObjContext& ctxt, bool withautosave )
     , VanishRequested(this)
 {
     chgrecs_.allowNull( true );
-    mAttachCB( IOM().surveyToBeChanged, SaveableManager::survChgCB );
-    mAttachCB( IOM().applicationClosing, SaveableManager::appExitCB );
-    mAttachCB( IOM().entryRemoved, SaveableManager::iomEntryRemovedCB );
+    mAttachCB( DBM().surveyToBeChanged, SaveableManager::survChgCB );
+    mAttachCB( DBM().applicationClosing, SaveableManager::appExitCB );
+    mAttachCB( DBM().entryToBeRemoved, SaveableManager::dbmEntryRemovedCB );
 }
 
 
@@ -307,18 +306,14 @@ IOPar SaveableManager::getIOObjPars( const ObjID& id ) const
 	return savers_[idx]->ioObjPars();
     mUnlockAllAccess();
 
-    PtrMan<IOObj> ioobj = IOM().get( id );
+    PtrMan<IOObj> ioobj = DBM().get( id );
     return ioobj ? ioobj->pars() : IOPar();
 }
 
 
 IOObj* SaveableManager::getIOObj( const char* nm ) const
 {
-    if ( !nm || !*nm )
-	return 0;
-
-    IODir iodir( ctxt_.getSelDirID() );
-    return iodir.getEntryByName( nm, ctxt_.translatorGroupName() );
+    return DBM().getByName( ctxt_, nm );
 }
 
 
@@ -332,7 +327,7 @@ bool SaveableManager::nameExists( const char* nm ) const
 
 bool SaveableManager::canSave( const ObjID& id ) const
 {
-    return IOM().isPresent( id );
+    return DBM().isPresent( id );
 }
 
 
@@ -349,7 +344,7 @@ uiRetVal SaveableManager::store( const SharedObject& newobj,
 	CtxtIOObj ctio( ctxt_ );
 	ctio.setName( newobj.name() );
 	ctio.ctxt_.forread_ = false;
-	IOM().getEntry( ctio );
+	DBM().getEntry( ctio );
 	ioobj = ctio.ioobj_;
 	ctio.ioobj_ = 0;
     }
@@ -588,7 +583,7 @@ void SaveableManager::handleUnsavedLastCall()
 }
 
 
-void SaveableManager::iomEntryRemovedCB( CallBacker* cb )
+void SaveableManager::dbmEntryRemovedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( ObjID, id, cb );
     if ( isLoaded(id) )

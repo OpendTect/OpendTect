@@ -9,7 +9,7 @@
 
 #include "veldesc.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "zdomain.h"
 
 
@@ -18,7 +18,7 @@ bool SetVelocityTag( IOObj& ioobj, const VelocityDesc& desc )
 {
     desc.fillPar( ioobj.pars() );
     
-    return IOM().commitChanges( ioobj );
+    return DBM().setEntry( ioobj );
 }
 
 
@@ -31,14 +31,14 @@ bool GetVelocityTag( const IOObj& ioobj, VelocityDesc& desc )
 bool RemoveVelocityTag( IOObj& ioobj )
 {
     VelocityDesc::removePars( ioobj.pars() );
-    return IOM().commitChanges( ioobj );
+    return DBM().setEntry( ioobj );
 }
 
 
 bool SetVelocityVolumeTag( IOObj& ioobj, const DBKey& velvol )
 {
     ioobj.pars().set( VelocityDesc::sKeyVelocityVolume(), velvol );
-    return IOM().commitChanges( ioobj );
+    return DBM().setEntry( ioobj );
 }
 
 
@@ -54,14 +54,14 @@ bool RemoveVelocityVolumeTag( IOObj& ioobj )
 	return true;
 
     ioobj.pars().removeWithKey( VelocityDesc::sKeyVelocityVolume() );
-    return IOM().commitChanges( ioobj );
+    return DBM().setEntry( ioobj );
 }
 
 
 bool SetZDomainTag( IOObj& ioobj, const char* zdomain ) 
 {
     ioobj.pars().set( ZDomain::sKey(), zdomain );
-    return IOM().commitChanges( ioobj );
+    return DBM().setEntry( ioobj );
 }
 
 
@@ -95,5 +95,5 @@ bool RemoveZDomainTag( IOObj& ioobj, BufferString& res )
 	return true;
 
     ioobj.pars().removeWithKey( ZDomain::sKey() );
-    return IOM().commitChanges( ioobj );
+    return DBM().setEntry( ioobj );
 }

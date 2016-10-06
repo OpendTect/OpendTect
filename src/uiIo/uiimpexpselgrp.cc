@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "";
 #include "separstr.h"
 #include "strmprov.h"
 #include "od_iostream.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "timefun.h"
 #include "od_helpids.h"
 
@@ -217,7 +217,7 @@ static SGSelGrpManager& SGM()
     {
 	sgm = new SGSelGrpManager();
 	mDefineStaticLocalObject( SGSelGrpManDeleter, sgsmd, );
-	IOM().surveyToBeChanged.notify( mCB(&sgsmd,SGSelGrpManDeleter,doDel) );
+	DBM().surveyToBeChanged.notify( mCB(&sgsmd,SGSelGrpManDeleter,doDel) );
     }
     return *sgm;
 }

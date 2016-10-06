@@ -10,7 +10,7 @@
 #include "arrayndimpl.h"
 #include "trckeyzsampling.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "posinfo2d.h"
 #include "seisbounds.h"
 #include "seisbuf.h"
@@ -27,7 +27,7 @@ static const IOObj* nullioobj = 0;
 SeisMSCProvider::SeisMSCProvider( const DBKey& id )
 	: rdr_(*new SeisTrcReader(nullioobj))
 {
-    IOObj* ioobj = IOM().get( id );
+    IOObj* ioobj = DBM().get( id );
     rdr_.setIOObj( ioobj );
     delete ioobj;
     init();
@@ -518,7 +518,7 @@ int nextStep()
 SeisFixedCubeProvider::SeisFixedCubeProvider( const DBKey& key )
     : tkzs_(false)
     , data_(0)
-    , ioobj_(IOM().get(key))
+    , ioobj_(DBM().get(key))
     , trcdist_(SI().crlDistance())
 {
 }

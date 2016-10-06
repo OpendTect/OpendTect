@@ -12,7 +12,7 @@
 #include "bufstringset.h"
 #include "conn.h"
 #include "file.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -132,7 +132,7 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
 	return false;
     }
     ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );
-    IOM().commitChanges( *ioobj );
+    DBM().setEntry( *ioobj );
     bs = toUiString( trans->write(ads,*conn) );
     if ( !bs.isEmpty() )
 	{ conn->rollback(); return false; }

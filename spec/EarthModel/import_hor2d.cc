@@ -18,7 +18,7 @@ static const char* rcsID = "$Id$";
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
 #include "initearthmodel.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "posinfo.h"
 #include "position.h"
 #include "ptrman.h"
@@ -114,8 +114,8 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
     char buf[1024]; char valbuf[80];
     HorLine2D* linedata = 0;
 
-    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
-    PtrMan<IOObj> lsetobj = IOM().getLocal( linesetnm );
+    DBM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+    PtrMan<IOObj> lsetobj = DBM().getLocal( linesetnm );
     BufferString msg( "Cannot find LineSet: " ); msg += linesetnm; 
     if ( !lsetobj ) return prError( msg );
     BufferString fnm = lsetobj->fullUserExpr(true);
@@ -299,8 +299,8 @@ static int doWork( int argc, char** argv )
 
     if ( !horizons.size() ) return 1;
 
-    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
-    PtrMan<IOObj> lsetobj = IOM().getLocal( argv[2] );
+    DBM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+    PtrMan<IOObj> lsetobj = DBM().getLocal( argv[2] );
     const DBKey lsetkey = lsetobj->key();
     makeHorizons( data, lsetkey, horizons );
 

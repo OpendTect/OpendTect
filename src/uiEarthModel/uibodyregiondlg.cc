@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id: uibodyregiondlg.cc 37872 2015-01-15 12
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "marchingcubes.h"
 #include "polygon.h"
 #include "polyposprovider.h"
@@ -1021,11 +1021,11 @@ bool uiBodyRegionDlg::createImplicitBody()
 	mRetErrDelHoridx( uiStrings::sSaveBodyFail() )
 
     DBKey key = emcs->dbKey();
-    PtrMan<IOObj> ioobj = IOM().get( key );
+    PtrMan<IOObj> ioobj = DBM().get( key );
     if ( !ioobj->pars().find( sKey::Type() ) )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
-	if ( !IOM().commitChanges( *ioobj ) )
+	if ( !DBM().setEntry( *ioobj ) )
 	    mRetErr( uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ) )
     }
 

@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bruno
- Date:          Dec 2010
+ Author:        Bruno / Bert
+ Date:          Dec 2010 / Oct 2016
 ________________________________________________________________________
 
 -*/
@@ -11,74 +11,48 @@ ________________________________________________________________________
 #include "uiselobjothersurv.h"
 
 #include "ctxtioobj.h"
-#include "file.h"
-#include "filepath.h"
-#include "ioman.h"
-#include "iostrm.h"
-#include "oddirs.h"
-
 #include "uiioobjseldlg.h"
-#include "uimsg.h"
 #include "uisurveyselect.h"
 
 
-uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p, CtxtIOObj& ctio )
-    : uiDialog(p, Setup(tr("Select survey"), mNoDlgTitle,
-    mODHelpKey(mSelObjFromOtherSurveyHelpID)))
-    , ctio_(ctio)
+uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p,
+						  const IOObjContext& ctxt )
+    : parent_(p)
+    , ctio_(*new CtxtIOObj(ctxt))
 {
-    selfld_ = new uiSurveySelect( this, true, true );
-    othersurveyrootdir_.setEmpty();
+    ctio_.setObj( 0 );
 }
 
 
 uiSelObjFromOtherSurvey::~uiSelObjFromOtherSurvey()
 {
     ctio_.setObj( 0 );
-    setDirToCurrentSurvey();
+    delete &ctio_;
 }
 
 
-bool uiSelObjFromOtherSurvey::acceptOK()
+const IOObj* uiSelObjFromOtherSurvey::ioObj() const
 {
-    if ( !selfld_->getFullSurveyPath(othersurveyrootdir_) )
+    return ctio_.ioobj_;
+}
+
+
+bool uiSelObjFromOtherSurvey::go()
+{
+    uiSurveySelectDlg survseldlg( parent_ );
+    if ( !survseldlg.go() )
 	return false;
 
-    if ( !File::exists( othersurveyrootdir_ ) )
-    {
-	othersurveyrootdir_.setEmpty();
-	uiMSG().error( tr("Survey doesn't seem to exist") );
+    uiIOObjSelDlg::Setup su;
+    su.survdir( survseldlg.getSurveyPath() );
+    uiIOObjSelDlg objseldlg( &survseldlg, su, ctio_.ctxt_ );
+    if ( !objseldlg.go() )
 	return false;
-    }
+    const IOObj* ioobj = objseldlg.ioObj();
+    if ( !ioobj )
+	return false;
 
-    setDirToOtherSurvey();
-    bool prevctiostate = ctio_.ctxt_.forread_;
-    ctio_.ctxt_.forread_ = true;
-    uiIOObjSelDlg objdlg( this, ctio_ );
-    bool success = false;
-    if ( objdlg.go() && objdlg.ioObj() )
-    {
-	ctio_.setObj( objdlg.ioObj()->clone() );
-	ctio_.setName( ctio_.ioobj_->name() );
-	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj_);
-	if ( iostrm )
-	    iostrm->fileSpec().ensureBaseDir( othersurveyrootdir_ );
-	fulluserexpression_ = ctio_.ioobj_->fullUserExpr();
-	success = true;
-    }
-    ctio_.ctxt_.forread_ = prevctiostate;
-    return success;
-}
-
-
-void uiSelObjFromOtherSurvey::setDirToCurrentSurvey()
-{
-    IOM().setRootDir( GetDataDir() );
-}
-
-
-void uiSelObjFromOtherSurvey::setDirToOtherSurvey()
-{
-    if ( !othersurveyrootdir_.isEmpty() )
-	IOM().setRootDir( othersurveyrootdir_ );
+    ctio_.setObj( ioobj->clone() );
+    usrexpr_ = ioobj->fullUserExpr();
+    return true;
 }

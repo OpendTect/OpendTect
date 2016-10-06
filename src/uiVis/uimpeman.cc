@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keyboardevent.h"
 #include "mpeengine.h"
 #include "sectionadjuster.h"
@@ -70,7 +70,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     mAttachCB( visserv_->mouseEvent, uiMPEMan::mouseEventCB );
     mAttachCB( visserv_->keyEvent, uiMPEMan::keyEventCB );
     mAttachCB( visSurvey::STM().mouseCursorCall, uiMPEMan::mouseCursorCallCB );
-    mAttachCB( IOM().surveyChanged, uiMPEMan::survChgCB );
+    mAttachCB( DBM().surveyChanged, uiMPEMan::survChgCB );
     mAttachCB( visserv_->planeMovedEvent, uiMPEMan::planeChangedCB );
 }
 
@@ -1169,7 +1169,7 @@ void uiMPEMan::workAreaChgCB( CallBacker* )
 
 void uiMPEMan::survChgCB( CallBacker* )
 {
-    if ( IOM().isBad() )
+    if ( DBM().isBad() )
 	return;
 
     SurveyInfo& si = const_cast<SurveyInfo&>( SI() );

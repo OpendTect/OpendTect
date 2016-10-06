@@ -7,7 +7,7 @@
 
 #include "uiprestackprocessorsel.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "prestackprocessortransl.h"
 #include "prestackprocessor.h"
 #include "uiprestackprocessor.h"
@@ -27,7 +27,7 @@ uiProcSel::uiProcSel( uiParent* p, const uiString& lbl, const DBKey* mid,
 {
     const IOObjContext ctxt = PreStackProcTranslatorGroup::ioContext();
     selfld_ = new uiIOObjSel( this, ctxt, lbl );
-    ConstPtrMan<IOObj> ioobj = mid ? IOM().get(*mid) : 0;
+    ConstPtrMan<IOObj> ioobj = mid ? DBM().get(*mid) : 0;
     if ( ioobj ) selfld_->setInput( *ioobj );
     selfld_->selectionDone.notify( mCB(this,uiProcSel,selDoneCB));
 

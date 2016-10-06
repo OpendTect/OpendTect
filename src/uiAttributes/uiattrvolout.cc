@@ -33,7 +33,7 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "trckeyzsampling.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -224,7 +224,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    if ( firststoreddsc )
 	    {
 		PtrMan<IOObj> ioobj =
-			IOM().get( DBKey(firststoreddsc->getStoredID(true)) );
+			DBM().get( DBKey(firststoreddsc->getStoredID(true)) );
 		if ( ioobj )
 		    transffld_->setInput( *ioobj );
 	    }
@@ -242,7 +242,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    if ( prov )
 	    {
 		DBKey mid( desc->getStoredID(true) );
-		ioobj = IOM().get( mid );
+		ioobj = DBM().get( mid );
 	    }
 
 	    if ( ioobj )
@@ -319,7 +319,7 @@ bool uiAttrVolOut::prepareProcessing()
 	{
 	    IOObj* chioobj = outioobj->clone();
 	    chioobj->pars().set( sKey::Type(), sKey::Attribute() );
-	    IOM().commitChanges( *chioobj );
+	    DBM().setEntry( *chioobj );
 	    delete chioobj;
 	}
 

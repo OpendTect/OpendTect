@@ -102,15 +102,14 @@ protected:
     Setup		setup_;
     HelpKey		helpkey_;
     bool		inctiomine_;
+    bool		dbmpushed_;
     ObjectSet<uiIOObjInserter> inserters_;
 
     void		preFinaliseCB(CallBacker*);
     void		doObjSel(CallBacker*);
     void		objInserted(CallBacker*);
     void		survChangedCB(CallBacker*);
-    void		iomEntryAddedCB( CallBacker* cb )	{ iomChg(cb); }
-    void		iomEntryRemovedCB( CallBacker* cb )	{ iomChg(cb); }
-    void		iomChg(CallBacker*);
+    void		dbmChgCB(CallBacker*);
     void		initRead();
 
     virtual const char*	userNameFromKey(const char*) const;

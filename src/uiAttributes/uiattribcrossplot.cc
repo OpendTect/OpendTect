@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -285,7 +285,7 @@ bool uiAttribCrossPlot::acceptOK()
     {
 	for ( int lsidx=0; lsidx<selids_.size(); lsidx++ )
 	{
-	    PtrMan<IOObj> lsobj = IOM().get( selids_[lsidx] );
+	    PtrMan<IOObj> lsobj = DBM().get( selids_[lsidx] );
 	    if ( !lsobj ) continue;
 
 	    BufferStringSet lnms = linenmsset_[lsidx];

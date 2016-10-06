@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 #include "attribsel.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "dbkey.h"
 #include "survgeom.h"
 #include "survinfo.h"
@@ -59,11 +59,11 @@ mStruct(uiODMain) Viewer2DPosDataSel
 
     virtual void	clean()
 			{
-			    postype_ = IOM().isBad() || SI().has3D()
+			    postype_ = DBM().isBad() || SI().has3D()
 				     ? Viewer2DPosDataSel::InLine
 				     : Viewer2DPosDataSel::Line2D;
 			    selspec_	    = Attrib::SelSpec();
-			    tkzs_.init( !IOM().isBad() );
+			    tkzs_.init( !DBM().isBad() );
 			    rdmlineid_	    = -1;
 			    rdmlinedbkey_ = DBKey::getInvalid();
 			    rdmlineid_ = mUdf(int);

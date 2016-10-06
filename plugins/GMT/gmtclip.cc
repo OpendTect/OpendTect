@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "gmtclip.h"
 
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "picksetmanager.h"

@@ -27,7 +27,7 @@ ________________________________________________________________________
 
 #include "ioobjctxt.h"
 #include "file.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "od_ostream.h"
@@ -146,7 +146,7 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
 
     const float kbelev = trck.getKbElev();
     const float zfac = uiMarkerDlgzFactor( cb );
-  
+
     Well::MarkerSetIter miter( mset );
     while( miter.next() )
     {
@@ -718,8 +718,7 @@ void uiMarkerDlg::exportCB( CallBacker* )
 
 bool uiMarkerDlg::getKey( DBKey& mid ) const
 {
-    IOM().to( WellTranslatorGroup::ioContext().getSelDirID() );
-    IOObj* obj = IOM().getLocal( track_.name(), "Well" );
+    IOObj* obj = DBM().getByName( mIOObjContext(Well), track_.name() );
     if ( !obj )
 	return false;
 

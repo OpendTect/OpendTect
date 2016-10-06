@@ -34,7 +34,7 @@ ________________________________________________________________________
 #include "jobinfo.h"
 #include "od_iostream.h"
 #include "genc.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "survinfo.h"
 #include "plugins.h"
 
@@ -72,9 +72,7 @@ bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
     if ( bgadd )
 	ForkProcess();
 
-    const char* res = jobpars.find( sKey::Survey() );
-    if ( res && *res && SI().getDirName() != res )
-	IOMan::setSurvey( res );
+    DBM().setDataSource( jobpars );
     PIM().loadAuto( false );
     jobpars.set( sKey::FileName(), parfnm );
 

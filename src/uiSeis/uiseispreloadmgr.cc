@@ -14,9 +14,8 @@
 #include "datapack.h"
 #include "file.h"
 #include "filepath.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "preloads.h"
 #include "ptrman.h"
@@ -209,7 +208,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     bool skiploadedgeomids = false;
     if ( !loadedgeomids.isEmpty() )
     {
-	uiString msg( toUiString(IOM().nameOf(key)) );
+	uiString msg( toUiString(DBM().nameOf(key)) );
 	msg.append( " dataset for " );
 	msg.append( loadedgeomids.size()>1 ? "lines " : "line " );
 	for ( int idx=0; idx<loadedgeomids.size(); idx++ )

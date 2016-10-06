@@ -4,7 +4,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
+ Author:	Bert
  Date:		Sep 2016
 ________________________________________________________________________
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "threadlock.h"
 #include "uistring.h"
 #include "ioobjctxt.h"
+class TranslatorGroup;
 
 
 /*\brief 'Directory' of IOObj objects.
@@ -44,7 +45,6 @@ public:
 			DBDir(const char* dirname);
 			DBDir(DirID);
 			DBDir(IOObjContext::StdSelType);
-			~DBDir();
 			mDeclMonitorableAssignment(DBDir);
 
     bool		isBad() const;
@@ -73,6 +73,7 @@ public:
     static ChangeType	cEntryChanged()		{ return 2; }
     static ChangeType	cEntryAdded()		{ return 3; }
     static ChangeType	cEntryToBeRemoved()	{ return 4; }
+    static ChangeType	cEntryRemoved()		{ return 5; }
 
 private:
 
@@ -86,6 +87,7 @@ private:
     mutable uiString	errmsg_;
 
 			DBDir();
+			~DBDir();
 
     void		fromDirID(DirID,bool);
     bool		readFromFile(bool);
@@ -96,7 +98,6 @@ private:
     IdxType		gtIdx(ObjID) const;
     bool		gtIsOutdated() const;
     bool		setObj(IOObj*,bool writeafter);
-    bool		ensureUniqueName(IOObj&) const;
     bool		addAndWrite(IOObj*);
 
     friend class	DBMan;
@@ -111,13 +112,19 @@ public:
 
     bool		reRead(bool force) const;
 				// Done a lot already
+    bool		prepObj(IOObj&) const;
+				// Will be done before storage anyway
 
     static void		getTmpIOObjs(DirID,ObjectSet<IOObj>&,
 					const IOObjSelConstraints* c=0);
 
+    mDeprecated bool	commitChanges( const IOObj* obj )
+			{ return obj ? commitChanges(*obj) : false; }
+
 };
 
 
+/*\brief iterates a DBDir */
 
 mExpClass(General) DBDirIter : public MonitorableIter<DBDir::size_type>
 {
@@ -138,5 +145,43 @@ public:
 private:
 
     DBDirIter&		operator =(const DBDirIter&);
+
+};
+
+
+/*!\brief list of DBDir entries, sorted by name, conforming to a context.
+    Can be Filtered using GlobExpr. */
+
+mExpClass(General) DBDirEntryList
+{
+public:
+
+    typedef ObjectSet<IOObj>::size_type	size_type;
+    typedef size_type			IdxType;
+
+			DBDirEntryList(const IOObjContext&,bool dofill=true);
+			DBDirEntryList(const TranslatorGroup&,
+					const char* translator_globexpr=0);
+			~DBDirEntryList();
+    const char*		name() const	{ return name_; }
+    size_type		size() const	{ return entries_.size(); }
+    bool		isEmpty() const	{ return entries_.isEmpty(); }
+
+    void		fill(const char* nmfiltglobexpr=0);
+    IdxType		indexOf(const char*) const;
+
+    const IOObj&	ioobj( IdxType idx ) const { return *entries_[idx]; }
+    DBKey		key(IdxType) const;
+    BufferString	name(IdxType) const;
+    BufferString	dispName(IdxType) const;
+    BufferString	iconName(IdxType) const;
+
+protected:
+
+    ObjectSet<IOObj>	entries_;
+    IOObjContext&	ctxt_;
+    BufferString	name_;
+
+    void		sort();
 
 };

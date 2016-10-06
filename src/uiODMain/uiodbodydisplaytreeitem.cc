@@ -18,7 +18,7 @@ ___________________________________________________________________
 #include "emmarchingcubessurface.h"
 #include "empolygonbody.h"
 #include "emrandomposbody.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "marchingcubes.h"
 #include "mousecursor.h"
@@ -52,7 +52,7 @@ ___________________________________________________________________
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "houghtransform.h"
-#include "iodir.h"
+#include "dbdir.h"
 #include "embodytr.h"
 #include "emfault3d.h"
 #include "emhorizon3d.h"
@@ -148,7 +148,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	    continue;
 
 	const DBKey& mid = objs[idx]->dbKey();
-	PtrMan<IOObj> ioobj = IOM().get( mid );
+	PtrMan<IOObj> ioobj = DBM().get( mid );
 	PtrMan<Conn> conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
 	if ( !conn )
 	    continue;
@@ -490,7 +490,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !saveas )
 	{
 	    PtrMan<IOObj> ioobj =
-		IOM().get( applMgr()->EMServer()->getStorageID(emid_) );
+		DBM().get( applMgr()->EMServer()->getStorageID(emid_) );
 	    saveas = !ioobj;
 	}
 

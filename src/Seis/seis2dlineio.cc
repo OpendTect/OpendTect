@@ -20,7 +20,7 @@
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
@@ -73,7 +73,7 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
     if ( !ioobj )
 	return false;
 
-    PtrMan<IOObj> oldioobj = IOM().get( ioobj->key() );
+    PtrMan<IOObj> oldioobj = DBM().get( ioobj->key() );
     if ( !oldioobj ) return false;
 
     const bool isro = implReadOnly( ioobj );
@@ -88,7 +88,7 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 bool TwoDSeisTrcTranslator::initRead_()
 {
     errmsg_.setEmpty();
-    PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : DBKey() );
+    PtrMan<IOObj> ioobj = DBM().get( conn_ ? conn_->linkedTo() : DBKey() );
     if ( !ioobj )
 	{ errmsg_ = tr( "Cannot reconstruct 2D filename" ); return false; }
     BufferString fnm( ioobj->fullUserExpr(true) );
@@ -123,7 +123,7 @@ bool SeisTrc2DTranslator::implRename( const IOObj* ioobj,
     if ( !ioobj )
 	return false;
 
-    PtrMan<IOObj> oldioobj = IOM().get( ioobj->key() );
+    PtrMan<IOObj> oldioobj = DBM().get( ioobj->key() );
     if ( !oldioobj ) return false;
 
     const bool isro = implReadOnly( ioobj );
@@ -141,7 +141,7 @@ bool SeisTrc2DTranslator::implRename( const IOObj* ioobj,
 bool SeisTrc2DTranslator::initRead_()
 {
     errmsg_.setEmpty();
-    PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : DBKey() );
+    PtrMan<IOObj> ioobj = DBM().get( conn_ ? conn_->linkedTo() : DBKey() );
     if ( !ioobj )
 	{ errmsg_ = tr("Cannot reconstruct 2D filename"); return false; }
     BufferString fnm( ioobj->fullUserExpr(true) );
@@ -237,14 +237,13 @@ bool Seis2DLineMerger::nextAttr()
     curattridx_++;
     if ( !attrnms_.validIdx(curattridx_) )
 	return false;
-    IOM().to( SeisTrc2DTranslatorGroup::ioContext().getSelDirID() );
-    PtrMan<IOObj> seisobj =
-	IOM().getLocal( attrnms_.get(curattridx_).buf(),
-			mTranslGroupName(SeisTrc2D) );
+
+    PtrMan<IOObj> seisobj = DBM().getByName( mIOObjContext(SeisTrc2D),
+					     attrnms_.get(curattridx_) );
     if ( !seisobj )
 	return false;
 
-    SeisIOObjInfo seisdatainfo(  seisobj );
+    SeisIOObjInfo seisdatainfo( *seisobj );
     delete ds_;
     ds_ = new Seis2DDataSet( *seisdatainfo.ioObj() );
     currentlyreading_ = 0;

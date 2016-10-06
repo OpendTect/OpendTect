@@ -17,7 +17,7 @@
 #include "file.h"
 #include "filepath.h"
 #include "hostdata.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -87,7 +87,7 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( !seisid ) break;
 	DBKey seisdbky = DBKey::getFromString( seisid );
 
-	PtrMan<IOObj> seisioobj = IOM().get( seisdbky );
+	PtrMan<IOObj> seisioobj = DBM().get( seisdbky );
 	if ( !seisioobj )
 	{
 	    BufferString msg( "Cannot find output Seismic Object with ID '" );
@@ -97,7 +97,7 @@ bool BatchProgram::go( od_ostream& strm )
 	FilePath seisfp( seisioobj->fullUserExpr(false) );
 	if ( !seisfp.isAbsolute() )
 	{
-	    seisfp.set( IOM().rootDir() );
+	    seisfp.set( DBM().rootDir() );
 	    seisfp.add( seisioobj->dirName() );
 	    seisfp.add( seisioobj->fullUserExpr(false) );
 	}
@@ -119,7 +119,7 @@ bool BatchProgram::go( od_ostream& strm )
 	const char* setid = pars().find( "Attribute Set" );
 	if ( setid && *setid )
 	{
-	    PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(setid) );
+	    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(setid) );
 	    if ( !ioobj )
 		mRetHostErr( "Cannot find provided attrib set ID" )
 	    uiString msg;
@@ -188,7 +188,7 @@ bool BatchProgram::go( od_ostream& strm )
 	{
 	    DBKey dsid;
 	    pars().get( "Input Line Set", dsid );
-	    PtrMan<IOObj> dsobj = IOM().get( dsid );
+	    PtrMan<IOObj> dsobj = DBM().get( dsid );
 	    if ( dsobj )
 	    {
 		Seis2DDataSet ds(*dsobj);
@@ -325,7 +325,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    mDestroyWorkers
 	}
 
-	PtrMan<IOObj> ioobj = IOM().get( seisdbky );
+	PtrMan<IOObj> ioobj = DBM().get( seisdbky );
 	if ( ioobj )
 	{
 	    FilePath fp( ioobj->fullUserExpr() );

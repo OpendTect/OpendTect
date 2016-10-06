@@ -6,7 +6,7 @@
 
 
 #include "iostrm.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ascstream.h"
 #include "strmprov.h"
 #include "separstr.h"

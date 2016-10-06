@@ -115,7 +115,7 @@ protected:
     void		add(const SharedObject&,const ObjID&,const IOPar*,
 			    bool) const;
 
-    void		iomEntryRemovedCB(CallBacker*);
+    void		dbmEntryRemovedCB(CallBacker*);
     void		survChgCB(CallBacker*);
     void		appExitCB(CallBacker*);
     void		objDelCB(CallBacker*);

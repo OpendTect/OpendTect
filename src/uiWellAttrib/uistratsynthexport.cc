@@ -25,7 +25,7 @@ _______________________________________________________________________
 #include "ioobjctxt.h"
 #include "emmanager.h"
 #include "emhorizon2d.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "picksetmanager.h"
 #include "prestackgather.h"
 #include "prestacksyntheticdata.h"

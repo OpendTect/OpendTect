@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "envvars.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "od_ostream.h"
 #include "keystrs.h"
@@ -433,10 +433,10 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     TypeSet<Coord> surfcoords;
-    IOM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::WllInf)->id_) );
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
-	const IOObj* ioobj = IOM().getLocal( wellnms.get(idx), "Well" );
+	const IOObj* ioobj = DBM().getByName( IOObjContext::WllInf,
+					      wellnms.get(idx) );
 	RefMan<Well::Data> data = new Well::Data;
 	Coord maploc;
 	Well::Reader rdr( *ioobj, *data );

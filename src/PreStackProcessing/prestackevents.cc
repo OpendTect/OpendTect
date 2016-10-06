@@ -11,7 +11,7 @@
 #include "trckeyzsampling.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "rowcol.h"
 #include "prestackeventtransl.h"
 #include "prestackeventio.h"
@@ -401,7 +401,7 @@ bool EventManager::getHorRanges( TrcKeySampling& hrg ) const
 	}
     }
 
-    IOObj* ioobj = IOM().get( storageid_ );
+    IOObj* ioobj = DBM().get( storageid_ );
     if ( !ioobj )
 	return !first;
 
@@ -438,7 +438,7 @@ bool EventManager::getLocations( BinIDValueSet& bvs ) const
 	bvs.add( bid );
     }
 
-    IOObj* ioobj = IOM().get( storageid_ );
+    IOObj* ioobj = DBM().get( storageid_ );
     if ( !ioobj )
 	return false;
 
@@ -452,7 +452,7 @@ bool EventManager::getLocations( BinIDValueSet& bvs ) const
 
 Executor* EventManager::commitChanges()
 {
-    IOObj* ioobj = IOM().get( storageid_ );
+    IOObj* ioobj = DBM().get( storageid_ );
     if ( !ioobj )
 	{ pErrMsg("No ioobj"); return 0; }
 
@@ -462,7 +462,7 @@ Executor* EventManager::commitChanges()
 
 Executor* EventManager::load( const BinIDValueSet& bidset, bool trigger )
 {
-    IOObj* ioobj = IOM().get( storageid_ );
+    IOObj* ioobj = DBM().get( storageid_ );
     if ( !ioobj ) return 0;
     return PSEventTranslator::reader( *this, &bidset, 0, ioobj, trigger );
 }
@@ -720,7 +720,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	{
 	    delete reader;
 	    reader = 0;
-	    PtrMan<IOObj> ioobj = IOM().get( ds.mid_ );
+	    PtrMan<IOObj> ioobj = DBM().get( ds.mid_ );
 	    if ( !ioobj ) return false;
 	    reader = new SeisTrcReader( ioobj );
 	    if ( !reader->prepareWork() )

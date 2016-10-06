@@ -28,7 +28,7 @@ ___________________________________________________________________
 #include "vissurvobj.h"
 
 #include "attribsel.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "threadwork.h"
 
@@ -472,7 +472,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 void uiODDisplayTreeItem::deleteObject()
 {
     const DBKey mid = visserv_->getDBKey( displayid_ );
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( !ioobj ) return;
 
     if ( visserv_->isLocked(displayid_) )

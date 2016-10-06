@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "draw.h"
 #include "gmtpar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "pickset.h"
 #include "picksettr.h"

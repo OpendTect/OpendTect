@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "emhorizon2d.h"
 #include "horizon2dseedpicker.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "linesetposinfo.h"
 #include "mouseevent.h"

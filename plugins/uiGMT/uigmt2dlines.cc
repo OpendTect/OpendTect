@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "draw.h"
 #include "gmtpar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"

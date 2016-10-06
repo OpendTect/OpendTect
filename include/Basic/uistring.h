@@ -259,6 +259,7 @@ public:
     uiStringSet		messages() const;
 
     uiRetVal&		setOK();
+    uiRetVal&		insert(const uiString&);
     uiRetVal&		set(const uiRetVal&);
     uiRetVal&		set(const uiString&);
     uiRetVal&		set(const uiStringSet&);

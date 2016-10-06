@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "hostdata.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "jobcommunic.h"
@@ -82,7 +82,7 @@ bool BatchProgram::go( od_ostream& strm )
 	strm << " ..." << od_newline;
     else
     {
-	PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(seisid) );
+	PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(seisid) );
 	if ( !ioobj )
 	{
 	    BufferString msg( "Cannot find output Seismic Object with ID '" );
@@ -92,7 +92,7 @@ bool BatchProgram::go( od_ostream& strm )
 	FilePath fp( ioobj->fullUserExpr(false) );
 	if ( !fp.isAbsolute() )
 	{
-	    fp.set( IOM().rootDir() );
+	    fp.set( DBM().rootDir() );
 	    fp.add( ioobj->dirName() );
 	    fp.add( ioobj->fullUserExpr(false) );
 	}
@@ -206,7 +206,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     mDestroyWorkers
 
-    PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(seisid) );
+    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(seisid) );
     if ( ioobj )
     {
 	FilePath fp( ioobj->fullUserExpr() );

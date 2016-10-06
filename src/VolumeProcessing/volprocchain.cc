@@ -7,7 +7,7 @@
 
 #include "volprocchain.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -400,7 +400,7 @@ void VolProc::Chain::setStorageID( const DBKey& mid )
 
 uiString VolProc::Chain::name() const
 {
-    PtrMan<IOObj>  ioobj = IOM().get( storageid_ );
+    PtrMan<IOObj>  ioobj = DBM().get( storageid_ );
     return !ioobj ? uiString::emptyString() :
 	tr("Executing volume builder chain \'%1\'").arg(ioobj->uiName());
 }

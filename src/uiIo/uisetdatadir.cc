@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "dirlist.h"
 #include "oddirs.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "odinst.h"
 #include "settings.h"
 #include "ziputils.h"
@@ -36,17 +36,20 @@ ________________________________________________________________________
 
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
-static const char* doSetRootDataDir( const char* inpdatadir )
+static uiRetVal doSetRootDataDir( const char* inpdatadir )
 {
     BufferString datadir = inpdatadir;
-
-    if ( !IOMan::isValidDataRoot(datadir) )
-	return "Provided directory name is not a valid OpendTect root data dir";
+    uiRetVal rv = DBMan::isValidDataRoot( datadir );
+    if ( !rv.isOK() )
+	return rv;
 
     SetCurBaseDataDir( datadir );
-
     Settings::common().set( "Default DATA directory", datadir );
-    return Settings::common().write() ? 0 : "Cannot write user settings file";
+    if ( Settings::common().write() )
+	return uiRetVal::OK();
+    else
+	return od_static_tr( "doSetRootDataDir",
+			     "Cannot write user settings file" );
 }
 
 
@@ -56,7 +59,8 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 				     mODHelpKey(mSetDataDirHelpID) ))
 	, curdatadir_(GetBaseDataDir())
 {
-    const bool oldok = IOMan::isValidDataRoot( curdatadir_ );
+    const uiRetVal uirv = DBMan::isValidDataRoot( curdatadir_ );
+    const bool oldok = uirv.isOK();
     BufferString oddirnm, basedirnm;
     uiString titletxt;
 
@@ -115,8 +119,12 @@ bool uiSetDataDir::acceptOK()
     if ( seldir_.isEmpty() || !File::isDirectory(seldir_) )
 	mErrRet( uiStrings::phrEnter(tr("a valid (existing) location")) )
 
-    if ( seldir_ == curdatadir_ && IOMan::isValidDataRoot(seldir_) )
-	return true;
+    if ( seldir_ == curdatadir_ )
+    {
+	const uiRetVal uirv = DBMan::isValidDataRoot( seldir_ );
+	if ( uirv.isOK() )
+	    return true;
+    }
 
     FilePath fpdd( seldir_ ); FilePath fps( GetSoftwareDir(0) );
     const int nrslvls = fps.nrLevels();
@@ -157,8 +165,9 @@ static BufferString getInstalledDemoSurvey()
 bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 {
     BufferString datadir = inpdatadir;
-    const char* retmsg = doSetRootDataDir( datadir );
-    if ( !retmsg ) return true;
+    uiRetVal uirv = doSetRootDataDir( datadir );
+    if ( uirv.isOK() )
+	return true;
 
     const BufferString stdomf( mGetSetupFileName("omf") );
 
@@ -183,7 +192,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(datadir)) )
     }
 
-    while ( !IOMan::isValidDataRoot(datadir) )
+    while ( !DBMan::isValidDataRoot(datadir).isOK() )
     {
 	if ( !File::isDirectory(datadir) )
 	   mErrRet(tr("A file (not a directory) with this name already exists"))
@@ -193,7 +202,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 
 	if ( File::exists(omffnm) )
 	{
-	    // most likely a survey directory (see IOMan::isValidDataRoot())
+	    // most likely a survey directory (see DBMan::isValidDataRoot())
 	    const BufferString parentdir = FilePath(datadir).pathOnly();
 	    uiString msg = tr( "Target directory:\n%1\nappears to be a survey "
 		"directory.\n\nDo you want to set its parent:\n%2\nas the "
@@ -214,7 +223,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	    bool hasvalidsurveys = false;
 	    for ( int idx=0; idx<survdl.size(); idx++ )
 	    {
-		if ( IOMan::isValidSurveyDir(survdl.fullPath(idx)) )
+		if ( DBMan::isValidSurveyDir(survdl.fullPath(idx)).isOK() )
 		    hasvalidsurveys = true;
 	    }
 
@@ -246,9 +255,9 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
     if ( offerunzipsurv )
 	offerUnzipSurv( par, datadir );
 
-    retmsg = doSetRootDataDir( datadir );
-    if ( retmsg )
-	{ uiMSG().error( mToUiStringTodo(retmsg) ); return false; }
+    uirv = doSetRootDataDir( datadir );
+    if ( !uirv.isOK() )
+	{ uiMSG().error( uirv ); return false; }
 
     return true;
 }

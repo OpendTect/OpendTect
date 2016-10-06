@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "manobjectset.h"
 #include "seistrctr.h"
@@ -135,9 +135,7 @@ ClusterProc( const IOPar& pars )
 
 bool init()
 {
-    FixedString res = pars_.find( sKey::Survey() );
-    if ( !res.isEmpty() && SI().getDirName() != res )
-	IOMan::setSurvey( res.str() );
+    DBM().setDataSource( pars_ );
 
     FixedString scriptdir = pars_.find( "Script dir" );
     if ( scriptdir.isEmpty() || !File::isDirectory(scriptdir.str()) )
@@ -309,10 +307,10 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
     DBKey key;
     if ( !pars.get(uiClusterJobProv::sKeyOutputID(),key) )
 	mErrRet("Missing ID of Temporary storage in the parameters file")
-    PtrMan<IOObj> inobj = IOM().get( key );
+    PtrMan<IOObj> inobj = DBM().get( key );
     if ( !pars.get("Output.ID",key) )
 	mErrRet("Missing ID of output dataset in the parameters file")
-    PtrMan<IOObj> outobj = IOM().get( key );
+    PtrMan<IOObj> outobj = DBM().get( key );
     if ( !inobj || !outobj )
 	mErrRet("Cannot open Output" )
     PtrMan<SeisSingleTraceProc> exec = new SeisSingleTraceProc( *inobj, *outobj,
@@ -332,10 +330,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
 
     DBKey tempid;
     if ( pars.get("Output.0.Seismic.ID",tempid) )
-    {
-	IOM().to( SeisTrcTranslatorGroup::ioContext().getSelDirID() );
-	IOM().permRemove( tempid );
-    }
+	DBM().removeEntry( tempid );
 
     FixedString tmpdir = pars.find( sKey::TmpStor() );
     if ( tmpdir && File::isDirectory(tmpdir.str()) )
@@ -351,10 +346,10 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
     DBKey key;
     if ( !pars.get(uiClusterJobProv::sKeyOutputID(),key) )
 	msg = tr("Missing ID of Temporary storage in the parameters file");
-    PtrMan<IOObj> inobj = IOM().get( key );
+    PtrMan<IOObj> inobj = DBM().get( key );
     if ( !pars.get("Output.ID",key) )
 	msg = tr("Missing ID of output dataset in the parameters file");
-    PtrMan<IOObj> outobj = IOM().get( key );
+    PtrMan<IOObj> outobj = DBM().get( key );
     if ( !inobj || !outobj )
 	msg = uiStrings::phrCannotOpen(uiStrings::sOutput().toLower());
     PtrMan<SeisSingleTraceProc> exec = new SeisSingleTraceProc( *inobj, *outobj,
@@ -374,10 +369,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
 
     DBKey tempid;
     if ( pars.get("Output.0.Seismic.ID",tempid) )
-    {
-	 IOM().to( SeisTrcTranslatorGroup::ioContext().getSelDirID() );
-	 IOM().permRemove( tempid );
-    }
+	 DBM().removeEntry( tempid );
 
     FixedString tmpdir = pars.find( sKey::TmpStor() );
     if ( tmpdir && File::isDirectory(tmpdir.str()) )

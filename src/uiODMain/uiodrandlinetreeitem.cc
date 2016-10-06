@@ -14,7 +14,7 @@ ___________________________________________________________________
 #include "attribdescsetsholder.h"
 #include "attribsel.h"
 #include "ctxtioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "mousecursor.h"
 #include "ptrman.h"
 #include "randomlinetr.h"
@@ -240,7 +240,7 @@ void uiODRandomLineParentTreeItem::genRandLine( int opt )
     DBKey dbkey = applMgr()->EMServer()->genRandLine( opt );
     if ( dbkey.isValid() && applMgr()->EMServer()->dispLineOnCreation() )
     {
-	PtrMan<IOObj> ioobj = IOM().get( dbkey );
+	PtrMan<IOObj> ioobj = DBM().get( dbkey );
 	load( *ioobj, (int)uiODRandomLineTreeItem::Empty );
     }
 }
@@ -352,7 +352,7 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
     const DBKey dbkey =  applMgr()->wellServer()->getRandLineDBKey();
     if ( dbkey.isValid() && applMgr()->wellServer()->dispLineOnCreation() )
     {
-	PtrMan<IOObj> ioobj = IOM().get( dbkey );
+	PtrMan<IOObj> ioobj = DBM().get( dbkey );
 	load( *ioobj, (int)uiODRandomLineTreeItem::Empty );
     }
 

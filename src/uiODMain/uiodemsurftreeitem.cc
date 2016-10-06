@@ -16,7 +16,7 @@ ___________________________________________________________________
 #include "emhorizonztransform.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
 #include "posvecdataset.h"
@@ -375,7 +375,7 @@ void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
     bool savewithname = dbky.isInvalid();
     if ( !savewithname )
     {
-	PtrMan<IOObj> ioobj = IOM().get( dbky );
+	PtrMan<IOObj> ioobj = DBM().get( dbky );
 	savewithname = !ioobj;
     }
 
@@ -412,7 +412,7 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     bool savewithname = dbky.isInvalid();
     if ( !savewithname )
     {
-	PtrMan<IOObj> ioobj = IOM().get( dbky );
+	PtrMan<IOObj> ioobj = DBM().get( dbky );
 	savewithname = !ioobj;
     }
 

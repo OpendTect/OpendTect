@@ -10,7 +10,7 @@
 #include "arrayndslice.h"
 #include "flatposdata.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "muter.h"
 #include "prestackgather.h"
@@ -92,7 +92,7 @@ bool Mute::setMuteDefID( const DBKey& mid )
 
     if ( mid.isInvalid() )
 	mErrRet( tr("No MuteDef ID provided.") )
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( !ioobj )
 	mErrRet(tr("Cannot find MuteDef ID '%1' in Object Manager.").arg(mid) );
 
@@ -112,7 +112,7 @@ bool Mute::setMuteDefID( const DBKey& mid )
 
 void Mute::fillPar( IOPar& par ) const
 {
-    PtrMan <IOObj> ioobj = IOM().get( id_ );
+    PtrMan <IOObj> ioobj = DBM().get( id_ );
     if ( ioobj )
 	par.set( sMuteDef(), id_ );
 

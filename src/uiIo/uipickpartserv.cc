@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "datapointset.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "mousecursor.h"
@@ -53,7 +53,7 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
     , exppsdlg_(0)
     , manpicksetsdlg_(0)
 {
-    mAttachCB( IOM().surveyChanged, uiPickPartServer::survChangedCB );
+    mAttachCB( DBM().surveyChanged, uiPickPartServer::survChangedCB );
 }
 
 

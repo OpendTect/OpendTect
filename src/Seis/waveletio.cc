@@ -9,7 +9,7 @@
 #include "waveletmanager.h"
 #include "uistrings.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "separstr.h"
 #include "ascstream.h"
 #include "survinfo.h"
@@ -25,7 +25,7 @@ uiString WaveletTranslatorGroup::sTypeName( int num )
 
 
 WaveletLoader::WaveletLoader( const DBKey& id )
-    : ioobj_(IOM().get(id))
+    : ioobj_(DBM().get(id))
 {
 }
 

@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "dpsdispmgr.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -182,7 +182,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, showbidsfld_(0)
 {
     windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
-    mAttachCB(IOM().applicationClosing,uiDataPointSet::applClosingCB);
+    mAttachCB(DBM().applicationClosing,uiDataPointSet::applClosingCB);
 
     setCtrlStyle( CloseOnly );
     runcalcs_.allowNull( true );
@@ -1434,7 +1434,7 @@ bool acceptOK()
 	if ( !type_.isEmpty() )
 	{
 	    ctio_.ioobj_->pars().set( sKey::Type(), type_ );
-	    IOM().commitChanges( *ctio_.ioobj_ );
+	    DBM().setEntry( *ctio_.ioobj_ );
 	}
 	fname_ = ctio_.ioobj_->fullUserExpr(false);
     }

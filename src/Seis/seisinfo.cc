@@ -14,7 +14,7 @@
 #include "survinfo.h"
 #include "strmprov.h"
 #include "file.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "trckeyzsampling.h"
 #include "enums.h"
@@ -252,7 +252,7 @@ void SeisPacketInfo::clear()
     usrinfo = defaultusrinfo;
     fullyrectandreg = false;
     cubedata = 0;
-    if ( !IOM().isBad() )
+    if ( !DBM().isBad() )
     {
 	SI().sampling(false).hsamp_.get( inlrg, crlrg );
 	zrg = SI().zRange(false);
@@ -264,7 +264,7 @@ void SeisPacketInfo::clear()
 
 float SeisTrcInfo::defaultSampleInterval( bool forcetime )
 {
-    if ( IOM().isBad() )
+    if ( DBM().isBad() )
 	return mUdf(float);
 
     float defsr = SI().zStep();

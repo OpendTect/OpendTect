@@ -13,8 +13,8 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 #include "file.h"
 #include "filepath.h"
-#include "iodir.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -179,7 +179,7 @@ void RelationTree::removeNode( const DBKey& id, bool dowrite )
 
 static RelationTree::Node* createNewNode( const DBKey& id )
 {
-    PtrMan<IOObj> ioobj = IOM().get( id );
+    PtrMan<IOObj> ioobj = DBM().get( id );
     if ( !ioobj )
 	return 0;
 
@@ -284,24 +284,28 @@ bool RelationTree::read( bool removeoutdated )
     }
 
     DBKeySet outdatednodes;
-    const IODir surfiodir( IOObjContext::Surf );
-    for ( int idx=0; idx<nodes_.size(); idx++ )
+    ConstRefMan<DBDir> surfiodir = DBM().fetchDir( IOObjContext::Surf );
+    if ( surfiodir )
     {
-	FileMultiString fms;
-	PtrMan<IOPar> nodepar = subpar->subselect( idx );
-	if ( !nodepar || !nodepar->get(RelationTree::Node::sKeyChildIDs(),fms) )
-	    continue;
+	for ( int idx=0; idx<nodes_.size(); idx++ )
+	{
+	    FileMultiString fms;
+	    PtrMan<IOPar> nodepar = subpar->subselect( idx );
+	    if ( !nodepar
+	      || !nodepar->get(RelationTree::Node::sKeyChildIDs(),fms) )
+		continue;
 
-	RelationTree::Node* node = nodes_[idx];
-	node->fillChildren( fms, *this );
-	if ( !nodepar->get(RelationTree::Node::sKeyLastModified(),
-			   node->datestamp_) )
-	    continue;
+	    RelationTree::Node* node = nodes_[idx];
+	    node->fillChildren( fms, *this );
+	    if ( !nodepar->get(RelationTree::Node::sKeyLastModified(),
+			       node->datestamp_) )
+		continue;
 
-	PtrMan<IOObj> ioobj = surfiodir.getEntry( node->id_ );
-	if ( removeoutdated &&
-		( !ioobj || hasBeenModified(*ioobj,node->datestamp_.buf()) ) )
-	    outdatednodes += node->id_;
+	    PtrMan<IOObj> ioobj = surfiodir->getEntry( node->id_.objID() );
+	    if ( removeoutdated &&
+		    (!ioobj || hasBeenModified(*ioobj,node->datestamp_.buf())) )
+		outdatednodes += node->id_;
+	}
     }
 
     for ( int idx=0; idx<outdatednodes.size(); idx++ )

@@ -19,7 +19,7 @@
 #include "binidvalset.h"
 #include "convmemvalseries.h"
 #include "trckeyzsampling.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "seiscubeprov.h"

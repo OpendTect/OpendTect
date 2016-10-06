@@ -14,11 +14,10 @@
 #include "jobrunner.h"
 #include "ctxtioobj.h"
 #include "cbvsreader.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iostrm.h"
 #include "iopar.h"
-#include "iodir.h"
-#include "iodirentry.h"
+#include "dbdir.h"
 #include "oddirs.h"
 #include "hostdata.h"
 #include "file.h"
@@ -63,7 +62,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
     seisoutkey_ = outputKey( iopar_ );
 
     FixedString res = iopar_.find( seisoutkey_ );
-    IOObj* outioobj = IOM().get( DBKey::getFromString(res) );
+    IOObj* outioobj = DBM().get( DBKey::getFromString(res) );
     if ( !outioobj )
 	errmsg_ = tr("Cannot find specified output seismic ID");
     else
@@ -248,8 +247,7 @@ DBKey SeisJobExecProv::tempStorID() const
     FilePath fp( iopar_.find(sKey::TmpStor()) );
 
     // Is there already an entry?
-    const IODir iodir( ctio_.ctxt_.getSelDirID() );
-    const IODirEntryList el( iodir, ctio_.ctxt_ );
+    const DBDirEntryList el( ctio_.ctxt_ );
     const BufferString fnm( fp.fullPath() );
     for ( int idx=0; idx<el.size(); idx++ )
     {
@@ -266,7 +264,7 @@ DBKey SeisJobExecProv::tempStorID() const
     BufferString objnm( "~" );
     objnm += fp.fileName();
     ctio_.setName( objnm );
-    IOM().getEntry( ctio_ );
+    DBM().getEntry( ctio_ );
     if ( !ctio_.ioobj_ )
 	errmsg_ = uiStrings::phrCannotCreateDBEntryFor(tr("temporary storage"));
     else
@@ -286,7 +284,7 @@ DBKey SeisJobExecProv::tempStorID() const
 	iostrm->fileSpec().setFileName( fp.fullPath() );
 	iostrm->fileSpec().nrs_ = inls;
 
-	IOM().commitChanges( *iostrm );
+	DBM().setEntry( *iostrm );
 	ctio_.setObj(0);
     }
 
@@ -298,8 +296,8 @@ Executor* SeisJobExecProv::getPostProcessor()
 {
     if ( is2d_ ) return 0;
 
-    PtrMan<IOObj> inioobj = IOM().get( tmpstorid_ );
-    PtrMan<IOObj> outioobj = IOM().get( seisoutid_ );
+    PtrMan<IOObj> inioobj = DBM().get( tmpstorid_ );
+    PtrMan<IOObj> outioobj = DBM().get( seisoutid_ );
     return new SeisSingleTraceProc( *inioobj, *outioobj,
 				    "Data transfer", &iopar_,
 				    tr("Writing results to output cube") );
@@ -310,11 +308,11 @@ bool SeisJobExecProv::removeTempSeis()
 {
     if ( is2d_ ) return true;
 
-    PtrMan<IOObj> ioobj = IOM().get( tmpstorid_ );
+    PtrMan<IOObj> ioobj = DBM().get( tmpstorid_ );
     if ( !ioobj ) return true;
 
     FilePath fp( ioobj->fullUserExpr(true) );
-    IOM().permRemove( tmpstorid_ );
+    DBM().removeEntry( tmpstorid_ );
 
     if ( fp.fileName() == "i.*" )
 	fp.setFileName(0);

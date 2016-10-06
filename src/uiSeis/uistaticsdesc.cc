@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emsurfacetr.h"
 #include "emsurfaceiodata.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "seistrctr.h"
 #include "seisselection.h"
 #include "survinfo.h"
@@ -129,7 +129,7 @@ bool uiStaticsDesc::updateAndCommit( IOObj& ioobj, bool disperr )
     if ( !get( desc, disperr ) )
 	return false;
 
-    if ( !IOM().commitChanges(ioobj) )
+    if ( !DBM().setEntry(ioobj) )
     {
 	if ( disperr )
 	    uiMSG().error(uiStrings::phrCannotWriteDBEntry(ioobj.uiName()));

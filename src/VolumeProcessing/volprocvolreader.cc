@@ -8,7 +8,7 @@
 #include "volprocvolreader.h"
 
 #include "arrayndimpl.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "seisdatapack.h"
 #include "seisread.h"
@@ -28,7 +28,7 @@ VolumeReader::~VolumeReader()
 Task* VolumeReader::createTask()
 {
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+    PtrMan<IOObj> ioobj = DBM().get( mid_ );
     if ( !output || !ioobj )
 	return 0;
 
@@ -48,7 +48,7 @@ Task* VolumeReader::createTask()
 bool VolumeReader::setVolumeID( const DBKey& mid )
 {
     mid_ = mid;
-    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+    PtrMan<IOObj> ioobj = DBM().get( mid_ );
     return ioobj;
 }
 

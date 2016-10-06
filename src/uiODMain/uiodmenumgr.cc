@@ -37,7 +37,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "keystrs.h"
 #include "measuretoolman.h"
 #include "oddirs.h"
@@ -82,8 +82,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     uiVisPartServer* visserv = appl_.applMgr().visServer();
     visserv->createToolBars();
 
-    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
-    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
+    DBM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
+    DBM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
     visserv->selectionmodeChange.notify(
 				mCB(this,uiODMenuMgr,selectionMode) );
 }
@@ -234,7 +234,7 @@ void uiODMenuMgr::fillSurveyMenu()
 
 #define mGet2D3D() \
 { \
-    if ( !IOM().isBad() ) \
+    if ( !DBM().isBad() ) \
     { \
 	has3d = SI().has3D(); \
 	has2d = SI().has2D(); \
@@ -495,7 +495,7 @@ void uiODMenuMgr::fillManMenu()
 			"man_fltss" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Geometry 2D")),
 		       mManGeomItm, "man2dgeom" );
-    if ( !IOM().isBad() && SI().survDataType() == SurveyInfo::No2D )
+    if ( !DBM().isBad() && SI().survDataType() == SurveyInfo::No2D )
 	mInsertPixmapItem( manmnu_,
 			   m3Dots(uiStrings::sHorizon(mPlural)),
 			   mManHor3DMnuItm, "man_hor" )
@@ -647,7 +647,7 @@ void uiODMenuMgr::fillAnalMenu()
 {
     analmnu_->clear();
     SurveyInfo::Pol2D survtype( SurveyInfo::Both2DAnd3D );
-    if ( !IOM().isBad() )
+    if ( !DBM().isBad() )
 	survtype = SI().survDataType();
 
     const char* attrpm = "attributes";
@@ -698,7 +698,7 @@ void uiODMenuMgr::fillAnalMenu()
     analwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
     analwellmnu_->insertItem( new uiAction( m3Dots(tr("Edit Logs")),
 	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
-    if (  !IOM().isBad() && SI().zIsTime() )
+    if (  !DBM().isBad() && SI().zIsTime() )
 	analwellmnu_->insertItem(
 	    new uiAction( m3Dots(tr("Tie Well to Seismic")),
 		    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ));
@@ -781,7 +781,7 @@ void uiODMenuMgr::updateSceneMenu()
     }
 
     uiString itmtxt = tr( "New [%1]" )
-	 .arg( !IOM().isBad() && SI().zIsTime() ? uiStrings::sDepth()
+	 .arg( !DBM().isBad() && SI().zIsTime() ? uiStrings::sDepth()
 						: uiStrings::sTime() );
     addtimedepthsceneitm_->setText( itmtxt );
 }

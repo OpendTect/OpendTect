@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "emsurfauxdataio.h"
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "od_iostream.h"
@@ -279,7 +279,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    BufferString linesetkey(Horizon2DGeometry::sKeyLineSets(),idx);
 	    DBKey mid;
 	    par_->get( linesetkey, mid );
-	    PtrMan<IOObj> ioobj = IOM().get( mid );
+	    PtrMan<IOObj> ioobj = DBM().get( mid );
 	    if ( !ioobj )
 	    {
 		lineids[idx] = mUdf(int);

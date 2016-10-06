@@ -64,7 +64,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "externalattrib.h"
 #include "genc.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
 #include "oddirs.h"
@@ -115,9 +115,11 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 
     appl_.afterPopup.notify( mCB(this,uiODApplMgr,mainWinUpCB) );
 
-    IOM().surveyToBeChanged.notify(
+    DBM().surveyChangeOK.notify(
+			mCB(this,uiODApplMgr,surveyChangeOKCB),true );
+    DBM().surveyToBeChanged.notify(
 			mCB(this,uiODApplMgr,surveyToBeChanged),true );
-    IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
+    DBM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
 }
 
 
@@ -125,7 +127,8 @@ uiODApplMgr::~uiODApplMgr()
 {
     visdpsdispmgr_->clearDisplays();
     dispatcher_.survChg(true); attrvishandler_.survChg(true);
-    IOM().surveyToBeChanged.remove( mCB(this,uiODApplMgr,surveyToBeChanged) );
+    DBM().surveyChangeOK.remove( mCB(this,uiODApplMgr,surveyChangeOKCB) );
+    DBM().surveyToBeChanged.remove( mCB(this,uiODApplMgr,surveyToBeChanged) );
     delete mpeserv_;
     delete pickserv_;
     delete nlaserv_;
@@ -204,7 +207,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 	uiString msg( tr( "The survey %1 appears to be too old. "
 		"Please open this survey first in OpendTect 4.6 to update "
 		"its database before using it in newer versions of OpendTect." )
-		.arg(IOM().surveyName()) );
+		.arg(DBM().surveyName()) );
 	if ( uiMSG().askGoOn(msg,tr("Select another survey"),
 			     uiStrings::sExitOD() ) )
 	    return false;
@@ -220,7 +223,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 	    "This may take some time depending on the amount of data. "
 	    "Note that after the conversion you will still be able to use "
 	    "this 2D data in older versions of OpendTect.")
-	    .arg(IOM().surveyName()) );
+	    .arg(DBM().surveyName()) );
 
 	const int res = uiMSG().question( msg, tr("Convert now"),
 					  tr("Select another survey"),
@@ -270,7 +273,7 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 		"All the old geo-bodies of survey '%1' will now be converted. "
 		"Note that after the conversion, you will still be able to use "
 		"those geo-bodies in OpendTect 4.6.0, but only in patch p or "
-		"later.").arg(IOM().surveyName()) );
+		"later.").arg(DBM().surveyName()) );
 
     const int res = uiMSG().question( msg, tr("Convert now"),
 					   tr("Do it later"),
@@ -349,14 +352,18 @@ void uiODApplMgr::addVisDPSChild( CallBacker* cb )
 }
 
 
+void uiODApplMgr::surveyChangeOKCB( CallBacker* )
+{
+    bool anythingasked = false;
+    if ( !appl_.askStore(anythingasked,tr("Survey change")) )
+	DBM().doNotChangeTheSurveyNow();
+}
+
+
 void uiODApplMgr::surveyToBeChanged( CallBacker* )
 {
     visdpsdispmgr_->clearDisplays();
     dispatcher_.survChg(true); attrvishandler_.survChg(true);
-
-    bool anythingasked = false;
-    if ( !appl_.askStore(anythingasked,tr("Survey change")) )
-	{ IOM().setChangeSurveyBlocked( true ); return; }
 
     if ( nlaserv_ ) nlaserv_->reset();
     delete attrserv_; attrserv_ = 0;
@@ -397,7 +404,7 @@ void uiODApplMgr::surveyChanged( CallBacker* )
 
 bool uiODApplMgr::survChgReqAttrUpdate()
 {
-    if ( IOM().isBad() )
+    if ( DBM().isBad() )
 	return true;
 
     return !( SI().xyUnit() == tmpprevsurvinfo_.xyunit_ &&
@@ -481,13 +488,13 @@ void uiODApplMgr::addTimeDepthScene()
 				  ZDomain::sKeyDepth(), true )
 	: new uiZAxisTransformSel( 0, false, ZDomain::sKeyDepth(),
 				  ZDomain::sKeyTime(), true );
-    
+
     if ( !uitrans->isOK() )
     {
 	uiMSG().error(tr("No suitable transforms found"));
 	return;
     }
-    
+
     uiSingleGroupDlg<> dlg( &appl_, uitrans);
     dlg.setCaption( tr("Velocity model") );
     dlg.setTitleText( tr("Select velocity model to base scene on") );
@@ -531,7 +538,7 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
 
     const DBKey hormid = DBKey::getFromString(
 			    transform->fromZDomainInfo().getID() );
-    PtrMan<IOObj> ioobj = IOM().get( hormid );
+    PtrMan<IOObj> ioobj = DBM().get( hormid );
     const BufferString hornm = ioobj
 		? ioobj->name().buf()
 		: transform->factoryDisplayName().getFullString();
@@ -1861,7 +1868,7 @@ void uiODApplMgr::storeEMObject( bool saveasreq )
 
     const EM::ObjectID emid = surface->getObjectID();
     DBKey mid = emserv_->getStorageID( emid );
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     const bool saveas = mid.isInvalid() || !ioobj || saveasreq;
     emserv_->storeObject( emid, saveas );
     BufferString auxdatanm;
@@ -1979,7 +1986,7 @@ void uiODApplMgr::process2D3D( int opt )
 
 void uiODApplMgr::MiscSurvInfo::refresh()
 {
-    if ( IOM().isBad() )
+    if ( DBM().isBad() )
 	return;
 
     xyunit_ = SI().xyUnit();

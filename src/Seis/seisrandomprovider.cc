@@ -10,7 +10,7 @@
 
 #include "seisrandomprovider.h"
 
-#include "ioman.h"
+#include "dbman.h"
 #include "seisread.h"
 #include "threadwork.h"
 #include "seistrctr.h"
@@ -22,7 +22,7 @@ SeisRandomProvider::SeisRandomProvider( const DBKey& mid )
     , isreading_( false )
     , traceAvailable( this )
 {
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( !ioobj )
 	return;
     

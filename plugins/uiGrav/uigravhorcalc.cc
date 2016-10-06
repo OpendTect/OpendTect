@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "survinfo.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
@@ -30,7 +30,7 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     , t2dfld_(0)
 {
     DBKey horid = EM::EMM().getDBKey( enobjid );
-    horioobj_ = IOM().get( horid );
+    horioobj_ = DBM().get( horid );
     if ( !horioobj_ )
 	{ new uiLabel(this,tr("Internal: Cannot find horizon")); return; }
     setTitleText( tr("Calculate gravity at '%1'").arg( horioobj_->name() ) );

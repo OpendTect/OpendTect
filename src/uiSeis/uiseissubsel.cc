@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "iopar.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "posprovider.h"
@@ -52,7 +52,7 @@ uiSeisSubSel::uiSeisSubSel( uiParent* p, const Seis::SelSetup& ss )
     selfld_->selChange.notify( mCB(this,uiSeisSubSel,selChangeCB) );
     setHAlignObj( selfld_ );
 
-    mAttachCB( IOM().afterSurveyChange, uiSeisSubSel::afterSurveyChangedCB);
+    mAttachCB( DBM().afterSurveyChange, uiSeisSubSel::afterSurveyChangedCB);
 }
 
 
@@ -68,7 +68,7 @@ void uiSeisSubSel::selChangeCB( CallBacker* )
 
 void uiSeisSubSel::afterSurveyChangedCB( CallBacker* )
 {
-    if ( IOM().isBad() )
+    if ( DBM().isBad() )
 	return;
 
     selfld_->setInputLimit( SI().sampling( true ) );
@@ -119,7 +119,7 @@ void uiSeisSubSel::clear()
 
 void uiSeisSubSel::setInput( const DBKey& id )
 {
-    IOObj* ioobj = IOM().get( id );
+    IOObj* ioobj = DBM().get( id );
     if ( ioobj )
 	setInput( *ioobj );
     delete ioobj;

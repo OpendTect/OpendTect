@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "oddirs.h"
 #include "settings.h"
 #include "timer.h"
@@ -87,7 +87,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
     infofld_ = new uiLabel( this, tr("Arrange your windows before confirming"));
     infofld_->attach( alignedBelow, qualityfld_ );
 
-    IOM().afterSurveyChange.notify( mCB(this,uiWindowGrabDlg,surveyChanged) );
+    DBM().afterSurveyChange.notify( mCB(this,uiWindowGrabDlg,surveyChanged) );
 }
 
 

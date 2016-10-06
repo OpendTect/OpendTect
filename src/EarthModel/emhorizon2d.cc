@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "horizon2dline.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "selector.h"
 #include "toplist.h"
 #include "survinfo.h"
@@ -362,7 +362,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	DBKey mid;
 	if ( !par.get(linesetkey.buf(),mid) ) continue;
 
-	PtrMan<IOObj> ioobj = IOM().get( mid );
+	PtrMan<IOObj> ioobj = DBM().get( mid );
 	if ( !ioobj ) continue;
 
 	const Pos::GeomID geomid = Survey::GM().getGeomID( ioobj->name(),

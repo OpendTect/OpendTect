@@ -12,7 +12,7 @@
 #include "oddirs.h"
 #include "ascstream.h"
 #include "dirlist.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 
 static const char* sKeyProgramName = "Program.Name";
@@ -188,7 +188,7 @@ bool Batch::JobDispatcher::writeParFile() const
 {
     IOPar wrpar( jobspec_.pars_ );
     jobspec_.fillPar( wrpar );
-    wrpar.set( sKey::Survey(), IOM().surveyName() );
+    wrpar.set( sKey::Survey(), DBM().surveyName() );
     wrpar.set( sKey::DataRoot(), GetBaseDataDir() );
 
     od_ostream parstrm( parfnm_ ); ascostream astrm( parstrm );

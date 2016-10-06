@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "filepath.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "oddirs.h"
 #include "od_helpids.h"
@@ -176,7 +176,7 @@ void uiSEGYRead::writeReq( CallBacker* cb )
     fillPar( ioobj->pars() );
     ioobj->pars().removeWithKey( uiSEGYExamine::Setup::sKeyNrTrcs );
     ioobj->pars().removeWithKey( sKey::Geometry() );
-    IOM().commitChanges( *ioobj );
+    DBM().setEntry( *ioobj );
 }
 
 

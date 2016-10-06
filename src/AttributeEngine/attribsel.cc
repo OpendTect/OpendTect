@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ioobjctxt.h"
 #include "globexpr.h"
-#include "iodir.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "nladesign.h"
@@ -71,7 +71,7 @@ void SelSpec::setZDomainKey( const Desc& desc )
     if ( storedid.isInvalid() )
 	return;
 
-    PtrMan<IOObj> ioobj = IOM().get( storedid );
+    PtrMan<IOObj> ioobj = DBM().get( storedid );
     if ( ioobj )
 	ioobj->pars().get( ZDomain::sKey(), zdomainkey_ );
 }
@@ -169,7 +169,7 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	if ( desc->isStored() )
 	{
 	    const DBKey dbky = desc->getStoredID( false );
-	    PtrMan<IOObj> ioobj = IOM().get( dbky );
+	    PtrMan<IOObj> ioobj = DBM().get( dbky );
 	    if ( ioobj )
 	    {
 		Desc* ncdesc = const_cast<Desc*>( desc );
@@ -286,7 +286,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	{
 	    BufferString nm( *nlamod->design().outputs[idx] );
 	    if ( IOObj::isKey(nm) )
-		nm = IOM().nameOf( DBKey::getFromString(nm) );
+		nm = DBM().nameOf( DBKey::getFromString(nm) );
 	    nlaoutnms_.add( nm );
 	}
     }
@@ -301,56 +301,60 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
     BufferStringSet ioobjnmscopy;
     DBKeySet ioobjidscopy;
 
-    const IODir iodir( IOObjContext::Seis );
-    IODirIter iter( iodir );
-    GlobExpr* ge = filter && *filter ? new GlobExpr( filter ) : 0;
-    while ( iter.next() )
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
+    if ( dbdir )
     {
-	const IOObj& ioobj = iter.ioObj();
-	if ( *ioobj.group() == 'W' )
-	    continue;
-	if ( SeisTrcTranslator::isPS(ioobj) )
-	    continue;
-	const bool is2d = SeisTrcTranslator::is2D(ioobj,true);
-	const bool islineset = SeisTrcTranslator::isLineSet(ioobj);
-	const bool isvalid3d = !is2d  && !islineset && ioobj.isUserSelectable();
-
-	if ( (is2d_ != is2d) || (!is2d && !isvalid3d) )
-	    continue;
-
-	if ( !ZDomain::isSI(ioobj.pars()) )
-	    continue;
-
-	FixedString res = ioobj.pars().find( sKey::Type() );
-	if ( res && ( (!steerdata && res==sKey::Steering() )
-	         || ( steerdata && res!=sKey::Steering() ) ) )
-	    continue;
-	else if ( !res && steerdata )
-	    continue;
-
-	const char* ioobjnm = ioobj.name().buf();
-	if ( ge && !ge->matches(ioobjnm) )
-	    continue;
-
-	if ( onlymulticomp_ )
+	DBDirIter iter( *dbdir );
+	GlobExpr* ge = filter && *filter ? new GlobExpr( filter ) : 0;
+	while ( iter.next() )
 	{
-	    if ( is2d )
-	    {
-		BufferStringSet attrnms;
-		SelInfo::getAttrNames( ioobj.key().toString(), attrnms,
-					steerdata, true );
-		if ( attrnms.isEmpty() )
-		    continue;
-	    }
-	    else
-	    {
-		if ( SeisIOObjInfo(ioobj).nrComponents() < 2 )
-		    continue;
-	    }
-	}
+	    const IOObj& ioobj = iter.ioObj();
+	    if ( *ioobj.group() == 'W' )
+		continue;
+	    if ( SeisTrcTranslator::isPS(ioobj) )
+		continue;
+	    const bool is2d = SeisTrcTranslator::is2D(ioobj,true);
+	    const bool islineset = SeisTrcTranslator::isLineSet(ioobj);
+	    const bool isvalid3d = !is2d  && !islineset
+				&& ioobj.isUserSelectable();
 
-	ioobjnmscopy.add( ioobjnm );
-	ioobjidscopy.add( ioobj.key() );
+	    if ( (is2d_ != is2d) || (!is2d && !isvalid3d) )
+		continue;
+
+	    if ( !ZDomain::isSI(ioobj.pars()) )
+		continue;
+
+	    FixedString res = ioobj.pars().find( sKey::Type() );
+	    if ( res && ( (!steerdata && res==sKey::Steering() )
+		     || ( steerdata && res!=sKey::Steering() ) ) )
+		continue;
+	    else if ( !res && steerdata )
+		continue;
+
+	    const char* ioobjnm = ioobj.name().buf();
+	    if ( ge && !ge->matches(ioobjnm) )
+		continue;
+
+	    if ( onlymulticomp_ )
+	    {
+		if ( is2d )
+		{
+		    BufferStringSet attrnms;
+		    SelInfo::getAttrNames( ioobj.key().toString(), attrnms,
+					    steerdata, true );
+		    if ( attrnms.isEmpty() )
+			continue;
+		}
+		else
+		{
+		    if ( SeisIOObjInfo(ioobj).nrComponents() < 2 )
+			continue;
+		}
+	    }
+
+	    ioobjnmscopy.add( ioobjnm );
+	    ioobjidscopy.add( ioobj.key() );
+	}
     }
 
     if ( ioobjnmscopy.size() > 1 )
@@ -401,7 +405,7 @@ SelInfo& SelInfo::operator=( const SelInfo& asi )
 
 bool SelInfo::is2D( const char* defstr )
 {
-    PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(defstr) );
+    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(defstr) );
     return ioobj ? SeisTrcTranslator::is2D(*ioobj,true) : false;
 }
 
@@ -410,7 +414,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 			    bool issteer, bool onlymulticomp )
 {
     nms.erase();
-    PtrMan<IOObj> ioobj = IOM().get( DBKey::getFromString(defstr) );
+    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(defstr) );
     if ( !ioobj || !SeisTrcTranslator::is2D(*ioobj,true) )
 	return;
 
@@ -433,8 +437,11 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 void SelInfo::getZDomainItems( const ZDomain::Info& zinf,
 			       BufferStringSet& nms )
 {
-    const IODir iodir( IOObjContext::Seis );
-    IODirIter iter( iodir );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
+    if ( !dbdir )
+	return;
+
+    DBDirIter iter( *dbdir );
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();

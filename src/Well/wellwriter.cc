@@ -24,12 +24,12 @@
 #include "envvars.h"
 #include "settings.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 
 
 bool Well::Writer::isFunctional( const DBKey& ky )
 {
-    PtrMan<IOObj> ioobj = IOM().get( ky );
+    PtrMan<IOObj> ioobj = DBM().get( ky );
     return ioobj ? isFunctional(*ioobj) : false;
 }
 
@@ -52,7 +52,7 @@ Well::Writer::Writer( const IOObj& ioobj, const Well::Data& wd )
 Well::Writer::Writer( const DBKey& ky, const Well::Data& wd )
     : wa_(0)
 {
-    IOObj* ioobj = IOM().get( ky );
+    IOObj* ioobj = DBM().get( ky );
     if ( !ioobj )
 	errmsg_ = tr( "Cannot find well ID %1 in data store." ).arg( ky );
     else

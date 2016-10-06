@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceposprov.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "posprovider.h"
 #include "ptrman.h"

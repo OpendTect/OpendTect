@@ -7,7 +7,7 @@
 #include "seiswrite.h"
 
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
@@ -183,7 +183,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	ioobj_->pars().update( sKey::CrFrom(), crfrom_ );
 	ioobj_->pars().update( sKey::CrInfo(), crusrinfo_ );
 	ioobj_->updateCreationPars();
-	IOM().commitChanges( *ioobj_ );
+	DBM().setEntry( *ioobj_ );
     }
 
     return prepared_;

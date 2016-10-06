@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id: emsurfaceposprov.cc 38252 2015-02-24 0
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -278,11 +278,11 @@ void EMSurfaceProvider::getSummary( BufferString& txt ) const
 	case 0:
 	return;
 	case 1:
-	    txt += "On '"; txt += IOM().nameOf(id1_); txt += "'";
+	    txt += "On '"; txt += DBM().nameOf(id1_); txt += "'";
 	break;
 	default:
-	    txt += "Between '"; txt += IOM().nameOf(id1_);
-	    txt += "' and '"; txt += IOM().nameOf(id2_);
+	    txt += "Between '"; txt += DBM().nameOf(id1_);
+	    txt += "' and '"; txt += DBM().nameOf(id2_);
 	break;
     }
 }

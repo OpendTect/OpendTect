@@ -12,9 +12,8 @@ ________________________________________________________________________
 #include "uiseiswvltgen.h"
 
 #include "ioobj.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "survinfo.h"
 #include "wavelet.h"
 #include "waveletio.h"
@@ -275,8 +274,7 @@ void uiSeisWvltMerge::reloadWvlts()
     deepUnRef( wvltset_ ); namelist_.setEmpty();
     stackedwvlt_ = 0;
     const IOObjContext ctxt( mIOObjContext(Wavelet) );
-    const IODir iodir( ctxt.getSelDirID() );
-    const IODirEntryList del( iodir, ctxt );
+    const DBDirEntryList del( ctxt );
     if ( del.size() < 2 )
 	{ uiMSG().error( tr("not enough wavelets available") ); return; }
 

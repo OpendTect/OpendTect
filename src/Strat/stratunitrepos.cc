@@ -8,7 +8,7 @@
 #include "stratunitrepos.h"
 #include "stratreftree.h"
 #include "safefileio.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "uistrings.h"
 
 const char* Strat::RepositoryAccess::fileNameBase() 	{ return "StratUnits"; }
@@ -22,7 +22,7 @@ public:
 
 RefTreeMgr()
 {
-    IOM().surveyChanged.notify( mCB(this,RefTreeMgr,doNull) );
+    DBM().surveyChanged.notify( mCB(this,RefTreeMgr,doNull) );
 }
 
 ~RefTreeMgr()

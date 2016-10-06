@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "prestackmutedef.h"
 #include "ptrman.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "odver.h"
 #include "streamconn.h"
 #include "uistrings.h"
@@ -123,7 +123,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	return "Input file contains no Mute Definition locations";
 
     while ( md.size() ) md.remove( 0 );
-    md.setName( IOM().nameOf(conn.linkedTo()) );
+    md.setName( DBM().nameOf(conn.linkedTo()) );
 
     for ( int ifn=0; !atEndOfSection(astrm); ifn++ )
     {

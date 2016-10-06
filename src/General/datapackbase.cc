@@ -11,7 +11,7 @@
 #include "convmemvalseries.h"
 #include "flatposdata.h"
 #include "interpol2d.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "scaler.h"
@@ -427,7 +427,7 @@ SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
     , scaler_(0)
 {
-    if ( !IOM().isBad() )
+    if ( !DBM().isBad() )
     {
 	delete zdomaininfo_;
 	zdomaininfo_ = new ZDomain::Info( ZDomain::SI() );

@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "embodytr.h"
 #include "embodyoperator.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -297,7 +297,7 @@ BufferString MarchingCubesSurface::storageName() const
 
 Executor* MarchingCubesSurface::loader()
 {
-    PtrMan<IOObj> ioobj = IOM().get( dbKey() );
+    PtrMan<IOObj> ioobj = DBM().get( dbKey() );
     Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
     return conn ? new MarchingCubesSurfaceReader( *this, conn ) : 0;
 }
@@ -315,7 +315,7 @@ Executor* MarchingCubesSurface::saver( IOObj* inpioobj )
 	ioobj = inpioobj;
     else
     {
-	myioobj = IOM().get( dbKey() );
+	myioobj = DBM().get( dbKey() );
 	ioobj = myioobj;
     }
 

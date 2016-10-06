@@ -9,7 +9,7 @@
 #include "process_time2depth.h"
 
 #include "trckeyzsampling.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "dbkey.h"
@@ -44,7 +44,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    PtrMan<IOObj> inputioobj = IOM().get( inputmid );
+    PtrMan<IOObj> inputioobj = DBM().get( inputmid );
     if ( !inputioobj )
     {
 	strm << "Cannot read input volume object";
@@ -58,7 +58,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    PtrMan<IOObj> outputioobj = IOM().get( outputmid );
+    PtrMan<IOObj> outputioobj = DBM().get( outputmid );
     if ( !outputioobj )
     {
 	strm << "Cannot read output volume object";

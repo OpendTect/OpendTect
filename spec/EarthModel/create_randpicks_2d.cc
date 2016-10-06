@@ -18,7 +18,7 @@ static const char* rcsID = "$Id$";
 #include "msgh.h"
 #include "executor.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "posinfo.h"
 #include "ptrman.h"
 #include "statrand.h"
@@ -45,7 +45,7 @@ static int doWork( int argc, char** argv )
     if ( !outsd.usable() )
 	mErrRet( "Cannot open output file" );
 
-    PtrMan<IOObj> ioobj = IOM().get( argv[1] );
+    PtrMan<IOObj> ioobj = DBM().get( argv[1] );
     if ( !ioobj ) mErrRet( "Lineset ID not OK" );
     PtrMan<Seis2DLineSet> lset = new Seis2DLineSet( ioobj->fullUserExpr(true) );
     if ( !lset )
@@ -53,7 +53,7 @@ static int doWork( int argc, char** argv )
     if ( lset->nrLines()==0 )
 	mErrRet( "Input lineset is empty" );
 
-    PtrMan<IOObj> horioobj = IOM().get( argv[2] );
+    PtrMan<IOObj> horioobj = DBM().get( argv[2] );
     if ( !horioobj ) mErrRet( "Horizon ID not OK" );
     EM::EMManager& em = EM::EMM();
     PtrMan<Executor> exec = em.objectLoader( horioobj->key() );

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribstorprovider.h"
 #include "ioobjctxt.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "bufstringset.h"
 #include "iopar.h"
@@ -137,11 +137,10 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 	SeparString compstoragemid( storagemid, '|' );
 	if ( compstoragemid.size() > 1 ) // OD4 format 2D storage
 	{
-	    const IOObjContext ioctxt = mIOObjContext(SeisTrc2D);
-	    IOM().to( ioctxt.getSelDirID() );
-	    PtrMan<IOObj> obj = IOM().getLocal( compstoragemid[1],
-						mTranslGroupName(SeisTrc) );
-	    if ( !obj ) continue;
+	    PtrMan<IOObj> obj = DBM().getByName( compstoragemid[1],
+						 mTranslGroupName(SeisTrc) );
+	    if ( !obj )
+		continue;
 	    storagemid = obj->key();
 	}
 

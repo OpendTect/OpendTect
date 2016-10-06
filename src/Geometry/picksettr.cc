@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "ascstream.h"
 #include "ioobj.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "iopar.h"
 #include "ptrman.h"
 #include "separstr.h"
@@ -181,7 +181,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
     }
 
     if ( needcommit )
-	IOM().commitChanges( *ioobj );
+	DBM().setEntry( *ioobj );
 
     return true;
 }

@@ -4,41 +4,40 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bruno
- Date:          Dec 2010
+ Author:        Bruno / Bert
+ Date:          Dec 2010 / Oct 2016
 ________________________________________________________________________
 
 -*/
 
-/*! brief get an object from an other survey ( type is given by the CtxtIOObj ).
-  will first pop-up a list to select the survey, then a list of the objects
-  belonging to that survey !*/
+/*!\brief get an IOObj from an other survey. Will first pop-up a list to select
+  the survey, then a list of the objects belonging to that survey */
 
 
 #include "uiiomod.h"
 #include "uidialog.h"
 
+class IOObj;
 class CtxtIOObj;
-class uiSurveySelect;
+class IOObjContext;
 
-mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiDialog
+
+mExpClass(uiIo) uiSelObjFromOtherSurvey
 { mODTextTranslationClass(uiSelObjFromOtherSurvey);
 public:
-    			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);
-    			~uiSelObjFromOtherSurvey();
 
-    void		setDirToCurrentSurvey();
-    void		setDirToOtherSurvey();
+			uiSelObjFromOtherSurvey(uiParent*,const IOObjContext&);
+			~uiSelObjFromOtherSurvey();
 
-    void		getIOObjFullUserExpression(BufferString& exp) const
-			{ exp = fulluserexpression_; }
+    BufferString	fullUserExpression() const { return usrexpr_; }
+
+    bool		go();
+    const IOObj*	ioObj() const;
 
 protected:
 
-    uiSurveySelect*	selfld_;
+    uiParent*		parent_;
     CtxtIOObj&		ctio_;
-    BufferString	fulluserexpression_;
-    BufferString	othersurveyrootdir_;
+    mutable BufferString usrexpr_;
 
-    bool		acceptOK();
 };

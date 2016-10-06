@@ -13,7 +13,7 @@
 #include "emmanager.h"
 #include "executor.h"
 #include "iopar.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "emhorizon3d.h"
 #include "picksetmanager.h"
@@ -1091,11 +1091,11 @@ void Picks::setReferenceOffset( float n )
 
 
 PicksMgr::PicksMgr()
-{ IOM().surveyToBeChanged.notify( mCB(this,PicksMgr,surveyChange) ); }
+{ DBM().surveyToBeChanged.notify( mCB(this,PicksMgr,surveyChange) ); }
 
 
 PicksMgr::~PicksMgr()
-{ IOM().surveyToBeChanged.remove( mCB(this,PicksMgr,surveyChange) ); }
+{ DBM().surveyToBeChanged.remove( mCB(this,PicksMgr,surveyChange) ); }
 
 
 Picks* PicksMgr::get( const DBKey& mid, bool sgmid, bool create,
@@ -1128,7 +1128,7 @@ Picks* PicksMgr::get( const DBKey& mid, bool sgmid, bool create,
 	res->ref();
     }
 
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( forceread && !ioobj )
     {
 	res->unRef();

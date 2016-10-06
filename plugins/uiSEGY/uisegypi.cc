@@ -10,7 +10,7 @@
 
 #include "segydirecttr.h"
 #include "survinfo.h"
-#include "ioman.h"
+#include "dbman.h"
 
 #include "uisegydirectinserter.h"
 #include "uisegywriteopts.h"
@@ -105,7 +105,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
-    mAttachCB( IOM().surveyChanged, uiSEGYMgr::updateMenu );
+    mAttachCB( DBM().surveyChanged, uiSEGYMgr::updateMenu );
 
     updateMenu(0);
 }
@@ -121,8 +121,8 @@ uiSEGYMgr::~uiSEGYMgr()
 
 void uiSEGYMgr::updateMenu( CallBacker* )
 {
-    const bool have2d = IOM().isBad() || SI().has2D();
-    const bool only2d = !IOM().isBad() && !SI().has3D();
+    const bool have2d = DBM().isBad() || SI().has2D();
+    const bool only2d = !DBM().isBad() && !SI().has3D();
     uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
     uiMenu* impsgymnu = new uiMenu( appl_, sSEGYString(true), segy_iconid );
     impseismnu->insertItem( impsgymnu );

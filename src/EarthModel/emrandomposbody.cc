@@ -18,7 +18,7 @@ ___________________________________________________________________
 #include "embodytr.h"
 #include "emmanager.h"
 #include "executor.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "pickset.h"
@@ -334,7 +334,7 @@ Executor* RandomPosBody::saver( IOObj* inpioobj )
 	ioobj = inpioobj;
     else
     {
-	myioobj = IOM().get( dbKey() );
+	myioobj = DBM().get( dbKey() );
 	ioobj = myioobj;
     }
 
@@ -349,7 +349,7 @@ Executor* RandomPosBody::saver()
 
 Executor* RandomPosBody::loader()
 {
-    PtrMan<IOObj> ioobj = IOM().get( dbKey() );
+    PtrMan<IOObj> ioobj = DBM().get( dbKey() );
     Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
     return conn ? new RandomPosBodyReader( *this, conn ) : 0;
 }

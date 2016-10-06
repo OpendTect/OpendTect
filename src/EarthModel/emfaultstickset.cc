@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "emsurfacetr.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "posfilter.h"
@@ -503,7 +503,7 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 	    if ( !par.get(pickednmstr.buf(), stickinfo_[0]->pickednm) )
 		par.get( linenamestr.buf(), stickinfo_[0]->pickednm );
 
-	    PtrMan<IOObj> pickedioobj = IOM().get( stickinfo_[0]->pickeddbkey );
+	    PtrMan<IOObj> pickedioobj = DBM().get( stickinfo_[0]->pickeddbkey );
 	    if ( pickedioobj )
 		stickinfo_[0]->pickedgeomid =
 			Survey::GM().getGeomID( pickedioobj->name(),

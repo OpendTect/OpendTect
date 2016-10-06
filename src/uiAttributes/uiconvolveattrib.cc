@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribfactory.h"
-#include "ioman.h"
+#include "dbman.h"
 #include "survinfo.h"
 #include "waveletio.h"
 
@@ -117,7 +117,7 @@ void uiConvolveAttrib::kernelSel( CallBacker* cb )
 
 static void setFldInp( uiIOObjSel* fld, const char* str )
 {
-    IOObj* ioobj = IOM().get( DBKey::getFromString(str) );
+    IOObj* ioobj = DBM().get( DBKey::getFromString(str) );
     if ( ioobj )
     {
 	fld->ctxtIOObj( true ).setObj( ioobj );

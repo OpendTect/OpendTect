@@ -1040,6 +1040,14 @@ uiRetVal& uiRetVal::set( const uiStringSet& strs )
 }
 
 
+uiRetVal& uiRetVal::insert( const uiString& str )
+{
+    Threads::Locker locker( lock_ );
+    msgs_.insert( 0, str );
+    return *this;
+}
+
+
 uiRetVal& uiRetVal::add( const uiRetVal& oth )
 {
     if ( this != &oth )

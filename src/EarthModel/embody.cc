@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "emrandomposbody.h"
 #include "emsurface.h"
 #include "filepath.h"
-#include "iodir.h"
-#include "ioman.h"
+#include "dbdir.h"
+#include "dbman.h"
 #include "iostrm.h"
 #include "strmprov.h"
 #include "uistrings.h"
@@ -86,8 +86,11 @@ const IOObjContext& Body::getBodyContext() const
 /*False: already converted; True: need conversion. */
 mGlobal(EarthModel) bool OD_Get_Body_Conversion_Status()
 {
-    const IODir iodir( IOObjContext::Surf );
-    IODirIter iter( iodir );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Surf );
+    if ( !dbdir )
+	return false;
+
+    DBDirIter iter( *dbdir );
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();
@@ -113,8 +116,12 @@ mGlobal(EarthModel) bool OD_Get_Body_Conversion_Status()
 
 mGlobal(EarthModel) bool OD_Convert_Body_To_OD5( uiString& errmsg )
 {
-    const IODir iodir( IOObjContext::Surf );
-    IODirIter iter( iodir );
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Surf );
+    if ( !dbdir )
+	return true;
+
+    ObjectSet<IOObj> toset;
+    DBDirIter iter( *dbdir );
     while ( iter.next() )
     {
 	PtrMan<IOObj> ioobjptr = iter.ioObj().clone();
@@ -166,12 +173,20 @@ mGlobal(EarthModel) bool OD_Convert_Body_To_OD5( uiString& errmsg )
 	mDynamicCastGet(IOStream*,iostrm,&ioobj);
 	if ( iostrm )
 	    iostrm->fileSpec().setFileName( newfp.fileName() );
-	if ( !IOM().commitChanges( ioobj ) )
+	toset += ioobj.clone();
+    }
+    iter.retire(); // needed; otherwise deadlock
+
+    for ( int idx=0; idx<toset.size(); idx++ )
+    {
+	const IOObj& ioobj = *toset[idx];
+	if ( !DBM().setEntry( ioobj ) )
 	{
 	    errmsg = uiStrings::phrCannotWriteDBEntry( ioobj.uiName() );
 	    return false;
 	}
     }
+    deepErase( toset );
 
     return true;
 }
