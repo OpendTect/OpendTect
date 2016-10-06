@@ -447,22 +447,9 @@ bool Well::odReader::getTrack() const
 	mErrRetStrmOper( tr("find valid main well file") )
 
     ascistream astrm( strm );
-    const double version = (double)astrm.majorVersion() +
-			   ((double)astrm.minorVersion()/(double)10);
+    
     IOPar dum; dum.getFrom( astrm );
-
-  //  const bool isok = getTrack( strm );
-    /*if ( SI().zInFeet() && version < 4.195 )
-    {
-	Well::Track& track = wd_.track();
-	for ( int idx=0; idx<track.size(); idx++ )
-	{
-	    Coord3 pos = track.posByIdx( idx );
-	    pos.z_ *= mToFeetFactorF;
-	    track.setPoint( track.pointIDFor(idx), pos.getXY(), (float)pos.z_ );
-	}
-    } */
-
+    
     return getTrack( strm );
 }
 
