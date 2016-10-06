@@ -74,6 +74,7 @@ public:
     static const char*	sKeyGroundElev();
     static const char*	sKeyWellType();
     static int		legacyLogWidthFactor();
+    bool		isdepthinfeet_;
 
     static uiString	sUwid();
     static uiString	sOper();
