@@ -302,6 +302,18 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 }
 
 
+bool SeisIOObjInfo::fillStats( IOPar& iop ) const
+{
+    mChk(false);
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+	    	 ioobj_->createTranslator() );
+    if ( !sttr )
+    	{ pErrMsg("No Translator!"); return false; }
+    
+    return sttr->fillStats( *ioobj_, iop );
+}
+
+
 bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 {
     mChk(false);

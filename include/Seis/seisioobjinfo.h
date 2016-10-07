@@ -67,6 +67,7 @@ public:
     bool		getDataChar(DataCharacteristics&) const;
     bool		getBPS(int&,int icomp) const;
 			//!< max bytes per sample, component -1 => add all
+    bool		fillStats(IOPar&) const;
 
     int			nrComponents(Pos::GeomID geomid=
 					    Survey::GM().cUndefGeomID()) const;
