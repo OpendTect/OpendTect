@@ -188,7 +188,7 @@ bool Batch::JobDispatcher::writeParFile() const
 {
     IOPar wrpar( jobspec_.pars_ );
     jobspec_.fillPar( wrpar );
-    wrpar.set( sKey::Survey(), DBM().surveyName() );
+    wrpar.set( sKey::Survey(), DBM().surveyDirectoryName() );
     wrpar.set( sKey::DataRoot(), GetBaseDataDir() );
 
     od_ostream parstrm( parfnm_ ); ascostream astrm( parstrm );
