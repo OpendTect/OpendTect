@@ -431,6 +431,8 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 }
 
 
+#define mDefaultNrTrcs 1000
+
 // uiSeisPreLoadSel
 uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 				    const DBKey& input )
@@ -476,10 +478,11 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 
     uiGroup* rightgrp = new uiGroup( this, "Right Group" );
     rightgrp->attach( rightOf, leftgrp );
-    nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"), IntInpSpec(1000) );
-    uiPushButton* scanbut = new uiPushButton( rightgrp, tr("Rescan"), true );
-    scanbut->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
-    scanbut->attach( rightTo, nrtrcsfld_ );
+    nrtrcsfld_ = new uiGenInput( rightgrp, tr("Nr Traces"),
+				 IntInpSpec(mDefaultNrTrcs) );
+    scanbut_ = new uiPushButton( rightgrp, tr("Rescan"), true );
+    scanbut_->activated.notify( mCB(this,uiSeisPreLoadSel,fillHist) );
+    scanbut_->attach( rightTo, nrtrcsfld_ );
     histfld_ = new uiMapperRangeEditor( rightgrp, -1, false );
     histfld_->rangeChanged.notify( mCB(this,uiSeisPreLoadSel,histChangeCB) );
     histfld_->attach( leftAlignedBelow, nrtrcsfld_ );
@@ -549,7 +552,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     const IOObj* ioobj = seissel_->ioobj();
     if ( !ioobj ) return;
 
-    SeisIOObjInfo info( ioobj );
+    const SeisIOObjInfo info( ioobj );
     TrcKeyZSampling tkzs;
     if ( info.is2D() )
     {
@@ -574,6 +577,15 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     {
 	if ( !info.getRanges(tkzs) ) // TODO: Add message
 	    return;
+    }
+
+    IOPar iop;
+    if ( info.fillStats(iop) )
+    {
+	histfld_->setData( iop );
+	nrtrcsfld_->setValue( mCast(int,tkzs.hsamp_.totalNr()) );
+	setColorTable();
+	return;
     }
 
     const od_int64 totalsz = tkzs.hsamp_.totalNr();
@@ -611,9 +623,18 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 	seisbuf.add( trc );
     }
 
-    SeisTrcBufArray2D array( &seisbuf, false, 0 );
+    const SeisTrcBufArray2D array( &seisbuf, false, 0 );
     histfld_->setData( &array );
+    setColorTable();
+}
 
+
+void uiSeisPreLoadSel::setColorTable()
+{
+    const IOObj* ioobj = seissel_->ioobj();
+    if ( !ioobj ) return;
+
+    const SeisIOObjInfo info( ioobj );
     ColTab::Sequence seq( "" );
     ColTab::MapperSetup ms; ms.range_ = histfld_->getDisplay().xAxis()->range();
     IOPar pars;
@@ -642,6 +663,11 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
     const IOObj* ioobj = seissel_->ioobj();
     if ( !ioobj ) return;
 
+    const SeisIOObjInfo info( ioobj ); IOPar iop;
+    const bool dorescan = !info.fillStats( iop );
+    nrtrcsfld_->setReadOnly( !dorescan );
+    nrtrcsfld_->setValue( mDefaultNrTrcs );
+    scanbut_->setSensitive( dorescan );
     typefld_->setValue( 0 );
     subselfld_->setInput( *ioobj );
     selChangeCB( 0 );

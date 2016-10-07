@@ -48,6 +48,7 @@ public:
 
     uiHistogramDisplay*         funcDisp()        { return histgramdisp_; }
     void			setMarkValue(float,bool forx);
+    void			usePar(const IOPar&);
 
     void			putN();
 

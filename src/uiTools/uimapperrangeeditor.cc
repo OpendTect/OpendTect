@@ -85,6 +85,22 @@ void uiMapperRangeEditor::setData( const Array2D<float>* data )
 }
 
 
+void uiMapperRangeEditor::setData( const IOPar& iop )
+{
+    TypeSet<float> histdata;
+    Interval<float> xrg; int nrvals;
+    iop.get( sKey::Data(), histdata );
+    iop.get( sKey::ValueRange(), xrg );
+    iop.get( sKey::NrValues(), nrvals );
+
+    histogramdisp_->setHistogram( histdata, xrg, nrvals );
+    const bool nodata = histogramdisp_->xVals().isEmpty();
+    datarg_.start = nodata ? 0 : histogramdisp_->xVals().first();
+    datarg_.stop = nodata ? 1 : histogramdisp_->xVals().last();
+    drawAgain();
+}
+
+
 void uiMapperRangeEditor::setMarkValue( float val, bool forx )
 {
     if ( histogramdisp_ )

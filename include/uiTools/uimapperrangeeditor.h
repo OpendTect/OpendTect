@@ -36,6 +36,7 @@ public:
 
     bool                        setDataPackID(DataPack::ID,DataPackMgr::ID);
     void                        setData(const Array2D<float>*);
+    void			setData(const IOPar&);
     void                        setMarkValue(float,bool forx);
 
     void			setColTabMapperSetup(

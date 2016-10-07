@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uiobjfileman.h"
+
 class uiToolButton;
 
 
@@ -44,6 +45,7 @@ protected:
 
     bool		is2d_;
     uiToolButton*	browsebut_;
+    uiToolButton*	histogrambut_;
     uiToolButton*	attribbut_;
     uiToolButton*	copybut_;
     uiToolButton*	man2dlinesbut_;
@@ -54,6 +56,7 @@ protected:
     void		copyPush(CallBacker*);
     void		man2DPush(CallBacker*);
     void		manPS(CallBacker*);
+    void		showHistogram(CallBacker*);
     void		showAttribSet(CallBacker*);
 
     virtual void	mkFileInfo();

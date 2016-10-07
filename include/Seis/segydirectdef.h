@@ -121,11 +121,12 @@ public:
 
 protected:
 
+    bool		writeHistogramPars() const;
     IOObj*		ioobj_;
     Pos::GeomID		geomid_;
 
     Scanner*		scanner_;
-    uiString		msg_;
+    mutable uiString	msg_;
     DirectDef*		directdef_;
     bool		is2d_;
     bool		isvol_;

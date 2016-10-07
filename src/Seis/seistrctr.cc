@@ -13,6 +13,7 @@
 #include "seispacketinfo.h"
 #include "seisselection.h"
 #include "seisbuf.h"
+#include "filepath.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "iostrm.h"
@@ -519,6 +520,23 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
     }
 
     return newtrc;
+}
+
+
+bool SeisTrcTranslator::fillStats( const IOObj& ioobj, IOPar& iop ) const
+{
+    FilePath fp( ioobj.fullUserExpr() );
+    fp.setExtension( "par" );
+
+    IOPar pars;
+    if ( !pars.read(fp.fullPath(),sKey::Pars()) )
+	return false;
+
+    ConstPtrMan<IOPar> histpars = pars.subselect( sKey::Histogram() );
+    if ( !histpars ) return false;
+
+    iop = *histpars;
+    return true;
 }
 
 

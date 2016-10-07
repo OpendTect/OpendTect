@@ -7,6 +7,7 @@
 #include "seiswrite.h"
 
 #include "executor.h"
+#include "filepath.h"
 #include "dbman.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -33,7 +34,6 @@
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
 	, auxpars_(*new IOPar)
-	, worktrc_(*new SeisTrc)
 	, linedata_(0)
 {
     init();
@@ -43,7 +43,6 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
 SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 	: SeisStoreAccess(fnm,is_2d,isps)
 	, auxpars_(*new IOPar)
-	, worktrc_(*new SeisTrc)
 	, linedata_(0)
 {
     init();
@@ -65,7 +64,6 @@ SeisTrcWriter::~SeisTrcWriter()
     close();
     delete linedata_;
     delete &auxpars_;
-    delete &worktrc_;
 }
 
 
@@ -75,6 +73,7 @@ bool SeisTrcWriter::close()
     if ( putter_ )
 	{ ret = putter_->close(); if ( !ret ) errmsg_ = putter_->errMsg(); }
 
+    ret &= writeHistogramPars();
     if ( is2D() )
     {
 	Pos::GeomID geomid = mCurGeomID;
@@ -96,6 +95,23 @@ bool SeisTrcWriter::close()
     ret &= SeisStoreAccess::close();
 
     return ret;
+}
+
+
+bool SeisTrcWriter::writeHistogramPars() const
+{
+    IOPar histpar;
+    if ( !seisstatinfo_.fillPar(histpar) )
+	{ errmsg_ = seisstatinfo_.uiMessage(); return false; }
+
+    FilePath fp( ioobj_->fullUserExpr(true) );
+    fp.setExtension( "par" );
+
+    IOPar iop;
+    iop.read( fp.fullPath(), sKey::Pars() );
+    iop.mergeComp( histpar, sKey::Histogram() );
+    iop.write( fp.fullPath(), sKey::Pars() );
+    return true;
 }
 
 
@@ -349,6 +365,7 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	}
     }
 
+    seisstatinfo_.useTrace( trc );
     nrwritten_++;
     return true;
 }

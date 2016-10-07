@@ -26,6 +26,7 @@ output cube's setup and extent.
 
 #include "seisstor.h"
 #include "fixedstring.h"
+#include "seisstatinfo.h"
 #include "uistring.h"
 class SeisTrc;
 class SeisPSWriter;
@@ -74,13 +75,14 @@ protected:
     bool		prepared_;
     int			nrtrcs_;
     int			nrwritten_;
-    SeisTrc&		worktrc_;
     int			firstns_;
     SamplingData<float>	firstsampling_;
+    SeisStatInfo	seisstatinfo_;
     IOPar&		auxpars_;
 
     void		init();
     void		startWork();
+    bool		writeHistogramPars() const;
 
     // PS only
     SeisPSWriter*	pswriter_;

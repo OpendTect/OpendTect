@@ -42,6 +42,7 @@ ________________________________________________________________________
 #include "uiseis2dfileman.h"
 #include "uiseis2dgeom.h"
 #include "uisplitter.h"
+#include "uistatsdisplaywin.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
@@ -120,6 +121,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				mCB(this,uiSeisFileMan,browsePush) );
     }
 
+    histogrambut_ = manipgrp->addButton( "histogram", tr("Show histogram"),
+				mCB(this,uiSeisFileMan,showHistogram) );
     attribbut_ = manipgrp->addButton( "attributes", sShowAttributeSet(),
 				      mCB(this,uiSeisFileMan,showAttribSet) );
 
@@ -214,6 +217,12 @@ void uiSeisFileMan::setToolButtonProperties()
 	mSetButToolTip(man2dlinesbut_,uiStrings::phrManage(tr("2D lines in '")),
 		       toUiString(cursel),toUiString("'"),
 		       uiStrings::phrManage(uiStrings::sLine(2)))
+    }
+
+    if ( histogrambut_ )
+    {
+	const SeisIOObjInfo info( curioobj_ ); IOPar iop;
+	histogrambut_->setSensitive( info.fillStats(iop) );
     }
 
     if ( attribbut_ )
@@ -477,6 +486,20 @@ void uiSeisFileMan::manPS( CallBacker* )
 {
     uiSeisPreStackMan dlg( this, is2d_ );
     dlg.go();
+}
+
+
+void uiSeisFileMan::showHistogram( CallBacker* )
+{
+    const SeisIOObjInfo info( curioobj_ ); IOPar iop;
+    if ( !info.fillStats(iop) )
+	return;
+
+    uiStatsDisplay::Setup su; su.countinplot( false );
+    uiStatsDisplayWin statswin( this, su, 1, true );
+    statswin.statsDisplay()->usePar( iop );
+    statswin.setDataName( curioobj_->name() );
+    statswin.show();
 }
 
 

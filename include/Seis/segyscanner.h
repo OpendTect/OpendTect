@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "segyfiledef.h"
 #include "executor.h"
 #include "bufstringset.h"
+#include "seisstatinfo.h"
 #include "uistring.h"
 class SeisTrc;
 class DataClipSampler;
@@ -40,6 +41,7 @@ public:
     void		setForceRev0( bool yn )	{ forcerev0_ = yn; }
     void		setRichInfo( bool yn )	{ richinfo_ = yn; }
     void		collectInfoPerTrace( bool yn )	{ notrcinfo_ = !yn; }
+    uiRetVal		fillStats(IOPar&) const;
 
     int			nextStep();
     uiString		uiMessage() const	{ return msg_; }
@@ -69,6 +71,7 @@ protected:
     const IOPar&	pars_;
     FileDataSet&	fds_;
     SEGYSeisTrcTranslator* tr_;
+    SeisStatInfo	seisstatinfo_;
     DataClipSampler&	clipsmplr_;
     int			nrtrcs_;
     bool		forcerev0_;

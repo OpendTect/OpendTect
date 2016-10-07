@@ -84,6 +84,15 @@ void SEGY::Scanner::closeTr()
 }
 
 
+uiRetVal SEGY::Scanner::fillStats( IOPar& iop ) const
+{
+    if ( !seisstatinfo_.fillPar(iop) )
+	return seisstatinfo_.uiMessage();
+
+    return uiRetVal::OK();
+}
+
+
 void SEGY::Scanner::getReport( IOPar& iop, const IOPar* inppars ) const
 {
     const bool isrev0 = forcerev0_ || fds_.isEmpty() || fds_.isRev0();
@@ -189,6 +198,7 @@ int SEGY::Scanner::readNext()
     dtctor_.add( ti.coord_, ti.binID(), ti.trcNr(), ti.offset_ );
     clipsmplr_.add( (const float*)trc_.data().getComponent(0)->data(),
 		    trc_.size() );
+    seisstatinfo_.useTrace( trc_ );
     nrdone_++;
 
     if ( notrcinfo_ )

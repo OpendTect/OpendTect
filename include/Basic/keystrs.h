@@ -45,6 +45,7 @@ namespace sKey
     inline FixedString Content()	{ return "Content"; }
     inline FixedString Crossline()	{ return "Cross-line"; }
     inline FixedString Cube()		{ return "Cube"; }
+    inline FixedString Data()		{ return "Data"; }
     inline FixedString DataRoot()	{ return "Data Root"; }
     inline FixedString DataStorage()	{ return "Data storage"; }
     inline FixedString DataType()	{ return "DataType"; }
@@ -63,6 +64,7 @@ namespace sKey
     inline FixedString FloatUdf()	{ return "1e30"; }
     inline FixedString Geometry()	{ return "Geometry"; }
     inline FixedString GeomID()		{ return "GeomID"; }
+    inline FixedString Histogram()	{ return "Histogram"; }
     inline FixedString Horizon()	{ return "Horizon"; }
     inline FixedString ID()		{ return "ID"; }
     inline FixedString Input()		{ return "Input"; }
@@ -85,6 +87,7 @@ namespace sKey
     inline FixedString NrFaults()	{ return "Nr Faults";}
     inline FixedString NrGeoms()	{ return "Nr Geometries";}
     inline FixedString NrItems()	{ return "Nr Items";}
+    inline FixedString NrValues()	{ return "Nr Values"; }
     inline FixedString Offset()		{ return "Offset"; }
     inline FixedString Output()		{ return "Output"; }
     inline FixedString Pars()		{ return "Parameters"; }
@@ -128,6 +131,7 @@ namespace sKey
     inline FixedString Unit()		{ return "Unit"; }
     inline FixedString User()		{ return "User"; }
     inline FixedString Value()		{ return "Value"; }
+    inline FixedString ValueRange()	{ return "Value Range"; }
     inline FixedString Version()	{ return "Version"; }
     inline FixedString WaveletID()	{ return "Wavelet ID"; }
     inline FixedString Weight()		{ return "Weight"; }
@@ -147,6 +151,7 @@ namespace sKey
     inline FixedString Median()		{ return "Median"; }
     inline FixedString Minimum()	{ return "Minimum"; }
     inline FixedString StdDev()		{ return "StdDev"; }
+    inline FixedString RMS()		{ return "RMS"; }
     inline FixedString Sum()		{ return "Sum"; }
     inline FixedString Variance()	{ return "Variance"; }
 

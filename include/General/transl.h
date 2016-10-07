@@ -141,6 +141,8 @@ public:
 
     virtual const char*		connType() const;
     virtual void		usePar(const IOPar&)		{}
+    virtual bool		fillStats(const IOObj&,IOPar&) const
+				{ return false; }
     virtual const char*		defExtension() const
 				{ return group_ ? group_->defExtension() : 0; }
 

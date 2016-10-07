@@ -381,6 +381,8 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
     return strm.isOK();
 }
 
+#undef mErrRet
+
 
 bool SEGY::DirectDef::readFooter( const char* fnm, IOPar& pars,
 				  od_stream_Pos& offset )
@@ -592,19 +594,28 @@ SEGY::FileIndexer::FileIndexer( const DBKey& mid, bool isvol,
 
 SEGY::FileIndexer::~FileIndexer()
 {
+    writeHistogramPars();
     delete ioobj_;
     delete directdef_;
     delete scanner_;
 }
 
 
-#undef mErrRet
-#define mErrRet( s1, s2 ) \
-{ \
-    msg_ = s1; \
-    msg_ += " "; \
-    msg_ += s2; \
-    return ErrorOccurred(); \
+bool SEGY::FileIndexer::writeHistogramPars() const
+{
+    IOPar histpar;
+    const uiRetVal uirv = scanner_->fillStats( histpar );
+    if ( !uirv.isOK() )
+	{ msg_ = uirv; return false; }
+
+    FilePath fp( ioobj_->fullUserExpr(true) );
+    fp.setExtension( "par" );
+
+    IOPar iop;
+    iop.read( fp.fullPath(), sKey::Pars() );
+    iop.mergeComp( histpar, sKey::Histogram() );
+    iop.write( fp.fullPath(), sKey::Pars() );
+    return true;
 }
 
 

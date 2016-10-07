@@ -227,6 +227,33 @@ void uiStatsDisplay::setData( const Stats::ParallelCalc<float>& rc )
 }
 
 
+#define mGetAndSetParam( type, nm, str, fld, idx ) \
+    type nm = mUdf(type); \
+    iop.get( str, nm ); \
+    if ( fld ) \
+	fld->setValue( nm, idx );
+
+void uiStatsDisplay::usePar( const IOPar& iop )
+{
+    Interval<float> xrg;
+    iop.get( sKey::ValueRange(), xrg );
+    mGetAndSetParam( int, nrvals, sKey::NrValues(), countfld_, 0 );
+    if ( histgramdisp_ )
+    {
+	TypeSet<float> histdata;
+	iop.get( sKey::Data(), histdata );
+	histgramdisp_->setHistogram( histdata, xrg, nrvals );
+    }
+
+    minmaxfld_->setValue( xrg.start, 0 );
+    minmaxfld_->setValue( xrg.stop, 1 );
+    mGetAndSetParam( double, avg, sKey::Average(), avgstdfld_, 0 );
+    mGetAndSetParam( double, stddev, sKey::StdDev(), avgstdfld_, 1 );
+    mGetAndSetParam( float, median, sKey::Median(), medrmsfld_, 0 );
+    mGetAndSetParam( double, rms, sKey::RMS(), medrmsfld_, 1 );
+}
+
+
 void uiStatsDisplay::setMarkValue( float val, bool forx )
 {
     if ( histgramdisp_ )

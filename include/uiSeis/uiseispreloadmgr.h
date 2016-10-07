@@ -23,6 +23,7 @@ class TrcKeyZSampling;
 class uiGenInput;
 class uiListBox;
 class uiMapperRangeEditor;
+class uiPushButton;
 class uiScaler;
 class uiSeisSel;
 class uiSeisSubSel;
@@ -77,6 +78,7 @@ protected:
     void		histChangeCB(CallBacker*);
     void		doScaleCB(CallBacker*);
     void		finalizeDoneCB(CallBacker*);
+    void		setColorTable();
     void		updateScaleFld();
     void		updateEstUsage();
     bool		acceptOK();
@@ -91,4 +93,5 @@ protected:
     uiGenInput*			doscalefld_;
     uiGenInput*			fromrgfld_;
     uiGenInput*			torgfld_;
+    uiPushButton*		scanbut_;
 };
