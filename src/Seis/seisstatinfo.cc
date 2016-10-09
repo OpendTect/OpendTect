@@ -28,6 +28,7 @@ SeisStatInfo::SeisStatInfo()
 						.require(Stats::RMS)) )
 	, valrange_(mUdf(float),-mUdf(float))
 	, nrvals_(0)
+	, trcvals_(0)
 {
     mTryAlloc( trcvals_, Array2DImpl<float>(mMaxArrSize,mMaxArrSize) );
 }
@@ -36,6 +37,7 @@ SeisStatInfo::SeisStatInfo()
 SeisStatInfo::~SeisStatInfo()
 {
     delete &rc_;
+    delete trcvals_;
 }
 
 

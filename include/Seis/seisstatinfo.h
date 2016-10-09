@@ -35,7 +35,8 @@ protected:
 
     Stats::ParallelCalc<float>& rc_;
     mutable uiString		errmsg_;
-    PtrMan<Array2DImpl<float> > trcvals_;
+    Array2DImpl<float>*		trcvals_;
     Interval<float>		valrange_;
     int				nrvals_;
+
 };
