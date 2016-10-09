@@ -159,7 +159,7 @@ static void checkScreenRes()
 
 int ODMain( int argc, char** argv )
 {
-    OD::ModDeps().ensureLoaded( "AllNonUi" );
+    OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
     OD::ModDeps().ensureLoaded( "uiBase" );
     uiDialog::setTitlePos( -1 );
 
@@ -179,7 +179,7 @@ int ODMain( int argc, char** argv )
     }
 
     PIM().loadAuto( false );
-    OD::ModDeps().ensureLoaded( "uiODMain" );
+    OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllUI() );
     PIM().loadAuto( true );
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;

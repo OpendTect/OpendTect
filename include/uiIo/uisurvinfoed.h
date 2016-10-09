@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
-#include "uisip.h"
 #include "bufstringset.h"
 #include "ranges.h"
 
@@ -32,13 +31,12 @@ mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
 
 public:
 
-			uiSurveyInfoEditor(uiParent*,SurveyInfo&,
-					   bool isnew=false);
+			uiSurveyInfoEditor(uiParent*,SurveyInfo&);
     bool		isOK() const		{ return topgrp_; }
 			//!<Must be checked before 'go'
 			~uiSurveyInfoEditor();
 
-    bool		dirnmChanged() const	{ return dirnamechanged; }
+    bool		dirnmChanged() const	{ return dirnamechanged_; }
     const char*		dirName() const;
 
     static ObjectSet<uiSurvInfoProvider>& survInfoProvs();
@@ -53,13 +51,14 @@ public:
 protected:
 
     SurveyInfo&		si_;
+    BufferString	basepath_;
     BufferString	orgdirname_;
-    BufferString	orgstorepath_;
     const BufferString	rootdir_;
     bool		isnew_;
     IOPar*		impiop_;
     ObjectSet<uiSurvInfoProvider> sips_;
     uiSurvInfoProvider*	lastsip_;
+    bool		dirnamechanged_;
 
     uiGenInput*		survnmfld_;
     uiGenInput*		pathfld_;
@@ -91,7 +90,6 @@ protected:
     uiGenInput*		depthdispfld_;
     uiGenInput*		refdatumfld_;
 
-    bool		dirnamechanged;
     void		mkSIPFld(uiObject*);
     void		mkRangeGrp();
     void		mkCoordGrp();
@@ -105,7 +103,6 @@ protected:
     bool		doApply();
 
     bool		acceptOK();
-    bool		rejectOK();
     void		sipCB(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);
@@ -119,28 +116,5 @@ protected:
     static uiString	getSRDString(bool infeet);
 
     friend class	uiSurvey;
-
-};
-
-
-mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
-{
-public:
-			uiCopySurveySIP() {};
-
-    virtual const char*	usrText() const	{ return "Copy from other survey"; }
-    virtual uiDialog*	dialog(uiParent*);
-    virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
-    virtual const char*	iconName() const	{ return "copyobj"; }
-
-    virtual TDInfo	tdInfo() const { return tdinf_; }
-    virtual bool	xyInFeet() const { return inft_; }
-
-
-protected:
-
-    TDInfo		tdinf_;
-    bool		inft_;
-    BufferStringSet	survlist_;
 
 };

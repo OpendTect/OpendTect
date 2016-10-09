@@ -72,16 +72,8 @@ mExternC(Basic) const char* GetSurveyName()
 
 /* 'survey data' scope */
 
-
-static BufferString basedatadiroverrule;
-
-extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
-mExternC(Basic) void SetCurBaseDataDirOverrule( const char* dirnm )
-{
-    basedatadiroverrule = dirnm;
-}
-extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
-mExternC(Basic) void SetCurBaseDataDir( const char* dirnm )
+extern "C" { mGlobal(Basic) void SetBaseDataDir(const char*); }
+mExternC(Basic) void SetBaseDataDir( const char* dirnm )
 {
 #ifdef __win__
     const BufferString windirnm( FilePath(dirnm).fullPath(FilePath::Windows) );
@@ -95,10 +87,7 @@ mExternC(Basic) void SetCurBaseDataDir( const char* dirnm )
 
 mExternC(Basic) const char* GetBaseDataDir()
 {
-    const char* dir;
-    if ( !basedatadiroverrule.isEmpty() )
-	return basedatadiroverrule.buf();
-
+    BufferString dir;
 #ifdef __win__
 
     dir = GetEnvVar( "DTECT_WINDATA" );
@@ -124,7 +113,8 @@ mExternC(Basic) const char* GetBaseDataDir()
 
 #endif
 
-    if ( !dir ) return 0;
+    if ( !dir )
+	return 0;
 
     mDeclStaticString( ret );
     ret = dir;

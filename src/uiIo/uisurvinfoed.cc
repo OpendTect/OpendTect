@@ -54,57 +54,37 @@ uiString uiSurveyInfoEditor::getSRDString( bool infeet )
 }
 
 
-uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
-					bool isnew )
+uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
 				     mNoDlgTitle,
                                      mODHelpKey(mSurveyInfoEditorHelpID) )
                                      .nrstatusflds(1))
-	, rootdir_(GetBaseDataDir())
-	, orgdirname_(si_.dirname_.buf())
+	, basepath_(si_.getBasePath())
+	, orgdirname_(si_.getDirName())
 	, si_(si)
-	, survParChanged(this)
 	, x0fld_(0)
-	, dirnamechanged(false)
 	, sipfld_(0)
 	, lastsip_(0)
 	, impiop_(0)
 	, topgrp_(0)
-	, isnew_(isnew)
+	, dirnamechanged_(false)
+	, survParChanged(this)
 {
-    orgstorepath_ = si_.datadir_.buf();
-
-    BufferString fulldirpath;
-    if ( isnew_ )
+    BufferString storagedir = si_.getFullDirPath();
+    if ( File::isLink(storagedir) )
     {
-	fulldirpath = FilePath( rootdir_ ).add( orgdirname_ ).fullPath();
-	SurveyInfo::pushSI( &si_ );
-    }
-    else
-    {
-	BufferString storagedir = FilePath(orgstorepath_).add(orgdirname_)
-							 .fullPath();
-	int linkcount = 0;
-	while ( linkcount++ < 20 && File::isLink(storagedir) )
+	BufferString newstoragedir = File::linkEnd(storagedir);
+	FilePath fp( newstoragedir );
+	if ( !fp.isAbsolute() )
 	{
-	    BufferString newstoragedir = File::linkTarget(storagedir);
-	    FilePath fp( newstoragedir );
-	    if ( !fp.isAbsolute() )
-	    {
-		fp.setPath( FilePath(storagedir).pathOnly() );
-		newstoragedir = fp.fullPath();
-	    }
-	    storagedir = newstoragedir;
+	    fp.setPath( FilePath(storagedir).pathOnly() );
+	    newstoragedir = File::linkEnd( fp.fullPath() );
 	}
-	if ( linkcount < 20 )
-	{
-	    FilePath fp( storagedir );
-	    orgstorepath_ = fp.pathOnly();
-	    orgdirname_ = fp.fileName();
-	}
-
-	fulldirpath = storagedir;
+	storagedir = newstoragedir;
     }
+    FilePath fp( storagedir );
+    basepath_ = fp.pathOnly();
+    orgdirname_ = fp.fileName();
 
     topgrp_ = new uiGroup( this, "Top group" );
     survnmfld_ = new uiGenInput( topgrp_, tr("Survey name"),
@@ -112,7 +92,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     survnmfld_->setElemSzPol( uiObject::Wide );
 
     pathfld_ = new uiGenInput( topgrp_, tr("Location on disk"),
-				StringInpSpec(orgstorepath_) );
+				StringInpSpec(basepath_) );
     pathfld_->attach( alignedBelow, survnmfld_ );
     pathfld_->setElemSzPol( uiObject::Wide );
 
@@ -176,8 +156,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 uiSurveyInfoEditor::~uiSurveyInfoEditor()
 {
     delete impiop_;
-    if ( isnew_ )
-	SurveyInfo::popSI();
 }
 
 
@@ -212,7 +190,7 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
     {
 	const BufferString sipnm = si_.sipName();
 	const int sipidx = sipfld_->indexOf( sipnm );
-	if (sipidx >= 0)
+	if ( sipidx >= 0 )
 	    sipfld_->setCurrentItem(sipidx);
 	else
 	    uiMSG().error( tr("The survey setup method is not available.\n"
@@ -526,9 +504,9 @@ bool uiSurveyInfoEditor::doApply()
 
 void uiSurveyInfoEditor::doFinalise( CallBacker* )
 {
-    pathfld_->setText( orgstorepath_ );
+    pathfld_->setText( basepath_ );
     pathfld_->setReadOnly( true );
-    updStatusBar( orgstorepath_ );
+    updStatusBar( basepath_ );
 
     pol2dfld_->setCurrentItem( (int)si_.survDataType() );
 
@@ -537,20 +515,6 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 
     chgSetMode(0);
     ic1fld_->setReadOnly( true, 0 );
-}
-
-
-bool uiSurveyInfoEditor::rejectOK()
-{
-    if ( isnew_ )
-    {
-	const BufferString dirnm = FilePath(orgstorepath_).add(orgdirname_)
-							  .fullPath();
-	if ( File::exists(dirnm) )
-	    File::remove( dirnm );
-    }
-
-    return true;
 }
 
 
@@ -572,15 +536,16 @@ bool uiSurveyInfoEditor::acceptOK()
     if ( !doApply() )
 	return false;
 
-    const BufferString newstorepath( pathfld_->text() );
+    const BufferString newbasepath( pathfld_->text() );
     const BufferString newdirnm( dirName() );
-    const BufferString olddir(
-			FilePath(orgstorepath_).add(orgdirname_).fullPath() );
-    const BufferString newdir(FilePath(newstorepath).add(newdirnm).fullPath());
-    const bool storepathchanged = orgstorepath_ != newstorepath;
-    dirnamechanged = orgdirname_ != newdirnm;
+    const BufferString olddir = FilePath( basepath_ ).add( orgdirname_ )
+					.fullPath();
+    const BufferString newdir = FilePath( newbasepath, newdirnm )
+					.fullPath();
+    const bool storepathchanged = basepath_ != newbasepath;
+    dirnamechanged_ = orgdirname_ != newdirnm;
 
-    if ( (dirnamechanged || storepathchanged) && File::exists(newdir) )
+    if ( (dirnamechanged_ || storepathchanged) && File::exists(newdir) )
     {
 	uiMSG().error( tr("The new target directory exists.\n"
 		       "Please enter another survey name or location.") );
@@ -591,19 +556,19 @@ bool uiSurveyInfoEditor::acceptOK()
     {
 	if ( !uiMSG().askGoOn(tr("Copy your survey to another location?")) )
 	    return false;
-	else if ( !copySurv(orgstorepath_,orgdirname_,
-			    newstorepath,newdirnm) )
+	else if ( !copySurv(basepath_,orgdirname_,newbasepath,newdirnm) )
 	    return false;
 	else if ( !uiMSG().askGoOn(tr("Keep the survey at the old location?")) )
 	    File::remove( olddir );
+	basepath_ = newbasepath;
     }
-    else if ( dirnamechanged )
+    else if ( dirnamechanged_ )
     {
-	if ( !renameSurv(orgstorepath_,orgdirname_,newdirnm) )
+	if ( !renameSurv(basepath_,orgdirname_,newdirnm) )
 	    return false;
     }
 
-    BufferString linkpos = FilePath(rootdir_).add(newdirnm).fullPath();
+    BufferString linkpos = FilePath(basepath_).add(newdirnm).fullPath();
     if ( File::exists(linkpos) )
     {
        if ( File::isLink(linkpos) )
@@ -623,14 +588,16 @@ bool uiSurveyInfoEditor::acceptOK()
     }
 
     si_.dirname_ = newdirnm;
+    si_.basepath_ = basepath_;
     si_.setSurvDataType( (SurveyInfo::Pol2D)pol2dfld_->currentItem() );
     if ( mUseAdvanced() )
 	si_.get3Pts( si_.set3coords_, si_.set3binids_,
 			si_.set3binids_[2].crl() );
 
-    if ( !si_.write(rootdir_) )
+    if ( !si_.write() )
     {
-       uiMSG().error(tr("Failed to write survey info.\nNo changes committed."));
+	uiMSG().error( tr("Failed to write survey info."
+			  "\nNo changes committed.") );
 	return false;
     }
 
@@ -905,45 +872,4 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* cb )
 						     : UoMR().get( "Feet" );
     si_.setSeismicReferenceDatum( getConvertedValue(newsrduser,newdisplayuom,
 						    datauom) );
-}
-
-
-
-uiDialog* uiCopySurveySIP::dialog( uiParent* p )
-{
-    survlist_.erase();
-    uiSurvey::getSurveyList( survlist_, 0, SI().getDirName() );
-    uiSelectFromList::Setup setup(  uiStrings::sSurveys(), survlist_ );
-    setup.dlgtitle( uiStrings::phrSelect(uiStrings::sSurvey()) );
-    uiSelectFromList* dlg = new uiSelectFromList( p, setup );
-    dlg->setHelpKey(mODHelpKey(mCopySurveySIPHelpID) );
-    return dlg;
-}
-
-
-bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
-{
-    tdinf_ = Uknown;
-    inft_ = false;
-    mDynamicCastGet(uiSelectFromList*,seldlg,dlg)
-    if ( !seldlg ) return false;
-
-    BufferString fname = FilePath( GetBaseDataDir() )
-			 .add( seldlg->selFld()->getText() ).fullPath();
-    uiRetVal uirv = uiRetVal::OK();
-    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname, uirv );
-    if ( !survinfo )
-	return false;
-
-    cs = survinfo->sampling( false );
-    crd[0] = survinfo->transform( cs.hsamp_.start_ );
-    crd[1] = survinfo->transform( cs.hsamp_.stop_ );
-    crd[2] = survinfo->transform(
-	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()));
-
-    tdinf_ = survinfo->zIsTime() ? Time
-				 : (survinfo->zInFeet() ? DepthFeet : Depth);
-    inft_ = survinfo->xyInFeet();
-
-    return true;
 }

@@ -215,9 +215,9 @@ void uiObjFileMan::selChg( CallBacker* cb )
 od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
     nrfiles = 0;
-    BufferString actualfilenm = File::isLink(filenm) ? File::linkTarget(filenm)
+    BufferString actualfilenm = File::isLink(filenm) ? File::linkEnd(filenm)
 						     : filenm;
-    if ( !File::exists(actualfilenm.buf()) )
+    if ( !File::exists(actualfilenm) )
 	return 0;
 
     // File exists ...

@@ -107,9 +107,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
 	    .nrstatusflds(1)) \
     , selgrp_( 0 ) \
-    , crctio_( 0 ) \
-    , resultioobj_( 0 ) \
-    , dbmpushed_( false )
+    , crctio_( 0 )
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const IOObjContext& ctxt )
@@ -143,7 +141,6 @@ uiIOObjSelDlg::~uiIOObjSelDlg()
 {
     if ( crctio_ )
 	{ delete crctio_->ioobj_; delete crctio_; }
-    delete resultioobj_;
 }
 
 
@@ -157,21 +154,6 @@ uiString uiIOObjSelDlg::selTxt( bool forread )
 
 void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 {
-    if ( !setup_.survdir_.isEmpty() && File::isDirectory(setup_.survdir_) )
-    {
-	IOPar iop; FilePath fp( setup_.survdir_ );
-	iop.set( sKey::DataRoot(), fp.pathOnly() );
-	iop.set( sKey::Survey(), fp.fileName() );
-	DBMan* newdbman = DBMan::getEmpty();
-	if ( !newdbman->setDataSource(iop).isOK() )
-	    DBMan::retire( newdbman );
-	else
-	{
-	    DBMan::pushDBM( newdbman );
-	    dbmpushed_ = true;
-	}
-    }
-
     uiIOObjSelGrp::Setup sgsu( ctio.ctxt_.forread_ && setup_.multisel_
 			? OD::ChooseAtLeastOne : OD::ChooseOnlyOne );
     sgsu.allowsetdefault( setup_.allowsetsurvdefault_ );
@@ -227,13 +209,8 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 
 const IOObj* uiIOObjSelDlg::ioObj() const
 {
-    if ( !resultioobj_ )
-    {
-	selgrp_->updateCtxtIOObj();
-	return selgrp_->getCtxtIOObj().ioobj_;
-    }
-
-    return resultioobj_;
+    selgrp_->updateCtxtIOObj();
+    return selgrp_->getCtxtIOObj().ioobj_;
 }
 
 
@@ -247,33 +224,6 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 void uiIOObjSelDlg::setSurveyDefaultSubsel( const char* subsel )
 {
     selgrp_->setSurveyDefaultSubsel(subsel);
-}
-
-
-bool uiIOObjSelDlg::acceptOK()
-{
-    if ( !selgrp_->isEmpty() )
-    {
-	if ( !resultioobj_ )
-	{
-	    const IOObj* res = ioObj();
-	    if ( !res )
-		return false;
-	    resultioobj_ = res->clone();
-	}
-    }
-
-    if ( dbmpushed_ )
-	DBMan::popDBM();
-    return true;
-}
-
-
-bool uiIOObjSelDlg::rejectOK()
-{
-    if ( dbmpushed_ )
-	DBMan::popDBM();
-    return true;
 }
 
 

@@ -13,7 +13,7 @@
 
 bool BatchProgram::go( od_ostream& strm )
 {
-    OD::ModDeps().ensureLoaded( "AllNonUi" );
+    OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
     strm << "Successfully running Diagnostic program on host ";
     strm << HostData::localHostName() << od_endl;
     comm_->setState( JobCommunic::Working );

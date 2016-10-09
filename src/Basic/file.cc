@@ -1055,6 +1055,26 @@ const char* linkTarget( const char* linknm )
 }
 
 
+const char* linkEnd( const char* linknm )
+{
+    BufferString prvfnm = linknm;
+    for ( int ifollow=0; ; ifollow++ )
+    {
+	if ( ifollow == 100 )
+	    { prvfnm = linknm; break; }
+
+	BufferString curfnm = linkTarget( prvfnm );
+	if ( curfnm == prvfnm )
+	    break;
+	prvfnm = curfnm;
+    }
+
+    mDeclStaticString( ret );
+    ret = prvfnm;
+    return ret.buf();
+}
+
+
 const char* getCurrentPath()
 {
     mDeclStaticString( ret );

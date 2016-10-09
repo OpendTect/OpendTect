@@ -15,9 +15,11 @@
 #include "buildinfo.h"
 #include "bufstring.h"
 #include "ptrman.h"
+#include "file.h"
 #include "filepath.h"
 #include "perthreadrepos.h"
 #include "threadlock.h"
+#include "survinfo.h"
 #include "od_iostream.h"
 #include "convert.h"
 #include "iopar.h"
@@ -43,6 +45,9 @@
 # include <sys/types.h>
 # include <signal.h>
 #endif
+
+extern "C" { mGlobal(Basic) void SetBaseDataDir(const char*); }
+
 
 #ifdef __lux__
 static Threads::Atomic<int> canovercommit( 0 );
@@ -551,17 +556,17 @@ mExternC(Basic) const char* GetVCSVersion(void)
 { return mVCS_VERSION; }
 
 
-static int argc = -1;
-static BufferString initialdir;
-static char** argv = 0;
+static int argc_ = -1;
+static BufferString initialdir_;
+static char** argv_ = 0;
 
 
 mExternC(Basic) char** GetArgV(void)
-{ return argv; }
+{ return argv_; }
 
 
-mExternC(Basic) int GetArgC(void)
-{ return argc; }
+mExternC(Basic) int& GetArgC(void)
+{ return argc_; }
 
 
 mExternC(Basic) bool AreProgramArgsSet(void)
@@ -585,16 +590,38 @@ static void insertInPath( const char* envkey, const char* dir, const char* sep )
 void setQtPaths();
 
 
-mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
+static void getDataRoot( bool isrequired )
 {
-    char* getcwdres = getcwd( initialdir.getCStr(), initialdir.minBufSize() );
+    BufferString dataroot = GetBaseDataDir();
+    bool droverrule = false;
+    if ( argc_ > 2 && FixedString(argv_[1]) == "--dataroot" )
+    {
+	dataroot = File::linkEnd( argv_[2] );
+	droverrule = true;
+	argc_ -= 2;
+	argv_ = argv_ + 2;
+    }
+    const uiRetVal uirv = SurveyInfo::isValidDataRoot( dataroot );
+    if ( !uirv.isOK() && isrequired )
+    {
+	ErrMsg( BufferString( argv_[0], ": ", uirv.getText() ) );
+	ExitProgram( 1 );
+    }
+
+    if ( droverrule )
+	SetBaseDataDir( dataroot );
+}
+
+
+mExternC(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
+{
+    char* getcwdres = getcwd( initialdir_.getCStr(), initialdir_.minBufSize() );
     if ( !getcwdres )
 	{ pFreeFnErrMsg("Cannot read current directory"); }
 
-    argc = newargc;
-    argv = newargv;
-
-    od_putProgInfo( argc, argv );
+    argc_ = argc; argv_ = argv;
+    od_putProgInfo( argc_, argv_ );
+    getDataRoot( drrequired );
 
 #ifndef __win__
     FilePath fp( GetFullExecutablePath() );
@@ -626,13 +653,16 @@ static const char* getShortPathName( const char* path )
     return path;
 #else
     char fullpath[1024];
-    GetModuleFileName( NULL, fullpath, (sizeof(fullpath)/sizeof(char)) );
+
     // get the fullpath to the exectuabe including the extension.
-    // Do not use argv[0] on Windows
+    // Necessary because we cannot use argv[0] on Windows
+    GetModuleFileName( NULL, fullpath, (sizeof(fullpath)/sizeof(char)) );
+
+	//Extract the shortname by removing spaces
     mDeclStaticString( shortpath );
     shortpath.setMinBufSize( 1025 );
     GetShortPathName( fullpath, shortpath.getCStr(), shortpath.minBufSize()-1 );
-    //Extract the shortname by removing spaces
+
     return shortpath;
 #endif
 }
@@ -647,15 +677,11 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 
     if ( res.isEmpty() )
     {
-	FilePath executable = GetArgV()[0];
-	if ( !executable.isAbsolute() )
-	{
-	    FilePath filepath = initialdir.buf();
-	    filepath.add( GetArgV()[0] );
-	    executable = filepath;
-	}
+	FilePath fpargv0 = argv_[0];
+	if ( !fpargv0.isAbsolute() )
+	    fpargv0 = FilePath( initialdir_, argv_[0] );
 
-	res = getShortPathName( executable.fullPath() );
+	res = getShortPathName( fpargv0.fullPath() );
     }
 
     return res;

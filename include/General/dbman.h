@@ -104,6 +104,11 @@ public:
 			//!< Need to do this only once per OD run
 			//!< At survey change, dir will automatically be added
 
+			// To change to another survey:
+    uiRetVal		setDataSource(const char* fullpath);
+    uiRetVal		setDataSource(const IOPar&);
+			//!< uses sKey::dataRoot() and sKey::Survey()
+
 private:
 
     BufferString	rootdir_;
@@ -154,13 +159,6 @@ public:
     void		initFirst();
 			//!< Not for you. Don't use.
 
-			// Be careful. Stuff won't hold up in MT situations
-    uiRetVal		setDataSource(const IOPar&);
-			//!< To change to the required survey
-    static DBMan*	getEmpty()		{ return new DBMan; }
-    static void		retire( DBMan* dbm )	{ delete dbm; }
-    static void		pushDBM(DBMan*);
-    static bool		popDBM();
 };
 
 

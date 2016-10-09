@@ -38,7 +38,7 @@ ________________________________________________________________________
 
 bool BatchProgram::go( od_ostream& strm )
 {
-    OD::ModDeps().ensureLoaded( "AllNonUi" );
+    OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
     GMT::initStdClasses();
     finishmsg_ = "Map created successfully";
     const char* psfilenm = pars().find( sKey::FileName() );

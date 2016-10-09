@@ -58,13 +58,8 @@ public:
     float		zStep() const;
     float		inlDistance() const; //!< distance for one increment
     float		crlDistance() const;
-    float		getArea(const Interval<int>& inl,
-			     const Interval<int>& crl) const;	//!<returns m2
-    float		getArea(bool work) const;		//!<returns m2
 
-    Coord3		oneStepTranslation(const Coord3& planenormal) const;
-
-    const TrcKeyZSampling&	sampling( bool work ) const
+    const TrcKeyZSampling& sampling( bool work ) const
 			{ return work ? wcs_ : tkzs_; }
 
     Coord		transform(const BinID&) const;
@@ -143,11 +138,16 @@ public:
     // Some public fns moved to bottom because they are rarely used; some fns
     // that have 'no user servicable parts inside' are at the very bottom
 
+    float		getArea(const Interval<int>& inl,
+			     const Interval<int>& crl) const;	//!<returns m2
+    float		getArea(bool work) const;		//!<returns m2
+    Coord3		oneStepTranslation(const Coord3& planenormal) const;
+
 protected:
 
 			SurveyInfo();
 
-    BufferString	datadir_;
+    BufferString	basepath_;
     BufferString	dirname_;
 
     ZDomain::Def&	zdef_;
@@ -174,28 +174,19 @@ protected:
     BufferString	comment_;
     BufferString	sipnm_;
 
-    BufferString	getSurvDirFullPath() const;
     bool		wrapUpRead();
 
 private:
 
     // ugly, but hard to avoid:
-    friend class		DBMan;
-    friend class		uiSurveyInfoEditor;
+    friend class	DBMan;
+    friend class	uiSurveyInfoEditor;
 
     Pos::IdxPair2Coord::DirTransform rdxtr_;
     Pos::IdxPair2Coord::DirTransform rdytr_;
 
-    static void			pushSI(SurveyInfo*);
-				/*!<Adds a SI at the top of the stack.
-				    It thus becomes the SI() */
-    static bool			popSI();
-				/*!<Undo of pushSI: the SI() is removed
-				    Note that there may not remain any SI
-				    in the stack */
-
 				// For DBMan only
-    static uiRetVal		setSurveyLocation(const char*,const char*);
+    static uiRetVal	setSurveyLocation(const char*,const char*);
 
 public:
 
@@ -209,14 +200,12 @@ public:
     const Pos::IdxPair2Coord&	binID2Coord() const	{ return b2c_; }
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
 
-    bool		isClockWise() const { return isRightHandSystem(); }
+    mDeprecated bool	isClockWise() const { return isRightHandSystem(); }
 			//!<Don't use. Will be removed
     bool		isRightHandSystem() const;
-			/*!< Orientation is determined by rotating the
-			     inline axis to the crossline axis. */
+			/*!< rotating the inline axis to the crossline axis. */
     float		angleXInl() const;
-			/*!< It's the angle between the X-axis (East) and
-			     an Inline */
+			/*!< angle between the X-axis (East) and an Inline */
     void		setDepthInFeet( bool yn=true ) { depthsinfeet_ = yn; }
     void		setZUnit(bool istime,bool infeet=false);
     static float	defaultXYtoZScale(Unit,Unit);
@@ -238,9 +227,10 @@ public:
     static const char*	sKeySetupFileName()		{ return ".survey"; }
     static const char*	sKeyBasicSurveyName()		{ return "BasicSurvey";}
 
-    BufferString	getDirName() const	{ return dirname_; }
-    BufferString	getDataDirName() const	{ return datadir_; }
-    void		setDataDirName( const char* s )	{ datadir_ = s; }
+    BufferString	getDirName() const		{ return dirname_; }
+    BufferString	getBasePath() const		{ return basepath_; }
+    BufferString	getFullDirPath() const;
+    void		setBasePath( const char* s )	{ basepath_ = s; }
     void		updateDirName(); //!< May be used after setName()
 
 			mDeclareEnumUtils(Pol2D);
@@ -275,12 +265,15 @@ public:
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
 
-    static const char*	curSurveyName();
+    static uiRetVal	isValidDataRoot(const char*);
+    static uiRetVal	isValidSurveyDir(const char*);
 
     mDeprecated const IOPar&	pars() const { return defaultPars(); }
     mDeprecated void		savePars(const char* basedir = 0) const
 				{ saveDefaultPars(basedir); }
     mDeprecated IOPar&		getPars() const;
+    mDeprecated BufferString	getDataDirName() const	{ return getBasePath();}
+
 
     mDeclMonitorableAssignment(SurveyInfo);
     mDeclInstanceCreatedNotifierAccess(SurveyInfo);

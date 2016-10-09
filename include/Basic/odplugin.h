@@ -27,6 +27,15 @@ extern "C" {
     mExternC(pinm) PluginInfo* Get##pinm##PluginInfo(); \
     mExternC(pinm) PluginInfo* Get##pinm##PluginInfo()
 
+/* The following function MIGHT be defined: */
+#define mDefODPluginSIPLoadFn(pinm) \
+    mExternC(pinm) void Load##pinm##PluginSIPs(); \
+    mExternC(pinm) void Load##pinm##PluginSIPs()
+
+/* If you have a SIP, this calls the SIP load function: */
+#define mCallODPluginSIPLoadFn(pinm) Load##pinm##PluginSIPs()
+
+
 /* Define ONLY if your plugin needs early loading (i.e. before any UI)
    This is common for 'Batch'-type plugins.
  */

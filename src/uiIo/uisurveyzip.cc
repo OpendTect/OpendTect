@@ -107,7 +107,7 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
     FilePath survfp( GetBaseDataDir(), survdirnm );
     BufferString inpdir( survfp.fullPath() );
     while ( File::isDirectory(inpdir) && File::isLink(inpdir) )
-	inpdir = File::linkTarget(inpdir);
+	inpdir = File::linkEnd(inpdir);
     if ( !File::isDirectory(inpdir) )
     {
 	uiMSG().error(od_static_tr("uiSurvey_ZipDirectory","%1\ndoes not exist")

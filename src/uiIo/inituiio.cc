@@ -18,9 +18,16 @@ ________________________________________________________________________
 #include "uibatchlaunch.h"
 #include "uiclusterjobprov.h"
 #include "uicoordsystem.h"
+#include "ui2dsip.h"
 #include "uimsg.h"
+#include "plugins.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
+#include "uisurvey.h"
+#include "survinfo.h"
+#include "uiselsimple.h"
+#include "uilistbox.h"
+#include "uisurvinfoed.h"
 
 
 static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
@@ -83,6 +90,68 @@ static bool enabClusterProc()
 }
 
 
+mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
+{
+public:
+			uiCopySurveySIP()   {};
+
+    virtual const char*	usrText() const	    { return "Copy from other survey"; }
+    virtual uiDialog*	dialog(uiParent*);
+    virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
+    virtual const char*	iconName() const    { return "copyobj"; }
+
+    virtual TDInfo	tdInfo() const	    { return tdinf_; }
+    virtual bool	xyInFeet() const    { return inft_; }
+
+protected:
+
+    TDInfo		tdinf_;
+    bool		inft_;
+    BufferStringSet	survlist_;
+
+};
+
+
+uiDialog* uiCopySurveySIP::dialog( uiParent* p )
+{
+    survlist_.erase();
+    uiSurvey::getSurveyList( survlist_, 0, SI().getDirName() );
+    uiSelectFromList::Setup setup(  uiStrings::sSurveys(), survlist_ );
+    setup.dlgtitle( uiStrings::phrSelect(uiStrings::sSurvey()) );
+    uiSelectFromList* dlg = new uiSelectFromList( p, setup );
+    dlg->setHelpKey(mODHelpKey(mCopySurveySIPHelpID) );
+    return dlg;
+}
+
+
+bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
+{
+    tdinf_ = Uknown;
+    inft_ = false;
+    mDynamicCastGet(uiSelectFromList*,seldlg,dlg)
+    if ( !seldlg ) return false;
+
+    BufferString fname = FilePath( GetBaseDataDir() )
+			 .add( seldlg->selFld()->getText() ).fullPath();
+    uiRetVal uirv = uiRetVal::OK();
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname, uirv );
+    if ( !survinfo )
+	return false;
+
+    cs = survinfo->sampling( false );
+    crd[0] = survinfo->transform( cs.hsamp_.start_ );
+    crd[1] = survinfo->transform( cs.hsamp_.stop_ );
+    crd[2] = survinfo->transform(
+	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()));
+
+    tdinf_ = survinfo->zIsTime() ? Time
+				 : (survinfo->zInFeet() ? DepthFeet : Depth);
+    inft_ = survinfo->xyInFeet();
+
+    return true;
+}
+
+
 mDefModInitFn(uiIo)
 {
     mIfNotFirstTime( return );
@@ -101,4 +170,7 @@ mDefModInitFn(uiIo)
 
     uiProcSettings::initClass();
     Coords::uiUnlocatedXYSystem::initClass();
+
+    uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
+    uiSurveyInfoEditor::addInfoProvider( new uiCopySurveySIP );
 }

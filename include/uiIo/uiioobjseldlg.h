@@ -49,7 +49,6 @@ public:
 	mDefSetupMemb(bool,allowsetsurvdefault)
 	mDefSetupMemb(bool,withwriteopts)
 	mDefSetupMemb(bool,withinserters)
-	mDefSetupMemb(BufferString,survdir) // to select from other survey
     };
 
 			uiIOObjSelDlg(uiParent*,const IOObjContext&);
@@ -76,14 +75,10 @@ public:
 
 protected:
 
-    bool		acceptOK();
-    bool		rejectOK();
     void		statusMsgCB(CallBacker*);
 
     Setup		setup_;
     uiIOObjSelGrp*	selgrp_;
-    IOObj*		resultioobj_;
-    bool		dbmpushed_;
 
 private:
 

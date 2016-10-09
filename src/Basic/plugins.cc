@@ -40,6 +40,7 @@ static const char* sKeyNoDispName = "??";
 extern "C" {
 
     typedef int (*VoidIntRetFn)(void);
+    typedef void (*VoidVoidRetFn)(void);
     typedef const char* (*ArgcArgvCCRetFn)(int,char**);
     typedef PluginInfo* (*PluginInfoRetFn)(void);
 
@@ -65,7 +66,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
     BufferString targetlibnm( lnm );
     if ( File::isLink(lnm) )
-	targetlibnm = File::linkTarget(lnm);
+	targetlibnm = File::linkEnd(lnm);
 
     if ( File::exists(targetlibnm) )
     {
@@ -471,6 +472,17 @@ static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
 }
 
 
+static bool loadSIPs( SharedLibAccess* sla, const char* libnm )
+{
+    mGetFn(VoidVoidRetFn,sla,"Load","PluginSIPs",libnm);
+    if ( !fn )
+	return false;
+
+    (*fn)();
+    return true;
+}
+
+
 bool PluginManager::load( const char* libnm )
 {
     FilePath fp( libnm );
@@ -572,6 +584,49 @@ void PluginManager::loadAuto( bool late )
 		msg = "Successfully loaded plugin '";
 	    else
 		msg = "Failed to load plugin '";
+	    msg += userName(data.name_); msg += "'";
+	    UsrMsg( msg );
+	}
+    }
+}
+
+
+void PluginManager::loadSurveyInfoProviders()
+{
+    BufferStringSet dontloadlist;
+    getNotLoadedByUser( dontloadlist );
+
+    for ( int idx=0; idx<data_.size(); idx++ )
+    {
+	Data& data = *data_[idx];
+	if ( !data.sla_ || !data.sla_->isOK() || data.autosource_==Data::None )
+	    continue;
+
+	if ( data.autotype_ != PI_AUTO_INIT_LATE )
+	    continue;
+
+	const BufferString modnm = moduleName( data.name_ );
+	if ( data.info_ && dontloadlist.isPresent(modnm) )
+	    continue;
+
+	if ( !loadSIPs(data.sla_,data.name_) )
+	{
+	    data.info_ = 0;
+	    data.sla_->close();
+	    delete data.sla_; data.sla_ = 0;
+	}
+
+	data.isloaded_ = true;
+
+	mDefineStaticLocalObject(bool,shw_load,
+				 = GetEnvVarYN("OD_SHOW_PLUGIN_LOAD"));
+	if ( shw_load )
+	{
+	    BufferString msg;
+	    if ( data.sla_ )
+		msg = "Successfully loaded SIPs for plugin '";
+	    else
+		msg = "Failed to load SIPs for plugin '";
 	    msg += userName(data.name_); msg += "'";
 	    UsrMsg( msg );
 	}

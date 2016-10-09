@@ -34,7 +34,7 @@ ________________________________________________________________________
 #endif
 
 
-extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
+extern "C" { mGlobal(Basic) void SetBaseDataDir(const char*); }
 
 static uiRetVal doSetRootDataDir( const char* inpdatadir )
 {
@@ -43,7 +43,7 @@ static uiRetVal doSetRootDataDir( const char* inpdatadir )
     if ( !rv.isOK() )
 	return rv;
 
-    SetCurBaseDataDir( datadir );
+    SetBaseDataDir( datadir );
     Settings::common().set( "Default DATA directory", datadir );
     if ( Settings::common().write() )
 	return uiRetVal::OK();

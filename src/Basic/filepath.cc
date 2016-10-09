@@ -516,10 +516,7 @@ void FilePath::conv2TrueDirIfLink()
 
     dirnm += ".lnk";
     if ( File::exists(dirnm) && File::isLink(dirnm) )
-    {
-	const char* newdirnm = File::linkTarget( dirnm );
-	set( newdirnm );
-    }
+	set( File::linkEnd(dirnm) );
 #endif
 }
 

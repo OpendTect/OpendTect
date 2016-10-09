@@ -313,37 +313,22 @@ Survey::Geometry::RelationType Survey::Geometry3D::compare(
 //==============================================================================
 
 
-static ManagedObjectSet<SurveyInfo> survinfostack_;
+static SurveyInfo* global_si_ = 0;
+static Threads::Lock global_si_lock_;
 
 const SurveyInfo& SI()
 {
-    int cursurvinfoidx = survinfostack_.size() - 1;
-    if ( cursurvinfoidx < 0 )
-    {
-	SurveyInfo* newsi = new SurveyInfo;
-	survinfostack_ += newsi;
-	cursurvinfoidx = 0;
-    }
-
-    return *survinfostack_[cursurvinfoidx];
+    Threads::Locker locker( global_si_lock_ );
+    if ( !global_si_ )
+	global_si_ = new SurveyInfo;
+    return *global_si_;
 }
 
-
-void SurveyInfo::pushSI( SurveyInfo* newsi )
+static void setSI( SurveyInfo* newsi )
 {
-    if ( !newsi )
-	pFreeFnErrMsg("Null survinfo pushed");
-    else
-	survinfostack_ += newsi;
-}
-
-
-bool SurveyInfo::popSI()
-{
-    if ( survinfostack_.isEmpty() )
-	return false;
-    survinfostack_.removeSingle( survinfostack_.size()-1 );
-    return true;
+    Threads::Locker locker( global_si_lock_ );
+    delete global_si_;
+    global_si_ = newsi;
 }
 
 
@@ -353,9 +338,9 @@ IOPar& SurveyInfo::getPars() const
 }
 
 
-BufferString SurveyInfo::getSurvDirFullPath() const
+BufferString SurveyInfo::getFullDirPath() const
 {
-    return FilePath( datadir_, dirname_ ).fullPath();
+    return FilePath( basepath_, dirname_ ).fullPath();
 }
 
 
@@ -421,7 +406,7 @@ mImplMonitorableAssignment( SurveyInfo, NamedMonitorable )
 void SurveyInfo::copyClassData( const SurveyInfo& oth )
 {
     zdef_ = oth.zdef_;
-    datadir_ = oth.datadir_;
+    basepath_ = oth.basepath_;
     dirname_ = oth.dirname_;
     coordsystem_ = oth.coordsystem_;
     depthsinfeet_ = oth.depthsinfeet_;
@@ -450,7 +435,7 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
 uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd )
 {
     uiRetVal ret = uiRetVal::OK();
-    const BufferString olddataroot = SI().datadir_;
+    const BufferString olddataroot = SI().basepath_;
     const BufferString olddirname = SI().dirname_;
     BufferString newdataroot( dr ); BufferString newdirname( sd );
     const bool useolddr = newdataroot.isEmpty() || newdataroot == olddataroot;
@@ -477,12 +462,8 @@ uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd )
     SurveyInfo* newsi = read( survdir, ret );
     if ( !newsi )
 	return ret;
-    else
-    {
-	while ( popSI() )   { /* clear all */ }
-	pushSI( newsi );
-    }
 
+    setSI( newsi );
     return ret;
 }
 
@@ -522,7 +503,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiRetVal& uirv )
     si->defaultPars().removeWithKey( "Depth in feet" );
 
     si->dirname_ = fpsurvdir.fileName();
-    si->datadir_ = fpsurvdir.pathOnly();
+    si->basepath_ = fpsurvdir.pathOnly();
     if ( !survdir || si->dirname_.isEmpty() ) return si;
 
     const IOPar survpar( astream );
@@ -541,6 +522,24 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiRetVal& uirv )
 	{ delete si; return 0; }
 
     return si;
+}
+
+
+bool SurveyInfo::wrapUpRead()
+{
+    if ( set3binids_[2].crl() == 0 )
+	get3Pts( set3coords_, set3binids_, set3binids_[2].crl() );
+
+    b2c_.setTransforms( rdxtr_, rdytr_ );
+    if ( !b2c_.isValid() )
+    {
+	BufferString errmsg( "Survey ", name() );
+	errmsg.add( " has an invalid coordinate transformation" );
+	ErrMsg( errmsg );
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -654,24 +653,6 @@ bool SurveyInfo::usePar( const IOPar& par )
 
     tkzs_.normalise();
     wcs_ = tkzs_;
-    return true;
-}
-
-
-bool SurveyInfo::wrapUpRead()
-{
-    if ( set3binids_[2].crl() == 0 )
-	get3Pts( set3coords_, set3binids_, set3binids_[2].crl() );
-
-    b2c_.setTransforms( rdxtr_, rdytr_ );
-    if ( !b2c_.isValid() )
-    {
-	BufferString errmsg( "Survey ", name() );
-	errmsg.add( " has an invalid coordinate transformation" );
-	ErrMsg( errmsg );
-	return false;
-    }
-
     return true;
 }
 
@@ -1230,13 +1211,10 @@ const IOPar& SurveyInfo::defaultPars() const
 void SurveyInfo::saveDefaultPars( const char* basedir ) const
 {
     BufferString surveypath;
-    if ( !basedir || !*basedir )
-    {
-	const BufferString storepath( FilePath(datadir_,dirname_).fullPath() );
-	surveypath = File::exists(storepath) ? storepath.buf() : GetDataDir();
-    }
-    else
+    if ( basedir && *basedir )
 	surveypath = basedir;
+    else
+	surveypath = getFullDirPath();
 
     const BufferString defsfnm( FilePath(surveypath,sKeyDefsFile).fullPath() );
     if ( surveydefaultpars_.isEmpty() )
@@ -1327,4 +1305,56 @@ bool SurveyInfo::setCoordSystem( Coords::PositionSystem* system )
 
     coordsystem_ = system;
     return false;
+}
+
+
+uiRetVal SurveyInfo::isValidDataRoot( const char* inpdirnm )
+{
+    uiRetVal ret = uiRetVal::OK();
+
+    FilePath fp( inpdirnm ? inpdirnm : GetBaseDataDir() );
+    const BufferString dirnm( fp.fullPath() );
+    const uiString datarootstr = tr("OpendTect Data Directory '%1'")
+					.arg( dirnm );
+    if ( !File::isDirectory(dirnm) || !File::isWritable(dirnm) )
+	mErrRetDoesntExist( datarootstr );
+
+    fp.add( ".omf" );
+    const BufferString omffnm( fp.fullPath() );
+    if ( !File::exists(omffnm) )
+	mErrRetDoesntExist( omffnm );
+
+    fp.setFileName( ".survey" );
+    if ( File::exists(fp.fullPath()) )
+    {
+	// probably we're in a survey. So let's check:
+	fp.setFileName( "Seismics" );
+	if ( File::isDirectory(fp.fullPath()) )
+	    ret.add( tr("%1 has '.survey' file").arg( datarootstr ) );
+    }
+
+    return ret;
+}
+
+
+uiRetVal SurveyInfo::isValidSurveyDir( const char* dirnm )
+{
+    uiRetVal ret = uiRetVal::OK();
+
+    FilePath fp( dirnm, ".omf" );
+    const BufferString omffnm( fp.fullPath() );
+    if ( !File::exists(omffnm) )
+	mErrRetDoesntExist( omffnm );
+
+    fp.setFileName( ".survey" );
+    const BufferString survfnm( fp.fullPath() );
+    if ( !File::exists(survfnm) )
+	mErrRetDoesntExist( survfnm );
+
+    fp.setFileName( "Seismics" );
+    const BufferString seisdirnm( fp.fullPath() );
+    if ( !File::isDirectory(seisdirnm) )
+	mErrRetDoesntExist( seisdirnm );
+
+    return ret;
 }

@@ -55,6 +55,9 @@ public:
     void			ensureLoaded(const char*) const;
     const SharedLibAccess*	shLibAccess(const char*) const;
 
+    static const char*		sAllNonUI()	{ return "AllNonUi"; }
+    static const char*		sAllUI()	{ return "uiODMain"; }
+
 protected:
 
     ManagedObjectSet<ModDep>		deps_;

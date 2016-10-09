@@ -70,15 +70,19 @@ set( OD_MODULE_SOURCES
 	uisurveyzip.cc
 	uisurvinfoed.cc
 	uisurvmap.cc
+	uiusercreatesurvey.cc
 	uit2dconvsel.cc
 	inituiio.cc
 )
 
+set( OD_DATAROOT_UI_PROGRAMS od_CreateSurvey.cc od_ManageSurveys.cc od_SelectObject.cc )
+
 if( WIN32 )
     set( OD_ELEVATED_PERMISSIONS_GUI_PROGS od_BatchHosts.cc )
-    set( OD_od_BatchHosts_RESOURCE  resources/od_BatchHosts.rc )
+    set( OD_od_BatchHosts_RESOURCE resources/od_BatchHosts.rc )
+    set( OD_MODULE_GUI_PROGS ${OD_DATAROOT_UI_PROGRAMS} )
 else()
-    set( OD_MODULE_GUI_PROGS od_BatchHosts.cc )
+    set( OD_MODULE_GUI_PROGS od_BatchHosts.cc ${OD_DATAROOT_UI_PROGRAMS} )
 endif()
 
 OD_INIT_MODULE()

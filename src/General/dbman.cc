@@ -23,40 +23,17 @@
 #define mErrRetDoesntExist(fnm) \
     mErrRet( uiStrings::phrDoesntExist(::toUiString(fnm)) )
 
-static ObjectSet<DBMan> dbmstack_;
+
+static DBMan* global_dbm_ = 0;
+static Threads::Lock global_dbm_lock_;
 
 DBMan& DBM()
 {
-    int curdbmidx = dbmstack_.size() - 1;
-    if ( curdbmidx < 0 )
-    {
-	DBMan* newdbm = new DBMan;
-	dbmstack_ += newdbm;
-	curdbmidx = dbmstack_.size() - 1;
-    }
-
-    return *dbmstack_[curdbmidx];
+    Threads::Locker locker( global_dbm_lock_ );
+    if ( !global_dbm_ )
+	global_dbm_ = new DBMan;
+    return *global_dbm_;
 }
-
-void DBMan::pushDBM( DBMan* newdbm )
-{
-    if ( !newdbm )
-	pFreeFnErrMsg("Null survinfo pushed");
-    else
-	dbmstack_ += newdbm;
-}
-
-bool DBMan::popDBM()
-{
-    const int nrdbms = dbmstack_.size();
-    if ( nrdbms < 2 )
-	return false;
-
-    DBMan* dbm = dbmstack_.removeSingle( nrdbms-1 );
-    delete dbm;
-    return true;
-}
-
 
 
 DBMan::DBMan()
@@ -90,6 +67,74 @@ void DBMan::initFirst()
 	    handleNewRootDir();
 	}
     }
+}
+
+
+uiRetVal DBMan::setDataSource( const IOPar& iop )
+{
+    return setDataSource( iop.find(sKey::DataRoot()), iop.find(sKey::Survey()));
+}
+
+
+void DBMan::doNotChangeTheSurveyNow()
+{
+    mLock4Write();
+    surveychangeuserabort_ = true;
+}
+
+
+uiRetVal DBMan::setDataSource( const char* fullpath )
+{
+    FilePath fp( fullpath );
+    const BufferString pathnm( fp.pathOnly() );
+    const BufferString filenm( fp.fileName() );
+    return setDataSource( pathnm, filenm );
+}
+
+
+uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
+{
+    mLock4Read();
+
+    uiRetVal rv = SurveyInfo::setSurveyLocation( dr, sd );
+    if ( !rv.isOK() )
+	return rv;
+
+    const BufferString newdirnm = SI().getFullDirPath();
+    if ( rootdir_ == newdirnm )
+	return uiRetVal::OK();
+
+    mUnlockAllAccess();
+
+    surveyChangeOK.trigger();
+    if ( surveychangeuserabort_ )
+    {
+	surveychangeuserabort_ = false;
+	FilePath fp( rootdir_ );
+	SurveyInfo::setSurveyLocation( fp.pathOnly(), fp.fileName() );
+	rv.set( tr("User abort from survey change") );
+	return rv;
+    }
+
+    surveyToBeChanged.trigger();
+
+    mReLock();
+    mLock2Write();
+
+    if ( rootdbdir_ )
+	{ rootdbdir_->unRef(); rootdbdir_ = 0; }
+    deepUnRef( dirs_ );
+    rootdir_.set( newdirnm );
+    rv = handleNewRootDir();
+    if ( !rv.isOK() )
+	return rv; // disaster ...
+    setupCustomDataDirs( -1 );
+    mUnlockAllAccess();
+
+    surveyChanged.trigger();
+    afterSurveyChange.trigger();
+
+    return rv;
 }
 
 
@@ -486,63 +531,6 @@ bool DBMan::isKeyString( const char* kystr ) const
 }
 
 
-uiRetVal DBMan::setDataSource( const IOPar& iop )
-{
-    return setDataSource( iop.find(sKey::DataRoot()), iop.find(sKey::Survey()));
-}
-
-
-void DBMan::doNotChangeTheSurveyNow()
-{
-    mLock4Write();
-    surveychangeuserabort_ = true;
-}
-
-
-uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
-{
-    mLock4Read();
-
-    uiRetVal rv = SurveyInfo::setSurveyLocation( dr, sd );
-    if ( !rv.isOK() )
-	return rv;
-
-    const BufferString newdirnm = SI().getSurvDirFullPath();
-    if ( rootdir_ == newdirnm )
-	return uiRetVal::OK();
-
-    mUnlockAllAccess();
-    surveyChangeOK.trigger();
-    if ( surveychangeuserabort_ )
-    {
-	surveychangeuserabort_ = false;
-	FilePath fp( rootdir_ );
-	SurveyInfo::setSurveyLocation( fp.pathOnly(), fp.fileName() );
-	rv.set( tr("User abort from survey change") );
-	return rv;
-    }
-
-    surveyToBeChanged.trigger();
-
-    mReLock();
-    mLock2Write();
-    if ( rootdbdir_ )
-	{ rootdbdir_->unRef(); rootdbdir_ = 0; }
-    deepUnRef( dirs_ );
-    rootdir_.set( newdirnm );
-    rv = handleNewRootDir();
-    if ( !rv.isOK() )
-	return rv; // disaster ...
-    setupCustomDataDirs( -1 );
-    mUnlockAllAccess();
-
-    surveyChanged.trigger();
-    afterSurveyChange.trigger();
-
-    return rv;
-}
-
-
 DBDir* DBMan::gtDir( DirID dirid ) const
 {
     if ( dirid.isInvalid() )
@@ -673,55 +661,17 @@ void DBMan::setupCustomDataDir( const CustomDirData& cdd, uiRetVal& rv )
 }
 
 
-uiRetVal DBMan::isValidDataRoot( const char* inpdirnm )
+uiRetVal DBMan::isValidDataRoot( const char* dirnm )
 {
-    uiRetVal ret = uiRetVal::OK();
-
-    FilePath fp( inpdirnm ? inpdirnm : GetBaseDataDir() );
-    const BufferString dirnm( fp.fullPath() );
-    const uiString datarootstr = tr("OpendTect Data Directory '%1'")
-					.arg( dirnm );
-    if ( !File::isDirectory(dirnm) || !File::isWritable(dirnm) )
-	mErrRetDoesntExist( datarootstr );
-
-    fp.add( ".omf" );
-    const BufferString omffnm( fp.fullPath() );
-    if ( !File::exists(omffnm) )
-	mErrRetDoesntExist( omffnm );
-
-    fp.setFileName( ".survey" );
-    if ( File::exists(fp.fullPath()) )
-    {
-	// probably we're in a survey. So let's check:
-	fp.setFileName( "Seismics" );
-	if ( File::isDirectory(fp.fullPath()) )
-	    mErrRet( tr("%1 has '.survey' file").arg( datarootstr ) )
-    }
-
-    return ret;
+    // no extra requirements ... for now ...
+    return SurveyInfo::isValidDataRoot( dirnm );
 }
 
 
 uiRetVal DBMan::isValidSurveyDir( const char* dirnm )
 {
-    uiRetVal ret = uiRetVal::OK();
-
-    FilePath fp( dirnm, ".omf" );
-    const BufferString omffnm( fp.fullPath() );
-    if ( !File::exists(omffnm) )
-	mErrRetDoesntExist( omffnm );
-
-    fp.setFileName( ".survey" );
-    const BufferString survfnm( fp.fullPath() );
-    if ( !File::exists(survfnm) )
-	mErrRetDoesntExist( survfnm );
-
-    fp.setFileName( "Seismics" );
-    const BufferString seisdirnm( fp.fullPath() );
-    if ( !File::isDirectory(seisdirnm) )
-	mErrRetDoesntExist( seisdirnm );
-
-    return ret;
+    // no extra requirements ... for now ...
+    return SurveyInfo::isValidSurveyDir( dirnm );
 }
 
 

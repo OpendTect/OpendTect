@@ -61,8 +61,7 @@ int main( int argc, char** argv )
 	mErrRet()
 
 #ifdef __win__
-    if ( File::isLink(fnm) )
-	fnm = const_cast<char*>(File::linkTarget(fnm));
+    fnm = File::linkEnd( fnm );
 #endif
 
     od_ostream& strm = od_ostream::logStream();

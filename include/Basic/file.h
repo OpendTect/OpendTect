@@ -45,7 +45,12 @@ mGlobal(Basic) void		makeRecursiveFileList(const char* dir,
 mGlobal(Basic) bool		createLink(const char* from,const char* to);
 mGlobal(Basic) bool		isLink(const char*);
 mGlobal(Basic) const char*	linkTarget(const char* linkname);
+				//!< Direct, first target
+mGlobal(Basic) const char*	linkEnd(const char* linkname);
+				//!< 'Final' destination of link
+				//!< protected against circular links
 mGlobal(Basic) const char*	linkValue(const char* linkname);
+				//!< not sure why and when to use - used by zip
 
 mGlobal(Basic) void		hide(const char*,bool yn); //!<only Windows
 mGlobal(Basic) bool		isHidden(const char*);

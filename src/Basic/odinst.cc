@@ -137,7 +137,7 @@ BufferString ODInst::GetInstallerDir()
 {
     BufferString appldir( GetSoftwareDir(0) );
     if ( File::isLink(appldir) )
-	appldir = File::linkTarget( appldir );
+	appldir = File::linkEnd( appldir );
 
     FilePath installerdir( appldir );
     installerdir.setFileName( mInstallerDirNm );
@@ -219,7 +219,7 @@ bool ODInst::updatesAvailable()
     return res == 1;
 # else
     FilePath tmp( File::getTempPath(), "od_updt" );
-    mDefineStaticLocalObject(const bool,ret, = File::exists(tmp.fullPath())); 
+    mDefineStaticLocalObject(const bool,ret, = File::exists(tmp.fullPath()));
     if ( ret )
 	File::remove( tmp.fullPath() );
     return ret;

@@ -36,18 +36,16 @@ mGlobal(Basic) const char* GetFullExecutablePath(void);
 
 mGlobal(Basic) const char* GetOSIdentifier(void);
 
-mGlobal(Basic) char** GetArgV(void);
-
-mGlobal(Basic) int GetArgC(void);
-
+mGlobal(Basic) void SetProgramArgs(int argc,char** argv,
+				   bool require_valid_dataroot=true);
 mGlobal(Basic) bool AreProgramArgsSet(void);
-
-mGlobal(Basic) void SetProgramArgs(int argc, char** argv);
+mGlobal(Basic) char** GetArgV(void);
+mGlobal(Basic) int& GetArgC(void);
 
 mGlobal(Basic) bool isProcessAlive(int pid);
 		/*!< returns 1 if the process is still running */
 mGlobal(Basic) const char* getProcessNameForPID(int pid);
-		/*!< returns null if process not found, otherwise returns 
+		/*!< returns null if process not found, otherwise returns
 		     the executable name
 		*/
 

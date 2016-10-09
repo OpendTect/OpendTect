@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "uiioobjseldlg.h"
 #include "uisurveyselect.h"
+#include "uimsg.h"
 
 
 uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p,
@@ -43,16 +44,7 @@ bool uiSelObjFromOtherSurvey::go()
     if ( !survseldlg.go() )
 	return false;
 
-    uiIOObjSelDlg::Setup su;
-    su.survdir( survseldlg.getSurveyPath() );
-    uiIOObjSelDlg objseldlg( &survseldlg, su, ctio_.ctxt_ );
-    if ( !objseldlg.go() )
-	return false;
-    const IOObj* ioobj = objseldlg.ioObj();
-    if ( !ioobj )
-	return false;
-
-    ctio_.setObj( ioobj->clone() );
-    usrexpr_ = ioobj->fullUserExpr();
+    //TODO get from program using survseldlg.getSurveyPath();
+    uiMSG().error( mTODONotImplPhrase() );
     return true;
 }

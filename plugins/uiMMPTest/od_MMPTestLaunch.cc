@@ -24,7 +24,7 @@ int main( int argc, char ** argv )
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
 	return ExitProgram( 1 );
 
-    OD::ModDeps().ensureLoaded( "AllNonUi" );
+    OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
 
     uiMain app( argc, argv );
     uiMMPTestProc* testmmp = new uiMMPTestProc( 0, jobpars );

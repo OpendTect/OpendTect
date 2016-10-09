@@ -44,8 +44,7 @@ int main( int argc, char** argv )
 
     BufferString& fnm = args.get( 0 );
 #ifdef __win__
-    if ( File::isLink(fnm) )
-	fnm = File::linkTarget( fnm );
+    fnm = File::linkEnd( fnm );
 #endif
     if ( !File::exists(fnm.buf()) )
     {

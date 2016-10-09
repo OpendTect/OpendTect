@@ -81,7 +81,7 @@ int main( int argc, char ** argv )
 
 #ifdef __win__
     if ( File::isLink( su.fs_.fileName(0) ) )
-	su.fs_.setFileName( File::linkTarget( su.fs_.fileName(0) ) );
+	su.fs_.setFileName( File::linkEnd( su.fs_.fileName(0) ) );
 #endif
 
     uiSEGYExamine* sgyex = new uiSEGYExamine( 0, su );
