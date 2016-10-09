@@ -106,7 +106,7 @@ void od_test_prog_crash_handler(int)
 
 void od_init_test_program(int argc, char** argv )
 {
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     signal(SIGSEGV, od_test_prog_crash_handler );
     crashonprogerror = true;
 
