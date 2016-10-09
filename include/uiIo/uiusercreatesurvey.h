@@ -17,7 +17,7 @@ class uiListBox;
 class uiSurvInfoProvider;
 
 
-class uiUserCreateSurvey : public uiDialog
+mExpClass(uiIo) uiUserCreateSurvey : public uiDialog
 { mODTextTranslationClass(uiUserCreateSurvey);
 
 public:
