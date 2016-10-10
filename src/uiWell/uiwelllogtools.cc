@@ -686,8 +686,6 @@ void uiWellLogEditor::rowDelCB( CallBacker* )
 void uiWellLogEditor::rowInsertCB( CallBacker* cb )
 {
     int rownr = table_->currentRow();
-
-    Well::DahObj::PointID currpid = log_.pointIDFor( rownr );
     
     float prevmdval = 0.f;
     float nextmdval = 0.f;
