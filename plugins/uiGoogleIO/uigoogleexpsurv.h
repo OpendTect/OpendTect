@@ -7,7 +7,7 @@
 
 #include "uigoogleexpdlg.h"
 class SurveyInfo;
-class uiSurvey;
+class uiSurveyManager;
 class uiGenInput;
 class uiSelLineStyle;
 
@@ -16,7 +16,7 @@ mClass(uiGoogleIO) uiGoogleExportSurvey : public uiDialog
 { mODTextTranslationClass(uiGoogleExportSurvey);
 public:
 
-			uiGoogleExportSurvey(uiSurvey*);
+			uiGoogleExportSurvey(uiSurveyManager*);
 			~uiGoogleExportSurvey();
 
 protected:

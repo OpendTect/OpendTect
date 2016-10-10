@@ -115,6 +115,6 @@ protected:
 
     static uiString	getSRDString(bool infeet);
 
-    friend class	uiSurvey;
+    friend class	uiSurveyManager;
 
 };

@@ -32,7 +32,6 @@ ________________________________________________________________________
 #include "uiseispartserv.h"
 #include "uisetdatadir.h"
 #include "uistrattreewin.h"
-#include "uisurvey.h"
 #include "uisurvinfoed.h"
 #include "uitoolbar.h"
 #include "ui2dsip.h"

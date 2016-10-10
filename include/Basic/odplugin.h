@@ -32,7 +32,7 @@ extern "C" {
     mExternC(pinm) void Load##pinm##PluginSurvRelTools(); \
     mExternC(pinm) void Load##pinm##PluginSurvRelTools()
 
-/* If you have a SIP or uiSurvey::Util, this calls the load function: */
+/* If you have a SIP or uiSurveyManager::Util, this calls the load function: */
 #define mCallODPluginSurvRelToolsLoadFn(pinm) Load##pinm##PluginSurvRelTools()
 
 

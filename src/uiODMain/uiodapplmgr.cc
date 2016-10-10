@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "uistereodlg.h"
 #include "uistratlayermodel.h"
 #include "uistrings.h"
-#include "uisurvey.h"
+#include "uisurveymanager.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uiveldesc.h"
@@ -318,7 +318,7 @@ int uiODApplMgr::manSurv( uiParent* p )
     if ( !p ) p = ODMainWin();
     while ( true )
     {
-	uiSurvey dlg( p );
+	uiSurveyManager dlg( p );
 	if ( !p )
 	    dlg.setModal( true );
 	if ( !dlg.go() )

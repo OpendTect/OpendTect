@@ -14,7 +14,6 @@
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiseissel.h"
-#include "uisurvey.h"
 #include "uitaskrunner.h"
 
 #include "dztimporter.h"
@@ -186,7 +185,7 @@ bool acceptOK()
 
 void uiImpGPRMgr::doWork( CallBacker* )
 {
-    if ( !Survey::userIsOKWithPossibleTypeChange(true) ) return;
+    if ( !uiSurvey::userIsOKWithPossibleTypeChange(true) ) return;
 
     uiDZTImporter dlg( &appl_ );
     dlg.go();

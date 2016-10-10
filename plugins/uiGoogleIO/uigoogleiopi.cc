@@ -19,7 +19,7 @@
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
 #include "uiseis2dfileman.h"
-#include "uisurvey.h"
+#include "uisurveymanager.h"
 #include "uitoolbutton.h"
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
@@ -104,7 +104,7 @@ uiGoogleIOMgr::~uiGoogleIOMgr()
 
 void uiGoogleIOMgr::exportSurv( CallBacker* cb )
 {
-    mDynamicCastGet(uiSurvey*,uisurv,cb)
+    mDynamicCastGet(uiSurveyManager*,uisurv,cb)
     if ( !uisurv || !uisurv->curSurvInfo() ||
 	 !uisurv->curSurvInfo()->getCoordSystem()->geographicTransformOK() )
 	return;
@@ -207,8 +207,9 @@ static uiGoogleIOMgr* theinst_ = 0;
 
 mDefODPluginSurvRelToolsLoadFn( uiGoogleIO )
 {
-    uiSurvey::add( uiSurvey::Util( "google", uiGoogleIOMgr::sUtilTTText(),
-				   mCB(theinst_,uiGoogleIOMgr,exportSurv) ) );
+    uiSurveyManager::add( uiSurveyManager::Util( "google",
+			    uiGoogleIOMgr::sUtilTTText(),
+			    mCB(theinst_,uiGoogleIOMgr,exportSurv) ) );
 }
 
 

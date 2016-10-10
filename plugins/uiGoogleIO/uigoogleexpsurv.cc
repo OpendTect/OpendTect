@@ -7,7 +7,7 @@
 
 #include "uigoogleexpsurv.h"
 #include "googlexmlwriter.h"
-#include "uisurvey.h"
+#include "uisurveymanager.h"
 #include "uisellinest.h"
 #include "uifileinput.h"
 #include "uimsg.h"
@@ -21,7 +21,7 @@
 #include <iostream>
 
 
-uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
+uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurveyManager* uisurv )
     : uiDialog(uisurv,
        uiDialog::Setup(uiStrings::phrExport( tr("Survey boundaries to KML")),
 		      tr("Specify output parameters"),

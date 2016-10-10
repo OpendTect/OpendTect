@@ -114,7 +114,7 @@ protected:
 uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
     survlist_.erase();
-    Survey::getDirectoryNames( survlist_, 0, SI().getDirName() );
+    uiSurvey::getDirectoryNames( survlist_, 0, SI().getDirName() );
     uiSelectFromList::Setup setup(  uiStrings::sSurveys(), survlist_ );
     setup.dlgtitle( uiStrings::phrSelect(uiStrings::sSurvey()) );
     uiSelectFromList* dlg = new uiSelectFromList( p, setup );

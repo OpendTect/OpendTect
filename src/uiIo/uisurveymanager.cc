@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uisurvey.h"
+#include "uisurveymanager.h"
 
 #include "uibuttongroup.h"
 #include "uicombobox.h"
@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include "uisetdatadir.h"
 #include "uisettings.h"
 #include "uisip.h"
-#include "uisurveyselect.h"
 #include "uisurvinfoed.h"
 #include "uisurvmap.h"
 #include "uitaskrunner.h"
@@ -69,19 +68,19 @@ static int sMapHeight = 300;
 //--- General tools
 
 
-static ObjectSet<uiSurvey::Util>& getUtils()
+static ObjectSet<uiSurveyManager::Util>& getUtils()
 {
-    mDefineStaticLocalObject( PtrMan<ManagedObjectSet<uiSurvey::Util> >,
+    mDefineStaticLocalObject( PtrMan<ManagedObjectSet<uiSurveyManager::Util> >,
 			      utils, = 0 );
     if ( !utils )
     {
-	ManagedObjectSet<uiSurvey::Util>* newutils =
-				    new ManagedObjectSet<uiSurvey::Util>;
-	*newutils += new uiSurvey::Util( "xy2ic",
-		od_static_tr("uiSurvey_getUtils",
+	ManagedObjectSet<uiSurveyManager::Util>* newutils =
+				    new ManagedObjectSet<uiSurveyManager::Util>;
+	*newutils += new uiSurveyManager::Util( "xy2ic",
+		od_static_tr("uiSurveyManager_getUtils",
 		"Convert (X,Y) to/from Inline/Crossline"), CallBack() );
-	*newutils += new uiSurvey::Util( "spherewire",
-				od_static_tr("uiSurvey_getUtils",
+	*newutils += new uiSurveyManager::Util( "spherewire",
+				od_static_tr("uiSurveyManager_getUtils",
 				"Setup geographical coordinates"), CallBack() );
 
 	utils.setIfNull(newutils,true);
@@ -171,10 +170,10 @@ bool acceptOK()
 
 
 
-//--- uiSurvey
+//--- uiSurveyManager
 
 
-uiSurvey::uiSurvey( uiParent* p )
+uiSurveyManager::uiSurveyManager( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Survey Setup and Selection"),
 				 mNoDlgTitle,mODHelpKey(mSurveyHelpID)))
     , orgdataroot_(GetBaseDataDir())
@@ -189,7 +188,7 @@ uiSurvey::uiSurvey( uiParent* p )
     , cursurvremoved_(false)
     , freshsurveyselected_(false)
 {
-    const CallBack selchgcb( mCB(this,uiSurvey,selChange) );
+    const CallBack selchgcb( mCB(this,uiSurveyManager,selChange) );
 
     if ( dataroot_.isEmpty() )
     {
@@ -208,7 +207,7 @@ uiSurvey::uiSurvey( uiParent* p )
 		new uiPushButton( topgrp, tr("Survey Data Root"), false );
 
     datarootbut->setIcon( "database" );
-    datarootbut->activated.notify( mCB(this,uiSurvey,dataRootPushed) );
+    datarootbut->activated.notify( mCB(this,uiSurveyManager,dataRootPushed) );
     datarootbut->attach( leftBorder );
 
     datarootlbl_ = new uiLineEdit( topgrp, "Data Root Label" );
@@ -218,7 +217,7 @@ uiSurvey::uiSurvey( uiParent* p )
     datarootlbl_->attach( rightOf, datarootbut );
 
     uiPushButton* settbut = new uiPushButton( topgrp, tr("General Settings"),
-				mCB(this,uiSurvey,odSettsButPush), false );
+			    mCB(this,uiSurveyManager,odSettsButPush), false );
     settbut->setIcon( "settings" );
     settbut->attach( rightBorder );
 
@@ -265,7 +264,7 @@ uiSurvey::uiSurvey( uiParent* p )
 }
 
 
-uiSurvey::~uiSurvey()
+uiSurveyManager::~uiSurveyManager()
 {
     delete impiop_;
     delete cursurvinfo_;
@@ -278,12 +277,12 @@ static void osrbuttonCB( void* )
 }
 
 
-void uiSurvey::fillLeftGroup( uiGroup* grp )
+void uiSurveyManager::fillLeftGroup( uiGroup* grp )
 {
     dirfld_ = new uiListBox( grp, "Surveys" );
     updateSurvList();
-    dirfld_->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
-    dirfld_->doubleClicked.notify( mCB(this,uiSurvey,accept) );
+    dirfld_->selectionChanged.notify( mCB(this,uiSurveyManager,selChange) );
+    dirfld_->doubleClicked.notify( mCB(this,uiSurveyManager,accept) );
     dirfld_->setHSzPol( uiObject::WideVar );
     dirfld_->setStretch( 2, 2 );
 
@@ -291,37 +290,37 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
 	new uiButtonGroup( grp, "Buttons", OD::Vertical );
     butgrp->attach( rightTo, dirfld_ );
     new uiToolButton( butgrp, "addnew", uiStrings::phrCreate(mJoinUiStrs(sNew(),
-				sSurvey())), mCB(this,uiSurvey,newButPushed) );
+			sSurvey())), mCB(this,uiSurveyManager,newButPushed) );
     editbut_ = new uiToolButton( butgrp, "edit", tr("Edit Survey Parameters"),
-				 mCB(this,uiSurvey,editButPushed) );
+				 mCB(this,uiSurveyManager,editButPushed) );
     new uiToolButton( butgrp, "copyobj",
-	tr("Copy Survey"), mCB(this,uiSurvey,copyButPushed) );
+	tr("Copy Survey"), mCB(this,uiSurveyManager,copyButPushed) );
     new uiToolButton( butgrp, "compress",
 	tr("Compress survey as zip archive"),
-	mCB(this,uiSurvey,compressButPushed) );
+	mCB(this,uiSurveyManager,compressButPushed) );
     new uiToolButton( butgrp, "extract",
 	tr("Extract survey from zip archive"),
-	mCB(this,uiSurvey,extractButPushed) );
+	mCB(this,uiSurveyManager,extractButPushed) );
     new uiToolButton( butgrp, "share",
 	tr("Share surveys through the OpendTect Seismic Repository"),
 	mSCB(osrbuttonCB) );
     rmbut_ = new uiToolButton( butgrp, "delete", tr("Delete Survey"),
-			       mCB(this,uiSurvey,rmButPushed) );
+			       mCB(this,uiSurveyManager,rmButPushed) );
 }
 
 
-void uiSurvey::fillRightGroup( uiGroup* grp )
+void uiSurveyManager::fillRightGroup( uiGroup* grp )
 {
     survmap_ = new uiSurveyMap( grp );
     survmap_->attachGroup().setPrefWidth( sMapWidth );
     survmap_->attachGroup().setPrefHeight( sMapHeight );
 
     uiButton* lastbut = 0;
-    ObjectSet<uiSurvey::Util>& utils = getUtils();
-    const CallBack cb( mCB(this,uiSurvey,utilButPush) );
+    ObjectSet<Util>& utils = getUtils();
+    const CallBack cb( mCB(this,uiSurveyManager,utilButPush) );
     for ( int idx=0; idx<utils.size(); idx++ )
     {
-	const uiSurvey::Util& util = *utils[idx];
+	const Util& util = *utils[idx];
 	uiToolButton* but = new uiToolButton( grp, util.pixmap_,
 					      util.tooltip_, cb );
 	but->setToolTip( util.tooltip_ );
@@ -335,19 +334,19 @@ void uiSurvey::fillRightGroup( uiGroup* grp )
 }
 
 
-void uiSurvey::add( const uiSurvey::Util& util )
+void uiSurveyManager::add( const Util& util )
 {
-    getUtils() += new uiSurvey::Util( util );
+    getUtils() += new Util( util );
 }
 
 
-const char* uiSurvey::selectedSurveyName() const
+const char* uiSurveyManager::selectedSurveyName() const
 {
     return dirfld_->getText();
 }
 
 
-bool uiSurvey::rootDirWritable() const
+bool uiSurveyManager::rootDirWritable() const
 {
     if ( !File::isWritable(dataroot_) )
     {
@@ -361,7 +360,7 @@ bool uiSurvey::rootDirWritable() const
 }
 
 
-void uiSurvey::updateDataRootInSettings()
+void uiSurveyManager::updateDataRootInSettings()
 {
     Settings::common().set( "Default DATA directory", dataroot_ );
     if ( !Settings::common().write() )
@@ -373,7 +372,7 @@ void uiSurvey::updateDataRootInSettings()
 extern "C" { mGlobal(Basic) void SetBaseDataDir(const char*); }
 
 
-bool uiSurvey::acceptOK()
+bool uiSurveyManager::acceptOK()
 {
     if ( !dirfld_ )
 	return true;
@@ -451,7 +450,7 @@ bool uiSurvey::acceptOK()
 }
 
 
-bool uiSurvey::rejectOK()
+bool uiSurveyManager::rejectOK()
 {
     if ( cursurvremoved_ && !hasSurveys() )
     {
@@ -466,13 +465,13 @@ bool uiSurvey::rejectOK()
 }
 
 
-bool uiSurvey::hasSurveys() const
+bool uiSurveyManager::hasSurveys() const
 {
     return dirfld_ && !dirfld_->isEmpty();
 }
 
 
-void uiSurvey::setCurrentSurvInfo( SurveyInfo* newsi, bool updscreen )
+void uiSurveyManager::setCurrentSurvInfo( SurveyInfo* newsi, bool updscreen )
 {
     delete cursurvinfo_; cursurvinfo_ = newsi;
 
@@ -483,7 +482,7 @@ void uiSurvey::setCurrentSurvInfo( SurveyInfo* newsi, bool updscreen )
 }
 
 
-void uiSurvey::rollbackNewSurvey( const uiString& errmsg )
+void uiSurveyManager::rollbackNewSurvey( const uiString& errmsg )
 {
     if ( !cursurvinfo_ )
 	return;
@@ -503,7 +502,7 @@ void uiSurvey::rollbackNewSurvey( const uiString& errmsg )
 }
 
 
-void uiSurvey::newButPushed( CallBacker* )
+void uiSurveyManager::newButPushed( CallBacker* )
 {
     if ( !rootDirWritable() )
     {
@@ -517,7 +516,7 @@ void uiSurvey::newButPushed( CallBacker* )
 }
 
 
-void uiSurvey::rmButPushed( CallBacker* )
+void uiSurveyManager::rmButPushed( CallBacker* )
 {
     const BufferString selnm( selectedSurveyName() );
     const BufferString seldirnm = FilePath(dataroot_).add(selnm).fullPath();
@@ -557,7 +556,7 @@ void uiSurvey::rmButPushed( CallBacker* )
 }
 
 
-void uiSurvey::editButPushed( CallBacker* )
+void uiSurveyManager::editButPushed( CallBacker* )
 {
     if ( !cursurvinfo_ ) return; // defensive
     if ( doSurvInfoDialog(false) )
@@ -565,7 +564,7 @@ void uiSurvey::editButPushed( CallBacker* )
 }
 
 
-void uiSurvey::copyButPushed( CallBacker* )
+void uiSurveyManager::copyButPushed( CallBacker* )
 {
     if ( !cursurvinfo_ || !rootDirWritable() ) return;
 
@@ -592,7 +591,7 @@ void uiSurvey::copyButPushed( CallBacker* )
 }
 
 
-void uiSurvey::extractButPushed( CallBacker* )
+void uiSurveyManager::extractButPushed( CallBacker* )
 {
     if ( !rootDirWritable() ) return;
 
@@ -601,14 +600,14 @@ void uiSurvey::extractButPushed( CallBacker* )
     if ( !fdlg.go() )
 	return;
 
-    Survey::unzipFile( this, fdlg.fileName(), dataroot_ );
+    uiSurvey::unzipFile( this, fdlg.fileName(), dataroot_ );
     updateSurvList();
     readSurvInfoFromFile();
     //TODO set unpacked survey as current with dirfld_->setCurrentItem()
 }
 
 
-void uiSurvey::compressButPushed( CallBacker* )
+void uiSurveyManager::compressButPushed( CallBacker* )
 {
     const char* survnm( selectedSurveyName() );
     const uiString title = tr("Compress %1 survey as zip archive")
@@ -637,11 +636,11 @@ void uiSurvey::compressButPushed( CallBacker* )
     if ( zipext != "zip" )
 	mErrRetVoid(tr("Please add .zip extension to the file name"))
 
-    Survey::zipDirectory( this, survnm, zippath.fullPath() );
+    uiSurvey::zipDirectory( this, survnm, zippath.fullPath() );
 }
 
 
-void uiSurvey::dataRootPushed( CallBacker* )
+void uiSurveyManager::dataRootPushed( CallBacker* )
 {
     uiSetDataDir dlg( this );
     if ( !dlg.go() || dataroot_ == dlg.selectedDir() )
@@ -660,14 +659,14 @@ void uiSurvey::dataRootPushed( CallBacker* )
 }
 
 
-void uiSurvey::odSettsButPush( CallBacker* )
+void uiSurveyManager::odSettsButPush( CallBacker* )
 {
     uiSettingsDlg dlg( this );
     dlg.go();
 }
 
 
-void uiSurvey::utilButPush( CallBacker* cb )
+void uiSurveyManager::utilButPush( CallBacker* cb )
 {
     if ( !cursurvinfo_ )
 	return;
@@ -706,20 +705,20 @@ void uiSurvey::utilButPush( CallBacker* cb )
 }
 
 
-void uiSurvey::updateDataRootLabel()
+void uiSurveyManager::updateDataRootLabel()
 {
     datarootlbl_->setText( dataroot_ );
 }
 
 
-void uiSurvey::updateSurvList()
+void uiSurveyManager::updateSurvList()
 {
     NotifyStopper ns( dirfld_->selectionChanged );
     int newselidx = dirfld_->currentItem();
     const BufferString prevsel( dirfld_->getText() );
     dirfld_->setEmpty();
-    BufferStringSet dirlist; Survey::getDirectoryNames( dirlist, false,
-	    						dataroot_ );
+    BufferStringSet dirlist; uiSurvey::getDirectoryNames( dirlist, false,
+							  dataroot_ );
     dirfld_->addItems( dirlist );
 
     if ( dirfld_->isEmpty() )
@@ -742,7 +741,7 @@ void uiSurvey::updateSurvList()
 }
 
 
-bool uiSurvey::writeSettingsSurveyFile()
+bool uiSurveyManager::writeSettingsSurveyFile()
 {
     if ( dirfld_->isEmpty() )
 	{ pErrMsg( "No survey in the list" ); return false; }
@@ -770,7 +769,7 @@ bool uiSurvey::writeSettingsSurveyFile()
 }
 
 
-void uiSurvey::readSurvInfoFromFile()
+void uiSurveyManager::readSurvInfoFromFile()
 {
     const BufferString survnm( selectedSurveyName() );
     SurveyInfo* newsi = 0;
@@ -789,14 +788,14 @@ void uiSurvey::readSurvInfoFromFile()
 }
 
 
-bool uiSurvey::doSurvInfoDialog( bool isnew )
+bool uiSurveyManager::doSurvInfoDialog( bool isnew )
 {
     delete impiop_; impiop_ = 0; impsip_ = 0;
     uiSurveyInfoEditor dlg( this, *cursurvinfo_ );
     if ( !dlg.isOK() )
 	return false;
 
-    dlg.survParChanged.notify( mCB(this,uiSurvey,updateInfo) );
+    dlg.survParChanged.notify( mCB(this,uiSurveyManager,updateInfo) );
     if ( !dlg.go() )
     {
 	if ( !isnew )
@@ -817,7 +816,7 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
 }
 
 
-void uiSurvey::selChange( CallBacker* )
+void uiSurveyManager::selChange( CallBacker* )
 {
     if ( dirfld_->isEmpty() )
 	return;
@@ -828,7 +827,7 @@ void uiSurvey::selChange( CallBacker* )
 }
 
 
-void uiSurvey::putToScreen()
+void uiSurveyManager::putToScreen()
 {
     if ( !survmap_ ) return;
 
@@ -919,7 +918,7 @@ void uiSurvey::putToScreen()
 }
 
 
-bool uiSurvey::writeSurvInfoFileIfCommentChanged()
+bool uiSurveyManager::writeSurvInfoFileIfCommentChanged()
 {
     if ( !cursurvinfo_ || !notesfld_->isModified() )
 	return true;

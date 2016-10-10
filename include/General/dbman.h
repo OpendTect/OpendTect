@@ -132,7 +132,7 @@ private:
     void		dbdirChgCB(CallBacker*);
 
     friend mGlobal(General) DBMan& DBM();
-    friend class	uiSurvey;
+    friend class	uiSurveyManager;
 
     uiRetVal		setDataSource(const char*,const char*);
 

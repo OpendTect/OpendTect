@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "prog.h"
-#include "uisurvey.h"
+#include "uisurveymanager.h"
 #include "uimain.h"
 #include "file.h"
 #include "moddepmgr.h"
@@ -27,7 +27,7 @@ int main( int argc, char ** argv )
     PIM().loadSurveyRelatedTools();
 
     uiMain app( GetArgC(), GetArgV() );
-    uiSurvey* dlg = new uiSurvey( 0 );
+    uiSurveyManager* dlg = new uiSurveyManager( 0 );
     app.setTopLevel( dlg );
     dlg->show();
     return ExitProgram( app.exec() );

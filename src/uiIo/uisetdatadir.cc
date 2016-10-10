@@ -301,5 +301,5 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
         zipfilenm = dlg.fileName();
     }
 
-    (void)Survey::unzipFile( par, zipfilenm, datadir );
+    (void)uiSurvey::unzipFile( par, zipfilenm, datadir );
 }

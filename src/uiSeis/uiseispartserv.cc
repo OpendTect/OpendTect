@@ -60,8 +60,6 @@ ________________________________________________________________________
 #include "uiseiswvltman.h"
 #include "uiseispreloadmgr.h"
 #include "uiselsimple.h"
-#include "uisurvey.h"
-#include "uisurvinfoed.h"
 #include "uitaskrunner.h"
 #include "uivelocityvolumeconversion.h"
 #include "od_helpids.h"
@@ -139,7 +137,7 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     if ( !dlgobj ) \
     { \
 	const Seis::GeomType gt( Seis::geomTypeOf( is2d, isps ) ); \
-	if ( !Survey::userIsOKWithPossibleTypeChange(Seis::is2D(gt)) ) \
+	if ( !uiSurvey::userIsOKWithPossibleTypeChange(Seis::is2D(gt)) ) \
 	    return true; \
 	dlgobj = new uiSeisIOSimple( parent(), gt, forread ); \
 	dlgobj->setCaption( mkDlgCaption(forread,is2d,isps) ); \

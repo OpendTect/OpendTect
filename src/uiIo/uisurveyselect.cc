@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uisurvey.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
@@ -117,7 +116,7 @@ void uiSurveySelectDlg::fillSurveyList( bool initial )
 	return;
 
     BufferStringSet surveylist;
-    Survey::getDirectoryNames( surveylist, false, dataroot_ );
+    uiSurvey::getDirectoryNames( surveylist, false, dataroot_ );
     surveylistfld_->addItems( surveylist );
 }
 

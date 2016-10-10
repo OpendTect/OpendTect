@@ -37,7 +37,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uiseparator.h"
-#include "uisurvey.h"
 #include "od_helpids.h"
 
 

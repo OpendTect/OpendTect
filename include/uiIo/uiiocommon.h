@@ -15,7 +15,7 @@ ________________________________________________________________________
 class uiParent;
 class BufferStringSet;
 
-namespace Survey
+namespace uiSurvey
 {
 
 mGlobal(uiIo) void	getDirectoryNames(BufferStringSet&,bool fullpath,

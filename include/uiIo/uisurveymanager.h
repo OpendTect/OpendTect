@@ -26,12 +26,12 @@ class uiSurvInfoProvider;
 
 /*!\brief The main survey selection dialog */
 
-mExpClass(uiIo) uiSurvey : public uiDialog
-{ mODTextTranslationClass(uiSurvey);
+mExpClass(uiIo) uiSurveyManager : public uiDialog
+{ mODTextTranslationClass(uiSurveyManager);
 
 public:
-			uiSurvey(uiParent*);
-			~uiSurvey();
+			uiSurveyManager(uiParent*);
+			~uiSurveyManager();
 
     /*!\brief Tool item on window. First is always 'X,Y <-> I/C' */
     struct Util
