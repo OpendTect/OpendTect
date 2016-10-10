@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "convert.h"
 
 typedef std::complex<float> float_complex;
+typedef std::complex<double> double_complex;
 
 namespace Values
 {
