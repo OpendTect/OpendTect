@@ -24,7 +24,7 @@ int main( int argc, char ** argv )
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllUI() );
-    PIM().loadSurveyInfoProviders();
+    PIM().loadSurveyRelatedTools();
 
     uiMain app( GetArgC(), GetArgV() );
     uiSurvey* dlg = new uiSurvey( 0 );

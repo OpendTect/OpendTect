@@ -472,9 +472,9 @@ static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
 }
 
 
-static bool loadSIPs( SharedLibAccess* sla, const char* libnm )
+static bool loadSurvRelTools( SharedLibAccess* sla, const char* libnm )
 {
-    mGetFn(VoidVoidRetFn,sla,"Load","PluginSIPs",libnm);
+    mGetFn(VoidVoidRetFn,sla,"Load","PluginSurvRelTools",libnm);
     if ( !fn )
 	return false;
 
@@ -591,7 +591,7 @@ void PluginManager::loadAuto( bool late )
 }
 
 
-void PluginManager::loadSurveyInfoProviders()
+void PluginManager::loadSurveyRelatedTools()
 {
     BufferStringSet dontloadlist;
     getNotLoadedByUser( dontloadlist );
@@ -609,7 +609,7 @@ void PluginManager::loadSurveyInfoProviders()
 	if ( data.info_ && dontloadlist.isPresent(modnm) )
 	    continue;
 
-	if ( !loadSIPs(data.sla_,data.name_) )
+	if ( !loadSurvRelTools(data.sla_,data.name_) )
 	{
 	    data.info_ = 0;
 	    data.sla_->close();
@@ -624,9 +624,9 @@ void PluginManager::loadSurveyInfoProviders()
 	{
 	    BufferString msg;
 	    if ( data.sla_ )
-		msg = "Successfully loaded SIPs for plugin '";
+		msg = "Successfully loaded SurvRelTools for plugin '";
 	    else
-		msg = "Failed to load SIPs for plugin '";
+		msg = "Failed to load SurvRelTools for plugin '";
 	    msg += userName(data.name_); msg += "'";
 	    UsrMsg( msg );
 	}

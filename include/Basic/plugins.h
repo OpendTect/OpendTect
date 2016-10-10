@@ -80,7 +80,8 @@ int LoadPlugin(const char* libnm);
   None before calling loadAuto().
 
   4) Some programs involved with survey management may need only survey info
-  providers. These can use loadSurveyInfoProviders().
+  related stuff like survey tools and survey info providers. These can use
+  loadSurveyRelatedTools().
 */
 
 mExpClass(Basic) PluginManager
@@ -139,7 +140,7 @@ public:
     static const char*	sKeyDontLoad() { return "dTect.Dont load plugins"; }
     void		getNotLoadedByUser(BufferStringSet&) const;
 
-    void		loadSurveyInfoProviders();
+    void		loadSurveyRelatedTools();
 				//!< probably not for you. see class comments
 
 private:

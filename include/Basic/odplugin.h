@@ -28,12 +28,12 @@ extern "C" {
     mExternC(pinm) PluginInfo* Get##pinm##PluginInfo()
 
 /* The following function MIGHT be defined: */
-#define mDefODPluginSIPLoadFn(pinm) \
-    mExternC(pinm) void Load##pinm##PluginSIPs(); \
-    mExternC(pinm) void Load##pinm##PluginSIPs()
+#define mDefODPluginSurvRelToolsLoadFn(pinm) \
+    mExternC(pinm) void Load##pinm##PluginSurvRelTools(); \
+    mExternC(pinm) void Load##pinm##PluginSurvRelTools()
 
-/* If you have a SIP, this calls the SIP load function: */
-#define mCallODPluginSIPLoadFn(pinm) Load##pinm##PluginSIPs()
+/* If you have a SIP or uiSurvey::Util, this calls the load function: */
+#define mCallODPluginSurvRelToolsLoadFn(pinm) Load##pinm##PluginSurvRelTools()
 
 
 /* Define ONLY if your plugin needs early loading (i.e. before any UI)

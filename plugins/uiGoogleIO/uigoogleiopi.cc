@@ -70,9 +70,11 @@ public:
     void		mkExportWellsIcon(CallBacker*);
     void		mkExportLinesIcon(CallBacker*);
 
-private:
     static uiString	sMenuTxt()
-    { return m3Dots(tr("Export to Google KML")); }
+			{ return m3Dots(tr("Export to Google KML")); }
+    static uiString	sUtilTTText()
+			{ return tr("Export to Google Earth/Maps"); }
+
 };
 
 
@@ -88,9 +90,6 @@ uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
 {
     psmnuitmhandler_.setIcon( "google" );
     rlmnuitmhandler_.setIcon( "google" );
-    uiSurvey::add( uiSurvey::Util( "google",
-				   tr("Export to Google Earth/Maps"),
-				   mCB(this,uiGoogleIOMgr,exportSurv) ) );
     mAttachCB( uiWellMan::instanceCreated(), uiGoogleIOMgr::mkExportWellsIcon );
     mAttachCB( uiSeis2DFileMan::instanceCreated(),
 	       uiGoogleIOMgr::mkExportLinesIcon );
@@ -203,14 +202,25 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
 }
 
 
+static uiGoogleIOMgr* theinst_ = 0;
+
+
+mDefODPluginSurvRelToolsLoadFn( uiGoogleIO )
+{
+    uiSurvey::add( uiSurvey::Util( "google", uiGoogleIOMgr::sUtilTTText(),
+				   mCB(theinst_,uiGoogleIOMgr,exportSurv) ) );
+}
+
+
 mDefODInitPlugin(uiGoogleIO)
 {
-    mDefineStaticLocalObject( PtrMan<uiGoogleIOMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
+    if ( theinst_ )
+	return 0;
 
     theinst_ = new uiGoogleIOMgr( *ODMainWin() );
     if ( !theinst_ )
 	return "Cannot instantiate GoogleIO plugin";
 
+    mCallODPluginSurvRelToolsLoadFn( uiGoogleIO );
     return 0;
 }

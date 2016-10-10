@@ -86,7 +86,7 @@ public:
 
 #define muiSEGYMgrCB(fn) mCB(this,uiSEGYMgr,fn)
 
-mDefODPluginSIPLoadFn(uiSEGY)
+mDefODPluginSurvRelToolsLoadFn(uiSEGY)
 {
     uiSurveyInfoEditor::addInfoProvider( new uiSEGYSurvInfoProvider() );
 }
@@ -108,7 +108,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
     bdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisFileMan::addBrowser( bdef );
 
-    mCallODPluginSIPLoadFn( uiSEGY );
+    mCallODPluginSurvRelToolsLoadFn( uiSEGY );
     mAttachCB( DBM().surveyChanged, uiSEGYMgr::updateMenu );
 
     updateMenu(0);

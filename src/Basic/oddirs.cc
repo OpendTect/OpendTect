@@ -91,29 +91,29 @@ mExternC(Basic) const char* GetBaseDataDir()
 #ifdef __win__
 
     dir = GetEnvVar( "DTECT_WINDATA" );
-    if ( !dir )
+    if ( dir.isEmpty() )
     {
 	dir = getCleanWinPath( GetEnvVar("DTECT_DATA") );
 	if ( !dir )
 	    dir = getCleanWinPath( GetSettingsDataDir() );
 
-	if ( dir && *dir )
+	if ( !dir.isEmpty() )
 	    SetEnvVar( "DTECT_WINDATA", dir );
     }
 
 #else
 
     dir = GetEnvVar( "DTECT_DATA" );
-    if ( !dir )
+    if ( dir.isEmpty() )
     {
 	dir = GetSettingsDataDir();
-	if ( dir && *dir )
+	if ( !dir.isEmpty() )
 	    SetEnvVar( "DTECT_DATA", dir );
     }
 
 #endif
 
-    if ( !dir )
+    if ( dir.isEmpty() )
 	return 0;
 
     mDeclStaticString( ret );

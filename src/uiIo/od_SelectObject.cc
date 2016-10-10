@@ -23,7 +23,6 @@ int main( int argc, char ** argv )
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllUI() );
-    PIM().loadSurveyInfoProviders();
 
     uiMain app( GetArgC(), GetArgV() );
     // uiSelObjFromOtherSurvey* dlg = new uiSelObjFromOtherSurvey( 0 );
