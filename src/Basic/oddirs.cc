@@ -94,7 +94,7 @@ mExternC(Basic) const char* GetBaseDataDir()
     if ( dir.isEmpty() )
     {
 	dir = getCleanWinPath( GetEnvVar("DTECT_DATA") );
-	if ( !dir )
+	if ( dir.isEmpty() )
 	    dir = getCleanWinPath( GetSettingsDataDir() );
 
 	if ( !dir.isEmpty() )
