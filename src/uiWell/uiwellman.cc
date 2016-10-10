@@ -568,9 +568,13 @@ void uiWellMan::editLogPush( CallBacker* )
     if ( !wl )
 	mErrRet(uiStrings::phrCannotRead(uiStrings::sWellLog()))
 
-    uiWellLogEditor dlg( this, *wl );
+    Well::Log* log4edit = wl->clone();
+
+    uiWellLogEditor dlg( this, *log4edit );
     if ( !dlg.go() || !dlg.isLogChanged() )
 	return;
+
+    *wl = *log4edit;
 
     const bool res = uiMSG().askSave(
 			tr("One or more log values have been changed."

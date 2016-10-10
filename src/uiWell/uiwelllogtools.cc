@@ -562,12 +562,14 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
 				     toUiString("'%1'").arg(toUiString(
 				     log.name())),uiStrings::sLog().toLower()));
     setCaption( dlgcaption );
-    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true);
+    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true); ts.defrowlbl(true);
     table_ = new uiTable( this, ts, "Well log table" );
     table_->setSelectionMode( uiTable::Multi );
     table_->setSelectionBehavior( uiTable::SelectRows );
     table_->valueChanged.notify( mCB(this,uiWellLogEditor,valChgCB) );
-
+    table_->rowDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
+    table_->selectionDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
+    table_->rowInserted.notify( mCB(this,uiWellLogEditor,rowInsertCB) );
     BufferString mdlbl( "MD" );
     mdlbl.add( getDistUnitString(SI().depthsInFeet(), true) );
     BufferString loglbl( log_.name() );
@@ -613,16 +615,91 @@ void uiWellLogEditor::selectMD( float md )
 void uiWellLogEditor::valChgCB( CallBacker* )
 {
     const RowCol& rc = table_->notifiedCell();
+
     if ( rc.row()<0 || rc.row()>=log_.size() )
 	return;
-
+    Well::DahObj::PointID currpid = log_.pointIDFor( rc.row() );
+    const bool mdchanged = rc.col() == 0;
     const float newval = table_->getFValue( rc );
-    const float oldval = log_.valueByIdx( rc.row() );
+    const float oldval = mdchanged ? log_.dah( currpid ) : 
+							log_.value( currpid );
     if ( mIsEqual(oldval,newval,mDefEpsF) )
 	return;
 
-    log_.setValue( log_.pointIDFor(rc.row()), newval );
+    if ( mdchanged )
+    {
+	float prevmdval = 0.f;
+	float nextmdval = 0.f;
+	bool ismdok = false;
+	
+	if ( rc.row() != 0 )
+	{
+	    prevmdval = log_.dah( log_.pointIDFor(rc.row()-1) );
+	    ismdok = newval > prevmdval;
+	    if ( !ismdok )
+	    {
+		uiMSG().error(tr("The MD value entered is less than the "
+				 "previous MD value. Please Change."));
+		return;
+	    }
+	}
+	
+	if ( rc.row() < log_.size()-1 )
+	{
+	    nextmdval = log_.dah( log_.pointIDFor(rc.row()+1) );
+	    ismdok = newval < nextmdval;
+	    if ( !ismdok )
+	    {
+		uiMSG().error(tr("The MD value entered is greater than the "
+				 "next MD value. Please Change."));
+		return;
+	    }
+	}
+
+	if ( ismdok )
+	    log_.setDah( currpid, newval );
+    }
+    else
+    {
+	log_.setValue( currpid, newval );
+    }
+    
     changed_ = true;
+    valueChanged.trigger();
+}
+
+
+void uiWellLogEditor::rowDelCB( CallBacker* )
+{
+    TypeSet<int> rowidxset = table_->getNotifRCs();
+
+    for( int idx=rowidxset.size()-1; idx>=0; idx-- )
+    {
+	int rowidx = rowidxset[idx];
+	log_.remove( log_.pointIDFor(rowidx) );
+    }
+    changed_ = true;
+    valueChanged.trigger();
+}
+
+
+void uiWellLogEditor::rowInsertCB( CallBacker* cb )
+{
+    int rownr = table_->currentRow();
+
+    Well::DahObj::PointID currpid = log_.pointIDFor( rownr );
+    
+    float prevmdval = 0.f;
+    float nextmdval = 0.f;
+	
+    if ( rownr != 0 )
+	prevmdval = log_.dah( log_.pointIDFor(rownr-1) );
+	
+    if ( rownr < log_.size()-1 )
+	nextmdval = log_.dah( log_.pointIDFor(rownr) );
+
+    log_.setValueAt( (prevmdval+nextmdval)/2, 0 );
+
     valueChanged.trigger();
 }
 
