@@ -186,7 +186,7 @@ bool acceptOK()
 
 void uiImpGPRMgr::doWork( CallBacker* )
 {
-    if ( !uiSurvey::survTypeOKForUser(true) ) return;
+    if ( !Survey::userIsOKWithPossibleTypeChange(true) ) return;
 
     uiDZTImporter dlg( &appl_ );
     dlg.go();

@@ -10,7 +10,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
+#include "uidpscrossplottools.h"
 #include "uiaxishandler.h"
 #include "uidatapointset.h"
 #include "coltabsequence.h"
@@ -20,7 +21,6 @@ ________________________________________________________________________
 #include "uiaxisdata.h"
 #include "rowcol.h"
 #include "linear.h"
-#include "uidpscrossplottools.h"
 
 class RowCol;
 class MouseEvent;

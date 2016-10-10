@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiiocommon.h"
 #include "task.h"
 #include "arraynd.h"
 #include "datapointset.h"
@@ -44,6 +45,7 @@ public:
     bool			doWork(od_int64 start,od_int64 stop,int);
 
 protected:
+
     const DataPointSet&			dps_;
     ArrayND<float>&			freqdata_;
     ObjectSet<AxisParam>		axisdatas_;
@@ -53,4 +55,5 @@ protected:
     CalcAreaType			areatype_;
 
     float				getVal(int colid,int rowid) const;
+
 };

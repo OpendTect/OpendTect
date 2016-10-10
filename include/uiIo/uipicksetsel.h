@@ -10,10 +10,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
+#include "uiioobjsel.h"
 #include "pickset.h"
 #include "polygon.h"
-#include "uiioobjsel.h"
 #include "ioobjctxt.h"
 
 

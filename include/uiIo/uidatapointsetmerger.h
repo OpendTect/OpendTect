@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "bufstringset.h"
 #include "ctxtioobj.h"
 #include "datapointset.h"

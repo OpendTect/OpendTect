@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uicompoundparsel.h"
 #include "uiposprovgroup.h"
 #include "iopar.h"

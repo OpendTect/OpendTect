@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uigraphicsitem.h"
 #include "uiworld2ui.h"
 

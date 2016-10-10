@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "factory.h"
 #include "transl.h"
 #include "notify.h"

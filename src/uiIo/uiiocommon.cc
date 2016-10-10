@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uisurveyzip.h"
+#include "uiiocommon.h"
 
 #include "uifiledlg.h"
 #include "uitaskrunner.h"
@@ -19,8 +19,58 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "ziparchiveinfo.h"
 #include "ziputils.h"
+#include "dirlist.h"
+#include "uistring.h"
 
-bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
+
+void Survey::getDirectoryNames( BufferStringSet& list, bool addfullpath,
+				const char* dataroot, const char* excludenm )
+{
+    BufferString basedir = dataroot;
+    if ( basedir.isEmpty() )
+	basedir = GetBaseDataDir();
+    DirList dl( basedir, DirList::DirsOnly );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const BufferString& dirnm = dl.get( idx );
+	if ( excludenm && dirnm == excludenm )
+	    continue;
+
+	const FilePath fp( basedir, dirnm, SurveyInfo::sKeySetupFileName() );
+	if ( File::exists(fp.fullPath()) )
+	{
+	    if ( addfullpath )
+		list.add( dl.fullPath(idx) );
+	    else
+		list.add( dirnm );
+	}
+    }
+
+    list.sort();
+}
+
+
+bool Survey::userIsOKWithPossibleTypeChange( bool is2d )
+{
+    const bool dowarn = (is2d && !SI().has2D()) || (!is2d && !SI().has3D());
+    if ( !dowarn )
+	return true;
+
+     uiString warnmsg = od_static_tr("Survey_userIsOKWithPossibleTypeChange",
+	 		   "Your survey is set up as '%1 data"
+	     		   "\nyou will have to change the survey setup."
+			   "\n\nDo you wish to continue?")
+      .arg( is2d
+	  ? od_static_tr("Survey_userIsOKWithPossibleTypeChange",
+		"3-D only'.\nTo be able to actually use 2-D")
+	    : od_static_tr("Survey_userIsOKWithPossibleTypeChange",
+		"2-D only'.\nTo be able to actually use 3-D"));
+
+    return uiMSG().askContinue( warnmsg );
+}
+
+
+bool Survey::unzipFile( uiParent* par, const char* inpfnm,
 			   const char* destdir )
 {
     ZipArchiveInfo zinfo( inpfnm );
@@ -28,7 +78,7 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
     zinfo.getAllFnms( fnms );
     if ( fnms.isEmpty() )
     {
-	uiMSG().error( uiStrings::phrInvalid(od_static_tr("uiSurvey_UnzipFile",
+	uiMSG().error( uiStrings::phrInvalid(od_static_tr("Survey_unzipFile",
 							      "Zip Archive")) );
 	return false;
     }
@@ -37,7 +87,7 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
     const bool isvalidsurvey = fnms.indexOf( omf ) > -1;
     if ( !isvalidsurvey )
     {
-	uiMSG().error( od_static_tr("uiSurvey_UnzipFile",
+	uiMSG().error( od_static_tr("Survey_unzipFile",
 			    "This archive does not contain any valid survey") );
 	return false;
     }
@@ -45,19 +95,19 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
 	destdir = GetBaseDataDir();
     if ( !File::exists(destdir) )
     {
-	uiMSG().error( od_static_tr("uiSurvey_UnzipFile","%1\ndoes not exist")
+	uiMSG().error( od_static_tr("Survey_unzipFile","%1\ndoes not exist")
 					       .arg(toUiString(destdir)) );
 	return false;
     }
     if ( !File::isDirectory(destdir) )
     {
-	uiMSG().error( od_static_tr("uiSurvey_UnzipFile",
+	uiMSG().error( od_static_tr("Survey_unzipFile",
 		      "%1\nis not a directory").arg(toUiString(destdir)) );
 	return false;
     }
     if ( !File::isWritable(destdir) )
     {
-	uiMSG().error( od_static_tr("uiSurvey_UnzipFile",
+	uiMSG().error( od_static_tr("Survey_unzipFile",
 				    "%1 \nis not writable")
 			            .arg(toUiString(destdir)) );
 	return false;
@@ -66,7 +116,7 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
     FilePath surveypath( destdir, survnm );
     if ( File::exists(surveypath.fullPath()) )
     {
-	 uiString errmsg( od_static_tr("uiSurvey_UnzipFile",
+	 uiString errmsg( od_static_tr("survey_UnzipFile",
 				 "%1 survey already exists.\nOverwrite the",
 				 " existing survey?").arg(toUiString(
 				 surveypath.fullPath())));
@@ -78,7 +128,7 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
     if ( zipfnm.isEmpty() || !File::exists(zipfnm) )
     {
 	uiFileDialog fd( par, true, 0, "*.zip", uiStrings::phrSelect(
-			od_static_tr("uiSurvey_UnzipFile","survey zip file")) );
+			od_static_tr("Survey_unzipFile","survey zip file")) );
 	if ( !fd.go() )
 	    return false;
 	zipfnm = fd.fileName();
@@ -99,7 +149,7 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
 }
 
 
-bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
+bool Survey::zipDirectory( uiParent* par, const char* sdn, const char* outfnm )
 {
     BufferString survdirnm( sdn );
     if ( survdirnm.isEmpty() )
@@ -110,7 +160,7 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
 	inpdir = File::linkEnd(inpdir);
     if ( !File::isDirectory(inpdir) )
     {
-	uiMSG().error(od_static_tr("uiSurvey_ZipDirectory","%1\ndoes not exist")
+	uiMSG().error(od_static_tr("Survey_zipDirectory","%1\ndoes not exist")
 		      .arg(toUiString(inpdir)) );
 	return false;
     }
@@ -121,7 +171,7 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
 	const FilePath fp( zipfnm );
 	if ( !File::isWritable(fp.pathOnly()) )
 	{
-	    uiMSG().error(od_static_tr("uiSurvey_ZipDirectory",
+	    uiMSG().error(od_static_tr("Survey_zipDirectory",
 			  "%1 is not writable").arg(toUiString(fp.pathOnly())));
 	    return false;
 	}

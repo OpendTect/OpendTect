@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiiocommon.h"
 #include "uidialog.h"
 
 class uiDataPointSetCrossPlotter;

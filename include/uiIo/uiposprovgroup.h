@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uiposfiltgroup.h"
 #include "trckeyzsampling.h"
 #include "factory.h"

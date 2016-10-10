@@ -139,7 +139,8 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     if ( !dlgobj ) \
     { \
 	const Seis::GeomType gt( Seis::geomTypeOf( is2d, isps ) ); \
-	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true; \
+	if ( !Survey::userIsOKWithPossibleTypeChange(Seis::is2D(gt)) ) \
+	    return true; \
 	dlgobj = new uiSeisIOSimple( parent(), gt, forread ); \
 	dlgobj->setCaption( mkDlgCaption(forread,is2d,isps) ); \
     }\

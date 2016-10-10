@@ -14,7 +14,7 @@ ________________________________________________________________________
   the survey, then a list of the objects belonging to that survey */
 
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uidialog.h"
 
 class IOObj;

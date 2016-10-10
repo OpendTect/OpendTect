@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uibatchjobdispatcherlauncher.h"
 #include "uidialog.h"
 #include "clusterjobdispatch.h"

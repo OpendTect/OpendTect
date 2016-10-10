@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "bufstringset.h"
 #include "notify.h"
 #include "uistring.h"

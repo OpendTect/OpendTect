@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uidlggroup.h"
 #include "uivarwizarddlg.h"
 class PropertyRef;

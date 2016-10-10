@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uidatapointsetcrossplot.h"
 #include "uimainwin.h"
 

@@ -10,9 +10,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
-#include "uidialog.h"
+#include "uiiocommon.h"
 #include "uiioobjselgrp.h"
+#include "uidialog.h"
 
 /*!\brief Dialog letting the user select an object. It returns an IOObj* after
 	  successful go(). */

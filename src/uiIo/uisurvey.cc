@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uisurvey.h"
 
 #include "uibuttongroup.h"
-#include "uichecklist.h"
 #include "uicombobox.h"
 #include "uiconvpos.h"
 #include "uicoordsystem.h"
@@ -20,18 +19,15 @@ ________________________________________________________________________
 #include "uifont.h"
 #include "uigroup.h"
 #include "uilabel.h"
-#include "uilineedit.h"
-#include "uilistbox.h"
-#include "uimain.h"
-#include "uimsg.h"
 #include "uipixmap.h"
+#include "uilistbox.h"
+#include "uimsg.h"
 #include "uiseparator.h"
+#include "uisplitter.h"
 #include "uisetdatadir.h"
 #include "uisettings.h"
 #include "uisip.h"
-#include "uisplitter.h"
 #include "uisurveyselect.h"
-#include "uisurveyzip.h"
 #include "uisurvinfoed.h"
 #include "uisurvmap.h"
 #include "uitaskrunner.h"
@@ -60,6 +56,9 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
+#include "uilineedit.h"
+
+
 static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
 #define mErrRetVoid(s)	{ if ( s.isSet() ) uiMSG().error(s); return; }
 #define mErrRet(s)	{ if ( s.isSet() ) uiMSG().error(s); return false; }
@@ -78,10 +77,11 @@ static ObjectSet<uiSurvey::Util>& getUtils()
     {
 	ManagedObjectSet<uiSurvey::Util>* newutils =
 				    new ManagedObjectSet<uiSurvey::Util>;
-	*newutils += new uiSurvey::Util( "xy2ic",od_static_tr("getUtils",
-		"Convert (X,Y) to/from (%1,%2)").arg(uiStrings::sInline())
-		.arg(uiStrings::sCrossline()), CallBack() );
-	*newutils += new uiSurvey::Util( "spherewire", od_static_tr("getUtils",
+	*newutils += new uiSurvey::Util( "xy2ic",
+		od_static_tr("uiSurvey_getUtils",
+		"Convert (X,Y) to/from Inline/Crossline"), CallBack() );
+	*newutils += new uiSurvey::Util( "spherewire",
+				od_static_tr("uiSurvey_getUtils",
 				"Setup geographical coordinates"), CallBack() );
 
 	utils.setIfNull(newutils,true);
@@ -130,18 +130,13 @@ uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
     else
 	curfnm = dataroot_;
 
-    inpsurveyfld_ = new uiSurveySelect( this, true, false, "Survey to copy" );
-    inpsurveyfld_->setSurveyPath( curfnm );
-    newsurveyfld_ = new uiSurveySelect( this, false, false, "New Survey name" );
-    newsurveyfld_->attach( alignedBelow,  inpsurveyfld_ );
+    new uiLabel( this, mTODONotImplPhrase() );
 }
 
 void inpSel( CallBacker* )
 {
     BufferString fullpath;
-    inpsurveyfld_->getFullSurveyPath( fullpath );
     FilePath fp( fullpath );
-    newsurveyfld_->setInputText( fp.fullPath() );
 }
 
 bool copySurv()
@@ -165,18 +160,12 @@ bool copySurv()
 
 bool acceptOK()
 {
-    if ( !inpsurveyfld_->getFullSurveyPath( inpdirnm_ ) ||
-	 !newsurveyfld_->getFullSurveyPath( newdirnm_) )
-	mErrRet(tr("No Valid or Empty Input"))
-
     return copySurv();
 }
 
     const BufferString	dataroot_;
     BufferString	inpdirnm_;
     BufferString	newdirnm_;
-    uiSurveySelect*	inpsurveyfld_;
-    uiSurveySelect*	newsurveyfld_;
 
 };
 
@@ -245,7 +234,7 @@ uiSurvey::uiSurvey( uiParent* p )
     rightgrp->attach( rightOf, leftgrp );
 
     uiLabel* infolbl = new uiLabel( topgrp, uiString::emptyString() );
-    infolbl->setPixmap( "info" );
+    infolbl->setPixmap( uiPixmap("info") );
     infolbl->setToolTip( tr("Survey Information") );
     infolbl->attach( alignedBelow, leftgrp );
     infofld_ = new uiTextEdit( topgrp, "Info", true );
@@ -369,42 +358,6 @@ bool uiSurvey::rootDirWritable() const
 	return false;
     }
     return true;
-}
-
-
-void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot,
-				const char* excludenm )
-{
-    BufferString basedir = dataroot;
-    if ( basedir.isEmpty() )
-	basedir = GetBaseDataDir();
-    DirList dl( basedir, DirList::DirsOnly );
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	const BufferString& dirnm = dl.get( idx );
-	if ( excludenm && dirnm == excludenm )
-	    continue;
-
-	const FilePath fp( basedir, dirnm, SurveyInfo::sKeySetupFileName() );
-	if ( File::exists(fp.fullPath()) )
-	    list.add( dirnm );
-    }
-
-    list.sort();
-}
-
-
-bool uiSurvey::survTypeOKForUser( bool is2d )
-{
-    const bool dowarn = (is2d && !SI().has2D()) || (!is2d && !SI().has3D());
-    if ( !dowarn ) return true;
-
- uiString warnmsg = tr("Your survey is set up as '%1 data\nyou will have to "
-		       "change the survey setup.\n\nDo you wish to continue?")
-		  .arg(is2d ? tr("3-D only'.\nTo be able to actually use 2-D")
-			    : tr("2-D only'.\nTo be able to actually use 3-D"));
-
-    return uiMSG().askContinue( warnmsg );
 }
 
 
@@ -648,7 +601,7 @@ void uiSurvey::extractButPushed( CallBacker* )
     if ( !fdlg.go() )
 	return;
 
-    uiSurvey_UnzipFile( this, fdlg.fileName(), dataroot_ );
+    Survey::unzipFile( this, fdlg.fileName(), dataroot_ );
     updateSurvList();
     readSurvInfoFromFile();
     //TODO set unpacked survey as current with dirfld_->setCurrentItem()
@@ -684,7 +637,7 @@ void uiSurvey::compressButPushed( CallBacker* )
     if ( zipext != "zip" )
 	mErrRetVoid(tr("Please add .zip extension to the file name"))
 
-    uiSurvey_ZipDirectory( this, survnm, zippath.fullPath() );
+    Survey::zipDirectory( this, survnm, zippath.fullPath() );
 }
 
 
@@ -765,7 +718,8 @@ void uiSurvey::updateSurvList()
     int newselidx = dirfld_->currentItem();
     const BufferString prevsel( dirfld_->getText() );
     dirfld_->setEmpty();
-    BufferStringSet dirlist; getSurveyList( dirlist, dataroot_ );
+    BufferStringSet dirlist; Survey::getDirectoryNames( dirlist, false,
+	    						dataroot_ );
     dirfld_->addItems( dirlist );
 
     if ( dirfld_->isEmpty() )

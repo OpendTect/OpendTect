@@ -9,8 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
-
+#include "uiiocommon.h"
 #include "coordsystem.h"
 #include "factory.h"
 #include "uidlggroup.h"

@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uidialog.h"
 #include "uisettings.h"
 #include "bufstringset.h"

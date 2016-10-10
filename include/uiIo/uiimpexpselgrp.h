@@ -10,9 +10,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
-#include "uidialog.h"
+#include "uiiocommon.h"
 #include "uidatapointsetcrossplot.h"
+#include "uidialog.h"
 #include "uigroup.h"
 #include "filepath.h"
 #include "strmdata.h"

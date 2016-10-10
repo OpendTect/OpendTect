@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiiocommon.h"
 #include "uipicksetsel.h"
 #include "uidialog.h"
 class uiIOObjSelGrp;

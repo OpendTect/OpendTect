@@ -10,17 +10,18 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uidialog.h"
-#include "uiiosel.h"
 
 class uiGenInput;
 class uiListBox;
 class uiFileInput;
 
+
 mExpClass(uiIo) uiSurveySelectDlg : public uiDialog
 { mODTextTranslationClass(uiSurveySelectDlg);
 public:
+
 			uiSurveySelectDlg(uiParent*,const char* survnm=0,
 					  const char* dataroot=0,
 					  bool forread=true,
@@ -49,29 +50,4 @@ protected:
     bool		forread_;
     bool		needvalidrootdir_;
     BufferString	dataroot_;
-};
-
-
-mExpClass(uiIo) uiSurveySelect : public uiIOSelect
-{ mODTextTranslationClass(uiSurveySelect);
-public:
-			uiSurveySelect(uiParent*,bool forread,
-				       bool needvalidrootdir,
-				       const char* label=0);
-			~uiSurveySelect();
-
-    bool		isNewSurvey() const	{ return isnewsurvey_; }
-    bool		getFullSurveyPath(BufferString&) const;
-    void		setSurveyPath(const char*);
-
-    bool		forRead() const		{ return true; }
-
-protected:
-
-    void		selectCB(CallBacker*);
-    bool		isnewsurvey_;
-    BufferString	dataroot_;
-    BufferString	surveyname_;
-    bool		forread_;
-    bool		needvalidrootdir_;
 };

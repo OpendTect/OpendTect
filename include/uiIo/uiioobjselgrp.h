@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uigroup.h"
 #include "dbkey.h"
 #include "bufstringset.h"

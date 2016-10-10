@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uigroup.h"
 namespace Pos { class Provider; }
 class TrcKeyZSampling;

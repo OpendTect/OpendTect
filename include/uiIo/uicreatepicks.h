@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiiocommon.h"
 #include "uinewpickset.h"
 #include "trckeyzsampling.h"
 #include "bufstringset.h"

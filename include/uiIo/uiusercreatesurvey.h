@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uidialog.h"
 #include "survinfo.h"
 class uiGenInput;

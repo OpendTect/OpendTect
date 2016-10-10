@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uidlggroup.h"
 class uiDataPointSetCrossPlotter;
 class uiDPSCPScalingTab;

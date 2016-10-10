@@ -10,10 +10,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
-#include "uiiomod.h"
+#include "uiiocommon.h"
 #include "uigeom.h"
 #include "polygon.h"
+#include "color.h"
 
 
 mStruct(uiIo) SelectionArea

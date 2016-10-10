@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "plugins.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
-#include "uisurvey.h"
 #include "survinfo.h"
 #include "uiselsimple.h"
 #include "uilistbox.h"
@@ -115,7 +114,7 @@ protected:
 uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
     survlist_.erase();
-    uiSurvey::getSurveyList( survlist_, 0, SI().getDirName() );
+    Survey::getDirectoryNames( survlist_, 0, SI().getDirName() );
     uiSelectFromList::Setup setup(  uiStrings::sSurveys(), survlist_ );
     setup.dlgtitle( uiStrings::phrSelect(uiStrings::sSurvey()) );
     uiSelectFromList* dlg = new uiSelectFromList( p, setup );

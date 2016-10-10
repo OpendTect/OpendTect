@@ -39,6 +39,7 @@ set( OD_MODULE_SOURCES
 	uiimpexppdf.cc
 	uiimpexp2dgeom.cc
 	uiimppvds.cc
+	uiiocommon.cc
 	uiioobj.cc
 	uiioobjmanip.cc
 	uiioobjsel.cc
@@ -67,7 +68,6 @@ set( OD_MODULE_SOURCES
 	uisrchprocfiles.cc
 	uisurvey.cc
 	uisurveyselect.cc
-	uisurveyzip.cc
 	uisurvinfoed.cc
 	uisurvmap.cc
 	uiusercreatesurvey.cc

@@ -12,16 +12,16 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
-#include "bufstring.h"
 
 class BufferStringSet;
 class SurveyInfo;
 class uiButton;
-class uiLineEdit;
 class uiListBox;
+class uiTextEdit;
+class uiComboBox;
+class uiLineEdit;
 class uiSurveyMap;
 class uiSurvInfoProvider;
-class uiTextEdit;
 
 
 /*!\brief The main survey selection dialog */
@@ -33,14 +33,7 @@ public:
 			uiSurvey(uiParent*);
 			~uiSurvey();
 
-    static void		getSurveyList(BufferStringSet&,const char* dataroot=0,
-				      const char* excludenm=0);
-
-    static bool		survTypeOKForUser(bool is2d);
-			//!< checks whether given type has support
-			//!< returns whether user wants to continue
-
-    /*!\brief 'Menu' item on window. First is always 'X,Y <-> I/C' */
+    /*!\brief Tool item on window. First is always 'X,Y <-> I/C' */
     struct Util
     {
 			Util( const char* pixmap, const uiString& tooltip,
@@ -60,7 +53,7 @@ public:
 
     const char*		selectedSurveyName() const;
     bool		freshSurveySelected() const
-			{ return freshsurveyselected_; }
+						{ return freshsurveyselected_; }
     bool		hasSurveys() const;
     bool		currentSurvRemoved() const { return cursurvremoved_; }
 

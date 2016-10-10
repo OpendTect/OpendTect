@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uiselsimple.h"
 #include "uibutton.h"
 #include "uidesktopservices.h"
-#include "uisurveyzip.h"
 #include "uimsg.h"
 #include "envvars.h"
 #include "file.h"
@@ -302,5 +301,5 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
         zipfilenm = dlg.fileName();
     }
 
-    (void)uiSurvey_UnzipFile( par, zipfilenm, datadir );
+    (void)Survey::unzipFile( par, zipfilenm, datadir );
 }
