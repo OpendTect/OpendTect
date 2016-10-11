@@ -71,7 +71,7 @@ Wavelet::Wavelet( bool isricker, ValueType fpeak, ZType sr, ValueType scale )
 
 Wavelet::Wavelet( const Wavelet& oth )
 	: SharedObject(oth)
-    	, sz_(0)
+	, sz_(0)
 	, samps_(0)
 	, intpol_(0)
 {
@@ -153,7 +153,8 @@ Wavelet::ValueType Wavelet::getValue( ZType z ) const
 {
     mLock4Read();
     const ZType pos = (z - mZStart) / dpos_;
-    return interpolator().value( WaveletValueSeries(*this), pos );
+    const WaveletValueSeries wvs( *this );
+    return interpolator().value( wvs, pos );
 }
 
 
