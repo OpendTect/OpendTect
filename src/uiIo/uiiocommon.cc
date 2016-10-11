@@ -57,14 +57,12 @@ bool uiSurvey::userIsOKWithPossibleTypeChange( bool is2d )
 	return true;
 
      uiString warnmsg = od_static_tr("uiSurvey_userIsOKWithPossibleTypeChange",
-			   "Your survey is set up as '%1 data"
+			   "Your survey is set up as %1 only."
+			   "\nTo be able to actually use %2 data"
 			   "\nyou will have to change the survey setup."
 			   "\n\nDo you wish to continue?")
-      .arg( is2d
-	  ? od_static_tr("uiSurvey_userIsOKWithPossibleTypeChange",
-		"3-D only'.\nTo be able to actually use 2-D")
-	    : od_static_tr("uiSurvey_userIsOKWithPossibleTypeChange",
-		"2-D only'.\nTo be able to actually use 3-D"));
+	      .arg( is2d ? uiStrings::s3D() : uiStrings::s2D() )
+	      .arg( is2d ? uiStrings::s2D() : uiStrings::s3D() );
 
     return uiMSG().askContinue( warnmsg );
 }
@@ -200,4 +198,81 @@ bool uiSurvey::zipDirectory( uiParent* par, const char* sdn,
     }
 
     return true;
+}
+
+
+SurveyInfo* uiSurvey::copySurvey( uiParent* uiparent, const char* survnm,
+			const char* dataroot, const char* survdirnm,
+			const char* targetpath )
+{
+    if ( !File::isDirectory(targetpath) )
+    {
+	uiMSG().error( od_static_tr("uiSurvey_finishSurveyCopy",
+		"Invalid target directory for copy:\n%1").arg( targetpath ) );
+	return 0;
+    }
+
+    uiString alreadyexiststr = od_static_tr("uiSurvey_finishSurveyCopy",
+	    "A directory\n\n%1\n\nalready exists.\nPlease remove or rename it");
+
+    const BufferString newsurvdirnm( SurveyInfo::dirNameForName(survnm) );
+    const BufferString todir = FilePath(targetpath,newsurvdirnm).fullPath();
+    if ( File::exists(todir) )
+    {
+	uiMSG().error( alreadyexiststr.arg( todir ) );
+        return 0;
+    }
+    const BufferString linktodir = FilePath(dataroot,newsurvdirnm).fullPath();
+    if ( File::exists(linktodir) )
+    {
+	if ( File::isLink(linktodir) )
+	    File::remove( linktodir );
+	if ( File::exists(linktodir) )
+	{
+	    uiMSG().error( alreadyexiststr.arg( linktodir ) );
+	    return 0;
+	}
+    }
+
+    const BufferString tocopydirfullpath = FilePath(dataroot,survdirnm)
+						.fullPath();
+    const BufferString fromdir = File::linkEnd( tocopydirfullpath );
+
+    uiTaskRunner taskrunner( uiparent );
+    PtrMan<Executor> copier = File::getRecursiveCopier( fromdir, todir );
+    if ( !taskrunner.execute(*copier) )
+	return 0;
+
+    File::makeWritable( todir, true, true );
+
+    if ( FixedString(targetpath) != dataroot )
+    {
+	if ( !File::createLink(todir,linktodir) )
+	{
+	    uiMSG().error( od_static_tr("uiSurvey_finishSurveyCopy",
+		"Copy was successful, but could not create a link from:"
+		    "\n\n%1\n\nto:\n\n%2\n\n"
+		"The new survey will therefore not appear in the list.")
+		    .arg( todir ).arg( linktodir ) );
+	    return 0;
+	}
+    }
+
+    uiRetVal uirv = uiRetVal::OK();
+    SurveyInfo* survinfo = SurveyInfo::read( todir, uirv );
+    if ( uirv.isOK() )
+    {
+	survinfo->setName( survnm );
+	survinfo->updateDirName();
+	survinfo->write( todir );
+    }
+    else
+    {
+	delete survinfo; survinfo = 0;
+        uiMSG().error( od_static_tr("uiSurvey_finishSurveyCopy",
+	    "The copied survey's information cannot be read."
+	    "\nThis is probably related to file access permission problems.") );
+    }
+
+    return survinfo;
 }

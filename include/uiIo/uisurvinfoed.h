@@ -37,7 +37,7 @@ public:
 			~uiSurveyInfoEditor();
 
     bool		dirnmChanged() const	{ return dirnamechanged_; }
-    const char*		dirName() const;
+    BufferString	dirName() const;
 
     static ObjectSet<uiSurvInfoProvider>& survInfoProvs();
     static int		addInfoProvider(uiSurvInfoProvider*);

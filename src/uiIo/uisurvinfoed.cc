@@ -555,35 +555,38 @@ bool uiSurveyInfoEditor::acceptOK()
     {
 	if ( !uiMSG().askGoOn(tr("Copy your survey to another location?")) )
 	    return false;
-	else if ( !copySurv(basepath_,orgdirname_,newbasepath,newdirnm) )
+
+        BufferString olddirnm = orgdirname_;
+	if ( !dirnamechanged_ )
+	{
+	    olddirnm.add( "_org" );
+	    if ( !renameSurv(basepath_,orgdirname_,olddirnm) )
+		return false;
+	}
+
+	SurveyInfo* newsi = uiSurvey::copySurvey( this, si_.name(),
+				basepath_, olddirnm, newbasepath );
+	if ( !newsi )
+	{
+	    if ( dirnamechanged_ )
+		renameSurv( basepath_, olddirnm, orgdirname_ );
 	    return false;
-	else if ( !uiMSG().askGoOn(tr("Keep the survey at the old location?")) )
-	    File::remove( olddir );
+	}
+
+	si_ = *newsi;
+	doApply();
+	delete newsi;
+
+	if ( !uiMSG().askGoOn(tr("Keep the survey (suffixed '_org') "
+				    "at the old location?")) )
+	    File::remove( olddirnm );
+
 	basepath_ = newbasepath;
     }
     else if ( dirnamechanged_ )
     {
 	if ( !renameSurv(basepath_,orgdirname_,newdirnm) )
 	    return false;
-    }
-
-    BufferString linkpos = FilePath(basepath_).add(newdirnm).fullPath();
-    if ( File::exists(linkpos) )
-    {
-       if ( File::isLink(linkpos) )
-	   File::remove( linkpos );
-    }
-
-    if ( !File::exists(linkpos) )
-    {
-	if ( !File::createLink(newdir,linkpos) )
-	{
-	    uiString msg =
-		uiStrings::phrCannotCreate( tr("link from \n%1 to \n%2")
-					     .arg(newdir).arg(linkpos));
-	    uiMSG().error( msg );
-	    return false;
-	}
     }
 
     si_.dirname_ = newdirnm;
@@ -604,11 +607,9 @@ bool uiSurveyInfoEditor::acceptOK()
 }
 
 
-const char* uiSurveyInfoEditor::dirName() const
+BufferString uiSurveyInfoEditor::dirName() const
 {
-    mDeclStaticString( ret ); ret = survnmfld_->text();
-    ret.clean( BufferString::AllowDots );
-    return ret.buf();
+    return SurveyInfo::dirNameForName( survnmfld_->text() );
 }
 
 

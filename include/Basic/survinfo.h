@@ -230,6 +230,7 @@ public:
     BufferString	getDirName() const		{ return dirname_; }
     BufferString	getBasePath() const		{ return basepath_; }
     BufferString	getFullDirPath() const;
+    static BufferString	dirNameForName(const char*);
     void		setBasePath( const char* s )	{ basepath_ = s; }
     void		updateDirName(); //!< May be used after setName()
 

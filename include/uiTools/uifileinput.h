@@ -76,7 +76,7 @@ public:
     void		getFileNames(BufferStringSet&) const;
 
     uiFileDialog::Mode	selectMode() const;
-    void		setSelectMode( uiFileDialog::Mode);
+    void		setSelectMode(uiFileDialog::Mode);
     bool		inDirectorySelectMode() const;
 
     void		setSensitive(bool yn)	{ setChildrenSensitive(yn); }

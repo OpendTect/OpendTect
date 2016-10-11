@@ -29,6 +29,11 @@ public:
 			{ SurveyInfo* si = survinfo_; survinfo_ = 0; return si;}
     int			sipIdx() const	    { return sipidx_; }
 
+    BufferString	sipName() const;
+    BufferString	survName() const;
+    BufferString	survDirName() const;
+    SurveyInfo::Pol2D	pol2D() const;
+
 protected:
 
     ObjectSet<uiSurvInfoProvider> sips_;
@@ -45,8 +50,6 @@ protected:
     bool		acceptOK();
 
     uiRetVal		getDefSurvInfo();
-    BufferString	sipName() const;
-    BufferString	survName() const;
     bool		has3D() const;
     bool		has2D() const;
     bool		isTime() const;
@@ -54,7 +57,6 @@ protected:
 
     bool		usrInputOK();
     void		fillSipsFld(bool have2d,bool have3d);
-    SurveyInfo::Pol2D	pol2D() const;
     void		pol2dChg(CallBacker*);
     void		zdomainChg(CallBacker*);
     bool		doUsrDef();

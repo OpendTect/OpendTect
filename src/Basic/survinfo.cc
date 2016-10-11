@@ -659,11 +659,15 @@ bool SurveyInfo::usePar( const IOPar& par )
 
 void SurveyInfo::updateDirName()
 {
-    if ( name().isEmpty() )
-	return;
+    dirname_ = dirNameForName( name() );
+}
 
-    dirname_ = name();
-    dirname_.clean( BufferString::AllowDots );
+
+BufferString SurveyInfo::dirNameForName( const char* nm )
+{
+    BufferString dirnm = nm;
+    dirnm.clean( BufferString::AllowDots );
+    return dirnm;
 }
 
 
@@ -1074,11 +1078,9 @@ void SurveyInfo::snapZ( float& z, int dir ) const
 static void putTr( const Pos::IdxPair2Coord::DirTransform& trans,
 		   IOPar& par, const char* key )
 {
-    BufferString res;
-
-    snprintf( res.getCStr(), res.bufSize(), "%.10lg`%.10lg`%.10lg",
-	      trans.a, trans.b, trans.c );
-    par.set( key, res );
+    char buf[1024];
+    snprintf( buf, 1024, "%.10lg`%.10lg`%.10lg", trans.a, trans.b, trans.c );
+    par.set( key, buf );
 }
 
 
@@ -1104,7 +1106,6 @@ bool SurveyInfo::write( const char* basedir ) const
     od_ostream& strm = sfio.ostrm();
     IOPar par;
     fillPar( par );
-
 
     if ( !par.write( strm, sKeySI ) )
     {

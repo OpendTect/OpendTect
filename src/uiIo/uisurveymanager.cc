@@ -90,25 +90,6 @@ static ObjectSet<uiSurveyManager::Util>& getUtils()
 }
 
 
-static BufferString getTrueDir( const char* dn )
-{
-    BufferString dirnm = dn;
-    FilePath fp;
-    while ( File::isLink(dirnm) )
-    {
-	BufferString newdirnm = File::linkEnd(dirnm);
-	fp.set( newdirnm );
-	if ( !fp.isAbsolute() )
-	{
-	    FilePath dirnmfp( dirnm );
-	    dirnmfp.setFileName( 0 );
-	    fp.setPath( dirnmfp.fullPath() );
-	}
-	dirnm = fp.fullPath();
-    }
-    return dirnm;
-}
-
 
 //--- uiNewSurveyByCopy
 
@@ -120,51 +101,73 @@ public:
 
 uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
 	: uiDialog(p,uiDialog::Setup(uiStrings::phrCopy(uiStrings::sSurvey()),
-        mNoDlgTitle, mODHelpKey(mNewSurveyByCopyHelpID)))
+			mNoDlgTitle, mODHelpKey(mNewSurveyByCopyHelpID)))
 	, dataroot_(dataroot)
+	, survinfo_(0)
+	, survdirsfld_(0)
 {
-    BufferString curfnm;
-    if ( dirnm && *dirnm )
-	curfnm = FilePath( dataroot_, dirnm ).fullPath();
-    else
-	curfnm = dataroot_;
+    BufferStringSet survdirnms;
+    uiSurvey::getDirectoryNames( survdirnms, false, dataroot );
+    if ( survdirnms.isEmpty() )
+	{ new uiLabel( this, tr("No surveys fond in this Data Root") ); return;}
 
-    new uiLabel( this, mTODONotImplPhrase() );
+    uiListBox::Setup su;
+    su.lbl( tr("Survey to copy") );
+    survdirsfld_ = new uiListBox( this, su );
+    survdirsfld_->addItems( survdirnms );
+    survdirsfld_->setHSzPol( uiObject::WideVar );
+    survdirsfld_->setStretch( 2, 2 );
+    survdirsfld_->setCurrentItem( dirnm );
+    mAttachCB( survdirsfld_->selectionChanged, uiNewSurveyByCopy::survDirSel );
+
+    newsurvnmfld_ = new uiGenInput( this, tr("New survey name") );
+    newsurvnmfld_->attach( alignedBelow, survdirsfld_ );
+
+    uiFileInput::Setup fisu( dataroot_ );
+    fisu.defseldir( dataroot_ ).directories( true );
+    targetpathfld_ = new uiFileInput( this, tr("Target location"), fisu );
+    targetpathfld_->setSelectMode( uiFileDialog::DirectoryOnly );
+    targetpathfld_->attach( alignedBelow, newsurvnmfld_ );
+#ifdef __win__
+    targetpathfld_->setSensitive( false );
+#endif
+
+    postFinalise().notify( mCB(this,uiNewSurveyByCopy,survDirSel) );
 }
 
-void inpSel( CallBacker* )
+void survDirSel( CallBacker* )
 {
-    BufferString fullpath;
-    FilePath fp( fullpath );
-}
-
-bool copySurv()
-{
-    if ( File::exists(newdirnm_) )
-    {
-        uiMSG().error(tr("A survey '%1' already exists.\n"
-			 "You will have to remove it first").arg(newdirnm_));
-        return false;
-    }
-
-    uiTaskRunner taskrunner( this );
-    const BufferString fromdir = getTrueDir( inpdirnm_ );
-    PtrMan<Executor> copier = File::getRecursiveCopier( fromdir, newdirnm_ );
-    if ( !taskrunner.execute(*copier) )
-	{ uiMSG().error(tr("Cannot copy the survey data")); return false; }
-
-    File::makeWritable( newdirnm_, true, true );
-    return true;
+    BufferString newsurvnm( "Copy of ", survdirsfld_->getText() );
+    newsurvnmfld_->setText( newsurvnm );
 }
 
 bool acceptOK()
 {
-    return copySurv();
+    if ( !anySurvey() )
+	return true;
+
+    const BufferString newsurvnm( newsurvnmfld_->text() );
+    if ( newsurvnm.size() < 2 )
+	return false;
+    const BufferString survdirtocopy( survdirsfld_->getText() );
+    if ( survdirtocopy.isEmpty() )
+	return false;
+
+    survinfo_ = uiSurvey::copySurvey( this, newsurvnm, dataroot_, survdirtocopy,
+				     targetpathfld_->fileName() );
+    return survinfo_;
+}
+
+bool anySurvey() const
+{
+    return survdirsfld_;
 }
 
     const BufferString	dataroot_;
-    BufferString	inpdirnm_;
-    BufferString	newdirnm_;
+    uiListBox*		survdirsfld_;
+    uiGenInput*		newsurvnmfld_;
+    uiFileInput*	targetpathfld_;
+    SurveyInfo*		survinfo_;
 
 };
 
@@ -520,11 +523,12 @@ void uiSurveyManager::rmButPushed( CallBacker* )
 {
     const BufferString selnm( selectedSurveyName() );
     const BufferString seldirnm = FilePath(dataroot_).add(selnm).fullPath();
-    const BufferString truedirnm = getTrueDir( seldirnm );
+    const BufferString truedirnm = File::linkEnd( seldirnm );
 
     uiString msg = tr("This will delete the entire survey directory:\n\t%1"
 		      "\nFull path: %2").arg(selnm).arg(truedirnm);
-    if ( !uiMSG().askRemove(msg) ) return;
+    if ( !uiMSG().askRemove(msg) )
+	return;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     const bool rmisok = File::remove( truedirnm );
@@ -558,7 +562,8 @@ void uiSurveyManager::rmButPushed( CallBacker* )
 
 void uiSurveyManager::editButPushed( CallBacker* )
 {
-    if ( !cursurvinfo_ ) return; // defensive
+    if ( !cursurvinfo_ )
+	return; // defensive
     if ( doSurvInfoDialog(false) )
 	putToScreen();
 }
@@ -566,28 +571,17 @@ void uiSurveyManager::editButPushed( CallBacker* )
 
 void uiSurveyManager::copyButPushed( CallBacker* )
 {
-    if ( !cursurvinfo_ || !rootDirWritable() ) return;
+    if ( !cursurvinfo_ || !rootDirWritable() )
+	return;
 
     uiNewSurveyByCopy dlg( this, dataroot_, selectedSurveyName() );
-    if ( !dlg.go() )
+    if ( !dlg.anySurvey() || !dlg.go() )
 	return;
 
-    uiRetVal uirv = uiRetVal::OK();
-    setCurrentSurvInfo( SurveyInfo::read(dlg.newdirnm_,uirv) );
-    if ( !cursurvinfo_ )
-    {
-	uirv.insert( uiStrings::phrCannotRead(tr("the copied survey")) );
-	uiMSG().error( uirv );
-	return;
-    }
-
-    cursurvinfo_->setName( FilePath(dlg.newdirnm_).fileName() );
-    cursurvinfo_->updateDirName();
-    if ( !cursurvinfo_->write() )
-	uiMSG().warning( uiStrings::phrCannotWrite(tr("updated survey info")) );
+    setCurrentSurvInfo( dlg.survinfo_ );
 
     updateSurvList();
-    dirfld_->setCurrentItem( dlg.newdirnm_ );
+    dirfld_->setCurrentItem( dlg.survinfo_->getDirName() );
 }
 
 

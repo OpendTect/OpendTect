@@ -102,7 +102,9 @@ uiUserCreateSurvey::~uiUserCreateSurvey()
 
 
 BufferString uiUserCreateSurvey::survName() const
-{ return survnmfld_->text(); }
+{ return BufferString( survnmfld_->text() ); }
+BufferString uiUserCreateSurvey::survDirName() const
+{ return SurveyInfo::dirNameForName( survnmfld_->text() ); }
 bool uiUserCreateSurvey::has3D() const
 { return pol2dfld_->isChecked(0); }
 bool uiUserCreateSurvey::has2D() const
@@ -198,17 +200,17 @@ bool uiUserCreateSurvey::doUsrDef()
 
 bool uiUserCreateSurvey::usrInputOK()
 {
-    BufferString survnm = survName();
-    if ( survnm.isEmpty() )
+    const BufferString survdirnm = survDirName();
+    if ( survdirnm.isEmpty() )
 	mErrRet(uiStrings::phrEnter(tr("a name for the new survey")))
 
-    survnm.clean( BufferString::AllowDots );
-    const BufferString storagedir = FilePath(dataroot_).add(survnm).fullPath();
+    const BufferString storagedir
+		= FilePath( dataroot_ ).add( survdirnm ).fullPath();
     if ( File::exists(storagedir) )
     {
 	uiString errmsg = tr("A survey called %1 already exists\nPlease "
 			     "remove it first or use another survey name")
-			.arg(survnm);
+			.arg( survName() );
 	mErrRet( errmsg )
     }
 

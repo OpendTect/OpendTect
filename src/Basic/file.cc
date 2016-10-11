@@ -763,7 +763,7 @@ bool remove( const char* fnm )
     else if ( fnmIsURI(fnm) )
 	return false;
 #ifndef OD_NO_QT
-    return isFile(fnm) ? QFile::remove( fnm ) : removeDir( fnm );
+    return isFile(fnm) || isLink(fnm) ? QFile::remove( fnm ) : removeDir( fnm );
 #else
     pFreeFnErrMsg(not_implemented_str);
     return false;
