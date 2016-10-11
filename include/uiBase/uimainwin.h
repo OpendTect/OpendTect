@@ -178,6 +178,8 @@ public:
 			     format=0: use filenm suffix
 			     quality = 0...100: small compressed to large
 			     uncompressed file, quality=-1: use default    */
+    static bool		grabScreen(const char* filenm,const char* format=0,
+				   int quality=-1,int screen=0);
 
     void		activateInGUIThread(const CallBack&,
 					    bool busywait=true);

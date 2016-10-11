@@ -74,6 +74,12 @@ void SlideLayout::forBlankPresentation()
     width_ = 10.f; height_ = 7.5f;
     left_ = right_ = 0.5f;
     top_ = 1.7f; bottom_ = 0.7f;
+
+    Settings& setts = Settings::fetch( sSettingsKey );
+    setts.get( sLeftStr(), left_ );
+    setts.get( sRightStr(), right_ );
+    setts.get( sTopStr(), top_ );
+    setts.get( sBottomStr(), bottom_ );
 }
 
 
@@ -179,8 +185,8 @@ void SlideContent::addImage( BufferString& script )
 	  .add( "top = Inches(" ).add( imagepos_.y ).add( ")\n" )
 	  .add( "width = Inches(" ).add( imagesz_.width() ).add( ")\n" )
 	  .add( "height = Inches(" ).add( imagesz_.height() ).add( ")\n" )
-	  .add( "pic = slide.shapes.add_picture( picname, " )
-	  .add( "left, top, width, height )\n\n" );
+	  .add( "pic = slide.shapes.add_picture( picname, "
+		"left, top, width, height )\n" );
 }
 
 
@@ -194,9 +200,33 @@ PresentationSpec::~PresentationSpec()
 {}
 
 
-static const char* sTemplate()	{ return "template pptx"; }
+BufferString PresentationSpec::getPyExec()
+{
+    BufferString pythonexec;
+#ifdef __unix__
+    pythonexec = "/usr/bin/python";
+#endif
 
-BufferString PresentationSpec::getPyDir()
+    Settings& setts = Settings::fetch( sSettingsKey );
+    const char* key = IOPar::compKey( "Python Exec", __plfsubdir__ );
+    setts.get( key, pythonexec );
+    return pythonexec.buf();
+}
+
+
+void PresentationSpec::setPyExec( const char* pythonexec )
+{
+    if ( !File::exists(pythonexec) )
+	return;
+
+    Settings& setts = Settings::fetch( sSettingsKey );
+    const char* key = IOPar::compKey( "Python Exec", __plfsubdir__ );
+    setts.set( key, pythonexec );
+    setts.write();
+}
+
+
+BufferString PresentationSpec::getPyScriptDir()
 {
     const BufferString dir =
 	FilePath( GetDataDir() ).add("Misc").add("python-pptx").fullPath();
@@ -206,6 +236,8 @@ BufferString PresentationSpec::getPyDir()
     return dir;
 }
 
+
+static const char* sTemplate()	{ return "template pptx"; }
 
 BufferString PresentationSpec::getTemplate()
 {
@@ -266,9 +298,33 @@ void PresentationSpec::setOutputFilename( const char* fnm )
 void PresentationSpec::setMasterFilename( const char* fnm )
 { masterfilename_ = fnm; }
 
+void PresentationSpec::setLogFilename( const char* fnm )
+{ logfilename_ = fnm; }
 
-static void init( BufferString& script, const char* fnm )
+
+static void init( BufferString& script, const char* fnm, const char* lgfnm )
 {
+    script.add(
+	"import os.path\n"
+	"import sys\n\n" );
+
+    BufferString logfnm = lgfnm;
+#ifdef __win__
+    logfnm.replace( "\\", "/" );
+#endif
+    script.add( "logname = os.path.normpath('" )
+	  .add( logfnm ).add( "')\n" )
+	  .add( "sys.stderr = open( logname, 'w' )\n" )
+	  .add( "strm = sys.stderr" ).addNewLine(2);
+
+    script.add(
+	"import datetime\n"
+	"format = '%a %b %d %H:%M:%S %Y'\n"
+	"today = datetime.datetime.today()\n"
+	"datestr = today.strftime(format)\n"
+	"strm.write( 'OpendTect Presentation Maker - ' + datestr + '\\n' )\n"
+	"strm.write( 'Executing: ' + sys.argv[0]  + '\\n\\n' )\n\n" );
+
     script.add(
 	"from pptx import Presentation\n"
 	"from pptx.util import Inches, Cm\n"
@@ -300,7 +356,7 @@ static void addTitleSlide( BufferString& script, const char* title )
 	"title_layout = title_master.slide_layouts[title_layout_index]\n"
 	"title_slide = prs.slides.add_slide(title_layout)\n"
 	"title = title_slide.shapes.title\n" )
-    .add( "title.text = '" ).add( title ).add( "'" ).addNewLine(2);
+	  .add( "title.text = '" ).add( title ).add( "'" ).addNewLine(2);
 }
 
 
@@ -308,8 +364,8 @@ static void initTitleSlide( BufferString& script, const char* title )
 {
     script.add(
 	"title_slide = prs.slides[0]\n"
-	"title_slide.shapes.title.text = " );
-    script.add( "'" ).add( title ).add( "'" ).addNewLine(2);
+	"title = title_slide.shapes.title\n" )
+	  .add( "title.text = '" ).add( title ).add( "'" ).addNewLine(2);
 }
 
 
@@ -335,10 +391,29 @@ static void initSlides( BufferString& script, bool isblankpres )
 }
 
 
+static void addLogMessage( BufferString& script, int slideidx )
+{
+    script.add( "strm.write( 'Slide " ).add( slideidx ).add( " - ' " )
+	  .add( "+ title.text + '\\n'" );
+    if ( slideidx!=1 )
+	script.add( " + picname + '\\n'" );
+    script.add( " + '\\n' )\n\n" );
+}
+
+
+static void close( BufferString& script )
+{
+    script.add(
+	"sys.stderr.close()\n"
+	"sys.stderr = sys.__stderr__\n"
+	);
+}
+
+
 void PresentationSpec::getPythonScript( BufferString& script )
 {
     script.setEmpty();
-    init( script, masterfilename_ );
+    init( script, masterfilename_, logfilename_ );
     const bool isblankpres = masterfilename_.isEmpty();
     if ( isblankpres )
     {
@@ -350,6 +425,7 @@ void PresentationSpec::getPythonScript( BufferString& script )
 	slidelayout_.readFromSettings();
 	initTitleSlide( script, title_.buf() );
     }
+    addLogMessage( script, 1 );
 
     if ( !slides_.isEmpty() )
     {
@@ -359,6 +435,7 @@ void PresentationSpec::getPythonScript( BufferString& script )
 	    slides_[0]->addBlankSlide( script );
 	else
 	    slides_[0]->addAsFirstSlide( script );
+	addLogMessage( script, 2 );
 
 	for ( int idx=1; idx<slides_.size(); idx++ )
 	{
@@ -367,6 +444,8 @@ void PresentationSpec::getPythonScript( BufferString& script )
 		slides_[idx]->addBlankSlide( script );
 	    else
 		slides_[idx]->addWithFirstSlideLayout( script );
+
+	    addLogMessage( script, idx+2 );
 	}
     }
 
@@ -375,7 +454,9 @@ void PresentationSpec::getPythonScript( BufferString& script )
 #ifdef __win__
     outputfnm.replace( "\\", "/" );
 #endif
-    script.add( outputfnm );
-    script.add( "')\n" );
-    script.add( "prs.save(outputname)\n" );
+    script.add( outputfnm ).add( "')\n"
+	"prs.save(outputname)\n\n"
+	"strm.write( 'Presentation saved to: ' + outputname + '\\n' )\n\n" );
+
+    close( script );
 }
