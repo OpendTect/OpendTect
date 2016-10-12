@@ -292,7 +292,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     outfld_->attach( alignedBelow, zunitgrp_ );
     if ( multiwells )
     {
-	outfld_->setFileName( DBM().rootDir() );
+	outfld_->setFileName( DBM().survDir() );
 	multiwellsnamefld_ = new uiGenInput( this, tr("File name suffix") );
 	multiwellsnamefld_->attach( alignedBelow, outfld_ );
 	multiwellsnamefld_->setText( "logs.dat" );

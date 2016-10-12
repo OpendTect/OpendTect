@@ -92,7 +92,7 @@ bool BatchProgram::go( od_ostream& strm )
 	FilePath fp( ioobj->fullUserExpr(false) );
 	if ( !fp.isAbsolute() )
 	{
-	    fp.set( DBM().rootDir() );
+	    fp.set( DBM().survDir() );
 	    fp.add( ioobj->dirName() );
 	    fp.add( ioobj->fullUserExpr(false) );
 	}

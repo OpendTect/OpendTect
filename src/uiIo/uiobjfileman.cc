@@ -139,7 +139,7 @@ static BufferString getNotesFileName( const IOObj& ioobj )
     if ( !fp.isAbsolute() )
     {
 	fnm.clean( BufferString::NoSpecialChars );
-	fp.set( DBM().rootDir() ); fp.add( ioobj.dirName() );
+	fp.set( DBM().survDir() ); fp.add( ioobj.dirName() );
 	fp.add( fnm );
     }
     fp.setExtension( "note" );

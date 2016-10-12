@@ -25,11 +25,17 @@ ________________________________________________________________________
 
 mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc);
 
+class GeneralModuleIniter { public: GeneralModuleIniter(); };
 
 mDefModInitFn(General)
 {
     mIfNotFirstTime( return );
+    GeneralModuleIniter initer;
+}
 
+
+GeneralModuleIniter::GeneralModuleIniter()
+{
     ElasticPropSelectionTranslatorGroup::initClass();
     MathFormulaTranslatorGroup::initClass();
     IOObjSelectionTranslatorGroup::initClass();

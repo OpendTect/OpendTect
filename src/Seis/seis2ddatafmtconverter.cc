@@ -211,7 +211,7 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
     if ( !hasold2d && !has2dps )
 	return 0;
 
-    FilePath geom2dfp( DBM().rootDir(), "2DGeom", "idx.txt" );
+    FilePath geom2dfp( DBM().survDir(), "2DGeom", "idx.txt" );
     if ( !has2dps && !File::exists(geom2dfp.fullPath()) )
 	return 3; //TODO: Pre 4.2 surveys, extract geometry from cbvs.
 

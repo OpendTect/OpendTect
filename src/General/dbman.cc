@@ -47,6 +47,7 @@ DBMan::DBMan()
     , entryToBeRemoved(this)
     , surveyChangeOK(this)
     , surveychangeuserabort_(false)
+    , surveychangeabortreason_(uiRetVal::Empty())
 {
 }
 
@@ -63,8 +64,8 @@ void DBMan::initFirst()
 	{
 	    const BufferString basedir = GetBaseDataDir();
 	    SurveyInfo::setSurveyLocation( basedir, survnm );
-	    rootdir_ = FilePath( basedir, survnm ).fullPath();
-	    handleNewRootDir();
+	    survdir_ = FilePath( basedir, survnm ).fullPath();
+	    handleNewSurvDir();
 	}
     }
 }
@@ -76,10 +77,17 @@ uiRetVal DBMan::setDataSource( const IOPar& iop )
 }
 
 
-void DBMan::doNotChangeTheSurveyNow()
+void DBMan::setSurveyChangeUserAbort()
 {
     mLock4Write();
     surveychangeuserabort_ = true;
+}
+
+
+void DBMan::setSurveyChangeAbortReason( uiRetVal reason )
+{
+    mLock4Write();
+    surveychangeabortreason_ = reason;
 }
 
 
@@ -101,18 +109,23 @@ uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
 	return rv;
 
     const BufferString newdirnm = SI().getFullDirPath();
-    if ( rootdir_ == newdirnm )
+    if ( survdir_ == newdirnm )
 	return uiRetVal::OK();
 
     mUnlockAllAccess();
 
     surveyChangeOK.trigger();
-    if ( surveychangeuserabort_ )
+    if ( surveychangeuserabort_ || !surveychangeabortreason_.isEmpty() )
     {
-	surveychangeuserabort_ = false;
-	FilePath fp( rootdir_ );
+	FilePath fp( survdir_ );
 	SurveyInfo::setSurveyLocation( fp.pathOnly(), fp.fileName() );
-	rv.set( tr("User abort from survey change") );
+	if ( surveychangeuserabort_ )
+	    rv.set( uiStrings::sCancel() );
+	else
+	    rv.set( surveychangeabortreason_ );
+
+	surveychangeuserabort_ = false;
+	surveychangeabortreason_.setEmpty();
 	return rv;
     }
 
@@ -123,9 +136,9 @@ uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
 
     if ( rootdbdir_ )
 	{ rootdbdir_->unRef(); rootdbdir_ = 0; }
-    deepUnRef( dirs_ );
-    rootdir_.set( newdirnm );
-    rv = handleNewRootDir();
+    deepUnRef( dbdirs_ );
+    survdir_.set( newdirnm );
+    rv = handleNewSurvDir();
     if ( !rv.isOK() )
 	return rv; // disaster ...
     setupCustomDataDirs( -1 );
@@ -152,7 +165,7 @@ BufferString DBMan::surveyName() const
 
 BufferString DBMan::surveyDirectoryName() const
 {
-    return FilePath( rootdir_ ).fileName();
+    return FilePath( survdir_ ).fileName();
 }
 
 
@@ -160,18 +173,18 @@ DBMan::~DBMan()
 {
     if ( rootdbdir_ )
 	rootdbdir_->unRef();
-    deepUnRef( dirs_ );
+    deepUnRef( dbdirs_ );
 }
 
 
-uiRetVal DBMan::handleNewRootDir()
+uiRetVal DBMan::handleNewSurvDir()
 {
     uiRetVal uirv = uiRetVal::OK();
-    if ( rootdir_.isEmpty() )
+    if ( survdir_.isEmpty() )
 	uirv = tr( "Directory for data storage is not set" );
     else
     {
-	rootdbdir_ = new DBDir( rootdir_ );
+	rootdbdir_ = new DBDir( survdir_ );
 	rootdbdir_->ref();
 	if ( isBad() )
 	    uirv = rootdbdir_->errMsg();
@@ -199,7 +212,7 @@ void DBMan::readDirs()
 	else
 	{
 	    dir->ref();
-	    dirs_ += dir;
+	    dbdirs_ += dir;
 	    mAttachCB( dir->objectChanged(), DBMan::dbdirChgCB );
 	}
     }
@@ -538,11 +551,11 @@ DBDir* DBMan::gtDir( DirID dirid ) const
     else if ( dirid.getI() < 1 )
 	return const_cast<DBDir*>(rootdbdir_);
 
-    for ( int idx=0; idx<dirs_.size(); idx++ )
+    for ( int idx=0; idx<dbdirs_.size(); idx++ )
     {
-	if ( dirs_[idx]->dirID() == dirid )
+	if ( dbdirs_[idx]->dirID() == dirid )
 	{
-	    DBDir* ret = const_cast<DBDir*>( dirs_[idx] );
+	    DBDir* ret = const_cast<DBDir*>( dbdirs_[idx] );
 	    ret->reRead( false );
 	    return ret;
 	}
@@ -611,7 +624,7 @@ void DBMan::setupCustomDataDir( const CustomDirData& cdd, uiRetVal& rv )
     if ( gtDir( DirID::get(cdd.dirnr_) ) )
 	return;
 
-    FilePath fp( rootdir_, cdd.dirname_ );
+    FilePath fp( survdir_, cdd.dirname_ );
     const BufferString dirnm = fp.fullPath();
     if ( !File::exists(dirnm) )
     {
@@ -648,16 +661,16 @@ void DBMan::setupCustomDataDir( const CustomDirData& cdd, uiRetVal& rv )
     }
 
     IOSubDir* iosd = new IOSubDir( cdd.dirname_ );
-    iosd->setDirName( rootdir_ );
+    iosd->setDirName( survdir_ );
     iosd->setKey( DBKey( DirID::get(cdd.dirnr_) ) );
     iosd->isbad_ = false;
 
     mLock4Write();
     if ( !rootdbdir_->addAndWrite(iosd) )
 	rv.add( tr("Cannot write '.omf' file in '%1' directory")
-		    .arg( rootdir_ ) );
+		    .arg( survdir_ ) );
     else
-	dirs_ += new DBDir( iosd->dirName() );
+	dbdirs_ += new DBDir( iosd->dirName() );
 }
 
 

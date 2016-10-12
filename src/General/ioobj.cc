@@ -356,7 +356,7 @@ bool IOObj::isSurveyDefault( const DBKey& ky )
 
 bool IOObj::isInCurrentSurvey() const
 {
-    FilePath cursurvfp( DBM().rootDir() ); cursurvfp.makeCanonical();
+    FilePath cursurvfp( DBM().survDir() ); cursurvfp.makeCanonical();
     FilePath orgfp( fullUserExpr(true) ); orgfp.makeCanonical();
     return orgfp.isSubDirOf(cursurvfp);
 }

@@ -63,7 +63,7 @@ public:
     ConstRefMan<DBDir>	fetchDir(const IOObjContext&) const;
     ConstRefMan<DBDir>	fetchRootDir() const	{ return rootdbdir_; }
 
-    BufferString	rootDir() const		{ return rootdir_; }
+    BufferString	survDir() const		{ return survdir_; }
     BufferString	surveyName() const;
     BufferString	surveyDirectoryName() const;
     bool		isKeyString(const char*) const;
@@ -104,24 +104,20 @@ public:
 			//!< Need to do this only once per OD run
 			//!< At survey change, dir will automatically be added
 
-			// To change to another survey:
-    uiRetVal		setDataSource(const char* fullpath);
-    uiRetVal		setDataSource(const IOPar&);
-			//!< uses sKey::dataRoot() and sKey::Survey()
-
 private:
 
-    BufferString	rootdir_;
+    BufferString	survdir_;
     DBDir*		rootdbdir_;
-    ObjectSet<DBDir>	dirs_;
+    ObjectSet<DBDir>	dbdirs_;
     mutable uiString	errmsg_;
     bool		surveychangeuserabort_;
+    uiRetVal		surveychangeabortreason_;
 
 			DBMan();
 			~DBMan();
     DBMan*		clone() const	    { return 0; }
 
-    uiRetVal		handleNewRootDir();
+    uiRetVal		handleNewSurvDir();
     void		leaveSurvey();
     void		readDirs();
     RefMan<DBDir>	getDBDir(DirID);
@@ -133,8 +129,10 @@ private:
 
     friend mGlobal(General) DBMan& DBM();
     friend class	uiSurveyManager;
+    friend class	GeneralModuleIniter;
 
     uiRetVal		setDataSource(const char*,const char*);
+    void		initFirst();
 
 public:
 
@@ -148,16 +146,23 @@ public:
 				const IOObjSelConstraints* cnstrts=0) const;
 			//!< set filled with cloned ioobjs. Needs deepErase().
     Notifier<DBMan>	surveyChangeOK;
-    void		doNotChangeTheSurveyNow();
+    void		setSurveyChangeUserAbort();
+    void		setSurveyChangeAbortReason(uiRetVal);
     void		applClosing()		{ applicationClosing.trigger();}
 
     mDeprecated bool	permRemove( const DBKey& ky )
 			{ return removeEntry(ky); }
     mDeprecated bool	commitChanges( const IOObj& ioobj )
 			{ return setEntry(ioobj); }
+    mDeprecated BufferString rootDir() const
+			{ return survDir(); }
 
-    void		initFirst();
-			//!< Not for you. Don't use.
+			// To change to another survey, probably not your thing:
+    uiRetVal		setDataSource(const char* fullpath_of_survey_dir);
+			//!< Plugins need to use uiDataRootSel::setSurveyDirTo
+    uiRetVal		setDataSource(const IOPar&);
+			//!< uses sKey::dataRoot() and sKey::Survey()
+			//!< Intended for stand-alone programs
 
 };
 

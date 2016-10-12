@@ -356,7 +356,7 @@ void uiODApplMgr::surveyChangeOKCB( CallBacker* )
 {
     bool anythingasked = false;
     if ( !appl_.askStore(anythingasked,tr("Survey change")) )
-	DBM().doNotChangeTheSurveyNow();
+	DBM().setSurveyChangeUserAbort();
 }
 
 

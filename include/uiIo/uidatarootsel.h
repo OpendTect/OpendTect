@@ -36,6 +36,12 @@ protected:
     void		selButCB(CallBacker*);
     bool		handleDirName(BufferString&) const;
     bool		isValidFolder(const char*) const;
-    void		addDirNameToSettingsIfNew(const char*) const;
+    static void		addDirNameToSettingsIfNew(const char*);
+
+public:
+
+    static uiRetVal	setSurveyDirTo(const char* dirnm);
+			//!< if not current, will close all scenes and viewers
+			//!< thus this is probably not a function for _you_
 
 };

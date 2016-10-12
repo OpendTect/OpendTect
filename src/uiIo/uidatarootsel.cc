@@ -142,7 +142,7 @@ BufferString uiDataRootSel::getDir() const
 }
 
 
-void uiDataRootSel::addDirNameToSettingsIfNew( const char* dirnm ) const
+void uiDataRootSel::addDirNameToSettingsIfNew( const char* dirnm )
 {
     BufferStringSet dirs;
     Settings::common().get( sKeyRootDirs(), dirs );
@@ -153,3 +153,51 @@ void uiDataRootSel::addDirNameToSettingsIfNew( const char* dirnm ) const
     Settings::common().set( sKeyRootDirs(), dirs );
     Settings::common().write();
 }
+
+
+extern "C" { mGlobal(Basic) void SetBaseDataDir(const char*); }
+
+uiRetVal uiDataRootSel::setSurveyDirTo( const char* dirnm )
+{
+    if ( !dirnm || !*dirnm )
+	return uiRetVal::OK();
+
+    const FilePath fp( dirnm );
+    const BufferString dataroot = fp.pathOnly();
+    uiRetVal uirv = DBMan::isValidDataRoot( dataroot );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    const BufferString survdir = fp.fullPath();
+    uirv = DBMan::isValidSurveyDir( survdir );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    const BufferString curdataroot = GetBaseDataDir();
+    const BufferString cursurveydir = DBM().survDir();
+
+
+
+    return uiRetVal::OK();
+}
+
+/*
+
+static uiRetVal doSetRootDataDir( const char* dirnm )
+{
+    const BufferString dataroot = dirnm;
+
+
+
+    SetBaseDataDir( dataroot );
+    Settings::common().set( sKeyDefRootDir(), dataroot );
+    if ( Settings::common().write() )
+	return uiRetVal::OK();
+    else
+	return od_static_tr( "doSetRootDataDir",
+			     "Cannot write user settings file" );
+
+
+}
+
+*/

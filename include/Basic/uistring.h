@@ -248,17 +248,20 @@ public:
 			uiRetVal(const uiStringSet&);
 			uiRetVal(const uiRetVal&);
     static uiRetVal	OK()		    { return ok_; }
+    static uiRetVal	Empty()		    { return OK(); }
     uiRetVal&		operator =(const uiRetVal&);
     uiRetVal&		operator =(const uiString&);
     uiRetVal&		operator =(const uiStringSet&);
 			operator uiString() const;
 
     bool		isOK() const;
+    inline bool		isEmpty() const	    { return isOK(); }
     inline bool		isError() const	    { return !isOK(); }
     bool		isMultiMessage() const;
     uiStringSet		messages() const;
 
-    uiRetVal&		setOK();
+    inline uiRetVal&	setOK()		    { *this = ok_; return *this; }
+    inline uiRetVal&	setEmpty()	    { return setOK(); }
     uiRetVal&		insert(const uiString&);
     uiRetVal&		set(const uiRetVal&);
     uiRetVal&		set(const uiString&);
@@ -266,7 +269,6 @@ public:
     uiRetVal&		add(const uiRetVal&);
     uiRetVal&		add(const uiString&);
     uiRetVal&		add(const uiStringSet&);
-    void		resetError() { msgs_.setEmpty(); }
 
     BufferString	getText() const;
 

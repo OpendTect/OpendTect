@@ -97,7 +97,7 @@ bool BatchProgram::go( od_ostream& strm )
 	FilePath seisfp( seisioobj->fullUserExpr(false) );
 	if ( !seisfp.isAbsolute() )
 	{
-	    seisfp.set( DBM().rootDir() );
+	    seisfp.set( DBM().survDir() );
 	    seisfp.add( seisioobj->dirName() );
 	    seisfp.add( seisioobj->fullUserExpr(false) );
 	}
