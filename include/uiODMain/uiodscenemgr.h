@@ -172,6 +172,7 @@ public:
     int				add2DLineItem(const DBKey&,int sceneid=-1);
     int				addInlCrlItem(OD::SliceType,int nr,
 					      int sceneid=-1);
+    int				addZSliceItem(float z,int sceneid=-1);
     int				addZSliceItem(DataPack::ID,
 	    				      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,

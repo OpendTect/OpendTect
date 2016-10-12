@@ -1331,6 +1331,23 @@ int uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, int sceneid )
 }
 
 
+int uiODSceneMgr::addZSliceItem( float z, int sceneid )
+{
+    mGetOrAskForScene
+
+    uiODZsliceTreeItem* itm =
+	new uiODZsliceTreeItem( -1, uiODPlaneDataTreeItem::Empty );
+    if ( !scene->itemmanager_->addChild(itm,false) )
+	return -1;
+
+    TrcKeyZSampling tkzs = SI().sampling(true);
+    tkzs.zsamp_.set( z, z, SI().zStep() );
+    itm->setTrcKeyZSampling( tkzs );
+    itm->displayDefaultData();
+    return itm->displayID();
+}
+
+
 int uiODSceneMgr::addZSliceItem( DataPack::ID dpid,
 				 const Attrib::SelSpec& sp,
 				 const FlatView::DataDispPars::VD& ddp,
