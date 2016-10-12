@@ -675,7 +675,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
     case mPID_TAG :
 	ji->osprocid_ = si.status;
 	ji->state_ = JobInfo::Working;
-	ji->statusmsg_ = " initialising";
+	ji->statusmsg_ = " initializing";
     break;
     case mPROC_STATUS :
 	ji->nrdone_ = si.status;
