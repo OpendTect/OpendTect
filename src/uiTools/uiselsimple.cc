@@ -123,8 +123,8 @@ uiGetChoice::uiGetChoice( uiParent* p, const uiString& qn, bool wcncl,
 }
 
 
-uiGetChoice::uiGetChoice( uiParent* p, const BufferStringSet& opts,
-			  const uiString& qn, bool wcncl, 
+uiGetChoice::uiGetChoice( uiParent* p, const uiStringSet& opts,
+			  const uiString& qn, bool wcncl,
 			  const HelpKey& helpkey )
     : uiDialog(p,uiDialog::Setup(uiStrings::sSpecify(),qn,
 	       helpkey))
@@ -137,7 +137,7 @@ uiGetChoice::uiGetChoice( uiParent* p, const BufferStringSet& opts,
 
 
 uiGetChoice::uiGetChoice( uiParent* p, uiDialog::Setup s,
-			  const BufferStringSet& opts, bool wc )
+			  const uiStringSet& opts, bool wc )
     : uiDialog(p,s)
     , allowcancel_(wc)
 {

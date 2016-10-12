@@ -13,13 +13,13 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uistring.h"
+#include "bufstringset.h"
 
 class uiGroup;
 class uiListBox;
 class uiGenInput;
 class uiCheckList;
 class uiListBoxFilter;
-class BufferStringSet;
 
 /*!\brief Select entry from list */
 
@@ -32,17 +32,18 @@ public:
     public:
 			Setup( const uiString& wintitl,
 			       const uiStringSet& its )
-		: uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
-			    , items_(its)
+			    : uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
+			    , uiitems_(its)
 			    , current_(0)		{}
 			Setup( const uiString& wintitl,
 			       const BufferStringSet& its )
-		: uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
-			    , current_(0)		{ its.fill(items_); }
+			    : uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
+			    , items_(its)
+			    , current_(0)		{}
 
 	mDefSetupMemb(int,current);
-
-	uiStringSet	items_;
+	uiStringSet	uiitems_;
+	BufferStringSet	items_;
 
     };
 
@@ -84,14 +85,14 @@ public:
     public:
 			Setup( const uiString& wintitl,
 			       const BufferStringSet& its )
-	    : uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
-			, items_(its)
-			, inptxt_( uiStrings::sName())	{}
+			    : uiDialog::Setup(wintitl,mNoDlgTitle,mNoHelpKey)
+			    , items_(its)
+			    , inptxt_( uiStrings::sName())	{}
 
 	mDefSetupMemb(BufferString,deflt);
 	mDefSetupMemb(uiString,inptxt);
 
-	const BufferStringSet&	items_;
+	const BufferStringSet	items_;
 
     };
 
@@ -126,13 +127,13 @@ public:
 				    bool allowcancel=true,
 				    const HelpKey& helpkey=mNoHelpKey);
 			uiGetChoice(uiParent*,
-				    const BufferStringSet& options,
+				    const uiStringSet& options,
 				    const uiString& question=
 				    uiStrings::sEmptyString(),
 				    bool allowcancel=true,
 				    const HelpKey& helpkey=mNoHelpKey);
 			uiGetChoice(uiParent*,uiDialog::Setup,
-				    const BufferStringSet& options, bool wc);
+				    const uiStringSet& options, bool wc);
 
     void		addChoice(const uiString& txt,const char* iconnm=0);
     void		setDefaultChoice(int);

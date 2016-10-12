@@ -325,7 +325,7 @@ int uiODApplMgr::manSurv( uiParent* p )
 	{
 	    if ( isconvpending )
 		continue;
-	    if ( dlg.currentSurvRemoved() && !dlg.hasSurveys() )
+	    if ( !dlg.haveSurveys() )
 		return 4;
 
 	    return 0;

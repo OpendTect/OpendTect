@@ -12,24 +12,21 @@ ________________________________________________________________________
 #include "uiiocommon.h"
 #include "uidialog.h"
 
-class uiFileInput;
+class uiDataRootSel;
 
-mExpClass(uiIo) uiSetDataDir : public uiDialog
-{ mODTextTranslationClass(uiSetDataDir);
+mExpClass(uiIo) uiFixInvalidDataRoot : public uiDialog
+{ mODTextTranslationClass(uiFixInvalidDataRoot);
 public:
-			uiSetDataDir(uiParent*);
 
-    const char*		selectedDir() const	{ return seldir_; }
-    static bool		setRootDataDir(uiParent*,const char*);
+			uiFixInvalidDataRoot(uiParent*);
 
 protected:
 
-    BufferString	seldir_;
-    const BufferString	curdatadir_;
-    uiFileInput*	basedirfld_;
+    uiDataRootSel*	dirfld_;
 
     bool		acceptOK();
+    bool		rejectOK();
 
-    static void		offerUnzipSurv(uiParent*,const char*);
+    void		offerCreateSomeSurveys(const char*);
 
 };

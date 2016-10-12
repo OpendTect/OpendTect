@@ -21,7 +21,7 @@ public:
 
 			uiDataRootSel(uiParent*,const char* defdir=0);
 
-    BufferString	getDir() const;
+    BufferString	getDir();
 			//!< non-empty is a valid dir
 			//!< if invalid, errors have been presented to the user
 
@@ -29,14 +29,24 @@ public:
     static const char*	sKeyDefRootDir()    { return "Default DATA directory"; }
     static uiString	userDataRootString();
 
+    Notifier<uiDataRootSel> selectionChanged;
+
 protected:
 
     uiComboBox*		dirfld_;
+    mutable BufferString curdir_;
 
+    BufferString	getInput() const;
     void		selButCB(CallBacker*);
-    bool		handleDirName(BufferString&) const;
+    void		dirChgCB(CallBacker*);
+    void		checkAndSetCorrected(const char*);
+    bool		getUsableDir(BufferString&) const;
     bool		isValidFolder(const char*) const;
-    static void		addDirNameToSettingsIfNew(const char*);
+    static void		addDirNameToSettingsIfNew(const char*,bool);
+
+    friend class	uiFixInvalidDataRoot;
+    static bool		setRootDirOnly(const char* dirnm);
+    static void		writeDefSurvFile(const char* survdirnm);
 
 public:
 

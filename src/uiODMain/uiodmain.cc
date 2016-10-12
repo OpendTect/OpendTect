@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uipluginsel.h"
 #include "uiseispartserv.h"
-#include "uisetdatadir.h"
+#include "uifixinvaliddataroot.h"
 #include "uistrattreewin.h"
 #include "uisurvinfoed.h"
 #include "uitoolbar.h"
@@ -266,16 +266,8 @@ bool uiODMain::ensureGoodDataDir()
 {
     while ( !DBMan::isValidDataRoot(GetBaseDataDir()).isOK() )
     {
-	uiSetDataDir dlg( this );
-	if ( !dlg.go() )
-	{
-	    if ( uiMSG().askGoOn( tr("Without a valid data root, %1 "
-				     "cannot start.\nDo you wish to exit?")
-					.arg(programname_) ) )
-		return false;
-	}
-	else if ( uiSetDataDir::setRootDataDir(this,dlg.selectedDir()) )
-	    break;
+	uiFixInvalidDataRoot dlg( this );
+	dlg.go();
     }
 
     return true;

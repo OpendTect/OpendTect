@@ -21,6 +21,7 @@ class uiTextEdit;
 class uiComboBox;
 class uiLineEdit;
 class uiSurveyMap;
+class uiDataRootSel;
 class uiSurvInfoProvider;
 
 
@@ -48,18 +49,17 @@ public:
     };
     static void		add(const Util&);
 
-    SurveyInfo*		curSurvInfo()		{ return cursurvinfo_; }
-    const SurveyInfo*	curSurvInfo() const	{ return cursurvinfo_; }
+    SurveyInfo*		curSurvInfo()		{ return survinfo_; }
+    const SurveyInfo*	curSurvInfo() const	{ return survinfo_; }
 
     const char*		selectedSurveyName() const;
     bool		freshSurveySelected() const
 						{ return freshsurveyselected_; }
-    bool		hasSurveys() const;
-    bool		currentSurvRemoved() const { return cursurvremoved_; }
+    bool		haveSurveys() const;
 
 protected:
 
-    SurveyInfo*		cursurvinfo_;
+    SurveyInfo*		survinfo_;
     const BufferString	orgdataroot_;
     BufferString	dataroot_;
     BufferString	initialsurveyname_;
@@ -67,8 +67,8 @@ protected:
     IOPar*		impiop_;
     uiSurvInfoProvider*	impsip_;
 
-    uiLineEdit*		datarootlbl_;
-    uiListBox*		dirfld_;
+    uiDataRootSel*	datarootfld_;
+    uiListBox*		survdirfld_;
     uiButton*		editbut_;
     uiButton*		rmbut_;
     ObjectSet<uiButton>	utilbuts_;
@@ -86,11 +86,11 @@ protected:
     void		copyButPushed(CallBacker*);
     void		extractButPushed(CallBacker*);
     void		compressButPushed(CallBacker*);
-    void		dataRootPushed(CallBacker*);
-    void		odSettsButPush(CallBacker*);
-    void		utilButPush(CallBacker*);
-    void		selChange(CallBacker*);
-    void		updateInfo( CallBacker* )	{ putToScreen(); }
+    void		odSettsButPushed(CallBacker*);
+    void		utilButPushed(CallBacker*);
+    void		updateInfoCB( CallBacker* )	{ putToScreen(); }
+    void		dataRootChgCB(CallBacker*);
+    void		survDirChgCB(CallBacker*);
 
     void		readSurvInfoFromFile();
     void		setCurrentSurvInfo(SurveyInfo*,bool updscreen=true);
@@ -98,9 +98,9 @@ protected:
     void		updateSurvList();
     void		putToScreen();
     bool		writeSettingsSurveyFile();
-    bool		writeSurvInfoFileIfCommentChanged();
+    bool		writeSurvInfoFile(bool onlyifcommentchanged);
     bool		rootDirWritable() const;
-    bool		doSurvInfoDialog(bool isnew);
+    bool		doSurvInfoDialog();
     void		updateDataRootInSettings();
     void		rollbackNewSurvey(const uiString&);
 

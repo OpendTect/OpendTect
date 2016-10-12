@@ -1047,6 +1047,12 @@ int uiListBox::currentItem() const
 }
 
 
+void uiListBox::setCurrentItem( const uiString& str )
+{
+    setCurrentItem( str.getFullString() );
+}
+
+
 void uiListBox::setCurrentItem( const char* txt )
 {
     if ( !txt ) return;

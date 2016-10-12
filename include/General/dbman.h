@@ -128,7 +128,6 @@ private:
     void		dbdirChgCB(CallBacker*);
 
     friend mGlobal(General) DBMan& DBM();
-    friend class	uiSurveyManager;
     friend class	GeneralModuleIniter;
 
     uiRetVal		setDataSource(const char*,const char*);

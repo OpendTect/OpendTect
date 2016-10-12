@@ -753,6 +753,26 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
     preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
 }
 
+uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
+			const OD::String& inputStr)
+    mInitStdMembs
+{
+    inputs_ += new StringInpSpec( inputStr.buf() );
+    if ( !disptxt.isEmpty() )
+	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
+    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+}
+
+uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
+			const uiString& inputStr )
+    mInitStdMembs
+{
+    inputs_ += new StringInpSpec( inputStr.getFullString() );
+    if ( !disptxt.isEmpty() )
+	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
+    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+}
+
 
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 			const DataInpSpec& inp1 )

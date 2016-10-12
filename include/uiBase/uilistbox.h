@@ -168,8 +168,9 @@ public:
     const char*		getText() const	 { return textOfItem(currentItem()); }
     void		setCurrentItem(int);
     void		setCurrentItem(const char*);	//!< First match
-    void		setCurrentItem( const FixedString& fs )
-						{ setCurrentItem( fs.str() ); }
+    void		setCurrentItem(const uiString&);
+    void		setCurrentItem( const OD::String& str )
+						{ setCurrentItem( str.str() ); }
     void		setItemSelectable(int,bool);
 
     int			nrChosen() const;

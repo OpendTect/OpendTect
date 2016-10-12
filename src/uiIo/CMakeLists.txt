@@ -33,6 +33,7 @@ set( OD_MODULE_SOURCES
 	uidpsselgrpdlg.cc
 	uidpsselectednessdlg.cc
 	uieditpdf.cc
+	uifixinvaliddataroot.cc
 	uigraphicslegend.cc
 	uigraphicsscalebar.cc
 	uiimppickset.cc
@@ -63,7 +64,6 @@ set( OD_MODULE_SOURCES
 	uiprobdenfuncman.cc
 	uiprobdenfunvarsel.cc
 	uirandomlineman.cc
-	uisetdatadir.cc
 	uiselobjothersurv.cc
 	uiselsurvranges.cc
 	uisrchprocfiles.cc
