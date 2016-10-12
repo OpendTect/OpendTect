@@ -320,6 +320,10 @@ void uiODHorizonTreeItem::initMenuItems()
     delchildrenmnuitem_.text = tr("Delete Selected Children");
     lockmnuitem_.text = uiStrings::sLock();
     unlockmnuitem_.text = uiStrings::sUnlock();
+
+    addinlitem_.text = tr("Add Inl-line"); addinlitem_.id = 10003;
+    addcrlitem_.text = tr("Add Crl-line"); addcrlitem_.id = 10002;
+    addzitem_.text = tr("Add Z-slice"); addzitem_.id = 10001;
 }
 
 
@@ -505,6 +509,29 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &lockmnuitem_ );
 	mResetMenuItem( &unlockmnuitem_ );
     }
+
+    if ( uimenu->getMenuType() != uiMenuHandler::fromScene() )
+    {
+	mResetMenuItem( &addinlitem_ );
+	mResetMenuItem( &addcrlitem_ );
+	mResetMenuItem( &addzitem_ );
+    }
+    else
+    {
+	const Coord3 pickedpos = uimenu->getPickedPos();
+	TrcKey tk( SI().transform(pickedpos.getXY()) );
+	float zposf = (float)pickedpos.z_;
+	SI().snapZ( zposf );
+	const int zpos = mNINT32( zposf * SI().zDomain().userFactor() );
+
+	addinlitem_.text = tr("Add In-line %1").arg( tk.lineNr() );
+	addcrlitem_.text = tr("Add Cross-line %1").arg( tk.trcNr() );
+	addzitem_.text = tr("Add Z-slice %1").arg( zpos );
+
+	mAddMenuItem( menu, &addinlitem_, true, false );
+	mAddMenuItem( menu, &addcrlitem_, true, false );
+	mAddMenuItem( menu, &addzitem_, true, false );
+    }
 }
 
 
@@ -661,6 +688,22 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	hor3d->lockAll();
     else if ( mnuid==unlockmnuitem_.id )
 	hor3d->unlockAll();
+    else if ( mnuid==addinlitem_.id || mnuid==addcrlitem_.id )
+    {
+	const Coord3 pickedpos = uimenu->getPickedPos();
+	TrcKey tk( SI().transform(pickedpos.getXY()) );
+	const bool isinl = mnuid == addinlitem_.id;
+	applMgr()->sceneMgr().addInlCrlItem(
+		isinl ? OD::InlineSlice : OD::CrosslineSlice,
+		isinl ? tk.inl() : tk.crl(), sceneID() );
+    }
+    else if ( mnuid==addzitem_.id )
+    {
+	const Coord3 pickedpos = uimenu->getPickedPos();
+	float zposf = (float)pickedpos.z_;
+	SI().snapZ( zposf );
+	applMgr()->sceneMgr().addZSliceItem( zposf, sceneID() );
+    }
     else
 	handled = false;
 

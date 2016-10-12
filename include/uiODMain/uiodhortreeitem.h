@@ -93,6 +93,10 @@ protected:
     MenuItem		lockmnuitem_;
     MenuItem		unlockmnuitem_;
 
+    MenuItem		addinlitem_;
+    MenuItem		addcrlitem_;
+    MenuItem		addzitem_;
+
     bool		rgba_;
     bool		atsections_;
 };
