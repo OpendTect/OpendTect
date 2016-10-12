@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "coltab.h"
 #include "enums.h"
+#include "math2.h"
 #include "notify.h"
 #include "valseries.h"
 #include "varlenarray.h"
@@ -216,6 +217,14 @@ template <class T> inline
 od_int64 MapperTask<T>::nrIterations() const
 { return totalsz_; }
 
+
+// Minimizes slowness from function calls and Math::IsNormalNumber(.).
+// (eventual NaNs in C++ comparisons are said to return always false)
+#define mMaxReasonableAmpl	1e20f
+#define mFastIsFloatDefined(fval) \
+   ( (fval>-mMaxReasonableAmpl && fval<mMaxReasonableAmpl) || \
+     (!__mIsUndefinedF(fval) && Math::IsNormalNumber(fval)) )
+
 template <class T> inline
 bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 {
@@ -227,29 +236,66 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
     T* udfresult = mappedudfs_ ? mappedudfs_+start*mappedudfspacing_ : 0;
     const float* inp = unmapped_+start;
 
-    int nrdone = 0;
-    for ( od_int64 idx=start; idx<=stop; idx++, nrdone++ )
-    {
-	const float input = unmappedvs_ ? unmappedvs_->value(idx) : *inp;
-	const int snappedpos =
-	    ColTab::Mapper::snappedPosition( &mapper_, input, nrsteps_, -1 );
+    const ValueSeries<float>* unmappedvs = unmappedvs_;
+    const int mappedvalsspacing = mappedvalsspacing_;
+    const int mappedudfspacing = mappedudfspacing_;
+    const int nrsteps = nrsteps_;
+    const int udfcolidx = mUndefColIdx;
 
-	const bool isudf = snappedpos < 0;
-	const T res = (T) ( isudf ? mUndefColIdx : snappedpos );
+    const int nrsegs = mapper_.setup_.nrsegs_;
+    const bool flipseq = mapper_.setup_.flipseq_;
+    const float rangewidth = mapper_.setup_.range_.width( false );
+    const bool rangehaswidth = !mIsZero(rangewidth,mDefEps);
+    const float rangestart = mapper_.setup_.range_.start;
+
+    int nrdone = 0;
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	const float input = unmappedvs ? unmappedvs->value(idx) : *inp++;
+
+	float position = 0.0f;
+	bool isudf = true;
+
+	if ( mFastIsFloatDefined(input) )
+	{
+	    isudf = false;
+	    if ( rangehaswidth )
+	    {
+		position = (input-rangestart) / rangewidth;
+		if ( nrsegs > 0 )
+		    position = (0.5f + ((int) (position*nrsegs))) / nrsegs;
+
+		if ( position > 1.0f )
+		    position = 1.0f;
+		else if ( position < 0.0f )
+		    position = 0.0f;
+
+		if ( flipseq )
+		    position = 1.0f - position;
+
+		position *= nrsteps;
+
+		if ( position > nrsteps-0.9f )
+		    position = nrsteps - 0.9f;
+		else if ( position < 0.0f )
+		    position = 0.0f;
+	    }
+	}
+
+	const T res = (T) ( isudf ? udfcolidx : (int) position );
 
 	*valresult = res;
-	valresult += mappedvalsspacing_;
+	valresult += mappedvalsspacing;
 
 	if ( udfresult )
 	{
-	    *udfresult = isudf ? 0 : mUndefColIdx;
-	    udfresult += mappedudfspacing_;
+	    *udfresult = isudf ? 0 : udfcolidx;
+	    udfresult += mappedudfspacing;
 	}
 
 	histogram[res]++;
-	inp++;
 
-	if ( nrdone>10000 )
+	if ( (++nrdone) > 100000 )
 	{
 	    addToNrDone( nrdone );
 	    nrdone = 0;
@@ -259,10 +305,7 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
     }
 
     if ( nrdone )
-    {
 	addToNrDone( nrdone );
-	nrdone = 0;
-    }
 
     Threads::Locker lckr( lock_ );
     for ( int idx=0; idx<=mUndefColIdx; idx++ )
@@ -270,5 +313,9 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 
     return true;
 }
+
+#undef mMaxReasonableAmpl
+#undef mFastIsFloatDefined
+
 
 } // namespace ColTab
