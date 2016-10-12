@@ -292,7 +292,7 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 
 	if ( udfresult )
 	{
-	    *udfresult = isudf ? 0 : udfcolidx;
+	    *udfresult = (T) (isudf ? 0 : udfcolidx);
 	    udfresult += mappedudfspacing;
 	}
 
