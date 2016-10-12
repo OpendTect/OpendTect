@@ -36,6 +36,9 @@ namespace visSurvey
 
 mExpClass(visSurvey) HorizonDisplay : public EMObjectDisplay
 { mODTextTranslationClass(HorizonDisplay)
+
+    friend class HorizonPathIntersector;
+
 public:
 				HorizonDisplay();
 				mDefaultFactoryInstantiation(
@@ -271,7 +274,7 @@ private:
     void			traverseLine(const TrcKeyPath&,
                                              const TypeSet<Coord>&,
 					     const Interval<float>& zrg,
-	     EM::SectionID,
+					     EM::SectionID,
 					     IntersectionData&) const;
                                 /*!<List of coordinates may be empty, coords
                                     will then be fetched from trckeys. */

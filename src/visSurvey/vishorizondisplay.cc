@@ -51,18 +51,6 @@ ________________________________________________________________________
 namespace visSurvey
 {
 
-const char* HorizonDisplay::sKeyTexture()	{ return "Use texture"; }
-const char* HorizonDisplay::sKeyShift()		{ return "Shift"; }
-const char* HorizonDisplay::sKeyResolution()	{ return "Resolution"; }
-const char* HorizonDisplay::sKeyRowRange()	{ return "Row range"; }
-const char* HorizonDisplay::sKeyColRange()	{ return "Col range"; }
-const char* HorizonDisplay::sKeySurfaceGrid()	{ return "SurfaceGrid"; }
-const char* HorizonDisplay::sKeyIntersectLineMaterialID()
-{ return "Intsectline material id"; }
-const char* HorizonDisplay::sKeySectionID()	{ return "Section ID"; }
-const char* HorizonDisplay::sKeyZValues()	{ return "Z values"; }
-
-
 class LockedPointsCalculator: public ParallelTask
 {
 public:
@@ -112,6 +100,179 @@ bool LockedPointsCalculator::doWork( od_int64 start, od_int64 stop, int )
     pntsidx_.append( pntsidx );
     return true;
 }
+
+//==============================================================================
+
+class HorizonPathIntersector : public ParallelTask
+{
+public:	
+		HorizonPathIntersector(const HorizonDisplay& hd,
+				       const TrcKeyPath& path,
+				       const TypeSet<Coord>& crds,
+				       const Interval<float>& zrg,
+				       EM::SectionID sid,
+				       HorizonDisplay::IntersectionData& res)
+		    : hd_(hd), path_(path), crds_(crds)
+		    , zrg_(zrg), sid_(sid), res_(res)
+		    , hor_(0), seedposids_(0), onthesamegrid_(false)
+		    , pathgeom_(0), horgeom_(0)
+		{
+		    positions_ = new Coord3[ path_.size() ];
+		}
+
+		~HorizonPathIntersector()	{ delete [] positions_; }
+
+    od_int64	nrIterations() const		{ return path_.size(); }
+
+    bool	doPrepare(int nrthreads);
+    bool	doWork(od_int64 start,od_int64 stop,int thread);
+    bool	doFinish(bool success);
+
+protected:
+
+    static Coord3	skipPos()	{ return Coord3(Coord::udf(),0); }
+    static Coord3	endLine()	{ return Coord3(Coord::udf(),1); }
+
+    const HorizonDisplay&		hd_;
+    const TrcKeyPath&			path_;
+    const TypeSet<Coord>&		crds_;
+    const Interval<float>&		zrg_;
+    EM::SectionID			sid_;
+    HorizonDisplay::IntersectionData&	res_;
+    const EM::Horizon3D*		hor_;
+    const TypeSet<EM::PosID>*		seedposids_;
+    bool				onthesamegrid_;
+    const Survey::Geometry*		pathgeom_;
+    const Survey::Geometry*		horgeom_;
+
+    Coord3*				positions_;
+};
+
+
+bool HorizonPathIntersector::doPrepare( int nrthreads )
+{
+    mDynamicCast( const EM::Horizon3D*, hor_, hd_.emobject_ );
+
+    if ( !path_.size() )
+	return false;
+
+    seedposids_ = hor_->getPosAttribList ( EM::EMObject::sSeedNode() );
+
+    const Pos::GeomID pathgeomid = path_[0].geomID();
+    const Pos::GeomID horgeomid = hor_->getSurveyGeomID();
+    pathgeom_ = Survey::GM().getGeometry( pathgeomid );
+    horgeom_ = Survey::GM().getGeometry( horgeomid );
+    onthesamegrid_ = pathgeomid==horgeomid;
+
+    return pathgeom_ && horgeom_;
+}
+
+
+bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
+{
+    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    {
+	TrcKey hortrc = TrcKey::udf();
+	const Coord intersectioncoord = idx>=crds_.size()
+		? pathgeom_->toCoord( path_[idx] )
+		: crds_[idx];
+
+	if ( intersectioncoord.isDefined() )
+	{
+	    if ( onthesamegrid_ )
+	    {
+		hortrc = path_[idx];
+	    }
+	    else
+	    {
+		hortrc = horgeom_->getTrace( intersectioncoord,
+					     horgeom_->averageTrcDist() );
+	    }
+
+	    if ( !hor_->range().includes(hortrc) )
+	    {
+		positions_[idx] = skipPos();
+		continue;
+	    }
+
+	    EM::SubID horsubid = hortrc.isUdf()
+		    ? mUdf(EM::SubID)
+		    : hortrc.binID().toInt64();
+
+	    if ( hd_.showsPosAttrib(EM::PosAttrib::SeedNode) &&
+		 seedposids_ && !mIsUdf(horsubid) &&
+		 seedposids_->isPresent(EM::PosID(hor_->id(),sid_,horsubid)) )
+	    {
+		horsubid = mUdf(EM::SubID);
+	    }
+
+	    if ( !mIsUdf(horsubid) )
+	    {
+		//As zrg is in the non-transformed z-domain, we have to do the
+		//comparison there.
+		const Coord3 horpos = hor_->getPos( sid_, horsubid );
+		Coord3 displayhorpos = horpos;
+		if ( horpos.isDefined() && hd_.zaxistransform_ )
+		{
+		    displayhorpos.z_ =
+			hd_.zaxistransform_->transformTrc( hortrc,
+							   (float) horpos.z_ );
+		}
+
+		if ( displayhorpos.isDefined() &&
+		     zrg_.includes(horpos.z_,false) )
+		{
+		    //Take coord from intersection, and z from horizon
+		    //Gives nice intersection when geometry is different
+		    //such as on 2D lines
+		    positions_[idx] = Coord3( intersectioncoord,
+					      displayhorpos.z_ );
+		    continue;
+		}
+	    }
+	}
+
+	positions_[idx] = endLine();
+    }
+
+    return true;
+}
+
+
+bool HorizonPathIntersector::doFinish( bool success )
+{
+    TypeSet<Coord3> curline;
+    for ( int idx=0; idx<path_.size(); idx++ )
+    {
+	const Coord3 pos = positions_[idx];
+	if ( pos == skipPos() )
+	    continue;
+
+	if ( pos != endLine() )
+	    curline += pos;
+	else if ( !curline.isEmpty() )
+	{
+	    res_.addLine( curline );
+	    curline.erase();
+	}
+    }
+
+    res_.addLine( curline );
+    return success;
+}
+
+//==============================================================================
+
+const char* HorizonDisplay::sKeyTexture()	{ return "Use texture"; }
+const char* HorizonDisplay::sKeyShift()		{ return "Shift"; }
+const char* HorizonDisplay::sKeyResolution()	{ return "Resolution"; }
+const char* HorizonDisplay::sKeyRowRange()	{ return "Row range"; }
+const char* HorizonDisplay::sKeyColRange()	{ return "Col range"; }
+const char* HorizonDisplay::sKeySurfaceGrid()	{ return "SurfaceGrid"; }
+const char* HorizonDisplay::sKeyIntersectLineMaterialID()
+{ return "Intsectline material id"; }
+const char* HorizonDisplay::sKeySectionID()	{ return "Section ID"; }
+const char* HorizonDisplay::sKeyZValues()	{ return "Z values"; }
 
 
 HorizonDisplay::HorizonDisplay()
@@ -1567,95 +1728,15 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 
 void HorizonDisplay::traverseLine( const TrcKeyPath& path,
-                                   const TypeSet<Coord>& crds,
+				   const TypeSet<Coord>& crds,
 				   const Interval<float>& zrg,
-                                   EM::SectionID sid,
-                                   HorizonDisplay::IntersectionData& res ) const
+				   EM::SectionID sid,
+				   HorizonDisplay::IntersectionData& res ) const
 {
-    mDynamicCastGet( EM::Horizon3D*, hor, emobject_ );
-    //Remove everything
-
-    if ( !path.size() )
-        return;
-
-    const TypeSet<EM::PosID>* seedposids = hor->getPosAttribList
-						( EM::EMObject::sSeedNode() );
-
-    const Pos::GeomID pathgeomid = path[0].geomID();
-    const Pos::GeomID horgeomid = hor->getSurveyGeomID();
-    const Survey::Geometry* pathgeom = Survey::GM().getGeometry( pathgeomid );
-    const Survey::Geometry* horgeom = Survey::GM().getGeometry( horgeomid );
-    if ( !pathgeom || !horgeom )
-        return;
-
-    TypeSet<Coord3> curline;
-    for ( int idx=0; idx<path.size()-1; idx++ )
-    {
-        TrcKey hortrc = TrcKey::udf();
-        const Coord intersectioncoord = idx>=crds.size()
-            ? pathgeom->toCoord( path[idx] )
-            : crds[idx];
-
-        if ( intersectioncoord.isDefined() )
-        {
-            if ( pathgeomid==horgeomid ) //We are on the same grid
-            {
-                hortrc = path[idx];
-            }
-            else
-            {
-                hortrc = horgeom->getTrace( intersectioncoord,
-                                            horgeom->averageTrcDist() );
-            }
-
-	    if ( !hor->range().includes(hortrc) )
-		continue;
-
-            EM::SubID horsubid = hortrc.isUdf()
-                    ? mUdf(EM::SubID)
-                    : hortrc.binID().toInt64();
-
-            if ( showsPosAttrib(EM::PosAttrib::SeedNode) &&
-		 seedposids && !mIsUdf(horsubid) &&
-                 seedposids->isPresent(EM::PosID(hor->id(),sid,horsubid)))
-            {
-                horsubid = mUdf(EM::SubID);
-            }
-
-            if ( !mIsUdf(horsubid) )
-            {
-		//As zrg is in the non-transformed z-domain, we have to do the
-		//comparison there.
-                const Coord3 horpos = hor->getPos(sid,horsubid);
-		Coord3 displayhorpos = horpos;
-                if ( horpos.isDefined() )
-                {
-                    if ( zaxistransform_ )
-		    {
-			displayhorpos.z_ =
-			    zaxistransform_->transformTrc( hortrc,
-						      (float) horpos.z_ );
-		    }
-                }
-
-		if ( displayhorpos.isDefined() &&
-		     zrg.includes(horpos.z_,false) )
-                {
-                    //Take coord from intersection, and z from horizon
-                    //Gives nice intersection when geometry is different
-                    //such as on 2D lines
-		    curline += Coord3( intersectioncoord, displayhorpos.z_ );
-		    continue;
-		}
-	    }
-        }
-
-	res.addLine( curline );
-	curline.erase();
-    }
-
-    res.addLine( curline );
+    HorizonPathIntersector hpi( *this, path, crds, zrg, sid, res );
+    hpi.execute();
 }
+
 
 #define mAddLinePrimitiveSet \
 {\
@@ -1669,7 +1750,6 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
        primitiveset->unRef();\
     }\
 }
-
 
 
 void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
@@ -1801,7 +1881,7 @@ void HorizonDisplay::updateIntersectionLines(
 	}
     }
 
-    if ( displayonlyatsections_ || displayintersectionlines_ )
+    if ( isOn() && (displayonlyatsections_ || displayintersectionlines_) )
     {
 	const int size = doall ? objs.size() : 1;
 	for ( int idx=0; idx<size; idx++ )
@@ -1850,7 +1930,7 @@ void HorizonDisplay::updateIntersectionLines(
 
     }
 
-    //These lines were not used, hance remove from scene.
+    //These lines were not used, hence remove from scene.
     for ( int idx=0; idx<lines.size(); idx++ )
     {
 	removeChild( lines[idx]->line_->osgNode() );
@@ -2418,6 +2498,7 @@ void HorizonDisplay::showPosAttrib( int attr, bool yn )
     setOnlyAtSectionsDisplay( displayonlyatsections_ );	/* retrigger */
 }
 
+//==============================================================================
 
 HorizonDisplay::IntersectionData::IntersectionData( const OD::LineStyle& lst )
     : line_( lst.type_==OD::LineStyle::Solid
@@ -2573,5 +2654,6 @@ HorizonDisplay::IntersectionData::setLineStyle( const OD::LineStyle& lst )
 
     return oldline;
 }
+
 
 } // namespace visSurvey
