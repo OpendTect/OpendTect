@@ -11,8 +11,9 @@ ________________________________________________________________________
 
 include_once( 'dlsitesdb.php' );
 include_once( 'dlsitessystemid.php' );
+include_once( 'dlsitessettings.php' );
 
-require "$DLSITES_AWS_PATH/aws.phar";
+require "$DLSITES_AWS_PATH/aws-autoloader.php";
 
 use Aws\S3\S3Client;
 
@@ -71,10 +72,7 @@ function store_entry( $db, $tablename, $time, $id, $platform, $country, $nrcpu, 
 $mysqli = connect_dlsitesdb();
 
 if ( $DLSITES_DATA_ROOT_DIR=='' )
-{
-    echo "Document root not set!\n";
-    exit( 1 );
-}
+{ $DLSITES_DATA_ROOT_DIR = $_SERVER['DOCUMENT_ROOT']; }
 
 $inputdir = $DLSITES_DATA_ROOT_DIR."/".$DLSITES_UNPROCESSED_DIR."/";
 $archivedir = $DLSITES_DATA_ROOT_DIR."/".$DLSITES_ARCHIVE_DIR."/";
