@@ -548,7 +548,8 @@ void Seis2DDisplay::updatePanelStripPath()
 
     for ( int idx=0; idx<tdi.alljoints_.size(); idx++ )
     {
-	if ( !tdi.rg_.includes(tdi.alljoints_[idx],true) )
+	const int trcidx = tdi.alljoints_[idx];
+	if ( !tdi.rg_.includes(tdi.alltrcnrs_[trcidx],true) )
 	    continue;
 
 	if ( !knots.isEmpty() )
