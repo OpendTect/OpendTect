@@ -153,6 +153,7 @@ bool uiMathAttrib::setParameters( const Desc& desc )
     formSel(0);
 
     int constidx = 0;
+    TypeSet<int> inpindexesinuse;
     if ( desc.getParam(Attrib::Mathematics::cstStr()) )
     {
 	mDescGetConstParamGroup(Attrib::DoubleParam,cstset,desc,
@@ -163,25 +164,19 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	    const ValParam& param = (ValParam&)(*cstset)[constidx];
 	    for ( int iinp=constidx; iinp<form_.nrInputs() && !found; iinp++ )
 	    {
-		if ( !form_.isConst(iinp) ) continue;
+		if ( !form_.isConst(iinp) || inpindexesinuse.isPresent(iinp) )
+		    continue;
 
 		for ( int idx=0; !found; idx++ )
 		{
 		    BufferString cststr ( "c", idx );
-		    if ( (BufferString) form_.variableName(iinp) == cststr )
+		    if ( caseInsensitiveEqual( form_.variableName(iinp),cststr))
 		    {
 			form_.setInputDef( iinp, toString(param.getDValue()) );
 			formfld_->inpFld(iinp)->use( form_ );
 			constidx++;
 			found = true;
-		    }
-		    BufferString ccststr ( "C", idx );
-		    if ( (BufferString) form_.variableName(iinp) == ccststr )
-		    {
-			form_.setInputDef( iinp, toString(param.getDValue()) );
-			formfld_->inpFld(iinp)->use( form_ );
-			constidx++;
-			found = true;
+			inpindexesinuse += iinp;
 		    }
 		}
 	    }
