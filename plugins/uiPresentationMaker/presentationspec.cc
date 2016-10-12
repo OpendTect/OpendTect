@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "perthreadrepos.h"
 #include "settings.h"
 #include "uimain.h"
 #include "uipixmap.h"
@@ -202,7 +201,7 @@ PresentationSpec::~PresentationSpec()
 
 BufferString PresentationSpec::getPyExec()
 {
-    mDeclStaticString( pythonexec );
+    BufferString pythonexec;
 #ifdef __unix__
     pythonexec = "/usr/bin/python";
 #endif
@@ -312,12 +311,13 @@ static void init( BufferString& script, const char* fnm, const char* lgfnm )
 #ifdef __win__
     logfnm.replace( "\\", "/" );
 #endif
-    script.add(	"logname = os.path.normpath('" )
+    script.add( "logname = os.path.normpath('" )
 	  .add( logfnm ).add( "')\n" )
 	  .add( "sys.stderr = open( logname, 'w' )\n" )
 	  .add( "strm = sys.stderr" ).addNewLine(2);
 
-    script.add( "import datetime\n"
+    script.add(
+	"import datetime\n"
 	"format = '%a %b %d %H:%M:%S %Y'\n"
 	"today = datetime.datetime.today()\n"
 	"datestr = today.strftime(format)\n"
@@ -355,7 +355,7 @@ static void addTitleSlide( BufferString& script, const char* title )
 	"title_layout = title_master.slide_layouts[title_layout_index]\n"
 	"title_slide = prs.slides.add_slide(title_layout)\n"
 	"title = title_slide.shapes.title\n" )
-    .add( "title.text = '" ).add( title ).add( "'" ).addNewLine(2);
+	  .add( "title.text = '" ).add( title ).add( "'" ).addNewLine(2);
 }
 
 
@@ -363,8 +363,8 @@ static void initTitleSlide( BufferString& script, const char* title )
 {
     script.add(
 	"title_slide = prs.slides[0]\n"
-	"title_slide.shapes.title.text = " );
-    script.add( "'" ).add( title ).add( "'" ).addNewLine(2);
+	"title = title_slide.shapes.title\n" )
+	  .add( "title.text = '" ).add( title ).add( "'" ).addNewLine(2);
 }
 
 
