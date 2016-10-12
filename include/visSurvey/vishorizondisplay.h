@@ -33,11 +33,16 @@ namespace visBase
 }
 
 
+class HorizonPathIntersector;
+
 namespace visSurvey
 {
 
 mExpClass(visSurvey) HorizonDisplay : public EMObjectDisplay
 { mODTextTranslationClass(HorizonDisplay)
+
+    friend class ::HorizonPathIntersector;
+
 public:
 				HorizonDisplay();
 				mDefaultFactoryInstantiation(
