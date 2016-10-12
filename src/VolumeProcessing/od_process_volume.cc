@@ -17,7 +17,7 @@ bool BatchProgram::go( od_ostream& strm )
     OD::ModDeps().ensureLoaded( "Well" );
 
     VolProc::Processor proc( pars() );
-    if ( !proc.run(strm) )
+    if ( !proc.run(strm,comm_) )
 	return false;
 
     return true;

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class TaskRunner;
+class JobCommunic;
 
 namespace VolProc
 {
@@ -29,7 +30,7 @@ public:
 				Processor(const IOPar&);
 				~Processor()	{}
 
-    bool			run(od_ostream&);
+    bool			run(od_ostream&,JobCommunic* comm=0);
     bool			run(TaskRunner*);
 
 protected:

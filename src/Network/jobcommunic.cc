@@ -78,9 +78,9 @@ bool JobCommunic::sendPID_( int pid )
 bool JobCommunic::sendProgress_( int progress, bool immediate )
 {
     if ( immediate )
-	return sendMsg( mPROC_STATUS, progress );
+	return sendMsg( mPROC_STATUS, progress, progressdetail_.buf() );
 
-    return updateMsg( mPROC_STATUS, progress );
+    return updateMsg( mPROC_STATUS, progress, progressdetail_.buf() );
 }
 
 

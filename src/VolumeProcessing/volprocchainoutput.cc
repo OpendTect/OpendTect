@@ -11,6 +11,7 @@
 #include "volproctrans.h"
 #include "seisdatapackwriter.h"
 #include "dbman.h"
+#include "jobcommunic.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
 #include "seisdatapack.h"
@@ -32,6 +33,7 @@ VolProc::ChainOutput::ChainOutput()
     , curexecnr_(-1)
     , storererr_(false)
     , progresskeeper_(*new ProgressRecorder)
+    , comm_(0)
 {
     progressmeter_ = &progresskeeper_;
     progresskeeper_.setMessage( tr("Reading Volume Processing Specification") );
@@ -56,6 +58,14 @@ void VolProc::ChainOutput::setOutputID( const DBKey& outid )
 
 void VolProc::ChainOutput::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
 { tkzs_ = tkzs; }
+
+void VolProc::ChainOutput::setJobComm(JobCommunic* comm)
+{
+    comm_ = comm;
+    if ( comm_ )
+	comm_->setProgressDetail( "percent done" );
+}
+
 
 void VolProc::ChainOutput::usePar( const IOPar& iop )
 {
@@ -189,6 +199,13 @@ int VolProc::ChainOutput::nextStep()
 
 	    neednextchunk_ = true;
 	    startWriteChunk();
+	}
+
+	if ( comm_ )
+	{
+	    const double curperc = mCast(double,chainexec_->nrDone());
+	    const int totperc = mNINT32((100*curexecnr_ + curperc) / nrexecs_ );
+	    comm_->sendProgress( totperc );
 	}
 
 	return retMoreToDo();

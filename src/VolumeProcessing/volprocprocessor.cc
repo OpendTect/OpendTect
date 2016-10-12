@@ -22,7 +22,7 @@ VolProc::Processor::Processor( const IOPar& par )
 }
 
 
-bool VolProc::Processor::run( od_ostream& strm )
+bool VolProc::Processor::run( od_ostream& strm, JobCommunic* comm )
 {
     PtrMan<IOPar> subselpar =
 	procpars_.subselect( IOPar::compKey(sKey::Output(),sKey::Subsel()) );
@@ -65,6 +65,7 @@ bool VolProc::Processor::run( od_ostream& strm )
 	vco.setChainID( chainid );
 	vco.setOutputID( outid );
 	vco.setTrcKeyZSampling( tkzs );
+	vco.setJobComm( comm );
 	if ( !vco.go(strm) )
 	    return false;
     }

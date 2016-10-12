@@ -87,6 +87,9 @@ public:
 			    { return pausereq_; }
     void		disConnect();
 
+    void		setProgressDetail(const char* str)
+			    { progressdetail_ = str; }
+
 protected:
 
     BufferString	masterhost_;
@@ -97,6 +100,7 @@ protected:
     int			jobid_;
     bool		pausereq_;
     StreamData&		sdout_;
+    BufferString	progressdetail_;
 
     Network::Socket*	socket_;
 
@@ -132,7 +136,7 @@ private:
     od_ostream*		logstream_;
     od_ostream*		createLogStream();
     void		dumpSystemInfo();
-    
+
 };
 
 #undef mReturn

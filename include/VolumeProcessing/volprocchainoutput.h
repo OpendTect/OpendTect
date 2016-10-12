@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "threadlock.h"
 class SeisDataPackWriter;
 class ProgressRecorder;
-
+class JobCommunic;
 
 namespace VolProc
 {
@@ -54,6 +54,8 @@ public:
     virtual void		controlWork(Control);
     virtual void		enableWorkControl(bool yn=true);
 
+    void			setJobComm(JobCommunic* comm);
+
 protected:
 
     DBKey			chainid_;
@@ -84,6 +86,8 @@ protected:
     void			startWriteChunk();
     void			manageStorers();
     void			reportFinished(ChainOutputStorer&);
+
+    JobCommunic*		comm_;
 
     friend class		ChainOutputStorer;
 

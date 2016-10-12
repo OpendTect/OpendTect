@@ -668,7 +668,8 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
     curjobinfo_ = ji;
     ji->infomsg_ = "";
     ji->recvtime_ = si.timestamp;
-    if ( si.msg.size() ) ji->infomsg_ = si.msg;
+    if ( si.tag != mPROC_STATUS && !si.msg.isEmpty() )
+	ji->infomsg_ = si.msg;
 
     switch( si.tag )
     {
@@ -682,7 +683,10 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 
 	ji->statusmsg_ = " active; ";
 	ji->statusmsg_ += ji->nrdone_;
-	ji->statusmsg_ += " traces done.";
+	if ( si.msg.isEmpty() )
+	    ji->statusmsg_ += " traces done";
+	else
+	{ ji->statusmsg_ += " "; ji->statusmsg_ += si.msg; }
 
 	if ( si.procid > 0 && ji->osprocid_ > 0  && si.procid != ji->osprocid_ )
 	    failedJob( *ji, JobInfo::JobFailed );
