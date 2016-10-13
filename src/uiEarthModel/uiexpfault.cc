@@ -66,7 +66,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 
     bool setchk = true;
     if ( SI().zIsTime() )
-	zbox_ = new uiGenInput( this, tr("Z in"), 
+	zbox_ = new uiGenInput( this, tr("Z in"),
 				BoolInpSpec(true,uiStrings::sMsec(),
 				uiStrings::sSec()) );
     else
@@ -88,7 +88,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 
     if ( mGet(typ,true,false) )
     {
-	linenmfld_ = new uiCheckBox( this, 
+	linenmfld_ = new uiCheckBox( this,
 				     tr("Write line name if picked on 2D") );
 	linenmfld_->setChecked( true );
 	linenmfld_->attach( alignedBelow, stickidsfld_ );
@@ -172,8 +172,14 @@ bool uiExportFault::writeAscii()
     }
 
     BufferString str;
-    const float zfac = !zbox_->getBoolValue() ? 1
-		     : (SI().zIsTime() ? 1000 : mToFeetFactorF);
+    float zfac = 1;
+    if ( SI().zIsTime() )
+	zfac = zbox_->getBoolValue() ? 1000 : 1;
+    else if ( SI().depthsInFeet() )
+	zfac = zbox_->getBoolValue() ? 1 : mFromFeetFactorF;
+    else // meter
+	zfac = zbox_->getBoolValue() ? mToFeetFactorF : 1;
+
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickidsfld_->isChecked( 0 );
     const bool inclknotidx = stickidsfld_->isChecked( 1 );
@@ -250,9 +256,9 @@ bool uiExportFault::acceptOK( CallBacker* )
     const bool res = writeAscii();
 
     if ( !res )	return false;
-    
+
     const IOObj* ioobj = ctio_.ioobj_;
-    
+
     const uiString tp =
       EMFaultStickSetTranslatorGroup::sGroupName() == ioobj->group()
 	? uiStrings::sFaultStickSet()
