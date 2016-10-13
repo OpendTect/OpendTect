@@ -101,7 +101,7 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
     {
 	for ( int idesc=0; idesc<crdesc.outids.size(); idesc++ )
 	{
-	    uiRetVal uirv = uiRetVal::OK();
+	    uiRetVal uirv;
 	    const DBKey setid = DBKey::getFromString( crdesc.outids.get(idesc));
 	    ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, uirv );
 	    if ( !ps )

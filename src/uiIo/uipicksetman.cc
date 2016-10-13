@@ -71,7 +71,7 @@ void uiPickSetMan::mkFileInfo()
     if ( !curioobj_ ) { setInfo( "" ); return; }
 
     BufferString txt;
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( curioobj_->key(), uirv );
     if ( !ps )
     {

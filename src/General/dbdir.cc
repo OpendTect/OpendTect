@@ -388,8 +388,10 @@ bool DBDir::setObj( IOObj* ioobj, bool writeafter )
 
 bool DBDir::addAndWrite( IOObj* ioobj )
 {
-    mLock4Write();
-    objs_ += ioobj;
+    {
+	mLock4Write();
+	objs_ += ioobj;
+    }
     return writeToFile();
 }
 

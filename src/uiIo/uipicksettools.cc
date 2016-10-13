@@ -73,7 +73,7 @@ ConstRefMan<Pick::Set> uiPickSetIOObjSel::getPickSet( bool emptyok ) const
     if ( !psioobj )
 	return 0;
 
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( psioobj->key(), uirv );
     if ( ps && !emptyok && ps->isEmpty() )
 	{ uirv.set( tr("No locations found") ); ps = 0; }
@@ -91,7 +91,7 @@ RefMan<Pick::Set> uiPickSetIOObjSel::getPickSetForEdit( bool emptyok ) const
     if ( !psioobj )
 	return 0;
 
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( psioobj->key(), uirv );
     if ( ps && !emptyok && ps->isEmpty() )
 	{ uirv = tr( "No locations found" ); ps = 0; }
@@ -170,7 +170,7 @@ RefMan<Pick::Set> uiMergePickSets::getMerged( IOPar& ioobjpars ) const
     for ( int idx=0; idx<inpids.size(); idx++ )
     {
 	const DBKey id = inpids[idx];
-	uiRetVal uirv = uiRetVal::OK();
+	uiRetVal uirv;
 	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, uirv );
 	if ( !ps )
 	    { uiMSG().error( uirv ); return 0; }

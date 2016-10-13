@@ -244,24 +244,25 @@ mExpClass(Basic) uiRetVal
 {
 public:
 
+			uiRetVal()		{}
 			uiRetVal(const uiString&);
 			uiRetVal(const uiStringSet&);
 			uiRetVal(const uiRetVal&);
-    static uiRetVal	OK()		    { return ok_; }
-    static uiRetVal	Empty()		    { return OK(); }
+    static uiRetVal	OK()			{ return ok_; }
+    static uiRetVal	Empty()			{ return ok_; }
     uiRetVal&		operator =(const uiRetVal&);
     uiRetVal&		operator =(const uiString&);
     uiRetVal&		operator =(const uiStringSet&);
 			operator uiString() const;
 
     bool		isOK() const;
-    inline bool		isEmpty() const	    { return isOK(); }
-    inline bool		isError() const	    { return !isOK(); }
+    inline bool		isEmpty() const		{ return isOK(); }
+    inline bool		isError() const		{ return !isOK(); }
     bool		isMultiMessage() const;
     uiStringSet		messages() const;
 
-    inline uiRetVal&	setOK()		    { *this = ok_; return *this; }
-    inline uiRetVal&	setEmpty()	    { return setOK(); }
+    inline uiRetVal&	setOK()			{ *this = ok_; return *this; }
+    inline uiRetVal&	setEmpty()		{ return setOK(); }
     uiRetVal&		insert(const uiString&);
     uiRetVal&		set(const uiRetVal&);
     uiRetVal&		set(const uiString&);
@@ -277,7 +278,6 @@ private:
     uiStringSet		msgs_;
     mutable Threads::Lock lock_;
 
-			uiRetVal()	    {}
     static const uiRetVal ok_;
 
 };

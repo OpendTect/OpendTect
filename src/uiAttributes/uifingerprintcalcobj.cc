@@ -120,7 +120,7 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
     if ( rgreftype_ == 1 )
     {
 	const DBKey setid( getRgRefPick() );
-	uiRetVal uirv = uiRetVal::OK();
+	uiRetVal uirv;
 	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( setid, uirv );
 	if ( !ps )
 	    { uiMSG().error( uirv ); return 0; }

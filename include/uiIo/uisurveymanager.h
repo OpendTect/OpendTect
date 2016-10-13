@@ -25,13 +25,20 @@ class uiDataRootSel;
 class uiSurvInfoProvider;
 
 
-/*!\brief The main survey selection dialog */
+/*!\brief The main survey selection dialog.
+ 
+  When run in 'standalone' mode survey and data root changes can be done at any
+  time. Inside od_main or other programs that can have background taks, this
+  is not a good idea. The updating while on screen then relies on monitoring
+  survey directories and files.
+
+ */
 
 mExpClass(uiIo) uiSurveyManager : public uiDialog
 { mODTextTranslationClass(uiSurveyManager);
 
 public:
-			uiSurveyManager(uiParent*);
+			uiSurveyManager(uiParent*,bool standalone);
 			~uiSurveyManager();
 
     /*!\brief Tool item on window. First is always 'X,Y <-> I/C' */
@@ -59,13 +66,12 @@ public:
 
 protected:
 
+    const bool		standalone_;
     SurveyInfo*		survinfo_;
     const BufferString	orgdataroot_;
     BufferString	dataroot_;
     BufferString	initialsurveyname_;
     uiSurveyMap*	survmap_;
-    IOPar*		impiop_;
-    uiSurvInfoProvider*	impsip_;
 
     uiDataRootSel*	datarootfld_;
     uiListBox*		survdirfld_;
@@ -75,7 +81,6 @@ protected:
     uiTextEdit*		infofld_;
     uiTextEdit*		notesfld_;
     bool		parschanged_; //!< of initial survey only
-    bool		cursurvremoved_;
     bool		freshsurveyselected_;
 
     bool		acceptOK();
@@ -100,7 +105,6 @@ protected:
     bool		writeSettingsSurveyFile();
     bool		writeSurvInfoFile(bool onlyifcommentchanged);
     bool		rootDirWritable() const;
-    bool		doSurvInfoDialog();
     void		updateDataRootInSettings();
     void		rollbackNewSurvey(const uiString&);
 

@@ -594,7 +594,7 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	    return 0;
 	}
 
-	uiRetVal uirv = uiRetVal::OK();
+	uiRetVal uirv;
 	ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( ioobj->key(), uirv );
 	if ( !ps )
 	    { errmsg = uirv; return 0; }

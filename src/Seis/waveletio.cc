@@ -44,7 +44,7 @@ WaveletLoader::~WaveletLoader()
 
 uiRetVal WaveletLoader::read( Wavelet*& wvlt )
 {
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     if ( !ioobj_ )
     {
 	uirv = uiStrings::phrCannotFindDBEntry( uiStrings::sWavelet() );

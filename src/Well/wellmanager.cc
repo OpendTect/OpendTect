@@ -56,7 +56,7 @@ RefManType Well::Manager::doFetch( const ObjID& id, uiRetVal& uirv ) const
 
 ConstRefMan<Well::Data> Well::Manager::fetch( const ObjID& id ) const
 {
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     return doFetch< ConstRefMan<Data> >( id, uirv );
 }
 
@@ -70,7 +70,7 @@ ConstRefMan<Well::Data> Well::Manager::fetch( const ObjID& id,
 
 RefMan<Well::Data> Well::Manager::fetchForEdit( const ObjID& id )
 {
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     return doFetch< RefMan<Data> >( id, uirv );
 }
 

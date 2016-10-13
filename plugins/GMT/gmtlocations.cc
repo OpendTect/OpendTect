@@ -171,7 +171,7 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
     DBKey id;
     get( sKey::ID(), id );
 
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, uirv );
     if ( !ps )
 	mErrStrmRet( uirv.getText() )
@@ -266,7 +266,7 @@ bool GMTPolyline::fillLegendPar( IOPar& par ) const
 bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
 {
     DBKey id; get( sKey::ID(), id );
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( id, uirv );
     if ( !ps )
 	mErrStrmRet( uirv.getText() )

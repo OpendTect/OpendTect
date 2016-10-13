@@ -114,7 +114,7 @@ ConstRefMan<Wavelet> uiWaveletIOObjSel::getWavelet() const
     if ( !wvltioobj )
 	return 0;
 
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( wvltioobj->key(), uirv );
     if ( uirv.isError() )
 	uiMSG().error( uirv );
@@ -129,7 +129,7 @@ RefMan<Wavelet> uiWaveletIOObjSel::getWaveletForEdit() const
     if ( !wvltioobj )
 	return 0;
 
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     RefMan<Wavelet> wvlt = WaveletMGR().fetchForEdit( wvltioobj->key(), uirv );
     if ( uirv.isError() )
 	uiMSG().error( uirv );

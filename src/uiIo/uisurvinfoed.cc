@@ -40,8 +40,6 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
-extern "C" const char* GetBaseDataDir();
-
 uiString uiSurveyInfoEditor::getSRDString( bool infeet )
 {
     uiString lbl = uiString( tr("%1%2%3") )
@@ -53,21 +51,19 @@ uiString uiSurveyInfoEditor::getSRDString( bool infeet )
 }
 
 
-uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
+uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
 				     mNoDlgTitle,
                                      mODHelpKey(mSurveyInfoEditorHelpID) )
                                      .nrstatusflds(1))
-	, basepath_(si_.getBasePath())
-	, orgdirname_(si_.getDirName())
-	, si_(si)
+	, basepath_(SI().getBasePath())
+	, orgdirname_(SI().getDirName())
+	, si_(eSI())
 	, x0fld_(0)
 	, sipfld_(0)
 	, lastsip_(0)
 	, impiop_(0)
 	, topgrp_(0)
-	, dirnamechanged_(false)
-	, survParChanged(this)
 {
     BufferString storagedir = si_.getFullDirPath();
     if ( File::isLink(storagedir) )
@@ -142,10 +138,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     mkTransfGrp();
     trgrp_->attach( alignedBelow, rangegrp_ );
     trgrp_->attach( ensureBelow, coordset );
-
-    uiButton* applybut = uiButton::getStd( this, OD::Apply,
-			    mCB(this,uiSurveyInfoEditor,appButPushed), true );
-    applybut->attach( alignedBelow, crdgrp_ );
 
     postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
     sipCB(0);
@@ -411,35 +403,6 @@ int uiSurveyInfoEditor::addInfoProvider( uiSurvInfoProvider* p )
 }
 
 
-bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
-				   const char* outpath, const char* outdirnm )
-{
-    const BufferString fnmin = FilePath(inpath).add(indirnm).fullPath();
-    const BufferString fnmout = FilePath(outpath).add(outdirnm).fullPath();
-    if ( File::exists(fnmout) )
-    {
-	uiString msg = tr("Cannot copy %1 to %2"
-			  "\nbecause target directory exists")
-		     .arg(fnmin).arg(fnmout);
-	uiMSG().error( msg );
-	return false;
-    }
-    MouseCursorManager::setOverride( MouseCursor::Wait );
-    File::copy( fnmin, fnmout );
-    MouseCursorManager::restoreOverride();
-    if ( !File::exists(fnmout) )
-    {
-	uiString msg = tr("Copy %1 to %2 failed\n"
-			  "See startup window for details")
-		     .arg(fnmin).arg(fnmout);
-	uiMSG().error( msg );
-	return false;
-    }
-
-    return true;
-}
-
-
 bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 				     const char* outdirnm )
 {
@@ -469,13 +432,8 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 
 #define mUseAdvanced() (overrulefld_->isChecked() && !coordset->getBoolValue())
 
-void uiSurveyInfoEditor::appButPushed( CallBacker* )
-{
-    doApply();
-}
 
-
-bool uiSurveyInfoEditor::doApply()
+bool uiSurveyInfoEditor::getFromScreen()
 {
     if ( !setSurvName() || !setRanges() )
 	return false;
@@ -496,7 +454,6 @@ bool uiSurveyInfoEditor::doApply()
 	return false;
 
     si_.update3DGeometry();
-    survParChanged.trigger();
     return true;
 }
 
@@ -532,7 +489,7 @@ bool uiSurveyInfoEditor::setSurvName()
 
 bool uiSurveyInfoEditor::acceptOK()
 {
-    if ( !doApply() )
+    if ( !getFromScreen() )
 	return false;
 
     const BufferString newbasepath( pathfld_->text() );
@@ -542,9 +499,9 @@ bool uiSurveyInfoEditor::acceptOK()
     const BufferString newdir = FilePath( newbasepath, newdirnm )
 					.fullPath();
     const bool storepathchanged = basepath_ != newbasepath;
-    dirnamechanged_ = orgdirname_ != newdirnm;
+    bool dirnamechanged = orgdirname_ != newdirnm;
 
-    if ( (dirnamechanged_ || storepathchanged) && File::exists(newdir) )
+    if ( (dirnamechanged || storepathchanged) && File::exists(newdir) )
     {
 	uiMSG().error( tr("The new target directory exists.\n"
 		       "Please enter another survey name or location.") );
@@ -557,7 +514,7 @@ bool uiSurveyInfoEditor::acceptOK()
 	    return false;
 
         BufferString olddirnm = orgdirname_;
-	if ( !dirnamechanged_ )
+	if ( !dirnamechanged )
 	{
 	    olddirnm.add( "_org" );
 	    if ( !renameSurv(basepath_,orgdirname_,olddirnm) )
@@ -568,13 +525,13 @@ bool uiSurveyInfoEditor::acceptOK()
 				basepath_, olddirnm, newbasepath );
 	if ( !newsi )
 	{
-	    if ( dirnamechanged_ )
+	    if ( dirnamechanged )
 		renameSurv( basepath_, olddirnm, orgdirname_ );
 	    return false;
 	}
 
 	si_ = *newsi;
-	doApply();
+	getFromScreen();
 	delete newsi;
 
 	if ( !uiMSG().askGoOn(tr("Keep the survey (suffixed '_org') "
@@ -583,7 +540,7 @@ bool uiSurveyInfoEditor::acceptOK()
 
 	basepath_ = newbasepath;
     }
-    else if ( dirnamechanged_ )
+    else if ( dirnamechanged )
     {
 	if ( !renameSurv(basepath_,orgdirname_,newdirnm) )
 	    return false;
@@ -707,7 +664,8 @@ bool uiSurveyInfoEditor::setRelation()
 void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 {
     const int sipidx = sipfld_ ? sipfld_->currentItem() : 0;
-    if ( sipidx < 1 ) return;
+    if ( sipidx < 1 )
+	return;
     sipfld_->setCurrentItem( 0 );
     delete impiop_; impiop_ = 0; lastsip_ = 0;
 

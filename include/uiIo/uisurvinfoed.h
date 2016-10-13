@@ -31,22 +31,18 @@ mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
 
 public:
 
-			uiSurveyInfoEditor(uiParent*,SurveyInfo&);
+			uiSurveyInfoEditor(uiParent*);
     bool		isOK() const		{ return topgrp_; }
 			//!<Must be checked before 'go'
 			~uiSurveyInfoEditor();
 
-    bool		dirnmChanged() const	{ return dirnamechanged_; }
     BufferString	dirName() const;
 
     static ObjectSet<uiSurvInfoProvider>& survInfoProvs();
     static int		addInfoProvider(uiSurvInfoProvider*);
-    static bool		copySurv(const char* frompath,const char* fromdirnm,
-				 const char* topath,const char* todirnm);
+
     static bool		renameSurv(const char* path,const char* fromdirnm,
 				   const char* todirnm);
-
-    Notifier<uiSurveyInfoEditor> survParChanged;
 
 protected:
 
@@ -58,7 +54,6 @@ protected:
     IOPar*		impiop_;
     ObjectSet<uiSurvInfoProvider> sips_;
     uiSurvInfoProvider*	lastsip_;
-    bool		dirnamechanged_;
 
     uiGenInput*		survnmfld_;
     uiGenInput*		pathfld_;
@@ -100,7 +95,7 @@ protected:
     bool		setSurvName();
     bool		setCoords();
     bool		setRelation();
-    bool		doApply();
+    bool		getFromScreen();
 
     bool		acceptOK();
     void		sipCB(CallBacker*);
@@ -111,7 +106,6 @@ protected:
     void		updZUnit(CallBacker*);
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
-    void		appButPushed(CallBacker*);
 
     static uiString	getSRDString(bool infeet);
 

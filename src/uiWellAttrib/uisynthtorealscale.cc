@@ -514,7 +514,7 @@ bool uiSynthToRealScale::acceptOK()
     if ( mIsUdf(scalefac) )
 	mErrRetBool(uiStrings::phrEnter(tr("the scale factor")))
 
-    uiRetVal retval = uiRetVal::OK();
+    uiRetVal retval;
     ConstRefMan<Wavelet> inpwvlt = WaveletMGR().fetch( inpwvltid_, retval );
     if ( retval.isError() )
 	mErrRetBool( retval )

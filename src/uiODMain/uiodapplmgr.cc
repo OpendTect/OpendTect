@@ -318,7 +318,7 @@ int uiODApplMgr::manSurv( uiParent* p )
     if ( !p ) p = ODMainWin();
     while ( true )
     {
-	uiSurveyManager dlg( p );
+	uiSurveyManager dlg( p, false );
 	if ( !p )
 	    dlg.setModal( true );
 	if ( !dlg.go() )

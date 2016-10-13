@@ -215,7 +215,7 @@ Pick::Set* uiODAnnotTreeItem::readExistingSet() const
     if ( !dlg.go() || !dlg.ioObj() )
 	return 0;
 
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( dlg.ioObj()->key(),
 							uirv );
     if ( uirv.isError() )

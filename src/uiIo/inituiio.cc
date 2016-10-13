@@ -114,7 +114,7 @@ protected:
 uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
     survlist_.erase();
-    uiSurvey::getDirectoryNames( survlist_, 0, SI().getDirName() );
+    uiSurvey::getDirectoryNames( survlist_, 0, SI().getBasePath() );
     uiSelectFromList::Setup setup(  uiStrings::sSurveys(), survlist_ );
     setup.dlgtitle( uiStrings::phrSelect(uiStrings::sSurvey()) );
     uiSelectFromList* dlg = new uiSelectFromList( p, setup );
@@ -132,7 +132,7 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 
     BufferString fname = FilePath( GetBaseDataDir() )
 			 .add( seldlg->selFld()->getText() ).fullPath();
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname, uirv );
     if ( !survinfo )
 	return false;

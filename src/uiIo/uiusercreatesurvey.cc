@@ -10,16 +10,18 @@ ________________________________________________________________________
 
 #include "uiusercreatesurvey.h"
 
+#include "uisurvinfoed.h"
+
 #include "uichecklist.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uilabel.h"
-#include "uisurvinfoed.h"
 #include "uimsg.h"
 #include "ui2dsip.h"
 
 #include "survinfo.h"
+#include "dbman.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
@@ -42,9 +44,8 @@ uiUserCreateSurvey::uiUserCreateSurvey( uiParent* p, const char* dr )
 	, survinfo_(0)
 	, dataroot_(mDataRootDir())
 	, sips_(uiSurveyInfoEditor::survInfoProvs())
-	, sipidx_(-1)
 {
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     survinfo_ = SurveyInfo::read( basicSurveyFullPath(), uirv );
     if ( !survinfo_ )
 	uirv.insert( tr("Cannot read default empty survey from installation.\n"
@@ -179,22 +180,6 @@ void uiUserCreateSurvey::fillSipsFld( bool have2d, bool have3d )
 }
 
 
-bool uiUserCreateSurvey::doUsrDef()
-{
-    int sipidx = sipfld_->currentItem();
-    if ( sipidx < 0 )
-	{ pErrMsg("Huh"); sipidx = 0; }
-    uiMSG().error( tr("TODO actually set up the survey") );
-
-    /*
-    if ( !edit the surv pars )
-	File::removeDir( survinfo_->getFullDirPath() );
-	*/
-    sipidx_ = uiSurveyInfoEditor::survInfoProvs().indexOf( sips_[sipidx] );
-    return true;
-}
-
-
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
@@ -256,5 +241,19 @@ bool uiUserCreateSurvey::acceptOK()
 	return false;
     }
 
+    const uiRetVal uirv = DBM().setDataSource( survinfo_->getFullDirPath() );
+    if ( uirv.isError() )
+	{ uiMSG().error( uirv ); return false; }
+
     return doUsrDef();
+}
+
+
+bool uiUserCreateSurvey::doUsrDef()
+{
+    uiSurveyInfoEditor dlg( this );
+    if ( !dlg.go() )
+	File::removeDir( survinfo_->getFullDirPath() );
+
+    return true;
 }

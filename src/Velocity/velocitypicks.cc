@@ -782,7 +782,7 @@ bool Picks::load( const IOObj* ioobj )
 
     storageid_ = ioobj->key();
 
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     ConstRefMan< ::Pick::Set > ps = ::Pick::SetMGR().fetch( ioobj->key(), uirv);
     if ( uirv.isError() )
 	{ errmsg_ = uirv.getText(); return false; }

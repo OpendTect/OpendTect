@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uidatarootsel.h"
 #include "uisurvinfoed.h"
+#include "uiusercreatesurvey.h"
 #include "uisurvmap.h"
 
 #include "uibuttongroup.h"
@@ -173,7 +174,7 @@ bool anySurvey() const
 //--- uiSurveyManager
 
 
-uiSurveyManager::uiSurveyManager( uiParent* p )
+uiSurveyManager::uiSurveyManager( uiParent* p, bool standalone )
     : uiDialog(p,uiDialog::Setup(tr("Survey Setup and Selection"),
 				 mNoDlgTitle,mODHelpKey(mSurveyHelpID)))
     , orgdataroot_(GetBaseDataDir())
@@ -181,9 +182,8 @@ uiSurveyManager::uiSurveyManager( uiParent* p )
     , survinfo_(0)
     , survmap_(0)
     , survdirfld_(0)
-    , impiop_(0)
-    , impsip_(0)
-    , parschanged_(false)
+    // TODO , standalone_(standalone)
+    , standalone_(true)
     , freshsurveyselected_(false)
 {
     if ( !DBM().isBad() )
@@ -247,7 +247,6 @@ uiSurveyManager::uiSurveyManager( uiParent* p )
 
 uiSurveyManager::~uiSurveyManager()
 {
-    delete impiop_;
     delete survinfo_;
 }
 
@@ -378,16 +377,7 @@ bool uiSurveyManager::acceptOK()
 	    { uiMSG().error( uirv ); return false; }
     }
 
-    // Step 5: if fresh survey, help user on his/her way
-    if ( impiop_ && impsip_ )
-    {
-	freshsurveyselected_ = true;
-	readSurvInfoFromFile();
-	const uiString askq = impsip_->importAskUiQuestion();
-	if ( !askq.isEmpty() && uiMSG().askGoOn(askq) )
-	    impsip_->startImport( parent(), *impiop_ );
-    }
-
+    // TODO determine if we can help user if new survey is selected
     return true;
 }
 
@@ -424,8 +414,16 @@ void uiSurveyManager::newButPushed( CallBacker* )
 	return;
     }
 
-    uiMSG().error( mTODONotImplPhrase() );
-    //TODO start creation program
+    if ( standalone_ )
+    {
+	uiUserCreateSurvey dlg( this, dataroot_ );
+	if ( dlg.go() )
+	    setCurrentSurvInfo( dlg.getSurvInfo() );
+    }
+    else
+    {
+	//TODO pop up od_Edit_Survey
+    }
 }
 
 
@@ -460,8 +458,19 @@ void uiSurveyManager::editButPushed( CallBacker* )
 {
     if ( !survinfo_ )
 	return;
-    if ( doSurvInfoDialog() )
-	putToScreen();
+    if ( standalone_ )
+    {
+	const uiRetVal uirv = DBM().setDataSource(
+					survinfo_->getFullDirPath() );
+	if ( uirv.isError() )
+	    { uiMSG().error( uirv ); return; }
+
+	uiSurveyInfoEditor dlg( this );
+	if ( dlg.go() )
+	    putToScreen();
+    }
+
+    //TODO pop up od_Edit_Survey
 }
 
 
@@ -642,7 +651,7 @@ void uiSurveyManager::readSurvInfoFromFile()
     {
 	const BufferString fname = FilePath( dataroot_ )
 			    .add( selectedSurveyName() ).fullPath();
-	uiRetVal uirv = uiRetVal::OK();
+	uiRetVal uirv;
 	newsi = SurveyInfo::read( fname, uirv );
 	if ( !newsi )
 	    uiMSG().error( uirv );
@@ -650,34 +659,6 @@ void uiSurveyManager::readSurvInfoFromFile()
 
     if ( newsi )
 	setCurrentSurvInfo( newsi );
-}
-
-
-bool uiSurveyManager::doSurvInfoDialog()
-{
-    delete impiop_; impiop_ = 0; impsip_ = 0;
-    uiSurveyInfoEditor dlg( this, *survinfo_ );
-    if ( !dlg.isOK() )
-	return false;
-
-    dlg.survParChanged.notify( mCB(this,uiSurveyManager,updateInfoCB) );
-    if ( !dlg.go() )
-    {
-	readSurvInfoFromFile();
-	putToScreen();
-	return false;
-    }
-
-    if ( initialsurveyname_ == selectedSurveyName() )
-	parschanged_ = true;
-
-    updateSurvList();
-    survdirfld_->setCurrentItem( dlg.dirName() );
-
-    impiop_ = dlg.impiop_; dlg.impiop_ = 0;
-    impsip_ = dlg.lastsip_;
-
-    return true;
 }
 
 

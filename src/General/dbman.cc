@@ -139,11 +139,11 @@ uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
     deepUnRef( dbdirs_ );
     survdir_.set( newdirnm );
     rv = handleNewSurvDir();
+    mUnlockAllAccess();
     if ( !rv.isOK() )
 	return rv; // disaster ...
-    setupCustomDataDirs( -1 );
-    mUnlockAllAccess();
 
+    setupCustomDataDirs( -1 );
     surveyChanged.trigger();
     afterSurveyChange.trigger();
 
@@ -179,7 +179,7 @@ DBMan::~DBMan()
 
 uiRetVal DBMan::handleNewSurvDir()
 {
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     if ( survdir_.isEmpty() )
 	uirv = tr( "Directory for data storage is not set" );
     else
@@ -609,7 +609,7 @@ uiRetVal DBMan::addCustomDataDir( const DBMan::CustomDirData& dd )
 
 uiRetVal DBMan::setupCustomDataDirs( int taridx )
 {
-    uiRetVal ret = uiRetVal::OK();
+    uiRetVal ret;
     for ( int idx=0; idx<cdds_.size(); idx++ )
     {
 	if ( taridx < 0 || idx == taridx )
@@ -723,7 +723,7 @@ static bool validOmf( const char* dir, uiRetVal& uirv )
 
 uiRetVal DBMan::checkSurveySetupValid()
 {
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     const BufferString basedatadir( GetBaseDataDir() );
     if ( basedatadir.isEmpty() )
     {

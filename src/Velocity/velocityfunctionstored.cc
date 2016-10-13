@@ -161,7 +161,7 @@ void StoredFunctionSource::fillIOObjPar( IOPar& par ) const
 
 bool StoredFunctionSource::load( const DBKey& velid )
 {
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     ConstRefMan< ::Pick::Set > ps = ::Pick::SetMGR().fetch( velid, uirv );
     if ( !ps )
 	{ errmsg_ = uirv.getText(); return false; }

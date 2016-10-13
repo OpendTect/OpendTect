@@ -258,7 +258,7 @@ SurveyInfo* uiSurvey::copySurvey( uiParent* uiparent, const char* survnm,
 	}
     }
 
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     SurveyInfo* survinfo = SurveyInfo::read( todir, uirv );
     if ( uirv.isOK() )
     {

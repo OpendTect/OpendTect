@@ -213,7 +213,7 @@ bool uiImpExpPickSet::doExport()
     if ( !ioobj )
 	return false;
 
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     ConstRefMan<Pick::Set> ps = Pick::SetMGR().fetch( ioobj->key(), uirv );
     if ( !ps )
 	mErrRet(uirv)

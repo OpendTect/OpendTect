@@ -434,7 +434,7 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
 
 uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd )
 {
-    uiRetVal ret = uiRetVal::OK();
+    uiRetVal ret;
     const BufferString olddataroot = SI().basepath_;
     const BufferString olddirname = SI().dirname_;
     BufferString newdataroot( dr ); BufferString newdirname( sd );
@@ -1311,7 +1311,7 @@ bool SurveyInfo::setCoordSystem( Coords::PositionSystem* system )
 
 uiRetVal SurveyInfo::isValidDataRoot( const char* inpdirnm )
 {
-    uiRetVal ret = uiRetVal::OK();
+    uiRetVal ret;
 
     FilePath fp( inpdirnm ? inpdirnm : GetBaseDataDir() );
     const BufferString dirnm( fp.fullPath() );
@@ -1340,7 +1340,7 @@ uiRetVal SurveyInfo::isValidDataRoot( const char* inpdirnm )
 
 uiRetVal SurveyInfo::isValidSurveyDir( const char* dirnm )
 {
-    uiRetVal ret = uiRetVal::OK();
+    uiRetVal ret;
 
     FilePath fp( dirnm, ".omf" );
     const BufferString omffnm( fp.fullPath() );

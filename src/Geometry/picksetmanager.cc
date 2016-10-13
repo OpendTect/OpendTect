@@ -57,7 +57,7 @@ RefManType Pick::SetManager::doFetch( const ObjID& id, uiRetVal& uirv,
 
 ConstRefMan<Pick::Set> Pick::SetManager::fetch( const ObjID& id ) const
 {
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     return doFetch< ConstRefMan<Set> >( id, uirv );
 }
 
@@ -71,7 +71,7 @@ ConstRefMan<Pick::Set> Pick::SetManager::fetch( const ObjID& id,
 
 RefMan<Pick::Set> Pick::SetManager::fetchForEdit( const ObjID& id )
 {
-    uiRetVal uirv = uiRetVal::OK();
+    uiRetVal uirv;
     return doFetch< RefMan<Set> >( id, uirv );
 }
 
