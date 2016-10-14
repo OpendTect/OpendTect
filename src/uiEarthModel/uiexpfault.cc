@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "uibutton.h"
 #include "uichecklist.h"
 #include "uifileinput.h"
@@ -30,6 +31,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
+#include "uiunitsel.h"
 #include "od_helpids.h"
 
 #define mGet( tp, fss, f3d ) \
@@ -63,20 +65,9 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 				BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     coordfld_->attach( alignedBelow, infld_ );
 
-    bool setchk = true;
-    if ( SI().zIsTime() )
-	zbox_ = new uiGenInput( this, tr("Z in"),
-				BoolInpSpec(true,uiStrings::sMsec(),
-				uiStrings::sSec()) );
-    else
-    {
-	zbox_ = new uiGenInput( this, tr("Z in"),
-				BoolInpSpec(true,uiStrings::sFeet(),
-				uiStrings::sMeter()) );
-	setchk = SI().depthsInFeet();
-    }
-    zbox_->setValue( setchk );
-    zbox_->attach( rightTo, coordfld_ );
+    uiUnitSel::Setup unitselsu( PropertyRef::surveyZType(), tr("Z in") );
+    zunitsel_ = new uiUnitSel( this, unitselsu );
+    zunitsel_->attach( rightTo, coordfld_ );
 
     stickidsfld_ = new uiCheckList( this, uiCheckList::ChainAll,
 				    OD::Horizontal );
@@ -170,8 +161,7 @@ bool uiExportFault::writeAscii()
     }
 
     BufferString str;
-    const float zfac = !zbox_->getBoolValue() ? 1
-		     : (SI().zIsTime() ? 1000 : mToFeetFactorF);
+    const UnitOfMeasure* unit = zunitsel_->getUnit();
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickidsfld_->isChecked( 0 );
     const bool inclknotidx = stickidsfld_->isChecked( 1 );
@@ -200,7 +190,7 @@ bool uiExportFault::writeAscii()
 		*sdo.ostrm << str;
 	    }
 
-	    *sdo.ostrm << '\t' << crd.z_*zfac;
+	    *sdo.ostrm << '\t' << unit->userValue( crd.z_ );
 
 	    if ( inclstickidx )
 		*sdo.ostrm << '\t' << stickidx;

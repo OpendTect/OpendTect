@@ -19,6 +19,7 @@ class uiCheckList;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
+class uiUnitSel;
 
 
 /*! \brief Dialog for horizon export */
@@ -33,7 +34,7 @@ protected:
 
     uiIOObjSel*		infld_;
     uiGenInput*		coordfld_;
-    uiGenInput*		zbox_;
+    uiUnitSel*		zunitsel_;
     uiCheckList*	stickidsfld_;
     uiCheckBox*		linenmfld_;
     uiFileInput*	outfld_;
