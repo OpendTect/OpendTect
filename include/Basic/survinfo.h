@@ -224,8 +224,8 @@ public:
     static const char*	sKeyDpthInFt(); //!< Not used by SI, just a UI default
     static const char*	sKeySurvDataType();
     static const char*  sKeySeismicRefDatum();
-    static const char*	sKeySetupFileName()		{ return ".survey"; }
-    static const char*	sKeyBasicSurveyName()		{ return "BasicSurvey";}
+    static const char*	sSetupFileName()		{ return ".survey"; }
+    static const char*	sBasicSurveyName()		{ return "BasicSurvey";}
 
     BufferString	getDirName() const		{ return dirname_; }
     BufferString	getBasePath() const		{ return basepath_; }

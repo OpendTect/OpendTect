@@ -36,7 +36,7 @@ void uiSurvey::getDirectoryNames( BufferStringSet& list, bool addfullpath,
 	if ( excludenm && dirnm == excludenm )
 	    continue;
 
-	const File::Path fp( basedir, dirnm, SurveyInfo::sKeySetupFileName() );
+	const File::Path fp( basedir, dirnm, SurveyInfo::sSetupFileName() );
 	if ( File::exists(fp.fullPath()) )
 	{
 	    if ( addfullpath )

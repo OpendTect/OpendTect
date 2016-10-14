@@ -23,10 +23,11 @@ class uiLineEdit;
 class uiSurveyMap;
 class uiDataRootSel;
 class uiSurvInfoProvider;
+namespace File { class Monitor; }
 
 
 /*!\brief The main survey selection dialog.
- 
+
   When run in 'standalone' mode survey and data root changes can be done at any
   time. Inside od_main or other programs that can have background taks, this
   is not a good idea. The updating while on screen then relies on monitoring
@@ -72,6 +73,7 @@ protected:
     BufferString	dataroot_;
     BufferString	initialsurveyname_;
     uiSurveyMap*	survmap_;
+    File::Monitor*	filemonitor_;
 
     uiDataRootSel*	datarootfld_;
     uiListBox*		survdirfld_;
@@ -96,11 +98,15 @@ protected:
     void		updateInfoCB( CallBacker* )	{ putToScreen(); }
     void		dataRootChgCB(CallBacker*);
     void		survDirChgCB(CallBacker*);
+    void		survParFileChg(CallBacker*);
+    void		dataRootDirChgCB(CallBacker*)	{ updateSurvList(); }
 
     void		readSurvInfoFromFile();
     void		setCurrentSurvInfo(SurveyInfo*,bool updscreen=true);
     void		updateDataRootLabel();
     void		updateSurvList();
+    void		startFileMonitoring();
+    void		stopFileMonitoring();
     void		putToScreen();
     bool		writeSettingsSurveyFile();
     bool		writeSurvInfoFile(bool onlyifcommentchanged);
@@ -109,6 +115,8 @@ protected:
     void		rollbackNewSurvey(const uiString&);
 
 private:
+
     void		fillLeftGroup(uiGroup*);
     void		fillRightGroup(uiGroup*);
+
 };

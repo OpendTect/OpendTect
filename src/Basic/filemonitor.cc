@@ -28,9 +28,9 @@ od_i_FSWatcher( File::Monitor& fm )
     : fm_(fm)
 {
     connect( this, SIGNAL(directoryChanged(const QString&)),
-	     this, SLOT(dirChg(const QString&)) );
+	     this, SLOT(directoryChanged(const QString&)) );
     connect( this, SIGNAL(fileChanged(const QString&)),
-	     this, SLOT(fileChg(const QString&)) );
+	     this, SLOT(fileChanged(const QString&)) );
 }
 
 public:
@@ -40,13 +40,13 @@ void deactivate() {}
 
 private slots:
 
-void dirChg( const QString& qstr )
+void directoryChanged( const QString& qstr )
 {
     const BufferString dirnm( qstr );
     fm_.dirChanged.trigger( dirnm );
 }
 
-void fileChg( const QString& qstr )
+void fileChanged( const QString& qstr )
 {
     const BufferString filenm( qstr );
     fm_.fileChanged.trigger( filenm );
@@ -77,7 +77,7 @@ File::Monitor::~Monitor()
 }
 
 
-void File::Monitor::start( const char* fnm )
+void File::Monitor::watch( const char* fnm )
 {
 #ifndef OD_NO_QT
     watcher_.addPath( QString(fnm) );
@@ -85,7 +85,7 @@ void File::Monitor::start( const char* fnm )
 }
 
 
-void File::Monitor::start( const BufferStringSet& fnms )
+void File::Monitor::watch( const BufferStringSet& fnms )
 {
 #ifndef OD_NO_QT
     QStringList qstrs; fnms.fill( qstrs );
@@ -94,7 +94,7 @@ void File::Monitor::start( const BufferStringSet& fnms )
 }
 
 
-void File::Monitor::stop( const char* fnm )
+void File::Monitor::forget( const char* fnm )
 {
 #ifndef OD_NO_QT
     watcher_.removePath( QString(fnm) );

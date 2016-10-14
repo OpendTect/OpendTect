@@ -29,7 +29,7 @@ ________________________________________________________________________
 
 static BufferString basicSurveyFullPath()
 {
-    const File::Path fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName() );
+    const File::Path fp( mGetSWDirDataDir(), SurveyInfo::sBasicSurveyName() );
     return fp.fullPath();
 }
 

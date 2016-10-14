@@ -29,9 +29,9 @@ public:
 			Monitor();
 			~Monitor();
 
-    void		start(const char*);
-    void		start(const BufferStringSet&);
-    void		stop(const char*);
+    void		watch(const char*);
+    void		watch(const BufferStringSet&);
+    void		forget(const char*);
 
     CNotifier<Monitor,BufferString>	dirChanged;
     CNotifier<Monitor,BufferString>	fileChanged;

@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 static bool checkIfDataDir( const char* path )
 {
-    File::Path fpo( path, ".omf" ), fps( path, SurveyInfo::sKeySetupFileName() );
+    File::Path fpo( path, ".omf" ), fps( path, SurveyInfo::sSetupFileName() );
     return File::exists( fpo.fullPath() ) && !File::exists( fps.fullPath() );
 }
 

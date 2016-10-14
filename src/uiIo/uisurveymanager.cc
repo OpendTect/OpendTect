@@ -54,6 +54,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "filemonitor.h"
 
 
 static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
@@ -185,6 +186,7 @@ uiSurveyManager::uiSurveyManager( uiParent* p, bool standalone )
     // TODO , standalone_(standalone)
     , standalone_(true)
     , freshsurveyselected_(false)
+    , filemonitor_(0)
 {
     if ( !DBM().isBad() )
     {
@@ -585,8 +587,21 @@ void uiSurveyManager::utilButPushed( CallBacker* cb )
 }
 
 
+void uiSurveyManager::survParFileChg( CallBacker* cb )
+{
+    mCBCapsuleUnpack( BufferString, fnm, cb );
+    File::Path fp( fnm );
+    fp.setFileName( 0 );
+    const BufferString dirnm = fp.fileName();
+    if ( dirnm == selectedSurveyName() )
+	readSurvInfoFromFile();
+}
+
+
 void uiSurveyManager::updateSurvList()
 {
+    stopFileMonitoring();
+
     NotifyStopper ns( survdirfld_->selectionChanged );
     int newselidx = survdirfld_->currentItem();
     const BufferString prevsel( survdirfld_->getText() );
@@ -598,20 +613,47 @@ void uiSurveyManager::updateSurvList()
     if ( !haveSurveys() )
 	return;
 
-    const int idxofprevsel = survdirfld_->indexOf( prevsel );
     const int idxofcursi = survinfo_ ? survdirfld_->indexOf(
 					  survinfo_->getDirName() ) : -1;
     if ( idxofcursi >= 0 )
 	newselidx = idxofcursi;
-    else if ( idxofprevsel >= 0 )
-	newselidx = idxofprevsel;
-
-    if ( newselidx < 0 )
-	newselidx = 0;
-    if ( newselidx >= survdirfld_->size() )
-	newselidx = survdirfld_->size()-1 ;
-
+    else
+    {
+	const int idxofprevsel = survdirfld_->indexOf( prevsel );
+	if ( idxofprevsel >= 0 )
+	    newselidx = idxofprevsel;
+	else if ( newselidx < 0 )
+	    newselidx = 0;
+	else if ( newselidx >= survdirfld_->size() )
+	    newselidx = survdirfld_->size()-1 ;
+    }
     survdirfld_->setCurrentItem( newselidx );
+
+    startFileMonitoring();
+}
+
+
+void uiSurveyManager::startFileMonitoring()
+{
+    stopFileMonitoring();
+    filemonitor_ = new File::Monitor;
+    filemonitor_->watch( dataroot_ );
+    for ( int idx=0; idx<survdirfld_->size(); idx++ )
+    {
+	const File::Path fp( dataroot_, survdirfld_->textOfItem(idx),
+					 SurveyInfo::sSetupFileName() );
+	filemonitor_->watch( fp.fullPath() );
+    }
+
+    mAttachCB( filemonitor_->dirChanged, uiSurveyManager::dataRootDirChgCB );
+    mAttachCB( filemonitor_->fileChanged, uiSurveyManager::survParFileChg );
+}
+
+
+void uiSurveyManager::stopFileMonitoring()
+{
+    delete filemonitor_;
+    filemonitor_ = 0;
 }
 
 

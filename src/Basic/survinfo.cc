@@ -471,7 +471,7 @@ uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd )
 SurveyInfo* SurveyInfo::read( const char* survdir, uiRetVal& uirv )
 {
     File::Path fpsurvdir( survdir );
-    File::Path fp( fpsurvdir, sKeySetupFileName() );
+    File::Path fp( fpsurvdir, sSetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(true) )
 	{ uirv = sfio.errMsg(); return 0; }
@@ -1092,7 +1092,7 @@ bool SurveyInfo::write( const char* basedir ) const
 {
     if ( !basedir ) basedir = GetBaseDataDir();
 
-    File::Path fp( basedir, dirname_, sKeySetupFileName() );
+    File::Path fp( basedir, dirname_, sSetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(false) )
     {
