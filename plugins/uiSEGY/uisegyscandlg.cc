@@ -48,7 +48,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     uiObject* attobj = 0;
     if ( setup_.dlgtitle_.isEmpty() )
     {
-	FileSpec fs; fs.usePar( iop );
+	SEGY::FileSpec fs; fs.usePar( iop );
 	uiString ttl( tr("Scan %1 %2").arg(Seis::nameOf( setup_.geom_ ))
 				      .arg(fs.dispName()) );
 	setTitleText( ttl );

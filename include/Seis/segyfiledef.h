@@ -11,10 +11,10 @@ ________________________________________________________________________
 -*/
 
 #include "segythdef.h"
-#include "filespec.h"
+#include "binid.h"
 #include "coord.h"
 #include "samplingdata.h"
-#include "binid.h"
+#include "filemultispec.h"
 class IOObj;
 class Scaler;
 class SeisTrcInfo;
@@ -27,14 +27,14 @@ class TrcHeader;
 
 /*\brief Definition of input / output file(s)  */
 
-mExpClass(Seis) FileSpec : public ::FileSpec
+mExpClass(Seis) FileSpec : public File::MultiSpec
 {
 public:
 
 			FileSpec( const char* fnm=0 )
-			    : ::FileSpec(fnm)		{}
+			    : File::MultiSpec(fnm)		{}
 			FileSpec( const IOPar& iop )
-			    : ::FileSpec(iop)		{}
+			    : File::MultiSpec(iop)		{}
 
     IOObj*		getIOObj(bool temporary) const;
 

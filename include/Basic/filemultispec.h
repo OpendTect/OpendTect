@@ -16,6 +16,9 @@ ________________________________________________________________________
 #include "ranges.h"
 
 
+namespace File
+{
+
 /*!\brief Specification for one or more files.
 
   If the paths are not absolute, they will be considered relative to the
@@ -24,12 +27,12 @@ ________________________________________________________________________
 
  */
 
-mExpClass(Basic) FileSpec
+mExpClass(Basic) MultiSpec
 {
 public:
 
-			FileSpec(const char* fnm=0);
-			FileSpec(const IOPar&);
+			MultiSpec(const char* fnm=0);
+			MultiSpec(const IOPar&);
 
     BufferStringSet	fnames_;
     StepInterval<int>	nrs_;
@@ -72,3 +75,5 @@ protected:
     BufferString	usrstr_;
 
 };
+
+} // namespace File

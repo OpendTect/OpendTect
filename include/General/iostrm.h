@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "streamconn.h"
-#include "filespec.h"
+#include "filemultispec.h"
 #include "ioobj.h"
 class StreamProvider;
 
@@ -50,8 +50,8 @@ public:
     void		setConnIdx( int idx ) const
 			{ curfidx_ = idx; }
 
-    FileSpec&		fileSpec()			{ return fs_; }
-    const FileSpec&	fileSpec() const		{ return fs_; }
+    File::MultiSpec&	fileSpec()			{ return fs_; }
+    const File::MultiSpec& fileSpec() const		{ return fs_; }
     void		setExt( const char* ext )	{ extension_ = ext; }
     void		genFileName();
 
@@ -63,7 +63,7 @@ protected:
     virtual bool	getFrom(ascistream&);
     virtual bool	putTo(ascostream&) const;
 
-    FileSpec		fs_;
+    File::MultiSpec	fs_;
     mutable int		curfidx_;
     BufferString	extension_;
 

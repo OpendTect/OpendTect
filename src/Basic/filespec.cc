@@ -5,7 +5,7 @@
 -*/
 
 
-#include "filespec.h"
+#include "filemultispec.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "file.h"
@@ -14,10 +14,10 @@
 #include "separstr.h"
 #include "perthreadrepos.h"
 
-const char* FileSpec::sKeyFileNrs()	   { return "File numbers"; }
+const char* File::MultiSpec::sKeyFileNrs()	   { return "File numbers"; }
 
 
-FileSpec::FileSpec( const char* fnm )
+File::MultiSpec::MultiSpec( const char* fnm )
     : nrs_(mUdf(int),0,1)
     , zeropad_(0)
 {
@@ -26,7 +26,7 @@ FileSpec::FileSpec( const char* fnm )
 }
 
 
-FileSpec::FileSpec( const IOPar& iop )
+File::MultiSpec::MultiSpec( const IOPar& iop )
     : nrs_(mUdf(int),0,1)
     , zeropad_(0)
 {
@@ -34,7 +34,7 @@ FileSpec::FileSpec( const IOPar& iop )
 }
 
 
-int FileSpec::nrFiles() const
+int File::MultiSpec::nrFiles() const
 {
     const int nrfnms = fnames_.size();
     if ( nrfnms > 1 )
@@ -43,14 +43,14 @@ int FileSpec::nrFiles() const
 }
 
 
-bool FileSpec::isRangeMulti() const
+bool File::MultiSpec::isRangeMulti() const
 {
     const int nrfnms = fnames_.size();
     return nrfnms == 1 && !mIsUdf(nrs_.start);
 }
 
 
-const char* FileSpec::dirName() const
+const char* File::MultiSpec::dirName() const
 {
     File::Path fp( fullDirName() );
     mDeclStaticString( ret );
@@ -59,7 +59,7 @@ const char* FileSpec::dirName() const
 }
 
 
-const char* FileSpec::fullDirName() const
+const char* File::MultiSpec::fullDirName() const
 {
     File::Path fp( fileName(0) );
     if ( fp.isAbsolute() )
@@ -77,13 +77,13 @@ const char* FileSpec::fullDirName() const
 }
 
 
-const char* FileSpec::usrStr() const
+const char* File::MultiSpec::usrStr() const
 {
     return usrstr_.isEmpty() ? fileName( 0 ) : usrstr_.buf();
 }
 
 
-const char* FileSpec::fileName( int fidx ) const
+const char* File::MultiSpec::fileName( int fidx ) const
 {
     const int nrfnms = fnames_.size();
     if ( fidx < 0 || nrfnms < 1 )
@@ -117,7 +117,7 @@ const char* FileSpec::fileName( int fidx ) const
 }
 
 
-const char* FileSpec::absFileName( int fidx ) const
+const char* File::MultiSpec::absFileName( int fidx ) const
 {
     const char* fnm = fileName( fidx );
     File::Path fp( fnm );
@@ -130,7 +130,7 @@ const char* FileSpec::absFileName( int fidx ) const
 }
 
 
-const char* FileSpec::dispName() const
+const char* File::MultiSpec::dispName() const
 {
     const int nrfnms = fnames_.size();
     if ( nrfnms < 2 )
@@ -142,7 +142,7 @@ const char* FileSpec::dispName() const
 }
 
 
-void FileSpec::ensureBaseDir( const char* dirnm )
+void File::MultiSpec::ensureBaseDir( const char* dirnm )
 {
     if ( !dirnm || !*dirnm )
 	return;
@@ -181,7 +181,7 @@ void FileSpec::ensureBaseDir( const char* dirnm )
 }
 
 
-void FileSpec::fillPar( IOPar& iop ) const
+void File::MultiSpec::fillPar( IOPar& iop ) const
 {
     iop.removeWithKey( sKeyFileNrs() );
     const int nrfnms = fnames_.size();
@@ -206,7 +206,7 @@ void FileSpec::fillPar( IOPar& iop ) const
 }
 
 
-bool FileSpec::usePar( const IOPar& iop )
+bool File::MultiSpec::usePar( const IOPar& iop )
 {
     BufferString fnm;
     bool havemultifnames = false;
@@ -238,7 +238,7 @@ bool FileSpec::usePar( const IOPar& iop )
 }
 
 
-void FileSpec::getReport( IOPar& iop ) const
+void File::MultiSpec::getReport( IOPar& iop ) const
 {
     BufferString usrstr = usrStr();
     if ( usrstr.isEmpty() )
@@ -272,9 +272,9 @@ void FileSpec::getReport( IOPar& iop ) const
 }
 
 
-void FileSpec::makePathsRelative( IOPar& iop, const char* dir )
+void File::MultiSpec::makePathsRelative( IOPar& iop, const char* dir )
 {
-    FileSpec fs; fs.usePar( iop );
+    File::MultiSpec fs; fs.usePar( iop );
     const int nrfnms = fs.fnames_.size();
     if ( nrfnms < 1 )
 	return;
@@ -307,7 +307,7 @@ void FileSpec::makePathsRelative( IOPar& iop, const char* dir )
 }
 
 
-void FileSpec::getMultiFromString( const char* str )
+void File::MultiSpec::getMultiFromString( const char* str )
 {
     FileMultiString fms( str );
     const int len = fms.size();
