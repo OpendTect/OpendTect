@@ -118,15 +118,18 @@ Attrib::Mathematics::Mathematics( Desc& dsc )
     { errmsg_ = mToUiStringTodo(formula_->errMsg()); return; }
 
     int curinpidx = 0;
+    TypeSet<int> inputsalreadyused;
     mDescGetParamGroup(DoubleParam,cstset,dsc,cstStr())
     for ( int idx=0; idx<cstset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*cstset)[idx];
 	for ( int iinp=curinpidx; iinp<formula_->nrInputs(); iinp++ )
 	{
+	    if ( inputsalreadyused.isPresent(iinp) ) continue;
 	    if ( formula_->isConst(iinp) )
 	    {
 		formula_->setInputDef( iinp, toString(param.getDValue()) );
+		inputsalreadyused += iinp;
 		curinpidx++;
 		break;
 	    }
