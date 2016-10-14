@@ -7,64 +7,11 @@
 
 #include "filemonitor.h"
 #include "bufstringset.h"
-
-#ifdef OD_NO_QT
- class od_i_FSWatcher
-     { od_i_FSWatcher(File::Monitor&) {} };
-#else
-# include <QString>
-# include <QStringList>
-# include <QFileSystemWatcher>
-
-QT_BEGIN_NAMESPACE
-
-class od_i_FSWatcher : public QFileSystemWatcher
-{
-    friend class    File::Monitor;
-
-protected:
-
-od_i_FSWatcher( File::Monitor& fm )
-    : fm_(fm)
-{
-    connect( this, SIGNAL(directoryChanged(const QString&)),
-	     this, SLOT(directoryChanged(const QString&)) );
-    connect( this, SIGNAL(fileChanged(const QString&)),
-	     this, SLOT(fileChanged(const QString&)) );
-}
-
-public:
-
-~od_i_FSWatcher() { deactivate(); }
-void deactivate() {}
-
-private slots:
-
-void directoryChanged( const QString& qstr )
-{
-    const BufferString dirnm( qstr );
-    fm_.dirChanged.trigger( dirnm );
-}
-
-void fileChanged( const QString& qstr )
-{
-    const BufferString filenm( qstr );
-    fm_.fileChanged.trigger( filenm );
-}
-
-private:
-
-    File::Monitor&	fm_;
-
-};
-
-QT_END_NAMESPACE
-
-#endif
+#include "i_qfilesystemwatcher.h"
 
 
 File::Monitor::Monitor()
-    : watcher_(*new mQtclass(od_i_FSWatcher)(*this))
+    : watcher_(*new mQtclass(i_QFileSystemWatcher)(*this))
     , fileChanged(this)
     , dirChanged(this)
 {

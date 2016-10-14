@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "notify.h"
 class BufferStringSet;
-class od_i_FSWatcher;
+mFDQtclass(i_QFileSystemWatcher);
 
 
 namespace File
@@ -38,8 +38,8 @@ public:
 
 protected:
 
-    od_i_FSWatcher&	watcher_;
-    friend class	od_i_FSWatcher;
+    mQtclass(i_QFileSystemWatcher)&	watcher_;
+    friend class			mQtclass(i_QFileSystemWatcher);
 
 };
 

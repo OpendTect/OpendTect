@@ -22,6 +22,7 @@ endif()
 
 set( QT_MOC_HEADERS
 	qtimercomm.h
+	i_qfilesystemwatcher.h
 )
 
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/qpaths.cc.in ${CMAKE_CURRENT_BINARY_DIR}/qpaths.cc @ONLY )
