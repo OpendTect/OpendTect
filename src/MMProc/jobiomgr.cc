@@ -445,7 +445,7 @@ extern const OD::String& getTempBaseNm();
 
 extern int& MMJob_getTempFileNr();
 
-static File::Path getConvertedFile::Path( const HostData& hd, const File::Path& fp )
+static File::Path getConvertedFilePath( const HostData& hd, const File::Path& fp )
 {
     File::Path newfp = hd.prefixFilePath( HostData::Data );
     if ( !newfp.nrLevels() ) return fp;
@@ -467,7 +467,7 @@ bool JobIOMgr::mkIOParFile( const File::Path& basefp,
     IOPar newiop( iop );
     const File::Path::Style machpathstyle( remotemachine.pathStyle() );
 
-    File::Path remoteparfp = getConvertedFile::Path( remotemachine, basefp );
+    File::Path remoteparfp = getConvertedFilePath( remotemachine, basefp );
     BufferString bs( remoteparfp.fullPath() );
     bs.replace( '.',  '_' );
     File::Path logfp( bs );
