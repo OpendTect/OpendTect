@@ -17,7 +17,8 @@ ________________________________________________________________________
 class GlobExpr;
 class uiString;
 class uiStringSet;
-class QString;
+mFDQtclass( QString );
+mFDQtclass( QStringList );
 
 /*!\brief Set of BufferString objects. */
 
@@ -60,7 +61,7 @@ public:
 
     BufferStringSet&	add(const char*);
     BufferStringSet&	add(const OD::String&);
-    BufferStringSet&	add(const QString&);
+    BufferStringSet&	add(const mQtclass(QString)&);
     BufferStringSet&	add(const BufferStringSet&,bool allowduplicates);
     BufferStringSet&	add(const char* arr[],size_type len=-1);
     BufferStringSet&	add( BufferString* bs )	{ strs_.add(bs); return *this; }
@@ -85,6 +86,8 @@ public:
 
     void		fill(uiStringSet&) const;
     void		use(const uiStringSet&);
+    void		fill(mQtclass(QStringList)&) const;
+    void		use(const mQtclass(QStringList)&);
 
     BufferString	cat(const char* sepstr="\n") const;
     void		unCat(const char*,const char* sepstr="\n");

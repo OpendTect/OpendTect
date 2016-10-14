@@ -19,6 +19,7 @@
 
 #ifndef OD_NO_QT
 # include <QString>
+# include <QStringList>
 #endif
 
 
@@ -52,7 +53,7 @@ BufferString::BufferString( const BufferString& bs )
 }
 
 
-BufferString::BufferString( const QString& qstr )
+BufferString::BufferString( const mQtclass(QString)& qstr )
     : mBufferStringSimpConstrInitList
 {
     add( qstr );
@@ -135,7 +136,7 @@ BufferString& BufferString::add( const char* s )
 }
 
 
-BufferString& BufferString::add( const QString& qstr )
+BufferString& BufferString::add( const mQtclass(QString)& qstr )
 {
 #ifdef OD_NO_QT
     return *this;
@@ -722,7 +723,7 @@ BufferStringSet& BufferStringSet::add( const OD::String& s )
 }
 
 
-BufferStringSet& BufferStringSet::add( const QString& qstr )
+BufferStringSet& BufferStringSet::add( const mQtclass(QString)& qstr )
 {
     return add( BufferString(qstr) );
 }
@@ -902,13 +903,35 @@ void BufferStringSet::fill( uiStringSet& res ) const
 }
 
 
-
 void BufferStringSet::use( const uiStringSet& from )
 {
     erase();
 
     for ( size_type idx=0; idx<from.size(); idx++ )
 	add( from[idx].getFullString() );
+}
+
+
+void BufferStringSet::fill( mQtclass(QStringList)& res ) const
+{
+#ifndef OD_NO_QT
+    res.clear();
+
+    for ( size_type idx=0; idx<size(); idx++ )
+	res.append( get(idx).str() );
+#endif
+}
+
+
+void BufferStringSet::use( const mQtclass(QStringList)& from )
+{
+#ifndef OD_NO_QT
+    erase();
+
+    for ( mQtclass(QStringList)::const_iterator iter = from.constBegin();
+				      iter != from.constEnd(); ++iter )
+	add( (*iter).toLocal8Bit().constData() );
+#endif
 }
 
 
