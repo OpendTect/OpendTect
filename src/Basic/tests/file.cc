@@ -35,14 +35,14 @@ bool testReadContent()
 
     //Read non existent file - should fail.
     buf.setEmpty();
-    FilePath nofile( basedir.buf(), "src", "Basic", "tests","NonExistingFile");
+    File::Path nofile( basedir.buf(), "src", "Basic", "tests","NonExistingFile");
     mRunTest(!File::getContent(nofile.fullPath(),buf) && buf.isEmpty());
 
     //Create empty file
 
     //Read empty file - should work fine.
     buf.setEmpty();
-    FilePath emptyfile( basedir.buf(), "emptyfile.txt");
+    File::Path emptyfile( basedir.buf(), "emptyfile.txt");
     od_ostream stream(emptyfile.fullPath());
     stream.close();
     mRunTest(File::getContent(emptyfile.fullPath(),buf) && buf.isEmpty());
@@ -51,7 +51,7 @@ bool testReadContent()
 
     //Read non empty file - should work fine.
     buf.setEmpty();
-    FilePath nonempty( basedir.buf(), "CMakeCache.txt" );
+    File::Path nonempty( basedir.buf(), "CMakeCache.txt" );
     mRunTest(File::getContent(nonempty.fullPath(),buf) && buf.size());
 
     return true;
@@ -86,7 +86,7 @@ bool testIStream( const char* file )
 
 bool testFilePathParsing()
 {
-    FilePath winstyle( "C:\\Program Files\\OpendTect 5.0.0\\file.txt" );
+    File::Path winstyle( "C:\\Program Files\\OpendTect 5.0.0\\file.txt" );
     if ( winstyle.fileName() != "file.txt" )
     {
 	od_cout() << "Failed to parse Windows style file path" << od_endl;
@@ -95,7 +95,7 @@ bool testFilePathParsing()
 	return false;
     }
 
-    FilePath unixstyle( "/data/apps/OpendTect 5.0.0/file.txt" );
+    File::Path unixstyle( "/data/apps/OpendTect 5.0.0/file.txt" );
     if ( unixstyle.fileName() != "file.txt" )
     {
 	od_cout() << "Failed to parse Unix style file path" << od_endl;
@@ -104,7 +104,7 @@ bool testFilePathParsing()
 	return false;
     }
 
-    FilePath mixedstyle( "C:\\Program Files/OpendTect\\5.0.0/file.txt" );
+    File::Path mixedstyle( "C:\\Program Files/OpendTect\\5.0.0/file.txt" );
     if ( mixedstyle.fileName() != "file.txt" )
     {
 	od_cout() << "Failed to parse Windows-Unix mixed file path" << od_endl;

@@ -354,7 +354,7 @@ const char* getProcessNameForPID( int pid )
     procname = !stdoutput.isEmpty() ? stdoutput
 				    : !stderror.isEmpty() ? stderror : "";
 #endif
-    const FilePath procpath( procname );
+    const File::Path procpath( procname );
     ret = procpath.fileName();
     return ret.isEmpty() ? 0 : ret.buf();
 }
@@ -624,7 +624,7 @@ mExternC(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
     getDataRoot( drrequired );
 
 #ifndef __win__
-    FilePath fp( GetFullExecutablePath() );
+    File::Path fp( GetFullExecutablePath() );
     const BufferString execdir( fp.pathOnly() );
     insertInPath( "PATH", execdir.buf(), ":" );
     insertInPath( "path", execdir.buf(), " " );
@@ -637,7 +637,7 @@ mExternC(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
 
     // Set this so that scripts run from the program have it available
 # ifdef __mac__
-    BufferString datfp( FilePath(GetSoftwareDir(0), "Resources").fullPath());
+    BufferString datfp( File::Path(GetSoftwareDir(0), "Resources").fullPath());
     SetEnvVar( "DTECT_APPL", datfp );
 #else
     SetEnvVar( "DTECT_APPL", GetSoftwareDir(true) );
@@ -677,9 +677,9 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 
     if ( res.isEmpty() )
     {
-	FilePath fpargv0 = argv_[0];
+	File::Path fpargv0 = argv_[0];
 	if ( !fpargv0.isAbsolute() )
-	    fpargv0 = FilePath( initialdir_, argv_[0] );
+	    fpargv0 = File::Path( initialdir_, argv_[0] );
 
 	res = getShortPathName( fpargv0.fullPath() );
     }

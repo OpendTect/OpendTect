@@ -25,17 +25,17 @@ SafeFileIO::SafeFileIO( const char* fnm, bool l )
 	, lockwaitincr_(0.5)
 	, allowlockremove_(true)
 {
-    FilePath fp( filenm_ );
+    File::Path fp( filenm_ );
     const_cast<BufferString&>(filenm_) = fp.fullPath();
     const BufferString filenmonly( fp.fileName() );
 
     fp.setFileName( 0 );
     BufferString curfnm( ".lock." ); curfnm += filenmonly;
-    const_cast<BufferString&>(lockfnm_) = FilePath(fp,curfnm).fullPath();
+    const_cast<BufferString&>(lockfnm_) = File::Path(fp,curfnm).fullPath();
     curfnm = filenmonly; curfnm += ".bak";
-    const_cast<BufferString&>(bakfnm_) = FilePath(fp,curfnm).fullPath();
+    const_cast<BufferString&>(bakfnm_) = File::Path(fp,curfnm).fullPath();
     curfnm = filenmonly; curfnm += ".new";
-    const_cast<BufferString&>(newfnm_) = FilePath(fp,curfnm).fullPath();
+    const_cast<BufferString&>(newfnm_) = File::Path(fp,curfnm).fullPath();
 }
 
 

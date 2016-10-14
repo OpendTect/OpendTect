@@ -43,7 +43,7 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step, bool is2d )
     : uiStepDialog(p,MatlabStep::sFactoryDisplayName(), step, is2d )
     , fileloaded_(false)
 {
-    const FilePath sofiledir = getSODefaultDir();
+    const File::Path sofiledir = getSODefaultDir();
     filefld_ = new uiFileInput( this, tr("Select shared object file"),
 				uiFileInput::Setup(uiFileDialog::Gen)
 				.filter(sofileflt)
@@ -98,7 +98,7 @@ void uiMatlabStep::fileSelCB( CallBacker* )
 
     if ( isok )
     {
-	const FilePath fp( fnm );
+	const File::Path fp( fnm );
 	namefld_->setText( BufferString("MATLAB - ",fp.baseName()) );
 	loadCB( 0 );
     }
@@ -194,13 +194,13 @@ bool uiMatlabStep::acceptOK()
 }
 
 
-FilePath uiMatlabStep::getSODefaultDir()
+File::Path uiMatlabStep::getSODefaultDir()
 {
     FixedString matlabdir( GetEnvVar( "MATLAB_BUILDDIR" ) );
     if ( matlabdir.isEmpty() )
 	matlabdir = GetEnvVar( "MATLAB_DIR" );
 
-    return FilePath( matlabdir );
+    return File::Path( matlabdir );
 }
 
 } // namespace VolProc

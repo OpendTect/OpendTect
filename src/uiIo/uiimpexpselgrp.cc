@@ -70,8 +70,8 @@ bool renameSelGrpSet( const char* oldnm, const char* newnm )
     BufferString newclnnm( oldnm );
     newclnnm.clean();
 
-    FilePath newfp( basefp_.fullPath(), newclnnm );
-    FilePath oldfp( basefp_.fullPath(), oldclnnm );
+    File::Path newfp( basefp_.fullPath(), newclnnm );
+    File::Path oldfp( basefp_.fullPath(), oldclnnm );
     nms.get( sgidx ) = newnm;
     setSelGrpSetNames( nms );
     File::rename( oldfp.fullPath(), newfp.fullPath() );
@@ -104,7 +104,7 @@ bool deleteSelGrpSet( const char* nm )
 
     nms.removeSingle( sgidx );
     setSelGrpSetNames( nms );
-    return File::remove( FilePath(basefp_,nm).fullPath() );
+    return File::remove( File::Path(basefp_,nm).fullPath() );
 }
 
 
@@ -114,7 +114,7 @@ BufferString basePath() const
 
 bool hasIdxFile()
 {
-    return File::exists( FilePath(basefp_,sKeyIdxFileName()).fullPath() );
+    return File::exists( File::Path(basefp_,sKeyIdxFileName()).fullPath() );
 }
 
 
@@ -141,7 +141,7 @@ bool createBaseDir()
 
 bool setSelGrpSetNames( const BufferStringSet& nms )
 {
-    SafeFileIO sfio( FilePath(basefp_,sKeyIdxFileName()).fullPath(), true );
+    SafeFileIO sfio( File::Path(basefp_,sKeyIdxFileName()).fullPath(), true );
     if ( !sfio.open(false) )
     {
 	uiMSG().error(tr("Cannot open Cross-plot Selection index.txt "
@@ -173,7 +173,7 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
 
 bool getSelGrpSetNames( BufferStringSet& nms )
 {
-    FilePath fp( basefp_,sKeyIdxFileName() );
+    File::Path fp( basefp_,sKeyIdxFileName() );
     if ( !File::exists(fp.fullPath()) )
     {
 	BufferStringSet emptynms;
@@ -181,7 +181,7 @@ bool getSelGrpSetNames( BufferStringSet& nms )
 	    return false;
     }
 
-    SafeFileIO sfio( FilePath(basefp_,sKeyIdxFileName()).fullPath(), true );
+    SafeFileIO sfio( File::Path(basefp_,sKeyIdxFileName()).fullPath(), true );
     if ( !sfio.open(true) )
 	return false;
     ascistream astrm( sfio.istrm() );
@@ -198,7 +198,7 @@ bool getSelGrpSetNames( BufferStringSet& nms )
     return true;
 }
 
-   FilePath		basefp_;
+    File::Path	    basefp_;
 };
 
 
@@ -377,7 +377,7 @@ BufferString uiSGSelGrp::getCurFileNm() const
 {
     BufferString cleannm( forread_ ? listfld_->getText() : nmfld_->text() );
     cleannm.clean();
-    return FilePath(SGM().basePath(),cleannm).fullPath();
+    return File::Path(SGM().basePath(),cleannm).fullPath();
 }
 
 
@@ -597,10 +597,10 @@ const char* uiSGSel::selGrpFileNm()
     {
 	BufferString cleannm( inpfld_->text() );
 	cleannm.clean();
-	FilePath fp( SGM().basePath(), cleannm );
+	File::Path fp( SGM().basePath(), cleannm );
 	mDefineStaticLocalObject( BufferString, selgrpfnm, (fp.fullPath()) );
 	return selgrpfnm;
-	//selgrpfilenm_ = FilePath(SGM().basePath(),cleannm).fullPath();
+	//selgrpfilenm_ = File::Path(SGM().basePath(),cleannm).fullPath();
     }
 
     return selgrpfilenm_.buf();

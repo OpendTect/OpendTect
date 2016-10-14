@@ -146,7 +146,7 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 {
     if ( !rdr_ ) return;
     uiFileDialog dlg( this, false,
-		      FilePath(GetDataDir(),"Seismics").fullPath(), 0,
+		      File::Path(GetDataDir(),"Seismics").fullPath(), 0,
 		      tr("Save SEG-Y Textual Header to") );
     if ( !dlg.go() ) return;
 
@@ -163,7 +163,7 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 
 uiString uiSEGYExamine::sGetWinTitle()
 {
-    const BufferString fnm( FilePath(setup_.fs_.dispName()).fileName() );
+    const BufferString fnm( File::Path(setup_.fs_.dispName()).fileName() );
 
     return ( tr("First %1 traces from %2").arg(tbuf_.size())
 			     .arg(fnm) );

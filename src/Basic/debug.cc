@@ -273,7 +273,7 @@ void putProgInfo( int argc, char** argv )
     }
     else
     {
-	FilePath fp( argv[0] );
+	File::Path fp( argv[0] );
 	msg = fp.fileName();
     }
     msg += " started on "; msg += GetLocalHostName();
@@ -347,7 +347,7 @@ Export_Basic od_ostream& logMsgStrm()
 	    errmsg = "Directory for data storage is invalid\n";
 	else
 	{
-	    FilePath fp( basedd, "LogFiles" );
+	    File::Path fp( basedd, "LogFiles" );
 	    const BufferString dirnm = fp.fullPath();
 	    if ( !File::exists(dirnm) )
 		File::createDir( dirnm );
@@ -355,13 +355,13 @@ Export_Basic od_ostream& logMsgStrm()
 		errmsg = "Cannot create proper directory for log file";
 	    else
 	    {
-		const FilePath pfp( GetPersonalDir() );
+		const File::Path pfp( GetPersonalDir() );
 		BufferString fnm( pfp.fileName() );
 		const char* odusr = GetSoftwareUser();
 		if ( odusr && *odusr )
 		    { fnm += "_"; fnm += odusr; }
 		fnm += "_";
-		fp.add( fnm.add(FilePath::getTimeStampFileName(".txt")) );
+		fp.add( fnm.add(File::Path::getTimeStampFileName(".txt")) );
 
 		BufferString logmsgfnm = fp.fullPath();
 
@@ -481,7 +481,7 @@ static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
 
     const BufferString dmppath( QString::fromWCharArray(dump_path) );
     const BufferString dmpid( QString::fromWCharArray(id) );
-    FilePath dmpfp( dmppath, dmpid );
+    File::Path dmpfp( dmppath, dmpid );
     dmpfp.setExtension( "dmp" );
     CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
@@ -493,7 +493,7 @@ void CrashDumper::init()
     if ( handler_ )
 	return;
 
-    const QString dmppath = FilePath::getTempDir();
+    const QString dmppath = File::Path::getTempDir();
     const std::wstring wpath = dmppath.toStdWString();
     handler_ = new google_breakpad::ExceptionHandler(
 		    wpath, NULL, MinidumpCB, NULL,
@@ -511,7 +511,7 @@ static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
     if ( !dumpsent.setIfValueIs(0,1,0) )
 	return succeeded;
 
-    FilePath dmpfp( minidumpdesc.path() );
+    File::Path dmpfp( minidumpdesc.path() );
     System::CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
@@ -522,7 +522,7 @@ void CrashDumper::init()
     if ( handler_ )
 	return;
 
-    const BufferString dmppathbuf = FilePath::getTempDir();
+    const BufferString dmppathbuf = File::Path::getTempDir();
     const google_breakpad::MinidumpDescriptor minidumpdesc( dmppathbuf.buf() );
     handler_ = new google_breakpad::ExceptionHandler(
 		    minidumpdesc, NULL, MinidumpCB, NULL,
@@ -544,16 +544,16 @@ void CrashDumper::sendDump( const char* filename )
 	"process_dumpfile.sh";
 #endif
 
-    const FilePath script( GetScriptDir(), processscript );
-    const FilePath symboldir( GetExecPlfDir(), "symbols" );
+    const File::Path script( GetScriptDir(), processscript );
+    const File::Path symboldir( GetExecPlfDir(), "symbols" );
 
 #ifdef __win__
-    const FilePath dumphandler(GetExecPlfDir(), "minidump_stackwalk.exe");
+    const File::Path dumphandler(GetExecPlfDir(), "minidump_stackwalk.exe");
 #else
-    const FilePath dumphandler( GetExecPlfDir(), "minidump_stackwalk" );
+    const File::Path dumphandler( GetExecPlfDir(), "minidump_stackwalk" );
 #endif
 
-    const BufferString prefix =  FilePath( GetArgV()[0] ).baseName();
+    const BufferString prefix =  File::Path( GetArgV()[0] ).baseName();
 
     BufferString cmd( "\"",script.fullPath(), "\"" );
     cmd += BufferString( " \"", filename, "\"" );
@@ -562,7 +562,7 @@ void CrashDumper::sendDump( const char* filename )
     cmd += BufferString( " ", prefix );
     if ( !sendappl_.isEmpty() )
 	cmd += BufferString( " \"",
-		FilePath(GetExecPlfDir(),sendappl_).fullPath(), "\"" );
+		File::Path(GetExecPlfDir(),sendappl_).fullPath(), "\"" );
 
     std::cout << cmd.str() << std::endl;
 

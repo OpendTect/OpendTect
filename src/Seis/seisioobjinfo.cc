@@ -730,7 +730,7 @@ bool SeisIOObjInfo::getDisplayPars( IOPar& iop ) const
     if ( !ioobj_ )
 	return false;
 
-    FilePath fp( ioobj_->fullUserExpr(true) );
+    File::Path fp( ioobj_->fullUserExpr(true) );
     fp.setExtension( "par" );
     return iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty();
 }

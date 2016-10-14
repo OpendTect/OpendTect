@@ -88,7 +88,7 @@ void agSel( CallBacker* )
 
 void readPush( CallBacker* )
 {
-    FilePath fp( GetDataDir(), "Seismics" );
+    File::Path fp( GetDataDir(), "Seismics" );
     uiFileDialog dlg( this, true, fp.fullPath(), uiSEGYFileSpec::fileFilter(),
 	    tr("Read SEG-Y Textual Header from file") );
     if ( !dlg.go() ) return;
@@ -106,7 +106,7 @@ void readPush( CallBacker* )
 
 void writePush( CallBacker* )
 {
-    FilePath fp( GetDataDir(), "Seismics" );
+    File::Path fp( GetDataDir(), "Seismics" );
     uiFileDialog dlg( this,false, fp.fullPath(), 0,
 	    tr("Write SEG-Y Textual Header to a file") );
     if ( !dlg.go() ) return;
@@ -266,7 +266,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
 	, segyexp_(p)
 {
     const BufferString fnm( outioobj_.fullUserExpr(false) );
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     BufferString ext = fp.extension();
     if ( ext.isEmpty() ) ext = "sgy";
     BufferString setupnm( "Exp " );
@@ -298,7 +298,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
 bool acceptOK()
 {
     BufferString fnm = fnmfld_->fileName();
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     BufferString dirnm( fp.pathOnly() );
     if ( !File::isDirectory(dirnm) )
 	File::createDir( dirnm );
@@ -345,7 +345,7 @@ bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
     return true;
 }
 
-bool doExp( const FilePath& fp )
+bool doExp( const File::Path& fp )
 {
     BufferStringSet lnms;
     for ( int idx=0; idx<lnmsfld_->size(); idx++ )

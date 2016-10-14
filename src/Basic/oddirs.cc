@@ -44,7 +44,7 @@ const char* GetLastSurveyFileName()
 
     if ( fnm.isEmpty() )
     {
-	FilePath fp( GetSettingsDir(), "survey" );
+	File::Path fp( GetSettingsDir(), "survey" );
 	const char* ptr = GetSoftwareUser();
 	if ( ptr )
 	    fp.setExtension( ptr );
@@ -76,7 +76,7 @@ extern "C" { mGlobal(Basic) void SetBaseDataDir(const char*); }
 mExternC(Basic) void SetBaseDataDir( const char* dirnm )
 {
 #ifdef __win__
-    const BufferString windirnm( FilePath(dirnm).fullPath(FilePath::Windows) );
+    const BufferString windirnm( File::Path(dirnm).fullPath(File::Path::Windows) );
     SetEnvVar( "DTECT_WINDATA", windirnm );
     if ( GetOSEnvVar( "DTECT_DATA" ) )
 	SetEnvVar( "DTECT_DATA", windirnm );
@@ -133,7 +133,7 @@ mExternC(Basic) const char* GetDataDir()
 	survnm = "_no_current_survey_";
 
     mDeclStaticString( ret );
-    ret = FilePath( basedir, survnm ).fullPath();
+    ret = File::Path( basedir, survnm ).fullPath();
     if ( od_debug_isOn(DBG_SETTINGS) )
 	mPrDebug( "GetDataDir", ret );
     return ret.buf();
@@ -143,7 +143,7 @@ mExternC(Basic) const char* GetDataDir()
 mExternC(Basic) const char* GetProcFileName( const char* fname )
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetDataDir(), "Proc", fname ).fullPath();
+    ret = File::Path( GetDataDir(), "Proc", fname ).fullPath();
     return ret.buf();
 }
 
@@ -164,15 +164,15 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
     if ( res.isEmpty() )
     {
 	//Find the relinfo directory, and set sw dir to its parent
-	const FilePath filepath = GetFullExecutablePath();
+	const File::Path filepath = GetFullExecutablePath();
 	for ( int idx=filepath.nrLevels()-1; idx>=0; idx-- )
 	{
 	    const char* relinfostr = "relinfo";
 #ifdef __mac__
-	    const FilePath datapath( filepath.dirUpTo(idx).buf(), "Resources",
+	    const File::Path datapath( filepath.dirUpTo(idx).buf(), "Resources",
 				     relinfostr );
 #else
-	    const FilePath datapath( filepath.dirUpTo(idx).buf(), relinfostr );
+	    const File::Path datapath( filepath.dirUpTo(idx).buf(), relinfostr );
 #endif
 	    if ( File::isDirectory( datapath.fullPath()) )
 	    {
@@ -218,7 +218,7 @@ static const char* sData = "data";
 
 static const char* GetSoftwareDataDir( bool acceptnone )
 {
-    FilePath basedir = GetSoftwareDir( acceptnone );
+    File::Path basedir = GetSoftwareDir( acceptnone );
     if ( basedir.isEmpty() )
 	return 0;
 
@@ -246,7 +246,7 @@ mExternC(Basic) const char* GetSetupDataFileDir( ODSetupLocType lt,
 	    return res;
     }
 
-    FilePath basedir = GetApplSetupDir();
+    File::Path basedir = GetApplSetupDir();
 
     if ( basedir.isEmpty() )
     {
@@ -270,7 +270,7 @@ mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
 
     if ( lt == ODSetupLoc_SWDirOnly )
     {
-	filenm = FilePath(GetSetupDataFileDir(lt,acceptnone),fnm).fullPath();
+	filenm = File::Path(GetSetupDataFileDir(lt,acceptnone),fnm).fullPath();
 	return filenm.buf();
     }
 
@@ -280,7 +280,7 @@ mExternC(Basic) const char* GetSetupDataFileName( ODSetupLocType lt,
 	return lt == ODSetupLoc_ApplSetupOnly ? 0
 	     : GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm,acceptnone);
 
-    filenm = FilePath(GetSetupDataFileDir(lt,acceptnone),fnm).fullPath();
+    filenm = File::Path(GetSetupDataFileDir(lt,acceptnone),fnm).fullPath();
 
     if ( (lt == ODSetupLoc_ApplSetupPref || lt == ODSetupLoc_SWDirPref)
 	&& !File::exists(filenm) )
@@ -308,10 +308,10 @@ mExternC(Basic) const char* GetDocFileDir( const char* filedir )
     if ( dirnm.isEmpty() )
     {
 #ifdef __mac__
-	dirnm = FilePath(GetSoftwareDir(0),"Resources","doc",
+	dirnm = File::Path(GetSoftwareDir(0),"Resources","doc",
 			 filedir).fullPath();
 #else
-	dirnm = FilePath(GetSoftwareDir(0),"doc",filedir).fullPath();
+	dirnm = File::Path(GetSoftwareDir(0),"doc",filedir).fullPath();
 #endif
     }
 
@@ -329,7 +329,7 @@ mExternC(Basic) const char* GetExecPlfDir()
 {
     mDeclStaticString( res );
     if ( res.isEmpty() )
-	res = FilePath( GetFullExecutablePath() ).pathOnly();
+	res = File::Path( GetFullExecutablePath() ).pathOnly();
     return res.buf();
 }
 
@@ -339,9 +339,9 @@ mExternC(Basic) const char* GetLibPlfDir()
     mDeclStaticString( res );
     if ( res.isEmpty() )
 #ifdef __mac__
-        res = FilePath(GetSoftwareDir(0),"Frameworks").fullPath();
+        res = File::Path(GetSoftwareDir(0),"Frameworks").fullPath();
 #else
-        res = FilePath( GetFullExecutablePath() ).pathOnly();
+        res = File::Path( GetFullExecutablePath() ).pathOnly();
 #endif
     return res.buf();
 }
@@ -352,9 +352,9 @@ mExternC(Basic) const char* GetScriptDir()
     mDeclStaticString( res );
     if ( res.isEmpty() )
 #ifdef __mac__
-    res = FilePath( GetFullExecutablePath() ).pathOnly();
+    res = File::Path( GetFullExecutablePath() ).pathOnly();
 #else
-    res = FilePath( GetSoftwareDir(0),"bin" ).fullPath();
+    res = File::Path( GetSoftwareDir(0),"bin" ).fullPath();
 #endif
     return res.buf();
 }
@@ -363,7 +363,7 @@ mExternC(Basic) const char* GetScriptDir()
 static const char* gtExecScript( const char* basedir, int remote )
 {
     mDeclStaticString( scriptnm );
-    scriptnm = FilePath(basedir,"bin","od_exec").fullPath();
+    scriptnm = File::Path(basedir,"bin","od_exec").fullPath();
     if ( remote ) scriptnm.add( "_rmt" );
     return scriptnm;
 }
@@ -537,7 +537,7 @@ mExternC(Basic) const char* GetSettingsDir()
 	else
 	{
 	    getHomeDir( dirnm );
-	    dirnm = FilePath( dirnm, ".od" ).fullPath();
+	    dirnm = File::Path( dirnm, ".od" ).fullPath();
 	}
 
 	if ( !File::isDirectory(dirnm) )
@@ -565,6 +565,6 @@ mExternC(Basic) const char* GetSettingsDir()
 mExternC(Basic) const char* GetSettingsFileName( const char* fnm )
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetSettingsDir(), fnm ).fullPath();
+    ret = File::Path( GetSettingsDir(), fnm ).fullPath();
     return ret;
 }

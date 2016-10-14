@@ -136,7 +136,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 	strm << "Done" << od_endl;
     }
 
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     fp.setExtension( "cpt" );
     BufferString cptfnm( dofill ? fp.fullPath() : fp.getTempName("cpt") );
 

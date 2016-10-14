@@ -97,7 +97,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     if ( iop.isEmpty() )
     { errmsg_ = tr("Nothing to merge"); return; }
 
-    FilePath fp( iop.find(sKey::TmpStor()) );
+    File::Path fp( iop.find(sKey::TmpStor()) );
     DirList dlist( fp.fullPath(), DirList::FilesOnly );
     StepInterval<float> zrg( mUdf(float), -mUdf(float), SI().zStep() );
     for ( int idx=0; idx<dlist.size(); idx++ )

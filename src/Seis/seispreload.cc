@@ -69,7 +69,7 @@ void PreLoader::getLineNames( BufferStringSet& lks ) const
     BufferStringSet nms;
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
-	FilePath fp( fnms.get(idx) );
+	File::Path fp( fnms.get(idx) );
 	nms.add( fp.fileName() );
     }
 
@@ -338,7 +338,7 @@ void PreLoader::fillPar( IOPar& iop ) const
 	    BufferStringSet lnms;
 	    for ( int idx=0; idx<fnms.size(); idx++ )
 	    {
-		FilePath fp( fnms.get(idx) );
+		File::Path fp( fnms.get(idx) );
 		fp.setExtension( 0, true );
 		lnms.add( fp.fileName() );
 	    }

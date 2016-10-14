@@ -301,7 +301,7 @@ bool DataObject::serialize( const char* filename, bool binary )
     if ( !osgNode() )
 	return true;
 
-    FilePath fp( filename );
+    File::Path fp( filename );
     fp.setExtension( ".osg", true );
     return osgDB::writeNodeFile( *osgNode(), std::string(fp.fullPath()) );
 }

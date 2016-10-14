@@ -94,7 +94,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd, od_ostream* logstrm )
 	, jobFailed(this)
 	, msgAvail(this)
 	, curjobiop_(*new IOPar)
-	, curjobfp_(*new FilePath)
+	, curjobfp_(*new File::Path)
 	, curjobinfo_(0)
 	, logstrm_(logstrm)
 {
@@ -289,9 +289,9 @@ JobIOMgr& JobRunner::iomgr()
 }
 
 
-const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
+const File::Path& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 {
-    mDefineStaticLocalObject( FilePath, basefp, );
+    mDefineStaticLocalObject( File::Path, basefp, );
 
     BufferString basenm( hd.getHostName() );
 #ifdef __win__

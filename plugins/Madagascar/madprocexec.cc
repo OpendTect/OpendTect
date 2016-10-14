@@ -89,7 +89,7 @@ bool ODMad::ProcExec::init()
 	    if ( inptyp == ODMad::ProcFlow::SU )
 	    {
 		const BufferString rsfroot = GetEnvVar( "RSFROOT" );
-		cmd = FilePath( rsfroot, "bin", "sfsu2rsf" ).fullPath();
+		cmd = File::Path( rsfroot, "bin", "sfsu2rsf" ).fullPath();
 		cmd += " "; cmd += "tape=";
 		cmd += inpar->find( sKey::FileName() );
 		cmd += " | "; cmd += comm + 1;
@@ -131,15 +131,15 @@ bool ODMad::ProcExec::init()
 
 #ifdef __win__
     #define mAddNewExec \
-        BufferString fname = FilePath::getTempName( "par" ); \
+        BufferString fname = File::Path::getTempName( "par" ); \
 	pars_.write( fname, sKey::Pars() ); \
-	ret += FilePath(rsfroot).add("bin").add("sfdd").fullPath(); \
+	ret += File::Path(rsfroot).add("bin").add("sfdd").fullPath(); \
 	ret += " form=ascii_float | \""; \
-	ret += FilePath(GetExecPlfDir()).add("od_madexec").fullPath(); \
+	ret += File::Path(GetExecPlfDir()).add("od_madexec").fullPath(); \
 	ret += "\" "; ret += fname
 #else
     #define mAddNewExec \
-	BufferString fname = FilePath::getTempName( "par" ); \
+	BufferString fname = File::Path::getTempName( "par" ); \
 	pars_.write( fname, sKey::Pars() ); \
 	ret += GetExecScript( false ); ret += " "; \
 	ret += "od_madexec"; ret += " "; ret += fname
@@ -190,7 +190,7 @@ const char* ODMad::ProcExec::getProcString()
 	else
 	{
 #ifdef __win__
-	    ret += FilePath(rsfroot).add("bin").add("sfdd").fullPath();
+	    ret += File::Path(rsfroot).add("bin").add("sfdd").fullPath();
 	    ret += " form=native_float | ";
 #endif
 	    firstproc = false;
@@ -200,7 +200,7 @@ const char* ODMad::ProcExec::getProcString()
 	    ret += procflow[pidx]->getCommand();
 	else
 	{
-	    const FilePath fp( rsfroot, "bin", procflow[pidx]->getCommand() );
+	    const File::Path fp( rsfroot, "bin", procflow[pidx]->getCommand() );
 	    ret += fp.fullPath();
 	}
 
@@ -265,7 +265,7 @@ const char* ODMad::ProcExec::getPlotString() const
     if ( plotcmd.isEmpty() )
 	return 0;
 
-    FilePath fp( rsfroot, "bin" );
+    File::Path fp( rsfroot, "bin" );
     char* pipechar = plotcmd.find( '|' );
     if ( pipechar )
     {

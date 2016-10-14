@@ -177,7 +177,7 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     BufferString type( EM::EMM().objectType(mid) );
     BufferString info;
     info.add( "Data Type: " ).add( type ).add( "\n" );
-    FilePath fp( ioobj->fullUserExpr(true) );
+    File::Path fp( ioobj->fullUserExpr(true) );
     info.add( "Directory: " ).add( fp.pathOnly() ).add ( "\n" );
     info.add( "File: " ).add( fp.fileName() ).add( "\n" );
     info.add( "File size in KB: " )

@@ -61,9 +61,9 @@ bool ZipUtils::UnZip( const char* src, const char* dest )
 
 bool ZipUtils::doZip( const char* src, const char* dest )
 {
-    FilePath srcfp( src );
+    File::Path srcfp( src );
     BufferString newsrc = srcfp.fileName();
-    FilePath zipcomfp( GetExecPlfDir(), "zip" );
+    File::Path zipcomfp( GetExecPlfDir(), "zip" );
     BufferString cmd( zipcomfp.fullPath() );
     cmd += " -r \"";
     cmd += dest;
@@ -84,13 +84,13 @@ bool ZipUtils::doZip( const char* src, const char* dest )
 bool ZipUtils::doUnZip( const char* src, const char* dest )
 {
     bool tempfile = false;
-    FilePath orgfnm( filelistname_ );
+    File::Path orgfnm( filelistname_ );
     if ( needfilelist_ )
     {
 	if ( !File::exists( orgfnm.pathOnly() ) )
 	{
 	    tempfile = true;
-	    FilePath listfp( src );
+	    File::Path listfp( src );
 	    if (  listfp.nrLevels() <= 1 )
 		filelistname_ = orgfnm.fileName();
 	    else

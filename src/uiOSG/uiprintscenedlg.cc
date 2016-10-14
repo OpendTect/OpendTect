@@ -150,7 +150,7 @@ bool ui3DViewer2Image::saveImages( const osg::Image* mainimg,
     if ( !mainimg )
 	return false;
 
-    FilePath imgfp( imgfnm_ );
+    File::Path imgfp( imgfnm_ );
     const char* fmt = imgfp.extension();
 
     uiRGBArray rgbhudimage( true );
@@ -430,7 +430,7 @@ bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
     if ( !filenameOK() || !widthfld_ || !mainimg )
 	return false;
 
-    FilePath filepath( fileinputfld_->fileName() );
+    File::Path filepath( fileinputfld_->fileName() );
     setDirName( filepath.pathOnly() );
 
     const char* fmt = uiSaveImageDlg::getExtension();

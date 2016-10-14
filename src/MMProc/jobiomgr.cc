@@ -85,12 +85,12 @@ void CommandString::addFlag( const char* f, int v )
 }
 
 
-void CommandString::addFilePath( const FilePath& fp )
+void CommandString::addFilePath( const File::Path& fp )
 {
-    const FilePath::Style stl( hstdata_.pathStyle() );
-    cmd_.add( stl == FilePath::Unix ? " '" : " \"" )
+    const File::Path::Style stl( hstdata_.pathStyle() );
+    cmd_.add( stl == File::Path::Unix ? " '" : " \"" )
 	.add( fp.fullPath(stl) )
-	.add( stl == FilePath::Unix ? "'" : "\"" );
+	.add( stl == File::Path::Unix ? "'" : "\"" );
 }
 
 
@@ -395,7 +395,7 @@ bool JobIOMgr::isReady() const
 
 
 bool JobIOMgr::startProg( const char* progname,
-	IOPar& iop, const FilePath& basefp, const JobInfo& ji,
+	IOPar& iop, const File::Path& basefp, const JobInfo& ji,
 	const char* rshcomm )
 {
     DBG::message(DBG_MM,"JobIOMgr::startProg");
@@ -403,7 +403,7 @@ bool JobIOMgr::startProg( const char* progname,
 	mErrRet("Internal: No hostdata provided")
 
     const HostData& machine = *ji.hostdata_;
-    FilePath ioparfp;
+    File::Path ioparfp;
     if ( !mkIOParFile(basefp,machine,iop,ioparfp,msg_) )
     {
 	mLogMsg(msg_)
@@ -445,9 +445,9 @@ extern const OD::String& getTempBaseNm();
 
 extern int& MMJob_getTempFileNr();
 
-static FilePath getConvertedFilePath( const HostData& hd, const FilePath& fp )
+static File::Path getConvertedFile::Path( const HostData& hd, const File::Path& fp )
 {
-    FilePath newfp = hd.prefixFilePath( HostData::Data );
+    File::Path newfp = hd.prefixFilePath( HostData::Data );
     if ( !newfp.nrLevels() ) return fp;
 
     BufferString proc( getTempBaseNm() );
@@ -459,29 +459,29 @@ static FilePath getConvertedFilePath( const HostData& hd, const FilePath& fp )
 }
 
 
-bool JobIOMgr::mkIOParFile( const FilePath& basefp,
+bool JobIOMgr::mkIOParFile( const File::Path& basefp,
 			    const HostData& remotemachine, const IOPar& iop,
-			    FilePath& iopfp, BufferString& msg )
+			    File::Path& iopfp, BufferString& msg )
 {
     iopfp = basefp; iopfp.setExtension( ".par", false );
     IOPar newiop( iop );
-    const FilePath::Style machpathstyle( remotemachine.pathStyle() );
+    const File::Path::Style machpathstyle( remotemachine.pathStyle() );
 
-    FilePath remoteparfp = getConvertedFilePath( remotemachine, basefp );
+    File::Path remoteparfp = getConvertedFile::Path( remotemachine, basefp );
     BufferString bs( remoteparfp.fullPath() );
     bs.replace( '.',  '_' );
-    FilePath logfp( bs );
+    File::Path logfp( bs );
     remoteparfp.setExtension( ".par", false );
     logfp.setExtension( ".log", false );
-    const FilePath remotelogfp( logfp );
+    const File::Path remotelogfp( logfp );
     newiop.set( sKey::LogFile(), remotelogfp.fullPath(machpathstyle) );
 
-    const FilePath remdata = remotemachine.prefixFilePath( HostData::Data );
+    const File::Path remdata = remotemachine.prefixFilePath( HostData::Data );
     const char* tmpstor = iop.find( sKey::TmpStor() );
     if ( tmpstor )
     {
-	const FilePath path( tmpstor );
-	FilePath remotetmpdir( remdata.nrLevels() ? remdata.fullPath()
+	const File::Path path( tmpstor );
+	File::Path remotetmpdir( remdata.nrLevels() ? remdata.fullPath()
 						  : path.fullPath() );
 	if ( remdata.nrLevels() )
 	{
@@ -519,16 +519,16 @@ bool JobIOMgr::mkIOParFile( const FilePath& basefp,
 
 #else
 
-bool JobIOMgr::mkIOParFile( const FilePath& basefp,
+bool JobIOMgr::mkIOParFile( const File::Path& basefp,
 			    const HostData& machine, const IOPar& iop,
-			    FilePath& iopfp, BufferString& msg )
+			    File::Path& iopfp, BufferString& msg )
 {
     iopfp = basefp; iopfp.setExtension( ".par", false );
     const BufferString iopfnm( iopfp.fullPath() );
-    FilePath logfp(basefp); logfp.setExtension( ".log", false );
+    File::Path logfp(basefp); logfp.setExtension( ".log", false );
     const BufferString logfnm( logfp.fullPath() );
 
-    FilePath remotelogfnm( machine.convPath(HostData::Data,logfp) );
+    File::Path remotelogfnm( machine.convPath(HostData::Data,logfp) );
 
     IOPar newiop( iop );
     newiop.set( sKey::LogFile(), remotelogfnm.fullPath(machine.pathStyle()) );
@@ -536,13 +536,13 @@ bool JobIOMgr::mkIOParFile( const FilePath& basefp,
     const char* tmpstor = iop.find( sKey::TmpStor() );
     if ( tmpstor )
     {
-	const FilePath remotetmpdir =
+	const File::Path remotetmpdir =
 		machine.convPath( HostData::Data, tmpstor );
 	newiop.set( sKey::TmpStor(),
 		    remotetmpdir.fullPath(machine.pathStyle()) );
     }
 
-    const FilePath remotedr =
+    const File::Path remotedr =
 		machine.convPath( HostData::Data, GetBaseDataDir() );
     newiop.set( sKey::DataRoot(),
 		remotedr.fullPath(machine.pathStyle()) );
@@ -571,8 +571,8 @@ bool JobIOMgr::mkIOParFile( const FilePath& basefp,
 
 
 void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
-			  const char* progname, const FilePath& basefp,
-			  const FilePath& iopfp, const JobInfo& ji,
+			  const char* progname, const File::Path& basefp,
+			  const File::Path& iopfp, const JobInfo& ji,
 			  const char* rshcomm )
 {
     const BufferString remhostaddress =
@@ -612,7 +612,7 @@ BufferString JobIOMgr::mkRexecCmd( const char* prognm,
 				   const HostData& machine,
 				   const HostData& localhost )
 {
-    FilePath execfp( GetScriptDir(), "exec_prog" );
+    File::Path execfp( GetScriptDir(), "exec_prog" );
     execfp = machine.convPath( HostData::Appl, execfp, &localhost );
 
     BufferString res( execfp.fullPath( machine.pathStyle() ).str() );

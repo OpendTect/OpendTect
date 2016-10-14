@@ -65,7 +65,7 @@ bool Network::downloadFiles( BufferStringSet& urls, const char* path,
     for ( int idx=0; idx<urls.size(); idx++ )
     {
 	SeparString str( urls.get(idx).buf(), '/' );
-	FilePath destpath( path );
+	File::Path destpath( path );
 	if ( str[str.size()-1].isEmpty() )
 	    destpath.add( str[str.size() - 2] );
 	else
@@ -256,7 +256,7 @@ bool FileDownloader::writeData()
 
 bool FileDownloader::writeDataToFile(const char* buffer, int size)
 {
-    FilePath fp = saveaspaths_.get(nrfilesdownloaded_).buf();
+    File::Path fp = saveaspaths_.get(nrfilesdownloaded_).buf();
     if ( !osd_ )
 	return false;
 

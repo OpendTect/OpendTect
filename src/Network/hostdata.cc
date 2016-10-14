@@ -137,16 +137,16 @@ const OD::Platform& HostData::getPlatform() const
 bool HostData::isWindows() const
 { return platform_.isWindows(); }
 
-FilePath::Style HostData::pathStyle() const
-{ return platform_.isWindows() ? FilePath::Windows : FilePath::Unix; }
+File::Path::Style HostData::pathStyle() const
+{ return platform_.isWindows() ? File::Path::Windows : File::Path::Unix; }
 
-const FilePath& HostData::prefixFilePath( PathType pt ) const
+const File::Path& HostData::prefixFilePath( PathType pt ) const
 { return pt == Appl ? appl_pr_ : data_pr_; }
 
-void HostData::setDataRoot( const FilePath& dataroot )
+void HostData::setDataRoot( const File::Path& dataroot )
 { data_pr_ = dataroot; }
 
-const FilePath& HostData::getDataRoot() const
+const File::Path& HostData::getDataRoot() const
 { return data_pr_; }
 
 
@@ -180,16 +180,16 @@ void HostData::init( const char* nm )
 }
 
 
-static FilePath getReplacePrefix( const FilePath& dir_,
-		const FilePath& fromprefix_, const FilePath& toprefix_ )
+static File::Path getReplacePrefix( const File::Path& dir_,
+		const File::Path& fromprefix_, const File::Path& toprefix_ )
 {
     if ( !fromprefix_.nrLevels() || !toprefix_.nrLevels() )
-	return FilePath(dir_);
+	return File::Path(dir_);
 
     // convert paths to Unix style
-    BufferString dir = dir_.fullPath( FilePath::Unix );
-    BufferString fromprefix = fromprefix_.fullPath( FilePath::Unix );
-    BufferString toprefix = toprefix_.fullPath( FilePath::Unix );
+    BufferString dir = dir_.fullPath( File::Path::Unix );
+    BufferString fromprefix = fromprefix_.fullPath( File::Path::Unix );
+    BufferString toprefix = toprefix_.fullPath( File::Path::Unix );
 
     const char* tail = dir.find( fromprefix );
     if ( !tail )
@@ -199,7 +199,7 @@ static FilePath getReplacePrefix( const FilePath& dir_,
     }
 
     if ( !tail )
-	return FilePath(toprefix_);
+	return File::Path(toprefix_);
 
     tail += fromprefix.size();
 
@@ -221,11 +221,11 @@ static FilePath getReplacePrefix( const FilePath& dir_,
 	DBG::message(msg);
     }
 
-    return FilePath(ret);
+    return File::Path(ret);
 }
 
 
-FilePath HostData::convPath( PathType pt, const FilePath& fp,
+File::Path HostData::convPath( PathType pt, const File::Path& fp,
 			     const HostData* from ) const
 {
     if ( !from ) from = &localHost();
@@ -352,7 +352,7 @@ void HostDataList::initDataRoot()
 	if ( __iswin__ && win_data_pr_.isEmpty() )
 	    win_data_pr_ = GetBaseDataDir();
 
-	const FilePath fp( hd->isWindows() ? win_data_pr_ : unx_data_pr_ );
+	const File::Path fp( hd->isWindows() ? win_data_pr_ : unx_data_pr_ );
 	hd->setDataRoot( fp );
     }
 }

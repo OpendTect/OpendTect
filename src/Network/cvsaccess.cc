@@ -17,11 +17,11 @@ ________________________________________________________________________
 
 static const char* sRedirect = " > /dev/null 2>&1";
 
-#define mGetReqFnm() const BufferString reqfnm( FilePath(dir_,fnm).fullPath() )
+#define mGetReqFnm() const BufferString reqfnm( File::Path(dir_,fnm).fullPath() )
 
 #define mGetTmpFnm(op,fnm) \
     const BufferString tmpfnm( \
-	FilePath(File::getTempPath(),BufferString(fnm,GetPID(),op)).fullPath() )
+	File::Path(File::getTempPath(),BufferString(fnm,GetPID(),op)).fullPath() )
 
 #define mRetRmTempFile() \
 { if ( File::exists(tmpfnm) ) File::remove(tmpfnm); return; }
@@ -31,7 +31,7 @@ static BufferString getHost( const char* dir )
 {
     BufferString ret;
 
-    od_istream strm( FilePath(dir,"CVS","Root") );
+    od_istream strm( File::Path(dir,"CVS","Root") );
     if ( !strm.isOK() )
 	return ret;
 
@@ -56,7 +56,7 @@ CVSAccess::CVSAccess( const char* dir )
 {
     if ( isOK() )
     {
-	od_istream strm( FilePath(dir,"CVS","Repository") );
+	od_istream strm( File::Path(dir,"CVS","Repository") );
 	if ( strm.isOK() )
 	    strm.getLine( reposdir_ );
     }
@@ -82,7 +82,7 @@ bool CVSAccess::hostOK() const
 bool CVSAccess::isInCVS( const char* fnm ) const
 {
     if ( !fnm || !*fnm || !isOK() ) return false;
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     BufferString dirnm( fp.pathOnly() );
     BufferStringSet entries; getEntries( dirnm, entries );
     return entries.isPresent( fp.fileName() );
@@ -93,7 +93,7 @@ void CVSAccess::getEntries( const char* dir, BufferStringSet& entries ) const
 {
     entries.erase();
 
-    od_istream strm( FilePath(dir,"CVS","Entries") );
+    od_istream strm( File::Path(dir,"CVS","Entries") );
     if ( !strm.isOK() )
 	return;
 
@@ -256,8 +256,8 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
 
 bool CVSAccess::rename( const char* subdir, const char* from, const char* to )
 {
-    const FilePath sdfp( dir_, subdir );
-    FilePath fromfp( sdfp, from ), tofp( sdfp, to );
+    const File::Path sdfp( dir_, subdir );
+    File::Path fromfp( sdfp, from ), tofp( sdfp, to );
     const BufferString fromfullfnm( fromfp.fullPath() );
     const BufferString tofullfnm( tofp.fullPath() );
     fromfp.set( subdir ); fromfp.add( from );
@@ -271,8 +271,8 @@ bool CVSAccess::rename( const char* subdir, const char* from, const char* to )
 bool CVSAccess::changeFolder( const char* fnm, const char* fromsubdir,
 			      const char* tosubdir )
 {
-    FilePath tofp( dir_, tosubdir, fnm );
-    FilePath fromfp( dir_, fromsubdir, fnm );
+    File::Path tofp( dir_, tosubdir, fnm );
+    File::Path fromfp( dir_, fromsubdir, fnm );
     const BufferString fromfullfnm( fromfp.fullPath() );
     const BufferString tofullfnm( tofp.fullPath() );
     fromfp.set( fromsubdir ); fromfp.add( fnm );

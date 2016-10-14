@@ -21,11 +21,12 @@ ________________________________________________________________________
 #include "cmddriverbasics.h"
 #include "searchkey.h"
 
-class FilePath;
 class StreamData;
 class uiObject;
 class uiMenu;
 class uiTaskRunner;
+namespace File { class Path; }
+
 
 namespace CmdDrive
 {
@@ -68,14 +69,14 @@ public:
     uiMainWin*			activewin_;
     uiTaskRunner*		uitaskrunner_;
     int				nrmodalwins_;
-    BufferStringSet		signatures_;			
+    BufferStringSet		signatures_;
 };
 
 
 mExpClass(uiCmdDriver) Action
 {
 public:
-    				Action(const char* line)
+				Action(const char* line)
 				    : line_(line), gotoidx_(-1)
 				    , insertidx_(-1)			{}
 
@@ -101,13 +102,13 @@ enum WinStateType { NoState=0, Existent, Inexistent, Accessible, Inaccessible };
 mExpClass(uiCmdDriver) CmdDriver : public CallBacker
 { mODTextTranslationClass(CmdDriver)
 public:
-    friend class 	Command;
-    friend class 	ExprInterpreter;
-    friend class 	Function;
-    friend class 	MenuTracer;
+    friend class	Command;
+    friend class	ExprInterpreter;
+    friend class	Function;
+    friend class	MenuTracer;
 
-    			CmdDriver(uiMainWin& applwin);
-    			~CmdDriver();
+			CmdDriver(uiMainWin& applwin);
+			~CmdDriver();
 
     bool		getActionsFromFile(const char*);
     bool		insertActionsFromFile(const char*);
@@ -125,8 +126,8 @@ public:
     void		setLogFileName(const char* fnm)	{ logfnm_ = fnm; }
     void		clearLog()			{ logstream_.close(); }
 
-    enum		LogModeTag { LogBasic, LogNormal, LogAll };		
-    void		setLogMode(LogModeTag tag)	{ logmode_ = tag; } 
+    enum		LogModeTag { LogBasic, LogNormal, LogAll };
+    void		setLogMode(LogModeTag tag)	{ logmode_ = tag; }
 
     enum		OnErrorTag { Stop, Recover };
     void		setOnError(OnErrorTag tag)	{ onerror_ = tag; }
@@ -139,9 +140,9 @@ public:
     bool		greyOutsSkipped() const	    { return skipgreyouts_; }
 
     void		setSleep(float time,
-	    			 bool regular=true);
+				 bool regular=true);
     void		setWait(float time,
-	    			bool regular=true);
+				bool regular=true);
 
     static bool		nowExecuting();
 
@@ -157,7 +158,7 @@ protected:
 
     uiMainWin*		applwin_;
     uiMainWin*		applWin()		    { return applwin_; }
-    const uiMainWin*	applWin() const 	    { return applwin_; }
+    const uiMainWin*	applWin() const	    { return applwin_; }
 
     void		exitApplCB( CallBacker* );
 
@@ -178,7 +179,7 @@ protected:
     void		waitForClearance();
 
     void		prepareIntercept(const FileMultiString& mnupath,
-	    				 int onoff,InterceptMode=Click);
+					 int onoff,InterceptMode=Click);
     bool		didInterceptSucceed(const char* objnm);
     const MenuInfo&	interceptedMenuInfo() const;
 
@@ -191,7 +192,7 @@ protected:
     BufferString	errmsg_;
     Threads::Thread*	execthr_;
     od_ostream&		logstream_;
-    FilePath&		outfp_;
+    File::Path&		outfp_;
 
     WildcardManager*	wcm_;
     WildcardManager&	wildcardMan()			{ return *wcm_; }
@@ -230,7 +231,7 @@ protected:
     void		mkThread(CallBacker*);
     bool		doAction(const char*);
 
-    bool		casesensitive_;	
+    bool		casesensitive_;
     uiObject*		localsearchenv_;
 
     bool		skipgreyouts_;
@@ -264,9 +265,9 @@ protected:
     WindowStack		winstack_;
     const uiMainWin*	curWin() const	    { return winstack_.topWin(true); }
 
-    bool		openqdialog_; 
+    bool		openqdialog_;
     bool		openQDlg() const		{ return openqdialog_; }
-    
+
     Threads::Lock	cmddrvlock_;
     bool		activityStopped(bool checkprocessing=true,
 					bool checktimers=true);
@@ -289,17 +290,17 @@ protected:
     void		timerShootsCB(CallBacker* timer);
     void		timerShotCB(CallBacker* timer);
 
-    void 		forceQtToCatchUp();
-			// Delay to assure that Qt has finished all previous 
+    void		forceQtToCatchUp();
+			// Delay to assure that Qt has finished all previous
 			// display, hide and outgrey tasks initiated by the
 			// GUI thread.
 
     enum		InterceptStatus { NoInterception, InterceptError,
 					  InterceptReady };
-    InterceptStatus	interceptstatus_;  
+    InterceptStatus	interceptstatus_;
     FileMultiString	interceptmenupath_;
     InterceptMode	interceptmode_;
-    int			interceptonoff_;  
+    int			interceptonoff_;
     bool		interceptmenu_;
     MenuInfo		interceptmenuinfo_;
 
@@ -311,7 +312,7 @@ protected:
     void		killTaskRunnerCB(CallBacker*);
 
     const InteractSpec*	interactspec_;
-    void		interact(const InteractSpec*); 
+    void		interact(const InteractSpec*);
 
     ObjectSet<const CallBacker>	activatorlist_;
     ObjectSet<const CallBacker>	timerlist_;
@@ -319,12 +320,12 @@ protected:
 
 
 public:
-    			// interface for output stream macros
+			// interface for output stream macros
     od_ostream&		logStream()			 { return logstream_; }
     const char*		curWinTitle(int aliasnr=0) const;
 
     bool		streamBlocked(bool parse,const char* tag);
-    			// Does tryout management as side-effect!
+			// Does tryout management as side-effect!
 
 };
 

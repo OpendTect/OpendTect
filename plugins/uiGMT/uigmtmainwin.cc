@@ -101,7 +101,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
 
     flowgrp_->setHAlignObj( flowfld_ );
-    BufferString defseldir = FilePath(GetDataDir()).add("Misc").fullPath();
+    BufferString defseldir = File::Path(GetDataDir()).add("Misc").fullPath();
     filefld_ = new uiFileInput( this, uiStrings::sOutputFile(),
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.forread(false).filter("*.ps").defseldir(defseldir) );
@@ -395,7 +395,7 @@ void uiGMTMainWin::createPush( CallBacker* )
 
 void uiGMTMainWin::checkFileCB( CallBacker* )
 {
-    FilePath fp( filefld_->fileName() );
+    File::Path fp( filefld_->fileName() );
     fp.setExtension( "tmp" );
     if ( !File::exists(fp.fullPath()) )
 	return;
@@ -416,7 +416,7 @@ void uiGMTMainWin::viewPush( CallBacker* )
     if ( psfilenm.isEmpty() )
 	return;
 
-    FilePath psfp( psfilenm );
+    File::Path psfp( psfilenm );
     psfp.setExtension( "ps" );
     psfilenm = psfp.fullPath();
 
@@ -431,7 +431,7 @@ bool uiGMTMainWin::fillPar()
     if ( fnm.isEmpty() )
 	mErrRet(uiStrings::phrSpecify(tr("an output file name")))
 
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     BufferString dirnm = fp.pathOnly();
     if ( !File::isDirectory(dirnm.buf()) || !File::isWritable(dirnm.buf()) )
 	mErrRet(tr("Output directory is not writable"))

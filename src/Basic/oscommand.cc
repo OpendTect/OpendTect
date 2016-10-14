@@ -352,7 +352,7 @@ static const char* getCmd( const char* fnm )
     mDeclStaticString( fullexec );
 
     fullexec = "\"";
-    FilePath interpfp;
+    File::Path interpfp;
 
     if ( getCygDir() )
     {
@@ -367,7 +367,7 @@ static const char* getCmd( const char* fnm )
     }
 
     fullexec.add( interpfp.fullPath() ).add( "\" '" )
-	.add( FilePath(execnm).fullPath(FilePath::Unix) ).add( "'" );
+	.add( File::Path(execnm).fullPath(File::Path::Unix) ).add( "'" );
     if ( args && *args )
 	fullexec.add( " " ).add( args );
 
@@ -412,7 +412,7 @@ BufferString OS::MachineCommand::getLocalCommand() const
 // OS::CommandLauncher
 
 OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc)
-    : odprogressviewer_(FilePath(GetExecPlfDir(),sODProgressViewerProgName)
+    : odprogressviewer_(File::Path(GetExecPlfDir(),sODProgressViewerProgName)
 			    .fullPath())
     , process_( 0 )
     , stderror_( 0 )
@@ -506,7 +506,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     {
 #ifndef __win__
 	BufferString str =
-	    FilePath( GetSoftwareDir(true), "bin",
+	    File::Path( GetSoftwareDir(true), "bin",
 		    "od_exec_consoleui.scr" ).fullPath();
 	addQuotesIfNeeded( str );
 	str.add( " " );
@@ -521,7 +521,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	monitorfnm_ = pars.monitorfnm_;
 	if ( monitorfnm_.isEmpty() )
 	{
-	    monitorfnm_ = FilePath::getTempName("txt");
+	    monitorfnm_ = File::Path::getTempName("txt");
 	    redirectoutput_ = true;
 	}
 

@@ -15,11 +15,11 @@ ________________________________________________________________________
 #include "jobinfo.h"
 
 class BufferStringSet;
-class FilePath;
 class HostData;
 class JobDescProv;
 class JobIOMgr;
 class StatusInfo;
+namespace File { class Path; }
 
 /*!
 \brief Holds host-specific status information.
@@ -98,7 +98,7 @@ public:
     void			setPriority(float);
 
     void			showMachStatus( BufferStringSet& ) const;
-    const FilePath&		getBaseFilePath(JobInfo&, const HostData&);
+    const File::Path&		getBaseFilePath(JobInfo&, const HostData&);
 
     Notifier<JobRunner>		preJobStart;
     Notifier<JobRunner>		postJobStart;
@@ -107,7 +107,7 @@ public:
 
     const JobInfo&		curJobInfo() const	{ return *curjobinfo_; }
     IOPar&			curJobIOPar()		{ return curjobiop_; }
-    const FilePath&		curJobFilePath()	{ return curjobfp_; }
+    const File::Path&		curJobFilePath()	{ return curjobfp_; }
 
     const char*			procDir() const	{ return procdir_.buf(); }
 				// processing directory on local machine
@@ -121,7 +121,7 @@ protected:
     ObjectSet<JobInfo>		failedjobs_;
     BufferString		prog_;
     BufferString		procdir_;
-    FilePath&			curjobfp_;
+    File::Path&			curjobfp_;
     IOPar&			curjobiop_;
     JobInfo*			curjobinfo_;
     od_ostream*			logstrm_;

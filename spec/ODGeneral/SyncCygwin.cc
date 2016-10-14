@@ -53,7 +53,7 @@ int main( int argc, char** argv )
     const char* cygdir = getCygDir();
     if ( !cygdir || !*cygdir ) return 1;
 
-    FilePath fp( cygdir, "bin" );
+    File::Path fp( cygdir, "bin" );
     if ( !File::isDirectory(fp.fullPath()) ) return 2;
 
     static const char* cygdllnm = "cygwin1.dll";

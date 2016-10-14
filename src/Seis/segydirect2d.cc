@@ -35,7 +35,7 @@ int SEGYDirect2DLineIOProvider::factid_
 static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 {
     Pos::GeomID geomid = mUdfGeomID;
-    BufferString basenm = FilePath(fnm).baseName();
+    BufferString basenm = File::Path(fnm).baseName();
     char* capstr = basenm.find( mCapChar );
     if ( !capstr ) return geomid;
     capstr++;
@@ -137,7 +137,7 @@ bool SEGYDirect2DLineIOProvider::renameImpl( const IOObj& obj,
 	if ( geomid == mUdfGeomID )
 	    continue;
 
-	FilePath fp( dl.fullPath(idx) );
+	File::Path fp( dl.fullPath(idx) );
 	BufferString newfnm( newnm );
 	newfnm.add( mCapChar ).add( geomid );
 	fp.setFileName( newfnm );
@@ -306,7 +306,7 @@ SEGYDirect2DLinePutter::SEGYDirect2DLinePutter( const IOObj& obj,
 	, fname_(SEGYDirect2DLineIOProvider::getFileName(obj,geomid))
 {
     bid_.inl() = geomid;
-    FilePath fp( fname_ );
+    File::Path fp( fname_ );
     if ( !File::exists(fp.pathOnly()) )
 	File::createDir( fp.pathOnly() );
 

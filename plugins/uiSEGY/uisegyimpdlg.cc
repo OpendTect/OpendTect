@@ -132,7 +132,7 @@ uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
 	, impdlg_(p)
 {
     const BufferString fnm( inioobj_.fullUserExpr(true) );
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     BufferString ext = fp.extension();
     if ( ext.isEmpty() ) ext = "sgy";
     BufferString setupnm( "Imp "); setupnm += uiSEGYFileSpec::sKeyLineNmToken();
@@ -151,7 +151,7 @@ uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
 bool acceptOK()
 {
     BufferString fnm = fnmfld_->fileName();
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     BufferString dirnm( fp.pathOnly() );
     if ( !File::isDirectory(dirnm) )
     {
@@ -196,11 +196,11 @@ bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
 }
 
 
-bool doImp( const FilePath& fp )
+bool doImp( const File::Path& fp )
 {
     BufferString mask( fp.fileName() );
     mask.replace( uiSEGYFileSpec::sKeyLineNmToken(), "*" );
-    FilePath maskfp( fp ); maskfp.setFileName( mask );
+    File::Path maskfp( fp ); maskfp.setFileName( mask );
     const int nrtok = mask.count( '*' );
     DirList dl( fp.pathOnly(), DirList::FilesOnly, mask );
     if ( dl.size() < 1 )
@@ -220,7 +220,7 @@ bool doImp( const FilePath& fp )
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString dirlistfnm( dl.get(idx) );
-	FilePath newfp( maskfp );
+	File::Path newfp( maskfp );
 	newfp.setFileName( dirlistfnm );
 	const BufferString fullfnm( newfp.fullPath() );
 	const int newlen = fullfnm.size();

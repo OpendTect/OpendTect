@@ -69,15 +69,15 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p )
     if ( File::isLink(storagedir) )
     {
 	BufferString newstoragedir = File::linkEnd(storagedir);
-	FilePath fp( newstoragedir );
+	File::Path fp( newstoragedir );
 	if ( !fp.isAbsolute() )
 	{
-	    fp.setPath( FilePath(storagedir).pathOnly() );
+	    fp.setPath( File::Path(storagedir).pathOnly() );
 	    newstoragedir = File::linkEnd( fp.fullPath() );
 	}
 	storagedir = newstoragedir;
     }
-    FilePath fp( storagedir );
+    File::Path fp( storagedir );
     basepath_ = fp.pathOnly();
     orgdirname_ = fp.fileName();
 
@@ -406,8 +406,8 @@ int uiSurveyInfoEditor::addInfoProvider( uiSurvInfoProvider* p )
 bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 				     const char* outdirnm )
 {
-    const BufferString fnmin = FilePath(path).add(indirnm).fullPath();
-    const BufferString fnmout = FilePath(path).add(outdirnm).fullPath();
+    const BufferString fnmin = File::Path(path).add(indirnm).fullPath();
+    const BufferString fnmout = File::Path(path).add(outdirnm).fullPath();
     if ( File::exists(fnmout) )
     {
 	uiString msg = tr("Cannot rename %1 to %2"
@@ -494,9 +494,9 @@ bool uiSurveyInfoEditor::acceptOK()
 
     const BufferString newbasepath( pathfld_->text() );
     const BufferString newdirnm( dirName() );
-    const BufferString olddir = FilePath( basepath_ ).add( orgdirname_ )
+    const BufferString olddir = File::Path( basepath_ ).add( orgdirname_ )
 					.fullPath();
-    const BufferString newdir = FilePath( newbasepath, newdirnm )
+    const BufferString newdir = File::Path( newbasepath, newdirnm )
 					.fullPath();
     const bool storepathchanged = basepath_ != newbasepath;
     bool dirnamechanged = orgdirname_ != newdirnm;

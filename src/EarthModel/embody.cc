@@ -157,10 +157,10 @@ mGlobal(EarthModel) bool OD_Convert_Body_To_OD5( uiString& errmsg )
 	    oldextension = "mc";
 	}
 
-	FilePath fp( EM::Surface::getSetupFileName(ioobj).buf() );
+	File::Path fp( EM::Surface::getSetupFileName(ioobj).buf() );
 	fp.setExtension( oldextension );
 	StreamProvider oldsp( fp.fullPath().buf() );
-	FilePath newfp( fp );
+	File::Path newfp( fp );
 	newfp.setExtension( EMBodyTranslatorGroup::sKeyExtension() );
 	if ( oldsp.exists(true) )
 	    oldsp.rename( newfp.fullPath().buf(), 0 );

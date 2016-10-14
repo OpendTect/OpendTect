@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "od_iosfwd.h"
 #include <iosfwd>
-class FilePath;
 class StreamData;
+namespace File { class Path; }
 
 
 
@@ -93,7 +93,7 @@ protected:
 
 			od_stream();
 			od_stream(const char*,bool,bool editmode=false);
-			od_stream(const FilePath&,bool,bool editmode=false);
+			od_stream(const File::Path&,bool,bool editmode=false);
 			od_stream(std::ostream*);
 			od_stream(std::ostream&);
 			od_stream(std::istream*);

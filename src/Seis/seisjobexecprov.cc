@@ -198,7 +198,7 @@ JobRunner* SeisJobExecProv::getRunner( int nrinlperjob )
 BufferString SeisJobExecProv::getDefTempStorDir( const char* pth )
 {
     const bool havepth = pth && *pth;
-    FilePath fp( havepth ? pth : GetDataDir() );
+    File::Path fp( havepth ? pth : GetDataDir() );
     if ( !havepth )
 	fp.add( "Seismics" );
 
@@ -214,12 +214,12 @@ BufferString SeisJobExecProv::getDefTempStorDir( const char* pth )
 
 void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 {
-    FilePath basefp( iopar_.find(sKey::TmpStor()) );
+    File::Path basefp( iopar_.find(sKey::TmpStor()) );
 
     for ( int inl=todoinls_.start; inl<=todoinls_.stop; inl+=todoinls_.step )
     {
 	BufferString fnm( "i." ); fnm += inl;
-	FilePath fp( basefp, fnm );
+	File::Path fp( basefp, fnm );
 	fnm = fp.fullPath();
 	od_istream* strm = new od_istream( fnm );
 	bool isok = strm->isOK();
@@ -244,7 +244,7 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 
 DBKey SeisJobExecProv::tempStorID() const
 {
-    FilePath fp( iopar_.find(sKey::TmpStor()) );
+    File::Path fp( iopar_.find(sKey::TmpStor()) );
 
     // Is there already an entry?
     const DBDirEntryList el( ctio_.ctxt_ );
@@ -311,7 +311,7 @@ bool SeisJobExecProv::removeTempSeis()
     PtrMan<IOObj> ioobj = DBM().get( tmpstorid_ );
     if ( !ioobj ) return true;
 
-    FilePath fp( ioobj->fullUserExpr(true) );
+    File::Path fp( ioobj->fullUserExpr(true) );
     DBM().removeEntry( tmpstorid_ );
 
     if ( fp.fileName() == "i.*" )

@@ -18,11 +18,11 @@ ________________________________________________________________________
 
 static const char* sRedirect = " > /dev/null 2>&1";
 
-#define mGetReqFnm() const BufferString reqfnm( FilePath(dir_,fnm).fullPath() )
+#define mGetReqFnm() const BufferString reqfnm( File::Path(dir_,fnm).fullPath() )
 
 #define mGetTmpFnm(op,fnm) \
     const BufferString tmpfnm( \
-	FilePath(File::getTempPath(),BufferString(fnm,GetPID(),op)).fullPath() )
+	File::Path(File::getTempPath(),BufferString(fnm,GetPID(),op)).fullPath() )
 
 #define mRetRmTempFile() \
 { if ( File::exists(tmpfnm) ) File::remove(tmpfnm); return; }
@@ -30,12 +30,12 @@ static const char* sRedirect = " > /dev/null 2>&1";
 
 SVNAccess::SVNAccess( const char* dir )
     : dir_(dir)
-    , havesvn_(File::exists( FilePath(dir,".svn").fullPath()) )
+    , havesvn_(File::exists( File::Path(dir,".svn").fullPath()) )
 {
     if ( !havesvn_ ) return;
 
-    const BufferString fnm( FilePath(dir,".svn","entries").fullPath() );
-    od_istream strm( FilePath(dir,".svn","entries") );
+    const BufferString fnm( File::Path(dir,".svn","entries").fullPath() );
+    od_istream strm( File::Path(dir,".svn","entries") );
     if ( !strm.isOK() )
 
     for ( int idx=0; idx<5; idx++ )
@@ -76,7 +76,7 @@ bool SVNAccess::isOK() const
 bool SVNAccess::isInSVN( const char* fnm ) const
 {
     if ( !fnm || !*fnm || !isOK() ) return false;
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     BufferString dirnm( fp.pathOnly() );
     BufferStringSet entries; getEntries( dirnm, entries );
     return entries.isPresent( fp.fileName() );
@@ -86,7 +86,7 @@ bool SVNAccess::isInSVN( const char* fnm ) const
 void SVNAccess::getEntries( const char* dir, BufferStringSet& entries ) const
 {
     entries.erase();
-    const FilePath fp( dir_, dir, ".svn", "text-base" );
+    const File::Path fp( dir_, dir, ".svn", "text-base" );
     DirList dl( fp.fullPath(), DirList::FilesOnly );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -243,8 +243,8 @@ bool SVNAccess::commit( const BufferStringSet& fnms, const char* msg )
 
 bool SVNAccess::rename( const char* subdir, const char* from, const char* to )
 {
-    const FilePath sdfp( dir_, subdir );
-    FilePath fromfp( sdfp, from ), tofp( sdfp, to );
+    const File::Path sdfp( dir_, subdir );
+    File::Path fromfp( sdfp, from ), tofp( sdfp, to );
     const BufferString fromfullfnm( fromfp.fullPath() );
     const BufferString tofullfnm( tofp.fullPath() );
     fromfp.set( subdir ); fromfp.add( from );
@@ -260,8 +260,8 @@ bool SVNAccess::rename( const char* subdir, const char* from, const char* to )
 bool SVNAccess::changeFolder( const char* fnm, const char* fromsubdir,
 			      const char* tosubdir )
 {
-    FilePath tofp( dir_, tosubdir, fnm );
-    FilePath fromfp( dir_, fromsubdir, fnm );
+    File::Path tofp( dir_, tosubdir, fnm );
+    File::Path fromfp( dir_, fromsubdir, fnm );
     const BufferString fromfullfnm( fromfp.fullPath() );
     const BufferString tofullfnm( tofp.fullPath() );
     fromfp.set( fromsubdir ); fromfp.add( fnm );

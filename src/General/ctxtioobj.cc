@@ -257,7 +257,7 @@ IOObjContext& IOObjContext::operator =( const IOObjContext& oth )
 BufferString IOObjContext::getDataDirName( StdSelType sst )
 {
     const IOObjContext::StdDirData* sdd = getStdDirData( sst );
-    FilePath fp( GetDataDir(), sdd->dirnm_ );
+    File::Path fp( GetDataDir(), sdd->dirnm_ );
     BufferString dirnm = fp.fullPath();
     if ( !File::exists(dirnm) )
     {	// Try legacy names

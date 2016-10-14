@@ -637,7 +637,7 @@ uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
     , msg_(tr("Initialising"))
 {
     PtrMan<IOObj> ioobj = DBM().get( setup.id_ );
-    const FilePath fp( ioobj->fullUserExpr(true) );
+    const File::Path fp( ioobj->fullUserExpr(true) );
     safeio_ = new SafeFileIO( fp.fullPath() );
 
     tro_ = CBVSSeisTrcTranslator::getInstance();

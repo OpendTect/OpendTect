@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "callback.h"
 #include "idxpair.h"
 
-class FilePath;
 class BufferStringSet;
+namespace File { class Path; }
 namespace PosInfo { class Survey2D; }
 
 
@@ -141,8 +141,8 @@ protected:
 
 private:
 
-    FilePath&		basefp_;
-    FilePath&		lsfp_;
+    File::Path&		basefp_;
+    File::Path&		lsfp_;
     BufferString	lsnm_;
     IOPar&		lsindex_;
     IOPar&		lineindex_;
@@ -156,7 +156,7 @@ private:
     void		writeIdxFile(bool) const;
     void		getKeys(const IOPar&,BufferStringSet&) const;
     void		getIDs(const IOPar&,TypeSet<IdxType>&) const;
-    BufferString	getNewStorageName(const char*,const FilePath&,
+    BufferString	getNewStorageName(const char*,const File::Path&,
 					  const IOPar&) const;
     int			getLineSetIdx(IdxType lsid) const;
     int			getLineIdx(IdxType lineid) const;

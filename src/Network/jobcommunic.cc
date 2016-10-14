@@ -252,7 +252,7 @@ od_ostream* JobCommunic::createLogStream()
 
     BufferString fnm( "od_mmproc_", masterhost_, "_" ); fnm.add( jobid_ );
     fnm.replace( '.', '_' );
-    FilePath logfp( FilePath::getTempDir(), fnm );
+    File::Path logfp( File::Path::getTempDir(), fnm );
     logfp.setExtension( ".log" );
     return new od_ostream( logfp.fullPath() );
 }

@@ -356,8 +356,8 @@ bool IOObj::isSurveyDefault( const DBKey& ky )
 
 bool IOObj::isInCurrentSurvey() const
 {
-    FilePath cursurvfp( DBM().survDir() ); cursurvfp.makeCanonical();
-    FilePath orgfp( fullUserExpr(true) ); orgfp.makeCanonical();
+    File::Path cursurvfp( DBM().survDir() ); cursurvfp.makeCanonical();
+    File::Path orgfp( fullUserExpr(true) ); orgfp.makeCanonical();
     return orgfp.isSubDirOf(cursurvfp);
 }
 
@@ -426,7 +426,7 @@ IOSubDir* IOSubDir::get( ascistream& strm, const char* dirnm )
 const char* IOSubDir::fullUserExpr( bool ) const
 {
     mDeclStaticString( ret );
-    ret = FilePath(dirnm_,name()).fullPath();
+    ret = File::Path(dirnm_,name()).fullPath();
     return ret;
 }
 

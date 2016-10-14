@@ -176,7 +176,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 
     setDefaultSelDirs();
     setDefaultLogFile();
-    const FilePath fp( drv_.outputDir(), drv_.logFileName() );
+    const File::Path fp( drv_.outputDir(), drv_.logFileName() );
     logfld_->setFileName( fp.fullPath() );
 
     selChgCB(0);
@@ -284,9 +284,9 @@ void uiCmdDriverDlg::selChgCB( CallBacker* )
 
 static bool isRefToDataDir( uiFileInput& fld, bool base=false )
 {
-    FilePath fp( fld.fileName() );
+    File::Path fp( fld.fileName() );
     BufferString dir = base ? GetBaseDataDir() : GetDataDir();
-    dir += FilePath::dirSep(FilePath::Local);
+    dir += File::Path::dirSep(File::Path::Local);
     return dir.isStartOf( fp.fullPath() );
 }
 
@@ -333,7 +333,7 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
 	return false;
     }
 
-    FilePath fp( logfld_->fileName() );
+    File::Path fp( logfld_->fileName() );
     if ( !File::isWritable(fp.pathOnly()) ||
 	 (File::exists(fp.fullPath()) && !File::isWritable(fp.fullPath())) )
     {
@@ -444,7 +444,7 @@ bool uiCmdDriverDlg::selectStartRecordCB( CallBacker* )
     if ( !passSurveyCheck(*outfld_, outfldsurveycheck_) )
 	return false;
 
-    FilePath fp( outfld_->fileName() );
+    File::Path fp( outfld_->fileName() );
     fp.setExtension( ".odcmd" );
 
     if ( !File::isWritable(fp.pathOnly()) ||
@@ -513,7 +513,7 @@ void uiCmdDriverDlg::setDefaultLogFile()
     const char* dir = defaultlogdir_.isEmpty() ? GetProcFileName(0)
 					       : defaultlogdir_.buf();
 
-    logproposal_ = FilePath(dir, CmdDriver::defaultLogFilename()).fullPath();
+    logproposal_ = File::Path(dir, CmdDriver::defaultLogFilename()).fullPath();
     logfld_->setFileName( logproposal_ );
     logfldsurveycheck_ = false;
 }

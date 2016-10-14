@@ -144,7 +144,7 @@ uiImportFault::~uiImportFault()
 
 void uiImportFault::inputChgd( CallBacker* )
 {
-    FilePath fnmfp( infld_->fileName() );
+    File::Path fnmfp( infld_->fileName() );
     fnmfp.setExtension( "" );
     outfld_->setInputText( fnmfp.fileName() );
 }

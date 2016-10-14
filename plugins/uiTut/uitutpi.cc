@@ -150,7 +150,7 @@ static void initClass()
 
 static HelpProvider* createInstance()
 {
-    FilePath fp( GetDocFileDir(""), "User", "tut" );
+    File::Path fp( GetDocFileDir(""), "User", "tut" );
     BufferString baseurl( "file:///" );
     baseurl.add( fp.fullPath() ).add( "/" );
     fp.add( "KeyLinkTable.txt" );

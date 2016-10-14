@@ -141,7 +141,7 @@ void uiGMTMgr::createMap( CallBacker* )
 {
     if ( !dlg_ )
     {
-	FilePath gmtroot( GetEnvVar("GMTROOT") );
+	File::Path gmtroot( GetEnvVar("GMTROOT") );
 	if ( !File::isDirectory(gmtroot.fullPath()) )
 	{
 	    uiGMTIntro introdlg( appl_ );

@@ -525,7 +525,7 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 
 bool SeisTrcTranslator::fillStats( const IOObj& ioobj, IOPar& iop ) const
 {
-    FilePath fp( ioobj.fullUserExpr() );
+    File::Path fp( ioobj.fullUserExpr() );
     fp.setExtension( "par" );
 
     IOPar pars;

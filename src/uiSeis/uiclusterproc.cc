@@ -103,7 +103,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
     {
 	BufferString jobcmd( cmd_ );
 	jobcmd += " \'";
-	FilePath fp( jobs_[jobstodo_[idx]]->logfnm_ );
+	File::Path fp( jobs_[jobstodo_[idx]]->logfnm_ );
 	fp.setExtension( ".scr" );
 	jobcmd += fp.fullPath();
 	jobcmd += "\' &";
@@ -144,7 +144,7 @@ bool init()
     DirList scriptfiles( scriptdir, DirList::FilesOnly, "*.scr" );
     for ( int idx=0; idx<scriptfiles.size(); idx++ )
     {
-	FilePath fp( scriptfiles.fullPath(idx) );
+	File::Path fp( scriptfiles.fullPath(idx) );
 	fp.setExtension( ".par" );
 	IOPar iop;
 	if ( !iop.read(fp.fullPath(),sKey::Pars()) )

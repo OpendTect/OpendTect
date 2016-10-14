@@ -73,7 +73,7 @@ static const char* mkUnLinked( const char* fnm )
 	return ret.buf();
 
     // Maybe there are links in the directories
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     int nrlvls = fp.nrLevels();
     for ( int idx=0; idx<nrlvls; idx++ )
     {
@@ -86,7 +86,7 @@ static const char* mkUnLinked( const char* fnm )
 
 	if ( islink )
 	{
-	    FilePath fp2( dirnm );
+	    File::Path fp2( dirnm );
 	    for ( int ilvl=idx+1; ilvl<nrlvls; ilvl++ )
 		fp2.add( fp.dir(ilvl) );
 
@@ -173,7 +173,7 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
     , msg_(tr("Reading '"))
     , fnm_(nm)
 {
-    FilePath fp(nm); msg_.append(fp.fileName()).append(toUiString("'"));
+    File::Path fp(nm); msg_.append(fp.fileName()).append(toUiString("'"));
 
     sd_ = StreamProvider(nm).makeIStream(true,false);
     if ( !sd_.usable() )
@@ -572,7 +572,7 @@ void StreamProvider::addPathIfNecessary( const char* path )
       || fname_ == sStdIO() || fname_ == sStdErr() )
 	return;
 
-    FilePath fp( fname_ );
+    File::Path fp( fname_ );
     if ( !fp.isAbsolute() )
     {
 	fp.insert( path );
@@ -621,10 +621,10 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	bool doesexist = File::exists( retsd.fileName() );
 	if ( !doesexist )
 	{
-	    FilePath fp( fname_ );
-	    BufferString fullpath = fp.fullPath( FilePath::Local, true );
+	    File::Path fp( fname_ );
+	    BufferString fullpath = fp.fullPath( File::Path::Local, true );
 	    if ( !File::exists(fullpath) )
-		fullpath = fp.fullPath( FilePath::Local, false );
+		fullpath = fp.fullPath( File::Path::Local, false );
 	    // Sometimes the filename _is_ weird, and the cleanup is wrong
 	    doesexist = File::exists( fullpath );
 	    if ( doesexist )

@@ -223,7 +223,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     fisu.forread( false ).objtype( uiStrings::sSEGY() )
 	.filter( uiSEGYFileSpec::fileFilter() );
     fnmfld_ = new uiFileInput( this, uiStrings::sOutputFile(), fisu );
-    FilePath inpfp( fname_ );
+    File::Path inpfp( fname_ );
     fnmfld_->setDefaultSelectionDir( inpfp.pathOnly() );
     fnmfld_->attach( ensureBelow, sep );
     fnmfld_->attach( hCentered );
@@ -755,8 +755,8 @@ bool uiSEGYFileManip::acceptOK()
     if ( binhdr_.nrSamples() < 1 )
 	{ mErrRet(tr("Binary header's number of samples must be > 0") ) }
     const BufferString fnm = fnmfld_->fileName();
-    FilePath inpfp( fname_ );
-    FilePath outfp( fnmfld_->fileName() );
+    File::Path inpfp( fname_ );
+    File::Path outfp( fnmfld_->fileName() );
     if ( outfp.isEmpty() )
 	mErrRet(uiStrings::phrEnter(tr("an output filename")))
     if ( !outfp.isAbsolute() )

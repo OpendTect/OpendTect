@@ -228,7 +228,7 @@ void PresentationSpec::setPyExec( const char* pythonexec )
 BufferString PresentationSpec::getPyScriptDir()
 {
     const BufferString dir =
-	FilePath( GetDataDir() ).add("Misc").add("python-pptx").fullPath();
+	File::Path( GetDataDir() ).add("Misc").add("python-pptx").fullPath();
     if ( !File::exists(dir.buf()) )
 	File::createDir( dir );
 

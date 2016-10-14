@@ -135,7 +135,7 @@ static bool isIOStream( const IOObj& ioobj )
 static BufferString getNotesFileName( const IOObj& ioobj )
 {
     BufferString fnm( ioobj.fullUserExpr() );
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     if ( !fp.isAbsolute() )
     {
 	fnm.clean( BufferString::NoSpecialChars );
@@ -225,7 +225,7 @@ od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
     od_int64 ret = File::getKbSize( actualfilenm.buf() );
     if ( !File::isDirectory(actualfilenm) )
     {
-	FilePath dirnm( actualfilenm );
+	File::Path dirnm( actualfilenm );
 	dirnm.setExtension( "" );
 	if ( !File::isDirectory(dirnm.fullPath()) )
 	    return ret;
@@ -248,7 +248,7 @@ void uiObjFileMan::getTimeStamp( const char* fname,
 				 BufferString& timestamp )
 {
     timestamp = File::timeLastModified( fname );
-    FilePath fp( fname );
+    File::Path fp( fname );
     fp.setExtension( "" );
     const BufferString dirnm = fp.fullPath();
     if ( File::isDirectory(dirnm) )
@@ -311,7 +311,7 @@ BufferString uiObjFileMan::getFileInfo()
 	    }
 	    else
 	    {
-		FilePath fp( usrnm );
+		File::Path fp( usrnm );
 		txt.add( "\nFile name: " ).add( fp.fileName() );
 		fp.set( fname );
 		txt.add( "\nLocation: " ).add( fp.pathOnly() );

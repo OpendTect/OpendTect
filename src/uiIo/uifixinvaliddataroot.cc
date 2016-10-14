@@ -94,7 +94,7 @@ static BufferString getInstalledDemoSurvey()
     BufferString ret;
     if ( ODInst::getPkgVersion("demosurvey") )
     {
-	FilePath demosurvfp( mGetSWDirDataDir(), "DemoSurveys",
+	File::Path demosurvfp( mGetSWDirDataDir(), "DemoSurveys",
 			     "F3_Start.zip" );
 	ret = demosurvfp.fullPath();
     }

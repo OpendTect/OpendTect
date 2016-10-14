@@ -92,7 +92,7 @@ od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
 }
 
 
-od_stream::od_stream( const FilePath& fp, bool forwrite, bool useexist )
+od_stream::od_stream( const File::Path& fp, bool forwrite, bool useexist )
     : mInitList(true)
 {
     const BufferString fnm( fp.fullPath() );

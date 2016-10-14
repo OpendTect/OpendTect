@@ -155,13 +155,13 @@ void ODDLSite::reqFinish( CallBacker* )
 BufferString ODDLSite::getFileName( const char* relfnm ) const
 {
     if ( islocal_ )
-	return FilePath( host_, subdir_, relfnm ).fullPath();
+	return File::Path( host_, subdir_, relfnm ).fullPath();
 
     BufferString ret( "/" );
     if ( subdir_.isEmpty() )
 	ret.add( relfnm );
     else
-	ret.add( FilePath( subdir_, relfnm ).fullPath(FilePath::Unix) );
+	ret.add( File::Path( subdir_, relfnm ).fullPath(File::Path::Unix) );
     return ret;
 }
 

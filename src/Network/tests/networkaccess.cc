@@ -15,7 +15,7 @@
 #include "applicationdata.h"
 
 
-static FilePath tempfile;
+static File::Path tempfile;
 static BufferString prefix_;
 
 bool testPing()
@@ -163,7 +163,7 @@ int testMain(int argc, char** argv)
 
     prefix_ = "[Without eventloop] ";
 
-    tempfile = FilePath::getTempDir();
+    tempfile = File::Path::getTempDir();
     mRunStandardTest( !tempfile.isEmpty(), "Temp-dir generation" );
 
     BufferString filename( toString(GetPID()), "_dlsites.txt" );

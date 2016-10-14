@@ -52,7 +52,7 @@ bool FileSpec::isRangeMulti() const
 
 const char* FileSpec::dirName() const
 {
-    FilePath fp( fullDirName() );
+    File::Path fp( fullDirName() );
     mDeclStaticString( ret );
     ret = fp.fileName();
     return ret.buf();
@@ -61,7 +61,7 @@ const char* FileSpec::dirName() const
 
 const char* FileSpec::fullDirName() const
 {
-    FilePath fp( fileName(0) );
+    File::Path fp( fileName(0) );
     if ( fp.isAbsolute() )
 	fp.setFileName( 0 );
     else
@@ -120,7 +120,7 @@ const char* FileSpec::fileName( int fidx ) const
 const char* FileSpec::absFileName( int fidx ) const
 {
     const char* fnm = fileName( fidx );
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     if ( fp.isAbsolute() )
 	return fnm;
 
@@ -147,7 +147,7 @@ void FileSpec::ensureBaseDir( const char* dirnm )
     if ( !dirnm || !*dirnm )
 	return;
 
-    FilePath basefp( dirnm );
+    File::Path basefp( dirnm );
     if ( !basefp.isAbsolute() )
 	return;
 
@@ -155,7 +155,7 @@ void FileSpec::ensureBaseDir( const char* dirnm )
     const int sz = nrFiles();
     for ( int idx=0; idx<sz; idx++ )
     {
-	FilePath fp( absFileName(idx) );
+	File::Path fp( absFileName(idx) );
 	const int nrlvls = fp.nrLevels();
 	if ( nrlvls <= basenrlvls )
 	    fp.setPath( dirnm );
@@ -282,21 +282,21 @@ void FileSpec::makePathsRelative( IOPar& iop, const char* dir )
     if ( !dir || !*dir )
 	dir = GetDataDir();
 
-    const FilePath relfp( dir );
+    const File::Path relfp( dir );
     for ( int ifile=0; ifile<nrfnms; ifile++ )
     {
 	const BufferString fnm( fs.fileName(ifile) );
 	if ( fnm.isEmpty() )
 	    continue;
 
-	FilePath fp( fnm );
+	File::Path fp( fnm );
 	if ( fp.isSubDirOf(relfp) )
 	{
 	    BufferString relpath = File::getRelativePath( relfp.fullPath(),
 							  fp.pathOnly() );
 	    if ( !relpath.isEmpty() )
 	    {
-		FilePath newrelfp( relpath, fp.fileName() );
+		File::Path newrelfp( relpath, fp.fileName() );
 		relpath = newrelfp.fullPath();
 		if ( relpath != fnm )
 		    fs.fnames_.get(ifile).set( relpath );

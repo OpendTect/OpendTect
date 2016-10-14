@@ -46,7 +46,7 @@ static ObjectSet<Settings>& getSetts()
 static BufferString getFileName( const char* key, const char* dtectusr,
 				 const char* dirnm )
 {
-    FilePath fp( dirnm ? dirnm : GetSettingsDir(), "settings" );
+    File::Path fp( dirnm ? dirnm : GetSettingsDir(), "settings" );
     BufferString fname = fp.fullPath();
     if ( !mIsCommon(key) )
 	{ fname += "_"; fname += key; }

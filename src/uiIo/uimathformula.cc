@@ -450,7 +450,7 @@ void uiMathFormula::writeReq( CallBacker* )
     if ( fnm.isEmpty() )
 	return;
 
-    FilePath fp( fnm ); fp.setExtension( "formula" );
+    File::Path fp( fnm ); fp.setExtension( "formula" );
     od_ostream strm( fp.fullPath() );
     if ( !strm.isOK() )
 	{ uiMSG().error(uiStrings::sCantOpenOutpFile()); return; }

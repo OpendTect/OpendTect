@@ -212,7 +212,7 @@ Well::odIO::odIO( const char* f, uiString& e )
     : basenm_(f)
     , errmsg_(e)
 {
-    FilePath fp( basenm_ );
+    File::Path fp( basenm_ );
     fp.setExtension( 0, true );
     const_cast<BufferString&>(basenm_) = fp.fullPath();
 }
@@ -304,7 +304,7 @@ Well::odReader::odReader( const char* f, Well::Data& w, uiString& e )
     : Well::odIO(f,e)
     , Well::ReadAccess(w)
 {
-    FilePath fp( f );
+    File::Path fp( f );
     fp.setExtension( 0 );
     wd_.info().setName( fp.fileName() );
 }

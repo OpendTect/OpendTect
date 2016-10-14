@@ -101,7 +101,7 @@ bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
 
 void RemCommHandler::uiErrorMsg( const char* msg )
 {
-    BufferString cmd( "\"", FilePath(GetExecPlfDir(),"od_DispMsg").fullPath() );
+    BufferString cmd( "\"", File::Path(GetExecPlfDir(),"od_DispMsg").fullPath() );
     cmd.add( "\" --err ").add( msg );
     OS::ExecCommand( cmd );
 }
@@ -109,7 +109,7 @@ void RemCommHandler::uiErrorMsg( const char* msg )
 
 od_ostream& RemCommHandler::createLogFile()
 {
-    FilePath logfp( GetBaseDataDir(), "LogFiles" );
+    File::Path logfp( GetBaseDataDir(), "LogFiles" );
     BufferString lhname = System::localAddress();
     lhname.replace( '.',  '_' );
     logfp.add( lhname );

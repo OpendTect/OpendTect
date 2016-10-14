@@ -65,7 +65,7 @@ bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
     getYN( ODGMT::sKeyWetFill(), wetfill );
 
     strm << "Drawing coastline ...  ";
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     fp.setExtension( "llr" );
     if ( !makeLLRangeFile(fp.fullPath(),strm) )
 	mErrStrmRet("Cannot create Lat/Long range file")
@@ -133,7 +133,7 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm, od_ostream& strm )
     comm += minlong; comm += "/";
     comm += minlong + 6; comm += "/0/80 -Ju";
     comm += zone; comm += "/1:1 -I -F -C 1> \"";
-    BufferString tmpfilenm = FilePath::getTempName("dat");
+    BufferString tmpfilenm = File::Path::getTempName("dat");
     comm += tmpfilenm; comm += "\"";
 
     od_ostream procstrm = makeOStream( comm, strm );

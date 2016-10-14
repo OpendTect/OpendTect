@@ -254,7 +254,7 @@ bool ZipHandler::initMakeZip( const char* destfnm,
 	{ mErrRet( srcfnms.get(idx), " does not exist.", "" ) }
     }
 
-    FilePath fp( srcfnms.get(0).buf() );
+    File::Path fp( srcfnms.get(0).buf() );
     curnrlevels_ = fp.nrLevels();
     initialfilecount_ = 0;
     destfile_ = destfnm;
@@ -280,7 +280,7 @@ bool ZipHandler::compressNextFile()
     if ( curfileidx_ == getCumulativeFileCount(curinputidx_) )
     {
 	curinputidx_++;
-	FilePath fp( allfilenames_.get(curfileidx_) );
+	File::Path fp( allfilenames_.get(curfileidx_) );
 	curnrlevels_ =  fp.nrLevels();
     }
 
@@ -447,7 +447,7 @@ bool ZipHandler::setLocalFileHeader()
     else
 	srcfilesize = uncompfilesize_;
 
-    FilePath fnm( srcfile_ );
+    File::Path fnm( srcfile_ );
     int p = fnm.nrLevels();
     BufferString srcfnm = "";
     for ( int idx = ( curnrlevels_ - 1 ); idx <= (p - 2); idx++ )
@@ -513,7 +513,7 @@ bool ZipHandler::setLocalFileHeader()
 
 bool ZipHandler::setLocalFileHeaderForDir()
 {
-    FilePath fnm( srcfile_ );
+    File::Path fnm( srcfile_ );
     int p = fnm.nrLevels();
     BufferString srcfnm = "";
     for ( int idx=(curnrlevels_-1); idx<=(p-1); idx++ )
@@ -551,7 +551,7 @@ bool ZipHandler::setLocalFileHeaderForDir()
 bool ZipHandler::setLocalFileHeaderForLink()
 {
 #ifdef HAS_ZLIB
-    FilePath fnm( srcfile_ );
+    File::Path fnm( srcfile_ );
     int p = fnm.nrLevels();
     BufferString srcfnm = "";
     for ( int idx=(curnrlevels_-1); idx<=(p-2); idx++ )
@@ -884,7 +884,7 @@ bool ZipHandler::initAppend( const char* srcfnm, const char* fnm )
     if ( !File::exists(srcfnm) )
     { mErrRet( srcfnm, " does not exist", "" ) }
 
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     curnrlevels_ = fp.nrLevels();
     destfile_ = srcfnm;
     istrm_ = new od_istream( srcfnm );
@@ -948,9 +948,9 @@ bool ZipHandler::initUnZipArchive( const char* srcfnm, const char* basepath )
     if ( !File::isDirectory(basepath) && !File::createDir(basepath) )
     { mErrRet( basepath, " is not a valid path", "" ) }
 
-    FilePath destpath( basepath );
+    File::Path destpath( basepath );
     destbasepath_ = destpath.fullPath();
-    destbasepath_ += FilePath::dirSep( FilePath::Local );
+    destbasepath_ += File::Path::dirSep( File::Path::Local );
     istrm_ = new od_istream( srcfnm );
     if ( istrm_->isBad() )
 	return reportReadError( srcfnm );
@@ -982,14 +982,14 @@ bool ZipHandler::unZipFile( const char* srcfnm, const char* fnm,
 
     istrm_->setPosition( offset );
     srcfile_ = srcfnm;
-    FilePath fp;
+    File::Path fp;
     fp = srcfnm;
     if ( !File::isDirectory(path) && !File::createDir(path) )
 	{ mErrRet( path, " is not a valid path", "" ) }
 
-    FilePath destpath( path );
+    File::Path destpath( path );
     destbasepath_ = destpath.fullPath();
-    destbasepath_ += FilePath::dirSep( FilePath::Local );
+    destbasepath_ += File::Path::dirSep( File::Path::Local );
     if ( !extractNextFile() )
 	return false;
 
@@ -1400,7 +1400,7 @@ bool ZipHandler::openStreamToWrite()
 {
     SeparString str( destfile_.buf(), '/' );
     BufferString pathonly = 0;
-    FilePath fp = destfile_.buf();
+    File::Path fp = destfile_.buf();
     if ( str.size() == 1 )
 	pathonly = fp.pathOnly();
     else

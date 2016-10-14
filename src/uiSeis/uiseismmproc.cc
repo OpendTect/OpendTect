@@ -143,7 +143,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	    if ( File::exists(tmpstordir) )
 		File::remove(tmpstordir);
 	    tmpstordir = SeisJobExecProv::getDefTempStorDir();
-	    FilePath fp( tmpstordir ); fp.setFileName( 0 );
+	    File::Path fp( tmpstordir ); fp.setFileName( 0 );
 	    tmpstordir = fp.fullPath();
 	}
 
@@ -265,12 +265,12 @@ bool uiSeisMMProc::prepareCurrentJob()
     if ( !lsfileemitted_ )
     {
 	const BufferString lsfnm =
-		FilePath(jobrunner_->procDir(),outlsfilename).fullPath();
+		File::Path(jobrunner_->procDir(),outlsfilename).fullPath();
 	lsfileemitted_ = jobprov_->emitLSFile( lsfnm );
     }
     if ( lsfileemitted_ )
     {
-	FilePath fp( jobrunner_->curJobFilePath() );
+	File::Path fp( jobrunner_->curJobFilePath() );
 	fp.setFileName( outlsfilename );
 	const BufferString lsfnm( fp.fullPath() );
 		// This lsfnm may differ from above - remote directories!

@@ -142,7 +142,7 @@ void SeisCBVSPSIO::close()
 
 BufferString SeisCBVSPSIO::get2DFileName( Pos::GeomID geomid ) const
 {
-    FilePath fp( dirnm_ );
+    File::Path fp( dirnm_ );
     BufferString fnm( fp.fileName(), "^", toString(geomid) );
     fp.add( fnm );
     fp.setExtension( "cbvs" );
@@ -163,7 +163,7 @@ BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
 
 int SeisCBVSPSIO::getInlNr( const char* filenm )
 {
-    FilePath fp( filenm );
+    File::Path fp( filenm );
     BufferString fnm( fp.fileName() );
     char* ptr = fnm.getCStr();
     while ( *ptr && !iswdigit(*ptr) ) ptr++;
@@ -211,7 +211,7 @@ bool SeisCBVSPSIO::get3DFileNames( BufferStringSet& bss,
 
 bool SeisCBVSPSIO::getSampleNames( BufferStringSet& nms ) const
 {
-    const BufferString fnm( FilePath(dirnm_,cSampNmsFnm).fullPath() );
+    const BufferString fnm( File::Path(dirnm_,cSampNmsFnm).fullPath() );
     StreamData sd( StreamProvider(fnm).makeIStream() );
     if ( !sd.usable() ) return false;
 
@@ -227,7 +227,7 @@ bool SeisCBVSPSIO::getSampleNames( BufferStringSet& nms ) const
 
 bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
 {
-    const BufferString fnm( FilePath(dirnm_,cSampNmsFnm).fullPath() );
+    const BufferString fnm( File::Path(dirnm_,cSampNmsFnm).fullPath() );
     if ( nms.isEmpty() )
     {
 	if ( File::exists(fnm) )
@@ -344,7 +344,7 @@ bool SeisCBVSPSIO::startWrite( const char* fnm, const SeisTrc& trc )
 static const char* posdataFileName( const char* dirnm )
 {
     mDeclStaticString( ret );
-    ret = FilePath( dirnm, cPosDataFnm ).fullPath();
+    ret = File::Path( dirnm, cPosDataFnm ).fullPath();
     return ret.buf();
 }
 
@@ -458,7 +458,7 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
     delete trans; trans = 0;
     curinl_ = inl;
 
-    const FilePath fp( dirnm_, BufferString("",inl,ext()) );
+    const File::Path fp( dirnm_, BufferString("",inl,ext()) );
     const BufferString filenm = fp.fullPath();
     if( !File::exists(filenm) )
     {
@@ -576,7 +576,7 @@ bool SeisCBVSPS3DWriter::newInl( const SeisTrc& trc )
 {
     const BinID trcbid = trc.info().binID();
     BufferString fnm( "", trcbid.inl(), ext() );
-    FilePath fp( dirnm_, fnm );
+    File::Path fp( dirnm_, fnm );
     fnm = fp.fullPath();
 
     if ( tr_ ) delete tr_;

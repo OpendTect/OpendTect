@@ -430,7 +430,7 @@ void uiSurveyManager::newButPushed( CallBacker* )
 void uiSurveyManager::rmButPushed( CallBacker* )
 {
     const BufferString selnm( selectedSurveyName() );
-    const BufferString seldirnm = FilePath(dataroot_).add(selnm).fullPath();
+    const BufferString seldirnm = File::Path(dataroot_).add(selnm).fullPath();
     const BufferString truedirnm = File::linkEnd( seldirnm );
 
     uiString msg = tr("This will delete the entire survey directory:\n\t%1"
@@ -531,7 +531,7 @@ void uiSurveyManager::compressButPushed( CallBacker* )
     if ( !dlg.go() )
 	return;
 
-    FilePath zippath( fnmfld->fileName() );
+    File::Path zippath( fnmfld->fileName() );
     BufferString zipext = zippath.extension();
     if ( zipext != "zip" )
 	mErrRetVoid(tr("Please add .zip extension to the file name"))
@@ -624,7 +624,7 @@ bool uiSurveyManager::writeSettingsSurveyFile()
     if ( seltxt.isEmpty() )
 	mErrRet(tr("Survey folder name cannot be empty"))
 
-    if ( !File::exists(FilePath(dataroot_,seltxt).fullPath()) )
+    if ( !File::exists(File::Path(dataroot_,seltxt).fullPath()) )
 	mErrRet(tr("Survey directory does not exist anymore"))
 
     const char* survfnm = GetLastSurveyFileName();
@@ -649,7 +649,7 @@ void uiSurveyManager::readSurvInfoFromFile()
     SurveyInfo* newsi = 0;
     if ( !survnm.isEmpty() )
     {
-	const BufferString fname = FilePath( dataroot_ )
+	const BufferString fname = File::Path( dataroot_ )
 			    .add( selectedSurveyName() ).fullPath();
 	uiRetVal uirv;
 	newsi = SurveyInfo::read( fname, uirv );
@@ -755,7 +755,7 @@ void uiSurveyManager::putToScreen()
 	zinfo += " - "; mAdd2ZString( si.zRange(false).step );
 	survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
-	FilePath fp( si.getBasePath(), si.getDirName() );
+	File::Path fp( si.getBasePath(), si.getDirName() );
 	fp.makeCanonical();
 	locinfo.add( fp.fullPath() );
 

@@ -53,7 +53,7 @@ int main( int argc, char** argv )
     }
 
 #ifdef __mac__
-    BufferString datfile( FilePath(GetSoftwareDir(0),
+    BufferString datfile( File::Path(GetSoftwareDir(0),
 			  "Resources/license.dgb.dat").fullPath());
     if ( File::exists(datfile.buf()) )
     {

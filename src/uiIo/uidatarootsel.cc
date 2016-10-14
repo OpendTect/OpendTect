@@ -113,10 +113,10 @@ bool uiDataRootSel::getUsableDir( BufferString& dirnm ) const
     if ( !File::isWritable(dirnm) )
 	mErrRet( uirv )
 
-    FilePath survfnamefp( dirnm, ".survey" );
+    File::Path survfnamefp( dirnm, ".survey" );
     if ( File::exists(survfnamefp.fullPath()) )
     {
-	const BufferString pardirnm( FilePath(dirnm).pathOnly() );
+	const BufferString pardirnm( File::Path(dirnm).pathOnly() );
 	uiRetVal newuirv = DBMan::isValidDataRoot( pardirnm );
 	if ( newuirv.isOK() )
 	    dirnm.set( pardirnm );
@@ -130,7 +130,7 @@ bool uiDataRootSel::getUsableDir( BufferString& dirnm ) const
     // OK, so the dir seems suitable, but it hasn't got a .omf.
     // why ask? let's just put one.
     const BufferString stdomf( mGetSetupFileName("omf") );
-    const BufferString omffnm = FilePath(dirnm,".omf").fullPath();
+    const BufferString omffnm = File::Path(dirnm,".omf").fullPath();
     File::copy( stdomf, omffnm );
 
     return true;
@@ -139,10 +139,10 @@ bool uiDataRootSel::getUsableDir( BufferString& dirnm ) const
 
 bool uiDataRootSel::isValidFolder( const char* dirnm ) const
 {
-    const FilePath fp( dirnm );
+    const File::Path fp( dirnm );
 
     // Inside the OpendTect installation
-    FilePath fpodinst( GetSoftwareDir(0) );
+    File::Path fpodinst( GetSoftwareDir(0) );
     const int nrodinstlvls = fpodinst.nrLevels();
     if ( fp.nrLevels() >= nrodinstlvls )
     {
@@ -215,7 +215,7 @@ uiRetVal uiDataRootSel::setSurveyDirTo( const char* dirnm )
     if ( !dirnm || !*dirnm )
 	return uiRetVal::OK();
 
-    const FilePath fp( dirnm );
+    const File::Path fp( dirnm );
     const BufferString newdataroot = fp.pathOnly();
     uiRetVal uirv = DBMan::isValidDataRoot( newdataroot );
     if ( !uirv.isOK() )

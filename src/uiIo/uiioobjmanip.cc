@@ -309,7 +309,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* trans )
 	{
 	    IOStream chiostrm;
 	    chiostrm.copyFrom( *iostrm );
-	    FilePath fp( iostrm->fileSpec().fileName() );
+	    File::Path fp( iostrm->fileSpec().fileName() );
 	    if ( trans )
 		chiostrm.setExt( trans->defExtension() );
 
@@ -319,7 +319,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* trans )
 	    chiostrm.genFileName();
 	    chiostrm.setName( newnm );
 
-	    FilePath deffp( chiostrm.fileSpec().fileName() );
+	    File::Path deffp( chiostrm.fileSpec().fileName() );
 	    fp.setFileName( deffp.fileName() );
 	    chiostrm.fileSpec().setFileName( fp.fullPath() );
 
@@ -421,7 +421,7 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
     if ( !File::isDirectory(newdir) )
     { uiMSG().error(tr("Selected path is not a directory")); return false; }
 
-    FilePath fp( oldfnm ); fp.setPath( newdir );
+    File::Path fp( oldfnm ); fp.setPath( newdir );
     chiostrm.fileSpec().setFileName( fp.fullPath() );
     if (!doReloc(trans, iostrm, chiostrm))
 	return false;

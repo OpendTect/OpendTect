@@ -42,7 +42,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 		       mODHelpKey(mBatchHostsDlgHelpID)))
     , hostdatalist_(*new HostDataList(true))
 {
-    const FilePath bhfp = hostdatalist_.getBatchHostsFilename();
+    const File::Path bhfp = hostdatalist_.getBatchHostsFilename();
     const BufferString bhfnm = bhfp.fullPath();
     bool writeallowed = true;
     if ( File::exists(bhfnm) )

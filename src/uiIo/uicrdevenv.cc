@@ -30,7 +30,7 @@ ________________________________________________________________________
 
 static void showProgrDoc()
 {
-    const FilePath fp( mGetProgrammerDocDir(),
+    const File::Path fp( mGetProgrammerDocDir(),
 			__iswin__ ? "windows.html" : "unix.html" );
     uiDesktopServices::openUrl( fp.fullPath() );
 }
@@ -66,7 +66,7 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 
 bool uiCrDevEnv::isOK( const char* datadir )
 {
-    FilePath datafp( datadir );
+    File::Path datafp( datadir );
 
     if ( !datafp.nrLevels() ) return false;
 
@@ -94,7 +94,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	return;
     }
 
-    FilePath oldworkdir( GetEnvVar("WORK") );
+    File::Path oldworkdir( GetEnvVar("WORK") );
     const bool oldok = isOK( oldworkdir.fullPath() );
 
     BufferString workdirnm;
@@ -132,7 +132,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	if ( !File::isDirectory(basedirnm) )
 	    mErrRet(tr("Invalid directory selected"))
 
-	workdirnm = FilePath( basedirnm ).add( worksubdirm ).fullPath();
+	workdirnm = File::Path( basedirnm ).add( worksubdirm ).fullPath();
     }
 
     if ( workdirnm.isEmpty() ) return;
@@ -174,7 +174,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if ( uiMSG().askGoOn(docmsg) )
 	showProgrDoc();
 
-    FilePath fp( swdir, "bin" );
+    File::Path fp( swdir, "bin" );
 #ifdef __win__
     BufferString cmd;
     fp.add( "od_cr_dev_env.bat" );
@@ -199,7 +199,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 #endif
 
     BufferString cmakefile =
-			FilePath(workdirnm).add("CMakeLists.txt").fullPath();
+			File::Path(workdirnm).add("CMakeLists.txt").fullPath();
     if ( !File::exists(cmakefile) )
 	mErrRet(tr("Creation seems to have failed"))
     else
@@ -223,7 +223,7 @@ bool uiCrDevEnv::acceptOK()
 	if ( workdirnm.isEmpty() )
 	    mErrRet( uiStrings::phrEnter(tr("a (sub-)directory name")) )
 
-	workdir = FilePath( workdir ).add( workdirnm ).fullPath();
+	workdir = File::Path( workdir ).add( workdirnm ).fullPath();
     }
 
     if ( !File::exists(workdir) )

@@ -129,7 +129,7 @@ void uiSeisImportCBVS::inpSel( CallBacker* )
 	transffld_->updateFrom( *ioobj );
     }
 
-    FilePath fp( inp );
+    File::Path fp( inp );
     fp.setExtension( 0 );
     inp = fp.fileName();
     inp.replace( '_', ' ' );
@@ -162,9 +162,9 @@ bool uiSeisImportCBVS::acceptOK()
 	if ( iostrm )
 	{
 		// Check if it's under the survey dir, then make path relative
-	    FilePath inputfile( fname );
+	    File::Path inputfile( fname );
 	    inputfile.makeCanonical();
-	    FilePath seismicsdir( iostrm->fileSpec().fullDirName() );
+	    File::Path seismicsdir( iostrm->fileSpec().fullDirName() );
 	    seismicsdir.makeCanonical();
 	    if ( inputfile.makeRelativeTo( seismicsdir ) )
 		fname = inputfile.fullPath();

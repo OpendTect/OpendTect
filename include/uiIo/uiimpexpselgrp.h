@@ -91,7 +91,7 @@ protected:
     BufferString		y2name_;
     bool			forread_;
 
-    FilePath			basefp_;
+    File::Path			basefp_;
 
     bool			createBaseDir();
     bool			hasIdxFile();

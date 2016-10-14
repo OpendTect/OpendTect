@@ -119,7 +119,7 @@ bool Batch::MMJobDispatcher::launch()
 	return false;
 
     const BufferString mmprog =
-	FilePath(GetExecPlfDir(),progdefs_[pdidx]->mmprognm_).fullPath();
+	File::Path(GetExecPlfDir(),progdefs_[pdidx]->mmprognm_).fullPath();
     BufferString cmd( "\"", mmprog, "\" " ); cmd.add( jobspec_.clargs_ );
     BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\"' );
     cmd.add( " " ).add( qtdparfnm );

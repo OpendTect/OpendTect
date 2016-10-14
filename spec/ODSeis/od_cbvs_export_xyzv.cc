@@ -34,7 +34,7 @@ int main( int argc, char** argv )
 	ExitProgram( 1 );
     }
 
-    FilePath fp( argv[1] );
+    File::Path fp( argv[1] );
     
     if ( !File::exists(fp.fullPath()) )
     {

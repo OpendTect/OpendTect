@@ -58,7 +58,7 @@ int main( int argc, char** argv )
     }
 
 
-    FilePath fp( argv[1] );
+    File::Path fp( argv[1] );
     if ( !fp.isAbsolute() )
 	fp.insert( File::getCurrentPath() );
     const BufferString fname = fp.fullPath();

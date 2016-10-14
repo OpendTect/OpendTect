@@ -24,7 +24,7 @@ static int doWork( int argc, char** argv )
 {
     if ( argc < 3 )
     {
-	FilePath fp( argv[0] );
+	File::Path fp( argv[0] );
 	std::cerr << "Usage: " << fp.fileName()
 		  << " [Event Type (Min/Max/Both)] inpfile outpfile"
 		  << std::endl;
@@ -33,7 +33,7 @@ static int doWork( int argc, char** argv )
 
     bool is2d = false;
 
-    FilePath fp( argv[2] ); 
+    File::Path fp( argv[2] ); 
     if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;

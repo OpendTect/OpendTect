@@ -134,7 +134,7 @@ void inpSel( CallBacker* )
     DZT::FileHeader fh; BufferString emsg;
     if ( !fh.getFrom(stream,emsg) ) return;
 
-    FilePath fp( fnm ); fp.setExtension( "", true );
+    File::Path fp( fnm ); fp.setExtension( "", true );
     lnmfld_->setText( fp.fileName() );
 
     const float tdist = fh.spm ? 1.f / ((float)fh.spm) : SI().inlDistance();

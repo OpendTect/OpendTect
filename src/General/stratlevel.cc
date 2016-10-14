@@ -589,7 +589,7 @@ BufferString Strat::getStdFileName( const char* inpnm, const char* basenm )
 {
     BufferString nm( inpnm );
     nm.replace( ' ', '_' );
-    FilePath fp( GetSetupDataFileName(ODSetupLoc_ApplSetupPref,"Strat",1) );
+    File::Path fp( GetSetupDataFileName(ODSetupLoc_ApplSetupPref,"Strat",1) );
     if ( basenm )
 	fp.add( basenm );
     if ( nm && *nm )

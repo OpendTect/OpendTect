@@ -154,7 +154,7 @@ void CommandLineParser::init( int argc, char** argv )
     if ( argc )
     {
 	executable_ = argv[0];
-	progname_ = FilePath( executable_ ).fileName();
+	progname_ = File::Path( executable_ ).fileName();
     }
     else
     {

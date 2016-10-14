@@ -230,7 +230,7 @@ void RelationTree::addRelation( const DBKey& id1, const DBKey& id2,
 bool RelationTree::write() const
 {
     IOPar par;
-    const FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf),
+    const File::Path fp( IOObjContext::getDataDirName(IOObjContext::Surf),
 		       "horizonrelations.txt" );
     if ( par.read(fp.fullPath(),sKeyHorizonRelations()) )
 	par.removeSubSelection( is2d_ ? "Horizon2D" : "Horizon3D" );
@@ -263,7 +263,7 @@ bool RelationTree::read( bool removeoutdated )
 {
     deepErase( nodes_ );
     IOPar par;
-    const FilePath fp( IOObjContext::getDataDirName(IOObjContext::Surf),
+    const File::Path fp( IOObjContext::getDataDirName(IOObjContext::Surf),
 		       "horizonrelations.txt" );
     if ( !par.read(fp.fullPath(),sKeyHorizonRelations()) )
 	return false;

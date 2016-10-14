@@ -64,7 +64,7 @@ void DBMan::initFirst()
 	{
 	    const BufferString basedir = GetBaseDataDir();
 	    SurveyInfo::setSurveyLocation( basedir, survnm );
-	    survdir_ = FilePath( basedir, survnm ).fullPath();
+	    survdir_ = File::Path( basedir, survnm ).fullPath();
 	    handleNewSurvDir();
 	}
     }
@@ -93,7 +93,7 @@ void DBMan::setSurveyChangeAbortReason( uiRetVal reason )
 
 uiRetVal DBMan::setDataSource( const char* fullpath )
 {
-    FilePath fp( fullpath );
+    File::Path fp( fullpath );
     const BufferString pathnm( fp.pathOnly() );
     const BufferString filenm( fp.fileName() );
     return setDataSource( pathnm, filenm );
@@ -117,7 +117,7 @@ uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
     surveyChangeOK.trigger();
     if ( surveychangeuserabort_ || !surveychangeabortreason_.isEmpty() )
     {
-	FilePath fp( survdir_ );
+	File::Path fp( survdir_ );
 	SurveyInfo::setSurveyLocation( fp.pathOnly(), fp.fileName() );
 	if ( surveychangeuserabort_ )
 	    rv.set( uiStrings::sCancel() );
@@ -165,7 +165,7 @@ BufferString DBMan::surveyName() const
 
 BufferString DBMan::surveyDirectoryName() const
 {
-    return FilePath( survdir_ ).fileName();
+    return File::Path( survdir_ ).fileName();
 }
 
 
@@ -624,7 +624,7 @@ void DBMan::setupCustomDataDir( const CustomDirData& cdd, uiRetVal& rv )
     if ( gtDir( DirID::get(cdd.dirnr_) ) )
 	return;
 
-    FilePath fp( survdir_, cdd.dirname_ );
+    File::Path fp( survdir_, cdd.dirname_ );
     const BufferString dirnm = fp.fullPath();
     if ( !File::exists(dirnm) )
     {
@@ -690,7 +690,7 @@ uiRetVal DBMan::isValidSurveyDir( const char* dirnm )
 
 static bool validOmf( const char* dir, uiRetVal& uirv )
 {
-    FilePath fp( dir ); fp.add( ".omf" );
+    File::Path fp( dir ); fp.add( ".omf" );
     BufferString fname = fp.fullPath();
     uiString msg;
     if ( !File::checkDirectory(fname,true,msg) )

@@ -340,7 +340,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	    BufferString coordfnm( fileopts_.coordfnm_ );
 	    if ( coordfnm.startsWith("ext=") )
 	    {
-		FilePath fp( ((StreamConn*)conn_)->fileName() );
+		File::Path fp( ((StreamConn*)conn_)->fileName() );
 		fp.setExtension( coordfnm.buf()+4 );
 		coordfnm = fp.fullPath();
 	    }

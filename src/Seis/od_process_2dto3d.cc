@@ -89,7 +89,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    msg += seisid; msg += "' ..."; mRetHostErr( msg );
 	}
 
-	FilePath fp( ioobj->fullUserExpr(false) );
+	File::Path fp( ioobj->fullUserExpr(false) );
 	if ( !fp.isAbsolute() )
 	{
 	    fp.set( DBM().survDir() );
@@ -209,7 +209,7 @@ bool BatchProgram::go( od_ostream& strm )
     PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(seisid) );
     if ( ioobj )
     {
-	FilePath fp( ioobj->fullUserExpr() );
+	File::Path fp( ioobj->fullUserExpr() );
 	fp.setExtension( "proc" );
 	pars().write( fp.fullPath(), sKey::Pars() );
     }

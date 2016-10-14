@@ -17,18 +17,18 @@
 #include <string.h>
 
 
-const char* FilePath::sPrefSep = ":";
+const char* File::Path::sPrefSep = ":";
 
-static const FilePath::Style cOther = __iswin__ ? FilePath::Unix
-						: FilePath::Windows;
+static const File::Path::Style cOther = __iswin__ ? File::Path::Unix
+						  : File::Path::Windows;
 
-FilePath::FilePath( const char* fnm )
+File::Path::Path( const char* fnm )
 {
     set( fnm );
 }
 
 
-FilePath::FilePath( const char* p1, const char* p2, const char* p3,
+File::Path::Path( const char* p1, const char* p2, const char* p3,
 		    const char* p4, const char* p5 )
 {
     set( p1 );
@@ -37,7 +37,7 @@ FilePath::FilePath( const char* p1, const char* p2, const char* p3,
 }
 
 
-FilePath::FilePath( const FilePath& fp, const char* p2, const char* p3,
+File::Path::Path( const Path& fp, const char* p2, const char* p3,
 		    const char* p4, const char* p5 )
 {
     *this = fp;
@@ -46,7 +46,7 @@ FilePath::FilePath( const FilePath& fp, const char* p2, const char* p3,
 }
 
 
-FilePath& FilePath::operator =( const FilePath& fp )
+File::Path& File::Path::operator =( const Path& fp )
 {
     lvls_ = fp.lvls_;
     prefix_ = fp.prefix_;
@@ -56,29 +56,29 @@ FilePath& FilePath::operator =( const FilePath& fp )
 }
 
 
-FilePath& FilePath::operator =( const char* fnm )
-{ return (*this = FilePath(fnm)); }
+File::Path& File::Path::operator =( const char* fnm )
+{ return (*this = Path(fnm)); }
 
 
-bool FilePath::operator ==( const FilePath& fp ) const
+bool File::Path::operator ==( const Path& fp ) const
 {
     return lvls_ == fp.lvls_ && prefix_ == fp.prefix_ && isabs_ == fp.isabs_;
 }
 
 
-bool FilePath::operator ==( const char* fnm ) const
-{ return *this == FilePath(fnm); }
+bool File::Path::operator ==( const char* fnm ) const
+{ return *this == Path(fnm); }
 
 
-bool FilePath::operator !=( const FilePath& fp ) const
+bool File::Path::operator !=( const Path& fp ) const
 { return !(*this == fp); }
 
 
-bool FilePath::operator != ( const char* fnm ) const
-{ return !(*this == FilePath(fnm)); }
+bool File::Path::operator != ( const char* fnm ) const
+{ return !(*this == Path(fnm)); }
 
 
-FilePath& FilePath::set( const char* _fnm )
+File::Path& File::Path::set( const char* _fnm )
 {
     lvls_.erase(); prefix_.setEmpty(); isabs_ = isuri_ = false;
     if ( !_fnm || !*_fnm )
@@ -130,7 +130,7 @@ FilePath& FilePath::set( const char* _fnm )
 }
 
 
-FilePath& FilePath::add( const char* fnm )
+File::Path& File::Path::add( const char* fnm )
 {
     if ( !fnm || !*fnm )
 	return *this;
@@ -143,7 +143,7 @@ FilePath& FilePath::add( const char* fnm )
 }
 
 
-FilePath& FilePath::insert( const char* fnm )
+File::Path& File::Path::insert( const char* fnm )
 {
     if ( !fnm || !*fnm )
 	return *this;
@@ -156,7 +156,7 @@ FilePath& FilePath::insert( const char* fnm )
 }
 
 
-FilePath& FilePath::setFileName( const char* fnm )
+File::Path& File::Path::setFileName( const char* fnm )
 {
     if ( !fnm || !*fnm )
     {
@@ -174,7 +174,7 @@ FilePath& FilePath::setFileName( const char* fnm )
 }
 
 
-FilePath& FilePath::setPath( const char* pth )
+File::Path& File::Path::setPath( const char* pth )
 {
     BufferString fnm( lvls_.size() ?
 	    lvls_.get(lvls_.size()-1).buf() : (const char*) 0 );
@@ -185,7 +185,7 @@ FilePath& FilePath::setPath( const char* pth )
 }
 
 
-FilePath& FilePath::setExtension( const char* ext, bool replace )
+File::Path& File::Path::setExtension( const char* ext, bool replace )
 {
     if ( !ext ) ext = "";
     mSkipBlanks( ext );
@@ -209,11 +209,11 @@ FilePath& FilePath::setExtension( const char* ext, bool replace )
 }
 
 
-bool FilePath::isAbsolute() const
+bool File::Path::isAbsolute() const
 { return isabs_; }
 
 
-bool FilePath::isSubDirOf( const FilePath& b, FilePath* relpath ) const
+bool File::Path::isSubDirOf( const Path& b, Path* relpath ) const
 {
     if ( b.isAbsolute()!=isAbsolute() )
 	return false;
@@ -248,7 +248,7 @@ bool FilePath::isSubDirOf( const FilePath& b, FilePath* relpath ) const
 }
 
 
-bool FilePath::makeCanonical()
+bool File::Path::makeCanonical()
 {
     BufferString fullpath = fullPath();
 #ifndef __win__
@@ -262,36 +262,36 @@ bool FilePath::makeCanonical()
 }
 
 
-bool FilePath::makeRelativeTo( const FilePath&  b )
+bool File::Path::makeRelativeTo( const Path& oth )
 {
     const BufferString file = fullPath();
-    const BufferString path = b.fullPath();
+    const BufferString path = oth.fullPath();
     set( File::getRelativePath( path.buf(), file.buf() ) );
     return true;
 }
 
 
 
-BufferString FilePath::fullPath( Style f, bool cleanup ) const
+BufferString File::Path::fullPath( Style f, bool cleanup ) const
 {
     const BufferString res = dirUpTo(-1);
     return cleanup ? mkCleanPath(res,f) : res;
 }
 
 
-const char* FilePath::prefix() const
+const char* File::Path::prefix() const
 {
     return prefix_.buf();
 }
 
 
-int FilePath::nrLevels() const
+int File::Path::nrLevels() const
 {
     return lvls_.size();
 }
 
 
-const char* FilePath::extension() const
+const char* File::Path::extension() const
 {
     if ( lvls_.isEmpty() )
 	return 0;
@@ -302,11 +302,11 @@ const char* FilePath::extension() const
 }
 
 
-const OD::String& FilePath::fileName() const
+const OD::String& File::Path::fileName() const
 { return dir(-1); }
 
 
-BufferString FilePath::baseName() const
+BufferString File::Path::baseName() const
 {
     BufferString ret = fileName();
     if ( ret.isEmpty() )
@@ -319,7 +319,7 @@ BufferString FilePath::baseName() const
 }
 
 
-BufferString FilePath::getTimeStampFileName( const char* ext )
+BufferString File::Path::getTimeStampFileName( const char* ext )
 {
     BufferString tsfnm;
     BufferString datestr = Time::getDateTimeString();
@@ -333,11 +333,11 @@ BufferString FilePath::getTimeStampFileName( const char* ext )
 }
 
 
-BufferString FilePath::pathOnly() const
+BufferString File::Path::pathOnly() const
 { return dirUpTo(lvls_.size()-2); }
 
 
-const OD::String& FilePath::dir( int nr ) const
+const OD::String& File::Path::dir( int nr ) const
 {
     if ( nr < 0 || nr >= lvls_.size() )
 	nr = lvls_.size()-1;
@@ -345,7 +345,7 @@ const OD::String& FilePath::dir( int nr ) const
 }
 
 
-BufferString FilePath::dirUpTo( int lvl ) const
+BufferString File::Path::dirUpTo( int lvl ) const
 {
     if ( lvl < 0 || lvl >= lvls_.size() )
 	lvl = lvls_.size() - 1;
@@ -375,7 +375,7 @@ BufferString FilePath::dirUpTo( int lvl ) const
 }
 
 
-BufferString FilePath::getTempDir()
+BufferString File::Path::getTempDir()
 {
     BufferString tmpdir = File::getTempPath();
     if ( !File::exists(tmpdir) )
@@ -393,9 +393,9 @@ BufferString FilePath::getTempDir()
 }
 
 
-BufferString FilePath::getTempName( const char* ext )
+BufferString File::Path::getTempName( const char* ext )
 {
-    FilePath fp( getTempDir() );
+    Path fp( getTempDir() );
 
     BufferString fname( "od", GetPID() );
     mDefineStaticLocalObject( int, counter, = 0 );
@@ -413,7 +413,7 @@ BufferString FilePath::getTempName( const char* ext )
 }
 
 
-BufferString FilePath::mkCleanPath( const char* path, Style stl )
+BufferString File::Path::mkCleanPath( const char* path, Style stl )
 {
     if ( stl == Local )
 	stl = __iswin__ ? Windows : Unix;
@@ -430,13 +430,13 @@ BufferString FilePath::mkCleanPath( const char* path, Style stl )
 static const char* winds = "\\";
 static const char* unixds = "/";
 
-const char* FilePath::dirSep() const
+const char* File::Path::dirSep() const
 {
     return isuri_ ? unixds : dirSep( Local );
 }
 
 
-const char* FilePath::dirSep( Style stl )
+const char* File::Path::dirSep( Style stl )
 {
     if ( stl == Local )
 	stl = __iswin__ ? Windows : Unix;
@@ -445,7 +445,7 @@ const char* FilePath::dirSep( Style stl )
 }
 
 
-void FilePath::addPart( const char* fnm )
+void File::Path::addPart( const char* fnm )
 {
     if ( !fnm || !*fnm ) return;
 
@@ -487,7 +487,7 @@ void FilePath::addPart( const char* fnm )
 }
 
 
-void FilePath::compress( int startlvl )
+void File::Path::compress( int startlvl )
 {
     for ( int idx=startlvl; idx<lvls_.size(); idx++ )
     {
@@ -507,7 +507,7 @@ void FilePath::compress( int startlvl )
 }
 
 
-void FilePath::conv2TrueDirIfLink()
+void File::Path::conv2TrueDirIfLink()
 {
 #ifdef __win__
     BufferString dirnm = dirUpTo( -1 );
@@ -521,7 +521,7 @@ void FilePath::conv2TrueDirIfLink()
 }
 
 
-BufferString FilePath::winDrive() const
+BufferString File::Path::winDrive() const
 {
     BufferString windrive = File::getRootPath( fullPath() );
     return windrive;

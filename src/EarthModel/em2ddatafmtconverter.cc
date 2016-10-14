@@ -123,7 +123,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDToFSSPara(
 void OD_2DEMDataConverter_FromOD4ToOD5::writeToFile( const char* fullpath,
                                                      int pos )
 {
-    FilePath fp( fullpath );
+    File::Path fp( fullpath );
     od_ostream ostrm( fp, true );
     if ( !ostrm.isOK() )
         return;

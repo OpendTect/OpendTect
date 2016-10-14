@@ -171,7 +171,7 @@ void uiCmdDriverMgr::setLogFileName( const char* fnm )
 
 #define mCheckFilePath( fnm, defaultdir, altdir ) \
 { \
-    FilePath fp( fnm ); \
+    File::Path fp( fnm ); \
     if ( !File::exists(fnm) && !fp.isAbsolute() ) \
     { \
 	fp.setPath( defaultdir.isEmpty() ? altdir : defaultdir.buf() ); \
@@ -186,7 +186,7 @@ void uiCmdDriverMgr::addCmdLineScript( const char* fnm )
 
     if ( !File::exists(filenm) )
     {
-	FilePath fp( filenm );
+	File::Path fp( filenm );
 	fp.setExtension( "odcmd", true );
 	filenm = fp.fullPath();
     }
@@ -225,7 +225,7 @@ void uiCmdDriverMgr::initCmdLog( const char* cmdlognm )
 
     mCheckFilePath( fnm, defaultlogdir_, GetProcFileName(0) );
 
-    const FilePath fp( fnm );
+    const File::Path fp( fnm );
     if ( File::isWritable(fp.pathOnly()) &&
 	 (!File::exists(fp.fullPath()) || File::isWritable(fp.fullPath())) )
     {
@@ -301,7 +301,7 @@ void uiCmdDriverMgr::autoStart()
 
 void uiCmdDriverMgr::handleSettingsAutoExec()
 {
-    BufferString fnm( FilePath(GetSettingsDir(),autoexecfnm).fullPath() );
+    BufferString fnm( File::Path(GetSettingsDir(),autoexecfnm).fullPath() );
     if ( settingsautoexec_ && File::exists(fnm) )
 	getCmdDlg()->autoStartGo( fnm );
     else

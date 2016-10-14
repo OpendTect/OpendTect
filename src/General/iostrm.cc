@@ -163,7 +163,7 @@ Conn* IOStream::getConn( bool forread ) const
 void IOStream::genFileName()
 {
     BufferString fnm( name() );
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     const bool isabs = fp.isAbsolute();
     fnm.clean( isabs ? BufferString::NoSpaces : BufferString::AllowDots );
     const int extsz = extension_.size();
@@ -171,7 +171,7 @@ void IOStream::genFileName()
     if ( neededsz >= mMaxFilePathLength )
     {
 	const BufferString uniqstr( "_",
-			FilePath(FilePath::getTempName()).fileName() );
+			File::Path(File::Path::getTempName()).fileName() );
 	const int len = uniqstr.size();
 	fnm[ mMaxFilePathLength - len - extsz - 1 ] = '\0';
 	fnm.add( uniqstr );
@@ -249,13 +249,13 @@ bool IOStream::putTo( ascostream& stream ) const
 	stream.put( "$Multi", fms );
     }
 
-    const FilePath fpsurvsubdir( GetDataDir(), dirName() );
+    const File::Path fpsurvsubdir( GetDataDir(), dirName() );
     const BufferString survsubdir( fpsurvsubdir.fullPath() );
     nrfiles = fs_.fnames_.size();
 
     for ( int idx=0; idx<nrfiles; idx++ )
     {
-	FilePath fp( fs_.fnames_.get(idx) );
+	File::Path fp( fs_.fnames_.get(idx) );
 	BufferString fnm( fp.fullPath() );
 	int offs = 0;
 	if ( fp.isAbsolute() )

@@ -61,7 +61,7 @@ void OD::IconFile::set( const char* inp )
     if ( inpstr.isEmpty() )
 	return;
 
-    FilePath fp( inpstr );
+    File::Path fp( inpstr );
     if ( fp.isAbsolute() )
     {
 	if ( File::exists(inpstr) )
@@ -126,7 +126,7 @@ bool OD::IconFile::findIcons( const char* id, bool indef )
 {
 
     const BufferString& dirnm = indef ? deficdirnm_ : icdirnm_;
-    FilePath fp( dirnm, BufferString(id,".png") );
+    File::Path fp( dirnm, BufferString(id,".png") );
     const BufferString simplefnm( fp.fullPath() );
     bool havesimple = false;
     if ( File::exists(simplefnm) )

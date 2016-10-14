@@ -25,7 +25,7 @@
 
 static BufferString omfFileName( const char* dirnm )
 {
-    return BufferString( FilePath(dirnm,".omf").fullPath() );
+    return BufferString( File::Path(dirnm,".omf").fullPath() );
 }
 
 
@@ -401,7 +401,7 @@ bool DBDir::prepObj( IOObj& ioobj ) const
     if ( ioobj.isSubdir() )
 	ioobj.dirnm_ = dirname_;
     else
-	ioobj.setDirName( FilePath(dirname_).fileName() );
+	ioobj.setDirName( File::Path(dirname_).fileName() );
 
     // ensure unique name
     BufferString nm( ioobj.name() );

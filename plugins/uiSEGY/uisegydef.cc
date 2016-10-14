@@ -137,7 +137,7 @@ bool uiSEGYFileSpec::fillPar( IOPar& iop, bool perm ) const
 	}
     }
 
-    (forread_ ? lastreaddir : lastwritedir) = FilePath(fnm).pathOnly();
+    (forread_ ? lastreaddir : lastwritedir) = File::Path(fnm).pathOnly();
     spec.fillPar( iop );
     return true;
 }

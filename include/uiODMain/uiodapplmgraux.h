@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 class DataPointSet;
 class IOObj;
-class FilePath;
 class uiConvertPos;
 class uiDataPointSet;
 class uiDataPointSetMan;
@@ -32,6 +31,7 @@ class uiVelSel;
 class ui2DGeomManageDlg;
 
 namespace Attrib { class SelSpec; }
+namespace File { class Path; }
 namespace PreStack { class uiImportMute; class uiBatchProcSetup; }
 namespace Vel { class uiImportVelFunc; }
 

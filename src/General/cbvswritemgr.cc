@@ -32,7 +32,7 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 {
     if ( curnr == 0 ) return basefname;
 
-    FilePath fp( basefname );
+    File::Path fp( basefname );
     BufferString fname = fp.fileName();
 
     char* ptr = fname.findLast( '.' );

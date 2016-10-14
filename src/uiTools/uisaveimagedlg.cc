@@ -194,7 +194,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     dpifld_->attach( alignedBelow, widthfld_ );
 
     if ( dirname_.isEmpty() )
-	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
+	dirname_ = File::Path(GetDataDir()).add("Misc").fullPath();
     fileinputfld_ = new uiFileInput( this, uiStrings::phrSelect(tr("filename")),
 				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
@@ -356,7 +356,7 @@ void uiSaveImageDlg::fileSel( CallBacker* )
 
 void uiSaveImageDlg::addFileExtension( BufferString& filename )
 {
-    FilePath fp( filename.buf() );
+    File::Path fp( filename.buf() );
     fp.setExtension( getExtension() );
     filename = fp.fullPath();
 }
@@ -384,7 +384,7 @@ bool uiSaveImageDlg::filenameOK() const
 
 const char* uiSaveImageDlg::getExtension()
 {
-    FilePath fp( fileinputfld_->fileName() );
+    File::Path fp( fileinputfld_->fileName() );
     const BufferString ext( fp.extension() );
     BufferStringSet imageformats;
     supportedImageFormats( imageformats, false );

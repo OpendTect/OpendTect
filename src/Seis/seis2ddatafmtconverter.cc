@@ -42,7 +42,7 @@ static void convert2DPSData()
 	const DirList flist( psdir, DirList::FilesOnly, "*.*" );
 	for ( int fidx=0; fidx<flist.size(); fidx++ )
 	{
-	    const FilePath fp( flist.fullPath(fidx) );
+	    const File::Path fp( flist.fullPath(fidx) );
 	    const BufferString lnm = fp.baseName();
 	    if ( lnm.contains('^') )
 		continue;	//Already converted.
@@ -55,7 +55,7 @@ static void convert2DPSData()
 	    if ( geomid==Survey::GM().cUndefGeomID() )
 		continue;
 
-	    FilePath newfp( psdir );
+	    File::Path newfp( psdir );
 	    const BufferString newfnm( newfp.fileName(), "^",
 				       toString(geomid) );
 	    newfp.add( newfnm );
@@ -137,8 +137,8 @@ int nextStep()
 	    return ErrorOccurred();
     }
 
-    FilePath srcfp( src );
-    FilePath destfp( dest );
+    File::Path srcfp( src );
+    File::Path destfp( dest );
     srcfp.setExtension( "par" );
     destfp.setExtension( "par" );
     if ( File::exists(srcfp.fullPath()) && !File::exists(destfp.fullPath()) )
@@ -211,7 +211,7 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
     if ( !hasold2d && !has2dps )
 	return 0;
 
-    FilePath geom2dfp( DBM().survDir(), "2DGeom", "idx.txt" );
+    File::Path geom2dfp( DBM().survDir(), "2DGeom", "idx.txt" );
     if ( !has2dps && !File::exists(geom2dfp.fullPath()) )
 	return 3; //TODO: Pre 4.2 surveys, extract geometry from cbvs.
 
@@ -357,7 +357,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 	ctio.setObj( 0 );
 	ctio.ctxt_.setName( nm );
 	if ( ctio.fillObj() == 0 ) return BufferString::empty();
-	FilePath fp( ctio.ioobj_->fullUserExpr() );
+	File::Path fp( ctio.ioobj_->fullUserExpr() );
 	nm = fp.fileName();
 	iop.set( sKey::Attribute(), nm.buf() );
     }
@@ -384,7 +384,7 @@ void OD_2DLineSetTo2DDataSetConverter::getCBVSFilePaths(
 	{
 	    BufferString fnm;
 	    (*all2dseisiopars_[idx])[lineidx]->get( sKey::FileName(), fnm );
-	    FilePath oldfp( IOObjContext::getDataDirName(IOObjContext::Seis) );
+	    File::Path oldfp( IOObjContext::getDataDirName(IOObjContext::Seis) );
 	    oldfp.add( fnm );
 	    filepaths.add( oldfp.fullPath() );
 	}
@@ -405,12 +405,12 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
 	for ( int lineidx=0; lineidx<all2dseisiopars_[idx]->size(); lineidx++ )
 	{
 	    IOPar* iop = (*all2dseisiopars_[idx])[lineidx];
-	    FilePath oldfp( oldfilepaths.get(numberoflines) );
+	    File::Path oldfp( oldfilepaths.get(numberoflines) );
 	    numberoflines++;
 	    if ( !File::exists(oldfp.fullPath()) )
 		continue;
 
-	    FilePath newfp( getAttrFolderPath( *iop ) );
+	    File::Path newfp( getAttrFolderPath( *iop ) );
 	    File::createDir( newfp.fullPath() );
 	    BufferString newfn( newfp.fileName() );
 	    newfn.add( mCapChar );
@@ -488,7 +488,7 @@ bool OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 	    IOPar& iop = *lspars[lineidx];
 	    BufferString fnm;
 	    iop.get( sKey::FileName(), fnm );
-	    FilePath oldfp( IOObjContext::getDataDirName(IOObjContext::Seis) );
+	    File::Path oldfp( IOObjContext::getDataDirName(IOObjContext::Seis) );
 	    oldfp.add( fnm );
 	    const BufferString oldfullfnm( oldfp.fullPath() );
 	    BufferString attrname;
@@ -499,17 +499,17 @@ bool OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 	    newfile.add(mCapChar)
 		   .add( Survey::GM().getGeomID(ioobjlist[idx]->name(),
 						iop.name()) );
-	    FilePath newfp( IOObjContext::getDataDirName(IOObjContext::Seis),
+	    File::Path newfp( IOObjContext::getDataDirName(IOObjContext::Seis),
 			    attrname, newfile );
 	    newfp.setExtension( oldfp.extension() );
 	    const BufferString newfullfnm = newfp.fullPath();
 	    if ( newfullfnm == oldfullfnm || !File::exists(newfullfnm.buf()) )
 		continue;
 
-	    FilePath newfnm( attrname );
+	    File::Path newfnm( attrname );
 	    newfnm.add( newfile );
 	    newfnm.setExtension( oldfp.extension() );
-	    iop.set( sKey::FileName(), newfnm.fullPath(FilePath::Unix) );
+	    iop.set( sKey::FileName(), newfnm.fullPath(File::Path::Unix) );
 	    if ( File::exists(oldfullfnm) )
 		filestobedeleted.add( oldfullfnm );
 	}
@@ -527,7 +527,7 @@ void OD_2DLineSetTo2DDataSetConverter::removeDuplicateData(
 {
     for ( int idx=0; idx<oldfilepath.size(); idx++ )
     {
-	FilePath fp( oldfilepath.get(idx) );
+	File::Path fp( oldfilepath.get(idx) );
 	File::remove( fp.fullPath() );
 	fp.setExtension( "par" );
 	File::remove( fp.fullPath() );

@@ -29,7 +29,7 @@ ________________________________________________________________________
 
 static BufferString basicSurveyFullPath()
 {
-    const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName() );
+    const File::Path fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName() );
     return fp.fullPath();
 }
 
@@ -190,7 +190,7 @@ bool uiUserCreateSurvey::usrInputOK()
 	mErrRet(uiStrings::phrEnter(tr("a name for the new survey")))
 
     const BufferString storagedir
-		= FilePath( dataroot_ ).add( survdirnm ).fullPath();
+		= File::Path( dataroot_ ).add( survdirnm ).fullPath();
     if ( File::exists(storagedir) )
     {
 	uiString errmsg = tr("A survey called %1 already exists\nPlease "

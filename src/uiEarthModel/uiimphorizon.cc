@@ -237,7 +237,7 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
 	scanner_ = 0;
     }
 
-    FilePath fnmfp( fnm );
+    File::Path fnmfp( fnm );
     sImportFromPath = fnmfp.pathOnly();
     if ( isgeom_ )
 	outputfld_->setInputText( fnmfp.baseName() );

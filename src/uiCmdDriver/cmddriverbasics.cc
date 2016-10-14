@@ -354,8 +354,8 @@ void StringProcessor::makeDirSepIndep( int startpos )
 {
     mReturnIfReadOnly();
 
-    const char* winsep = FilePath::dirSep( FilePath::Windows );
-    const char* unixsep = FilePath::dirSep( FilePath::Unix );
+    const char* winsep = File::Path::dirSep( File::Path::Windows );
+    const char* unixsep = File::Path::dirSep( File::Path::Unix );
 
     char* ptr = bufstr_->getCStr();
     if ( startpos>0 && startpos<bufstr_->size() )
@@ -367,7 +367,7 @@ void StringProcessor::makeDirSepIndep( int startpos )
     while ( *(++ptr) && (*ptr!='"' || isEscapedSymbol(ptr)) )
     {
 	if ( *ptr==*winsep || *ptr==*unixsep )
-	   *ptr = *FilePath::dirSep(FilePath::Local);
+	   *ptr = *File::Path::dirSep(File::Path::Local);
     }
 }
 

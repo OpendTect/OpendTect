@@ -14,10 +14,13 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 
+namespace File
+{
+
 /*!
 \brief File pathname tools.
 
-  This class splits a full filename (with path) into the separate parts:
+  This class splits a file or directory name into the separate parts:
   directories and possibly a filename (the last part does not have to be a
   file name). That makes it easy to change the file name, or the path only,
   or the extension, add directories, etc.
@@ -29,40 +32,41 @@ ________________________________________________________________________
   part.
 */
 
-mExpClass(Basic) FilePath
+mExpClass(Basic) Path
 {
 public:
+
     enum Style		{ Local, Unix, Windows };
 
-			FilePath(const char* fullinp=0);
-			FilePath(const char* p1,const char* p2,const char* p3=0,
+			Path(const char* fullinp=0);
+			Path(const char* p1,const char* p2,const char* p3=0,
 				 const char* p4=0,const char* p5=0);
-			FilePath( const FilePath& fp )	{ *this = fp; }
-			FilePath(const FilePath&,const char* p2,
+			Path( const Path& fp )	{ *this = fp; }
+			Path(const Path&,const char* p2,
 				 const char* p3=0,const char* p4=0,
 				 const char* p5=0);
 
-    FilePath&		operator =(const FilePath&);
-    FilePath&		operator =(const char* fullinp);
-    bool		operator ==(const FilePath&) const;
+    Path&		operator =(const Path&);
+    Path&		operator =(const char* fullinp);
+    bool		operator ==(const Path&) const;
     bool		operator ==(const char* fnm) const;
-    bool		operator !=(const FilePath&) const;
+    bool		operator !=(const Path&) const;
     bool		operator !=(const char* fnm) const;
     bool		isEmpty() const		{ return lvls_.isEmpty(); }
 
-    FilePath&		set(const char* fullinp);
-    FilePath&		add(const char*);	//!< at end
-    FilePath&		insert(const char*);	//!< after prefix at start
-    FilePath&		setFileName(const char*); //!< pass null to remove level
-    FilePath&		setPath(const char*);	//!< including prefix
-    FilePath&		setExtension(const char*,bool replace=true);
-						//!< !replace => add
+    Path&		set(const char* fullinp);
+    Path&		add(const char*);	//!< at end
+    Path&		insert(const char*);	//!< after prefix at start
+    Path&		setFileName(const char*); //!< pass null to remove level
+    Path&		setPath(const char*);	//!< including prefix
+    Path&		setExtension(const char*,bool replace=true);
+						//!< !replace => bluntly add
 
     bool		isAbsolute() const;
-    bool		isSubDirOf(const FilePath&,FilePath* reldir = 0) const;
+    bool		isSubDirOf(const Path&,Path* reldir = 0) const;
 			/*!<If reldir is set, it will be filled with the
 			    relative path. */
-    bool		makeRelativeTo(const FilePath&);
+    bool		makeRelativeTo(const Path&);
     bool		makeCanonical();
 
     BufferString	fullPath(Style s=Local,bool cleanup=true) const;
@@ -71,7 +75,7 @@ public:
     const char*		extension() const;	//!< may return null
 
     const OD::String&	fileName() const;
-    BufferString	baseName() const; //!<return name of file w/o path & ext
+    BufferString	baseName() const; //!< name of file w/o path or ext
     BufferString	pathOnly() const;
     BufferString	winDrive() const;
 
@@ -100,3 +104,7 @@ protected:
     void		compress(int sl=0);
     void		conv2TrueDirIfLink();
 };
+
+} // namespace File;
+
+mDeprecated typedef File::Path FilePath;

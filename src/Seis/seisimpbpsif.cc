@@ -34,7 +34,7 @@ SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const DBKey& id )
     if ( !filenm || !*filenm )
 	return;
 
-    FilePath fp( filenm );
+    File::Path fp( filenm );
     if ( !fp.isAbsolute() )
 	fp.setPath( GetBaseDataDir() );
 

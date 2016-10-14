@@ -654,7 +654,7 @@ void uiMainWinBody::renewToolbarsMenu()
 static BufferString getSettingsFileName()
 {
     BufferString fnm( "qtsettings_", (int)mODVersion );
-    FilePath fp( GetSettingsDir(), fnm );
+    File::Path fp( GetSettingsDir(), fnm );
     const char* swusr = GetSoftwareUser();
     if ( swusr )
 	fp.setExtension( swusr );

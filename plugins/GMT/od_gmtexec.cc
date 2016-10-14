@@ -42,7 +42,7 @@ bool BatchProgram::go( od_ostream& strm )
     GMT::initStdClasses();
     finishmsg_ = "Map created successfully";
     const char* psfilenm = pars().find( sKey::FileName() );
-    FilePath outputfp( psfilenm );
+    File::Path outputfp( psfilenm );
     const BufferString cwd = File::getCurrentPath();
     if ( cwd.size() > 255 )
 	mErrStrmRet("Error: Current working directory path length too big")
@@ -51,7 +51,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !psfilenm || !*psfilenm )
 	mErrStrmRet("Output PS file missing")
 
-    FilePath tmpfp( psfilenm );
+    File::Path tmpfp( psfilenm );
     tmpfp.setExtension( "tmp" );
     IOPar legendspar;
     int legendidx = 0;

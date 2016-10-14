@@ -69,7 +69,7 @@ void selPush( CallBacker* )
     delete defdlg;
     if ( !dlgok ) return;
 
-    FilePath fp( imp_.sgypars_.find(sKey::FileName()) );
+    File::Path fp( imp_.sgypars_.find(sKey::FileName()) );
     fnm_ = fp.fileName();
     uiSEGYExamine::Setup exsu( nrexam );
     exsu.modal( false ); exsu.usePar( imp_.sgypars_ );

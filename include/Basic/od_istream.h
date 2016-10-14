@@ -27,7 +27,7 @@ public:
 			od_istream()			{}
 			od_istream( const char* fnm )
 			    : od_stream(fnm,false)	{}
-			od_istream( const FilePath& fp )
+			od_istream( const File::Path& fp )
 			    : od_stream(fp,false)	{}
 			od_istream( std::istream* s )
 			    : od_stream(s)		{}

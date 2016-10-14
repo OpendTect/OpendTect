@@ -153,7 +153,7 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
     if ( !ioobj || ioobj->translator()!="dGB" ) return false; \
     const BufferString basefnm( ioobj->fullUserExpr(true) ); \
     StreamProvider sp( basefnm.buf() ); \
-    FilePath basefp( basefnm ); \
+    File::Path basefp( basefnm ); \
     const BufferString pathnm( basefp.pathOnly() ); \
     bool res = sp.fn;
 
@@ -209,7 +209,7 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 	EM::IOObjInfo ioinfo( ioobj );
 	if ( ioinfo.type() == EM::IOObjInfo::Fault )
 	{
-	    FilePath fp( newnm );
+	    File::Path fp( newnm );
 	    fp.setExtension("");
 	    EM::FaultAuxData fad( ioobj->key() );
 	    fad.renameFault( fp.fileName() );
@@ -232,10 +232,10 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
     }
 
 #define mRename( fn ) { \
-    FilePath fp( EM::Surface::fn(*ioobj).buf() ); \
+    File::Path fp( EM::Surface::fn(*ioobj).buf() ); \
     StreamProvider oldsp( fp.fullPath().buf() ); \
     oldsp.addPathIfNecessary( pathnm.buf() ); \
-    FilePath newfp( newnm ); \
+    File::Path newfp( newnm ); \
     newfp.setExtension( fp.extension() ); \
     if ( oldsp.exists(true) ) \
 	oldsp.rename( newfp.fullPath().buf(), cb ); }

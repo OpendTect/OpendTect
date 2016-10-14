@@ -247,7 +247,7 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
     if ( !SEGY::DirectDef::readFooter(deffnm,filepars_,fileparsoffset_) )
 	mErrLabelRet(tr("Cannot read SEGY file info for %1").arg(obj.name()));
 
-    FilePath fp = filepars_.find( getFileNameKey(0) );
+    File::Path fp = filepars_.find( getFileNameKey(0) );
     if ( fp.isEmpty() )
 	mErrLabelRet(tr("No SEGY Files linked to %1").arg(obj.name()));
 
@@ -289,11 +289,11 @@ void uiEditSEGYFileDataDlg::fillFileTable()
     if ( fnm0.isEmpty() )
 	{ isusable_ = false; return; }
 
-    FilePath oldfp( fnm0 );
+    File::Path oldfp( fnm0 );
     const BufferString olddir = oldfp.pathOnly();
     for ( int idx=0; idx<nrfiles_; idx++ )
     {
-	FilePath fp = filepars_.find( getFileNameKey(idx) );
+	File::Path fp = filepars_.find( getFileNameKey(idx) );
 	const BufferString oldfilename = fp.fileName();
 	filetable_->setText( RowCol(idx,0),
 			fp.pathOnly() == olddir ? oldfilename : fp.fullPath() );
@@ -319,7 +319,7 @@ void uiEditSEGYFileDataDlg::updateFileTable( int rowidx )
 	if ( rowidx >= 0 && rowidx != idx )
 	    continue;
 
-	FilePath oldfp = filepars_.find( getFileNameKey(idx) );
+	File::Path oldfp = filepars_.find( getFileNameKey(idx) );
 	const BufferString oldfnm = oldfp.fileName();
 	RowCol rc( idx, 1 );
 	BufferString newfnm = filetable_->text( rc );
@@ -329,7 +329,7 @@ void uiEditSEGYFileDataDlg::updateFileTable( int rowidx )
 	    filetable_->setText( RowCol(idx,1), newfnm );
 	}
 
-	FilePath fp( seldir, newfnm );
+	File::Path fp( seldir, newfnm );
 	if ( File::exists(fp.fullPath()) )
 	{
 	    filetable_->setCellToolTip( rc, uiStrings::sEmptyString() );
@@ -364,7 +364,7 @@ void uiEditSEGYFileDataDlg::fileSelCB( CallBacker* cb )
     if ( rowidx < 0 ) return;
 
     BufferString newfnm = filetable_->text( RowCol(rowidx,1) );
-    FilePath fp( dirsel_->fileName(), newfnm );
+    File::Path fp( dirsel_->fileName(), newfnm );
     const bool selexists = File::exists( fp.fullPath() );
     uiFileDialog dlg( this, true, selexists ? fp.fullPath() : 0,
 		      uiSEGYFileSpec::fileFilter(), tr("SEG-Y") );
@@ -373,7 +373,7 @@ void uiEditSEGYFileDataDlg::fileSelCB( CallBacker* cb )
     if ( !dlg.go() )
 	return;
 
-    FilePath newfp( dlg.fileName() );
+    File::Path newfp( dlg.fileName() );
     if ( newfp.pathOnly() != fp.pathOnly() )
     {
 	uiMSG().error( uiStrings::phrSelect(tr("a file from %1")
@@ -405,7 +405,7 @@ bool uiEditSEGYFileDataDlg::acceptOK()
 	if ( newfnm.isEmpty() )
 	    mErrRet( tr("New file name cannot be empty") );
 
-	FilePath fp( seldir, newfnm );
+	File::Path fp( seldir, newfnm );
 	if ( !File::exists(fp.fullPath()) )
 	    mErrRet( tr("File %1 does not exist").arg(fp.fullPath()) )
 

@@ -56,7 +56,7 @@ bool GMTArray2DInterpol::doPrepare( int nrthreads )
 {
     mTryAlloc( nodes_, bool[nrcells_] );
     getNodesToFill( 0, nodes_, 0 );
-    defundefpath_ = FilePath(GetDataDir(),"Misc","defundefinfo.grd").fullPath();
+    defundefpath_ = File::Path(GetDataDir(),"Misc","defundefinfo.grd").fullPath();
     BufferString gmtcmd( "@xyz2grd" );
     gmtcmd.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 )
 			 .add( " -G").add( defundefpath_ ).add( " -I1" );
@@ -110,7 +110,7 @@ bool GMTArray2DInterpol::doWork( od_int64 start, od_int64 stop, int threadid )
     sdmask_.close();
 
     BufferString path( path_ );
-    path_ = FilePath( GetDataDir() ).add( "Misc" )
+    path_ = File::Path( GetDataDir() ).add( "Misc" )
 				    .add( "result.grd" ).fullPath();
     BufferString cmd( "@grdmath " );
     cmd.add( path ).add( " " ).add( defundefpath_ )
@@ -239,7 +239,7 @@ bool GMTSurfaceGrid::mkCommand( BufferString& cmd )
 	return false;
     }
 
-    path_ = FilePath( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
+    path_ = File::Path( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
     cmd = "@surface -I1 ";
     cmd.add( "-T" ).add( tension_ )
        .add( " -G" ).add( path_ )
@@ -309,7 +309,7 @@ bool GMTNearNeighborGrid::mkCommand( BufferString& cmd )
 	return false;
     }
 
-    path_ = FilePath( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
+    path_ = File::Path( GetDataDir() ).add( "Misc" ).add( "info.grd" ).fullPath();
     cmd = "@nearneighbor -I1 ";
     cmd.add( " -R0/" ).add( nrrows_ - 1 ).add( "/0/" ).add( nrcols_ - 1 )
        .add( " -S" ).add( radius_ )

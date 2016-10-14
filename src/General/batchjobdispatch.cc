@@ -144,7 +144,7 @@ void Batch::JobDispatcher::getDefParFilename( const char* prognm,
 {
     if ( !prognm || !*prognm )
 	prognm = "batchjob";
-    FilePath parfp( GetProcFileName(prognm) );
+    File::Path parfp( GetProcFileName(prognm) );
     parfp.setExtension( ".par" );
     const BufferString filename = parfp.fileName();
     if ( filename.startsWith("od_") )
@@ -166,7 +166,7 @@ void Batch::JobDispatcher::getJobNames( BufferStringSet& nms )
 
 BufferString Batch::JobDispatcher::getJobName( const char* inp )
 {
-    FilePath parfp( inp );
+    File::Path parfp( inp );
     parfp.setExtension( 0 );
     BufferString ret( parfp.fileName() );
     ret.replace( '_', ' ' );
@@ -178,7 +178,7 @@ void Batch::JobDispatcher::setJobName( const char* inp )
 {
     BufferString nm( inp );
     nm.clean( BufferString::AllowDots );
-    FilePath parfp( GetProcFileName(nm) );
+    File::Path parfp( GetProcFileName(nm) );
     parfp.setExtension( ".par", false );
     parfnm_.set( parfp.fullPath() );
 }

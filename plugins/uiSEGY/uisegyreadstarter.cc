@@ -906,7 +906,7 @@ bool uiSEGYReadStarter::getFileSpec()
     }
     else
     {
-	FilePath fp( userfilename_ );
+	File::Path fp( userfilename_ );
 	if ( !fp.isAbsolute() )
 	    mErrRet(uiStrings::phrSpecify(tr(
 			    "the absolute file name when using a wildcard.")) )
@@ -927,7 +927,7 @@ bool uiSEGYReadStarter::getFileSpec()
 
 bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
 {
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     if ( fp.isAbsolute() )
     {
 	if ( !File::exists(fnm) )
@@ -940,7 +940,7 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
     }
     else
     {
-	FilePath newfp( GetDataDir(), fnm );
+	File::Path newfp( GetDataDir(), fnm );
 	if ( !File::exists(newfp.fullPath()) )
 	{
 	    newfp.set( GetDataDir() ).add( "Seismics" );

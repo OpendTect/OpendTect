@@ -34,7 +34,7 @@ static int doWork( int argc, char** argv )
 	return 1;
     }
 
-    FilePath fp( argv[1] );
+    File::Path fp( argv[1] );
     
     if ( !File::exists(fp.fullPath()) )
     {

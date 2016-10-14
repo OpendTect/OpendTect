@@ -1092,7 +1092,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
     DirList attrdl( dirnm, DirList::DirsOnly, "*Attribs" );
     for ( int idx=0; idx<attrdl.size(); idx++ )
     {
-	FilePath fp( dirnm, attrdl.get(idx), "index" );
+	File::Path fp( dirnm, attrdl.get(idx), "index" );
 	IOPar iopar("AttributeSet Table");
 	iopar.read( fp.fullPath(), sKey::Pars(), false );
 	PtrMan<IOPar> subpar = iopar.subselect( is2d ? "2D" : "3D" );
@@ -1101,7 +1101,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 	for ( int idy=0; idy<subpar->size(); idy++ )
 	{
 	    BufferString attrfnm = subpar->getValue( idy );
-	    if ( !FilePath(attrfnm).isAbsolute() )
+	    if ( !File::Path(attrfnm).isAbsolute() )
 	    {
 		fp.setFileName( attrfnm );
 		attrfnm = fp.fullPath();
@@ -1150,7 +1150,7 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
     if ( !ioobj )
 	return;
 
-    FilePath fp( ioobj->fullUserExpr() );
+    File::Path fp( ioobj->fullUserExpr() );
     fp.setExtension( "proc" );
     if ( !File::exists(fp.fullPath()) )
     {
@@ -1378,7 +1378,7 @@ bool acceptOK()
     const BufferString fnm = fileName();
     if ( File::exists(fnm) && File::isExecutable(fnm) )
     {
-	const FilePath fp( fnm );
+	const File::Path fp( fnm );
 	if ( fp.baseName() != "dot" )
 	{
 	    const bool res = uiMSG().askGoOn( tr("It looks like you did not "
@@ -1420,11 +1420,11 @@ void uiAttribDescSetEd::exportToDotCB( CallBacker* )
 	dotpath = dlg.fileName();
     }
 
-    const BufferString fnm = FilePath::getTempName( "dot" );
+    const BufferString fnm = File::Path::getTempName( "dot" );
     const char* attrnm = DBM().nameOf( setid_ );
     attrset_->exportToDot( attrnm, fnm );
 
-    FilePath outputfp( fnm );
+    File::Path outputfp( fnm );
     outputfp.setExtension( "png" );
     BufferString cmd( "\"", dotpath, "\"" );
     cmd.add( " -Tpng " ).add( fnm ).add( " -o " ).add( outputfp.fullPath() );

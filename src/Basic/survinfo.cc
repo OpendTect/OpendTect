@@ -340,7 +340,7 @@ IOPar& SurveyInfo::getPars() const
 
 BufferString SurveyInfo::getFullDirPath() const
 {
-    return FilePath( basepath_, dirname_ ).fullPath();
+    return File::Path( basepath_, dirname_ ).fullPath();
 }
 
 
@@ -450,7 +450,7 @@ uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd )
 
     if ( !File::isDirectory(newdataroot) )
 	mErrRetDoesntExist(newdataroot)
-    FilePath fp( newdataroot, newdirname );
+    File::Path fp( newdataroot, newdirname );
     const BufferString survdir = fp.fullPath();
     if ( !File::isDirectory(survdir) )
 	mErrRetDoesntExist(survdir)
@@ -470,8 +470,8 @@ uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd )
 
 SurveyInfo* SurveyInfo::read( const char* survdir, uiRetVal& uirv )
 {
-    FilePath fpsurvdir( survdir );
-    FilePath fp( fpsurvdir, sKeySetupFileName() );
+    File::Path fpsurvdir( survdir );
+    File::Path fp( fpsurvdir, sKeySetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(true) )
 	{ uirv = sfio.errMsg(); return 0; }
@@ -492,7 +492,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiRetVal& uirv )
 
     BufferString keyw = astream.keyWord();
     SurveyInfo* si = new SurveyInfo;
-    si->setName( FilePath(survdir).fileName() ); // good default
+    si->setName( File::Path(survdir).fileName() ); // good default
 
     //Read params here, so we can look at the pars below
     fp = fpsurvdir; fp.add( sKeyDefsFile );
@@ -1092,7 +1092,7 @@ bool SurveyInfo::write( const char* basedir ) const
 {
     if ( !basedir ) basedir = GetBaseDataDir();
 
-    FilePath fp( basedir, dirname_, sKeySetupFileName() );
+    File::Path fp( basedir, dirname_, sKeySetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(false) )
     {
@@ -1198,7 +1198,7 @@ const IOPar& SurveyInfo::defaultPars() const
 
 #define uiErrMsg(s) { \
     BufferString cmd( "\"", \
-	    FilePath(GetExecPlfDir(),"od_DispMsg").fullPath() ); \
+	    File::Path(GetExecPlfDir(),"od_DispMsg").fullPath() ); \
     cmd += "\" --err "; \
     cmd += " Could not write to "; \
     cmd += s; \
@@ -1217,7 +1217,7 @@ void SurveyInfo::saveDefaultPars( const char* basedir ) const
     else
 	surveypath = getFullDirPath();
 
-    const BufferString defsfnm( FilePath(surveypath,sKeyDefsFile).fullPath() );
+    const BufferString defsfnm( File::Path(surveypath,sKeyDefsFile).fullPath() );
     if ( surveydefaultpars_.isEmpty() )
     {
 	if ( File::exists(defsfnm) )
@@ -1313,7 +1313,7 @@ uiRetVal SurveyInfo::isValidDataRoot( const char* inpdirnm )
 {
     uiRetVal ret;
 
-    FilePath fp( inpdirnm ? inpdirnm : GetBaseDataDir() );
+    File::Path fp( inpdirnm ? inpdirnm : GetBaseDataDir() );
     const BufferString dirnm( fp.fullPath() );
     const uiString datarootstr = tr("OpendTect Data Directory '%1'")
 					.arg( dirnm );
@@ -1342,7 +1342,7 @@ uiRetVal SurveyInfo::isValidSurveyDir( const char* dirnm )
 {
     uiRetVal ret;
 
-    FilePath fp( dirnm, ".omf" );
+    File::Path fp( dirnm, ".omf" );
     const BufferString omffnm( fp.fullPath() );
     if ( !File::exists(omffnm) )
 	mErrRetDoesntExist( omffnm );

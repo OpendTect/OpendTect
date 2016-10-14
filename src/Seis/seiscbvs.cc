@@ -536,7 +536,7 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 
 static StreamProvider* getStrmProv( const IOObj* ioobj, const char* ext )
 {
-    FilePath fp( ioobj->fullUserExpr(true) );
+    File::Path fp( ioobj->fullUserExpr(true) );
     fp.setExtension( ext );
     StreamProvider* sp = new StreamProvider( fp.fullPath() );
     if ( !sp->exists(true) )
@@ -559,7 +559,7 @@ static void renameAuxFile( const IOObj* ioobj, const char* newnm,
     PtrMan<StreamProvider> sp = getStrmProv( ioobj, ext );
     if ( sp )
     {
-	FilePath fpnew( newnm );
+	File::Path fpnew( newnm );
 	fpnew.setExtension( ext );
 	sp->rename( fpnew.fullPath() );
     }

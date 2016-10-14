@@ -64,7 +64,7 @@ bool uiMMBatchJobDispatcherLauncher::go( uiParent* p )
 	return false;
     }
 
-    const FilePath localbasedatadir( GetBaseDataDir() );
+    const File::Path localbasedatadir( GetBaseDataDir() );
     if ( localbasedatadir != localhost->getDataRoot() )
     {
 	uiMSG().error( tr("Current Data Root: '%1'\ndoes not match path in "
@@ -130,7 +130,7 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     mDynamicCastGet(uiSelectFromList*,seldlg,dlg)
     if ( !seldlg ) return false;
 
-    BufferString fname = FilePath( GetBaseDataDir() )
+    BufferString fname = File::Path( GetBaseDataDir() )
 			 .add( seldlg->selFld()->getText() ).fullPath();
     uiRetVal uirv;
     PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname, uirv );

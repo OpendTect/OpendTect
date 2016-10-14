@@ -32,7 +32,7 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     if ( !mdfnm || !*mdfnm )
 	mdfnm = "ModDeps.od";
 
-    const FilePath moddepfp( mGetSWDirDataDir(), mdfnm );
+    const File::Path moddepfp( mGetSWDirDataDir(), mdfnm );
     const BufferString moddepfnm = moddepfp.fullPath();
     od_istream strm( moddepfnm );
     if ( !strm.isOK() )
@@ -147,7 +147,7 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 
 	char libnm[256];
 	SharedLibAccess::getLibName( md->mods_.get(idep), libnm );
-	FilePath fp( GetLibPlfDir(), libnm );
+	File::Path fp( GetLibPlfDir(), libnm );
 	SharedLibAccess* sla = new SharedLibAccess( fp.fullPath() );
 	if ( !sla->isOK() )
 	    { ErrMsg( sla->errMsg() ); delete sla; continue; }

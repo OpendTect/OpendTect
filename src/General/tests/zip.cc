@@ -29,10 +29,10 @@ else if ( !quiet ) \
 
 #define mCheckDataIntegrity(relpart1,relpart2) \
 { \
-    FilePath src( tozip.fullPath() ); \
+    File::Path src( tozip.fullPath() ); \
     src.add( relpart1 ); \
     src.add( relpart2 ); \
-    FilePath dest( zipfilename.pathOnly() ); \
+    File::Path dest( zipfilename.pathOnly() ); \
     dest.add( "F3_Test_Survey" ); \
     dest.add( relpart1 ); \
     dest.add( relpart2 ); \
@@ -56,11 +56,11 @@ int testMain( int argc, char** argv )
 
     BufferString basedir;
     clparser.getVal("datadir", basedir );
-    FilePath tozip( basedir );
+    File::Path tozip( basedir );
     tozip.add( "F3_Test_Survey" );
     uiString err;
-    FilePath zipfilename( FilePath::getTempName("zip") );
-    FilePath outputdir( zipfilename.pathOnly() );
+    File::Path zipfilename( File::Path::getTempName("zip") );
+    File::Path outputdir( zipfilename.pathOnly() );
     outputdir.add( "F3_Test_Survey" );
 
     mRunTest("Zipping", ZipUtils::makeZip(zipfilename.fullPath(),

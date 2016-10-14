@@ -98,7 +98,7 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     , coordfilefld_(0)
     , coordfileextfld_(0)
 {
-    objname_ = FilePath( usrspec ).baseName();
+    objname_ = File::Path( usrspec ).baseName();
     const bool is2d = Seis::is2D( fs_.geomType() );
     if ( !is2d )
 	objname_.replace( '*', 'x' );

@@ -17,11 +17,11 @@ ________________________________________________________________________
 #include "oscommand.h"
 
 class CommandString;
-class FilePath;
 class HostData;
 class JobInfo;
 class JobIOHandler;
 class od_ostream;
+namespace File { class Path; }
 template <class T> class ObjQueue;
 
 /*!
@@ -71,7 +71,7 @@ public:
     const char*		peekMsg()  { if ( msg_.size() ) return msg_; return 0; }
     void		fetchMsg( BufferString& bs )	{ bs = msg_; msg_ = "";}
 
-    bool		startProg(const char*,IOPar&,const FilePath&,
+    bool		startProg(const char*,IOPar&,const File::Path&,
 				  const JobInfo&,const char*);
 
     void		setPriority( float p );
@@ -81,9 +81,9 @@ public:
 
     ObjQueue<StatusInfo>& statusQueue();
 
-    static bool		mkIOParFile(const FilePath& basefnm,
+    static bool		mkIOParFile(const File::Path& basefnm,
 				    const HostData&,const IOPar&,
-				    FilePath&,BufferString& msg);
+				    File::Path&,BufferString& msg);
     static BufferString mkRexecCmd(const char* prognm,
 				   const HostData& machine,
 				   const HostData& localhost);
@@ -103,8 +103,8 @@ protected:
     od_ostream*		logstrm_;
 
     void		mkCommand(OS::MachineCommand&,const HostData&,
-				  const char* progname,const FilePath& basefp,
-				  const FilePath& iopfp,const JobInfo&,
+				  const char* progname,const File::Path& basefp,
+				  const File::Path& iopfp,const JobInfo&,
 				  const char* rshcomm);
 
 };
@@ -124,7 +124,7 @@ public:
 
     void		addFlag(const char* flag,const char* value);
     void		addFlag(const char* flag,int value);
-    void		addFilePath(const FilePath&);
+    void		addFilePath(const File::Path&);
 
     const OD::String&	string()		{ return cmd_; }
 

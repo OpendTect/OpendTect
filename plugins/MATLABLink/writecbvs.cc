@@ -76,7 +76,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
 
     if ( par.get(sKey::Survey(),res) )
     {
-	FilePath fp( GetBaseDataDir() ); fp.add( res );
+	File::Path fp( GetBaseDataDir() ); fp.add( res );
 	const BufferString surveyfp = fp.fullPath();
 	if ( !File::exists(surveyfp) || !File::isDirectory(surveyfp) )
 	    mErrRet( "Given survey does not exist" );

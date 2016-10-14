@@ -72,12 +72,12 @@ BufferString Repos::FileProvider::fileName( Repos::Source src ) const
 
 #define mSetRet(fn,yn) \
 	getFname( ret, yn ); \
-	ret = FilePath( fn(), ret ).fullPath()
+	ret = File::Path( fn(), ret ).fullPath()
 
     switch ( src )
     {
     case Repos::Temp: {
-	FilePath fp( FilePath::getTempName(0) );
+	File::Path fp( File::Path::getTempName(0) );
 	fp.setFileName( basenm_ );
 	ret = fp.fullPath();
     } break;

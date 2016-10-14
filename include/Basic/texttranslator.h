@@ -21,7 +21,7 @@ mFDQtclass(QLocale);
 mFDQtclass(QString);
 
 class TextTranslatorLanguage;
-class FilePath;
+namespace File { class Path; }
 
 /*!Manager that keeps track of translations. By default, it only handles
    English plural, but it can be extended with more languages. */
@@ -60,7 +60,7 @@ protected:
     ObjectSet<TextTranslatorLanguage>	languages_;
     int					currentlanguageidx_;
 public: //Speicalized stuff
-    static void				GetLocalizationDir(FilePath&);
+    static void				GetLocalizationDir(File::Path&);
     static char				cApplicationEnd() { return '_'; }
 };
 

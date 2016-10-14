@@ -56,14 +56,13 @@ mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 };
 
 
-namespace File
-{
 
-static ExistsFn web_existsfn = 0;
-static GetSizeFn web_getsizefn = 0;
-static GetContentFn web_getcontentfn = 0;
+static File::ExistsFn web_existsfn = 0;
+static File::GetSizeFn web_getsizefn = 0;
+static File::GetContentFn web_getcontentfn = 0;
 
-void setWebHandlers( ExistsFn existfn, GetSizeFn sizefn, GetContentFn contfn )
+void File::setWebHandlers( ExistsFn existfn, GetSizeFn sizefn,
+			    GetContentFn contfn )
 {
     if ( existfn )
 	web_existsfn = existfn;
@@ -106,6 +105,9 @@ static inline bool isLocal( const char* fnm )
 }
 
 
+namespace File
+{
+
 class RecursiveCopier : public Executor
 { mODTextTranslationClass(RecursiveCopier);
 public:
@@ -139,9 +141,11 @@ protected:
 
 };
 
+} // namespace File
+
 
 #define mErrRet(s1) { msg_ = s1; return ErrorOccurred(); }
-int RecursiveCopier::nextStep()
+int File::RecursiveCopier::nextStep()
 {
 #ifdef OD_NO_QT
     return ErrorOccurred();
@@ -160,7 +164,7 @@ int RecursiveCopier::nextStep()
     const BufferString& srcfile = *filelist_[fileidx_];
     QDir srcdir( src_.buf() );
     BufferString relpath( srcdir.relativeFilePath(srcfile.buf()) );
-    const BufferString destfile = FilePath(dest_,relpath).fullPath();
+    const BufferString destfile = Path(dest_,relpath).fullPath();
     if ( File::isLink(srcfile) )
     {
 	BufferString linkval = linkValue( srcfile );
@@ -182,6 +186,9 @@ int RecursiveCopier::nextStep()
 #endif
 }
 
+
+namespace File
+{
 
 class RecursiveDeleter : public Executor
 {
@@ -225,8 +232,10 @@ protected:
     bool		filesonly_;
 };
 
+} // namespace File
 
-int RecursiveDeleter::nextStep()
+
+int File::RecursiveDeleter::nextStep()
 {
     if ( nrdone_ >= totalnr_ )
 	return Finished();
@@ -260,18 +269,21 @@ int RecursiveDeleter::nextStep()
 }
 
 
-Executor* getRecursiveCopier( const char* from, const char* to )
-{ return isSane(from) && isSane(to) ? new RecursiveCopier( from, to ) : 0; }
+Executor* File::getRecursiveCopier( const char* from, const char* to )
+{
+    return !isSane(from) || !isSane(to) ? 0
+	 : new File::RecursiveCopier( from, to );
+}
 
-Executor* getRecursiveDeleter( const char* dirname,
+Executor* File::getRecursiveDeleter( const char* dirname,
 			       const BufferStringSet* externallist,
 			       bool filesonly )
 { return !isSane(dirname) ? 0
-       : new RecursiveDeleter( dirname, externallist, filesonly ); }
+       : new File::RecursiveDeleter( dirname, externallist, filesonly ); }
 
 
-void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
-			    bool followlinks )
+void File::makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
+				  bool followlinks )
 {
     if ( !isSane(dir) )
 	return;
@@ -306,7 +318,7 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 }
 
 
-od_int64 getFileSize( const char* fnm, bool followlink )
+od_int64 File::getFileSize( const char* fnm, bool followlink )
 {
     if ( isURI(fnm) )
 	return web_getsizefn ? (*web_getsizefn)( fnm ) : 0;
@@ -340,7 +352,7 @@ od_int64 getFileSize( const char* fnm, bool followlink )
 #endif
 }
 
-bool exists( const char* fnm )
+bool File::exists( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
@@ -356,13 +368,13 @@ bool exists( const char* fnm )
 }
 
 
-bool isEmpty( const char* fnm )
+bool File::isEmpty( const char* fnm )
 {
     return getFileSize( fnm ) < 1;
 }
 
 
-bool isDirEmpty( const char* dirnm )
+bool File::isDirEmpty( const char* dirnm )
 {
     if ( !isLocal(dirnm) )
 	return true;
@@ -377,7 +389,7 @@ bool isDirEmpty( const char* dirnm )
 }
 
 
-bool isFile( const char* fnm )
+bool File::isFile( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
@@ -398,7 +410,7 @@ bool isFile( const char* fnm )
 }
 
 
-bool isDirectory( const char* fnm )
+bool File::isDirectory( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
@@ -432,13 +444,13 @@ bool isDirectory( const char* fnm )
 }
 
 
-bool isURI( const char*& fnm )
+bool File::isURI( const char*& fnm )
 {
     return isSane(fnm) && fnmIsURI(fnm);
 }
 
 
-const char* getCanonicalPath( const char* dir )
+const char* File::getCanonicalPath( const char* dir )
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
@@ -452,7 +464,7 @@ const char* getCanonicalPath( const char* dir )
 }
 
 
-const char* getRelativePath( const char* reltodir, const char* fnm )
+const char* File::getRelativePath( const char* reltodir, const char* fnm )
 {
 #ifndef OD_NO_QT
     BufferString reltopath = getCanonicalPath( reltodir );
@@ -468,7 +480,7 @@ const char* getRelativePath( const char* reltodir, const char* fnm )
 }
 
 
-bool isLink( const char* fnm )
+bool File::isLink( const char* fnm )
 {
     if ( !isLocal(fnm) )
 	return false;
@@ -483,7 +495,7 @@ bool isLink( const char* fnm )
 }
 
 
-void hide( const char* fnm, bool yn )
+void File::hide( const char* fnm, bool yn )
 {
     if ( !isLocal(fnm) || !exists(fnm) )
 	return;
@@ -504,7 +516,7 @@ void hide( const char* fnm, bool yn )
 }
 
 
-bool isHidden( const char* fnm )
+bool File::isHidden( const char* fnm )
 {
     if ( !isLocal(fnm) )
 	return false;
@@ -519,7 +531,7 @@ bool isHidden( const char* fnm )
 }
 
 
-bool isReadable( const char* fnm )
+bool File::isReadable( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
@@ -540,7 +552,7 @@ bool isReadable( const char* fnm )
 }
 
 
-bool isWritable( const char* fnm )
+bool File::isWritable( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
@@ -561,7 +573,7 @@ bool isWritable( const char* fnm )
 }
 
 
-bool isExecutable( const char* fnm )
+bool File::isExecutable( const char* fnm )
 {
     if ( !isLocal(fnm) )
 	return false;
@@ -581,7 +593,7 @@ bool isExecutable( const char* fnm )
 
 
 
-bool isFileInUse( const char* fnm )
+bool File::isInUse( const char* fnm )
 {
 #ifdef __win__
     if ( isURI(fnm) )
@@ -603,7 +615,7 @@ bool isFileInUse( const char* fnm )
 }
 
 
-bool createDir( const char* fnm )
+bool File::createDir( const char* fnm )
 {
     if ( !isLocal(fnm) )
 	return false;
@@ -617,7 +629,7 @@ bool createDir( const char* fnm )
 }
 
 
-bool rename( const char* oldname, const char* newname )
+bool File::rename( const char* oldname, const char* newname )
 {
     if ( !isSane(oldname) || !isSane(newname)
       || fnmIsURI(oldname) || fnmIsURI(newname) )
@@ -633,7 +645,7 @@ bool rename( const char* oldname, const char* newname )
 }
 
 
-bool createLink( const char* fnm, const char* linknm )
+bool File::createLink( const char* fnm, const char* linknm )
 {
     if ( !isLocal(fnm) )
 	return false;
@@ -655,7 +667,7 @@ bool createLink( const char* fnm, const char* linknm )
 }
 
 
-bool saveCopy( const char* from, const char* to )
+bool File::saveCopy( const char* from, const char* to )
 {
     if ( !isLocal(from) || !isLocal(to) )
 	return false;
@@ -675,7 +687,7 @@ bool saveCopy( const char* from, const char* to )
 }
 
 
-bool copy( const char* from, const char* to, uiString* errmsg )
+bool File::copy( const char* from, const char* to, uiString* errmsg )
 {
     if ( !isLocal(from) || !isLocal(to) )
 	return false;
@@ -705,7 +717,7 @@ bool copy( const char* from, const char* to, uiString* errmsg )
 }
 
 
-bool copyDir( const char* from, const char* to, uiString* errmsg )
+bool File::copyDir( const char* from, const char* to, uiString* errmsg )
 {
     if ( !isLocal(from) || !isLocal(to) )
 	return false;
@@ -741,7 +753,7 @@ bool copyDir( const char* from, const char* to, uiString* errmsg )
 }
 
 
-bool resize( const char* fnm, od_int64 newsz )
+bool File::resize( const char* fnm, od_int64 newsz )
 {
     if ( !isLocal(fnm) )
 	return false;
@@ -756,7 +768,7 @@ bool resize( const char* fnm, od_int64 newsz )
 }
 
 
-bool remove( const char* fnm )
+bool File::remove( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return true;
@@ -771,7 +783,7 @@ bool remove( const char* fnm )
 }
 
 
-bool removeDir( const char* dirnm )
+bool File::removeDir( const char* dirnm )
 {
     if ( !isSane(dirnm) )
 	return true;
@@ -801,7 +813,7 @@ bool removeDir( const char* dirnm )
 }
 
 
-bool changeDir( const char* dir )
+bool File::changeDir( const char* dir )
 {
     if ( !isLocal(dir) )
 	return false;
@@ -813,7 +825,7 @@ bool changeDir( const char* dir )
 }
 
 
-bool checkDirectory( const char* fnm, bool forread, uiString& errmsg )
+bool File::checkDirectory( const char* fnm, bool forread, uiString& errmsg )
 {
     if ( !isSane(fnm) )
     {
@@ -828,7 +840,7 @@ bool checkDirectory( const char* fnm, bool forread, uiString& errmsg )
 	return false;
     }
 
-    FilePath fp( fnm );
+    Path fp( fnm );
     BufferString dirnm( fp.pathOnly() );
 
     const bool success = forread ? isReadable( dirnm ) : isWritable( dirnm );
@@ -842,7 +854,7 @@ bool checkDirectory( const char* fnm, bool forread, uiString& errmsg )
 }
 
 
-bool makeWritable( const char* fnm, bool yn, bool recursive )
+bool File::makeWritable( const char* fnm, bool yn, bool recursive )
 {
     if ( !isSane(fnm) )
 	return false;
@@ -870,7 +882,7 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
 }
 
 
-bool makeExecutable( const char* fnm, bool yn )
+bool File::makeExecutable( const char* fnm, bool yn )
 {
     if ( !isSane(fnm) )
 	return false;
@@ -887,7 +899,7 @@ bool makeExecutable( const char* fnm, bool yn )
 }
 
 
-bool setPermissions( const char* fnm, const char* perms, bool recursive )
+bool File::setPermissions( const char* fnm, const char* perms, bool recursive )
 {
     if ( !isLocal(fnm) )
 	return false;
@@ -904,7 +916,7 @@ bool setPermissions( const char* fnm, const char* perms, bool recursive )
 }
 
 
-bool getContent( const char* fnm, BufferString& bs )
+bool File::getContent( const char* fnm, BufferString& bs )
 {
     if ( !isSane(fnm) )
 	return false;
@@ -922,14 +934,14 @@ bool getContent( const char* fnm, BufferString& bs )
 }
 
 
-od_int64 getKbSize( const char* fnm )
+od_int64 File::getKbSize( const char* fnm )
 {
     od_int64 kbsz = getFileSize( fnm ) / 1024;
     return kbsz;
 }
 
 
-BufferString getFileSizeString( od_int64 filesz ) // filesz in kB
+BufferString File::getFileSizeString( od_int64 filesz ) // filesz in kB
 {
     BufferString szstr;
     if ( filesz > 1024 )
@@ -953,14 +965,14 @@ BufferString getFileSizeString( od_int64 filesz ) // filesz in kB
 }
 
 
-BufferString getFileSizeString( const char* fnm )
+BufferString File::getFileSizeString( const char* fnm )
 { return getFileSizeString( getKbSize(fnm) ); }
 
 
 #define mRetUnknown { ret.set( "<unknown>" ); return ret.buf(); }
 
 
-const char* timeCreated( const char* fnm, const char* fmt )
+const char* File::timeCreated( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
     if ( !isLocal(fnm) )
@@ -977,7 +989,7 @@ const char* timeCreated( const char* fnm, const char* fmt )
 }
 
 
-const char* timeLastModified( const char* fnm, const char* fmt )
+const char* File::timeLastModified( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
     if ( !isLocal(fnm) )
@@ -994,7 +1006,7 @@ const char* timeLastModified( const char* fnm, const char* fmt )
 }
 
 
-od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
+od_int64 File::getTimeInSeconds( const char* fnm, bool lastmodif )
 {
     if ( !isLocal(fnm) )
 	return 0;
@@ -1013,7 +1025,7 @@ od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 }
 
 
-const char* linkValue( const char* linknm )
+const char* File::linkValue( const char* linknm )
 {
     if ( !isSane(linknm) )
 	return "";
@@ -1035,7 +1047,7 @@ const char* linkValue( const char* linknm )
 }
 
 
-const char* linkTarget( const char* linknm )
+const char* File::linkTarget( const char* linknm )
 {
     if ( !isSane(linknm) )
 	return "";
@@ -1055,7 +1067,7 @@ const char* linkTarget( const char* linknm )
 }
 
 
-const char* linkEnd( const char* linknm )
+const char* File::linkEnd( const char* linknm )
 {
     BufferString prvfnm = linknm;
     for ( int ifollow=0; ; ifollow++ )
@@ -1075,7 +1087,7 @@ const char* linkEnd( const char* linknm )
 }
 
 
-const char* getCurrentPath()
+const char* File::getCurrentPath()
 {
     mDeclStaticString( ret );
 
@@ -1093,7 +1105,7 @@ const char* getCurrentPath()
 }
 
 
-const char* getHomePath()
+const char* File::getHomePath()
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
@@ -1106,7 +1118,7 @@ const char* getHomePath()
 }
 
 
-const char* getTempPath()
+const char* File::getTempPath()
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
@@ -1126,7 +1138,7 @@ const char* getTempPath()
 }
 
 
-const char* getRootPath( const char* path )
+const char* File::getRootPath( const char* path )
 {
     mDeclStaticString( ret );
 #ifndef OD_NO_QT
@@ -1144,14 +1156,14 @@ const char* getRootPath( const char* path )
 }
 
 
-bool launchViewer( const char* fnm, const ViewPars& vp )
+bool File::launchViewer( const char* fnm, const ViewPars& vp )
 {
     if ( !exists(fnm) )
 	return false;
 
     BufferString cmd;
     CommandLineParser::addFilePath(
-		FilePath(GetExecPlfDir(),"od_FileBrowser").fullPath(), cmd );
+		Path(GetExecPlfDir(),"od_FileBrowser").fullPath(), cmd );
     CommandLineParser::addKey( ViewPars::sKeyFile(), cmd );
     CommandLineParser::addFilePath( fnm, cmd );
     CommandLineParser::addKey( ViewPars::sKeyMaxLines(), cmd,
@@ -1169,5 +1181,3 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
     OS::CommandExecPars pars; pars.launchtype_ = OS::RunInBG;
     return cl.execute( pars );
 }
-
-} // namespace File

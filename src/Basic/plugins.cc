@@ -176,7 +176,7 @@ PluginManager::PluginManager()
 
 static BufferString getProgNm( const char* argv0 )
 {
-    FilePath fp( argv0 );
+    File::Path fp( argv0 );
 #ifdef __win__
     fp.setExtension( 0 );
 #endif
@@ -215,7 +215,7 @@ void PluginManager::getDefDirs()
     }
     else
     {
-	FilePath fp( dnm );
+	File::Path fp( dnm );
 	appdir_ = fp.fullPath();
 	fp.add( sPluginBinDir );
 	fp.add( GetPlfSubDir() );
@@ -228,7 +228,7 @@ void PluginManager::getDefDirs()
     if ( dnm.isEmpty() )
 	dnm = GetSettingsDir();
 
-    FilePath fp( dnm );
+    File::Path fp( dnm );
     userdir_ = fp.fullPath();
     fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
@@ -276,7 +276,7 @@ const char* PluginManager::getFileName( const PluginManager::Data& data ) const
     if ( data.autosource_ == Data::None )
 	ret = data.name_;
     else
-	ret = FilePath(
+	ret = File::Path(
 		data.autosource_ == Data::AppDir ?  applibdir_ : userlibdir_,
 		data.name_ ).fullPath();
     return ret.buf();
@@ -396,7 +396,7 @@ void PluginManager::openALOEntries()
 
 void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 {
-    FilePath fp( dirnm, sPluginDir, GetPlfSubDir() );
+    File::Path fp( dirnm, sPluginDir, GetPlfSubDir() );
     DirList dl( fp.fullPath(), DirList::FilesOnly );
     const BufferString prognm = getProgNm( GetArgV()[0] );
     for ( int idx=0; idx<dl.size(); idx++ )
@@ -434,7 +434,7 @@ void PluginManager::mkALOList()
 {
     getALOEntries( userdir_, true );
 #ifdef __mac__
-    getALOEntries( FilePath(appdir_,"Resources").fullPath(), false );
+    getALOEntries( File::Path(appdir_,"Resources").fullPath(), false );
 #else
     getALOEntries( appdir_, false );
 #endif
@@ -450,7 +450,7 @@ static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
     {
 	if ( mandatory )
 	{
-	    const BufferString libnmonly = FilePath(libnm).fileName();
+	    const BufferString libnmonly = File::Path(libnm).fileName();
 	    ErrMsg( BufferString( libnmonly,
 			" does not have a InitPlugin function"));
 	}
@@ -461,7 +461,7 @@ static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
     const char* ret = (*fn)( argc, argv );
     if ( ret )
     {
-	const BufferString libnmonly = FilePath(libnm).fileName();
+	const BufferString libnmonly = File::Path(libnm).fileName();
 	BufferString msg( "Message from " );
 	msg += libnm; msg += ":\n\t"; msg += ret;
 	UsrMsg( msg );
@@ -485,7 +485,7 @@ static bool loadSurvRelTools( SharedLibAccess* sla, const char* libnm )
 
 bool PluginManager::load( const char* libnm )
 {
-    FilePath fp( libnm );
+    File::Path fp( libnm );
     const BufferString libnmonly( fp.fileName() );
 
     Data* data = new Data( libnmonly );

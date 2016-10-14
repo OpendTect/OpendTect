@@ -295,7 +295,7 @@ void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
     const ColTab::MapperSetup* mapper =
 		am_.visserv_->getColTabMapperSetup( visid, attrib );
 
-    FilePath fp( ioobj->fullUserExpr(true) );
+    File::Path fp( ioobj->fullUserExpr(true) );
     fp.setExtension( "par" );
     IOPar iop; iop.read( fp.fullPath(), sKey::Pars() );
     if ( ctseq )

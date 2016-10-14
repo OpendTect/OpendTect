@@ -85,7 +85,7 @@ void GMTWellSymbolRepository::init()
     if ( !gmtsharedir || !*gmtsharedir )
 	return;
 
-    const FilePath fp( gmtsharedir, "custom", "indexfile" );
+    const File::Path fp( gmtsharedir, "custom", "indexfile" );
     IOPar par;
     if ( !par.read(fp.fullPath(),0) || !par.size() )
 	return;

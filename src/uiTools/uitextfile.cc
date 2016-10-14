@@ -346,7 +346,7 @@ void uiTextFileDlg::setFileName( const char* fnm )
 void uiTextFileDlg::fileNmChgd( CallBacker* )
 {
     const uiString fnm = toUiString(editor_->fileName());
-    FilePath fp( mFromUiStringTodo(fnm) );
+    File::Path fp( mFromUiStringTodo(fnm) );
     setName( fp.fileName() );
     if ( captionisfilename_ )
 	setCaption( fnm );

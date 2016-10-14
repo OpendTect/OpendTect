@@ -316,7 +316,7 @@ bool uiExportHorizon::writeAscii()
 	BufferString fname( basename );
 	if ( writemultiple )
 	{
-	    FilePath fp( fname );
+	    File::Path fp( fname );
 	    BufferString ext( fp.extension() );
 	    if ( ext.isEmpty() )
 		{ fname += "_"; fname += sidx; }

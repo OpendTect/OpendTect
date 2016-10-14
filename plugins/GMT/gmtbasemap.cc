@@ -146,7 +146,7 @@ bool GMTLegend::execute( od_ostream& strm, const char* fnm )
 	const IOPar* par = parset[parwithcolorbar];
 	StepInterval<float> rg;
 	par->get( ODGMT::sKeyDataRange(), rg );
-	FilePath fp( fnm );
+	File::Path fp( fnm );
 	fp.setExtension( "cpt" );
 	BufferString colbarcomm = "psscale --FONT_LABEL=12 ";
 	colbarcomm += "--FONT_ANNOT_PRIMARY=10 -D";

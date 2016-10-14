@@ -59,7 +59,7 @@ MatlabLibAccess::~MatlabLibAccess()
 #ifdef HAS_MATLAB
 static BufferString getFnm( const char* libfnm, bool init )
 {
-    FilePath fp( libfnm );
+    File::Path fp( libfnm );
     fp.setExtension( "" );
     return BufferString ( fp.fileName(), init ? "Initialize" : "Terminate" );
 }
@@ -210,7 +210,7 @@ MatlabLibMgr::~MatlabLibMgr()
 
 static int indexOf( const BufferStringSet& libnms, const char* libfnm )
 {
-    const FilePath fp( libfnm );
+    const File::Path fp( libfnm );
     const BufferString libnm = fp.fileName();
     return libnms.indexOf( libnm );
 }
@@ -230,7 +230,7 @@ MatlabLibAccess*
 bool MatlabLibMgr::load( const char* libfnm )
 {
     errmsg_ = uiString::emptyString();
-    const FilePath fp( libfnm );
+    const File::Path fp( libfnm );
     const BufferString libnm = fp.fileName();
 
     MatlabLibAccess* mla = new MatlabLibAccess( libfnm );

@@ -34,7 +34,7 @@ BufferString SEGY::ReSorter::Setup::getFileName( const Interval<int>& rg ) const
     if ( Seis::is2D(geom_) || newfileeach_ < 1 )
 	return outfnm_;
 
-    FilePath fp( outfnm_ );
+    File::Path fp( outfnm_ );
     const BufferString ext( fp.extension() );
     if ( !ext.isEmpty() )
 	fp.setExtension( "" );

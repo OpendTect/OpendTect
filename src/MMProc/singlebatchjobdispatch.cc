@@ -34,7 +34,7 @@ bool Batch::SingleJobDispatcher::init()
     if ( parfnm_.isEmpty() )
 	getDefParFilename( jobspec_.prognm_, parfnm_ );
 
-    FilePath fp( parfnm_ );
+    File::Path fp( parfnm_ );
     fp.setExtension( 0 );
     BufferString logfnm( fp.fullPath() );
     logfnm.add( "_log.txt" );
@@ -72,7 +72,7 @@ bool Batch::SingleJobDispatcher::launch()
 	remoteexec_.setEmpty();
 
     CommandString argstr( machine ? *machine : *localhost );
-    FilePath ioparfp;
+    File::Path ioparfp;
     BufferString logfile;
     if ( remote )
     {
@@ -89,7 +89,7 @@ bool Batch::SingleJobDispatcher::launch()
 #ifdef __win__
 	basenm.replace( '.',  '_' );
 #endif
-	FilePath basefp( procdir );
+	File::Path basefp( procdir );
 	basefp.add( basenm );
 	BufferString msg;
 	if ( !JobIOMgr::mkIOParFile(basefp,*machine,jobspec_.pars_,ioparfp,msg))
@@ -98,7 +98,7 @@ bool Batch::SingleJobDispatcher::launch()
 	    return false;
 	}
 
-	FilePath logfp( ioparfp ); logfp.setExtension( "log" );
+	File::Path logfp( ioparfp ); logfp.setExtension( "log" );
 	logfile = logfp.fullPath();
     }
     else

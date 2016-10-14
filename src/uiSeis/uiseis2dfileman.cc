@@ -184,7 +184,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 
 	BufferString fname = SeisCBVS2DLineIOProvider::getFileName( ioobj,
 								    geomid );
-	FilePath fp( fname );
+	File::Path fp( fname );
 
 	txt += "\nLocation: "; txt += fp.pathOnly();
 	txt += "\nFile name: "; txt += fp.fileName();

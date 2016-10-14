@@ -18,7 +18,7 @@
 #include <string.h>
 
 
-static const BufferString tmpfnm( FilePath::getTempName("txt") );
+static const BufferString tmpfnm( File::Path::getTempName("txt") );
 
 
 #define mRetFail(s) { od_cout() << "Failed " << s << od_endl; }

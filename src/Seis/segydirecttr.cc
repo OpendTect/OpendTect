@@ -61,7 +61,7 @@ bool SEGYDirectPSIOProvider::getLineNames( const char* dirnm,
     DirList dl( dirnm, DirList::FilesOnly, "*.sgydef" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	FilePath fp( dl.fullPath(idx) );
+	File::Path fp( dl.fullPath(idx) );
 	fp.setExtension( 0 );
 	nms.add( fp.fileName() );
     }
@@ -382,7 +382,7 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     delete tr_;
     tr_ = SEGYSeisTrcTranslator::getInstance();
 
-    FilePath outfp( segydeffilename_ );
+    File::Path outfp( segydeffilename_ );
     outfp.setExtension( tr_->defExtension() );
     segyfilename_ = outfp.fullPath();
     StreamConn* segyconn = new StreamConn( segyfilename_, false );

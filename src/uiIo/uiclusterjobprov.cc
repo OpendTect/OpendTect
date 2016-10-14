@@ -47,7 +47,7 @@ static BufferString getDefTempStorDir()
     stordir += HostData::localHostName();
     stordir += "_";
     stordir += Stats::randGen().getIndex(100000);
-    const FilePath fp( GetDataDir(), "Seismics", stordir );
+    const File::Path fp( GetDataDir(), "Seismics", stordir );
     if ( !File::createDir(fp.fullPath()) )
 	return BufferString(File::getTempPath());
 
@@ -64,7 +64,7 @@ ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* dir,
     , jobprov_(jobprov),dirnm_(dir),prognm_(prognm)
     , curidx_(0)
 {
-    FilePath fp( dirnm_.buf() ); fp.add( "X" );
+    File::Path fp( dirnm_.buf() ); fp.add( "X" );
     DirList dl( dirnm_.buf(), DirList::FilesOnly );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -102,7 +102,7 @@ static bool writeScriptFile( const char* scrfnm, const char* prognm,
     strm << "setenv DTECT_DATA " << GetBaseDataDir() << od_endl;
     mSetEnvVar("LD_LIBRARY_PATH")
     strm << GetExecScript(false) << " " << prognm << " \\" << od_endl;
-    FilePath fp( scrfnm );
+    File::Path fp( scrfnm );
     fp.setExtension( ".par" );
     strm << fp.fullPath().buf() << od_endl;
     strm << "set exitcode = $status" << od_endl;
@@ -129,7 +129,7 @@ int nextStep()
     iop.set( sKey::Desc(), desc.buf() );
     BufferString filenm( "Job" );
     filenm += curidx_;
-    FilePath fp( dirnm_.buf() );
+    File::Path fp( dirnm_.buf() );
     fp.add( filenm );
     fp.setExtension( "par" );
     BufferString parfnm = fp.fullPath();
@@ -190,7 +190,7 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     tmpstordirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     tmpstordirfld_->attach( alignedBelow, parfilefld_ );
 
-    FilePath fp( parfnm );
+    File::Path fp( parfnm );
     fp.setExtension( 0 );
     BufferString filenm = fp.fileName();
     filenm += "_scriptdir";
@@ -312,7 +312,7 @@ DBKey uiClusterJobProv::getTmpID( const char* tmpdir ) const
 {
     CtxtIOObj ctio( IOObjContext(&TranslatorGroup::getGroup("Seismic Data")) );
     ctio.ctxt_.stdseltype_ = IOObjContext::Seis;
-    FilePath fp( tmpdir );
+    File::Path fp( tmpdir );
     BufferString objnm( "~" );
     objnm += fp.fileName();
     ctio.setName( objnm );

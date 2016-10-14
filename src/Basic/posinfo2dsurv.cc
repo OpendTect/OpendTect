@@ -104,8 +104,8 @@ const PosInfo::Survey2D& S2DPOS()
 
 
 PosInfo::Survey2D::Survey2D()
-    : basefp_(*new FilePath(GetDataDir()))
-    , lsfp_(*new FilePath)
+    : basefp_(*new File::Path(GetDataDir()))
+    , lsfp_(*new File::Path)
     , lsindex_(*new IOPar("Line Sets"))
     , lineindex_(*new IOPar("Lines"))
 {
@@ -145,7 +145,7 @@ void PosInfo::Survey2D::readIdxFiles()
 {
     if ( lsnm_.isEmpty() )
     {
-	readIdxFile( FilePath(basefp_,sIdxFilename).fullPath(), lsindex_ );
+	readIdxFile( File::Path(basefp_,sIdxFilename).fullPath(), lsindex_ );
 	if ( lsindex_.size() <= 1 )
 	    return;
 	lsnm_ = lsindex_.getKey(0);
@@ -163,7 +163,7 @@ void PosInfo::Survey2D::readIdxFiles()
     lsfp_ = basefp_;
     FileMultiString fms( lsindex_.getValue(idxky) );
     lsfp_.add( fms[0] );
-    readIdxFile( FilePath(lsfp_,sIdxFilename).fullPath(), lineindex_ );
+    readIdxFile( File::Path(lsfp_,sIdxFilename).fullPath(), lineindex_ );
 }
 
 
@@ -223,7 +223,7 @@ void PosInfo::Survey2D::readIdxFile( const char* fnm, IOPar& iop )
 
 void PosInfo::Survey2D::writeIdxFile( bool lines ) const
 {
-    FilePath fp( lines ? lsfp_ : basefp_ , sIdxFilename );
+    File::Path fp( lines ? lsfp_ : basefp_ , sIdxFilename );
     SafeFileIO sfio( fp.fullPath(), true );
     if ( !sfio.open(false) )
 	mErrRet( "Cannot open 2D Geometry index file", fp.fullPath(),
@@ -420,7 +420,7 @@ void PosInfo::Survey2D::getLines( BufferStringSet& nms, const char* lsnm ) const
     if ( idxky < 0 ) return;
 
     IOPar iop;
-    FilePath fp( lsfp_ );
+    File::Path fp( lsfp_ );
     FileMultiString fms( lsindex_.getValue(idxky) );
     fp.setFileName( fms[0] ); fp.add( sIdxFilename );
     readIdxFile( fp.fullPath(), iop );
@@ -453,7 +453,7 @@ void PosInfo::Survey2D::getLineIDs( TypeSet<mIdxTyp>& ids, mIdxTyp lsid ) const
     if ( lsidx < 0 ) return;
 
     IOPar iop;
-    FilePath fp( lsfp_ );
+    File::Path fp( lsfp_ );
     FileMultiString fms( lsindex_.getValue(lsidx) );
     fp.setFileName( fms[0] ); fp.add( sIdxFilename );
     readIdxFile( fp.fullPath(), iop );
@@ -496,14 +496,14 @@ mIdxTyp PosInfo::Survey2D::getNewID( IOPar& iop )
 
 
 BufferString PosInfo::Survey2D::getNewStorageName( const char* nm,
-			const FilePath& inpfp, const IOPar& iop ) const
+			const File::Path& inpfp, const IOPar& iop ) const
 {
     BufferString clnnm( nm );
     int itry = 1;
     while ( true )
     {
 	clnnm.clean();
-	FilePath fp( inpfp, clnnm );
+	File::Path fp( inpfp, clnnm );
 	if ( !File::exists(fp.fullPath()) )
 	    break;
 
@@ -609,7 +609,7 @@ bool PosInfo::Survey2D::getGeometry( PosInfo::Line2DData& l2dd ) const
 	return false;
 
     FileMultiString fms( lineindex_.getValue(lidx) );
-    SafeFileIO sfio( FilePath(lsfp_,fms[0]).fullPath() );
+    SafeFileIO sfio( File::Path(lsfp_,fms[0]).fullPath() );
     if ( !sfio.open(true) )
 	return false;
 
@@ -648,7 +648,7 @@ bool PosInfo::Survey2D::setGeometry( const PosInfo::Line2DData& l2dd )
 	fms.add( getNewID(lineindex_) );
     }
 
-    SafeFileIO sfio( FilePath(lsfp_,fms[0]).fullPath(), true );
+    SafeFileIO sfio( File::Path(lsfp_,fms[0]).fullPath(), true );
     if ( !sfio.open(false) )
 	return false;
 
@@ -704,8 +704,8 @@ void PosInfo::Survey2D::renameLine( const char* oldlnm, const char* newlnm )
     if ( lidx < 0 ) return;
 
     FileMultiString oldfms( lineindex_.getValue(lidx) );
-    const FilePath oldfp( lsfp_ , oldfms[0] );
-    const FilePath newfp( lsfp_ , cleannm.buf() );
+    const File::Path oldfp( lsfp_ , oldfms[0] );
+    const File::Path newfp( lsfp_ , cleannm.buf() );
 
     if ( hasLine(newlnm) )
 	removeLine( newlnm );
@@ -730,7 +730,7 @@ void PosInfo::Survey2D::removeLine( const char* lnm )
     if ( lidx < 0 ) return;
 
     FileMultiString fms( lineindex_.getValue(lidx) );
-    SafeFileIO sfio( FilePath(lsfp_,fms[0]).fullPath() );
+    SafeFileIO sfio( File::Path(lsfp_,fms[0]).fullPath() );
     sfio.remove();
     lineindex_.remove( lidx );
     writeIdxFile( true );
@@ -743,7 +743,7 @@ void PosInfo::Survey2D::removeLine( mIdxTyp lineid )
     if ( lidx < 0 ) return;
 
     FileMultiString fms( lineindex_.getValue(lidx) );
-    SafeFileIO sfio( FilePath(lsfp_,fms[0]).fullPath() );
+    SafeFileIO sfio( File::Path(lsfp_,fms[0]).fullPath() );
     sfio.remove();
     lineindex_.remove( lidx );
     writeIdxFile( true );
@@ -759,7 +759,7 @@ void PosInfo::Survey2D::removeLineSet( mIdxTyp lsid )
 	const char* curlinesetnm = curLineSet();
 	const bool iscurls = linesetnm == curlinesetnm;
     FileMultiString fms( lsindex_.getValue(lsidx) );
-    FilePath fp( basefp_ , fms[0] );
+    File::Path fp( basefp_ , fms[0] );
     if ( basefp_ == fp )
 	return ErrMsg( "Cannot delete 2DGeom folder" );
 
@@ -784,7 +784,7 @@ void PosInfo::Survey2D::removeLineSet( const char* lsnm )
     if ( lsidx < 0 ) return;
 
     FileMultiString fms( lsindex_.getValue(lsidx) );
-    FilePath fp( basefp_ , fms[0] );
+    File::Path fp( basefp_ , fms[0] );
     if ( basefp_ == fp )
 	return ErrMsg( "Cannot delete 2DGeom folder" );
     const BufferString dirnm( fp.fullPath() );
@@ -811,14 +811,14 @@ void PosInfo::Survey2D::renameLineSet( const char* oldlsnm, const char* newlsnm)
     lsidx = lsindex_.indexOf( oldlsnm );
     if ( lsidx < 0 ) return;
     FileMultiString fms( lsindex_.getValue(lsidx) );
-    FilePath fp( basefp_, fms[0] );
+    File::Path fp( basefp_, fms[0] );
     const BufferString dirnm( fp.fullPath() );
     if ( File::exists(dirnm) )
     {
 	lsindex_.setKey( lsidx, newlsnm );
 	BufferString cleannm( newlsnm );
 	cleannm.clean();
-	FilePath newfp( basefp_, cleannm.buf() );
+	File::Path newfp( basefp_, cleannm.buf() );
 	File::rename( dirnm, newfp.fullPath() );
 	FileMultiString lspar( cleannm.buf() );
 	lspar.add( fms.getIValue(1) );
@@ -843,7 +843,7 @@ const char* PosInfo::Survey2D::getLSFileNm( const char* lsnm ) const
     BufferString cleannm( lsnm );
     cleannm.clean();
     mDeclStaticString( ret );
-    ret = FilePath(basefp_,cleannm,sIdxFilename).fullPath();
+    ret = File::Path(basefp_,cleannm,sIdxFilename).fullPath();
     return ret.buf();
 }
 
@@ -861,7 +861,7 @@ const char* PosInfo::Survey2D::getLineFileNm( const char* lsnm,
 	return 0;
 
     mDeclStaticString( ret );
-    ret = FilePath( basefp_, cllsnm, cllnm ).fullPath();
+    ret = File::Path( basefp_, cllsnm, cllnm ).fullPath();
     return ret.buf();
 }
 
@@ -877,7 +877,7 @@ bool PosInfo::Survey2D::isIdxFileNew( const char* lsnm ) const
 
 BufferString PosInfo::Survey2D::getIdxTimeStamp( const char* lsnm ) const
 {
-    FilePath fp( basefp_, lsnm, sIdxFilename );
+    File::Path fp( basefp_, lsnm, sIdxFilename );
     if ( fp.isEmpty() ) return 0;
     BufferString timestamp( File::timeLastModified(fp.fullPath()) );
     return timestamp;
@@ -890,7 +890,7 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
     if ( !linenm )
 	return false;
 
-    SafeFileIO sfio( FilePath(lsfp_,linenm).fullPath() );
+    SafeFileIO sfio( File::Path(lsfp_,linenm).fullPath() );
     if ( !sfio.open(true) )
 	return false;
 

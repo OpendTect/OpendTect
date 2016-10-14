@@ -221,7 +221,7 @@ int getFreeMBOnDisk( const IOObj& ioobj )
     if ( !iostrm )
 	dir = GetDataDir();
     else
-	dir = FilePath( iostrm->fullUserExpr() ).pathOnly();
+	dir = File::Path( iostrm->fullUserExpr() ).pathOnly();
 
     return getFreeMBOnDisk( dir );
 }
@@ -255,7 +255,7 @@ void getFreeMBOnDiskUiMsg( int mb, uiString& msg )
 
 const char* getFileSystemName( const char* path )
 {
-    FilePath fp( path );
+    File::Path fp( path );
 #ifdef __win__
     const char* drive = fp.winDrive();
     mDefineStaticLocalObject( char, filesystemname, [MAX_PATH+1] = { 0 } );

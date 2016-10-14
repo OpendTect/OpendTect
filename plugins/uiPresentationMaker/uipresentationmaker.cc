@@ -452,7 +452,7 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
 
-    FilePath imagefp( PresentationSpec::getPyScriptDir() );
+    File::Path imagefp( PresentationSpec::getPyScriptDir() );
     imagefp.add( BufferString("image-",Time::getDateTimeString(datefmt)) );
     imagefp.setExtension( "png" );
     const BufferString imagefnm = imagefp.fullPath();
@@ -596,12 +596,12 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
 	specs_.setSlideTitle( idx, slidetitle.buf() );
     }
 
-    FilePath scriptfp( PresentationSpec::getPyScriptDir() );
+    File::Path scriptfp( PresentationSpec::getPyScriptDir() );
     BufferString fnm( "python-pptx-" );
     fnm.add( Time::getDateTimeString(datefmt) );
     scriptfp.add( fnm ); scriptfp.setExtension( "py" );
 
-    FilePath logfp = scriptfp;
+    File::Path logfp = scriptfp;
     logfp.setExtension( "log" );
     logfilenm_ = logfp.fullPath();
     specs_.setLogFilename( logfilenm_ );

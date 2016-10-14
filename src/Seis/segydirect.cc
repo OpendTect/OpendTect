@@ -544,7 +544,7 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm,
 					    Pos::GeomID geomid )
 {
     mDeclStaticString( ret );
-    FilePath fp( dirnm );
+    File::Path fp( dirnm );
     BufferString nm( fp.fileName(), "^", toString(geomid) );
     fp.add( nm );
     fp.setExtension( "sgydef", false );
@@ -608,7 +608,7 @@ bool SEGY::FileIndexer::writeHistogramPars() const
     if ( !uirv.isOK() )
 	{ msg_ = uirv; return false; }
 
-    FilePath fp( ioobj_->fullUserExpr(true) );
+    File::Path fp( ioobj_->fullUserExpr(true) );
     fp.setExtension( "par" );
 
     IOPar iop;

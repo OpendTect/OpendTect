@@ -883,7 +883,7 @@ void uiODMenuMgr::fillUtilMenu()
 
     installmnu_ = new uiMenu( &appl_, tr("Installation") );
     utilmnu_->insertItem( installmnu_ );
-    FilePath installerdir( ODInst::GetInstallerDir() );
+    File::Path installerdir( ODInst::GetInstallerDir() );
     const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
     if ( hasinstaller && !__ismac__ )
     {

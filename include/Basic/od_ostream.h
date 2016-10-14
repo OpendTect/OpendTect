@@ -29,7 +29,7 @@ public:
 			od_ostream()				{}
 			od_ostream( const char* fnm, bool useexist=false )
 			    : od_stream(fnm,true,useexist)	{}
-			od_ostream( const FilePath& fp, bool useexist=false )
+			od_ostream( const File::Path& fp, bool useexist=false )
 			    : od_stream(fp,true,useexist)	{}
 			od_ostream( std::ostream* s )
 			    : od_stream(s)			{}

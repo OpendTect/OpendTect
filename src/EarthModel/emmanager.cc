@@ -390,7 +390,7 @@ bool EMManager::readParsFromDisplayInfoFile( const DBKey& mid,
 	return false;
 
     const BufferString filenm = Surface::getParFileName( *ioobjinfo.ioObj() );
-    FilePath fp( filenm );
+    File::Path fp( filenm );
     fp.setExtension( "par" );
     od_istream strm( fp );
 

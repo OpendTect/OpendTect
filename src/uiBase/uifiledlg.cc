@@ -113,7 +113,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, uiFileDialog::Type typ,
 
 int uiFileDialog::go()
 {
-    FilePath fp( fname_ );
+    File::Path fp( fname_ );
     fname_ = fp.fullPath();
     BufferString dirname;
     if ( !File::isDirectory(fname_) )
@@ -367,9 +367,9 @@ int uiFileDialog::processExternalFilenames( const char* dir,
     for ( int idx=0; idx<externalfilenames_->size(); idx++ )
     {
 	BufferString fname( (*externalfilenames_)[idx] );
-	FilePath fp( fname );
+	File::Path fp( fname );
 	if ( !fp.isAbsolute() )
-	    fp = FilePath( dir, fname );
+	    fp = File::Path( dir, fname );
 	fname = fp.fullPath();
 
 	if ( !idx && externalfilenames_->size()>1 && mode_!=ExistingFiles )

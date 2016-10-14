@@ -27,7 +27,7 @@ static const char* getSpecDir( const char* envvar, const char* defdir )
     mDefineStaticLocalObject( BufferString, retdir, = GetEnvVar(envvar) );
     if ( retdir.isEmpty() || !File::isDirectory(retdir) )
     {
-	retdir = FilePath( GetDataDir(), defdir ).fullPath();
+	retdir = File::Path( GetDataDir(), defdir ).fullPath();
 	File::createDir( retdir );
     }
     return retdir.buf();

@@ -32,7 +32,7 @@ int SeisCBVS2DLineIOProvider::factid_
 static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 {
     Pos::GeomID geomid = mUdfGeomID;
-    BufferString basenm = FilePath(fnm).baseName();
+    BufferString basenm = File::Path(fnm).baseName();
     char* capstr = basenm.find( mCapChar );
     if ( !capstr ) return geomid;
     capstr++;
@@ -50,7 +50,7 @@ const OD::String& SeisCBVS2DLineIOProvider::getFileName( const IOObj& obj,
     ret = obj.fullUserExpr();
     if ( ret.isEmpty() ) return ret;
 
-    FilePath fp( ret );
+    File::Path fp( ret );
     BufferString fnm = fp.fileName();
     fnm.add( mCapChar ).add( geomid );
     fp.add( fnm );
@@ -121,7 +121,7 @@ bool SeisCBVS2DLineIOProvider::removeImpl( const IOObj& obj,
 	return false;
 
     const bool ret = File::remove( fnm.buf() );
-    FilePath parfp( fnm );
+    File::Path parfp( fnm );
     parfp.setExtension( "par" );
     if ( File::exists(parfp.fullPath()) )
        File::remove( parfp.fullPath() );
@@ -142,7 +142,7 @@ bool SeisCBVS2DLineIOProvider::renameImpl( const IOObj& obj,
 	if ( geomid == mUdfGeomID )
 	    continue;
 
-	FilePath fp( dl.fullPath(idx) );
+	File::Path fp( dl.fullPath(idx) );
 	BufferString newfnm( newnm );
 	newfnm.add( mCapChar ).add( geomid );
 	fp.setFileName( newfnm );
@@ -150,7 +150,7 @@ bool SeisCBVS2DLineIOProvider::renameImpl( const IOObj& obj,
 	if ( !File::rename(dl.fullPath(idx),fp.fullPath()) )
 	    ret = false;
 
-	FilePath oldparfp( dl.fullPath(idx) );
+	File::Path oldparfp( dl.fullPath(idx) );
 	oldparfp.setExtension( "par" );
 	if ( !File::exists(oldparfp.fullPath()) )
 	    continue;
@@ -361,7 +361,7 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const IOObj& obj,
 {
     tr_->set2D( true );
     bid_.inl() = geomid;
-    FilePath fp( fname_ );
+    File::Path fp( fname_ );
     if ( !File::exists(fp.pathOnly()) )
 	File::createDir( fp.pathOnly() );
 

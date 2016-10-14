@@ -60,7 +60,7 @@ const char* DirList::fullPath( int idx ) const
 {
     mDeclStaticString( ret );
     if ( idx < size() )
-	ret = FilePath( dirName(), get(idx) ).fullPath();
+	ret = File::Path( dirName(), get(idx) ).fullPath();
     else
 	ret.setEmpty();
     return ret.buf();

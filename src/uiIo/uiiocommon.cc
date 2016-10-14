@@ -36,7 +36,7 @@ void uiSurvey::getDirectoryNames( BufferStringSet& list, bool addfullpath,
 	if ( excludenm && dirnm == excludenm )
 	    continue;
 
-	const FilePath fp( basedir, dirnm, SurveyInfo::sKeySetupFileName() );
+	const File::Path fp( basedir, dirnm, SurveyInfo::sKeySetupFileName() );
 	if ( File::exists(fp.fullPath()) )
 	{
 	    if ( addfullpath )
@@ -111,7 +111,7 @@ bool uiSurvey::unzipFile( uiParent* par, const char* inpfnm,
 	return false;
     }
 
-    FilePath surveypath( destdir, survnm );
+    File::Path surveypath( destdir, survnm );
     if ( File::exists(surveypath.fullPath()) )
     {
 	 uiString errmsg( od_static_tr("uiSurvey_UnzipFile",
@@ -153,7 +153,7 @@ bool uiSurvey::zipDirectory( uiParent* par, const char* sdn,
     BufferString survdirnm( sdn );
     if ( survdirnm.isEmpty() )
 	survdirnm = SI().getDirName();
-    FilePath survfp( GetBaseDataDir(), survdirnm );
+    File::Path survfp( GetBaseDataDir(), survdirnm );
     BufferString inpdir( survfp.fullPath() );
     while ( File::isDirectory(inpdir) && File::isLink(inpdir) )
 	inpdir = File::linkEnd(inpdir);
@@ -167,7 +167,7 @@ bool uiSurvey::zipDirectory( uiParent* par, const char* sdn,
     BufferString zipfnm( outfnm );
     if ( !zipfnm.isEmpty() )
     {
-	const FilePath fp( zipfnm );
+	const File::Path fp( zipfnm );
 	if ( !File::isWritable(fp.pathOnly()) )
 	{
 	    uiMSG().error(od_static_tr("uiSurvey_zipDirectory",
@@ -216,13 +216,13 @@ SurveyInfo* uiSurvey::copySurvey( uiParent* uiparent, const char* survnm,
 	    "A directory\n\n%1\n\nalready exists.\nPlease remove or rename it");
 
     const BufferString newsurvdirnm( SurveyInfo::dirNameForName(survnm) );
-    const BufferString todir = FilePath(targetpath,newsurvdirnm).fullPath();
+    const BufferString todir = File::Path(targetpath,newsurvdirnm).fullPath();
     if ( File::exists(todir) )
     {
 	uiMSG().error( alreadyexiststr.arg( todir ) );
         return 0;
     }
-    const BufferString linktodir = FilePath(dataroot,newsurvdirnm).fullPath();
+    const BufferString linktodir = File::Path(dataroot,newsurvdirnm).fullPath();
     if ( File::exists(linktodir) )
     {
 	if ( File::isLink(linktodir) )
@@ -234,7 +234,7 @@ SurveyInfo* uiSurvey::copySurvey( uiParent* uiparent, const char* survnm,
 	}
     }
 
-    const BufferString tocopydirfullpath = FilePath(dataroot,survdirnm)
+    const BufferString tocopydirfullpath = File::Path(dataroot,survdirnm)
 						.fullPath();
     const BufferString fromdir = File::linkEnd( tocopydirfullpath );
 

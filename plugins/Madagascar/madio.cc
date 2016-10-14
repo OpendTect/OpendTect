@@ -30,7 +30,7 @@ bool ODMad::FileSpec::fileNameOK( const char* fnm ) const
 {
     if ( !forread_ )
     {
-	FilePath fp( fnm );
+	File::Path fp( fnm );
 	if ( !File::isWritable(fp.pathOnly()) )
 	{
 	    errmsg_ = tr("Directory '%1' is not writable")
@@ -53,7 +53,7 @@ bool ODMad::FileSpec::set( const char* fnm, const char* maskfnm )
 {
     if ( !fnm || !*fnm )
     { errmsg_ = tr("No file name provided"); return false; }
-    FilePath fp( fnm );
+    File::Path fp( fnm );
     if ( !fp.isAbsolute() )
 	fp.set( GetDataDir() ).add( sKeyMadagascar() ).add( fnm );
     fnm_ = fp.fullPath();
@@ -95,7 +95,7 @@ bool ODMad::FileSpec::usePar( const IOPar& iop )
 const char* ODMad::FileSpec::defPath()
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetDataDir(), sKeyMadagascar() ).fullPath();
+    ret = File::Path( GetDataDir(), sKeyMadagascar() ).fullPath();
     return ret.buf();
 }
 
@@ -137,7 +137,7 @@ StreamData ODMad::FileSpec::doOpen( const char* fnm ) const
     }
     else
     {
-	FilePath fp( fnm );
+	File::Path fp( fnm );
 	const BufferString dirnm( fp.pathOnly() );
 	if ( !File::isDirectory(dirnm) )
 	    mErrRet(tr("Directory '%1' does not exist").arg( dirnm ))

@@ -229,7 +229,7 @@ int SEGY::Scanner::openNext()
 #ifdef __win__
     path.replace( '/', '\\' );
 #endif
-    FilePath fp( path );
+    File::Path fp( path );
     if ( !fp.isAbsolute() )
 	fp.insert( GetDataDir() );
     BufferString abspath = fp.fullPath();

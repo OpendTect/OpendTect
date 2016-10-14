@@ -64,7 +64,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
     }
 
     if ( dirname_.isEmpty() )
-	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
+	dirname_ = File::Path(GetDataDir()).add("Misc").fullPath();
     fileinputfld_ = new uiFileInput( this, mJoinUiStrs(sFile(), sName()),
 				    uiFileInput::Setup(uiFileDialog::Gen)
 				    .forread(false)
@@ -147,7 +147,7 @@ void uiWindowGrabDlg::fileSel( CallBacker* )
 
 void uiWindowGrabDlg::addFileExtension( BufferString& filename )
 {
-    FilePath fp( filename.buf() );
+    File::Path fp( filename.buf() );
     fp.setExtension( getExtension() );
     filename = fp.fullPath();
 }
@@ -178,7 +178,7 @@ bool uiWindowGrabDlg::acceptOK()
     if ( !filenameOK() )
 	return false;
 
-    FilePath filepath( fileinputfld_->fileName() );
+    File::Path filepath( fileinputfld_->fileName() );
     dirname_ = filepath.pathOnly();
     filename_ = filepath.fullPath();
     return true;
@@ -188,7 +188,7 @@ bool uiWindowGrabDlg::acceptOK()
 const char* uiWindowGrabDlg::getExtension() const
 {
     int ifmt = -1;
-    FilePath fp( fileinputfld_->fileName() );
+    File::Path fp( fileinputfld_->fileName() );
     const BufferString ext( fp.extension() );
     for ( int idx=0; imageformats[idx]; idx++ )
     {

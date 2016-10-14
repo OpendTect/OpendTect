@@ -53,7 +53,7 @@ bool odWellTranslator::implRemove( const IOObj* ioobj ) const
 {
     mImplStart(remove(false));
 
-    FilePath fp( filenm ); fp.setExtension( 0, true );
+    File::Path fp( filenm ); fp.setExtension( 0, true );
     const BufferString bnm = fp.fullPath();
     mRemove(Well::odIO::sExtMarkers(),0,)
     mRemove(Well::odIO::sExtD2T(),0,)
@@ -84,7 +84,7 @@ bool odWellTranslator::implRename( const IOObj* ioobj, const char* newnm,
 {
     mImplStart(rename(newnm,cb));
 
-    FilePath fp( filenm ); fp.setExtension( 0, true );
+    File::Path fp( filenm ); fp.setExtension( 0, true );
     const BufferString bnm = fp.fullPath();
     fp.set( newnm ); fp.setExtension( 0, true );
     const BufferString newbnm = fp.fullPath();

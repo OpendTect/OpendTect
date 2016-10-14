@@ -110,24 +110,24 @@ MadStream::~MadStream()
 
 static bool getScriptForScons( BufferString& str )
 {
-    FilePath fp( str.buf() );
+    File::Path fp( str.buf() );
     if ( fp.fileName() != "SConstruct" )
 	return false;
 
     const BufferString rsfroot = GetEnvVar("RSFROOT");
-    const FilePath sconsfp( rsfroot, "bin", "scons" );
+    const File::Path sconsfp( rsfroot, "bin", "scons" );
     if ( !File::exists(sconsfp.fullPath()) )
 	return false;
 
 #ifdef __win__
-    BufferString scriptfile = FilePath::getTempName( "bat" );
+    BufferString scriptfile = File::Path::getTempName( "bat" );
     StreamData sd = StreamProvider(scriptfile).makeOStream();
     *sd.ostrm << "@echo off" << std::endl;
     *sd.ostrm << "Pushd " << fp.pathOnly() << std::endl;
     *sd.ostrm << sconsfp.fullPath() << std::endl;
     *sd.ostrm << "Popd" << std::endl;
 #else
-    BufferString scriptfile = FilePath::getTempName();
+    BufferString scriptfile = File::Path::getTempName();
     StreamData sd = StreamProvider(scriptfile).makeOStream();
     *sd.ostrm << "#!/bin/csh -f" << std::endl;
     *sd.ostrm << "pushd " << fp.pathOnly() << std::endl;
@@ -159,7 +159,7 @@ void MadStream::initRead( IOPar* par )
 	if ( scons && !getScriptForScons(inpstr) )
 	    return;
 #ifdef __win__
-	FilePath fp( GetEnvVar("RSFROOT") );
+	File::Path fp( GetEnvVar("RSFROOT") );
 	if ( scons )
 	    inpstr += " | ";
 	else
@@ -285,13 +285,13 @@ BufferString MadStream::getPosFileName( bool forread ) const
 	BufferString outfnm =
 	    pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
 					sKey::FileName()) );
-	FilePath fp( outfnm );
+	File::Path fp( outfnm );
 	fp.setExtension( "pos" );
 	if ( !forread || File::exists(fp.fullPath()) )
 	    posfnm = fp.fullPath();
     }
     else if ( !forread )
-	posfnm = FilePath::getTempName( "pos" );
+	posfnm = File::Path::getTempName( "pos" );
 
     return posfnm;
 }
@@ -696,7 +696,7 @@ uiString MadStream::sNoPositionsInPosFile()
 	if ( obj.isEmpty() ) \
 	    mErrBoolRet( sNoPositionsInPosFile() ); \
 	strm.close(); \
-	if ( FilePath(posfnm).pathOnly() == FilePath::getTempDir() ) \
+	if ( File::Path(posfnm).pathOnly() == File::Path::getTempDir() ) \
 	    File::remove( posfnm ); \
     }
 

@@ -22,9 +22,9 @@ ________________________________________________________________________
 # include "keystrs.h"
 #endif
 
-void TextTranslateMgr::GetLocalizationDir( FilePath& res )
+void TextTranslateMgr::GetLocalizationDir( File::Path& res )
 {
-    res = FilePath( mGetSWDirDataDir(), "localizations" );
+    res = File::Path( mGetSWDirDataDir(), "localizations" );
 }
 
 
@@ -43,9 +43,9 @@ TextTranslatorLanguage::TextTranslatorLanguage( const char* localename )
 	.add(localename)
 	.add(".qm");
 
-    FilePath locdir;
+    File::Path locdir;
     TextTranslateMgr::GetLocalizationDir(locdir);
-    const FilePath odfile( locdir, filename );
+    const File::Path odfile( locdir, filename );
 
 #ifndef OD_NO_QT
     QTranslator maintrans;
@@ -117,13 +117,13 @@ bool TextTranslatorLanguage::load()
 	.add( localename_ )
 	.add( ".qm" );
 
-    FilePath basedir;
+    File::Path basedir;
     TextTranslateMgr::GetLocalizationDir(basedir);
     DirList dl( basedir.fullPath(), DirList::FilesOnly, filenamesearch.buf() );
 
     for( int idx=0; idx<dl.size(); idx++ )
     {
-	const FilePath filepath = dl.fullPath( idx );
+	const File::Path filepath = dl.fullPath( idx );
 	BufferString filename = filepath.baseName();
 
 	BufferString application;

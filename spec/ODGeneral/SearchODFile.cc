@@ -18,7 +18,7 @@ static const char* checkFile( const char* path, const char* subdir,
 {
     if ( !path || !subdir || !fname ) return 0;
 
-    FilePath fp( path, subdir, fname );
+    File::Path fp( path, subdir, fname );
 
     static BufferString ret;
     ret = fp.fullPath();

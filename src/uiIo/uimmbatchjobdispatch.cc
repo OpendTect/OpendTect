@@ -51,7 +51,7 @@ bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
 	return false;
     }
 
-    FilePath fp( argv[ 1 + bgadd ] );
+    File::Path fp( argv[ 1 + bgadd ] );
     const BufferString parfnm( fp.fullPath() );
     od_istream strm( parfnm );
     if ( !strm.isOK() )
@@ -397,7 +397,7 @@ void uiMMBatchJobDispatcher::vwLogPush( CallBacker* )
     if ( !hfi ) return;
 
     JobInfo* ji = jobrunner_->currentJob( hfi );
-    FilePath logfp( jobrunner_->getBaseFilePath(*ji, hfi->hostdata_) );
+    File::Path logfp( jobrunner_->getBaseFilePath(*ji, hfi->hostdata_) );
     logfp.setExtension( ".log", false );
 
     delete logvwer_;

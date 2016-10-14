@@ -68,16 +68,16 @@ mDefineNameSpaceEnumUtils(ODInst,RelType,"Release type")
 BufferString ODInst::GetRelInfoDir()
 {
 #ifdef __mac__
-    return FilePath( GetSoftwareDir(true), "Resources", "relinfo" ).fullPath();
+    return File::Path( GetSoftwareDir(true), "Resources", "relinfo" ).fullPath();
 #else
-    return FilePath( GetSoftwareDir(true), "relinfo" ).fullPath();
+    return File::Path( GetSoftwareDir(true), "relinfo" ).fullPath();
 #endif
 }
 
 
 ODInst::RelType ODInst::getRelType()
 {
-    FilePath relinfofp( GetRelInfoDir(), "README.txt" );
+    File::Path relinfofp( GetRelInfoDir(), "README.txt" );
     const BufferString reltxtfnm( relinfofp.fullPath() );
     od_istream strm( reltxtfnm );
     if ( !strm.isOK() )
@@ -120,7 +120,7 @@ bool ODInst::canInstall()
 
 
 #define mDefCmd(errretval) \
-    FilePath installerdir( getInstallerPlfDir() ); \
+    File::Path installerdir( getInstallerPlfDir() ); \
     if ( !File::isDirectory(installerdir.fullPath()) ) \
 	return errretval; \
     if ( __iswin__ ) \
@@ -139,7 +139,7 @@ BufferString ODInst::GetInstallerDir()
     if ( File::isLink(appldir) )
 	appldir = File::linkEnd( appldir );
 
-    FilePath installerdir( appldir );
+    File::Path installerdir( appldir );
     installerdir.setFileName( mInstallerDirNm );
     return installerdir.fullPath();
 }
@@ -154,7 +154,7 @@ void ODInst::startInstManagement()
     OS::ExecCommand( cmd, OS::RunInBG );
     File::changeDir( curpath.buf() );
 #else
-    FilePath installerdir( getInstallerPlfDir() );
+    File::Path installerdir( getInstallerPlfDir() );
     if ( installerdir.isEmpty() )
 	return;
     installerdir.add( "od_instmgr" );
@@ -170,7 +170,7 @@ void ODInst::startInstManagement()
 void ODInst::startInstManagementWithRelDir( const char* reldir )
 {
 #ifdef __win__
-    FilePath installerdir( getInstallerPlfDir() );
+    File::Path installerdir( getInstallerPlfDir() );
     if ( installerdir.isEmpty() )
 	return;
     installerdir.add( "od_instmgr" );
@@ -185,10 +185,10 @@ void ODInst::startInstManagementWithRelDir( const char* reldir )
 
 BufferString ODInst::getInstallerPlfDir()
 {
-    FilePath installerbasedir( GetInstallerDir() );
+    File::Path installerbasedir( GetInstallerDir() );
     if ( !File::isDirectory(installerbasedir.fullPath()) )
 	return "";
-    FilePath installerdir ( installerbasedir, "bin", __plfsubdir__, "Release" );
+    File::Path installerdir ( installerbasedir, "bin", __plfsubdir__, "Release" );
     const BufferString path = installerdir.fullPath();
     if ( !File::exists(path) || !File::isDirectory(path) )
 	return installerbasedir.fullPath();
@@ -218,7 +218,7 @@ bool ODInst::updatesAvailable()
     File::changeDir( curpath.buf() );
     return res == 1;
 # else
-    FilePath tmp( File::getTempPath(), "od_updt" );
+    File::Path tmp( File::getTempPath(), "od_updt" );
     mDefineStaticLocalObject(const bool,ret, = File::exists(tmp.fullPath()));
     if ( ret )
 	File::remove( tmp.fullPath() );
@@ -234,7 +234,7 @@ const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
     const BufferString part1( "ver.", file_pkg_basenm );
     BufferString fnm = part1;
     fnm.add( "_" ).add( OD::Platform::local().shortName() );
-    FilePath fp( GetRelInfoDir(), fnm );
+    File::Path fp( GetRelInfoDir(), fnm );
     fp.setExtension( "txt", false );
 
     fnm = fp.fullPath();

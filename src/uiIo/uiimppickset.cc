@@ -145,7 +145,7 @@ uiImpExpPickSet::~uiImpExpPickSet()
 void uiImpExpPickSet::inputChgd( CallBacker* )
 {
     storedid_.setInvalid();
-    FilePath fnmfp( filefld_->fileName() );
+    File::Path fnmfp( filefld_->fileName() );
     objfld_->setInputText( fnmfp.baseName() );
 }
 

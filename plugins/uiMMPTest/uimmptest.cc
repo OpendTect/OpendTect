@@ -47,7 +47,7 @@ uiMMPTestProc::uiMMPTestProc( uiParent* p, const IOPar& iop )
     setCaption( tr("Multi-Machine Processing Diagnostic Tool") );
     enableJobControl( false );
 
-    FilePath fp( iop.find(sKey::FileName()) );
+    File::Path fp( iop.find(sKey::FileName()) );
     fp.setExtension( ".log" );
     logstrm_ = new od_ostream( fp.fullPath() );
 

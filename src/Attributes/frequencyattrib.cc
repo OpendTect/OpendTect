@@ -140,7 +140,7 @@ Frequency::~Frequency()
 	    const char* data = (dumpset_.get(idx)).buf();
 	    if ( data && *data )
 	    {
-		FilePath fp( GetDataDir() );
+		File::Path fp( GetDataDir() );
 		BufferString filename( "frequency." );
 		filename += Stats::randGen().getIndex(mUdf(int));
 		filename = fp.add( filename ).fullPath();

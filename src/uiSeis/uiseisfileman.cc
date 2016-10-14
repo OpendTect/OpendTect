@@ -230,7 +230,7 @@ void uiSeisFileMan::setToolButtonProperties()
 	attribbut_->setSensitive( curioobj_ );
 	if ( curioobj_ )
 	{
-	     FilePath fp( curioobj_->fullUserExpr() );
+	     File::Path fp( curioobj_->fullUserExpr() );
 	     fp.setExtension( "proc" );
 	     attribbut_->setSensitive( File::exists(fp.fullPath()) );
 	     mSetButToolTip(attribbut_,tr("Show AttributeSet for "),
@@ -397,7 +397,7 @@ od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 	DirList dl( filenm, DirList::FilesOnly );
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
-	    FilePath filepath = dl.fullPath( idx );
+	    File::Path filepath = dl.fullPath( idx );
 	    FixedString ext = filepath.extension();
 	    if ( ext != "cbvs" )
 		continue;
@@ -507,7 +507,7 @@ void uiSeisFileMan::showAttribSet( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
-    FilePath fp( curioobj_->fullUserExpr() );
+    File::Path fp( curioobj_->fullUserExpr() );
     fp.setExtension( "proc" );
     File::launchViewer( fp.fullPath(), File::ViewPars() );
 }

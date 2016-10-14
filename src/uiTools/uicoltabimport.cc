@@ -112,7 +112,7 @@ void uiColTabImport::usrSel( CallBacker* )
 
     const bool fromuser = choicefld_->getBoolValue();
 
-    FilePath fp( dirfld_->fileName() );
+    File::Path fp( dirfld_->fileName() );
     if ( !File::exists(fp.fullPath()) )
     {
 	uiMSG().error(uiStrings::phrSelect(tr("an existing %1")

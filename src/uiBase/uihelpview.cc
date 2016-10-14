@@ -94,8 +94,8 @@ static const char* fileprot = "file:///";
 
 void FlareHelpProvider::initHelpSystem( const char* context, const char* path )
 {
-    FilePath subpath( path, mHtmlFileName );
-    FilePath basefile = GetDocFileDir( "" );
+    File::Path subpath( path, mHtmlFileName );
+    File::Path basefile = GetDocFileDir( "" );
     basefile.add( subpath.fullPath() );
 
     BufferString url;
@@ -141,12 +141,12 @@ BufferString DevDocHelp::getUrl() const
     if ( !foundclspkg )
 	return BufferString( sKey::EmptyString() );
 
-    FilePath basefile = mGetProgrammerDocDir();
+    File::Path basefile = mGetProgrammerDocDir();
     basefile.add( "index.html" );
     if ( !File::exists( basefile.fullPath()) )
 	return BufferString( sKey::EmptyString() );
 
-    return BufferString( fileprot, basefile.fullPath(FilePath::Unix) );
+    return BufferString( fileprot, basefile.fullPath(File::Path::Unix) );
 }
 
 

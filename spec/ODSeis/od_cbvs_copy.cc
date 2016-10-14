@@ -31,7 +31,7 @@ static int doWork( int argc, char** argv )
     int argidx = 0;
     if ( argc < 3 )
     {
-	FilePath fp( argv[0] );
+	File::Path fp( argv[0] );
 	std::cerr << "Usage: " << fp.fileName()
 		  << " [--2d] [--format 0] [--scale 1] inpfile outpfile"
 		  << std::endl;
@@ -55,7 +55,7 @@ static int doWork( int argc, char** argv )
 	if ( !argv[argidx] ) break;
     }
 
-    FilePath fp( argv[argidx] ); argidx++;
+    File::Path fp( argv[argidx] ); argidx++;
     if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;

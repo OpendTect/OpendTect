@@ -182,7 +182,7 @@ void uiPluginMan::loadPush( CallBacker* )
     else if ( !PIM().load(fnm) )
 	uiMSG().error( tr("Couldn't load plugin") );
     else
-	{ loaddir = FilePath(fnm).pathOnly(); fillList(); selChg(0); }
+	{ loaddir = File::Path(fnm).pathOnly(); fillList(); selChg(0); }
 }
 
 

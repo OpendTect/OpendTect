@@ -153,7 +153,7 @@ void uiWellImportAsc::haveTrckSel( CallBacker* )
 
 void uiWellImportAsc::inputChgd( CallBacker* )
 {
-    FilePath fnmfp( trckinpfld_->fileName() );
+    File::Path fnmfp( trckinpfld_->fileName() );
     outfld_->setInputText( fnmfp.baseName() );
     kbelevfld_->setValue(0);
     tdfld_->setChecked( false );

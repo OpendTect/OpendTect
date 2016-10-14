@@ -88,7 +88,7 @@ bool FaultAuxData::init()
     if ( !ioobj || ioinfo.type()!=IOObjInfo::Fault )
 	return false;
 
-    FilePath fp( ioobj->fullUserExpr(true) );
+    File::Path fp( ioobj->fullUserExpr(true) );
     fp.setExtension( "" );
     fltfullnm_ = fp.fullPath();
 
@@ -218,7 +218,7 @@ void FaultAuxData::removeAllData()
 	File::remove( attrnm );
     }
 
-    FilePath fp( fltfullnm_ );
+    File::Path fp( fltfullnm_ );
     fp.setExtension( sKeyExtension() );
     File::remove( fp.fullPath() );
 }
@@ -230,7 +230,7 @@ void FaultAuxData::renameFault( const char* fltnewname )
 	return;
 
     const BufferString oldfltfulnm = fltfullnm_;
-    FilePath fp( fltfullnm_ );
+    File::Path fp( fltfullnm_ );
     fp.setFileName( fltnewname );
     fltfullnm_ = fp.fullPath();
 
@@ -239,12 +239,12 @@ void FaultAuxData::renameFault( const char* fltnewname )
 	const BufferString newname = createFltDataName( fltfullnm_, idx );
 	const BufferString oldname = createFltDataName( oldfltfulnm, idx );
 
-	FilePath fn( newname );
+	File::Path fn( newname );
 	dataset_[idx]->filename = fn.fileName();
 	File::rename( oldname, newname );
     }
 
-    FilePath oldfp( oldfltfulnm );
+    File::Path oldfp( oldfltfulnm );
     oldfp.setExtension( sKeyExtension() );
     File::remove( oldfp.fullPath() );
     for ( int idx=0; idx<dataset_.size(); idx++ )
@@ -257,9 +257,9 @@ void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
     if ( !dataset_.validIdx(sdidx) )
 	return;
 
-    FilePath fp( fltfullnm_ );
+    File::Path fp( fltfullnm_ );
     fp.setExtension( sKeyExtension() );
-    FilePath backupfp(fp);
+    File::Path backupfp(fp);
     backupfp.setExtension(".old");
 
     if ( File::exists(fp.fullPath()) )
@@ -275,7 +275,7 @@ void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
     ascostream astream( sfio.ostrm() );
     astream.putHeader( sKeyFaultAuxData() );
 
-    FilePath fpnm( fltfullnm_ );
+    File::Path fpnm( fltfullnm_ );
     BufferString filenm( fpnm.fileName() );
     filenm.clean();
 
@@ -324,7 +324,7 @@ void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
 void FaultAuxData::readSDInfoFile( ObjectSet<IOPar>& sdnmpars )
 {
     deepErase( sdnmpars );
-    FilePath fp( fltfullnm_ );
+    File::Path fp( fltfullnm_ );
     fp.setExtension( sKeyExtension() );
 
     SafeFileIO sfio( fp.fullPath(), false );
@@ -374,9 +374,9 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
 	mErrRtn(tr("No valid surface data to store"));
 
     const BufferString fltsdnm = createFltDataName( fltfullnm_, sdidx );
-    FilePath fp( fltsdnm );
+    File::Path fp( fltsdnm );
 
-    FilePath backupfp(fp);
+    File::Path backupfp(fp);
     backupfp.setExtension(".old");
     if ( File::exists(fp.fullPath()) )
 	File::copy( fp.fullPath(), backupfp.fullPath() );
@@ -394,7 +394,7 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
 
     IOPar sdinfo;
     sdinfo.setYN( sKey::Binary(), binary );
-    FilePath fpnm( fltfullnm_ );
+    File::Path fpnm( fltfullnm_ );
     sdinfo.set( "RowSize", dataset_[sdidx]->data->info().getSize(0) );
     sdinfo.set( "ColSize", dataset_[sdidx]->data->info().getSize(1) );
     sdinfo.putTo( astream );
@@ -460,7 +460,7 @@ bool FaultAuxData::loadData( int sdidx )
 	mErrRtn(tr("Surface data does not exist"));
 
     const BufferString fltsdnm = createFltDataName( fltfullnm_, sdidx );
-    FilePath fp( fltsdnm );
+    File::Path fp( fltsdnm );
 
     if ( !File::exists(fp.fullPath()) )
 	mErrRtn(tr("Surface data does not exist"));

@@ -61,7 +61,7 @@ mGlobal(Basic) bool		isExecutable(const char*);
 mGlobal(Basic) bool		makeExecutable(const char*,bool yesno);
 mGlobal(Basic) bool		setPermissions(const char*,const char* perms,
 					bool recursive);
-mGlobal(Basic) bool		isFileInUse(const char* fnm);
+mGlobal(Basic) bool		isInUse(const char* fnm);
 
 mGlobal(Basic) bool		createDir(const char*);
 mGlobal(Basic) bool		rename(const char* oldname,const char* newname);

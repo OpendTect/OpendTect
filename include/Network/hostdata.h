@@ -61,18 +61,18 @@ public:
     void		setPlatform(const OD::Platform&);
     const OD::Platform& getPlatform() const;
     bool		isWindows() const;
-    FilePath::Style	pathStyle() const;
+    File::Path::Style	pathStyle() const;
 			//! As is on remote host.
-    const FilePath&	prefixFilePath(PathType) const;
+    const File::Path&	prefixFilePath(PathType) const;
 
-    const FilePath&	getDataRoot() const;
-    void		setDataRoot(const FilePath&);
+    const File::Path&	getDataRoot() const;
+    void		setDataRoot(const File::Path&);
 
-    FilePath		convPath( PathType pt, const FilePath&,
+    File::Path		convPath( PathType pt, const File::Path&,
 				  const HostData* from = 0 ) const;
-    FilePath		convPath( PathType pt, const char* fn,
+    File::Path		convPath( PathType pt, const char* fn,
 				  const HostData* from = 0 ) const
-			{ return convPath(pt, FilePath(fn), from ); }
+			{ return convPath(pt, File::Path(fn), from ); }
 
     static const char*	localHostName();
     void		setLocalHost( const HostData& hd )
@@ -92,8 +92,8 @@ protected:
     BufferString	ipaddress_;
     BufferStringSet	aliases_;
     OD::Platform	platform_;
-    FilePath		appl_pr_;
-    FilePath		data_pr_;
+    File::Path		appl_pr_;
+    File::Path		data_pr_;
     const HostData*	localhd_;
 
     friend class	HostDataList;

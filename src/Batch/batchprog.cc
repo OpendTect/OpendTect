@@ -98,7 +98,7 @@ void BatchProgram::init()
     BufferString parfilnm;
     for ( int idx=normalargs.size()-1; idx>=0; idx-- )
     {
-	const FilePath parfp( normalargs.get(idx) );
+	const File::Path parfp( normalargs.get(idx) );
 
 	parfilnm = parfp.fullPath();
 	parfilnm.replace( '%', ' ' );
@@ -297,7 +297,7 @@ bool BatchProgram::initOutput()
     {
 	BufferString cmd = "@";
 	cmd += "\"";
-	cmd += FilePath(GetExecPlfDir()).add("od_ProgressViewer").fullPath();
+	cmd += File::Path(GetExecPlfDir()).add("od_ProgressViewer").fullPath();
 	cmd += "\" ";
 
 	cmd += GetPID();

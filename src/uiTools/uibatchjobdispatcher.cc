@@ -336,7 +336,7 @@ bool uiSingleBatchJobDispatcherLauncher::go( uiParent* p )
 	    return false;
 	}
 
-	const FilePath localbasedatadir( GetBaseDataDir() );
+	const File::Path localbasedatadir( GetBaseDataDir() );
 	if ( localbasedatadir != localhost->getDataRoot() )
 	{
 	    uiMSG().error( tr("Current Data Root: '%1'\ndoes not match path in"

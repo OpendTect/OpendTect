@@ -46,7 +46,7 @@ bool TestTranslator::testTranslation()
     uiString join = uiStrings::phrJoinStrings( a, b );
 
     QTranslator trans;
-    FilePath path;
+    File::Path path;
     TextTranslateMgr::GetLocalizationDir( path );
     path.add( "uistring.qm" );
     mRunStandardTest( trans.load( QString(path.fullPath().buf())),

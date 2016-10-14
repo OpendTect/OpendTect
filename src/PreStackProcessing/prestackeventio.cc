@@ -296,7 +296,7 @@ bool EventReader::readSamplingData( const IOObj& ioobj,
     if ( !File::isDirectory(fnm.buf()) )
 	return false;
 
-    FilePath horidfnm;
+    File::Path horidfnm;
     horidfnm.setFileName( EventReader::sAuxDataFileName() );
     horidfnm.setPath( fnm );
 
@@ -429,7 +429,7 @@ bool EventReader::readAuxData(const char* fnm)
     if ( eventmanager_->getHorizonIDs().size() )
 	return true; //The version in mem is newer - keep it
 
-    FilePath horidfnm;
+    File::Path horidfnm;
     horidfnm.setPath( fnm );
     horidfnm.add( EventReader::sAuxDataFileName() );
 
@@ -617,7 +617,7 @@ int EventWriter::nextStep()
 	    filenamebase += hrg.stop_.crl();
 
 
-	    FilePath filename;
+	    File::Path filename;
 	    filename.setPath( fnm.buf() );
 	    filename.add( filenamebase.buf() );
 	    filename.setExtension( PSEventTranslatorGroup::sDefExtension() );
@@ -706,7 +706,7 @@ bool EventWriter::writeAuxData( const char* fnm )
     if ( !dipsource.isEmpty() )
 	auxinfo_.set( EventReader::sKeySecondaryDipSource(), dipsource.buf() );
 
-    FilePath horidfnm;
+    File::Path horidfnm;
     horidfnm.setPath( fnm );
     horidfnm.add( EventReader::sAuxDataFileName() );
 
@@ -816,7 +816,7 @@ int EventDuplicator::nextStep()
 	return ErrorOccurred();
     }
 
-    FilePath targetfile( filestocopy_[idx]->buf() );
+    File::Path targetfile( filestocopy_[idx]->buf() );
     targetfile.setPath( tonm.buf() );
 
     message_ = tr( "Copying %1.").arg( targetfile.fileName() );

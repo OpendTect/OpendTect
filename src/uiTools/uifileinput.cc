@@ -149,7 +149,7 @@ void uiFileInput::setFileName( const char* s )
     if ( displaylocalpath_ )
     {
 	BufferString fname = fileName();
-	BufferString seldir = FilePath(defseldir_).fullPath();
+	BufferString seldir = File::Path(defseldir_).fullPath();
 	if ( fname.startsWith(seldir) )
 	{
 	    const char* ptr = fname.buf() + seldir.size();
@@ -182,7 +182,7 @@ void uiFileInput::fnmEntered( CallBacker* )
     if ( forread_ || defaultext_.isEmpty() || inDirectorySelectMode() )
 	return;
 
-    FilePath fp( fileName() );
+    File::Path fp( fileName() );
     const FixedString ext = fp.extension();
     if ( !ext.isEmpty() )
 	return;
@@ -243,7 +243,7 @@ void uiFileInput::doSelect( CallBacker* )
 	newfname = dlg->fileName();
 	if ( !forread_ && !defaultext_.isEmpty() && !inDirectorySelectMode() )
 	{
-	    FilePath fp( newfname );
+	    File::Path fp( newfname );
 	    const FixedString ext = fp.extension();
 	    if ( ext.isEmpty() )
 		fp.setExtension( defaultext_ );
@@ -271,14 +271,14 @@ const char* uiFileInput::fileName() const
 	fname += "\\";
 #endif
 
-    FilePath fp( fname );
+    File::Path fp( fname );
     if ( !fp.isAbsolute() && !defseldir_.isEmpty() )
     {
 	fp.insert( defseldir_ );
 	fname = fp.fullPath(); //fname is cleaned here.
     }
     else
-	fname = FilePath::mkCleanPath( fname, FilePath::Local );
+	fname = File::Path::mkCleanPath( fname, File::Path::Local );
 
     return fname;
 }

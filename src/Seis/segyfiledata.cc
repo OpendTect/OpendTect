@@ -187,10 +187,10 @@ bool SEGY::FileDataSet::usePar( const IOPar& par )
 	if ( !filepars->get( sKey::FileName(), filenm ) )
 	    return false;
 
-	FilePath filepath( filenm );
+	File::Path filepath( filenm );
 	if ( !filepath.isAbsolute() )
 	{
-	    FilePath absolutepath( GetBaseDataDir() );
+	    File::Path absolutepath( GetBaseDataDir() );
 	    absolutepath.add( SI().getDirName() );
 	    absolutepath.add( filenm );
 	    if ( File::exists( absolutepath.fullPath().str() ) )
@@ -232,7 +232,7 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
     par.set( sKeyNrUsable, nrusable_ );
     Seis::putInPar( geom_, par );
 
-    FilePath survdirname( GetBaseDataDir() );
+    File::Path survdirname( GetBaseDataDir() );
     survdirname.add( SI().getDirName() );
     survdirname.makeCanonical();
 

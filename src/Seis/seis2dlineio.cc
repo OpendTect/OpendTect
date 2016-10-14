@@ -129,7 +129,7 @@ bool SeisTrc2DTranslator::implRename( const IOObj* ioobj,
     const bool isro = implReadOnly( ioobj );
     BufferString oldname( oldioobj->name() );
     Seis2DDataSet ds( *ioobj );
-    if ( !ds.rename(FilePath(newnm).fileName()) )
+    if ( !ds.rename(File::Path(newnm).fileName()) )
 	return false;
 
     implSetReadOnly( ioobj, isro );

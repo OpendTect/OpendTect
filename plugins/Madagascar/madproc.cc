@@ -20,7 +20,7 @@ bool ODMad::Proc::progExists( const char* prog )
     const BufferString rsfroot = GetEnvVar( "RSFROOT" );
     if ( !rsfroot || !*rsfroot ) return false;
 
-    FilePath fp( rsfroot, "bin", prog );
+    File::Path fp( rsfroot, "bin", prog );
 #if __win__
     fp.setExtension( "exe" );
 #endif
@@ -111,7 +111,7 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 		    *endquote = '\0';
 	    }
 
-	    FilePath fp( filenm.buf() );
+	    File::Path fp( filenm.buf() );
 	    if ( !fp.isAbsolute() )
 	    {
 		BufferString filepath = fp.fullPath();
