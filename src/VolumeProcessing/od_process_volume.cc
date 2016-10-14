@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
 
+#include "jobcommunic.h"
 #include "volprocchainoutput.h"
 #include "moddepmgr.h"
 
@@ -19,6 +20,12 @@ bool BatchProgram::go( od_ostream& strm )
 
     VolProc::ChainOutput vco;
     vco.usePar( pars() );
+    if ( comm_ )
+    {
+	comm_->setState( JobCommunic::Working );
+	comm_->sendState();
+    }
+
     if ( !vco.go(strm) )
 	return false;
 
