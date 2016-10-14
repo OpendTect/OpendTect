@@ -72,7 +72,7 @@ set( OD_MODULE_SOURCES
 	factory.cc
 	file.cc
 	filepath.cc
-	filespec.cc
+	filemultispec.cc
 	genc.cc
 	gpuprog.cc
 	globexpr.cc
