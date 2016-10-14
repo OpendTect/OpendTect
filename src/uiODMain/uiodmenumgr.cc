@@ -54,7 +54,6 @@ ________________________________________________________________________
 static const char* sKeyIconSetNm = "Icon set name";
 static const char* ascic = "ascii";
 
-
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     : appl_(*a)
     , dTectTBChanged(this)
@@ -63,6 +62,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     , measuretoolman_(0)
     , inviewmode_(false)
     , langmnu_(0)
+    , plugintb_(0)
 {
     surveymnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sSurvey()) );
     analmnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sAnalysis()) );
@@ -94,6 +94,12 @@ uiODMenuMgr::~uiODMenuMgr()
     delete appl_.removeToolBar( dtecttb_ );
     delete appl_.removeToolBar( viewtb_ );
     delete appl_.removeToolBar( mantb_ );
+    if ( plugintb_ )
+	delete appl_.removeToolBar( plugintb_ );
+
+    for ( int idx=0; idx<customtbs_.size(); idx++ )
+	delete appl_.removeToolBar( customtbs_[idx] );
+
     delete helpmgr_;
     delete faulttoolman_;
     delete measuretoolman_;
@@ -677,7 +683,7 @@ void uiODMenuMgr::fillAnalMenu()
 	mInsertPixmapItem( analmnu_, m3Dots(uiStrings::sAttribute(mPlural)),
 			   mEditAttrMnuItm, attrpm)
 	analmnu_->insertSeparator();
-	
+
 	analmnu_->insertItem( new uiAction( m3Dots(tr("Volume Builder")),
 	    survtype != SurveyInfo::Only2D
 				    ? mCB(&applMgr(),uiODApplMgr,doVolProc3DCB)
@@ -1560,10 +1566,38 @@ void uiODMenuMgr::showLogFile()
 }
 
 
+uiToolBar* uiODMenuMgr::pluginTB()
+{
+    if ( !plugintb_ )
+	plugintb_ = new uiToolBar( &appl_, tr("Third-party Plugins") );
+
+    return plugintb_;
+}
+
+
+uiToolBar* uiODMenuMgr::customTB( const char* nm )
+{
+    uiToolBar* tb = appl_.findToolBar( nm );
+    if ( !tb )
+    {
+	tb = new uiToolBar( &appl_, toUiString(nm) );
+	customtbs_.add( tb );
+    }
+
+    return tb;
+}
+
+
 void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 {
     dtecttb_->clear();
     mantb_->clear();
+    if ( plugintb_ )
+	plugintb_->clear();
+
+    for ( int idx=0; idx<customtbs_.size(); idx++ )
+	customtbs_[idx]->clear();
+
     fillDtectTB( &applMgr() );
     fillManTB();
 }

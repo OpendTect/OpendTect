@@ -66,6 +66,8 @@ public:
     uiToolBar*		dtectTB()		{ return dtecttb_; }
     uiToolBar*		viewTB()		{ return viewtb_; }
     uiToolBar*		manTB()			{ return mantb_; }
+    uiToolBar*		pluginTB();
+    uiToolBar*		customTB(const char*);
 
 			// Probably not needed by plugins
     void		updateStereoMenu();
@@ -126,6 +128,8 @@ protected:
     uiToolBar*		dtecttb_;
     uiToolBar*		viewtb_;
     uiToolBar*		mantb_;
+    uiToolBar*		plugintb_;
+    ObjectSet<uiToolBar> customtbs_;
 
     uiODFaultToolMan*	faulttoolman_;
     MeasureToolMan*	measuretoolman_;
