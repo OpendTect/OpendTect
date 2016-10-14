@@ -49,11 +49,11 @@ bool VolProc::Processor::run( od_ostream& strm, JobCommunic* comm )
     for ( int idx=0; idx<nrgeoms; idx++ )
     {
 	PtrMan<IOPar> geompar = subselpar->subselect( idx );
-	if ( !geompar )
+	if ( !geompar && nrgeoms > 1 )
 	    return false;
 
 	TrcKeyZSampling tkzs;
-	tkzs.usePar( *geompar );
+	tkzs.usePar( geompar ? *geompar : *subselpar );
 	const BufferString geomname =
 		Survey::GM().getName( tkzs.hsamp_.getGeomID() );
 	if ( tkzs.is2D() )

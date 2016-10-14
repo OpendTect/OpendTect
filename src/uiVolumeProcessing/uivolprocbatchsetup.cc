@@ -154,8 +154,7 @@ bool uiBatchSetup::fillPar()
 	TrcKeyZSampling tkzs;
 	subsel_->getSampling( tkzs );
 	IOPar tkzspar;
-	tkzs.fillPar( tkzspar );
-	subselpar.mergeComp( tkzspar, toString(0) );
+	tkzs.fillPar( subselpar );
     }
 
     par.mergeComp( subselpar, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
