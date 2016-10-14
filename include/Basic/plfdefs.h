@@ -236,6 +236,13 @@ Always defined:
 # define mStopAllowDeprecatedSection
 #endif
 
+#ifdef __win__
+# define mODRestrict __restrict
+# else
+# define mODRestrict __restrict__
+#endif
+
+
 /* And, probably unnecessary, for external header files: */
 #ifndef NeedFunctionPrototypes
 # define NeedFunctionPrototypes 1
