@@ -71,6 +71,8 @@ public:
     SynthFVSpecificDispPars&		dispPars() 	{ return disppars_; }
     const SynthFVSpecificDispPars&	dispPars() const
 							{ return disppars_; }
+    RefMan<ReflectivityModelSet>	getRefModels();
+    void		setRefModels(const RefMan<ReflectivityModelSet>&);
 
 protected:
 					SyntheticData(const SynthGenParams&,

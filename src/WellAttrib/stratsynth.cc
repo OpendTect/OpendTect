@@ -752,26 +752,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     {
 	if ( !ispsbased )
 	{
-	    ObjectSet<SeisTrcBuf> tbufs;
-	    synthgen->getTraces( tbufs );
-	    ObjectSet<PreStack::Gather> gatherset;
-	    while ( tbufs.size() )
-	    {
-		PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
-		RefMan<PreStack::Gather> gather = new PreStack::Gather();
-		if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
-		    { continue; }
-
-		gather->ref();
-		gatherset += gather;
-	    }
-
-	    PreStack::GatherSetDataPack* dp =
-		new PreStack::GatherSetDataPack( synthgenpar.name_, gatherset );
-
-	    deepUnRef( gatherset );
-
-	    sd = new PreStack::PreStackSyntheticData( synthgenpar, *dp );
+	    sd = synthgen->createSyntheticData( synthgenpar );
 	    mDynamicCastGet(PreStack::PreStackSyntheticData*,presd,sd);
 	    if ( rms )
 	    {
@@ -817,14 +798,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	}
     }
     else if ( synthgenpar.synthtype_ == SynthGenParams::ZeroOffset )
-    {
-	SeisTrcBuf* dptrcbuf = new SeisTrcBuf( true );
-	synthgen->getStackedTraces( *dptrcbuf );
-	SeisTrcBufDataPack* dp =
-	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line,
-				    SeisTrcInfo::TrcNr, synthgenpar.name_ );
-	sd = new PostStackSyntheticData( synthgenpar, *dp );
-    }
+	sd = synthgen->createSyntheticData( synthgenpar );
 
     if ( !sd )
 	return 0;

@@ -513,7 +513,7 @@ bool Server::hasSynthetic() const
     if ( !dataplayer_ )
 	return false;
 
-    return dataplayer_->isOKSynthetic() && !wellid_.isValid();
+    return dataplayer_->isOKSynthetic() && wellid_.isValid();
 }
 
 

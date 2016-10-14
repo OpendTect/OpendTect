@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "synthseis.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
+#include "stratsynthgenparams.h"
 #include "statruncalc.h"
 #include "ioobjctxt.h"
 #include "ioobj.h"
@@ -498,13 +499,18 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 	mErrRet( uiStrings::phrCannotCreate(
 		tr("synthetic: %1").arg(gen.errMsg())) )
 
-    RaySynthGenerator::RayModel& rm = gen.result( 0 );
-    RefMan<ReflectivityModelSet> refmodels = rm.getRefs( true );
+    SynthGenParams synthgenpar;
+    synthgenpar.raypars_ = par;
+    SyntheticData* sd = gen.createSyntheticData( synthgenpar );
+    if ( !sd )
+	return false;
+
+    RefMan<ReflectivityModelSet> refmodels = sd->getRefModels();
     if ( refmodels->isEmpty() )
 	mErrRet( tr("Cannot retrieve the reflectivities after ray-tracing") )
 
     refmodel_ = const_cast<ReflectivityModel&>(*refmodels->get( 0 ));
-    data_.synthtrc_ = *rm.stackedTrc();
+    data_.synthtrc_ = *sd->getTrace( 0 );
     data_.setTraceRange( data_.synthtrc_.zRange() );
     //requested range was too small
 

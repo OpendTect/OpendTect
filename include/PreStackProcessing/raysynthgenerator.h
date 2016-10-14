@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
+#include "syntheticdata.h"
 #include "synthseis.h"
 
 class SeisTrc;
@@ -64,8 +65,7 @@ public:
     void		forceReflTimes(const StepInterval<float>&);
 
     //available after initialization
-    void		getAllRefls(RefMan<ReflectivityModelSet>&,
-				    bool sampled=false);
+    void		getAllRefls(RefMan<ReflectivityModelSet>&);
 
     uiString		uiMessage() const
 			{ return errmsg_.isEmpty() ? message_ : errmsg_; }
@@ -80,6 +80,7 @@ public:
     const TypeSet<ElasticModel>& elasticModels() const	{ return *aimodels_; }
     void		getTraces(ObjectSet<SeisTrcBuf>&);
     void		getStackedTraces(SeisTrcBuf&);
+    SyntheticData*	createSyntheticData(const SynthGenParams&);
 
 protected:
     RayTracerRunner*		rtr_;

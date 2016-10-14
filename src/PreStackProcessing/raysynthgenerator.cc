@@ -8,11 +8,16 @@
 
 #include "raysynthgenerator.h"
 
+#include "prestackgather.h"
+#include "prestacksyntheticdata.h"
 #include "raytrace1d.h"
 #include "raytracerrunner.h"
 #include "seisbuf.h"
+#include "seisbufadapters.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
+#include "stratsynthgenparams.h"
+#include "syntheticdataimpl.h"
 
 #define mErrRet(msg, retval) { errmsg_ = msg; return retval; }
 #define mpErrRet(msg, retval) { pErrMsg(msg); return retval; }
@@ -248,8 +253,7 @@ void RaySynthGenerator::forceReflTimes( const StepInterval<float>& si)
 }
 
 
-void RaySynthGenerator::getAllRefls( RefMan<ReflectivityModelSet>& refs,
-				     bool sampled )
+void RaySynthGenerator::getAllRefls( RefMan<ReflectivityModelSet>& refs )
 {
     if ( !raymodels_ || raymodels_->isEmpty() ) return;
 
@@ -360,4 +364,47 @@ void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )
 	trc->info().coord_ = Coord::udf();
 	seisbuf.add( trc );
     }
+}
+
+
+SyntheticData* RaySynthGenerator::createSyntheticData(
+					const SynthGenParams& synthgenpar )
+{
+    SyntheticData* sd = 0;
+    if ( synthgenpar.synthtype_ == SynthGenParams::PreStack )
+    {
+	ObjectSet<SeisTrcBuf> tbufs;
+	getTraces( tbufs );
+	ObjectSet<PreStack::Gather> gatherset;
+	while ( tbufs.size() )
+	{
+	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
+	    RefMan<PreStack::Gather> gather = new PreStack::Gather();
+	    if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
+		continue;
+
+	    gather->ref();
+	    gatherset += gather;
+	}
+
+	PreStack::GatherSetDataPack* dp =
+		new PreStack::GatherSetDataPack( synthgenpar.name_, gatherset );
+	deepUnRef( gatherset );
+	sd = new PreStack::PreStackSyntheticData( synthgenpar, *dp );
+    }
+    else
+    {
+	SeisTrcBuf* dptrcbuf = new SeisTrcBuf( true );
+	getStackedTraces( *dptrcbuf );
+	SeisTrcBufDataPack* dp =
+	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line,
+				    SeisTrcInfo::TrcNr, synthgenpar.name_ );
+	sd = new PostStackSyntheticData( synthgenpar, *dp );
+	RefMan<ReflectivityModelSet> reflmodels = new ReflectivityModelSet;
+	getAllRefls( reflmodels );
+	sd->setRefModels( reflmodels );
+    }
+
+    sd->useGenParams( synthgenpar );
+    return sd;
 }

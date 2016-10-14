@@ -176,6 +176,18 @@ void SyntheticData::useDispPar( const IOPar& par )
 }
 
 
+void SyntheticData::setRefModels(const RefMan<ReflectivityModelSet>& refmodels)
+{
+    refmodels_ = refmodels;
+}
+
+
+RefMan<ReflectivityModelSet> SyntheticData::getRefModels()
+{
+    return refmodels_;
+}
+
+
 //PostStackSyntheticData
 PostStackSyntheticData::PostStackSyntheticData( const SynthGenParams& sgp,
 						SeisTrcBufDataPack& dp)
