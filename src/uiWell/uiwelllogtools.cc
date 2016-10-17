@@ -614,8 +614,6 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 {
     const RowCol& rc = table_->notifiedCell();
 
-    const int initiallogsize = log_.size();
-
     if ( rc.row()<0 || rc.row()>=log_.size() )
 	return;
     const bool mdchanged = rc.col() == 0;
@@ -662,8 +660,6 @@ void uiWellLogEditor::valChgCB( CallBacker* )
     else
 	log_.setValue( rc.row(), newval );
 
-    const int finallogsize = log_.size();
-
     changed_ = true;
     valueChanged.trigger();
 }
@@ -685,9 +681,6 @@ void uiWellLogEditor::rowDelCB( CallBacker* )
 void uiWellLogEditor::rowInsertCB( CallBacker* )
 {
     int rownr = table_->currentRow();
-
-    const int initiallogsize = log_.size();
-    
     float prevmdval = 0.f;
     float nextmdval = 0.f;
 	
@@ -699,8 +692,6 @@ void uiWellLogEditor::rowInsertCB( CallBacker* )
 
     log_.insertAtDah( (prevmdval+nextmdval)/2, 0.f );
     
-    const int finallogsize = log_.size();
-
     valueChanged.trigger();
 }
 
