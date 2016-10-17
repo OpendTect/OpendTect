@@ -594,7 +594,7 @@ bool uiSurveyInfoEditor::setRanges()
     const bool zinfeet = !depthdispfld_->getBoolValue();
 
     si_.setZUnit( zistime, zinfeet );
-    si_.defaultPars().setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
+    si_.defpars_.setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
 
     const float srd = refdatumfld_->getFValue();
     const UnitOfMeasure* datauom = zistime || !zinfeet ? UoMR().get( "Meter" )
@@ -619,8 +619,8 @@ bool uiSurveyInfoEditor::setRanges()
     if ( cs.zsamp_.nrSteps() == 0 )
 	mErrRet(uiStrings::phrSpecify(tr("a valid Z range")))
 
-    si_.setRange( cs, false );
-    si_.setRange( cs, true );
+    si_.setRange( cs );
+    si_.setWorkRange( cs );
     return true;
 }
 
@@ -692,7 +692,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 	zinfeet = sip->tdInfo() == uiSurvInfoProvider::DepthFeet;
 
     si_.setZUnit( zistime, zinfeet );
-    si_.defaultPars().setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
+    si_.defpars_.setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
 
     float srd = 0.f;
     if ( sip->getSRD(srd) && !mIsUdf(srd) )
@@ -706,7 +706,8 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     if ( !havez )
 	cs.zsamp_ = si_.zRange(false);
 
-    si_.setRange(cs,false);
+    si_.setRange( cs );
+    si_.setWorkRange( cs );
     BinID bid[2];
     bid[0].inl() = cs.hsamp_.start_.inl();
     bid[0].crl() = cs.hsamp_.start_.crl();
