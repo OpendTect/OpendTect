@@ -637,6 +637,9 @@ void uiMPEMan::seedClick( CallBacker* )
     seedpicker->setSowerMode( clickcatcher_->sequentSowing() );
     beginSeedClickEvent( emobj );
 
+    const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
+    const bool ctrlbut = OD::ctrlKeyboardButton( eventinfo->buttonstate_ ); 
+
     if ( clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
     {
 	if ( !clickcatcher_->info().getPickedNode().isUdf() )
@@ -667,7 +670,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    const bool dosowing = sowingmode_.getParam(this);
 	    if ( !dosowing && seedpicker->addSeed(seedpos,false) )
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
-	    else if ( dosowing )
+	    else if ( dosowing  && !ctrlbut )
 	    {
 		seedpicker->addSeedToPatch( seedpos, false );
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
@@ -677,17 +680,21 @@ void uiMPEMan::seedClick( CallBacker* )
     else
     {
 	const bool dosowing = sowingmode_.getParam(this);
-	const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
-	const bool doerase = OD::ctrlKeyboardButton(eventinfo->buttonstate_);
-	if ( seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
-	    seedpicker->getTrackMode()==seedpicker->DrawAndSnap ||
-	    doerase )
+	const bool doerase = ctrlbut && dosowing;
+	const bool manualmodeclick = !ctrlbut && 
+	    (seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
+	     seedpicker->getTrackMode()==seedpicker->DrawAndSnap);
+
+	if ( doerase || manualmodeclick )
 	{
 	    seedpicker->addSeedToPatch( seedpos );
 	    updatePatchDisplay();
 	}
-	else if ( !dosowing && seedpicker->addSeed(seedpos,shiftclicked) )
-	    engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	else if ( !ctrlbut && !dosowing )
+	{
+	    if ( seedpicker->addSeed(seedpos, shiftclicked) )
+		engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	}
 	else if ( dosowing )
 	{
 	    seedpicker->addSeedToPatch( seedpos, false );
