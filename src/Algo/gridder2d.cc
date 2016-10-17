@@ -653,7 +653,7 @@ bool RadialBasisFunctionGridder2D::updateSolver()
 
 bool RadialBasisFunctionGridder2D::updateSolver( TaskRunner* taskr )
 {
-    delete solv_;
+    deleteAndZeroPtr( solv_ );
     deleteAndZeroPtr( globalweights_ ); //previous solution is invalid too
     const int sz = usedpoints_.size();
     if ( !points_ || !sz )
