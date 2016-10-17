@@ -172,9 +172,9 @@ bool uiExportFault::writeAscii()
     }
 
     BufferString str;
-    float zfac = 1;
+    float zfac = 1.f;
     if ( SI().zIsTime() )
-	zfac = zbox_->getBoolValue() ? 1000 : 1;
+	zfac = zbox_->getBoolValue() ? 1000.f : 1.f;
     else if ( SI().depthsInFeet() )
 	zfac = zbox_->getBoolValue() ? 1 : mFromFeetFactorF;
     else // meter
