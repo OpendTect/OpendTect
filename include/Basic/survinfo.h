@@ -85,7 +85,7 @@ public:
     uiString		zUnitString(bool withparens=true) const;
     const char*		fileZUnitString(bool withparens=true) const;
     mImplSimpleMonitoredGetSet(inline,depthsInFeet,setDepthsInFeet,
-				float,depthsinfeet_,cParsChange());
+				bool,depthsinfeet_,cParsChange());
 			// convenience (can be asked directly from zDomain)
     bool		zIsTime() const;
     bool		zInMeter() const;
