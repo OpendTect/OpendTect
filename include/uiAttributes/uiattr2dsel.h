@@ -70,9 +70,6 @@ protected:
     uiListBox*		attroutfld_;
     uiListBox*		nlaoutfld_;
 
-    mDeprecated void            createSelectionButtons();
-    mDeprecated void            createSelectionFields();
-
     void		doFinalise( CallBacker* );
     void		selDone(CallBacker*);
     virtual bool	acceptOK(CallBacker*);
@@ -80,6 +77,11 @@ protected:
 
     void           createSelectionButtons(ZDomain::Info&);
     void           createSelectionFields(ZDomain::Info&);
+
+    // Do not use. Deprecated.
+    void	createSelectionButtons();
+    void	createSelectionFields();
+
 };
 
 
