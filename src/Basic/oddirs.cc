@@ -60,14 +60,6 @@ const char* GetLastSurveyFileName()
 }
 
 
-mExternC(Basic) const char* GetSurveyName()
-{
-    mDeclStaticString(ret);
-    ret = SI().getDirName();
-    return ret.str();
-}
-
-
 /*-> implementing oddirs.h */
 
 /* 'survey data' scope */
@@ -128,7 +120,7 @@ mExternC(Basic) const char* GetDataDir()
     if ( !basedir || !*basedir )
 	return 0;
 
-    const char* survnm = GetSurveyName();
+    const char* survnm = SI().getDirName();
     if ( !survnm || !*survnm )
 	survnm = "_no_current_survey_";
 

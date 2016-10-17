@@ -87,7 +87,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     else
     {
 	const BufferString msg( "No survey specified. Using: ",
-				GetSurveyName() );
+				SI().getDirName() );
 	mexPrintf( msg );
     }
 
