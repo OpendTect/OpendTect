@@ -354,10 +354,7 @@ bool acceptOK()
     pol_ = choicefld_->firstChecked() + 1;
     int storepol = dontaskfld_->isChecked() ? -pol_ : pol_;
     if ( storepol != initialpol_ )
-    {
-	eSI().defaultPars().set( sKeySEGYRev1Pol, storepol );
-	SI().saveDefaultPars();
-    }
+	SI().setDefaultPar( sKeySEGYRev1Pol, toString(storepol), true );
     pol_--;
     return true;
 }

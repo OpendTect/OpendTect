@@ -61,7 +61,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 				StringListInpSpec(typedef_));
     eventfld_->attach( alignedBelow, seisfld_ );
 
-    uiString gatelbl = tr("Search gate %1").arg(SI().getUiZUnitString());
+    uiString gatelbl = tr("Search gate %1").arg(SI().zUnitString());
     gatefld_ = new uiGenInput( this, gatelbl, FloatInpIntervalSpec() );
     gatefld_->setValues( -SI().zStep() * SI().zDomain().userFactor(),
 			  SI().zStep() * SI().zDomain().userFactor() );

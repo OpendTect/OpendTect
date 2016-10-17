@@ -338,8 +338,7 @@ void IOObj::setSurveyDefault( const char* subsel ) const
     if ( subsel )
 	defaultkey += subsel;
 
-    eSI().defaultPars().set( defaultkey.buf(), key() );
-    SI().saveDefaultPars();
+    SI().setDefaultPar( defaultkey.buf(), key().toString(), true );
 }
 
 

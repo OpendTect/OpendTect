@@ -598,8 +598,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 
     if ( withz )
     {
-	zrgfld_ = new uiSelZRange( this, withstep,
-			BufferString("Z range",SI().getZUnitString()) );
+	zrgfld_ = new uiSelZRange( this, withstep );
 	zrgfld_->setRangeLimits( SI().zRange(false) );
 	zrgfld_->rangeChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,zRgChanged) );

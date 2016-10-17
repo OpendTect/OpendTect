@@ -244,7 +244,7 @@ bool dgbWaveletTranslator::write( const Wavelet* inwv, Conn& conn )
     astream.put( sLength, wv->size() );
     astream.put( sIndex, -wv->centerSample() );
     astream.put( IOPar::compKey(sSampRate,sKey::Unit()),
-		 SI().zDomain().unitStr() );
+		 SI().zDomain().fileUnitStr() );
     astream.put( sSampRate, wv->sampleRate() * SI().zDomain().userFactor() );
 
     astream.newParagraph();

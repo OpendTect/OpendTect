@@ -55,7 +55,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     {
 	const float defstep = SI().zIsTime() ? SI().zStep()/mToSecFactorF : 4;
 	extrwinfld_ = new uiGenInput( this, tr("Extraction window %1")
-					  .arg(SI().getUiZUnitString()),
+					      .arg(SI().zUnitString()),
 				  FloatInpIntervalSpec(Interval<float>(0,0)) );
 	extrwinfld_->attach( alignedBelow, evfld_ );
 
@@ -230,7 +230,7 @@ void uiStratSeisEvent::putToScreen()
 	    uptolvlfld_->setChecked( havelvl );
 	    if ( havelvl )
 		uptolvlfld_->setText( Strat::LVLS().levelName(
-			    				ev_.downToLevelID()) );
+							ev_.downToLevelID()) );
 	}
     }
 }

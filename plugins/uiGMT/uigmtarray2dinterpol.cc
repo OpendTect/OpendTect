@@ -49,13 +49,13 @@ uiArray2DInterpol* uiGMTSurfaceGrid::create( uiParent* p )
 static void createUi( uiArray2DInterpol* p, const CallBack& cb )
 {
     uiString msg = od_static_tr( "create_GMT_UI",
-	    		"To use this GMT algorithm you need to install GMT."
-	    	       "\nClick on GMT-button for more information" ); 
+			"To use this GMT algorithm you need to install GMT."
+		       "\nClick on GMT-button for more information" );
     uiLabel* lbl = new uiLabel( p, msg );
     uiButton* gmtbut = new uiToolButton( p, "gmt_logo",
-	    				 od_static_tr("create_GMT_UI",
+					 od_static_tr("create_GMT_UI",
 					              "GMT info"),cb);
-	    				 
+
     gmtbut->attach( alignedBelow, lbl );
     p->setHAlignObj( lbl );
 }
@@ -140,8 +140,7 @@ uiGMTNearNeighborGrid::uiGMTNearNeighborGrid( uiParent* p )
 {
     if ( hasGMTInst() )
     {
-	uiString lbl( tr("Search radius ") );
-	lbl.append( SI().getUiXYUnitString() );
+	uiString lbl( tr("Search radius %1").arg( SI().xyUnitString() ) );
 	radiusfld_ = new uiGenInput( this, lbl, FloatInpSpec(1) );
 	const int maxval = (int)mMAX(SI().inlDistance(), SI().crlDistance());
 	radiusfld_->setValue( maxval );

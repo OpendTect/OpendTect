@@ -397,7 +397,7 @@ void uiSeisBrowser::fillTable()
 {
     const CBVSInfo& info = tr_->readMgr()->info();
     const int zfac = zdomdef_->userFactor();
-    const char* zunstr = zdomdef_->unitStr(false);
+    const BufferString zunstr = zdomdef_->unitStr(false).getFullString();
     for ( int idx=0; idx<info.nrsamples_; idx++ )
     {
 	const BufferString zvalstr( getZValStr(info.sd_.atIndex(idx),zfac) );
@@ -862,7 +862,7 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     minamplatfld_->attach( rightOf, minamplfld_ );
     minamplatfld_->setElemSzPol( uiObject::Small );
     minamplatfld_->setReadOnly();
-    uiLabel* lbl = new uiLabel( valgrp, zdomdef_.uiUnitStr(true) );
+    uiLabel* lbl = new uiLabel( valgrp, zdomdef_.unitStr(true) );
     lbl->attach( rightOf, minamplatfld_ );
 
     maxamplfld_ = new uiGenInput( valgrp, tr("Maximum amplitude"),
@@ -874,7 +874,7 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     maxamplatfld_->attach( rightOf, maxamplfld_ );
     maxamplatfld_->setElemSzPol( uiObject::Small );
     maxamplatfld_->setReadOnly();
-    lbl = new uiLabel( valgrp, zdomdef_.uiUnitStr(true) );
+    lbl = new uiLabel( valgrp, zdomdef_.unitStr(true) );
     lbl->attach( rightOf, maxamplatfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );

@@ -241,8 +241,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 
     if ( isimp_ )
     {
-	uiString txt = tr("Sampling info: start, step %1 and #samples").
-		       arg(SI().getUiZUnitString(true));
+	uiString txt = tr("Sampling info: start, step %1 and #samples")
+			.arg(SI().zUnitString(true));
 	SamplingData<float> sd( data().sd_ );
 	if ( SI().zIsTime() )
 	    { sd.start *= 1000; sd.step *= 1000; }

@@ -42,7 +42,7 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
     }
 
     griddingsel_ = new uiGenInput( this, tr("Algorithm"),
-	    			   StringListInpSpec( gridderusernames ) );
+				   StringListInpSpec( gridderusernames ) );
     griddingsel_->valuechanged.notify( mCB(this,uiGridder2DSel,selChangeCB) );
 
     for ( int idx=0; idx<griddernames.size(); idx++ )
@@ -122,7 +122,7 @@ uiInverseDistanceGridder2D::uiInverseDistanceGridder2D ( uiParent* p,
     , idg_( idg )
     , initialsearchradius_( idg.getSearchRadius() )
 {
-    uiString radius = tr("Search radius %1").arg(SI().getUiXYUnitString());
+    uiString radius = tr("Search radius %1").arg(SI().xyUnitString());
     searchradiusfld_ = new uiGenInput( this, radius, FloatInpSpec() );
     searchradiusfld_->setValue( initialsearchradius_ );
     setHAlignObj( searchradiusfld_ );

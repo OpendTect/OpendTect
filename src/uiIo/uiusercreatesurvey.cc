@@ -210,8 +210,9 @@ bool uiUserCreateSurvey::acceptOK()
     else if ( !usrInputOK() )
 	return false;
 
-    survinfo_->setName( survName() );
-    survinfo_->updateDirName();
+    const BufferString survnm = survName();
+    survinfo_->setName( survnm );
+    survinfo_->setDirName( SurveyInfo::dirNameForName(survnm) );
     survinfo_->setBasePath( dataroot_ );
     survinfo_->setSurvDataType( pol2D() );
     survinfo_->setZUnit( isTime(), isInFeet() );

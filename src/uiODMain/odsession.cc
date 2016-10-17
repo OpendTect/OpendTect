@@ -205,10 +205,7 @@ void ODSession::setStartupData( bool douse, const DBKey& id )
     }
 
     if ( curid != id )
-    {
-	eSI().defaultPars().set( sKeyStartupID(), id );
-	SI().saveDefaultPars();
-    }
+	SI().setDefaultPar( sKeyStartupID(), id.toString(), true );
 }
 
 mDefSimpleTranslatorSelector(ODSession);

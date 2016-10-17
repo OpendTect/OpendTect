@@ -38,8 +38,7 @@ uiCreateHorizon::uiCreateHorizon( uiParent* p, bool is2d )
 	return;
     }
 
-    uiString lbl = tr("Z Value ");
-    lbl.append( SI().getUiZUnitString() );
+    uiString lbl = tr("Z Value %1").arg( SI().zUnitString() );
     zfld_ = new uiGenInput( this, lbl, FloatInpSpec(SI().zRange(true).start
 					*SI().zDomain().userFactor()) );
 

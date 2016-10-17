@@ -107,11 +107,11 @@ void uiWaveletExtraction::createCommonUIFlds()
 			 uiPosProvGroup::Setup(linesel2dfld_,false,true) );
     surfacesel_->attach( alignedBelow, zextraction_ );
 
-    uiString lbl = tr("Wavelet length %1").arg(SI().getUiZUnitString());
+    uiString lbl = tr("Wavelet length %1").arg(SI().zUnitString());
     wtlengthfld_ = new uiGenInput( this, lbl, IntInpSpec(120) );
     wtlengthfld_->attach( alignedBelow, surfacesel_ );
 
-    uiString taperlbl = tr("Taper length %1").arg(SI().getUiZUnitString());
+    uiString taperlbl = tr("Taper length %1").arg(SI().zUnitString());
     taperfld_ = new uiGenInput( this, taperlbl, IntInpSpec(20) );
     taperfld_->attach( alignedBelow, wtlengthfld_ );
 

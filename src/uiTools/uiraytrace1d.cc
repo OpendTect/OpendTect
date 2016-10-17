@@ -40,7 +40,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     for ( int idx=0; idx<facnms.size(); idx++ )
     {
 	const OD::String& facnm( facnms.get(idx) );
-	const uiString usernm( usernms.validIdx(idx) ? usernms[idx] : 
+	const uiString usernm( usernms.validIdx(idx) ? usernms[idx] :
 			       toUiString(facnm) );
 
 	uiRayTracer1D* grp = uiRayTracer1D::factory().create(facnm,this,s,true);
@@ -150,7 +150,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     if ( s.dooffsets_ )
     {
 	uiString olb = tr( "offset range %1(start/stop)" )
-			.arg( SI().getUiXYUnitString(true) );;
+			.arg( SI().xyUnitString(true) );;
 	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
 	offsetfld_->setValue(
 			Interval<float>(s.offsetrg_.start,s.offsetrg_.stop));

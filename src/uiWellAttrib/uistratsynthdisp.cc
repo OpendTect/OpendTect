@@ -228,7 +228,7 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	BufferString depthstr;
 	zval = toFloat( valstr );
 	sprintf( depthstr.getCStr(), "Depth : %6.0f", zval );
-	depthstr.add( SI().getZUnitString() );
+	depthstr.add( SI().zUnitString().getFullString() );
 	mesg.addSpace().add( depthstr );
     }
 
@@ -271,7 +271,7 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	    val *= mToFeetFactorF;
 
 	mAddSep(); mesg += "Offs="; mesg += val;
-	mesg += " "; mesg += SI().getXYUnitString();
+	mesg += " "; mesg += SI().xyUnitString().getFullString();
     }
 
     if ( d2tmodels_ && d2tmodels_->validIdx(modelidx) )

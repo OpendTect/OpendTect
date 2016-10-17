@@ -113,8 +113,9 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 					       .selmode(uiTable::Multi),
 		                                "Define Gate limits" );
 
-    BufferString lblstart = "Start "; lblstart += SI().getZUnitString();
-    BufferString lblstop = "Stop "; lblstop += SI().getZUnitString();
+    const BufferString zunstr = SI().zUnitString().getFullString();
+    BufferString lblstart( "Start ", zunstr );
+    BufferString lblstop( "Stop ", zunstr );
     const char* collbls[] = { lblstart.buf(), lblstop.buf(), "Scale value", 0 };
     table->setColumnLabels( collbls );
     table->setNrRows( initnrrows );
@@ -124,7 +125,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     table->setToolTip( tr("Right-click to add, insert or remove a gate") );
 
     // for AGC
-    uiString label = tr("Window width %1").arg(SI().getUiZUnitString( true ));
+    uiString label = tr("Window width %1").arg(SI().zUnitString( true ));
     // TODO: make default value dependent on survey type
     windowfld = new uiGenInput( this, label, FloatInpSpec(200) );
     windowfld->attach( alignedBelow, typefld );

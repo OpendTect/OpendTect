@@ -54,12 +54,12 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     const float curshift = initialshift*SI().zDomain().userFactor();
     shiftrg_ = StepInterval<float> (curshift-100,curshift+100,10);
 
-   uiString lbl = tr("Shift Range %1").arg(SI().getUiZUnitString());
+   uiString lbl = tr("Shift Range %1").arg(SI().zUnitString());
     rangeinpfld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(shiftrg_) );
     rangeinpfld_->valuechanged.notify(
 	    mCB(this,uiHorizonShiftDialog,rangeChangeCB) );
 
-    lbl = tr("Shift %1").arg(SI().getUiZUnitString());
+    lbl = tr("Shift %1").arg(SI().zUnitString());
     slider_ = new uiSlider(
 	    this, uiSlider::Setup(lbl).withedit(true), "Horizon slider" );
     slider_->attach( alignedBelow, rangeinpfld_ );

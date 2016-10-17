@@ -109,7 +109,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     refposfld_->attach( alignedBelow, refgrp_ );
 
     uiString zlabel = toUiString("%1 %2").arg(uiStrings::sZ())
-					 .arg(SI().getUiZUnitString());
+					 .arg(SI().zUnitString());
     refposzfld_ = new uiGenInput( this, zlabel );
     refposzfld_->setElemSzPol( uiObject::Small );
     refposzfld_->attach( rightTo, refposfld_ );

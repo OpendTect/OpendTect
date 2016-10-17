@@ -170,7 +170,7 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 					      .setName("Z Interval Stop",1) );
     gatefld_->setValues(0.f, 0.f);
     gatefld_->attach( alignedBelow, seissubselfld_ );
-    uiLabel* lbl = new uiLabel( prnt, SI().getUiZUnitString() );
+    uiLabel* lbl = new uiLabel( prnt, SI().zUnitString() );
     lbl->attach( rightOf, (uiObject*)gatefld_ );
 }
 
@@ -180,7 +180,7 @@ void uiAttrTrcSelOut::createExtraZTopFld( uiParent* prnt )
     extraztopfld_ = new uiGenInput( prnt, tr("plus"), FloatInpSpec(0) );
     extraztopfld_->setElemSzPol(uiObject::Small);
     extraztopfld_->attach( rightOf, objfld_ );
-    uiLabel* toplbl = new uiLabel( prnt, SI().getUiZUnitString() );
+    uiLabel* toplbl = new uiLabel( prnt, SI().zUnitString() );
     toplbl->attach( rightOf, extraztopfld_ );
 }
 
@@ -190,7 +190,7 @@ void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
     extrazbotfld_ = new uiGenInput( prnt, tr("plus"), FloatInpSpec(0) );
     extrazbotfld_->setElemSzPol(uiObject::Small);
     extrazbotfld_->attach( rightOf, obj2fld_ );
-    uiLabel* botlbl = new uiLabel( prnt, SI().getUiZUnitString() );
+    uiLabel* botlbl = new uiLabel( prnt, SI().zUnitString() );
     botlbl->attach( rightOf, extrazbotfld_ );
 }
 

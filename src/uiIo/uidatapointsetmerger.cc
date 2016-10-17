@@ -222,14 +222,13 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 	    mCB(this,uiDataPointSetMerger,matchPolChangedCB) );
 
     uiString maxtxt = tr("Search within a horizontal radius %1 of")
-		      .arg(SI().getUiXYUnitString());
+		      .arg(SI().xyUnitString());
     distfld_ = new uiGenInput( this, maxtxt, FloatInpSpec() );
     distfld_->setElemSzPol( uiObject::Small );
     distfld_->attach( alignedBelow, mlcbox );
     distfld_->setValue( SI().inlDistance() );
 
-    uiString ztxt = tr("and vertical distance %1 of")
-						  .arg(SI().getUiZUnitString());
+    uiString ztxt = tr("and vertical distance %1 of").arg(SI().zUnitString());
     zgatefld_ = new uiGenInput( this, ztxt, FloatInpSpec() );
     zgatefld_->setElemSzPol( uiObject::Small );
     zgatefld_->attach( rightTo, distfld_ );

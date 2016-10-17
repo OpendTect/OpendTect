@@ -365,12 +365,7 @@ bool uiSurveyManager::acceptOK()
 	return false;
 
     if ( samesurvey )
-    {
-	eSI() = *survinfo_;
-
-	//TODO need another notification to signal current survey setup changed
-	// DBM().surveyParsChanged();
-    }
+	const_cast<SurveyInfo&>( SI() ) = *survinfo_;
     else
     {
 	uiRetVal uirv = uiDataRootSel::setSurveyDirTo(
@@ -379,7 +374,8 @@ bool uiSurveyManager::acceptOK()
 	    { uiMSG().error( uirv ); return false; }
     }
 
-    // TODO determine if we can help user if new survey is selected
+    // TODO determine if we can help user if new survey is selected,
+    // start import
     return true;
 }
 
@@ -762,11 +758,12 @@ void uiSurveyManager::putToScreen()
 	notesfld_->setText( si.comment() );
 
 	zinfo.add( "(" )
-	     .add( si.zIsTime() ? ZDomain::Time().unitStr()
+	     .add( si.zIsTime() ? ZDomain::Time().unitStr().getFullString()
 				: getDistUnitString(si.zInFeet(), false) )
 	     .add( "): " );
 
-	bininfo.add( " (" ).add( si.getXYUnitString(false) ).add( "/line): " );
+	bininfo.add( " (" ).add( si.xyUnitString(false).getFullString() )
+		.add( "/line): " );
 	areainfo.add( " (sq " ).add( si.xyInFeet() ? "mi" : "km" ).add( "): ");
 
 	if ( si.sampling(false).hsamp_.totalNr() > 0 )

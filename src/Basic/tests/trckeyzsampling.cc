@@ -145,8 +145,9 @@ int testMain( int argc, char** argv )
     mDeclTrcKeyZSampling( survcs, 1, 501, 2,
 			    10, 100, 2,
 			    1.0, 10.0, 0.004 );
-    eSI().setRange( survcs, false );
-    eSI().setRange( survcs, true ); //For the sanity of SI().
+    SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
+    si.setRange( survcs );
+    si.setWorkRange( survcs ); //For the sanity of SI().
 
     if ( !testInclude()
       || !testIncludes()

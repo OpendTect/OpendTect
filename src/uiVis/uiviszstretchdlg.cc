@@ -187,9 +187,7 @@ bool uiZStretchDlg::acceptOK()
     else
 	setZStretchesToScenes( zstretches_, true );
 
-    eSI().defaultPars().removeWithKey("Z Scale"); //Old setting
-    SI().saveDefaultPars();
-
+    SI().removeKeyFromDefaultPars( "Z Scale", true ); //Old setting
     return true;
 }
 
@@ -242,8 +240,9 @@ void uiZStretchDlg::setZStretch( visSurvey::Scene* scene, float zstretch,
     }
 
     if ( savefld_ && savefld_->isChecked() )
-	eSI().defaultPars().set( 
-	    IOPar::compKey("Z Scale",scene->zDomainInfo().key()), zstretch );
+	SI().setDefaultPar(
+		IOPar::compKey("Z Scale",scene->zDomainInfo().key()),
+		toString(zstretch), true );
 
     const int id = sceneids_.indexOf( scene->id() );
     zstretches_[id] = zstretch;

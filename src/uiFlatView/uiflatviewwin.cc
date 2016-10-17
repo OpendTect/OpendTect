@@ -133,7 +133,7 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	    val *= mToFeetFactorF;
 
 	mAddSep(); mesg += "Offs="; mesg += val;
-	mesg += " "; mesg += SI().getXYUnitString();
+	mesg += " "; mesg += SI().xyUnitString().getFullString();
     }
 
     valstr = pars.find( sKey::Azimuth() );

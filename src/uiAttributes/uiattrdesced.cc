@@ -278,20 +278,20 @@ uiString uiAttrDescEd::zDepLabel( const uiString& pre,
 	    .arg( pre )
 	    .arg( zstr.toLower() )
 	    .arg( post )
-	    .arg( SI().getUiZUnitString() );
+	    .arg( SI().zUnitString() );
     }
 
     if ( !pre.isEmpty() )
     {
 	zstr.toLower( true );
-	return uiStrings::phrJoinStrings( pre, zstr, SI().getUiZUnitString() );
+	return uiStrings::phrJoinStrings( pre, zstr, SI().zUnitString() );
     }
 
     if ( !post.isEmpty() )
-	return uiStrings::phrJoinStrings( zstr, post, SI().getUiZUnitString());
+	return uiStrings::phrJoinStrings( zstr, post, SI().zUnitString());
 
 
-    return uiStrings::phrJoinStrings( zstr, SI().getUiZUnitString() );
+    return uiStrings::phrJoinStrings( zstr, SI().zUnitString() );
 }
 
 

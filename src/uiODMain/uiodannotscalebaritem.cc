@@ -132,9 +132,8 @@ bool rejectOK()
 
 void changeCB( CallBacker* )
 {
-    unitlbl_->setText( !objectfld_->getBoolValue() ||
-		       horverfld_->getBoolValue()
-	? SI().getUiXYUnitString(true) : zinf_.def_.uiUnitStr(true) );
+    unitlbl_->setText( !objectfld_->getBoolValue() || horverfld_->getBoolValue()
+		    ? SI().xyUnitString(true) : zinf_.def_.unitStr(true) );
     propertyChange.trigger();
 }
 

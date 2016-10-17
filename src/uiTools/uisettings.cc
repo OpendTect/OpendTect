@@ -66,6 +66,7 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
                                      mODHelpKey(mSettingsHelpID)) )
         , issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
 	, grpfld_(0)
+	, sipars_(SI().defaultPars())
 {
     setCurSetts();
     if ( issurvdefs_ )
@@ -115,7 +116,7 @@ int uiSettings::getChgdSettIdx( const char* nm ) const
 
 const IOPar& uiSettings::orgPar() const
 {
-    const IOPar* iop = &SI().defaultPars();
+    const IOPar* iop = &sipars_;
     if ( !issurvdefs_ )
     {
 	const BufferString grp( grpfld_ ? grpfld_->text() : sKeyCommon );
@@ -233,8 +234,7 @@ bool uiSettings::acceptOK()
 
     if ( issurvdefs_ )
     {
-	eSI().defaultPars() = *chgdsetts_[0];
-	SI().saveDefaultPars();
+	SI().setDefaultPars( *chgdsetts_[0], true );
 	PosImpExpPars::refresh();
     }
     else

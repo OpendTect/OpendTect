@@ -46,315 +46,32 @@ const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 const char* SurveyInfo::sKeySeismicRefDatum(){return "Seismic Reference Datum";}
 static const char* sKeyCoordinateSystem = "Coordinate system";
-
-mDefineInstanceCreatedNotifierAccess(SurveyInfo);
-
-
 mDefineEnumUtils(SurveyInfo,Pol2D,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 
-
-Coord Survey::Geometry3D::toCoord( int linenr, int tracenr ) const
-{
-    return transform( BinID(linenr,tracenr) );
-}
-
-
-TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
-{
-    TrcKey tk( getSurvID(), transform(crd) );
-    if ( dist )
-    {
-	if ( sampling_.hsamp_.includes(tk.binID()) )
-	{
-	    const Coord projcoord( transform(tk.binID()) );
-	    *dist = projcoord.distTo<float>( crd );
-	}
-	else
-	{
-	    TrcKey nearbid( sampling_.hsamp_.getNearest(tk.binID()) );
-	    const Coord nearcoord( transform(nearbid.binID()) );
-	    *dist = (float)nearcoord.distTo<float>( crd );
-	}
-    }
-    return tk;
-}
-
-
-bool Survey::Geometry3D::includes( int line, int tracenr ) const
-{
-    return sampling_.hsamp_.includes( BinID(line,tracenr) );
-}
-
-
-bool Survey::Geometry3D::isRightHandSystem() const
-{
-    const double xinl = b2c_.getTransform(true).b;
-    const double xcrl = b2c_.getTransform(true).c;
-    const double yinl = b2c_.getTransform(false).b;
-    const double ycrl = b2c_.getTransform(false).c;
-
-    const double det = xinl*ycrl - xcrl*yinl;
-    return det < 0;
-}
-
-
-float Survey::Geometry3D::averageTrcDist() const
-{
-    const Coord c00 = transform( BinID(0,0) );
-    const Coord c10 = transform( BinID(sampling_.hsamp_.step_.inl(),0) );
-    const Coord c01 = transform( BinID(0,sampling_.hsamp_.step_.crl()) );
-    return ( c00.distTo<float>(c10) + c00.distTo<float>(c01) )/2;
-}
-
-
-BinID Survey::Geometry3D::transform( const Coord& c ) const
-{
-    return b2c_.transformBack( c, sampling_.hsamp_.start_,
-				  sampling_.hsamp_.step_ );
-}
-
-
-Coord Survey::Geometry3D::transform( const BinID& b ) const
-{
-    return b2c_.transform(b);
-}
-
-
-const Survey::Geometry3D* Survey::Geometry::as3D() const
-{
-    return const_cast<Geometry*>( this )->as3D();
-}
-
-
-Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
-    : name_( nm )
-    , zdomain_( zd )
-{ sampling_.hsamp_.survid_ = getID(); }
-
-
-StepInterval<int> Survey::Geometry3D::inlRange() const
-{ return sampling_.hsamp_.inlRange(); }
-
-
-StepInterval<int> Survey::Geometry3D::crlRange() const
-{ return sampling_.hsamp_.crlRange(); }
-
-
-StepInterval<float> Survey::Geometry3D::zRange() const
-{ return sampling_.zsamp_; }
-
-
-int Survey::Geometry3D::inlStep() const
-{ return sampling_.hsamp_.step_.inl(); }
-
-
-int Survey::Geometry3D::crlStep() const
-{ return sampling_.hsamp_.step_.crl(); }
-
-
-float Survey::Geometry3D::zStep() const
-{ return sampling_.zsamp_.step; }
-
-
-static void doSnap( int& idx, int start, int step, int dir )
-{
-    if ( step < 2 ) return;
-    int rel = idx - start;
-    int rest = rel % step;
-    if ( !rest ) return;
-
-    idx -= rest;
-
-    if ( !dir ) dir = rest > step / 2 ? 1 : -1;
-    if ( rel > 0 && dir > 0 )	   idx += step;
-    else if ( rel < 0 && dir < 0 ) idx -= step;
-}
-
-
-void Survey::Geometry3D::snap( BinID& binid, const BinID& rounding ) const
-{
-    const BinID& stp = sampling_.hsamp_.step_;
-    if ( stp.inl() == 1 && stp.crl() == 1 ) return;
-    doSnap( binid.inl(), sampling_.hsamp_.start_.inl(), stp.inl(),
-	    rounding.inl() );
-    doSnap( binid.crl(), sampling_.hsamp_.start_.crl(), stp.crl(),
-	    rounding.crl() );
-}
-
-#define mSnapStep(ic) \
-rest = s.ic % stp.ic; \
-if ( rest ) \
-{ \
-int hstep = stp.ic / 2; \
-bool upw = rounding.ic > 0 || (rounding.ic == 0 && rest > hstep); \
-s.ic -= rest; \
-if ( upw ) s.ic += stp.ic; \
-}
-
-void Survey::Geometry3D::snapStep( BinID& s, const BinID& rounding ) const
-{
-    const BinID& stp = sampling_.hsamp_.step_;
-    if ( s.inl() < 0 ) s.inl() = -s.inl();
-    if ( s.crl() < 0 ) s.crl() = -s.crl();
-    if ( s.inl() < stp.inl() ) s.inl() = stp.inl();
-    if ( s.crl() < stp.crl() ) s.crl() = stp.crl();
-    if ( s == stp || (stp.inl() == 1 && stp.crl() == 1) )
-	return;
-
-    int rest;
-
-
-    mSnapStep(inl())
-    mSnapStep(crl())
-}
-
-
-void Survey::Geometry3D::snapZ( float& z, int dir ) const
-{
-    const StepInterval<float>& zrg = sampling_.zsamp_;
-    const float eps = 1e-8;
-
-    if ( z < zrg.start + eps )
-    { z = zrg.start; return; }
-    if ( z > zrg.stop - eps )
-    { z = zrg.stop; return; }
-
-    const float relidx = zrg.getfIndex( z );
-    int targetidx = mNINT32(relidx);
-    const float zdiff = z - zrg.atIndex( targetidx );
-    if ( !mIsZero(zdiff,eps) && dir )
-	targetidx = (int)( dir < 0 ? Math::Floor(relidx) : Math::Ceil(relidx) );
-    z = zrg.atIndex( targetidx );;
-    if ( z > zrg.stop - eps )
-	z = zrg.stop;
-}
-
-
-void Survey::Geometry3D::setGeomData( const Pos::IdxPair2Coord& b2c,
-				const TrcKeyZSampling& cs, float zscl )
-{
-    b2c_ = b2c;
-    sampling_ = cs;
-    zscale_ = zscl;
-}
-
-
-Coord3 Survey::Geometry3D::oneStepTranslation( const Coord3& planenormal ) const
-{
-    Coord3 translation( 0, 0, 0 );
-
-    if ( fabs(planenormal.z_) > 0.5 )
-    {
-	translation.z_ = zStep();
-    }
-    else
-    {
-	Coord norm2d = Coord(planenormal.x_,planenormal.y_);
-	norm2d.normalize();
-
-	if ( fabs(norm2d.dot(b2c_.inlDir())) > 0.5 )
-	    translation.x_ = inlDistance();
-	else
-	    translation.y_ = crlDistance();
-    }
-
-    return translation;
-}
-
-
-float Survey::Geometry3D::inlDistance() const
-{
-    const Coord c00 = transform( BinID(0,0) );
-    const Coord c10 = transform( BinID(1,0) );
-    return c00.distTo<float>(c10);
-}
-
-
-float Survey::Geometry3D::crlDistance() const
-{
-    const Coord c00 = transform( BinID(0,0) );
-    const Coord c01 = transform( BinID(0,1) );
-    return c00.distTo<float>(c01);
-}
-
-
-Survey::Geometry::RelationType Survey::Geometry3D::compare(
-				const Geometry& geom, bool usezrg ) const
-{
-    mDynamicCastGet( const Survey::Geometry3D*, geom3d, &geom );
-    if ( !geom3d )
-	return UnRelated;
-
-    const bool havesametransform = b2c_ == geom3d->b2c_;
-    if ( !havesametransform )
-	return UnRelated;
-
-    const StepInterval<int> myinlrg = inlRange();
-    const StepInterval<int> mycrlrg = crlRange();
-    const StepInterval<float> myzrg = zRange();
-    const StepInterval<int> othinlrg = geom3d->inlRange();
-    const StepInterval<int> othcrlrg = geom3d->crlRange();
-    const StepInterval<float> othzrg = geom3d->zRange();
-    if ( myinlrg == othinlrg && mycrlrg == othcrlrg &&
-	    (!usezrg || myzrg.isEqual(othzrg,1e-3)) )
-	return Identical;
-    if ( myinlrg.includes(othinlrg) && mycrlrg.includes(othcrlrg) &&
-	    (!usezrg || myzrg.includes(othzrg)) )
-	return SuperSet;
-    if ( othinlrg.includes(myinlrg) && othcrlrg.includes(mycrlrg) &&
-	    (!usezrg || othzrg.includes(myzrg)) )
-	return SubSet;
-
-    return Related;
-}
-
-
-//==============================================================================
-
-
-static SurveyInfo* global_si_ = 0;
-static Threads::Lock global_si_lock_;
-
-const SurveyInfo& SI()
-{
-    Threads::Locker locker( global_si_lock_ );
-    if ( !global_si_ )
-	global_si_ = new SurveyInfo;
-    return *global_si_;
-}
-
-static void setSI( SurveyInfo* newsi )
-{
-    Threads::Locker locker( global_si_lock_ );
-    delete global_si_;
-    global_si_ = newsi;
-}
-
-
-IOPar& SurveyInfo::getPars() const
-{
-    return const_cast<SurveyInfo*>(this)->defaultPars();
-}
-
-
-BufferString SurveyInfo::getFullDirPath() const
-{
-    return File::Path( basepath_, dirname_ ).fullPath();
-}
+#define mXYInFeet() (coordsystem_ && coordsystem_->isFeet())
+#define mXYUnit() (mXYInFeet() ? Feet : Meter)
+#define mZUnit() (zdef_.isTime() ? Second : (depthsinfeet_ ? Feet : Meter))
+#define mZScale() defaultXYtoZScale( mZUnit(), mXYUnit() )
+#define mSampling(work) (work ? workcs_ : fullcs_)
+
+
+static SurveyInfo global_si_;
+const SurveyInfo& SI() { return global_si_; }
 
 
 
 SurveyInfo::SurveyInfo()
-    : tkzs_(*new TrcKeyZSampling(false))
-    , wcs_(*new TrcKeyZSampling(false))
+    : fullcs_(*new TrcKeyZSampling(false))
+    , workcs_(*new TrcKeyZSampling(false))
     , zdef_(*new ZDomain::Def(ZDomain::Time()) )
     , depthsinfeet_(false)
-    , surveydefaultpars_(sKeySurvDefs)
-    , workRangeChg(this)
-    , survdatatype_(Both2DAnd3D)
-    , survdatatypeknown_(false)
+    , defpars_(sKeySurvDefs)
+    , pol2d_(Both2DAnd3D)
+    , pol2dknown_(false)
     , seisrefdatum_(0.f)
+    , s3dgeom_(0)
+    , work_s3dgeom_(0)
 {
     rdxtr_.b = rdytr_.c = 1;
     set3binids_[2].crl() = 0;
@@ -365,22 +82,21 @@ SurveyInfo::SurveyInfo()
     xtr.b = 1000; xtr.c = 0;
     ytr.b = 0; ytr.c = 1000;
     b2c_.setTransforms( xtr, ytr );
-    tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
-    mTriggerInstanceCreatedNotifier();
+    fullcs_.hsamp_.survid_ = workcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
 }
 
 
 
 SurveyInfo::SurveyInfo( const SurveyInfo& oth )
     : NamedMonitorable( oth )
-    , tkzs_(*new TrcKeyZSampling(false))
-    , wcs_(*new TrcKeyZSampling(false))
-    , surveydefaultpars_(sKeySurvDefs)
+    , fullcs_(*new TrcKeyZSampling(false))
+    , workcs_(*new TrcKeyZSampling(false))
+    , defpars_(sKeySurvDefs)
     , zdef_(*new ZDomain::Def( oth.zDomain() ) )
-    , workRangeChg(this)
+    , s3dgeom_(0)
+    , work_s3dgeom_(0)
 {
     copyClassData( oth );
-    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -388,15 +104,14 @@ SurveyInfo::~SurveyInfo()
 {
     sendDelNotif();
 
-    delete &tkzs_;
-    delete &wcs_;
+    delete &fullcs_;
+    delete &workcs_;
     delete &zdef_;
 
-    Survey::Geometry3D* old = work_s3dgeom_.setToNull();
-    if ( old ) old->unRef();
-
-    old = s3dgeom_.setToNull();
-    if ( old ) old->unRef();
+    if ( work_s3dgeom_ )
+	work_s3dgeom_->unRef();
+    if ( s3dgeom_ )
+	s3dgeom_->unRef();
 }
 
 
@@ -411,16 +126,16 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
     coordsystem_ = oth.coordsystem_;
     depthsinfeet_ = oth.depthsinfeet_;
     b2c_ = oth.b2c_;
-    survdatatype_ = oth.survdatatype_;
-    survdatatypeknown_ = oth.survdatatypeknown_;
+    pol2d_ = oth.pol2d_;
+    pol2dknown_ = oth.pol2dknown_;
     for ( int idx=0; idx<3; idx++ )
     {
 	set3binids_[idx] = oth.set3binids_[idx];
 	set3coords_[idx] = oth.set3coords_[idx];
     }
-    tkzs_ = oth.tkzs_;
-    wcs_ = oth.wcs_;
-    surveydefaultpars_ = oth.surveydefaultpars_;
+    fullcs_ = oth.fullcs_;
+    workcs_ = oth.workcs_;
+    defpars_ = oth.defpars_;
     seisrefdatum_ = oth.seisrefdatum_;
     rdxtr_ = oth.rdxtr_; rdytr_ = oth.rdytr_;
     sipnm_ = oth.sipnm_;
@@ -463,7 +178,8 @@ uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd )
     if ( !newsi )
 	return ret;
 
-    setSI( newsi );
+    global_si_ = *newsi;
+    delete newsi;
     return ret;
 }
 
@@ -496,11 +212,11 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiRetVal& uirv )
 
     //Read params here, so we can look at the pars below
     fp = fpsurvdir; fp.add( sKeyDefsFile );
-    si->defaultPars().read( fp.fullPath(), sKeySurvDefs, true );
-    si->defaultPars().setName( sKeySurvDefs );
+    si->defpars_.read( fp.fullPath(), sKeySurvDefs, true );
+    si->defpars_.setName( sKeySurvDefs );
 
     //Scrub away old settings (confusing to users)
-    si->defaultPars().removeWithKey( "Depth in feet" );
+    si->defpars_.removeWithKey( "Depth in feet" );
 
     si->dirname_ = fpsurvdir.fileName();
     si->basepath_ = fpsurvdir.pathOnly();
@@ -547,25 +263,25 @@ bool SurveyInfo::usePar( const IOPar& par )
 {
     par.get( sKey::Name(), name_ );
     par.get( sKeyInlRange(),
-	    tkzs_.hsamp_.start_.inl(),
-	    tkzs_.hsamp_.stop_.inl(),
-	    tkzs_.hsamp_.step_.inl() );
+	    fullcs_.hsamp_.start_.inl(),
+	    fullcs_.hsamp_.stop_.inl(),
+	    fullcs_.hsamp_.step_.inl() );
 
     par.get( sKeyCrlRange(),
-	    tkzs_.hsamp_.start_.crl(),
-	    tkzs_.hsamp_.stop_.crl(),
-	    tkzs_.hsamp_.step_.crl() );
+	    fullcs_.hsamp_.start_.crl(),
+	    fullcs_.hsamp_.stop_.crl(),
+	    fullcs_.hsamp_.step_.crl() );
 
     FileMultiString fms;
     if ( par.get( sKeyZRange(), fms ) )
     {
-	tkzs_.zsamp_.start = fms.getFValue( 0 );
-	tkzs_.zsamp_.stop = fms.getFValue( 1 );
-	tkzs_.zsamp_.step = fms.getFValue( 2 );
-	if ( Values::isUdf(tkzs_.zsamp_.step)
-	       || mIsZero(tkzs_.zsamp_.step,mDefEps) )
+	fullcs_.zsamp_.start = fms.getFValue( 0 );
+	fullcs_.zsamp_.stop = fms.getFValue( 1 );
+	fullcs_.zsamp_.step = fms.getFValue( 2 );
+	if ( Values::isUdf(fullcs_.zsamp_.step)
+	       || mIsZero(fullcs_.zsamp_.step,mDefEps) )
 	{
-	    tkzs_.zsamp_.step = 0.004f;
+	    fullcs_.zsamp_.step = 0.004f;
 	}
 	if ( fms.size() > 3 )
 	{
@@ -573,7 +289,7 @@ bool SurveyInfo::usePar( const IOPar& par )
 	    {
 		zdef_ = ZDomain::Time();
 		depthsinfeet_ = false;
-		defaultPars().getYN( sKeyDpthInFt(), depthsinfeet_ );
+		defpars_.getYN( sKeyDpthInFt(), depthsinfeet_ );
 	    }
 	    else
 	    {
@@ -651,15 +367,80 @@ bool SurveyInfo::usePar( const IOPar& par )
 	}
     }
 
-    tkzs_.normalise();
-    wcs_ = tkzs_;
+    fullcs_.normalise();
+    workcs_ = fullcs_;
     return true;
 }
 
 
-void SurveyInfo::updateDirName()
+IOPar SurveyInfo::defaultPars() const
 {
-    dirname_ = dirNameForName( name() );
+    mLock4Read();
+    return defpars_;
+}
+
+
+void SurveyInfo::setDefaultPar( const char* ky, const char* val,
+				bool dosave ) const
+{
+    if ( !ky || !*ky )
+	return;
+
+    mLock4Read();
+    BufferString curval = defpars_.find( ky );
+    if ( curval == val )
+	return;
+
+    if ( !mLock2Write() )
+    {
+	curval = defpars_.find( ky );
+	if ( curval == val )
+	    return;
+    }
+    const_cast<SurveyInfo*>(this)->defpars_.update( ky, val );
+    mSendChgNotif( cParsChange(), 0 );
+    if ( dosave )
+	saveDefaultPars();
+}
+
+
+void SurveyInfo::removeKeyFromDefaultPars( const char* ky,
+					    bool dosave ) const
+{
+    if ( !ky || !*ky )
+	return;
+
+    mLock4Read();
+    if ( !defpars_.find(ky) )
+	return;
+    if ( !mLock2Write() && !defpars_.find(ky) )
+	return;
+
+    const_cast<SurveyInfo*>(this)->defpars_.removeWithKey( ky );
+    mSendChgNotif( cParsChange(), 0 );
+    if ( dosave )
+	saveDefaultPars();
+}
+
+
+void SurveyInfo::setDefaultPars( const IOPar& iop, bool dosave ) const
+{
+    mLock4Read();
+    if ( iop == defpars_ )
+	return;
+    if ( !mLock2Write() && iop == defpars_ )
+	return;
+    const_cast<SurveyInfo*>(this)->defpars_ = iop;
+    mSendChgNotif( cParsChange(), 0 );
+    if ( dosave )
+	saveDefaultPars();
+}
+
+
+BufferString SurveyInfo::getFullDirPath() const
+{
+    mLock4Read();
+    return File::Path( basepath_, dirname_ ).fullPath();
 }
 
 
@@ -673,38 +454,53 @@ BufferString SurveyInfo::dirNameForName( const char* nm )
 
 StepInterval<int> SurveyInfo::inlRange( bool work ) const
 {
+    mLock4Read();
     StepInterval<int> ret; Interval<int> dum;
-    sampling(work).hsamp_.get( ret, dum );
+    gtSampling(work).hsamp_.get( ret, dum );
     return ret;
 }
 
 
 StepInterval<int> SurveyInfo::crlRange( bool work ) const
 {
+    mLock4Read();
     StepInterval<int> ret; Interval<int> dum;
-    sampling(work).hsamp_.get( dum, ret );
+    gtSampling(work).hsamp_.get( dum, ret );
     return ret;
 }
 
 
-const StepInterval<float>& SurveyInfo::zRange( bool work ) const
+TrcKeyZSampling SurveyInfo::sampling( bool work ) const
 {
-    return sampling(work).zsamp_;
+    mLock4Read();
+    return mSampling( work );
+}
+
+
+StepInterval<float> SurveyInfo::zRange( bool work ) const
+{
+    mLock4Read();
+    return mSampling(work).zsamp_;
 }
 
 int SurveyInfo::maxNrTraces( bool work ) const
 {
-    return sampling(work).hsamp_.nrInl() * sampling(work).hsamp_.nrCrl();
+    mLock4Read();
+    return mSampling(work).hsamp_.nrInl() * mSampling(work).hsamp_.nrCrl();
 }
 
 
 int SurveyInfo::inlStep() const
 {
-    return tkzs_.hsamp_.step_.inl();
+    mLock4Read();
+    return fullcs_.hsamp_.step_.inl();
 }
+
+
 int SurveyInfo::crlStep() const
 {
-    return tkzs_.hsamp_.step_.crl();
+    mLock4Read();
+    return fullcs_.hsamp_.step_.crl();
 }
 
 
@@ -720,15 +516,15 @@ float SurveyInfo::crlDistance() const
 }
 
 
-float SurveyInfo::getArea( const Interval<int>& inlrg,
-			   const Interval<int>& crlrg ) const
+float SurveyInfo::getArea( Interval<int> inlrg, Interval<int> crlrg ) const
 {
-    const BinID step = sampling(false).hsamp_.step_;
+    mLock4Read();
+    const BinID step = mSampling(false).hsamp_.step_;
     const Coord c00 = transform( BinID(inlrg.start,crlrg.start) );
     const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl()) );
     const Coord c10 = transform( BinID(inlrg.stop+step.inl(),crlrg.start) );
 
-    const float scale = xyInFeet() ? mFromFeetFactorF : 1;
+    const float scale = mXYInFeet() ? mFromFeetFactorF : 1;
     const float d01 = c00.distTo<float>( c01 ) * scale;
     const float d10 = c00.distTo<float>( c10 ) * scale;
 
@@ -743,7 +539,11 @@ float SurveyInfo::getArea( bool work ) const
 
 
 
-float SurveyInfo::zStep() const { return tkzs_.zsamp_.step; }
+float SurveyInfo::zStep() const
+{
+    mLock4Read();
+    return fullcs_.zsamp_.step;
+}
 
 
 Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
@@ -752,32 +552,35 @@ Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
 }
 
 
-void SurveyInfo::setRange( const TrcKeyZSampling& cs, bool work )
+void SurveyInfo::setRange( const TrcKeyZSampling& cs )
 {
-    if ( work )
-	wcs_ = cs;
-    else
-	tkzs_ = cs;
-
-    tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
-    wcs_.limitTo( tkzs_ );
-    wcs_.hsamp_.step_ = tkzs_.hsamp_.step_;
-    wcs_.zsamp_.step = tkzs_.zsamp_.step;
+    fullcs_ = cs;
+    fullcs_.hsamp_.survid_ = workcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
+    workcs_.limitTo( fullcs_ );
+    workcs_.hsamp_.step_ = fullcs_.hsamp_.step_;
+    workcs_.zsamp_.step = fullcs_.zsamp_.step;
 }
 
 
-void SurveyInfo::setWorkRange( const TrcKeyZSampling& cs )
+void SurveyInfo::setWorkRange( const TrcKeyZSampling& cs ) const
 {
-    setRange( cs, true);
-    workRangeChg.trigger();
+    mLock4Read();
+    if ( workcs_ == cs )
+	return;
+    if ( !mLock2Write() && workcs_ == cs )
+	return;
+
+    const_cast<SurveyInfo*>(this)->workcs_ = cs;
+    mSendChgNotif( cWorkRangeChange(), 0 );
 }
 
 
 Interval<int> SurveyInfo::reasonableRange( bool inl ) const
 {
+    mLock4Read();
     const Interval<int> rg = inl
-      ? Interval<int>( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.stop_.inl() )
-      : Interval<int>( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
+      ? Interval<int>( fullcs_.hsamp_.start_.inl(), fullcs_.hsamp_.stop_.inl() )
+      : Interval<int>( fullcs_.hsamp_.start_.crl(), fullcs_.hsamp_.stop_.crl() );
 
     const int w = rg.stop - rg.start;
 
@@ -806,7 +609,7 @@ bool SurveyInfo::isReasonable( const Coord& crd ) const
 
 Coord SurveyInfo::minCoord( bool work ) const
 {
-    const TrcKeyZSampling& cs = sampling(work);
+    const TrcKeyZSampling cs = sampling( work );
     Coord minc = transform( cs.hsamp_.start_ );
     Coord c = transform( cs.hsamp_.stop_ );
     mChkCoord(c);
@@ -826,7 +629,7 @@ Coord SurveyInfo::minCoord( bool work ) const
 
 Coord SurveyInfo::maxCoord( bool work ) const
 {
-    const TrcKeyZSampling& cs = sampling(work);
+    const TrcKeyZSampling cs = sampling( work );
     Coord maxc = transform( cs.hsamp_.start_ );
     Coord c = transform( cs.hsamp_.stop_ );
     mChkCoord(c);
@@ -842,7 +645,7 @@ Coord SurveyInfo::maxCoord( bool work ) const
 
 void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
 {
-    const TrcKeyZSampling& cs = sampling(work);
+    const TrcKeyZSampling cs = sampling( work );
     intv.sort();
     if ( intv.start < cs.hsamp_.start_.inl() )
 	intv.start = cs.hsamp_.start_.inl();
@@ -859,7 +662,7 @@ void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
 
 void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
 {
-    const TrcKeyZSampling& cs = sampling(work);
+    const TrcKeyZSampling cs = sampling( work );
     intv.sort();
     if ( intv.start < cs.hsamp_.start_.crl() )
 	intv.start = cs.hsamp_.start_.crl();
@@ -878,7 +681,7 @@ void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
 
 void SurveyInfo::checkZRange( Interval<float>& intv, bool work ) const
 {
-    const StepInterval<float>& rg = sampling(work).zsamp_;
+    const StepInterval<float> rg = sampling( work ).zsamp_;
     intv.sort();
     if ( intv.start < rg.start ) intv.start = rg.start;
     if ( intv.start > rg.stop )  intv.start = rg.stop;
@@ -891,7 +694,7 @@ void SurveyInfo::checkZRange( Interval<float>& intv, bool work ) const
 
 bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 {
-    const TrcKeyZSampling& cs = sampling(work);
+    const TrcKeyZSampling cs = sampling( work );
     const float eps = 1e-8;
     return cs.hsamp_.includes( bid )
 	&& cs.zsamp_.start < z + eps && cs.zsamp_.stop > z - eps;
@@ -899,17 +702,58 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 
 
 bool SurveyInfo::zIsTime() const
-{ return zdef_.isTime(); }
+{
+    mLock4Read();
+    return zdef_.isTime();
+}
+
+
+bool SurveyInfo::zInMeter() const
+{
+    mLock4Read();
+    return zDomain().isDepth() && !depthsinfeet_;
+}
+
+
+bool SurveyInfo::zInFeet() const
+{
+    mLock4Read();
+    return zDomain().isDepth() && depthsinfeet_;
+}
+
+
+float SurveyInfo::showZ2UserFactor() const
+{
+    mLock4Read();
+    return (float)zDomain().userFactor();
+}
+
+
+const char* SurveyInfo::fileZUnitString( bool wp ) const
+{
+    mLock4Read();
+    return zDomain().fileUnitStr( wp );
+}
+
+
+uiString SurveyInfo::zUnitString( bool wp ) const
+{
+    mLock4Read();
+    return zDomain().unitStr( wp );
+}
 
 
 SurveyInfo::Unit SurveyInfo::xyUnit() const
-{ return xyInFeet() ? Feet : Meter; }
+{
+    mLock4Read();
+    return mXYUnit();
+}
 
 
 SurveyInfo::Unit SurveyInfo::zUnit() const
 {
-    if ( zIsTime() ) return Second;
-    return depthsinfeet_ ? Feet : Meter;
+    mLock4Read();
+    return mZUnit();
 }
 
 
@@ -920,18 +764,21 @@ void SurveyInfo::putZDomain( IOPar& iop ) const
 
 
 const ZDomain::Def& SurveyInfo::zDomain() const
-{ return zdef_; }
-
-
-const char* SurveyInfo::getXYUnitString( bool wb ) const
 {
-    return getDistUnitString( xyInFeet(), wb );
+    mLock4Read();
+    return zdef_;
 }
 
 
-uiString SurveyInfo::getUiXYUnitString( bool abbrvt, bool wb ) const
+uiString SurveyInfo::xyUnitString( bool abbrvt, bool wb ) const
 {
     return uiStrings::sDistUnitString( xyInFeet(), abbrvt, wb );
+}
+
+
+const char* SurveyInfo::fileXYUnitString( bool wb ) const
+{
+    return getDistUnitString( xyInFeet(), wb );
 }
 
 
@@ -965,20 +812,26 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 
 float SurveyInfo::zScale() const
 {
-    return defaultXYtoZScale( zUnit(), xyUnit() );
+    mLock4Read();
+    return mZScale();
 }
 
 
 Coord SurveyInfo::transform( const BinID& b ) const
-{ return get3DGeometry(false)->transform( b ); }
+{
+    return get3DGeometry(false)->transform( b );
+}
 
 
 BinID SurveyInfo::transform( const Coord& c ) const
-{ return get3DGeometry(false)->transform( c ); }
+{
+    return get3DGeometry(false)->transform( c );
+}
 
 
 void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
 {
+    mLock4Read();
     if ( set3binids_[0].inl() )
     {
 	b[0] = set3binids_[0]; c[0] = set3coords_[0];
@@ -987,9 +840,9 @@ void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
     }
     else
     {
-	b[0] = tkzs_.hsamp_.start_; c[0] = transform( b[0] );
-	b[1] = tkzs_.hsamp_.stop_; c[1] = transform( b[1] );
-	BinID b2 = tkzs_.hsamp_.stop_; b2.inl() = b[0].inl();
+	b[0] = fullcs_.hsamp_.start_; c[0] = transform( b[0] );
+	b[1] = fullcs_.hsamp_.stop_; c[1] = transform( b[1] );
+	BinID b2 = fullcs_.hsamp_.stop_; b2.inl() = b[0].inl();
 	c[2] = transform( b2 ); xline = b2.crl();
     }
 }
@@ -1042,10 +895,10 @@ const uiString SurveyInfo::set3PtsUiMsg( const Coord c[3], const BinID b[2],
 
 void SurveyInfo::gen3Pts()
 {
-    set3binids_[0] = tkzs_.hsamp_.start_;
-    set3binids_[1] = tkzs_.hsamp_.stop_;
-    set3binids_[2] = BinID( tkzs_.hsamp_.start_.inl(),
-			    tkzs_.hsamp_.stop_.crl() );
+    set3binids_[0] = fullcs_.hsamp_.start_;
+    set3binids_[1] = fullcs_.hsamp_.stop_;
+    set3binids_[2] = BinID( fullcs_.hsamp_.start_.inl(),
+			    fullcs_.hsamp_.stop_.crl() );
     set3coords_[0] = transform( set3binids_[0] );
     set3coords_[1] = transform( set3binids_[1] );
     set3coords_[2] = transform( set3binids_[2] );
@@ -1085,12 +938,17 @@ static void putTr( const Pos::IdxPair2Coord::DirTransform& trans,
 
 
 bool SurveyInfo::isRightHandSystem() const
-{ return get3DGeometry(false)->isRightHandSystem(); }
+{
+    return get3DGeometry(false)->isRightHandSystem();
+}
 
 
 bool SurveyInfo::write( const char* basedir ) const
 {
-    if ( !basedir ) basedir = GetBaseDataDir();
+    if ( !basedir )
+	basedir = GetBaseDataDir();
+
+    mLock4Read();
 
     File::Path fp( basedir, dirname_, sSetupFileName() );
     SafeFileIO sfio( fp.fullPath(), false );
@@ -1159,18 +1017,20 @@ bool SurveyInfo::write( const char* basedir ) const
 
 void SurveyInfo::fillPar( IOPar& par ) const
 {
+    mLock4Read();
+
     par.set( sKey::Name(), name() );
     par.set( sKeySurvDataType(), toString( survDataType()) );
-    par.set( sKeyInlRange(), tkzs_.hsamp_.start_.inl(),
-	     tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.step_.inl() );
-    par.set( sKeyCrlRange(), tkzs_.hsamp_.start_.crl(),
-	     tkzs_.hsamp_.stop_.crl(), tkzs_.hsamp_.step_.crl() );
+    par.set( sKeyInlRange(), fullcs_.hsamp_.start_.inl(),
+	     fullcs_.hsamp_.stop_.inl(), fullcs_.hsamp_.step_.inl() );
+    par.set( sKeyCrlRange(), fullcs_.hsamp_.start_.crl(),
+	     fullcs_.hsamp_.stop_.crl(), fullcs_.hsamp_.step_.crl() );
 
 
     FileMultiString fms = "";
-    fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
-    fms += tkzs_.zsamp_.step;
-    fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
+    fms += fullcs_.zsamp_.start; fms += fullcs_.zsamp_.stop;
+    fms += fullcs_.zsamp_.step;
+    fms += zdef_.isTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
     par.set( sKeyZRange(), fms );
 
     putTr( b2c_.getTransform(true), par, sKeyXTransf );
@@ -1190,10 +1050,6 @@ void SurveyInfo::fillPar( IOPar& par ) const
     par.mergeComp( coordsystempar, sKeyCoordinateSystem );
     par.set( sKeySeismicRefDatum(), seisrefdatum_ );
 }
-
-
-const IOPar& SurveyInfo::defaultPars() const
-{ return const_cast<SurveyInfo*>(this)->defaultPars(); }
 
 
 #define uiErrMsg(s) { \
@@ -1218,52 +1074,94 @@ void SurveyInfo::saveDefaultPars( const char* basedir ) const
 	surveypath = getFullDirPath();
 
     const BufferString defsfnm( File::Path(surveypath,sKeyDefsFile).fullPath() );
-    if ( surveydefaultpars_.isEmpty() )
+    if ( defpars_.isEmpty() )
     {
 	if ( File::exists(defsfnm) )
 	    File::remove( defsfnm );
     }
-    else if ( !surveydefaultpars_.write( defsfnm, sKeySurvDefs ) )
+    else if ( !defpars_.write( defsfnm, sKeySurvDefs ) )
 	uiErrMsg( defsfnm );
 }
 
 
 bool SurveyInfo::has2D() const
-{ return survdatatype_ == Only2D || survdatatype_ == Both2DAnd3D; }
+{
+    mLock4Read();
+    return pol2d_ == Only2D || pol2d_ == Both2DAnd3D;
+}
 
 
 bool SurveyInfo::has3D() const
-{ return survdatatype_ == No2D || survdatatype_ == Both2DAnd3D; }
+{
+    mLock4Read();
+    return pol2d_ == No2D || pol2d_ == Both2DAnd3D;
+}
 
 
 void SurveyInfo::update3DGeometry()
 {
     if ( s3dgeom_ )
-	s3dgeom_->setGeomData( b2c_, sampling(false), zScale() );
+	s3dgeom_->setGeomData( b2c_, mSampling(false), mZScale() );
 
     if ( work_s3dgeom_ )
-	work_s3dgeom_->setGeomData( b2c_, sampling(true), zScale() );
+	work_s3dgeom_->setGeomData( b2c_, mSampling(true), mZScale() );
 }
 
 
 RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
 {
-    Threads::AtomicPointer<Survey::Geometry3D>& sgeom
-			= work ? work_s3dgeom_ : s3dgeom_;
+    mLock4Read();
+    const Survey::Geometry3D* sgeom = work ? work_s3dgeom_ : s3dgeom_;
 
     if ( !sgeom )
     {
-	RefMan<Survey::Geometry3D> newsgeom
-			= new Survey::Geometry3D( name(), zdef_ );
-	newsgeom->ref();
-	if ( work )
-	    newsgeom->setID( Survey::GM().default3DSurvID() );
-	newsgeom->setGeomData( b2c_, sampling(work), zScale() );
-	if ( sgeom.setIfEqual( 0, newsgeom ) )
+	if ( !mLock2Write() )
+	    sgeom = work ? work_s3dgeom_ : s3dgeom_;
+	if ( !sgeom )
+	{
+	    RefMan<Survey::Geometry3D> newsgeom
+			    = new Survey::Geometry3D( name(), zdef_ );
 	    newsgeom->ref();
+	    if ( work )
+		newsgeom->setID( Survey::GM().default3DSurvID() );
+	    newsgeom->setGeomData( b2c_, mSampling(work), mZScale() );
+	    newsgeom->ref();
+	    SurveyInfo& self = *const_cast<SurveyInfo*>( this );
+	    if ( work )
+		self.work_s3dgeom_ = newsgeom;
+	    else
+		self.s3dgeom_ = newsgeom;
+	    sgeom = newsgeom;
+	}
     }
 
-    return RefMan<Survey::Geometry3D>( sgeom );
+    return RefMan<Survey::Geometry3D>( const_cast<Survey::Geometry3D*>(sgeom) );
+}
+
+
+Pos::IdxPair2Coord SurveyInfo::binID2Coord() const
+{
+    mLock4Read();
+    return b2c_;
+}
+
+
+SurveyInfo::Pol2D SurveyInfo::survDataType() const
+{
+    mLock4Read();
+    return pol2d_;
+}
+
+
+void SurveyInfo::setSurvDataType( Pol2D p2d ) const
+{
+    mLock4Read();
+    if ( pol2d_ == p2d )
+	return;
+    if ( !mLock2Write() && pol2d_ == p2d )
+	return;
+    const_cast<SurveyInfo*>(this)->pol2d_ = p2d;
+    mSendChgNotif( cPol2DChange(), 0 );
 }
 
 
@@ -1286,16 +1184,23 @@ bool SurveyInfo::isInside( const BinID& bid, bool work ) const
 
 
 RefMan<Coords::PositionSystem> SurveyInfo::getCoordSystem()
-{ return coordsystem_; }
+{
+    mLock4Read();
+    return coordsystem_;
+}
 
 
 ConstRefMan<Coords::PositionSystem> SurveyInfo::getCoordSystem() const
-{ return coordsystem_; }
+{
+    mLock4Read();
+    return coordsystem_;
+}
 
 
 bool SurveyInfo::xyInFeet() const
 {
-    return coordsystem_ && coordsystem_->isFeet();
+    mLock4Read();
+    return mXYInFeet();
 }
 
 

@@ -84,7 +84,7 @@ bool uiSeisIOObjInfo::provideUserInfo2D( const TypeSet<Pos::GeomID>* sel ) const
     uiString msg = nrlines < 2 ?
 	tr("The following line was added to dataset %2:\n").arg(datanm)
 	: tr("%1 lines were added to dataset %2:\n").arg(nrlines).arg(datanm);
-    const uiString zunitstr( SI().getUiZUnitString() );
+    const uiString zunitstr( SI().zUnitString() );
     const float zfac = SI().showZ2UserFactor();
     for ( int idx=0; idx<geomids.size(); idx++ )
     {

@@ -56,7 +56,7 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
     FixedString attrnm = find( ODGMT::sKeyAttribName() );
     BufferString str = "\""; str += attrnm;
     if ( attrnm == ODGMT::sKeyZVals() )
-	str += SI().getZUnitString();
+	str += SI().zUnitString().getFullString();
 
     str += "\"";
     par.set( ODGMT::sKeyAttribName(), str.buf() );

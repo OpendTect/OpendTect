@@ -43,13 +43,13 @@ void uiScaleBarItem::initDefaultScale()
     lowermid_ = new uiRectItem;	    addChild( lowermid_ );
     lowerright_ = new uiRectItem;   addChild( lowerright_ );
 
-    const OD::Alignment cenbot = OD::Alignment( OD::Alignment::HCenter, 
+    const OD::Alignment cenbot = OD::Alignment( OD::Alignment::HCenter,
 						OD::Alignment::Bottom );
-    startnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
+    startnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot );
     addChild( startnr_ );
-    midnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
+    midnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot );
     addChild( midnr_ );
-    stopnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot ); 
+    stopnr_ = new uiAdvancedTextItem( uiStrings::sEmptyString(), cenbot );
     addChild( stopnr_ );
 
     // filling with color
@@ -75,7 +75,7 @@ void uiScaleBarItem::update()
     adjustValues();
     setPolygons( pxwidth_/4, pxheight_ );
 
-    uiString unit = SI().getUiXYUnitString( true, false );
+    uiString unit = SI().xyUnitString( true, false );
     startnr_->setPlainText( toUiString("0") );
     midnr_->setPlainText( toUiString(worldwidth_/2) );
     stopnr_->setPlainText( (toUiString("%1 %2")).arg(toUiString(worldwidth_))

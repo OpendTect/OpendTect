@@ -291,9 +291,7 @@ void uiAttribDescSetEd::createGroups()
 }
 
 
-#define mUnsetAuto \
-    eSI().defaultPars().removeWithKey( autoidkey ); \
-    SI().saveDefaultPars()
+#define mUnsetAuto SI().removeKeyFromDefaultPars( autoidkey, true );
 
 void uiAttribDescSetEd::init()
 {
@@ -330,14 +328,14 @@ void uiAttribDescSetEd::init()
 		    IOObj* ioobj = dlg.getObj();
 		    if ( dlg.isAuto() )
 		    {
-			DBKey id = ioobj ? ioobj->key() : DBKey::getInvalid();
-			eSI().defaultPars().set( autoidkey, id );
-			SI().saveDefaultPars();
+			if ( ioobj )
+			    SI().setDefaultPar( autoidkey,
+				    		ioobj->key().toString(), true );
+			else
+			    mUnsetAuto
 		    }
 		    else
-		    {
-			mUnsetAuto;
-		    }
+			mUnsetAuto
 
 		    openAttribSet( ioobj );
 		}
@@ -347,18 +345,14 @@ void uiAttribDescSetEd::init()
 		    const char* attribnm = dlg.getAttribname();
 		    importFromFile( filenm );
 		    attrsetfld_->setText( attribnm );
-		    mUnsetAuto;
+		    mUnsetAuto
 		}
 	    }
 	    else
-	    {
-		mUnsetAuto;
-	    }
+		mUnsetAuto
 	}
 	else
-	{
-	    mUnsetAuto;
-	}
+	    mUnsetAuto
     }
     else
     {
@@ -479,11 +473,11 @@ void uiAttribDescSetEd::autoSet( CallBacker* )
 	const DBKey id = ioobj ? ioobj->key() : DBKey::getInvalid();
 	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
 	Settings::common().write();
-	IOPar& par = eSI().defaultPars();
+	IOPar par = SI().defaultPars();
 	const BufferString idstr = id.toString();
 	is2d ? par.set(uiAttribDescSetEd::sKeyAuto2DAttrSetID, idstr.str() )
 	     : par.set(uiAttribDescSetEd::sKeyAuto3DAttrSetID, idstr.str() );
-	SI().saveDefaultPars();
+	SI().setDefaultPars( par, true );
 	if ( dlg.loadAuto() )
 	{
 	    if ( !offerSetSave() ) return;

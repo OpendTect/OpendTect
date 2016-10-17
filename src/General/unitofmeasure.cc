@@ -74,8 +74,9 @@ IOPar& UnitOfMeasure::currentDefaults()
 
 void UnitOfMeasure::saveCurrentDefaults()
 {
-    eSI().defaultPars().mergeComp( currentDefaults(), sKeyUOM );
-    SI().saveDefaultPars();
+    IOPar pars( SI().defaultPars() );
+    pars.mergeComp( currentDefaults(), sKeyUOM );
+    SI().setDefaultPars( pars, true );
 }
 
 

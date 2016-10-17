@@ -225,8 +225,8 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
     NotifyStopper nsy( wellheadyfld_->updateRequested );
     NotifyStopper nskbelev( kbelevfld_->updateRequested );
 
-    uiString coordlbl = tr("-Coordinate of well head %1").
-						  arg(SI().getUiXYUnitString());
+    uiString coordlbl = tr("-Coordinate of well head %1")
+			    .arg(SI().xyUnitString());
     const uiString depthunit = uiStrings::sDistUnitString(
 					   zinftfld_->isChecked(), true, true );
 
@@ -705,8 +705,8 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     const bool zinfeet = zinftfld_ ? zinftfld_->isChecked() : false;
     const BufferString depthunit = getDistUnitString( zinfeet, true );
 
-    strm << trackcollbls[0] << SI().getXYUnitString() << od_tab;
-    strm << trackcollbls[1] << SI().getXYUnitString() << od_tab;
+    strm << trackcollbls[0] << SI().xyUnitString() << od_tab;
+    strm << trackcollbls[1] << SI().xyUnitString() << od_tab;
     strm << trackcollbls[2] << depthunit << od_tab;
     strm << "TVD" << depthunit << od_tab;
     strm << trackcollbls[3] << depthunit << od_newline;

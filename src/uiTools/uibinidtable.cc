@@ -37,8 +37,7 @@ uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
 
     if ( withz_ )
     {
-	uiString lbl = uiStrings::phrZRange(tr("%1")
-						.arg(SI().getUiZUnitString()));
+	uiString lbl = uiStrings::phrZRange(tr("%1").arg(SI().zUnitString()));
 	zfld_ = new uiGenInput( this, lbl,
 	    FloatInpIntervalSpec().setName("Z start",0).setName("Z stop",1) );
 	zfld_->attach( leftAlignedBelow, table_ );

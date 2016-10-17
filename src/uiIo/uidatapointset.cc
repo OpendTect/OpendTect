@@ -160,7 +160,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, dps_(const_cast<DataPointSet*>(&dps))
 	, setup_(su)
 	, zfac_(mCast(float,SI().zDomain().userFactor()))
-	, zunitnm_(SI().getUiZUnitString(false))
+	, zunitnm_(SI().zUnitString(false))
 	, tbl_(0)
 	, unsavedchgs_(false)
 	, fillingtable_(true)

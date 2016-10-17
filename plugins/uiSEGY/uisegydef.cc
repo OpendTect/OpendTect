@@ -298,7 +298,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
 	if ( isz )
 	{
 	    fldtxt.append(" ");
-	    fldtxt.append(SI().getUiZUnitString());
+	    fldtxt.append(SI().zUnitString());
 	}
 	inp = new uiGenInput( grp, fldtxt, fis );
     }

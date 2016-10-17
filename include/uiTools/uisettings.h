@@ -38,6 +38,7 @@ protected:
 
     bool		issurvdefs_;
     const IOPar*	cursetts_;
+    const IOPar		sipars_;
     ObjectSet<IOPar>	chgdsetts_;
 
     uiGenInput*		grpfld_;

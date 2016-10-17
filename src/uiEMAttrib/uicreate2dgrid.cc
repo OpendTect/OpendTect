@@ -337,7 +337,7 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
 			       : BinID::udf();
     baseline_ = new Grid2D::Line( startnode, stopnode );
     uiString parlbl(
-	    tr( "Parallel line spacing %1" ).arg( SI().getUiXYUnitString() ) );
+	    tr( "Parallel line spacing %1" ).arg( SI().xyUnitString() ) );
     const StepInterval<int> spacinglimits( 500, 1000000, 500 );
     pardistfld_ = new uiGenInput( this, parlbl,
 				  IntInpSpec().setLimits(spacinglimits) );
@@ -353,7 +353,7 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
     }
 
     uiString perlbl(
-	    tr("Perpendicular line spacing %1").arg(SI().getUiXYUnitString()) );
+	    tr("Perpendicular line spacing %1").arg(SI().xyUnitString()) );
     perdistfld_ = new uiGenInput( this, perlbl,
 				  IntInpSpec().setLimits(spacinglimits) );
     perdistfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromRandLine,

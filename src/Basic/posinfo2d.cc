@@ -177,7 +177,7 @@ void PosInfo::Line2DData::dump( od_ostream& strm, bool pretty ) const
     {
 	strm << lnm_ << '\n';
 	const int fac = SI().zDomain().userFactor();
-	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start
+	strm << "Z range " << SI().zUnitString() << ":\t" << fac*zrg_.start
 	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
 	strm << "\n\nTrcNr\tX-coord\tY-coord" << od_newline;
     }

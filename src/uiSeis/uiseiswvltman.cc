@@ -76,7 +76,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 
     waveletdisplay_ = new uiFunctionDisplay( wvltdispgrp, fdsu );
     const uiString ztxt = toUiString("%1 %2").arg(SI().zIsTime() ?
-	 uiStrings::sTime() : uiStrings::sDepth()).arg(SI().getUiZUnitString());
+	 uiStrings::sTime() : uiStrings::sDepth()).arg(SI().zUnitString());
     waveletdisplay_->xAxis()->setCaption( ztxt );
     waveletdisplay_->yAxis(false)->setCaption( uiStrings::sAmplitude() );
 
@@ -240,7 +240,8 @@ void uiSeisWvltMan::mkFileInfo()
 
 	BufferString msg;
 	msg.add( "Number of samples: " ).add( wvlt->size() ).addNewLine();
-	msg.add( "Sample interval " ).add( SI().getZUnitString(true) )
+	msg.add( "Sample interval " )
+	   .add( SI().zUnitString(true).getFullString() )
 	   .add( ": " ).add( wvlt->sampleRate() * zfac ).addNewLine();
 	Interval<float> extremevals;
 	wvlt->getExtrValues( extremevals );

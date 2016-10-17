@@ -274,7 +274,7 @@ uiGenRandPicks2DDlg::uiGenRandPicks2DDlg( uiParent* p,
     }
 
     uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(),
-						       SI().getUiZUnitString());
+					       SI().zUnitString());
     StepInterval<float> survzrg = SI().zRange(false);
     Interval<float> inpzrg( survzrg.start, survzrg.stop );
     inpzrg.scale( mCast(float,SI().zDomain().userFactor()) );

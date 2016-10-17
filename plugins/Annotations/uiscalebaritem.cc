@@ -119,9 +119,8 @@ void updateOrientationFld()
 
 void changeCB( CallBacker* )
 {
-    unitlbl_->setText( !objectfld_->getBoolValue() ||
-		       horverfld_->getBoolValue()
-		? SI().getXYUnitString(true) : zinf_.unitStr(true) );
+    unitlbl_->setText( !objectfld_->getBoolValue() || horverfld_->getBoolValue()
+		? SI().xyUnitString(true) : zinf_.unitStr(true) );
     propertyChange.trigger();
 }
 

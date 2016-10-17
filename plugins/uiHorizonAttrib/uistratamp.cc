@@ -57,7 +57,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     horfld2_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld2_->attach( alignedBelow, horfld1_ );
 
-    uiString lbltxt = tr("Z Offset %1 Top").arg(SI().getUiZUnitString());
+    uiString lbltxt = tr("Z Offset %1 Top").arg(SI().zUnitString());
     tophorshiftfld_ = new uiGenInput( this, lbltxt,
 				      FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );

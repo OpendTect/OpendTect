@@ -119,7 +119,7 @@ uiGroup* uiRegionFiller::createVelGrp()
 
 uiString uiRegionFiller::sGradientLabel()
 {
-    return tr("Gradient constant (/%1)").arg( SI().getUiZUnitString(false));
+    return tr("Gradient constant (/%1)").arg( SI().zUnitString(false));
 }
 
 uiRegionFiller::~uiRegionFiller()

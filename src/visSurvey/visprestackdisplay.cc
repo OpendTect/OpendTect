@@ -939,7 +939,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     }
 
     info.add( (float) traceoffset );
-    info.add( " " ).add( SI().getXYUnitString(false) );
+    info.add( " " ).add( SI().xyUnitString(false).getFullString() );
 
     const int zsample = posdata.range(false).nearestIndex( pos.z_ );
     val = fdp->data().get( offsetsample, zsample );

@@ -268,7 +268,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 	const float timestep = SI().zStep()*ztimefac_;
 	params().zstep_ = dptstep;
 	uiString dptstpbuf = uiStrings::phrJoinStrings(uiStrings::sStep(),
-					SI().getUiXYUnitString(true,true));
+					SI().xyUnitString(true,true));
 	uiString timelbl = UnitOfMeasure::zUnitAnnot( true, true, true );
 	uiString timestpbuf = uiStrings::phrJoinStrings(uiStrings::sStep(),
 								   timelbl);

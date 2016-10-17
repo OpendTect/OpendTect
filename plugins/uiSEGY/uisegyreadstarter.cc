@@ -836,7 +836,7 @@ void uiSEGYReadStarter::updateSurvMap()
     if ( !survmap_ )
 	return;
 
-    survinfo_ = SurveyInfo::getEmpty();
+    survinfo_ = new SurveyInfo;
     survinfo_->setName( "No valid scan available" );
     const char* stbarmsg = "";
     if ( scaninfos_ && !scaninfos_->isEmpty() )
@@ -846,7 +846,7 @@ void uiSEGYReadStarter::updateSurvMap()
 	if ( !stbarmsg )
 	{
 	    cs.zsamp_ = loaddef_.getZRange();
-	    survinfo_->setRange( cs, false );
+	    survinfo_->setRange( cs );
 	    BinID bid[2];
 	    bid[0].inl() = cs.hsamp_.start_.inl();
 	    bid[0].crl() = cs.hsamp_.start_.crl();

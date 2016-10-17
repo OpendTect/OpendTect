@@ -97,7 +97,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	zfld_->attach( alignedBelow, filefld_ );
 
 	uiString constzlbl = tr("Specify constant Z value %1")
-				.arg( SI().getUiZUnitString() );
+				.arg( SI().zUnitString() );
 	constzfld_ = new uiGenInput( this, constzlbl, FloatInpSpec(0) );
 	constzfld_->attach( alignedBelow, zfld_ );
 	constzfld_->display( zfld_->box()->currentItem() == 1 );

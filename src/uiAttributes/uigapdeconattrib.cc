@@ -75,7 +75,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     inpfld_ = createInpFld( is2d );
 
     uiString gatestr = tr("%1 window %2").arg(uiStrings::sCorrelation())
-					 .arg(SI().getUiZUnitString());
+					 .arg(SI().zUnitString());
     gatefld_ = new uiGenInput( this, gatestr, FloatInpIntervalSpec() );
     gatefld_->attach( alignedBelow, inpfld_ );
 
@@ -83,11 +83,11 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     exambut_ = new uiPushButton( this, m3Dots(tr("Examine")), cbexam, true);
     exambut_->attach( rightOf, gatefld_ );
 
-    uiString lagstr = tr("Lag size %1").arg(SI().getUiZUnitString());
+    uiString lagstr = tr("Lag size %1").arg(SI().zUnitString());
     lagfld_ = new uiGenInput( this, lagstr, FloatInpSpec() );
     lagfld_->attach( alignedBelow, gatefld_ );
 
-    uiString gapstr = tr("Gap size %1").arg(SI().getUiZUnitString());
+    uiString gapstr = tr("Gap size %1").arg(SI().zUnitString());
     gapfld_ = new uiGenInput( this, gapstr, FloatInpSpec() );
     gapfld_->attach( alignedBelow, lagfld_ );
 

@@ -68,7 +68,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 
     const float inldist = SI().inlDistance();
     uiString radiusbuf =  tr("Radius around wells %1")
-						.arg(SI().getUiXYUnitString());
+						.arg(SI().xyUnitString());
     radiusfld_ = new uiGenInput( this, radiusbuf,
 				 FloatInpSpec((float)((int)(inldist+.5))) );
     if ( attrsfld_ )

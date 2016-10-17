@@ -177,7 +177,7 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
     smoothwinlengthfld_ = new uiGenInput(this, tr("Window width"),
 								FloatInpSpec());
     smoothwinlengthfld_->attach( alignedBelow, smoothwindowfld_ );
-    smoothwinlengthlbl_ = new uiLabel( this, SI().getUiZUnitString(false) );
+    smoothwinlengthlbl_ = new uiLabel( this, SI().zUnitString(false) );
     smoothwinlengthlbl_->attach( rightOf, smoothwinlengthfld_ );
 
     freqf3fld_ = new uiGenInput( this, tr("Frequency F3"), FloatInpSpec() );

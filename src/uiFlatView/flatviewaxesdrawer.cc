@@ -134,33 +134,33 @@ void AxesDrawer::updateViewRect()
     else
 	rectitem_->setRect( rect.left(), rect.top(),
 			    rect.width(), rect.height() );
-    rectitem_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid, 3, 
+    rectitem_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid, 3,
 								annot.color_) );
-    
+
     OD::ArrowStyle arrowstyle;
     arrowstyle.headstyle_.type_ = OD::ArrowHeadStyle::Triangle;
     if ( showx1annot && !ad1.name_.isEmpty() && ad1.name_ != " " )
     {
 	const int right = rect.right();
 	const int bottom = rect.bottom();
-    	uiPoint from( right-10, bottom+9 );
-    	uiPoint to( right, bottom+9 );
+	uiPoint from( right-10, bottom+9 );
+	uiPoint to( right, bottom+9 );
 
-	if ( ad1.reversed_ ) Swap( from, to );    	
-    	if ( !arrowitem1_ )
+	if ( ad1.reversed_ ) Swap( from, to );
+	if ( !arrowitem1_ )
 	    arrowitem1_ = view_.scene().addItem(
 		    new uiArrowItem(from,to,arrowstyle) );
 	arrowitem1_->setVisible( true );
-    	arrowitem1_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1,
+	arrowitem1_->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1,
 								annot.color_) );
-    	arrowitem1_->setTailHeadPos( from, to );
-    	
-    	if ( !axis1nm_ )
+	arrowitem1_->setTailHeadPos( from, to );
+
+	if ( !axis1nm_ )
 	    axis1nm_ = view_.scene().addItem(
 		    new uiTextItem(toUiString(ad1.name_),
 				  mAlignment(Right,Top)) );
-    	else
-    	    axis1nm_->setText( toUiString(ad1.name_) );
+	else
+	    axis1nm_->setText( toUiString(ad1.name_) );
 
 	axis1nm_->setVisible( true );
 	axis1nm_->setTextColor( annot.color_ );
@@ -172,7 +172,7 @@ void AxesDrawer::updateViewRect()
 	if ( axis1nm_ ) axis1nm_->setVisible( false );
     }
 
-    uiString userfacstr = vwr_.zDomain().uiUnitStr(true);
+    uiString userfacstr = vwr_.zDomain().unitStr( true );
     const bool usewva = !vwr_.isVisible( false );
     ConstRefMan<FlatDataPack> fdp = vwr_.getPack( usewva, true );
     if ( showx2annot && !ad2.name_.isEmpty() && ad2.name_ != " " )
@@ -189,7 +189,7 @@ void AxesDrawer::updateViewRect()
 	arrowitem2_->setVisible( true );
 	arrowitem2_->setPenColor( annot.color_ );
 	arrowitem2_->setTailHeadPos( from, to );
-	
+
 	uiString x2axisstr( toUiString(ad2.name_) );
 	if ( fdp && fdp->isVertical() )
 	    x2axisstr.append( userfacstr );
@@ -222,7 +222,7 @@ void AxesDrawer::updateViewRect()
 	}
 	else
 	    titletxt_->setText( mToUiStringTodo(annot.title_) );
-	
+
 	titletxt_->setVisible( true );
 	const uiRect scenerect = view_.getViewArea();
 	titletxt_->setPos( uiPoint(rect.centre().x_,scenerect.top()) );
@@ -297,9 +297,9 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 	dim1rg.start *= userfac;
 	dim1rg.stop *= userfac;
     }
-    
-    
+
+
     const uiWorldRect altwr( dim0rg2.start, dim1rg.start,
-	    		     dim0rg2.stop, dim1rg.stop );
+			     dim0rg2.stop, dim1rg.stop );
     uiGraphicsSceneAxisMgr::setWorldCoords( altwr );
 }

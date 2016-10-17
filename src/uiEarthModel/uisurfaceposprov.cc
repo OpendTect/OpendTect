@@ -63,7 +63,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	int v = (int)((zstep * zfac_) + .5);
 	zstepfld_->setValue( v );
 	zstepfld_->setInterval( StepInterval<int>(1,999999,1) );
-	txt = tr("Z step %1").arg(SI().getUiZUnitString());
+	txt = tr("Z step %1").arg(SI().zUnitString());
 	zsteplbl_ = new uiLabel( this, txt, zstepfld_ );
     }
 

@@ -75,7 +75,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     dataselfld_->descChanged.notify( mCB(this,uiWellImportAsc,trckFmtChg) );
 
     uiString coordunitslbl = uiStrings::phrJoinStrings(uiStrings::sCoordinate(),
-						      SI().getUiXYUnitString());
+						      SI().xyUnitString());
     coordfld_ = new uiGenInput( this, coordunitslbl,
 			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );

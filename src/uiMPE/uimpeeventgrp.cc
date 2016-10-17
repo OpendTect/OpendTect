@@ -101,7 +101,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
 	addstepbut_->attach( rightTo, ampthresholdfld_ );
     }
 
-    uiString srchwindtxt = tr("Search window %1").arg(SI().getUiZUnitString());
+    uiString srchwindtxt = tr("Search window %1").arg(SI().zUnitString());
     StepInterval<int> swin0( -10000, -1, -1 );
     StepInterval<int> swin1( 1, 10000, 1 );
     IntInpIntervalSpec iis; iis.setSymmetric( true );
@@ -118,8 +118,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     IntInpIntervalSpec diis; diis.setSymmetric( true );
     diis.setLimits( intv, 0 ); diis.setLimits( intv, 1 );
 
-    uiString disptxt = tr("Data Display window %1")
-					.arg(SI().getUiZUnitString());
+    uiString disptxt = tr("Data Display window %1").arg(SI().zUnitString());
     nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
     nrzfld_->attach( alignedBelow, srchgatefld_ );
     nrzfld_->attach( ensureBelow, sep );

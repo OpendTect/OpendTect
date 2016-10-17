@@ -292,7 +292,7 @@ uiString Scene::zDomainUserName() const
 { return toUiString(zdomaininfo_->userName()); }
 
 const char* Scene::zDomainUnitStr( bool withparens ) const
-{ return zdomaininfo_->unitStr( withparens ); }
+{ return zdomaininfo_->fileUnitStr( withparens ); }
 
 int Scene::zDomainUserFactor() const
 { return zdomaininfo_->userFactor(); }

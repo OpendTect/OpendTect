@@ -1165,12 +1165,14 @@ void uiMPEMan::removeInPolygon()
 { visserv_->removeSelection(); }
 
 
-void uiMPEMan::workAreaChgCB( CallBacker* )
+void uiMPEMan::workAreaChgCB( CallBacker* cb )
 {
+    mGetMonitoredChgData( cb, chgdata );
+    if ( SurveyInfo::isMinorChange( chgdata.changeType() ) )
+	return;
+
     if ( !SI().sampling(true).includes( engine().activeVolume() ) )
-    {
 	engine().setActiveVolume( SI().sampling(true) );
-    }
 }
 
 
@@ -1180,7 +1182,7 @@ void uiMPEMan::survChgCB( CallBacker* )
 	return;
 
     SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
-    mAttachCB( si.workRangeChg, uiMPEMan::workAreaChgCB );
+    mAttachCB( si.objectChanged(), uiMPEMan::workAreaChgCB );
 }
 
 

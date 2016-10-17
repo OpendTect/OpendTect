@@ -329,7 +329,7 @@ void ui3DViewerBody::setupHUD()
 	hudscene_->addObject( axes_ );
 	if ( camera_ )
 	    axes_->setMasterCamera( camera_ );
-    
+
     }
 
     if ( !polygonselection_ )
@@ -929,7 +929,7 @@ void ui3DViewerBody::setSceneID( int sceneid )
     offscreenrenderswitch_->addChild( newscene->osgNode() );
 
     scene_ = newscene;
-    
+
     mDynamicCastGet( visSurvey::Scene*, survscene, scene_.ptr() );
     if ( survscene )
     {
@@ -940,7 +940,7 @@ void ui3DViewerBody::setSceneID( int sceneid )
     if ( camera_ ) newscene->setCamera( camera_ );
 
     if ( swapcallback_ ) swapcallback_->scene_ = scene_;
-    
+
     updateZDomainInfo();
 }
 
@@ -948,8 +948,8 @@ void ui3DViewerBody::setSceneID( int sceneid )
 
 void ui3DViewerBody::updateZDomainInfo()
 {
-    const uiString xyunit = SI().getUiXYUnitString(true,true);
-    
+    const uiString xyunit = SI().xyUnitString(true,true);
+
     const uiString north = uiStrings::phrJoinStrings( uiStrings::sNorth(true),
                                                       xyunit );
     const uiString east = uiStrings::phrJoinStrings( uiStrings::sEast(true),
@@ -1401,13 +1401,11 @@ void ui3DViewerBody::saveHomePos()
     homepos_.setEmpty();
     fillCameraPos( homepos_ );
 
-    if ( SI().defaultPars().isPresent( preOdHomePosition() ) )
-    {
-	eSI().defaultPars().removeSubSelection( sKeyHomePos() );
-    }
-
-    eSI().defaultPars().mergeComp( homepos_, sKeyHomePos() );
-    SI().saveDefaultPars();
+    IOPar sipars( SI().defaultPars() );
+    if ( sipars.isPresent( preOdHomePosition() ) )
+	sipars.removeSubSelection( sKeyHomePos() );
+    sipars.mergeComp( homepos_, sKeyHomePos() );
+    SI().setDefaultPars( sipars, true );
 }
 
 

@@ -44,7 +44,7 @@ ObjectSet<ZDomain::Def>& DEFS()
 
 const ZDomain::Def& ZDomain::SI()
 {
-    return ::SI().zIsTime() ? Time() : Depth();
+    return ::SI().zDomain().isTime() ? Time() : Depth();
 }
 
 
@@ -73,14 +73,14 @@ bool ZDomain::isSI( const IOPar& iop )
 bool ZDomain::isDepth( const IOPar& iop )
 {
     FixedString domstr = iop.find( sKey() );
-    return !domstr.isEmpty() ? domstr==sKeyDepth() : !::SI().zIsTime();
+    return !domstr.isEmpty() ? domstr==sKeyDepth() : !::SI().zDomain().isTime();
 }
 
 
 bool ZDomain::isTime( const IOPar& iop )
 {
     FixedString domstr = iop.find( sKey() );
-    return domstr.isEmpty() ? ::SI().zIsTime() : domstr==sKeyTime();
+    return domstr.isEmpty() ? ::SI().zDomain().isTime() : domstr==sKeyTime();
 }
 
 
@@ -92,7 +92,7 @@ void ZDomain::setSI( IOPar& iop )
 
 void ZDomain::setDepth( IOPar& iop )
 {
-    if ( ::SI().zIsTime() )
+    if ( ::SI().zDomain().isTime() )
 	iop.set( sKey(), sKeyDepth() );
     else
 	setSI( iop );
@@ -101,7 +101,7 @@ void ZDomain::setDepth( IOPar& iop )
 
 void ZDomain::setTime( IOPar& iop )
 {
-    if ( !::SI().zIsTime() )
+    if ( !::SI().zDomain().isTime() )
 	iop.set( sKey(), sKeyTime() );
     else
 	setSI( iop );
@@ -110,7 +110,7 @@ void ZDomain::setTime( IOPar& iop )
 
 bool ZDomain::Def::isSI() const
 {
-    return ::SI().zIsTime() ? isTime() : isDepth();
+    return ::SI().zDomain().isTime() ? isTime() : isDepth();
 }
 
 
@@ -133,20 +133,20 @@ void ZDomain::Def::set( IOPar& iop ) const
 
 
 uiString ZDomain::Def::getLabel() const
-{ return uiStrings::phrJoinStrings( userName(), uiUnitStr(true) ); }
+{ return uiStrings::phrJoinStrings( userName(), unitStr(true) ); }
 
 
 uiString ZDomain::Def::getRange() const
 { return uiStrings::phrJoinStrings( userName(), uiStrings::sRange() ); }
 
 
-const char* ZDomain::Def::unitStr( bool withparens ) const
+const char* ZDomain::Def::fileUnitStr( bool withparens ) const
 {
     if ( withparens )
     {
 	mDeclStaticString( ret );
 	ret.setEmpty();
-	BufferString unitstr = unitStr( false );
+	BufferString unitstr = fileUnitStr( false );
 	if ( !unitstr.isEmpty() )
 	    ret.add( "(" ).add( unitstr ).add( ")" );
 	return ret.buf();
@@ -159,13 +159,13 @@ const char* ZDomain::Def::unitStr( bool withparens ) const
 }
 
 
-uiString ZDomain::Def::uiUnitStr( bool withparens ) const
+uiString ZDomain::Def::unitStr( bool withparens ) const
 {
     if ( withparens )
     {
 	mDeclStaticString( ret );
 	ret.setEmpty();
-	BufferString unitstr = unitStr( false );
+	BufferString unitstr = fileUnitStr( false );
 	if ( !unitstr.isEmpty() )
 	    ret.add( "(" ).add( unitstr ).add( ")" );
 	return toUiString(ret);

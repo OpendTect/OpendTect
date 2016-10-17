@@ -54,21 +54,21 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 
     uiGroup* topgrp = new uiGroup( this, "Info fields" );
     uiString hdistlbl = uiStrings::phrJoinStrings(uiStrings::sHorizontal(),
-			uiStrings::phrJoinStrings(uiStrings::sDistance(), 
-			SI().getUiXYUnitString()) );
+			uiStrings::phrJoinStrings(uiStrings::sDistance(),
+			SI().xyUnitString()) );
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
     hdistfld_->setReadOnly( true );
 
     uiString zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
-			uiStrings::phrJoinStrings(uiStrings::sDistance(), 
-			SI().getUiZUnitString()) );
+			uiStrings::phrJoinStrings(uiStrings::sDistance(),
+			SI().zUnitString()) );
     zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
 
     uiString zintimelbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
-			  uiStrings::phrJoinStrings(uiStrings::sDistance(), 
-			  SI().getUiXYUnitString()) );
+			  uiStrings::phrJoinStrings(uiStrings::sDistance(),
+			  SI().xyUnitString()) );
     if ( SI().zIsTime() )
     {
 	zdist2fld_ = new uiGenInput( topgrp, zintimelbl, FloatInpSpec(0) );
@@ -82,7 +82,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     }
 
     uiString distlbl = uiStrings::phrJoinStrings(uiStrings::sDistance(),
-		       SI().getUiXYUnitString());
+		       SI().xyUnitString());
     distfld_ = new uiGenInput( topgrp, distlbl, FloatInpSpec(0) );
     distfld_->setReadOnly( true );
     distfld_->attach( alignedBelow, appvelfld_ ? appvelfld_ : zdistfld_ );
@@ -90,7 +90,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     if ( !SI().zIsTime() && SI().xyInFeet() != SI().zInFeet() )
     {
 	uiString lbl = uiStrings::phrJoinStrings(uiStrings::sDistance(),
-		       SI().getUiXYUnitString());
+		       SI().xyUnitString());
 	dist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
 	dist2fld_->setReadOnly( true );
 	dist2fld_->attach( alignedBelow, distfld_ );

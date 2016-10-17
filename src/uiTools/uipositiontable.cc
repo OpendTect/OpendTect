@@ -35,7 +35,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     if ( withxy_ ) infotxt = tr("Enter X/Y positions");
     if ( withxy_ && withic_ ) infotxt = tr("Enter X/y or Inl/Crl positions");
     if ( withic_ ) infotxt = tr("Enter Inl/Crl positions");
-    
+
     uiLabel* lbl = new uiLabel( this, infotxt );
 
     uiLabel* pmlvl =  new uiLabel( this, uiStrings::sEmptyString() );
@@ -47,7 +47,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     collbl->attach( rightTo, pmlvl );
 
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Node")
-	    					.rowgrow(true)
+						.rowgrow(true)
 						.selmode(uiTable::Multi)
 						.defrowlbl(true),
 			  "Pos Table" );
@@ -58,7 +58,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     attachObj()->setMinimumWidth( withxy_ && withic_ ? 400 : 200 );
 
     table_->setColumnLabel(0, withxy_ ? uiStrings::sX() : uiStrings::sInline());
-    table_->setColumnLabel(1, withxy_ ? uiStrings::sY() : 
+    table_->setColumnLabel(1, withxy_ ? uiStrings::sY() :
 						       uiStrings::sCrossline());
     if ( withxy_ && withic_ )
     {
@@ -71,8 +71,8 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
 	uiSeparator* hsep = new uiSeparator( this, "Separator" );
 	hsep->attach( stretchedBelow, table_ );
 
-	uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(), 
-			SI().getUiZUnitString());
+	uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(),
+			SI().zUnitString());
 	zfld_ = new uiGenInput( this, zlbl,
 	    FloatInpIntervalSpec().setName("Z start",0).setName("Z stop",1) );
 	zfld_->setStretch( 0, 0 );
@@ -203,7 +203,7 @@ void uiPositionTable::getBinIDs( TypeSet<BinID>& binids ) const
 		continue;
 
 	    Coord coord( table_->getDValue(RowCol(idx,0)),
-		    	 table_->getDValue(RowCol(idx,1)) );
+			 table_->getDValue(RowCol(idx,1)) );
 	    binids += SI().transform( coord );
 	}
     }
@@ -217,7 +217,7 @@ void uiPositionTable::setZRange( const Interval<float>& zrg )
 void uiPositionTable::getZRange( Interval<float>& zrg ) const
 {
     zrg.setFrom( withz_ ? zfld_->getFInterval()
-	    		: (Interval<float>)SI().zRange(false) );
+			: (Interval<float>)SI().zRange(false) );
 }
 
 void uiPositionTable::setRowColor( int rid, bool includes )

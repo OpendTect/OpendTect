@@ -155,7 +155,7 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     {
 	info += "  TWT:";
 	info += toString( time_, 2 );
-	info += SI().zDomain().unitStr();
+	info += SI().zDomain().unitStr().getFullString();
     }
 }
 
@@ -262,7 +262,7 @@ void uiWellDisplayControl::setSelMarker( Well::Marker mrk )
 
 void uiWellDisplayControl::highlightMarker( Well::Marker mrk, bool hlt )
 {
-    
+
     for ( int iddisp=0; iddisp<logdisps_.size(); iddisp++ )
     {
 	uiWellDahDisplay& ld = *logdisps_[iddisp];

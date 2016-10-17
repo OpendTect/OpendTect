@@ -566,7 +566,8 @@ void uiSurfaceMan::mkFileInfo()
 #define mAddZRangeTxt() \
     if ( !zrange.isUdf() ) \
     { \
-	txt += "Z range"; txt += SI().getZUnitString(); txt += ": "; \
+	txt += "Z range"; txt += SI().zUnitString().getFullString(); \
+	txt += ": "; \
 	txt += mNINT32( zrange.start * SI().zDomain().userFactor() ); \
 	txt += " - "; \
 	txt += mNINT32( zrange.stop * SI().zDomain().userFactor() ); \

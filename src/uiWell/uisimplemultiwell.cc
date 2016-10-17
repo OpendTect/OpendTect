@@ -71,7 +71,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 						  .selmode(uiTable::Multi),
 		        "Data Table" );
     tbl_->setColumnLabel( 0, mJoinUiStrs(sWell(),sName().toLower()) );
-    const uiString xunstr = SI().getUiXYUnitString();
+    const uiString xunstr = SI().xyUnitString();
     tbl_->setColumnLabel( 1, toUiString("[%1%2]").arg(uiStrings::sX())
 								.arg(xunstr) );
     tbl_->setColumnLabel( 2, toUiString("[%1%2]").arg(uiStrings::sY())

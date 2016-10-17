@@ -53,14 +53,14 @@ public:
     uiString		getRange() const;
 			//!< <username> Range
 
-    const char*		unitStr(bool withparens=false) const;
-    			//In case of depth, ft or m will come from SurvInfo
-    uiString		uiUnitStr(bool withparens=false) const;
+    const char*		fileUnitStr(bool withparens=false) const;
+			//In case of depth, ft or m will come from SurvInfo
+    uiString		unitStr(bool withparens=false) const;
 
     bool		isSI() const;
     bool		isTime() const;
     bool		isDepth() const;
-    
+
     const char*		entityStr() const { return isTime() ? "t" : "d"; }
 
     bool		operator==( const Def& def ) const
@@ -78,9 +78,14 @@ public:
 protected:
 
     BufferString	key_;
-    uiString	usrnm_;
     BufferString	defunit_;
+    uiString		usrnm_;
     int			usrfac_; // usually 1 or 1000, not FeetFac
+
+public:
+
+    mDeprecated uiString	uiUnitStr( bool wp=false ) const
+				{ return unitStr( wp ); }
 };
 
 
@@ -91,10 +96,10 @@ protected:
 mExpClass(Basic) Info
 {
 public:
-    			Info(const Def&);
-    			Info(const Info&);
-    			Info(const IOPar&);
-    			~Info();
+			Info(const Def&);
+			Info(const Info&);
+			Info(const IOPar&);
+			~Info();
 
     const Def&		def_;
     IOPar&		pars_;
@@ -108,12 +113,16 @@ public:
     // Convenience
     const char*		key() const		{ return def_.key(); }
     uiString		userName() const	{ return def_.userName(); }
-    const char*		unitStr(bool wp=false) const
-    						{ return def_.unitStr(wp); }
-    uiString		uiUnitStr(bool wp=false) const
-						{ return def_.uiUnitStr(wp); }	
-    uiString		getLabel() const	{ return def_.getLabel(); }    
+    const char*		fileUnitStr(bool wp=false) const
+						{ return def_.fileUnitStr(wp); }
+    uiString		unitStr(bool wp=false) const
+						{ return def_.unitStr(wp); }
+    uiString		getLabel() const	{ return def_.getLabel(); }
     int			userFactor() const	{ return def_.userFactor(); }
+
+
+    mDeprecated uiString	uiUnitStr(bool wp=false) const
+				{ return def_.unitStr(wp); }
 
 };
 

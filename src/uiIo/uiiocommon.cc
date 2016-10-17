@@ -263,7 +263,7 @@ SurveyInfo* uiSurvey::copySurvey( uiParent* uiparent, const char* survnm,
     if ( uirv.isOK() )
     {
 	survinfo->setName( survnm );
-	survinfo->updateDirName();
+	survinfo->setDirName( SurveyInfo::dirNameForName(survnm) );
 	survinfo->write( todir );
     }
     else

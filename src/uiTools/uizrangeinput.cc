@@ -17,8 +17,8 @@ uiZRangeInput::uiZRangeInput( uiParent* p, bool depth, bool withstep )
     : uiGenInput( p, tr("%1 %2 %3")
 		     .arg((depth ? ZDomain::Depth().userName() :
 		     ZDomain::Time().userName())).arg(uiStrings::sRange())
-		     .arg(depth ? ZDomain::Depth().uiUnitStr(true)
-		     : ZDomain::Time().uiUnitStr(true)),
+		     .arg(depth ? ZDomain::Depth().unitStr(true)
+		     : ZDomain::Time().unitStr(true)),
 		     FloatInpIntervalSpec(withstep) )
     , isdepth_( depth )
     , withstep_( withstep )

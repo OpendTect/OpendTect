@@ -148,7 +148,8 @@ void uiSeisPreStackMan::mkFileInfo()
 	    const ZDomain::Def& zddef = objinf.zDomainDef();
 #	    define mAddZValTxt(memb) .add(zistm ? mNINT32(1000*memb) : memb)
 	    txt.add(zddef.userName().getFullString()).add(" range ")
-		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zsamp_.start)
+		.add(zddef.unitStr(true).getFullString())
+		.add(": ") mAddZValTxt(cs.zsamp_.start)
 		.add(" - ") mAddZValTxt(cs.zsamp_.stop)
 		.add(" [") mAddZValTxt(cs.zsamp_.step) .add("]\n");
 	}

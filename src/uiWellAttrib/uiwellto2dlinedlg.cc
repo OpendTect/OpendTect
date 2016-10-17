@@ -55,7 +55,7 @@ uiWellTo2DLineDlg::~uiWellTo2DLineDlg()
 void uiWellTo2DLineDlg::createFields()
 {
     uiString txt = tr("Extend outward %1")
-				       .arg(SI().getUiXYUnitString(true, true));
+				       .arg(SI().xyUnitString(true, true));
     float defdist = 100 * SI().inlDistance();
     extendfld_ = new uiGenInput( this, txt,
 				FloatInpSpec(mCast(float,mNINT32(defdist))) );

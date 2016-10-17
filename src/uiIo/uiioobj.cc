@@ -89,8 +89,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 		PtrMan<Translator> trl = ioobj_.createTranslator();
 		const BufferString defaultkey(
 				   trl->group()->getSurveyDefaultKey(&ioobj_) );
-		eSI().defaultPars().removeWithKey( defaultkey );
-		SI().saveDefaultPars();
+		SI().removeKeyFromDefaultPars( defaultkey, true );
 	    }
 	}
     }

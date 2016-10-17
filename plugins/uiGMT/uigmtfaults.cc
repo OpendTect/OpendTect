@@ -67,7 +67,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     optionfld_->valuechanged.notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
     optionfld_->attach( alignedBelow, namefld_ );
 
-    uiString lbl( tr("Z Value %1").arg(SI().getUiZUnitString()) );
+    uiString lbl( tr("Z Value %1").arg(SI().zUnitString()) );
     zvaluefld_ = new uiGenInput( this, lbl, IntInpSpec(0) );
     zvaluefld_->attach( alignedBelow, optionfld_ );
 
