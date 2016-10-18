@@ -68,7 +68,8 @@ extern "C" { mGlobal(Basic) void SetBaseDataDir(const char*); }
 mExternC(Basic) void SetBaseDataDir( const char* dirnm )
 {
 #ifdef __win__
-    const BufferString windirnm( File::Path(dirnm).fullPath(File::Path::Windows) );
+    const BufferString windirnm( File::Path(dirnm).
+						fullPath(File::Path::Windows) );
     SetEnvVar( "DTECT_WINDATA", windirnm );
     if ( GetOSEnvVar( "DTECT_DATA" ) )
 	SetEnvVar( "DTECT_DATA", windirnm );
@@ -120,8 +121,8 @@ mExternC(Basic) const char* GetDataDir()
     if ( !basedir || !*basedir )
 	return 0;
 
-    const char* survnm = SI().getDirName();
-    if ( !survnm || !*survnm )
+    BufferString survnm = SI().getDirName();
+    if ( survnm.isEmpty() )
 	survnm = "_no_current_survey_";
 
     mDeclStaticString( ret );
@@ -164,7 +165,8 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 	    const File::Path datapath( filepath.dirUpTo(idx).buf(), "Resources",
 				     relinfostr );
 #else
-	    const File::Path datapath( filepath.dirUpTo(idx).buf(), relinfostr );
+	    const File::Path datapath( filepath.dirUpTo(idx).buf(), 
+				     relinfostr );
 #endif
 	    if ( File::isDirectory( datapath.fullPath()) )
 	    {
