@@ -122,7 +122,7 @@ SEGY::TxtHeader::TxtHeader( int rev )
     if ( !SI().zIsTime() )
     {
 	str = "Depth survey: 1 SEG-Y millisec = 1 ";
-	str += SI().zUnitString(false).getFullString();
+	str += SI().fileZUnitString( false );
 	putAt( 18, 6, 75, str );
     }
 }

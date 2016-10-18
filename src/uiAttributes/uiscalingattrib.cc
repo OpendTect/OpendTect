@@ -113,12 +113,12 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 					       .selmode(uiTable::Multi),
 		                                "Define Gate limits" );
 
-    const BufferString zunstr = SI().zUnitString().getFullString();
-    BufferString lblstart( "Start ", zunstr );
-    BufferString lblstop( "Stop ", zunstr );
-    const char* collbls[] = { lblstart.buf(), lblstop.buf(), "Scale value", 0 };
-    table->setColumnLabels( collbls );
+    table->setNrCols( 3 );
     table->setNrRows( initnrrows );
+    const uiString zunstr = SI().zUnitString();
+    table->setColumnLabel( 0, tr( "Start %1" ).arg( zunstr ) );
+    table->setColumnLabel( 1, tr( "Stop %1" ).arg( zunstr ) );
+    table->setColumnLabel( 2, tr( "Scale value" ) );
     table->setColumnStretchable( startcol, true );
     table->setColumnStretchable( stopcol, true );
     table->setStretch( 2, 0 );
