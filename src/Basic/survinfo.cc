@@ -36,6 +36,7 @@ static const char* sSurvFile = ".survey";
 static const char* sDefsFile = ".defs";
 static const char* sCommentsFile = ".comments";
 static const char* sFreshFile = ".fresh";
+static const char* sCreationFile = ".creation";
 static const char* sKeySurvDefs = "Survey defaults";
 static const char* sKeyFreshFileType = "Survey Creation Info";
 static const char* sKeyLatLongAnchor = "Lat/Long anchor";
@@ -1329,6 +1330,7 @@ uiRetVal SurveyInfo::isValidSurveyDir( const char* dirnm )
 
 
 #define mFreshFileName() File::Path(getFullDirPath(),sFreshFile).fullPath()
+#define mCrFileName() File::Path(getFullDirPath(),sCreationFile).fullPath()
 
 
 bool SurveyInfo::isFresh() const
@@ -1339,13 +1341,22 @@ bool SurveyInfo::isFresh() const
 
 void SurveyInfo::setNotFresh() const
 {
-    File::remove( mFreshFileName() );
+    File::rename( mFreshFileName(), mCrFileName() );
 }
 
 
 void SurveyInfo::getFreshSetupData( IOPar& iop ) const
 {
     iop.read( mFreshFileName(), sKeyFreshFileType );
+}
+
+
+void SurveyInfo::getCreationData( IOPar& iop ) const
+{
+    if ( isFresh() )
+	getFreshSetupData( iop );
+    else
+	iop.read( mCrFileName(), sKeyFreshFileType );
 }
 
 

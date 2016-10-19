@@ -496,7 +496,7 @@ void uiSurveyManager::compressButPushed( CallBacker* )
 	return;
 
     File::Path zippath( fnmfld->fileName() );
-    if ( zippath.extension() != "zip" )
+    if ( FixedString(zippath.extension()) != "zip" )
 	uiMSG().error( tr("Please add .zip extension to the file name") );
     else
 	uiSurvey::zipDirectory( this, survnm, zippath.fullPath() );

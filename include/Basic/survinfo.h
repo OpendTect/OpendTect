@@ -131,6 +131,8 @@ public:
 						 bool save2storage) const;
     void		putZDomain(IOPar&) const;
     void		setWorkRange(const TrcKeyZSampling&) const;
+    void		getCreationData(IOPar&) const;
+			//!< std creation entries and some SIP stuff
 
     RefMan<Survey::Geometry3D>		get3DGeometry(bool work) const;
     RefMan<Coords::PositionSystem>	getCoordSystem();

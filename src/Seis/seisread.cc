@@ -326,7 +326,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     if ( !sttrl.readInfo(ti) )
     {
 	const uiString emsg = sttrl.errMsg();
-	if ( emsg.isSet() )
+	if ( !emsg.isEmpty() )
 	    { errmsg_ = emsg; return -1; }
 	return nextConn( ti );
     }

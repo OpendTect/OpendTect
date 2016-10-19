@@ -58,7 +58,7 @@ const char* uiSrchProcFiles::fileName() const
 
 #define mRet(s) \
 { \
-    if ( s.isSet() ) uiMSG().error(s); \
+    if ( !s.isEmpty() ) uiMSG().error(s); \
     toStatusBar(uiStrings::sEmptyString()); \
     return; \
 }

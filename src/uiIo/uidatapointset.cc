@@ -138,7 +138,7 @@ const ColTab::MapperSetup& ctMapperSetup() const
 
 
 uiDataPointSet::Setup::Setup( const uiString& wintitl, bool ismodal )
-    : uiDialog::Setup( wintitl.isSet() ? wintitl : tr("Extracted data"),
+    : uiDialog::Setup( wintitl.isEmpty() ? tr("Extracted data") : wintitl,
                        mNoDlgTitle, mODHelpKey(mDataPointSetHelpID) )
     , isconst_(false)
     , canaddrow_(false)

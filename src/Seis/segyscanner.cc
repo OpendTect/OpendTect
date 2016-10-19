@@ -185,7 +185,7 @@ int SEGY::Scanner::readNext()
     if ( !tr_->read(trc_) )
     {
 	const uiString emsg = tr_->errMsg();
-	if ( emsg.isSet() )
+	if ( !emsg.isEmpty() )
 	{
 	    scanerrfnms_.add( fnms_.get(curfidx_) );
 	    scanerrmsgs_.add( emsg );

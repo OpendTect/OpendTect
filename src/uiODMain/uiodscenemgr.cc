@@ -236,7 +236,8 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	scn.vwr3d_->showRotAxis( true );
     }
 
-    if ( name.isSet() ) setSceneName( sceneid, name );
+    if ( !name.isEmpty() )
+	setSceneName( sceneid, name );
 
     visServ().setZAxisTransform( sceneid, zt, 0 );
     scn.vwr3d_->updateZDomainInfo();

@@ -36,7 +36,7 @@ static bool writePDF( const ProbDenFunc& pdf, const IOObj& ioobj )
 	return true;
 
     uiString msg = emsg;
-    if ( !msg.isSet() )
+    if ( msg.isEmpty() )
 	msg = uiStrings::phrCannotWrite(od_static_tr("writePDF","PDF to disk"));
     uiMSG().error( msg );
     return false;
