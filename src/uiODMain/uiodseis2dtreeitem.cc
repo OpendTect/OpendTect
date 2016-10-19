@@ -370,12 +370,12 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
 	const TypeSet<Pos::GeomID>& geomids, const char* curattrnm )
 {
     const Attrib::DescSet* ds =
-	applMgr()->attrServer()->curDescSet( true );  
+	applMgr()->attrServer()->curDescSet( true );
     const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID())) 
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
     ZDomain::Info info = scene->zDomainInfo();
-       
+
     uiAttr2DSelDlg dlg( ODMainWin(), ds, geomids, nla, info, curattrnm );
     if ( !dlg.go() ) return false;
 
@@ -713,18 +713,6 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
     }
     else
     {
-	const char* ptr = firstOcc( as.userRef(), '|' );
-	if ( ptr ) // only to set correct userref in selspec
-	{
-	    LineKey lkusrref( as.userRef() );
-	    as.setUserRef( lkusrref.attrName() );
-	    s2d->setSelSpec( attribnr, as );
-	}
-
-	if ( lk.attrName() == LineKey::sKeyDefAttrib() &&
-	     !FixedString(as.userRef()).isEmpty() )
-	    lk.setAttrName( as.userRef() );
-
 	applMgr()->attrServer()->setTargetSelSpec( as );
 	dpid = applMgr()->attrServer()->createOutput( tkzs, 0 );
     }
