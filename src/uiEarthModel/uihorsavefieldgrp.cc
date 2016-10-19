@@ -149,7 +149,8 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const DBKey& mid )
 }
 
 #undef mErrRet
-#define mErrRet(msg) { if ( (msg).isSet() ) uiMSG().error( msg ); return false;}
+#define mErrRet(msg) \
+    { if ( !(msg).isEmpty() ) uiMSG().error( msg ); return false;}
 
 bool uiHorSaveFieldGrp::saveHorizon()
 {

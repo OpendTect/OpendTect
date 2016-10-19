@@ -131,8 +131,6 @@ public:
 						 bool save2storage) const;
     void		putZDomain(IOPar&) const;
     void		setWorkRange(const TrcKeyZSampling&) const;
-    mImplSimpleMonitoredGetSet(inline,comment,setComment,BufferString,comment_,
-				cCommentChange());
 
     RefMan<Survey::Geometry3D>		get3DGeometry(bool work) const;
     RefMan<Coords::PositionSystem>	getCoordSystem();
@@ -148,22 +146,23 @@ public:
 
 			// Contrary to normal assignment, only one of
 			// 'major' changes will be emitted.
-    static int		cSetupChange()		{ return 2; }
-    static int		cRangeChange()		{ return 3; }
-    static int		cWorkRangeChange()	{ return 4; }
+    static ChangeType	cSetupChange()		{ return 2; }
+    static ChangeType	cRangeChange()		{ return 3; }
+    static ChangeType	cWorkRangeChange()	{ return 4; }
 
 			// minor changes will be sent only if not a 'major' one
 			// is emitted.
-    static int		cParsChange()		{ return 6; }
-    static int		cPol2DChange()		{ return 7; }
-    static int		cAuxDataChange()	{ return 8; }
-    static int		cCommentChange()	{ return 9; }
+    static ChangeType	cParsChange()		{ return 6; }
+    static ChangeType	cPol2DChange()		{ return 7; }
+    static ChangeType	cAuxDataChange()	{ return 8; }
+    static ChangeType	cCommentChange()	{ return 9; }
 
-    static bool		isMinorChange( int c )
-			{ return c > cWorkRangeChange(); }
+    static bool		isMinorChange( ChangeType ct )
+			{ return ct==cNameChange() || ct>cRangeChange(); }
 
 protected:
 
+    const BufferString	uniqueid_;
     BufferString	basepath_;	//!< The 'data root'
     BufferString	dirname_;	//!< The subdirectory name
     ZDomain::Def&	zdef_;
@@ -185,11 +184,13 @@ protected:
     Pol2D		pol2d_;
     bool		pol2dknown_;
 
-    BufferString	comment_;
+    BufferString	comments_;
     BufferString	sipnm_;
 
     bool		wrapUpRead();
 
+    mImplSimpleMonitoredGetSet(inline,comments,setComments,
+				BufferString,comments_,cCommentChange());
     TrcKeyZSampling&	gtSampling( bool work ) const
 			{ return work ? workcs_ : fullcs_; }
 
@@ -247,9 +248,11 @@ public:
 	// Following fns are used by specialist classes. Don't use casually.
 
     bool		write(const char* basedir=0) const;
-			//!< Write to .survey file
+			//!< Write to .survey file and .defs file
     void		saveDefaultPars(const char* basedir=0) const;
 			//!< Write to .defs file
+    void		saveComments(const char* basedir=0) const;
+			//!< Write to .comments file
     static SurveyInfo*	read(const char*,uiRetVal&);
     void		setRange(const TrcKeyZSampling&);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
@@ -264,7 +267,14 @@ public:
     static uiRetVal	isValidDataRoot(const char*);
     static uiRetVal	isValidSurveyDir(const char*);
 
-    void		copyFrom(const SurveyInfo& newinfo);
+    ChangeType		mainDiff(const SurveyInfo&) const;
+			//< returns cEntireObjectChangeType() for other survey
+			//< returns mUdf(ChangeType) for no change
+
+    bool		isFresh() const;
+    void		setNotFresh() const;
+    void		setFreshSetupData(const IOPar&) const;
+    void		getFreshSetupData(IOPar&) const;
 
     mDeprecated IOPar&		defaultPars()
 				{ return defpars_; }

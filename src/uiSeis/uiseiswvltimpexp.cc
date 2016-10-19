@@ -67,7 +67,7 @@ uiSeisWvltImp::~uiSeisWvltImp()
     delete &fd_;
 }
 
-#define mErrRet(s) { if ( (s).isSet() ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( !((s).isEmpty()) ) uiMSG().error(s); return false; }
 
 
 

@@ -25,8 +25,7 @@ public:
 			uiUserCreateSurvey(uiParent*,const char* dataroot=0);
 			~uiUserCreateSurvey();
 
-    SurveyInfo*		getSurvInfo()
-			{ SurveyInfo* si = survinfo_; survinfo_ = 0; return si;}
+    BufferString	dirName() const;
     int			sipIdx() const	    { return sipidx_; }
 
     BufferString	sipName() const;

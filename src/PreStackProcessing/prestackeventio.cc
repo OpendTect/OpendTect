@@ -398,7 +398,7 @@ bool EventReader::addReader( const char* fnm )
 
     EventPatchReader* reader = new EventPatchReader( conn, eventmanager_ );
 
-    if (reader->errMsg().isSet())
+    if ( !reader->errMsg().isEmpty() )
     {
 	errmsg_ = tr("Cannot add patch reader. %1").arg(reader->errMsg());
 	delete reader;
@@ -635,7 +635,7 @@ int EventWriter::nextStep()
 		    EventPatchReader* reader =
 				new EventPatchReader( conn, &eventmanager_ );
 
-		    if (reader->errMsg().isSet())
+		    if ( !reader->errMsg().isEmpty() )
 		    {
 			errmsg_ = reader->errMsg();
 			delete reader;
@@ -799,7 +799,7 @@ EventDuplicator::~EventDuplicator()
 
 int EventDuplicator::nextStep()
 {
-    if (errMsg().isSet()) //Catch error in prepareWork
+    if ( !errMsg().isEmpty() ) //Catch error in prepareWork
 	return ErrorOccurred();
 
     if ( !filestocopy_.size() )

@@ -575,7 +575,8 @@ void PSAttrib::prepPriorToBoundsCalc()
 		    : uiStrings::sVolDataName(true, true, true) ) )
 
 	const uiString emsg = psrdr_->errMsg();
-	if ( emsg.isSet() ) mErrRet( tr("PS Reader: %1").arg(emsg) );
+	if ( !emsg.isEmpty() )
+	    mErrRet( tr("PS Reader: %1").arg(emsg) );
     }
 
     mTryAlloc( propcalc_, PreStack::PropCalc( setup_ ) );

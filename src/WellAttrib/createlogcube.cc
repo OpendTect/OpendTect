@@ -293,7 +293,7 @@ bool LogCubeCreator::doFinish( bool success )
     const uiString hdrmsg= tr("One or several log cubes could not be computed");
     uiString errmsg;
 
-    if ( !nrDone() || errmsg_.isSet() )
+    if ( !nrDone() || !errmsg_.isEmpty() )
 	mAppendHdr( hdrmsg, return false )
 
     SeisTrcBuf trcsbufsout( true );
@@ -331,7 +331,7 @@ bool LogCubeCreator::doFinish( bool success )
 
     trcsbufsout.erase();
 
-    if ( errmsg.isSet() )
+    if ( !errmsg.isEmpty() )
 	mAppendHdr( hdrmsg, return false )
 
     return true;

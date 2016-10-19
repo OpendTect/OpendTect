@@ -131,7 +131,9 @@ private:
     friend class	GeneralModuleIniter;
 
     uiRetVal		setDataSource(const char*,const char*);
+
     void		initFirst();
+    uiRetVal		doReRead();
 
 public:
 
@@ -162,6 +164,8 @@ public:
     uiRetVal		setDataSource(const IOPar&);
 			//!< uses sKey::dataRoot() and sKey::Survey()
 			//!< Intended for stand-alone programs
+    uiRetVal		reRead();
+			//!< Should not be necessary
 
 };
 

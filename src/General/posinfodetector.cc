@@ -486,9 +486,9 @@ bool PosInfo::Detector::add( const PosInfo::CrdBidOffs& cbo )
     if ( !sortanal_->add(cbo.binid_) )
 	return true;
 
-    if ( setup_.reqsorting_ && sortanal_->errMsg().isSet() )
+    if ( setup_.reqsorting_ && !sortanal_->errMsg().isEmpty() )
     {
-        sortanal_->errMsg();
+        errmsg_ = sortanal_->errMsg();
         return false;
     }
 

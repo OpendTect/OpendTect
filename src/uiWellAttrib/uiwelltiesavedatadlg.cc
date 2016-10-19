@@ -123,7 +123,7 @@ void uiSaveDataDlg::saveWvltSelCB( CallBacker* )
 }
 
 
-#define mAppMsg(locmsg,act) { msg.append( locmsg, msg.isSet() ); act; }
+#define mAppMsg(locmsg,act) { msg.append( locmsg, !msg.isEmpty() ); act; }
 
 
 bool uiSaveDataDlg::saveLogs()
@@ -160,7 +160,7 @@ bool uiSaveDataDlg::saveLogs()
     ml.unlockNow();
 
     uiString endmsg = tr( "Please choose another postfix" );
-    if ( msg.isSet() )
+    if ( !msg.isEmpty() )
 	mAppMsg( endmsg, mErrRet( msg ) )
 
     DataWriter& datawtr = dataserver_.dataWriter();

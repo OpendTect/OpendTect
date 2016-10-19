@@ -133,12 +133,8 @@ uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
 
     mReLock();
     mLock2Write();
-
-    if ( rootdbdir_ )
-	{ rootdbdir_->unRef(); rootdbdir_ = 0; }
-    deepUnRef( dbdirs_ );
     survdir_.set( newdirnm );
-    rv = handleNewSurvDir();
+    rv = doReRead();
     mUnlockAllAccess();
     if ( !rv.isOK() )
 	return rv; // disaster ...
@@ -148,6 +144,22 @@ uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
     afterSurveyChange.trigger();
 
     return rv;
+}
+
+
+uiRetVal DBMan::reRead()
+{
+    mLock4Write();
+    return doReRead();
+}
+
+
+uiRetVal DBMan::doReRead()
+{
+    if ( rootdbdir_ )
+	{ rootdbdir_->unRef(); rootdbdir_ = 0; }
+    deepUnRef( dbdirs_ );
+    return handleNewSurvDir();
 }
 
 

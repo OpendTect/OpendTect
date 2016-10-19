@@ -789,4 +789,4 @@ JobInfo* JobRunner::gtJob( int descnr )
 
 
 uiString JobRunner::errorMsg() const
-{ return errmsg_.isSet() ? errmsg_ : uiString::emptyString(); }
+{ return errmsg_; }

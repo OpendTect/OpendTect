@@ -977,8 +977,8 @@ void uiMainWin::toStatusBar( const uiString& txt, int fldidx, int msecs )
     uiStatusBar* sb = statusBar();
     if ( sb )
 	sb->message( txt, fldidx, msecs );
-    else if ( txt.isSet() )
-	UsrMsg(txt.getFullString());
+    else if ( !txt.isEmpty() )
+	UsrMsg( txt.getFullString() );
 }
 
 

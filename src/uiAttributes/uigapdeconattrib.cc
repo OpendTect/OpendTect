@@ -568,11 +568,8 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     else if (mIsUdf(gapfld_->getIntValue()))
 	errmsg = tr("Please fill in the 'Gap size' field");
 
-    if (errmsg.isSet())
-    {
-	uiMSG().error( errmsg );
-	return;
-    }
+    if ( !errmsg.isEmpty() )
+	{ uiMSG().error( errmsg ); return; }
 
     TrcKeyZSampling cs;
     inpfld_->getRanges(cs);

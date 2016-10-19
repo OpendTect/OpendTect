@@ -126,7 +126,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
     }
     delete ioobj;
 
-    if ( drdr_ && drdr_->errMsg().isSet() )
+    if ( drdr_ && !drdr_->errMsg().isEmpty() )
     {
 	msg_ = drdr_->errMsg();
 	deleteAndZeroPtr( drdr_ );

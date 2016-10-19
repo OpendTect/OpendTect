@@ -254,7 +254,7 @@ int SeisCBVS2DLineGetter::nextStep()
 	{
 	    delete trc;
 	    const uiString emsg = tr_->errMsg();
-	    if ( emsg.isSet() )
+	    if ( !emsg.isEmpty() )
 		mErrRet(emsg)
 	    return 0;
 	}

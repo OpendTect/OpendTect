@@ -86,8 +86,8 @@ public:
 
 
     // Survey menu operations
-    int				selectSurvey(uiParent*);
-    static int			manageSurvey()		{ return manSurv(0); }
+    bool			selectSurvey(uiParent*);
+    bool			manageSurvey()		{ return manSurv(0); }
 
     enum ObjType		{ Seis, Hor, Flt, Fltss, Wll, Attr, NLA, Pick,
 				  Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom,
@@ -170,6 +170,9 @@ public:
     bool			evaluateAttribute(int visid,int attrib);
     bool			evaluate2DAttribute(int visid, int attrib);
     void			pageUpDownPressed(bool up);
+    void			handleSurveySelect();
+    bool			isFreshSurvey() const;
+    void			handleSIPImport();
     void			resetServers();
     void			updateColorTable(int visid,int attrib);
     void			saveDefColTab(int visid,int attrib);
@@ -263,7 +266,7 @@ protected:
     };
 
     MiscSurvInfo		tmpprevsurvinfo_;
-    static int			manSurv(uiParent*);
+    bool			manSurv(uiParent*);
     bool			survChgReqAttrUpdate();
 
     bool			handleEvent(const uiApplPartServer*,int);
@@ -304,7 +307,7 @@ protected:
 
     static bool			Convert_OD4_Data_To_OD5();
     static bool			Convert_OD4_Body_To_OD5();
-    void			mainWinUpCB(CallBacker*) const;
+    void			mainWinUpCB(CallBacker*);
 
     friend class		uiODMain;
     friend class		uiODApplMgrDispatcher;

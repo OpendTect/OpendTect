@@ -92,7 +92,6 @@ public:
 		~uiString();
 
     uiString&	set(const char*);
-    inline bool	isSet() const			{ return !isEmpty(); }
     bool	isEmpty() const;
     void	setEmpty();
     uiString&	toLower(bool yn=true);
@@ -169,6 +168,7 @@ public:
     mDeprecated			uiString(const OD::String&);
     mDeprecated uiString&	operator=(const char*);
     mDeprecated uiString&	operator=(const OD::String&);
+    mDeprecated bool		isSet() const	{ return !isEmpty(); }
 
 		/*!<Don't use. May be depreciated. Use toUiString("My text")
 		    function instead. */

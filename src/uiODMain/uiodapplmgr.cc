@@ -154,12 +154,9 @@ MouseCursorExchange& uiODApplMgr::mouseCursorExchange()
 { return mousecursorexchange_; }
 
 
-void uiODApplMgr::mainWinUpCB( CallBacker* cb ) const
+void uiODApplMgr::mainWinUpCB( CallBacker* cb )
 {
-    if ( !Convert_OD4_Data_To_OD5() )
-	manageSurvey();
-
-    Convert_OD4_Body_To_OD5();
+    handleSurveySelect();
 }
 
 
@@ -290,56 +287,52 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 
     uiString errmsg;
     if ( !OD_Convert_Body_To_OD5(errmsg) )
-    {
-	uiMSG().error( errmsg );
-	return false;
-    }
-    else
-	uiMSG().message( tr("All the geo-bodies have been converted!") );
+	{ uiMSG().error( errmsg ); return false; }
+
+    uiMSG().message( tr("All the geo-bodies have been converted.") );
     return true;
 }
 
 
-
-
-int uiODApplMgr::selectSurvey( uiParent* p )
+bool uiODApplMgr::selectSurvey( uiParent* p )
 {
-    const int res = manSurv( p );
-    if ( res == 3 )
-	setZStretch();
-    return res;
+    return manSurv( p );
 }
 
 
-int uiODApplMgr::manSurv( uiParent* p )
+void uiODApplMgr::handleSIPImport()
 {
-    BufferString prevnm = GetDataDir();
-    bool isconvpending = OD_Get_2D_Data_Conversion_Status()==1;
-    if ( !p ) p = ODMainWin();
-    while ( true )
-    {
-	uiSurveyManager dlg( p, false );
-	if ( !p )
-	    dlg.setModal( true );
-	if ( !dlg.go() )
-	{
-	    if ( isconvpending )
-		continue;
-	    if ( !dlg.haveSurveys() )
-		return 4;
+    //TODO Implement
+}
 
-	    return 0;
-	}
-	else if ( !Convert_OD4_Data_To_OD5() )
-	{
-	    isconvpending = true;
-	    continue;
-	}
-	else if ( prevnm == GetDataDir() )
-	    return 1;
-	else
-	    return dlg.freshSurveySelected() ? 3 : 2;
+
+void uiODApplMgr::handleSurveySelect()
+{
+    if ( SI().isFresh() )
+    {
+	setZStretch();
+	handleSIPImport();
+	SI().setNotFresh();
     }
+    else
+    {
+	while ( !Convert_OD4_Data_To_OD5() )
+	{
+	    if ( !manSurv(0) )
+		ExitProgram( 0 );
+	}
+	Convert_OD4_Body_To_OD5();
+    }
+}
+
+
+bool uiODApplMgr::manSurv( uiParent* p )
+{
+    uiSurveyManager dlg( p ? p : ODMainWin(), false );
+    const bool rv = dlg.go();
+    if ( rv )
+	handleSurveySelect();
+    return rv;
 }
 
 
@@ -1888,9 +1881,7 @@ void uiODApplMgr::storeEMObject( bool saveasreq )
 
 void uiODApplMgr::manSurvCB( CallBacker* )
 {
-    const int retval = selectSurvey(0);
-    if ( retval == 4 )
-	appl_.exit( false );
+    manSurv( ODMainWin() );
 }
 
 void uiODApplMgr::tieWellToSeismic( CallBacker* )

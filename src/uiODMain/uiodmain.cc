@@ -279,7 +279,6 @@ bool uiODMain::ensureGoodSurveySetup()
     if ( !ensureGoodDataDir() )
 	return false;
 
-    int res = 0;
     if ( !DBM().isBad() )
     {
 	uiRetVal uirv = DBMan::checkSurveySetupValid();
@@ -292,27 +291,27 @@ bool uiODMain::ensureGoodSurveySetup()
     }
 
     if ( !DBM().isBad() )
-	res = 1;
-    else
-    {
+	return true;
+
+    if ( !DBM().errMsg().isEmpty() )
 	uiMSG().error( DBM().errMsg() );
-	while ( res == 0 )
-	{
-	    res = uiODApplMgr::manageSurvey();
-	    if ( res == 0 && uiMSG().askGoOn( tr("Without a valid survey, %1 "
-				     "cannot start.\nDo you wish to exit?")
-				     .arg( programname_ )) )
+
+    bool havesurv = false;
+    while ( !havesurv )
+    {
+	havesurv = applMgr().manageSurvey();
+	if ( !havesurv && uiMSG().askGoOn( tr("Without a valid survey, %1 "
+				 "cannot start.\nDo you wish to exit?")
+				 .arg( programname_ )) )
 	    return false;
-	}
     }
 
-    if ( res == 3 )
+    if ( SI().isFresh() )
     {
 	neednewsurvinit_ = true;
 	newsurvinittimer_.start( 200, true );
 	newsurvinittimer_.tick.notify( mCB(this,uiODMain,newSurvInitTimerCB) );
     }
-
     return true;
 }
 
@@ -650,7 +649,7 @@ void uiODMain::afterStartupCB( CallBacker* )
 void uiODMain::newSurvInitTimerCB( CallBacker* )
 {
     if ( neednewsurvinit_ )
-	applMgr().setZStretch();
+	applMgr().handleSurveySelect();
 }
 
 

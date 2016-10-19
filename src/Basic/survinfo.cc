@@ -32,8 +32,12 @@ ________________________________________________________________________
 static const char* sKeySI = "Survey Info";
 static const char* sKeyXTransf = "Coord-X-BinID";
 static const char* sKeyYTransf = "Coord-Y-BinID";
-static const char* sKeyDefsFile = ".defs";
+static const char* sSurvFile = ".survey";
+static const char* sDefsFile = ".defs";
+static const char* sCommentsFile = ".comments";
+static const char* sFreshFile = ".fresh";
 static const char* sKeySurvDefs = "Survey defaults";
+static const char* sKeyFreshFileType = "Survey Creation Info";
 static const char* sKeyLatLongAnchor = "Lat/Long anchor";
 static const char* sKeySetPointPrefix = "Set Point";
 const char* SurveyInfo::sKeyInlRange()	    { return "In-line range"; }
@@ -143,6 +147,33 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
 }
 
 
+#define mCmpRet(memb,ct) if ( !(memb==oth.memb) ) return ct()
+
+
+SurveyInfo::ChangeType SurveyInfo::mainDiff( const SurveyInfo& oth ) const
+{
+    mCmpRet( basepath_, cEntireObjectChangeType );
+    mCmpRet( dirname_, cEntireObjectChangeType );
+    mCmpRet( zdef_, cSetupChange );
+    mCmpRet( coordsystem_, cSetupChange );
+    mCmpRet( b2c_, cSetupChange );
+    mCmpRet( pol2d_, cSetupChange );
+    mCmpRet( seisrefdatum_, cSetupChange );
+    mCmpRet( fullcs_, cRangeChange );
+    mCmpRet( workcs_, cWorkRangeChange );
+    mCmpRet( depthsinfeet_, cParsChange );
+    mCmpRet( defpars_, cParsChange );
+    mCmpRet( sipnm_, cAuxDataChange );
+    for ( int idx=0; idx<3; idx++ )
+    {
+	mCmpRet( set3binids_[idx], cAuxDataChange );
+    }
+    mCmpRet( comments_, cCommentChange );
+
+    return mUdf( ChangeType );
+}
+
+
 #define mErrRetDoesntExist(fnm) \
     { ret.add( uiStrings::phrDoesntExist(::toUiString(fnm)) ); return ret; }
 
@@ -211,7 +242,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiRetVal& uirv )
     si->setName( File::Path(survdir).fileName() ); // good default
 
     //Read params here, so we can look at the pars below
-    fp = fpsurvdir; fp.add( sKeyDefsFile );
+    fp = fpsurvdir; fp.add( sDefsFile );
     si->defpars_.read( fp.fullPath(), sKeySurvDefs, true );
     si->defpars_.setName( sKeySurvDefs );
 
@@ -228,9 +259,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir, uiRetVal& uirv )
     BufferString line;
     while ( astream.stream().getLine(line) )
     {
-	if ( !si->comment_.isEmpty() )
-	    si->comment_.addNewLine();
-	si->comment_.add( line );
+	if ( !si->comments_.isEmpty() )
+	    si->comments_.addNewLine();
+	si->comments_.add( line );
     }
     sfio.closeSuccess();
 
@@ -254,6 +285,11 @@ bool SurveyInfo::wrapUpRead()
 	ErrMsg( errmsg );
 	return false;
     }
+
+    File::Path fp( basepath_, dirname_, sCommentsFile );
+    od_istream strm( fp.fullPath() );
+    if ( strm.isOK() )
+	strm.getAll( comments_ );
 
     return true;
 }
@@ -955,7 +991,7 @@ bool SurveyInfo::write( const char* basedir ) const
     if ( !sfio.open(false) )
     {
 	BufferString msg( "Cannot open survey info file for write!" );
-	if ( sfio.errMsg().isSet() )
+	if ( !sfio.errMsg().isEmpty() )
 	    { msg += "\n\t"; msg += sfio.errMsg().getFullString(); }
 	ErrMsg( msg );
 	return false;
@@ -972,7 +1008,7 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     ascostream astream( strm );
-    const char* ptr = (const char*)comment_;
+    const char* ptr = (const char*)comments_;
     if ( *ptr )
     {
 	while ( 1 )
@@ -995,7 +1031,7 @@ bool SurveyInfo::write( const char* basedir ) const
     if ( !strm.isOK() )
     {
 	sfio.closeFail();
-	BufferString msg( "Error during write of survey info file!" );
+	BufferString msg( "Error during write of survey info file" );
 	msg += strm.errMsg().getFullString();
 	ErrMsg( msg );
 	return false;
@@ -1011,6 +1047,7 @@ bool SurveyInfo::write( const char* basedir ) const
     fp.set( basedir );
     fp.add( dirname_ );
     saveDefaultPars( fp.fullPath() );
+    saveComments( fp.fullPath() );
     return true;
 }
 
@@ -1073,7 +1110,7 @@ void SurveyInfo::saveDefaultPars( const char* basedir ) const
     else
 	surveypath = getFullDirPath();
 
-    const BufferString defsfnm( File::Path(surveypath,sKeyDefsFile).fullPath() );
+    const BufferString defsfnm( File::Path(surveypath,sDefsFile).fullPath());
     if ( defpars_.isEmpty() )
     {
 	if ( File::exists(defsfnm) )
@@ -1081,6 +1118,31 @@ void SurveyInfo::saveDefaultPars( const char* basedir ) const
     }
     else if ( !defpars_.write( defsfnm, sKeySurvDefs ) )
 	uiErrMsg( defsfnm );
+}
+
+
+void SurveyInfo::saveComments( const char* basedir ) const
+{
+    BufferString surveypath;
+    if ( basedir && *basedir )
+	surveypath = basedir;
+    else
+	surveypath = getFullDirPath();
+
+    const BufferString commentsfnm( File::Path(surveypath,sCommentsFile)
+				.fullPath());
+    if ( comments_.isEmpty() )
+    {
+	if ( File::exists(commentsfnm) )
+	    File::remove( commentsfnm );
+    }
+    else
+    {
+	od_ostream strm( commentsfnm );
+	strm << comments_;
+	if ( !strm.isOK() )
+	    uiErrMsg( commentsfnm );
+    }
 }
 
 
@@ -1230,13 +1292,13 @@ uiRetVal SurveyInfo::isValidDataRoot( const char* inpdirnm )
     if ( !File::exists(omffnm) )
 	mErrRetDoesntExist( omffnm );
 
-    fp.setFileName( ".survey" );
+    fp.setFileName( sSurvFile );
     if ( File::exists(fp.fullPath()) )
     {
 	// probably we're in a survey. So let's check:
 	fp.setFileName( "Seismics" );
 	if ( File::isDirectory(fp.fullPath()) )
-	    ret.add( tr("%1 has '.survey' file").arg( datarootstr ) );
+	    ret.add( tr("%1 has '%2' file").arg(datarootstr).arg(sSurvFile) );
     }
 
     return ret;
@@ -1252,7 +1314,7 @@ uiRetVal SurveyInfo::isValidSurveyDir( const char* dirnm )
     if ( !File::exists(omffnm) )
 	mErrRetDoesntExist( omffnm );
 
-    fp.setFileName( ".survey" );
+    fp.setFileName( sSurvFile );
     const BufferString survfnm( fp.fullPath() );
     if ( !File::exists(survfnm) )
 	mErrRetDoesntExist( survfnm );
@@ -1263,4 +1325,31 @@ uiRetVal SurveyInfo::isValidSurveyDir( const char* dirnm )
 	mErrRetDoesntExist( seisdirnm );
 
     return ret;
+}
+
+
+#define mFreshFileName() File::Path(getFullDirPath(),sFreshFile).fullPath()
+
+
+bool SurveyInfo::isFresh() const
+{
+    return File::exists( mFreshFileName() );
+}
+
+
+void SurveyInfo::setNotFresh() const
+{
+    File::remove( mFreshFileName() );
+}
+
+
+void SurveyInfo::getFreshSetupData( IOPar& iop ) const
+{
+    iop.read( mFreshFileName(), sKeyFreshFileType );
+}
+
+
+void SurveyInfo::setFreshSetupData( const IOPar& iop ) const
+{
+    iop.write( mFreshFileName(), sKeyFreshFileType );
 }

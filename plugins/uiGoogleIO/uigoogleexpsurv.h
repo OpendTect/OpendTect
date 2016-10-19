@@ -21,7 +21,7 @@ public:
 
 protected:
 
-    SurveyInfo*		si_;
+    const SurveyInfo*	si_;
 
     uiSelLineStyle*	lsfld_;
     uiGenInput*		hghtfld_;

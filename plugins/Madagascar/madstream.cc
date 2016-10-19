@@ -565,9 +565,7 @@ int MadStream::getNrSamples() const
 
 bool MadStream::isOK() const
 {
-    if (errMsg().isSet()) return false;
-
-    return true;
+    return errMsg().isEmpty();
 }
 
 

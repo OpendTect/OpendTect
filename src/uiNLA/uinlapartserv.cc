@@ -607,7 +607,8 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 
     dps()->setEmpty();
     uiString res = crdesc.prepareData( dpss, *dps() );
-    if ( res.isSet() ) mErrRet(res)
+    if ( !res.isEmpty() )
+	mErrRet(res)
 
     // allow user to view and edit data
     if ( !doDPSDlg() )

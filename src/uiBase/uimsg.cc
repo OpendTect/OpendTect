@@ -250,9 +250,9 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
 			   const uiString& cncltxt, const uiString& title,
 			   bool* notagain )
 {
-    mPrepCursor();
     if ( txt.isEmpty() )
-	return -1;
+	{ pErrMsg("Empty message to display. Refused."); return -1; }
+    mPrepCursor();
 
     mCapt( title.isEmpty() ? uiStrings::sSpecify() : title );
     const int refnr = beginCmdRecEvent( utfwintitle );
@@ -261,7 +261,8 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
     PtrMan<QMessageBox> mb = createMessageBox( icon, parent, txt, yestxt,
 					       notxt, cncltxt, wintitle,
 					       notagain ? &checkbox : 0 );
-    if ( checkbox ) checkbox->setChecked( *notagain );
+    if ( checkbox )
+	checkbox->setChecked( *notagain );
 
     int retval = 0;
     while ( true )
@@ -283,7 +284,6 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
 
     endCmdRecEvent( refnr, 1-retval, yestxt.getOriginalString(),
 		    notxt.getOriginalString(), cncltxt.getOriginalString() );
-
     return retval;
 }
 
@@ -324,7 +324,7 @@ void uiMsg::warning( const uiRetVal& rv )
     else if ( rv.isError() )
 	msg = rv;
     uiStringSet	uistrset; uistrset += msg;
-    showMsg( uimainwin_, WarningMsg, uistrset ); 
+    showMsg( uimainwin_, WarningMsg, uistrset );
 }
 
 
@@ -577,7 +577,7 @@ uiString uiMsg::sDontShowAgain()
 void uiMsg::showMsg( uiMainWin* p, msgType msgtyp, const uiStringSet& strset )
 {
     Threads::Locker lckr( lock_ );
-    CBCapsule<uiStringSet> caps( strset, this );	
+    CBCapsule<uiStringSet> caps( strset, this );
     if ( p ) uimainwin_ = p;
     if ( msgtyp == ErrorWithDetails || msgtyp == ErrorMsg )
 	dispErrMsgCB( &caps );
@@ -587,7 +587,7 @@ void uiMsg::showMsg( uiMainWin* p, msgType msgtyp, const uiStringSet& strset )
 
 
 void uiMsg::dispErrMsgCB( CallBacker* cber )
-{   
+{
     Threads::Locker lckr( msgdisplock_ );
     mDynamicCastGet( CBCapsule<uiStringSet>*, caps, cber )
     mEnsureExecutedInMainThreadWithCapsule( uiMsg::dispErrMsgCB, caps );
@@ -602,7 +602,7 @@ void uiMsg::dispWarnMsgCB( CallBacker* cber )
     Threads::Locker lckr( msgdisplock_ );
     mDynamicCastGet( CBCapsule<uiStringSet>*, caps, cber )
     mEnsureExecutedInMainThreadWithCapsule( uiMsg::dispWarnMsgCB, caps );
-    mCBCapsuleUnpack( uiStringSet, uistrset, caps ); 
+    mCBCapsuleUnpack( uiStringSet, uistrset, caps );
     showMessageBox( Warning, popParnt(), uistrset[0], uiStrings::sOk(),
 		    uiString::emptyString(), uiString::emptyString(),
 		    tr("Warning") );

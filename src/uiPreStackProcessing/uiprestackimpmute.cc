@@ -140,7 +140,7 @@ bool uiImportMute::acceptOK()
     const bool retval = trans->store( mutedef, ctio_.ioobj_, str );
     if ( !retval )
     {
-	if ( str.isSet() )
+	if ( !str.isEmpty() )
 	    uiMSG().error( str );
 	return false;
 	//TODO: integrate to mErrRet when all messages are uiString

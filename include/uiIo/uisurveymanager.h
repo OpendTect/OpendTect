@@ -57,23 +57,21 @@ public:
     };
     static void		add(const Util&);
 
-    SurveyInfo*		curSurvInfo()		{ return survinfo_; }
-    const SurveyInfo*	curSurvInfo() const	{ return survinfo_; }
+    const SurveyInfo*	curSurvInfo() const	{ return curSI(); }
 
     const char*		selectedSurveyName() const;
-    bool		freshSurveySelected() const
-						{ return freshsurveyselected_; }
     bool		haveSurveys() const;
 
 protected:
 
-    const bool		standalone_;
+    bool		isStandAlone() const	{ return !survinfo_; }
+    const SurveyInfo*	curSI() const;
+
     SurveyInfo*		survinfo_;
-    const BufferString	orgdataroot_;
     BufferString	dataroot_;
-    BufferString	initialsurveyname_;
     uiSurveyMap*	survmap_;
     File::Monitor*	filemonitor_;
+    uiRetVal		survreadstatus_;
 
     uiDataRootSel*	datarootfld_;
     uiListBox*		survdirfld_;
@@ -82,8 +80,7 @@ protected:
     ObjectSet<uiButton>	utilbuts_;
     uiTextEdit*		infofld_;
     uiTextEdit*		notesfld_;
-    bool		parschanged_; //!< of initial survey only
-    bool		freshsurveyselected_;
+    uiString		rootdirnotwritablestr_;
 
     bool		acceptOK();
     bool		rejectOK();
@@ -95,24 +92,21 @@ protected:
     void		compressButPushed(CallBacker*);
     void		odSettsButPushed(CallBacker*);
     void		utilButPushed(CallBacker*);
-    void		updateInfoCB( CallBacker* )	{ putToScreen(); }
     void		dataRootChgCB(CallBacker*);
     void		survDirChgCB(CallBacker*);
     void		survParFileChg(CallBacker*);
     void		dataRootDirChgCB(CallBacker*)	{ updateSurvList(); }
 
-    void		readSurvInfoFromFile();
-    void		setCurrentSurvInfo(SurveyInfo*,bool updscreen=true);
-    void		updateDataRootLabel();
+    void		reReadSurvInfoFromFile(const char*);
+    void		setCurrentSurvey(const char*);
+    bool		writeSettingsSurveyFile(const char*);
     void		updateSurvList();
     void		startFileMonitoring();
     void		stopFileMonitoring();
     void		putToScreen();
-    bool		writeSettingsSurveyFile();
-    bool		writeSurvInfoFile(bool onlyifcommentchanged);
+    void		launchEditor(bool);
+    void		writeCommentsIfChanged();
     bool		rootDirWritable() const;
-    void		updateDataRootInSettings();
-    void		rollbackNewSurvey(const uiString&);
 
 private:
 

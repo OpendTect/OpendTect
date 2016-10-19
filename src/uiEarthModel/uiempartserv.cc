@@ -1315,7 +1315,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     mDynamicCastGet(const Array2DInterpol*,interp,changer.ptr())
     const uiString infomsg =
 			interp ? interp->infoMsg() : uiStrings::sEmptyString();
-    if ( infomsg.isSet() )
+    if ( !infomsg.isEmpty() )
 	uiMSG().message( infomsg );
 
     return true;

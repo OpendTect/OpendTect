@@ -255,6 +255,22 @@ bool uiUserCreateSurvey::doUsrDef()
     uiSurveyInfoEditor dlg( this );
     if ( !dlg.go() )
 	File::removeDir( survinfo_->getFullDirPath() );
+    else
+    {
+	IOPar iop;
+	iop.setStdCreationEntries();
+	iop.set( "SIP.Name", survinfo_->sipName() );
+	survinfo_->setFreshSetupData( iop );
+    }
 
     return true;
+}
+
+
+BufferString uiUserCreateSurvey::dirName() const
+{
+    if ( !survinfo_ )
+	return BufferString::empty();
+    else
+	return survinfo_->getDirName();
 }

@@ -739,7 +739,7 @@ int OS::CommandLauncher::catchError()
     if ( !process_ )
 	return 0;
 
-    if ( errmsg_.isSet() )
+    if ( !errmsg_.isEmpty() )
 	return 1;
 
 #ifndef OD_NO_QT
@@ -764,7 +764,7 @@ int OS::CommandLauncher::catchError()
 	    break;
     }
 
-    if ( errmsg_.isSet() )
+    if ( !errmsg_.isEmpty() )
     {
 	return 1;
     }

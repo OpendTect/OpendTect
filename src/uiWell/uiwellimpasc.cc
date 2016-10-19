@@ -324,7 +324,7 @@ bool uiWellImportAsc::acceptOK()
 }
 
 
-#define mErrRet(s) { if ( (s).isSet() ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( !(s).isEmpty() ) uiMSG().error(s); return false; }
 
 bool uiWellImportAsc::doWork()
 {
@@ -367,7 +367,7 @@ bool uiWellImportAsc::doWork()
 	    mErrRet( msg );
 	}
 
-	if ( wellascio.warnMsg().isSet() )
+	if ( !wellascio.warnMsg().isEmpty() )
 	{
 	    uiString msg = tr( "The track file loading issued a warning:\n%1" )
 				.arg( wellascio.warnMsg() );
@@ -399,7 +399,7 @@ bool uiWellImportAsc::doWork()
 	{
 	    uiStringSet msgs;
 
-	    if ( d2tgrp_->errMsg().isSet() )
+	    if ( !d2tgrp_->errMsg().isEmpty() )
 		msgs += d2tgrp_->errMsg();
 
 	    msgs += tr( "Alternatively, swith off the use of a"
@@ -408,7 +408,7 @@ bool uiWellImportAsc::doWork()
 	    return false;
 	}
 
-	if ( d2tgrp_->warnMsg().isSet() )
+	if ( !d2tgrp_->warnMsg().isEmpty() )
 	{
 	    uiString msg = tr( "The Time-Depth Model file loading issued"
 			       " a warning:\n%1" )

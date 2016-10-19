@@ -187,9 +187,9 @@ bool Settings::write( bool do_merge ) const
     if ( !sfio.open(false) )
     {
 	BufferString msg( "Cannot open user settings file for write" );
-	if ( sfio.errMsg().isSet() )
-	{ msg += "\n\t"; msg += sfio.errMsg().getFullString(); }
-	    ErrMsg( msg );
+	if ( !sfio.errMsg().isEmpty() )
+	    { msg += "\n\t"; msg += sfio.errMsg().getFullString(); }
+	ErrMsg( msg );
 	return false;
     }
 

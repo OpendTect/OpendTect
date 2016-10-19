@@ -209,7 +209,7 @@ bool uiSeisMMProc::initWork( bool retry )
 
 	const FixedString progname = jobpars_.find( "Program.Name" );
 	jobprov_ = new SeisJobExecProv( progname, jobpars_ );
-	if (jobprov_->errMsg().isSet())
+	if ( !jobprov_->errMsg().isEmpty() )
 	    { errmsg_ = jobprov_->errMsg(); return false; }
 
 	nrinlperjob_ = 1;
@@ -225,7 +225,7 @@ bool uiSeisMMProc::initWork( bool retry )
 
     delete jobrunner_;
     jobrunner_ = jobprov_->getRunner( retry ? 1 : nrinlperjob_ );
-    if (jobprov_->errMsg().isSet())
+    if ( !jobprov_->errMsg().isEmpty() )
     {
 	delete jobrunner_; jobrunner_ = 0;
 	errmsg_ = jobprov_->errMsg();

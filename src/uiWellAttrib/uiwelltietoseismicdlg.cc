@@ -152,7 +152,7 @@ void uiTieWin::doWork( CallBacker* cb )
 	if ( !server_.extractSeismics() )
 	    { uiMSG().error( server_.errMsg() ); }
 
-    if ( server_.warnMsg().isSet() )
+    if ( !server_.warnMsg().isEmpty() )
 	uiMSG().warning( server_.warnMsg() );
 
     getDispParams();

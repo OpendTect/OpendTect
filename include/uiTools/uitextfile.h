@@ -82,7 +82,7 @@ public:
     public:
 
 	Setup( const uiString& winttl = uiString::emptyString() )
-	    : uiDialog::Setup(winttl.isSet() ? winttl : tr("File viewer"),
+	    : uiDialog::Setup(winttl.isEmpty() ? tr("File viewer") : winttl,
 				      mNoDlgTitle,mNoHelpKey)
 		    , scroll2bottom_(false)
 		    , allowopen_(false)

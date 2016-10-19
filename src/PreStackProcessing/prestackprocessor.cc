@@ -24,7 +24,7 @@ Processor::Processor( const char* nm )
     : ParallelTask( nm )
     , outputstepout_( 0, 0 )
 {
-    inputs_.allowNull( true ); 
+    inputs_.allowNull( true );
     outputs_.allowNull( true );
     reset();
 }
@@ -62,16 +62,16 @@ bool Processor::reset( bool force )
 
 
 bool Processor::wantsInput( const BinID& bid ) const
-{ 
+{
     const int offset=getRelBidOffset( bid, outputstepout_ );
-    return outputinterest_[offset]; 
+    return outputinterest_[offset];
 }
 
 void Processor::setInput( const BinID& relbid, DataPack::ID id )
 {
     RefMan<Gather> input =
-    	DPM(DataPackMgr::FlatID()).getAndCast<Gather>(id);
-    
+	DPM(DataPackMgr::FlatID()).getAndCast<Gather>(id);
+
     const BinID inputstepout = getInputStepout();
     const int offset = getRelBidOffset( relbid, inputstepout );
     if ( offset>=inputs_.size() )
@@ -103,7 +103,7 @@ bool Processor::setOutputInterest( const BinID& relbid, bool yn )
 
     const int offset=getRelBidOffset( relbid,outputstepout_ );
     outputinterest_[offset] = yn;
-    
+
     return true;
 }
 
@@ -145,7 +145,7 @@ bool Processor::prepareWork()
 		}
 
 		RefMan<Gather> output =
-                	createOutputArray(*(inputs_[inputoffset]) );
+	createOutputArray(*(inputs_[inputoffset]) );
 		outputs_ += output;
                 output->ref();
 		DPM( DataPackMgr::FlatID() ).add( output );
@@ -207,11 +207,11 @@ bool ProcessManager::reset( bool force )
 	    return false;
 
     if ( !processors_.size() )
- 	return true;
+	return true;
 
     BinID outputstepout( 0, 0 );
     return processors_[processors_.size()-1]->setOutputInterest(
-	    						outputstepout, true );
+							outputstepout, true );
 
 }
 
@@ -232,7 +232,7 @@ BinID ProcessManager::getInputStepout() const
 bool ProcessManager::wantsInput( const BinID& relbid ) const
 {
     return processors_.size()
-	? processors_[0]->wantsInput( relbid ) 
+	? processors_[0]->wantsInput( relbid )
 	: false;
 }
 
@@ -388,10 +388,10 @@ bool ProcessManager::usePar( const IOPar& par )
 	}
 
 	Processor* proc = Processor::factory().create( name.buf() );
-	if ( !proc || proc->errMsg().isSet() || !proc->usePar( *steppar ) )
+	if ( !proc || !proc->errMsg().isEmpty() || !proc->usePar( *steppar ) )
 	{
 	    errmsg_ = tr("Cannot parse processing step %1.").arg(name);
-	    if ( !proc || proc->errMsg().isSet() )
+	    if ( !proc || !proc->errMsg().isEmpty() )
 		errmsg_.append( tr( "\nAre all plugins loaded?" ) );
 	    else
 		errmsg_.append( proc->errMsg(), true );

@@ -1532,7 +1532,7 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 void uiStratSynthDisp::showInfoMsg( bool foralt )
 {
     StratSynth& ss = foralt ? altSS() : curSS();
-    if ( ss.infoMsg().isSet() )
+    if ( !ss.infoMsg().isEmpty() )
     {
 	uiMsgMainWinSetter mws( mainwin() );
 	uiMSG().warning( ss.infoMsg() );

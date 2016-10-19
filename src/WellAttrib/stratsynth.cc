@@ -1203,7 +1203,7 @@ bool doWork( od_int64 start , od_int64 stop , int )
 		if ( incorrectpvel )
 		{
 		    needinterpolatedvel = true;
-		    if ( needinfo && !infomsg_.isSet() )
+		    if ( needinfo && infomsg_.isEmpty() )
 		    {
 			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
 			msg.append( tr("'Pwave' ( sample value: %1 %2 )")
@@ -1215,7 +1215,7 @@ bool doWork( od_int64 start , od_int64 stop , int )
 		if ( incorrectden )
 		{
 		    needinterpoltedden = true;
-		    if ( needinfo && !infomsg_.isSet() )
+		    if ( needinfo && infomsg_.isEmpty() )
 		    {
 			const UnitOfMeasure* uom = UoMR().get( "Kg/m3" );
 			msg.append( tr("'Density' ( sample value: %1 %2 )")
@@ -1227,7 +1227,7 @@ bool doWork( od_int64 start , od_int64 stop , int )
 		if ( incorrectsvel )
 		{
 		    needinterpolatedsvel = true;
-		    if ( needinfo && !infomsg_.isSet() )
+		    if ( needinfo && infomsg_.isEmpty() )
 		    {
 			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
 			msg.append( tr("'Swave' ( sample value: %1 %2 )")

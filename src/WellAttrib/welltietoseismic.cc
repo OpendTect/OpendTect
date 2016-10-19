@@ -461,7 +461,7 @@ bool DataPlayer::setAIModel()
     if ( !emodelcomputer.computeFromLogs() )
 	mErrRet( uiString( emodelcomputer.errMsg() ).append(doeditmsg,true) )
 
-    if ( emodelcomputer.warnMsg().isSet() )
+    if ( !emodelcomputer.warnMsg().isEmpty() )
 	warnmsg_ = uiString( emodelcomputer.warnMsg() ).append(doeditmsg,true);
 
     aimodel_ = emodelcomputer.elasticModel();
