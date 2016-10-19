@@ -488,6 +488,7 @@ void uiWellDispCtrlEditMarkerDlg::handleUsrClickCB( CallBacker* )
     {
 	addMoveMarker( idset, dah, mrknm );
 	curwd_->displayProperties(true).markers_.selmarkernms_.add( mrknm );
+	curwd_->displayProperties(false).markers_.selmarkernms_.add( mrknm );
     }
     else if ( curmrk_ )
     {
