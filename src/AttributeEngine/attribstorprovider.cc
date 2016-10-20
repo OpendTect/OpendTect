@@ -815,10 +815,10 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	const bool isclss = isclass[idx];
 	compidx++;
 
+	const int compnr = desc_.is2D() ? idx : compidx;
 	for ( int sampidx=0; sampidx<data.nrsamples_; sampidx++ )
 	{
 	    const float curt = (float)(z0+sampidx)*refstep_ + extrazfromsamppos;
-	    const int compnr = desc_.is2D() ? idx : compidx;
 	    const float val = trcrange.includes(curt,false) ?
 		(isclss ? trc->get(trc->nearestSample(curt),compnr)
 		  : trc->getValue(curt,compnr)) : mUdf(float);
@@ -883,7 +883,7 @@ Pos::GeomID StorageProvider::getGeomID() const
 { return geomid_; }
 
 
-void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
+void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dp ) const
 {
     if ( !mscprov_ ) return;
     const SeisTrc* trc = mscprov_->get(0,0);
@@ -892,10 +892,10 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
     Interval<float> trcrange = trc->info().sampling_.interval(trc->size());
     trcrange.widen( 0.001f * trc->info().sampling_.step );
     const BinID bid = trc->info().binID();
-    if ( !dc->sampling().hsamp_.includes(bid) )
+    if ( !dp->sampling().hsamp_.includes(bid) )
 	return;
 
-    const TrcKeyZSampling& sampling = dc->sampling();
+    const TrcKeyZSampling& sampling = dp->sampling();
     const int inlidx = sampling.hsamp_.lineRange().nearestIndex( bid.inl() );
     const int crlidx = sampling.hsamp_.trcRange().nearestIndex( bid.crl() );
     int cubeidx = -1;
@@ -905,10 +905,11 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
 	    continue;
 
 	cubeidx++;
-	if ( cubeidx>=dc->nrComponents() &&
-		!dc->addComponent(sKey::EmptyString()) )
+	if ( cubeidx>=dp->nrComponents() &&
+		!dp->addComponent(sKey::EmptyString()) )
 	    continue;
 
+	const int compnr = desc_.is2D() ? idx : cubeidx;
 	for ( int zidx=0; zidx<sampling.nrZ(); zidx++ )
 	{
 	    const float curt = sampling.zsamp_.atIndex( zidx );
@@ -917,8 +918,8 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
 
 	    //the component index inthe trace is depending on outputinterest_,
 	    //thus is the same as cubeidx
-	    const float val = trc->getValue( curt, cubeidx );
-	    dc->data(cubeidx).set( inlidx, crlidx, zidx, val );
+	    const float val = trc->getValue( curt, compnr );
+	    dp->data(cubeidx).set( inlidx, crlidx, zidx, val );
 	}
     }
 }

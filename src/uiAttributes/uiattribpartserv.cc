@@ -680,13 +680,14 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 
     bool atsamplepos = true;
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
-    const DescSet* attrds = DSHolder().getDescSet( false, isstortarget );
+    const bool is2d = targetspecs_.size() && targetspecs_[0].is2D();
+    const DescSet* attrds = DSHolder().getDescSet( is2d, isstortarget );
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
 				: attrds->getDesc( targetspecs_[0].id() );
     if ( targetdesc )
     {
 	BufferString defstr;
-	attrds->getDesc(targetspecs_[0].id())->getDefStr(defstr);
+	targetdesc->getDefStr(defstr);
 	if ( defstr != targetspecs_[0].defString() )
 	    cache = 0;
 
