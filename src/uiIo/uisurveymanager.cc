@@ -147,7 +147,6 @@ bool anySurvey() const
 };
 
 
-
 static ObjectSet<uiSurveyManager::Util>& getUtils()
 {
     mDefineStaticLocalObject( PtrMan<ManagedObjectSet<uiSurveyManager::Util> >,
@@ -435,6 +434,7 @@ void uiSurveyManager::rmButPushed( CallBacker* )
 	return;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
+    stopFileMonitoring();
     const bool rmisok = File::remove( truedirnm );
     MouseCursorManager::restoreOverride();
     if ( !rmisok )
@@ -444,6 +444,7 @@ void uiSurveyManager::rmButPushed( CallBacker* )
 	if ( !File::remove(seldirnm) )
 	    uiMSG().error( uiStrings::phrCannotRemove(tr(
 					    "link to the removed survey")) );
+    updateSurvList();
 }
 
 
@@ -614,7 +615,8 @@ void uiSurveyManager::startFileMonitoring()
     {
 	const File::Path fp( dataroot_, survdirfld_->textOfItem(idx),
 					 SurveyInfo::sSetupFileName() );
-	filemonitor_->watch( fp.fullPath() );
+	const BufferString fnm = fp.fullPath();
+	filemonitor_->watch( fnm );
     }
 
     mAttachCB( filemonitor_->dirChanged, uiSurveyManager::dataRootDirChgCB );

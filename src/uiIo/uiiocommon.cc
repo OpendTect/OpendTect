@@ -37,7 +37,7 @@ void uiSurvey::getDirectoryNames( BufferStringSet& list, bool addfullpath,
 	    continue;
 
 	const File::Path fp( basedir, dirnm, SurveyInfo::sSetupFileName() );
-	if ( File::exists(fp.fullPath()) )
+	if ( File::isReadable(fp.fullPath()) )
 	{
 	    if ( addfullpath )
 		list.add( dl.fullPath(idx) );
