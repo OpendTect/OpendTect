@@ -94,9 +94,11 @@ public:
 	    const Coord coord( startpt_.x+curpos[0]*xstep_,
 			       startpt_.y+curpos[1]*ystep_ );
 	    float val = mUdf(float );
-	    const BinID approxbid = SI().transform( coord );
-	    if ( hsamp_.includes(approxbid) )
+	    BinID approxbid = SI().transform( coord );
+	    if ( hsamp_.lineRange().includes(approxbid.lineNr(),false)
+		    && hsamp_.trcRange().includes(approxbid.trcNr(),false))
 	    {
+		approxbid = hsamp_.getNearest( approxbid );
 		const Coord approxcoord = SI().transform( approxbid );
 		float diffx = (float) ((coord.x-approxcoord.x) / xstep_);
 		float diffy = (float) ((coord.y-approxcoord.y) / ystep_);

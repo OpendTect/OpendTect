@@ -718,14 +718,10 @@ static void getNearestIdx( Pos::Index_Type& diridx, Pos::Index_Type step_ )
 }
 
 
-TrcKey TrcKeySampling::getNearest( const TrcKey& trckey ) const
+BinID TrcKeySampling::getNearest( const BinID& bid ) const
 {
-    if ( trckey.survID()!=survid_ )
-	return TrcKey::udf();
-
-
-    BinID relbid( trckey.position().first - start_.first,
-		  trckey.position().second - start_.second );
+    BinID relbid( bid.first - start_.first,
+		  bid.second - start_.second );
 
     BinID ret( 0, 0 );
 
@@ -755,6 +751,14 @@ TrcKey TrcKeySampling::getNearest( const TrcKey& trckey ) const
     return ret;
 }
 
+
+TrcKey TrcKeySampling::getNearest( const TrcKey& trckey ) const
+{
+    if ( trckey.survID()!=survid_ )
+	return TrcKey::udf();
+
+    return TrcKey( survid_, getNearest(trckey.position()) );
+}
 
 
 void TrcKeySampling::snapToSurvey()

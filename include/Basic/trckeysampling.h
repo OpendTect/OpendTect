@@ -104,6 +104,7 @@ public:
 					TrcKeySampling&) const;
 			    //!< Returns false if intersection is empty
 
+    BinID		getNearest(const BinID&) const;
     TrcKey		getNearest(const TrcKey&) const;
 			    /*!< step_-snap and outside -> edge.
 				Assumes inldist == crldist */
