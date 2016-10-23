@@ -160,7 +160,8 @@ public:
     static ChangeType	cCommentChange()	{ return 9; }
 
     static bool		isMinorChange( ChangeType ct )
-			{ return ct==cNameChange() || ct>cRangeChange(); }
+			{ return ct==ChangeData::cNoChgType()
+			      || ct==cNameChange() || ct>cRangeChange(); }
 
 protected:
 
@@ -269,9 +270,7 @@ public:
     static uiRetVal	isValidDataRoot(const char*);
     static uiRetVal	isValidSurveyDir(const char*);
 
-    ChangeType		mainDiff(const SurveyInfo&) const;
-			//< returns cEntireObjectChangeType() for other survey
-			//< returns mUdf(ChangeType) for no change
+    virtual ChangeData	compareWith(const Monitorable&) const;
 
     bool		isFresh() const;
     void		setNotFresh() const;

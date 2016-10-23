@@ -148,21 +148,32 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
 }
 
 
-#define mCmpRet(memb,ct) if ( !(memb==oth.memb) ) return ct()
+#define mCmpRet(memb,ct) \
+    if ( !(memb==oth->memb) ) \
+        return ChangeData( ct(), ChangeData::cUnspecChgID() )
+#define mCmpRetDeRef(memb,ct) \
+    if ( !((*memb)==(*oth->memb)) ) \
+        return ChangeData( ct(), ChangeData::cUnspecChgID() )
 
 
-SurveyInfo::ChangeType SurveyInfo::mainDiff( const SurveyInfo& oth ) const
+SurveyInfo::ChangeData SurveyInfo::compareWith( const Monitorable& mon ) const
 {
+    if ( this == &mon )
+	return ChangeData::NoChange();
+    mDynamicCastGet( const SurveyInfo*, oth, &mon );
+    if ( !oth )
+	return ChangeData::AllChanged();
+
     mCmpRet( basepath_, cEntireObjectChangeType );
     mCmpRet( dirname_, cEntireObjectChangeType );
     mCmpRet( zdef_, cSetupChange );
-    mCmpRet( coordsystem_, cSetupChange );
     mCmpRet( b2c_, cSetupChange );
     mCmpRet( pol2d_, cSetupChange );
     mCmpRet( seisrefdatum_, cSetupChange );
     mCmpRet( fullcs_, cRangeChange );
     mCmpRet( workcs_, cWorkRangeChange );
     mCmpRet( depthsinfeet_, cParsChange );
+    mCmpRetDeRef( coordsystem_, cParsChange );
     mCmpRet( defpars_, cParsChange );
     mCmpRet( sipnm_, cAuxDataChange );
     for ( int idx=0; idx<3; idx++ )
@@ -171,7 +182,7 @@ SurveyInfo::ChangeType SurveyInfo::mainDiff( const SurveyInfo& oth ) const
     }
     mCmpRet( comments_, cCommentChange );
 
-    return mUdf( ChangeType );
+    return ChangeData::NoChange();
 }
 
 

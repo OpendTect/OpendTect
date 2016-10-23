@@ -29,6 +29,15 @@ static void reloadRepository(CallBacker*)
     //Todo
 }
 
+
+bool PositionSystem::operator==( const PositionSystem& oth ) const
+{
+    IOPar myiop; fillPar( myiop );
+    IOPar othiop; oth.fillPar( othiop );
+    return myiop == othiop;
+}
+
+
 void PositionSystem::initRepository( NotifierAccess* na )
 {
     reloadRepository( 0 );

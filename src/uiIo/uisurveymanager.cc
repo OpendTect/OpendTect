@@ -795,6 +795,16 @@ bool uiSurveyManager::acceptOK()
 
     writeCommentsIfChanged();
 
+    const SurveyInfo::ChangeData chgdata = SI().compareWith( *survinfo_ );
+    if ( chgdata.isNoChange() )
+	return true;
+
+    if ( SurveyInfo::isMinorChange(chgdata.changeType()) )
+    {
+	const_cast<SurveyInfo&>( SI() ) = *survinfo_;
+	return true;
+    }
+
     uiRetVal uirv = uiDataRootSel::setSurveyDirTo(
 				File::Path(dataroot_,selsurv).fullPath() );
     if ( !uirv.isOK() )

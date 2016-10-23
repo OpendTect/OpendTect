@@ -31,6 +31,9 @@ namespace Coords
 mExpClass(Basic) PositionSystem : public RefCount::Referenced
 {
 public:
+
+    bool			operator==(const PositionSystem&) const;
+
     static void			initRepository(NotifierAccess* = 0);
 				/*!<To be called from initGeneral with a
 				    pointer to survey change notifier. */

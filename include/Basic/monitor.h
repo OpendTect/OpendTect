@@ -85,9 +85,14 @@ public:
 	ChangeType	changeType() const	{ return first; }
 	IDType		ID() const		{ return second; }
 	bool		isEntireObject() const	{ return first == -1; }
+	bool		isNoChange() const	{ return mIsUdf(first); }
 
 	static inline ChangeType cEntireObjectChgType()	{ return -1; }
-	static inline IDType cEntireObjectChgID()	{ return -1; }
+	static inline ChangeType cNoChgType()	{ return mUdf(ChangeType); }
+	static inline IDType cUnspecChgID()	{ return -1; }
+	static inline ChangeData AllChanged()	{ return ChangeData(-1,-1); }
+	static inline ChangeData NoChange()	{ return ChangeData(
+							 mUdf(ChangeType),-1); }
     };
 
 			Monitorable(const Monitorable&);
@@ -108,10 +113,14 @@ public:
     void		sendEntireObjectChangeNotification() const;
 
     static IDType	cEntireObjectChangeID()
-			{ return ChangeData::cEntireObjectChgID(); }
+			{ return ChangeData::cUnspecChgID(); }
     static inline ChangeType cEntireObjectChangeType()
 			{ return ChangeData::cEntireObjectChgType(); }
     static ChangeType	changeNotificationTypeOf(CallBacker*);
+
+    virtual ChangeData	compareWith( const Monitorable& oth ) const
+			{ return this == &oth ? ChangeData::NoChange()
+					      : ChangeData::AllChanged(); }
 
 protected:
 
@@ -292,14 +301,15 @@ protected:
 #define mImplMonitorableAssignment(clss,baseclss) \
 clss& clss::operator =( const clss& oth ) \
 { \
-    if ( &oth != this ) \
+    const ChangeData changedata = compareWith( oth ); \
+    if ( !changedata.isNoChange() ) \
     { \
 	mLock4Write(); \
 	AccessLocker lckr( oth ); \
 	copyAll( oth ); \
 	touch(); \
 	mUnlockAllAccess(); \
-	sendEntireObjectChangeNotification(); \
+	mSendChgNotif( changedata.changeType(), changedata.ID() ); \
     } \
     return *this; \
 } \
@@ -308,6 +318,29 @@ void clss::copyAll( const clss& oth ) \
 { \
     baseclss::copyAll( oth ); \
     copyClassData( oth ); \
+}
+
+
+#define mDeclMonitorableComparison(clss) \
+    private: \
+        void	    compareClassData(const clss&); \
+    protected: \
+        void	    compareAll(const clss&); \
+    public: \
+	bool	    operator ==(const clss&) const
+
+
+#define mImplMonitorableComparison(clss) \
+bool clss::operator ==( const clss& oth ) const \
+{ \
+    mLock4Read(); \
+    return compareAll( oth ); \
+} \
+\
+bool clss::compareAll( const clss& oth ) const \
+{ \
+    return this == &oth \
+	|| (baseclss::compareAll( oth ) && compareClassData( oth ) ); \
 }
 
 
