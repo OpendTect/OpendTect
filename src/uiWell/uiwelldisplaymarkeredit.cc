@@ -282,7 +282,7 @@ void uiDispEditMarkerDlg::getMarkerFromAll( ObjectSet<Well::Marker>& mrks,
     {
 	Well::MarkerSet& mrkset = *markerssets_[idwd];;
 	Well::Marker mrk = mrkset.getByName( mrknm );
-	if ( mrk.isUdf() )
+	if ( !mrk.isUdf() )
 	    mrks += new Well::Marker( mrk );
     }
     Well::Marker* tmpmrk = getMarkerFromTmpList( mrknm );

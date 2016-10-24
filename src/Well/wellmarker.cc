@@ -680,7 +680,7 @@ void Well::MarkerSet::removeSingleByIdx( IdxType idx )
 {
     mLock4Write();
     
-    const MarkerID& mid = markerIDFor( idx );
+    const MarkerID& mid = mrkrIDFor( idx );
     rmoveSingle( idx );
     mSendChgNotif( cMarkerRemoved(), mid.getI() );
 }
