@@ -523,4 +523,10 @@ void MPEEditor::setActiveDragger( const EM::PosID& pid )
     activedragger_ = pid;
 }
 
+
+const ObjectSet<visBase::MarkerSet>& MPEEditor::getDraggerMarkers() const
+{
+    return draggermarkers_;
+}
+
 } // namespace visSurvey

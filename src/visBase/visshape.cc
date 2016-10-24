@@ -452,30 +452,16 @@ void VertexShape::dirtyCoordinates()
 }
 
 
-Coord3 VertexShape::getOsgNormal( int idx ) const
+Coord3f VertexShape::getOsgNormal( int idx ) const
 {
-    Coord3 nm = Coord3( 0, 0, 0 );
+    Coord3f nm = Coord3f( 0, 0, 0 );
     if ( osggeom_ )
     {
 	const osg::Array* arr = osggeom_->getNormalArray();
 	osg::Vec3Array* osgnormals = mGetOsgVec3Arr( arr );
 	if ( osgnormals->size()>idx )
-	{
-	    if ( getDisplayTransformation() )
-	    {
-		getDisplayTransformation()->transformBackNormal( 
-		(*osgnormals)[idx], nm );
-		const double normalsqlen = nm.sqAbs();
-		if ( !normalsqlen )
-		    nm = Coord3( 1, 0, 0 );
-		else
-		    nm /= Math::Sqrt(normalsqlen);
-	    }
-	    else
-		nm = Conv::to<Coord3>( (*osgnormals)[idx] );
-	}
+	    nm = Conv::to<Coord3f>( (*osgnormals)[idx] );
     }
-
     return nm;
 }
 
@@ -484,6 +470,7 @@ void VertexShape::useOsgAutoNormalComputation( bool yn )
 {
     useosgsmoothnormal_ = yn;
 }
+
 
 void VertexShape::setColorBindType( BindType bt )
 {
@@ -589,6 +576,27 @@ void VertexShape::setTextureChannels( TextureChannels* channels )
 	channels_->getOsgTexture()->addCallback( texturecallbackhandler_ );
 
     setUpdateVar( needstextureupdate_, true );
+}
+
+
+const unsigned char* VertexShape::getTextureData( int& width, int& height, 
+    int& pixelsz ) const
+{
+    const osgGeo::LayeredTexture* laytex = 
+	channels_ ? channels_->getOsgTexture() : 0;
+
+    osgGeo::LayeredTexture* laytexture =  
+	const_cast<osgGeo::LayeredTexture*>( laytex );
+
+    if ( !laytexture ) return 0;
+
+    const osg::Image* img = laytexture->getCompositeTextureImage();
+    if ( !img ) return 0;
+    width = img->s();
+    height = img->t();
+    pixelsz = img->getPixelSizeInBits();
+   
+    return img->data(); 
 }
 
 

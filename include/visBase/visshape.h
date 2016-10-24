@@ -121,7 +121,7 @@ public:
     void		useOsgAutoNormalComputation(bool);
     bool		useOsgAutoNormalComputation() const
 			    { return useosgsmoothnormal_; }
-    Coord3		getOsgNormal(int) const;
+    Coord3f		getOsgNormal(int) const;
     enum		BindType{ BIND_OFF = 0,BIND_OVERALL,
 				       BIND_PER_PRIMITIVE_SET,
 				       BIND_PER_PRIMITIVE, BIND_PER_VERTEX};
@@ -134,7 +134,7 @@ public:
 			    displaylist false, osg use display list to render.*/
 
     void		setTextureChannels(TextureChannels*);
-
+    const unsigned char*  getTextureData(int&,int&,int&) const;
     void		forceRedraw(bool=true);
 
 protected:
