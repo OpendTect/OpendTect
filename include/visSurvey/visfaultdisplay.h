@@ -175,6 +175,10 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
+    const visBase::GeomIndexedShape* getFaultDisplayedPlane() const;
+    const visBase::GeomIndexedShape* getFaultDisplayedStickLines() const;
+    const ObjectSet<visBase::MarkerSet>& getFaultDisplayedSticks() const;
+
 protected:
 
     virtual			~FaultDisplay();

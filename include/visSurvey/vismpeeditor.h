@@ -91,6 +91,7 @@ public:
     Sower&			sower()			{ return *sower_; }
     void			displayPatch(const MPE::Patch*);
     void			cleanPatch();
+    const ObjectSet<visBase::MarkerSet>& getDraggerMarkers() const;
 
 protected:
     				~MPEEditor();

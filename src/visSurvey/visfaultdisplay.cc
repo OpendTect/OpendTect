@@ -2001,4 +2001,23 @@ void FaultDisplay::enableAttrib( int attrib, bool yn )
 }
 
 
+const visBase::GeomIndexedShape* FaultDisplay::getFaultDisplayedPlane() const
+{
+    return paneldisplay_;
+}
+
+
+const visBase::GeomIndexedShape* 
+FaultDisplay::getFaultDisplayedStickLines() const
+{
+    return stickdisplay_;
+}
+
+
+const ObjectSet<visBase::MarkerSet>& 
+FaultDisplay::getFaultDisplayedSticks() const
+{
+    return viseditor_->getDraggerMarkers();
+}
+
 } // namespace visSurvey

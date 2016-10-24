@@ -137,7 +137,7 @@ public:
 			    displaylist false, osg use display list to render.*/
 
     void		setTextureChannels(TextureChannels*);
-
+    const unsigned char*  getTextureData(int&,int&,int&) const;
     void		forceRedraw(bool=true);
 
 protected:

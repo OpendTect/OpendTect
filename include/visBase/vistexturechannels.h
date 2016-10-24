@@ -110,6 +110,7 @@ public:
     void			touchMappedData();
 
     osgGeo::LayeredTexture*	getOsgTexture() { return osgtexture_; }
+    const osgGeo::LayeredTexture* getOsgTexture() const { return osgtexture_; }
     const TypeSet<int>*		getOsgIDs(int channel) const;
 
     void			enableTextureInterpolation(bool);
