@@ -534,6 +534,7 @@ void ChannelInfo::updateOsgImages()
 	{
 	    osg::Image* image = new osg::Image;
 	    image->ref();
+	    osgimages_.replace( idx, image );
 	}
 
 	const od_int64 offset = idx * componentsize * nrbands;
@@ -548,6 +549,7 @@ void ChannelInfo::updateOsgImages()
 
 bool ChannelInfo::isCurrentDataPremapped() const
 { return !unmappeddata_[currentversion_]; }
+
 
 
 class TextureChannels::TextureCallbackHandler :
