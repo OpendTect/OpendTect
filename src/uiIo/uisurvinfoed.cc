@@ -416,7 +416,7 @@ uiSurvInfoProvider* uiSurveyInfoEditor::getInfoProviderByName(
 {
     const ObjectSet<uiSurvInfoProvider>& sips = survInfoProvs();
     for ( int idx=0; idx<sips.size(); idx++ )
-	if ( nm == sips[idx]->usrText() )
+	if ( nm.isEqualTo(sips[idx]->usrText()) )
 	    return const_cast<uiSurvInfoProvider*>( sips[idx] );
     return 0;
 }

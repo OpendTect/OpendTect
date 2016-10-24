@@ -95,7 +95,7 @@ public:
 			uiCopySurveySIP()   {};
 
     virtual uiString	usrText() const
-    			{ return tr("Copy from other survey"); }
+			{ return tr("Copy from other survey"); }
 
     virtual uiDialog*	dialog(uiParent*);
     virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
@@ -118,7 +118,7 @@ uiDialog* uiCopySurveySIP::dialog( uiParent* p )
     survlist_.erase();
     uiSurvey::getDirectoryNames( survlist_, 0, SI().getBasePath() );
     uiSelectFromList::Setup setup(  uiStrings::sSurveys(), survlist_ );
-    setup.dlgtitle( uiStrings::phrSelect(uiStrings::sSurvey()) );
+    setup.dlgtitle( tr("Select Survey to duplicate Setup from") );
     uiSelectFromList* dlg = new uiSelectFromList( p, setup );
     dlg->setHelpKey(mODHelpKey(mCopySurveySIPHelpID) );
     return dlg;
@@ -130,7 +130,8 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     tdinf_ = Uknown;
     inft_ = false;
     mDynamicCastGet(uiSelectFromList*,seldlg,dlg)
-    if ( !seldlg ) return false;
+    if ( !seldlg )
+	return false;
 
     BufferString fname = File::Path( GetBaseDataDir() )
 			 .add( seldlg->selFld()->getText() ).fullPath();

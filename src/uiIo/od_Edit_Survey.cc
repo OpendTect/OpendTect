@@ -36,15 +36,14 @@ static void exitWithErrMsg( const char* msg )
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
+
     CommandLineParser clp;
     clp.setKeyHasValue( "dataroot" );
-
     BufferStringSet normargs;
     BufferString dataroot, survdir, fullsurvpath;
     const bool createmode = clp.hasKey( "create" );
     const bool altdataroot = clp.getVal( "dataroot", dataroot );
     clp.getNormalArguments( normargs );
-
     if ( !altdataroot || dataroot.isEmpty() )
 	dataroot = GetBaseDataDir();
 

@@ -398,7 +398,7 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 {
     File::Path fp( dirnm, sPluginDir, GetPlfSubDir() );
     DirList dl( fp.fullPath(), DirList::FilesOnly );
-    const BufferString prognm = getProgNm( GetArgV()[0] );
+    const BufferString prognm = getProgNm( GetFullExecutablePath() );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm = dl.get(idx);
@@ -610,11 +610,7 @@ void PluginManager::loadSurveyRelatedTools()
 	    continue;
 
 	if ( !loadSurvRelTools(data.sla_,data.name_) )
-	{
-	    data.info_ = 0;
-	    data.sla_->close();
-	    delete data.sla_; data.sla_ = 0;
-	}
+	    continue;
 
 	data.isloaded_ = true;
 

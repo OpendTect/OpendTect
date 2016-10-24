@@ -255,16 +255,14 @@ bool uiUserCreateSurvey::acceptOK()
 
 bool uiUserCreateSurvey::doUsrDef()
 {
-    uiSurveyInfoEditor dlg( this );
+    IOPar iop; iop.setStdCreationEntries();
+    iop.set( uiSurvInfoProvider::sKeySIPName(), survinfo_->sipName() );
+    survinfo_->setFreshSetupData( iop );
+
+    const_cast<SurveyInfo&>( SI() ) = *survinfo_;
+    uiSurveyInfoEditor dlg( this, true );
     if ( !dlg.go() )
 	File::removeDir( survinfo_->getFullDirPath() );
-    else
-    {
-	IOPar iop;
-	iop.setStdCreationEntries();
-	iop.set( uiSurvInfoProvider::sKeySIPName(), survinfo_->sipName() );
-	survinfo_->setFreshSetupData( iop );
-    }
 
     return true;
 }
