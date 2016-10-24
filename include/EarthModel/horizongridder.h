@@ -17,10 +17,13 @@ ________________________________________________________________________
 #include "contcurvinterpol.h"
 #include "trckeysampling.h"
 #include "multiid.h"
+#include "emposid.h"
 #include "earthmodelmod.h"
 
 class FaultTrcDataProvider;
 class TaskRunner;
+
+namespace EM { class Horizon3D; }
 
 /*!
 \brief Base class for Horizon Gridders.
@@ -45,6 +48,9 @@ public:
 
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
+    static uiRetVal	executeGridding(HorizonGridder*,EM::Horizon3D*,
+					const EM::SectionID&, const BinID& step,
+					TaskRunner* tr=0);
 
 protected:
 

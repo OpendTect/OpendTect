@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "faulttrace.h"
+#include "emhorizon3d.h"
 #include "statruncalc.h"
 #include "survinfo.h"
 #include "uistrings.h"
@@ -324,4 +325,69 @@ bool ContinuousCurvatureHor3DGridder::setArray2D( Array2D<float>& arr,
      TaskRunner* taskrunner )
 {
      return setArray( arr,taskrunner );
+}
+
+uiRetVal HorizonGridder::executeGridding(
+	HorizonGridder* interpolator, EM::Horizon3D* hor3d,
+	const EM::SectionID& sid,
+	const BinID& gridstep, TaskRunner* taskrunner)
+{
+    StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
+    rowrg.step = gridstep.inl();
+    StepInterval<int> colrg = hor3d->geometry().colRange();
+    colrg.step = gridstep.crl();
+
+    TrcKeySampling hs( false );
+    hs.set( rowrg, colrg );
+    hs.survid_ = hor3d->getSurveyID();
+
+    interpolator->setTrcKeySampling( hs );
+
+    Array2DImpl<float>* arr =
+	new Array2DImpl<float>( hs.nrInl(), hs.nrCrl() );
+    if ( !arr->isOK() )
+	return uiRetVal(
+	    od_static_tr("executeGridding",
+			 "Not enough horizon data for section %1")
+			     .arg(sid+1) );
+
+    arr->setAll( mUdf(float) );
+
+    PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
+    if ( !iterator )
+	return uiRetVal(
+	    od_static_tr("executeGridding",
+			 "Internal: Cannot create Horizon iterator "
+			 "for section %1").arg(sid+1) );
+
+    while( true )
+    {
+	const EM::PosID posid = iterator->next();
+	if ( posid.objectID() == -1 )
+	    break;
+
+	const BinID bid = posid.getRowCol();
+	if ( hs.includes(bid) )
+	{
+	    const Coord3 pos = hor3d->getPos( posid );
+	    arr->set( hs.inlIdx(bid.inl()), hs.crlIdx(bid.crl()),
+		      (float) pos.z );
+	}
+    }
+
+    if ( !interpolator->setArray2D(*arr,taskrunner) )
+	return uiRetVal(
+	    od_static_tr("executeGridding",
+			 "Cannot setup interpolation on section %1")
+			     .arg(sid+1) );
+
+    mDynamicCastGet(Task*,task,interpolator);
+    if ( !task || !TaskRunner::execute(taskrunner,*task) )
+	return uiRetVal(
+		od_static_tr("executeGridding","Cannot interpolate section %1")
+			    .arg(sid+1) );
+
+    hor3d->geometry().sectionGeometry(sid)->setArray(
+					hs.start_, hs.step_, arr, true );
+    return uiRetVal::OK();
 }
