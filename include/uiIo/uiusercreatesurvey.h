@@ -25,10 +25,8 @@ public:
 			uiUserCreateSurvey(uiParent*,const char* dataroot=0);
 			~uiUserCreateSurvey();
 
+    uiString		sipName() const;
     BufferString	dirName() const;
-    int			sipIdx() const	    { return sipidx_; }
-
-    BufferString	sipName() const;
     BufferString	survName() const;
     BufferString	survDirName() const;
     SurveyInfo::Pol2D	pol2D() const;
@@ -38,7 +36,6 @@ protected:
     ObjectSet<uiSurvInfoProvider> sips_;
     const BufferString	dataroot_;
     SurveyInfo*		survinfo_;
-    int			sipidx_;
 
     uiGenInput*		survnmfld_;
     uiGenInput*		zistimefld_;

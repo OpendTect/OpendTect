@@ -128,10 +128,11 @@ SurveyInfo::Pol2D uiUserCreateSurvey::pol2D() const
 }
 
 
-BufferString uiUserCreateSurvey::sipName() const
+uiString uiUserCreateSurvey::sipName() const
 {
     const int sipidx = sipfld_->currentItem();
-    return sips_.validIdx(sipidx) ? sips_[sipidx]->usrText() : "";
+    return sips_.validIdx(sipidx) ? sips_[sipidx]->usrText()
+				  : uiString::emptyString();
 }
 
 
@@ -144,11 +145,13 @@ void uiUserCreateSurvey::fillSipsFld( bool have2d, bool have3d )
     for ( int idx=0; idx<nrprovs; idx++ )
     {
 	uiSurvInfoProvider& sip = *sips_[idx];
+	const uiString sipnm = sip.usrText();
 	mDynamicCastGet(const ui2DSurvInfoProvider*,sip2d,&sip);
 
 	if ( preferredsel < 0 )
 	{
-	    if ( FixedString(sip.usrText()).contains("etrel") )
+	    const BufferString workstr = sipnm.getFullString();
+	    if ( workstr.contains("etrel") )
 		preferredsel = idx;
 	    else
 	    {
@@ -157,7 +160,7 @@ void uiUserCreateSurvey::fillSipsFld( bool have2d, bool have3d )
 	    }
 	}
 
-	sipfld_->addItem( toUiString(sip.usrText()) );
+	sipfld_->addItem( sipnm );
 	const char* icnm = sip.iconName();
 	if ( !icnm || !*icnm )
 	    icnm = "empty";
@@ -259,7 +262,7 @@ bool uiUserCreateSurvey::doUsrDef()
     {
 	IOPar iop;
 	iop.setStdCreationEntries();
-	iop.set( "SIP.Name", survinfo_->sipName() );
+	iop.set( uiSurvInfoProvider::sKeySIPName(), survinfo_->sipName() );
 	survinfo_->setFreshSetupData( iop );
     }
 

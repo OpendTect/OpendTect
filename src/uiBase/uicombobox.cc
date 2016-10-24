@@ -193,6 +193,17 @@ int uiComboBox::indexOf( const char* str ) const
 }
 
 
+int uiComboBox::indexOf( const uiString& str ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( itemstrings_[idx].isEqualTo(str) )
+	    return idx;
+    }
+    return -1;
+}
+
+
 void uiComboBox::setPixmap( int index, const uiPixmap& pixmap )
 {
     if ( index >= 0 && index < body_->count() )

@@ -407,10 +407,10 @@ void uiSurveyManager::launchEditor( bool forcreate )
     BufferString cmd( prognm );
     OS::CommandLauncher::addQuotesIfNeeded( cmd );
 
-    if ( forcreate )
-	cmd.add( " --create" );
-    else
-	cmd.add( " " ).add( selectedSurveyName() );
+    BufferString dirnmincmd( dataroot_ );
+    OS::CommandLauncher::addQuotesIfNeeded( dirnmincmd );
+    cmd.add( " --dataroot " ).add( dirnmincmd ).add( " " );
+    cmd.add( forcreate ? "--create" : selectedSurveyName() );
 
     const bool res = OS::ExecCommand( cmd, OS::RunInBG, 0, 0 );
     if ( !res )

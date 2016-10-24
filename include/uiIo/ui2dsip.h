@@ -19,7 +19,7 @@ public:
 			ui2DSurvInfoProvider()
 			    : xyft_(false)	{}
 
-    virtual const char*	usrText() const		{ return "Set for 2D only"; }
+    virtual uiString	usrText() const		{ return tr("Set for 2D only");}
     virtual uiDialog*	dialog(uiParent*);
     virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
     virtual const char*	iconName() const

@@ -175,11 +175,13 @@ SurveyInfo::ChangeData SurveyInfo::compareWith( const Monitorable& mon ) const
     mCmpRet( depthsinfeet_, cParsChange );
     mCmpRetDeRef( coordsystem_, cParsChange );
     mCmpRet( defpars_, cParsChange );
-    mCmpRet( sipnm_, cAuxDataChange );
+
     for ( int idx=0; idx<3; idx++ )
     {
 	mCmpRet( set3binids_[idx], cAuxDataChange );
     }
+    if ( !sipnm_.isEqualTo(oth->sipnm_) )
+        return ChangeData( cAuxDataChange(), ChangeData::cUnspecChgID() );
     mCmpRet( comments_, cCommentChange );
 
     return ChangeData::NoChange();
@@ -597,6 +599,19 @@ float SurveyInfo::zStep() const
 Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
 {
     return get3DGeometry(false)->oneStepTranslation( planenormal );
+}
+
+
+void SurveyInfo::setSipName( const uiString& str )
+{
+    mLock4Read();
+    if ( sipnm_.isEqualTo(str) )
+	return;
+    if ( mLock2Write() || !sipnm_.isEqualTo(str) )
+    {
+	sipnm_ = str;
+	mSendChgNotif( cAuxDataChange(), ChangeData::cUnspecChgID() );
+    }
 }
 
 

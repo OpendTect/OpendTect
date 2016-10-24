@@ -13,27 +13,48 @@ ________________________________________________________________________
 #include "uisurvinfoed.h"
 #include "dbman.h"
 #include "file.h"
+#include "filepath.h"
+#include "oddirs.h"
 #include "survinfo.h"
 #include "uimain.h"
 #include "moddepmgr.h"
 #include "plugins.h"
+#include "oscommand.h"
+#include "commandlineparser.h"
 #include <string.h>
+
+#define mErrRet( s ) exitWithErrMsg( s )
+
+static void exitWithErrMsg( const char* msg )
+{
+    BufferString cmd( "od_DispMsg --err ", msg );
+    OS::ExecCommand( cmd );
+    ExitProgram( 1 );
+}
 
 
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
-    const bool createmode = argc > 1 && FixedString(argv[1]) == "--create";
-    BufferString survdir;
-    if ( !createmode && argc > 1 )
+    CommandLineParser clp;
+    clp.setKeyHasValue( "dataroot" );
+
+    BufferStringSet normargs;
+    BufferString dataroot, survdir, fullsurvpath;
+    const bool createmode = clp.hasKey( "create" );
+    const bool altdataroot = clp.getVal( "dataroot", dataroot );
+    clp.getNormalArguments( normargs );
+
+    if ( !altdataroot || dataroot.isEmpty() )
+	dataroot = GetBaseDataDir();
+
+    if ( !createmode )
     {
-	survdir = argv[1];
-	if ( !File::exists(survdir) )
-	{
-	    ErrMsg( BufferString( "Passed survey directory does not exist:\n",
-					survdir ) );
-	    ExitProgram( 1 );
-	}
+	survdir = normargs.size() > 0 ? normargs.get( 0 ) : SI().getDirName();
+	fullsurvpath = File::Path( dataroot, survdir ).fullPath();
+	if ( !File::exists(fullsurvpath) )
+	    mErrRet( BufferString( "Passed survey directory does not exist:\n",
+					fullsurvpath ) );
     }
 
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
@@ -44,17 +65,14 @@ int main( int argc, char ** argv )
     uiMain app( GetArgC(), GetArgV() );
     uiDialog* toplevel = 0;
     if ( createmode )
-	toplevel = new uiUserCreateSurvey( 0 );
+	toplevel = new uiUserCreateSurvey( 0, dataroot );
     else
     {
 	if ( !survdir.isEmpty() )
 	{
-	    uiRetVal uirv = DBM().setDataSource( survdir );
+	    uiRetVal uirv = DBM().setDataSource( fullsurvpath );
 	    if ( uirv.isError() )
-	    {
-		ErrMsg( uirv.getText() );
-		ExitProgram( 1 );
-	    }
+		mErrRet( uirv.getText() );
 	}
 	toplevel = new uiSurveyInfoEditor( 0 );
     }

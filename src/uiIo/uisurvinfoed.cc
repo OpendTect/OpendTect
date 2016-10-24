@@ -51,7 +51,7 @@ uiString uiSurveyInfoEditor::getSRDString( bool infeet )
 }
 
 
-uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p )
+uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
 				     mNoDlgTitle,
                                      mODHelpKey(mSurveyInfoEditorHelpID) )
@@ -103,7 +103,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p )
 			SurveyInfo::Pol2DDef(), tr("Survey type") );
     lcb->attach( alignedBelow, pathfld_ ); pol2dfld_ = lcb->box();
 
-    mkSIPFld( lcb->attachObj() );
+    mkSIPFld( lcb->attachObj(), isnewborn );
     if ( sipfld_ )
 	topgrp_->setHAlignObj( sipfld_ );
     else
@@ -150,7 +150,7 @@ uiSurveyInfoEditor::~uiSurveyInfoEditor()
 }
 
 
-void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
+void uiSurveyInfoEditor::mkSIPFld( uiObject* att, bool isnewborn )
 {
     sips_ = survInfoProvs();
     for ( int idx=0; idx<sips_.size(); idx++ )
@@ -166,27 +166,35 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
     lcb->attach( alignedBelow, att );
     sipfld_ = lcb->box();
     sipfld_->addItem( tr("Enter below") );
-    sipfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,sipCB) );
     for ( int idx=0; idx<nrprovs; idx++ )
     {
 	uiSurvInfoProvider& sip = *sips_[idx];
-	sipfld_->addItem( toUiString(sip.usrText()) );
+	sipfld_->addItem( sip.usrText() );
 	const char* icnm = sip.iconName();
 	if ( icnm && *icnm )
 	    sipfld_->setIcon( sipfld_->size()-1, icnm );
     }
     sipfld_->setCurrentItem( 0 );
 
-    if ( !si_.sipName().isEmpty() )
+    const CallBack sipcb = mCB(this,uiSurveyInfoEditor,sipCB);
+    const uiString sipnm = si_.sipName();
+    if ( !sipnm.isEmpty() )
     {
-	const BufferString sipnm = si_.sipName();
 	const int sipidx = sipfld_->indexOf( sipnm );
-	if ( sipidx >= 0 )
-	    sipfld_->setCurrentItem(sipidx);
+	if ( sipidx < 0 )
+	{
+	    if ( isnewborn )
+		uiMSG().error( tr("'%1' is not available.\nThis is probably "
+				    "a license issue").arg( sipnm ) );
+	}
 	else
-	    uiMSG().error( tr("The survey setup method is not available.\n"
-			      "Probably, this is a license issue") );
+	{
+	    sipfld_->setCurrentItem( sipidx );
+	    if ( isnewborn )
+		postFinalise().notify( sipcb );
+	}
     }
+    sipfld_->selectionChanged.notify( sipcb );
 }
 
 
@@ -403,6 +411,17 @@ int uiSurveyInfoEditor::addInfoProvider( uiSurvInfoProvider* p )
 }
 
 
+uiSurvInfoProvider* uiSurveyInfoEditor::getInfoProviderByName(
+							const uiString& nm )
+{
+    const ObjectSet<uiSurvInfoProvider>& sips = survInfoProvs();
+    for ( int idx=0; idx<sips.size(); idx++ )
+	if ( nm == sips[idx]->usrText() )
+	    return const_cast<uiSurvInfoProvider*>( sips[idx] );
+    return 0;
+}
+
+
 bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 				     const char* outdirnm )
 {
@@ -552,6 +571,20 @@ bool uiSurveyInfoEditor::acceptOK()
     if ( mUseAdvanced() )
 	si_.get3Pts( si_.set3coords_, si_.set3binids_,
 			si_.set3binids_[2].crl() );
+
+    if ( lastsip_ )
+	si_.setSipName( lastsip_->usrText() );
+
+    if ( si_.isFresh() )
+    {
+	IOPar iop;
+	si_.getFreshSetupData( iop );
+	if ( lastsip_ )
+	    iop.set( uiSurvInfoProvider::sKeySIPName(), lastsip_->usrText() );
+	if ( impiop_ )
+	    iop.merge( *impiop_ );
+	si_.setFreshSetupData( iop );
+    }
 
     if ( !si_.write() )
     {

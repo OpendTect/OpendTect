@@ -188,7 +188,7 @@ protected:
     bool		pol2dknown_;
 
     BufferString	comments_;
-    BufferString	sipnm_;
+    uiString		sipnm_;
 
     bool		wrapUpRead();
 
@@ -245,8 +245,8 @@ public:
 
     Pol2D		survDataType() const;
     void		setSurvDataType(Pol2D) const;
-    mImplSimpleMonitoredGetSet(inline,sipName,setSipName,
-				BufferString,sipnm_,cAuxDataChange());
+    mImplSimpleMonitoredGet(sipName,uiString,sipnm_);
+    void		setSipName(const uiString&);
 
 	// Following fns are used by specialist classes. Don't use casually.
 

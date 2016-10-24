@@ -22,7 +22,7 @@ public:
 			uiSEGYSurvInfoProvider()
 			    : xyinft_(false)	{}
 
-    const char*		usrText() const		{ return "Scan SEG-Y file(s)"; }
+    uiString		usrText() const	{ return tr("Scan SEG-Y file(s)"); }
     uiDialog*		dialog(uiParent*);
     bool		getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
     bool		xyInFeet() const	{ return xyinft_; }
@@ -31,8 +31,7 @@ public:
     IOPar*		getImportPars() const
 			{ return imppars_.isEmpty() ? 0 : new IOPar(imppars_); }
     void		startImport(uiParent*,const IOPar&);
-    const char*		importAskQuestion() const;
-    const uiString	importAskUiQuestion() const;
+    uiString		importAskQuestion() const;
 
     IOPar		imppars_;
     bool		xyinft_;

@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uimpepartserv.h"
+#include "uisurvinfoed.h"
 #include "uimsg.h"
 #include "uinlapartserv.h"
 #include "uiodemsurftreeitem.h"
@@ -27,6 +28,7 @@ ________________________________________________________________________
 #include "uiodviewer2dmgr.h"
 #include "uipickpartserv.h"
 #include "uiseispartserv.h"
+#include "uisip.h"
 #include "uistereodlg.h"
 #include "uistratlayermodel.h"
 #include "uistrings.h"
@@ -302,7 +304,23 @@ bool uiODApplMgr::selectSurvey( uiParent* p )
 
 void uiODApplMgr::handleSIPImport()
 {
-    //TODO Implement
+    IOPar iop;
+    SI().getFreshSetupData( iop );
+    uiString sipnm;
+    iop.get( uiSurvInfoProvider::sKeySIPName(), sipnm );
+    if ( sipnm.isEmpty() )
+	return;
+
+    uiSurvInfoProvider* sip = uiSurveyInfoEditor::getInfoProviderByName(sipnm);
+    if ( !sip )
+	{ pErrMsg("Cannot find SIP"); return; }
+
+    const uiString askq = sip->importAskQuestion();
+    if ( askq.isEmpty() )
+	return;
+
+    if ( uiMSG().askGoOn(askq) )
+	sip->startImport( ODMainWin(), iop );
 }
 
 

@@ -50,7 +50,7 @@ mExpClass(uiIo) uiSurvInfoProvider
 { mODTextTranslationClass(uiSurvInfoProvider)
 public:
 
-    virtual const char*		usrText() const		= 0;
+    virtual uiString		usrText() const		= 0;
     virtual uiDialog*		dialog(uiParent*)	= 0;
     virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
 					Coord crd[3])	= 0;
@@ -69,9 +69,9 @@ public:
 
     virtual IOPar*		getImportPars() const	{ return 0; }
     virtual void		startImport(uiParent*,const IOPar&) {}
-    virtual const char*		importAskQuestion() const
-				{ return "Proceed to import?"; }
-    virtual const uiString	importAskUiQuestion() const
-				{ return tr("Proceed to import?"); }
+    virtual uiString		importAskQuestion() const
+    					{ return uiString::emptyString(); }
+
+    static const char*		sKeySIPName()		{ return "SIP.Name"; }
 
 };

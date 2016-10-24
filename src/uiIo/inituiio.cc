@@ -90,11 +90,13 @@ static bool enabClusterProc()
 
 
 mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
-{
+{ mODTextTranslationClass(uiCopySurveySIP)
 public:
 			uiCopySurveySIP()   {};
 
-    virtual const char*	usrText() const	    { return "Copy from other survey"; }
+    virtual uiString	usrText() const
+    			{ return tr("Copy from other survey"); }
+
     virtual uiDialog*	dialog(uiParent*);
     virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
     virtual const char*	iconName() const    { return "copyobj"; }

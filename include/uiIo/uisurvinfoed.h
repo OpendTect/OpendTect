@@ -31,7 +31,7 @@ mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
 
 public:
 
-			uiSurveyInfoEditor(uiParent*);
+			uiSurveyInfoEditor(uiParent*,bool isnewborn=false);
     bool		isOK() const		{ return topgrp_; }
 			//!<Must be checked before 'go'
 			~uiSurveyInfoEditor();
@@ -40,6 +40,7 @@ public:
 
     static ObjectSet<uiSurvInfoProvider>& survInfoProvs();
     static int		addInfoProvider(uiSurvInfoProvider*);
+    static uiSurvInfoProvider*	getInfoProviderByName(const uiString&);
 
     static bool		renameSurv(const char* path,const char* fromdirnm,
 				   const char* todirnm);
@@ -85,7 +86,7 @@ protected:
     uiGenInput*		depthdispfld_;
     uiGenInput*		refdatumfld_;
 
-    void		mkSIPFld(uiObject*);
+    void		mkSIPFld(uiObject*,bool);
     void		mkRangeGrp();
     void		mkCoordGrp();
     void		mkTransfGrp();

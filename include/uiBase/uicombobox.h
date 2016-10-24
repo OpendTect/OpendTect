@@ -53,7 +53,10 @@ public:
     inline bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();
     bool		isPresent(const char*) const;
+    int			indexOf(const uiString&) const;
     int			indexOf(const char*) const;
+    inline int		indexOf( const OD::String& str ) const
+			{ return indexOf( str.str() ); }
 
     const char*		text() const;
     void		setText(const char*);
