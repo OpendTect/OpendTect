@@ -534,7 +534,9 @@ void ChannelInfo::updateOsgImages()
 	{
 	    osg::Image* image = new osg::Image;
 	    image->ref();
-	    osgimages_.replace( idx, image );
+	    osg::Image* oldimage = osgimages_.replace( idx, image );
+	    if ( oldimage )
+		oldimage->unref();
 	}
 
 	const od_int64 offset = idx * componentsize * nrbands;
