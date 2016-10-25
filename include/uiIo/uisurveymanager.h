@@ -91,12 +91,10 @@ protected:
     void		dataRootChgCB(CallBacker*);
     void		survDirChgCB(CallBacker*);
     void		survParsChgCB(CallBacker*);
-    void		dataRootDirChgCB(CallBacker*)	{ updateSurvList(); }
 
     void		reReadSurvInfoFromFile(const char*);
     void		setCurrentSurvey(const char*);
     bool		writeSettingsSurveyFile(const char*);
-    void		updateSurvList();
     void		putToScreen();
     void		launchEditor(bool);
     void		writeCommentsIfChanged();
