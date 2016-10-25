@@ -778,7 +778,7 @@ inline bool StepInterval<T>::isCompatible( const StepInterval<T>& b,
 }
 
 
-#define mDefFltisCompat(typ) \
+#define mDefFltisCompat(typ,releps) \
 template <> \
 inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 			float eps ) const \
@@ -789,8 +789,8 @@ inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
     typ nrsteps = (start - b.start) / step; \
     int nrstepsi = mNINT32( nrsteps ); \
     typ diff = nrsteps - nrstepsi; \
-    return ( (diff) < (castedeps) && (diff) > (-castedeps) ); \
+    return ( (diff) < (releps) && (diff) > (-releps) ); \
 }
 
-mDefFltisCompat(float)
-mDefFltisCompat(double)
+mDefFltisCompat(float,1e-5f)
+mDefFltisCompat(double,1e-10)
