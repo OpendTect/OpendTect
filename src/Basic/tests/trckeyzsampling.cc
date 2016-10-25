@@ -93,6 +93,36 @@ static bool testLimitTo()
 }
 
 
+static bool testIsCompatible()
+{
+    mDeclTrcKeyZSampling( cs, 2, 50, 6,
+			    10, 100, 9,
+			    1.0, 3.0, 0.004 );
+    StepInterval<float> zrgextended( cs.zsamp_ );
+    StepInterval<float> zrgshrinked( cs.zsamp_ );
+    StepInterval<float> zrgshifted( cs.zsamp_ );
+    zrgextended.widen( zrgextended.step * 5 );
+    zrgshrinked.widen( -zrgshrinked.step * 5 );
+    zrgshifted.shift( zrgshifted.step * 0.01f );
+
+    const StepInterval<double> zrgd( 1.0, 3.0, 0.004 );
+    StepInterval<double> zrgdextended( zrgd );
+    StepInterval<double> zrgdshrinked( zrgd );
+    StepInterval<double> zrgdshifted( zrgd );
+    zrgdextended.widen( zrgdextended.step * 5 );
+    zrgdshrinked.widen( -zrgdshrinked.step * 5 );
+    zrgdshifted.shift( zrgdshifted.step * 0.01 );
+
+    if ( !zrgextended.isCompatible(cs.zsamp_) ||
+	 !zrgshrinked.isCompatible(cs.zsamp_) ||
+	 zrgshifted.isCompatible(cs.zsamp_) ||
+	 !zrgdextended.isCompatible(zrgd) ||
+	 !zrgdshrinked.isCompatible(zrgd) ||
+	 zrgdshifted.isCompatible(zrgd) )
+	mRetResult( "testIsCompatible()" );
+}
+
+
 bool testIterator()
 {
     TrcKeySampling hrg;
@@ -135,6 +165,7 @@ int main( int argc, char** argv )
       || !testIncludes()
       || !testEmpty()
       || !testLimitTo()
+      || !testIsCompatible()
       || !testIterator() )
 	ExitProgram( 1 );
 
