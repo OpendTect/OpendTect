@@ -154,6 +154,7 @@ public:
     void		setKey( const DBKey& ky )	{ key_ = ky; }
     virtual void	setDirName( const char* s )	{ dirnm_ = s; }
     virtual bool	isSubdir() const		{ return false; }
+    virtual void	setAbsDirectory(const char*)	{}
     static int		addProducer(IOObjProducer*);
 			//!< Factory for IOObj types. Not for casual use.
 

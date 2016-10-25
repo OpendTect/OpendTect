@@ -279,6 +279,8 @@ void uiSeisWvltMan::mkFileInfo()
 void uiSeisWvltMan::dispProperties( CallBacker* )
 {
     ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( curioobj_->key() );
+    if ( !wvlt )
+	return;
 
     if ( propdlg_ )
 	delete propdlg_;
@@ -300,22 +302,23 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
     if ( !objsel.go() )
 	return;
 
-    Wavelet* wvlt = 0;
     WaveletLoader loader( objsel.ioObj() );
-    uiRetVal rv = loader.read( wvlt );
+    Wavelet* rdwvlt = 0;
+    uiRetVal rv = loader.read( rdwvlt );
     if ( rv.isError() )
 	uiMSG().error( rv );
+    RefMan<Wavelet> wvlt = rdwvlt;
 
     CtxtIOObj ctio( ctxt );
-    if ( !wvlt )
-	mRet(uiStrings::sEmptyString())
-
     ctio.setName( wvlt->name() );
     DBM().getEntry( ctio );
     if ( !ctio.ioobj_ )
 	mRet(uiStrings::phrCannotCreate(tr("new entry in Object Management")))
     else if ( !loader.addToMGR(wvlt,ctio.ioobj_->key()) )
-	mRet(uiStrings::phrCannotWrite(tr("wavelet to disk")))
+	mRet(tr("Cannot add Wavelet to Manager"))
+    uiRetVal uirv = WaveletMGR().save( *wvlt );
+    if ( uirv.isError() )
+	mRet(uirv)
 
     selgrp_->fullUpdate( ctio.ioobj_->key() );
     mRet( uiStrings::sEmptyString() )

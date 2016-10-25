@@ -73,5 +73,6 @@ protected:
 public:
 
     virtual void	setDirName(const char*);
+    virtual void	setAbsDirectory(const char*);
 
 };

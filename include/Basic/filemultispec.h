@@ -59,6 +59,7 @@ public:
     void		setFileName( const char* nm )
 			{ setEmpty(); if ( nm && *nm ) fnames_.add(nm);}
     void		ensureBaseDir(const char* dirnm);
+    void		makeAbsoluteIfRelative(const char* dirnm);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

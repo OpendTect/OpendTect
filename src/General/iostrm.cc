@@ -51,6 +51,14 @@ void IOStream::setDirName( const char* dirnm )
 }
 
 
+void IOStream::setAbsDirectory( const char* dirnm )
+{
+    File::Path fp( dirnm );
+    setDirName( fp.fileName() );
+    fs_.makeAbsoluteIfRelative( dirnm );
+}
+
+
 const char* IOStream::connType() const
 {
     return StreamConn::sType();

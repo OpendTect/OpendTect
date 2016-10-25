@@ -181,6 +181,27 @@ void File::MultiSpec::ensureBaseDir( const char* dirnm )
 }
 
 
+void File::MultiSpec::makeAbsoluteIfRelative( const char* dirnm )
+{
+    if ( !dirnm || !*dirnm )
+	return;
+
+    File::Path basefp( dirnm );
+    if ( !basefp.isAbsolute() )
+	return;
+
+    const int sz = nrFiles();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	File::Path fp( fileName(idx) );
+	if ( fp.isAbsolute() )
+	    continue;
+	fp.setPath( dirnm );
+	fnames_.set( idx, new BufferString(fp.fullPath()) );
+    }
+}
+
+
 void File::MultiSpec::fillPar( IOPar& iop ) const
 {
     iop.removeWithKey( sKeyFileNrs() );

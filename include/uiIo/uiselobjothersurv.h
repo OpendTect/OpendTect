@@ -20,6 +20,8 @@ ________________________________________________________________________
 class IOObj;
 class CtxtIOObj;
 class IOObjContext;
+class uiSurveySelect;
+class uiListBox;
 
 
 mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiDialog
@@ -32,10 +34,20 @@ public:
     BufferString	fullUserExpression() const { return usrexpr_; }
     const IOObj*	ioObj() const;
 
+    BufferString	sourceSurveyDirectory() const;
+    const ObjectSet<IOObj> objsInSurvey() const	    { return ioobjs_; }
+
 protected:
 
     IOObjContext&	ctxt_;
-    mutable BufferString usrexpr_;
+    ObjectSet<IOObj>	ioobjs_;
+    BufferString	usrexpr_;
+    int			selidx_;
+
+    uiSurveySelect*	survsel_;
+    uiListBox*		objfld_;
+
+    void		survSelCB(CallBacker*);
 
     bool		acceptOK();
 

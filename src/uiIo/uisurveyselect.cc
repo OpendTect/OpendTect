@@ -41,7 +41,10 @@ uiSurveySelect::uiSurveySelect( uiParent* p, bool al, const char* dr,
     survdirfld_->setStretch( 2, 2 );
 
     if ( al )
+    {
 	survdirfld_->attach( alignedBelow, datarootfld_ );
+	setHAlignObj( datarootfld_ );
+    }
     else
     {
 	uiSeparator* sep = new uiSeparator( this, "Sep" );
