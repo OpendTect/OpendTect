@@ -222,6 +222,31 @@ void VolProc::Chain::removeStep( int sidx )
 }
 
 
+int VolProc::Chain::getNrUsers( Step::ID stepid,
+				Step::InputSlotID inpslotid ) const
+{
+    TypeSet<Connection> inpconnections;
+    web_.getConnections( stepid, true, inpconnections );
+    Step::ID senderid = Step::cUndefID();
+    for ( int idx=0; idx<inpconnections.size(); idx++ )
+    {
+	if ( inpconnections[idx].inputslotid_ != inpslotid )
+	    continue;
+
+	senderid = inpconnections[idx].outputstepid_;
+	break;
+    }
+
+    if ( senderid == Step::cUndefID() )
+	return 0;
+
+    TypeSet<Connection> outconnections;
+    web_.getConnections( senderid, false, outconnections );
+
+    return outconnections.size();
+}
+
+
 const VelocityDesc* VolProc::Chain::getVelDesc() const
 {
     for ( int idx=steps_.size()-1; idx>=0; idx-- )

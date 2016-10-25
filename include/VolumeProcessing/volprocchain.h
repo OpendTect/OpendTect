@@ -92,6 +92,7 @@ public:
     void			swapSteps(int,int);
     void			removeStep(int);
     const ObjectSet<Step>&	getSteps() const	{ return steps_; }
+    int				getNrUsers(Step::ID,Step::InputSlotID) const;
 
     bool			setOutputSlot(Step::ID,Step::OutputSlotID);
 
