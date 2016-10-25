@@ -4,50 +4,50 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Ranojay Sen
- Date:          Dec 2009
+ Author:        Bert
+ Date:          Oct 2016
 ________________________________________________________________________
 
 -*/
 
 #include "uiiocommon.h"
-#include "uidialog.h"
-
-class uiGenInput;
+#include "uigroup.h"
 class uiListBox;
-class uiFileInput;
+class uiDataRootSel;
+namespace File { class Monitor; }
 
 
-mExpClass(uiIo) uiSurveySelectDlg : public uiDialog
-{ mODTextTranslationClass(uiSurveySelectDlg);
+mExpClass(uiIo) uiSurveySelect : public uiGroup
+{ mODTextTranslationClass(uiSurveySelect);
 public:
 
-			uiSurveySelectDlg(uiParent*,const char* survnm=0,
-					  const char* dataroot=0,
-					  bool forread=true,
-					  bool needvalidrootdir=true);
-			~uiSurveySelectDlg();
+			uiSurveySelect(uiParent*,bool align=true,
+				const char* survnm=0,const char* dataroot=0);
+			~uiSurveySelect();
 
-    void		setDataRoot(const char*);
-    const char*		getDataRoot() const;
-    void		setSurveyName(const char*);
-    const char*		getSurveyName() const;
-    const BufferString	getSurveyPath() const;
+    bool		validSelection() const;
+    BufferString	getDirName() const;
+    BufferString	getFullDirPath() const;
+    void		setSurveyDirName(const char*);
 
-    bool		isNewSurvey() const;
+    Notifier<uiSurveySelect>	survDirChg;
+    Notifier<uiSurveySelect>	survParsChg;
+    Notifier<uiSurveySelect>	survDirAccept;
 
 protected:
 
-    void		rootSelCB(CallBacker*);
-    void		surveySelCB(CallBacker*);
-    void		fillSurveyList(bool initial);
-    bool		continueAfterErrMsg();
-
-    uiFileInput*	datarootfld_;
-    uiListBox*		surveylistfld_;
-    uiGenInput*		surveyfld_;
-
-    bool		forread_;
-    bool		needvalidrootdir_;
     BufferString	dataroot_;
+    File::Monitor*	filemonitor_;
+
+    uiDataRootSel*	datarootfld_;
+    uiListBox*		survdirfld_;
+
+    void		updateList();
+    void		startFileMonitoring();
+    void		stopFileMonitoring();
+    void		dataRootChgCB(CallBacker*);
+    void		survDirChgCB(CallBacker*);
+    void		survParFileChg(CallBacker*);
+    void		survDirAcceptCB(CallBacker*);
+
 };

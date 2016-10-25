@@ -11,22 +11,21 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+#include "uisurveyselect.h"
 #include "uidialog.h"
 
-class BufferStringSet;
 class SurveyInfo;
 class uiButton;
-class uiListBox;
 class uiTextEdit;
 class uiComboBox;
 class uiLineEdit;
 class uiSurveyMap;
-class uiDataRootSel;
+class uiButtonGroup;
 class uiSurvInfoProvider;
 namespace File { class Monitor; }
 
 
-/*!\brief The main survey selection dialog.
+/*!\brief The survey selector that also provides management of the surveys.
 
   When run in 'standalone' mode survey and data root changes can be done at any
   time. Inside od_main or other programs that can have background taks, this
@@ -35,7 +34,7 @@ namespace File { class Monitor; }
 
  */
 
-mExpClass(uiIo) uiSurveyManager : public uiDialog
+mExpClass(uiIo) uiSurveyManager : public uiSurveySelect
 { mODTextTranslationClass(uiSurveyManager);
 
 public:
@@ -58,9 +57,9 @@ public:
     static void		add(const Util&);
 
     const SurveyInfo*	curSurvInfo() const	{ return curSI(); }
-
-    const char*		selectedSurveyName() const;
     bool		haveSurveys() const;
+
+    bool		commit(); //!< will make any new selection global
 
 protected:
 
@@ -68,15 +67,12 @@ protected:
     const SurveyInfo*	curSI() const;
 
     SurveyInfo*		survinfo_;
-    BufferString	dataroot_;
     uiSurveyMap*	survmap_;
-    File::Monitor*	filemonitor_;
     uiRetVal		survreadstatus_;
 
-    uiDataRootSel*	datarootfld_;
-    uiListBox*		survdirfld_;
     uiButton*		editbut_;
     uiButton*		rmbut_;
+    uiButtonGroup*	survmanbuts_;
     ObjectSet<uiButton>	utilbuts_;
     uiTextEdit*		infofld_;
     uiTextEdit*		notesfld_;
@@ -94,15 +90,13 @@ protected:
     void		utilButPushed(CallBacker*);
     void		dataRootChgCB(CallBacker*);
     void		survDirChgCB(CallBacker*);
-    void		survParFileChg(CallBacker*);
+    void		survParsChgCB(CallBacker*);
     void		dataRootDirChgCB(CallBacker*)	{ updateSurvList(); }
 
     void		reReadSurvInfoFromFile(const char*);
     void		setCurrentSurvey(const char*);
     bool		writeSettingsSurveyFile(const char*);
     void		updateSurvList();
-    void		startFileMonitoring();
-    void		stopFileMonitoring();
     void		putToScreen();
     void		launchEditor(bool);
     void		writeCommentsIfChanged();
@@ -110,7 +104,24 @@ protected:
 
 private:
 
-    void		fillLeftGroup(uiGroup*);
-    void		fillRightGroup(uiGroup*);
+    void		mkSurvManTools();
+    void		mkSurvMapWithUtils();
+
+};
+
+
+/*!\brief Dialog around a uiSurveyManager */
+
+mExpClass(uiIo) uiSurveyManagerDlg : public uiDialog
+{ mODTextTranslationClass(uiSurveyManagerDlg);
+
+public:
+			uiSurveyManagerDlg(uiParent*,bool standalone);
+
+protected:
+
+    uiSurveyManager*	mgrfld_;
+
+    bool		acceptOK();
 
 };

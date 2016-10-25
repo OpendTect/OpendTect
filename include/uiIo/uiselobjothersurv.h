@@ -22,7 +22,7 @@ class CtxtIOObj;
 class IOObjContext;
 
 
-mExpClass(uiIo) uiSelObjFromOtherSurvey
+mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiDialog
 { mODTextTranslationClass(uiSelObjFromOtherSurvey);
 public:
 
@@ -30,14 +30,13 @@ public:
 			~uiSelObjFromOtherSurvey();
 
     BufferString	fullUserExpression() const { return usrexpr_; }
-
-    bool		go();
     const IOObj*	ioObj() const;
 
 protected:
 
-    uiParent*		parent_;
-    CtxtIOObj&		ctio_;
+    IOObjContext&	ctxt_;
     mutable BufferString usrexpr_;
+
+    bool		acceptOK();
 
 };

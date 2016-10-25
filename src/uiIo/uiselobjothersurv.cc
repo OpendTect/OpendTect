@@ -10,41 +10,34 @@ ________________________________________________________________________
 
 #include "uiselobjothersurv.h"
 
-#include "ctxtioobj.h"
-#include "uiioobjseldlg.h"
-#include "uisurveyselect.h"
+#include "ioobjctxt.h"
 #include "uimsg.h"
 
 
+#include "uilabel.h"
+
 uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p,
 						  const IOObjContext& ctxt )
-    : parent_(p)
-    , ctio_(*new CtxtIOObj(ctxt))
+    : uiDialog(p,Setup(tr("Select %1").arg(ctxt.objectTypeName()),
+			mNoDlgTitle,mODHelpKey(mSelObjFromOtherSurveyHelpID)))
+    , ctxt_(*new IOObjContext(ctxt))
 {
-    ctio_.setObj( 0 );
+    new uiLabel( this, mTODONotImplPhrase() );
 }
 
 
 uiSelObjFromOtherSurvey::~uiSelObjFromOtherSurvey()
 {
-    ctio_.setObj( 0 );
-    delete &ctio_;
 }
 
 
 const IOObj* uiSelObjFromOtherSurvey::ioObj() const
 {
-    return ctio_.ioobj_;
+    return 0;
 }
 
 
-bool uiSelObjFromOtherSurvey::go()
+bool uiSelObjFromOtherSurvey::acceptOK()
 {
-    uiSurveySelectDlg survseldlg( parent_ );
-    if ( !survseldlg.go() )
-	return false;
-
-    //TODO get from program using survseldlg.getSurveyPath();
-    uiMSG().error( mTODONotImplPhrase() );
     return true;
 }

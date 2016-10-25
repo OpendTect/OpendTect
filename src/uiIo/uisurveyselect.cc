@@ -2,139 +2,168 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Ranojay Sen
- Date:          Dec 2009
+ Author:        Bert
+ Date:          Oct 2016
 ________________________________________________________________________
 
 -*/
 
 
 #include "uisurveyselect.h"
+#include "uidatarootsel.h"
+#include "uilistbox.h"
+#include "uiseparator.h"
+#include "uimsg.h"
 
 #include "file.h"
 #include "filepath.h"
-#include "oddirs.h"
-#include "uifileinput.h"
-#include "uilistbox.h"
-#include "uimsg.h"
+#include "filemonitor.h"
 #include "survinfo.h"
-#include "uistrings.h"
+#include "oddirs.h"
 
-#define mErrRet(s) { uiMSG().error(s); return; }
 
-static bool checkIfDataDir( const char* path )
+
+uiSurveySelect::uiSurveySelect( uiParent* p, bool al, const char* dr,
+				const char* survdirnm )
+    : uiGroup(p,"Survey selector")
+    , dataroot_(dr ? dr : GetBaseDataDir())
+    , filemonitor_(0)
+    , survDirChg(this)
+    , survParsChg(this)
+    , survDirAccept(this)
 {
-    File::Path fpo( path, ".omf" ), fps( path, SurveyInfo::sSetupFileName() );
-    return File::exists( fpo.fullPath() ) && !File::exists( fps.fullPath() );
-}
+    datarootfld_ = new uiDataRootSel( this, dataroot_ );
 
+    survdirfld_ = new uiListBox( this, "Surveys" );
+    updateList();
+    setSurveyDirName( survdirnm );
+    survdirfld_->setHSzPol( uiObject::WideVar );
+    survdirfld_->setStretch( 2, 2 );
 
-uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
-				      const char* survnm, const char* dr,
-				      bool forread, bool needvalidrootdir )
-    : uiDialog(p,uiDialog::Setup(tr("Select Data Root and Survey"),
-		mNoDlgTitle, mODHelpKey(mSurveySelectDlgHelpID)))
-    , forread_(forread)
-    , needvalidrootdir_(needvalidrootdir)
-    , surveyfld_(0)
-    , dataroot_(dr && *dr ? dr : GetBaseDataDir())
-
-{
-    datarootfld_ = new uiFileInput( this, tr("%1 Root").arg(uiStrings::sData()),
-		uiFileInput::Setup(uiFileDialog::Gen,dataroot_)
-		.directories(true) );
-    datarootfld_->setFileName( dataroot_ );
-    datarootfld_->valuechanged.notify(
-		mCB(this,uiSurveySelectDlg,rootSelCB) );
-
-    surveylistfld_ = new uiListBox( this, "Survey list", OD::ChooseOnlyOne );
-    surveylistfld_->setNrLines( 10 );
-    surveylistfld_->attach( alignedBelow, datarootfld_ );
-    surveylistfld_->selectionChanged.notify(
-		mCB(this,uiSurveySelectDlg,surveySelCB) );
-
-    if ( !forread_ )
+    if ( al )
+	survdirfld_->attach( alignedBelow, datarootfld_ );
+    else
     {
-	surveyfld_ = new uiGenInput( this, uiStrings::sName() );
-	surveyfld_->attach( alignedBelow, surveylistfld_ );
+	uiSeparator* sep = new uiSeparator( this, "Sep" );
+	sep->attach( stretchedBelow, datarootfld_ );
+	survdirfld_->attach( ensureBelow, sep );
     }
 
-    fillSurveyList( true );
-    setSurveyName( survnm );
+    mAttachCB( datarootfld_->selectionChanged, uiSurveySelect::dataRootChgCB );
+    mAttachCB( survdirfld_->selectionChanged, uiSurveySelect::survDirChgCB );
+    mAttachCB( survdirfld_->doubleClicked, uiSurveySelect::survDirAcceptCB );
 }
 
 
-uiSurveySelectDlg::~uiSurveySelectDlg()
-{}
-
-
-const char* uiSurveySelectDlg::getDataRoot() const
+uiSurveySelect::~uiSurveySelect()
 {
-    return datarootfld_->fileName();
+    stopFileMonitoring();
+    detachAllNotifiers();
 }
 
 
-void uiSurveySelectDlg::setSurveyName( const char* nm )
+bool uiSurveySelect::validSelection() const
 {
-    surveylistfld_->setCurrentItem( nm );
+    const BufferString drdir( datarootfld_->getDir() );
+    return !drdir.isEmpty() && survdirfld_->currentItem() >= 0;
 }
 
 
-const char* uiSurveySelectDlg::getSurveyName() const
+BufferString uiSurveySelect::getDirName() const
 {
-    return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText();
-}
-
-const BufferString uiSurveySelectDlg::getSurveyPath() const
-{
-    return File::Path(getDataRoot(),getSurveyName()).fullPath();
+    return BufferString( survdirfld_->getText() );
 }
 
 
-bool uiSurveySelectDlg::continueAfterErrMsg()
+BufferString uiSurveySelect::getFullDirPath() const
 {
-    if ( needvalidrootdir_ )
+    const File::Path fp( datarootfld_->getDir(), getDirName() );
+    return fp.fullPath();
+}
+
+
+void uiSurveySelect::setSurveyDirName( const char* survdirnm )
+{
+    if ( survdirnm && *survdirnm )
+	survdirfld_->setCurrentItem( survdirnm );
+}
+
+
+void uiSurveySelect::updateList()
+{
+    stopFileMonitoring();
+    NotifyStopper ns( survdirfld_->selectionChanged );
+
+    const BufferString prevsel( survdirfld_->getText() );
+    survdirfld_->setEmpty();
+    BufferStringSet dirlist; uiSurvey::getDirectoryNames( dirlist, false,
+							  dataroot_ );
+    survdirfld_->addItems( dirlist );
+
+    if ( !survdirfld_->isEmpty() )
     {
-	uiMSG().error( tr("Selected directory is not a valid Data Root") );
-	return false;
+	int newselidx = survdirfld_->indexOf( prevsel );
+	if ( newselidx < 0 )
+	    newselidx = 0;
+	survdirfld_->setCurrentItem( newselidx );
     }
 
-    const bool res = uiMSG().askGoOn(
-	    tr("Selected directory is not a valid Data Root. Do you still "
-	       "want to search for OpendTect Surveys in this location?") );
-    return res;
-
+    startFileMonitoring();
 }
 
 
-void uiSurveySelectDlg::fillSurveyList( bool initial )
+void uiSurveySelect::startFileMonitoring()
 {
-    surveylistfld_->setEmpty();
-    if ( !initial )
-	dataroot_ = getDataRoot();
-    if ( !checkIfDataDir(dataroot_) && !continueAfterErrMsg()  )
-	return;
+    stopFileMonitoring();
+    filemonitor_ = new File::Monitor;
+    filemonitor_->watch( dataroot_ );
+    for ( int idx=0; idx<survdirfld_->size(); idx++ )
+    {
+	const File::Path fp( dataroot_, survdirfld_->textOfItem(idx),
+					 SurveyInfo::sSetupFileName() );
+	const BufferString fnm = fp.fullPath();
+	filemonitor_->watch( fnm );
+    }
 
-    BufferStringSet surveylist;
-    uiSurvey::getDirectoryNames( surveylist, false, dataroot_ );
-    surveylistfld_->addItems( surveylist );
+    mAttachCB( filemonitor_->dirChanged, uiSurveySelect::dataRootChgCB );
+    mAttachCB( filemonitor_->fileChanged, uiSurveySelect::survParFileChg );
 }
 
 
-void uiSurveySelectDlg::rootSelCB( CallBacker* )
+void uiSurveySelect::stopFileMonitoring()
 {
-    fillSurveyList( false );
+    delete filemonitor_;
+    filemonitor_ = 0;
 }
 
 
-void uiSurveySelectDlg::surveySelCB( CallBacker* )
+void uiSurveySelect::dataRootChgCB( CallBacker* cb )
 {
-    if ( surveyfld_ )
-	surveyfld_->setText( surveylistfld_->getText() );
+    dataroot_ = datarootfld_->getDir();
+    updateList();
 }
 
 
-bool uiSurveySelectDlg::isNewSurvey() const
+void uiSurveySelect::survDirChgCB( CallBacker* )
 {
-   return surveyfld_ && !surveylistfld_->isPresent( surveyfld_->text() );
+    survDirChg.trigger();
+}
+
+
+void uiSurveySelect::survDirAcceptCB( CallBacker* )
+{
+    survDirAccept.trigger();
+}
+
+
+void uiSurveySelect::survParFileChg( CallBacker* cb )
+{
+    mCBCapsuleUnpack( BufferString, fnm, cb );
+    File::Path fp( fnm );
+    fp.setFileName( 0 );
+    const BufferString dirnm = fp.fileName();
+    if ( dirnm == getDirName() )
+	survParsChg.trigger();
+
+    startFileMonitoring();
 }

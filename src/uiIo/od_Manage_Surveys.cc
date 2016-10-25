@@ -27,7 +27,7 @@ int main( int argc, char ** argv )
     PIM().loadSurveyRelatedTools();
 
     uiMain app( GetArgC(), GetArgV() );
-    uiSurveyManager* dlg = new uiSurveyManager( 0, true );
+    uiSurveyManagerDlg* dlg = new uiSurveyManagerDlg( 0, true );
     app.setTopLevel( dlg );
     dlg->show();
     return ExitProgram( app.exec() );

@@ -74,7 +74,7 @@ set ( OD_ATTRIB_EXECS od_process_attrib od_process_attrib_em od_stratamp )
 set ( OD_VOLUME_EXECS od_process_volume )
 set ( OD_PRESTACK_EXECS od_process_prestack )
 set ( OD_ZAXISTRANSFORM_EXECS od_process_time2depth )
-set ( OD_SURVEY_EXECS od_Edit_Survey od_ManageSurveys )
+set ( OD_SURVEY_EXECS od_Edit_Survey od_Manage_Surveys )
 
 
 #Macro for going through a list of modules and adding them

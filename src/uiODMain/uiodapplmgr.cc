@@ -346,7 +346,7 @@ void uiODApplMgr::handleSurveySelect()
 
 bool uiODApplMgr::manSurv( uiParent* p )
 {
-    uiSurveyManager dlg( p ? p : ODMainWin(), false );
+    uiSurveyManagerDlg dlg( p ? p : ODMainWin(), false );
     const bool rv = dlg.go();
     if ( rv )
 	handleSurveySelect();
