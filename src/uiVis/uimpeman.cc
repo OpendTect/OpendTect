@@ -626,7 +626,7 @@ void uiMPEMan::seedClick( CallBacker* )
     beginSeedClickEvent( emobj );
 
     const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
-    const bool ctrlbut = OD::ctrlKeyboardButton( eventinfo->buttonstate_ ); 
+    const bool ctrlbut = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
 
     if ( clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
     {
@@ -667,7 +667,7 @@ void uiMPEMan::seedClick( CallBacker* )
     else
     {
 	const bool doerase = ctrlbut && sowingmode_;
-	const bool manualmodeclick = !ctrlbut && 
+	const bool manualmodeclick = !ctrlbut &&
 	    (seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
 	     seedpicker->getTrackMode()==seedpicker->DrawAndSnap);
 
@@ -1009,7 +1009,7 @@ void uiMPEMan::lockAll()
 {
     EM::Horizon3D* hor3d = getSelectedHorizon3D();
     visSurvey::HorizonDisplay* hd = getSelectedDisplay3D();
-    if ( hor3d && hd ) 
+    if ( hor3d && hd )
     {
 	hor3d->lockAll();
 	hd->showLocked( true );
@@ -1167,9 +1167,12 @@ void uiMPEMan::removeInPolygon()
 
 void uiMPEMan::workAreaChgCB( CallBacker* cb )
 {
-    mGetMonitoredChgData( cb, chgdata );
-    if ( SurveyInfo::isMinorChange( chgdata.changeType() ) )
-	return;
+    if ( cb )
+    {
+	mGetMonitoredChgData( cb, chgdata );
+	if ( SurveyInfo::isMinorChange( chgdata.changeType() ) )
+	    return;
+    }
 
     if ( !SI().sampling(true).includes( engine().activeVolume() ) )
 	engine().setActiveVolume( SI().sampling(true) );
