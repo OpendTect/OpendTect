@@ -64,8 +64,7 @@ const char* GetLastSurveyFileName()
 
 /* 'survey data' scope */
 
-extern "C" { mGlobal(Basic) void SetBaseDataDir(const char*); }
-mExternC(Basic) void SetBaseDataDir( const char* dirnm )
+mGlobal(Basic) void SetBaseDataDir( const char* dirnm )
 {
 #ifdef __win__
     const BufferString windirnm( File::Path(dirnm).
@@ -165,7 +164,7 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 	    const File::Path datapath( filepath.dirUpTo(idx).buf(), "Resources",
 				     relinfostr );
 #else
-	    const File::Path datapath( filepath.dirUpTo(idx).buf(), 
+	    const File::Path datapath( filepath.dirUpTo(idx).buf(),
 				     relinfostr );
 #endif
 	    if ( File::isDirectory( datapath.fullPath()) )

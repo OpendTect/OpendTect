@@ -36,7 +36,10 @@ uiSurveySelect::uiSurveySelect( uiParent* p, bool al, const char* dr,
 
     survdirfld_ = new uiListBox( this, "Surveys" );
     updateList();
-    setSurveyDirName( survdirnm );
+    BufferString defsurvdirnm( survdirnm );
+    if ( defsurvdirnm.isEmpty() )
+	defsurvdirnm = SI().getDirName();
+    setSurveyDirName( defsurvdirnm );
     survdirfld_->setHSzPol( uiObject::WideVar );
     survdirfld_->setStretch( 2, 2 );
 

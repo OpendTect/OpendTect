@@ -215,7 +215,7 @@ void uiDataRootSel::addDirNameToSettingsIfNew( const char* dirnm, bool mkcur )
 }
 
 
-extern "C" { mGlobal(Basic) void SetBaseDataDir(const char*); }
+mGlobal(Basic) void SetBaseDataDir(const char*);
 
 
 bool uiDataRootSel::setRootDirOnly( const char* dirnm )

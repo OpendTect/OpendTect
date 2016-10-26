@@ -100,7 +100,7 @@ uiRetVal DBMan::setDataSource( const char* fullpath )
 }
 
 
-extern "C" { mGlobal(Basic) void SetBaseDataDir(const char*); }
+mGlobal(Basic) void SetBaseDataDir(const char*);
 
 uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
 {
@@ -137,11 +137,11 @@ uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
     mLock2Write();
     survdir_.set( newdirnm );
     rv = doReRead();
+    SetBaseDataDir( SI().getBasePath() );
     mUnlockAllAccess();
     if ( !rv.isOK() )
 	return rv; // disaster ...
 
-    SetBaseDataDir( SI().getBasePath() );
     setupCustomDataDirs( -1 );
     surveyChanged.trigger();
     afterSurveyChange.trigger();

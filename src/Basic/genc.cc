@@ -46,7 +46,7 @@
 # include <signal.h>
 #endif
 
-extern "C" { mGlobal(Basic) void SetBaseDataDir(const char*); }
+mGlobal(Basic) void SetBaseDataDir(const char*);
 
 
 #ifdef __lux__
