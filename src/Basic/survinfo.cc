@@ -1009,18 +1009,18 @@ bool SurveyInfo::isRightHandSystem() const
 bool SurveyInfo::write( const char* basedir ) const
 {
     if ( !basedir )
-	basedir = GetBaseDataDir();
+	basedir = basepath_;
 
     mLock4Read();
 
     File::Path fp( basedir, dirname_, sSetupFileName() );
-    SafeFileIO sfio( fp.fullPath(), false );
+    const BufferString dotsurvfnm( fp.fullPath() );
+    SafeFileIO sfio( dotsurvfnm, false );
     if ( !sfio.open(false) )
     {
-	BufferString msg( "Cannot open survey info file for write!" );
-	if ( !sfio.errMsg().isEmpty() )
-	    { msg += "\n\t"; msg += sfio.errMsg().getFullString(); }
-	ErrMsg( msg );
+	uiString msg( tr("Cannot open survey info file for write:\n%1\n\n%2")
+		      .arg( dotsurvfnm ).arg( sfio.errMsg() ) );
+	ErrMsg( msg.getFullString() );
 	return false;
     }
 

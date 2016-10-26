@@ -30,6 +30,8 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
     : uiGroup(p,"Data Root Selector")
     , selectionChanged(this)
 {
+    if ( !def )
+	def = GetBaseDataDir();
     const BufferString defdir = mIsUsable(def) ? def
 			      : Settings::common().find( sKeyDefRootDir() );
     BufferStringSet dirs;
@@ -38,11 +40,16 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
 	dirs.insertAt( new BufferString(defdir), 0 );
 
     BufferStringSet boxitms;
+    int defidx = 0;
     for ( int idx=0; idx<dirs.size(); idx++ )
     {
 	const BufferString dirnm = dirs.get( idx );
 	if ( mIsUsable(dirnm) )
+	{
 	    boxitms.add( dirnm );
+	    if ( dirnm == defdir )
+		defidx = boxitms.size() - 1;
+	}
     }
 
     uiLabeledComboBox* fulldirfld = new uiLabeledComboBox( this,
@@ -51,6 +58,11 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
     dirfld_ = fulldirfld->box();
     dirfld_->addItems( boxitms );
     dirfld_->setEditable( true );
+    if ( !dirfld_->isEmpty() )
+    {
+	dirfld_->setCurrentItem( defidx );
+	previnput_ = boxitms.get( defidx );
+    }
     mAttachCB( dirfld_->editTextChanged, uiDataRootSel::dirChgCB );
     mAttachCB( dirfld_->selectionChanged, uiDataRootSel::dirChgCB );
 
@@ -92,12 +104,20 @@ void uiDataRootSel::dirChgCB( CallBacker* )
 void uiDataRootSel::checkAndSetCorrected( const char* dirnm )
 {
     BufferString resdirnm = dirnm;
-    if ( getUsableDir(resdirnm) && getInput() != resdirnm )
+    if ( getUsableDir(resdirnm) )
     {
-	NotifyStopper ns1( dirfld_->editTextChanged );
-	NotifyStopper ns2( dirfld_->selectionChanged );
-	dirfld_->setText( resdirnm );
+	if ( getInput() != resdirnm )
+	{
+	    NotifyStopper ns1( dirfld_->editTextChanged );
+	    NotifyStopper ns2( dirfld_->selectionChanged );
+	    dirfld_->setText( resdirnm );
+	}
+    }
+
+    if ( resdirnm != previnput_ )
+    {
 	selectionChanged.trigger();
+	previnput_ = resdirnm;
     }
 }
 

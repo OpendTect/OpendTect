@@ -702,7 +702,8 @@ uiSurveyManagerDlg::uiSurveyManagerDlg( uiParent* p, bool standalone )
     mgrfld_ = new uiSurveyManager( this, standalone );
     if ( standalone )
 	setCtrlStyle( CloseOnly );
-    setOkText( uiStrings::sSelect() );
+    else
+	setOkText( uiStrings::sSelect() );
     mAttachCB( mgrfld_->survDirAccept, uiSurveyManagerDlg::accept );
 }
 

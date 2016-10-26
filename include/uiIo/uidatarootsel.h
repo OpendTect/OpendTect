@@ -34,7 +34,7 @@ public:
 protected:
 
     uiComboBox*		dirfld_;
-    mutable BufferString curdir_;
+    BufferString	previnput_;
 
     BufferString	getInput() const;
     void		selButCB(CallBacker*);

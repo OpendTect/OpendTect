@@ -223,7 +223,7 @@ bool uiUserCreateSurvey::acceptOK()
 
     const BufferString fullsurvpath = survinfo_->getFullDirPath();
     uiString errmsg;
-    if ( !File::copy(basicSurveyFullPath(),fullsurvpath,&errmsg) )
+    if ( !File::copyDir(basicSurveyFullPath(),fullsurvpath,&errmsg) )
     {
 	uiRetVal uirv( tr("Cannot make a copy of the default survey") );
 	uirv.add( errmsg );

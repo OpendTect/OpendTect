@@ -18,15 +18,14 @@ ________________________________________________________________________
 #include "uibatchlaunch.h"
 #include "uiclusterjobprov.h"
 #include "uicoordsystem.h"
-#include "ui2dsip.h"
 #include "uimsg.h"
 #include "plugins.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
-#include "survinfo.h"
-#include "uiselsimple.h"
-#include "uilistbox.h"
+#include "ui2dsip.h"
+#include "uisurveyselect.h"
 #include "uisurvinfoed.h"
+#include "survinfo.h"
 
 
 static const char* sKeyClusterProc = "dTect.Enable Cluster Processing";
@@ -92,7 +91,7 @@ static bool enabClusterProc()
 mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
 { mODTextTranslationClass(uiCopySurveySIP)
 public:
-			uiCopySurveySIP()   {};
+			uiCopySurveySIP()   {}
 
     virtual uiString	usrText() const
 			{ return tr("Copy from other survey"); }
@@ -108,35 +107,42 @@ protected:
 
     TDInfo		tdinf_;
     bool		inft_;
-    BufferStringSet	survlist_;
+
+};
+
+class uiSurveyToCopyDlg : public uiDialog
+{ mODTextTranslationClass(uiSurveyToCopyDlg)
+public:
+
+uiSurveyToCopyDlg( uiParent* p )
+    : uiDialog(p,Setup(tr("Select Survey to duplicate Setup from"),
+		mNoDlgTitle,mODHelpKey(mCopySurveySIPHelpID)))
+{
+    survsel_ = new uiSurveySelect( this );
+}
+
+    uiSurveySelect* survsel_;
 
 };
 
 
 uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 {
-    survlist_.erase();
-    uiSurvey::getDirectoryNames( survlist_, 0, SI().getBasePath() );
-    uiSelectFromList::Setup setup(  uiStrings::sSurveys(), survlist_ );
-    setup.dlgtitle( tr("Select Survey to duplicate Setup from") );
-    uiSelectFromList* dlg = new uiSelectFromList( p, setup );
-    dlg->setHelpKey(mODHelpKey(mCopySurveySIPHelpID) );
-    return dlg;
+    return new uiSurveyToCopyDlg( p );
 }
 
 
-bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
+bool uiCopySurveySIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 {
     tdinf_ = Uknown;
     inft_ = false;
-    mDynamicCastGet(uiSelectFromList*,seldlg,dlg)
+    mDynamicCastGet(uiSurveyToCopyDlg*,seldlg,dlg)
     if ( !seldlg )
 	return false;
 
-    BufferString fname = File::Path( GetBaseDataDir() )
-			 .add( seldlg->selFld()->getText() ).fullPath();
+    const BufferString survdir = seldlg->survsel_->getFullDirPath();
     uiRetVal uirv;
-    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname, uirv );
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( survdir, uirv );
     if ( !survinfo )
 	return false;
 

@@ -144,6 +144,7 @@ void uiSurveySelect::dataRootChgCB( CallBacker* cb )
 {
     dataroot_ = datarootfld_->getDir();
     updateList();
+    survDirChg.trigger();
 }
 
 

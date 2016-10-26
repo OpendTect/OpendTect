@@ -6,6 +6,7 @@
 
 
 #include "filemonitor.h"
+#include "file.h"
 #include "bufstringset.h"
 #include "i_qfilesystemwatcher.h"
 
@@ -26,6 +27,9 @@ File::Monitor::~Monitor()
 
 void File::Monitor::watch( const char* fnm )
 {
+    if ( !exists(fnm) )
+	return;
+
 #ifndef OD_NO_QT
     watcher_.addPath( QString(fnm) );
 #endif
