@@ -44,9 +44,6 @@ public:
     bool		needsSave(const ObjID&) const;
     bool		needsSave(const Data&) const;
 
-    bool		isPolygon(const ObjID&) const;
-    bool		hasCategory(const ObjID&,const char*) const;
-
 			// Use MonitorLock when iterating
     ConstRefMan<Data>	get(IdxType) const;
     RefMan<Data>	getForEdit(IdxType);

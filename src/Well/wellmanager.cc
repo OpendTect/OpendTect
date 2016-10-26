@@ -215,4 +215,3 @@ bool Well::Saver::doStore( const IOObj& ioobj ) const
 
     return true;
 }
-
