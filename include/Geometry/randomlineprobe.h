@@ -14,7 +14,7 @@ ___________________________________________________________________
 #include "probe.h"
 
 
-mExpClass(General) RDLProbe : public Probe
+mExpClass(Geometry) RDLProbe : public Probe
 {
 public:
 				RDLProbe();
