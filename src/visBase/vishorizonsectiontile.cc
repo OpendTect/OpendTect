@@ -81,6 +81,13 @@ void HorizonSectionTile::buildOsgGeometries()
 }
 
 
+void HorizonSectionTile::turnOnGlue( bool yn )
+{
+    osgswitchnode_->setChildValue( righttileglue_->getGeode(), yn );
+    osgswitchnode_->setChildValue( bottomtileglue_->getGeode(), yn );
+}
+
+
 void HorizonSectionTile::initvertices()
 {
     const int coordsize =
@@ -257,10 +264,12 @@ void HorizonSectionTile::ensureGlueTesselated()
 	    isright ? righttileglue_ : bottomtileglue_;
 	if ( tileglue )
 	{
+	    turnOnGlue( false );
 	    datalock_.lock();
 	    tileglue->setDisplayTransformation( hrsection_.transformation_ );
 	    tileglue->buildGlue( this, neighbors_[nb], isright );
 	    datalock_.unLock();
+	    turnOnGlue( true );
 	}
 
     }
