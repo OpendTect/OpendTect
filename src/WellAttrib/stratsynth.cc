@@ -577,7 +577,8 @@ mSetFloat(Attrib::PSAttrib::offStartStr(), synthgenpar.anglerg_.start ); \
 mSetFloat(Attrib::PSAttrib::offStopStr(), synthgenpar.anglerg_.stop ); \
 mSetFloat(Attrib::PSAttrib::gathertypeStr(), Attrib::PSAttrib::Ang ); \
 mSetFloat(Attrib::PSAttrib::xaxisunitStr(), Attrib::PSAttrib::Deg ); \
-mSetFloat(Attrib::PSAttrib::angleDPIDStr(), presd.angleData().id() ); \
+mSetFloat(Attrib::PSAttrib::angleDPIDStr(),\
+	&presd.angleData() ? presd.angleData().id() : -1 ); \
 psdesc->setUserRef( synthgenpar.name_ ); \
 psdesc->updateParams(); \
 PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false ); \
