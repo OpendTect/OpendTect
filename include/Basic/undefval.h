@@ -287,4 +287,14 @@ mGlobal(Basic) bool isUdfImpl(double);
 # define mIsUdf(val) isUdfImpl(val)
 
 
+/*! Only use this macro if speed really counts, e.g. when doing relatively
+    simple operations on a huge range of data elements in a parallel task.
+    It minimizes slowness from function calls and Math::IsNormalNumber(.).
+    (eventual NaNs in C++ comparisons are said to return always false) */
+#define mFastMaxReasonableFloat 1e20f
+#define mFastIsFloatDefined(fval) \
+    ( (fval>-mFastMaxReasonableFloat && fval<mFastMaxReasonableFloat) || \
+      (!__mIsUndefinedF(fval) && Math::IsNormalNumber(fval)) )
+
+
 #endif

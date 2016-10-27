@@ -221,13 +221,6 @@ od_int64 MapperTask<T>::nrIterations() const
 { return totalsz_; }
 
 
-// Minimizes slowness from function calls and Math::IsNormalNumber(.).
-// (eventual NaNs in C++ comparisons are said to return always false)
-#define mMaxReasonableAmpl	1e20f
-#define mFastIsFloatDefined(fval) \
-    ( (fval>-mMaxReasonableAmpl && fval<mMaxReasonableAmpl) || \
-      (!__mIsUndefinedF(fval) && Math::IsNormalNumber(fval)) )
-
 template <class T> inline
 bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 {
@@ -316,9 +309,6 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 
     return true;
 }
-
-#undef mMaxReasonableAmpl
-#undef mFastIsFloatDefined
 
 
 } // namespace ColTab
