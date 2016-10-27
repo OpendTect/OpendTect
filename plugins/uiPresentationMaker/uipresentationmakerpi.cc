@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipresentationmaker.h"
 #include "uitoolbar.h"
 
+#include "ioman.h"
 #include "odplugin.h"
 
 
@@ -47,6 +48,7 @@ uiPresMakerPIMgr::uiPresMakerPIMgr( uiODMain* a )
     , dlg_(0)
 {
     mAttachCB( appl_->menuMgr().dTectMnuChanged, uiPresMakerPIMgr::updateMenu );
+    mAttachCB( IOM().applicationClosing, uiPresMakerPIMgr::updateMenu );
 
     uiAction* action = new uiAction( m3Dots(tr("Presentation Maker")),
 			mCB(this,uiPresMakerPIMgr,mnuCB) );
