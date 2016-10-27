@@ -473,8 +473,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
     }
 
     const int nrtrcs = worktks.nrTrcs();
-    int inlidx = start / nrtrcs;
-    int crlidx = start % nrtrcs;
+    int inlidx = mCast( int, start/nrtrcs );
+    int crlidx = mCast( int, start%nrtrcs );
 
     const int halfinlstep = intks.step_.lineNr() / 2;
     BinID bid = worktks.atIndex( inlidx, 0 );
