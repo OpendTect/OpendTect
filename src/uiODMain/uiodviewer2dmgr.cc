@@ -1065,18 +1065,18 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 	    if ( !idx ) continue;
 	    break;
 	}
-	int visid; bool wva; int attrid;
+	/*int visid; bool wva; int attrid;
+	    TODO replace with Probe controlled things
 	if ( vwrpar->get( sKeyVisID(), visid ) &&
 	     vwrpar->get( sKeyAttrID(), attrid ) &&
 	     vwrpar->getYN( sKeyWVA(), wva ) )
 	{
 	    const int nrattribs = visServ().getNrAttribs( visid );
 	    const int attrnr = nrattribs-1;
-	    /*TODO replace with Probe controlled things
 	      OD::ViewerObjID vwrid = displayIn2DViewer( visid, attrnr, wva );
 	    uiODViewer2D* curvwr = find2DViewer( vwrid );
-	    if ( curvwr ) curvwr->usePar( *vwrpar );*/
-	}
+	    if ( curvwr ) curvwr->usePar( *vwrpar );
+	}*/
     }
 }
 

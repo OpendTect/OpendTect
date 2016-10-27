@@ -1533,9 +1533,10 @@ void uiODApplMgr::addMPEParentPath( int visid, const TrcKey& tk )
     for ( int idx=0; idx<bends.size(); idx++ )
 	rl->addNode( trcs[bends[idx]].binID() );
 
+    /*TODO use displaIn2DViewer with probe
     const int rlvisid =
 	sceneMgr().addRandomLineItem( rl->ID(), hd->getSceneID() );
-    /*TODO use displaIn2DViewer with probe
+    use displaIn2DViewer with probe
       viewer2DMgr().displayIn2DViewer( rlvisid, 0, false );*/
     visserv_->setSelObjectId( visid );
 }
