@@ -27,7 +27,8 @@ SectionAdjuster::SectionAdjuster( EM::SectionID sid )
     , removeonfailure_(true)
     , thresholdval_(0.5)
     , seedtk_(TrcKey::udf())
-    , setundo_(true)
+    , setundo_( true )
+    , seedid_( 0 )
 {}
 
 
@@ -108,5 +109,12 @@ bool SectionAdjuster::usePar( const IOPar& par )
 
     return true;
 }
+
+
+void SectionAdjuster::setSeedId( int id )
+{
+    seedid_ = id;
+}
+
 
 } // namespace MPE
