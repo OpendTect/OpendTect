@@ -333,6 +333,10 @@ RefMan<RegularSeisDataPack>
 class DataPackCopier : public ParallelTask
 {
 public:
+
+    typedef const unsigned char* ConstCompPtr;
+    typedef unsigned char* CompPtr;
+
 DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     : in_(in), out_(out)
     , domemcopy_(false)
@@ -346,6 +350,18 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     worktkzs_ = out.sampling();
     worktkzs_.limitTo( in.sampling(), true );
     totalnr_ = worktkzs_.hsamp_.totalNr();
+
+    const int nrcomps = out_.nrComponents();
+    incomp_ = new int[nrcomps];
+    inptr_ = new ConstCompPtr[nrcomps];
+    outptr_ = new CompPtr[nrcomps];
+}
+
+~DataPackCopier()
+{
+    delete [] incomp_;
+    delete [] inptr_;
+    delete [] outptr_;
 }
 
 od_int64 nrIterations() const		{ return totalnr_; }
@@ -357,7 +373,7 @@ bool doPrepare( int nrthreads )
 
     for ( int idc=0; idc<out_.nrComponents(); idc++ )
     {
-	incomp_ += in_.getComponentIdx( out_.getComponentName(idc), idc );
+	incomp_[idc] = in_.getComponentIdx( out_.getComponentName(idc), idc );
 	if ( incomp_[idc] < 0 )
 	    return false;
     }
@@ -365,26 +381,22 @@ bool doPrepare( int nrthreads )
     if ( in_.getDataDesc() != out_.getDataDesc() )
 	return true;
 
-    if ( !mIsEqual(in_.sampling().zsamp_.step,
-		   out_.sampling().zsamp_.step,mDefEpsF) )
-	return true;
-
     for ( int idc=0; idc<out_.nrComponents(); idc++ )
     {
-	inptr_ += mCast(const unsigned char*, in_.data(incomp_[idc]).getData());
+	inptr_[idc] = mCast( ConstCompPtr, in_.data(incomp_[idc]).getData() );
 	mDynamicCastGet( const ConvMemValueSeries<float>*, instorage,
 			 in_.data(incomp_[idc]).getStorage() );
 	if ( instorage )
 	{
-	    inptr_[idc] = mCast( const unsigned char*, instorage->storArr() );
+	    inptr_[idc] = mCast( ConstCompPtr, instorage->storArr() );
 	    samplebytes_ = in_.getDataDesc().nrBytes();
 	}
 
-	outptr_ += mCast( unsigned char*, out_.data(idc).getData() );
+	outptr_[idc] = mCast( CompPtr, out_.data(idc).getData() );
 	mDynamicCastGet( const ConvMemValueSeries<float>*, outstorage,
 			 out_.data(idc).getStorage() );
 	if ( outstorage )
-	    outptr_[idc] = mCast( unsigned char*, outstorage->storArr() );
+	    outptr_[idc] = mCast( CompPtr, outstorage->storArr() );
 
 	if ( !inptr_[idc] || !outptr_[idc] )
 	    return true;
@@ -409,56 +421,138 @@ bool doPrepare( int nrthreads )
 
 bool doWork( od_int64 start, od_int64 stop, int threadidx )
 {
-    const TrcKeySampling& intks = in_.sampling().hsamp_;
-    const TrcKeySampling& outtks = out_.sampling().hsamp_;
-    const int nrz = worktkzs_.nrZ();
-    for ( od_int64 gidx=start; gidx<=stop; gidx++ )
+    const TrcKeySampling intks = in_.sampling().hsamp_;
+    const TrcKeySampling outtks = out_.sampling().hsamp_;
+    const TrcKeySampling worktks = worktkzs_.hsamp_;
+
+    const StepInterval<float> inzsamp = in_.sampling().zsamp_;
+    const StepInterval<float> outzsamp = out_.sampling().zsamp_;
+    const StepInterval<float> workzsamp = worktkzs_.zsamp_;
+
+    const od_int64 intracebytes = intracebytes_;
+    const od_int64 inlinebytes = inlinebytes_;
+    const od_int64 outtracebytes = outtracebytes_;
+    const od_int64 outlinebytes = outlinebytes_;
+
+    const od_int64 bytestocopy = bytestocopy_;
+    const int samplebytes = samplebytes_;
+
+    const int nrcomps = out_.nrComponents();
+    const bool domemcopy = domemcopy_;
+
+    int nrz = worktkzs_.nrZ();
+    int* inzlut = 0;
+    int* outzlut = 0;
+
+    if ( !domemcopy || !mIsEqual(inzsamp.step, outzsamp.step, mDefEpsF) )
     {
-	const BinID bid = worktkzs_.hsamp_.atIndex( gidx );
-	const int outinlidx = outtks.lineIdx( bid.inl() );
-	const int outcrlidx = outtks.trcIdx( bid.crl() );
+	inzlut = new int[ nrz ];
+	outzlut = new int[ nrz ];
 
-	const int shiftedtogetnearestinl = bid.lineNr() +
-					   intks.step_.lineNr()/2;
-	const int ininlidx = intks.lineIdx( shiftedtogetnearestinl );
-	const int shiftedtogetnearestcrl = bid.trcNr() +
-					   intks.step_.trcNr()/2;
-	const int incrlidx = intks.trcIdx( shiftedtogetnearestcrl );
-
-	if ( domemcopy_ )
-	{
-	    for ( int idc=0; idc<out_.nrComponents(); idc++ )
-	    {
-		const unsigned char* curinptr = inptr_[idc] +
-		    ininlidx*inlinebytes_ + incrlidx*intracebytes_;
-		unsigned char* curoutptr = outptr_[idc] +
-		    outinlidx*outlinebytes_ + outcrlidx*outtracebytes_;
-
-		OD::sysMemCopy( curoutptr, curinptr, bytestocopy_ );
-	    }
-
-	    continue;
-	}
-
-	const int nrinpzsamp = in_.sampling().zsamp_.nrSteps()+1;
-	const int nroutzsamp = out_.sampling().zsamp_.nrSteps()+1;
+	const int nrinpzsamp = inzsamp.nrSteps()+1;
+	const int nroutzsamp = outzsamp.nrSteps()+1;
 	for ( int idz=0; idz<nrz; idz++ )
 	{
-	    const float zval = worktkzs_.zsamp_.atIndex( idz );
-	    const int inzidx = in_.sampling().zsamp_.nearestIndex( zval );
-	    const int outzidx = out_.sampling().zsamp_.nearestIndex( zval );
-	    if ( inzidx>=nrinpzsamp ||	outzidx>=nroutzsamp )
-		break;
+	    const float zval = workzsamp.atIndex( idz );
+	    inzlut[idz] = inzsamp.nearestIndex( zval );
+	    outzlut[idz] = outzsamp.nearestIndex( zval );
 
-	    for ( int idc=0; idc<out_.nrComponents(); idc++ )
+	    if ( inzlut[idz]>=nrinpzsamp || outzlut[idz]>=nroutzsamp )
 	    {
-		const float val =
-		    in_.data(incomp_[idc]).get( ininlidx, incrlidx, inzidx );
-		if ( !mIsUdf(val) )
-		    out_.data(idc).set( outinlidx, outcrlidx, outzidx, val );
+		nrz = idz;
+		break;
 	    }
 	}
+
+	for ( int idz=nrz-1; domemcopy && idz>=0; idz-- )
+	{
+	    // Need relative offsets in case of domemcopy
+	    inzlut[idz] =  idz ? samplebytes * (inzlut[idz]-inzlut[idz-1]) : 0;
+	    outzlut[idz] = idz ? samplebytes*(outzlut[idz]-outzlut[idz-1]) : 0;
+	}
     }
+
+    const int nrtrcs = worktks.nrTrcs();
+    int inlidx = start / nrtrcs;
+    int crlidx = start % nrtrcs;
+
+    const int halfinlstep = intks.step_.lineNr() / 2;
+    BinID bid = worktks.atIndex( inlidx, 0 );
+    int outinlidx = outtks.lineIdx( bid.inl() );
+    int shiftedtogetnearestinl = bid.lineNr() + halfinlstep;
+    int ininlidx = intks.lineIdx( shiftedtogetnearestinl );
+
+    int* incrllut = new int[ nrtrcs ];
+    int* outcrllut = new int[ nrtrcs ];
+    const int halfcrlstep = intks.step_.trcNr() / 2;
+    for ( int cidx=0; cidx<nrtrcs; cidx++ )
+    {
+	bid = worktks.atIndex( 0, cidx );
+	outcrllut[cidx] = outtks.trcIdx( bid.crl() );
+	const int shiftedtogetnearestcrl = bid.trcNr() + halfcrlstep;
+	incrllut[cidx] = intks.trcIdx( shiftedtogetnearestcrl );
+    }
+
+    for ( od_int64 gidx=start; gidx<=stop; gidx++ )
+    {
+	const int outcrlidx = outcrllut[crlidx];
+	const int incrlidx = incrllut[crlidx];
+
+	if ( domemcopy )
+	{
+	    const od_int64 inoffset = ininlidx*inlinebytes +
+				      incrlidx*intracebytes;
+	    const od_int64 outoffset = outinlidx*outlinebytes +
+				       outcrlidx*outtracebytes;
+
+	    for ( int idc=0; idc<nrcomps; idc++ )
+	    {
+		const unsigned char* curinptr = inptr_[idc] + inoffset;
+		unsigned char* curoutptr = outptr_[idc] + outoffset;
+		if ( inzlut && outzlut )
+		{
+		    for ( int idz=0; idz<nrz; idz++ )
+		    {
+			curinptr += inzlut[idz];
+			curoutptr += outzlut[idz];
+			OD::sysMemCopy( curoutptr, curinptr, samplebytes );
+		    }
+		}
+		else
+		    OD::sysMemCopy( curoutptr, curinptr, bytestocopy );
+	    }
+	}
+	else
+	{
+	    for ( int idz=0; idz<nrz; idz++ )
+	    {
+		const int inzidx = inzlut[idz];
+		const int outzidx = outzlut[idz];
+
+		for ( int idc=0; idc<nrcomps; idc++ )
+		{
+		    const float val =
+			in_.data(incomp_[idc]).get( ininlidx, incrlidx, inzidx);
+		    if ( mFastIsFloatDefined(val) )
+			out_.data(idc).set( outinlidx, outcrlidx, outzidx, val);
+		}
+	    }
+	}
+
+	if ( ++crlidx >= nrtrcs )
+	{
+	    crlidx = 0;
+	    bid = worktks.atIndex( ++inlidx, 0 );
+	    outinlidx = outtks.lineIdx( bid.inl() );
+	    shiftedtogetnearestinl = bid.lineNr() + halfinlstep;
+	    ininlidx = intks.lineIdx( shiftedtogetnearestinl );
+	}
+    }
+
+    delete [] incrllut;
+    delete [] outcrllut;
+    if ( inzlut )  delete [] inzlut;
+    if ( outzlut ) delete [] outzlut;
 
     return true;
 }
@@ -473,9 +567,9 @@ protected:
     bool			domemcopy_;
 
     int				samplebytes_;
-    TypeSet<int>		incomp_;
-    TypeSet<const unsigned char*> inptr_;
-    TypeSet<unsigned char*>	outptr_;
+    int*			incomp_;
+    ConstCompPtr*		inptr_;
+    CompPtr*			outptr_;
     od_int64			intracebytes_;
     od_int64			inlinebytes_;
     od_int64			outtracebytes_;
