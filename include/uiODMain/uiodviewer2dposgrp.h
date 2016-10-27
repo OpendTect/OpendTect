@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 
+class Probe;
 class IOObj;
 class uiAttrSel;
 class uiLabeledComboBox;
@@ -71,6 +72,8 @@ mStruct(uiODMain) Viewer2DPosDataSel
 			    selectdata_	    = true;
 			}
 
+    Probe*		createNewProbe();
+    void		fillFromProbe(const Probe&);
     PosType		postype_;
     Attrib::SelSpec	selspec_;
     TrcKeyZSampling	tkzs_;

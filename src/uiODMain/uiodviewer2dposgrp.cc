@@ -27,9 +27,12 @@ static const char* rcsID mUsedVar = "$Id: uiodviewer2dposgrp.cc 38687 2015-03-30
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "attribdesc.h"
+#include "attribprobelayer.h"
 #include "ioobjctxt.h"
 #include "randomlinetr.h"
 #include "randomlinegeom.h"
+#include "randomlineprobe.h"
+#include "probeimpl.h"
 #include "zdomain.h"
 
 
@@ -456,4 +459,87 @@ void Viewer2DPosDataSel::usePar( const IOPar& iop )
 
     iop.getYN( sKeySelectData(), selectdata_ );
     iop.get( sKey::GeomID(), geomid_ );
+}
+
+
+Probe* Viewer2DPosDataSel::createNewProbe()
+{
+    Probe* probe = 0;
+    switch ( postype_ )
+    {
+	case InLine:
+	{
+	    probe = new InlineProbe();
+	    break;
+	}
+	case CrossLine:
+	{
+	    probe = new CrosslineProbe();
+	    break;
+	}
+	case Line2D:
+	{
+	    Line2DProbe* l2dprobe = new Line2DProbe();
+	    l2dprobe->setGeomID( geomid_ );
+	    probe = l2dprobe;
+	    break;
+	}
+	case ZSlice:
+	{
+	    probe = new ZSliceProbe();
+	    break;
+	}
+	case RdmLine:
+	{
+	    RDLProbe* rdlprobe = new RDLProbe();
+	    rdlprobe->setRDLID( rdmlineid_ );
+	    probe = rdlprobe;
+	    break;
+	}
+	default: break;
+    }
+
+    probe->setPos( tkzs_ );
+
+    AttribProbeLayer* attrlayer = new AttribProbeLayer();
+    attrlayer->setSelSpec( selspec_ );
+    attrlayer->useStoredColTabPars();
+    probe->addLayer( attrlayer );
+    return probe;
+}
+
+
+void Viewer2DPosDataSel::fillFromProbe( const Probe& probe )
+{
+    if ( probe.type()==InlineProbe::sFactoryKey() )
+	postype_ = Viewer2DPosDataSel::InLine;
+    else if ( probe.type()==CrosslineProbe::sFactoryKey() )
+	postype_ = Viewer2DPosDataSel::CrossLine;
+    else if ( probe.type()==ZSliceProbe::sFactoryKey() )
+	postype_ = Viewer2DPosDataSel::ZSlice;
+    else if ( probe.type()==Line2DProbe::sFactoryKey() )
+    {
+	postype_ = Viewer2DPosDataSel::Line2D;
+	geomid_ = probe.position().hsamp_.getGeomID();
+    }
+    else if ( probe.type()==RDLProbe::sFactoryKey() )
+    {
+	postype_ = Viewer2DPosDataSel::RdmLine;
+	mDynamicCastGet(const RDLProbe*,rdlprobe,&probe);
+	if ( rdlprobe )
+	    rdmlineid_ = rdlprobe->randomeLineID();
+    }
+
+    tkzs_ = probe.position();
+
+    for ( int idx=0; idx<probe.nrLayers(); idx++ )
+    {
+	mDynamicCastGet(const AttribProbeLayer*,attrlayer,
+			probe.getLayerByIdx(idx));
+	if ( !attrlayer || attrlayer->getDispType()!=AttribProbeLayer::VD )
+	    continue;
+
+	selspec_ = attrlayer->getSelSpec();
+	break;
+    }
 }

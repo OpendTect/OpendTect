@@ -85,7 +85,8 @@ public:
 
 protected:
 
-			SaveableManager(const IOObjContext&,bool autosv);
+			SaveableManager(const IOObjContext&,bool autosv,
+					bool saveindisc=true);
 
     virtual Saveable*	getSaver(const SharedObject&) const	= 0;
     virtual ChangeRecorder* getChangeRecorder(const SharedObject&) const
@@ -96,6 +97,7 @@ protected:
     ObjectSet<ChangeRecorder>	chgrecs_;
     const IOObjContext&		ctxt_;
     const bool			autosaveable_;
+    const bool			saveondisc_;
 
 			// to be called from public obj-type specific ones
     ObjID		getID(const SharedObject&) const;

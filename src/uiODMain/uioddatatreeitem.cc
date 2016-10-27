@@ -25,6 +25,7 @@ ___________________________________________________________________
 #include "uivispartserv.h"
 
 #include "attribsel.h"
+#include "probemanager.h"
 
 //TODO:remove when Flattened scene ok for 2D Viewer
 #include "emhorizonztransform.h"
@@ -422,8 +423,19 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
     {
-	ODMainWin()->viewer2DMgr().displayIn2DViewer( displayID(), attribNr(),
-						   mnuid==view2dwvaitem_.id );
+	mDynamicCastGet(uiODPrManagedTreeItem*,prmanitem,parent_);
+	if ( !prmanitem )
+	    return;
+
+	PtrMan<OD::ObjPresentationInfo> prinfo = prmanitem->getObjPRInfo();
+	if ( !prinfo )
+	    return;
+
+	RefMan<Probe> probe = ProbeMGR().fetchForEdit( prinfo->storedID() );
+	if ( !probe )
+	    return;
+
+	ODMainWin()->viewer2DMgr().displayIn2DViewer( *probe );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==removemnuitem_.id )

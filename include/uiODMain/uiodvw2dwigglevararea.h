@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class uiMenuHandler;
 class VW2DSeis;
-class AttribPresentationInfo;
+class AttribProbeLayer;
 
 
 mExpClass(uiODMain) uiODVW2DWiggleVarAreaTreeItem : public uiODVw2DTreeItem
@@ -29,7 +29,7 @@ public:
 
     bool			select();
     bool                        showSubMenu();
-    AttribPresentationInfo*	getAttribPRInfo();
+    void			setAttribProbeLayer(AttribProbeLayer*);
 
 protected:
 	
@@ -42,18 +42,14 @@ protected:
     VW2DSeis*			dummyview_;
     uiMenuHandler*              menu_;
     MenuItem                    selattrmnuitem_;
+    AttribProbeLayer*		attrlayer_;
 
     void                        createSelMenu(MenuItem&);
     bool			handleSelMenu(int mnuid);
 
-    DataPack::ID		createDataPack(Attrib::SelSpec&,
-					       const BufferString& attribnm="",
-					       const bool steering=false,
-					       const bool stored=false);
-
     void			checkCB(CallBacker*);
     void			dataChangedCB(CallBacker*);
-    void			dataTransformCB(CallBacker*);
+    void			attrLayerChangedCB(CallBacker*);
     void                        createMenuCB(CallBacker*);
     void                        handleMenuCB(CallBacker*);
 };

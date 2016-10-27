@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class uiMenuHandler;
 class VW2DSeis;
-class AttribPresentationInfo;
+class AttribProbeLayer;
 namespace ColTab { class Sequence; };
 
 
@@ -30,7 +30,7 @@ public:
 
     bool                	select();
     bool                        showSubMenu();
-    AttribPresentationInfo*	getAttribPRInfo();
+    void			setAttribProbeLayer(AttribProbeLayer*);
 
 protected:
 
@@ -42,6 +42,7 @@ protected:
 				{ return typeid(uiODVw2DTreeTop).name(); }
     bool			isSelectable() const            { return true; }
 
+    AttribProbeLayer*		attrlayer_;
     VW2DSeis*			dummyview_;
     uiMenuHandler*		menu_;
     MenuItem			selattrmnuitem_;
@@ -50,15 +51,10 @@ protected:
     void			createSelMenu(MenuItem&);
     bool    			handleSelMenu(int mnuid);
 
-    DataPack::ID		createDataPack(Attrib::SelSpec&,
-					       const BufferString& attribnm="",
-					       const bool steering=false,
-					       const bool stored=false);
-
     void			checkCB(CallBacker*);
     void			colTabChgCB(CallBacker*);
     void			dataChangedCB(CallBacker*);
-    void			dataTransformCB(CallBacker*);
+    void			attrLayerChangedCB(CallBacker*);
     void			deSelectCB(CallBacker*);
     void			createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);

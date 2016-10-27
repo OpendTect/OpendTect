@@ -27,6 +27,7 @@ namespace visBase
 }
 
 class BinIDValueSet;
+class Probe;
 
 namespace visSurvey
 {
@@ -159,6 +160,10 @@ public:
     Undo&			undo();
     const Undo&			undo() const;
 
+    void			setProbe(Probe*);
+    Probe*			getProbe()		{ return probe_; }
+    const Probe*		getProbe() const	{ return probe_; }
+
 protected:
 				~PlaneDataDisplay();
 
@@ -205,6 +210,7 @@ protected:
     visBase::GridLines*			gridlines_;
     SliceType				orientation_;
 
+    RefMan<Probe>			probe_;
     TypeSet<DataPack::ID>		datapackids_;
     TypeSet<DataPack::ID>		transfdatapackids_;
 

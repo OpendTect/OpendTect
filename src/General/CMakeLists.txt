@@ -73,6 +73,9 @@ list ( APPEND OD_MODULE_SOURCES
 	posidxpairvalset.cc
 	posinfodetector.cc
 	posvecdataset.cc
+	probe.cc
+	probetr.cc
+	probemanager.cc
 	property.cc
 	propertyref.cc
 	rangeposprovider.cc
@@ -81,7 +84,6 @@ list ( APPEND OD_MODULE_SOURCES
 	saveable.cc
 	stratlevel.cc
 	survgeometrytransl.cc
-	surveysectionprinfo.cc
 	tableascio.cc
 	tableconv.cc
 	transl.cc

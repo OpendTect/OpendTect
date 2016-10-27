@@ -391,6 +391,7 @@ public:
     static uiString sPreStack()		{ return tr("PreStack"); }
     static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiString sPrevious()		{ return tr("Previous"); }
+    static uiString sProbe(int num=1)	{ return tr("Probe",0,num); }
     static uiString sProcessing()	{ return tr("Processing"); }
     static uiString sProcessingPars()	{ return tr("Processing parameters"); }
     static uiString sProbDensFunc(bool abbrevation=false, int num=1);

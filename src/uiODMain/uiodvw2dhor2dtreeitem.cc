@@ -130,15 +130,13 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	EM::EMObject* emobj = EM::EMM().getObject( emid );
 	if ( emobj )
 	    MPE::engine().setActiveTracker( emobj->id() );
-	else if ( !mps->addTracker(EM::Horizon2D::typeStr(),
-				   viewer2D()->getSyncSceneID()) )
+	else if ( !mps->addTracker(EM::Horizon2D::typeStr(),-1) )
 	    return true;
 
 	const int trackid = mps->activeTrackerID();
 	emid = mps->getEMObjectID( trackid );
 	addNewTrackingHorizon2D( emid );
-	applMgr()->viewer2DMgr().addNewTrackingHorizon2D(
-		emid, viewer2D()->getSyncSceneID() );
+	applMgr()->viewer2DMgr().addNewTrackingHorizon2D( emid,-1 );
 	mps->enableTracking( trackid, true );
     }
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )

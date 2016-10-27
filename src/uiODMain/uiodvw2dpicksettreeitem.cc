@@ -106,20 +106,21 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 }
 
 
-void uiODVw2DPickSetParentTreeItem::addChildItem(
+uiODPrManagedTreeItem* uiODVw2DPickSetParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);
     if ( !pickprinfo )
-	return;
+	return 0;
 
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( pickprinfo->storedID());
     ps.setNoDelete( true );
     if ( !ps || ps->isPolygon() )
-	return;
+	return 0;
 
     uiODVw2DPickSetTreeItem* childitm = new uiODVw2DPickSetTreeItem( *ps );
     addChld( childitm, false, false);
+    return childitm;
 }
 
 

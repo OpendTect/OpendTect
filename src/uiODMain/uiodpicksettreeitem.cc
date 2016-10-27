@@ -60,21 +60,22 @@ const char* uiODPickSetParentTreeItem::childObjTypeKey() const
 }
 
 
-void uiODPickSetParentTreeItem::addChildItem(
+uiODPrManagedTreeItem* uiODPickSetParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);
     if ( !pickprinfo )
-	return;
+	return 0;
 
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( pickprinfo->storedID());
     ps.setNoDelete( true );
     if ( !ps || ps->isPolygon() )
-	return;
+	return 0;
 
-    uiODDisplayTreeItem* item = new uiODPickSetTreeItem( -1, *ps );
-	addChild( item, false );
+    uiODPickSetTreeItem* item = new uiODPickSetTreeItem( -1, *ps );
+    addChild( item, false );
     item->setChecked( true );
+    return item;
 }
 
 
@@ -475,21 +476,22 @@ const char* uiODPolygonParentTreeItem::childObjTypeKey() const
 }
 
 
-void uiODPolygonParentTreeItem::addChildItem(
+uiODPrManagedTreeItem* uiODPolygonParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
     mDynamicCastGet(const Pick::SetPresentationInfo*,pickprinfo,&prinfo);
     if ( !pickprinfo )
-	return;
+	return 0;
 
     RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( pickprinfo->storedID());
     ps.setNoDelete( true );
     if ( !ps || !ps->isPolygon() )
-	return;
+	return 0;
 
-    uiODDisplayTreeItem* item = new uiODPolygonTreeItem( -1, *ps );
+    uiODPrManagedTreeItem* item = new uiODPolygonTreeItem( -1, *ps );
     addChild( item, false );
     item->setChecked( true );
+    return item;
 }
 
 

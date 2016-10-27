@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "attribstorprovider.h"
 #include "attribdescsettr.h"
-#include "attribpresentationinfo.h"
+#include "attribprobelayer.h"
 
 
 mDefModInitFn(AttributeEngine)
@@ -22,5 +22,5 @@ mDefModInitFn(AttributeEngine)
     dgbAttribDescSetTranslator::initClass();
     
     Attrib::StorageProvider::initClass();
-    AttribPresentationInfo::initClass();
+    AttribProbeLayer::initClass();
 }

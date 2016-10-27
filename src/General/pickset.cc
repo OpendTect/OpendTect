@@ -928,14 +928,14 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 
 
 Pick::SetPresentationInfo::SetPresentationInfo( const DBKey& key )
-    : SaveableObjPresentationInfo(key)
+    : OD::ObjPresentationInfo(key)
 {
     objtypekey_ = sFactoryKey();
 }
 
 
 Pick::SetPresentationInfo::SetPresentationInfo()
-    : SaveableObjPresentationInfo()
+    : OD::ObjPresentationInfo()
 {
     objtypekey_ = sFactoryKey();
 }

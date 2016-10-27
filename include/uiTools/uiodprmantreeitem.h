@@ -18,32 +18,6 @@ ________________________________________________________________________
 
 namespace OD { class PresentationManagedViewer; }
 
-mExpClass(uiTools) uiODPrManagedParentTreeItem : public uiODTreeItem
-{ mODTextTranslationClass(uiODPrManagedParentTreeItem)
-public:
-			uiODPrManagedParentTreeItem(const uiString&);
-    virtual		~uiODPrManagedParentTreeItem();
-    void		setPRManagedViewer(OD::PresentationManagedViewer&);
-
-    void		getLoadedChildren(OD::ObjPresentationInfoSet&) const;
-    void		showHideChildren(const OD::ObjPresentationInfo&,bool);
-    void		removeChildren(const OD::ObjPresentationInfo&);
-    void		addChildren(const OD::ObjPresentationInfoSet&);
-    bool		selectChild(const OD::ObjPresentationInfo&);
-    void		emitChildPRRequest(const OD::ObjPresentationInfo&,
-					   OD::PresentationRequestType);
-
-    virtual const char* childObjTypeKey() const			=0;
-protected:
-    virtual void	objAddedCB(CallBacker*);
-    virtual void	objVanishedCB(CallBacker*);
-    virtual void	objShownCB(CallBacker*);
-    virtual void	objHiddenCB(CallBacker*);
-    virtual void	objOrphanedCB(CallBacker*);
-
-    virtual void	addChildItem(const OD::ObjPresentationInfo&)	{}
-};
-
 
 mExpClass(uiTools) uiODPrManagedTreeItem : public uiODTreeItem
 { mODTextTranslationClass(uiODPrManagedTreeItem)
@@ -61,4 +35,33 @@ protected:
     DBKey			storedid_;
 
     virtual OD::ViewerID	getViewerID() const		=0;
+};
+
+
+mExpClass(uiTools) uiODPrManagedParentTreeItem : public uiODTreeItem
+{ mODTextTranslationClass(uiODPrManagedParentTreeItem)
+public:
+			uiODPrManagedParentTreeItem(const uiString&);
+    virtual		~uiODPrManagedParentTreeItem();
+    void		setPRManagedViewer(OD::PresentationManagedViewer&);
+
+    void		getLoadedChildren(OD::ObjPresentationInfoSet&) const;
+    void		showHideChildren(const OD::ObjPresentationInfo&,bool);
+    void		removeChildren(const OD::ObjPresentationInfo&);
+    void		addChildren(const OD::ObjPresentationInfoSet&);
+    bool		selectChild(const OD::ObjPresentationInfo&);
+    void		emitChildPRRequest(const OD::ObjPresentationInfo&,
+					   OD::PresentationRequestType);
+    virtual uiODPrManagedTreeItem*
+			addChildItem(const OD::ObjPresentationInfo&)
+			{ return 0; }
+
+    virtual const char* childObjTypeKey() const			=0;
+protected:
+    virtual void	objAddedCB(CallBacker*);
+    virtual void	objVanishedCB(CallBacker*);
+    virtual void	objShownCB(CallBacker*);
+    virtual void	objHiddenCB(CallBacker*);
+    virtual void	objOrphanedCB(CallBacker*);
+
 };

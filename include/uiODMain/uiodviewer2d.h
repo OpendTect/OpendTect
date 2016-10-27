@@ -13,9 +13,9 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "datapack.h"
 #include "emposid.h"
+#include "probe.h"
 #include "uigeom.h"
 #include "uistring.h"
-#include "surveysectionprinfo.h"
 
 class uiFlatViewAuxDataEditor;
 class uiFlatViewStdControl;
@@ -45,19 +45,29 @@ static OD::ViewerTypeID sViewer2DMgrTypeID( OD::ViewerTypeID::get(1) );
 mExpClass(uiODMain) uiODViewer2D : public OD::PresentationManagedViewer
 { mODTextTranslationClass(uiODViewer2D);
 public:
-				uiODViewer2D(uiODMain&);
+
+    mStruct(uiODMain) DispSetup
+    {
+				DispSetup()
+				    : initialcentre_(uiWorldPoint::udf())
+				    , initialx1pospercm_(mUdf(float))
+				    , initialx2pospercm_(mUdf(float))	{}
+	uiWorldPoint		initialcentre_;
+	float			initialx1pospercm_;
+	float			initialx2pospercm_;
+    };
+				uiODViewer2D(uiODMain&,Probe&,
+					     DispSetup su=DispSetup());
 				~uiODViewer2D();
 
     mDeclInstanceCreatedNotifierAccess(uiODViewer2D);
 
     OD::ViewerTypeID		viewerTypeID() const
 				{ return sViewer2DMgrTypeID; }
-    void			setSurvSectionID( SurveySectionID sid)
-				{ surveysectionid_ = sid; }
-    SurveySectionID 		survSectionID() { return surveysectionid_; }
-    virtual void		setUpView(DataPack::ID,bool wva);
+    virtual void		setUpView(ProbeLayer::ID id=
+					  ProbeLayer::ID::getInvalid());
+				//Invalid means set all layers
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
-    void			setMouseCursorExchange(MouseCursorExchange*);
 
     uiParent*			viewerParent();
     uiFlatViewWin*		viewwin()		{ return viewwin_; }
@@ -77,25 +87,15 @@ public:
 				{ return wva ? wvaselspec_ : vdselspec_; }
     const Attrib::SelSpec&	selSpec( bool wva ) const
 				{ return wva ? wvaselspec_ : vdselspec_; }
-    DataPack::ID		getDataPackID(bool wva) const;
-				/*!<Returns DataPack::ID of specified display if
-				it has a valid one. Returns DataPack::ID of
-				other display if both have same Attrib::SelSpec.
-				Else, returns uiODViewer2D::createDataPack.*/
     DataPack::ID		createDataPack(bool wva) const
 				{ return createDataPack(selSpec(wva)); }
     DataPack::ID		createDataPack(const Attrib::SelSpec&) const;
-				/*!< Creates RegularFlatDataPack by getting
+				/*!< Creates RegularDataPack by getting
 				TrcKeyZSampling from slicepos_. Uses the
 				existing TrcKeyZSampling, if there is no
 				slicepos_. Also transforms data if the 2D Viewer
 				hasZAxisTransform(). */
-    DataPack::ID		createFlatDataPack(DataPack::ID,int comp) const;
-				/*!< Creates a FlatDataPack from SeisDataPack.
-				Either a transformed or a non-transformed
-				datapack can be passed. The returned datapack
-				will always be in transformed domain if the
-				viewer hasZAxisTransform(). */
+
     bool			useStoredDispPars(bool wva);
     bool			isVertical() const	{ return isvertical_; }
 
@@ -104,23 +104,10 @@ public:
     bool			setZAxisTransform(ZAxisTransform*);
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
-    virtual void		setPos(const TrcKeyZSampling&);
-    void			setRandomLineID( int id )
-				{ rdmlineid_ = id; }
-    int				getRandomLineID() const
-				{ return rdmlineid_; }
-    void			setTrcKeyZSampling(const TrcKeyZSampling&,
-						   TaskRunner* =0);
-    const TrcKeyZSampling&	getTrcKeyZSampling() const
-				{ return tkzs_; }
+    TrcKeyZSampling		getTrcKeyZSampling() const
+				{ return probe_.position(); }
     Pos::GeomID			geomID() const;
 
-    void			setInitialCentre( const uiWorldPoint& wp )
-				{ initialcentre_ = wp; }
-    void			setInitialX1PosPerCM( float val )
-				{ initialx1pospercm_ = val; }
-    void			setInitialX2PosPerCM( float val )
-				{ initialx2pospercm_ = val; }
     void			setUpAux();
 
     const uiFlatViewStdControl* viewControl() const
@@ -130,9 +117,6 @@ public:
     uiSlicePos2DView*		slicePos()
 				{ return slicepos_; }
     const ZDomain::Def&		zDomain() const;
-    int				getSyncSceneID() const	{ return -1;}
-
-    int				visid_; /*!<ID from 3D visualization */
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
@@ -209,6 +193,8 @@ public:
 
     void			emitPRRequest(OD::PresentationRequestType);
     OD::ObjPresentationInfo*	getObjPRInfo() const;
+    Probe&			getProbe()		{ return probe_; }
+    const Probe&		getProbe() const	{ return probe_; }
 
 protected:
 
@@ -219,23 +205,19 @@ protected:
     Attrib::SelSpec&		wvaselspec_;
     Attrib::SelSpec&		vdselspec_;
 
-    SurveySectionID		surveysectionid_;
+    Probe&			probe_;
+    DispSetup			dispsetup_;
     Vw2DDataManager*		datamgr_;
     uiTreeFactorySet*		tifs_;
     uiODVw2DTreeTop*		treetp_;
     uiFlatViewWin*		viewwin_;
-    MouseCursorExchange*	mousecursorexchange_;
+    MouseCursorExchange&	mousecursorexchange_;
     FlatView::AuxData*		marker_;
     ZAxisTransform*		datatransform_;
-    TrcKeyZSampling		tkzs_;
     uiString			basetxt_;
     uiODMain&			appl_;
-    int				rdmlineid_;
     int				voiidx_;
 
-    uiWorldPoint		initialcentre_;
-    float			initialx1pospercm_;
-    float			initialx2pospercm_;
 
     int				edittbid_;
     int				polyseltbid_;
@@ -246,16 +228,25 @@ protected:
     DataPack::ID		createDataPackForTransformedZSlice(
 						const Attrib::SelSpec&) const;
 
+    DataPack::ID		createFlatDataPack(DataPack::ID,int comp) const;
+				/*!< Creates a FlatDataPack from SeisDataPack.
+				Either a transformed or a non-transformed
+				datapack can be passed. The returned datapack
+				will always be in transformed domain if the
+				viewer hasZAxisTransform(). */
+
     virtual void		createViewWin(bool isvert,bool needslicepos);
     virtual void		createTree(uiMainWin*);
     virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();
     void			setDataPack(DataPack::ID,bool wva,bool isnew);
-    void			adjustOthrDisp(bool wva,bool isnew);
     void			removeAvailablePacks();
     void			rebuildTree();
+    void			updateTransformData();
+    void			updateSlicePos();
 
     void			winCloseCB(CallBacker*);
+    void			probeChangedCB(CallBacker*);
     void			posChg(CallBacker*);
     void			itmSelectionChangedCB(CallBacker*);
     void			selectionMode(CallBacker*);

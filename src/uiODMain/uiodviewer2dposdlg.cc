@@ -13,10 +13,13 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uiflatviewstdcontrol.h"
+#include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodviewer2dposgrp.h"
 #include "uiodmain.h"
 #include "uiodapplmgr.h"
+#include "probemanager.h"
+#include "attribprobelayer.h"
 
 
 uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
@@ -55,8 +58,17 @@ bool uiODViewer2DPosDlg::acceptOK()
     posgrp_->fillPar( seldatapar );
     Viewer2DPosDataSel posdatasel;
     posdatasel.usePar( seldatapar );
-    odappl_.viewer2DMgr().displayIn2DViewer( posdatasel,
-					     false, initialx1pospercm_,
-	   				     initialx2pospercm_ );
+    Probe* newprobe = posdatasel.createNewProbe();
+    if ( !newprobe )
+	return false;
+
+    if ( !ProbeMGR().store(*newprobe).isOK() )
+       return false;
+
+    uiODViewer2D::DispSetup su;
+    su.initialx1pospercm_ = initialx1pospercm_;
+    su.initialx2pospercm_ = initialx2pospercm_;
+    odappl_.viewer2DMgr().displayIn2DViewer(
+	    *newprobe, newprobe->getLayerByIdx(0)->getID(), su );
     return true;
 }

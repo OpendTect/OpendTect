@@ -1535,7 +1535,8 @@ void uiODApplMgr::addMPEParentPath( int visid, const TrcKey& tk )
 
     const int rlvisid =
 	sceneMgr().addRandomLineItem( rl->ID(), hd->getSceneID() );
-    viewer2DMgr().displayIn2DViewer( rlvisid, 0, false );
+    /*TODO use displaIn2DViewer with probe
+      viewer2DMgr().displayIn2DViewer( rlvisid, 0, false );*/
     visserv_->setSelObjectId( visid );
 }
 

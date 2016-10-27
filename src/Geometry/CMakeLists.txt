@@ -40,6 +40,7 @@ set(OD_MODULE_SOURCES
 		posvecdatasettr.cc
 		probdenfunctr.cc
 		randomlinegeom.cc
+		randomlineprobe.cc
 		randomlinetr.cc
 		rowcolsurface.cc
 		stickseteditor.cc

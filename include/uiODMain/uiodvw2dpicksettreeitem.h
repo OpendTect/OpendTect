@@ -29,6 +29,7 @@ public:
 
     bool			showSubMenu();
     const char*			childObjTypeKey() const;
+    uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
 protected:
 
     bool			init();
@@ -36,7 +37,6 @@ protected:
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-    void			addChildItem(const OD::ObjPresentationInfo&);
 };
 
 

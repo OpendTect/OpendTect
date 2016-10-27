@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
-#include "attribpresentationinfo.h"
+#include "attribprobelayer.h"
 #include "coltabsequence.h"
 #include "ioobj.h"
 #include "seisdatapack.h"
@@ -39,6 +39,7 @@ uiODVW2DVariableDensityTreeItem::uiODVW2DVariableDensityTreeItem()
     , dummyview_(0)
     , menu_(0)
     , coltabinitialized_(false)
+    , attrlayer_(0)
     , selattrmnuitem_(uiStrings::sSelAttrib())
 {}
 
@@ -63,6 +64,18 @@ bool uiODVW2DVariableDensityTreeItem::init()
     if ( !viewer2D()->viewwin()->nrViewers() )
 	return false;
 
+    Probe& vwr2dprobe = viewer2D()->getProbe();
+    for ( int idx=0; idx<vwr2dprobe.nrLayers(); idx++ )
+    {
+	mDynamicCastGet(AttribProbeLayer*,attrlayer,
+			vwr2dprobe.getLayerByIdx(idx))
+	if ( attrlayer && attrlayer->getDispType()==AttribProbeLayer::VD )
+	{
+	    setAttribProbeLayer( attrlayer );
+	    break;
+	}
+    }
+
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     mAttachCB( vwr.dataChanged,uiODVW2DVariableDensityTreeItem::dataChangedCB );
     mAttachCB( vwr.dispParsChanged,
@@ -70,7 +83,8 @@ bool uiODVW2DVariableDensityTreeItem::init()
 
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( true );
-    uitreeviewitem_->setChecked( ddp.vd_.show_ );
+    uitreeviewitem_->setChecked( ddp.vd_.show_ && attrlayer_ &&
+				 attrlayer_->hasData() );
     mAttachCB( checkStatusChange(), uiODVW2DVariableDensityTreeItem::checkCB );
 
     dummyview_ = new VW2DSeis();
@@ -89,6 +103,22 @@ bool uiODVW2DVariableDensityTreeItem::init()
     }
 
     return uiODVw2DTreeItem::init();
+}
+
+
+void uiODVW2DVariableDensityTreeItem::setAttribProbeLayer(
+		AttribProbeLayer* attrlayer )
+{
+    if ( attrlayer_ == attrlayer )
+	return;
+
+    if ( attrlayer_ )
+	mDetachCB( attrlayer_->objectChanged(),
+		   uiODVW2DVariableDensityTreeItem::attrLayerChangedCB );
+
+    attrlayer_ = attrlayer;
+    mAttachCB( attrlayer_->objectChanged(),
+	       uiODVW2DVariableDensityTreeItem::attrLayerChangedCB );
 }
 
 
@@ -144,12 +174,7 @@ void uiODVW2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
     if ( !coltabed ) return;
 
     const FlatView::DataDispPars::VD& vdpars = coltabed->getDisplayPars();
-    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-    {
-	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
-	vwr.appearance().ddpars_.vd_ = vdpars;
-	vwr.handleChange( FlatView::Viewer::DisplayPars );
-    }
+    attrlayer_->setColTab( ColTab::Sequence(vdpars.ctab_) );
 }
 
 
@@ -161,7 +186,8 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( ddp.wva_.show_ && vwr.hasPack(false) );
-    uitreeviewitem_->setChecked( ddp.vd_.show_ );
+    uitreeviewitem_->setChecked( ddp.vd_.show_ && attrlayer_ &&
+				 attrlayer_->hasData() );
 
     if ( !coltabinitialized_ ) initColTab();
 
@@ -173,23 +199,12 @@ void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 }
 
 
-void uiODVW2DVariableDensityTreeItem::dataTransformCB( CallBacker* )
+void uiODVW2DVariableDensityTreeItem::attrLayerChangedCB( CallBacker* )
 {
-    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-    {
-	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
-	const TypeSet<DataPack::ID> ids = vwr.availablePacks();
-	for ( int idx=0; idx<ids.size(); idx++ )
-	    if ( ids[idx]!=vwr.packID(false) && ids[idx]!=vwr.packID(true) )
-		vwr.removePack( ids[idx] );
-    }
+    if ( !viewer2D()->viewwin()->nrViewers() || !viewer2D()->viewControl() )
+	return;
 
-    Attrib::SelSpec& selspec = viewer2D()->selSpec( false );
-    if ( selspec.isZTransformed() ) return;
-
-    const DataPack::ID dpid = createDataPack( selspec );
-    if ( dpid != DataPack::cNoID() )
-	viewer2D()->setUpView( dpid, false );
+    viewer2D()->setUpView( attrlayer_->getID() );
 }
 
 
@@ -294,106 +309,19 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     if ( !stored && !attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
 	return false;
 
-    const DataPack::ID dpid =
-	createDataPack( selas, attrbnm.buf(), steering, stored );
-    if ( dpid == DataPack::cNoID() ) return false;
-
-    viewer2D()->setSelSpec( &selas, false );
-    if ( !viewer2D()->useStoredDispPars(false) )
+    if ( !attrlayer_ )
     {
-	ColTab::MapperSetup& vdmapper =
-	    vwr.appearance().ddpars_.vd_.mappersetup_;
-	if ( vdmapper.type_ != ColTab::MapperSetup::Fixed )
-	    vdmapper.range_ = Interval<float>::udf();
+	AttribProbeLayer* attrprobelayer = new AttribProbeLayer();
+	attrprobelayer->setSelSpec( selas );
+	attrprobelayer->useStoredColTabPars();
+
+	viewer2D()->getProbe().addLayer( attrprobelayer );
+	setAttribProbeLayer( attrprobelayer );
     }
+    else
+	attrlayer_->setSelSpec( selas );
 
-    const ColTab::Sequence seq( vwr.appearance().ddpars_.vd_.ctab_ );
-    displayMiniCtab( &seq );
-
-    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-    {
-	FlatView::DataDispPars& ddpars =
-	    viewer2D()->viewwin()->viewer(ivwr).appearance().ddpars_;
-	ddpars.vd_.show_ = true;
-    }
-
-    viewer2D()->setUpView( dpid, false );
     return true;
-}
-
-
-DataPack::ID uiODVW2DVariableDensityTreeItem::createDataPack(
-			Attrib::SelSpec& selas, const BufferString& attrbnm,
-			const bool steering, const bool stored )
-{
-    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true );
-    if ( !dp ) return DataPack::cNoID();
-
-    uiAttribPartServer* attrserv = applMgr()->attrServer();
-    attrserv->setTargetSelSpec( selas );
-
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
-    mDynamicCastGet(const RandomFlatDataPack*,randfdp,dp.ptr());
-    if ( regfdp && regfdp->is2D() )
-    {
-	if ( stored )
-	{
-	    const SeisIOObjInfo objinfo( attrbnm, Seis::Line );
-	    if ( !objinfo.ioObj() )
-		return DataPack::cNoID();
-
-	    Attrib::DescID attribid = attrserv->getStoredID(
-			    objinfo.ioObj()->key(), true, steering ? 1 : 0 );
-	    selas.set( attrbnm, attribid, false, 0 );
-	    selas.set2DFlag();
-
-	    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true,
-								       true );
-	    if ( !ds ) return DataPack::cNoID();
-
-	    selas.setRefFromID( *ds );
-	    selas.setUserRef( attrbnm );
-
-	    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
-	    if ( !targetdesc )
-		return DataPack::cNoID();
-
-	    BufferString defstring;
-	    targetdesc->getDefStr( defstring );
-	    selas.setDefString( defstring );
-	    attrserv->setTargetSelSpec( selas );
-	}
-    }
-    else if ( randfdp )
-    {
-	const DataPack::ID dpid =
-	    attrserv->createRdmTrcsOutput( randfdp->getZRange(),
-					   randfdp->getRandomLineID() );
-	return viewer2D()->createFlatDataPack( dpid, 0 );
-    }
-
-    return viewer2D()->createDataPack( selas );
-}
-
-
-AttribPresentationInfo* uiODVW2DVariableDensityTreeItem::getAttribPRInfo()
-{
-    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    ConstRefMan<FlatDataPack> dp = vwr.getPack( false );
-    if ( !dp ) return 0;
-
-    if ( !vwr.isVisible(false) )
-	return 0;
-
-    AttribPresentationInfo* prinfo = new AttribPresentationInfo;
-    prinfo->setSelSpec( viewer2D()->selSpec(false) );
-    mDynamicCastGet(const SeisFlatDataPack*,seisfdp,dp.ptr());
-    if ( seisfdp )
-	prinfo->setAttribDataPack( seisfdp->getSourceDataPack().id() );
-    prinfo->setColTab( ColTab::Sequence(vwr.appearance().ddpars_.vd_.ctab_) );
-    prinfo->setColTabMapper( vwr.appearance().ddpars_.vd_.mappersetup_ );
-    return prinfo;
 }
 
 

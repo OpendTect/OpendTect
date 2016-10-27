@@ -38,13 +38,16 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
-#include "attribpresentationinfo.h"
+#include "attribprobelayer.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "filepath.h"
 #include "flatposdata.h"
 #include "ioobj.h"
 #include "mouseevent.h"
+#include "probeimpl.h"
+#include "randomlineprobe.h"
+#include "probemanager.h"
 #include "scaler.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
@@ -69,7 +72,8 @@ static void initSelSpec( Attrib::SelSpec& as )
 
 mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
 
-uiODViewer2D::uiODViewer2D( uiODMain& appl )
+uiODViewer2D::uiODViewer2D( uiODMain& appl, Probe& probe,
+			    uiODViewer2D::DispSetup su )
     : OD::PresentationManagedViewer()
     , appl_(appl)
     , vdselspec_(*new Attrib::SelSpec)
@@ -81,22 +85,22 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl )
     , tifs_(0)
     , treetp_(0)
     , polyseltbid_(-1)
-    , rdmlineid_(mUdf(int))
     , voiidx_(-1)
     , basetxt_(tr("2D Viewer - "))
-    , initialcentre_(uiWorldPoint::udf())
-    , initialx1pospercm_(mUdf(float))
-    , initialx2pospercm_(mUdf(float))
     , isvertical_(true)
     , viewWinAvailable(this)
     , viewWinClosed(this)
     , dataChanged(this)
     , posChanged(this)
-    , mousecursorexchange_(0)
+    , mousecursorexchange_(appl.applMgr().mouseCursorExchange())
     , marker_(0)
     , datatransform_(0)
-    , surveysectionid_(SurveySectionID::getInvalid())
+    , probe_(probe)
+    , dispsetup_(su)
 {
+    probe_.ref();
+    mAttachCB( probe_.objectChanged(), uiODViewer2D::probeChangedCB );
+    mAttachCB( mousecursorexchange_.notifier,uiODViewer2D::mouseCursorCB );
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
     viewerobjid_ = OD::ViewerObjID::get( vwrid++ );
 
@@ -134,6 +138,8 @@ uiODViewer2D::~uiODViewer2D()
 	removeAvailablePacks();
 	viewwin()->viewer(0).removeAuxData( marker_ );
     }
+
+    probe_.unRef();
     delete marker_;
     delete viewwin();
 }
@@ -141,8 +147,8 @@ uiODViewer2D::~uiODViewer2D()
 
 Pos::GeomID uiODViewer2D::geomID() const
 {
-    if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
-	return tkzs_.hsamp_.trcKeyAt(0).geomID();
+    if ( probe_.position().hsamp_.survid_ == Survey::GM().get2DSurvID() )
+	return probe_.position().hsamp_.trcKeyAt(0).geomID();
 
     return Survey::GM().cUndefGeomID();
 }
@@ -163,7 +169,7 @@ void uiODViewer2D::setUpAux()
 {
     const bool is2d = geomID() != Survey::GM().cUndefGeomID();
     FlatView::Annotation& vwrannot = viewwin()->viewer().appearance().annot_;
-    if ( !is2d && !tkzs_.isFlat() )
+    if ( !is2d && !probe_.position().isFlat() )
 	vwrannot.x1_.showauxannot_ = vwrannot.x2_.showauxannot_ = false;
     else
     {
@@ -184,12 +190,12 @@ void uiODViewer2D::setUpAux()
 	    x1auxnm = intersection;
 	    x2auxnm = intersection;
 
-	    if ( tkzs_.defaultDir()==TrcKeyZSampling::Inl )
+	    if ( probe_.position().defaultDir()==TrcKeyZSampling::Inl )
 	    {
 		x1auxnm.arg( uiStrings::sCrossline() );
 		x2auxnm.arg( uiStrings::sZSlice() );
 	    }
-	    else if ( tkzs_.defaultDir()==TrcKeyZSampling::Crl )
+	    else if ( probe_.position().defaultDir()==TrcKeyZSampling::Crl )
 	    {
 		x1auxnm.arg( uiStrings::sInline() );
 		x2auxnm.arg( uiStrings::sZSlice() );
@@ -204,45 +210,77 @@ void uiODViewer2D::setUpAux()
 }
 
 
-void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
+void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    ConstRefMan<FlatDataPack> fdp = dpm.get( packid );
-    mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-    mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
-
     const bool isnew = !viewwin();
     if ( isnew )
     {
-	if ( regfdp && regfdp->is2D() )
+	if ( probe_.type()==Line2DProbe::sFactoryKey() )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet2D();
-	else if ( !mapdp )
+	else
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
 
-	isvertical_ = seisfdp && seisfdp->isVertical();
-	if ( regfdp )
-	    setTrcKeyZSampling( regfdp->sampling() );
-	createViewWin( isvertical_, regfdp && !regfdp->is2D() );
+	isvertical_ = probe_.type()!=ZSliceProbe::sFactoryKey();
+	const bool is2d = probe_.type()==Line2DProbe::sFactoryKey();
+	const bool isrdl = probe_.type()==RDLProbe::sFactoryKey();
+	createViewWin( isvertical_, !is2d || !isrdl );
     }
 
-    if ( regfdp )
+    updateTransformData();
+    updateSlicePos();
+    bool vddone = false;
+    bool wvadone = false;
+
+    removeAvailablePacks();
+    for ( int idx=0; idx<probe_.nrLayers(); idx++ )
     {
-	const TrcKeyZSampling& cs = regfdp->sampling();
-	if ( tkzs_ != cs ) { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
+	ProbeLayer* prblay = probe_.getLayerByIdx( idx );
+	if ( !curlayid.isInvalid() && curlayid!=prblay->getID() )
+	    continue;
+
+	mDynamicCastGet(AttribProbeLayer*,attriblayer,prblay)
+	if ( !attriblayer || attriblayer->getDispType()==AttribProbeLayer::RGB )
+	    continue;
+
+	const bool hasdatapack = attriblayer->hasData();
+	DataPack::ID attrdpid = attriblayer->getAttribDataPack();
+	const bool iswiggle =
+	    attriblayer->getDispType()==AttribProbeLayer::Wiggle;
+	Attrib::SelSpec& selspec = iswiggle ? wvaselspec_ : vdselspec_;
+	selspec = attriblayer->getSelSpec();
+	bool& typedone = iswiggle ? wvadone : vddone;
+	if ( typedone )
+	    continue;
+
+	typedone = true;
+	if ( !hasdatapack )
+	{
+	    attrdpid = createDataPack( iswiggle );
+	    attriblayer->setAttribDataPack( attrdpid );
+	}
+
+	setDataPack( createFlatDataPack(attrdpid,0), iswiggle, isnew );
+	for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+	{
+	    uiFlatViewer& vwr = viewwin()->viewer(ivwr);
+	    if ( !iswiggle )
+	    {
+		vwr.appearance().ddpars_.vd_.ctab_ =
+		    attriblayer->getColTab().name();
+		vwr.appearance().ddpars_.vd_.mappersetup_ =
+		    attriblayer->getColTabMapper();
+	    }
+	    else
+		vwr.appearance().ddpars_.wva_.mappersetup_ =
+		    attriblayer->getColTabMapper();
+
+	    vwr.handleChange( FlatView::Viewer::DisplayPars );
+	}
     }
 
-    setDataPack( packid, wva, isnew ); adjustOthrDisp( wva, isnew );
-
-    //updating stuff
-    if ( treetp_ )
-    {
-	treetp_->updSelSpec( &wvaselspec_, true );
-	treetp_->updSelSpec( &vdselspec_, false );
-	treetp_->updSampling( tkzs_, true );
-    }
-
-    viewwin()->start();
+    setWinTitle();
+    if ( isnew )
+	viewwin()->start();
 }
 
 
@@ -253,19 +291,6 @@ void uiODViewer2D::emitPRRequest( OD::PresentationRequestType req )
     IOPar objprinfopar;
     prinfo->fillPar( objprinfopar );
     OD::PrMan().request( vwrid, req, objprinfopar );
-}
-
-
-void uiODViewer2D::adjustOthrDisp( bool wva, bool isnew )
-{
-    if ( !slicepos_ ) return;
-    const TrcKeyZSampling& cs = slicepos_->getTrcKeyZSampling();
-    const bool newcs = ( cs != tkzs_ );
-    const DataPack::ID othrdpid = newcs ? createDataPack(!wva)
-					: getDataPackID(!wva);
-    if ( newcs && (othrdpid != DataPack::cNoID()) )
-    { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
-    setDataPack( othrdpid, !wva, isnew );
 }
 
 
@@ -317,39 +342,45 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
 }
 
 
-void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs,
-				       TaskRunner* taskr )
+void uiODViewer2D::updateTransformData()
 {
+    const TrcKeyZSampling& probetkzs = probe_.position();
+    uiTaskRunner taskr( &appl_ );
     if ( datatransform_ && datatransform_->needsVolumeOfInterest() )
     {
-	if ( voiidx_!=-1 && tkzs!=tkzs_ )
-	{
-	    datatransform_->removeVolumeOfInterest( voiidx_ );
-	    voiidx_ = -1;
-	}
-
 	if ( voiidx_ < 0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
+	    voiidx_ = datatransform_->addVolumeOfInterest( probetkzs, true );
 	else
-	    datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
+	    datatransform_->setVolumeOfInterest( voiidx_, probetkzs, true );
 
-	datatransform_->loadDataIfMissing( voiidx_, taskr );
+	datatransform_->loadDataIfMissing( voiidx_, &taskr );
     }
+}
 
-    tkzs_ = tkzs;
+
+void uiODViewer2D::updateSlicePos()
+{
+    if ( !slicepos_ )
+	return;
+
+    const TrcKeyZSampling& probetkzs = probe_.position();
+    if ( probetkzs==slicepos_->getTrcKeyZSampling() )
+	return;
+
+    NotifyStopper( slicepos_->positionChg );
     if ( slicepos_ )
     {
-	slicepos_->setTrcKeyZSampling( tkzs );
+	slicepos_->setTrcKeyZSampling( probetkzs );
 	if ( datatransform_ )
 	{
-	    TrcKeyZSampling limitcs;
-	    limitcs.zsamp_.setFrom( datatransform_->getZInterval(false) );
-	    limitcs.zsamp_.step = datatransform_->getGoodZStep();
-	    slicepos_->setLimitSampling( limitcs );
+	    TrcKeyZSampling limittkzs;
+	    limittkzs.zsamp_.setFrom( datatransform_->getZInterval(false) );
+	    limittkzs.zsamp_.step = datatransform_->getGoodZStep();
+	    slicepos_->setLimitSampling( limittkzs );
 	}
     }
 
-    if ( tkzs.isFlat() ) setWinTitle();
+    if ( probetkzs.isFlat() ) setWinTitle();
 }
 
 
@@ -367,7 +398,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 	if ( needslicepos )
 	{
 	    slicepos_ = new uiSlicePos2DView( fvmw, ZDomain::Info(zDomain()) );
-	    slicepos_->setTrcKeyZSampling( tkzs_ );
+	    slicepos_->setTrcKeyZSampling( probe_.position() );
 	    mAttachCB( slicepos_->positionChg, uiODViewer2D::posChg );
 	}
 
@@ -385,7 +416,6 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     }
 
     viewwin_->setInitialSize( 700, 400 );
-    if ( tkzs_.isFlat() ) setWinTitle();
 
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
@@ -396,19 +426,19 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 	vwr.appearance().annot_.setAxesAnnot(true);
     }
 
-    const float initialx2pospercm = isvert ? initialx2pospercm_
-					   : initialx1pospercm_;
+    const float initialx2pospercm = isvert ? dispsetup_.initialx2pospercm_
+					   : dispsetup_.initialx1pospercm_;
     uiFlatViewer& mainvwr = viewwin()->viewer();
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
 	    uiFlatViewStdControl::Setup(controlparent).helpkey(
-					mODHelpKey(mODViewer2DHelpID) )
-					.withedit(tifs_).isvertical(isvert)
-					.withfixedaspectratio(true)
-					.withhomebutton(true)
-					.initialx1pospercm(initialx1pospercm_)
-					.initialx2pospercm(initialx2pospercm)
-					.initialcentre(initialcentre_)
-					.managecoltab(!tifs_) );
+			mODHelpKey(mODViewer2DHelpID) )
+			.withedit(tifs_).isvertical(isvert)
+			.withfixedaspectratio(true)
+			.withhomebutton(true)
+			.initialx1pospercm(dispsetup_.initialx1pospercm_)
+			.initialx2pospercm(initialx2pospercm)
+			.initialcentre(dispsetup_.initialcentre_)
+			.managecoltab(!tifs_) );
 
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     if ( viewstdcontrol_->editPushed() )
@@ -469,7 +499,6 @@ void uiODViewer2D::createTree( uiMainWin* mw )
 	treetp_->addChild( tifs_->getFactory(fidx)->create(), true );
     }
 
-    treetp_->setZAxisTransform( datatransform_ );
     lv->display( true );
     mw->addDockWindow( *treedoc, uiMainWin::Left );
     treedoc->display( true );
@@ -543,43 +572,22 @@ void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 }
 
 
+void uiODViewer2D::probeChangedCB( CallBacker* )
+{
+    setUpView();
+}
+
+
 void uiODViewer2D::posChg( CallBacker* )
 {
-    setPos( slicepos_->getTrcKeyZSampling() );
-}
-
-
-void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
-{
-    if ( tkzs == tkzs_ ) return;
-    uiTaskRunner taskr( viewerParent() );
-    setTrcKeyZSampling( tkzs, &taskr );
-    const uiFlatViewer& vwr = viewwin()->viewer(0);
-    if ( vwr.isVisible(false) && vdselspec_.id().isValid() )
-	setUpView( createDataPack(false), false );
-    else if ( vwr.isVisible(true) && wvaselspec_.id().isValid() )
-	setUpView( createDataPack(true), true );
-    posChanged.trigger();
-}
-
-
-DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
-{
-    const uiFlatViewer& vwr = viewwin()->viewer(0);
-    if ( vwr.hasPack(wva) )
-	return vwr.packID(wva);
-    else if ( wvaselspec_ == vdselspec_ )
-    {
-	const DataPack::ID dpid = vwr.packID(!wva);
-	if ( dpid != DataPack::cNoID() ) return dpid;
-    }
-    return createDataPack( wva );
+    probe_.setPos( slicepos_->getTrcKeyZSampling() );
 }
 
 
 DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 {
-    TrcKeyZSampling tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling() : tkzs_;
+    TrcKeyZSampling tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling()
+				     : probe_.position();
     if ( !tkzs.isFlat() ) return DataPack::cNoID();
 
     RefMan<ZAxisTransform> zat = getZAxisTransform();
@@ -593,8 +601,13 @@ DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
-    const DataPack::ID dpid = attrserv->createOutput( tkzs, DataPack::cNoID() );
-    return createFlatDataPack( dpid, 0 );
+
+    mDynamicCastGet(const RDLProbe*,rdlprobe,&probe_);
+    if ( rdlprobe )
+	return attrserv->createRdmTrcsOutput( tkzs.zsamp_,
+					      rdlprobe->randomeLineID() );
+
+    return attrserv->createOutput( tkzs, DataPack::cNoID() );
 }
 
 
@@ -637,7 +650,7 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 	return DataPack::cNoID();
 
     const TrcKeyZSampling& tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling()
-					    : tkzs_;
+					    : probe_.position();
     if ( tkzs.nrZ() != 1 ) return DataPack::cNoID();
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
@@ -657,9 +670,8 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
     if ( !attrserv->createOutput(*data,firstcol) )
 	return DataPack::cNoID();
 
-    const DataPack::ID dpid = RegularSeisDataPack::createDataPackForZSlice(
+    return RegularSeisDataPack::createDataPackForZSlice(
 	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), userrefs );
-    return createFlatDataPack( dpid, 0 );
 }
 
 
@@ -813,31 +825,33 @@ void uiODViewer2D::setWinTitle()
 {
     uiString info = toUiString("%1: %2");
 
-    if ( !mIsUdf(rdmlineid_) )
+    mDynamicCastGet(const RDLProbe*,rdlprobe,&probe_);
+    if ( rdlprobe )
     {
 	const Geometry::RandomLine* rdmline =
-		    Geometry::RLM().get( rdmlineid_ );
+		    Geometry::RLM().get( rdlprobe->randomeLineID() );
 	if ( rdmline ) info = toUiString( rdmline->name() );
     }
-    else if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    else if ( probe_.position().hsamp_.survid_ == Survey::GM().get2DSurvID() )
     {
 	info.arg( tr("Line") )
 	    .arg( toUiString( Survey::GM().getName(geomID()) ) );
     }
-    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+    else if ( probe_.position().defaultDir() == TrcKeyZSampling::Inl )
     {
 	info.arg( uiStrings::sInline() )
-	    .arg( tkzs_.hsamp_.start_.inl() );
+	    .arg( probe_.position().hsamp_.start_.inl() );
     }
-    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+    else if ( probe_.position().defaultDir() == TrcKeyZSampling::Crl )
     {
 	info.arg( uiStrings::sCrossline() )
-	    .arg( tkzs_.hsamp_.start_.crl() );
+	    .arg( probe_.position().hsamp_.start_.crl() );
     }
     else
     {
 	info.arg( zDomain().userName() )
-	    .arg( mNINT32(tkzs_.zsamp_.start * zDomain().userFactor()) );
+	    .arg( mNINT32(probe_.position().zsamp_.start *
+			  zDomain().userFactor()) );
     }
 
     uiString title = toUiString("%1%2").arg(basetxt_).arg(info);
@@ -845,7 +859,7 @@ void uiODViewer2D::setWinTitle()
 	viewwin()->setWinTitle( title );
 }
 
-
+//TODO re-implement via Probe
 void uiODViewer2D::usePar( const IOPar& iop )
 {
     if ( !viewwin() ) return;
@@ -862,7 +876,7 @@ void uiODViewer2D::usePar( const IOPar& iop )
 	const uiFlatViewer& vwr = viewwin()->viewer(0);
 	const bool iswva = wvaselspec_.id().isValid();
 	ConstRefMan<RegularSeisDataPack> regsdp = vwr.getPack( iswva );
-	if ( regsdp ) setPos( tkzs );
+	//TODO remove later if ( regsdp ) setPos( tkzs );
     }
 
     datamgr_->usePar( iop, viewwin(), dataEditor() );
@@ -877,7 +891,7 @@ void uiODViewer2D::fillPar( IOPar& iop ) const
     wvaselspec_.fillPar( wvaselspecpar );
     iop.mergeComp( vdselspecpar, sKeyVDSelSpec() );
     iop.mergeComp( wvaselspecpar, sKeyWVASelSpec() );
-    IOPar pospar; tkzs_.fillPar( pospar );
+    IOPar pospar; probe_.position().fillPar( pospar );
     iop.mergeComp( pospar, sKeyPos() );
 
     datamgr_->fillPar( iop );
@@ -898,17 +912,6 @@ void uiODViewer2D::rebuildTree()
 	if ( !childitem )
 	    uiODVw2DTreeItem::create( treeTop(), *this, objs[iobj]->id() );
     }
-}
-
-
-void uiODViewer2D::setMouseCursorExchange( MouseCursorExchange* mce )
-{
-    if ( mousecursorexchange_ )
-	mDetachCB( mousecursorexchange_->notifier,uiODViewer2D::mouseCursorCB );
-
-    mousecursorexchange_ = mce;
-    if ( mousecursorexchange_ )
-	mAttachCB( mousecursorexchange_->notifier,uiODViewer2D::mouseCursorCB );
 }
 
 
@@ -946,17 +949,19 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     if ( seisfdp )
     {
 	const int gidx = seisfdp->getSourceDataPack().getGlobalIdx( trkv.tk_ );
+	const FlatPosData& posdata = fdp->posData();
+	const TrcKeyZSampling& probepos = probe_.position();
 	if ( seisfdp->isVertical() )
 	{
-	    pt.x_ = fdp->posData().range(true).atIndex( gidx );
+	    pt.x_ = posdata.range(true).atIndex( gidx );
 	    pt.y_ = datatransform_ ?
 		   datatransform_->transformTrc( trkv.tk_, trkv.val_ ) :
 		   trkv.val_;
 	}
 	else
 	{
-	    pt.x_ = fdp->posData().range(true).atIndex( gidx / tkzs_.nrTrcs() );
-	    pt.y_ = fdp->posData().range(false).atIndex( gidx % tkzs_.nrTrcs());
+	    pt.x_ = posdata.range(true).atIndex( gidx / probepos.nrTrcs() );
+	    pt.y_ = posdata.range(false).atIndex( gidx % probepos.nrTrcs() );
 	}
     }
     else if ( mapdp )
@@ -989,17 +994,15 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 	    mousepos.z_ = datatransform_->transformBack( mousepos );
     }
 
-    if ( mousecursorexchange_ )
-    {
-	const TrcKeyValue trckeyval =
-	    mousepos.isDefined() ? TrcKeyValue(SI().transform(mousepos.getXY()),
-						mCast(float,mousepos.z_))
-				 : TrcKeyValue::udf();
+    const TrcKeyValue trckeyval =
+	mousepos.isDefined() ? TrcKeyValue(SI().transform(mousepos.getXY()),
+					    mCast(float,mousepos.z_))
+			     : TrcKeyValue::udf();
 
-	MouseCursorExchange::Info info( trckeyval );
-	mousecursorexchange_->notifier.trigger( info, this );
-    }
+    MouseCursorExchange::Info info( trckeyval );
+    mousecursorexchange_.notifier.trigger( info, this );
 }
+
 
 bool uiODViewer2D::isItemPresent( const uiTreeItem* item ) const
 {
@@ -1588,41 +1591,7 @@ void uiODViewer2D::setupNewPickSet( const DBKey& pickid )
 
 OD::ObjPresentationInfo* uiODViewer2D::getObjPRInfo() const
 {
-    SurveySectionPresentationInfo* prinfo = new SurveySectionPresentationInfo;
-    SurveySectionPresentationInfo::SectionType sectype =
-	SurveySectionPresentationInfo::InLine;
-    if ( tkzs_.is2D() )
-	sectype = SurveySectionPresentationInfo::Line2D;
-    else if ( !mIsUdf(rdmlineid_) )
-	sectype = SurveySectionPresentationInfo::RdmLine;
-    else
-    {
-	TrcKeyZSampling::Dir tkzsdir = tkzs_.defaultDir();
-	if ( tkzsdir==TrcKeyZSampling::Inl )
-	    sectype = SurveySectionPresentationInfo::InLine;
-	else if ( tkzsdir==TrcKeyZSampling::Crl )
-	    sectype = SurveySectionPresentationInfo::CrossLine;
-	else if ( tkzsdir==TrcKeyZSampling::Z )
-	    sectype = SurveySectionPresentationInfo::ZSlice;
-    }
-
-    prinfo->setSectionID( surveysectionid_ );
-    prinfo->setSectionType( sectype );
-    prinfo->setSectionPos( tkzs_ );
-
-    for ( int ich=0; ich<treetp_->nrChildren(); ich++ )
-    {
-	uiTreeItem* itm = treetp_->getChild( ich );
-	mDynamicCastGet(uiODVW2DWiggleVarAreaTreeItem*,wvaitem,itm);
-	mDynamicCastGet(uiODVW2DVariableDensityTreeItem*,vditem,itm);
-	if ( !wvaitem && !vditem )
-	    continue;
-
-	AttribPresentationInfo* attrprinfo =
-	    wvaitem ? wvaitem->getAttribPRInfo() : vditem->getAttribPRInfo();
-	if ( attrprinfo )
-	    prinfo->addSectionLayer( attrprinfo );
-    }
-
+    ProbePresentationInfo* prinfo =
+	new ProbePresentationInfo( ProbeMGR().getID(probe_) );
     return prinfo;
 }

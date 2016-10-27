@@ -29,92 +29,24 @@ ___________________________________________________________________
 #include "visrgbatexturechannel2rgba.h"
 
 #include "attribdescsetsholder.h"
-#include "attribpresentationinfo.h"
+#include "attribprobelayer.h"
 #include "coltabsequence.h"
+#include "probemanager.h"
+#include "probeimpl.h"
 #include "settings.h"
 #include "welldata.h"
 #include "wellinfo.h"
 #include "wellman.h"
-#include "surveysectionprinfo.h"
 
 
 static const int cPositionIdx = 990;
 static const int cGridLinesIdx = 980;
 
-static uiODPlaneDataTreeItem::Type getType( int mnuid )
-{
-    switch ( mnuid )
-    {
-	case 0: return uiODPlaneDataTreeItem::Default; break;
-	case 1: return uiODPlaneDataTreeItem::Select; break;
-	case 2: return uiODPlaneDataTreeItem::Empty; break;
-	case 3: return uiODPlaneDataTreeItem::RGBA; break;
-	default: return uiODPlaneDataTreeItem::Empty;
-    }
-}
 
-
-uiString uiODPlaneDataTreeItem::sAddEmptyPlane()
-{ return tr("Add Empty Plane"); }
-
-uiString uiODPlaneDataTreeItem::sAddAndSelectData()
-{ return tr("Add and Select Data"); }
-
-uiString uiODPlaneDataTreeItem::sAddDefaultData()
-{ return tr("Add Default Data"); }
-
-uiString uiODPlaneDataTreeItem::sAddColorBlended()
-{ return uiStrings::sAddColBlend(); }
-
-uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
-{ return m3Dots(tr("Add at Well Location")); }
-
-
-#define mParentShowSubMenu( treeitm, fromwell ) \
-    uiMenu mnu( getUiParent(), uiStrings::sAction() ); \
-    mnu.insertItem( \
-	new uiAction(uiODPlaneDataTreeItem::sAddDefaultData()), 0 ); \
-    mnu.insertItem( \
-	new uiAction(uiODPlaneDataTreeItem::sAddAndSelectData()), 1 );\
-    if ( fromwell ) \
-	mnu.insertItem( \
-	    new uiAction(uiODPlaneDataTreeItem::sAddAtWellLocation()), 2 ); \
-    mnu.insertItem( \
-	new uiAction(uiODPlaneDataTreeItem::sAddColorBlended()), 3 ); \
-    addStandardItems( mnu ); \
-    const int mnuid = mnu.exec(); \
-    if ( mnuid==0 || mnuid==1 || mnuid==3 ) \
-    { \
-	treeitm* newitm = new treeitm(-1,getType(mnuid));\
-        addChild( newitm, false ); \
-	newitm->emitPRRequest( OD::Add ); \
-    } \
-    else if ( mnuid==2 ) \
-    { \
-	DBKeySet wellids; \
-	if ( !applMgr()->wellServer()->selectWells(wellids) ) \
-	    return true; \
-	for ( int idx=0; idx<wellids.size(); idx++ ) \
-	{ \
-	    Well::Data* wd = Well::MGR().get( wellids[idx] ); \
-	    if ( !wd ) continue; \
-	    treeitm* itm = new treeitm( -1, uiODPlaneDataTreeItem::Empty ); \
-	    setMoreObjectsToDoHint( idx<wellids.size()-1 ); \
-	    addChild( itm, false ); \
-	    itm->setAtWellLocation( *wd ); \
-	    itm->displayDefaultData(); \
-	    itm->emitPRRequest( OD::Add ); \
-	} \
-    } \
-    handleStandardItems( mnuid ); \
-    return true
-
-
-uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
+uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o,
+					      Probe& probe )
     : orient_(o)
-    , type_(t)
-    , initprinfo_(0)
-    , surveysectionid_(SurveySectionID::getInvalid())
+    , probe_(probe)
     , positiondlg_(0)
     , positionmnuitem_(m3Dots(tr("Position")),cPositionIdx)
     , gridlinesmnuitem_(m3Dots(tr("Gridlines")),cGridLinesIdx)
@@ -122,30 +54,8 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
     , addcrlitem_(tr("Add Crl-line"),10002)
     , addzitem_(tr("Add Z-slice"),10001)
 {
-    displayid_ = did;
-    positionmnuitem_.iconfnm = "orientation64";
-    gridlinesmnuitem_.iconfnm = "gridlines";
-    surveysectionid_ = SurveySectionPresentationInfo::getNewSectionID();
-    mAttachCB( uiMain::keyboardEventHandler().keyPressed,
-	uiODPlaneDataTreeItem::keyUnReDoPressedCB );
-}
-
-
-uiODPlaneDataTreeItem::uiODPlaneDataTreeItem(
-	int did, OD::SliceType o, const SurveySectionPresentationInfo& prinfo )
-    : orient_(o)
-    , type_(uiODPlaneDataTreeItem::Presentation)
-    , positiondlg_(0)
-    , initprinfo_(0)
-    , surveysectionid_(SurveySectionID::getInvalid())
-    , positionmnuitem_(m3Dots(tr("Position")),cPositionIdx)
-    , gridlinesmnuitem_(m3Dots(tr("Gridlines")),cGridLinesIdx)
-    , addinlitem_(tr("Add Inl-line"),10003)
-    , addcrlitem_(tr("Add Crl-line"),10002)
-    , addzitem_(tr("Add Z-slice"),10001)
-{
-    mDynamicCast(SurveySectionPresentationInfo*,initprinfo_,prinfo.clone());
-    surveysectionid_ = initprinfo_->sectionID();
+    probe_.ref();
+    //TODO Implement probeChangedCB
     displayid_ = did;
     positionmnuitem_.iconfnm = "orientation64";
     gridlinesmnuitem_.iconfnm = "gridlines";
@@ -170,7 +80,7 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 			mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     visserv_->getUiSlicePos()->setDisplay( -1 );
-    delete initprinfo_;
+    probe_.unRef();
     delete positiondlg_;
 }
 
@@ -182,15 +92,7 @@ bool uiODPlaneDataTreeItem::init()
 	RefMan<visSurvey::PlaneDataDisplay> pdd =
 	    new visSurvey::PlaneDataDisplay;
 	displayid_ = pdd->id();
-	if ( type_ == RGBA )
-	{
-	    pdd->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
-	    pdd->addAttrib();
-	    pdd->addAttrib();
-	    pdd->addAttrib();
-	}
 
-	pdd->setOrientation( orient_);
 	visserv_->addObject( pdd, sceneID(), true );
 
 	BufferString res;
@@ -201,14 +103,30 @@ bool uiODPlaneDataTreeItem::init()
 		pdd->setResolution( idx, 0 );
 	}
 
-	if ( type_ == Default )
-	    displayDefaultData();
-	else if ( type_ == Select )
-	    displayGuidance();
-	else if ( type_ == RGBA )
-	    selectRGBA();
-	else if ( type_ == Presentation )
-	    displayFromPRInfo();
+	pdd->setProbe( &probe_ );
+	for ( int idx=0; idx<probe_.nrLayers(); idx++ )
+	{
+	    mDynamicCastGet( const AttribProbeLayer*,attrprlayer,
+			     probe_.getLayerByIdx(idx) );
+	    if ( !attrprlayer )
+		continue;
+
+	    if ( attrprlayer->getDispType()==AttribProbeLayer::RGB )
+		pdd->setChannels2RGBA(
+			visBase::RGBATextureChannel2RGBA::create() );
+	    if ( idx )
+		pdd->addAttrib();
+	    visserv_->setSelSpec( displayid_, idx, attrprlayer->getSelSpec() );
+	    visserv_->setColTabMapperSetup( displayid_, idx,
+					    attrprlayer->getColTabMapper() );
+	    visserv_->setColTabSequence( displayid_, idx,
+					 attrprlayer->getColTab());
+	    if ( !attrprlayer->getAttribDataPack().isInvalid() )
+		visserv_->setDataPackID( displayid_, idx,
+					 attrprlayer->getAttribDataPack() );
+	    else
+		visserv_->calculateAttrib( displayid_, idx, false );
+	}
     }
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
@@ -232,29 +150,8 @@ OD::ObjPresentationInfo* uiODPlaneDataTreeItem::getObjPRInfo() const
 		    visserv_->getObject(displayid_));
     if ( !pdd ) return 0;
 
-    SurveySectionPresentationInfo* prinfo = new SurveySectionPresentationInfo;
-    prinfo->setSectionID( surveysectionid_ );
-    SurveySectionPresentationInfo::SectionType sectype;
-    if ( orient_ == OD::InlineSlice )
-	sectype = SurveySectionPresentationInfo::InLine;
-    else if ( orient_ == OD::CrosslineSlice )
-	sectype = SurveySectionPresentationInfo::CrossLine;
-    else
-	sectype = SurveySectionPresentationInfo::ZSlice;
-
-    prinfo->setSectionType( sectype );
-    prinfo->setSectionPos( pdd->getTrcKeyZSampling(true,true) );
-
-    for ( int iattr=0; iattr<pdd->nrAttribs(); iattr++ )
-    {
-	AttribPresentationInfo* attrprinfo = new AttribPresentationInfo;
-	attrprinfo->setSelSpec( *pdd->getSelSpec(iattr) );
-	attrprinfo->setAttribDataPack( pdd->getDataPackID(iattr) );
-	attrprinfo->setColTabMapper( *pdd->getColTabMapperSetup(iattr) );
-	attrprinfo->setColTab( *pdd->getColTabSequence(iattr) );
-	prinfo->addSectionLayer( attrprinfo );
-    }
-
+    ProbePresentationInfo* prinfo =
+	new ProbePresentationInfo( ProbeMGR().getID(probe_) );
     return prinfo;
 }
 
@@ -285,179 +182,6 @@ void uiODPlaneDataTreeItem::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
     if ( !pdd ) return;
 
     pdd->setTrcKeyZSampling( tkzs );
-}
-
-
-bool uiODPlaneDataTreeItem::displayFromPRInfo()
-{
-    if ( !initprinfo_ )
-	return false;
-
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv_->getObject(displayid_));
-    if ( !pdd )
-	return false;
-
-    pdd->setTrcKeyZSampling( initprinfo_->sectionPos() );
-
-    if ( !initprinfo_->nrLayers() )
-    {
-	displayDefaultData();
-	return true;
-    }
-
-    for ( int idx=0; idx<initprinfo_->nrLayers(); idx++ )
-    {
-	mDynamicCastGet( const AttribPresentationInfo*,attrprinfo,
-			 initprinfo_->getLyerPRInfo(idx) );
-	if ( !attrprinfo )
-	    continue;
-
-	if ( idx )
-	    pdd->addAttrib();
-	visserv_->setSelSpec( displayid_, idx, attrprinfo->getSelSpec() );
-	visserv_->setColTabMapperSetup( displayid_, idx,
-					attrprinfo->getColTabMapper() );
-	visserv_->setColTabSequence( displayid_, idx, attrprinfo->getColTab() );
-	if ( !attrprinfo->getAttribDataPack().isInvalid() )
-	    visserv_->setDataPackID( displayid_, idx,
-				     attrprinfo->getAttribDataPack() );
-	else
-	    visserv_->calculateAttrib( displayid_, idx, false );
-    }
-
-    return false;
-}
-
-
-bool uiODPlaneDataTreeItem::displayDefaultData()
-{
-    Attrib::DescID descid;
-    if ( !applMgr()->getDefaultDescID(descid) )
-	return false;
-
-    return displayDataFromDesc( descid, true );
-}
-
-
-bool uiODPlaneDataTreeItem::displayGuidance()
-{
-    if ( !applMgr() || !applMgr()->attrServer() )
-	return false; //safety
-
-    Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
-					visserv_->getSelSpec( displayid_, 0 ));
-    if ( !as ) return false;
-
-    const Pos::GeomID geomid = visserv_->getGeomID( displayid_ );
-    const ZDomain::Info* zdinf =
-		    visserv_->zDomainInfo( visserv_->getSceneID(displayid_) );
-    const bool issi = !zdinf || zdinf->def_.isSI();
-    const bool selok = applMgr()->attrServer()->selectAttrib(
-			*as, issi ? 0 : zdinf, geomid, tr("first layer" ) );
-    if ( selok )
-    {
-	if ( as->isNLA() )
-	{
-	    visserv_->setSelSpec( displayid_, 0, *as );
-	    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-			    visserv_->getObject(displayid_))
-	    if ( !pdd ) return false;
-
-	    return displayDataFromOther( pdd->id() );
-
-	}
-	else
-	    return displayDataFromDesc( as->id(), as->isStored() );
-    }
-    else
-	return false;
-}
-
-
-bool uiODPlaneDataTreeItem::displayDataFromDesc( const Attrib::DescID& descid,
-						 bool isstored )
-{
-    const Attrib::DescSet* ads =
-	Attrib::DSHolder().getDescSet( false, isstored );
-    Attrib::SelSpec as( 0, descid, false, "" );
-    as.setRefFromID( *ads );
-    visserv_->setSelSpec( displayid_, 0, as );
-    const bool res = visserv_->calculateAttrib( displayid_, 0, false );
-    updateColumnText( uiODSceneMgr::cNameColumn() );
-    updateColumnText( uiODSceneMgr::cColorColumn() );
-    return res;
-}
-
-
-bool uiODPlaneDataTreeItem::displayDataFromDataPack( DataPack::ID dpid,
-					 const Attrib::SelSpec& as,
-					 const FlatView::DataDispPars::VD& ddp )
-{
-    visserv_->setSelSpec( displayid_, 0, as );
-    visserv_->setColTabMapperSetup( displayid_, 0, ddp.mappersetup_ );
-    visserv_->setColTabSequence( displayid_, 0, ColTab::Sequence(ddp.ctab_) );
-    visserv_->setDataPackID( displayid_, 0, dpid );
-    updateColumnText( uiODSceneMgr::cNameColumn() );
-    updateColumnText( uiODSceneMgr::cColorColumn() );
-    return true;
-}
-
-
-bool uiODPlaneDataTreeItem::displayDataFromOther( int visid )
-{
-    const int nrattribs = visserv_->getNrAttribs( visid );
-    while ( nrattribs > visserv_->getNrAttribs(displayid_) )
-	addAttribItem();
-
-    for ( int attrib=0; attrib<nrattribs; attrib++ )
-    {
-	const TypeSet<Attrib::SelSpec>* as =visserv_->getSelSpecs(visid,attrib);
-	if ( !as )
-	    return displayDefaultData();
-
-	visserv_->setSelSpecs( displayid_, attrib, *as );
-	visserv_->calculateAttrib( displayid_, attrib, false );
-
-	const ColTab::Sequence* ctseq =
-		visserv_->getColTabSequence( visid, attrib );
-	if ( ctseq )
-	    visserv_->setColTabSequence( displayid_, attrib, *ctseq );
-
-	const ColTab::MapperSetup* ctms =
-		visserv_->getColTabMapperSetup( visid, attrib );
-	if ( ctms )
-	    visserv_->setColTabMapperSetup( displayid_, attrib, *ctms );
-    }
-
-    updateColumnText( uiODSceneMgr::cNameColumn() );
-    updateColumnText( uiODSceneMgr::cColorColumn() );
-    return true;
-}
-
-
-void uiODPlaneDataTreeItem::selectRGBA()
-{
-    if ( !applMgr() || !applMgr()->attrServer() )
-	return;
-
-    const Pos::GeomID geomid = visserv_->getGeomID( displayid_ );
-    const ZDomain::Info* zdinf =
-		    visserv_->zDomainInfo( visserv_->getSceneID(displayid_) );
-    TypeSet<Attrib::SelSpec> rgbaspecs;
-    const bool selok =
-	applMgr()->attrServer()->selectRGBAttribs( rgbaspecs, zdinf, geomid );
-    if ( !selok ) return;
-
-    for ( int idx=0; idx<rgbaspecs.size(); idx++ )
-    {
-	const Attrib::SelSpec& as = rgbaspecs[idx];
-	if ( !as.id().isValid() )
-	    continue;
-
-	visserv_->setSelSpec( displayid_, idx, as );
-	visserv_->calculateAttrib( displayid_, idx, false );
-    }
 }
 
 
@@ -623,29 +347,29 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     snapToTkzs( pdd->getTrcKeyZSampling(), tk, zpos );
 
     TrcKeyZSampling newtkzs( true );
-    uiODPlaneDataTreeItem* itm = 0;
-    if ( mnuid == addinlitem_.id )
-    {
-	itm = new uiODInlineTreeItem( -1, Empty );
-	newtkzs.hsamp_.setLineRange( Interval<int>(tk.lineNr(),tk.lineNr()) );
-    }
-    else if ( mnuid == addcrlitem_.id )
-    {
-	itm = new uiODCrosslineTreeItem( -1, Empty );
-	newtkzs.hsamp_.setTrcRange( Interval<int>(tk.trcNr(),tk.trcNr()) );
-    }
-    else if ( mnuid == addzitem_.id )
-    {
-	itm = new uiODZsliceTreeItem( -1, Empty );
-	newtkzs.zsamp_.start = newtkzs.zsamp_.stop = zpos;
-    }
+    mDynamicCastGet(uiODProbeParentTreeItem*,probeparent,parent_)
+    if ( !probeparent )
+	return;
 
-    if ( itm )
-    {
-	parent_->addChild( itm, true );
-	itm->setTrcKeyZSampling( newtkzs );
-	itm->displayDataFromOther( pdd->id() );
-    }
+    Probe* newprobe = probeparent->createNewProbe();
+    if ( !newprobe )
+	return;
+
+    if ( mnuid == addinlitem_.id )
+	newtkzs.hsamp_.setLineRange( Interval<int>(tk.lineNr(),tk.lineNr()) );
+    else if ( mnuid == addcrlitem_.id )
+	newtkzs.hsamp_.setTrcRange( Interval<int>(tk.trcNr(),tk.trcNr()) );
+    else if ( mnuid == addzitem_.id )
+	newtkzs.zsamp_.start = newtkzs.zsamp_.stop = zpos;
+
+    *newprobe = probe_;
+    newprobe->setPos( newtkzs );
+    ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );
+    uiODPrManagedTreeItem* newitem = probeparent->addChildItem( probeprinfo );
+    if ( !newitem )
+	return;
+
+    newitem->emitPRRequest( OD::Add );
 }
 
 
@@ -689,7 +413,23 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 
 void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs(
 	const TrcKeyZSampling& tkzs )
-{ visserv_->movePlaneAndCalcAttribs( displayid_, tkzs ); }
+{
+    visserv_->movePlaneAndCalcAttribs( displayid_, tkzs );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv_->getObject(displayid_));
+    if ( !pdd ) return;
+
+    ChangeNotifyBlocker notblocker( probe_ );
+    probe_.setPos( tkzs );
+    for ( int iattr=0; iattr<pdd->nrAttribs(); iattr++ )
+    {
+	ProbeLayer* layer = probe_.getLayerByIdx( iattr );
+	mDynamicCastGet(AttribProbeLayer*,attriblayer,layer)
+	if ( !attriblayer )
+	    continue;
+	attriblayer->setAttribDataPack( pdd->getDataPackID(iattr) );
+    }
+}
 
 
 
@@ -728,16 +468,16 @@ uiTreeItem*
     if ( !pdd || pdd->getOrientation()!=OD::InlineSlice )
 	return 0;
 
-    mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
-		     pdd->getChannels2RGBA() );
+    Probe* probe = pdd->getProbe();
+    if ( !probe )
+	return 0;
 
-    return new uiODInlineTreeItem( visid,
-	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );
+    return new uiODInlineTreeItem( visid, *probe );
 }
 
 
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
-    : uiODSceneParentTreeItem( uiStrings::sInline() )
+    : uiODProbeParentTreeItem( uiStrings::sInline() )
 {}
 
 
@@ -745,11 +485,7 @@ const char* uiODInlineParentTreeItem::iconName() const
 { return "tree-inl"; }
 
 
-const char* uiODInlineParentTreeItem::childObjTypeKey() const
-{ return SurveySectionPresentationInfo::sFactoryKey(); }
-
-
-bool uiODInlineParentTreeItem::showSubMenu()
+bool uiODInlineParentTreeItem::canShowSubMenu() const
 {
     if ( !SI().crlRange(true).width() ||
 	  SI().zRange(true).width() < SI().zStep() * 0.5 )
@@ -758,35 +494,51 @@ bool uiODInlineParentTreeItem::showSubMenu()
 	return false;
     }
 
-    mParentShowSubMenu( uiODInlineTreeItem, true );
+    return true;
 }
 
 
-void uiODInlineParentTreeItem::addChildItem(
+Probe* uiODInlineParentTreeItem::createNewProbe() const
+{
+    InlineProbe* newprobe = new InlineProbe();
+    if ( !ProbeMGR().store(*newprobe).isOK() )
+    {
+	delete newprobe;
+	return 0;
+    }
+
+    TrcKeyZSampling probepos = SI().sampling( true );
+    const Interval<int> inlrg = probepos.hsamp_.lineRange();
+    Interval<int> definlrg( inlrg.center(), inlrg.center() );
+    probepos.hsamp_.setLineRange( definlrg );
+    newprobe->setPos( probepos );
+
+    return newprobe;
+}
+
+
+uiODPrManagedTreeItem* uiODInlineParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
-    mDynamicCastGet(const SurveySectionPresentationInfo*,inlprinfo,&prinfo)
-    if ( !inlprinfo )
-	return;
+    mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
+    if ( !probeprinfo )
+	return 0;
 
-    if ( inlprinfo->sectionType()!=SurveySectionPresentationInfo::InLine )
-	return;
+    RefMan<Probe> probe = ProbeMGR().fetchForEdit( probeprinfo->storedID() );
+    mDynamicCastGet(InlineProbe*,inlprobe,probe.ptr())
+    if ( !inlprobe )
+	return 0;
 
-    uiODInlineTreeItem* inlitem = new uiODInlineTreeItem( -1, *inlprinfo );
+    uiODInlineTreeItem* inlitem = new uiODInlineTreeItem( -1, *probe );
     addChild( inlitem, false );
+    return inlitem;
 }
 
 
-uiODInlineTreeItem::uiODInlineTreeItem( int id, Type tp )
-    : uiODPlaneDataTreeItem( id, OD::InlineSlice, tp )
+uiODInlineTreeItem::uiODInlineTreeItem( int id, Probe& pr )
+    : uiODPlaneDataTreeItem( id, OD::InlineSlice, pr )
 {}
 
-
-
-uiODInlineTreeItem::uiODInlineTreeItem(
-	int id, const SurveySectionPresentationInfo& prinfo )
-    : uiODPlaneDataTreeItem( id, OD::InlineSlice, prinfo )
-{}
 
 
 uiTreeItem*
@@ -798,15 +550,16 @@ uiTreeItem*
     if ( !pdd || pdd->getOrientation()!=OD::CrosslineSlice )
 	return 0;
 
-    mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
-		    pdd->getChannels2RGBA());
-    return new uiODCrosslineTreeItem( visid,
-	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );
+    Probe* probe = pdd->getProbe();
+    if ( !probe )
+	return 0;
+
+    return new uiODCrosslineTreeItem( visid, *probe );
 }
 
 
 uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
-    : uiODSceneParentTreeItem( uiStrings::sCrossline() )
+    : uiODProbeParentTreeItem( uiStrings::sCrossline() )
 {}
 
 
@@ -814,11 +567,7 @@ const char* uiODCrosslineParentTreeItem::iconName() const
 { return "tree-crl"; }
 
 
-const char* uiODCrosslineParentTreeItem::childObjTypeKey() const
-{ return SurveySectionPresentationInfo::sFactoryKey(); }
-
-
-bool uiODCrosslineParentTreeItem::showSubMenu()
+bool uiODCrosslineParentTreeItem::canShowSubMenu() const
 {
     if ( !SI().inlRange(true).width() ||
 	  SI().zRange(true).width() < SI().zStep() * 0.5 )
@@ -827,35 +576,50 @@ bool uiODCrosslineParentTreeItem::showSubMenu()
 	return false;
     }
 
-    mParentShowSubMenu( uiODCrosslineTreeItem, true );
+    return true;
+}
+
+Probe* uiODCrosslineParentTreeItem::createNewProbe() const
+{
+    CrosslineProbe* newprobe = new CrosslineProbe();
+    if ( !ProbeMGR().store(*newprobe).isOK() )
+    {
+	delete newprobe;
+	return 0;
+    }
+
+    TrcKeyZSampling probepos = SI().sampling( true );
+    const Interval<int> crlrg = probepos.hsamp_.trcRange();
+    Interval<int> defcrlrg( crlrg.center(), crlrg.center() );
+    probepos.hsamp_.setTrcRange( defcrlrg );
+    newprobe->setPos( probepos );
+    return newprobe;
 }
 
 
-void uiODCrosslineParentTreeItem::addChildItem(
+uiODPrManagedTreeItem* uiODCrosslineParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
-    mDynamicCastGet(const SurveySectionPresentationInfo*,crlprinfo,&prinfo)
-    if ( !crlprinfo )
-	return;
+    mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
+    if ( !probeprinfo )
+	return 0;
 
-    if ( crlprinfo->sectionType()!=SurveySectionPresentationInfo::CrossLine )
-	return;
+    RefMan<Probe> probe = ProbeMGR().fetchForEdit( probeprinfo->storedID() );
+    mDynamicCastGet(CrosslineProbe*,crlprobe,probe.ptr())
+    if ( !crlprobe )
+	return 0;
 
-    uiODCrosslineTreeItem* crlitem = new uiODCrosslineTreeItem( -1, *crlprinfo);
+    uiODCrosslineTreeItem* crlitem =
+	new uiODCrosslineTreeItem( -1, *probe );
     addChild( crlitem, false );
+    return crlitem;
 }
 
 
-uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Type tp )
-    : uiODPlaneDataTreeItem( id, OD::CrosslineSlice, tp )
+uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Probe& pr )
+    : uiODPlaneDataTreeItem( id, OD::CrosslineSlice, pr )
 {}
 
-
-
-uiODCrosslineTreeItem::uiODCrosslineTreeItem(
-	int id, const SurveySectionPresentationInfo& prinfo )
-    : uiODPlaneDataTreeItem( id, OD::CrosslineSlice, prinfo )
-{}
 
 
 uiTreeItem*
@@ -867,16 +631,16 @@ uiTreeItem*
     if ( !pdd || pdd->getOrientation()!=OD::ZSlice )
 	return 0;
 
-    mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
-		    pdd->getChannels2RGBA());
+    Probe* probe = pdd->getProbe();
+    if ( !probe )
+	return 0;
 
-    return new uiODZsliceTreeItem( visid,
-	rgba ? uiODPlaneDataTreeItem::RGBA : uiODPlaneDataTreeItem::Empty );
+    return new uiODZsliceTreeItem( visid, *probe );
 }
 
 
 uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
-    : uiODSceneParentTreeItem( uiStrings::sZSlice() )
+    : uiODProbeParentTreeItem( uiStrings::sZSlice() )
 {}
 
 
@@ -884,11 +648,7 @@ const char* uiODZsliceParentTreeItem::iconName() const
 { return "tree-zsl"; }
 
 
-const char* uiODZsliceParentTreeItem::childObjTypeKey() const
-{ return SurveySectionPresentationInfo::sFactoryKey(); }
-
-
-bool uiODZsliceParentTreeItem::showSubMenu()
+bool uiODZsliceParentTreeItem::canShowSubMenu() const
 {
      if ( !SI().inlRange(true).width() || !SI().crlRange(true).width() )
      {
@@ -896,31 +656,48 @@ bool uiODZsliceParentTreeItem::showSubMenu()
 	 return false;
      }
 
-    mParentShowSubMenu( uiODZsliceTreeItem, false );
+     return true;
 }
 
 
-void uiODZsliceParentTreeItem::addChildItem(
+Probe* uiODZsliceParentTreeItem::createNewProbe() const
+{
+    ZSliceProbe* newprobe = new ZSliceProbe();
+    if ( !ProbeMGR().store(*newprobe).isOK() )
+    {
+	delete newprobe;
+	return 0;
+    }
+
+    TrcKeyZSampling probepos = SI().sampling( true );
+    const StepInterval<float> zrg = probepos.zsamp_;
+    StepInterval<float> defzrg( zrg.center(), zrg.center(), zrg.step );
+    probepos.zsamp_ = defzrg;
+    newprobe->setPos( probepos );
+
+    return newprobe;
+}
+
+
+uiODPrManagedTreeItem* uiODZsliceParentTreeItem::addChildItem(
 	const OD::ObjPresentationInfo& prinfo )
 {
-    mDynamicCastGet(const SurveySectionPresentationInfo*,zsliceprinfo,&prinfo)
-    if ( !zsliceprinfo )
-	return;
+    mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
+    if ( !probeprinfo )
+	return 0;
 
-    if ( zsliceprinfo->sectionType()!=SurveySectionPresentationInfo::ZSlice )
-	return;
+    RefMan<Probe> probe = ProbeMGR().fetchForEdit( probeprinfo->storedID() );
+    mDynamicCastGet(ZSliceProbe*,zsliceprobe,probe.ptr())
+    if ( !zsliceprobe )
+	return 0;
 
-    uiODZsliceTreeItem* zslitem = new uiODZsliceTreeItem( -1, *zsliceprinfo );
+    uiODZsliceTreeItem* zslitem = new uiODZsliceTreeItem( -1, *probe );
     addChild( zslitem, false );
+    return zslitem;
 }
 
 
-uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Type tp )
-    : uiODPlaneDataTreeItem( id, OD::ZSlice, tp )
+uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Probe& probe )
+    : uiODPlaneDataTreeItem( id, OD::ZSlice, probe )
 {
 }
-
-uiODZsliceTreeItem::uiODZsliceTreeItem(
-	int id, const SurveySectionPresentationInfo& prinfo )
-    : uiODPlaneDataTreeItem( id, OD::ZSlice, prinfo )
-{}

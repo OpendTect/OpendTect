@@ -11,6 +11,8 @@
 #include "arrayndslice.h"
 #include "array2dresample.h"
 #include "datapointset.h"
+#include "probe.h"
+#include "probeimpl.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "settings.h"
@@ -77,6 +79,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , forcemanipupdate_( false )
     , interactivetexturedisplay_( false )
     , originalresolution_( -1 )
+    , probe_(0)
     , undo_( *new Undo() )
 {
     texturerect_ = visBase::TextureRectangle::create();
@@ -144,6 +147,31 @@ PlaneDataDisplay::~PlaneDataDisplay()
 
 const Undo& PlaneDataDisplay::undo() const	{ return undo_; }
 Undo& PlaneDataDisplay::undo()			{ return undo_; }
+
+
+void PlaneDataDisplay::setProbe( Probe* probe )
+{
+    if ( !probe || probe_.ptr()==probe )
+	return;
+
+    SliceType st;
+    BufferString probetype = probe->type();
+    if ( probetype==InlineProbe::sFactoryKey() )
+	st = OD::InlineSlice;
+    else if ( probetype==CrosslineProbe::sFactoryKey() )
+	st = OD::CrosslineSlice;
+    else if ( probetype==ZSliceProbe::sFactoryKey() )
+	st = OD::ZSlice;
+    else
+    {
+	pErrMsg( "Wrong probe type set" );
+	return;
+    }
+
+    probe_ = probe;
+    setOrientation( st );
+    setTrcKeyZSampling( probe_->position() );
+}
 
 
 void PlaneDataDisplay::setOrientation( SliceType nt )

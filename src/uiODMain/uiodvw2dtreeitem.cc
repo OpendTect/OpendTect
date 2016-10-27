@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitreeview.h"
 #include "view2ddata.h"
-#include "zaxistransform.h"
 
 #define mAddIdx		0
 #define mAddInAllIdx	1
@@ -67,19 +66,6 @@ uiODViewer2D* uiODVw2DTreeTop::viewer2D()
     void* res = 0;
     getPropertyPtr( viewer2dptr(), res );
     return reinterpret_cast<uiODViewer2D*>( res );
-}
-
-
-bool uiODVw2DTreeTop::setZAxisTransform( ZAxisTransform* zat )
-{
-    for ( int idx=0; idx<nrChildren(); idx++ )
-    {
-	mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
-	if ( itm )
-	    itm->setZAxisTransform( zat );
-    }
-
-    return true;
 }
 
 
@@ -151,15 +137,12 @@ void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
 uiODVw2DTreeItem::uiODVw2DTreeItem( const uiString& nm )
     : uiODPrManagedTreeItem( nm )
     , displayid_(-1)
-    , datatransform_(0)
 {}
 
 
 uiODVw2DTreeItem::~uiODVw2DTreeItem()
 {
     detachAllNotifiers();
-    if ( datatransform_ )
-	datatransform_->unRef();
 }
 
 
@@ -194,27 +177,6 @@ void uiODVw2DTreeItem::keyPressedCB( CallBacker* cb )
 	doSave();
     else if ( KeyboardEvent::isSaveAs(keh->event()) )
 	doSaveAs();
-}
-
-
-bool uiODVw2DTreeItem::setZAxisTransform( ZAxisTransform* zat )
-{
-    if ( datatransform_ )
-    {
-	mDetachCB( datatransform_->changeNotifier(),
-		   uiODVw2DTreeItem::dataTransformCB );
-	datatransform_->unRef();
-    }
-
-    datatransform_ = zat;
-    if ( datatransform_ )
-    {
-	datatransform_->ref();
-	mAttachCB( datatransform_->changeNotifier(),
-		   uiODVw2DTreeItem::dataTransformCB );
-    }
-
-    return true;
 }
 
 

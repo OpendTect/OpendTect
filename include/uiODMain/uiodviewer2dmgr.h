@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
+#include "uiodviewer2d.h"
 #include "callback.h"
 #include "datapack.h"
 #include "emposid.h"
@@ -22,8 +23,8 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodviewer2dposgrp.h"
 
+class Probe;
 class uiFlatViewer;
-class uiODViewer2D;
 class uiTreeFactorySet;
 class MouseEventHandler;
 class TrcKeyZSampling;
@@ -64,17 +65,12 @@ public:
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
     int				nr2DViewers() const;
 
-    OD::ViewerObjID		displayIn2DViewer(DataPack::ID,
-	    				      const Attrib::SelSpec&,
-					      const FlatView::DataDispPars::VD&,
-					      bool wva);
     OD::ViewerObjID		displayIn2DViewer(
-	    				Viewer2DPosDataSel&,bool wva,
-				        float initialx1pospercm=mUdf(float),
-				        float initialx2pospercm=mUdf(float));
-    OD::ViewerObjID		displayIn2DViewer(int visid,int attribid,
-						  bool wva);
-    void			remove2DViewer(int id,bool byvisid);
+					Probe&,ProbeLayer::ID curid
+						=ProbeLayer::ID::getInvalid(),
+					uiODViewer2D::DispSetup su
+						=uiODViewer2D::DispSetup() );
+    void			remove2DViewer(OD::ViewerObjID id);
 
     uiTreeFactorySet*		treeItemFactorySet2D()	{ return tifs2d_; }
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
@@ -155,7 +151,6 @@ protected:
 				uiODViewer2DMgr(uiODMain*);
 				~uiODViewer2DMgr();
 
-    uiODViewer2D&		addViewer2D();
     uiODViewer2D*		getViewer2D(int idx);
     const uiODViewer2D*		getViewer2D(int idx) const;
     Line2DInterSectionSet*	l2dintersections_;
@@ -180,14 +175,9 @@ protected:
     void			mouseClickedCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
 
-    void			create2DViewer(const uiODViewer2D& curvwr2d,
-					       const TrcKeyZSampling& newtkzs,
-					       const uiWorldPoint& initcentr);
-				/*!< \param newtkzs is the new TrcKeyZSampling
-				for which a new uiODViewer2D will be created.
-				\param curvwr2d is the current 2D Viewer of
-				which the newly created 2D Viewer will inherit
-				Attrib::SelSpec and other display properties.*/
+    Probe*			createNewProbe(const TrcKeyZSampling&) const;
+    void			fillProbeFromExisting(
+					Probe&,const uiODViewer2D&) const;
     void			attachNotifiersAndSetAuxData(uiODViewer2D*);
     Line2DInterSection::Point	intersectingLineID(const uiODViewer2D*,
 						   float pos) const;

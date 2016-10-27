@@ -134,8 +134,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	if ( !emobj )
 	{
 	// This will add the 3D scene item.
-	    const bool res = mps->addTracker( EM::Horizon3D::typeStr(),
-					      viewer2D()->getSyncSceneID() );
+	    const bool res = mps->addTracker( EM::Horizon3D::typeStr(), -1 );
 	    if ( !res )
 		return true;
 	}
@@ -150,8 +149,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	    mps->getSetupGroup()->setTrackingMethod(
 						EventTracker::AdjacentParent );
 	addNewTrackingHorizon3D( emid );
-	applMgr()->viewer2DMgr().addNewTrackingHorizon3D(
-		emid, viewer2D()->getSyncSceneID() );
+	applMgr()->viewer2DMgr().addNewTrackingHorizon3D( emid, -1 );
 	mps->enableTracking( trackid, true );
     }
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )

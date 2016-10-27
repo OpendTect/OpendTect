@@ -40,6 +40,7 @@ set(OD_MODULE_SOURCES
 	uiodhortreeitem.cc
 	uiodpicksettreeitem.cc
 	uiodplanedatatreeitem.cc
+	uiodprobeparenttreeitem.cc
 	uiodpseventstreeitem.cc
 	uiodrandlinetreeitem.cc
 	uiodbodydisplaytreeitem.cc

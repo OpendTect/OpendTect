@@ -27,7 +27,7 @@ uiODSceneParentTreeItem::~uiODSceneParentTreeItem()
 }
 
 
-uiODApplMgr* uiODSceneParentTreeItem::applMgr()
+uiODApplMgr* uiODSceneParentTreeItem::applMgr() const
 {
     void* res = 0;
     getPropertyPtr( uiODSceneTreeTop::applmgrstr(), res );

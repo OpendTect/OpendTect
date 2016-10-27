@@ -231,7 +231,7 @@ private:
 };
 
 
-mExpClass(General) SetPresentationInfo : public OD::SaveableObjPresentationInfo
+mExpClass(General) SetPresentationInfo : public OD::ObjPresentationInfo
 {
 public:
 					SetPresentationInfo(const DBKey&);

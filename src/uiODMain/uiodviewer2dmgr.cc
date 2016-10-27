@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 #include "uigraphicsview.h"
 #include "uimenu.h"
-#include "uiodviewer2d.h"
 #include "uiodscenemgr.h"
 #include "uiodvw2dfaulttreeitem.h"
 #include "uiodvw2dfaultss2dtreeitem.h"
@@ -36,6 +35,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
+#include "attribprobelayer.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emhorizon2d.h"
@@ -46,11 +46,13 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "posinfo2d.h"
+#include "probeimpl.h"
+#include "probemanager.h"
 #include "randomlinegeom.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-#include "surveysectionprinfo.h"
+#include "probe.h"
 #include "view2ddata.h"
 #include "view2ddataman.h"
 #include "vishorizondisplay.h"
@@ -176,8 +178,7 @@ void uiODViewer2DMgr::setupHorizon3Ds( uiODViewer2D* vwr2d )
 {
     TypeSet<EM::ObjectID> emids;
     getLoadedHorizon3Ds( emids );
-    appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon3D::typeStr(),
-				     vwr2d->getSyncSceneID() );
+    appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon3D::typeStr(), -1 );
     vwr2d->addHorizon3Ds( emids );
 }
 
@@ -188,8 +189,7 @@ void uiODViewer2DMgr::setupHorizon2Ds( uiODViewer2D* vwr2d )
     {
 	TypeSet<EM::ObjectID> emids;
 	getLoadedHorizon2Ds( emids );
-	appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon2D::typeStr(),
-					 vwr2d->getSyncSceneID() );
+	appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon2D::typeStr(), -1 );
 	vwr2d->addHorizon2Ds( emids );
     }
 }
@@ -199,8 +199,7 @@ void uiODViewer2DMgr::setupFaults( uiODViewer2D* vwr2d )
 {
     TypeSet<EM::ObjectID> emids;
     getLoadedFaults( emids );
-    appl_.sceneMgr().getLoadedEMIDs( emids, EM::Fault3D::typeStr(),
-				     vwr2d->getSyncSceneID() );
+    appl_.sceneMgr().getLoadedEMIDs( emids, EM::Fault3D::typeStr(), -1 );
     vwr2d->addFaults( emids );
 }
 
@@ -210,8 +209,7 @@ void uiODViewer2DMgr::setupFaultSSs( uiODViewer2D* vwr2d )
     TypeSet<EM::ObjectID> emids;
     getLoadedFaultSSs( emids );
     getLoadedFaultSS2Ds( emids );
-    appl_.sceneMgr().getLoadedEMIDs( emids, EM::FaultStickSet::typeStr(),
-				     vwr2d->getSyncSceneID() );
+    appl_.sceneMgr().getLoadedEMIDs( emids, EM::FaultStickSet::typeStr(), -1 );
     vwr2d->addFaultSSs( emids );
     vwr2d->addFaultSS2Ds( emids );
 }
@@ -221,136 +219,18 @@ void uiODViewer2DMgr::setupPickSets( uiODViewer2D* vwr2d )
 {
     DBKeySet pickmids;
     getLoadedPickSets( pickmids );
-    appl_.sceneMgr().getLoadedPickSetIDs(
-	    pickmids, false, vwr2d->getSyncSceneID() );
+    appl_.sceneMgr().getLoadedPickSetIDs( pickmids, false, -1 );
     vwr2d->addPickSets( pickmids );
 }
 
 
-OD::ViewerObjID uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
-					const Attrib::SelSpec& as,
-					const FlatView::DataDispPars::VD& pars,
-					bool dowva )
-{
-    uiODViewer2D* vwr2d = &addViewer2D();
-    vwr2d->setSelSpec( &as, dowva );
-    vwr2d->setSelSpec( &as, !dowva );
-    vwr2d->setUpView( vwr2d->createFlatDataPack(dpid,0), dowva );
-    vwr2d->setWinTitle();
-
-    uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
-    FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-    (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false; ddp.vd_ = pars;
-    vwr.handleChange( FlatView::Viewer::DisplayPars );
-    attachNotifiersAndSetAuxData( vwr2d );
-    return vwr2d->viewerObjID();
-}
-
-
 OD::ViewerObjID uiODViewer2DMgr::displayIn2DViewer(
-	Viewer2DPosDataSel& posdatasel, bool dowva,
-	float initialx1pospercm, float initialx2pospercm )
+	Probe& probe, ProbeLayer::ID curlayid, uiODViewer2D::DispSetup dispsu )
 {
-    DataPack::ID dpid = DataPack::cNoID();
-    uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
-    attrserv->setTargetSelSpec( posdatasel.selspec_ );
-    const bool isrl =
-	!mIsUdf(posdatasel.rdmlineid_) || !posdatasel.rdmlinedbkey_.isInvalid();
-    if ( isrl )
-    {
-	Geometry::RandomLine* rdmline = 0;
-	if ( !mIsUdf(posdatasel.rdmlineid_) )
-	    rdmline = Geometry::RLM().get( posdatasel.rdmlineid_ );
-	else
-	    rdmline = Geometry::RLM().get( posdatasel.rdmlinedbkey_ );
-
-	if ( !rdmline )
-	    return OD::ViewerObjID::get( -1 );
-
-	posdatasel.tkzs_.zsamp_ = rdmline->zRange();
-	dpid = attrserv->createRdmTrcsOutput(
-		posdatasel.tkzs_.zsamp_, rdmline->ID() );
-    }
-    else
-	dpid = attrserv->createOutput( posdatasel.tkzs_, DataPack::cNoID() );
-
-    if ( dpid==DataPack::cNoID() )
-	return OD::ViewerObjID::get( -1 );
-
-    uiODViewer2D* vwr2d = &addViewer2D();
-    const Attrib::SelSpec& as = posdatasel.selspec_;
-    vwr2d->setSelSpec( &as, dowva ); vwr2d->setSelSpec( &as, !dowva );
-    const Geometry::RandomLine* rdmline =
-	Geometry::RLM().get( posdatasel.rdmlinedbkey_ );
-    if ( rdmline )
-	vwr2d->setRandomLineID( rdmline->ID() );
-    vwr2d->setInitialX1PosPerCM( initialx1pospercm );
-    vwr2d->setInitialX2PosPerCM( initialx2pospercm );
-    vwr2d->setUpView( vwr2d->createFlatDataPack(dpid,0), dowva );
-    vwr2d->setWinTitle();
-    vwr2d->useStoredDispPars( dowva );
-    vwr2d->useStoredDispPars( !dowva );
-
-    uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
-    FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-    (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
-    vwr.handleChange( FlatView::Viewer::DisplayPars );
-    if ( geom2dids_.size()>0 )
-	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
+    uiODViewer2D* vwr2d = new uiODViewer2D( appl_, probe, dispsu );
+    vwr2d->setUpView( curlayid );
+    viewers_ += vwr2d;
     attachNotifiersAndSetAuxData( vwr2d );
-    vwr2d->setSurvSectionID( SurveySectionPresentationInfo::getNewSectionID() );
-    vwr2d->emitPRRequest( OD::Add );
-    return vwr2d->viewerObjID();
-}
-
-
-OD::ViewerObjID uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid,
-						bool dowva )
-{
-    const DataPack::ID id = visServ().getDisplayedDataPackID( visid, attribid );
-    if ( id.isInvalid() ) return OD::ViewerObjID::get( -1 );
-
-    uiODViewer2D* vwr2d = 0; //TODO find relevant 2D Viewer, for now create new
-    const bool isnewvwr = !vwr2d;
-    if ( !vwr2d )
-    {
-	vwr2d = &addViewer2D();
-	ConstRefMan<ZAxisTransform> zat =
-		visServ().getZAxisTransform( visServ().getSceneID(visid) );
-	vwr2d->setZAxisTransform( const_cast<ZAxisTransform*>(zat.ptr()) );
-	ConstRefMan<visBase::DataObject> dataobj = visServ().getObject( visid );
-	mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,dataobj.ptr());
-	if ( rtd )
-	    vwr2d->setRandomLineID( rtd->getRandomLineID() );
-    }
-    else
-	visServ().fillDispPars( visid, attribid,
-		vwr2d->viewwin()->viewer().appearance().ddpars_, dowva );
-    //<-- So that new display parameters are read before the new data is set.
-    //<-- This will avoid time lag between updating data and display parameters.
-
-    const Attrib::SelSpec* as = visServ().getSelSpec(visid,attribid);
-    vwr2d->setSelSpec( as, dowva );
-    if ( isnewvwr ) vwr2d->setSelSpec( as, !dowva );
-
-    const int version = visServ().selectedTexture( visid, attribid );
-    const DataPack::ID dpid = vwr2d->createFlatDataPack( id, version );
-    vwr2d->setUpView( dpid, dowva );
-    vwr2d->setWinTitle();
-
-    uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
-    if ( isnewvwr )
-    {
-	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-	visServ().fillDispPars( visid, attribid, ddp, dowva );
-	visServ().fillDispPars( visid, attribid, ddp, !dowva );
-	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
-	if ( geom2dids_.size()>0 )
-	    vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
-	attachNotifiersAndSetAuxData( vwr2d );
-    }
-
-    vwr.handleChange( FlatView::Viewer::DisplayPars );
     return vwr2d->viewerObjID();
 }
 
@@ -533,7 +413,7 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 
 	clickedvwr2d = find2DViewer( oldtkzs );
 	if ( clickedvwr2d )
-	    clickedvwr2d->setPos( newtkzs );
+	    clickedvwr2d->getProbe().setPos( newtkzs );
 	setAllIntersectionPositions();
     }
 
@@ -668,53 +548,65 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 					  mCast(double,bid.crl()) );
 	}
 
-	create2DViewer( *curvwr2d, newtkzs, initialcentre );
+	Probe* probe = createNewProbe( newtkzs );
+	if ( !probe )
+	    return;
+
+	fillProbeFromExisting( *probe, *curvwr2d );
+
+	uiODViewer2D::DispSetup su;
+	su.initialcentre_ = initialcentre;
+	const uiFlatViewStdControl* control = curvwr2d->viewControl();
+	su.initialx1pospercm_ = control->getCurrentPosPerCM( true );
+	if ( newtkzs.defaultDir()!=TrcKeyZSampling::Z && curvwr2d->isVertical())
+	    su.initialx2pospercm_ = control->getCurrentPosPerCM( false );
+
+	displayIn2DViewer( *probe, ProbeLayer::ID::getInvalid(), su );
     }
     else if ( menuid == 4 )
 	curvwr2d->viewControl()->doPropertiesDialog( 0 );
 }
 
 
-void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
-				      const TrcKeyZSampling& newsampling,
-				      const uiWorldPoint& initialcentre )
+Probe* uiODViewer2DMgr::createNewProbe( const TrcKeyZSampling& pos ) const
 {
-    uiODViewer2D* vwr2d = &addViewer2D();
-    vwr2d->setSelSpec( &curvwr2d.selSpec(true), true );
-    vwr2d->setSelSpec( &curvwr2d.selSpec(false), false );
-    vwr2d->setZAxisTransform( curvwr2d.getZAxisTransform() );
-    uiTaskRunner taskr( const_cast<uiODViewer2D&>(curvwr2d).viewerParent() );
-    vwr2d->setTrcKeyZSampling( newsampling, &taskr );
-
-    const uiFlatViewStdControl* control = curvwr2d.viewControl();
-    vwr2d->setInitialCentre( initialcentre );
-    vwr2d->setInitialX1PosPerCM( control->getCurrentPosPerCM(true) );
-    if ( newsampling.defaultDir()!=TrcKeyZSampling::Z && curvwr2d.isVertical() )
-	vwr2d->setInitialX2PosPerCM( control->getCurrentPosPerCM(false) );
-
-    const uiFlatViewer& curvwr = curvwr2d.viewwin()->viewer( 0 );
-    if ( curvwr.isVisible(true) )
-	vwr2d->setUpView( vwr2d->createDataPack(true), true );
-    else if ( curvwr.isVisible(false) )
-	vwr2d->setUpView( vwr2d->createDataPack(false), false );
-
-    if ( vwr2d->viewControl() )
-	vwr2d->viewControl()->setEditMode( control->isEditModeOn() );
-
-    for ( int idx=0; idx<vwr2d->viewwin()->nrViewers(); idx++ )
+    Probe* newprobe = 0;
+    if ( pos.hsamp_.survid_ == Survey::GM().get2DSurvID() )
     {
-	uiFlatViewer& vwr = vwr2d->viewwin()->viewer( idx );
-	vwr.appearance().ddpars_ = curvwr.appearance().ddpars_;
-	vwr.appearance().setGeoDefaults( vwr2d->isVertical() );
-	vwr.handleChange( FlatView::Viewer::DisplayPars );
+	Line2DProbe* l2dprobe = new Line2DProbe();
+	l2dprobe->setGeomID( pos.hsamp_.getGeomID() );
+	newprobe = l2dprobe;
     }
+    else if ( pos.defaultDir()==TrcKeyZSampling::Inl )
+	newprobe = new InlineProbe();
+    else if ( pos.defaultDir()==TrcKeyZSampling::Crl )
+	newprobe = new CrosslineProbe();
+    else
+	newprobe = new ZSliceProbe();
+    newprobe->setPos( pos );
+    ProbeMGR().store( *newprobe );
+    return newprobe;
+}
 
-    if ( geom2dids_.size()>0 )
-	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
-    attachNotifiersAndSetAuxData( vwr2d );
-    vwr2d->setSurvSectionID( SurveySectionPresentationInfo::getNewSectionID() );
-    vwr2d->emitPRRequest( OD::Add );
-    vwr2d->viewControl()->setEditMode( curvwr2d.viewControl()->isEditModeOn() );
+
+void uiODViewer2DMgr::fillProbeFromExisting( Probe& probe,
+					     const uiODViewer2D& vwr2d ) const
+{
+    for ( int idx=0; idx<1; idx++ )
+    {
+	const bool iswva = idx;
+	AttribProbeLayer* attrlayer = new AttribProbeLayer();
+	attrlayer->setSelSpec( vwr2d.selSpec(iswva) );
+	const uiFlatViewer& vwr = vwr2d.viewwin()->viewer( 0 );
+	const ColTab::MapperSetup& mapper =
+	    iswva ? vwr.appearance().ddpars_.wva_.mappersetup_
+		  : vwr.appearance().ddpars_.vd_.mappersetup_;
+	if ( !iswva )
+	    attrlayer->setColTab(
+		    ColTab::Sequence(vwr.appearance().ddpars_.vd_.ctab_) );
+	attrlayer->setColTabMapper( mapper );
+	probe.addLayer( attrlayer );
+    }
 }
 
 
@@ -769,17 +661,6 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
     }
 }
 
-
-uiODViewer2D& uiODViewer2DMgr::addViewer2D()
-{
-    uiODViewer2D* vwr = new uiODViewer2D( appl_ );
-    mAttachCB( vwr->dataMgr()->dataObjAdded, uiODViewer2DMgr::viewObjAdded );
-    mAttachCB( vwr->dataMgr()->dataObjToBeRemoved,
-	       uiODViewer2DMgr::viewObjToBeRemoved );
-    vwr->setMouseCursorExchange( &appl_.applMgr().mouseCursorExchange() );
-    viewers_ += vwr;
-    return *vwr;
-}
 
 
 uiODViewer2D* uiODViewer2DMgr::getParent2DViewer( int vwr2dobjid )
@@ -1116,18 +997,16 @@ void uiODViewer2DMgr::viewWinClosedCB( CallBacker* cb )
 {
     mDynamicCastGet( uiODViewer2D*, vwr2d, cb );
     if ( vwr2d )
-	remove2DViewer( vwr2d->viewerObjID().getI(), false );
+	remove2DViewer( vwr2d->viewerObjID() );
 }
 
 
-void uiODViewer2DMgr::remove2DViewer( int id, bool byvisid )
+void uiODViewer2DMgr::remove2DViewer( OD::ViewerObjID id )
 {
     for ( int idx=0; idx<viewers_.size(); idx++ )
     {
 	uiODViewer2D* vwr2d = getViewer2D( idx );
-	const int vwrid = byvisid ? vwr2d->visid_
-				  : vwr2d->viewerObjID().getI();
-	if ( vwrid != id )
+	if ( vwr2d->viewerObjID() != id )
 	    continue;
 
 	mDetachCB( vwr2d->dataMgr()->dataObjAdded,
@@ -1154,7 +1033,7 @@ void uiODViewer2DMgr::viewObjToBeRemoved( CallBacker* cb )
     vw2dObjToBeRemoved.trigger( vw2dobjid );
 }
 
-
+//TODO replace fillPar/usePar handling via Probe
 void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 {
     for ( int idx=0; idx<viewers_.size(); idx++ )
@@ -1163,7 +1042,7 @@ void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 	if ( !vwr2d->viewwin() ) continue;
 
 	IOPar vwrpar;
-	vwrpar.set( sKeyVisID(), vwr2d->visid_ );
+	//TODO replace vwrpar.set( sKeyVisID(), vwr2d->visid_ );
 	bool wva = vwr2d->viewwin()->viewer().appearance().ddpars_.wva_.show_;
 	vwrpar.setYN( sKeyWVA(), wva );
 	vwrpar.set( sKeyAttrID(), vwr2d->selSpec(wva).id().asInt() );
@@ -1188,14 +1067,15 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 	}
 	int visid; bool wva; int attrid;
 	if ( vwrpar->get( sKeyVisID(), visid ) &&
-		vwrpar->get( sKeyAttrID(), attrid ) &&
-		    vwrpar->getYN( sKeyWVA(), wva ) )
+	     vwrpar->get( sKeyAttrID(), attrid ) &&
+	     vwrpar->getYN( sKeyWVA(), wva ) )
 	{
 	    const int nrattribs = visServ().getNrAttribs( visid );
 	    const int attrnr = nrattribs-1;
-	    OD::ViewerObjID vwrid = displayIn2DViewer( visid, attrnr, wva );
+	    /*TODO replace with Probe controlled things
+	      OD::ViewerObjID vwrid = displayIn2DViewer( visid, attrnr, wva );
 	    uiODViewer2D* curvwr = find2DViewer( vwrid );
-	    if ( curvwr ) curvwr->usePar( *vwrpar );
+	    if ( curvwr ) curvwr->usePar( *vwrpar );*/
 	}
     }
 }
@@ -1567,8 +1447,8 @@ void uiODViewer2DMgr::request( OD::PresentationRequestType req,
 			       const IOPar& prinfopar,OD::ViewerObjID skipvwrid)
 {
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( prinfopar );
-    FixedString survsecprkey( SurveySectionPresentationInfo::sFactoryKey() );
-    if ( survsecprkey==prinfo->objTypeKey() )
+    FixedString probeprinfpkey( ProbePresentationInfo::sFactoryKey() );
+    if ( probeprinfpkey==prinfo->objTypeKey() )
 	return;
 
     OD::VwrTypePresentationMgr::request( req, prinfopar, skipvwrid );

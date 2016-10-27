@@ -13,11 +13,11 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
-#include "uiodsceneparenttreeitem.h"
+#include "uiodprobeparenttreeitem.h"
 #include "oduicommon.h"
 #include "datapack.h"
 #include "flatview.h"
-#include "surveysectionprinfo.h"
+#include "probe.h"
 
 class uiSliceSelDlg;
 class TrcKeyZSampling;
@@ -29,39 +29,19 @@ mExpClass(uiODMain) uiODPlaneDataTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODPlaneDataTreeItem)
 public:
 
-    enum Type		{ Empty, Select, Default, RGBA, Presentation };
-
 			~uiODPlaneDataTreeItem();
 
     bool		init();
-    void		setSurvSectionID( SurveySectionID sid)
-			{ surveysectionid_ = sid; }
-    SurveySectionID	survSectionID()
-			{ return surveysectionid_; }
     void		setAtWellLocation(const Well::Data&);
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
-    bool		displayFromPRInfo();
-    bool		displayDefaultData();
-    bool		displayGuidance();
-    bool		displayDataFromDesc(const Attrib::DescID&,bool stored);
-    bool		displayDataFromDataPack(DataPack::ID,
-	    				     const Attrib::SelSpec&,
-					     const FlatView::DataDispPars::VD&);
-    bool		displayDataFromOther(int visid);
     OD::ObjPresentationInfo* getObjPRInfo() const;
 
-    static uiString	sAddEmptyPlane();
-    static uiString	sAddAndSelectData();
-    static uiString	sAddDefaultData();
-    static uiString	sAddColorBlended();
-    static uiString	sAddAtWellLocation();
-
 protected:
-			uiODPlaneDataTreeItem(int displayid,OD::SliceType,Type);
 			uiODPlaneDataTreeItem(int displayid,OD::SliceType,
-					 const SurveySectionPresentationInfo&);
+					      Probe&);
 
     uiString		createDisplayName() const;
+
 
     virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
@@ -76,10 +56,8 @@ protected:
     void		keyUnReDoPressedCB(CallBacker*);
     void		selectRGBA();
 
-    SurveySectionPresentationInfo* initprinfo_;
-    SurveySectionID	surveysectionid_;
+    Probe&		probe_;
     const OD::SliceType	orient_;
-    const Type		type_;
     MenuItem		positionmnuitem_;
     MenuItem		gridlinesmnuitem_;
     MenuItem		addinlitem_;
@@ -92,13 +70,15 @@ protected:
 
 
 mExpClass(uiODMain) uiODInlineParentTreeItem
-			: public uiODSceneParentTreeItem
+			: public uiODProbeParentTreeItem
 {   mODTextTranslationClass(uiODInlineParentTreeItem);
-    mDefineItemMembers( InlineParent, SceneParentTreeItem, SceneTreeTop );
-    mShowMenu;
+    mDefineItemMembers( InlineParent, ProbeParentTreeItem, SceneTreeTop );
     mMenuOnAnyButton;
-    const char*		childObjTypeKey() const;
-    void		addChildItem(const OD::ObjPresentationInfo&);
+
+    bool			canShowSubMenu() const;
+    bool			canAddFromWell() const	{ return true; }
+    Probe*			createNewProbe() const;
+    uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
 };
 
 
@@ -115,9 +95,7 @@ public:
 mExpClass(uiODMain) uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-			uiODInlineTreeItem(int displayid,Type);
-			uiODInlineTreeItem(int displayid,
-					const SurveySectionPresentationInfo&);
+			uiODInlineTreeItem(int displayid,Probe&);
 
 protected:
     const char*		parentType() const
@@ -126,13 +104,14 @@ protected:
 
 
 mExpClass(uiODMain) uiODCrosslineParentTreeItem
-			: public uiODSceneParentTreeItem
+			: public uiODProbeParentTreeItem
 {   mODTextTranslationClass(uiODCrossineParentTreeItem);
-    mDefineItemMembers( CrosslineParent, SceneParentTreeItem, SceneTreeTop );
-    mShowMenu;
+    mDefineItemMembers( CrosslineParent, ProbeParentTreeItem, SceneTreeTop );
     mMenuOnAnyButton;
-    const char*		childObjTypeKey() const;
-    void		addChildItem(const OD::ObjPresentationInfo&);
+    bool			canShowSubMenu() const;
+    bool			canAddFromWell() const	{ return true; }
+    uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+    Probe*			createNewProbe() const;
 };
 
 
@@ -150,9 +129,7 @@ public:
 mExpClass(uiODMain) uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-			uiODCrosslineTreeItem(int displayid,Type);
-			uiODCrosslineTreeItem(int displayid,
-					const SurveySectionPresentationInfo&);
+			uiODCrosslineTreeItem(int displayid,Probe&);
 
 protected:
     const char*		parentType() const
@@ -162,13 +139,14 @@ protected:
 
 
 mExpClass(uiODMain) uiODZsliceParentTreeItem
-			: public uiODSceneParentTreeItem
+			: public uiODProbeParentTreeItem
 {   mODTextTranslationClass(uiODZsliceParentTreeItem);
-    mDefineItemMembers( ZsliceParent, SceneParentTreeItem, SceneTreeTop );
-    mShowMenu;
+    mDefineItemMembers( ZsliceParent, ProbeParentTreeItem, SceneTreeTop );
     mMenuOnAnyButton;
-    const char*		childObjTypeKey() const;
-    void		addChildItem(const OD::ObjPresentationInfo&);
+    bool			canShowSubMenu() const;
+    bool			canAddFromWell() const	{ return true; }
+    uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+    Probe*			createNewProbe() const;
 };
 
 
@@ -185,9 +163,7 @@ public:
 mExpClass(uiODMain) uiODZsliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-			uiODZsliceTreeItem(int displayid,Type);
-			uiODZsliceTreeItem(int displayid,
-					const SurveySectionPresentationInfo&);
+			uiODZsliceTreeItem(int displayid,Probe&);
 
 protected:
     const char*		parentType() const

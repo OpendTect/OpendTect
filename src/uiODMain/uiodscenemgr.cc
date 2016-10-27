@@ -49,8 +49,11 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
+#include "probemanager.h"
+#include "probeimpl.h"
 #include "picksetmanager.h"
 #include "ptrman.h"
+#include "probeimpl.h"
 #include "randomlinegeom.h"
 #include "sorting.h"
 #include "settingsaccess.h"
@@ -1312,13 +1315,23 @@ int uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, int sceneid )
     TrcKeyZSampling tkzs = SI().sampling(true);
     if ( st == OD::InlineSlice )
     {
-	itm = new uiODInlineTreeItem( -1, uiODPlaneDataTreeItem::Empty );
+	InlineProbe* newprobe = new InlineProbe();
 	tkzs.hsamp_.setInlRange( Interval<int>(nr,nr) );
+	newprobe->setPos( tkzs );
+	if ( !ProbeMGR().store(*newprobe).isOK() )
+	    return -1;
+
+	itm = new uiODInlineTreeItem( -1, *newprobe );
     }
     else if ( st == OD::CrosslineSlice )
     {
-	itm = new uiODCrosslineTreeItem( -1, uiODPlaneDataTreeItem::Empty );
+	CrosslineProbe* newprobe = new CrosslineProbe();
 	tkzs.hsamp_.setCrlRange( Interval<int>(nr,nr) );
+	newprobe->setPos( tkzs );
+	if ( !ProbeMGR().store(*newprobe).isOK() )
+	    return -1;
+
+	itm = new uiODCrosslineTreeItem( -1, *newprobe );
     }
     else
 	return -1;
@@ -1326,8 +1339,6 @@ int uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, int sceneid )
     if ( !scene->itemmanager_->addChild(itm,false) )
 	return -1;
 
-    itm->setTrcKeyZSampling( tkzs );
-    itm->displayDefaultData();
     return itm->displayID();
 }
 
@@ -1336,32 +1347,18 @@ int uiODSceneMgr::addZSliceItem( float z, int sceneid )
 {
     mGetOrAskForScene
 
-    uiODZsliceTreeItem* itm =
-	new uiODZsliceTreeItem( -1, uiODPlaneDataTreeItem::Empty );
-    if ( !scene->itemmanager_->addChild(itm,false) )
-	return -1;
-
+    ZSliceProbe* newprobe = new ZSliceProbe();
     TrcKeyZSampling tkzs = SI().sampling(true);
     tkzs.zsamp_.set( z, z, SI().zStep() );
-    itm->setTrcKeyZSampling( tkzs );
-    itm->displayDefaultData();
-    return itm->displayID();
-}
+    newprobe->setPos( tkzs );
+    if ( !ProbeMGR().store(*newprobe).isOK() )
+	return -1;
 
-
-int uiODSceneMgr::addZSliceItem( DataPack::ID dpid,
-				 const Attrib::SelSpec& sp,
-				 const FlatView::DataDispPars::VD& ddp,
-				 int sceneid )
-{
-    mGetOrAskForScene
     uiODZsliceTreeItem* itm =
-	new uiODZsliceTreeItem( -1, uiODPlaneDataTreeItem::Empty );
-
+	new uiODZsliceTreeItem( -1, *newprobe );
     if ( !scene->itemmanager_->addChild(itm,false) )
 	return -1;
 
-    itm->displayDataFromDataPack( dpid, sp, ddp );
     return itm->displayID();
 }
 
@@ -1402,18 +1399,6 @@ void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items )
 	uiODScene& scene = *getSceneByIdx( idx );
 	scene.itemmanager_->findChildren( nm, items );
     }
-}
-
-
-void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
-{
-    appl_.viewer2DMgr().displayIn2DViewer( visid, attribid, dowva );
-}
-
-
-void uiODSceneMgr::remove2DViewer( int visid )
-{
-    appl_.viewer2DMgr().remove2DViewer( visid, true );
 }
 
 

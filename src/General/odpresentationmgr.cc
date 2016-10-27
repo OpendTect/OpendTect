@@ -149,19 +149,26 @@ void OD::ObjPresentationInfo::fillPar( IOPar& par ) const
 {
     par.set( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
 	     objtypekey_ );
+    par.set( IOPar::compKey(sKey::Stored(),sKey::ID()), storedid_ );
 }
 
 
 bool OD::ObjPresentationInfo::usePar( const IOPar& par )
 {
-    return par.get( IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
-		    objtypekey_ );
+    if ( !par.get(IOPar::compKey(OD::sKeyPresentationObj(),sKey::Type()),
+		  objtypekey_) )
+	return false;
+
+    return par.get( IOPar::compKey(sKey::Stored(),sKey::ID()), storedid_ );
 }
 
 
 bool OD::ObjPresentationInfo::isSameObj(
 	const  OD::ObjPresentationInfo& prinfo ) const
-{ return objtypekey_ == prinfo.objTypeKey(); }
+{
+    return objtypekey_ == prinfo.objTypeKey() &&
+	   storedid_.isInvalid() ? true : storedid_==prinfo.storedID();
+}
 
 
 OD::ObjPresentationInfo* OD::ObjPresentationInfo::clone() const
@@ -172,40 +179,9 @@ OD::ObjPresentationInfo* OD::ObjPresentationInfo::clone() const
 }
 
 
-uiString OD::SaveableObjPresentationInfo::getName() const
+uiString OD::ObjPresentationInfo::getName() const
 {
     return toUiString( DBM().nameOf(storedid_) );
-}
-
-
-void OD::SaveableObjPresentationInfo::fillPar( IOPar& par ) const
-{
-    OD::ObjPresentationInfo::fillPar( par );
-    par.set( IOPar::compKey(sKey::Stored(),sKey::ID()), storedid_ );
-}
-
-
-bool OD::SaveableObjPresentationInfo::usePar( const IOPar& par )
-{
-    if ( !OD::ObjPresentationInfo::usePar(par) )
-	return false;
-
-    return par.get( IOPar::compKey(sKey::Stored(),sKey::ID()), storedid_ );
-}
-
-
-bool OD::SaveableObjPresentationInfo::isSameObj(
-	const  OD::ObjPresentationInfo& prinfo ) const
-{
-    if ( !OD::ObjPresentationInfo::isSameObj(prinfo) )
-	return false;
-
-    mDynamicCastGet(const OD::SaveableObjPresentationInfo*,saveableprinfo,
-		    &prinfo);
-    if ( !saveableprinfo )
-	return false;
-
-    return storedid_.isInvalid() ? true : storedid_==saveableprinfo->storedID();
 }
 
 

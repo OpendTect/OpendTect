@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "picksettr.h"
 #include "posvecdatasettr.h"
 #include "probdenfunctr.h"
+#include "randomlineprobe.h"
 #include "randomlinetr.h"
 namespace Pick { void startSetCategoryFromTypeInOMFPutter(); }
 
@@ -35,6 +36,7 @@ mDefModInitFn(Geometry)
     odProbDenFuncTranslator::initClass();
     dgbRandomLineSetTranslator::initClass();
 
+    RDLProbe::initClass();
     Pos::PolyProvider3D::initClass();
     Pos::TableProvider3D::initClass();
 

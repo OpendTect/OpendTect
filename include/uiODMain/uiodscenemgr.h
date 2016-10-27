@@ -144,10 +144,6 @@ public:
 
     uiODSceneTreeTop*		getTreeItemMgr(const uiTreeView*) const;
 
-    void			displayIn2DViewer(int visid,int attribid,
-						  bool wva);
-    void			remove2DViewer(int visid);
-
     void			updateTrees();
     void			rebuildTrees();
     void			setItemInfo(int visid);
@@ -173,10 +169,6 @@ public:
     int				addInlCrlItem(OD::SliceType,int nr,
 					      int sceneid=-1);
     int				addZSliceItem(float z,int sceneid=-1);
-    int				addZSliceItem(DataPack::ID,
-	    				      const Attrib::SelSpec&,
-					      const FlatView::DataDispPars::VD&,
-					      int sceneid=-1);
 
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);

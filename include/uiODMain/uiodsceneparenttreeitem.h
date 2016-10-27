@@ -26,7 +26,7 @@ public:
     bool		init();
 
 protected:
-    uiODApplMgr*	applMgr();
+    uiODApplMgr*	applMgr() const;
     int			sceneID() const;
     void		setMoreObjectsToDoHint(bool yn);
 };

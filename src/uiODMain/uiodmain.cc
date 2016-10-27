@@ -536,7 +536,7 @@ bool uiODMain::updateSession()
       && !applMgr().nlaServer()->fillPar( cursession_->nlapars() ) )
 	return false;
     applMgr().mpeServer()->fillPar( cursession_->mpepars() );
-    viewer2DMgr().fillPar( cursession_->vwr2dpars() );
+    //TODO viewer2DMgr().fillPar( cursession_->vwr2dpars() );
 
     sessionSave.trigger();
     return true;
@@ -585,8 +585,8 @@ void uiODMain::doRestoreSession()
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
-    if ( visok )
-	viewer2DMgr().usePar( cursession_->vwr2dpars() );
+    /* TODO if ( visok )
+	viewer2DMgr().usePar( cursession_->vwr2dpars() );*/
 
     restoringsess_ = false;
     MouseCursorManager::restoreOverride();

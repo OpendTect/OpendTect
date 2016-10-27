@@ -17,10 +17,11 @@ ________________________________________________________________________
 #include "mathformulatransl.h"
 #include "ioobjselectiontransl.h"
 #include "preloads.h"
+#include "probeimpl.h"
+#include "probetr.h"
 #include "pickset.h"
 #include "geometryio.h"
 #include "survgeometrytransl.h"
-#include "surveysectionprinfo.h"
 
 
 mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc);
@@ -41,15 +42,21 @@ GeneralModuleIniter::GeneralModuleIniter()
     IOObjSelectionTranslatorGroup::initClass();
     PreLoadsTranslatorGroup::initClass();
     PreLoadSurfacesTranslatorGroup::initClass();
+    ProbeTranslatorGroup::initClass();
 
     dgbPreLoadsTranslator::initClass();
     dgbPreLoadSurfacesTranslator::initClass();
     odElasticPropSelectionTranslator::initClass();
     odMathFormulaTranslator::initClass();
     odIOObjSelectionTranslator::initClass();
+    dgbProbeTranslator::initClass();
 
     Pick::SetPresentationInfo::initClass();
-    SurveySectionPresentationInfo::initClass();
+    ProbePresentationInfo::initClass();
+    InlineProbe::initClass();
+    CrosslineProbe::initClass();
+    ZSliceProbe::initClass();
+    Line2DProbe::initClass();
     Pos::RangeProvider3D::initClass();
     Pos::RangeProvider2D::initClass();
     ValueProperty::initClass();

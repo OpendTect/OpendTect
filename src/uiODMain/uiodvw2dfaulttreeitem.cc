@@ -70,8 +70,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 	emo->setNewName();
 	emo->setFullyLoaded( true );
 	addNewTempFault( emo->id() );
-	applMgr()->viewer2DMgr().addNewTempFault(
-		emo->id(), viewer2D()->getSyncSceneID() );
+	applMgr()->viewer2DMgr().addNewTempFault( emo->id(), -1 );
     }
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
