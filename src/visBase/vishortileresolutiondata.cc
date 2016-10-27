@@ -83,8 +83,9 @@ TileResolutionData::~TileResolutionData()
 void TileResolutionData::setTexture( const unsigned int unit, 
     osg::Array* tcarr, osg::StateSet* stateset )
 {
-    setGeometryTexture( unit,tcarr,stateset,Triangle );
-    setGeometryTexture( unit,tcarr,stateset,Line );
+    setGeometryTexture( unit, tcarr, stateset, Triangle );
+    setGeometryTexture( unit, tcarr, stateset, Line );
+    setGeometryTexture( unit, tcarr, stateset, Point );
 }
 
 
@@ -121,8 +122,8 @@ void TileResolutionData::enableGeometryTypeDisplay( GeometryType type, bool yn )
 	else
 	   dispgeometrytype_ = Triangle;
     }
-    osgswitch_->setValue( Line,true );
-    
+    osgswitch_->setValue( Line, true );
+    osgswitch_->setValue( Point, true );
 }
 
 
@@ -195,6 +196,9 @@ bool TileResolutionData::tesselateResolution( bool onlyifabsness )
     {
 	for ( int col=0; col<hrsection.nrcoordspertileside_; col+=spacing )
 	{
+	    if ( row==hrsection.nrcoordspertileside_-1 &&
+		 col==hrsection.nrcoordspertileside_-1 )
+		 continue;
 	    const int coordidx = getCoordinateIndex( 
 		row, col, hrsection.nrcoordspertileside_ );
 	    if ( !mIsOsgVec3Def( (*osgvertices)[coordidx] ) )
@@ -335,7 +339,18 @@ void TileResolutionData::tesselateCell( int row, int col )
     {
 	if ( !bottomisdef )
 	{
-	    mAddPointIndex( pointsps_, idxthis ); 
+	    const int idxleft = (col-spacing)>0 ? 
+		getCoordinateIndex(row,col-spacing,nrcoords) : -1;
+	    const int idxtop = (row-spacing)>0 ? 
+		getCoordinateIndex(row-spacing,col,nrcoords) : -1;
+
+	    const bool leftdef = (idxleft>=0 && idxleft<size) ? 
+		mIsOsgVec3Def( (*osgvertices)[idxleft] ) : false;
+	    const bool topdef = (idxtop>=0 && idxtop<size) ?
+		mIsOsgVec3Def(( *osgvertices )[idxtop]) : false;
+
+	    if ( !leftdef && !topdef )
+		mAddPointIndex( pointsps_, idxthis ); 
 	}
 	else if ( bottomisdef )
 	{
@@ -633,7 +648,11 @@ void TileResolutionData::buildPointGeometry( int idx )
     osg::Geometry* geom = mGetOsgGeometry( pointgeode );
     osg::ref_ptr<osg::Point> point=new osg::Point;
     point->setSize( 4 );
+    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
+    normals->push_back( osg::Vec3(0.0f,-1.0f,0.0f) );
+    geom->setNormalArray(normals, osg::Array::BIND_OVERALL );
     geom->getStateSet()->setAttributeAndModes( point );
+    pointgeode->setCullingActive( false );
 }
 
 
