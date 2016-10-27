@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "mpeengine.h"
 #include "ptrman.h"
+#include "hiddenparam.h"
 
 namespace MPE
 {
@@ -23,13 +24,24 @@ const char* SectionAdjuster::sKeyAdjuster() { return "Adjuster"; }
 const char* SectionAdjuster::sKeyThreshold() { return "Threshold value"; }
 const char* SectionAdjuster::sKeyRemoveOnFailure(){ return "Remove on Failure";}
 
+
+static HiddenParam< SectionAdjuster, int > seedid_( 0 );
+
 SectionAdjuster::SectionAdjuster( EM::SectionID sid )
     : sectionid_(sid)
     , removeonfailure_(true)
     , thresholdval_(0.5)
     , seedtk_(TrcKey::udf())
     , setundo_(true)
-{}
+{
+    seedid_.setParam( this, 0 );
+}
+
+
+void SectionAdjuster::removeHiddenParam() 
+{
+    seedid_.removeParam( this );
+}
 
 
 EM::SectionID SectionAdjuster::sectionID() const { return sectionid_; }
@@ -108,6 +120,18 @@ bool SectionAdjuster::usePar( const IOPar& par )
     }
 
     return true;
+}
+
+
+void SectionAdjuster::setSeedId( int seedid )
+{
+    seedid_.setParam( this, seedid );
+}
+
+
+int SectionAdjuster::seedId() const
+{
+    return seedid_.getParam( this );
 }
 
 } // namespace MPE

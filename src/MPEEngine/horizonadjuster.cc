@@ -332,7 +332,7 @@ void HorizonAdjuster::setHorizonPick( const TrcKey& tk, float val )
 
     hor3d->auxdata.setAuxDataVal( 0, tk, evtracker_.targetValue() );
     hor3d->auxdata.setAuxDataVal( 1, tk, evtracker_.quality() );
-    hor3d->auxdata.setAuxDataVal( 2, tk, (float)seedtk_.trcNr() );
+    hor3d->auxdata.setAuxDataVal( 2, tk, (float)seedId() );
 }
 
 

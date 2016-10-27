@@ -38,11 +38,12 @@ class TrackerTask : public Task
 {
 public:
 TrackerTask( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
-		const TrcKeyValue& srcpos )
+		const TrcKeyValue& srcpos, const int seedid )
     : mgr_(mgr)
     , seed_(seed)
     , srcpos_(srcpos)
     , sectiontracker_(0)
+    , seedid_( seedid )
 {
 }
 
@@ -73,6 +74,7 @@ bool execute()
     TypeSet<TrcKey> addedpos = ext->getAddedPositions();
     TypeSet<TrcKey> addedpossrc = ext->getAddedPositionsSource();
     adj->setSeedPosition( seed_.tk_ );
+    adj->setSeedId( seedid_ );
     adj->setPositions( addedpos, &addedpossrc );
     while ( (res=adj->nextStep())>0 )
 	;
@@ -85,7 +87,7 @@ bool execute()
 	mDynamicCastGet(EM::Horizon3D*,hor3d,&sectiontracker_->emObject())
 	if ( hor3d )
 	    hor3d->auxdata.setAuxDataVal( 3, src, (float)mgr_.tasknr_ );
-	mgr_.addTask( seed_, src );
+	mgr_.addTask( seed_, src, seedid_ );
     }
 
     return true;
@@ -96,6 +98,8 @@ bool execute()
 
     TrcKeyValue		seed_;
     TrcKeyValue		srcpos_;
+    const int		seedid_;
+
 };
 
 
@@ -142,6 +146,13 @@ void HorizonTrackerMgr::setSeeds( const TypeSet<TrcKey>& seeds )
 void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
 				 const TrcKeyValue& source )
 {
+   addTask( seed, source, 1 ); // only for keep ABI
+}
+
+
+void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
+				 const TrcKeyValue& source, const int seedid )
+{
     mDynamicCastGet(EM::Horizon*,hor,tracker_.emObject())
     if ( !hor || !hor->hasZ(source.tk_) )
 	return;
@@ -150,7 +161,7 @@ void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
     nrtodo_++;
     tasknr_++;
     CallBack cb( mCB(this,HorizonTrackerMgr,taskFinished) );
-    Task* task = new TrackerTask( *this, seed, source );
+    Task* task = new TrackerTask( *this, seed, source, seedid );
     twm_.addWork( Threads::Work(*task,true), &cb, queueid_,
 		  false, false, true );
 }
@@ -241,7 +252,7 @@ void HorizonTrackerMgr::startFromSeeds()
     nrtodo_ = 0;
     hor3d->setBurstAlert( true );
     for ( int idx=0; idx<seeds_.size(); idx++ )
-	addTask( seeds_[idx], seeds_[idx] );
+	addTask( seeds_[idx], seeds_[idx], idx+1 );
 }
 
 

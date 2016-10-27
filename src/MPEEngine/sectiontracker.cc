@@ -54,6 +54,8 @@ SectionTracker::~SectionTracker()
     emobject_.unRef();
     delete selector_;
     delete extender_;
+    if ( adjuster_ )
+	adjuster_->removeHiddenParam();
     delete adjuster_;
     delete &displayas_;
 }

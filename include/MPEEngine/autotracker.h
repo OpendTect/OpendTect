@@ -60,7 +60,11 @@ public:
     Notifier<HorizonTrackerMgr>		finished;
 
 protected:
+    void		addTask(const TrcKeyValue&,const TrcKeyValue&,
+				const int seedid);
+
     void		addTask(const TrcKeyValue&,const TrcKeyValue&);
+			/*!<\don't use it. only for keep ABI.*/
     void		taskFinished(CallBacker*);
     void		updateCB(CallBacker*);
     int			queueid_;

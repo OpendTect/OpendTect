@@ -73,10 +73,12 @@ public:
     virtual bool		usePar(const IOPar&);
 
     void			setUndo(bool yn) { setundo_ = yn; }
+    void			setSeedId(int);
+    int				seedId() const;
+    void			removeHiddenParam();
 
 protected:
 				SectionAdjuster(EM::SectionID sid=-1);
-
     TypeSet<TrcKey>		tks_;
     TypeSet<TrcKey>		tksrc_;
     BufferString		errmsg_;
