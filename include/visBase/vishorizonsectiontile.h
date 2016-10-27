@@ -72,6 +72,7 @@ public:
     void			addTileGlueTesselator();
     ObjectSet<TileResolutionData>& getResolutionData()
 				   { return tileresolutiondata_; }
+    void			turnOnGlue(bool);
 
 protected:
 
