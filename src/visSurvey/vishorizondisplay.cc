@@ -2266,6 +2266,7 @@ void HorizonDisplay::calculateLockedPoints()
 {
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
     const Array2D<char>* locked = hor3d ? hor3d->getLockedNodes() : 0;
+    if ( !locked ) return;
 
     if ( !lockedpts_ )
     {
