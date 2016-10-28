@@ -303,7 +303,6 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
 uiPresentationMakerDlg::~uiPresentationMakerDlg()
 {
     delete checktimer_;
-    delete &specs_;
 }
 
 
@@ -523,7 +522,7 @@ void uiPresentationMakerDlg::moveUpCB( CallBacker* )
 void uiPresentationMakerDlg::moveDownCB( CallBacker* )
 {
     const int currow = slidestbl_->currentRow();
-    if ( currow > slidestbl_->nrRows() -1 ) return;
+    if ( currow >= slidestbl_->nrRows()-1 ) return;
 
     specs_.swapSlides( currow, currow+1 );
     const RowCol from = RowCol(currow,0);
