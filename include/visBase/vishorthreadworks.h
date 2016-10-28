@@ -54,7 +54,7 @@ public:
     bool		    doWork(od_int64,od_int64,int);
 
     bool		    getTitleCoordinates(int,TypeSet<Coord3>&) const;
-    bool		    getTitleNormals(int,TypeSet<Coord3>&) const;
+    bool		    getTitleNormals(int,TypeSet<Coord3f>&) const;
     bool		    getTitlePrimitiveSet(int,TypeSet<int>&,
 						 GeometryType) const;
 

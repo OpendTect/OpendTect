@@ -93,9 +93,9 @@ protected:
 				2 is point, 3 is wire frame */
 
     void			updatePrimitiveSets();
-    bool			getResolutionNormals(TypeSet<Coord3>&) const;
+    bool			getResolutionNormals(TypeSet<Coord3f>&) const;
     bool			getResolutionTextureCoordinates(
-							TypeSet<Coord>&) const;
+                                                       TypeSet<Coord2f>&) const;
     bool			getResolutionPrimitiveSet( char res,
 					     TypeSet<int>&,GeometryType) const;
     bool			getResolutionCoordinates(TypeSet<Coord3>&)const;

@@ -100,6 +100,7 @@ public:
     const osg::MatrixTransform* getTransformNode() const { return node_; };
 
 			mDefTrans( Coord3 );
+                        mDefTrans( Coord3f );
 			mDefTrans( osg::Vec3d );
 			mDefTrans( osg::Vec3f );
     			mDefConvTrans( Coord3, osg::Vec3d );

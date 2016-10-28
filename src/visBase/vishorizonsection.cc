@@ -817,7 +817,7 @@ int HorizonSection::getTexturePixelSizeInBits() const
 
 
 bool HorizonSection::getTitleTextureCoordinates(
-	int titleidx, TypeSet<Coord>& coords ) const
+	int titleidx, TypeSet<Coord2f>& coords ) const
 {
     if ( !checkTileIndex(titleidx) ) return false;
     return tiles_.getData()[titleidx]->getResolutionTextureCoordinates(coords);

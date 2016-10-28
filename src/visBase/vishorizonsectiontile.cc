@@ -710,7 +710,7 @@ bool HorizonSectionTile::getResolutionCoordinates(
 }
 
 
-bool HorizonSectionTile::getResolutionNormals(TypeSet<Coord3>& coords) const
+bool HorizonSectionTile::getResolutionNormals(TypeSet<Coord3f>& coords) const
 {
 
     const osg::Vec3Array* arr = mGetOsgVec3Arr( normals_ );
@@ -718,14 +718,14 @@ bool HorizonSectionTile::getResolutionNormals(TypeSet<Coord3>& coords) const
 
     coords.setEmpty();
     for ( int idx = 0; idx<arr->size(); idx++ )
-	coords += Coord3( (*arr)[idx].x(), (*arr)[idx].y(), (*arr)[idx].z() );
+	coords += Coord3f( (*arr)[idx].x(), (*arr)[idx].y(), (*arr)[idx].z() );
 
     return true;
 }
 
 
 bool HorizonSectionTile::getResolutionTextureCoordinates(
-    TypeSet<Coord>& coords) const
+    TypeSet<Coord2f>& coords) const
 {
 
     coords.setEmpty();
@@ -736,7 +736,7 @@ bool HorizonSectionTile::getResolutionTextureCoordinates(
     const Coord entireorigin = Coord( 0.5/entireimg->s(), 0.5/entireimg->t() );
     const int nrcoords = hrsection_.nrcoordspertileside_;
 
-    Coord offset;
+    Coord2f offset;
     offset.x_ = txorigin_[0]/entireimg->s() + entireorigin.x_;
     offset.y_ = txorigin_[1]/entireimg->t() + entireorigin.y_;
 
@@ -744,8 +744,8 @@ bool HorizonSectionTile::getResolutionTextureCoordinates(
     {
 	for ( int x=0; x<nrcoords; x++ )
 	{
-	    const Coord txcrd = Coord( (double)x/entireimg->s(),
-		(double)y/entireimg->t() ) + offset;
+	    const Coord2f txcrd( (float)x/entireimg->s() + offset.x_,
+				 (float)y/entireimg->t() + offset.y_);
 	    coords += txcrd;
 	}
     }

@@ -213,7 +213,7 @@ bool HorizonTileResolutionTesselator::getTitleCoordinates( int idx,
 
 
 bool HorizonTileResolutionTesselator::getTitleNormals(
-    int idx, TypeSet<Coord3>& normals ) const
+    int idx, TypeSet<Coord3f>& normals ) const
 {
     if ( idx>=0 && idx<hrtiles_.size() )
 	return hrtiles_[idx]->getResolutionNormals( normals );

@@ -132,8 +132,6 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
     int gluepsidx = 0;
 
     TypeSet<int> triangleidxs;
-    TypeSet<Coord3> trianglecoords;
-    TypeSet<Coord3> trianglenormals;
 
     for ( int idx=0; idx<nrblocks; idx++ )
     {
@@ -157,15 +155,13 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 
 	if ( mIsOsgVec3Def((*vtxarr)[coordidx]) )
 	{
-	    Coord3 pos = Conv::to<Coord3>( (*vtxarr)[coordidx]);
-	    gluevtexarr_->getDisplayTransformation()->transformBack( pos );
-
-	    if ( vtxarr ) gluevtexarr_->addPos( pos );
+	    Coord3f pos = Conv::to<Coord3f>( (*vtxarr)[coordidx]);
+	    if ( gluevtexarr_ ) gluevtexarr_->addPos( pos, true );
 
 	    for ( int tcidx=0; tcidx<gluetxcoords_.size(); tcidx++ )
 	    {
-		const osg::Vec2Array* tcoords = mGetOsgVec2Arr(
-		gluetile->txcoords_[tcidx] );
+		const osg::Vec2Array* tcoords =
+                    mGetOsgVec2Arr( gluetile->txcoords_[tcidx] );
 
 		mGetOsgVec2Arr( gluetxcoords_[tcidx] )->push_back(
 							(*tcoords)[coordidx] );
@@ -174,10 +170,8 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 	    if ( normals  ) 
 	    {
 		const osg::Vec3f osgnmcrd = (*normals)[coordidx];
-		Coord3 nmcrd = Conv::to<Coord3>( osgnmcrd );
-		if ( transformation_ )
-		    transformation_->transformBack( nmcrd );
-		gluenormalarr_->addPos( nmcrd );
+		Coord3f nmcrd = Conv::to<Coord3f>( osgnmcrd );
+                gluenormalarr_->addPos( nmcrd, true );
 	    }
 
 	    triangleidxs += gluepsidx;

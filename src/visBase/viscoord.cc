@@ -212,6 +212,30 @@ int Coordinates::addPos( const Coord3& pos )
     return  mGetOsgVec3Arr(osgcoords_)->size()-1;
 }
 
+    
+int Coordinates::addPos( const Coord3f& pos, bool scenespace )
+{
+    Threads::MutexLocker lock( mutex_ );
+    const int nrunused = unusedcoords_.size();
+    if ( nrunused )
+    {
+        int res = unusedcoords_.pop();
+        setPosWithoutLock( res, pos, false );
+        return res;
+    }
+    
+    Coord3f postoset = pos;
+    if ( postoset.isDefined() )
+    {
+        Transformation::transform( transformation_, postoset );
+    }
+    
+    mGetOsgVec3Arr(osgcoords_)->push_back( Conv::to<osg::Vec3>(postoset) );
+    change.trigger();
+    
+    return  mGetOsgVec3Arr(osgcoords_)->size()-1;
+}
+    
 
 void Coordinates::insertPos( int idx, const Coord3& pos )
 {
@@ -304,6 +328,33 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos,
 	unusedcoords_.removeSingle( unusedidx );
 
 }
+    
+    
+void Coordinates::setPosWithoutLock( int idx, const Coord3f& pos,
+                                    bool scenespace )
+{
+    if ( unusedcoords_.isPresent(idx) )
+        return;
+    
+    for ( int idy=mArrSize; idy<idx; idy++ )
+        unusedcoords_ += idy;
+    
+    Coord3f postoset = pos;
+    if ( !scenespace && postoset.isDefined() && transformation_ )
+        transformation_->transform( postoset );
+    
+    if ( idx>=mGetOsgVec3Arr(osgcoords_)->size() )
+        mGetOsgVec3Arr(osgcoords_)->resize( idx+1 );
+    
+    (*mGetOsgVec3Arr(osgcoords_))[idx] = Conv::to<osg::Vec3f>( postoset );
+    osgcoords_->dirty();
+    
+    const int unusedidx = unusedcoords_.indexOf(idx);
+    if ( unusedidx!=-1 )
+        unusedcoords_.removeSingle( unusedidx );
+    
+}
+
 
 
 void Coordinates::removePos( int idx, bool keepidxafter )

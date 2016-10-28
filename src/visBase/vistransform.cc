@@ -244,6 +244,14 @@ mDeclTrans( Coord3 )
 #undef mToOsgVec
 #undef mFromOsgVec
 
+#define mToOsgVec( inp ) Conv::to<osg::Vec3f>( inp )
+#define mFromOsgVec( inp ) Conv::to<Coord3f>( inp )
+
+mDeclTrans( Coord3f )
+
+#undef mToOsgVec
+#undef mFromOsgVec
+
 #define mDeclConvTransType( func, frtp, totp, mat, post, postproc ) \
 void Transformation::func( const frtp& inp, totp& to ) const \
 { to = mFromOsgVec( node_->mat().preMult( mToOsgVec(inp) ) post ); postproc; } \

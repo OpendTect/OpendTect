@@ -67,6 +67,7 @@ public:
 			//!<If -1 is returned, no more id's are available.
     int			size(bool includedelete=false) const;
     int			addPos(const Coord3&);
+    int			addPos(const Coord3f&,bool scenespace=false);
     Coord3		getPos(int,bool scenespace=false) const;
     bool		isDefined(int) const;
     void		setPos(int,const Coord3&);
@@ -93,6 +94,8 @@ protected:
 
     void		setPosWithoutLock(int, const Coord3&,bool scenespace);
 			/*!< Object should be locked when calling */
+    void		setPosWithoutLock(int, const Coord3f&,bool scenespace);
+    			/*!< Object should be locked when calling */
 
     int			getFreeIdx();
 			/*!< Object should be locked when calling */
@@ -104,7 +107,7 @@ protected:
     const mVisTrans*		transformation_;
 
     osg::Array*			osgcoords_;
-    friend class	 SetOrGetCoordinates;
+    friend class	 	SetOrGetCoordinates;
 };
 
 

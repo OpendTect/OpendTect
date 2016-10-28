@@ -133,7 +133,7 @@ public:
     int				getNrTitles() const;
     const unsigned char*	getTextureData(int titleidx,int& w,int& h)const;
     bool			getTitleTextureCoordinates(
-				    int titleidx,TypeSet<Coord>&) const;
+				    int titleidx,TypeSet<Coord2f>&) const;
     int				getTexturePixelSizeInBits() const;
     void			setUsingNeighborsInIsolatedLine(bool);
     bool			usingNeighborsInIsolatedLine() const;
