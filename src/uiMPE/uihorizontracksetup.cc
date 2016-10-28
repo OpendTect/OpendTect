@@ -188,6 +188,7 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 //    betweenseedsfld_->setSensitive( modeselgrp_->selectedId()==0 );
     betweenseedsfld_->setSensitive( false ); // for time being
     snapfld_->setSensitive( modeselgrp_->selectedId()==1 );
+    if ( failfld_ ) failfld_->setSensitive( modeselgrp_->selectedId()==0 );
 
     methodfld_->setSensitive( doauto );
     eventgrp_->updateSensitivity( doauto );
@@ -300,6 +301,7 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     uiGroup* optiongrp = new uiGroup( grp, "Options");
     betweenseedsfld_ = new uiCheckBox( optiongrp,
 			tr("Between Seeds (coming soon)") );
+    betweenseedsfld_->display( false );
     betweenseedsfld_->activated.notify(
 			mCB(this,uiHorizonSetupGroup,seedModeChange) );
     snapfld_ = new uiCheckBox( optiongrp, tr("Snap to Event") );
@@ -319,8 +321,8 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 
     if ( is2d_ )
     {
-	failfld_ = new uiGenInput( grp, "If tracking fails",
-				    BoolInpSpec(true,"Extrapolate","Stop") );
+	failfld_ = new uiGenInput( grp, tr("If tracking fails"),
+			BoolInpSpec(true,tr("Extrapolate"),uiStrings::sStop()));
 	failfld_->attach( alignedBelow, methodfld_ );
 	failfld_->valuechanged.notify(
 		mCB(this,uiHorizonSetupGroup,seedModeChange) );
@@ -412,7 +414,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
     selectioncolfld_->attach( rightTo, parentcolfld_ );
 
-    lockcolfld_ = new uiColorInput( 
+    lockcolfld_ = new uiColorInput(
 	grp,uiColorInput::Setup(EM::Horizon3D::sDefaultLockColor())
 				.withdesc(false).lbltxt(tr("Locked")) );
     lockcolfld_->colorChanged.notify(
@@ -660,7 +662,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     }
 
     horadj_->setCompareMethod( getTrackingMethod() );
-    horadj_->removeOnFailure( failfld_ ? !failfld_->getBoolValue() : false );
+    horadj_->removeOnFailure( failfld_ ? !failfld_->getBoolValue() : true );
 
     return true;
 }
