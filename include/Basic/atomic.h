@@ -17,17 +17,12 @@ ________________________________________________________________________
 #include "plftypes.h"
 #include "odversion.h"
 
-#ifdef __cpp11__
-# define __STDATOMICS__
-# include <atomic>
+#ifdef __win__
+# define __WINATOMICS__
+# include <Windows.h>
+# include "thread.h"
 #else
-# ifdef __win__
-#  define __WINATOMICS__
-#  include <Windows.h>
-#  include "thread.h"
-# else
-#  define __GCCATOMICS__
-# endif
+# define __GCCATOMICS__
 #endif
 
 namespace Threads {
@@ -38,7 +33,7 @@ template <class T>
 mClass(Basic) Atomic
 {
 public:
-    		Atomic(T val=0);
+		Atomic(T val=0);
 		~Atomic();
 
 		operator T() const { return get(); }
@@ -55,7 +50,7 @@ public:
     inline T	operator--(int);
 
     inline T	exchange(T newval);
-    		/*!<Returns old value. */
+		/*!<Returns old value. */
 
 #if mODVersion < 700
     //Force developers to adapt code in od6
@@ -74,7 +69,7 @@ public:
 private:
 			Atomic(const Atomic<T>&)
 			{ }
-    
+
 #ifdef __STDATOMICS__
     std::atomic<T>	val_;
 #elif (defined __WINATOMICS__)
@@ -150,7 +145,7 @@ mClass(Basic) AtomicPointer
 {
 public:
     inline	AtomicPointer(T* newptr = 0);
-    
+
     inline bool	setIfEqual(const T* curptr, T* newptr);
     /*!<Sets the 'ptr_' only if its pointer is identical to the pointer in
        'curptr'.
@@ -164,25 +159,25 @@ public:
 
     inline T*	setToNull();
     /*!<Returns the last value of the ptr. */
-    
+
     T*		exchange(T* newptr);
     //*!<\returns old value
-    
+
     inline	operator T*() const;
     inline T*	operator->();
     inline const T* operator->() const;
-    
+
     inline T*	operator+=(int);
     inline T*	operator-=(int);
     inline T*	operator++();
     inline T*	operator--();
     inline T*	operator++(int);
     inline T*	operator--(int);
-    
+
 private:
     inline	AtomicPointer(const AtomicPointer<T>&)
     { }
-    
+
     Atomic<mAtomicPointerType>	ptr_;
 
 public:
@@ -222,13 +217,13 @@ public:
 
 protected:
     AtomicPointer<const void>	lockingthread_;
-    				/*!<0 if unlocked, otherwise set to locking
+				/*!<0 if unlocked, otherwise set to locking
 				      thread */
     int				count_;
     bool			recursive_;
 
 public:
-    int				count() const 	{ return count_; }
+    int				count() const	{ return count_; }
 				/*!<Only for debugging.  */
 };
 
@@ -325,12 +320,12 @@ template <class T> inline
 Atomic<T>::Atomic( T val )
     : val_( val )
 {}
-    
-    
+
+
 template <class T> inline
 Atomic<T>::~Atomic<T>()
 {}
-    
+
 
 template <class T> inline
 T Atomic<T>::get() const
@@ -338,7 +333,7 @@ T Atomic<T>::get() const
     return val_;
 }
 
-  
+
 template <class T> inline
 T Atomic<T>::operator=( T val )
 {
@@ -535,7 +530,7 @@ bool Atomic<T>::setIfValueIs(T curval, T newval, T* actualvalptr )
     if ( res )
         (*valptr_) = newval;
     else if ( actualvalptr ) *actualvalptr = (*valptr_);
-    
+
     return res;
 }
 
@@ -549,66 +544,66 @@ Atomic<long long>::Atomic( long long val )
     valptr_ = &values_[0];
     while ( ((long long) valptr_) % 64  )
 		valptr_++;
-    
+
     *valptr_ = val;
 }
 
-	 
+
 template <> inline
 bool Atomic<long long>::setIfValueIs(long long curval, long long newval,
 				     long long* actualvalptr )
 {
     const long long prevval =
-    	InterlockedCompareExchange64(valptr_,newval,curval);
+	InterlockedCompareExchange64(valptr_,newval,curval);
     if ( prevval==curval )
 	return true;
     if ( actualvalptr ) *actualvalptr = prevval;
-    return false; 
+    return false;
 }
-	 
-	 
+
+
 template <> inline
 long long Atomic<long long>::operator += (long long b)
 {
     return InterlockedAdd64( valptr_, b );
 }
-	 
-	 
+
+
 template <> inline
 long long Atomic<long long>::operator -= (long long b)
 {
     return InterlockedAdd64( valptr_, -b );
 }
-	 
-	 
+
+
 template <> inline
 long long Atomic<long long>::operator ++()
 {
     return InterlockedIncrement64( valptr_ );
 }
-	 
-	 
+
+
 template <> inline
 long long Atomic<long long>::operator -- ()
 {
     return InterlockedDecrement64( valptr_ );
 }
-	 
-	 
+
+
 template <> inline
 long long Atomic<long long>::operator ++(int)
 {
     return InterlockedIncrement64( valptr_ )-1;
 }
-	 
-	 
+
+
 template <> inline
 long long Atomic<long long>::exchange(long long newval)
 {
     return InterlockedExchange64( valptr_, newval );
 }
-	 
-	 
+
+
 template <> inline
 long long Atomic<long long>::operator -- (int)
 {
@@ -625,66 +620,66 @@ Atomic<int>::Atomic( int val )
     valptr_ = &values_[0];
     while ( ((int) valptr_) % 32  )
 		valptr_++;
-    
+
     *valptr_ = val;
 }
-	 
+
 
 template <> inline
 bool Atomic<int>::setIfValueIs( int curval, int newval, int* actualvalptr )
 {
     const int prevval =
-    	InterlockedCompareExchange((volatile long*) valptr_,newval,curval);
+	InterlockedCompareExchange((volatile long*) valptr_,newval,curval);
     if ( prevval==curval )
         return true;
     if ( actualvalptr ) *actualvalptr = prevval;
 
     return false;
 }
-	 
-	 
+
+
 template <> inline
 int Atomic<int>::operator += (int b)
 {
     return InterlockedExchangeAdd( (volatile long*) valptr_, b ) + b;
 }
-	 
-	 
+
+
 template <> inline
 int Atomic<int>::operator -= (int b)
 {
     return InterlockedExchangeAdd( (volatile long*) valptr_, -b ) -b;
 }
-	 
-	 
+
+
 template <> inline
 int Atomic<int>::operator ++()
 {
     return InterlockedIncrement( (volatile long*) valptr_ );
 }
-	 
-	 
+
+
 template <> inline
 int Atomic<int>::operator -- ()
 {
     return InterlockedDecrement( (volatile long*) valptr_ );
 }
-	 
-	 
+
+
 template <> inline
 int Atomic<int>::operator ++(int)
 {
     return InterlockedIncrement( (volatile long*) valptr_ )-1;
 }
-	 
-	 
+
+
 template <> inline
 int Atomic<int>::exchange(int newval)
 {
     return InterlockedExchange( (volatile long*) valptr_, newval );
 }
-	 
-	 
+
+
 template <> inline
 int Atomic<int>::operator -- (int)
 {
@@ -699,7 +694,7 @@ Atomic<long>::Atomic( long val )
     valptr_ = &values_[0];
     while ( ((long long) valptr_) % 32  )
 		valptr_++;
-    
+
     *valptr_ = val;
 }
 
@@ -795,7 +790,7 @@ T* AtomicPointer<T>::setToNull()
     mAtomicPointerType oldptr = (mAtomicPointerType) ptr_.get();
     while ( oldptr && !ptr_.setIfValueIs( oldptr, 0, &oldptr ) )
     {}
-    
+
     return (T*) oldptr;
 }
 
