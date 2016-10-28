@@ -551,7 +551,7 @@
     <message numerus="yes">
         <location line="+4"/>
         <source>Probe</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Probe</numerusform>
             <numerusform>Probes</numerusform>
         </translation>
