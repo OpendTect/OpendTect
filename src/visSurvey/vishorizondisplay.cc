@@ -863,11 +863,12 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     TypeSet<DataPointSet::DataRow> pts;
     ObjectSet<DataColDef> defs;
     DataPointSet positions( pts, defs, false, true );
-    getRandomPos( positions, 0 );
 
     const DataColDef zvalsdef( sKeyZValues() );
     if ( positions.dataSet().findColDef(zvalsdef,PosVecDataSet::NameExact)==-1 )
 	positions.dataSet().add( new DataColDef(zvalsdef) );
+
+    getRandomPos( positions, 0 );
 
     if ( !positions.size() ) return;
 
