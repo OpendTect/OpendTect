@@ -317,6 +317,17 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     methodfld_->attach( alignedBelow, modeselgrp_ );
     methodfld_->attach( ensureBelow, sep );
 
+    if ( is2d_ )
+    {
+	failfld_ = new uiGenInput( grp, "If tracking fails",
+				    BoolInpSpec(true,"Extrapolate","Stop") );
+	failfld_->attach( alignedBelow, methodfld_ );
+	failfld_->valuechanged.notify(
+		mCB(this,uiHorizonSetupGroup,seedModeChange) );
+    }
+    else
+	failfld_ = 0;
+
     return grp;
 }
 
@@ -541,8 +552,12 @@ void uiHorizonSetupGroup::initModeGroup()
     snapfld_->setChecked( mode_==EMSeedPicker::DrawAndSnap );
 
     if ( horadj_ )
+    {
 	methodfld_->setValue(
 		horadj_->getCompareMethod()==EventTracker::SeedTrace ? 0 : 1 );
+	if ( failfld_ )
+	    failfld_->setValue( !horadj_->removesOnFailure() );
+    }
 
     updateButtonSensitivity();
 }
@@ -645,6 +660,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     }
 
     horadj_->setCompareMethod( getTrackingMethod() );
+    horadj_->removeOnFailure( failfld_ ? !failfld_->getBoolValue() : false );
 
     return true;
 }
