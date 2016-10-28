@@ -58,7 +58,7 @@ public:
 					    const visBase::PointSet* lockedpts,
 					    const od_int64 size);
     od_int64	    totalNr() const { return totalnrcoords_; }
-    const TypeSet<int>&   getResult()	{ return pntsidx_; }	    
+    const TypeSet<int>&   getResult()	{ return pntsidx_; }
 
 protected:
     bool	    doWork(od_int64 start, od_int64 stop, int);
@@ -73,7 +73,7 @@ private:
 };
 
 
-LockedPointsCalculator::LockedPointsCalculator( 
+LockedPointsCalculator::LockedPointsCalculator(
     const visSurvey::SurveyObject* obj,	const visBase::PointSet* lockedpts,
     const od_int64 size )
     : totalnrcoords_( size )
@@ -86,7 +86,7 @@ bool LockedPointsCalculator::doWork( od_int64 start, od_int64 stop, int )
 {
      if ( !obj_ || !lockedpts_ )
 	return false;
-     
+
      TypeSet<int> pntsidx;
      for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
      {
@@ -105,7 +105,7 @@ bool LockedPointsCalculator::doWork( od_int64 start, od_int64 stop, int )
 
 class HorizonPathIntersector : public ParallelTask
 {
-public:	
+public:
 		HorizonPathIntersector(const HorizonDisplay& hd,
 				       const TrcKeyPath& path,
 				       const TypeSet<Coord>& crds,
@@ -1277,7 +1277,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     }
 
     emchangedata_.clearData();
-    updateSingleColor();   
+    updateSingleColor();
 }
 
 
@@ -1317,11 +1317,11 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 	// if it is unlocked, we need set all lockedpts to unlock.
 	// if it is locked, we do nothing
 	mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
-	const bool locked = hor3d ? hor3d->hasLockedNodes() : 0;
-	if ( locked && !displayonlyatsections_ ) 
+	const bool locked = hor3d ? hor3d->hasLockedNodes() : false;
+	if ( locked && !displayonlyatsections_ )
 	{
 	    updateLockedPointsColor();
-	    return; 
+	    return;
 	}
 
 	if ( !locked )
@@ -1337,7 +1337,7 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 		sectionlockedpts_->removeAllPrimitiveSets();
 	    }
 	}
-	else 
+	else
 	{
 	    calculateLockedPoints(); // re-compute locked points
 	    hasmoved.trigger(); // display locked points on section
@@ -1362,7 +1362,7 @@ void HorizonDisplay::updateLockedPointsColor()
 
     if ( sectionlockedpts_ && sectionlockedpts_->getMaterial() )
     {
-	sectionlockedpts_->getMaterial()->setColor( 
+	sectionlockedpts_->getMaterial()->setColor(
 	    hor3d->getLockColor() );
     }
 }
@@ -2043,9 +2043,7 @@ void HorizonDisplay::updateSectionSeeds(
 
     // handle locked points on section
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
-    if ( !lockedpts_ || 
-	 lockedpts_->size()<=0 || 
-	 !displayonlyatsections_ )
+    if ( !lockedpts_ || lockedpts_->size()<=0 || !displayonlyatsections_ )
 	return;
 
     if ( !sectionlockedpts_ )
@@ -2079,23 +2077,23 @@ void HorizonDisplay::updateSectionSeeds(
     TypeSet<int> pidxs;
     for ( int idx=0; idx<sectionpntindexes.size(); idx++ )
     {
-	sectionlockedpts_->addPoint( 
+	sectionlockedpts_->addPoint(
 	    lockedpts_->getPoint(sectionpntindexes[idx]) );
 	pidxs += idx;
     }
-    
-    Geometry::PrimitiveSet* pointsetps = 
+
+    Geometry::PrimitiveSet* pointsetps =
 	Geometry::IndexedPrimitiveSet::create(true);
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(),pidxs.size() );
     sectionlockedpts_->addPrimitiveSet( pointsetps );
 
-    if ( hor3d) 
+    if ( hor3d)
 	sectionlockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
 
     lockedpts_->turnOn( false );
 
-    sectionlockedpts_->turnOn( showlock_ && hor3d->hasLockedNodes() && 
+    sectionlockedpts_->turnOn( showlock_ && hor3d->hasLockedNodes() &&
 	displayonlyatsections_ );
 }
 
@@ -2226,7 +2224,8 @@ void HorizonDisplay::showLocked( bool yn )
 void HorizonDisplay::calculateLockedPoints()
 {
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
-    const Array2D<char>* locked = hor3d ? hor3d->getLockedNodes() : 0;
+    const Array2D<char>* lockednodes = hor3d ? hor3d->getLockedNodes() : 0;
+    if ( !lockednodes ) return;
 
     if ( !lockedpts_ )
     {
@@ -2235,7 +2234,7 @@ void HorizonDisplay::calculateLockedPoints()
 	addChild( lockedpts_->osgNode() );
 	lockedpts_->setDisplayTransformation( transformation_ );
     }
-    else    
+    else
     {
 	lockedpts_->removeAllPoints();
 	lockedpts_->removeAllPrimitiveSets();
@@ -2247,9 +2246,9 @@ void HorizonDisplay::calculateLockedPoints()
     const TrcKeySampling tks = hor3d->getTrackingSampling();
     const EM::SectionID sid = hor3d->sectionID( 0 );
     TypeSet<int> pidxs;
-    for ( od_int64 gidx=0; gidx<locked->info().getTotalSz(); gidx++ )
+    for ( od_int64 gidx=0; gidx<lockednodes->info().getTotalSz(); gidx++ )
     {
-	if ( locked->getData()[gidx] == '0' )
+	if ( lockednodes->getData()[gidx] == '0' )
 	    continue;
 
 	const TrcKey tk = tks.atIndex( gidx );
@@ -2271,9 +2270,9 @@ void HorizonDisplay::calculateLockedPoints()
 
 
 bool HorizonDisplay::lockedShown() const
-{ 
+{
     const bool lockedshow = lockedpts_ ? lockedpts_->isOn() : false;
-    const bool sectionlockedshow = 
+    const bool sectionlockedshow =
 	sectionlockedpts_ ? sectionlockedpts_->isOn() : false;
     return lockedshow || sectionlockedshow;
 }
