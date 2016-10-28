@@ -324,7 +324,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+188"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+187"/>
         <source>2D Plane</source>
         <translation>
             <numerusform>2D Plane</numerusform>
@@ -413,7 +413,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+22"/>
+        <location line="+23"/>
         <source>Error</source>
         <translation>
             <numerusform>Error</numerusform>
@@ -453,7 +453,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+11"/>
+        <location line="+12"/>
         <source>Layer</source>
         <translation>
             <numerusform>Layer</numerusform>
@@ -549,7 +549,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+8"/>
+        <location line="+4"/>
+        <source>Probe</source>
+        <translation type="unfinished">
+            <numerusform>Probe</numerusform>
+            <numerusform>Probes</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+5"/>
         <source>Problem</source>
         <translation>
             <numerusform>Problem</numerusform>
@@ -653,7 +661,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Unit</source>
         <translation>
             <numerusform>Unit</numerusform>
