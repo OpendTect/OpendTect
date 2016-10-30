@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "emsurfaceauxdata.h"
 #include "emundo.h"
 #include "executor.h"
+#include "hiddenparam.h"
 #include "horizonadjuster.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
@@ -80,6 +81,8 @@ uiBaseHorizonSetupGroup::uiBaseHorizonSetupGroup( uiParent* p,
     : uiHorizonSetupGroup( p, typestr )
 {}
 
+
+static HiddenParam<uiHorizonSetupGroup,uiGenInput*> failfld_(0);
 
 uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     : uiSetupGroup(p,"")
@@ -188,6 +191,8 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 //    betweenseedsfld_->setSensitive( modeselgrp_->selectedId()==0 );
     betweenseedsfld_->setSensitive( false ); // for time being
     snapfld_->setSensitive( modeselgrp_->selectedId()==1 );
+    uiGenInput* failfld = failfld_.getParam( this );
+    if ( failfld ) failfld->setSensitive( modeselgrp_->selectedId()==0 );
 
     methodfld_->setSensitive( doauto );
     eventgrp_->updateSensitivity( doauto );
@@ -299,7 +304,8 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 
     uiGroup* optiongrp = new uiGroup( grp, "Options");
     betweenseedsfld_ = new uiCheckBox( optiongrp,
-			tr("Between Seeds (coming soon)") );
+			tr("Between Seeds") );
+    betweenseedsfld_->display( false );
     betweenseedsfld_->activated.notify(
 			mCB(this,uiHorizonSetupGroup,seedModeChange) );
     snapfld_ = new uiCheckBox( optiongrp, tr("Snap to Event") );
@@ -316,6 +322,18 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 			mCB(this,uiHorizonSetupGroup,seedModeChange) );
     methodfld_->attach( alignedBelow, modeselgrp_ );
     methodfld_->attach( ensureBelow, sep );
+
+    if ( is2d_ )
+    {
+	uiGenInput* failfld = new uiGenInput( grp, tr("If tracking fails"),
+			BoolInpSpec(true,tr("Extrapolate"),uiStrings::sStop()));
+	failfld->attach( alignedBelow, methodfld_ );
+	failfld->valuechanged.notify(
+		mCB(this,uiHorizonSetupGroup,seedModeChange) );
+	failfld_.setParam( this, failfld );
+    }
+    else
+	failfld_.setParam( this, 0 );
 
     return grp;
 }
@@ -401,7 +419,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
     selectioncolfld_->attach( rightTo, parentcolfld_ );
 
-    lockcolfld_ = new uiColorInput( 
+    lockcolfld_ = new uiColorInput(
 	grp,uiColorInput::Setup(EM::Horizon3D::sDefaultLockColor())
 				.withdesc(false).lbltxt(tr("Locked")) );
     lockcolfld_->colorChanged.notify(
@@ -540,8 +558,13 @@ void uiHorizonSetupGroup::initModeGroup()
     snapfld_->setChecked( mode_==EMSeedPicker::DrawAndSnap );
 
     if ( horadj_ )
+    {
 	methodfld_->setValue(
 		horadj_->getCompareMethod()==EventTracker::SeedTrace ? 0 : 1 );
+	uiGenInput* failfld = failfld_.getParam( this );
+	if ( failfld )
+	    failfld->setValue( !horadj_->removesOnFailure() );
+    }
 
     updateButtonSensitivity();
 }
@@ -644,6 +667,8 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     }
 
     horadj_->setCompareMethod( getTrackingMethod() );
+    uiGenInput* failfld = failfld_.getParam( this );
+    horadj_->removeOnFailure( failfld ? !failfld->getBoolValue() : true );
 
     return true;
 }
