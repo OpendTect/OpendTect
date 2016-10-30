@@ -98,9 +98,9 @@ uiODMenuMgr::~uiODMenuMgr()
     delete appl_.removeToolBar( dtecttb_ );
     delete appl_.removeToolBar( viewtb_ );
     delete appl_.removeToolBar( mantb_ );
-    uiToolBar* plugintb = plugintb_.getParam( this );
-    if ( plugintb )
+    if ( plugintb_.hasParam(this) )
     {
+	uiToolBar* plugintb = plugintb_.getParam( this );
 	plugintb_.removeParam( this );
 	delete appl_.removeToolBar( plugintb );
     }
@@ -1519,8 +1519,8 @@ void uiODMenuMgr::showLogFile()
 
 uiToolBar* uiODMenuMgr::pluginTB()
 {
-    uiToolBar* plugintb = plugintb_.getParam( this );
-    if ( !plugintb )
+    uiToolBar* plugintb = 0;
+    if ( !plugintb_.hasParam(this) )
     {
 	plugintb = new uiToolBar( &appl_, tr("Third-party Plugins") );
 	plugintb_.setParam( this, plugintb );
@@ -1548,9 +1548,11 @@ void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 {
     dtecttb_->clear();
     mantb_->clear();
-    uiToolBar* plugintb = plugintb_.getParam( this );
-    if ( plugintb )
+    if ( plugintb_.hasParam(this) )
+    {
+	uiToolBar* plugintb = plugintb_.getParam( this );
 	plugintb->clear();
+    }
 
     ObjectSet<uiToolBar>* customtbs = customtbs_.getParam( this );
     for ( int idx=0; idx<customtbs->size(); idx++ )
