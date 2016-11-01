@@ -41,7 +41,6 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uiwelllogdisplay.h"
 
-
 uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 					  const BufferStringSet* welllnms,
 					  const BufferStringSet* lognms )
@@ -562,7 +561,7 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
 				     toUiString("'%1'").arg(toUiString(
 				     log.name())),uiStrings::sLog().toLower()));
     setCaption( dlgcaption );
-    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true); ts.defrowlbl(true);
+    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true); 
     table_ = new uiTable( this, ts, "Well log table" );
     table_->setSelectionMode( uiTable::Multi );
     table_->setSelectionBehavior( uiTable::SelectRows );
@@ -685,8 +684,9 @@ void uiWellLogEditor::rowDelCB( CallBacker* )
 
 void uiWellLogEditor::rowInsertCB( CallBacker* cb )
 {
+    table_->setDefaultRowLabels();
     int rownr = table_->currentRow();
-    
+
     float prevmdval = 0.f;
     float nextmdval = 0.f;
 	
@@ -697,6 +697,8 @@ void uiWellLogEditor::rowInsertCB( CallBacker* cb )
 	nextmdval = log_.dah( log_.pointIDFor(rownr) );
 
     log_.setValueAt( (prevmdval+nextmdval)/2, 0 );
+    //Well::Log::PointID pid  = log_.pointIDFor(log_.indexOf((prevmdval+nextmdval)/2));
+    //log_.addValue(
 
     valueChanged.trigger();
 }
