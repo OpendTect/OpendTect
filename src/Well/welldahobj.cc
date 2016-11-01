@@ -439,6 +439,8 @@ Well::DahObj::PointID Well::DahObj::doIns( ZType dh, ValueType val,
 	{
 	    if ( ascendingvalonly && val >= vals[0] )
 		return id;
+	    
+	    insidx = 0;
 	}
 	else
 	{
@@ -451,6 +453,7 @@ Well::DahObj::PointID Well::DahObj::doIns( ZType dh, ValueType val,
 
 	    insidx = insertidx + 1;
 	}
+
 	id = gtNewPointID();
 	dahs_.insert( insidx, dh );
 	vals.insert( insidx, val );
