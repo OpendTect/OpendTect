@@ -562,7 +562,7 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
 				     toUiString("'%1'").arg(toUiString(
 				     log.name())),uiStrings::sLog().toLower()));
     setCaption( dlgcaption );
-    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true); ts.defrowlbl(true);
+    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true); 
     table_ = new uiTable( this, ts, "Well log table" );
     table_->setSelectionMode( uiTable::Multi );
     table_->setSelectionBehavior( uiTable::SelectRows );
@@ -680,6 +680,7 @@ void uiWellLogEditor::rowDelCB( CallBacker* )
 
 void uiWellLogEditor::rowInsertCB( CallBacker* )
 {
+    table_->setDefaultRowLabels();
     int rownr = table_->currentRow();
     float prevmdval = 0.f;
     float nextmdval = 0.f;
@@ -689,9 +690,8 @@ void uiWellLogEditor::rowInsertCB( CallBacker* )
 	
     if ( rownr < log_.size()-1 )
 	nextmdval = log_.dah( rownr );
-
-    log_.insertAtDah( (prevmdval+nextmdval)/2, 0.f );
     
+    log_.insertAtDah( (prevmdval+nextmdval)/2, 0.f );
     valueChanged.trigger();
 }
 

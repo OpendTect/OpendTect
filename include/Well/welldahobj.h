@@ -34,6 +34,8 @@ public:
 			DahObj( const DahObj& d )
 			    : ::NamedObject(d.name())
 			    , dah_(d.dah_)		{}
+			~DahObj()
+			{ dah_.erase(); }
 
     inline int		size() const			{ return dah_.size(); }
     inline float	dah(int idx) const		{ return dah_[idx]; }
@@ -81,6 +83,7 @@ protected:
 	if ( ascendingvalonly && v >= vals[0] )\
 	    return false;\
 	dah_.insert( 0, dh ); vals.insert( 0, v );\
+	return true; \
     }\
     const int insertidx = indexOf( dh );\
     if ( insertidx<0 ) return false;\
