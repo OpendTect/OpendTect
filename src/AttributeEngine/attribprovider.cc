@@ -123,7 +123,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     Provider* newprov = PF().create( desc );
     if ( !newprov )
     {
-	FixedString errmsg = mFromUiStringTodo(desc.errMsg());
+	const BufferString errmsg = mFromUiStringTodo(desc.errMsg());
 	if ( errmsg )
 	{
 	    if ( errmsg==DescSet::storedIDErrStr() && desc.isStored() )
