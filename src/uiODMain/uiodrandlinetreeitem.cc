@@ -535,6 +535,9 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==insertnodemnuitem_.id )
     {
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+	if ( scene ) scene->selectPosModeManipObj( displayid_ );
+
 	rtd->addNode( panelidx+1 );
 	menu->setIsHandled( true );
     }
@@ -543,6 +546,9 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	int nodeidx = insertnodemnuitem_.itemIndex( mnuid );
 	if ( panelidx >= 0 )
 	    nodeidx += panelidx==0 ? panelidx : panelidx+1;
+
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+	if ( scene ) scene->selectPosModeManipObj( displayid_ );
 
 	rtd->addNode( nodeidx );
 	menu->setIsHandled( true );

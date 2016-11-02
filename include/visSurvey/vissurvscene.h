@@ -279,6 +279,7 @@ public:
 
     void			setMoreObjectsToDoHint(bool yn);
     bool			getMoreObjectsToDoHint() const;
+    void			selectPosModeManipObj(int selid);
 };
 
 } // namespace visSurvey

@@ -749,6 +749,35 @@ void Scene::togglePosModeManipObjSel()
 }
 
 
+void Scene::selectPosModeManipObj( int selid )
+{
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    if ( selectedids.isPresent(selid) )
+	return;
+
+    for ( int idx=size()-1; idx>=0; idx-- )
+    {
+	mGetPosModeManipObjInfo( idx, dataobj, so, canmoveposmodemanip );
+	if ( selid == dataobj->id() )
+	{
+	    if ( canmoveposmodemanip )
+	    {
+		if ( posmodemanipdeselobjid_ < 0 )
+		{
+		    hoveredposmodemanipobjids_ -= selid;
+		    hoveredposmodemanipobjids_ += selid;
+		    togglePosModeManipObjSel();
+		}
+		else
+		    visBase::DM().selMan().select( selid );
+	    }
+
+	    return;
+	}
+    }
+}
+
+
 void Scene::keyPressCB( CallBacker* cb )
 {
     STM().setCurrentScene( this );
