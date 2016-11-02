@@ -213,7 +213,9 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 	PosInfo::CubeData cubedata;
 	if ( reader->get3DGeometryInfo(cubedata) )
 	{
-	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+	    cubedata.limitTo( tkzs_.hsamp_ );
+	    if ( !cubedata.isFullyRectAndReg() )
+		dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
 	}
     }
 
@@ -737,7 +739,11 @@ bool SequentialReader::init()
 
     PosInfo::CubeData cubedata;
     if ( rdr_.get3DGeometryInfo(cubedata) )
-	dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+    {
+	cubedata.limitTo( tkzs_.hsamp_ );
+	if ( !cubedata.isFullyRectAndReg() )
+	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+    }
 
     initialized_ = true;
     msg_ = uiStrings::phrReading( tr(" %1 \'%2\'").arg( uiStrings::sVolume() )
