@@ -387,8 +387,8 @@ bool VolumeRenderScalarField::isOn() const
 
 
 void VolumeRenderScalarField::setScalarField( int attr,
-				  const Array3D<float>* sc, bool mine,
-				  const TrcKeyZSampling& tkzs, TaskRunner* tr )
+				 const Array3D<float>* sc, bool mine,
+				 const TrcKeyZSampling& tkzs, TaskRunner* tskr )
 {
     mCheckAttribStore( attr );
 
@@ -440,13 +440,13 @@ void VolumeRenderScalarField::setScalarField( int attr,
     }
 
     if ( oldmatkzs == getMultiAttribTrcKeyZSampling() )
-	updateResizeCache( attr, tr );
+	updateResizeCache( attr, tskr );
     else
     {
 	for ( int attridx=0; attridx<attribs_.size(); attridx++ )
 	{
 	    attribs_[attridx]->clearIndexCache();
-	    updateResizeCache( attridx, tr );
+	    updateResizeCache( attridx, tskr );
 	}
 
 	updateVolumeSlicing();
@@ -514,7 +514,7 @@ protected:
 };
 
 
-void VolumeRenderScalarField::updateResizeCache( int attr, TaskRunner* tr )
+void VolumeRenderScalarField::updateResizeCache( int attr, TaskRunner* tskr )
 {
     mCheckAttribStore( attr );
 
@@ -540,9 +540,9 @@ void VolumeRenderScalarField::updateResizeCache( int attr, TaskRunner* tr )
 
     //TODO: if 8-bit data & some flags, use data itself
     if ( attribs_[attr]->mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
-	clipData( attr, tr );
+	clipData( attr, tskr );
 
-    makeIndices( attr, tr );
+    makeIndices( attr, tskr );
 }
 
 
@@ -573,7 +573,7 @@ const ColTab::Mapper& VolumeRenderScalarField::getColTabMapper( int attr )
 
 
 void VolumeRenderScalarField::setColTabMapperSetup( int attr,
-				const ColTab::MapperSetup& ms, TaskRunner* tr )
+			    const ColTab::MapperSetup& ms, TaskRunner* tskr )
 {
     mCheckAttribStore( attr );
 
@@ -591,9 +591,9 @@ void VolumeRenderScalarField::setColTabMapperSetup( int attr,
 	attribs_[attr]->mapper_.setup_.triggerRangeChange();*/
 
     if ( attribs_[attr]->mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
-	clipData( attr, tr );
+	clipData( attr, tskr );
 
-    makeIndices( attr, tr );
+    makeIndices( attr, tskr );
 }
 
 
@@ -603,7 +603,7 @@ const TypeSet<float>& VolumeRenderScalarField::getHistogram( int attr ) const
 }
 
 
-void VolumeRenderScalarField::clipData( int attr, TaskRunner* tr )
+void VolumeRenderScalarField::clipData( int attr, TaskRunner* tskr )
 {
     mCheckAttribStore( attr );
 
@@ -611,7 +611,8 @@ void VolumeRenderScalarField::clipData( int attr, TaskRunner* tr )
 	return;
 
     const od_int64 totalsz = getMultiAttribTrcKeyZSampling().totalNr();
-    attribs_[attr]->mapper_.setData( attribs_[attr]->resizecache_, totalsz, tr);
+    attribs_[attr]->mapper_.setData( attribs_[attr]->resizecache_, totalsz, 
+									tskr );
     attribs_[attr]->mapper_.setup_.triggerRangeChange();
 }
 
@@ -684,7 +685,7 @@ void VolumeRenderScalarField::setDefaultRGBAValue( int channel )
 }
 
 
-void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tr )
+void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tskr )
 {
     mCheckAttribStore( attr );
 
@@ -746,7 +747,7 @@ void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tr )
 			    totalsz, mNrColors-1, *attribs_[attr]->resizecache_,
 			    idxptr, idxstep, udfptr, idxstep );
 
-    if ( tr ? !tr->execute(indexer) : !indexer.execute() )
+    if ( tskr ? !tskr->execute(indexer) : !indexer.execute() )
 	return;
 
     int max = 0;

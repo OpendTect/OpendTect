@@ -102,6 +102,10 @@ enum WinStateType { NoState=0, Existent, Inexistent, Accessible, Inaccessible };
 mExpClass(uiCmdDriver) CmdDriver : public CallBacker
 { mODTextTranslationClass(CmdDriver)
 public:
+    
+    enum FlowStackTag { IfTag, ElseTag, DefTag, DoTag, DoWhileTag, ForTag };
+		    mDeclareEnumUtils(FlowStackTag);
+
     friend class	Command;
     friend class	ExprInterpreter;
     friend class	Function;

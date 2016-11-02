@@ -352,13 +352,15 @@ void CmdDriver::preProcSubstitutionErrMsg( const int nrsubst, const int linenr,
 { \
     if ( !stack.isEmpty() ) \
     { \
-	errmsg_.append(sCheckFlowStackStr()).append(toUiString(" ")); \
+	errmsg_.append(sCheckFlowStackStr()).append(::toUiString(" ")); \
 	errmsg_.append( \
-		   stack[0]==DefTag ? toUiString("a procedure def-inition") : \
-		   stack[0]==ForTag ? toUiString("a for-loop") : 	   \
-		   stack[0]==DoWhileTag ? toUiString("a while-loop") : 	     \
-		   stack[0]==DoTag ? toUiString("an until-loop") : \
-				     toUiString("an if-structure") ); \
+		stack[0]==DefTag \
+				  ? ::toUiString("a procedure def-inition") : \
+		stack[0]==ForTag ? ::toUiString("a for-loop") : \
+		stack[0]==DoWhileTag ? \
+					    ::toUiString("a while-loop") :   \
+		stack[0]==DoTag ? ::toUiString("an until-loop") : \
+				     ::toUiString("an if-structure") ); \
 	return false; \
     } \
 }
@@ -379,7 +381,6 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
     int linenr = 4;		// Header has four lines
     int extralines = 0;
 
-    enum FlowStackTag { IfTag, ElseTag, DefTag, DoTag, DoWhileTag, ForTag };
     TypeSet<int> flowstack, actidxstack;
 
     BufferString line, actseq, action;
@@ -460,6 +461,22 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
     }
 
     mCheckFlowStack( flowstack );
+  
+/*{ \
+    if ( !flowstack.isEmpty() ) \
+    { \
+	errmsg_.append(sCheckFlowStackStr()).append(::toUiString(" ")); 
+	errmsg_.append( 
+		flowstack[0]==DefTag 
+				    ? ::toUiString("a procedure def-inition") : 
+		flowstack[0]==ForTag ? ::toUiString("a for-loop") : 
+		flowstack[0]==DoWhileTag ? 
+					    ::toUiString("a while-loop") :   
+		flowstack[0]==DoTag ? ::toUiString("an until-loop") : 
+				     ::toUiString("an if-structure") ); 
+	return false; \
+    } 
+} */
     errmsg_.setEmpty();
     return true;
 }
