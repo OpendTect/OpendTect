@@ -203,6 +203,8 @@ public:
     void			setMoreObjectsToDoHint(bool yn);
     bool			getMoreObjectsToDoHint() const;
 
+    void			selectPosModeManipObj(int selid);
+
     void			fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
