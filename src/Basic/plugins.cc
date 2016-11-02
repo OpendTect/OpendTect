@@ -91,7 +91,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 	handle_ = dlopen( lnm, RTLD_GLOBAL | RTLD_NOW );
 
 	if ( !handle_ )
-	    errmsg_ = BufferString( dlerror() );
+	    errmsg_ = toUiString( BufferString(dlerror()) );
 
 	dlerror();    /* Clear any existing error */
     }
