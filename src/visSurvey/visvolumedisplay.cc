@@ -226,7 +226,7 @@ void VolumeDisplay::updateIsoSurfColor()
 }
 
 
-bool VolumeDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool VolumeDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* trunnr )
 {
     if ( zat == datatransform_ )
 	return true;
@@ -499,14 +499,14 @@ float VolumeDisplay::defaultIsoValue() const
 }
 
 
-int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
+int VolumeDisplay::addIsoSurface( TaskRunner* trunnr, bool updateisosurface )
 {
     mVisMCSurf* isosurface = mVisMCSurf::create();
     isosurface->ref();
     isosurface->setRightHandSystem( righthandsystem_ );
     mDeclareAndTryAlloc( RefMan<MarchingCubesSurface>, surface,
 			 MarchingCubesSurface() );
-    isosurface->setSurface( *surface, tr );
+    isosurface->setSurface( *surface, trunnr );
     isosurface->setName( toUiString("Iso surface") );
 
     isosurfaces_ += isosurface;
@@ -515,7 +515,7 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
     isosurfsettings_ += setting;
 
     if ( updateisosurface )
-	updateIsoSurface( isosurfaces_.size()-1, tr );
+	updateIsoSurface( isosurfaces_.size()-1, trunnr );
 
     //add before the volume transform
     addChild( isosurface->osgNode() );
@@ -652,14 +652,14 @@ float VolumeDisplay::isoValue( const mVisMCSurf* mcd ) const
 
 
 void VolumeDisplay::setIsoValue( const mVisMCSurf* mcd, float nv,
-				 TaskRunner* tr )
+				 TaskRunner* trunnr )
 {
     const int idx = isosurfaces_.indexOf( mcd );
     if ( idx<0 )
 	return;
 
     isosurfsettings_[idx].isovalue_ = nv;
-    updateIsoSurface( idx, tr );
+    updateIsoSurface( idx, trunnr );
 }
 
 
@@ -731,7 +731,7 @@ void VolumeDisplay::setSeedsID( const mVisMCSurf* mcd, DBKey mid )
 }
 
 
-bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
+bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* trunnr )
 {
     // TODO: adapt to multi-attrib
     if ( idx<0 || idx>=isosurfaces_.size() || !attribs_[0]->cache_ ||
@@ -813,7 +813,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 	? isosurfsettings_[idx].isovalue_ : 0;
 
     isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0, newarr,
-						    threshold, tr );
+						    threshold, trunnr );
     return true;
 }
 
@@ -824,7 +824,7 @@ int VolumeDisplay::getIsoSurfaceIdx( const mVisMCSurf* mcd ) const
 }
 
 
-void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
+void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* trunnr )
 {
     // TODO:: adapt to multi-attrib
     const RegularSeisDataPack* cache = attribs_[0]->cache_;
@@ -893,18 +893,19 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 		}
 	    }
 
-	    isosurfaces_[idx]->getSurface()->setVolumeData(0,0,0,*newarr,0,tr);
+	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
+		    				*newarr, 0, trunnr);
 	}
 	else
 	{
-	    if ( !updateSeedBasedSurface( idx, tr ) )
+	    if ( !updateSeedBasedSurface( idx, trunnr ) )
 		return;
 	}
 
     }
 
     updateIsoSurfColor();
-    isosurfaces_[idx]->touch( false, tr );
+    isosurfaces_[idx]->touch( false, trunnr );
 }
 
 
@@ -1068,7 +1069,7 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( int attrib ) const
 
 
 bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
-				   TaskRunner* tr )
+				   TaskRunner* trunnr )
 {
     if ( !attribs_.validIdx(attrib) )
 	return false;
@@ -1077,7 +1078,7 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     RefMan<RegularSeisDataPack> regsdp =
         dpm.getAndCast<RegularSeisDataPack>(dpid);
 
-    const bool res = setDataVolume( attrib, regsdp, tr );
+    const bool res = setDataVolume( attrib, regsdp, trunnr );
     if ( !res )
     {
 	return false;
@@ -1090,7 +1091,7 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
 bool VolumeDisplay::setDataVolume( int attrib,
 				   const RegularSeisDataPack* attribdata,
-				   TaskRunner* tr )
+				   TaskRunner* trunnr )
 {
     if ( !attribs_.validIdx(attrib) || !attribdata || attribdata->isEmpty() )
 	return false;
@@ -1113,7 +1114,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 	tkzs.zsamp_ = getTrcKeyZSampling(true,true,0).zsamp_;
 	datatransformer_->setOutputRange( tkzs );
 
-	if ( !TaskRunner::execute( tr, *datatransformer_ ) )
+	if ( !TaskRunner::execute( trunnr, *datatransformer_ ) )
 	{
 	    pErrMsg( "Transform failed" );
 	    return false;
@@ -1130,7 +1131,8 @@ bool VolumeDisplay::setDataVolume( int attrib,
     }
 
     tkzs.hsamp_.survid_ = s3dgeom_->getSurvID();
-    scalarfield_->setScalarField( attrib, usedarray, !arrayismine, tkzs, tr );
+    scalarfield_->setScalarField( attrib, usedarray, !arrayismine, tkzs,
+	    			  trunnr );
 
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 
@@ -1270,7 +1272,7 @@ bool VolumeDisplay::allowsPicks() const
 }
 
 
-visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
+visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* trunnr ) const
 {
     VolumeDisplay* vd = new VolumeDisplay;
 
@@ -1279,7 +1281,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
     for ( int idx=0; idx<children.size(); idx++ )
 	vd->removeChild( children[idx] );
 
-    vd->setZAxisTransform( const_cast<ZAxisTransform*>(datatransform_), tr );
+    vd->setZAxisTransform( const_cast<ZAxisTransform*>(datatransform_), trunnr);
     for ( int idx=0; idx<slices_.size(); idx++ )
     {
 	const int sliceid = vd->addSlice( slices_[idx]->getDim() );
@@ -1305,11 +1307,11 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 	    vd->addAttrib();
 
 	vd->setSelSpecs( attrib, *attribs_[attrib]->as_ );
-	vd->setDataVolume( attrib, attribs_[attrib]->cache_, tr );
+	vd->setDataVolume( attrib, attribs_[attrib]->cache_, trunnr );
 	vd->setColTabMapperSetup( attrib,
-			    scalarfield_->getColTabMapper(attrib).setup_, tr );
+			scalarfield_->getColTabMapper(attrib).setup_, trunnr );
 	vd->setColTabSequence( attrib,
-			       *getChannels2RGBA()->getSequence(attrib), tr );
+			   *getChannels2RGBA()->getSequence(attrib), trunnr );
     }
 
     return vd;
@@ -1390,7 +1392,7 @@ bool VolumeDisplay::canSetColTabSequence() const
 
 
 void VolumeDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
-					TaskRunner* tr )
+					TaskRunner* tunnr )
 {
     if ( getChannels2RGBA() )
     {
@@ -1409,9 +1411,9 @@ const ColTab::Sequence* VolumeDisplay::getColTabSequence( int attrib ) const
 
 void VolumeDisplay::setColTabMapperSetup( int attrib,
 					  const ColTab::MapperSetup& ms,
-					  TaskRunner* tr )
+					  TaskRunner* trunnr )
 {
-    scalarfield_->setColTabMapperSetup( attrib, ms, tr );
+    scalarfield_->setColTabMapperSetup( attrib, ms, trunnr );
     updateIsoSurfColor();
 }
 
