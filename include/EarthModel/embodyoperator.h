@@ -52,7 +52,7 @@ public:
 			   Set two inputs and one Action before use it. */
 
     ImplicitBody*	createImplicitBody(const TypeSet<Coord3>& bodypts,
-					   TaskRunner* tr=0) const;
+					   TaskRunner* tskr=0) const;
 			/*<This is an independent function which creates an
 			   implicite body with position value -1,0,1 depends on
 			   the position is inside, on or outside the
@@ -81,7 +81,7 @@ public:
 
 protected:
 
-    ImplicitBody*	getOperandBody(bool body0,TaskRunner* tr) const;
+    ImplicitBody*	getOperandBody(bool body0,TaskRunner* tskr) const;
 
     DBKey		inputbody0_;
     BodyOperator*	inputbodyop0_;

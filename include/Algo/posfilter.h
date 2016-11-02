@@ -51,7 +51,7 @@ public:
     virtual bool	is2D() const				= 0;
     virtual bool	isProvider() const			{ return false;}
 
-    virtual bool	initialize( TaskRunner* tr=0 )
+    virtual bool	initialize( TaskRunner* tskr=0 )
     			{ reset(); return true; }
     virtual void	reset()					= 0;
 

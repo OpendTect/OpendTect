@@ -30,8 +30,8 @@ namespace Seis
 const char* PreLoader::sKeyLines()	{ return "Lines"; }
 const char* PreLoader::sKeyUserType()	{ return "User Type"; }
 
-PreLoader::PreLoader( const DBKey& mid, Pos::GeomID geomid, TaskRunner* trn )
-    : dbkey_(mid), geomid_(geomid), tr_(trn)
+PreLoader::PreLoader( const DBKey& mid, Pos::GeomID geomid, TaskRunner* tskrn )
+    : dbkey_(mid), geomid_(geomid), tr_(tskrn)
 {}
 
 
@@ -227,7 +227,7 @@ void PreLoader::unLoad() const
 }
 
 
-void PreLoader::load( const IOPar& iniop, TaskRunner* tr )
+void PreLoader::load( const IOPar& iniop, TaskRunner* tskr )
 {
     PtrMan<IOPar> iop = iniop.subselect( "Seis" );
     if ( !iop || iop->isEmpty() ) return;
@@ -237,12 +237,12 @@ void PreLoader::load( const IOPar& iniop, TaskRunner* tr )
 	PtrMan<IOPar> objiop = iop->subselect( ipar );
 	if ( !objiop || objiop->isEmpty() )
 	    { if ( ipar ) break; continue; }
-	loadObj( *objiop, tr );
+	loadObj( *objiop, tskr );
     }
 }
 
 
-void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
+void PreLoader::loadObj( const IOPar& iop, TaskRunner* tskr )
 {
     DBKey dbky;
     iop.get( sKey::ID(), dbky );
@@ -265,7 +265,7 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 
     PLDM().remove( dbky, geomid );
 
-    PreLoader spl( dbky, geomid, tr );
+    PreLoader spl( dbky, geomid, tskr );
     const GeomType gt = info.geomType();
     switch ( gt )
     {

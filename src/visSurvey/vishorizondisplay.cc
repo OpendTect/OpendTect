@@ -413,7 +413,7 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 }
 
 
-bool HorizonDisplay::setZAxisTransform( ZAxisTransform* nz, TaskRunner* trans )
+bool HorizonDisplay::setZAxisTransform( ZAxisTransform* nz, TaskRunner* tskr )
 {
     if ( zaxistransform_ ) zaxistransform_->unRef();
 
@@ -421,7 +421,7 @@ bool HorizonDisplay::setZAxisTransform( ZAxisTransform* nz, TaskRunner* trans )
     if ( zaxistransform_ ) zaxistransform_->ref();
 
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setZAxisTransform( nz, trans );
+	sections_[idx]->setZAxisTransform( nz, tskr );
 
     return true;
 }
@@ -524,9 +524,9 @@ void HorizonDisplay::removeEMStuff()
 }
 
 
-bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* trnr )
+bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tskr )
 {
-    return EMObjectDisplay::setEMObject( newid, trnr );
+    return EMObjectDisplay::setEMObject( newid, tskr );
 }
 
 
@@ -546,9 +546,9 @@ StepInterval<int> HorizonDisplay::geometryColRange() const
 }
 
 
-bool HorizonDisplay::updateFromEM( TaskRunner* trans )
+bool HorizonDisplay::updateFromEM( TaskRunner* tskr )
 {
-    if ( !EMObjectDisplay::updateFromEM( trans ) )
+    if ( !EMObjectDisplay::updateFromEM( tskr ) )
 	return false;
     updateSingleColor();
     return true;
@@ -893,12 +893,12 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 }
 
 
-void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* trans ) const
+void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* tskr ) const
 {
     //data.bivSet().allowDuplicateBids(false);
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->getDataPositions( data, getTranslation().z_,
-					  sids_[idx], trans );
+					  sids_[idx], tskr );
 
     data.dataChanged();
 }
@@ -950,7 +950,7 @@ bool HorizonDisplay::usesColor() const
 
 
 void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
-				       TaskRunner* trans )
+				       TaskRunner* tskr )
 {
     if ( channel<0 || channel>=nrAttribs() || sections_.isEmpty() )
        return;
@@ -964,7 +964,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 
 //    locker_.lock();
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setTextureData( channel, data, sids_[idx], trans );
+	sections_[idx]->setTextureData( channel, data, sids_[idx], tskr );
 //    locker_.unLock();
 
     //We should really scale here, and then update sections. This
@@ -1121,24 +1121,24 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 }
 
 
-bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
+bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tskr )
 {
     RefMan<visBase::HorizonSection> surf = visBase::HorizonSection::create();
     surf->ref();
     surf->setDisplayTransformation( transformation_ );
-    surf->setZAxisTransform( zaxistransform_, trans );
+    surf->setZAxisTransform( zaxistransform_, tskr );
     if ( scene_ ) surf->setRightHandSystem( scene_->isRightHandSystem() );
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
-    surf->setSurface( horizon->geometry().sectionGeometry(sid), true, trans );
-    if ( !emobject_->isEmpty() && trans && !trans->execResult() )
+    surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tskr );
+    if ( !emobject_->isEmpty() && tskr && !tskr->execResult() )
     {
 	surf->unRef();
 	return false;
     }
 
-    surf->setResolution( resolution_-1, trans );
+    surf->setResolution( resolution_-1, tskr );
     surf->setMaterial( 0 );
 
     const int oldsecidx = oldsectionids_.indexOf( sid );
@@ -1463,11 +1463,11 @@ bool HorizonDisplay::displaysSurfaceGrid() const
     return false;
 }
 
-void HorizonDisplay::setResolution( int res, TaskRunner* trans )
+void HorizonDisplay::setResolution( int res, TaskRunner* tskr )
 {
     resolution_ = (char)res;
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setResolution( resolution_-1, trans );
+	sections_[idx]->setResolution( resolution_-1, tskr );
 }
 
 
@@ -1514,7 +1514,7 @@ void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq,
 
 
 void HorizonDisplay::setColTabMapperSetup( int channel,
-			   const ColTab::MapperSetup& ms, TaskRunner* trans )
+			   const ColTab::MapperSetup& ms, TaskRunner* tskr )
 {
     if ( channel<0 || channel>=nrAttribs() )
        return;
@@ -1523,7 +1523,7 @@ void HorizonDisplay::setColTabMapperSetup( int channel,
 	coltabmappersetups_[channel] = ms;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setColTabMapperSetup( channel, ms, trans );
+	sections_[idx]->setColTabMapperSetup( channel, ms, tskr );
 
     //We should really scale here, and then update sections. This
     //works for single sections though.

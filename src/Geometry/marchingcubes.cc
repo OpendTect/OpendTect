@@ -372,12 +372,12 @@ MarchingCubesSurface::~MarchingCubesSurface()
 
 
 bool MarchingCubesSurface::setVolumeData( int xorigin, int yorigin, int zorigin,
-		const Array3D<float>& arr, float threshold, TaskRunner* tr )
+		const Array3D<float>& arr, float threshold, TaskRunner* tskr )
 {
     const bool wasempty = models_.isEmpty();
     Implicit2MarchingCubes converter( xorigin, yorigin, zorigin, arr, threshold,
 				      *this );
-    const bool res = TaskRunner::execute( tr, converter );
+    const bool res = TaskRunner::execute( tskr, converter );
 
     if ( wasempty )
 	allchanged_ = true;

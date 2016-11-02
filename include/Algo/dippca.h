@@ -55,7 +55,7 @@ public:
     };	
 
     void			setSetup(Setup nsetup)	{ setup_ = nsetup; }
-    virtual bool		compute(TaskRunner* tr=0) { return true; } 
+    virtual bool		compute(TaskRunner* tskr=0) { return true; } 
 
 protected:
 
@@ -74,7 +74,7 @@ public:
 					   float xdist,float ydist);
 				~Dip2D();
 
-    bool			compute(TaskRunner* tr=0); 
+    bool			compute(TaskRunner* tskr=0); 
     
     enum Output			{ Dip=0, Dilation=1, Thinning=2 };
     const Array2D<float>*	get(Output) const;
@@ -111,7 +111,7 @@ public:
 					float xdist,float ydist,float zdist);
 				~Dip3D();
 
-    bool			compute(TaskRunner* tr=0); 
+    bool			compute(TaskRunner* tskr=0); 
     
     enum Output			{ AbsDip=0, InlDip=1, CrlDip=2, Azimuth=3 };
     const Array3D<float>*	get(Output) const;

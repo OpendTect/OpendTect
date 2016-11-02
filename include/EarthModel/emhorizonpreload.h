@@ -31,7 +31,7 @@ public:
 				HorizonPreLoader();
 				~HorizonPreLoader();
 
-    bool			load(const DBKeySet&,TaskRunner* tr=0);
+    bool			load(const DBKeySet&,TaskRunner* tskr=0);
     DBKey			getDBKey(const char* name) const;
     const DBKeySet&		getPreloadedIDs() const;
     const BufferStringSet&	getPreloadedNames() const;

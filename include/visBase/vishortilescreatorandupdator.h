@@ -36,10 +36,10 @@ public:
             HorTilesCreatorAndUpdator(HorizonSection*);
 
     void    updateTiles(const TypeSet<GeomPosID>*,TaskRunner*);
-    void    createAllTiles(TaskRunner* tr);
+    void    createAllTiles(TaskRunner* tskr);
     void    updateTilesAutoResolution(const osg::CullStack* cs);
     void    updateTilesPrimitiveSets();
-    void    setFixedResolution(char res, TaskRunner* tr);
+    void    setFixedResolution(char res, TaskRunner* tskr);
 
 
 protected:

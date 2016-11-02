@@ -108,7 +108,7 @@ MPEDisplay::~MPEDisplay()
 
 void MPEDisplay::setColTabMapperSetup( int attrib,
 				       const ColTab::MapperSetup& ms,
-				       TaskRunner* tr )
+				       TaskRunner* tskr )
 {
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
@@ -119,7 +119,7 @@ void MPEDisplay::setColTabMapperSetup( int attrib,
 
 
 void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
-				    TaskRunner* tr )
+				    TaskRunner* tskr )
 {
     if ( attrib>=0 && attrib<nrAttribs() && channels_->getChannels2RGBA() )
 	channels_->getChannels2RGBA()->setSequence( attrib, seq );
@@ -431,9 +431,9 @@ void MPEDisplay::updateMPEActiveVolume()
 
 
 void MPEDisplay::removeSelectionInPolygon( const Selector<Coord3>& selector,
-	TaskRunner* tr )
+	TaskRunner* tskr )
 {
-    engine_.removeSelectionInPolygon( selector, tr );
+    engine_.removeSelectionInPolygon( selector, tskr );
     manipulated_ = true;
 }
 
@@ -764,7 +764,7 @@ void MPEDisplay::resetManipulation()
 
 
 bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
-				   TaskRunner* tr )
+				   TaskRunner* tskr )
 {
     if ( attrib != 0 || dpid == DataPack::cNoID() ) return false;
 
@@ -772,7 +772,7 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     ConstRefMan<RegularSeisDataPack> cdp =
     	dpman.getAndCast<RegularSeisDataPack>( dpid );
     
-    const bool res = setDataVolume( attrib, cdp, tr );
+    const bool res = setDataVolume( attrib, cdp, tskr );
     if ( !res )
     {
 	return false;
@@ -788,7 +788,7 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
 
 bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
-				   TaskRunner* tr )
+				   TaskRunner* tskr )
 {
     if ( !cdp )
 	return false;
@@ -811,7 +811,7 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
 	datatransformer->setInput( cdp->data(), cdp->sampling() );
 	datatransformer->setOutputRange( getTrcKeyZSampling(true,true,0) );
 
-	if ( TaskRunner::execute( tr, *datatransformer ) )
+	if ( TaskRunner::execute( tskr, *datatransformer ) )
 	{
 	    pErrMsg( "Transform failed" );
 	    return false;
@@ -825,7 +825,7 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
     DPM(DataPackMgr::SeisID()).unRef( cacheid_ );
     cacheid_ = attrib_dpid;
 
-    bool retval = updateFromCacheID( attrib, tr );
+    bool retval = updateFromCacheID( attrib, tskr );
     if ( !retval )
 	channels_->turnOn( false );
 
@@ -837,7 +837,7 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
 }
 
 
-bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
+bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tskr )
 {
     ConstRefMan<RegularSeisDataPack> regsdp =
 	DPM(DataPackMgr::SeisID()).get( engine_.getAttribCacheID(as_[0]) );
@@ -902,7 +902,7 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 	    slices_[idx]->setVolumeDataSize( sz0, sz1, sz2 );
     }
 
-    channels_->setUnMappedData( attrib, 0, arr, cp, tr );
+    channels_->setUnMappedData( attrib, 0, arr, cp, tskr );
     channels_->reMapData( 0, false, 0 );
 
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
@@ -1174,7 +1174,7 @@ void MPEDisplay::turnOnSlice( bool yn )
 }
 
 
-bool MPEDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool MPEDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tskr )
 {
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )

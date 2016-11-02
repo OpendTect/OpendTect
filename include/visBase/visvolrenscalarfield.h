@@ -56,7 +56,7 @@ public:
 
     void			setColTabMapperSetup(int attr,
 						     const ColTab::MapperSetup&,
-						     TaskRunner* tr );
+						     TaskRunner* tskr );
     const ColTab::Mapper&	getColTabMapper(int attr);
 
     const TypeSet<float>&	getHistogram(int attr) const;

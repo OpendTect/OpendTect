@@ -312,10 +312,10 @@ void MapDataPack::setRange( StepInterval<double> dim0rg,
 }
 
 
-void MapDataPack::initXYRotArray( TaskRunner* tr )
+void MapDataPack::initXYRotArray( TaskRunner* tskr )
 {
     MapDataPackXYRotater rotator( *this );
-    TaskRunner::execute( tr, rotator );
+    TaskRunner::execute( tskr, rotator );
 }
 
 

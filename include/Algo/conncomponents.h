@@ -35,7 +35,7 @@ public:
     				ConnComponents(const Array2D<bool>&);
 				~ConnComponents();
 
-    void			compute(TaskRunner* tr=0); 
+    void			compute(TaskRunner* tskr=0); 
 
     int				nrComponents() const; 
     const TypeSet<int>*		getComponent(int compidx);
@@ -74,7 +74,7 @@ public:
     				ConnComponents3D(const Array3D<bool>&);
 				~ConnComponents3D();
 
-    void			compute(TaskRunner* tr=0); 
+    void			compute(TaskRunner* tskr=0); 
 
     struct VPos	{
 				VPos() : i(-1),j(-1),k(-1) {}

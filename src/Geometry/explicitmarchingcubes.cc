@@ -246,13 +246,13 @@ bool ExplicitMarchingCubesSurface::needsUpdate() const
 { return !getVersion() || getVersion()>lastversionupdate_; }
 
 
-bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )
+bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tskr )
 {
     if ( !forceall && changedbucketranges_[mX] && !allBucketsHaveChanged() )
     {
 	if ( update( *changedbucketranges_[mX],
 		     *changedbucketranges_[mY],
-		     *changedbucketranges_[mZ], tr ) )
+		     *changedbucketranges_[mZ], tskr ) )
 	{
 	    mRemoveBucketRanges;
 	    lastversionupdate_ = getVersion();
@@ -270,12 +270,12 @@ bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )
 
     ExplicitMarchingCubesSurfaceUpdater updater( *this, true );
 
-    if ( !TaskRunner::execute( tr, updater ) )
+    if ( !TaskRunner::execute( tskr, updater ) )
 	return false;
 
     updater.setUpdateCoords( false );
 
-    if ( TaskRunner::execute( tr, updater ) )
+    if ( TaskRunner::execute( tskr, updater ) )
     {
 	mRemoveBucketRanges;
 	lastversionupdate_ = getVersion();
@@ -290,7 +290,7 @@ bool ExplicitMarchingCubesSurface::update(
 	    const Interval<int>& xbucketrg,
 	    const Interval<int>& ybucketrg,
 	    const Interval<int>& zbucketrg,
-            TaskRunner* tr )
+            TaskRunner* tskr )
 {
     removeBuckets( xbucketrg, ybucketrg, zbucketrg );
 
@@ -304,12 +304,12 @@ bool ExplicitMarchingCubesSurface::update(
     ExplicitMarchingCubesSurfaceUpdater updater( *this, true );
     updater.setLimits( xrg, yrg, zrg );
 
-    if ( !TaskRunner::execute( tr, updater ) )
+    if ( !TaskRunner::execute( tskr, updater ) )
 	return false;
 
     updater.setUpdateCoords( false );
 
-    return TaskRunner::execute( tr, updater );
+    return TaskRunner::execute( tskr, updater );
 }
 
 

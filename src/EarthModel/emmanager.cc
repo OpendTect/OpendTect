@@ -359,13 +359,13 @@ void EMManager::burstAlertToAll( bool yn )
 
 void EMManager::removeSelected( const ObjectID& id,
 				const Selector<Coord3>& selector,
-				TaskRunner* tr )
+				TaskRunner* tskr )
 {
     EM::EMObject* emobj = getObject( id );
     if ( !emobj ) return;
 
     emobj->ref();
-    emobj->removeSelected( selector, tr );
+    emobj->removeSelected( selector, tskr );
     emobj->unRef();
 }
 

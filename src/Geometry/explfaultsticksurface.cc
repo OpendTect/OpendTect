@@ -481,7 +481,7 @@ void ExplFaultStickSurface::triangulateAlg( TriProjection ta )
 }
 
 
-bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
+bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tskr )
 {
     if ( forceall )
     {
@@ -493,13 +493,13 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
     PtrMan<ExplFaultStickSurfaceUpdater> updater =
 	new ExplFaultStickSurfaceUpdater( *this, true );
 
-    if ( !TaskRunner::execute( tr, *updater ) )
+    if ( !TaskRunner::execute( tskr, *updater ) )
 	return false;
 
     //Now do panels
     updater = new ExplFaultStickSurfaceUpdater( *this, false );
 
-    if ( !TaskRunner::execute( tr, *updater ) )
+    if ( !TaskRunner::execute( tskr, *updater ) )
 	return false;
 
     needsupdate_ = false;
@@ -1128,7 +1128,7 @@ const RowCol& ExplFaultStickSurface::getTextureSize() const
 
 
 bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
-       TaskRunner* tr )
+       TaskRunner* tskr )
 {
     const DataColDef texture_i( sKeyTextureI() );
     if ( dpset.dataSet().findColDef(texture_i,PosVecDataSet::NameExact)==-1 )
@@ -1144,7 +1144,7 @@ bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
 
 	PtrMan<ExplFaultStickTexturePositionExtracter> extractor =
 	    new ExplFaultStickTexturePositionExtracter( *this, dpset );
-	return TaskRunner::execute( tr, *extractor );
+	return TaskRunner::execute( tskr, *extractor );
     }
     else
     {

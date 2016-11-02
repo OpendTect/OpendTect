@@ -347,13 +347,13 @@ const Array2D<float>* Dip2D::get( Output ro ) const
 }
 
 
-bool Dip2D::compute( TaskRunner* tr )
+bool Dip2D::compute( TaskRunner* tskr )
 {
     if ( !dip_ )
 	return false;
 
     Dip2DCalculator fdc( *this );
-    if ( !TaskRunner::execute( tr, fdc ) )
+    if ( !TaskRunner::execute( tskr, fdc ) )
 	return false;
 
     return fillGap();
@@ -729,11 +729,11 @@ const Array3D<float>* Dip3D::get( Output opt ) const
 }
 
 
-bool Dip3D::compute( TaskRunner* tr )
+bool Dip3D::compute( TaskRunner* tskr )
 {
     if ( !inldip_ )
 	return false;
 
     Dip3DCalculator fdc( *this );
-    return TaskRunner::execute( tr, fdc );
+    return TaskRunner::execute( tskr, fdc );
 }

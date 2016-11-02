@@ -577,7 +577,7 @@ bool BodyOperator::getChildOprt( int freeid, BodyOperator& res )
 }
 
 
-ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
+ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tskr ) const
 {
     ImplicitBody* body = 0;
     BodyOperator* oprt = body0 ? inputbodyop0_ : inputbodyop1_;
@@ -604,10 +604,10 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
 	    return 0;
 	}
 
-	body = embody->createImplicitBody( tr, false );
+	body = embody->createImplicitBody( tskr, false );
 	obj->unRef();
     }
-    else if ( !oprt->createImplicitBody( body, tr ) )
+    else if ( !oprt->createImplicitBody( body, tskr ) )
     {
 	delete body;
 	body = 0;
@@ -616,14 +616,15 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
     return body;
 }
 
-bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
+bool BodyOperator::createImplicitBody( ImplicitBody*& res,
+							TaskRunner* tskr) const
 {
     if ( !isOK() ) return false;
 
-    ImplicitBody* b0 = getOperandBody( true, tr );
+    ImplicitBody* b0 = getOperandBody( true, tskr );
     if ( !b0 ) return false;
 
-    ImplicitBody* b1 = getOperandBody( false, tr );
+    ImplicitBody* b1 = getOperandBody( false, tskr );
     if ( !b1 )
     {
 	delete b0;
@@ -737,7 +738,7 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 
 
 ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
-						TaskRunner* tr ) const
+						TaskRunner* tskr ) const
 {
     if ( bodypts.size()<3 )
 	return 0;
@@ -802,12 +803,12 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	return 0;
 
     ParallelDTetrahedralator triangulator( dagtree );
-    if ( TaskRunner::execute( tr, triangulator ) )
+    if ( TaskRunner::execute( tskr, triangulator ) )
     {
 	StepInterval<float> tmpzrg( zrg ); tmpzrg.scale( mCast(float,zscale) );
 	PtrMan<Expl2ImplBodyExtracter> extract = new
 	    Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, tmpzrg, *arr );
-	if ( TaskRunner::execute( tr, *extract ) )
+	if ( TaskRunner::execute( tskr, *extract ) )
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;

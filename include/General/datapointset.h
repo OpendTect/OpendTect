@@ -222,7 +222,7 @@ public:
     bool		extractPositions(::Pos::Provider&,
 				     const ObjectSet<DataColDef>&,
 				     const ::Pos::Filter* f=0,
-				     TaskRunner* tr=0);
+				     TaskRunner* tskr=0);
     void		addCol(const char* nm,const char* ref=0,
 				const UnitOfMeasure* un=0);
 			//!< or use dataSet() to add columns

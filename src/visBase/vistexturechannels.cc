@@ -209,7 +209,7 @@ const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup(int channel) const
 }
 
 
-void ChannelInfo::clipData( int version, TaskRunner* tr )
+void ChannelInfo::clipData( int version, TaskRunner* tskr )
 {
     const od_int64 nrelements = nrElements( false );
 
@@ -221,21 +221,21 @@ void ChannelInfo::clipData( int version, TaskRunner* tr )
 	if ( !unmappeddata_[idx] )
 	    continue;
 
-	mappers_[idx]->setData( unmappeddata_[idx], nrelements, tr );
+	mappers_[idx]->setData( unmappeddata_[idx], nrelements, tskr );
 	mappers_[idx]->setup_.triggerRangeChange();
     }
 }
 
 
-bool ChannelInfo::reMapData(bool dontreclip,TaskRunner* tr )
+bool ChannelInfo::reMapData(bool dontreclip,TaskRunner* tskr )
 {
     for ( int idx=nrVersions()-1; idx>=0; idx-- )
     {
 	if ( !dontreclip &&
 	    mappers_[idx]->setup_.type_!=ColTab::MapperSetup::Fixed )
-	    clipData( idx, tr );
+	    clipData( idx, tskr );
 
-	if ( !mapData( idx, tr ) )
+	if ( !mapData( idx, tskr ) )
 	    return false;
     }
 
@@ -335,7 +335,7 @@ void ChannelInfo::setOsgIDs( const TypeSet<int>& osgids )
 
 
 bool ChannelInfo::setUnMappedData( int version, const ValueSeries<float>* data,
-			  OD::PtrPolicy policy, TaskRunner* tr, bool skipclip )
+			 OD::PtrPolicy policy, TaskRunner* tskr, bool skipclip )
 {
     if ( version<0 || version>=nrVersions() )
     {
@@ -378,13 +378,13 @@ bool ChannelInfo::setUnMappedData( int version, const ValueSeries<float>* data,
 
     if ( !skipclip &&
 	 mappers_[version]->setup_.type_!=ColTab::MapperSetup::Fixed )
-	clipData( version, tr );
+	clipData( version, tskr );
 
-    return mapData( version, tr );
+    return mapData( version, tskr );
 }
 
 
-bool ChannelInfo::mapData( int version, TaskRunner* tr )
+bool ChannelInfo::mapData( int version, TaskRunner* tskr )
 {
     if ( version<0 || version>=unmappeddata_.size() )
 	return true;
@@ -430,7 +430,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 	    mappeddata_[version], spacing,
 	    mappedudfs, spacing );
 
-    if ( TaskRunner::execute( tr, maptask ) )
+    if ( TaskRunner::execute( tskr, maptask ) )
     {
 	int max = 0;
 	const unsigned int* histogram = maptask.getHistogram();
@@ -790,12 +790,13 @@ void TextureChannels::setColTabMapperSetup( int channel,
 }
 
 
-void TextureChannels::reMapData( int channel, bool dontreclip, TaskRunner* tr )
+void TextureChannels::reMapData( int channel, bool dontreclip, 
+							    TaskRunner* tskr )
 {
     if ( channel<0 || channel>=channelinfo_.size() )
 	{ pErrMsg("Index out of bounds"); return; }
 
-    channelinfo_[channel]->reMapData( dontreclip, tr );
+    channelinfo_[channel]->reMapData( dontreclip, tskr );
 }
 
 
@@ -896,7 +897,7 @@ bool TextureChannels::isCurrentDataPremapped( int channel ) const
 
 bool TextureChannels::setUnMappedVSData( int channel, int version,
 			    const ValueSeries<float>* data, OD::PtrPolicy cp,
-			    TaskRunner* tr, bool skipclip )
+			    TaskRunner* tskr, bool skipclip )
 {
     if ( channel<0 || channel>=channelinfo_.size() )
     {
@@ -905,12 +906,12 @@ bool TextureChannels::setUnMappedVSData( int channel, int version,
     }
 
     return channelinfo_[channel]->setUnMappedData( version, data, cp,
-						   tr, skipclip );
+						   tskr, skipclip );
 }
 
 
 bool TextureChannels::setUnMappedData( int channel, int version,
-	const float* data, OD::PtrPolicy cp, TaskRunner* tr, bool skipclip )
+	const float* data, OD::PtrPolicy cp, TaskRunner* tskr, bool skipclip )
 {
     if ( !channelinfo_.validIdx(channel) )
     {
@@ -937,7 +938,7 @@ bool TextureChannels::setUnMappedData( int channel, int version,
 	: 0;
 
     return channelinfo_[channel]->setUnMappedData( version, vs, OD::TakeOverPtr,
-						   tr, skipclip );
+						   tskr, skipclip );
 }
 
 

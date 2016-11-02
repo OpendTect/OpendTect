@@ -36,7 +36,7 @@ HorTilesCreatorAndUpdator::~HorTilesCreatorAndUpdator()
 
 
 void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
-				      TaskRunner* tr )
+				      TaskRunner* tskr )
 {
     if (!horsection_) return;
     mDefineRCRange( horsection_,-> );
@@ -147,7 +147,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
     horsection_->setUpdateVar( horsection_->forceupdate_,  false );
     HorizonSectionTilePosSetup postask( fullupdatetiles, tileindexes,
 	horsection_, rrg, crg );
-    TaskRunner::execute( tr, postask );
+    TaskRunner::execute( tskr, postask );
 
     for ( int idx=0; idx<fullupdatetiles.size(); idx++ )
     {
@@ -316,7 +316,7 @@ void HorTilesCreatorAndUpdator::setNeighbors( HorizonSectionTile* tile,
 }
 
 
-void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
+void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tskr )
 {
     mDefineRCRange( horsection_,-> );
 
@@ -362,7 +362,7 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
 
     HorizonSectionTilePosSetup postask( createtiles, tileindexes, 
 	horsection_, rrg, crg );
-    TaskRunner::execute(tr,postask);
+    TaskRunner::execute(tskr,postask);
     
     HorizonSectionTile** tileptrs = horsection_->tiles_.getData();
     int tidx = 0;
@@ -433,7 +433,7 @@ void HorTilesCreatorAndUpdator::updateTilesPrimitiveSets()
 }
 
 
-void HorTilesCreatorAndUpdator::setFixedResolution( char res, TaskRunner* tr )
+void HorTilesCreatorAndUpdator::setFixedResolution( char res, TaskRunner* tskr )
 {
     const int tilesz = horsection_->tiles_.info().getTotalSz();
     if ( !tilesz ) return;

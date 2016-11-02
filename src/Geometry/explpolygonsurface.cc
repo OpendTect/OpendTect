@@ -66,7 +66,7 @@ void ExplPolygonSurface::removeAll( bool deep )
 }
 
 
-bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
+bool ExplPolygonSurface::update( bool forceall, TaskRunner* tskr )
 {
     if ( forceall )
 	removeAll( true );

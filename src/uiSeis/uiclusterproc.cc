@@ -194,14 +194,14 @@ void checkProgress( int& nrjobsfinished, int& nrjobswitherr, BufferString& msg)
 }
 
 
-bool submitJobs( TaskRunner* tr )
+bool submitJobs( TaskRunner* tskr )
 {
     FixedString submitcmd = pars_.find( "Command" );
     if ( submitcmd.isEmpty() )
 	return false;
 
     ClusterJobSubmitter jobsubmitter( jobs_, submitcmd.str() );
-    if ( !TaskRunner::execute( tr, jobsubmitter ) )
+    if ( !TaskRunner::execute( tskr, jobsubmitter ) )
 	return false;
 
     return true;
@@ -301,7 +301,7 @@ void uiClusterProc::progressCB( CallBacker* )
 
 
 #define mErrRet(s) { msg = s; return false; }
-bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
+bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tskr,
 				 BufferString& msg, bool withdelete )
 {
     DBKey key;
@@ -320,7 +320,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
     if ( !exec )
 	return false;
 
-    if ( !TaskRunner::execute( trans, *exec ) )
+    if ( !TaskRunner::execute( tskr, *exec ) )
 	mErrRet("Failed to merge output data")
     else
 	msg = "Finished merging output data";
@@ -340,7 +340,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
 }
 
 
-bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
+bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tskr,
                                uiString& msg, bool withdelete )
 {
     DBKey key;
@@ -359,7 +359,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
     if ( !exec )
 	return false;
 
-    if ( !TaskRunner::execute( trans, *exec ) )
+    if ( !TaskRunner::execute( tskr, *exec ) )
 	msg = tr("Cannot merge output data");
     else
 	msg = tr("Merging output data complete");

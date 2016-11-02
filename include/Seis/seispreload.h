@@ -57,9 +57,9 @@ public:
     void		unLoad() const;
     uiString		errMsg() const			{ return errmsg_; }
 
-    static void		load(const IOPar&,TaskRunner* tr=0);
+    static void		load(const IOPar&,TaskRunner* tskr=0);
 			//!< Seis.N.[loadObj_fmt]
-    static void		loadObj(const IOPar&,TaskRunner* tr=0);
+    static void		loadObj(const IOPar&,TaskRunner* tskr=0);
 			//!< sKey::ID() and optional subselections
     void		fillPar(IOPar&) const;
 

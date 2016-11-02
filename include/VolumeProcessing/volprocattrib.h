@@ -78,12 +78,12 @@ public:
 			createAttrib(const TrcKeyZSampling&,DataPack::ID,
 				     TaskRunner*);
     virtual bool	createAttrib( ObjectSet<BinIDValueSet>& o,
-				      TaskRunner* trans )
-			{ return Attrib::ExtAttribCalc::createAttrib(o,trans); }
+				      TaskRunner* tskr )
+			{ return Attrib::ExtAttribCalc::createAttrib(o,tskr); }
     virtual bool	createAttrib( const BinIDValueSet& b, SeisTrcBuf& tb,
-				      TaskRunner* trans )
+				      TaskRunner* tskr )
 			{
-			return Attrib::ExtAttribCalc::createAttrib(b,tb,trans);
+			return Attrib::ExtAttribCalc::createAttrib(b,tb,tskr);
 			}
 protected:
 

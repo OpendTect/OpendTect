@@ -87,14 +87,14 @@ HorizonTextureHandler::getColTabSequence( int channel ) const
 
 
 void HorizonTextureHandler::setColTabMapperSetup( int channel, 
-    const ColTab::MapperSetup& mapper, TaskRunner* tr )
+    const ColTab::MapperSetup& mapper, TaskRunner* tskr )
 {
     if ( channel>=0 )
     {
 	const bool needsclip =
 	    channels_->getColTabMapperSetup( channel, 0 ).needsReClip( mapper );
 	channels_->setColTabMapperSetup( channel, mapper );
-	channels_->reMapData( channel, !needsclip, tr );
+	channels_->reMapData( channel, !needsclip, tskr );
     }
 }
 

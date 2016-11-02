@@ -321,10 +321,10 @@ void ColTab::Mapper::setRange( const Interval<float>& rg )
 
 
 void ColTab::Mapper::setData( const ValueSeries<float>* vs, od_int64 sz,
-			      TaskRunner* tr )
+			      TaskRunner* tskr )
 {
     vs_ = vs; vssz_ = sz;
-    update( true, tr );
+    update( true, tskr );
 }
 
 
@@ -383,7 +383,7 @@ uiString uiNrDoneText() const
 };
 
 
-void ColTab::Mapper::update( bool full, TaskRunner* tr )
+void ColTab::Mapper::update( bool full, TaskRunner* tskr )
 {
     if ( setup_.type_ == MapperSetup::Fixed || !vs_ || vssz_ < 1 )
 	return;
@@ -406,7 +406,7 @@ void ColTab::Mapper::update( bool full, TaskRunner* tr )
 	if ( setup_.autosym0_ )
 	{
 	    SymmetryCalc symmcalc( *vs_, vssz_ );
-	    TaskRunner::execute( tr, symmcalc );
+	    TaskRunner::execute( tskr, symmcalc );
 	    setup_.symmidval_ = symmcalc.isSymmAroundZero() ? 0 : mUdf(float);
 	}
     }

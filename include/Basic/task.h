@@ -192,7 +192,7 @@ protected:
 mExpClass(Basic) TaskRunner
 {
 public:
-    static bool		execute(TaskRunner* tr, Task& );
+    static bool		execute(TaskRunner* tskr, Task& );
 			//!<Taskrunner may be zero
 
 			TaskRunner() : execres_(false)	{}

@@ -64,16 +64,16 @@ void MarchingCubesSurface::setRenderMode( RenderMode mode )
 
 
 bool MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns,
-       TaskRunner* tr	)
+       TaskRunner* tskr	)
 {
     surface_->setSurface( &ns );
-    shape_->setSurface( surface_,tr );
-    return touch( true, tr );
+    shape_->setSurface( surface_,tskr );
+    return touch( true, tskr );
 }
 
 
-bool MarchingCubesSurface::touch( bool forall, TaskRunner* tr )
-{ return shape_->touch( forall, tr ); }
+bool MarchingCubesSurface::touch( bool forall, TaskRunner* tskr )
+{ return shape_->touch( forall, tskr ); }
 
 
 ::MarchingCubesSurface* MarchingCubesSurface::getSurface()

@@ -57,7 +57,7 @@ public:
     uiString		errMsg() const			{ return errmsg_; }
 
     bool		getFile(const char* fnm,const char* outfnm=0,
-				 TaskRunner* tr=0, const char* nicename=0);
+				 TaskRunner* tskr=0, const char* nicename=0);
     			//!< Without a file name, get the DataBuffer
     DataBuffer*		obtainResultBuf();
     			//!< the returned databuf becomes yours

@@ -199,7 +199,7 @@ bool GeomIndexedShape::isColTabEnabled() const
 
 
 void GeomIndexedShape::setDataMapper( const ColTab::MapperSetup& setup,
-				      TaskRunner* tr )
+				      TaskRunner* tskr )
 {
     if ( setup!=colorhandler_->mapper_.setup_ )
     {
@@ -260,14 +260,15 @@ const mVisTrans* GeomIndexedShape::getDisplayTransformation() const
 { return vtexshape_->getDisplayTransformation(); }
 
 
-void GeomIndexedShape::setSurface( Geometry::IndexedShape* ns, TaskRunner* tr )
+void GeomIndexedShape::setSurface( Geometry::IndexedShape* ns, 
+							    TaskRunner* tskr )
 {
     shape_ = ns;
-    touch( false, true, tr );
+    touch( false, true, tskr );
 }
 
 
-bool GeomIndexedShape::touch( bool forall, bool createnew, TaskRunner* tr )
+bool GeomIndexedShape::touch( bool forall, bool createnew, TaskRunner* tskr )
 {
     if ( !shape_ )
 	return false;
@@ -302,7 +303,7 @@ bool GeomIndexedShape::touch( bool forall, bool createnew, TaskRunner* tr )
 	texturecoords = texturelist->getTextureCoords();
     }
 
-    if ( shape_->needsUpdate() && !shape_->update(forall,tr) )
+    if ( shape_->needsUpdate() && !shape_->update(forall,tskr) )
 	return false;
 
     vtexshape_->removeAllPrimitiveSets();
@@ -387,7 +388,7 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,
 }
 
 
-void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner* tr)
+void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner* tskr)
 {
     const DataColDef coordindex( sKeyCoordIndex() );
     const int col =

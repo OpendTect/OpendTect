@@ -721,7 +721,7 @@ int LocationDisplay::getPickID(
 }
 
 
-bool LocationDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool LocationDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tskr )
 {
     if ( datatransform_==zat )
 	return true;

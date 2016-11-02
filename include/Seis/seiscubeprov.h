@@ -141,9 +141,9 @@ public:
 
     void		clear();
     bool		isEmpty() const;
-    bool		readData(const TrcKeyZSampling&,TaskRunner* tr=0);
-    bool		readData(const TrcKeyZSampling&,
-				 const Pos::GeomID geomid, TaskRunner* tr = 0);
+    bool		readData(const TrcKeyZSampling&,TaskRunner* tskr=0);
+    bool		readData(const TrcKeyZSampling&, 
+				const Pos::GeomID geomid, TaskRunner* tskr = 0);
 
     const SeisTrc*	getTrace(const BinID&) const;
     const SeisTrc*	getTrace(int trcnr) const;

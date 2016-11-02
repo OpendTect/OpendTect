@@ -74,7 +74,7 @@ bool VolProc::Processor::run( od_ostream& strm, JobCommunic* comm )
 }
 
 
-bool VolProc::Processor::run( TaskRunner* trunner )
+bool VolProc::Processor::run( TaskRunner* tskr )
 {
     PtrMan<IOPar> subselpar =
 	procpars_.subselect( IOPar::compKey(sKey::Output(),sKey::Subsel()) );
@@ -87,7 +87,7 @@ bool VolProc::Processor::run( TaskRunner* trunner )
 	//The IOPar is from OD6.0 or older
 	VolProc::ChainOutput vco;
 	vco.usePar( procpars_ );
-	return TaskRunner::execute( trunner, vco );
+	return TaskRunner::execute( tskr, vco );
     }
 
     DBKey chainid, outid;
@@ -111,7 +111,7 @@ bool VolProc::Processor::run( TaskRunner* trunner )
 	taskgrp.add( vco );
     }
 
-    return nrgeoms ? TaskRunner::execute( trunner, taskgrp ) : false;
+    return nrgeoms ? TaskRunner::execute( tskr, taskgrp ) : false;
 }
 
 

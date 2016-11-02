@@ -137,21 +137,21 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 
 
 bool ZipUtils::makeZip( const char* zipfnm, const char* src,
-			uiString& errmsg, TaskRunner* tr,
+			uiString& errmsg, TaskRunner* tskr,
 			ZipHandler::CompLevel cl )
 {
     BufferStringSet src2;
     src2.add( src );
-    return makeZip( zipfnm, src2, errmsg, tr, cl );
+    return makeZip( zipfnm, src2, errmsg, tskr, cl );
 }
 
 
 bool ZipUtils::makeZip( const char* zipfnm, const BufferStringSet& src,
-			uiString& errmsg, TaskRunner* tr,
+			uiString& errmsg, TaskRunner* tskr,
 			ZipHandler::CompLevel cl )
 {
     Zipper exec( zipfnm, src, cl );
-    if ( !TaskRunner::execute(tr,exec) )
+    if ( !TaskRunner::execute(tskr,exec) )
     {
 	errmsg = exec.uiMessage();
         return false;
@@ -162,11 +162,11 @@ bool ZipUtils::makeZip( const char* zipfnm, const BufferStringSet& src,
 
 
 bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
-				uiString& errmsg, TaskRunner* tr,
+				uiString& errmsg, TaskRunner* tskr,
 				ZipHandler::CompLevel cl )
 {
     Zipper exec( srcfnm, fnm, cl );
-    if ( !TaskRunner::execute(tr,exec) )
+    if ( !TaskRunner::execute(tskr,exec) )
     {
 	errmsg = exec.uiMessage();
         return false;
@@ -232,10 +232,10 @@ uiString Zipper::uiMessage() const
 
 
 bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
-			     uiString& errmsg, TaskRunner* tr )
+			     uiString& errmsg, TaskRunner* tskr )
 {
     UnZipper exec( srcfnm, basepath );
-    if ( !TaskRunner::execute(tr,exec) )
+    if ( !TaskRunner::execute(tskr,exec) )
     {
 	errmsg = exec.uiMessage();
         return false;

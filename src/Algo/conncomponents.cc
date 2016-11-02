@@ -81,7 +81,7 @@ ConnComponents::~ConnComponents()
 { delete label_; }
 
 
-void ConnComponents::compute( TaskRunner* tr )
+void ConnComponents::compute( TaskRunner* tskr )
 {
     label_->setAll(0);
     classifyMarks( *label_ );
@@ -530,10 +530,10 @@ const ObjectSet<ConnComponents3D::VPos>* ConnComponents3D::getComponent( int ci)
 { return  ci<0 || ci>=nrComponents() ? 0 : components_[sortedindex_[ci]]; }
 
 
-void ConnComponents3D::compute( TaskRunner* tr )
+void ConnComponents3D::compute( TaskRunner* tskr )
 {
     CC2DExtracor cc( input_ );
-    bool extraced = TaskRunner::execute( tr, cc );
+    bool extraced = TaskRunner::execute( tskr, cc );
     if ( !extraced )
 	return;
 

@@ -33,11 +33,11 @@ public:
 
     static bool			unZipArchive(const char* src,const char* dest,
 					     uiString& errmsg,
-					     TaskRunner* tr=0);
+					     TaskRunner* tskr=0);
     static bool			unZipArchives(const BufferStringSet& archvs,
 					      const char* dest,
 					      uiString& errmsg,
-					      TaskRunner* tr=0);
+					      TaskRunner* tskr=0);
     mDeprecated static bool	unZipFile(const char* ziparchive,
 					  const char* fnm,const char* path,
 					  BufferString& errmsg);
@@ -48,19 +48,19 @@ public:
     static bool			makeZip(const char* zipfilenm,
 					const BufferStringSet&,
 					uiString& errmsg,
-					TaskRunner* tr=0,
+					TaskRunner* tskr=0,
 					ZipHandler::CompLevel c=
 					ZipHandler::Normal);
     static bool			makeZip(const char* zipfilenm,
 					const char* tozip,
 					uiString& errmsg,
-					TaskRunner* tr=0,
+					TaskRunner* tskr=0,
 					ZipHandler::CompLevel c=
 					ZipHandler::Normal);
     static bool			appendToArchive(const char* zipfile,
 						const char* toappend,
 						uiString& errmsg,
-						TaskRunner* tr=0,
+						TaskRunner* tskr=0,
 						ZipHandler::CompLevel c=
 						ZipHandler::Normal);
 

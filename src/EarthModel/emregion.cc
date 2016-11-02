@@ -444,12 +444,12 @@ bool Region3D::hasBoundary( const DBKey& mid ) const
 }
 
 
-bool Region3D::init( TaskRunner* tr )
+bool Region3D::init( TaskRunner* tskr )
 {
     for ( int idx=0; idx<boundaries_.size(); idx++ )
     {
 	RegionBoundary* bd = boundaries_[idx];
-	const bool res = bd->init( tr );
+	const bool res = bd->init( tskr );
 	if ( !res ) return false;
     }
 

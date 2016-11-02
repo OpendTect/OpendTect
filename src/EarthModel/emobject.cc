@@ -495,7 +495,7 @@ bool EMObject::isPosAttribLocked( int attr ) const
 
 
 void EMObject::removeSelected( const Selector<Coord3>& selector,
-			       TaskRunner* tr )
+			       TaskRunner* tskr )
 {
     if ( !selector.isOK() )
 	return;
@@ -514,7 +514,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	ObjectSet<const Selector<Coord3> > selectors;
 	selectors += &selector;
 	EMObjectPosSelector posselector( *this, sectionID(idx), selectors );
-	posselector.executeParallel( tr );
+	posselector.executeParallel( tskr );
 
 	const TypeSet<EM::SubID>& list = posselector.getSelected();
 

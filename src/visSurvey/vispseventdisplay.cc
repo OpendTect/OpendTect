@@ -178,7 +178,7 @@ const ColTab::MapperSetup* PSEventDisplay::getColTabMapperSetup(
 { return &ctabmapper_.setup_; }
 
 void PSEventDisplay::setColTabSequence( int ch, const ColTab::Sequence& n,
-					TaskRunner* tr )
+					TaskRunner* tskr )
 { setColTabSequence( n, true ); }
 
 void PSEventDisplay::setColTabSequence( const ColTab::Sequence& n, bool update )

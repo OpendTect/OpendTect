@@ -76,8 +76,8 @@ public:
     virtual od_int64	nrDone() const;
     virtual uiString	uiNrDoneText() const;
 
-    bool		init(const IOPar&,TaskRunner* tr=0);
-    bool		finish(TaskRunner* tr=0);
+    bool		init(const IOPar&,TaskRunner* tskr=0);
+    bool		finish(TaskRunner* tskr=0);
 
     static const char*	sKeyInputIDs();
     static const char*	sKeySeisID();

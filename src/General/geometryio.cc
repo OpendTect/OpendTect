@@ -141,7 +141,7 @@ void GeometryWriter3D::initClass()
 
 
 bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
-			     TaskRunner* tr ) const
+			     TaskRunner* tskr ) const
 {
     const IOObjContext& ctxt = mIOObjContext(SurvGeom2D);
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( ctxt.getSelDirID() );
@@ -149,12 +149,12 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 	return false;
 
     GeomFileReader gfr( *dbdir, geometries, false );
-    return TaskRunner::execute( tr, gfr );
+    return TaskRunner::execute( tskr, gfr );
 }
 
 
 bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
-					 TaskRunner* tr ) const
+					 TaskRunner* tskr ) const
 {
     const IOObjContext& ctxt = mIOObjContext(SurvGeom2D);
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( ctxt.getSelDirID() );
@@ -165,7 +165,7 @@ bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
 	return true; //TODO: Update existing geometries if modified.
 
     GeomFileReader gfr( *dbdir, geometries, true );
-    return TaskRunner::execute( tr, gfr );
+    return TaskRunner::execute( tskr, gfr );
 }
 
 

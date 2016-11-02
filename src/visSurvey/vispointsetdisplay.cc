@@ -159,12 +159,12 @@ int nextStep()
 };
 
 
-void PointSetDisplay::update( TaskRunner* tr )
+void PointSetDisplay::update( TaskRunner* tskr )
 {
     if ( !pointset_ ) return;
 
     PointSetDisplayUpdater displayupdater( *pointset_, *data_, *dpsdispprop_ );
-    TaskRunner::execute( tr, displayupdater );
+    TaskRunner::execute( tskr, displayupdater );
     requestSingleRedraw();
 }
 

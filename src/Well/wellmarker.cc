@@ -463,13 +463,13 @@ bool Well::MarkerSet::isPrsnt( const char* mname ) const
     return idx >= 0;
 }
 
-void Well::MarkerSet::fillWithAll( TaskRunner* tr )
+void Well::MarkerSet::fillWithAll( TaskRunner* tskr )
 {
     setEmpty();
 
     Well::InfoCollector ic( false, true, false );
-    if ( tr )
-	tr->execute( ic );
+    if ( tskr )
+	tskr->execute( ic );
     else
 	ic.execute();
 

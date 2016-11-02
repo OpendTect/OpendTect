@@ -960,7 +960,7 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
 
 
 bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
-				  TaskRunner* trunner )
+				  TaskRunner* tskr )
 {
     od_istream strm( fnm );
     if ( !strm.isOK() )
@@ -980,7 +980,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	    static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
     }
 
-    si.getFromSEGYBody( strm, loaddef_, mForSurvSetup, clipsampler_, trunner );
+    si.getFromSEGYBody( strm, loaddef_, mForSurvSetup, clipsampler_, tskr );
     return true;
 }
 

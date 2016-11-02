@@ -145,7 +145,7 @@ public:
 
     virtual void		removeAll();
     void			removeSelected(const Selector<Coord3>& selector,
-					       TaskRunner* tr );
+					       TaskRunner* tskr );
 
     bool			setArray1D(const Array1D<float>&,
 					   const StepInterval<int>& trcrg,

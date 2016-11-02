@@ -430,7 +430,7 @@ void HorizonSection::configSizeParameters()
 
 
 void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
-       				 TaskRunner* tr )
+       				 TaskRunner* tskr )
 {
     if ( !surf ) return;
 
@@ -446,7 +446,7 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
     configSizeParameters();
     rowdistance_ = geometry_->rowRange().step*SI().inlDistance();
     coldistance_ = geometry_->colRange().step*SI().crlDistance();
-    surfaceChange( 0, tr );
+    surfaceChange( 0, tskr );
 }
 
 
@@ -578,7 +578,7 @@ bool execute()
 
 
 void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
-				    TaskRunner* tr )
+				    TaskRunner* tskr )
 {
     if ( !geometry_ || !geometry_->getArray() )
 	return;
@@ -588,16 +588,16 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
     {
 	updateZAxisVOI();
 	if ( !hordatahandler_->zaxistransform_->loadDataIfMissing(
-	      hordatahandler_->zaxistransformvoi_,tr) )
+	      hordatahandler_->zaxistransformvoi_,tskr) )
 	    return;
     }
 
     if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
-	hortilescreatorandupdator_->createAllTiles( tr );
+	hortilescreatorandupdator_->createAllTiles( tskr );
     else
     {
 	if ( isVisualizationThread() )
-	    hortilescreatorandupdator_->updateTiles( gpids, tr );
+	    hortilescreatorandupdator_->updateTiles( gpids, tskr );
 	else
 	{
 	    HorizonSectionUpdater* updtask =
@@ -629,7 +629,7 @@ void HorizonSection::updateZAxisVOI()
 
 
 void HorizonSection::getDataPositions( DataPointSet& res, double zshift,
-    int sid, TaskRunner* tr ) const
+    int sid, TaskRunner* tskr ) const
 { hordatahandler_->generatePositionData( res, zshift, sid ); }
 
 
@@ -642,8 +642,8 @@ const ColTab::Sequence* HorizonSection::getColTabSequence( int channel ) const
 
 
 void HorizonSection::setColTabMapperSetup( int channel,
-    const ColTab::MapperSetup& mapper, TaskRunner* tr )
-{ hortexturehandler_->setColTabMapperSetup( channel, mapper, tr ); }
+    const ColTab::MapperSetup& mapper, TaskRunner* tskr )
+{ hortexturehandler_->setColTabMapperSetup( channel, mapper, tskr ); }
 
 
 const ColTab::MapperSetup* HorizonSection::getColTabMapperSetup( int ch ) const
@@ -671,7 +671,7 @@ const BinIDValueSet* HorizonSection::getCache( int channel ) const
 
 
 void HorizonSection::setTextureData( int channel, const DataPointSet* dpset,
-    int sid, TaskRunner* tr )
+    int sid, TaskRunner* tskr )
 {  hortexturehandler_->setTextureData( channel, sid,  dpset ); }
 
 
@@ -733,12 +733,12 @@ void HorizonSection::selectActiveVersion( int channel, int version )
 { hortexturehandler_->selectActiveVersion( channel, version ); }
 
 
-void HorizonSection::setResolution( char res, TaskRunner* tr )
+void HorizonSection::setResolution( char res, TaskRunner* tskr )
 {
     desiredresolution_ = res;
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
-    hortilescreatorandupdator_->setFixedResolution( desiredresolution_, tr );
+    hortilescreatorandupdator_->setFixedResolution( desiredresolution_, tskr );
     updatePrimitiveSets();
     setUpdateVar( forceupdate_, true );
 }

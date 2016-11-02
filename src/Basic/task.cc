@@ -533,10 +533,10 @@ od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
 
 
 
-bool TaskRunner::execute( TaskRunner* tr, Task& task )
+bool TaskRunner::execute( TaskRunner* tskr, Task& task )
 {
-    if ( tr )
-	return tr->execute( task );
+    if ( tskr )
+	return tskr->execute( task );
 
     return task.execute();
 }

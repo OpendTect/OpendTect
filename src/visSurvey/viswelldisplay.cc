@@ -933,7 +933,7 @@ TypeSet<Coord3> WellDisplay::getWellCoords() const
 }
 
 
-bool WellDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool WellDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tskr )
 {
     if ( datatransform_==zat )
 	return true;
@@ -957,7 +957,7 @@ bool WellDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     }
 
     if ( well_ )
-	well_->setZAxisTransform( zat, tr );
+	well_->setZAxisTransform( zat, tskr );
     fullRedraw(0);
     return true;
 }

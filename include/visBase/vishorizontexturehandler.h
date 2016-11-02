@@ -49,7 +49,7 @@ public:
 
     void			setColTabMapperSetup(int channel, 
 					    const ColTab::MapperSetup& mapper, 
-					    TaskRunner* tr);
+					    TaskRunner* tskr);
     const ColTab::MapperSetup*  getColTabMapperSetup(int ch) const;
     const TypeSet<float>*	getHistogram(int ch) const;
     void			setTransparency(int ch, unsigned char yn);
