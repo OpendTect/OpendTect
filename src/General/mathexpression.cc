@@ -1089,9 +1089,9 @@ static char* findLooseComma( char* str )
 
 #   define mErrRetStr( str1, str2 ) \
     { \
-	uiString str;			\
-	str.append(str1).append(str2); \
-	errmsg_ = str; \
+	uiString uistr;			\
+	uistr.append(str1).append(str2); \
+	errmsg_ = uistr; \
     }
 
 
