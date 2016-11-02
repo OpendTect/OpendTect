@@ -206,7 +206,9 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 	PosInfo::CubeData cubedata;
 	if ( reader->get3DGeometryInfo(cubedata) )
 	{
-	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+	    cubedata.limitTo( tkzs_.hsamp_ );
+	    if ( !cubedata.isFullyRectAndReg() )
+		dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
 	}
     }
 
@@ -726,7 +728,11 @@ bool SequentialReader::init()
     {
 	PosInfo::CubeData cubedata;
 	if ( rdr_.get3DGeometryInfo(cubedata) )
-	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+	{
+	    cubedata.limitTo( tkzs_.hsamp_ );
+	    if ( !cubedata.isFullyRectAndReg() )
+		dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
+	}
     }
 
     totalnr_ = tkzs_.hsamp_.totalNr();
