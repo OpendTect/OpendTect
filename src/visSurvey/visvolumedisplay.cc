@@ -1569,12 +1569,12 @@ bool VolumeDisplay::writeVolume( int attrib, const char* filename ) const
     od_ostream strm( filename );
     if ( !strm.isOK() )
     {
-	errmsg_ = "Cannot open file";
+	errmsg_ = uiStrings::phrCannotOpen(uiStrings::sFile());
 	return false;
     }
 
     errmsg_ = scalarfield_->writeVolumeFile( attrib, strm );
-    return errmsg_.str();
+    return !errmsg_.isEmpty();
 }
 
 

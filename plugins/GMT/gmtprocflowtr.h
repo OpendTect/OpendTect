@@ -26,9 +26,9 @@ mExpClass(GMT) ODGMTProcFlowTranslator : public Translator
 public:
     			mDefEmptyTranslatorBaseConstructor(ODGMTProcFlow)
 
-    virtual const char*	read(ODGMT::ProcFlow&,Conn&)	= 0;
+    virtual const uiString read(ODGMT::ProcFlow&,Conn&)	= 0;
 			//!< returns err msg or null on success
-    virtual const char*	write(const ODGMT::ProcFlow&,Conn&) = 0;
+    virtual const uiString write(const ODGMT::ProcFlow&,Conn&) = 0;
 			//!< returns err msg or null on success
 
     static bool		retrieve(ODGMT::ProcFlow&,const IOObj*,BufferString&);
@@ -42,12 +42,13 @@ public:
 
 
 mExpClass(GMT) dgbODGMTProcFlowTranslator : public ODGMTProcFlowTranslator
-{			     isTranslator(dgb,ODGMTProcFlow)
+{ mODTextTranslationClass(dgbODGMTProcFlowTranslator)	
+  isTranslator(dgb,ODGMTProcFlow)
 public:
 
     			mDefEmptyTranslatorConstructor(dgb,ODGMTProcFlow)
 
-    const char*		read(ODGMT::ProcFlow&,Conn&);
-    const char*		write(const ODGMT::ProcFlow&,Conn&);
+    const uiString	read(ODGMT::ProcFlow&,Conn&);
+    const uiString	write(const ODGMT::ProcFlow&,Conn&);
 
 };

@@ -131,7 +131,7 @@ void inpSel( CallBacker* )
 
     if ( !stream.isOK() ) return;
 
-    DZT::FileHeader fh; BufferString emsg;
+    DZT::FileHeader fh; uiString emsg;
     if ( !fh.getFrom(stream,emsg) ) return;
 
     File::Path fp( fnm ); fp.setExtension( "", true );

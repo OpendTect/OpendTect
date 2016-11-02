@@ -53,7 +53,7 @@ namespace visSurvey
 */
 
 mExpClass(visSurvey) SurveyObject
-{
+{ mODTextTranslationClass(SurveyObject)
 public:
     void			doRef();
     void			doUnRef();
@@ -89,8 +89,8 @@ public:
 				    where clicking on other objects are
 				    handled by object itself, and not passed
 				    on to selection manager .*/
-    virtual void		getPickingMessage( BufferString& msg ) const
-				{ msg = "Picking"; }
+    virtual void		getPickingMessage( uiString& msg ) const
+				{ msg = tr("Picking"); }
 
     virtual void		snapToTracePos(Coord3&)	const {}
 				//<\Snaps coordinate to a trace position
@@ -379,7 +379,7 @@ protected:
 
     static int			cValNameOffset()	{ return 12; }
 
-    mutable BufferString	errmsg_;
+    mutable uiString		errmsg_;
     Scene*			scene_;
     int				updatestagenr_;
     bool			locked_;

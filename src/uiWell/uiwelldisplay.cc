@@ -263,5 +263,5 @@ void uiWellDisplayWin::wdDelCB( CallBacker* cb )
 void uiWellDisplayWin::posChgCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(BufferString,mesg,cb);
-    statusBar()->message( mToUiStringTodo(mesg.buf()) );
+    statusBar()->message( toUiString(mesg.buf()) );
 }

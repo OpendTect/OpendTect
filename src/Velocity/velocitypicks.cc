@@ -428,7 +428,7 @@ bool Picks::store( const IOObj* passedioobj )
     fillIOObjPar( ioobj->pars() );
     uiString errmsg = ::Pick::SetMGR().store( *ps, storageid_, &ioobj->pars() );
     if ( !errmsg.isEmpty() )
-	{ errmsg_ = mFromUiStringTodo( errmsg ); return false; }
+	{ errmsg_ =  errmsg; return false; }
 
     changed_ = false;
     change.trigger(BinID(-1,-1));
@@ -776,7 +776,7 @@ bool Picks::load( const IOObj* ioobj )
 
     if ( !useIOObjPar( ioobj->pars() ) )
     {
-	errmsg_ = "Internal: No valid storage selected";
+	errmsg_ = ::toUiString("Internal: No valid storage selected");
 	return false;
     }
 
@@ -785,7 +785,7 @@ bool Picks::load( const IOObj* ioobj )
     uiRetVal uirv;
     ConstRefMan< ::Pick::Set > ps = ::Pick::SetMGR().fetch( ioobj->key(), uirv);
     if ( uirv.isError() )
-	{ errmsg_ = uirv.getText(); return false; }
+	{ errmsg_ = ::toUiString(uirv.getText()); return false; }
 
     const IOPar psiop( ps->pars() );
     if ( !usePar(psiop) )
@@ -1011,8 +1011,8 @@ void Picks::get(const EM::ObjectID& emid, TypeSet<RowCol>& res ) const
 
 
 
-const char* Picks::errMsg() const
-{ return errmsg_.str(); }
+const uiString Picks::errMsg() const
+{ return errmsg_; }
 
 
 void Picks::setAll( float vel, bool addtoundo )
@@ -1154,9 +1154,9 @@ void PicksMgr::surveyChange( CallBacker* )
 
 
 
-const char* PicksMgr::errMsg() const
+const uiString PicksMgr::errMsg() const
 {
-    return errmsg_.str();
+    return errmsg_;
 }
 
 } // namespace Vel

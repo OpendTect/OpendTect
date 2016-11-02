@@ -39,7 +39,7 @@ uiFontSettingsGroup::uiFontSettingsGroup( uiParent* p, Settings& setts )
 void uiFontSettingsGroup::addButton( FontData::StdSz tp, uiString infotxt )
 {
     uiButton* but = new uiPushButton( butgrp_, 
-				    mToUiStringTodo(FontData::key(tp)), false );
+				    toUiString(FontData::key(tp)), false );
     but->setPrefWidthInChar( 25 );
     but->activated.notify( mCB(this,uiFontSettingsGroup,butPushed) );
     buttons_ += but;

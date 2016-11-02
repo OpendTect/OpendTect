@@ -139,7 +139,7 @@ void uiODLine2DParentTreeItem::createMenuCB( CallBacker* cb )
     attritm.removeItems(); \
     for ( int idx=0; idx<displayedattribs.size(); idx++ ) \
     attritm.addItem( \
-	 new MenuItem(mToUiStringTodo(displayedattribs.get(idx)),varmenuid++), \
+	 new MenuItem(toUiString(displayedattribs.get(idx)),varmenuid++), \
 		      true );
 
 #define mAddDispHideAllItems( itm ) \

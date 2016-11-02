@@ -429,7 +429,7 @@ uiString StrmOper::getErrorMessage( std::ios& strm )
 			    "File ended unexpectedly " );
     else
     {
-	msg = mToUiStringTodo( GetLastSystemErrorMessage() );
+	msg = toUiString( GetLastSystemErrorMessage() );
 	if ( msg.isEmpty() )
 	{
 	    if ( strm.rdstate() & std::ios::failbit )

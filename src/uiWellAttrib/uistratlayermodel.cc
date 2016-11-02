@@ -1209,9 +1209,9 @@ void uiStratLayerModel::infoChanged( CallBacker* cb )
     mDynamicCastGet(uiStratLayerModelDisp*,moddisp,caller);
     if ( !moddisp )
     {
-	BufferString msg;
+	uiString msg;
 	synthdisp_->makeInfoMsg( msg, pars );
-	statusBar()->message( mToUiStringTodo(msg.buf()) );
+	statusBar()->message( msg );
     }
     else
     {

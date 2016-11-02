@@ -370,7 +370,7 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 	    // || seloutput_>nrOutputs()  )
 	    //TODO NN descs return only one output. Needs solution!
     {
-	BufferString msg = "Selected output is not correct";
+	uiString msg = tr("Selected output is not correct");
 	mErrRet(msg)
     }
 
@@ -378,8 +378,8 @@ Desc::SatisfyLevel Desc::isSatisfied() const
     {
 	if ( !params_[idx]->isOK() )
 	{
-	    BufferString msg = "Parameter '"; msg += params_[idx]->getKey();
-	    msg += "' is not correct";
+	    uiString msg = tr("Parameter '%1' is not correct")
+						.arg(params_[idx]->getKey());
 	    mErrRet(msg)
 	}
     }
@@ -389,8 +389,8 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 	if ( !inputspecs_[idx].enabled_ ) continue;
 	if ( !inputs_[idx] )
 	{
-	    BufferString msg = "'"; msg += inputspecs_[idx].getDesc();
-	    msg += "' is not correct";
+	    uiString msg = tr("'%1' is not correct")
+					    .arg(inputspecs_[idx].getDesc());
 	    mErrRet(msg)
 	}
 	else
@@ -400,8 +400,8 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 
 	    if ( deps.isPresent( id() ) )
 	    {
-		BufferString msg = "'"; msg += inputspecs_[idx].getDesc();
-		msg += "' is dependent on itself";
+		uiString msg = tr("'%1' is dependent on itself")
+					.arg(inputspecs_[idx].getDesc());
 		mErrRet(msg);
 	    }
 	}
@@ -411,16 +411,18 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 }
 
 
-const char* Desc::errMsg() const
-{
-    const char* msg;
+const uiString Desc::errMsg() const
+{ 
+    uiString msg;
     if ( !isStored() )
-    {
-	msg = "Error while saving the attribute.\n"
-			"Values are not correct.";
-	return msg;
+     {
+	msg = uiStrings::phrCannotSave(tr("the attribute.\n"
+					    "Values are not correct."));
+	return msg;						      
     }
-    return errmsg_.str(); }
+
+    return errmsg_; 
+}
 
 
 bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const

@@ -38,7 +38,7 @@ namespace visBase
     class TextureChannel2RGBA;
 
 mExpClass(visBase) VolumeRenderScalarField : public DataObject
-{
+{ mODTextTranslationClass(VolumeRenderScalarField)
 public:
 
     static VolumeRenderScalarField*	create()
@@ -61,7 +61,7 @@ public:
 
     const TypeSet<float>&	getHistogram(int attr) const;
 
-    const char*			writeVolumeFile(int attr,od_ostream&) const;
+    const uiString		writeVolumeFile(int attr,od_ostream&) const;
 				//!<\returns 0 on success, otherwise errmsg
 
     static bool			isShadingSupported();

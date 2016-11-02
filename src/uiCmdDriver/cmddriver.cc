@@ -258,6 +258,32 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 }
 
 
+void CmdDriver::checkFlowErrMsg(const int linenr, const char* cmdstr, 
+							const char* matchingstr)
+{
+    errmsg_.append(tr("has syntax error at line %1: '%2' - Matching '%3' "
+		      "is missing or ill-formatted").arg(linenr).arg(cmdstr)
+		      .arg(matchingstr));
+
+}
+
+
+void CmdDriver::checkTailErrMsg( const int linenr, const BufferString& action)
+{
+    errmsg_.append(tr("has unexpected content at end of line %1: '%2'")
+	   .arg(linenr).arg(action)); 
+}
+
+
+void CmdDriver::preProcSubstitutionErrMsg( const int nrsubst, const int linenr, 
+						const BufferString& action )
+{
+    errmsg_.append(tr("has %1 substitution %2 at line %3: '%4'").arg(-nrsubst)
+	   .arg(nrsubst<-1 ? tr("failures") : tr("failure")).arg(linenr)
+	   .arg(action));
+}
+
+
 #define mPreProcSubstitution( nextword, linenr, action ) \
 { \
     BufferString temp; \
@@ -266,10 +292,7 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
     nextword = getNextWord( action, temp.getCStr() ); \
     if ( nrsubst < 0 ) \
     { \
-	errmsg_ += "has "; errmsg_ += (-nrsubst); errmsg_ += " substitution "; \
-	errmsg_ += nrsubst<-1 ? "failures" : "failure"; \
-	errmsg_ += " at line "; errmsg_ += linenr; errmsg_ +=": '"; \
-	errmsg_ += action; errmsg_ += "'"; \
+	preProcSubstitutionErrMsg( nrsubst, linenr, action ); \
 	return false; \
     } \
 }
@@ -279,9 +302,7 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
     mSkipBlanks( tail ); \
     if ( !tail || *tail ) \
     { \
-	errmsg_ += "has unexpected content at end of line "; \
-	errmsg_ += linenr; errmsg_ += ": '"; \
-	errmsg_ += action; errmsg_ += "'"; \
+	checkTailErrMsg( linenr, action ); \
 	return false; \
     } \
 }
@@ -309,10 +330,8 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 	} \
 	if ( !actidxptr ) \
 	{ \
-	    errmsg_ += "has syntax error at line "; errmsg_ += linenr; \
-	    errmsg_ += ": '"; errmsg_ += #cmd; \
-	    errmsg_ += "' - Matching '"; errmsg_ += matchingstr; \
-	    errmsg_ += "' is missing or ill-formatted"; \
+	    const char* cmdstr = #cmd;\
+	    checkFlowErrMsg(linenr,cmdstr,matchingstr); \
 	    return false; \
 	} \
 	if ( backward ) \
@@ -333,27 +352,29 @@ bool CmdDriver::insertActionsFromFile( const char* fnm )
 { \
     if ( !stack.isEmpty() ) \
     { \
-	errmsg_ += "ended in the middle of "; \
-	errmsg_ += stack[0]==DefTag ? "a procedure def-inition" : \
-		   stack[0]==ForTag ? "a for-loop" : \
-		   stack[0]==DoWhileTag ? "a while-loop" : \
-		   stack[0]==DoTag ? "an until-loop" : "an if-structure"; \
+	errmsg_.append(sCheckFlowStackStr()).append(toUiString(" ")); \
+	errmsg_.append( \
+		   stack[0]==DefTag ? toUiString("a procedure def-inition") : \
+		   stack[0]==ForTag ? toUiString("a for-loop") : 	   \
+		   stack[0]==DoWhileTag ? toUiString("a while-loop") : 	     \
+		   stack[0]==DoTag ? toUiString("an until-loop") : \
+				     toUiString("an if-structure") ); \
 	return false; \
     } \
 }
 
 bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 {
-    errmsg_ = actionlist.isEmpty() ? "Command" : "Included command";
-    errmsg_ += " file \""; errmsg_ += fnm; errmsg_ += "\" ";
+    errmsg_ = tr("%1 file \"%2\"").arg(actionlist.isEmpty() ? 
+			    tr("Command") : tr("Included command")).arg(fnm);
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	{ errmsg_ += "cannot be opened"; return false; }
+	{ uiStrings::phrCannotOpen(errmsg_); return false; }
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType("OpendTect commands") )
-	{ errmsg_ += "is invalid"; return false; }
+	{ errmsg_.append( "is invalid"); return false; }
 
     int linenr = 4;		// Header has four lines
     int extralines = 0;
@@ -406,7 +427,7 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 	    StringProcessor(inclfnm).makeDirSepIndep();
 	    mCheckTail( tail, linenr, action );
 
-	    BufferString errmsgprefix = errmsg_;
+	    uiString errmsgprefix = errmsg_;
 	    if ( !addActions(actionlist,inclfnm) )
 		return false;
 
@@ -450,7 +471,8 @@ void CmdDriver::logErrMsg()
 	return;
 
     updateLogStrm();
-    mLogStrm << od_newline << errmsg_ << od_newline << od_endl;
+    mLogStrm << od_newline << mFromUiStringTodo(errmsg_) << od_newline << 
+									od_endl;
 }
 
 

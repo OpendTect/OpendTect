@@ -66,7 +66,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	DataPack::FullID fid = DataPack::FullID::getFromString(
 							storstr.buf()+1 );
 	if ( !DPM(fid).haveID( fid ) )
-	    desc.setErrMsg( "Cannot find data in memory" );
+	    desc.setErrMsg( uiStrings::phrCannotFind(tr("data in memory")) );
 	return;
     }
 

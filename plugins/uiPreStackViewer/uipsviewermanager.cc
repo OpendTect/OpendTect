@@ -677,7 +677,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	if ( is3d )
 	    getSeis3DTitle( bid, ioobj->uiName(), title );
 	else
-	    getSeis2DTitle( trcnr, mToUiStringTodo( name2d ), title );
+	    getSeis2DTitle( trcnr, toUiString( name2d ), title );
 	uiFlatViewMainWin* viewwin = create2DViewer( title, dpid );
 	if ( !viewwin )
 	    continue;

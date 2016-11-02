@@ -17,6 +17,7 @@
 #include "visdataman.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "od_ostream.h"
+#include "uistrings.h"
 
 #include "ostream"
 
@@ -969,13 +970,13 @@ static float hton_float(float value)
 }
 
 
-const char* VolumeRenderScalarField::writeVolumeFile( int attr,
+const uiString VolumeRenderScalarField::writeVolumeFile( int attr,
 						      od_ostream& strm ) const
 {
     if ( !attribs_.validIdx(attr) || !attribs_[attr]->indexcache_ )
-	return "Nothing to write";
+	return tr("Nothing to write");
 
-    const char* writeerr = "Cannot write to stream";
+    const uiString writeerr = uiStrings::phrCannotWrite(tr("to stream"));
 
     struct VolFileHeader vh = {
 	hton_uint32(0x0b7e7759), // magic_number
@@ -1012,7 +1013,7 @@ const char* VolumeRenderScalarField::writeVolumeFile( int attr,
     else if ( !strm.addBin(indexcacheptr,matkzs.totalNr()) )
 	return writeerr;
 
-    return 0;
+    return uiString::emptyString();
 }
 
 

@@ -58,11 +58,7 @@ void AGC::setWindow( const Interval<float>& iv )
 const Interval<float>& AGC::getWindow() const
 { return window_; }
 
-void AGC::getWindowUnit( BufferString& buf, bool parens ) const
-{ buf = SI().zUnitString( parens ).getFullString(); }
-
-
-void AGC::getWindowUiUnit( uiString& buf, bool parens ) const
+void AGC::getWindowUnit( uiString& buf, bool parens ) const
 { buf = SI().zUnitString( parens ); }
 
 

@@ -17,6 +17,7 @@
 #include "seispacketinfo.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 
 namespace Vel
@@ -175,8 +176,8 @@ bool VolumeFunctionSource::setFrom( const DBKey& velid )
     PtrMan<IOObj> velioobj = DBM().get( velid );
     if ( !velioobj )
     {
-	errmsg_ = "Velocity volume with id: ";
-	errmsg_.add( velid ).add(" is not found." );
+	errmsg_ = uiStrings::phrCannotFindDBEntry(
+			    tr("for Velocity volume with id: %1.").arg(velid));
 	return false;
     }
 
@@ -236,7 +237,8 @@ void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
     {
 	const StepInterval<int>& inlrg = packetinfo.inlrg;
 	const StepInterval<int>& crlrg = packetinfo.crlrg;
-	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )                  {
+	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )
+	{
 	    for ( int crl=crlrg.start; crl<=crlrg.stop; crl +=crlrg.step )
 	    {
 		bids.add( BinID(inl,crl) );

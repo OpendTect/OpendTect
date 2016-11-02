@@ -117,12 +117,11 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     hsplit->addGroup( logrp );
 
     toStatusBar( toUiString(setup_.fs_.dispName()), 1 );
-    outInfo( "Opening input" );
+    outInfo( tr("Opening input") );
     rdr_ = getReader( setup_, txtinfo_ );
     txtfld_->setText( txtinfo_ );
 
-    BufferString str( "Reading first " );
-    str += su.nrtrcs_; str += " traces ...";
+    uiString str( m3Dots(tr("Reading first %1 traces").arg(su.nrtrcs_)) );
     outInfo( str );
 
     afterPopup.notify( mCB(this,uiSEGYExamine,updateInput) );
@@ -276,10 +275,22 @@ int uiSEGYExamine::getRev() const
 
 int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, BufferString& emsg )
 {
-    PtrMan<SeisTrcReader> rdr = getReader( su, emsg );
+    uiString errmsg;
+    PtrMan<SeisTrcReader> rdr = getReader( su, errmsg );
+    emsg = mFromUiStringTodo(errmsg);
     if ( !rdr && emsg.isEmpty() )
 	emsg.set( "Error opening file."
 	    "\nPlease check whether the file size is at least 3600 bytes." );
+    return rdr ? getRev( *rdr ) : -1;
+}
+
+
+int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, uiString& emsg )
+{
+    PtrMan<SeisTrcReader> rdr = getReader( su, emsg );
+    if ( !rdr && emsg.isEmpty() )
+	emsg = uiStrings::phrCannotOpen(tr("file."
+	    "\nPlease check whether the file size is at least 3600 bytes."));
     return rdr ? getRev( *rdr ) : -1;
 }
 
@@ -353,20 +364,19 @@ void uiSEGYExamine::updateInp()
 
     if ( stoppedatend || nrdone < 1 )
     {
-	BufferString str( "\n\n----  " );
+	uiString str( toUiString("\n\n----  ") );
 	const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
 	if ( nrdone < 1 )
-	    str += "No traces found";
+	    str.append(tr(" No traces found"));
 	else
 	{
-	    str += "Total number of traces present in file";
-	    if ( ismulti ) str += "s";
-	    str += ": "; str += nrdone;
+	    str.append(tr(" Total number of traces present in file"));
+	    str.append(toUiString(": ")); str.append(toUiString(nrdone));
 	}
-	str += "  ----";
-	txtinfo_ += str;
+	str.append(toUiString("  ----"));
+	txtinfo_.append(" ").append(str);
     }
-    outInfo( "" );
+    outInfo( uiString::emptyString() );
     txtfld_->setText( txtinfo_ );
 }
 
@@ -380,10 +390,10 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
     txthead.dump( thstrm );
     binhead.dump( bhstrm );
 
-    txtinfo_ = thstrm.result();
-    txtinfo_ += "\n------\n\n"
-		"Binary header info (non-zero values displayed only):\n\n";
-    txtinfo_ += bhstrm.result();
+    txtinfo_ = toUiString(thstrm.result());
+    txtinfo_.append(tr("\n------\n\n"
+		"Binary header info (non-zero values displayed only):\n\n"));
+    txtinfo_.append(bhstrm.result());
 
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     const int nrvals = hdef.size();
@@ -407,7 +417,6 @@ bool uiSEGYExamine::rejectOK()
 }
 
 
-void uiSEGYExamine::outInfo( const char* txt )
+void uiSEGYExamine::outInfo( const uiString txt )
 {
-    toStatusBar( mToUiStringTodo(txt), 0 );
-}
+    toStatusBar( txt, 0 );}

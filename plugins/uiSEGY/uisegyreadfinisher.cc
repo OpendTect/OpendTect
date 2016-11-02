@@ -370,7 +370,7 @@ bool uiSEGYReadFinisher::doVSP()
 
     Well::Writer wwr( wllkey, *wd );
     if ( !wwr.putLog(*wl) )
-	mErrRet( mToUiStringTodo(wwr.errMsg()) )
+	mErrRet( wwr.errMsg() )
     else if ( wasloaded )
 	Well::MGR().reload( wllkey );
 

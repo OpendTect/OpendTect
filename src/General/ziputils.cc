@@ -223,7 +223,7 @@ uiString Zipper::uiNrDoneText() const
 
 uiString Zipper::uiMessage() const
 {
-    const uiString errmsg( mToUiStringTodo(ziphd_.errorMsg() ) );
+    const uiString errmsg( ziphd_.errorMsg() );
     if ( errmsg.isEmpty() )
 	return tr("Archiving data");
     else
@@ -273,6 +273,20 @@ bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, const char* path,
     ZipHandler ziphdler;
     if ( !ziphdler.unZipFile(srcfnm,fnm,path) )
     {
+        errmsg = mFromUiStringTodo(ziphdler.errorMsg());
+        return false;
+    }
+
+    return true;
+}
+
+
+bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, const char* path,
+			  uiString& errmsg )
+{
+    ZipHandler ziphdler;
+    if ( !ziphdler.unZipFile(srcfnm,fnm,path) )
+    {
         errmsg = ziphdler.errorMsg();
         return false;
     }
@@ -311,7 +325,7 @@ uiString UnZipper::uiNrDoneText() const
 
 uiString UnZipper::uiMessage() const
 {
-    const uiString errmsg( mToUiStringTodo(ziphd_.errorMsg()));
+    const uiString errmsg( ziphd_.errorMsg());
     if ( errmsg.isEmpty() )
 	return tr("Extracting data");
     else

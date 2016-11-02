@@ -217,7 +217,7 @@ const IOObj* uiIOObjSelDlg::ioObj() const
 void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const char*,msg,cb);
-    toStatusBar( mToUiStringTodo(msg) );
+    toStatusBar( toUiString(msg) );
 }
 
 

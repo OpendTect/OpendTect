@@ -160,7 +160,7 @@ void Math::Formula::setText( const char* inp )
     expr_ = mep.parse();
     if ( !expr_ )
     {
-	errmsg_.set( mep.errMsg() );
+	errmsg_ = mep.errMsg();
 	if ( errmsg_.isEmpty() )
 	    errmsg_.set( "Invalid mathematical expression" );
 	return;

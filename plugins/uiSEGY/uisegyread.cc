@@ -388,14 +388,14 @@ void uiSEGYRead::basicOptsGot()
 
     uiSEGYExamine::Setup exsu( defdlg_->nrTrcExamine() );
     exsu.modal( false ); exsu.usePar( pars_ );
-    BufferString emsg;
+    uiString emsg;
     const int exrev = uiSEGYExamine::getRev( exsu, emsg );
     if ( exrev < 0 )
     {
 	rev_ = Rev0;
 	if ( emsg.isEmpty() )
 	    emsg.set( "Error trying to read traces from file." );
-	uiMSG().error( mToUiStringTodo(emsg) );
+	uiMSG().error( emsg );
 	// Can't figure out (quickly) how to go on. Wizard will stop
 	// better than previously, when it crashed ...
 	return;

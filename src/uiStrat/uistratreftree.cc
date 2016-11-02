@@ -95,10 +95,10 @@ void uiStratRefTree::addNode( uiTreeViewItem* parlvit,
     uiTreeViewItem* lvit = parlvit
         ? new uiTreeViewItem( parlvit, uiTreeViewItem::Setup()
 				.label(toUiString(nur.code()))
-				.label(mToUiStringTodo(nur.description())) )
+				.label(toUiString(nur.description())) )
 	: root ? 0 : new uiTreeViewItem( lv_,uiTreeViewItem::Setup()
 				.label(toUiString(nur.code()))
-				.label(mToUiStringTodo(nur.description()) ));
+				.label(toUiString(nur.description()) ));
 
     if ( parlvit || !root )
 	{ mCreateAndSetUnitPixmap( nur, lvit ) }
@@ -114,7 +114,7 @@ void uiStratRefTree::addNode( uiTreeViewItem* parlvit,
 
 	    uiTreeViewItem::Setup setup = uiTreeViewItem::Setup()
 				.label( toUiString(lur->code()) )
-				.label( mToUiStringTodo(lur->description()) );
+				.label( toUiString(lur->description()) );
 	    if ( lvit )
 		item = new uiTreeViewItem( lvit, setup );
 	    else
@@ -377,7 +377,7 @@ void uiStratRefTree::insertUnitInLVIT( uiTreeViewItem* lvit, int posidx,
     newitem->setRenameEnabled( cLithoCol, false );
     newitem->setDragEnabled( true );
     newitem->setDropEnabled( true );
-    newitem->setText( mToUiStringTodo(unit.description()), cDescCol );
+    newitem->setText( toUiString(unit.description()), cDescCol );
 
     if ( lvit )
     {
@@ -450,7 +450,7 @@ void uiStratRefTree::updateUnitProperties( uiTreeViewItem* lvit )
 	}
 
 	lvit->setText( toUiString(unitref->code()), cUnitsCol );
-	lvit->setText( mToUiStringTodo(unitref->description()), cDescCol );
+	lvit->setText( toUiString(unitref->description()), cDescCol );
 	tree_->unitChanged.trigger();
 	updateUnitsPixmaps();
 	anychange_ = true;

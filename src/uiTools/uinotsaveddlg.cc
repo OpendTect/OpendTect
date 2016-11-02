@@ -50,7 +50,7 @@ public:
 	for ( int idx=0; idx<prompter_.objects_.size(); idx++ )
 	{
 	    uiLabel* label = new uiLabel( this,
-			    mToUiStringTodo(prompter_.objects_[idx]->string_) );
+			    toUiString(prompter_.objects_[idx]->string_) );
 
 	    uiButton* curbutton = uiButton::getStd( this, OD::Save,
 					mCB(this,uiNotSavedDlg,buttonCB),

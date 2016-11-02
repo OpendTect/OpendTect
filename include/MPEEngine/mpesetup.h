@@ -64,11 +64,12 @@ mExpClass(MPEEngine) MPESetupTranslator : public Translator
 public:
     			mDefEmptyTranslatorBaseConstructor(MPESetup)
 
-    virtual const char*	read(MPESetup&,Conn&)		= 0;
+    virtual const uiString read(MPESetup&,Conn&)		= 0;
     			//!< returns err msg or null on success
-    virtual const char*	write(const MPESetup&,Conn&)	= 0;
+    virtual const uiString write(const MPESetup&,Conn&)	= 0;
     			//!< returns err msg or null on success
-    virtual const char*	warningMsg() const		{ return ""; }
+    virtual const uiString warningMsg() const	
+					{ return uiString::emptyString(); }
 
     static bool		retrieve(MPESetup&,const IOObj*,BufferString&);
     			//!< BufferString has errmsg, if any
@@ -85,16 +86,17 @@ public:
 */
 
 mExpClass(MPEEngine) dgbMPESetupTranslator : public MPESetupTranslator
-{				  isTranslator(dgb,MPESetup)
+{ mODTextTranslationClass(dgbMPESetupTranslator)			
+  isTranslator(dgb,MPESetup)
 public:
     			mDefEmptyTranslatorConstructor(dgb,MPESetup)
 
-    const char*		read(MPESetup&,Conn&);
+    const uiString	read(MPESetup&,Conn&);
     			//!< returns err msg or null on success
-    const char*		write( const MPESetup&,Conn&);
+    const uiString	write( const MPESetup&,Conn&);
     			//!< returns err msg or null on success
-    const char*		warningMsg() const	{ return warningmsg; }
+    const uiString	warningMsg() const	{ return warningmsg; }
 
-    BufferString	warningmsg;
+    uiString	warningmsg;
 
 };

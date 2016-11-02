@@ -162,7 +162,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
     cs.hsamp_ = sd_.rg;
     subselfld_->setInput( cs );
     attribfld_->setEmpty();
-    attribfld_->addItem( mToUiStringTodo(ODGMT::sKeyZVals()) );
+    attribfld_->addItem( toUiString(ODGMT::sKeyZVals()) );
 
     if ( sd_.valnames.isEmpty() )
 	attribfld_->setSensitive( false );

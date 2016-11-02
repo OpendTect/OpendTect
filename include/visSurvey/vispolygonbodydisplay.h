@@ -84,7 +84,7 @@ public:
     bool			canRemoveSelection() const	{ return true; }
     bool			removeSelections(TaskRunner*);
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const uiString&		errMsg() const { return errmsg_; }
     virtual void		setPixelDensity(float);
 
     virtual void		fillPar(IOPar&) const;

@@ -225,7 +225,7 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
     }
     else if ( nr == cSEGYWarnDataReadIncomplete )
     {
-	msg.append( mToUiStringTodo( detail ) );
+	msg.append( toUiString( detail ) );
     }
     else if ( nr == cSEGYWarnNonrectCoord )
     {

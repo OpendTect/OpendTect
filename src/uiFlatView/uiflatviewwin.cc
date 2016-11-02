@@ -47,27 +47,27 @@ void uiFlatViewWin::setDarkBG( bool yn )
 }
 
 
-void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
+void uiFlatViewWin::makeInfoMsg( uiString& mesg, IOPar& pars )
 {
     FixedString valstr = pars.find( sKey::Position() );
     mesg.setEmpty();
     if ( valstr && *valstr )
-	mesg.add( valstr ).addTab();
+	mesg.addSpace().append( valstr ).addTab();
     else
     {
 	valstr = pars.find( sKey::TraceNr() );
 	if ( valstr && *valstr )
-	    mesg.add("TrcNr=").add( valstr );
+	    mesg.addSpace().append(tr("Trace Number=")).append( valstr );
 	else
 	{
 	    valstr = pars.find( "Inline" );
 	    if ( !valstr ) valstr = pars.find( "In-line" );
 	    if ( valstr && *valstr )
-		mesg.add( valstr );
+		mesg.addSpace().append( valstr );
 	    valstr = pars.find( "Crossline" );
 	    if ( !valstr ) valstr = pars.find( "Cross-line" );
 	    if ( valstr && *valstr )
-		mesg.add( "/" ).add( valstr );
+		mesg.append( toUiString("/") ).append( valstr );
 	}
     }
 
@@ -86,20 +86,21 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 
     if ( !crd.getXY().isUdf() )
     {
-	mesg.addTab().add( "(" ).add( toString(crd.x_,0) );
-	mesg.add( ", " ).add( toString(crd.y_,0) );
+	mesg.addTab().append( toUiString("(" )).append( toString(crd.x_,0) );
+	mesg.append( toUiString(", ") ).append( toString(crd.y_,0) );
     }
 
     if ( !mIsUdf(crd.z_) )
-	mesg.add( ", " ).add( toString(crd.z_,0) ).add( ")" );
+	mesg.append( toUiString(", ") ).append( toString(crd.z_,0) )
+						    .append( toUiString(")") );
     else if ( !crd.getXY().isUdf() )
-	mesg.add( ")" );
+	mesg.append( ")" );
     //<-- MapDataPack has valid crd.coord() but invalid crd.z.
 
     mesg.addTab();
 
     int nrinfos = 0;
-#define mAddSep() if ( nrinfos++ ) mesg += ";\t";
+#define mAddSep() if ( nrinfos++ ) mesg.append( toUiString(";\t") );
 
     FixedString vdstr = pars.find( "Variable density data" );
     FixedString wvastr = pars.find( "Wiggle/VA data" );
@@ -114,16 +115,18 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	else
 	    { if ( !vdstr || !*vdstr ) vdstr = "VD Val"; }
 	float val = *vdvalstr ? vdvalstr.toFloat() : mUdf(float);
-	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr;
-	mesg += " ("; mesg += vdstr; mesg += ")";
+	mesg.append( toUiString("Val=") ); 
+	mesg.append( mIsUdf(val) ? toUiString("undef") : toUiString(vdvalstr) );
+	mesg.append(toUiString("(%1)").arg(toUiString(vdstr)));
     }
     if ( wvavalstr && !issame )
     {
 	mAddSep();
 	float val = *wvavalstr ? wvavalstr.toFloat() : mUdf(float);
-	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr;
+	mesg.append( toUiString("Val=") ); 
+	mesg.append( mIsUdf(val) ? toUiString("undef") : toUiString(wvavalstr));
 	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
-	mesg += " ("; mesg += wvastr; mesg += ")";
+	mesg.append( toUiString("(%1)").arg(toUiString(wvastr)) );
     }
 
     float val;
@@ -132,17 +135,18 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	if ( SI().xyInFeet() )
 	    val *= mToFeetFactorF;
 
-	mAddSep(); mesg += "Offs="; mesg += val;
-	mesg += " "; mesg += SI().xyUnitString().getFullString();
+	mAddSep(); mesg.append(toUiString("Offs=%1").arg(toUiString(val)));
+	mesg.addSpace().append(toUiString(SI().xyUnitString()));
     }
 
     valstr = pars.find( sKey::Azimuth() );
     if ( valstr && valstr!="0" )
-	{ mAddSep(); mesg += "Azim="; mesg += valstr; }
+	{ mAddSep(); mesg.append(tr("Azimuth=%1").arg(toUiString(valstr))); }
 
     valstr = pars.find( "Ref/SP number" );
     if ( valstr && *valstr )
-	{ mAddSep(); mesg += "Ref/SP="; mesg += valstr; }
+	{ mAddSep(); mesg.append(toUiString("Ref/SP=%1")
+						    .arg(toUiString(valstr))); }
 }
 
 
@@ -182,9 +186,9 @@ void uiFlatViewMainWin::setInitialSize( int w, int h )
 void uiFlatViewMainWin::displayInfo( CallBacker* cb )
 {
     mCBCapsuleUnpack(IOPar,pars,cb);
-    BufferString mesg;
+    uiString mesg;
     makeInfoMsg( mesg, pars );
-    statusBar()->message( mToUiStringTodo(mesg.buf()) );
+    statusBar()->message( mesg );
 }
 
 

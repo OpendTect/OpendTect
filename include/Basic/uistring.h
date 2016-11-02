@@ -210,6 +210,8 @@ public:
 		//Returns 1st, 2nd, 3rd
 
     uiString&	addSpace(int nr=1);
+    uiString&	addTab(int nrtabs=1);
+    uiString&	addNewLine(int nrnl=1);
 };
 
 

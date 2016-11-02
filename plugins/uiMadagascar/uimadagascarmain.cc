@@ -202,7 +202,7 @@ void uiMadagascarMain::butPush( CallBacker* cb )
 	{
 	    BufferString tmp( procsfld_->textOfItem(newcur) );
 	    procsfld_->setItemText( newcur, toUiString(procsfld_->getText()) );
-	    procsfld_->setItemText( curidx, mToUiStringTodo(tmp) );
+	    procsfld_->setItemText( curidx, toUiString(tmp) );
 	    procflow_.swap( curidx, newcur );
 	    curidx = newcur;
 	    needsave_ = true;
@@ -259,11 +259,11 @@ void uiMadagascarMain::openFlow( CallBacker* )
     if ( dlg.go() )
     {
 	ctio_.setObj( dlg.ioObj()->clone() );
-	BufferString emsg;
+	uiString emsg;
 	deepErase( procflow_ );
 	procsfld_->setEmpty();
 	if ( !ODMadProcFlowTranslator::retrieve(procflow_,ctio_.ioobj_,emsg) )
-	    uiMSG().error( mToUiStringTodo(emsg) );
+	    uiMSG().error( emsg );
 	else
 	{
 	    infld_->usePar( procflow_.input() );
@@ -288,9 +288,9 @@ bool uiMadagascarMain::saveFlow( CallBacker* )
 	return false;
 
     ctio_.setObj( dlg.ioObj()->clone() );
-    BufferString emsg;
+    uiString emsg;
     if ( !ODMadProcFlowTranslator::store(procflow_,ctio_.ioobj_,emsg) )
-	mErrRet( mToUiStringTodo(emsg) )
+	mErrRet( emsg )
 
     needsave_ = false;
     procflow_.setName( ctio_.ioobj_->name() );

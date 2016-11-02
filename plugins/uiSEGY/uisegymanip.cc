@@ -196,7 +196,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     , errlbl_(0)
 {
     if ( !openInpFile() )
-	{ errlbl_ = new uiLabel( this, mToUiStringTodo(errmsg_) ); return; }
+	{ errlbl_ = new uiLabel( this, errmsg_ ); return; }
 
     uiGroup* filehdrgrp = new uiGroup( this, "File header group" );
     txthdrfld_ = new uiTextEdit( filehdrgrp, "Text Header Editor" );
@@ -328,18 +328,19 @@ bool uiSEGYFileManip::openInpFile()
 {
     strm_ = new od_istream( fname_ );
     if ( !strm_ || !strm_->isOK() )
-	{ errmsg_ = "Cannot open input file"; return false; }
+	{ errmsg_ = uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower());
+								return false; }
 
     if ( !strm().getBin( txthdr_.txt_, SegyTxtHeaderLength ) )
 	{
-	errmsg_ = "Input file is too small to be a SEG-Y file:\n"
-	          "Cannot fully read the text header"; return false;
+	errmsg_ = tr("Input file is too small to be a SEG-Y file:\n"
+	          "Cannot fully read the text header"); return false;
 	}
     char buf[SegyBinHeaderLength];
     if ( !strm().getBin( buf, SegyBinHeaderLength ) )
 	{
-	errmsg_ = "Input file is too small to be a SEG-Y file:\n"
-		  "Cannot read full binary header"; return false;
+	errmsg_ = tr("Input file is too small to be a SEG-Y file:\n"
+		  "Cannot read full binary header"); return false;
     }
 
     txthdr_.setAscii();
@@ -453,7 +454,8 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     formfld_->setText( hc_.def_ );
     formfld_->attach( rightOf, addbut );
     formfld_->setHSzPol( uiObject::WideVar );
-    formfld_->returnPressed.notify(mCB(this,uiSEGYFileManipHdrCalcEd,acceptOKCB));
+    formfld_->returnPressed.notify(mCB(this,uiSEGYFileManipHdrCalcEd,
+								acceptOKCB));
     uiLabel* lbl = new uiLabel(this, tr("Formula for '%1'")
 				   .arg(hc_.he_.name()));
     lbl->attach( centeredBelow, formfld_ );

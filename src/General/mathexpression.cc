@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "statruncalc.h"
 #include "undefval.h"
 #include "bufstring.h"
+#include "uistrings.h"
 
 #ifndef M_PI
 # define M_PI		3.14159265358979323846
@@ -742,7 +743,7 @@ int Math::ExpressionParser::constIdxOf( const char* varstr )
 }
 
 
-#define mErrRet(s) { errmsg_.set( s ); return true; }
+#define mErrRet(s) { errmsg_ = s; return true; }
 
 #define mIfInAbsContinue() \
     if ( str[idx]=='|' && !(str[idx+1]=='|' || (idx && str[idx-1]=='|') ) ) \
@@ -777,15 +778,15 @@ bool Math::ExpressionParser::findOuterParens( char* str, int len,
 	    else if ( parenslevel < 0 )
 	    {
 		str[idx+1] = '\0';
-		errmsg_.set( "Found a closing parenthesis ')' too early" );
+		errmsg_ = tr("Found a closing parenthesis ')' too early");
 		if ( idx > 3 )
-		    errmsg_.add( ": " ).add( str );
+		    errmsg_.append( ": " ).append( str );
 		return true;
 	    }
 	}
     }
     if ( parenslevel > 0 )
-	mErrRet( "Not enough closing parentheses ')' found" );
+	mErrRet( tr("Not enough closing parentheses ')' found") );
 
     if ( haveouterparens )
     {
@@ -804,9 +805,9 @@ bool Math::ExpressionParser::findOuterAbs( char* str, int len,
     if ( str[0] != '|' || str[len-1] != '|' )
 	return false;
     if ( len == 1 )
-	mErrRet( "Single '|': invalid expression" );
+	mErrRet( tr("Single '|': invalid expression") );
     if ( len == 2 )
-	mErrRet( "Stand-alone '||' found" );
+	mErrRet( tr("Stand-alone '||' found") );
 
     BufferString workstr( str+1 );
     workstr[len-2] = '\0';
@@ -838,17 +839,19 @@ bool Math::ExpressionParser::findQMarkOper( char* str, int len,
 	{
 	    qmarkpos = idx;
 	    if ( qmarkpos == 0 )
-		mErrRet( "Please add a condition before '?'" )
+		mErrRet( uiStrings::phrAdd(tr("a condition before '?'")) )
 	    continue;
 	}
 	else if ( curch == ':' )
 	{
 	    if ( qmarkpos < 0 )
-		mErrRet( "Found ':' without '?'" )
+		mErrRet( tr("Found ':' without '?'") )
 	    if ( idx == qmarkpos+1 )
-		mErrRet( "Please add a value for the 'true' condition" )
+		mErrRet( uiStrings::phrAdd(
+				    tr("a value for the 'true' condition")) )
 	    if ( idx == len - 1 )
-		mErrRet( "Please add a value for the 'false' condition" )
+		mErrRet( uiStrings::phrAdd(
+				    tr("a value for the 'false' condition")) )
 	    str[qmarkpos] = str[idx] = '\0';
 	    PtrMan<Math::Expression> cond = parse( str );
 	    if ( !cond )
@@ -884,9 +887,9 @@ bool Math::ExpressionParser::findAndOrOr( char* str, int len,
 	{
 	    const bool isand = str[idx] == '&';
 	    if ( idx == 0 )
-		mErrRet( "No left-hand side for '&&' or '||' found" )
+		mErrRet( tr("No left-hand side for '&&' or '||' found") )
 	    else if ( idx == len-2 )
-		mErrRet( "No right-hand side for '&&' or '||' found" )
+		mErrRet( tr("No right-hand side for '&&' or '||' found") )
 
 	    str[idx] = '\0';
 	    PtrMan<Math::Expression> inp0 = parse( str );
@@ -929,13 +932,15 @@ bool Math::ExpressionParser::findInequality( char* str, int len,
 	    if ( (iseq || isnot) && nextch != '=' )
 	    {
 		str[idx+2] = '\0';
-		errmsg_.set( "Invalid operator found: ").add( str+idx );
+		errmsg_ = tr("Invalid operator found: %1").arg( str+idx );
 		return true;
 	    }
 	    if ( idx == 0 )
-		mErrRet( "No left-hand side for (in-)equality operator found" )
+		mErrRet( tr("No left-hand side for "
+					    "(in-)equality operator found") )
 	    else if ( idx == len-1 )
-		mErrRet( "No right-hand side for (in-)equality operator found" )
+		mErrRet( tr("No right-hand side for "
+					    "(in-)equality operator found") )
 
 	    str[idx] = '\0';
 	    PtrMan<Math::Expression> inp0 = parse( str );
@@ -1082,6 +1087,14 @@ static char* findLooseComma( char* str )
 }
 
 
+#   define mErrRetStr( str1, str2 ) \
+    { \
+	uiString str;			\
+	str.append(str1).append(str2); \
+	errmsg_ = str; \
+    }
+
+
 bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
 					      Math::Expression*& ret ) const
 {
@@ -1122,7 +1135,9 @@ bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
 	const int fnnameskipsz = FixedString( #nm ).size() + 1; \
 	char* ptrcomma = findLooseComma( str+fnnameskipsz ); \
 	if ( !ptrcomma ) \
-	    mErrRet( #nm " function takes 2 arguments" ) \
+	{ \
+	    mErrRetStr( #nm, sParse2ArgStr() ) \
+	} \
 	*ptrcomma++ = '\0'; \
 	PtrMan<Math::Expression> inp0 = parse( str + fnnameskipsz ); \
 	PtrMan<Math::Expression> inp1 = parse( ptrcomma ); \
@@ -1139,7 +1154,6 @@ bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
 
     return false;
 }
-
 
 bool Math::ExpressionParser::findStatsFunction( BufferString& workstr, int len,
 					      Math::Expression*& ret ) const
@@ -1166,7 +1180,7 @@ bool Math::ExpressionParser::findStatsFunction( BufferString& workstr, int len,
 	    if ( idx == len-1 || str[idx] == ',' )
 	    {
 		if ( idx == argstart )
-		    mErrRet("Empty argument(s) to statistical funcion")
+		    mErrRet(tr("Empty arguments to statistical funcion"))
 
 		str[idx] = '\0';
 		args.add( str + argstart );
@@ -1254,7 +1268,7 @@ bool Math::ExpressionParser::findVariable( char* str, int len,
 
     if ( hasvaridx && !inputsareseries_ )
     {
-	errmsg_.set( "Found recursive or shifted variables."
+	errmsg_ = tr( "Found recursive or shifted variables."
 		"\nBut the formula is not for data series" );
 	return false;
     }
@@ -1316,7 +1330,7 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 	return ret;
 
     if ( errmsg_.isEmpty() )
-	errmsg_.set( "Cannot parse this:\n'" ).add( inpstr ).add( "'" );
+	errmsg_ = uiStrings::phrCannotParse(tr( "this:\n'%1'" )).arg( inpstr );
     return 0;
 }
 
@@ -1324,6 +1338,6 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 Math::Expression* Math::ExpressionParser::parse() const
 {
     if ( inp_.isEmpty() )
-	{ errmsg_ = "Empty input"; return 0; }
+	{ errmsg_ = tr("Empty input"); return 0; }
     return parse( inp_.buf() );
 }

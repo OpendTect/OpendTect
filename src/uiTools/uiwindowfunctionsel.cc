@@ -32,7 +32,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     else
 	funcnames.append( WINFUNCS().getNames() );
     const StringListInpSpec funclist( funcnames );
-    windowtypefld_ =  new uiGenInput( this, mToUiStringTodo(su.label_),
+    windowtypefld_ =  new uiGenInput( this, toUiString(su.label_), 
 				      funclist );
     if ( su.winname_ ) windowtypefld_->setText( su.winname_ );
 

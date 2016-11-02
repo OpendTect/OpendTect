@@ -42,7 +42,7 @@ protected:
     uiCheckBox*		applybox_;
     uiPushButton*	applybut_;
     uiLabel*		steplbl_;
-    BufferString	ootxt_;
+    uiString		ootxt_;
 
     void		updateFieldDisplay();
     

@@ -35,7 +35,7 @@ public:
 /*!\brief Writer for CBVS file packs */
 
 mExpClass(General) CBVSWriteMgr : public CBVSIOMgr
-{
+{ mODTextTranslationClass(CBVSWriteMgr)
 public:
 
 			CBVSWriteMgr(const char* basefname,const CBVSInfo&,
@@ -73,7 +73,7 @@ protected:
     CBVSIO::CoordPol	coordpol_;
     bool		forcetrailers_;
 
-    const char*		errMsg_() const;
+    const uiString	errMsg_() const;
 
     od_ostream*		mkStrm();
     void		cleanup();

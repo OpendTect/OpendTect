@@ -310,7 +310,7 @@ uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 
     if ( desc->isSatisfied() == Desc::Error )
     {
-	const uiString derrmsg( mToUiStringTodo(desc->errMsg()) );
+	const uiString derrmsg( toUiString(desc->errMsg()) );
 	if ( !desc->isStored()
 		|| derrmsg.getFullString() != DescSet::storedIDErrStr() )
 	    errmsg_ = derrmsg;

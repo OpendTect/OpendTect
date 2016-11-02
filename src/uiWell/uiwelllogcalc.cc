@@ -128,7 +128,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const DBKeySet& wllids,
     uiMathFormula::Setup mfsu( tr("Formula (like 'den / son')") );
     mfsu.stortype_ = "Log calculation";
     formfld_ = new uiMathFormula( this, form_, mfsu );
-    formfld_->addInpViewIcon( "view_log", "Display this log",
+    formfld_->addInpViewIcon( "view_log", tr("Display this log"),
 			      mCB(this,uiWellLogCalc,vwLog) );
     formfld_->setNonSpecInputs( lognms_ );
     formfld_->inpSet.notify( inpselcb );
@@ -284,7 +284,7 @@ uiWellLogCalcRockPhys( uiParent* p )
 bool acceptOK()
 {
     bool rv = formgrp_->isOK();
-    if ( !rv ) uiMSG().error( mToUiStringTodo(formgrp_->errMsg()) );
+    if ( !rv ) uiMSG().error( formgrp_->errMsg() );
     return rv;
 }
 

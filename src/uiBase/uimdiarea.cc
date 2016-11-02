@@ -306,7 +306,7 @@ void closeEvent( QCloseEvent* ev )
     const int refnr = mdiareawin_.getMdiArea().beginCmdRecEvent( cmdrecmsg );
     BufferString bfstr = windowTitle();
     uiString msg( od_static_tr("closeEvent","Do you want to close %1 ?").
-		  arg(mToUiStringTodo(bfstr)) );
+		  arg(toUiString(bfstr)) );
     if ( sNoCloseMessage || uiMSG().askGoOn(msg) )
     {
 	ev->accept();

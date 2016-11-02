@@ -423,7 +423,7 @@ bool uiWellImportAsc::doWork()
 
     Well::Writer wwr( *outioobj, wd_ );
     if ( !wwr.put() )
-	mErrRet( mToUiStringTodo(wwr.errMsg()) );
+	mErrRet( wwr.errMsg() );
 
     outioobj->pars().update( sKey::CrFrom(), datasrcnms.cat("`") );
     outioobj->updateCreationPars();

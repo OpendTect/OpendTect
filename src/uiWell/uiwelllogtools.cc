@@ -64,14 +64,14 @@ bool uiWellLogToolWinMgr::acceptOK()
 	mErrRet( uiStrings::phrSelect(tr("at least one well")) )
 
     ObjectSet<uiWellLogToolWin::LogData> logdatas;
-    BufferStringSet msgs;
+    uiStringSet msgs;
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
 	const DBKey wmid = wellids[idx];
 	RefMan<Well::Data> wd = Well::MGR().get( wmid );
 	if ( !wd )
 	{
-	    msgs += new BufferString( Well::MGR().errMsg().getFullString() );
+	    msgs += Well::MGR().errMsg();
 	    continue;
 	}
 
@@ -357,17 +357,17 @@ bool uiWellLogToolWin::cancelPushedCB()
 #define mAddErrMsg( msg, well ) \
 { \
     if ( emsg.isEmpty() ) \
-	emsg.set( msg ); \
+	emsg = msg; \
     else \
-	emsg.add( "\n" ).add( msg ); \
-	emsg.add( " at well " ).add( well ); \
+	emsg.append(toUiString("\n %1 %2 %3")).arg( msg ) \
+	    .arg(uiWellLogToolWin::LogData::sAtWell()).arg(well); \
     continue; \
 }
 
 void uiWellLogToolWin::applyPushedCB( CallBacker* )
 {
     const int act = actionfld_->currentItem();
-    BufferString emsg;
+    uiString emsg;
     for ( int idldata=0; idldata<logdatas_.size(); idldata++ )
     {
 	LogData& ld = *logdatas_[idldata];
@@ -444,7 +444,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		Well::LogSampler ls( ld.d2t_, &track, zrg, false, deftimestep,
 				     SI().zIsTime(), ut, reslogs );
 		if ( !ls.execute() )
-		    mAddErrMsg( "Could not resample the logs", wllnm )
+		    mAddErrMsg( tr("Cannot resample the logs"), 
+					    toUiString(wllnm) )
 
 		const int size = ls.nrZSamples();
 		Array1DImpl<float> logvals( size );
@@ -460,14 +461,14 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		else
 		{
 		    if ( freqrg.isRev() )
-			mAddErrMsg( "Taper start frequency must be larger"
-				       " than stop frequency", wllnm )
+			mAddErrMsg( tr("Taper start frequency must be larger"
+				       " than stop frequency"), wllnm )
 
 		    filter.setBandPass( freqrg.start, freqrg.stop );
 		}
 
 		if ( !filter.apply(logvals) )
-		    mAddErrMsg( "Could not apply the FFT Filter", wllnm )
+		    mAddErrMsg( tr("Cannot apply the FFT Filter"), wllnm )
 
 		PointBasedMathFunction filtvals(PointBasedMathFunction::Linear,
 						PointBasedMathFunction::EndVal);
@@ -494,7 +495,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		const int winsz = gatefld_->getIntValue();
 		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
 		if ( !sm.execute() )
-		    mAddErrMsg( "Could not apply the smoothing window", wllnm )
+		    mAddErrMsg( tr("Cannot apply the smoothing window"), wllnm )
 	    }
 	    else if ( act == 3 )
 	    {
@@ -514,7 +515,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
     }
     okbut_->setSensitive( emsg.isEmpty() );
     if ( !emsg.isEmpty() )
-	uiMSG().error( mToUiStringTodo(emsg) );
+	uiMSG().error( emsg );
 
     displayLogs();
 }

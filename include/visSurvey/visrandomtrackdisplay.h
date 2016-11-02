@@ -160,7 +160,7 @@ public:
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> nodemoving_;
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const uiString&		errMsg() const { return errmsg_; }
     void			setPolyLineMode(bool yn);
     bool			createFromPolyLine();
     void			setColor(Color);

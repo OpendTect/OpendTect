@@ -390,9 +390,9 @@ bool parseExp( CallBacker* cb )
 
     if ( !mathobj )
     {
-	if ( mep.errMsg() )
+	if ( !mep.errMsg().isEmpty() )
 	{
-	    uiMSG().error( mToUiStringTodo(mep.errMsg()) );
+	    uiMSG().error( mep.errMsg() );
 	    chkbox->setChecked( false );
 	}
 	else if ( !mathexpr.isEmpty() )

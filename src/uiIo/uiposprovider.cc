@@ -378,7 +378,7 @@ uiPosSubSel::uiPosSubSel( uiParent* p, const uiPosSubSel::Setup& su )
     , selChange(this)
 {
     uiPosProvider::Setup ppsu( su.is2d_, su.withstep_, su.withz_ );
-    ppsu.seltxt( mToUiStringTodo(su.seltxt_) )
+    ppsu.seltxt( su.seltxt_ )
 	.allownone( true )
 	.choicetype( (uiPosProvider::Setup::ChoiceType)su.choicetype_ );
     ppsu.zdomkey( su.zdomkey_ );

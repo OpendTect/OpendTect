@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg(uiParent* p, const char* type)
    : uiDialog(p,uiDialog::Setup( uiStrings::phrSelect(tr("Input %1").arg(
-				 mToUiStringTodo(type))),mNoDlgTitle,
+				 toUiString(type))),mNoDlgTitle,
                                  mODHelpKey(mMultiSurfaceReadDlgHelpID) )
                                  .nrstatusflds(1) )
 {
@@ -40,7 +40,7 @@ uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg(uiParent* p, const char* type)
 void uiMultiSurfaceReadDlg::statusMsg( CallBacker* cb )
 {
     mCBCapsuleUnpack(const char* ,msg,cb);
-    toStatusBar( mToUiStringTodo(msg) );
+    toStatusBar( toUiString(msg) );
 }
 
 

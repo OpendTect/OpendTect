@@ -651,7 +651,7 @@ uiBodyRegionGrp::uiBodyRegionGrp( uiParent* p, const Setup& mysetup )
 
     uiPosSubSel::Setup setup( mysetup.is2d_, true );
     setup.choicetype(uiPosSubSel::Setup::RangewithPolygon)
-	 .seltxt("Geometry boundary").withstep(false);
+	 .seltxt(tr("Geometry boundary")).withstep(false);
 
     uiGroup* lastgrp = 0;
     if ( mysetup.withareasel_ )

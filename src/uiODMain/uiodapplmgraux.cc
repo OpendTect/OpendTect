@@ -512,7 +512,7 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 
     uiStringSet uioptions;
     for ( int idx=0; idx<options.size(); idx++ )
-	uioptions.add( mToUiStringTodo(options.get(idx)) );
+	uioptions.add( toUiString(options.get(idx)) );
     uiGetChoice dlg( par_, uioptions,
 			tr("Select policy for auto-update"), true,
                        mODHelpKey(mODApplMgrDispatchersetAutoUpdatePolHelpID));

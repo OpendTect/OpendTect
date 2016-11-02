@@ -47,7 +47,7 @@ public:
     virtual void	setInitialSize(int w,int h);
     virtual void	fillPar(IOPar&) const		{}
     virtual void	usePar(const IOPar&)		{}
-    static void		makeInfoMsg(BufferString&,IOPar&);
+    static void		makeInfoMsg(uiString&,IOPar&);
 
 protected:
 

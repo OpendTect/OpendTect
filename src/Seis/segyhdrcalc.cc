@@ -70,7 +70,7 @@ Math::Expression* SEGY::HdrCalcSet::gtME( const char* def, TypeSet<int>& heidxs,
     Math::Expression* me = mep.parse();
     if ( !me )
     {
-	if ( emsg ) *emsg = mToUiStringTodo(mep.errMsg());
+	if ( emsg ) *emsg = mep.errMsg();
 	return 0;
     }
 

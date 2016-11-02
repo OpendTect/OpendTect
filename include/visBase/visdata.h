@@ -142,7 +142,8 @@ public:
     static float		getDefaultPixelDensity();
     virtual float		getPixelDensity() const;
 
-    virtual const char*		errMsg() const	{ return 0; }
+    virtual const uiString&	errMsg() const	
+					    { return uiString::emptyString(); }
 
     bool			serialize(const char* filename,
 					  bool binary=false);

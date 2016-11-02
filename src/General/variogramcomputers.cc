@@ -22,7 +22,7 @@
 
 HorVariogramComputer::HorVariogramComputer( DataPointSet& dpset, int size,
 					    int cid, int range, int fold,
-					    BufferString& errmsg,
+					    uiString& errmsg,
 					    bool msgiserror )
     : variogramvals_( new Array2DImpl<float>(3,size) )
     , axes_( new Array2DImpl<float>(3,size) )
@@ -43,7 +43,7 @@ HorVariogramComputer::~HorVariogramComputer()
 
 bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 					    int cid, int range, int fold,
-					    BufferString& errmsg,
+					    uiString& errmsg,
 					    bool msgiserror )
 {
     Stats::CalcSetup rcsetuptot;
@@ -56,8 +56,8 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 
     if ( totvar < 0 || mIsZero(totvar,mDefEps) || mIsUdf(totvar) )
     {
-	errmsg = "Failed to compute the total variance\n";
-	errmsg += "Please check the input data";
+	errmsg = uiStrings::phrCannotCompute(tr("the total variance.\n"
+						"Please check the input data"));
 	msgiserror = true;
 	return false;
     }
@@ -174,7 +174,7 @@ BufferStringSet* HorVariogramComputer::getLabels() const
 VertVariogramComputer::VertVariogramComputer( DataPointSet& dpset, int colid,
 					    int step, int range, int fold,
 					    int nrgroups,
-					    BufferString& errmsg,
+					    uiString& errmsg,
 					    bool msgiserror )
     : variogramvals_( new Array2DImpl<float>(nrgroups+1,range/step+1) )
     , axes_( new Array2DImpl<float>(nrgroups+1,range/step+1) )
@@ -200,7 +200,7 @@ VertVariogramComputer::~VertVariogramComputer()
 bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 					    int step, int range, int fold,
 					    int nrgroups,
-					    BufferString& errmsg,
+					    uiString& errmsg,
 					    bool msgiserror )
 {
     DataPointSet::ColID dpcolid(colid);
@@ -228,8 +228,8 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    grpnm += igroup;
 	    grpnames.add(grpnm);
 	}
-	errmsg += "Could not retrieve group names\n";
-	errmsg += "Will use generic names";
+	errmsg = uiStrings::phrCannotExtract(tr("group names.\n"
+						    "Will use generic names"));
 	msgiserror = false;
     }
 
@@ -264,8 +264,8 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	{
 	    if ( mIsZero( disorder[idz].md_ - disorder[idz+1].md_ , mDefEps ) )
 	    {
-		errmsg = "Data inappropriate for analysis.\n";
-		errmsg += "Please re-extract with Radius around wells = 0";
+		errmsg = tr("Data inappropriate for analysis.\n"
+			    "Please re-extract with Radius around wells = 0");
 		msgiserror = true;
 		return false;
 	    }
@@ -278,10 +278,8 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    ztop  <  dpset.z(disorder[0].rowid_)*zstep ||
 	    (zbase - ztop) < 3*step )
 	{
-	    errmsg ="Z interval too small for analysis.\n";
-	    errmsg += "Well ";
-	    errmsg += grpnames.get( igroup-1 );
-	    errmsg += " is not used";
+	    errmsg = tr("Z interval too small for analysis.\n"
+			"Well %1 is not used").arg(grpnames.get( igroup-1 ));
 	    msgiserror = false;
 	    continue;
 	}
@@ -298,10 +296,8 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 
 	    if ( previdx >= nrin )
 	    {
-		errmsg ="Interpolation error.\n";
-		errmsg += "Well ";
-		errmsg += grpnames.get( igroup-1 );
-		errmsg += " is not used";
+		errmsg = tr("Interpolation error.\nWell %1 is not used")
+						.arg(grpnames.get( igroup-1 ));
 		msgiserror = true;
 		continue;
 	    }
@@ -364,27 +360,24 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 
     if ( totvar < 0 || mIsZero(totvar,mDefEps) || mIsUdf(totvar) )
     {
-	errmsg = "Failed to compute the total variance\n";
-	errmsg += "Please check the input data";
+	errmsg = uiStrings::phrCannotCompute(tr("the total variance.\n"
+					    "Please check the input data"));
 	msgiserror = true;
 	return false;
     }
 
     if ( statstot.count() < fold*range/step )
     {
-	errmsg ="Did not collect enough data for analysis\n";
-	errmsg += "Collect more data or decrease fold";
+	errmsg = tr("Did not collect enough data for analysis\n"
+		    "Collect more data or decrease fold");
 	msgiserror = true;
 	return false;
     }
 
     if ( nrcontribwells < nrwells )
     {
-	errmsg ="Warning!\nOnly ";
-	errmsg += nrcontribwells;
-	errmsg += " out of ";
-	errmsg += nrwells;
-	errmsg += " well(s) contributed to the output";
+	errmsg = tr("Warning!\nOnly %1 out of %2 wells contributed "
+		    "to the output").arg(nrcontribwells).arg(nrwells);
 	msgiserror = false;
     }
 

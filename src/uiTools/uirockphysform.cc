@@ -324,8 +324,8 @@ bool uiRockPhysForm::isOK()
 	if ( cstflds_[idx]->attachObj()->isDisplayed()
 	     && mIsUdf( cstflds_[idx]->value() ) )
 	{
-	    errmsg_ += "Please provide a value for constant '";
-	    errmsg_ += cstflds_[idx]->cstnm_; errmsg_ += "'\n";
+	    errmsg_.append(tr("Please provide a value for constant '%1'\n")
+		   .arg(cstflds_[idx]->cstnm_));
 	    return false;
 	}
     }

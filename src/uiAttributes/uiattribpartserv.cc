@@ -1476,7 +1476,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	{
 	    if ( attribnms.isPresent(childnm) )
 	    {
-		MenuItem* item = new MenuItem( mToUiStringTodo(childnm) );
+		MenuItem* item = new MenuItem( toUiString(childnm) );
 		const bool docheck = childnm==as.userRef();
 		mAddMenuItem(&subitem,item,true,docheck);
 	    }
@@ -1507,7 +1507,7 @@ void uiAttribPartServer::filter2DMenuItems(
 
 	    if ( attribnms.isPresent(seisobj->name()) )
 	    {
-		MenuItem* item = new MenuItem( mToUiStringTodo(childnm) );
+		MenuItem* item = new MenuItem( toUiString(childnm) );
 		const bool docheck = childnm==as.userRef();
 		mAddMenuItem(&subitem,item,true,docheck);
 	    }

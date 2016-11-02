@@ -1648,9 +1648,9 @@ bool uiVisPartServer::isPicking() const
 }
 
 
-void uiVisPartServer::getPickingMessage( BufferString& str ) const
+void uiVisPartServer::getPickingMessage( uiString& str ) const
 {
-    str = "";
+    str = uiString::emptyString();
     const TypeSet<int>& sel = visBase::DM().selMan().selected();
     if ( sel.size()!=1 ) return;
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(sel[0]));

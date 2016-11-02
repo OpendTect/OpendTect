@@ -39,7 +39,7 @@ public:
 				    TypeSet<PropertyRef::StdType>* tps=0) const;
     const char*		getText(bool replace_consts=true) const;
 
-    const char*		errMsg() const		{ return errmsg_.buf(); }
+    const uiString&	errMsg() const		{ return errmsg_; }
     bool		isOK();
 
 protected:
@@ -52,7 +52,7 @@ protected:
     ObjectSet<uiRockPhysConstantFld>	cstflds_;
 
     const PropertyRef::StdType		fixedtype_;
-    BufferString			errmsg_;
+    uiString				errmsg_;
 
     void		typSel(CallBacker*);
     void		nameSel(CallBacker*);

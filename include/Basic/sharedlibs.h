@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "bufstring.h"
 #include "gendefs.h"
+#include "uistrings.h"
 
 #ifdef __win__
 #   include "windows.h"
@@ -22,7 +23,8 @@ ________________________________________________________________________
 
 
 /*!
-\brief Gives access to shared libs on runtime. Plugins should be loaded via the Plugin Manager (see plugins.h).
+\brief Gives access to shared libs on runtime. Plugins should be loaded via 
+ the Plugin Manager (see plugins.h).
 */
 
 mExpClass(Basic) SharedLibAccess
@@ -32,7 +34,7 @@ public:
 		SharedLibAccess(const char* file_name);
 		//!< handle is only closed if you do it explicitly.
     bool	isOK() const		{ return handle_; }
-    const char*	errMsg() const		{ return errmsg_.buf(); }
+    const uiString&  errMsg() const		{ return errmsg_; }
 
     void	close();
 
@@ -48,6 +50,6 @@ public:
 protected:
 
     Handletype		handle_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
 
 };

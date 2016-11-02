@@ -39,7 +39,7 @@ public:
     const char*			getDefaultName() const;
     static char			cSeparator()	{ return ','; }
 
-    BufferString&		errMsg() const;
+    uiString			errMsg() const;
 				//!<Threadsafe, as each thread will have
 				//!<a different string returned.
 

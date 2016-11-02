@@ -16,13 +16,13 @@
 #include "strmprov.h"
 #include "od_iostream.h"
 
+
 #include <iostream>
 
-static inline void mkErrMsg( BufferString& errmsg, const char* fname,
+static inline void mkErrMsg( uiString& errmsg, const char* fname,
 			     const char* msg )
 {
-    errmsg = "'"; errmsg += fname; errmsg += "' ";
-    errmsg += msg;
+    errmsg = toUiString("'%1' %2").arg(fname).arg(msg);
 }
 
 
@@ -40,7 +40,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const TrcKeyZSampling* cs,
 	addReader( new od_istream( std::cin ), cs, glob_info_only,
                    forceusecbvsinfo );
 	if ( readers_.isEmpty() )
-	    errmsg_ = "Standard input contains no relevant data";
+	    errmsg_ = tr("Standard input contains no relevant data");
 	else
 	    createInfo();
 	return;
@@ -92,9 +92,10 @@ void CBVSReadMgr::close()
 }
 
 
-const char* CBVSReadMgr::errMsg_() const
+const uiString CBVSReadMgr::errMsg_() const
 {
-    return readers_.size() ? readers_[curnr_]->errMsg() : 0;
+    return readers_.size() ? readers_[curnr_]->errMsg() : 
+			     uiString::emptyString();
 }
 
 
@@ -118,7 +119,7 @@ bool CBVSReadMgr::addReader( od_istream* strm, const TrcKeyZSampling* cs,
 				bool info_only, bool usecbvsinfo )
 {
     CBVSReader* newrdr = new CBVSReader( strm, info_only, usecbvsinfo );
-    if ( newrdr->errMsg() )
+    if ( !newrdr->errMsg().isEmpty() )
     {
 	errmsg_ = newrdr->errMsg();
 	delete newrdr;
@@ -196,13 +197,13 @@ void CBVSReadMgr::createInfo()
 
 
 #define mErrMsgMk(s) \
-    errmsg_ = s; \
-    errmsg_ += " found in:\n"; errmsg_ += *fnames_[ireader];
+    errmsg_.append(s).append(toUiString("%1\n%2").arg(CBVSReadMgr::sFoundIn()) \
+	   .arg(*fnames_[ireader])); \
 
 #undef mErrRet
 #define mErrRet(s) { \
     mErrMsgMk(s) \
-    errmsg_ += "\ndiffers from first file"; \
+    errmsg_.append(toUiString("\n%1").arg(CBVSReadMgr::sDiffFromFirstFile())); \
     return false; \
 }
 
@@ -212,22 +213,22 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
 
     const CBVSInfo& rdrinfo = rdr->info();
     if ( rdrinfo.nrtrcsperposn_ != info_.nrtrcsperposn_ )
-	mErrRet("Number of traces per position")
+	mErrRet(tr("Number of traces per position"))
     if ( !rdrinfo.geom_.fullyrectandreg )
     {
 	const_cast<CBVSInfo&>(rdrinfo).geom_.step.inl() =info_.geom_.step.inl();
     }
     else if ( rdrinfo.geom_.step.inl() != info_.geom_.step.inl() )
-	mErrRet("In-line number step")
+	mErrRet(tr("In-line number step"))
     if ( rdrinfo.geom_.step.crl() != info_.geom_.step.crl() )
-	mErrRet("Cross-line number step")
+	mErrRet(tr("Cross-line number step"))
     if ( !mIsEqual(rdrinfo.sd_.step,info_.sd_.step,mDefEps) )
-	mErrRet("Sample interval")
+	mErrRet(tr("Sample interval"))
     if ( mIsEqual(rdrinfo.sd_.start,info_.sd_.start,mDefEps) )
     {
 	// Normal, horizontal (=vertical optimised)  storage
 	if ( rdrinfo.nrsamples_ != info_.nrsamples_ )
-	    mErrRet("Number of samples")
+	    mErrRet(tr("Number of samples"))
     }
     else
     {
@@ -237,10 +238,9 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
 	if ( diff < 0 ) diff = -diff;
 	if ( diff > info_.sd_.step / 10  )
 	{
-	    mErrMsgMk("Time range")
-	    errmsg_ += "\nis unexpected.\nExpected: ";
-	    errmsg_ += intv.stop; errmsg_ += " s.\nFound: ";
-	    errmsg_ += rdrinfo.sd_.start; errmsg_ += ".";
+	    mErrMsgMk(tr("Time range"))
+	    errmsg_.append(tr("\nis unexpected.\nExpected: %1seconds."
+		    "\nFound: %2.").arg(intv.stop).arg(rdrinfo.sd_.start));
 	    return false;
 	}
 	vertical_ = true;
@@ -522,7 +522,7 @@ const char* CBVSReadMgr::check( const char* basefname )
 
         od_istream istream( fname );
 
-	const char* res = CBVSReader::check( istream );
+	const char* res = mFromUiStringTodo(CBVSReader::check( istream ));
 
 	if ( res && *res )
 	{

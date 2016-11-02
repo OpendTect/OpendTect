@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "objectset.h"
 #include "bufstring.h"
+#include "uistrings.h"
 
 class BufferStringSet;
 class ZipFileInfo;
@@ -23,14 +24,14 @@ class ZipFileInfo;
 */
 
 mExpClass(General) ZipArchiveInfo
-{
+{ mODTextTranslationClass(ZipArchiveInfo)
 public:
 
 				ZipArchiveInfo(const char* fnm);
 				~ZipArchiveInfo();
 
     bool			isOK() const { return isok_; }
-    const char*			errorMsg() const;
+    const uiString		errorMsg() const;
 
     bool			getAllFnms(BufferStringSet&) const;
 
@@ -48,7 +49,7 @@ protected:
     bool			readZipArchive(const char* fnm);
 
     ObjectSet<ZipFileInfo>	fileinfo_;
-    mutable BufferString	errormsg_;
+    mutable uiString		errormsg_;
     bool			isok_;
 
 };

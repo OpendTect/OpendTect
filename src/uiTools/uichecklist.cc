@@ -49,7 +49,7 @@ uiCheckList& uiCheckList::addItem( const uiString& txt,const char* iconfnm )
 uiCheckList& uiCheckList::addItems( const BufferStringSet& itms )
 {
     for ( int idx=0; idx<itms.size(); idx++ )
-	addItem( mToUiStringTodo(itms.get(idx)), 0 );
+	addItem( toUiString(itms.get(idx)), 0 );
     return *this;
 }
 

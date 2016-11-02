@@ -182,7 +182,7 @@ bool ODMadProcFlowTranslator::retrieve( ODMad::ProcFlow& pf, const IOObj* ioobj,
     if ( !conn )
         errmsg.set( "Cannot open " ).add( ioobj->fullUserExpr(true) );
     else
-	errmsg = tr->read( pf, *conn );
+	errmsg = mFromUiStringTodo(tr->read( pf, *conn ));
     return errmsg.isEmpty();
 }
 
@@ -202,8 +202,8 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
     if ( !conn )
         errmsg.set( "Cannot open " ).add( ioobj->fullUserExpr(false) );
     else
-	errmsg = tr->write( pf, *conn );
-
+	errmsg = mFromUiStringTodo(tr->write( pf, *conn ));
+    
     if ( !errmsg.isEmpty() )
     {
 	if ( conn )
@@ -215,40 +215,84 @@ bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
 }
 
 
-const char* dgbODMadProcFlowTranslator::read( ODMad::ProcFlow& pf, Conn& conn )
+bool ODMadProcFlowTranslator::retrieve( ODMad::ProcFlow& pf, const IOObj* ioobj,
+					uiString& errmsg )
 {
-    if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
-
-    ascistream astrm( ((StreamConn&)conn).iStream() );
-    if ( !astrm.isOK() )
-	return "Cannot read from input file";
-    if ( !astrm.isOfFileType(mTranslGroupName(ODMadProcFlow)) )
-	return "Input file is not a Processing flow";
-    if ( atEndOfSection(astrm) )
-	astrm.next();
-    if ( atEndOfSection(astrm) )
-	return "Input file is empty";
-
-    pf.setName( DBM().nameOf(conn.linkedTo()) );
-    IOPar iop( astrm ); pf.usePar( iop );
-    return 0;
+    if ( !ioobj ) { errmsg = uiStrings::phrCannotFind(
+			    tr("flow object in data base")); return false; }
+    mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> trltr,
+		 ioobj->createTranslator());
+    if ( !trltr )
+    { errmsg = tr("Selected object is not a processing flow"); return false; }
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
+    if ( !conn )
+    { errmsg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
+								return false; }
+    errmsg = trltr->read( pf, *conn );
+    return errmsg.isEmpty();
 }
 
 
-const char* dgbODMadProcFlowTranslator::write( const ODMad::ProcFlow& pf,
+bool ODMadProcFlowTranslator::store( const ODMad::ProcFlow& pf,
+				     const IOObj* ioobj, uiString& errmsg )
+{
+    if ( !ioobj ) { errmsg = uiStrings::phrCannotSave(tr("flow in data base")); 
+								return false; }
+    mDynamicCast(ODMadProcFlowTranslator*,PtrMan<ODMadProcFlowTranslator> trltr,
+		 ioobj->createTranslator());
+    if ( !trltr ) { errmsg = tr("Selected object is not a Processing flow"); 
+								return false;}
+
+    errmsg = uiString::emptyString();
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
+    if ( !conn )
+    { 
+	errmsg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(
+								    false))); 
+    }
+    else
+	errmsg = trltr->write( pf, *conn );
+
+    return errmsg.isEmpty();
+}
+
+
+const uiString dgbODMadProcFlowTranslator::read( 
+					    ODMad::ProcFlow& pf, Conn& conn )
+{
+    if ( !conn.forRead() || !conn.isStream() )
+	return tr("Internal error: bad connection");
+
+    ascistream astrm( ((StreamConn&)conn).iStream() );
+    if ( !astrm.isOK() )
+	return uiStrings::phrCannotRead(tr("from input file"));
+    if ( !astrm.isOfFileType(mTranslGroupName(ODMadProcFlow)) )
+	return tr("Input file is not a Processing flow");
+    if ( atEndOfSection(astrm) )
+	astrm.next();
+    if ( atEndOfSection(astrm) )
+	return tr("Input file is empty");
+
+    pf.setName( DBM().nameOf(conn.linkedTo()) );
+    IOPar iop( astrm ); pf.usePar( iop );
+    return uiString::emptyString();
+}
+
+
+const uiString dgbODMadProcFlowTranslator::write( const ODMad::ProcFlow& pf,
 						Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return tr("Internal error: bad connection");
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(ODMadProcFlow) );
     if ( !astrm.isOK() )
-	return "Cannot write to output Processing flow file";
+	return uiStrings::phrCannotWrite(tr("output Processing flow file"));
 
     IOPar par;
     pf.fillPar( par );
     par.putTo( astrm );
-    return astrm.isOK() ? 0 : "Error during write to Processing flow file";
+    return astrm.isOK() ? uiStrings::sEmptyString() : 
+			  tr("Error during write to Processing flow file");
 }

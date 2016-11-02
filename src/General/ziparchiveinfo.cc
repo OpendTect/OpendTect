@@ -55,8 +55,8 @@ od_int64 ZipArchiveInfo::getFileCompSize( const char* fnm ) const
 	if ( filenm.matches( fileinfo_[idx]->fnm_ ) )
 	    return fileinfo_[idx]->compsize_;
 
-    errormsg_ = fnm;
-    errormsg_ += ": File not found";
+    errormsg_ = uiStrings::phrCannotFind(toUiString("%1: %2")
+					    .arg(uiStrings::sFile()).arg(fnm));
     return -1;
 }
 
@@ -68,7 +68,7 @@ od_int64 ZipArchiveInfo::getFileCompSize( int idx ) const
 
     if ( !fileinfo_.validIdx(idx) )
     {
-	errormsg_ = "Index is out of range";
+	errormsg_ = tr("Index is out of range");
 	return -1;
     }
 
@@ -86,8 +86,8 @@ od_int64 ZipArchiveInfo::getFileUnCompSize( const char* fnm ) const
 	if ( filenm.matches( fileinfo_[idx]->fnm_ ) )
 	    return fileinfo_[idx]->uncompsize_;
 
-    errormsg_ = fnm;
-    errormsg_ += ": File not found";
+    errormsg_ = uiStrings::phrCannotFind(toUiString("%1: %2")
+					    .arg(uiStrings::sFile()).arg(fnm));
     return -1;
 }
 
@@ -99,7 +99,7 @@ od_int64 ZipArchiveInfo::getFileUnCompSize( int idx ) const
 
     if ( !fileinfo_.validIdx(idx) )
     {
-	errormsg_ = "Index is out of range";
+	errormsg_ = tr("Index is out of range");
 	return -1;
     }
 
@@ -119,8 +119,8 @@ od_int64 ZipArchiveInfo::getLocalHeaderOffset( const char* fnm ) const
 	    return fileinfo_[idx]->localheaderoffset_;
     }
 
-    errormsg_ = fnm;
-    errormsg_ += ": File not found";
+    errormsg_ = uiStrings::phrCannotFind(toUiString("%1: %2")
+					    .arg(uiStrings::sFile()).arg(fnm));
     return -1;
 }
 
@@ -132,7 +132,7 @@ od_int64 ZipArchiveInfo::getLocalHeaderOffset( int idx ) const
 
     if ( !fileinfo_.validIdx(idx) )
     {
-	errormsg_ = "Index is out of range";
+	errormsg_ = tr("Index is out of range");
 	return -1;
     }
 
@@ -140,5 +140,5 @@ od_int64 ZipArchiveInfo::getLocalHeaderOffset( int idx ) const
 }
 
 
-const char* ZipArchiveInfo::errorMsg() const
-{ return errormsg_.buf(); }
+const uiString ZipArchiveInfo::errorMsg() const
+{ return errormsg_; }

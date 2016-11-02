@@ -116,7 +116,7 @@ public:
     bool		execute();
     void		abort()				{ abort_ = true; }
     void		pause(bool yn=true);
-    const char*		errMsg() const			{ return errmsg_.str();}
+    const uiString	errMsg() const			{ return errmsg_;}
 
     const char*		outputDir() const		{ return outdir_; }
     void		setOutputDir(const char* od)	{ outdir_ = od; }
@@ -189,7 +189,7 @@ protected:
     BufferString	outdir_;
     BufferString	logfnm_;
     BufferString	cmdfnm_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     Threads::Thread*	execthr_;
     od_ostream&		logstream_;
     File::Path&		outfp_;
@@ -327,6 +327,15 @@ public:
     bool		streamBlocked(bool parse,const char* tag);
 			// Does tryout management as side-effect!
 
+protected:
+
+    void		preProcSubstitutionErrMsg(const int,const int,
+                                                     const BufferString&);
+    void	    	checkTailErrMsg(const int,const BufferString&);
+    void		checkFlowErrMsg(const int,const char*,const char*);
+    void		checkFlowStackErrMsg(TypeSet<int>, enum FlowStackTag);
+    const uiString	sCheckFlowStackStr() 
+			{ return tr("ended in the middle of","something"); }
 };
 
 

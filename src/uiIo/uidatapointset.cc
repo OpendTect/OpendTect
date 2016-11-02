@@ -1810,7 +1810,7 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
     if ( !varsettings.go() )
 	return;
 
-    BufferString errmsg;
+    uiString errmsg;
     bool msgiserror = true;
     VertVariogramComputer vvc( *dps_, dcid, varsettings.getStep(),
 			      varsettings.getMaxRg(), varsettings.getFold(),
@@ -1818,9 +1818,9 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
     if ( !vvc.isOK() )
     {
 	if ( msgiserror )
-	    uiMSG().error( mToUiStringTodo(errmsg) );
+	    uiMSG().error( errmsg );
 	else
-	    uiMSG().warning( mToUiStringTodo(errmsg) );
+	    uiMSG().warning( errmsg );
 	return;
     }
 

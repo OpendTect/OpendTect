@@ -41,7 +41,7 @@ public:
 
     virtual void	use(const IOPar&)	= 0;
     virtual bool	fill(IOPar&) const	= 0;
-    virtual const char*	errMsg() const		{ return errmsg_; }
+    virtual const uiString& errMsg() const		{ return errmsg_; }
 
     const Translator&	translator() const	{ return transl_; }
 
@@ -51,7 +51,7 @@ public:
 protected:
 
     const Translator&	transl_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
 public:
 

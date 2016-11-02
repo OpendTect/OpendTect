@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "typeset.h"
 #include "od_iosfwd.h"
+#include "uistrings.h"
 
 
 class ZipArchiveInfo;
@@ -49,7 +50,7 @@ public:
 */
 
 mExpClass(General) ZipHandler
-{
+{ mODTextTranslationClass(ZipHandler)
 public:
 
     friend class		ZipUtils;
@@ -73,7 +74,7 @@ public:
 
 				~ZipHandler();
 
-    const char*			errorMsg()const;
+    const uiString		errorMsg()const;
 
     bool			getArchiveInfo(const char*,
 						ObjectSet<ZipFileInfo>&);
@@ -143,7 +144,7 @@ protected:
     void			closeInputStream();
     void			closeOutputStream();
 
-    mutable BufferString	errormsg_;
+    mutable uiString		errormsg_;
     BufferStringSet		allfilenames_;
     
     BufferString		srcfile_ ;

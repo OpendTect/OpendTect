@@ -479,7 +479,7 @@ int Well::TrackSampler::nextStep()
     RefMan<Well::Data> wd = Well::MGR().get( ids_[curid_] );
     if ( !wd )
     {
-	errmsg_ = mToUiStringTodo(Well::MGR().errMsg());
+	errmsg_ = Well::MGR().errMsg();
 	mRetNext()
     }
 
@@ -665,7 +665,7 @@ int Well::LogDataExtracter::nextStep()
     Well::Track* track = 0;
     if ( !wd )
     {
-	msg_ = mToUiStringTodo(Well::MGR().errMsg());
+	msg_ = Well::MGR().errMsg();
 	mRetNext()
     }
 

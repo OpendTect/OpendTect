@@ -23,6 +23,7 @@
 #include "pickset.h"
 #include "callback.h"
 #include "separstr.h"
+#include "uistrings.h"
 
 static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
@@ -608,21 +609,23 @@ void PickSetDisplay::updateLineAtSection()
 }
 
 
-void PickSetDisplay::getPickingMessage( BufferString& str ) const
+void PickSetDisplay::getPickingMessage( uiString& str ) const
 {
     float area = set_ ? set_->getXYArea() : mUdf(float);
     const bool hasarea = !mIsUdf(area) && area>0;
-    BufferString areastring;
+    uiString areastring;
 
     if ( hasarea )
     {
-	areastring = "Area=";
-	areastring += getAreaString( area, false, 0 );
+	areastring = tr("Area= %1").arg(getAreaString( area, false, 0 ));
     }
 
-    str = "Picking (Nr picks="; str += set_ ? set_->size() : 0;
-    if ( !areastring.isEmpty() ) { str +=", "; str += areastring; }
-    str += ")";
+    str = tr("Picking (Nr picks= %1").arg(set_ ? set_->size() : 0);
+    if ( !areastring.isEmpty() ) 
+    {
+	str.append(toUiString(", %1").arg(areastring)); 
+    }
+    str.append(toUiString(")"));
 }
 
 

@@ -78,6 +78,67 @@ bool DZT::FileHeader::getFrom( od_istream& strm, BufferString& emsg )
 }
 
 
+bool DZT::FileHeader::getFrom( od_istream& strm, uiString& emsg )
+{
+    // From 0, (u)shorts:
+    mRdVal(tag); mRdVal(data); mRdVal(nsamp); mRdVal(bits); mRdVal(zero);
+    // From 10, floats:
+    mRdVal(sps); mRdVal(spm); mRdVal(mpm); mRdVal(position); mRdVal(range);
+    // From 30, dates (4 bytes each):
+    mRdVal(created); mRdVal(modified);
+    // From 38, unsigned shorts:
+    mRdVal(npass); mRdVal(rgain); mRdVal(nrgain); mRdVal(text); mRdVal(ntext);
+    mRdVal(proc); mRdVal(nproc); mRdVal(nchan);
+    // From 54, floats:
+    mRdVal(epsr); mRdVal(top); mRdVal(depth);
+    // From 66, 1 byte dtype and 31 bytes reserved
+    char buf[32]; strm.getBin( buf, 32 ); dtype = buf[31];
+    // From 98, 14 bytes antenna
+    strm.getBin( antname, 14 );
+    // From 112, the rest
+    mRdVal(chanmask); strm.getBin( buf, 12 );
+    mRdVal(chksum);
+
+    emsg.setEmpty();
+#define mRetFalse nsamp = 0; return false
+    if ( nsamp < 1 )
+    { 
+	emsg = od_static_tr("getFrom","Zero Nr of samples found."); 
+	    mRetFalse; 
+    }
+    if ( sps < 1 )
+    { 
+	emsg = od_static_tr("getFrom", "Zero scans per second found."); 
+	mRetFalse; 
+    }
+    if ( range < 1 )
+    { 
+	emsg = od_static_tr("getFrom", "Zero trace length found."); 
+	mRetFalse; 
+    }
+    if ( data < 128 )
+	{ emsg.append(" Invalid data offset found: %1").arg(data); mRetFalse; }
+
+    // dtype cannot be trusted, it seems
+    if ( bits < 32 )
+    {
+	if ( dtype %2 )
+	    dtype = bits == 16 ? 3 : 1;
+	else
+	    dtype = bits == 16 ? 2 : 0;
+    }
+
+    strm.setPosition( data, od_stream::Abs );
+    if ( !strm.isOK() )
+    { 
+	emsg = uiStrings::phrCannotRead(od_static_tr("getFrom","first trace."));
+	mRetFalse; 
+    }
+
+    return true;
+}
+
+
 void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, Pos::GeomID geomid,
 				int trcidx ) const
 {
@@ -105,10 +166,10 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj, Pos::GeomID gid )
     if ( !istream_.isOK() )
 	return;
 
-    BufferString msg;
+    uiString msg;
     if ( !fh_.getFrom( istream_, msg ) )
     {
-	msg_ = mToUiStringTodo(msg);
+	msg_ = msg;
 	return;
     }
 

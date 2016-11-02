@@ -133,8 +133,8 @@ void FunctionSource::removeFunction( const Function* func )
 }
 
 
-const char* FunctionSource::errMsg() const
-{ return errmsg_.str(); }
+const uiString FunctionSource::errMsg() const
+{ return errmsg_; }
 
 
 void FunctionSource::getSurroundingPositions( const BinID& bid,

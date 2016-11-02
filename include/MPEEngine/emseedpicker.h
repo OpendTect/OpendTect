@@ -100,7 +100,7 @@ public:
     TrackMode		getTrackMode() const;
     bool		doesModeUseVolume() const		{ return false;}
 
-    virtual const char*	errMsg() const				{ return 0; }
+    virtual const uiString& errMsg() const   { return uiString::emptyString(); }
 
 
     void		setSeedPickArea(const TrcKeySampling&);

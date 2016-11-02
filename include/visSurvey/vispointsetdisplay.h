@@ -47,7 +47,7 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const uiString&		errMsg() const { return errmsg_; }
 
     bool			removeSelections(TaskRunner*);
     bool			selectable() const		{ return true; }

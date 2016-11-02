@@ -40,7 +40,7 @@ uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
 	: mDefConstrList(isrel)
 {
     const StepInterval<float> limitrg( SI().zRange(false) );
-    makeInpFields( mToUiStringTodo(lbltxt), wstep, !othdom_ &&
+    makeInpFields( toUiString(lbltxt), wstep, !othdom_ &&
 						       !isrel_ ? &limitrg : 0 );
     if ( isrel_ )
 	setRange( StepInterval<float>(0,0,1) );
@@ -53,7 +53,7 @@ uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
 			  const char* lbltxt, const char* domky )
 	: mDefConstrList(false)
 {
-    makeInpFields( mToUiStringTodo(lbltxt), wstep, &limitrg );
+    makeInpFields( toUiString(lbltxt), wstep, &limitrg );
     setRange( limitrg );
 }
 
@@ -79,7 +79,7 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 				  mNINT32(limitrg.stop), mNINT32(limitrg.step));
 
     startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
-    uiString ltxt( mToUiStringTodo(lbltxt) );
+    uiString ltxt( toUiString(lbltxt) );
     if ( ltxt.isEmpty() )
 	ltxt = zddef_.getRange();
 

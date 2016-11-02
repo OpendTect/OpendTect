@@ -64,7 +64,7 @@ public:
 	mDefSetupMemb(bool,docount)	// Show count rather than val_ (Vals)
 	mDefSetupMemb(bool,valcolor)	// Use val_ to color (Rose)
 	mDefSetupMemb(float,clipratio)	// Vals
-	mDefSetupMemb(BufferString,hdrannot)
+	mDefSetupMemb(uiString,hdrannot)
 	mDefSetupMemb(BufferString,nameforpos)
 	mDefSetupMemb(BufferString,nameforval)
 	mDefSetupMemb(uiSize,prefsize)

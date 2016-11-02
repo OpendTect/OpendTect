@@ -29,7 +29,7 @@ class uiPosProvSel;
 
 
 mExpClass(uiIo) uiPosSubSel : public uiGroup
-{
+{ mODTextTranslationClass(uiPosSubSel)
 public:
 
     struct Setup
@@ -37,14 +37,14 @@ public:
 	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, RangewithPolygon,
 	    		  VolumeTypes };
 			Setup( bool is_2d, bool with_z )
-			    : seltxt_( is_2d	? "Trace subselection"
-				   : ( with_z	? "Volume subselection"
-						: "Area subselection"))
+			    : seltxt_( is_2d	? tr("Trace subselection")
+				   : ( with_z	? tr("Volume subselection")
+						: tr("Area subselection")))
 			    , is2d_(is_2d)
 			    , withz_(with_z)
 			    , withstep_(true)
 			    , choicetype_(OnlyRanges)	{}
-	mDefSetupMemb(BufferString,seltxt)
+	mDefSetupMemb(uiString,seltxt)
 	mDefSetupMemb(bool,is2d)
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(bool,withstep)

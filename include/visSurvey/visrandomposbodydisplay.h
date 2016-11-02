@@ -54,7 +54,7 @@ public:
     EM::ObjectID		getEMID() const;
     EM::RandomPosBody*		getEMBody() const	{ return embody_; }
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const uiString&		errMsg() const { return errmsg_; }
 
 protected:
 

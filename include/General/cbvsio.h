@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "posinfo.h"
 #include "bufstringset.h"
+#include "uistrings.h"
 
 
 /*!\brief Base class for CBVS reader and writer
@@ -29,17 +30,18 @@ mExpClass(General) CBVSIO
 public:
 
 			CBVSIO()
-			: errmsg_(0), strmclosed_(false), nrxlines_(1)
-			, nrcomps_(0), cnrbytes_(0)	{}
+			: errmsg_(toUiString("")), 
+			  strmclosed_(false), nrxlines_(1),
+			  nrcomps_(0), cnrbytes_(0)	{}
     virtual		~CBVSIO();
 
-    bool		failed() const			{ return errmsg_; }
-    const char*		errMsg() const			{ return errmsg_; }
+    bool		failed() const	    { return !errmsg_.isEmpty(); }
+    const uiString	errMsg() const	    { return errmsg_; }
 
     virtual void	close() 			= 0;
     int			nrComponents() const		{ return nrcomps_; }
     const BinID&	binID() const			{ return curbinid_; }
-    void		setErrMsg( const char* s )	{ errmsg_ = s; }
+    void		setErrMsg( const uiString s )	{ errmsg_ = s; }
 
     static const int	integersize;
     static const int	version;
@@ -49,7 +51,7 @@ public:
 
 protected:
 
-    const char*		errmsg_;
+    uiString		errmsg_;
     int*		cnrbytes_;
     int			nrcomps_;
     bool		strmclosed_;
@@ -68,7 +70,7 @@ protected:
 */
 
 mExpClass(General) CBVSIOMgr
-{
+{ mODTextTranslationClass(CBVSIOMgr)
 public:
 
 			CBVSIOMgr( const char* basefname )
@@ -76,9 +78,8 @@ public:
 			, basefname_(basefname)	{}
     virtual		~CBVSIOMgr();
 
-    inline bool		failed() const		{ return errMsg(); }
-    inline const char*	errMsg() const
-			{ return errmsg_.isEmpty() ? errMsg_() : errmsg_.str();}
+    inline bool		failed() const		{ return !errMsg().isEmpty(); }
+    inline const uiString   errMsg() const 	{ return errmsg_;}
 
     virtual void	close() 		= 0;
 
@@ -97,11 +98,11 @@ public:
 protected:
 
     BufferString	basefname_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     BufferStringSet	fnames_;
     int			curnr_;
 
-    virtual const char*	errMsg_() const		= 0;
+    virtual const uiString errMsg_() const		= 0;
 
     mClass(General) AuxInlInf
     {

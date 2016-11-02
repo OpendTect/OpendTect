@@ -519,7 +519,7 @@ void uiListBox::mkLabel( const uiString& txt, LblPos pos )
     bool last1st = pos > RightTop && pos < BelowLeft;
     ptr = last1st ? txts[txts.size()-1]->getCStr() : txts[0]->getCStr();
 
-    uiLabel* labl = new uiLabel( this, mToUiStringTodo(ptr) );
+    uiLabel* labl = new uiLabel( this, toUiString(ptr) );
     lbls_ += labl;
     constraintType lblct = alignedBelow;
     switch ( pos )
@@ -565,7 +565,7 @@ void uiListBox::mkLabel( const uiString& txt, LblPos pos )
     int nrleft = txts.size() - 1;
     while ( nrleft )
     {
-	uiLabel* cur = new uiLabel( this, mToUiStringTodo((last1st
+	uiLabel* cur = new uiLabel( this, toUiString((last1st
 		  ? txts[nrleft-1]->buf() : txts[txts.size()-nrleft]->buf())) );
 	cur->attach( lblct, labl );
 	lbls_ += cur;
@@ -808,7 +808,7 @@ void uiListBox::addItems( const char** textList )
     const char** pt_cur = textList;
     scrollingblocked_ = true;
     while ( *pt_cur )
-	addItem( mToUiStringTodo(*pt_cur++) );
+	addItem( toUiString(*pt_cur++) );
     scrollingblocked_ = false;
     if ( choicemode_ != OD::ChooseNone && curidx < 0 )
 	curidx = 0;
@@ -821,7 +821,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
     int curidx = currentItem();
     scrollingblocked_ = true;
     for ( int idx=0; idx<strs.size(); idx++ )
-	addItem( mToUiStringTodo(strs.get(idx)) );
+	addItem( toUiString(strs.get(idx)) );
 
     scrollingblocked_ = false;
     if ( choicemode_ != OD::ChooseNone && curidx < 0 )
@@ -1022,7 +1022,17 @@ const char* uiListBox::textOfItem( int idx ) const
     if ( !validIdx(idx) )
 	return "";
 
-    rettxt_ = lb_->body().getItemText(idx).getFullString();
+    rettxt_ = lb_->body().getItemText(idx);
+    return mFromUiStringTodo(rettxt_).buf();
+}
+
+
+const uiString uiListBox::uiTextOfItem( int idx ) const
+{
+    if ( !validIdx(idx) )
+	return uiString::emptyString();
+
+    rettxt_ = lb_->body().getItemText(idx);
     return rettxt_;
 }
 

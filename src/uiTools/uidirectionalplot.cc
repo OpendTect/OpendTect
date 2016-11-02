@@ -274,7 +274,7 @@ void uiDirectionalPlot::drawHeader()
     {
 	al.set( OD::Alignment::Right );
 	hdrannotitm2_ = scene().addItem(
-			new uiTextItem(mToUiStringTodo(setup_.hdrannot_),al) );
+			new uiTextItem(setup_.hdrannot_,al) );
     }
 
     if ( hdrannotitm2_ )

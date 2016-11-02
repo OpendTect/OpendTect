@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "refcount.h"
 #include "seistype.h"
-#include "uistring.h"
+#include "uistrings.h"
 
 class BinDataDesc;
 class BinIDValueSet;
@@ -78,7 +78,8 @@ public:
     static const char*		scalekey();
     static const char*		varzlinekey();
 
-    virtual const char*		errMsg() const	{ return ""; }
+    virtual const uiString	errMsg() const	
+				{ return uiStrings::sEmptyString(); }
 
 protected:
 				~Output();
@@ -170,8 +171,8 @@ public:
     void			setOutpNames( const BufferStringSet& nms )
 				{ outpnames_ = nms; }
 
-    virtual const char*		errMsg() const
-				{ return errmsg_.getFullString(); }
+    virtual const uiString	errMsg() const
+				{ return errmsg_; }
 
     static const char*		seisidkey();
     static const char*		attribkey();
@@ -266,12 +267,12 @@ public:
 
     void			collectData(const DataHolder&,float step,
 					    const SeisTrcInfo&);
-    const char*			errMsg() const	{ return errmsg_.str(); }
+    const uiString		errMsg() const	{ return errmsg_; }
 
 protected:
 
     TypeSet< Interval<int> >	sampleinterval_;
-    BufferString		errmsg_;
+    uiString		errmsg_;
 
     Data2DHolder*		output_;
 };

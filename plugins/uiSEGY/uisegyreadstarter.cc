@@ -838,11 +838,11 @@ void uiSEGYReadStarter::updateSurvMap()
 
     survinfo_ = new SurveyInfo;
     survinfo_->setName( "No valid scan available" );
-    const char* stbarmsg = "";
+    uiString stbarmsg = uiStrings::sEmptyString();
     if ( scaninfos_ && !scaninfos_->isEmpty() )
     {
 	Coord crd[3]; TrcKeyZSampling cs;
-	stbarmsg = scaninfos_->piDetector().getSurvInfo( cs.hsamp_, crd );
+	stbarmsg = scaninfos_->piDetector().getUiSurvInfo( cs.hsamp_, crd );
 	if ( !stbarmsg )
 	{
 	    cs.zsamp_ = loaddef_.getZRange();
@@ -852,9 +852,9 @@ void uiSEGYReadStarter::updateSurvMap()
 	    bid[0].crl() = cs.hsamp_.start_.crl();
 	    bid[1].inl() = cs.hsamp_.stop_.inl();
 	    bid[1].crl() = cs.hsamp_.stop_.crl();
-	    stbarmsg = survinfo_->set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
+	    stbarmsg = survinfo_->set3PtsUiMsg(crd, bid, cs.hsamp_.stop_.crl());
 	}
-	if ( stbarmsg )
+	if ( !stbarmsg.isEmpty() )
 	    survinfo_->setName( "<Inadequate data>" );
 	else
 	{
@@ -863,7 +863,7 @@ void uiSEGYReadStarter::updateSurvMap()
 	}
     }
 
-    toStatusBar( mToUiStringTodo(stbarmsg) );
+    toStatusBar( stbarmsg );
     survmap_->setSurveyInfo( survinfo_ );
 }
 

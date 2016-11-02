@@ -37,7 +37,7 @@ uiAGC::uiAGC( uiParent* p, AGC* sgagc )
     , processor_( sgagc )
 {
     uiString unit;
-    processor_->getWindowUiUnit( unit, true );
+    processor_->getWindowUnit( unit, true );
     uiString label = tr("Window width %1").arg(unit);
     windowfld_ = new uiGenInput( this, label,
 			     FloatInpSpec(processor_->getWindow().width() ));

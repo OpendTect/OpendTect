@@ -49,7 +49,7 @@ public:
     bool		rejectOK();
     bool		revertChanges();
 
-    const char*		errMsg() const;
+    const uiString	errMsg() const;
 
 protected:
 

@@ -44,14 +44,14 @@ HorizonPreLoader::~HorizonPreLoader()
 }
 
 
-bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tr )
+bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tskr )
 {
-    errmsg_ = "";
+    errmsg_ = uiString::emptyString();
     if ( newmids.isEmpty() )
 	return false;
 
-    BufferString msg1( "The selected horizon(s):\n" );
-    BufferString msg2( "Could not pre-load:\n" );
+    uiString msg1( tr("The selected horizon(s):\n") );
+    uiString msg2( tr("Cannot pre-load:\n") );
     int nralreadyloaded = 0;
     int nrproblems = 0;
     PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
@@ -61,7 +61,7 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tr )
 	const int selidx = loadedmids_.indexOf( newmids[idx] );
 	if ( selidx > -1 )
 	{
-	    msg1.add( " '" ).add( loadednms_.get(selidx) ).add( "' " );
+	    msg1.append( " '%1'" ).arg( loadednms_.get(selidx) );
 	    nralreadyloaded++;
 	    continue;
 	}
@@ -74,7 +74,7 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tr )
 	    if ( !exec )
 	    {
 		BufferString name( EM::EMM().objectName(newmids[idx]) );
-		msg2.add( " '" ).add( name ).add( "' " );
+		msg2.append( " '%1'" ).arg( name );
 		nrproblems++;
 		continue;
 	    }
@@ -89,14 +89,14 @@ bool HorizonPreLoader::load( const DBKeySet& newmids, TaskRunner* tr )
 
     if ( nralreadyloaded > 0 )
     {
-	msg1.add( " already pre-loaded" );
-	errmsg_.add( msg1 );
+	msg1.append( tr(" already pre-loaded") );
+	errmsg_.append( msg1 );
     }
 
     if ( nrproblems > 0 )
-	errmsg_.add( "\n" ).add( msg2 );
+	errmsg_.append( "\n" ).append( msg2 );
 
-    if ( execgrp->nrExecutors()!=0 &&  !TaskRunner::execute( tr, *execgrp) )
+    if ( execgrp->nrExecutors()!=0 &&  !TaskRunner::execute( tskr, *execgrp) )
 	return false;
 
     for ( int idx=0; idx<emobjects.size(); idx++ )
@@ -129,7 +129,7 @@ void HorizonPreLoader::unload( const BufferStringSet& hornames )
     if ( hornames.isEmpty() )
 	return;
 
-    errmsg_ = "";
+    errmsg_ = uiString::emptyString();
     for ( int hidx=0; hidx<hornames.size(); hidx++ )
     {
 	const int selidx = loadednms_.indexOf( hornames.get(hidx) );
@@ -153,7 +153,7 @@ void HorizonPreLoader::surveyChgCB( CallBacker* )
     unload( loadednms_ );
     loadedmids_.erase();
     loadednms_.erase();
-    errmsg_ = "";
+    errmsg_ = uiString::emptyString();
 }
 
 } // namespace EM

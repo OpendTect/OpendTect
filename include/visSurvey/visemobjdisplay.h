@@ -67,7 +67,7 @@ class EdgeLineSetDisplay;
 
 mExpClass(visSurvey) EMObjectDisplay : public  visBase::VisualObjectImpl
 				     , public visSurvey::SurveyObject
-{
+{ mODTextTranslationClass(EMObjectDisplay)
 public:
     const mVisTrans*		getDisplayTransformation() const;
     void			setDisplayTransformation(const mVisTrans*);
@@ -89,7 +89,7 @@ public:
 				/*!<\returns wether a position attribute (as
 				     defined in EM::EMObject) to be marked
 				     with a marker. */
-    const char*			errMsg() const { return errmsg_.str(); }
+    const uiString&		errMsg() const { return errmsg_; }
 
     DBKey			getDBKey() const;
     BufferStringSet		displayedSections() const;

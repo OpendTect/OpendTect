@@ -145,7 +145,7 @@ bool StoredFunctionSource::store( const DBKey& velid )
     fillIOObjPar( ioobjpars );
     uiString errmsg = ::Pick::SetMGR().store( *ps, mid_, &ioobjpars );
     if ( !errmsg.isEmpty() )
-	{ errmsg_ = mFromUiStringTodo( errmsg ); return false; }
+	{ errmsg_ =  errmsg; return false; }
 
     return true;
 }
@@ -164,7 +164,7 @@ bool StoredFunctionSource::load( const DBKey& velid )
     uiRetVal uirv;
     ConstRefMan< ::Pick::Set > ps = ::Pick::SetMGR().fetch( velid, uirv );
     if ( !ps )
-	{ errmsg_ = uirv.getText(); return false; }
+	{ errmsg_ = toUiString(uirv.getText()); return false; }
 
     const IOPar psiop( ps->pars() );
     if ( !psiop.getYN( sKeyZIsTime(), zit_ ) ||

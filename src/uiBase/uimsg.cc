@@ -379,7 +379,7 @@ void uiMsg::errorWithDetails( const FileMultiString& fms )
 {
     uiStringSet strings;
     for ( int idx=0; idx<fms.size(); idx++ )
-	strings.add( mToUiStringTodo(fms[idx]) );
+	strings.add( ::toUiString(fms[idx]) );
 
     errorWithDetails( strings );
 }

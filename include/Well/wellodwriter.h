@@ -51,6 +51,8 @@ public:
     void		setBinaryWriteLogs( bool yn )	{ binwrlogs_ = yn; }
 
     static const char*	sKeyLogStorage()		{ return "Log storage";}
+    uiString		sStartWriting() const	 { return tr("Start Writing"); }
+
 
 protected:
 

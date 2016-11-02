@@ -502,7 +502,7 @@ void uiODSceneMgr::resetStatusBar( int id )
 {
     appl_.statusBar()->message( uiString::emptyString(), mPosField );
     appl_.statusBar()->message( uiString::emptyString(), mValueField );
-    appl_.statusBar()->message(mToUiStringTodo(visServ().getInteractionMsg(id)),
+    appl_.statusBar()->message(	toUiString(visServ().getInteractionMsg(id)),
 				mNameField );
     appl_.statusBar()->message( uiString::emptyString(), mStatusField );
     appl_.statusBar()->setBGColor( mStatusField,
@@ -547,18 +547,18 @@ void uiODSceneMgr::updateStatusBar()
     appl_.statusBar()->message( msg, mValueField );
 
     msg = haspos
-	    ? mToUiStringTodo(visServ().getMousePosString())
+	    ? toUiString(visServ().getMousePosString())
 	    : uiString::emptyString();
     if ( msg.isEmpty() )
     {
 	const int selid = visServ().getSelObjectId();
-    msg = mToUiStringTodo(visServ().getInteractionMsg( selid ) );
+    msg = toUiString(visServ().getInteractionMsg( selid ) );
     }
     appl_.statusBar()->message( msg, mNameField );
 
-    BufferString bsmsg;
+    uiString bsmsg;
     visServ().getPickingMessage( bsmsg );
-    appl_.statusBar()->message( mToUiStringTodo(bsmsg), mStatusField );
+    appl_.statusBar()->message( bsmsg, mStatusField );
 
     appl_.statusBar()->setBGColor( mStatusField, visServ().isPicking() ?
 	    Color(255,0,0) : appl_.statusBar()->getBGColor(mPosField) );

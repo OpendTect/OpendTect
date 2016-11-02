@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "vistexturechannel2rgba.h"
 #include "vispolygonselection.h"
 #include "zaxistransform.h"
+#include "uistrings.h"
 
 
 #define mSelColor Color( 0, 255, 0 )
@@ -597,11 +598,8 @@ bool EMObjectDisplay::usePar( const IOPar& par )
     PtrMan<IOObj> ioobj = DBM().get( parmid_ );
     if ( !ioobj )
     {
-	errmsg_ = "Cannot locate object ";
-	errmsg_ += mFromUiStringTodo(name());
-	errmsg_ += " (";
-	errmsg_ += parmid_;
-	errmsg_ += ")";
+	errmsg_ = uiStrings::phrCannotFind(tr("object %1 (%2)").arg(name())
+								.arg(parmid_));
 	return -1;
     }
 

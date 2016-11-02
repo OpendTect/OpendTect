@@ -202,7 +202,7 @@ public:
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
-    const char*			errMsg() const { return errmsg_.str(); }
+    const uiString&		errMsg() const { return errmsg_; }
 
     bool			writeVolume(int attrib,const char* fnm) const;
 

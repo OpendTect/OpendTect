@@ -150,7 +150,7 @@ private:
     void makeContourClose(uiContourTreeItemContourData&,
 			  Interval<int>& coordsrg) const;
     void addContourData(uiContourTreeItemContourData&);
-    void addContourLabel(const Coord3& pos, const char* lbl);
+    void addContourLabel(const Coord3& pos, const uiString& lbl);
     float getHorizonZValue(int rowidx,int colidx) const;
 
     int						nrcontours_;
@@ -486,7 +486,7 @@ bool uiContourTreeItemContourGenerator::doFinish( bool success )
 	    if ( contourdata_.labelcontourlen_[ipos] > contourlenthreshold )
 	    {
 		addContourLabel( contourdata_.labelpositions_[ipos],
-				 contourdata_.labels_[lbrgidx] );
+				 toUiString(contourdata_.labels_[lbrgidx]) );
 	    }
 	}
 
@@ -500,7 +500,7 @@ bool uiContourTreeItemContourGenerator::doFinish( bool success )
 
 
 void uiContourTreeItemContourGenerator::addContourLabel(
-    const Coord3& pos, const char* lbl)
+    const Coord3& pos, const uiString& lbl)
 {
     if ( !labels_ ) return;
 
@@ -508,9 +508,9 @@ void uiContourTreeItemContourGenerator::addContourLabel(
     visBase::Text* label = labels_->text( idx );
     if ( label )
     {
-	BufferString labelonpole( lbl );
-	labelonpole += "\n|";
-	label->setText( mToUiStringTodo(labelonpole) );
+	uiString labelonpole( lbl );
+	labelonpole.append(toUiString("\n|"));
+	label->setText( labelonpole );
 	label->setJustification( visBase::Text::BottomLeft );
 	label->setPosition( pos, true );
 	label->setFontData( FontData(18), labels_->getPixelDensity() );

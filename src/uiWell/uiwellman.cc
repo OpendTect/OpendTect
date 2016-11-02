@@ -611,7 +611,7 @@ void uiWellMan::writeLogs()
     {
 	Well::Writer wwr( curdbkeys_[idwell], *curwds_[idwell] );
 	if ( !wwr.putLogs() )
-	    uiMSG().error( mToUiStringTodo(wwr.errMsg()) );
+	    uiMSG().error( wwr.errMsg() );
     }
     wellsChgd();
 }

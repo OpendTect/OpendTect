@@ -40,10 +40,10 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType st )
 }
 
 
-uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
+uiUnitSel::uiUnitSel( uiParent* p, const uiString& lbltxt )
     : uiGroup(p,"UnitSel")
     , setup_(SI().zIsTime() ? PropertyRef::Time : PropertyRef::Dist,
-	     mToUiStringTodo(lbltxt))
+	     lbltxt)
     , selChange(this)
     , propSelChange(this)
 {

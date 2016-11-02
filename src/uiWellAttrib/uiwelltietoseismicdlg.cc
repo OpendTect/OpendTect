@@ -526,7 +526,7 @@ bool uiTieWin::okPushCB( CallBacker* )
 void uiTieWin::dispInfoMsg( CallBacker* cb )
 {
     mCBCapsuleUnpack(BufferString,mesg,cb);
-    statusBar()->message( mToUiStringTodo(mesg.buf()) );
+    statusBar()->message( toUiString(mesg.buf()) );
 }
 
 

@@ -75,9 +75,9 @@ bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
 	return false;
     }
 
-    err = tr->read( setup, *conn );
+    err = mFromUiStringTodo(tr->read( setup, *conn ));
     bool rv = err.isEmpty();
-    if ( rv ) err = tr->warningMsg();
+    if ( rv ) err = mFromUiStringTodo(tr->warningMsg());
     return rv;
 }
 
@@ -101,7 +101,7 @@ bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
 
     err = toUiString(trnsltr->read( setup, *conn ));
     bool rv = err.isEmpty();
-    if ( rv ) err = mToUiStringTodo(trnsltr->warningMsg());
+    if ( rv ) err = trnsltr->warningMsg();
     return rv;
 }
 
@@ -124,10 +124,10 @@ bool MPESetupTranslator::store( const MPESetup& setup, const IOObj* ioobj,
 	return false;
     }
 
-    err = tr->write( setup, *conn );
+    err = mFromUiStringTodo(tr->write( setup, *conn ));
     bool rv = err.isEmpty();
     if ( rv )
-	err = tr->warningMsg();
+	err = mFromUiStringTodo(tr->warningMsg());
     else
 	conn->rollback();
 
@@ -135,33 +135,33 @@ bool MPESetupTranslator::store( const MPESetup& setup, const IOObj* ioobj,
 }
 
 
-const char* dgbMPESetupTranslator::read( MPESetup& setup, Conn& conn )
+const uiString dgbMPESetupTranslator::read( MPESetup& setup, Conn& conn )
 {
-    warningmsg = "";
+    warningmsg = uiString::emptyString();
     if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return tr("Internal error: bad connection");
 
     ascistream astream( ((StreamConn&)conn).iStream() );
 
     IOPar iopar( astream );
     if ( iopar.isEmpty() )
-	return "Empty input file";
+	return tr("Empty input file");
 
     if ( !setup.usePar( iopar ))
-	return "Could not read setup-file";
+	return uiStrings::phrCannotRead(tr("setup-file"));
 
-    return 0;
+    return uiString::emptyString();
 }
 
 
-const char* dgbMPESetupTranslator::write( const MPESetup& setup, Conn& conn )
+const uiString dgbMPESetupTranslator::write( const MPESetup& setup, Conn& conn )
 {
-    warningmsg = "";
+    warningmsg = uiString::emptyString();
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return tr("Internal error: bad connection");
 
     IOPar iop; setup.fillPar( iop );
     if ( !iop.write(((StreamConn&)conn).oStream(),mTranslGroupName(MPESetup)) )
-	return "Cannot write setup to file";
-    return 0;
+	return uiStrings::phrCannotWrite(tr("setup to file"));
+    return uiString::emptyString();
 }

@@ -114,7 +114,7 @@ Attrib::Mathematics::Mathematics( Desc& dsc )
     formula_ = new Math::Formula( true, Attrib::Mathematics::getSpecVars() );
     formula_->setText( form->getStringValue() );
     if ( formula_->isBad() )
-    { errmsg_ = mToUiStringTodo(formula_->errMsg()); return; }
+    { errmsg_ = formula_->errMsg(); return; }
 
     int curinpidx = 0;
     TypeSet<int> inputsalreadyused;

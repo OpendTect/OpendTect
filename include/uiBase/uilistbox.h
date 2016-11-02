@@ -161,6 +161,7 @@ public:
 
     int			indexOf(const char*) const;	//!< First match
     const char*		textOfItem(int) const;
+    const uiString	uiTextOfItem(int) const;
     void		setItemText(int,const uiString&);
     void		getItems(BufferStringSet&) const;
 
@@ -221,7 +222,7 @@ private:
     OD::Alignment::HPos alignment_;
     bool		allowduplicates_;
     uiMenu&		rightclickmnu_;
-    mutable BufferString rettxt_;
+    mutable uiString	rettxt_;
     OD::ButtonState	buttonstate_;
     CallBack		savecb_;
     CallBack		retrievecb_;

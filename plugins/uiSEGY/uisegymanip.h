@@ -46,7 +46,7 @@ protected:
     SEGY::TxtHeader&	txthdr_;
     SEGY::BinHeader&	binhdr_;
     SEGY::HdrCalcSet&	calcset_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     BoolTypeSet		trchdrdefined_;
     od_istream*		strm_;
     od_int64		filesize_;

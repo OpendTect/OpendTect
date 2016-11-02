@@ -69,7 +69,7 @@ uiGetObjectName::uiGetObjectName( uiParent* p, const Setup& sup )
     {
 	listfld_ = new uiListBox( this );
 	for ( int idx=0; idx<sup.items_.size(); idx++ )
-	    listfld_->addItem( mToUiStringTodo(sup.items_.get(idx)) );
+	    listfld_->addItem( toUiString(sup.items_.get(idx)) );
 	if ( !sup.deflt_.isEmpty() )
 	    listfld_->setCurrentItem( sup.deflt_ );
 	else

@@ -33,10 +33,11 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     , applybox_(0)
     , applybut_(0)
 {
-    ootxt_ = is3D() ? (isInl() ? "Crossline" : "Inline") : "Trace Nr";
+    ootxt_ = is3D() ? (isInl() ? uiStrings::sCrossline() : uiStrings::sInline())
+			       : uiStrings::sTraceNumber();
     setCtrlStyle( CloseOnly );
 
-    oobox_ = new uiCheckBox( this, mToUiStringTodo(ootxt_) );
+    oobox_ = new uiCheckBox( this, ootxt_ );
     oobox_->setChecked( true );
     oobox_->activated.notify( mCB(this,uiViewer3DPositionDlg,ooBoxSel) );
 
@@ -132,7 +133,7 @@ void uiViewer3DPositionDlg::atStart( CallBacker* )
 void uiViewer3DPositionDlg::ooBoxSel( CallBacker* c )
 {
     const bool dodisp = oobox_->isChecked();
-    oobox_->setText( dodisp ? mToUiStringTodo(ootxt_) : uiStrings::sDisplay() );
+    oobox_->setText( dodisp ? ootxt_ : uiStrings::sDisplay() );
     viewer_.turnOn( dodisp );
 
     posfld_->display( dodisp );

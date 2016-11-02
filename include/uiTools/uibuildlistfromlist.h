@@ -63,9 +63,9 @@ public:
 	mDefSetupMemb(BufferString,defitemtype);
 	mDefSetupMemb(BufferString,avtitle);  // titles
 	mDefSetupMemb(BufferString,deftitle);
-	mDefSetupMemb(BufferString,addtt);	// tooltips
-	mDefSetupMemb(BufferString,edtt);
-	mDefSetupMemb(BufferString,rmtt);
+	mDefSetupMemb(uiString,addtt);	// tooltips
+	mDefSetupMemb(uiString,edtt);
+	mDefSetupMemb(uiString,rmtt);
 
     };
 

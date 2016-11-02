@@ -135,7 +135,7 @@ public:
 				Annotation(bool darkbg);
 				~Annotation();
 
-    BufferString		title_; //!< color not settable
+    uiString			title_; //!< color not settable
     Color			color_; //!< For axes
     AxisData			x1_;
     AxisData			x2_;

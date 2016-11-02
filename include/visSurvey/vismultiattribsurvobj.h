@@ -102,7 +102,7 @@ public:
     bool			canDisplayInteractively(
 						Pos::GeomID geomid=-1) const;
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const uiString&		errMsg() const { return errmsg_; }
 
 protected:
 

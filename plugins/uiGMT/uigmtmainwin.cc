@@ -257,9 +257,9 @@ void uiGMTMainWin::butPush( CallBacker* cb )
 	if ( newcur >= 0 && newcur < sz )
 	{
 	    const uiString curtxt( 
-				mToUiStringTodo(flowfld_->textOfItem(curidx)) );
+				toUiString(flowfld_->textOfItem(curidx)) );
 	    const uiString newcurtxt( 
-				mToUiStringTodo(flowfld_->textOfItem(newcur)) );
+				toUiString(flowfld_->textOfItem(newcur)) );
 	    flowfld_->setItemText( newcur, curtxt );
 	    flowfld_->setItemText( curidx, newcurtxt );
 	    pars_.swap( curidx, newcur );
@@ -328,7 +328,7 @@ void uiGMTMainWin::addCB( CallBacker* )
     GMTPar* par = GMTPF().create( iop );
     if ( !par ) return;
 
-    flowfld_->addItem( mToUiStringTodo(par->userRef()) );
+    flowfld_->addItem( toUiString(par->userRef()) );
     pars_ += par;
     flowfld_->setCurrentItem( flowfld_->size() - 1 );
     needsave_ = true;
@@ -354,7 +354,7 @@ void uiGMTMainWin::editCB( CallBacker* )
 	return;
 
     GMTPar* par = GMTPF().create( iop );
-    flowfld_->setItemText( selidx, mToUiStringTodo(par->userRef()) );
+    flowfld_->setItemText( selidx, toUiString(par->userRef()) );
     GMTPar* tmppar = pars_.replace( selidx, par );
     delete tmppar;
     needsave_ = true;
@@ -516,7 +516,7 @@ bool uiGMTMainWin::usePar( const IOPar& par )
 	if ( !gmtpar )
 	    continue;
 
-	flowfld_->addItem( mToUiStringTodo(gmtpar->userRef()) );
+	flowfld_->addItem( toUiString(gmtpar->userRef()) );
 	pars_ += gmtpar;
     }
 

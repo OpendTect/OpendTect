@@ -54,7 +54,7 @@ bool ODGMTProcFlowTranslator::retrieve( ODGMT::ProcFlow& pf, const IOObj* ioobj,
     if ( !conn )
         errmsg.set( "Cannot open " ).add( ioobj->fullUserExpr(true) );
     else
-	errmsg = tr->read( pf, *conn );
+	errmsg = mFromUiStringTodo(tr->read( pf, *conn ));
 
     return errmsg.isEmpty();
 }
@@ -76,7 +76,7 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
     if ( !conn )
         errmsg.set( "Cannot open " ).add( ioobj->fullUserExpr(false) );
     else
-	errmsg = tr->write( pf, *conn );
+	errmsg = mFromUiStringTodo(tr->write( pf, *conn ));
 
     if ( !errmsg.isEmpty() )
     {
@@ -103,7 +103,7 @@ bool ODGMTProcFlowTranslator::retrieve( ODGMT::ProcFlow& pf, const IOObj* ioobj,
     if ( !conn )
         { str = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
 								 return false; }
-    str = mToUiStringTodo(trans->read( pf, *conn ));
+    str = trans->read( pf, *conn );
     return str.isEmpty();
 }
 
@@ -125,44 +125,46 @@ bool ODGMTProcFlowTranslator::store( const ODGMT::ProcFlow& pf,
         { str = uiStrings::phrCannotOpen(
 				    toUiString(ioobj->fullUserExpr(false))); }
     else
-	str = mToUiStringTodo(trans->write( pf, *conn ));
+	str = trans->write( pf, *conn );
 
     return str.isEmpty();
 }
 
 
-const char* dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf, Conn& conn )
+const uiString dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf, 
+								    Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return tr("Internal error: bad connection");
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
-	return "Cannot read from input file";
+	return uiStrings::phrCannotRead(tr("from input file"));
     if ( !astrm.isOfFileType(mTranslGroupName(ODGMTProcFlow)) )
-	return "Input file is not a Processing flow";
+	return tr("Input file is not a Processing flow");
     if ( atEndOfSection(astrm) )
 	astrm.next();
     if ( atEndOfSection(astrm) )
-	return "Input file is empty";
+	return tr("Input file is empty");
 
     pf.setName( DBM().nameOf(conn.linkedTo()) );
     pf.pars().getFrom( astrm );
-    return 0;
+    return uiString::emptyString();
 }
 
 
-const char* dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
+const uiString dgbODGMTProcFlowTranslator::write( const ODGMT::ProcFlow& pf,
 						Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return toUiString("Internal error: bad connection");
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(ODGMTProcFlow) );
     if ( !astrm.isOK() )
-	return "Cannot write to output GMT flow file";
+	return uiStrings::phrCannotWrite(tr("to output GMT flow file"));
 
     pf.pars().putTo( astrm );
-    return astrm.isOK() ? 0 : "Error during write to GMT flow file";
+    return astrm.isOK() ? uiString::emptyString() : 
+			  tr("Error during write to GMT flow file");
 }

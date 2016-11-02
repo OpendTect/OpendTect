@@ -129,7 +129,7 @@ mGlobal(Batch) BatchProgram& BP();
 #define mRetHostErr(s) \
 {  \
     if ( comm_ ) comm_->setState( JobCommunic::HostError ); \
-	mRetError(s) \
+	mRetError(toUiString(s)) \
 }
 
 #define mStrmWithProcID(s) \

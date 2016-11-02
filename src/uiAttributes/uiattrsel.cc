@@ -624,7 +624,7 @@ uiString uiAttrSel::cDefLabel() { return uiStrings::sInputData(); }
 
 uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 		      DescID curid, bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?mToUiStringTodo(txt):cDefLabel()),
+    : uiIOSelect(p,uiIOSelect::Setup(txt?toUiString(txt):cDefLabel()),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ads)
     , ignoreid_(DescID::undef())
@@ -640,7 +640,7 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 
 uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
 		      bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?mToUiStringTodo(txt):cDefLabel()),
+    : uiIOSelect(p,uiIOSelect::Setup(txt?toUiString(txt):cDefLabel()),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ad)
     , ignoreid_(DescID::undef())

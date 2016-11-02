@@ -96,7 +96,7 @@ bool SynthGenBase::setOutSampling( const StepInterval<float>& si )
 bool SynthGenBase::isInputOK()
 {
     if ( !wavelet_ )
-	mErrRet(tr("Wavelet required to compute trace range from model(s)"),
+	mErrRet(tr("Wavelet required to compute trace range from models"),
 		false)
 
     const float outputsr = mIsUdf(outputsampling_.step) ? wavelet_->sampleRate()
@@ -152,7 +152,8 @@ bool SynthGenBase::getOutSamplingFromModel(
     }
 
     if ( sampling.isUdf() )
-	mErrRet(tr("Cannot determine trace size from model(s)"), false)
+	mErrRet(uiStrings::phrCannotCompute(tr("trace size from models")), 
+									false)
 
     sampling.scale( 1.f / outputsr );
     sampling.start = mIsEqual( (float)mNINT32(sampling.start), sampling.start,
@@ -248,15 +249,16 @@ int SynthGenerator::nextStep()
 {
     // Sanity checks
     if ( !wavelet_ )
-	mErrRet(tr("Cannot make synthetics without wavelet"), mErrOccRet);
+	mErrRet(uiStrings::phrCannotCreate(tr("synthetics without wavelet")), 
+								    mErrOccRet);
     const int wvltsz = wavelet_->size();
     if (wvltsz < 2)
 	mErrRet(tr("Wavelet is too short - at minimum 3 samples are required"),
-	mErrOccRet);
+								    mErrOccRet);
 
     if (!refmodel_)
-	mErrRet(tr("Cannot make synthetics without reflectivity model"),
-	mErrOccRet);
+	mErrRet(uiStrings::phrCannotCreate(
+		      tr("synthetics without reflectivity model")), mErrOccRet);
 
     if ( convolvesize_ == 0 )
 	return setConvolveSize();
@@ -291,7 +293,8 @@ int SynthGenerator::setConvolveSize()
 	    return mErrOccRet;
 
 	if ( !SynthGenBase::getOutSamplingFromModel(mod,cursampling) )
-	    mErrRet(tr("Cannot determine trace size from model"), mErrOccRet)
+	    mErrRet(uiStrings::phrCannotCompute(tr("trace size from model")),
+								mErrOccRet)
 
 	cursampling.start = outputsampling_.start;
     }
@@ -489,7 +492,7 @@ bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res, int outsz )
     Array1DImpl<float> output( outsz );
     Array1DStacker<float, Array1D<float> > stktrcs( wavelettrcs, output );
     if ( !stktrcs.execute() )
-	mErrRet( mToUiStringTodo(stktrcs.errMsg()), false )
+	mErrRet( stktrcs.errMsg(), false )
 
     output.getAll( res );
     return true;

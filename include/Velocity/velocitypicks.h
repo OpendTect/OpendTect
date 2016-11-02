@@ -119,7 +119,7 @@ public:
     void			setSmoother(Smoother1D<float>*);
 				//!<Becomes mine
 
-    const char*			errMsg() const;
+    const uiString		errMsg() const;
     static const char*		sKeyIsTime();
 
     void			setAll(float vel,bool undo=true);
@@ -187,7 +187,7 @@ protected:
 
     Undo*			undo_;
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
     Smoother1D<float>*		smoother_;
     ObjectSet<EM::Horizon3D>	horizons_;
 
@@ -209,13 +209,13 @@ public:
     Picks*			get(const DBKey&,bool gathermid,
 				    bool create, bool forcefromstorage );
 
-    const char*			errMsg() const;
+    const uiString		errMsg() const;
 protected:
     friend			class Picks;
 
     void			surveyChange(CallBacker*);
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
     ObjectSet<Picks>		velpicks_;
 };
 

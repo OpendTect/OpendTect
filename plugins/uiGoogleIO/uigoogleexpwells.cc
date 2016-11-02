@@ -50,7 +50,7 @@ void uiGoogleExportWells::initWin( CallBacker* )
     const DBDirEntryList del( WellTranslatorGroup::ioContext() );
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	selfld_->addItem( mToUiStringTodo(del.dispName(idx)) );
+	selfld_->addItem( toUiString(del.dispName(idx)) );
 	wellids_ += del.key( idx );
     }
     selfld_->chooseAll( true );

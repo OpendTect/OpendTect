@@ -51,7 +51,7 @@ public:
     bool			setBodyDisplay();
     visBase::RandomPos2Body*	getDisplayBody() const	{ return bodydisplay_; }
 
-    void			getPickingMessage(BufferString&) const;
+    void			getPickingMessage(uiString&) const;
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;

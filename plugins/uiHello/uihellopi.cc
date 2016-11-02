@@ -90,9 +90,9 @@ bool acceptOK()
 	return false;
     }
     if ( typfld->getBoolValue() )
-	uiMSG().message( mToUiStringTodo(typedtxt) );
+	uiMSG().message( toUiString(typedtxt) );
     else
-	uiMSG().warning( mToUiStringTodo(typedtxt) );
+	uiMSG().warning( toUiString(typedtxt) );
     return true;
 }
 

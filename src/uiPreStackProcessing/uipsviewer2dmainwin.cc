@@ -401,9 +401,9 @@ void uiStoredViewer2DMainWin::convAngleDataToDegrees(
 void uiViewer2DMainWin::displayInfo( CallBacker* cb )
 {
     mCBCapsuleUnpack(IOPar,pars,cb);
-    BufferString mesg;
+    uiString mesg;
     makeInfoMsg( mesg, pars );
-    statusBar()->message( toUiString(mesg.buf()) );
+    statusBar()->message( mesg );
 }
 
 BufferString getSettingsKey( bool isstored )

@@ -568,7 +568,7 @@ bool SeisTrcStorOutput::finishWrite()
 
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 			Pos::GeomID geomid)
-    : errmsg_(0)
+    : errmsg_(uiString::emptyString())
     , output_( 0 )
 {
     seldata_->setGeomID( geomid );

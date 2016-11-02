@@ -85,7 +85,7 @@ Each Desc has DescID that is unique within it's DescSet.
 */
 
 mExpClass(AttributeEngine) Desc : public RefCount::Referenced
-{
+{ mODTextTranslationClass(Desc)
 public:
 
     enum Locality		{ SingleTrace, PossiblyMultiTrace, MultiTrace };
@@ -158,8 +158,8 @@ public:
     SatisfyLevel		isSatisfied() const;
 				/*!< Checks whether all inputs are satisfied. */
 
-    const char*			errMsg() const;
-    void			setErrMsg( const char* str )	{ errmsg_=str; }
+    const uiString		errMsg() const;
+    void			setErrMsg( const uiString str )	{ errmsg_=str; }
 
     bool			isIdenticalTo(const Desc&,
 					      bool cmpoutput=true) const;
@@ -242,7 +242,7 @@ protected:
 
     DescStatusUpdater		statusupdater_;
     DescDefaultsUpdater		defaultsupdater_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
 };
 
 } // namespace Attrib

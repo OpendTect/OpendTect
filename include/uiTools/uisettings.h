@@ -68,7 +68,7 @@ public:
     bool		isChanged() const	{ return changed_; }
     bool		needsRestart() const	{ return needsrestart_; }
     bool		needsRenewal() const	{ return needsrenewal_; }
-    const char*		errMsg() const;
+    const uiString	errMsg() const;
 
 protected:
 			uiSettingsGroup(uiParent*,const uiString& caption,
@@ -82,7 +82,7 @@ protected:
 				       const OD::String& newval,
 				       const char* key);
 
-    BufferString	errmsg_;
+    uiString		errmsg_;
     Settings&		setts_;
     bool		changed_;
     bool		needsrestart_;

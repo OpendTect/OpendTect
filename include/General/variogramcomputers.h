@@ -11,18 +11,19 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "gendefs.h"
+#include "uistrings.h"
 
 template <class T> class Array2D;
 class BufferStringSet;
 class DataPointSet;
 
 mExpClass(General) HorVariogramComputer
-{
+{ mODTextTranslationClass(HorVariogramComputer)
 public:
 
 			HorVariogramComputer(DataPointSet& dpset, int size,
 					    int cid, int range, int fold,
-					    BufferString& errmsg,
+					    uiString& errmsg,
 					    bool msgiserror );
 			~HorVariogramComputer();
 
@@ -41,19 +42,19 @@ protected:
 
     bool                    compVarFromRange(DataPointSet& dpset, int size,
 					    int cid, int range, int fold,
-					    BufferString& errsmg,
+					    uiString& errsmg,
 					    bool msgiserror );
 };
 
 
 mExpClass(General) VertVariogramComputer
-{
+{ mODTextTranslationClass(VertVariogramComputer)
 public:
 
 			    VertVariogramComputer(DataPointSet& dpset,int,
 						int step,int range,
 						int fold, int nrgroups,
-						BufferString& errmsg,
+						uiString& errmsg,
 						bool msgiserror );
 			    ~VertVariogramComputer();
 
@@ -77,7 +78,7 @@ protected:
     bool                    compVarFromRange(DataPointSet& dpset,int colid, 
 					    int step,int range,int fold,
 					    int nrgroups,
-					    BufferString& errmsg,
+					    uiString& errmsg,
 					    bool msgiserror);
 
     struct MDandRowID

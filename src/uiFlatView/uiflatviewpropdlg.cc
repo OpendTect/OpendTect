@@ -906,7 +906,7 @@ void uiFlatViewPropDlg::putAllToScreen()
 	if ( ptab ) ptab->putToScreen();
     }
 
-    titlefld_->setText( vwr_.appearance().annot_.title_ );
+    titlefld_->setText( mFromUiStringTodo(vwr_.appearance().annot_.title_) );
     if ( annottab_ )
 	annottab_->setSelAnnot( selannot_ );
 }
@@ -943,7 +943,7 @@ bool uiFlatViewPropDlg::acceptOK()
     if ( !uiTabStackDlg::acceptOK() )
 	return false;
 
-    vwr_.appearance().annot_.title_ = titlefld_->text();
+    vwr_.appearance().annot_.title_ = toUiString(titlefld_->text());
     if ( annottab_ )
 	selannot_ = annottab_->getSelAnnot();
 

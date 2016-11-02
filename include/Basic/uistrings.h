@@ -33,6 +33,8 @@ public:
     //!<"Calculate from <string>"
     static uiString phrCannotAdd(const uiString&);
     //!<"Cannot Add <string>"
+    static uiString phrCannotCompute(const uiString&);
+    //!<?Cannot compute <string>"
     static uiString phrCannotCopy(const uiString&);
     //!<"Cannot Copy <string>"
     static uiString phrCannotCreate(const uiString& string);
@@ -227,8 +229,10 @@ public:
     static uiString sCantOpenInpFile(int num=1);
     static uiString sCantOpenOutpFile(int num=1);
     static uiString sCannotAdd();
+    static uiString sCannotCompute();
     static uiString sCannotCopy();
     static uiString sCannotEdit();
+    static uiString sCannotFind();
     static uiString sCannotLoad();
     static uiString sCannotParse();
     static uiString sCannotRemove();

@@ -125,7 +125,7 @@ void uiStratSelUnits::mkTreeFld()
 
     tree_ = new uiTreeView( this, setup_.fldtxt_,
 	      nrleaves<setup_.maxnrlines_ ? 0 : setup_.maxnrlines_, true );
-    tree_->setColumnText( 0, mToUiStringTodo(setup_.fldtxt_) );
+    tree_->setColumnText( 0, toUiString(setup_.fldtxt_) );
     tree_->setStretch( 1, 2 );
 
     ObjectSet<const Strat::UnitRef> dispunits;

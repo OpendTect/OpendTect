@@ -347,7 +347,7 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
 
     if ( !drv_.getActionsFromFile(fnm) )
     {
-	uiMSG().error( mToUiStringTodo(drv_.errMsg()) );
+	uiMSG().error( drv_.errMsg() ); 
 	return false;
     }
 

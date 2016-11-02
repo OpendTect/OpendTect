@@ -34,9 +34,7 @@ public:
 
     void			setWindow(const Interval<float>&);
     const Interval<float>&	getWindow() const;
-    void			getWindowUnit(BufferString&,
-	    				      bool withparens) const;
-    void			getWindowUiUnit(uiString&,
+    void			getWindowUnit(uiString&,
 	    				      bool withparens) const;
 
     void			setLowEnergyMute(float fraction);

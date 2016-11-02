@@ -74,7 +74,7 @@ public:
     const UnitOfMeasure* getUnit() const;
 
     uiButton*		addButton(const uiToolButtonSetup&);
-    void		addInpViewIcon(const char* icnm,const char* tooltip,
+    void		addInpViewIcon(const char* icnm,const uiString& tooltip,
 					const CallBack&);
 
     Notifier<uiMathFormula> formSet;

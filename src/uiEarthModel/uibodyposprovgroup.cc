@@ -35,7 +35,7 @@ uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
     bodyfld_->attach( alignedBelow, inoutbut_ );
 
     outsidergfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,true)
-	    .withstep(false).seltxt("Within bounding box") );
+	    .withstep(false).seltxt(tr("Within bounding box")) );
     outsidergfld_->attach( alignedBelow, bodyfld_ );
     ioChg( 0 );
 

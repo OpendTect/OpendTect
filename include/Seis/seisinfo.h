@@ -69,8 +69,8 @@ public:
     void		setPSFlds(const Coord& rcvpos,const Coord& srcpos,
 				  bool setpos=false);
 
-    static const char*	sSamplingInfo;
-    static const char*	sNrSamples;
+    static const char*	sKeySamplingInfo;
+    static const char*	sKeyNrSamples;
     static float	defaultSampleInterval(bool forcetime=false);
 
     Seis::PosKey	posKey(Seis::GeomType) const;

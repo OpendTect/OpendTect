@@ -31,10 +31,10 @@
 #include <iostream>
 #include <math.h>
 
-const char* SeisTrcInfo::sSamplingInfo = "Sampling information";
-const char* SeisTrcInfo::sNrSamples = "Nr of samples";
-const char* SeisPacketInfo::sBinIDs = "BinID range";
-const char* SeisPacketInfo::sZRange = "Z range";
+const char* SeisTrcInfo::sKeySamplingInfo = "Sampling information";
+const char* SeisTrcInfo::sKeyNrSamples = "Nr of samples";
+const char* SeisPacketInfo::sKeyBinIDs = "BinID range";
+const char* SeisPacketInfo::sKeyZRange = "Z range";
 
 
 static BufferString getUsrInfo()
@@ -394,7 +394,7 @@ void SeisTrcInfo::usePar( const IOPar& iopar )
     mIOIOPar( get, Pick,	pick_ );
     mIOIOPar( get, RefNr,	refnr_ );
 
-    iopar.get( sSamplingInfo, sampling_.start, sampling_.step );
+    iopar.get( sKeySamplingInfo, sampling_.start, sampling_.step );
 }
 
 
@@ -410,7 +410,7 @@ void SeisTrcInfo::fillPar( IOPar& iopar ) const
     mIOIOPar( set, Pick,	pick_ );
     mIOIOPar( set, RefNr,	refnr_ );
 
-    iopar.set( sSamplingInfo, sampling_.start, sampling_.step );
+    iopar.set( sKeySamplingInfo, sampling_.start, sampling_.step );
 }
 
 

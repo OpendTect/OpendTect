@@ -191,7 +191,7 @@ namespace File
 {
 
 class RecursiveDeleter : public Executor
-{
+{ mODTextTranslationClass(RecursiveDeleter)
 public:
 			RecursiveDeleter(const char* dirnm,
 					 const BufferStringSet* externallist=0,
@@ -217,7 +217,7 @@ public:
     od_int64		totalNr() const		{ return totalnr_; }
     uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const
-			{ return mToUiStringTodo( "Files removed" ); }
+			{ return tr( "Files removed" ); }
 
     int			nextStep();
 
@@ -258,7 +258,7 @@ int File::RecursiveDeleter::nextStep()
 
     if ( !res )
     {
-	uiString msg( mToUiStringTodo("Failed to remove ") );
+	uiString msg( tr("Failed to remove ") );
 	msg.append( filename );
 	msg_ = msg;
 	return ErrorOccurred();

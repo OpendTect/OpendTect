@@ -150,7 +150,11 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 	File::Path fp( GetLibPlfDir(), libnm );
 	SharedLibAccess* sla = new SharedLibAccess( fp.fullPath() );
 	if ( !sla->isOK() )
-	    { ErrMsg( sla->errMsg() ); delete sla; continue; }
+	{ 
+	    ErrMsg( mFromUiStringTodo(sla->errMsg()) ); 
+	    delete sla; 
+	    continue; 
+	}
 
 	loadedmods_.add( modnm );
 	shlibaccs_ += sla;

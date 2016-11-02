@@ -42,8 +42,8 @@ public:
 
     void		clear();
 
-    static const char*	sBinIDs;
-    static const char*	sZRange;
+    static const char*	sKeyBinIDs;
+    static const char*	sKeyZRange;
 
     static BufferString	defaultusrinfo;
 

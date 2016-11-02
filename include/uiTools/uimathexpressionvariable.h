@@ -33,7 +33,9 @@ public:
 				    const Math::SpecVarSet* svs=0);
 			~uiMathExpressionVariable();
 
-    void		addInpViewIcon(const char* inm,const char* tooltip,
+    mDeprecated void	addInpViewIcon(const char* inm,const char* tooltip,
+					const CallBack&);
+    void		addInpViewIcon(const char* inm,const uiString& tooltip,
 					const CallBack&);
     void		setNonSpecInputs(const BufferStringSet&);
     void		setNonSpecSubInputs(const BufferStringSet&);

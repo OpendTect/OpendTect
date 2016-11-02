@@ -27,8 +27,8 @@ bool FactoryBase::isEmpty() const
 const char* FactoryBase::currentName() const
 { return currentname_.getObject().str(); }
 
-BufferString& FactoryBase::errMsg() const
-{ return currentname_.getObject(); }
+uiString FactoryBase::errMsg() const
+{ return toUiString(currentname_.getObject()); }
 
 
 void FactoryBase::addNames( const char* name, const uiString& username )

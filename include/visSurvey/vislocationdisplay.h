@@ -48,7 +48,7 @@ public:
 
     DBKey			getDBKey() const;
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const uiString&		errMsg() const { return errmsg_; }
 
     void			fullRedraw(CallBacker* =0);
     void			showAll(bool yn);

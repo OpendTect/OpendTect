@@ -59,7 +59,7 @@ public:
     bool			setEMID(const EM::ObjectID&,TaskRunner*);
     EM::ObjectID		getEMID() const;
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const uiString&		errMsg() const { return errmsg_; }
 
     SurveyObject::AttribFormat	getAttributeFormat(int) const;
     int				nrAttribs() const;

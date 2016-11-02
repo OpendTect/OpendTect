@@ -71,10 +71,10 @@ void CBVSWriter::init( const CBVSInfo& i )
     nrbytespersample_ = 0;
 
     if ( !strm_.isOK() )
-	{ errmsg_ = "Cannot open file for write"; return; }
+	{ errmsg_ = uiStrings::phrCannotOpen(tr("file for writing")); return; }
     if ( !survgeom_.fullyrectandreg && !auxinfo_ )
 	{ pErrMsg("Survey not rectangular but no explicit inl/crl info");
-	  errmsg_ = "Internal error"; return; }
+	  errmsg_ = tr("Internal error"); return; }
 
     if ( auxinfo_ && survgeom_.fullyrectandreg
       && !auxinfosel_.startpos_ && !auxinfosel_.coord_
@@ -82,7 +82,7 @@ void CBVSWriter::init( const CBVSInfo& i )
       && !auxinfosel_.pick_ && !auxinfosel_.refnr_ )
 	auxinfo_ = 0;
 
-    writeHdr( i ); if ( errmsg_ ) return;
+    writeHdr( i ); if ( !errmsg_.isEmpty() ) return;
 
     input_rectnreg_ = survgeom_.fullyrectandreg;
 
@@ -114,7 +114,7 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
     putAuxInfoSel( ucbuf + 5 );
     ucbuf[6] = (unsigned char)coordpol_;
     if ( !strm_.addBin(ucbuf,headstartbytes) )
-	mErrRet("Cannot start writing to file")
+	mErrRet(uiStrings::phrCannotStart(tr("writing to file")))
 
     int sz = info.stdtext_.size();
     strm_.addBin( &sz, integersize );
@@ -134,7 +134,8 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
     strm_.addBin( &len, integersize );
     strm_.addBin( bs, len );
 
-    if ( !strm_.isOK() ) mErrRet("Could not write complete header");
+    if ( !strm_.isOK() ) 
+	mErrRet(uiStrings::phrCannotWrite(tr("complete header")));
 }
 
 
@@ -305,17 +306,20 @@ int CBVSWriter::put( void** cdat, int offs )
 	{
 	    delete newinldat;
 	    close();
-	    return errmsg_ ? -1 : 1;
+	    return !errmsg_.isEmpty() ? -1 : 1;
 	}
 
 	doClose( false );
 	lds_ += newinldat;
 
-	if ( errmsg_ ) return -1;
+	if ( !errmsg_.isEmpty() ) return -1;
     }
 
     if ( !writeAuxInfo() )
-	{ errmsg_ = "Cannot write Trace header data"; return -1; }
+    { 
+	errmsg_ = uiStrings::phrCannotWrite(tr("Trace header data")); 
+	return -1; 
+    }
 
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
@@ -323,7 +327,7 @@ int CBVSWriter::put( void** cdat, int offs )
 			+ offs * nrbytespersample_[icomp];
 
 	if ( !strm_.addBin(ptr,cnrbytes_[icomp]) )
-	    { errmsg_ = "Cannot write CBVS data"; return -1; }
+	    { errmsg_ = uiStrings::phrCannotWrite(tr("CBVS data")); return -1; }
     }
 
     if ( thrbytes_ && strm_.position() >= thrbytes_ )
@@ -404,8 +408,8 @@ void CBVSWriter::doClose( bool islast )
     if ( !writeTrailer() )
     {
 	// shazbut! we were almost there!
-	errmsg_ = "Could not write CBVS trailer";
-	ErrMsg( errmsg_ );
+	errmsg_ = uiStrings::phrCannotWrite(tr("CBVS trailer"));
+	ErrMsg( mFromUiStringTodo(errmsg_) );
     }
 
     strm_.flush();

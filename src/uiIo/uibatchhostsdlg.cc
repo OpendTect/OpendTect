@@ -333,7 +333,7 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 
     const BufferString endmsg = msgs.cat();
     if ( !endmsg.isEmpty() )
-	uiMSG().message( mToUiStringTodo(endmsg) );
+	uiMSG().message( toUiString(endmsg) );
 }
 
 

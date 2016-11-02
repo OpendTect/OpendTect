@@ -38,9 +38,12 @@ public:
 					      const char* dest,
 					      uiString& errmsg,
 					      TaskRunner* tr=0);
-    static bool			unZipFile(const char* ziparchive,
+    mDeprecated static bool	unZipFile(const char* ziparchive,
 					  const char* fnm,const char* path,
 					  BufferString& errmsg);
+    static bool			unZipFile(const char* ziparchive,
+					  const char* fnm,const char* path,
+					  uiString& errmsg);
 
     static bool			makeZip(const char* zipfilenm,
 					const BufferStringSet&,

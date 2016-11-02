@@ -165,7 +165,7 @@ void uiCheckShotEdit::setInfoMsg( CallBacker* cb )
     if ( !mevh )
     {
 	mCBCapsuleUnpack(BufferString,inf,cb);
-	statusBar()->message( mToUiStringTodo(inf.buf()) );
+	statusBar()->message( toUiString(inf.buf()) );
     }
 }
 

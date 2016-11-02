@@ -255,7 +255,7 @@ void uiIOObjSelWriteTranslator::updatePars( IOObj& ioobj ) const
     {
 	if ( !fld->fill(ioobj.pars()) )
 	{
-	    uiMSG().error( mToUiStringTodo(fld->errMsg()) );
+	    uiMSG().error( fld->errMsg() );
 	    return;
 	}
 

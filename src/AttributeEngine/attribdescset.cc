@@ -655,7 +655,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	if ( dsc.isSatisfied() == Desc::Error )
 	{
 	    uiString err;
-	    FixedString dscerr = dsc.errMsg();
+	    FixedString dscerr = mFromUiStringTodo(dsc.errMsg());
 	    const bool storagenotfound = dscerr==DescSet::storedIDErrStr();
 	    if ( storagenotfound && dsc.isStoredInMem() )
 		continue;

@@ -54,12 +54,12 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 		mCB(this,uiEditObjectList,cb) )
 	//-- Copy the following code exactly to the 'else' branch
 	//  (if you want to be purist, put it in a separate file and include it)
-	mDefBut( add, uiStrings::phrAdd(mToUiStringTodo(itmtyp)),
+	mDefBut( add, uiStrings::phrAdd(toUiString(itmtyp)),
 						    "addnew", addCB, false );
 	mDefBut( ed, uiStrings::phrEdit(uiStrings::sProperties()),
 						    "edit", edCB, false );
 	mDefBut( rm, uiStrings::phrJoinStrings(uiStrings::sRemove(),
-			    mToUiStringTodo(itmtyp)), "remove", rmCB, true );
+			    toUiString(itmtyp)), "remove", rmCB, true );
 	if ( movable )
 	{
 	    mDefBut( up, sMoveUp, "uparrow", upCB, true );
@@ -79,12 +79,12 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 	butnm##but_->setPrefWidthInChar( butsz )
 
 	//-- Make sure this code is exactly a copy of above
-	mDefBut( add, uiStrings::phrAdd(mToUiStringTodo(itmtyp)),
+	mDefBut( add, uiStrings::phrAdd(toUiString(itmtyp)),
 						    "addnew", addCB, false );
 	mDefBut( ed, uiStrings::phrEdit(uiStrings::sProperties()),
 						    "edit", edCB, false );
 	mDefBut( rm, uiStrings::phrJoinStrings(uiStrings::sRemove(),
-			    mToUiStringTodo(itmtyp)), "remove", rmCB, true );
+			    toUiString(itmtyp)), "remove", rmCB, true );
 	if ( movable )
 	{
 	    mDefBut( up, sMoveUp, "uparrow", upCB, true );
@@ -142,9 +142,9 @@ uiBuildListFromList::Setup::Setup( bool mv, const char* avitmtp,
 	avitemtype_ = "ingredient";
     if ( defitemtype_.isEmpty() )
 	defitemtype_ = "definition";
-    addtt_.add( "Add " ).add( defitemtype_ );
-    edtt_.add( "Edit " ).add( defitemtype_ );
-    rmtt_.add( "Remove " ).add( defitemtype_ );
+    addtt_.append( uiStrings::sAdd() ).append(" ").append( defitemtype_ );
+    edtt_.append( uiStrings::sEdit() ).append(" ").append( defitemtype_ );
+    rmtt_.append( uiStrings::sRemove() ).append(" ").append( defitemtype_ );
     avtitle_.add( "Available " ).add( avitemtype_ ).add( "s" );
     deftitle_.add( "Defined " ).add( defitemtype_ ).add( "s" );
     chckYPlural( avtitle_ ); chckYPlural( deftitle_ );
@@ -163,12 +163,12 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     avfld_->doubleClicked.notify( mCB(this,uiBuildListFromList,addCB) );
     if ( setup_.withtitles_ && !setup_.avtitle_.isEmpty() )
     {
-	uiLabel* lbl = new uiLabel( this, mToUiStringTodo(setup_.avtitle_) );
+	uiLabel* lbl = new uiLabel( this, toUiString(setup_.avtitle_) );
 	lbl->attach( centeredAbove, avfld_ );
     }
 
     uiToolButton* addbut = new uiToolButton( this, uiToolButton::RightArrow,
-	mToUiStringTodo(setup_.addtt_), mCB(this,uiBuildListFromList,addCB) );
+	setup_.addtt_, mCB(this,uiBuildListFromList,addCB) );
     addbut->attach( centeredRightOf, avfld_ );
 
     deffld_ = new uiListBox( this, setup_.deftitle_ );
@@ -178,14 +178,14 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     deffld_->doubleClicked.notify( mCB(this,uiBuildListFromList,edCB) );
     if ( setup_.withtitles_ && !setup_.deftitle_.isEmpty() )
     {
-	uiLabel* lbl = new uiLabel( this, mToUiStringTodo(setup_.deftitle_) );
+	uiLabel* lbl = new uiLabel( this, toUiString(setup_.deftitle_) );
 	lbl->attach( centeredAbove, deffld_ );
     }
 
-    edbut_ = new uiToolButton( this, "edit", mToUiStringTodo(setup_.edtt_),
+    edbut_ = new uiToolButton( this, "edit", setup_.edtt_,
 			mCB(this,uiBuildListFromList,edCB) );
     edbut_->attach( rightOf, deffld_ );
-    rmbut_ = new uiToolButton( this, "remove", mToUiStringTodo(setup_.rmtt_),
+    rmbut_ = new uiToolButton( this, "remove", setup_.rmtt_,
 			mCB(this,uiBuildListFromList,rmCB) );
     rmbut_->attach( alignedBelow, edbut_ );
 
@@ -250,7 +250,7 @@ void uiBuildListFromList::rmItm( int itmidx, bool dosignals )
 	return;
     if ( setup_.singleuse_ )
 	avfld_->insertItem(
-		mToUiStringTodo(avFromDef(deffld_->textOfItem(itmidx))), 0 );
+		toUiString(avFromDef(deffld_->textOfItem(itmidx))), 0 );
 
     deffld_->removeItem( itmidx );
     usrchg_ = true;
@@ -340,8 +340,8 @@ void uiBuildListFromList::moveCB( CallBacker* cb )
 
     const char* fromtxt( deffld_->textOfItem(fromidx) );
     const char* totxt( deffld_->textOfItem(toidx) );
-    deffld_->setItemText( fromidx, mToUiStringTodo(totxt) );
-    deffld_->setItemText( toidx, mToUiStringTodo(fromtxt) );
+    deffld_->setItemText( fromidx, toUiString(totxt) );
+    deffld_->setItemText( toidx, toUiString(fromtxt) );
 
     itemSwitch( fromtxt, totxt );
 }

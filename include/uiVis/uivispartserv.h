@@ -360,7 +360,7 @@ public:
 				     is handling left-mouse picks on other
 				     objects, so the picks won't be handled by
 				     the selman. */
-    void			getPickingMessage(BufferString&) const;
+    void			getPickingMessage(uiString&) const;
 
     static int			evShowSetupGroupOnTop();
     bool			showSetupGroupOnTop(const char* grpnm);

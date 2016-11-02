@@ -162,10 +162,10 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     if ( !ioobj ) return;
 
     PosVecDataSet pvds;
-    BufferString errmsg;
+    uiString errmsg;
     const bool rv = pvds.getFrom( ioobj->fullUserExpr(true), errmsg );
     if ( !rv )
-	{ uiMSG().error( mToUiStringTodo(errmsg) ); return; }
+	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
 	{ uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
 
@@ -219,11 +219,11 @@ void uiDataPointSetPickDlg::doSave( bool saveas )
     if ( !ioobj ) return;
 
     PosVecDataSet pvds;
-    BufferString errmsg;
+    uiString errmsg;
     const bool rv = dps_.dataSet().putTo( ioobj->fullUserExpr(true),
 					  errmsg, false );
     if ( !rv )
-	{ uiMSG().error( mToUiStringTodo(errmsg) ); return; }
+	{ uiMSG().error( errmsg ); return; }
 
     setCaption( ioobj->uiName() );
     changed_ = false;

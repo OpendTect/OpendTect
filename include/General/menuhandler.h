@@ -81,7 +81,7 @@ public:
 					 CallBack cb,int placement=-1);
 				MenuItem(const uiString& text,
 					 const char* iconnm,
-					 const char* tooltip,
+					 const uiString& tooltip,
 					 CallBack cb=CallBack(),
 					 int placement=-1);
     void			createItems(const BufferStringSet&);
@@ -106,7 +106,7 @@ public:
 				    not selectable. */
     BufferString		iconfnm;
 				//*!< Icon identifier
-    BufferString		tooltip;
+    uiString			tooltip;
 				//*!< Tooltip if item is used in toolbar
     CallBack			cb;
 				//*!< Callback function to be called

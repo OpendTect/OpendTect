@@ -250,7 +250,7 @@ bool WellDisplay::setDBKey( const DBKey& dbkey )
     const bool trackabovesrd = wd->track().zRange().stop <
 			      -1.f * mCast(float,SI().seismicReferenceDatum());
     if ( zistime_ && d2t.isEmpty() && !trackabovesrd )
-	mErrRet( "No depth to time model defined" )
+	mErrRet( tr("No depth to time model defined") )
 
     wellid_ = dbkey;
     fullRedraw(0);

@@ -47,7 +47,7 @@ public:
 				       const uiString labeltxt=
 				       uiStrings::sEmptyString() )
 				    : ptype_(st)
-				    , lbltxt_(mToUiStringTodo(labeltxt))
+				    , lbltxt_(labeltxt)
 				    , mode_(Full)
 				    , selproptype_(false)
 				    , withnone_(false)	{}
@@ -61,7 +61,8 @@ public:
 
 				uiUnitSel(uiParent*,const Setup&);
 				uiUnitSel(uiParent*,PropertyRef::StdType);
-				uiUnitSel(uiParent*,const char* lbltxt=0);
+				uiUnitSel(uiParent*,const uiString& lbltxt=
+				    uiString::emptyString());
 					//!< For survey Z unit
 
     void			setUnit(const UnitOfMeasure* uom=0);

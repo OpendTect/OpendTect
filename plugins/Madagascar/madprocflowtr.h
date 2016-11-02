@@ -22,29 +22,33 @@ public:
 
 
 mExpClass(Madagascar) ODMadProcFlowTranslator : public Translator
-{
+{ mODTextTranslationClass(ODMadProcFlowTranslator)
 public:
     			mDefEmptyTranslatorBaseConstructor(ODMadProcFlow)
 
-    virtual const char*	read(ODMad::ProcFlow&,Conn&)	= 0;
+    virtual const uiString read(ODMad::ProcFlow&,Conn&)	= 0;
 			//!< returns err msg or null on success
-    virtual const char*	write(const ODMad::ProcFlow&,Conn&) = 0;
+    virtual const uiString write(const ODMad::ProcFlow&,Conn&) = 0;
 			//!< returns err msg or null on success
 
     static bool		retrieve(ODMad::ProcFlow&,const IOObj*,BufferString&);
     static bool		store(const ODMad::ProcFlow&,const IOObj*,
 	    		      BufferString&);
+    static bool		retrieve(ODMad::ProcFlow&,const IOObj*,uiString&);
+    static bool		store(const ODMad::ProcFlow&,const IOObj*,
+	    		      uiString&);
 
 };
 
 
 mClass(Madagascar) dgbODMadProcFlowTranslator : public ODMadProcFlowTranslator
-{			     isTranslator(dgb,ODMadProcFlow)
+{ mODTextTranslationClass(dgbODMadProcFlowTranslator)   
+  isTranslator(dgb,ODMadProcFlow)
 public:
 
     			mDefEmptyTranslatorConstructor(dgb,ODMadProcFlow)
 
-    const char*		read(ODMad::ProcFlow&,Conn&);
-    const char*		write(const ODMad::ProcFlow&,Conn&);
+    const uiString	read(ODMad::ProcFlow&,Conn&);
+    const uiString	write(const ODMad::ProcFlow&,Conn&);
 
 };

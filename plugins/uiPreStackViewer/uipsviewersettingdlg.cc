@@ -26,7 +26,7 @@ namespace PreStackView
 uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
 	visSurvey::PreStackDisplay& viewer, uiViewer3DMgr& mgr )
     : uiTabStackDlg( p, uiDialog::Setup(tr("Prestack display properties"),
-			          mToUiStringTodo(viewer.getObjectName()),
+			          toUiString(viewer.getObjectName()),
                                   mODHelpKey(mPSViewerSettingDlgHelpID)
                                   ).modal(false) )
     , preproctab_(0)

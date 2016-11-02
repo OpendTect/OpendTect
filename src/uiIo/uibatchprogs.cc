@@ -210,7 +210,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	    if ( !bpp.mandatory ) 
 		txt = toUiString("[%1]").arg(bpp.desc);
 	    else
-		txt = mToUiStringTodo(bpp.desc);
+		txt = toUiString(bpp.desc);
 
 	    uiGenInput* newinp;
 	    if ( bpp.type == BatchProgPar::Words ||

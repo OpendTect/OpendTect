@@ -170,7 +170,7 @@ public:
     void		enableAttrib(int attrib,bool yn);
     bool		isAttribEnabled(int attrib) const;
 
-    const char*		errMsg() const { return errmsg_.str(); }
+    const uiString&	errMsg() const { return errmsg_; }
 
     void		setDisplayTransformation(const mVisTrans*);
 

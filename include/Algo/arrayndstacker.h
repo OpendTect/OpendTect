@@ -24,7 +24,7 @@ With normalize_, will return the average instead of the sum
 
 template <class fT,class ArrT >
 mClass(Algo) Array1DStacker : public ParallelTask
-{
+{ mODTextTranslationClass(Array1DStacker)
 public:
 
 		Array1DStacker( const ObjectSet<ArrT>& inp,
@@ -55,7 +55,7 @@ public:
 		    out_.setSize( totalnr_ );
 		    if ( !out_.getData() )
 		    {
-			msg_ = "Cannot stack this type of object";
+			msg_ = tr("Cannot stack this type of object");
 			return false;
 		    }
 
@@ -95,7 +95,7 @@ public:
 
     od_int64	nrIterations() const { return totalnr_; }
     void	doNormalize( bool normalize )	{ normalize_ = normalize; }
-    const char*	errMsg() const { return msg_.str(); }
+    const uiString errMsg() const { return msg_; }
 
 protected:
 
@@ -103,7 +103,7 @@ protected:
     const ObjectSet<ArrT>&	inp_;
     ArrT&		out_;
     bool		normalize_;
-    FixedString		msg_;
+    uiString		msg_;
 
 };
 

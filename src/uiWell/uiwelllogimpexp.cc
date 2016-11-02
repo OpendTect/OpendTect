@@ -96,13 +96,13 @@ void uiImportLogsDlg::lasSel( CallBacker* )
     Well::LASImporter wdai( *wd );
     Well::LASImporter::FileInfo lfi;
     const char* res = wdai.getLogInfo( lasfnm, lfi );
-    if ( res ) { uiMSG().error( mToUiStringTodo(res) ); return; }
+    if ( res ) { uiMSG().error( toUiString(res) ); return; }
 
     logsfld_->setEmpty();
     logsfld_->addItems( lfi.lognms );
     logsfld_->chooseAll( true );
 
-    uiString lbl = toUiString("(%1)").arg(mToUiStringTodo(lfi.zunitstr.buf()));
+    uiString lbl = toUiString("(%1)").arg(toUiString(lfi.zunitstr.buf()));
     unitlbl_->setText( lbl );
     unitlbl_->display( true );
     const bool isft = *lfi.zunitstr.buf() == 'f' || *lfi.zunitstr.buf() == 'F';
@@ -134,7 +134,7 @@ bool uiImportLogsDlg::acceptOK()
     {
 	wd = Well::MGR().get( wmid );
 	if ( !wd )
-	    uiMSG().error( mToUiStringTodo(Well::MGR().errMsg()) );
+	    uiMSG().error( Well::MGR().errMsg() );
     }
     else
     {
@@ -191,7 +191,7 @@ bool uiImportLogsDlg::acceptOK()
     lfi.lognms = lognms;
     const char* res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue() );
     if ( res )
-	mErrRet( mToUiStringTodo(res) )
+	mErrRet( toUiString(res) )
 
     Well::Writer wtr( wmid, *wd );
     if ( !wtr.putLogs() )

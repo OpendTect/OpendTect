@@ -33,7 +33,7 @@ For the inline/xline info, you have two choices:
 */
 
 mExpClass(General) CBVSWriter : public CBVSIO
-{
+{ mODTextTranslationClass(CBVSWriter)
 public:
 
 			CBVSWriter(od_ostream*,const CBVSInfo&,

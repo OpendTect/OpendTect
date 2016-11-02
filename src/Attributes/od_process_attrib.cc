@@ -304,7 +304,7 @@ bool BatchProgram::go( od_ostream& strm )
 			    mRetJobErr(
 				BufferString("Cannot write output trace",
 					     ":\n",
-					     proc->outputs_[0]->errMsg()) )
+			    mFromUiStringTodo(proc->outputs_[0]->errMsg())) )
 		    }
 		}
 	    }

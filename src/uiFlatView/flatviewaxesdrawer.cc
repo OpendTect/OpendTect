@@ -211,17 +211,17 @@ void AxesDrawer::updateViewRect()
 	if ( axis2nm_ ) axis2nm_->setVisible( false );
     }
 
-    if ( !annot.title_.isEmpty() && annot.title_ != " " )
+    if ( !annot.title_.isEmpty() && annot.title_ != toUiString(" ") )
     {
 	if ( !titletxt_ )
 	{
 	    titletxt_ = view_.scene().addItem(
-		    new uiTextItem(mToUiStringTodo(annot.title_),
+		    new uiTextItem(annot.title_,
 				   mAlignment(HCenter,Top)) );
 	    titletxt_->setTextColor( annot.color_ );
 	}
 	else
-	    titletxt_->setText( mToUiStringTodo(annot.title_) );
+	    titletxt_->setText( annot.title_ );
 
 	titletxt_->setVisible( true );
 	const uiRect scenerect = view_.getViewArea();

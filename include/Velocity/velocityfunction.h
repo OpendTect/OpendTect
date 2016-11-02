@@ -100,7 +100,7 @@ public:
     virtual void		fillPar(IOPar&) const	{}
     virtual bool		usePar(const IOPar&)	{ return true; }
 
-    const char*			errMsg() const;
+    const uiString		errMsg() const;
 
 protected:
 
@@ -112,7 +112,7 @@ protected:
 
 
     DBKey				mid_;
-    BufferString			errmsg_;
+    uiString				errmsg_;
 
     ObjectSet<Function>			functions_;
     Threads::Lock			lock_;

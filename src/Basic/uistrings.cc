@@ -52,6 +52,9 @@ uiString uiStrings::phrImport( const uiString& string )
 uiString uiStrings::phrCannotAdd( const uiString& string )
 { return toUiString(joinstring).arg(sCannotAdd()).arg(string); }
 
+uiString uiStrings::phrCannotCompute( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotCompute()).arg(string); }
+
 uiString uiStrings::phrCannotCopy( const uiString& string )
 { return toUiString(joinstring).arg(sCannotCopy()).arg(string); }
 
@@ -71,7 +74,7 @@ uiString uiStrings::phrCannotExtract( const uiString& string )
 { return toUiString(joinstring).arg(sCannotExtract()).arg(string); }
 
 uiString uiStrings::phrCannotFind( const uiString& string )
-{ return tr("Cannot find %1").arg( string ); }
+{ return toUiString(joinstring).arg(sCannotFind()).arg(string); }
 
 uiString uiStrings::phrCannotImport( const uiString& string )
 { return toUiString(joinstring).arg(sCannotImport()).arg(string); }
@@ -282,6 +285,9 @@ uiString uiStrings::sCalculate()
 uiString uiStrings::sCannotAdd()
 { return tr("Cannot add"); }
 
+uiString uiStrings::sCannotCompute()
+{ return tr("Cannot compute"); }
+
 uiString uiStrings::sCannotCopy()
 { return tr("Cannot copy"); }
 
@@ -290,6 +296,9 @@ uiString uiStrings::sCannotEdit()
 
 uiString uiStrings::sCannotExtract()
 { return tr("Cannot extract"); }
+
+uiString uiStrings::sCannotFind()
+{ return tr("Cannot find"); }
 
 uiString uiStrings::sCalculateFrom()
 { return tr("Calculate From"); }

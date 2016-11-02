@@ -86,7 +86,7 @@ bool CBVSReader::readInfo( bool wanttrailer, bool forceusecbvsinfo )
 {
     info_.clean();
     errmsg_ = check( strm_ );
-    if ( errmsg_ ) return false;
+    if ( !errmsg_.isEmpty() ) return false;
 
     BufferString buf( headstartbytes, false );
     char* ptr = buf.getCStr();
@@ -181,24 +181,24 @@ void CBVSReader::getText( int nrchar, BufferString& txt )
 #undef mErrRet
 #define mErrRet { strm.setPosition( 0, od_stream::Abs ); return msg; }
 
-const char* CBVSReader::check( od_istream& strm )
+const uiString CBVSReader::check( od_istream& strm )
 {
-    if ( strm.isBad() ) return "Input stream cannot be used";
+    if ( strm.isBad() ) return uiStrings::phrInput(tr("stream cannot be used"));
 
     strm.setPosition( 0, od_stream::Abs );
     char buf[4]; OD::memZero( buf, 4 );
     strm.getBin( buf, 3 );
-    const char* msg = "Input stream cannot be used";
+    uiString msg = uiStrings::phrInput(tr("stream cannot be used"));
     if ( !strm.isOK() ) mErrRet;
 
-    msg = "File is not in CBVS format";
+    msg = tr("File is not in CBVS format");
     if ( FixedString(buf)!="dGB" ) mErrRet;
 
     char plf; strm.getBin( &plf, 1 );
     if ( plf > 2 ) mErrRet;
 
     strm.setPosition( 0, od_stream::Abs );
-    return 0;
+    return uiString::emptyString();
 }
 
 
@@ -236,7 +236,8 @@ bool CBVSReader::readComps()
     mAllocVarLenArr( char, ucbuf, 4*integersize );
     strm_.getBin( ucbuf, integersize );
     nrcomps_ = iinterp_.get( ucbuf, 0 );
-    if ( nrcomps_ < 1 ) mErrRet("Corrupt CBVS format: No components defined")
+    if ( nrcomps_ < 1 ) 
+	mErrRet(tr("Corrupt CBVS format: No components defined"))
 
     cnrbytes_ = new int [nrcomps_];
     bytespertrace_ = 0;
@@ -266,7 +267,7 @@ bool CBVSReader::readComps()
 	if ( info_.nrsamples_ < 0 || newinf->datatype < 0 )
 	{
 	    delete newinf;
-	    mErrRet("Corrupt CBVS format: Component desciption error")
+	    mErrRet(tr("Corrupt CBVS format: Component desciption error"))
 	}
 
 	info_.compinfo_ += newinf;
@@ -334,7 +335,7 @@ bool CBVSReader::readTrailer()
     strm_.setPosition( -3, od_stream::End );
     char buf[40];
     strm_.getBin( buf, 3 ); buf[3] = '\0';
-    if ( FixedString(buf)!="BGd" ) mErrRet("Missing required file trailer")
+    if ( FixedString(buf)!="BGd" ) mErrRet(tr("Missing required file trailer"))
 
     strm_.setPosition( -4-integersize, od_stream::End );
     strm_.getBin( buf, integersize );
@@ -356,9 +357,8 @@ bool CBVSReader::readTrailer()
     {
 	strm_.getBin( buf, integersize );
 	const int nrinl = iinterp_.get( buf, 0 );
-	if ( nrinl < 0 ) mErrRet("File trailer corrupt")
-	if ( nrinl == 0 ) mErrRet("No traces in file")
-
+	if ( nrinl < 0 ) mErrRet(tr("File trailer corrupt"))
+	if ( nrinl == 0 ) mErrRet(tr("No traces in file"))
 	StepInterval<int> inlrg, crlrg;
 	for ( int iinl=0; iinl<nrinl; iinl++ )
 	{

@@ -46,20 +46,20 @@ public:
 			~uiSEGYExamine();
 
     int			getRev() const;		//!< -1 = err, 1 = Rev 1
-    const char*		errMsg() const		{ return txtinfo_; }
+    const uiString&	errMsg() const		{ return txtinfo_; }
 
-    static SeisTrcReader* getReader(const Setup&,BufferString& errmsg);
+    mDeprecated static SeisTrcReader* getReader(const Setup&,BufferString&);
     static SeisTrcReader* getReader(const Setup&,uiString& errmsg);
     static int		getRev(const SeisTrcReader&); // -1 = err, 1 = Rev 1
-    static int		getRev(const Setup&,BufferString& emsg);
-
+    mDeprecated static int getRev(const Setup&,BufferString& emsg);
+    static int		getRev(const Setup&,uiString& emsg);
     static bool		launch(const Setup&);
 
 protected:
 
     Setup		setup_;
     SeisTrcReader*	rdr_;
-    BufferString	txtinfo_;
+    uiString		txtinfo_;
     BufferString	fname_;
     SeisTrcBuf&		tbuf_;
     Timer*		timer_;
@@ -81,7 +81,7 @@ protected:
 					 const SEGYSeisTrcTranslator&);
     bool		rejectOK();
 
-    void		outInfo(const char*);
+    void		outInfo(const uiString);
 
 public:
     uiString		sGetWinTitle();

@@ -870,6 +870,25 @@ uiString& uiString::addSpace( int nr )
 }
 
 
+ uiString& uiString::addTab( int nr )
+ {
+     uiString tabs;
+     for(int i=0; i<nr; i++)
+	 tabs.append(toUiString("\t"));
+
+     return  (*this).append(tabs);
+ }
+
+ uiString& uiString::addNewLine( int nr )
+ {
+     uiString newline;
+     for(int i=0; i<nr; i++)
+	 newline.append(toUiString("\n"));
+
+     return  (*this).append(newline);
+ }
+
+
 uiStringSet::uiStringSet( const uiString* strings )
 {
     for ( int idx=0; !strings[idx].isEmpty(); idx++ )

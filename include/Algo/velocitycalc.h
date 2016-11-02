@@ -35,7 +35,7 @@ public:
 
     TimeDepthModel&	operator=(const TimeDepthModel&);
     virtual bool	isOK() const;
-    const char*		errMsg() const;
+    const uiString	errMsg() const;
     int 		size() const 	{ return sz_; }
 
     bool		setModel(const float* dpths,const float* times,int sz);

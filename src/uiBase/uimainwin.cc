@@ -1861,7 +1861,7 @@ uiObject* uiDialogBody::createChildren()
 	if ( shwhid )
 	    helpbut_->setToolTip( uiStrings::phrJoinStrings(
 	    toUiString(dlg.helpKey().providername_),
-	    mToUiStringTodo(dlg.helpKey().argument_)) );
+	    toUiString(dlg.helpKey().argument_)) );
 	else
 	    helpbut_->setToolTip( tr("Help on this window") );
     }

@@ -261,7 +261,8 @@ void uiWellSelGrp::getCoordinates( TypeSet<Coord>& coords )
 	    coords += SI().transform( prevbid );
 	    for ( int posidx=firstidx; posidx!=stopidx; posidx+=incidx )
 	    {
-		BinID bid( SI().transform(wd->track().posByIdx(posidx).getXY()));
+		BinID bid( SI().transform(wd->track().posByIdx(posidx)
+								    .getXY()));
 		if ( bid != prevbid )
 		{
 		    coords += SI().transform( bid );
@@ -501,7 +502,7 @@ bool uiWell2RandomLineDlg::acceptOK()
     uiString msg;
     const bool res = RandomLineSetTranslator::store(outrls,outctio_.ioobj_,msg);
     if ( !res )
-	uiMSG().error(mToUiStringTodo(msg));
+	uiMSG().error(msg);
 
     return res;
 }

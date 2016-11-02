@@ -34,7 +34,7 @@ inlines, no matter whether the data is stored with descending inlines.
 */
 
 mExpClass(General) CBVSReader : public CBVSIO
-{
+{ mODTextTranslationClass(CBVSReader)
 public:
 
 			CBVSReader(od_istream*,bool glob_info_only=false,
@@ -62,7 +62,7 @@ public:
 			//!< and end sample to read. offs is an offset
 			//!< in the buffers.
 
-    static const char*	check(od_istream&);
+    static const uiString check(od_istream&);
 			//!< Determines whether a file is a CBVS file
 			//!< returns an error message, or null if OK.
 

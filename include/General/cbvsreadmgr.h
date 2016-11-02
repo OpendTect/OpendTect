@@ -26,7 +26,7 @@ class od_ostream;
 */
 
 mExpClass(General) CBVSReadMgr : public CBVSIOMgr
-{
+{ mODTextTranslationClass(CBVSReadMgr)
 public:
 
 			CBVSReadMgr(const char*,const TrcKeyZSampling* cs=0,
@@ -73,6 +73,9 @@ public:
     void		getPositions(TypeSet<BinID>&) const;
     void		getPositions(TypeSet<Coord>&) const;
     			//!< This may actually reset the position to the first
+    const uiString	sFoundIn() { return tr("found in:"); }
+    const uiString	sDiffFromFirstFile() 
+			{ return tr("differ from first file"); }
 
 protected:
 
@@ -84,7 +87,7 @@ protected:
     bool		addReader(od_istream*,const TrcKeyZSampling*,bool,bool);
     bool		addReader(const char*,const TrcKeyZSampling*,bool,bool);
     int			nextRdrNr(int) const;
-    const char*		errMsg_() const;
+    const uiString	errMsg_() const;
 
 private:
 

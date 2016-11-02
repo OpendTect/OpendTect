@@ -51,7 +51,7 @@ class Scene;
 
 mExpClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl
 		   , public visSurvey::SurveyObject
-{
+{ mODTextTranslationClass(WellDisplay)
 public:
 				WellDisplay();
 				mDefaultFactoryInstantiation(
@@ -139,7 +139,7 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
     virtual void		setPixelDensity(float);
-    const char*			errMsg() const { return errmsg_.str(); }
+    const uiString&		errMsg() const { return errmsg_; }
     const visBase::Well*	getWell() const { return well_; }
 
 protected:

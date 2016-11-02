@@ -54,7 +54,8 @@ Well::Writer::Writer( const DBKey& ky, const Well::Data& wd )
 {
     IOObj* ioobj = DBM().get( ky );
     if ( !ioobj )
-	errmsg_ = tr( "Cannot find well ID %1 in data store." ).arg( ky );
+	errmsg_.append(uiStrings::phrCannotFindDBEntry(
+				tr("for well ID %1 in data store").arg(ky)));
     else
     {
 	init( *ioobj, wd );
@@ -66,14 +67,14 @@ Well::Writer::Writer( const DBKey& ky, const Well::Data& wd )
 void Well::Writer::init( const IOObj& ioobj, const Well::Data& wd )
 {
     if ( ioobj.group() != mTranslGroupName(Well) )
-        errmsg_ = tr( "%1 is a %2 - not a Well" )
-		    .arg( ioobj.name() ).arg( ioobj.group() );
+	errmsg_ =tr("%1 is for a %2- not for a Well")
+			.arg(ioobj.name()).arg(ioobj.group());
     else
     {
 	wa_ = WDIOPF().getWriteAccess( ioobj, wd, errmsg_ );
-	if ( !wa_ && errmsg_.isEmpty() )
-	    errmsg_ = tr( "Cannot create writer of type %1" )
-		   .arg( ioobj.translator() );
+	if ( !wa_ )
+	    errmsg_ = uiStrings::phrCannotCreate(tr("writer of type %1"))
+		   .arg(ioobj.translator());
     }
 }
 

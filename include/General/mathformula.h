@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "typeset.h"
 #include "ranges.h"
+#include "uistrings.h"
 class UnitOfMeasure;
 
 
@@ -80,7 +81,7 @@ public:
     bool		isOK() const		{ return expr_; }
     bool		isBad() const		{ return !expr_
 						      && !text_.isEmpty(); }
-    const char*		errMsg() const		{ return errmsg_; }
+    const uiString	errMsg() const		{ return errmsg_; }
 
     const char*		text() const		{ return text_; }
     int			nrInputs() const	{ return inps_.size(); }
@@ -181,7 +182,7 @@ protected:
     TypeSet<int>	validxs_;
 
     mutable TypeSet<double> prevvals_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
     int			varNameIdx(const char* varnm) const;
     void		addShift(int,int,int&,TypeSet< TypeSet<int> >&);

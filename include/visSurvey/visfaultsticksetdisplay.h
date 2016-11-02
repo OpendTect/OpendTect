@@ -81,7 +81,7 @@ public:
 
     void			setScene(Scene*);
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    const uiString&		errMsg() const { return errmsg_; }
 
     void			updateSticks(bool activeonly=false);
     void			updateEditPids();

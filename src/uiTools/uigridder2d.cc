@@ -129,8 +129,8 @@ uiInverseDistanceGridder2D::uiInverseDistanceGridder2D ( uiParent* p,
 }
 
 
-const char* uiInverseDistanceGridder2D::errMsg() const
-{ return "Searchradius must be more than zero"; }
+const uiString uiInverseDistanceGridder2D::errMsg() const
+{ return tr("Search radius must be more than zero"); }
 //the only thing that can go wrong
 
 

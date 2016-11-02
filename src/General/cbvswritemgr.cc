@@ -177,7 +177,7 @@ od_ostream* CBVSWriteMgr::mkStrm()
 	fnames_.add( fname );
     else
     {
-	errmsg_ = "Cannot open '"; errmsg_ += *fname; errmsg_ += "' for write";
+	errmsg_ = uiStrings::phrCannotOpen(tr("%1 for write").arg(*fname));
 	delete res;
         return 0;
     }
@@ -213,14 +213,14 @@ void CBVSWriteMgr::ensureConsistent()
 }
 
 
-const char* CBVSWriteMgr::errMsg_() const
+const uiString CBVSWriteMgr::errMsg_() const
 {
     for ( int idx=0; idx<writers_.size(); idx++ )
     {
-	const char* s = writers_[idx]->errMsg();
-	if ( s ) return s;
+	const uiString s = writers_[idx]->errMsg();
+	if ( !s.isEmpty() ) return s;
     }
-    return 0;
+    return uiString::emptyString();
 }
 
 
@@ -274,7 +274,8 @@ bool CBVSWriteMgr::put( void** data )
 	    if ( single_file )
 	    {
 		ret = -1;
-		writer->setErrMsg( "Cannot write more data to seismic file" );
+		writer->setErrMsg( uiStrings::phrCannotWrite(tr("more data to "
+							"seismic file")) );
 	    }
 	    else
 	    {

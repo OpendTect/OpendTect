@@ -469,7 +469,7 @@ uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,PropertyRefSelection& prs,
     , thref_(&PropertyRef::thickness())
     , structchg_(false)
 {
-    uiListBox::Setup su( OD::ChooseAtLeastOne, mToUiStringTodo(lbl), 
+    uiListBox::Setup su( OD::ChooseAtLeastOne, toUiString(lbl), 
 			 uiListBox::AboveMid );
     propfld_ = new uiListBox( this, su, "Available properties" );
     fillList();

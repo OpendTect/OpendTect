@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "datainterp.h"
 #include "samplingdata.h"
 #include "position.h"
+
 class IOObj;
 class SeisTrc;
 class SeisTrcInfo;
@@ -20,18 +21,19 @@ class SeisTrcWriter;
 
 
 namespace DZT
-{
+{  
 
 struct FileHeader
-{
+{ 
     struct Date
-    {
+    { 
 	unsigned	sec2:5, min:6, hour:5, day:5, month:4, year:7;
     };
 
 			FileHeader();
 
-    bool		getFrom(od_istream&,BufferString&);
+    mDeprecated bool		getFrom(od_istream&,BufferString&);
+    bool		getFrom(od_istream&,uiString&);
     inline bool		isOK() const		{ return nsamp > 0; }
 
     inline int		traceNr( int trcidx ) const

@@ -171,7 +171,7 @@ bool CBVSSeisTrcTranslator::initRead_()
     rdmgr_ = new CBVSReadMgr( fnm, 0, single_file_,
 			read_mode == Seis::PreScan, forceusecbvsinfo_ );
     if ( rdmgr_->failed() )
-	{ errmsg_ = mToUiStringTodo(rdmgr_->errMsg()); return false; }
+	{ errmsg_ = toUiString(rdmgr_->errMsg()); return false; }
 
     const int nrcomp = rdmgr_->nrComponents();
     const CBVSInfo& info = rdmgr_->info();
@@ -397,7 +397,7 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
     prepareComponents( trc, outnrsamples_ );
     if ( !rdmgr_->fetch( (void**)blockbufs_, compsel_, &samprg_ ) )
     {
-	errmsg_ = mToUiStringTodo(rdmgr_->errMsg());
+	errmsg_ = toUiString(rdmgr_->errMsg());
 	return false;
     }
 
@@ -466,7 +466,7 @@ bool CBVSSeisTrcTranslator::startWrite()
     wrmgr_ = new CBVSWriteMgr( fnm, info, &auxinf_, &brickspec_, single_file_,
 				(CBVSIO::CoordPol)coordpol_ );
     if ( wrmgr_->failed() )
-	{ errmsg_ = mToUiStringTodo(wrmgr_->errMsg()); return false; }
+	{ errmsg_ = wrmgr_->errMsg(); return false; }
 
     if ( is2d_ )
 	wrmgr_->setForceTrailers( true );
@@ -490,7 +490,7 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
     trc.info().putTo( auxinf_ );
     if ( !wrmgr_->put( (void**)blockbufs_ ) )
-	{ errmsg_ = mToUiStringTodo(wrmgr_->errMsg()); return false; }
+	{ errmsg_ = wrmgr_->errMsg(); return false; }
 
     return true;
 }

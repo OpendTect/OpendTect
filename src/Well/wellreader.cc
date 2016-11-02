@@ -96,7 +96,8 @@ Well::Reader::Reader( const DBKey& ky, Well::Data& wd )
 {
     IOObj* ioobj = DBM().get( ky );
     if ( !ioobj )
-	errmsg_ = tr( "Cannot find well ID %1 in data store" ).arg( ky );
+	errmsg_ = uiStrings::phrCannotFindDBEntry(
+				tr("for well ID %1 in data store" )).arg( ky );
     else
     {
 	init( *ioobj, wd );
@@ -108,14 +109,14 @@ Well::Reader::Reader( const DBKey& ky, Well::Data& wd )
 void Well::Reader::init( const IOObj& ioobj, Well::Data& wd )
 {
     if ( ioobj.group() != mTranslGroupName(Well) )
-	errmsg_ = tr( "%1 is not a Well, but a %2" )
-	    .arg( ioobj.name() ).arg( ioobj.group() );
+	errmsg_.append( ioobj.name() ).append( tr(" is not a Well, but a ") )
+		.append( ioobj.group() );
     else
     {
 	ra_ = WDIOPF().getReadAccess( ioobj, wd, errmsg_ );
 	if ( !ra_ )
-	    errmsg_ = tr( "Cannot create reader of type %1" )
-		   .arg( ioobj.translator() );
+	    errmsg_ = uiStrings::phrCannotCreate(tr("reader of type %1"))
+		   .arg(ioobj.translator());
     }
     getInfo();
 }
@@ -247,6 +248,11 @@ const char* Well::odIO::getMainFileName( const DBKey& mid )
     if ( !ioobj ) return 0;
     return getMainFileName( *ioobj );
 }
+
+
+#define mErrRetFnmOper(fnm,oper) \
+{ errmsg_.append(uiStrings::sCannot()).append(toUiString(" ")).append(oper) \
+	 .append(toUiString(" ")).append(fnm); return false; }
 
 
 bool Well::odIO::removeAll( const char* ext ) const

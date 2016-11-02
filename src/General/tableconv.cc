@@ -117,7 +117,7 @@ bool Table::Converter::handleImpState( Table::ImportHandler::State impstate )
 
     case Table::ImportHandler::Error:
 
-	msg_ = mToUiStringTodo( imphndlr_.errMsg() );
+	msg_ = toUiString( imphndlr_.errMsg() );
 
     return false;
 

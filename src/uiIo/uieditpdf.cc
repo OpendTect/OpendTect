@@ -83,9 +83,11 @@ bool uiEditProbDenFuncDlg::acceptOK()
 #define mDeclIdxs	int idxs[3]; idxs[2] = curdim2_
 #define mGetRowIdx(irow) \
     const int rowidx = nrdims_ == 1 ? irow : nrrows -irow - 1
-#define mAddDim2Str(bs) \
-	    bs.add( " at " ).add( pdf_.dimName(2) ).add( "=" ) \
-		      .add( andpdf->sampling(2).atIndex(curdim2_) );
+#define mAddDim2Str(uis) \
+	    uis.append( toUiString(" at ") ) \
+	       .append( toUiString(pdf_.dimName(2)) ) \
+	       .append( toUiString("=") ) \
+	       .append( toUiString(andpdf->sampling(2).atIndex(curdim2_)) );
 
 
 uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
@@ -352,7 +354,7 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	if ( nrdims_ > 2 )
 	{
 	    FlatView::Annotation& ann = vwwinnd_->viewer().appearance().annot_;
-	    ann.title_ = pdf_.name();
+	    ann.title_ = toUiString(pdf_.name());
 	    mAddDim2Str( ann.title_ );
 	}
 
@@ -410,7 +412,7 @@ void uiEditSampledProbDenFunc::setToolTips()
 {
     mDeclSzVars;
 #define mMkTT(dim) \
-    BufferString tt( pdf_.dimName(dim) ); \
+    uiString tt(toUiString( pdf_.dimName(dim)) ); \
     if ( nrdims_ > 2 ) { mAddDim2Str(tt); }
 
     if ( nrdims_ > 1 )
@@ -422,7 +424,7 @@ void uiEditSampledProbDenFunc::setToolTips()
 
     mMkTT(nrdims_ > 1 ? 1 : 0)
     for ( int irow=0; irow<nrrows; irow++ )
-	tbl_->setRowToolTip( irow, tt );
+	tbl_->setRowToolTip( irow, mFromUiStringTodo(tt) );
 }
 
 

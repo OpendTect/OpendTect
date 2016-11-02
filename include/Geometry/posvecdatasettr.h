@@ -36,11 +36,11 @@ public:
     virtual bool	read(const IOObj&,PosVecDataSet&)		= 0;
     virtual bool	write(const IOObj&,const PosVecDataSet&)	= 0;
 
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    const uiString&	errMsg() const		{ return errmsg_; }
 
 protected:
 
-    BufferString	errmsg_;
+    uiString		errmsg_;
 };
 
 

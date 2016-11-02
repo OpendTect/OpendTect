@@ -123,7 +123,7 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 
     uiTaskRunner taskrunner( this );
     hpl.load( selmids, &taskrunner );
-    uiMSG().message( mToUiStringTodo(hpl.errorMsg()) );
+    uiMSG().message( hpl.errorMsg() );
     listfld_->setEmpty();
     listfld_->addItems( hpl.getPreloadedNames() );
     listfld_->setCurrentItem( 0 );
@@ -232,7 +232,7 @@ void uiHorizonPreLoadDlg::loadSavedHorizon( const DBKeySet& savedmids )
     uiTaskRunner taskrunner( this );
     EM::HorizonPreLoader& hpl = EM::HPreL();
     hpl.load( savedmids, &taskrunner );
-    uiMSG().message( mToUiStringTodo(hpl.errorMsg()) );
+    uiMSG().message( hpl.errorMsg() );
     listfld_->setEmpty();
     BufferStringSet hornms = hpl.getPreloadedNames();
     if ( !hornms.isEmpty() )

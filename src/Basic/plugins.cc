@@ -79,7 +79,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 	    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			   FORMAT_MESSAGE_FROM_SYSTEM, NULL,
 			   GetLastError(), 0, (char* )&ptr, 1024, NULL );
-	    errmsg_ = BufferString( ptr );
+	    errmsg_ = toUiString( ptr );
 	}
 	SetErrorMode( oldmod );
     }
@@ -100,7 +100,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
 #ifdef __debug__
     if ( !errmsg_.isEmpty() )
-	ErrMsg( errmsg_ );
+	ErrMsg( mFromUiStringTodo(errmsg_) );
 #endif
 
     if( DBG::isOn(DBG_PROGSTART) )
@@ -492,7 +492,7 @@ bool PluginManager::load( const char* libnm )
     data->sla_ = new SharedLibAccess( libnm );
     if ( !data->sla_->isOK() )
     {
-	ErrMsg( data->sla_->errMsg(), true );
+	ErrMsg( mFromUiStringTodo(data->sla_->errMsg()), true );
 	delete data;
 	return false;
     }

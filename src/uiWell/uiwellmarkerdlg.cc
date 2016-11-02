@@ -736,7 +736,7 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
     RefMan<Well::Data> wd = Well::MGR().get( mid );
     if ( !wd )
     {
-	uiMSG().error( mToUiStringTodo(Well::MGR().errMsg()) );
+	uiMSG().error( Well::MGR().errMsg() );
 	return;
     }
 
