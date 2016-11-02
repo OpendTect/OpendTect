@@ -370,7 +370,8 @@ void uiSEGYExamine::updateInp()
 	    str.append(tr(" No traces found"));
 	else
 	{
-	    str.append(tr(" Total number of traces present in file"));
+	    str.append(tr(" Total number of traces present in "));
+	    str.append(tr("file",0,ismulti ? mPlural : -1));
 	    str.append(toUiString(": ")); str.append(toUiString(nrdone));
 	}
 	str.append(toUiString("  ----"));
