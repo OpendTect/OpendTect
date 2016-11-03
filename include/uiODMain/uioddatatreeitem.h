@@ -46,8 +46,6 @@ protected:
 };
 
 
-mGlobal(uiODMain)
-
 mExpClass(uiODMain) uiODDataTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODDataTreeItem)
 public:
