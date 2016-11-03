@@ -789,6 +789,15 @@ void Sower::setView( const Rect& curview,const Geom::Rectangle<int>& mousearea )
 }
 
 
+bool Sower::activate(const LineStyle& linestyle,
+    const MouseEvent& mouseevent)
+{
+    const bool retval = activate( linestyle.color_, mouseevent );
+    sowingline_->linestyle_.width_ = linestyle.width_;
+    return retval;
+}
+
+
 #define mReturnHandled( yn ) \
 { \
     mouseeventhandler_.setHandled( yn ); \

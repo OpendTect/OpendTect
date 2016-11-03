@@ -56,6 +56,7 @@ public:
 
     bool		accept(const MouseEvent&,bool released=false);
     bool		activate(const Color&,const MouseEvent&);
+    bool		activate(const LineStyle&,const MouseEvent&);
 
     void		setSequentSowMask(bool yn=true,
 				    OD::ButtonState mask=OD::LeftButton);

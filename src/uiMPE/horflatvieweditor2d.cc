@@ -326,7 +326,9 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 	return;
     }
 
-    const Color& prefcol = emobj->preferredColor();
+    const Color prefcol = emobj->preferredColor();
+    const Color sowcolor =
+	prefcol !=Color::Red() ? Color::Red() : Color::Green();
 
     if ( editor_ )
     {
@@ -335,7 +337,8 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 	    true,OD::ButtonState( OD::LeftButton+OD::ControlButton) );
 	editor_->sower().intersow();
 	editor_->sower().reverseSowingOrder();
-	if ( editor_->sower().activate(prefcol, mouseevent) )
+	if ( editor_->sower().activate(
+	    LineStyle( LineStyle::Solid, 4, sowcolor ), mouseevent) )
 	    return;
     }
 }
@@ -694,13 +697,16 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    dodropnext_ = false;
 	}
 
-	const MouseEvent& mouseevent = mehandler_->event();
-	const bool doerase =
-	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus();
-
 	const TrcKeyValue tkv2( getTrcKey(Coord(mev.x(),mev.y())), 0.f );
-	if ( spk.getTrackMode()==spk.DrawBetweenSeeds ||
-	     spk.getTrackMode()==spk.DrawAndSnap || doerase )
+	const MouseEvent& mouseevent = mehandler_->event();
+	const bool sowingmode = sowingmode_.getParam(this);
+	const bool doerase =
+	    !mouseevent.shiftStatus() && mouseevent.ctrlStatus() && sowingmode;
+	const bool manualmodeclick = !mouseevent.ctrlStatus() && 
+	    ( spk.getTrackMode()==spk.DrawBetweenSeeds ||
+	     spk.getTrackMode()==spk.DrawAndSnap );
+
+	if ( doerase || manualmodeclick )
 	{
 	    spk.addSeedToPatch( tkv );
 	    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
@@ -712,13 +718,13 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 		    updatePatchDisplay();
 	    }
 	}
-	else
+	else if ( !sowingmode && !mouseevent.ctrlStatus() )
 	{
-	    if ( !sowingmode_.getParam(this) )
 		spk.addSeed( tkv, drop, tkv2 );
-	    else 
-		spk.addSeedToPatch( tkv, false );
-	    return true;
+	}
+	else if ( sowingmode ) 
+	{
+	    spk.addSeedToPatch( tkv, false );
 	}
     }
     else if ( mev.shiftStatus() || mev.ctrlStatus() )
@@ -737,10 +743,10 @@ void HorizonFlatViewEditor2D::setupPatchDisplay()
     RefMan<EM::EMObject> emobj = EM::EMM().getObject(emid_);
     if ( !emobj || !editor_ ) return;
 
-    Color patchcolor = Color::Green();
+    Color patchcolor = Color::Red();
     const Color mkclr = emobj->preferredColor();
     if ( Math::Abs(patchcolor.g()-mkclr.g())<30 )
-	    patchcolor = Color::Red();
+	    patchcolor = Color::Green();
 
     if ( !patchdata_ )
     {
@@ -749,7 +755,10 @@ void HorizonFlatViewEditor2D::setupPatchDisplay()
     }
     patchdata_->empty();
     patchdata_->enabled_ = true;
-    patchdata_->linestyle_ = LineStyle( LineStyle::Solid, 4, patchcolor );
+
+    const int linewidth = sowingmode_.getParam(this) ? 0 : 4;
+    patchdata_->linestyle_ = 
+	LineStyle( LineStyle::Solid, linewidth, patchcolor );
 
 }
 
