@@ -239,11 +239,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 			&& EM::canOverwrite( mid );
     mAddMenuItem( menu, &trackmenuitem_, enab, false );
 
-#ifdef __debug__
     mAddMenuItem( menu, &reloadmnuitem_, true, false );
-#else
-    mResetMenuItem( &reloadmnuitem_ );
-#endif
 
     mAddMenuItem( menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid_) &&
@@ -259,11 +255,12 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 
 int uiODEarthModelSurfaceTreeItem::reloadEMObject()
 {
+    uiEMPartServer* ems = applMgr()->EMServer();
+    const MultiID mid = ems->getStorageID( emid_ );
+
     applMgr()->visServer()->removeObject( displayid_, sceneID() );
     delete uivisemobj_; uivisemobj_ = 0;
 
-    uiEMPartServer* ems = applMgr()->EMServer();
-    const MultiID mid = ems->getStorageID(emid_);
     if ( !ems->loadSurface(mid) )
 	return -1;
 
