@@ -13,14 +13,15 @@ set progname=${0}
 
 set prevdir = `pwd`
 set dtectdir = `dirname ${progname}`
-set sendappl = ${dtectdir}/copyto_s3bucket.csh
+set sendappl = /auto/d46/apps/google-cloud-sdk/bin/gsutil
 set nrcpus = `${dtectdir}/GetNrProc`
 if ( ! -e ${sendappl} ) then
     echo "${sendappl} does not exist"
     exit 1
 endif
 
-set serversubdir=progdoc/${1}
+set host=doc.opendtect.org
+set serversubdir=nightlyprogdoc/${1}
 set docdir=${2}
 
 if ( "${docdir}" == "" ) then
@@ -75,8 +76,10 @@ end
 echo "Compressing Documentation"
 cat ${listfile} | xargs -P8 ${dtectdir}/compress_doc.csh ${compdir}
 
+
+#Create sitemap
 set awkprog = /tmp/awkcmd.awk
-echo '{ print "http://static.opendtect.org/'"${serversubdir}"'/"$1 }' > $awkprog
+echo '{ print "http://'"${host}/${serversubdir}"'/"$1 }' > $awkprog
 
 find . -name "*.html" | sed 's/\.\///g' | awk -f ${awkprog} | gzip > ${compdir}/sitemap.txt
 
@@ -84,14 +87,12 @@ rm -rf ${awkprog}
 
 cd ${prevdir}
 
-#First, run to upload svg files, as they need special mime treatment
-${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" --s3arg --exclude --s3arg "*" --s3arg --include --s3arg "*.svg" --s3arg -m --s3arg "image/svg+xml" ${compdir} ${serversubdir} --bucket static.opendtect.org --quiet --reduced-redundancy
+#Upload everything
+${sendappl} -m -h content-encoding:gzip \
+	rsync -c -d -r \
+	${compdir} \
+	gs://${host}/${serversubdir}
 
-#SecondlySecond, run to upload new stuff, keep removed files
-${sendappl} --s3arg --add-header --s3arg "Content-Encoding: gzip" --s3arg --exclude --s3arg "*.svg" ${compdir} ${serversubdir} --bucket static.opendtect.org --quiet --reduced-redundancy
-
-#Third, delete removed files
-${sendappl} --s3arg --delete-removed --s3arg --add-header --s3arg "Content-Encoding: gzip" ${compdir} ${serversubdir} --bucket static.opendtect.org --quiet --reduced-redundancy
 exit 0
 
 syntax:
