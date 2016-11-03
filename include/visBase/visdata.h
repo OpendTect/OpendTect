@@ -32,8 +32,6 @@ namespace osg { class Switch; class StateSet; }
 namespace visBase
 {
 
-typedef Geom::Point3D<float> Coord3f;
-
 class Transformation;
 class SelectionManager;
 class DataManager;
