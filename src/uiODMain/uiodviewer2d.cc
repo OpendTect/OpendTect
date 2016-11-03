@@ -256,7 +256,9 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 	if ( !hasdatapack )
 	{
 	    attrdpid = createDataPack( iswiggle );
+	    ChangeNotifyBlocker notifybocker( *attriblayer );
 	    attriblayer->setAttribDataPack( attrdpid );
+	    notifybocker.unBlockNow( false );
 	}
 
 	setDataPack( createFlatDataPack(attrdpid,0), iswiggle, isnew );
@@ -588,7 +590,6 @@ DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 {
     TrcKeyZSampling tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling()
 				     : probe_.position();
-    if ( !tkzs.isFlat() ) return DataPack::cNoID();
 
     RefMan<ZAxisTransform> zat = getZAxisTransform();
     if ( zat && !selspec.isZTransformed() )
@@ -859,7 +860,7 @@ void uiODViewer2D::setWinTitle()
 	viewwin()->setWinTitle( title );
 }
 
-//TODO re-implement via Probe
+//TODO PrIMPL re-implement via Probe
 void uiODViewer2D::usePar( const IOPar& iop )
 {
     if ( !viewwin() ) return;
@@ -876,7 +877,7 @@ void uiODViewer2D::usePar( const IOPar& iop )
 	const uiFlatViewer& vwr = viewwin()->viewer(0);
 	const bool iswva = wvaselspec_.id().isValid();
 	ConstRefMan<RegularSeisDataPack> regsdp = vwr.getPack( iswva );
-	//TODO remove later if ( regsdp ) setPos( tkzs );
+	//TODO PrIMPL remove later if ( regsdp ) setPos( tkzs );
     }
 
     datamgr_->usePar( iop, viewwin(), dataEditor() );

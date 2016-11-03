@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "odsession.h"
 
 #include "uiodscenemgr.h"
+#include "uiodplanedatatreeitem.h"
 #include "uiodvolproctreeitem.h"
 
 mDefModInitFn(uiODMain)
@@ -23,4 +24,7 @@ mDefModInitFn(uiODMain)
     dgbODSessionTranslator::initClass();
     uiKeyBindingSettingsGroup::initClass();
     VolProc::uiDataTreeItem::initClass();
+    uiODInlineAttribTreeItem::initClass();
+    uiODCrosslineAttribTreeItem::initClass();
+    uiODZsliceAttribTreeItem::initClass();
 }

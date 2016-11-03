@@ -1338,6 +1338,12 @@ const ZAxisTransform* uiVisPartServer::getZAxisTransform( int sceneid ) const
     return scene ? scene->getZAxisTransform() : 0;
 }
 
+ZAxisTransform* uiVisPartServer::getZAxisTransform( int sceneid )
+{
+    visSurvey::Scene* scene = getScene( sceneid );
+    return scene ? scene->getZAxisTransform() : 0;
+}
+
 
 visBase::EventCatcher* uiVisPartServer::getEventCatcher( int sceneid )
 {
@@ -2039,7 +2045,11 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 
 
 void uiVisPartServer::updateSelObjCB( CallBacker* cb )
-{ mUpdateSelObj( cb, id, dataobj ); }
+{
+    //TODO PrIMPL once randomline display integrated with probe
+    // then we can remove it
+    //mUpdateSelObj( cb, id, dataobj );
+}
 
 
 void uiVisPartServer::interactionCB( CallBacker* cb )

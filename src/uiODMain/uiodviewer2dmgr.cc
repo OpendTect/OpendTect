@@ -1033,7 +1033,7 @@ void uiODViewer2DMgr::viewObjToBeRemoved( CallBacker* cb )
     vw2dObjToBeRemoved.trigger( vw2dobjid );
 }
 
-//TODO replace fillPar/usePar handling via Probe
+//TODO PrIMPL replace fillPar/usePar handling via Probe
 void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 {
     for ( int idx=0; idx<viewers_.size(); idx++ )
@@ -1042,7 +1042,7 @@ void uiODViewer2DMgr::fillPar( IOPar& iop ) const
 	if ( !vwr2d->viewwin() ) continue;
 
 	IOPar vwrpar;
-	//TODO replace vwrpar.set( sKeyVisID(), vwr2d->visid_ );
+	//TODO PrIMPL replace vwrpar.set( sKeyVisID(), vwr2d->visid_ );
 	bool wva = vwr2d->viewwin()->viewer().appearance().ddpars_.wva_.show_;
 	vwrpar.setYN( sKeyWVA(), wva );
 	vwrpar.set( sKeyAttrID(), vwr2d->selSpec(wva).id().asInt() );
@@ -1066,7 +1066,7 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 	    break;
 	}
 	/*int visid; bool wva; int attrid;
-	    TODO replace with Probe controlled things
+	    TODO PrIMPL replace with Probe controlled things
 	if ( vwrpar->get( sKeyVisID(), visid ) &&
 	     vwrpar->get( sKeyAttrID(), attrid ) &&
 	     vwrpar->getYN( sKeyWVA(), wva ) )

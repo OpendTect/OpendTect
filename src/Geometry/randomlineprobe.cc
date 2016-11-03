@@ -41,6 +41,26 @@ BufferString RDLProbe::createName() const
 }
 
 
+void RDLProbe::setRDLID( int rdlid )
+{
+    mLock4Read();
+
+    if ( rdlid_ == rdlid )
+	return;
+
+    if ( !mLock2Write() && rdlid_ == rdlid )
+	return;
+
+    rdlid_ = rdlid;
+    updateName();
+
+    for ( int idx=0; idx<layers_.size(); idx++ )
+	layers_[idx]->invalidateData();
+
+    mSendChgNotif( cPositionChange(), cEntireObjectChangeID() );
+}
+
+
 void RDLProbe::fillPar( IOPar& par ) const
 {
     Probe::fillPar( par );

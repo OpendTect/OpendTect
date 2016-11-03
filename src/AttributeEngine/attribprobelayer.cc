@@ -33,6 +33,7 @@ AttribProbeLayer::AttribProbeLayer( DispType dt )
     , attrspec_(*new Attrib::SelSpec())
     , attribdpid_(DataPack::ID::getInvalid())
     , disptype_(dt)
+    , attrdp_(0)
 {
 }
 
@@ -93,6 +94,34 @@ bool AttribProbeLayer::usePar( const IOPar& par )
     attrcoltab_.usePar( par );
     attrmapper_.usePar( par );
     return true;
+}
+
+
+void AttribProbeLayer::updateDataPack()
+{
+    const Probe* parentprobe = getProbe();
+    if ( !parentprobe )
+    { pErrMsg( "Parent probe not set" ); return; }
+
+    DataPackMgr& dpm = DPM( getDataPackManagerID() );
+    attrdp_ = dpm.get( attribdpid_ );
+}
+
+
+void AttribProbeLayer::setAttribDataPack( DataPack::ID dpid )
+{
+    mLock4Read();
+
+    if ( attribdpid_ == dpid )
+	return;
+
+    if ( !mLock2Write() && attribdpid_ == dpid )
+	return;
+
+    attribdpid_ = dpid;
+    updateDataPack();
+    mSendChgNotif( cDataChange(), cEntireObjectChangeID() );
+
 }
 
 

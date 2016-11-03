@@ -35,6 +35,68 @@ ___________________________________________________________________
 mImplFactory2Param( uiODDataTreeItem, const Attrib::SelSpec&,
 		     const char*, uiODDataTreeItem::factory )
 
+void uiODDataTreeItemFactory::addCreateFunc( CreateFunc crfn,
+					const char* probelayertype,
+					const char* probetype )
+{
+    const int probeidx = probetypes_.indexOf( probetype );
+    if ( probeidx>=0 )
+    {
+	if ( !createfuncsset_.validIdx(probeidx) ||
+	     !probelayertypesset_.validIdx(probeidx) )
+	{ pErrMsg( "Probe Function Pointer Set not found" ); return; }
+
+	TypeSet<CreateFunc>& probecrfuncs = createfuncsset_[probeidx];
+	BufferStringSet& probelayertypes = probelayertypesset_[probeidx];
+	const int prblayidx = probelayertypes.indexOf( probelayertype );
+	if ( prblayidx>=0 )
+	{
+	    if ( !probecrfuncs.validIdx(prblayidx) )
+	    { pErrMsg( "Probe Function Pointer not found" ); return; }
+
+	    probecrfuncs[prblayidx] = crfn;
+	    return;
+	}
+
+	probelayertypes.add( probelayertype );
+	probecrfuncs += crfn;
+	return;
+    }
+
+    TypeSet<CreateFunc> probefuncset;
+    probefuncset += crfn;
+    probetypes_.add( probetype );
+    createfuncsset_ += probefuncset;
+    BufferStringSet probelayertypes;
+    probelayertypes.add( probelayertype );
+    probelayertypesset_ += probelayertypes;
+}
+
+
+uiODDataTreeItem* uiODDataTreeItemFactory::create( ProbeLayer& probelayer )
+{
+    const Probe* parentprobe = probelayer.getProbe();
+    if ( !parentprobe )
+    { pErrMsg( "Parent Probe not set for ProbeLayer" ); return 0; }
+
+    const int probeidx = probetypes_.indexOf( parentprobe->type() );
+    if ( probeidx<0 )
+	return 0;
+
+    if ( !probelayertypesset_.validIdx(probeidx) ||
+	 !createfuncsset_.validIdx(probeidx) )
+	return 0;
+
+    BufferStringSet& probelaytypes = probelayertypesset_[probeidx];
+    TypeSet<CreateFunc>& probelaycrfuncs = createfuncsset_[probeidx];
+    const int probelayidx = probelaytypes.indexOf( probelayer.layerType() );
+    if ( probelayidx<0 )
+	return 0;
+
+    return (*probelaycrfuncs[probelayidx])( probelayer );
+}
+
+
 uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     : uiTreeItem(uiString::emptyString())
     , parenttype_(parenttype)
@@ -43,6 +105,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , statswin_(0)
     , ampspectrumwin_(0)
     , fkspectrumwin_(0)
+    , probelayer_(0)
     , movemnuitem_(tr("Move"))
     , movetotopmnuitem_(tr("To Top"))
     , movetobottommnuitem_(tr("To Bottom"))
@@ -88,6 +151,13 @@ uiODDataTreeItem::~uiODDataTreeItem()
 }
 
 
+uiODDataTreeItemFactory& uiODDataTreeItem::fac()
+{
+    mDefineStaticLocalObject(uiODDataTreeItemFactory,datatreeitmfac_,);
+    return datatreeitmfac_;
+};
+
+
 int uiODDataTreeItem::uiTreeViewItemType() const
 {
     if ( visserv_->canHaveMultipleAttribs(displayID()) ||
@@ -122,6 +192,7 @@ bool uiODDataTreeItem::init()
     tb->createnotifier.notify( mCB(this,uiODDataTreeItem,addToToolBarCB) );
     tb->handlenotifier.notify( mCB(this,uiODDataTreeItem,handleMenuCB) );
 
+    updateDisplay();
     return uiTreeItem::init();
 }
 
@@ -476,4 +547,25 @@ void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
     }
 
     uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *seq );
+}
+
+
+void uiODDataTreeItem::setProbeLayer( ProbeLayer* layer )
+{
+    if ( probelayer_ == layer )
+	return;
+
+    if ( probelayer_ )
+	mDetachCB( probelayer_->objectChanged(),
+		   uiODDataTreeItem::probeLayerChangedCB );
+
+    probelayer_ = layer;
+    mAttachCB( probelayer_->objectChanged(),
+	       uiODDataTreeItem::probeLayerChangedCB );
+}
+
+
+void uiODDataTreeItem::probeLayerChangedCB( CallBacker* )
+{
+    updateDisplay();
 }

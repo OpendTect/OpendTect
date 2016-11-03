@@ -37,6 +37,7 @@ ___________________________________________________________________
 #include "welldata.h"
 #include "wellinfo.h"
 #include "wellman.h"
+#include "visselman.h"
 
 
 static const int cPositionIdx = 990;
@@ -45,7 +46,8 @@ static const int cGridLinesIdx = 980;
 
 uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o,
 					      Probe& probe )
-    : orient_(o)
+    : uiODSceneProbeTreeItem( probe )
+    , orient_(o)
     , probe_(probe)
     , positiondlg_(0)
     , positionmnuitem_(m3Dots(tr("Position")),cPositionIdx)
@@ -54,8 +56,6 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o,
     , addcrlitem_(tr("Add Crl-line"),10002)
     , addzitem_(tr("Add Z-slice"),10001)
 {
-    probe_.ref();
-    //TODO Implement probeChangedCB
     displayid_ = did;
     positionmnuitem_.iconfnm = "orientation64";
     gridlinesmnuitem_.iconfnm = "gridlines";
@@ -73,6 +73,8 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
     {
 	pdd->selection()->remove( mCB(this,uiODPlaneDataTreeItem,selChg) );
 	pdd->deSelection()->remove( mCB(this,uiODPlaneDataTreeItem,selChg) );
+	visBase::DM().selMan().updateselnotifier.remove(
+		mCB(this,uiODPlaneDataTreeItem,posChange) );
 	pdd->unRef();
     }
 
@@ -80,7 +82,6 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 			mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     visserv_->getUiSlicePos()->setDisplay( -1 );
-    probe_.unRef();
     delete positiondlg_;
 }
 
@@ -103,7 +104,7 @@ bool uiODPlaneDataTreeItem::init()
 		pdd->setResolution( idx, 0 );
 	}
 
-	pdd->setProbe( &probe_ );
+	pdd->setProbe( getProbe() );
 	for ( int idx=0; idx<probe_.nrLayers(); idx++ )
 	{
 	    mDynamicCastGet( const AttribProbeLayer*,attrprlayer,
@@ -116,16 +117,6 @@ bool uiODPlaneDataTreeItem::init()
 			visBase::RGBATextureChannel2RGBA::create() );
 	    if ( idx )
 		pdd->addAttrib();
-	    visserv_->setSelSpec( displayid_, idx, attrprlayer->getSelSpec() );
-	    visserv_->setColTabMapperSetup( displayid_, idx,
-					    attrprlayer->getColTabMapper() );
-	    visserv_->setColTabSequence( displayid_, idx,
-					 attrprlayer->getColTab());
-	    if ( !attrprlayer->getAttribDataPack().isInvalid() )
-		visserv_->setDataPackID( displayid_, idx,
-					 attrprlayer->getAttribDataPack() );
-	    else
-		visserv_->calculateAttrib( displayid_, idx, false );
 	}
     }
 
@@ -136,11 +127,13 @@ bool uiODPlaneDataTreeItem::init()
     pdd->ref();
     pdd->selection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
     pdd->deSelection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
+    visBase::DM().selMan().updateselnotifier.notify(
+	    mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     visserv_->getUiSlicePos()->positionChg.notify(
 			mCB(this,uiODPlaneDataTreeItem,posChange) );
 
-    return uiODDisplayTreeItem::init();
+    return uiODSceneProbeTreeItem::init();
 }
 
 
@@ -185,13 +178,51 @@ void uiODPlaneDataTreeItem::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
 }
 
 
-void uiODPlaneDataTreeItem::posChange( CallBacker* )
+void uiODPlaneDataTreeItem::posChange( CallBacker* cb )
 {
-    uiSlicePos3DDisp* slicepos = visserv_->getUiSlicePos();
-    if ( slicepos->getDisplayID() != displayid_ )
+    Probe* probe = getProbe();
+    if ( !probe )
+    { pErrMsg( "Huh! Shared Object not of type Probe" ); return; }
+
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv_->getObject(displayid_))
+    if ( !pdd )
 	return;
 
-    movePlaneAndCalcAttribs( slicepos->getTrcKeyZSampling() );
+    if ( cb->isCapsule() )
+    {
+	mCBCapsuleUnpackWithCaller(int,visid,caller,cb);
+	mDynamicCastGet(visBase::SelectionManager*,selman,caller);
+	if ( !selman || displayid_ != visid )
+	    return;
+
+	pdd->annotateNextUpdateStage( true );
+	pdd->acceptManipulation();
+	pdd->annotateNextUpdateStage( true );
+	pdd->resetManipulation();
+    }
+    else
+    {
+	uiSlicePos3DDisp* slicepos = visserv_->getUiSlicePos();
+	if ( slicepos->getDisplayID() != displayid_ )
+	    return;
+
+    }
+
+    probe->setPos( pdd->getTrcKeyZSampling() );
+}
+
+
+void uiODPlaneDataTreeItem::objChangedCB( CallBacker* )
+{
+    const Probe* probe = getProbe();
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv_->getObject(displayid_))
+    if ( !pdd || !probe )
+	return;
+
+    pdd->setTrcKeyZSampling( probe->position() );
+    pdd->annotateNextUpdateStage( false );
 }
 
 
@@ -346,8 +377,13 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     float zpos = mCast( float, pickedpos.z_ );
     snapToTkzs( pdd->getTrcKeyZSampling(), tk, zpos );
 
+    const bool isadd = mnuid == addinlitem_.id || mnuid == addcrlitem_.id ||
+		       mnuid == addzitem_.id;
+    if ( !isadd )
+	return;
+
     TrcKeyZSampling newtkzs( true );
-    mDynamicCastGet(uiODProbeParentTreeItem*,probeparent,parent_)
+    mDynamicCastGet(uiODSceneProbeParentTreeItem*,probeparent,parent_)
     if ( !probeparent )
 	return;
 
@@ -477,7 +513,7 @@ uiTreeItem*
 
 
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
-    : uiODProbeParentTreeItem( uiStrings::sInline() )
+    : uiODSceneProbeParentTreeItem( uiStrings::sInline() )
 {}
 
 
@@ -540,6 +576,29 @@ uiODInlineTreeItem::uiODInlineTreeItem( int id, Probe& pr )
 {}
 
 
+uiODInlineAttribTreeItem::uiODInlineAttribTreeItem( const char* parenttype )
+    : uiODAttribTreeItem(parenttype)
+{
+}
+
+uiODDataTreeItem* uiODInlineAttribTreeItem::create( ProbeLayer& prblay )
+{
+    const char* parenttype = typeid(uiODInlineTreeItem).name();
+    uiODInlineAttribTreeItem* attribtreeitem =
+	new uiODInlineAttribTreeItem( parenttype );
+    attribtreeitem->setProbeLayer( &prblay );
+    return attribtreeitem;
+
+}
+
+
+void uiODInlineAttribTreeItem::initClass()
+{
+    uiODDataTreeItem::fac().addCreateFunc(
+	    create, AttribProbeLayer::sFactoryKey(),InlineProbe::sFactoryKey());
+
+}
+
 
 uiTreeItem*
     uiODCrosslineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
@@ -559,7 +618,7 @@ uiTreeItem*
 
 
 uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
-    : uiODProbeParentTreeItem( uiStrings::sCrossline() )
+    : uiODSceneProbeParentTreeItem( uiStrings::sCrossline() )
 {}
 
 
@@ -621,6 +680,31 @@ uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Probe& pr )
 {}
 
 
+uiODCrosslineAttribTreeItem::uiODCrosslineAttribTreeItem( const char* partype )
+    : uiODAttribTreeItem(partype)
+{
+}
+
+uiODDataTreeItem* uiODCrosslineAttribTreeItem::create( ProbeLayer& prblay )
+{
+    const char* parenttype = typeid(uiODCrosslineTreeItem).name();
+    uiODCrosslineAttribTreeItem* attribtreeitem =
+	new uiODCrosslineAttribTreeItem( parenttype );
+    attribtreeitem->setProbeLayer( &prblay );
+    return attribtreeitem;
+
+}
+
+
+void uiODCrosslineAttribTreeItem::initClass()
+{
+    uiODDataTreeItem::fac().addCreateFunc(
+	    create, AttribProbeLayer::sFactoryKey(),
+	    CrosslineProbe::sFactoryKey() );
+
+}
+
+
 
 uiTreeItem*
     uiODZsliceTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
@@ -640,7 +724,7 @@ uiTreeItem*
 
 
 uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
-    : uiODProbeParentTreeItem( uiStrings::sZSlice() )
+    : uiODSceneProbeParentTreeItem( uiStrings::sZSlice() )
 {}
 
 
@@ -700,4 +784,28 @@ uiODPrManagedTreeItem* uiODZsliceParentTreeItem::addChildItem(
 uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Probe& probe )
     : uiODPlaneDataTreeItem( id, OD::ZSlice, probe )
 {
+}
+
+
+uiODZsliceAttribTreeItem::uiODZsliceAttribTreeItem( const char* parenttype )
+    : uiODAttribTreeItem(parenttype)
+{
+}
+
+uiODDataTreeItem* uiODZsliceAttribTreeItem::create( ProbeLayer& prblay )
+{
+    const char* parenttype = typeid(uiODZsliceTreeItem).name();
+    uiODZsliceAttribTreeItem* attribtreeitem =
+	new uiODZsliceAttribTreeItem( parenttype );
+    attribtreeitem->setProbeLayer( &prblay );
+    return attribtreeitem;
+
+}
+
+
+void uiODZsliceAttribTreeItem::initClass()
+{
+    uiODDataTreeItem::fac().addCreateFunc(
+	    create, AttribProbeLayer::sFactoryKey(),ZSliceProbe::sFactoryKey());
+
 }

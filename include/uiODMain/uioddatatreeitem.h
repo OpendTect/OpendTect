@@ -13,19 +13,40 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodtreeitem.h"
+#include "bufstring.h"
 #include "factory.h"
 
+class ProbeLayer;
 class uiFKSpectrum;
 class uiMenuHandler;
 class uiSeisAmplSpectrum;
 class uiStatsDisplayWin;
 class uiVisPartServer;
 class uiODApplMgr;
+class uiODDataTreeItem;
 namespace Attrib { class SelSpec; }
 namespace ColTab { class Sequence; }
 
 
 /*!Base class for a data treeitem. */
+
+mExpClass(uiODMain) uiODDataTreeItemFactory
+{
+public:
+    typedef uiODDataTreeItem*	(*CreateFunc)(ProbeLayer&);
+
+    void			addCreateFunc(CreateFunc,
+					      const char* probelayertype,
+					      const char* probetype);
+    uiODDataTreeItem*		create(ProbeLayer&);
+protected:
+    TypeSet< TypeSet<CreateFunc> >	createfuncsset_;
+    BufferStringSet			probetypes_;
+    TypeSet< BufferStringSet >		probelayertypesset_;
+};
+
+
+mGlobal(uiODMain)
 
 mExpClass(uiODMain) uiODDataTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODDataTreeItem)
@@ -40,6 +61,8 @@ public:
     static int			cPixmapWidth()		{ return 16; }
     static int			cPixmapHeight()		{ return 10; }
 
+    static uiODDataTreeItemFactory& fac();
+				//TODO PrIMPL remove
 				mDefineFactory2ParamInClass(uiODDataTreeItem,
 					const Attrib::SelSpec&,const char*,
 					factory )
@@ -48,6 +71,7 @@ public:
 				    function. */
 
     void			prepareForShutdown();
+    virtual void		setProbeLayer(ProbeLayer*);
 
 protected:
 
@@ -71,6 +95,9 @@ protected:
     void			addToToolBarCB(CallBacker*);
     void			createMenuCB(CallBacker*);
     virtual void		handleMenuCB(CallBacker*);
+    void			probeLayerChangedCB(CallBacker*);
+
+    virtual void		updateDisplay()				{}
     void			updateColumnText(int col);
     virtual uiString		createDisplayName() const		= 0;
 
@@ -91,9 +118,11 @@ protected:
     MenuItem			fkspectrumitem_;
     MenuItem			view2dwvaitem_;
     MenuItem			view2dvditem_;
-    const char*			parenttype_;
+    BufferString		parenttype_;
 
     uiStatsDisplayWin*		statswin_;
     uiSeisAmplSpectrum*		ampspectrumwin_;
     uiFKSpectrum*		fkspectrumwin_;
+
+    ProbeLayer*			probelayer_;
 };

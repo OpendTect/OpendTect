@@ -14,6 +14,7 @@ ___________________________________________________________________
 #include "uigridlinesdlg.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uioddatatreeitem.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uistrings.h"
@@ -30,58 +31,58 @@ ___________________________________________________________________
 #include "zdomain.h"
 
 
-static uiODProbeParentTreeItem::Type getType( int mnuid )
+static uiODSceneProbeParentTreeItem::Type getType( int mnuid )
 {
     switch ( mnuid )
     {
-	case 0: return uiODProbeParentTreeItem::Default; break;
-	case 1: return uiODProbeParentTreeItem::Select; break;
-	case 2: return uiODProbeParentTreeItem::Empty; break;
-	case 3: return uiODProbeParentTreeItem::RGBA; break;
-	default: return uiODProbeParentTreeItem::Empty;
+	case 0: return uiODSceneProbeParentTreeItem::Default; break;
+	case 1: return uiODSceneProbeParentTreeItem::Select; break;
+	case 2: return uiODSceneProbeParentTreeItem::Empty; break;
+	case 3: return uiODSceneProbeParentTreeItem::RGBA; break;
+	default: return uiODSceneProbeParentTreeItem::Empty;
     }
 }
 
 
-uiString uiODProbeParentTreeItem::sAddEmptyPlane()
+uiString uiODSceneProbeParentTreeItem::sAddEmptyPlane()
 { return tr("Add Empty Plane"); }
 
-uiString uiODProbeParentTreeItem::sAddAndSelectData()
+uiString uiODSceneProbeParentTreeItem::sAddAndSelectData()
 { return tr("Add and Select Data"); }
 
-uiString uiODProbeParentTreeItem::sAddDefaultData()
+uiString uiODSceneProbeParentTreeItem::sAddDefaultData()
 { return tr("Add Default Data"); }
 
-uiString uiODProbeParentTreeItem::sAddColorBlended()
+uiString uiODSceneProbeParentTreeItem::sAddColorBlended()
 { return uiStrings::sAddColBlend(); }
 
-uiString uiODProbeParentTreeItem::sAddAtWellLocation()
+uiString uiODSceneProbeParentTreeItem::sAddAtWellLocation()
 { return m3Dots(tr("Add at Well Location")); }
 
-uiODProbeParentTreeItem::uiODProbeParentTreeItem( const uiString& nm )
+uiODSceneProbeParentTreeItem::uiODSceneProbeParentTreeItem( const uiString& nm )
     : uiODSceneParentTreeItem( nm )
 {}
 
 
-const char* uiODProbeParentTreeItem::childObjTypeKey() const
+const char* uiODSceneProbeParentTreeItem::childObjTypeKey() const
 { return ProbePresentationInfo::sFactoryKey(); }
 
 
-bool uiODProbeParentTreeItem::showSubMenu()
+bool uiODSceneProbeParentTreeItem::showSubMenu()
 {
     if ( !canShowSubMenu() )
 	return false;
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem(
-	new uiAction(uiODProbeParentTreeItem::sAddDefaultData()), 0 );
+	new uiAction(uiODSceneProbeParentTreeItem::sAddDefaultData()), 0 );
     mnu.insertItem(
-	new uiAction(uiODProbeParentTreeItem::sAddAndSelectData()), 1 );
+	new uiAction(uiODSceneProbeParentTreeItem::sAddAndSelectData()), 1 );
     if ( canAddFromWell() )
-	mnu.insertItem(
-	    new uiAction(uiODProbeParentTreeItem::sAddAtWellLocation()), 2 );
+	mnu.insertItem( new uiAction(
+		    uiODSceneProbeParentTreeItem::sAddAtWellLocation()), 2 );
     mnu.insertItem(
-	new uiAction(uiODProbeParentTreeItem::sAddColorBlended()), 3 );
+	new uiAction(uiODSceneProbeParentTreeItem::sAddColorBlended()), 3 );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
     Type type = getType( mnuid );
@@ -101,6 +102,7 @@ bool uiODProbeParentTreeItem::showSubMenu()
 	DBKeySet wellids;
 	if ( !applMgr()->wellServer()->selectWells(wellids) )
 	    return true;
+
 	for ( int idx=0;idx<wellids.size(); idx++ )
 	{
 	    Well::Data* wd = Well::MGR().get( wellids[idx] );
@@ -114,7 +116,7 @@ bool uiODProbeParentTreeItem::showSubMenu()
 	    uiODPrManagedTreeItem* newitem = addChildItem( probeprinfo );
 
 	    setMoreObjectsToDoHint( idx<wellids.size()-1 );
-	    //TODO newitm->setAtWellLocation( *wd );
+	    //TODO PrIMPL newitm->setAtWellLocation( *wd );
 	    newitem->emitPRRequest( OD::Add );
 	}
     }
@@ -123,7 +125,7 @@ bool uiODProbeParentTreeItem::showSubMenu()
 }
 
 
-bool uiODProbeParentTreeItem::fillProbe( Probe& newprobe, Type type )
+bool uiODSceneProbeParentTreeItem::fillProbe( Probe& newprobe, Type type )
 {
     if ( type == Default )
 	return setDefaultAttribLayer( newprobe );
@@ -136,7 +138,7 @@ bool uiODProbeParentTreeItem::fillProbe( Probe& newprobe, Type type )
 }
 
 
-bool uiODProbeParentTreeItem::setDefaultAttribLayer( Probe& probe ) const
+bool uiODSceneProbeParentTreeItem::setDefaultAttribLayer( Probe& probe ) const
 {
     if ( !applMgr() || !applMgr()->attrServer() )
 	return false;
@@ -159,7 +161,7 @@ bool uiODProbeParentTreeItem::setDefaultAttribLayer( Probe& probe ) const
 }
 
 
-bool uiODProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
+bool uiODSceneProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
 {
     if ( !applMgr() || !applMgr()->attrServer() )
 	return false;
@@ -185,7 +187,7 @@ bool uiODProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
 }
 
 
-bool uiODProbeParentTreeItem::setRGBProbeLayers( Probe& probe ) const
+bool uiODSceneProbeParentTreeItem::setRGBProbeLayers( Probe& probe ) const
 {
     if ( !applMgr() || !applMgr()->attrServer() )
 	return false;
@@ -207,4 +209,57 @@ bool uiODProbeParentTreeItem::setRGBProbeLayers( Probe& probe ) const
     }
 
     return true;
+}
+
+
+uiODSceneProbeTreeItem::uiODSceneProbeTreeItem( Probe& prb )
+    : uiODDisplayTreeItem()
+{
+    setDataObj( &prb );
+}
+
+
+uiODSceneProbeTreeItem::~uiODSceneProbeTreeItem()
+{
+    detachAllNotifiers();
+}
+
+
+bool uiODSceneProbeTreeItem::init()
+{
+    Probe* probe = getProbe();
+    if ( !probe )
+    {
+	pErrMsg( "Shared Object not of type Probe" );
+	return false;
+    }
+
+    if ( !uiODDisplayTreeItem::init() )
+	return false;
+
+    for ( int idx=0; idx<probe->nrLayers(); idx++ )
+    {
+	ProbeLayer* probelay = probe->getLayerByIdx( idx );
+	uiODDataTreeItem* item = uiODDataTreeItem::fac().create( *probelay );
+	if ( item )
+	{
+	    addChild( item, false );
+	    item->setChecked( visserv_->isAttribEnabled(displayid_,idx));
+	}
+    }
+
+    return true;
+}
+
+
+const Probe* uiODSceneProbeTreeItem::getProbe() const
+{
+    mDynamicCastGet(const Probe*,probe,dataobj_.ptr());
+    return probe;
+}
+
+Probe* uiODSceneProbeTreeItem::getProbe()
+{
+    mDynamicCastGet(Probe*,probe,dataobj_.ptr());
+    return probe;
 }

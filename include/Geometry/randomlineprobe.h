@@ -24,8 +24,8 @@ public:
     static Probe*		createFrom(const IOPar&);
 
     static void			initClass();
-    mImplSimpleMonitoredGetSet(inline,randomeLineID,setRDLID,int,rdlid_,
-			       cPositionChange())
+    mImplSimpleMonitoredGet(randomeLineID,int,rdlid_)
+    void			setRDLID(int rdlid);
     mDeclInstanceCreatedNotifierAccess( RDLProbe );
     mDeclAbstractMonitorableAssignment( RDLProbe );
     virtual void		fillPar(IOPar&) const;

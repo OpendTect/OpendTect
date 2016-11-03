@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
+#include "uiodattribtreeitem.h"
 #include "uiodprobeparenttreeitem.h"
 #include "oduicommon.h"
 #include "datapack.h"
@@ -25,7 +26,7 @@ namespace Attrib { class DescID; }
 namespace Well { class Data; }
 
 
-mExpClass(uiODMain) uiODPlaneDataTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODPlaneDataTreeItem : public uiODSceneProbeTreeItem
 { mODTextTranslationClass(uiODPlaneDataTreeItem)
 public:
 
@@ -53,6 +54,7 @@ protected:
     void		selChg(CallBacker*);
     void		posChange(CallBacker*);
     void		movePlaneAndCalcAttribs(const TrcKeyZSampling&);
+    void		objChangedCB(CallBacker*);
     void		keyUnReDoPressedCB(CallBacker*);
     void		selectRGBA();
 
@@ -70,9 +72,9 @@ protected:
 
 
 mExpClass(uiODMain) uiODInlineParentTreeItem
-			: public uiODProbeParentTreeItem
+			: public uiODSceneProbeParentTreeItem
 {   mODTextTranslationClass(uiODInlineParentTreeItem);
-    mDefineItemMembers( InlineParent, ProbeParentTreeItem, SceneTreeTop );
+    mDefineItemMembers( InlineParent, SceneProbeParentTreeItem, SceneTreeTop );
     mMenuOnAnyButton;
 
     bool			canShowSubMenu() const;
@@ -103,10 +105,19 @@ protected:
 };
 
 
+mExpClass(uiODMain) uiODInlineAttribTreeItem : public uiODAttribTreeItem
+{
+public:
+				uiODInlineAttribTreeItem(const char*);
+    static void			initClass();
+    static uiODDataTreeItem*	create(ProbeLayer&);
+};
+
+
 mExpClass(uiODMain) uiODCrosslineParentTreeItem
-			: public uiODProbeParentTreeItem
+			: public uiODSceneProbeParentTreeItem
 {   mODTextTranslationClass(uiODCrossineParentTreeItem);
-    mDefineItemMembers( CrosslineParent, ProbeParentTreeItem, SceneTreeTop );
+    mDefineItemMembers( CrosslineParent, SceneProbeParentTreeItem,SceneTreeTop);
     mMenuOnAnyButton;
     bool			canShowSubMenu() const;
     bool			canAddFromWell() const	{ return true; }
@@ -137,11 +148,19 @@ protected:
 };
 
 
+mExpClass(uiODMain) uiODCrosslineAttribTreeItem : public uiODAttribTreeItem
+{
+public:
+				uiODCrosslineAttribTreeItem(const char*);
+    static void			initClass();
+    static uiODDataTreeItem*	create(ProbeLayer&);
+};
+
 
 mExpClass(uiODMain) uiODZsliceParentTreeItem
-			: public uiODProbeParentTreeItem
+			: public uiODSceneProbeParentTreeItem
 {   mODTextTranslationClass(uiODZsliceParentTreeItem);
-    mDefineItemMembers( ZsliceParent, ProbeParentTreeItem, SceneTreeTop );
+    mDefineItemMembers( ZsliceParent, SceneProbeParentTreeItem, SceneTreeTop );
     mMenuOnAnyButton;
     bool			canShowSubMenu() const;
     bool			canAddFromWell() const	{ return true; }
@@ -168,4 +187,13 @@ public:
 protected:
     const char*		parentType() const
 			{ return typeid(uiODZsliceParentTreeItem).name(); }
+};
+
+
+mExpClass(uiODMain) uiODZsliceAttribTreeItem : public uiODAttribTreeItem
+{
+public:
+				uiODZsliceAttribTreeItem(const char*);
+    static void			initClass();
+    static uiODDataTreeItem*	create(ProbeLayer&);
 };

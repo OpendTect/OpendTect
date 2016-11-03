@@ -333,6 +333,7 @@ public:
     void			setZAxisTransform(int sceneid,ZAxisTransform*,
 						  TaskRunner*);
     const ZAxisTransform*	getZAxisTransform(int sceneid) const;
+    ZAxisTransform*		getZAxisTransform(int sceneid);
     visBase::EventCatcher*	getEventCatcher(int sceneid);
 
     const Selector<Coord3>*	getCoordSelector(int scene) const;

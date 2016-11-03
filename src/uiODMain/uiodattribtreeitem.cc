@@ -11,15 +11,26 @@ ___________________________________________________________________
 #include "uiodattribtreeitem.h"
 
 #include "attribsel.h"
+#include "attribprobelayer.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
+#include "datacoldef.h"
+#include "datapointset.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "dbman.h"
 #include "keystrs.h"
 #include "ptrman.h"
+#include "probeimpl.h"
+#include "posvecdataset.h"
+#include "randomlineprobe.h"
+#include "seisdatapackzaxistransformer.h"
 #include "survinfo.h"
+#include "vissurvobj.h"
+#include "vissurvscene.h"
 #include "zdomain.h"
+#include "zaxistransform.h"
+#include "zaxistransformutils.h"
 
 #include "uiattribpartserv.h"
 #include "uimenu.h"
@@ -31,8 +42,6 @@ ___________________________________________________________________
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
-#include "vissurvobj.h"
-#include "vissurvscene.h"
 
 
 
@@ -103,19 +112,19 @@ bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
 }
 
 
-void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
-					int sceneid )
+void uiODAttribTreeItem::createSelMenu( MenuItem& mnu )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
-    if ( as && visserv->hasAttrib(visid) )
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
+    if ( as && visserv->hasAttrib(displayID()) )
     {
 	uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
-	mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(visid));
+	mDynamicCastGet(visSurvey::SurveyObject*,so,
+			visserv->getObject(displayID()));
 	if ( !so ) return;
 
 	Pol2D3D p2d3d = so->getAllowedDataType();
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid));
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()));
 
 	const bool needtransform = !scene->zDomainInfo().def_.isSI();
 	const bool cantransform = !needtransform || scene->getZAxisTransform();
@@ -143,7 +152,7 @@ void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( !istb )
     {
 	selattrmnuitem_.removeItems();
-	createSelMenu( selattrmnuitem_, displayID(), attribNr(), sceneID() );
+	createSelMenu( selattrmnuitem_);
     }
 
     if ( selattrmnuitem_.nrItems() || isonly2d )
@@ -178,7 +187,7 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	applMgr()->saveDefColTab( displayID(), attribNr() );
     }
-    else if ( handleSelMenu( mnuid, displayID(), attribNr()) )
+    else if ( handleSelMenu(mnuid) )
     {
 	menu->setIsHandled(true);
 	ODMainWin()->applMgr().useDefColTab( displayID(), attribNr() );
@@ -188,13 +197,13 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
+bool uiODAttribTreeItem::handleSelMenu( int mnuid )
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    if ( mnuid==-1 || visserv->isLocked(visid) )
+    if ( mnuid==-1 || visserv->isLocked(displayID()) )
 	return false;
 
-    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     if ( !as ) return false;
 
     uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
@@ -206,7 +215,7 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
 	if ( dousemulticomp )
 	{
 	    mDynamicCastGet( visSurvey::SurveyObject*, so,
-			     visserv->getObject(visid));
+			     visserv->getObject(displayID()));
 
 	    if ( so && !so->canHaveMultipleTextures() )
 	    {
@@ -231,9 +240,11 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
 	}
 	else
 	{
-	    visserv->setSelSpec( visid, attrib, myas );
-	    if ( !visserv->calcManipulatedAttribs(visid) )
-		visserv->calculateAttrib( visid, attrib, false );
+	    AttribProbeLayer* attrlayer = attribProbeLayer();
+	    if ( attrlayer )
+		attrlayer->setSelSpec( myas );
+	    //TODO PrIMPl check for vis stuff that need to be done
+	    //!visserv->calcManipulatedAttribs(visid) )
 	}
 	return true;
     }
@@ -271,7 +282,28 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 
 uiString uiODAttribTreeItem::createDisplayName() const
 {
-    return createDisplayName( displayID(), attribNr() );
+    const AttribProbeLayer* attrlayer = attribProbeLayer();
+    if ( !attrlayer )
+	return ODMainWin()->applMgr().visServer()->getObjectName( displayID() );
+
+    Attrib::SelSpec as = attrlayer->getSelSpec();
+    uiString dispname( as.id().isValid() ? toUiString(as.userRef())
+					 : uiString::emptyString() );
+    if ( as.isNLA() )
+    {
+	dispname = toUiString(as.objectRef());
+	uiString nodenm = toUiString( as.userRef());
+	if ( IOObj::isKey(as.userRef()) )
+	    nodenm = toUiString(DBM().nameFor( as.userRef() ));
+	dispname = toUiString("%1 (%2)").arg( as.objectRef() ).arg( nodenm );
+    }
+
+    if ( as.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
+	dispname = uiStrings::sRightClick();
+    else if ( as.id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() )
+	dispname = uiString::emptyString();
+
+    return dispname;
 }
 
 
@@ -292,4 +324,123 @@ void uiODAttribTreeItem::updateColumnText( int col )
     }
 
     uiODDataTreeItem::updateColumnText( col );
+}
+
+
+const AttribProbeLayer* uiODAttribTreeItem::attribProbeLayer() const
+{
+    mDynamicCastGet(const AttribProbeLayer*,attrlayer,probelayer_);
+    return attrlayer;
+}
+
+
+AttribProbeLayer* uiODAttribTreeItem::attribProbeLayer()
+{
+    mDynamicCastGet(AttribProbeLayer*,attrlayer,probelayer_);
+    return attrlayer;
+}
+
+
+//TODO PrIMPL Different DPM for Horizon Attribute
+DataPackMgr& uiODAttribTreeItem::getDPM()
+{
+    return DPM(DataPackMgr::SeisID());
+}
+
+
+ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
+{
+    ConstRefMan<DataPack> attrdp( 0 );
+    AttribProbeLayer* attrprlayer = attribProbeLayer();
+    if ( !attrprlayer )
+	return attrdp;
+
+    const Probe* parentprobe = attrprlayer->getProbe();
+    if ( !parentprobe )
+    { pErrMsg( "Parent probe not set" ); return attrdp; }
+
+    const TrcKeyZSampling probepos = parentprobe->position();
+    ZAxisTransform* ztransform = visserv_->getZAxisTransform( sceneID() );
+    uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
+    const Attrib::SelSpec attrselspec = attrprlayer->getSelSpec();
+    attrserv->setTargetSelSpec( attrprlayer->getSelSpec() );
+
+    mDynamicCastGet(const RDLProbe*,rdlprobe,parentprobe);
+    mDynamicCastGet(const ZSliceProbe*,zprobe,parentprobe);
+    DataPack::ID attrdpid;
+    if ( zprobe && ztransform && !attrselspec.isZTransformed() )
+    {
+	RefMan<DataPointSet> data =
+	    DPM(DataPackMgr::PointID()).add(new DataPointSet(false,true));
+
+	ZAxisTransformPointGenerator generator( *ztransform );
+	generator.setInput( probepos );
+	generator.setOutputDPS( *data );
+	generator.execute();
+
+	const int firstcol = data->nrCols();
+	BufferStringSet userrefs; userrefs.add( attrselspec.userRef() );
+	data->dataSet().add( new DataColDef(userrefs.get(0)) );
+	if ( !attrserv->createOutput(*data,firstcol) )
+	    return attrdp;
+
+	attrdpid =
+	    RegularSeisDataPack::createDataPackForZSlice(
+		&data->bivSet(), probepos,ztransform->toZDomainInfo(),userrefs);
+	return getDPM().get( attrdpid );
+    }
+
+
+    if ( rdlprobe )
+	attrdpid = attrserv->createRdmTrcsOutput( probepos.zsamp_,
+					      rdlprobe->randomeLineID() );
+    else
+	attrdpid = attrserv->createOutput( probepos, DataPack::cNoID() );
+
+    attrdp = getDPM().get( attrdpid );
+    if ( !attrdp )
+	return attrdp;
+
+    mDynamicCastGet(const SeisDataPack*,seisdp,attrdp.ptr());
+    const FixedString zdomainkey( seisdp ? seisdp->zDomain().key() : "" );
+    const bool alreadytransformed =
+	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
+    if ( ztransform && !alreadytransformed )
+    {
+	SeisDataPackZAxisTransformer transformer( *ztransform );
+	transformer.setInput( seisdp );
+	transformer.setInterpolate( true );
+	transformer.execute();
+	if ( transformer.getOutput() )
+	    attrdp = transformer.getOutput();
+    }
+
+    return attrdp;
+}
+
+
+void uiODAttribTreeItem::updateDisplay()
+{
+    AttribProbeLayer* attrprlayer = attribProbeLayer();
+    if ( !attrprlayer )
+	return;
+
+    visserv_->setSelSpec( displayID(), attribNr(), attrprlayer->getSelSpec() );
+    visserv_->setColTabMapperSetup( displayID(), attribNr(),
+				    attrprlayer->getColTabMapper() );
+    visserv_->setColTabSequence( displayID(), attribNr(),
+				 attrprlayer->getColTab());
+    if ( attrprlayer->getAttribDataPack().isInvalid() )
+    {
+	ConstRefMan<DataPack> attrdp = calculateAttribute();
+	if ( attrdp )
+	{
+	    ChangeNotifyBlocker notifyblocker( *attrprlayer );
+	    attrprlayer->setAttribDataPack( attrdp->id() );
+	    notifyblocker.unBlockNow( false );
+	}
+    }
+
+    visserv_->setDataPackID( displayID(), attribNr(),
+			     attrprlayer->getAttribDataPack() );
 }

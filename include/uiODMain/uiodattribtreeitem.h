@@ -13,7 +13,9 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddatatreeitem.h"
+#include "datapack.h"
 
+class AttribProbeLayer;
 
 /*! Implementation of uiODDataTreeItem for standard attribute displays. */
 
@@ -23,10 +25,9 @@ public:
     			uiODAttribTreeItem( const char* parenttype );
 			~uiODAttribTreeItem();
 
+    const AttribProbeLayer* attribProbeLayer() const;
+    AttribProbeLayer*	attribProbeLayer();
     static uiString	createDisplayName( int visid, int attrib );
-    static void		createSelMenu(MenuItem&,int visid,int attrib,
-	    			      int sceneid);
-    static bool		handleSelMenu(int mnuid,int visid,int attrib);
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();
 
@@ -36,8 +37,13 @@ protected:
 
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
+    virtual void	updateDisplay();
     void		updateColumnText(int col);
     uiString		createDisplayName() const;
+    void		createSelMenu(MenuItem&);
+    bool		handleSelMenu(int mnuid);
+    ConstRefMan<DataPack> calculateAttribute();
+    virtual DataPackMgr& getDPM();
 
     MenuItem		selattrmnuitem_;
     MenuItem		colsettingsmnuitem_;

@@ -301,8 +301,6 @@ void Probe::setPos( const TrcKeyZSampling& newpos )
     probepos_ = newpos;
     updateName();
 
-    mUnlockAllAccess();
-
     for ( int idx=0; idx<layers_.size(); idx++ )
 	layers_[idx]->invalidateData();
 

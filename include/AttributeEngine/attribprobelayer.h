@@ -38,10 +38,12 @@ public:
     bool			hasData() const
 				{ return !attribdpid_.isInvalid(); }
     virtual void		invalidateData();
+    virtual DataPack::MgrID	getDataPackManagerID() const
+				{ return DataPackMgr::SeisID(); }
     void			setSelSpec(const Attrib::SelSpec&);
     mImplSimpleMonitoredGet(getSelSpec,Attrib::SelSpec,attrspec_)
-    mImplSimpleMonitoredGetSet(inline,getAttribDataPack,setAttribDataPack,
-			       DataPack::ID,attribdpid_,cDataChange())
+    mImplSimpleMonitoredGet(getAttribDataPack,DataPack::ID,attribdpid_)
+    void			setAttribDataPack(DataPack::ID);
     mImplSimpleMonitoredGetSet(inline,getColTab,setColTab,
 			       ColTab::Sequence,attrcoltab_,cColTabSeqChange())
     mImplSimpleMonitoredGetSet(inline,getColTabMapper,setColTabMapper,
@@ -61,5 +63,7 @@ protected:
     ColTab::Sequence		attrcoltab_;
     ColTab::MapperSetup		attrmapper_;
     DispType			disptype_;
+    ConstRefMan<DataPack>	attrdp_;
 
+    void			updateDataPack();
 };

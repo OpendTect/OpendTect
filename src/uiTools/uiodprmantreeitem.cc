@@ -9,10 +9,12 @@ ___________________________________________________________________
 -*/
 
 #include "uiodprmantreeitem.h"
+#include "sharedobject.h"
 
 
 uiODPrManagedTreeItem::uiODPrManagedTreeItem( const uiString& nm )
     : uiODTreeItem(nm)
+    , dataobj_(0)
 {
 }
 
@@ -21,6 +23,17 @@ uiODPrManagedTreeItem::~uiODPrManagedTreeItem()
 {
 }
 
+
+
+void uiODPrManagedTreeItem::setDataObj( SharedObject* dataobj )
+{
+    if ( dataobj_ )
+	mDetachCB( dataobj_->objectChanged(),
+		   uiODPrManagedTreeItem::objChangedCB );
+
+    dataobj_ = dataobj;
+    mAttachCB( dataobj_->objectChanged(), uiODPrManagedTreeItem::objChangedCB );
+}
 
 
 void uiODPrManagedTreeItem::prepareForShutdown()

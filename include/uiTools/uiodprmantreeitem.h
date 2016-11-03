@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "odpresentationmgr.h"
 
+class SharedObject;
 namespace OD { class PresentationManagedViewer; }
 
 
@@ -27,14 +28,20 @@ public:
 
     virtual OD::ObjPresentationInfo* getObjPRInfo() const	{ return 0; }
     const DBKey&	storedID() const		{ return storedid_; }
+
+    void		setDataObj(SharedObject*);
     void		emitPRRequest(OD::PresentationRequestType);
     virtual void	handleItemCheck(bool triggerdispreq=true)	{}
     virtual void	prepareForShutdown();
 
 protected:
-    DBKey			storedid_;
 
-    virtual OD::ViewerID	getViewerID() const		=0;
+    RefMan<SharedObject> dataobj_;
+    DBKey		storedid_;
+
+    virtual void	objChangedCB(CallBacker*)	{}
+
+    virtual OD::ViewerID getViewerID() const		=0;
 };
 
 
