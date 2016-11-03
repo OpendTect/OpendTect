@@ -132,6 +132,17 @@
     </message>
 </context>
 <context>
+    <name>uiSEGYExamine</name>
+    <message numerus="yes">
+        <location filename="../../../plugins/uiSEGY/uisegyexamine.cc" line="+374"/>
+        <source>file</source>
+        <translation>
+            <numerusform>file</numerusform>
+            <numerusform>files</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>uiSaveDataDlg</name>
     <message numerus="yes">
         <source>Cannot write log(s)</source>
@@ -152,7 +163,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+230"/>
+        <location line="+233"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>
@@ -160,7 +171,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+69"/>
+        <location line="+75"/>
         <source>input file</source>
         <translation>
             <numerusform>input file</numerusform>
@@ -324,7 +335,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+187"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+189"/>
         <source>2D Plane</source>
         <translation>
             <numerusform>2D Plane</numerusform>
@@ -356,7 +367,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+36"/>
+        <location line="+38"/>
         <source>Code</source>
         <translation>
             <numerusform>Code</numerusform>
