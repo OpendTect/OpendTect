@@ -425,10 +425,10 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
 uiMain::~uiMain()
 {
-    delete app_;
     delete keyhandler_;
     delete keyfilter_;
     delete tabletfilter_;
+    delete app_;
 }
 
 
