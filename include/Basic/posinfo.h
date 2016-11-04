@@ -118,6 +118,7 @@ public:
 			//!< Returns whether fully regular.
 
     bool		isValid(const CubeDataPos&) const;
+    bool		isValid(od_int64 globalidx,const TrcKeySampling&) const;
     bool		toNext(CubeDataPos&) const;
     BinID		binID(const CubeDataPos&) const;
     CubeDataPos		cubeDataPos(const BinID&) const;
