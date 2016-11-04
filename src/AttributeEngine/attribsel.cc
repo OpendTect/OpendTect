@@ -434,7 +434,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 }
 
 
-void SelInfo::getZDomainItems( const ZDomain::Info& zinf,
+void SelInfo::getZDomainItems( const ZDomain::Info& zinf, bool need2d,
 			       BufferStringSet& nms )
 {
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Seis );
@@ -445,12 +445,13 @@ void SelInfo::getZDomainItems( const ZDomain::Info& zinf,
     while ( iter.next() )
     {
 	const IOObj& ioobj = iter.ioObj();
-	if ( ioobj.isUserSelectable() && zinf.isCompatibleWith(ioobj.pars()) )
+	const bool is2d = SeisTrcTranslator::is2D( ioobj, true );
+	if ( need2d==is2d && ioobj.isUserSelectable() &&
+		zinf.isCompatibleWith(ioobj.pars()) )
 	    nms.add( ioobj.name() );
     }
 
     nms.sort();
 }
-
 
 } // namespace Attrib

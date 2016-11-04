@@ -167,7 +167,7 @@ public:
 
     void		fillStored(bool steerdata,const char* filter=0);
     static bool		is2D(const char* defstr_or_ioobjid);
-    static void		getZDomainItems(const ZDomain::Info&,
+    static void		getZDomainItems(const ZDomain::Info&,bool is2d,
 					BufferStringSet& objnms);
 
 			//!< 2D only
