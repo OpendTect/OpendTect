@@ -256,6 +256,7 @@ public:
     uiRetVal&		operator =(const uiString&);
     uiRetVal&		operator =(const uiStringSet&);
 			operator uiString() const;
+			operator uiStringSet() const;
 
     bool		isOK() const;
     inline bool		isEmpty() const		{ return isOK(); }

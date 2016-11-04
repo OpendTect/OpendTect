@@ -10,13 +10,59 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellmod.h"
-#include "saveablemanager.h"
 #include "welldata.h"
+#include "welllog.h"
+#include "saveablemanager.h"
+#include "perthreadrepos.h"
+#include <bitset>
 
 
 namespace Well
 {
+
+class Writer;
+
+
+/*\brief Tells the Well Manager what you need to be loaded.
+
+Notes:
+* D2T is only included if survey Z is Time. If you need it anyway, use
+	forceAddD2T().
+* Adding Trck will cause Inf to be added too. Removing trck does not kick out
+	Inf automatically.
+
+*/
+
+mExpClass(Well) LoadReqs
+{
+public:
+
+			LoadReqs(bool addall=true);
+			LoadReqs(SubObjType);
+			LoadReqs(SubObjType,SubObjType);
+			LoadReqs(SubObjType,SubObjType,SubObjType);
+    static LoadReqs	All();
+    bool		operator ==( const LoadReqs& oth ) const
+						{ return reqs_ == oth.reqs_; }
+
+    LoadReqs&		add(SubObjType);
+    LoadReqs&		forceAddD2T();
+    LoadReqs&		remove( SubObjType typ ) { reqs_[typ]=0; return *this; }
+    void		setToAll()		{ *this = All(); }
+    void		setEmpty()		{ reqs_.reset(); }
+    void		include(const LoadReqs&);
+
+    bool		includes( SubObjType typ ) const
+						{ return reqs_[typ]; }
+    bool		includes(const LoadReqs&) const;
+    bool		isAll() const		{ return includes( All() ); }
+
+protected:
+
+    std::bitset<mWellNrSubObjTypes>		reqs_;
+
+};
+
 
 /*!\brief Manages all stored Well::Data objects.
 
@@ -24,16 +70,21 @@ namespace Well
 
 */
 
+
 mExpClass(Well) Manager : public SaveableManager
 { mODTextTranslationClass(Well::Manager)
 public:
 
-    ConstRefMan<Data>	fetch(const ObjID&,uiRetVal&) const;
-    RefMan<Data>	fetchForEdit(const ObjID&,uiRetVal&);
-    ConstRefMan<Data>	fetch(const ObjID&) const;
-    RefMan<Data>	fetchForEdit(const ObjID&);
+    typedef LoadReqs	LoadState;
+
+    ConstRefMan<Data>	fetch(const ObjID&,LoadReqs reqs=LoadReqs()) const;
+    RefMan<Data>	fetchForEdit(const ObjID&,LoadReqs r=LoadReqs()) const;
+    ConstRefMan<Data>	fetch(const ObjID&,LoadReqs,uiRetVal&) const;
+    RefMan<Data>	fetchForEdit(const ObjID&,LoadReqs,uiRetVal&) const;
 
     ObjID		getID(const Data&) const;
+    ObjID		getIDByUWI(const char*) const;
+			//<! getIDByName() is in base class
 
     uiRetVal		store(const Data&,const IOPar* ioobjpars=0) const;
 			//!< uses name to decide whether to create or replace
@@ -44,9 +95,19 @@ public:
     bool		needsSave(const ObjID&) const;
     bool		needsSave(const Data&) const;
 
+    void		getLogNames(const ObjID&,BufferStringSet&) const;
+    void		getAllMarkerNames(BufferStringSet&) const;
+    ConstRefMan<Log>	getLog(const ObjID&,const char* lognm) const;
+
 			// Use MonitorLock when iterating
     ConstRefMan<Data>	get(IdxType) const;
     RefMan<Data>	getForEdit(IdxType);
+
+    IOObj*		getIOObjByUWI(const char*) const;
+    uiRetVal		savePart(const ObjID&,SubObjType,
+				 bool setwellsaved=false) const;
+    uiRetVal		saveLog(const ObjID&,const char*,
+				bool setwellsaved=false) const;
 
 protected:
 
@@ -55,8 +116,14 @@ protected:
 
     virtual Saveable*	getSaver(const SharedObject&) const;
 
-    template<class T> T	doFetch(const ObjID&,uiRetVal&) const;
-    Data*		gtData(const ObjID&) const;
+    template<class T> T	doFetch(const ObjID&,const LoadReqs&,uiRetVal&) const;
+    bool		readReqData(ObjID,Data&,const LoadReqs&,
+				    uiRetVal&) const;
+    Data*		gtData(IdxType) const;
+
+    TypeSet<LoadState>	loadstates_;
+    mutable PerThreadObjectRepository<LoadState> curloadstate_;
+    virtual void	setAuxOnAdd();
 
 public:
 
@@ -76,6 +143,8 @@ mExpClass(Well) Saver : public Saveable
 { mODTextTranslationClass(Well::Saver)
 public:
 
+    typedef LoadReqs	StoreReqs;
+
 			Saver(const Data&);
 			mDeclMonitorableAssignment(Saver);
 			mDeclInstanceCreatedNotifierAccess(Saver);
@@ -86,9 +155,13 @@ public:
 
 protected:
 
-    virtual bool	doStore(const IOObj&) const;
+    virtual uiRetVal	doStore(const IOObj&) const;
+
+    mutable TypeSet<DirtyCounter>   lastsavedsubobjdirtycounts_;
+    void		updateLastSavedSubObjDirtyCounts(const Data&) const;
+    StoreReqs		getStoreReqs(const Data&) const;
 
 };
 
 
-} // namespace Pick
+} // namespace Well

@@ -14,8 +14,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uistring.h"
-
-namespace Well { class Data; }
+#include "welldata.h"
 
 class ElasticPropSelection;
 
@@ -54,7 +53,7 @@ protected:
     ObjectSet<uiTieWin> welltiedlgset_;
     uiWellPropSel*	logsfld_;
 
-    Well::Data*		wd_;
+    RefMan<Well::Data>	wd_;
 
     uiIOObjSel*         wellfld_;
     uiWaveletIOObjSel*	wvltfld_;

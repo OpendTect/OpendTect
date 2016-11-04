@@ -127,14 +127,19 @@ public:
 };
 
 
+#define mAttachObjCB( objptr, notifier, func, chk ) \
+    attachCB( notifier, CallBack( objptr, ((CallBackFunction)(&func) ) ), chk )
+#define mDetachObjCB( objptr, notifier, func ) \
+    detachCB( notifier, CallBack( objptr, ((CallBackFunction)(&func) ) ) )
+
 #define mAttachCB( notifier, func ) \
-attachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ), false )
+    mAttachObjCB( this, notifier, func, false )
 
 #define mAttachCBIfNotAttached( notifier, func ) \
-attachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ), true )
+    mAttachObjCB( this, notifier, func, true )
 
 #define mDetachCB( notifier, func ) \
-detachCB( notifier, CallBack( this, ((CallBackFunction)(&func) ) ) )
+    mDetachObjCB( this, notifier, func )
 
 
 /*!

@@ -17,6 +17,7 @@
 Saveable::Saveable( const SharedObject& obj )
     : object_(&obj)
     , objectalive_(true)
+    , lastsavedirtycount_(0)
 {
     attachCBToObj();
     mTriggerInstanceCreatedNotifier();
@@ -25,6 +26,7 @@ Saveable::Saveable( const SharedObject& obj )
 
 Saveable::Saveable( const Saveable& oth )
     : object_(oth.object_)
+    , lastsavedirtycount_(0)
 {
     *this = oth;
     mTriggerInstanceCreatedNotifier();
@@ -47,7 +49,6 @@ void Saveable::copyClassData( const Saveable& oth )
     objectalive_ = oth.objectalive_;
     storekey_ = oth.storekey_;
     ioobjpars_ = oth.ioobjpars_;
-    errmsg_ = oth.errmsg_;
     lastsavedirtycount_ = oth.lastsavedirtycount_;
     attachCBToObj();
 }
@@ -104,14 +105,22 @@ void Saveable::objDelCB( CallBacker* )
 }
 
 
-bool Saveable::save() const
+uiRetVal Saveable::save() const
 {
     mLock4Read();
     if ( !objectalive_ )
-	{ pErrMsg("Attempt to save already deleted object"); return true; }
+	{ pErrMsg("save already deleted object"); return uiRetVal::OK(); }
 
+    uiRetVal uirv;
     PtrMan<IOObj> ioobj = DBM().get( storekey_ );
-    if ( ioobj )
+    if ( !ioobj )
+    {
+	if ( storekey_.isValid() )
+	    uirv = tr("Cannot find database entry for: %1").arg(storekey_);
+	else
+	    uirv = tr("Cannot save object without database key");
+    }
+    else
     {
 	if ( !ioobj->pars().includes(ioobjpars_) )
 	{
@@ -119,21 +128,19 @@ bool Saveable::save() const
 	    DBM().setEntry( *ioobj );
 	    ioobj = DBM().get( storekey_ );
 	}
-	if ( !store(*ioobj) )
+
+	uirv = store( *ioobj );
+
+	if ( !uirv.isOK() )
 	    mSendChgNotif( cSaveFailedChangeType(), storekey_.toInt64() );
 	else
 	{
-	    setNoSaveNeeded();
+	    setJustSaved();
 	    mSendChgNotif( cSaveSucceededChangeType(), storekey_.toInt64() );
-	    return true;
 	}
     }
 
-    if ( storekey_.isValid() )
-	errmsg_ = tr("Cannot find database entry for: %1").arg(storekey_);
-    else
-	errmsg_ = tr("Cannot save object without database key");
-    return false;
+    return uirv;
 }
 
 
@@ -143,17 +150,23 @@ bool Saveable::needsSave() const
 }
 
 
-void Saveable::setNoSaveNeeded() const
+void Saveable::setJustSaved() const
 {
     if ( objectalive_ )
 	lastsavedirtycount_ = object_->dirtyCount();
 }
 
 
-bool Saveable::store( const IOObj& ioobj ) const
+bool Saveable::isSave( const IOObj& ioobj ) const
+{
+    return storekey_ == ioobj.key();
+}
+
+
+uiRetVal Saveable::store( const IOObj& ioobj ) const
 {
     if ( !objectalive_ )
-	{ pErrMsg("Attempt to store already deleted object"); return true; }
+	{ pErrMsg("store already deleted object"); return uiRetVal::OK(); }
     return doStore( ioobj );
 }
 
@@ -194,12 +207,12 @@ void SaveableManager::setEmpty()
 }
 
 
-void SaveableManager::setNoSaveNeeded( const ObjID& id ) const
+void SaveableManager::setJustSaved( const ObjID& id ) const
 {
     mLock4Read();
     const IdxType idx = gtIdx( id );
     if ( idx >= 0 )
-	savers_[idx]->setNoSaveNeeded();
+	savers_[idx]->setJustSaved();
 }
 
 
@@ -208,12 +221,11 @@ uiRetVal SaveableManager::doSave( const ObjID& id ) const
     const IdxType idx = gtIdx( id );
     if ( idx >= 0 )
     {
-	PtrMan<IOObj> ioobj = DBM().get( id );
+	PtrMan<IOObj> ioobj = getIOObj( id );
 	if ( ioobj && ioobj->isTmp() )
 	    return uiRetVal::OK();
 
-	if ( !savers_[idx]->save() )
-	    return savers_[idx]->errMsg();
+	return savers_[idx]->save();
     }
 
     return uiRetVal::OK();
@@ -284,7 +296,7 @@ SaveableManager::ObjID SaveableManager::getIDByName( const char* nm ) const
 	    return saver.key();
     }
 
-    PtrMan<IOObj> ioobj = getIOObj( nm );
+    PtrMan<IOObj> ioobj = getIOObjByName( nm );
     if ( ioobj )
 	return ioobj->key();
 
@@ -312,12 +324,18 @@ IOPar SaveableManager::getIOObjPars( const ObjID& id ) const
 	return savers_[idx]->ioObjPars();
     mUnlockAllAccess();
 
-    PtrMan<IOObj> ioobj = DBM().get( id );
+    PtrMan<IOObj> ioobj = getIOObj( id );
     return ioobj ? ioobj->pars() : IOPar();
 }
 
 
-IOObj* SaveableManager::getIOObj( const char* nm ) const
+IOObj* SaveableManager::getIOObj( const ObjID& id ) const
+{
+    return DBM().get( id );
+}
+
+
+IOObj* SaveableManager::getIOObjByName( const char* nm ) const
 {
     return DBM().getByName( ctxt_, nm );
 }
@@ -325,9 +343,16 @@ IOObj* SaveableManager::getIOObj( const char* nm ) const
 
 bool SaveableManager::nameExists( const char* nm ) const
 {
-    IOObj* ioobj = getIOObj( nm );
+    IOObj* ioobj = getIOObjByName( nm );
     delete ioobj;
     return ioobj;
+}
+
+
+const Saveable* SaveableManager::saverFor( const ObjID& id ) const
+{
+    const int idx = gtIdx( id );
+    return idx < 0 ? 0 : savers_[idx];
 }
 
 
@@ -344,7 +369,7 @@ uiRetVal SaveableManager::store( const SharedObject& newobj,
     if ( nm.isEmpty() )
 	return tr("Please provide a name");
 
-    PtrMan<IOObj> ioobj = getIOObj( nm );
+    PtrMan<IOObj> ioobj = getIOObjByName( nm );
     if ( !ioobj )
     {
 	CtxtIOObj ctio( ctxt_ );
@@ -365,29 +390,38 @@ uiRetVal SaveableManager::store( const SharedObject& newobj, const ObjID& id,
     if ( id.isInvalid() )
 	return store( newobj, ioobjpars );
 
-    if ( !isLoaded(id) )
-	add( newobj, id, ioobjpars, false );
+    mLock4Read();
+
+    const IdxType idxof = gtIdx( id );
+    if ( idxof < 0 )
+	add( newobj, id, mAccessLocker(), ioobjpars, false );
     else
     {
-	mLock4Write();
-	const IdxType idxof = gtIdx( id );
-	if ( idxof >= 0 )
+	SaveableManager& self = *const_cast<SaveableManager*>(this);
+	Saveable& svr = *self.savers_[idxof];
+	if ( svr.object() != &newobj )
 	{
-	    SaveableManager& self = *const_cast<SaveableManager*>(this);
-	    Saveable& svr = *self.savers_[idxof];
-	    if ( svr.object() != &newobj )
-	    {
-		svr.setObject( newobj );
-		delete self.chgrecs_.replace( idxof, getChangeRecorder(newobj));
-	    }
+	    mLock2Write();
+	    svr.setObject( newobj );
+	    delete self.chgrecs_.replace( idxof, getChangeRecorder(newobj));
 	}
+	mUnlockAllAccess();
     }
 
     return save( id );
 }
 
 
+void SaveableManager::addNew( const SharedObject& obj, const ObjID& id,
+				const IOPar* iop, bool justloaded ) const
+{
+    mLock4Read();
+    add( obj, id, mAccessLocker(), iop, justloaded );
+}
+
+
 void SaveableManager::add( const SharedObject& newobj, const ObjID& id,
+				AccessLocker& mAccessLocker(),
 				const IOPar* ioobjpars, bool justloaded ) const
 {
     Saveable* saver = getSaver( newobj );
@@ -395,12 +429,13 @@ void SaveableManager::add( const SharedObject& newobj, const ObjID& id,
     if ( ioobjpars )
 	saver->setIOObjPars( *ioobjpars );
     if ( justloaded )
-	saver->setNoSaveNeeded();
+	saver->setJustSaved();
 
     SaveableManager& self = *const_cast<SaveableManager*>(this);
-    mLock4Write();
+    mLock2Write();
     self.savers_ += saver;
     self.chgrecs_ += getChangeRecorder( newobj );
+    self.setAuxOnAdd();
     self.addCBsToObj( newobj );
     mUnlockAllAccess();
 
@@ -432,6 +467,14 @@ bool SaveableManager::isLoaded( const ObjID& id ) const
 	return false;
     mLock4Read();
     return gtIdx( id ) >= 0;
+}
+
+
+void SaveableManager::getAllLoaded( DBKeySet& kys ) const
+{
+    mLock4Read();
+    for ( IdxType idx=0; idx<savers_.size(); idx++ )
+	kys.add( savers_[idx]->key() );
 }
 
 

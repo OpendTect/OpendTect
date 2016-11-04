@@ -69,7 +69,6 @@ protected:
 public:
 
     mDeclareSaveableManagerInstance(SetManager);
-    friend class	SetLoaderExec;
 
 };
 

@@ -52,7 +52,7 @@ RefManType ProbeManager::doFetch( const ObjID& id, uiRetVal& uirv ) const
 	return RefManType( 0 );
     }
 
-    add( *newprobe, id, &ioobj->pars(), true );
+    add( *newprobe, id, mAccessLocker(), &ioobj->pars(), true );
     return RefManType( gtProbe(id) );
 }
 

@@ -33,10 +33,8 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "wellman.h"
-#include "wellreader.h"
+#include "wellmanager.h"
 #include "welltrack.h"
-#include "wellwriter.h"
 #include "od_helpids.h"
 
 #define mMDIdx		0
@@ -185,22 +183,9 @@ void uiWellLogCalc::getAllLogs()
 {
     for ( int idx=0; idx<wellids_.size(); idx++ )
     {
-	const DBKey wmid = wellids_[idx];
-	RefMan<Well::Data> wd = new Well::Data;
-	PtrMan<Well::Reader> wrdr;
+	const DBKey dbky = wellids_[idx];
 	BufferStringSet nms;
-	if ( Well::MGR().isLoaded(wmid ) )
-	{
-	    wd = Well::MGR().get( wmid );
-	    if ( !wd ) continue;
-	    wd->logs().getNames( nms );
-	}
-	else
-	{
-	    wrdr = new Well::Reader( wmid, *wd );
-	    wrdr->getLogInfo( nms );
-	}
-
+	Well::MGR().getLogNames( dbky, nms );
 	bool havenewlog = false;
 	for ( int inm=0; inm<nms.size(); inm++ )
 	{
@@ -214,14 +199,18 @@ void uiWellLogCalc::getAllLogs()
 
 	if ( havenewlog )
 	{
-	    if ( wrdr && !wrdr->getLogs() )
-		continue;
-	    Well::LogSetIter iter( wd->logs() );
-	    while ( iter.next() )
+	    uiRetVal uirv;
+	    ConstRefMan<Well::Data> wd = Well::MGR().fetch( dbky,
+		    Well::LoadReqs(Well::Logs), uirv );
+	    if ( wd )
 	    {
-		const Well::Log& wl = iter.log();
-		if ( !superwls_.getLogByName(wl.name()) )
-		    superwls_.add( new Well::Log(wl) );
+		Well::LogSetIter iter( wd->logs() );
+		while ( iter.next() )
+		{
+		    const Well::Log& wl = iter.log();
+		    if ( !superwls_.getLogByName(wl.name()) )
+			superwls_.add( new Well::Log(wl) );
+		}
 	    }
 	}
     }
@@ -439,14 +428,12 @@ bool uiWellLogCalc::acceptOK()
     bool successfulonce = false;
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
     {
-	const DBKey wmid = wellids_[iwell];
-
-	RefMan<Well::Data> wd = Well::MGR().get( wmid );
+	const DBKey dbky = wellids_[iwell];
 	bool isinplogunitsi = true;
-	for ( int i = 0; i<form_.nrInputs(); i++ )
+	for ( int iinp= 0; iinp<form_.nrInputs(); iinp++ )
 	{
-	    if ( form_.inputUnit(i) )
-		isinplogunitsi = form_.inputUnit(i)->scaler().isEmpty();
+	    if ( form_.inputUnit(iinp) )
+		isinplogunitsi = form_.inputUnit(iinp)->scaler().isEmpty();
 
 	    if( !isinplogunitsi )
 		break;
@@ -463,7 +450,6 @@ bool uiWellLogCalc::acceptOK()
 	    if ( !res )
 		return false;
 	}
-
 	else if ( !isinplogunitsi || !isoutputlogunitsi )
 	{
 	    uiMSG().error(tr("Input and Output Log units do not match.\n"
@@ -471,8 +457,11 @@ bool uiWellLogCalc::acceptOK()
 	    return false;
 	}
 
+	uiRetVal uirv;
+	RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbky,
+						Well::LoadReqs(), uirv );
 	if ( !wd )
-	    mErrContinue( tr("%1").arg(Well::MGR().errMsg()) )
+	    mErrContinue( uirv )
 
 	Well::LogSet& wls = wd->logs();
 	TypeSet<InpData> inpdatas;
@@ -480,10 +469,12 @@ bool uiWellLogCalc::acceptOK()
 	    continue;
 
 	Well::Log* newwl = new Well::Log( newnm );
-	wls.add( newwl );
 	const Well::D2TModel& d2t = wd->d2TModel();
 	if ( !calcLog(*newwl,inpdatas,wd->track(),d2t.isEmpty()?0:&d2t) )
+	{
+	    newwl->unRef();
 	    mErrContinue( tr("Cannot compute log for %1").arg(wd->name()))
+	}
 
 	const UnitOfMeasure* outun = outunfld_->getUnit();
 	if ( outun )
@@ -495,10 +486,10 @@ bool uiWellLogCalc::acceptOK()
 	if ( outun )
 	    newwl->setUnitMeasLabel( outun->name() );
 
-	Well::Writer wtr( wmid, *wd );
-	if ( !wtr.putLog(*newwl) )
-	    mErrContinue( tr("Cannot write new log for %1")
-			.arg(wd->name()) )
+	wls.add( newwl );
+	uirv = Well::MGR().save( dbky );
+	if ( !uirv.isOK() )
+	    mErrContinue( uirv )
 
 	successfulonce = true;
     }

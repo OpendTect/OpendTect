@@ -78,9 +78,7 @@ ConstRefMan<Pick::Set> uiPickSetIOObjSel::getPickSet( bool emptyok ) const
     if ( ps && !emptyok && ps->isEmpty() )
 	{ uirv.set( tr("No locations found") ); ps = 0; }
 
-    if ( uirv.isError() )
-	uiMSG().error( uirv );
-
+    uiMSG().handleErrors( uirv );
     return ps;
 }
 
@@ -96,9 +94,7 @@ RefMan<Pick::Set> uiPickSetIOObjSel::getPickSetForEdit( bool emptyok ) const
     if ( ps && !emptyok && ps->isEmpty() )
 	{ uirv = tr( "No locations found" ); ps = 0; }
 
-    if ( uirv.isError() )
-	uiMSG().error( uirv );
-
+    uiMSG().handleErrors( uirv );
     return ps;
 }
 

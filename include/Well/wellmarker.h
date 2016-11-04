@@ -45,7 +45,7 @@ public:
 			mDeclAbstractMonitorableAssignment(Marker);
     bool		operator ==(const Marker&) const;
     bool		operator !=(const Marker& oth) const
-			{ return !( *this == oth ); } 
+			{ return !( *this == oth ); }
 
     bool                operator >(const Marker&) const;
 
@@ -94,7 +94,7 @@ public:
     mDefIntegerIDType(IdxType,	 MarkerID);
 
 
-			MarkerSet();		
+			MarkerSet();
 			mDeclInstanceCreatedNotifierAccess(MarkerSet);
 			mDeclAbstractMonitorableAssignment(MarkerSet);
 			~MarkerSet();
@@ -114,7 +114,7 @@ public:
     void		removeSingleByIdx(IdxType);
     float		getDahByIdx(IdxType) const;
     void		setDahByIdx(IdxType,float);
-    
+
     float		getDahFromMarkerName(const char*) const;
     Marker		first() const;
     Marker		last() const;
@@ -134,7 +134,7 @@ public:
 
     void		getNames(BufferStringSet&) const;
     void		getColors(TypeSet<Color>&) const;
-    
+
     void		fillWithAll(TaskRunner* tskr=0);
     bool		insertNew(const Well::Marker&);
     void		addSameWell(const MarkerSet&);
@@ -143,18 +143,18 @@ public:
 							{ mergeOtherWell(ms); }
     int			getIdxAbove(float z,const Well::Track* trck=0) const;
 			//!< is trck provided, compares TVDs
-    
+
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-   
+
     static ChangeType	cMarkerAdded()		{ return 2; }
     static ChangeType	cMarkerRemoved()	{ return 3; }
     static ChangeType	cMarkerChanged()	{ return 4; }
 
 
 protected:
-    
+
     TypeSet<Marker>	markers_;
     TypeSet<MarkerID>	markerids_;
     mutable Threads::Atomic<IdxType> curmrkridnr_;
@@ -167,7 +167,7 @@ protected:
     IdxType		gtIdxForDah(float) const;
     Marker		gtByID(MarkerID) const;
     MarkerID		mrkrIDFor(IdxType) const;
-    
+
     void		addCopy(const MarkerSet&,int,float);
     void		alignOrderingWith(const MarkerSet&);
     void		moveBlock(int,int,const TypeSet<int>&);
@@ -178,7 +178,7 @@ protected:
     void		rmoveSingle(IdxType);
     bool		isPrsnt(const char* n) const;
     size_type		gtSize() const;
-   
+
     friend class	MarkerSetIter;
     friend class	MarkerSetIter4Edit;
 };
@@ -201,7 +201,7 @@ public:
     size_type		size() const;
 
     MarkerSet::MarkerID	ID() const;
-    MarkerSet::IdxType	currIdx() const;
+    MarkerSet::IdxType	curIdx() const;
 
     const Marker&	get() const;
     float		getDah() const;
@@ -211,6 +211,7 @@ public:
 private:
 
     MarkerSetIter&	operator =(const MarkerSetIter&); // pErrMsg
+
 };
 
 
@@ -222,7 +223,7 @@ public:
 					const Interval<int>&, bool dorev=false);
 			MarkerSetIter4Edit(MarkerSet&,
 				const char*,const char*,bool dorev=false);
-			
+
 			MarkerSetIter4Edit(const MarkerSetIter4Edit&);
 
     MarkerSetIter4Edit&	operator =(const MarkerSetIter4Edit&);
@@ -235,7 +236,7 @@ public:
     bool		atFirst() const	    { return curidx_ == 0; }
     bool		atLast() const;
     MarkerSet::MarkerID	ID() const;
-    MarkerSet::IdxType	currIdx() const;
+    MarkerSet::IdxType	curIdx() const;
     Marker&		get() const;
     float		getDah() const;
     void		setDah(float);
@@ -265,12 +266,12 @@ public:
 			MarkerRange(const MarkerSet&, MarkerSet::MarkerID
 						    , MarkerSet::MarkerID);
 
-    int	    		size() const;
+    int			size() const;
     bool		isValid() const;
 
     bool		isIncluded(int) const;
     bool		isIncluded(MarkerSet::MarkerID) const;
-					
+
     bool		isIncluded(const char*) const;
     bool		isIncluded(float z) const;
 

@@ -24,7 +24,8 @@ ________________________________________________________________________
 #include "wellmarker.h"
 #include "od_helpids.h"
 
-#define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
+#define mDispNotif wd_->displayProperties(is2ddisplay_).objectChanged()
+
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 	: uiDialog(p,uiDialog::Setup(tr("Display properties of: %1")
@@ -64,7 +65,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 
     BufferStringSet allmarkernms;
     wd->markers().getNames( allmarkernms );
-    
+
     propflds_ += new uiWellMarkersDispProperties( tgs[2],
 	uiWellDispProperties::Setup( tr("Marker size"), tr("Marker color") )
 	.onlyfor2ddisplay(is2d), props.markers(), allmarkernms );
@@ -143,13 +144,11 @@ void uiWellDispPropDlg::setWDNotifiers( bool yn )
 
     if ( yn )
     {
-	mAttachCB( mDispNot, uiWellDispPropDlg::wdChg );
-	mAttachCB( wd_->reloaded, uiWellDispPropDlg::wdChg );
+	mAttachCB( mDispNotif, uiWellDispPropDlg::wdChg );
     }
     else
     {
-	mDetachCB( mDispNot, uiWellDispPropDlg::wdChg );
-	mDetachCB( wd_->reloaded, uiWellDispPropDlg::wdChg );
+	mDetachCB( mDispNotif, uiWellDispPropDlg::wdChg );
     }
 }
 
@@ -170,7 +169,7 @@ void uiWellDispPropDlg::putToScreen()
 
 void uiWellDispPropDlg::wdChg( CallBacker* )
 {
-    NotifyStopper ns( mDispNot );
+    NotifyStopper ns( mDispNotif );
     putToScreen();
 }
 
@@ -178,7 +177,6 @@ void uiWellDispPropDlg::wdChg( CallBacker* )
 void uiWellDispPropDlg::propChg( CallBacker* )
 {
     getFromScreen();
-    mDispNot.trigger();
 }
 
 
@@ -285,9 +283,9 @@ void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
     {
 	wd_ = wds_[idx];
 	if ( yn )
-	    mAttachCB( mDispNot, uiMultiWellDispPropDlg::wdChg );
+	    mAttachCB( mDispNotif, uiMultiWellDispPropDlg::wdChg );
 	else
-	    mDetachCB( mDispNot, uiMultiWellDispPropDlg::wdChg );
+	    mDetachCB( mDispNotif, uiMultiWellDispPropDlg::wdChg );
     }
 
     wd_ = curwd;

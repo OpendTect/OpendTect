@@ -14,8 +14,7 @@
 #include "survinfo.h"
 #include "welldata.h"
 #include "wellextractdata.h"
-#include "wellman.h"
-#include "wellreader.h"
+#include "wellmanager.h"
 
 #include <math.h>
 
@@ -79,34 +78,11 @@ bool WellLog::allowParallelComputation() const
 
 void WellLog::prepareForComputeData()
 {
-    RefMan<Well::Data> wd = new Well::Data;
-    if ( Well::MGR().isLoaded(wellid_) )
-    {
-	wd = Well::MGR().get( wellid_ );
-	if ( !wd )
-	{
-	    errmsg_ = Well::MGR().errMsg();
-	    return;
-	}
-    }
-    else
-    {
-	Well::Reader wrdr( wellid_, *wd );
-	const bool hastrack = wrdr.getTrack();
-	const bool hasd2t = wrdr.getD2T();
-	const bool haslog = wrdr.getLog( logname_ );
-	if ( !hastrack || ( SI().zIsTime() && !hasd2t ) || !haslog )
-	{
-	    errmsg_ = uiStrings::phrCannotRead( !hastrack
-				    ? uiStrings::sTrack()
-				    : !haslog ? uiStrings::sWellLog()
-					      : tr("time-depth model") );
-	    if ( wd->name() )
-		errmsg_.append(tr(" for well ")).append( wd->name() );
-
-	    return;
-	}
-    }
+    uiRetVal uirv;
+    ConstRefMan<Well::Data> wd
+	= Well::MGR().fetch( wellid_, Well::LoadReqs(), uirv );
+    if ( !wd )
+	{ errmsg_ = uirv; return; }
 
     Well::ExtractParams pars;
     pars.setFixedRange( SI().zRange(true), SI().zDomain().isTime() );

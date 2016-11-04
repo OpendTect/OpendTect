@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "wellextractdata.h"
 #include "welllogset.h"
 #include "welldata.h"
-#include "wellman.h"
+#include "wellmanager.h"
 
 
 #define mErrRet(msg,new,act)\
@@ -86,12 +86,12 @@ bool LogCubeCreator::LogCube::doWrite( const SeisTrcBuf& trcs ) const
 
 
 LogCubeCreator::WellData::WellData( const DBKey& wid )
-    : wd_(Well::MGR().get(wid))
 {
+    uiRetVal uirv;
+    wd_ = Well::MGR().fetch( wid, Well::LoadReqs(), uirv );
     if ( !wd_ )
-	mErrRet( tr( "Cannot open well" ), true, return )
+	mErrRet( uirv, true, return )
 
-    wd_->ref();
     Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true, true);
     wtextr.setSampling( SI().zRange(true) );
     if ( !wtextr.execute() )
@@ -106,9 +106,6 @@ LogCubeCreator::WellData::WellData( const DBKey& wid )
 
 LogCubeCreator::WellData::~WellData()
 {
-    if ( wd_ )
-	wd_->unRef();
-
     deepErase( trcs_ );
 }
 

@@ -32,8 +32,8 @@ public:
 			AutoSaveObj(const Saveable&,AutoSaver&);
 			~AutoSaveObj();
 
-    uiString		errMsg() const		{ return errmsg_; }
     bool		prevSaveFailed() const	{ return prevsavefailed_; }
+    uiRetVal		messages() const	{ return msgs_; }
     bool		isFinished() const;
     const Saveable*	saver() const		{ return saver_; }
 
@@ -42,7 +42,7 @@ private:
     const Saveable*	saver_;
     mutable Threads::Lock lock_;
     AutoSaver&		mgr_;
-    mutable uiString	errmsg_;
+    mutable uiRetVal	msgs_;
     mutable bool	prevsavefailed_;
 
     mutable DirtyCountType lastautosavedirtycount_;

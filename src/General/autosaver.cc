@@ -119,7 +119,7 @@ bool OD::AutoSaveObj::time4AutoSave() const
 int OD::AutoSaveObj::autoSave( bool hidden ) const
 {
     Threads::Locker locker( lock_ );
-    errmsg_.setEmpty();
+    msgs_.setEmpty();
     if ( !saver_ || !saver_->objectAlive() )
 	return 0;
 
@@ -129,9 +129,8 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
     {
 	if ( objusersaved )
 	    return 0;
-	if ( !saver_->save() )
-	    { errmsg_ = saver_->errMsg(); return -1; }
-	return 1;
+	msgs_ = saver_->save();
+	return msgs_.isError() ? -1 : 1;
     }
 
     const bool objautosaved = curdirtycount == lastautosavedirtycount_;
@@ -164,12 +163,12 @@ int OD::AutoSaveObj::autoSave( bool hidden ) const
     newstoreioobj->pars().set( sKey::CrInfo(), fms );
     newstoreioobj->updateCreationPars();
 
-    const bool commitok = DBM().setEntry( *newstoreioobj );
-    const bool saveok = commitok && saver_->store( *newstoreioobj );
-    if ( !saveok )
+    if ( !DBM().setEntry( *newstoreioobj ) )
+	msgs_.add(uiStrings::phrCannotCreateDBEntryFor(tr("auto-save object")));
+    else
+	msgs_ = saver_->store( *newstoreioobj );
+    if ( !msgs_.isOK() )
     {
-	errmsg_ = commitok ? saver_->errMsg()
-	       : uiStrings::phrCannotCreateDBEntryFor( tr("auto-save object") );
 	lastautosavedirtycount_ = prevautosavedirtycount;
 	removeIOObjAndData( newstoreioobj );
 	return -1;

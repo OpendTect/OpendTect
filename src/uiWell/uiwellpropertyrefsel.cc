@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welllogset.h"
 #include "welllog.h"
-#include "wellman.h"
+#include "wellmanager.h"
 
 static const char* sKeyPlsSel = "Please select";
 
@@ -242,7 +242,7 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
 
     mDynamicCastGet(uiWellSinglePropSel*, fld, c);
     if ( !fld ) return;
-    const Well::Data* wd = Well::MGR().get( wellid_ );
+    ConstRefMan<Well::Data> wd = Well::MGR().fetch( wellid_ );
     if  ( !wd ) return;
 
     const Well::Log* log = wd->logs().getLogByName( fld->logName() );
@@ -393,7 +393,7 @@ void uiWellPropSel::viewLogPushed( CallBacker* cb )
     if ( lognm == sKeyPlsSel )
 	return;
 
-    const Well::Data* wd = Well::MGR().get( wellid_ );
+    ConstRefMan<Well::Data> wd = Well::MGR().fetch( wellid_ );
     if  ( !wd ) return;
 
     const Well::LogSet& logs = wd->logs();

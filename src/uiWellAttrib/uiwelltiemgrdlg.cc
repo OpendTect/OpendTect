@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "welltransl.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
@@ -182,9 +182,6 @@ uiTieWinMGRDlg::~uiTieWinMGRDlg()
     if ( extractwvltdlg_ )
 	delete extractwvltdlg_;
 
-    if ( wd_ )
-	wd_->unRef();
-
     delete &wtsetup_;
     delete &elpropsel_;
 }
@@ -219,14 +216,12 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
     if ( !wellobj ) return;
     const char* wllfilenm = Well::odIO::getMainFileName( *wellobj );
     const DBKey wellid = wellobj->key();
-    if ( wd_ )
-	wd_->unRef();
 
-    wd_ = Well::MGR().get( wellid );
-    if ( !wd_ ) mErrRet( uiStrings::phrCannotRead(mJoinUiStrs(sWell().toLower(),
-							    sData().toLower())))
+    uiRetVal uirv;
+    wd_ = Well::MGR().fetchForEdit( wellid, Well::LoadReqs(), uirv );
+    if ( !wd_ )
+	mErrRet( uirv )
 
-    wd_->ref();
     logsfld_->wellid_ = wellid;
     BufferStringSet notokpropnms;
     if ( !logsfld_->setAvailableLogs(wd_->logs(),notokpropnms) )
@@ -395,7 +390,8 @@ bool uiTieWinMGRDlg::getVelLogInSetup() const
     {
 	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind(
 			    mJoinUiStrs(sWell().toLower(),sData().toLower())))
-	Well::Log* vp = wd_->logs().getLogByName( wtsetup_.vellognm_ );
+	ConstRefMan<Well::Log> vp
+		    = wd_->logs().getLogByName( wtsetup_.vellognm_ );
 	if ( !vp )
 	{
 	    uiString errmsg = tr("Cannot retrieve the velocity log %1"
@@ -421,7 +417,8 @@ bool uiTieWinMGRDlg::getDenLogInSetup() const
     {
 	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind(
 			    mJoinUiStrs(sWell().toLower(),sData().toLower())))
-	Well::Log* den = wd_->logs().getLogByName( wtsetup_.denlognm_ );
+	ConstRefMan<Well::Log> den
+	    = wd_->logs().getLogByName( wtsetup_.denlognm_ );
 	if ( !den )
 	{
 	    uiString errmsg = tr("Cannot retrieve the density log %1"
@@ -464,15 +461,11 @@ bool uiTieWinMGRDlg::initSetup()
 	return false;
 
     const DBKey wellid = wellfld_->ctxtIOObj().ioobj_->key();
-    if ( wd_ )
-	wd_->unRef();
-
-    wd_ = Well::MGR().get( wellid );
+    uiRetVal uirv;
+    wd_ = Well::MGR().fetchForEdit( wellid, Well::LoadReqs(), uirv );
     if ( !wd_ )
-	mErrRet(uiStrings::phrCannotRead(mJoinUiStrs(
-					 sWell().toLower(),sData().toLower())))
+	mErrRet( uirv )
 
-    wd_->ref();
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
 	uiTieWin* win = welltiedlgset_[idx];

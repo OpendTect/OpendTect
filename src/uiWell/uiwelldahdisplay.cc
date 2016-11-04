@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id: uiwelldahdisplay.cc";
 #include "welllog.h"
 #include "wellmarker.h"
 #include "welld2tmodel.h"
-#include "wellman.h"
 #include "refcount.h"
 
 

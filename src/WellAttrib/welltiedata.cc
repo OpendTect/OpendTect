@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "wellhorpos.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "wellmarker.h"
 #include "welltrack.h"
 #include "wellwriter.h"
@@ -250,7 +250,7 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
     const Well::D2TModel* dtm = wd_ ? &wd_->d2TModel() : 0;
     if ( dtm && dtm->isEmpty() )
 	dtm = 0;
-    
+
     const Well::MarkerSet& markers = wd_->markers();
     Well::MarkerSetIter miter( markers );
     while( miter.next() )
@@ -274,39 +274,6 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 	}
     }
 }
-
-
-
-
-WellDataMgr::WellDataMgr( const DBKey& wellid )
-    : wellid_(wellid)
-    , wd_(0)
-    , datadeleted_(this)
-{}
-
-
-WellDataMgr::~WellDataMgr()
-{
-    if( wd_ )
-	wd_->unRef();
-}
-
-
-void WellDataMgr::wellDataDelNotify( CallBacker* )
-{ wd_ = 0; datadeleted_.trigger(); }
-
-
-Well::Data* WellDataMgr::wellData() const
-{
-    if ( !wd_ )
-    {
-	WellDataMgr* self = const_cast<WellDataMgr*>( this );
-	self->wd_ = Well::MGR().get( wellid_ );
-	wd_->ref();
-    }
-    return wd_;
-}
-
 
 
 DataWriter::DataWriter( Well::Data& wd, const DBKey& wellid )
@@ -375,22 +342,20 @@ bool DataWriter::removeLogs( const Well::LogSet& logset ) const
 Server::Server( const WellTie::Setup& wts )
     : wellid_(wts.wellid_)
 {
-    wdmgr_ = new WellDataMgr( wts.wellid_  );
-    mAttachCB( wdmgr_->datadeleted_, Server::wellDataDel );
-
-    Well::Data* wdata = wdmgr_->wd();
-    if ( !wdata ) return; //TODO close + errmsg
+    wd_ = Well::MGR().fetchForEdit( wts.wellid_ );
+    if ( !wd_ )
+	return; //TODO close + errmsg
 
     // Order below matters
-    datawriter_ = new DataWriter( *wdata, wts.wellid_ );
-    d2tmgr_ = new D2TModelMgr( *wdata, *datawriter_, wts );
-    data_ = new Data( wts, *wdata );
+    datawriter_ = new DataWriter( *wd_, wts.wellid_ );
+    d2tmgr_ = new D2TModelMgr( *wd_, *datawriter_, wts );
+    data_ = new Data( wts, *wd_ );
     dataplayer_ = new DataPlayer( *data_, wts.seisid_, wts.linenm_ );
     pickmgr_ = new PickSetMgr( data_->pickdata_ );
     hormgr_ = new HorizonMgr( data_->horizons_ );
 
-    hormgr_->setWD( wdata );
-    d2tmgr_->setWD( wdata );
+    hormgr_->setWD( wd_ );
+    d2tmgr_->setWD( wd_ );
 }
 
 
@@ -402,16 +367,6 @@ Server::~Server()
     delete dataplayer_;
     delete pickmgr_;
     delete data_;
-    delete wdmgr_;
-}
-
-
-void Server::wellDataDel( CallBacker* )
-{
-    data_->wd_ = wdmgr_->wd();
-    d2tmgr_->setWD( data_->wd_ );
-    hormgr_->setWD( data_->wd_ );
-    datawriter_->setWD( data_->wd_ );
 }
 
 

@@ -66,7 +66,6 @@ protected:
 public:
 
     mDeclareSaveableManagerInstance(WaveletManager);
-    friend class	WaveletLoader;
 
 };
 

@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "ranges.h"
 #include "welllogdisp.h"
+#include "welldata.h"
 #include "factory.h"
 
 namespace OD { class LineStyle; }
@@ -128,7 +129,7 @@ public:
     void			setupPicking(bool);
     void			showKnownPositions();
     void			restoreDispProp();
-    Well::Data*			getWD() const;
+    void			getWD() const;
     bool			needsConversionToTime() const;
 
     bool			allowsPicks() const	{ return true; }
@@ -146,10 +147,9 @@ protected:
 				~WellDisplay();
 
     void			setWell(visBase::Well*);
-    void			updateMarkers(CallBacker*);
-    void			fullRedraw(CallBacker*);
-    void			getTrackPos(const Well::Data*,TypeSet<Coord3>&);
-    void			displayLog(Well::LogDisplayPars*,int);
+    void			updateMarkers();
+    void			fullRedraw();
+    void			getTrackPos(TypeSet<Coord3>&);
     void			setLogProperties(visBase::Well::LogParams&);
     void			pickCB(CallBacker* cb=0);
     void			welldataDelNotify(CallBacker* cb=0);
@@ -161,6 +161,16 @@ protected:
     void			removePick(const visBase::EventInfo&);
     void			addPick(const visBase::EventInfo&,int);
 
+    void			infoChgCB(CallBacker*);
+    void			trackChgCB(CallBacker*);
+    void			d2tChgCB(CallBacker*);
+    void			logsChgCB(CallBacker*);
+    void			logChgCB(CallBacker*);
+    void			markersChgCB(CallBacker*);
+    void			trackDispPropsChgCB(CallBacker*);
+    void			markerDispPropsChgCB(CallBacker*);
+    void			logDispPropsChgCB(CallBacker*);
+
     Well::DisplayProperties*	dispprop_;
 
     Coord3			mousepressposition_;
@@ -171,7 +181,7 @@ protected:
     visBase::Well*		well_;
     Well::Track*		pseudotrack_;
     Well::Track*		timetrack_;
-    Well::Data*			wd_;
+    RefMan<Well::Data>		wd_;
 
     ZAxisTransform*		datatransform_;
     void			dataTransformCB(CallBacker*);

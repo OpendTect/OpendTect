@@ -38,7 +38,6 @@ public:
     virtual bool	putD2T() const;
     virtual bool	putCSMdl() const;
     virtual bool	putDispProps() const;
-    virtual bool	putLog(const Log&) const;
 
     virtual const uiString& errMsg() const	{ return odIO::errMsg(); }
 

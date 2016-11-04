@@ -36,7 +36,6 @@ ___________________________________________________________________
 #include "settings.h"
 #include "welldata.h"
 #include "wellinfo.h"
-#include "wellman.h"
 #include "visselman.h"
 
 

@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "welllog.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
-#include "wellman.h"
 #include "wellmarker.h"
 #include "wellreader.h"
 #include "welltransl.h"
@@ -381,8 +380,6 @@ void uiWellMan::edMarkers( CallBacker* )
 	uiMSG().error( tr("Cannot write new markers to disk") );
 	wd->markers() = origmarkers;
     }
-
-    wd->markerschanged.trigger();
 }
 
 
@@ -415,7 +412,6 @@ void uiWellMan::edWellTrack( CallBacker* )
 	wd->info().setGroundElevation( origgl );
     }
 
-    wd->trackchanged.trigger();
     mkFileInfo();
 }
 
@@ -479,8 +475,6 @@ void uiWellMan::defD2T( bool chkshot )
     if ( !errmsg.isEmpty() )
 	uiMSG().error( errmsg );
 
-    wd->d2tchanged.trigger();
-    wd->trackchanged.trigger();
     mkFileInfo();
 }
 
@@ -503,13 +497,14 @@ void uiWellMan::logTools( CallBacker* )
 }
 
 
-#define mDeleteLogs(idx) \
+#define mEmptyLogs(idx) \
     if ( curwds_.validIdx(idx) ) \
 	curwds_[idx]->logs().setEmpty()
 
 void uiWellMan::importLogs( CallBacker* )
 {
     uiImportLogsDlg dlg( this, curioobj_ );
+    dlg.go();
     if ( dlg.go() )
 	wellsChgd();
 }
@@ -622,8 +617,7 @@ void uiWellMan::wellsChgd()
     for ( int idwell=0; idwell<curwds_.size(); idwell++ )
     {
 	fillLogsFld();
-	Well::MGR().reload( curdbkeys_[idwell] );
-	mDeleteLogs(idwell);
+	mEmptyLogs(idwell);
     }
 }
 
@@ -727,8 +721,6 @@ void uiWellMan::removeLogPush( CallBacker* )
 	{
 	    BufferString logname( logs2rem.get( idrem ) );
 	    RefMan<Well::Log> log = wls.removeByName( logname );
-	    if ( log )
-		curwds_[idwell]->reloaded.trigger();
 	}
     }
     writeLogs();
@@ -754,7 +746,7 @@ void uiWellMan::exportLogs( CallBacker* )
     dlg.go();
 
     for ( int idw=0; idw<curwds_.size(); idw++ )
-	{ mDeleteLogs(idw); getBasicInfo( currdrs_[idw] ); }
+	{ mEmptyLogs(idw); getBasicInfo( currdrs_[idw] ); }
 }
 
 

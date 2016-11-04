@@ -15,6 +15,7 @@
 #include "bufstringset.h"
 #include "createattriblog.h"
 
+namespace Well { class Data; }
 namespace Attrib { class DescSet; }
 class NLAModel;
 class uiAttrSel;
@@ -25,24 +26,24 @@ class uiWellExtractParams;
 mExpClass(uiWellAttrib) uiCreateAttribLogDlg : public uiDialog
 { mODTextTranslationClass(uiCreateAttribLogDlg);
 public:
-    				uiCreateAttribLogDlg(uiParent*,
+				uiCreateAttribLogDlg(uiParent*,
 						     const BufferStringSet&,
 					             const Attrib::DescSet*,
 						     const NLAModel*,bool);
 				~uiCreateAttribLogDlg(){};
 
 protected:
-    
+
     uiAttrSel*			attribfld_;
     uiListBox*			welllistfld_;
     uiGenInput*			lognmfld_;
     uiWellExtractParams*	zrangeselfld_;
     const BufferStringSet&	wellnames_;
-    int 			sellogidx_;
-    bool 			singlewell_;
+    int			sellogidx_;
+    bool			singlewell_;
     AttribLogCreator::Setup	datasetup_;
 
-    bool                        inputsOK(int);
+    bool                        inputsOK(const Well::Data&);
     bool			acceptOK();
     void			init(CallBacker*);
     void			selDone(CallBacker*);

@@ -11,10 +11,8 @@ ________________________________________________________________________
 #include "uiwelldisplay.h"
 
 #include "dbman.h"
-#include "welldata.h"
+#include "wellmanager.h"
 #include "welllogset.h"
-#include "wellmarker.h"
-#include "wellman.h"
 #include "uistatusbar.h"
 #include "uiwelldisplaycontrol.h"
 #include "uiwelllogdisplay.h"
@@ -27,8 +25,8 @@ ________________________________________________________________________
 uiWellDisplay::uiWellDisplay( uiParent* p, const DBKey& id, const Setup& s )
     : uiGroup(p,"Well display")
     , setup_(s)
-    , mandata_(id)
 {
+    wd_ = Well::MGR().fetch( id );
     init( s );
 }
 
@@ -41,18 +39,18 @@ void uiWellDisplay::init( const Setup& s )
     use3ddisp_ = s.takedisplayfrom3d_;
     control_ = 0; stratdisp_ = 0;
 
-    if ( !haveWellData() )
+    if ( !wd_ )
     {
 	// show this fact to the user?
     }
     else
     {
-	Well::Data& wd = wellData();
-	zistime_ = wd.haveD2TModel() && SI().zIsTime();
+	zistime_ = wd_->haveD2TModel() && SI().zIsTime();
 
-	Well::DisplayProperties& disp = wd.displayProperties( !use3ddisp_ );
+	const Well::DisplayProperties& disp
+			    = wd_->displayProperties( !use3ddisp_ );
+
 	MonitorLock mldisp( disp );
-
 	const int nrlogdisps = disp.nrLogPairs();
 	for ( int idx=0; idx<nrlogdisps; idx++ )
 	{
@@ -89,14 +87,10 @@ void uiWellDisplay::init( const Setup& s )
 	}
 	mldisp.unlockNow();
 
-	mAttachCB( wd.d2tchanged, uiWellDisplay::wdChgCB );
-	mAttachCB( wd.markerschanged, uiWellDisplay::wdChgCB );
-	mAttachCB( wd.reloaded, uiWellDisplay::wellReloadCB);
-	if ( use3ddisp_ )
-	    mAttachCB( wd.disp3dparschanged, uiWellDisplay::wdChgCB );
-	else
-	    mAttachCB( wd.disp2dparschanged, uiWellDisplay::wdChgCB );
-	mAttachCB( wd.objectToBeDeleted(), uiWellDisplay::wdChgCB );
+	mAttachCB( wd_->track().objectChanged(), uiWellDisplay::wdChgCB );
+	mAttachCB( wd_->d2TModel().objectChanged(), uiWellDisplay::wdChgCB );
+	mAttachCB( wd_->displayProperties(!use3ddisp_).objectChanged(),
+		   uiWellDisplay::wdChgCB );
     }
 
     if ( s.nobackground_ )
@@ -120,33 +114,18 @@ uiWellDisplay::~uiWellDisplay()
 }
 
 
-bool uiWellDisplay::haveWellData() const
-{
-    return mandata_.isAvailable();
-}
-
-
-Well::Data& uiWellDisplay::wellData()
-{
-    return mandata_.data();
-}
-
-
 void uiWellDisplay::setControl( uiWellDisplayControl& ctrl )
 {
     if ( control_ ) delete control_;
     for ( int idx=0; idx<logdisps_.size(); idx++ )
-    {
 	ctrl.addDahDisplay( *logdisps_[idx] );
-    }
     control_ = &ctrl;
 }
 
 
 void uiWellDisplay::setDahData()
 {
-    Well::Data* wd = haveWellData() ? &wellData() : 0;
-    uiWellDahDisplay::Data data( wd );
+    uiWellDahDisplay::Data data( wd_ );
     data.zrg_ = zrg_;
     data.dispzinft_ = dispzinft_;
 
@@ -160,11 +139,10 @@ void uiWellDisplay::setDahData()
 
 void uiWellDisplay::setDisplayProperties()
 {
-    Well::Data* wd = haveWellData() ? &wellData() : 0;
-    if ( !wd )
+    if ( !wd_ )
 	{ clearLogDisplay(); return; }
 
-    const Well::DisplayProperties& dpp = wd->displayProperties( !use3ddisp_ );
+    const Well::DisplayProperties& dpp = wd_->displayProperties( !use3ddisp_ );
     MonitorLock mldisp( dpp );
 
     for ( int idx=0; idx<logdisps_.size(); idx ++ )
@@ -177,8 +155,8 @@ void uiWellDisplay::setDisplayProperties()
 	const Well::LogDispProps& lp1 = dpp.log( true, idx );
 	const Well::LogDispProps& lp2 = dpp.log( false, idx );
 
-	const Well::Log* l1 = wd->logs().getLogByName( lp1.logName() );
-	const Well::Log* l2 = wd->logs().getLogByName( lp2.logName() );
+	const Well::Log* l1 = wd_->logs().getLogByName( lp1.logName() );
+	const Well::Log* l2 = wd_->logs().getLogByName( lp2.logName() );
 
 	ld1.setLog( l1 );			ld2.setLog( l2 );
 	ld1.xrev_ = false;			ld2.xrev_ = false;
@@ -201,9 +179,7 @@ void uiWellDisplay::clearLogDisplay()
 {
     int ldsisp = logdisps_.size();
     for ( int ldidx=0; ldidx<ldsisp; ldidx ++ )
-    {
 	logdisps_[ldidx]->logData(use3ddisp_).setLog(0);
-    }
 }
 
 
@@ -233,9 +209,6 @@ uiWellDisplayWin::uiWellDisplayWin( uiParent* p, const DBKey& id,
     welldisp_->setPrefHeight( 600 );
     welldisp_->control()->posChanged.notify(
 					mCB(this,uiWellDisplayWin,posChgCB) );
-
-    if ( welldisp_->haveWellData() )
-	mAttachCB(welldisp_->objectToBeDeleted(),uiWellDisplayWin::wdDelCB);
 }
 
 
@@ -250,13 +223,6 @@ uiString uiWellDisplayWin::getWinTitle( const DBKey& id, bool foredit )
     return tr( "%1 '%2'" ).arg( foredit ? uiStrings::sEdit()
 					 : uiStrings::sDisplay() )
 					   .arg( DBM().nameOf( id ) );
-}
-
-
-void uiWellDisplayWin::wdDelCB( CallBacker* cb )
-{
-    if ( !welldisp_->haveWellData() )
-	close();
 }
 
 

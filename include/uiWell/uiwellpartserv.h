@@ -118,8 +118,6 @@ protected:
     void			rdmlnDlgClosed(CallBacker*);
     void			wellPropDlgClosed(CallBacker*);
     void			saveWellDispProps(const Well::Data*);
-    void			saveWellDispProps(const Well::Data&,
-						  const DBKey&);
     void			applyAll(CallBacker*);
     void			simpImp(CallBacker*);
     void			survChangedCB(CallBacker*);

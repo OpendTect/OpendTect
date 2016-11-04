@@ -55,6 +55,7 @@ Well::DisplayProperties::DisplayProperties( const char* nm )
 {
     doAddLogPair();
     usePar( Settings::fetch("welldisp") );
+    isdefaults_ = true;
     init();
 }
 
@@ -89,6 +90,7 @@ void Well::DisplayProperties::copyClassData( const DisplayProperties& oth )
     track_ = oth.track_;
     markers_ = oth.markers_;
     displaystrat_ = oth.displaystrat_;
+    isdefaults_ = oth.isdefaults_;
     copyLogPairsFrom( oth );
 }
 
@@ -601,6 +603,7 @@ void Well::DisplayProperties::usePar( const IOPar& inpiop )
     iop->getYN( sKey2DDisplayStrat, dispstrat );
     delete iop;
     setDisplayStrat( dispstrat );
+    isdefaults_ = false;
 }
 
 
@@ -634,6 +637,7 @@ Well::DisplayProperties& Well::DisplayProperties::defaults()
 	Settings& setts = Settings::fetch( sSettingsKey );
 	Well::DisplayProperties* newret = new DisplayProperties;
 	newret->usePar( setts );
+	newret->isdefaults_ = true;
 
 	ret.setIfNull( newret, true );
     }

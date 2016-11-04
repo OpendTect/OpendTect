@@ -18,9 +18,8 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllogset.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "wellmarker.h"
-#include "wellreader.h"
 #include "wellwriter.h"
 
 #include "uicombobox.h"
@@ -513,22 +512,13 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
     BufferStringSet availablemrkrs;
     for ( int midx=0; midx<mids.size(); midx++ )
     {
-	const DBKey wmid = mids[midx];
-	RefMan<Well::Data> wd = new Well::Data;
+	const DBKey dbky = mids[midx];
+	ConstRefMan<Well::Data> wd = Well::MGR().fetch( dbky );
+	if ( !wd )
+	    continue;
+
 	BufferStringSet lognms;
-	if ( Well::MGR().isLoaded(wmid) )
-	{
-	    wd = Well::MGR().get( wmid );
-	    if ( !wd ) continue;
-	    wd->logs().getNames( lognms );
-	}
-	else
-	{
-	    Well::Reader* wrdr = new Well::Reader( wmid, *wd );
-	    wrdr->getLogInfo( lognms );
-	    if ( !wrdr->getMarkers() )
-		continue;
-	}
+	wd->logs().getNames( lognms );
 
 	BufferStringSet mrkrnms;
 	wd->markers().getNames( mrkrnms );

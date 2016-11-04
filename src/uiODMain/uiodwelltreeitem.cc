@@ -29,7 +29,6 @@ ___________________________________________________________________
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "welldata.h"
-#include "wellman.h"
 
 #include "viswelldisplay.h"
 

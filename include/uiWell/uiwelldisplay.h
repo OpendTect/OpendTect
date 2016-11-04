@@ -62,9 +62,7 @@ public:
 					      const Setup&);
 				~uiWellDisplay();
 
-    bool			haveWellData() const;
-    Well::Data&			wellData();
-				//!< can only be used if haveWellData() == true
+    ConstRefMan<Well::Data>	wellData() const    { return wd_; }
 
     Interval<float>		zRange() const	{ return zrg_; }
     void			setZRange(Interval<float> zrg)
@@ -86,14 +84,13 @@ public:
 
 protected:
 
-    Well::ManData		mandata_;
-
+    ConstRefMan<Well::Data>	wd_;
     Interval<float>		zrg_;
     bool			dispzinft_;
     bool			zistime_;
     bool			use3ddisp_;
     uiSize			size_;
-    const Setup		setup_;
+    const Setup			setup_;
 
     ObjectSet<uiWellLogDisplay> logdisps_;
     uiWellDisplayControl*	control_;
@@ -128,7 +125,6 @@ protected:
 
     uiWellDisplay*		welldisp_;
 
-    void			wdDelCB(CallBacker*);
     void			posChgCB(CallBacker*);
 
 private:

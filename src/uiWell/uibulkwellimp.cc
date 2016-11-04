@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellimpasc.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "wellmarker.h"
 #include "welltrack.h"
 #include "wellinfo.h"
@@ -41,7 +41,23 @@ ________________________________________________________________________
 #include "uid2tmodelgrp.h"
 #include "od_helpids.h"
 
-using namespace Well;
+
+static DBKey getDBKey( const char* wellnm, const char* welluwi=0 )
+{
+    const bool nmpassed = wellnm && *wellnm;
+    const bool uwipassed = welluwi && *welluwi;
+    DBKey dbky;
+    if ( nmpassed )
+	dbky = Well::MGR().getIDByName( wellnm );
+    if ( dbky.isInvalid() )
+    {
+	if ( uwipassed )
+	    dbky = Well::MGR().getIDByUWI( welluwi );
+	else if ( nmpassed )
+	    dbky = Well::MGR().getIDByUWI( wellnm );
+    }
+    return dbky;
+}
 
 
 // uiBulkTrackImport
@@ -50,7 +66,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
 		                 mNoDlgTitle,
 				 mODHelpKey(mBulkTrackImportHelpID) )
 			   .modal(false))
-    , fd_(BulkTrackAscIO::getDesc())
+    , fd_(Well::BulkTrackAscIO::getDesc())
     , velocityfld_(0)
 {
     inpfld_ = new uiFileInput( this,
@@ -92,18 +108,9 @@ static int getWellIdx( ObjectSet<Well::Data>& wells, const char* nm )
 }
 
 
-static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
-{
-    CtxtIOObj newctio( ctio );
-    newctio.ioobj_ = 0; newctio.setName( nm );
-    newctio.fillObj();
-    return newctio.ioobj_;
-}
-
-
 void uiBulkTrackImport::readFile( od_istream& istrm )
 {
-    BulkTrackAscIO aio( *fd_, istrm );
+    Well::BulkTrackAscIO aio( *fd_, istrm );
     BufferString wellnm, uwi; Coord3 crd;
     float md = mUdf(float);
     while ( aio.get(wellnm,crd,md,uwi) )
@@ -129,23 +136,21 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 }
 
 
-void uiBulkTrackImport::addD2T( uiString& errmsg )
+uiRetVal uiBulkTrackImport::addD2T()
 {
-    if ( !SI().zIsTime() ) return;
+    if ( !SI().zIsTime() )
+	return uiRetVal::OK();
 
     const float vel = velocityfld_->getFValue();
     if ( vel<=0 || mIsUdf(vel) )
-    {
-	errmsg = uiStrings::phrEnter(tr("a positive velocity "
-		    "for generating the D2T model"));
-	return;
-    }
+	return uiStrings::phrEnter(tr("a positive velocity "
+			    "for generating the D2T model"));
 
     const float twtvel = vel * .5f;
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
-	RefMan<Well::Data> wd = wells_[idx];
-	const Well::Track& track = wd->track();
+	Well::Data& wd = *wells_[idx];
+	const Well::Track& track = wd.track();
 
 	const float srd = mCast(float,SI().seismicReferenceDatum());
 	const float zstart = track.zRange().start;
@@ -153,38 +158,29 @@ void uiBulkTrackImport::addD2T( uiString& errmsg )
 	const float dahstart = track.dahRange().start;
 	const float dahstop = track.dahRange().stop;
 
-	Well::D2TModel& d2t = wd->d2TModel();
+	Well::D2TModel& d2t = wd.d2TModel();
 	d2t.setValueAt( dahstart, (zstart+srd)/twtvel );
 	d2t.setValueAt( dahstop, (zstop+srd)/twtvel );
     }
+
+    return uiRetVal::OK();
 }
 
 
-void uiBulkTrackImport::write( uiStringSet& errors )
+uiRetVal uiBulkTrackImport::write()
 {
-    // TODO: Check if name exists, ask user to overwrite or give new name
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
+    uiRetVal uirv;
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
-	RefMan<Well::Data> wd = wells_[idx];
-	PtrMan<IOObj> ioobj = DBM().getByName( ctio->ctxt_, wd->name() );
-	if ( !ioobj )
-	    ioobj = mkEntry( *ctio, wd->name() );
-	if ( !ioobj )
-	{
-	    errors.add( uiStrings::phrCannotCreateDBEntryFor(
-						    toUiString(wd->name())) );
-	    continue;
-	}
-
-	Well::Writer ww( *ioobj, *wd );
-	if ( !ww.put() )
-	{
-	    uiString msg = uiStrings::phrCannotCreate(
-		    toUiString("%1: %2").arg(wd->name()).arg(ww.errMsg()) );
-	    errors.add( msg );
-	}
+	Well::Data* wd = wells_[idx];
+	const DBKey dbky = getDBKey( wd->name() );
+	if ( dbky.isValid() )
+	    uirv.add( uiString( tr("A well named '%1' already exists.")
+				.arg(wd->name()) ) );
+	else
+	    uirv.add( Well::MGR().save(*wd) );
     }
+    return uirv;
 }
 
 
@@ -195,32 +191,29 @@ bool uiBulkTrackImport::acceptOK()
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet( uiStrings::phrInput(mJoinUiStrs(sFile(),sName())) )
-
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet( uiStrings::sCantOpenInpFile() )
-
     if ( !dataselfld_->commit() )
 	return false;
 
     readFile( strm );
-    uiString errmsg;
-    addD2T( errmsg );
-    if ( !errmsg.isEmpty() )
-	mErrRet( errmsg );
-
-    uiStringSet errors;
-    write( errors );
-
-    if ( errors.isEmpty() )
+    if ( wells_.isEmpty() )
     {
-	uiMSG().message( tr("All tracks imported succesfully") );
+	uiMSG().message( tr("No valid lines found") );
 	return true;
     }
 
-    uiMSG().errorWithDetails( errors,
-		uiStrings::phrCannotImport(tr("all wells (see details)")) );
-    return false;
+    uiRetVal uirv = addD2T();
+    if ( !uirv.isError() )
+	mErrRet( uirv );
+
+    uirv = write();
+    if ( !uirv.isOK() )
+	{ uiMSG().error( uirv ); return false; }
+
+    uiMSG().message( tr("All tracks imported succesfully") );
+    return true;
 }
 
 
@@ -261,7 +254,7 @@ bool uiBulkLogImport::acceptOK()
     }
 
     const bool zistvd = istvdfld_->getBoolValue();
-    uiStringSet errors;
+    uiRetVal uirv;
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
 	const BufferString& fnm = filenms.get( idx );
@@ -271,43 +264,41 @@ bool uiBulkLogImport::acceptOK()
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 	if ( !errmsg.isEmpty() )
 	{
-	    errors.add( toUiString("%1: %2").arg(toUiString(fnm))
+	    uirv.add( toUiString("%1: %2").arg(toUiString(fnm))
 					    .arg(toUiString(errmsg)) );
 	    continue;
 	}
 
-	const IOObj* ioobj = findIOObj( info.wellnm, info.uwi );
-	if ( !ioobj )
+	DBKey dbky = getDBKey( info.wellnm, info.uwi );
+	if ( dbky.isInvalid() )
 	{
-	    errors.add(tr("%1: Cannot find %2").arg(fnm).arg(info.wellnm));
+	    uirv.add( tr("%1: Cannot find %2").arg(fnm).arg(
+			info.wellnm.isEmpty() ? info.uwi : info.wellnm));
 	    continue;
 	}
 
-	RefMan<Well::Data> wd = Well::MGR().get( ioobj->key() );
+	uiRetVal newuirv;
+	RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbky,
+				    Well::LoadReqs(Well::Logs), uirv );
 	if ( !wd )
-	{
-	    errors.add(tr("%1: Cannot find well information in database")
-		     .arg(info.wellnm));
-	    continue;
-	}
+	    { uirv.add( uirv ); continue; }
 
-	lasimp.setData( wd );
+	lasimp.setData( *wd );
 	errmsg = lasimp.getLogs( fnm, info, zistvd );
 	if ( !errmsg.isEmpty() )
-	    errors.add( toUiString("%1: %2").arg(toUiString(fnm))
+	    uirv.add( toUiString("%1: %2").arg(toUiString(fnm))
 					    .arg(toUiString(errmsg)) );
-
-	Well::Writer wtr( *ioobj, *wd );
-	wtr.putLogs();
+	else
+	    uirv.add( Well::MGR().save(dbky) );
     }
 
-    if ( errors.isEmpty() )
+    if ( uirv.isEmpty() )
     {
 	uiMSG().message( tr("All logs imported succesfully") );
 	return true;
     }
 
-    uiMSG().errorWithDetails( errors,
+    uiMSG().errorWithDetails( uirv,
 		uiStrings::phrCannotImport(tr("all LAS files (See details)")) );
     return false;
 }
@@ -319,7 +310,7 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
 				 mNoDlgTitle,
 				 mODHelpKey(mBulkMarkerImportHelpID))
 			   .modal(false))
-    , fd_(BulkMarkerAscIO::getDesc())
+    , fd_(Well::BulkMarkerAscIO::getDesc())
 {
     inpfld_ = new uiFileInput( this, uiStrings::phrInput(
 			       mJoinUiStrs(sMarker(),sFile())),
@@ -350,7 +341,7 @@ bool uiBulkMarkerImport::acceptOK()
 	return false;
 
     BufferStringSet wellnms;
-    ObjectSet<MarkerSet> markersets;
+    ObjectSet<Well::MarkerSet> markersets;
     readFile( strm, wellnms, markersets );
     if ( wellnms.isEmpty() )
 	mErrRet( uiStrings::phrCannotRead(uiStrings::sFile()) )
@@ -358,71 +349,56 @@ bool uiBulkMarkerImport::acceptOK()
     const ObjectSet<Table::TargetInfo>& tis = fd_->bodyinfos_;
     const bool doconv = tis.validIdx(1) && tis[1]->selection_.form_==1;
 
-    uiStringSet errors;
+    uiRetVal uirv;
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
 	const BufferString& wellnm = wellnms.get(idx);
-	if ( wellnm.isEmpty() ) continue;
-
-	const PtrMan<IOObj> ioobj = findIOObj( wellnm, wellnm );
-	if ( !ioobj )
-	{
-	    errors.add( tr("Cannot find %1 in database").arg(wellnm) );
+	if ( wellnm.isEmpty() )
 	    continue;
-	}
 
-	RefMan<Well::Data> wd = MGR().get( ioobj->key() );
+	const DBKey dbky = getDBKey( wellnm );
+	if ( dbky.isInvalid() )
+	    { uirv.add( tr("Cannot find well '%1'").arg(wellnm) ); continue; }
+
+	uiRetVal fetchres;
+	RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbky,
+					Well::LoadReqs(), fetchres );
 	if ( !wd )
-	{
-	    errors.add(tr("%1: Cannot load well").arg(wellnm));
-	    continue;
-	}
+	    { uirv.add( fetchres ); continue; }
 
-	if ( doconv )
+	if ( !doconv )
+	    wd->markers() = *markersets[idx];
+	else
 	{
-	    RefMan<MarkerSet> newms = new MarkerSet( *markersets[idx] );
-	    MarkerSetIter4Edit msiter( *newms );
+	    RefMan<Well::MarkerSet> convms = new Well::MarkerSet(
+						    *markersets[idx] );
+	    Well::MarkerSetIter4Edit msiter( *convms );
 	    while( msiter.next() )
 	    {
 		float dah = msiter.getDah();
 		dah = wd->track().getDahForTVD( dah );
-		newms->setDah( msiter.ID(), dah );
+		convms->setDah( msiter.ID(), dah );
 	    }
-
-	    msiter.retire();
-	    *markersets[idx] = *newms;
+	    wd->markers() = *convms;
 	}
 
-	wd->markers() = *markersets[idx];
-	Well::Writer ww( *ioobj, *wd );
-	if ( !ww.putMarkers() )
-	{
-	    errors.add( toUiString("%1: %2").arg(toUiString(wellnm))
-					    .arg(toUiString(ww.errMsg())) );
-	    continue;
-	}
-
-	wd->markerschanged.trigger();
+	uirv.add( Well::MGR().save( dbky ) );
     }
 
-    if ( errors.isEmpty() )
-    {
+    if ( uirv.isError() )
+	uiMSG().error( uirv );
+    else
 	uiMSG().message( tr("All markers imported succesfully") );
-	return true;
-    }
 
-    uiMSG().errorWithDetails( errors,
-		uiStrings::phrCannotImport(
-					tr("all marker files (See details)")) );
-    return false;
+    return uirv.isOK();
 }
 
 
 void uiBulkMarkerImport::readFile( od_istream& istrm,
 				   BufferStringSet& wellnms,
-				   ObjectSet<MarkerSet>& markersets )
+				   ObjectSet<Well::MarkerSet>& markersets )
 {
-    BulkMarkerAscIO aio( *fd_, istrm );
+    Well::BulkMarkerAscIO aio( *fd_, istrm );
     BufferString markernm, wellnm; // wellnm can be UWI as well
     float md = mUdf(float);
     while ( aio.get(wellnm,md,markernm) )
@@ -431,12 +407,12 @@ void uiBulkMarkerImport::readFile( od_istream& istrm,
 	if ( wellidx<0 )
 	{
 	    wellnms.add( wellnm );
-	    markersets += new MarkerSet;
+	    markersets += new Well::MarkerSet;
 	    wellidx = wellnms.size()-1;
 	}
 
-	MarkerSet* mset = markersets[wellidx];
-	Marker marker( markernm, md );
+	Well::MarkerSet* mset = markersets[wellidx];
+	Well::Marker marker( markernm, md );
 	mset->insertNew( marker );
     }
 }
@@ -457,7 +433,7 @@ D2TModelData( const char* wellnm )
 uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: D2TModel"),
     mNoDlgTitle, mODHelpKey(mBulkD2TModelImportHelpID)).modal(false))
-    , fd_(BulkD2TModelAscIO::getDesc())
+    , fd_(Well::BulkD2TModelAscIO::getDesc())
 {
     uiFileInput::Setup fs;
     fs.withexamine(true).examstyle(File::Table);
@@ -492,58 +468,41 @@ bool uiBulkD2TModelImport::acceptOK()
     if ( d2tdata.isEmpty() )
 	mErrRet( uiStrings::phrCannotRead(uiStrings::sFile()) )
 
-    uiStringSet errors;
+    uiRetVal uirv;
     for ( int idx=d2tdata.size()-1; idx>=0; idx-- )
     {
 	const BufferString& wellnm = d2tdata[idx]->wellnm_;
 	if ( wellnm.isEmpty() )
+	    { delete d2tdata.removeSingle(idx,true); continue; }
+
+	const DBKey dbky = getDBKey( wellnm );
+	if ( dbky.isInvalid() )
 	{
+	    uirv.add( tr("Cannot find well '%1'").arg(wellnm) );
 	    delete d2tdata.removeSingle(idx,true);
 	    continue;
 	}
 
-	const IOObj* ioobj = findIOObj( wellnm, wellnm );
-	if ( !ioobj )
-	{
-	    delete d2tdata.removeSingle(idx,true);
-	    errors.add( tr("Cannot find %1 in database").arg(wellnm) );
-	    continue;
-	}
-
-	RefMan<Well::Data> wd = MGR().get( ioobj->key() );
+	RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbky );
 	if ( !wd )
 	{
 	    delete d2tdata.removeSingle(idx,true);
-	    errors.add(tr("%1: Cannot load well").arg(wellnm));
+	    uirv.add(tr("%1: Cannot load well").arg(wellnm));
 	    continue;
 	}
 
+	Well::D2TModel& d2t = wd->d2TModel();
 	uiString msg;
-	D2TModel& d2t = wd->d2TModel();
 	d2t.ensureValid( *wd, msg, &d2tdata[idx]->mds_, &d2tdata[idx]->twts_ );
-
-	const BufferString wellfnm = ioobj->fullUserExpr();
-	Writer ww( *ioobj, *wd );
-	if ( !ww.putD2T() )
-	{
-	    delete d2tdata.removeSingle(idx,true);
-	    errors.add( toUiString("%1: %2").arg(toUiString(wellnm))
-					    .arg(toUiString(ww.errMsg())) );
-	    continue;
-	}
-
-	wd->d2tchanged.trigger();
+	uirv.add( Well::MGR().save( dbky ) );
     }
 
-    if ( errors.isEmpty() )
-    {
+    if ( uirv.isError() )
+	uiMSG().error( uirv );
+    else
 	uiMSG().message( tr("All models imported succesfully") );
-	return true;
-    }
 
-    uiMSG().errorWithDetails( errors,
-	      uiStrings::phrCannotImport(tr("all model files (See details)")));
-    return false;
+    return uirv.isOK();
 }
 
 
@@ -563,7 +522,7 @@ static int getIndex( const ObjectSet<D2TModelData>& data,
 void uiBulkD2TModelImport::readFile( od_istream& istrm,
 				     ObjectSet<D2TModelData>& data )
 {
-    BulkD2TModelAscIO aio( *fd_, istrm );
+    Well::BulkD2TModelAscIO aio( *fd_, istrm );
     BufferString wellnm;
     float md = mUdf(float);
     float twt = mUdf(float);

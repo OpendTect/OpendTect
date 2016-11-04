@@ -37,7 +37,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "tabledef.h"
 #include "welldata.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "wellimpasc.h"
 #include "welltrack.h"
 #include "welltransl.h"
@@ -716,51 +716,42 @@ void uiMarkerDlg::exportCB( CallBacker* )
 }
 
 
-bool uiMarkerDlg::getKey( DBKey& mid ) const
+bool uiMarkerDlg::getKey( DBKey& wellid ) const
 {
-    IOObj* obj = DBM().getByName( mIOObjContext(Well), track_.name() );
-    if ( !obj )
-	return false;
-
-    mid = obj->key();
-    return true;
+    wellid = Well::MGR().getIDByName( track_.name() );
+    return wellid.isValid();
 }
 
 
 void uiMarkerDlg::updateDisplayCB( CallBacker* )
 {
-    DBKey mid;
-    if ( !getKey(mid) )
+    DBKey wellid;
+    if ( !getKey(wellid) )
 	return;
 
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
+    uiRetVal uirv;
+    RefMan<Well::Data> wd = Well::MGR().fetchForEdit( wellid, Well::LoadReqs(),
+	    						uirv );
     if ( !wd )
-    {
-	uiMSG().error( Well::MGR().errMsg() );
-	return;
-    }
+	{ uiMSG().error( uirv ); return; }
 
     getMarkerSet( wd->markers() );
-    wd->markerschanged.trigger();
 }
 
 
 bool uiMarkerDlg::rejectOK()
 {
-    DBKey mid;
-    if ( !getKey(mid) )
+    DBKey wellid;
+    if ( !getKey(wellid) )
 	return true;
 
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
+    uiRetVal uirv;
+    RefMan<Well::Data> wd = Well::MGR().fetchForEdit( wellid,
+			Well::LoadReqs(Well::Mrkrs), uirv );
     if ( !wd )
 	return true;
-
     if ( oldmrkrs_ )
-    {
 	wd->markers() = *oldmrkrs_;
-	wd->markerschanged.trigger();
-    }
-
     return true;
 }
 
@@ -885,7 +876,7 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
     while( miter.next() )
     {
 	const Well::Marker& mrkr = miter.get();
-	const int irow = miter.currIdx();
+	const int irow = miter.curIdx();
 	table_->setText( RowCol(irow,cNameCol), mrkr.name() );
 	table_->setColor( RowCol(irow,cColorCol), mrkr.color() );
 

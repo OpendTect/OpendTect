@@ -71,8 +71,8 @@ public:
 protected:
 
     void		setHS();
-    DBKeySet	wellids_;
-    ObjectSet<Well::Data> welldata_;
+    DBKeySet		wellids_;
+    TypeSet< ConstRefMan<Well::Data> > welldata_;
 
     bool		onlysurfacecoords_;
     int			inlext_;

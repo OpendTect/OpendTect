@@ -15,9 +15,10 @@
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "wellreader.h"
 #include "welltrack.h"
+#include "dbman.h"
 
 
 namespace VolProc
@@ -35,43 +36,25 @@ static const char* sKeyLayerModel()	{ return "Layer Model"; }
 class WellLogInfo
 {
 public:
-WellLogInfo( const DBKey& mid, const char* lognm )
-    : mid_(mid), logname_(lognm)
-{}
 
-~WellLogInfo()
-{
-    delete track_;
-}
+WellLogInfo( const DBKey& mid, const char* lognm )
+    : dbky_(mid), logname_(lognm)
+{}
 
 bool init()
 {
-    const bool isloaded = Well::MGR().isLoaded( mid_ );
-    RefMan<Well::Data> wd = new Well::Data;
-    if ( isloaded && !wd )
-    {
+    const bool zistime = SI().zIsTime();
+    ConstRefMan<Well::Data> wd = Well::MGR().fetch( dbky_,
+	    			Well::LoadReqs( Well::Trck, Well::D2T ) );
+    if ( !wd )
 	return false;
-    }
-    else if ( !isloaded )
-    {
-	Well::Reader wrdr( mid_, *wd );
-	if ( !wrdr.getTrack() ||
-	     ( SI().zIsTime() && ( !wrdr.getInfo() || !wrdr.getD2T() ) ) ||
-	     !wrdr.getLog(logname_) )
-	    return false;
-    }
+    log_ = Well::MGR().getLog( dbky_, logname_ );
+    if ( !log_ )
+	return false;
 
-    if ( SI().zIsTime() )
-    {
-	track_ = new Well::Track;
+    track_ = new Well::Track( wd->track() );
+    if ( zistime )
 	track_->toTime( *wd );
-    }
-    else
-	track_ = isloaded ? &wd->track() : new Well::Track( wd->track() );
-
-    ConstRefMan<Well::Log> log = wd->logs().getLogByName( logname_ );
-    log_ = isloaded || !log ? log : new Well::Log( *log );
-
     return true;
 }
 
@@ -107,12 +90,12 @@ void computeLayerModelIntersection(
 }
 
 
-Well::Track*	track_;
-TrcKeyZSampling bbox_;
-DBKey		mid_;
-BufferString	logname_;
-ConstRefMan<Well::Log>	log_;
-TypeSet<float>	intersections_;
+    RefMan<Well::Track>	track_;
+    ConstRefMan<Well::Log> log_;
+    TrcKeyZSampling	bbox_;
+    DBKey		dbky_;
+    BufferString	logname_;
+    TypeSet<float>	intersections_;
 
 };
 
@@ -218,11 +201,7 @@ void WellLogInterpolator::setWellData( const DBKeySet& ids,
 void WellLogInterpolator::getWellNames( BufferStringSet& res ) const
 {
     for ( int idx=0; idx<wellmids_.size(); idx++ )
-    {
-	Well::Data* data = Well::MGR().get( wellmids_[idx] );
-	if ( data )
-	    res.add( data->name() );
-    }
+	res.add( DBM().nameOf(wellmids_[idx]) );
 }
 
 
@@ -251,9 +230,11 @@ bool WellLogInterpolator::prepareComp( int )
     for ( int idx=0; idx<wellmids_.size(); idx++ )
     {
 	WellLogInfo* info = new WellLogInfo( wellmids_[idx], logname_ );
-	info->init();
-	info->computeLayerModelIntersection( *layermodel_ );
-	infos_ += info;
+	if ( info->init() )
+	{
+	    info->computeLayerModelIntersection( *layermodel_ );
+	    infos_ += info;
+	}
     }
 
     return res;

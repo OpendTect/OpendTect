@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "globexpr.h"
 #include "wellextractdata.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "wellmarker.h"
 #include "welltransl.h"
 
@@ -257,7 +257,7 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
 		new uiLabel( mrkrgrp, uiStrings::sMarker(mPlural) );
 
     markersselgrp_ = new uiListBox( mrkrgrp, "Markers", su.markerschoicemode_ );
-    Well::MGR().getMarkerNames( markernms_ );
+    Well::MGR().getAllMarkerNames( markernms_ );
     markernms_.sort();
     markersselgrp_->addItems( markernms_ );
     filtfld_ = new uiGenInput( markersselgrp_, uiStrings::sFilter(), "*" );

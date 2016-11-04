@@ -255,6 +255,7 @@ public:
 
     static DisplayProperties&	defaults();
     static void		commitDefaults();
+    bool		valsAreDefaults() const	{ return isdefaults_; }
 
     virtual const char* subjectName() const	{ return name().buf(); }
 
@@ -264,6 +265,7 @@ protected:
     MarkerDispProps	markers_;
     ManagedObjectSet<LogDispProps> logs_;
     bool		displaystrat_; //2d only
+    bool		isdefaults_;
 
     LogPairID		doAddLogPair();
     void		copyLogPairsFrom(const DisplayProperties&);

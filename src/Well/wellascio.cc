@@ -21,7 +21,7 @@
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
-#include "wellman.h"
+#include "wellmanager.h"
 
 
 static bool convToDah( const Well::Track& trck, float& val,
@@ -32,10 +32,7 @@ static bool convToDah( const Well::Track& trck, float& val,
 }
 
 
-namespace Well
-{
-
-Table::FormatDesc* TrackAscIO::getDesc()
+Table::FormatDesc* Well::TrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
@@ -51,8 +48,8 @@ Table::FormatDesc* TrackAscIO::getDesc()
 }
 
 
-bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
-				double& kbelevinfile ) const
+bool Well::TrackAscIO::readTrackData( TypeSet<Coord3>& pos,
+		    TypeSet<double>& mdvals, double& kbelevinfile ) const
 {
     if ( !getHdrVals(strm_) )
 	return false;
@@ -103,9 +100,9 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 #define mScaledValue(s,uom) ( uom ? uom->userValue(s) : s )
-bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
-				       TypeSet<double>& mdvals,
-				       double& kbelevinfile ) const
+bool Well::TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
+					     TypeSet<double>& mdvals,
+					     double& kbelevinfile ) const
 {
     if ( pos.isEmpty() || mdvals.isEmpty() || pos.size() != mdvals.size() )
 	return false;
@@ -231,8 +228,8 @@ static void adjustToTDIfNecessary( TypeSet<Coord3>& pos,
 }
 
 
-bool TrackAscIO::adjustSurfaceLocation( TypeSet<Coord3>& pos,
-					Coord& surfacecoord ) const
+bool Well::TrackAscIO::adjustSurfaceLocation( TypeSet<Coord3>& pos,
+						Coord& surfacecoord ) const
 {
     if ( pos.isEmpty() )
 	return true;
@@ -262,7 +259,7 @@ bool TrackAscIO::adjustSurfaceLocation( TypeSet<Coord3>& pos,
 }
 
 
-bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
+bool Well::TrackAscIO::getData( Data& wd, float kbelev, float td ) const
 {
     TypeSet<Coord3> pos;
     TypeSet<double> mdvals;
@@ -297,7 +294,7 @@ bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
 }
 
 
-Table::TargetInfo* gtDepthTI( bool withuns )
+static Table::TargetInfo* gtDepthTI( bool withuns )
 {
     Table::TargetInfo* ti = new Table::TargetInfo( "Depth", FloatInpSpec(),
 						   Table::Required );
@@ -313,7 +310,7 @@ Table::TargetInfo* gtDepthTI( bool withuns )
 }
 
 
-Table::FormatDesc* MarkerSetAscIO::getDesc()
+Table::FormatDesc* Well::MarkerSetAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "MarkerSet" );
 
@@ -330,7 +327,7 @@ Table::FormatDesc* MarkerSetAscIO::getDesc()
 }
 
 
-bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
+bool Well::MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
 				const Track& trck ) const
 {
     ms.setEmpty();
@@ -381,7 +378,7 @@ bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
 }
 
 
-Table::FormatDesc* D2TModelAscIO::getDesc( bool withunitfld )
+Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "DepthTimeModel" );
     fd->headerinfos_ +=
@@ -393,7 +390,7 @@ Table::FormatDesc* D2TModelAscIO::getDesc( bool withunitfld )
 }
 
 
-void D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
+void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
 					  bool withunits )
 {
     Table::TargetInfo* ti = gtDepthTI( withunits );
@@ -411,15 +408,15 @@ void D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
 }
 
 
-void D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
+void Well::D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
 {
     fd.bodyinfos_.erase();
     createDescBody( &fd, withunitfld );
 }
 
 
-bool D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
-			 const Data& wll ) const
+bool Well::D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
+				const Data& wll ) const
 {
     if ( wll.track().isEmpty() ) return true;
 
@@ -465,14 +462,14 @@ bool D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
 
 
 // Well::BulkTrackAscIO
-BulkTrackAscIO::BulkTrackAscIO( const Table::FormatDesc& fd,
-				od_istream& strm )
+Well::BulkTrackAscIO::BulkTrackAscIO( const Table::FormatDesc& fd,
+				      od_istream& strm )
     : Table::AscIO(fd)
     , strm_(strm)
 {}
 
 
-Table::FormatDesc* BulkTrackAscIO::getDesc()
+Table::FormatDesc* Well::BulkTrackAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkWellTrack" );
     fd->bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
@@ -491,8 +488,8 @@ Table::FormatDesc* BulkTrackAscIO::getDesc()
 }
 
 
-bool BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float& md,
-			  BufferString& uwi ) const
+bool Well::BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float& md,
+				BufferString& uwi ) const
 {
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
@@ -518,14 +515,14 @@ Table::TargetInfo* gtWellNameTI()
 
 
 // Well::BulkMarkerAscIO
-BulkMarkerAscIO::BulkMarkerAscIO( const Table::FormatDesc& fd,
+Well::BulkMarkerAscIO::BulkMarkerAscIO( const Table::FormatDesc& fd,
 				od_istream& strm )
     : Table::AscIO(fd)
     , strm_(strm)
 {}
 
 
-Table::FormatDesc* BulkMarkerAscIO::getDesc()
+Table::FormatDesc* Well::BulkMarkerAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkMarkerSet" );
     fd->bodyinfos_ += gtWellNameTI();
@@ -535,7 +532,7 @@ Table::FormatDesc* BulkMarkerAscIO::getDesc()
 }
 
 
-bool BulkMarkerAscIO::get( BufferString& wellnm,
+bool Well::BulkMarkerAscIO::get( BufferString& wellnm,
 			   float& md, BufferString& markernm ) const
 {
     const int ret = getNextBodyVals( strm_ );
@@ -548,23 +545,19 @@ bool BulkMarkerAscIO::get( BufferString& wellnm,
 }
 
 
-bool BulkMarkerAscIO::identifierIsUWI() const
+bool Well::BulkMarkerAscIO::identifierIsUWI() const
 { return formOf( false, 0 ) == 1; }
 
 
 // Well::BulkD2TModelAscIO
-BulkD2TModelAscIO::BulkD2TModelAscIO( const Table::FormatDesc& fd,
-				      od_istream& strm )
+Well::BulkD2TModelAscIO::BulkD2TModelAscIO( const Table::FormatDesc& fd,
+					    od_istream& strm )
     : Table::AscIO(fd)
     , strm_(strm)
 {}
 
 
-BulkD2TModelAscIO::~BulkD2TModelAscIO()
-{ deepUnRef( wellsdata_ ); }
-
-
-Table::FormatDesc* BulkD2TModelAscIO::getDesc()
+Table::FormatDesc* Well::BulkD2TModelAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkDepthTimeModel" );
     fd->bodyinfos_ += gtWellNameTI();
@@ -585,7 +578,7 @@ Table::FormatDesc* BulkD2TModelAscIO::getDesc()
 }
 
 
-bool BulkD2TModelAscIO::get( BufferString& wellnm, float& md, float& twt )
+bool Well::BulkD2TModelAscIO::get( BufferString& wellnm, float& md, float& twt )
 {
     const int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return false;
@@ -599,15 +592,14 @@ bool BulkD2TModelAscIO::get( BufferString& wellnm, float& md, float& twt )
     int wellidx = wells_.indexOf(wellnm);
     if ( wellidx < 0 )
     {
-	const PtrMan<IOObj> ioobj = findIOObj( wellnm, wellnm );
-	if ( !ioobj ) return false;
+	const DBKey dbky = MGR().getIDByName( wellnm );
+	if ( dbky.isInvalid() )
+	    return false;
+	ConstRefMan<Data> wd = MGR().fetch( dbky, LoadReqs(Trck).add(D2T) );
+	if ( !wd || wd->track().isEmpty() )
+	    return false;
 
-	Data* wd = MGR().get( ioobj->key() );
-	if ( !wd || wd->track().isEmpty() ) return false;
-
-	wd->ref();
 	wellsdata_ += wd;
-
 	wells_.add( wellnm );
 	wellidx = wells_.size()-1;
     }
@@ -630,7 +622,7 @@ bool BulkD2TModelAscIO::get( BufferString& wellnm, float& md, float& twt )
 }
 
 
-bool BulkD2TModelAscIO::identifierIsUWI() const
-{ return formOf( false, 0 ) == 1; }
-
-} // namespace Well
+bool Well::BulkD2TModelAscIO::identifierIsUWI() const
+{
+    return formOf( false, 0 ) == 1;
+}

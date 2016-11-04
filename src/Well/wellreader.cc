@@ -150,8 +150,6 @@ bool Well::Reader::get() const
     if ( !wd )
 	return false;
 
-    wd->d2TModel().setEmpty();
-    wd->checkShotModel().setEmpty();
     if ( SI().zIsTime() )
     {
 	if ( !getD2T() )
@@ -304,7 +302,7 @@ static const char* rdHdr( od_istream& strm, const char* fileky,
 #define mGetZFac() \
     float zfac = 1.f; \
     if ( SI().zInFeet() != wd_.info().isdepthinfeet_ ) \
-	zfac = wd_.info().isdepthinfeet_ ? mFromFeetFactorF : mToFeetFactorF; 
+	zfac = wd_.info().isdepthinfeet_ ? mFromFeetFactorF : mToFeetFactorF;
 
 Well::odReader::odReader( const char* f, Well::Data& w, uiString& e )
     : Well::odIO(f,e)
@@ -321,7 +319,6 @@ Well::odReader::odReader( const IOObj& ioobj, Well::Data& w, uiString& e )
     , Well::ReadAccess(w)
 {
     wd_.info().setName( ioobj.name() );
-    wd_.setDBKey( ioobj.key() );
 }
 
 
@@ -430,7 +427,7 @@ bool Well::odReader::getTrack( od_istream& strm ) const
 {
     Coord3 c, c0; float dah;
     wd_.track().setEmpty();
-    
+
     mGetZFac();
 
     while ( strm.isOK() )
@@ -453,9 +450,9 @@ bool Well::odReader::getTrack() const
 	mErrRetStrmOper( tr("find valid main well file") )
 
     ascistream astrm( strm );
-    
+
     IOPar dum; dum.getFrom( astrm );
-    
+
     return getTrack( strm );
 }
 
@@ -577,7 +574,7 @@ bool Well::odReader::addLog( od_istream& strm ) const
 
 
     mGetZFac();
-    
+
     if ( wd_.track().isEmpty() )
 	getTrack();
     if ( !wd_.track().isEmpty() )
@@ -635,7 +632,7 @@ void Well::odReader::readLogData( Well::Log& wl, od_istream& strm,
 
 bool Well::odReader::getMarkers() const
 {
-    mGetInpStream( sExtMarkers(), 0, true, return false );
+    mGetInpStream( sExtMarkers(), 0, true, return true );
     return getMarkers( strm );
 }
 
@@ -662,7 +659,7 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
     const bool havetrack = !wd_.track().isEmpty();
     wd_.markers().setEmpty();
     BufferString bs;
-    
+
     mGetZFac();
 
     for ( int idx=1;  ; idx++ )
@@ -732,9 +729,9 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 	else if ( astrm.hasKeyword(Well::D2TModel::sKeyDataSrc()) )
 	    d2t.setDataSource( astrm.value() );
     }
-    
+
     mGetZFac();
-    
+
     while ( strm.isOK() )
     {
 	float dah, val; strm >> dah >> val;

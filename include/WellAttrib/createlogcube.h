@@ -14,11 +14,11 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 #include "seisbuf.h"
 #include "seistrc.h"
+#include "welldata.h"
 #include "wellextractdata.h"
 
 class BinID;
 class DBKeySet;
-namespace Well { class Data; }
 
 mExpClass(WellAttrib) LogCubeCreator : public ParallelTask
 { mODTextTranslationClass(LogCubeCreator)
@@ -76,7 +76,7 @@ protected:
 	bool			isOK() const { return errmsg_.isEmpty(); }
 	const uiString&		errMsg() const { return errmsg_; }
 
-	Well::Data*		wd_;
+	ConstRefMan<Well::Data>	wd_;
 	TypeSet<BinID>		binidsalongtrack_;
 	ObjectSet<SeisTrcBuf>	trcs_;
 	uiString		errmsg_;

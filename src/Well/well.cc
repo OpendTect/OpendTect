@@ -16,7 +16,13 @@
 #include "bendpointfinder.h"
 #include "iopar.h"
 #include "stratlevel.h"
-#include "wellman.h"
+#include "wellmanager.h"
+
+
+int Well::nrSubObjTypes()
+{
+    return mWellNrSubObjTypes;
+}
 
 
 float Well::getDefaultVelocity()
@@ -181,15 +187,7 @@ mDefineInstanceCreatedNotifierAccess(Well::Data)
     , disp3d_(*new Well::DisplayProperties(sKey3DDispProp())) \
     , d2tmodel_(*new D2TModel) \
     , csmodel_(*new D2TModel) \
-    , markers_(*new MarkerSet) \
-    , d2tchanged(this) \
-    , csmdlchanged(this) \
-    , markerschanged(this) \
-    , trackchanged(this) \
-    , disp2dparschanged(this) \
-    , disp3dparschanged(this) \
-    , logschanged(this) \
-    , reloaded(this)
+    , markers_(*new MarkerSet)
 
 
 Well::Data::Data( const char* nm )
@@ -209,7 +207,6 @@ Well::Data::Data( const Data& oth )
 
 Well::Data::~Data()
 {
-    Well::MGR().removeObject( this );
     sendDelNotif();
     detachAllNotifiers();
 
@@ -230,8 +227,6 @@ void Well::Data::copyClassData( const Data& oth )
     csmodel_ = oth.csmodel_;
     disp2d_ = oth.disp2d_;
     disp3d_ = oth.disp3d_;
-
-    mid_ = oth.mid_;
 }
 
 
@@ -250,6 +245,12 @@ void Well::Data::setName( const char* nm )
 const OD::String& Well::Data::name() const
 {
     return info_.name();
+}
+
+
+bool Well::Data::haveTrack() const
+{
+    return !track_.isEmpty();
 }
 
 
@@ -274,6 +275,12 @@ bool Well::Data::haveD2TModel() const
 bool Well::Data::haveCheckShotModel() const
 {
     return !csmodel_.isEmpty();
+}
+
+
+bool Well::Data::displayPropertiesRead() const
+{
+    return !disp2d_.valsAreDefaults() || !disp3d_.valsAreDefaults();
 }
 
 
@@ -311,4 +318,10 @@ Well::Data::DirtyCountType Well::Data::dirtyCount() const
     DirtyCountType ret = 0;
     mDoAllSubObjs( ret +=, .dirtyCount() );
     return ret;
+}
+
+
+DBKey Well::Data::dbKey() const
+{
+    return MGR().getID( *this );
 }

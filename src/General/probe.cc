@@ -369,14 +369,18 @@ void ProbeSaver::copyClassData( const ProbeSaver& saver )
 }
 
 
-bool ProbeSaver::doStore( const IOObj& ioobj ) const
+uiRetVal ProbeSaver::doStore( const IOObj& ioobj ) const
 {
+    uiRetVal uirv;
     mDynamicCastGet(const Probe*,probe,object());
-    if ( !probe )
-	return false;
-
-    RefMan<Probe> probecopy = probe->clone();
-    return ProbeTranslator::store( *probecopy, &ioobj, errmsg_ );
+    if ( probe )
+    {
+	uiString errmsg;
+	RefMan<Probe> probecopy = probe->clone();
+	if ( !ProbeTranslator::store(*probecopy,&ioobj,errmsg) )
+	    uirv.add( errmsg );
+    }
+    return uirv;
 }
 
 

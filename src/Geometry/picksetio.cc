@@ -122,21 +122,22 @@ void Pick::SetSaver::setPickSet( const Set& ps )
 }
 
 
-bool Pick::SetSaver::doStore( const IOObj& ioobj ) const
+uiRetVal Pick::SetSaver::doStore( const IOObj& ioobj ) const
 {
+    uiRetVal uirv;
     ConstRefMan<Set> ps = pickSet();
     if ( !ps )
-	return true;
+	return uiRetVal::OK();
 
-    // Try to be real fast, only lock the set during in-mem copy
+    uiString errmsg;
     RefMan<Set> copiedset = new Set( *ps );
-    if ( !PickSetTranslator::store(*copiedset,&ioobj,errmsg_) )
-	return false;
+    if ( !PickSetTranslator::store(*copiedset,&ioobj,errmsg) )
+	return uiRetVal( errmsg );
 
-    if ( storekey_ == ioobj.key() )
+    if ( isSave(ioobj) )
 	ps.getNonConstPtr()->setName( ioobj.name() );
 
-    return true;
+    return uiRetVal::OK();
 }
 
 
@@ -226,7 +227,7 @@ int Pick::SetLoaderExec::nextStep()
 	if ( psmgr.isLoaded(id) ) // check, someone may have beat me to it
 	    ps->unRef();
 	else
-	    psmgr.add( *ps, id, &ioobj->pars(), true );
+	    psmgr.addNew( *ps, id, &ioobj->pars(), true );
 
 	loader_.available_ += id;
     }

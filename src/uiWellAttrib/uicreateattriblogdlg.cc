@@ -15,11 +15,9 @@ _______________________________________________________________________
 #include "ioobj.h"
 #include "strmprov.h"
 #include "survinfo.h"
-#include "wellman.h"
-#include "welldata.h"
+#include "wellmanager.h"
 #include "wellextractdata.h"
 #include "welllogset.h"
-#include "welllog.h"
 #include "wellmarker.h"
 #include "wellwriter.h"
 
@@ -32,18 +30,6 @@ _______________________________________________________________________
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
-
-
-static int getWellIndex( const char* nm )
-{
-    const FixedString wellnm = nm;
-    for ( int idx=0; idx<Well::MGR().wells().size(); idx++ )
-    {
-	if ( wellnm == Well::MGR().wells()[idx]->name() )
-	    return idx;
-    }
-    return -1;
-}
 
 
 uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
@@ -108,13 +94,12 @@ void uiCreateAttribLogDlg::init( CallBacker* )
     Well::MarkerSet mrkrs;
     for ( int idx=0; idx<wellnames_.size(); idx++ )
     {
-	const int wdidx = getWellIndex( wellnames_.get(idx) );
-	if ( !Well::MGR().wells().validIdx(wdidx) )
+	const DBKey dbky = Well::MGR().getIDByName( wellnames_.get(idx) );
+	if ( dbky.isInvalid() )
 	    continue;
-
-	Well::Data* wdtmp = Well::MGR().wells()[wdidx];
-	if ( wdtmp )
-	    mrkrs.append( wdtmp->markers() );
+	ConstRefMan<Well::Data> wd = Well::MGR().fetch( dbky );
+	if ( wd )
+	    mrkrs.append( wd->markers() );
     }
 
     //sort( mrkrs ); do later
@@ -144,7 +129,6 @@ bool uiCreateAttribLogDlg::acceptOK()
     else
 	selwells.add( wellnames_.get(0) );
 
-
     uiString errmsg;
     if ( !datasetup_.extractparams_->isOK( &errmsg ) )
 	mErrRet( errmsg );
@@ -156,44 +140,33 @@ bool uiCreateAttribLogDlg::acceptOK()
 
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
-	const int wellidx = getWellIndex( selwells.get(idx) );
-	if ( wellidx<0 ) continue;
-
-	if ( !inputsOK(wellidx) )
+	const DBKey dbky = Well::MGR().getIDByName( selwells.get(idx) );
+	if ( dbky.isInvalid() )
+	    continue;
+	RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbky );
+	if ( !wd )
+	    continue;
+	if ( !inputsOK(*wd) )
 	    return false;
 
 	PtrMan<uiTaskRunner> taskrunner = new uiTaskRunner( this );
 	datasetup_.tr_ = taskrunner;
 	AttribLogCreator attriblog( datasetup_, sellogidx_ );
-	Well::Data* wd = Well::MGR().wells()[ wellidx ];
-	if ( !wd )
-	    continue;
 	if ( !attriblog.doWork( *wd, errmsg ) )
 	    mErrRet( errmsg )
 
-	PtrMan<IOObj> ioobj = DBM().get( wd->dbKey() );
-	if ( !ioobj ) mErrRet(tr("Cannot find well in object manager"))
-
-	Well::Writer wtr( *ioobj, *wd );
-
-	const Well::Log* newlog = wd->logs().getLogByIdx(sellogidx_);
-	if ( !wtr.putLog(*newlog) )
-	{
-	    errmsg = tr("Cannot write log '%1'.\nCheck the permissions "
-			"of the *.wll file").arg(newlog->name());
-	    uiMSG().error( errmsg );
-	    return false;
-	}
+	uiRetVal uirv = Well::MGR().save( dbky );
+	if ( uirv.isError() )
+	    { uiMSG().error( uirv ); return false; }
     }
 
     return true;
 }
 
 
-bool uiCreateAttribLogDlg::inputsOK( int wellno )
+bool uiCreateAttribLogDlg::inputsOK( const Well::Data& wd )
 {
-    Well::Data* wd = Well::MGR().wells()[ wellno ];
-    if ( SI().zIsTime() && !wd->d2TModelPtr() )
+    if ( SI().zIsTime() && !wd.d2TModelPtr() )
 	mErrRet( tr("No depth to time model defined") );
 
     const Attrib::DescID seldescid = attribfld_->attribID();
@@ -205,7 +178,7 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
     if ( datasetup_.lognm_.isEmpty() )
 	mErrRet( tr("Please provide logname") );
 
-    sellogidx_ = wd->logs().indexOf( datasetup_.lognm_ );
+    sellogidx_ = wd.logs().indexOf( datasetup_.lognm_ );
     if ( sellogidx_ >= 0 )
     {
 	uiString msg = tr("Log: '%1' is already present.\nDo you wish to "

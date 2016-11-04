@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellimpasc.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -128,20 +128,12 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 
 bool uiImportLogsDlg::acceptOK()
 {
-    const DBKey wmid = wellfld_->key();
-    RefMan<Well::Data> wd = new Well::Data;
-    if ( Well::MGR().isLoaded(wmid) )
-    {
-	wd = Well::MGR().get( wmid );
-	if ( !wd )
-	    uiMSG().error( Well::MGR().errMsg() );
-    }
-    else
-    {
-	Well::Reader rdr( wmid, *wd );
-	if ( !rdr.getLogs() )
-	    mErrRet( uiStrings::phrCannotRead(uiStrings::sWellLog(mPlural)) )
-    }
+    const DBKey wellid = wellfld_->key();
+    uiRetVal uirv;
+    RefMan<Well::Data> wd = Well::MGR().fetchForEdit( wellid, Well::LoadReqs(),
+	    						uirv );
+    if ( !wd )
+	mErrRet( uirv )
 
     Well::LASImporter wdai( *wd );
     Well::LASImporter::FileInfo lfi;
@@ -193,9 +185,9 @@ bool uiImportLogsDlg::acceptOK()
     if ( res )
 	mErrRet( toUiString(res) )
 
-    Well::Writer wtr( wmid, *wd );
-    if ( !wtr.putLogs() )
-	mErrRet( tr("Cannot write logs to disk") )
+    uirv = Well::MGR().save( wellid );
+    if ( uirv.isError() )
+	mErrRet( uirv )
 
     uiString msg = tr("Well Log successfully imported."
 		      "\n\nDo you want to import more Well Logs?");

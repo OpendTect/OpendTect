@@ -19,12 +19,11 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "statgrubbs.h"
 #include "smoother1d.h"
-#include "welldata.h"
 #include "welld2tmodel.h"
 #include "welllog.h"
-#include "welllogset.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "wellmarker.h"
+#include "welllogset.h"
 #include "welltransl.h"
 #include "wellwriter.h"
 
@@ -64,16 +63,15 @@ bool uiWellLogToolWinMgr::acceptOK()
 	mErrRet( uiStrings::phrSelect(tr("at least one well")) )
 
     ObjectSet<uiWellLogToolWin::LogData> logdatas;
-    uiStringSet msgs;
+    uiRetVal msgs;
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
 	const DBKey wmid = wellids[idx];
-	RefMan<Well::Data> wd = Well::MGR().get( wmid );
+	uiRetVal uirv;
+	RefMan<Well::Data> wd =
+		Well::MGR().fetchForEdit( wmid, Well::LoadReqs(), uirv );
 	if ( !wd )
-	{
-	    msgs += Well::MGR().errMsg();
-	    continue;
-	}
+	    { msgs.add( uirv ); continue; }
 
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd->logs() );
@@ -90,12 +88,10 @@ bool uiWellLogToolWinMgr::acceptOK()
     }
 
     if ( logdatas.isEmpty() )
-	mErrRet(tr("%1\nPlease select at least one valid "
-		   "log for the selected well(s)")
-		   .arg(msgs.cat()) )
+	mErrRet(tr("Please select at least one valid "
+		   "log for the selected well(s)") )
     else if ( !msgs.isEmpty() )
-	uiMSG().warning( tr("%1\nWill process the other wells only")
-			     .arg( msgs.cat() ) );
+	uiMSG().warning( tr("%1\nWill process the other wells only").arg(msgs));
 
     uiWellLogToolWin* win = new uiWellLogToolWin( this, logdatas );
     win->show();
@@ -114,14 +110,22 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
     if ( win->needSave() )
     {
 	ObjectSet<uiWellLogToolWin::LogData> lds; win->getLogDatas( lds );
+	uiRetVal uirv;
 	for ( int idx=0; idx<lds.size(); idx++ )
 	{
-	    RefMan<Well::Data> wd = new Well::Data;
+	    const DBKey dbky = lds[idx]->wellid_;
+	    uiRetVal currv;
+	    RefMan<Well::Data> wd = Well::MGR().fetchForEdit(
+		    dbky, Well::LoadReqs(), currv );
+	    uirv.add( currv );
+	    if ( !wd )
+		continue;
+
 	    lds[idx]->getOutputLogs( wd->logs() );
-	    Well::Writer wrr( lds[idx]->wellid_, *wd );
-	    wrr.putLogs();
-	    Well::MGR().reload( lds[idx]->wellid_ );
+	    uirv.add( Well::MGR().save(dbky) );
 	}
+	if ( !uirv.isEmpty() )
+	    uiMSG().warning( uirv );
 	welllogselfld_->update();
     }
 }
@@ -376,7 +380,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	for ( int idlog=0; idlog<ld.inplogs_.size(); idlog++ )
 	{
 	    const Well::Log& inplog = *ld.inplogs_[idlog];
-	    Well::Log* outplog = new Well::Log( inplog );
+	    RefMan<Well::Log> outplog = new Well::Log( inplog );
 	    const int sz = inplog.size();
 	    const int gate = gatefld_->getIntValue();
 	    if ( sz< 2 || ( act != 1 && sz < 2*gate ) )
@@ -562,7 +566,7 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
 				     toUiString("'%1'").arg(toUiString(
 				     log.name())),uiStrings::sLog().toLower()));
     setCaption( dlgcaption );
-    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true); 
+    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true);
     table_ = new uiTable( this, ts, "Well log table" );
     table_->setSelectionMode( uiTable::Multi );
     table_->setSelectionBehavior( uiTable::SelectRows );
@@ -621,7 +625,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
     Well::DahObj::PointID currpid = log_.pointIDFor( rc.row() );
     const bool mdchanged = rc.col() == 0;
     const float newval = table_->getFValue( rc );
-    const float oldval = mdchanged ? log_.dah( currpid ) : 
+    const float oldval = mdchanged ? log_.dah( currpid ) :
 							log_.value( currpid );
     if ( mIsEqual(oldval,newval,mDefEpsF) )
 	return;
@@ -631,7 +635,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 	float prevmdval = 0.f;
 	float nextmdval = 0.f;
 	bool ismdok = false;
-	
+
 	if ( rc.row() != 0 )
 	{
 	    prevmdval = log_.dah( log_.pointIDFor(rc.row()-1) );
@@ -643,7 +647,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
 		return;
 	    }
 	}
-	
+
 	if ( rc.row() < log_.size()-1 )
 	{
 	    nextmdval = log_.dah( log_.pointIDFor(rc.row()+1) );
@@ -663,7 +667,7 @@ void uiWellLogEditor::valChgCB( CallBacker* )
     {
 	log_.setValue( currpid, newval );
     }
-    
+
     changed_ = true;
     valueChanged.trigger();
 }
@@ -690,10 +694,10 @@ void uiWellLogEditor::rowInsertCB( CallBacker* cb )
 
     float prevmdval = 0.f;
     float nextmdval = 0.f;
-	
+
     if ( rownr != 0 )
 	prevmdval = log_.dah( log_.pointIDFor(rownr-1) );
-	
+
     if ( rownr < log_.size()-1 )
 	nextmdval = log_.dah( log_.pointIDFor(rownr) );
 

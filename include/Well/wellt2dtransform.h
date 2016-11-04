@@ -10,8 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "wellcommon.h"
-#include "callback.h"
+#include "welldata.h"
 #include "velocitycalc.h"
 #include "zaxistransform.h"
 
@@ -41,7 +40,7 @@ public:
 
     float			getGoodZStep() const;
     Interval<float>		getZInterval(bool time) const;
-    bool			needsVolumeOfInterest() const { return false; }
+    bool			needsVolumeOfInterest() const	{ return false;}
 
     bool			setWellID(const DBKey&);
 
@@ -50,9 +49,9 @@ public:
 
 protected:
 
-				~WellT2DTransform();
+				~WellT2DTransform()		{}
 
-    Well::Data*			data_;
+    ConstRefMan<Well::Data>	data_;
     TimeDepthModel		tdmodel_;
 
     Interval<float>		getZRange(bool time) const;

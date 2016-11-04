@@ -622,7 +622,7 @@ void uiODMain::autoSaveFail( CallBacker* cb )
 
     uiString msg( tr("Auto-Save [%1]: %2")
 	    .arg( obj ? obj->name().str() : "" )
-	    .arg( asobj->errMsg() ) );
+	    .arg( asobj->messages() ) );
 
     if ( !asobj->prevSaveFailed() )
     {

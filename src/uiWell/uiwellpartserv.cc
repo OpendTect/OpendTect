@@ -13,14 +13,12 @@ ________________________________________________________________________
 
 #include "velocitycalc.h"
 #include "welltransl.h"
-#include "wellman.h"
-#include "welldata.h"
-#include "welllog.h"
+#include "wellmanager.h"
+#include "welllogset.h"
 #include "welltrack.h"
 #include "wellinfo.h"
 #include "welld2tmodel.h"
 #include "welldisp.h"
-#include "welllogset.h"
 #include "wellwriter.h"
 
 #include "uibulkwellimp.h"
@@ -169,23 +167,18 @@ void uiWellPartServer::importMarkers()
     if ( !wellseldlg.go() ) return;
 
     const DBKey mid = wellseldlg.chosenID();
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
-    if ( !wd ) return;
+    RefMan<Well::Data> wd = Well::MGR().fetchForEdit( mid );
+    if ( !wd )
+	return;
 
     const Well::MarkerSet origmarkers = wd->markers();
     uiMarkerDlg dlg( parent(), wd->track() );
     dlg.setMarkerSet( wd->markers() );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     dlg.getMarkerSet( wd->markers() );
-    Well::Writer wtr( mid, *wd );
-    if ( !wtr.putMarkers() )
-    {
-	uiMSG().error( tr("Cannot write new markers to disk") );
-	wd->markers() = origmarkers;
-    }
-
-    wd->markerschanged.trigger();
+    uiMSG().handleErrors( Well::MGR().save(mid) );
 }
 
 
@@ -217,7 +210,7 @@ bool uiWellPartServer::selectWells( DBKeySet& wellids )
 bool uiWellPartServer::editDisplayProperties( const DBKey& mid )
 {
     allapplied_ = false;
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
+    RefMan<Well::Data> wd = Well::MGR().fetchForEdit( mid );
     if ( !wd ) return false;
 
     const int dlgidx = getPropDlgIndex( mid );
@@ -262,7 +255,7 @@ void uiWellPartServer::closePropDlg( const DBKey& mid )
 }
 
 
-void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
+void uiWellPartServer::wellPropDlgClosed( CallBacker* cb )
 {
     mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
@@ -282,25 +275,16 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
 }
 
 
-void uiWellPartServer::saveWellDispProps( const Well::Data* wd )
+void uiWellPartServer::saveWellDispProps( const Well::Data* onlywd )
 {
-    ObjectSet<Well::Data>& wds = Well::MGR().wells();
-    for ( int iwll=0; iwll<wds.size(); iwll++ )
+    DBKeySet kys; Well::MGR().getAllLoaded( kys );
+    for ( int idx=0; idx<kys.size(); idx++ )
     {
-	Well::Data& curwd = *wds[iwll];
-	if ( wd && &curwd != wd )
-	   continue;
-	saveWellDispProps( curwd, curwd.dbKey() );
+	const DBKey ky = kys[idx];
+	ConstRefMan<Well::Data> wd = Well::MGR().fetch( ky );
+	if ( !onlywd || wd == onlywd )
+	    Well::MGR().save( ky );
     }
-}
-
-
-void uiWellPartServer::saveWellDispProps(const Well::Data& w,const DBKey& key)
-{
-    Well::Writer wr( key, w );
-    if ( !wr.putDispProps() )
-	uiMSG().error(uiStrings::phrCannotWrite(
-		      tr("display properties for \n%1").arg(w.name())));
 }
 
 
@@ -311,15 +295,12 @@ void uiWellPartServer::applyAll( CallBacker* cb )
     ConstRefMan<Well::Data> edwd = dlg->wellData();
     const Well::DisplayProperties& edprops = edwd->displayProperties();
 
-    ObjectSet<Well::Data>& wds = Well::MGR().wells();
-    for ( int iwll=0; iwll<wds.size(); iwll++ )
+    DBKeySet dbkys; Well::MGR().getAllLoaded( dbkys );
+    for ( int iwll=0; iwll<dbkys.size(); iwll++ )
     {
-	Well::Data& wd = *wds[iwll];
-	if ( &wd != edwd )
-	{
-	    wd.displayProperties() = edprops;
-	    wd.disp3dparschanged.trigger();
-	}
+	RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbkys[iwll] );
+	if ( wd != edwd )
+	    wd->displayProperties() = edprops;
     }
     allapplied_ = true;
 }
@@ -334,17 +315,15 @@ void uiWellPartServer::displayIn2DViewer( const DBKey& mid )
 
 bool uiWellPartServer::hasLogs( const DBKey& wellid ) const
 {
-    ConstRefMan<Well::Data> wd = Well::MGR().get( wellid );
-    return wd && wd->logs().size();
+    BufferStringSet nms; Well::MGR().getLogNames( wellid, nms );
+    return !nms.isEmpty();
 }
 
 
 void uiWellPartServer::getLogNames( const DBKey& wellid,
 					BufferStringSet& lognms ) const
 {
-    ConstRefMan<Well::Data> wd = Well::MGR().get( wellid );
-    if ( wd )
-	wd->logs().getNames( lognms );
+    Well::MGR().getLogNames( wellid, lognms );
 }
 
 

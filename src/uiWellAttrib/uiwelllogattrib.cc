@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "welldata.h"
 #include "welllogset.h"
-#include "wellman.h"
+#include "wellmanager.h"
 
 #include "uiattribfactory.h"
 #include "uigeninput.h"

@@ -251,8 +251,8 @@ void Strat::RefTree::levelSetChgCB( CallBacker* cb )
     if ( chgdata.changeType() != Strat::LevelSet::cLevelToBeRemoved() )
 	return;
 
-    const Level::ID::IDType idnr = (Level::ID::IDType)chgdata.ID();
-    Strat::LeavedUnitRef* lur = getByLevel( Level::ID::get(idnr) );
+    mGetIDFromChgData( Level::ID, lvlid, chgdata );
+    Strat::LeavedUnitRef* lur = getByLevel( lvlid );
     if ( lur )
 	lur->setLevelID( Level::ID::getInvalid() );
 }

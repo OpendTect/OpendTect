@@ -31,8 +31,10 @@ mExpClass(Well) LASImporter
 { mODTextTranslationClass(LASImporter);
 public:
 
-			LASImporter( Data& d ) : wd_(&d), useconvs_(false)   {}
-			LASImporter()	       : wd_(0), useconvs_(false)   {}
+			LASImporter( Data& d )
+			    : wd_(&d), useconvs_(false)	{}
+			LASImporter()
+			    : useconvs_(false)		{}
 			~LASImporter();
 
     mExpClass(Well) FileInfo
@@ -56,7 +58,7 @@ public:
 	BufferString	uwi; //!< only info, not used by getLogs
     };
 
-    void		setData( Data* wd )	    { wd_ = wd; }
+    void		setData( Data& wd )		{ wd_ = &wd; }
     const char*		getLogInfo(const char* lasfnm,FileInfo&) const;
     const char*		getLogInfo(od_istream& lasstrm,FileInfo&) const;
     const char*		getLogs(const char* lasfnm,const FileInfo&,
@@ -71,10 +73,10 @@ public:
 
 protected:
 
-    Data*		wd_;
+    RefMan<Data>	wd_;
 
-    mutable BufferStringSet	unitmeasstrs_;
-    mutable ObjectSet<const UnitOfMeasure>	convs_;
+    mutable BufferStringSet unitmeasstrs_;
+    mutable ObjectSet<const UnitOfMeasure> convs_;
     bool		useconvs_;
 
     void		parseHeader(char*,char*&,char*&,char*&) const;
@@ -189,7 +191,6 @@ mExpClass(Well) BulkD2TModelAscIO : public Table::AscIO
 public:
 			BulkD2TModelAscIO(const Table::FormatDesc&,
 					  od_istream&);
-			~BulkD2TModelAscIO();
 
     static Table::FormatDesc*	getDesc();
     bool			get(BufferString& wellnm,float& md,float& twt);
@@ -199,7 +200,7 @@ protected:
 
     od_istream&			strm_;
     BufferStringSet		wells_;
-    ObjectSet<Data>		wellsdata_;
+    TypeSet< ConstRefMan<Data> > wellsdata_;
 };
 
 

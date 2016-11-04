@@ -7,31 +7,30 @@
 
 #include "uitutmod.h"
 #include "uidialog.h"
+#include "welldata.h"
 #include "dbkey.h"
 
 class uiGenInput;
 class uiListBox;
 class uiLabeledSpinBox;
 namespace Tut { class LogTools; }
-namespace Well { class Data; }
 
 
 mExpClass(uiTut) uiTutWellTools : public uiDialog
 { mODTextTranslationClass(uiTutWellTools);
 public:
 
-    			uiTutWellTools(uiParent*,const DBKey& wellid);
-			~uiTutWellTools();
+			uiTutWellTools(uiParent*,const DBKey&);
 
 protected:
+
     uiListBox*		inplogfld_;
     uiGenInput*		outplogfld_;
     uiLabeledSpinBox*	gatefld_;
 
     BufferString	inlognm_;
     BufferString        outlognm_;
-    Well::Data*		wd_;
-    DBKey		wellid_;
+    RefMan<Well::Data>	wd_;
 
     void		inpchg(CallBacker*);
     void		wellToBeDeleted(CallBacker*);

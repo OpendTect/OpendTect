@@ -499,7 +499,7 @@ void LocationDisplay::locChg( const Monitorable::ChangeData& chgdata )
     if ( chgdata.isEntireObject() )
 	{ fullRedraw( 0 ); return; }
 
-    const LocID locid = LocID::get( (LocID::IDType)chgdata.ID() );
+    mGetIDFromChgData( LocID, locid, chgdata );
     const int locidx = set_->idxFor( locid );
     if ( chgdata.changeType() == Pick::Set::cLocationInsert() )
     {

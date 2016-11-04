@@ -31,7 +31,7 @@ namespace Well { class Marker; class MarkerSet; class Data; }
 mExpClass(uiWell) uiAddEditMrkrDlg : public uiDialog
 { mODTextTranslationClass(uiAddEditMrkrDlg);
 public :
-    				uiAddEditMrkrDlg(uiParent*,Well::Marker&,
+				uiAddEditMrkrDlg(uiParent*,Well::Marker&,
 							bool edit);
 
     void			putToScreen();
@@ -40,7 +40,7 @@ protected :
 
     Well::Marker&		marker_;
 
-    uiGenInput* 		namefld_;
+    uiGenInput*		namefld_;
     uiColorInput*		colorfld_;
     uiCheckBox*			stratmrkfld_;
 
@@ -55,8 +55,8 @@ public:
 				uiDispEditMarkerDlg(uiParent*);
 				~uiDispEditMarkerDlg();
 
-    bool 			isPicking() const 	{ return ispicking_; }
-    bool 			needSave() const 	{ return needsave_; }
+    bool			isPicking() const 	{ return ispicking_; }
+    bool			needSave() const 	{ return needsave_; }
     void			addMarkerSet(Well::MarkerSet&);
 
     Notifier<uiDispEditMarkerDlg> pickmodechanged;
@@ -90,8 +90,8 @@ protected:
     void			removeMarker(int,const char*);
 
     virtual void		getMarkerFromAll(ObjectSet<Well::Marker>&,
-	    					const char* nm); 
-    virtual Well::Marker*	getMarkerFromTmpList(const char* nm); 
+						const char* nm);
+    virtual Well::Marker*	getMarkerFromTmpList(const char* nm);
 
 
     virtual bool		acceptOK();
@@ -111,13 +111,13 @@ public:
 				uiWellDispCtrlEditMarkerDlg(uiParent*);
 				~uiWellDispCtrlEditMarkerDlg();
 
-    void 			addWellCtrl(uiWellDisplayControl&,Well::Data&);
+    void			addWellCtrl(uiWellDisplayControl&,Well::Data&);
     void			askForSavingEditedChanges();
 
 protected:
 
     ObjectSet<uiWellDisplayControl> ctrls_;
-    ObjectSet<Well::Data> 	wds_;
+    ObjectSet<Well::Data>	wds_;
 
     uiWellDisplayControl*	curctrl_;
     Well::Data*			curwd_;
@@ -125,7 +125,6 @@ protected:
     void			editMrkrList();
     bool			removeMrkrFromList();
 
-    void			triggerWDsMarkerChanged();
     bool			acceptOK();
     void			handleUsrClickCB(CallBacker*);
     void			handleCtrlChangeCB(CallBacker*);

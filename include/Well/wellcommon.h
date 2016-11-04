@@ -25,6 +25,12 @@ class Log;
 class LogSet;
 class Track;
 
+#define mWellNrSubObjTypes 8
+
+enum SubObjType		{ Inf=0, Trck=1, D2T=2, CSMdl=3, Mrkrs=4, Logs=5,
+			    DispProps2D=6, DispProps3D=7 };
+mGlobal(Well) int	nrSubObjTypes(); //    { return mWellNrSubObjTypes; }
+
 mGlobal(Well) float	getDefaultVelocity();
 			//!< If survey unit is depth-feet, it returns the
 			//!< equivalent of 8000 (ft/s), otherwise 2000 (m/s).

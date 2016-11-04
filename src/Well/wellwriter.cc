@@ -7,6 +7,7 @@
 
 #include "wellwriter.h"
 #include "wellodwriter.h"
+#include "wellodreader.h"
 #include "wellioprov.h"
 #include "welltransl.h"
 
@@ -25,21 +26,6 @@
 #include "settings.h"
 #include "ioobj.h"
 #include "dbman.h"
-
-
-bool Well::Writer::isFunctional( const DBKey& ky )
-{
-    PtrMan<IOObj> ioobj = DBM().get( ky );
-    return ioobj ? isFunctional(*ioobj) : false;
-}
-
-
-bool Well::Writer::isFunctional( const IOObj& ioobj )
-{
-    RefMan<Well::Data> wd = new Well::Data;
-    Well::Writer wrr( ioobj, *wd );
-    return wrr.isFunctional();
-}
 
 
 Well::Writer::Writer( const IOObj& ioobj, const Well::Data& wd )
@@ -84,6 +70,28 @@ Well::Writer::~Writer()
     delete wa_;
 }
 
+
+bool Well::Writer::isFunctional( const DBKey& ky )
+{
+    PtrMan<IOObj> ioobj = DBM().get( ky );
+    return ioobj ? isFunctional(*ioobj) : false;
+}
+
+
+bool Well::Writer::isFunctional( const IOObj& ioobj )
+{
+    RefMan<Well::Data> wd = new Well::Data;
+    Well::Writer wrr( ioobj, *wd );
+    return wrr.isFunctional();
+}
+
+
+const Well::Data* Well::Writer::data() const
+{
+    return wa_ ? &wa_->data() : 0;
+}
+
+
 #define mImplWWFn(rettyp,fnnm,typ,arg,udf) \
 rettyp Well::Writer::fnnm( typ arg ) const \
 { return wa_ ? wa_->fnnm(arg) : udf; }
@@ -92,14 +100,12 @@ bool Well::Writer::fnnm() const { return wa_ ? wa_->fnnm() : false; }
 
 mImplSimpleWWFn(put)
 mImplSimpleWWFn(putInfoAndTrack)
-mImplSimpleWWFn(putLogs)
 mImplSimpleWWFn(putMarkers)
 mImplSimpleWWFn(putD2T)
 mImplSimpleWWFn(putCSMdl)
+mImplSimpleWWFn(putLogs)
 mImplSimpleWWFn(putDispProps)
 mImplSimpleWWFn(isFunctional)
-
-mImplWWFn(bool,putLog,const Log&,wl,false)
 
 
 #define mErrStrmOper(oper,todo) \
@@ -125,7 +131,6 @@ Well::odWriter::odWriter( const IOObj& ioobj, const Well::Data& w,
     : Well::odIO(ioobj.fullUserExpr(false),e)
     , Well::WriteAccess(w)
 {
-    wd_.setDBKey( ioobj.key() );
     init();
     ioobj.pars().getYN( sKeyLogStorage(), binwrlogs_ );
 }
@@ -168,9 +173,9 @@ bool Well::odWriter::wrHdr( od_ostream& strm, const char* fileky ) const
 bool Well::odWriter::put() const
 {
     return putInfoAndTrack()
+	&& putD2T()
 	&& putLogs()
 	&& putMarkers()
-	&& putD2T()
 	&& putCSMdl()
 	&& putDispProps();
 }
@@ -230,34 +235,13 @@ bool Well::odWriter::putLogs() const
 {
     removeAll( sExtLog() );
     Well::LogSetIter iter( wd_.logs() );
-    int idx = 0;
     while ( iter.next() )
     {
-	idx++;
-	mGetOutStream( sExtLog(), idx, return false )
-
+	mGetOutStream( sExtLog(), iter.curIdx()+1, return false )
 	const Well::Log& wl = iter.log();
 	if ( !putLog(strm,wl) )
 	    mErrRetStrmOper(tr("write log"))
     }
-
-    return true;
-}
-
-
-bool Well::odWriter::putLog( const Well::Log& wl ) const
-{
-    const int logidx = wd_.logs().indexOf( wl.name() );
-    if ( logidx<0 )
-    {
-	pErrMsg( "First add Log to Well::Data" );
-	return false;
-    }
-
-    const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx+1 );
-    od_ostream strm( logfnm );
-    if ( !putLog(strm,wl) )
-	return false;
 
     return true;
 }
@@ -349,9 +333,9 @@ bool Well::odWriter::putMarkers( od_ostream& strm ) const
     Well::MarkerSetIter miter( markerset );
     while( miter.next() )
     {
-	BufferString basekey; basekey += miter.currIdx()+1;
+	BufferString basekey; basekey += miter.curIdx()+1;
 	const Well::Marker wm = miter.get();
-       	const float dah = wm.dah();
+	const float dah = wm.dah();
 	if ( mIsUdf(dah) )
 	    continue;
 

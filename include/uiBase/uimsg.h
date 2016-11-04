@@ -47,6 +47,7 @@ public:
 		    to not see this again. Return true if the user
 		    does not want to see it again. */
     void	warning(const uiRetVal&);
+    void	handleWarnings(const uiRetVal&); //!< does nothing if isOK()
     bool	error(const uiString&,
 		      const uiString& part2=uiString::emptyString(),
 		      const uiString& part3=uiString::emptyString(),
@@ -55,6 +56,7 @@ public:
 		    to not see this again. Return true if the user
 		    does not want to see it again. */
     void	error(const uiRetVal&);
+    void	handleErrors(const uiRetVal&); //!< does nothing if isOK()
     void	errorWithDetails(const FileMultiString&);
 		/*!<If input has multiple parts, the first will be displayed
 		    directly, while the complete message is available under a

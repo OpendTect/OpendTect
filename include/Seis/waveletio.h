@@ -59,7 +59,7 @@ public:
 
 protected:
 
-    virtual bool	doStore(const IOObj&) const;
+    virtual uiRetVal	doStore(const IOObj&) const;
 
 };
 

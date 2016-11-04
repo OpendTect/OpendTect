@@ -131,11 +131,10 @@ void Pick::SetChangeRecorder::handleObjChange( const ChangeData& chgdata )
 
     mDynamicCastGet( Set&, ps, *obj_ );
     const ChangeType chgtyp = chgdata.changeType();
-    const LocID locid = LocID::get( (LocID::IDType)chgdata.ID() );
-
     if ( !Set::isLocationUpdate(chgtyp) )
 	return;
 
+    mGetIDFromChgData( LocID, locid, chgdata );
     const Location loc = ps.get( locid );
     if ( chgtyp == Set::cLocationPreChange() )
     {

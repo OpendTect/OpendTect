@@ -27,7 +27,7 @@ ___________________________________________________________________
 #include "coltabsequence.h"
 #include "probemanager.h"
 #include "welldata.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "zdomain.h"
 
 
@@ -105,8 +105,10 @@ bool uiODSceneProbeParentTreeItem::showSubMenu()
 
 	for ( int idx=0;idx<wellids.size(); idx++ )
 	{
-	    Well::Data* wd = Well::MGR().get( wellids[idx] );
-	    if ( !wd ) continue;
+	    ConstRefMan<Well::Data> wd = Well::MGR().fetch( wellids[idx],
+					    Well::LoadReqs(Well::Trck) );
+	    if ( !wd )
+		continue;
 	    Probe* newprobe = createNewProbe();
 	    if ( !newprobe )
 		return false;

@@ -316,8 +316,18 @@ bool uiMsg::warning( const uiString& part1, const uiString& part2,
 }
 
 
+void uiMsg::handleWarnings( const uiRetVal& rv )
+{
+    if ( rv.isError() )
+	warning( rv );
+}
+
+
 void uiMsg::warning( const uiRetVal& rv )
 {
+    if ( rv.isOK() )
+	{ pErrMsg("No warning. If expected, consider handleWarnings"); return; }
+
     uiString msg;
     if ( rv.isMultiMessage() )
 	msg = rv.messages().cat();
@@ -328,8 +338,18 @@ void uiMsg::warning( const uiRetVal& rv )
 }
 
 
+void uiMsg::handleErrors( const uiRetVal& rv )
+{
+    if ( rv.isError() )
+	error( rv );
+}
+
+
 void uiMsg::error( const uiRetVal& rv )
 {
+    if ( rv.isOK() )
+	{ pErrMsg("No error. If expected, consider handleErrors"); return; }
+
     if ( rv.isMultiMessage() )
 	errorWithDetails( rv.messages() );
     else if ( rv.isError() )

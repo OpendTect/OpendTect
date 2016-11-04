@@ -43,9 +43,9 @@ public:
     bool		putD2T() const;		//!< Write D2T model only
     bool		putCSMdl() const;	//!< Write Check shot model only
     bool		putDispProps() const;	//!< Write display pars only
-    bool		putLog(const Log&) const;
 
     const uiString&	errMsg() const		{ return errmsg_; }
+    const Data*		data() const;
 
     bool		isFunctional() const;
 

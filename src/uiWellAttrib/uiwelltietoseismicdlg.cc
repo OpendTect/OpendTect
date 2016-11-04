@@ -33,13 +33,11 @@ ________________________________________________________________________
 
 #include "seistrc.h"
 #include "wavelet.h"
-#include "welldata.h"
 #include "welld2tmodel.h"
-#include "welllog.h"
 #include "welllogset.h"
 #include "welltrack.h"
 #include "wellextractdata.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "wellmarker.h"
 #include "welltiedata.h"
 #include "welltiepickset.h"
@@ -498,9 +496,6 @@ bool uiTieWin::cancelPushCB( CallBacker* )
 void uiTieWin::cleanUp( CallBacker* )
 {
     server_.d2TModelMgr().cancel();
-    if ( Well::MGR().isLoaded( server_.wellID() ) )
-        Well::MGR().reload( server_.wellID() );
-    return;
 }
 
 
@@ -514,9 +509,6 @@ bool uiTieWin::okPushCB( CallBacker* )
 	close();
 	if ( !server_.d2TModelMgr().commitToWD() )
 	    mErrRetYN(tr("Cannot write new depth/time model"))
-
-	if ( Well::MGR().isLoaded( server_.wellID() ) )
-	    Well::MGR().reload( server_.wellID() );
     }
 
     return false;

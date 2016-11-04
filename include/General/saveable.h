@@ -36,12 +36,11 @@ public:
     mImplSimpleMonitoredGetSet(inline,ioObjPars,setIOObjPars,IOPar,ioobjpars_,0)
 			// The pars will be merge()'d with the IOObj's current
 
-    virtual bool	save() const;
-    virtual bool	store(const IOObj&) const;
-    uiString		errMsg() const		{ return errmsg_; }
+    virtual uiRetVal	save() const;
+    virtual uiRetVal	store(const IOObj&) const;
 
     bool		needsSave() const;
-    void		setNoSaveNeeded() const;
+    virtual void	setJustSaved() const;
 
     DirtyCountType	lastSavedDirtyCount() const
 			{ return lastsavedirtycount_; }
@@ -56,11 +55,11 @@ protected:
     Threads::Atomic<bool> objectalive_;
     DBKey		storekey_;
     IOPar		ioobjpars_;
-    mutable uiString	errmsg_;
-    mutable Threads::Atomic<DirtyCountType> lastsavedirtycount_;
+    mutable DirtyCounter lastsavedirtycount_;
 
 			// This function can be called from any thread
-    virtual bool	doStore(const IOObj&) const	= 0;
+    virtual uiRetVal	doStore(const IOObj&) const	= 0;
+    bool		isSave(const IOObj&) const;
 
 private:
 

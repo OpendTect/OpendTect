@@ -27,10 +27,10 @@ public:
 
     typedef ObjectSet<Log>::size_type	size_type;
     typedef size_type			IdxType;
-    typedef IntegerID<IdxType>		LogID;
     typedef Well::DahObj::ZType		ZType;
     typedef RefMan<Log>			LogRefMan;
     typedef ConstRefMan<Log>		CLogRefMan;
+    mDefIntegerIDType(IdxType,		LogID);
 
 			LogSet();
 			~LogSet();
@@ -47,6 +47,7 @@ public:
     CLogRefMan		firstLog() const;
 
     size_type		size() const;
+    LogID		getID(IdxType) const;
     int			indexOf(LogID) const;
     int			indexOf(const char*) const;
     bool		validIdx(IdxType) const;
@@ -111,6 +112,7 @@ public:
     size_type		size() const;
 
     LogID		ID() const;
+    LogSet::IdxType	curIdx() const	    { return curidx_; }
     const Log&		log() const;
 
 };

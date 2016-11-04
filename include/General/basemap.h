@@ -35,6 +35,8 @@ mExpClass(General) BaseMapObject : public NamedMonitorable
 {
 public:
 
+    typedef Geom::PosRectangle<double>	BoundingBox;
+
 				BaseMapObject(const char* nm);
 				~BaseMapObject();
 
@@ -56,8 +58,7 @@ public:
     virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const;
 				/*!<Returns a number of coordinates that
 				    may form a be connected or filled. */
-    virtual bool		getBoundingBox(
-					Geom::PosRectangle<double>&) const;
+    virtual bool		getBoundingBox(BoundingBox&) const;
 				/*!<Returns the Coord range. */
     virtual OD::Alignment	getAlignment(int shapeidx) const;
     virtual float		getTextRotation() const { return 0; }

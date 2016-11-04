@@ -418,7 +418,7 @@ bool uiCheckShotEdit::acceptOK()
 	mErrRet(tr("Depth/time model is too small and won't be saved"),
 		return false)
 
-    server_.d2TModelMgr().setAsCurrent( new Well::D2TModel( *d2t_ ) );
+    server_.d2TModelMgr().setAsCurrent( *d2t_ );
     server_.updateExtractionRange();
 
     return true;

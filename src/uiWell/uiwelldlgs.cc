@@ -452,8 +452,6 @@ void uiWellTrackDlg::readNew( CallBacker* )
     tbl_->clearTable();
     if ( !fillTable() )
 	return;
-
-    wd_.trackchanged.trigger();
 }
 
 
@@ -502,10 +500,7 @@ bool uiWellTrackDlg::updNow( CallBacker* )
     }
 
     if ( track_.size() > 1 )
-    {
 	fillSetFields();
-	wd_.trackchanged.trigger();
-    }
     else
     {
 	uiMSG().error( tr("Please define at least two points.") );
@@ -633,7 +628,6 @@ bool uiWellTrackDlg::rejectOK()
     track_ = *orgtrack_;
     wd_.info().setSurfaceCoord( origpos_.getXY() );
     wd_.info().setGroundElevation( origgl_ );
-    wd_.trackchanged.trigger();
     return true;
 }
 
@@ -1279,7 +1273,6 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
     const float dah = getDepthValue( row, cMDCol );
     const float twt = getTimeValue( row );
     d2t->setValueAt( dah, twt );
-    wd_.d2tchanged.trigger();
 
     const float replvel = wd_.info().replacementVelocity();
     const float srd = mCast(float,SI().seismicReferenceDatum());
@@ -1399,7 +1392,6 @@ void uiD2TModelDlg::readNew( CallBacker* )
     {
 	tbl_->clearTable();
 	fillTable(0);
-	wd_.d2tchanged.trigger();
     }
 }
 
@@ -1490,14 +1482,7 @@ bool uiD2TModelDlg::getFromScreen()
 
 void uiD2TModelDlg::updNow( CallBacker* )
 {
-    if ( !getFromScreen() )
-	return;
-
-    Well::D2TModel* d2t = mD2TModel;
-    if ( d2t && d2t->size() > 1 )
-	wd_.d2tchanged.trigger();
-
-    wd_.trackchanged.trigger();
+    // TODO no longer done
 }
 
 
@@ -1603,10 +1588,7 @@ bool uiD2TModelDlg::rejectOK()
     if ( d2t && orgd2t_ )
 	*d2t = *orgd2t_;
 
-    wd_.d2tchanged.trigger();
-    wd_.trackchanged.trigger();
     wd_.info().setReplacementVelocity( origreplvel_ );
-
     return true;
 }
 
@@ -1656,8 +1638,6 @@ bool uiD2TModelDlg::acceptOK()
     if ( !getFromScreen() )
 	return false;
 
-    wd_.d2tchanged.trigger();
-    wd_.trackchanged.trigger();
     return true;
 }
 

@@ -28,8 +28,8 @@ public:
 protected:
 
     void		readFile(od_istream&);
-    void		addD2T(uiString&);
-    void		write(uiStringSet&);
+    uiRetVal		addD2T();
+    uiRetVal		write();
     bool		acceptOK();
 
     uiFileInput*	inpfld_;

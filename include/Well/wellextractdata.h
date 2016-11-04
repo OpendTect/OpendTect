@@ -198,14 +198,12 @@ public:
     void		usePar(const IOPar&);
 
     int			nextStep();
-    uiString		uiMessage() const { return tr("Scanning well tracks"); }
+    uiString		uiMessage() const { return msg_; }
     uiString		uiNrDoneText() const { return tr("Wells inspected"); }
     od_int64		nrDone() const	  { return curid_; }
     od_int64		totalNr() const   { return ids_.size(); }
 
-    uiString		errMsg() const
-			{ return errmsg_.isEmpty() ? uiString::emptyString()
-						   : errmsg_; }
+    uiRetVal		errMsgs() const	  { return errmsgs_; }
 
     const DBKeySet&	ioObjIds() const	{ return ids_; }
     ObjectSet<DataPointSet>&	dataPointSets() { return dpss_; }
@@ -223,7 +221,8 @@ protected:
     const bool			zistime_;
     Interval<float>		zrg_;
     int				dahcolnr_;
-    uiString			errmsg_;
+    uiString			msg_;
+    uiRetVal			errmsgs_;
 
     void		getData(const Data&,DataPointSet&);
     bool		getPos(const Data&,float,BinIDValue&,int&,
@@ -258,6 +257,8 @@ public:
     od_int64		nrDone() const		{ return curid_; }
     od_int64		totalNr() const		{ return ids_.size(); }
 
+    uiRetVal		errMsgs() const		{ return errmsgs_; }
+
     const DBKeySet&	ioObjIds() const	{ return ids_; }
 
     static float	calcVal(const Log&,float dah,float winsz,
@@ -265,11 +266,12 @@ public:
 
 protected:
 
-    DBKeySet		ids_;
+    DBKeySet			ids_;
     ObjectSet<DataPointSet>&	dpss_;
     int				curid_;
     const bool			zistime_;
     uiString			msg_;
+    uiRetVal			errmsgs_;
 
     void		getData(DataPointSet&,const Data&,const Track&);
     void		getGenTrackData(DataPointSet&,const Track&,const Log&,

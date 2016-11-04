@@ -299,7 +299,9 @@ void uiDataPointSetPickDlg::setChgCB( CallBacker* cb )
 		values_.setEmpty();
 	    else
 	    {
-		const int locidx = (int)chgdata.ID();
+		mGetIDFromChgData( Pick::Set::LocID, id, chgdata );
+		//TODO idx handling where ID handling is required
+		const int locidx = ps->idxFor( id );
 		if ( values_.validIdx(locidx) )
 		    values_.removeSingle( locidx );
 	    }
@@ -484,7 +486,7 @@ void uiEMDataPointSetPickDlg::settCB( CallBacker* )
            new uiArray2DInterpolSel( 0, false, false, true, interpol_, false ));
     dlg.setCaption( tr("Interpolate Horizon Data") );
     dlg.setHelpKey( mODHelpKey(muiEMDataPointSetPickDlgHelpID) );
-    
+
     if ( !dlg.go() ) return;
 
     deleteAndZeroPtr( interpol_ );

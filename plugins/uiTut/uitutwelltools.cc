@@ -9,17 +9,15 @@
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uispinbox.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "bufstring.h"
 #include "ioobj.h"
 #include "dbman.h"
 #include "od_ostream.h"
-#include "welldata.h"
+#include "wellmanager.h"
 #include "wellio.h"
-#include "welllog.h"
 #include "welllogset.h"
-#include "wellman.h"
-#include "wellwriter.h"
 #include "tutlogtools.h"
 
 static const StepInterval<int> sSampleGateRange( 3, 99, 2 );
@@ -28,13 +26,12 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const DBKey& wellid )
 	: uiDialog( p, Setup( tr("Log Smoothing"),
 			      tr("Specify parameters for smoothing"),
 			      HelpKey("tut","well") ) )
-	, wellid_(wellid)
-	, wd_(Well::MGR().get(wellid))
 {
+    uiRetVal uirv;
+    wd_ = Well::MGR().fetchForEdit( wellid, Well::LoadReqs(Well::Logs), uirv );
     if ( !wd_ )
-	return;
+	{ new uiLabel( this, uirv ); return; }
 
-    wd_->ref();
     const Well::LogSet& logs = wd_->logs();
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select Input Log") );
     inplogfld_ = new uiListBox( this, su );
@@ -55,18 +52,11 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const DBKey& wellid )
 }
 
 
-uiTutWellTools::~uiTutWellTools()
-{
-    if ( wd_ )
-	wd_->unRef();
-}
-
-
 void uiTutWellTools::inpchg( CallBacker* )
 {
-    BufferString lognm = inplogfld_->getText();
-    lognm += "_Smooth";
-    outplogfld_->setText( lognm );
+    const BufferString newlognm( inplogfld_->getText(),
+				 " [smoothed by uiTutWellTools]" );
+    outplogfld_->setText( newlognm );
 }
 
 
@@ -74,7 +64,9 @@ void uiTutWellTools::inpchg( CallBacker* )
 
 bool uiTutWellTools::acceptOK()
 {
-    if ( !wd_ ) return false;
+    if ( !wd_ )
+	return false;
+
     const char* inplognm = inplogfld_->getText();
     Well::LogSet& logset = wd_->logs();
     const int inpidx = logset.indexOf( inplognm );
@@ -94,19 +86,10 @@ bool uiTutWellTools::acceptOK()
     Tut::LogTools logtool( *logset.getLogByIdx(inpidx), *outputlog );
     if ( logtool.runSmooth(gate) )
     {
-	Well::LogSet::LogID logid = logset.add( outputlog );
-	PtrMan<IOObj> ioobj = DBM().get( wellid_ );
-	if ( !ioobj )
-	    mErrRet( uiStrings::phrCannotFind(tr("object in I/O Manager")) )
-
-	Well::Writer wtr( *ioobj, *wd_ );
-	const Well::Log* newlog = logset.getLog( logid );
-	if ( newlog && !wtr.putLog(*newlog) )
-	{
-	    uiString errmsg = uiStrings::phrCannotWrite(tr("log: %1"
-		     "\n Check write permissions.").arg(newlog->name()));
-	    mErrRet( errmsg )
-	}
+	logset.add( outputlog );
+	uiRetVal uirv = Well::MGR().save( *wd_ );
+	if ( uirv.isError() )
+	    mErrRet( uirv )
     }
 
     return true;

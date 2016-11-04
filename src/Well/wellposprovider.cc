@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "welldata.h"
 #include "wellinfo.h"
-#include "wellman.h"
+#include "wellmanager.h"
 
 namespace Pos
 {
@@ -51,7 +51,6 @@ WellProvider3D::WellProvider3D( const WellProvider3D& pp )
 
 WellProvider3D::~WellProvider3D()
 {
-    deepUnRef( welldata_ );
     delete &hs_;
 }
 
@@ -60,9 +59,7 @@ WellProvider3D& WellProvider3D::operator =( const WellProvider3D& pp )
 {
     if ( &pp != this )
     {
-	deepUnRef( welldata_ );
 	welldata_ = pp.welldata_;
-	deepRef( welldata_ );
 	hs_ = pp.hs_;
 	zrg_ = pp.zrg_;
     }
@@ -102,15 +99,16 @@ void WellProvider3D::setHS()
 
 bool WellProvider3D::initialize( TaskRunner* )
 {
-    deepUnRef( welldata_ );
+    welldata_.setEmpty();
     for ( int idx=0; idx<wellids_.size(); idx++ )
     {
-	Well::Data* wd = Well::MGR().get( wellids_[idx] );
+	ConstRefMan<Well::Data> wd = Well::MGR().fetch( wellids_[idx],
+					    Well::LoadReqs(Well::Trck) );
 	welldata_ += wd;
     }
 
-    deepRef( welldata_ );
-    if ( welldata_.isEmpty() ) return false;
+    if ( welldata_.isEmpty() )
+	return false;
 
     setHS();
     curz_ = zrg_.start-zrg_.step;
@@ -223,11 +221,15 @@ void WellProvider3D::getZRange( Interval<float>& zrg ) const
 
 
 od_int64 WellProvider3D::estNrPos() const
-{ return welldata_.size() * hs_.totalNr(); }
+{
+    return welldata_.size() * hs_.totalNr();
+}
 
 
 const Well::Data* WellProvider3D::wellData( int idx ) const
-{ return welldata_.validIdx(idx) ? welldata_[idx] : 0; }
+{
+    return welldata_.validIdx(idx) ? welldata_[idx] : 0;
+}
 
 
 void WellProvider3D::initClass()

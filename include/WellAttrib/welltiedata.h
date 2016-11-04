@@ -163,25 +163,6 @@ protected:
 };
 
 
-mExpClass(WellAttrib) WellDataMgr : public CallBacker
-{ mODTextTranslationClass(WellDataMgr);
-public:
-				WellDataMgr(const DBKey&);
-				~WellDataMgr();
-
-    Well::Data*			wd()		{ return wellData(); }
-    Notifier<WellDataMgr>	datadeleted_;
-
-protected:
-
-    Well::Data*			wellData() const;
-
-    Well::Data*			wd_;
-    const DBKey		wellid_;
-    void			wellDataDelNotify(CallBacker*);
-};
-
-
 mExpClass(WellAttrib) DataWriter
 { mODTextTranslationClass(DataWriter);
 public:
@@ -241,10 +222,9 @@ public :
 				Server(const WellTie::Setup&);
 				~Server();
 
-    const Well::Data*		wd() const	{ return data_->wd_; }
-    Well::Data*			wd()		{ return data_->wd_; }
-
     const DBKey&		wellID() const	{ return wellid_; }
+    Well::Data*			wd()		{ return data_->wd_; }
+    const Well::Data*		wd() const	{ return data_->wd_; }
 
     PickSetMgr&			pickMgr()	{ return *pickmgr_; }
     D2TModelMgr&		d2TModelMgr()	{ return *d2tmgr_; }
@@ -272,8 +252,9 @@ public :
     void			setTaskRunner( TaskRunner* taskrun )
 				{ data_->trunner_ = taskrun; }
 protected :
+
     PickSetMgr*			pickmgr_;
-    WellDataMgr*		wdmgr_;
+    RefMan<Well::Data>		wd_;
     DataPlayer*			dataplayer_;
     HorizonMgr*			hormgr_;
     D2TModelMgr*		d2tmgr_;

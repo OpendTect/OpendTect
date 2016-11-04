@@ -53,10 +53,11 @@ public:
     uiRetVal		save(const ObjID&) const;
     uiRetVal		saveAs(const ObjID& curid,const ObjID& newid) const;
     bool		needsSave(const ObjID&) const;
-    void		setNoSaveNeeded(const ObjID&) const;
+    void		setJustSaved(const ObjID&) const;
 
     bool		isLoaded(const char*) const;
     bool		isLoaded(const ObjID&) const;
+    void		getAllLoaded(DBKeySet&) const;
     ObjID		getIDByName(const char*) const;
     IOPar		getIOObjPars(const ObjID&) const;
 
@@ -92,6 +93,7 @@ protected:
     virtual ChangeRecorder* getChangeRecorder(const SharedObject&) const
 								{ return 0; }
     virtual void	addCBsToObj(const SharedObject&);
+    virtual void	setAuxOnAdd()				{}
 
     ObjectSet<Saveable>		savers_;
     ObjectSet<ChangeRecorder>	chgrecs_;
@@ -106,6 +108,8 @@ protected:
 			      const IOPar*) const;
     uiRetVal		save(const SharedObject&) const;
     bool		needsSave(const SharedObject&) const;
+    IOObj*		getIOObj(const DBKey&) const;
+    IOObj*		getIOObjByName(const char*) const;
 
 			// Tools for locked state
     void		setEmpty();
@@ -113,9 +117,10 @@ protected:
     IdxType		gtIdx(const ObjID&) const;
     IdxType		gtIdx(const SharedObject&) const;
     SharedObject*	gtObj(IdxType) const;
+    const Saveable*	saverFor(const ObjID&) const;
     uiRetVal		doSave(const ObjID&) const;
-    void		add(const SharedObject&,const ObjID&,const IOPar*,
-			    bool) const;
+    void		add(const SharedObject&,const ObjID&,AccessLocker&,
+				const IOPar*,bool) const;
 
     void		dbmEntryRemovedCB(CallBacker*);
     void		survChgCB(CallBacker*);
@@ -123,12 +128,14 @@ protected:
     void		objDelCB(CallBacker*);
     void		objChgCB(CallBacker*);
 
-    IOObj*		getIOObj(const char*) const;
-
 public:
 
     SaveableManager*	clone() const		{ return 0; }
     void		handleUnsavedLastCall();
+
+			// intended only for dedicated loaders
+    void		addNew(const SharedObject&,const ObjID&,
+				const IOPar*,bool) const;
 
 };
 

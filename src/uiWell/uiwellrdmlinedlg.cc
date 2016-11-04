@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 #include "welldata.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "welltrack.h"
 #include "welltransl.h"
 #include "transl.h"
@@ -244,7 +244,8 @@ void uiWellSelGrp::getCoordinates( TypeSet<Coord>& coords )
     const bool onlytop = onlytopfld_ ? onlytopfld_->getBoolValue() : false;
     for ( int idx=0; idx<selwellsids_.size(); idx++ )
     {
-	const Well::Data* wd = Well::MGR().get( selwellsids_[idx] );
+	ConstRefMan<Well::Data> wd = Well::MGR().fetch( selwellsids_[idx],
+					Well::LoadReqs(Well::Trck) );
 	if ( !wd || wd->track().isEmpty() ) return;
 
 	if ( onlytop )

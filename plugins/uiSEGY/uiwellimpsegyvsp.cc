@@ -27,11 +27,9 @@ _______________________________________________________________________
 #include "seisread.h"
 #include "segytr.h"
 #include "welltransl.h"
-#include "welldata.h"
 #include "wellreader.h"
 #include "wellwriter.h"
-#include "wellman.h"
-#include "welllog.h"
+#include "wellmanager.h"
 #include "welltrack.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
@@ -321,15 +319,13 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 				     const Interval<float>& ozr,
 				     const char* lognm )
 {
-    const DBKey key(	wellfld_->key() );
-    const bool wasloaded = Well::MGR().isLoaded( key );
+    const DBKey wllkey( wellfld_->key() );
 
-    RefMan<Well::Data> wd = Well::MGR().get( key );
+    uiRetVal uirv;
+    RefMan<Well::Data> wd = Well::MGR().fetchForEdit( wllkey, Well::LoadReqs(),
+						      uirv );
     if ( !wd )
-	mErrRet(tr("Cannot load the selected well\n%1")
-			.arg(Well::MGR().errMsg()))
-    if ( !isdpth_ && !wd->d2TModelPtr() )
-	mErrRet(tr("Selected well has no Depth vs Time model"))
+	mErrRet( uirv )
 
     const Well::Track& track = wd->track();
     Well::Log* wl = new Well::Log( lognm );
@@ -367,11 +363,9 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 
     wd->logs().add( wl );
 
-    Well::Writer wtr( key, *wd );
-    wtr.putLog( *wl );
-
-    if ( wasloaded )
-	Well::MGR().reload( key );
+    uirv = Well::MGR().save( wllkey );
+    if ( uirv.isError() )
+	mErrRet( uirv )
 
     return true;
 }

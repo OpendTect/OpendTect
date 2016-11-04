@@ -227,6 +227,13 @@ Well::LogSet::size_type Well::LogSet::size() const
 }
 
 
+Well::LogSet::LogID Well::LogSet::getID( IdxType idx ) const
+{
+    mLock4Read();
+    return logids_.validIdx( idx ) ? logids_[idx] : LogID::getInvalid();
+}
+
+
 Well::LogSet::IdxType Well::LogSet::indexOf( LogID id ) const
 {
     mLock4Read();

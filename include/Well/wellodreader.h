@@ -54,11 +54,11 @@ public:
 
 protected:
 
-    void		getLogInfo(BufferStringSet&,TypeSet<int>&) const;
     void		readLogData(Log&,od_istream&,int) const;
     bool		getTrack(od_istream&) const;
     bool		doGetD2T(od_istream&,bool csmdl) const;
     bool		doGetD2T(bool) const;
+    void		getLogInfo(BufferStringSet&,TypeSet<int>&) const;
 
     static Log*		rdLogHdr(od_istream&,int&,int);
 

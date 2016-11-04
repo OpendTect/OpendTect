@@ -68,19 +68,12 @@ public:
 
     void			levelToBeRemoved(CallBacker*);
 
+    bool			haveTrack() const;
     bool			haveLogs() const;
     bool			haveMarkers() const;
     bool			haveD2TModel() const;
     bool			haveCheckShotModel() const;
-
-    Notifier<Well::Data>	d2tchanged;
-    Notifier<Well::Data>	csmdlchanged;
-    Notifier<Well::Data>	markerschanged;
-    Notifier<Well::Data>	trackchanged;
-    Notifier<Well::Data>	disp3dparschanged;
-    Notifier<Well::Data>	disp2dparschanged;
-    CNotifier<Well::Data,int>	logschanged;
-    Notifier<Well::Data>	reloaded;
+    bool			displayPropertiesRead() const;
 
 				// Following return null when mdl is empty:
     D2TModel*			d2TModelPtr()	    { return gtMdlPtr(false); }
@@ -97,11 +90,8 @@ public:
     virtual void		touch() const;
     virtual DirtyCountType	dirtyCount() const;
 
-    const DBKey&		dbKey() const		{ return mid_; }
-    void			setDBKey( const DBKey& mid ) const
-				{ mid_ = mid; }
-    mDeprecated const DBKey&	multiID() const		{ return mid_; }
-    mDeprecated void		setMultiID( const DBKey& k ) { setDBKey(k); }
+    DBKey			dbKey() const;
+    mDeprecated DBKey		multiID() const		{ return dbKey(); }
 
 protected:
 
@@ -116,24 +106,6 @@ protected:
 
     D2TModel&		gtMdl(bool) const;
     D2TModel*		gtMdlPtr(bool) const;
-
-    // has to go:
-    mutable DBKey	mid_;
-
-};
-
-
-mExpClass(Well) ManData
-{
-public:
-
-			ManData(const DBKey&);
-
-    bool		isAvailable() const;
-    Well::Data&		data();
-    const Well::Data&	data() const;
-
-    DBKey		id_;
 
 };
 

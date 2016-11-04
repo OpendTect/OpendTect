@@ -100,7 +100,7 @@ bool WaveletLoader::addToMGR( Wavelet* wvlt, const DBKey& ky )
     if ( mgr.isLoaded(ioobj_->key()) )
 	{ wvlt->unRef(); return false; }
 
-    mgr.add( *wvlt, ky, 0, true );
+    mgr.addNew( *wvlt, ky, 0, true );
     return true;
 }
 
@@ -149,38 +149,36 @@ void WaveletSaver::setWavelet( const Wavelet& wvlt )
 
 
 
-bool WaveletSaver::doStore( const IOObj& ioobj ) const
+uiRetVal WaveletSaver::doStore( const IOObj& ioobj ) const
 {
-    bool result = false;
+    uiRetVal uirv;
     PtrMan<WaveletTranslator> transl =
         (WaveletTranslator*)ioobj.createTranslator();
     if ( !transl )
     {
-	errmsg_ = uiStrings::phrSelectObjectWrongType( uiStrings::sWavelet() );
-	return result;
+	uirv.add( uiStrings::phrSelectObjectWrongType(uiStrings::sWavelet()) );
+	return uirv;
     }
 
     ConstRefMan<Wavelet> wvlt = wavelet();
     if ( !wvlt )
-	    return true;
+	return uirv;
 
     Conn* connptr = ioobj.getConn( Conn::Write );
     if ( !connptr || connptr->isBad() )
-	errmsg_ = uiStrings::phrCannotOpen( toUiString(ioobj.fullUserExpr()) );
+	uirv.add( uiStrings::phrCannotOpen(toUiString(ioobj.fullUserExpr())) );
     else
     {
 	RefMan<Wavelet> copiedwvlt = new Wavelet( *wvlt );
-	if ( transl->write(copiedwvlt,*connptr) )
-	    result = true;
-	else
+	if ( !transl->write(copiedwvlt,*connptr) )
 	{
 	    connptr->rollback();
-	    errmsg_ = uiStrings::phrCannotWrite( ioobj.uiName() );
+	    uirv.add( uiStrings::phrCannotWrite( ioobj.uiName() ) );
 	}
     }
 
     delete connptr;
-    return result;
+    return uirv;
 }
 
 

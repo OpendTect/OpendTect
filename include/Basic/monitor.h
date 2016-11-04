@@ -86,6 +86,8 @@ public:
 	IDType		ID() const		{ return second; }
 	bool		isEntireObject() const	{ return first == -1; }
 	bool		isNoChange() const	{ return mIsUdf(first); }
+	bool		includes( ChangeType ct ) const
+			{ return ct == first || isEntireObject(); }
 
 	static inline ChangeType cEntireObjectChgType()	{ return -1; }
 	static inline ChangeType cNoChgType()	{ return mUdf(ChangeType); }
@@ -147,17 +149,19 @@ protected:
     template <class TMember,class TSetTo>
     inline void		setMemberSimple(TMember&,TSetTo,ChangeType,IDType);
 
+    typedef Threads::Atomic<DirtyCountType>	DirtyCounter;
+
 private:
 
-    mutable Threads::Atomic<DirtyCountType>	dirtycount_;
-    mutable Threads::Atomic<int>		chgnotifblocklevel_;
+    mutable DirtyCounter		dirtycount_;
+    mutable Threads::Atomic<int>	chgnotifblocklevel_;
 
-    mutable CNotifier<Monitorable,ChangeData>	chgnotif_;
-    mutable Notifier<Monitorable>		delnotif_;
-    mutable bool				delalreadytriggered_;
+    mutable CNotifier<Monitorable,ChangeData> chgnotif_;
+    mutable Notifier<Monitorable>	delnotif_;
+    mutable bool			delalreadytriggered_;
 
-    friend class				MonitorLock;
-    friend class				ChangeNotifyBlocker;
+    friend class			MonitorLock;
+    friend class			ChangeNotifyBlocker;
 
 };
 
@@ -169,6 +173,9 @@ private:
 #define mImplSimpleMonitoredGetSet(pfx,fnnmget,fnnmset,typ,memb,chgtyp) \
     pfx mImplSimpleMonitoredGet(fnnmget,typ,memb) \
     pfx mImplSimpleMonitoredSet(fnnmset,const typ&,memb,chgtyp)
+
+#define mGetIDFromChgData( typ, var, chgdata ) \
+    const typ var = typ::get( (typ::IDType)chgdata.ID() )
 
 
 /*!\brief protects a Monitorable against change.

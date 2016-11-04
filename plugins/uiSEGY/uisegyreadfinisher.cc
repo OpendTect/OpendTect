@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uimsg.h"
 #include "ui2dgeomman.h"
 #include "welltransl.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "segybatchio.h"
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -38,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "welldata.h"
 #include "wellreader.h"
 #include "wellwriter.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "welllog.h"
 #include "welltrack.h"
 #include "welllogset.h"
@@ -339,13 +339,11 @@ bool uiSEGYReadFinisher::doVSP()
     const bool inft = isdpth && isfeetfld_->isChecked();
 
     const DBKey wllkey( wllioobj->key() );
-    const bool wasloaded = Well::MGR().isLoaded( wllkey );
-    RefMan<Well::Data> wd = Well::MGR().get( wllkey );
+    uiRetVal uirv;
+    RefMan<Well::Data> wd = Well::MGR().fetchForEdit( wllkey, Well::LoadReqs(),
+						      uirv );
     if ( !wd )
-	mErrRet(tr("Cannot load the selected well\n%1")
-			.arg(Well::MGR().errMsg()))
-    else if ( !isdpth && !wd->d2TModelPtr() )
-	mErrRet(tr("Selected well has no Depth vs Time model"))
+	mErrRet( uirv )
 
     const Well::Track& track = wd->track();
     Well::Log* wl = new Well::Log( lognm );
@@ -368,11 +366,9 @@ bool uiSEGYReadFinisher::doVSP()
 	wl->addValue( z, trc.get(isamp,0) );
     }
 
-    Well::Writer wwr( wllkey, *wd );
-    if ( !wwr.putLog(*wl) )
-	mErrRet( wwr.errMsg() )
-    else if ( wasloaded )
-	Well::MGR().reload( wllkey );
+    uirv = Well::MGR().save( wllkey );
+    if ( uirv.isError() )
+	mErrRet( uirv )
 
     return true;
 }

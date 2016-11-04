@@ -1010,6 +1010,13 @@ uiRetVal::operator uiString() const
 }
 
 
+uiRetVal::operator uiStringSet() const
+{
+    Threads::Locker locker( lock_ );
+    return msgs_;
+}
+
+
 bool uiRetVal::isOK() const
 {
     Threads::Locker locker( lock_ );
@@ -1080,16 +1087,19 @@ uiRetVal& uiRetVal::add( const uiRetVal& oth )
 
 uiRetVal& uiRetVal::add( const uiString& str )
 {
-    Threads::Locker locker( lock_ );
-    msgs_.add( str );
+    if ( !str.isEmpty() )
+    {
+	Threads::Locker locker( lock_ );
+	msgs_.add( str );
+    }
     return *this;
 }
 
 
 uiRetVal& uiRetVal::add( const uiStringSet& strs )
 {
-    Threads::Locker locker( lock_ );
-    msgs_.append( strs );
+    for ( int idx=0; idx<strs.size(); idx++ )
+	add( strs[idx] );
     return *this;
 }
 

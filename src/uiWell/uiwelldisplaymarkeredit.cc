@@ -444,16 +444,8 @@ void uiWellDispCtrlEditMarkerDlg::addWellCtrl( uiWellDisplayControl& ctrl,
 
     mAttachCB( ctrl.posChanged,uiWellDispCtrlEditMarkerDlg::handleCtrlChangeCB);
     mAttachCB( ctrl.mousePressed,uiWellDispCtrlEditMarkerDlg::handleUsrClickCB);
-    mAttachCB( wd.markerschanged, uiWellDispCtrlEditMarkerDlg::fillMarkerList );
-}
-
-
-void uiWellDispCtrlEditMarkerDlg::triggerWDsMarkerChanged()
-{
-    for ( int idx=0; idx<wds_.size(); idx++ )
-    {
-	wds_[idx]->markerschanged.trigger();
-    }
+    mAttachCB( wd.markers().objectChanged(),
+		uiWellDispCtrlEditMarkerDlg::fillMarkerList );
 }
 
 
@@ -496,7 +488,6 @@ void uiWellDispCtrlEditMarkerDlg::handleUsrClickCB( CallBacker* )
 
     mevh->setHandled( true);
     hasedited_ = true;
-    curwd_->markerschanged.trigger();
 }
 
 
@@ -504,10 +495,7 @@ bool uiWellDispCtrlEditMarkerDlg::acceptOK()
 {
     needsave_ = hasedited_;
     if ( hasedited_ )
-    {
-	triggerWDsMarkerChanged();
 	hasedited_ = false;
-    }
 
     return true;
 }
@@ -536,7 +524,6 @@ void uiWellDispCtrlEditMarkerDlg::askForSavingEditedChanges()
 	    *markerssets_[idx] = *orgmarkerssets_[idx];
     }
 
-    triggerWDsMarkerChanged();
     hasedited_ = false;
 }
 
@@ -544,17 +531,10 @@ void uiWellDispCtrlEditMarkerDlg::askForSavingEditedChanges()
 void uiWellDispCtrlEditMarkerDlg::editMrkrList()
 {
     uiDispEditMarkerDlg::editMrkrList();
-
-    triggerWDsMarkerChanged();
 }
 
 
 bool uiWellDispCtrlEditMarkerDlg::removeMrkrFromList()
 {
-    if ( uiDispEditMarkerDlg::removeMrkrFromList() )
-    {
-	triggerWDsMarkerChanged();
-	return true;
-    }
-    return false;
+    return uiDispEditMarkerDlg::removeMrkrFromList();
 }

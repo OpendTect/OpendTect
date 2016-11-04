@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "survinfo.h"
 #include "welldata.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "welld2tmodel.h"
 #include "welltrack.h"
 #include "zdomain.h"
@@ -26,23 +26,14 @@ ________________________________________________________________________
 
 WellT2DTransform::WellT2DTransform()
     : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
-    , data_(0)
 {
 }
 
 
 WellT2DTransform::WellT2DTransform( const DBKey& wllid )
     : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
-    , data_(0)
 {
     setWellID( wllid );
-}
-
-
-WellT2DTransform::~WellT2DTransform()
-{
-    if ( data_ )
-	data_->unRef();
 }
 
 
@@ -156,16 +147,12 @@ bool WellT2DTransform::setWellID( const DBKey& mid )
 {
     tozdomaininfo_.pars_.set( sKey::ID(), mid );
 
-    data_ = Well::MGR().get( mid );
+    uiRetVal uirv;
+    data_ = Well::MGR().fetch( mid, Well::LoadReqs(Well::Trck).add(Well::D2T),
+				uirv );
     if ( !data_ )
-    {
-	errmsg_ = tr("Z Transform: Cannot find Well with ID %1")
-		    .arg( tozdomaininfo_.getID() );
+	{ errmsg_ = uirv; return false; }
 
-	return false;
-    }
-
-    data_->ref();
     return calcDepths();
 }
 

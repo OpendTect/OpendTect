@@ -6,7 +6,7 @@
 
 
 #include "wellextractdata.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "wellmarker.h"
 #include "wellreader.h"
 #include "welltrack.h"
@@ -56,13 +56,12 @@ const char* TrackSampler::sKeyLogNm()	    { return "Log name"; }
 const char* TrackSampler::sKeySelRadius()   { return "Selection radius"; }
 const char* TrackSampler::sKeyFor2D()	    { return "For 2D"; }
 const char* TrackSampler::sKeyDahCol()	    { return "Create MD column"; }
-const char* LogDataExtracter::sKeyLogNm()   { return
-					      Well::TrackSampler::sKeyLogNm(); }
+const char* LogDataExtracter::sKeyLogNm()   { return TrackSampler::sKeyLogNm();}
 
 mDefineEnumUtils(ZRangeSelector,ZSelection,"Type of selection")
 { "Markers", "Depth range", "Time range", 0 };
 
-}
+} // namespace Well
 
 static const char* sKeyDAHColName()	    { return "<MD>"; }
 
@@ -98,61 +97,44 @@ int Well::InfoCollector::nextStep()
 	return totalnr_ > 0 ? Finished() : ErrorOccurred();
 
     const DBKey wky( direntries_.key(curidx_) );
-    const bool isloaded = Well::MGR().isLoaded( wky );
-
-    BufferStringSet lognms;
-    RefMan<Well::Data> wd = 0;
-    if ( isloaded )
-    {
-	wd = Well::MGR().get( wky );
-	if ( wd && dologs_ )
-	    wd->logs().getNames( lognms );
-    }
-
-    bool res = true;
-    if ( !wd )
-    {
-	wd = new Well::Data;
-	Well::Reader rdr( wky, *wd );
-	res = rdr.getInfo();
-	if ( dotracks_ )
-	    res = res && rdr.getTrack();
-	if ( domrkrs_ )
-	    res = res && rdr.getMarkers();
-	if ( dologs_ )
-	    rdr.getLogInfo( lognms );
-    }
-
-    if ( !res )
-	return ++curidx_ >= totalnr_ ? Finished() : MoreToDo();
-
-    ids_ += wky;
-    infos_ += new Well::Info( wd->info() );
+    LoadReqs lreqs( Inf );
     if ( dotracks_ )
-    {
-	const Well::Track& trk = wd->track();
-	if ( mIsUdf(trackstvdrg_.start) )
-	    trackstvdrg_.setFrom( trk.zRange() );
-	else
-	{
-	    Well::Track::ZIntvType tvdrg( trk.zRange() );
-	    if ( !mIsUdf( tvdrg.start ) )
-		trackstvdrg_.include( tvdrg );
-	}
-    }
-
+	lreqs.add( Trck ).add( D2T );
     if ( domrkrs_ )
-    {
-	Well::MarkerSet* newset = new Well::MarkerSet;
-	*newset = wd->markers();
-	markers_ += newset;
-    }
+	lreqs.add( Mrkrs );
 
-    if ( dologs_ )
+    RefMan<Data> wd = MGR().fetchForEdit( wky, lreqs );
+    if ( wd )
     {
-	BufferStringSet* newlognms = new BufferStringSet;
-	*newlognms = lognms;
-	logs_ += newlognms;
+	ids_ += wky;
+	infos_ += new Info( wd->info() );
+
+	if ( dotracks_ )
+	{
+	    const Track& trk = wd->track();
+	    if ( mIsUdf(trackstvdrg_.start) )
+		trackstvdrg_.setFrom( trk.zRange() );
+	    else
+	    {
+		Track::ZIntvType tvdrg( trk.zRange() );
+		if ( !mIsUdf( tvdrg.start ) )
+		    trackstvdrg_.include( tvdrg );
+	    }
+	}
+
+	if ( domrkrs_ )
+	{
+	    MarkerSet* newset = new MarkerSet;
+	    *newset = wd->markers();
+	    markers_ += newset;
+	}
+
+	if ( dologs_ )
+	{
+	    BufferStringSet* lognms = new BufferStringSet;
+	    MGR().getLogNames( wky, *lognms );
+	    logs_ += lognms;
+	}
     }
 
     return ++curidx_ >= totalnr_ ? Finished() : MoreToDo();
@@ -173,7 +155,7 @@ bool Well::ZRangeSelector::isOK( uiString* errmsg ) const
 
 
 
-Well::ZRangeSelector::ZRangeSelector( const Well::ZRangeSelector& p )
+Well::ZRangeSelector::ZRangeSelector( const ZRangeSelector& p )
 {
     topmrkr_ = p.topmrkr_;
     botmrkr_ = p.botmrkr_;
@@ -234,8 +216,8 @@ void Well::ZRangeSelector::setMarker( bool top, BufferString nm, ZType offset )
 
 
 void Well::ZRangeSelector::snapZRangeToSurvey(Interval<ZType>& zrg,bool zistime,
-					      const Well::D2TModel& d2t,
-					      const Well::Track& track) const
+					      const D2TModel& d2t,
+					      const Track& track) const
 {
     if ( !snapzrgtosurvey_ )
 	return;
@@ -269,7 +251,7 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<ZType>& zrg,bool zistime,
 }
 
 
-Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
+Interval<float> Well::ZRangeSelector::calcFrom( const Data& wd,
 			    const BufferStringSet& lognms, bool todah ) const
 {
     if ( zselection_ == Times )
@@ -281,7 +263,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 
     Interval<ZType> dahrg( mUdf(ZType), mUdf(ZType) );
 
-    const Well::Track& track = wd.track();
+    const Track& track = wd.track();
     MonitorLock mltrack( track );
     if ( track.isEmpty() )
 	return dahrg;
@@ -308,7 +290,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 
     for ( ; mIsUdf(dahrg.start) && ilog<lognms.size(); ilog++ )
     {
-	const Well::Log* log = wd.logs().getLogByName( lognms.get(ilog) );
+	const Log* log = wd.logs().getLogByName( lognms.get(ilog) );
 	if ( !log || log->isEmpty() )
 	    continue;
 
@@ -316,7 +298,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
     }
     for ( ; ilog<lognms.size(); ilog++ )
     {
-	const Well::Log* log = wd.logs().getLogByName( lognms.get(ilog) );
+	const Log* log = wd.logs().getLogByName( lognms.get(ilog) );
 	if ( !log || log->isEmpty() )
 	    continue;
 
@@ -336,7 +318,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 }
 
 
-void Well::ZRangeSelector::getMarkerRange( const Well::Data& wd,
+void Well::ZRangeSelector::getMarkerRange( const Data& wd,
 					Interval<ZType>& zrg ) const
 {
     Interval<ZType> newzrg = zrg;
@@ -355,9 +337,9 @@ void Well::ZRangeSelector::getLimitPos( const MarkerSet& markers,
 				      const Interval<ZType>& zrg ) const
 {
     const BufferString& mrknm = isstart ? topmrkr_ : botmrkr_;
-    if ( mrknm == Well::ZRangeSelector::sKeyDataStart() )
+    if ( mrknm == ZRangeSelector::sKeyDataStart() )
 	val = zrg.start;
-    else if ( mrknm == Well::ZRangeSelector::sKeyDataEnd() )
+    else if ( mrknm == ZRangeSelector::sKeyDataEnd() )
 	val = zrg.stop;
     else
     {
@@ -430,6 +412,7 @@ Well::TrackSampler::TrackSampler( const DBKeySet& i,
 	, minidps_(false)
 	, mkdahcol_(false)
 	, dahcolnr_(-1)
+	, msg_(tr("Scanning well tracks"))
 {
 }
 
@@ -458,12 +441,12 @@ static int closeDPSS( ObjectSet<DataPointSet>& dpss )
 int Well::TrackSampler::nextStep()
 {
     if ( curid_ >= ids_.size() )
-	return 0;
+	return Finished();
 
     if ( lognms_.isEmpty() )
     {
-	errmsg_ = tr("No well logs specified");
-	return Executor::ErrorOccurred();
+	msg_ = tr( "No well logs specified" );
+	return ErrorOccurred();
     }
 
     DataPointSet* dps = new DataPointSet( for2d_, minidps_ );
@@ -476,12 +459,10 @@ int Well::TrackSampler::nextStep()
 	dahcolnr_ = dps->nrCols() - 1;
     }
 
-    RefMan<Well::Data> wd = Well::MGR().get( ids_[curid_] );
+    uiRetVal uirv;
+    ConstRefMan<Data> wd = MGR().fetch( ids_[curid_], LoadReqs(Trck,D2T), uirv);
     if ( !wd )
-    {
-	errmsg_ = Well::MGR().errMsg();
-	mRetNext()
-    }
+	{ errmsgs_.add( uirv ); mRetNext() }
 
     zrg_ = params_.calcFrom( *wd, lognms_ );
     if ( zrg_.isUdf() )
@@ -492,10 +473,10 @@ int Well::TrackSampler::nextStep()
 }
 
 
-void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
+void Well::TrackSampler::getData( const Data& wd, DataPointSet& dps )
 {
-    const Well::D2TModel& d2t = wd.d2TModel();
-    const Well::Track& track = wd.track();
+    const D2TModel& d2t = wd.d2TModel();
+    const Track& track = wd.track();
     MonitorLock mltrack( track );
     MonitorLock mld2t( d2t );
     const bool haved2t = !d2t.isEmpty();
@@ -549,7 +530,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 }
 
 
-bool Well::TrackSampler::getPos( const Well::Data& wd, float dah,
+bool Well::TrackSampler::getPos( const Data& wd, float dah,
 				 BinIDValue& biv, int& trackidx,
 				 Coord3& pos ) const
 {
@@ -638,7 +619,7 @@ void Well::LogDataExtracter::usePar( const IOPar& pars )
 {
     pars.get( sKeyLogNm(), lognm_ );
     Stats::UpscaleTypeDef().parse(
-	    pars.find( Well::ExtractParams::sKeySamplePol() ), samppol_ );
+	    pars.find( ExtractParams::sKeySamplePol() ), samppol_ );
 }
 
 
@@ -657,28 +638,30 @@ int Well::LogDataExtracter::nextStep()
 	return MoreToDo();
     }
 
-    if ( dpss_.size() <= curid_ ) mRetNext()
-    DataPointSet& dps = *dpss_[curid_];
-    if ( dps.isEmpty() ) mRetNext()
-
-    RefMan<Well::Data> wd = Well::MGR().get( ids_[curid_] );
-    Well::Track* track = 0;
-    if ( !wd )
-    {
-	msg_ = Well::MGR().errMsg();
+    if ( dpss_.size() <= curid_ )
 	mRetNext()
-    }
+    DataPointSet& dps = *dpss_[curid_];
+    if ( dps.isEmpty() )
+	mRetNext()
 
-    if ( zistime_ )
-    {
-	track = new Well::Track;
-	track->toTime( *wd );
-    }
+    uiRetVal uirv;
+    ConstRefMan<Data> wd = MGR().fetch( ids_[curid_], LoadReqs(), uirv );
+    if ( !wd )
+	{ errmsgs_.add( uirv ); mRetNext() }
+
+    const Track* track2use = 0;
+    Track* timetrack = 0;
+    if ( !zistime_ )
+	track2use = &wd->track();
     else
-	track = &wd->track();
+    {
+	timetrack = new Track;
+	timetrack->toTime( *wd );
+	track2use = timetrack;
+    }
 
-    getData( dps, *wd, *track );
-    if( zistime_ ) delete track;
+    getData( dps, *wd, *track2use );
+    delete timetrack;
 
     mRetNext();
 }

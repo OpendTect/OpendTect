@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "wellman.h"
+#include "wellmanager.h"
 #include "welltiesetup.h"
 
 
@@ -167,15 +167,8 @@ void uiWellAttribPartServer::doXPlot()
 
 bool uiWellAttribPartServer::createAttribLog( const DBKey& wellid )
 {
-    Well::Data* wd = Well::MGR().get( wellid );
-    if ( !wd )
-    {
-	uiMSG().error( uiStrings::phrCannotRead( uiStrings::sWell() ));
-	return false;
-    }
-
     BufferStringSet wellnames;
-    wellnames.add( wd->name() );
+    wellnames.add( DBM().nameOf(wellid) );
     return createAttribLog( wellnames );
 }
 
@@ -228,7 +221,7 @@ bool uiWellAttribPartServer::createD2TModel( const DBKey& wid )
 bool uiWellAttribPartServer::showAmplSpectrum( const DBKey& mid,
 					       const char* lognm )
 {
-    const RefMan<Well::Data> wd = Well::MGR().get( mid );
+    ConstRefMan<Well::Data> wd = Well::MGR().fetch( mid );
     if ( !wd || wd->logs().isEmpty()  )
 	return false;
 
