@@ -161,7 +161,7 @@ public:
     Notifier<SeqMgr>	seqAdded;
     Notifier<SeqMgr>	seqRemoved;
 
-			~SeqMgr()	{}
+			~SeqMgr();
 
 protected:
 
