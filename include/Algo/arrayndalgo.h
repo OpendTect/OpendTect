@@ -20,7 +20,8 @@ ________________________________________________________________________
 #include "arrayndslice.h"
 #include "mathfunc.h"
 #include "periodicvalue.h"
-#include "trckeysampling.h"
+#include "posinfo.h"
+#include "trckeyzsampling.h"
 #include "uistrings.h"
 
 
@@ -860,6 +861,140 @@ private:
     const TrcKeySampling&	tksout_;
     TrcKeySampling	commontks_;
     Array2D<T>&		out_;
+};
+
+
+/*!\brief Transfers the common samples from one 3D array to another */
+
+template <class T>
+mClass(Algo) Array3DCopier : public ParallelTask
+{ mODTextTranslationClass(Array3DCopier)
+public:
+		Array3DCopier( const Array3D<T>& in, Array3D<T>& out,
+			       const TrcKeyZSampling& tkzsin,
+			       const TrcKeyZSampling& tkzsout )
+		    : ParallelTask("Array 3D Resizer")
+		    , tkzsin_(tkzsin)
+		    , tkzsout_(tkzsout)
+		    , totalnr_(tkzsout.hsamp_.totalNr())
+		    , in_(in)
+		    , out_(out)
+		{}
+
+    uiString	uiMessage() const	{ return tr("Resizing 3D Array"); }
+
+    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+
+protected:
+
+    od_int64	nrIterations() const	{ return totalnr_; }
+
+private:
+
+#define mGetInfo() \
+    const Array3DInfoImpl infoin( tkzsin_.hsamp_.nrLines(), \
+				  tkzsin_.hsamp_.nrTrcs(), tkzsin_.nrZ() ); \
+    const Array3DInfoImpl infoout( tkzsout_.hsamp_.nrLines(), \
+				   tkzsout_.hsamp_.nrTrcs(), tkzsout_.nrZ() );
+
+    bool	doPrepare( int )
+		{
+		    mGetInfo()
+		    if ( in_.info() != infoin )
+			return false;
+
+		    if ( out_.info() != infoout && !out_.setInfo(infoout) )
+			return false;
+
+		    if ( tkzsin_.hsamp_.survid_ != tkzsout_.hsamp_.survid_ )
+			return false;
+
+		    if ( !tkzsin_.zsamp_.isCompatible(tkzsout_.zsamp_) )
+			return false; //Not supported
+
+		    out_.setAll( mUdf(T) );
+
+		    return true;
+		}
+
+
+    bool	doWork( od_int64 start, od_int64 stop, int )
+		{
+		    mGetInfo()
+		    const TrcKeySampling tksin( tkzsin_.hsamp_ );
+		    const TrcKeySampling tksout( tkzsout_.hsamp_ );
+		    const int nrzout = infoout.getSize(2);
+		    StepInterval<float> zrg( tkzsout_.zsamp_ );
+		    zrg.limitTo( tkzsin_.zsamp_ );
+		    const int nrztocopy = zrg.nrSteps() + 1;
+		    const int z0in = tkzsin_.zsamp_.getIndex( zrg.start );
+		    const int z0out = tkzsout_.zsamp_.getIndex( zrg.start );
+		    const od_int64 nrbytes =
+				   mCast(od_int64,nrztocopy) * sizeof(T);
+		    const T* inptr = in_.getData();
+		    T* outptr = out_.getData();
+		    const ValueSeries<T>* instor = in_.getStorage();
+		    ValueSeries<T>* outstor = out_.getStorage();
+		    const bool hasarrayptr = inptr && outptr;
+		    const bool hasstorage = instor && outstor;
+		    const bool needgetset = !hasarrayptr && !hasstorage;
+
+		    const Array2DInfoImpl info2d( infoout.getSize( 0 ),
+						  infoout.getSize( 1 ) );
+		    ArrayNDIter iter( info2d );
+		    iter.setGlobalPos( start );
+
+		    const od_int64 offsetout = start * nrzout + z0out;
+		    outptr += offsetout;
+		    od_uint64 validxout = offsetout;
+
+		    for ( od_int64 idx=start; idx<=stop; idx++, iter.next(),
+			  outptr+=nrzout, validxout+=nrzout,
+			  quickAddToNrDone(idx) )
+		    {
+			const int inlidx = iter[0];
+			const int crlidx = iter[1];
+			const BinID bid( tksout.atIndex(inlidx,crlidx) );
+			if ( !tksin.includes(bid) )
+			    continue;
+
+			const int inlidxin = tksin.lineIdx( bid.lineNr() );
+			const int crlidxin = tksin.trcIdx( bid.trcNr() );
+			const od_int64 offsetin = needgetset ? 0
+				: infoin.getOffset( inlidxin, crlidxin, z0in );
+			if ( hasarrayptr )
+			{
+			    OD::memCopy( outptr, inptr+offsetin, nrbytes );
+			}
+			else if ( hasstorage )
+			{
+			    for ( int idz=0; idz<nrztocopy; idz++ )
+			    {
+				outstor->setValue( validxout+idz,
+						   instor->value(offsetin+idz));
+			    }
+			}
+			else
+			{
+			    for ( int idz=0, idzin=z0in; idz<nrztocopy; idz++,
+									idzin++)
+			    {
+				const T val =
+					in_.get( inlidxin, crlidxin, idzin );
+				out_.set( inlidx, crlidx, idz, val );
+			    }
+			}
+		    }
+
+		    return true;
+		}
+
+    const TrcKeyZSampling&	tkzsin_;
+    const TrcKeyZSampling&	tkzsout_;
+    const od_int64		totalnr_;
+
+    const Array3D<T>&		in_;
+    Array3D<T>&			out_;
 };
 
 
@@ -1880,5 +2015,229 @@ inline bool getInterceptGradient( const ArrayND<T>& iny, const ArrayND<T>* inx_,
 }
 
 }; //namespace ArrayMath
+
+
+
+/*!<Replaces the undefined samples in a 2D/3D array. Optionally provides
+    the list of replaced samples.
+    If a PosInfo::CubeData is provided the samples where traces are not present
+    will not be substituted
+ */
+
+template <class T>
+mClass(Algo) ArrayUdfValReplacer : public ParallelTask
+{ mODTextTranslationClass(ArrayUdfValReplacer)
+public:
+		ArrayUdfValReplacer( Array2D<T>& inp,
+				     TypeSet<od_uint64>* undefidxs )
+		    : ParallelTask("Array Udf Replacer")
+		    , inp_(inp)
+		    , replval_(0.f)
+		    , undefidxs_(undefidxs)
+		    , tks_(0)
+		    , trcssampling_(0)
+		    , totalnr_(inp.info().getTotalSz()/inp.info().getSize(1))
+		{}
+
+		ArrayUdfValReplacer( Array3D<T>& inp,
+				     TypeSet<od_uint64>* undefidxs )
+		    : ParallelTask("Array Udf Replacer")
+		    , inp_(inp)
+		    , replval_(0.f)
+		    , undefidxs_(undefidxs)
+		    , tks_(0)
+		    , trcssampling_(0)
+		    , totalnr_(inp.info().getTotalSz()/inp.info().getSize(2))
+		{}
+
+    uiString	uiMessage() const
+		{
+		    return tr("Replacing undefined values");
+		}
+
+    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+
+    void	setReplacementValue( T val )	{ replval_ = val; }
+
+    void	setSampling( const TrcKeySampling& tks,
+			     const PosInfo::CubeData* trcssampling )
+		{
+		    tks_ = &tks;
+		    trcssampling_ = trcssampling;
+		}
+
+protected:
+
+    od_int64	nrIterations() const	{ return totalnr_; }
+
+private:
+
+    bool	doPrepare( int )
+		{
+		    if ( undefidxs_ )
+			undefidxs_->setEmpty();
+
+		    return true;
+		}
+
+    bool	doWork( od_int64 start, od_int64 stop, int )
+		{
+		     const bool isrect = tks_ && trcssampling_
+				       ? trcssampling_->isFullyRectAndReg()
+				       : true;
+		     const ArrayNDInfo& info = inp_.info();
+		     const int nrtrcsp = info.getSize( info.getNDim() - 1 );
+		     T* dataptr = inp_.getData();
+		     ValueSeries<T>* datastor = inp_.getStorage();
+		     const bool hasarrayptr = dataptr;
+		     const bool hasstorage = datastor;
+		     const bool neediterator = !hasarrayptr && !hasstorage;
+		     const od_int64 offset = start * nrtrcsp;
+		     dataptr += offset;
+		     od_uint64 validx = offset;
+		     ArrayNDIter* iter = neediterator
+				       ? new ArrayNDIter( info ) : 0;
+		     if ( iter )
+			 iter->setGlobalPos( start*nrtrcsp );
+
+		     const T replval = replval_;
+		     for ( od_int64 idx=start; idx<=stop; idx++,
+							  quickAddToNrDone(idx))
+		     {
+			bool hastrcdata = true;
+			if ( !isrect )
+			{
+			    const BinID bid( tks_->atIndex(idx) );
+			    hastrcdata = trcssampling_->includes( bid.inl(),
+								  bid.crl() );
+			}
+
+			if ( hastrcdata )
+			{
+			    for ( int idz=0; idz<nrtrcsp; idz++ )
+			    {
+				const int* pos = iter ? iter->getPos() : 0;
+				const T val = hasarrayptr ? *dataptr
+					    : hasstorage
+						? datastor->value( validx )
+						: inp_.getND( pos );
+				if ( !mIsUdf(val) )
+				{
+				    if ( hasarrayptr ) dataptr++;
+				    else if ( hasstorage ) validx++;
+				    else iter->next();
+
+				    continue;
+				}
+
+				if ( undefidxs_ )
+				{
+				    lck_.lock();
+				    *undefidxs_ += idx + idz;
+				    lck_.unLock();
+				}
+
+				if ( hasarrayptr )
+				    *dataptr++ = replval;
+				else if ( hasstorage )
+				    datastor->setValue( validx++, replval );
+				else
+				{
+				    inp_.setND( pos, replval );
+				    iter->next();
+				}
+			    }
+			}
+			else
+			{
+			    if ( hasarrayptr )
+			    {
+				OD::memSet( dataptr, replval, nrtrcsp );
+				dataptr+=nrtrcsp;
+			    }
+			    else if ( hasstorage )
+			    {
+				for ( int idz=0; idz<nrtrcsp; idz++ )
+				    datastor->setValue( validx++, replval );
+			    }
+			    else
+			    {
+				for ( int idz=0; idz<nrtrcsp; idz++ )
+				{
+				    inp_.setND( iter->getPos(), replval );
+				    iter->next();
+				}
+			    }
+			}
+		     }
+
+		     delete iter;
+
+		     return true;
+		}
+
+    ArrayND<T>&			inp_;
+    T				replval_;
+    TypeSet<od_uint64>*		undefidxs_;
+    const TrcKeySampling*	tks_;
+    const PosInfo::CubeData*	trcssampling_;
+    const od_int64		totalnr_;
+    Threads::Mutex		lck_;
+};
+
+
+/*!<Replaces undefined values back to an ND array*/
+
+template <class T>
+mClass(Algo) ArrayUdfValRestorer : public ParallelTask
+{ mODTextTranslationClass(ArrayUdfValRestorer)
+public:
+		ArrayUdfValRestorer( const TypeSet<od_uint64>& undefidxs,
+				      ArrayND<T>& outp )
+		    : ParallelTask("Udf retriever")
+		    , undefidxs_(undefidxs)
+		    , outp_(outp)
+		    , totalnr_(undefidxs.size())
+		{}
+
+    uiString	uiMessage() const { return tr("Replacing undefined values"); }
+
+    uiString	uiNrDoneText() const	{ return ParallelTask::sPosFinished(); }
+
+protected:
+
+    od_int64	nrIterations() const	{ return totalnr_; }
+
+private:
+
+    bool	doWork( od_int64 start, od_int64 stop, int )
+		{
+		    T* outpptr = outp_.getData();
+		    ValueSeries<T>* outpstor = outp_.getStorage();
+		    int pos[outp_.info().getNDim()];
+		    const T udfval = mUdf(T);
+		    const ArrayNDInfo& info = outp_.info();
+		    for ( od_int64 idx=start; idx<=stop; idx++,
+							 quickAddToNrDone(idx) )
+		    {
+			const od_uint64 sidx = undefidxs_[idx];
+			if ( outpptr )
+			    outpptr[sidx] = udfval;
+			else if ( outpstor )
+			    outpstor->setValue( sidx, udfval );
+			else
+			{
+			    info.getArrayPos( sidx, pos );
+			    outp_.setND( pos, udfval );
+			}
+		    }
+
+		    return true;
+		}
+
+    const TypeSet<od_uint64>&	undefidxs_;
+    ArrayND<T>&			outp_;
+    const od_int64		totalnr_;
+};
 
 #endif
