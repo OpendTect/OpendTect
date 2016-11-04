@@ -24,8 +24,6 @@ ________________________________________________________________________
 #include "wellmanager.h"
 #include "wellmarker.h"
 #include "welllogset.h"
-#include "welltransl.h"
-#include "wellwriter.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -60,7 +58,7 @@ bool uiWellLogToolWinMgr::acceptOK()
     DBKeySet wellids; welllogselfld_->getSelWellIDs( wellids );
     BufferStringSet wellnms; welllogselfld_->getSelWellNames( wellnms );
     if ( wellids.isEmpty() )
-	mErrRet( uiStrings::phrSelect(tr("at least one well")) )
+	mErrRet( uiStrings::phrPlsSelectAtLeastOne(uiStrings::sWell()) )
 
     ObjectSet<uiWellLogToolWin::LogData> logdatas;
     uiRetVal msgs;
@@ -88,8 +86,8 @@ bool uiWellLogToolWinMgr::acceptOK()
     }
 
     if ( logdatas.isEmpty() )
-	mErrRet(tr("Please select at least one valid "
-		   "log for the selected well(s)") )
+	mErrRet( uiStrings::phrPlsSelectAtLeastOne(tr("valid log for the "
+						"selected well(s)") ) )
     else if ( !msgs.isEmpty() )
 	uiMSG().warning( tr("%1\nWill process the other wells only").arg(msgs));
 
@@ -448,7 +446,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		Well::LogSampler ls( ld.d2t_, &track, zrg, false, deftimestep,
 				     SI().zIsTime(), ut, reslogs );
 		if ( !ls.execute() )
-		    mAddErrMsg( tr("Cannot resample the logs"), 
+		    mAddErrMsg( tr("Cannot resample the logs"),
 					    toUiString(wllnm) )
 
 		const int size = ls.nrZSamples();

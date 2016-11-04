@@ -23,13 +23,10 @@
 
 #include "welldisp.h"
 #include "wellmanager.h"
-#include "welldata.h"
 #include "wellinfo.h"
-#include "welllog.h"
 #include "welllogset.h"
 #include "welltrack.h"
 #include "wellextractdata.h"
-#include "welltransl.h"
 #include "wellmarker.h"
 #include "welld2tmodel.h"
 #include "zaxistransform.h"

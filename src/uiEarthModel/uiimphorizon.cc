@@ -194,7 +194,7 @@ void uiImportHorizon::interpolSettingsCB( CallBacker* )
 {
     uiSingleGroupDlg<uiArray2DInterpolSel> dlg( this,
                 new uiArray2DInterpolSel( 0, true, true, false, interpol_ ));
-    
+
     dlg.setCaption( uiStrings::sInterpolation() );
     dlg.setTitleText( uiStrings::sSettings() );
 
@@ -288,8 +288,11 @@ void uiImportHorizon::clearListCB( CallBacker* )
 void uiImportHorizon::scanPush( CallBacker* )
 {
     if ( !isgeom_ && !attrlistfld_->nrChosen() )
-	{ uiMSG().error(uiStrings::phrSelect(tr("at least one attribute")));
-								return; }
+    {
+	uiMSG().error(uiStrings::phrPlsSelectAtLeastOne(
+			    uiStrings::sAttribute()));
+	return;
+    }
     if ( !dataselfld_->commit() || !doScan() )
 	return;
 

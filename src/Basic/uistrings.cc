@@ -34,6 +34,12 @@ uiString uiStrings::phrTODONotImpl( const char* clssnm )
 uiString uiStrings::phrThreeDots( const uiString& string, bool immediate )
 { return immediate ? string : toUiString( "%1 ..." ).arg( string ); }
 
+uiString uiStrings::phrPlsSelectAtLeastOne( const uiString& string )
+{ return tr("Please select at least one %1").arg( string ); }
+
+uiString uiStrings::phrPlsSpecifyAtLeastOne( const uiString& string )
+{ return tr("Please specify at least one %1").arg( string ); }
+
 uiString uiStrings::phrSelect( const uiString& string )
 { return toUiString(joinstring).arg( sSelect() ).arg( string ); }
 

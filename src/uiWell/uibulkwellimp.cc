@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "welltrack.h"
 #include "wellinfo.h"
 #include "welltransl.h"
-#include "wellwriter.h"
 
 #include "uibutton.h"
 #include "uifiledlg.h"
@@ -249,7 +248,7 @@ bool uiBulkLogImport::acceptOK()
     inpfld_->getFileNames( filenms );
     if ( filenms.isEmpty() )
     {
-	uiMSG().error( uiStrings::phrSelect(tr("at least one file")) );
+	uiMSG().error( uiStrings::phrPlsSelectAtLeastOne(uiStrings::sFile()) );
 	return false;
     }
 

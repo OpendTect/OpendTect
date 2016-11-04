@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiStepOutSel;
 class uiSelZRange;
-class uiWellParSel;
+class uiMultiWellSel;
 
 
 /*! \brief UI for WellPosProvider */
@@ -38,12 +38,12 @@ public:
     void		getZRange(StepInterval<float>&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
-    			{ return new uiWellPosProvGroup(p,s); }
+			{ return new uiWellPosProvGroup(p,s); }
     static void		initClass();
 
 protected:
 
-    uiWellParSel*	wellfld_;
+    uiMultiWellSel*	wellfld_;
     uiStepOutSel*	stepoutfld_;
     uiSelZRange*	zrgfld_;
 

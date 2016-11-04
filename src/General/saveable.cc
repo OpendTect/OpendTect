@@ -341,6 +341,12 @@ IOObj* SaveableManager::getIOObjByName( const char* nm ) const
 }
 
 
+BufferString SaveableManager::nameOf( const ObjID& id ) const
+{
+    return DBM().nameOf( id );
+}
+
+
 bool SaveableManager::nameExists( const char* nm ) const
 {
     IOObj* ioobj = getIOObjByName( nm );
@@ -449,6 +455,19 @@ void SaveableManager::addCBsToObj( const SharedObject& obj )
 {
     mAttachCB( obj.objectToBeDeleted(), SaveableManager::objDelCB );
     mAttachCB( obj.objectChanged(), SaveableManager::objChgCB );
+}
+
+
+bool SaveableManager::isValidID( const ObjID& id ) const
+{
+    if ( !id.isValid() )
+	return false;
+
+    PtrMan<IOObj> ioobj = getIOObj( id );
+    if ( !ioobj )
+	return false;
+
+    return ctxt_.validIOObj( *ioobj );
 }
 
 

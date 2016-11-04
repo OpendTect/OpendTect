@@ -30,8 +30,6 @@ ________________________________________________________________________
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "wellreader.h"
-#include "wellwriter.h"
 #include "ioobj.h"
 #include "dbman.h"
 
@@ -131,7 +129,7 @@ bool uiImportLogsDlg::acceptOK()
     const DBKey wellid = wellfld_->key();
     uiRetVal uirv;
     RefMan<Well::Data> wd = Well::MGR().fetchForEdit( wellid, Well::LoadReqs(),
-	    						uirv );
+							uirv );
     if ( !wd )
 	mErrRet( uirv )
 
@@ -157,7 +155,7 @@ bool uiImportLogsDlg::acceptOK()
 
     BufferStringSet lognms; logsfld_->getChosen( lognms );
     if ( lognms.isEmpty() )
-	mErrRet( uiStrings::phrSelect(tr("at least one log to import")) )
+	mErrRet( uiStrings::phrPlsSelectAtLeastOne(tr("log to import")) )
 
     BufferStringSet existlogs;
     for ( int idx=lognms.size()-1; idx>=0; idx-- )

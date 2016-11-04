@@ -42,7 +42,6 @@ ________________________________________________________________________
 #include "welllog.h"
 #include "welllogset.h"
 #include "welltransl.h"
-#include "wellreader.h"
 #include "wellwriter.h"
 #include "welltrack.h"
 #include "wellinfo.h"

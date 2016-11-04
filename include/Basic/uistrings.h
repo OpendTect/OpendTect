@@ -151,6 +151,10 @@ public:
     //!<"Save <string>"
     static uiString phrSaveAs(const uiString&);
     //!<"Save <string> as"
+    static uiString phrPlsSelectAtLeastOne(const uiString& string);
+    //!<"Please select at least one <string>"
+    static uiString phrPlsSpecifyAtLeastOne(const uiString& string);
+    //!<"Please specify at least one <string>"
     static uiString phrSelect(const uiString& string);
     //!<"Select <string>"
     static uiString phrSelectObjectWrongType(const uiString& string);

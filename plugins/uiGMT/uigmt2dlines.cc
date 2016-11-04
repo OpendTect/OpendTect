@@ -109,7 +109,7 @@ bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
     TypeSet<Pos::GeomID> geomids;
     lineselfld_->getSelGeomIDs( geomids );
     if ( geomids.isEmpty() )
-	mErrRet( uiStrings::phrSelect(tr("at least one 2D line")) );
+	mErrRet( uiStrings::phrPlsSelectAtLeastOne( uiStrings::s2DLine() ) )
 
     par.set( sKey::Name(), namefld_->text() );
     par.set( sKey::GeomID(), geomids );

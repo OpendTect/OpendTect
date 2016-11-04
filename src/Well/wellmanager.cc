@@ -223,6 +223,8 @@ Well::Manager::ObjID Well::Manager::getIDByUWI( const char* uwi ) const
 	    return saver.key();
     }
 
+    mUnlockAllAccess();
+
     PtrMan<IOObj> ioobj = getIOObjByUWI( uwi );
     if ( ioobj )
 	return ioobj->key();
@@ -247,6 +249,25 @@ IOObj* Well::Manager::getIOObjByUWI( const char* uwi ) const
     }
 
     return 0;
+}
+
+
+Coord Well::Manager::getMapLocation( const ObjID& id ) const
+{
+    mLock4Read();
+    const IdxType idxof = gtIdx( id );
+    if ( idxof >= 0 )
+	return gtData(idxof)->info().surfaceCoord();
+
+    mUnlockAllAccess();
+
+    PtrMan<IOObj> ioobj = getIOObj( id );
+    if ( !ioobj )
+	return Coord::udf();
+
+    RefMan<Well::Data> data = new Well::Data; Coord maploc;
+    Well::Reader rdr( *ioobj, *data );
+    return rdr.getMapLocation(maploc) ? maploc : Coord::udf();
 }
 
 

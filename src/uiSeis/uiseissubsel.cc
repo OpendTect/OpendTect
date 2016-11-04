@@ -268,7 +268,8 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     {
 	if ( !multilnmsel_->nrSelected() )
 	{
-	    uiMSG().error( uiStrings::phrSelect(tr("at least one line")) );
+	    uiMSG().error( uiStrings::phrPlsSelectAtLeastOne(
+					uiStrings::sLine() ) );
 	    return false;
 	}
 

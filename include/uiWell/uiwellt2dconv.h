@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uitime2depthzaxistrans.h"
 
 class WellT2DTransform;
-class uiIOObjSel;
+class uiWellSel;
 
 /*!User interface that creates a ZAxisTransform from a Well's t2d model. */
 
@@ -28,7 +28,7 @@ public:
     ZAxisTransform*	getSelection();
     bool		canBeField() const	{ return true; }
 
-    static void 	initClass();
+    static void	initClass();
 
 protected:
 
@@ -37,6 +37,6 @@ protected:
     bool			acceptOK();
     void			setZRangeCB(CallBacker*);
 
-    uiIOObjSel* 		fld_;
+    uiWellSel*			fld_;
     WellT2DTransform*		transform_;
 };

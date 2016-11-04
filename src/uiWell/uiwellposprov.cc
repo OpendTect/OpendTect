@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "survinfo.h"
 #include "wellposprovider.h"
-#include "welltransl.h"
 
 
 uiWellPosProvGroup::uiWellPosProvGroup( uiParent* p,
@@ -33,7 +32,7 @@ uiWellPosProvGroup::uiWellPosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , zrgfld_(0)
 {
-    wellfld_ = new uiWellParSel( this );
+    wellfld_ = new uiMultiWellSel( this, true );
 
     stepoutfld_ = new uiStepOutSel( this, false, tr("Extension") );
     stepoutfld_->attach( alignedBelow, wellfld_ );
@@ -74,7 +73,7 @@ bool uiWellPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Well() );
     if ( !wellfld_->nrSelected() )
-	mErrRet(uiStrings::phrSelect(tr("at least one well")))
+	mErrRet(uiStrings::phrPlsSelectAtLeastOne(uiStrings::sWell()))
 
     wellfld_->fillPar( iop );
     float zext = 0; bool onlysurfacecoords = true;

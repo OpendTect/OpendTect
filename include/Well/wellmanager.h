@@ -98,6 +98,7 @@ public:
     void		getLogNames(const ObjID&,BufferStringSet&) const;
     void		getAllMarkerNames(BufferStringSet&) const;
     ConstRefMan<Log>	getLog(const ObjID&,const char* lognm) const;
+    Coord		getMapLocation(const ObjID&) const;
 
 			// Use MonitorLock when iterating
     ConstRefMan<Data>	get(IdxType) const;

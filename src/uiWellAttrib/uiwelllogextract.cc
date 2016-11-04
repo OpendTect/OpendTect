@@ -249,7 +249,7 @@ bool uiWellLogExtractGrp::extractDPS()
     for ( int idx=0; idx<lognms.size(); idx++ )
 	dcds += new DataColDef( lognms[idx]->buf() );
     if ( lognms.isEmpty() )
-	mErrRet(uiStrings::phrSelect(tr("at least one log")))
+	mErrRet(uiStrings::phrPlsSelectAtLeastOne(uiStrings::sLog()))
     BufferStringSet attrnms;
     if ( ads_ )
 	addDCDs( attrsfld_, dcds,  attrnms );
@@ -258,7 +258,7 @@ bool uiWellLogExtractGrp::extractDPS()
     welllogselfld_->getSelWellNames( wellnms );
     welllogselfld_->getSelWellIDs( ioobjids );
     if ( ioobjids.isEmpty() )
-	mErrRet(uiStrings::phrSelect(tr("at least one well")))
+	mErrRet(uiStrings::phrPlsSelectAtLeastOne(uiStrings::sWell()))
 
     ObjectSet<DataPointSet> dpss;
     if ( !extractWellData(ioobjids,lognms,dpss) )

@@ -18,11 +18,9 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "keystrs.h"
 #include "picksetmanager.h"
+#include "wellmanager.h"
 #include "strmprov.h"
 #include "uistrings.h"
-#include "welldata.h"
-#include "wellreader.h"
-#include "ioobjctxt.h"
 
 
 mDefineNameSpaceEnumUtils(ODGMT,Shape,"Shapes")
@@ -435,13 +433,11 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     TypeSet<Coord> surfcoords;
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
-	const IOObj* ioobj = DBM().getByName( IOObjContext::WllInf,
-					      wellnms.get(idx) );
-	RefMan<Well::Data> data = new Well::Data;
-	Coord maploc;
-	Well::Reader rdr( *ioobj, *data );
-	if ( !rdr.getMapLocation(maploc) )
-	    mErrStrmRet(BufferString("Cannot get location for ",ioobj->name()))
+	DBKey wllky = Well::MGR().getIDByName( wellnms.get(idx) );
+	const Coord maploc = Well::MGR().getMapLocation( wllky );
+	if ( maploc.isUdf() )
+	    mErrStrmRet( BufferString("Cannot get location for ",
+				Well::MGR().nameOf(wllky)) )
 
 	surfcoords += maploc;
 	procstrm << maploc.x_ << " " << maploc.y_ << " " << sz << "\n";

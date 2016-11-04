@@ -227,7 +227,7 @@ bool acceptOK()
 {
     if ( nrtrcfld_->getIntValue()< 1 )
     {
-	uiMSG().error(tr("Select at least one trace"));
+	uiMSG().error(uiStrings::phrPlsSelectAtLeastOne(uiStrings::sTrace()));
 	return false;
     }
 

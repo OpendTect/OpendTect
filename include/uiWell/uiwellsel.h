@@ -11,9 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
-#include "uicompoundparsel.h"
 #include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 #include "dbkey.h"
+
+class uiWellSingLineMultiSel;
 
 
 mExpClass(uiWell) uiWellSel : public uiIOObjSel
@@ -33,24 +35,30 @@ protected:
 };
 
 
-mExpClass(uiWell) uiWellParSel : public uiCompoundParSel
-{ mODTextTranslationClass(uiWellParSel);
+mExpClass(uiWell) uiMultiWellSel : public uiGroup
+{ mODTextTranslationClass(uiMultiWellSel);
 public:
-			uiWellParSel(uiParent*);
-			~uiWellParSel();
 
-    int			nrSelected() const	{ return selids_.size(); }
+			uiMultiWellSel(uiParent*,bool single_line,
+					const uiIOObjSelGrp::Setup* su=0);
+
+    int			nrSelected() const;
     void		setSelected(const DBKeySet&);
     void		getSelected(DBKeySet&) const;
+    DBKey		currentID() const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
+    Notifier<uiMultiWellSel>	newSelection;
+    Notifier<uiMultiWellSel>	newCurrent;
+
 protected:
 
-    void		doDlg(CallBacker*);
-    BufferString	getSummary() const;
+    uiWellSingLineMultiSel*	singlnfld_;
+    uiIOObjSelGrp*		multilnfld_;
 
-    DBKeySet	selids_;
-    IOPar&		iopar_;
+    void    newSelectionCB( CallBacker* )   { newSelection.trigger(); }
+    void    newCurrentCB( CallBacker* )	    { newCurrent.trigger(); }
+
 };

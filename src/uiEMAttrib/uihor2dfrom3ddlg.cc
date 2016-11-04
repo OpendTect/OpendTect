@@ -127,7 +127,7 @@ bool uiHor2DFrom3DDlg::checkFlds()
     if ( !hor3dsel_->getObjSel()->commitInput() )
 	mErrRet( tr("Pease select a valid 3D Horizon. ") )
     if ( !linesetinpsel_->nrSelected() )
-	mErrRet( tr("Pease select at least one 2D line") )
+	mErrRet( uiStrings::phrPlsSelectAtLeastOne( uiStrings::s2DLine() ) )
     if ( !out2dfld_->getObjSel()->commitInput() )
 	mErrRet( tr("Enter the output Horizon where you want to write. ") )
     return true;

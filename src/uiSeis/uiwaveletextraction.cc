@@ -298,7 +298,7 @@ bool uiWaveletExtraction::check2DFlds()
 {
     if ( !linesel2dfld_->nrSelected() )
     {
-	uiMSG().error( tr("Select at least one line") );
+	uiMSG().error( uiStrings::phrPlsSelectAtLeastOne( uiStrings::sLine() ));
 	return false;
     }
 

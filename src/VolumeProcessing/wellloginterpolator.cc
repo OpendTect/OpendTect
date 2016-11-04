@@ -16,7 +16,6 @@
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellmanager.h"
-#include "wellreader.h"
 #include "welltrack.h"
 #include "dbman.h"
 
@@ -45,7 +44,7 @@ bool init()
 {
     const bool zistime = SI().zIsTime();
     ConstRefMan<Well::Data> wd = Well::MGR().fetch( dbky_,
-	    			Well::LoadReqs( Well::Trck, Well::D2T ) );
+				Well::LoadReqs( Well::Trck, Well::D2T ) );
     if ( !wd )
 	return false;
     log_ = Well::MGR().getLog( dbky_, logname_ );

@@ -8,18 +8,11 @@
 #include "uigoogleexpwells.h"
 #include "googlexmlwriter.h"
 #include "uifileinput.h"
-#include "uilistbox.h"
+#include "uiwellsel.h"
 #include "uimsg.h"
 #include "oddirs.h"
-#include "dbdir.h"
-#include "ioobj.h"
-#include "strmprov.h"
 #include "survinfo.h"
-#include "welltransl.h"
-#include "welldata.h"
-#include "welltrack.h"
-#include "wellreader.h"
-#include "dbman.h"
+#include "wellmanager.h"
 #include "latlong.h"
 #include "od_ostream.h"
 #include "od_helpids.h"
@@ -30,30 +23,10 @@ uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
 				 tr("Specify wells to output"),
 				 mODHelpKey(mGoogleExportWellsHelpID)))
 {
-    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Well(s)") );
-    selfld_ = new uiListBox( this, su );
+    selfld_ = new uiMultiWellSel( this, false );
 
     mImplFileNameFld("wells");
     fnmfld_->attach( alignedBelow, selfld_ );
-
-    preFinalise().notify( mCB(this,uiGoogleExportWells,initWin) );
-}
-
-
-uiGoogleExportWells::~uiGoogleExportWells()
-{
-}
-
-
-void uiGoogleExportWells::initWin( CallBacker* )
-{
-    const DBDirEntryList del( WellTranslatorGroup::ioContext() );
-    for ( int idx=0; idx<del.size(); idx++ )
-    {
-	selfld_->addItem( toUiString(del.dispName(idx)) );
-	wellids_ += del.key( idx );
-    }
-    selfld_->chooseAll( true );
 }
 
 
@@ -63,18 +36,22 @@ bool uiGoogleExportWells::acceptOK()
 
     wrr.writeIconStyles( "wellpin", 20 );
 
-    for ( int idx=0; idx<selfld_->size(); idx++ )
+    DBKeySet wellids;
+    selfld_->getSelected( wellids );
+    if ( wellids.isEmpty() )
     {
-	if ( !selfld_->isChosen(idx) )
+	uiMSG().error(uiStrings::phrPlsSelectAtLeastOne(uiStrings::sWell()));
+	return false;
+    }
+
+    for ( int idx=0; idx<wellids.size(); idx++ )
+    {
+	const DBKey wellid = wellids[idx];
+	const Coord coord = Well::MGR().getMapLocation( wellid );
+	if ( coord.isUdf() )
 	    continue;
 
-	RefMan<Well::Data> wd = new Well::Data;
-	Well::Reader wllrdr( wellids_[idx], *wd );
-	Coord coord;
-	if ( !wllrdr.getMapLocation(coord) )
-	    continue;
-
-	wrr.writePlaceMark( "wellpin", coord, selfld_->textOfItem(idx) );
+	wrr.writePlaceMark( "wellpin", coord, Well::MGR().nameOf(wellid) );
 	if ( !wrr.isOK() )
 	    { uiMSG().error(wrr.errMsg()); return false; }
     }

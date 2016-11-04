@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellmanager.h"
-#include "welltransl.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
 #include "welltieunitfactors.h"
@@ -36,10 +35,10 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseislinesel.h"
+#include "uiwellsel.h"
 #include "uiseissel.h"
 #include "uiwaveletsel.h"
 #include "uiseparator.h"
@@ -72,8 +71,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 {
     setCtrlStyle( RunAndClose );
 
-    const IOObjContext wellctxt = mIOObjContext(Well);
-    wellfld_ = new uiIOObjSel( this, wellctxt );
+    wellfld_ = new uiWellSel( this, true );
     if ( wtsetup_.wellid_.isValid() )
 	wellfld_->setInput( wtsetup_.wellid_ );
 

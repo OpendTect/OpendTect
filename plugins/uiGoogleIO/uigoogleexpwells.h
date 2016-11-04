@@ -6,8 +6,7 @@
 -*/
 
 #include "uigoogleexpdlg.h"
-#include "dbkey.h"
-class uiListBox;
+class uiMultiWellSel;
 
 
 mClass(uiGoogleIO) uiGoogleExportWells : public uiDialog
@@ -15,16 +14,10 @@ mClass(uiGoogleIO) uiGoogleExportWells : public uiDialog
 public:
 
 			uiGoogleExportWells(uiParent*);
-			~uiGoogleExportWells();
 
 protected:
 
-    DBKeySet		wellids_;
-
-    uiListBox*		selfld_;
-
-    void		initWin(CallBacker*);
-
+    uiMultiWellSel*	selfld_;
 
 			mDecluiGoogleExpStd;
 };

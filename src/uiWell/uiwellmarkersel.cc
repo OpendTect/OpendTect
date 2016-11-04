@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uiioobjselgrp.h"
+#include "uiwellsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uiseparator.h"
@@ -273,8 +273,8 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
     uiSeparator* sep = new uiSeparator( this, "Well to markers" );
     sep->attach( stretchedBelow, mrkrgrp );
 
-    wellselgrp_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
-				uiIOObjSelGrp::Setup(su.wellschoicemode_) );
+    uiIOObjSelGrp::Setup wssu( su.wellschoicemode_ );
+    wellselgrp_ = new uiMultiWellSel( this, false, &wssu );
     wellselgrp_->attach( alignedBelow, mrkrgrp );
     wellselgrp_->attach( ensureBelow, sep );
 
@@ -293,15 +293,19 @@ void uiWellMarkersDlg::getNames( BufferStringSet& markernms )
 void uiWellMarkersDlg::getWellNames( BufferStringSet& wllnms )
 {
     if ( wellselgrp_ )
-	wellselgrp_->getChosen( wllnms );
-
+    {
+	DBKeySet wllids;
+	wellselgrp_->getSelected( wllids );
+	for ( int idx=0; idx<wllids.size(); idx++ )
+	    wllnms.add( Well::MGR().nameOf( wllids[idx] ) );
+    }
 }
 
 
 void uiWellMarkersDlg::getWellIDs( DBKeySet& wllids )
 {
     if ( wellselgrp_ )
-	wellselgrp_->getChosen( wllids );
+	wellselgrp_->getSelected( wllids );
 }
 
 

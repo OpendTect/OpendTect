@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Nanne Hemstra
- Date:		January 2012
+ Author:	Nanne Hemstra / Bert
+ Date:		January 2012 / Nov 2016
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "welltransl.h"
 
-#include "uilistbox.h"
+#include "uicompoundparsel.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
 
@@ -60,57 +60,69 @@ uiWellSel::uiWellSel( uiParent* p, bool forread, const uiIOObjSel::Setup& su )
 }
 
 
+class uiWellSingLineMultiSel : public uiCompoundParSel
+{ mODTextTranslationClass(uiWellSingLineMultiSel);
+public:
 
-uiWellParSel::uiWellParSel( uiParent* p )
+uiWellSingLineMultiSel( uiParent* p )
     : uiCompoundParSel(p,uiStrings::sWell(mPlural))
-    , iopar_(*new IOPar)
+    , selDone(this)
 {
-    butPush.notify( mCB(this,uiWellParSel,doDlg) );
+    butPush.notify( mCB(this,uiWellSingLineMultiSel,doDlg) );
 }
 
-
-uiWellParSel::~uiWellParSel()
-{
-    delete &iopar_;
-}
-
-
-void uiWellParSel::setSelected( const DBKeySet& ids )
+void setSelected( const DBKeySet& ids )
 {
     selids_ = ids;
     updSummary(0);
 }
 
+void fillPar( IOPar& iop ) const
+{
+    iop.mergeComp( iopar_, sKey::Well() );
+}
 
-void uiWellParSel::getSelected( DBKeySet& ids ) const
-{ ids = selids_; }
+    int			nrSelected() const	{ return selids_.size(); }
+    void		getSelected( DBKeySet& ids ) const { ids = selids_; }
+    bool		usePar(const IOPar&);
+
+    Notifier<uiWellSingLineMultiSel>	selDone;
+
+    void		doDlg(CallBacker*);
+    BufferString	getSummary() const;
+
+    DBKeySet		selids_;
+    IOPar		iopar_;
+
+};
 
 
-void uiWellParSel::doDlg( CallBacker* )
+void uiWellSingLineMultiSel::doDlg( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     uiIOObjSelDlg::Setup sdsu( tr("Select Wells") ); sdsu.multisel( true );
     uiIOObjSelDlg dlg( this, sdsu, *ctio );
     uiIOObjSelGrp* selgrp = dlg.selGrp();
     selgrp->usePar( iopar_ );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     selids_.erase();
     selgrp->getChosen( selids_ );
     iopar_.setEmpty();
     selgrp->fillPar( iopar_ );
+
+    selDone.trigger();
 }
 
 
-void uiWellParSel::fillPar( IOPar& iop ) const
-{ iop.mergeComp( iopar_, sKey::Well() ); }
-
-bool uiWellParSel::usePar( const IOPar& iop )
+bool uiWellSingLineMultiSel::usePar( const IOPar& iop )
 {
     selids_.erase();
     iopar_.setEmpty();
     PtrMan<IOPar> subsel = iop.subselect( sKey::Well() );
-    if ( !subsel ) return false;
+    if ( !subsel )
+	return false;
 
     iopar_ = *subsel;
 
@@ -118,9 +130,9 @@ bool uiWellParSel::usePar( const IOPar& iop )
     iopar_.get( sKey::Size(), nrids );
     for ( int idx=0; idx<nrids; idx++ )
     {
-	DBKey mid;
-	if ( iopar_.get(IOPar::compKey(sKey::ID(),idx),mid) )
-	    selids_ += mid;
+	DBKey dbky;
+	if ( iopar_.get(IOPar::compKey(sKey::ID(),idx),dbky) )
+	    selids_ += dbky;
     }
 
     updSummary(0);
@@ -128,7 +140,7 @@ bool uiWellParSel::usePar( const IOPar& iop )
 }
 
 
-BufferString uiWellParSel::getSummary() const
+BufferString uiWellSingLineMultiSel::getSummary() const
 {
     BufferStringSet names;
     for ( int idx=0; idx<selids_.size(); idx++ )
@@ -140,4 +152,99 @@ BufferString uiWellParSel::getSummary() const
     }
 
     return names.getDispString( -1, false );
+}
+
+
+
+uiMultiWellSel::uiMultiWellSel( uiParent* p, bool singleline,
+		const uiIOObjSelGrp::Setup* su )
+    : uiGroup(p,"Multi-well selector")
+    , singlnfld_(0)
+    , multilnfld_(0)
+    , newSelection(0)
+    , newCurrent(0)
+{
+    if ( singleline )
+	singlnfld_ = new uiWellSingLineMultiSel( this );
+    else
+    {
+	const uiIOObjSelGrp::Setup plainsu( OD::ChooseAtLeastOne );
+	if ( !su )
+	    su = &plainsu;
+	multilnfld_ = new uiIOObjSelGrp( this, mIOObjContext(Well), *su );
+    }
+
+    if ( singlnfld_ )
+    {
+	setHAlignObj( singlnfld_ );
+	mAttachCB( singlnfld_->selDone, uiMultiWellSel::newSelectionCB );
+    }
+    else
+    {
+	setHAlignObj( multilnfld_ );
+	mAttachCB( multilnfld_->itemChosen,
+		   uiMultiWellSel::newSelectionCB );
+	mAttachCB( multilnfld_->selectionChanged,
+		   uiMultiWellSel::newCurrentCB );
+    }
+}
+
+
+int uiMultiWellSel::nrSelected() const
+{
+    return singlnfld_ ? singlnfld_->nrSelected() : multilnfld_->nrChosen();
+}
+
+
+void uiMultiWellSel::setSelected( const DBKeySet& ids )
+{
+    if ( singlnfld_ )
+	singlnfld_->setSelected( ids );
+    else
+	multilnfld_->setChosen( ids );
+}
+
+
+void uiMultiWellSel::getSelected( DBKeySet& ids ) const
+{
+    if ( singlnfld_ )
+	singlnfld_->getSelected( ids );
+    else
+	multilnfld_->getChosen( ids );
+}
+
+
+DBKey uiMultiWellSel::currentID() const
+{
+    if ( multilnfld_ )
+	return multilnfld_->currentID();
+
+    return !singlnfld_->selids_.isEmpty() ? singlnfld_->selids_[0] : DBKey();
+}
+
+
+void uiMultiWellSel::fillPar( IOPar& iop ) const
+{
+    if ( singlnfld_ )
+	singlnfld_->fillPar( iop );
+    else
+    {
+	IOPar fldiop;
+	multilnfld_->fillPar( fldiop );
+	iop.mergeComp( fldiop, sKey::Well() );
+    }
+}
+
+
+bool uiMultiWellSel::usePar( const IOPar& iop )
+{
+    if ( singlnfld_ )
+	return singlnfld_->usePar( iop );
+
+    PtrMan<IOPar> subsel = iop.subselect( sKey::Well() );
+    if ( !subsel )
+	return false;
+
+    multilnfld_->usePar( *subsel );
+    return true;
 }

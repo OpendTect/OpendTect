@@ -19,7 +19,6 @@ _______________________________________________________________________
 #include "wellextractdata.h"
 #include "welllogset.h"
 #include "wellmarker.h"
-#include "wellwriter.h"
 
 #include "uiattrsel.h"
 #include "uigeninput.h"

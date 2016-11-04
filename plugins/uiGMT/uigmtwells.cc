@@ -105,7 +105,7 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
 {
     const int nrsel = welllistfld_->nrChosen();
     if ( !nrsel )
-	mErrRet(uiStrings::phrSelect(tr("at least one well")))
+	mErrRet( uiStrings::phrPlsSelectAtLeastOne( uiStrings::sWell() ) )
 
     const char* namestr = namefld_->text();
     if ( !namestr || !*namestr )

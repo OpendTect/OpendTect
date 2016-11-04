@@ -40,8 +40,6 @@ ________________________________________________________________________
 #include "wellmanager.h"
 #include "wellimpasc.h"
 #include "welltrack.h"
-#include "welltransl.h"
-#include "wellreader.h"
 #include "od_helpids.h"
 
 static const int cNrEmptyRows = 5;
@@ -731,7 +729,7 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
 
     uiRetVal uirv;
     RefMan<Well::Data> wd = Well::MGR().fetchForEdit( wellid, Well::LoadReqs(),
-	    						uirv );
+							uirv );
     if ( !wd )
 	{ uiMSG().error( uirv ); return; }
 

@@ -55,11 +55,13 @@ public:
     bool		needsSave(const ObjID&) const;
     void		setJustSaved(const ObjID&) const;
 
+    bool		isValidID(const ObjID&) const;
     bool		isLoaded(const char*) const;
     bool		isLoaded(const ObjID&) const;
     void		getAllLoaded(DBKeySet&) const;
     ObjID		getIDByName(const char*) const;
     IOPar		getIOObjPars(const ObjID&) const;
+    BufferString	nameOf(const ObjID&) const;
 
 			// Use MonitorLock when iterating
     IdxType		size() const;

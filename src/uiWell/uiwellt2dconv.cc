@@ -10,10 +10,9 @@ ________________________________________________________________________
 
 #include "uiwellt2dconv.h"
 
-#include "uiioobjsel.h"
+#include "uiwellsel.h"
 #include "survinfo.h"
 #include "binidvalue.h"
-#include "welltransl.h"
 #include "wellt2dtransform.h"
 #include "uimsg.h"
 #include "uizrangeinput.h"
@@ -24,8 +23,7 @@ uiWellT2DTransform::uiWellT2DTransform( uiParent* p )
     : uiTime2DepthZTransformBase(p, true )
     , transform_( 0 )
 {
-    fld_ = new uiIOObjSel( this, mIOObjContext(Well), 
-			   uiString::emptyString() );
+    fld_ = new uiWellSel( this, true );
     fld_->selectionDone.notify( mCB(this,uiWellT2DTransform,setZRangeCB) );
 
     setHAlignObj( fld_ );
@@ -43,10 +41,7 @@ ZAxisTransform* uiWellT2DTransform::getSelection()
 {
     unRefAndZeroPtr( transform_ );
 
-    const IOObj* ioobj = fld_->ioobj( true );
-    if ( !ioobj ) return 0;
-
-    transform_ = new WellT2DTransform( ioobj->key() );
+    transform_ = new WellT2DTransform( fld_->key(true) );
     refPtr( transform_ );
     if ( !transform_ || !transform_->isOK() )
     {

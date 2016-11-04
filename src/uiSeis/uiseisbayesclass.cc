@@ -613,7 +613,7 @@ bool getFromScreen( bool permissive )
     subselfld_->fillPar( pars_ );
 
     if ( !permissive && nrout < 1 )
-	mErrRet(uiStrings::phrSpecify(tr("at least one output")))
+	mErrRet(uiStrings::phrPlsSpecifyAtLeastOne(uiStrings::sOutput()))
 
     return true;
 }

@@ -44,7 +44,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 {
     unitnmfld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     unitdescfld_ = new uiGenInput( this, uiStrings::sDescription(),
-	    			   StringInpSpec() );
+				   StringInpSpec() );
     unitdescfld_->attach( alignedBelow, unitnmfld_ );
 
     colfld_ = new uiColorInput( this,
@@ -181,7 +181,7 @@ bool uiStratUnitEditDlg::acceptOK()
 
     if ( unit_.isLeaved() && lithids_.size() <= 0 )
     {
-	mErrRet( uiStrings::phrSpecify(tr("at least one lithology")),
+	mErrRet( uiStrings::phrPlsSelectAtLeastOne(tr("lithology")),
 	    if ( !unitlithfld_->size() )
 		selLithCB( 0 );
 	    return false; );

@@ -46,11 +46,11 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmarchingcubessurface.h"
 #include "emrandomposbody.h"
-#include "dbman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
 #include "probemanager.h"
 #include "probeimpl.h"
+#include "wellmanager.h"
 #include "picksetmanager.h"
 #include "ptrman.h"
 #include "probeimpl.h"
@@ -59,7 +59,6 @@ ________________________________________________________________________
 #include "settingsaccess.h"
 #include "vissurvscene.h"
 #include "vissurvobj.h"
-#include "welltransl.h"
 
 // For factories
 #include "uiodannottreeitem.h"
@@ -1079,17 +1078,14 @@ void uiODSceneMgr::disabTrees( bool yn )
     } \
     if ( !scene ) return -1;
 
-int uiODSceneMgr::addWellItem( const DBKey& mid, int sceneid )
+int uiODSceneMgr::addWellItem( const DBKey& dbky, int sceneid )
 {
     mGetOrAskForScene
 
-    PtrMan<IOObj> ioobj = DBM().get( mid );
-    if ( !scene || !ioobj ) return -1;
-
-    if ( ioobj->group() != mTranslGroupName(Well) )
+    if ( !scene || !Well::MGR().isValidID(dbky) )
 	return -1;
 
-    uiODDisplayTreeItem* itm = new uiODWellTreeItem( mid );
+    uiODDisplayTreeItem* itm = new uiODWellTreeItem( dbky );
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
 }

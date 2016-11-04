@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiComboBox;
 class uiGenInput;
-class uiIOObjSelGrp;
+class uiMultiWellSel;
 class uiListBox;
 class BufferStringSet;
 class DBKeySet;
@@ -117,7 +117,7 @@ protected:
     void		fltrMarkerNamesCB(CallBacker*);
 
     BufferStringSet	markernms_;
-    uiIOObjSelGrp*	wellselgrp_;
+    uiMultiWellSel*	wellselgrp_;
     uiListBox*		markersselgrp_;
     uiGenInput*		filtfld_;
 

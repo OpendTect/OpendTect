@@ -18,11 +18,11 @@ ________________________________________________________________________
 
 class ElasticPropSelection;
 
-class uiIOObjSel;
 class uiLabeledComboBox;
 class uiCheckBox;
 class uiGenInput;
 class uiSeisSel;
+class uiWellSel;
 class uiWellPropSel;
 class uiSeis2DLineNameSel;
 class uiWaveletIOObjSel;
@@ -55,7 +55,7 @@ protected:
 
     RefMan<Well::Data>	wd_;
 
-    uiIOObjSel*         wellfld_;
+    uiWellSel*		wellfld_;
     uiWaveletIOObjSel*	wvltfld_;
     uiGenInput*		typefld_;
     uiGenInput*		seisextractfld_;
