@@ -131,6 +131,6 @@ public:
     bool		sceneMgrAvailable() const	{ return scenemgr_; }
     bool		menuMgrAvailable() const	{ return menumgr_; }
     bool		viewer2DMgrAvailable() const	{ return viewer2dmgr_; }
-    void		updateCaption();
+    void		updateCaption(CallBacker* cb=0);
 
 };

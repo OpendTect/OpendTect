@@ -690,6 +690,7 @@ bool uiODMain::go()
     show();
 
     mAttachCB( OD::AUTOSAVE().saveFailed, uiODMain::autoSaveFail );
+    mAttachCB( SI().objectChanged(), uiODMain::updateCaption );
 
     Timer tm( "Handle startup session" );
     tm.tick.notify( mCB(this,uiODMain,afterSurveyChgCB) );
@@ -764,7 +765,7 @@ void uiODMain::afterSurveyChgCB( CallBacker* )
 }
 
 
-void uiODMain::updateCaption()
+void uiODMain::updateCaption( CallBacker* )
 {
     uiString capt = toUiString( "%1/%2" )
 	.arg( getProgramString() )

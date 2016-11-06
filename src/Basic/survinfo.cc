@@ -165,7 +165,6 @@ SurveyInfo::ChangeData SurveyInfo::compareWith( const Monitorable& mon ) const
 	return ChangeData::AllChanged();
 
     mCmpRet( basepath_, cEntireObjectChangeType );
-    mCmpRet( dirname_, cEntireObjectChangeType );
     mCmpRet( zdef_, cSetupChange );
     mCmpRet( b2c_, cSetupChange );
     mCmpRet( pol2d_, cSetupChange );
@@ -182,6 +181,8 @@ SurveyInfo::ChangeData SurveyInfo::compareWith( const Monitorable& mon ) const
     }
     if ( !sipnm_.isEqualTo(oth->sipnm_) )
         return ChangeData( cAuxDataChange(), ChangeData::cUnspecChgID() );
+
+    mCmpRet( name_, cNameChange );
     mCmpRet( comments_, cCommentChange );
 
     return ChangeData::NoChange();

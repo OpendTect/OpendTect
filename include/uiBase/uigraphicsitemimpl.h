@@ -99,7 +99,7 @@ mExpClass(uiBase) uiCircleItem : public uiEllipseItem
 public:
 				uiCircleItem();
 				uiCircleItem(int r);
-    				uiCircleItem(const uiPoint& center,int r);
+				uiCircleItem(const uiPoint& center,int r);
 
     void			setRadius(int);
 };
@@ -117,7 +117,7 @@ public:
 			~uiLineItem();
 
     QGraphicsLineItem*	qLineItem()	{ return qlineitem_; }
-    void 		setPenStyle(const OD::LineStyle&,bool withalpha=false);
+    void		setPenStyle(const OD::LineStyle&,bool withalpha=false);
     void		setPenColor(const Color&,bool withalpha=false);
     void		setLine(const uiPoint& start,const uiPoint& end);
     void		setLine(const uiWorldPoint&,const uiWorldPoint&);
@@ -216,14 +216,14 @@ protected:
 mExpClass(uiBase) uiPolyLineItem : public uiGraphicsItem
 {
 public:
-    			uiPolyLineItem();
-    			uiPolyLineItem(const TypeSet<uiPoint>&);
-    			uiPolyLineItem(const TypeSet<uiWorldPoint>&);
+			uiPolyLineItem();
+			uiPolyLineItem(const TypeSet<uiPoint>&);
+			uiPolyLineItem(const TypeSet<uiWorldPoint>&);
 			~uiPolyLineItem();
 
     void		setPolyLine(const TypeSet<uiPoint>&);
     void		setPolyLine(const TypeSet<uiWorldPoint>&);
-    
+
     void		highlight();
     void		unHighlight();
 
@@ -256,9 +256,9 @@ protected:
 mExpClass(uiBase) uiRectItem : public uiGraphicsItem
 {
 public:
-    			uiRectItem();
-    			uiRectItem(int x,int y,int width,int height);
-    			uiRectItem(QGraphicsRectItem*);
+			uiRectItem();
+			uiRectItem(int x,int y,int width,int height);
+			uiRectItem(QGraphicsRectItem*);
 			~uiRectItem();
 
     QGraphicsRectItem*  qRectItem()	{ return qrectitem_; }
@@ -281,11 +281,11 @@ public:
 				   const OD::Alignment& al=OD::Alignment());
 			~uiTextItem();
 
-    void 		setFont(const uiFont&);
+    void		setFont(const uiFont&);
     void		setFontData(const FontData&);
     const uiString	getText() const;
     uiSize		getTextSize() const;
-    void 		setAlignment(const OD::Alignment&);
+    void		setAlignment(const OD::Alignment&);
     void		setText(const uiString&);
     void		setTextColor(const Color&);
 
@@ -312,7 +312,7 @@ public:
 					  bool centered=false);
 			~uiAdvancedTextItem();
 
-    OD::Alignment		getAlignment() const;
+    OD::Alignment	getAlignment() const;
     Color		getDefaultTextColor() const;
     uiFont&		getFont() const;
     uiString		getPlainText() const;
@@ -327,19 +327,21 @@ public:
     void		setTextIteraction(bool);
 
 protected:
-    OD::Alignment		al_;
+
+    OD::Alignment	al_;
     bool		textiscentered_;
     QGraphicsItem*	mkQtObj();
     ODGraphicsAdvancedTextItem* qtextitem_;
 
     virtual void	stPos(float,float);
+
 };
 
 
 mExpClass(uiBase) uiMarkerItem : public uiGraphicsItem
 {
 public:
-    				uiMarkerItem(bool fill=true);
+				uiMarkerItem(bool fill=true);
 				uiMarkerItem(const OD::MarkerStyle2D&,
 					     bool fill=true);
 				uiMarkerItem(const uiPoint&,
@@ -362,7 +364,7 @@ protected:
 mExpClass(uiBase) uiPointItem : public uiGraphicsItem
 {
 public:
-    				uiPointItem();
+				uiPointItem();
 				uiPointItem(const uiPoint&);
 				~uiPointItem();
 
@@ -378,11 +380,11 @@ protected:
 mExpClass(uiBase) uiArrowItem : public uiGraphicsItem
 {
 public:
-    				uiArrowItem();
+				uiArrowItem();
 				uiArrowItem(const uiPoint& tail,
 					    const uiPoint& head,
 					    const OD::ArrowStyle&);
-    				uiArrowItem(ODGraphicsArrowItem*);
+				uiArrowItem(ODGraphicsArrowItem*);
 				~uiArrowItem();
 
     void			setHeadPos(const uiPoint&);
@@ -390,9 +392,9 @@ public:
     void			setTailHeadPos(const uiPoint& tail,
 					       const uiPoint& head);
     void			setArrowStyle(const OD::ArrowStyle&);
-    void 			setArrowSize(int);
+    void			setArrowSize(int);
 
-    ODGraphicsArrowItem*  	qArrowItem()	{ return qarrowitem_; }
+    ODGraphicsArrowItem*	qArrowItem()	{ return qarrowitem_; }
 
 protected:
 
