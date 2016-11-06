@@ -165,6 +165,7 @@ SurveyInfo::ChangeData SurveyInfo::compareWith( const Monitorable& mon ) const
 	return ChangeData::AllChanged();
 
     mCmpRet( basepath_, cEntireObjectChangeType );
+    mCmpRet( dirname_, cEntireObjectChangeType ); //TODO name change only?
     mCmpRet( zdef_, cSetupChange );
     mCmpRet( b2c_, cSetupChange );
     mCmpRet( pol2d_, cSetupChange );
