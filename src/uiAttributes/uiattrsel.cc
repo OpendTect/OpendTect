@@ -298,7 +298,7 @@ void uiAttrSelDlg::createSelectionButtons()
     if ( attrdata_.zdomaininfo_ )
     {
 	BufferStringSet nms;
-	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
+	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
 	zdomainfld_ = new uiRadioButton( selgrp_,
 			           toUiString(attrdata_.zdomaininfo_->key()) );
 	zdomainfld_->setSensitive( !nms.isEmpty() );
@@ -360,7 +360,7 @@ void uiAttrSelDlg::createSelectionFields()
     if ( attrdata_.zdomaininfo_ )
     {
 	BufferStringSet nms;
-	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
+	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
 	zdomoutfld_ = new uiListBox( this, "ZDomain output" );
 	zdomoutfld_->addItems( nms );
 	zdomoutfld_->setHSzPol( uiObject::Wide );
@@ -454,7 +454,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     {
 	const int selidx = zdomoutfld_->currentItem();
 	BufferStringSet nms;
-	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
+	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
 	if ( nms.validIdx(selidx) )
 	{
 	    IOM().to(
@@ -525,7 +525,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	    { pErrMsg( "Huh" ); return false; }
 
 	BufferStringSet nms;
-	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
+	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
 	IOM().to(MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
 	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
 	if ( !ioobj ) return false;

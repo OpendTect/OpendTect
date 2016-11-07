@@ -171,6 +171,8 @@ public:
     static bool		is2D(const char* defstr_or_ioobjid);
     static void		getZDomainItems(const ZDomain::Info&,
 					BufferStringSet& objnms);
+    static void		getZDomainItems(const ZDomain::Info&,bool is2d,
+					BufferStringSet& objnms);
 
     			//!< 2D only
     static void		getAttrNames(const char* defstr_or_ioobjid,

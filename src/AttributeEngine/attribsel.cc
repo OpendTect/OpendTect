@@ -444,4 +444,22 @@ void SelInfo::getZDomainItems( const ZDomain::Info& zinf,
 }
 
 
+void SelInfo::getZDomainItems( const ZDomain::Info& zinf, bool need2d,
+			       BufferStringSet& nms )
+{
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
+    const IODir iodir( mid );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj& ioobj = *ioobjs[idx];
+	const bool is2d = SeisTrcTranslator::is2D( ioobj, true );
+	if ( need2d==is2d && ioobj.isUserSelectable() &&
+		zinf.isCompatibleWith(ioobj.pars()) )
+	    nms.add( ioobj.name() );
+    }
+
+    nms.sort();
+}
+
 } // namespace Attrib

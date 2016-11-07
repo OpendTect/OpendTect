@@ -1480,7 +1480,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
     zdomainmnuitem->checked = false;
 
     BufferStringSet ioobjnms;
-    SelInfo::getZDomainItems( zdinf, ioobjnms );
+    SelInfo::getZDomainItems( zdinf, is2d, ioobjnms );
     for ( int idx=0; idx<ioobjnms.size(); idx++ )
     {
 	const BufferString& nm = ioobjnms.get( idx );
