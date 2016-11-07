@@ -31,7 +31,7 @@ namespace ColTab
   including the 'user defined' ones. Users can overrule the standard ones.
 
   Sequences cannot be scaled, try the Mapper.
- 
+
  */
 
 mExpClass(General) Sequence : public NamedObject
@@ -79,7 +79,7 @@ public:
 			    nrsegments == 0 no segmentation
 			    nrsegments == -1 constant color between markers.*/
 
-		
+
     bool		isSegmentized() const		{ return nrsegments_; }
 
     void		changeColor(int,
@@ -115,7 +115,7 @@ public:
     static const char*	sKeyCtbl();
     static const char*	sKeyNrSegments();
     static const char*  sKeyRainbow();
-    
+
 protected:
 
     TypeSet<float>		x_;
@@ -138,7 +138,7 @@ protected:
 /*!\brief Manages Sequences; reads/writes system or user-defined
 
   Has a singleton instance ColTab::SM().
- 
+
  */
 
 mExpClass(General) SeqMgr : public CallBacker
@@ -163,7 +163,7 @@ public:
     Notifier<SeqMgr>	seqAdded;
     Notifier<SeqMgr>	seqRemoved;
 
-    			~SeqMgr()	{}
+			~SeqMgr()	{ deepErase(seqs_); }
 
 protected:
 

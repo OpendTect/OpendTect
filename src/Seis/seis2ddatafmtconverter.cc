@@ -237,6 +237,8 @@ mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg,
 
 OD_2DLineSetTo2DDataSetConverter::~OD_2DLineSetTo2DDataSetConverter()
 {
+    for ( int idx=0; idx<all2dseisiopars_.size(); idx++ )
+	deepErase( *all2dseisiopars_[idx] );
     deepErase( all2dseisiopars_ );
 }
 
