@@ -48,13 +48,13 @@ uiString uiODSceneProbeParentTreeItem::sAddEmptyPlane()
 { return tr("Add Empty Plane"); }
 
 uiString uiODSceneProbeParentTreeItem::sAddAndSelectData()
-{ return tr("Add and Select Data"); }
+{ return m3Dots(tr("Add and Select Data")); }
 
 uiString uiODSceneProbeParentTreeItem::sAddDefaultData()
 { return tr("Add Default Data"); }
 
 uiString uiODSceneProbeParentTreeItem::sAddColorBlended()
-{ return uiStrings::sAddColBlend(); }
+{ return m3Dots(uiStrings::sAddColBlend()); }
 
 uiString uiODSceneProbeParentTreeItem::sAddAtWellLocation()
 { return m3Dots(tr("Add at Well Location")); }

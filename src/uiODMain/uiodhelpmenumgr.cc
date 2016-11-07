@@ -63,7 +63,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
     mInsertItem( helpmnu_, tr("About"), mAboutMnuItm, 0);
 
     if ( legalInformation().size() )
-	mInsertItem( helpmnu_, m3Dots(tr("Legal")), mLegalMnuItm, 0);
+	mInsertItem( helpmnu_, tr("Legal"), mLegalMnuItm, 0);
 }
 
 
