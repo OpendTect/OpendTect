@@ -108,6 +108,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
     new uiCheckBox( grp, txt1 );
     new uiCheckBox( grp, tr("Choose Pre-load Parameters") );
     grp->selectButton(0);
+    dlg.showAlwaysOnTop();
     if ( !dlg.go() ) return false;
 
     uiTaskRunner uitr( uimain.topLevel() );
@@ -132,6 +133,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
     if ( selbutid==1 )
     {
 	uiSeisPreLoadSel spldlg( uimain.topLevel(), Seis::Vol, key );
+	spldlg.showAlwaysOnTop();
 	if ( !spldlg.go() )
 	    return false;
 
