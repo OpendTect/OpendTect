@@ -473,7 +473,6 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 
     torgfld_ = new uiGenInput( leftgrp, tr("Scale To"),
 	FloatInpIntervalSpec().setName("To start",0).setName("To stop",1) );
-    torgfld_->setReadOnly( true );
     torgfld_->attach( alignedBelow, fromrgfld_ );
 
     uiGroup* rightgrp = new uiGroup( this, "Right Group" );
