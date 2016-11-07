@@ -107,6 +107,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const DBKey& key ) const
     new uiCheckBox( grp, txt1 );
     new uiCheckBox( grp, tr("Choose Pre-load Parameters") );
     grp->selectButton(0);
+    dlg.showAlwaysOnTop();
     if ( !dlg.go() ) return false;
 
     uiTaskRunner uitr( uimain.topLevel() );
