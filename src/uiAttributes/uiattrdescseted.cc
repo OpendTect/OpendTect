@@ -1188,6 +1188,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
     if ( !offerSetSave() ) return;
 
     uiSelObjFromOtherSurvey objsel( this, setctio_.ctxt_ );
+    objsel.setHelpKey( mODHelpKey(mAttribDescSetEdimportSetHelpID) );
     if ( objsel.go() )
     {
 	IOObj* oldioobj = setctio_.ioobj_;

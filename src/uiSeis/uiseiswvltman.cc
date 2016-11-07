@@ -299,6 +299,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 {
     const IOObjContext ctxt( mIOObjContext(Wavelet) );
     uiSelObjFromOtherSurvey objsel( this, ctxt );
+    objsel.setHelpKey( mODHelpKey(mSeisWvltMangetFromOtherSurveyHelpID) );
     if ( !objsel.go() )
 	return;
 

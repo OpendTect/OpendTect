@@ -28,6 +28,7 @@ int main( int argc, char ** argv )
 
     uiMain app( GetArgC(), GetArgV() );
     uiSurveyManagerDlg* dlg = new uiSurveyManagerDlg( 0, true );
+    dlg->setHelpKey( mODHelpKey(mSurveyHelpID) );
     app.setTopLevel( dlg );
     dlg->show();
     return ExitProgram( app.exec() );

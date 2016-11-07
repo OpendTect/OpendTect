@@ -21,13 +21,16 @@ ________________________________________________________________________
 
 uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p,
 						  const IOObjContext& ctxt )
-    : uiDialog(p,Setup(tr("Select %1").arg(ctxt.objectTypeName()),
+    : uiDialog(p,Setup(tr("Get %1 from other survey")
+			.arg(ctxt.objectTypeName()),
 			mNoDlgTitle,mODHelpKey(mSelObjFromOtherSurveyHelpID)))
     , ctxt_(*new IOObjContext(ctxt))
 {
     survsel_ = new uiSurveySelect( this );
 
-    objfld_ = new uiListBox( this, "Objects" );
+    uiListBox::Setup lbsu( OD::ChooseOnlyOne,
+	    		   toUiString(ctxt.objectTypeName()) );
+    objfld_ = new uiListBox( this, lbsu );
     objfld_->setHSzPol( uiObject::WideVar );
     objfld_->setStretch( 2, 2 );
     objfld_->attach( alignedBelow, survsel_ );

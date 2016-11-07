@@ -63,6 +63,8 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
 	dirfld_->setCurrentItem( defidx );
 	previnput_ = boxitms.get( defidx );
     }
+    fulldirfld->setStretch( 2, 1 );
+    dirfld_->setStretch( 2, 1 );
     mAttachCB( dirfld_->editTextChanged, uiDataRootSel::dirChgCB );
     mAttachCB( dirfld_->selectionChanged, uiDataRootSel::dirChgCB );
 
@@ -74,7 +76,7 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
 
 uiString uiDataRootSel::userDataRootString()
 {
-    return tr( "OpendTect Data Root Directory" );
+    return tr( "Data Root Directory" );
 }
 
 

@@ -697,7 +697,7 @@ bool uiSurveyManager::commit()
 
 uiSurveyManagerDlg::uiSurveyManagerDlg( uiParent* p, bool standalone )
     : uiDialog(p,uiDialog::Setup(tr("Survey Setup and Selection"),
-				 mNoDlgTitle,mODHelpKey(mSurveyHelpID)))
+			     mNoDlgTitle,mODHelpKey(mSurveySelectDlgHelpID)))
 {
     mgrfld_ = new uiSurveyManager( this, standalone );
     if ( standalone )

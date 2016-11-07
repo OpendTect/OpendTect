@@ -34,7 +34,8 @@ uiSurveySelect::uiSurveySelect( uiParent* p, bool al, const char* dr,
 {
     datarootfld_ = new uiDataRootSel( this, dataroot_ );
 
-    survdirfld_ = new uiListBox( this, "Surveys" );
+    uiListBox::Setup lbsu( OD::ChooseOnlyOne, uiStrings::sSurvey() );
+    survdirfld_ = new uiListBox( this, lbsu );
     updateList();
     BufferString defsurvdirnm( survdirnm );
     if ( defsurvdirnm.isEmpty() )
