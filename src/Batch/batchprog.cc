@@ -288,12 +288,7 @@ bool BatchProgram::initOutput()
     BufferString res = pars().find( sKey::LogFile() );
     if ( res == "stdout" ) res.setEmpty();
 
-    bool hasviewprogress = true;
-#ifdef __cygwin__
-    hasviewprogress = false;
-#endif
-
-    if ( hasviewprogress && res && res=="window" )
+    if ( res && res=="window" )
     {
 	BufferString cmd = "@";
 	cmd += "\"";
