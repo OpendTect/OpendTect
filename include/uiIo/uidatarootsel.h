@@ -21,6 +21,7 @@ public:
 
 			uiDataRootSel(uiParent*,const char* defdir=0);
 
+    void 		setDir(const char*);
     BufferString	getDir();
 			//!< non-empty is a valid dir
 			//!< if invalid, errors have been presented to the user
@@ -40,9 +41,11 @@ protected:
     void		selButCB(CallBacker*);
     void		dirChgCB(CallBacker*);
     void		checkAndSetCorrected(const char*);
-    bool		getUsableDir(BufferString&) const;
-    bool		isValidFolder(const char*) const;
+    uiRetVal		getUsableDir(BufferString&) const;
+    uiRetVal		isValidFolder(const char*) const;
     static void		addDirNameToSettingsIfNew(const char*,bool);
+    BufferString	addChoice(const char*,bool);
+    void		setChoice(const char*);
 
     friend class	uiFixInvalidDataRoot;
     static bool		setRootDirOnly(const char* dirnm);

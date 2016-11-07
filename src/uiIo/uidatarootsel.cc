@@ -40,15 +40,13 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
 	dirs.insertAt( new BufferString(defdir), 0 );
 
     BufferStringSet boxitms;
-    int defidx = 0;
     for ( int idx=0; idx<dirs.size(); idx++ )
     {
 	const BufferString dirnm = dirs.get( idx );
 	if ( mIsUsable(dirnm) )
 	{
 	    boxitms.add( dirnm );
-	    if ( dirnm == defdir )
-		defidx = boxitms.size() - 1;
+	    addDirNameToSettingsIfNew( dirnm, false );
 	}
     }
 
@@ -58,19 +56,15 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
     dirfld_ = fulldirfld->box();
     dirfld_->addItems( boxitms );
     dirfld_->setEditable( true );
-    if ( !dirfld_->isEmpty() )
-    {
-	dirfld_->setCurrentItem( defidx );
-	previnput_ = boxitms.get( defidx );
-    }
     fulldirfld->setStretch( 2, 1 );
     dirfld_->setStretch( 2, 1 );
-    mAttachCB( dirfld_->editTextChanged, uiDataRootSel::dirChgCB );
     mAttachCB( dirfld_->selectionChanged, uiDataRootSel::dirChgCB );
 
     uiButton* selbut = uiButton::getStd( fulldirfld, OD::Select,
 				     mCB(this,uiDataRootSel,selButCB), false );
     selbut->attach( rightOf, dirfld_ );
+
+    setChoice( defdir );
 }
 
 
@@ -93,47 +87,74 @@ void uiDataRootSel::selButCB( CallBacker* )
     uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, defdirnm, 0,
 		      uiStrings::phrSelect(userDataRootString()) );
     if ( dlg.go() )
-	checkAndSetCorrected( dlg.fileName() );
+	addChoice( dlg.fileName(), true );
 }
 
 
 void uiDataRootSel::dirChgCB( CallBacker* )
 {
-    checkAndSetCorrected( getInput() );
+   setChoice( getInput() );
 }
 
 
-void uiDataRootSel::checkAndSetCorrected( const char* dirnm )
+void uiDataRootSel::setDir( const char* dirnm )
+{
+    BufferString resdirnm = addChoice( dirnm, false );
+    if ( !resdirnm.isEmpty() )
+	setChoice( resdirnm );
+}
+
+
+BufferString uiDataRootSel::addChoice( const char* dirnm, bool setcur )
 {
     BufferString resdirnm = dirnm;
-    if ( getUsableDir(resdirnm) )
+    uiRetVal uirv = getUsableDir( resdirnm );
+    if ( uirv.isError() )
     {
-	if ( getInput() != resdirnm )
-	{
-	    NotifyStopper ns1( dirfld_->editTextChanged );
-	    NotifyStopper ns2( dirfld_->selectionChanged );
-	    dirfld_->setText( resdirnm );
-	}
+	if ( setcur )
+	    uiMSG().error( uirv );
+	return BufferString::empty();
     }
 
-    if ( resdirnm != previnput_ )
+    if ( !dirfld_->isPresent(resdirnm) )
     {
+	NotifyStopper ns( dirfld_->selectionChanged );
+	dirfld_->addItem( toUiString(resdirnm) );
+    }
+
+    if ( setcur )
+	setChoice( resdirnm );
+
+    return resdirnm;
+}
+
+
+void uiDataRootSel::setChoice( const char* dirnm )
+{
+    if ( previnput_ != dirnm )
+    {
+	NotifyStopper ns( dirfld_->selectionChanged );
+	dirfld_->setCurrentItem( dirnm );
 	selectionChanged.trigger();
-	previnput_ = resdirnm;
+	previnput_ = dirnm;
     }
 }
 
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 
-bool uiDataRootSel::getUsableDir( BufferString& dirnm ) const
+uiRetVal uiDataRootSel::getUsableDir( BufferString& dirnm ) const
 {
     uiRetVal uirv = DBMan::isValidDataRoot( dirnm );
     if ( uirv.isOK() )
 	return isValidFolder( dirnm );
 
     if ( !File::isWritable(dirnm) )
-	mErrRet( uirv )
+    {
+	uirv = File::exists(dirnm) ? tr( "Directory is not writable" )
+	    			   : tr( "Directory does not exist" );
+	return uirv;
+    }
 
     File::Path survfnamefp( dirnm, ".survey" );
     if ( File::exists(survfnamefp.fullPath()) )
@@ -142,12 +163,11 @@ bool uiDataRootSel::getUsableDir( BufferString& dirnm ) const
 	uiRetVal newuirv = DBMan::isValidDataRoot( pardirnm );
 	if ( newuirv.isOK() )
 	    dirnm.set( pardirnm );
-	else
-	    mErrRet( uirv );
     }
 
-    if ( !isValidFolder(dirnm) )
-	return false;
+    uirv = isValidFolder( dirnm );
+    if ( !uirv.isOK() )
+	return uirv;
 
     // OK, so the dir seems suitable, but it hasn't got a .omf.
     // why ask? let's just put one.
@@ -155,11 +175,11 @@ bool uiDataRootSel::getUsableDir( BufferString& dirnm ) const
     const BufferString omffnm = File::Path(dirnm,".omf").fullPath();
     File::copy( stdomf, omffnm );
 
-    return true;
+    return uirv;
 }
 
 
-bool uiDataRootSel::isValidFolder( const char* dirnm ) const
+uiRetVal uiDataRootSel::isValidFolder( const char* dirnm ) const
 {
     const File::Path fp( dirnm );
 
@@ -170,20 +190,20 @@ bool uiDataRootSel::isValidFolder( const char* dirnm ) const
     {
 	const BufferString dirnm_at_odinstlvl( fp.dirUpTo(nrodinstlvls-1) );
 	if ( dirnm_at_odinstlvl == fpodinst.fullPath() )
-	    mErrRet( tr("The directory you have chosen is"
+	    return uiRetVal( tr("The directory you have chosen is"
 		    "\n*INSIDE*\nthe software installation directory."
 		    "\nThis leads to many problems, and we cannot support this."
-		    "\n\nPlease choose another directory") )
+		    "\n\nPlease choose another directory") );
     }
 
-    return true;
+    return uiRetVal::OK();
 }
 
 
 BufferString uiDataRootSel::getDir()
 {
     BufferString dirnm( getInput() );
-    if ( getUsableDir(dirnm) )
+    if ( getUsableDir(dirnm).isOK() )
 	addDirNameToSettingsIfNew( dirnm, false );
     else
 	dirnm.setEmpty();
