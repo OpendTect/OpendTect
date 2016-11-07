@@ -634,7 +634,7 @@ uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
     , is2d_(is2d)
     , tbufchgdtrcs_(tbuf)
     , trc_(*new SeisTrc())
-    , msg_(tr("Initialising"))
+    , msg_(tr("Initializing"))
 {
     PtrMan<IOObj> ioobj = DBM().get( setup.id_ );
     const File::Path fp( ioobj->fullUserExpr(true) );
