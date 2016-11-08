@@ -342,6 +342,18 @@ bool VolProc::ChainExecutor::Epoch::needsStepOutput( Step::ID stepid ) const
 }
 
 
+VolProc::Step::ID VolProc::ChainExecutor::getChainOutputStepID() const
+{
+    return chain_.outputstepid_;
+}
+
+
+VolProc::Step::OutputSlotID VolProc::ChainExecutor::getChainOutputSlotID() const
+{
+    return chain_.outputslotid_;
+}
+
+
 bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 {
     for ( int idx=0; idx<steps_.size(); idx++ )
@@ -416,8 +428,8 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	for ( int idy=0; idy<outputconnections.size(); idy++ )
 	     currentstep->enableOutput( outputconnections[idy].outputslotid_ );
 
-	if ( currentstep->getID()==chainexec_.chain_.outputstepid_ )
-	    currentstep->enableOutput( chainexec_.chain_.outputslotid_ );
+	if ( currentstep->getID()==chainexec_.getChainOutputStepID() )
+	    currentstep->enableOutput( chainexec_.getChainOutputSlotID() );
 
 	Task* newtask = currentstep->needReportProgress()
 			    ? currentstep->createTaskWithProgMeter(progmeter)
