@@ -301,10 +301,10 @@ int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
 
 
 void RandomLine::getPathBids( const TypeSet<BinID>& knots,
-			     Pos::SurvID survid,
-			    TypeSet<BinID>& bids,
-			    bool allowduplicate,
-			    TypeSet<int>* segments )
+			      Pos::SurvID survid,
+			      TypeSet<BinID>& bids,
+			      DuplicateMode duplicatemode,
+			      TypeSet<int>* segments )
 {
     ConstRefMan<Survey::Geometry3D> geom = Survey::GM().getGeometry3D( survid );
     for ( int idx=1; idx<knots.size(); idx++ )
@@ -335,18 +335,19 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 	    int bidy = (int)(val + .5);
 	    BinID nextbid = inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx);
 	    geom->snap( nextbid );
-	    bool didadd;
-	    if ( allowduplicate )
-	    {
-		didadd = true;
-		bids += nextbid;
-	    }
-	    else
-	    {
-		didadd = bids.addIfNew( nextbid );
-	    }
 
-	    if ( didadd && segments ) (*segments) += (idx-1);\
+	    bool doadd = duplicatemode==AllDups;
+	    if ( duplicatemode == NoDups )
+		doadd = !bids.isPresent( nextbid );
+	    else if ( duplicatemode == NoConsecutiveDups )
+		doadd = bids.isEmpty() || nextbid!=bids.last();
+
+	    if ( doadd )
+	    {
+		bids += nextbid;
+		if ( segments )
+		    (*segments) += idx-1;
+	    }
 	}
     }
 }

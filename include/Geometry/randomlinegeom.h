@@ -57,10 +57,12 @@ public:
     static Coord	getNormal(const TrcKeyPath& knots,const TrcKey& pos);
     static int		getNearestPathPosIdx(const TrcKeyPath&,
 					     const TrcKeyPath&,const TrcKey&);
+
+    enum		DuplicateMode { NoDups=0, NoConsecutiveDups, AllDups };
     static void		getPathBids(const TypeSet<BinID>& knots,
 				    Pos::SurvID,
 				    TypeSet<BinID>& path,
-				    bool allowduplicate=false,
+				    DuplicateMode dupmode=NoConsecutiveDups,
 				    TypeSet<int>* segments=0);
 
     void		setZRange( const Interval<float>& rg )
