@@ -119,6 +119,8 @@ public:
 					       const TrcKeyPath& path,
 					       const Interval<float>& zrg,
 					       const BufferStringSet* nms);
+
+    TrcKeyPath&			getPath()		{ return path_; }
 };
 
 
