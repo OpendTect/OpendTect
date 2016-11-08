@@ -354,37 +354,61 @@ VolProc::Step::OutputSlotID VolProc::ChainExecutor::getChainOutputSlotID() const
 }
 
 
-bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
+bool VolProc::ChainExecutor::Epoch::updateInputs()
 {
     for ( int idx=0; idx<steps_.size(); idx++ )
     {
-	Step* currentstep = steps_[idx];
-	TypeSet<Chain::Connection> inputconnections;
-	chainexec_.web_.getConnections( currentstep->getID(), true,
-					inputconnections );
-	PosInfo::CubeData trcssampling;
-	for ( int idy=0; idy<inputconnections.size(); idy++ )
+	const Step* finishedstep = steps_[idx];
+	const RegularSeisDataPack* input = finishedstep->getOutput();
+	if ( !input )
 	{
-	    const Step* outputstep = chainexec_.chain_.getStepFromID(
-					inputconnections[idy].outputstepid_ );
-	    if ( !outputstep )
-	    {
-		pErrMsg("This should not happen");
-		return false;
-	    }
+	    pErrMsg("Output is not available");
+	    return false;
+	}
+	TypeSet<Chain::Connection> connections;
+	chainexec_.web_.getConnections( finishedstep->getID(), false,
+					connections );
+	for ( int idy=0; idy<connections.size(); idy++ )
+	{
+	    Step* futurestep = chainexec_.chain_.getStepFromID(
+				     connections[idy].inputstepid_ );
+	    if ( !futurestep )
+		continue;
 
-	    const RegularSeisDataPack* input = outputstep->getOutput();
-	    const Step::OutputSlotID outputslot =
-					inputconnections[idy].outputslotid_;
-	    const int outputidx = outputstep->getOutputIdx( outputslot );
-
+	    const Step::OutputSlotID finishedslot =
+					connections[idy].outputslotid_;
+	    const int outputidx = finishedstep->getOutputIdx( finishedslot );
 	    if ( !input->validComp(outputidx) )
 	    {
 		pErrMsg("Output is not available");
 		return false;
 	    }
 
-	    currentstep->setInput( inputconnections[idy].inputslotid_, input );
+	    futurestep->setInput( connections[idy].inputslotid_, input );
+	}
+    }
+
+    return true;
+}
+
+
+bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
+{
+    for ( int idx=0; idx<steps_.size(); idx++ )
+    {
+	Step* currentstep = steps_[idx];
+	PosInfo::CubeData trcssampling;
+	for ( int idy=0; idy<currentstep->getNrInputs(); idy++ )
+	{
+	    const Step::InputSlotID inputslot =
+				    currentstep->getInputSlotID( idy );
+	    if ( !currentstep->validInputSlotID(inputslot) )
+	    {
+		pErrMsg("This should not happen");
+		return false;
+	    }
+
+	    const RegularSeisDataPack* input = currentstep->getInput(inputslot);
 	    if ( input->getTrcsSampling() )
 		trcssampling.merge( *input->getTrcsSampling(), true );
 	}
@@ -406,10 +430,17 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	       DPM( DataPackMgr::SeisID() ).add( new RegularSeisDataPack( 0 ) );
 	outcube->setSampling( csamp );
 	if ( trcssampling.totalSizeInside( csamp.hsamp_ ) > 0 )
-	    outcube->setTrcsSampling(new PosInfo::SortedCubeData(trcssampling));
+	{
+	    trcssampling.limitTo( csamp.hsamp_ );
+	    if ( !trcssampling.isFullyRectAndReg() )
+	    {
+		outcube->setTrcsSampling(
+			new PosInfo::SortedCubeData(trcssampling));
+	    }
+	}
 
 	if ( !outcube->addComponent( 0 ) )
-	{
+	{ //TODO: allocate the step-required number of components
 	    errmsg_ = "Cannot allocate enough memory.";
 	    return false;
 	}
@@ -444,6 +475,13 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
     }
 
     return true;
+}
+
+
+void VolProc::ChainExecutor::Epoch::releaseData()
+{
+    for ( int idx=0; idx<steps_.size(); idx++ )
+	steps_[idx]->releaseData();
 }
 
 
@@ -506,6 +544,13 @@ int VolProc::ChainExecutor::nextStep()
     //To prevent the overall chain progress display in between sub-tasks
     if ( progressmeter_ )
 	progressmeter_->skipProgress( true );
+
+    //Give output volumes to all steps that need them
+    if ( !curepoch_->updateInputs() )
+	return false;
+
+    //Everyone who wants my data has it. I can release it.
+    curepoch_->releaseData();
 
     return epochs_.isEmpty() ? Finished() : MoreToDo();
 }
