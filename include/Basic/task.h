@@ -103,6 +103,8 @@ protected:
 
     void		controlTask(Task*);
 			//!<Does not take over memory management
+    void		setEmpty();
+
 private:
 
     ObjectSet<Task>	controlledtasks_;
@@ -121,9 +123,11 @@ public:
     void		addTask( Task* );
 			//Becomes mine
 
-    void		setParallel(bool);
+    void		setParallel(bool)			{}
 
     void		setProgressMeter(ProgressMeter*);
+    void		setEmpty();
+    void		getTasks(TaskGroup&);
 
     uiString		uiMessage() const;
 

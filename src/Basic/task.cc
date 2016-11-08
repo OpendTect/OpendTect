@@ -148,6 +148,13 @@ void TaskGroupController::controlTask( Task*  t )
 }
 
 
+void TaskGroupController::setEmpty()
+{
+    controlledtasks_.setEmpty();
+    nrdoneweights_.setEmpty();
+}
+
+
 od_int64 TaskGroupController::nrDone() const
 {
     const int nrtasks = controlledtasks_.size();
@@ -210,6 +217,23 @@ void TaskGroup::setProgressMeter( ProgressMeter* p )
 }
 
 
+void TaskGroup::setEmpty()
+{
+    deepErase( tasks_ );
+    TaskGroupController::setEmpty();
+}
+
+
+void TaskGroup::getTasks( TaskGroup& oth )
+{
+    for ( int idx=0; idx<tasks_.size(); idx++ )
+	oth.addTask( tasks_[idx] );
+
+    tasks_.setEmpty();
+    TaskGroupController::setEmpty();
+}
+
+
 uiString TaskGroup::uiMessage() const
 {
     Threads::Locker locker( lock_ );
@@ -234,11 +258,6 @@ bool TaskGroup::execute()
     }
 
     return true;
-}
-
-
-void TaskGroup::setParallel(bool)
-{
 }
 
 
