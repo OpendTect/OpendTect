@@ -250,7 +250,7 @@ void uiPluginSel::createUI()
 
     uiGraphicsViewBase* banner = new uiGraphicsViewBase( grp, "OpendTect" );
     uiPixmap pm( "banner.png" );
-    uiPixmapItem* pmitem = new uiPixmapItem( uiPixmap(pm) );
+    uiPixmapItem* pmitem = new uiPixmapItem( pm );
     banner->scene().addItem( pmitem );
     banner->setPrefHeight( pm.height() );
     banner->setStretch( 2, 0 );
