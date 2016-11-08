@@ -618,14 +618,7 @@ void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 	return;
 
     readSetup( emobj->multiID() );
-
-    MPE::SectionTracker* sectiontracker =
-			 tracker ? tracker->getSectionTracker( sid, true ) : 0;
-    const bool setupavailable = sectiontracker &&
-				sectiontracker->hasInitializedSetup();
-
-    if ( uiMSG().askGoOn(mAskGoOnStr(setupavailable)) )
-	showSetupDlg( emid, sid );
+    showSetupDlg( emid, sid );
 }
 
 
@@ -788,6 +781,7 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     int connectmode = 0;
     iopar.get( "Seed Connection mode", connectmode );
     seedpicker->setTrackMode( (MPE::EMSeedPicker::TrackMode)connectmode );
+    seedpicker->startSeedPick();
     tracker->usePar( iopar );
 
     PtrMan<IOPar> attrpar = iopar.subselect( "Attribs" );
