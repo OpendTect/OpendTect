@@ -7,22 +7,74 @@
 
 #include "volprocvolreader.h"
 
-#include "arrayndimpl.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "seisdatapack.h"
-#include "seisread.h"
-#include "seistrctr.h"
-#include "seistrc.h"
 #include "seisparallelreader.h"
 
 namespace VolProc
 {
 
-VolumeReader::~VolumeReader()
+class VolumeReaderExecutor : public SequentialTask
+{ mODTextTranslationClass(VolumeReaderExecutor);
+public:
+
+VolumeReaderExecutor( const IOObj& ioobj, RegularSeisDataPack& output )
+    : SequentialTask()
+    , ioobj_(ioobj.clone())
+    , output_(&output)
+{}
+
+
+~VolumeReaderExecutor()
 {
-    releaseData();
+    delete ioobj_;
 }
+
+
+uiString uiMessage() const
+{ return msg_; }
+
+
+protected:
+
+#define mErrRet() \
+{ \
+    msg_ = rdr.uiMessage(); \
+    return ErrorOccurred(); \
+}
+
+int nextStep()
+{
+    TypeSet<int> components;
+    for ( int idx=0; idx<output_->nrComponents(); idx++ )
+	components += idx;
+
+    Seis::SequentialReader rdr( *ioobj_, 0, &components );
+    if ( !rdr.setDataPack(*output_) )
+	mErrRet()
+
+    if ( progressmeter_ )
+    {
+	progressmeter_->setMessage( rdr.uiMessage() );
+	rdr.setProgressMeter( progressmeter_ );
+    }
+
+    if ( !rdr.execute() )
+	mErrRet()
+
+    output_ = 0; //This executor no longer needs the output (the step has it).
+
+    return Finished();
+}
+
+private:
+
+const IOObj*	ioobj_;
+RefMan<RegularSeisDataPack> output_;
+uiString	msg_;
+
+};
 
 
 Task* VolumeReader::createTask()
@@ -32,16 +84,7 @@ Task* VolumeReader::createTask()
     if ( !output || !ioobj )
 	return 0;
 
-    TypeSet<int> components;
-    for ( int idx=0; idx<output->nrComponents(); idx++ )
-	components += idx;
-
-    Seis::SequentialReader* rdr = new Seis::SequentialReader( *ioobj, 0,
-							      &components );
-    if ( !rdr->setDataPack(*output) )
-	{ delete rdr; return 0; }
-
-    return rdr;
+    return new VolumeReaderExecutor( *ioobj, *output );
 }
 
 

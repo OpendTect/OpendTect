@@ -30,7 +30,6 @@ public:
 				mDefaultFactoryInstantiation(
 					Step, VolumeReader,
 					"VolumeReader", tr("Input Volume") )
-				~VolumeReader();
 
     bool			setVolumeID(const DBKey&);
     const DBKey&		getVolumeID() const		{ return mid_; }
