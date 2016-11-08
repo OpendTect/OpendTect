@@ -81,6 +81,9 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     if ( !regsdp_.validComp(regidx_) || !ransdp_.validComp(ranidx_) )
 	return false;
 
+    if ( !regsdp_.getZRange().overlaps(ransdp_.getZRange()) )
+	return false;
+
     idzoffset_ = regsdp_.getZRange().nearestIndex( ransdp_.getZRange().start );
 
     if ( !regsdp_.getZRange().isCompatible(ransdp_.getZRange(),1e-3) )
@@ -356,13 +359,27 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     if ( regsdp.getScaler() )
 	randsdp->setScaler( *regsdp.getScaler() );
 
-    const StepInterval<float>& regzrg = regsdp.getZRange();
-    StepInterval<float> overlapzrg = regzrg;
-    overlapzrg.limitTo( zrange ); // DataPack should be created only for
-				  // overlap z-range.
-    overlapzrg.start = regzrg.atIndex( regzrg.getIndex(overlapzrg.start) );
-    overlapzrg.stop =regzrg.atIndex(regzrg.indexOnOrAfter(overlapzrg.stop,0.0));
-    randsdp->setZRange( overlapzrg );
+    TrcKeyPath& path = randsdp->getPath();
+    const TrcKeySampling& tks = regsdp.sampling().hsamp_;
+
+    // Remove outer undefined traces at both sides
+    int pathidx = path.size()-1;
+    while ( pathidx>0 && !tks.includes(path[pathidx]) )
+	path.removeSingle( pathidx-- );
+
+    while ( path.size()>1 && !tks.includes(path[0]) )
+	path.removeSingle( 0 );
+
+    // Auxiliary TrcKeyZSampling to limit z-range and if no overlap at all,
+    // preserve one dummy voxel for displaying the proper undefined color.
+    TrcKeyZSampling auxtkzs;
+    auxtkzs.hsamp_.start_ = path.first().binID();
+    auxtkzs.hsamp_.stop_ = path.last().binID();
+    auxtkzs.zsamp_ = zrange;
+    if ( !auxtkzs.adjustTo(regsdp.sampling(),true) && path.size()>1 )
+	 path.removeRange( 1, path.size()-1 );
+
+    randsdp->setZRange( auxtkzs.zsamp_ );
 
     const int nrcomps = compnames ? compnames->size() : regsdp.nrComponents();
     for ( int idx=0; idx<nrcomps; idx++ )

@@ -91,6 +91,7 @@ public:
     void			setPath( const TrcKeyPath& path )
 				{ path_ = path; }
     const TrcKeyPath&		getPath() const		{ return path_; }
+    TrcKeyPath&			getPath()		{ return path_; }
     void			setRandomLineID(int);
     int				getRandomLineID() const	{ return rdlid_; }
 
