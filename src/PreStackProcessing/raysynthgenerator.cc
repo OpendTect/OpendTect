@@ -24,24 +24,40 @@
 #define mErrOccRet SequentialTask::ErrorOccurred()
 
 RaySynthGenerator::RaySynthGenerator( const TypeSet<ElasticModel>* ems,
-				      bool ownrms )
+				      const SynthGenParams& synthpars )
     : forcerefltimes_(false)
     , rtr_( 0 )
     , raytracingdone_( false )
-    , ownraymodels_( ownrms )
-    , raymodels_( 0 )
     , aimodels_( ems )
-{}
+    , overwrite_(true)
+{
+    if ( synthpars.synthtype_ == SynthGenParams::ZeroOffset )
+    {
+	SeisTrcBuf* dptrcbuf = new SeisTrcBuf( true );
+	SeisTrcBufDataPack* trcbufdp =
+		new SeisTrcBufDataPack( dptrcbuf, Seis::Line,
+					SeisTrcInfo::TrcNr, synthpars.name_ );
+	synthdata_ = new PostStackSyntheticData( synthpars, *trcbufdp);
+    }
+    else
+    {
+	ObjectSet<PreStack::Gather> gatherset;
+	PreStack::GatherSetDataPack* dp =
+		new PreStack::GatherSetDataPack( synthpars.name_, gatherset );
+	synthdata_ = new PreStack::PreStackSyntheticData( synthpars, *dp );
+    }
+}
 
 
-RaySynthGenerator::RaySynthGenerator( ObjectSet<RayModel>* rms )
+RaySynthGenerator::RaySynthGenerator( SyntheticData* sd, bool overwrite )
     : forcerefltimes_(false)
     , rtr_( 0 )
     , raytracingdone_( true )
-    , ownraymodels_( false )
     , aimodels_( 0 )
-    , raymodels_( rms )
-{}
+    , overwrite_( overwrite )
+    , synthdata_( sd )
+{
+}
 
 
 void RaySynthGenerator::reset()
@@ -54,14 +70,12 @@ void RaySynthGenerator::reset()
 RaySynthGenerator::~RaySynthGenerator()
 {
     delete rtr_;
-    if ( ownraymodels_ && raymodels_ )
-	deepErase( *raymodels_ );
 }
 
 
 od_int64 RaySynthGenerator::nrIterations() const
 {
-    return aimodels_ ? aimodels_->size() : raymodels_->size();
+    return aimodels_ ? aimodels_->size() : synthdata_->raymodels_->size();
 }
 
 
@@ -71,16 +85,13 @@ const ObjectSet<RayTracer1D>& RaySynthGenerator::rayTracers() const
 
 bool RaySynthGenerator::doPrepare( int )
 {
-    if ( ownraymodels_ && raymodels_ )
-	deepErase( *raymodels_ );
-
     if ( aimodels_ && aimodels_->isEmpty() )
 	mErrRet(tr("No AI model found"), false);
 
     if ( offsets_.isEmpty() )
 	offsets_ += 0;
 
-    if ( !raymodels_ )
+    if ( synthdata_->raymodels_->isEmpty() )
     {
 	rtr_ = new RayTracerRunner( *aimodels_, raysetup_ );
 	message_ = tr("Raytracing");
@@ -90,14 +101,14 @@ bool RaySynthGenerator::doPrepare( int )
 	raytracingdone_ = true;
 
 	message_ = tr("Preparing Reflectivity Model");
-	raymodels_ = new ObjectSet<RayModel>();
 	const ObjectSet<RayTracer1D>& rt1ds = rtr_->rayTracers();
 	resetNrDone();
 	for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
 	{
 	    const RayTracer1D* rt1d = rt1ds[idx];
-	    RayModel* rm = new RayModel( *rt1d, offsets_.size() );
-	    raymodels_->insertAt( rm, 0 );
+	    SyntheticData::RayModel* rm =
+			new SyntheticData::RayModel( *rt1d,offsets_.size() );
+	    synthdata_->raymodels_->insertAt( rm, 0 );
 
 	    if ( forcerefltimes_ )
 		rm->forceReflTimes( forcedrefltimes_ );
@@ -109,7 +120,7 @@ bool RaySynthGenerator::doPrepare( int )
     RefMan<ReflectivityModelSet> models = new ReflectivityModelSet;
     getAllRefls( models );
     const bool zerooffset = offsets_.size() == 1 &&
-			   Seis::equalOffset(offsets_[0],0);
+			    Seis::equalOffset(offsets_[0],0);
     StepInterval<float> cursampling( outputsampling_ );
     if ( models->isEmpty() )
 	mErrRet( tr("No models given to make synthetics"), false );
@@ -119,7 +130,7 @@ bool RaySynthGenerator::doPrepare( int )
 
     if ( !SynthGenBase::getOutSamplingFromModel(models,cursampling,
 						applynmo_||zerooffset) &&
-	  aimodels_ )
+	    aimodels_ )
     {
 	Interval<float> modelsampling;
 	ElasticModel::getTimeSampling( *aimodels_, modelsampling );
@@ -137,14 +148,14 @@ bool RaySynthGenerator::doPrepare( int )
 
 bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 {
-    if ( !raymodels_ ) return false;
+    if ( !synthdata_->raymodels_ ) return false;
     IOPar par; fillPar( par );
     for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	if ( !shouldContinue() )
 	    return false;
 
-	RayModel& rm = *(*raymodels_)[idx];
+	SyntheticData::RayModel& rm = *(*synthdata_->raymodels_)[idx];
 	deepErase( rm.outtrcs_ );
 
 	Seis::MultiTraceSynthGenerator multitracegen;
@@ -177,6 +188,57 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
+bool RaySynthGenerator::updateDataPack()
+{
+    const bool zerooffset = offsets_.size() == 1 &&
+			    Seis::equalOffset(offsets_[0],0);
+    DataPack::ID id = synthdata_->getPack().id();
+    if ( zerooffset )
+    {
+	SeisTrcBuf* seisbuf = new SeisTrcBuf( true );
+	getStackedTraces( *seisbuf );
+
+	RefMan<DataPack> dp = DPM( synthdata_->datapackid_ ).get(id);
+	mDynamicCastGet(SeisTrcBufDataPack*,postdp,dp.ptr());
+	postdp->setBuffer( seisbuf, Seis::Line, SeisTrcInfo::TrcNr,0,true);
+	return true;
+    }
+
+    ObjectSet<SeisTrcBuf> tbufs;
+    getTraces( tbufs );
+    RefObjectSet<PreStack::Gather> gatherset;
+    while ( tbufs.size() )
+    {
+	PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
+	RefMan<PreStack::Gather> gather = new PreStack::Gather();
+	if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
+	    continue;
+
+	gather->ref();
+	gatherset += gather;
+    }
+
+    RefMan<DataPack> dp = DPM( synthdata_->datapackid_ ).get(id);
+    mDynamicCastGet(PreStack::GatherSetDataPack*,prestkdp,dp.ptr());
+    prestkdp->setGathers( gatherset );
+    deepUnRef( gatherset );
+    return true;
+}
+
+
+bool RaySynthGenerator::doFinish( bool success )
+{
+    if (!synthdata_->raymodels_ || synthdata_->raymodels_->isEmpty() )
+	return false;
+
+
+    synthdata_->updateD2TModels();
+    getAllRefls( synthdata_->reflectivitymodels_ );
+
+    return updateDataPack();
+}
+
+
 od_int64 RaySynthGenerator::totalNr() const
 {
     return !raytracingdone_ && rtr_ ? rtr_->totalNr() : nrIterations();
@@ -193,38 +255,6 @@ od_int64 RaySynthGenerator::nrDone() const
 uiString RaySynthGenerator::uiNrDoneText() const
 {
     return !raytracingdone_ && rtr_ ? tr("Layers done") : tr("Models done");
-}
-
-
-RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
-    : zerooffset2dmodel_(0)
-    , refmodels_(new ReflectivityModelSet)
-    , sampledrefmodels_(new ReflectivityModelSet)
-{
-    for ( int idx=0; idx<nroffsets; idx++ )
-    {
-	ReflectivityModel* refmodel = new ReflectivityModel();
-	rt1d.getReflectivity( idx, *refmodel );
-
-	TimeDepthModel* t2dm = new TimeDepthModel();
-	rt1d.getTDModel( idx, *t2dm );
-
-	refmodels_->add( refmodel );
-	t2dmodels_ += t2dm;
-	if ( !idx )
-	{
-	    zerooffset2dmodel_ = new TimeDepthModel();
-	    rt1d.getZeroOffsTDModel( *zerooffset2dmodel_ );
-	}
-    }
-}
-
-
-RaySynthGenerator::RayModel::~RayModel()
-{
-    deepErase( outtrcs_ );
-    deepErase( t2dmodels_ );
-    delete zerooffset2dmodel_;
 }
 
 
@@ -255,91 +285,30 @@ void RaySynthGenerator::forceReflTimes( const StepInterval<float>& si)
 
 void RaySynthGenerator::getAllRefls( RefMan<ReflectivityModelSet>& refs )
 {
-    if ( !raymodels_ || raymodels_->isEmpty() ) return;
+    if ( !synthdata_->raymodels_ || synthdata_->raymodels_->isEmpty() ) return;
 
     refs->setEmpty();
-    for ( int imod=0; imod<raymodels_->size(); imod++ )
+    for ( int imod=0; imod<synthdata_->raymodels_->size(); imod++ )
     {
-	if ( !(*raymodels_)[imod] )
+	if ( !(*synthdata_->raymodels_)[imod] )
 	    continue;
 
 	RefMan<ReflectivityModelSet> curraymodel =
-			(*raymodels_)[imod]->getRefs( false );
+			(*synthdata_->raymodels_)[imod]->getRefs( false );
 	refs->append( *curraymodel );
     }
-}
-
-#define mGet( inpset, outpset, steal )\
-{\
-    outpset.copy( inpset );\
-    if ( steal )\
-	inpset.erase();\
-}
-
-void RaySynthGenerator::RayModel::getTraces(
-		    ObjectSet<SeisTrc>& trcs, bool steal )
-{
-    mGet( outtrcs_, trcs, steal );
-}
-
-
-RefMan<ReflectivityModelSet>& RaySynthGenerator::RayModel::getRefs(
-								bool sampled )
-{
-    return sampled ? sampledrefmodels_ : refmodels_;
-}
-
-
-void RaySynthGenerator::RayModel::getZeroOffsetD2T( TimeDepthModel& tdms )
-{
-    tdms = *zerooffset2dmodel_;
-}
-
-
-void RaySynthGenerator::RayModel::getD2T(
-			ObjectSet<TimeDepthModel>& tdmodels, bool steal )
-{
-    mGet( t2dmodels_, tdmodels, steal );
-}
-
-
-void RaySynthGenerator::RayModel::forceReflTimes( const StepInterval<float>& si)
-{
-    for ( int idx=0; idx<refmodels_->size(); idx++ )
-    {
-	ReflectivityModel& refmodel =
-			const_cast<ReflectivityModel&>(*refmodels_->get(idx));
-	for ( int iref=0; iref<refmodel.size(); iref++ )
-	{
-	    refmodel[iref].time_ = si.atIndex(iref);
-	    refmodel[iref].correctedtime_ = si.atIndex(iref);
-	}
-    }
-}
-
-
-const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
-{
-    if ( outtrcs_.isEmpty() )
-	return 0;
-
-    SeisTrc* trc = new SeisTrc( *outtrcs_[0] );
-    SeisTrcPropChg stckr( *trc );
-    for ( int idx=1; idx<outtrcs_.size(); idx++ )
-	stckr.stack( *outtrcs_[idx], false, mCast(float,idx) );
-
-    return trc;
 }
 
 
 void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
 {
-    if ( !raymodels_ || raymodels_->isEmpty() ) return;
+    if ( !synthdata_->raymodels_ || synthdata_->raymodels_->isEmpty() ) return;
 
-    for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
+    for ( int imdl=0; imdl<synthdata_->raymodels_->size(); imdl++ )
     {
 	SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-	ObjectSet<SeisTrc> trcs; (*raymodels_)[imdl]->getTraces( trcs, true );
+	ObjectSet<SeisTrc> trcs;
+	(*synthdata_->raymodels_)[imdl]->getTraces(trcs, true );
 	for ( int idx=0; idx<trcs.size(); idx++ )
 	{
 	    SeisTrc* trc = trcs[idx];
@@ -354,57 +323,18 @@ void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
 
 void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )
 {
-    if ( !raymodels_ || raymodels_->isEmpty() ) return;
+    if ( !synthdata_->raymodels_ || synthdata_->raymodels_->isEmpty() ) return;
 
     seisbuf.erase();
-    for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
+    for ( int imdl=0; imdl<synthdata_->raymodels_->size(); imdl++ )
     {
-	SeisTrc* trc = const_cast<SeisTrc*> ((*raymodels_)[imdl]->stackedTrc());
+	SeisTrc* trc =
+	   const_cast<SeisTrc*> ((*synthdata_->raymodels_)[imdl]->stackedTrc());
+	if ( !trc )
+	    continue;
+
 	trc->info().trckey_ = TrcKey::getSynth( imdl + 1 );
 	trc->info().coord_ = Coord::udf();
 	seisbuf.add( trc );
     }
-}
-
-
-SyntheticData* RaySynthGenerator::createSyntheticData(
-					const SynthGenParams& synthgenpar )
-{
-    SyntheticData* sd = 0;
-    if ( synthgenpar.synthtype_ == SynthGenParams::PreStack )
-    {
-	ObjectSet<SeisTrcBuf> tbufs;
-	getTraces( tbufs );
-	ObjectSet<PreStack::Gather> gatherset;
-	while ( tbufs.size() )
-	{
-	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
-	    RefMan<PreStack::Gather> gather = new PreStack::Gather();
-	    if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
-		continue;
-
-	    gather->ref();
-	    gatherset += gather;
-	}
-
-	PreStack::GatherSetDataPack* dp =
-		new PreStack::GatherSetDataPack( synthgenpar.name_, gatherset );
-	deepUnRef( gatherset );
-	sd = new PreStack::PreStackSyntheticData( synthgenpar, *dp );
-    }
-    else
-    {
-	SeisTrcBuf* dptrcbuf = new SeisTrcBuf( true );
-	getStackedTraces( *dptrcbuf );
-	SeisTrcBufDataPack* dp =
-	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line,
-				    SeisTrcInfo::TrcNr, synthgenpar.name_ );
-	sd = new PostStackSyntheticData( synthgenpar, *dp );
-	RefMan<ReflectivityModelSet> reflmodels = new ReflectivityModelSet;
-	getAllRefls( reflmodels );
-	sd->setRefModels( reflmodels );
-    }
-
-    sd->useGenParams( synthgenpar );
-    return sd;
 }

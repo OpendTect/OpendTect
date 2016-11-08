@@ -35,24 +35,8 @@ namespace Strat
     class Level;
 }
 
-typedef RaySynthGenerator::RayModel SynthRayModel;
+typedef SyntheticData::RayModel SynthRayModel;
 typedef ObjectSet<SynthRayModel> RayModelSet;
-
-mExpClass(WellAttrib) SynthRayModelManager
-{ mODTextTranslationClass(SynthRayModelManager);
-public:
-    ObjectSet<SynthRayModel>*	getRayModelSet(const IOPar&);
-    void			addRayModelSet(ObjectSet<SynthRayModel>*,
-					       const SyntheticData*);
-    void			removeRayModelSet(const IOPar&);
-    void			clearRayModels();
-    bool			haveSameRM(const IOPar& par1,
-					   const IOPar& par2) const;
-protected:
-    ObjectSet<RayModelSet>	raymodels_;
-    TypeSet<IOPar>		synthraypars_;
-};
-
 
 
 mExpClass(WellAttrib) StratSynth
@@ -122,8 +106,6 @@ public:
 				   const ObjectSet<const TimeDepthModel>&,
 				   float zskip) const;
     void		decimateTraces(SeisTrcBuf&,int fac) const;
-    void		clearRayModels()
-			{ synthrmmgr_.clearRayModels(); }
 
     void		setTaskRunner(TaskRunner* taskr) { taskr_ = taskr; }
     uiString		errMsg() const;
@@ -148,7 +130,6 @@ protected:
     uiString			errmsg_;
     uiString			infomsg_;
     TaskRunner*			taskr_;
-    SynthRayModelManager	synthrmmgr_;
 
     const Strat::LayerModel&	layMod() const;
     bool		canRayModelsBeRemoved(const IOPar& raypar) const;
@@ -173,10 +154,6 @@ protected:
     SyntheticData*	createSynthData(const SyntheticData& sd,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&,bool);
-
-    void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
-    void		putD2TModelsInSD(SyntheticData&,
-					 ObjectSet<SynthRayModel>&);
 
     const PreStack::GatherSetDataPack*	getRelevantAngleData(
 						const IOPar& raypar) const;

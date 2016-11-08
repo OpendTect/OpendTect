@@ -173,6 +173,8 @@ public:
     const Gather*		getGather(const BinID&) const;
     const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }
     ObjectSet<Gather>&		getGathers()		{ return gathers_; }
+    void			setGathers( RefObjectSet<Gather>& gathers )
+				{ gathers_ = gathers;}
 
 protected:
     SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;

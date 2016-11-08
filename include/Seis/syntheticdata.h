@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "stratsynthgenparams.h"
 #include "reflectivitymodel.h"
 
+class RayTracer1D;
 class SeisTrc;
 class TimeDepthModel;
 
@@ -35,8 +36,28 @@ mStruct(Seis) SynthFVSpecificDispPars
 
 /*! brief the basic synthetic dataset. contains the data cubes*/
 mExpClass(Seis) SyntheticData : public NamedObject
+			      , public RefCount::Referenced
 {
 public:
+    mStruct(Seis) RayModel
+    {
+				RayModel(const RayTracer1D& rt1d,
+					 int nroffsets);
+				~RayModel();
+	void			forceReflTimes(const StepInterval<float>&);
+	void			getTraces(ObjectSet<SeisTrc>&,bool steal);
+	void			getD2T(ObjectSet<TimeDepthModel>&,bool steal);
+	void			getZeroOffsetD2T(TimeDepthModel&);
+	RefMan<ReflectivityModelSet>&	getRefs(bool sampled=false);
+	const SeisTrc*		stackedTrc() const;
+
+	ObjectSet<SeisTrc>		outtrcs_;
+	ObjectSet<TimeDepthModel>	t2dmodels_;
+	TimeDepthModel*			zerooffset2dmodel_;
+	RefMan<ReflectivityModelSet>	refmodels_;
+	RefMan<ReflectivityModelSet>	sampledrefmodels_;
+    };
+
     					~SyntheticData();
 
     void				setName(const char*);
@@ -53,6 +74,8 @@ public:
     ObjectSet<const TimeDepthModel>	zerooffsd2tmodels_;
 
     DataPack::FullID			datapackid_;
+    ObjectSet<RayModel>*		raymodels_;
+    RefMan<ReflectivityModelSet>	reflectivitymodels_;
 
     int					id_;
     virtual bool			isPS() const 		= 0;
@@ -71,8 +94,15 @@ public:
     SynthFVSpecificDispPars&		dispPars() 	{ return disppars_; }
     const SynthFVSpecificDispPars&	dispPars() const
 							{ return disppars_; }
-    RefMan<ReflectivityModelSet>	getRefModels();
-    void		setRefModels(const RefMan<ReflectivityModelSet>&);
+    RefMan<ReflectivityModelSet>	getRefModels(int modelid,bool sampled);
+    void				setRayModels(ObjectSet<RayModel>& rms );
+    bool				haveSameRM(const IOPar& par1,
+						   const IOPar& par2) const;
+    const IOPar&			getRayPar() const
+					{ return raypars_; }
+    void				updateD2TModels();
+    void				adjustD2TModels(
+						ObjectSet<TimeDepthModel>&);
 
 protected:
 					SyntheticData(const SynthGenParams&,
@@ -85,6 +115,4 @@ protected:
     void				removePack();
 
    RefMan<DataPack>			datapack_;
-   RefMan<ReflectivityModelSet>		refmodels_;
-   RefMan<ReflectivityModelSet>		sampledrefmodels_;
 };

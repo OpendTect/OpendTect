@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
+#include "syntheticdata.h"
 
 #include "createlogcube.h"
 #include "emhorizon2d.h"
@@ -38,6 +39,7 @@ ________________________________________________________________________
 #include "welltietoseismic.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
+
 
 namespace WellTie
 {
@@ -105,6 +107,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     , seistrc_(*new SeisTrc)
     , synthtrc_(*new SeisTrc)
     , trunner_(0)
+    , sd_(0 )
 {
     ConstRefMan<Wavelet> wvlt = WaveletMGR().fetch( wts.wvltid_ );
     if ( wvlt )

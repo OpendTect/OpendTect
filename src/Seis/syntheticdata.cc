@@ -99,6 +99,8 @@ SyntheticData::SyntheticData( const SynthGenParams& sgp, DataPack& dp )
     : NamedObject(sgp.name_)
     , datapack_(&dp)
     , id_(-1)
+    , raymodels_(new ObjectSet<SyntheticData::RayModel>())
+    , reflectivitymodels_(new ReflectivityModelSet)
 {
 }
 
@@ -176,15 +178,184 @@ void SyntheticData::useDispPar( const IOPar& par )
 }
 
 
-void SyntheticData::setRefModels(const RefMan<ReflectivityModelSet>& refmodels)
+void SyntheticData::setRayModels( ObjectSet<RayModel>& raymodels )
 {
-    refmodels_ = refmodels;
+    raymodels = *raymodels_;
 }
 
 
-RefMan<ReflectivityModelSet> SyntheticData::getRefModels()
+bool SyntheticData::haveSameRM( const IOPar& par1, const IOPar& par2 ) const
 {
-    return refmodels_;
+    uiString msg;
+    PtrMan<RayTracer1D> rt1d1 = RayTracer1D::createInstance( par1, msg );
+    PtrMan<RayTracer1D> rt1d2 = RayTracer1D::createInstance( par2, msg );
+    if ( !rt1d1 || !rt1d2 )
+	return false;
+
+    return rt1d1->hasSameParams( *rt1d2 );
+}
+
+
+void SyntheticData::adjustD2TModels( ObjectSet<TimeDepthModel>& d2tmodels )
+{
+    for ( int idx=0; idx<d2tmodels.size(); idx++ )
+    {
+	TimeDepthModel* d2tmodel = d2tmodels[idx];
+	if ( !d2tmodel ) continue;
+	const int d2tmsz = d2tmodel->size();
+	TypeSet<float> depths;
+	depths.setSize( d2tmsz );
+	TypeSet<float> times;
+	times.setSize( d2tmsz );
+	for ( int isamp=0; isamp<d2tmsz; isamp++ )
+	{
+	    depths[isamp] = d2tmodel->getDepth( isamp ) -
+				mCast(float,SI().seismicReferenceDatum());
+	    times[isamp] = d2tmodel->getTime( isamp );
+	}
+
+	d2tmodel->setModel( depths.arr(), times.arr(), d2tmsz );
+    }
+}
+
+
+void SyntheticData::updateD2TModels()
+{
+    deepErase( d2tmodels_ );
+    deepErase( zerooffsd2tmodels_ );
+    ObjectSet<TimeDepthModel> zeroofsetd2tms;
+    if ( raymodels_->isEmpty() )
+	return;
+
+    for ( int idx=0; idx<raymodels_->size(); idx++ )
+    {
+	if ( !(*raymodels_)[idx] )
+	    continue;
+
+	TimeDepthModel* zeroofsetd2tm = new TimeDepthModel();
+	SyntheticData::RayModel* rm = (*raymodels_)[idx];
+	rm->getZeroOffsetD2T( *zeroofsetd2tm );
+	zeroofsetd2tms += zeroofsetd2tm;
+
+	ObjectSet<TimeDepthModel> d2tmodel;
+	rm->getD2T( d2tmodel, false );
+	adjustD2TModels( d2tmodel );
+	while( d2tmodel.size() )
+	{
+	    TimeDepthModel* d2tm =
+			new TimeDepthModel(*d2tmodel.removeSingle( 0 ) );
+	    d2tmodels_ += d2tm;
+	}
+
+	deepErase( d2tmodel );
+    }
+
+    adjustD2TModels( zeroofsetd2tms );
+    while( !zeroofsetd2tms.isEmpty() )
+	zerooffsd2tmodels_ += zeroofsetd2tms.removeSingle( 0 );
+}
+
+
+RefMan<ReflectivityModelSet> SyntheticData::getRefModels(int modelid,
+							 bool sampled )
+{
+    if ( !raymodels_->validIdx(modelid) )
+	return 0;
+    return sampled ? (*raymodels_)[modelid]->sampledrefmodels_
+		   : (*raymodels_)[modelid]->refmodels_;
+}
+
+
+SyntheticData::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
+    : zerooffset2dmodel_(0)
+    , refmodels_(new ReflectivityModelSet)
+    , sampledrefmodels_(new ReflectivityModelSet)
+{
+    for ( int idx=0; idx<nroffsets; idx++ )
+    {
+	ReflectivityModel* refmodel = new ReflectivityModel();
+	rt1d.getReflectivity( idx, *refmodel );
+
+	TimeDepthModel* t2dm = new TimeDepthModel();
+	rt1d.getTDModel( idx, *t2dm );
+
+	refmodels_->add( refmodel );
+	t2dmodels_ += t2dm;
+	if ( !idx )
+	{
+	    zerooffset2dmodel_ = new TimeDepthModel();
+	    rt1d.getZeroOffsTDModel( *zerooffset2dmodel_ );
+	}
+    }
+}
+
+
+SyntheticData::RayModel::~RayModel()
+{
+    deepErase( outtrcs_ );
+    deepErase( t2dmodels_ );
+    delete zerooffset2dmodel_;
+}
+
+
+void SyntheticData::RayModel::forceReflTimes(const StepInterval<float>& si )
+{
+    for ( int idx=0; idx<refmodels_->size(); idx++ )
+    {
+	ReflectivityModel& refmodel =
+			const_cast<ReflectivityModel&>(*refmodels_->get(idx));
+	for ( int iref=0; iref<refmodel.size(); iref++ )
+	{
+	    refmodel[iref].time_ = si.atIndex(iref);
+	    refmodel[iref].correctedtime_ = si.atIndex(iref);
+	}
+    }
+}
+
+
+#define mGet( inpset, outpset, steal )\
+{\
+    outpset.copy( inpset );\
+    if ( steal )\
+	inpset.erase();\
+}
+
+void SyntheticData::RayModel::getTraces(
+		    ObjectSet<SeisTrc>& trcs, bool steal )
+{
+    mGet( outtrcs_, trcs, steal );
+}
+
+
+RefMan<ReflectivityModelSet>& SyntheticData::RayModel::getRefs( bool sampled )
+{
+    return sampled ? sampledrefmodels_ : refmodels_;
+}
+
+
+void SyntheticData::RayModel::getZeroOffsetD2T( TimeDepthModel& tdms )
+{
+    tdms = *zerooffset2dmodel_;
+}
+
+
+void SyntheticData::RayModel::getD2T(
+			ObjectSet<TimeDepthModel>& tdmodels, bool steal )
+{
+    mGet( t2dmodels_, tdmodels, steal );
+}
+
+const SeisTrc* SyntheticData::RayModel::stackedTrc() const
+{
+    if ( outtrcs_.isEmpty() )
+    return 0;
+
+    SeisTrc* trc = new SeisTrc( *outtrcs_[0] );
+    SeisTrcPropChg stckr( *trc );
+    for ( int idx=1; idx<outtrcs_.size(); idx++ )
+    stckr.stack( *outtrcs_[idx], false, mCast(float,idx) );
+
+    return trc;
 }
 
 

@@ -122,7 +122,7 @@ bool testTracesAmplitudes( od_ostream& strm,
     int nr = -1;
     for ( int ipos=0; ipos<nrpos; ipos++ )
     {
-	RaySynthGenerator::RayModel& raymodel =
+	SyntheticData::RayModel& raymodel =
 						synthgen.result( ipos );
 	ObjectSet<SeisTrc> gather;
 	raymodel.getTraces( gather, false );
@@ -193,7 +193,10 @@ bool BatchProgram::go( od_ostream& strm )
 	    return false;
 
 	const float scal = wav->get( wav->centerSample() );
-	RaySynthGenerator synthgen( &models );
+	SynthGenParams sgp;
+	sgp.raypars_ = *raypar;
+	sgp.wvltnm_ = wav->name();
+	RaySynthGenerator synthgen( &models, sgp );
 	synthgen.setWavelet( wav );
 	synthgen.enableFourierDomain( true );
 	synthgen.usePar( *raypar );
@@ -203,7 +206,7 @@ bool BatchProgram::go( od_ostream& strm )
 				  synthgen) )
 	    return false;
 
-	RaySynthGenerator::RayModel& rm = synthgen.result( nrmodels-1 );
+	SyntheticData::RayModel& rm = synthgen.result( nrmodels-1 );
 	SeisTrc stack = *rm.stackedTrc();
 	if ( !testTraceSize(strm,stack) ||
 	     !testTracesAmplitudes(strm,synthgen,scal) )

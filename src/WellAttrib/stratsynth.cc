@@ -80,7 +80,6 @@ void StratSynth::setWavelet( const Wavelet* wvlt )
 void StratSynth::clearSynthetics()
 {
     deepErase( synthetics_ );
-    clearRayModels();
 }
 
 
@@ -99,7 +98,8 @@ bool StratSynth::canRayModelsBeRemoved( const IOPar& sdraypar ) const
 	synthetics_[idx]->fillGenParams( sdsgp );
 	const bool ispsbased = sdsgp.synthtype_==SynthGenParams::AngleStack ||
 			       sdsgp.synthtype_==SynthGenParams::AVOGradient;
-	if ( !ispsbased && synthrmmgr_.haveSameRM(sdraypar,sdsgp.raypars_) )
+	if ( !ispsbased &&
+	     synthetics_[idx]->haveSameRM(sdraypar,sdsgp.raypars_) )
 	    return false;
     }
 
@@ -117,7 +117,7 @@ const PreStack::GatherSetDataPack* StratSynth::getRelevantAngleData(
 	if ( !presd ) continue;
 	SynthGenParams sgp;
 	sd->fillGenParams( sgp );
-	if ( synthrmmgr_.haveSameRM(sgp.raypars_,sdraypar) )
+	if ( sd->haveSameRM(sgp.raypars_,sdraypar) )
 	    return &presd->angleData();
     }
     return 0;
@@ -156,7 +156,11 @@ bool StratSynth::removeSynthetic( const char* nm )
 	    SynthGenParams sgp;
 	    sd->fillGenParams( sgp );
 	    if ( canRayModelsBeRemoved(sgp.raypars_) )
-		synthrmmgr_.removeRayModelSet( sgp.raypars_ );
+	    {
+		RayModelSet* rms = sd->raymodels_;
+		deepErase( *rms );
+	    }
+
 	    return true;
 	}
     }
@@ -734,27 +738,38 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    return 0;
     }
 
-    ObjectSet<SynthRayModel>* rms =
-	synthrmmgr_.getRayModelSet( synthgenpar.raypars_ );
+    SyntheticData* sd = 0;
+    for ( int sdidx=0; sdidx<synthetics_.size(); sdidx++ )
+    {
+	bool samerm = synthetics_[sdidx]->haveSameRM(
+						synthetics_[sdidx]->getRayPar(),
+						synthgenpar.raypars_ );
+	if ( samerm )
+	{
+	    sd = synthetics_[sdidx];
+	    break;
+	}
+    }
+
     PtrMan<RaySynthGenerator> synthgen = 0;
-    if ( rms )
-	synthgen = new RaySynthGenerator( rms );
+    bool hasrms = sd && sd->raymodels_->size();
+    if ( hasrms )
+	synthgen = new RaySynthGenerator( sd, false ); //New constructor
     else
-	synthgen = new RaySynthGenerator( &aimodels_, false );
+	synthgen = new RaySynthGenerator( &aimodels_, synthgenpar );
     if ( !ispsbased )
     {
 	if ( !runSynthGen(*synthgen,synthgenpar) )
 	    return 0;
     }
 
-    SyntheticData* sd = 0;
+    sd = synthgen->getSyntheticData();
     if ( synthgenpar.synthtype_ == SynthGenParams::PreStack || ispsbased )
     {
 	if ( !ispsbased )
 	{
-	    sd = synthgen->createSyntheticData( synthgenpar );
 	    mDynamicCastGet(PreStack::PreStackSyntheticData*,presd,sd);
-	    if ( rms )
+	    if ( hasrms )
 	    {
 		const PreStack::GatherSetDataPack* anglegather =
 		    getRelevantAngleData( synthgenpar.raypars_ );
@@ -797,8 +812,6 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		sd = createAVOGradient( *sd, cs, synthgenpar );
 	}
     }
-    else if ( synthgenpar.synthtype_ == SynthGenParams::ZeroOffset )
-	sd = synthgen->createSyntheticData( synthgenpar );
 
     if ( !sd )
 	return 0;
@@ -811,69 +824,8 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     }
 
     sd->id_ = ++lastsyntheticid_;
-    if ( !rms )
-    {
-	rms = synthgen->rayModels();
-	synthrmmgr_.addRayModelSet( rms, sd );
-    }
 
-    putD2TModelsInSD( *sd, *rms );
     return sd;
-}
-
-void StratSynth::putD2TModelsInSD( SyntheticData& sd,
-				   ObjectSet<SynthRayModel>& rms )
-{
-    deepErase( sd.d2tmodels_ );
-    deepErase( sd.zerooffsd2tmodels_ );
-    ObjectSet<TimeDepthModel> zeroofsetd2tms;
-    for ( int imdl=0; imdl<aimodels_.size(); imdl++ )
-    {
-	RaySynthGenerator::RayModel* rm = rms[imdl];
-	if ( !rm ) continue;
-	TimeDepthModel* zeroofsetd2tm = new TimeDepthModel();
-	rm->getZeroOffsetD2T( *zeroofsetd2tm );
-	zeroofsetd2tms += zeroofsetd2tm;
-	mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,&sd);
-	if ( presd && !presd->isNMOCorrected() )
-	{
-	    ObjectSet<TimeDepthModel> tmpd2ts, sdd2ts;
-	    sdd2ts.allowNull( true );
-	    rm->getD2T( tmpd2ts, false );
-	    deepCopy( sdd2ts, tmpd2ts );
-	    adjustD2TModels( sdd2ts );
-	    while( sdd2ts.size() )
-		sd.d2tmodels_ += sdd2ts.removeSingle( 0 );
-	    deepErase( sdd2ts );
-	}
-    }
-
-    adjustD2TModels( zeroofsetd2tms );
-    while( !zeroofsetd2tms.isEmpty() )
-	sd.zerooffsd2tmodels_ += zeroofsetd2tms.removeSingle( 0 );
-}
-
-
-void StratSynth::adjustD2TModels( ObjectSet<TimeDepthModel>& d2tmodels ) const
-{
-    for ( int imdl=0; imdl<d2tmodels.size(); imdl++ )
-    {
-	TimeDepthModel* d2tmodel = d2tmodels[imdl];
-	if ( !d2tmodel ) continue;
-	const int d2tmsz = d2tmodel->size();
-	TypeSet<float> depths;
-	depths.setSize( d2tmsz );
-	TypeSet<float> times;
-	times.setSize( d2tmsz );
-	for ( int isamp=0; isamp<d2tmsz; isamp++ )
-	{
-	    depths[isamp] = d2tmodel->getDepth( isamp ) -
-			    mCast(float,SI().seismicReferenceDatum());
-	    times[isamp] = d2tmodel->getTime( isamp );
-	}
-
-	d2tmodel->setModel( depths.arr(), times.arr(), d2tmsz );
-    }
 }
 
 
@@ -1436,68 +1388,4 @@ void StratSynth::decimateTraces( SeisTrcBuf& tbuf, int fac ) const
 	if ( idx%fac )
 	    delete tbuf.remove( idx );
     }
-}
-
-
-bool SynthRayModelManager::haveSameRM( const IOPar& par1,
-				       const IOPar& par2 ) const
-{
-    uiString msg;
-    PtrMan<RayTracer1D> rt1d1 = RayTracer1D::createInstance( par1, msg );
-    PtrMan<RayTracer1D> rt1d2 = RayTracer1D::createInstance( par2, msg );
-    if ( !rt1d1 || !rt1d2 )
-	return false;
-    return rt1d1->hasSameParams( *rt1d2 );
-}
-
-
-void SynthRayModelManager::removeRayModelSet( const IOPar& raypar )
-{
-    for ( int sidx=0; sidx<synthraypars_.size(); sidx++ )
-    {
-	IOPar synthrapar = synthraypars_[sidx];
-	if ( haveSameRM(raypar,synthrapar) )
-	{
-	    synthraypars_.removeSingle( sidx );
-	    RayModelSet* rms = raymodels_.removeSingle( sidx );
-	    deepErase( *rms );
-	}
-    }
-}
-
-
-ObjectSet<SynthRayModel>* SynthRayModelManager::getRayModelSet(
-				const IOPar& raypar )
-{
-    for ( int sidx=0; sidx<synthraypars_.size(); sidx++ )
-    {
-	const IOPar& synthrapar = synthraypars_[sidx];
-	if ( haveSameRM(raypar,synthrapar) )
-	    return raymodels_[sidx];
-    }
-
-    return 0;
-}
-
-
-void SynthRayModelManager::clearRayModels()
-{
-    while ( raymodels_.size() )
-    {
-	RayModelSet* rms = raymodels_.removeSingle( 0 );
-	deepErase( *rms );
-    }
-    synthraypars_.erase();
-}
-
-
-void SynthRayModelManager::addRayModelSet(
-	ObjectSet<SynthRayModel>* rms, const SyntheticData* sd )
-{
-    if ( raymodels_.isPresent(rms) )
-	return;
-    SynthGenParams sgp;
-    sd->fillGenParams( sgp );
-    synthraypars_ += sgp.raypars_;
-    raymodels_ += rms;
 }

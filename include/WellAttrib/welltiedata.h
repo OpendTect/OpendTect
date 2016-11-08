@@ -26,6 +26,7 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class SeisTrc;
+class SyntheticData;
 class TaskRunner;
 
 namespace Well { class Data; class Log; class LogSet; class Writer; }
@@ -141,6 +142,7 @@ public :
     PickData			pickdata_;
     DispParams			dispparams_;
     TaskRunner*			trunner_;
+    RefMan<SyntheticData>	sd_;
 
     mStruct(WellAttrib) CorrelData
     {

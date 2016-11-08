@@ -18,6 +18,8 @@ class SeisTrc;
 class SeisTrcBuf;
 class RayTracerRunner;
 class TimeDepthModel;
+class SynthGenParams;
+class DataPack;
 
 
 /*!\brief base class for synthetic trace generators. */
@@ -27,34 +29,9 @@ mExpClass(PreStackProcessing) RaySynthGenerator : public ParallelTask
 { mODTextTranslationClass(RaySynthGenerator);
 public:
 
-    mStruct(PreStackProcessing) RayModel
-    {
-			RayModel(const RayTracer1D& rt1d,int nroffsets);
-			~RayModel();
-
-	void		getTraces(ObjectSet<SeisTrc>&,bool steal);
-	void		getD2T(ObjectSet<TimeDepthModel>&,bool steal);
-	void		getZeroOffsetD2T(TimeDepthModel&);
-	RefMan<ReflectivityModelSet>&	getRefs(bool sampled=false);
-	void		forceReflTimes(const StepInterval<float>&);
-
-	const SeisTrc*	stackedTrc() const;
-
-    protected:
-	ObjectSet<SeisTrc>			outtrcs_; //this is a gather
-	ObjectSet<TimeDepthModel>		t2dmodels_;
-	TimeDepthModel*				zerooffset2dmodel_;
-
-	RefMan<ReflectivityModelSet>		refmodels_;
-	RefMan<ReflectivityModelSet>		sampledrefmodels_;
-
-	friend class				RaySynthGenerator;
-
-    };
-
 			RaySynthGenerator(const TypeSet<ElasticModel>*,
-					  bool ownrms=true);
-			RaySynthGenerator(ObjectSet<RayModel>*);
+					  const SynthGenParams&);
+			RaySynthGenerator(SyntheticData*, bool overwrite);
 			~RaySynthGenerator();
 
     void		reset();
@@ -72,15 +49,17 @@ public:
 
 
     //available after execution
-    RayModel&		result(int id)		{ return *(*raymodels_)[id]; }
-    const RayModel&	result(int id) const	{ return *(*raymodels_)[id]; }
-    ObjectSet<RayModel>* rayModels()		{ return raymodels_; }
+    SyntheticData::RayModel&		result(int id)
+			{ return *(*synthdata_->raymodels_)[id]; }
+    const SyntheticData::RayModel&	result(int id) const
+			{ return *(*synthdata_->raymodels_)[id]; }
 
     const ObjectSet<RayTracer1D>& rayTracers() const;
     const TypeSet<ElasticModel>& elasticModels() const	{ return *aimodels_; }
     void		getTraces(ObjectSet<SeisTrcBuf>&);
     void		getStackedTraces(SeisTrcBuf&);
-    SyntheticData*	createSyntheticData(const SynthGenParams&);
+    SyntheticData*	getSyntheticData() const { return synthdata_; }
+    bool		updateDataPack();
 
 protected:
     RayTracerRunner*		rtr_;
@@ -90,15 +69,17 @@ protected:
     od_int64			totalNr() const;
     bool			doPrepare(int);
     bool			doWork(od_int64,od_int64,int);
+    bool			doFinish(bool);
 
     bool			ownraymodels_;
     uiString			message_;
     const TypeSet<ElasticModel>* aimodels_;
     TypeSet<float>		offsets_;
     IOPar			raysetup_;
-    ObjectSet<RayModel>*	raymodels_;
 
     StepInterval<float>		forcedrefltimes_;
     bool			forcerefltimes_;
     bool			raytracingdone_;
+    bool			overwrite_;
+    SyntheticData*		synthdata_;
 };

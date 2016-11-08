@@ -36,7 +36,7 @@ ________________________________________________________________________
 #include "raysynthgenerator.h"
 #include "reflectivitymodel.h"
 
-static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
+//static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
 
 namespace WellTie
 {
@@ -478,39 +478,41 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     refmodel_.erase();
     TypeSet<ElasticModel> aimodels;
     aimodels += aimodel_;
-    RaySynthGenerator gen( &aimodels );
-    gen.forceReflTimes( data_.getReflRange() );
-    gen.setWavelet( &wvlt );
-    gen.setOutSampling( data_.getTraceRange() );
-    gen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
-    IOPar par;
-    FixedString defrayparstr = sKeyAdvancedRayTracer();
-    const BufferStringSet& facnms = RayTracer1D::factory().getNames();
-    if ( !facnms.isEmpty() )
+    SynthGenParams sgp;
+    sgp.wvltnm_ = wvlt.name();
+    PtrMan<RaySynthGenerator> gen = 0;
+    if ( data_.sd_ )
     {
-	const int typeidx = facnms.indexOf( defrayparstr );
-	FixedString facnm( typeidx>=0 ? facnms.get(typeidx) : facnms.get(0) );
-	par.set( sKey::Type(), facnm );
+	gen = new RaySynthGenerator( data_.sd_, true );
     }
+    else
+	gen = new RaySynthGenerator( &aimodels, sgp );
 
-    gen.usePar( par );
+    gen->usePar( gen->getSyntheticData()->getRayPar() );
+    gen->setWavelet( &wvlt );
+
+
     TaskRunner* taskrunner = data_.trunner_;
-    if ( !TaskRunner::execute(taskrunner,gen) )
+    if ( !TaskRunner::execute(taskrunner,*gen) )
 	mErrRet( uiStrings::phrCannotCreate(
-		tr("synthetic: %1").arg(gen.errMsg())) )
+		tr("synthetic: %1").arg(gen->errMsg())) )
 
-    SynthGenParams synthgenpar;
-    synthgenpar.raypars_ = par;
-    SyntheticData* sd = gen.createSyntheticData( synthgenpar );
-    if ( !sd )
+    gen->forceReflTimes( data_.getReflRange() );
+    gen->setWavelet( &wvlt );
+    gen->setOutSampling( data_.getTraceRange() );
+    gen->enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
+
+    if ( !gen->getSyntheticData() )
 	return false;
 
-    RefMan<ReflectivityModelSet> refmodels = sd->getRefModels();
+    data_.sd_ = gen->getSyntheticData();
+    RefMan<ReflectivityModelSet> refmodels =
+				gen->getSyntheticData()->getRefModels(0,false);
     if ( refmodels->isEmpty() )
 	mErrRet( tr("Cannot retrieve the reflectivities after ray-tracing") )
 
     refmodel_ = const_cast<ReflectivityModel&>(*refmodels->get( 0 ));
-    data_.synthtrc_ = *sd->getTrace( 0 );
+    data_.synthtrc_ = *gen->getSyntheticData()->getTrace( 0 );
     data_.setTraceRange( data_.synthtrc_.zRange() );
     //requested range was too small
 
