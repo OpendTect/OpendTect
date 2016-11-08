@@ -69,7 +69,7 @@ uiString uiODPlaneDataTreeItem::sAddEmptyPlane()
 { return tr("Add Empty Plane"); }
 
 uiString uiODPlaneDataTreeItem::sAddAndSelectData()
-{ return tr("Add and Select Data"); }
+{ return m3Dots(tr("Add and Select Data")); }
 
 uiString uiODPlaneDataTreeItem::sAddDefaultData()
 { return tr("Add Default Data"); }

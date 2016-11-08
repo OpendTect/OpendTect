@@ -765,7 +765,7 @@ void uiODMenuMgr::updateSceneMenu()
 
     uiString itmtxt = tr( "New [%1]" )
 	 .arg( SI().zIsTime() ? uiStrings::sDepth() : uiStrings::sTime() );
-    addtimedepthsceneitm_->setText( itmtxt );
+    addtimedepthsceneitm_->setText( m3Dots(itmtxt) );
 }
 
 
@@ -980,12 +980,12 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 
     const int xplotid = dtecttb_->addButton( "xplot", tr("Cross-plot") );
     uiMenu* mnu = new uiMenu();
-    mnu->insertItem( new uiAction(tr("Cross-plot Attribute vs Attribute Data"),
-				  mCB(appman,uiODApplMgr,doAttribXPlot),
-				  "xplot_attribs") );
-    mnu->insertItem( new uiAction(tr("Cross-plot Attribute vs Well Data"),
-				  mCB(appman,uiODApplMgr,doWellXPlot),
-				  "xplot_wells") );
+    mnu->insertItem(
+	new uiAction(m3Dots(tr("Cross-plot Attribute vs Attribute Data")),
+		     mCB(appman,uiODApplMgr,doAttribXPlot),"xplot_attribs") );
+    mnu->insertItem(
+	new uiAction(m3Dots(tr("Cross-plot Attribute vs Well Data")),
+		     mCB(appman,uiODApplMgr,doWellXPlot),"xplot_wells") );
     dtecttb_->setButtonMenu( xplotid, mnu, uiToolButton::InstantPopup );
 
     mAddTB(dtecttb_,"rockphys",tr("Create New Well Logs Using Rock Physics"),
@@ -1028,7 +1028,7 @@ void uiODMenuMgr::fillManTB()
            uiStrings::phrManage( uiStrings::sWells()),false,manWll);
     mAddTB(mantb_,"man_picks", uiStrings::phrManage(
 			toUiString("%1/%2")
-			   .arg(uiStrings::sPolygon(mPlural))
+			   .arg(uiStrings::sPickSet(mPlural))
 			   .arg(uiStrings::sPolygon(mPlural))),
                             false,manPick);
     mAddTB(mantb_,"man_body",
