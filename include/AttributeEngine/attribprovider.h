@@ -47,6 +47,7 @@ public:
 				/*!< Also creates all inputs, the input's
 				     inputs, and so on */
     virtual bool		isOK() const;
+    virtual uiRetVal		isActive() const      { return uiRetVal::OK(); }
     bool			is2D() const;
 
     const Desc&			getDesc() const;

@@ -31,8 +31,9 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "oddirs.h"
 #include "oscommand.h"
-#include "ptrman.h"
 #include "pickset.h"
+#include "plugins.h"
+#include "ptrman.h"
 #include "seistype.h"
 #include "survinfo.h"
 #include "settings.h"
@@ -319,7 +320,8 @@ void uiAttribDescSetEd::init()
 	{
 	    BufferStringSet attribfiles;
 	    BufferStringSet attribnames;
-	    getDefaultAttribsets( attribfiles, attribnames );
+	    BufferStringSet errmsgs;
+	    getDefaultAttribsets( attribfiles, attribnames, errmsgs );
 	    uiAutoAttrSetOpen dlg( this, attribfiles, attribnames );
 	    if ( dlg.go() )
 	    {
@@ -343,6 +345,13 @@ void uiAttribDescSetEd::init()
 		{
 		    const char* filenm = dlg.getAttribfile();
 		    const char* attribnm = dlg.getAttribname();
+		    const int selidx = attribnames.indexOf( attribnm );
+		    if ( !errmsgs.get( selidx ).isEmpty() )
+		    {
+			uiMSG().error( tr(errmsgs.get( selidx ).buf()) );
+			return;
+		    }
+
 		    importFromFile( filenm );
 		    attrsetfld_->setText( attribnm );
 		    mUnsetAuto
@@ -1044,16 +1053,32 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
 
     BufferStringSet attribfiles;
     BufferStringSet attribnames;
-    getDefaultAttribsets( attribfiles, attribnames );
+    BufferStringSet errmsgs;
+    getDefaultAttribsets( attribfiles, attribnames, errmsgs );
 
     uiSelectFromList::Setup sflsu( tr("Default Attribute Sets"), attribnames );
     sflsu.dlgtitle( tr("Select default attribute set") );
     uiSelectFromList dlg( this, sflsu );
     dlg.setHelpKey( mODHelpKey(mAttribDescSetEddefaultSetHelpID) );
+    if ( dlg.selFld() ) //should not be necessary, yet safer
+    {
+	for ( int idaf=0; idaf<attribfiles.size(); idaf ++ )
+	{
+	    if ( !errmsgs.get(idaf).isEmpty() )
+		dlg.selFld()->setColor( idaf, Color::LightGrey() );
+	}
+    }
     if ( !dlg.go() ) return;
 
     const int selitm = dlg.selection();
     if ( selitm < 0 ) return;
+    if ( !errmsgs.get( selitm ).isEmpty() )
+    {
+	uiMSG().error( tr(errmsgs.get( selitm ).buf()) );
+	return; //TODO: can we deliver the message earlier?
+		//as some kind of tooltip ?
+    }
+
     const char* filenm = attribfiles[selitm]->buf();
 
     importFromFile( filenm );
@@ -1065,10 +1090,14 @@ void uiAttribDescSetEd::loadDefaultAttrSet( const char* attribsetnm )
 {
     BufferStringSet attribfiles;
     BufferStringSet attribnames;
-    getDefaultAttribsets( attribfiles, attribnames );
+    BufferStringSet errmsgs;
+    getDefaultAttribsets( attribfiles, attribnames, errmsgs );
     const int selidx = attribnames.indexOf( attribsetnm );
     if ( selidx>=0 )
     {
+	if ( !errmsgs.get( selidx ).isEmpty() )
+	    uiMSG().error( tr(errmsgs.get( selidx ).buf()) );
+
 	const char* filenm = attribfiles[selidx]->buf();
 	importFromFile( filenm );
 	attrsetfld_->setText( sKeyNotSaved );
@@ -1078,7 +1107,8 @@ void uiAttribDescSetEd::loadDefaultAttrSet( const char* attribsetnm )
 
 static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 				 BufferStringSet& attribfiles,
-				 BufferStringSet& attribnames )
+				 BufferStringSet& attribnames,
+				 BufferStringSet& errmsgs )
 {
     if ( !dirnm || !File::exists(dirnm) )
 	return;
@@ -1102,21 +1132,39 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 	    }
 
 	    if ( !File::exists(attrfnm) ) continue;
-
+	    od_istream strm( attrfnm );
+	    ascistream ascstrm( strm );
+	    IOPar attrsetiopar( ascstrm );
+	    DescSet tmpds( is2d );
+	    tmpds.usePar( attrsetiopar );
+	    uiRetVal retvaldefds;
+	    for ( int idd=0; idd<tmpds.nrDescs(true,true); idd++ )
+	    {
+		if ( tmpds.desc(idd) )
+		{
+		    Attrib::Provider* prov =
+				    PF().create( *tmpds.desc(idd), true );
+		    if ( !prov ) continue;
+		    retvaldefds.add ( prov->isActive() );
+		}
+	    }
 	    attribnames.add( subpar->getKey(idy) );
 	    attribfiles.add( attrfnm );
+	    errmsgs.add( retvaldefds.getText() );
 	}
     }
 }
 
 
 void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
-					      BufferStringSet& attribnames )
+					      BufferStringSet& attribnames,
+					      BufferStringSet& errmsgs )
 {
     const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
     gtDefaultAttribsets( mGetApplSetupDataDir(), is2d, attribfiles,
-			 attribnames );
-    gtDefaultAttribsets( mGetSWDirDataDir(), is2d, attribfiles, attribnames );
+			 attribnames, errmsgs );
+    gtDefaultAttribsets( mGetSWDirDataDir(), is2d, attribfiles, attribnames,
+			 errmsgs );
 }
 
 

@@ -140,6 +140,7 @@ protected:
     void			changeInput(CallBacker*);
     void			defaultSet(CallBacker*);
     void			getDefaultAttribsets(BufferStringSet&,
+						     BufferStringSet&,
 						     BufferStringSet&);
     void			importSet(CallBacker*);
     void			importFile(CallBacker*);

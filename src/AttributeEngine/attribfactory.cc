@@ -40,9 +40,11 @@ void ProviderFactory::addDesc( Desc* nps, ProviderCreater pc )
 };
 
 
-Provider* ProviderFactory::create( Desc& desc ) const
+Provider* ProviderFactory::create( Desc& desc, bool skipchecks ) const
 {
-    if ( desc.isSatisfied()>=2 )
+    //skipchecks is not to be true for normal usage,
+    //make sure you know what you are doing
+    if ( !skipchecks && desc.isSatisfied()>=2 )
 	return 0;
 
     const int idx = indexOf(desc.attribName());

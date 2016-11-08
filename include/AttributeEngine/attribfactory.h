@@ -38,7 +38,7 @@ public:
     const Desc&		getDesc( int idx ) const	{ return *descs_[idx]; }
     const Desc*		getDesc(const char*) const;
 
-    Provider*		create( Desc& ) const;
+    Provider*		create( Desc&, bool skipchecks=false ) const;
     Desc*		createDescCopy( const char* nm ) const;
     void		updateAllDescsDefaults();
 
