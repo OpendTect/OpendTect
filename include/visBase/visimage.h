@@ -42,9 +42,6 @@ public:
 protected:
     			~Image();
     SoTexture2*		texture_;
-
-    virtual SoNode*	gtInvntrNode();
-
 };
 
 

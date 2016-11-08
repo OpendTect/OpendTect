@@ -56,18 +56,6 @@ void touch()
 {} //{ tc_->touch(); }
 
 
-//void setChannelData( int channel,const SbImagei32& image )
-//{ tc_->channels.set1Value( channel, image ); }
-
-
-//const SbImagei32* getChannelData() const
-//{ return tc_->channels.getValues( 0 ); }
-
-
-//SoNode* gtInvntrNode()
-//{ return tc_; }
-
-
 protected:
 
 ~MappedTextureDataSetImpl()

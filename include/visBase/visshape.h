@@ -95,8 +95,7 @@ public:
     void		removeSwitch();
 			/*!<Will turn the object permanently on.
 			 \note Must be done before giving away the
-			 SoNode with getInventorNode() to take
-			 effect. */
+			 scenegraph node to take effect. */
 
     virtual void	setDisplayTransformation( const mVisTrans* );
     			/*!<\note The transformation is forwarded to the

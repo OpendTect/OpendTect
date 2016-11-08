@@ -15,10 +15,6 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "notify.h"
 
-class SoSelection;
-class SoNode;
-class SoPath;
-
 namespace Threads { class Mutex; }
 
 namespace visBase
