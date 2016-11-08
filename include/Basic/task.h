@@ -86,6 +86,8 @@ public:
 			//Becomes mine
 
     void		setParallel(bool);
+    void		setEmpty();
+    void		getTasks(TaskGroup&);
 
     void		setProgressMeter(ProgressMeter*);
     virtual od_int64	nrDone() const;

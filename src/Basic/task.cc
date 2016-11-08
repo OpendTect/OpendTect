@@ -155,6 +155,21 @@ void TaskGroup::setProgressMeter( ProgressMeter* p )
 }
 
 
+void TaskGroup::setEmpty()
+{
+    deepErase( tasks_ );
+}
+
+
+void TaskGroup::getTasks( TaskGroup& oth )
+{
+    for ( int idx=0; idx<tasks_.size(); idx++ )
+	oth.addTask( tasks_[idx] );
+
+    tasks_.setEmpty();
+}
+
+
 od_int64 TaskGroup::nrDone() const
 {
     Threads::Locker locker( lock_ );
