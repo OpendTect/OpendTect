@@ -54,6 +54,7 @@ public:
 				    TypeSet<BinID>& path,
 				    bool allowduplicate=false,
 				    TypeSet<int>* segments=0);
+			//!<Deprecated in coming versions of OD
     static void		getPathBids(const TypeSet<BinID>& knots,
 				    TypeSet<BinID>& path,
 				    bool allowduplicate=false,
@@ -108,6 +109,13 @@ public:
     static Coord	getNormal(const TrcKeyPath& knots,const TrcKey& pos);
     static int		getNearestPathPosIdx(const TrcKeyPath&,
 					     const TrcKeyPath&,const TrcKey&);
+
+    enum		DuplicateMode { NoDups=0, NoConsecutiveDups, AllDups };
+    static void		getPathBids(const TypeSet<BinID>& knots,
+				    Pos::SurvID,
+				    TypeSet<BinID>& path,
+				    DuplicateMode dupmode=NoConsecutiveDups,
+				    TypeSet<int>* segments=0);
 };
 
 
