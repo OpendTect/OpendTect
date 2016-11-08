@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "enums.h"
 
 
-mStruct(Seis) SynthGenParams
+mExpClass(Seis) SynthGenParams
 {
+public:
 			SynthGenParams();
 
     enum SynthType	{ PreStack, ZeroOffset, StratProp, AngleStack,

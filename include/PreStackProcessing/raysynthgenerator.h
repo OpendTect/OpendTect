@@ -18,7 +18,6 @@ class SeisTrc;
 class SeisTrcBuf;
 class RayTracerRunner;
 class TimeDepthModel;
-class SynthGenParams;
 class DataPack;
 
 
