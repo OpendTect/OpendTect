@@ -47,7 +47,6 @@ Scene::Scene()
     , blockmousesel_( false )
     , nameChanged(this)
     , contextIsUp( this )
-    , osgsceneroot_( 0 )
     , camera_( 0 )
 {
     light_->ref();
@@ -74,14 +73,10 @@ Scene::Scene()
     events_.ref();
     events_.nothandled.notify( mCB(this,Scene,mousePickCB) );
 
-
-    osgsceneroot_ = new osg::Group;
-    osgsceneroot_->addChild( osgNode() );
-    osgsceneroot_->addChild( events_.osgNode() );
-    osgsceneroot_->ref();
-    setOsgNode( osgsceneroot_ );
-    polygonoffset_->attachStateSet( osgsceneroot_->getOrCreateStateSet() );
-
+    osggroup_->addChild( events_.osgNode() );
+    
+    addNodeState( polygonoffset_ );
+    
     updatequeueid_ = Threads::WorkManager::twm().addQueue(
                                 Threads::WorkManager::Manual, "Scene update" );
 
@@ -90,6 +85,7 @@ Scene::Scene()
 	if ( fixedidx_ != sortedfixedidxs_[fixedidx_] )
 	    break;
     }
+    
     sortedfixedidxs_.insert( fixedidx_, fixedidx_ );
 }
 
@@ -133,9 +129,6 @@ Scene::~Scene()
     if ( camera_ ) 
 	camera_->unRef();
 
-    if ( osgsceneroot_ )
-	osgsceneroot_->unref();
-
     removeAll();
     events_.nothandled.remove( mCB(this,Scene,mousePickCB) );
     events_.unRef();
@@ -144,8 +137,8 @@ Scene::~Scene()
 
     sortedfixedidxs_.removeSingle( sortedfixedidxs_.indexOf(fixedidx_) );
 }
-
-
+    
+    
 void Scene::runUpdateQueueCB(CallBacker *)
 {
     if ( !visualizationthread_ )

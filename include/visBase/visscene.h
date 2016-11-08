@@ -20,6 +20,7 @@ ________________________________________________________________________
 /*!\brief Open Scene Graph*/
 
 namespace osg { class Group; }
+namespace osgGeo { class GLInfo; }
 
 namespace visBase
 {
@@ -89,19 +90,18 @@ protected:
 
 private:
 
-    int			mousedownid_;
-    int			updatequeueid_;
-    int			fixedidx_;
+    int				mousedownid_;
+    int				updatequeueid_;
+    int				fixedidx_;
 
-    void		mousePickCB(CallBacker*);
+    void			mousePickCB(CallBacker*);
 
-    PolygonOffset*	polygonoffset_;
-    Light*		light_;
+    PolygonOffset*		polygonoffset_;
+    Light*			light_;
 
-    bool		blockmousesel_;
-    osg::Group*		osgsceneroot_;
+    bool			blockmousesel_;
 
-    Camera*		camera_;
+    Camera*			camera_;
 };
 
 }
