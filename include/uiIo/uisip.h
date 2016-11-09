@@ -50,8 +50,10 @@ mExpClass(uiIo) uiSurvInfoProvider
 { mODTextTranslationClass(uiSurvInfoProvider)
 public:
 
+    enum TDInfo			{ Time, Depth, DepthFeet };
+
     virtual uiString		usrText() const		= 0;
-    virtual uiDialog*		dialog(uiParent*)	= 0;
+    virtual uiDialog*		dialog(uiParent*,TDInfo) = 0;
     virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
 					Coord crd[3])	= 0;
     virtual bool		getLatLongAnchor(Coord&,LatLong&)
@@ -62,15 +64,15 @@ public:
     virtual void		fillPar(IOPar&)		{}
     virtual bool		isAvailable() const	{ return true; }
 
-    enum TDInfo			{ Uknown, Time, Depth, DepthFeet };
-    virtual TDInfo		tdInfo() const		{ return Uknown; }
+    virtual TDInfo		tdInfo( bool& isknown ) const
+				{ isknown = false; return Time; }
     virtual bool		xyInFeet() const	{ return false; }
     virtual const char*		iconName() const	{ return 0; }
 
     virtual IOPar*		getImportPars() const	{ return 0; }
     virtual void		startImport(uiParent*,const IOPar&) {}
     virtual uiString		importAskQuestion() const
-    					{ return uiString::emptyString(); }
+					{ return uiString::emptyString(); }
 
     static const char*		sKeySIPName()		{ return "SIP.Name"; }
 

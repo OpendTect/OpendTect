@@ -11,12 +11,16 @@ ________________________________________________________________________
 #include "uisegysip.h"
 #include "uisegyreadstarter.h"
 #include "uisegyreadfinisher.h"
+#include "zdomain.h"
 
 
 
-uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
+uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p, TDInfo tdinf )
 {
-    return new uiSEGYReadStarter( p, true );
+    uiSEGYReadStarter* ret = new uiSEGYReadStarter( p, true );
+    ret->setZIsTime( tdinf == uiSurvInfoProvider::Time );
+    tdinfoknown_ = false;
+    return ret;
 }
 
 #define mShowErr(s) \
@@ -40,10 +44,21 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
 	return false;
 
     xyinft_ = rdst->zInFeet();
+    tdinfo_ = rdst->fileIsInTime() ? uiSurvInfoProvider::Time
+	    : (rdst->zInFeet() ? uiSurvInfoProvider::DepthFeet
+			       : uiSurvInfoProvider::Depth);
+    tdinfoknown_ = true;
     const SEGY::FullSpec fullspec( rdst->fullSpec() );
     fullspec.fillPar( imppars_ );
     userfilename_ = rdst->userFileName();
     return true;
+}
+
+
+uiSurvInfoProvider::TDInfo uiSEGYSurvInfoProvider::tdInfo( bool& isknown ) const
+{
+    isknown = tdinfoknown_;
+    return tdinfo_;
 }
 
 
@@ -52,7 +67,7 @@ void uiSEGYSurvInfoProvider::startImport( uiParent* p, const IOPar& iop )
     Seis::GeomType gt = Seis::Vol; Seis::getFromPar( iop, gt );
     SEGY::FullSpec fullspec( gt );
     fullspec.usePar( iop );
-    uiSEGYReadFinisher dlg( p, fullspec, userfilename_ );
+    uiSEGYReadFinisher dlg( p, fullspec, userfilename_, ZDomain::isTime(iop) );
     if ( dlg.go() )
 	dlg.setAsDefaultObj();
 }

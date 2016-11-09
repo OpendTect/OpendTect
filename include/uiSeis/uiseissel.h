@@ -34,6 +34,7 @@ public:
 			    , allowsetdefault_(true)
 			    , steerpol_(NoSteering)
 			    , enabotherdomain_(false)
+			    , isotherdomain_(false)
 			    , survdefsubsel_( 0 )
 			    , allowsetsurvdefault_(false)
 			    , explprepost_(false)
@@ -43,6 +44,7 @@ public:
 			    , allowsetdefault_(true)
 			    , steerpol_(NoSteering)
 			    , enabotherdomain_(false)
+			    , isotherdomain_(false)
 			    , survdefsubsel_( 0 )
 			    , allowsetsurvdefault_(false)
 			    , explprepost_(false)
@@ -51,6 +53,7 @@ public:
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,allowsetdefault)	//!< Fill with def cube/line?
 	mDefSetupMemb(bool,enabotherdomain)	//!< write only: T vs Depth
+	mDefSetupMemb(bool,isotherdomain)	//!< write only
 	mDefSetupMemb(SteerPol,steerpol)
 	mDefSetupMemb(BufferString,zdomkey)
 	mDefSetupMemb(const char*,survdefsubsel)

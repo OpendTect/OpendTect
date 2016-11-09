@@ -77,7 +77,7 @@ uiString uiSEGYReadFinisher::getDlgTitle( const char* usrspec )
 
 
 uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
-					const char* usrspec )
+					const char* usrspec, bool istime )
     : uiDialog(p,uiDialog::Setup(getWinTile(fs),getDlgTitle(usrspec),
     mODHelpKey(mSEGYReadFinisherHelpID)))
     , fs_(fs)
@@ -102,13 +102,13 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     if ( fs_.isVSP() )
 	crVSPFields();
     else
-	crSeisFields();
+	crSeisFields( istime );
 
     postFinalise().notify( mCB(this,uiSEGYReadFinisher,initWin) );
 }
 
 
-void uiSEGYReadFinisher::crSeisFields()
+void uiSEGYReadFinisher::crSeisFields( bool istime )
 {
     const Seis::GeomType gt = fs_.geomType();
     const bool is2d = Seis::is2D( gt );
@@ -154,11 +154,13 @@ void uiSEGYReadFinisher::crSeisFields()
 
     if ( gt != Seis::Line )
     {
-	uiSeisSel::Setup scansu( gt );
-	scansu.enabotherdomain( true ).withwriteopts( false );
+	uiSeisSel::Setup seisselsu( gt );
+	seisselsu.enabotherdomain( true )
+		 .isotherdomain( istime != SI().zIsTime() )
+		 .withwriteopts( false );
 	ctxt.toselect_.allownonuserselectable_ = true;
 	ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
-	outscanfld_ = new uiSeisSel( this, ctxt, scansu );
+	outscanfld_ = new uiSeisSel( this, ctxt, seisselsu );
 	outscanfld_->attach( alignedBelow, attgrp );
 	if ( !is2d )
 	    outscanfld_->setInputText( objname_ );

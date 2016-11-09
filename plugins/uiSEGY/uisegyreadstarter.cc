@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uitoolbutton.h"
 #include "uispinbox.h"
 #include "uilineedit.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uimenu.h"
 #include "uisplitter.h"
@@ -58,8 +59,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 					const SEGY::ImpType* imptyp )
     : uiDialog(p,uiDialog::Setup(forsurvsetup
 	    ? tr("Extract Survey Setup from SEG-Y") : tr("Import SEG-Y Data"),
-	    imptyp ? tr("Import %1").arg(imptyp->dispText())
-            : mNoDlgTitle, mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1))
+            mNoDlgTitle, mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1))
     , filereadopts_(0)
     , typfld_(0)
     , useicbut_(0)
@@ -98,14 +98,28 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     editbut_->attach( rightOf, inpfld_ );
     editbut_->setSensitive( false );
 
+    uiLabel* typlbl = 0;
     if ( imptyp )
+    {
 	fixedimptype_ = *imptyp;
+	typlbl = new uiLabel( topgrp_,
+			tr( "Import %1" ).arg( imptyp->dispText() ) );
+	typlbl->attach( ensureBelow, inpfld_ );
+    }
     else
     {
 	typfld_ = new uiSEGYImpType( topgrp_, !mForSurvSetup );
 	typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
 	typfld_->attach( alignedBelow, inpfld_ );
     }
+
+    zdombox_ = new uiCheckBox( topgrp_, SI().zIsTime() ? uiStrings::sDepth()
+						       : uiStrings::sTime() );
+    if ( typfld_ )
+	zdombox_->attach( rightOf, typfld_ );
+    else
+	zdombox_->attach( rightOf, typlbl );
+    mAttachCB( zdombox_->activated, uiSEGYReadStarter::zDomChgCB );
 
     uiSeparator* sep = new uiSeparator( this, "Top sep" );
     sep->attach( stretchedBelow, topgrp_ );
@@ -275,6 +289,18 @@ uiSEGYReadStarter::~uiSEGYReadStarter()
     delete filereadopts_;
     delete scaninfos_;
     delete &clipsampler_;
+}
+
+
+bool uiSEGYReadStarter::fileIsInTime() const
+{
+    return SI().zIsTime() != zdombox_->isChecked();
+}
+
+
+void uiSEGYReadStarter::setZIsTime( bool yn )
+{
+    infofld_->setZIsTime( yn );
 }
 
 
@@ -497,6 +523,12 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 }
 
 
+void uiSEGYReadStarter::zDomChgCB( CallBacker* )
+{
+    infofld_->setZIsTime( fileIsInTime() );
+}
+
+
 void uiSEGYReadStarter::inpChg( CallBacker* )
 {
     detectrev0flds_ = true;
@@ -566,6 +598,7 @@ void uiSEGYReadStarter::handleNewInputSpec( LoadDefChgType ct, bool fullscan )
 	userfilename_ = newusrfnm;
 	execNewScan( ct, fullscan );
     }
+    zDomChgCB( 0 );
 }
 
 
@@ -1066,7 +1099,7 @@ bool uiSEGYReadStarter::acceptOK()
     }
 
     const FullSpec fullspec = fullSpec();
-    uiSEGYReadFinisher dlg( this, fullspec, userfilename_ );
+    uiSEGYReadFinisher dlg( this, fullspec, userfilename_, fileIsInTime() );
     dlg.go();
 
     return false;

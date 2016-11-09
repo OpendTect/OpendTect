@@ -128,13 +128,14 @@ void setEntries( const SEGY::HdrEntryDataSet& ds )
 };
 
 
-uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
+uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& lddf,
 					  const SEGY::ImpType* imptyp )
     : uiGroup(p,"SEGY read start info")
-    , loaddef_(scd)
+    , loaddef_(lddf)
     , loaddefChanged(this)
     , revChanged(this)
     , parsbeingset_(false)
+    , isinfeet_(false)
     , xcoordbytefld_(0)
     , ycoordbytefld_(0)
     , inlbytefld_(0)
@@ -618,6 +619,7 @@ void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfoSet& sis )
     tbl_->setColumnLabel( mQSResCol, sis.isFull() ? tr("Full scan result")
 						  : tr("Quick scan result") );
 
+    isinfeet_ = sis.inFeet();
     const int nrfiles = sis.size();
     uiString txt = nrfiles < 1	? uiString::emptyString()
 		: (nrfiles < 2	? tr( "[1 file]")
@@ -662,18 +664,6 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
     const int nrtrcs = sis.nrTraces();
     txt.arg( bi.ns_ ).arg( nrtrcs ).arg( nrtrcs == 1?tr("trace"):tr("traces") );
     setCellTxt( mQSResCol, mNrSamplesRow, txt );
-
-    if ( mIsUdf(bi.sampling_.step) )
-	txt = sEmpty;
-    else
-    {
-	txt.set( "%1 - %2 (s or %3)" );
-	const float endz = loaddef_.sampling_.start
-			 + (bi.ns_-1) * loaddef_.sampling_.step;
-	txt.arg( loaddef_.sampling_.start ).arg( endz )
-		 .arg( sis.inFeet() ? tr("ft") : tr("m") );
-    }
-    setCellTxt( mQSResCol, mZRangeRow, txt );
 
     const SEGY::ScanRangeInfo& rgs = sis.ranges();
     const char* rgstr = "%1 - %2";
@@ -776,6 +766,21 @@ void uiSEGYReadStartInfo::useLoadDef()
     }
 
     parsbeingset_ = false;
+}
+
+
+void uiSEGYReadStartInfo::setZIsTime( bool zistime )
+{
+    uiString txt;
+    if ( !mIsUdf(loaddef_.sampling_.step) )
+    {
+	txt.set( "%1 - %2 (%3)" );
+	const float endz = loaddef_.sampling_.start
+			 + (loaddef_.ns_-1) * loaddef_.sampling_.step;
+	txt.arg( loaddef_.sampling_.start ).arg( endz )
+		 .arg( zistime ? "s" : (isinfeet_ ? "ft" : "m") );
+    }
+    setCellTxt( mQSResCol, mZRangeRow, txt );
 }
 
 

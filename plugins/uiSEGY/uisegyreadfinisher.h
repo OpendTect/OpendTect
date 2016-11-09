@@ -35,7 +35,7 @@ mExpClass(uiSEGY) uiSEGYReadFinisher : public uiDialog
 public:
 
 			uiSEGYReadFinisher(uiParent*,const FullSpec&,
-					   const char* usrspec);
+					   const char* usrspec,bool istime);
 			~uiSEGYReadFinisher();
 
     FullSpec&		fullSpec()		{ return fs_; }
@@ -65,7 +65,7 @@ protected:
     uiBatchJobDispatcherSel* batchfld_;
 
     void		crVSPFields();
-    void		crSeisFields();
+    void		crSeisFields(bool);
     void		cr2DCoordSrcFields(uiGroup*&,bool);
 
     bool		doVSP();

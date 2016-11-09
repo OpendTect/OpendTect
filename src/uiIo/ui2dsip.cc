@@ -25,9 +25,12 @@ class ui2DDefSurvInfoDlg : public uiDialog
 { mODTextTranslationClass(ui2DDefSurvInfoDlg);
 public:
 
-ui2DDefSurvInfoDlg( uiParent* p )
+    typedef uiSurvInfoProvider::TDInfo	TDInfo;
+
+ui2DDefSurvInfoDlg( uiParent* p, TDInfo ztyp )
     : uiDialog(p,uiDialog::Setup(tr("Survey setup for 2D only"), sDlgTitle(),
                                  mODHelpKey(m2DDefSurvInfoDlgHelpID) ))
+    , tdinf_(ztyp)
 {
     FloatInpSpec fis;
     DoubleInpSpec dis;
@@ -55,9 +58,10 @@ ui2DDefSurvInfoDlg( uiParent* p )
 
     uiGroup* optgrp = new uiGroup( this, "Optional parameters" );
 
-    const uiString zunitlbl(UnitOfMeasure::surveyDefZUnitAnnot(true,true));
+    const uiString zunitlbl( tdinf_ == uiSurvInfoProvider::Time ? tr("(s)")
+	: (tdinf_ == uiSurvInfoProvider::Depth ? tr("(m)") : tr("(ft)") ) );
     zmaxfld_ = new uiGenInput( optgrp,
-	       tr( "[Z-max %1]").arg( zunitlbl), fis );
+	       tr( "[Z-max %1]").arg(zunitlbl), fis );
     srfld_ = new uiGenInput( optgrp,
 	     tr( "[Default sampling rate %1]").arg(zunitlbl), fis);
     srfld_->attach( alignedBelow, zmaxfld_ );
@@ -91,15 +95,13 @@ bool acceptOK()
     if ( mIsUdf(c0) || mIsUdf(c1) )
 	mErrRet(tr("Invalid input coordinates"))
 
-    const bool zintime = SI().zDomain().isTime();
-    const bool zinft = SI().depthsInFeet();
-    const float defzmax = zintime ? cDefaultTWTMax
-				  : ( zinft ? cDefaultZMaxft : cDefaultZMaxm );
+    const float defzmax = tdinf_ == uiSurvInfoProvider::Time ? cDefaultTWTMax
+      : ( tdinf_ == uiSurvInfoProvider::Depth ? cDefaultZMaxft : cDefaultZMaxm);
     if ( mIsUdf(zmaxfld_->getFValue()) )
 	zmaxfld_->setValue( defzmax );
 
-    const float defsr = zintime ? cDefautSRms
-				: ( zinft ? cDefautSRft : cDefautSRm );
+    const float defsr = tdinf_ == uiSurvInfoProvider::Time ? cDefautSRms
+	 : ( tdinf_ == uiSurvInfoProvider::Depth ? cDefautSRft : cDefautSRm );
     if ( mIsUdf(srfld_->getFValue()) )
 	srfld_->setValue( defsr );
 
@@ -115,6 +117,10 @@ bool acceptOK()
     return true;
 }
 
+virtual TDInfo tdInfo( bool& isknown ) const
+{ isknown = true; return tdinf_; }
+
+    const TDInfo	tdinf_;
     uiGenInput*		grdspfld_;
     uiGenInput*		xrgfld_;
     uiGenInput*		yrgfld_;
@@ -128,9 +134,9 @@ bool acceptOK()
 };
 
 
-uiDialog* ui2DSurvInfoProvider::dialog( uiParent* p )
+uiDialog* ui2DSurvInfoProvider::dialog( uiParent* p, TDInfo ztyp )
 {
-    return new ui2DDefSurvInfoDlg( p );
+    return new ui2DDefSurvInfoDlg( p, ztyp );
 }
 
 

@@ -20,7 +20,7 @@ public:
 			    : xyft_(false)	{}
 
     virtual uiString	usrText() const		{ return tr("Set for 2D only");}
-    virtual uiDialog*	dialog(uiParent*);
+    virtual uiDialog*	dialog(uiParent*,TDInfo);
     virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
     virtual const char*	iconName() const
 					{ return "seismicline2dcollection"; }

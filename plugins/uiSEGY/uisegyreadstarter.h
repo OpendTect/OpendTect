@@ -56,11 +56,13 @@ public:
     const SurveyInfo*	survInfo() const
 			{ return survinfook_ ? survinfo_ : 0; }
     bool		getInfo4SI(TrcKeyZSampling&,Coord crd[3]) const;
+    bool		fileIsInTime() const;
     bool		zInFeet() const
 			{ return scaninfos_ && scaninfos_->inFeet(); }
 
     const SEGY::ImpType& impType() const;
     void		setImpTypIdx(int);
+    void		setZIsTime(bool);
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
@@ -88,6 +90,7 @@ protected:
     uiLineEdit*		coordscalefld_;
     uiSpinBox*		examinenrtrcsfld_;
     uiSpinBox*		clipfld_;
+    uiCheckBox*		zdombox_;
     uiCheckBox*		inc0sbox_;
     uiCheckBox*		keepzsampbox_;
     uiLabel*		nrfileslbl_;
@@ -135,6 +138,7 @@ protected:
     void		initWin(CallBacker*);
     void		firstSel(CallBacker*);
     void		typChg(CallBacker*);
+    void		zDomChgCB(CallBacker*);
     void		inpChg(CallBacker*);
     void		editFile(CallBacker*);
     void		fullScanReq(CallBacker*);

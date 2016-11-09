@@ -703,7 +703,11 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     delete impiop_; impiop_ = 0; lastsip_ = 0;
 
     uiSurvInfoProvider* sip = sips_[sipidx-1];
-    PtrMan<uiDialog> dlg = sip->dialog( this );
+    uiSurvInfoProvider::TDInfo ztyp = uiSurvInfoProvider::Time;
+    if ( !si_.zIsTime() )
+	ztyp = si_.zInMeter() ? uiSurvInfoProvider::Depth
+			      : uiSurvInfoProvider::DepthFeet;
+    PtrMan<uiDialog> dlg = sip->dialog( this, ztyp );
     if ( !dlg || !dlg->go() ) return;
 
     TrcKeyZSampling cs; Coord crd[3];
@@ -711,9 +715,10 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 	return;
 
     const bool xyinfeet = sip->xyInFeet();
-    uiSurvInfoProvider::TDInfo tdinfo = sip->tdInfo();
+    bool tdinfknown = false;
+    uiSurvInfoProvider::TDInfo tdinfo = sip->tdInfo( tdinfknown );
     bool zistime = si_.zIsTime();
-    if ( tdinfo != uiSurvInfoProvider::Uknown )
+    if ( tdinfknown )
 	zistime = tdinfo == uiSurvInfoProvider::Time;
     bool zinfeet = !depthdispfld_->getBoolValue();
     if ( zistime )
@@ -722,7 +727,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 	    zinfeet = true;
     }
     else
-	zinfeet = sip->tdInfo() == uiSurvInfoProvider::DepthFeet;
+	zinfeet = tdinfo == uiSurvInfoProvider::DepthFeet;
 
     si_.setZUnit( zistime, zinfeet );
     si_.defpars_.setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );

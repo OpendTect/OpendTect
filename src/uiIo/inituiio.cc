@@ -96,17 +96,19 @@ public:
     virtual uiString	usrText() const
 			{ return tr("Copy from other survey"); }
 
-    virtual uiDialog*	dialog(uiParent*);
+    virtual uiDialog*	dialog(uiParent*,TDInfo);
     virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
     virtual const char*	iconName() const    { return "copyobj"; }
 
-    virtual TDInfo	tdInfo() const	    { return tdinf_; }
-    virtual bool	xyInFeet() const    { return inft_; }
+    virtual TDInfo	tdInfo( bool& known ) const
+			{ known = tdinfknown_; return tdinf_; }
+    virtual bool	xyInFeet() const    { return xyinft_; }
 
 protected:
 
     TDInfo		tdinf_;
-    bool		inft_;
+    bool		tdinfknown_;
+    bool		xyinft_;
 
 };
 
@@ -126,7 +128,7 @@ uiSurveyToCopyDlg( uiParent* p )
 };
 
 
-uiDialog* uiCopySurveySIP::dialog( uiParent* p )
+uiDialog* uiCopySurveySIP::dialog( uiParent* p, TDInfo )
 {
     return new uiSurveyToCopyDlg( p );
 }
@@ -134,8 +136,7 @@ uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 
 bool uiCopySurveySIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 {
-    tdinf_ = Uknown;
-    inft_ = false;
+    tdinf_ = Time; xyinft_ = false; tdinfknown_ = false;
     mDynamicCastGet(uiSurveyToCopyDlg*,seldlg,dlg)
     if ( !seldlg )
 	return false;
@@ -154,7 +155,8 @@ bool uiCopySurveySIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 
     tdinf_ = survinfo->zIsTime() ? Time
 				 : (survinfo->zInFeet() ? DepthFeet : Depth);
-    inft_ = survinfo->xyInFeet();
+    xyinft_ = survinfo->xyInFeet();
+    tdinfknown_ = true;
 
     return true;
 }

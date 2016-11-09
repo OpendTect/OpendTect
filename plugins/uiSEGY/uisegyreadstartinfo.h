@@ -39,6 +39,7 @@ public:
 
     void		setImpTypIdx(int,bool updnow=true);
     void		setScanInfo(const SEGY::ScanInfoSet&);
+    void		setZIsTime(bool);
     void		showZSamplingSetting(bool);
 
     void		useLoadDef(); //!< when you have changed the loaddef
@@ -78,6 +79,7 @@ protected:
     const bool		inptypfixed_;
     int			nrrows_;
     bool		parsbeingset_;
+    bool		isinfeet_;
     short		nrunswappedfmts_;
     const uiString	sBytePos;
     uiString		xinfotxt_;

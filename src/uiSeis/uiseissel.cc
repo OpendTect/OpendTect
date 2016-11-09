@@ -263,6 +263,8 @@ void uiSeisSel::mkOthDomBox()
 	othdombox_ = new uiCheckBox( this, SI().zIsTime() ? uiStrings::sDepth()
                                                           : uiStrings::sTime());
 	othdombox_->attach( rightOf, endObj(false) );
+	if ( seissetup_.isotherdomain_ )
+	    othdombox_->setChecked( true );
     }
 }
 
@@ -406,7 +408,8 @@ void uiSeisSel::updateInput()
 
 void uiSeisSel::commitSucceeded()
 {
-    if ( !othdombox_ || !othdombox_->isChecked() ) return;
+    if ( !othdombox_ || !othdombox_->isChecked() )
+	return;
 
     const ZDomain::Def* def = SI().zIsTime() ? &ZDomain::Depth()
 					     : &ZDomain::Time();
