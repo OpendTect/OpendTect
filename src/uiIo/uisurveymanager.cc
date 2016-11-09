@@ -325,6 +325,7 @@ void uiSurveyManager::setCurrentSurvey( const char* survdirnm )
 
 void uiSurveyManager::reReadSurvInfoFromFile( const char* survdirnm )
 {
+    survreadstatus_.setEmpty();
     if ( isStandAlone() )
 	survreadstatus_ = DBM().setDataSource(
 			    File::Path(dataroot_,survdirnm).fullPath() );
@@ -676,6 +677,7 @@ bool uiSurveyManager::commit()
 
     writeCommentsIfChanged();
 
+    reReadSurvInfoFromFile( getDirName() );
     const SurveyInfo::ChangeData chgdata = SI().compareWith( *survinfo_ );
     if ( chgdata.isNoChange() )
 	return true;
