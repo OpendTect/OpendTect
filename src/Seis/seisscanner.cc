@@ -95,7 +95,7 @@ od_int64 SeisScanner::totalNr() const
 
 bool SeisScanner::getSurvInfo( TrcKeyZSampling& cs, Coord crd[3] ) const
 {
-    const uiString msg = dtctor_.getUiSurvInfo( cs.hsamp_, crd );
+    const uiString msg = dtctor_.getSurvInfo( cs.hsamp_, crd );
     if ( !msg.isEmpty() )
 	{ curmsg_ = msg; return false; }
 

@@ -875,7 +875,7 @@ void uiSEGYReadStarter::updateSurvMap()
     if ( scaninfos_ && !scaninfos_->isEmpty() )
     {
 	Coord crd[3]; TrcKeyZSampling cs;
-	stbarmsg = scaninfos_->piDetector().getUiSurvInfo( cs.hsamp_, crd );
+	stbarmsg = scaninfos_->piDetector().getSurvInfo( cs.hsamp_, crd );
 	if ( !stbarmsg )
 	{
 	    cs.zsamp_ = loaddef_.getZRange();
