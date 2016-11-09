@@ -381,6 +381,15 @@ macro( create_develpackages )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${CMAKE_INSTALL_PREFIX}/doc/Programmer/pluginexample
 		     ${DESTINATION_DIR}/doc/Programmer/pluginexample )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+		     ${CMAKE_INSTALL_PREFIX}/dtect
+		     ${DESTINATION_DIR}/dtect )
+    foreach( SPECFILE ${SPECFILES} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${CMAKE_INSTALL_PREFIX}/doc/Programmer/${SPECFILE}
+			 ${DESTINATION_DIR}/doc/Programmer )
+    endforeach()
+
     file( GLOB HTMLFILES ${BINARY_DIR}/doc/Programmer/*.html )
     foreach( HTMLFILE ${HTMLFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy

@@ -11,6 +11,8 @@ set( ODPLUGINS @OD_PLUGINS@ )
 
 set( SPECSOURCES @OD_SPECPROGS@ )
 
+set( SPECFILES style.css )
+
 set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer lmhostid 
 	      od_main od_sysadmmain od_process_attrib od_process_attrib_em
 	      od_process_prestack od_process_segyio od_process_time2depth
