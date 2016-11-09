@@ -1,5 +1,5 @@
-#ifndef uisegysip_h
-#define uisegysip_h
+#ifndef uisegysipclassic_h
+#define uisegysipclassic_h
 /*+
 ________________________________________________________________________
 
@@ -14,21 +14,23 @@ ________________________________________________________________________
 #include "uisegycommon.h"
 #include "uisip.h"
 #include "iopar.h"
+namespace SEGY { class Scanner; }
 
-/* uiSurvInfoProvider taking its source in (a) SEG-Y file(s) */
 
-mExpClass(uiSEGY) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
-{ mODTextTranslationClass(uiSEGYSurvInfoProvider)
+/* uiSurvInfoProvider using SEG-Y file(s), based on classic wizard */
+
+mExpClass(uiSEGY) uiSEGYClassicSurvInfoProvider : public uiSurvInfoProvider
+{ mODTextTranslationClass(uiSEGYClassicSurvInfoProvider)
 public:
 
-			uiSEGYSurvInfoProvider()
+			uiSEGYClassicSurvInfoProvider()
 			    : xyinft_(false)	{}
 
-    const char*		usrText() const		{ return "Scan SEG-Y file(s)"; }
+    const char*		usrText() const	{ return "Classic SEG-Y scanner"; }
     uiDialog*		dialog(uiParent*);
     bool		getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
     bool		xyInFeet() const	{ return xyinft_; }
-    virtual const char*	iconName() const	{ return "segy"; }
+    virtual const char* iconName() const	{ return "segy_classic"; }
 
     IOPar*		getImportPars() const
 			{ return imppars_.isEmpty() ? 0 : new IOPar(imppars_); }
@@ -36,11 +38,14 @@ public:
     const char*		importAskQuestion() const;
     const uiString	importAskUiQuestion() const;
 
+    friend class	uiSEGYSIPMgrDlg;
     IOPar		imppars_;
     bool		xyinft_;
-    BufferString	userfilename_;
+
+    void		showReport(const SEGY::Scanner&) const;
 
 };
 
 
 #endif
+

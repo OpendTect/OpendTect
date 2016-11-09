@@ -29,6 +29,7 @@ set(OD_MODULE_SOURCES
     uisegyreadstarter.cc
     uisegyreadstartinfo.cc
     uisegysip.cc
+    uisegysipclassic.cc
     uisegytrchdrvalplot.cc
     uisegywriteopts.cc
     uiwellimpsegyvsp.cc
