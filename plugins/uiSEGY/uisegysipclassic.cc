@@ -122,8 +122,8 @@ bool uiSEGYClassicSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
 	{ mShowErr( errmsg ); return false; }
 
     cs.zsamp_ = scanner->zRange();
-    const SEGYSeisTrcTranslator* tr = scanner->translator();
-    xyinft_ = tr && tr->binHeader().isInFeet();
+    const SEGYSeisTrcTranslator* transl = scanner->translator();
+    xyinft_ = transl && transl->binHeader().isInFeet();
     return true;
 }
 

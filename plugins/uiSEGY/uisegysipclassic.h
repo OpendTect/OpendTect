@@ -1,12 +1,10 @@
-#ifndef uisegysip_h
-#define uisegysip_h
+#pragma once
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert
  Date:          Feb 2004
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -44,7 +42,3 @@ public:
     void		showReport(const SEGY::Scanner&) const;
 
 };
-
-
-#endif
-
