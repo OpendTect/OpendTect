@@ -12,4 +12,4 @@ ________________________________________________________________________
 
 #include "trckeyzsampling.h"
 
-typedef TrcKeyZSampling CubeSampling;
+mDeprectated typedef TrcKeyZSampling CubeSampling;

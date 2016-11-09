@@ -15,6 +15,7 @@
 #include "uisegydirectinserter.h"
 #include "uisegywriteopts.h"
 #include "uisegysip.h"
+#include "uisegysipclassic.h"
 #include "uisegydefdlg.h"
 #include "uisegyexp.h"
 #include "uisegyread.h"
@@ -34,7 +35,9 @@
 
 #include "odplugin.h"
 
-static const char* segy_iconid = "segy";
+static const char* segyiconid_ = "segy";
+static const bool segyclassictoplevel_
+			= GetEnvVarYN( "OD_SEGY_CLASSIC_TOPLEVEL" );
 
 
 mDefODPluginInfo(uiSEGY)
@@ -89,6 +92,9 @@ public:
 mDefODPluginSurvRelToolsLoadFn(uiSEGY)
 {
     uiSurveyInfoEditor::addInfoProvider( new uiSEGYSurvInfoProvider() );
+    if ( segyclassictoplevel_ )
+	uiSurveyInfoEditor::addInfoProvider(
+			    new uiSEGYClassicSurvInfoProvider() );
 }
 
 
@@ -128,10 +134,10 @@ void uiSEGYMgr::updateMenu( CallBacker* )
     const bool have2d = DBM().isBad() || SI().has2D();
     const bool only2d = !DBM().isBad() && !SI().has3D();
     uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
-    uiMenu* impsgymnu = new uiMenu( appl_, sSEGYString(true), segy_iconid );
+    uiMenu* impsgymnu = new uiMenu( appl_, sSEGYString(true), segyiconid_ );
     impseismnu->insertItem( impsgymnu );
     uiMenu* expseismnu = mnumgr_.getMnu( false, uiODApplMgr::Seis );
-    uiMenu* expsgymnu = new uiMenu( appl_, sSEGYString(true), segy_iconid );
+    uiMenu* expsgymnu = new uiMenu( appl_, sSEGYString(true), segyiconid_ );
     expseismnu->insertItem( expsgymnu );
 
     if ( have2d )
@@ -180,17 +186,16 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 	new uiAction(m3Dots(tr("Re-sort Scanned SEG-Y")),
 			muiSEGYMgrCB(reSortCB)) );
 
-    bool segyclassictoplevel = GetEnvVarYN( "OD_SEGY_CLASSIC_TOPLEVEL" );
-    uiString classicmnutitle = segyclassictoplevel ? tr("SEG-Y [Classic]")
+    uiString classicmnutitle = segyclassictoplevel_ ? tr("SEG-Y [Classic]")
 						   : tr("Classic tool");
     uiMenu* impclassmnu = new uiMenu( appl_, classicmnutitle, "launch" );
-    (segyclassictoplevel ? impseismnu : impsgymnu)->insertItem( impclassmnu );
+    (segyclassictoplevel_ ? impseismnu : impsgymnu)->insertItem( impclassmnu );
     impclassmnu->insertItem( new uiAction( uiStrings::sImport(),
 		   muiSEGYMgrCB(impClassicCB), "import") );
     impclassmnu->insertItem( new uiAction( tr("Link"),
 		   muiSEGYMgrCB(linkClassicCB), "link") );
 
-    mnumgr_.dtectTB()->addButton( segy_iconid, tr("SEG-Y import"),
+    mnumgr_.dtectTB()->addButton( segyiconid_, tr("SEG-Y import"),
 				  mCB(this,uiSEGYMgr,readStarterCB) );
 }
 

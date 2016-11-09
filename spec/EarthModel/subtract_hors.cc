@@ -15,7 +15,7 @@ static const char* rcsID = "$Id$";
 
 #include "binidvalset.h"
 #include "ioobjctxt.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"

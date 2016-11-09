@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacerelations.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "cubicbeziersurface.h"
 #include "consistencychecker.h"
 
@@ -84,7 +84,7 @@ bool SurfaceCutter::doTerminate( bool positiveside )
 
     EM::PosID posid( cuttedsurf->id(), cuttedsectionid_ );
     ConsistencyChecker checker( *cuttedsurf );
-    const Geometry::ParametricSurface* psurf = 
+    const Geometry::ParametricSurface* psurf =
 			cuttedsurf->geometry().sectionGeometry( cuttedsectionid_ );
     const int nrnodes = psurf->nrKnots();
     for ( int idy=0; idy<nrnodes; idy++ )
@@ -92,11 +92,11 @@ bool SurfaceCutter::doTerminate( bool positiveside )
 	const RowCol rc = psurf->getKnotRowCol( idy );
 	if ( cs.hrg.includes(rc) )
 	{
-	    cuttedsurf->setPos( cuttedsectionid_, rc.toInt64(), 
-		    			 Coord3(0,0,mUdf(double)), true );
+	    cuttedsurf->setPos( cuttedsectionid_, rc.toInt64(),
+					 Coord3(0,0,mUdf(double)), true );
 	    continue;
 	}
-	
+
 	posid.setSubID( rc.toInt64() );
 	checker.addNodeToCheck( posid );
     }
@@ -205,7 +205,7 @@ bool SurfaceCutter::reTrack()
     plane.setMotion( step.inl, step.crl, 0 );
     while ( true )
     {
-	SectionTracker* sectiontracker = 
+	SectionTracker* sectiontracker =
 			    tracker->getSectionTracker( cuttedsectionid_,true);
 	if ( !sectiontracker ) return true;
 
@@ -222,7 +222,7 @@ bool SurfaceCutter::reTrack()
 	EM::PosID posid( cuttedsurf->id(), cuttedsectionid_ );
 	ConsistencyChecker checker( *cuttedsurf );
 	const TypeSet<EM::SubID>& addedpos =
-	    			sectiontracker->extender()->getAddedPositions();
+				sectiontracker->extender()->getAddedPositions();
 	for ( int posidx=0; posidx<addedpos.size(); posidx++ )
 	{
 	    posid.setSubID( addedpos[posidx] );
@@ -248,11 +248,11 @@ bool SurfaceCutter::getSurfaceDir( RowCol& dir )
     mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
     if ( !cuttingsurf || !cuttingsurf->geometry().hasSection(cuttingsectionid_) )
 	return false;
-    
+
     mDynamicCastGet(const Geometry::CubicBezierSurface*,
 		    cbsurf,cuttingsurf->geometry().sectionGeometry(0))
     if ( !cbsurf ) return false;
-    
+
     StepInterval<int> rowrg = cbsurf->rowRange();
     StepInterval<int> colrg = cbsurf->colRange();
     Coord3 crd1 = cbsurf->getKnot( RowCol(rowrg.start,colrg.start));
@@ -261,7 +261,7 @@ bool SurfaceCutter::getSurfaceDir( RowCol& dir )
     mConv2IC( crd1 ); mConv2IC( crd2 ); mConv2IC( crd3 );
     Plane3 plane( crd1, crd2, crd3 );
     Coord3 normal = plane.normal();
-    normal.z = 0; 
+    normal.z = 0;
     normal = normal.normalize();
 
     dir.row = fabs(normal.x) >= 0.5 ? 1 : 0;
@@ -273,8 +273,8 @@ bool SurfaceCutter::getSurfaceDir( RowCol& dir )
 
 void SurfaceCutter::getBoundingBox( CubeSampling& cs )
 {
-    cs.hrg.set( Interval<int>(mUdf(int),-mUdf(int)), 
-	    	Interval<int>(mUdf(int),-mUdf(int)) );
+    cs.hrg.set( Interval<int>(mUdf(int),-mUdf(int)),
+		Interval<int>(mUdf(int),-mUdf(int)) );
     mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
     IntervalND<float> bb =
 	cuttingsurf->geometry().sectionGeometry(cuttingsectionid_)->boundingBox(true);

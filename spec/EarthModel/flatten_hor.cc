@@ -14,7 +14,7 @@ static const char* rcsID = "$Id$";
 #include "prog.h"
 
 #include "ioobjctxt.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emmanager.h"
 #include "emhorizon.h"
 #include "emsurfacegeometry.h"
@@ -74,7 +74,7 @@ static int doWork( int argc, char** argv )
     const bool forward = argc == 5 ? toInt(argv[4])>0 : true;
 
     BufferString hornm = horizon2->name();
-    hornm += forward ? 	"_flattened" : "_unflattened";
+    hornm += forward ?	"_flattened" : "_unflattened";
     EM::ObjectID newid = EM::EMM().createObject( EM::Horizon::typeStr(), hornm);
     mDynamicCastGet(EM::Horizon*,newhorizon,EM::EMM().getObject(newid))
 

@@ -14,7 +14,7 @@ static const char* rcsID = "$Id$";
 #include "batchprog.h"
 
 #include "ioobjctxt.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emmanager.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
