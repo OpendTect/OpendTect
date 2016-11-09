@@ -145,7 +145,9 @@ void uiSEGYReadFinisher::crSeisFields( bool istime )
     if ( is2d )
 	cr2DCoordSrcFields( attgrp, ismulti );
 
-    uiSeisSel::Setup copysu( gt ); copysu.enabotherdomain( true );
+    uiSeisSel::Setup copysu( gt );
+    copysu.enabotherdomain( true )
+	  .isotherdomain( istime != SI().zIsTime() );
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
     outimpfld_ = new uiSeisSel( this, ctxt, copysu );
     outimpfld_->attach( alignedBelow, attgrp );
@@ -154,13 +156,11 @@ void uiSEGYReadFinisher::crSeisFields( bool istime )
 
     if ( gt != Seis::Line )
     {
-	uiSeisSel::Setup seisselsu( gt );
-	seisselsu.enabotherdomain( true )
-		 .isotherdomain( istime != SI().zIsTime() )
-		 .withwriteopts( false );
+	uiSeisSel::Setup scansu( copysu );
+	scansu.withwriteopts( false );
 	ctxt.toselect_.allownonuserselectable_ = true;
 	ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
-	outscanfld_ = new uiSeisSel( this, ctxt, seisselsu );
+	outscanfld_ = new uiSeisSel( this, ctxt, scansu );
 	outscanfld_->attach( alignedBelow, attgrp );
 	if ( !is2d )
 	    outscanfld_->setInputText( objname_ );
