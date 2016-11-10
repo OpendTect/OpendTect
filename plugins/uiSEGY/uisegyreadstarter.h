@@ -155,6 +155,7 @@ protected:
     void		coordscaleChg(CallBacker*);
     void		updateAmplDisplay(CallBacker*);
     void		initClassic(CallBacker*);
+    void		classicSurvSetupEnd(CallBacker*);
     bool		acceptOK();
 
     bool		commit(bool permissive=false);

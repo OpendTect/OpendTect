@@ -464,7 +464,7 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 	timer_->start( 1, true );
     }
 
-    if ( mForSurvSetup || (imptypeFixed() && fixedimptype_.isVSP()) )
+    if ( (imptypeFixed() && fixedimptype_.isVSP()) )
 	return;
 
     uiButton* okbut = button( OK );
@@ -476,10 +476,14 @@ void uiSEGYReadStarter::initWin( CallBacker* )
     execoldbut->setToolTip( tr("Run the classic SEG-Y loader") );
     execoldbut->attach( leftTo, okbut );
     execoldbut->attach( leftBorder );
-    uiMenu* mnu = new uiMenu;
-    mnu->insertAction( new uiAction(uiStrings::sImport(),impcb) );
-    mnu->insertAction( new uiAction(tr("Link"),linkcb) );
-    execoldbut->setMenu( mnu );
+
+    if ( !mForSurvSetup )
+    {
+	uiMenu* mnu = new uiMenu;
+	mnu->insertAction( new uiAction(uiStrings::sImport(),impcb) );
+	mnu->insertAction( new uiAction(tr("Link"),linkcb) );
+	execoldbut->setMenu( mnu );
+    }
 }
 
 
@@ -559,7 +563,7 @@ void uiSEGYReadStarter::runClassic( bool imp )
     IOPar iop; fullspec.fillPar( iop );
     classicrdr_ = new uiSEGYRead( this, su, &iop );
     if ( !timer_ )
-	timer_ = new Timer( "uiSEGYReadStarter timer" );
+	timer_ = new Timer( "uiSEGYReadStarter Classic pop up timer" );
     timer_->tick.notify( mCB(this,uiSEGYReadStarter,initClassic));
     timer_->start( 1, true );
 }
@@ -918,7 +922,22 @@ void uiSEGYReadStarter::initClassic( CallBacker* )
     if ( !classicrdr_ )
 	return;
 
+    if ( mForSurvSetup )
+	{ mAttachCB( classicrdr_->processEnded,
+		     uiSEGYReadStarter::classicSurvSetupEnd ); }
+
     classicrdr_->raiseCurrent();
+}
+
+
+void uiSEGYReadStarter::classicSurvSetupEnd( CallBacker* )
+{
+    if ( !classicrdr_ || classicrdr_->state() == uiVarWizard::cCancelled() )
+	return;
+
+    uiMSG().error( mTODONotImplPhrase() );
+
+    classicrdr_ = 0;
 }
 
 

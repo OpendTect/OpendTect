@@ -64,7 +64,7 @@ protected:
     uiFileInput*	coordfilefld_;
     uiBatchJobDispatcherSel* batchfld_;
 
-    void		crVSPFields();
+    void		crVSPFields(bool);
     void		crSeisFields(bool);
     void		cr2DCoordSrcFields(uiGroup*&,bool);
 

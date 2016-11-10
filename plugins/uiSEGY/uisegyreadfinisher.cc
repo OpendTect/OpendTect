@@ -100,7 +100,7 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
 	objname_.replace( '*', 'x' );
 
     if ( fs_.isVSP() )
-	crVSPFields();
+	crVSPFields( istime );
     else
 	crSeisFields( istime );
 
@@ -220,7 +220,7 @@ void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
 }
 
 
-void uiSEGYReadFinisher::crVSPFields()
+void uiSEGYReadFinisher::crVSPFields( bool istime )
 {
     uiString inptxt( tr("Input Z (%1-%2) is") );
     const float startz = fs_.readopts_.timeshift_;
@@ -228,6 +228,8 @@ void uiSEGYReadFinisher::crVSPFields()
     inptxt.arg( startz ).arg( endz );
     const char* doms[] = { "TWT", "TVDSS", "MD", 0 };
     inpdomfld_ = new uiGenInput( this, inptxt, StringListInpSpec(doms) );
+    if ( !istime )
+	inpdomfld_->setValue( 1 );
     inpdomfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,inpDomChg) );
     isfeetfld_ = new uiCheckBox( this, tr("in Feet") );
     isfeetfld_->attach( rightOf, inpdomfld_ );

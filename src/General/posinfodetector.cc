@@ -383,8 +383,8 @@ uiString PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 	Pos::IdxPair2Coord b2c;
 	if ( !b2c.set3Pts( c[0], c[1], c[2], b[0], b[1], llnstop.binid_.crl()) )
 	    return tr("The input data does not contain the required information"
-		"\nto establish a relation between\nthe inline/crossline system"
-		"\nand the coordinates.");
+		"\nto establish a relation between the inline/crossline system "
+		"and the coordinates.");
 
 	// what coords would have been on the corners
 	crd[0] = b2c.transform( hs.start_ );
