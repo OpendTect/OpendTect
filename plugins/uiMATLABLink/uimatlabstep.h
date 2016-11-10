@@ -44,7 +44,7 @@ protected:
     void		fillParTable(const BufferStringSet&,
 				     const BufferStringSet&);
     bool		readTable(BufferStringSet&,BufferStringSet&) const;
-    static FilePath	getSODefaultDir();
+    static File::Path	getSODefaultDir();
 
     uiFileInput*	filefld_;
     uiPushButton*	loadbut_;
