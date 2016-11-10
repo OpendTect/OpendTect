@@ -395,6 +395,7 @@ protected:
     void			createMenuCB(CallBacker*);
     void			addToToolBarCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
+    void			survChgCB(CallBacker*);
 
     visSurvey::Scene*		getScene(int);
     const visSurvey::Scene*	getScene(int) const;

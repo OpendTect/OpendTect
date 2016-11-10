@@ -162,6 +162,9 @@ public:
     static bool		isMinorChange( ChangeType ct )
 			{ return ct==ChangeData::cNoChgType()
 			      || ct==cNameChange() || ct>cRangeChange(); }
+    static bool		isSetupChange( ChangeType ct )
+			{ return ct==cEntireObjectChangeType()
+			      || ct==cSetupChange(); }
 
 protected:
 
@@ -208,7 +211,7 @@ private:
     Pos::IdxPair2Coord::DirTransform rdytr_;
 
 				// For DBMan only
-    static uiRetVal	setSurveyLocation(const char*,const char*);
+    static uiRetVal	setSurveyLocation(const char*,const char*,bool);
 
 public:
 

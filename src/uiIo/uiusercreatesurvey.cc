@@ -245,7 +245,8 @@ bool uiUserCreateSurvey::acceptOK()
 	return false;
     }
 
-    const uiRetVal uirv = DBM().setDataSource( survinfo_->getFullDirPath() );
+    const uiRetVal uirv = DBM().setDataSource( survinfo_->getFullDirPath(),
+	    					true );
     if ( uirv.isError() )
 	{ uiMSG().error( uirv ); return false; }
 

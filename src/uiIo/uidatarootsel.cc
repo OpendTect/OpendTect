@@ -273,7 +273,7 @@ uiRetVal uiDataRootSel::setSurveyDirTo( const char* dirnm )
     if ( curdataroot == newdataroot && cursurveydir == newsurvdir )
 	return uiRetVal::OK();
 
-    uirv = DBM().setDataSource( newsurvdir );
+    uirv = DBM().setDataSource( newsurvdir, true );
     if ( !uirv.isOK() )
 	return uirv;
 

@@ -152,6 +152,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     vismgr_ = new uiVisModeMgr(this);
     pickretriever_->ref();
     PickRetriever::setInstance( pickretriever_ );
+
+    mAttachCB( SI().objectChanged(), uiVisPartServer::survChgCB );
 }
 
 
@@ -1401,8 +1403,19 @@ bool acceptOK()
 
 bool uiVisPartServer::setWorkingArea()
 {
+    //TODO does not belong in the uiVisPartServer, it's for all viewers
     uiWorkAreaDlg dlg( appserv().parent() );
-    if ( !dlg.go() ) return false;
+    return dlg.go();
+}
+
+
+
+void uiVisPartServer::survChgCB( CallBacker* cb )
+{
+    mGetMonitoredChgData( cb, chgdata );
+    if ( chgdata.changeType() != SurveyInfo::cRangeChange()
+	&& chgdata.changeType() != SurveyInfo::cWorkRangeChange() )
+	return;
 
     TypeSet<int> sceneids;
     getChildIds( -1, sceneids );
@@ -1412,11 +1425,11 @@ bool uiVisPartServer::setWorkingArea()
 	int sceneid = sceneids[ids];
 	visBase::DataObject* obj = visBase::DM().getObject( sceneid );
 	mDynamicCastGet(visSurvey::Scene*,scene,obj)
+	    //TODO all scenes need to change??
+	    //TODO what about the elements inside the box?
 	if ( scene && scene->zDomainInfo().def_==ZDomain::SI() )
 	    scene->setTrcKeyZSampling( SI().sampling(true) );
     }
-
-    return true;
 }
 
 

@@ -130,7 +130,7 @@ private:
     friend mGlobal(General) DBMan& DBM();
     friend class	GeneralModuleIniter;
 
-    uiRetVal		setDataSource(const char*,const char*);
+    uiRetVal		setDataSource(const char*,const char*,bool);
 
     void		initFirst();
     uiRetVal		doReRead();
@@ -159,9 +159,10 @@ public:
 			{ return survDir(); }
 
 			// To change to another survey, probably not your thing:
-    uiRetVal		setDataSource(const char* fullpath_of_survey_dir);
+    uiRetVal		setDataSource(const char* fullpath_of_survey_dir,
+	    				bool forcerefresh=false);
 			//!< Plugins need to use uiDataRootSel::setSurveyDirTo
-    uiRetVal		setDataSource(const IOPar&);
+    uiRetVal		setDataSource(const IOPar&,bool forcerefresh=false);
 			//!< uses sKey::dataRoot() and sKey::Survey()
 			//!< Intended for stand-alone programs
     uiRetVal		reRead();

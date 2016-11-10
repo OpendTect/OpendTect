@@ -328,7 +328,7 @@ void uiSurveyManager::reReadSurvInfoFromFile( const char* survdirnm )
     survreadstatus_.setEmpty();
     if ( isStandAlone() )
 	survreadstatus_ = DBM().setDataSource(
-			    File::Path(dataroot_,survdirnm).fullPath() );
+			    File::Path(dataroot_,survdirnm).fullPath(), true );
     else
     {
 	delete survinfo_; survinfo_ = 0;
@@ -682,7 +682,7 @@ bool uiSurveyManager::commit()
     if ( chgdata.isNoChange() )
 	return true;
 
-    if ( SurveyInfo::isMinorChange(chgdata.changeType()) )
+    if ( !SurveyInfo::isSetupChange(chgdata.changeType()) )
     {
 	const_cast<SurveyInfo&>( SI() ) = *survinfo_;
 	return true;
@@ -691,7 +691,11 @@ bool uiSurveyManager::commit()
     uiRetVal uirv = uiDataRootSel::setSurveyDirTo(
 				File::Path(dataroot_,selsurv).fullPath() );
     if ( !uirv.isOK() )
-	{ uiMSG().error( uirv ); return false; }
+    {
+	if ( !uiStrings::sCancel().isEqualTo(uirv) )
+	    uiMSG().error( uirv );
+	return false;
+    }
 
     return true;
 }

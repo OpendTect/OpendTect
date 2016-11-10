@@ -63,7 +63,7 @@ void DBMan::initFirst()
 	if ( !survnm.isEmpty() )
 	{
 	    const BufferString basedir = GetBaseDataDir();
-	    SurveyInfo::setSurveyLocation( basedir, survnm );
+	    SurveyInfo::setSurveyLocation( basedir, survnm, false );
 	    survdir_ = File::Path( basedir, survnm ).fullPath();
 	    handleNewSurvDir();
 	}
@@ -71,9 +71,10 @@ void DBMan::initFirst()
 }
 
 
-uiRetVal DBMan::setDataSource( const IOPar& iop )
+uiRetVal DBMan::setDataSource( const IOPar& iop, bool forcerefresh )
 {
-    return setDataSource( iop.find(sKey::DataRoot()), iop.find(sKey::Survey()));
+    return setDataSource( iop.find(sKey::DataRoot()), iop.find(sKey::Survey()),
+	    		  forcerefresh );
 }
 
 
@@ -91,27 +92,28 @@ void DBMan::setSurveyChangeAbortReason( uiRetVal reason )
 }
 
 
-uiRetVal DBMan::setDataSource( const char* fullpath )
+uiRetVal DBMan::setDataSource( const char* fullpath, bool forcerefresh )
 {
     File::Path fp( fullpath );
     const BufferString pathnm( fp.pathOnly() );
     const BufferString filenm( fp.fileName() );
-    return setDataSource( pathnm, filenm );
+    return setDataSource( pathnm, filenm, forcerefresh );
 }
 
 
 mGlobal(Basic) void SetBaseDataDir(const char*);
 
-uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
+uiRetVal DBMan::setDataSource( const char* dr, const char* sd,
+			       bool forcerefresh )
 {
     mLock4Read();
 
-    uiRetVal rv = SurveyInfo::setSurveyLocation( dr, sd );
+    uiRetVal rv = SurveyInfo::setSurveyLocation( dr, sd, forcerefresh );
     if ( !rv.isOK() )
 	return rv;
 
     const BufferString newdirnm = SI().getFullDirPath();
-    if ( survdir_ == newdirnm )
+    if ( !forcerefresh && survdir_ == newdirnm )
 	return uiRetVal::OK();
 
     mUnlockAllAccess();
@@ -120,7 +122,7 @@ uiRetVal DBMan::setDataSource( const char* dr, const char* sd )
     if ( surveychangeuserabort_ || !surveychangeabortreason_.isEmpty() )
     {
 	File::Path fp( survdir_ );
-	SurveyInfo::setSurveyLocation( fp.pathOnly(), fp.fileName() );
+	SurveyInfo::setSurveyLocation( fp.pathOnly(), fp.fileName(), true );
 	if ( surveychangeuserabort_ )
 	    rv.set( uiStrings::sCancel() );
 	else

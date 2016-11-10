@@ -194,7 +194,8 @@ SurveyInfo::ChangeData SurveyInfo::compareWith( const Monitorable& mon ) const
     { ret.add( uiStrings::phrDoesntExist(::toUiString(fnm)) ); return ret; }
 
 
-uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd )
+uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd,
+					bool forcerefresh )
 {
     uiRetVal ret;
     const BufferString olddataroot = SI().basepath_;
@@ -202,7 +203,7 @@ uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd )
     BufferString newdataroot( dr ); BufferString newdirname( sd );
     const bool useolddr = newdataroot.isEmpty() || newdataroot == olddataroot;
     const bool useoldsd = newdirname.isEmpty() || newdirname == olddirname;
-    if ( useolddr && useoldsd )
+    if ( !forcerefresh && useolddr && useoldsd )
 	return ret;
 
     if ( useolddr )
@@ -212,10 +213,12 @@ uiRetVal SurveyInfo::setSurveyLocation( const char* dr, const char* sd )
 
     if ( !File::isDirectory(newdataroot) )
 	mErrRetDoesntExist(newdataroot)
+
     File::Path fp( newdataroot, newdirname );
     const BufferString survdir = fp.fullPath();
     if ( !File::isDirectory(survdir) )
 	mErrRetDoesntExist(survdir)
+
     fp.add( ".omf" );
     const BufferString omffnm = fp.fullPath();
     if ( !File::exists(omffnm) )
