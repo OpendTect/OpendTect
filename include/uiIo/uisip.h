@@ -50,6 +50,8 @@ mExpClass(uiIo) uiSurvInfoProvider
 { mODTextTranslationClass(uiSurvInfoProvider)
 public:
 
+    virtual			~uiSurvInfoProvider()	{}
+
     enum TDInfo			{ Time, Depth, DepthFeet };
     static TDInfo		getTDInfo(bool istime,bool zinft=false);
 
