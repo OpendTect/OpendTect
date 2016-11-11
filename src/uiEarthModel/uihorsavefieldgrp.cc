@@ -18,15 +18,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "file.h"
+#include "hiddenparam.h"
+#include "rangeposprovider.h"
 #include "survinfo.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uipossubsel.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
 
+static HiddenParam<uiHorSaveFieldGrp, uiPosSubSel*> rgfld_( 0 );
 
 
 uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
@@ -39,7 +43,37 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     , is2d_( is2d )
     , usefullsurvey_( false )
 {
-    if ( horizon_ ) horizon_->ref();
+    init( false );
+}
+
+
+uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor,
+				      bool is2d, bool withsubsel )
+    : uiGroup( p )
+    , horizon_( hor )
+    , newhorizon_( 0 )
+    , savefld_( 0 )
+    , addnewfld_( 0 )
+    , outputfld_( 0 )
+    , is2d_( is2d )
+    , usefullsurvey_( false )
+{
+    init( withsubsel );
+}
+
+
+void uiHorSaveFieldGrp::init( bool withsubsel )
+{
+   if ( horizon_ ) horizon_->ref();
+
+   if ( withsubsel )
+    {
+	uiPosSubSel::Setup su( is2d_, false );
+	su.choicetype( uiPosSubSel::Setup::RangewithPolygon );
+	uiPosSubSel* rgfld = new uiPosSubSel( this, su );
+	rgfld_.setParam( this, rgfld );
+    }
+
 
     savefld_ = new uiGenInput( this, uiStrings::phrSave(uiStrings::sHorizon(1)),
 			       BoolInpSpec(true,tr("As new"),
@@ -47,8 +81,11 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
 
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
-    IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
-			     : EMHorizon3DTranslatorGroup::ioContext();
+    if ( withsubsel )
+	savefld_->attach( alignedBelow, rgfld_.getParam(this) );
+
+    IOObjContext ctxt = is2d_ ? EMHorizon2DTranslatorGroup::ioContext()
+			      : EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ctxt,
 				 uiStrings::phrOutput(uiStrings::sHorizon(1)) );
@@ -69,6 +106,7 @@ uiHorSaveFieldGrp::~uiHorSaveFieldGrp()
 {
     if ( horizon_ ) horizon_->unRef();
     if ( newhorizon_ ) newhorizon_->unRef();
+    rgfld_.removeParam( this );
 }
 
 
@@ -149,6 +187,32 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
     return horizon_;
 }
 
+
+EM::SurfaceIODataSelection uiHorSaveFieldGrp::getSelection( bool isnew ) const
+{
+    RefMan<EM::Horizon> horizon = isnew ? newhorizon_ : horizon_;
+    uiPosSubSel* rgfld = rgfld_.getParam( this );
+    Pos::Provider* prov = rgfld ? rgfld->curProvider() : 0;
+    mDynamicCastGet(Pos::Provider3D*,prov3d,prov);
+    if ( prov3d )
+    {
+	horizon->setBurstAlert( true );
+	horizon->apply( *prov3d );
+	horizon->setBurstAlert( false );
+    }
+
+    EM::SurfaceIOData outsd;
+    outsd.use( *horizon );
+    EM::SurfaceIODataSelection outsdsel( outsd );
+    outsdsel.setDefault();
+
+    mDynamicCastGet(Pos::RangeProvider3D*,rgprov3d,prov3d);
+    if ( rgprov3d )
+	outsdsel.rg = rgprov3d->sampling().hsamp_; 
+    
+    return outsdsel;
+}
+
 #undef mErrRet
 #define mErrRet(msg) { if ( (msg).isSet() ) uiMSG().error( msg ); return false;}
 
@@ -157,7 +221,10 @@ bool uiHorSaveFieldGrp::saveHorizon()
     const bool savenew = savefld_->getBoolValue();
     if ( !newhorizon_ && savenew && !createNewHorizon() )
 	return false;
-    PtrMan<Executor> exec = savenew ? newhorizon_->saver() : horizon_->saver();
+    
+    const EM::SurfaceIODataSelection sdsel = getSelection( savenew );
+    PtrMan<Executor> exec = savenew ? newhorizon_->geometry().saver( &sdsel )
+				    : horizon_->geometry().saver( &sdsel );
 
     if ( !exec ) mErrRet( tr("Cannot save horizon") );
 

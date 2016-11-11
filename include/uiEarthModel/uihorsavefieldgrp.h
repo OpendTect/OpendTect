@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uigroup.h"
 
-namespace EM { class Horizon; }
+namespace EM { class Horizon; class SurfaceIODataSelection; }
 
 class uiCheckBox;
 class uiGenInput;
@@ -32,6 +32,8 @@ mExpClass(uiEarthModel) uiHorSaveFieldGrp : public uiGroup
 public:
 				uiHorSaveFieldGrp(uiParent*,EM::Horizon*,
 						  bool is2d=false);
+				uiHorSaveFieldGrp(uiParent*,EM::Horizon*,
+						  bool is2d, bool wthsubsel);
 				~uiHorSaveFieldGrp();
 
     void			setSaveFieldName(const char*);
@@ -60,9 +62,11 @@ protected:
     bool			usefullsurvey_;
     bool			is2d_;
 
+    EM::SurfaceIODataSelection	getSelection(bool) const;
     bool			createNewHorizon();
     void			saveCB(CallBacker*);
     void			expandToFullSurveyArray();
+    void			init(bool);
 };
 
 

@@ -45,7 +45,6 @@ static HiddenParam<uiHorizonInterpolDlg, Notifier<uiHorizonInterpolDlg>* >
 	horReadyForDisplays( 0 );
 
 static HiddenParam<uiHor3DInterpolSel, uiIOObjSel*> polyfld_( 0 );
-static HiddenParam<uiHor3DInterpolSel, uiGenInput*> croppolyfld_( 0 );
 
 
 #define mScopeSurvey	0
@@ -110,7 +109,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
 
-    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_, is2d );
+    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_, is2d, true );
     savefldgrp_->setSaveFieldName( "Save gridded horizon" );
     if ( is2d )
     {
@@ -332,21 +331,19 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     scopes += tr("Bounding box");
     scopes += tr("Convex hull");
     scopes += tr("Only holes");
-    //scopes += tr("Polygon");
+    scopes += tr("Polygon");
     filltypefld_ = new uiGenInput(this, tr("Scope"), StringListInpSpec(scopes));
     filltypefld_->setValue( 2 );
     filltypefld_->valuechanged.notify( mCB(this,uiHor3DInterpolSel,scopeChgCB));
 
     IOObjContext ctxt = mIOObjContext( PickSet );
     ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
-    /*uiIOObjSel* polyselfld = new uiIOObjSel(this,ctxt, uiStrings::sPolygon());
-    polyselfld->attach( alignedBelow, filltypefld_ );
+    uiIOObjSel* polyselfld =
+       new uiIOObjSel( this,ctxt,uiIOObjSel::Setup(uiStrings::sEmptyString()) );
+    polyselfld->setCaption( uiStrings::sEmptyString() );
+    polyselfld->attach( rightOf, filltypefld_ );
+    polyselfld->setHSzPol( uiObject::SmallVar );
     polyfld_.setParam( this, polyselfld );
-
-    uiGenInput* cropfld = new uiGenInput( this, tr("Crop from polygon"),
-					  BoolInpSpec(false) );
-    cropfld->attach( alignedBelow, polyselfld );
-    croppolyfld_.setParam( this, cropfld );*/
 
     PositionInpSpec::Setup setup;
     PositionInpSpec spec( setup );
@@ -384,9 +381,8 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
 
 void uiHor3DInterpolSel::scopeChgCB( CallBacker* )
 {
-    /*const bool showpolyfld = isPolygon();
+    const bool showpolyfld = isPolygon();
     polyfld_.getParam(this)->display( showpolyfld );
-    croppolyfld_.getParam(this)->display( showpolyfld );*/
 }
 
 
@@ -421,7 +417,7 @@ bool uiHor3DInterpolSel::isFullSurvey() const
 
 bool uiHor3DInterpolSel::isPolygon() const
 {
-    return false;
+    return filltypefld_->getIntValue() == mScopePolygon;
 }
 
 
@@ -434,21 +430,21 @@ bool uiHor3DInterpolSel::cropPolygon() const
 bool uiHor3DInterpolSel::getPolygonRange( Interval<int>& inlrg,
 					  Interval<int>& crlrg )
 {
-    /*ODPolygon<float> poly;
+    ODPolygon<float> poly;
     if ( !readPolygon(poly) )
 	return false;
 
     const Interval<float> xrg = poly.getRange( true );
     const Interval<float> yrg = poly.getRange( false );
     inlrg.start = mNINT32(xrg.start); inlrg.stop = mNINT32(xrg.stop);
-    crlrg.start = mNINT32(yrg.start); crlrg.stop = mNINT32(yrg.stop);*/
-    return false;
+    crlrg.start = mNINT32(yrg.start); crlrg.stop = mNINT32(yrg.stop);
+    return true;
 }
 
 
 bool uiHor3DInterpolSel::readPolygon( ODPolygon<float>& poly ) const
 {
-    /*if ( !polyfld_.getParam(this) || !polyfld_.getParam(this)->ioobj() )
+    if ( !polyfld_.getParam(this) || !polyfld_.getParam(this)->ioobj() )
 	return false;
 
     Pick::Set ps; BufferString errmsg;
@@ -462,9 +458,9 @@ bool uiHor3DInterpolSel::readPolygon( ODPolygon<float>& poly ) const
 	const Pick::Location& pl = ps[idx];
 	const Coord bid = SI().binID2Coord().transformBackNoSnap( pl.pos_ );
 	poly.add( Geom::Point2D<float>((float) bid.x,(float) bid.y) );
-    }*/
+    }
 
-    return false;
+    return true;
 }
 
 
@@ -489,8 +485,6 @@ bool uiHor3DInterpolSel::fillPar( IOPar& par ) const
 	if ( !readPolygon(poly) )
 	    return false;
 
-	par.setYN( Array2DInterpol::sKeyCropPolygon(),
-		croppolyfld_.getParam(this)->getBoolValue() );
 	par.set( Array2DInterpol::sKeyPolyNrofNodes(), poly.size() );
 	for ( int idx=0; idx<poly.size(); idx++ )
 	{
