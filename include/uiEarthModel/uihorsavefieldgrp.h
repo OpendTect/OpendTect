@@ -14,11 +14,12 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uigroup.h"
 
-namespace EM { class Horizon; }
+namespace EM { class Horizon; class SurfaceIODataSelection; }
 
 class uiCheckBox;
 class uiGenInput;
 class uiIOObjSel;
+class uiPosSubSel;
 
 /*!\brief save or overwrite horizon field set up. It will create new horizon
     based on given horizon, if the old horizon is not given, you can read it
@@ -29,7 +30,8 @@ mExpClass(uiEarthModel) uiHorSaveFieldGrp : public uiGroup
 { mODTextTranslationClass(uiHorSaveFieldGrp);
 public:
 				uiHorSaveFieldGrp(uiParent*,EM::Horizon*,
-						  bool is2d=false);
+				    bool is2d=false,bool wthsubsel=false);
+				
 				~uiHorSaveFieldGrp();
 
     void			setSaveFieldName(const char*);
@@ -52,12 +54,14 @@ protected:
     uiGenInput*			savefld_;
     uiCheckBox*			addnewfld_;
     uiIOObjSel*			outputfld_;
+    uiPosSubSel*		rgfld_;
 
     EM::Horizon*		horizon_;
     EM::Horizon*		newhorizon_;
     bool			usefullsurvey_;
     bool			is2d_;
 
+    EM::SurfaceIODataSelection	getSelection(bool) const;
     bool			createNewHorizon();
     void			saveCB(CallBacker*);
     void			expandToFullSurveyArray();

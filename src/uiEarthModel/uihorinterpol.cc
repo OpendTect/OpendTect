@@ -97,7 +97,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
 
-    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_, is2d );
+    savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_, is2d, true );
     savefldgrp_->setSaveFieldName( "Save gridded horizon" );
     if ( is2d )
     {
@@ -316,17 +316,17 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     filltypefld_->valuechanged.notify( mCB(this,uiHor3DInterpolSel,scopeChgCB));
 
     polyfld_ =
-	new uiPickSetIOObjSel( this, true, uiPickSetIOObjSel::PolygonOnly );
-    polyfld_->attach( alignedBelow, filltypefld_ );
-    croppolyfld_ =
-	new uiGenInput(this, tr("Crop from polygon"), BoolInpSpec(false) );
-    croppolyfld_->attach( alignedBelow, polyfld_ );
+	new uiPickSetIOObjSel( this,
+				uiIOObjSel::Setup(uiStrings::sEmptyString()),
+				true, uiPickSetIOObjSel::PolygonOnly );
+    polyfld_->attach( ensureRightOf, filltypefld_ );
+    polyfld_->setHSzPol( uiObject::SmallVar );
 
     PositionInpSpec::Setup setup;
     PositionInpSpec spec( setup );
     stepfld_ = new uiGenInput( this, tr("Inl/Crl Step"), spec );
     stepfld_->setValue( BinID(SI().inlStep(),SI().crlStep()) );
-    stepfld_->attach( alignedBelow, croppolyfld_ );
+    stepfld_->attach( alignedBelow, filltypefld_ );
 
     uiString titletext( tr("Keep holes larger than %1")
 				    .arg(SI().xyUnitString()) );
@@ -359,7 +359,6 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
 void uiHor3DInterpolSel::scopeChgCB( CallBacker* )
 {
     polyfld_->display( isPolygon() );
-    croppolyfld_->display( isPolygon() );
 }
 
 
@@ -395,12 +394,6 @@ bool uiHor3DInterpolSel::isFullSurvey() const
 bool uiHor3DInterpolSel::isPolygon() const
 {
     return filltypefld_->getIntValue() == mScopePolygon;
-}
-
-
-bool uiHor3DInterpolSel::cropPolygon() const
-{
-    return isPolygon() && croppolyfld_->getBoolValue();
 }
 
 
@@ -440,8 +433,6 @@ bool uiHor3DInterpolSel::fillPar( IOPar& par ) const
 	const ODPolygon<float>* poly = polyfld_->getSelectionPolygon();
 	if ( !poly ) return false;
 
-	par.setYN( Array2DInterpol::sKeyCropPolygon(),
-		croppolyfld_->getBoolValue() );
 	par.set( Array2DInterpol::sKeyPolyNrofNodes(), poly->size() );
 	for ( int idx=0; idx<poly->size(); idx++ )
 	{

@@ -17,18 +17,20 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "file.h"
+#include "rangeposprovider.h"
 #include "survinfo.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uipossubsel.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
 
 
-
-uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
+uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, 
+				      bool is2d, bool withsubsel )
     : uiGroup( p )
     , horizon_( hor )
     , newhorizon_( 0 )
@@ -37,29 +39,39 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     , outputfld_( 0 )
     , is2d_( is2d )
     , usefullsurvey_( false )
+    , rgfld_( 0 )
 {
     if ( horizon_ ) horizon_->ref();
 
-    savefld_ = new uiGenInput( this, uiStrings::phrSave(uiStrings::sHorizon(1)),
-			       BoolInpSpec(true,tr("As new"),
-                               uiStrings::sOverwrite()) );
+    if ( withsubsel )
+    {
+	uiPosSubSel::Setup su( is2d_, false );
+	su.choicetype( uiPosSubSel::Setup::RangewithPolygon );
+	rgfld_ = new uiPosSubSel( this, su );
+    }
+    savefld_ =
+	new uiGenInput( this, uiStrings::phrSave( uiStrings::sHorizon(1) ),
+	BoolInpSpec( true, tr( "As new" ),
+	uiStrings::sOverwrite() ) );
 
+    if ( rgfld_ )
+	savefld_->attach( alignedBelow, rgfld_ );
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
-    IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
-			     : EMHorizon3DTranslatorGroup::ioContext();
+    IOObjContext ctxt = is2d_ ? EMHorizon2DTranslatorGroup::ioContext()
+	: EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ctxt,
-				 uiStrings::phrOutput(uiStrings::sHorizon(1)) );
+	uiStrings::phrOutput(uiStrings::sHorizon(1)) );
     outputfld_->attach( alignedBelow, savefld_ );
 
-    addnewfld_ = new uiCheckBox( this, tr("Display after create") );
+    addnewfld_ = new uiCheckBox( this, tr( "Display after create" ) );
     addnewfld_->attach( alignedBelow, outputfld_ );
 
     setHAlignObj( savefld_ );
 
-    const bool allowovrwrt = horizon_ ? EM::canOverwrite(horizon_->dbKey())
-				      : false ;
+    const bool allowovrwrt = horizon_ ? EM::canOverwrite( horizon_->dbKey() )
+				      : false;
     allowOverWrite( allowovrwrt );
 }
 
@@ -148,6 +160,32 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const DBKey& mid )
     return horizon_;
 }
 
+
+EM::SurfaceIODataSelection uiHorSaveFieldGrp::getSelection( bool isnew ) const
+{
+    RefMan<EM::Horizon> horizon = isnew ? newhorizon_ : horizon_;
+    Pos::Provider* prov = rgfld_ ? rgfld_->curProvider() : 0;
+    mDynamicCastGet(Pos::Provider3D*,prov3d,prov);
+    
+    if ( prov3d )
+    {
+	horizon->setBurstAlert( true );
+	horizon->apply( *prov3d );
+	horizon->setBurstAlert( false );
+    }
+
+    EM::SurfaceIOData outsd;
+    outsd.use( *horizon );
+    EM::SurfaceIODataSelection outsdsel( outsd );
+    outsdsel.setDefault();
+
+    mDynamicCastGet(Pos::RangeProvider3D*,rgprov3d,prov3d);
+    if ( rgprov3d )
+	outsdsel.rg = rgprov3d->sampling().hsamp_; 
+    
+    return outsdsel;
+}
+
 #undef mErrRet
 #define mErrRet(msg) \
     { if ( !(msg).isEmpty() ) uiMSG().error( msg ); return false;}
@@ -157,9 +195,12 @@ bool uiHorSaveFieldGrp::saveHorizon()
     const bool savenew = savefld_->getBoolValue();
     if ( !newhorizon_ && savenew && !createNewHorizon() )
 	return false;
-    PtrMan<Executor> exec = savenew ? newhorizon_->saver() : horizon_->saver();
+    
+    const EM::SurfaceIODataSelection sdsel = getSelection( savenew );
+    PtrMan<Executor> exec = savenew ? newhorizon_->geometry().saver( &sdsel )
+				    : horizon_->geometry().saver( &sdsel );
 
-    if ( !exec ) mErrRet( tr("Cannot save horizon") );
+    if ( !exec ) mErrRet( uiStrings::phrCannotSave(uiStrings::sHorizon()) );
 
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, *exec );
