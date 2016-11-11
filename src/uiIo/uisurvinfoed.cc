@@ -867,7 +867,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     uiSurvInfoProvider* sip = sips_[sipidx-1];
     bool havez = false;
     if ( !sip->runDialog(this,uiSurvInfoProvider::getTDInfo(zistime,zinfeet),
-			    si_,&havez) )
+			    si_,zinfeet,&havez) )
 	return;
 
     setValues();
