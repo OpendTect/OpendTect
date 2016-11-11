@@ -504,22 +504,6 @@ void uiSurveyManager::utilButPushed( CallBacker* cb )
 	uiConvertPos dlg( this, *curSI() );
 	dlg.go();
     }
-	/* TODO needs to move to uiSurveyInfoEditor
-    else if ( butidx == 1 )
-    {
-	uiMSG().error( mTODONotImplPhrase() );
-	uiSingleGroupDlg<Coords::uiPositionSystemSel> dlg( this,
-	    new Coords::uiPositionSystemSel( 0, true, curSI(),
-					     curSI()->getCoordSystem() ));
-	if ( dlg.go() )
-	{
-	    curSI()->setCoordSystem( dlg.getDlgGroup()->outputSystem() );
-	    if ( !curSI()->write() )
-		mErrRetVoid(uiStrings::phrCannotWrite(
-					 uiStrings::sSetup().toLower()));
-	}
-    }
-	*/
     else
     {
 	Util* util = getUtils()[butidx];

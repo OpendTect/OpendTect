@@ -15,12 +15,18 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ranges.h"
 
+
 class SurveyInfo;
 class uiCheckBox;
 class uiComboBox;
+class uiLabeledComboBox;
 class uiGenInput;
 class uiGroup;
 class uiSurvInfoProvider;
+class uiSurveyMap;
+class uiTabStack;
+
+namespace Coords{ class uiPositionSystemSel; }
 
 /*!
 \brief The survey info editor.
@@ -55,6 +61,7 @@ protected:
     IOPar*		impiop_;
     ObjectSet<uiSurvInfoProvider> sips_;
     uiSurvInfoProvider*	lastsip_;
+    uiString		errmsg_;
 
     uiGenInput*		survnmfld_;
     uiGenInput*		pathfld_;
@@ -76,37 +83,47 @@ protected:
     uiGenInput*		xy0fld_;
     uiGenInput*		xy1fld_;
     uiGenInput*		xy2fld_;
-    uiGenInput*		coordset;
+    Coords::uiPositionSystemSel* latlongsel_;
+
     uiGroup*		topgrp_;
     uiGroup*		crdgrp_;
     uiGroup*		trgrp_;
     uiGroup*		rangegrp_;
-    uiComboBox*		sipfld_;
+    uiGroup*		latlonggrp_;
+    uiLabeledComboBox*	sipfld_;
     uiCheckBox*		overrulefld_;
     uiGenInput*		depthdispfld_;
     uiGenInput*		refdatumfld_;
+    uiSurveyMap*	surveymap_;
+    uiTabStack*		tabs_;
 
     void		mkSIPFld(uiObject*,bool);
     void		mkRangeGrp();
     void		mkCoordGrp();
     void		mkTransfGrp();
+    void		mkLatLongGrp();
+
     void		setValues();
-    void                updStatusBar(const char*);
-    bool		setRanges();
+    bool		setInlCrlRange();
+    bool		setZRange();
     bool		setSurvName();
     bool		setCoords();
     bool		setRelation();
     bool		getFromScreen();
+    void		updateMap();
+    void                updStatusBar(const char*);
 
     bool		acceptOK();
     void		sipCB(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);
     void		rangeChg(CallBacker*);
+    void		coordsChg(CallBacker*);
+    void		transformChg(CallBacker*);
     void		depthDisplayUnitSel(CallBacker*);
     void		updZUnit(CallBacker*);
-    void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
+    void		overruleCB(CallBacker*);
 
     static uiString	getSRDString(bool infeet);
 
