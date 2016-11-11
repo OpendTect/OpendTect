@@ -226,7 +226,7 @@ DBKey uiSeisPartServer::getDefault2DDataID() const
 {
     BufferString key( IOPar::compKey(sKey::Default(),
 		      SeisTrc2DTranslatorGroup::sKeyDefault()) );
-    BufferString midstr( SI().defaultPars().find(key) );
+    BufferString midstr( SI().getDefaultPars().find(key) );
     if ( !midstr.isEmpty() )
 	return DBKey::getFromString( midstr.buf() );
 
@@ -277,7 +277,7 @@ DBKey uiSeisPartServer::getDefaultDataID( bool is2d ) const
 
     BufferString key( IOPar::compKey(sKey::Default(),
 		      SeisTrcTranslatorGroup::sKeyDefault3D()) );
-    BufferString midstr( SI().defaultPars().find(key) );
+    BufferString midstr( SI().getDefaultPars().find(key) );
     if ( !midstr.isEmpty() )
 	return DBKey::getFromString( midstr.buf() );
 

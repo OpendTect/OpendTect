@@ -414,7 +414,7 @@ void uiSEGYRead::basicOptsGot()
     bool needimmediatedet = true;
     if ( rev_ != Rev0 )
     {
-	if ( !SI().defaultPars().get(sKeySEGYRev1Pol,revpolnr_) )
+	if ( !SI().getDefaultPars().get(sKeySEGYRev1Pol,revpolnr_) )
 	    revpolnr_ = 2;
 	if ( revpolnr_ < 0 )
 	    revpolnr_ = -revpolnr_ - 1;

@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uisegyimptype.h"
 #include "uisegyexamine.h"
 #include "uisegymanip.h"
+#include "uisegysipclassic.h"
 #include "uisegydef.h"
 #include "uisegyread.h"
 #include "uifileinput.h"
@@ -75,6 +76,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , clipsampler_(*new DataClipSampler(100000))
     , survinfo_(0)
     , survinfook_(false)
+    , classicsip_(0)
     , timer_(0)
 {
     if ( mForSurvSetup )
@@ -284,6 +286,7 @@ uiGroup* uiSEGYReadStarter::createAmplDisp()
 
 uiSEGYReadStarter::~uiSEGYReadStarter()
 {
+    delete classicsip_;
     delete survinfo_;
     delete timer_;
     delete filereadopts_;
@@ -547,25 +550,64 @@ void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
 }
 
 
+void uiSEGYReadStarter::getSIPInfo( bool& xyinft, int& ztyp, bool& ztypknown,
+				    IOPar& imppars, BufferString& usrfnm ) const
+{
+    xyinft = zInFeet();
+    ztyp = (int)uiSurvInfoProvider::getTDInfo( fileIsInTime(), zInFeet() );
+    ztypknown = true;
+    const SEGY::FullSpec fullspec( fullSpec() );
+    fullspec.fillPar( imppars );
+    usrfnm = userFileName();
+
+    if ( classicsip_ )
+    {
+	xyinft = classicsip_->xyInFeet();
+	int cztyp = (int)classicsip_->tdInfo( ztypknown );
+	if ( ztypknown )
+	    ztyp = cztyp;
+	ztypknown = true;
+	imppars = classicsip_->imppars_;
+	usrfnm = classicsip_->userfilename_;
+    }
+}
+
+
 void uiSEGYReadStarter::runClassic( bool imp )
 {
-    const Seis::GeomType gt = impType().geomType();
-    uiSEGYRead::Setup su( mForSurvSetup ? uiSEGYRead::SurvSetup
-				 : (imp ? uiSEGYRead::Import
-					: uiSEGYRead::DirectDef) );
-    if ( imptypeFixed() )
-	{ su.geoms_.erase(); su.geoms_ += gt; }
-    else if ( !imp )
-	su.geoms_ -= Seis::Line;
+    if ( mForSurvSetup )
+    {
+	if ( !survinfo_ )
+	    survinfo_ = new SurveyInfo;
+	const uiSurvInfoProvider::TDInfo ztyp
+		= uiSurvInfoProvider::getTDInfo( fileIsInTime(), zInFeet() );
+	classicsip_ = new uiSEGYClassicSurvInfoProvider;
+	if ( !classicsip_->runDialog(this,ztyp,*survinfo_,zInFeet()) )
+	    { delete classicsip_; classicsip_ = 0; }
+	else
+	{
+	    survinfook_ = true;
+	    done( 1 );
+	}
+    }
+    else
+    {
+	const Seis::GeomType gt = impType().geomType();
+	uiSEGYRead::Setup su( imp ? uiSEGYRead::Import : uiSEGYRead::DirectDef);
+	if ( imptypeFixed() )
+	    { su.geoms_.erase(); su.geoms_ += gt; }
+	else if ( !imp )
+	    su.geoms_ -= Seis::Line;
 
-    commit( true );
-    const FullSpec fullspec = fullSpec();
-    IOPar iop; fullspec.fillPar( iop );
-    classicrdr_ = new uiSEGYRead( this, su, &iop );
-    if ( !timer_ )
-	timer_ = new Timer( "uiSEGYReadStarter Classic pop up timer" );
-    timer_->tick.notify( mCB(this,uiSEGYReadStarter,initClassic));
-    timer_->start( 1, true );
+	commit( true );
+	const FullSpec fullspec = fullSpec();
+	IOPar iop; fullspec.fillPar( iop );
+	classicrdr_ = new uiSEGYRead( this, su, &iop );
+	if ( !timer_ )
+	    timer_ = new Timer( "uiSEGYReadStarter Classic pop up timer" );
+	timer_->tick.notify( mCB(this,uiSEGYReadStarter,initClassic));
+	timer_->start( 1, true );
+    }
 }
 
 
@@ -873,6 +915,7 @@ void uiSEGYReadStarter::updateSurvMap()
     if ( !survmap_ )
 	return;
 
+    delete survinfo_;
     survinfo_ = new SurveyInfo;
     survinfo_->setName( "No valid scan available" );
     uiString stbarmsg = uiStrings::sEmptyString();
@@ -932,11 +975,6 @@ void uiSEGYReadStarter::initClassic( CallBacker* )
 
 void uiSEGYReadStarter::classicSurvSetupEnd( CallBacker* )
 {
-    if ( !classicrdr_ || classicrdr_->state() == uiVarWizard::cCancelled() )
-	return;
-
-    uiMSG().error( mTODONotImplPhrase() );
-
     classicrdr_ = 0;
 }
 

@@ -310,7 +310,7 @@ void uiAttribDescSetEd::init()
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, autoset );
     const char* autoidkey = is2D() ? uiAttribDescSetEd::sKeyAuto2DAttrSetID
 				   : uiAttribDescSetEd::sKeyAuto3DAttrSetID;
-    if ( autoset && SI().defaultPars().get(autoidkey,autoid) &&
+    if ( autoset && SI().getDefaultPars().get(autoidkey,autoid) &&
 	 autoid != setid_ )
     {
 	uiString msg = tr("The Attribute-set selected for Auto-load"
@@ -332,7 +332,7 @@ void uiAttribDescSetEd::init()
 		    {
 			if ( ioobj )
 			    SI().setDefaultPar( autoidkey,
-				    		ioobj->key().toString(), true );
+						ioobj->key().toString(), true );
 			else
 			    mUnsetAuto
 		    }
@@ -482,7 +482,7 @@ void uiAttribDescSetEd::autoSet( CallBacker* )
 	const DBKey id = ioobj ? ioobj->key() : DBKey::getInvalid();
 	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
 	Settings::common().write();
-	IOPar par = SI().defaultPars();
+	IOPar par = SI().getDefaultPars();
 	const BufferString idstr = id.toString();
 	is2d ? par.set(uiAttribDescSetEd::sKeyAuto2DAttrSetID, idstr.str() )
 	     : par.set(uiAttribDescSetEd::sKeyAuto3DAttrSetID, idstr.str() );

@@ -100,7 +100,7 @@ static void convertSeis2DTranslators()
 static const char* getSurvDefAttrName()
 {
     mDefineStaticLocalObject( BufferString, ret,
-	   = SI().defaultPars().find(IOPar::compKey(sKey::Default(),
+	   = SI().getDefaultPars().find(IOPar::compKey(sKey::Default(),
 			SeisTrcTranslatorGroup::sKeyDefaultAttrib())) );
     if ( ret.isEmpty() )
 	ret = "Seis";
@@ -364,7 +364,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 
     const FixedString survdefattr( getSurvDefAttrName() );
     const bool issurvdefset =
-	SI().defaultPars().find( IOPar::compKey(sKey::Default(),
+	SI().getDefaultPars().find( IOPar::compKey(sKey::Default(),
 				SeisTrc2DTranslatorGroup::sKeyDefault()) );
     if ( !issurvdefset && ctio.ioobj_ && survdefattr == attribnm )
 	ctio.ioobj_->setSurveyDefault();

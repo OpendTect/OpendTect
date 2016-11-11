@@ -344,7 +344,7 @@ void IOObj::setSurveyDefault( const char* subsel ) const
 
 bool IOObj::isSurveyDefault( const DBKey& ky )
 {
-    IOPar* dpar = SI().defaultPars().subselect( sKey::Default() );
+    IOPar* dpar = SI().getDefaultPars().subselect( sKey::Default() );
     bool ret = false;
     if ( dpar && !dpar->isEmpty() )
 	ret = dpar->findKeyFor( ky.toString() );

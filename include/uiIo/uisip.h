@@ -51,6 +51,7 @@ mExpClass(uiIo) uiSurvInfoProvider
 public:
 
     enum TDInfo			{ Time, Depth, DepthFeet };
+    static TDInfo		getTDInfo(bool istime,bool zinft=false);
 
     virtual uiString		usrText() const		= 0;
     virtual uiDialog*		dialog(uiParent*,TDInfo) = 0;
@@ -75,5 +76,8 @@ public:
 					{ return uiString::emptyString(); }
 
     static const char*		sKeySIPName()		{ return "SIP.Name"; }
+
+    bool			runDialog(uiParent*,TDInfo,SurveyInfo&,
+					  bool defdpthinft,bool* havezinfo=0);
 
 };

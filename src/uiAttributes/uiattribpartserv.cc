@@ -170,7 +170,7 @@ void uiAttribPartServer::useAutoSet( bool is2d )
     const char* idkey = is2d ? uiAttribDescSetEd::sKeyAuto2DAttrSetID
 			     : uiAttribDescSetEd::sKeyAuto3DAttrSetID;
     DescSetMan* setmgr = eDSHolder().getDescSetMan(is2d);
-    if ( SI().defaultPars().get(idkey,id) )
+    if ( SI().getDefaultPars().get(idkey,id) )
     {
 	PtrMan<IOObj> ioobj = DBM().get( id );
 	uiString bs;

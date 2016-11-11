@@ -33,6 +33,7 @@ class uiHistogramDisplay;
 class uiSEGYRead;
 class uiSEGYImpType;
 class uiSEGYReadStartInfo;
+class uiSEGYClassicSurvInfoProvider;
 namespace SEGY { class ScanInfoCollectors; }
 
 
@@ -56,6 +57,7 @@ public:
     const SurveyInfo*	survInfo() const
 			{ return survinfook_ ? survinfo_ : 0; }
     bool		getInfo4SI(TrcKeyZSampling&,Coord crd[3]) const;
+    void		getSIPInfo(bool&,int&,bool&,IOPar&,BufferString&) const;
     bool		fileIsInTime() const;
     bool		zInFeet() const
 			{ return scaninfos_ && scaninfos_->inFeet(); }
@@ -106,6 +108,7 @@ protected:
     SurveyInfo*		survinfo_;
     bool		survinfook_;
     uiSEGYRead*		classicrdr_;
+    uiSEGYClassicSurvInfoProvider* classicsip_;
 
     enum LoadDefChgType	{ KeepAll, KeepBasic, KeepNone };
 

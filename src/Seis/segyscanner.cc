@@ -44,23 +44,24 @@
 SEGY::Scanner::Scanner( const FileSpec& fs, Seis::GeomType gt, const IOPar& i )
     : mDefMembInit
 {
-    init( fs );
+    filespec_ = fs;
+    init();
 }
 
 
 SEGY::Scanner::Scanner( const IOPar& i, Seis::GeomType gt )
     : mDefMembInit
 {
-    FileSpec fs; fs.usePar( pars_ );
-    init( fs );
+    filespec_.usePar( pars_ );
+    init();
 }
 
 
-void SEGY::Scanner::init( const FileSpec& fs )
+void SEGY::Scanner::init()
 {
-    const int nrfiles = fs.nrFiles();
+    const int nrfiles = filespec_.nrFiles();
     for ( int idx=0; idx<nrfiles; idx++ )
-	fnms_.add( fs.fileName(idx) );
+	fnms_.add( filespec_.fileName(idx) );
     pars_.getYN( FilePars::sKeyForceRev0(), forcerev0_ );
 }
 

@@ -123,7 +123,7 @@ public:
 			/*!< is in depth units (m or ft), positive upward
 			    from sea level. Always in meters for time surveys */
 
-    IOPar		defaultPars() const;
+    IOPar		getDefaultPars() const;
     void		setDefaultPar(const char* ky,const char* val,
 					bool save2storage) const;
     void		setDefaultPars(const IOPar&,bool save2storage) const;

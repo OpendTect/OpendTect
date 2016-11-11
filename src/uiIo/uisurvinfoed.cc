@@ -43,6 +43,72 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
+uiSurvInfoProvider::TDInfo uiSurvInfoProvider::getTDInfo(
+			    bool istime, bool zinft )
+{
+    TDInfo ztyp = Time;
+    if ( istime )
+	ztyp = zinft ? DepthFeet : Depth;
+    return ztyp;
+}
+
+
+
+bool uiSurvInfoProvider::runDialog( uiParent* p, TDInfo ztyp, SurveyInfo& si,
+	                      bool defdpthinft, bool* havezinfo )
+{
+    PtrMan<uiDialog> dlg = dialog( p, ztyp );
+    if ( !dlg || !dlg->go() )
+	return false;
+
+    TrcKeyZSampling cs; Coord crd[3];
+    if ( !getInfo(dlg,cs,crd) )
+	return false;
+
+    const bool xyinfeet = xyInFeet();
+    bool tdinfknown = false;
+    uiSurvInfoProvider::TDInfo tdinfo = tdInfo( tdinfknown );
+    bool zistime = si.zIsTime();
+    if ( tdinfknown )
+	zistime = tdinfo == uiSurvInfoProvider::Time;
+    bool zinfeet = defdpthinft;
+    if ( zistime )
+    {
+	if ( xyinfeet )
+	    zinfeet = true;
+    }
+    else
+	zinfeet = tdinfo == uiSurvInfoProvider::DepthFeet;
+
+    si.setZUnit( zistime, zinfeet );
+    IOPar defpars( si.getDefaultPars() );
+    defpars.setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
+    si.setDefaultPars( defpars, false );
+
+    float srd = 0.f;
+    if ( getSRD(srd) && !mIsUdf(srd) )
+    {
+	if ( !zistime && zinfeet )
+	    srd *= mToFeetFactorF;
+	si.setSeismicReferenceDatum( srd );
+    }
+
+    const bool havez = !mIsUdf(cs.zsamp_.start);
+    if ( !havez )
+	cs.zsamp_ = si.zRange(false);
+
+    si.setRange( cs );
+    si.setWorkRange( cs );
+    BinID bid[2];
+    bid[0].inl() = cs.hsamp_.start_.inl();
+    bid[0].crl() = cs.hsamp_.start_.crl();
+    bid[1].inl() = cs.hsamp_.stop_.inl();
+    bid[1].crl() = cs.hsamp_.stop_.crl();
+    si.set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
+    return true;
+}
+
+
 uiString uiSurveyInfoEditor::getSRDString( bool infeet )
 {
     uiString lbl = uiString( tr("%1%2%3") )
@@ -107,7 +173,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
 
     surveymap_ = new uiSurveyMap( this );
     surveymap_->attachGroup().attach( ensureRightOf, versep );
-   
+
 
     pathfld_ = new uiGenInput( topgrp_, tr("Location on disk"),
 				StringInpSpec(basepath_) );
@@ -148,15 +214,15 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
     surveymap_->attachGroup().attach( rightAlignedAbove, horsep );
     tabs_ = new uiTabStack( this, "Survey setup" );
     tabs_->attach( stretchedBelow, horsep );
-   
+
     mkRangeGrp();
-   
+
     mkCoordGrp();
-   
+
     mkTransfGrp();
 
     mkLatLongGrp();
- 
+
     postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
     sipCB(0);
 }
@@ -261,8 +327,8 @@ void uiSurveyInfoEditor::mkRangeGrp()
 			mCB(this,uiSurveyInfoEditor,depthDisplayUnitSel) );
     depthdispfld_->attach( alignedBelow, zfld_ );
 
-    
-   
+
+
     rangegrp_->setHAlignObj( inlfld_ );
     tabs_->addTab( rangegrp_ );
 }
@@ -291,7 +357,7 @@ void uiSurveyInfoEditor::mkCoordGrp()
 		      PositionInpSpec(psetup).setName("Inl Position3",0)
 					     .setName("Crl Position3",1) );
     mAddCB( ic2fld_ );
-    
+
     psetup.wantcoords_ = true;
     uiString xystr = tr("= (X,Y)");
     xy0fld_ = new uiGenInput( crdgrp_, xystr,
@@ -299,7 +365,7 @@ void uiSurveyInfoEditor::mkCoordGrp()
 						       .setName("Y1",1) );
     xy0fld_->setElemSzPol( uiObject::SmallVar );
     mAddCB( xy0fld_ );
-    
+
     xy1fld_ = new uiGenInput( crdgrp_, xystr,
 				PositionInpSpec(psetup).setName("X2",0)
 						       .setName("Y2",1) );
@@ -310,7 +376,7 @@ void uiSurveyInfoEditor::mkCoordGrp()
 				PositionInpSpec(psetup).setName("X3",0)
 						       .setName("Y3",1) );
     mAddCB( xy2fld_ );
-    
+
     xy2fld_->setElemSzPol( uiObject::SmallVar );
     ic1fld_->attach( alignedBelow, ic0fld_ );
     ic2fld_->attach( alignedBelow, ic1fld_ );
@@ -352,7 +418,7 @@ void uiSurveyInfoEditor::mkTransfGrp()
     y0fld_ = new uiGenInput ( trgrp_, tr("Y = "), DoubleInpSpec().setName("Y"));
     y0fld_->setElemSzPol( uiObject::Small );
     mAddCB( y0fld_ );
-    
+
     yinlfld_ = new uiGenInput ( trgrp_, tr("+ in-line *"),
 				      DoubleInpSpec() .setName("Inl"));
     yinlfld_->setElemSzPol( uiObject::Small );
@@ -666,11 +732,11 @@ BufferString uiSurveyInfoEditor::dirName() const
 bool uiSurveyInfoEditor::setInlCrlRange()
 {
     #define mStopNotif( fld ) \
-    NotifyStopper ns##fld( fld->valuechanged ); 
+    NotifyStopper ns##fld( fld->valuechanged );
 
     mStopNotif( inlfld_ );
     mStopNotif( crlfld_ );
-    
+
     const StepInterval<int> irg( inlfld_->getIStepInterval() );
     const StepInterval<int> crg( crlfld_->getIStepInterval() );
     if ( irg.isUdf() ) mErrRetTabGrp(rangegrp_,uiStrings::phrEnter(tr(
@@ -716,14 +782,14 @@ bool uiSurveyInfoEditor::setZRange()
     if (mIsUdf(cs.zsamp_.start) || mIsUdf(cs.zsamp_.stop)
 				|| mIsUdf(cs.zsamp_.step))
 	mErrRetTabGrp( rangegrp_, uiStrings::phrEnter(uiStrings::sZRange()) );
-    
+
     const float zfac = 1.f / si_.zDomain().userFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
 	cs.zsamp_.scale( zfac );
 
     if ( mIsZero(cs.zsamp_.step,1e-8) )
 	cs.zsamp_.step = si_.zDomain().isTime() ? 0.004f : 1;
-   
+
     cs.normalise();
     if ( cs.zsamp_.nrSteps() == 0 )
 	mErrRetTabGrp( rangegrp_, uiStrings::phrSpecify(tr("a valid Z range")))
@@ -737,7 +803,7 @@ bool uiSurveyInfoEditor::setZRange()
 bool uiSurveyInfoEditor::setCoords()
 {
 #define mStopNotif( fld ) \
-    NotifyStopper ns##fld( fld->valuechanged ); 
+    NotifyStopper ns##fld( fld->valuechanged );
 
     mStopNotif( ic0fld_ );
     mStopNotif( ic1fld_ );
@@ -753,7 +819,7 @@ bool uiSurveyInfoEditor::setCoords()
     c[0] = xy0fld_->getCoord();
     c[1] = xy2fld_->getCoord();
     c[2] = xy1fld_->getCoord();
-    
+
     const uiString errmsg = si_.set3PtsUiMsg( c, b, xline );
     if ( !errmsg.isEmpty() )
 	mErrRetTabGrp( crdgrp_, errmsg )
@@ -767,7 +833,7 @@ bool uiSurveyInfoEditor::setCoords()
 bool uiSurveyInfoEditor::setRelation()
 {
     #define mStopNotif( fld ) \
-    NotifyStopper ns##fld( fld->valuechanged ); 
+    NotifyStopper ns##fld( fld->valuechanged );
 
     mStopNotif( x0fld_ );
     mStopNotif( y0fld_ );
@@ -796,56 +862,14 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     sipfld_->box()->setCurrentItem( 0 );
     delete impiop_; impiop_ = 0; lastsip_ = 0;
 
+    const bool zistime = zunitfld_->currentItem() == 0;
+    const bool zinfeet = !depthdispfld_->getBoolValue();
     uiSurvInfoProvider* sip = sips_[sipidx-1];
-    uiSurvInfoProvider::TDInfo ztyp = uiSurvInfoProvider::Time;
-    if ( !si_.zIsTime() )
-	ztyp = si_.zInMeter() ? uiSurvInfoProvider::Depth
-			      : uiSurvInfoProvider::DepthFeet;
-    PtrMan<uiDialog> dlg = sip->dialog( this, ztyp );
-    if ( !dlg || !dlg->go() ) return;
-
-    TrcKeyZSampling cs; Coord crd[3];
-    if ( !sip->getInfo(dlg,cs,crd) )
+    bool havez = false;
+    if ( !sip->runDialog(this,uiSurvInfoProvider::getTDInfo(zistime,zinfeet),
+			    si_,&havez) )
 	return;
 
-    const bool xyinfeet = sip->xyInFeet();
-    bool tdinfknown = false;
-    uiSurvInfoProvider::TDInfo tdinfo = sip->tdInfo( tdinfknown );
-    bool zistime = si_.zIsTime();
-    if ( tdinfknown )
-	zistime = tdinfo == uiSurvInfoProvider::Time;
-    bool zinfeet = !depthdispfld_->getBoolValue();
-    if ( zistime )
-    {
-	if ( xyinfeet )
-	    zinfeet = true;
-    }
-    else
-	zinfeet = tdinfo == uiSurvInfoProvider::DepthFeet;
-
-    si_.setZUnit( zistime, zinfeet );
-    si_.defpars_.setYN( SurveyInfo::sKeyDpthInFt(), zinfeet );
-
-    float srd = 0.f;
-    if ( sip->getSRD(srd) && !mIsUdf(srd) )
-    {
-	if ( !zistime && zinfeet )
-	    srd *= mToFeetFactorF;
-	si_.setSeismicReferenceDatum( srd );
-    }
-
-    const bool havez = !mIsUdf(cs.zsamp_.start);
-    if ( !havez )
-	cs.zsamp_ = si_.zRange(false);
-
-    si_.setRange( cs );
-    si_.setWorkRange( cs );
-    BinID bid[2];
-    bid[0].inl() = cs.hsamp_.start_.inl();
-    bid[0].crl() = cs.hsamp_.start_.crl();
-    bid[1].inl() = cs.hsamp_.stop_.inl();
-    bid[1].crl() = cs.hsamp_.stop_.crl();
-    si_.set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
     setValues();
     if ( !havez )
 	zfld_->clear();

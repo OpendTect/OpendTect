@@ -43,14 +43,10 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
     else if ( !rdst->getInfo4SI(cs,crd) )
 	return false;
 
-    xyinft_ = rdst->zInFeet();
-    tdinfo_ = rdst->fileIsInTime() ? uiSurvInfoProvider::Time
-	    : (rdst->zInFeet() ? uiSurvInfoProvider::DepthFeet
-			       : uiSurvInfoProvider::Depth);
-    tdinfoknown_ = true;
-    const SEGY::FullSpec fullspec( rdst->fullSpec() );
-    fullspec.fillPar( imppars_ );
-    userfilename_ = rdst->userFileName();
+
+    int itdinf = (int)tdinfo_;
+    rdst->getSIPInfo( xyinft_, itdinf, tdinfoknown_, imppars_, userfilename_ );
+    tdinfo_ = (uiSurvInfoProvider::TDInfo)itdinf;
     return true;
 }
 

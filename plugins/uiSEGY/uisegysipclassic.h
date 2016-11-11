@@ -38,6 +38,7 @@ public:
     friend class	uiSEGYSIPMgrDlg;
     IOPar		imppars_;
     bool		xyinft_;
+    BufferString	userfilename_;
 
     void		showReport(const SEGY::Scanner&) const;
 

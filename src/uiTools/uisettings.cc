@@ -66,7 +66,7 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
                                      mODHelpKey(mSettingsHelpID)) )
         , issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
 	, grpfld_(0)
-	, sipars_(SI().defaultPars())
+	, sipars_(SI().getDefaultPars())
 {
     setCurSetts();
     if ( issurvdefs_ )

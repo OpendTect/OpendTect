@@ -428,7 +428,7 @@ bool SurveyInfo::usePar( const IOPar& par )
 }
 
 
-IOPar SurveyInfo::defaultPars() const
+IOPar SurveyInfo::getDefaultPars() const
 {
     mLock4Read();
     return defpars_;

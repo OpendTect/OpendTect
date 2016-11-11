@@ -43,7 +43,7 @@ PosImpExpPars& PosImpExpPars::getSVY()
 void PosImpExpPars::getFromSI()
 {
     clear();
-    usePar( SI().defaultPars() );
+    usePar( SI().getDefaultPars() );
 }
 
 

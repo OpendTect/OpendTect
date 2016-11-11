@@ -52,7 +52,7 @@ void newSrv( CallBacker* )
 
 static IOPar* crNew()
 {
-    IOPar* ret = SI().defaultPars().subselect( sKeyUOM );
+    IOPar* ret = SI().getDefaultPars().subselect( sKeyUOM );
     if ( !ret ) ret = new IOPar;
     ret->setName( "Current Units of Measure" );
     return ret;
@@ -74,7 +74,7 @@ IOPar& UnitOfMeasure::currentDefaults()
 
 void UnitOfMeasure::saveCurrentDefaults()
 {
-    IOPar pars( SI().defaultPars() );
+    IOPar pars( SI().getDefaultPars() );
     pars.mergeComp( currentDefaults(), sKeyUOM );
     SI().setDefaultPars( pars, true );
 }

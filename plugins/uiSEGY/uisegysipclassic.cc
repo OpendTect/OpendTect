@@ -122,6 +122,7 @@ bool uiSEGYClassicSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
 	{ mShowErr( errmsg ); return false; }
 
     cs.zsamp_ = scanner->zRange();
+    userfilename_ = scanner->fileSpec().usrStr();
     const SEGYSeisTrcTranslator* transl = scanner->translator();
     xyinft_ = transl && transl->binHeader().isInFeet();
     return true;

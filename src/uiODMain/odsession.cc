@@ -190,7 +190,7 @@ void ODSession::getStartupData( bool& douse, DBKey& mid )
 {
     Settings::common().getYN( sKeyUseStartup(), douse );
     mid.setInvalid();
-    SI().defaultPars().get( sKeyStartupID(), mid );
+    SI().getDefaultPars().get( sKeyStartupID(), mid );
 }
 
 

@@ -61,6 +61,7 @@ public:
     void			getReport(IOPar&,const IOPar* inppars=0) const;
     StepInterval<float>		zRange() const;
     const PosInfo::Detector&	posInfoDetector() const { return dtctor_; }
+    const FileSpec&		fileSpec() const	{ return filespec_; }
 
     const BufferStringSet&	warnings() const	{ return trwarns_; }
     const SEGYSeisTrcTranslator* translator() const	{ return tr_; }
@@ -70,6 +71,7 @@ protected:
     Seis::GeomType	geom_;
     const IOPar&	pars_;
     FileDataSet&	fds_;
+    FileSpec		filespec_;
     SEGYSeisTrcTranslator* tr_;
     SeisStatInfo	seisstatinfo_;
     DataClipSampler&	clipsmplr_;
@@ -90,7 +92,7 @@ protected:
     int			readNext();
     void		closeTr();
 
-    void		init(const FileSpec&);
+    void		init();
     int			finish(bool);
     void		addFailed(const uiString&);
     void		initFileData();
