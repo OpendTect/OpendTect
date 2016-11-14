@@ -454,6 +454,7 @@ void HorTilesCreatorAndUpdator::setFixedResolution( char res, TaskRunner* tr )
 	    continue;
 
 	tileptrs[idx]->setActualResolution( res );
+	tileptrs[idx]->turnOnGlue( res==-1 );
 	work += Threads::Work(
 	    *new TileTesselator( tileptrs[idx], res ), true );
     }
