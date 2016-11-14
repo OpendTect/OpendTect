@@ -259,7 +259,6 @@ protected:
     TrcKeyPath			tkpath_;
     				//TODO replace trcspath_ by tkpath_;
     TypeSet<BinID>		nodes_;
-    mutable TypeSet<BinID>	trcspathbids_;
 
     ZAxisTransform*		datatransform_;
     Interval<float>		depthrg_;

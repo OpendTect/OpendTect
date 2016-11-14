@@ -861,8 +861,8 @@ void RandomTrackDisplay::updatePanelStripPath()
     if ( nodes_.size()<2 || getUpdateStageNr() )
 	return;
 
-    trcspathbids_.setEmpty();
-    getDataTraceBids( trcspathbids_ );	// Will update trcspath_
+    TypeSet<BinID> trcbids;
+    getDataTraceBids( trcbids );	// Will update trcspath_
 
     TypeSet<Coord> pathcrds;
     TypeSet<float> mapping;
@@ -1018,7 +1018,6 @@ void RandomTrackDisplay::acceptManipulation()
 
     movingnotifystopper.restore();
     moving_.trigger();
-
 }
 
 
@@ -1318,17 +1317,46 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
 
 float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 {
-    // TODO: Compared to calcDist(.) of 2d lines, this implementation can't
-    // be right. I wonder whether this is actually used somewhere? (JCG)
-
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     Coord3 xytpos;
     utm2display->transformBack( pos, xytpos );
     BinID binid = s3dgeom_->transform( xytpos.getXY() );
 
-    if ( trcspathbids_.isEmpty() )
-	getDataTraceBids( trcspathbids_ );
-    if ( !trcspathbids_.isPresent(binid) )
+    bool ontrack = false;
+    for ( int idx=0; idx<nodes_.size()-1; idx++ )
+    {
+	int x = binid.inl(); int y = binid.crl();
+	int x0 = nodes_[ idx ].inl(); int y0 = nodes_[ idx ].crl();
+	int x1 = nodes_[idx+1].inl(); int y1 = nodes_[idx+1].crl();
+
+	if ( x0<x1 ? (x<x0 || x>x1) : (x>x0 || x<x1) )
+	    continue;
+	if ( y0<y1 ? (y<y0 || y>y1) : (y>y0 || y<y1) )
+	    continue;
+
+	if ( x0==x1 && y0==y1 )
+	{
+	    if ( x!=x0 || y!=y0 )
+		continue;
+
+	    ontrack = true;
+	    break;
+	}
+
+	if ( abs(x1-x0) < abs(y1-y0) )
+	    { Swap(x,y); Swap(x0,y0); Swap(x1,y1); }
+
+	const float slope = mCast(float,y1-y0) / mCast(float,x1-x0);
+	const float ydiff = y - y0 - slope * (x-x0);
+
+	if ( fabs(ydiff) > 0.5 )
+	    continue;
+
+	ontrack = true;
+	break;
+    }
+
+    if ( !ontrack )
 	return mUdf(float);
 
     float zdiff = 0;
