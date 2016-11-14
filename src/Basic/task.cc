@@ -287,18 +287,18 @@ int SequentialTask::doStep()
     if ( progressmeter_ ) progressmeter_->setStarted();
 
     const int res = nextStep();
-    const int lastupdate = seqtaskmgr_lastupdate_.getParam( this );
-    const bool doupdate = Time::passedSince(lastupdate) > mDefaultTimeLimit;
     if ( progressmeter_ )
     {
+	const int lastupdate = seqtaskmgr_lastupdate_.getParam( this );
+	const bool doupdate = Time::passedSince(lastupdate) > mDefaultTimeLimit;
 	if ( doupdate )
 	    mUpdateProgressMeter
 
 	if ( res<1 )
 	    progressmeter_->setFinished();
+	if ( doupdate )
+	    seqtaskmgr_lastupdate_.setParam( this, Time::getMilliSeconds() );
     }
-    if ( doupdate )
-	seqtaskmgr_lastupdate_.setParam( this, Time::getMilliSeconds() );
 
     return res;
 }
