@@ -1833,7 +1833,7 @@ private:
 				if ( undefidxs_ )
 				{
 				    lck_.lock();
-				    *undefidxs_ += idx + idz;
+				    *undefidxs_ += idx*nrtrcsp + idz;
 				    lck_.unLock();
 				}
 
@@ -1884,6 +1884,13 @@ private:
     const od_int64		totalnr_;
     Threads::Mutex		lck_;
 };
+
+
+/*!< Filters a list of global indexes with two different sampling */
+
+mGlobal(Algo) void convertUndefinedIndexList(const TrcKeyZSampling& tkzsin,
+					     const TrcKeyZSampling& tkzsout,
+					     TypeSet<od_uint64>&);
 
 
 /*!<Replaces undefined values back to an ND array */
