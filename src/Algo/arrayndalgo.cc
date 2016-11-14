@@ -291,7 +291,7 @@ void PolyTrend::initCenter( const TypeSet<Coord>& pos )
 
 void convertUndefinedIndexList( const TrcKeyZSampling& inptkzs,
 				const TrcKeyZSampling& outtkzs,
-				TypeSet<od_uint64>& undefidxs )
+				LargeValVec<od_uint64>& undefidxs )
 {
     if ( inptkzs == outtkzs )
 	return;
@@ -300,7 +300,8 @@ void convertUndefinedIndexList( const TrcKeyZSampling& inptkzs,
 				  inptkzs.hsamp_.nrTrcs(), inptkzs.nrZ() );
     const int nrz = outtkzs.nrZ();
     int pos[3];
-    for ( od_int64 idx=undefidxs.size()-1; idx>=0; idx-- )
+    for ( LargeValVec<od_uint64>::size_type idx=undefidxs.size()-1; idx>=0;
+								    idx-- )
     {
 	infoin.getArrayPos( undefidxs[idx], pos );
 	const TrcKey tk( inptkzs.hsamp_.trcKeyAt( pos[0], pos[1] ) );
