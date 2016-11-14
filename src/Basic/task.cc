@@ -292,17 +292,17 @@ int SequentialTask::doStep()
     if ( progressmeter_ ) progressmeter_->setStarted();
 
     const int res = nextStep();
-    const bool doupdate = Time::passedSince(lastupdate_) > mDefaultTimeLimit;
     if ( progressmeter_ )
     {
-	if ( doupdate )
+	if ( Time::passedSince(lastupdate_) >mDefaultTimeLimit )
+	{
 	    mUpdateProgressMeter
+	    lastupdate_ = Time::getMilliSeconds();
+	}
 
 	if ( res<1 )
 	    progressmeter_->setFinished();
     }
-    if ( doupdate )
-	lastupdate_ = Time::getMilliSeconds();
 
     return res;
 }
