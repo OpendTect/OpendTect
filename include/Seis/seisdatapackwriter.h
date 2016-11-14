@@ -46,6 +46,9 @@ public:
 
 private:
 
+    void		setCubeIdxRange();
+    bool		setTrc();
+
     TypeSet<int>			compidxs_;
     DBKey				mid_;
     ConstRefMan<RegularSeisDataPack>	dp_;
@@ -59,6 +62,7 @@ private:
 
     TrcKeySampling		tks_;
     Interval<int>		zrg_;
+    StepInterval<int>		cubezrgidx_;
     bool			is2d_;
 
     void			getPosInfo();

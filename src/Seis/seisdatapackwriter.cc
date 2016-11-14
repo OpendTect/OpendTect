@@ -48,6 +48,7 @@ SeisDataPackWriter::SeisDataPackWriter( const DBKey& mid,
     const int startz =
 	mNINT32(dp_->sampling().zsamp_.start/dp_->sampling().zsamp_.step);
     zrg_ = Interval<int>( startz, startz+dp_->sampling().nrZ()-1 );
+    setCubeIdxRange();
 
     PtrMan<IOObj> ioobj = DBM().get( mid_ );
     writer_ = ioobj ? new SeisTrcWriter( ioobj ) : 0;
@@ -101,10 +102,20 @@ void SeisDataPackWriter::setNextDataPack( const RegularSeisDataPack& dp )
 }
 
 
+void SeisDataPackWriter::setCubeIdxRange()
+{
+    const float zstep = SI().zRange( false ).step;
+    cubezrgidx_.set( mNINT32(dp_->sampling().zsamp_.start/zstep),
+			 mNINT32(dp_->sampling().zsamp_.stop/zstep),
+			 mNINT32(dp_->sampling().zsamp_.step/zstep) );
+}
+
+
 void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
-				    const Interval<int>& zrg )
+				       const Interval<int>& zrg )
 {
     zrg_ = zrg; tks_ = hrg;
+    setCubeIdxRange();
 
     iterator_.setSampling( hrg );
     totalnr_ = posinfo_ ? posinfo_->totalSizeInside( hrg )
@@ -121,60 +132,75 @@ od_int64 SeisDataPackWriter::totalNr() const
 }
 
 
-int SeisDataPackWriter::nextStep()
+bool SeisDataPackWriter::setTrc()
 {
-    const StepInterval<float> survrg = SI().zRange( true );
-    const StepInterval<int> cubezrgidx // real -> index
-			    ( mNINT32(dp_->sampling().zsamp_.start/survrg.step),
-			      mNINT32(dp_->sampling().zsamp_.stop/survrg.step),
-			      mNINT32(dp_->sampling().zsamp_.step/survrg.step));
+    if ( !writer_ || dp_->isEmpty() )
+	return false;
 
-    if ( !trc_ )
+    const int trcsz = cubezrgidx_.nrSteps() + 1;
+    trc_ = new SeisTrc( trcsz );
+
+    trc_->info().sampling_.start = dp_->sampling().zsamp_.start;
+    trc_->info().sampling_.step = dp_->sampling().zsamp_.step;
+
+    BufferStringSet compnames;
+    compnames.add( dp_->getComponentName() );
+    for ( int idx=1; idx<compidxs_.size(); idx++ )
     {
-	if ( !writer_ || dp_->isEmpty() )
-	    return ErrorOccurred();
-
-	const int trcsz = cubezrgidx.nrSteps() + 1;
-	trc_ = new SeisTrc( trcsz );
-
-	trc_->info().sampling_.start = dp_->sampling().zsamp_.start;
-	trc_->info().sampling_.step = dp_->sampling().zsamp_.step;
-
-	BufferStringSet compnames;
-	compnames.add( dp_->getComponentName() );
-	for ( int idx=1; idx<compidxs_.size(); idx++ )
-	{
-	    trc_->data().addComponent( trcsz, DataCharacteristics() );
-	    compnames.add( dp_->getComponentName(idx) );
-	}
-
-	SeisTrcTranslator* transl = writer_->seisTranslator();
-	if ( transl ) transl->setComponentNames( compnames );
+	trc_->data().addComponent( trcsz, DataCharacteristics() );
+	compnames.add( dp_->getComponentName(idx) );
     }
 
+    SeisTrcTranslator* transl = writer_->seisTranslator();
+    if ( transl ) transl->setComponentNames( compnames );
+
+    return true;
+}
+
+
+int SeisDataPackWriter::nextStep()
+{
+    if ( !trc_ && !setTrc() )
+	return ErrorOccurred();
+
     const TrcKeySampling& hs = dp_->sampling().hsamp_;
+    const od_int64 posidx = iterator_.curIdx();
+    if ( posinfo_ && !posinfo_->isValid(posidx,hs) )
+	return iterator_.next() ? MoreToDo() : Finished();
+
     const TrcKey currentpos( iterator_.curTrcKey() );
 
     trc_->info().trckey_ = currentpos;
     trc_->info().coord_ = currentpos.getCoord();
-    const int inl = currentpos.inl();
-    const int crl = currentpos.crl();
-    if ( posinfo_ && !posinfo_->includes(inl,crl) )
-	return MoreToDo();
-
-    const int inlpos = hs.lineIdx( inl );
-    const int crlpos = hs.trcIdx( crl );
-
+    const int inlpos = hs.lineIdx( currentpos.inl() );
+    const int crlpos = hs.trcIdx( currentpos.crl() );
+    const int trcsz = cubezrgidx_.nrSteps() + 1;
+    int zsample = zrg_.start;
+    int cubesample = zsample - cubezrgidx_.start;
+    const od_int64 offset = dp_->data().info().
+					getOffset( inlpos, crlpos, cubesample );
+    float value = mUdf(float);
     for ( int idx=0; idx<compidxs_.size(); idx++ )
     {
-	for ( int zidx=0; zidx<=cubezrgidx.nrSteps(); zidx++ )
+	const Array3D<float>& outarr = dp_->data( compidxs_[idx] );
+	const float* dataptr = outarr.getData();
+	dataptr += offset;
+	zsample = zrg_.start;
+	cubesample = zsample - cubezrgidx_.start;
+	for ( int zidx=0; zidx<trcsz; zidx++, zsample++ )
 	{
-	    const int zsample = zidx+zrg_.start;
-	    const int cubesample = zsample - cubezrgidx.start;
-
-	    const float value = cubezrgidx.includes( zsample, false )
-		? dp_->data(compidxs_[idx]).get(inlpos,crlpos,cubesample)
-		: mUdf(float);
+	    if ( cubezrgidx_.includes(zsample,false) )
+	    {
+		if ( dataptr )
+		    value = *dataptr++;
+		else
+		{
+		    value = outarr.get( inlpos, crlpos, cubesample );
+		    cubesample++;
+		}
+	    }
+	    else
+		value = mUdf(float);
 
 	    trc_->set( zidx, value, idx );
 	}
