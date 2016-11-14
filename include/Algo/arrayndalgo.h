@@ -627,15 +627,16 @@ inline RetType getSumX2MY2( const ArrayND<ArrType>& in1,
 /*!\brief Fills an ArrayND with an unbiased version of another. */
 
 template <class ArrType,class SumType,class OperType>
-inline bool removeBias( const ArrayND<ArrType>& in, ArrayND<ArrType>& out )
+inline bool removeBias( const ArrayND<ArrType>& in, ArrayND<ArrType>& out,
+			bool noudf, bool parallel )
 {
     const SumType averagevalue =
-		getAverage<ArrType,SumType,OperType,SumType>( in, false, true );
+	    getAverage<ArrType,SumType,OperType,SumType>( in, noudf, parallel );
     if ( mIsUdf(averagevalue) )
 	return false;
 
     getScaled<ArrType,SumType,OperType>( in, &out, (OperType)1, -averagevalue,
-					 false, true );
+					 noudf, parallel );
     return true;
 }
 
@@ -643,11 +644,12 @@ inline bool removeBias( const ArrayND<ArrType>& in, ArrayND<ArrType>& out )
 /*!\brief Removes the bias ( 0 order trend = average ) from an ArrayND. */
 
 template <class ArrType,class SumType,class OperType>
-inline bool removeBias( ArrayND<ArrType>& inout )
+inline bool removeBias( ArrayND<ArrType>& inout, bool noudf, bool parallel )
 {
     const ArrayND<ArrType>& inconst =
 			    const_cast<const ArrayND<ArrType>&>( inout );
-    return removeBias<ArrType,SumType,OperType>( inconst, inout );
+    return removeBias<ArrType,SumType,OperType>( inconst, inout, noudf,
+						 parallel );
 }
 
 

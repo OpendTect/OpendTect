@@ -197,8 +197,8 @@ static bool testBigVector()
     mRunStandardTest(mIsEqual(calcinterceptf,-152.46854f,1e-2f),
 		     "Intercept float")
 
-    if ( !removeBias<double,double,double>(data) ||
-	 !removeBias<float,double,double>(dataf) )
+    if ( !removeBias<double,double,double>(data,true,true) ||
+	 !removeBias<float,double,double>(dataf,true,true) )
 	return false;
 
     res = getSum<double,double,double,double>( data, true, true );
@@ -216,7 +216,7 @@ static bool testBigVector()
     for ( int idx=0; idx<sz; idx++ )
 	dataf.set( idx, mCast(float,data.get(idx)) );
 
-    if ( !removeBias<float,float,float>(dataf) )
+    if ( !removeBias<float,float,float>(dataf,true,true) )
 	return false;
 
     resf = getSum<float,float,float,float>( dataf, true, true );

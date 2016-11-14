@@ -283,7 +283,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	{
 	    if ( window_ ) window_->apply( myself->signal_ );
 	    ArrayMath::removeBias<float_complex,float_complex,float>(
-							  *myself->signal_ );
+					      *myself->signal_, true, true );
 	    for ( int idy=0; idy<sgatesz; idy++ )
 		myself->timedomain_->set( sgatesz+idy, signal_->get(idy) );
 
