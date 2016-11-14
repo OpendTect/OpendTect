@@ -1733,7 +1733,7 @@ mClass(Algo) ArrayUdfValReplacer : public ParallelTask
 { mODTextTranslationClass(ArrayUdfValReplacer)
 public:
 		ArrayUdfValReplacer( Array2D<T>& inp,
-				     TypeSet<od_uint64>* undefidxs )
+				     LargeValVec<od_uint64>* undefidxs )
 		    : ParallelTask("Array Udf Replacer")
 		    , inp_(inp)
 		    , replval_(0.f)
@@ -1744,7 +1744,7 @@ public:
 		{}
 
 		ArrayUdfValReplacer( Array3D<T>& inp,
-				     TypeSet<od_uint64>* undefidxs )
+				     LargeValVec<od_uint64>* undefidxs )
 		    : ParallelTask("Array Udf Replacer")
 		    , inp_(inp)
 		    , replval_(0.f)
@@ -1878,7 +1878,7 @@ private:
 
     ArrayND<T>&			inp_;
     T				replval_;
-    TypeSet<od_uint64>*		undefidxs_;
+    LargeValVec<od_uint64>*		undefidxs_;
     const TrcKeySampling*	tks_;
     const PosInfo::CubeData*	trcssampling_;
     const od_int64		totalnr_;
@@ -1890,7 +1890,7 @@ private:
 
 mGlobal(Algo) void convertUndefinedIndexList(const TrcKeyZSampling& tkzsin,
 					     const TrcKeyZSampling& tkzsout,
-					     TypeSet<od_uint64>&);
+					     LargeValVec<od_uint64>&);
 
 
 /*!<Replaces undefined values back to an ND array */
@@ -1899,7 +1899,7 @@ template <class T>
 mClass(Algo) ArrayUdfValRestorer : public ParallelTask
 { mODTextTranslationClass(ArrayUdfValRestorer)
 public:
-		ArrayUdfValRestorer( const TypeSet<od_uint64>& undefidxs,
+		ArrayUdfValRestorer( const LargeValVec<od_uint64>& undefidxs,
 				      ArrayND<T>& outp )
 		    : ParallelTask("Udf retriever")
 		    , undefidxs_(undefidxs)
@@ -1942,7 +1942,7 @@ private:
 		    return true;
 		}
 
-    const TypeSet<od_uint64>&	undefidxs_;
+    const LargeValVec<od_uint64>&	undefidxs_;
     ArrayND<T>&			outp_;
     const od_int64		totalnr_;
 };
