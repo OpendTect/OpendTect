@@ -6,6 +6,7 @@
 
 
 #include "simpnumer.h"
+#include "terrain3x3.h"
 #include "testprog.h"
 
 #define mTest( testname, test ) \
@@ -43,6 +44,26 @@ bool testComputeCommonStepInterval( const char* tp )
     return true;
 }
 
+
+bool testTerrain3x3()
+{
+    /*
+    Terrain3x3<float> t3x3( 25.f );
+    float vals[9];
+    vals[0] = vals[3] = vals[6] = 50.f;
+    vals[1] = vals[4] = vals[7] = 25.f;
+    vals[2] = vals[5] = vals[8] = 0.f;
+    vals[3] = 25.0f; vals[4] = 0.f;
+    t3x3.set( vals );
+    od_cout() << "val at -12.5=" << t3x3.valueAt( -12.5f, 0.f ) << od_endl;
+    od_cout() << "slope=" << t3x3.slope() << od_endl;
+    od_cout() << "direction=" << t3x3.direction() << od_endl;
+    od_cout() << "profileCurvature=" << t3x3.profileCurvature() << od_endl;
+    od_cout() << "planformCurvature=" << t3x3.planformCurvature() << od_endl;
+    */
+    return true;
+}
+
 #define mTestGCD( si1, si2, expected ) \
 mTest( "GCD( " #si1 ", " #si2 ")" , \
     greatestCommonDivisor( si1, si2 )==expected ) \
@@ -73,6 +94,9 @@ int testMain( int argc, char** argv )
     if ( !testComputeCommonStepInterval<short>("short" )
       || !testComputeCommonStepInterval<int>( "int" )
       || !testComputeCommonStepInterval<od_int64>( "od_int64" ) )
+	return 1;
+
+    if ( !testTerrain3x3() )
 	return 1;
 
     return 0;

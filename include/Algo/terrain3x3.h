@@ -31,6 +31,8 @@ Z7 (-1,-1) => v[0]
 Z8 ( 0,-1) => v[3]
 Z9 ( 1,-1) => v[6]
 
+Beware that direction, profileCurvature and planformCurvature can return undef.
+
 */
 
 template <class T>
@@ -45,9 +47,9 @@ public:
 
     T		    valueAt(T x,T y) const;
     T		    slope() const;
-    T		    direction() const;
-    T		    profileCurvature() const; //!< curv in slope direction
-    T		    planformCurvature() const; //!< curv perp to slope dir
+    T		    direction() const;		//!< -pi < d < pi, or undef
+    T		    profileCurvature() const;	//!< curv in slope direction
+    T		    planformCurvature() const;	//!< curv perp to slope dir
 
     const T	d_, d2_;
     T		a0_, ax_, ay_, axy_, ax2_, ay2_, ax2y_, ay2x_, ax2y2_;
@@ -114,7 +116,9 @@ inline T Terrain3x3<T>::profileCurvature() const
 {
     const T ax2 = ax_ * ax_;
     const T ay2 = ay_ * ay_;
-    return -2 * (ax2_*ax2 + ay2_*ay2 + axy_*ax_*ay_) / (ax2 + ay2);
+    const T divby = ax2 + ay2;
+    return divby == 0 ? mUdf(T)
+	 : 2 * (ax2_*ax2 + ay2_*ay2 + axy_*ax_*ay_) / divby;
 }
 
 
@@ -123,5 +127,7 @@ inline T Terrain3x3<T>::planformCurvature() const
 {
     const T ax2 = ax_ * ax_;
     const T ay2 = ay_ * ay_;
-    return -2 * (ax2_*ay2 + ay2_*ax2 - axy_*ax_*ay_) / (ax2 + ay2);
+    const T divby = ax2 + ay2;
+    return divby == 0 ? mUdf(T)
+	 : 2 * (ax2_*ay2 + ay2_*ax2 - axy_*ax_*ay_) / divby;
 }
