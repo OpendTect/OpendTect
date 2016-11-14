@@ -34,11 +34,11 @@ Z9 ( 1,-1) => v[6]
 */
 
 template <class T>
-mClass(Algo) Terrain3x3( const float* vals )
+mClass(Algo) Terrain3x3
 {
 public:
-		    Terrain3x3(T dist,const float* zvals=0);
-    void	    set(const float*);
+		    Terrain3x3(T dist,const T* zvals=0);
+    void	    set(const T*);
 			//!< 0=[-1,-1] 1=[-1,0] 2=[-1,1]
 			//!< 3=[ 0,-1] 4=[ 0,0] 5=[ 0,1]
 			//!< 6=[ 1,-1] 7=[ 1,0] 8=[ 1,1]
@@ -56,9 +56,9 @@ public:
 
 
 template <class T>
-inline Terrain3x3::Terrain3x3( T dist, const T* v )
+inline Terrain3x3<T>::Terrain3x3( T dist, const T* v )
     : d_(dist)
-    , d2_(dist*dist);
+    , d2_(dist*dist)
 {
     if ( v )
 	set( v );
@@ -68,7 +68,7 @@ inline Terrain3x3::Terrain3x3( T dist, const T* v )
 
 
 template <class T>
-inline void Terrain3x3::set( const T* v )
+inline void Terrain3x3<T>::set( const T* v )
 {
     ax2y2_ = ( v[4] + (v[2]+v[8]+v[0]+v[6])/4
 	    - (v[5]+v[1]+v[7]+v[3])/4 )				/ (d2_*d2_);
@@ -84,31 +84,33 @@ inline void Terrain3x3::set( const T* v )
 
 
 template <class T>
-inline T Terrain3x3::valueAt( T x, T y ) const
+inline T Terrain3x3<T>::valueAt( T x, T y ) const
 {
     const T x2 = x * x;
     const T y2 = y * y;
-    return a0 + ax*x + ay*y + axy*x*y
-	      + ax2*x2 + ay2*y2
-	      + ax2y*x*y2 + ay2x*y*x2
-	      + ax2y2*x2*y2;
+    return a0_ + ax_*x + ay_*y + axy_*x*y
+	      + ax2_*x2 + ay2_*y2
+	      + ax2y_*x*y2 + ay2x_*y*x2
+	      + ax2y2_*x2*y2;
 }
 
 
 template <class T>
-inline T Terrain3x3::slopeAtOrigin() const
+inline T Terrain3x3<T>::slope() const
 {
     return Math::Sqrt( ax_*ax_ + ay_*ay_ );
 }
 
 
-inline T Terrain3x3::directionAtOrigin() const
+template <class T>
+inline T Terrain3x3<T>::direction() const
 {
     return Math::Atan2( -ay_, -ax_ );
 }
 
 
-inline T Terrain3x3::profileCurvature() const
+template <class T>
+inline T Terrain3x3<T>::profileCurvature() const
 {
     const T ax2 = ax_ * ax_;
     const T ay2 = ay_ * ay_;
@@ -116,7 +118,8 @@ inline T Terrain3x3::profileCurvature() const
 }
 
 
-inline T Terrain3x3::planformCurvature() const
+template <class T>
+inline T Terrain3x3<T>::planformCurvature() const
 {
     const T ax2 = ax_ * ax_;
     const T ay2 = ay_ * ay_;
