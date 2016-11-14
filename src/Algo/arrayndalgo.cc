@@ -287,3 +287,38 @@ void PolyTrend::initCenter( const TypeSet<Coord>& pos )
     posc_.x /= (double)sz;
     posc_.y /= (double)sz;
 }
+
+
+void convertUndefinedIndexList( const TrcKeyZSampling& inptkzs,
+				const TrcKeyZSampling& outtkzs,
+				TypeSet<od_uint64>& undefidxs )
+{
+    if ( inptkzs == outtkzs )
+	return;
+
+    const Array3DInfoImpl infoin( inptkzs.hsamp_.nrLines(),
+				  inptkzs.hsamp_.nrTrcs(), inptkzs.nrZ() );
+    const int nrz = outtkzs.nrZ();
+    int pos[3];
+    for ( od_int64 idx=undefidxs.size()-1; idx>=0; idx-- )
+    {
+	infoin.getArrayPos( undefidxs[idx], pos );
+	const TrcKey tk( inptkzs.hsamp_.trcKeyAt( pos[0], pos[1] ) );
+	if ( !outtkzs.hsamp_.includes(tk) )
+	{
+	    undefidxs.removeSingle( idx );
+	    continue;
+	}
+
+	const float z = inptkzs.zsamp_.atIndex( pos[2] );
+	if ( !outtkzs.zsamp_.includes(z,false) )
+	{
+	    undefidxs.removeSingle( idx );
+	    continue;
+	}
+
+	const od_int64 hidx = outtkzs.hsamp_.globalIdx( tk );
+	const int zidx = outtkzs.zsamp_.nearestIndex( z );
+	undefidxs[idx] = hidx*nrz + zidx;
+    }
+}
