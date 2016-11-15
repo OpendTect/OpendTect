@@ -54,8 +54,8 @@ public:
     void		setWellExtractParams(const Well::ExtractParams&);
 
     void		update(); //call this when data changed
-    const bool		isWellExtractParamsUsed() 
-			{ return wellextractparamsfld_ ? true : false; }
+    bool		isWellExtractParamsUsed() const
+			{ return wellextractparamsfld_; }
 protected:
 
     ObjectSet<IOObj>	wellobjs_;

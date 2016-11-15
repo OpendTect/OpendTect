@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class SurveyInfo;
 class uiButton;
+class uiTabStack;
 class uiTextEdit;
 class uiComboBox;
 class uiLineEdit;
