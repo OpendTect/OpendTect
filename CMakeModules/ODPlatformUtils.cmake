@@ -83,6 +83,18 @@ if(UNIX) #Apple an Linux
 	    endif()
 
 	    set ( CMAKE_CXX_FLAGS "-Wno-non-template-friend ${CMAKE_CXX_FLAGS}" )
+
+	    #Compile time optimization
+	    if ( GCC_VERSION VERSION_LESS 4.8 )
+		set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mtune=nocona" )
+		if ( GCC_VERSION VERSION_LESS 4.3 )
+		    set ( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -ftree-vectorize" )
+		endif()
+	    else()
+		set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mtune=core-avx2" )
+	    endif()
+
+
 	endif(CMAKE_COMPILER_IS_GNUCC)
 
 	#Make all targets look for dependent libraries in the same location as they are in
