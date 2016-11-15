@@ -47,7 +47,8 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
     setOkText( uiStrings::sContinue() );
     uiWellExtractParams::Setup su;
     su.withzintime_ = su.withextractintime_ = false;
-    welllogselfld_ = new uiMultiWellLogSel( this, su, welllnms, lognms );
+    welllogselfld_ = new uiMultiWellLogSel( this, false, &su, welllnms, 
+								      lognms );
     welllogselfld_->selectOnlyWritableWells();
 }
 
@@ -75,8 +76,9 @@ bool uiWellLogToolWinMgr::acceptOK()
 	Well::LogSet* wls = new Well::LogSet( wd->logs() );
 	uiWellLogToolWin::LogData* ldata =
 	    new uiWellLogToolWin::LogData( *wls,wd->d2TModelPtr(),&wd->track());
-	const Well::ExtractParams& params = welllogselfld_->params();
-	ldata->dahrg_ = params.calcFrom( *wd, lognms, true );
+	const Well::ExtractParams* params = welllogselfld_->
+							getWellExtractParams();
+	ldata->dahrg_ = params->calcFrom( *wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
 	if ( !ldata->setSelectedLogs( lognms ) )
 	    { delete ldata; continue; }
@@ -700,8 +702,6 @@ void uiWellLogEditor::rowInsertCB( CallBacker* cb )
 	nextmdval = log_.dah( log_.pointIDFor(rownr) );
 
     log_.setValueAt( (prevmdval+nextmdval)/2, 0 );
-    //Well::Log::PointID pid  = log_.pointIDFor(log_.indexOf((prevmdval+nextmdval)/2));
-    //log_.addValue(
 
     valueChanged.trigger();
 }

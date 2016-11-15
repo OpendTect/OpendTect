@@ -70,6 +70,7 @@ public:
     PointID		lastID() const;
     PointID		nextID(PointID) const;
     PointID		prevID(PointID) const;
+    PointID		nearestID(ZType) const ;
 
     void		setEmpty();
     void		setDah(PointID,ZType);

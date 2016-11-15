@@ -8,7 +8,7 @@
 #include "uiwellloginterpolator.h"
 #include "wellloginterpolator.h"
 
-#include "gridder2d.h"
+#include "uigridder2d.h"
 #include "survinfo.h"
 #include "volprocchain.h"
 
@@ -46,43 +46,15 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
     logextenfld_->attach( alignedBelow, extensfld_ );
 
     uiWellExtractParams::Setup su;
-    su.singlelog(true).withextractintime(false).withsampling(true);
-    welllogsel_ = new uiMultiWellLogSel( this, su );
+    su.withextractintime(false).withsampling(true);
+     
+    welllogsel_ = new uiMultiWellLogSel( this, true, &su );
     welllogsel_->attach( alignedBelow, logextenfld_ );
 
-    uiStringSet algos;
-    algos += InverseDistanceGridder2D::sFactoryDisplayName();
-    algos += TriangulatedGridder2D::sFactoryDisplayName();
-    algos += RadialBasisFunctionGridder2D::sFactoryDisplayName();
-    algosel_ = new uiGenInput( this, tr("Algorithm"), StringListInpSpec(algos));
+    algosel_ = new uiGridder2DSel( this, hwi.getGridder() );
     algosel_->attach( alignedBelow, welllogsel_ );
 
-    const uiString radiustxt = tr("Search radius %1")
-            .arg( uiStrings::sDistUnitString(SI().xyInFeet(),true, true));
-    radiusfld_ = new uiGenInput( this, radiustxt, FloatInpSpec() );
-    radiusfld_->attach( alignedBelow, algosel_ );
-    radiusfld_->setWithCheck( true );
-
-    const BufferString nm = hwinterpolator_.getGridderName();
-    if ( nm == RadialBasisFunctionGridder2D::sFactoryKeyword() )
-	algosel_->setText( algos[2].getFullString() );
-    else if ( nm == TriangulatedGridder2D::sFactoryKeyword() )
-	algosel_->setText( algos[1].getFullString() );
-    else
-    {
-	algosel_->setText( algos[0].getFullString() );
-	const float radius = hwinterpolator_.getSearchRadius();
-	if ( mIsUdf(radius) )
-	    radiusfld_->setChecked( false );
-	else
-	{
-	    radiusfld_->setChecked( true );
-	    radiusfld_->setValue( radius );
-	}
-    }
-    algosel_->valuechanged.notify( mCB(this,uiWellLogInterpolator,algoChg) );
-
-    addNameFld( radiusfld_ );
+    addNameFld( algosel_ );
 
     postFinalise().notify( mCB(this,uiWellLogInterpolator,finaliseCB) );
 }
@@ -108,12 +80,6 @@ uiStepDialog* uiWellLogInterpolator::createInstance( uiParent* p, Step* vs,
 }
 
 
-void uiWellLogInterpolator::algoChg( CallBacker* )
-{
-    radiusfld_->display( !algosel_->getIntValue() );
-}
-
-
 bool uiWellLogInterpolator::acceptOK()
 {
     if ( !uiStepDialog::acceptOK() )
@@ -126,13 +92,7 @@ bool uiWellLogInterpolator::acceptOK()
     hwinterpolator_.extensionMethod(
 	    (WellLogInterpolator::ExtensionModel)extensfld_->getIntValue() );
 
-    const bool validrad =  !algosel_->getIntValue() &&
-	radiusfld_->isChecked() && !mIsUdf(radiusfld_->getFValue());
-    const float radius = validrad ? radiusfld_->getFValue() : mUdf(float);
-    const char* nm = !algosel_->getIntValue()
-	? InverseDistanceGridder2D::sFactoryKeyword()
-	: TriangulatedGridder2D::sFactoryKeyword();
-    hwinterpolator_.setGridder( nm, radius );
+    hwinterpolator_.setGridder( algosel_->getSel() );
 
     DBKeySet wellids;
     BufferStringSet lognms;
@@ -147,6 +107,9 @@ bool uiWellLogInterpolator::acceptOK()
     }
 
     hwinterpolator_.setWellData( wellids, lognms.get(0) );
+    if ( welllogsel_->isWellExtractParamsUsed() )
+	hwinterpolator_.setWellExtractParams( 
+					 *welllogsel_->getWellExtractParams() );
     return true;
 }
 
@@ -160,6 +123,8 @@ void uiWellLogInterpolator::initWellLogSel()
     BufferStringSet lognms;
     lognms.add( hwinterpolator_.getLogName() );
     welllogsel_->setSelLogNames( lognms );
+    if ( welllogsel_->isWellExtractParamsUsed() )
+	welllogsel_->setWellExtractParams( hwinterpolator_.getSelParams() );
 }
 
 } // namespace VolProc

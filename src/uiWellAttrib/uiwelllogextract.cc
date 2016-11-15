@@ -54,10 +54,10 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 	, setup_(setup)
 {
     welllogselfld_ =
-	new uiMultiWellLogSel( this, uiWellExtractParams::Setup()
+	new uiMultiWellLogSel( this, setup.singlelog_, 
+					&uiWellExtractParams::Setup()
 					.withsampling(true).withzstep(true)
 					.withextractintime(SI().zIsTime())
-					.singlelog(setup.singlelog_)
 					.prefpropnm(setup.prefpropnm_));
 
     uiListBox::Setup asu( OD::ChooseZeroOrMore, uiStrings::sAttribute(mPlural));
@@ -176,7 +176,7 @@ bool uiWellLogExtractGrp::extractWellData( const DBKeySet& ioobjids,
     wts.for2d_ = false; wts.lognms_ = lognms;
     wts.locradius_ = !radiusfld_ ? 0.f : radiusfld_->getFValue();
     wts.mkdahcol_ = true;
-    wts.params_ = welllogselfld_->params();
+    wts.params_ = *welllogselfld_->getWellExtractParams();
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, wts ) )
 	return false;
@@ -202,7 +202,7 @@ bool uiWellLogExtractGrp::extractWellData( const DBKeySet& ioobjids,
     {
 	Well::LogDataExtracter wlde( ioobjids, dpss, SI().zIsTime() );
 	wlde.lognm_ = lognms.get(idx);
-	wlde.samppol_ = welllogselfld_->params().samppol_;
+	wlde.samppol_ = welllogselfld_->getWellExtractParams()->samppol_;
 	if ( !TaskRunner::execute( &taskrunner, wlde ) )
 	    return false;
     }

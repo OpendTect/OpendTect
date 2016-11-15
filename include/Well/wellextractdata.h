@@ -83,7 +83,10 @@ public:
     const char*		topMarker() const	{ return topmrkr_; }
     const char*		botMarker() const	{ return botmrkr_; }
     Interval<ZType>	getFixedRange() const	{ return fixedzrg_; }
+    void		getDahRange(const Data&,Interval<ZType>&);
+
     bool		isInTime() const	{ return zselection_ == Times; }
+    virtual ZRangeSelector* clone() const; 
 
 protected:
 
@@ -125,6 +128,7 @@ public:
     float		zstep_; //can be in time
     bool		extractzintime_;
     Stats::UpscaleType	samppol_;
+    virtual ZRangeSelector* clone() const;
 };
 
 

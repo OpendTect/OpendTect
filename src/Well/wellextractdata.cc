@@ -197,6 +197,12 @@ void Well::ZRangeSelector::fillPar( IOPar& pars ) const
 }
 
 
+Well::ZRangeSelector* Well::ZRangeSelector::clone() const
+{
+    return new Well::ZRangeSelector( *this );
+}
+
+
 void Well::ZRangeSelector::setFixedRange( Interval<ZType> zrg, bool isintime )
 {
     fixedzrg_ = zrg; zselection_ = isintime ? Times : Depths;
@@ -329,6 +335,24 @@ void Well::ZRangeSelector::getMarkerRange( const Data& wd,
 }
 
 
+void Well::ZRangeSelector::getDahRange( const Well::Data& wd, 
+						   Interval<ZType>& zrg )
+{
+    if ( zselection_ == Markers )
+    {
+	getLimitPos(wd.markers(),true,zrg.start,zrg);
+	getLimitPos(wd.markers(),false,zrg.stop,zrg);
+    }
+    else if ( isInTime() )
+    {
+	zrg.start = wd.d2TModel().getDah( fixedzrg_.start,  wd.track() );
+	zrg.stop = wd.d2TModel().getDah( fixedzrg_.stop,  wd.track() );
+    }
+    else
+	zrg = fixedzrg_;   
+}
+
+
 void Well::ZRangeSelector::getLimitPos( const MarkerSet& markers,
 				      bool isstart, ZType& val,
 				      const Interval<ZType>& zrg ) const
@@ -376,6 +400,12 @@ bool Well::ExtractParams::isOK( uiString* errmsg ) const
 	 mErrRet( uiStrings::phrEnter(tr("a valid step value")) );
 
     return ZRangeSelector::isOK( errmsg );
+}
+
+
+Well::ZRangeSelector* Well::ExtractParams::clone() const
+{
+    return new Well::ExtractParams( *this );
 }
 
 
@@ -465,7 +495,7 @@ int Well::TrackSampler::nextStep()
     if ( zrg_.isUdf() )
 	mRetNext()
 
-    getData( *wd, *dps );
+    getData( *wd, *dps );		   
     mRetNext();
 }
 
@@ -803,7 +833,14 @@ void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
 float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 				   float winsz, Stats::UpscaleType samppol )
 {
+    if ( samppol == Stats::TakeNearest )
+    {
+	Well::DahObj::PointID pid = wl.nearestID( dah );
+	return wl.value( pid );
+    }
+
     const bool logisvel = wl.propType() == PropertyRef::Vel;
+
     Interval<float> rg( dah-winsz, dah+winsz ); rg.sort();
     TypeSet<float> vals;
     int startidx = wl.indexOf( rg.start );

@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "uivolprocstepdlg.h"
 #include "bufstringset.h"
 #include "wellloginterpolator.h"
+#include "uiwellextractparams.h"
 
-class uiGenInput;
+class uiGridder2DSel;
 class uiInterpolationLayerModel;
 class uiMultiWellLogSel;
 
@@ -40,14 +41,12 @@ protected:
 
     void			finaliseCB(CallBacker*);
     bool			acceptOK();
-    void			algoChg(CallBacker*);
     void			initWellLogSel();
 
     WellLogInterpolator&	hwinterpolator_;
 
     uiInterpolationLayerModel*	layermodelfld_;
-    uiGenInput*			algosel_;
-    uiGenInput*			radiusfld_;
+    uiGridder2DSel*		algosel_;
     uiGenInput*			extensfld_;
     uiGenInput*			logextenfld_;
     uiMultiWellLogSel*		welllogsel_;

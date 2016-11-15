@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "volumeprocessingmod.h"
 #include "volprocstep.h"
-
+#include "wellextractdata.h"
 #include "enums.h"
 #include "dbkey.h"
 class BufferStringSet;
@@ -44,18 +44,23 @@ public:
 
     bool			is2D() const;
 
-    void			setWellData(const DBKeySet&,
-					    const char* lognm);
     void			getWellNames(BufferStringSet&) const;
     void			getWellIDs(DBKeySet&) const;
     const char*			getLogName() const;
-
-    void			setGridder(const char* nm,float radius=0);
     const char*			getGridderName() const;
     float			getSearchRadius() const;
-
-    void			setLayerModel(InterpolationLayerModel*);
+    const Gridder2D*		getGridder() { return gridder_; }
     const InterpolationLayerModel* getLayerModel() const;
+    const Well::ExtractParams& getSelParams(); 
+
+    void			setGridder(const char* nm,float radius=0);
+    void			setGridder(const Gridder2D*);
+    void			setWellData(const DBKeySet&,
+					    const char* lognm); 
+    void			setWellExtractParams(
+						    const Well::ExtractParams&);
+    void			setLayerModel(InterpolationLayerModel*);
+
 
     enum ExtensionModel		{ None, EdgeValueOnly, ExtrapolateEdgeValue };
 				mDeclareEnumUtils(ExtensionModel)
@@ -87,8 +92,9 @@ protected:
     InterpolationLayerModel*	layermodel_;
     Gridder2D*			gridder_;
     ObjectSet<WellLogInfo>	infos_;
-    DBKeySet		wellmids_;
+    DBKeySet			wellmids_;
     BufferString		logname_;
+    Well::ExtractParams		params_;
 
     ExtensionModel		extension_;
     bool			extlog_;

@@ -18,6 +18,7 @@ set(OD_MODULE_SOURCES
 		uiwelldisplaycontrol.cc
 		uiwelldisplaymarkeredit.cc
 		uiwelldlgs.cc
+		uiwellextractparams.cc
 		uiwellimpasc.cc
 		uiwelllogcalc.cc
 		uiwelllogimpexp.cc

@@ -81,6 +81,21 @@ Well::DahObj::PointID Well::DahObj::prevID( PointID id ) const
     return gtNeighbourID( id, false );
 }
 
+Well::DahObj::PointID Well::DahObj::nearestID( float dah ) const 
+{
+    mLock4Read();
+    IdxType idx = gtIndexOf( dah );
+    if ( idx <= 0 )
+	return firstID();
+    else if ( idx >= size()-1 ) 
+	return lastID();
+
+    const float diffprevval = dah - gtVal( idx );
+    const float diffnextval = gtVal( idx+1 ) - dah;
+
+    return diffprevval > diffnextval ? pointIDFor( idx+1 ) : pointIDFor( idx );
+}
+
 
 Well::DahObj::PointID Well::DahObj::gtNeighbourID( PointID id, bool next ) const
 {

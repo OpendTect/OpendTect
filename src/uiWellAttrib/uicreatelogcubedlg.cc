@@ -37,8 +37,8 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const DBKey* key )
     const bool validinpwell = key && key->isValid();
     uiWellExtractParams::Setup su;
     su.withzstep(false).withsampling(true).withextractintime(false);
-    welllogsel_ = validinpwell ? new uiMultiWellLogSel( this, su, *key )
-			       : new uiMultiWellLogSel( this, su );
+    welllogsel_ = validinpwell ? new uiMultiWellLogSel( this, false, *key, &su )
+			       : new uiMultiWellLogSel( this, false, &su );
 
     outputgrp_ = new uiCreateLogCubeOutputSel( this, validinpwell );
     outputgrp_->attach( alignedBelow, welllogsel_ );
@@ -50,7 +50,8 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const DBKey* key )
 
 bool uiCreateLogCubeDlg::acceptOK()
 {
-    const Well::ExtractParams& extractparams = welllogsel_->params();
+    const Well::ExtractParams* extractparams = welllogsel_->
+							getWellExtractParams();
     const int nrtrcs = outputgrp_->getNrRepeatTrcs();
 
     DBKeySet wids;
@@ -60,7 +61,7 @@ bool uiCreateLogCubeDlg::acceptOK()
 
     BufferStringSet lognms;
     welllogsel_->getSelLogNames( lognms );
-    LogCubeCreator lcr( lognms, wids, extractparams, nrtrcs );
+    LogCubeCreator lcr( lognms, wids, *extractparams, nrtrcs );
     if ( !lcr.setOutputNm(outputgrp_->getPostFix(),outputgrp_->withWellName()) )
     {
 	if ( !outputgrp_->askOverwrite(lcr.errMsg()) )
