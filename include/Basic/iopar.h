@@ -14,11 +14,13 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "fixedstring.h"
 #include "samplingdata.h"
+#include "idxpair.h"
 #include "integerid.h"
+#include "groupedid.h"
+#include "geometry.h"
 #include "od_iosfwd.h"
 
 class BufferStringSet;
-class RowCol;
 class SeparString;
 class ascistream;
 class ascostream;
@@ -42,6 +44,10 @@ class uiString;
   dumpPretty() is used for reports.  The title of the report is the name of the
   IOPar. If sKeyHdr and sKeySubHdr are the key, there will be a (sub)header
   with the value. Use add() rather than set(). Values may contain newlines.
+
+  A lot of classes will be served by template functions, like BinID, RowCol,
+  Coord, ...
+
 */
 
 mExpClass(Basic) IOPar : public NamedObject
@@ -137,8 +143,6 @@ public:
     inline bool		isFalse( const char* key ) const
 			{ bool is = true; return getYN(key,is) && !is; }
 
-    template<class IdxType>
-    bool		get(const char*,IntegerID<IdxType>&) const;
 
     bool		get(const char*,int&,int&,float&) const;
 
@@ -149,11 +153,20 @@ public:
     bool		get(const char*,TypeSet<double>&) const;
     bool		get(const char*,TypeSet<float>&) const;
 
-    bool		get(const char*,BinID&) const;
-    bool		get(const char*,RowCol&) const;
+    template <class iT>
+    inline bool		get(const char*,IntegerID<iT>&) const;
+    template <class fT>
+    inline bool		get(const char*,Geom::Point2D<fT>&) const;
+    template <class fT>
+    inline bool		get(const char*,Geom::Point3D<fT>&) const;
+    template <class T>
+    inline bool		get(const char*,Interval<T>&) const;
+    template <class T>
+    inline bool		get(const char*,SamplingData<T>&) const;
+    template <class T1,class T2>
+    inline bool		get(const char*,std::pair<T1,T2>&) const;
+
     bool		get(const char*,TrcKey&) const;
-    bool		get(const char*,Coord&) const;
-    bool		get(const char*,Coord3&) const;
     bool		get(const char*,DBKey&) const;
     bool		get(const char*,Color&) const;
     bool		get(const char*,SeparString&) const;
@@ -163,10 +176,6 @@ public:
     bool		get(const char*,BufferString&,BufferString&,
 					BufferString&) const;
     bool		get(const char*,BufferStringSet&) const;
-    template <class T>
-    bool		get(const char*,Interval<T>&) const;
-    template <class T>
-    bool		get(const char*,SamplingData<T>&) const;
 
     bool		getPtr(const char*,void*&) const;
 
@@ -223,10 +232,21 @@ public:
 			mIOParDeclYNFns(add);
 #undef mIOParDeclYNFns
 
-    template<class IdxType>
-    void		set(const char*,IntegerID<IdxType>);
-    template<class IdxType>
-    void		update(const char*,IntegerID<IdxType>);
+    template<class iT>
+    inline void		set(const char*,IntegerID<iT>);
+    template <class fT>
+    inline void		set(const char*,const Geom::Point2D<fT>&);
+    template <class fT>
+    inline void		set(const char*,const Geom::Point3D<fT>&);
+    template <class T>
+    inline void		set(const char*,const Interval<T>&);
+    template <class T>
+    inline void		set(const char*,const SamplingData<T>&);
+    template <class T1,class T2>
+    inline void		set(const char*,const std::pair<T1,T2>&);
+
+    template<class iT>
+    inline void		update(const char*,IntegerID<iT>);
     void		update(const char*,const DBKey&);
 
     void		set(const char*,int,int,float);
@@ -234,11 +254,7 @@ public:
 
     void		set(const char*,const char*,const char*);
     void		set(const char*,const char*,const char*,const char*);
-    void		set(const char*,const BinID&);
-    void		set(const char*,const RowCol&);
     void		set(const char*,const TrcKey&);
-    void		set(const char*,const Coord&);
-    void		set(const char*,const Coord3&);
     void		set(const char*,const DBKey&);
     void		set(const char*,const Color&);
     void		set(const char*,const SeparString&);
@@ -250,10 +266,6 @@ public:
 					const OD::String&,
 					const OD::String&);
     void		set(const char*,const BufferStringSet&);
-    template <class T>
-    void		set(const char*,const Interval<T>&);
-    template <class T>
-    void		set(const char*,const SamplingData<T>&);
 
     void		set(const char*,const TypeSet<int>&);
     void		set(const char*,const TypeSet<od_uint32>&);
@@ -315,59 +327,102 @@ protected:
 
 
 template <class T>
-inline bool IOPar::get( const char* ky, Interval<T>& intv ) const
+inline bool IOPar::get( const char* keyw, Interval<T>& intv ) const
 {
     mDynamicCastGet(StepInterval<T>*,si,&intv)
-    return si ? get( ky, intv.start, intv.stop, si->step )
-	      : get( ky, intv.start, intv.stop );
+    return si ? get( keyw, intv.start, intv.stop, si->step )
+	      : get( keyw, intv.start, intv.stop );
 }
 
 
 template <class T>
-inline void IOPar::set( const char* ky, const Interval<T>& intv )
+inline void IOPar::set( const char* keyw, const Interval<T>& intv )
 {
     mDynamicCastGet(const StepInterval<T>*,si,&intv)
-    if ( si )	set( ky, intv.start, intv.stop, si->step );
-    else	set( ky, intv.start, intv.stop );
+    if ( si )	set( keyw, intv.start, intv.stop, si->step );
+    else	set( keyw, intv.start, intv.stop );
 }
 
 
 template <class T>
-inline bool IOPar::get( const char* ky, SamplingData<T>& sd ) const
+inline bool IOPar::get( const char* keyw, SamplingData<T>& sd ) const
 {
-    return get( ky, sd.start, sd.step );
+    return get( keyw, sd.start, sd.step );
 }
 
 
 template <class T>
-inline void IOPar::set( const char* ky, const SamplingData<T>& sd )
+inline void IOPar::set( const char* keyw, const SamplingData<T>& sd )
 {
-    set( ky, sd.start, sd.step );
+    set( keyw, sd.start, sd.step );
 }
 
-template<class IdxType>
-bool IOPar::get( const char* ky, IntegerID<IdxType>& id ) const
+
+template<class iT>
+bool IOPar::get( const char* keyw, IntegerID<iT>& id ) const
 {
-    IdxType idio = id.getI();
-    const bool rv = get( ky, idio );
+    iT idio = id.getI();
+    const bool rv = get( keyw, idio );
     if ( rv )
 	id.setI( idio );
     return rv;
 }
 
 
-template<class IdxType>
-void IOPar::set( const char* ky, IntegerID<IdxType> id )
+template<class iT>
+void IOPar::set( const char* keyw, IntegerID<iT> id )
 {
-    set( ky, id.getI() );
+    set( keyw, id.getI() );
 }
 
 
-template<class IdxType>
-void IOPar::update( const char* ky, IntegerID<IdxType> id )
+template<class iT>
+void IOPar::update( const char* keyw, IntegerID<iT> id )
 {
     if ( id.isInvalid() )
-	removeWithKey( ky );
+	removeWithKey( keyw );
     else
-	set( ky, id.getI() );
+	set( keyw, id.getI() );
+}
+
+
+template <class fT>
+bool IOPar::get( const char* keyw, Geom::Point2D<fT>& crd ) const
+{
+    return get( keyw, crd.x_, crd.y_ );
+}
+
+
+template <class fT>
+bool IOPar::get( const char* keyw, Geom::Point3D<fT>& crd ) const
+{
+    return get( keyw, crd.x_, crd.y_, crd.z_ );
+}
+
+
+template<class fT>
+void IOPar::set( const char* keyw, const Geom::Point2D<fT>& crd )
+{
+    set( keyw, crd.x_, crd.y_ );
+}
+
+
+template<class fT>
+void IOPar::set( const char* keyw, const Geom::Point3D<fT>& crd )
+{
+    set( keyw, crd.x_, crd.y_, crd.z_ );
+}
+
+
+template <class T1,class T2>
+bool IOPar::get( const char* keyw, std::pair<T1,T2>& p ) const
+{
+    return get( keyw, p.first, p.second );
+}
+
+
+template<class T1,class T2>
+void IOPar::set( const char* keyw, const std::pair<T1,T2>& p )
+{
+    set( keyw, p.first, p.second );
 }

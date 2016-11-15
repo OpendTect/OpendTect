@@ -897,22 +897,6 @@ void IOPar::setPtr( const char* keyw, void* ptr )
 }
 
 
-bool IOPar::get( const char* keyw, Coord& crd ) const
-{ return get( keyw, crd.x_, crd.y_ ); }
-void IOPar::set( const char* keyw, const Coord& crd )
-{ set( keyw, crd.x_, crd.y_ ); }
-
-bool IOPar::get( const char* keyw, Coord3& crd ) const
-{ return get( keyw, crd.x_, crd.y_, crd.z_ ); }
-void IOPar::set( const char* keyw, const Coord3& crd )
-{ set( keyw, crd.x_, crd.y_, crd.z_ ); }
-
-bool IOPar::get( const char* keyw, BinID& binid ) const
-{ return get( keyw, binid.inl(), binid.crl() ); }
-void IOPar::set( const char* keyw, const BinID& binid )
-{ set( keyw, binid.inl(), binid.crl() ); }
-
-
 bool IOPar::get( const char* keyw, TrcKey& tk ) const
 {
     TrcKey::SurvID sid;
@@ -939,14 +923,6 @@ bool IOPar::get( const char* keyw, SeparString& ss ) const
 }
 
 
-bool IOPar::get( const char* keyw, BufferString& bs ) const
-{
-    mGetStartAllowEmpty(pval);
-    bs = pval;
-    return true;
-}
-
-
 bool IOPar::get( const char* keyw, uiString& uis ) const
 {
     BufferString hex;
@@ -958,6 +934,14 @@ bool IOPar::get( const char* keyw, uiString& uis ) const
 	return false;
 
     uis = res;
+    return true;
+}
+
+
+bool IOPar::get( const char* keyw, BufferString& bs ) const
+{
+    mGetStartAllowEmpty(pval);
+    bs = pval;
     return true;
 }
 

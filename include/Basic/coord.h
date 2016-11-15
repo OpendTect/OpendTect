@@ -17,9 +17,7 @@ ________________________________________________________________________
 
 namespace Values {
 
-/*!
-\brief Undefined Coord2d.
-*/
+/*!\brief Undefined Coord2d. */
 
 template<>
 mClass(Basic) Undef<Coord2d>
@@ -32,9 +30,7 @@ public:
 };
 
 
-/*!
-\brief Undefined Coord3d.
-*/
+/*!\brief Undefined Coord3d. */
 
 template<>
 mClass(Basic) Undef<Coord3d>
@@ -74,5 +70,3 @@ public:
 };
 
 } // namespace Values
-
-
