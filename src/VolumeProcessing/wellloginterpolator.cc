@@ -290,7 +290,6 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 	return true;
 
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-    const TrcKeySampling& hs1 = output->sampling().hsamp_;
     Array3D<float>& outputarray = output->data(0);
     const int lastzidx = outputarray.info().getSize(2) - 1;
 
