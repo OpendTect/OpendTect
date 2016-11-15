@@ -238,7 +238,7 @@ uiString TaskGroup::uiMessage() const
 {
     Threads::Locker locker( lock_ );
     if ( !tasks_.validIdx(curtask_) )
-	return uiStrings::sProcessing();
+	return uiString::emptyString();
 
     return tasks_[curtask_]->uiMessage();
 }
