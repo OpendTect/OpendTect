@@ -38,6 +38,7 @@ public:
     void		setCurrentTab(int idx);
     int			currentTabId() const;
     uiString		textOfTab(int idx) const;
+    void		setTabIcon(int idx,const char*);
     
     int			size() const;
 

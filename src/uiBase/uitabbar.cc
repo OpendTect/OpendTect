@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uitabbar.h"
 #include "uiobjbody.h"
+#include "uiicon.h"
 
 #include "i_qtabbar.h"
 
@@ -119,6 +120,13 @@ void uiTabBar::setCurrentTab( int idx )
 {
     mBlockCmdRec;
     body_->setCurrentIndex( idx );
+}
+
+
+void uiTabBar::setTabIcon( int idx, const char* icnnm )
+{
+    const uiIcon icon( icnnm );
+    body_->setTabIcon( idx, icon.qicon() );
 }
 
 

@@ -47,6 +47,8 @@ public:
     void		setCurrentPage(int id);
     void		setCurrentPage(uiGroup*);
     void		setCurrentPage(const char* grpnm);
+    void		setTabIcon(int id,const char* icnnm);
+    void		setTabIcon(uiGroup*,const char* icnnm);
 
     uiGroup*		currentPage() const;
     uiGroup* 		page(int idx) const;

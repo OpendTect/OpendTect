@@ -119,6 +119,19 @@ void uiTabStack::setCurrentPage( const char* grpnm )
 }
 
 
+void uiTabStack::setTabIcon( int idx, const char* icnnm )
+{
+    tabbar_->setTabIcon( idx, icnnm );
+}
+
+
+void uiTabStack::setTabIcon( uiGroup* grp, const char* icnnm )
+{
+    const int idx = indexOf( grp );
+    setTabIcon( idx, icnnm );
+}
+
+
 uiGroup* uiTabStack::currentPage() const
 { return page( currentPageId() ); }
 
