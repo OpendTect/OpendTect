@@ -76,6 +76,7 @@ protected:
     ObjectSet<uiButton>	utilbuts_;
     uiTextEdit*		infofld_;
     uiTextEdit*		notesfld_;
+    uiTabStack*		infotabs_;
     uiString		rootdirnotwritablestr_;
 
     bool		acceptOK();
@@ -104,6 +105,7 @@ private:
 
     void		mkSurvManTools();
     void		mkSurvMapWithUtils();
+    void		mkInfoTabs();
 
 };
 

@@ -184,33 +184,11 @@ uiSurveyManager::uiSurveyManager( uiParent* p, bool standalone )
 
     mkSurvManTools();
     mkSurvMapWithUtils();
-
-    uiGroup* infogrp = new uiGroup( this, "Info group" );
-    uiLabel* infolbl = new uiLabel( infogrp, uiString::emptyString() );
-    infolbl->setPixmap( uiPixmap("info") );
-    infolbl->setToolTip( tr("Survey Information") );
-    infofld_ = new uiTextEdit( infogrp, "Info", true );
-    infofld_->setPrefHeightInChar( 7 );
-    infofld_->setStretch( 2, 1 );
-    infofld_->attach( rightTo, infolbl );
-
-    uiGroup* commentgrp = new uiGroup( this, "Comment Group" );
-    uiLabel* notelbl = new uiLabel( commentgrp, uiStrings::sEmptyString() );
-    notelbl->setPixmap( uiPixmap("notes") );
-    notelbl->setToolTip( tr("Notes") );
-    notelbl->setMaximumWidth( 32 );
-
-    notesfld_ = new uiTextEdit( commentgrp, "Survey Notes" );
-    notesfld_->attach( rightTo, notelbl );
-    notesfld_->setPrefHeightInChar( 5 );
-    notesfld_->setStretch( 2, 2 );
-
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
-    splitter->addGroup( infogrp );
-    splitter->addGroup( commentgrp );
-    splitter->attach( ensureBelow, survdirfld_ );
-    splitter->attach( ensureBelow, &survmap_->attachGroup() );
-    splitter->attach( ensureBelow, survmanbuts_ );
+    mkInfoTabs();
+    
+    infotabs_->attach( ensureBelow, survdirfld_ );
+    infotabs_->attach( ensureBelow, &survmap_->attachGroup() );
+    infotabs_->attach( ensureBelow, survmanbuts_ );
 
     putToScreen();
 
@@ -287,6 +265,25 @@ void uiSurveyManager::mkSurvMapWithUtils()
 	lastbut = but;
     }
     survmap_->attachGroup().attach( rightOf, editbut_->parent() );
+}
+
+
+void uiSurveyManager::mkInfoTabs()
+{
+    infotabs_ = new uiTabStack( this, "Survey Info" );
+    uiGroup* infogrp = new uiGroup( infotabs_->tabGroup(), "Info" );
+    infofld_ = new uiTextEdit( infogrp, "Info", true );
+    infofld_->setPrefHeightInChar( 7 );
+    infofld_->setStretch( 2, 1 );
+    infotabs_->addTab( infogrp );
+    infotabs_->setTabIcon( infogrp, "info" );
+
+    uiGroup* commentgrp = new uiGroup( infotabs_->tabGroup(), "Comment" );
+    notesfld_ = new uiTextEdit( commentgrp, "Survey Notes" );
+    notesfld_->setPrefHeightInChar( 5 );
+    notesfld_->setStretch( 2, 2 );
+    infotabs_->addTab( commentgrp );
+    infotabs_->setTabIcon( commentgrp, "notes" );
 }
 
 
