@@ -297,7 +297,8 @@ void uiSeisFileMan::mkFileInfo()
 				       cs.hsamp_.crlRange() );
 	    txt.add("\nArea: ").add( getAreaString( area, true, 0 ) );
 
-	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
+	    const BufferString rgstr = mFromUiStringTodo(zddef.getRange());
+	    txt.add("\n").add(rgstr)
 		.add(zddef.unitStr(true).getFullString())
 		.add(": ") mAddZValTxt(cs.zsamp_.start)
 		.add(" - ") mAddZValTxt(cs.zsamp_.stop)
