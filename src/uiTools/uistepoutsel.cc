@@ -120,7 +120,7 @@ void uiStepOutSel::setBinID( const BinID& bid )
 }
 
 
-void uiStepOutSel::setInterval( StepInterval<int> inlrg, 
+void uiStepOutSel::setInterval( StepInterval<int> inlrg,
 				StepInterval<int> crlrg )
 {
     fld1_->setInterval( inlrg );
@@ -149,7 +149,7 @@ void uiStepOutSel::valChanging( CallBacker* cb )
 
 //-----------------------------------------------------------------------------
 
-uiStepout3DSel::uiStepout3DSel( uiParent* p, const uiStepOutSel::Setup& setup ) 
+uiStepout3DSel::uiStepout3DSel( uiParent* p, const uiStepOutSel::Setup& setup )
 	: uiStepOutSel( p, setup )
 {
     fld3_ = new uiSpinBox( this, 0, "Z" );
@@ -159,20 +159,20 @@ uiStepout3DSel::uiStepout3DSel( uiParent* p, const uiStepOutSel::Setup& setup )
 }
 
 
-uiStepout3DSel::uiStepout3DSel( uiParent* p, bool single, 
-							const uiString& seltxt )
+uiStepout3DSel::uiStepout3DSel( uiParent* p, bool single,
+				const uiString& seltxt )
     : uiStepOutSel( p, single, seltxt )
-{                                                                               
-    fld3_ = new uiSpinBox( this, 0, "Z" );                                      
+{
+    fld3_ = new uiSpinBox( this, 0, "Z" );
     fld3_->setPrefix( mkPrefx(uiStrings::sZ()) );
     fld3_->attach( rightOf, fld2_ ? fld2_ : fld1_ );
 
     setHAlignObj( fld1_ );
-}                                                                               
-                                                                                
-                                                                                
-int uiStepout3DSel::val( int dir ) const                                        
-{                                                                               
+}
+
+
+int uiStepout3DSel::val( int dir ) const
+{
     return dir<2 ? uiStepOutSel::val( dir == 0 ) : fld3_->getIntValue();
 }
 
@@ -196,17 +196,17 @@ void uiStepout3DSel::setVals( int value )
 {
     setVals( value, value, value );
 }
-                                                                                
-                                                                                
-int uiStepout3DSel::getZVal() const                                             
-{                                                                               
+
+
+int uiStepout3DSel::getZVal() const
+{
     return fld3_->getIntValue();
-}                                                                               
-                                                                                
-                                                                                
-void uiStepout3DSel::setZInterval( StepInterval<int> zrg )                      
-{                                                                               
-    fld3_->setInterval( zrg );                                                  
+}
+
+
+void uiStepout3DSel::setZInterval( StepInterval<int> zrg )
+{
+    fld3_->setInterval( zrg );
 }
 
 
