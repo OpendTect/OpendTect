@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 
 class BufferStringSet;
+class RowCol;
 class SeparString;
 class ascistream;
 class ascostream;
@@ -149,6 +150,7 @@ public:
     bool		get(const char*,TypeSet<float>&) const;
 
     bool		get(const char*,BinID&) const;
+    bool		get(const char*,RowCol&) const;
     bool		get(const char*,TrcKey&) const;
     bool		get(const char*,Coord&) const;
     bool		get(const char*,Coord3&) const;
@@ -233,6 +235,7 @@ public:
     void		set(const char*,const char*,const char*);
     void		set(const char*,const char*,const char*,const char*);
     void		set(const char*,const BinID&);
+    void		set(const char*,const RowCol&);
     void		set(const char*,const TrcKey&);
     void		set(const char*,const Coord&);
     void		set(const char*,const Coord3&);
