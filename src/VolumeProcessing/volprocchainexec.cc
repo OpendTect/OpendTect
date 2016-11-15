@@ -529,21 +529,13 @@ int VolProc::ChainExecutor::nextStep()
 	mCleanUpAndRet( ErrorOccurred() )
 
     Task& curtask = curepoch_->getTask();
-    if ( progressmeter_ )
-	progressmeter_->skipProgress( false );
     curtask.setProgressMeter( progressmeter_ );
-
     curtask.enableWorkControl( true );
-
     if ( !curtask.execute() )
 	mCleanUpAndRet( ErrorOccurred() )
 
     if ( epochs_.isEmpty() )		//we just executed the last one
 	outputdp_ = curepoch_->getOutput();
-
-    //To prevent the overall chain progress display in between sub-tasks
-    if ( progressmeter_ )
-	progressmeter_->skipProgress( true );
 
     //Give output volumes to all steps that need them
     if ( !curepoch_->updateInputs() )
@@ -551,8 +543,11 @@ int VolProc::ChainExecutor::nextStep()
 
     //Everyone who wants my data has it. I can release it.
     curepoch_->releaseData();
+    const bool finished = epochs_.isEmpty();
+    if ( finished )
+	progressmeter_ = 0;
 
-    return epochs_.isEmpty() ? Finished() : MoreToDo();
+    return finished ? Finished() : MoreToDo();
 }
 
 
@@ -631,5 +626,5 @@ uiString VolProc::ChainExecutor::uiMessage() const
     if ( curepoch_ )
 	return curepoch_->getTask().uiMessage();
 
-    return tr("Preparing processing");
+    return uiString::emptyString();
 }

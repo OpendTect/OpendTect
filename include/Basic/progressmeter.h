@@ -31,6 +31,7 @@ public:
     virtual void	setNrDone(od_int64)		{}
     virtual void	setNrDoneText(const uiString&)	{}
     virtual void	setMessage(const uiString&)	{}
+    virtual void	printMessage(const uiString&)	{}
 
     virtual void	operator++()			= 0;
 

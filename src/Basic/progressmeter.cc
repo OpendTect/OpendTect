@@ -15,6 +15,7 @@ static const char progress_symbols[] = ".:=|*#>}].:=|*#>}].:=|*#>}].:=|*#>}]";
 
 ProgressRecorder::ProgressRecorder()
     : forwardto_(0)
+    , skipprog_(false)
     , lock_(*new Threads::Lock)
 {
     reset();
@@ -43,7 +44,8 @@ void ProgressRecorder::reset()
 
 #define mImplProgressRecorderStartStopSetFn(nm,memb) \
 void ProgressRecorder::nm() \
-    { mSetLock(); memb = true; if ( forwardto_ ) forwardto_->nm(); }
+    { mSetLock(); memb = true; \
+      if ( forwardto_ && !skipprog_ ) forwardto_->nm(); }
 mImplProgressRecorderStartStopSetFn(setStarted,isstarted_)
 mImplProgressRecorderStartStopSetFn(setFinished,isfinished_)
 #define mImplProgressRecorderSetFn(nm,typ,arg,memb) \
@@ -52,7 +54,6 @@ void ProgressRecorder::nm( typ arg ) \
 mImplProgressRecorderSetFn(setName,const char*,newnm,name_)
 mImplProgressRecorderSetFn(setTotalNr,od_int64,tnr,totalnr_)
 mImplProgressRecorderSetFn(setNrDone,od_int64,nr,nrdone_)
-mImplProgressRecorderSetFn(setMessage,const uiString&,msg,message_)
 mImplProgressRecorderSetFn(setNrDoneText,const uiString&,txt,nrdonetext_)
 
 #define mImplProgressRecorderStartStopGetFn(typ,nm,memb) \
@@ -66,6 +67,14 @@ mImplProgressRecorderStartStopGetFn(bool,isStarted,isstarted_)
 mImplProgressRecorderStartStopGetFn(bool,isFinished,isfinished_)
 mImplProgressRecorderStartStopGetFn(ProgressMeter*,forwardTo,forwardto_)
 
+void ProgressRecorder::setMessage( const uiString& msg )
+{
+    message_ = msg;
+    if ( forwardto_ )
+	forwardto_->printMessage( msg );
+}
+
+
 void ProgressRecorder::setForwardTo( ProgressMeter* pm )
 {
     mSetLock();
@@ -75,8 +84,7 @@ void ProgressRecorder::setForwardTo( ProgressMeter* pm )
 void ProgressRecorder::skipProgress( bool yn )
 {
     mSetLock();
-    if ( forwardto_ )
-	forwardto_->skipProgress( yn );
+    skipprog_ = yn;
 }
 
 
@@ -230,6 +238,12 @@ void TextStreamProgressMeter::setMessage( const uiString& message )
 	return;
 
     message_ = message;
+}
+
+
+void TextStreamProgressMeter::printMessage( const uiString& msg )
+{
+    strm_ << od_newline << msg.getFullString() << od_endl;
 }
 
 

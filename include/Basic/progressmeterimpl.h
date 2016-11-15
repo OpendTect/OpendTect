@@ -36,8 +36,9 @@ public:
     virtual void	setName(const char*);
     virtual void	setTotalNr(od_int64);
     virtual void	setNrDone(od_int64);
-    virtual void	setMessage(const uiString&);
     virtual void	setNrDoneText(const uiString&);
+    virtual void	setMessage(const uiString&);
+
     virtual void	operator++();
 
     const char*		name() const;
@@ -61,6 +62,7 @@ protected:
     bool		isstarted_;
     bool		isfinished_;
     ProgressMeter*	forwardto_;
+    bool		skipprog_;
 
     Threads::Lock&	lock_;
 
@@ -87,6 +89,7 @@ public:
     void		setTotalNr(od_int64 t);
 
     void		setMessage(const uiString&);
+    virtual void	printMessage(const uiString&);
 
 			/*!<This setting will not reset unless you call it.*/
     void		skipProgress( bool yn )		{ skipprog_ = yn; }

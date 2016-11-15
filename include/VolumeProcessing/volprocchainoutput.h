@@ -82,7 +82,6 @@ protected:
     bool			openOutput();
     void			createNewChainExec();
     int				retError(const uiString&);
-    int				retMoreToDo();
     void			startWriteChunk();
     void			manageStorers();
     void			reportFinished(ChainOutputStorer&);
