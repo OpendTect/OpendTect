@@ -35,7 +35,9 @@ int main( int argc, char** argv )
 	file = argv[1];
 
     QApplication app(argc, argv);
+#if OSG_VERSION_LESS_THAN( 3, 5, 0 )
     osgQt::initQtWindowingSystem();
+#endif
 
     while ( !File::exists(file) )
     {

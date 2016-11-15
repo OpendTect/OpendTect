@@ -57,7 +57,7 @@ namespace osgViewer { class View; }
 //!Baseclass for different body implementation (direct & indirect) of OSG
 
 mClass(uiOSG) ui3DViewerBody : public uiObjectBody
-{
+{ mODTextTranslationClass(ui3DViewerBody);
     friend class TrackBallManipulatorMessenger;
 
 public:
@@ -174,6 +174,7 @@ protected:
     void				handleGestureEvent(QGestureEvent*);
     static osgViewer::CompositeViewer*	getCompositeViewer();
 
+    void				glInfoCB(CallBack*);
 
     virtual osgViewer::GraphicsWindow&	getGraphicsWindow()	= 0;
     virtual osg::GraphicsContext*	getGraphicsContext()	= 0;
@@ -226,4 +227,5 @@ protected:
     KeyBindMan&				keybindman_;
 
     bool				mapview_;
+    static bool				isbadglwarned_;
 };

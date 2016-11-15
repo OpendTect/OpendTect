@@ -11,7 +11,6 @@ set(OD_USEOSG 1)
 set(OD_MODULE_SOURCES
 		inituiosg.cc
 		keybindings.cc
-		uiglinfo.cc
 		uiosgfont.cc
 		uiprintscenedlg.cc
 		ui3dviewer.cc 

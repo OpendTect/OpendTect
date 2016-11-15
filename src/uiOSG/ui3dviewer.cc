@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ui3dindirectviewer.h"
 #include "uirgbarray.h"
 #include "uimain.h"
+#include "uimsg.h"
 #include "uimouseeventblockerbygesture.h"
 #include "swapbuffercallback.h"
 
@@ -25,6 +26,7 @@ ________________________________________________________________________
 #include <osgGeo/TrackballManipulator>
 #include <osg/MatrixTransform>
 #include <osgGeo/ThumbWheel>
+#include <osgGeo/GLInfo>
 #include <osg/Version>
 
 #include "envvars.h"
@@ -79,6 +81,8 @@ static const char* preOdHomePosition()	{return "Home position.Aspect ratio"; }
 static const char* sKeyHomePos()	{ return "Home position"; }
 static const char* sKeyCameraRotation() { return "Camera Rotation"; }
 static const char* sKeyWheelDisplayMode() { return "Wheel Display Mode"; }
+
+bool ui3DViewerBody::isbadglwarned_ = false;
 
 FixedString ui3DViewer::sKeyBindingSettingsKey()
 {
@@ -214,6 +218,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
 {
     manipmessenger_->ref();
     offscreenrenderswitch_->ref();
+    offscreenrenderswitch_->setName( "Off-screen render switch" );
     offscreenrenderhudswitch_->ref();
     viewport_->ref();
     eventfilter_.addEventType( uiEventFilter::KeyPress );
@@ -231,6 +236,9 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
 ui3DViewerBody::~ui3DViewerBody()
 {
     detachAllNotifiers();
+
+    camera_->preDraw.remove( mCB( this, ui3DViewerBody, glInfoCB ) );
+
     delete &keybindman_;
 
     manipmessenger_->detach();
@@ -421,6 +429,8 @@ bool ui3DViewerBody::getReversedMouseWheelDirection() const
 void ui3DViewerBody::setupView()
 {
     camera_ = visBase::Camera::create();
+    camera_->preDraw.notify( mCB( this, ui3DViewerBody, glInfoCB));
+
     if ( axes_ )
 	axes_->setMasterCamera( camera_ );
 
@@ -491,6 +501,57 @@ void ui3DViewerBody::setupView()
     // Camera projection must be initialized before computing home position
     reSizeEvent( 0 );
 }
+
+
+void ui3DViewerBody::glInfoCB(CallBack *)
+{
+    osg::ref_ptr<const osgGeo::GLInfo> glinfo =
+					visBase::DataObject::getGLInfo();
+
+    if ( !glinfo || !glinfo->isOK() )
+    {
+	if ( !isbadglwarned_ )
+	{
+	    uiString msg = tr("Invalid OpenGL installation. "
+			      "Please check your graphics drivers");
+	    uiMSG().error( msg );
+	    isbadglwarned_ = true;
+	}
+
+	//Turn off all visualization
+	offscreenrenderswitch_->setAllChildrenOff();
+	offscreenrenderhudswitch_->setAllChildrenOff();
+    }
+    else
+    {
+	bool dowarn = true;
+	const char* settingskey = "Warn old OpenGL";
+	Settings::common().getYN( settingskey, dowarn );
+	BufferString version = glinfo->glVersion();
+	if ( version.find( ' ' ) )
+	    *version.find( ' ' ) = 0;
+
+	const float glversion = Conv::to<float>( version.str() );
+	if ( dowarn && (mIsUdf(glversion) || glversion<2 ) )
+	{
+
+	    uiString msg = tr("OpenGL version is lower than 2.0, indicating "
+		     "an old graphics driver or incorrectly setup remote "
+		     "visualization. OpendTect will not be able to make full "
+		     "use of your installation. Please update your system" );
+
+	    if ( uiMSG().warning( msg, uiString::emptyString(),
+				 uiString::emptyString(), true ) )
+	    {
+		Settings::common().setYN( settingskey, false );
+		Settings::common().write( true );
+	    }
+	}
+    }
+
+    camera_->preDraw.remove( mCB( this, ui3DViewerBody, glInfoCB ) );
+}
+
 
 
 void ui3DViewerBody::enableThumbWheelHandling( bool yn,
@@ -1558,7 +1619,9 @@ ui3DViewer::~ui3DViewer()
 
 uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, bool direct, const char* nm )
 {
+#if OSG_VERSION_LESS_THAN( 3, 5, 0 )
     osgQt::initQtWindowingSystem();
+#endif
 
     osgbody_ = direct
 	? (ui3DViewerBody*) new uiDirectViewBody( *this, parnt )

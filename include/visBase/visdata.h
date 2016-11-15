@@ -17,18 +17,17 @@ ________________________________________________________________________
 #include "sets.h"
 #include "visdataman.h"
 
-class SoNode;
 class BufferString;
 
 namespace visBase { class DataObject; class EventInfo; }
 
-namespace osg { class Switch; class Node; }
+namespace osg { class Switch; class Node; class StateSet; }
 namespace osgViewer { class CompositeViewer; }
-
+namespace osgGeo { class GLInfo; }
 
 #define mVisTrans visBase::Transformation
 
-namespace osg { class Switch; class StateSet; }
+
 namespace visBase
 {
 
@@ -82,10 +81,6 @@ public:
 
     void			enableTraversal(unsigned int mask,bool yn=true);
     bool			isTraversalEnabled(unsigned int mask) const;
-
-    inline SoNode*		getInventorNode()	{return 0;}
-    inline const SoNode*	getInventorNode() const
-				{ return 0; }
 
     virtual bool		turnOn(bool yn);
     virtual bool		isOn() const;
@@ -162,6 +157,14 @@ public:
     static void			setCommonViewer(osgViewer::CompositeViewer*);
     static osgViewer::CompositeViewer* getCommonViewer();
 
+
+    static const osgGeo::GLInfo* getGLInfo();
+				/*!<Captures information of the graphics card.
+				    Must be run during a render. at least once
+				 */
+    static NotifierAccess&	glInfoAvailable() { return glinfoavailable_; }
+				//Triggers once, when glinfo is available
+
 protected:
 				~DataObject();
     virtual osg::StateSet*	getStateSet();
@@ -190,8 +193,8 @@ protected:
     void			updateNodemask();
 
 private:
-    void			setOsgNodeInternal(osg::Node*);
-    void			updateOsgNodeData();
+    void				setOsgNodeInternal(osg::Node*);
+    void				updateOsgNodeData();
 
     ObjectSet<NodeState>		nodestates_;
     osg::Node*				osgnode_;
@@ -202,6 +205,7 @@ private:
     unsigned int			enabledmask_;
     static Threads::ThreadID		visualizationthread_;
     static osgViewer::CompositeViewer*	commonviewer_;
+    static Notifier<DataObject>		glinfoavailable_;
 };
 
 };

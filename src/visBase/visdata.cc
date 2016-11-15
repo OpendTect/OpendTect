@@ -18,6 +18,7 @@
 #include <osg/ValueObject>
 #include <osgDB/WriteFile>
 #include <osgViewer/CompositeViewer>
+#include <osgGeo/GLInfo>
 
 #if __win__
 #define mDefaultPixelDensity	96
@@ -30,7 +31,9 @@ using namespace visBase;
 
 Threads::ThreadID DataObject::visualizationthread_ = 0;
 osgViewer::CompositeViewer* DataObject::commonviewer_ = 0;
+Notifier<DataObject> DataObject::glinfoavailable_( 0 );
 
+static osg::ref_ptr<osgGeo::GLInfo> glinfo_ = 0;
 
 void DataObject::enableTraversal( unsigned int tt, bool yn )
 {
@@ -191,11 +194,15 @@ bool DataObject::turnOn( bool yn )
     }
     else if ( osgnode_ )
     {
+	osgnode_->ref(); //Ensure it is not accidently deleted
+
 	osg::Node::ParentList parents = osgnode_->getParents();
 	for ( unsigned int idx=0; idx<parents.size(); idx++ )
 	    parents[idx]->replaceChild( osgnode_, osgoffswitch_ );
 
 	osgoffswitch_->addChild( osgnode_ );
+
+	osgnode_->unref();
 
     }
 
@@ -328,6 +335,21 @@ void DataObject::setVisualizationThread(Threads::ThreadID thread)
     }
 
     visualizationthread_ = thread;
+}
+
+
+const osgGeo::GLInfo* DataObject::getGLInfo()
+{
+    if ( !glinfo_ )
+    {
+	glinfo_ = osgGeo::GLInfo::get();
+	if ( glinfo_ )
+	{
+	    glinfoavailable_.trigger();
+	}
+    }
+
+    return glinfo_;
 }
 
 
