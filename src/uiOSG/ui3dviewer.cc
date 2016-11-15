@@ -549,7 +549,7 @@ void ui3DViewerBody::glInfoCB(CallBack *)
 	}
     }
 
-    camera_->preDraw.remove( mCB( this, ui3DViewerBody, glInfoCB ) );
+    //EMERGENCY FIX camera_->preDraw.remove( mCB( this, ui3DViewerBody, glInfoCB ) );
 }
 
 

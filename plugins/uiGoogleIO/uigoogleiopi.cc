@@ -205,11 +205,31 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
 static uiGoogleIOMgr* theinst_ = 0;
 
 
+class uiGoogleIOSurveyManagerUtil : public uiSurveyManager::Util
+{
+public:
+
+uiGoogleIOSurveyManagerUtil()
+    : uiSurveyManager::Util( "google", uiGoogleIOMgr::sUtilTTText(),
+			mCB(theinst_,uiGoogleIOMgr,exportSurv) )
+{
+}
+
+virtual Util* clone() const
+{
+    return new uiGoogleIOSurveyManagerUtil( *this );
+}
+
+virtual bool willRunFor( const SurveyInfo& si ) const
+{
+    return si.getCoordSystem()->geographicTransformOK();
+}
+
+};
+
 mDefODPluginSurvRelToolsLoadFn( uiGoogleIO )
 {
-    uiSurveyManager::add( uiSurveyManager::Util( "google",
-			    uiGoogleIOMgr::sUtilTTText(),
-			    mCB(theinst_,uiGoogleIOMgr,exportSurv) ) );
+    uiSurveyManager::add( uiGoogleIOSurveyManagerUtil() );
 }
 
 

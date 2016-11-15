@@ -49,11 +49,15 @@ public:
 				const CallBack& cb )
 			    : cb_(cb)
 			    , pixmap_(pixmap)
-			    , tooltip_(tooltip)		{}
+			    , tooltip_(tooltip)	{}
+	virtual		~Util()			{}
+	virtual Util*	clone() const		{ return new Util(*this); }
 
 	CallBack	cb_;
 	BufferString	pixmap_;
 	uiString	tooltip_;
+
+	virtual bool	willRunFor(const SurveyInfo&) const { return true; }
     };
     static void		add(const Util&);
 

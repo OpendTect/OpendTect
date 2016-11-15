@@ -289,7 +289,7 @@ void uiSurveyManager::mkInfoTabs()
 
 void uiSurveyManager::add( const Util& util )
 {
-    getUtils() += new Util( util );
+    getUtils() += util.clone();
 }
 
 
@@ -549,12 +549,17 @@ void uiSurveyManager::survParsChgCB( CallBacker* )
 void uiSurveyManager::putToScreen()
 {
     const bool isok = survreadstatus_.isOK();
-    survmap_->setSurveyInfo( isok ? curSI() : 0 );
+    const SurveyInfo* cursi = isok ? curSI() : 0;
+    survmap_->setSurveyInfo( cursi );
     const bool havesurveys = haveSurveys();
     rmbut_->setSensitive( havesurveys );
     editbut_->setSensitive( havesurveys );
     for ( int idx=0; idx<utilbuts_.size(); idx++ )
-	utilbuts_[idx]->setSensitive( havesurveys );
+    {
+	const Util& util = *getUtils()[idx];
+	utilbuts_[idx]->setSensitive( havesurveys
+			&& cursi && util.willRunFor(*cursi) );
+    }
 
     if ( !havesurveys || !isok )
     {
