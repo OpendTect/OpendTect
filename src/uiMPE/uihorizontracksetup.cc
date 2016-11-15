@@ -300,7 +300,7 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 
     uiGroup* optiongrp = new uiGroup( grp, "Options");
     betweenseedsfld_ = new uiCheckBox( optiongrp,
-			tr("Between Seeds (coming soon)") );
+			tr("Between Seeds") );
     betweenseedsfld_->display( false );
     betweenseedsfld_->activated.notify(
 			mCB(this,uiHorizonSetupGroup,seedModeChange) );
