@@ -76,15 +76,6 @@ end
 echo "Compressing Documentation"
 cat ${listfile} | xargs -P8 ${dtectdir}/compress_doc.csh ${compdir}
 
-
-#Create sitemap
-set awkprog = /tmp/awkcmd.awk
-echo '{ print "http://'"${host}/${serversubdir}"'/"$1 }' > $awkprog
-
-find . -name "*.html" | sed 's/\.\///g' | awk -f ${awkprog} | gzip > ${compdir}/sitemap.txt
-
-rm -rf ${awkprog}
-
 cd ${prevdir}
 
 #Upload everything

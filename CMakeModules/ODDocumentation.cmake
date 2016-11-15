@@ -54,10 +54,22 @@ macro( OD_BUILD_DOCUMENTATION )
 
     OD_ADD_SOURCE_FILES( ${TEMPLATE} ${FOOTER} )
 
+    set( OD_PROGDOC_URLPREFIX "http://doc.opendtect.org/${OpendTect_VERSION_MAJOR}${OpendTect_VERSION_MINOR}${OpendTect_VERSION_PATCH}/doc/Programmer"
+	CACHE STRING "Online documentation prefix" )
+
+    if ( UNIX AND OD_PROGDOC_URLPREFIX )
+	set ( MAKE_SITEMAP_COMMAND
+	    COMMAND ${OpendTect_DIR}/dtect/generate_progdoc_sitemap.sh
+		    ${CMAKE_BINARY_DIR}/doc/Programmer/ ${OD_PROGDOC_URLPREFIX} )
+    endif()
+
     add_custom_target ( doc
-			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
+			${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
+			${MAKE_SITEMAP_COMMAND}
 			SOURCES ${OD_DOXYGEN_FILE} )
-    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )
+
+    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html DESTINATION
+	                ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )
 endmacro()
 
 IF ( BUILD_DOCUMENTATION )
