@@ -51,53 +51,59 @@ ________________________________________________________________________
 namespace visSurvey
 {
 
-class LockedPointsCalculator: public ParallelTask
+
+class LockedPointsPathFinder: public ParallelTask
 {
 public:
-		    LockedPointsCalculator( const visSurvey::SurveyObject* obj,
-					    const visBase::PointSet* lockedpts,
-					    const od_int64 size);
-    od_int64	    totalNr() const { return totalnrcoords_; }
-    const TypeSet<int>&   getResult()	{ return pntsidx_; }
+			LockedPointsPathFinder(const EM::Horizon3D& hor,
+					       const TrcKeyPath& path,
+					       visBase::PointSet& points,
+					       TypeSet<int>& indexes)
+			    : path_(path)
+			    , hor_(hor)
+			    , points_(points)
+			    , indexes_(indexes)
+			    , lock_(Threads::Lock::SmallWork)
+			{}
+
+    od_int64		nrIterations() const	{ return path_.size(); }
 
 protected:
-    bool	    doWork(od_int64 start, od_int64 stop, int);
-    od_int64	    nrIterations() const { return totalnrcoords_; }
 
-private:
-    Threads::Atomic<od_int64>	totalnrcoords_;
-    const visSurvey::SurveyObject* obj_;
-    const visBase::PointSet* lockedpts_;
-    Threads::Mutex  mutex_;
-    TypeSet<int> pntsidx_;
+    bool		doWork(od_int64 start,od_int64 stop,int thread);
+
+    const EM::Horizon3D&	hor_;
+    const TrcKeyPath&		path_;
+    visBase::PointSet&		points_;
+    TypeSet<int>&		indexes_;
+    Threads::Lock		lock_;
 };
 
 
-LockedPointsCalculator::LockedPointsCalculator(
-    const visSurvey::SurveyObject* obj,	const visBase::PointSet* lockedpts,
-    const od_int64 size )
-    : totalnrcoords_( size )
-    , obj_( obj )
-    , lockedpts_( lockedpts )
-{}
-
-
-bool LockedPointsCalculator::doWork( od_int64 start, od_int64 stop, int )
+bool LockedPointsPathFinder::doWork( od_int64 start, od_int64 stop, int thread )
 {
-     if ( !obj_ || !lockedpts_ )
-	return false;
+    const Array2D<char>* lockednodes = hor_.getLockedNodes();
+    if ( !lockednodes )
+	return true;
 
-     TypeSet<int> pntsidx;
-     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
-     {
-	 const Coord3 crd = lockedpts_->getPoint( idx, true );
-	 const float dist = obj_->calcDist( crd );
-	 if ( !mIsUdf(dist) && dist<obj_->maxDist() )
-	     pntsidx += idx;
-     }
+    const TrcKeySampling tks = hor_.getTrackingSampling();
+    const EM::SectionID sid = hor_.sectionID( 0 );
 
-    Threads::MutexLocker datalock( mutex_ );
-    pntsidx_.append( pntsidx );
+    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
+    {
+	const TrcKey tk = path_[idx];
+	if ( !tks.includes(tk) )
+	    continue;
+
+	const od_int64 gidx = tks.globalIdx( tk );
+	if ( gidx>=0 && lockednodes->getData()[gidx] != '0' )
+	{
+	    const Coord3 pos = hor_.getPos( sid, tk.binID(). toInt64() );
+	    Threads::Locker( lock_, Threads::Locker::WriteLock );
+	    indexes_ += points_.addPoint( pos );
+	}
+    }
+
     return true;
 }
 
@@ -1963,6 +1969,9 @@ void HorizonDisplay::setLineStyle( const OD::LineStyle& lst )
 void HorizonDisplay::updateSectionSeeds(
 	    const ObjectSet<const SurveyObject>& objs, int movedobj )
 {
+    if ( !isOn() )
+	return;
+
     bool refresh = movedobj==-1 || movedobj==id();
     TypeSet<int> verticalsections;
 
@@ -2060,35 +2069,28 @@ void HorizonDisplay::updateSectionSeeds(
 	sectionlockedpts_->getMaterial()->clear();
     }
 
-    TypeSet<int> sectionpntindexes;
+    TrcKeyPath alttrckeys;
     for ( int idx=0; idx<verticalsections.size(); idx++ )
     {
-	const visSurvey::SurveyObject* obj = objs[verticalsections[idx]];
-	if ( !obj )
-	    continue;
-	LockedPointsCalculator calculator( obj,lockedpts_,lockedpts_->size() );
-	if ( calculator.execute() )
-	    sectionpntindexes.append( calculator.getResult() );
+	TrcKeyPath trckeypath;
+	objs[verticalsections[idx]]->getTraceKeyPath( trckeypath );
+	alttrckeys.append( trckeypath );
     }
-
-    if ( sectionpntindexes.size()==0 )
-	return;
 
     TypeSet<int> pidxs;
-    for ( int idx=0; idx<sectionpntindexes.size(); idx++ )
-    {
-	sectionlockedpts_->addPoint(
-	    lockedpts_->getPoint(sectionpntindexes[idx]) );
-	pidxs += idx;
-    }
+    LockedPointsPathFinder lockedpointspathfinder( *hor3d, alttrckeys,
+						   *sectionlockedpts_, pidxs );
+    lockedpointspathfinder.execute();
+    if ( pidxs.isEmpty() )
+	return;
 
     Geometry::PrimitiveSet* pointsetps =
 	Geometry::IndexedPrimitiveSet::create(true);
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
-    pointsetps->append( pidxs.arr(),pidxs.size() );
+    pointsetps->append( pidxs.arr(), pidxs.size() );
     sectionlockedpts_->addPrimitiveSet( pointsetps );
 
-    if ( hor3d)
+    if ( hor3d )
 	sectionlockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
 
     lockedpts_->turnOn( false );
