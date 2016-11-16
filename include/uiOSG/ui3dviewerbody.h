@@ -174,7 +174,7 @@ protected:
     void				handleGestureEvent(QGestureEvent*);
     static osgViewer::CompositeViewer*	getCompositeViewer();
 
-    void				glInfoCB(CallBack*);
+    void				glInfoCB(CallBacker*);
 
     virtual osgViewer::GraphicsWindow&	getGraphicsWindow()	= 0;
     virtual osg::GraphicsContext*	getGraphicsContext()	= 0;

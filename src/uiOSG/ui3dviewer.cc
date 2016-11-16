@@ -237,8 +237,6 @@ ui3DViewerBody::~ui3DViewerBody()
 {
     detachAllNotifiers();
 
-    camera_->preDraw.remove( mCB( this, ui3DViewerBody, glInfoCB ) );
-
     delete &keybindman_;
 
     manipmessenger_->detach();
@@ -429,7 +427,7 @@ bool ui3DViewerBody::getReversedMouseWheelDirection() const
 void ui3DViewerBody::setupView()
 {
     camera_ = visBase::Camera::create();
-    camera_->preDraw.notify( mCB( this, ui3DViewerBody, glInfoCB));
+    mAttachCB( camera_->preDraw, ui3DViewerBody::glInfoCB );
 
     if ( axes_ )
 	axes_->setMasterCamera( camera_ );
@@ -503,7 +501,7 @@ void ui3DViewerBody::setupView()
 }
 
 
-void ui3DViewerBody::glInfoCB(CallBack *)
+void ui3DViewerBody::glInfoCB(CallBacker *)
 {
     osg::ref_ptr<const osgGeo::GLInfo> glinfo =
 					visBase::DataObject::getGLInfo();
@@ -522,7 +520,7 @@ void ui3DViewerBody::glInfoCB(CallBack *)
 	offscreenrenderswitch_->setAllChildrenOff();
 	offscreenrenderhudswitch_->setAllChildrenOff();
     }
-    else
+    else if ( !isbadglwarned_ )
     {
 	bool dowarn = true;
 	const char* settingskey = "Warn old OpenGL";
@@ -546,10 +544,12 @@ void ui3DViewerBody::glInfoCB(CallBack *)
 		Settings::common().setYN( settingskey, false );
 		Settings::common().write( true );
 	    }
+
+	    isbadglwarned_ = true;
 	}
     }
 
-    //EMERGENCY FIX camera_->preDraw.remove( mCB( this, ui3DViewerBody, glInfoCB ) );
+    mDetachCB( camera_->preDraw, ui3DViewerBody::glInfoCB );
 }
 
 

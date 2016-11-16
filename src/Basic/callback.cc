@@ -379,8 +379,8 @@ void CallBack::initClass()
 
 void CallBack::doCall( CallBacker* cber ) const
 {
-    if ( obj_ && fn_ )
-	(obj_->*fn_)( cber );
+    if (cberobj_ && fn_)
+	(cberobj_->*fn_)( cber );
     else if ( sfn_ )
 	sfn_( cber );
 }

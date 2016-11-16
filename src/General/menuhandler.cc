@@ -168,7 +168,6 @@ MenuItem::MenuItem( const uiString& txt, int pl )
     , checkable(false)
     , checked(false)
     , enabled(true)
-    , cb(0,0)
 {
     id = itemid++;
 }

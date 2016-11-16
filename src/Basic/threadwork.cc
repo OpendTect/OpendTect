@@ -202,7 +202,7 @@ void Threads::WorkThread::doWork( CallBacker* )
 	    if ( idx==-1 )
 	    {
 		queueid_ = -1;
-		finishedcb_ = CallBack(0,0);
+		finishedcb_ = CallBack();
 		isidle = true;
 	    }
 	    else
@@ -367,7 +367,7 @@ bool Threads::WorkManager::executeQueue( int queueid )
     while ( true )
     {
 	::Threads::Work task;
-	CallBack cb(0,0);
+	CallBack cb;
 	for ( int idx=0; idx<workload_.size(); idx++ )
 	{
 	    if ( workqueueid_[idx]==queueid )
@@ -534,7 +534,7 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	return;
     }
 
-    const CallBack thecb( cb ? *cb : CallBack(0,0) );
+    const CallBack thecb( cb ? *cb : CallBack() );
 
     Threads::MutexLocker lock(workloadcond_);
     int queueidx = queueids_.indexOf( queueid );

@@ -43,7 +43,6 @@ typedef void (CallBacker::*CallBackFunction)(CallBacker*);
 typedef void (*StaticCallBackFunction)(CallBacker*);
 #define mSCB(fn) CallBack( ((StaticCallBackFunction)(&fn)) )
 
-
 class QCallBackEventReceiver;
 
 
@@ -60,22 +59,23 @@ mExpClass(Basic) CallBack
 {
 public:
     static void		initClass();
-
-			CallBack( CallBacker* o=0, CallBackFunction f=0 )
-			    : obj_( o ), fn_( f ), sfn_( 0 )	{}
+			CallBack()
+			    : cberobj_(0), fn_(0), sfn_(0){}
+			CallBack( CallBacker* o, CallBackFunction f )
+			    : cberobj_(o), fn_(f), sfn_(0)	{}
 			CallBack( StaticCallBackFunction f )
-			    : obj_( 0 ), fn_( 0 ), sfn_( f )	{}
+			    : cberobj_(0), fn_(0), sfn_(f)	{}
     inline int		operator==( const CallBack& c ) const
-			{ return obj_==c.obj_ && fn_==c.fn_ && sfn_==c.sfn_; }
+			{ return cberobj_ == c.cberobj_ && fn_ == c.fn_ && sfn_ == c.sfn_; }
     inline int		operator!=( const CallBack& cb ) const
 			{ return !(*this==cb); }
 
     inline bool		willCall() const
-			{ return (obj_ && fn_) || sfn_; }
+			{ return (cberobj_  && fn_) || sfn_; }
     void		doCall(CallBacker*) const;
 
-    inline CallBacker*			cbObj()			{ return obj_; }
-    inline const CallBacker*		cbObj() const		{ return obj_; }
+    inline CallBacker*			cbObj()			{ return cberobj_; }
+    inline const CallBacker*		cbObj() const		{ return cberobj_; }
     inline CallBackFunction		cbFn() const		{ return fn_; }
     inline StaticCallBackFunction	scbFn() const		{ return sfn_; }
 
@@ -103,9 +103,9 @@ public:
 
     // See also mEnsureExecutedInMainThread macro
 
-protected:
+private:
 
-    CallBacker*				obj_;
+    CallBacker*				cberobj_;
     CallBackFunction			fn_;
     StaticCallBackFunction		sfn_;
     static Threads::ThreadID		mainthread_;
