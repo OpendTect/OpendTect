@@ -376,7 +376,10 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 					dlg.getComponent(), true );
 	}
 	else
+	{
 	    attrdata.attribid_.asInt() = dlg.getSelDescID().asInt();
+	    attrdata.outputnr_ = dlg.getOutputNr();
+	}
 
     }
     else
@@ -880,7 +883,12 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     TypeSet<BinID> knots, path;
     rdmline->allNodePositions( knots );
     rdmline->getPathBids( knots, path );
+    
+    if ( path.isEmpty() )
+	return DataPack::cNoID();
+    
     snapToValidRandomTraces( path, targetdesc );
+
     TrcKeyPath trckeys;
     for ( int idx=0; idx<path.size(); idx++ )
 	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),

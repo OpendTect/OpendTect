@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdataholder.h"
 #include "attribdesc.h"
+#include "attribdescid.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "attribsel.h"
@@ -48,7 +49,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2ddata.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-
 
 static TypeSet<int> selcomps;
 
@@ -409,7 +409,7 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
 	}
 	else if ( nla )
 	{
-	    as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
+	    as.set(0, Attrib::DescID(dlg.getOutputNr(), false), true, "" );
 	    as.setObjectRef( applMgr()->nlaServer()->modelName() );
 	    as.setRefFromID( *nla );
 	}

@@ -401,7 +401,10 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
     else if ( seltype_ == 2 )
 	descid_ = attrinf_->attrids_[selidx];
     else if ( seltype_ == 3 )
-	descid_ = DescID( selidx, false );
+    {
+	descid_ = DescID::undef();
+	outputnr_ = selidx;
+    }
 
     return true;
 }
