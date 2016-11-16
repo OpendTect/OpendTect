@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_US">
+<TS version="2.0" language="en_US">
 <context>
     <name>MPESetupTranslatorGroup</name>
     <message numerus="yes">
@@ -155,7 +155,7 @@
 <context>
     <name>uiStrings</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/uistrings.cc" line="+44"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="+50"/>
         <source>%1 does not exist</source>
         <translation>
             <numerusform>%1 does not exist</numerusform>
@@ -163,7 +163,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+233"/>
+        <location line="+245"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>
@@ -335,7 +335,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+189"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+201"/>
         <source>2D Plane</source>
         <translation>
             <numerusform>2D Plane</numerusform>
@@ -429,6 +429,14 @@
         <translation>
             <numerusform>Error</numerusform>
             <numerusform>Errors</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
+        <source>Event</source>
+        <translation type="unfinished">
+            <numerusform>Event</numerusform>
+            <numerusform>Events</numerusform>
         </translation>
     </message>
     <message numerus="yes">
