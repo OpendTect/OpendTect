@@ -378,7 +378,10 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 		    dlg.getComponent(), true );
 	}
 	else
+	{
 	    attrdata.attribid_.asInt() = dlg.getSelDescID().asInt();
+	    attrdata.outputnr_ = dlg.getOutputNr();
+	}
 
     }
     else

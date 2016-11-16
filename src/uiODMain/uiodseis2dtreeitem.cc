@@ -28,6 +28,7 @@ ___________________________________________________________________
 
 #include "attribdataholder.h"
 #include "attribdesc.h"
+#include "attribdescid.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "attribsel.h"
@@ -434,7 +435,7 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
 	}
 	else if ( nla )
 	{
-	    as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
+	    as.set(0, Attrib::DescID(dlg.getOutputNr(), false), true, "" );
 	    as.setObjectRef( applMgr()->nlaServer()->modelName() );
 	    as.setRefFromID( *nla );
 	}
