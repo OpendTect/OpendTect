@@ -93,11 +93,11 @@ protected:
     void			putDispParams();
     void			resetInfoDlg();
 
-    bool			okPushCB(CallBacker*);
-    bool			cancelPushCB(CallBacker*);
+    void			okPushCB(CallBacker*);
+    void			cancelPushCB(CallBacker*);
     void			applyPushed(CallBacker*);
     void			applyShiftPushed(CallBacker*);
-    bool			compute(CallBacker*);
+    void			compute(CallBacker*);
     void			checkIfPick(CallBacker*);
     void			checkShotChg(CallBacker*);
     void			checkShotDisp(CallBacker*);
@@ -112,15 +112,15 @@ protected:
     void			editD2TPushed(CallBacker*);
     void			eventTypeChg(CallBacker*);
     void			infoPushed(CallBacker*);
-    bool			matchHorMrks(CallBacker*);
+    void			matchHorMrks(CallBacker*);
     void			provideWinHelp(CallBacker*);
     void			reDrawSeisViewer(CallBacker*);
     void			reDrawAuxDatas(CallBacker*);
     void			reDrawAll(CallBacker*);
     void			setView(CallBacker*);
-    bool			saveDataPushed(CallBacker*);
+    void			saveDataPushed(CallBacker*);
     void			timeChanged(CallBacker*);
-    bool			undoPushed(CallBacker*);
+    void			undoPushed(CallBacker*);
     void			userDepthsChanged(CallBacker*);
     void			snapshotCB(CallBacker*);
     void			cleanUp(CallBacker*);

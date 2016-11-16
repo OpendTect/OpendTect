@@ -131,11 +131,17 @@ protected:
 
 bool acceptOK()
 {
-    return applyCB( 0 );
+    return apply();
 }
 
 
-bool applyCB( CallBacker* )
+void applyCB( CallBacker* )
+{
+    apply();
+}
+
+
+bool apply()
 {
     if ( preprocgrp_->isChanged() )
     {

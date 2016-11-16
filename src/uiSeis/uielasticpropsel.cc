@@ -344,7 +344,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 	ts_->addTab( tgs[idx], ElasticFormula::TypeDef().toUiString(tp) );
     }
     ts_->selChange().notify(
-			mCB(this,uiElasticPropSelDlg,screenSelectionChanged) );
+		mCB(this,uiElasticPropSelDlg,screenSelectionChangedCB) );
 
     uiGroup* gengrp = new uiGroup( this, "buttons" );
     gengrp->attach( ensureBelow, ts_ );
@@ -366,7 +366,11 @@ uiElasticPropSelDlg::~uiElasticPropSelDlg()
 }
 
 
-bool uiElasticPropSelDlg::screenSelectionChanged( CallBacker* )
+void uiElasticPropSelDlg::screenSelectionChangedCB( CallBacker* )
+{ screenSelectionChanged(); }
+
+
+bool uiElasticPropSelDlg::screenSelectionChanged()
 {
     NotifyStopper ns( ts_->selChange() );
     propnms_ = orgpropnms_;
@@ -419,7 +423,7 @@ bool uiElasticPropSelDlg::rejectOK()
 
 bool uiElasticPropSelDlg::acceptOK()
 {
-    if ( !screenSelectionChanged(0) )
+    if ( !screenSelectionChanged() )
 	return false;
 
     if( ctio_.ioobj_ )

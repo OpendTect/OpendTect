@@ -493,7 +493,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 }
 
 
-void FaultStickSetEditor::cloneMovingNode()
+void FaultStickSetEditor::cloneMovingNode(CallBacker*)
 {
     setLastClicked( movingnode_ );
     mDynamicCastGet( EM::FaultStickSet*, emfss, emobject_.ptr() );

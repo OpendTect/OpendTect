@@ -210,7 +210,7 @@ const SurveyInfo* uiSurveyManager::curSI() const
 }
 
 
-static void osrbuttonCB( void* )
+static void osrbuttonCB( CallBacker* )
 {
     uiDesktopServices::openUrl( "https://opendtect.org/osr" );
 }

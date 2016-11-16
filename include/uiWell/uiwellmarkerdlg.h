@@ -62,7 +62,7 @@ protected:
     bool			getFromScreen();
     void			markerChangedCB(CallBacker*);
     void			markerAddedCB(CallBacker*);
-    bool			setAsRegMarkersCB(CallBacker*);
+    void			setAsRegMarkersCB(CallBacker*);
     float			zFactor() const;
     void			exportCB(CallBacker*);
     bool			getKey(DBKey&) const;

@@ -35,13 +35,13 @@ class CallBacker;
 
 
 typedef void (CallBacker::*CallBackFunction)(CallBacker*);
-#define mCBFn(clss,fn) ((CallBackFunction)(&clss::fn))
+#define mCBFn(fn) (static_cast<CallBackFunction>(&fn))
 
 //!> To make your CallBack. Used in many places, especially the UI.
-#define mCB(obj,clss,fn) CallBack( static_cast<clss*>(obj), mCBFn(clss,fn))
+#define mCB(obj,clss,fn) CallBack( static_cast<clss*>(obj), mCBFn(clss::fn))
 
 typedef void (*StaticCallBackFunction)(CallBacker*);
-#define mSCB(fn) CallBack( ((StaticCallBackFunction)(&fn)) )
+#define mSCB(fn) CallBack( (static_cast<StaticCallBackFunction>(&fn)) )
 
 class QCallBackEventReceiver;
 
@@ -65,40 +65,40 @@ public:
 			    : cberobj_(o), fn_(f), sfn_(0)	{}
 			CallBack( StaticCallBackFunction f )
 			    : cberobj_(0), fn_(0), sfn_(f)	{}
-    inline int		operator==( const CallBack& c ) const
-			{ return cberobj_ == c.cberobj_ && fn_ == c.fn_ && sfn_ == c.sfn_; }
-    inline int		operator!=( const CallBack& cb ) const
+    bool		operator==( const CallBack& c ) const;
+    inline bool		operator!=( const CallBack& cb ) const
 			{ return !(*this==cb); }
 
     inline bool		willCall() const
 			{ return (cberobj_  && fn_) || sfn_; }
     void		doCall(CallBacker*) const;
 
-    inline CallBacker*			cbObj()			{ return cberobj_; }
-    inline const CallBacker*		cbObj() const		{ return cberobj_; }
-    inline CallBackFunction		cbFn() const		{ return fn_; }
-    inline StaticCallBackFunction	scbFn() const		{ return sfn_; }
+    inline CallBacker*			cbObj()		{ return cberobj_; }
+    inline const CallBacker*		cbObj() const	{ return cberobj_; }
+    inline CallBackFunction		cbFn() const	{ return fn_; }
+    inline StaticCallBackFunction	scbFn() const	{ return sfn_; }
 
-    static bool		addToMainThread(const CallBack&, CallBacker* =0);
-                        /*!< Unconditionally add this to main event loop.
-                         For thread safety, the removeFromThreadCalls()
-                         must be called in the destructor. */
-    static bool		addToThread(Threads::ThreadID,const CallBack&,CallBacker* = 0);
-			/*!< Unconditionally add this to event loop of the other thread.
-			     For thread safety, the removeFromThreadCalls()
-			     must be called in the destructor. */
+    static bool addToMainThread(const CallBack&, CallBacker* =0);
+		/*!< Unconditionally add this to main event loop.
+		     For thread safety, the removeFromThreadCalls()
+		     must be called in the destructor. */
+    static bool addToThread(Threads::ThreadID,const CallBack&,
+				    CallBacker* = 0);
+		/*!< Unconditionally add this to event loop of the other thread.
+		     For thread safety, the removeFromThreadCalls()
+		     must be called in the destructor. */
 
-    static bool		callInMainThread(const CallBack&, CallBacker* =0);
-                        /*!<If in main thread or no event-loop is present, it
-                            will be called directly. Otherwise, it will be
-                            put on event loop.
-                            For thread safety, the removeFromThreadCalls()
-                            must be called in the destructor.
-                            \returns true if the callback was called directly.
+    static bool callInMainThread(const CallBack&, CallBacker* =0);
+		/*!<If in main thread or no event-loop is present, it
+		    will be called directly. Otherwise, it will be
+		    put on event loop.
+		    For thread safety, the removeFromThreadCalls()
+		    must be called in the destructor.
+		    \returns true if the callback was called directly.
                         */
 
-    static void		removeFromThreadCalls(const CallBacker*);
-			/* Removes callbacker from all event loops in all threads*/
+    static void removeFromThreadCalls(const CallBacker*);
+		/* Removes callbacker from all event loops in all threads*/
 
 
     // See also mEnsureExecutedInMainThread macro
@@ -114,24 +114,24 @@ public:
 
     // Usually only called from mEnsureExecutedInMainThread:
 
-    static bool				queueIfNotInMainThread(CallBack,
-							CallBacker* =0);
-					/*!< If not in main thread, queue it.
-					   return whether CB was queued. */
-    static mDeprecated void		removeFromMainThread(const CallBacker* cber)
-					{ removeFromThreadCalls(cber); }
+    static bool			queueIfNotInMainThread(CallBack,
+						CallBacker* =0);
+				/*!< If not in main thread, queue it.
+				   return whether CB was queued. */
+    static mDeprecated void	removeFromMainThread(const CallBacker* cber)
+				{ removeFromThreadCalls(cber); }
 };
 
 #define mMainThreadCall( func ) \
-CallBack::callInMainThread( CallBack( this, ((CallBackFunction)(&func) ) ), 0)
+CallBack::callInMainThread( CallBack( this, mCBFn(func) ), 0)
 
 #define mEnsureExecutedInMainThread( func ) \
     if ( CallBack::queueIfNotInMainThread( \
-	CallBack( this, ((CallBackFunction)(&func) ) ), 0 ) )  \
+	CallBack( this, mCBFn(func) ), 0 ) )  \
 	return
 
 #define mEnsureExecutedInMainThreadWithCapsule( func, caps ) \
-    CallBack cb( this, ((CallBackFunction)(&func) ) ); \
+    CallBack cb( this, mCBFn(func) ); \
     if ( CallBack::queueIfNotInMainThread(cb,caps->clone()) ) \
 	return;
 

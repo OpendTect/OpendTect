@@ -367,6 +367,10 @@ bool CallBacker::notifyShutdown( NotifierAccess* na, bool wait )
 Threads::ThreadID CallBack::mainthread_ = 0;
 
 
+bool CallBack::operator==( const CallBack& c ) const
+{ return cberobj_ == c.cberobj_ && fn_ == c.fn_ && sfn_ == c.sfn_; }
+
+
 void CallBack::initClass()
 {
 #ifndef OD_NO_QT
@@ -396,14 +400,16 @@ bool CallBack::addToMainThread( const CallBack& cb, CallBacker* cber )
 }
 
 
-bool CallBack::addToThread(Threads::ThreadID threadid, const CallBack& cb, CallBacker* cber)
+bool CallBack::addToThread( Threads::ThreadID threadid, const CallBack& cb,
+			    CallBacker* cber)
 {
     Threads::Locker locker(callbackeventreceiverslock);
     QCallBackEventReceiver* rec = getQCBER(threadid);
 
     if (!rec)
     {
-	pFreeFnErrMsg("Thread does not have a receiver. Create in the thread by calling CallBacker::createReceiverForCurrentThread()");
+	pFreeFnErrMsg("Thread does not have a receiver. Create in the thread "
+		  "by calling CallBacker::createReceiverForCurrentThread()");
 	return false;
     }
     

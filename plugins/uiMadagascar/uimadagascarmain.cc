@@ -90,7 +90,7 @@ void uiMadagascarMain::createToolBar()
     uiToolBar* toolbar = new uiToolBar( this, tr("Flow tools") );
     mAddButton( "new", newFlow, tr("Empty this flow") );
     mAddButton( "open", openFlow, tr("Open saved flow") );
-    mAddButton( "save", saveFlow, tr("Save flow") );
+    mAddButton( "save", saveFlowCB, tr("Save flow") );
     mAddButton( "export", exportFlow, uiStrings::phrExport( tr("flow")) );
 }
 
@@ -280,7 +280,13 @@ void uiMadagascarMain::openFlow( CallBacker* )
 }
 
 
-bool uiMadagascarMain::saveFlow( CallBacker* )
+void uiMadagascarMain::saveFlowCB( CallBacker* )
+{
+    saveFlow();
+}
+
+
+bool uiMadagascarMain::saveFlow()
 {
     ctio_.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( this, ctio_ );
@@ -309,7 +315,7 @@ bool uiMadagascarMain::askSave( bool withcancel )
     if ( ret < 0 ) return false;
     if ( !ret ) return true;
 
-    const bool saved = saveFlow( 0 );
+    const bool saved = saveFlow();
     return withcancel ? saved : true;
 }
 

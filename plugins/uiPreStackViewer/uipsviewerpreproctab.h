@@ -37,7 +37,8 @@ public:
 
 protected:
 
-    bool				applyButPushedCB(CallBacker*);
+    void				applyButPushedCB(CallBacker*);
+    bool				apply();
     void				processorChangeCB(CallBacker*);
 
     visSurvey::PreStackDisplay&		vwr_;

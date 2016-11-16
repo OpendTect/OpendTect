@@ -128,9 +128,9 @@ public:
 
 
 #define mAttachObjCB( objptr, notifier, func, chk ) \
-    attachCB( notifier, CallBack( objptr, ((CallBackFunction)(&func) ) ), chk )
+    attachCB( notifier, CallBack( objptr, mCBFn(func) ), chk )
 #define mDetachObjCB( objptr, notifier, func ) \
-    detachCB( notifier, CallBack( objptr, ((CallBackFunction)(&func) ) ) )
+    detachCB( notifier, CallBack( objptr, mCBFn(func) ) )
 
 #define mAttachCB( notifier, func ) \
     mAttachObjCB( this, notifier, func, false )

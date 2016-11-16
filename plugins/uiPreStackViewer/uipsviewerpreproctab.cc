@@ -55,11 +55,17 @@ void uiViewer3DPreProcTab::processorChangeCB( CallBacker* )
 
 bool uiViewer3DPreProcTab::acceptOK()
 {
-    return applyButPushedCB( 0 );
+    return apply();
 }
 
 
-bool uiViewer3DPreProcTab::applyButPushedCB( CallBacker* cb )
+void uiViewer3DPreProcTab::applyButPushedCB( CallBacker* cb )
+{
+    apply();
+}
+
+
+bool uiViewer3DPreProcTab::apply()
 {
     applybut_->setSensitive( false );
 

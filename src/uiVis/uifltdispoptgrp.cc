@@ -44,7 +44,13 @@ void uiFaultDisplayOptGrp::algChg( CallBacker* )
 }
 
 
-bool uiFaultDisplayOptGrp::applyCB( CallBacker* )
+void uiFaultDisplayOptGrp::applyCB( CallBacker* )
+{
+    apply();
+}
+
+
+bool uiFaultDisplayOptGrp::apply()
 {
     if ( !fltdisp_ )
 	return false;
@@ -56,4 +62,4 @@ bool uiFaultDisplayOptGrp::applyCB( CallBacker* )
 
 
 bool uiFaultDisplayOptGrp::acceptOK()
-{ return applyCB(0); }
+{ return apply(); }

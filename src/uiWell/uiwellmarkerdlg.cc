@@ -633,26 +633,26 @@ protected:
 };
 
 
-bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
+void uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 {
     Well::MarkerSet mset;
-    if ( !getMarkerSet(mset) ) return false;
+    if ( !getMarkerSet(mset) ) return;
 
     if ( !mset.size() )
     {
 	uiMSG().message( tr("No markers available") );
-	return false;
+	return;
     }
 
     uiMarkersList dlg( this, mset );
-    if ( !dlg.go() ) return false;
+    if ( !dlg.go() ) return;
 
     TypeSet<int> selitems;
     dlg.getSelIDs( selitems );
     if ( !selitems.size() )
     {
 	uiMSG().message( tr("No markers selected.") );
-	return false;
+	return;
     }
 
     MonitorLock ml( mset );
@@ -677,7 +677,7 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 		   "Press Continue to update properties.")
 	      .arg(mid > 1 ? tr("are ") : tr("is ")));
 	const bool res = uiMSG().askContinue( msg );
-	if ( !res ) return false;
+	if ( !res ) return;
     }
 
     ml.reLock();
@@ -694,7 +694,6 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
     ml.unlockNow();
 
     setMarkerSet( mset, false );
-    return true;
 }
 
 

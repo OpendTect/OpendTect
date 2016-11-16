@@ -328,7 +328,7 @@ void uiWellLogToolWin::handleSpikeSelCB( CallBacker* )
 }
 
 
-bool uiWellLogToolWin::okPushedCB( CallBacker* )
+void uiWellLogToolWin::okPushedCB( CallBacker* )
 {
     for ( int idx=0; idx<logdatas_.size(); idx++ )
     {
@@ -343,19 +343,21 @@ bool uiWellLogToolWin::okPushedCB( CallBacker* )
 	    outplog->setName( newnm );
 	    if ( !overwrite && ls.isPresent( outplog->name() ) )
 	    {
-		mErrRet(tr("One or more logs with this name already exists."
-		"\nPlease select a different extension for the new logs"));
+		uiMSG().error(
+		    tr("One or more logs with this name already exists."
+		    "\nPlease select a different extension for the new logs"));
+		return;
 	    }
 	    ls.add( outplog );
 	    needsave_ = true;
 	}
     }
-    close(); return true;
+    close();
 }
 
 
-bool uiWellLogToolWin::cancelPushedCB()
-{ close(); return true; }
+void uiWellLogToolWin::cancelPushedCB( CallBacker* )
+{ close(); }
 
 
 #define mAddErrMsg( msg, well ) \

@@ -37,10 +37,14 @@ uiVisPolygonSurfBezierDlg::uiVisPolygonSurfBezierDlg( uiParent* p,
 
 
 bool uiVisPolygonSurfBezierDlg::acceptOK()
-{ return applyCB(0); }
+{ return apply(); }
 
 
-bool uiVisPolygonSurfBezierDlg::applyCB( CallBacker* )
+void uiVisPolygonSurfBezierDlg::applyCB( CallBacker* )
+{ apply(); }
+
+
+bool uiVisPolygonSurfBezierDlg::apply()
 {
     if ( !surf_ ) return false;
 

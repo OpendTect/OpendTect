@@ -132,5 +132,6 @@ protected:
     bool			acceptOK();
     bool			rejectOK();
     void			elasticPropSelectionChanged(CallBacker*);
-    bool			screenSelectionChanged(CallBacker*);
+    void			screenSelectionChangedCB(CallBacker*);
+    bool			screenSelectionChanged();
 };

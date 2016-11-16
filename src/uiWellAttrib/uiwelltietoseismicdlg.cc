@@ -373,10 +373,10 @@ void uiTieWin::editD2TPushed( CallBacker* cb )
 }
 
 
-bool uiTieWin::saveDataPushed( CallBacker* cb )
+void uiTieWin::saveDataPushed( CallBacker* cb )
 {
     uiSaveDataDlg dlg( this, server_ );
-    return dlg.go();
+    dlg.go();
 }
 
 
@@ -431,10 +431,10 @@ void uiTieWin::checkIfPick( CallBacker* )
 }
 
 
-bool uiTieWin::undoPushed( CallBacker* cb )
+void uiTieWin::undoPushed( CallBacker* cb )
 {
     if ( !server_.d2TModelMgr().undo() )
-	mErrRetYN( tr("Cannot go back to previous model") );
+	mErrRet( tr("Cannot go back to previous model") );
 
     server_.updateExtractionRange();
     doWork( cb );
@@ -445,23 +445,22 @@ bool uiTieWin::undoPushed( CallBacker* cb )
 
     undobut_->setSensitive( false );
     applybut_->setSensitive( false );
-    return true;
 }
 
 
-bool uiTieWin::matchHorMrks( CallBacker* )
+void uiTieWin::matchHorMrks( CallBacker* )
 {
     PickSetMgr& pmgr = server_.pickMgr();
-    mGetWD(return false)
+    mGetWD(return)
     if ( !wd || !wd->markers().size() )
-	mErrRetYN( tr("No Well marker found") )
+	mErrRet( tr("No Well marker found") )
 
     uiString msg = tr("No horizon loaded, do you want to load some ?");
     const Data& data = server_.data();
     if ( !data.horizons_.size() )
     {
 	if ( !uiMSG().askGoOn( msg ) )
-	    return false;
+	    return;
 	controlview_->loadHorizons(0);
     }
     pmgr.clearAllPicks();
@@ -474,22 +473,20 @@ bool uiTieWin::matchHorMrks( CallBacker* )
     TypeSet<HorizonMgr::PosCouple> pcs;
     server_.horizonMgr().matchHorWithMarkers( pcs, matchinpfld->getBoolValue());
     if ( pcs.isEmpty() )
-	mErrRetYN( tr("No match between markers and horizons") )
+	mErrRet( tr("No match between markers and horizons") )
     for ( int idx=0; idx<pcs.size(); idx ++ )
     {
 	pmgr.addPick( pcs[idx].z1_, true );
 	pmgr.addPick( pcs[idx].z2_, false );
     }
     drawer_->drawUserPicks();
-    return true;
 }
 
 
-bool uiTieWin::cancelPushCB( CallBacker* )
+void uiTieWin::cancelPushCB( CallBacker* )
 {
     drawer_->enableCtrlNotifiers( false );
     close();
-    return true;
 }
 
 
@@ -499,7 +496,7 @@ void uiTieWin::cleanUp( CallBacker* )
 }
 
 
-bool uiTieWin::okPushCB( CallBacker* )
+void uiTieWin::okPushCB( CallBacker* )
 {
     uiString errmsg = tr("This will overwrite your depth/time model, "
 			 "do you want to continue?");
@@ -508,10 +505,8 @@ bool uiTieWin::okPushCB( CallBacker* )
 	drawer_->enableCtrlNotifiers( false );
 	close();
 	if ( !server_.d2TModelMgr().commitToWD() )
-	    mErrRetYN(tr("Cannot write new depth/time model"))
+	    mErrRet(tr("Cannot write new depth/time model"))
     }
-
-    return false;
 }
 
 

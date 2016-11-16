@@ -313,15 +313,15 @@ static bool passSurveyCheck( uiFileInput& fld, bool& surveycheck )
 }
 
 
-bool uiCmdDriverDlg::selectGoCB( CallBacker* )
+void uiCmdDriverDlg::selectGoCB( CallBacker* )
 {
     if ( !passSurveyCheck(*inpfld_, inpfldsurveycheck_) )
-	return false;
+	return;
 
     if ( !passSurveyCheck(*logfld_, logfldsurveycheck_) )
     {
 	if ( *logfld_->text() )
-	    return false;
+	    return;
 
 	setDefaultLogFile();
     }
@@ -330,7 +330,7 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
     if ( File::isDirectory(fnm) || File::isEmpty(fnm) )
     {
 	uiMSG().error( tr("Invalid command file selected") );
-	return false;
+	return;
     }
 
     File::Path fp( logfld_->fileName() );
@@ -338,7 +338,7 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
 	 (File::exists(fp.fullPath()) && !File::isWritable(fp.fullPath())) )
     {
 	uiMSG().error( tr("Log file cannot be written") );
-	return false;
+	return;
     }
 
     drv_.setOutputDir( fp.pathOnly() );
@@ -348,7 +348,7 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
     if ( !drv_.getActionsFromFile(fnm) )
     {
 	uiMSG().error( drv_.errMsg() ); 
-	return false;
+	return;
     }
 
     logfld_->setFileName( fp.fullPath() );
@@ -356,8 +356,6 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
 
     refreshDisplay( true, false );
     drv_.execute();
-
-    return true;
 }
 
 
@@ -439,10 +437,10 @@ void uiCmdDriverDlg::executeFinished()
 }
 
 
-bool uiCmdDriverDlg::selectStartRecordCB( CallBacker* )
+void uiCmdDriverDlg::selectStartRecordCB( CallBacker* )
 {
     if ( !passSurveyCheck(*outfld_, outfldsurveycheck_) )
-	return false;
+	return;
 
     File::Path fp( outfld_->fileName() );
     fp.setExtension( ".odcmd" );
@@ -451,21 +449,19 @@ bool uiCmdDriverDlg::selectStartRecordCB( CallBacker* )
 	 (File::exists(fp.fullPath()) && !File::isWritable(fp.fullPath())) )
     {
 	uiMSG().error( tr("Command file cannot be written") );
-	return false;
+	return;
     }
 
     if ( File::exists(fp.fullPath()) )
     {
 	if ( !uiMSG().askOverwrite(tr("Overwrite existing command file?")) )
-	    return false;
+	    return;
     }
 
     rec_.setOutputFile( fp.fullPath() );
     outfld_->setFileName( fp.fullPath() );
     refreshDisplay( false, false );
     rec_.start();
-
-    return true;
 }
 
 

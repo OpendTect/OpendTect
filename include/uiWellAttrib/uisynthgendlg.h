@@ -59,7 +59,7 @@ protected:
     void			getPSNames(BufferStringSet&);
     bool			prepareSyntheticToBeChanged(bool toberemoved);
     void			typeChg(CallBacker*);
-    bool			genNewCB(CallBacker*);
+    void			genNewCB(CallBacker*);
     bool			acceptOK();
     void			removeSyntheticsCB(CallBacker*);
     void			changeSyntheticsCB(CallBacker*);

@@ -27,7 +27,8 @@ public:
 						visSurvey::PolygonBodyDisplay*);
     bool				acceptOK();
 protected:
-    bool				applyCB(CallBacker*);
+    bool				apply();
+    void				applyCB(CallBacker*);
 
     visSurvey::PolygonBodyDisplay*	plg_;
     Geometry::PolygonSurface*		surf_;

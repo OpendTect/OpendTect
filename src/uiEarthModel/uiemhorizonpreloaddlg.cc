@@ -95,15 +95,15 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
 }
 
 
-bool uiHorizonPreLoadDlg::add3DPushCB( CallBacker* )
+void uiHorizonPreLoadDlg::add3DPushCB( CallBacker* )
 {
-    return loadHorizon( false );
+    loadHorizon( false );
 }
 
 
-bool uiHorizonPreLoadDlg::add2DPushCB( CallBacker* )
+void uiHorizonPreLoadDlg::add2DPushCB( CallBacker* )
 {
-    return loadHorizon( true );
+    loadHorizon( true );
 }
 
 

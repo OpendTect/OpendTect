@@ -54,7 +54,7 @@ protected:
 
     void		stepCB(CallBacker*);
     void		atStart(CallBacker*);
-    bool		applyCB(CallBacker*);
+    void		applyCB(CallBacker*);
 
     bool		rejectOK();
 

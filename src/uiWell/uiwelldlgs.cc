@@ -104,7 +104,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 
     zinftfld_ = new uiCheckBox( this, tr("Z in Feet") );
     zinftfld_->setChecked( SI().depthsInFeet() );
-    zinftfld_->activated.notify( mCB( this,uiWellTrackDlg,fillTable ) );
+    zinftfld_->activated.notify( mCB( this,uiWellTrackDlg,fillTableCB ) );
     zinftfld_->activated.notify( mCB( this,uiWellTrackDlg,fillSetFields ) );
     zinftfld_->attach( rightAlignedBelow, tbl_ );
 
@@ -112,7 +112,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 
     uiPushButton* updbut = !writable_ ? 0
 		: new uiPushButton( actbutgrp, tr("Update display"),
-				   mCB(this,uiWellTrackDlg,updNow), true );
+				   mCB(this,uiWellTrackDlg,updNowCB), true );
     uiPushButton* setbut = 0;
     wellheadxfld_ = new uiGenInput( actbutgrp, tr("X-Coordinate of well head"),
 				    DoubleInpSpec(mUdf(double)) );
@@ -187,7 +187,13 @@ static const UnitOfMeasure* getDisplayUnit( uiCheckBox* zinfeet )
  mDataUom(true)->internalValue( \
 	     getConvertedValue(val,getDisplayUnit(zinftfld_),mDataUom(true)) ) )
 
-bool uiWellTrackDlg::fillTable( CallBacker* )
+void uiWellTrackDlg::fillTableCB( CallBacker* )
+{
+    fillTable();
+}
+
+
+bool uiWellTrackDlg::fillTable()
 {
     RowCol curcell( tbl_->currentCell() );
 
@@ -454,7 +460,13 @@ void uiWellTrackDlg::readNew( CallBacker* )
 }
 
 
-bool uiWellTrackDlg::updNow( CallBacker* )
+void uiWellTrackDlg::updNowCB(CallBacker*)
+{
+    updNow();
+}
+
+
+bool uiWellTrackDlg::updNow()
 {
     track_.setEmpty();
     const int nrrows = tbl_->nrRows();
@@ -556,7 +568,7 @@ void uiWellTrackDlg::updatePos( bool isx )
 	return;
     }
 
-    updNow(0); //ensure the table contains only the clean track
+    updNow(); //ensure the table contains only the clean track
     posfld->setValue( newpos );
     const int icol = isx ? cXCol : cYCol;
     const double shift = newpos - surfacepos;
@@ -569,7 +581,7 @@ void uiWellTrackDlg::updatePos( bool isx )
 	tbl_->setValue( RowCol(irow,icol), tblpos + shift );
     }
 
-    updNow(0); //write the new table data back to the track
+    updNow(); //write the new table data back to the track
 }
 
 
@@ -592,7 +604,7 @@ void uiWellTrackDlg::updateKbElev( CallBacker* )
 	return;
     }
 
-    updNow(0); //ensure the table contains only the clean track
+    updNow(); //ensure the table contains only the clean track
     kbelevfld_->setValue( mConvertVal(newkbelev,true) );
     const float shift = kbelevorig - newkbelev;
     for ( int irow=0; irow<tbl_->nrRows(); irow++ )
@@ -604,7 +616,7 @@ void uiWellTrackDlg::updateKbElev( CallBacker* )
 	setZ( irow, mCast(float,zval) + shift );
     }
 
-    updNow(0); //write the new table data back to the track
+    updNow(); //write the new table data back to the track
 }
 
 
@@ -636,7 +648,7 @@ bool uiWellTrackDlg::acceptOK()
     if ( !writable_ )
 	return true;
 
-    if ( !updNow( 0 ) )
+    if ( !updNow() )
 	return false;
 
     MonitorLock ml( track_ );
@@ -675,7 +687,7 @@ bool uiWellTrackDlg::acceptOK()
 
 void uiWellTrackDlg::exportCB( CallBacker* )
 {
-    updNow( 0 );
+    updNow();
     if ( !track_.size() )
     {
 	uiMSG().message( tr("No data available to export") );
@@ -1503,7 +1515,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
 	 ( !d2t || d2t->size() < 2 ) )
     { //Whole well track is above SRD: The entire model is controlled by replvel
 	wd_.info().setReplacementVelocity( replvel );
-	updNow(0);
+	updNow( 0 );
 	return;
     }
 
@@ -1561,7 +1573,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
 	setTimeValue( irow, twt + timeshift );
     }
 
-    updNow(0);
+    updNow( 0 );
 }
 
 

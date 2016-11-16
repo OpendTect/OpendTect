@@ -118,7 +118,8 @@ void FaultEditor::setScaleVector( const Coord3& scalevec )
     Coord3( crd.x_, crd.y_, SI().zScale()*crd.z_ )
 
 #define mCustomScale(crd) \
-    Coord3( crd.x_, scalevector_.getXY().dot(crd.getXY()), scalevector_.z_*crd.z_)
+    Coord3( crd.x_, scalevector_.getXY().dot(crd.getXY()), \
+	    scalevector_.z_*crd.z_)
 
 
 float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
@@ -635,7 +636,7 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 }
 
 
-void FaultEditor::cloneMovingNode()
+void FaultEditor::cloneMovingNode(CallBacker*)
 {
     setLastClicked( movingnode_ );
     mDynamicCastGet( EM::Fault3D*, emfault, emobject_.ptr() );

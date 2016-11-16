@@ -29,7 +29,7 @@ public:
 protected:
 
     virtual BufferString	getSummary() const;
-    bool			butPushCB(CallBacker*);
+    void			butPushCB(CallBacker*);
 
     DBKey			hormid_;
     const char*			auxdatanm_;

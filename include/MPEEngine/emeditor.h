@@ -125,7 +125,7 @@ protected:
 					    along and their corresponding
 					    factors. */
 
-    virtual void			cloneMovingNode()		{}
+    virtual void			cloneMovingNode(CallBacker*)	{}
 
     RefMan<EM::EMObject>		emobject_;
     EM::PosID				movingnode_;

@@ -54,10 +54,11 @@ protected:
     void		selChg(CallBacker*);
     void		newFlow(CallBacker*);
     void		openFlow(CallBacker*);
-    bool		saveFlow(CallBacker*);
+    void		saveFlowCB(CallBacker*);
     void		exportFlow(CallBacker*);
     bool		rejectOK();
 
+    bool		saveFlow();
     bool		fillPar();
     void		createToolBar();
     void		updateCaption();

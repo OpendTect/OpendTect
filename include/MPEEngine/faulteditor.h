@@ -75,7 +75,7 @@ protected:
 
     int				getLastClickedStick() const;
 
-    void			cloneMovingNode();
+    void			cloneMovingNode(CallBacker*);
 
     Coord3			sowingpivot_;
     TypeSet<Coord3>		sowinghistory_;

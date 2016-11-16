@@ -432,21 +432,20 @@ bool uiSynthGenDlg::rejectOK()
 }
 
 
-bool uiSynthGenDlg::genNewCB( CallBacker* )
+void uiSynthGenDlg::genNewCB( CallBacker* )
 {
-    if ( !getFromScreen() ) return false;
+    if ( !getFromScreen() ) return;
 
     if ( stratsynth_.genParams().name_ == SynthGenParams::sKeyInvalidInputPS() )
-	mErrRet( uiStrings::phrEnter(tr("a different name")), return false );
+	mErrRet( uiStrings::phrEnter(tr("a different name")), return );
 
     if ( synthnmlb_->isPresent(stratsynth_.genParams().name_) )
     {
 	uiString msg = tr("Synthectic data of name '%1' is already present. "
 			  "Please choose a different name" )
 		     .arg(stratsynth_.genParams().name_);
-	mErrRet( msg, return false );
+	mErrRet( msg, return );
     }
 
     genNewReq.trigger();
-    return true;
 }

@@ -63,9 +63,11 @@ protected:
     Coord3		origpos_;
     float		origgl_;
 
-    bool		fillTable(CallBacker* cb=0);
+    void		fillTableCB(CallBacker*);
+    bool		fillTable();
     void		fillSetFields(CallBacker* cb=0);
-    bool		updNow(CallBacker*);
+    void		updNowCB(CallBacker*);
+    bool		updNow();
     void		readNew(CallBacker*);
     bool		rejectOK();
     bool		acceptOK();

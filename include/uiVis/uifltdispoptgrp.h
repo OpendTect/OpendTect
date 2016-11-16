@@ -28,7 +28,8 @@ public:
 
 protected:
 
-    bool			applyCB(CallBacker*);
+    bool			apply();
+    void			applyCB(CallBacker*);
     void			algChg(CallBacker*);
 
     uiGenInput*			algfld_;

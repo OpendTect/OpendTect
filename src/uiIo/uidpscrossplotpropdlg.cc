@@ -275,7 +275,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 {
     inpfld_ = new uiGenInput( this, tr("Equation Y1=") );
     inpfld_->setElemSzPol( uiObject::Wide );
-    inpfld_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExp) );
+    inpfld_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExpCB) );
     inpfld_->valuechanging.notify( mCB(this,uiDPSUserDefTab,checkMathExpr) );
 
     rmsfld_ = new uiGenInput( this, mJoinUiStrs(sRMS(), sErrors()) );
@@ -285,14 +285,15 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 
     shwy1userdefpolyline_ = new uiCheckBox( this,
 					    tr("Show Y1 User Defined Curve") );
-    shwy1userdefpolyline_->activated.notify(mCB(this,uiDPSUserDefTab,parseExp));
+    shwy1userdefpolyline_->activated.notify(
+					mCB(this,uiDPSUserDefTab,parseExpCB));
     shwy1userdefpolyline_->attach( alignedBelow, inpfld_ );
 
     if ( hasy2_ )
     {
 	inpfld1_ = new uiGenInput( this, tr("Equation Y2=") );
 	inpfld1_->setElemSzPol( uiObject::Wide );
-	inpfld1_->updateRequested.notify( mCB(this,uiDPSUserDefTab,parseExp) );
+	inpfld1_->updateRequested.notify(mCB(this,uiDPSUserDefTab,parseExpCB) );
 	inpfld1_->valuechanging.notify(mCB(this,uiDPSUserDefTab,checkMathExpr));
 	inpfld1_->attach( alignedBelow, shwy1userdefpolyline_ );
 
@@ -304,7 +305,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
 	shwy2userdefpolyline_ =
 	    new uiCheckBox( this, tr("Show Y2 User Defined Curve") );
 	shwy2userdefpolyline_->activated.notify(
-		mCB(this,uiDPSUserDefTab,parseExp) );
+		mCB(this,uiDPSUserDefTab,parseExpCB) );
 
 	shwy2userdefpolyline_->attach( alignedBelow, inpfld1_ );
     }
@@ -364,6 +365,12 @@ void checkMathExpr( CallBacker* cb )
 	isy1 ? rmsfld_->setText(plotter_.y1rmserr_)
 	    : rmsfld1_->setText(plotter_.y2rmserr_);
     }
+}
+
+
+void parseExpCB( CallBacker* cb )
+{
+    parseExp( cb );
 }
 
 
