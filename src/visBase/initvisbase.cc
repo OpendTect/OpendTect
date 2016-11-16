@@ -19,7 +19,8 @@
 #include <osgGeo/LayeredTexture>
 #include <osg/Notify>
 
-static uiString* legalText();
+static uiString* osgLegalText();
+static uiString* openGLLegalText();
 
 
 mDefModInitFn(visBase)
@@ -43,10 +44,11 @@ mDefModInitFn(visBase)
     visBase::ColTabTextureChannel2RGBA::initClass();
     visBase::RGBATextureChannel2RGBA::initClass();
 
-    legalInformation().addCreator( legalText, "OpenSceneGraph" );
+    legalInformation().addCreator( osgLegalText, "OpenSceneGraph" );
+    legalInformation().addCreator( openGLLegalText, "OpenGL" );
 }
 
-static uiString* legalText()
+static uiString* osgLegalText()
 {
     uiString* res = new uiString;
     *res = toUiString(
@@ -64,5 +66,28 @@ static uiString* legalText()
 "\n"
 "%1"
 ).arg( lgplV3Text() );
+    return res;
+}
+
+static uiString* openGLLegalText()
+{
+    //This is because GL/glext.h is needed to compile opendTect
+    //(or osgGeo to be specific) and is added to the repository
+    uiString* res = new uiString;
+    *res = toUiString(
+   "Copyright (c) 2013-2016 The Khronos Group Inc.\n"
+   "\n"
+   "Permission is hereby granted, free of charge, to any person obtaining a\n"
+   "copy of this software and/or associated documentation files (the\n"
+   "\"Materials\"), to deal in the Materials without restriction, including\n"
+   "without limitation the rights to use, copy, modify, merge, publish,\n"
+   "distribute, sublicense, and/or sell copies of the Materials, and to\n"
+   "permit persons to whom the Materials are furnished to do so, subject to\n"
+   "the following conditions:\n"
+   "\n"
+   "The above copyright notice and this permission notice shall be included\n"
+   "in all copies or substantial portions of the Materials.\n");
+
+
     return res;
 }
