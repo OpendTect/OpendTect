@@ -179,12 +179,12 @@ virtual od_int64 totalNr() const
     return loader_.toload_.size();
 }
 
-virtual uiString uiMessage() const
+virtual uiString message() const
 {
     return uiStrings::phrLoading( uiStrings::sPickSet() );
 }
 
-virtual uiString uiNrDoneText() const
+virtual uiString nrDoneText() const
 {
     return tr("Sets loaded");
 }

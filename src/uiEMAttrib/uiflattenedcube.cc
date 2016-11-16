@@ -128,8 +128,8 @@ uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
 {
 }
 
-uiString uiMessage() const	{ return msg_; }
-uiString uiNrDoneText() const	{ return tr("Traces written"); }
+uiString message() const	{ return msg_; }
+uiString nrDoneText() const	{ return tr("Traces written"); }
 od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totnr_; }
 

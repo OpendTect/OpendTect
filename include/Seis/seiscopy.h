@@ -39,8 +39,8 @@ public:
 
     od_int64			totalNr() const;
     od_int64			nrDone() const;
-    uiString			uiMessage() const;
-    uiString			uiNrDoneText() const;
+    uiString			message() const;
+    uiString			nrDoneText() const;
     int				nextStep();
 
 protected:
@@ -81,8 +81,8 @@ public:
 
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const;
+    uiString		message() const	{ return msg_; }
+    uiString		nrDoneText() const;
     int			nextStep();
 
 protected:

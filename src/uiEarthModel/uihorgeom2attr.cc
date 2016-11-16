@@ -180,8 +180,8 @@ uiHorAttr2GeomExec( EM::Horizon3D& h, const DataPointSet& dps,
     delete horarray_;
 }
 
-uiString uiMessage() const	{ return uimsg_; }
-uiString uiNrDoneText() const	{ return tr("Nodes done"); }
+uiString message() const	{ return uimsg_; }
+uiString nrDoneText() const	{ return tr("Nodes done"); }
 od_int64 nrDone() const		{ return stepnr_ * 1000; }
 od_int64 totalNr() const	{ return totnr_; }
 

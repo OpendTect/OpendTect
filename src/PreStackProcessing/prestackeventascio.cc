@@ -46,7 +46,7 @@ void EventExporter::setHRange( const TrcKeySampling& hrg )
 }
 
 
-uiString EventExporter::uiNrDoneText() const
+uiString EventExporter::nrDoneText() const
 { return tr("CDP's exported"); }
 
 #define mWrite( var ) strm_ << (var) << '\t';
@@ -150,7 +150,7 @@ EventImporter::~EventImporter()
 { evmgr_.unRef(); delete &strm_; delete ascio_; }
 
 
-uiString EventImporter::uiNrDoneText() const
+uiString EventImporter::nrDoneText() const
 { return tr("Nr bytes read"); }
 
 

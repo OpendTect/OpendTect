@@ -106,7 +106,7 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 	rdr.setDataChar( type );
 	if ( !trunnr.execute(rdr) )
 	{
-	    errmsg_ = rdr.uiMessage();
+	    errmsg_ = rdr.message();
 	    return false;
 	}
 
@@ -125,7 +125,7 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 	rdr.setDataChar( type );
 	if ( !trunnr.execute(rdr) )
 	{
-	    errmsg_ = rdr.uiMessage();
+	    errmsg_ = rdr.message();
 	    return false;
 	}
 

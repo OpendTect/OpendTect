@@ -76,8 +76,8 @@ public:
     void		setExtrGates(const ObjectSet<ExtrGateSet>&,
 				const Strat::Level* stoplvl=0);
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Models handled");}
+    uiString		message() const	{ return msg_; }
+    uiString		nrDoneText() const	{ return tr("Models handled");}
     od_int64		nrDone() const		{ return seqidx_; }
     od_int64		totalNr() const;
     int			nextStep();

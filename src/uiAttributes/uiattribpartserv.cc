@@ -811,7 +811,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		if ( !process->execute() )
 		{
-		    const uiString msg( process->uiMessage() );
+		    const uiString msg( process->message() );
 		    if ( !msg.isEmpty() )
 			uiMSG().error( msg );
 		    return 0;
@@ -1012,7 +1012,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     if ( !process->execute() )
     {
-	const uiString msg( process->uiMessage() );
+	const uiString msg( process->message() );
 	if ( !msg.isEmpty() )
 	    uiMSG().error( msg );
 	return false;

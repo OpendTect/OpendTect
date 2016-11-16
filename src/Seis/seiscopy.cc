@@ -74,7 +74,7 @@ void SeisCubeCopier::init()
 
     if ( !stp_->reader(0) )
     {
-	errmsg_ = stp_->uiMessage();
+	errmsg_ = stp_->message();
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = uiStrings::phrCannotRead( uiStrings::sInput() );
 	delete stp_; stp_ = 0;
@@ -91,7 +91,7 @@ SeisCubeCopier::~SeisCubeCopier()
 }
 
 
-uiString SeisCubeCopier::uiNrDoneText() const
+uiString SeisCubeCopier::nrDoneText() const
 {
     return sNrTrcsCopied;
 }
@@ -109,9 +109,9 @@ od_int64 SeisCubeCopier::nrDone() const
 }
 
 
-uiString SeisCubeCopier::uiMessage() const
+uiString SeisCubeCopier::message() const
 {
-    return stp_ ? stp_->uiMessage() : errmsg_;
+    return stp_ ? stp_->message() : errmsg_;
 }
 
 
@@ -284,7 +284,7 @@ bool Seis2DCopier::initNextLine()
 }
 
 
-uiString Seis2DCopier::uiNrDoneText() const
+uiString Seis2DCopier::nrDoneText() const
 {
     return sNrTrcsCopied;
 }

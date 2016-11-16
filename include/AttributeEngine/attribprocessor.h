@@ -44,8 +44,8 @@ public:
     void			init();
     od_int64			totalNr() const;
     od_int64			nrDone() const;
-    uiString			uiMessage() const;
-    uiString			uiNrDoneText() const
+    uiString			message() const;
+    uiString			nrDoneText() const
 				{ return tr("Positions processed"); }
 
     void			addOutputInterest(int sel);

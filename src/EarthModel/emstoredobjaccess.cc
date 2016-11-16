@@ -90,7 +90,7 @@ void EM::StoredObjAccessData::workFinished( CallBacker* cb )
     if ( isfail )
     {
 	if ( rdr_ )
-	    errmsg_ = rdr_->uiMessage();
+	    errmsg_ = rdr_->message();
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = tr("Error during background read");
     }
@@ -299,8 +299,8 @@ StoredObjAccessReader( StoredObjAccess& oa )
 
 od_int64 totalNr() const	{ return 100; }
 od_int64 nrDone() const		{ return mNINT64(oa_.ratioDone()*100.f); }
-uiString uiMessage() const	{ return tr("Reading object data"); }
-uiString uiNrDoneText() const	{ return uiStrings::sPercentageDone(); }
+uiString message() const	{ return tr("Reading object data"); }
+uiString nrDoneText() const	{ return uiStrings::sPercentageDone(); }
 
 int nextStep()
 {

@@ -62,7 +62,7 @@ void Tut::SeisTools::setRange( const TrcKeyZSampling& cs )
 { tkzs_ = cs; }
 
 
-uiString Tut::SeisTools::uiMessage() const
+uiString Tut::SeisTools::message() const
 {
     static uiString acts[] = { tr("Scaling"), tr("Squaring"), tr("Smoothing"),
 				  tr("Changing") };

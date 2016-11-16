@@ -60,8 +60,8 @@ public:
 					 const Seis::SelData&);
     virtual		~Seis2DLineGetter()	{}
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces read"); }
+    uiString		message() const	{ return msg_; }
+    uiString		nrDoneText() const	{ return tr("Traces read"); }
 
     virtual od_int64	nrDone() const			= 0;
     virtual od_int64	totalNr() const			= 0;

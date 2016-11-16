@@ -106,9 +106,9 @@ public:
     inline const Stats::RunCalc<float>& calc() const { return *calc_; }
 
     inline int		nextStep();
-    inline uiString	uiMessage() const	{ return tr("Filtering data"); }
+    inline uiString	message() const	{ return tr("Filtering data"); }
     inline od_int64	nrDone() const		{ return nrrowsdone_; }
-    inline uiString	uiNrDoneText() const	{ return tr("Columns handled");}
+    inline uiString	nrDoneText() const	{ return tr("Columns handled");}
     inline od_int64	totalNr() const		{return outputrowrg_.width()+1;}
 
 protected:

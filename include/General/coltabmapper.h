@@ -147,7 +147,7 @@ public:
 
 private:
     bool			doWork(od_int64 start,od_int64 stop,int);
-    uiString			uiNrDoneText() const
+    uiString			nrDoneText() const
 				{ return tr("Data values mapped"); }
 
     const ColTab::Mapper&	mapper_;

@@ -26,7 +26,7 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 	    rv = doStep();
 	    if ( rv < 0 )
 	    {
-		const uiString msg = uiMessage();
+		const uiString msg = message();
 		if ( !msg.isEmpty() ) ErrMsg( msg.getFullString() );
 		return false;
 	    }
@@ -45,7 +45,7 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 
     bool res = SequentialTask::execute();
     if ( !res )
-	*strm << "Error: " << uiMessage().getFullString() << od_newline;
+	*strm << "Error: " << message().getFullString() << od_newline;
 
     setProgressMeter( 0 );
 
@@ -92,10 +92,10 @@ void ExecutorGroup::findNextSumStop()
     {
 	for ( int idx=currentexec_+1; idx<executors_.size(); idx++ )
 	{
-	    if ( !executors_[idx]->uiNrDoneText().isEqualTo(
-			executors_[idx-1]->uiNrDoneText()) ||
-		 !executors_[idx]->uiMessage().isEqualTo(
-			executors_[idx-1]->uiMessage()) )
+	    if ( !executors_[idx]->nrDoneText().isEqualTo(
+			executors_[idx-1]->nrDoneText()) ||
+		 !executors_[idx]->message().isEqualTo(
+			executors_[idx-1]->message()) )
 	    {
 		sumstop_ = idx-1;
 		return;
@@ -158,12 +158,12 @@ bool ExecutorGroup::goToNextExecutor()
 }
 
 
-uiString ExecutorGroup::uiMessage() const
+uiString ExecutorGroup::message() const
 {
     if ( executors_.size() )
-	return executors_[currentexec_]->uiMessage();
+	return executors_[currentexec_]->message();
 
-    return Executor::uiMessage();
+    return Executor::message();
 }
 
 
@@ -200,7 +200,7 @@ od_int64 ExecutorGroup::nrDone() const
 }
 
 
-uiString ExecutorGroup::uiNrDoneText() const
+uiString ExecutorGroup::nrDoneText() const
 {
     if ( !nrdonetext_.isEmpty() )
     {
@@ -208,9 +208,9 @@ uiString ExecutorGroup::uiNrDoneText() const
     }
 
     if ( executors_.isEmpty() )
-	return Executor::uiNrDoneText();
+	return Executor::nrDoneText();
 
-    return executors_[currentexec_]->uiNrDoneText();
+    return executors_[currentexec_]->nrDoneText();
 }
 
 

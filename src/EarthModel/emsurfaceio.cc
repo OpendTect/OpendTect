@@ -136,7 +136,7 @@ void dgbSurfaceReader::init( const char* fullexpr, const char* objname )
 
     BufferString exnm( "Reading surface '", objname, "'" );
     setName( exnm.buf() );
-    setNrDoneText( Task::uiStdNrDoneText() );
+    setNrDoneText( stdNrDoneText() );
     auxdataexecs_.allowNull(true);
 
     if ( conn_ )
@@ -611,7 +611,7 @@ od_int64 dgbSurfaceReader::nrDone() const
 }
 
 
-uiString dgbSurfaceReader::uiNrDoneText() const
+uiString dgbSurfaceReader::nrDoneText() const
 {
     return tr("Gridlines read");
 }
@@ -1380,7 +1380,7 @@ bool dgbSurfaceReader::getIndices( const RowCol& rc, int& i, int& j ) const
 }
 
 
-uiString dgbSurfaceReader::uiMessage() const
+uiString dgbSurfaceReader::message() const
 {
     return msg_;
 }
@@ -1527,7 +1527,7 @@ void dgbSurfaceWriter::init( const char* fulluserexpr )
     geometry_ = reinterpret_cast<const EM::RowColSurfaceGeometry*>(
 							&surface_.geometry() );
     surface_.ref();
-    setNrDoneText( Task::uiStdNrDoneText() );
+    setNrDoneText( stdNrDoneText() );
     par_->set( dgbSurfaceReader::sKeyDBInfo(), surface_.dbInfo() );
 
     for ( int idx=0; idx<nrSections(); idx++ )
@@ -1717,7 +1717,7 @@ od_int64 dgbSurfaceWriter::nrDone() const
 }
 
 
-uiString dgbSurfaceWriter::uiNrDoneText() const
+uiString dgbSurfaceWriter::nrDoneText() const
 {
     return tr("Gridlines written");
 }
@@ -1861,7 +1861,7 @@ int dgbSurfaceWriter::nextStep()
 }
 
 
-uiString dgbSurfaceWriter::uiMessage() const
+uiString dgbSurfaceWriter::message() const
 {
     return msg_;
 }

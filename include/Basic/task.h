@@ -32,19 +32,14 @@ public:
     virtual void	setProgressMeter(ProgressMeter*)	{}
 			//!<Must be called before execute()
 
-    virtual od_int64	nrDone() const			{ return -1; }
-			/*!<\note nrDone is only used for displaying progress
-			          and will be compared to totalNr to show
-				  user how large part of the task that is
-				  finished. */
-
-    virtual od_int64	totalNr() const			{ return -1; }
-			/*!\note totalNr is only used for displaying
-			         progress. */
-
-    virtual uiString	uiMessage() const;
-    virtual uiString	uiNrDoneText() const;
-    static uiString	uiStdNrDoneText() { return tr("Nr Done"); }
+    virtual uiString	message() const		{ return stdMessage(); }
+    virtual uiString	nrDoneText() const	{ return stdNrDoneText(); }
+    virtual od_int64	nrDone() const		{ return -1; }
+			/*!<\note is only used for displaying progress. */
+    virtual od_int64	totalNr() const		{ return -1; }
+			/*!\note only used for displaying progress.
+				 If you have no clue, return -1. */
+    virtual uiRetVal	errorDetails() const	{ return uiRetVal(message()); }
 
     virtual bool	execute()			= 0;
 
@@ -55,6 +50,9 @@ public:
     virtual void	controlWork(Control);
     virtual Control	getState() const;
 
+    static uiString	stdMessage()		{ return tr("Working");}
+    static uiString	stdNrDoneText()		{ return tr("Nr Done");}
+
 protected:
 
 				Task(const char* nm=0);
@@ -62,13 +60,6 @@ protected:
 					//!<\returns wether we should continue
     Control			control_;
     Threads::ConditionVar*	workcontrolcondvar_;
-
-private:
-
-    //Use uiMessage instead. Kept to make old code working
-    virtual const char* message() const			{ return 0; }
-    //Use uiNrDoneText instead. Kept to make old code working
-    virtual const char* nrDoneText() const		{ return 0; }
 
 };
 
@@ -89,7 +80,7 @@ public:
 			//!<Percentage
     od_int64		totalNr() const	{ return 100; }
 
-    uiString		uiNrDoneText() const
+    uiString		nrDoneText() const
 			{ return tr("Percentage done"); }
 
     void		enableWorkControl(bool=true);
@@ -129,7 +120,7 @@ public:
     void		setEmpty();
     void		getTasks(TaskGroup&);
 
-    uiString		uiMessage() const;
+    uiString		message() const;
 
     virtual bool	execute();
 

@@ -55,13 +55,13 @@ public:
 protected:
 
     int				nextStep();
-    uiString			uiMessage() const
+    uiString			message() const
 				{
 				    return errmsg_.isEmpty()
 					? tr("Generating linear model")
 					: errmsg_;
 				}
-    uiString			uiNrDoneText() const
+    uiString			nrDoneText() const
 				{ return tr("Nr points processed"); }
 
     od_int64			nrDone() const		{ return curidx_; }

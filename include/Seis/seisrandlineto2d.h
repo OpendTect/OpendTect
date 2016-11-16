@@ -33,8 +33,8 @@ public:
 					 const Geometry::RandomLine&);
 			~SeisRandLineTo2D();
 
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
+    uiString		message() const;
+    uiString		nrDoneText() const;
     od_int64		totalNr() const;
     od_int64		nrDone() const;
     int			nextStep();

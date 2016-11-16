@@ -86,7 +86,7 @@ bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths,
 
     FileDownloader dl( urls, outputpaths );
     const bool res = taskr ? taskr->execute( dl ) : dl.execute();
-    if ( !res ) errmsg = dl.uiMessage();
+    if ( !res ) errmsg = dl.message();
     return res;
 }
 
@@ -98,7 +98,7 @@ bool Network::downloadToBuffer( const char* url, DataBuffer& databuffer,
     databuffer.reByte( 1, false );
     FileDownloader dl( url, databuffer );
     const bool res = taskr ? taskr->execute( dl ) : dl.execute();
-    if ( !res ) errmsg = dl.uiMessage();
+    if ( !res ) errmsg = dl.message();
     return res;
 }
 
@@ -110,7 +110,7 @@ bool Network::getRemoteFileSize( const char* url, od_int64& size,
     size = dl.getDownloadSize();
     if ( size < 0 )
     {
-	errmsg = dl.uiMessage();
+	errmsg = dl.message();
 	return false;
     }
 
@@ -302,7 +302,7 @@ int FileDownloader::errorOccured()
 }
 
 
-uiString FileDownloader::uiMessage() const
+uiString FileDownloader::message() const
 { return msg_; }
 
 
@@ -310,7 +310,7 @@ od_int64 FileDownloader::nrDone() const
 {return nrdone_/1024;}
 
 
-uiString FileDownloader::uiNrDoneText() const
+uiString FileDownloader::nrDoneText() const
 { return tr("KBytes downloaded"); }
 
 
@@ -398,9 +398,9 @@ bool Network::uploadFile( const char* url, const char* localfname,
     DataUploader up( url, *databuffer, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
     if ( !res )
-	errmsg = up.uiMessage();
+	errmsg = up.message();
     else if ( retmsg )
-	retmsg->setFrom( up.uiMessage().getQString() );
+	retmsg->setFrom( up.message().getQString() );
     return res;
 }
 
@@ -416,10 +416,10 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
     BufferString header( "multipart/form-data; boundary=", sContentBoundary );
     DataUploader up( url, db, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
-    if ( !res ) errmsg = up.uiMessage();
+    if ( !res ) errmsg = up.message();
     else if ( retmsg )
     {
-	retmsg->setFrom( up.uiMessage().getQString() );
+	retmsg->setFrom( up.message().getQString() );
     }
     return res;
 }
@@ -495,7 +495,7 @@ int DataUploader::errorOccured()
 }
 
 
-uiString DataUploader::uiMessage() const
+uiString DataUploader::message() const
 { return msg_; }
 
 
@@ -503,7 +503,7 @@ od_int64 DataUploader::nrDone() const
 {return nrdone_/1024;}
 
 
-uiString DataUploader::uiNrDoneText() const
+uiString DataUploader::nrDoneText() const
 { return tr("KBytes uploaded"); }
 
 

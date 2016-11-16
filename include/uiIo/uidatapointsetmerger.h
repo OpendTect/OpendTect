@@ -96,7 +96,7 @@ public:
     void			addNewCols(const BufferStringSet&);
     od_int64			nrDone() const		{ return rowdone_; }
     od_int64			totalNr() const		{return sdps_->size();}
-    uiString			uiNrDoneText() const
+    uiString			nrDoneText() const
 				{return uiStrings::phrJoinStrings(
 				uiStrings::sPosition(mPlural),tr("processed"));}
     RefMan<DataPointSet>	getNewDPS()		{ return newdps_; }

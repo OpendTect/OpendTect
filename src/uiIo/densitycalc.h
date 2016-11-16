@@ -36,7 +36,7 @@ public:
 				    const char* header);
 
     od_int64		nrDone() const;
-    uiString		uiNrDoneText() const;
+    uiString		nrDoneText() const;
     od_int64		nrIterations() const;
     bool		doWork(od_int64 start,od_int64 stop,int);
 
@@ -134,7 +134,7 @@ DensityCalc::DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,
 inline od_int64 DensityCalc::nrDone() const
 { return nrdone_; }
 
-inline uiString DensityCalc::uiNrDoneText() const
+inline uiString DensityCalc::nrDoneText() const
 { return tr("Points done");}
 
 inline od_int64 DensityCalc::nrIterations() const

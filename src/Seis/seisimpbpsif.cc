@@ -162,7 +162,7 @@ void SeisImpBPSIF::addAttr( BufferStringSet& attrs, char* attrstr )
 }
 
 
-uiString SeisImpBPSIF::uiMessage() const
+uiString SeisImpBPSIF::message() const
 {
     if (!errmsg_.isEmpty()) return errmsg_;
     return datamgr_.needWrite() ? tr("Writing to data store")

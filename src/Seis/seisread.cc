@@ -597,7 +597,7 @@ bool SeisTrcReader::readNext2D()
     int res = fetcher->doStep();
     if ( res == Executor::ErrorOccurred() )
     {
-	errmsg_ = fetcher->uiMessage();
+	errmsg_ = fetcher->message();
 	return false;
     }
     else if ( res == 0 )

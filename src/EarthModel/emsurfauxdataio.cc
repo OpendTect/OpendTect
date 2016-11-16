@@ -231,10 +231,10 @@ od_int64 dgbSurfDataWriter::totalNr() const
 { return totalnr_; }
 
 
-uiString dgbSurfDataWriter::uiMessage() const
+uiString dgbSurfDataWriter::message() const
 { return errmsg_; }
 
-uiString dgbSurfDataWriter::uiNrDoneText() const
+uiString dgbSurfDataWriter::nrDoneText() const
 { return tr("Positions Written"); }
 
 
@@ -429,10 +429,10 @@ od_int64 dgbSurfDataReader::totalNr() const
 { return totalnr_; }
 
 
-uiString dgbSurfDataReader::uiMessage() const
+uiString dgbSurfDataReader::message() const
 { return errmsg_; }
 
-uiString dgbSurfDataReader::uiNrDoneText() const
+uiString dgbSurfDataReader::nrDoneText() const
 { return tr("Positions Read"); }
 
 } // namespace EM

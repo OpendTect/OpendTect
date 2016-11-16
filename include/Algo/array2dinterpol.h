@@ -94,7 +94,7 @@ public:
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    uiString			uiMessage() const { return tr("Gridding"); }
+    uiString			message() const { return tr("Gridding"); }
 
     static const char*		sKeyFillType();
     static const char*		sKeyRowStep();

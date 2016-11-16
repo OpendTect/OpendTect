@@ -82,7 +82,7 @@ public:
 				//for now
 
     od_int64			totalNr() const		{ return totalnr_; }
-    uiString			uiMessage() const;
+    uiString			message() const;
 
 protected:
 

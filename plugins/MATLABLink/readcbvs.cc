@@ -132,7 +132,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     if ( !rdr.execute() )
     {
 	errmsg = "Error reading input.";
-	const uiString uimsg = rdr.uiMessage();
+	const uiString uimsg = rdr.message();
 	if ( !uimsg.isEmpty() )
 	    errmsg.add("\n").add( uimsg.getFullString() );
 	mErrRet( errmsg );

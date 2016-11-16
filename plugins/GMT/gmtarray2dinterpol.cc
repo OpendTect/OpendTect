@@ -46,7 +46,7 @@ od_int64 GMTArray2DInterpol::nrIterations() const
 }
 
 
-uiString GMTArray2DInterpol::uiMessage() const
+uiString GMTArray2DInterpol::message() const
 {
     return msg_;
 }

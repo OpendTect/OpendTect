@@ -163,7 +163,7 @@ public:
 			FaultTraceExtractor(const EM::Fault&,FaultTrcHolder&);
 			~FaultTraceExtractor();
 
-    uiString		uiMessage() const;
+    uiString		message() const;
 
 protected:
 

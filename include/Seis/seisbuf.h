@@ -108,8 +108,8 @@ mExpClass(Seis) SeisBufReader : public Executor
 public:
 			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces read"); }
+    uiString		message() const	{ return msg_; }
+    uiString		nrDoneText() const	{ return tr("Traces read"); }
     od_int64		nrDone() const		{ return buf_.size(); }
     od_int64		totalNr() const		{ return totnr_; }
     int			nextStep();

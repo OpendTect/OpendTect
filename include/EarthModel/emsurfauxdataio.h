@@ -51,8 +51,8 @@ public:
     virtual int			nextStep();
     virtual od_int64		nrDone() const;
     virtual od_int64		totalNr() const;
-    virtual uiString		uiMessage() const;
-    virtual uiString		uiNrDoneText() const;
+    virtual uiString		message() const;
+    virtual uiString		nrDoneText() const;
 
     static const char*		sKeyAttrName();
     static const char*		sKeyIntDataChar();
@@ -108,8 +108,8 @@ public:
     virtual int			nextStep();
     virtual od_int64		nrDone() const;
     virtual od_int64		totalNr() const;
-    virtual uiString		uiMessage() const;
-    virtual uiString		uiNrDoneText() const;
+    virtual uiString		message() const;
+    virtual uiString		nrDoneText() const;
 
     static uiString		sHorizonData();
 

@@ -25,7 +25,7 @@ mClass(MMProc) ExecProxy
     enum Status		{ NotStarted, Running, Failed, Ended };
     Status		update();
 
-    uiString		uiMessage() const	{ return msg_; }
+    uiString		message() const	{ return msg_; }
     int			nrDone() const		{ return nrdone_; }
 
     const char*		progName() const	{ return prognm_; }

@@ -46,8 +46,8 @@ public:
     void		setCutOffAngle( float a )	{ cutoffangle_ = a; }
     void		setVelModel( const DBKey& m )	{ velmid_ = m; }
 
-    uiString		uiMessage() const		{ return msg_; }
-    uiString		uiNrDoneText() const;
+    uiString		message() const		{ return msg_; }
+    uiString		nrDoneText() const;
     od_int64		nrDone() const			{ return nrdone_; }
     od_int64		totalNr() const			{ return totnr_; }
     int			nextStep();

@@ -125,7 +125,7 @@ public:
 
     od_int64	nrIterations() const;
     bool	doWork(od_int64,od_int64,int);
-    uiString	uiMessage() const
+    uiString	message() const
 		{ return tr("Implicit body to MarchingCubes: Contouring"); }
 
 
@@ -162,9 +162,9 @@ public:
 		~MarchingCubes2Implicit();
 
     float	threshold() const { return 0; }
-    uiString	uiNrDoneText() const
+    uiString	nrDoneText() const
 		{ return tr("Flood fills performed"); }
-    uiString	uiMessage() const
+    uiString	message() const
 		{ return tr("Processing MarchingCubes2Implicit."); }
 
 protected:

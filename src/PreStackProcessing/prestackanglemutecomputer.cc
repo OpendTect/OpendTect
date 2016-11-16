@@ -37,7 +37,7 @@ AngleMuteComputer::~AngleMuteComputer()
 }
 
 
-uiString AngleMuteComputer::uiMessage() const
+uiString AngleMuteComputer::message() const
 { return tr("Computing mute"); }
 
 

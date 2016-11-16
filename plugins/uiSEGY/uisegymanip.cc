@@ -662,8 +662,8 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
     deepErase( data_ );
 }
 
-uiString uiMessage() const	{ return tr("Collecting data"); }
-uiString uiNrDoneText() const	{ return tr("Traces scanned"); }
+uiString message() const	{ return tr("Collecting data"); }
+uiString nrDoneText() const	{ return tr("Traces scanned"); }
 od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totalnr_; }
 

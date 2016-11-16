@@ -86,7 +86,7 @@ public:
 				//!<Returns false if process should continue
     od_int64			nrDone() const;
     od_int64			totalNr() const       { return totalnr_; }
-    uiString			uiNrDoneText() const
+    uiString			nrDoneText() const
 						{ return tr("CDPs gridded"); }
 
     VelocityGridder&		getStep()	      { return step_; }

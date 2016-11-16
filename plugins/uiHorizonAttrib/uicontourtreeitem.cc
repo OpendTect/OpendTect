@@ -130,7 +130,7 @@ public:
 
     visBase::Text2*		getLabels() { return labels_; }
     const TypeSet<double>&	getAreas() const { return areas_; }
-    uiString			uiNrDoneText() const;
+    uiString			nrDoneText() const;
 
 protected:
     bool	doPrepare(int);
@@ -190,7 +190,7 @@ uiContourTreeItemContourGenerator::uiContourTreeItemContourGenerator(
 }
 
 
-uiString uiContourTreeItemContourGenerator::uiNrDoneText() const
+uiString uiContourTreeItemContourGenerator::nrDoneText() const
 {
     return isfinishing_ ? tr("Contour elements added")
 			: tr("Contours computed");

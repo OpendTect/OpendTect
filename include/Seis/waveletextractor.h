@@ -53,8 +53,8 @@ protected:
     int				nextStep();
     od_int64			totalNr() const		    { return totalnr_; }
     od_int64			nrDone() const		    { return nrdone_; }
-    uiString			uiNrDoneText() const;
-    uiString			uiMessage() const;
+    uiString			nrDoneText() const;
+    uiString			message() const;
 
     RefMan<Wavelet>		wvlt_;
     const IOObj&		iobj_;

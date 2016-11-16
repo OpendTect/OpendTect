@@ -78,8 +78,8 @@ public:
 		    , setup_(setup)
 		{}
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sPosFinished(); }
-    uiString	uiMessage() const	{ return tr("Cumulative sum executor");}
+    uiString	nrDoneText() const	{ return ParallelTask::sPosFinished(); }
+    uiString	message() const	{ return tr("Cumulative sum executor");}
 
     void	setYVals( const ArrayND<ArrType>& yvals ) { yarr_ = &yvals; }
 		/*!< Apply a shift on the input values after exponentiation
@@ -260,8 +260,8 @@ public:
 		    , setup_(setup)
 		{}
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sPosFinished(); }
-    uiString	uiMessage() const	{ return tr("Cumulative sum executor");}
+    uiString	nrDoneText() const	{ return ParallelTask::sPosFinished(); }
+    uiString	message() const	{ return tr("Cumulative sum executor");}
 
     void	setYVals( const ArrayND<ArrType>& yvals ) { yarr_ = &yvals; }
     void	setScaler( OperType scaler, bool forx=true )
@@ -1357,13 +1357,13 @@ public:
 		    tksin.getInterSection( tksout, commontks_ );
 		}
 
-    uiString	uiNrDoneText() const
+    uiString	nrDoneText() const
 		{
 		    return uiStrings::phrJoinStrings(
 						uiStrings::sInline(mPlural),
 						uiStrings::sDone().toLower() );
 		}
-    uiString	uiMessage() const	{ return tr("Transferring grid data");}
+    uiString	message() const	{ return tr("Transferring grid data");}
 
 protected:
 
@@ -1487,9 +1487,9 @@ public:
 		    , out_(out)
 		{}
 
-    uiString	uiMessage() const	{ return tr("Resizing 3D Array"); }
+    uiString	message() const	{ return tr("Resizing 3D Array"); }
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
 
 protected:
 
@@ -1754,12 +1754,12 @@ public:
 		    , totalnr_(inp.info().getTotalSz()/inp.info().getSize(2))
 		{}
 
-    uiString	uiMessage() const
+    uiString	message() const
 		{
 		    return tr("Replacing undefined values");
 		}
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
 
     void	setReplacementValue( T val )	{ replval_ = val; }
 
@@ -1907,9 +1907,9 @@ public:
 		    , totalnr_(undefidxs.size())
 		{}
 
-    uiString	uiMessage() const { return tr("Replacing undefined values"); }
+    uiString	message() const { return tr("Replacing undefined values"); }
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sPosFinished(); }
+    uiString	nrDoneText() const	{ return ParallelTask::sPosFinished(); }
 
 protected:
 
@@ -1965,9 +1965,9 @@ public:
 			       outp.info().getTotalSz()/outp.info().getSize(2))
 		{}
 
-    uiString	uiMessage() const { return tr("Restoring undefined values"); }
+    uiString	message() const { return tr("Restoring undefined values"); }
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	nrDoneText() const	{ return ParallelTask::sTrcFinished(); }
 
 protected:
 

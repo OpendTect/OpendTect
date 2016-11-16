@@ -246,7 +246,7 @@ void SeisSingleTraceProc::setProcPars( const IOPar& iop, bool is2d )
 }
 
 
-uiString SeisSingleTraceProc::uiMessage() const
+uiString SeisSingleTraceProc::message() const
 {
     if ( !curmsg_.isEmpty() )
 	return curmsg_;
@@ -280,7 +280,7 @@ od_int64 SeisSingleTraceProc::nrDone() const
 }
 
 
-uiString SeisSingleTraceProc::uiNrDoneText() const
+uiString SeisSingleTraceProc::nrDoneText() const
 {
     return tr( "Traces handled" );
 }

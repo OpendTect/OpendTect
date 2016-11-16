@@ -59,13 +59,13 @@ void HorizonScanner::init()
 }
 
 
-uiString HorizonScanner::uiMessage() const
+uiString HorizonScanner::message() const
 {
     return curmsg_;
 }
 
 
-uiString HorizonScanner::uiNrDoneText() const
+uiString HorizonScanner::nrDoneText() const
 {
     return tr("Positions handled");
 }

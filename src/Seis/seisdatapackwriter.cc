@@ -80,7 +80,7 @@ od_int64 SeisDataPackWriter::nrDone() const
 }
 
 
-uiString SeisDataPackWriter::uiMessage() const
+uiString SeisDataPackWriter::message() const
 {
     if ( !writer_ )
 	return uiStrings::phrCannotWrite( tr("the output data to disk.") );

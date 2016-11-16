@@ -227,7 +227,7 @@ bool BatchProgram::go( od_ostream& strm )
 		mRetJobErr( errmsg.getFullString() );
 
 	    progressmeter.setName( proc->name() );
-	    progressmeter.setMessage( proc->uiMessage() );
+	    progressmeter.setMessage( proc->message() );
 
 	    mSetCommState(Working);
 
@@ -293,7 +293,7 @@ bool BatchProgram::go( od_ostream& strm )
 			    mRetJobErr(
 				BufferString("Cannot reach next position",
 					     ":\n",
-					     proc->uiMessage().getFullString()))
+					     proc->message().getFullString()))
 			break;
 		    }
 

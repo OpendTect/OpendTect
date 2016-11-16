@@ -38,11 +38,11 @@ od_int64 BodyVolumeCalculator::nrIterations() const
 { return arr_.info().getSize(2)-1; }
 
 
-uiString BodyVolumeCalculator::uiMessage() const
+uiString BodyVolumeCalculator::message() const
 { return tr("Computing volume"); }
 
 
-uiString BodyVolumeCalculator::uiNrDoneText() const
+uiString BodyVolumeCalculator::nrDoneText() const
 { return tr("Nr of slices computed"); }
 
 

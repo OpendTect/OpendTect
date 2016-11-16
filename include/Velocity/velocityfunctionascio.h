@@ -38,7 +38,7 @@ protected:
 
    int				nextStep();
    od_int64			nrDone() const { return nrdone_/1024; }
-   uiString			uiNrDoneText() const { 
+   uiString			nrDoneText() const { 
 						    return tr("KBytes read"); 
 						     }
    od_int64			totalNr() const { return nrkbytes_; }

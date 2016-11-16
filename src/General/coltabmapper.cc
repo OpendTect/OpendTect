@@ -370,7 +370,7 @@ bool isSymmAroundZero() const
 }
 
 
-uiString uiNrDoneText() const
+uiString nrDoneText() const
 {
     return uiStrings::sDone();
 }

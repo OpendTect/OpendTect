@@ -23,7 +23,7 @@ public:
 			~SeisStatInfo();
 
     void		setEmpty();
-    uiString		uiMessage() const	{ return errmsg_; }
+    uiString		message() const	{ return errmsg_; }
 
     void		useTrace(const SeisTrc&);
     bool		fillPar(IOPar&) const;

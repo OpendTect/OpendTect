@@ -33,10 +33,10 @@ public:
 					      ArrayND<T>&);
     virtual		~ArrayNDGentleSmoother()	{}
 
-    uiString		uiMessage() const	{ return tr("Smoothing"); }
+    uiString		message() const	{ return tr("Smoothing"); }
     od_int64		totalNr() const		{ return totnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const	{ return tr("Points handled"); }
+    uiString		nrDoneText() const	{ return tr("Points handled"); }
 
     int			nextStep();
 

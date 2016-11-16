@@ -22,8 +22,8 @@ public:
 		BinIDWiseTask( Step& ro )
 		    : step_( ro ), totalnr_( -1 ) { setName(ro.userName()); }
 
-    uiString	uiMessage() const	{ return errmsg_; }
-    uiString	uiNrDoneText() const	{ return tr("Positions done"); }
+    uiString	message() const	{ return errmsg_; }
+    uiString	nrDoneText() const	{ return tr("Positions done"); }
 
 protected:
 

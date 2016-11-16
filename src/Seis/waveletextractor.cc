@@ -128,11 +128,11 @@ bool WaveletExtractor::getNextLine()
 }
 
 
-uiString WaveletExtractor::uiNrDoneText() const
+uiString WaveletExtractor::nrDoneText() const
 { return tr("Traces Processed"); }
 
 
-uiString WaveletExtractor::uiMessage() const
+uiString WaveletExtractor::message() const
 { return msg_; }
 
 

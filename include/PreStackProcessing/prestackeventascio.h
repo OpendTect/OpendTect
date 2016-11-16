@@ -52,9 +52,9 @@ public:
     od_int64		nrDone() const	{ return nrdone_; }
     od_int64		totalNr() const	{ return locations_.totalSize(); }
 
-    uiString		uiMessage() const	{ return message_; }
+    uiString		message() const	{ return message_; }
     int			nextStep();
-    uiString		uiNrDoneText() const;
+    uiString		nrDoneText() const;
 
 protected:
 
@@ -112,9 +112,9 @@ public:
     od_int64		nrDone() const;
     od_int64		totalNr() const		{ return totalnr_; }
 
-    uiString		uiMessage() const	{ return message_; }
+    uiString		message() const	{ return message_; }
     int			nextStep();
-    uiString		uiNrDoneText() const;
+    uiString		nrDoneText() const;
 
 protected:
 

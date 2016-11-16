@@ -978,17 +978,17 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 
 od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
 od_int64 nrDone() const		{ return proc_ ? proc_->nrDone() : 0; }
-uiString uiNrDoneText() const
+uiString nrDoneText() const
 {
-    return proc_ ? proc_->uiNrDoneText() : uiString::emptyString();
+    return proc_ ? proc_->nrDoneText() : uiString::emptyString();
 }
 
-uiString uiMessage() const
+uiString message() const
 {
     return !errmsg_.isEmpty()
 	? errmsg_
 	: (proc_
-           ? proc_->uiMessage()
+           ? proc_->message()
            : uiStrings::phrCannotCreate(tr("output")) );
 }
 
@@ -1004,7 +1004,7 @@ int nextStep()
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
-    return haveError( proc_->uiMessage() );
+    return haveError( proc_->message() );
 }
 
     uiString			errmsg_;
@@ -1149,17 +1149,17 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 
 od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
 od_int64 nrDone() const		{ return proc_ ? proc_->nrDone() : 0; }
-uiString uiNrDoneText() const
+uiString nrDoneText() const
 {
-    return proc_ ? proc_->uiNrDoneText() : uiString::emptyString();
+    return proc_ ? proc_->nrDoneText() : uiString::emptyString();
 }
 
-uiString uiMessage() const
+uiString message() const
 {
     return !errmsg_.isEmpty()
 	? errmsg_
 	: (proc_
-	    ? proc_->Task::uiMessage()
+	    ? proc_->Task::message()
 	    : uiStrings::phrCannotCreate(uiStrings::sOutput() ));
 }
 
@@ -1175,7 +1175,7 @@ int nextStep()
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
-    return haveError( proc_->uiMessage() );
+    return haveError( proc_->message() );
 }
 
     uiString			errmsg_;

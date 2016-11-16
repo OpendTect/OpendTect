@@ -104,7 +104,7 @@ public:
 			~lmkEMStickSetReader();
     virtual int         nextStep();
 
-    virtual uiString	uiMessage() const;
+    virtual uiString	message() const;
     static const char*  streamerrmsg;
 
 protected:
@@ -145,7 +145,7 @@ public:
 			~lmkEMStickSetWriter();
     virtual int         nextStep();
 
-    virtual uiString	uiMessage() const { return "Writing knots"; }
+    virtual uiString	message() const { return "Writing knots"; }
     static const char*  streamerrmsg;
 
 protected:

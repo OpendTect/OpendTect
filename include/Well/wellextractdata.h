@@ -144,8 +144,8 @@ public:
 			~InfoCollector();
 
     int			nextStep();
-    uiString		uiMessage() const	{ return curmsg_; }
-    uiString		uiNrDoneText() const	{
+    uiString		message() const	{ return curmsg_; }
+    uiString		nrDoneText() const	{
 						return tr("Wells inspected");
 						}
     od_int64		nrDone() const		{ return curidx_; }
@@ -202,8 +202,8 @@ public:
     void		usePar(const IOPar&);
 
     int			nextStep();
-    uiString		uiMessage() const { return msg_; }
-    uiString		uiNrDoneText() const { return tr("Wells inspected"); }
+    uiString		message() const { return msg_; }
+    uiString		nrDoneText() const { return tr("Wells inspected"); }
     od_int64		nrDone() const	  { return curid_; }
     od_int64		totalNr() const   { return ids_.size(); }
 
@@ -256,8 +256,8 @@ public:
     void		usePar(const IOPar&);
 
     int			nextStep();
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Wells handled"); }
+    uiString		message() const	{ return msg_; }
+    uiString		nrDoneText() const	{ return tr("Wells handled"); }
     od_int64		nrDone() const		{ return curid_; }
     od_int64		totalNr() const		{ return ids_.size(); }
 
@@ -304,8 +304,8 @@ public:
     int		nextStep();
     od_int64	totalNr() const         { return extrintv_.nrSteps(); }
     od_int64	nrDone() const          { return nrdone_; }
-    uiString	uiMessage() const	   { return m3Dots(tr("Computing")); }
-    uiString	uiNrDoneText() const	   { return tr("Points done"); }
+    uiString	message() const	   { return m3Dots(tr("Computing")); }
+    uiString	nrDoneText() const	   { return tr("Points done"); }
 
     void	getBIDs(TypeSet<BinID>& bs) const { bs = bidset_; }
     void	getCoords(TypeSet<Coord>& cs) const { cs = coords_; }

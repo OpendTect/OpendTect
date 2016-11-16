@@ -204,7 +204,7 @@ bool acceptOK()
     const bool res = dlg.execute( statscalc );
     if ( !res )
     {
-	uiMSG().error( statscalc.uiMessage() );
+	uiMSG().error( statscalc.message() );
 	return false;
     }
 

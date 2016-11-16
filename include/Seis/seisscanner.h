@@ -39,10 +39,10 @@ public:
 				    int max_nr_trcs=-1);
 			~SeisScanner();
 
-    uiString		uiMessage() const;
+    uiString		message() const;
     od_int64		totalNr() const;
     od_int64		nrDone() const;
-    uiString		uiNrDoneText() const;
+    uiString		nrDoneText() const;
     int			nextStep();
 
     void		report(IOPar&) const;
@@ -93,8 +93,8 @@ public:
 
     const Stats::RunCalc<float>&	getStats(int) const;
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces read"); }
+    uiString		message() const	{ return msg_; }
+    uiString		nrDoneText() const	{ return tr("Traces read"); }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }
     int			nextStep();

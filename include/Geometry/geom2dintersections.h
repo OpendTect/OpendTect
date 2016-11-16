@@ -36,8 +36,8 @@ public:
 
     od_int64		nrDone() const;
     od_int64		totalNr() const;
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
+    uiString		message() const;
+    uiString		nrDoneText() const;
 
     const ObjectSet<BendPoints>& bendPoints() const	{ return bendptset_; }
 
@@ -112,8 +112,8 @@ public:
 						 Line2DInterSectionSet&);
 
     od_int64		nrIterations() const;
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
+    uiString		message() const;
+    uiString		nrDoneText() const;
 
 protected:
 

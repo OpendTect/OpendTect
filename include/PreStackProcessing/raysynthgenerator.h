@@ -43,7 +43,7 @@ public:
     //available after initialization
     void		getAllRefls(RefMan<ReflectivityModelSet>&);
 
-    uiString		uiMessage() const
+    uiString		message() const
 			{ return errmsg_.isEmpty() ? message_ : errmsg_; }
 
 
@@ -64,7 +64,7 @@ protected:
     RayTracerRunner*		rtr_;
     od_int64			nrIterations() const;
     od_int64			nrDone() const;
-    uiString			uiNrDoneText() const;
+    uiString			nrDoneText() const;
     od_int64			totalNr() const;
     bool			doPrepare(int);
     bool			doWork(od_int64,od_int64,int);

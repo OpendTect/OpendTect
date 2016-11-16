@@ -34,7 +34,7 @@ const TypeSet<TypeSet<TypeSet<int> > >&	getCubeComps()	{ return slicecomps_; }
 
 protected:
 od_int64 nrIterations() const	{ return input_.info().getSize(2); }
-uiString uiMessage() const	{
+uiString message() const	{
 			    return tr("Computing 2D connected  components");
 				}
 

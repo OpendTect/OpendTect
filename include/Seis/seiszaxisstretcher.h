@@ -42,7 +42,7 @@ public:
     bool		isOK() const;
 
     void		setGeomID(Pos::GeomID);
-    uiString		uiMessage() const { return tr("Stretching data"); }
+    uiString		message() const { return tr("Stretching data"); }
 
     void		setVelTypeIsVint( bool yn )	{ isvint_ = yn; }
     void		setVelTypeIsVrms( bool yn )	{ isvrms_ = yn; }

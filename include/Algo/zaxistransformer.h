@@ -42,8 +42,8 @@ public:
     int			getVoiID() const		{ return voiid_; }
     void		removeVoiOnDelete( bool yn )	{ rmvoi_ = yn; }
 
-    uiString		uiMessage() const    { return tr("Z-axis transform"); }
-    uiString		uiNrDoneText() const
+    uiString		message() const    { return tr("Z-axis transform"); }
+    uiString		nrDoneText() const
 			{ return ParallelTask::sTrcFinished(); }
 
 protected:

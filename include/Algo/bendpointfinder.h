@@ -29,7 +29,7 @@ mExpClass(Algo) BendPointFinderBase : public ParallelTask
 public:
 
     const TypeSet<int>&	bendPoints() const	{ return bendpts_; }
-    uiString		uiNrDoneText() const	{ return tr("Positions done"); }
+    uiString		nrDoneText() const	{ return tr("Positions done"); }
 
 protected:
 			BendPointFinderBase( int sz, float eps );

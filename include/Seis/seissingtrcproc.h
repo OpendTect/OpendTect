@@ -68,8 +68,8 @@ public:
     void		setTracesPerStep( int n ) { trcsperstep_ = n; }
 			//!< default is 10
 
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
+    uiString		message() const;
+    uiString		nrDoneText() const;
     virtual od_int64	nrDone() const;
     virtual od_int64	totalNr() const;
     virtual int		nextStep();

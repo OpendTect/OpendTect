@@ -85,7 +85,7 @@ BodyExtractorFromHorizons( const DBKeySet& hlist,
 
 ~BodyExtractorFromHorizons()	{ deepUnRef( hors_ ); }
 od_int64 nrIterations() const   { return tkzs_.nrInl()*tkzs_.nrCrl(); }
-uiString uiMessage() const	{ return tr("Extracting body from horizons"); }
+uiString message() const	{ return tr("Extracting body from horizons"); }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
@@ -240,7 +240,7 @@ ImplicitBodyRegionExtractor( const DBKeySet& surflist,
 }
 
 od_int64 nrIterations() const	{ return tkzs_.nrZ(); }
-uiString uiMessage() const	{ return tr("Extracting implicit body"); }
+uiString message() const	{ return tr("Extracting implicit body"); }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {

@@ -74,7 +74,7 @@ public:
 private:
     inline void		updateScale(const Geom::PosRectangle<float>*);
     inline bool		doWork(od_int64,od_int64, int );
-    uiString		uiNrDoneText() const
+    uiString		nrDoneText() const
     			{ return tr("Data columns resampled"); }
 
     const Array2D<T>*		from_;

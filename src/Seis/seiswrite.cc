@@ -102,7 +102,7 @@ bool SeisTrcWriter::writeHistogramPars() const
 {
     IOPar histpar;
     if ( !seisstatinfo_.fillPar(histpar) )
-	{ errmsg_ = seisstatinfo_.uiMessage(); return false; }
+	{ errmsg_ = seisstatinfo_.message(); return false; }
 
     File::Path fp( ioobj_->fullUserExpr(true) );
     fp.setExtension( "par" );

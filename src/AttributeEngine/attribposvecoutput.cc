@@ -54,17 +54,17 @@ PosVecOutputGen::~PosVecOutputGen()
 }
 
 
-uiString PosVecOutputGen::uiMessage() const
+uiString PosVecOutputGen::message() const
 {
     if ( outex_ )
-	return outex_->uiMessage();
+	return outex_->message();
 
     return msg_;
 }
 
 
-uiString PosVecOutputGen::uiNrDoneText() const
-{ return outex_ ? outex_->uiNrDoneText() : tr("Positions handled"); }
+uiString PosVecOutputGen::nrDoneText() const
+{ return outex_ ? outex_->nrDoneText() : tr("Positions handled"); }
 
 
 int PosVecOutputGen::nextStep()

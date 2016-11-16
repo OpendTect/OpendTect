@@ -45,7 +45,7 @@ public:
 
     od_int64	totalNr() const		{ return totalnr_; }
     od_int64	nrDone() const		{ return nrdone_; }
-    uiString	uiNrDoneText() const	{ return tr("Positions written"); }
+    uiString	nrDoneText() const	{ return tr("Positions written"); }
 
     int	nextStep()
 		{
@@ -110,7 +110,7 @@ MarchingCubesSurfaceReader( od_istream& strm, MarchingCubesSurface& s,
 
 od_int64 totalNr() const	{ return totalnr_; }
 od_int64 nrDone() const		{ return nrdone_; }
-uiString uiNrDoneText() const	{ return tr("Positions read"); }
+uiString nrDoneText() const	{ return tr("Positions read"); }
 
 int nextStep()
 {

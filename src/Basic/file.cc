@@ -124,8 +124,8 @@ public:
 
     od_int64		nrDone() const		{ return nrdone_ / mMBFactor; }
     od_int64		totalNr() const		{ return totalnr_ / mMBFactor; }
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("MBytes copied"); }
+    uiString		message() const	{ return msg_; }
+    uiString		nrDoneText() const	{ return tr("MBytes copied"); }
 
 protected:
 
@@ -215,8 +215,8 @@ public:
 
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const
+    uiString		message() const	{ return msg_; }
+    uiString		nrDoneText() const
 			{ return tr( "Files removed" ); }
 
     int			nextStep();
@@ -734,7 +734,7 @@ bool File::copyDir( const char* from, const char* to, uiString* errmsg )
     PtrMan<Executor> copier = getRecursiveCopier( from, to );
     const bool res = copier->execute();
     if ( !res && errmsg )
-	*errmsg = copier->uiMessage();
+	*errmsg = copier->message();
 #else
 
     BufferString cmd;

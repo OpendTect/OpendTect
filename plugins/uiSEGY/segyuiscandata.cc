@@ -456,11 +456,11 @@ FullUIScanner( ScanInfo& si, od_istream& strm, const LoadDef& def,
     totalnr_ = def_.nrTracesIn( strm );
 }
 
-virtual uiString uiNrDoneText() const	{ return tr("Traces handled"); }
+virtual uiString nrDoneText() const	{ return tr("Traces handled"); }
 virtual od_int64 nrDone() const		{ return nrdone_; }
 virtual od_int64 totalNr() const	{ return totalnr_; }
 
-virtual uiString uiMessage() const
+virtual uiString message() const
 {
     uiString ret( tr("Scanning traces in %1") );
     ret.arg( strm_.fileName() );

@@ -190,7 +190,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    {
 		if ( res == -1 )
 		    mRetJobErr( BufferString("Cannot reach next position",
-				":\n",proc->uiMessage().getFullString()) )
+				":\n",proc->message().getFullString()) )
 		break;
 	    }
 

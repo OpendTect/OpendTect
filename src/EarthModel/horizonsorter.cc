@@ -169,9 +169,9 @@ int HorizonSorter::getNrCrossings( const DBKey& mid1,
 }
 
 
-uiString HorizonSorter::uiMessage() const	{ return message_; }
+uiString HorizonSorter::message() const	{ return message_; }
 
-uiString HorizonSorter::uiNrDoneText() const { return tr("Positions done"); }
+uiString HorizonSorter::nrDoneText() const { return tr("Positions done"); }
 
 od_int64 HorizonSorter::nrDone() const		{ return nrdone_; }
 

@@ -44,10 +44,10 @@ public:
     uiRetVal		fillStats(IOPar&) const;
 
     int			nextStep();
-    uiString		uiMessage() const	{ return msg_; }
+    uiString		message() const	{ return msg_; }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const;
-    uiString		uiNrDoneText() const	{ return tr("Traces scanned"); }
+    uiString		nrDoneText() const	{ return tr("Traces scanned"); }
 
     const FileDataSet&	fileDataSet() const	{ return fds_; }
     FileDataSet&	fileDataSet()		{ return fds_; }

@@ -137,11 +137,11 @@ RegularSeisDataPack* ParallelReader::getDataPack()
 }
 
 
-uiString ParallelReader::uiNrDoneText() const
+uiString ParallelReader::nrDoneText() const
 { return tr("Traces read"); }
 
 
-uiString ParallelReader::uiMessage() const
+uiString ParallelReader::message() const
 {
     return errmsg_.isEmpty() ? tr("Reading volume \'%1\'").arg(ioobj_->uiName())
 			     : errmsg_;
@@ -397,10 +397,10 @@ void ParallelReader2D::setScaler( Scaler* newsc )
 }
 
 
-uiString ParallelReader2D::uiNrDoneText() const
+uiString ParallelReader2D::nrDoneText() const
 { return tr("Traces read"); }
 
-uiString ParallelReader2D::uiMessage() const
+uiString ParallelReader2D::message() const
 { return msg_.isEmpty() ? tr("Reading") : msg_; }
 
 od_int64 ParallelReader2D::nrIterations() const
@@ -618,7 +618,7 @@ SequentialReader::~SequentialReader()
 }
 
 
-uiString SequentialReader::uiNrDoneText() const
+uiString SequentialReader::nrDoneText() const
 {
     return uiStrings::phrJoinStrings( uiStrings::sTrace(mPlural), tr("read") );
 }

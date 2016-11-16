@@ -39,8 +39,8 @@ public:
 				const NLAModel* mdl=0);
 		~PosVecOutputGen();
 
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
+    uiString		message() const;
+    uiString		nrDoneText() const;
     od_int64		nrDone() const
 			{ return outex_ ? outex_->nrDone() : 0; }
     od_int64		totalNr() const

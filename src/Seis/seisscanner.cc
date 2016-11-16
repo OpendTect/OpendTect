@@ -56,13 +56,13 @@ SeisScanner::~SeisScanner()
 }
 
 
-uiString SeisScanner::uiMessage() const
+uiString SeisScanner::message() const
 {
     return !rdr_.errMsg().isEmpty() ? rdr_.errMsg() : curmsg_;
 }
 
 
-uiString SeisScanner::uiNrDoneText() const
+uiString SeisScanner::nrDoneText() const
 {
     return tr("Traces handled");
 }

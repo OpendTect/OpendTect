@@ -29,7 +29,7 @@ public:
 
     mxArray*		getMxArray()		{ return mxarr_; }
 
-    uiString		uiNrDoneText() const	{ return tr("Values copied"); }
+    uiString		nrDoneText() const	{ return tr("Values copied"); }
 
 protected:
 
@@ -49,7 +49,7 @@ public:
 			mxArrayCopier(const mxArray&,ArrayND<float>&);
 			~mxArrayCopier();
     bool		init();
-    uiString		uiNrDoneText() const	{ return tr("Values copied"); }
+    uiString		nrDoneText() const	{ return tr("Values copied"); }
 
 protected:
 

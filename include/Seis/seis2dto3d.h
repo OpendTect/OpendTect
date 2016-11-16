@@ -36,11 +36,11 @@ public:
 			Seis2DTo3D();
 			~Seis2DTo3D();
 
-    uiString		uiMessage() const
+    uiString		message() const
 			{ return errmsg_.isEmpty() ? tr("interpolating")
 						   : errmsg_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const	{ return tr("Done"); }
+    uiString		nrDoneText() const	{ return tr("Done"); }
     od_int64		totalNr() const;
     int				nextStep();
 	void			setStream(od_ostream&);

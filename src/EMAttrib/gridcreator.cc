@@ -60,7 +60,7 @@ public:
 					  Pos::GeomID gepmid);
 			~Seis2DLineCreator();
 
-    uiString		uiMessage() const	{ return msg_; }
+    uiString		message() const	{ return msg_; }
     virtual od_int64	nrDone() const		{ return nrdone_; }
     virtual od_int64	totalNr() const		{ return totalnr_; }
     virtual int		nextStep();
@@ -143,7 +143,7 @@ Seis2DGridCreator::Seis2DGridCreator( const IOPar& par )
 Seis2DGridCreator::~Seis2DGridCreator()
 {}
 
-uiString Seis2DGridCreator::uiNrDoneText() const
+uiString Seis2DGridCreator::nrDoneText() const
 { return tr("Traces done"); }
 
 bool Seis2DGridCreator::init( const IOPar& par )
@@ -364,7 +364,7 @@ od_int64 Horizon2DGridCreator::totalNr() const
 od_int64 Horizon2DGridCreator::nrDone() const
 { return nrdone_; }
 
-uiString Horizon2DGridCreator::uiNrDoneText() const
+uiString Horizon2DGridCreator::nrDoneText() const
 { return tr("Positions done"); }
 
 

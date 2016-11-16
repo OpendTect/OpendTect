@@ -49,7 +49,7 @@ protected:
     bool			doPrepare(int);
     bool			doFinish(bool);
     bool			doWork(od_int64,od_int64,int);
-    uiString			uiNrDoneText() const { 
+    uiString			nrDoneText() const { 
 						return tr("Traces written");
 						     }
 

@@ -284,7 +284,7 @@ bool dgbEMSurfaceTranslator::prepRead()
     reader_ = new EM::dgbSurfaceReader( *ioobj_, unm.buf() );
     if ( !reader_->isOK() )
     {
-	errmsg_ = reader_->uiMessage();
+	errmsg_ = reader_->message();
 	return false;
     }
 

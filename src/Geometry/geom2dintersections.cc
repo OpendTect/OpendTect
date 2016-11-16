@@ -37,10 +37,10 @@ od_int64 BendPointFinder2DGeomSet::nrDone() const
 od_int64 BendPointFinder2DGeomSet::totalNr() const
 { return geomids_.size(); }
 
-uiString BendPointFinder2DGeomSet::uiMessage() const
+uiString BendPointFinder2DGeomSet::message() const
 { return tr("Analyzing 2D Line geometries" ); }
 
-uiString BendPointFinder2DGeomSet::uiNrDoneText() const
+uiString BendPointFinder2DGeomSet::nrDoneText() const
 { return tr("Lines done"); }
 
 
@@ -154,10 +154,10 @@ Line2DInterSectionFinder::Line2DInterSectionFinder(
 od_int64 Line2DInterSectionFinder::nrIterations() const
 { return bendptset_.size()-1; }
 
-uiString Line2DInterSectionFinder::uiMessage() const
+uiString Line2DInterSectionFinder::message() const
 { return tr("Finding intersections" ); }
 
-uiString Line2DInterSectionFinder::uiNrDoneText() const
+uiString Line2DInterSectionFinder::nrDoneText() const
 { return tr("Lines done"); }
 
 

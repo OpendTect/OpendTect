@@ -419,10 +419,10 @@ SyntheticData* StratSynth::createSynthData( const SyntheticData& sd,
     proc->getProvider()->setPossibleVolume( cs );
     mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider());
     if ( !psattr )
-	mErrRet( proc->uiMessage(), return 0 );
+	mErrRet( proc->message(), return 0 );
 
     if ( !TaskRunner::execute(taskr_,*proc) )
-	mErrRet( proc->uiMessage(), return 0 ) ;
+	mErrRet( proc->message(), return 0 ) ;
     SeisTrcBufDataPack* angledp =
 	new SeisTrcBufDataPack( dptrcbufs, Seis::Line,
 				SeisTrcInfo::TrcNr, synthgenpar.name_ );
@@ -462,7 +462,7 @@ ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems )
 }
 
 
-uiString uiMessage() const
+uiString message() const
 {
     if ( errmsg_.isEmpty() )
 	return tr("Generating elastic model");
@@ -470,7 +470,7 @@ uiString uiMessage() const
 	return errmsg_;
 }
 
-uiString uiNrDoneText() const	{ return tr("Models done"); }
+uiString nrDoneText() const	{ return tr("Models done"); }
 
 protected :
 
@@ -623,12 +623,12 @@ od_int64 totalNr() const
 od_int64 nrDone() const
 { return nrdone_; }
 
-uiString uiMessage() const
+uiString message() const
 {
     return tr("Calculating Angle Gathers");
 }
 
-uiString uiNrDoneText() const
+uiString nrDoneText() const
 {
     return tr( "Models done" );
 }
@@ -867,12 +867,12 @@ od_int64 nrIterations() const
 { return lm_.size(); }
 
 
-uiString uiMessage() const
+uiString message() const
 {
     return !isprepared_ ? tr("Preparing Models") : tr("Calculating");
 }
 
-uiString uiNrDoneText() const
+uiString nrDoneText() const
 {
     return tr("Models done");
 }
@@ -1096,12 +1096,12 @@ od_int64 nrIterations() const
     return aimodels_.size();
 }
 
-uiString uiMessage() const
+uiString message() const
 {
     return !errmsg_.isEmpty() ? errmsg_ : tr( "Checking Models" );
 }
 
-uiString uiNrDoneText() const
+uiString nrDoneText() const
 {
     return tr( "Models done" );
 }

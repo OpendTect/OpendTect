@@ -49,10 +49,10 @@ public:
     						{ weaksmooth_ = yn; }
 
 			// Executor compliance functions
-    uiString		uiMessage() const;
+    uiString		message() const;
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const;
-    uiString		uiNrDoneText() const	{ return tr("Traces handled"); }
+    uiString		nrDoneText() const	{ return tr("Traces handled"); }
 			// This is where it actually happens
     int			nextStep();
 

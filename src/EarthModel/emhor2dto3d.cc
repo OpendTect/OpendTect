@@ -115,7 +115,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 					      : Array2DInterpol::ConvexHull );
 	curinterp_->setArray( sd_[cursectnr_]->arr_, taskrunner );
 
-	msg_ = curinterp_->uiMessage();
+	msg_ = curinterp_->message();
     }
 
     hor3d_.removeAll();
@@ -200,9 +200,9 @@ Hor2DTo3D::~Hor2DTo3D()
 }
 
 
-uiString Hor2DTo3D::uiNrDoneText() const
+uiString Hor2DTo3D::nrDoneText() const
 {
-    return curinterp_ ? curinterp_->uiNrDoneText() : uiString::emptyString();
+    return curinterp_ ? curinterp_->nrDoneText() : uiString::emptyString();
 }
 
 

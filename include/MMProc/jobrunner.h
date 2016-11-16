@@ -87,7 +87,7 @@ public:
     int				nextStep()	{ return doCycle(); }
     od_int64			nrDone() const	{ return jobsDone(); }
     od_int64			totalNr() const	{ return totalJobs(); }
-    uiString			uiMessage() const;
+    uiString			message() const;
     uiString			nrDoneMessage() const;
 
 				// Set these before first step

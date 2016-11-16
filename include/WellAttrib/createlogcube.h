@@ -42,7 +42,7 @@ public:
     bool		isOK() const { return errmsg_.isEmpty(); }
     void		resetMsg() { errmsg_.setEmpty(); }
 
-    uiString		uiNrDoneText() const { return tr("Wells handled"); }
+    uiString		nrDoneText() const { return tr("Wells handled"); }
     od_int64		totalNr() const { return nrIterations(); }
     bool		stopAllOnFailure() const { return false; }
 

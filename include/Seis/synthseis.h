@@ -168,7 +168,7 @@ public:
     void			getResult(ObjectSet<SeisTrc>&);
     void			getSampledRMs(RefMan<ReflectivityModelSet>&);
 
-    uiString			uiMessage() const {
+    uiString			message() const {
 				    return m3Dots(tr("Generating synthetics"));
 						  }
 

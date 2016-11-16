@@ -211,8 +211,8 @@ protected:
     od_int64		totalNr() const
 			{ return readcs_.hsamp_.totalNr(); }
     od_int64		nrDone() const { return nrdone_; }
-    uiString	uiMessage() const { return tr("Reading velocity model"); };
-    uiString	uiNrDoneText() const { return tr("Position read"); }
+    uiString	message() const { return tr("Reading velocity model"); };
+    uiString	nrDoneText() const { return tr("Position read"); }
 
     int			nextStep()
     {

@@ -32,7 +32,7 @@ VolumeReaderExecutor( const IOObj& ioobj, RegularSeisDataPack& output )
 }
 
 
-uiString uiMessage() const
+uiString message() const
 { return msg_; }
 
 
@@ -40,7 +40,7 @@ protected:
 
 #define mErrRet() \
 { \
-    msg_ = rdr.uiMessage(); \
+    msg_ = rdr.message(); \
     return ErrorOccurred(); \
 }
 
@@ -56,7 +56,7 @@ int nextStep()
 
     if ( progressmeter_ )
     {
-	progressmeter_->setMessage( rdr.uiMessage() );
+	progressmeter_->setMessage( rdr.message() );
 	rdr.setProgressMeter( progressmeter_ );
     }
 

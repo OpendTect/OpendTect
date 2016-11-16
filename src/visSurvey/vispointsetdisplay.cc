@@ -101,7 +101,7 @@ od_int64 nrDone() const
 od_int64 totalNr() const
 { return data_.size(); }
 
-uiString uiNrDoneText() const
+uiString nrDoneText() const
 { return tr("Points done"); }
 
 protected :

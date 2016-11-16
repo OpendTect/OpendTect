@@ -42,8 +42,8 @@ public:
     void		setOffsetRange( float r0, float r1 )
 			{ offsrg_.start = r0; offsrg_.stop = r1; }
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{
+    uiString		message() const	{ return msg_; }
+    uiString		nrDoneText() const	{
 						return tr("Gathers written");
 						}
     virtual od_int64	nrDone() const		{ return nrdone_; }

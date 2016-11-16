@@ -558,7 +558,7 @@ bool SynthGenerator::computeReflectivities()
     ReflectivitySampler sampler( *refmodel_, sampling, freqreflectivities_ );
     bool isok = sampler.execute();
     if ( !isok )
-	mErrRet( sampler.uiMessage(), false );
+	mErrRet( sampler.message(), false );
 
     if ( dosampledreflectivities_ )
 	sampler.getReflectivities( sampledrefmodel_ );

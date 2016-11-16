@@ -156,7 +156,7 @@ void uiTaskRunner::updateFields()
     Threads::Locker lckr( dispinfolock_ );
     const int totalnr = mCast( int, task_->totalNr() );
     const int nrdone = mCast( int, task_->nrDone() );
-    const uiString nrdonetext = task_->uiNrDoneText();
+    const uiString nrdonetext = task_->nrDoneText();
 #ifdef __debug__
     if ( FixedString(nrdonetext.getFullString())=="Nr Done" )
     {
@@ -164,7 +164,7 @@ void uiTaskRunner::updateFields()
                 "Make class implement uiNrDoneText");
     }
 #endif
-    const uiString message = task_->uiMessage();
+    const uiString message = task_->message();
 
     if ( nrdone < 0 )
     {
@@ -299,7 +299,7 @@ uiString uiTaskRunner::finalizeTask()
 	thread_ = 0;
     }
 
-    if ( task_ ) message = task_->uiMessage();
+    if ( task_ ) message = task_->message();
     task_ = 0;
 
     return message;

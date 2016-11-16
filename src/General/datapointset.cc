@@ -188,9 +188,9 @@ od_int64 totalNr() const	{ return totalnr_; }
 
 od_int64 nrDone() const		{ return nrdone_; }
 
-uiString uiMessage() const	{ return tr("Extracting positions"); }
+uiString message() const	{ return tr("Extracting positions"); }
 
-uiString uiNrDoneText() const	{ return tr("Positions done"); }
+uiString nrDoneText() const	{ return tr("Positions done"); }
 
 
 protected:

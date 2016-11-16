@@ -42,10 +42,10 @@ public:
     int				getNrCrossings(const DBKey&,
 					       const DBKey&) const;
 
-    uiString			uiMessage() const;
+    uiString			message() const;
     od_int64			totalNr() const;
     od_int64			nrDone() const;
-    uiString			uiNrDoneText() const;
+    uiString			nrDoneText() const;
 
 protected:
 

@@ -45,9 +45,9 @@ public:
     HorizonTileResolutionTesselator(const HorizonSection* hrsection,char res);
     ~HorizonTileResolutionTesselator();
     od_int64		    nrIterations() const { return nrtiles_; }
-    uiString		    uiMessage() const 
+    uiString		    message() const 
 			    { return tr("Tessellating horizon"); }
-    uiString		    uiNrDoneText() const 
+    uiString		    nrDoneText() const 
 			    { return tr("Parts completed"); }
 
     bool		    doPrepare(int);
@@ -78,8 +78,8 @@ public:
 
     od_int64 nrIterations() const { return nrtiles_; }
     od_int64 totalNr() const { return nrtiles_ * 2; }
-    uiString uiMessage() const { return tr("Updating Horizon Display"); }
-    uiString uiNrDoneText() const { return tr("Parts completed"); }
+    uiString message() const { return tr("Updating Horizon Display"); }
+    uiString nrDoneText() const { return tr("Parts completed"); }
 
     bool doPrepare( int );
     bool doWork( od_int64, od_int64, int );
@@ -118,8 +118,8 @@ public:
     ~HorizonSectionTilePosSetup();
 
     od_int64	nrIterations() const { return hrtiles_.size(); }
-    uiString	uiMessage() const { return tr("Creating Horizon Display"); }
-    uiString	uiNrDoneText() const { return tr("Parts completed"); }
+    uiString	message() const { return tr("Creating Horizon Display"); }
+    uiString	nrDoneText() const { return tr("Parts completed"); }
 
 protected:
 

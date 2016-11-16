@@ -88,7 +88,7 @@ void SEGY::Scanner::closeTr()
 uiRetVal SEGY::Scanner::fillStats( IOPar& iop ) const
 {
     if ( !seisstatinfo_.fillPar(iop) )
-	return seisstatinfo_.uiMessage();
+	return seisstatinfo_.message();
 
     return uiRetVal::OK();
 }

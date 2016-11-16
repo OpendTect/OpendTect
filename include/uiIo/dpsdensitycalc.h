@@ -37,7 +37,7 @@ public:
 
     od_int64			nrIterations() const;
     od_int64			nrDone() const		{ return nrdone_; }
-    uiString			uiNrDoneText() const;
+    uiString			nrDoneText() const;
 
     void			setGroup(int grp)	{ grp_ = grp; }
     bool			getPositions(TypeSet<int>&,int);

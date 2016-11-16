@@ -46,7 +46,7 @@ MatlabTask( MatlabStep& step )
     bool		init();
     od_int64		nrIterations() const	{ return 1; }
     bool		doWork(od_int64,od_int64,int);
-    uiString		uiMessage() const	{ return message_; }
+    uiString		message() const	{ return message_; }
 
 protected:
 
@@ -213,7 +213,7 @@ Task* MatlabStep::createTask()
     MatlabTask* task = new MatlabTask( *this );
     if ( !task->init() )
     {
-	errmsg_ = task->uiMessage();
+	errmsg_ = task->message();
 	delete task;
 	task = 0;
     }

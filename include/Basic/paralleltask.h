@@ -181,8 +181,8 @@ interp.execute();
     bool	reportprogress_; \
     void	setReport(bool yn)		{ reportprogress_ = yn; } \
     od_int64	nrIterations() const		{ return sz_; } \
-    uiString	uiMessage() const		{ return uimsg; } \
-    uiString	uiNrDoneText() const		{ return sPosFinished(); } \
+    uiString	message() const		{ return uimsg; } \
+    uiString	nrDoneText() const		{ return sPosFinished(); } \
 
 #define mDefParallelCalcNoPars(clss,uimsg) \
 	class clss : public ParallelTask \

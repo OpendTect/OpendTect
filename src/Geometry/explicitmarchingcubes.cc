@@ -63,12 +63,12 @@ public:
 protected:
 
     od_int64 nrIterations() const { return totalnr_; }
-    uiString uiMessage() const
+    uiString message() const
     {
 	return updatecoords_ ? tr("Triangulation: updating coordinates")
 	    : tr("Triangulation: updating indices");
     }
-    uiString uiNrDoneText() const	{ return tr("Positions updated"); }
+    uiString nrDoneText() const	{ return tr("Positions updated"); }
 
     bool doWork( od_int64 start, od_int64 stop, int thread )
     {

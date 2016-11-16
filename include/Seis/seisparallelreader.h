@@ -69,8 +69,8 @@ public:
     void		 setDataPack(RegularSeisDataPack*);
     RegularSeisDataPack* getDataPack();
 
-    uiString		uiNrDoneText() const;
-    uiString		uiMessage() const;
+    uiString		nrDoneText() const;
+    uiString		message() const;
 
 protected:
     od_int64		nrIterations() const { return totalnr_; }
@@ -112,8 +112,8 @@ public:
 
     RegularSeisDataPack* getDataPack(); // The caller now owns the datapack
 
-    uiString		uiNrDoneText() const;
-    uiString		uiMessage() const;
+    uiString		nrDoneText() const;
+    uiString		message() const;
 
 protected:
     od_int64		nrIterations() const;
@@ -177,8 +177,8 @@ public:
 
     RegularSeisDataPack* getDataPack();
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const;
+    uiString		message() const	{ return msg_; }
+    uiString		nrDoneText() const;
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }
     int			nextStep();

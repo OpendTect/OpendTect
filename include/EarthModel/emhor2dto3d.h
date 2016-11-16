@@ -41,8 +41,8 @@ public:
 				~Hor2DTo3D();
 
     int				nextStep();
-    uiString			uiMessage() const	{ return msg_; }
-    uiString			uiNrDoneText() const;
+    uiString			message() const	{ return msg_; }
+    uiString			nrDoneText() const;
     od_int64			nrDone() const;
     od_int64			totalNr() const;
 

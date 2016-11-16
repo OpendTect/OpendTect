@@ -51,7 +51,7 @@ public:
     bool			doWork(od_int64 start,od_int64 stop,int);
     bool			doFinish(bool success);
 
-    uiString			uiMessage() const;
+    uiString			message() const;
     uiString			errMsg() const		{ return errmsg_; }
 
     AngleMuteCompPars&		params();

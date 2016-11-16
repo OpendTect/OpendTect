@@ -151,7 +151,7 @@ SeisMerger::~SeisMerger()
 }
 
 
-uiString SeisMerger::uiMessage() const
+uiString SeisMerger::message() const
 {
     return errmsg_.isEmpty() ? errmsg_ : tr("Handling traces");
 }

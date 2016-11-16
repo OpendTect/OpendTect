@@ -37,7 +37,7 @@ protected:
     int			maxNrThreads() const	{ return 1; }
     od_int64		nrIterations() const	{ return 1; }
     od_int64		totalNr() const		{ return totalnr_; }
-    uiString		uiNrDoneText() const	
+    uiString		nrDoneText() const	
 		       { return tr("Convergence iterations "); }
 
 private:

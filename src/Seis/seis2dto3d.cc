@@ -275,8 +275,8 @@ public:
     }
 
     od_int64	nrIterations() const	{return n1_*n2_;}
-    uiString	uiMessage() const   {return tr("Constructing Operator"); }
-    uiString	uiNrDoneText() const	{return tr("Position finished"); }
+    uiString	message() const   {return tr("Constructing Operator"); }
+    uiString	nrDoneText() const	{return tr("Position finished"); }
 
     bool doPrepare( int )
     {

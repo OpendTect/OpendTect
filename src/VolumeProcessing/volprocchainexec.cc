@@ -606,7 +606,7 @@ od_int64 VolProc::ChainExecutor::nrDone() const
 }
 
 
-uiString VolProc::ChainExecutor::uiNrDoneText() const
+uiString VolProc::ChainExecutor::nrDoneText() const
 {
     return uiStrings::sPercentageDone();
 }
@@ -618,13 +618,13 @@ od_int64 VolProc::ChainExecutor::totalNr() const
 }
 
 
-uiString VolProc::ChainExecutor::uiMessage() const
+uiString VolProc::ChainExecutor::message() const
 {
     if ( !errmsg_.isEmpty() )
 	return errmsg_;
 
     if ( curepoch_ )
-	return curepoch_->getTask().uiMessage();
+	return curepoch_->getTask().message();
 
     return uiString::emptyString();
 }

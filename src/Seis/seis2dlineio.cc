@@ -323,7 +323,7 @@ int Seis2DLineMerger::doWork()
 				 : Executor::ErrorOccurred();
 	const int res = fetcher_->doStep();
 	if ( res < 0 )
-	    { msg_ = fetcher_->uiMessage(); return res; }
+	    { msg_ = fetcher_->message(); return res; }
 	else if ( res == 1 )
 	    { nrdone_++; return Executor::MoreToDo(); }
 

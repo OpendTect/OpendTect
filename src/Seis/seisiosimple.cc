@@ -231,7 +231,7 @@ bool fetch( SeisTrc& trc )
 	{ sios_.nrdone_++; return true; }
 
     if ( rv < 0 )
-	errmsg_ = sios_.uiMessage();
+	errmsg_ = sios_.message();
     return false;
 }
 
@@ -259,10 +259,10 @@ void SeisIOSimple::startImpRead()
 }
 
 
-uiString SeisIOSimple::uiMessage() const
+uiString SeisIOSimple::message() const
 {
     if ( importer_ )
-	return importer_->uiMessage();
+	return importer_->message();
 
     return errmsg_.isEmpty() ? tr("Handling traces") : errmsg_;
 }
@@ -280,9 +280,9 @@ od_int64 SeisIOSimple::totalNr() const
 }
 
 
-uiString SeisIOSimple::uiNrDoneText() const
+uiString SeisIOSimple::nrDoneText() const
 {
-    return importer_ ? importer_->uiNrDoneText() : tr("Traces written");
+    return importer_ ? importer_->nrDoneText() : tr("Traces written");
 }
 
 

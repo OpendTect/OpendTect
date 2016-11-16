@@ -113,7 +113,7 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
     SEGY::FileIndexer indexer( dbky, !isps, filespec, is2d, iop );
     if ( !indexer.go(strm) )
     {
-	strm << indexer.uiMessage().getFullString();
+	strm << indexer.message().getFullString();
 	DBM().removeEntry( dbky );
 	return false;
     }

@@ -85,7 +85,7 @@ public:
 protected:
     virtual bool	doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const	{ return totalnr_; }
-    uiString		uiNrDoneText() const	{ return tr("Nodes gridded"); }
+    uiString		nrDoneText() const	{ return tr("Nodes gridded"); }
 
     bool		doPrepare(int);
     virtual bool	initFromArray(TaskRunner*);
@@ -162,7 +162,7 @@ protected:
     int			minThreadSize() const	{ return 10000; }
     bool		doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const	{ return totalnr_; }
-    uiString		uiNrDoneText() const	{ return tr("Nodes gridded"); }
+    uiString		nrDoneText() const	{ return tr("Nodes gridded"); }
 
     bool		doPrepare(int);
     virtual bool	initFromArray(TaskRunner*);

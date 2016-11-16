@@ -673,10 +673,10 @@ int SEGY::FileIndexer::nextStep()
 	return MoreToDo();
     }
 
-    msg_ = scanner_->uiMessage();
+    msg_ = scanner_->message();
     const int res = scanner_->nextStep();
     if ( res == ErrorOccurred() )
-	msg_ = scanner_->uiMessage();
+	msg_ = scanner_->message();
     else if ( res==Finished() )
     {
 	const SEGY::FileDataSet& fds = scanner_->fileDataSet();
@@ -711,7 +711,7 @@ int SEGY::FileIndexer::nextStep()
 }
 
 
-uiString SEGY::FileIndexer::uiMessage() const
+uiString SEGY::FileIndexer::message() const
 { return msg_; }
 
 
@@ -723,5 +723,5 @@ od_int64 SEGY::FileIndexer::totalNr() const
 { return scanner_ ? scanner_->totalNr() : 0; }
 
 
-uiString SEGY::FileIndexer::uiNrDoneText() const
+uiString SEGY::FileIndexer::nrDoneText() const
 { return tr("Traces scanned"); }

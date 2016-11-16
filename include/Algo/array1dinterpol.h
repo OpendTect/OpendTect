@@ -40,7 +40,7 @@ public:
 
 protected:
 			Array1DInterpol();
-    uiString		uiNrDoneText() const
+    uiString		nrDoneText() const
     			{ return tr("Points interpolated"); }
 
     Array1D<float>*	arr_;

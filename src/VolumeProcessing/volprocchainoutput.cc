@@ -139,7 +139,7 @@ od_int64 VolProc::ChainOutput::totalNr() const
 }
 
 
-uiString VolProc::ChainOutput::uiNrDoneText() const
+uiString VolProc::ChainOutput::nrDoneText() const
 {
 #ifdef __debug__
     uiString ret = progresskeeper_.nrDoneText();
@@ -152,7 +152,7 @@ uiString VolProc::ChainOutput::uiNrDoneText() const
 }
 
 
-uiString VolProc::ChainOutput::uiMessage() const
+uiString VolProc::ChainOutput::message() const
 {
     return progresskeeper_.message();
 }
@@ -406,7 +406,7 @@ void workFinished( CallBacker* cb )
     const bool isfail = !Threads::WorkManager::twm().getWorkExitStatus( cb );
     if ( isfail )
     {
-	errmsg_ = co_.wrr_->uiMessage();
+	errmsg_ = co_.wrr_->message();
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = tr("Error during background write");
     }

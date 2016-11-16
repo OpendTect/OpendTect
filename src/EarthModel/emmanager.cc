@@ -247,7 +247,7 @@ Executor* EMManager::objectLoader( const DBKeySet& mids,
 	    if ( loader )
 	    {
 		if ( !execgrp->nrExecutors() )
-		    execgrp->setNrDoneText( loader->uiNrDoneText() );
+		    execgrp->setNrDoneText( loader->nrDoneText() );
 		execgrp->add( loader );
 	    }
 	}

@@ -74,7 +74,7 @@ bool uiSeis2DFrom3D::acceptOK()
     uiTaskRunner uitr( this );
     if ( !TaskRunner::execute(&uitr,extr) )
     {
-	uiMSG().error( extr.uiMessage() );
+	uiMSG().error( extr.message() );
 	return false;
     }
 

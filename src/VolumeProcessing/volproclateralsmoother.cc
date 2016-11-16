@@ -58,8 +58,8 @@ LateralSmootherTask(const Array3D<float>& input,
 
 od_int64	nrIterations() const {return i2samples_.width()+1; }
 od_int64	totalNr() const { return totalsz_; }
-uiString	uiMessage() const { return tr("Smothing laterally"); }
-uiString	uiNrDoneText() const { return tr("Samples processed"); }
+uiString	message() const { return tr("Smothing laterally"); }
+uiString	nrDoneText() const { return tr("Samples processed"); }
 bool		doPrepare(int nrthreads) { domt_ = nrthreads==1; return true; }
 
 private:

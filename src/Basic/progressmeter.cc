@@ -104,8 +104,8 @@ void ProgressRecorder::setFrom( const Task& t )
     name_ = t.name();
     nrdone_ = t.nrDone();
     totalnr_ = t.totalNr();
-    message_ = t.uiMessage();
-    nrdonetext_ = t.uiNrDoneText();
+    message_ = t.message();
+    nrdonetext_ = t.nrDoneText();
     if ( nrdone_ > 0 )
 	isstarted_ = true;
 }

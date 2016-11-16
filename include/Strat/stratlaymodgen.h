@@ -34,10 +34,10 @@ public:
 
      virtual od_int64	nrDone() const		{ return seqnr_; }
      virtual od_int64	totalNr() const		{ return nrseqs_; }
-     virtual uiString	uiNrDoneText() const	{ 
+     virtual uiString	nrDoneText() const	{ 
 					    return tr("Sequences generated");
 						}
-     virtual uiString	uiMessage() const	{ return msg_; }
+     virtual uiString	message() const	{ return msg_; }
      virtual int	nextStep();
 
 protected:

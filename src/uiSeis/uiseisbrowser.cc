@@ -688,8 +688,8 @@ bool init()
 
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const          { return nrdone_; }
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces done"); }
+    uiString		message() const	{ return msg_; }
+    uiString		nrDoneText() const	{ return tr("Traces done"); }
 
 protected:
 

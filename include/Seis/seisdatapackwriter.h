@@ -36,8 +36,8 @@ public:
 
     od_int64		nrDone() const;
     od_int64		totalNr() const;
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const
+    uiString		message() const;
+    uiString		nrDoneText() const
 			{ return tr("Traces written:"); }
     int			nextStep();
 

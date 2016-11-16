@@ -363,8 +363,8 @@ uiSynthToRealScaleRealStatCollector( uiSynthToRealScale& d, SeisTrcReader& r )
     delete seldata_;
 }
 
-uiString uiMessage() const	{ return msg_; }
-uiString uiNrDoneText() const	{ return tr("Traces handled"); }
+uiString message() const	{ return msg_; }
+uiString nrDoneText() const	{ return tr("Traces handled"); }
 od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totalnr_; }
 

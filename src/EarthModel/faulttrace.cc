@@ -991,7 +991,7 @@ FaultTraceExtractor::~FaultTraceExtractor()
 od_int64 FaultTraceExtractor::nrIterations() const
 { return totalnr_; }
 
-uiString FaultTraceExtractor::uiMessage() const
+uiString FaultTraceExtractor::message() const
 { return tr("Extracting Fault Traces"); }
 
 bool FaultTraceExtractor::doPrepare( int nrthreads )

@@ -110,35 +110,6 @@ bool Task::shouldContinue()
 }
 
 
-
-uiString Task::uiMessage() const
-{
-    const char* oldmsg = message();
-    if ( oldmsg && *oldmsg )
-    {
-	pErrMsgOnce("Use uiMessage() in your implementation "
-		    "instead of message()");
-	return toUiString(oldmsg);
-    }
-
-    return tr("Working");
-}
-
-
-uiString Task::uiNrDoneText() const
-{
-    const char* oldmsg = nrDoneText();
-    if ( oldmsg && *oldmsg )
-    {
-	pErrMsgOnce("Use uiNrDoneText() in your implementation instead of "
-		"nrDoneText()");
-	return toUiString(oldmsg);
-    }
-
-    return uiStdNrDoneText();
-}
-
-
 void TaskGroupController::controlTask( Task*  t )
 {
     if ( workcontrolcondvar_ ) t->enableWorkControl( true );
@@ -234,13 +205,13 @@ void TaskGroup::getTasks( TaskGroup& oth )
 }
 
 
-uiString TaskGroup::uiMessage() const
+uiString TaskGroup::message() const
 {
     Threads::Locker locker( lock_ );
     if ( !tasks_.validIdx(curtask_) )
 	return uiString::emptyString();
 
-    return tasks_[curtask_]->uiMessage();
+    return tasks_[curtask_]->message();
 }
 
 
@@ -275,8 +246,8 @@ SequentialTask::SequentialTask( const char* nm )
 	progressmeter_->setName( name() ); \
 	progressmeter_->setNrDone( nrDone() ); \
 	progressmeter_->setTotalNr( totalNr() ); \
-	progressmeter_->setNrDoneText( uiNrDoneText() ); \
-	progressmeter_->setMessage( uiMessage() ); \
+	progressmeter_->setNrDoneText( nrDoneText() ); \
+	progressmeter_->setMessage( message() ); \
 }
 
 void SequentialTask::setProgressMeter( ProgressMeter* pm )
@@ -394,8 +365,8 @@ void ParallelTask::addToNrDone( od_int64 nr )
     if ( progressmeter_ )
     {
 	progressmeter_->setTotalNr( totalnrcache_ );
-	progressmeter_->setNrDoneText( uiNrDoneText() );
-	progressmeter_->setMessage( uiMessage() );
+	progressmeter_->setNrDoneText( nrDoneText() );
+	progressmeter_->setMessage( message() );
 	progressmeter_->setNrDone( nrDone() );
     }
 }
@@ -439,7 +410,7 @@ bool ParallelTask::executeParallel( bool parallel )
     if ( progressmeter_ )
     {
 	progressmeter_->setName( name() );
-	progressmeter_->setMessage( uiMessage() );
+	progressmeter_->setMessage( message() );
 	progressmeter_->setTotalNr( totalnrcache_ );
 	progressmeter_->setStarted();
     }

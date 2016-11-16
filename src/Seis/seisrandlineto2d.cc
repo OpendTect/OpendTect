@@ -201,10 +201,10 @@ int SeisRandLineTo2D::nextStep()
 }
 
 
-uiString SeisRandLineTo2D::uiMessage() const
+uiString SeisRandLineTo2D::message() const
 { return m3Dots(tr("Writing traces")); }
 
-uiString SeisRandLineTo2D::uiNrDoneText() const
+uiString SeisRandLineTo2D::nrDoneText() const
 { return tr("Traces written"); }
 
 od_int64 SeisRandLineTo2D::nrDone() const
