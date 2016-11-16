@@ -225,6 +225,76 @@ void uiNorthArrowObject::update()
 }
 
 
+// uiGrid2DMapObject
+uiGrid2DMapObject::uiGrid2DMapObject()
+    : uiBaseMapObject(0)
+    , grid_(0),baseline_(0)
+{}
+
+
+const char* uiGrid2DMapObject::getType()
+{ return "Grid2D"; }
+
+
+void uiGrid2DMapObject::setGrid( const Grid2D* grid )
+{
+    grid_ = grid;
+}
+
+
+void uiGrid2DMapObject::setBaseLine( const Grid2D::Line* baseline )
+{
+    baseline_ = baseline;
+}
+
+
+void uiGrid2DMapObject::setLineStyle( const OD::LineStyle& ls )
+{
+    ls_ = ls;
+}
+
+
+void uiGrid2DMapObject::update()
+{
+    #define mDrawLine(line) { \
+    const Coord start = SI().transform( line->start_ ); \
+    const Coord stop = SI().transform( line->stop_ ); \
+    uiLineItem* item = new uiLineItem; \
+    item->setLine( start, stop ); \
+    item->setPenStyle( ls_ ); \
+    item->setZValue( graphicszval ); \
+    graphitem_.addChild( item );} \
+
+    graphitem_.removeAll( true );
+    lines_.erase();
+
+    if ( !grid_ ) return;
+
+    ls_.color_ = Color::Black();
+    ls_.width_ = 20;
+    int graphicszval = 2;
+    for ( int idx=0; idx<grid_->size(true); idx++ )
+    {
+	const Grid2D::Line* line2d = grid_->getLine( idx, true );
+	if ( line2d )
+	    mDrawLine( line2d );
+    }
+
+    for ( int idx=0; idx<grid_->size(false); idx++ )
+    {
+	const Grid2D::Line* line2d = grid_->getLine( idx, false );
+	if ( line2d )
+	    mDrawLine( line2d );
+    }
+
+    ls_.width_ += 2;
+    ls_.color_ = Color::Green();
+    graphicszval = 4;
+    if ( baseline_ )
+	mDrawLine( baseline_ );
+}
+
+
 // uiSurveyMap
 uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
     : uiBaseMap(p)

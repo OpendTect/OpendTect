@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiiocommon.h"
+#include "grid2d.h"
 #include "uibasemap.h"
 #include "draw.h"
 
@@ -75,6 +76,26 @@ protected:
 
     void		setVisibility(bool);
 
+};
+
+
+mExpClass(uiIo) uiGrid2DMapObject : public uiBaseMapObject
+{
+public:
+			uiGrid2DMapObject();
+
+    const char*		getType();
+    void		setGrid(const Grid2D*);
+    void		setBaseLine(const Grid2D::Line*);
+    void		setLineStyle(const OD::LineStyle&);
+    void		update();
+
+protected:
+
+    ObjectSet<uiLineItem>   lines_;
+    const Grid2D::Line*	    baseline_;
+    const Grid2D*	    grid_;
+    OD::LineStyle	    ls_;
 };
 
 

@@ -173,7 +173,13 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
 
     surveymap_ = new uiSurveyMap( this );
     surveymap_->attachGroup().attach( ensureRightOf, versep );
-
+    inlgridview_ = new uiGrid2DMapObject();
+    inlgrid_ = new Grid2D();
+    inlgridview_->setGrid( inlgrid_ );
+    surveymap_->addObject( inlgridview_ );
+    surveymap_->attachGroup().setPrefWidth( 300 );
+    surveymap_->attachGroup().setPrefHeight( 200 );
+    surveymap_->attachGroup().setStretch( 2, 2 );
 
     pathfld_ = new uiGenInput( topgrp_, tr("Location on disk"),
 				StringInpSpec(basepath_) );
@@ -231,6 +237,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
 uiSurveyInfoEditor::~uiSurveyInfoEditor()
 {
     delete impiop_;
+    delete inlgrid_;
 }
 
 
@@ -452,6 +459,7 @@ void uiSurveyInfoEditor::mkLatLongGrp()
 					     si_.getCoordSystem() );
     latlongsel_->attach( alignedBelow, emptyspace );
     tabs_->addTab( latlonggrp_ );
+    tabs_->setTabIcon( latlonggrp_, "spherewire" ); 
 }
 
 
@@ -963,7 +971,19 @@ void uiSurveyInfoEditor::transformChg( CallBacker* )
 
 void uiSurveyInfoEditor::updateMap()
 {
+    TypeSet<int> inlines, crlines;
     si_.update3DGeometry();
+    const TrcKeyZSampling& cs = si_.sampling( false );
+    const TrcKeySampling& hs = cs.hsamp_;
+    const int inlstep = hs.nrInl() / 5;
+    for ( int idx=0; idx<4; idx++ )
+    {
+	const int inl = hs.start_.inl() + (idx+1) * inlstep;
+	inlines += inl;
+    }
+    
+    inlgrid_->set( inlines, crlines, hs );
+    inlgridview_->setGrid( inlgrid_ );
     surveymap_->setSurveyInfo( &si_ );
 }
 

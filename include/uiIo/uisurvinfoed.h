@@ -16,11 +16,13 @@ ________________________________________________________________________
 #include "ranges.h"
 
 
+class Grid2D;
 class SurveyInfo;
 class uiCheckBox;
 class uiComboBox;
 class uiLabeledComboBox;
 class uiGenInput;
+class uiGrid2DMapObject;
 class uiGroup;
 class uiSurvInfoProvider;
 class uiSurveyMap;
@@ -95,6 +97,8 @@ protected:
     uiGenInput*		depthdispfld_;
     uiGenInput*		refdatumfld_;
     uiSurveyMap*	surveymap_;
+    uiGrid2DMapObject*  inlgridview_;
+    Grid2D*		inlgrid_;
     uiTabStack*		tabs_;
 
     void		mkSIPFld(uiObject*,bool);
