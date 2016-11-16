@@ -20,6 +20,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include <osgGA/TrackballManipulator>
 #include <osgQt/GraphicsWindowQt>
 
+#include <osg/Version>
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
 #include <osgManipulator/TabBoxDragger>
