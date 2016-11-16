@@ -374,6 +374,9 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     TrcKeyPath& path = randsdp->getPath();
     const TrcKeySampling& tks = regsdp.sampling().hsamp_;
 
+    if ( path.isEmpty() )
+	return DataPack::cNoID();
+
     // Remove outer undefined traces at both sides
     int pathidx = path.size()-1;
     while ( pathidx>0 && !tks.includes(path[pathidx]) )
