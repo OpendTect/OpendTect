@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "ioobj.h"
 #include "dbman.h"
+#include "uistrings.h"
 
 
 Seis2DLineEventSnapper::Seis2DLineEventSnapper( const EM::Horizon2D& orghor,
@@ -35,6 +36,18 @@ Seis2DLineEventSnapper::Seis2DLineEventSnapper( const EM::Horizon2D& orghor,
 Seis2DLineEventSnapper::~Seis2DLineEventSnapper()
 {
     delete seisrdr_;
+}
+
+
+uiString Seis2DLineEventSnapper::message() const
+{
+    return uiStrings::phrHandling(uiStrings::sTrace(mPlural));
+}
+
+
+uiString Seis2DLineEventSnapper::nrDoneText() const
+{
+    return uiStrings::phrHandled(uiStrings::sTrace(mPlural));
 }
 
 

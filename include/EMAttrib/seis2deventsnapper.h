@@ -22,9 +22,7 @@ namespace Seis { class Horizon2D; }
 class SeisTrcReader;
 class IOObj;
 
-/*!
-\brief SeisEventSnapper for 2D.
-*/
+/*!\brief SeisEventSnapper for 2D. */
 
 mExpClass(EMAttrib) Seis2DLineEventSnapper : public SeisEventSnapper
 {
@@ -47,8 +45,11 @@ public:
 					  const Seis2DLineEventSnapper::Setup&);
 				~Seis2DLineEventSnapper();
 
-protected:
     virtual int			nextStep();
+    uiString			message() const;
+    uiString			nrDoneText() const;
+
+protected:
 
     Pos::GeomID			geomid_;
     SeisTrc			trc_;
@@ -82,9 +83,11 @@ public:
 					EM::Horizon2D*,const Setup&);
 				~SeisEventSnapper2D();
 protected:
+
     int				type_;
     Interval<float>		gate_;
     const EM::Horizon2D*	orghor_;
     EM::Horizon2D*		newhor_;
     EM::Hor2DSeisLineIterator*	hor2diterator_;
+
 };

@@ -21,6 +21,7 @@ ___________________________________________________________________
 #include "dbman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "uistrings.h"
 #include "pickset.h"
 #include "streamconn.h"
 #include "survinfo.h"
@@ -32,11 +33,11 @@ namespace EM
 #define mRetErr( msg ) { errmsg_ = msg; return; }
 
 class RandomPosBodyReader : public Executor
-{
+{ mODTextTranslationClass(EM::RandomPosBodyReader);
 public:
 
     RandomPosBodyReader( RandomPosBody& rdposbody, Conn* conn )
-	: Executor( "RandomPos Loader" )
+	: Executor( "Random Position Body Loader" )
 	, conn_( conn )
 	, rdposbody_( rdposbody )
 	, nrdone_( 0 )
@@ -64,6 +65,11 @@ public:
 
 	iopar.get( sKeyNrPositions(), totalnr_ );
     }
+
+    uiString message() const
+    { return uiStrings::phrReading(uiStrings::sPosition(mPlural)); }
+    uiString nrDoneText() const
+    { return uiStrings::phrRead(uiStrings::sPosition(mPlural)); }
 
     int nextStep()
     {
@@ -132,7 +138,7 @@ class RandomPosBodyWriter : public Executor
 public:
 
     RandomPosBodyWriter( RandomPosBody& rdposbody, Conn* conn )
-	: Executor( "RandomPos Writer" )
+	: Executor( "Random Position Body Writer" )
 	, conn_( conn )
 	, rdposbody_( rdposbody )
 	, nrdone_( 0 )
@@ -153,6 +159,11 @@ public:
 
 	pars.putTo( astream );
     }
+
+    uiString message() const
+    { return uiStrings::phrWriting(uiStrings::sPosition(mPlural)); }
+    uiString nrDoneText() const
+    { return uiStrings::phrWritten(uiStrings::sPosition(mPlural)); }
 
     int nextStep()
     {

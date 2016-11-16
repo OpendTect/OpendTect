@@ -66,6 +66,31 @@ int Executor::doStep()
 }
 
 
+#define mRetImplItBro(fnnm) \
+    BufferString msg( "Define ", #fnnm, " for " ); \
+    msg.add( name() ); \
+    pErrMsg( msg ); \
+    return Task::fnnm()
+
+uiString Executor::message() const
+{
+    mRetImplItBro( message );
+}
+
+
+uiString Executor::nrDoneText() const
+{
+    mRetImplItBro( nrDoneText );
+}
+
+
+od_int64 Executor::nrDone() const
+{
+    mRetImplItBro( nrDone );
+}
+
+
+
 ExecutorGroup::ExecutorGroup( const char* nm, bool p, bool ownsexecs )
 	: Executor( nm )
 	, executors_( *new ObjectSet<Executor> )

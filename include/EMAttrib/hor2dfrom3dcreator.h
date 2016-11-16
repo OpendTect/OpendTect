@@ -23,7 +23,7 @@ class BufferStringSet;
 mExpClass(EMAttrib) Hor2DFrom3DCreatorGrp : public ExecutorGroup
 {
 public:
-    				Hor2DFrom3DCreatorGrp(const EM::Horizon3D&,
+				Hor2DFrom3DCreatorGrp(const EM::Horizon3D&,
 						      EM::Horizon2D&);
 				~Hor2DFrom3DCreatorGrp();
 
@@ -44,13 +44,15 @@ protected:
 mExpClass(EMAttrib) Hor2DFrom3DCreator : public Executor
 {
 public:
-    				Hor2DFrom3DCreator(const EM::Horizon3D&,
+				Hor2DFrom3DCreator(const EM::Horizon3D&,
 						   EM::Horizon2D&);
 
     bool			setCreator(Pos::GeomID);
     virtual int			nextStep();
     virtual od_int64		nrDone() const		{ return nrdone_; }
     virtual od_int64		totalNr() const		{ return totalnr_; }
+    uiString			message() const;
+    uiString			nrDoneText() const;
 
 protected:
 
@@ -59,6 +61,6 @@ protected:
     int				nrdone_;
     int				totalnr_;
     Pos::GeomID			geomid_;
-    
+
     const Survey::Geometry2D*	geom2d_;
 };

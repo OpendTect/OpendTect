@@ -14,6 +14,7 @@
 #include "od_iostream.h"
 #include "position.h"
 #include "threadwork.h"
+#include "uistrings.h"
 
 #define mX 0
 #define mY 1
@@ -43,9 +44,12 @@ public:
 		idx_[2] = -1;
 	    }
 
+    uiString message() const
+    { return uiStrings::phrWriting(uiStrings::sPosition(mPlural)); }
+    uiString nrDoneText() const
+    { return uiStrings::phrWritten(uiStrings::sPosition(mPlural)); }
     od_int64	totalNr() const		{ return totalnr_; }
     od_int64	nrDone() const		{ return nrdone_; }
-    uiString	nrDoneText() const	{ return tr("Positions written"); }
 
     int	nextStep()
 		{
@@ -108,9 +112,12 @@ MarchingCubesSurfaceReader( od_istream& strm, MarchingCubesSurface& s,
     , totalnr_( -1 )
 {}
 
+uiString message() const
+{ return uiStrings::phrReading(uiStrings::sPosition(mPlural)); }
+uiString nrDoneText() const
+{ return uiStrings::phrRead(uiStrings::sPosition(mPlural)); }
 od_int64 totalNr() const	{ return totalnr_; }
 od_int64 nrDone() const		{ return nrdone_; }
-uiString nrDoneText() const	{ return tr("Positions read"); }
 
 int nextStep()
 {

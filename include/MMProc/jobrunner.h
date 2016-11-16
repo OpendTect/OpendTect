@@ -88,7 +88,7 @@ public:
     od_int64			nrDone() const	{ return jobsDone(); }
     od_int64			totalNr() const	{ return totalJobs(); }
     uiString			message() const;
-    uiString			nrDoneMessage() const;
+    uiString			nrDoneText() const;
 
 				// Set these before first step
     void			setFirstPort( int n )	    { firstport_ = n; }

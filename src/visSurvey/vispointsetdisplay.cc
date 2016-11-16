@@ -15,6 +15,7 @@
 #include "vispointset.h"
 #include "vismaterial.h"
 #include "executor.h"
+#include "uistrings.h"
 
 
 namespace visSurvey {
@@ -101,10 +102,11 @@ od_int64 nrDone() const
 od_int64 totalNr() const
 { return data_.size(); }
 
-uiString nrDoneText() const
-{ return tr("Points done"); }
+uiString message() const
+{ return uiStrings::phrHandling(uiStrings::sPosition(mPlural)); }
 
-protected :
+uiString nrDoneText() const
+{ return uiStrings::phrHandled(uiStrings::sPosition(mPlural)); }
 
 int nextStep()
 {
@@ -149,6 +151,8 @@ int nextStep()
     return MoreToDo();
 }
 
+protected :
+
     visBase::PointSet&		pointset_;
     DataPointSet&		data_;
     const int			colid_;
@@ -156,6 +160,7 @@ int nextStep()
     DataPointSetDisplayProp&	dpsdispprop_;
     od_int64			nrdone_;
     int				nrpoints_;
+
 };
 
 

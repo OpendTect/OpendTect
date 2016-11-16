@@ -91,25 +91,27 @@ protected:
 mExpClass(uiIo) DPSMerger : public Executor
 { mODTextTranslationClass(DPSMerger);
 public:
+
 				DPSMerger(const DPSMergerProp&);
 
     void			addNewCols(const BufferStringSet&);
     od_int64			nrDone() const		{ return rowdone_; }
-    od_int64			totalNr() const		{return sdps_->size();}
-    uiString			nrDoneText() const
-				{return uiStrings::phrJoinStrings(
-				uiStrings::sPosition(mPlural),tr("processed"));}
+    od_int64			totalNr() const		{ return sdps_->size();}
+    uiString			message() const;
+    uiString			nrDoneText() const;
     RefMan<DataPointSet>	getNewDPS()		{ return newdps_; }
+
 protected:
+
     DPSMergerProp		prop_;
     RefMan<DataPointSet>	mdps_;
     RefMan<DataPointSet>	sdps_;
     RefMan<DataPointSet>	newdps_;
-    int			rowdone_;
+    int				rowdone_;
 
-    int			nextStep();
+    int				nextStep();
 
-    int			getSlaveColID(int mcolid);
+    int				getSlaveColID(int mcolid);
     DataPointSet::DataRow	getDataRow(int,int);
     DataPointSet::DataRow	getNewDataRow(int);
     int				findMatchingMrowID(int);

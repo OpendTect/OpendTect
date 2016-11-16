@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "seiscubeprov.h"
 #include "seisselectionimpl.h"
 #include "ioobj.h"
+#include "uistrings.h"
 #include "trckeyzsampling.h"
 #include "binidvalset.h"
 
@@ -88,6 +89,11 @@ SeisEventSnapper3D::~SeisEventSnapper3D()
 {
     delete mscprov_;
 }
+
+uiString SeisEventSnapper3D::message() const
+{ return uiStrings::phrHandling(uiStrings::sPosition(mPlural)); }
+uiString SeisEventSnapper3D::nrDoneText() const
+{ return uiStrings::phrHandled(uiStrings::sPosition(mPlural)); }
 
 
 int SeisEventSnapper3D::nextStep()

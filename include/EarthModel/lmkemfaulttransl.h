@@ -64,10 +64,11 @@ public:
 			lmkEMFault3DReader(EM::Fault3D&,Conn*,
 					   const char* formatfile);
 			~lmkEMFault3DReader();
-    virtual int		nextStep();
 
     virtual uiString	message() const;
-    static const char*  streamerrmsg;
+    virtual uiString	nrDoneText() const;
+    virtual od_int64	nrDone() const	    { return nrdone_; }
+    virtual int		nextStep();
 
 protected:
 
@@ -77,6 +78,7 @@ protected:
     uiString		msg;
     bool		useinlcrl;
     bool		error;
+    od_int64		nrdone_;
 
     int			lastpt;
     RowCol		lastnode;
@@ -87,41 +89,6 @@ protected:
     Interval<int>	lineidinterval;
     Interval<int>	traceinterval;
     Interval<int>	pointtypeinterval;
-    Interval<int>	domaininterval;
-    Interval<int>	domainunitinterval;
-    Interval<int>	distancuniteinterval;
-};
-
-
-/*!
-\brief Landmark EM::Fault3D writer.
-*/
-
-mClass(EarthModel) lmkEMFault3DWriter : public Executor
-{ mODTextTranslationClass(lmkEMFault3DWriter);
-public:
-			lmkEMFault3DWriter(const EM::Fault3D&,
-					   Conn*,const char* formatfile);
-			~lmkEMFault3DWriter();
-
-    virtual int		nextStep();
-    virtual uiString	message() const;
-    static const char*  streamerrmsg;
-
-protected:
-
-    const EM::Fault3D&	fault;
-
-    Conn*		conn;
-    BufferString	msg;
-    bool		error;
-
-    RowCol		lastnode;
-
-    Interval<int>	pointtypeinterval;
-    Interval<int>	xinterval;
-    Interval<int>	yinterval;
-    Interval<int>	zinterval;
     Interval<int>	domaininterval;
     Interval<int>	domainunitinterval;
     Interval<int>	distancuniteinterval;

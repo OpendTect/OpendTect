@@ -24,7 +24,7 @@ namespace Survey
 #define mReturn return ++nrdone_ < totalNr() ? MoreToDo() : Finished();
 
 class GeomFileReader : public Executor
-{
+{ mODTextTranslationClass(Survey::GeomFileReader);
 public:
 
     GeomFileReader( const DBDir& dbdir,
@@ -36,6 +36,11 @@ public:
 	, updateonly_(updateonly)
     {}
 
+    uiString message() const
+    { return tr("Reading line geometries"); }
+
+    uiString nrDoneText() const
+    { return tr("Geometries read"); }
 
     od_int64 nrDone() const
     { return nrdone_; }
@@ -43,17 +48,6 @@ public:
 
     od_int64 totalNr() const
     { return dbdir_.size(); }
-
-protected:
-
-    bool isLoaded( Geometry::ID geomid ) const
-    {
-	for ( int idx=0; idx<geometries_.size(); idx++ )
-	    if ( geometries_[idx]->getID() == geomid )
-		return true;
-
-	return false;
-    }
 
     int nextStep()
     {
@@ -76,6 +70,17 @@ protected:
 	}
 
 	mReturn
+    }
+
+protected:
+
+    bool isLoaded( Geometry::ID geomid ) const
+    {
+	for ( int idx=0; idx<geometries_.size(); idx++ )
+	    if ( geometries_[idx]->getID() == geomid )
+		return true;
+
+	return false;
     }
 
     const DBDir&		dbdir_;

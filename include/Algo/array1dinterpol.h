@@ -31,7 +31,9 @@ public:
 
     void		setArray(Array1D<float>&);
 
-    od_int64		nrDone() const 		{ return nrdone_; }
+    uiString		nrDoneText() const
+			{ return tr("Points interpolated"); }
+    od_int64		nrDone() const		{ return nrdone_; }
     od_int64		nrIterations() const;
     void		setExtrapol( bool yn )	{ doextrapol_ = yn; }
     void		setFillWithExtremes( bool yn )
@@ -40,8 +42,6 @@ public:
 
 protected:
 			Array1DInterpol();
-    uiString		nrDoneText() const
-    			{ return tr("Points interpolated"); }
 
     Array1D<float>*	arr_;
     bool		arrstarted_;
@@ -57,12 +57,18 @@ protected:
 */
 
 mExpClass(Algo) LinearArray1DInterpol : public Array1DInterpol
-{
+{ mODTextTranslationClass(LinearArray1DInterpol);
 public:
-    			LinearArray1DInterpol();
+
+			LinearArray1DInterpol();
+
+    uiString		message() const
+			{ return tr("Interpolating points (Linear)"); }
 protected:
+
     int			nextStep();
     void		extrapolate(bool start);
+
 };
 
 
@@ -71,11 +77,18 @@ protected:
 */
 
 mExpClass(Algo) PolyArray1DInterpol : public Array1DInterpol
-{
+{ mODTextTranslationClass(PolyArray1DInterpol);
 public:
-    			PolyArray1DInterpol();
-protected:
+
+			PolyArray1DInterpol();
+
+    uiString		message() const
+			{ return tr("Interpolating points (Polynomial)"); }
     int			nextStep();
+
+protected:
+
     bool		getPositions(int pos,TypeSet<float>& posidxs);
     void		extrapolate(bool start);
+
 };

@@ -57,9 +57,14 @@ public:
 						   const Interval<float>& gate);
 				~SeisEventSnapper3D();
 
+    uiString			message() const;
+    uiString			nrDoneText() const;
+
 protected:
+
     virtual int			nextStep();
 
     BinIDValueSet&		positions_;
     SeisMSCProvider*		mscprov_;
+
 };

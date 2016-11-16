@@ -164,6 +164,12 @@ uiString uiStrings::phrExtract( const uiString& string )
 uiString uiStrings::phrGenerating( const uiString& string )
 { return toUiString(joinstring).arg(sGenerating()).arg(string); }
 
+uiString uiStrings::phrHandling( const uiString& string )
+{ return tr( "Handling %1").arg( string ); }
+
+uiString uiStrings::phrHandled( const uiString& string )
+{ return tr( "%1 handled").arg( string ); }
+
 uiString uiStrings::phrInline( const uiString& string )
 { return phrJoinStrings( sInline(), string ); }
 
@@ -210,6 +216,9 @@ uiString uiStrings::phrPlsContactSupport( bool firstdoc )
 uiString uiStrings::phrReading( const uiString& string )
 { return tr( "Reading %1").arg( string ); }
 
+uiString uiStrings::phrRead( const uiString& string )
+{ return tr( "%1 read").arg( string ); }
+
 uiString uiStrings::phrRemove( const uiString& string )
 { return toUiString(joinstring).arg(sRemove()).arg(string); }
 
@@ -233,6 +242,9 @@ uiString uiStrings::phrZIn( const uiString& string )
 
 uiString uiStrings::phrWriting( const uiString& string )
 { return tr( "Writing %1").arg( string ); }
+
+uiString uiStrings::phrWritten( const uiString& string )
+{ return tr( "%1 written").arg( string ); }
 
 uiString uiStrings::phrSave( const uiString& string )
 { return toUiString(joinstring).arg(sSave()).arg(string); }

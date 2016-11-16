@@ -49,6 +49,11 @@ void DPSMerger::addNewCols( const BufferStringSet& clnms )
 	newdps_->dataSet().add( new DataColDef(clnms[col]->buf()) );
 }
 
+uiString DPSMerger::message() const
+{ return uiStrings::phrHandling(uiStrings::sPosition(mPlural)); }
+uiString DPSMerger::nrDoneText() const
+{ return uiStrings::phrHandled(uiStrings::sPosition(mPlural)); }
+
 
 int DPSMerger::nextStep()
 {

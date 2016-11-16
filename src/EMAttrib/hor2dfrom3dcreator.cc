@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "ioobj.h"
 #include "dbman.h"
+#include "uistrings.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
@@ -68,7 +69,7 @@ Hor2DFrom3DCreator::Hor2DFrom3DCreator( const EM::Horizon3D& hor3d,
 bool Hor2DFrom3DCreator::setCreator( Pos::GeomID geomid )
 {
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-	    	     Survey::GM().getGeometry(geomid) );
+		     Survey::GM().getGeometry(geomid) );
     if ( !geom2d )
 	return false;
 
@@ -78,6 +79,12 @@ bool Hor2DFrom3DCreator::setCreator( Pos::GeomID geomid )
     totalnr_ = geom2d_->data().positions().size();
     return true;
 }
+
+
+uiString Hor2DFrom3DCreator::message() const
+{ return uiStrings::phrHandling(uiStrings::sPosition(mPlural)); }
+uiString Hor2DFrom3DCreator::nrDoneText() const
+{ return uiStrings::phrHandled(uiStrings::sPosition(mPlural)); }
 
 
 int Hor2DFrom3DCreator::nextStep()

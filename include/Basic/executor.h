@@ -58,6 +58,11 @@ public:
 			// Being a Task requires:
     virtual bool	execute()	{ return go(); }
 
+			// Being an Executor requires:
+    virtual uiString	message() const			= 0;
+    virtual uiString	nrDoneText() const		= 0;
+    virtual od_int64	nrDone() const			= 0;
+
 protected:
 
     virtual bool	goImpl(od_ostream*,bool,bool,int);

@@ -548,7 +548,7 @@ int JobRunner::jobsInProgress() const
 uiString JobRunner::message() const
 { return tr("Processing"); }
 
-uiString JobRunner::nrDoneMessage() const
+uiString JobRunner::nrDoneText() const
 { return tr("Jobs completed"); }
 
 

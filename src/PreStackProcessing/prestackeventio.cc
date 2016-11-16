@@ -160,6 +160,8 @@ EventReader::EventReader( IOObj* ioobj, EventManager* events, bool trigger )
     , bidsel_( 0 )
     , horsel_( 0 )
     , trigger_( trigger )
+    , nrdone_(0)
+    , totalnr_(-1)
 {
     if ( eventmanager_ ) eventmanager_->blockChange( true, true );
 }
@@ -246,9 +248,19 @@ uiString EventReader::errMsg() const
 { return errmsg_; }
 
 
+uiString EventReader::message() const
+{ return errmsg_.isEmpty() ? uiStrings::phrReading(uiStrings::sEvent(mPlural))
+       : errmsg_; }
+
+
+uiString EventReader::nrDoneText() const
+{ return uiStrings::phrRead(uiStrings::sEvent(mPlural)); }
+
+
 int EventReader::nextStep()
 {
-    if ( !eventmanager_ ) return Finished();
+    if ( !eventmanager_ )
+	return Finished();
 
     if ( !patchreaders_.size() )
     {
@@ -266,7 +278,8 @@ int EventReader::nextStep()
 	    return ErrorOccurred();
 	}
 
-	return patchreaders_.size() ? MoreToDo() : Finished();
+	totalnr_ = patchreaders_.size();
+	return totalnr_ > 0 ? MoreToDo() : Finished();
     }
 
     const int res = patchreaders_[0]->doStep();
@@ -278,11 +291,12 @@ int EventReader::nextStep()
 
     if ( !res )
     {
+	nrdone_++;
 	delete patchreaders_.removeSingle( 0 );
 	if ( patchreaders_.size() )
 	    return MoreToDo();
 
-	return	Finished();
+	return Finished();
     }
 
     return MoreToDo();
@@ -522,6 +536,8 @@ EventWriter::EventWriter( IOObj* ioobj, EventManager& events )
     : Executor( "Writing Prestack events" )
     , eventmanager_( events )
     , ioobj_( ioobj )
+    , nrdone_(0)
+    , totalnr_(-1)
 {
     eventmanager_.blockChange( true, true );
 }
@@ -533,6 +549,15 @@ EventWriter::~EventWriter()
     delete ioobj_;
     deepErase( patchwriters_ );
 }
+
+
+uiString EventWriter::message() const
+{ return errmsg_.isEmpty() ? uiStrings::phrWriting(uiStrings::sEvent(mPlural))
+       : errmsg_; }
+
+
+uiString EventWriter::nrDoneText() const
+{ return uiStrings::phrWritten(uiStrings::sEvent(mPlural)); }
 
 
 int EventWriter::nextStep()
@@ -652,7 +677,8 @@ int EventWriter::nextStep()
 	    patchwriters_ += writer;
 	}
 
-	return patchwriters_.size() ? MoreToDo() : Finished();
+	totalnr_ = patchwriters_.size();
+	return totalnr_ > 0 ? MoreToDo() : Finished();
     }
 
     const int res = patchwriters_[0]->doStep();
@@ -662,14 +688,15 @@ int EventWriter::nextStep()
 	return ErrorOccurred();
     }
 
-    if ( !res )
+    if ( res==0 )
     {
+	nrdone_++;
 	delete patchwriters_.removeSingle( 0 );
 	if ( patchwriters_.size() )
 	    return MoreToDo();
 
 	eventmanager_.resetChangedFlag( false );
-	return	Finished();
+	return Finished();
     }
 
     return MoreToDo();

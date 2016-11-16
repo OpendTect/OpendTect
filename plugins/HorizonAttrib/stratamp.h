@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "trckeysampling.h"
 #include "stattype.h"
+#include "uistrings.h"
 
 class od_ostream;
 class SeisTrcReader;
@@ -26,17 +27,21 @@ mExpClass(HorizonAttrib) StratAmpCalc  : public Executor
 {
 public:
 
-    			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*, 
+			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*,
 				     Stats::Type,const TrcKeySampling&,bool);
-    			~StratAmpCalc();
+			~StratAmpCalc();
 
     int                 nextStep();
     od_int64		totalNr() const		{ return totnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
+    uiString		message() const
+    { return uiStrings::phrHandling(uiStrings::sPosition(mPlural)); }
+    uiString		nrDoneText() const
+    { return uiStrings::phrHandled(uiStrings::sPosition(mPlural)); }
 
     int			init(const IOPar&);
     bool		saveAttribute(const EM::Horizon3D*,int attribidx,
-	    			      bool overwrite,od_ostream* s=0);
+				      bool overwrite,od_ostream* s=0);
 
     static const char*	sKeyTopHorizonID();
     static const char*	sKeyBottomHorizonID();

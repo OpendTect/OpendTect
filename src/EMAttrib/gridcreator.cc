@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "uistrings.h"
 #include "dbkey.h"
 #include "randomlinegeom.h"
 #include "seis2ddata.h"
@@ -60,7 +61,8 @@ public:
 					  Pos::GeomID gepmid);
 			~Seis2DLineCreator();
 
-    uiString		message() const	{ return msg_; }
+    uiString		message() const;
+    uiString		nrDoneText() const;
     virtual od_int64	nrDone() const		{ return nrdone_; }
     virtual od_int64	totalNr() const		{ return totalnr_; }
     virtual int		nextStep();
@@ -68,7 +70,7 @@ public:
 protected:
     od_int64		nrdone_;
     od_int64		totalnr_;
-    uiString		msg_;
+    uiString		errmsg_;
 
     SeisTrcReader*	rdr_;
     SeisTrcWriter*	wrr_;
@@ -101,13 +103,19 @@ Seis2DLineCreator::~Seis2DLineCreator()
     delete wrr_;
 }
 
+uiString Seis2DLineCreator::message() const
+{ return errmsg_.isEmpty() ? uiStrings::phrHandling(uiStrings::sTrace(mPlural))
+       : errmsg_; }
+uiString Seis2DLineCreator::nrDoneText() const
+{ return uiStrings::phrHandled(uiStrings::sTrace(mPlural)); }
+
 
 int Seis2DLineCreator::nextStep()
 {
     SeisTrc trc;
     const int res = rdr_->get( trc.info() );
     if ( res == -1 )
-	{ msg_ = rdr_->errMsg(); return ErrorOccurred(); }
+	{ errmsg_ = rdr_->errMsg(); return ErrorOccurred(); }
     if ( res == 0 )
 	return Finished();
     if ( res == 2 )
@@ -115,15 +123,15 @@ int Seis2DLineCreator::nextStep()
 
     if ( !rdr_->get(trc) )
     {
-	msg_ = tr("Error reading input trace\n");
-	msg_.append( rdr_->errMsg() );
+	errmsg_ = tr("Error reading input trace\n");
+	errmsg_.append( rdr_->errMsg() );
 	return ErrorOccurred();
     }
 
     if ( !wrr_->put(trc) )
     {
-	msg_ = tr("Error writing output trace\n");
-	msg_.append( wrr_->errMsg() );
+	errmsg_ = tr("Error writing output trace\n");
+	errmsg_.append( wrr_->errMsg() );
 	return ErrorOccurred();
     }
 

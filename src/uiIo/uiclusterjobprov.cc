@@ -73,6 +73,10 @@ ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* dir,
     }
 }
 
+
+uiString message() const
+{ return tr("Creating jobs"); }
+
 od_int64 nrDone() const
 { return curidx_; }
 

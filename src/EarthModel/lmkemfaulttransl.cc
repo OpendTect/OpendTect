@@ -44,7 +44,7 @@ const char* lmkEMFault3DTranslator::tracestr()	{ return "FAULT_TRACE"; }
 
 lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
         const char* formatfilename )
-    : Executor("Reading fault ..." )
+    : Executor("Reading fault" )
     , fault( fault_ )
     , conn( conn_ )
     , lastpt( -1 )
@@ -59,6 +59,7 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
     , domaininterval(-1,-1)
     , domainunitinterval(-1,-1)
     , distancuniteinterval(-1,-1)
+    , nrdone_(0)
 {
     if ( !formatfilename || !*formatfilename )
 	{ msg = tr("No format file name specified"); error = true; return; }
@@ -255,7 +256,14 @@ int lmkEMFault3DReader::nextStep()
 
 uiString lmkEMFault3DReader::message() const
 {
-    return msg.isEmpty() ? tr("Reading Fault") : msg;
+    return msg.isEmpty() ? uiStrings::phrReading(uiStrings::sPosition(mPlural))
+	 : msg;
+}
+
+
+uiString lmkEMFault3DReader::nrDoneText() const
+{
+    return uiStrings::phrRead(uiStrings::sPosition(mPlural));
 }
 
 

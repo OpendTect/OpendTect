@@ -107,6 +107,10 @@ public:
     //!<"Extract <string>"
     static uiString phrGenerating(const uiString&);
     //!<"Generating <string>"
+    static uiString phrHandling(const uiString&);
+    //!<"Handling <string>"
+    static uiString phrHandled(const uiString&);
+    //!<"<string> handled" (typical nrDoneText)
     static uiString phrImport(const uiString& string);
     //!<"Import <string>"
     static uiString phrInline(const uiString&);
@@ -141,6 +145,8 @@ public:
     //!<"\nOtherwise contact OpendTect support at ..."
     static uiString phrReading(const uiString&);
     //!<"Reading <string>"
+    static uiString phrRead(const uiString&);
+    //!<"<string> read" (typical nrDoneText)
     static uiString phrRemove(const uiString&);
     //!<"Remove <string>"
     static uiString phrRemoveSelected(const uiString&);
@@ -177,6 +183,8 @@ public:
     //!<string> ...
     static uiString phrWriting(const uiString&);
     //!<"Writing <string>"
+    static uiString phrWritten(const uiString&);
+    //!<"<string> written" (typical nrDoneText)
     static uiString phrXcoordinate(const uiString&);
     //!<"X-coordinate <string>"
     static uiString phrYcoordinate(const uiString&);
@@ -292,6 +300,7 @@ public:
     static uiString sEnter();
     static uiString sEnterValidName();
     static uiString sErrors(int num=1)	{ return tr("Error", 0, num); }
+    static uiString sEvent(int num=1)	{ return tr("Event", 0, num); }
     static uiString sExamine()		{ return tr("Examine"); }
     static uiString sExitOD()		{ return tr("Exit OpendTect"); }
     static uiString sExit()		{ return tr("Exit"); }
