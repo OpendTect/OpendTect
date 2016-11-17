@@ -55,7 +55,7 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
 
 	    bool member_matched = false;
 	    bool go_on = true;
-	    register char range_start, range_end;
+	    char range_start, range_end;
 
 	    while ( go_on )
 	    {
@@ -170,7 +170,7 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
 	return true;
 
     /* get the next character to match which must be a literal or '[' */
-    register char nextp = *p;
+    char nextp = *p;
     if ( nextp == '\\' )
         nextp = p[1];
 
