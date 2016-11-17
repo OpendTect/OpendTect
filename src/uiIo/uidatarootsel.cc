@@ -56,8 +56,8 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
     dirfld_ = fulldirfld->box();
     dirfld_->addItems( boxitms );
     dirfld_->setEditable( true );
-    fulldirfld->setStretch( 2, 1 );
-    dirfld_->setStretch( 2, 1 );
+    fulldirfld->setStretch( 2, 0 );
+    dirfld_->setStretch( 2, 0 );
     mAttachCB( dirfld_->selectionChanged, uiDataRootSel::dirChgCB );
 
     uiButton* selbut = uiButton::getStd( fulldirfld, OD::Select,
@@ -152,7 +152,7 @@ uiRetVal uiDataRootSel::getUsableDir( BufferString& dirnm ) const
     if ( !File::isWritable(dirnm) )
     {
 	uirv = File::exists(dirnm) ? tr( "Directory is not writable" )
-	    			   : tr( "Directory does not exist" );
+				   : tr( "Directory does not exist" );
 	return uirv;
     }
 
