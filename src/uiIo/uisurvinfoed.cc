@@ -37,7 +37,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
-#include "uiseparator.h"
+#include "uisplitter.h"
 #include "uisurvmap.h"
 #include "uitabstack.h"
 #include "od_helpids.h"
@@ -144,7 +144,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
 	, sipfld_(0)
 	, lastsip_(0)
 	, impiop_(0)
-	, topgrp_(0)
+	, gengrp_(0)
 {
     BufferString storagedir = si_.getFullDirPath();
     if ( File::isLink(storagedir) )
@@ -162,48 +162,45 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
     basepath_ = fp.pathOnly();
     orgdirname_ = fp.fileName();
 
-    topgrp_ = new uiGroup( this, "Top group" );
-    survnmfld_ = new uiGenInput( topgrp_, tr("Survey name"),
+    gengrp_ = new uiGroup( this, "Top group" );
+    survnmfld_ = new uiGenInput( gengrp_, tr("Survey name"),
 				StringInpSpec(si_.name()) );
-    survnmfld_->setElemSzPol( uiObject::Wide );
 
-    uiSeparator* versep = new uiSeparator( this, "Ver sep", OD::Vertical );
-    versep->attach( rightOf, topgrp_ );
-    versep->attach( heightSameAs, topgrp_ );
-
-    surveymap_ = new uiSurveyMap( this );
-    surveymap_->attachGroup().attach( ensureRightOf, versep );
+    uiGroup* survmapgrp = new uiGroup( this, "SurvMap group" );
+    surveymap_ = new uiSurveyMap( survmapgrp );
     inlgridview_ = new uiGrid2DMapObject();
     inlgridview_->setLineStyle( OD::LineStyle(OD::LineStyle::Dot) );
     inlgrid_ = new Grid2D();
     inlgridview_->setGrid( inlgrid_ );
     surveymap_->addObject( inlgridview_ );
-    surveymap_->attachGroup().setPrefWidth( 300 );
-    surveymap_->attachGroup().setPrefHeight( 200 );
-    surveymap_->attachGroup().setStretch( 2, 2 );
+    // does not work:
+    // surveymap_->attachGroup().setPrefWidth( 300 );
+    // surveymap_->attachGroup().setPrefHeight( 200 );
+    // survmapgrp->setPrefWidth( 300 );
+    survmapgrp->attachObj()->setMinimumWidth( 300 );
+    survmapgrp->setFrame( true );
 
-    pathfld_ = new uiGenInput( topgrp_, tr("Location on disk"),
+    pathfld_ = new uiGenInput( gengrp_, tr("Location on disk"),
 				StringInpSpec(basepath_) );
     pathfld_->attach( alignedBelow, survnmfld_ );
-    pathfld_->setElemSzPol( uiObject::Wide );
 
 #ifdef __win__
     pathfld_->setSensitive( false );
 #else
-    uiButton* pathbut = uiButton::getStd( topgrp_, OD::Select,
+    uiButton* pathbut = uiButton::getStd( gengrp_, OD::Select,
 			      mCB(this,uiSurveyInfoEditor,pathbutPush), false );
     pathbut->attach( rightOf, pathfld_ );
 #endif
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( topgrp_,
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( gengrp_,
 			SurveyInfo::Pol2DDef(), tr("Survey type") );
     lcb->attach( alignedBelow, pathfld_ ); pol2dfld_ = lcb->box();
 
     mkSIPFld( lcb->attachObj(), isnewborn );
     if ( sipfld_ )
-	topgrp_->setHAlignObj( sipfld_->box() );
+	gengrp_->setHAlignObj( sipfld_->box() );
     else
-	topgrp_->setHAlignObj( lcb );
+	gengrp_->setHAlignObj( lcb );
 
     const float srd = si_.seismicReferenceDatum();
     const bool zistime = si_.zDomain().isTime();
@@ -212,15 +209,16 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
 				 ? UoMR().get( "Meter" ) : UoMR().get( "Feet" );
     const UnitOfMeasure* displayuom = !depthinft ? UoMR().get( "Meter" )
 						 : UoMR().get( "Feet" );
-    refdatumfld_ = new uiGenInput( topgrp_, getSRDString(depthinft),
+    refdatumfld_ = new uiGenInput( gengrp_, getSRDString(depthinft),
 		       FloatInpSpec(getConvertedValue(srd,datauom,displayuom)));
     refdatumfld_->attach( alignedBelow, sipfld_  );
 
-    uiSeparator* horsep = new uiSeparator( this, "Hor sep 1" );
-    horsep->attach( stretchedBelow, topgrp_, -2 );
-    surveymap_->attachGroup().attach( rightAlignedAbove, horsep );
+    uiGroup* topgrp = new uiGroup( this, "Top group" );
+    uiSplitter* versplit = new uiSplitter( topgrp );
+    versplit->addGroup( gengrp_ );
+    versplit->addGroup( survmapgrp );
+
     tabs_ = new uiTabStack( this, "Survey setup" );
-    tabs_->attach( stretchedBelow, horsep );
 
     mkRangeGrp();
 
@@ -229,6 +227,10 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
     mkTransfGrp();
 
     mkLatLongGrp();
+
+    uiSplitter* horsplit = new uiSplitter( this, "Hor split", OD::Horizontal );
+    horsplit->addGroup( topgrp );
+    horsplit->addGroup( tabs_ );
 
     postFinalise().notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
     sipCB(0);
@@ -253,8 +255,7 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att, bool isnewborn )
     const int nrprovs = sips_.size();
     if ( nrprovs < 1 ) return;
 
-    sipfld_ = new uiLabeledComboBox( topgrp_,
-					    tr("Ranges/coordinate settings") );
+    sipfld_ = new uiLabeledComboBox( gengrp_, tr("Ranges/coordinate settings"));
     sipfld_->attach( alignedBelow, att );
     uiComboBox* box = sipfld_->box();
     box->addItem( tr("Enter below") );
@@ -460,7 +461,7 @@ void uiSurveyInfoEditor::mkLatLongGrp()
 					     si_.getCoordSystem() );
     latlongsel_->attach( alignedBelow, emptyspace );
     tabs_->addTab( latlonggrp_ );
-    tabs_->setTabIcon( latlonggrp_, "spherewire" ); 
+    tabs_->setTabIcon( latlonggrp_, "spherewire" );
 }
 
 
@@ -620,8 +621,6 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 
     if ( si_.sampling(false).hsamp_.totalNr() )
 	setValues();
-
-    //ic1fld_->setReadOnly( true, 0 );
 }
 
 
@@ -982,7 +981,7 @@ void uiSurveyInfoEditor::updateMap()
 	const int inl = hs.start_.inl() + (idx+1) * inlstep;
 	inlines += inl;
     }
-    
+
     inlgrid_->set( inlines, crlines, hs );
     inlgridview_->setGrid( inlgrid_ );
     surveymap_->setSurveyInfo( &si_ );

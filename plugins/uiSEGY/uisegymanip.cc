@@ -212,7 +212,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     binhdrfld_->attach( alignedBelow, txthdrfld_ );
 
     uiGroup* trchdrgrp = mkTrcGroup();
-    uiSplitter* spl = new uiSplitter( this, "Splitter", false );
+    uiSplitter* spl = new uiSplitter( this, "Splitter", OD::Horizontal );
     spl->addGroup( filehdrgrp );
     spl->addGroup( trchdrgrp );
 
@@ -243,12 +243,12 @@ uiSEGYFileManip::~uiSEGYFileManip()
 
 uiGroup* uiSEGYFileManip::mkTrcGroup()
 {
-    uiGroup* grp = new uiGroup( this, "Trace header group" );
+    uiGroup* leftgrp = new uiGroup( this, "Main Trace header group" );
     const CallBack addcb( mCB(this,uiSEGYFileManip,addReq) );
     const CallBack edcb( mCB(this,uiSEGYFileManip,edReq) );
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Trace headers") );
-    avtrchdrsfld_ = new uiListBox( grp, su );
+    avtrchdrsfld_ = new uiListBox( leftgrp, su );
     avtrchdrsfld_->setHSzPol( uiObject::Small );
     const SEGY::HdrDef&	def = calcset_.hdrDef();
     for ( int idx=0; idx<def.size(); idx++ )
@@ -256,33 +256,34 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     avtrchdrsfld_->doubleClicked.notify( addcb );
     fillAvTrcHdrFld( 0 );
 
-    uiToolButton* addbut = new uiToolButton( grp, uiToolButton::RightArrow,
+    uiToolButton* addbut = new uiToolButton( leftgrp, uiToolButton::RightArrow,
 					    tr("Add to calculated list"),
 					    addcb );
     addbut->attach( centeredRightOf, avtrchdrsfld_ );
-    trchdrfld_ = new uiListBox( grp, "Defined calculations" );
+    trchdrfld_ = new uiListBox( leftgrp, "Defined calculations" );
     trchdrfld_->attach( rightTo, avtrchdrsfld_ );
     trchdrfld_->attach( ensureRightOf, addbut );
     trchdrfld_->selectionChanged.notify( mCB(this,uiSEGYFileManip,selChg) );
     trchdrfld_->doubleClicked.notify( edcb );
     trchdrfld_->setHSzPol( uiObject::Medium );
 
-    edbut_ = new uiToolButton( grp, "edit", tr("Edit calculation"), edcb );
+    edbut_ = new uiToolButton( leftgrp, "edit", tr("Edit calculation"), edcb );
     edbut_->attach( rightOf, trchdrfld_ );
-    rmbut_ = new uiToolButton( grp, "trashcan", tr("Remove calculation"),
+    rmbut_ = new uiToolButton( leftgrp, "trashcan", tr("Remove calculation"),
 		    mCB(this,uiSEGYFileManip,rmReq) );
     rmbut_->attach( alignedBelow, edbut_ );
-    uiToolButton* openbut = new uiToolButton( grp, "open",
+    uiToolButton* openbut = new uiToolButton( leftgrp, "open",
 		    tr("Open stored calculation set"),
 		    mCB(this,uiSEGYFileManip,openReq) );
     openbut->attach( alignedBelow, rmbut_ );
-    savebut_ = new uiToolButton( grp, "save", tr("Save calculation set"),
+    savebut_ = new uiToolButton( leftgrp, "save", tr("Save calculation set"),
 		    mCB(this,uiSEGYFileManip,saveReq) );
     savebut_->attach( alignedBelow, openbut );
 
+    uiGroup* rightgrp = new uiGroup( this, "Trace header right group" );
     const int nrrows = def.size();
     uiTable::Setup tsu( nrrows, 2 ); tsu.selmode( uiTable::SingleRow );
-    thtbl_ = new uiTable( grp, tsu, "Trace header table" );
+    thtbl_ = new uiTable( rightgrp, tsu, "Trace header table" );
     thtbl_->setColumnLabel( 0, tr("Byte") );
     thtbl_->setColumnToolTip( 0, tr("Byte location in trace header") );
     thtbl_->setColumnReadOnly( 0, true );
@@ -300,17 +301,17 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     thtbl_->setStretch( 0, 1 );
     thtbl_->selectionChanged.notify( mCB(this,uiSEGYFileManip,rowClck) );
 
-    plotbut_ = new uiToolButton( grp, "distmap",
+    plotbut_ = new uiToolButton( rightgrp, "distmap",
 		    tr("Plot the values of the selected header entries"),
 		    mCB(this,uiSEGYFileManip,plotReq) );
     plotbut_->attach( alignedBelow, thtbl_ );
     plotbut_->setSensitive( false );
-    plotallbox_ = new uiCheckBox( grp, uiStrings::sAll() );
+    plotallbox_ = new uiCheckBox( rightgrp, uiStrings::sAll() );
     plotallbox_->attach( rightOf, plotbut_ );
     plotallbox_->setHSzPol( uiObject::Small );
     plotallbox_->setChecked( true );
 
-    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( grp, tr("Trc") );
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( rightgrp, tr("Trc") );
     trcnrfld_ = lsb->box();
     lsb->attach( rightAlignedBelow, thtbl_ );
     trcnrfld_->setHSzPol( uiObject::Small );
@@ -319,7 +320,10 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     trcnrfld_->setValue( 1 );
     trcnrfld_->valueChanging.notify( mCB(this,uiSEGYFileManip,trcNrChg) );
 
-    grp->setHAlignObj( avtrchdrsfld_ );
+    uiGroup* grp = new uiGroup( this, "Trace header group" );
+    uiSplitter* spl = new uiSplitter( grp, "Vert splitter", OD::Vertical );
+    spl->addGroup( leftgrp );
+    spl->addGroup( rightgrp );
     return grp;
 }
 

@@ -108,13 +108,13 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     hvaldisp_ = new uiSEGYTrcHdrValPlot( this, true );
 
-    uiSplitter* vsplit = new uiSplitter( logrp, "VSplitter", true );
-    vsplit->addGroup( tblgrp );
-    vsplit->addGroup( hvaldisp_ );
+    uiSplitter* hsplit = new uiSplitter( logrp, "VSplitter", OD::Vertical );
+    hsplit->addGroup( tblgrp );
+    hsplit->addGroup( hvaldisp_ );
 
-    uiSplitter* hsplit = new uiSplitter( this, "HSplitter", false );
-    hsplit->addGroup( txtgrp );
-    hsplit->addGroup( logrp );
+    uiSplitter* vsplit = new uiSplitter( this, "HSplitter", OD::Horizontal );
+    vsplit->addGroup( txtgrp );
+    vsplit->addGroup( logrp );
 
     toStatusBar( toUiString(setup_.fs_.dispName()), 1 );
     outInfo( tr("Opening input") );

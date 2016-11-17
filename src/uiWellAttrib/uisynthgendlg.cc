@@ -91,7 +91,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     gennewbut_->activated.notify( mCB(this,uiSynthGenDlg,genNewCB) );
     gennewbut_->attach( alignedBelow, namefld_ );
 
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
+    uiSplitter* splitter = new uiSplitter( this );
     splitter->addGroup( syntlistgrp );
     splitter->addGroup( rightgrp );
 

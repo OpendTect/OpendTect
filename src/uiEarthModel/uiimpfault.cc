@@ -213,7 +213,7 @@ bool uiImportFault::handleLMKAscii()
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *exec ) )
-	mErrRet( taskrunner.lastMsg() );
+	mErrRet( taskrunner.errorWithDetails() );
 
     if ( saveButtonChecked() )
     {

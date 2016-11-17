@@ -102,7 +102,8 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
 
     setPrefWidth( cPrefWidth );
 
-    uiSplitter* sep = new uiSplitter( this, "List-Info splitter", false );
+    uiSplitter* sep = new uiSplitter( this, "List-Info splitter",
+					OD::Horizontal );
     sep->addGroup( listgrp_ );
     sep->addGroup( infogrp_ );
     sep->addGroup( notesgrp );

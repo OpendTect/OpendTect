@@ -224,7 +224,7 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
 
     infogrp->setHAlignObj( commentfld_ );
 
-    uiSplitter* vspl = new uiSplitter( proggrp, "vert spl", true );
+    uiSplitter* vspl = new uiSplitter( proggrp );
     vspl->addGroup( selgrp ); vspl->addGroup( infogrp );
 }
 

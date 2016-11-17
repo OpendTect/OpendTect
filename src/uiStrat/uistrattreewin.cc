@@ -248,7 +248,7 @@ void uiStratTreeWin::createGroups()
 
     lvllist_ = new uiStratLvlList( rightgrp );
 
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
+    uiSplitter* splitter = new uiSplitter( this, "Splitter" );
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
 }

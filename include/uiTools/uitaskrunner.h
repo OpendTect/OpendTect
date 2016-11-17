@@ -29,8 +29,9 @@ public:
 			~uiTaskRunner();
 
     bool		execute(Task& t);
-    uiString		lastMsg() const 	{ return prevmessage_; }
-    int			getState() const	{ return state_; }
+    uiString		lastMsg() const			{ return prevmessage_; }
+    uiRetVal		errorWithDetails() const	{ return errdetails_; }
+    int			getState() const		{ return state_; }
     void		displayMsgOnError(bool yn)	{ dispmsgonerr_ = yn; }
 
 protected:
@@ -49,11 +50,12 @@ protected:
     int			prevpercentage_;
     uiString		prevmessage_;
     uiString		prevnrdonetext_;
+    uiRetVal		errdetails_;
     bool		dispmsgonerr_;
 
-    Threads::Lock	statelock_;	
+    Threads::Lock	statelock_;
     int			state_; //-1 finished in error
-    				// 0 finished without error
+				// 0 finished without error
 				// 1 running
     Threads::Thread*	thread_;
     Threads::Lock	uitaskrunnerthreadlock_;

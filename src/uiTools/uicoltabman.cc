@@ -44,7 +44,7 @@ ________________________________________________________________________
 
 
 uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
-       				  bool enabletrans )
+				  bool enabletrans )
 : uiDialog(p,
 	uiDialog::Setup(uiStrings::phrManage(uiStrings::sColorTable(mPlural)),
 				 tr("Add, remove, change color tables"),
@@ -135,7 +135,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 			mCB(this,uiColorTableMan,markerColChgd) );
     markercolfld_->attach( alignedBelow, undefcolfld_ );
 
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
+    uiSplitter* splitter = new uiSplitter( this, "Splitter" );
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
 
@@ -278,7 +278,7 @@ void uiColorTableMan::removeCB( CallBacker* )
 
     const char* ctnm = ctab_.name();
     uiString msg(tr("%1 '%2' will be removed\n%3.\n Do you wish to continue?")
-	     .arg(selstatus_ == sKeyEdited().getFullString() ? 
+	     .arg(selstatus_ == sKeyEdited().getFullString() ?
 	     uiStrings::phrJoinStrings(sKeyEdited(),uiStrings::sColorTable()):
 	     uiStrings::phrJoinStrings(tr("Own made"),uiStrings::sColorTable()))
 	     .arg(ctnm).arg(selstatus_ == sKeyEdited().getFullString()
@@ -559,7 +559,7 @@ void uiColorTableMan::transptChg( CallBacker* )
 	for ( int idx=0; idx<nrpts; idx++ )
 	{
 	    Geom::Point2D<float> pt( cttranscanvas_->xVals()[idx],
-		    		     cttranscanvas_->yVals()[idx] );
+				     cttranscanvas_->yVals()[idx] );
 	    if ( !pt.isDefined() )
 		continue;
 

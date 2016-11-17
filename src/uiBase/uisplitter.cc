@@ -30,18 +30,26 @@ uiSplitterBody( uiSplitter& hndl, uiParent* p, const char* nm )
 };
 
 
-uiSplitter::uiSplitter( uiParent* p, const char* txt, bool hor )
+uiSplitter::uiSplitter( uiParent* p, const char* txt, OD::Orientation ori )
     : uiObject(p, txt, mkbody(p,txt) )
 {
-    body_->setOrientation( hor ? Qt::Horizontal : Qt::Vertical );
+    body_->setOrientation( ori==OD::Vertical ? Qt::Horizontal : Qt::Vertical );
+    setStretch( 2, 2 );
+}
+
+
+uiSplitter::uiSplitter( uiParent* p, const char* txt, bool qtlayoutishor )
+    : uiObject(p, txt, mkbody(p,txt) )
+{
+    body_->setOrientation( qtlayoutishor ? Qt::Horizontal : Qt::Vertical );
     setStretch( 2, 2 );
 }
 
 
 uiSplitterBody& uiSplitter::mkbody( uiParent* p, const char* nm )
-{ 
+{
     body_ = new uiSplitterBody( *this, p, nm );
-    return *body_; 
+    return *body_;
 }
 
 

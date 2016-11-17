@@ -380,7 +380,7 @@ void uiIOObjSel::fillEntries()
     for ( int idx=0; idx<entrylist.size(); idx++ )
     {
 	keys.add( entrylist.key(idx).toString() );
-	names.add( entrylist.dispName(idx) );
+	names.add( entrylist.name(idx) );
     }
 
     setEntries( keys, names );

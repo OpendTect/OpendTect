@@ -99,7 +99,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     infofld_ = new uiTextEdit( infogrp, "Info" );
     infofld_->setPrefHeightInChar( 8 );
 
-    uiSplitter* spl = new uiSplitter( this, "Splitter", false );
+    uiSplitter* spl = new uiSplitter( this, "Splitter", OD::Horizontal );
     spl->addGroup( topgrp );
     spl->addGroup( infogrp );
 

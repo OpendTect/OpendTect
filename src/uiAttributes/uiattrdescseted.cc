@@ -286,7 +286,7 @@ void uiAttribDescSetEd::createGroups()
 	mCB(this,uiAttribDescSetEd,procAttribute) );
     procbut_->attach( rightTo, dispbut_ );
 
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
+    uiSplitter* splitter = new uiSplitter( this );
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
 }

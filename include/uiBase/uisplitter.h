@@ -19,8 +19,8 @@ class uiSplitterBody;
 /*! \brief Provides a splitter object
 
 A splitter lets the user control the size of its children by dragging the
-handle between them. A default splitter lays out its children horizontally
-(side by side).
+handle between them. A default splitter is vertical, putting the groups side
+by side.
 Example:
 \code
     uiGroup* leftgrp = new uiGroup( 0, "Left Group" );
@@ -35,9 +35,10 @@ Example:
 mExpClass(uiBase) uiSplitter : public uiObject
 {
 public:
-                        uiSplitter(uiParent*,const char* nm="Splitter", 
-				    bool hor=true);
-			//!< Set hor to false to layout vertically
+
+                        uiSplitter(uiParent*,const char* nm="Splitter",
+				    OD::Orientation ori=OD::Vertical);
+    mDeprecated		uiSplitter(uiParent*,const char*,bool qtlayoutishor);
 
     void		addGroup(uiGroup*); //!< Group becomes my child
 
@@ -45,4 +46,5 @@ private:
 
     uiSplitterBody*	body_;
     uiSplitterBody&	mkbody(uiParent*,const char*);
+
 };

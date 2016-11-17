@@ -86,7 +86,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     infofld_->setPrefHeightInChar( 8 );
     infofld_->setPrefWidthInChar( 50 );
 
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
+    uiSplitter* splitter = new uiSplitter( this, "Splitter", OD::Horizontal );
     splitter->addGroup( topgrp );
     splitter->addGroup( botgrp );
 

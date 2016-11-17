@@ -21,7 +21,7 @@ namespace Threads { class ConditionVar; }
 
 
 /*!\brief Generalization of something (e.g. a computation) that needs to be
-	done in multiple steps.  */
+	done in multiple steps. */
 
 mExpClass(Basic) Task : public NamedMonitorable
 { mODTextTranslationClass(Task);
@@ -35,13 +35,12 @@ public:
     virtual uiString	message() const		{ return stdMessage(); }
     virtual uiString	nrDoneText() const	{ return stdNrDoneText(); }
     virtual od_int64	nrDone() const		{ return -1; }
-			/*!<\note is only used for displaying progress. */
+				/*!<\note only used for displaying progress. */
     virtual od_int64	totalNr() const		{ return -1; }
-			/*!\note only used for displaying progress.
-				 If you have no clue, return -1. */
-    virtual uiRetVal	errorDetails() const	{ return uiRetVal(message()); }
+				/*!\note only used for displaying progress. */
+    virtual uiRetVal	errorWithDetails() const { return uiRetVal(message()); }
 
-    virtual bool	execute()			= 0;
+    virtual bool	execute()		= 0;
 
     enum Control	{ Run, Pause, Stop };
     virtual void	enableWorkControl(bool=true);

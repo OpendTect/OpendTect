@@ -819,7 +819,7 @@ uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
     infofld_->setPrefHeightInChar( 8 );
     infofld_->setPrefWidthInChar( 50 );
 
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
+    uiSplitter* splitter = new uiSplitter( this, "Splitter", OD::Horizontal );
     splitter->addGroup( topgrp );
     splitter->addGroup( botgrp );
 

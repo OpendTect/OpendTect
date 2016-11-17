@@ -40,7 +40,7 @@ mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
 public:
 
 			uiSurveyInfoEditor(uiParent*,bool isnewborn=false);
-    bool		isOK() const		{ return topgrp_; }
+    bool		isOK() const		{ return gengrp_; }
 			//!<Must be checked before 'go'
 			~uiSurveyInfoEditor();
 
@@ -87,7 +87,7 @@ protected:
     uiGenInput*		xy2fld_;
     Coords::uiPositionSystemSel* latlongsel_;
 
-    uiGroup*		topgrp_;
+    uiGroup*		gengrp_;
     uiGroup*		crdgrp_;
     uiGroup*		trgrp_;
     uiGroup*		rangegrp_;

@@ -268,17 +268,23 @@ void uiTaskRunner::timerTick( CallBacker* )
     if ( state<1 )
     {
 	uiString message;
+	uiRetVal errdetails;
 
 	Threads::Locker trlckr( uitaskrunnerthreadlock_,
 				Threads::Locker::DontWaitForLock );
 	if ( trlckr.isLocked() )
 	{
+	    if ( task_ ) errdetails = task_->errorWithDetails();
 	    message = finalizeTask();
 	    trlckr.unlockNow();
 	}
 
-	if ( state<0 && dispmsgonerr_ )
-	    uiMSG().error( message );
+	if ( state<0 )
+	{
+	    errdetails_ = errdetails;
+	    if ( dispmsgonerr_ )
+		uiMSG().error( errdetails_ );
+	}
 
 	done( state<0 ? 0 : 1 );
 	return;
