@@ -144,6 +144,7 @@ void SurveyInfo::copyClassData( const SurveyInfo& oth )
     seisrefdatum_ = oth.seisrefdatum_;
     rdxtr_ = oth.rdxtr_; rdytr_ = oth.rdytr_;
     sipnm_ = oth.sipnm_;
+    comments_ = oth.comments_;
     update3DGeometry();
 }
 

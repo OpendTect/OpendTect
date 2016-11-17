@@ -340,6 +340,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
 
     rangegrp_->setHAlignObj( inlfld_ );
     tabs_->addTab( rangegrp_ );
+    tabs_->setTabIcon( rangegrp_, "alldirs" ); //TODO
 }
 
 
@@ -349,8 +350,7 @@ void uiSurveyInfoEditor::mkCoordGrp()
     #define mAddCB( fld )\
 	mAttachCB( fld->valuechanged, uiSurveyInfoEditor::coordsChg );
 
-    crdgrp_ = new uiGroup( tabs_->tabGroup(),
-			    "Coordinate settings (Easy)" );
+    crdgrp_ = new uiGroup( tabs_->tabGroup(), "Survey Grid (Easy)" );
     PositionInpSpec::Setup psetup;
     uiLabel* emptyspace = new uiLabel( crdgrp_, uiStrings::sEmptyString() );
 
@@ -395,6 +395,7 @@ void uiSurveyInfoEditor::mkCoordGrp()
 
     crdgrp_->setHAlignObj( ic0fld_ );
     tabs_->addTab( crdgrp_ );
+    tabs_->setTabIcon( crdgrp_, "gridsettings-easy" ); //TODO
 #undef mAddCB
 }
 
@@ -404,8 +405,7 @@ void uiSurveyInfoEditor::mkTransfGrp()
     #define mAddCB( fld )\
 	mAttachCB( fld->valuechanged, uiSurveyInfoEditor::transformChg );
 
-    trgrp_ = new uiGroup( tabs_->tabGroup(),
-				"Coordinate settings (Advanced)" );
+    trgrp_ = new uiGroup( tabs_->tabGroup(), "Survey Grid (Advanced)" );
     uiLabel* emptyspace = new uiLabel( trgrp_, uiStrings::sEmptyString() );
 
     x0fld_ = new uiGenInput( trgrp_, tr( "X = " ),
@@ -449,13 +449,13 @@ void uiSurveyInfoEditor::mkTransfGrp()
     overrulefld_->attach( alignedBelow, ycrlfld_ );
     trgrp_->setHAlignObj( xinlfld_ );
     tabs_->addTab( trgrp_ );
+    tabs_->setTabIcon( trgrp_, "gridsettings-advanced" ); //TODO
 }
 
 
 void uiSurveyInfoEditor::mkLatLongGrp()
 {
-    latlonggrp_ = new uiGroup( tabs_->tabGroup(),
-				"Lat/Long to coords. " );
+    latlonggrp_ = new uiGroup( tabs_->tabGroup(), "Lat/Long Setup" );
     uiLabel* emptyspace = new uiLabel( latlonggrp_, uiStrings::sEmptyString() );
     latlongsel_ = new Coords::uiPositionSystemSel( latlonggrp_, true, &si_,
 					     si_.getCoordSystem() );
