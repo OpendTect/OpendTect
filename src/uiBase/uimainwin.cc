@@ -2109,6 +2109,10 @@ void uiDialog::showAlwaysOnTop()
 int uiDialog::go()
 {
     addToOrderedWinList( this );
+
+    if ( isModal() )
+	showAlwaysOnTop();
+
     return mBody->exec( false );
 }
 
