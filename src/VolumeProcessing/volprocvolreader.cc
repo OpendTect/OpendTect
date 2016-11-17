@@ -59,16 +59,9 @@ int nextStep()
     if ( !rdr.setDataPack(*output_) )
 	mErrRet()
 
-    if ( progressmeter_ )
-    {
-	progressmeter_->setMessage( rdr.uiMessage() );
-	rdr.setProgressMeter( progressmeter_ );
-    }
-
+    rdr.setProgressMeter( progressmeter_ );
     if ( !rdr.execute() )
 	mErrRet()
-
-    output_ = 0; //This executor no longer needs the output (the step has it).
 
     return Finished();
 }
