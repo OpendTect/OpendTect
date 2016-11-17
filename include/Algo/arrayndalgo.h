@@ -2333,4 +2333,222 @@ private:
     const od_int64		totalnr_;
 };
 
+
+/*!<Determines the start/end of live data in a 2D/3D array. The returned index
+    is the index of the first live sample
+    The output arrays must have one dimension less than the data array
+ */
+
+template <class T>
+mClass(Algo) MuteArrayExtracter : public ParallelTask
+{ mODTextTranslationClass(MuteArrayExtracter)
+public:
+		MuteArrayExtracter( const ArrayND<T>& data,
+				    ArrayND<int>& topmute,
+				    ArrayND<int>& tailmute )
+		    : ParallelTask("Mute Array Extracter")
+		    , data_(data)
+		    , topmute_(topmute)
+		    , tailmute_(tailmute)
+		    , tks_(0)
+		    , trcssampling_(0)
+		    , totalnr_(data.info().getTotalSz()/
+			       data.info().getSize(data.get1DDim()))
+		{}
+
+    uiString	uiMessage() const
+		{
+		    return tr("Extracting mute positions");
+		}
+
+    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+
+    void	setSampling( const TrcKeySampling& tks,
+			     const PosInfo::CubeData* trcssampling )
+		{
+		    tks_ = &tks;
+		    trcssampling_ = trcssampling;
+		}
+
+protected:
+
+    od_int64	nrIterations() const	{ return totalnr_; }
+
+private:
+
+    bool	doPrepare( int )
+		{
+		    const int data1ddim = data_.get1DDim();
+		    if ( ( data1ddim != 1 && data1ddim != 2 ) ||
+			 topmute_.get1DDim() != data1ddim-1 ||
+			 tailmute_.get1DDim() != data1ddim-1 )
+			return false;
+
+		    topmute_.setAll( 0 );
+		    const int nrz =
+				mCast(int,data_.info().getTotalSz()/totalnr_);
+		    tailmute_.setAll( nrz-1 );
+
+		    return true;
+		}
+
+    bool	doWork( od_int64 start, od_int64 stop, int )
+		{
+		    const bool isrect = tks_ && trcssampling_
+				       ? trcssampling_->isFullyRectAndReg()
+				       : true;
+		    const T* dataptr = data_.getData();
+		    int* topmuteptr = topmute_.getData();
+		    int* tailmuteptr = tailmute_.getData();
+		    const ValueSeries<T>* datastor = data_.getStorage();
+		    ValueSeries<int>* topmutestor = topmute_.getStorage();
+		    ValueSeries<int>* tailmutestor = tailmute_.getStorage();
+		    const bool hasarrayptr = dataptr && topmuteptr &&
+					     tailmuteptr;
+		    const bool hasstorage = datastor && topmutestor &&
+					    tailmutestor;
+		    const bool neediterator = !hasarrayptr && !hasstorage;
+		    const ArrayNDInfo& info = data_.info();
+		    const int zidx = data_.get1DDim();
+		    const int nrtrcsp = info.getSize( zidx );
+		    const od_int64 offset = start * nrtrcsp;
+		    if ( hasarrayptr )
+		    {
+			dataptr += offset;
+			topmuteptr += start;
+			tailmuteptr += start;
+		    }
+
+		    od_uint64 validx = offset;
+		    const int ndim = info.getNDim();
+		    const bool is2d = ndim == 2;
+		    const int nrlines = is2d ? 1 : info.getSize(0);
+		    const int nrtrcs = info.getSize( is2d ? 0 : 1 );
+		    const Array2DInfoImpl hinfo( nrlines, nrtrcs );
+		    ArrayNDIter* hiter = neediterator
+				       ? new ArrayNDIter( hinfo ) : 0;
+		    if ( hiter )
+			hiter->setGlobalPos( start );
+
+		    const T zeroval = mCast(T,0);
+		    int pos[ndim];
+		    for ( od_int64 idx=start; idx<=stop; idx++,
+							 quickAddToNrDone(idx) )
+		    {
+			const bool hastrcdata = isrect ? true
+					: trcssampling_->isValid(idx,*tks_);
+			if ( !hastrcdata )
+			{
+			    if ( hasarrayptr )
+			    {
+				dataptr+=nrtrcsp;
+				topmuteptr++;
+				tailmuteptr++;
+			    }
+			    if ( hasstorage ) validx+=nrtrcsp;
+			    else hiter->next();
+
+			    continue;
+			}
+
+			const int* hpos = hiter ? hiter->getPos() : 0;
+			if ( hiter )
+			{
+			    for ( int ipos=0; ipos<ndim; ipos++ )
+				pos[ipos] = hpos[ipos];
+			    hiter->next();
+			}
+
+			bool allnull = false;
+			for ( int idz=0; idz<nrtrcsp; idz++ )
+			{
+			    if ( hiter ) pos[zidx] = idz;
+			    const float val = hasarrayptr
+					    ? *dataptr++
+					    : hasstorage
+						? datastor->value( validx++ )
+						: data_.getND( pos );
+			    if ( val == zeroval )
+				continue;
+
+			    if ( hasarrayptr )
+			    {
+				*topmuteptr++ = idz;
+				dataptr += nrtrcsp-idz-2;
+			    }
+			    else if ( hasstorage )
+			    {
+				topmutestor->setValue( idx, idz );
+				validx += nrtrcsp-idz-2;
+			    }
+			    else
+				topmute_.setND( hpos, idz );
+
+			    break;
+			    allnull = true;
+			}
+
+			if ( allnull )
+			{
+			    if ( hasarrayptr )
+			    {
+				*topmuteptr++ = nrtrcsp;
+				*tailmuteptr++ = -1;
+			    }
+			    else if ( hasstorage )
+			    {
+				topmutestor->setValue( idx, nrtrcsp );
+				tailmutestor->setValue( idx, -1 );
+			    }
+			    else
+			    {
+				topmute_.setND( hpos, nrtrcsp );
+				tailmute_.setND( hpos, -1 );
+			    }
+
+			    continue;
+			}
+
+			for ( int idz=nrtrcsp-1; idz>=0; idz-- )
+			{
+			    if ( hiter ) pos[zidx] = idz;
+			    const float val = hasarrayptr
+					    ? *dataptr--
+					    : hasstorage
+						? datastor->value( validx-- )
+						: data_.getND( pos );
+			    if ( val == zeroval )
+				continue;
+
+			    if ( hasarrayptr )
+			    {
+				*tailmuteptr++ = idz;
+				dataptr += nrtrcsp-idz+1;
+			    }
+			    else if ( hasstorage )
+			    {
+				tailmutestor->setValue( idx, idz );
+				validx += nrtrcsp-idz+1;
+			    }
+			    else
+				tailmute_.setND( hpos, idz );
+
+			    break;
+			}
+		    }
+
+		    delete hiter;
+
+		    return true;
+		}
+
+    const ArrayND<T>&		data_;
+    const TrcKeySampling*	tks_;
+    const PosInfo::CubeData*	trcssampling_;
+    ArrayND<int>&		topmute_;
+    ArrayND<int>&		tailmute_;
+
+    const od_int64		totalnr_;
+};
+
 #endif
