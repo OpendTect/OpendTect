@@ -14,8 +14,10 @@ ________________________________________________________________________
 #include "uisurveyselect.h"
 #include "uidialog.h"
 
+class Grid2D;
 class SurveyInfo;
 class uiButton;
+class uiGrid2DMapObject;
 class uiTabStack;
 class uiTextEdit;
 class uiComboBox;
@@ -73,6 +75,8 @@ protected:
 
     SurveyInfo*		survinfo_;
     uiSurveyMap*	survmap_;
+    uiGrid2DMapObject*  inlgridview_;
+    Grid2D*		inlgrid_;
     uiRetVal		survreadstatus_;
 
     uiButton*		editbut_;

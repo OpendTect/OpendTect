@@ -174,6 +174,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool isnewborn )
     surveymap_ = new uiSurveyMap( this );
     surveymap_->attachGroup().attach( ensureRightOf, versep );
     inlgridview_ = new uiGrid2DMapObject();
+    inlgridview_->setLineStyle( OD::LineStyle(OD::LineStyle::Dot) );
     inlgrid_ = new Grid2D();
     inlgridview_->setGrid( inlgrid_ );
     surveymap_->addObject( inlgridview_ );

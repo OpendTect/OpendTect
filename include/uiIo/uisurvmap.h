@@ -85,7 +85,7 @@ public:
 			uiGrid2DMapObject();
 
     const char*		getType();
-    void		setGrid(const Grid2D*);
+    void		setGrid(const Grid2D*,const SurveyInfo* si=0);
     void		setBaseLine(const Grid2D::Line*);
     void		setLineStyle(const OD::LineStyle&);
     void		update();
@@ -96,6 +96,7 @@ protected:
     const Grid2D::Line*	    baseline_;
     const Grid2D*	    grid_;
     OD::LineStyle	    ls_;
+    const SurveyInfo*	    survinfo_;
 };
 
 

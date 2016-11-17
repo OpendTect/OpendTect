@@ -228,7 +228,7 @@ void uiNorthArrowObject::update()
 // uiGrid2DMapObject
 uiGrid2DMapObject::uiGrid2DMapObject()
     : uiBaseMapObject(0)
-    , grid_(0),baseline_(0)
+    , grid_(0),baseline_(0),survinfo_(0)
 {}
 
 
@@ -236,8 +236,9 @@ const char* uiGrid2DMapObject::getType()
 { return "Grid2D"; }
 
 
-void uiGrid2DMapObject::setGrid( const Grid2D* grid )
+void uiGrid2DMapObject::setGrid( const Grid2D* grid, const SurveyInfo* si )
 {
+    survinfo_ = si;
     grid_ = grid;
 }
 
@@ -257,8 +258,10 @@ void uiGrid2DMapObject::setLineStyle( const OD::LineStyle& ls )
 void uiGrid2DMapObject::update()
 {
     #define mDrawLine(line) { \
-    const Coord start = SI().transform( line->start_ ); \
-    const Coord stop = SI().transform( line->stop_ ); \
+    const Coord start = survinfo_ ? survinfo_->transform( line->start_ ) : \
+			      SI().transform( line->start_ ); \
+    const Coord stop = survinfo_ ? survinfo_->transform( line->stop_ ) :   \
+			     SI().transform( line->stop_ );   \
     uiLineItem* item = new uiLineItem; \
     item->setLine( start, stop ); \
     item->setPenStyle( ls_ ); \
@@ -270,8 +273,6 @@ void uiGrid2DMapObject::update()
 
     if ( !grid_ ) return;
 
-    ls_.color_ = Color::Black();
-    ls_.width_ = 20;
     int graphicszval = 2;
     for ( int idx=0; idx<grid_->size(true); idx++ )
     {
@@ -287,11 +288,12 @@ void uiGrid2DMapObject::update()
 	    mDrawLine( line2d );
     }
 
-    ls_.width_ += 2;
+    const Color oldcolor = ls_.color_;
     ls_.color_ = Color::Green();
     graphicszval = 4;
     if ( baseline_ )
 	mDrawLine( baseline_ );
+    ls_.color_ = oldcolor;
 }
 
 

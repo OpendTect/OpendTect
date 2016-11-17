@@ -248,6 +248,12 @@ void uiSurveyManager::mkSurvMapWithUtils()
     survmap_->attachGroup().setPrefWidth( cMapWidth );
     survmap_->attachGroup().setPrefHeight( cMapHeight );
 
+    inlgridview_ = new uiGrid2DMapObject();
+    inlgridview_->setLineStyle( OD::LineStyle(OD::LineStyle::Dot) );
+    inlgrid_ = new Grid2D();
+    inlgridview_->setGrid( inlgrid_ );
+    survmap_->addObject( inlgridview_ );
+
     uiButton* lastbut = 0;
     ObjectSet<Util>& utils = getUtils();
     const CallBack cb( mCB(this,uiSurveyManager,utilButPushed) );
@@ -550,6 +556,22 @@ void uiSurveyManager::putToScreen()
 {
     const bool isok = survreadstatus_.isOK();
     const SurveyInfo* cursi = isok ? curSI() : 0;
+    if ( cursi )
+    {
+	TypeSet<int> inlines, crlines;
+	const TrcKeyZSampling& cs = cursi->sampling( false );
+	const TrcKeySampling& hs = cs.hsamp_;
+	const int inlstep = hs.nrInl() / 5;
+	for ( int idx=0; idx<4; idx++ )
+	{
+	    const int inl = hs.start_.inl() + (idx+1) * inlstep;
+	    inlines += inl;
+	}
+    
+	inlgrid_->set( inlines, crlines, hs );
+	inlgridview_->setGrid( inlgrid_, cursi );
+    }
+
     survmap_->setSurveyInfo( cursi );
     const bool havesurveys = haveSurveys();
     rmbut_->setSensitive( havesurveys );
