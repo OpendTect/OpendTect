@@ -15,14 +15,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datacoldef.h"
 #include "emhorizon3d.h"
 #include "emhorizonztransform.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
 #include "posvecdataset.h"
 #include "survinfo.h"
 #include "threadwork.h"
+#include "timefun.h"
 
 #include "uiattribpartserv.h"
 #include "uiempartserv.h"
@@ -41,6 +44,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
 #include "vishorizonsection.h"
+
+
+HiddenParam<uiODEarthModelSurfaceTreeItem,BufferString> timelastmodifs(0);
 
 
 uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
@@ -76,6 +82,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     changesetupmnuitem_.iconfnm = "tools";
     NotSavedPrompter::NSP().promptSaving.notify(
 	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
+    timelastmodifs.setParam( this, "" );
 }
 
 
@@ -97,6 +104,8 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
     if ( MPE::engine().hasTracker(emid_) )
 	MPE::engine().unRefTracker( emid_ );
     delete uivisemobj_;
+
+    timelastmodifs.removeParam( this );
 }
 
 
@@ -114,6 +123,8 @@ bool uiODEarthModelSurfaceTreeItem::init()
     if ( MPE::engine().hasTracker(emid_) )
 	MPE::engine().refTracker( emid_ );
 
+    EM::IOObjInfo eminfo( EM::EMM().getMultiID(emid_) );
+    timelastmodifs.setParam( this, eminfo.timeLastModified() );
     initNotify();
     return true;
 }
@@ -239,7 +250,12 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 			&& EM::canOverwrite( mid );
     mAddMenuItem( menu, &trackmenuitem_, enab, false );
 
-    mAddMenuItem( menu, &reloadmnuitem_, true, false );
+    const EM::IOObjInfo eminfo( mid );
+    const BufferString curtime = eminfo.timeLastModified();
+    const BufferString timelastmodified = timelastmodifs.getParam( this );
+    const bool isnewer = Time::isEarlier( timelastmodified, curtime );
+    const bool allowreload = !hastracker && isnewer;
+    mAddMenuItem( menu, &reloadmnuitem_, allowreload, false );
 
     mAddMenuItem( menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid_) &&
@@ -265,7 +281,7 @@ int uiODEarthModelSurfaceTreeItem::reloadEMObject()
 	return -1;
 
     emid_ = applMgr()->EMServer()->getObjectID(mid);
-    uivisemobj_ = new uiVisEMObject(ODMainWin(),emid_,sceneID(),visserv_);
+    uivisemobj_ = new uiVisEMObject( ODMainWin(), emid_, sceneID(), visserv_ );
     displayid_ = uivisemobj_->id();
     return displayid_;
 }
@@ -404,8 +420,10 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     uiEMPartServer* ems = applMgr()->EMServer();
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
+    const bool hastracker = MPE::engine().hasTracker(emid_);
 
-    if ( ems->isGeometryChanged(emid_) && ems->nrAttributes(emid_)>0 )
+    if ( !hastracker && ems->isGeometryChanged(emid_)
+		     && ems->nrAttributes(emid_)>0 )
     {
 	const bool res = uiMSG().askSave(
 		tr("Geometry has been changed. Saved 'Horizon Data' is\n"

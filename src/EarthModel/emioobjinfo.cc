@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emrandomposbody.h"
 #include "emsurfaceio.h"
 #include "emsurfacetr.h"
+#include "file.h"
 #include "horizonrelation.h"
 #include "iodir.h"
 #include "ioman.h"
@@ -216,6 +217,15 @@ uiString IOObjInfo::getMessage() const
 {
     mGetReader;
     return reader_ ? reader_->uiMessage() : uiString::emptyString();
+}
+
+
+const char* IOObjInfo::timeLastModified() const
+{
+    if ( !ioobj_ ) return 0;
+
+    const char* fnm = ioobj_->fullUserExpr();
+    return File::timeLastModified( fnm );
 }
 
 
