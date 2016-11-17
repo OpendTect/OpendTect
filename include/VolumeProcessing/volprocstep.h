@@ -20,6 +20,7 @@ class VelocityDesc;
 class ProgressMeter;
 class TrcKeyZSampling;
 class RegularSeisDataPack;
+namespace PosInfo { class CubeData; }
 
 
 namespace VolProc
@@ -74,6 +75,8 @@ public:
     virtual StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
 				/*!<When computing Z Sampling, how
 				     big input is needed?*/
+    const PosInfo::CubeData*	getPosSamplingOfNonNullTraces(InputSlotID,
+							      int comp=0);
 
     virtual void		setInput(InputSlotID,
 					 const RegularSeisDataPack*);

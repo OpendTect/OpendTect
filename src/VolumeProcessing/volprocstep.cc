@@ -5,8 +5,12 @@
 -*/
 
 
-#include "volprocchain.h"
+#include "volprocstep.h"
+
+#include "arrayndimpl.h"
 #include "seisdatapack.h"
+#include "posinfodetector.h"
+#include "volprocchain.h"
 
 
 namespace VolProc
@@ -367,4 +371,156 @@ od_int64 VolProc::Step::getExtraMemoryUsage(
 	ret += extraMemoryUsage( tocalc[idx], hsamp, zsamp );
 
     return ret;
+}
+
+
+
+class NullTracesArrayScanner : public ParallelTask
+{ mODTextTranslationClass(NullTracesArrayScanner);
+public:
+
+		NullTracesArrayScanner( const Array3DImpl<float>& data,
+					const TrcKeySampling& tks,
+					const PosInfo::CubeData* trcssampling )
+		    : ParallelTask("Null Traces array scanner")
+		    , data_(data)
+		    , tks_(tks)
+		    , trcssampling_(trcssampling)
+		    , totalnr_(tks.totalNr())
+		    , result_(0)
+		{}
+		~NullTracesArrayScanner()
+		{
+		    deepErase( detectors_ );
+		    delete result_;
+		}
+
+    uiString	uiMessage() const	{ return uiString::emptyString(); }
+    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+
+    const PosInfo::CubeData*	getResult() const	{ return result_; }
+
+protected:
+
+    od_int64	nrIterations() const	{ return totalnr_; }
+
+private:
+
+    bool	doPrepare( int nrthreads )
+		{
+		    deleteAndZeroPtr( result_ );
+		    deepErase( detectors_ );
+		    const PosInfo::Detector::Setup setup( false );
+		    for ( int idx=0; idx<nrthreads; idx++ )
+			detectors_ += new PosInfo::Detector( setup );
+
+		    return true;
+		}
+
+    bool	doWork(od_int64 start, od_int64 stop, int threadid )
+		{
+		    if ( !detectors_.validIdx(threadid) )
+			return false;
+
+		    PosInfo::Detector& detector = *detectors_[threadid];
+		    const bool isrect = !trcssampling_ ||
+					trcssampling_->isFullyRectAndReg();
+		    const TrcKeySampling tks( tks_ );
+		    const float* dataptr = data_.getData();
+		    const ValueSeries<float>* datastor = data_.getStorage();
+		    const bool hasarrayptr = dataptr;
+		    const bool hasstorage = datastor;
+		    const bool neediterate = !dataptr && !datastor;
+		    const Array3DInfo& info = data_.info();
+		    const int nrz = info.getSize(2);
+		    const od_int64 offset = start * nrz;
+		    if ( hasarrayptr ) dataptr += offset;
+		    od_uint64 validx = hasstorage ? offset : 0;
+		    Array2DInfoImpl hinfo( info.getSize(0), info.getSize(1) );
+		    ArrayNDIter* hiter = 0;
+		    if ( neediterate )
+		    {
+			hiter = new ArrayNDIter( hinfo );
+			hiter->setGlobalPos( start );
+		    }
+
+		    for ( od_int64 idx=start; idx<=stop; idx++,
+							 quickAddToNrDone(idx) )
+		    {
+			if ( !isrect && !trcssampling_->isValid(idx,tks) )
+			{
+			    if ( hasarrayptr ) dataptr += nrz;
+			    else if ( hasstorage ) validx += nrz;
+			    else hiter->next();
+			    continue;
+			}
+
+
+			bool allnull = true;
+			for ( int idz=0; idz<nrz; idz++ )
+			{
+			    const float val = hasarrayptr ? dataptr[idz]
+				: hasstorage ? datastor->value( validx+idz )
+				 : data_.get( (*hiter)[0], (*hiter)[1], idz );
+			    if ( val != 0.f )
+			    {
+				allnull = false;
+				break;
+			    }
+			}
+
+			if ( hasarrayptr )	dataptr+=nrz;
+			else if ( hasstorage )	validx +=nrz;
+			else if ( hiter )	hiter->next();
+
+			if ( allnull )
+			    continue;
+
+			const TrcKey tk( tks.atIndex( idx ) );
+			detector.add( tk.getCoord(), tk.position() );
+		    }
+
+		    delete hiter;
+
+		    return detector.finish() && detector.usable();
+		}
+
+    bool	doFinish( bool )
+		{
+		    for ( int idx=1; idx<detectors_.size(); idx++ )
+			detectors_[0]->appendResults( *detectors_[idx] );
+
+		    PosInfo::CubeData* result = new PosInfo::CubeData;
+		    const PosInfo::Detector& detector =
+			const_cast<const PosInfo::Detector&>( *detectors_[0] );
+		    detector.getCubeData( *result );
+		    result_ = result;
+
+		    return true;
+		}
+
+    const Array3DImpl<float>&	data_;
+    const TrcKeySampling&	tks_;
+    const PosInfo::CubeData*	trcssampling_;
+    const od_int64	totalnr_;
+    ObjectSet<PosInfo::Detector>	detectors_;
+    const PosInfo::CubeData*	result_;
+};
+
+
+const PosInfo::CubeData* VolProc::Step::getPosSamplingOfNonNullTraces(
+					InputSlotID id, int compidx )
+{
+    if ( !validInputSlotID(id) )
+	return 0;
+
+    CVolRef input = getInput( id );
+    if ( !input || !input->validComp(compidx) )
+	return 0;
+
+    NullTracesArrayScanner scanner( input->data( compidx ),
+				    input->sampling().hsamp_,
+				    input->getTrcsSampling() );
+    return scanner.execute() && scanner.getResult()
+		? new PosInfo::SortedCubeData( *scanner.getResult() ) : 0;
 }
