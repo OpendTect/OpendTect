@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uiseparator.h"
 #include "uisplitter.h"
 #include "uisettings.h"
 #include "uisip.h"
@@ -182,13 +181,21 @@ uiSurveyManager::uiSurveyManager( uiParent* p, bool standalone )
     settbut->attach( rightTo, datarootfld_ );
     settbut->attach( rightBorder );
 
-    mkSurvManTools();
-    mkSurvMapWithUtils();
+    uiGroup* topgrp = new uiGroup( this, "Top group" );
+    uiGroup* leftgrp = new uiGroup( topgrp, "Left group" );
+    uiGroup* survmapgrp = new uiGroup( topgrp, "Surv map group" );
+    mkSurvManTools( leftgrp );
+    mkSurvMapWithUtils( survmapgrp );
     mkInfoTabs();
-    
-    infotabs_->attach( ensureBelow, survdirfld_ );
-    infotabs_->attach( ensureBelow, &survmap_->attachGroup() );
-    infotabs_->attach( ensureBelow, survmanbuts_ );
+    survmapgrp->setFrame( true );
+
+    uiSplitter* vsplit = new uiSplitter( this, "V Split" );
+    vsplit->addGroup( survmapgrp );
+    vsplit->addGroup( leftgrp );
+
+    uiSplitter* hsplit = new uiSplitter( this, "V Split" );
+    hsplit->addGroup( topgrp );
+    hsplit->addGroup( infotabs_ );
 
     putToScreen();
 
@@ -216,9 +223,9 @@ static void osrbuttonCB( CallBacker* )
 }
 
 
-void uiSurveyManager::mkSurvManTools()
+void uiSurveyManager::mkSurvManTools( uiGroup* grp )
 {
-    survmanbuts_ = new uiButtonGroup( this, "Surv Man Buttons", OD::Vertical );
+    survmanbuts_ = new uiButtonGroup( grp, "Surv Man Buttons", OD::Vertical );
     survmanbuts_->attach( rightTo, survdirfld_ );
     new uiToolButton( survmanbuts_, "addnew",
 			uiStrings::phrCreate(mJoinUiStrs(sNew(),
@@ -242,9 +249,9 @@ void uiSurveyManager::mkSurvManTools()
 }
 
 
-void uiSurveyManager::mkSurvMapWithUtils()
+void uiSurveyManager::mkSurvMapWithUtils( uiGroup* grp )
 {
-    survmap_ = new uiSurveyMap( this );
+    survmap_ = new uiSurveyMap( grp );
     survmap_->attachGroup().setPrefWidth( cMapWidth );
     survmap_->attachGroup().setPrefHeight( cMapHeight );
 
@@ -260,7 +267,7 @@ void uiSurveyManager::mkSurvMapWithUtils()
     for ( int idx=0; idx<utils.size(); idx++ )
     {
 	const Util& util = *utils[idx];
-	uiToolButton* but = new uiToolButton( this, util.pixmap_,
+	uiToolButton* but = new uiToolButton( grp, util.pixmap_,
 					      util.tooltip_, cb );
 	but->setToolTip( util.tooltip_ );
 	utilbuts_ += but;
@@ -567,7 +574,7 @@ void uiSurveyManager::putToScreen()
 	    const int inl = hs.start_.inl() + (idx+1) * inlstep;
 	    inlines += inl;
 	}
-    
+
 	inlgrid_->set( inlines, crlines, hs );
 	inlgridview_->setGrid( inlgrid_, cursi );
     }

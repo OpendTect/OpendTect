@@ -112,8 +112,8 @@ protected:
 
 private:
 
-    void		mkSurvManTools();
-    void		mkSurvMapWithUtils();
+    void		mkSurvManTools(uiGroup*);
+    void		mkSurvMapWithUtils(uiGroup*);
     void		mkInfoTabs();
 
 };
