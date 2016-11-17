@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uisplitter.h"
+#include "uiseparator.h"
 #include "uisettings.h"
 #include "uisip.h"
 #include "uitaskrunner.h"
@@ -181,21 +182,19 @@ uiSurveyManager::uiSurveyManager( uiParent* p, bool standalone )
     settbut->attach( rightTo, datarootfld_ );
     settbut->attach( rightBorder );
 
-    uiGroup* topgrp = new uiGroup( this, "Top group" );
-    uiGroup* leftgrp = new uiGroup( topgrp, "Left group" );
-    uiGroup* survmapgrp = new uiGroup( topgrp, "Surv map group" );
-    mkSurvManTools( leftgrp );
+    uiGroup* survmapgrp = new uiGroup( maingrp_, "Surv map group" );
+    mkSurvManTools();
     mkSurvMapWithUtils( survmapgrp );
     mkInfoTabs();
-    survmapgrp->setFrame( true );
 
-    uiSplitter* vsplit = new uiSplitter( this, "V Split" );
+    uiSplitter* vsplit = new uiSplitter( maingrp_, "V Split", OD::Vertical );
+    vsplit->addGroup( survselgrp_ );
     vsplit->addGroup( survmapgrp );
-    vsplit->addGroup( leftgrp );
 
-    uiSplitter* hsplit = new uiSplitter( this, "V Split" );
-    hsplit->addGroup( topgrp );
+    uiSplitter* hsplit = new uiSplitter( this, "H Split", OD::Horizontal );
+    hsplit->addGroup( maingrp_ );
     hsplit->addGroup( infotabs_ );
+    hsplit->attach( ensureBelow, topsep_ ); // Have to do this; this is a bug
 
     putToScreen();
 
@@ -223,9 +222,10 @@ static void osrbuttonCB( CallBacker* )
 }
 
 
-void uiSurveyManager::mkSurvManTools( uiGroup* grp )
+void uiSurveyManager::mkSurvManTools()
 {
-    survmanbuts_ = new uiButtonGroup( grp, "Surv Man Buttons", OD::Vertical );
+    survmanbuts_ = new uiButtonGroup( survselgrp_, "Surv Man Buttons",
+				      OD::Vertical );
     survmanbuts_->attach( rightTo, survdirfld_ );
     new uiToolButton( survmanbuts_, "addnew",
 			uiStrings::phrCreate(mJoinUiStrs(sNew(),
@@ -251,9 +251,10 @@ void uiSurveyManager::mkSurvManTools( uiGroup* grp )
 
 void uiSurveyManager::mkSurvMapWithUtils( uiGroup* grp )
 {
-    survmap_ = new uiSurveyMap( grp );
-    survmap_->attachGroup().setPrefWidth( cMapWidth );
-    survmap_->attachGroup().setPrefHeight( cMapHeight );
+    uiGroup* maponlygrp = new uiGroup( grp, "Survmap only group" );
+    survmap_ = new uiSurveyMap( maponlygrp );
+    maponlygrp->setPrefWidth( cMapWidth );
+    maponlygrp->setPrefHeight( cMapHeight );
 
     inlgridview_ = new uiGrid2DMapObject();
     inlgridview_->setLineStyle( OD::LineStyle(OD::LineStyle::Dot) );
@@ -272,12 +273,12 @@ void uiSurveyManager::mkSurvMapWithUtils( uiGroup* grp )
 	but->setToolTip( util.tooltip_ );
 	utilbuts_ += but;
 	if ( !lastbut )
-	    but->attach( rightTo, &survmap_->attachGroup() );
+	    but->attach( rightTo, maponlygrp );
 	else
 	    but->attach( alignedBelow, lastbut );
 	lastbut = but;
     }
-    survmap_->attachGroup().attach( rightOf, editbut_->parent() );
+    maponlygrp->setFrame( true );
 }
 
 
@@ -291,7 +292,7 @@ void uiSurveyManager::mkInfoTabs()
     infotabs_->addTab( infogrp );
     infotabs_->setTabIcon( infogrp, "info" );
 
-    uiGroup* commentgrp = new uiGroup( infotabs_->tabGroup(), "Comment" );
+    uiGroup* commentgrp = new uiGroup( infotabs_->tabGroup(), "Comments" );
     notesfld_ = new uiTextEdit( commentgrp, "Survey Notes" );
     notesfld_->setPrefHeightInChar( 5 );
     notesfld_->setStretch( 2, 2 );

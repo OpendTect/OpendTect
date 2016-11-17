@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 class uiListBox;
 class uiDataRootSel;
+class uiSeparator;
 namespace File { class Monitor; }
 
 
@@ -40,7 +41,10 @@ protected:
     File::Monitor*	filemonitor_;
 
     uiDataRootSel*	datarootfld_;
+    uiGroup*		maingrp_;
+    uiGroup*		survselgrp_;
     uiListBox*		survdirfld_;
+    uiSeparator*	topsep_;
 
     void		updateList();
     void		startFileMonitoring();

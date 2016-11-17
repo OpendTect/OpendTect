@@ -28,14 +28,17 @@ uiSurveySelect::uiSurveySelect( uiParent* p, bool al, const char* dr,
     : uiGroup(p,"Survey selector")
     , dataroot_(dr ? dr : GetBaseDataDir())
     , filemonitor_(0)
+    , topsep_(0)
     , survDirChg(this)
     , survParsChg(this)
     , survDirAccept(this)
 {
     datarootfld_ = new uiDataRootSel( this, dataroot_ );
+    maingrp_ = new uiGroup( this, "Main group" );
+    survselgrp_ = new uiGroup( maingrp_, "Survey selection group" );
 
     uiListBox::Setup lbsu( OD::ChooseOnlyOne, uiStrings::sSurvey() );
-    survdirfld_ = new uiListBox( this, lbsu );
+    survdirfld_ = new uiListBox( survselgrp_, lbsu );
     updateList();
     BufferString defsurvdirnm( survdirnm );
     if ( defsurvdirnm.isEmpty() )
@@ -43,17 +46,19 @@ uiSurveySelect::uiSurveySelect( uiParent* p, bool al, const char* dr,
     setSurveyDirName( defsurvdirnm );
     survdirfld_->setHSzPol( uiObject::WideVar );
     survdirfld_->setStretch( 2, 2 );
+    survselgrp_->setHAlignObj( survdirfld_ );
+    maingrp_->setHAlignObj( survselgrp_ );
 
     if ( al )
     {
-	survdirfld_->attach( alignedBelow, datarootfld_ );
+	maingrp_->attach( alignedBelow, datarootfld_ );
 	setHAlignObj( datarootfld_ );
     }
     else
     {
-	uiSeparator* sep = new uiSeparator( this, "Sep" );
-	sep->attach( stretchedBelow, datarootfld_ );
-	survdirfld_->attach( ensureBelow, sep );
+	topsep_ = new uiSeparator( this, "Sep" );
+	topsep_->attach( stretchedBelow, datarootfld_ );
+	maingrp_->attach( ensureBelow, topsep_ );
     }
 
     mAttachCB( datarootfld_->selectionChanged, uiSurveySelect::dataRootChgCB );

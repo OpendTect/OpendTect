@@ -137,17 +137,20 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
     botgrp_ = new uiGroup( this, "Bottom group" );
     botgrp_->attach( ensureBelow, sep );
+    uiGroup* survmapgrp = 0;
     if ( mForSurvSetup )
     {
-	survmap_ = new uiSurveyMap( botgrp_, true );
+	survmapgrp = new uiGroup( botgrp_, "SurvMap group" );
+	survmap_ = new uiSurveyMap( survmapgrp, true );
 	survmap_->setSurveyInfo( 0 );
+	survmapgrp->setFrame( true );
     }
     uiGroup* amplgrp = createAmplDisp();
     if ( survmap_ )
     {
 	uiSplitter* spl = new uiSplitter( botgrp_ );
 	survmap_->view().setPrefWidth( mDefSize );
-	spl->addGroup( &survmap_->attachGroup() );
+	spl->addGroup( survmapgrp );
 	spl->addGroup( amplgrp );
 	spl->attach( ensureBelow, infofld_ );
     }

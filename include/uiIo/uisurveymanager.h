@@ -112,7 +112,7 @@ protected:
 
 private:
 
-    void		mkSurvManTools(uiGroup*);
+    void		mkSurvManTools();
     void		mkSurvMapWithUtils(uiGroup*);
     void		mkInfoTabs();
 
