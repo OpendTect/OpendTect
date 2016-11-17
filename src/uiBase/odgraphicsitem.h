@@ -276,7 +276,7 @@ public:
     void			setLine(const QLineF&);
 
     void			setQPen(const QPen&);
-    const QPen&			qpen() const { return qpen_; }
+    const QPen&			getQpen() const { return qpen_; }
 
     void			highlight()	{ highlight_ = true; }
     void			unHighlight()	{ highlight_ = false; }

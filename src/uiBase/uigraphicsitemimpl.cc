@@ -275,7 +275,7 @@ uiRect uiLineItem::lineRect() const
 
 void uiLineItem::setPenColor( const Color& col, bool )
 {
-    QPen qpen = qlineitem_->qpen();
+    QPen qpen = qlineitem_->getQpen();
     qpen.setColor( QColor(col.rgb()) );
     qpen_ = qpen;
     qlineitem_->setQPen( qpen );
