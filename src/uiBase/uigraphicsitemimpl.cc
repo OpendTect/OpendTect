@@ -225,7 +225,7 @@ uiLineItem::~uiLineItem()
 
 QGraphicsItem* uiLineItem::mkQtObj()
 {
-    qlineitem_ = new QGraphicsLineItem();
+    qlineitem_ = new ODGraphicsLineItem();
     return qlineitem_;
 }
 
@@ -268,18 +268,17 @@ void uiLineItem::setLine( const Geom::Point2D<int>& centerpos,
 
 uiRect uiLineItem::lineRect() const
 {
-    QLineF qline = qlineitem_->line();
-    return uiRect( (int)qline.x1(), (int)qline.y1(),
-		   (int)qline.x2(), (int)qline.y2() );
+    const QRectF rect = qlineitem_->boundingRect();
+    return uiRect( rect.top(), rect.left(), rect.bottom(), rect.right() );
 }
 
 
 void uiLineItem::setPenColor( const Color& col, bool )
 {
-    QPen qpen = qlineitem_->pen();
+    QPen qpen = qlineitem_->qpen();
     qpen.setColor( QColor(col.rgb()) );
     qpen_ = qpen;
-    qlineitem_->setPen( qpen );
+    qlineitem_->setQPen( qpen );
 }
 
 
@@ -288,23 +287,19 @@ void uiLineItem::setPenStyle( const OD::LineStyle& ls, bool )
     QBrush qbrush( QColor(QRgb(ls.color_.rgb())) );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
     qpen_ = qpen;
-    qlineitem_->setPen( qpen );
+    qlineitem_->setQPen( qpen );
 }
 
 
 void uiLineItem::highlight()
 {
-    QPen qpen = qlineitem_->pen();
-    qpen.setWidth( qpen_.width() + 2 );
-    qlineitem_->setPen( qpen );
+    qlineitem_->highlight();
 }
 
 
 void uiLineItem::unHighlight()
 {
-    QPen qpen = qlineitem_->pen();
-    qpen.setWidth( qpen_.width() );
-    qlineitem_->setPen( qpen );
+    qlineitem_->unHighlight();
 }
 
 

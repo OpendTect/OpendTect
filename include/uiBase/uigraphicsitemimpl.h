@@ -25,7 +25,6 @@ class FontData;
 
 class QGraphicsItem;
 class QGraphicsEllipseItem;
-class QGraphicsLineItem;
 class QGraphicsPathItem;
 class QGraphicsPixmapItem;
 class QGraphicsProxyWidget;
@@ -37,6 +36,7 @@ class QSize;
 
 class ODGraphicsAdvancedTextItem;
 class ODGraphicsArrowItem;
+class ODGraphicsLineItem;
 class ODGraphicsMarkerItem;
 class ODGraphicsPathItem;
 class ODGraphicsPixmapItem;
@@ -116,7 +116,7 @@ public:
 			uiLineItem(const uiPoint&,float angle,float len);
 			~uiLineItem();
 
-    QGraphicsLineItem*	qLineItem()	{ return qlineitem_; }
+    ODGraphicsLineItem*	qLineItem()	{ return qlineitem_; }
     void		setPenStyle(const OD::LineStyle&,bool withalpha=false);
     void		setPenColor(const Color&,bool withalpha=false);
     void		setLine(const uiPoint& start,const uiPoint& end);
@@ -136,7 +136,7 @@ public:
 protected:
 
     QGraphicsItem*	mkQtObj();
-    QGraphicsLineItem*	qlineitem_;
+    ODGraphicsLineItem*	qlineitem_;
     QPen&		qpen_;
 };
 

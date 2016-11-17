@@ -761,6 +761,72 @@ void ODGraphicsMultiColorPolyLineItem::mouseMoveEvent(
 }
 
 
+// ODGraphicsLineItem
+ODGraphicsLineItem::ODGraphicsLineItem()
+    : QGraphicsItem()
+    , highlight_(false)
+    , qpen_(*new QPen)
+{}
+
+
+ODGraphicsLineItem::~ODGraphicsLineItem()
+{}
+
+
+QRectF ODGraphicsLineItem::boundingRect() const
+{
+    return QRectF( qline_.x1(), qline_.y1(), qline_.x2(), qline_.y2() );
+}
+
+
+void ODGraphicsLineItem::setLine( const QLineF& qline )
+{
+    prepareGeometryChange();
+    qline_ = qline;
+}
+
+
+void ODGraphicsLineItem::setLine( qreal x1, qreal y1, qreal x2, qreal y2 )
+{
+    prepareGeometryChange();
+    qline_ = QLineF( x1, y1, x2, y2 );
+}
+
+
+void ODGraphicsLineItem::setQPen( const QPen& qpen )
+{
+    prepareGeometryChange();
+    qpen_ = qpen;
+}
+
+
+void ODGraphicsLineItem::paint( QPainter* painter,
+					 const QStyleOptionGraphicsItem* option,
+					 QWidget* widget )
+{
+    const QLineF qline = painter->worldTransform().map( qline_ );
+
+    painter->save();
+    painter->resetTransform();
+
+    QPen qpen = qpen_;
+    if ( highlight_ )
+	qpen.setWidth( qpen.width()+2 );
+    painter->setPen( qpen );
+    painter->drawLine( qline );
+    painter->restore();
+}
+
+
+void ODGraphicsLineItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
+{
+    QGraphicsItem::mouseMoveEvent( event );
+
+    snapToSceneRect( this );
+}
+
+
+
 // ODGraphicsPathItem
 ODGraphicsPathItem::ODGraphicsPathItem()
     : QGraphicsPathItem()

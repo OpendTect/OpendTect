@@ -250,14 +250,46 @@ public:
     void			highlight()	{ highlight_ = true; }
     void			unHighlight()	{ highlight_ = false; }
 
-    virtual int			type() const	{ return ODGraphicsType+6; }
+    virtual int			type() const	{ return ODGraphicsType+7; }
 
 protected:
+    
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
 
     bool			highlight_;
     QPolygonF			qpolygon_;
     QVector<QPen>		qpens_;
+};
+
+
+class ODGraphicsLineItem : public QGraphicsItem , public ODGraphicsHighlightItem
+{
+public:
+				ODGraphicsLineItem();
+				~ODGraphicsLineItem();
+
+    QRectF			boundingRect() const;
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
+
+    void			setLine(qreal,qreal,qreal,qreal);
+    void			setLine(const QLineF&);
+
+    void			setQPen(const QPen&);
+    const QPen&			qpen() const { return qpen_; }
+
+    void			highlight()	{ highlight_ = true; }
+    void			unHighlight()	{ highlight_ = false; }
+
+    virtual int			type() const	{ return ODGraphicsType+8; }
+
+protected:
+    
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+
+    QLineF			qline_;
+    bool			highlight_;
+    QPen&			qpen_;
 };
 
 
@@ -290,7 +322,7 @@ public:
     const QRectF&		wantedWorldRect() const;
     const QSize&		wantedScreenSize() const;
 
-    virtual int			type() const	{ return ODGraphicsType+7; }
+    virtual int			type() const	{ return ODGraphicsType+9; }
 
     Notifier<ODGraphicsDynamicImageItem>	wantsData;
     bool					isSnapshot() const;
