@@ -1668,7 +1668,7 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, DBKey horid )
 		zval = geom->computePosition( Coord(bid.inl(),bid.crl()) ).z_;
 	}
 	if ( mIsUdf(zval) )
-	    psiter.removeCurrent( true );
+	    psiter.removeCurrent();
 	else
 	    psiter.get().setZ( zval );
     }

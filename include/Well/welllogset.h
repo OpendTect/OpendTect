@@ -100,7 +100,7 @@ public:
 };
 
 
-mExpClass(Well) LogSetIter : public MonitorableIter<Log::IdxType>
+mExpClass(Well) LogSetIter : public MonitorableIter4Read<Log::IdxType>
 {
 public:
 
@@ -109,10 +109,8 @@ public:
 			LogSetIter(const LogSet&,bool start_at_end=false);
 			LogSetIter(const LogSetIter&);
     const LogSet&	logSet() const;
-    size_type		size() const;
 
     LogID		ID() const;
-    LogSet::IdxType	curIdx() const	    { return curidx_; }
     const Log&		log() const;
 
 };

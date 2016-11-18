@@ -384,24 +384,22 @@ Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
 bool Pick::Set::removeWithPolygon( const ODPolygon<double>& wpoly, bool inside )
 {
     RefMan<Pick::Set> workps = new Pick::Set( *this );
-    Pick::SetIter4Edit psiter( *workps, false );
+    Pick::SetIter4Edit psiter( *workps, true );
 
     int nrchgs = 0;
-    while ( psiter.prev() )
+    while ( psiter.next() )
     {
 	const Coord pos( psiter.get().pos().getXY() );
 	if ( !pos.isDefined() || inside == wpoly.isInside(pos,true,1e-3) )
-	    { psiter.removeCurrent(false); nrchgs++; }
+	    { psiter.removeCurrent(); nrchgs++; }
     }
     psiter.retire();
 
-    if ( nrchgs > 0 )
-    {
-	*this = *workps;
-	return true;
-    }
+    if ( nrchgs < 1 )
+	return false;
 
-    return false;
+    *this = *workps;
+    return true;
 }
 
 
@@ -696,13 +694,14 @@ Pick::Set& Pick::Set::setZ( LocID id, double z, bool istmp )
 // Pick::SetIter
 
 Pick::SetIter::SetIter( const Set& ps, bool atend )
-    : MonitorableIter<Pick::Set::IdxType>(ps,atend?ps.size():-1)
+    : MonitorableIter4Read<Pick::Set::IdxType>( ps,
+	    atend?ps.size()-1:0, atend?0:ps.size()-1 )
 {
 }
 
 
 Pick::SetIter::SetIter( const SetIter& oth )
-    : MonitorableIter<Pick::Set::IdxType>(oth)
+    : MonitorableIter4Read<Pick::Set::IdxType>(oth)
 {
 }
 
@@ -713,141 +712,90 @@ const Pick::Set& Pick::SetIter::pickSet() const
 }
 
 
-Pick::SetIter& Pick::SetIter::operator =( const SetIter& oth )
-{
-    pErrMsg( "No assignment" );
-    return *this;
-}
-
-
-Pick::SetIter::size_type Pick::SetIter::size() const
-{
-    return pickSet().locs_.size();
-}
-
-
 Pick::Set::LocID Pick::SetIter::ID() const
 {
-    return pickSet().locIDFor( curidx_ );
+    return isValid() ? pickSet().locIDFor( curidx_ ) : Set::LocID::getInvalid();
 }
 
 
 const Pick::Location& Pick::SetIter::get() const
 {
-    return pickSet().locs_.validIdx(curidx_) ? pickSet().locs_[curidx_]
-					 : Pick::Location::udf();
+    return isValid() ? pickSet().locs_[curidx_] : Pick::Location::udf();
 }
 
 
 Coord Pick::SetIter::getPos() const
 {
-    return pickSet().locs_.validIdx(curidx_)
-	? Coord(pickSet().locs_[curidx_].pos().getXY())
-	: Coord::udf();
+    return isValid() ? Coord(pickSet().locs_[curidx_].pos().getXY())
+		     : Coord::udf();
 }
 
 
 double Pick::SetIter::getZ() const
 {
-    return pickSet().locs_.validIdx(curidx_) ? pickSet().locs_[curidx_].pos().z_
-					 : mUdf(double);
+    return isValid() ? pickSet().locs_[curidx_].pos().z_ : mUdf(double);
 }
 
 
 // Pick::SetIter4Edit
 
-Pick::SetIter4Edit::SetIter4Edit( Set& ps, bool for_forward )
-    : set_(&ps)
-    , curidx_(for_forward?-1:ps.size())
+Pick::SetIter4Edit::SetIter4Edit( Set& ps, bool atend )
+    : MonitorableIter4Write(ps,
+	    atend?ps.size()-1:0, atend?0:ps.size()-1 )
 {
 }
 
 
 Pick::SetIter4Edit::SetIter4Edit( const SetIter4Edit& oth )
-    : set_(&oth.pickSet())
-    , curidx_(oth.curidx_)
+    : MonitorableIter4Write(oth)
 {
 }
 
 
-Pick::SetIter4Edit& Pick::SetIter4Edit::operator =( const SetIter4Edit& oth )
+Pick::Set& Pick::SetIter4Edit::pickSet()
 {
-    if ( this != &oth )
-    {
-	set_ = &oth.pickSet();
-	curidx_ = oth.curidx_;
-    }
-    return *this;
+    return static_cast<Pick::Set&>( edited() );
 }
 
 
-bool Pick::SetIter4Edit::next()
+const Pick::Set& Pick::SetIter4Edit::pickSet() const
 {
-    curidx_++;
-    return curidx_ < set_->locs_.size();
-}
-
-
-bool Pick::SetIter4Edit::prev()
-{
-    curidx_--;
-    return curidx_ >= 0 ;
-}
-
-
-bool Pick::SetIter4Edit::isValid() const
-{
-    return set_->locs_.validIdx( curidx_ );
-}
-
-
-bool Pick::SetIter4Edit::atLast() const
-{
-    return curidx_ == set_->locs_.size()-1;
+    return static_cast<const Pick::Set&>( monitored() );
 }
 
 
 Pick::Set::LocID Pick::SetIter4Edit::ID() const
 {
-    return set_->locIDFor( curidx_ );
+    return isValid() ? pickSet().locIDFor( curidx_ ) : Set::LocID::getInvalid();
 }
 
 
 Pick::Location& Pick::SetIter4Edit::get() const
 {
-    return set_->locs_.validIdx(curidx_)
-	? const_cast<Location&>(set_->locs_[curidx_])
+    return isValid()
+	? const_cast<Location&>(pickSet().locs_[curidx_])
 	: Pick::Location::dummy();
 }
 
 
-void Pick::SetIter4Edit::removeCurrent( bool iterating_forward )
+void Pick::SetIter4Edit::removeCurrent()
 {
-    if ( set_->locs_.validIdx(curidx_) )
+    if ( isValid() )
     {
-	set_->locs_.removeSingle( curidx_ );
-	if ( iterating_forward )
-	    curidx_--;
+	pickSet().locs_.removeSingle( curidx_ );
+	currentRemoved();
     }
 }
 
 
-void Pick::SetIter4Edit::insert( const Location& loc, bool iterating_forward )
+void Pick::SetIter4Edit::insert( const Location& loc )
 {
-    if ( set_->locs_.validIdx(curidx_) )
+    if ( isValid() )
     {
-	set_->locs_.insert( curidx_, loc );
-	if ( iterating_forward )
-	    curidx_++;
+	pickSet().locs_.insert( curidx_, loc );
+	insertedAtCurrent();
     }
 }
-
-
-void Pick::SetIter4Edit::reInit( bool for_forward )
-{
-    curidx_ = for_forward ? -1 : set_->size();
-}
-
 
 
 // PickSetAscIO

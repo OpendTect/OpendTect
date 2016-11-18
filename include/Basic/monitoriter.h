@@ -14,145 +14,257 @@ ________________________________________________________________________
 #include "monitor.h"
 
 
+/*!\brief base class for Monitorable iterators. Inherit from one of its
+	    subclasses.
 
-/*!\brief base class for const Monitorable iterator.
-  Will MonitorLock, so when done before going out of
-  scope, call retire().
-
-  Needs a next() or prev() before a valid item is reached.
+  Needs a next() before a valid item is reached.
 
   It is your responisbility to keep the Monitorable alive. The iterator cannot
   itself be used in a Multi-Threaded way.
 
+  If you pass a negative startidx or stopidx, then the iterator will be empty
+  (no matter the value of the other idx).
+
   */
 
 template <class ITyp>
-mClass(Basic) MonitorableIter
+mClass(Basic) MonitorableIterBase
 {
 public:
 
     typedef ITyp	IdxType;
     typedef IdxType	size_type;
+    enum Direction	{ Forward, Backward };
 
-    inline		MonitorableIter(const Monitorable&,IdxType startidx);
-    inline		MonitorableIter(const Monitorable&,IdxType startidx,
+    inline		MonitorableIterBase(const Monitorable&,IdxType startidx,
 							   IdxType stopidx);
-
-    inline		MonitorableIter(const MonitorableIter&);
-    inline virtual	~MonitorableIter()	{ retire(); }
+    inline		MonitorableIterBase(const MonitorableIterBase&);
+    inline virtual	~MonitorableIterBase()	{ retire(); }
     inline const Monitorable& monitored() const	{ return obj_; }
 
-    virtual size_type	size() const		= 0;
+    inline bool		isEmpty() const		{ return size() < 1; }
+    inline size_type	size() const;
 
     inline bool		next();
-    inline bool		prev();
+    inline bool		isForward() const	{ return dir_ == Forward; }
 
-    inline bool		isValid() const;
+    inline bool		isValid() const		{ return isPresent(curidx_); }
     inline bool		atFirst() const		{ return curidx_ == startidx_; }
-    inline bool		atLast() const;
+    inline bool		atLast() const		{ return curidx_ == stopidx_; }
+    inline IdxType	curIdx() const		{ return curidx_; }
+    inline bool		isPresent(IdxType) const;
 
-    inline void		retire();
-    inline void		reInit(bool toend=false);
+    virtual void	retire()		{}
+    virtual void	reInit();
 
 protected:
 
     const Monitorable&	obj_;
-    IdxType		startidx_;
-    IdxType		stopidx_;
+    const Direction	dir_;
+    const IdxType	startidx_;
+    const IdxType	stopidx_;
+
     IdxType		curidx_;
+
+    mDefNoAssignmentOper(MonitorableIterBase)
+
+};
+
+
+
+/*!\brief base class for const Monitorable iterator.
+
+  Will MonitorLock, so when done before going out of
+  scope, calling retire() will lift the lock early (this is what you want).
+
+  */
+
+template <class ITyp>
+mClass(Basic) MonitorableIter4Read : public MonitorableIterBase<ITyp>
+{
+public:
+
+    inline		MonitorableIter4Read(const Monitorable&,
+					     ITyp startidx,ITyp stopidx);
+    inline		MonitorableIter4Read(const MonitorableIter4Read&);
+
+    virtual void	reInit();
+    virtual void	retire();
+
+protected:
+
     MonitorLock		ml_;
 
-    inline MonitorableIter& operator =(const MonitorableIter&); // pErrMsg
+    mDefNoAssignmentOper(MonitorableIter4Read)
+
+};
+
+
+/*!\brief base class for non-const Monitorable iterator.
+
+  Will not MonitorLock, so do not use this on objects that are shared.
+  For that, use the copy -> change copy -> assign approach.
+
+  */
+
+template <class ITyp>
+mClass(Basic) MonitorableIter4Write : public MonitorableIterBase<ITyp>
+{
+public:
+
+    inline		MonitorableIter4Write(Monitorable&,
+					      ITyp startidx,ITyp stopidx);
+    inline		MonitorableIter4Write(const MonitorableIter4Write&);
+
+    inline Monitorable&	edited()
+			{ return const_cast<Monitorable&>(this->monitored()); }
+			// compiler bug? does not work without the 'this'
+			// more of that in the implementations below ...
+
+protected:
+
+    inline void		insertedAtCurrent();
+    inline void		currentRemoved();
+
+    mDefNoAssignmentOper(MonitorableIter4Write)
 
 };
 
 
 template <class ITyp> inline
-MonitorableIter<ITyp>::MonitorableIter( const Monitorable& obj, ITyp startidx )
+MonitorableIterBase<ITyp>::MonitorableIterBase( const Monitorable& obj,
+					ITyp startidx, ITyp stopidx )
     : obj_(obj)
-    , ml_(obj)
-    , startidx_(startidx)
-    , stopidx_(-1)
-    , curidx_(startidx)
-{
-}
-
-
-template <class ITyp> inline
-MonitorableIter<ITyp>::MonitorableIter( const Monitorable& obj,
-					ITyp startidx,
-					ITyp stopidx )
-    : obj_(obj)
-    , ml_(obj)
     , startidx_(startidx)
     , stopidx_(stopidx)
-    , curidx_(startidx)
+    , dir_(startidx<=stopidx ? Forward : Backward)
 {
+    if ( startidx_ < 0 || stopidx_ < 0 )
+    {
+	// empty. make this a standard situation:
+	const_cast<IdxType&>( startidx_ ) = 0;
+	const_cast<IdxType&>( stopidx_ ) = -1;
+	const_cast<Direction&>( dir_ ) = Forward;
+    }
+    reInit();
 }
 
 
 template <class ITyp> inline
-MonitorableIter<ITyp>::MonitorableIter( const MonitorableIter& oth )
+MonitorableIterBase<ITyp>::MonitorableIterBase( const MonitorableIterBase& oth )
     : obj_(oth.monitored())
-    , ml_(oth.monitored())
     , startidx_(oth.startidx_)
     , stopidx_(oth.stopidx_)
+    , dir_(oth.dir_)
     , curidx_(oth.curidx_)
-
 {
 }
 
 
 template <class ITyp> inline
-MonitorableIter<ITyp>& MonitorableIter<ITyp>::operator =(
-						const MonitorableIter& oth )
+bool MonitorableIterBase<ITyp>::next()
 {
-    pErrMsg( "No assignment" );
-    return *this;
+    if ( dir_ == Forward )
+	{ curidx_++; return curidx_ <= stopidx_; }
+    else
+	{ curidx_--; return curidx_ >= stopidx_; }
 }
 
 
 template <class ITyp> inline
-bool MonitorableIter<ITyp>::next()
+bool MonitorableIterBase<ITyp>::isPresent( IdxType idx ) const
 {
-    curidx_++;
-    return curidx_ < ( stopidx_ < 0 ? size() : stopidx_ );
+    if ( dir_ == Forward )
+	return idx >= startidx_ && idx <= stopidx_;
+    else
+	return idx <= startidx_ && idx >= stopidx_;
+}
+
+
+template <class ITyp> inline typename
+MonitorableIterBase<ITyp>::size_type MonitorableIterBase<ITyp>::size() const
+{
+    return dir_ == Forward ? stopidx_-startidx_+1 : startidx_-stopidx_+1;
 }
 
 
 template <class ITyp> inline
-bool MonitorableIter<ITyp>::prev()
+void MonitorableIterBase<ITyp>::reInit()
 {
-    curidx_--;
-    return curidx_ >= startidx_+1;
+    curidx_ = dir_ == Forward ? startidx_ - 1 : startidx_ + 1;
 }
 
 
 template <class ITyp> inline
-bool MonitorableIter<ITyp>::isValid() const
+MonitorableIter4Read<ITyp>::MonitorableIter4Read( const Monitorable& obj,
+						  ITyp startidx, ITyp stopidx )
+    : MonitorableIterBase<ITyp>(obj,startidx,stopidx)
+    , ml_(obj)
 {
-    return curidx_ >= startidx_+1 && curidx_ < ( stopidx_ < 0 ? size()
-							      : stopidx_ );
 }
 
 
 template <class ITyp> inline
-bool MonitorableIter<ITyp>::atLast() const
+MonitorableIter4Read<ITyp>::MonitorableIter4Read(
+				const MonitorableIter4Read& oth )
+    : MonitorableIterBase<ITyp>(oth)
+    , ml_(oth.obj_)
 {
-    return curidx_ == ( stopidx_ < 0 ? size() : stopidx_ );
 }
 
 
 template <class ITyp> inline
-void MonitorableIter<ITyp>::retire()
+void MonitorableIter4Read<ITyp>::retire()
 {
     ml_.unlockNow();
 }
 
 
 template <class ITyp> inline
-void MonitorableIter<ITyp>::reInit( bool toend )
+void MonitorableIter4Read<ITyp>::reInit()
 {
     ml_.reLock();
-    curidx_ = toend ? ( stopidx_ < 0 ? size() : stopidx_ ) : startidx_;
+    MonitorableIterBase<ITyp>::reInit();
+}
+
+
+template <class ITyp> inline
+MonitorableIter4Write<ITyp>::MonitorableIter4Write( Monitorable& obj,
+						  ITyp startidx, ITyp stopidx )
+    : MonitorableIterBase<ITyp>(obj,startidx,stopidx)
+{
+}
+
+
+template <class ITyp> inline
+MonitorableIter4Write<ITyp>::MonitorableIter4Write(
+				const MonitorableIter4Write& oth )
+    : MonitorableIterBase<ITyp>(oth)
+{
+}
+
+
+template <class ITyp> inline
+void MonitorableIter4Write<ITyp>::insertedAtCurrent()
+{
+    if ( this->dir_ == MonitorableIterBase<ITyp>::Backward )
+	const_cast<ITyp&>(this->startidx_)++;
+    else
+    {
+	const_cast<ITyp&>(this->stopidx_)++;
+	this->curidx_++;
+    }
+}
+
+
+template <class ITyp> inline
+void MonitorableIter4Write<ITyp>::currentRemoved()
+{
+    if ( this->dir_ == MonitorableIterBase<ITyp>::Backward )
+	const_cast<ITyp&>(this->startidx_)--;
+    else
+    {
+	const_cast<ITyp&>(this->stopidx_)--;
+	this->curidx_--;
+    }
 }

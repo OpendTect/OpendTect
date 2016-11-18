@@ -56,8 +56,8 @@ public:
     BufferString	type() const; //!< sKey::Polygon() or sKey::PickSet()
     BufferString	category() const;
 
-    size_type		size() const;
     inline bool		isEmpty() const			    { return size()<1; }
+    size_type		size() const;
     bool		validLocID(LocID) const;
     IdxType		idxFor(LocID) const;
     LocID		locIDAfter(LocID) const;
@@ -169,23 +169,20 @@ protected:
 
 /*!\brief const Set iterator. */
 
-mExpClass(General) SetIter : public MonitorableIter<Set::IdxType>
+mExpClass(General) SetIter : public MonitorableIter4Read<Set::IdxType>
 {
 public:
 
 			SetIter(const Set&,bool start_at_end=false);
 			SetIter(const SetIter&);
     const Set&		pickSet() const;
-    size_type		size() const;
 
     Set::LocID		ID() const;
     const Location&	get() const;
     Coord		getPos() const;
     double		getZ() const;
 
-private:
-
-    SetIter&		operator =(const SetIter&); // pErrMsg
+    mDefNoAssignmentOper(SetIter)
 
 };
 
@@ -194,39 +191,25 @@ private:
   Pick::Set's only. Really, because it locks totally nothing, many methods
   bypass the stand-alone Pick::Set's locking.
 
-  Needs a next() or prev() before a valid LocID is reached.
+  Needs a next() before a valid LocID is reached.
 
   */
 
-mExpClass(General) SetIter4Edit
+mExpClass(General) SetIter4Edit : public MonitorableIter4Write<Set::IdxType>
 {
 public:
 
-			SetIter4Edit(Set&,bool for_forward=true);
+			SetIter4Edit(Set&,bool start_at_end=false);
 			SetIter4Edit(const SetIter4Edit&);
-    SetIter4Edit&	operator =(const SetIter4Edit&);
-    Set&		pickSet() const	 { return const_cast<Set&>(*set_); }
+    Set&		pickSet();
+    const Set&		pickSet() const;
 
-    bool		next();
-    bool		prev();
-    inline bool		advance( bool iterating_forward=true )
-			{ return iterating_forward ? next() : prev(); }
-
-    bool		isValid() const;
-    bool		atFirst() const	    { return curidx_ == 0; }
-    bool		atLast() const;
     Set::LocID		ID() const;
     Location&		get() const;
-    void		removeCurrent(bool iterating_forward=true);
-    void		insert(const Pick::Location&,bool iter_forward=true);
+    void		removeCurrent();
+    void		insert(const Pick::Location&);
 
-    void		reInit(bool for_forward=true);
-    void		retire()	{}
-
-private:
-
-    RefMan<Set>		set_;
-    Set::IdxType	curidx_;
+    mDefNoAssignmentOper(SetIter4Edit)
 
 };
 
@@ -234,12 +217,14 @@ private:
 mExpClass(General) SetPresentationInfo : public OD::ObjPresentationInfo
 {
 public:
+
 					SetPresentationInfo(const DBKey&);
 					SetPresentationInfo();
 
     static OD::ObjPresentationInfo*	createFrom( const IOPar&);
     static void				initClass();
     static const char*			sFactoryKey();
+
 };
 
 

@@ -412,13 +412,14 @@ bool Well::LogSet::swap( IdxType idx1, IdxType idx2 )
 // Well::LogSetIter
 
 Well::LogSetIter::LogSetIter( const LogSet& ls, bool atend )
-    : MonitorableIter<LogSet::IdxType>(ls,atend?ls.size():-1)
+    : MonitorableIter4Read<LogSet::IdxType>(ls,
+	    atend?ls.size()-1:0,atend?0:ls.size()-1)
 {
 }
 
 
 Well::LogSetIter::LogSetIter( const LogSetIter& oth )
-    : MonitorableIter<LogSet::IdxType>(oth)
+    : MonitorableIter4Read<LogSet::IdxType>(oth)
 {
 }
 
@@ -429,16 +430,9 @@ const Well::LogSet& Well::LogSetIter::logSet() const
 }
 
 
-Well::LogSetIter::size_type Well::LogSetIter::size() const
-{
-    return logSet().logs_.size();
-}
-
-
 Well::LogSet::LogID Well::LogSetIter::ID() const
 {
-    return logSet().logs_.validIdx(curidx_) ? logSet().logids_[ curidx_ ]
-					    : LogID::getInvalid();
+    return isValid() ? logSet().logids_[ curidx_ ] : LogID::getInvalid();
 }
 
 
@@ -446,7 +440,7 @@ static ConstRefMan<Well::Log> emptylog = new Well::Log;
 
 const Well::Log& Well::LogSetIter::log() const
 {
-    return logSet().logs_.validIdx(curidx_) ? *logSet().logs_[curidx_] : *emptylog;
+    return isValid() ? *logSet().logs_[curidx_] : *emptylog;
 }
 
 

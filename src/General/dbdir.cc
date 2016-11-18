@@ -538,13 +538,13 @@ void DBDir::getTmpIOObjs( DirID dirid, ObjectSet<IOObj>& ioobjs,
 
 
 DBDirIter::DBDirIter( const DBDir& dbdir )
-    : MonitorableIter<DBDir::size_type>(dbdir,-1)
+    : MonitorableIterBase<DBDir::size_type>(dbdir,0,dbdir.size()-1)
 {
 }
 
 
 DBDirIter::DBDirIter( const DBDirIter& oth )
-    : MonitorableIter<DBDir::size_type>(oth)
+    : MonitorableIterBase<DBDir::size_type>(oth)
 {
 }
 
@@ -552,13 +552,6 @@ DBDirIter::DBDirIter( const DBDirIter& oth )
 const DBDir& DBDirIter::dbDir() const
 {
     return static_cast<const DBDir&>( monitored() );
-}
-
-
-DBDirIter& DBDirIter::operator =( const DBDirIter& oth )
-{
-    pErrMsg( "No assignment" );
-    return *this;
 }
 
 

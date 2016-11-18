@@ -130,6 +130,11 @@ inline bool isFPEqual( T1 v1, T2 v2, eT eps )	{ return isFPZero(v1-v2,eps); }
 
 #define mDefSetupMemb(typ,memb) mDefSetupClssMemb(Setup,typ,memb)
 
+#define mDefNoAssignmentOper(clss) \
+private: \
+    inline clss& operator =( const clss& ) \
+	    { pErrMsg("No assignment"); return *this; }
+
 
 
 //--- Covering Windows problems, mainly DLL export/import stuff

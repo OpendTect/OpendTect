@@ -798,7 +798,7 @@ bool Picks::load( const IOObj* ioobj )
     psiop.get( sKey::Version(), version );
 
     ::Pick::SetIter psiter( *ps, true );
-    while ( psiter.prev() )
+    while ( psiter.next() )
     {
 	const ::Pick::Location& ploc = psiter.get();
 	if ( !ploc.hasPos() || !ploc.hasDir() )

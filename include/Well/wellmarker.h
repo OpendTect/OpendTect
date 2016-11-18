@@ -25,8 +25,6 @@ class TaskRunner;
 namespace Well
 {
 
-//TODO remove when these objects become true shared objects
-typedef Monitorable::DirtyCountType DirtyCountType;
 
 /*!\brief Marker, can be attached to Strat level. When not attached, uses
   the object's own (fallback) name and color. */
@@ -68,6 +66,7 @@ public:
 
     static const Marker& udf();
     bool		isUdf() const	{ return *this == udf(); }
+    static Marker&	dummy();
 
 protected:
 
@@ -141,7 +140,7 @@ public:
     void		mergeOtherWell(const MarkerSet&);
     void		append(const MarkerSet& ms)
 							{ mergeOtherWell(ms); }
-    int			getIdxAbove(float z,const Well::Track* trck=0) const;
+    IdxType		getIdxAbove(float z,const Well::Track* trck=0) const;
 			//!< is trck provided, compares TVDs
 
     void		fillPar(IOPar&) const;
@@ -168,11 +167,11 @@ protected:
     Marker		gtByID(MarkerID) const;
     MarkerID		mrkrIDFor(IdxType) const;
 
-    void		addCopy(const MarkerSet&,int,float);
+    void		addCopy(const MarkerSet&,IdxType,float);
     void		alignOrderingWith(const MarkerSet&);
-    void		moveBlock(int,int,const TypeSet<int>&);
+    void		moveBlock(IdxType,IdxType,const TypeSet<IdxType>&);
     bool		insrtNew(const Well::Marker&);
-    void		insrtNewAfter(int,const MarkerSet&);
+    void		insrtNewAfter(IdxType,const MarkerSet&);
     void		insrtAt(IdxType,const Marker&);
     void		insrtAfter(IdxType,const Marker&);
     void		rmoveSingle(IdxType);
@@ -183,94 +182,94 @@ protected:
     friend class	MarkerSetIter4Edit;
 };
 
-/*!\brief const MarkerSet iterator. */
 
-mExpClass(Well) MarkerSetIter :	public MonitorableIter<MarkerSet::IdxType>
+/*!\brief const MarkerSet iterator.
+
+  Pass empty (or null) name or invalid ID to start at first or end at last.
+
+*/
+
+mExpClass(Well) MarkerSetIter : public MonitorableIter4Read<MarkerSet::IdxType>
 {
 public:
-			MarkerSetIter(const MarkerSet&,bool dorev=false);
-			MarkerSetIter(const MarkerSet&,MarkerSet::MarkerID,
-						       MarkerSet::MarkerID,
-						       bool dorev=false);
-			MarkerSetIter(const MarkerSet&,const char*,const char*,
-				      bool dorev=false);
 
+    typedef MarkerSet::MarkerID	MarkerID;
+
+			MarkerSetIter(const MarkerSet&,bool dorev=false);
+			MarkerSetIter(const MarkerSet&,MarkerID,MarkerID);
+			MarkerSetIter(const MarkerSet&,const char*,const char*);
 			MarkerSetIter(const MarkerSetIter&);
 
     const MarkerSet&	markerSet() const;
-    size_type		size() const;
 
-    MarkerSet::MarkerID	ID() const;
-    MarkerSet::IdxType	curIdx() const;
+    MarkerID		ID() const;
 
     const Marker&	get() const;
     float		getDah() const;
     BufferString	markerName() const;
 
-
-private:
-
-    MarkerSetIter&	operator =(const MarkerSetIter&); // pErrMsg
+    mDefNoAssignmentOper(MarkerSetIter)
 
 };
 
 
+/*!\brief edit-while-iterate for MarkerSet. Work on a local copy!
+
+  Pass empty (or null) name for start at first marker or end at last.
+
+*/
+
 mExpClass(Well) MarkerSetIter4Edit
+		    : public MonitorableIter4Write<MarkerSet::IdxType>
 {
 public:
-			MarkerSetIter4Edit(MarkerSet&,bool dorev=false);
-			MarkerSetIter4Edit(MarkerSet&,
-					const Interval<int>&, bool dorev=false);
-			MarkerSetIter4Edit(MarkerSet&,
-				const char*,const char*,bool dorev=false);
 
+    typedef MarkerSet::IdxType	IdxType;
+    typedef MarkerSet::MarkerID	MarkerID;
+
+			MarkerSetIter4Edit(MarkerSet&,bool dorev=false);
+			MarkerSetIter4Edit(MarkerSet&,Interval<IdxType>);
+			MarkerSetIter4Edit(MarkerSet&,const char*,const char*);
 			MarkerSetIter4Edit(const MarkerSetIter4Edit&);
 
-    MarkerSetIter4Edit&	operator =(const MarkerSetIter4Edit&);
-    MarkerSet&		markerSet() const
-			{ return const_cast<MarkerSet&>(*markerset_); }
+    MarkerSet&		markerSet();
+    const MarkerSet&	markerSet() const;
 
-    bool		next();
-
-    bool		isValid() const;
-    bool		atFirst() const	    { return curidx_ == 0; }
-    bool		atLast() const;
-    MarkerSet::MarkerID	ID() const;
-    MarkerSet::IdxType	curIdx() const;
+    BufferString	markerName() const;
+    MarkerID		ID() const;
     Marker&		get() const;
     float		getDah() const;
     void		setDah(float);
     void		setColor(const Color&);
-    BufferString	markerName() const;
 
     void		removeCurrent();
     void		insert(const Marker&);
 
-    void		reInit();
-    void		retire()	{}
+    mDefNoAssignmentOper(MarkerSetIter4Edit)
 
-private:
-
-    RefMan<MarkerSet>	markerset_;
-    MarkerSet::IdxType	curidx_;
-    MarkerSet::IdxType	stopidx_;
 };
 
 
-/*!\brief Range of markers (typically describing zone of interest) */
+/*!\brief Range of markers (typically describing zone of interest).
+  As with iterators, pass null or invalid for start or stop. */
 
 mExpClass(Well) MarkerRange
 {
 public:
 
-			MarkerRange(const MarkerSet&, MarkerSet::MarkerID
-						    , MarkerSet::MarkerID);
+    typedef MarkerSet::size_type	size_type;
+    typedef MarkerSet::IdxType		IdxType;
+    typedef MarkerSet::MarkerID		MarkerID;
 
-    int			size() const;
+			MarkerRange(const MarkerSet&,MarkerID,MarkerID);
+			MarkerRange(const MarkerSet&,const char*,const char*);
+    virtual		~MarkerRange();
+
+    size_type		size() const;
     bool		isValid() const;
 
-    bool		isIncluded(int) const;
-    bool		isIncluded(MarkerSet::MarkerID) const;
+    bool		isIncluded(IdxType) const;
+    bool		isIncluded(MarkerID) const;
 
     bool		isIncluded(const char*) const;
     bool		isIncluded(float z) const;
@@ -285,10 +284,11 @@ public:
 
 protected:
 
-    Interval<int>	idxRange() const;
+    Interval<IdxType>	idxRange() const;
     const MarkerSet&	markerset_;
     MarkerSet::MarkerID	topid_;
     MarkerSet::MarkerID	botid_;
+
 };
 
 
@@ -298,15 +298,13 @@ mExpClass(Well) MarkerChgRange : public MarkerRange
 {
 public:
 
-			MarkerChgRange( MarkerSet& ms, MarkerSet::MarkerID tpid,
-						       MarkerSet::MarkerID btid)
+			MarkerChgRange( MarkerSet& ms, MarkerID tpid,
+						       MarkerID btid )
 			    : MarkerRange(ms,tpid,btid)	{}
 
 			MarkerChgRange( MarkerSet& ms, const char* topmrkr,
-						       const char* botmrkr)
-			    : MarkerRange(ms,ms.markerIDFromName(topmrkr)
-					    ,ms.markerIDFromName(botmrkr))
-			{}
+						       const char* botmrkr )
+			    : MarkerRange(ms,topmrkr,botmrkr) {}
 
 
     void		setThickness(float);

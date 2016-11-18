@@ -131,7 +131,7 @@ protected:
 };
 
 
-mExpClass(Well) DahObjIter : public MonitorableIter<DahObj::IdxType>
+mExpClass(Well) DahObjIter : public MonitorableIter4Read<DahObj::IdxType>
 {
 public:
 
@@ -144,7 +144,6 @@ public:
 
     const DahObj&	dahObj() const;
     PointID		ID() const;
-    inline size_type	size() const		{ return dahObj().gtSize(); }
 
     ZType		dah() const;
     ValueType		value() const;

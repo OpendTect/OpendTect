@@ -81,13 +81,13 @@ Well::DahObj::PointID Well::DahObj::prevID( PointID id ) const
     return gtNeighbourID( id, false );
 }
 
-Well::DahObj::PointID Well::DahObj::nearestID( float dh ) const 
+Well::DahObj::PointID Well::DahObj::nearestID( float dh ) const
 {
     mLock4Read();
     IdxType idx = gtIndexOf( dh );
     if ( idx <= 0 )
 	return firstID();
-    else if ( idx >= size()-1 ) 
+    else if ( idx >= size()-1 )
 	return lastID();
 
     const float diffprevval = dh - gtVal( idx );
@@ -454,7 +454,7 @@ Well::DahObj::PointID Well::DahObj::doIns( ZType dh, ValueType val,
 	{
 	    if ( ascendingvalonly && val >= vals[0] )
 		return id;
-	    
+
 	    insidx = 0;
 	}
 	else
@@ -604,13 +604,14 @@ Well::DahObj::ValueType Well::DahObj::gtValueAt( ZType dh, bool noudfs ) const
 
 
 Well::DahObjIter::DahObjIter( const DahObj& dahobj, bool atend )
-    : MonitorableIter<IdxType>(dahobj,atend?dahobj.size():-1)
+    : MonitorableIter4Read<IdxType>(dahobj,
+	    atend?dahobj.size()-1:0, atend?0:dahobj.size()-1)
 {
 }
 
 
 Well::DahObjIter::DahObjIter( const DahObjIter& oth )
-    : MonitorableIter<IdxType>(oth)
+    : MonitorableIter4Read<IdxType>(oth)
 {
 }
 
@@ -629,7 +630,7 @@ Well::DahObjIter::PointID Well::DahObjIter::ID() const
 
 Well::DahObjIter::ZType Well::DahObjIter::dah() const
 {
-    return dahObj().gtDah( curidx_ );
+    return isValid() ? dahObj().gtDah( curidx_ ) : mUdf(ZType);
 }
 
 

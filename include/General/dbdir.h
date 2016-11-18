@@ -127,7 +127,7 @@ public:
 
 /*\brief iterates a DBDir */
 
-mExpClass(General) DBDirIter : public MonitorableIter<DBDir::size_type>
+mExpClass(General) DBDirIter : public MonitorableIterBase<DBDir::size_type>
 {
 public:
 
@@ -143,9 +143,7 @@ public:
     ObjID		objID() const;
     DBKey		key() const;
 
-private:
-
-    DBDirIter&		operator =(const DBDirIter&);
+    mDefNoAssignmentOper(DBDirIter)
 
 };
 
