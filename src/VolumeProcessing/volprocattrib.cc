@@ -239,7 +239,6 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 	return 0;
     }
 
-    DPM( DataPackMgr::SeisID() ).add( output );
     return output;
 }
 
