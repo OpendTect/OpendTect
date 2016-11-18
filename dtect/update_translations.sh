@@ -28,7 +28,6 @@ if [ $# -gt 5 ] && [ "$6" == "--quiet" ]; then
     quiet=on
 fi
 
-
 sourcedir=$1
 tsbasedir=$2
 binarydir=$3
@@ -36,6 +35,50 @@ application=$4
 lupdate=$5
 tmpoddir=/tmp/lupdate_tmp_$$
 outputdir=${binarydir}/data/localizations/generated
+
+control_c()
+ # Control-C Press
+{
+   cleanup
+   exit $?
+}
+
+cleanup()
+{
+   if [ -e "${tmpoddir}" ]; then
+       rm -rf ${tmpoddir}
+   fi
+   return $?
+}
+
+
+filter_files() {
+    #1. Insert Q_OBJECT on all translated classed by replace TextTranslationClass
+    echo $@ | xargs -n 100 -P ${nrcpu} sed -e 's/m.*TextTranslationClass(.*)/Q_OBJECT/g' -iTMP
+
+    #2. Remove mExpClass, mExpStruct, mStruct and mClass and replace by class/struct
+    echo $@ | xargs -n 100 -P ${nrcpu} sed -e 's/mExpClass(.*)/class /g' -iTMP
+    echo $@ | xargs -n 100 -P ${nrcpu} sed -e 's/mClass(.*)/class /g' -iTMP
+    echo $@ | xargs -n 100 -P ${nrcpu} sed -e 's/mStruct(.*)/struct /g' -iTMP
+    echo $@ | xargs -n 100 -P ${nrcpu} sed -e 's/mExpStruct(.*)/struct /g' -iTMP
+
+    #3 Cleanup enum translation so lupdate will understand it
+    echo $@ | xargs -n 100 -P ${nrcpu} sed -e 's/mEnumTr/EnumDefImpl::tr /g' -iTMP
+
+    #4 Remove templates as they screw up lupdate Template classes are treated as
+    #  non template classes when it comes to translation
+    echo $@ | xargs -n 100 -P ${nrcpu} sed -e 's/template[ \t]*<[^>]*>//g' -iTMP
+
+    #5 Remove bit field declarations i.e. "unsigned a:4" as they screw up lupdate.
+    echo $@ | xargs -n 100 -P ${nrcpu} sed -e 's/:[1-9]//g' -iTMP
+
+    #8 Replace *_static_tr("Function", "text") with QT_TRANSLATE_NOOP("static_func_Function", "text");
+    echo $@ | xargs -n 100 -P ${nrcpu} sed -e 's/[^( \t]*_static_tr[^(]*([^"]*"/QT_TRANSLATE_NOOP("static_func_/g' -iTMP
+
+    #9. Filter away macros in sources
+    echo $@ | xargs -n 100 -P ${nrcpu} ${php} ${scriptdir}/remove_macros.php
+}
+
 
 #Get the directory where the scripts are
 pushd `dirname $0` > /dev/null
@@ -64,10 +107,14 @@ if [ "${kernel}" == "Darwin" ]; then
 fi
 
 if [ -e $tmpoddir ]; then
-    \rm -rf $tmpoddir
+    cleanup
 fi
 
 mkdir $tmpoddir
+
+#Catch premature exit so we can remove temporary directory
+trap control_c 0 SIGHUP SIGINT SIGQUIT SIGABRT SIGKILL SIGALRM SIGSEGV SIGTERM
+
 
 #Copy all src, include and pluginfiles (excluding CMake-stuff) to temp folder
 olddir=`pwd`
@@ -111,26 +158,31 @@ done
 
 if [ ${missing} -eq 0 ]; then
 
-    #Get the newest file in the tree, and compare that to the oldest output
-    oldest_output=`find ${outputdir} -name "${application}*.ts" -type f \
-		    -printf '%T@ %p\n' \
+    #Set arguments to stat as they are different on MacOS
+    statarg='-c %Y'
+    kernel=`uname -a | awk '{print $1}'`
+    if [ "${kernel}" == "Darwin" ]; then
+	statarg='-f %m'
+    fi
+
+    #Get the timestamp of all ts-files, and get the oldest one
+    oldest_output_timestamp=`find ${outputdir} -name "${application}*.ts" -type f \
+		    -exec stat ${statarg} '{}' \; \
 		    | sort -rn \
-		    | tail -1 \
-		    | cut -f2- -d" "`
+		    | tail -1`
 
-    newest_input=`find ${tmpoddir} \
+    #Get the timestamp of all input files, and get the newest one
+    newest_input_timestamp=`find ${tmpoddir} \
 		\( -path "*.h" -o -path "*.cc" -o -name "${application}*.ts" \) \
-		-type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" "`
+		-type f -exec stat ${statarg} '{}' \; | sort -n | tail -1`
 
-    if [ -e "${newest_input}" ] && [ -e "${oldest_output}" ]; then
-	if [ "${oldest_output}" -nt "${newest_input}" ]; then
-	    if [ "${quiet}" == "off" ]; then
-		echo "Nothing to do: Dependencies are older than target."
-	    fi
-	    #Remvoe temporary dir
-	    rm -rf ${tmpoddir}
-	    exit 0;
+    if [ ${oldest_output_timestamp} -gt ${newest_input_timestamp} ]; then
+	if [ "${quiet}" == "off" ]; then
+	    echo "Nothing to do: Dependencies are older than target."
 	fi
+	#Remove temporary dir
+	cleanup
+	exit 0;
     fi
 fi
 
@@ -221,44 +273,12 @@ fi
 rm -rf ${filelist}
 
 #Filter the sources for patterns
-echo ${sources} | xargs -n 100 -P ${nrcpu} sed \
-	-e 's/m.*TextTranslationClass(.*)/Q_OBJECT/g' \
-	-e 's/mExpClass(.*)/class /g' \
-	-e 's/mClass(.*)/class /g' \
-	-e 's/mStruct(.*)/struct /g' \
-	-e 's/mExpStruct(.*)/struct /g' \
-	-e 's/mEnumTr/EnumDefImpl::tr /g' \
-	-e 's/"static_func_"/""/g' \
-	-e 's/[^( \t]*_static_tr([ \t]*/static_func___begquote/g' \
-	-e 's/static_func_[^,]*/&__endquote::tr(/g' \
-	-e 's/"[\t ]*__endquote/"__endquote/g' \
-	-e 's/::tr(,/::tr(/g' \
-	-e 's/__begquote"//g' \
-	-e 's/"__endquote//g' -iTMP
-
-
-#Filter away macros in sources
-echo ${sources} | xargs -n 100 -P ${nrcpu} ${php} ${scriptdir}/remove_macros.php
+filter_files ${sources}
 
 
 #Filter the headers for patterns
-echo ${headers} | xargs -n 100 -P ${nrcpu} sed \
-	-e 's/m.*TextTranslationClass(.*)/Q_OBJECT/g' \
-	-e 's/mExpClass(.*)/class /g' \
-	-e 's/mClass(.*)/class /g' \
-	-e 's/mStruct(.*)/struct /g' \
-	-e 's/mExpStruct(.*)/struct /g' \
-	-e 's/mEnumTr/EnumDefImpl::tr /g' \
-	-e 's/"static_func_"/""/g' \
-	-e 's/[^( \t]*_static_tr([ \t]*/static_func___begquote/g' \
-        -e 's/static_func_[^,]*/&__endquote::tr(/g' \
-	-e 's/"[\t ]*__endquote/"__endquote/g' \
-        -e 's/::tr(,/::tr(/g' \
-        -e 's/__begquote"//g' \
-        -e 's/"__endquote//g' -iTMP
 
-#Filter away macros in headers
-echo ${headers} | xargs -n 100 -P ${nrcpu} ${php} ${scriptdir}/remove_macros.php
+filter_files ${headers}
 
 result=0
 #Run lupdate in the background and save jobid
@@ -313,7 +333,7 @@ rm -f ${outputdir}/${application}*.ts
 rsync *.ts ${outputdir}/
 
 #Remove temporary dir
-rm -rf ${tmpoddir}
+cleanup
 
 #Go back to starting dir
 cd ${olddir}
