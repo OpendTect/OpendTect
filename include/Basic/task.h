@@ -44,9 +44,11 @@ public:
 			/*!\note totalNr is only used for displaying
 			         progress. */
 
-    virtual uiString	uiMessage() const;
-    virtual uiString	uiNrDoneText() const;
+    virtual uiString	uiMessage() const; //!< will be message() again in 7.x
+    virtual uiString	uiNrDoneText() const; //!< will be nrDoneText() in 7.x
+    static uiString	stdNrDoneText() { return tr("Nr Done"); }
     static uiString	uiStdNrDoneText() { return tr("Nr Done"); }
+			//< will disappear
 
     virtual bool	execute()			= 0;
 
@@ -67,9 +69,9 @@ protected:
 
 private:
 
-    //Use uiMessage instead. Kept to make old code working
+    //In 7.0, this function will return a uiString
     virtual const char* message() const			{ return 0; }
-    //Use uiNrDoneText instead. Kept to make old code working
+    //In 7.0, this function will return a uiString
     virtual const char* nrDoneText() const		{ return 0; }
 
 };
