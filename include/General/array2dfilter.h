@@ -40,6 +40,37 @@ struct Array2DFilterPars
 			, rowdist_(mUdf(float))
 			, distfac_(1)		{}
 
+    static const char*	sKeyArray2DFilterPars()
+			{ return "Array 2D Filter Pars"; }
+    static const char*	sKeyFillUndefined()	{ return "Fill undefined"; }
+    static const char*	sKeyRowDistance()	{ return "Row distance"; }
+    static const char*	sKeyDistanceFactor()	{ return "Distance factor"; }
+
+    bool		fillPar( IOPar& par ) const
+    {
+	IOPar iop;
+	iop.set( sKey::Type(), Stats::toString(type_) );
+	iop.set( sKey::StepOut(), stepout_.row(), stepout_.col() );
+	iop.setYN( sKeyFillUndefined(), filludf_ );
+	iop.set( sKeyRowDistance(), rowdist_ );
+	iop.set( sKeyDistanceFactor(), distfac_ );
+	par.mergeComp( iop, sKeyArray2DFilterPars() );
+	return true;
+    }
+
+    bool		usePar( const IOPar& par )
+    {
+	ConstPtrMan<IOPar> iop = par.subselect( sKeyArray2DFilterPars() );
+	if ( !iop ) return false;
+
+	Stats::TypeDef().parse( *iop, sKey::Type(), type_ );
+	iop->get( sKey::StepOut(), stepout_.row(), stepout_.col() );
+	iop->getYN( sKeyFillUndefined(), filludf_ );
+	iop->get( sKeyRowDistance(), rowdist_ );
+	iop->get( sKeyDistanceFactor(), distfac_ );
+	return true;
+    }
+
     Stats::Type		type_;
     RowCol		stepout_;	//!< In nodes. Center point not counted
     bool		filludf_;	//!< Output when center point is undef?

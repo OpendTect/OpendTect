@@ -154,6 +154,7 @@ namespace sKey
     inline FixedString FirstInl()	{ return "First In-line"; }
     inline FixedString LastInl()	{ return "Last In-line"; }
     inline FixedString StepInl()	{ return "Step In-line"; }
+    inline FixedString StepOut()	{ return "Stepout"; }
     inline FixedString StepOutInl()	{ return "Stepout In-line"; }
     inline FixedString CrlRange()	{ return "Cross-line range"; }
     inline FixedString FirstCrl()	{ return "First Cross-line"; }
