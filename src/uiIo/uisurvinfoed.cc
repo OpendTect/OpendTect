@@ -975,7 +975,7 @@ void uiSurveyInfoEditor::updateMap()
     si_.update3DGeometry();
     const TrcKeyZSampling& cs = si_.sampling( false );
     const TrcKeySampling& hs = cs.hsamp_;
-    const int inlstep = hs.nrInl() / 5;
+    const int inlstep = ( hs.nrInl() * hs.step_.inl() ) / 5;
     for ( int idx=0; idx<4; idx++ )
     {
 	const int inl = hs.start_.inl() + (idx+1) * inlstep;
