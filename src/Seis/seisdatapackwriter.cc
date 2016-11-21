@@ -22,6 +22,10 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "uistrings.h"
 
+#include "hiddenparam.h"
+
+HiddenParam<SeisDataPackWriter,StepInterval<int>* > cubezrgidx_(0);
+
 
 SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 				  const RegularSeisDataPack& dp,
@@ -37,6 +41,7 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     , compidxs_( compidxs )
     , trc_( 0 )
 {
+    cubezrgidx_.setParam( this, new StepInterval<int>( 0,0,0 ) );
     obtainDP();
     getPosInfo();
 
@@ -49,6 +54,7 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     const int startz =
 	mNINT32(dp_->sampling().zsamp_.start/dp_->sampling().zsamp_.step);
     zrg_ = Interval<int>( startz, startz+dp_->sampling().nrZ()-1 );
+    setCubeIdxRange();
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     writer_ = ioobj ? new SeisTrcWriter( ioobj ) : 0;
@@ -60,6 +66,8 @@ SeisDataPackWriter::~SeisDataPackWriter()
     releaseDP();
     delete trc_;
     delete writer_;
+    delete cubezrgidx_.getParam( this );
+    cubezrgidx_.removeParam( this );
 }
 
 
@@ -116,10 +124,21 @@ void SeisDataPackWriter::releaseDP()
 }
 
 
+void SeisDataPackWriter::setCubeIdxRange()
+{
+    const float zstep = SI().zRange( false ).step;
+    StepInterval<int>* cubezrgidx = cubezrgidx_.getParam( this );
+    cubezrgidx->set( mNINT32(dp_->sampling().zsamp_.start/zstep),
+			 mNINT32(dp_->sampling().zsamp_.stop/zstep),
+			 mNINT32(dp_->sampling().zsamp_.step/zstep) );
+}
+
+
 void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
 				    const Interval<int>& zrg )
 {
     zrg_ = zrg; tks_ = hrg;
+    setCubeIdxRange();
 
     iterator_.setSampling( hrg );
     totalnr_ = posinfo_ ? posinfo_->totalSizeInside( hrg )
@@ -133,65 +152,78 @@ od_int64 SeisDataPackWriter::totalNr() const
 }
 
 
-int SeisDataPackWriter::nextStep()
+bool SeisDataPackWriter::setTrc()
 {
-    const StepInterval<float> survrg = SI().zRange( true ); 
-    const StepInterval<int> cubezrgidx // real -> index
-			    ( mNINT32(dp_->sampling().zsamp_.start/survrg.step),
-			      mNINT32(dp_->sampling().zsamp_.stop/survrg.step),
-			      mNINT32(dp_->sampling().zsamp_.step/survrg.step));
-			      
+    if ( !writer_ || dp_->isEmpty() )
+	return false;
 
-    if ( !trc_ )
+    const int trcsz = cubezrgidx_.getParam(this)->nrSteps() + 1;
+    trc_ = new SeisTrc( trcsz );
+
+    trc_->info().sampling.start = dp_->sampling().zsamp_.start;
+    trc_->info().sampling.step = dp_->sampling().zsamp_.step;
+
+    BufferStringSet compnames;
+    compnames.add( dp_->getComponentName() );
+    for ( int idx=1; idx<compidxs_.size(); idx++ )
     {
-	if ( !writer_ || dp_->isEmpty() )
-	    return ErrorOccurred();
-
-	const int trcsz = cubezrgidx.nrSteps() + 1;
-	trc_ = new SeisTrc( trcsz );
-
-	trc_->info().sampling.start = dp_->sampling().zsamp_.start;
-	trc_->info().sampling.step = dp_->sampling().zsamp_.step;
-	trc_->info().nr = 0;
-
-	BufferStringSet compnames;
-	compnames.add( dp_->getComponentName() );
-	for ( int idx=1; idx<compidxs_.size(); idx++ )
-	{
-	    trc_->data().addComponent( trcsz, DataCharacteristics() );
-	    compnames.add( dp_->getComponentName(idx) );
-	}
-
-	SeisTrcTranslator* transl = writer_->seisTranslator();
-	if ( transl ) transl->setComponentNames( compnames );
+	trc_->data().addComponent( trcsz, DataCharacteristics() );
+	compnames.add( dp_->getComponentName(idx) );
     }
 
+    SeisTrcTranslator* transl = writer_->seisTranslator();
+    if ( transl ) transl->setComponentNames( compnames );
+
+    return true;
+}
+
+
+int SeisDataPackWriter::nextStep()
+{
+    if ( !trc_ && !setTrc() )
+	return ErrorOccurred();
+
     BinID currentpos;
-    if ( !iterator_.next( currentpos ) )
+    if ( !iterator_.next(currentpos) )
 	return Finished();
 
     const TrcKeySampling& hs = dp_->sampling().hsamp_;
-
-    trc_->info().binid = currentpos;
-    trc_->info().coord = SI().transform( currentpos );
-    const int inl = currentpos.inl();
-    const int crl = currentpos.crl();
-    if ( posinfo_ && !posinfo_->includes(inl,crl) )
+    const od_int64 posidx = iterator_.curIdx();
+    if ( posinfo_ && !posinfo_->isValid(posidx,hs) )
 	return MoreToDo();
 
-    const int inlidx = hs.inlRange().nearestIndex( inl );
-    const int crlidx = hs.crlRange().nearestIndex( crl );
-
+    trc_->info().binid = currentpos;
+    trc_->info().coord = hs.toCoord( currentpos );
+    const int inlpos = hs.lineIdx( currentpos.inl() );
+    const int crlpos = hs.trcIdx( currentpos.crl() );
+    const int trcsz = trc_->size();
+    const StepInterval<int>* cubezrgidx = cubezrgidx_.getParam( this );
+    int zsample = zrg_.start;
+    int cubesample = zsample - cubezrgidx->start;
+    const od_int64 offset = dp_->data().info().
+					getOffset( inlpos, crlpos, cubesample );
+    float value = mUdf(float);
     for ( int idx=0; idx<compidxs_.size(); idx++ )
     {
-	for ( int zidx=0; zidx<=cubezrgidx.nrSteps(); zidx++ )
+	const Array3D<float>& outarr = dp_->data( compidxs_[idx] );
+	const float* dataptr = outarr.getData();
+	dataptr += offset;
+	zsample = zrg_.start;
+	cubesample = zsample - cubezrgidx->start;
+	for ( int zidx=0; zidx<trcsz; zidx++, zsample++ )
 	{
-	    const int zsample = zidx+zrg_.start;
-	    const int cubesample = zsample - cubezrgidx.start;
-
-	    const float value = cubezrgidx.includes( zsample, false )
-		? dp_->data(compidxs_[idx]).get(inlidx,crlidx,cubesample)
-		: mUdf(float);
+	    if ( cubezrgidx->includes(zsample,false) )
+	    {
+		if ( dataptr )
+		    value = *dataptr++;
+		else
+		{
+		    value = outarr.get( inlpos, crlpos, cubesample );
+		    cubesample++;
+		}
+	    }
+	    else
+		value = mUdf(float);
 
 	    trc_->set( zidx, value, idx );
 	}

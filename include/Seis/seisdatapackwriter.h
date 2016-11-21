@@ -48,7 +48,10 @@ public:
 
 private:
 
-    TypeSet<int>			compidxs_;
+    void			setCubeIdxRange();
+    bool			setTrc();
+
+    TypeSet<int>		compidxs_;
     MultiID			mid_;
     const RegularSeisDataPack*	dp_;
 
