@@ -31,7 +31,6 @@ class uiTreeFactorySet;
 class MouseCursorExchange;
 class TaskRunner;
 class Vw2DDataManager;
-class ZAxisTransform;
 
 namespace Attrib	{ class SelSpec; }
 namespace FlatView	{ class AuxData; }
@@ -87,9 +86,9 @@ public:
 				{ return wva ? wvaselspec_ : vdselspec_; }
     const Attrib::SelSpec&	selSpec( bool wva ) const
 				{ return wva ? wvaselspec_ : vdselspec_; }
-    DataPack::ID		createDataPack(bool wva) const
+    DataPack::ID		createDataPack(bool wva)
 				{ return createDataPack(selSpec(wva)); }
-    DataPack::ID		createDataPack(const Attrib::SelSpec&) const;
+    DataPack::ID		createDataPack(const Attrib::SelSpec&);
 				/*!< Creates RegularDataPack by getting
 				TrcKeyZSampling from slicepos_. Uses the
 				existing TrcKeyZSampling, if there is no
@@ -99,11 +98,6 @@ public:
     bool			useStoredDispPars(bool wva);
     bool			isVertical() const	{ return isvertical_; }
 
-    ZAxisTransform*		getZAxisTransform() const
-				{ return datatransform_; }
-    bool			setZAxisTransform(ZAxisTransform*);
-    bool			hasZAxisTransform() const
-				{ return datatransform_; }
     TrcKeyZSampling		getTrcKeyZSampling() const
 				{ return probe_.position(); }
     Pos::GeomID			geomID() const;
@@ -116,7 +110,6 @@ public:
 				{ return viewstdcontrol_; }
     uiSlicePos2DView*		slicePos()
 				{ return slicepos_; }
-    const ZDomain::Def&		zDomain() const;
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
@@ -213,7 +206,6 @@ protected:
     uiFlatViewWin*		viewwin_;
     MouseCursorExchange&	mousecursorexchange_;
     FlatView::AuxData*		marker_;
-    ZAxisTransform*		datatransform_;
     uiString			basetxt_;
     uiODMain&			appl_;
     int				voiidx_;
@@ -226,9 +218,9 @@ protected:
     bool			isvertical_;
 
     DataPack::ID		createDataPackForTransformedZSlice(
-						const Attrib::SelSpec&) const;
+						const Attrib::SelSpec&);
 
-    DataPack::ID		createFlatDataPack(DataPack::ID,int comp) const;
+    DataPack::ID		createFlatDataPack(DataPack::ID,int comp);
 				/*!< Creates a FlatDataPack from SeisDataPack.
 				Either a transformed or a non-transformed
 				datapack can be passed. The returned datapack
@@ -242,8 +234,8 @@ protected:
     void			setDataPack(DataPack::ID,bool wva,bool isnew);
     void			removeAvailablePacks();
     void			rebuildTree();
-    void			updateTransformData();
     void			updateSlicePos();
+    void			updateTransformData();
 
     void			winCloseCB(CallBacker*);
     void			probeChangedCB(CallBacker*);

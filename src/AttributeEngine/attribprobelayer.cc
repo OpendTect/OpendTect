@@ -137,6 +137,7 @@ void AttribProbeLayer::setSelSpec( const Attrib::SelSpec& as )
 
     attrspec_ = as;
     attribdpid_ = DataPack::cNoID();
+    name_ = attrspec_.userRef();
     mSendChgNotif( cDataChange(), cEntireObjectChangeID() );
 }
 

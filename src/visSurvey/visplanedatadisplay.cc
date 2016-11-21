@@ -10,6 +10,7 @@
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "array2dresample.h"
+#include "attribprobelayer.h"
 #include "datapointset.h"
 #include "probe.h"
 #include "probeimpl.h"
@@ -23,6 +24,7 @@
 #include "vismaterial.h"
 #include "vistexturechannels.h"
 #include "vistexturerect.h"
+#include "visrgbatexturechannel2rgba.h"
 #include "zaxistransform.h"
 #include "zaxistransformutils.h"
 
@@ -171,6 +173,18 @@ void PlaneDataDisplay::setProbe( Probe* probe )
     probe_ = probe;
     setOrientation( st );
     setTrcKeyZSampling( probe_->position() );
+    for ( int idx=0; idx<probe_->nrLayers(); idx++ )
+    {
+	mDynamicCastGet( const AttribProbeLayer*,attrprlayer,
+			 probe_->getLayerByIdx(idx) );
+	if ( !attrprlayer )
+	    continue;
+
+	if ( attrprlayer->getDispType()==AttribProbeLayer::RGB )
+	    setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
+	if ( idx )
+	    addAttrib();
+    }
 }
 
 

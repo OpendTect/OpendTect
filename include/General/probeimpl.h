@@ -17,6 +17,7 @@ ___________________________________________________________________
 mExpClass(General) InlineProbe : public Probe
 {
 public:
+				InlineProbe(const TrcKeyZSampling&);
 				InlineProbe();
     static const char*		sFactoryKey();
     virtual const char*		type() const		{ return sFactoryKey();}
@@ -35,6 +36,7 @@ protected:
 mExpClass(General) CrosslineProbe : public Probe
 {
 public:
+				CrosslineProbe(const TrcKeyZSampling&);
 				CrosslineProbe();
     static const char*		sFactoryKey();
     virtual const char*		type() const		{ return sFactoryKey();}
@@ -53,6 +55,7 @@ protected:
 mExpClass(General) ZSliceProbe : public Probe
 {
 public:
+				ZSliceProbe(const TrcKeyZSampling&);
 				ZSliceProbe();
     static const char*		sFactoryKey();
     virtual const char*		type() const		{ return sFactoryKey();}
@@ -71,16 +74,18 @@ protected:
 mExpClass(General) Line2DProbe : public Probe
 {
 public:
+				Line2DProbe(Pos::GeomID);
 				Line2DProbe();
     static const char*		sFactoryKey();
     virtual const char*		type() const		{ return sFactoryKey();}
+    virtual bool		is2D() const		{ return true; }
     static Probe*		createFrom(const IOPar&);
 
     static void			initClass();
-    mImplSimpleMonitoredGetSet(inline,geomID,setGeomID,Pos::GeomID,geomid_,
-			       cPositionChange())
+    mImplSimpleMonitoredGet(geomID,Pos::GeomID,geomid_);
     mDeclInstanceCreatedNotifierAccess( Line2DProbe );
     mDeclAbstractMonitorableAssignment( Line2DProbe );
+    void			setGeomID(Pos::GeomID);
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 

@@ -94,7 +94,6 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, Probe& probe,
     , posChanged(this)
     , mousecursorexchange_(appl.applMgr().mouseCursorExchange())
     , marker_(0)
-    , datatransform_(0)
     , probe_(probe)
     , dispsetup_(su)
 {
@@ -130,7 +129,6 @@ uiODViewer2D::~uiODViewer2D()
 	if ( voiidx_ != -1 )
 	    datatransform_->removeVolumeOfInterest( voiidx_ );
 	voiidx_ = -1;
-	datatransform_->unRef();
     }
 
     if ( viewwin() )
@@ -151,13 +149,6 @@ Pos::GeomID uiODViewer2D::geomID() const
 	return probe_.position().hsamp_.trcKeyAt(0).geomID();
 
     return Survey::GM().cUndefGeomID();
-}
-
-
-const ZDomain::Def& uiODViewer2D::zDomain() const
-{
-    return datatransform_ ? datatransform_->toZDomainInfo().def_
-			  : SI().zDomain();
 }
 
 
@@ -331,19 +322,6 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 }
 
 
-bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
-{
-    if ( datatransform_ )
-	datatransform_->unRef();
-
-    datatransform_ = zat;
-    if ( datatransform_ )
-	datatransform_->ref();
-
-    return true;
-}
-
-
 void uiODViewer2D::updateTransformData()
 {
     const TrcKeyZSampling& probetkzs = probe_.position();
@@ -422,7 +400,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
-	vwr.setZAxisTransform( datatransform_ );
+	vwr.setZAxisTransform( datatransform_.ptr() );
 	vwr.appearance().setDarkBG( wantdock );
 	vwr.appearance().setGeoDefaults(isvert);
 	vwr.appearance().annot_.setAxesAnnot(true);
@@ -586,12 +564,12 @@ void uiODViewer2D::posChg( CallBacker* )
 }
 
 
-DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
+DataPack::ID uiODViewer2D::createDataPack(const Attrib::SelSpec& selspec)
 {
     TrcKeyZSampling tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling()
 				     : probe_.position();
 
-    RefMan<ZAxisTransform> zat = getZAxisTransform();
+    const ZAxisTransform* zat = getZAxisTransform();
     if ( zat && !selspec.isZTransformed() )
     {
 	if ( tkzs.nrZ() == 1 )
@@ -612,8 +590,7 @@ DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 }
 
 
-DataPack::ID uiODViewer2D::createFlatDataPack(
-				DataPack::ID dpid, int comp ) const
+DataPack::ID uiODViewer2D::createFlatDataPack( DataPack::ID dpid, int comp )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     ConstRefMan<SeisDataPack> seisdp = dpm.get( dpid );
@@ -624,7 +601,7 @@ DataPack::ID uiODViewer2D::createFlatDataPack(
 	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
     if ( datatransform_ && !alreadytransformed )
     {
-	SeisDataPackZAxisTransformer transformer( *datatransform_ );
+	SeisDataPackZAxisTransformer transformer( *datatransform_.ptr() );
 	transformer.setInput( seisdp.ptr() );
 	transformer.setInterpolate( true );
 	transformer.execute();
@@ -645,7 +622,7 @@ DataPack::ID uiODViewer2D::createFlatDataPack(
 
 
 DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
-					const Attrib::SelSpec& selspec ) const
+					const Attrib::SelSpec& selspec )
 {
     if ( !hasZAxisTransform() || selspec.isZTransformed() )
 	return DataPack::cNoID();
@@ -660,7 +637,7 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
     RefMan<DataPointSet> data =
 	DPM(DataPackMgr::PointID()).add(new DataPointSet(false,true));
 
-    ZAxisTransformPointGenerator generator( *datatransform_ );
+    ZAxisTransformPointGenerator generator( *datatransform_.ptr() );
     generator.setInput( tkzs );
     generator.setOutputDPS( *data );
     generator.execute();

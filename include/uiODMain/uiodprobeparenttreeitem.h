@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiodsceneparenttreeitem.h"
 
 class Probe;
+class ProbeLayer;
 
 mExpClass(uiODMain) uiODSceneProbeParentTreeItem
 			: public uiODSceneParentTreeItem
@@ -27,23 +28,33 @@ public:
 			uiODSceneProbeParentTreeItem(const uiString&);
     const char*		childObjTypeKey() const;
 
-    bool		showSubMenu();
-    virtual bool	canShowSubMenu() const		{ return true; }
-    virtual bool	canAddFromWell() const		{ return true ; }
-    virtual Probe*	createNewProbe() const		=0;
+    virtual bool	showSubMenu();
+    virtual void	addMenuItems();
+    virtual bool	handleSubMenu(int mnuid);
+    virtual bool	canShowSubMenu() const			{ return true; }
+    virtual Probe*	createNewProbe() const			=0;
+    virtual bool	addChildProbe();
 
+    virtual Type	getType(int mnuid) const;
     static uiString	sAddEmptyPlane();
     static uiString	sAddAndSelectData();
     static uiString	sAddDefaultData();
     static uiString	sAddColorBlended();
-    static uiString	sAddAtWellLocation();
+    static int		sAddDefaultDataMenuID()			{ return 0; }
+    static int		sAddAndSelectDataMenuID()		{ return 1; }
+    static int		sAddColorBlendedMenuID()		{ return 2; }
 
-protected:
+    protected:
 
-    bool		fillProbe(Probe&,Type);
-    bool		setDefaultAttribLayer(Probe&) const;
-    bool		setSelAttribProbeLayer(Probe&) const;
-    bool		setRGBProbeLayers(Probe&) const;
+    bool		fillProbe(Probe&);
+    virtual bool	setProbeToBeAddedParams(int mnuid)	{ return true;}
+    virtual bool	setDefaultAttribLayer(Probe&) const;
+    virtual bool	setSelAttribProbeLayer(Probe&) const;
+    virtual bool	setRGBProbeLayers(Probe&) const;
+    virtual bool	getSelAttrSelSpec(Probe&,Attrib::SelSpec&) const;
+
+    Type		typetobeadded_;
+    uiMenu*		menu_;
 };
 
 
@@ -51,12 +62,14 @@ mExpClass(uiODMain) uiODSceneProbeTreeItem : public uiODDisplayTreeItem
 {   mODTextTranslationClass(uiODSceneProbeTreeItem);
 public:
 			~uiODSceneProbeTreeItem();
-protected:
-			uiODSceneProbeTreeItem(Probe&);
-    virtual bool	init();
-    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const
-			{ return 0; } //TODO PrIMPL remove later, temporary
 
     const Probe*	getProbe() const;
     Probe*		getProbe();
+    void		handleAddAttrib();
+    virtual uiString	getDisplayName() const;
+    uiODDataTreeItem*	createProbeLayerItem(ProbeLayer&) const;
+protected:
+			uiODSceneProbeTreeItem(Probe&);
+    virtual bool	init();
+    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
 };

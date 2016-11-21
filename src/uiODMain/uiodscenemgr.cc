@@ -188,6 +188,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 		const uiString& name )
 {
     uiODScene& scn = mkNewScene();
+    scn.setZAxisTransform( zt );
     const int sceneid = visServ().addScene();
     scn.setViewerObjID( OD::ViewerObjID::get(sceneid) );
     mDynamicCastGet(visSurvey::Scene*,visscene,visServ().getObject(sceneid));
@@ -1285,7 +1286,11 @@ int uiODSceneMgr::add2DLineItem( Pos::GeomID geomid, int sceneid )
 {
     mGetOrAskForScene
 
-    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( geomid );
+    Line2DProbe* line2dprobe = new Line2DProbe( geomid );
+    if ( !ProbeMGR().store(*line2dprobe).isOK() )
+	return -1;
+
+    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( *line2dprobe );
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
 }
@@ -1298,7 +1303,11 @@ int uiODSceneMgr::add2DLineItem( const DBKey& mid , int sceneid )
     if ( !geom ) return -1;
 
     const Pos::GeomID geomid = geom->getID();
-    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( geomid );
+    Line2DProbe* line2dprobe = new Line2DProbe( geomid );
+    if ( !ProbeMGR().store(*line2dprobe).isOK() )
+	return -1;
+
+    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( *line2dprobe );
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
 }
@@ -1317,7 +1326,7 @@ int uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, int sceneid )
 	if ( !ProbeMGR().store(*newprobe).isOK() )
 	    return -1;
 
-	itm = new uiODInlineTreeItem( -1, *newprobe );
+	itm = new uiODInlineTreeItem( *newprobe );
     }
     else if ( st == OD::CrosslineSlice )
     {
@@ -1327,7 +1336,7 @@ int uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, int sceneid )
 	if ( !ProbeMGR().store(*newprobe).isOK() )
 	    return -1;
 
-	itm = new uiODCrosslineTreeItem( -1, *newprobe );
+	itm = new uiODCrosslineTreeItem( *newprobe );
     }
     else
 	return -1;
@@ -1350,8 +1359,7 @@ int uiODSceneMgr::addZSliceItem( float z, int sceneid )
     if ( !ProbeMGR().store(*newprobe).isOK() )
 	return -1;
 
-    uiODZsliceTreeItem* itm =
-	new uiODZsliceTreeItem( -1, *newprobe );
+    uiODZsliceTreeItem* itm = new uiODZsliceTreeItem( *newprobe );
     if ( !scene->itemmanager_->addChild(itm,false) )
 	return -1;
 

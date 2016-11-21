@@ -9,6 +9,7 @@
 #include "keystrs.h"
 #include "iopar.h"
 #include "dbman.h"
+#include "survinfo.h"
 
 const char* OD::sKeyPresentationObj()	{ return "Presentation Obj"; }
 
@@ -27,8 +28,8 @@ OD::PresentationManager::PresentationManager()
 }
 
 
-OD::VwrTypePresentationMgr* OD::PresentationManager::getViewerTypeMgr(
-	OD::ViewerTypeID vwrtypeid )
+OD::VwrTypePresentationMgr*
+    OD::PresentationManager::getViewerTypeMgr( OD::ViewerTypeID vwrtypeid )
 {
     const int idx = syncInfoIdx( vwrtypeid );
     if ( idx<0 )
@@ -38,7 +39,36 @@ OD::VwrTypePresentationMgr* OD::PresentationManager::getViewerTypeMgr(
 }
 
 
-void OD::PresentationManager::request( OD::ViewerID vwrid,
+const OD::VwrTypePresentationMgr*
+    OD::PresentationManager::getViewerTypeMgr( OD::ViewerTypeID vwrtypid ) const
+{
+    const int idx = syncInfoIdx( vwrtypid );
+    if ( idx<0 )
+	return 0;
+
+    return vwrtypemanagers_[idx];
+}
+
+
+OD::PresentationManagedViewer*
+    OD::PresentationManager::getViewer( OD::ViewerID vwrid )
+{
+    OD::VwrTypePresentationMgr* vwrtypemgr =
+	getViewerTypeMgr( vwrid.viewerTypeID() );
+    return vwrtypemgr ? vwrtypemgr->getViewer( vwrid.viewerObjID() ) : 0;
+}
+
+
+const OD::PresentationManagedViewer*
+    OD::PresentationManager::getViewer( OD::ViewerID vwrid ) const
+{
+    const OD::VwrTypePresentationMgr* vwrtypemgr =
+	getViewerTypeMgr( vwrid.viewerTypeID() );
+    return vwrtypemgr ? vwrtypemgr->getViewer( vwrid.viewerObjID() ) : 0;
+}
+
+
+void OD::PresentationManager::request( OD::ViewerID originvwrid,
 				     OD::PresentationRequestType req,
 				     const IOPar& prinfopar )
 {
@@ -47,13 +77,10 @@ void OD::PresentationManager::request( OD::ViewerID vwrid,
 	OD::VwrTypePresentationMgr* vwrtypemgr = vwrtypemanagers_[idx];
 	const SyncInfo& syninfo = vwrtypesyncinfos_[idx];
 	const OD::ViewerTypeID vwrtypeid = syninfo.vwrtypeid_;
-	if ( !areViewerTypesSynced(vwrid.viewerTypeID(),vwrtypeid) )
+	if ( !areViewerTypesSynced(originvwrid.viewerTypeID(),vwrtypeid) )
 	    continue;
 
-	vwrtypemgr->request(
-		req, prinfopar, vwrtypeid==vwrid.viewerTypeID()
-				    ? vwrid.viewerObjID()
-				    : OD::ViewerObjID::get(-1) );
+	vwrtypemgr->request( originvwrid, req, prinfopar);
     }
 }
 
@@ -67,6 +94,18 @@ int OD::PresentationManager::syncInfoIdx( OD::ViewerTypeID vwrtypeid ) const
     }
 
     return -1;
+}
+
+
+bool OD::PresentationManager::canViewerBeSynced(
+	OD::ViewerID vwr1id, OD::ViewerID vwr2id ) const
+{
+    const PresentationManagedViewer* vwr1 = getViewer( vwr1id );
+    const PresentationManagedViewer* vwr2 = getViewer( vwr2id );
+    if ( !vwr1 || !vwr2 )
+	return false;
+
+    return vwr1->zDomain().isCompatibleWith( vwr2->zDomain() );
 }
 
 
@@ -106,6 +145,8 @@ OD::PresentationManagedViewer::PresentationManagedViewer()
     , HideRequested(this)
     , VanishRequested(this)
     , viewerobjid_(OD::ViewerObjID::get(-1))
+    , datatransform_(0)
+    , zdomaininfo_( new ZDomain::Info(SI().zDomain()) )
 {
 }
 
@@ -116,14 +157,54 @@ OD::PresentationManagedViewer::~PresentationManagedViewer()
 }
 
 
-void OD::VwrTypePresentationMgr::request( OD::PresentationRequestType req,
-					const IOPar& prinfopar,
-					OD::ViewerObjID skipvwrid )
+void OD::PresentationManagedViewer::setZAxisTransform( ZAxisTransform* zat )
+{
+    datatransform_ = zat;
+    if ( zat )
+    {
+	delete zdomaininfo_;
+	zdomaininfo_ = new ZDomain::Info( zat->toZDomainInfo() );
+    }
+}
+
+
+OD::PresentationManagedViewer*
+    OD::VwrTypePresentationMgr::getViewer( OD::ViewerObjID vwrid )
 {
     for ( int idx=0; idx<viewers_.size(); idx++ )
     {
 	OD::PresentationManagedViewer* vwr = viewers_[idx];
-	if ( vwr->viewerObjID()==skipvwrid )
+	if ( vwr->viewerObjID() == vwrid )
+	    return vwr;
+    }
+
+    return 0;
+}
+
+
+const OD::PresentationManagedViewer*
+    OD::VwrTypePresentationMgr::getViewer( OD::ViewerObjID vwrid ) const
+{
+    for ( int idx=0; idx<viewers_.size(); idx++ )
+    {
+	const OD::PresentationManagedViewer* vwr = viewers_[idx];
+	if ( vwr->viewerObjID() == vwrid )
+	    return vwr;
+    }
+
+    return 0;
+}
+
+
+void OD::VwrTypePresentationMgr::request( OD::ViewerID originvwrid,
+					OD::PresentationRequestType req,
+					const IOPar& prinfopar )
+{
+    for ( int idx=0; idx<viewers_.size(); idx++ )
+    {
+	OD::PresentationManagedViewer* vwr = viewers_[idx];
+	if ( vwr->viewerID()==originvwrid ||
+	     !OD::PrMan().canViewerBeSynced(vwr->viewerID(),originvwrid) )
 	    continue;
 
 	switch ( req )

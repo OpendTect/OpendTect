@@ -20,25 +20,23 @@ ___________________________________________________________________
 #include "uistrings.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
-#include "uiwellpartserv.h"
 
 #include "attribdescsetsholder.h"
 #include "attribprobelayer.h"
+#include "attribdescset.h"
 #include "coltabsequence.h"
 #include "probemanager.h"
-#include "welldata.h"
-#include "wellmanager.h"
 #include "zdomain.h"
 
 
-static uiODSceneProbeParentTreeItem::Type getType( int mnuid )
+uiODSceneProbeParentTreeItem::Type
+		uiODSceneProbeParentTreeItem::getType( int mnuid ) const
 {
     switch ( mnuid )
     {
 	case 0: return uiODSceneProbeParentTreeItem::Default; break;
 	case 1: return uiODSceneProbeParentTreeItem::Select; break;
-	case 2: return uiODSceneProbeParentTreeItem::Empty; break;
-	case 3: return uiODSceneProbeParentTreeItem::RGBA; break;
+	case 2: return uiODSceneProbeParentTreeItem::RGBA; break;
 	default: return uiODSceneProbeParentTreeItem::Empty;
     }
 }
@@ -56,11 +54,9 @@ uiString uiODSceneProbeParentTreeItem::sAddDefaultData()
 uiString uiODSceneProbeParentTreeItem::sAddColorBlended()
 { return m3Dots(uiStrings::sAddColBlend()); }
 
-uiString uiODSceneProbeParentTreeItem::sAddAtWellLocation()
-{ return m3Dots(tr("Add at Well Location")); }
-
 uiODSceneProbeParentTreeItem::uiODSceneProbeParentTreeItem( const uiString& nm )
     : uiODSceneParentTreeItem( nm )
+    , menu_( 0 )
 {}
 
 
@@ -73,69 +69,74 @@ bool uiODSceneProbeParentTreeItem::showSubMenu()
     if ( !canShowSubMenu() )
 	return false;
 
-    uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem(
-	new uiAction(uiODSceneProbeParentTreeItem::sAddDefaultData()), 0 );
-    mnu.insertItem(
-	new uiAction(uiODSceneProbeParentTreeItem::sAddAndSelectData()), 1 );
-    if ( canAddFromWell() )
-	mnu.insertItem( new uiAction(
-		    uiODSceneProbeParentTreeItem::sAddAtWellLocation()), 2 );
-    mnu.insertItem(
-	new uiAction(uiODSceneProbeParentTreeItem::sAddColorBlended()), 3 );
-    addStandardItems( mnu );
-    const int mnuid = mnu.exec();
-    Type type = getType( mnuid );
-    if ( mnuid==0 || mnuid==1 || mnuid==3 )
+    if ( !menu_ )
+	menu_ = new uiMenu( getUiParent(), uiStrings::sAction() );
+
+    menu_->clear();
+    addMenuItems();
+    const int mnuid = menu_->exec();
+    return handleSubMenu( mnuid );
+}
+
+void uiODSceneProbeParentTreeItem::addMenuItems()
+{
+    menu_->insertItem(
+	new uiAction( uiODSceneProbeParentTreeItem::sAddDefaultData()),
+		      sAddDefaultDataMenuID() );
+    menu_->insertItem(
+	new uiAction( uiODSceneProbeParentTreeItem::sAddAndSelectData()),
+		      sAddAndSelectDataMenuID() );
+    menu_->insertItem(
+	new uiAction( uiODSceneProbeParentTreeItem::sAddColorBlended()),
+		      sAddColorBlendedMenuID() );
+    addStandardItems( *menu_ );
+}
+
+
+bool uiODSceneProbeParentTreeItem::handleSubMenu( int mnuid )
+{
+    if ( mnuid==sAddDefaultDataMenuID() || mnuid==sAddAndSelectDataMenuID() ||
+	 mnuid==sAddColorBlendedMenuID() )
     {
-	Probe* newprobe = createNewProbe();
-	if ( !newprobe )
+	if ( !setProbeToBeAddedParams(mnuid) )
 	    return false;
 
-	fillProbe( *newprobe, type );
-	ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );
-	uiODPrManagedTreeItem* newitem = addChildItem( probeprinfo );
-	newitem->emitPRRequest( OD::Add );
+	typetobeadded_ = getType( mnuid );
+	if ( !addChildProbe() )
+	    return false;
     }
-    else if ( mnuid==2 )
-    {
-	DBKeySet wellids;
-	if ( !applMgr()->wellServer()->selectWells(wellids) )
-	    return true;
 
-	for ( int idx=0;idx<wellids.size(); idx++ )
-	{
-	    ConstRefMan<Well::Data> wd = Well::MGR().fetch( wellids[idx],
-					    Well::LoadReqs(Well::Trck) );
-	    if ( !wd )
-		continue;
-	    Probe* newprobe = createNewProbe();
-	    if ( !newprobe )
-		return false;
-
-	    fillProbe( *newprobe, type );
-	    ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );
-	    uiODPrManagedTreeItem* newitem = addChildItem( probeprinfo );
-
-	    setMoreObjectsToDoHint( idx<wellids.size()-1 );
-	    //TODO PrIMPL newitm->setAtWellLocation( *wd );
-	    newitem->emitPRRequest( OD::Add );
-	}
-    }
     handleStandardItems( mnuid );
     return true;
 }
 
 
-bool uiODSceneProbeParentTreeItem::fillProbe( Probe& newprobe, Type type )
+bool uiODSceneProbeParentTreeItem::addChildProbe()
 {
-    if ( type == Default )
+    RefMan<Probe> newprobe = createNewProbe();
+    if ( !newprobe )
+	return false;
+
+    if ( !fillProbe(*newprobe)	||
+	 !ProbeMGR().store(*newprobe).isOK() )
+	return false;
+
+    ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );
+    uiODPrManagedTreeItem* newitem = addChildItem( probeprinfo );
+    newitem->emitPRRequest( OD::Add );
+    return true;
+}
+
+
+bool uiODSceneProbeParentTreeItem::fillProbe( Probe& newprobe )
+{
+    if ( typetobeadded_ == Default )
 	return setDefaultAttribLayer( newprobe );
-    else if ( type == Select )
+    else if ( typetobeadded_ == Select )
 	return setSelAttribProbeLayer( newprobe );
-    else if ( type == RGBA )
+    else if ( typetobeadded_ == RGBA )
 	return setRGBProbeLayers( newprobe );
-    return false;
+    return true;
 
 }
 
@@ -146,13 +147,20 @@ bool uiODSceneProbeParentTreeItem::setDefaultAttribLayer( Probe& probe ) const
 	return false;
 
     Attrib::DescID descid;
-    if ( !applMgr()->getDefaultDescID(descid) )
+    if ( !applMgr()->getDefaultDescID(descid,probe.is2D()) )
 	return false;
 
     const Attrib::DescSet* ads =
 	Attrib::DSHolder().getDescSet( probe.is2D(), true );
+    const Attrib::Desc* desc = ads->getDesc( descid );
+    if ( !desc )
+    {
+	pErrMsg( "Huh ? Desc not found" );
+	return false;
+    }
+
     Attrib::SelSpec as( 0, descid, false, "" );
-    as.setRefFromID( *ads );
+    as.set( *desc );
 
     AttribProbeLayer* attriblayer = new AttribProbeLayer;
     attriblayer->setSelSpec( as );
@@ -163,20 +171,35 @@ bool uiODSceneProbeParentTreeItem::setDefaultAttribLayer( Probe& probe ) const
 }
 
 
+static bool getSelAttribSelSpec( Probe& probe, Attrib::SelSpec& selattr,
+			       uiODApplMgr& applmgr, int scnid,
+			       uiString seltxt )
+{
+    const Pos::GeomID probegeomid = probe.position().hsamp_.getGeomID();
+    const ZDomain::Info* zdinf = applmgr.visServer()->zDomainInfo( scnid );
+    const bool issi = !zdinf || zdinf->def_.isSI();
+    return applmgr.attrServer()->selectAttrib(
+	    selattr, issi ? 0 : zdinf, probegeomid, seltxt );
+}
+
+
+bool uiODSceneProbeParentTreeItem::getSelAttrSelSpec(
+	Probe& probe, Attrib::SelSpec& selattr ) const
+{
+    return getSelAttribSelSpec( probe, selattr, *applMgr(), sceneID(),
+			      tr("Select attribute to display") );
+}
+
+
 bool uiODSceneProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
 {
     if ( !applMgr() || !applMgr()->attrServer() )
 	return false;
 
-    const Pos::GeomID probegeomid = probe.position().hsamp_.getGeomID();
-    const ZDomain::Info* zdinf = applMgr()->visServer()->zDomainInfo(sceneID());
-    const bool issi = !zdinf || zdinf->def_.isSI();
     AttribProbeLayer* attriblayer = new AttribProbeLayer;
     Attrib::SelSpec attrlayselspec = attriblayer->getSelSpec();
-    bool selok = applMgr()->attrServer()->selectAttrib(
-			attrlayselspec, issi ? 0 : zdinf,
-			probegeomid, tr("first layer") );
-    if ( !selok )
+    attrlayselspec.set2DFlag( probe.is2D() );
+    if ( !getSelAttrSelSpec(probe,attrlayselspec) )
     {
 	delete attriblayer;
 	return false;
@@ -242,7 +265,7 @@ bool uiODSceneProbeTreeItem::init()
     for ( int idx=0; idx<probe->nrLayers(); idx++ )
     {
 	ProbeLayer* probelay = probe->getLayerByIdx( idx );
-	uiODDataTreeItem* item = uiODDataTreeItem::fac().create( *probelay );
+	uiODDataTreeItem* item = createProbeLayerItem( *probelay );
 	if ( item )
 	{
 	    addChild( item, false );
@@ -251,6 +274,54 @@ bool uiODSceneProbeTreeItem::init()
     }
 
     return true;
+}
+
+
+uiString uiODSceneProbeTreeItem::getDisplayName() const
+{
+    const Probe* probe = getProbe();
+    if ( !probe )
+	return uiString::emptyString();
+
+    return toUiString( probe->name() );
+}
+
+
+void uiODSceneProbeTreeItem::handleAddAttrib()
+{
+    uiODDataTreeItem* newitem = createAttribItem( 0 );
+    if ( newitem )
+	addChild( newitem, false );
+}
+
+
+uiODDataTreeItem* uiODSceneProbeTreeItem::createAttribItem(
+	const Attrib::SelSpec* as ) const
+{
+    Probe* parentprobe = const_cast<Probe*> (getProbe());
+    uiODApplMgr* applmgr = const_cast<uiODSceneProbeTreeItem*>(this)->applMgr();
+    AttribProbeLayer* attriblayer = new AttribProbeLayer;
+    Attrib::SelSpec attrlayselspec = as ? *as : attriblayer->getSelSpec();
+    attrlayselspec.set2DFlag( parentprobe->is2D() );
+    if ( !getSelAttribSelSpec(*parentprobe,attrlayselspec,*applmgr,sceneID(),
+			      tr("Select attribute to display")) )
+    {
+	delete attriblayer;
+	return 0;
+    }
+
+    attriblayer->setSelSpec( attrlayselspec );
+    attriblayer->useStoredColTabPars();
+    parentprobe->addLayer( attriblayer );
+
+    return createProbeLayerItem( *attriblayer );
+}
+
+
+uiODDataTreeItem* uiODSceneProbeTreeItem::createProbeLayerItem(
+	ProbeLayer& probelayer ) const
+{
+    return uiODDataTreeItem::fac().create( probelayer );
 }
 
 

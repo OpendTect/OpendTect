@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 #include "posinfo2dsurv.h"
+#include "probe.h"
 #include "seisdatapack.h"
 
 namespace visBase
@@ -40,9 +41,11 @@ public:
 				    "Seis2DDisplay",
 				    toUiString(sFactoryKeyword()))
 
-    void			setGeomID(Pos::GeomID geomid);
+    void			setProbe(Probe*);
+    Probe*			getProbe()		{ return probe_; }
+    const Probe*		getProbe() const	{ return probe_; }
     const char*			getLineName() const;
-    Pos::GeomID			getGeomID() const	   { return geomid_; }
+    Pos::GeomID			getGeomID() const;
 
     void			setGeometry(const PosInfo::Line2DData&);
     const PosInfo::Line2DData&	getGeometry() const { return geometry_; }
@@ -215,7 +218,7 @@ protected:
     Notifier<Seis2DDisplay>	geomchanged_;
     Notifier<Seis2DDisplay>	geomidchanged_;
 
-    Pos::GeomID			geomid_;
+    RefMan<Probe>		probe_;
     ZAxisTransform*		datatransform_;
     int				voiidx_;
     float			pixeldensity_;

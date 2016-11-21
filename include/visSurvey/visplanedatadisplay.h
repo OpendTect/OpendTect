@@ -179,6 +179,7 @@ protected:
     void			updateRanges(bool resetpos=false);
     void			updateRanges(bool resetinlcrl=false,
 					     bool resetz=false);
+    void			probeChangedCB(CallBacker*);
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
     void			draggerStart(CallBacker*);

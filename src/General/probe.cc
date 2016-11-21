@@ -15,6 +15,7 @@ ___________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 
 
 const char* ProbeLayer::sKeyLayerType() { return "Probe Layer Type"; }
@@ -386,6 +387,15 @@ uiRetVal ProbeSaver::doStore( const IOObj& ioobj ) const
 
 mDefineInstanceCreatedNotifierAccess( InlineProbe );
 
+
+InlineProbe::InlineProbe( const TrcKeyZSampling& pos )
+    : Probe()
+{
+    setPos( pos );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
 InlineProbe::InlineProbe()
     : Probe()
 {
@@ -440,6 +450,15 @@ bool InlineProbe::usePar( const IOPar& par )
 
 mDefineInstanceCreatedNotifierAccess( CrosslineProbe );
 
+
+CrosslineProbe::CrosslineProbe( const TrcKeyZSampling& pos )
+    : Probe()
+{
+    setPos( pos );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
 CrosslineProbe::CrosslineProbe()
     : Probe()
 {
@@ -492,6 +511,14 @@ bool CrosslineProbe::usePar( const IOPar& par )
 
 
 mDefineInstanceCreatedNotifierAccess( ZSliceProbe );
+
+ZSliceProbe::ZSliceProbe( const TrcKeyZSampling& pos )
+    : Probe()
+{
+    setPos( pos );
+    mTriggerInstanceCreatedNotifier();
+}
+
 
 ZSliceProbe::ZSliceProbe()
     : Probe()
@@ -549,13 +576,50 @@ bool ZSliceProbe::usePar( const IOPar& par )
 
 mDefineInstanceCreatedNotifierAccess( Line2DProbe );
 
+Line2DProbe::Line2DProbe( Pos::GeomID geomid )
+    : Probe()
+{
+    setGeomID( geomid );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
 Line2DProbe::Line2DProbe()
     : Probe()
-    , geomid_(Survey::GM().cUndefGeomID())
+    , geomid_(Survey::GeometryManager::cUndefGeomID())
 {
     updateName();
     mTriggerInstanceCreatedNotifier();
 }
+
+void Line2DProbe::setGeomID( Pos::GeomID geomid )
+{
+    mLock4Read();
+
+    if ( geomid_ == geomid )
+	return;
+
+    if ( !mLock2Write() && geomid_ == geomid )
+	return;
+
+    geomid_ = geomid;
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
+    if ( !geom )
+    { pErrMsg( "Geometry not found" ); return; }
+
+    const Survey::Geometry2D* geom2d = geom->as2D();
+    if ( !geom2d )
+    { pErrMsg( "2D Geometry not found" ); return; }
+
+    probepos_ = geom2d->sampling();
+    updateName();
+
+    for ( int idx=0; idx<layers_.size(); idx++ )
+	layers_[idx]->invalidateData();
+
+    mSendChgNotif( cPositionChange(), cEntireObjectChangeID() );
+}
+
 
 const char* Line2DProbe::sFactoryKey()
 { return IOPar::compKey(sKey::TwoD(),sKey::Line()); }

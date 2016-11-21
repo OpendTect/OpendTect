@@ -24,6 +24,7 @@ public:
     virtual		~uiODSceneParentTreeItem();
     virtual bool	anyButtonClick(uiTreeViewItem*);
     bool		init();
+    OD::ViewerID	getViewerID() const;
 
 protected:
     uiODApplMgr*	applMgr() const;

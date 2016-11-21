@@ -22,8 +22,10 @@
 #include "array2dresample.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
+#include "attribprobelayer.h"
 #include "bendpointfinder.h"
 #include "mousecursor.h"
+#include "probeimpl.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "zaxistransform.h"
@@ -153,15 +155,17 @@ void Seis2DDisplay::enableAttrib( int attrib, bool yn )
 }
 
 
-void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
+void Seis2DDisplay::setProbe( Probe* probe )
 {
-    geomid_ = geomid;
-    uiString lnm = toUiString(Survey::GM().getName( geomid_ ));
-    if ( lnm.isEmpty() )
-	lnm = toUiString(geomid);
+    if ( !probe_ || probe_.ptr()==probe )
+	return;
 
-    setName( lnm );
-    linename_->text()->setText( lnm );
+    probe_ = probe;
+    const TrcKeyZSampling probepos = probe_->position();
+    setTraceNrRange( probepos.hsamp_.trcRange() );
+    setZRange( probepos.zsamp_ );
+    setName( toUiString(probe_->name()) );
+    linename_->text()->setText( toUiString(probe_->name()) );
 
     if ( scene_ )
     {
@@ -170,16 +174,34 @@ void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 					getPixelDensity() );
     }
 
+    for ( int idx=0; idx<probe_->nrLayers(); idx++ )
+    {
+	mDynamicCastGet( const AttribProbeLayer*,attrprlayer,
+			 probe_->getLayerByIdx(idx) );
+	if ( !attrprlayer )
+	    continue;
+
+	addAttrib();
+    }
     geomidchanged_.trigger();
+}
+
+
+Pos::GeomID Seis2DDisplay::getGeomID() const
+{
+    mDynamicCastGet(const Line2DProbe*,l2dprobe,probe_.ptr());
+    return l2dprobe ? l2dprobe->geomID()
+		    : Survey::GeometryManager::cUndefGeomID();
 }
 
 
 const char* Seis2DDisplay::getLineName() const
 {
-    if ( !Survey::GM().getName(geomid_) )
+    mDynamicCastGet(const Line2DProbe*,l2dprobe,probe_.ptr());
+    if ( !l2dprobe )
 	return mFromUiStringTodo(name()).buf();
 
-    return Survey::GM().getName(geomid_);
+    return l2dprobe->name();
 }
 
 
@@ -218,7 +240,8 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 
 void Seis2DDisplay::getTraceKeyPath( TrcKeyPath& res,TypeSet<Coord>* ) const
 {
-    if ( trcdisplayinfo_.rg_.isUdf() )
+    mDynamicCastGet(const Line2DProbe*,l2dprobe,probe_.ptr());
+    if ( trcdisplayinfo_.rg_.isUdf() || l2dprobe )
 	return;
 
     for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs_.size(); idx++ )
@@ -228,7 +251,7 @@ void Seis2DDisplay::getTraceKeyPath( TrcKeyPath& res,TypeSet<Coord>* ) const
 	else if ( trcdisplayinfo_.alltrcnrs_[idx] > trcdisplayinfo_.rg_.stop )
 	    break;
 
-	res += TrcKey( geomid_, trcdisplayinfo_.alltrcnrs_[idx] );
+	res += TrcKey( l2dprobe->geomID(), trcdisplayinfo_.alltrcnrs_[idx] );
     }
 }
 
@@ -652,7 +675,7 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* taskr ) const
     s2dd->setZRange( trcdisplayinfo_.zrg_ );
     s2dd->setTraceNrRange( getTraceNrRange() );
     s2dd->setResolution( getResolution(), taskr );
-    s2dd->setGeomID( geomid_ );
+    s2dd->setProbe( const_cast<Probe*> (probe_.ptr()) );
     s2dd->setZAxisTransform( datatransform_, taskr );
     s2dd->showPanel( panelstrip_->isOn() );
 
@@ -828,9 +851,10 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
 
     int dataidx = -1;
     float minsqdist;
-    if ( getNearestTrace(evinfo.worldpickedpos,dataidx,minsqdist) )
+    mDynamicCastGet(const Line2DProbe*,l2dprobe,probe_.ptr());
+    if ( getNearestTrace(evinfo.worldpickedpos,dataidx,minsqdist) && l2dprobe )
 	par.set( sKey::TraceKey(),
-		TrcKey(geomid_,geometry_.positions()[dataidx].nr_) );
+		TrcKey(l2dprobe->geomID(),geometry_.positions()[dataidx].nr_) );
 }
 
 
@@ -857,6 +881,10 @@ void Seis2DDisplay::getObjectInfo( BufferString& info ) const
 bool Seis2DDisplay::getCacheValue( int attrib, int version,
 				    const Coord3& pos, float& res ) const
 {
+    mDynamicCastGet(const Line2DProbe*,l2dprobe,probe_.ptr());
+    if ( !l2dprobe )
+	return false;
+
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPack::ID dpid = getDisplayedDataPackID( attrib );
     ConstRefMan<RegularSeisDataPack> regsdp = dpm.get( dpid );
@@ -869,7 +897,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 	return false;
 
     const int trcnr = geometry_.positions()[traceidx].nr_;
-    const TrcKey trckey = Survey::GM().traceKey( geomid_, trcnr );
+    const TrcKey trckey = Survey::GM().traceKey( l2dprobe->geomID(), trcnr );
     const int trcidx = regsdp->getNearestGlobalIdx( trckey );
     const int sampidx = regsdp->getZRange().nearestIndex( pos.z_ );
     const Array3DImpl<float>& array = regsdp->data( version );
@@ -1000,7 +1028,8 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
     if ( geometry_.isEmpty() ) return false;
 
     const int nidx = geometry_.nearestIdx( pos.getXY(), trcdisplayinfo_.rg_ );
-    minsqdist = (float) geometry_.positions()[nidx].coord_.sqDistTo(pos.getXY());
+    minsqdist =
+	(float) geometry_.positions()[nidx].coord_.sqDistTo(pos.getXY());
     trcidx = nidx;
     return trcidx >= 0;
 }
@@ -1255,9 +1284,13 @@ void Seis2DDisplay::getLineSegmentProjection( const Coord3 pos1,
 
 void Seis2DDisplay::fillPar( IOPar& par ) const
 {
+    mDynamicCastGet(const Line2DProbe*,l2dprobe,probe_.ptr());
+    if ( !l2dprobe )
+	return;
+
     visSurvey::MultiTextureSurveyObject::fillPar( par );
 
-    par.set( "GeomID", geomid_ );
+    par.set( "GeomID", l2dprobe->geomID() );
     par.setYN( sKeyShowLineName(), isLineNameShown() );
     par.setYN( sKeyShowPanel(), isPanelShown() );
     par.setYN( sKeyShowPolyLine(), isPolyLineShown() );
@@ -1289,9 +1322,10 @@ bool Seis2DDisplay::usePar( const IOPar& par )
 
     par.get( sKeyZRange(), trcdisplayinfo_.zrg_ );
 
+    /* TODO PrIMPL
     Pos::GeomID geomid;
     if ( par.get("GeomID",geomid) )
-	setGeomID( geomid );
+	setGeomID( geomid );*/
 
     return true;
 }

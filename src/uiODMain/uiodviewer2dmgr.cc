@@ -1443,13 +1443,14 @@ void uiODViewer2DMgr::addPickSets( const DBKeySet& mids )
 }
 
 
-void uiODViewer2DMgr::request( OD::PresentationRequestType req,
-			       const IOPar& prinfopar,OD::ViewerObjID skipvwrid)
+void uiODViewer2DMgr::request( OD::ViewerID originvwrid,
+			       OD::PresentationRequestType req,
+			       const IOPar& prinfopar )
 {
     OD::ObjPresentationInfo* prinfo = OD::PRIFac().create( prinfopar );
     FixedString probeprinfpkey( ProbePresentationInfo::sFactoryKey() );
     if ( probeprinfpkey==prinfo->objTypeKey() )
 	return;
 
-    OD::VwrTypePresentationMgr::request( req, prinfopar, skipvwrid );
+    OD::VwrTypePresentationMgr::request( originvwrid, req, prinfopar );
 }

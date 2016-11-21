@@ -108,6 +108,7 @@ public:
     const char*		getID() const;
     void		setID(const char*);
 
+    bool		isCompatibleWith(const ZDomain::Info&) const;
     bool		isCompatibleWith(const IOPar&) const;
 
     // Convenience

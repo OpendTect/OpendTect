@@ -397,6 +397,20 @@ uiODViewer2D* uiODVw2DParentTreeItem::viewer2D()
 }
 
 
+const uiODViewer2D* uiODVw2DParentTreeItem::viewer2D() const
+{
+    return const_cast<uiODVw2DParentTreeItem*> ( this )->viewer2D();
+}
+
+
+OD::ViewerID uiODVw2DParentTreeItem::getViewerID() const
+{
+    OD::ViewerID vwrid( uiODViewer2DMgr::theViewerTypeID(),
+			viewer2D()->viewerObjID() );
+    return vwrid;
+}
+
+
 void uiODVw2DParentTreeItem::getVwr2DOjIDs(
 	const DBKey& mid, TypeSet<int>& vw2dobjids ) const
 {

@@ -13,14 +13,16 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodattribtreeitem.h"
-#include "uioddisplaytreeitem.h"
+#include "uiodprobeparenttreeitem.h"
+#include "attribsel.h"
 
 class uiTaskRunner;
 
 
-mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODSceneTreeItem
+mExpClass(uiODMain) uiODLine2DParentTreeItem
+    : public uiODSceneProbeParentTreeItem
 {   mODTextTranslationClass(uiODLine2DParentTreeItem)
-    mDefineItemMembers( Line2DParent, SceneTreeItem, SceneTreeTop );
+    mDefineItemMembers( Line2DParent, SceneProbeParentTreeItem, SceneTreeTop );
     mShowMenu;
     mMenuOnAnyButton;
 			~uiODLine2DParentTreeItem();
@@ -31,14 +33,16 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODSceneTreeItem
     void		handleMenuCB(CallBacker*);
 
     void		createMenu(MenuHandler*,bool istb);
-    bool                loadDefaultData();
-    bool                selectLoadAttribute(const TypeSet<Pos::GeomID>&,
-                             const char* attrnm=sKeyRightClick());
-    void		setTopAttribName(const char*);
+    Probe*		createNewProbe() const;
+    uiODPrManagedTreeItem* addChildItem(const OD::ObjPresentationInfo&);
+    const char*		childObjTypeKey() const;
     static const char*  sKeyRightClick();
     static const char*  sKeyUnselected();
 
+protected:
     uiVisPartServer*	visserv_;
+    Pos::GeomID		geomtobeadded_;
+    mutable Attrib::SelSpec selattr_;
     MenuItem		additm_;
     MenuItem		create2dgridfrom3ditm_;
     MenuItem		extractfrom3ditm_;
@@ -51,6 +55,10 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODSceneTreeItem
     MenuItem		editcoltabitm_;
     MenuItem		displayallitm_;
     MenuItem		hideallitm_;
+
+    bool		getSelAttrSelSpec(Probe&,Attrib::SelSpec&) const;
+    BufferStringSet	getDisplayedAttribNames() const;
+    Type		getType(int) const;
 };
 
 
@@ -65,34 +73,29 @@ public:
 };
 
 
-mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODSceneProbeTreeItem
 { mODTextTranslationClass(uiOD2DLineTreeItem);
 public:
-			uiOD2DLineTreeItem(Pos::GeomID,int displayid=-1);
+			uiOD2DLineTreeItem(Probe&,int displayid=-1);
 
-    bool		addStoredData(const char*,int component,uiTaskRunner&);
-    void		addAttrib(const Attrib::SelSpec&,uiTaskRunner&);
     void		showLineName(bool);
     void		setZRange(const Interval<float>);
     void		removeAttrib(const char*);
-
-    Pos::GeomID		getGeomID() const { return geomid_; }
 
 protected:
 			~uiOD2DLineTreeItem();
     bool		init();
     const char*		parentType() const;
-    uiString    	createDisplayName() const;
+    void		objChangedCB(CallBacker*);
+    void		updateDisplay();
 
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
 
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
-    void		getNewData(CallBacker*);
 
 private:
 
-    Pos::GeomID		geomid_;
     MenuItem		linenmitm_;
     MenuItem		panelitm_;
     MenuItem		polylineitm_;
@@ -100,22 +103,12 @@ private:
 };
 
 
-mExpClass(uiODMain) uiOD2DLineSetAttribItem : public uiODAttribTreeItem
-{ mODTextTranslationClass(uiOD2DLineSetAttribItem);
+mExpClass(uiODMain) uiOD2DLineAttribTreeItem : public uiODAttribTreeItem
+{ mODTextTranslationClass(uiOD2DLineAttribTreeItem);
 public:
-			uiOD2DLineSetAttribItem(const char* parenttype);
-    bool		displayStoredData(const char*,int component,
-					  uiTaskRunner&);
-    void		setAttrib(const Attrib::SelSpec&,
-				  uiTaskRunner&);
+			uiOD2DLineAttribTreeItem(const char* parenttype);
+    virtual void	updateDisplay();
     void		clearAttrib();
-
-protected:
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-
-    MenuItem		storeditm_;
-    MenuItem		steeringitm_;
-    MenuItem		zattritm_;
-    MenuItem		attrnoneitm_;
+    static void		initClass();
+    static uiODDataTreeItem* create(ProbeLayer&);
 };

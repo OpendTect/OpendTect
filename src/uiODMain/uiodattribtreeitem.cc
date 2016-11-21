@@ -99,21 +99,44 @@ bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
     if ( cantransform ) \
     { \
 	subitem = attrserv->storedAttribMenuItem( *as, is2d, false ); \
+	if ( geomid != Survey::GeometryManager::cUndefGeomID() ) \
+	    attrserv->filter2DMenuItems( *subitem, *as, geomid, true, 0 ); \
 	mAddMenuItem( &mnu, subitem, true, subitem->checked ); \
 	subitem = attrserv->calcAttribMenuItem( *as, is2d, needext ); \
+	if ( geomid != Survey::GeometryManager::cUndefGeomID() ) \
+	    attrserv->filter2DMenuItems( *subitem, *as, geomid, false, 2 ); \
 	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
 	subitem = attrserv->nlaAttribMenuItem( *as, is2d, needext ); \
 	if ( subitem && subitem->nrItems() ) \
+	{ \
+	    if ( geomid != Survey::GeometryManager::cUndefGeomID() ) \
+		attrserv->filter2DMenuItems(*subitem, *as, geomid, false, 0 ); \
 	    mAddMenuItem( &mnu, subitem, true, subitem->checked ); \
+	} \
 	subitem = attrserv->storedAttribMenuItem( *as, is2d, true ); \
+	if ( geomid != Survey::GeometryManager::cUndefGeomID() ) \
+	    attrserv->filter2DMenuItems( *subitem, *as, geomid, true, 1 ); \
 	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
     } \
     mCreateDepthDomMnuItemIfNeeded( is2d, needext ); \
 }
 
-
+//TODO PrIMPL handle multicomponent data
 void uiODAttribTreeItem::createSelMenu( MenuItem& mnu )
 {
+    AttribProbeLayer* attrprlayer = attribProbeLayer();
+    if ( !attrprlayer )
+	return;
+
+    const Probe* parentprobe = attrprlayer->getProbe();
+    if ( !parentprobe )
+    { pErrMsg( "Parent probe not set" ); return; }
+
+    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+    mDynamicCastGet(const Line2DProbe*,line2dprobe,parentprobe);
+    if ( line2dprobe )
+	geomid = line2dprobe->geomID();
+
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     if ( as && visserv->hasAttrib(displayID()) )
@@ -253,6 +276,7 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid )
 }
 
 
+//TODO PrIMPL remove visid related stuffs
 uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
@@ -284,7 +308,7 @@ uiString uiODAttribTreeItem::createDisplayName() const
 {
     const AttribProbeLayer* attrlayer = attribProbeLayer();
     if ( !attrlayer )
-	return ODMainWin()->applMgr().visServer()->getObjectName( displayID() );
+	return uiStrings::sRightClick();
 
     Attrib::SelSpec as = attrlayer->getSelSpec();
     uiString dispname( as.id().isValid() ? toUiString(as.userRef())
@@ -309,18 +333,10 @@ uiString uiODAttribTreeItem::createDisplayName() const
 
 void uiODAttribTreeItem::updateColumnText( int col )
 {
-    if ( col==uiODSceneMgr::cColorColumn() )
+    if ( col==uiODSceneMgr::cColorColumn() && attribProbeLayer() )
     {
-	uiVisPartServer* visserv = applMgr()->visServer();
-	mDynamicCastGet(visSurvey::SurveyObject*,so,
-			visserv->getObject( displayID() ))
-	if ( !so )
-	{
-	    uiODDataTreeItem::updateColumnText( col );
-	    return;
-	}
-
-	displayMiniCtab( so->getColTabSequence(attribNr()) );
+	ColTab::Sequence attrctab = attribProbeLayer()->getColTab();
+	displayMiniCtab( &attrctab );
     }
 
     uiODDataTreeItem::updateColumnText( col );

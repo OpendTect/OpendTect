@@ -147,20 +147,6 @@ bool uiODDisplayTreeItem::init()
 {
     if ( !uiTreeItem::init() ) return false;
 
-    if ( visserv_->hasAttrib( displayid_ ) )
-    {
-	for ( int attrib=0; attrib<visserv_->getNrAttribs(displayid_); attrib++)
-	{
-	    const Attrib::SelSpec* as = visserv_->getSelSpec(displayid_,attrib);
-	    uiODDataTreeItem* item = createAttribItem( as );
-	    if ( item )
-	    {
-		addChild( item, false );
-		item->setChecked( visserv_->isAttribEnabled(displayid_,attrib));
-	    }
-	}
-    }
-
     if ( getMoreObjectsToDoHint() )
 	ODMainWin()->sceneMgr().getTree(sceneID())->triggerUpdate();
     else

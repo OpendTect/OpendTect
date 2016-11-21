@@ -267,16 +267,22 @@ void ZDomain::Info::setID( const char* id )
 }
 
 
-bool ZDomain::Info::isCompatibleWith( const IOPar& iop ) const
+bool ZDomain::Info::isCompatibleWith( const ZDomain::Info& oth ) const
 {
-    ZDomain::Info inf( iop );
-    if ( &inf.def_ != &def_ )
+    if ( &def_ != &oth.def_ )
 	return false;
 
     BufferString myid( getID() );
-    const char* iopid = inf.getID();
+    const char* iopid = oth.getID();
     if ( myid.isEmpty() || !iopid )
 	return true;
 
     return myid == iopid;
+}
+
+
+bool ZDomain::Info::isCompatibleWith( const IOPar& iop ) const
+{
+    ZDomain::Info othinf( iop );
+    return isCompatibleWith( othinf );
 }

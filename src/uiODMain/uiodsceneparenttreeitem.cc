@@ -68,3 +68,11 @@ bool uiODSceneParentTreeItem::anyButtonClick( uiTreeViewItem* item )
 
 void uiODSceneParentTreeItem::setMoreObjectsToDoHint( bool yn )
 { applMgr()->visServer()->setMoreObjectsToDoHint( sceneID(), yn ); }
+
+
+OD::ViewerID uiODSceneParentTreeItem::getViewerID() const
+{
+    OD::ViewerID vwrid( uiODSceneMgr::theViewerTypeID(),
+			OD::ViewerObjID::get(sceneID()) );
+    return vwrid;
+}

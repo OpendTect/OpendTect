@@ -68,7 +68,7 @@ public:
 				/*!<Adds custom create function for create
 				    function. */
 
-    void			prepareForShutdown();
+    virtual void		prepareForShutdown();
     virtual void		setProbeLayer(ProbeLayer*);
 
 protected:

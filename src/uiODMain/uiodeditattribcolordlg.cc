@@ -10,6 +10,7 @@ ___________________________________________________________________
 
 #include "uiodeditattribcolordlg.h"
 
+#include "attribprobelayer.h"
 #include "coltab.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
@@ -75,21 +76,14 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 void uiODEditAttribColorDlg::seqChg( CallBacker* )
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const ColTab::Sequence& newcolseq = uicoltab_->colTabSeq();
 
     for ( int idx=0; idx<items_.size(); idx++ )
     {
-	mDynamicCastGet(uiODDataTreeItem*,item,items_[idx])
-	if ( !item ) continue;
+	mDynamicCastGet(uiODAttribTreeItem*,attritem,items_[idx])
+	if ( !attritem ) continue;
 
-	const int did = item->displayID();
-	const int anr = item->attribNr();
-	const ColTab::Sequence* colseq = visserv->getColTabSequence( did, anr );
-	if ( colseq && *colseq!=newcolseq && visserv->canSetColTabSequence(did))
-	    visserv->setColTabSequence( did, anr, newcolseq );
-
-	items_[idx]->updateColumnText( uiODSceneMgr::cColorColumn() );
+	attritem->attribProbeLayer()->setColTab(  newcolseq );
     }
 }
 
@@ -97,20 +91,14 @@ void uiODEditAttribColorDlg::seqChg( CallBacker* )
 void uiODEditAttribColorDlg::mapperChg( CallBacker* )
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const ColTab::MapperSetup& newcolmapsetup = uicoltab_->colTabMapperSetup();
 
     for ( int idx=0; idx<items_.size(); idx++ )
     {
-	mDynamicCastGet(uiODDataTreeItem*,item,items_[idx])
-	if ( !item ) continue;
+	mDynamicCastGet(uiODAttribTreeItem*,attritem,items_[idx])
+	if ( !attritem ) continue;
 
-	const int did = item->displayID();
-	const int anr = item->attribNr();
-	const ColTab::MapperSetup* colmapsetup =
-	    visserv->getColTabMapperSetup( did, anr );
-	if ( colmapsetup && *colmapsetup!=newcolmapsetup )
-	    visserv->setColTabMapperSetup( did, anr, newcolmapsetup );
+	attritem->attribProbeLayer()->setColTabMapper( newcolmapsetup );
     }
 }
 

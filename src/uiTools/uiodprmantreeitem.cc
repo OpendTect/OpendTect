@@ -210,7 +210,7 @@ void uiODPrManagedParentTreeItem::showHideChildren(
 	    continue;
 
 	PtrMan<OD::ObjPresentationInfo> childprinfo = childitem->getObjPRInfo();
-	if ( !childprinfo->isSameObj(prinfo) )
+	if ( !childprinfo || !childprinfo->isSameObj(prinfo) )
 	    continue;
 
 	childitem->setChecked( show, false );

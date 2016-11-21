@@ -33,15 +33,13 @@ public:
 			~uiODPlaneDataTreeItem();
 
     bool		init();
-    void		setAtWellLocation(const Well::Data&);
-    void		setTrcKeyZSampling(const TrcKeyZSampling&);
     OD::ObjPresentationInfo* getObjPRInfo() const;
 
 protected:
 			uiODPlaneDataTreeItem(int displayid,OD::SliceType,
 					      Probe&);
 
-    uiString		createDisplayName() const;
+    void		updateDisplay();
 
 
     virtual void	createMenu(MenuHandler*,bool istb);
@@ -71,16 +69,41 @@ protected:
 
 
 
-mExpClass(uiODMain) uiODInlineParentTreeItem
+mExpClass(uiODMain) uiODPlaneDataParentTreeItem
 			: public uiODSceneProbeParentTreeItem
+{ mODTextTranslationClass(uiODPlaneDataParentTreeItem);
+public:
+				uiODPlaneDataParentTreeItem(const uiString&);
+    virtual void		addMenuItems();
+    virtual bool		handleSubMenu(int mnuid);
+    virtual bool		setPosToBeAddedFromWell(const Well::Data&) =0;
+    static uiString		sAddAtWellLocation();
+    static int			sAddAtWellLOcationMenuID()	{ return 3; }
+
+protected:
+
+    TrcKeyZSampling		probetobeaddedpos_;
+
+    virtual bool		canAddFromWell() const			=0;
+    virtual bool		setProbeToBeAddedParams(int mnuid);
+    virtual bool		setDefaultPosToBeAdded()		=0;
+};
+
+
+mExpClass(uiODMain) uiODInlineParentTreeItem
+			: public uiODPlaneDataParentTreeItem
 {   mODTextTranslationClass(uiODInlineParentTreeItem);
-    mDefineItemMembers( InlineParent, SceneProbeParentTreeItem, SceneTreeTop );
+    mDefineItemMembers( InlineParent, PlaneDataParentTreeItem, SceneTreeTop );
     mMenuOnAnyButton;
 
     bool			canShowSubMenu() const;
     bool			canAddFromWell() const	{ return true; }
     Probe*			createNewProbe() const;
+    virtual bool		setPosToBeAddedFromWell(const Well::Data&);
+    const char* 		childObjTypeKey() const;
     uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+protected:
+    virtual bool		setDefaultPosToBeAdded();
 };
 
 
@@ -97,7 +120,7 @@ public:
 mExpClass(uiODMain) uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-			uiODInlineTreeItem(int displayid,Probe&);
+			uiODInlineTreeItem(Probe&,int displayid=-1);
 
 protected:
     const char*		parentType() const
@@ -115,14 +138,18 @@ public:
 
 
 mExpClass(uiODMain) uiODCrosslineParentTreeItem
-			: public uiODSceneProbeParentTreeItem
+			: public uiODPlaneDataParentTreeItem
 {   mODTextTranslationClass(uiODCrossineParentTreeItem);
     mDefineItemMembers( CrosslineParent, SceneProbeParentTreeItem,SceneTreeTop);
     mMenuOnAnyButton;
     bool			canShowSubMenu() const;
     bool			canAddFromWell() const	{ return true; }
+    const char* 		childObjTypeKey() const;
     uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
     Probe*			createNewProbe() const;
+    virtual bool		setPosToBeAddedFromWell(const Well::Data&);
+protected:
+    virtual bool		setDefaultPosToBeAdded();
 };
 
 
@@ -140,7 +167,7 @@ public:
 mExpClass(uiODMain) uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-			uiODCrosslineTreeItem(int displayid,Probe&);
+			uiODCrosslineTreeItem(Probe&,int diplayid=-1);
 
 protected:
     const char*		parentType() const
@@ -158,14 +185,19 @@ public:
 
 
 mExpClass(uiODMain) uiODZsliceParentTreeItem
-			: public uiODSceneProbeParentTreeItem
+			: public uiODPlaneDataParentTreeItem
 {   mODTextTranslationClass(uiODZsliceParentTreeItem);
     mDefineItemMembers( ZsliceParent, SceneProbeParentTreeItem, SceneTreeTop );
     mMenuOnAnyButton;
     bool			canShowSubMenu() const;
     bool			canAddFromWell() const	{ return true; }
+    const char* 		childObjTypeKey() const;
     uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
     Probe*			createNewProbe() const;
+    virtual bool		setPosToBeAddedFromWell(const Well::Data&)
+				{ return false; }
+protected:
+    virtual bool		setDefaultPosToBeAdded();
 };
 
 
@@ -180,13 +212,14 @@ public:
 
 
 mExpClass(uiODMain) uiODZsliceTreeItem : public uiODPlaneDataTreeItem
-{
+{ mODTextTranslationClass(uiODZsliceTreeItem);
 public:
-			uiODZsliceTreeItem(int displayid,Probe&);
+			uiODZsliceTreeItem(Probe&,int displayid=-1);
 
 protected:
     const char*		parentType() const
 			{ return typeid(uiODZsliceParentTreeItem).name(); }
+    uiString		getDisplayName() const;
 };
 
 

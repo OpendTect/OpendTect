@@ -89,7 +89,10 @@ public:
 				       TypeSet<int>& vw2ids) const;
 protected:
     uiODViewer2D*	viewer2D();
+    const uiODViewer2D* viewer2D() const;
     uiODApplMgr*	applMgr();
+
+    virtual OD::ViewerID getViewerID() const;
 };
 
 

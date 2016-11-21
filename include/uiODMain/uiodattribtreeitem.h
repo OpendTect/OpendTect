@@ -27,6 +27,7 @@ public:
 
     const AttribProbeLayer* attribProbeLayer() const;
     AttribProbeLayer*	attribProbeLayer();
+
     static uiString	createDisplayName( int visid, int attrib );
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();

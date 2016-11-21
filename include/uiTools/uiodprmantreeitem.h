@@ -33,6 +33,7 @@ public:
     void		emitPRRequest(OD::PresentationRequestType);
     virtual void	handleItemCheck(bool triggerdispreq=true)	{}
     virtual void	prepareForShutdown();
+    virtual OD::ViewerID getViewerID() const				=0;
 
 protected:
 
@@ -41,7 +42,6 @@ protected:
 
     virtual void	objChangedCB(CallBacker*)	{}
 
-    virtual OD::ViewerID getViewerID() const		=0;
 };
 
 
@@ -70,5 +70,7 @@ protected:
     virtual void	objShownCB(CallBacker*);
     virtual void	objHiddenCB(CallBacker*);
     virtual void	objOrphanedCB(CallBacker*);
+
+    virtual OD::ViewerID getViewerID() const			=0;
 
 };

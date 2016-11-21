@@ -36,6 +36,7 @@ ___________________________________________________________________
 #include "settings.h"
 #include "welldata.h"
 #include "wellinfo.h"
+#include "wellmanager.h"
 #include "visselman.h"
 
 
@@ -104,19 +105,6 @@ bool uiODPlaneDataTreeItem::init()
 	}
 
 	pdd->setProbe( getProbe() );
-	for ( int idx=0; idx<probe_.nrLayers(); idx++ )
-	{
-	    mDynamicCastGet( const AttribProbeLayer*,attrprlayer,
-			     probe_.getLayerByIdx(idx) );
-	    if ( !attrprlayer )
-		continue;
-
-	    if ( attrprlayer->getDispType()==AttribProbeLayer::RGB )
-		pdd->setChannels2RGBA(
-			visBase::RGBATextureChannel2RGBA::create() );
-	    if ( idx )
-		pdd->addAttrib();
-	}
     }
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
@@ -145,35 +133,6 @@ OD::ObjPresentationInfo* uiODPlaneDataTreeItem::getObjPRInfo() const
     ProbePresentationInfo* prinfo =
 	new ProbePresentationInfo( ProbeMGR().getID(probe_) );
     return prinfo;
-}
-
-
-void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
-{
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv_->getObject(displayid_));
-    if ( !pdd ) return;
-
-    const Coord surfacecoord = wd.info().surfaceCoord();
-    const BinID bid = SI().transform( surfacecoord );
-    TrcKeyZSampling cs = pdd->getTrcKeyZSampling( true, true );
-    if ( orient_ == OD::InlineSlice )
-	cs.hsamp_.setInlRange( Interval<int>(bid.inl(),bid.inl()) );
-    else
-	cs.hsamp_.setCrlRange( Interval<int>(bid.crl(),bid.crl()) );
-
-    pdd->setTrcKeyZSampling( cs );
-    select();
-}
-
-
-void uiODPlaneDataTreeItem::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
-{
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv_->getObject(displayid_));
-    if ( !pdd ) return;
-
-    pdd->setTrcKeyZSampling( tkzs );
 }
 
 
@@ -212,7 +171,7 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* cb )
 }
 
 
-void uiODPlaneDataTreeItem::objChangedCB( CallBacker* )
+void uiODPlaneDataTreeItem::updateDisplay()
 {
     const Probe* probe = getProbe();
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
@@ -225,6 +184,12 @@ void uiODPlaneDataTreeItem::objChangedCB( CallBacker* )
 }
 
 
+void uiODPlaneDataTreeItem::objChangedCB( CallBacker* )
+{
+    updateDisplay();
+}
+
+
 void uiODPlaneDataTreeItem::selChg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
@@ -232,39 +197,6 @@ void uiODPlaneDataTreeItem::selChg( CallBacker* )
 
     if ( pdd && pdd->isSelected() )
 	visserv_->getUiSlicePos()->setDisplay( displayid_ );
-}
-
-
-uiString uiODPlaneDataTreeItem::createDisplayName() const
-{
-    uiString res;
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv_->getObject(displayid_))
-    if ( !pdd )
-	return res;
-
-    const TrcKeyZSampling cs = pdd->getTrcKeyZSampling(true,true);
-    const OD::SliceType orientation = pdd->getOrientation();
-
-    if ( orientation==OD::InlineSlice )
-	res = toUiString(cs.hsamp_.start_.inl());
-    else if ( orientation==OD::CrosslineSlice )
-	res = toUiString(cs.hsamp_.start_.crl());
-    else
-    {
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
-	if ( !scene )
-	    res = toUiString(cs.zsamp_.start);
-	else
-	{
-	    const ZDomain::Def& zdef = scene->zDomainInfo().def_;
-	    const float zval = cs.zsamp_.start * zdef.userFactor();
-	    res = toUiString( zdef.isDepth() || zdef.userFactor()==1000
-		    ? (float)(mNINT32(zval)) : zval );
-	}
-    }
-
-    return res;
 }
 
 
@@ -472,7 +404,7 @@ void uiODPlaneDataTreeItem::keyUnReDoPressedCB( CallBacker* )
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*,pdd,
 	visserv_->getObject(displayid_) )
-	if ( !pdd )
+    if ( !pdd )
 	    return;
 
     if ( !uiMain::keyboardEventHandler().hasEvent() )
@@ -507,17 +439,76 @@ uiTreeItem*
     if ( !probe )
 	return 0;
 
-    return new uiODInlineTreeItem( visid, *probe );
+    return new uiODInlineTreeItem( *probe, visid );
+}
+
+
+uiODPlaneDataParentTreeItem::uiODPlaneDataParentTreeItem( const uiString& nm )
+    : uiODSceneProbeParentTreeItem(nm)
+{
+}
+
+
+uiString uiODPlaneDataParentTreeItem::sAddAtWellLocation()
+{ return m3Dots(tr("Add at Well Location")); }
+
+
+void uiODPlaneDataParentTreeItem::addMenuItems()
+{
+    uiODSceneProbeParentTreeItem::addMenuItems();
+    if ( canAddFromWell() )
+	menu_->insertItem(
+	    new uiAction( uiODPlaneDataParentTreeItem::sAddAtWellLocation()),
+			  sAddAtWellLOcationMenuID() );
+}
+
+
+
+bool uiODPlaneDataParentTreeItem::handleSubMenu( int mnuid )
+{
+    if ( mnuid==sAddAtWellLOcationMenuID() )
+    {
+	DBKeySet wellids;
+	if ( !applMgr()->wellServer()->selectWells(wellids) )
+	    return true;
+
+	for ( int idx=0;idx<wellids.size(); idx++ )
+	{
+	    ConstRefMan<Well::Data> wd = Well::MGR().fetch( wellids[idx] );
+	    if ( !wd ) continue;
+
+	    if ( !setPosToBeAddedFromWell(*wd) )
+		continue;
+
+	    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+	    if ( !addChildProbe() )
+		return false;
+	}
+
+	return true;
+    }
+
+    return uiODSceneProbeParentTreeItem::handleSubMenu( mnuid );
+}
+
+
+bool uiODPlaneDataParentTreeItem::setProbeToBeAddedParams( int mnuid )
+{
+    return setDefaultPosToBeAdded();
 }
 
 
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
-    : uiODSceneProbeParentTreeItem( uiStrings::sInline() )
+    : uiODPlaneDataParentTreeItem( uiStrings::sInline() )
 {}
 
 
 const char* uiODInlineParentTreeItem::iconName() const
 { return "tree-inl"; }
+
+
+const char* uiODInlineParentTreeItem::childObjTypeKey() const
+{ return ProbePresentationInfo::sFactoryKey(); }
 
 
 bool uiODInlineParentTreeItem::canShowSubMenu() const
@@ -533,22 +524,38 @@ bool uiODInlineParentTreeItem::canShowSubMenu() const
 }
 
 
-Probe* uiODInlineParentTreeItem::createNewProbe() const
+bool uiODInlineParentTreeItem::setDefaultPosToBeAdded()
 {
-    InlineProbe* newprobe = new InlineProbe();
-    if ( !ProbeMGR().store(*newprobe).isOK() )
+    const Interval<int> inlrg = SI().sampling( true ).hsamp_.lineRange();
+    Interval<int> definlrg( inlrg.center(), inlrg.center() );
+    probetobeaddedpos_.hsamp_.setLineRange( definlrg );
+    OD::PresentationManagedViewer* vwr = OD::PrMan().getViewer( getViewerID() );
+    if ( !vwr )
     {
-	delete newprobe;
-	return 0;
+	pErrMsg( "Huh ?? No Scene found" );
+	return false;
     }
 
-    TrcKeyZSampling probepos = SI().sampling( true );
-    const Interval<int> inlrg = probepos.hsamp_.lineRange();
-    Interval<int> definlrg( inlrg.center(), inlrg.center() );
-    probepos.hsamp_.setLineRange( definlrg );
-    newprobe->setPos( probepos );
+    if ( !vwr->hasZAxisTransform() )
+	return true;
 
-    return newprobe;
+    probetobeaddedpos_.zsamp_ = vwr->getZAxisTransform()->getZInterval( true );
+    return true;
+}
+
+
+bool uiODInlineParentTreeItem::setPosToBeAddedFromWell( const Well::Data& wd )
+{
+    const Coord surfacecoord = wd.info().surfaceCoord();
+    const BinID bid = SI().transform( surfacecoord );
+    probetobeaddedpos_.hsamp_.setInlRange( Interval<int>(bid.inl(),bid.inl()) );
+    return true;
+}
+
+
+Probe* uiODInlineParentTreeItem::createNewProbe() const
+{
+    return new InlineProbe( probetobeaddedpos_ );
 }
 
 
@@ -564,13 +571,13 @@ uiODPrManagedTreeItem* uiODInlineParentTreeItem::addChildItem(
     if ( !inlprobe )
 	return 0;
 
-    uiODInlineTreeItem* inlitem = new uiODInlineTreeItem( -1, *probe );
+    uiODInlineTreeItem* inlitem = new uiODInlineTreeItem( *probe );
     addChild( inlitem, false );
     return inlitem;
 }
 
 
-uiODInlineTreeItem::uiODInlineTreeItem( int id, Probe& pr )
+uiODInlineTreeItem::uiODInlineTreeItem( Probe& pr, int id )
     : uiODPlaneDataTreeItem( id, OD::InlineSlice, pr )
 {}
 
@@ -612,17 +619,21 @@ uiTreeItem*
     if ( !probe )
 	return 0;
 
-    return new uiODCrosslineTreeItem( visid, *probe );
+    return new uiODCrosslineTreeItem( *probe, visid );
 }
 
 
 uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
-    : uiODSceneProbeParentTreeItem( uiStrings::sCrossline() )
+    : uiODPlaneDataParentTreeItem( uiStrings::sCrossline() )
 {}
 
 
 const char* uiODCrosslineParentTreeItem::iconName() const
 { return "tree-crl"; }
+
+
+const char* uiODCrosslineParentTreeItem::childObjTypeKey() const
+{ return ProbePresentationInfo::sFactoryKey(); }
 
 
 bool uiODCrosslineParentTreeItem::canShowSubMenu() const
@@ -637,21 +648,41 @@ bool uiODCrosslineParentTreeItem::canShowSubMenu() const
     return true;
 }
 
-Probe* uiODCrosslineParentTreeItem::createNewProbe() const
-{
-    CrosslineProbe* newprobe = new CrosslineProbe();
-    if ( !ProbeMGR().store(*newprobe).isOK() )
-    {
-	delete newprobe;
-	return 0;
-    }
 
-    TrcKeyZSampling probepos = SI().sampling( true );
-    const Interval<int> crlrg = probepos.hsamp_.trcRange();
+bool uiODCrosslineParentTreeItem::setDefaultPosToBeAdded()
+{
+    TrcKeyZSampling probepos;
+    const Interval<int> crlrg = SI().sampling( true ).hsamp_.trcRange();
     Interval<int> defcrlrg( crlrg.center(), crlrg.center() );
     probepos.hsamp_.setTrcRange( defcrlrg );
-    newprobe->setPos( probepos );
-    return newprobe;
+    OD::PresentationManagedViewer* vwr = OD::PrMan().getViewer( getViewerID() );
+    if ( !vwr )
+    {
+	pErrMsg( "Huh ?? No Scene found" );
+	return false;
+    }
+
+    if ( !vwr->hasZAxisTransform() )
+	return true;
+
+    probetobeaddedpos_.zsamp_ = vwr->getZAxisTransform()->getZInterval( true );
+    return true;
+}
+
+
+bool uiODCrosslineParentTreeItem::setPosToBeAddedFromWell(const Well::Data& wd)
+{
+    const Coord surfacecoord = wd.info().surfaceCoord();
+    const BinID bid = SI().transform( surfacecoord );
+    probetobeaddedpos_.hsamp_.setCrlRange( Interval<int>(bid.crl(),bid.crl()) );
+    return true;
+}
+
+
+
+Probe* uiODCrosslineParentTreeItem::createNewProbe() const
+{
+    return new CrosslineProbe( probetobeaddedpos_ );
 }
 
 
@@ -667,14 +698,13 @@ uiODPrManagedTreeItem* uiODCrosslineParentTreeItem::addChildItem(
     if ( !crlprobe )
 	return 0;
 
-    uiODCrosslineTreeItem* crlitem =
-	new uiODCrosslineTreeItem( -1, *probe );
+    uiODCrosslineTreeItem* crlitem = new uiODCrosslineTreeItem( *probe );
     addChild( crlitem, false );
     return crlitem;
 }
 
 
-uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Probe& pr )
+uiODCrosslineTreeItem::uiODCrosslineTreeItem( Probe& pr, int id )
     : uiODPlaneDataTreeItem( id, OD::CrosslineSlice, pr )
 {}
 
@@ -718,17 +748,21 @@ uiTreeItem*
     if ( !probe )
 	return 0;
 
-    return new uiODZsliceTreeItem( visid, *probe );
+    return new uiODZsliceTreeItem( *probe, visid );
 }
 
 
 uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
-    : uiODSceneProbeParentTreeItem( uiStrings::sZSlice() )
+    : uiODPlaneDataParentTreeItem( uiStrings::sZSlice() )
 {}
 
 
 const char* uiODZsliceParentTreeItem::iconName() const
 { return "tree-zsl"; }
+
+
+const char* uiODZsliceParentTreeItem::childObjTypeKey() const
+{ return ProbePresentationInfo::sFactoryKey(); }
 
 
 bool uiODZsliceParentTreeItem::canShowSubMenu() const
@@ -742,23 +776,28 @@ bool uiODZsliceParentTreeItem::canShowSubMenu() const
      return true;
 }
 
+bool uiODZsliceParentTreeItem::setDefaultPosToBeAdded()
+{
+    OD::PresentationManagedViewer* vwr = OD::PrMan().getViewer( getViewerID() );
+    if ( !vwr )
+    {
+	pErrMsg( "Huh ?? No Scene found" );
+	return false;
+    }
+
+    const ZAxisTransform* transform = vwr->getZAxisTransform();
+    const StepInterval<float> zrg = transform ? transform->getZInterval(true)
+					      : SI().sampling(true).zsamp_;
+    StepInterval<float> defzrg( zrg.center(), zrg.center(), zrg.step );
+    probetobeaddedpos_.zsamp_ = defzrg;
+    return true;
+}
+
+
 
 Probe* uiODZsliceParentTreeItem::createNewProbe() const
 {
-    ZSliceProbe* newprobe = new ZSliceProbe();
-    if ( !ProbeMGR().store(*newprobe).isOK() )
-    {
-	delete newprobe;
-	return 0;
-    }
-
-    TrcKeyZSampling probepos = SI().sampling( true );
-    const StepInterval<float> zrg = probepos.zsamp_;
-    StepInterval<float> defzrg( zrg.center(), zrg.center(), zrg.step );
-    probepos.zsamp_ = defzrg;
-    newprobe->setPos( probepos );
-
-    return newprobe;
+    return new ZSliceProbe( probetobeaddedpos_ );
 }
 
 
@@ -774,15 +813,38 @@ uiODPrManagedTreeItem* uiODZsliceParentTreeItem::addChildItem(
     if ( !zsliceprobe )
 	return 0;
 
-    uiODZsliceTreeItem* zslitem = new uiODZsliceTreeItem( -1, *probe );
+    uiODZsliceTreeItem* zslitem = new uiODZsliceTreeItem( *probe );
     addChild( zslitem, false );
     return zslitem;
 }
 
 
-uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Probe& probe )
+uiODZsliceTreeItem::uiODZsliceTreeItem( Probe& probe, int id )
     : uiODPlaneDataTreeItem( id, OD::ZSlice, probe )
 {
+}
+
+
+uiString uiODZsliceTreeItem::getDisplayName() const
+{
+    const Probe* probe = getProbe();
+    if ( !probe )
+    {
+	pErrMsg( "Probe not found" );
+	return uiString::emptyString();
+    }
+
+    OD::PresentationManagedViewer* vwr = OD::PrMan().getViewer( getViewerID() );
+    if ( !vwr )
+    {
+	pErrMsg( "Viewer not found" );
+	return uiString::emptyString();
+    }
+
+    const TrcKeyZSampling probepos = probe->position();
+    const ZDomain::Info& scnezdinfo = vwr->zDomain();
+    const float zposval = probepos.zsamp_.start * scnezdinfo.userFactor();
+    return tr( "%1 (%2)" ).arg( zposval ).arg( scnezdinfo.unitStr() );
 }
 
 

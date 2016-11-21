@@ -132,8 +132,9 @@ public:
     void			getLoadedPickSets(DBKeySet&) const;
     void			addPickSets(const DBKeySet&);
 
-    virtual void		request(OD::PresentationRequestType,
-					const IOPar& prinfopar,OD::ViewerObjID);
+    virtual void		request( OD::ViewerID originvwrid,
+					OD::PresentationRequestType,
+					const IOPar& prinfopar);
 
 
     static int			cNameColumn()		{ return 0; }

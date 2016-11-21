@@ -40,7 +40,8 @@ public:
 
     uiODDataTreeItem*	addAttribItem();
     void		prepareForShutdown();
-    void		handleAddAttrib();
+    virtual void	handleAddAttrib(); //TODO PrIMPL remove:q
+
 
     virtual void	setOnlyAtSectionsDisplay(bool);
     virtual bool	displayedOnlyAtSections() const;

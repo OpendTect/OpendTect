@@ -31,11 +31,14 @@ ___________________________________________________________________
 #include "attribdescid.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
+#include "attribprobelayer.h"
 #include "attribsel.h"
 #include "emmanager.h"
 #include "externalattrib.h"
 #include "dbman.h"
 #include "posinfo2d.h"
+#include "probeimpl.h"
+#include "probemanager.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seis2ddata.h"
@@ -43,14 +46,6 @@ ___________________________________________________________________
 
 
 static TypeSet<int> selcomps;
-
-const char* uiODLine2DParentTreeItem::sKeyRightClick()
-{ return "<right-click>"; }
-const char* uiODLine2DParentTreeItem::sKeyUnselected()
-{ return "<Unselected>"; }
-static const char* sKeySelecting()
-{ return "<Selecting>"; }
-
 
 #define cAdd		1000
 #define cGridFrom3D	999
@@ -67,9 +62,20 @@ static const char* sKeySelecting()
 #define cDisplayAll	988
 #define cHideAll	987
 
+uiODSceneProbeParentTreeItem::Type
+	uiODLine2DParentTreeItem::getType( int action ) const
+{
+    switch( action )
+    {
+	case 0: return uiODSceneProbeParentTreeItem::Empty; break;
+	case 1: return uiODSceneProbeParentTreeItem::Default; break;
+	case 2: return uiODSceneProbeParentTreeItem::Select; break;
+	default: return uiODSceneProbeParentTreeItem::Empty;
+    }
+}
 
 uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
-    : uiODSceneTreeItem( tr("2D Line") )
+    : uiODSceneProbeParentTreeItem( tr("2D Line") )
     , visserv_(ODMainWin()->applMgr().visServer())
     , additm_(m3Dots(uiStrings::sAdd()),cAdd)
     , create2dgridfrom3ditm_(m3Dots(tr("Create 2D Grid from 3D")),cGridFrom3D)
@@ -93,13 +99,17 @@ uiODLine2DParentTreeItem::~uiODLine2DParentTreeItem()
 }
 
 
+const char* uiODLine2DParentTreeItem::childObjTypeKey() const
+{ return ProbePresentationInfo::sFactoryKey(); }
+
+
 const char* uiODLine2DParentTreeItem::iconName() const
 { return "tree-geom2d"; }
 
 
 bool uiODLine2DParentTreeItem::init()
 {
-    if ( !uiODTreeItem::init() )
+    if ( !uiODSceneParentTreeItem::init() )
 	return false;
 
     MenuHandler* menu = visserv_->getMenuHandler();
@@ -122,6 +132,30 @@ int uiODLine2DParentTreeItem::selectionKey() const
 
     mDynamicCastGet(const uiODDisplayTreeItem*,itm,children_[0]);
     return itm ? 100000+itm->displayID() : -1;
+}
+
+
+Probe* uiODLine2DParentTreeItem::createNewProbe() const
+{
+    return new Line2DProbe( geomtobeadded_ );
+}
+
+
+uiODPrManagedTreeItem* uiODLine2DParentTreeItem::addChildItem(
+	const OD::ObjPresentationInfo& prinfo )
+{
+    mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
+    if ( !probeprinfo )
+	return 0;
+
+    RefMan<Probe> probe = ProbeMGR().fetchForEdit( probeprinfo->storedID() );
+    mDynamicCastGet(Line2DProbe*,l2dprobe,probe.ptr())
+    if ( !l2dprobe )
+	return 0;
+
+    uiOD2DLineTreeItem* inlitem = new uiOD2DLineTreeItem( *probe );
+    addChild( inlitem, false );
+    return inlitem;
 }
 
 
@@ -151,6 +185,31 @@ void uiODLine2DParentTreeItem::createMenuCB( CallBacker* cb )
     itm.addItem( new MenuItem(uiStrings::sLineGeometry(),varmenuid++), true );
 
 
+BufferStringSet uiODLine2DParentTreeItem::getDisplayedAttribNames() const
+{
+    BufferStringSet displayedattribs;
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet(const uiOD2DLineTreeItem*,l2dtreeitem,children_[idx]);
+	if ( !l2dtreeitem )
+	    continue;
+
+	for ( int ich=0; ich<l2dtreeitem->nrChildren(); ich++ )
+	{
+	    mDynamicCastGet(const uiODAttribTreeItem*,attrtreeitem,
+			    l2dtreeitem->getChild(ich));
+	    if ( !attrtreeitem )
+		continue;
+
+	    BufferString attribname( attrtreeitem->name().getFullString() );
+	    displayedattribs.addIfNew( attribname );
+	}
+    }
+
+    return displayedattribs;
+}
+
+
 void uiODLine2DParentTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     mAddMenuItem( menu, &additm_, true, false );
@@ -164,34 +223,9 @@ void uiODLine2DParentTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( menu, &generate3dcubeitm_, true, false );
 #endif
 
-    BufferStringSet displayedattribs;
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	const int id = ((uiOD2DLineTreeItem*)children_[idx])->displayID();
-	const int nrattribs = applMgr()->visServer()->getNrAttribs( id );
-	for ( int adx=0; adx<nrattribs; adx++ )
-	{
-	    const Attrib::SelSpec* ds =
-		applMgr()->visServer()->getSelSpec( id, adx );
-	    if ( ds && ds->id() == Attrib::SelSpec::cOtherAttrib() )
-		continue;
-
-	    BufferString attribname = sKeyUnselected();
-	    if ( ds && ds->userRef() && *ds->userRef() )
-		attribname = ds->userRef();
-
-	    if ( ds && ds->isNLA() )
-	    {
-		attribname = ds->objectRef();
-		const BufferString nodenm = DBM().nameFor( ds->userRef() );
-		attribname += " ("; attribname += nodenm; attribname += ")";
-	    }
-
-	    displayedattribs.addIfNew( attribname );
-	}
-    }
 
     int varmenuid = 500;
+    BufferStringSet displayedattribs = getDisplayedAttribNames();
     if ( !children_.isEmpty() )
     {
 	mAddMenuItem( menu, &addattritm_, true, false );
@@ -201,8 +235,6 @@ void uiODLine2DParentTreeItem::createMenu( MenuHandler* menu, bool istb )
 	    if ( displayedattribs.size()>1 )
 		{ mAddAttrBasedItem( removeattritm_ ); }
 
-	    const int emptyidx = displayedattribs.indexOf( sKeyUnselected() );
-	    if ( emptyidx >= 0 ) displayedattribs.removeSingle( emptyidx );
 	    if ( displayedattribs.size() )
 	    {
 		mAddAttrBasedItem( dispattritm_ );
@@ -216,6 +248,23 @@ void uiODLine2DParentTreeItem::createMenu( MenuHandler* menu, bool istb )
     }
 
     addStandardItems( menu );
+}
+
+
+//TODO PrIMPL relook into multiple line data sel
+bool uiODLine2DParentTreeItem::getSelAttrSelSpec(
+	Probe& probe , Attrib::SelSpec& selspec ) const
+{
+    if ( selattr_.id()==Attrib::SelSpec::cAttribNotSel() )
+    {
+	if ( !uiODSceneProbeParentTreeItem::getSelAttrSelSpec(probe,selspec) )
+	    return false;
+
+	selattr_ = selspec;
+    }
+
+    selspec = selattr_;
+    return true;
 }
 
 
@@ -242,21 +291,21 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
     {
 	int action = 0;
 	TypeSet<Pos::GeomID> geomids;
+	selattr_ = Attrib::SelSpec();
 	applMgr()->seisServer()->select2DLines( geomids, action );
+	if ( geomids.isEmpty() )
+	    return;
+
+	typetobeadded_ = getType( action );
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	for ( int idx=geomids.size()-1; idx>=0; idx-- )
 	{
 	    setMoreObjectsToDoHint( idx>0 );
-	    addChild( new uiOD2DLineTreeItem(geomids[idx]), false );
+	    geomtobeadded_ = geomids[idx];
+	    if ( !addChildProbe() )
+		return;
 	}
 	cursorchgr.restore();
-
-	if ( action==0 || geomids.isEmpty() )
-	    return;
-	else if ( action == 1 )
-	    loadDefaultData();
-	else if ( action == 2 )
-	    selectLoadAttribute( geomids );
     }
     else if ( menuid == create2dgridfrom3ditm_.id )
 	ODMainWin()->applMgr().create2DGrid();
@@ -264,18 +313,27 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 	ODMainWin()->applMgr().create2DFrom3D();
     else if ( menuid == addattritm_.id )
     {
+	selattr_ = Attrib::SelSpec();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx]);
-	    const FixedString topattrnm = itm->nrChildren()<=0 ? "" :
-		itm->getChild(itm->nrChildren()-1)->name().getOriginalString();
-	    if ( topattrnm != sKeyRightClick() )
-		itm->addAttribItem();
-	}
+	    Probe* l2dprobe = itm->getProbe();
+	    AttribProbeLayer* attriblay = new AttribProbeLayer();
+	    Attrib::SelSpec selattrselspec;
+	    if ( !getSelAttrSelSpec(*l2dprobe,selattrselspec) )
+	    {
+		delete attriblay;
+		return;
+	    }
 
-	setTopAttribName( sKeySelecting() );
-	if ( !selectLoadAttribute(displayedgeomids,sKeySelecting()) )
-	    setTopAttribName( sKeyRightClick() );
+	    attriblay->setSelSpec( selattrselspec );
+	    attriblay->useStoredColTabPars();
+	    l2dprobe->addLayer( attriblay );
+	    uiODDataTreeItem* attrtreeitem =
+		itm->createProbeLayerItem( *attriblay );
+	    if ( attrtreeitem )
+		itm->addChild( attrtreeitem, false );
+	}
     }
     else if ( menuid == generate3dcubeitm_.id )
 	ODMainWin()->applMgr().create3DFrom2D();
@@ -283,14 +341,32 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const MenuItem* itm = replaceattritm_.findItem( menuid );
 	FixedString attrnm = itm->text.getOriginalString();
-	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
-	selectLoadAttribute( displayedgeomids, attrnm );
+	selattr_ = Attrib::SelSpec();
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet(uiOD2DLineTreeItem*,lineitm,children_[idx]);
+	    Probe* l2dprobe = lineitm->getProbe();
+	    for ( int ich=0; ich<lineitm->nrChildren(); ich++ )
+	    {
+		mDynamicCastGet(uiODAttribTreeItem*,attrtreeitem,
+				lineitm->getChild(ich));
+		if ( !attrtreeitem ||
+		     attrtreeitem->attribProbeLayer()->name()!=attrnm )
+		    continue;
+
+		Attrib::SelSpec selattrselspec;
+		if ( !getSelAttrSelSpec(*l2dprobe,selattrselspec) )
+		    return;
+
+		AttribProbeLayer* attrlayer = attrtreeitem->attribProbeLayer();
+		attrlayer->setSelSpec( selattrselspec );
+	    }
+	}
     }
     else if ( removeattritm_.findItem(menuid) )
     {
 	const MenuItem* itm = removeattritm_.findItem( menuid );
 	FixedString attrnm = itm->text.getOriginalString();
-	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineTreeItem*,lineitm,children_[idx]);
@@ -347,111 +423,6 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiODLine2DParentTreeItem::setTopAttribName( const char* nm )
-{
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx]);
-	if ( itm->nrChildren() > 0 )
-	    itm->getChild(itm->nrChildren()-1)->setName( toUiString(nm) );
-    }
-}
-
-
-bool uiODLine2DParentTreeItem::loadDefaultData()
-{
-    Attrib::DescID descid;
-    if ( !applMgr()->getDefaultDescID(descid,true) )
-	return false;
-
-    const Attrib::DescSet* ads = Attrib::eDSHolder().getDescSet( true, false );
-    if ( !ads )
-	return false;
-
-    const Attrib::Desc* desc = ads->getDesc( descid );
-    if ( !desc )
-    {
-	ads = Attrib::eDSHolder().getDescSet( true, true );
-	if ( !ads )
-	    return false;
-
-	desc = ads->getDesc( descid );
-	if ( !desc )
-	    return false;
-    }
-
-    const char* attrnm = desc->userRef();
-    uiTaskRunner uitr( ODMainWin() );
-    ObjectSet<uiTreeItem> set;
-    findChildren( sKeyRightClick(), set );
-    {
-	for ( int idx=0; idx<set.size(); idx++ )
-	{
-	    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-	    if ( item ) item->displayStoredData( attrnm, 0, uitr );
-	}
-    }
-
-    return true;
-}
-
-
-bool uiODLine2DParentTreeItem::selectLoadAttribute(
-	const TypeSet<Pos::GeomID>& geomids, const char* curattrnm )
-{
-    const Attrib::DescSet* ds =
-	applMgr()->attrServer()->curDescSet( true );
-    const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
-    uiAttr2DSelDlg dlg( ODMainWin(), ds, geomids, nla, curattrnm );
-    if ( !dlg.go() ) return false;
-
-    uiTaskRunner uitr( ODMainWin() );
-    ObjectSet<uiTreeItem> set;
-    findChildren( curattrnm, set );
-    const int attrtype = dlg.getSelType();
-    if ( attrtype == 0 || attrtype == 1 )
-    {
-	const char* newattrnm = dlg.getStoredAttrName();
-	for ( int idx=0; idx<set.size(); idx++ )
-	{
-	    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-	    if ( item ) item->displayStoredData(
-			    newattrnm, dlg.getComponent(), uitr );
-	}
-    }
-    else if ( attrtype == 2 || attrtype == 3 )
-    {
-	Attrib::SelSpec as;
-	if ( attrtype == 2 )
-	{
-	    const Attrib::Desc* desc = ds->getDesc(dlg.getSelDescID());
-	    if ( !desc )
-	    {
-		uiMSG().error(tr("Selected attribute is not available"));
-		return true;
-	    }
-
-	    as.set( *desc );
-	}
-	else if ( nla )
-	{
-	    as.set(0, Attrib::DescID(dlg.getOutputNr(), false), true, "" );
-	    as.setObjectRef( applMgr()->nlaServer()->modelName() );
-	    as.setRefFromID( *nla );
-	}
-
-	as.set2DFlag( true );
-	for ( int idx=0; idx<set.size(); idx++ )
-	{
-	    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-	    item->setAttrib( as, uitr );
-	}
-    }
-
-    return true;
-}
-
-
 // Line2DTreeItemFactory
 uiTreeItem*
     Line2DTreeItemFactory::createForVis( int visid, uiTreeItem* treeitem ) const
@@ -461,7 +432,7 @@ uiTreeItem*
     if ( !s2d || !treeitem ) return 0;
 
     uiOD2DLineTreeItem* newsubitm =
-	new uiOD2DLineTreeItem( s2d->getGeomID(), visid );
+	new uiOD2DLineTreeItem( *s2d->getProbe(), visid );
 
     if ( newsubitm )
        treeitem->addChild( newsubitm,true );
@@ -470,14 +441,16 @@ uiTreeItem*
 }
 
 
-uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, int displayid )
-    : linenmitm_(tr("Show Linename"))
+uiOD2DLineTreeItem::uiOD2DLineTreeItem( Probe& probe, int displayid )
+    : uiODSceneProbeTreeItem( probe )
+    , linenmitm_(tr("Show Linename"))
     , panelitm_(tr("Show 2D Plane"))
     , polylineitm_(tr("Show Line Geometry"))
     , positionitm_(m3Dots(tr("Position")))
-    , geomid_(geomid)
 {
-    name_ = toUiString(Survey::GM().getName( geomid ));
+    mDynamicCastGet(Line2DProbe*,l2dprobe,getProbe());
+    if ( l2dprobe )
+	name_ = toUiString(Survey::GM().getName( l2dprobe->geomID() ));
     displayid_ = displayid;
 
     positionitm_.iconfnm = "orientation64";
@@ -489,8 +462,6 @@ uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, int displayid )
 
 uiOD2DLineTreeItem::~uiOD2DLineTreeItem()
 {
-    applMgr()->getOtherFormatData.remove(
-	    mCB(this,uiOD2DLineTreeItem,getNewData) );
 }
 
 
@@ -500,6 +471,14 @@ const char* uiOD2DLineTreeItem::parentType() const
 
 bool uiOD2DLineTreeItem::init()
 {
+    Probe* probe = getProbe();
+    mDynamicCastGet(Line2DProbe*,l2dprobe,probe);
+    if ( !probe || !l2dprobe )
+    {
+	pErrMsg( "Shared Object not of type Line2D Probe" );
+	return false;
+    }
+
     bool newdisplay = false;
     if ( displayid_==-1 )
     {
@@ -518,12 +497,12 @@ bool uiOD2DLineTreeItem::init()
 		    visserv_->getObject(displayid_))
     if ( !s2d ) return false;
 
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
+    const Survey::Geometry* geom = Survey::GM().getGeometry(l2dprobe->geomID());
     mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
     if ( !geom2d )
 	return false;
 
-    s2d->setGeomID( geomid_ );
+    s2d->setProbe( getProbe() );
     s2d->setName( toUiString(geom2d->getName()) );
     //If restore, we use the old display range after set the geometry.
     const Interval<int> oldtrcnrrg = s2d->getTraceNrRange();
@@ -538,13 +517,14 @@ bool uiOD2DLineTreeItem::init()
     }
 
     s2d->setGeometry( geom2d->data() );
+    TrcKeyZSampling probepos = probe->position();
     if ( !newdisplay )
     {
 	if ( !oldtrcnrrg.isUdf() )
-	    s2d->setTraceNrRange( oldtrcnrrg );
+	    probepos.hsamp_.setTrcRange( oldtrcnrrg );
 
 	if ( !oldzrg.isUdf() )
-	    s2d->setZRange( oldzrg );
+	    probepos.zsamp_ = oldzrg;
     }
     else
     {
@@ -553,32 +533,42 @@ bool uiOD2DLineTreeItem::init()
 	{
 	    StepInterval<float> newzrg = geom2d->data().zRange();
 	    newzrg.limitTo( SI().zRange(true) );
-	    s2d->setZRange( newzrg );
+	    probepos.zsamp_ = newzrg;
 	}
     }
 
-    if ( applMgr() )
-	applMgr()->getOtherFormatData.notify(
-	    mCB(this,uiOD2DLineTreeItem,getNewData) );
-
-    return uiODDisplayTreeItem::init();
+    probe->setPos( probepos );
+    return uiODSceneProbeTreeItem::init();
 }
 
 
-uiString uiOD2DLineTreeItem::createDisplayName() const
+void uiOD2DLineTreeItem::updateDisplay()
 {
-    return visserv_->getObjectName(displayid_);
+    const Probe* probe = getProbe();
+    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
+		    visserv_->getObject(displayid_))
+    if ( !s2d || !probe ) return;
+
+    const TrcKeyZSampling probepos = probe->position();
+    s2d->setTraceNrRange( probepos.hsamp_.trcRange() );
+    s2d->setZRange( probepos.zsamp_ );
+}
+
+
+void uiOD2DLineTreeItem::objChangedCB( CallBacker* )
+{
+    updateDisplay();
 }
 
 
 uiODDataTreeItem* uiOD2DLineTreeItem::createAttribItem(
 					const Attrib::SelSpec* as ) const
 {
-    const char* parenttype = typeid(*this).name();
+    const char* partype = typeid(*this).name();
     uiODDataTreeItem* res = as
-	? uiOD2DLineSetAttribItem::factory().create(0,*as,parenttype,false) : 0;
+	? uiOD2DLineAttribTreeItem::factory().create(0,*as,partype,false) : 0;
 
-    if ( !res ) res = new uiOD2DLineSetAttribItem( parenttype );
+    if ( !res ) res = new uiOD2DLineAttribTreeItem( partype );
     return res;
 }
 
@@ -602,6 +592,14 @@ void uiOD2DLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 
 void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 {
+    Probe* probe = getProbe();
+    mDynamicCastGet(Line2DProbe*,l2dprobe,probe);
+    if ( !probe || !l2dprobe )
+    {
+	pErrMsg( "Shared Object not of type Line2D Probe" );
+	return;
+    }
+
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(MenuHandler*,menu,caller);
@@ -639,116 +637,16 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	CallBack dummy;
-	uiSliceSelDlg positiondlg( getUiParent(), s2d->getTrcKeyZSampling(true),
+	TrcKeyZSampling probepos = probe->position();
+	uiSliceSelDlg positiondlg( getUiParent(), probepos,
 				   maxcs, dummy, uiSliceSel::TwoD,
 				   scene->zDomainInfo() );
 	if ( !positiondlg.go() ) return;
 	const TrcKeyZSampling newcs = positiondlg.getTrcKeyZSampling();
-
-	const Interval<float> newzrg( newcs.zsamp_.start, newcs.zsamp_.stop );
-	if ( !newzrg.isEqual(s2d->getZRange(true),mDefEps) )
-	{
-	    s2d->annotateNextUpdateStage( true );
-	    s2d->setZRange( newzrg );
-	}
-
-	const Interval<int> ntrcnrrg(
-	    newcs.hsamp_.start_.crl(), newcs.hsamp_.stop_.crl() );
-	if ( ntrcnrrg != s2d->getTraceNrRange() )
-	{
-	    if ( !s2d->getUpdateStageNr() )
-		s2d->annotateNextUpdateStage( true );
-
-	    s2d->setTraceNrRange( ntrcnrrg );
-	}
-
-	if ( s2d->getUpdateStageNr() )
-	{
-	    s2d->annotateNextUpdateStage( true );
-	    for ( int idx=0; idx<s2d->nrAttribs(); idx++ )
-	    {
-		if ( s2d->getSelSpec(idx)
-		  && s2d->getSelSpec(idx)->id().isValid() )
-		    visserv_->calculateAttrib( displayid_, idx, false );
-	    }
-	    s2d->annotateNextUpdateStage( false );
-	}
+	probe->setPos( newcs );
 
 	updateColumnText(0);
     }
-}
-
-
-bool uiOD2DLineTreeItem::addStoredData( const char* nm, int component,
-					  uiTaskRunner& uitr )
-{
-    addAttribItem();
-    const int lastattridx = children_.size() - 1;
-    if ( lastattridx < 0 ) return false;
-
-    mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[lastattridx] );
-    if ( !lsai ) return false;
-
-    return lsai->displayStoredData( nm, component, uitr );
-}
-
-
-void uiOD2DLineTreeItem::addAttrib( const Attrib::SelSpec& myas,
-				      uiTaskRunner& uitr )
-{
-    addAttribItem();
-    const int lastattridx = children_.size() - 1;
-    if ( lastattridx < 0 ) return;
-
-    mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[lastattridx] );
-    if ( !lsai ) return;
-
-    lsai->setAttrib( myas, uitr );
-}
-
-
-void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
-{
-    const int visid = applMgr()->otherFormatVisID();
-    if ( visid != displayid_ ) return;
-
-    const int attribnr = applMgr()->otherFormatAttrib();
-
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv_->getObject(displayid_))
-    if ( !s2d ) return;
-
-    const TrcKeyZSampling tkzs = s2d->getTrcKeyZSampling( false );
-    const TypeSet<Attrib::SelSpec>& as = *s2d->getSelSpecs( attribnr );
-
-    RefMan<DataPack> dp = 0;
-    if ( as[0].id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
-    {
-	PtrMan<Attrib::ExtAttribCalc> calc =
-	    Attrib::ExtAttrFact().create( 0, as[0], false );
-	if ( !calc )
-	{
-	    uiMSG().error( tr("Attribute cannot be created") );
-	    return;
-	}
-
-	uiTaskRunner uitr( ODMainWin() );
-	dp = calc->createAttrib( tkzs, DataPack::ID::get(0), &uitr );
-    }
-    else
-    {
-	applMgr()->attrServer()->setTargetSelSpecs( as );
-	const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-	ConstRefMan<RegularSeisDataPack> regsdp =
-			dpm.get( s2d->getDataPackID(attribnr) );
-	dp = applMgr()->attrServer()->createOutput( tkzs, regsdp );
-    }
-
-    if ( !dp )
-	return;
-
-    s2d->setDataPackID( attribnr, dp->id(), 0 );
-    s2d->showPanel( true );
 }
 
 
@@ -781,20 +679,17 @@ void uiOD2DLineTreeItem::setZRange( const Interval<float> newzrg )
 void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
 {
     BufferString itemnm = attribnm;
-    if ( itemnm == uiODLine2DParentTreeItem::sKeyUnselected() )
-	itemnm = uiODLine2DParentTreeItem::sKeyRightClick();
-
     int nrattribitms = 0;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
-	mDynamicCastGet(uiOD2DLineSetAttribItem*,item,children_[idx]);
+	mDynamicCastGet(uiOD2DLineAttribTreeItem*,item,children_[idx]);
 	if ( item ) nrattribitms++;
     }
 
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiODDataTreeItem*,dataitem,children_[idx]);
-	mDynamicCastGet(uiOD2DLineSetAttribItem*,attribitem,children_[idx]);
+	mDynamicCastGet(uiOD2DLineAttribTreeItem*,attribitem,children_[idx]);
 	if ( !dataitem || itemnm!=dataitem->name().getFullString() ) continue;
 
 	if ( attribitem && nrattribitms<=1 )
@@ -803,8 +698,6 @@ void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
 	    return;
 	}
 
-	applMgr()->visServer()->removeAttrib( displayID(),
-					      dataitem->attribNr() );
 	dataitem->prepareForShutdown();
 	removeChild( dataitem );
 	idx--;
@@ -812,275 +705,44 @@ void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
 }
 
 
-uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
+uiOD2DLineAttribTreeItem::uiOD2DLineAttribTreeItem( const char* pt )
     : uiODAttribTreeItem( pt )
-    , attrnoneitm_(uiStrings::sNone())
-    , storeditm_(tr("Stored 2D Data"))
-    , steeringitm_(tr("Steering 2D Data"))
-    , zattritm_(tr("ZDomain Attrib 2D Data"))
 {}
 
 
-void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
+uiODDataTreeItem* uiOD2DLineAttribTreeItem::create( ProbeLayer& prblay )
 {
-    uiODAttribTreeItem::createMenu( menu, istb );
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv_->getObject( displayID() ))
-    if ( !menu || !s2d || istb ) return;
+    const char* parenttype = typeid(uiOD2DLineTreeItem).name();
+    uiOD2DLineAttribTreeItem* attribtreeitem =
+	new uiOD2DLineAttribTreeItem( parenttype );
+    attribtreeitem->setProbeLayer( &prblay );
+    return attribtreeitem;
 
-    uiSeisPartServer* seisserv = applMgr()->seisServer();
-    uiAttribPartServer* attrserv = applMgr()->attrServer();
-    Attrib::SelSpec as = *visserv_->getSelSpec( displayID(), attribNr() );
-    as.set2DFlag();
-    BufferString objnm =
-	mFromUiStringTodo(visserv_->getObjectName( displayID() ));
-
-    BufferStringSet datasets;
-    seisserv->get2DStoredAttribs( objnm, datasets, 0 );
-    const Attrib::DescSet* ads = attrserv->curDescSet(true);
-    const Attrib::Desc* desc = ads->getDesc( as.id() );
-    const bool isstored = desc && desc->isStored();
-
-    selattrmnuitem_.removeItems();
-
-    bool docheckparent = false;
-    storeditm_.removeItems();
-    for ( int idx=0; idx<datasets.size(); idx++ )
-    {
-	FixedString nm = datasets.get(idx).buf();
-	MenuItem* item = new MenuItem(toUiString(nm));
-	const bool docheck = isstored && nm==as.userRef();
-	if ( docheck ) docheckparent=true;
-	mAddManagedMenuItem( &storeditm_,item,true,docheck);
-    }
-
-    mAddMenuItem( &selattrmnuitem_, &storeditm_, true, storeditm_.checked );
-
-    MenuItem* attrmenu = attrserv->calcAttribMenuItem( as, true, false );
-    attrserv->filter2DMenuItems( *attrmenu, as, s2d->getGeomID(), false, 2 );
-    mAddMenuItem( &selattrmnuitem_, attrmenu, attrmenu->nrItems(),
-		  attrmenu->checked );
-
-    MenuItem* nla = attrserv->nlaAttribMenuItem( as, true, false );
-    if ( nla && nla->nrItems() )
-	mAddMenuItem( &selattrmnuitem_, nla, true, false );
-    // TODO attrserv->filter2DMenuItems( *nla, as, s2d->getGeomID(), false, 0 );
-
-    BufferStringSet steerdatanames;
-    seisserv->get2DStoredAttribs( objnm, steerdatanames, 1 );
-    docheckparent = false;
-    steeringitm_.removeItems();
-    for ( int idx=0; idx<steerdatanames.size(); idx++ )
-    {
-	FixedString nm = steerdatanames.get(idx).buf();
-	MenuItem* item = new MenuItem(toUiString(nm));
-	const bool docheck = isstored && nm==as.userRef();
-	if ( docheck ) docheckparent=true;
-	mAddManagedMenuItem( &steeringitm_,item,true,docheck);
-    }
-
-    mAddMenuItem( &selattrmnuitem_, &steeringitm_, true, docheckparent );
-
-    zattritm_.removeItems();
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
-
-    if ( scene->getZAxisTransform() )
-    {
-	zattritm_.enabled = false;
-	BufferStringSet zattribnms;
-	seisserv->get2DZdomainAttribs( objnm, scene->zDomainKey(), zattribnms );
-	if ( zattribnms.size() )
-	{
-	    mAddMenuItem( &selattrmnuitem_, &zattritm_, true, false );
-	    for ( int idx=0; idx<zattribnms.size(); idx++ )
-	    {
-		FixedString nm = zattribnms.get(idx).buf();
-		MenuItem* item = new MenuItem(toUiString(nm));
-		const bool docheck = isstored && nm==as.userRef();
-		if ( docheck ) docheckparent=true;
-		mAddManagedMenuItem( &zattritm_,item,true,docheck);
-	    }
-
-	    zattritm_.enabled = true;
-	}
-    }
-
-    mAddMenuItem( &selattrmnuitem_, &attrnoneitm_, true, false );
 }
 
 
-void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
+void uiOD2DLineAttribTreeItem::initClass()
 {
-    selcomps.erase();
-    uiODAttribTreeItem::handleMenuCB(cb);
-    mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( !menu || mnuid==-1 || menu->isHandled() )
-	return;
+    uiODDataTreeItem::fac().addCreateFunc(
+	    create, AttribProbeLayer::sFactoryKey(),
+	    Line2DProbe::sFactoryKey() );
 
+}
+
+
+void uiOD2DLineAttribTreeItem::updateDisplay()
+{
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv_->getObject( displayID() ));
+		    applMgr()->visServer()->getObject( displayID() ));
     if ( !s2d )
 	return;
 
-    uiTaskRunner uitr( ODMainWin() );
-    Attrib::SelSpec myas;
-    bool usemcomp = false;
-    BufferString attrnm;
-    if ( storeditm_.itemIndex(mnuid)!=-1 )
-    {
-	menu->setIsHandled(true);
-	attrnm = storeditm_.findItem(mnuid)->text.getFullString();
-	displayStoredData( attrnm, -1, uitr );
-    }
-    else if ( steeringitm_.itemIndex(mnuid)!=-1 )
-    {
-	MouseCursorChanger cursorchgr( MouseCursor::Wait );
-	menu->setIsHandled(true);
-	attrnm = steeringitm_.findItem(mnuid)->text.getFullString();
-	displayStoredData( attrnm, 1, uitr );
-    }
-    else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas,usemcomp))
-    {
-	menu->setIsHandled(true);
-	setAttrib( myas, uitr );
-    }
-    else if ( zattritm_.itemIndex(mnuid)!=-1 )
-    {
-	MouseCursorChanger cursorchgr( MouseCursor::Wait );
-	menu->setIsHandled(true);
-	attrnm = zattritm_.findItem(mnuid)->text.getFullString();
-	displayStoredData( attrnm, -1, uitr );
-    }
-    else if ( mnuid==attrnoneitm_.id )
-    {
-	MouseCursorChanger cursorchgr( MouseCursor::Wait );
-	menu->setIsHandled(true);
-	clearAttrib();
-    }
-}
-
-
-bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
-						 int component,
-						 uiTaskRunner& taskrunner )
-{
-    uiVisPartServer* visserv = applMgr()->visServer();
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject( displayID() ))
-    if ( !s2d ) return false;
-
-    BufferString linename( Survey::GM().getName(s2d->getGeomID()) );
-    BufferStringSet lnms;
-    const SeisIOObjInfo objinfo( attribnm, Seis::Line );
-    SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
-    objinfo.getLineNames( lnms, opts2d );
-    if ( !lnms.isPresent(linename) || !objinfo.ioObj() )
-	return false;
-
-    uiAttribPartServer* attrserv = applMgr()->attrServer();
-    const DBKey dbkey = objinfo.ioObj()->key();
-    //First time to ensure all components are available
-    Attrib::DescID attribid = attrserv->getStoredID( dbkey, true );
-
-    BufferStringSet complist;
-    SeisIOObjInfo::getCompNames( objinfo.ioObj()->key(), complist );
-    if ( complist.size()>1 && component<0 )
-    {
-	if ( ( !selcomps.size() &&
-	       !attrserv->handleMultiComp( dbkey, true, false, complist,
-					   attribid, selcomps ) )
-	     || ( selcomps.size() && !attrserv->prepMultCompSpecs(
-		     selcomps, dbkey, true, false ) ) )
-	    return false;
-
-	if ( selcomps.size()>1 )
-	{
-	    const bool needsetattrid = visserv->getSelAttribNr() != attribNr();
-	    Attrib::SelSpec mtas( "Multi-Textures",
-				Attrib::SelSpec::cOtherAttrib() );
-	    if ( needsetattrid )
-		visserv->setSelObjectId( displayID(), attribNr() );
-
-	    const bool rescalc = applMgr()->calcMultipleAttribs( mtas );
-
-	    if ( needsetattrid )
-		visserv->setSelObjectId( displayID(), -1 );
-
-	    updateColumnText(0);
-	    return rescalc;
-	}
-    }
-    else
-	attribid = attrserv->getStoredID( dbkey, true, component );
-
-    if ( !attribid.isValid() ) return false;
-
-    TypeSet<Attrib::SelSpec> as = *visserv->getSelSpecs( displayID(), 0 );
-    for ( int idx=0; idx<as.size(); idx++ )
-    {
-	as[idx].set( attribnm, attribid, false, 0 );
-	as[idx].set2DFlag();
-	const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );
-	if ( !ds ) return false;
-	as[idx].setRefFromID( *ds );
-	const Attrib::Desc* targetdesc = ds->getDesc( attribid );
-	if ( !targetdesc ) return false;
-
-	BufferString defstring;
-	targetdesc->getDefStr( defstring );
-	as[idx].setDefString( defstring );
-    }
-
-    attrserv->setTargetSelSpecs( as );
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
-    const FixedString zdomainkey = as[0].zDomainKey();
-    const bool alreadytransformed = scene && zdomainkey == scene->zDomainKey();
-    const DataPack::ID dpid = attrserv->createOutput(
-			s2d->getTrcKeyZSampling(alreadytransformed),
-			DataPack::ID::get( 0 ) );
-    if ( dpid.isInvalid() )
-	return false;
-
-    MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    s2d->setSelSpecs( attribNr(), as );
-    applMgr()->useDefColTab( displayID(), attribNr() );
-    s2d->setDataPackID( attribNr(), dpid, &taskrunner );
     s2d->showPanel( true );
-
-    updateColumnText(0);
-    setChecked( s2d->isOn() );
-
-    return true;
+    uiODAttribTreeItem::updateDisplay();
 }
 
 
-void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
-					 uiTaskRunner& uitr )
-{
-    const uiVisPartServer* visserv = applMgr()->visServer();
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject(displayID()));
-    if ( !s2d ) return;
-
-    applMgr()->attrServer()->setTargetSelSpec( myas );
-    const DataPack::ID dpid = applMgr()->attrServer()->createOutput(
-					s2d->getTrcKeyZSampling(false),
-					DataPack::ID::get(0) );
-    if ( dpid.isInvalid() )
-	return;
-
-    s2d->setSelSpecs( attribNr(), TypeSet<Attrib::SelSpec>(1,myas) );
-    s2d->setDataPackID( attribNr(), dpid, 0 );
-    s2d->showPanel( true );
-
-    updateColumnText(0);
-    setChecked( s2d->isOn() );
-    applMgr()->updateColorTable( displayID(), attribNr() );
-}
-
-
-void uiOD2DLineSetAttribItem::clearAttrib()
+void uiOD2DLineAttribTreeItem::clearAttrib()
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    applMgr()->visServer()->getObject( displayID() ));

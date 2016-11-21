@@ -513,7 +513,6 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const int attribnr = attribNr();
 	prepareForShutdown();
-	visserv_->removeAttrib( displayID(), attribnr );
 	applMgr()->updateColorTable( displayID(), attribnr ? attribnr-1 : 0 );
 
 	parent_->removeChild( this );
@@ -525,6 +524,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 void uiODDataTreeItem::prepareForShutdown()
 {
     uiTreeItem::prepareForShutdown();
+    visserv_->removeAttrib( displayID(), attribNr() );
     applMgr()->updateColorTable( -1, -1 );
 }
 

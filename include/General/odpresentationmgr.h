@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "dbkey.h"
 #include "groupedid.h"
+#include "zdomain.h"
+#include "zaxistransform.h"
 
 namespace OD
 {
@@ -123,10 +125,19 @@ mExpClass(General) PresentationManagedViewer : public CallBacker
 public:
 				PresentationManagedViewer();
     virtual			~PresentationManagedViewer();
+    OD::ViewerID		viewerID()
+				{ return OD::ViewerID(viewerTypeID(),
+						      viewerObjID()); }
     virtual ViewerTypeID	viewerTypeID() const			=0;
     ViewerObjID			viewerObjID() const	{ return viewerobjid_; }
     void			setViewerObjID(ViewerObjID id)
 				{ viewerobjid_ = id; }
+    const ZAxisTransform*	getZAxisTransform() const
+				{ return datatransform_.ptr(); }
+    void			setZAxisTransform(ZAxisTransform*);
+    bool			hasZAxisTransform() const
+				{ return datatransform_; }
+    const ZDomain::Info&	zDomain() const		{return *zdomaininfo_; }
 
     CNotifier<PresentationManagedViewer,IOPar>	ObjAdded;
     CNotifier<PresentationManagedViewer,IOPar>	ObjOrphaned;
@@ -137,6 +148,8 @@ public:
 
 protected:
     ViewerObjID			viewerobjid_;
+    RefMan<ZAxisTransform>	datatransform_;
+    ZDomain::Info*		zdomaininfo_;
 };
 
 
@@ -145,13 +158,13 @@ mExpClass(General) VwrTypePresentationMgr : public CallBacker
 {
 public:
     virtual ViewerTypeID	viewerTypeID() const		=0;
-    virtual void		request(PresentationRequestType,
-					const IOPar&,
-				    ViewerObjID skipvwrid
-				    =ViewerObjID::get(-1));
-					// -1= do not skip any
+    virtual void		request(ViewerID originivwrid,
+					PresentationRequestType,
+					const IOPar&);
     void			addViewer( PresentationManagedViewer* vwr )
 				{ viewers_ += vwr; }
+    PresentationManagedViewer*	getViewer(OD::ViewerObjID);
+    const PresentationManagedViewer* getViewer(OD::ViewerObjID) const;
 protected:
     ObjectSet<PresentationManagedViewer> viewers_;
 };
@@ -177,11 +190,18 @@ public:
 				PresentationManager();
 
     VwrTypePresentationMgr*	getViewerTypeMgr(ViewerTypeID vwrtypeid);
+    const VwrTypePresentationMgr*
+				getViewerTypeMgr(ViewerTypeID vwrtypeid) const;
+    PresentationManagedViewer*	getViewer(OD::ViewerID vwrid);
+    const PresentationManagedViewer*
+				getViewer(OD::ViewerID vwrid) const;
     void			request(ViewerID id,
 					PresentationRequestType,
 					const IOPar&);
     void			syncAllViewerTypes();
     void			addViewerTypeManager(VwrTypePresentationMgr*);
+    bool			canViewerBeSynced(ViewerID,
+						  ViewerID) const;
     bool			areViewerTypesSynced(ViewerTypeID,
 						    ViewerTypeID) const;
 protected:
