@@ -612,7 +612,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( myas.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
-		PtrMan<Attrib::ExtAttribCalc> calc =
+		Attrib::ExtAttribCalc* calc =
 			    Attrib::ExtAttrFact().create( 0, myas, false );
 		if ( !calc )
 		{
@@ -629,11 +629,13 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		if ( dpid==DataPack::cNoID() && !calc->errmsg_.isEmpty() )
 		{
 		    uiMSG().error( calc->errmsg_ );
+		    delete calc;
 		    return false;
 		}
 
 		res = dpid != DataPack::cNoID();
 		visserv_->setDataPackID( visid, attrib, dpid );
+		delete calc;
 		break;
 	    }
 

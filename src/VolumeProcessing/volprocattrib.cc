@@ -239,7 +239,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 	return DataPack::cNoID();
     }
 
-    DPM( DataPackMgr::SeisID() ).obtain( output->id() );
+    // Datapack still reffed by the chain
     return output->id();
 }
 
