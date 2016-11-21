@@ -15,6 +15,7 @@
 #include "timefun.h"
 #include "oddirs.h"
 #include "transl.h"
+#include "keystrs.h"
 #include "uistrings.h"
 #include "genc.h"
 

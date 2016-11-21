@@ -26,6 +26,7 @@ ___________________________________________________________________
 #include "streamconn.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "keystrs.h"
 
 namespace EM
 {

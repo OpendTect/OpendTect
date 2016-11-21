@@ -25,6 +25,7 @@
 #include "scaler.h"
 #include "ptrman.h"
 #include "uistrings.h"
+#include "keystrs.h"
 
 #define mInitMembers \
 	Executor(nm) \

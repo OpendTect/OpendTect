@@ -23,6 +23,7 @@
 #include "separstr.h"
 #include "survinfo.h"
 #include "uistrings.h"
+#include "keystrs.h"
 
 namespace Attrib
 {

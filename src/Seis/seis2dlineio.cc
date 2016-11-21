@@ -27,6 +27,7 @@
 #include "seisbuf.h"
 #include "sorting.h"
 #include "uistrings.h"
+#include "keystrs.h"
 
 Seis2DLineGetter::Seis2DLineGetter( SeisTrcBuf& trcbuf, int trcsperstep,
 				    const Seis::SelData& sd )

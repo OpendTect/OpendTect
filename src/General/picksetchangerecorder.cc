@@ -7,6 +7,7 @@
 
 #include "picksetchangerecorder.h"
 #include "pickset.h"
+#include "keystrs.h"
 #include "uistrings.h"
 
 namespace Pick

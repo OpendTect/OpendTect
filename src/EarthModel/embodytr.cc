@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emrandomposbody.h"
 #include "dbman.h"
 #include "uistrings.h"
+#include "keystrs.h"
 
 uiString EMBodyTranslatorGroup::sTypeName( int num )
 { return uiStrings::sBody( num ); }

@@ -29,6 +29,7 @@
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "zaxistransform.h"
+#include "keystrs.h"
 
 //For parsing old pars
 #include "attribsel.h"

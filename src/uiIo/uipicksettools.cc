@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uipicksettools.h"
 #include "picksetmanager.h"
 #include "picksettr.h"
+#include "keystrs.h"
 #include "uiioobjselgrp.h"
 #include "uimsg.h"
 

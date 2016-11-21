@@ -10,6 +10,7 @@ ___________________________________________________________________
 
 #include "uiodprmantreeitem.h"
 #include "sharedobject.h"
+#include "keystrs.h"
 
 
 uiODPrManagedTreeItem::uiODPrManagedTreeItem( const uiString& nm )

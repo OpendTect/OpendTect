@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "jobrunner.h"
 #include "od_ostream.h"
 #include "od_helpids.h"
+#include "keystrs.h"
 
 static const char* sKeyMMPTestProgName = "od_mmptestbatch";
 

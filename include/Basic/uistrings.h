@@ -210,6 +210,7 @@ public:
     static uiString sAll()		{ return tr("All"); }
     static uiString sAmplitude(int num=1){ return tr("Amplitude",0,num); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
+    static uiString sAnd()		{ return tr("and"); }
     static uiString sApply()		{ return tr("Apply"); }
     static uiString sASCII();
     static uiString sAttribName()	{ return tr("Attribute Name"); }
@@ -390,6 +391,7 @@ public:
     static uiString sOpen();
     static uiString sOperator()		{ return tr("Operator"); }
     static uiString sOptions();
+    static uiString sOr()		{ return tr("or"); }
     static uiString sOutpDataStore()	{ return tr("Output data store"); }
     static uiString sOutputFile()	{ return tr("Output file"); }
     static uiString sOutputStatistic()	{ return phrOutput( tr("statistic") ); }

@@ -7,11 +7,12 @@
 
 #include "visobject.h"
 
-#include "iopar.h"
 #include "visdataman.h"
 #include "visevent.h"
 #include "vismaterial.h"
 #include "vistransform.h"
+#include "iopar.h"
+#include "keystrs.h"
 
 #include <osg/Group>
 #include <osg/BlendFunc>

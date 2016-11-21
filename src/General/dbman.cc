@@ -17,6 +17,7 @@
 #include "safefileio.h"
 #include "od_iostream.h"
 #include "transl.h"
+#include "keystrs.h"
 #include "uistrings.h"
 
 #define mErrRet(str) { ret.add(str); return ret; }

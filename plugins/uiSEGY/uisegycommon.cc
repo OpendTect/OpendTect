@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "settings.h"
 #include "od_strstream.h"
+#include "keystrs.h"
 
 static const char* sKeyZInFeet = "Z in feet";
 static const char* sKeyIsVSP = "Is Zero-offset VSP";

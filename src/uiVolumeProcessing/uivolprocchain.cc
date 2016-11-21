@@ -677,7 +677,7 @@ uiString uiChain::getPossibleInitialStepNames( bool is2d )
 	    possiblenames += uiStepDialog::factory().getUserNames()[idx];
 	}
 
-	names = possiblenames.createOptionString( false, -1, '\n' );
+	names = possiblenames.createOptionString( false, -1, true );
     }
 
     return names;

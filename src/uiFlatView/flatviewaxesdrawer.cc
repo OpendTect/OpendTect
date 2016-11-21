@@ -211,7 +211,7 @@ void AxesDrawer::updateViewRect()
 	if ( axis2nm_ ) axis2nm_->setVisible( false );
     }
 
-    if ( !annot.title_.isEmpty() && annot.title_ != toUiString(" ") )
+    if ( !annot.title_.isEmpty() && !annot.title_.isEqualTo(toUiString(" ")) )
     {
 	if ( !titletxt_ )
 	{

@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "file.h"
 #include "filepath.h"
+#include "keystrs.h"
 
 
 mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);

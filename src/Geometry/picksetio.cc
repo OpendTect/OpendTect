@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "dbman.h"
 #include "dbdir.h"
+#include "keystrs.h"
 
 mDefineInstanceCreatedNotifierAccess(Pick::SetSaver)
 

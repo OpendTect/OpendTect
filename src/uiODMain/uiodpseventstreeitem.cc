@@ -171,7 +171,7 @@ bool uiODPSEventsTreeItem::init()
        mnu->getItem(idx)->enabled = !idx || enab; \
     } \
     mnu->getItem(midx)->checked = true; \
-    items.erase(); \
+    items.setEmpty(); \
 
 void uiODPSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
 {

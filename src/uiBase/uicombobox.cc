@@ -230,7 +230,7 @@ void uiComboBox::setEmpty()
     body_->QComboBox::clear();
     body_->clearEditText();
     itemids_.erase();
-    itemstrings_.erase();
+    itemstrings_.setEmpty();
 }
 
 

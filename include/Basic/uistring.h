@@ -11,12 +11,13 @@ ________________________________________________________________________
 -*/
 
 #include "gendefs.h"
-#include "keystrs.h"
 #include "threadlock.h"
 #include "string2.h"
-#include "typeset.h"
+#include "objectset.h"
 
 class uiStringData;
+class uiStringSet;
+class uiRetVal;
 
 mFDQtclass( QString );
 mFDQtclass( QStringList );
@@ -161,6 +162,11 @@ private:
     mutable Threads::Lock	datalock_;	//!< Protects data_ variable
     static const uiString	emptystring_;
 
+    bool			operator==( const uiString&  oth ) const
+				{ return isEqualTo( oth ); }
+    bool			operator!=( const uiString& oth ) const
+				{ return !isEqualTo( oth ); }
+
 public:
 
 		//Only for expert users
@@ -172,11 +178,6 @@ public:
 
 		/*!<Don't use. May be depreciated. Use toUiString("My text")
 		    function instead. */
-
-    bool	operator==(const uiString& b) const;
-		//!<Don't use, will force crash. Only here to keep TypeSet happy
-    bool	operator!=(const uiString& b) const { return !(*this==b); }
-		//!<Don't use, will force crash. Only here to keep TypeSet happy
     bool	isEqualTo(const uiString& oth) const;
 		//!<Do use, but only if unavoidable
 
@@ -218,20 +219,54 @@ public:
 
 /*\brief Set of uiStrings */
 
-mExpClass(Basic) uiStringSet : public TypeSet<uiString>
+mExpClass(Basic) uiStringSet
 { mODTextTranslationClass(uiStringSet);
 public:
-		uiStringSet()				{}
-		uiStringSet( const uiString* );
-		/*!<Adds list of strings until an empty string is found. */
-		uiStringSet( const uiStringSet& sl )
-		    : TypeSet<uiString>(sl)		{}
 
-    uiString	createOptionString(bool use_and=true,int maxnritems=-1,
-				   char space = ' ') const;
-		//!<Returns a string with "option1, option2, and/or option 3"
-    void	fill(mQtclass(QStringList)&) const;
-    uiString	cat(const char* sepstr="\n") const;
+    typedef ObjectSet<uiString>::size_type	size_type;
+    typedef size_type				IdxType;
+
+			uiStringSet()				{}
+			uiStringSet( const uiString& s )	{ set(s); }
+			uiStringSet( const uiStringSet& oth )	{ *this = oth; }
+			uiStringSet(const uiString[]);
+				/*!< end array with empty string */
+			~uiStringSet();
+    uiStringSet&	operator =(const uiStringSet&);
+
+    inline size_type	size() const		    { return strs_.size(); }
+    inline bool		validIdx( IdxType i ) const { return strs_.validIdx(i);}
+    bool		isEmpty() const		    { return strs_.isEmpty(); }
+    bool		isPresent(const uiString&) const;
+    IdxType		indexOf(const uiString&) const;
+    uiString		get(IdxType) const;
+    uiString&		operator[]( IdxType idx )	{ return *strs_[idx]; }
+    const uiString&	operator[]( IdxType idx ) const	{ return *strs_[idx]; }
+
+    void		setEmpty();
+    uiStringSet&	set(const uiString&);
+    uiStringSet&	set( const uiStringSet& oth )	{ return (*this=oth); }
+    uiStringSet&	set(const uiRetVal&);
+    uiStringSet&	add(const uiString&);
+    uiStringSet&	add(const uiStringSet&);
+    uiStringSet&	add(const uiRetVal&);
+    uiStringSet&	append( const uiStringSet& ss )	{ return add(ss); }
+    uiStringSet&	insert(IdxType,const uiString&);
+    uiStringSet&	operator +=( const uiString& s ) { return add(s); }
+    void		removeSingle(IdxType,bool keep_order=true);
+    void		removeRange(IdxType,IdxType);
+
+    uiString		cat(const char* sepstr="\n") const;
+    uiString		createOptionString(bool use_and=true,int maxnritems=-1,
+				   bool separate_using_newlines=false) const;
+				//!< example: "option1, option2, and option3"
+
+    void		fill(mQtclass(QStringList)&) const;
+
+protected:
+
+    ObjectSet<uiString>	strs_;
+
 };
 
 

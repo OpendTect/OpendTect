@@ -19,6 +19,7 @@
 #include "prestackeventtransl.h"
 #include "velocitypicks.h"
 #include "binidvalue.h"
+#include "keystrs.h"
 
 
 

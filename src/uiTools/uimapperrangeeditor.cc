@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "datapackbase.h"
 #include "mousecursor.h"
+#include "keystrs.h"
 #include <math.h>
 
 

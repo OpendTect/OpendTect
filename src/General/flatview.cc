@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "zdomain.h"
 #include "randcolor.h"
 #include "survinfo.h"
+#include "keystrs.h"
 
 namespace FlatView
 {

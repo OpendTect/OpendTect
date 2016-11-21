@@ -133,8 +133,8 @@ void uiStringData::set( const char* orig )
 {
     Threads::Locker contentlocker( contentlock_ );
     originalstring_ = orig;
-    arguments_.erase();
-    legacyversions_.erase();
+    arguments_.setEmpty();
+    legacyversions_.setEmpty();
     translationcontext_.setEmpty();
     application_ = 0;
     translationdisambiguation_ = 0;
@@ -602,6 +602,17 @@ bool uiString::operator<(const uiString& b ) const
 }
 
 
+bool uiString::isEqualTo( const uiString& oth ) const
+{
+    Threads::Locker datalocker( datalock_ );
+    if ( data_ == oth.data_ )
+	return true;
+
+    const BufferString myfullstring = getFullString();
+    return myfullstring == oth.getFullString();
+}
+
+
 uiString& uiString::arg( const uiString& newarg )
 {
     Threads::Locker datalocker( datalock_ );
@@ -714,22 +725,6 @@ void uiString::makeIndependent()
 }
 
 
-bool uiString::operator==( const uiString& b ) const
-{
-#ifdef __debug__
-    DBG::forceCrash( false );
-    return true;
-#else
-    Threads::Locker datalocker( datalock_ );
-    if ( data_==b.data_ )
-	return true;
-
-    const BufferString myself = getFullString();
-    return myself == b.getFullString();
-#endif
-}
-
-
 void uiString::getHexEncoded( BufferString& str ) const
 {
 #ifndef OD_NO_QT
@@ -738,13 +733,6 @@ void uiString::getHexEncoded( BufferString& str ) const
 
     str = BufferString( hex );
 #endif
-}
-
-
-bool uiString::isEqualTo( const uiString& oth ) const
-{
-    const BufferString othbuf = oth.getFullString();
-    return othbuf == getFullString();
 }
 
 
@@ -870,112 +858,199 @@ uiString& uiString::addSpace( int nr )
 }
 
 
- uiString& uiString::addTab( int nr )
- {
-     uiString tabs;
-     for(int i=0; i<nr; i++)
-	 tabs.append(toUiString("\t"));
-
-     return  (*this).append(tabs);
- }
-
- uiString& uiString::addNewLine( int nr )
- {
-     uiString newline;
-     for(int i=0; i<nr; i++)
-	 newline.append(toUiString("\n"));
-
-     return  (*this).append(newline);
- }
-
-
-uiStringSet::uiStringSet( const uiString* strings )
+uiString& uiString::addTab( int nr )
 {
-    for ( int idx=0; !strings[idx].isEmpty(); idx++ )
-	add( strings[idx] );
+    uiString tabs;
+    for( int i=0; i<nr; i++ )
+	tabs.append( toUiString("\t") );
+
+    return append( tabs );
+}
+
+uiString& uiString::addNewLine( int nr )
+{
+    uiString newline;
+    for( int i=0; i<nr; i++)
+	newline.append( toUiString("\n") );
+
+    return append( newline );
+}
+
+
+//-- uiStringSet
+
+
+uiStringSet::uiStringSet( const uiString strs[] )
+{
+    for ( IdxType idx=0; ; idx++ )
+    {
+	const uiString& str = strs[idx];
+	if ( str.isEmpty() )
+	    break;
+	add( str );
+    }
+}
+
+
+uiStringSet::~uiStringSet()
+{
+    setEmpty();
+}
+
+
+uiStringSet& uiStringSet::operator =( const uiStringSet& oth )
+{
+    deepCopy( strs_, oth.strs_ );
+    return *this;
+}
+
+
+bool uiStringSet::isPresent( const uiString& str ) const
+{
+    return indexOf( str ) >= 0;
+}
+
+
+uiStringSet::IdxType uiStringSet::indexOf( const uiString& str ) const
+{
+    const size_type sz = size();
+    for ( IdxType idx=0; idx<sz; idx++ )
+	if ( strs_[idx]->isEqualTo(str) )
+	    return idx;
+    return -1;
+}
+
+
+uiString uiStringSet::get( IdxType idx ) const
+{
+    return strs_.validIdx(idx) ? *strs_[idx] : uiString::emptyString();
+}
+
+
+void uiStringSet::setEmpty()
+{
+    deepErase( strs_ );
+}
+
+
+uiStringSet& uiStringSet::set( const uiString& str )
+{
+    setEmpty();
+    return add( str );
+}
+
+
+uiStringSet& uiStringSet::set( const uiRetVal& uirv )
+{
+    return set( (const uiStringSet&)uirv );
+}
+
+
+uiStringSet& uiStringSet::add( const uiString& str )
+{
+    strs_ += new uiString( str );
+    return *this;
+}
+
+
+uiStringSet& uiStringSet::add( const uiStringSet& oth )
+{
+    deepAppend( strs_, oth.strs_ );
+    return *this;
+}
+
+
+uiStringSet& uiStringSet::add( const uiRetVal& uirv )
+{
+    return add( (const uiStringSet&)uirv );
+}
+
+
+uiStringSet& uiStringSet::insert( IdxType idx, const uiString& str )
+{
+    strs_.insertAt( new uiString(str), idx );
+    return *this;
+}
+
+
+void uiStringSet::removeSingle( IdxType idx, bool kporder )
+{
+    delete strs_.removeSingle( idx, kporder );
 }
 
 
 void uiStringSet::fill( QStringList& qlist ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
-	qlist.append( (*this)[idx].getQString() );
+    for ( IdxType idx=0; idx<size(); idx++ )
+	qlist.append( strs_[idx]->getQString() );
 }
 
 
 
-uiString uiStringSet::createOptionString( bool use_and,
-					  int maxnr, char space ) const
+uiString uiStringSet::createOptionString( bool use_and, size_type maxnr,
+					  bool usenl ) const
 {
-    BufferString glue;
-
-    const char* percentage = "%";
-    uiStringSet arguments;
-    const char spacestring[] = { space, 0 };
-
-    arguments += toUiString(spacestring);
-    bool firsttime = true;
-
-    int nritems = 0;
-    for ( int idx=0; idx<size(); idx++ )
+    uiStringSet usestrs;
+    for ( IdxType idx=0; idx<size(); idx++ )
     {
-	if ( (*this)[idx].isEmpty() )
-	    continue;
+	const uiString& str = *strs_[idx];
+	if ( !str.isEmpty() )
+	    usestrs.add( str );
+    }
 
-	nritems++;
-	arguments += (*this)[idx];
-	if ( firsttime )
+    const size_type sz = usestrs.size();
+    if ( sz < 1 )
+	return uiString::emptyString();
+
+    uiString result( usestrs[0] );
+    if ( sz < 2 || maxnr == 1 )
+	return result;
+
+    const char* sepstr = usenl ? "\n" : " ";
+    const uiString and_or_or = use_and ? uiStrings::sAnd() : uiStrings::sOr();
+
+    if ( sz == 2 )
+    {
+	result.append( sepstr ).append( and_or_or ).append( " " )
+	      .append( usestrs[1] );
+	return result;
+    }
+
+    for ( IdxType idx=1; idx<sz; idx++ )
+    {
+	const uiString& str = usestrs[idx];
+	if ( idx == maxnr )
 	{
-	    glue.add( percentage );
-	    glue.add( arguments.size() );
-
-            firsttime = false;
-	}
-	else if ( idx==size()-1 )
-	{
-	    if ( size()==2 )
-		glue.add( use_and ? " and%1%" : " or%1%" );
-	    else
-		glue.add( use_and ? ", and%1%" : ", or%1%");
-
-	    glue.add( arguments.size() );
+	    result.append( "," ).append( sepstr ).append( "..." );
+	    return result;
 	}
 	else
 	{
-	    glue.add(",%1%");
-	    glue.add( arguments.size() );
-
-	    if ( maxnr>1 && maxnr<=nritems )
+	    if ( idx == sz-1 )
 	    {
-		glue.add( ",%1...");
-		break;
+		result.append( "," ).append( sepstr ).append( and_or_or )
+			.append( " " ).append( str );
+		return result;
 	    }
+	    result.append( "," ).append( sepstr ).append( str );
 	}
     }
 
-    if ( glue.isEmpty() )
-	return uiString();
-
-    uiString res;
-    res.set( glue );
-
-    for ( int idx=0; idx<arguments.size(); idx++ )
-	res.arg( arguments[idx] );
-
-    return res;
+    pErrMsg( "Should not reach" );
+    return result;
 }
 
 
 uiString uiStringSet::cat( const char* sepstr ) const
 {
-    uiString str;
-    for (int idx=0; idx<size(); idx++)
+    uiString result;
+    for ( IdxType idx=0; idx<size(); idx++ )
     {
 	if (idx)
-	    str.append( toUiString(sepstr) );
-    str.append((*this)[idx]);
+	    result.append( sepstr );
+	result.append( *strs_[idx] );
     }
-    return str;
+    return result;
 }
 
 

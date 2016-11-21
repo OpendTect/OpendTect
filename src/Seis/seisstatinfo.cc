@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "seistrc.h"
 #include "statrand.h"
+#include "keystrs.h"
 
 #define mMaxArrSize 1000
 #define mTotalNrSamples mMaxArrSize*mMaxArrSize

@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "iostrm.h"
 #include "strmprov.h"
 #include "uistrings.h"
+#include "keystrs.h"
 
 
 namespace EM

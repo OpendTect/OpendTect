@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38
 #include "randomlinegeom.h"
 #include "seistrc.h"
 #include "survinfo.h"
+#include "keystrs.h"
 
 #include <limits.h>
 

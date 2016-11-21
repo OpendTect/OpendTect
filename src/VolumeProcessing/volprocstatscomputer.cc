@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "paralleltask.h"
 #include "seisdatapack.h"
 #include "statruncalc.h"
+#include "keystrs.h"
 
 namespace VolProc
 {

@@ -18,6 +18,7 @@
 #include "samplfunc.h"
 #include "seistrc.h"
 #include "waveletmanager.h"
+#include "keystrs.h"
 
 namespace Seis
 {
@@ -152,7 +153,7 @@ bool SynthGenBase::getOutSamplingFromModel(
     }
 
     if ( sampling.isUdf() )
-	mErrRet(uiStrings::phrCannotCompute(tr("trace size from models")), 
+	mErrRet(uiStrings::phrCannotCompute(tr("trace size from models")),
 									false)
 
     sampling.scale( 1.f / outputsr );
@@ -249,7 +250,7 @@ int SynthGenerator::nextStep()
 {
     // Sanity checks
     if ( !wavelet_ )
-	mErrRet(uiStrings::phrCannotCreate(tr("synthetics without wavelet")), 
+	mErrRet(uiStrings::phrCannotCreate(tr("synthetics without wavelet")),
 								    mErrOccRet);
     const int wvltsz = wavelet_->size();
     if (wvltsz < 2)

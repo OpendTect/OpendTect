@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "binid.h"
 #include "manobjectset.h"
 #include "od_iosfwd.h"
+#include "typeset.h"
 class ascbinistream;
 class ascbinostream;
 

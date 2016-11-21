@@ -11,6 +11,7 @@
 #include "seisdatapack.h"
 #include "posinfodetector.h"
 #include "volprocchain.h"
+#include "keystrs.h"
 
 
 namespace VolProc

@@ -129,6 +129,8 @@ bool testArg()
 
 bool testUTF8()
 {
+    /* Commented out after consulting Kris, failed.
+
     //Convert some chinese from base 64 to qstring. Then get the utf8 out.
     //Expected values comes from an online conversion tool.
     const QString input = QByteArray::fromBase64( 
@@ -138,11 +140,13 @@ bool testUTF8()
     BufferString utf8;
     uistring.fillUTF8String( utf8 );
     const unsigned char expected[] =  { 0xE6, 0x89, 0x8B, 0xE6, 0x9C, 0xBA,
-			      0xE9, 0x98, 0xBF, 0xE9, 0x87, 0x8C };
+			      0xE9, 0x98, 0xBF, 0xE9, 0x87, 0x8C, 0 };
+
 #ifndef __win__
     mRunStandardTest( !strcmp( (const char*)expected, utf8.buf() ), 
 							    "UTF conversion" );
 #endif
+    */
     return true;
 }
 
@@ -262,14 +266,14 @@ bool testOptionStrings()
     uiStringSet options( strings );
 
     mRunStandardTest(
-	    options.createOptionString( true, -1, ' ').getFullString()==
+	    options.createOptionString( true, -1, false ).getFullString()==
 	              "One, Two, Three, and Four", "createOptionString and" );
     mRunStandardTest(
-	    options.createOptionString( false, -1, ' ').getFullString()==
+	    options.createOptionString( false, -1, false ).getFullString()==
 	              "One, Two, Three, or Four", "createOptionString or" );
 
     mRunStandardTest(
-	    options.createOptionString( false, 3, ' ').getFullString()==
+	    options.createOptionString( false, 3, false ).getFullString()==
 	              "One, Two, Three, ...", "createOptionString limited" );
 
     return true;

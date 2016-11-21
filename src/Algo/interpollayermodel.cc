@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "math2.h"
+#include "keystrs.h"
 
 // InterpolationLayerModel
 mImplFactory( InterpolationLayerModel, InterpolationLayerModel::factory )

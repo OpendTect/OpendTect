@@ -8,8 +8,9 @@
 #include "basemapimpl.h"
 #include "coord.h"
 #include "task.h"
-
+#include "keystrs.h"
 #include "uistrings.h"
+
 
 BaseMapObject::BaseMapObject( const char* nm )
     : NamedMonitorable(nm)

@@ -10,6 +10,7 @@
 #include "ptrman.h"
 #include "perthreadrepos.h"
 #include "enums.h"
+#include "keystrs.h"
 
 
 const char* DataInpSpec::valuestr = "Val";
@@ -404,7 +405,7 @@ void StringListInpSpec::addString( const uiString& txt )
 
 void StringListInpSpec::setEnumDef( const EnumDef& enums )
 {
-    strings_.erase();
+    strings_.setEmpty();
     enumdef_ = &enums;
 
     for ( int idx=0; idx<enums.size(); idx++ )

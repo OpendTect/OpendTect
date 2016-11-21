@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "ascstream.h"
 #include "ctxtioobj.h"
+#include "keystrs.h"
 
 #include "uilistbox.h"
 #include "uiioobjseldlg.h"

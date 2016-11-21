@@ -8,9 +8,9 @@
 #include "vislocationdisplay.h"
 
 #include "dbman.h"
-
 #include "picksetmanager.h"
 #include "selector.h"
+#include "keystrs.h"
 
 #include "visevent.h"
 #include "vismaterial.h"

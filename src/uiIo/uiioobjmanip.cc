@@ -387,7 +387,7 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
     for (int idx = 0; idx<ioobjs.size(); idx++)
 	selnms += ioobjs[idx]->uiName();
 
-    info.arg( selnms.createOptionString(true,10,'\n') );
+    info.arg( selnms.createOptionString(true,10,true) );
     if ( !uiMSG().askRemove( info ) )
 	return false;
 

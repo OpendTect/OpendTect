@@ -60,6 +60,7 @@ ________________________________________________________________________
 #include "posvecdataset.h"
 #include "pickset.h"
 #include "randomlinegeom.h"
+#include "keystrs.h"
 
 #include "zaxistransform.h"
 #include "zaxistransformutils.h"
@@ -687,7 +688,7 @@ void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
     {
 	if ( viewstdcontrol_->editToolBar() )
 	    viewstdcontrol_->editToolBar()->setSensitive( picksettingstbid_,
-		    					  false );
+							  false );
 	return;
     }
 

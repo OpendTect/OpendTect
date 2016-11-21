@@ -52,7 +52,7 @@ void PositionSystem::getSystemNames( bool orthogonalonly, uiStringSet& strings,
 			     ObjectSet<IOPar>& pars )
 {
     deepErase( pars );
-    strings.erase();
+    strings.setEmpty();
 
     //Add all factory entries
     const BufferStringSet factorynames = factory().getNames();

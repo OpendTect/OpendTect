@@ -209,8 +209,8 @@ void uiListBoxBody::removeAll()
 {
     QListWidget::clear();
     items_.erase();
-    itemstrings_.erase();
-    itemmarked_.erase();
+    itemstrings_.setEmpty();
+    itemmarked_.setEmpty();
 }
 
 

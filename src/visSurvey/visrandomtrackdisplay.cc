@@ -23,6 +23,7 @@
 #include "polylinend.h"
 #include "settings.h"
 #include "uistrings.h"
+#include "keystrs.h"
 
 #include "visdragger.h"
 #include "visevent.h"

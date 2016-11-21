@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "jobrunner.h"
 #include "oddirs.h"
 #include "oscommand.h"
+#include "keystrs.h"
 
 
 Batch::SingleJobDispatcher::SingleJobDispatcher()

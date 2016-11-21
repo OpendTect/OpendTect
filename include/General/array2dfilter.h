@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "iopar.h"
 #include "rowcol.h"
+#include "keystrs.h"
 #include <math.h>
 
 /*!
@@ -31,7 +32,7 @@ struct Array2DFilterPars
 
 			Array2DFilterPars( Stats::Type t=Stats::Average,
 					   RowCol rc=RowCol(1,1),
-			       		   bool filludf=false )
+					   bool filludf=false )
 			: type_(t)
 			, stepout_(rc)
 			, filludf_(filludf)
@@ -92,12 +93,12 @@ public:
 
     inline		Array2DFilterer(Array2D<T>&,const Array2DFilterPars&);
     inline		Array2DFilterer(const Array2D<T>&,
-	    				Array2D<T>&, const RowCol& origin,
-	    				const Array2DFilterPars&);
+					Array2D<T>&, const RowCol& origin,
+					const Array2DFilterPars&);
     inline		~Array2DFilterer();
 
     inline void		setScope(const Interval<int>& rowrg,
-	    			 const Interval<int>& colrg);
+				 const Interval<int>& colrg);
 
     inline Array2D<T>&	output()		{ return output_; }
     inline const Array2D<T>& output() const	{ return output_; }

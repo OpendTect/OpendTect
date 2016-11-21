@@ -25,8 +25,9 @@
 #include "zaxistransform.h"
 #include "zaxistransformer.h"
 #include "uistrings.h"
-
 #include "arrayndimpl.h"
+#include "keystrs.h"
+
 
 namespace visSurvey {
 
@@ -89,7 +90,7 @@ MPEDisplay::~MPEDisplay()
     setSceneEventCatcher( 0 );
 
     DPM( DataPackMgr::SeisID() ).unRef( cacheid_ );
-    
+
     TypeSet<int> children;
     getChildren( children );
     for ( int idx=0; idx<children.size(); idx++ )
@@ -133,7 +134,7 @@ const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib,
 	return 0;
 
     if ( mIsUdf(version) || version<0
-	    		 || version >= channels_->nrVersions(attrib) )
+			 || version >= channels_->nrVersions(attrib) )
 	version = channels_->currentVersion( attrib );
 
     return &channels_->getColTabMapperSetup( attrib, version );
@@ -611,7 +612,7 @@ void MPEDisplay::updateBoxSpace()
     const Interval<float> survcrlrg( mCast(float,hs.start_.crl()),
 					mCast(float,hs.stop_.crl()) );
     const Interval<float> survzrg( SI().zRange(true).start,
-	    			   SI().zRange(true).stop );
+				   SI().zRange(true).stop );
 
     boxdragger_->setSpaceLimits( survinlrg, survcrlrg, survzrg );
 
@@ -770,8 +771,8 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
     DataPackMgr& dpman = DPM( DataPackMgr::SeisID() );
     ConstRefMan<RegularSeisDataPack> cdp =
-    	dpman.getAndCast<RegularSeisDataPack>( dpid );
-    
+	dpman.getAndCast<RegularSeisDataPack>( dpid );
+
     const bool res = setDataVolume( attrib, cdp, tskr );
     if ( !res )
     {
@@ -1006,7 +1007,7 @@ void MPEDisplay::setSliceDimension( int sliceidx, int dim )
 	slices_[sliceidx]->setDim( dim );
 	slices_[sliceidx]->setName( dim==cTimeSlice() ? uiStrings::sTime() :
 				    dim==cCrossLine()
-				    	? uiStrings::sCrossline()
+					? uiStrings::sCrossline()
 					: uiStrings::sInline() );
     }
 }

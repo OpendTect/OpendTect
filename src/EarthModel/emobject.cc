@@ -21,6 +21,7 @@
 #include "selector.h"
 #include "survinfo.h"
 #include "uistrings.h"
+#include "keystrs.h"
 
 namespace EM
 {
