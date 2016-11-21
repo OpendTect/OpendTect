@@ -362,7 +362,6 @@ VolProc::ChainExecutor::Epoch::Epoch( const ChainExecutor& ce )
     : taskgroup_(*new TaskGroup)
     , chainexec_(ce)
 {
-    taskgroup_.setParallel( true );
     taskgroup_.setName( ce.name() );
 }
 
@@ -442,7 +441,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	    }
 
 	    const RegularSeisDataPack* input = currentstep->getInput(inputslot);
-	    if ( input->getTrcsSampling() )
+	    if ( input && input->getTrcsSampling() )
 		trcssampling.merge( *input->getTrcsSampling(), true );
 	}
 
@@ -540,9 +539,6 @@ const RegularSeisDataPack* VolProc::ChainExecutor::getOutput() const
 
 int VolProc::ChainExecutor::nextStep()
 {
-    if ( curepoch_ )
-	{ delete curepoch_; curepoch_ = 0; }
-
     if ( !isok_ )
 	return ErrorOccurred();
     if ( epochs_.isEmpty() )
@@ -554,8 +550,6 @@ int VolProc::ChainExecutor::nextStep()
 	mCleanUpAndRet( ErrorOccurred() )
 
     Task& curtask = curepoch_->getTask();
-    if ( progressmeter_ )
-	progressmeter_->skipProgress( false );
     curtask.setProgressMeter( progressmeter_ );
     curtask.enableWorkControl( true );
     if ( !curtask.execute() )
@@ -568,18 +562,18 @@ int VolProc::ChainExecutor::nextStep()
 				const_cast<RegularSeisDataPack*>( outputdp_ ) );
     }
 
-    //To prevent the overall chain progress display in between sub-tasks
-    if ( progressmeter_ )
-	progressmeter_->skipProgress( true );
-
+    const bool finished = epochs_.isEmpty();
     //Give output volumes to all steps that need them
-    if ( !curepoch_->updateInputs() )
+    if ( !finished && !curepoch_->updateInputs() )
 	return false;
 
     //Everyone who wants my data has it. I can release it.
     curepoch_->releaseData();
+    deleteAndZeroPtr( curepoch_ );
+    if ( finished )
+	progressmeter_ = 0;
 
-    return epochs_.isEmpty() ? Finished() : MoreToDo();
+    return finished ? Finished() : MoreToDo();
 }
 
 
@@ -658,5 +652,5 @@ uiString VolProc::ChainExecutor::uiMessage() const
     if ( curepoch_ )
 	return curepoch_->getTask().uiMessage();
 
-    return tr("Preparing processing");
+    return uiString::emptyString();
 }

@@ -94,6 +94,7 @@ public:
 			}
 
     void		setMessage(const uiString&);
+    void		printMessage(const uiString&);
 
 			/*!<This setting will not reset unless you call it.*/
     void		skipProgress( bool yn )		{ skipprog_ = yn; }

@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 VolProc::ChainOutput::ChainOutput()
-    : Executor("Volume Processing Output")
+    : Executor("")
     , cs_(true)
     , chain_(0)
     , chainexec_(0)
@@ -35,14 +35,13 @@ VolProc::ChainOutput::ChainOutput()
     , progresskeeper_(*new ProgressRecorder)
 {
     progressmeter_ = &progresskeeper_;
-    progresskeeper_.setMessage( tr("Reading Volume Processing Specification") );
 }
 
 
 VolProc::ChainOutput::~ChainOutput()
 {
     chain_->unRef();
-    delete chainexec_; chainexec_ = 0;
+    delete chainexec_;
     delete wrr_;
     deepErase( storers_ );
     delete &progresskeeper_;
@@ -96,10 +95,18 @@ void VolProc::ChainOutput::controlWork( Control ctrl )
 
 void VolProc::ChainOutput::createNewChainExec()
 {
-    delete chainexec_;
+    deleteAndZeroPtr( chainexec_ );
+    if ( chain_ )
+	unRefAndZeroPtr( chain_ );
+
+    if ( getChain() != MoreToDo() )
+	return;
+    /* Many usePar implementations also allocate auxiliary data:
+       Restore in case of chunking */
+
     chainexec_ = new VolProc::ChainExecutor( *chain_ );
     chainexec_->enableWorkControl( workControlEnabled() );
-    chainexec_->setProgressMeter( &progresskeeper_ );
+    chainexec_->setProgressMeter( progresskeeper_.forwardTo() );
 }
 
 
@@ -111,12 +118,7 @@ int VolProc::ChainOutput::retError( const uiString& msg )
 
 
 int VolProc::ChainOutput::retMoreToDo()
-{
-    if ( !chainexec_ && wrr_ )
-	progresskeeper_.setFrom( *wrr_ );
-
-    return MoreToDo();
-}
+{ return MoreToDo(); }
 
 
 od_int64 VolProc::ChainOutput::nrDone() const
@@ -148,9 +150,7 @@ int VolProc::ChainOutput::nextStep()
     if ( !shouldContinue() )
 	return Finished();
 
-    if ( !chain_ )
-	return getChain();
-    else if ( nrexecs_<0 )
+    if ( nrexecs_<0 )
 	return setupChunking();
     else if ( neednextchunk_ )
 	return setNextChunk();
@@ -172,11 +172,16 @@ int VolProc::ChainOutput::nextStep()
 	    if ( !wrr_ && !openOutput() )
 		return ErrorOccurred();
 
-	    neednextchunk_ = true;
+	    neednextchunk_ = ++curexecnr_ < nrexecs_;
 	    startWriteChunk();
+	    if ( !neednextchunk_ )
+	    {	//We just did the last step of the last chunk
+		progressmeter_ = 0;
+		deleteAndZeroPtr( chainexec_ );
+	    }
 	}
 
-	return retMoreToDo();
+	return MoreToDo();
     }
 
     slock.reLock();
@@ -184,11 +189,13 @@ int VolProc::ChainOutput::nextStep()
     {
 	slock.unlockNow();
 	Threads::sleep( 0.1 );
-	return retMoreToDo();
+	return MoreToDo();
     }
 
     // no calculations going on, no storers left ...
-    progresskeeper_.skipProgress( true );
+    progressmeter_ = &progresskeeper_;
+    setName( "Volume builder processing" );
+
     return Finished();
 }
 
@@ -206,20 +213,18 @@ int VolProc::ChainOutput::getChain()
     chain_ = new Chain; chain_->ref();
     uiString errmsg;
     if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
-    {
-	progresskeeper_.setMessage( errmsg );
-	return ErrorOccurred();
-    }
+	return retError( errmsg );
     else if ( chain_->nrSteps() < 1 )
 	return retError( tr("Empty Volume Processing Chain - nothing to do.") );
 
     const Step& step0 = *chain_->getStep(0);
     if ( step0.needsInput() )
+    {
 	return retError(
 		tr("First step in Volume Processing Chain (%1) requires input."
 		    "\nIt can thus not be first.").arg( step0.userName() ) );
+    }
 
-    progresskeeper_.setMessage( tr("Creating Volume Processor") );
     return MoreToDo();
 }
 
@@ -227,6 +232,8 @@ int VolProc::ChainOutput::getChain()
 int VolProc::ChainOutput::setupChunking()
 {
     createNewChainExec();
+    if ( !chainexec_ )
+	return ErrorOccurred();
 
     const float zstep = chain_->getZStep();
     outputzrg_ = StepInterval<int>( mNINT32(cs_.zsamp_.start/zstep),
@@ -268,6 +275,7 @@ int VolProc::ChainOutput::setupChunking()
     }
 
     neednextchunk_ = true;
+    curexecnr_ = 0;
     return MoreToDo();
 }
 
@@ -275,31 +283,30 @@ int VolProc::ChainOutput::setupChunking()
 int VolProc::ChainOutput::setNextChunk()
 {
     neednextchunk_ = false;
-    curexecnr_++;
-    if ( curexecnr_ >= nrexecs_ )
-    {
-	delete chainexec_; chainexec_ = 0;
-	return retMoreToDo();
-    }
-
     if ( curexecnr_ > 0 )
+    {
 	createNewChainExec();
+	if ( !chainexec_ )
+	    return ErrorOccurred();
+    }
 
     const TrcKeySampling hsamp( cs_.hsamp_.getLineChunk(nrexecs_,curexecnr_) );
 
     if ( !chainexec_->setCalculationScope(hsamp,outputzrg_) )
     {
-	delete chainexec_; chainexec_ = 0;
+	deleteAndZeroPtr( chainexec_ );
 	return retError( tr("Could not set calculation scope."
 		    "\nProbably there is not enough memory available.") );
     }
 
     if ( nrexecs_ < 2 )
-	return retMoreToDo();
+	return MoreToDo();
 
     progresskeeper_.setMessage(
-	    tr("\nStarting new Volume Processing chunk %1-%2.\n")
+	    tr("Starting new Volume Processing chunk %1-%2.")
 	    .arg( hsamp.start_.inl() ).arg( hsamp.stop_.inl() ) );
+    progresskeeper_.setMessage( uiString::emptyString() );
+
     return MoreToDo();
 }
 
@@ -316,7 +323,10 @@ bool VolProc::ChainOutput::openOutput()
 
     PtrMan<IOObj> ioobj = IOM().get( outid_ );
     if ( !ioobj )
+    {
+	DPM( DataPackMgr::SeisID() ).release( seisdp->id() );
 	mErrRet( uiStrings::phrCannotFind( tr("output cube ID in database") ) )
+    }
 
     const VelocityDesc* vd = chain_->getVelDesc();
     ConstPtrMan<VelocityDesc> veldesc = vd ? new VelocityDesc( *vd ) : 0;
@@ -334,8 +344,10 @@ bool VolProc::ChainOutput::openOutput()
 	IOM().commitChanges( *ioobj );
 
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );
+    DPM( DataPackMgr::SeisID() ).release( seisdp->id() );
     wrr_->setSelection( cs_.hsamp_, outputzrg_ );
     wrr_->enableWorkControl( workControlEnabled() );
+
     return true;
 }
 
@@ -366,9 +378,15 @@ void startWork()
 {
     SeisDataPackWriter& wrr = *co_.wrr_;
     if ( wrr.dataPack() != &dp_ )
+    {
 	wrr.setNextDataPack( dp_ );
+	DPM( DataPackMgr::SeisID() ).release( dp_.id() );
+    }
     else
 	wrr.setSelection( dp_.sampling().hsamp_, wrr.zSampling() );
+
+    if ( co_.nrexecs_ == co_.curexecnr_ )
+	wrr.setProgressMeter( co_.progresskeeper_.forwardTo() );
 
     work_ = new Threads::Work( wrr, false );
     CallBack finishedcb( mCB(this,VolProc::ChainOutputStorer,workFinished) );
@@ -417,8 +435,6 @@ void VolProc::ChainOutput::reportFinished( ChainOutputStorer& storer )
     storers_ -= &storer;
     if ( !storer.errmsg_.isEmpty() )
     {
-	if ( chainexec_ )
-	    chainexec_->setProgressMeter( 0 );
 	progresskeeper_.setMessage( storer.errmsg_ );
 	storererr_ = true;
     }
