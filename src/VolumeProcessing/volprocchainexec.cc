@@ -232,26 +232,23 @@ struct VolumeMemory
     Step::ID		creator_;
     Step::OutputSlotID	outputslot_;
     od_int64		nrbytes_;
-    int			firstepoch_;
-    int			lastepoch_;
+    int			epoch_;
 
 			VolumeMemory( Step::ID creator,
 				      Step::OutputSlotID outputslot,
 				      od_int64 nrbytes,
-				      int firstepoch, int lastepoch )
+				      int epoch )
 			: creator_(creator)
 			, outputslot_(outputslot)
 			, nrbytes_(nrbytes)
-			, firstepoch_(firstepoch)
-			, lastepoch_(lastepoch)			{};
+			, epoch_(epoch)				{};
 
     bool		operator==( VolumeMemory vm ) const
 			{
 			    return creator_ == vm.creator_ &&
 				   outputslot_ == vm.outputslot_ &&
 				   nrbytes_ == vm.nrbytes_ &&
-				   firstepoch_ == vm.firstepoch_ &&
-				   lastepoch_ == vm.lastepoch_;
+				   epoch_ == vm.epoch_;
 			}
 };
 
@@ -283,19 +280,14 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 							hrg, zrg );
 
 		od_int64 outputsize = basesize + extrasize;
+		if ( step->getNrInputs() > 0 &&
+		     !step->canInputAndOutputBeSame() )
+		    outputsize += basesize;
+
 		VolumeMemory volmem( step->getID(), outputidx, outputsize,
-				     epochidx, epochidx );
+				     epochidx );
 
 		activevolumes += volmem;
-	    }
-
-	    //Handle if mem can be the same.
-
-	    for ( int inputidx=0; inputidx<step->getNrInputs(); inputidx++ )
-	    {
-		//Look at connection. Is any of the activevolumes used ?
-		const int activevolidx = 0; //Compute();
-		activevolumes[activevolidx].lastepoch_ = epochidx;
 	    }
 	}
     }
@@ -307,15 +299,13 @@ od_int64 VolProc::ChainExecutor::computeMaximumMemoryUsage(
 
 	for ( int idx=0; idx<activevolumes.size(); idx++ )
 	{
-	    if ( epochidx<activevolumes[idx].firstepoch_ )
-		continue;
-
-	    if ( epochidx>activevolumes[idx].lastepoch_ )
+	    if ( epochidx != activevolumes[idx].epoch_ )
 		continue;
 
 	    memneeded += activevolumes[idx].nrbytes_;
 	}
-	res += memneeded;
+	if ( memneeded > res )
+	    res = memneeded;
     }
 
     return res;
@@ -458,24 +448,34 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	csamp.zsamp_.stop = stepoutputzrg.stop * fullzrg.step; //index -> real
 	csamp.zsamp_.step = stepoutputzrg.step * fullzrg.step; //index -> real
 
-	RegularSeisDataPack* outcube = new RegularSeisDataPack( 0 );
-	DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
-	outcube->setSampling( csamp );
-	if ( trcssampling.totalSizeInside( csamp.hsamp_ ) > 0 )
-	{
-	    trcssampling.limitTo( csamp.hsamp_ );
-	    if ( !trcssampling.isFullyRectAndReg() )
-	    {
-		outcube->setTrcsSampling(
-			new PosInfo::SortedCubeData(trcssampling));
-	    }
-	}
+	const RegularSeisDataPack* outfrominp =
+			currentstep->canInputAndOutputBeSame() &&
+			currentstep->validInputSlotID(0) ?
+		currentstep->getInput( currentstep->getInputSlotID(0) ) : 0;
 
-	if ( !outcube->addComponent( 0 ) )
-	{ //TODO: allocate the step-required number of components
-	    errmsg_ = "Cannot allocate enough memory.";
-	    outcube->release();
-	    return false;
+	RegularSeisDataPack* outcube = outfrominp
+			     ? const_cast<RegularSeisDataPack*>( outfrominp )
+			     : new RegularSeisDataPack( 0 );
+	DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
+	if ( !outfrominp )
+	{
+	    outcube->setSampling( csamp );
+	    if ( trcssampling.totalSizeInside( csamp.hsamp_ ) > 0 )
+	    {
+		trcssampling.limitTo( csamp.hsamp_ );
+		if ( !trcssampling.isFullyRectAndReg() )
+		{
+		    outcube->setTrcsSampling(
+			    new PosInfo::SortedCubeData(trcssampling));
+		}
+	    }
+
+	    if ( !outcube->addComponent( 0 ) )
+	    { //TODO: allocate the step-required number of components
+		errmsg_ = "Cannot allocate enough memory.";
+		outcube->release();
+		return false;
+	    }
 	}
 
 	Step::OutputSlotID outputslotid = 0; // TODO: get correct slotid
@@ -555,14 +555,14 @@ int VolProc::ChainExecutor::nextStep()
     if ( !curtask.execute() )
 	mCleanUpAndRet( ErrorOccurred() )
 
-    if ( epochs_.isEmpty() )		//we just executed the last one
+    const bool finished = epochs_.isEmpty();
+    if ( finished )			//we just executed the last one
     {
 	outputdp_ = curepoch_->getOutput();
 	DPM( DataPackMgr::SeisID() ).addAndObtain(
 				const_cast<RegularSeisDataPack*>( outputdp_ ) );
     }
 
-    const bool finished = epochs_.isEmpty();
     //Give output volumes to all steps that need them
     if ( !finished && !curepoch_->updateInputs() )
 	return false;
