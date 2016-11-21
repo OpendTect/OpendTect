@@ -114,11 +114,17 @@ void SurfaceAuxData::setAuxDataShift( int dataidx, float shift )
 
 
 bool SurfaceAuxData::hasAuxDataName( const char* nm ) const
-{ return auxdatanames_.isPresent( nm ); }
+{ return auxDataIndex(nm) >= 0; }
 
 
 int SurfaceAuxData::auxDataIndex( const char* nm ) const
-{ return auxdatanames_.indexOf( nm ); }
+{
+    for ( int idx=0; idx<auxdatanames_.size(); idx++ )
+	if ( auxdatanames_[idx] && auxdatanames_.get(idx) == nm )
+	    return idx;
+
+    return -1;
+}
 
 
 int SurfaceAuxData::addAuxData( const char* name )
@@ -181,8 +187,8 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
 				    bool onlynewpos )
 {
     const TrcKey tk = BinID::fromInt64( posid.subID() );
-    if ( !auxdatanames_.validIdx(dataidx) || 
-	tk.isUdf() || 
+    if ( !auxdatanames_.validIdx(dataidx) ||
+	tk.isUdf() ||
 	horizon_.isNodeLocked(tk) )
 	return;
 
