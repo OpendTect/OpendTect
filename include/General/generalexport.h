@@ -15,6 +15,6 @@ ________________________________________________________________________
 #  include <monitoriter.h>
 
 mExportTemplClassInst( General ) Array2D<float>;
-mExportTemplClassInst( General ) MonitorableIter<int>;
+mExportTemplClassInst( General ) MonitorableIterBase<int>;
 
 # endif
