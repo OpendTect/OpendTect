@@ -412,7 +412,6 @@ bool parseExp( CallBacker* cb )
 	return false;
     }
 
-    chkbox->setChecked(false);
     if ( mathobj->nrVariables() > 1 )
     {
 	msg_ = tr("Expression for Y%1 contains more than one variable.")

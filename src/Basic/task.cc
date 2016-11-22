@@ -169,6 +169,7 @@ void TaskGroupController::controlWork( Task::Control t )
 
 TaskGroup::TaskGroup()
     : curtask_(-1)
+    , showcumulativecount_(false)
     , lock_(true)
 {
 }
@@ -205,6 +206,34 @@ void TaskGroup::getTasks( TaskGroup& oth )
 }
 
 
+od_int64 TaskGroup::nrDone() const
+{
+    Threads::Locker lckr( lock_ );
+    if ( !showcumulativecount_ )
+	return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDone() : 0;
+
+    od_int64 res = 0;
+    for ( int idx=0; idx<tasks_.size(); idx++ )
+	res += tasks_[idx]->nrDone();
+
+    return res;
+}
+
+
+od_int64 TaskGroup::totalNr() const
+{
+    Threads::Locker lckr( lock_ );
+    if ( !showcumulativecount_ )
+	return tasks_.validIdx(curtask_) ? tasks_[curtask_]->totalNr() : 0;
+
+    od_int64 res = 0;
+    for ( int idx=0; idx<tasks_.size(); idx++ )
+	res += tasks_[idx]->totalNr();
+
+    return res;
+}
+
+
 uiString TaskGroup::message() const
 {
     Threads::Locker locker( lock_ );
@@ -212,6 +241,14 @@ uiString TaskGroup::message() const
 	return uiString::emptyString();
 
     return tasks_[curtask_]->message();
+}
+
+
+uiString TaskGroup::nrDoneText() const
+{
+    Threads::Locker lckr( lock_ );
+    return tasks_.validIdx(curtask_) ? tasks_[curtask_]->nrDoneText()
+				     : uiString::emptyString();
 }
 
 

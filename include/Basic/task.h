@@ -114,12 +114,18 @@ public:
 			//Becomes mine
 
     void		setParallel(bool)			{}
+    void		showCumulativeCount( bool yn )
+    			{ showcumulativecount_ = yn; }
 
     void		setProgressMeter(ProgressMeter*);
     void		setEmpty();
     void		getTasks(TaskGroup&);
 
+    od_int64		nrDone() const;
+    od_int64		totalNr() const;
+
     uiString		message() const;
+    uiString		nrDoneText() const;
 
     virtual bool	execute();
 
@@ -127,6 +133,7 @@ protected:
 
     ObjectSet<Task>	tasks_;
     int			curtask_;
+    bool		showcumulativecount_;
 
     mutable Threads::Lock lock_;
 
