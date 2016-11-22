@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "gpuprog.h"
 #include "bufstringset.h"
+#include "typeset.h"
 
 #define CL_USE_DEPRECATED_OPENCL_2_0_APIS
 
