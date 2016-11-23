@@ -329,18 +329,18 @@ bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 					    != iostrm->fileSpec().fileName();
 	    if ( newfnm && !doReloc(trans,*iostrm,chiostrm) )
 	    {
-		if ( newnm.contains('/') || newnm.contains('\\') )
-		{
-		    newnm.clean( BufferString::AllowDots );
-		    chiostrm.setName( newnm );
-		    chiostrm.genFileName();
-		    deffp.set( chiostrm.fileSpec().fileName() );
-		    fp.setFileName( deffp.fileName() );
-		    chiostrm.fileSpec().setFileName( fp.fullPath() );
-		    chiostrm.setName( iostrm->name() );
-		    if (!doReloc(trans, *iostrm, chiostrm))
-			return false;
-		}
+		if ( !newnm.contains('/') && !newnm.contains('\\') )
+		    return false;
+
+		newnm.clean( BufferString::AllowDots );
+		chiostrm.setName( newnm );
+		chiostrm.genFileName();
+		deffp.set( chiostrm.fileSpec().fileName() );
+		fp.setFileName( deffp.fileName() );
+		chiostrm.fileSpec().setFileName( fp.fullPath() );
+		chiostrm.setName( iostrm->name() );
+		if (!doReloc(trans, *iostrm, chiostrm))
+		    return false;
 	    }
 
 	    iostrm->copyFrom( &chiostrm );
