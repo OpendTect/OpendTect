@@ -126,6 +126,11 @@ protected:
 
     Interval<float>		widthranges_[3];
     Interval<float>		spaceranges_[3];
+
+public:
+    void			setDragCtrlSpacing(const StepInterval<float>&,
+						   const StepInterval<float>&,
+						   const StepInterval<float>&);
 };
 
 };

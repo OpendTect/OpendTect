@@ -177,16 +177,20 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 	return;
 
     TrcKeyZSampling survey = scene_->getTrcKeyZSampling();
-    const Interval<float> inlrg( mCast(float,survey.hsamp_.start_.inl()),
-				    mCast(float,survey.hsamp_.stop_.inl()) );
-    const Interval<float> crlrg( mCast(float,survey.hsamp_.start_.crl()),
-				    mCast(float,survey.hsamp_.stop_.crl()) );
+    const StepInterval<float> inlrg( mCast(float,survey.hsamp_.start_.inl()),
+				     mCast(float,survey.hsamp_.stop_.inl()),
+				     mCast(float,survey.hsamp_.step_.inl()) );
+    const StepInterval<float> crlrg( mCast(float,survey.hsamp_.start_.crl()),
+				     mCast(float,survey.hsamp_.stop_.crl()),
+				     mCast(float,survey.hsamp_.step_.crl()) );
 
     dragger_->setSpaceLimits( inlrg, crlrg, survey.zsamp_ );
     dragger_->setWidthLimits(
       Interval<float>( mCast(float,4*survey.hsamp_.step_.inl()), mUdf(float) ),
       Interval<float>( mCast(float,4*survey.hsamp_.step_.crl()), mUdf(float) ),
       Interval<float>( 4*survey.zsamp_.step, mUdf(float) ) );
+
+    dragger_->setDragCtrlSpacing( inlrg, crlrg, survey.zsamp_ );
 
     TrcKeyZSampling newpos = getTrcKeyZSampling(false,true);
     if ( !newpos.isEmpty() )

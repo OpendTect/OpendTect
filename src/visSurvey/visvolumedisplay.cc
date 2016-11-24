@@ -613,10 +613,12 @@ void VolumeDisplay::updateDraggerLimits( bool dragmode )
     if ( !keepdraggerinsidetexture_ && scene_ )
 	limcs = scene_->getTrcKeyZSampling();
 
-    const Interval<float> inlrg( mCast(float,limcs.hsamp_.start_.inl()),
-				 mCast(float,limcs.hsamp_.stop_.inl()) );
-    const Interval<float> crlrg( mCast(float,limcs.hsamp_.start_.crl()),
-				 mCast(float,limcs.hsamp_.stop_.crl()) );
+    const StepInterval<float> inlrg( mCast(float,limcs.hsamp_.start_.inl()),
+				     mCast(float,limcs.hsamp_.stop_.inl()),
+				     mCast(float,limcs.hsamp_.step_.inl()) );
+    const StepInterval<float> crlrg( mCast(float,limcs.hsamp_.start_.crl()),
+				     mCast(float,limcs.hsamp_.stop_.crl()),
+				     mCast(float,limcs.hsamp_.step_.crl()) );
 
     boxdragger_->setSpaceLimits( inlrg, crlrg, limcs.zsamp_ );
 
@@ -627,6 +629,8 @@ void VolumeDisplay::updateDraggerLimits( bool dragmode )
 	Interval<float>( mCast(float,minvoxwidth*limcs.hsamp_.step_.crl()),
 			 mUdf(float) ),
 	Interval<float>( minvoxwidth*limcs.zsamp_.step, mUdf(float) ) );
+
+    boxdragger_->setDragCtrlSpacing( inlrg, crlrg, limcs.zsamp_ );
 }
 
 

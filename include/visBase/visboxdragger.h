@@ -103,6 +103,11 @@ protected:
 
     bool				selectable_;
     bool				useindepthtransforresize_;
+
+public:
+    void			setDragCtrlSpacing(const StepInterval<float>&,
+						   const StepInterval<float>&,
+						   const StepInterval<float>&);
 };
 
 };

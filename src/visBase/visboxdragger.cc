@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dragcontroller.h"
 #include "vistransform.h"
 #include "ranges.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "mouseevent.h"
 #include "survinfo.h"
@@ -33,6 +34,10 @@ mCreateFactoryEntry( visBase::BoxDragger );
 namespace visBase
 {
 
+static HiddenParam<BoxDragger,StepInterval<float>*> dragctrlxspacing_(0);
+static HiddenParam<BoxDragger,StepInterval<float>*> dragctrlyspacing_(0);
+static HiddenParam<BoxDragger,StepInterval<float>*> dragctrlzspacing_(0);
+
 
 class BoxDraggerCallbackHandler: public osgManipulator::DraggerCallback
 {
@@ -40,6 +45,7 @@ class BoxDraggerCallbackHandler: public osgManipulator::DraggerCallback
 public: 
 				BoxDraggerCallbackHandler( BoxDragger& dragger )
 				    : dragger_( dragger )
+				    , dodragcontrol_(false)
 				{}
 
     using			osgManipulator::DraggerCallback::receive;
@@ -60,6 +66,7 @@ protected:
 
     DragController		dragcontroller_;
     double			maxdragdist_;
+    bool			dodragcontrol_;
 };
 
 
@@ -232,10 +239,22 @@ void BoxDraggerCallbackHandler::constrain( Coord3 center, Coord3 scale,
 
 void BoxDraggerCallbackHandler::initDragControl()
 {
+    if ( !dodragcontrol_ )
+    {
+	if ( dragctrlxspacing_.getParam(&dragger_)->isUdf() ||
+	     dragctrlyspacing_.getParam(&dragger_)->isUdf() ||
+	     dragctrlzspacing_.getParam(&dragger_)->isUdf() )
+	    return;
+
+	dodragcontrol_ = true;
+    }
+
     mGetEventHandlingTabPlaneInfo( tpd, dim, sense, mousepos );
 
-    const double scalefactor = dim==2 ? SI().zStep() :
-			       dim==1 ? SI().crlStep() : SI().inlStep();
+    const double scalefactor =
+			dim==2 ? dragctrlzspacing_.getParam(&dragger_)->step :
+			dim==1 ? dragctrlyspacing_.getParam(&dragger_)->step :
+			dragctrlxspacing_.getParam(&dragger_)->step;
 
     const Coord3 dragdir( dim==0, dim==1, dim==2 );
     dragcontroller_.init( mousepos, scalefactor, dragdir );
@@ -251,9 +270,10 @@ void BoxDraggerCallbackHandler::initDragControl()
     {
 	screendragprojvec /= screendragprojvec.sqAbs();
 
-	const float dragdepth = dim==2 ? SI().zRange(false).width() :
-				dim==1 ? SI().crlRange(false).width() :
-				SI().inlRange(false).width();
+	const float dragdepth =
+		    dim==2 ? dragctrlzspacing_.getParam(&dragger_)->width() :
+		    dim==1 ? dragctrlyspacing_.getParam(&dragger_)->width() :
+		    dragctrlxspacing_.getParam(&dragger_)->width();
 
 	screendragprojvec *= sense * fabs(dragdepth) / scalefactor;
 	dragcontroller_.dragInScreenSpace( frontalview, screendragprojvec );
@@ -263,6 +283,9 @@ void BoxDraggerCallbackHandler::initDragControl()
 
 void BoxDraggerCallbackHandler::applyDragControl( Coord3& displacement )
 {
+    if ( !dodragcontrol_ )
+	return;
+
     mGetEventHandlingTabPlaneInfo( tpd, dim, sense, mousepos );
     dragcontroller_.transform( displacement, mousepos, maxdragdist_ );
 
@@ -347,12 +370,26 @@ BoxDragger::BoxDragger()
     osgboxdragger_->addChild( geode );
 
     showDraggerBorder( true );
+
+    dragctrlxspacing_.setParam( this, new StepInterval<float>() );
+    dragctrlxspacing_.getParam(this)->setUdf();
+    dragctrlyspacing_.setParam( this, new StepInterval<float>() );
+    dragctrlyspacing_.getParam(this)->setUdf();
+    dragctrlzspacing_.setParam( this, new StepInterval<float>() );
+    dragctrlzspacing_.getParam(this)->setUdf();
 }
 
 
 BoxDragger::~BoxDragger()
 {
     osgboxdragger_->removeDraggerCallback( osgcallbackhandler_ );
+
+    delete dragctrlxspacing_.getParam(this);
+    dragctrlxspacing_.removeParam(this);
+    delete dragctrlyspacing_.getParam(this);
+    dragctrlyspacing_.removeParam(this);
+    delete dragctrlzspacing_.getParam(this);
+    dragctrlzspacing_.removeParam(this);
 }
 
 
@@ -573,6 +610,15 @@ void BoxDragger::useInDepthTranslationForResize( bool yn )
 
 bool BoxDragger::isInDepthTranslationUsedForResize() const
 { return useindepthtransforresize_; }
+
+
+void BoxDragger::setDragCtrlSpacing( const StepInterval<float>& x,
+	const StepInterval<float>& y, const StepInterval<float>& z )
+{
+    *dragctrlxspacing_.getParam(this) = x;
+    *dragctrlyspacing_.getParam(this) = y;
+    *dragctrlzspacing_.getParam(this) = z;
+}
 
 
 }; // namespace visBase
