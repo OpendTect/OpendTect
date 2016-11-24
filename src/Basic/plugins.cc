@@ -174,16 +174,6 @@ PluginManager::PluginManager()
 }
 
 
-static BufferString getProgNm( const char* argv0 )
-{
-    File::Path fp( argv0 );
-#ifdef __win__
-    fp.setExtension( 0 );
-#endif
-    return fp.fileName();
-}
-
-
 static const char* getFnName( const char* libnm, const char* fnbeg,
 			      const char* fnend )
 {
