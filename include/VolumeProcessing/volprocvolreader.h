@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "volprocstep.h"
 #include "dbkey.h"
 
+class IOObj;
 class SeisTrcReader;
 class SeisTrcTranslator;
 
@@ -50,9 +51,12 @@ protected:
 					 const TrcKeySampling&,
 					 const StepInterval<int>&) const;
 
+    bool			prepareWork(const IOObj&);
+
     static const char*		sKeyVolumeID()		{ return "Volume ID"; }
 
     DBKey			mid_;
+    TypeSet<int>		components_;
     ObjectSet<SeisTrcReader>	readers_;
     ObjectSet<SeisTrcTranslator> translators_;
 
