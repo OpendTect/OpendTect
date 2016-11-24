@@ -156,6 +156,8 @@ public:
     bool			canBDispOn2DViewer() const	{ return true; }
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
+    void			setRightHandSystem(bool);
+
 
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> nodemoving_;

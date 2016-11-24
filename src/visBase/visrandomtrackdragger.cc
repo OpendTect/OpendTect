@@ -97,6 +97,7 @@ protected:
 
     DragController		dragcontroller_;
     double			maxdragdist_;
+    bool			dodragcontrol_;
 
     osg::ref_ptr<osgGeo::TabPlaneDragger> planedragger_;
 };
@@ -106,8 +107,7 @@ PlaneDragCBHandler::PlaneDragCBHandler( RandomTrackDragger& rtd )
     : rtdragger_( rtd )
     , ismoving_( false )
     , localdir_( 0.0, 0.0, 0.0 )
-    , extension_( mMAX(SI().reasonableRange(true).width(),
-		       SI().reasonableRange(false).width()) )
+    , dodragcontrol_( false )
 {
     planedragger_ = new osgGeo::TabPlaneDragger( 12.0 );
     planedragger_->setIntersectionMask( cDraggerIntersecTraversalMask() );
@@ -178,6 +178,9 @@ bool PlaneDragCBHandler::receive( const osgManipulator::MotionCommand& cmd )
 
 	rtdragger_.showRotationAxis( dragmode==Rotate, planeidx,
 				     Conv::to<Coord>(pickedpos_) );
+
+	extension_ = 10 * mMAX( rtdragger_.limits_[0].width(),
+				rtdragger_.limits_[1].width() );
 	initDragControl();
     }
 
@@ -251,7 +254,7 @@ void PlaneDragCBHandler::constrain( int planeidx, DragMode dragmode )
     {
 	const osg::Vec2& mousepos = planedragger_->getNormalizedPosOnScreen();
 	float angle = M_PI * (mousepos-initialmousepos_)[0];
-	if ( !SI().isRightHandSystem() )
+	if ( !rtdragger_.isRightHandSystem() )
 	    angle = -angle;
 
 	const Coord dir( cos(angle), sin(angle) );
@@ -320,8 +323,8 @@ void PlaneDragCBHandler::constrain( int planeidx, DragMode dragmode )
 	}
     }
 
-    newtopleft.setXY( rtdragger_.horborder_.moveInside( newtopleft.getXY() ) );
-    newbotright.setXY( rtdragger_.horborder_.moveInside( newbotright.getXY() ) );
+    newtopleft.setXY( rtdragger_.horborder_.moveInside(newtopleft.getXY()) );
+    newbotright.setXY( rtdragger_.horborder_.moveInside(newbotright.getXY()) );
 
     rtdragger_.doSetKnot( planeidx, newtopleft.getXY() );
     rtdragger_.doSetKnot( planeidx+1, newbotright.getXY() );
@@ -395,7 +398,7 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
 		    horborder.setLeft( -mUdf(double) );
 		}
 
-		dragdepth = SI().inlRange(true).width();
+		dragdepth = rtdragger_.limits_[0].width();
 	    }
 	    else
 	    {
@@ -410,7 +413,7 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
 		    horborder.setTop( -mUdf(double) );
 		}
 
-		dragdepth = SI().crlRange(true).width();
+		dragdepth = rtdragger_.limits_[1].width();
 	    }
 
 	    outerdist = 0.0;
@@ -447,8 +450,19 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
 
 void PlaneDragCBHandler::initDragControl()
 {
+    if ( !dodragcontrol_ )
+    {
+	for ( int dim=0; dim<3; dim++ )
+	{
+	    if ( rtdragger_.dragctrlspacing_[dim].isUdf() )
+		return;
+	}
+	dodragcontrol_ = true;
+    }
+
     const Coord pos = Conv::to<Coord>( planedragger_->getPositionOnScreen() );
-    const float scalefactor = mMIN( SI().inlStep(), SI().crlStep() );
+    const float scalefactor = mMIN( rtdragger_.dragctrlspacing_[0].step,
+				    rtdragger_.dragctrlspacing_[1].step );
     const Coord3 diagonal = initialtopleft_ - initialbotright_;	
     const Coord3 dragdir = diagonal.cross( Coord3(0.0,0.0,1.0) );
     dragcontroller_.init( pos, scalefactor, dragdir );
@@ -466,8 +480,8 @@ void PlaneDragCBHandler::initDragControl()
 	screendragprojvec /= screendragprojvec.sqAbs();
 
 	Coord dragdepthvec = dragdir.normalize().getXY();
-	dragdepthvec[0] *= SI().inlRange(false).width();
-	dragdepthvec[1] *= SI().crlRange(false).width();
+	dragdepthvec[0] *= rtdragger_.dragctrlspacing_[0].width();
+	dragdepthvec[1] *= rtdragger_.dragctrlspacing_[1].width();
 
 	screendragprojvec *= dragdepthvec.abs<double>() / scalefactor;
 	dragcontroller_.dragInScreenSpace( frontalview, screendragprojvec );
@@ -478,6 +492,9 @@ void PlaneDragCBHandler::initDragControl()
 void PlaneDragCBHandler::applyDragControl( Coord3& newtopleft,
 					   Coord3& newbotright )
 {
+    if ( !dodragcontrol_ )
+	return;
+
     Coord3 dragvec = newtopleft - initialtopleft_;
     const Coord pos = Conv::to<Coord>( planedragger_->getPositionOnScreen() );
     dragcontroller_.transform( dragvec, pos, maxdragdist_ );
@@ -612,12 +629,15 @@ RandomTrackDragger::RandomTrackDragger()
     , rotationaxis_( new osg::Switch )
     , showplanedraggers_( true )
     , planedraggerminsizeinsteps_( 1 )
-    , zrange_( SI().zRange(true) )
+    , zrange_( 0.0, 1.0 )
     , showallpanels_( false )
     , postponepanelupdate_( false )
 {
     for ( int dim=0; dim<3; dim++ )
+    {
 	limits_[dim].setUdf();
+	dragctrlspacing_[dim].setUdf();
+    }
 
     setMaterial( 0 );
 
@@ -1379,7 +1399,7 @@ void RandomTrackDragger::showRotationAxis( bool yn, int planeidx,
     const Coord3 topleft = draggers_[planeidx*4]->getPos();
     const Coord3 botright = draggers_[planeidx*4+6]->getPos();
 
-    if ( !SI().isRightHandSystem() )
+    if ( !isRightHandSystem() )
 	normpickedpos.y_ = 1.0-normpickedpos.y_;
 
     Coord3 pivot = topleft*(1.0-normpickedpos.x_) + botright*normpickedpos.x_;
@@ -1517,6 +1537,13 @@ void RandomTrackDragger::handleEvents( bool yn )
 bool RandomTrackDragger::isHandlingEvents() const
 {
     return draggers_.isEmpty() ? true : draggers_[0]->isHandlingEvents();
+}
+
+
+void RandomTrackDragger::setDragCtrlSpacing( const StepInterval<float>& x,
+	       const StepInterval<float>& y, const StepInterval<float>& z )
+{
+    dragctrlspacing_[0] = x; dragctrlspacing_[1] = y; dragctrlspacing_[2] = z;
 }
 
 

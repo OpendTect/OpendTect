@@ -176,6 +176,7 @@ protected:
     void			updateMainSwitch();
     void			setScene(Scene*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
+    void			setRightHandSystem(bool);
     void			updateRanges(bool resetpos=false);
     void			updateRanges(bool resetinlcrl=false,
 					     bool resetz=false);

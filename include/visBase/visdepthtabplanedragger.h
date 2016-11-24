@@ -99,6 +99,10 @@ public:
 						returned.
 				    \returns	combination of OD::ButtonState*/
 
+    void			setDragCtrlSpacing(const StepInterval<float>&,
+						   const StepInterval<float>&,
+						   const StepInterval<float>&);
+
     Notifier<DepthTabPlaneDragger>  started;
     Notifier<DepthTabPlaneDragger>  motion;
     Notifier<DepthTabPlaneDragger>  changed;
@@ -124,6 +128,7 @@ protected:
 
     Interval<float>		widthranges_[3];
     Interval<float>		spaceranges_[3];
+    StepInterval<float>		dragctrlspacing_[3];
 };
 
 };

@@ -80,6 +80,10 @@ public:
     void			handleEvents(bool yn);
     bool			isHandlingEvents() const;
 
+    void			setDragCtrlSpacing(const StepInterval<float>&,
+						   const StepInterval<float>&,
+						   const StepInterval<float>&);
+
 protected:
     				~RandomTrackDragger();
 
@@ -142,6 +146,7 @@ protected:
 
     Interval<float>		zrange_;
     StepInterval<float>		limits_[3];
+    StepInterval<float>		dragctrlspacing_[3];
 
     Geom::Rectangle<double>	horborder_;
     Interval<float>		zborder_;

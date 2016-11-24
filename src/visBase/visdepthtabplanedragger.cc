@@ -39,7 +39,10 @@ class PlaneDraggerCallbackHandler : public osgManipulator::DraggerCallback
 public:
 
     PlaneDraggerCallbackHandler( DepthTabPlaneDragger& dragger )  
-	: dragger_( dragger ), moved_(false) {}
+	: dragger_(dragger)
+	, moved_(false)
+	, dodragcontrol_(false)
+    {}
 
     using			osgManipulator::DraggerCallback::receive;
     virtual bool		receive(const osgManipulator::MotionCommand&);
@@ -59,6 +62,7 @@ protected:
 
     DragController		dragcontroller_;
     double			maxdragdist_;
+    bool			dodragcontrol_;
 };
 
 
@@ -179,13 +183,22 @@ void PlaneDraggerCallbackHandler::constrain( bool translated, bool is1d )
 
 void PlaneDraggerCallbackHandler::initDragControl()
 {
+    if ( !dodragcontrol_ )
+    {
+	for ( int dim=0; dim<3; dim++ )
+	{
+	    if ( dragger_.dragctrlspacing_[dim].isUdf() )
+		return;
+	}
+	dodragcontrol_ = true;
+    }
+
     const Coord pos =
 	    Conv::to<Coord>( dragger_.osgdragger_->getPositionOnScreen() );
 
     const int dim = dragger_.getDim();
-    const double scalefactor = dim==2 ? SI().zStep() :
-			       dim==1 ? SI().crlStep() : SI().inlStep();
 
+    const double scalefactor = dragger_.dragctrlspacing_[dim].step;
     const Coord3 dragdir( dim==0, dim==1, dim==2 );
     dragcontroller_.init( pos, scalefactor, dragdir );
     maxdragdist_ = mUdf(double);
@@ -202,13 +215,10 @@ void PlaneDraggerCallbackHandler::initDragControl()
 	screendragprojvec /= screendragprojvec.sqAbs();
 
 	// Empirical: always move plane to camera if mouse drags downwards
-	if ( dim==0 || (dim==2 && !SI().isRightHandSystem()) )
+	if ( dim==0 || (dim==2 && !dragger_.isRightHandSystem()) )
 	    screendragprojvec = -screendragprojvec;
 
-	const float dragdepth = dim==2 ? SI().zRange(false).width() :
-				dim==1 ? SI().crlRange(false).width() :
-				SI().inlRange(false).width();
-
+	const float dragdepth = dragger_.dragctrlspacing_[dim].width();
 	screendragprojvec *= fabs(dragdepth) / scalefactor;
 	dragcontroller_.dragInScreenSpace( frontalview, screendragprojvec );
     }
@@ -217,6 +227,9 @@ void PlaneDraggerCallbackHandler::initDragControl()
 
 void PlaneDraggerCallbackHandler::applyDragControl( Coord3& newcenter )
 {
+    if ( !dodragcontrol_ )
+	return;
+
     Coord3 dragvec = newcenter - initialcenter_;
 
     const Coord pos =
@@ -252,6 +265,9 @@ DepthTabPlaneDragger::DepthTabPlaneDragger()
     sizes_ += size(); sizes_ += size(); sizes_ += size();
 
     setDim(dim_);
+
+    for ( int dim=0; dim<3; dim++ )
+	dragctrlspacing_[dim].setUdf();
 }
 
 
@@ -594,6 +610,13 @@ void DepthTabPlaneDragger::showPlane( bool yn )
 
 bool DepthTabPlaneDragger::isPlaneShown() const
 { return osgdraggerplane_ && osgdraggerplane_->getValue(0); }
+
+
+void DepthTabPlaneDragger::setDragCtrlSpacing( const StepInterval<float>& x,
+		 const StepInterval<float>& y, const StepInterval<float>& z )
+{
+    dragctrlspacing_[0] = x; dragctrlspacing_[1] = y; dragctrlspacing_[2] = z;
+}
 
 
 }; // namespace visBase
