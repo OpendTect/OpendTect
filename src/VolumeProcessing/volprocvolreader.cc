@@ -9,6 +9,7 @@
 
 #include "dbman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seisparallelreader.h"
