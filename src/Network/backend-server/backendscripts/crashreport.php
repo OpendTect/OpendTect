@@ -10,7 +10,7 @@
  text, the sent email contains text as part of mail and file as attachment.
 */
 
-require_once('class.phpmailer.php');
+require_once('googlestorage.php');
 
 $recipient = 'crashreports@dgbes.com';
 $fromaddress = 'crashreports@opendtect.org';
@@ -47,8 +47,10 @@ else
     header('Content-Type: text/plain');
 }
 
+
 if ( array_key_exists($reportvarname,$_REQUEST) )
         $report = $_REQUEST[$reportvarname];
+
 
 if ( $report == '' )
 {
@@ -58,6 +60,22 @@ else
 {
     date_default_timezone_set( 'UTC' );
     $crashid = date('YmdHis');
+
+    //Upload to google cloud
+    $filearray = array(
+	'report' => $report,
+	'remote_ip' => $_SERVER['REMOTE_ADDR'],
+	'remote_host' => $_SERVER['REMOTE_HOST'],
+	'timestamp' => time(),
+        'crash_id' => $crashid );
+
+    $filecontent = json_encode( $filearray );
+   
+    $credentialsFile = "crashreport-uploader-credentials.json";
+    if ( file_exists( $credentialsFile ) ) 
+	uploadGoogleStorageFile( "crashreport-uploader-credentials.json", "opendtect-crashreports", $crashid.".txt", $filecontent );
+
+    //Send e-mail
     $message = "Remote IP:\t".$_SERVER['REMOTE_ADDR']."\n\r".
                 "Remote Host:\t".$_SERVER['REMOTE_HOST']."\n\r".
                 "Time:\t".date("F j, Y, g:i a T")."\n\r".
@@ -66,55 +84,18 @@ else
 
     $subject = "OpendTect crash report ".date( "F j, Y, g:i a" );
 
-    $mail = new PHPMailer( true );
-    $mail->IsSendmail();
+    $header = 'MIME-Version: 1.0' . "\r\n"
+            . 'From: Crash Reporter <'. $fromaddress . ">\r\n"
+            . 'Reply-To: '. $recipient . "\r\n"
+            . 'X-Mailer: PHP/' . phpversion();
 
-    try
+    if ( !mail($recipient, $subject, $message, $header) )
     {
-        $mail->AddAddress( $recipient, 'Crash Report' );
-
-        $mail->SetFrom( $fromaddress, 'Crash Reporter' );
-        $mail->Subject = $subject;
-
-        $mail->WordWrap = 100;
-        $mail->Body = $message;
-        $mail->IsHTML( false );
-
-        $target = "";
-
-        if ( array_key_exists($dumpvarname,$_FILES) )
-        {
-            if ( !is_dir($dumpfolder) )
-                mkdir( $dumpfolder );
-
-            $fileprefix = date("F_j_Y_g_i_a_");
-            $filename = basename( $_FILES[$dumpvarname]['name'] );
-            $target = $dumpfolder.'/'.$fileprefix.getmypid().$filename;
-
-            if ( move_uploaded_file($_FILES[$dumpvarname]['tmp_name'], $target) )
-                echo "The file ".$filename. " has been uploaded. ";
-            else
-                echo "Sorry, there was a problem uploading your file.";
-
-            $mail->AddAttachment( $target,  $fileprefix.$filename );
-        }
-
-        $mail->Send();
-        echo "Report submitted with ID ".$crashid.".\n\n";
-        echo "Thank you for helping us improve OpendTect!\n";
-
-        if ( file_exists($target) )
-            unlink ( $target );
+	echo "Cannot send report to support";
     }
 
-    catch ( phpmailerException $e )
-    {
-        echo $e->errorMessage();
-    }
-    catch ( Exception $e )
-    {
-        echo $e->getMessage();
-    }
+    echo "Report submitted with ID ".$crashid.".\n\n";
+    echo "Thank you for helping us improve OpendTect!\n";
 
 }
 
