@@ -12,6 +12,8 @@
 
 require_once('googlestorage.php');
 
+$credentialsFile = "/customers/2/1/5/opendtect.org/httpd.private/crashreport-uploader-credentials.json";
+$bucket = "opendtect-crashreports";
 $recipient = 'crashreports@dgbes.com';
 $fromaddress = 'crashreports@opendtect.org';
 $reportvarname = 'report';
@@ -71,9 +73,8 @@ else
 
     $filecontent = json_encode( $filearray );
    
-    $credentialsFile = "crashreport-uploader-credentials.json";
     if ( file_exists( $credentialsFile ) ) 
-	uploadGoogleStorageFile( "crashreport-uploader-credentials.json", "opendtect-crashreports", $crashid.".txt", $filecontent );
+	uploadGoogleStorageFile( $credentialsFile, $bucket, $crashid.".txt", $filecontent );
 
     //Send e-mail
     $message = "Remote IP:\t".$_SERVER['REMOTE_ADDR']."\n\r".
