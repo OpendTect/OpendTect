@@ -667,7 +667,7 @@ uiString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
         return uiStrings::sZValue(mPlural);
 
     if ( as )
-	return as->userRef();
+	return toUiString( as->userRef() );
 
     return uiODAttribTreeItem::createDisplayName();
 }
