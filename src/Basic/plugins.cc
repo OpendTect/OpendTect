@@ -398,7 +398,7 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 {
     File::Path fp( dirnm, sPluginDir, GetPlfSubDir() );
     DirList dl( fp.fullPath(), DirList::FilesOnly );
-    const BufferString prognm = getProgNm( GetFullExecutablePath() );
+    const BufferString prognm = GetExecutableName();
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm = dl.get(idx);

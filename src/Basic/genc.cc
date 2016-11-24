@@ -688,6 +688,26 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 }
 
 
+mExternC(Basic) const char* GetExecutableName( void )
+{
+    mDefineStaticLocalObject( BufferString, res, );
+    mDefineStaticLocalObject( Threads::Lock, lock, );
+
+    Threads::Locker locker( lock );
+
+    if ( res.isEmpty() )
+    {
+	File::Path fpargv0 = argv_[0];
+	if ( !fpargv0.isAbsolute() )
+	    fpargv0 = File::Path( initialdir_, argv_[0] );
+	
+	fpargv0.setExtension( 0 );
+	res = fpargv0.fileName();
+    }
+
+    return res;
+}
+
 mExternC(Basic) void sleepSeconds( double secs )
 {
     if ( secs > 0 )

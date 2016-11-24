@@ -33,6 +33,9 @@ mGlobal(Basic) const char* GetLocalHostName(void);
 mGlobal(Basic) const char* GetFullExecutablePath(void);
 		/*!< returns full path to executable. setProgramArgs
 		     must be called for it to work. */
+mGlobal(Basic) const char* GetExecutableName(void);
+		/*!< returns name of the executable. setProgramArgs
+		     must be called for it to work. */
 
 mGlobal(Basic) const char* GetOSIdentifier(void);
 
