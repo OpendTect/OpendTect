@@ -59,7 +59,7 @@ ________________________________________________________________________
 #include "filemonitor.h"
 
 
-static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
+static const char* sZipFileMask = "ZIP files (*.zip *.ZIP)";
 static const int cMapWidth = 300;
 static const int cMapHeight = 300;
 
@@ -461,7 +461,7 @@ void uiSurveyManager::extractButPushed( CallBacker* )
 
 void uiSurveyManager::compressButPushed( CallBacker* )
 {
-    const char* survnm( getDirName() );
+    const BufferString survnm( getDirName() );
     const uiString title = tr("Compress %1 survey as zip archive")
 						.arg(survnm);
     uiDialog dlg( this,
@@ -531,8 +531,8 @@ bool uiSurveyManager::writeSettingsSurveyFile( const char* dirnm )
     if ( !File::exists(File::Path(dataroot_,dirnm).fullPath()) )
 	mErrRet(tr("Survey directory does not exist anymore"))
 
-    const char* survfnm = GetLastSurveyFileName();
-    if ( !survfnm )
+    const BufferString survfnm = GetLastSurveyFileName();
+    if ( survfnm.isEmpty() )
 	mErrRet(tr("Internal error: cannot construct last-survey-filename"))
 
     od_ostream strm( survfnm );
