@@ -460,6 +460,11 @@ void uiSurveyInfoEditor::mkLatLongGrp()
     latlongsel_ = new Coords::uiPositionSystemSel( latlonggrp_, true, &si_,
 					     si_.getCoordSystem() );
     latlongsel_->attach( alignedBelow, emptyspace );
+    uiLabel* lbl = new uiLabel( latlonggrp_,
+	    tr("Providing a Lat/Long transform is optional;"
+		" Expect imperfections especially at the borders"
+		" and at high latitudes.") );
+    lbl->attach( ensureBelow, latlongsel_ );
     tabs_->addTab( latlonggrp_ );
     tabs_->setTabIcon( latlonggrp_, "spherewire" );
 }
