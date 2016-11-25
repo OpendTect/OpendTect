@@ -21,8 +21,7 @@ uiVisMarkerStyleDlg::uiVisMarkerStyleDlg( uiParent* p, const uiString& title )
 		   .canceltext(uiString::emptyString()))
 {
     TypeSet<OD::MarkerStyle3D::Type> excludedtypes;
-    excludedtypes.add( OD::MarkerStyle3D::None )
-		 .add( OD::MarkerStyle3D::Point );
+    excludedtypes.add( OD::MarkerStyle3D::None );
     stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>( 1,
 				uiMarkerStyle3D::cDefMaxMarkerSize() ),
 				&excludedtypes );

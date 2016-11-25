@@ -216,6 +216,9 @@ void MarkerSet::setType( OD::MarkerStyle3D::Type type )
 	case OD::MarkerStyle3D::Plane:
 	    markerset_->setShape( osgGeo::MarkerShape::Plane );
 	    break;
+	case OD::MarkerStyle3D::Point:
+	    markerset_->setShape( osgGeo::MarkerShape::Point );
+	    break;
 	default:
 	    pErrMsg("Shape not implemented");
 	    markerset_->setShape( osgGeo::MarkerShape::None );
@@ -480,3 +483,4 @@ void MarkerSet::removePolygonOffsetNodeState()
     offset_ = 0;
 
 }
+
