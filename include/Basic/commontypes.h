@@ -58,6 +58,12 @@ namespace Geom
     template <class T> class Point2D;
 }
 
+namespace OD
+{
+    enum FPDataRepType
+	{ AutoFPRep=0, SI8, UI8, SI16, UI16, SI32, UI32, F32, F64, SI64 };
+}
+
 typedef Geom::Point3D<Pos::Ordinate_Type> Coord3d;
 typedef Geom::Point3D<float> Coord3f;
 typedef Geom::Point2D<Pos::Ordinate_Type> Coord2d;

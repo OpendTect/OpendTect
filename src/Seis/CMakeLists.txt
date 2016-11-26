@@ -53,6 +53,7 @@ set(OD_MODULE_SOURCES
 	seisparallelreader.cc
 	seisposindexer.cc
 	seispreload.cc
+	seisprovider.cc
 	seispsioprov.cc
 	seispsmerge.cc
 	seisrandlineto2d.cc

@@ -327,7 +327,7 @@ ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
 				    const TypeSet<int>* comps )
     : geomid_(geomid)
     , ioobj_(ioobj.clone())
-    , dc_(DataCharacteristics::Auto)
+    , dc_(OD::AutoFPRep)
     , dpclaimed_(false)
     , scaler_(0)
     , dp_(0)
@@ -346,7 +346,7 @@ bool ParallelReader2D::doPrepare( int nrthreads )
 {
     const SeisIOObjInfo info( *ioobj_ );
     if ( !info.isOK() ) return false;
-    if ( dc_.userType() == DataCharacteristics::Auto )
+    if ( dc_.userType() == OD::AutoFPRep )
 	info.getDataChar( dc_ );
 
     if ( components_.isEmpty() )
@@ -592,7 +592,7 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     , sd_(0)
     , scaler_(0)
     , rdr_(*new SeisTrcReader(ioobj_))
-    , dc_(DataCharacteristics::Auto)
+    , dc_(OD::AutoFPRep)
     , initialized_(false)
     , is2d_(false)
 {
@@ -672,7 +672,7 @@ bool SequentialReader::init()
     SeisIOObjInfo info( ioobj_ );
     if ( !info.isOK() ) return false;
     is2d_ = info.is2D();
-    if ( dc_.userType() == DataCharacteristics::Auto )
+    if ( dc_.userType() == OD::AutoFPRep )
 	info.getDataChar( dc_ );
 
     if ( components_.isEmpty() )

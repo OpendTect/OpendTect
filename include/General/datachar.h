@@ -83,11 +83,11 @@ public:
 			{ return (int)nrbytes_ > 1
 			      && littleendian_ != __islittle__; }
 
-    enum UserType	{ Auto=0, SI8, UI8, SI16, UI16, SI32, UI32, F32,
-			  F64, SI64 };
+    typedef OD::FPDataRepType	UserType;
 			mDeclareEnumUtils(UserType)
 			DataCharacteristics(UserType);
     UserType		userType() const; //!< will return 'nearest'
+
     double		getLimitValue(bool max) const;
 
 };

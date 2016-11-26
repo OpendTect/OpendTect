@@ -139,7 +139,7 @@ protected:
 
     Usage example:
     SequentialReader rdr( myiioobj ); // I want to read all
-    rdr.setDataChar( DataCharacteristics:: ); // read in another format
+    rdr.setDataChar( DataCharacteristics() ); // read in another format
     rdr.setScaler( myscaler ); // scale data to fit in required format
     if ( rdr.init() ) // something is not right
     rdr.execute();

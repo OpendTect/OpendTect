@@ -1,6 +1,6 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : A.H. Bril 
+ * AUTHOR   : A.H. Bril
  * DATE     : 2-12-2005
 
  Reading the SEG-Y files downloadable from the ga.gov.au web site.
@@ -33,7 +33,7 @@ static const char* rcsID = "$Id$";
 #include <math.h>
 
 static const int nrsamples2load = 2501; // 10 seconds
-static const DataCharacteristics sampledc( DataCharacteristics::SI16 );
+static const DataCharacteristics sampledc( OD::SI16 );
 static const float samplescale = 5000;
 
 

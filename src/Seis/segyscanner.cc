@@ -250,7 +250,7 @@ int SEGY::Scanner::openNext()
     }
     for ( int idx=0; idx<tr_->componentInfo().size(); idx++ )
 	tr_->componentInfo()[idx]->datachar
-	    = DataCharacteristics( DataCharacteristics::F32 );
+	    = DataCharacteristics( OD::F32 );
 
     initFileData();
     return Executor::MoreToDo();

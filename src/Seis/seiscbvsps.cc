@@ -118,7 +118,7 @@ bool CBVSSeisPSIOProvider::getLineNames( const char* dirnm,
 
 SeisCBVSPSIO::SeisCBVSPSIO( const char* dirnm )
 	: dirnm_(dirnm)
-	, reqdtype_(DataCharacteristics::Auto)
+	, reqdtype_(OD::AutoFPRep)
 	, tr_(0)
 	, nringather_(1)
 {
@@ -332,7 +332,7 @@ bool SeisCBVSPSIO::startWrite( const char* fnm, const SeisTrc& trc )
     }
 
     ObjectSet<SeisTrcTranslator::TargetComponentData>& ci= tr_->componentInfo();
-    const DataCharacteristics dc( reqdtype_ == DataCharacteristics::Auto
+    const DataCharacteristics dc( reqdtype_ == OD::AutoFPRep
 				? trc.data().getInterpreter()->dataChar()
 				: DataCharacteristics( reqdtype_ ) );
     for ( int idx=0; idx<ci.size(); idx++ )

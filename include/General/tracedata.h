@@ -45,6 +45,8 @@ public:
 			//!< copy all components, making an exact copy.
     void		copyFrom(const TraceData&,int comp_from,int comp_to);
 			//!< copy comp_from of argument to my comp_to
+    void		convertTo(const DataCharacteristics&,
+				  bool preserve_data=true);
     void		convertToFPs(bool preserve_data=true);
 
     inline int		nrComponents() const

@@ -86,15 +86,16 @@ void DataCharacteristics::set( const char* s )
 
 
 DataCharacteristics::DataCharacteristics( DataCharacteristics::UserType ut )
-	: BinDataDesc( ut!=F32 && ut!=F64, ut>UI32 || (int)ut % 2)
+	: BinDataDesc( ut!=OD::F32 && ut!=OD::F64, ut>OD::UI32 || (int)ut % 2)
 	, fmt_(Ieee)
 	, littleendian_(__islittle__)
 {
-    if ( ut == Auto )
+    if ( ut == OD::AutoFPRep )
 	*this = DataCharacteristics();
     else
 	nrbytes_ = (BinDataDesc::ByteCount)
-		  (ut < SI16 ? 1 : (ut < SI32 ? 2 : (ut > F32 ? 8 : 4) ) );
+		  (ut < OD::SI16 ? 1 : (ut < OD::SI32 ? 2
+				 : (ut > OD::F32 ? 8 : 4) ) );
 }
 
 
@@ -127,12 +128,12 @@ DataCharacteristics::UserType DataCharacteristics::userType() const
 {
     switch ( nrBytes() )
     {
-    case N1: return isSigned() ? SI8 : UI8;
-    case N2: return isSigned() ? SI16 : UI16;
-    case N4: return isInteger() ? (isSigned() ? SI32 : UI32) : F32;
-    case N8: return isInteger() ? SI64 : F64;
+    case N1: return isSigned() ? OD::SI8 : OD::UI8;
+    case N2: return isSigned() ? OD::SI16 : OD::UI16;
+    case N4: return isInteger() ? (isSigned() ? OD::SI32 : OD::UI32) : OD::F32;
+    case N8: return isInteger() ? OD::SI64 : OD::F64;
     }
-    return Auto;
+    return OD::AutoFPRep;
 }
 
 
@@ -143,15 +144,15 @@ double DataCharacteristics::getLimitValue( bool max ) const
 {
     switch ( userType() )
     {
-	case SI8:	return mGetLimitVal( signed char, max );
-	case UI8:	return mGetLimitVal( unsigned char, max );
-	case SI16:	return mGetLimitVal( od_int16, max );
-	case UI16:	return mGetLimitVal( od_uint16, max );
-	case SI32:	return mGetLimitVal( od_int32, max );
-	case UI32:	return mGetLimitVal( od_uint32, max );
-	case F32:	return mGetLimitVal( float, max );
-	case SI64:	return mGetLimitVal( od_int64, max );
-	case F64:	return mGetLimitVal( double, max );
+	case OD::SI8:	return mGetLimitVal( signed char, max );
+	case OD::UI8:	return mGetLimitVal( unsigned char, max );
+	case OD::SI16:	return mGetLimitVal( od_int16, max );
+	case OD::UI16:	return mGetLimitVal( od_uint16, max );
+	case OD::SI32:	return mGetLimitVal( od_int32, max );
+	case OD::UI32:	return mGetLimitVal( od_uint32, max );
+	case OD::F32:	return mGetLimitVal( float, max );
+	case OD::SI64:	return mGetLimitVal( od_int64, max );
+	case OD::F64:	return mGetLimitVal( double, max );
 	default:	return mGetLimitVal( od_int32, max );
     }
 }

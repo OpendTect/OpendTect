@@ -193,7 +193,7 @@ void uiSeisFmtScale::updSteer( CallBacker* )
     else
     {
 	compfld_->data_.setScaler( 0 );
-	compfld_->data_.stor_ = (int)DataCharacteristics::SI16;
+	compfld_->data_.stor_ = (int)OD::SI16;
 	compfld_->updateSummary();
     }
 }

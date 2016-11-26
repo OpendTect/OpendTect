@@ -230,7 +230,7 @@ bool DataInterpreter<mTheType>::needSwap() const
 		|| getfn == &DataInterpreter<mTheType>::getFIbmswp;
 
     case 8: return getfn == &DataInterpreter<mTheType>::getDswp
-	    	|| getfn == &DataInterpreter<mTheType>::getS8swp;
+		|| getfn == &DataInterpreter<mTheType>::getS8swp;
 
     }
     return false;

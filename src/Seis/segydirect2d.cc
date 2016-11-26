@@ -302,7 +302,7 @@ Seis2DLinePutter* SEGYDirect2DLineIOProvider::getPutter( const IOObj& obj,
 SEGYDirect2DLinePutter::SEGYDirect2DLinePutter( const IOObj& obj,
 					    Pos::GeomID geomid )
 	: nrwr_(0)
-	, preseldt_(DataCharacteristics::Auto)
+	, preseldt_(OD::AutoFPRep)
 	, fname_(SEGYDirect2DLineIOProvider::getFileName(obj,geomid))
 {
     bid_.inl() = geomid;
@@ -332,7 +332,7 @@ bool SEGYDirect2DLinePutter::put( const SeisTrc& trc )
 	    errmsg_ = tr("Cannot open 2D line file:\n%1").arg(tr_->errMsg());
 	    return false;
 	}
-	if ( preseldt_ != DataCharacteristics::Auto )
+	if ( preseldt_ != OD::AutoFPRep )
 	{
 	    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
 				= tr_->componentInfo();

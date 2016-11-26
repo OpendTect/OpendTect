@@ -318,7 +318,7 @@ bool uiMsg::warning( const uiString& part1, const uiString& part2,
 
 void uiMsg::handleWarnings( const uiRetVal& rv )
 {
-    if ( rv.isError() )
+    if ( rv.isError() && !isCancelled(rv) && !isFinished(rv) )
 	warning( rv );
 }
 
@@ -327,6 +327,8 @@ void uiMsg::warning( const uiRetVal& rv )
 {
     if ( rv.isOK() )
 	{ pErrMsg("No warning. If expected, consider handleWarnings"); return; }
+    else if ( isCancelled(rv) || isFinished(rv) )
+	{ pErrMsg("Check on isCancelled and/or isFinished"); return; }
 
     uiString msg;
     if ( rv.isMultiMessage() )
@@ -340,7 +342,7 @@ void uiMsg::warning( const uiRetVal& rv )
 
 void uiMsg::handleErrors( const uiRetVal& rv )
 {
-    if ( rv.isError() )
+    if ( rv.isError() && !isCancelled(rv) && !isFinished(rv) )
 	error( rv );
 }
 
@@ -349,6 +351,8 @@ void uiMsg::error( const uiRetVal& rv )
 {
     if ( rv.isOK() )
 	{ pErrMsg("No error. If expected, consider handleErrors"); return; }
+    else if ( isCancelled(rv) || isFinished(rv) )
+	{ pErrMsg("Check on isCancelled and/or isFinished"); return; }
 
     if ( rv.isMultiMessage() )
 	errorWithDetails( rv.messages() );

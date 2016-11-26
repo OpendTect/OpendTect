@@ -79,9 +79,10 @@ public:
 			{ return info_.sampling_.start; }
     inline float	endPos() const
 			{ return info_.sampling_.atIndex( size()-1 ); }
-    inline StepInterval<float> zRange() const
-			{ return StepInterval<float>(startPos(),endPos(),
-					info_.sampling_.step ); }
+    inline float	stepPos() const
+			{ return info_.sampling_.step; }
+    inline ZSampling	zRange() const
+			{ return ZSampling(startPos(),endPos(),stepPos()); }
     inline float	samplePos( int idx ) const
 			{ return info_.samplePos(idx); }
     inline int		nearestSample( float pos ) const

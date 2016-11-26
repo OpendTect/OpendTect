@@ -216,6 +216,19 @@ public:
 };
 
 
+mGlobal(Basic) uiString toUiString(const uiString&);
+mGlobal(Basic) uiString toUiString(const char*);
+mGlobal(Basic) uiString toUiString(const OD::String&);
+mGlobal(Basic) uiString toUiString(od_int32);
+mGlobal(Basic) uiString toUiString(od_int64);
+mGlobal(Basic) uiString toUiString(od_uint32);
+mGlobal(Basic) uiString toUiString(od_uint64);
+mGlobal(Basic) uiString toUiString(float);
+mGlobal(Basic) uiString toUiString(double);
+mGlobal(Basic) uiString toUiString(float,int nrdec);
+mGlobal(Basic) uiString toUiString(double,int nrdec);
+
+
 
 /*\brief Set of uiStrings */
 
@@ -298,6 +311,7 @@ public:
     inline bool		isError() const		{ return !isOK(); }
     bool		isMultiMessage() const;
     uiStringSet		messages() const;
+    bool		isSingleWord(const uiString&) const;
 
     inline uiRetVal&	setOK()			{ *this = ok_; return *this; }
     inline uiRetVal&	setEmpty()		{ return setOK(); }
@@ -321,17 +335,8 @@ private:
 };
 
 
-mGlobal(Basic) uiString toUiString(const uiString&);
-mGlobal(Basic) uiString toUiString(const char*);
-mGlobal(Basic) uiString toUiString(const OD::String&);
-mGlobal(Basic) uiString toUiString(od_int32);
-mGlobal(Basic) uiString toUiString(od_int64);
-mGlobal(Basic) uiString toUiString(od_uint32);
-mGlobal(Basic) uiString toUiString(od_uint64);
-mGlobal(Basic) uiString toUiString(float);
-mGlobal(Basic) uiString toUiString(double);
-mGlobal(Basic) uiString toUiString(float,int nrdec);
-mGlobal(Basic) uiString toUiString(double,int nrdec);
+mGlobal(Basic) bool isFinished(const uiRetVal&);
+mGlobal(Basic) bool isCancelled(const uiRetVal&);
 
 
 //User when string should be revisited later

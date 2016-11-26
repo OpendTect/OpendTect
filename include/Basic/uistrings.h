@@ -228,6 +228,7 @@ public:
     static uiString sCalculate();
     static uiString sCalculateFrom();
     static uiString sCancel()		{ return tr("Cancel"); }
+    static uiString sCancelled()	{ return tr("Cancelled"); }
     static uiString sCantCreateHor();
     static uiString sCannotExtract();
     static uiString sCantFindAttrName();
@@ -309,6 +310,7 @@ public:
     static uiString sExtract();
     static uiString sFaultStickSet(int num=1);
     static uiString sFactor(int num=1)	{ return tr("Factor",0,num); }
+    static uiString sFinished()		{ return tr("Finished"); }
     static uiString sFault(int num=1);
     static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFile()	        { return tr("File"); }

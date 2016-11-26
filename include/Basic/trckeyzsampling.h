@@ -55,7 +55,7 @@ public:
 			//!< Makes sure start<stop and steps are non-zero
 
     TrcKeySampling	hsamp_;
-    StepInterval<float> zsamp_;
+    ZSampling		zsamp_;
 
     int			lineIdx(Pos::LineID) const;
     int			trcIdx(Pos::TraceID) const;
@@ -114,15 +114,9 @@ public:
     inline int		nrCrl() const		{ return nrTrcs(); }
 
     mDeprecated TrcKeySampling&		hrg;
-    mDeprecated StepInterval<float>&	zrg;
+    mDeprecated ZSampling&		zrg;
 };
 
-
-
-mExpClass(Basic) TrcKeyZSamplingSet : public TypeSet<TrcKeyZSampling>
-{
-
-};
 
 
 inline TrcKeyZSampling::Dir direction( TrcKeyZSampling::Dir slctype, int dimnr )

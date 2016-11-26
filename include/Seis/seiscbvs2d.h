@@ -62,12 +62,12 @@ public:
     bool		put(const SeisTrc&);
     bool		close();
 
-    int		nrwr_;
-    BufferString		fname_;
-    uiString				errmsg_;
-    CBVSSeisTrcTranslator*		tr_;
+    int			nrwr_;
+    BufferString	fname_;
+    uiString		errmsg_;
+    CBVSSeisTrcTranslator* tr_;
     BinID		bid_;
-    DataCharacteristics::UserType	preseldt_;
+    DataCharacteristics::UserType preseldt_;
 
 };
 

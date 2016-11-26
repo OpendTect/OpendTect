@@ -459,7 +459,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     typefld_ = new uiGenInput( leftgrp, tr("Load as"),
 		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
     typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
-    typefld_->setValue( (int)DataCharacteristics::Auto );
+    typefld_->setValue( (int)OD::AutoFPRep );
     typefld_->attach( alignedBelow, subselfld_ );
 
     doscalefld_ = new uiGenInput( leftgrp, tr("Scale Values"),
@@ -685,7 +685,7 @@ void uiSeisPreLoadSel::getDataChar( DataCharacteristics& dc ) const
 {
     const DataCharacteristics::UserType type(
 		(DataCharacteristics::UserType)typefld_->getIntValue() );
-    if ( type == DataCharacteristics::Auto )
+    if ( type == OD::AutoFPRep )
     {
 	SeisIOObjInfo info( seissel_->ioobj(true) );
 	info.getDataChar( dc );

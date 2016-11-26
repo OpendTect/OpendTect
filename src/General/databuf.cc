@@ -200,20 +200,33 @@ void TraceData::copyFrom( const TraceData& td, int icfrom, int icto )
 
 void TraceData::convertToFPs( bool pres )
 {
-    bool allfloat = true;
+    bool needdouble = false;
     for ( int icomp=0; icomp<nrComponents(); icomp++ )
     {
 	const TraceDataInterpreter* di = getInterpreter( icomp );
-	if ( di && (di->nrBytes() < 4 || di->dataChar().isInteger()) )
-	    { allfloat = false; break; }
+	if ( di && di->dataChar().nrBytes() == BinDataDesc::N8 )
+	    { needdouble = true; break; }
     }
-    if ( allfloat )
+    convertTo( DataCharacteristics(needdouble ? OD::F64 : OD::F32), pres );
+}
+
+
+void TraceData::convertTo( const DataCharacteristics& dc, bool pres )
+{
+    bool allok = true;
+    for ( int icomp=0; icomp<nrComponents(); icomp++ )
+    {
+	const TraceDataInterpreter* di = getInterpreter( icomp );
+	if ( di && di->dataChar() == dc )
+	    { allok = false; break; }
+    }
+    if ( allok )
 	return;
 
     const int sz = size();
     TraceData oldtd( *this );
     for ( int icomp=0; icomp<nrComponents(); icomp++ )
-	setComponent( DataCharacteristics(), icomp );
+	setComponent( dc, icomp );
     reSize( sz );
 
     if ( pres )

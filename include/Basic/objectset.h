@@ -314,7 +314,7 @@ T* ObjectSet<T>::get( size_type idx )
     if ( !validIdx(idx) )
 	DBG::forceCrash(true);
 #endif
-    return (T*)vec_[idx];
+    return static_cast<T*>( vec_[idx] );
 }
 
 
@@ -325,7 +325,7 @@ const T* ObjectSet<T>::get( size_type idx ) const
     if ( !validIdx(idx) )
 	DBG::forceCrash(true);
 #endif
-    return (const T*)vec_[idx];
+    return static_cast<const T*>( vec_[idx] );
 }
 
 
@@ -399,7 +399,7 @@ T* ObjectSet<T>::replace( size_type idx, T* newptr )
 #else
 	return 0;
 #endif
-    T* ptr = (T*)vec_[idx];
+    T* ptr = static_cast<T*>( vec_[idx] );
     vec_[idx] = (void*)newptr;
     return ptr;
 }
@@ -446,7 +446,7 @@ void ObjectSet<T>::append( const ObjectSet<T>& os )
 
 template <class T> inline
 T* ObjectSet<T>::pop()
-{ return (T*)vec_.pop_back(); }
+{ return static_cast<T*>( vec_.pop_back() ); }
 
 
 template <class T> inline
@@ -463,7 +463,7 @@ bool ObjectSet<T>::addIfNew( T* ptr )
 template <class T> inline
 T* ObjectSet<T>::removeSingle( size_type idx, bool kporder )
 {
-    T* res = (T*)vec_[idx];
+    T* res = static_cast<T*>(vec_[idx]);
     if ( kporder )
 	vec_.remove( idx );
     else

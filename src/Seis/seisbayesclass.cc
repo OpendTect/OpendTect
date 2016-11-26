@@ -400,8 +400,7 @@ void SeisBayesClass::prepOutTrc( SeisTrc& trc, bool isch ) const
     const SeisTrc& inptrc = *inptrcs_.get( 0 );
     if ( trc.isEmpty() )
     {
-	const DataCharacteristics dc( isch ? DataCharacteristics::SI8
-					   : DataCharacteristics::F32 );
+	const DataCharacteristics dc( isch ? OD::SI8 : OD::F32 );
 	trc.data().setComponent( dc, 0 );
 	for ( int icomp=0; icomp<inptrc.nrComponents(); icomp++ )
 	{
