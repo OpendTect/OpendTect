@@ -108,3 +108,5 @@ if ( CMAKE_COMPILER_IS_GNUCC )
 endif ( CMAKE_COMPILER_IS_GNUCC )
 
 OD_INIT_MODULE()
+
+add_dependencies( ${OD_MODULE_NAME} od_helpid )
