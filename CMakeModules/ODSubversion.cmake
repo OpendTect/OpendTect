@@ -41,6 +41,11 @@ else()
     endif()
 endif()
 
+if ( EXISTS ${PLUGIN_DIR} )
+    set ( EXTERNALPLUGINSUPDATE
+	COMMAND ${UPDATE_CMD} ${PLUGIN_DIR}/../ )
+endif()
+
 if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
     execute_process(
 	COMMAND ${CMAKE_COMMAND}
@@ -57,7 +62,16 @@ if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
 		-P external/Externals.cmake )
 endif()
 
+if ( EXISTS ${PLUGIN_DIR}/../external/Externals.cmake )
+    set ( EXTERNALPLUGINSCMD COMMAND ${CMAKE_COMMAND}
+		-DOpendTect_DIR=${OpendTect_DIR}
+		-DUPDATE=Yes
+		-P ${PLUGIN_DIR}/../external/Externals.cmake )
+endif()
+
 add_custom_target( update ${UPDATE_CMD}
+		  ${EXTERNALPLUGINSUPDATE}
 		  ${EXTERNALCMD}
+		  ${EXTERNALPLUGINSCMD}
 		  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
 		  COMMENT "Updating from repositories" )
