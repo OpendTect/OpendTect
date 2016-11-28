@@ -16,16 +16,18 @@ ________________________________________________________________________
 namespace Seis
 {
 
+class VolFetcher;
+
 /*!\brief is the place to get traces from your seismic volumes.  */
 
 
-mExpClass(Seis) VolumeProvider : public Provider
-{ mODTextTranslationClass(Seis::VolumeProvider);
+mExpClass(Seis) VolProvider : public Provider
+{ mODTextTranslationClass(Seis::VolProvider);
 public:
 
-			VolumeProvider();
-			VolumeProvider(const DBKey&);
-			~VolumeProvider();
+			VolProvider();
+			VolProvider(const DBKey&);
+			~VolProvider();
 
     virtual GeomType	geomType() const	{ return Vol; }
     virtual uiRetVal	setInput(const DBKey&);
@@ -35,6 +37,9 @@ public:
     TrcKeySampling	getHSampling() const;
 
 protected:
+
+    friend class	VolFetcher;
+    VolFetcher&		fetcher_;
 
     virtual void	doUsePar(const IOPar&,uiRetVal&);
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;

@@ -69,6 +69,7 @@ set(OD_MODULE_SOURCES
 	seistrc.cc
 	seistrcprop.cc
 	seistrctr.cc
+	seisvolprovider.cc
 	seiswrite.cc
 	seiszaxisstretcher.cc
 	stratsynthgenparams.cc

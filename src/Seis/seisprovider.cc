@@ -9,10 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "seisvolprovider.h"
+#include "seisioobjinfo.h"
+#include "seisselection.h"
+#include "uistrings.h"
 
 
 Seis::Provider::Provider()
-    : datarep_(OD::AutoFPRep)
+    : forcefpdata_(false)
+    , selcomp_(-1)
     , zstep_(mUdf(float))
 {
 }
@@ -23,7 +27,7 @@ Seis::Provider* Seis::Provider::create( Seis::GeomType gt )
     switch ( gt )
     {
     case Vol:
-	return new VolumeProvider;
+	return new VolProvider;
     case VolPS:
 	{ pFreeFnErrMsg("Implement VolPS"); return 0; }
     case Line:
@@ -37,29 +41,60 @@ Seis::Provider* Seis::Provider::create( Seis::GeomType gt )
 }
 
 
+Seis::Provider* Seis::Provider::create( const DBKey& dbky, uiRetVal* uirv )
+{
+    SeisIOObjInfo objinf( dbky );
+    Provider* ret = 0;
+    if ( !objinf.isOK() )
+    {
+	if ( uirv )
+	    uirv->set( uiStrings::phrCannotFindDBEntry(dbky.toUiString()) );
+    }
+    else
+    {
+	ret = create( objinf.geomType() );
+	uiRetVal dum; if ( !uirv ) uirv = &dum;
+	*uirv = ret->setInput( dbky );
+	if ( !uirv->isOK() )
+	    { delete ret; ret = 0; }
+    }
+
+    return ret;
+}
+
+
 uiRetVal Seis::Provider::usePar( const IOPar& iop )
 {
-    const BufferString datareptxt = iop.find( sKeyForcedDataChar() );
-    if ( datareptxt.isEmpty() )
-	datarep_ = OD::AutoFPRep;
-    else
-	datarep_ = DataCharacteristics::UserTypeDef().parse( datareptxt );
-
+    forcefpdata_ = iop.isTrue( sKeyForceFPData() );
     uiRetVal ret;
     doUsePar( iop, ret );
     return ret;
 }
 
 
+void Seis::Provider::setSubsel( const SelData& sd )
+{
+    delete subsel_;
+    subsel_ = sd.clone();
+}
+
+
+void Seis::Provider::handleTrace( SeisTrc& trc ) const
+{
+    ensureRightZSampling( trc );
+    ensureRightDataRep( trc );
+    nrtrcs_++;
+}
+
+
 uiRetVal Seis::Provider::getNext( SeisTrc& trc ) const
 {
     uiRetVal uirv;
+    Threads::Locker locker( getlock_ );
     doGetNext( trc, uirv );
+    locker.unlockNow();
     if ( uirv.isOK() )
-    {
-	ensureRightZSampling( trc );
-	ensureRightDataRep( trc );
-    }
+	handleTrace( trc );
     return uirv;
 }
 
@@ -67,25 +102,23 @@ uiRetVal Seis::Provider::getNext( SeisTrc& trc ) const
 uiRetVal Seis::Provider::get( const TrcKey& trcky, SeisTrc& trc ) const
 {
     uiRetVal uirv;
+    Threads::Locker locker( getlock_ );
     doGet( trcky, trc, uirv );
+    locker.unlockNow();
     if ( uirv.isOK() )
-    {
-	ensureRightZSampling( trc );
-	ensureRightDataRep( trc );
-    }
+	handleTrace( trc );
     return uirv;
 }
 
 
 void Seis::Provider::ensureRightDataRep( SeisTrc& trc ) const
 {
-    if ( datarep_ == OD::AutoFPRep )
+    if ( !forcefpdata_ )
 	return;
 
-    const DataCharacteristics targetdc( datarep_ );
     const int nrcomps = trc.nrComponents();
     for ( int idx=0; idx<nrcomps; idx++ )
-	trc.data().convertTo( targetdc );
+	trc.data().convertToFPs();
 }
 
 
@@ -113,62 +146,13 @@ void Seis::Provider::ensureRightZSampling( SeisTrc& trc ) const
     const int nrcomps = trc.nrComponents();
     for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
-	const DataCharacteristics targetdc( datarep_ == OD::AutoFPRep
-		? orgtd.getInterpreter(icomp)->dataChar() : datarep_ );
+	const DataInterpreter<float>& di = *orgtd.getInterpreter(icomp);
+	const DataCharacteristics targetdc( forcefpdata_
+		? (di.nrBytes()>4 ? OD::F64 : OD::F32) : di.dataChar() );
 	newtd.addComponent( newsz, targetdc );
 	for ( int isamp=0; isamp<newsz; isamp++ )
 	    newtd.setValue( isamp, trc.getValue(targetzs.atIndex(isamp),icomp));
     }
 
     trc.data() = newtd;
-}
-
-
-Seis::VolumeProvider::VolumeProvider()
-{
-}
-
-
-Seis::VolumeProvider::~VolumeProvider()
-{
-}
-
-
-uiRetVal Seis::VolumeProvider::setInput( const DBKey& dbky )
-{
-    return uiRetVal();
-}
-
-
-BufferStringSet Seis::VolumeProvider::getComponentInfo() const
-{
-    return BufferStringSet();
-}
-
-
-ZSampling Seis::VolumeProvider::getZSampling() const
-{
-    return ZSampling( 0.f, 0.f, 1.f );
-}
-
-
-TrcKeySampling Seis::VolumeProvider::getHSampling() const
-{
-    return TrcKeySampling();
-}
-
-
-void Seis::VolumeProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
-{
-}
-
-
-void Seis::VolumeProvider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
-{
-}
-
-
-void Seis::VolumeProvider::doGet( const TrcKey& trcky, SeisTrc& trc,
-				  uiRetVal& uirv ) const
-{
 }
