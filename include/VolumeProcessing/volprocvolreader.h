@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "volprocstep.h"
 #include "multiid.h"
 
+class IOObj;
 class SeisTrcReader;
 class SeisTrcTranslator;
 
@@ -53,6 +54,8 @@ protected:
 
     Task*		createTask();
     bool		prefersBinIDWise() const        { return false; }
+
+    bool		prepareWork(const IOObj&);
 
     static const char*	sKeyVolumeID()			{ return "Volume ID"; }
 
