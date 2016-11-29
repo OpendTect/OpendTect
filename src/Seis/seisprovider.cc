@@ -17,7 +17,9 @@ ________________________________________________________________________
 Seis::Provider::Provider()
     : forcefpdata_(false)
     , selcomp_(-1)
+    , readmode_(Prod)
     , zstep_(mUdf(float))
+    , seldata_(0)
 {
 }
 
@@ -74,8 +76,8 @@ uiRetVal Seis::Provider::usePar( const IOPar& iop )
 
 void Seis::Provider::setSubsel( const SelData& sd )
 {
-    delete subsel_;
-    subsel_ = sd.clone();
+    delete seldata_;
+    seldata_ = sd.clone();
 }
 
 

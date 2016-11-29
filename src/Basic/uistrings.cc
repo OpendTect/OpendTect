@@ -55,6 +55,14 @@ uiString uiStrings::phrExport( const uiString& string )
 uiString uiStrings::phrImport( const uiString& string )
 { return toUiString(joinstring).arg( sImport() ).arg( string ); }
 
+uiString uiStrings::phrInternalError( const uiString& string )
+{ return tr( "Internal Error (pease contact support@dgbes.com):\n%1")
+	 .arg( string ); }
+
+uiString uiStrings::phrInternalError( const char* string )
+{ return tr( "Internal Error (pease contact support@dgbes.com):\n%1")
+	 .arg( string ); }
+
 uiString uiStrings::phrCannotAdd( const uiString& string )
 { return toUiString(joinstring).arg(sCannotAdd()).arg(string); }
 

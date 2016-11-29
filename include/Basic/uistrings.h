@@ -121,6 +121,10 @@ public:
     //!<"Insert <string>"
     static uiString phrInvalid(const uiString& string);
     //!<"Invalid <string>"
+    static uiString phrInternalError(const uiString& string);
+    //!<"Internal Error (contact support at):\n<string>"
+    static uiString phrInternalError(const char* string);
+    //!<"Internal Error (contact support at):\n<string>"
     static uiString phrJoinStrings(const uiString& a,const uiString& b);
     //!<"<a> <b>
     static uiString phrJoinStrings(const uiString& a,const uiString& b,

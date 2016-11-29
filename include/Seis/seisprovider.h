@@ -57,6 +57,7 @@ public:
     void		setSampleInterval( float zs )	{ zstep_ = zs; }
     virtual void	selectComponent( int icomp )	{ selcomp_ = icomp; }
     void		forceFPData( bool yn=true )	{ forcefpdata_ = yn; }
+    void		setReadMode( ReadMode rm )	{ readmode_ = rm; }
     uiRetVal		usePar(const IOPar&);
 
     uiRetVal		getNext(SeisTrc&) const;
@@ -72,9 +73,10 @@ protected:
 			Provider();
 
     DBKey		dbky_;
-    SelData*		subsel_;
+    SelData*		seldata_;
     float		zstep_;
     int			selcomp_;
+    ReadMode		readmode_;
     bool		forcefpdata_;
 
     mutable Threads::Atomic<od_int64>	nrtrcs_;
