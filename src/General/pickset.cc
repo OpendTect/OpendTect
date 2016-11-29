@@ -740,14 +740,14 @@ double Pick::SetIter::getZ() const
 // Pick::SetIter4Edit
 
 Pick::SetIter4Edit::SetIter4Edit( Set& ps, bool atend )
-    : MonitorableIter4Write(ps,
+    : MonitorableIter4Write<Set::IdxType>(ps,
 	    atend?ps.size()-1:0, atend?0:ps.size()-1 )
 {
 }
 
 
 Pick::SetIter4Edit::SetIter4Edit( const SetIter4Edit& oth )
-    : MonitorableIter4Write(oth)
+    : MonitorableIter4Write<Set::IdxType>(oth)
 {
 }
 
