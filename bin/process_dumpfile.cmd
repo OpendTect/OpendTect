@@ -76,8 +76,12 @@ if exist %tmpfile% (
 )
 
 
-REM Create the text-file
+REM Create the text-file (human readable)
 %dumphandler% %dumpfile% %symboldir% 1> %tmpfile% 2>%logfile%
+
+REM Create the text-file (machine readable)
+echo Machine readable: >> %tmpfile%
+%dumphandler% -m %dumpfile% %symboldir% 1>> %tmpfile% 2>%logfile%
 
 REM Send the text-file
 if exist "%sender%" (

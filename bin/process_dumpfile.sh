@@ -76,8 +76,12 @@ if [ -e ${tmpfile} ] && [ ! -w ${tmpfile} ]; then
     exit 1
 fi
 
-#Create the text-file
+#Create the human-readable text-file
 ${dumphandler} ${dumpfile} ${symboldir} > ${tmpfile} 2> /dev/null
+
+#Create machine-readable text
+echo "Machine readable:" >> ${tmpfile}
+${dumphandler} -m ${dumpfile} ${symboldir} >> ${tmpfile} 2> /dev/null
 
 #Send the text-file
 if [ "${sender}" != "" ] && [ -x ${sender} ] && [ -e ${tmpfile} ]; then
