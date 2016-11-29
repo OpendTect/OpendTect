@@ -221,6 +221,13 @@ void PosInfo::CubeData::generate( BinID start, BinID stop, BinID step,
 }
 
 
+void PosInfo::CubeData::fillBySI( bool work )
+{
+    const TrcKeyZSampling cs( SI().sampling(work) );
+    generate( cs.hsamp_.start_, cs.hsamp_.stop_, cs.hsamp_.step_ );
+}
+
+
 void PosInfo::CubeData::copyContents( const PosInfo::CubeData& cd )
 {
     if ( &cd != this )

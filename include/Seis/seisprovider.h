@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "atomic.h"
 #include "threadlock.h"
+namespace PosInfo { class CubeData; }
 
 
 namespace Seis
@@ -86,9 +87,27 @@ protected:
     void		ensureRightZSampling(SeisTrc&) const;
     void		handleTrace(SeisTrc&) const;
 
-    virtual void	doUsePar(const IOPar&,uiRetVal&)		    = 0;
-    virtual void	doGetNext(SeisTrc&,uiRetVal&) const		    = 0;
-    virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const	    = 0;
+    virtual void	doUsePar(const IOPar&,uiRetVal&)		= 0;
+    virtual void	doGetNext(SeisTrc&,uiRetVal&) const		= 0;
+    virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const	= 0;
+
+};
+
+
+/*!\brief base class for Providers for 3D data. Extends Provider with some
+  3D specific services. */
+
+
+mExpClass(Seis) Provider3D : public Provider
+{ mODTextTranslationClass(Seis::Provider3D);
+public:
+
+    virtual TrcKeySampling getHSampling() const				= 0;
+    virtual void	getGeometryInfo(PosInfo::CubeData&) const	= 0;
+
+protected:
+
+			Provider3D()					{}
 
 };
 

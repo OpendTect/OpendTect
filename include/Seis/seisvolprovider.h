@@ -21,7 +21,7 @@ class VolFetcher;
 /*!\brief is the place to get traces from your seismic volumes.  */
 
 
-mExpClass(Seis) VolProvider : public Provider
+mExpClass(Seis) VolProvider : public Provider3D
 { mODTextTranslationClass(Seis::VolProvider);
 public:
 
@@ -32,9 +32,10 @@ public:
     virtual GeomType	geomType() const	{ return Vol; }
     virtual uiRetVal	setInput(const DBKey&);
 
-    virtual BufferStringSet getComponentInfo() const;
-    virtual ZSampling	getZSampling() const;
-    TrcKeySampling	getHSampling() const;
+    virtual BufferStringSet	getComponentInfo() const;
+    virtual ZSampling		getZSampling() const;
+    virtual TrcKeySampling	getHSampling() const;
+    virtual void		getGeometryInfo(PosInfo::CubeData&) const;
 
 protected:
 

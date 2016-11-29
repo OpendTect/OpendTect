@@ -134,6 +134,7 @@ public:
 				//!< incl=union, !incl=intersection
     void		generate(BinID start,BinID stop,BinID step,
 				 bool allowreversed=false);
+    void		fillBySI(bool work=false);
 
     bool		read(od_istream&,bool asc);
     bool		write(od_ostream&,bool asc) const;
