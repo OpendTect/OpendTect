@@ -22,6 +22,7 @@ static const char* sKeyRayPar()			{ return "Ray Parameter"; }
 static const char* sKeyInput()			{ return "Input Synthetic"; }
 static const char* sKeyAngleRange()		{ return "Angle Range"; }
 static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
+
 #define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
 #define sDefaultOffsetRange StepInterval<float>( 0.f, 6000.f, 100.f )
 
