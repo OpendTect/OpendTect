@@ -13,81 +13,90 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscbvs.h"
 #include "separstr.h"
 #include "bufstringset.h"
+#include "moddepmgr.h"
 
 #include <iostream>
 
 mExternC(Seis) void od_Seis_initStdClasses();
 
-
-static int runIOM( const IOObjContext& ctxt,
-			const BufferStringSet& allowedtransls )
+static void addToList( const IOObj& ioobj, BufferStringSet& strs )
 {
-    DBM().to( ctxt.getSelKey() );
-
-    const ObjectSet<IOObj>& objs = DBM().dirPtr()->getObjs();
-    int ret = 0;
-    for (int idx=0; idx<objs.size(); idx++ )
-    {
-	const IOObj& ioobj = *objs[idx];
-	const char* translnm = ioobj.translator();
-	if ( !allowedtransls.isPresent( translnm ) )
-	    continue;
-	const char* res = ioobj.pars().find( sKey::Type() );
-	if ( res && !strcmp(res,sKey::Steering()) )
-	    continue;
-
-	od_cout() << ioobj.name() << " (" << translnm << ')' << od_endl;
-	ret++;
-    }
-    return ret;
+    BufferString toadd( ioobj.name(), " - ", ioobj.group() );
+    toadd.add( " (" ).add( ioobj.translator() ).add( ")" );
+    strs.add( toadd );
 }
 
 
-static int runEntryList( const IOObjContext& ctxt )
+static int runDBM( const IOObjContext& ctxt,
+		   const BufferStringSet& allowedtransls,
+		   BufferStringSet& strs )
 {
-    IODirEntryList entrylist( DBM().dirPtr(), ctxt );
-    for ( int idx=0; idx<entrylist.size(); idx++ )
+    ConstRefMan<DBDir> dbdir = DBM().fetchDir( ctxt );
+    DBDirIter iter( *dbdir );
+    while ( iter.next() )
     {
-	const IODirEntry& de( *entrylist[idx] );
-	od_cout() << de.name() << " (" << de.ioobj->translator()
-		  << ')' << od_endl;
+	const IOObj& ioobj = iter.ioObj();
+	const char* translnm = ioobj.translator();
+	if ( !allowedtransls.isPresent( translnm ) )
+	    continue;
+	const FixedString res = ioobj.pars().find( sKey::Type() );
+	if ( res && res == sKey::Steering() )
+	    continue;
+
+	addToList( ioobj, strs );
     }
-    return entrylist.size();
+    return strs.size();
+}
+
+
+static int runEntryList( const IOObjContext& ctxt, BufferStringSet& strs )
+{
+    DBDirEntryList entrylist( ctxt );
+    for ( int idx=0; idx<entrylist.size(); idx++ )
+	addToList( entrylist.ioobj(idx), strs );
+    return strs.size();
 }
 
 
 int testMain( int argc, char** argv )
 {
     mInitTestProg();
-
-    od_Seis_initStdClasses();
+    OD::ModDeps().ensureLoaded("Seis");
 
     IOObjContext ctxt( mIOObjContext(SeisTrc) );
-    ctxt.forread = true;
+    ctxt.forread_ = true;
     BufferStringSet allowedtransls;
     allowedtransls.add( CBVSSeisTrcTranslator::translKey() );
     allowedtransls.add( SEGYDirectSeisTrcTranslator::translKey() );
-    ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
+    ctxt.toselect_.dontallow_.set( sKey::Type(), sKey::Steering() );
 
-    od_cout() << "Via DBM():" << od_endl;
-    const int nritemsiom = runIOM( ctxt, allowedtransls );
-    od_cout() << od_endl;
+    BufferStringSet strsdbm;
+    const int nritemsdbm = runDBM( ctxt, allowedtransls, strsdbm );
+    strsdbm.sort();
 
     FileMultiString fms( allowedtransls.get(0) );
     fms += allowedtransls.get(1);
-    ctxt.toselect.allowtransls_ = fms;
-    ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
+    ctxt.toselect_.allowtransls_ = fms;
+    ctxt.toselect_.dontallow_.set( sKey::Type(), sKey::Steering() );
 
-    od_cout() << "Via EntryList:" << od_endl;
-    const int nritemsel = runEntryList( ctxt );
-    od_cout() << od_endl;
-    if ( nritemsiom != nritemsel )
+    BufferStringSet strsel;
+    const int nritemsel = runEntryList( ctxt, strsel );
+    strsel.sort();
+
+    od_cout() << "Nr 3D Vol entries: " << nritemsel << od_endl;
+    for ( int idx=0; idx<nritemsel; idx++ )
     {
-	od_cout() << "Error: nr items from IOM=" << nritemsiom << ",\n"
-	          << "\t\tfrom EntryList=" << nritemsel << od_endl;
-	return 1;
+	const BufferString str( strsel.get(idx) );
+	od_cout() << str << od_endl;
+    }
+
+    od_cout() << "\nNr other entries: " << nritemsdbm - nritemsel << od_endl;
+    for ( int idx=0; idx<nritemsdbm; idx++ )
+    {
+	const BufferString str( strsdbm.get(idx) );
+	if ( !strsel.isPresent(str) )
+	    od_cout() << str << od_endl;
     }
 
     return 0;
 }
-

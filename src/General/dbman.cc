@@ -48,7 +48,6 @@ DBMan::DBMan()
     , entryToBeRemoved(this)
     , surveyChangeOK(this)
     , surveychangeuserabort_(false)
-    , surveychangeabortreason_(uiRetVal::Empty())
 {
 }
 
@@ -75,7 +74,7 @@ void DBMan::initFirst()
 uiRetVal DBMan::setDataSource( const IOPar& iop, bool forcerefresh )
 {
     return setDataSource( iop.find(sKey::DataRoot()), iop.find(sKey::Survey()),
-	    		  forcerefresh );
+			  forcerefresh );
 }
 
 
