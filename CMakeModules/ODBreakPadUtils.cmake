@@ -65,3 +65,23 @@ if(OD_ENABLE_BREAKPAD)
     endif()
 
 endif(OD_ENABLE_BREAKPAD)
+
+macro ( OD_GENERATE_SYMBOLS TRGT )
+    if ( BREAKPAD_DUMPSYMS_EXECUTABLE )
+	#Define dummy timestamp file
+	set ( TIMESTAMP_FILE "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${TRGT}.symboltimestamp" )
+
+	#Method to create timestamp file (and symbols). Will only trigger if out of date
+	add_custom_command( OUTPUT ${TIMESTAMP_FILE}
+		COMMAND ${CMAKE_COMMAND} -DLIBRARY=$<TARGET_FILE:${TRGT}>
+					 -DTIMESTAMP_FILE=${TIMESTAMP_FILE}
+					 -DSYM_DUMP_EXECUTABLE=${BREAKPAD_DUMPSYMS_EXECUTABLE}
+					 -P ${OpendTect_DIR}/CMakeModules/GenerateSymbols.cmake
+		DEPENDS ${TRGT}
+		COMMENT "Generating symbols for ${TRGT}" )
+
+	#Make dummy target that makes sure that timestamp is generated (and thus symbols).
+	add_custom_target( ${TRGT}_Symbols ALL DEPENDS ${TIMESTAMP_FILE} )
+
+    endif( BREAKPAD_DUMPSYMS_EXECUTABLE )
+endmacro()

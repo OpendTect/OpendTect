@@ -19,6 +19,10 @@ if ( NOT DEFINED LIBRARY )
     message( FATAL_ERROR "LIBRARY not defined" )
 endif()
 
+if ( NOT DEFINED TIMESTAMP_FILE )
+    message( FATAL_ERROR "TIMESTAMP_FILE not defined" )
+endif()
+
 if ( NOT DEFINED SYM_DUMP_EXECUTABLE )
     message( FATAL_ERROR "SYM_DUMP_EXECUTABLE not defined" )
 endif()
@@ -81,5 +85,8 @@ if ( EXISTS ${DIRNAME} )
     file( REMOVE_RECURSE ${DIRNAME} )
 endif()
 
-#Write out new symbols
+#Write out new symbols to correct location
 file ( WRITE ${DIRNAME}/${CHECKSUM}/${LIBNAME}.sym ${SYMBOL_STRING} )
+
+#Make timestamp
+file ( WRITE ${TIMESTAMP_FILE} "" )
