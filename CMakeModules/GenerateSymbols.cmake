@@ -19,10 +19,6 @@ if ( NOT DEFINED LIBRARY )
     message( FATAL_ERROR "LIBRARY not defined" )
 endif()
 
-if ( NOT DEFINED TIMESTAMP_FILE )
-    message( FATAL_ERROR "TIMESTAMP_FILE not defined" )
-endif()
-
 if ( NOT DEFINED SYM_DUMP_EXECUTABLE )
     message( FATAL_ERROR "SYM_DUMP_EXECUTABLE not defined" )
 endif()
@@ -56,9 +52,9 @@ endif()
 
 #Create symbols, store them in SYMBOL STRING
 execute_process( COMMAND ${SYM_DUMP_EXECUTABLE} ${LIBRARY}
-                RESULT_VARIABLE RESULT
-                OUTPUT_VARIABLE SYMBOL_STRING
-                ERROR_VARIABLE ERRORS )
+		RESULT_VARIABLE RESULT
+		OUTPUT_VARIABLE SYMBOL_STRING
+		ERROR_VARIABLE ERRORS )
 
 if ( NOT (${RESULT} EQUAL 0) )
     message( FATAL_ERROR "Error while running ${SYM_DUMP_EXECUTABLE} ${LIBRARY}"
@@ -87,6 +83,3 @@ endif()
 
 #Write out new symbols to correct location
 file ( WRITE ${DIRNAME}/${CHECKSUM}/${LIBNAME}.sym ${SYMBOL_STRING} )
-
-#Make timestamp
-file ( WRITE ${TIMESTAMP_FILE} "" )
