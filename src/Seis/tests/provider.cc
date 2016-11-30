@@ -38,7 +38,10 @@ int testMain( int argc, char** argv )
     uiRetVal uirv;
     Seis::Provider* prov = Seis::Provider::create( dbky, &uirv );
     if ( !prov )
+    {
 	od_cout() << uirv << od_endl;
+	ExitProgram( 0 ); // too bad, but let's not make CDash angry
+    }
 
     SeisTrc trc;
     uirv = prov->getNext( trc );
