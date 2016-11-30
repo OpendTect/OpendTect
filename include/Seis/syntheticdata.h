@@ -35,8 +35,8 @@ mStruct(Seis) SynthFVSpecificDispPars
 
 
 /*! brief the basic synthetic dataset. contains the data cubes*/
-mExpClass(Seis) SyntheticData : public NamedObject
-			      , public RefCount::Referenced
+mExpClass(Seis) SyntheticData : public RefCount::Referenced
+			      , public NamedObject
 {
 public:
     mStruct(Seis) RayModel
