@@ -20,6 +20,7 @@ Seis::Provider::Provider()
     , readmode_(Prod)
     , zstep_(mUdf(float))
     , seldata_(0)
+    , setupchgd_(false)
 {
 }
 
@@ -65,6 +66,67 @@ Seis::Provider* Seis::Provider::create( const DBKey& dbky, uiRetVal* uirv )
 }
 
 
+uiRetVal Seis::Provider::reset() const
+{
+    uiRetVal uirv;
+    doReset( uirv );
+    if ( uirv.isOK() )
+    {
+	if ( seldata_ && !seldata_->isAll() )
+	    totalnr_ = seldata_->expectedNrTraces( is2D(geomType()) );
+	else
+	    totalnr_ = getTotalNrInInput();
+	setupchgd_ = false;
+    }
+    return uirv;
+}
+
+
+od_int64 Seis::Provider::totalNr() const
+{
+    Threads::Locker locker( lock_ );
+    return totalnr_;
+}
+
+
+uiRetVal Seis::Provider::setInput( const DBKey& dbky )
+{
+    Threads::Locker locker( lock_ );
+    dbky_ = dbky;
+    setupchgd_ = true;
+    return reset();
+}
+
+
+void Seis::Provider::setSampleInterval( float zs )
+{
+    Threads::Locker locker( lock_ );
+    zstep_ = zs;
+}
+
+
+void Seis::Provider::selectComponent( int icomp )
+{
+    Threads::Locker locker( lock_ );
+    selcomp_ = icomp;
+}
+
+
+void Seis::Provider::forceFPData( bool yn )
+{
+    Threads::Locker locker( lock_ );
+    forcefpdata_ = yn;
+}
+
+
+void Seis::Provider::setReadMode( ReadMode rm )
+{
+    Threads::Locker locker( lock_ );
+    readmode_ = rm;
+    setupchgd_ = true;
+}
+
+
 uiRetVal Seis::Provider::usePar( const IOPar& iop )
 {
     forcefpdata_ = iop.isTrue( sKeyForceFPData() );
@@ -76,8 +138,10 @@ uiRetVal Seis::Provider::usePar( const IOPar& iop )
 
 void Seis::Provider::setSubsel( const SelData& sd )
 {
+    Threads::Locker locker( lock_ );
     delete seldata_;
     seldata_ = sd.clone();
+    setupchgd_ = true;
 }
 
 
@@ -85,16 +149,29 @@ void Seis::Provider::handleTrace( SeisTrc& trc ) const
 {
     ensureRightZSampling( trc );
     ensureRightDataRep( trc );
-    nrtrcs_++;
+    nrdone_++;
+}
+
+
+bool Seis::Provider::handleSetupChanges( uiRetVal& uirv ) const
+{
+    if ( setupchgd_ )
+	uirv = reset();
+    return uirv.isOK();
 }
 
 
 uiRetVal Seis::Provider::getNext( SeisTrc& trc ) const
 {
     uiRetVal uirv;
-    Threads::Locker locker( getlock_ );
+
+    Threads::Locker locker( lock_ );
+    if ( !handleSetupChanges(uirv) )
+	return uirv;
+
     doGetNext( trc, uirv );
     locker.unlockNow();
+
     if ( uirv.isOK() )
 	handleTrace( trc );
     return uirv;
@@ -104,9 +181,13 @@ uiRetVal Seis::Provider::getNext( SeisTrc& trc ) const
 uiRetVal Seis::Provider::get( const TrcKey& trcky, SeisTrc& trc ) const
 {
     uiRetVal uirv;
-    Threads::Locker locker( getlock_ );
+
+    Threads::Locker locker( lock_ );
+    if ( !handleSetupChanges(uirv) )
+	return uirv;
     doGet( trcky, trc, uirv );
     locker.unlockNow();
+
     if ( uirv.isOK() )
 	handleTrace( trc );
     return uirv;

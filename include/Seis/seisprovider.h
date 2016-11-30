@@ -30,12 +30,11 @@ class SelData;
  After instantiation, provide the DBKey with setInput. Then you can ask
  questions about the geometry and components of the seismic object.
 
- Use setSubsel() or a subclass-specific subsel setter before the first get()
- or getNext(). usePar() should get you in the same state directly.
-
  By default, you will get all stored components. If you want just one,
  use selectComponent(). You can have the data resampled; just use
  setSampleInterval().
+
+ The class is (should be) MT-safe.
 
   */
 
@@ -48,24 +47,25 @@ public:
     static Provider*	create(const DBKey&,uiRetVal* uirv=0);
     virtual		~Provider()			{}
 
-    virtual uiRetVal	setInput(const DBKey&)		= 0;
+    uiRetVal		setInput(const DBKey&);
 
     virtual GeomType	geomType() const		= 0;
     virtual BufferStringSet getComponentInfo() const	= 0;
     virtual ZSampling	getZSampling() const		= 0;
 
     void		setSubsel(const SelData&);
-    void		setSampleInterval( float zs )	{ zstep_ = zs; }
-    virtual void	selectComponent( int icomp )	{ selcomp_ = icomp; }
-    void		forceFPData( bool yn=true )	{ forcefpdata_ = yn; }
-    void		setReadMode( ReadMode rm )	{ readmode_ = rm; }
+    void		setSampleInterval(float);
+    void		selectComponent(int);
+    void		forceFPData(bool yn=true);
+    void		setReadMode(ReadMode);
     uiRetVal		usePar(const IOPar&);
 
     uiRetVal		getNext(SeisTrc&) const;
 			//!< check return on isFinished()
     uiRetVal		get(const TrcKey&,SeisTrc&) const;
 
-    od_int64		nrDone() const			{ return nrtrcs_; }
+    od_int64		nrDone() const			{ return nrdone_; }
+    od_int64		totalNr() const;
 
     static const char*	sKeyForceFPData()		{ return "Force FPs"; }
 
@@ -73,20 +73,26 @@ protected:
 
 			Provider();
 
+    mutable Threads::Lock lock_;
     DBKey		dbky_;
     SelData*		seldata_;
     float		zstep_;
     int			selcomp_;
     ReadMode		readmode_;
     bool		forcefpdata_;
+    mutable od_int64	totalnr_;
+    mutable bool	setupchgd_;
 
-    mutable Threads::Atomic<od_int64>	nrtrcs_;
-    mutable Threads::Lock		getlock_;
+    mutable Threads::Atomic<od_int64> nrdone_;
 
+    uiRetVal		reset() const;
     void		ensureRightDataRep(SeisTrc&) const;
     void		ensureRightZSampling(SeisTrc&) const;
     void		handleTrace(SeisTrc&) const;
+    bool		handleSetupChanges(uiRetVal&) const;
 
+    virtual od_int64	getTotalNrInInput() const			= 0;
+    virtual void	doReset(uiRetVal&) const			= 0;
     virtual void	doUsePar(const IOPar&,uiRetVal&)		= 0;
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const		= 0;
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const	= 0;
@@ -108,6 +114,8 @@ public:
 protected:
 
 			Provider3D()					{}
+
+    virtual od_int64	getTotalNrInInput() const;
 
 };
 

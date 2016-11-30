@@ -28,9 +28,7 @@ public:
 			VolProvider();
 			VolProvider(const DBKey&);
 			~VolProvider();
-
     virtual GeomType	geomType() const	{ return Vol; }
-    virtual uiRetVal	setInput(const DBKey&);
 
     virtual BufferStringSet	getComponentInfo() const;
     virtual ZSampling		getZSampling() const;
@@ -43,6 +41,7 @@ protected:
     VolFetcher&		fetcher_;
 
     virtual void	doUsePar(const IOPar&,uiRetVal&);
+    virtual void	doReset(uiRetVal&) const;
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
 

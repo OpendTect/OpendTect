@@ -18,7 +18,22 @@ ________________________________________________________________________
 #include "seispacketinfo.h"
 #include "seisselection.h"
 #include "posinfo.h"
+#include "survinfo.h"
 #include "file.h"
+
+
+od_int64 Seis::Provider3D::getTotalNrInInput() const
+{
+    PosInfo::CubeData cd;
+    getGeometryInfo( cd );
+    if ( !cd.isEmpty() )
+	return cd.totalSize();
+
+    const od_int64 nrinls = SI().inlRange(false).nrSteps() + 1;
+    const od_int64 nrcrls = SI().inlRange(false).nrSteps() + 1;
+    return nrinls * nrcrls;
+}
+
 
 namespace Seis
 {
@@ -121,7 +136,7 @@ void Seis::VolFetcher::getNextTranslator()
 Conn* Seis::VolFetcher::getConn()
 {
     Conn* conn = ioobj_->getConn( Conn::Read );
-    const char* fnm = ioobj_->fullUserExpr( Conn::Read );
+    const BufferString fnm = ioobj_->fullUserExpr( Conn::Read );
     if ( !conn || (conn->isBad() && !File::isDirectory(fnm)) )
     {
 	delete conn; conn = 0;
@@ -260,14 +275,6 @@ Seis::VolProvider::~VolProvider()
 }
 
 
-uiRetVal Seis::VolProvider::setInput( const DBKey& dbky )
-{
-    dbky_ = dbky;
-    fetcher_.reset();
-    return fetcher_.uirv_;
-}
-
-
 BufferStringSet Seis::VolProvider::getComponentInfo() const
 {
     BufferStringSet compnms;
@@ -336,6 +343,13 @@ void Seis::VolProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
 void Seis::VolProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
 {
     uirv.set( mTODONotImplPhrase() );
+}
+
+
+void Seis::VolProvider::doReset( uiRetVal& uirv ) const
+{
+    fetcher_.reset();
+    uirv = fetcher_.uirv_;
 }
 
 
