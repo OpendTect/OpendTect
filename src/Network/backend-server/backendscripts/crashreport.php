@@ -74,7 +74,7 @@ else
     $filecontent = json_encode( $filearray );
    
     if ( file_exists( $credentialsFile ) ) 
-	uploadGoogleStorageFile( $credentialsFile, $bucket, $crashid.".txt", $filecontent );
+	uploadGoogleStorageFile( $credentialsFile, $bucket, "incoming/".$crashid.".json", $filecontent, true );
 
     //Send e-mail
     $message = "Remote IP:\t".$_SERVER['REMOTE_ADDR']."\n\r".
