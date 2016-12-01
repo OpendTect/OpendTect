@@ -148,7 +148,7 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 		    totnr_ *= nroffsets;
 	    }
 	    szdone = true;
-	    if ( rdrs_.isEmpty() )
+	    if ( is3d && rdrs_.isEmpty() )
 		wrr_.setSelData( rdr->selData()->clone() );
 	}
 	else if ( !is3d )

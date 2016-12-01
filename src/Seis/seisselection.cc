@@ -267,6 +267,7 @@ void Seis::RangeSelData::usePar( const IOPar& iop )
     if ( iop.get(IOPar::compKey(sKey::TrcRange(),0),trcrg) )
     {
 	tkzs_.hsamp_.survid_ = TrcKey::std2DSurvID();
+	tkzs_.hsamp_.setLineRange( StepInterval<int>(0,mUdf(int),1) );
 	tkzs_.hsamp_.setTrcRange( trcrg );
 	iop.get( IOPar::compKey(sKey::ZRange(),0), tkzs_.zsamp_ );
     }
