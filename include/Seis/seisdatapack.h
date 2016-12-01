@@ -18,16 +18,33 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 
-/*!
-\brief SeisDataPack for 2D and 3D seismic data.
-*/
 
-mExpClass(Seis) RegularSeisDataPack : public SeisDataPack
+/*!\brief SeisDataPack for random lines. */
+
+mExpClass(Seis) SeisVolumeDataPack : public VolumeDataPack
+{
+public:
+
+    void			fillTrace(const TrcKey&,SeisTrc&) const;
+
+protected:
+
+				SeisVolumeDataPack( const char* cat,
+						    const BinDataDesc* bdd )
+				    : VolumeDataPack(cat,bdd)	{}
+
+};
+
+
+/*!\brief VolumeDataPack for 2D and 3D seismic data. */
+
+mExpClass(Seis) RegularSeisDataPack : public SeisVolumeDataPack
 {
 public:
 				RegularSeisDataPack(const char* cat,
 						    const BinDataDesc* bdd=0);
 				~RegularSeisDataPack();
+    RegularSeisDataPack*	getSimilar() const;
 
     void			setSampling( const TrcKeyZSampling& tkzs )
 				{ sampling_ = tkzs; }
@@ -69,15 +86,14 @@ protected:
 };
 
 
-/*!
-\brief SeisDataPack for random lines.
-*/
+/*!\brief SeisVolumeDataPack for random lines. */
 
-mExpClass(Seis) RandomSeisDataPack : public SeisDataPack
+mExpClass(Seis) RandomSeisDataPack : public SeisVolumeDataPack
 {
 public:
 				RandomSeisDataPack(const char* cat,
 						   const BinDataDesc* bdd=0);
+    RandomSeisDataPack*		getSimilar() const;
 
     bool			is2D() const		{ return false; }
     int				nrTrcs() const		{ return path_.size(); }
@@ -111,20 +127,19 @@ protected:
 };
 
 
-/*!
-\brief Base class for RegularFlatDataPack and RandomFlatDataPack.
-*/
+/*!\brief Base class for RegularFlatDataPack and RandomFlatDataPack. */
 
 mExpClass(Seis) SeisFlatDataPack : public FlatDataPack
 {
 public:
+
 				~SeisFlatDataPack();
 
     int				nrTrcs() const
 				{ return source_.nrTrcs(); }
     TrcKey			getTrcKey( int trcidx ) const
 				{ return source_.getTrcKey(trcidx); }
-    const SeisDataPack&		getSourceDataPack() const
+    const SeisVolumeDataPack&	getSourceDataPack() const
 				{ return source_; }
     bool			is2D() const
 				{ return source_.is2D(); }
@@ -149,7 +164,8 @@ public:
 
 protected:
 
-				SeisFlatDataPack(const SeisDataPack&,int comp);
+				SeisFlatDataPack(const SeisVolumeDataPack&,
+						 int icomp);
 
     virtual void		setSourceData()				= 0;
     virtual void		setTrcInfoFlds()			= 0;
@@ -158,7 +174,7 @@ protected:
 				 as X1 and X2 posData. Assumes getPath() is
 				 not empty. */
 
-    const SeisDataPack&		source_;
+    const SeisVolumeDataPack&	source_;
     int				comp_;
     int				rdlid_;
     const StepInterval<float>&	zsamp_;
@@ -167,13 +183,12 @@ protected:
 };
 
 
-/*!
-\brief FlatDataPack for 2D and 3D seismic data.
-*/
+/*!\brief FlatDataPack for 2D and 3D seismic data. */
 
 mExpClass(Seis) RegularFlatDataPack : public SeisFlatDataPack
 {
 public:
+
 				RegularFlatDataPack(const RegularSeisDataPack&,
 						    int component);
 
@@ -197,16 +212,16 @@ protected:
     TrcKeyZSampling::Dir	dir_;
     bool			usemulticomps_;
     bool			hassingletrace_;
+
 };
 
 
-/*!
-\brief FlatDataPack for random lines.
-*/
+/*!\brief FlatDataPack for random lines. */
 
 mExpClass(Seis) RandomFlatDataPack : public SeisFlatDataPack
 {
 public:
+
 				RandomFlatDataPack(const RandomSeisDataPack&,
 						   int component);
 
@@ -222,4 +237,5 @@ protected:
     void			setSourceData();
     void			setTrcInfoFlds();
     const TrcKeyPath&		path_;
+
 };

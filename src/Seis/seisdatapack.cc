@@ -181,11 +181,27 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 
 
 //=============================================================================
+// SeisVolumeDataPack
+
+void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
+{
+    const int nrcomps = nrComponents();
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+	trc.data().setComponent( DataCharacteristics(getDataDesc()), icomp );
+    trc.reSize( getZRange().nrSteps()+1, false );
+
+    //TODO implement
+    pErrMsg( "TODO: implement data copying" );
+}
+
+
+//=============================================================================
 
 // RegularSeisDataPack
+
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
-    : SeisDataPack(cat,bdd)
+    : SeisVolumeDataPack(cat,bdd)
     , sampling_(false) //MUST be set to false in the constructor
     , trcssampling_(0)
 {}
@@ -193,6 +209,14 @@ RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 
 RegularSeisDataPack::~RegularSeisDataPack()
 {
+}
+
+
+RegularSeisDataPack* RegularSeisDataPack::getSimilar() const
+{
+    RegularSeisDataPack* ret = new RegularSeisDataPack( category(), &desc_ );
+    ret->setSampling( sampling() );
+    return ret;
 }
 
 
@@ -239,7 +263,7 @@ bool RegularSeisDataPack::addComponent( const char* nm )
 
 void RegularSeisDataPack::dumpInfo( IOPar& par ) const
 {
-    SeisDataPack::dumpInfo( par );
+    VolumeDataPack::dumpInfo( par );
 
     const TrcKeySampling& tks = sampling_.hsamp_;
     if ( is2D() )
@@ -270,7 +294,7 @@ DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
 	return DataPack::cNoID();
 
     RegularSeisDataPack* regsdp = new RegularSeisDataPack(
-					SeisDataPack::categoryStr(false,true) );
+				    VolumeDataPack::categoryStr(false,true) );
     regsdp->setSampling( tkzs );
     for ( int idx=1; idx<bivset->nrVals(); idx++ )
     {
@@ -297,9 +321,19 @@ DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
 // RandomSeisDataPack
 RandomSeisDataPack::RandomSeisDataPack( const char* cat,
 					const BinDataDesc* bdd )
-    : SeisDataPack(cat,bdd)
+    : SeisVolumeDataPack(cat,bdd)
     , rdlid_(-1)
 {
+}
+
+
+RandomSeisDataPack* RandomSeisDataPack::getSimilar() const
+{
+    RandomSeisDataPack* ret = new RandomSeisDataPack( category(), &desc_ );
+    ret->setRandomLineID( rdlid_ );
+    ret->setPath( path_ );
+    ret->setZRange( zsamp_ );
+    return ret;
 }
 
 
@@ -355,7 +389,7 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 	return DataPack::cNoID();
 
     RandomSeisDataPack* randsdp = new RandomSeisDataPack(
-		SeisDataPack::categoryStr(true,false), &regsdp.getDataDesc() );
+	    VolumeDataPack::categoryStr(true,false), &regsdp.getDataDesc() );
     randsdp->setRandomLineID( rdmlineid );
     if ( regsdp.getScaler() )
 	randsdp->setScaler( *regsdp.getScaler() );
@@ -412,7 +446,7 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 #define mKeyRefNr	SeisTrcInfo::toString(SeisTrcInfo::RefNr)
 
 // SeisFlatDataPack
-SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
+SeisFlatDataPack::SeisFlatDataPack( const SeisVolumeDataPack& source, int comp )
     : FlatDataPack(source.category())
     , source_(source)
     , comp_(comp)
@@ -420,7 +454,7 @@ SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
     , rdlid_(source.getRandomLineID())
 {
     source_.ref();
-    DPM(DataPackMgr::SeisID()).add(const_cast<SeisDataPack*>(&source));
+    DPM(DataPackMgr::SeisID()).add(const_cast<SeisVolumeDataPack*>(&source));
     setName( source_.getComponentName(comp_) );
 }
 

@@ -82,10 +82,10 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 
     if ( dmid == DataPackMgr::SeisID() )
     {
-	mDynamicCastGet(const SeisDataPack*,seisdp,dp.ptr());
-	if ( !seisdp || seisdp->isEmpty() ) return false;
+	mDynamicCastGet(const VolumeDataPack*,voldp,dp.ptr());
+	if ( !voldp || voldp->isEmpty() ) return false;
 
-	const Array3D<float>* arr3d = &seisdp->data( 0 );
+	const Array3D<float>* arr3d = &voldp->data( 0 );
 	setData( arr3d );
     }
     else if ( dmid == DataPackMgr::FlatID() )

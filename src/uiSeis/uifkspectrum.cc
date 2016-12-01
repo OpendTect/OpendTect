@@ -194,15 +194,15 @@ void uiFKSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 
     if ( dmid == DataPackMgr::SeisID() )
     {
-	mDynamicCastGet(const SeisDataPack*,seisdp,datapack.ptr());
-	if ( !seisdp || seisdp->isEmpty() ) return;
+	mDynamicCastGet(const VolumeDataPack*,voldp,datapack.ptr());
+	if ( !voldp || voldp->isEmpty() ) return;
 
 	mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack.ptr());
 	const TrcKeyZSampling::Dir dir = regsdp ?
-	    	regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
+		regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
 	const int dim0 = dir==TrcKeyZSampling::Inl ? 1 : 0;
 
-	Array2DSlice<float> slice2d( seisdp->data(0) );
+	Array2DSlice<float> slice2d( voldp->data(0) );
 	slice2d.setDimMap( 0, dim0 );
 	slice2d.setDimMap( 1, 2 );
 	slice2d.setPos( dir, 0 );

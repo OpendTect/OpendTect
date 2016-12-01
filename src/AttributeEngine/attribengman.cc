@@ -582,7 +582,7 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 			const ObjectSet<const RegularSeisDataPack>& packset )
 {
     if ( packset.isEmpty() ) return 0;
-    const char* category = SeisDataPack::categoryStr(
+    const char* category = VolumeDataPack::categoryStr(
 			tkzs_.defaultDir()!=TrcKeyZSampling::Z,
 			tkzs_.hsamp_.survid_==Survey::GM().get2DSurvID() );
     RegularSeisDataPack* output =

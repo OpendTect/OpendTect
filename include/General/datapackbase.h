@@ -123,7 +123,7 @@ mExpClass(General) MapDataPack : public FlatDataPack
 public:
 				MapDataPack(const char* cat,
 					    Array2D<float>*);
-    				//!<Array becomes mine
+				//!<Array becomes mine
 				~MapDataPack();
 
     Array2D<float>&		data();
@@ -156,45 +156,14 @@ protected:
 
 
 
-/*!\brief DataPack for volume data, where the dims correspond to
-          inl/crl/z . */
+/*!\brief DataPack for volume data */
 
 mExpClass(General) VolumeDataPack : public DataPack
 {
 public:
-
-    virtual Array3D<float>&	data();
-    const Array3D<float>&	data() const;
-
-    virtual const char*		dimName(char dim) const;
-    virtual double		getPos(char dim,int idx) const;
-    int				size(char dim) const;
-    virtual float		nrKBytes() const;
-    virtual void		dumpInfo(IOPar&) const;
-
-
-protected:
-				VolumeDataPack(const char* categry,
-					     Array3D<float>*);
-				//!< Array3D become mine (of course)
 				~VolumeDataPack();
 
-				VolumeDataPack(const char* category);
-				//!< For this you have to overload data()
-				//!< and the destructor
-
-    Array3D<float>*		arr3d_;
-};
-
-
-
-/*!\brief DataPack for volume data. Should be renamed to VolumeDataPack later*/
-
-mExpClass(General) SeisDataPack : public DataPack
-{
-public:
-				~SeisDataPack();
-
+    virtual VolumeDataPack*	getSimilar() const			= 0;
     virtual bool		is2D() const				= 0;
     virtual int			nrTrcs() const				= 0;
     virtual TrcKey		getTrcKey(int globaltrcidx) const	= 0;
@@ -251,7 +220,7 @@ public:
     void			dumpInfo(IOPar&) const;
 
 protected:
-				SeisDataPack(const char*,const BinDataDesc*);
+				VolumeDataPack(const char*,const BinDataDesc*);
 
     bool			addArray(int sz0,int sz1,int sz2);
 

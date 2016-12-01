@@ -24,11 +24,12 @@ ___________________________________________________________________
 #include "probeimpl.h"
 #include "posvecdataset.h"
 #include "randomlineprobe.h"
-#include "seisdatapackzaxistransformer.h"
+#include "volumedatapackzaxistransformer.h"
 #include "survinfo.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
 #include "zdomain.h"
+#include "seisdatapack.h"
 #include "zaxistransform.h"
 #include "zaxistransformutils.h"
 
@@ -417,14 +418,14 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
     if ( !attrdp )
 	return attrdp;
 
-    mDynamicCastGet(const SeisDataPack*,seisdp,attrdp.ptr());
-    const FixedString zdomainkey( seisdp ? seisdp->zDomain().key() : "" );
+    mDynamicCastGet(const VolumeDataPack*,voldp,attrdp.ptr());
+    const FixedString zdomainkey( voldp ? voldp->zDomain().key() : "" );
     const bool alreadytransformed =
 	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
     if ( ztransform && !alreadytransformed )
     {
-	SeisDataPackZAxisTransformer transformer( *ztransform );
-	transformer.setInput( seisdp );
+	VolumeDataPackZAxisTransformer transformer( *ztransform );
+	transformer.setInput( voldp );
 	transformer.setInterpolate( true );
 	transformer.execute();
 	if ( transformer.getOutput() )

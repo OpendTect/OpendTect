@@ -810,6 +810,23 @@ void TrcKeySampling::neighbors( const TrcKey& tk, TypeSet<TrcKey>& nbs ) const
 }
 
 
+bool TrcKeySampling::toNext( BinID& bid ) const
+{
+    if ( mIsUdf(bid.inl()) || mIsUdf(bid.crl()) )
+	return false;
+
+    bid.crl() += step_.crl();
+    if ( bid.crl() > stop_.crl() )
+    {
+	bid.crl() = start_.crl();
+	bid.inl()++;
+	if ( bid.inl() > stop_.inl() )
+	    return false;
+    }
+    return true;
+}
+
+
 void TrcKeySampling::include( const TrcKey& trckey )
 {
     if ( mIsUdf(survid_) ) survid_ = trckey.survID();

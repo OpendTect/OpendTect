@@ -17,7 +17,7 @@
 #include "arrayndslice.h"
 #include "convmemvalseries.h"
 #include "seisdatapack.h"
-#include "seisdatapackzaxistransformer.h"
+#include "volumedatapackzaxistransformer.h"
 #include "randomlinegeom.h"
 #include "mousecursor.h"
 #include "polylinend.h"
@@ -848,7 +848,7 @@ void RandomTrackDisplay::createTransformedDataPack(
 	    datatransform_->loadDataIfMissing( voiidx_, taskr );
 	}
 
-	SeisDataPackZAxisTransformer transformer( *datatransform_ );
+	VolumeDataPackZAxisTransformer transformer( *datatransform_ );
 	transformer.setInput( randsdp.ptr() );
 	transformer.setInterpolate( textureInterpolationEnabled() );
 	transformer.execute();

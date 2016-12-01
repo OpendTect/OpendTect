@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
+#include "seisdatapack.h"
 #include "posinfo.h"
 #include "survinfo.h"
 #include "file.h"
@@ -69,8 +70,12 @@ VolFetcher( VolProvider& p )
 
     VolProvider&	prov_;
     IOObj*		ioobj_;
+
+    RefMan<RegularSeisDataPack> dp_;
+    BinID		curbid_;
+
     SeisTrcTranslator*	trl_;
-    RefMan<SeisDataPack> dp_;
+
     uiRetVal		uirv_;
 
 };
@@ -84,6 +89,7 @@ void Seis::VolFetcher::reset()
     delete trl_; trl_ = 0;
     delete ioobj_; ioobj_ = 0;
     dp_ = 0;
+    curbid_.inl() = mUdf(int);
 
     findDataPack();
     if ( !dp_ )
@@ -93,8 +99,14 @@ void Seis::VolFetcher::reset()
 
 void Seis::VolFetcher::findDataPack()
 {
-    // find datapack for our prov_.dbky_
+    // find dp_ for our prov_.dbky_
+    // Can only use RegularSeisDataPack
     // if it's there and it matches the subselection, we're cool
+
+    if ( !dp_ )
+	return;
+
+    curbid_ = dp_->sampling().hsamp_.start_;
 }
 
 
@@ -212,24 +224,31 @@ bool Seis::VolFetcher::translatorSelected() const
 
 void Seis::VolFetcher::get( const TrcKey& trcky, SeisTrc& trc )
 {
+    bool moveok = false;
     if ( dp_ )
     {
-	uirv_.set( mTODONotImplPhrase() );
-	return;
+	moveok = dp_->sampling().hsamp_.includes( trcky.binID() );
+	if ( moveok )
+	    curbid_ = trcky.binID();
     }
-
-    if ( !trl_ )
+    else
     {
-	uirv_.set( uiStrings::phrInternalError("trl_/Seismic Volume Fetcher" ));
-	return;
+	if ( !trl_ )
+	{
+	    uirv_.set( uiStrings::phrInternalError("trl_/Volume Fetcher" ));
+	    return;
+	}
+
+	curbid_ = trcky.position();
+	if ( trl_->goTo(curbid_) )
+	    moveok = true;
     }
 
-    const BinID bid( trcky.position() );
-    if ( trl_->goTo(bid) )
+    if ( moveok )
 	getNext( trc );
     else
 	uirv_.set( tr("Position not present: %1/%2")
-		    .arg( bid.inl() ).arg( bid.crl() ) );
+		    .arg( curbid_.inl() ).arg( curbid_.crl() ) );
 }
 
 
@@ -237,25 +256,30 @@ void Seis::VolFetcher::getNext( SeisTrc& trc )
 {
     if ( dp_ )
     {
-	uirv_.set( mTODONotImplPhrase() );
-	return;
-    }
-
-    if ( !trl_->read(trc) )
-    {
-	if ( !isMultiConn() )
+	if ( !dp_->sampling().hsamp_.includes(curbid_) )
 	{
-	    uirv_.set( trl_->errMsg() );
-	}
-	else
-	{
-	    getNextTranslator();
-	    if ( trl_ )
-		return getNext( trc );
-	}
-	if ( uirv_.isOK() )
 	    uirv_.set( uiStrings::sFinished() );
-	return;
+	    return;
+	}
+	dp_->fillTrace( TrcKey(curbid_), trc );
+	dp_->sampling().hsamp_.toNext( curbid_ );
+    }
+    else
+    {
+	if ( !trl_->read(trc) )
+	{
+	    if ( !isMultiConn() )
+		uirv_.set( trl_->errMsg() );
+	    else
+	    {
+		getNextTranslator();
+		if ( trl_ )
+		    return getNext( trc );
+	    }
+	    if ( uirv_.isOK() )
+		uirv_.set( uiStrings::sFinished() );
+	    return;
+	}
     }
 
     trc.info().trckey_.setSurvID( TrcKey::std3DSurvID() );

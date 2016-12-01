@@ -365,7 +365,8 @@ bool ParallelReader2D::doPrepare( int nrthreads )
 
     totalnr_ = tkzs_.hsamp_.totalNr();
 
-    dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true), &dc_ );
+    dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,true),
+				    &dc_ );
     DPM(DataPackMgr::SeisID()).add( dp_.ptr() );
     dp_->setSampling( tkzs_ );
     if ( scaler_ )
@@ -712,7 +713,7 @@ bool SequentialReader::init()
 	    tkzs_.hsamp_.setTrcRange( trcrg );
 	}
 
-	dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false),
+	dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,false),
 					&dc_);
 	DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
 	dp_->setSampling( tkzs_ );

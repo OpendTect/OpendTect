@@ -88,6 +88,7 @@ public:
     bool		isEmpty() const;
     void		neighbors(od_int64 globalidx,TypeSet<od_int64>&) const;
     void		neighbors(const TrcKey&,TypeSet<TrcKey>&) const;
+    bool		toNext(BinID&) const;
 
     void		init(bool settoSI=true);
 			//!< Sets to survey values or mUdf(int) (but step 1)

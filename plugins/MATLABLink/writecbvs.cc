@@ -109,7 +109,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     mexPrintf( tkzsinfo.buf() ); mexPrintf( "\n" );
     mexPrintf( "Nr of traces: %d\n", tkzs.hsamp_.totalNr() );
 
-    const char* category = SeisDataPack::categoryStr(
+    const char* category = VolumeDataPack::categoryStr(
 				tkzs.defaultDir()!=TrcKeyZSampling::Z, false );
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     RefMan<RegularSeisDataPack> output =

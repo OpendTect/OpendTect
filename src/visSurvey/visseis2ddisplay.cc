@@ -27,7 +27,7 @@
 #include "mousecursor.h"
 #include "probeimpl.h"
 #include "seisdatapack.h"
-#include "seisdatapackzaxistransformer.h"
+#include "volumedatapackzaxistransformer.h"
 #include "zaxistransform.h"
 #include "keystrs.h"
 
@@ -528,7 +528,7 @@ void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 	    datatransform_->loadDataIfMissing( voiidx_, taskr );
 	}
 
-	SeisDataPackZAxisTransformer transformer( *datatransform_ );
+	VolumeDataPackZAxisTransformer transformer( *datatransform_ );
 	transformer.setInput( regsdp.ptr() );
 	transformer.setInterpolate( textureInterpolationEnabled() );
 	transformer.setOutputZRange( tkzs.zsamp_ );

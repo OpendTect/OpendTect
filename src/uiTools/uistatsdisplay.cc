@@ -121,8 +121,8 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 
 	if ( dmid == DataPackMgr::SeisID() )
 	{
-	    mDynamicCastGet(const SeisDataPack*,sdp,datapack.ptr());
-	    const Array3D<float>* arr3d = sdp ? &sdp->data() : 0;
+	    mDynamicCastGet(const VolumeDataPack*,vdp,datapack.ptr());
+	    const Array3D<float>* arr3d = vdp ? &vdp->data() : 0;
 	    if ( !arr3d ) return false;
 
 	    const float* array = arr3d->getData();

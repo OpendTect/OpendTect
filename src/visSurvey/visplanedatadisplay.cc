@@ -15,7 +15,7 @@
 #include "probe.h"
 #include "probeimpl.h"
 #include "seisdatapack.h"
-#include "seisdatapackzaxistransformer.h"
+#include "volumedatapackzaxistransformer.h"
 #include "settings.h"
 
 #include "visdepthtabplanedragger.h"
@@ -945,7 +945,7 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
-    RefMan<SeisDataPack> transformed = 0;
+    RefMan<VolumeDataPack> transformed = 0;
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
 	const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true );
@@ -958,7 +958,7 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 	    datatransform_->loadDataIfMissing( voiidx_, taskr );
 	}
 
-	SeisDataPackZAxisTransformer transformer( *datatransform_ );
+	VolumeDataPackZAxisTransformer transformer( *datatransform_ );
 	transformer.setInput( regsdp.ptr() );
 	transformer.setInterpolate( textureInterpolationEnabled() );
 	transformer.setOutputZRange( tkzs.zsamp_ );

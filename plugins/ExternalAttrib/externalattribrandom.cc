@@ -69,7 +69,7 @@ DataPack::ID Random::createAttrib( const CubeSampling& tkzs,
     if ( !output || !output->nrCubes() ) return DataPack::cNoID();
 
     RegularSeisDataPack* regsdp = new RegularSeisDataPack(
-	    SeisDataPack::categoryStr(tkzs.isFlat() && tkzs.nrZ()!=1,false) );
+	    VolumeDataPack::categoryStr(tkzs.isFlat() && tkzs.nrZ()!=1,false) );
     regsdp->setSampling( tkzs );
     regsdp->addComponent( uiStrings::sEmptyString() );
 

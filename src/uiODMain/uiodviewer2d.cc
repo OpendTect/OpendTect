@@ -50,7 +50,7 @@ ________________________________________________________________________
 #include "probemanager.h"
 #include "scaler.h"
 #include "seisdatapack.h"
-#include "seisdatapackzaxistransformer.h"
+#include "volumedatapackzaxistransformer.h"
 #include "seisioobjinfo.h"
 #include "settings.h"
 #include "sorting.h"
@@ -594,7 +594,7 @@ DataPack::ID uiODViewer2D::createDataPack(const Attrib::SelSpec& selspec)
 DataPack::ID uiODViewer2D::createFlatDataPack( DataPack::ID dpid, int comp )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstRefMan<SeisDataPack> seisdp = dpm.get( dpid );
+    ConstRefMan<VolumeDataPack> seisdp = dpm.get( dpid );
     if ( !seisdp || !(comp<seisdp->nrComponents()) ) return dpid;
 
     const FixedString zdomainkey( seisdp->zDomain().key() );
@@ -602,7 +602,7 @@ DataPack::ID uiODViewer2D::createFlatDataPack( DataPack::ID dpid, int comp )
 	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
     if ( datatransform_ && !alreadytransformed )
     {
-	SeisDataPackZAxisTransformer transformer( *datatransform_.ptr() );
+	VolumeDataPackZAxisTransformer transformer( *datatransform_.ptr() );
 	transformer.setInput( seisdp.ptr() );
 	transformer.setInterpolate( true );
 	transformer.execute();

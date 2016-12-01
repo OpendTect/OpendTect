@@ -60,43 +60,43 @@ public:
     typedef FullID::MgrID	MgrID;
 
 
-			DataPack( const char* categry )
-			    : NamedMonitorable("<?>")
-			    , category_(categry)
-			    , manager_( 0 )
-			    , id_(getNewID())	{}
-			DataPack( const DataPack& dp )
-			    : NamedMonitorable( dp )
-			    , category_( dp.category_ )
-			    , manager_( 0 )
-			    , id_(getNewID())	{}
-    virtual		~DataPack()		{ sendDelNotif(); }
+				DataPack( const char* categry )
+				    : NamedMonitorable("<?>")
+				    , category_(categry)
+				    , manager_( 0 )
+				    , id_(getNewID())	{}
+				DataPack( const DataPack& dp )
+				    : NamedMonitorable( dp )
+				    , category_( dp.category_ )
+				    , manager_( 0 )
+				    , id_(getNewID())	{}
+    virtual			~DataPack()		{ sendDelNotif(); }
 
-    ID			id() const		{ return id_; }
-    FullID		fullID( MgrID mgrid ) const
+    ID				id() const		{ return id_; }
+    FullID			fullID( MgrID mgrid ) const
 						{ return FullID(mgrid,id()); }
-    virtual const char*	category() const	{ return category_.buf(); }
+    virtual const char*		category() const	{ return category_.buf(); }
 
-    virtual float	nrKBytes() const	= 0;
-    virtual void	dumpInfo(IOPar&) const;
+    virtual float		nrKBytes() const	= 0;
+    virtual void		dumpInfo(IOPar&) const;
 
-    static const char*	sKeyCategory();
-    static ID		cNoID()			{ return ID::getInvalid(); }
+    static const char*		sKeyCategory();
+    static ID			cNoID()			{ return ID(); }
 
-    virtual bool	isOK() const		{ return true; }
+    virtual bool		isOK() const		{ return true; }
 
-    Threads::Lock&	updateLock() const	{ return updatelock_; }
+    Threads::Lock&		updateLock() const	{ return updatelock_; }
 
 protected:
 
-    void		setManager(const DataPackMgr*);
-    const ID		id_;
+    void			setManager(const DataPackMgr*);
+    const ID			id_;
     const BufferString		category_;
 
-    mutable Threads::Lock updatelock_;
-    const DataPackMgr*	manager_;
+    mutable Threads::Lock	updatelock_;
+    const DataPackMgr*		manager_;
 
-    static ID		getNewID();  //!< ensures a global data pack ID
+    static ID			getNewID();  //!< ensures a global data pack ID
     static float		sKb2MbFac(); //!< 1 / 1024
 
     void			setCategory( const char* c )
@@ -112,9 +112,7 @@ public:
 };
 
 
-/*!
-\brief Simple DataPack based on an unstructured char array buffer.
-*/
+/*!\brief Simple DataPack based on an unstructured char array buffer. */
 
 mExpClass(Basic) BufferDataPack : public DataPack
 {
@@ -231,11 +229,11 @@ protected:
     mutable Threads::SpinRWLock		packslock_;
     TypeSet<WeakPtr<DataPack> >		packs_;
 
-    DataPack*				doObtain(DataPack::ID,bool) const;
-    int					indexOf(DataPack::ID) const;
-					//!<Object should be readlocked
+    DataPack*		doObtain(DataPack::ID,bool) const;
+    int			indexOf(DataPack::ID) const;
+				//!<Object should be readlocked
 
-    static Threads::Lock	mgrlistlock_;
+    static Threads::Lock mgrlistlock_;
     static ManagedObjectSet<DataPackMgr> mgrs_;
 
 public:

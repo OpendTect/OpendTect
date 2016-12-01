@@ -90,6 +90,7 @@ list ( APPEND OD_MODULE_SOURCES
 	unitofmeasure.cc
 	usrinputobj.cc
 	variogramcomputers.cc
+	volumedatapackzaxistransformer.cc
 	zaxistransformutils.cc
 	ziparchiveinfo.cc
 	ziphandler.cc

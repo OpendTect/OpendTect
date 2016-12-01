@@ -746,7 +746,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 	{
 	    ArrayValueSeries<float, float> avs( vals.arr(), false, vals.size());
 	    output = new RegularSeisDataPack(
-				SeisDataPack::categoryStr(false,false) );
+				VolumeDataPack::categoryStr(false,false) );
 	    output->setSampling( tkzs );
 	    if ( !output->addComponent(targetspecs_[0].userRef()) ||
 		    !output->data(0).getStorage() )
@@ -922,7 +922,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 	return DataPack::cNoID();
 
     RandomSeisDataPack* newpack = new RandomSeisDataPack(
-				SeisDataPack::categoryStr(true,false) );
+				VolumeDataPack::categoryStr(true,false) );
     newpack->setRandomLineID( rdlid );
     newpack->setZRange( output.get(0)->zRange() );
     for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
@@ -1047,7 +1047,7 @@ bool doPrepare( int nrthreads )
 	    sampling_.hsamp_.survid_!=Survey::GM().get2DSurvID() )
 	return false;
 
-    outputdp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true) );
+    outputdp_ = new RegularSeisDataPack(VolumeDataPack::categoryStr(true,true));
     outputdp_->setSampling( sampling_ );
     for ( int idx=0; idx<input_.dataset_[0]->validSeriesIdx().size(); idx++ )
     {

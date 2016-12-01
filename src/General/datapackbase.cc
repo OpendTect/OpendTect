@@ -354,67 +354,9 @@ const char* MapDataPack::dimName( bool dim0 ) const
 }
 
 
-
 // VolumeDataPack
-VolumeDataPack::VolumeDataPack( const char* categry,
-				Array3D<float>* arr )
-    : DataPack( categry )
-    , arr3d_(arr ? arr : new Array3DImpl<float>(0,0,0))
-{}
 
-
-VolumeDataPack::VolumeDataPack( const char* cat )
-    : DataPack(cat)
-    , arr3d_(0)
-{}
-
-
-VolumeDataPack::~VolumeDataPack()
-{ delete arr3d_; }
-
-
-float VolumeDataPack::nrKBytes() const
-{
-    float ret = size(0) * kbfac;
-    return size( 1 ) * ret * size( 2 );
-}
-
-
-int VolumeDataPack::size( char dim ) const
-{ return arr3d_ ? arr3d_->info().getSize( dim ) : 0; }
-
-
-Array3D<float>& VolumeDataPack::data()
-{ return *arr3d_; }
-
-
-const Array3D<float>& VolumeDataPack::data() const
-{ return const_cast<VolumeDataPack*>(this)->data(); }
-
-
-const char* VolumeDataPack::dimName( char dim ) const
-{
-    if ( !dim ) return "X0";
-    if ( dim==1 ) return "X1";
-
-    return "X2";
-}
-
-
-double VolumeDataPack::getPos(char dim,int idx) const
-{ return idx; }
-
-
-void VolumeDataPack::dumpInfo( IOPar& par ) const
-{
-    DataPack::dumpInfo( par );
-    par.set( "Dimensions", size(0), size(1), size(2) );
-}
-
-
-
-// SeisDataPack
-SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
+VolumeDataPack::VolumeDataPack( const char* cat, const BinDataDesc* bdd )
     : DataPack(cat)
     , zdomaininfo_(new ZDomain::Info(ZDomain::Time()))
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
@@ -428,7 +370,7 @@ SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
 }
 
 
-SeisDataPack::~SeisDataPack()
+VolumeDataPack::~VolumeDataPack()
 {
     deepErase( arrays_ );
     deleteAndZeroPtr( zdomaininfo_ );
@@ -436,7 +378,7 @@ SeisDataPack::~SeisDataPack()
 }
 
 
-int SeisDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
+int VolumeDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
 {
     if ( tk.isUdf() ) return -1;
 
@@ -462,7 +404,7 @@ int SeisDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
 }
 
 
-void SeisDataPack::getPath( TrcKeyPath& path ) const
+void VolumeDataPack::getPath( TrcKeyPath& path ) const
 {
     path.erase();
     for ( int idx=0; idx<nrTrcs(); idx++ )
@@ -471,7 +413,7 @@ void SeisDataPack::getPath( TrcKeyPath& path ) const
 
 
 const OffsetValueSeries<float>
-    SeisDataPack::getTrcStorage(int comp, int globaltrcidx) const
+    VolumeDataPack::getTrcStorage(int comp, int globaltrcidx) const
 {
     const Array3D<float>* array = arrays_[comp];
     return OffsetValueSeries<float>( *array->getStorage(),
@@ -479,7 +421,8 @@ const OffsetValueSeries<float>
 }
 
 
-OffsetValueSeries<float> SeisDataPack::getTrcStorage(int comp, int globaltrcidx)
+OffsetValueSeries<float> VolumeDataPack::getTrcStorage( int comp,
+							int globaltrcidx )
 {
     Array3D<float>* array = arrays_[comp];
     return OffsetValueSeries<float>( *array->getStorage(),
@@ -487,7 +430,7 @@ OffsetValueSeries<float> SeisDataPack::getTrcStorage(int comp, int globaltrcidx)
 }
 
 
-const float* SeisDataPack::getTrcData( int comp, int globaltrcidx ) const
+const float* VolumeDataPack::getTrcData( int comp, int globaltrcidx ) const
 {
     const Array3D<float>* array = arrays_[comp];
     if ( !array->getData() ) return 0;
@@ -495,7 +438,7 @@ const float* SeisDataPack::getTrcData( int comp, int globaltrcidx ) const
 }
 
 
-float* SeisDataPack::getTrcData( int comp, int globaltrcidx )
+float* VolumeDataPack::getTrcData( int comp, int globaltrcidx )
 {
     Array3D<float>* array = arrays_[comp];
     if ( !array->getData() ) return 0;
@@ -503,21 +446,21 @@ float* SeisDataPack::getTrcData( int comp, int globaltrcidx )
 }
 
 
-void SeisDataPack::setComponentName( const char* nm, int component )
+void VolumeDataPack::setComponentName( const char* nm, int component )
 {
     if ( componentnames_.validIdx(component) )
 	componentnames_[component]->set( nm );
 }
 
 
-const char* SeisDataPack::getComponentName( int component ) const
+const char* VolumeDataPack::getComponentName( int component ) const
 {
     return componentnames_.validIdx(component)
 	? componentnames_[component]->buf() : 0;
 }
 
 
-int SeisDataPack::getComponentIdx( const char* nm, int defcompidx ) const
+int VolumeDataPack::getComponentIdx( const char* nm, int defcompidx ) const
 {
     const int compidx = componentnames_.indexOf( nm );
     if ( compidx >= 0 )
@@ -536,7 +479,7 @@ int SeisDataPack::getComponentIdx( const char* nm, int defcompidx ) const
 }
 
 
-const char* SeisDataPack::categoryStr( bool isvertical, bool is2d )
+const char* VolumeDataPack::categoryStr( bool isvertical, bool is2d )
 {
     mDeclStaticString( vret );
     vret = IOPar::compKey( is2d ? sKey::Attribute2D() : sKey::Attribute(), "V");
@@ -545,33 +488,33 @@ const char* SeisDataPack::categoryStr( bool isvertical, bool is2d )
 }
 
 
-float SeisDataPack::getRefNr( int globaltrcidx ) const
+float VolumeDataPack::getRefNr( int globaltrcidx ) const
 {
     return refnrs_.validIdx(globaltrcidx) ? refnrs_[globaltrcidx] : mUdf(float);
 }
 
 
-void SeisDataPack::setZDomain( const ZDomain::Info& zinf )
+void VolumeDataPack::setZDomain( const ZDomain::Info& zinf )
 {
     delete zdomaininfo_;
     zdomaininfo_ = new ZDomain::Info( zinf );
 }
 
 
-void SeisDataPack::setScaler( const Scaler& scaler )
+void VolumeDataPack::setScaler( const Scaler& scaler )
 {
     delete scaler_;
     scaler_ = scaler.clone();
 }
 
 
-void SeisDataPack::deleteScaler()
+void VolumeDataPack::deleteScaler()
 {
     deleteAndZeroPtr( scaler_ );
 }
 
 
-void SeisDataPack::setDataDesc( const BinDataDesc& dc )
+void VolumeDataPack::setDataDesc( const BinDataDesc& dc )
 {
     if ( dc != desc_ && !isEmpty() )
 	deepErase( arrays_ );
@@ -580,7 +523,7 @@ void SeisDataPack::setDataDesc( const BinDataDesc& dc )
 }
 
 
-float SeisDataPack::nrKBytes() const
+float VolumeDataPack::nrKBytes() const
 {
     const int nrcomps = nrComponents();
     if ( nrcomps == 0 ) return 0.0f;
@@ -588,7 +531,7 @@ float SeisDataPack::nrKBytes() const
 }
 
 
-void SeisDataPack::dumpInfo( IOPar& iop ) const
+void VolumeDataPack::dumpInfo( IOPar& iop ) const
 {
     DataPack::dumpInfo( iop );
     if ( scaler_ )
@@ -600,7 +543,7 @@ void SeisDataPack::dumpInfo( IOPar& iop ) const
 }
 
 
-bool SeisDataPack::addArray( int sz0, int sz1, int sz2 )
+bool VolumeDataPack::addArray( int sz0, int sz1, int sz2 )
 {
     float dummy; const BinDataDesc floatdesc( dummy );
     Array3DImpl<float>* arr = 0;
@@ -633,8 +576,8 @@ bool SeisDataPack::addArray( int sz0, int sz1, int sz2 )
 }
 
 
-const Array3DImpl<float>& SeisDataPack::data( int component ) const
+const Array3DImpl<float>& VolumeDataPack::data( int component ) const
 { return *arrays_[component]; }
 
-Array3DImpl<float>& SeisDataPack::data( int component )
+Array3DImpl<float>& VolumeDataPack::data( int component )
 { return *arrays_[component]; }

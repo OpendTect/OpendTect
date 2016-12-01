@@ -298,10 +298,10 @@ bool Engine::prepareForTrackInVolume( uiString& errmsg )
     if ( validator_ && !validator_->checkPreloadedData(key) )
 	return false;
 
-    RefMan<RegularSeisDataPack> sdp =
+    RefMan<RegularSeisDataPack> rsdp =
 	Seis::PLDM().getAndCast<RegularSeisDataPack>(key);
-    setAttribData( as, sdp->id() );
-    setActiveVolume( sdp->sampling() );
+    setAttribData( as, rsdp->id() );
+    setActiveVolume( rsdp->sampling() );
     return true;
 }
 
@@ -712,7 +712,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	}
 	else
 	{
-	    ConstRefMan<SeisDataPack> newdata= dpm_.get(cacheid);
+	    ConstRefMan<VolumeDataPack> newdata= dpm_.get(cacheid);
 	    if ( newdata )
 	    {
 		dpm_.unRef( attribcachedatapackids_[idx] );
@@ -723,7 +723,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     }
     else if ( cacheid != DataPack::cNoID() )
     {
-	ConstRefMan<SeisDataPack> newdata = dpm_.get( cacheid );
+	ConstRefMan<VolumeDataPack> newdata = dpm_.get( cacheid );
 	if ( newdata )
 	{
 	    attribcachespecs_ += as.is2D() ?
@@ -742,13 +742,13 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 			    const TrcKeyZSampling& cs )
 {
-    ConstRefMan<SeisDataPack> cache = dpm_.get( getAttribCacheID(as) );
+    ConstRefMan<VolumeDataPack> cache = dpm_.get( getAttribCacheID(as) );
     if ( !cache ) return false;
 
-    mDynamicCastGet(const RegularSeisDataPack*,sdp,cache.ptr());
-    if ( !sdp ) return false;
+    mDynamicCastGet(const RegularSeisDataPack*,rsdp,cache.ptr());
+    if ( !rsdp ) return false;
 
-    TrcKeyZSampling cachedcs = sdp->sampling();
+    TrcKeyZSampling cachedcs = rsdp->sampling();
     const float zrgeps = 0.01f * SI().zStep();
     cachedcs.zsamp_.widen( zrgeps );
     return cachedcs.includes( cs );
@@ -852,28 +852,28 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
 
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     const DataPack::ID pldpid = getAttribCacheID( specs[0] );
-    ConstRefMan<SeisDataPack> sdp = dpm.get( pldpid );
-    if ( !sdp ) return DataPack::cNoID();
+    ConstRefMan<VolumeDataPack> vdp = dpm.get( pldpid );
+    if ( !vdp ) return DataPack::cNoID();
 
-    const int globidx = sdp->getNearestGlobalIdx( tk );
+    const int globidx = vdp->getNearestGlobalIdx( tk );
     if ( globidx < 0 ) return DataPack::cNoID();
 
-    StepInterval<float> zintv2 = zintv; zintv2.step = sdp->getZRange().step;
+    StepInterval<float> zintv2 = zintv; zintv2.step = vdp->getZRange().step;
     const int nrz = zintv2.nrSteps() + 1;
     Array2DImpl<float>* seeddata = new Array2DImpl<float>( nrtrcs, nrz );
     seeddata->setAll( mUdf(float) );
 
     const int trcidx0 = globidx - (int)(nrtrcs/2);
-    const StepInterval<float>& zsamp = sdp->getZRange();
+    const StepInterval<float>& zsamp = vdp->getZRange();
     const int zidx0 = zsamp.getIndex( z + zintv.start );
     for ( int tidx=0; tidx<nrtrcs; tidx++ )
     {
 	const int curtrcidx = trcidx0+tidx;
-	if ( curtrcidx<0 || curtrcidx >= sdp->nrTrcs() )
+	if ( curtrcidx<0 || curtrcidx >= vdp->nrTrcs() )
 	    continue;
 
 	const OffsetValueSeries<float> ovs =
-			    sdp->getTrcStorage( 0, trcidx0+tidx );
+			    vdp->getTrcStorage( 0, trcidx0+tidx );
 	for ( int zidx=0; zidx<nrz; zidx++ )
 	{
 	    const float val = ovs[zidx0+zidx];
