@@ -40,17 +40,16 @@ protected:
 			/*!<Give the index of the point that is furthest from
 			    the line from start to stop.
 			    \returns the squre of the largest distance */
-    void		findInSegment( int, int );
     bool		doPrepare(int);
     bool		doFinish(bool);
+
+private:
+    void			findInSegment( int, int );
 
     TypeSet<int>		bendpts_;
     TypeSet<Interval<int> >	queue_;
     Threads::ConditionVar	lock_;
-    bool			finished_;
-    int				nrwaiting_;
-    int				nrthreads_;
-
+    int				nrworking_;
 
     int				sz_;
     const float			epssq_;
