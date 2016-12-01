@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "seisvolprovider.h"
 #include "seistrctr.h"
+#include "seispreload.h"
 #include "seisdatapack.h"
 #include "dbman.h"
 #include "iostrm.h"
@@ -99,13 +100,14 @@ void Seis::VolFetcher::reset()
 
 void Seis::VolFetcher::findDataPack()
 {
-    // find dp_ for our prov_.dbky_
-    // Can only use RegularSeisDataPack
-    // if it's there and it matches the subselection, we're cool
-
-    if ( !dp_ )
+    RefMan<DataPack> dp = Seis::PLDM().get( prov_.dbky_ );
+    if ( !dp )
+	return;
+    mDynamicCastGet(RegularSeisDataPack*,rdp,dp.ptr());
+    if ( !rdp || rdp->isEmpty() )
 	return;
 
+    dp_ = rdp;
     curbid_ = dp_->sampling().hsamp_.start_;
 }
 
@@ -302,15 +304,23 @@ Seis::VolProvider::~VolProvider()
 BufferStringSet Seis::VolProvider::getComponentInfo() const
 {
     BufferStringSet compnms;
-    if ( fetcher_.trl_ )
+    if ( fetcher_.dp_ )
     {
-	for ( int icd=0; icd<fetcher_.trl_->componentInfo().size(); icd++ )
-	    compnms.add( fetcher_.trl_->componentInfo()[icd]->name() );
+	for ( int icd=0; icd<fetcher_.dp_->nrComponents(); icd++ )
+	    compnms.add( fetcher_.dp_->getComponentName(icd) );
     }
     else
     {
-	SeisIOObjInfo objinf( dbky_ );
-	objinf.getComponentNames( compnms );
+	if ( fetcher_.trl_ )
+	{
+	    for ( int icd=0; icd<fetcher_.trl_->componentInfo().size(); icd++ )
+		compnms.add( fetcher_.trl_->componentInfo()[icd]->name() );
+	}
+	else
+	{
+	    SeisIOObjInfo objinf( dbky_ );
+	    objinf.getComponentNames( compnms );
+	}
     }
     return compnms;
 }
@@ -319,17 +329,22 @@ BufferStringSet Seis::VolProvider::getComponentInfo() const
 ZSampling Seis::VolProvider::getZSampling() const
 {
     ZSampling ret;
-    if ( fetcher_.trl_ )
-    {
-	ret.start = fetcher_.trl_->inpSD().start;
-	ret.step = fetcher_.trl_->inpSD().step;
-	ret.stop = ret.start + (fetcher_.trl_->inpNrSamples()-1) * ret.step;
-    }
+    if ( fetcher_.dp_ )
+	ret = fetcher_.dp_->getZRange();
     else
     {
-	TrcKeyZSampling cs;
-	SeisTrcTranslator::getRanges( dbky_, cs );
-	ret = cs.zsamp_;
+	if ( fetcher_.trl_ )
+	{
+	    ret.start = fetcher_.trl_->inpSD().start;
+	    ret.step = fetcher_.trl_->inpSD().step;
+	    ret.stop = ret.start + (fetcher_.trl_->inpNrSamples()-1) * ret.step;
+	}
+	else
+	{
+	    TrcKeyZSampling cs;
+	    SeisTrcTranslator::getRanges( dbky_, cs );
+	    ret = cs.zsamp_;
+	}
     }
     return ret;
 }
@@ -338,16 +353,21 @@ ZSampling Seis::VolProvider::getZSampling() const
 TrcKeySampling Seis::VolProvider::getHSampling() const
 {
     TrcKeySampling ret;
-    if ( fetcher_.trl_ && !fetcher_.isMultiConn() )
-    {
-	const SeisPacketInfo& pinfo = fetcher_.trl_->packetInfo();
-	ret.set( pinfo.inlrg, pinfo.crlrg );
-    }
+    if ( fetcher_.dp_ )
+	ret = fetcher_.dp_->sampling().hsamp_;
     else
     {
-	TrcKeyZSampling cs;
-	SeisTrcTranslator::getRanges( dbky_, cs );
-	ret = cs.hsamp_;
+	if ( fetcher_.trl_ && !fetcher_.isMultiConn() )
+	{
+	    const SeisPacketInfo& pinfo = fetcher_.trl_->packetInfo();
+	    ret.set( pinfo.inlrg, pinfo.crlrg );
+	}
+	else
+	{
+	    TrcKeyZSampling cs;
+	    SeisTrcTranslator::getRanges( dbky_, cs );
+	    ret = cs.hsamp_;
+	}
     }
     return ret;
 }
@@ -355,11 +375,17 @@ TrcKeySampling Seis::VolProvider::getHSampling() const
 
 void Seis::VolProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
 {
-    if ( !fetcher_.trl_ )
-	cd.setEmpty();
-    if ( fetcher_.isMultiConn() )
-	cd.fillBySI( false );
-    else if ( !fetcher_.trl_->getGeometryInfo(cd) )
+    bool cdobtained = true;
+    if ( fetcher_.dp_ )
+	cd = *fetcher_.dp_->getTrcsSampling();
+    else
+    {
+	if ( !fetcher_.trl_ )
+	    cd.setEmpty();
+	if ( fetcher_.isMultiConn() || !fetcher_.trl_->getGeometryInfo(cd) )
+	    cdobtained = false;
+    }
+    if ( !cdobtained )
 	cd.fillBySI( false );
 }
 

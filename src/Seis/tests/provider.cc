@@ -9,6 +9,8 @@
 #include "seisselectionimpl.h"
 #include "testprog.h"
 #include "moddepmgr.h"
+#include "seispreload.h"
+#include "executor.h"
 
 #include <iostream>
 
@@ -43,10 +45,16 @@ int testMain( int argc, char** argv )
 	ExitProgram( 0 ); // too bad, but let's not make CDash angry
     }
 
+    const TrcKey tk( BinID(600,600) );
+
+    od_cout() << "From disk:\n" << od_endl;
     SeisTrc trc;
     uirv = prov->getNext( trc );
     prTrc( trc, uirv );
+    uirv = prov->get( tk, trc );
+    prTrc( trc, uirv );
 
+    /*
     TrcKeySampling hs;
     hs.start_.inl() = hs.start_.crl() = 500;
     hs.stop_ = hs.start_;
@@ -56,6 +64,18 @@ int testMain( int argc, char** argv )
     prTrc( trc, uirv );
     uirv = prov->getNext( trc );
     prTrc( trc, uirv );
+
+    Seis::PreLoader pl( dbky );
+    TextTaskRunner taskrunner( od_cout() );
+    pl.setTaskRunner( taskrunner );
+    pl.load( TrcKeyZSampling(true) );
+    rgsd.setIsAll( true );
+    prov->setSubsel( rgsd );
+    uirv = prov->getNext( trc );
+    prTrc( trc, uirv );
+    uirv = prov->get( tk, trc );
+    prTrc( trc, uirv );
+    */
 
     return ExitProgram( 0 );
 }

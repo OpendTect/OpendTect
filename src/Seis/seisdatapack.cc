@@ -186,12 +186,32 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
 {
     const int nrcomps = nrComponents();
+    DataCharacteristics dc;
+    if ( !scaler_ )
+	dc = DataCharacteristics( getDataDesc() );
     for ( int icomp=0; icomp<nrcomps; icomp++ )
-	trc.data().setComponent( DataCharacteristics(getDataDesc()), icomp );
-    trc.reSize( getZRange().nrSteps()+1, false );
+	trc.data().setComponent( dc, icomp );
 
-    //TODO implement
-    pErrMsg( "TODO: implement data copying" );
+    const int trcsz = getZRange().nrSteps() + 1;
+    trc.reSize( trcsz, false );
+
+    const od_int64 globidx = getGlobalIdx( trcky );
+    if ( globidx < 0 )
+	trc.zero();
+    else
+    {
+	for ( int icomp=0; icomp<nrcomps; icomp++ )
+	{
+	    const float* vals = getTrcData( icomp, globidx );
+	    for ( int isamp=0; isamp<trcsz; isamp++ )
+	    {
+		float val = vals[isamp];
+		if ( scaler_ )
+		    val = scaler_->scale( val );
+		trc.set( isamp, val, icomp );
+	    }
+	}
+    }
 }
 
 
