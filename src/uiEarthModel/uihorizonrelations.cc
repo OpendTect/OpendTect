@@ -186,7 +186,7 @@ bool acceptOK()
 		EM::EMM().getObjectID( topisstatic ? mid2_ : mid1_ );
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     DBKey outmid;
-    EM::EMObject* outemobj = 0;
+    RefMan<EM::EMObject> outemobj = 0;
 
     if ( saveas )
     {
@@ -203,7 +203,7 @@ bool acceptOK()
 	if ( !is2d_ )
 	{
 	    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
-	    mDynamicCastGet(EM::Horizon3D*,outhor3d,outemobj);
+	    mDynamicCastGet(EM::Horizon3D*,outhor3d,outemobj.ptr());
 	    if ( !hor3d || !outhor3d )
 		return false;
 
@@ -220,7 +220,7 @@ bool acceptOK()
 	else
 	{
 	    mDynamicCastGet(EM::Horizon2D*,hor2d,emobj);
-	    mDynamicCastGet(EM::Horizon2D*,outhor2d,outemobj);
+	    mDynamicCastGet(EM::Horizon2D*,outhor2d,outemobj.ptr());
 	    if ( !hor2d || !outhor2d )
 		return false;
 	    for ( int idx=0; idx<hor2d->geometry().nrLines(); idx++ )

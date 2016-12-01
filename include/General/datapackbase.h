@@ -142,10 +142,6 @@ public:
 					 bool,BufferStringSet*);
     void			initXYRotArray(TaskRunner* = 0 );
 
-    void			setRange( StepInterval<double> dim0rg,
-					  StepInterval<double> dim1rg,
-					  bool forxy );
-
 protected:
 
     float			getValAtIdx(int,int) const;

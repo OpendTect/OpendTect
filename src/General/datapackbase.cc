@@ -25,7 +25,7 @@ public:
     MapDataPackXYRotater( MapDataPack& mdp )
 	: mdp_( mdp )
     {
-	float anglenorth = fabs( SI().angleXInl() );
+	float anglenorth = fabs( SI().angleXInl() - 90*mDeg2RadD );
 	if ( anglenorth > M_PI_2 )
 	    anglenorth = ( float )( M_PI - anglenorth );
 
@@ -300,17 +300,8 @@ void MapDataPack::setProps( StepInterval<double> inlrg,
 	    setDimNames( dimnames->get(setidx),
 			 dimnames->get(setidx+1), !setidx );
     }
-
-    setPosCoord( isposcoord );
-}
-
-
-void MapDataPack::setRange( StepInterval<double> dim0rg,
-			    StepInterval<double> dim1rg, bool forxy )
-{
-    FlatPosData& posdata = forxy ? xyrotposdata_ : posdata_;
-    posdata.setRange( true, dim0rg );
-    posdata.setRange( false, dim1rg );
+    
+    isposcoord_ = isposcoord;
 }
 
 
