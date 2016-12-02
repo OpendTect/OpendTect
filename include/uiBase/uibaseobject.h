@@ -72,9 +72,9 @@ protected:
     void			setBody( uiBody* b )	{ body_ = b; }
 
     Notifier<uiBaseObject>	finaliseStart_;
-				//!< triggered when about to start finalising
+				//!< triggered when about to start finalizing
     Notifier<uiBaseObject>	finaliseDone_;
-				//!< triggered when finalising finished
+				//!< triggered when finalizing finished
 
 private:
     int				getNrRowCols( bool row ) const;
