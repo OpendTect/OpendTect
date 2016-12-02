@@ -10,9 +10,10 @@
 #include "dbman.h"
 #include "ioobj.h"
 #include "keystrs.h"
+#include "scaler.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
-#include "seisparallelreader.h"
+#include "seisloader.h"
 
 namespace VolProc
 {
@@ -22,11 +23,13 @@ class VolumeReaderExecutor : public SequentialTask
 public:
 
 VolumeReaderExecutor( const IOObj& ioobj, const TypeSet<int>& components,
+		      const ObjectSet<Scaler>& compscalers,
 		      RegularSeisDataPack& output )
     : SequentialTask()
     , ioobj_(ioobj.clone())
     , components_(components)
-    , output_(&output)
+    , compscalers_(compscalers)
+    , output_(output)
 {}
 
 
@@ -50,15 +53,21 @@ protected:
 
 int nextStep()
 {
-    Seis::SequentialReader rdr( *ioobj_, &output_->sampling(), &components_ );
-    if ( !rdr.setDataPack(*output_) )
+    Seis::SequentialFSLoader rdr( *ioobj_, &output_.sampling(), &components_ );
+    if ( !rdr.setDataPack(output_) )
 	mErrRet()
+
+    for ( int idx=0; idx<compscalers_.size(); idx++ )
+    {
+	if ( !compscalers_[idx] )
+	    continue;
+
+	rdr.setComponentScaler( *compscalers_[idx], idx );
+    }
 
     rdr.setProgressMeter( progressmeter_ );
     if ( !rdr.execute() )
 	mErrRet()
-
-    output_ = 0; //This executor no longer needs the output (the step has it).
 
     return Finished();
 }
@@ -67,7 +76,8 @@ private:
 
 const IOObj*	ioobj_;
 const TypeSet<int>&	components_;
-RefMan<RegularSeisDataPack> output_;
+const ObjectSet<Scaler>& compscalers_;
+RegularSeisDataPack& output_;
 uiString	msg_;
 
 };
@@ -125,6 +135,12 @@ bool VolumeReader::prepareWork( const IOObj& ioobj )
 }
 
 
+VolumeReader::~VolumeReader()
+{
+    deepErase( compscalers_ );
+}
+
+
 Task* VolumeReader::createTask()
 {
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
@@ -135,7 +151,8 @@ Task* VolumeReader::createTask()
 	return 0;
     }
 
-    return new VolumeReaderExecutor( *ioobj, components_, *output );
+    return new VolumeReaderExecutor( *ioobj, components_, compscalers_,
+				     *output );
 }
 
 
@@ -153,6 +170,15 @@ void VolumeReader::fillPar( IOPar& par ) const
 
     par.set( sKeyVolumeID(), mid_ );
     par.set( sKey::Component(), components_ );
+    for ( int idx=0; idx<compscalers_.size(); idx++ )
+    {
+	if ( !compscalers_[idx] || compscalers_[idx]->isEmpty() )
+	    continue;
+
+	BufferString scalerstr;
+	compscalers_[idx]->put( scalerstr.getCStr() );
+	par.set( IOPar::compKey(sKey::Scale(),idx), scalerstr );
+    }
 }
 
 
@@ -161,7 +187,31 @@ bool VolumeReader::usePar( const IOPar& par )
     if ( !Step::usePar(par) )
 	return false;
 
-    par.get( sKey::Component(), components_ );
+    par.get( sKey::Component(),components_ );
+    compscalers_.allowNull( true );
+    PtrMan<IOPar> scalerpar = par.subselect( sKey::Scale() );
+    if ( scalerpar.ptr() )
+    {
+	for ( int idx=0; idx<scalerpar->size(); idx++ )
+	{
+	    const BufferString compidxstr( scalerpar->getKey(idx) );
+	    const int compidx = compidxstr.toInt();
+	    BufferString scalerstr;
+	    if ( !scalerpar->get(compidxstr,scalerstr) || scalerstr.isEmpty() )
+		continue;
+
+	    Scaler* scaler = Scaler::get( scalerstr );
+	    if ( !scaler ) continue;
+
+	    for ( int idy=0; idy<=compidx; idy++ )
+	    {
+		if ( !compscalers_.validIdx(idy) )
+		    compscalers_ += 0;
+	    }
+
+	    delete compscalers_.replace( compidx, scaler );
+	}
+    }
 
     DBKey mid;
     return par.get( sKeyVolumeID(), mid ) ? setVolumeID( mid ) : true;

@@ -20,7 +20,7 @@
 #include "prog.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
-#include "seisparallelreader.h"
+#include "seisloader.h"
 #include "seisread.h"
 
 
@@ -57,12 +57,12 @@ int main( int argc, char** argv )
     counter.start();
     if ( method==0 )
     {
-	Seis::ParallelReader rdr( *ioobj, tkzs );
+	Seis::ParallelFSLoader3D rdr( *ioobj, tkzs );
 	rdr.execute();
     }
     else if ( method==1 )
     {
-	Seis::SequentialReader rdr( *ioobj );
+	Seis::SequentialFSLoader rdr( *ioobj, &tkzs );
 	rdr.execute();
     }
     else

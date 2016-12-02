@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
-#include "seisparallelreader.h"
+#include "seisloader.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "threadwork.h"
@@ -128,7 +128,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     mexPrintf( "Nr of traces: %d\n", tkzs.hsamp_.totalNr() );
     mexPrintf( "Nr of samples: %d\n", tkzs.nrZ() );
 
-    Seis::ParallelReader rdr( *ioobj, tkzs );
+    Seis::SequentialFSLoader rdr( *ioobj, &tkzs );
     if ( !rdr.execute() )
     {
 	errmsg = "Error reading input.";

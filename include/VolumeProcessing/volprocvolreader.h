@@ -11,10 +11,12 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "volprocstep.h"
+
 #include "dbkey.h"
+#include "volprocstep.h"
 
 class IOObj;
+class Scaler;
 class SeisTrcReader;
 class SeisTrcTranslator;
 
@@ -31,6 +33,7 @@ public:
 				mDefaultFactoryInstantiation(
 					Step, VolumeReader,
 					"VolumeReader", tr("Input Volume") )
+				~VolumeReader();
 
     bool			setVolumeID(const DBKey&);
     const DBKey&		getVolumeID() const		{ return mid_; }
@@ -56,9 +59,10 @@ protected:
     static const char*		sKeyVolumeID()		{ return "Volume ID"; }
 
     DBKey			mid_;
-    TypeSet<int>		components_;
     ObjectSet<SeisTrcReader>	readers_;
     ObjectSet<SeisTrcTranslator> translators_;
+    TypeSet<int>		components_;
+    ObjectSet<Scaler>		compscalers_;
 
 };
 

@@ -23,7 +23,6 @@
 #include "seisbufadapters.h"
 #include "seiscbvs.h"
 #include "seisioobjinfo.h"
-#include "seisparallelreader.h"
 #include "seispreload.h"
 #include "seispsioprov.h"
 #include "seisread.h"
@@ -541,7 +540,7 @@ void uiSeisPreLoadSel::selectedGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 }
 
 
-Scaler* uiSeisPreLoadSel::getScaler() const
+const Scaler* uiSeisPreLoadSel::getScaler() const
 { return scaler_; }
 
 

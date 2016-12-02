@@ -17,7 +17,7 @@
 #include "seiscbvs2d.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
-#include "seisparallelreader.h"
+#include "seisloader.h"
 #include "seispsioprov.h"
 #include "seis2ddata.h"
 #include "strmprov.h"
@@ -94,14 +94,14 @@ void PreLoader::getLineNames( BufferStringSet& lks ) const
 
 bool PreLoader::load( const TrcKeyZSampling& tkzs,
 			 DataCharacteristics::UserType type,
-			 Scaler* scaler ) const
+			 const Scaler* scaler ) const
 {
     mPrepIOObj();
 
     const SeisIOObjInfo info( dbkey_ );
     if ( info.is2D() )
     {
-	ParallelReader2D rdr( *ioobj, geomid_, tkzs.isDefined() ? &tkzs : 0 );
+	ParallelFSLoader2D rdr( *ioobj, tkzs );
 	rdr.setScaler( scaler );
 	rdr.setDataChar( type );
 	if ( !trunnr.execute(rdr) )
@@ -117,7 +117,7 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
     }
     else
     {
-	SequentialReader rdr( *ioobj, tkzs.isDefined() ? &tkzs : 0 );
+	SequentialFSLoader rdr( *ioobj, tkzs.isDefined() ? &tkzs : 0 );
 	uiString caption = tr("Pre-loading %1");
 	caption.arg( ioobj->uiName() );
 	rdr.setName( caption.getFullString() );
@@ -142,21 +142,21 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 		      const TypeSet<Pos::GeomID>& geomids,
 			 DataCharacteristics::UserType type,
-			 Scaler* scaler ) const
+			 const Scaler* scaler ) const
 {
     mPrepIOObj();
 
     TaskGroup taskgrp;
-    ObjectSet<ParallelReader2D> rdrs;
+    ObjectSet<ParallelFSLoader2D> rdrs;
     TypeSet<Pos::GeomID> loadedgeomids;
     for ( int idx=0; idx<tkzss.size(); idx++ )
     {
 	const TrcKeyZSampling& tkzs = tkzss[idx];
 	const Pos::GeomID& geomid = geomids[idx];
 
-	ParallelReader2D* rdr =
-	    new ParallelReader2D( *ioobj, geomid, tkzs.isDefined() ? &tkzs : 0);
-	rdr->setScaler( scaler ); rdr->setDataChar( type );
+	ParallelFSLoader2D* rdr = new ParallelFSLoader2D( *ioobj, tkzs );
+	rdr->setScaler( scaler );
+	rdr->setDataChar( type );
 	taskgrp.addTask( rdr );
 	loadedgeomids.add( geomid );
 	rdrs.add( rdr );
@@ -166,7 +166,7 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 
     for ( int idx=0; idx<rdrs.size(); idx++ )
     {
-	ParallelReader2D& rdr = *rdrs[idx];
+	ParallelFSLoader2D& rdr = *rdrs[idx];
 	const Pos::GeomID& loadedgeomid = loadedgeomids[idx];
 	RegularSeisDataPack* dp = rdr.getDataPack();
 	if ( !dp ) continue;
