@@ -114,6 +114,8 @@ public:
     void		getWellNames(BufferStringSet&);
     void		getWellIDs(TypeSet<MultiID>&);
 
+    uiIOObjSelGrp*	wellSelGrp()		{ return wellselgrp_; }
+
 private:
 
     uiIOObjSelGrp*	wellselgrp_;
