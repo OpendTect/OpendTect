@@ -588,7 +588,15 @@ void CrashDumper::sendDump( const char* filename )
 CrashDumper& CrashDumper::getInstance()
 {
     if ( !theinst_ )
+    {
 	theinst_ = new CrashDumper;
+
+	const char* crashspec = GetEnvVar( "DTECT_FORCE_IMMEDIATE_DUMP" );
+	if ( crashspec && *crashspec )
+	{
+	    DBG::forceCrash( false );
+	}
+    }
 
     return *theinst_;
 }

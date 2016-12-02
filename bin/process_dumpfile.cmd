@@ -61,7 +61,8 @@ if not exist "%dumphandler%" (
     exit /b 1
 )
 
-set tmpfile="%dumpfile%.txt"
+set tmpfile="%dumpfile%.tmp"
+set textfile="%dumpfile%.txt"
 set archivefile=%tmpdir%\%archivename%_%username%.txt
 set logfile=%tmpdir%\%archivename%_%username%.log
 
@@ -76,22 +77,40 @@ if exist %tmpfile% (
 )
 
 
-REM Create the text-file
+if exist %textfile% (
+    del %textfile%
+
+    if exist %textfile% (
+	echo %textfile% exists, and I cannot remove it."
+	exit /b 1
+    )
+)
+
+
+REM Create the text-file (human readable)
 %dumphandler% %dumpfile% %symboldir% 1> %tmpfile% 2>%logfile%
+
+REM Create the text-file (machine readable)
+echo Machine readable: >> %tmpfile%
+%dumphandler% -m %dumpfile% %symboldir% 1>> %tmpfile% 2>%logfile%
+
+REM Make DOS line endings 
+type %tmpfile% | more /p > %textfile%
 
 REM Send the text-file
 if exist "%sender%" (
-    %sender% %tmpfile% 
+    %sender% %textfile% 
 )
 
 REM Make an archive copy of the report without timestamps so it can be picked up
 REM Timestamps will only fill disks
-copy %tmpfile% %archivefile%
+copy %textfile% %archivefile% >NUL
 if exist %archivefile% echo Error report saved as %archivefile%
 
 
 REM Cleanup
 del %dumpfile%
 del %tmpfile%
+del %textfile%
 
 exit /b 0
