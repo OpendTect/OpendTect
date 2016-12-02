@@ -83,13 +83,10 @@ macro ( create_package PACKAGE_NAME )
 			      ${COPYTODATADIR}/. )
 	endforeach()
 
-	execute_process( COMMAND ${CMAKE_COMMAND} -E
-			 copy_directory ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
 	if( UNIX )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${COPYFROMDATADIR}/mk_flexlm_links.csh
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh )
 	    execute_process( COMMAND
 		    ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh
 		    WORKING_DIRECTORY ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
@@ -342,7 +339,7 @@ macro( init_destinationdir  PACKAGE_NAME )
     endif()
 
     if ( NOT APPLE )
-	file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
+	#file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
 	set( COPYFROMLIBDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release )
 	set( COPYTOLIBDIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
 	set( COPYFROMDATADIR ${CMAKE_INSTALL_PREFIX} )
@@ -576,3 +573,10 @@ endif()
     endforeach()
 endmacro() #OD_GENERATE_BREAKPAD_SYMBOLS
 
+macro( create_flexnet_pkg )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E
+		     copy_directory ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm
+		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
+
+    zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
+endmacro( create_flexnet_pkg )
