@@ -9,7 +9,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "earthmodelmod.h"
 
 #include "emobject.h"
@@ -66,6 +66,7 @@ public:
     IOPar*		getPars() const;
     int			getParsOffsetInFile() const;
     uiString		getMessage() const;
+    const char*		timeLastModified() const;
 
     // Surface
     inline bool		isSurface() const	{ return type_ != Body; }

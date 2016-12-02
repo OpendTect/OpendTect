@@ -7,6 +7,8 @@
 
 #include "emioobjinfo.h"
 
+#include "dbdir.h"
+#include "dbman.h"
 #include "embodytr.h"
 #include "emfaultauxdata.h"
 #include "emmanager.h"
@@ -15,9 +17,8 @@
 #include "emrandomposbody.h"
 #include "emsurfaceio.h"
 #include "emsurfacetr.h"
+#include "file.h"
 #include "horizonrelation.h"
-#include "dbdir.h"
-#include "dbman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "uistrings.h"
@@ -215,6 +216,15 @@ uiString IOObjInfo::getMessage() const
 {
     mGetReader;
     return reader_ ? reader_->message() : uiString::emptyString();
+}
+
+
+const char* IOObjInfo::timeLastModified() const
+{
+    if ( !ioobj_ ) return 0;
+
+    const char* fnm = ioobj_->fullUserExpr();
+    return File::timeLastModified( fnm );
 }
 
 
