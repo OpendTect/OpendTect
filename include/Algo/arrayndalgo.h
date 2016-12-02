@@ -2087,8 +2087,6 @@ private:
 				       : true;
 		    const ArrayNDInfo& info = inp_.info();
 		    const int nrtrcsp = info.getSize( inp_.get1DDim() );
-		    const od_int64 nrbytes = mCast(od_int64,nrtrcsp) *
-					      sizeof(T);
 		    T* dataptr = inp_.getData();
 		    ValueSeries<T>* datastor = inp_.getStorage();
 		    const bool hasarrayptr = dataptr;
@@ -2148,7 +2146,7 @@ private:
 			{
 			    if ( hasarrayptr )
 			    {
-				OD::memSet( dataptr, replval, nrbytes );
+				OD::memValueSet(dataptr, replval, nrtrcsp);
 				dataptr+=nrtrcsp;
 			    }
 			    else if ( hasstorage )
@@ -2280,8 +2278,6 @@ private:
 		{
 		    const Array3DInfo& info = outp_.info();
 		    const int nrtrcsp = info.getSize( outp_.get1DDim() );
-		    const od_int64 nrbytes = mCast(od_int64,nrtrcsp) *
-					     sizeof(T);
 		    T* outpptr = outp_.getData();
 		    ValueSeries<T>* outstor = outp_.getStorage();
 		    const bool hasarrayptr = outpptr;
@@ -2309,7 +2305,7 @@ private:
 
 			if ( hasarrayptr )
 			{
-			    OD::memSet( outpptr, mUdf(T), nrbytes );
+			    OD::memValueSet( outpptr, mUdf(T), nrtrcsp );
 			    outpptr+=nrtrcsp;
 			}
 			else if ( hasstorage )
