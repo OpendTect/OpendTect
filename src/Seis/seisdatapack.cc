@@ -197,19 +197,21 @@ void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
 
     const int globidx = getGlobalIdx( trcky );
     if ( globidx < 0 )
-    {
-	trc.zero();
-	return;
-    }
+	{ trc.zero(); return; }
 
     for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
 	const float* vals = getTrcData( icomp, globidx );
-	//TODO: vals may be NULL !
-	for ( int isamp=0; isamp<trcsz; isamp++ )
+	if ( vals )
 	{
-	    const float val = vals[isamp];
-	    trc.set( isamp, val, icomp );
+	    for ( int isamp=0; isamp<trcsz; isamp++ )
+		trc.set( isamp, vals[isamp], icomp );
+	}
+	else
+	{
+	    //TODO
+	    pErrMsg("TODO: Implement");
+	    trc.zero( icomp );
 	}
     }
 }
