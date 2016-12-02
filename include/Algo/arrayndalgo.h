@@ -2217,7 +2217,10 @@ private:
 		{
 		    T* outpptr = outp_.getData();
 		    ValueSeries<T>* outpstor = outp_.getStorage();
-		    int pos[outp_.info().getNDim()];
+		    mDeclareAndTryAlloc(int*,pos,int[outp_.info().getNDim()])
+		    if ( !pos )
+			return false;
+
 		    const T udfval = mUdf(T);
 		    const ArrayNDInfo& info = outp_.info();
 		    for ( od_int64 idx=start; idx<=stop; idx++,
@@ -2234,6 +2237,8 @@ private:
 			    outp_.setND( pos, udfval );
 			}
 		    }
+
+		    delete [] pos;
 
 		    return true;
 		}
@@ -2431,7 +2436,10 @@ private:
 			hiter->setGlobalPos( start );
 
 		    const T zeroval = mCast(T,0);
-		    int pos[ndim];
+		    mDeclareAndTryAlloc(int*,pos,int[ndim])
+		    if ( !pos )
+			return false;
+
 		    for ( od_int64 idx=start; idx<=stop; idx++,
 							 quickAddToNrDone(idx) )
 		    {
@@ -2535,8 +2543,10 @@ private:
 
 			    break;
 			}
+
 		    }
 
+		    delete [] pos;
 		    delete hiter;
 
 		    return true;
