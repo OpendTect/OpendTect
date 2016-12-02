@@ -1192,6 +1192,8 @@ void DescSet::fillInUIInputList( BufferStringSet& inplist ) const
 
     for ( int idx=0; idx<attrinf.ioobjnms_.size(); idx++ )
 	inplist.addIfNew( BufferString("[",attrinf.ioobjnms_.get(idx),"]") );
+    for ( int idx=0; idx<attrinf.steernms_.size(); idx++ )
+	inplist.addIfNew( BufferString("[",attrinf.steernms_.get(idx),"]") );
 }
 
 
@@ -1205,14 +1207,23 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
 	//which is supposed to be the source of the input string.
 	Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false, false,
 				 false, true );
+	MultiID mid = MultiID::udf();
 	int iidx = attrinf.ioobjnms_.indexOf( stornm.buf() );
-	if ( iidx < 0 ) return 0;
+	if ( iidx >= 0 )
+	    mid = attrinf.ioobjids_.get( iidx );
+	else
+	{
+	    iidx = attrinf.steernms_.indexOf( stornm.buf() );
+	    if ( iidx >= 0 )
+		mid = attrinf.steerids_.get( iidx );
+	}
 
-	BufferString storedidstr = attrinf.ioobjids_.get( iidx );
+	if ( mid.isUdf() )
+	    return 0;
+
 	int compnr = 0;
 	if ( !inpstr[1].isEmpty() )
 	{
-	    MultiID mid( storedidstr.buf() );
 	    IOObj* inpobj = IOM().get( mid );
 	    if ( inpobj )
 	    {
@@ -1223,7 +1234,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
 	    }
 	}
 
-	Attrib::DescID retid = getStoredID( storedidstr.buf(),
+	Attrib::DescID retid = getStoredID( mid,
 					    compnr, true, true,
 					    inpstr[1] );
 	return getDesc( retid );
