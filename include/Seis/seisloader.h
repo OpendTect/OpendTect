@@ -34,7 +34,7 @@ namespace Seis
 
 class SelData;
 
-mClass(Seis) Loader
+mExpClass(Seis) Loader
 { mODTextTranslationClass(Loader)
 public:
 
