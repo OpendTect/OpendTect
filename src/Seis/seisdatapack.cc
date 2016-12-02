@@ -195,21 +195,21 @@ void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
     const int trcsz = getZRange().nrSteps() + 1;
     trc.reSize( trcsz, false );
 
-    const od_int64 globidx = getGlobalIdx( trcky );
+    const int globidx = getGlobalIdx( trcky );
     if ( globidx < 0 )
-	trc.zero();
-    else
     {
-	for ( int icomp=0; icomp<nrcomps; icomp++ )
+	trc.zero();
+	return;
+    }
+
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	const float* vals = getTrcData( icomp, globidx );
+	//TODO: vals may be NULL !
+	for ( int isamp=0; isamp<trcsz; isamp++ )
 	{
-	    const float* vals = getTrcData( icomp, globidx );
-	    for ( int isamp=0; isamp<trcsz; isamp++ )
-	    {
-		float val = vals[isamp];
-		if ( scaler_ )
-		    val = scaler_->scale( val );
-		trc.set( isamp, val, icomp );
-	    }
+	    const float val = vals[isamp];
+	    trc.set( isamp, val, icomp );
 	}
     }
 }
