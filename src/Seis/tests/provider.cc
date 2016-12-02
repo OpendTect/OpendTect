@@ -54,7 +54,6 @@ int testMain( int argc, char** argv )
     uirv = prov->get( tk, trc );
     prTrc( trc, uirv );
 
-    /*
     TrcKeySampling hs;
     hs.start_.inl() = hs.start_.crl() = 500;
     hs.stop_ = hs.start_;
@@ -65,17 +64,26 @@ int testMain( int argc, char** argv )
     uirv = prov->getNext( trc );
     prTrc( trc, uirv );
 
+    /*
     Seis::PreLoader pl( dbky );
     TextTaskRunner taskrunner( od_cout() );
     pl.setTaskRunner( taskrunner );
-    pl.load( TrcKeyZSampling(true) );
+    TrcKeyZSampling cs( true );
+    cs.hsamp_.start_.inl() = 450;
+    cs.hsamp_.stop_.inl() = 550;
+    cs.zsamp_.start = 0.5f;
+    cs.zsamp_.stop = 1.5f;
+    pl.load( cs );
     rgsd.setIsAll( true );
     prov->setSubsel( rgsd );
     uirv = prov->getNext( trc );
     prTrc( trc, uirv );
     uirv = prov->get( tk, trc );
     prTrc( trc, uirv );
+
+    pl.unLoad();
     */
+    delete prov;
 
     return ExitProgram( 0 );
 }

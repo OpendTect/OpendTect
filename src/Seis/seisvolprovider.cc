@@ -377,7 +377,16 @@ void Seis::VolProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
 {
     bool cdobtained = true;
     if ( fetcher_.dp_ )
-	cd = *fetcher_.dp_->getTrcsSampling();
+    {
+	const PosInfo::CubeData* dpcd = fetcher_.dp_->getTrcsSampling();
+	if ( dpcd )
+	    cd = *dpcd;
+	else
+	{
+	    pErrMsg("CubeData not available in DataPack. Fix this");
+	    cdobtained = false;
+	}
+    }
     else
     {
 	if ( !fetcher_.trl_ )
