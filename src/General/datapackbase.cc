@@ -27,9 +27,10 @@ public:
     MapDataPackXYRotater( MapDataPack& mdp )
 	: mdp_( mdp )
     {
-	float anglenorth = fabs( SI().angleXInl() - 90*mDeg2RadD );
-	if ( anglenorth > M_PI_2 )
-	    anglenorth = ( float )( M_PI - anglenorth );
+	float anglenorth = mCast(float,
+		 Math::Abs( mCast(double,SI().angleXInl()) - 90.*mDeg2RadD ) );
+	if ( anglenorth > M_PI_2f )
+	    anglenorth =  M_PIf - anglenorth;
 
 	const int inlsz = mdp_.arr2d_->info().getSize(0);
 	const int crlsz = mdp_.arr2d_->info().getSize(1);
