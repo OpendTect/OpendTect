@@ -13,26 +13,9 @@ include_once( 'dlsitesdb.php' );
 include_once( 'dlsitessystemid.php' );
 include_once( 'dlsitessettings.php' );
 
-require "$DLSITES_AWS_PATH/aws-autoloader.php";
-
-use Aws\S3\S3Client;
+require_once( 'googlestorage.php' );
 
 date_default_timezone_set( 'UTC' );
-
-$s3Client = S3Client::factory(array(
-    'version'     => 'latest',
-    'region'      => 'eu-west-1',
-    'credentials' => [
-        'key'    => $DLSITES_AWS_ACCESS_ID,
-        'secret' => $DLSITES_AWS_ACCESS_KEY,
-    ]
-) );
-
-if ( $s3Client->registerStreamWrapper() === false )
-{
-    echo "Cannot register stream wrapper\n";
-    exit( 1 );
-}
 
 function store_entry( $db, $tablename, $time, $id, $platform, $country, $nrcpu, $mem )
 {
@@ -112,8 +95,8 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
     $inputarray = explode( "\n", $inputdata );
     $archivename = $archivedir.basename( $file );
     $processedname = $processeddir.basename( $file );
-    $awsarchivename = $DLSITES_AWS_ARCHIVE_PATH."/".basename( $file );
-    
+    $gsarchivename = $DLSITES_GS_ARCHIVE_PATH."/".basename( $file );
+
     if ( file_exists( $archivename ) )
     {
 	echo "Removing $archivename";
@@ -207,19 +190,21 @@ foreach(glob($inputdir."/*.txt", GLOB_NOSORT) as $file)
     }
 
     $renameresult = rename( $file, $processedname );
-    $saveawsresult = file_put_contents( $awsarchivename, $archivetext );
+    $savegsresult = uploadGoogleStorageFile( $DLSITES_GS_CREDENTIALS, $DLSITES_GS_BUCKET,
+			$gsarchivename, $archivetext, true );
+    
     $saveresult = file_put_contents( $archivename, $archivetext );
 
     if ( $renameresult===false )
 	echo "Could not move $file to $processedname.\n";
 
-    if ( $saveawsresult===false )
-	echo "Could not write to AWS.\n";
+    if ( $savegsresult===false )
+	echo "Could not write to GS.\n";
 
     if ( $saveresult===false )
 	echo "Could not write to $archivename.\n";
 
-    if ( $renameresult===false || $saveawsresult===false || $saveresult===false )
+    if ( $renameresult===false || $savegsresult===false || $saveresult===false )
 	exit( 1 );
 
     echo "Done\n";

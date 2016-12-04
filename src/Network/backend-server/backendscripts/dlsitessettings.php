@@ -54,17 +54,14 @@ $DLSITES_IP_API_KEY = '';
 //IP-geography database key
 $DLSITES_USE_LOCAL_IP_DB = false;
 
-//AWS SDK location
-$DLSITES_AWS_PATH = '';
+//GS archive path
+$DLSITES_GS_ARCHIVE_PATH = '';
 
-//AWS archive access ID
-$DLSITES_AWS_ACCESS_ID = '';
+//GS bucket path
+$DLSITES_GS_BUCKET = '';
 
-//AWS archive access key
-$DLSITES_AWS_ACCESS_KEY = '';
-
-//AWS archive path
-$DLSITES_AWS_ARCHIVE_PATH = '';
+//GS credentials file
+$DLSITES_GS_CREDENTIALS = '';
 
 //Override defaults if local file exists
 $localsettingsfile = realpath(dirname(__FILE__))."/dlsitessettings.local.php";
