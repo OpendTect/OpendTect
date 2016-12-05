@@ -11,13 +11,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trigonometry.h"
 
 
+#define nrworking_ nrthreads_	/* ABI preservation */
+
 BendPointFinderBase::BendPointFinderBase( int sz, float eps )
     : sz_(sz)
     , epssq_(eps*eps)
+    , nrworking_(0)
 {}
 
 
-bool BendPointFinderBase::doPrepare( int nrthreads )
+bool BendPointFinderBase::doPrepare( int )
 {
     bendpts_ += 0;
     if ( sz_ > 1 )
@@ -27,9 +30,7 @@ bool BendPointFinderBase::doPrepare( int nrthreads )
 
     queue_ += Interval<int>( 0, sz_-1 );
 
-    finished_ = false;
-    nrwaiting_ = 0;
-    nrthreads_ = nrthreads;
+    nrworking_ = 0;
 
     return true;
 }
@@ -49,34 +50,32 @@ bool BendPointFinderBase::doFinish( bool res )
 bool BendPointFinderBase::doWork( od_int64, od_int64, int )
 {
     lock_.lock();
-    while ( !finished_ )
+    int sz = queue_.size();
+    while ( sz || nrworking_ )
     {
-	if ( !queue_.size() )
+	while ( sz )
 	{
-	    nrwaiting_ ++;
-	    if ( nrwaiting_==nrthreads_ )
-	    {
-		finished_ = true;
-		lock_.signal( true );
-		nrwaiting_--;
-		break;
-	    }
+	    const Interval<int> segment = queue_[sz-1];
+	    queue_.removeSingle( sz-1 );
+	    nrworking_ ++;
+	    lock_.unLock();
 
-	    lock_.wait();
-	    nrwaiting_ --;
+	    findInSegment( segment.start, segment.stop );
+
+	    lock_.lock();
+	    nrworking_--;
+	    sz = queue_.size();
+
+	    if ( !nrworking_ && !sz )
+		lock_.signal( true );
 	}
 
-	const int sz = queue_.size();
-	if ( !sz )
-	    continue;
-
-	const Interval<int> segment = queue_[sz-1];
-	queue_.removeSingle( sz-1 );
-	lock_.unLock();
-
-	findInSegment( segment.start, segment.stop );
-
-	lock_.lock();
+	//Wait while the other threads are either finishing or adding to queue
+	while ( nrworking_ && !sz )
+	{
+	    lock_.wait();
+	    sz = queue_.size();
+	}
     }
 
     lock_.unLock();
@@ -120,6 +119,8 @@ void BendPointFinderBase::findInSegment( int idx0, int idx1 )
     if ( nrdone )
 	addToNrDone( nrdone );
 }
+
+#undef nrworking_	/* ABI preservation */
 
 
 // BendPointFinder2DBase
