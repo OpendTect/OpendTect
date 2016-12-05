@@ -178,8 +178,6 @@ public:
 
     void			setParentColor(const Color&);
     const Color&		getParentColor() const;
-    void			setSelectionColor(const Color&);
-    const Color&		getSelectionColor() const;
     void			setLockColor(const Color&);
     const Color&		getLockColor() const;
     bool			hasLockedNodes() const 
@@ -205,7 +203,6 @@ protected:
     Array2D<od_int64>*		parents_;
 
     Color			parentcolor_;
-    Color			selectioncolor_;
     Color			lockcolor_;
 
     Pos::GeomID			survgeomid_;
@@ -217,7 +214,6 @@ public:
     /*mDeprecated*/ bool	setZ(const BinID&,float z,bool addtohist);
 				//!< Fast: writes to the first section
     TrcKey::SurvID		getSurveyID() const {return getSurveyGeomID();}
-    static Color		sDefaultSelectionColor();
     static Color		sDefaultLockColor();
 };
 
