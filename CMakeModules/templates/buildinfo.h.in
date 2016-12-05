@@ -14,6 +14,12 @@ ________________________________________________________________________
 # define mVCS_VERSION "@VCS_VERSION@"
 #endif
 
+@VCS_BRANCH_DEF@
+
+#ifndef mVCS_BRANCH
+# define mVCS_BRANCH "@VCS_BRANCH@"
+#endif
+
 #ifndef mBUILD_DATE
 # define mBUILD_DATE "@DATE@"
 #endif

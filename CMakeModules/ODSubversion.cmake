@@ -18,8 +18,11 @@ endif()
 
 include(FindSubversion)
 
-# extract working copy information for SOURCE_DIR into MY_XXX variables
+set ( VCS_BRANCH "unknown" )
+set ( VCS_BRANCH_DEF )
+
 if ( Subversion_FOUND AND OD_FROM_SVN )
+    # extract working copy information for SOURCE_DIR into MY_XXX variables
     Subversion_WC_INFO( ${CMAKE_SOURCE_DIR} MY )
     set ( UPDATE_CMD ${Subversion_SVN_EXECUTABLE} update )
     set ( VCS_VERSION ${MY_WC_REVISION} )
@@ -36,6 +39,19 @@ else()
 	  OUTPUT_VARIABLE VCS_VERSION
 	  OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
+
+	execute_process(
+	  COMMAND git rev-parse --abbrev-ref HEAD
+	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	  OUTPUT_VARIABLE VCS_BRANCH
+	  OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+
+	if ( VCS_BRANCH STREQUAL "master" )
+	    set ( VCS_BRANCH_DEF "#define mVCS_DEVEL" )
+	else()
+	    set ( VCS_BRANCH_DEF "#define mVCS_STABLE" )
+	endif()
 
 	set ( UPDATE_CMD ${GIT_EXECUTABLE} pull --rebase )
     endif()
