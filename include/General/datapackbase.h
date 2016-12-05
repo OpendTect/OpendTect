@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "trckeysampling.h"
 #include "valseries.h"
 
+template <class T> class Array1D;
 template <class T> class Array2D;
 template <class T> class Array3D;
 template <class T> class Array3DImpl;
@@ -177,12 +178,17 @@ public:
 
     virtual const StepInterval<float>&	getZRange() const		= 0;
 
+				//!< Check first if there is a storage!
     const OffsetValueSeries<float> getTrcStorage(
 					int comp,int globaltrcidx) const;
     OffsetValueSeries<float>	getTrcStorage(int comp,int globaltrcidx);
 
+				//!< May return null
     const float*		getTrcData(int comp,int globaltrcidx) const;
     float*			getTrcData(int comp,int globaltrcidx);
+
+    bool			getCopiedTrcData(int comp,int globaltrcidx,
+						 Array1D<float>&) const;
 
     int				nrComponents() const
 				{ return arrays_.size(); }

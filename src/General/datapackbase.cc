@@ -433,6 +433,9 @@ OffsetValueSeries<float> VolumeDataPack::getTrcStorage( int comp,
 
 const float* VolumeDataPack::getTrcData( int comp, int globaltrcidx ) const
 {
+    if ( !arrays_.validIdx(comp) )
+	return 0;
+
     const Array3D<float>* array = arrays_[comp];
     if ( !array->getData() ) return 0;
     return array->getData() + (od_int64)globaltrcidx * array->info().getSize(2);
@@ -441,9 +444,82 @@ const float* VolumeDataPack::getTrcData( int comp, int globaltrcidx ) const
 
 float* VolumeDataPack::getTrcData( int comp, int globaltrcidx )
 {
+    if ( !arrays_.validIdx(comp) )
+	return 0;
+
     Array3D<float>* array = arrays_[comp];
     if ( !array->getData() ) return 0;
     return array->getData() + (od_int64)globaltrcidx * array->info().getSize(2);
+}
+
+
+bool VolumeDataPack::getCopiedTrcData( int comp, int globaltrcidx,
+				       Array1D<float>& out ) const
+{
+    if ( !arrays_.validIdx(comp) )
+	return false;
+
+    const int nrz = getZRange().nrSteps()+1;
+    const float* dataptr = getTrcData( comp, globaltrcidx );
+    float* outptr = out.getData();
+    if ( dataptr )
+    {
+	if ( outptr )
+	{
+	    OD::memCopy( outptr, dataptr, mCast(od_int64,nrz) * sizeof(float) );
+	}
+	else
+	{
+	    for ( int idz=0; idz<nrz; idz++ )
+		out.set( idz, dataptr[idz] );
+	}
+
+	return true;
+    }
+
+    const Array1DInfoImpl info1d( nrz );
+    if ( out.info().getSize(0) != nrz && !out.setInfo(info1d) )
+	return false;
+
+    const Array3D<float>& array = *arrays_[comp];
+    const ValueSeries<float>* stor = array.getStorage();
+    if ( stor )
+    {
+	const OffsetValueSeries<float> offstor(
+				       getTrcStorage(comp,globaltrcidx) );
+	if ( outptr )
+	{
+	    for ( int idz=0; idz<nrz; idz++ )
+		outptr[idz] = offstor.value( idz );
+	}
+	else
+	{
+	    for ( int idz=0; idz<nrz; idz++ )
+		out.set( idz, offstor.value( idz ) );
+	}
+
+	return true;
+    }
+
+    const od_uint64 offset = mCast(od_uint64,globaltrcidx) * nrz;
+    mAllocLargeVarLenArr( int, pos, array.info().getNDim() );
+    if ( !array.info().getArrayPos(offset,pos) )
+	return false;
+
+    const int idx = pos[0];
+    const int idy = pos[1];
+    if ( outptr )
+    {
+	for ( int idz=0; idz<nrz; idz++ )
+	    outptr[idz] = array.get( idx, idy, idz );
+    }
+    else
+    {
+	for ( int idz=0; idz<nrz; idz++ )
+	    out.set( idz, array.get( idx, idy, idz ) );
+    }
+
+    return true;
 }
 
 

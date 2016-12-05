@@ -199,19 +199,23 @@ void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
     if ( globidx < 0 )
 	{ trc.zero(); return; }
 
+    Array1DImpl<float> copiedtrc( trcsz );
     for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
 	const float* vals = getTrcData( icomp, globidx );
-	if ( vals )
+	if ( !vals && !getCopiedTrcData(icomp,globidx,copiedtrc) )
 	{
-	    for ( int isamp=0; isamp<trcsz; isamp++ )
-		trc.set( isamp, vals[isamp], icomp );
+	    trc.zero();
+	    return;
 	}
-	else
+
+	float* copiedtrcptr = copiedtrc.getData();
+	for ( int isamp=0; isamp<trcsz; isamp++ )
 	{
-	    //TODO
-	    pErrMsg("TODO: Implement");
-	    trc.zero( icomp );
+	    const float val = vals ? vals[isamp] : copiedtrcptr
+						  ? copiedtrcptr[isamp]
+						  : copiedtrc.get( isamp );
+	    trc.set( isamp, val, icomp );
 	}
     }
 }
