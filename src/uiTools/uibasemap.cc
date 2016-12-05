@@ -128,7 +128,7 @@ void uiBaseMapObject::update()
 {
     if ( !bmobject_ ) return;
 
-    Threads::Locker( bmobject_->lock_ );
+    Threads::Locker locker( bmobject_->lock_ );
 
     int itemnr = 0;
     int labelitemnr = 0;
@@ -309,7 +309,7 @@ void uiBaseMapObject::updateStyle()
 {
     if ( !bmobject_ ) return;
 
-    Threads::Locker( bmobject_->lock_ );
+    Threads::Locker locker( bmobject_->lock_ );
 
     int itemnr = 0;
     for ( int idx=0; idx<bmobject_->nrShapes(); idx++ )

@@ -120,7 +120,7 @@ bool LockedPointsPathFinder::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( gidx>=0 && lockednodes->getData()[gidx] != '0' )
 	{
 	    const Coord3 pos = hor_.getPos( sid, tk.binID(). toInt64() );
-	    Threads::Locker( lock_, Threads::Locker::WriteLock );
+	    Threads::Locker locker( lock_, Threads::Locker::WriteLock );
 	    indexes_ += points_.addPoint( pos );
 	}
     }
