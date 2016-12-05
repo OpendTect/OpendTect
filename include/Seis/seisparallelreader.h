@@ -165,6 +165,9 @@ public:
 			     Returns false if size different from components_
 			 */
 
+    void		setComponentScaler(const Scaler&,int compidx);
+			/*!< Will force the datapack to float */
+
     void		setDataChar(DataCharacteristics::UserType);
     void		setScaler(Scaler*); //!< Scaler becomes mine
 
@@ -185,6 +188,8 @@ public:
     int			nextStep();
 
 protected:
+
+    void		adjustDPDescToScalers(const BinDataDesc& trcdesc);
 
     IOObj*			ioobj_;
     SeisTrcReader&		rdr_;

@@ -536,9 +536,11 @@ class ArrayFiller : public Task
 {
 public:
 ArrayFiller( SeisTrc& trc, const TypeSet<int>& components,
+	     const ObjectSet<Scaler>& compscalers,
 	     const TypeSet<int>& outcomponents, RegularSeisDataPack& dp )
     : trc_(trc)
     , components_(components)
+    , compscalers_(compscalers)
     , outcomponents_(outcomponents)
     , dp_(dp)
 {}
@@ -561,6 +563,7 @@ bool execute()
     for ( int cidx=0; cidx<outcomponents_.size(); cidx++ )
     {
 	const int idcin = components_[cidx];
+	const Scaler* scaler = compscalers_[cidx];
 	const int idcout = outcomponents_[cidx];
 	Array3D<float>& arr = dp_.data( idcout );
 	ValueSeries<float>* stor = arr.getStorage();
@@ -590,11 +593,17 @@ bool execute()
 		const unsigned char* srcptr =
 			databuf->data() + trczidx*bytespersamp;
 		char* dstptr = dststartptr + (zidx+startidx)*bytespersamp;
-		if ( memcmp(dstptr,srcptr,bytespersamp) )
+		if ( !scaler && memcmp(dstptr,srcptr,bytespersamp) )
+		{
 		    OD::sysMemCopy(dstptr,srcptr,bytespersamp );
-		else
-		    arr.set( idx0, idx1, zidx+startidx,
-						    trc_.getValue(zval,idcin) );
+		    continue;
+		}
+
+		const float rawval = trc_.getValue( zval, idcin );
+		const float trcval = scaler
+				   ? mCast(float,scaler->scale(rawval) )
+				   : rawval;
+		arr.set( idx0, idx1, zidx+startidx, trcval );
 	    }
 	}
 	else
@@ -602,7 +611,11 @@ bool execute()
 	    for ( int zidx=0; zidx<nrzsamples; zidx++ )
 	    {
 		const float zval = dpzsamp.atIndex( zidx );
-		arr.set( idx0, idx1, zidx, trc_.getValue(zval,idcin) );
+		const float rawval = trc_.getValue( zval, idcin );
+		const float trcval = scaler
+				   ? mCast(float,scaler->scale(rawval) )
+				   : rawval;
+		arr.set( idx0, idx1, zidx, trcval );
 	    }
 	}
     }
@@ -614,12 +627,14 @@ protected:
 
     SeisTrc&			trc_;
     const TypeSet<int>&		components_;
+    const ObjectSet<Scaler>&	compscalers_;
     const TypeSet<int>&		outcomponents_;
     RegularSeisDataPack&	dp_;
 };
 
 
 HiddenParam<SequentialReader,TypeSet<int>* > seisseqrdroutcompmgr( 0 );
+HiddenParam<SequentialReader,ObjectSet<Scaler>* > seisseqrdrcompscalers( 0 );
 
 SequentialReader::SequentialReader( const IOObj& ioobj,
 				    const TrcKeyZSampling* tkzs,
@@ -634,16 +649,26 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     , initialized_(false)
 {
     seisseqrdroutcompmgr.setParam( this, 0 );
+    ObjectSet<Scaler>* compscalers = new ObjectSet<Scaler>;
+    compscalers->allowNull( true );
+    seisseqrdrcompscalers.setParam( this, compscalers );
     SeisIOObjInfo info( ioobj );
     info.getDataChar( dc_ );
     if ( !comps )
     {
 	const int nrcomps = info.nrComponents();
 	for ( int idx=0; idx<nrcomps; idx++ )
+	{
 	    components_ += idx;
+	    *compscalers += 0;
+	}
     }
     else
+    {
 	components_ = *comps;
+	for ( int idx=0; idx<components_.size(); idx++ )
+	    *compscalers += 0;
+    }
 
     info.getRanges( tkzs_ );
     if ( tkzs )
@@ -663,7 +688,10 @@ SequentialReader::~SequentialReader()
     delete &rdr_; delete ioobj_;
     delete scaler_;
     delete seisseqrdroutcompmgr.getParam( this );
+    deepErase( *seisseqrdrcompscalers.getParam( this ) );
+    delete seisseqrdrcompscalers.getParam( this );
     seisseqrdroutcompmgr.removeParam( this );
+    seisseqrdrcompscalers.removeParam( this );
 
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     Threads::WorkManager::twm().removeQueue( queueid_, false );
@@ -700,6 +728,59 @@ void SequentialReader::setScaler( Scaler* newsc )
 }
 
 
+void SequentialReader::setComponentScaler( const Scaler& scaler, int compidx )
+{
+    if ( scaler.isEmpty() )
+	return;
+
+    ObjectSet<Scaler>& compscalers = *seisseqrdrcompscalers.getParam( this );
+    for ( int idx=0; idx<=compidx; idx++ )
+    {
+	if ( !compscalers.validIdx(idx) )
+	    compscalers += 0;
+    }
+
+    delete compscalers.replace( compidx, scaler.clone() );
+}
+
+
+void SequentialReader::adjustDPDescToScalers( const BinDataDesc& trcdesc )
+{
+    const DataCharacteristics floatdc( DataCharacteristics::F32 );
+    const BinDataDesc floatdesc( floatdc );
+    if ( dp_ && dp_->getDataDesc() == floatdesc )
+	return;
+
+    ObjectSet<Scaler>& compscalers = *seisseqrdrcompscalers.getParam( this );
+
+    bool needadjust = false;
+    for ( int idx=0; idx<compscalers.size(); idx++ )
+    {
+	if ( !compscalers[idx] || compscalers[idx]->isEmpty() ||
+	     trcdesc == floatdesc )
+	    continue;
+
+	needadjust = true;
+	break;
+    }
+
+    if ( !needadjust )
+	return;
+
+    setDataChar( floatdc.userType() );
+    if ( !dp_ )
+	return;
+
+    BufferStringSet compnms;
+    for ( int idx=0; idx<dp_->nrComponents(); idx++ )
+	compnms.add( dp_->getComponentName(idx) );
+
+    dp_->setDataDesc( floatdesc ); //Will delete incompatible arrays
+    for ( int idx=0; idx<compnms.size(); idx++ )
+	dp_->addComponent( compnms.get(idx).str() );
+}
+
+
 RegularSeisDataPack* SequentialReader::getDataPack()
 { return dp_; }
 
@@ -722,8 +803,20 @@ bool SequentialReader::init()
 
     nrdone_ = 0;
     msg_ = tr("Initializing reader");
-    const SeisIOObjInfo info( *ioobj_ );
-    if ( !info.isOK() ) return false;
+
+    ObjectSet<Scaler>& compscalers = *seisseqrdrcompscalers.getParam( this );
+    for ( int idx=0; idx<components_.size(); idx++ )
+    {
+	if ( !compscalers.validIdx(idx) )
+	    compscalers += 0;
+    }
+
+    const SeisIOObjInfo seisinfo( *ioobj_ );
+    if ( !seisinfo.isOK() ) return false;
+
+    DataCharacteristics datasetdc;
+    seisinfo.getDataChar( datasetdc );
+    adjustDPDescToScalers( datasetdc );
 
     mSetSelData()
 
@@ -744,6 +837,7 @@ bool SequentialReader::init()
 	if ( !cubedata.isFullyRectAndReg() )
 	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
     }
+
 
     initialized_ = true;
     msg_ = uiStrings::phrReading( tr(" %1 \'%2\'").arg( uiStrings::sVolume() )
@@ -780,6 +874,13 @@ bool SequentialReader::setDataPack( RegularSeisDataPack& dp,
 	return false;
     }
 
+    ObjectSet<Scaler>& compscalers = *seisseqrdrcompscalers.getParam( this );
+    if ( compscalers.size() < components_.size() )
+    {
+	for ( int idx=compscalers.size(); idx<components_.size(); idx++ )
+	    compscalers += 0;
+    }
+
     PosInfo::CubeData cubedata;
     if ( rdr_.get3DGeometryInfo(cubedata) )
 	dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
@@ -810,10 +911,13 @@ int SequentialReader::nextStep()
     if ( !rdr_.get(*trc) )
     { delete trc; msg_ = rdr_.errMsg(); return ErrorOccurred(); }
 
+    const ObjectSet<Scaler>& compscalers =
+					*seisseqrdrcompscalers.getParam( this );
     const TypeSet<int>& outcomponents = seisseqrdroutcompmgr.getParam( this )
 				      ? *seisseqrdroutcompmgr.getParam( this )
 				      : components_;
-    Task* task = new ArrayFiller( *trc, components_, outcomponents, *dp_ );
+    Task* task = new ArrayFiller( *trc, components_, compscalers, outcomponents,
+				  *dp_ );
     Threads::WorkManager::twm().addWork(
 	Threads::Work(*task,true), 0, queueid_, false, false, true );
 
