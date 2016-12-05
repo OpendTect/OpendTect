@@ -214,6 +214,7 @@ protected:
 
 private:
     void				unSelectAll();
+    void				updateLockedSeedsColor();
     const TypeSet<int>			findOverlapSelectors(
 						    visBase::PolygonSelection*);
 public:

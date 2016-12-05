@@ -2315,9 +2315,11 @@ void HorizonDisplay::calculateLockedPoints()
 
 bool HorizonDisplay::lockedShown() const
 { 
-    const bool lockedshow = lockedpts_ ? lockedpts_->isOn() : false;
+    const bool lockedshow = lockedpts_ ? 
+	lockedpts_->size()>0 && lockedpts_->isOn() : false;
     const bool sectionlockedshow = 
 	sectionlockedpts_.getParam(this) ? 
+	sectionlockedpts_.getParam(this)->size()>0 &&
 	sectionlockedpts_.getParam(this)->isOn() : false;
     return lockedshow || sectionlockedshow;
 }
@@ -2354,6 +2356,8 @@ void HorizonDisplay::updateSelections()
 	const int pidx = selections_->addPoint( pos );
 	pidxs += pidx;
     }
+
+    if ( pidxs.isEmpty() ) return;
 
     Geometry::PrimitiveSet* pointsetps =
 		Geometry::IndexedPrimitiveSet::create( true );

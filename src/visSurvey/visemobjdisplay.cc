@@ -548,8 +548,8 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 {
 
-   bool triggermovement = false;
-   if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
+    bool triggermovement = false;
+    if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
     {
 	const EM::SectionID sectionid = cbdata.pid0.sectionID();
 	if ( emobject_->sectionIndex(sectionid)>=0 )
@@ -615,7 +615,10 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 		updatePosAttrib( posattribs_[idx] );
 	}
     }
-
+    else if ( cbdata.event==EM::EMObjectCallbackData::LockColorChange )
+    {
+	updateLockedSeedsColor();
+    }
     if ( displayonlyatsections_ )
 	setOnlyAtSectionsDisplay( true );
     else if ( triggermovement )
@@ -850,9 +853,13 @@ void EMObjectDisplay::turnOnSelectionMode( bool yn )
 	    scene_->getPolySelection()->polygonFinished(),
 	    EMObjectDisplay::polygonFinishedCB );
 	else
+	{
 	    mDetachCB(
 	    scene_->getPolySelection()->polygonFinished(),
 	    EMObjectDisplay::polygonFinishedCB );
+	    unSelectAll();
+	}
+
     }
 
 }
@@ -928,19 +935,32 @@ const TypeSet<int> EMObjectDisplay::findOverlapSelectors(
 
 void EMObjectDisplay::updateSelections()
 {
+    mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
     {
 	for ( int idy=0; idy<posattribmarkers_[idx]->size(); idy++ )
 	{
 	    visBase::MarkerSet* markerset = posattribmarkers_[idx];
-	    markerset->getMaterial()->setColor( Color::White(),idy );
+	    if ( !markerset )
+		continue;
 
+	    markerset->getMaterial()->setColor( Color::White(),idy );
 	    const visBase::Coordinates* coords = markerset->getCoordinates();
+	    if ( !coords )
+		continue;
 	    const Coord3 pos = coords->getPos( idy );
 	    for ( int idz=selectors_.size()-1; idz>=0; idz-- )
 	    {
 		if ( selectors_[idz]->includes(pos) )
 			markerset->getMaterial()->setColor( mSelColor, idy );
+		else
+		{
+		    const BinID pickedbid = SI().transform( pos );
+		    if ( !pickedbid.isUdf() && hor3d &&
+			hor3d->isNodeLocked(TrcKey(pickedbid)) )
+			markerset->getMaterial()->setColor(
+			hor3d->getLockColor(), idy );
+		}
 	    }
 	}
     }
@@ -965,8 +985,33 @@ void EMObjectDisplay::unSelectAll()
 {
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
 	posattribmarkers_[idx]->setMarkersSingleColor( Color::White() );
+
     clearSelections();
+    // if there are locked seeds, we need recover their color.
+    updateLockedSeedsColor();
 }
 
+
+void EMObjectDisplay::updateLockedSeedsColor()
+{
+    const int attribindex=posattribs_.indexOf( EM::EMObject::sSeedNode() );
+    if ( attribindex==-1 ) return;
+
+    visBase::MarkerSet* markerset = posattribmarkers_[attribindex];
+    if ( !markerset ) return;
+
+    const visBase::Coordinates* coords = markerset->getCoordinates();
+    mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
+    if ( !coords || !hor3d ) return;
+    for ( int idx=0; idx<coords->size(); idx++ )
+    {
+	const BinID pickedbid = SI().transform( coords->getPos(idx) );
+	if ( pickedbid.isUdf() )
+		continue;
+	if ( hor3d->isNodeLocked(TrcKey(pickedbid)) )
+	    markerset->getMaterial()->setColor(hor3d->getLockColor(),idx);
+    }
+    markerset->forceRedraw( true );
+}
 
 } // namespace visSurvey
