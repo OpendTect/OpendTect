@@ -391,20 +391,24 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 			     mCB(this,uiStratLayerModel,helpCB) );
     helptb->addButton( htbsu );
 
-    uiSplitter* vspl;
+    uiParent* horsplitattachhrp = 0;
     if ( !seqdisp_->separateDisplay() )
     {
 	modtools_->attach( rightOf, gentools_ );
-	vspl = new uiSplitter( this );
+	horsplitattachhrp = this;
     }
     else
     {
 	modtools_->attach( rightBorder );
-	uiSplitter* hspl = new uiSplitter( this, "Hor split", OD::Horizontal );
-	hspl->addGroup( gengrp ); hspl->addGroup( rightgrp );
-	vspl = new uiSplitter( rightgrp );
+	uiSplitter* vspl = new uiSplitter( this, "Desc-LayModDisp Split" );
+	vspl->addGroup( gengrp ); vspl->addGroup( rightgrp );
+	horsplitattachhrp = rightgrp;
     }
-    vspl->addGroup( topgrp ); vspl->addGroup( botgrp );
+
+    uiSplitter* horspl =
+	new uiSplitter( horsplitattachhrp, "Synth-LayModDisp Splitter",
+			OD::Horizontal);
+    horspl->addGroup( topgrp ); horspl->addGroup( botgrp );
 
     modtools_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
     modtools_->selLevelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
