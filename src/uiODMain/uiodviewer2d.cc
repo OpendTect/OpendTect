@@ -214,7 +214,7 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 
 	isvertical_ = probe_.type()!=ZSliceProbe::sFactoryKey();
 	const bool is2d = probe_.type()==Line2DProbe::sFactoryKey();
-	const bool isrdl = probe_.type()==RDLProbe::sFactoryKey();
+	const bool isrdl = probe_.type()==RandomLineProbe::sFactoryKey();
 	createViewWin( isvertical_, !is2d || !isrdl );
     }
 
@@ -582,7 +582,7 @@ DataPack::ID uiODViewer2D::createDataPack(const Attrib::SelSpec& selspec)
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
 
-    mDynamicCastGet(const RDLProbe*,rdlprobe,&probe_);
+    mDynamicCastGet(const RandomLineProbe*,rdlprobe,&probe_);
     if ( rdlprobe )
 	return attrserv->createRdmTrcsOutput( tkzs.zsamp_,
 					      rdlprobe->randomeLineID() );
@@ -804,7 +804,7 @@ void uiODViewer2D::setWinTitle()
 {
     uiString info = toUiString("%1: %2");
 
-    mDynamicCastGet(const RDLProbe*,rdlprobe,&probe_);
+    mDynamicCastGet(const RandomLineProbe*,rdlprobe,&probe_);
     if ( rdlprobe )
     {
 	const Geometry::RandomLine* rdmline =

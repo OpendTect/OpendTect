@@ -50,6 +50,7 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "probemanager.h"
 #include "probeimpl.h"
+#include "randomlineprobe.h"
 #include "wellmanager.h"
 #include "picksetmanager.h"
 #include "ptrman.h"
@@ -1274,10 +1275,12 @@ int uiODSceneMgr::addRandomLineItem( int rlid, int sceneid )
 {
     mGetOrAskForScene
 
-    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( -1,
-		uiODRandomLineTreeItem::Empty, rlid );
+    RandomLineProbe* rdlprobe = new RandomLineProbe( rlid );
+    if ( !ProbeMGR().store(*rdlprobe).isOK() )
+	return -1;
+
+    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( *rdlprobe );
     scene->itemmanager_->addChild( itm, false );
-    itm->displayDefaultData();
     return itm->displayID();
 }
 

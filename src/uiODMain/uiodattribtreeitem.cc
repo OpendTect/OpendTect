@@ -382,7 +382,7 @@ ConstRefMan<DataPack> uiODAttribTreeItem::calculateAttribute()
     const Attrib::SelSpec attrselspec = attrprlayer->getSelSpec();
     attrserv->setTargetSelSpec( attrprlayer->getSelSpec() );
 
-    mDynamicCastGet(const RDLProbe*,rdlprobe,parentprobe);
+    mDynamicCastGet(const RandomLineProbe*,rdlprobe,parentprobe);
     mDynamicCastGet(const ZSliceProbe*,zprobe,parentprobe);
     DataPack::ID attrdpid;
     if ( zprobe && ztransform && !attrselspec.isZTransformed() )

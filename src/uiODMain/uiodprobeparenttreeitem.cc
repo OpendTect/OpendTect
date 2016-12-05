@@ -74,6 +74,7 @@ bool uiODSceneProbeParentTreeItem::showSubMenu()
 
     menu_->clear();
     addMenuItems();
+    addStandardItems( *menu_ );
     const int mnuid = menu_->exec();
     return handleSubMenu( mnuid );
 }
@@ -89,22 +90,13 @@ void uiODSceneProbeParentTreeItem::addMenuItems()
     menu_->insertItem(
 	new uiAction( uiODSceneProbeParentTreeItem::sAddColorBlended()),
 		      sAddColorBlendedMenuID() );
-    addStandardItems( *menu_ );
 }
 
 
 bool uiODSceneProbeParentTreeItem::handleSubMenu( int mnuid )
 {
-    if ( mnuid==sAddDefaultDataMenuID() || mnuid==sAddAndSelectDataMenuID() ||
-	 mnuid==sAddColorBlendedMenuID() )
-    {
-	if ( !setProbeToBeAddedParams(mnuid) )
-	    return false;
-
-	typetobeadded_ = getType( mnuid );
-	if ( !addChildProbe() )
-	    return false;
-    }
+    if ( setProbeToBeAddedParams(mnuid) )
+	return addChildProbe();
 
     handleStandardItems( mnuid );
     return true;
@@ -277,7 +269,7 @@ bool uiODSceneProbeTreeItem::init()
 }
 
 
-uiString uiODSceneProbeTreeItem::getDisplayName() const
+uiString uiODSceneProbeTreeItem::createDisplayName() const
 {
     const Probe* probe = getProbe();
     if ( !probe )

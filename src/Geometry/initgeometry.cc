@@ -36,7 +36,7 @@ mDefModInitFn(Geometry)
     odProbDenFuncTranslator::initClass();
     dgbRandomLineSetTranslator::initClass();
 
-    RDLProbe::initClass();
+    RandomLineProbe::initClass();
     Pos::PolyProvider3D::initClass();
     Pos::TableProvider3D::initClass();
 

@@ -147,7 +147,6 @@ void AttribProbeLayer::invalidateData()
     mLock4Write();
 
     attribdpid_ = DataPack::cNoID();
-    mSendChgNotif( cDataChange(), cEntireObjectChangeID() );
 }
 
 

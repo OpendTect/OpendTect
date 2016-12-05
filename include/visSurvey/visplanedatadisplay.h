@@ -74,6 +74,8 @@ public:
 				{ return &movefinished_; }
     NotifierAccess*		getDataChangedNotifier()
 				{ return &datachanged_; }
+    NotifierAccess*		posChanged()
+				{ return &poschanged_; }
 
     bool			allowMaterialEdit() const	{ return true; }
     bool			isSection() const { return true; }
@@ -180,7 +182,6 @@ protected:
     void			updateRanges(bool resetpos=false);
     void			updateRanges(bool resetinlcrl=false,
 					     bool resetz=false);
-    void			probeChangedCB(CallBacker*);
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
     void			draggerStart(CallBacker*);
@@ -224,6 +225,7 @@ protected:
     Notifier<PlaneDataDisplay>		moving_;
     Notifier<PlaneDataDisplay>		movefinished_;
     Notifier<PlaneDataDisplay>		datachanged_;
+    Notifier<PlaneDataDisplay>		poschanged_;
 
     ZAxisTransform*			datatransform_;
     int					voiidx_;

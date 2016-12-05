@@ -111,12 +111,6 @@ void uiODSceneTreeTop::loopOverChildrenIds(
 }
 
 
-#define cShowAllItems		200
-#define cHideAllItems		199
-#define cRemoveAllItems		198
-#define cExpandAllItems		197
-#define cCollapseAllItems	196
-
 uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm )
     : uiODPrManagedTreeItem(nm)
 {}
@@ -161,23 +155,6 @@ int uiODSceneTreeItem::sceneID() const
     int sceneid=-1;
     getProperty<int>( uiODSceneTreeTop::sceneidkey(), sceneid );
     return sceneid;
-}
-
-
-void uiODSceneTreeItem::removeAllItems()
-{
-    const uiString msg = tr("All %1 items will be removed from tree.\n"
-	    		    "Do you want to continue?").arg(name());
-    if ( !uiMSG().askRemove(msg) ) return;
-
-    while ( children_.size() )
-    {
-	setMoreObjectsToDoHint( children_.size()>1 );
-	mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0]);
-	if ( !itm ) continue;
-	applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
-	removeChild( itm );
-    }
 }
 
 

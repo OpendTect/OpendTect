@@ -34,8 +34,6 @@ protected:
     ui3DViewer*		viewer();
     virtual OD::ViewerID getViewerID() const;
 
-    void		removeAllItems();
-
     void		setMoreObjectsToDoHint(bool yn);
     bool		getMoreObjectsToDoHint() const;
 };

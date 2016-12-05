@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 #include "seisdatapack.h"
+#include "probe.h"
 
 namespace visBase
 {
@@ -50,13 +51,9 @@ public:
 				    "RandomTrackDisplay",
 				    toUiString(sFactoryKeyword()));
 
-    void			setRandomLineID(int id);
+    void			setProbe(Probe*);
     int				getRandomLineID() const;
     Geometry::RandomLine*	getRandomLine();
-
-    int				nameNr() const { return namenr_; }
-				/*!<\returns a number that is unique for
-				     this rtd, and is present in its name. */
 
     bool			isInlCrl() const { return true; }
     bool			isSection() const { return true; }
@@ -141,6 +138,7 @@ public:
     int				getSelNodeIdx() const	{ return selnodeidx_; }
 				//!<knotidx>=0, panelidx<0
 
+    NotifierAccess*		posChanged()		{ return &poschanged_; }
     virtual NotifierAccess*	getMovementNotifier()	{ return &moving_; }
     NotifierAccess*		getManipulationNotifier() {return &nodemoving_;}
 
@@ -161,6 +159,7 @@ public:
 
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> nodemoving_;
+    Notifier<RandomTrackDisplay> poschanged_;
 
     const uiString&		errMsg() const { return errmsg_; }
     void			setPolyLineMode(bool yn);
@@ -242,6 +241,7 @@ protected:
     TypeSet<int>*		premovingselids_;
     bool			geomnodejustmoved_;
 
+    RefMan<Probe>		probe_;
     Geometry::RandomLine*	rl_;
     visBase::TexturePanelStrip*	panelstrip_;
 
@@ -274,7 +274,6 @@ protected:
 
     bool			lockgeometry_;
     bool			ismanip_;
-    int				namenr_;
 
     bool			ispicking_;
     bool			polylinemode_;

@@ -15,10 +15,12 @@
 #include "array2dresample.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
+#include "attribprobelayer.h"
 #include "convmemvalseries.h"
 #include "seisdatapack.h"
 #include "volumedatapackzaxistransformer.h"
 #include "randomlinegeom.h"
+#include "randomlineprobe.h"
 #include "mousecursor.h"
 #include "polylinend.h"
 #include "settings.h"
@@ -36,6 +38,7 @@
 #include "visselman.h"
 #include "vistexturechannels.h"
 #include "vistexturepanelstrip.h"
+#include "visrgbatexturechannel2rgba.h"
 #include "vistopbotimage.h"
 #include "zaxistransform.h"
 
@@ -57,6 +60,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     , polylinemode_(false)
     , nodemoving_(this)
     , moving_(this)
+    , poschanged_(this)
     , selnodeidx_(mUdf(int))
     , ismanip_(false)
     , interactivetexturedisplay_( false )
@@ -76,31 +80,6 @@ RandomTrackDisplay::RandomTrackDisplay()
 {
     datapacks_.allowNull();
     transfdatapacks_.allowNull();
-
-    TypeSet<int> randomlines;
-    visBase::DM().getIDs( typeid(*this), randomlines );
-    int highestnamenr = 0;
-    for ( int idx=0; idx<randomlines.size(); idx++ )
-    {
-	mDynamicCastGet( const RandomTrackDisplay*, rtd,
-			 visBase::DM().getObject(randomlines[idx]) );
-	if ( rtd==this ) continue;
-
-	if ( rtd==0 )
-	{
-#	    ifdef __debug__
-		pErrMsg( "Invalid random track display." );
-#	    endif
-	    continue;
-	}
-
-	if ( rtd->nameNr()>highestnamenr )
-	    highestnamenr = rtd->nameNr();
-    }
-
-    namenr_ = highestnamenr+1;
-    setName( uiStrings::phrJoinStrings( uiStrings::sRandomLine(),
-					toUiString(namenr_)) );
 
     material_->setColor( Color::White() );
     material_->setAmbience( 0.8 );
@@ -148,19 +127,6 @@ RandomTrackDisplay::RandomTrackDisplay()
 		    mCast(float,SI().sampling(true).hsamp_.start_.crl()),
 		    mCast(float,SI().sampling(true).hsamp_.stop_.crl()),
 		    mCast(float,SI().crlStep()) );
-
-    const BinID start( mNINT32(inlrange.snappedCenter()),
-		       mNINT32(crlrange.start) );
-    const BinID stop( start.inl(), mNINT32(crlrange.stop) );
-
-    Geometry::RandomLine* rl =
-	new Geometry::RandomLine( mFromUiStringTodo(name()) );
-    setRandomLineID( rl->ID() );
-    rl_->addNode( start );
-    rl_->addNode( stop );
-
-    setDepthInterval(
-	Interval<float>(survinterval.start,survinterval.stop) );
     dragger_->setLimits(
 	    Coord3( inlrange.start, crlrange.start, survinterval.start ),
 	    Coord3( inlrange.stop, crlrange.stop, survinterval.stop ),
@@ -203,15 +169,23 @@ RandomTrackDisplay::~RandomTrackDisplay()
 }
 
 
-void RandomTrackDisplay::setRandomLineID( int rlid )
+void RandomTrackDisplay::setProbe( Probe* probe )
 {
+    if ( probe_.ptr()==probe )
+	return;
+
+    mDynamicCastGet(RandomLineProbe*,rdlprobe,probe);
+    if ( !rdlprobe )
+	return;
+
+    probe_ = probe;
     if ( rl_ )
     {
 	rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB) );
 	rl_->unRef();
     }
 
-    rl_ = Geometry::RLM().get( rlid );
+    rl_ = Geometry::RLM().get( rdlprobe->randomeLineID() );
     if ( !rl_ ) return;
 
     rl_->ref();
@@ -222,6 +196,18 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
     rl_->allNodePositions( bids );
     setNodePositions( bids, true );
     setDepthInterval( rl_->zRange() );
+
+    for ( int idx=0; idx<probe_->nrLayers(); idx++ )
+    {
+	mDynamicCastGet( const AttribProbeLayer*,attrprlayer,
+			 probe_->getLayerByIdx(idx) );
+	if ( !attrprlayer )
+	    continue;
+
+	if ( attrprlayer->getDispType()==AttribProbeLayer::RGB )
+	    setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
+	addAttrib();
+    }
 }
 
 
@@ -1154,7 +1140,7 @@ void RandomTrackDisplay::geomNodeMoveCB( CallBacker* cb )
 	{
 	    visBase::DM().selMan().deSelectAll();
 	    for ( int idx=0; idx<premovingselids_->size(); idx++ )
-		visBase::DM().selMan().select( (*premovingselids_)[idx], true );
+		visBase::DM().selMan().select( (*premovingselids_)[idx],true);
 
 	    delete premovingselids_;
 	    premovingselids_ = 0;
@@ -1169,6 +1155,7 @@ void RandomTrackDisplay::geomNodeMoveCB( CallBacker* cb )
 	}
 
 	finishNodeMoveInternal();
+	poschanged_.trigger();
     }
 }
 
@@ -1957,6 +1944,7 @@ void RandomTrackDisplay::draggerMoveFinished( CallBacker* cb )
     dragger_->setDepthRange( zrg );
 
     finishNodeMoveInternal();
+    poschanged_.trigger();
     selnodeidx_ = mUdf(int);
 }
 

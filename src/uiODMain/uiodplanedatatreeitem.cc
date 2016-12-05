@@ -114,7 +114,7 @@ bool uiODPlaneDataTreeItem::init()
     pdd->ref();
     pdd->selection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
     pdd->deSelection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
-    visBase::DM().selMan().updateselnotifier.notify(
+    pdd->posChanged()->notify(
 	    mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     visserv_->getUiSlicePos()->positionChg.notify(
@@ -147,13 +147,9 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* cb )
     if ( !pdd )
 	return;
 
-    if ( cb->isCapsule() )
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,callerpdd,cb);
+    if ( callerpdd )
     {
-	mCBCapsuleUnpackWithCaller(int,visid,caller,cb);
-	mDynamicCastGet(visBase::SelectionManager*,selman,caller);
-	if ( !selman || displayid_ != visid )
-	    return;
-
 	pdd->annotateNextUpdateStage( true );
 	pdd->acceptManipulation();
 	pdd->annotateNextUpdateStage( true );
@@ -494,7 +490,15 @@ bool uiODPlaneDataParentTreeItem::handleSubMenu( int mnuid )
 
 bool uiODPlaneDataParentTreeItem::setProbeToBeAddedParams( int mnuid )
 {
-    return setDefaultPosToBeAdded();
+    if ( mnuid==uiODSceneProbeParentTreeItem::sAddDefaultDataMenuID() ||
+	 mnuid==uiODSceneProbeParentTreeItem::sAddAndSelectDataMenuID() ||
+	 mnuid==uiODSceneProbeParentTreeItem::sAddColorBlendedMenuID() )
+    {
+	typetobeadded_ = uiODSceneProbeParentTreeItem::getType( mnuid );
+	return setDefaultPosToBeAdded();
+    }
+
+    return true;
 }
 
 
@@ -825,7 +829,7 @@ uiODZsliceTreeItem::uiODZsliceTreeItem( Probe& probe, int id )
 }
 
 
-uiString uiODZsliceTreeItem::getDisplayName() const
+uiString uiODZsliceTreeItem::createDisplayName() const
 {
     const Probe* probe = getProbe();
     if ( !probe )

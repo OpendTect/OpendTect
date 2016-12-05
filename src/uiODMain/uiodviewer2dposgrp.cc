@@ -491,8 +491,8 @@ Probe* Viewer2DPosDataSel::createNewProbe()
 	}
 	case RdmLine:
 	{
-	    RDLProbe* rdlprobe = new RDLProbe();
-	    rdlprobe->setRDLID( rdmlineid_ );
+	    RandomLineProbe* rdlprobe = new RandomLineProbe();
+	    rdlprobe->setRandomLineID( rdmlineid_ );
 	    probe = rdlprobe;
 	    break;
 	}
@@ -522,10 +522,10 @@ void Viewer2DPosDataSel::fillFromProbe( const Probe& probe )
 	postype_ = Viewer2DPosDataSel::Line2D;
 	geomid_ = probe.position().hsamp_.getGeomID();
     }
-    else if ( probe.type()==RDLProbe::sFactoryKey() )
+    else if ( probe.type()==RandomLineProbe::sFactoryKey() )
     {
 	postype_ = Viewer2DPosDataSel::RdmLine;
-	mDynamicCastGet(const RDLProbe*,rdlprobe,&probe);
+	mDynamicCastGet(const RandomLineProbe*,rdlprobe,&probe);
 	if ( rdlprobe )
 	    rdmlineid_ = rdlprobe->randomeLineID();
     }

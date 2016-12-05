@@ -34,7 +34,7 @@ protected:
     void		addStandardItems(MenuHandler*);
     void		handleStandardItems(int mnuid);
     void		handleStandardMenuCB(CallBacker*);
-    virtual void	removeAllItems();
+    virtual void	removeAllItems(bool showmsg=true);
 
     MenuItem		showallitems_;
     MenuItem		hideallitems_;

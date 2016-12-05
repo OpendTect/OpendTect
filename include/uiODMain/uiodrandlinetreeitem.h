@@ -13,32 +13,48 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
+#include "uiodattribtreeitem.h"
+#include "uiodprobeparenttreeitem.h"
 
+class Probe;
 class IOObj;
 class uiRandomLinePolyLineDlg;
 namespace Geometry { class RandomLineSet; }
 
 
-mExpClass(uiODMain) uiODRandomLineParentTreeItem : public uiODSceneTreeItem
+mExpClass(uiODMain) uiODRandomLineParentTreeItem
+				: public uiODSceneProbeParentTreeItem
 {
     mODTextTranslationClass(uiODRandomLineParentTreeItem);
-    mDefineItemMembers( RandomLineParent, SceneTreeItem, SceneTreeTop );
-    mShowMenu;
+    mDefineItemMembers(RandomLineParent,SceneProbeParentTreeItem,SceneTreeTop);
     mMenuOnAnyButton;
 
-    bool			load(const IOObj&,int);
-    bool			addStored(int);
-    void			genRandLine(int);
-    void			genFromContours();
-    void			genFromExisting();
-    void			genFromPolygon();
-    void			genFromTable();
-    void			genFromWell();
-    void			loadRandLineFromWell(CallBacker*);
-    void			genFromPicks();
-    void			rdlPolyLineDlgCloseCB(CallBacker*);
+    virtual void		addMenuItems();
+    const char*			childObjTypeKey() const;
+    virtual Probe*		createNewProbe() const;
+    uiODPrManagedTreeItem*	addChildItem(const OD::ObjPresentationInfo&);
+
     void			removeChild(uiTreeItem*);
     uiRandomLinePolyLineDlg*	rdlpolylinedlg_;
+
+protected:
+
+    int				rdltobeaddedid_;
+    int				visrdltobeaddedid_;
+    Probe*			rdlprobetobeadded_;
+
+    bool			setProbeToBeAddedParams(int mnuid);
+    bool			setSelRDLID();
+    bool			setRDLIDFromContours();
+    bool			setRDLIDFromExisting();
+    bool			setRDLIDFromPolygon();
+    bool			setRDLFromTable();
+    bool			setRDLID(int opt);
+    void			setRDLFromPicks();
+    void			setRDLFromWell();
+
+    void			loadRandLineFromWellCB(CallBacker*);
+    void			rdlPolyLineDlgCloseCB(CallBacker*);
 };
 
 
@@ -56,17 +72,14 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODRandomLineTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODRandomLineTreeItem : public uiODSceneProbeTreeItem
 { mODTextTranslationClass(uiODRandomLineTreeItem)
 public:
     enum Type		{ Empty, Select, Default, RGBA };
 
-			uiODRandomLineTreeItem(int displayid=-1,Type tp=Empty,
-					       int rlid_=-1);
+			uiODRandomLineTreeItem(Probe&,int displayid=-1);
 
     bool		init();
-    bool		displayDefaultData();
-    void		setRandomLineID(int id);
 
 protected:
 
@@ -74,6 +87,7 @@ protected:
     void		handleMenuCB(CallBacker*);
     void		changeColTabCB(CallBacker*);
     void		remove2DViewerCB(CallBacker*);
+    void		rdlGeomChanged(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODRandomLineParentTreeItem).name(); }
 
@@ -85,6 +99,12 @@ protected:
     MenuItem		saveasmnuitem_;
     MenuItem		saveas2dmnuitem_;
     MenuItem		create2dgridmnuitem_;
-    Type		type_;
-    int			rlid_;
+};
+
+mExpClass(uiODMain) uiODRandomLineAttribTreeItem : public uiODAttribTreeItem
+{
+public:
+				uiODRandomLineAttribTreeItem(const char*);
+    static void			initClass();
+    static uiODDataTreeItem*	create(ProbeLayer&);
 };

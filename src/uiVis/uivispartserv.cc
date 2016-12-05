@@ -2044,11 +2044,13 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 
 void uiVisPartServer::deselectObjCB( CallBacker* cb )
 {
-    mUpdateSelObj( cb, oldsel, dataobj );
+    //TODO PrIMPL mUpdateSelObj( cb, oldsel, dataobj );
+    mCBCapsuleUnpack( int, id, cb );
+    visBase::DataObject* dataobj = visBase::DM().getObject( id );
     updateManipulatorStatus( dataobj, false );
 
     eventmutex_.lock();
-    eventobjid_ = oldsel;
+    eventobjid_ = id;
     selattrib_ = -1;
     sendEvent( evDeSelection() );
 

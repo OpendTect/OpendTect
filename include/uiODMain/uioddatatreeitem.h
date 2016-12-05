@@ -94,6 +94,7 @@ protected:
     void			createMenuCB(CallBacker*);
     virtual void		handleMenuCB(CallBacker*);
     void			probeLayerChangedCB(CallBacker*);
+    void			probeChangedCB(CallBacker*);
 
     virtual void		updateDisplay()				{}
     void			updateColumnText(int col);

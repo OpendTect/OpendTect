@@ -556,16 +556,29 @@ void uiODDataTreeItem::setProbeLayer( ProbeLayer* layer )
 	return;
 
     if ( probelayer_ )
+    {
 	mDetachCB( probelayer_->objectChanged(),
 		   uiODDataTreeItem::probeLayerChangedCB );
+	mDetachCB( probelayer_->getProbe()->objectChanged(),
+		   uiODDataTreeItem::probeChangedCB );
+    }
 
     probelayer_ = layer;
+
+    mAttachCB( probelayer_->getProbe()->objectChanged(),
+	       uiODDataTreeItem::probeChangedCB );
     mAttachCB( probelayer_->objectChanged(),
 	       uiODDataTreeItem::probeLayerChangedCB );
 }
 
 
 void uiODDataTreeItem::probeLayerChangedCB( CallBacker* )
+{
+    updateDisplay();
+}
+
+
+void uiODDataTreeItem::probeChangedCB( CallBacker* )
 {
     updateDisplay();
 }

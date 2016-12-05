@@ -163,6 +163,7 @@ public:
 			~RandomLineManager();
 
     RandomLine*		get(const DBKey&);
+    RandomLine*		getByName(const char*);
     RandomLine*		get(int id);
     const RandomLine*	get(int id) const;
     bool		isLoaded(const DBKey&) const;

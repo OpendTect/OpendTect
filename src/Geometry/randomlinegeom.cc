@@ -571,6 +571,18 @@ int RandomLineManager::indexOf( const DBKey& dbky ) const
 }
 
 
+RandomLine* RandomLineManager::getByName( const char* rdlnm )
+{
+    PtrMan<IOObj> rdlobj =
+	DBM().getByName( IOObjContext::Loc, rdlnm,
+			 RandomLineSetTranslatorGroup::sGroupName() );
+    if ( !rdlobj )
+	return 0;
+
+    return get( rdlobj->key() );
+}
+
+
 RandomLine* RandomLineManager::get( const DBKey& dbky )
 {
     if ( dbky.isInvalid() )

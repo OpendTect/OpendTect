@@ -219,7 +219,7 @@ public:
 protected:
     const char*		parentType() const
 			{ return typeid(uiODZsliceParentTreeItem).name(); }
-    uiString		getDisplayName() const;
+    uiString		createDisplayName() const;
 };
 
 

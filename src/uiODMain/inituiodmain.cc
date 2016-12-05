@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiodplanedatatreeitem.h"
 #include "uiodvolproctreeitem.h"
 #include "uiodseis2dtreeitem.h"
+#include "uiodrandlinetreeitem.h"
 
 mDefModInitFn(uiODMain)
 {
@@ -29,4 +30,5 @@ mDefModInitFn(uiODMain)
     uiODCrosslineAttribTreeItem::initClass();
     uiODZsliceAttribTreeItem::initClass();
     uiOD2DLineAttribTreeItem::initClass();
+    uiODRandomLineAttribTreeItem::initClass();
 }

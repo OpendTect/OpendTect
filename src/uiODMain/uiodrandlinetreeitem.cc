@@ -13,11 +13,14 @@ ___________________________________________________________________
 
 #include "attribdescsetsholder.h"
 #include "attribsel.h"
+#include "attribprobelayer.h"
 #include "ctxtioobj.h"
 #include "dbman.h"
 #include "mousecursor.h"
 #include "ptrman.h"
+#include "probemanager.h"
 #include "randomlinetr.h"
+#include "randomlineprobe.h"
 #include "randomlinegeom.h"
 #include "randcolor.h"
 #include "survinfo.h"
@@ -115,31 +118,26 @@ protected:
 };
 
 
-static uiODRandomLineTreeItem::Type getType( int mnuid )
-{
-    switch ( mnuid )
-    {
-	case 0: return uiODRandomLineTreeItem::Empty; break;
-	case 2: return uiODRandomLineTreeItem::Select; break;
-	case 1: case 3: return uiODRandomLineTreeItem::RGBA; break;
-	default: return uiODRandomLineTreeItem::Empty;
-    }
-}
-
+static int sInteractiveMenuID()			{ return 4; }
+static int sFromExistingMenuID()		{ return 6; }
+static int sFromPolygonMenuID()			{ return 7; }
+static int sFromTableMenuID()			{ return 8; }
+static int sFromWellMenuID()			{ return 9; }
 
 // Tree Items
 uiTreeItem*
     uiODRandomLineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-		    ODMainWin()->applMgr().visServer()->getObject(visid));
-    return rtd ? new uiODRandomLineTreeItem(visid) : 0;
+    pErrMsg( "Deprecated , to be removed later" );
+    return 0;
 }
 
 
 uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
-    : uiODSceneTreeItem( uiStrings::sRandomLine() )
+    : uiODSceneProbeParentTreeItem( uiStrings::sRandomLine() )
     , rdlpolylinedlg_(0)
+    , rdltobeaddedid_(-1)
+    , visrdltobeaddedid_(-1)
 {}
 
 
@@ -147,63 +145,109 @@ const char* uiODRandomLineParentTreeItem::iconName() const
 { return "tree-randomline"; }
 
 
-bool uiODRandomLineParentTreeItem::showSubMenu()
+const char* uiODRandomLineParentTreeItem::childObjTypeKey() const
 {
-    uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(tr("Add Default Data")), 0 );
-    mnu.insertItem( new uiAction(m3Dots(tr("Add Stored"))), 2 );
-
-    uiMenu* rgbmnu =
-	new uiMenu( getUiParent(), uiStrings::sAddColBlend() );
-    rgbmnu->insertItem( new uiAction(tr("Empty")), 1 );
-    rgbmnu->insertItem( new uiAction( m3Dots(uiStrings::sStored()) ), 3 );
-    mnu.insertItem( rgbmnu );
-
-    uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
-    newmnu->insertItem( new uiAction(m3Dots(tr("Interactive "))), 4 );
-//    newmnu->insertItem( new uiAction(m3Dots(tr("Along Contours"))), 5 );
-    newmnu->insertItem( new uiAction(m3Dots(tr("From Existing"))), 6 );
-    newmnu->insertItem( new uiAction(m3Dots(tr("From Polygon"))), 7 );
-    newmnu->insertItem( new uiAction(m3Dots(tr("From Table"))), 8 );
-    newmnu->insertItem( new uiAction(m3Dots(tr("From Wells"))), 9 );
-    mnu.insertItem( newmnu );
-    addStandardItems( mnu );
-    const int mnuid = mnu.exec();
-
-    if ( mnuid==0 )
-    {
-	uiODRandomLineTreeItem* itm =
-		new uiODRandomLineTreeItem(-1, getType(mnuid) );
-	addChild( itm, false );
-	itm->displayDefaultData();
-    }
-    else if ( mnuid==1 )
-    {
-	uiODRandomLineTreeItem* itm =
-		new uiODRandomLineTreeItem(-1, getType(mnuid) );
-	addChild( itm, false );
-    }
-    else if ( mnuid==2 || mnuid==3 )
-	addStored( mnuid );
-    else if ( mnuid == 4 )
-	genFromPicks();
-    else if ( mnuid==5 )
-	genFromContours();
-    else if ( mnuid==6 )
-	genFromExisting();
-    else if ( mnuid==7 )
-	genFromPolygon();
-    else if ( mnuid == 8 )
-	genFromTable();
-    else if ( mnuid == 9 )
-	genFromWell();
-
-    handleStandardItems( mnuid );
-    return true;
+    return ProbePresentationInfo::sFactoryKey();
 }
 
 
-bool uiODRandomLineParentTreeItem::addStored( int mnuid )
+bool uiODRandomLineParentTreeItem::setProbeToBeAddedParams( int mnuid )
+{
+    rdlprobetobeadded_ = 0;
+    visrdltobeaddedid_ = -1;
+    rdltobeaddedid_ = -1;
+    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+
+    if ( mnuid==uiODSceneProbeParentTreeItem::sAddDefaultDataMenuID()  )
+    {
+	typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+	return true;
+    }
+    else if ( mnuid==uiODSceneProbeParentTreeItem::sAddColorBlendedMenuID() )
+    {
+	typetobeadded_ = uiODSceneProbeParentTreeItem::RGBA;
+	return true;
+    }
+    else if ( mnuid==uiODSceneProbeParentTreeItem::sAddAndSelectDataMenuID() )
+	return setSelRDLID();
+    else if ( mnuid == sInteractiveMenuID() )
+    {
+	setRDLFromPicks();
+	return false;
+    }
+    else if ( mnuid==5 )
+	return setRDLIDFromContours();
+    else if ( mnuid==sFromExistingMenuID() )
+	return setRDLIDFromExisting();
+    else if ( mnuid==sFromPolygonMenuID() )
+	return setRDLIDFromPolygon();
+    else if ( mnuid == sFromTableMenuID() )
+	return setRDLFromTable();
+    else if ( mnuid == sFromWellMenuID() )
+    {
+	setRDLFromWell();
+	return false;
+    }
+
+    return false;
+}
+
+
+uiODPrManagedTreeItem* uiODRandomLineParentTreeItem::addChildItem(
+	const OD::ObjPresentationInfo& prinfo )
+{
+    mDynamicCastGet(const ProbePresentationInfo*,probeprinfo,&prinfo)
+    if ( !probeprinfo )
+	return 0;
+
+    RefMan<Probe> probe = ProbeMGR().fetchForEdit( probeprinfo->storedID() );
+    mDynamicCastGet(RandomLineProbe*,rdlprobe,probe.ptr())
+    if ( !rdlprobe )
+	return 0;
+
+    uiODRandomLineTreeItem* rdlitem =
+	new uiODRandomLineTreeItem( *probe, visrdltobeaddedid_ );
+    addChild( rdlitem, false );
+    return rdlitem;
+}
+
+
+Probe* uiODRandomLineParentTreeItem::createNewProbe() const
+{
+    if ( rdlprobetobeadded_ )
+	return rdlprobetobeadded_;
+    return new RandomLineProbe( rdltobeaddedid_ );
+}
+
+
+void uiODRandomLineParentTreeItem::addMenuItems()
+{
+    uiODSceneProbeParentTreeItem::addMenuItems();
+
+    uiAction* storedmenu = menu_->findAction(
+	    uiODSceneProbeParentTreeItem::sAddAndSelectDataMenuID() );
+    if ( !storedmenu )
+	return;
+
+    storedmenu->setText( tr("Add Stored") );
+
+    uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
+    newmnu->insertItem(
+	    new uiAction(m3Dots(tr("Interactive "))), sInteractiveMenuID() );
+//    newmnu->insertItem( new uiAction(m3Dots(tr("Along Contours"))), 5 );
+    newmnu->insertItem(
+	    new uiAction(m3Dots(tr("From Existing"))), sFromExistingMenuID() );
+    newmnu->insertItem(
+	    new uiAction(m3Dots(tr("From Polygon"))), sFromPolygonMenuID() );
+    newmnu->insertItem(
+	    new uiAction(m3Dots(tr("From Table"))), sFromTableMenuID() );
+    newmnu->insertItem(
+	    new uiAction(m3Dots(tr("From Wells"))), sFromWellMenuID() );
+    menu_->insertItem( newmnu );
+}
+
+
+bool uiODRandomLineParentTreeItem::setSelRDLID()
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
     ctio->ctxt_.forread_ = true;
@@ -211,60 +255,49 @@ bool uiODRandomLineParentTreeItem::addStored( int mnuid )
     if ( !dlg.go() || !dlg.ioObj() ) return false;
 
     const IOObj* ioobj = dlg.ioObj();
-    return load( *ioobj, mnuid );
-}
-
-
-bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
-{
-    RefMan<Geometry::RandomLine> rl = Geometry::RLM().get( ioobj.key() );
-
-    uiODRandomLineTreeItem* itm =
-		new uiODRandomLineTreeItem( -1, getType(mnuid), rl->ID() );
-    addChild( itm, false );
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
-    if ( !rtd )
-	return false;
-
-    rtd->setName( ioobj.uiName() );
-    itm->displayDefaultData();
-
-    updateColumnText( uiODSceneMgr::cNameColumn() );
+    rdltobeaddedid_ = Geometry::RLM().get( ioobj->key() )->ID();
+    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+    visrdltobeaddedid_ = -1;
     return true;
 }
 
 
-void uiODRandomLineParentTreeItem::genRandLine( int opt )
+bool uiODRandomLineParentTreeItem::setRDLID( int opt )
 {
     DBKey dbkey = applMgr()->EMServer()->genRandLine( opt );
-    if ( dbkey.isValid() && applMgr()->EMServer()->dispLineOnCreation() )
-    {
-	PtrMan<IOObj> ioobj = DBM().get( dbkey );
-	load( *ioobj, (int)uiODRandomLineTreeItem::Empty );
-    }
+    if ( !dbkey.isValid() || !applMgr()->EMServer()->dispLineOnCreation() )
+	return false;
+
+    Geometry::RandomLine* newrdl = Geometry::RLM().get( dbkey );
+    if ( !newrdl )
+	return false;
+
+    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+    visrdltobeaddedid_ = -1;
+    rdltobeaddedid_ = newrdl->ID();
+    return true;
 }
 
 
-void uiODRandomLineParentTreeItem::genFromExisting()
-{ genRandLine( 0 ); }
+bool uiODRandomLineParentTreeItem::setRDLIDFromExisting()
+{ return setRDLID( 0 ); }
 
-void uiODRandomLineParentTreeItem::genFromContours()
-{ genRandLine( 1 ); }
+bool uiODRandomLineParentTreeItem::setRDLIDFromContours()
+{ return setRDLID( 1 ); }
 
-void uiODRandomLineParentTreeItem::genFromPolygon()
-{ genRandLine( 2 ); }
+bool uiODRandomLineParentTreeItem::setRDLIDFromPolygon()
+{ return setRDLID( 2 ); }
 
 
-void uiODRandomLineParentTreeItem::genFromWell()
+void uiODRandomLineParentTreeItem::setRDLFromWell()
 {
     applMgr()->wellServer()->selectWellCoordsForRdmLine();
     applMgr()->wellServer()->randLineDlgClosed.notify(
-	    mCB(this,uiODRandomLineParentTreeItem,loadRandLineFromWell) );
+	    mCB(this,uiODRandomLineParentTreeItem,loadRandLineFromWellCB) );
 }
 
 
-void uiODRandomLineParentTreeItem::genFromTable()
+bool uiODRandomLineParentTreeItem::setRDLFromTable()
 {
     uiDialog dlg( getUiParent(),
 		  uiDialog::Setup(tr("Random lines"),
@@ -275,26 +308,22 @@ void uiODRandomLineParentTreeItem::genFromTable()
     zrg.scale( mCast(float,SI().zDomain().userFactor()) );
     table->setZRange( zrg );
 
-    if ( dlg.go() )
-    {
-	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
-	addChild( itm, false );
-	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
-	if ( !rtd || !rtd->getRandomLine() ) return;
+    if ( !dlg.go() )
+	return false;
 
-	TypeSet<BinID> newbids;
-	table->getBinIDs( newbids );
+    Geometry::RandomLine* newrdl = RandomLineProbe::createNewDefaultRDL();
+    TypeSet<BinID> newbids;
+    table->getBinIDs( newbids );
 
-	NotifyStopper notifystopper( visBase::DM().selMan().updateselnotifier );
-	rtd->getRandomLine()->setNodePositions( newbids );
-	notifystopper.restore();
+    newrdl->setNodePositions( newbids );
+    table->getZRange( zrg );
+    zrg.scale( 1.f/SI().zDomain().userFactor() );
+    newrdl->setZRange( zrg );
 
-	table->getZRange( zrg );
-	zrg.scale( 1.f/SI().zDomain().userFactor() );
-	rtd->setDepthInterval( zrg );
-	itm->displayDefaultData();
-    }
+    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+    visrdltobeaddedid_ = -1;
+    rdltobeaddedid_ = newrdl->ID();
+    return true;
 }
 
 
@@ -312,18 +341,21 @@ void uiODRandomLineParentTreeItem::removeChild( uiTreeItem* item )
 }
 
 
-void uiODRandomLineParentTreeItem::genFromPicks()
+void uiODRandomLineParentTreeItem::setRDLFromPicks()
 {
     if ( rdlpolylinedlg_ )
 	return;
 
     ODMainWin()->applMgr().visServer()->setViewMode( false );
-    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
-    addChild( itm, false );
 
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-        ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
-
+    rdlprobetobeadded_ = new RandomLineProbe();
+    visSurvey::RandomTrackDisplay* rtd = new visSurvey::RandomTrackDisplay();
+    rtd->setProbe( rdlprobetobeadded_ );
+    ODMainWin()->applMgr().visServer()->addObject( rtd, sceneID(), true );
+    rtd->select();
+    typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+    visrdltobeaddedid_ = rtd->id();
+    rdltobeaddedid_ = -1;
     rdlpolylinedlg_ = new uiRandomLinePolyLineDlg( getUiParent(), rtd );
     rdlpolylinedlg_->windowClosed.notify(
 	mCB(this,uiODRandomLineParentTreeItem,rdlPolyLineDlgCloseCB) );
@@ -333,37 +365,38 @@ void uiODRandomLineParentTreeItem::genFromPicks()
 
 void uiODRandomLineParentTreeItem::rdlPolyLineDlgCloseCB( CallBacker* )
 {
-    const int id = rdlpolylinedlg_->getDisplayID();
-    mDynamicCastGet(uiODRandomLineTreeItem*,itm,findChild(id))
-    if ( !rdlpolylinedlg_->uiResult() )
-    {
-	removeChild( itm );
-	ODMainWin()->applMgr().visServer()->removeObject( id, sceneID() );
-    }
+    if ( rdlpolylinedlg_->uiResult() )
+	addChildProbe();
     else
-	itm->displayDefaultData();
+	ODMainWin()->applMgr().visServer()->removeObject(
+		visrdltobeaddedid_, sceneID() );
 
     rdlpolylinedlg_ = 0;
 }
 
 
-void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
+void uiODRandomLineParentTreeItem::loadRandLineFromWellCB( CallBacker* )
 {
     const DBKey dbkey =  applMgr()->wellServer()->getRandLineDBKey();
     if ( dbkey.isValid() && applMgr()->wellServer()->dispLineOnCreation() )
     {
-	PtrMan<IOObj> ioobj = DBM().get( dbkey );
-	load( *ioobj, (int)uiODRandomLineTreeItem::Empty );
+	Geometry::RandomLine* newrdl = Geometry::RLM().get( dbkey );
+	if ( !newrdl )
+	    return;
+
+	rdltobeaddedid_ = newrdl->ID();
+	typetobeadded_ = uiODSceneProbeParentTreeItem::Default;
+	visrdltobeaddedid_ = -1;
+	addChildProbe();
     }
 
     applMgr()->wellServer()->randLineDlgClosed.remove(
-	    mCB(this,uiODRandomLineParentTreeItem,loadRandLineFromWell) );
+	    mCB(this,uiODRandomLineParentTreeItem,loadRandLineFromWellCB) );
 }
 
 
-uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp, int rlid )
-    : type_(tp)
-    , rlid_(rlid)
+uiODRandomLineTreeItem::uiODRandomLineTreeItem( Probe& probe, int id )
+    : uiODSceneProbeTreeItem(probe)
     , editnodesmnuitem_(m3Dots(tr("Position")))
     , insertnodemnuitem_(tr("Insert Node"))
     , saveasmnuitem_(m3Dots(uiStrings::sSaveAs()))
@@ -382,17 +415,8 @@ bool uiODRandomLineTreeItem::init()
     if ( displayid_==-1 )
     {
 	rtd = new visSurvey::RandomTrackDisplay;
-	if ( type_ == RGBA )
-	{
-	    rtd->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
-	    rtd->addAttrib();
-	    rtd->addAttrib();
-	    rtd->addAttrib();
-	}
-
 	displayid_ = rtd->id();
-	if ( rlid_ >= 0 )
-	    setRandomLineID( rlid_ );
+	rtd->setProbe( getProbe() );
 	visserv_->addObject( rtd, sceneID(), true );
     }
     else
@@ -403,49 +427,14 @@ bool uiODRandomLineTreeItem::init()
 	rtd = disp;
     }
 
-    if ( rtd )
+    if ( !rtd )
     {
-	rtd->getMovementNotifier()->notify(
-		mCB(this,uiODRandomLineTreeItem,remove2DViewerCB) );
-	rtd->getManipulationNotifier()->notify(
-		mCB(this,uiODRandomLineTreeItem,remove2DViewerCB) );
-    }
-
-    return uiODDisplayTreeItem::init();
-}
-
-
-void uiODRandomLineTreeItem::setRandomLineID( int id )
-{
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-		    visserv_->getObject(displayid_));
-    if ( !rtd ) return;
-
-    rtd->setRandomLineID( id );
-}
-
-
-bool uiODRandomLineTreeItem::displayDefaultData()
-{
-    Attrib::DescID descid;
-    if ( !applMgr()->getDefaultDescID(descid) )
+	pErrMsg( "Huh ? No RandomTrackDisplay ?" );
 	return false;
-
-    const Attrib::DescSet* ads =
-	Attrib::DSHolder().getDescSet( false, true );
-    Attrib::SelSpec as( 0, descid, false, "" );
-    as.setRefFromID( *ads );
-    visserv_->setSelSpec( displayid_, 0, as );
-    const bool res = visserv_->calculateAttrib( displayid_, 0, false );
-    updateColumnText( uiODSceneMgr::cNameColumn() );
-    updateColumnText( uiODSceneMgr::cColorColumn() );
-    if ( !children_.isEmpty() )
-    {
-	children_[0]->select();
-	children_[0]->select(); // hack to update toolbar
     }
 
-    return res;
+    mAttachCB( *rtd->posChanged(), uiODRandomLineTreeItem::rdlGeomChanged );
+    return uiODSceneProbeTreeItem::init();
 }
 
 
@@ -643,11 +632,31 @@ void uiODRandomLineTreeItem::editNodes()
 
     visserv_->setSelObjectId( rtd->id() );
     rtd->annotateNextUpdateStage( true );
-    for ( int attrib=0; attrib<visserv_->getNrAttribs(rtd->id()); attrib++ )
-	visserv_->calculateAttrib( rtd->id(), attrib, false );
+    mDynamicCastGet(RandomLineProbe*,rdlprobe,getProbe());
+    rdlprobe->geomUpdated();
     rtd->annotateNextUpdateStage( false );
 
     ODMainWin()->sceneMgr().updateTrees();
+}
+
+
+void uiODRandomLineTreeItem::rdlGeomChanged( CallBacker* cb )
+{
+    Probe* probe = getProbe();
+    if ( !probe )
+    { pErrMsg( "Huh! Shared Object not of type Probe" ); return; }
+
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
+		    visserv_->getObject(displayid_))
+    if ( !rtd )
+	return;
+
+    rtd->annotateNextUpdateStage( true );
+    rtd->acceptManipulation();
+    rtd->annotateNextUpdateStage( true );
+    mDynamicCastGet(RandomLineProbe*,rdlprobe,getProbe());
+    rdlprobe->geomUpdated();
+    rtd->annotateNextUpdateStage( false );
 }
 
 
@@ -655,4 +664,28 @@ void uiODRandomLineTreeItem::remove2DViewerCB( CallBacker* )
 {
     //TODO remove with probe related functions
     //ODMainWin()->viewer2DMgr().remove2DViewer( displayid_, true );
+}
+
+
+uiODRandomLineAttribTreeItem::uiODRandomLineAttribTreeItem( const char* ptype )
+    : uiODAttribTreeItem(ptype)
+{
+}
+
+uiODDataTreeItem* uiODRandomLineAttribTreeItem::create( ProbeLayer& prblay )
+{
+    const char* parenttype = typeid(uiODRandomLineTreeItem).name();
+    uiODRandomLineAttribTreeItem* attribtreeitem =
+	new uiODRandomLineAttribTreeItem( parenttype );
+    attribtreeitem->setProbeLayer( &prblay );
+    return attribtreeitem;
+
+}
+
+
+void uiODRandomLineAttribTreeItem::initClass()
+{
+    uiODDataTreeItem::fac().addCreateFunc(
+	create, AttribProbeLayer::sFactoryKey(),RandomLineProbe::sFactoryKey());
+
 }

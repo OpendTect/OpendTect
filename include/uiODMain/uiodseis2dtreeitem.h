@@ -89,8 +89,6 @@ protected:
     void		objChangedCB(CallBacker*);
     void		updateDisplay();
 
-    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
-
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
 

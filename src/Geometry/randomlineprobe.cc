@@ -11,27 +11,56 @@ ___________________________________________________________________
 #include "randomlineprobe.h"
 #include "randomlinegeom.h"
 #include "keystrs.h"
+#include "survinfo.h"
+#include "uistrings.h"
 
 
-mDefineInstanceCreatedNotifierAccess( RDLProbe );
+static int newrdlid =0;
 
-RDLProbe::RDLProbe()
-    : Probe()
-    , rdlid_(-1)
+Geometry::RandomLine* RandomLineProbe::createNewDefaultRDL()
 {
+    newrdlid++;
+    uiString newrdlname =
+	uiStrings::phrJoinStrings( uiStrings::sRandomLine(),
+				   toUiString(newrdlid) );
+    Geometry::RandomLine* rl =
+	new Geometry::RandomLine( newrdlname.getFullString() );
+    const StepInterval<int> inlrange = SI().inlRange( true );
+    const StepInterval<int> crlrange = SI().crlRange( true );
+    const BinID start( inlrange.snappedCenter(), crlrange.start );
+    const BinID stop( start.inl(), crlrange.stop );
+    rl->addNode( start );
+    rl->addNode( stop );
+    rl->setZRange( SI().zRange(true) );
+    return rl;
+}
+
+
+mDefineInstanceCreatedNotifierAccess( RandomLineProbe );
+
+RandomLineProbe::RandomLineProbe( int rdlid )
+    : Probe()
+    , rdlid_(rdlid)
+{
+    if ( rdlid_<0 )
+    {
+	Geometry::RandomLine* newrl = createNewDefaultRDL();
+	rdlid_ = newrl->ID();
+    }
+
     updateName();
     mTriggerInstanceCreatedNotifier();
 }
 
-const char* RDLProbe::sFactoryKey()
+const char* RandomLineProbe::sFactoryKey()
 { return IOPar::compKey(sKey::Random(),sKey::Line()); }
 
 
-const char* RDLProbe::sRandomLineID()
+const char* RandomLineProbe::sRandomLineID()
 { return "RandomLineID"; }
 
 
-BufferString RDLProbe::createName() const
+BufferString RandomLineProbe::createName() const
 {
     BufferString rdlname;
     const Geometry::RandomLine* rdl = Geometry::RLM().get( rdlid_ );
@@ -41,7 +70,18 @@ BufferString RDLProbe::createName() const
 }
 
 
-void RDLProbe::setRDLID( int rdlid )
+void RandomLineProbe::geomUpdated()
+{
+    mLock4Write();
+
+    for ( int idx=0; idx<layers_.size(); idx++ )
+	layers_[idx]->invalidateData();
+
+    mSendChgNotif( cPositionChange(), cEntireObjectChangeID() );
+}
+
+
+void RandomLineProbe::setRandomLineID( int rdlid )
 {
     mLock4Read();
 
@@ -61,13 +101,13 @@ void RDLProbe::setRDLID( int rdlid )
 }
 
 
-void RDLProbe::fillPar( IOPar& par ) const
+void RandomLineProbe::fillPar( IOPar& par ) const
 {
     Probe::fillPar( par );
     par.set( sRandomLineID(), rdlid_ );
 }
 
-bool RDLProbe::usePar( const IOPar& par )
+bool RandomLineProbe::usePar( const IOPar& par )
 {
     if ( !Probe::usePar(par) )
 	return false;
@@ -76,17 +116,17 @@ bool RDLProbe::usePar( const IOPar& par )
 }
 
 
-mImplMonitorableAssignment( RDLProbe, Probe )
+mImplMonitorableAssignment( RandomLineProbe, Probe )
 
-void RDLProbe::copyClassData( const RDLProbe& oth )
+void RandomLineProbe::copyClassData( const RandomLineProbe& oth )
 {
     rdlid_ = oth.randomeLineID();
 }
 
 
-Probe* RDLProbe::createFrom( const IOPar& par )
+Probe* RandomLineProbe::createFrom( const IOPar& par )
 {
-    RDLProbe* probe = new RDLProbe();
+    RandomLineProbe* probe = new RandomLineProbe();
     if ( !probe->usePar(par) )
     {
 	delete probe;
@@ -97,7 +137,7 @@ Probe* RDLProbe::createFrom( const IOPar& par )
 }
 
 
-void RDLProbe::initClass()
+void RandomLineProbe::initClass()
 {
     ProbeFac().addCreateFunc( createFrom, sFactoryKey() );
 }

@@ -561,18 +561,6 @@ void uiOD2DLineTreeItem::objChangedCB( CallBacker* )
 }
 
 
-uiODDataTreeItem* uiOD2DLineTreeItem::createAttribItem(
-					const Attrib::SelSpec* as ) const
-{
-    const char* partype = typeid(*this).name();
-    uiODDataTreeItem* res = as
-	? uiOD2DLineAttribTreeItem::factory().create(0,*as,partype,false) : 0;
-
-    if ( !res ) res = new uiOD2DLineAttribTreeItem( partype );
-    return res;
-}
-
-
 void uiOD2DLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );

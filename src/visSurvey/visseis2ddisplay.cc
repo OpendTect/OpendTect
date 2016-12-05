@@ -158,7 +158,7 @@ void Seis2DDisplay::enableAttrib( int attrib, bool yn )
 
 void Seis2DDisplay::setProbe( Probe* probe )
 {
-    if ( !probe_ || probe_.ptr()==probe )
+    if ( probe_.ptr()==probe )
 	return;
 
     probe_ = probe;

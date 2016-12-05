@@ -141,11 +141,14 @@ void uiODTreeItem::handleStandardMenuCB( CallBacker* cb )
 }
 
 
-void uiODTreeItem::removeAllItems()
+void uiODTreeItem::removeAllItems( bool showmsg )
 {
-    const uiString msg = tr("All %1 items will be removed from tree.\n"
-			    "Do you want to continue?").arg(name());
-    if ( !uiMSG().askRemove(msg) ) return;
+    if ( showmsg )
+    {
+	const uiString msg = tr("All %1 items will be removed from tree.\n"
+				"Do you want to continue?").arg(name());
+	if ( !uiMSG().askRemove(msg) ) return;
+    }
 
     while ( children_.size() )
     {
@@ -153,7 +156,7 @@ void uiODTreeItem::removeAllItems()
 	children_[0]->prepareForShutdown();
 	mDynamicCastGet(uiODTreeItem*,odtreeitem,children_[0]);
 	if ( odtreeitem && odtreeitem->nrChildren() )
-	    odtreeitem->removeAllItems();
+	    odtreeitem->removeAllItems( false );
 	removeChild( children_[0] );
     }
 }

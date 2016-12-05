@@ -11,13 +11,16 @@ ___________________________________________________________________
 -*/
 
 #include "geometrymod.h"
+#include "uistring.h"
 #include "probe.h"
 
+namespace Geometry { class RandomLine; }
 
-mExpClass(Geometry) RDLProbe : public Probe
+mExpClass(Geometry) RandomLineProbe : public Probe
 {
 public:
-				RDLProbe();
+				RandomLineProbe( int rdmlineid =-1);
+    static Geometry::RandomLine* createNewDefaultRDL();
     static const char*		sFactoryKey();
     virtual const char*		type() const		{ return sFactoryKey();}
     static const char*		sRandomLineID();
@@ -25,9 +28,10 @@ public:
 
     static void			initClass();
     mImplSimpleMonitoredGet(randomeLineID,int,rdlid_)
-    void			setRDLID(int rdlid);
-    mDeclInstanceCreatedNotifierAccess( RDLProbe );
-    mDeclAbstractMonitorableAssignment( RDLProbe );
+    void			setRandomLineID(int rdlid);
+    void			geomUpdated();
+    mDeclInstanceCreatedNotifierAccess( RandomLineProbe );
+    mDeclAbstractMonitorableAssignment( RandomLineProbe );
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 

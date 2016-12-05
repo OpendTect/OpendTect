@@ -66,10 +66,10 @@ public:
     const Probe*	getProbe() const;
     Probe*		getProbe();
     void		handleAddAttrib();
-    virtual uiString	getDisplayName() const;
+    virtual uiString	createDisplayName() const;
     uiODDataTreeItem*	createProbeLayerItem(ProbeLayer&) const;
 protected:
 			uiODSceneProbeTreeItem(Probe&);
     virtual bool	init();
-    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
+    virtual uiODDataTreeItem* createAttribItem(const Attrib::SelSpec*) const;
 };

@@ -74,6 +74,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , moving_(this)
     , movefinished_(this)
     , datachanged_(this)
+    , poschanged_(this)
     , orientation_( OD::InlineSlice )
     , csfromsession_( false )
     , eventcatcher_( 0 )
@@ -442,6 +443,7 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
 	resolution_ = 0;
 	interactivetexturedisplay_ = true;
 	updateSel();
+	poschanged_.trigger();
     }
 }
 
@@ -465,6 +467,7 @@ void PlaneDataDisplay::draggerFinish( CallBacker* )
 
     interactivetexturedisplay_ = false;
     updateSel();
+    poschanged_.trigger();
     forcemanipupdate_ = false;
 
     PlaneDataMoveUndoEvent* undoevent =
@@ -483,6 +486,7 @@ bool PlaneDataDisplay::updatePlanePos( const TrcKeyZSampling& tkz )
     setDraggerPos( tkz );
     updateSel();
     moving_.trigger();
+    poschanged_.trigger();
     return true;
 }
 
