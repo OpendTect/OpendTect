@@ -24,6 +24,8 @@ namespace FlatView
 {
 
 static HiddenParam<Sower,Notifier<Sower>* > sowing_(0);
+static HiddenParam<AuxDataEditor,Notifier<AuxDataEditor>* >releaseselection(0); 
+
 AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     : viewer_( v )
     , mousehandler_( meh )
@@ -43,6 +45,7 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , menuhandler_( 0 )
     , sower_( new Sower(*this,meh) )
 {
+    releaseselection.setParam( this, new Notifier<AuxDataEditor>(this) );
     meh.buttonPressed.notify( mCB(this,AuxDataEditor,mousePressCB) );
     meh.buttonReleased.notify( mCB(this,AuxDataEditor,mouseReleaseCB) );
     meh.movement.notify( mCB(this,AuxDataEditor,mouseMoveCB) );
@@ -67,6 +70,10 @@ AuxDataEditor::~AuxDataEditor()
     limitMovement( 0 );
 
     setMenuHandler( 0 );
+
+    delete releaseselection.getParam(this);
+    releaseselection.removeParam( this );
+
 }
 
 
@@ -81,6 +88,20 @@ bool AuxDataEditor::removeSelectionPolygon()
     deepErase( polygonsel_ );
 
     return true;
+}
+
+
+void AuxDataEditor::setSelActive(bool yn) 
+{ 
+    isselactive_ = yn; 
+    if ( !yn ) 
+	releaseselection.getParam(this)->trigger();
+}
+
+
+Notifier<AuxDataEditor>& AuxDataEditor::releaseSelectionNotifier() const
+{
+    return *releaseselection.getParam(this);
 }
 
 

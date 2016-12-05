@@ -70,6 +70,13 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
 	HorizonFlatViewEditor2D::sowingFinishedCB );
     mAttachCB( editor_->sower().sowingNotifier(),
 	HorizonFlatViewEditor2D::sowingModeCB );
+    mAttachCB( editor_->releaseSelectionNotifier(),
+	HorizonFlatViewEditor2D::releasePolygonSelectionCB );
+
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( emobj )
+	mAttachCB(emobj->change,HorizonFlatViewEditor2D::preferColorChangedCB);
+
     mAttachCB( editor_->movementFinished, 
 	HorizonFlatViewEditor2D::polygonFinishedCB );
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
@@ -113,6 +120,22 @@ HorizonFlatViewEditor2D::~HorizonFlatViewEditor2D()
     pointselections_.removeParam( this );
     sowingmode_.removeParam( this );
 
+}
+
+
+void HorizonFlatViewEditor2D::releasePolygonSelectionCB( CallBacker* )
+{
+    if ( horpainter_ )
+	horpainter_->removeSelections();
+}
+
+
+void HorizonFlatViewEditor2D::preferColorChangedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
+    if ( horpainter_ && 
+	cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+	horpainter_->updatePreferColors();
 }
 
 
@@ -956,7 +979,11 @@ void HorizonFlatViewEditor2D::polygonFinishedCB( CallBacker* )
     TypeSet<int> selectedidxs;
     editor_->getPointSelections( selectedids, selectedidxs );
 
-    if ( !selectedids.size() ) return;
+    if ( !selectedids.size() && horpainter_ ) 
+    {
+	horpainter_->removeSelections();
+	return;
+    }
 
     RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
     if ( !emobj ) return;

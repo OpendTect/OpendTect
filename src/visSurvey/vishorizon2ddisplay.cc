@@ -523,7 +523,8 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
     if ( cb )
     {
        mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
-       emchangedata_.getParam(this)->addCallBackData(
+       if ( emchangedata_.getParam(this) )
+	    emchangedata_.getParam(this)->addCallBackData(
 	   new EM::EMObjectCallbackData(cbdata) );
     }
 
@@ -542,8 +543,14 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
       EMObjectDisplay::handleEmChange( *cbdata );
       if ( cbdata->event==EM::EMObjectCallbackData::PrefColorChange )
       {
-          getMaterial()->setColor( emobject_->preferredColor() );
+	  getMaterial()->setColor( emobject_->preferredColor() );
           setLineStyle( emobject_->preferredLineStyle() );
+
+	  mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
+	  visBase::PointSet* selections = selections_.getParam(this);
+
+	  if ( hor2d && selections && selections->getMaterial() )
+	      selections->getMaterial()->setColor( hor2d->getSelectionColor() );
       }
     }
 
@@ -948,6 +955,8 @@ void Horizon2DDisplay::updateSelectionsHor2D()
 	    pidxs += pidx;
 	}
     }
+
+    if ( pidxs.isEmpty() ) return;
 
     Geometry::PrimitiveSet* pointsetps =
 		Geometry::IndexedPrimitiveSet::create( true );

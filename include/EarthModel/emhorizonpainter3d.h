@@ -48,6 +48,7 @@ public:
     void		displayIntersection(bool yn) { intersection_ = yn; }
     void		displaySelections(const TypeSet<EM::PosID>&);
     void		removeSelections();
+    void		updatePreferColors();
 
     	mStruct(EarthModel) Marker3D
 	{
@@ -85,6 +86,8 @@ protected:
     void		changePolyLineColor();
     void		changePolyLinePosition( const EM::PosID& pid );
     Marker3D*		create3DMarker(const EM::SectionID&);
+    void		updateSelectionColor();
+
 
     EM::ObjectID	id_;
     TrcKeyZSampling	tkzs_;

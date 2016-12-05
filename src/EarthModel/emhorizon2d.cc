@@ -716,6 +716,9 @@ void  Horizon2D::setSelectionColor( const Color& clr )
 {
     delete selectioncolor_.getParam(this);
     selectioncolor_.setParam( this, new Color(clr) );
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::PrefColorChange;
+    change.trigger(cbdata);
 }
 
 

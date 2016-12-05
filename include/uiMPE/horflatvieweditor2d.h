@@ -90,6 +90,8 @@ protected:
     void		sowingFinishedCB(CallBacker*);
     void		keyPressedCB(CallBacker*);
     void		polygonFinishedCB(CallBacker*);
+    void		releasePolygonSelectionCB(CallBacker*);
+    void		preferColorChangedCB(CallBacker*);
     void		undo();
     void		redo();
     EMSeedPicker*	getEMSeedPicker() const;

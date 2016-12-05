@@ -63,6 +63,7 @@ public:
     void		getDisplayedHor(ObjectSet<Marker2D>&);
     void		displaySelections(const TypeSet<EM::PosID>&);
     void		removeSelections();
+    void		updatePreferColors();
 
 
     Notifier<HorizonPainter2D>	abouttorepaint_;
@@ -102,6 +103,7 @@ protected:
 
 private:
     Marker2D*		create2DMarker(const EM::SectionID&);
+    void		updateSelectionColor();
 
 };
 

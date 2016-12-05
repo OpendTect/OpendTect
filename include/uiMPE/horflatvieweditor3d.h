@@ -101,6 +101,8 @@ protected:
     void			setupPatchDisplay();
     void			updatePatchDisplay();
     void			sowingModeCB(CallBacker*);
+    void			releasePolygonSelectionCB(CallBacker*);
+    void			preferColorChangedCB(CallBacker*);
 
     EM::ObjectID		emid_;
     EM::HorizonPainter3D*	horpainter_;

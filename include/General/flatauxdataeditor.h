@@ -155,7 +155,7 @@ public:
     int				getSelPtDataID() const;
     const TypeSet<int>&		getSelPtIdx() const;
     const Point&		getSelPtPos() const;
-			
+
     Notifier<AuxDataEditor>	movementStarted;
     Notifier<AuxDataEditor>	movementFinished;
     				/*!
@@ -185,7 +185,7 @@ public:
 
     Sower&		sower()		{ return *sower_; }
 
-    void			setSelActive( bool yn ) { isselactive_ = yn; }
+    void			setSelActive( bool yn );
     bool			isSelActive() const	{ return isselactive_; }
     const TypeSet<int>&		getIds() const;
     const ObjectSet<AuxData>&	getAuxData() const;
@@ -199,6 +199,7 @@ public:
 
     const Point*	markerPosAt(const Geom::Point2D<int>& mousepos) const;
     void		setSelectionPolygonVisible(bool);
+   Notifier<AuxDataEditor>&	releaseSelectionNotifier() const;
 
 protected:
     void		getPointSelections( const ObjectSet<AuxData>& polygon,
