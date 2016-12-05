@@ -471,4 +471,23 @@ void HorizonPainter2D::removeSelections()
     }
 }
 
+
+void HorizonPainter2D::updateSelectionColor()
+{
+    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
+    if ( !hor2d ) return;
+
+    if ( !selectionpoints_ )
+	return;
+    TypeSet<OD::MarkerStyle2D>& markerstyles = 
+	selectionpoints_->marker_->markerstyles_;
+
+    for ( int idx=0;idx<markerstyles.size();idx++ )
+	markerstyles[idx].color_ = hor2d->getSelectionColor();
+
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
+}
+
+
 } //namespace EM

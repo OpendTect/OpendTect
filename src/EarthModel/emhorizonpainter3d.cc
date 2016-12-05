@@ -563,4 +563,20 @@ void HorizonPainter3D::removeSelections()
 }
 
 
+void HorizonPainter3D::updateSelectionColor()
+{
+    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
+    if ( !hor3d ) return;
+
+    if ( !selectionpoints_ )
+	return;
+    TypeSet<OD::MarkerStyle2D>& markerstyles = 
+	selectionpoints_->marker_->markerstyles_;
+
+    for ( int idx=0; idx<markerstyles.size(); idx++ )
+	markerstyles[idx].color_ = hor3d->getSelectionColor();
+
+    viewer_.handleChange( FlatView::Viewer::Auxdata );
+}
 } // namespace EM

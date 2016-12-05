@@ -40,6 +40,7 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , movementlimit_( 0 )
     , menuhandler_( 0 )
     , sower_( new Sower(*this,meh) )
+    , releaseSelection( this )
 {
     meh.buttonPressed.notify( mCB(this,AuxDataEditor,mousePressCB) );
     meh.buttonReleased.notify( mCB(this,AuxDataEditor,mouseReleaseCB) );
@@ -79,6 +80,14 @@ bool AuxDataEditor::removeSelectionPolygon()
     deepErase( polygonsel_ );
 
     return true;
+}
+
+
+void AuxDataEditor::setSelActive(bool yn) 
+{ 
+    isselactive_ = yn; 
+    if ( !yn ) 
+	releaseSelection.trigger();
 }
 
 

@@ -59,6 +59,7 @@ public:
     void		getDisplayedHor(ObjectSet<Marker2D>&);
     void		displaySelections(const TypeSet<EM::PosID>&);
     void		removeSelections();
+    void		updateSelectionColor();
 
     Notifier<HorizonPainter2D>	abouttorepaint_;
     Notifier<HorizonPainter2D>	repaintdone_;

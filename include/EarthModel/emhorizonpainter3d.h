@@ -45,6 +45,7 @@ public:
     void		setUpdateTrcKeySampling(const TrcKeySampling&);
     void		displaySelections(const TypeSet<EM::PosID>&);
     void		removeSelections();
+    void		updateSelectionColor();
 
     	mStruct(EarthModel) Marker3D
 	{

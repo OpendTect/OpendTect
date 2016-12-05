@@ -26,7 +26,7 @@ class MouseEventHandler;
 
 namespace MPE
 {
-
+   
 class EMTracker;
 class EMSeedPicker;
 
@@ -79,6 +79,8 @@ protected:
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
 	    			  const MouseEvent&);
     void		sowingModeCB(CallBacker*);
+    void		releasePolygonSelectionCB(CallBacker*);
+    void		selectionColorChangedCB(CallBacker*);
     void		sowingFinishedCB(CallBacker*);
     void		keyPressedCB(CallBacker*);
     void		polygonFinishedCB(CallBacker*);

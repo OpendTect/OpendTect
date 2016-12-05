@@ -66,6 +66,14 @@ HorizonFlatViewEditor2D::HorizonFlatViewEditor2D( FlatView::AuxDataEditor* ed,
 	HorizonFlatViewEditor2D::sowingFinishedCB );
     mAttachCB( editor_->sower().sowing,
 	HorizonFlatViewEditor2D::sowingModeCB );
+    mAttachCB( editor_->releaseSelection,
+	HorizonFlatViewEditor2D::releasePolygonSelectionCB );
+
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    if ( emobj )
+	mAttachCB( emobj->change,
+	HorizonFlatViewEditor2D::selectionColorChangedCB );
+
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
     mAttachCB( editor_->movementFinished,
 	HorizonFlatViewEditor2D::polygonFinishedCB );
@@ -103,6 +111,22 @@ HorizonFlatViewEditor2D::~HorizonFlatViewEditor2D()
 	patchdata_ = 0;
     }
 
+}
+
+
+void HorizonFlatViewEditor2D::releasePolygonSelectionCB( CallBacker* )
+{
+    if ( horpainter_ )
+	horpainter_->removeSelections();
+}
+
+
+void HorizonFlatViewEditor2D::selectionColorChangedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
+    if ( horpainter_ && 
+	cbdata.event==EM::EMObjectCallbackData::SelectionColorChnage )
+	horpainter_->updateSelectionColor();
 }
 
 
@@ -936,6 +960,12 @@ void HorizonFlatViewEditor2D::polygonFinishedCB( CallBacker* )
     TypeSet<int> selectedids;
     TypeSet<int> selectedidxs;
     editor_->getPointSelections( selectedids, selectedidxs );
+
+    if ( !selectedids.size() && horpainter_ ) 
+    {
+	horpainter_->removeSelections();
+	return;
+    }
 
     if ( !selectedids.size() ) return;
 

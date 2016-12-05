@@ -58,7 +58,7 @@ public:
 			{ trackersetupactive_ = yn; }
     static bool		selectSeedData(const FlatView::AuxDataEditor* editor, 
 							      bool& pickinvd);
-
+  
     Notifier<HorizonFlatViewEditor2D> updseedpkingstatus_;
 
 protected:
@@ -88,6 +88,8 @@ protected:
     void		sowingFinishedCB(CallBacker*);
     void		keyPressedCB(CallBacker*);
     void		polygonFinishedCB(CallBacker*);
+    void		releasePolygonSelectionCB(CallBacker*);
+    void		selectionColorChangedCB(CallBacker*);
     void		undo();
     void		redo();
     EMSeedPicker*	getEMSeedPicker() const;

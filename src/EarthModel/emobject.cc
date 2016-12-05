@@ -35,6 +35,8 @@ const char* EMObject::posattrsectionstr()   { return " Section"; }
 const char* EMObject::posattrposidstr()	    { return " SubID"; }
 const char* EMObject::nrposattrstr()	    { return "Nr Pos Attribs"; }
 
+Color EMObject::sDefaultSelectionColor() { return Color::Orange(); }
+
 
 EMObject::EMObject( EMManager& emm )
     : manager_( emm )
@@ -49,6 +51,7 @@ EMObject::EMObject( EMManager& emm )
     , preferredlinestyle_( *new OD::LineStyle(OD::LineStyle::Solid,3) )
     , preferredmarkerstyle_(
 	*new OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,2,Color::White()))
+    , selectioncolor_( sDefaultSelectionColor() )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_ = oid++;
@@ -68,6 +71,21 @@ EMObject::~EMObject()
 
     change.remove( mCB(this,EMObject,posIDChangeCB) );
     id_ = -2;	//To check easier if it has been deleted
+}
+
+
+void EMObject::setSelectionColor(const Color& col)
+{
+    selectioncolor_ = col;
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::SelectionColorChnage;
+    change.trigger(cbdata);
+}
+
+
+const Color& EMObject::getSelectionColor() const
+{
+    return selectioncolor_;
 }
 
 

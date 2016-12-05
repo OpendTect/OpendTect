@@ -61,7 +61,8 @@ public:
 
     enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
 		 AttribChange, SectionChange, NameChange, SelectionChange,
-		 LockChange, BurstAlert, LockColorChange } event;
+		 LockChange, BurstAlert, LockColorChange, SelectionColorChnage,
+		 ParentColorChange} event;
 
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange
@@ -240,6 +241,9 @@ public:
     uiString			errMsg() const;
     void			setErrMsg(const uiString& m) { errmsg_ = m; }
 
+    void			setSelectionColor(const Color&);
+    const Color&		getSelectionColor() const;
+
     virtual bool		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
     void			saveDisplayPars() const;
@@ -272,6 +276,7 @@ protected:
     OD::MarkerStyle3D&		preferredmarkerstyle_;
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;
+    Color			selectioncolor_;
 
     TrcKeyZSampling		removebypolyposbox_;
 
@@ -293,6 +298,7 @@ public:
 
     mDeprecated const DBKey&	multiID() const		{ return storageid_; }
     mDeprecated void		setMultiID( const DBKey& k ) { setDBKey(k); }
+    static Color		sDefaultSelectionColor();
 
 };
 
