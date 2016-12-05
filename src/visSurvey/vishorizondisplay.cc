@@ -1301,15 +1301,24 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
     {
 	nontexturecol_ = emobject_->preferredColor();
 	setLineStyle( emobject_->preferredLineStyle() );
-	mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
+    }
+    else if ( cbdata.event==EM::EMObjectCallbackData::SelectionColorChnage )
+    {
+	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ )
+	if ( hor3d )
+	{
+	    if ( selections_ && selections_->getMaterial() )
+		selections_->getMaterial()->setColor(
+		hor3d->getSelectionColor() );
+	}
+    }
+    else if ( cbdata.event==EM::EMObjectCallbackData::ParentColorChange )
+    {
+	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ )
 	if ( hor3d )
 	{
 	    if ( parentline_ && parentline_->getMaterial() )
 		parentline_->getMaterial()->setColor( hor3d->getParentColor() );
-	    if ( selections_ && selections_->getMaterial() )
-		selections_->getMaterial()->setColor(
-		hor3d->getSelectionColor() );
-	    updateLockedPointsColor();
 	}
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::SelectionChange )
@@ -2273,9 +2282,11 @@ void HorizonDisplay::calculateLockedPoints()
 
 bool HorizonDisplay::lockedShown() const
 {
-    const bool lockedshow = lockedpts_ ? lockedpts_->isOn() : false;
+    const bool lockedshow = lockedpts_ ? 
+	lockedpts_->size()>0 && lockedpts_->isOn() : false;
     const bool sectionlockedshow =
-	sectionlockedpts_ ? sectionlockedpts_->isOn() : false;
+	sectionlockedpts_ ? 
+	sectionlockedpts_->size()>0 && sectionlockedpts_->isOn() : false;
     return lockedshow || sectionlockedshow;
 }
 
@@ -2311,6 +2322,9 @@ void HorizonDisplay::updateSelections()
 	const int pidx = selections_->addPoint( pos );
 	pidxs += pidx;
     }
+
+    if ( pidxs.size()<=0 )
+	return;
 
     Geometry::PrimitiveSet* pointsetps =
 		Geometry::IndexedPrimitiveSet::create( true );
