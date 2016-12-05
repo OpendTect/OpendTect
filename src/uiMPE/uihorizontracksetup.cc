@@ -201,8 +201,9 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 
     seedtypefld_->setSensitive( doauto );
     seedcolselfld_->setSensitive( doauto );
-    seedsliderfld_->setSensitive( doauto );
-    parentcolfld_->setSensitive( doauto );
+
+    parentcolfld_->setSensitive( !is2d_ );
+    lockcolfld_->setSensitive( !is2d_ );
 
     toolbar_->setSensitive( startbutid_, invol && stopped );
     toolbar_->setSensitive( stopbutid_, invol && !stopped );
@@ -474,20 +475,32 @@ void uiHorizonSetupGroup::specColorChangeCB( CallBacker* cb )
     if ( !sectiontracker_ ) return;
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,&sectiontracker_->emObject())
-    if ( !hor3d ) return;
+    mDynamicCastGet(EM::Horizon2D*,hor2d,&sectiontracker_->emObject())
 
-    if ( cb == parentcolfld_ )
+    if ( !hor3d && !hor2d ) return;
+
+    if ( cb == parentcolfld_ && hor3d )
 	hor3d->setParentColor( parentcolfld_->color() );
     else if ( cb==selectioncolfld_ )
-	hor3d->setSelectionColor( selectioncolfld_->color() );
-    else if ( cb==lockcolfld_ )
+    {
+	if ( hor3d )
+	    hor3d->setSelectionColor( selectioncolfld_->color() );
+	if ( hor2d )
+	    hor2d->setSelectionColor( selectioncolfld_->color() );
+    }
+    else if ( cb==lockcolfld_ && hor3d )
 	hor3d->setLockColor( lockcolfld_->color() );
     else if ( cb==0 )
     {
 	// set initial color to horizon
-	hor3d->setParentColor( parentcolfld_->color() );
-	hor3d->setSelectionColor( selectioncolfld_->color() );
-	hor3d->setLockColor( lockcolfld_->color() );
+	if ( hor3d )
+	{
+	    hor3d->setParentColor( parentcolfld_->color() );
+	    hor3d->setSelectionColor( selectioncolfld_->color() );
+	    hor3d->setLockColor( lockcolfld_->color() );
+	}
+	if ( hor2d )
+	    hor2d->setSelectionColor( selectioncolfld_->color() );
     }
 }
 
