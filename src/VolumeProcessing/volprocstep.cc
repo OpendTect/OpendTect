@@ -521,7 +521,7 @@ const PosInfo::CubeData* VolProc::Step::getPosSamplingOfNonNullTraces(
 
     NullTracesArrayScanner scanner( input->data( compidx ),
 				    input->sampling().hsamp_,
-				    input->getTrcsSampling() );
+				    input->trcsSampling() );
     return scanner.execute() && scanner.getResult()
 		? new PosInfo::SortedCubeData( *scanner.getResult() ) : 0;
 }

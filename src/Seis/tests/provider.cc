@@ -64,7 +64,6 @@ int testMain( int argc, char** argv )
     uirv = prov->getNext( trc );
     prTrc( trc, uirv );
 
-    /*
     Seis::PreLoader pl( dbky );
     TextTaskRunner taskrunner( od_cout() );
     pl.setTaskRunner( taskrunner );
@@ -82,7 +81,6 @@ int testMain( int argc, char** argv )
     prTrc( trc, uirv );
 
     pl.unLoad();
-    */
     delete prov;
 
     return ExitProgram( 0 );
