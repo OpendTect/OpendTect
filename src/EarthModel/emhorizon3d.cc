@@ -44,7 +44,6 @@ ________________________________________________________________________
 
 namespace EM {
 
-    Color Horizon3D::sDefaultSelectionColor() { return Color::Orange(); }
     Color Horizon3D::sDefaultLockColor() { return Color::Blue(); }
 
 class AuxDataImporter : public Executor
@@ -243,7 +242,7 @@ int nextStep()
 	}
 
 	bvs.get( pos_, bid );
-	if ( !hs_.includes(bid) || !horarrays_.validIdx(sectionidx_) )
+	if ( !hs_.includes(bid,true) || !horarrays_.validIdx(sectionidx_) )
 	    continue;
 
 	const int inlidx = hs_.inlIdx( bid.inl() );
@@ -298,7 +297,6 @@ Horizon3D::Horizon3D( EMManager& man )
     , parents_(0)
     , children_(0)
     , parentcolor_(Color::Yellow())
-    , selectioncolor_(sDefaultSelectionColor())
     , lockcolor_(Color::Blue())
     , survgeomid_( Survey::GM().default3DSurvID() )
     , haslockednodes_( false )
@@ -1006,7 +1004,7 @@ void Horizon3D::setParentColor( const Color& col )
 {
     parentcolor_ = col;
     EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::PrefColorChange;
+    cbdata.event = EMObjectCallbackData::ParentColorChange;
     change.trigger( cbdata );
 }
 
@@ -1014,18 +1012,6 @@ void Horizon3D::setParentColor( const Color& col )
 const Color& Horizon3D::getParentColor() const
 { return parentcolor_; }
 
-
-void Horizon3D::setSelectionColor( const Color& col )
-{
-    selectioncolor_ = col;
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::PrefColorChange;
-    change.trigger( cbdata );
-}
-
-
-const Color& Horizon3D::getSelectionColor() const
-{ return selectioncolor_; }
 
 void Horizon3D::setLockColor( const Color& col )
 {

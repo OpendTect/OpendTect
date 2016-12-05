@@ -55,8 +55,8 @@ public:
     bool		includes(const TrcKeySampling&,
 				 bool ignoresteps=false) const;
     bool		includes(const TrcKey&) const;
-    bool		lineOK(Pos::LineID) const;
-    bool		trcOK(Pos::TraceID) const;
+    bool		lineOK(Pos::LineID,bool ignoresteps=false) const;
+    bool		trcOK(Pos::TraceID,bool ignoresteps=false) const;
 
     void		include(const TrcKey&);
     void		includeLine(Pos::LineID);
@@ -142,8 +142,9 @@ public:
 			{ includeLine(bid.inl()); includeTrc(bid.crl()); }
     void		includeInl( int inl ) { includeLine(inl); }
     void		includeCrl( int crl ) { includeTrc(crl); }
-    inline bool		includes( const BinID& bid ) const
-			{ return lineOK(bid.inl()) && trcOK(bid.crl()); }
+    inline bool		includes(const BinID& bid,bool ignoresteps=false) const
+			{ return lineOK(bid.inl(),ignoresteps) && 
+				 trcOK(bid.crl(),ignoresteps); }
     inline bool		inlOK( int inl ) const { return lineOK(inl); }
     inline bool		crlOK( int crl ) const { return trcOK(crl); }
 
