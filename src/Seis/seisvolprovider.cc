@@ -40,6 +40,19 @@ od_int64 Seis::Provider3D::getTotalNrInInput() const
 namespace Seis
 {
 
+/*\brief Gets required traces from either DataPack or Translator
+
+  Both DataPack and Translator have a natural 'next' postion to go to. What we
+  need to tackle is when the seclection requires reading from both DataPack
+  and Translator. The strategy is to set up a required area, the boundary
+  of the selection. The Translator has its own 'current' position, but we
+  have our own 'next BinID' anyway.
+
+  There is no glue-ing going on in the Z direction. If the DataPack cannot
+  satisfy the Z range requirements, then it will not be used.
+
+  */
+
 class VolFetcher
 { mODTextTranslationClass(Seis::VolFetcher);
 public:
@@ -58,8 +71,12 @@ VolFetcher( VolProvider& p )
 }
 
     void		reset();
+    void		getReqCS();
     void		findDataPack();
     void		openCube();
+    bool		isSelectedBinID(const BinID&) const;
+    bool		moveNextBinID();
+    bool		advanceTrlToNextSelected(SeisTrcInfo&);
     Conn*		getConn();
     void		getNextTranslator();
     void		getTranslator(Conn*);
@@ -73,7 +90,8 @@ VolFetcher( VolProvider& p )
     IOObj*		ioobj_;
 
     RefMan<RegularSeisDataPack> dp_;
-    BinID		curbid_;
+    TrcKeyZSampling	reqcs_;
+    BinID		nextbid_;
 
     SeisTrcTranslator*	trl_;
 
@@ -90,11 +108,65 @@ void Seis::VolFetcher::reset()
     delete trl_; trl_ = 0;
     delete ioobj_; ioobj_ = 0;
     dp_ = 0;
-    curbid_.inl() = mUdf(int);
+    nextbid_.inl() = mUdf(int);
 
     findDataPack();
-    if ( !dp_ )
+    getReqCS();
+    if ( !dp_ || !dp_->sampling().includes(reqcs_) )
 	openCube();
+
+    nextbid_ = reqcs_.hsamp_.start_ - reqcs_.hsamp_.step_;
+    if ( !moveNextBinID() )
+	uirv_.set( tr("No traces available for current selection") );
+}
+
+
+bool Seis::VolFetcher::isSelectedBinID( const BinID& bid ) const
+{
+    return !prov_.seldata_ || prov_.seldata_->isOK(bid);
+}
+
+
+bool Seis::VolFetcher::moveNextBinID()
+{
+    while ( true )
+    {
+	if ( !reqcs_.hsamp_.toNext(nextbid_) )
+	    return false;
+	if ( isSelectedBinID(nextbid_) )
+	    return true;
+    }
+}
+
+
+
+void Seis::VolFetcher::getReqCS()
+{
+    if ( dp_ )
+	reqcs_ = dp_->sampling();
+    else
+    {
+	SeisIOObjInfo objinf( prov_.dbky_ );
+	if ( !objinf.getRanges(reqcs_) )
+	    reqcs_ = TrcKeyZSampling( true );
+    }
+
+    if ( prov_.seldata_ && !prov_.seldata_->isAll() )
+    {
+	const Seis::SelData& seldata = *prov_.seldata_;
+	const Interval<float> reqzrg( seldata.zRange() );
+	const Interval<int> reqinlrg( seldata.inlRange() );
+	const Interval<int> reqcrlrg( seldata.crlRange() );
+	reqcs_.zsamp_.start = reqzrg.start;
+	reqcs_.zsamp_.stop = reqzrg.stop;
+	reqcs_.hsamp_.start_.inl() = reqinlrg.start;
+	reqcs_.hsamp_.stop_.inl() = reqinlrg.stop;
+	reqcs_.hsamp_.start_.crl() = reqcrlrg.start;
+	reqcs_.hsamp_.stop_.crl() = reqcrlrg.stop;
+    }
+
+    if ( dp_ && !dp_->sampling().zsamp_.includes(reqcs_.zsamp_) )
+	dp_ = 0; // too bad but the required Z range is not loaded
 }
 
 
@@ -108,7 +180,6 @@ void Seis::VolFetcher::findDataPack()
 	return;
 
     dp_ = rdp;
-    curbid_ = dp_->sampling().hsamp_.start_;
 }
 
 
@@ -227,43 +298,25 @@ bool Seis::VolFetcher::translatorSelected() const
 void Seis::VolFetcher::get( const TrcKey& trcky, SeisTrc& trc )
 {
     bool moveok = false;
-    curbid_ = trcky.binID();
-    if ( dp_ )
-	moveok = dp_->sampling().hsamp_.includes( curbid_ );
-    else
-    {
-	if ( !trl_ )
-	{
-	    uirv_.set( uiStrings::phrInternalError("trl_/Volume Fetcher" ));
-	    return;
-	}
-	if ( trl_->goTo(curbid_) )
-	    moveok = true;
-    }
+    nextbid_ = trcky.binID();
+    if ( dp_ && dp_->sampling().hsamp_.includes( nextbid_ ) )
+	moveok = true;
+    else if ( trl_ && trl_->goTo(nextbid_) )
+	moveok = true;
 
     if ( moveok )
 	getNext( trc );
     else
 	uirv_.set( tr("Position not present: %1/%2")
-		    .arg( curbid_.inl() ).arg( curbid_.crl() ) );
+		    .arg( nextbid_.inl() ).arg( nextbid_.crl() ) );
 }
 
 
-void Seis::VolFetcher::getNext( SeisTrc& trc )
+bool Seis::VolFetcher::advanceTrlToNextSelected( SeisTrcInfo& ti )
 {
-    if ( dp_ )
+    while ( true )
     {
-	if ( !dp_->sampling().hsamp_.includes(curbid_) )
-	{
-	    uirv_.set( uiStrings::sFinished() );
-	    return;
-	}
-	dp_->fillTrace( TrcKey(curbid_), trc );
-	dp_->sampling().hsamp_.toNext( curbid_ );
-    }
-    else
-    {
-	if ( !trl_->read(trc) )
+	if ( !trl_->readInfo(ti) )
 	{
 	    if ( !isMultiConn() )
 		uirv_.set( trl_->errMsg() );
@@ -271,15 +324,44 @@ void Seis::VolFetcher::getNext( SeisTrc& trc )
 	    {
 		getNextTranslator();
 		if ( trl_ )
-		    return getNext( trc );
+		    return advanceTrlToNextSelected( ti );
 	    }
 	    if ( uirv_.isOK() )
 		uirv_.set( uiStrings::sFinished() );
-	    return;
+	    return false;
 	}
+
+	if ( isSelectedBinID(ti.binID()) )
+	    { nextbid_ = ti.binID(); return true; }
+	else
+	    trl_->skip( 1 );
+    }
+    return false;
+}
+
+
+void Seis::VolFetcher::getNext( SeisTrc& trc )
+{
+    if ( dp_ )
+    {
+	if ( !dp_->sampling().hsamp_.includes(nextbid_) )
+	{
+	    if ( !trl_ && !moveNextBinID() )
+		{ uirv_.set( uiStrings::sFinished() ); return; }
+	    dp_->fillTrace( TrcKey(nextbid_), trc );
+	}
+    }
+    else
+    {
+	if ( !advanceTrlToNextSelected(trc.info()) )
+	    return;
+
+	if ( !trl_->read(trc) )
+	    { uirv_.set( trl_->errMsg() ); return; }
     }
 
     trc.info().trckey_.setSurvID( TrcKey::std3DSurvID() );
+    moveNextBinID();
 }
 
 
