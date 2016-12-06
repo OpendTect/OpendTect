@@ -218,6 +218,14 @@ void SeisVolumeDataPack::fillTrace( const TrcKey& trcky, SeisTrc& trc ) const
 	    trc.set( isamp, val, icomp );
 	}
     }
+
+    SeisTrcInfo& inf = trc.info();
+    const StepInterval<float> zrg = getZRange();
+    inf.sampling_.start = zrg.start;
+    inf.sampling_.step = zrg.step;
+    inf.trckey_ = trcky;
+    inf.coord_ = trcky.getCoord();
+    inf.offset_ = 0.f;
 }
 
 
@@ -246,18 +254,36 @@ RegularSeisDataPack* RegularSeisDataPack::getSimilar() const
 }
 
 
-void RegularSeisDataPack::setTrcsSampling( const PosInfo::CubeData* newposdata )
+void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
 {
     if ( is2D() )
-	return;
+	{ pErrMsg("Will not use CubeData for 2D"); return; }
 
     trcssampling_ = newposdata;
 }
 
 
-const PosInfo::CubeData* RegularSeisDataPack::getTrcsSampling() const
+const PosInfo::CubeData* RegularSeisDataPack::trcsSampling() const
 {
     return is2D() ? 0 : trcssampling_.ptr();
+}
+
+
+void RegularSeisDataPack::getTrcPositions( PosInfo::CubeData& cd ) const
+{
+    cd.setEmpty();
+    if ( !is2D() )
+    {
+	if ( trcssampling_ )
+	    cd = *trcssampling_;
+	else if ( !sampling_.isDefined() )
+	    cd.setEmpty();
+	else
+	{
+	    const TrcKeySampling& hs = sampling_.hsamp_;
+	    cd.generate( hs.start_, hs.stop_, hs.step_ );
+	}
+    }
 }
 
 

@@ -227,12 +227,9 @@ bool Seis::VolFetcher::translatorSelected() const
 void Seis::VolFetcher::get( const TrcKey& trcky, SeisTrc& trc )
 {
     bool moveok = false;
+    curbid_ = trcky.binID();
     if ( dp_ )
-    {
-	moveok = dp_->sampling().hsamp_.includes( trcky.binID() );
-	if ( moveok )
-	    curbid_ = trcky.binID();
-    }
+	moveok = dp_->sampling().hsamp_.includes( curbid_ );
     else
     {
 	if ( !trl_ )
@@ -240,8 +237,6 @@ void Seis::VolFetcher::get( const TrcKey& trcky, SeisTrc& trc )
 	    uirv_.set( uiStrings::phrInternalError("trl_/Volume Fetcher" ));
 	    return;
 	}
-
-	curbid_ = trcky.position();
 	if ( trl_->goTo(curbid_) )
 	    moveok = true;
     }
@@ -377,16 +372,7 @@ void Seis::VolProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
 {
     bool cdobtained = true;
     if ( fetcher_.dp_ )
-    {
-	const PosInfo::CubeData* dpcd = fetcher_.dp_->getTrcsSampling();
-	if ( dpcd )
-	    cd = *dpcd;
-	else
-	{
-	    pErrMsg("CubeData not available in DataPack. Fix this");
-	    cdobtained = false;
-	}
-    }
+	fetcher_.dp_->getTrcPositions( cd );
     else
     {
 	if ( !fetcher_.trl_ )

@@ -386,7 +386,7 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
     for ( int idx=0; idx<steps_.size(); idx++ )
     {
 	Step* currentstep = steps_[idx];
-	PosInfo::CubeData trcssampling;
+	PosInfo::CubeData posdata;
 	for ( int idy=0; idy<currentstep->getNrInputs(); idy++ )
 	{
 	    const Step::InputSlotID inputslot =
@@ -398,8 +398,9 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	    }
 
 	    const RegularSeisDataPack* input = currentstep->getInput(inputslot);
-	    if ( input && input->getTrcsSampling() )
-		trcssampling.merge( *input->getTrcsSampling(), true );
+	    const PosInfo::CubeData* inppd = !input ? 0 : input->trcsSampling();
+	    if ( inppd )
+		posdata.merge( *inppd, true );
 	}
 
 	TrcKeySampling stepoutputhrg;
@@ -426,14 +427,12 @@ bool VolProc::ChainExecutor::Epoch::doPrepare( ProgressMeter* progmeter )
 	if ( !outfrominp )
 	{
 	    outcube->setSampling( csamp );
-	    if ( trcssampling.totalSizeInside( csamp.hsamp_ ) > 0 )
+	    if ( posdata.totalSizeInside( csamp.hsamp_ ) > 0 )
 	    {
-		trcssampling.limitTo( csamp.hsamp_ );
-		if ( !trcssampling.isFullyRectAndReg() )
-		{
+		posdata.limitTo( csamp.hsamp_ );
+		if ( !posdata.isFullyRectAndReg() )
 		    outcube->setTrcsSampling(
-			    new PosInfo::SortedCubeData(trcssampling));
-		}
+				    new PosInfo::SortedCubeData(posdata) );
 	    }
 
 	    if ( !outcube->addComponent( 0 ) )

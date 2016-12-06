@@ -44,6 +44,7 @@ public:
 				RegularSeisDataPack(const char* cat,
 						    const BinDataDesc* bdd=0);
 				~RegularSeisDataPack();
+    bool			is2D() const;
     RegularSeisDataPack*	getSimilar() const;
 
     void			setSampling( const TrcKeyZSampling& tkzs )
@@ -51,11 +52,11 @@ public:
     const TrcKeyZSampling&	sampling() const
 				{ return sampling_; }
 
-    void			setTrcsSampling(const PosInfo::CubeData*);
-				//!<Becomes mine
-    const PosInfo::CubeData*	getTrcsSampling() const;
-				//!<Only for 3D
-    bool			is2D() const;
+    void			setTrcsSampling(PosInfo::CubeData*);
+				//!< Becomes mine
+    const PosInfo::CubeData*	trcsSampling() const;
+				//!< Only returns non-null if explictly set
+    void			getTrcPositions(PosInfo::CubeData&) const;
 
     bool			addComponent(const char* nm);
 
@@ -82,7 +83,8 @@ public:
 protected:
 
     TrcKeyZSampling		sampling_;
-    PtrMan<const PosInfo::CubeData>	trcssampling_;
+    PtrMan<PosInfo::CubeData>	trcssampling_;
+
 };
 
 
