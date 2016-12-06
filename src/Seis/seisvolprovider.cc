@@ -142,12 +142,13 @@ bool Seis::VolFetcher::moveNextBinID()
 
 void Seis::VolFetcher::getReqCS()
 {
-    if ( dp_ )
-	reqcs_ = dp_->sampling();
-    else
+    // set the default to everything; also sets proper steps
+    SeisIOObjInfo objinf( prov_.dbky_ );
+    if ( !objinf.getRanges(reqcs_) )
     {
-	SeisIOObjInfo objinf( prov_.dbky_ );
-	if ( !objinf.getRanges(reqcs_) )
+	if ( dp_ )
+	    reqcs_ = dp_->sampling();
+	else
 	    reqcs_ = TrcKeyZSampling( true );
     }
 
@@ -342,26 +343,40 @@ bool Seis::VolFetcher::advanceTrlToNextSelected( SeisTrcInfo& ti )
 
 void Seis::VolFetcher::getNext( SeisTrc& trc )
 {
+    bool havefilled = false;
+
     if ( dp_ )
     {
-	if ( !dp_->sampling().hsamp_.includes(nextbid_) )
+	if ( dp_->sampling().hsamp_.includes(nextbid_) )
 	{
-	    if ( !trl_ && !moveNextBinID() )
+	    dp_->fillTrace( TrcKey(nextbid_), trc );
+	    havefilled = true;
+	}
+	else if ( !trl_ )
+	{
+	    if ( !moveNextBinID() )
 		{ uirv_.set( uiStrings::sFinished() ); return; }
 	    dp_->fillTrace( TrcKey(nextbid_), trc );
+	    havefilled = true;
 	}
     }
-    else
+
+    if ( trl_ && !havefilled )
     {
 	if ( !advanceTrlToNextSelected(trc.info()) )
 	    return;
 
 	if ( !trl_->read(trc) )
 	    { uirv_.set( trl_->errMsg() ); return; }
+
+	havefilled = true;
     }
 
-    trc.info().trckey_.setSurvID( TrcKey::std3DSurvID() );
-    moveNextBinID();
+    if ( havefilled )
+    {
+	trc.info().trckey_.setSurvID( TrcKey::std3DSurvID() );
+	moveNextBinID();
+    }
 }
 
 

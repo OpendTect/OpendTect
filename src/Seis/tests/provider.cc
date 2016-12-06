@@ -70,8 +70,6 @@ int testMain( int argc, char** argv )
     TrcKeyZSampling cs( true );
     cs.hsamp_.start_.inl() = 450;
     cs.hsamp_.stop_.inl() = 550;
-    cs.zsamp_.start = 0.5f;
-    cs.zsamp_.stop = 1.5f;
     pl.load( cs );
     rgsd.setIsAll( true );
     prov->setSubsel( rgsd );

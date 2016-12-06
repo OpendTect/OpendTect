@@ -701,6 +701,7 @@ SequentialFSLoader::SequentialFSLoader( const IOObj& ioobj,
     , sd_(0)
     , rdr_(*new SeisTrcReader(&ioobj))
     , initialized_(false)
+    , nrdone_(0)
 {
     queueid_ = Threads::WorkManager::twm().addQueue(
 				Threads::WorkManager::MultiThread,
