@@ -828,8 +828,10 @@ BinID StorageProvider::getStepoutStep() const
 	PtrMan<Seis::Bounds> bds = mscprov_->reader().getBounds();
 	if ( bds )
 	{
-	    sos.inl() = bds->step( true );
-	    sos.crl() = bds->step( false );
+	    //Remember: in 2D BinID contains ( linenr, trcnr )
+	    //while Seis::2DBounds.step contains ( trcnr, 1 )
+	    sos.inl() = bds->is2D() ? bds->step( false ) : bds->step( true );
+	    sos.crl() = bds->is2D() ? bds->step( true ) : bds->step( false );
 	}
     }
     else
