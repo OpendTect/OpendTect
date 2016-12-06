@@ -26,7 +26,7 @@ $s3Client = S3Client::factory(array(
     ]
 ) );
 
-$bucket = 'amazon.opendtect.org';
+$bucket = 'opendtect-osr';
 
 echo '<?xml version="1.0" encoding="utf-8"?>'."\n";
 echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"'.
@@ -38,7 +38,8 @@ echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"'.
     '</title>'.
     '</head>'.
     '<body>'.
-    '<p>These links are valid for 7 days only<br>';
+    '<p>These links are valid for 7 days starting at '.
+	date("D M j G:i:s T Y")."<br>\n";
 
 $prefix = "osr/";
 
