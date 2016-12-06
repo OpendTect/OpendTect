@@ -82,6 +82,11 @@ protected:
 mExpClass(EarthModel) Fault : public Surface
 {
 public:
+
+    int				nrSticks() const;
+    TypeSet<Coord3>		getStick(int sticknr) const;
+    unsigned int		totalSize() const;
+
     virtual void		removeAll();
     virtual FaultGeometry&	geometry()			= 0;
     virtual const FaultGeometry& geometry() const

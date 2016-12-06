@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "dbkey.h"
 #include "coord.h"
+#include "sharedobject.h"
+
 #include "uistring.h"
 
 class TrcKeyZSampling;
@@ -113,8 +115,7 @@ public:
 \brief Base class for all EarthModel objects.
 */
 
-mExpClass(EarthModel) EMObject	: public RefCount::Referenced
-				, public CallBacker
+mExpClass(EarthModel) EMObject : public SharedObject
 {
 public:
 
@@ -124,11 +125,20 @@ public:
     const DBKey&		dbKey() const		{ return storageid_; }
     void			setDBKey(const DBKey&);
 
+    mImplSimpleMonitoredGetSet(inline,preferredColor,setPreferredColor,
+				Color,preferredcolor_,cPrefColorChange())
+    mImplSimpleMonitoredGetSet(inline,selectionColor,setSelectionColor,
+				Color, selectioncolor_,cSelColorChange() )
+
+    mImplSimpleMonitoredGetSet(inline,preferredLineStyle,
+				setPreferredLineStyle,OD::LineStyle,
+				preferredlinestyle_,cPrefLineStyleChange())
+    mImplSimpleMonitoredGetSet(inline,preferredMarkerStyle,
+				setPreferredMarkerStyle,OD::MarkerStyle3D,
+				preferredmarkerstyle_,cPrefMarkerStyleChange())
+
     virtual bool		isOK() const		{ return true; }
 
-    void			setName( const char* nm )  { objname_ = nm; }
-				/*!<The IOObj name overrules this */
-    BufferString		name() const;
     uiString			uiName() const { return toUiString(name()); }
     virtual void		setNewName();
 
@@ -145,11 +155,6 @@ public:
     const Geometry::Element*	sectionGeometry(const SectionID&) const;
     Geometry::Element*		sectionGeometry(const SectionID&);
 
-    const Color&		preferredColor() const;
-    void			setPreferredColor(const Color&,
-						  bool addtohistory=false);
-    const OD::LineStyle&	preferredLineStyle() const;
-    void			setPreferredLineStyle(const OD::LineStyle&);
     void			setBurstAlert(bool yn);
     bool			hasBurstAlert() const;
 
@@ -241,9 +246,6 @@ public:
     uiString			errMsg() const;
     void			setErrMsg(const uiString& m) { errmsg_ = m; }
 
-    void			setSelectionColor(const Color&);
-    const Color&		getSelectionColor() const;
-
     virtual bool		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
     void			saveDisplayPars() const;
@@ -251,6 +253,11 @@ public:
     static int			sTerminationNode();
     static int			sSeedNode();
     static int			sIntersectionNode();
+
+    static ChangeType		cPrefColorChange()	{ return 2; }
+    static ChangeType		cSelColorChange()	{ return 3; }
+    static ChangeType		cPrefLineStyleChange()	{ return 4; }
+    static ChangeType		cPrefMarkerStyleChange(){ return 5; }
 
     virtual const IOObjContext&	getIOObjContext() const = 0;
 
@@ -272,11 +279,11 @@ protected:
     uiString			errmsg_;
 
     Color&			preferredcolor_;
+    Color&			selectioncolor_;
     OD::LineStyle&		preferredlinestyle_;
     OD::MarkerStyle3D&		preferredmarkerstyle_;
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;
-    Color			selectioncolor_;
 
     TrcKeyZSampling		removebypolyposbox_;
 

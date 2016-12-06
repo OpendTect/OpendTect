@@ -1309,7 +1309,7 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 	{
 	    if ( selections_ && selections_->getMaterial() )
 		selections_->getMaterial()->setColor(
-		hor3d->getSelectionColor() );
+		hor3d->selectionColor() );
 	}
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::ParentColorChange )
@@ -2155,7 +2155,7 @@ void HorizonDisplay::initSelectionDisplay( bool erase )
 	selections_ = visBase::PointSet::create();
 	selections_->ref();
 	if ( hor3d && selections_->getMaterial() )
-	    selections_->getMaterial()->setColor( hor3d->getSelectionColor() );
+	    selections_->getMaterial()->setColor( hor3d->selectionColor() );
 	addChild( selections_->osgNode() );
 	selections_->setDisplayTransformation( transformation_ );
     }
@@ -2187,7 +2187,7 @@ void HorizonDisplay::selectChildren()
 	const TrcKey tk = tks.atIndex( gidx );
 	const Coord3 pos = hor3d->getPos( sid, tk.binID().toInt64() );
 	const int pidx = selections_->addPoint( pos );
-	selections_->getMaterial()->setColor( hor3d->getSelectionColor(), pidx);
+	selections_->getMaterial()->setColor( hor3d->selectionColor(), pidx);
 	pidxs += pidx;
     }
 
@@ -2331,7 +2331,7 @@ void HorizonDisplay::updateSelections()
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
     selections_->addPrimitiveSet( pointsetps );
-    selections_->getMaterial()->setColor( hor3d->getSelectionColor() );
+    selections_->getMaterial()->setColor( hor3d->selectionColor() );
     selections_->turnOn( true );
 }
 

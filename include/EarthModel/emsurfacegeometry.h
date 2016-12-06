@@ -64,6 +64,12 @@ public:
 
     virtual const Geometry::Element*	sectionGeometry(const SectionID&) const;
     virtual Geometry::Element*		sectionGeometry(const SectionID&);
+    
+    const Geometry::Element*	geometryElement() const
+				{ return sectionGeometry(0); }
+    Geometry::Element*		geometryElement()
+				{ return sectionGeometry(0); }
+    
     virtual int		getConnectedPos(const PosID& posid,
 					TypeSet<PosID>* res) const;
 			/*!<\returns the number of connected pos. */

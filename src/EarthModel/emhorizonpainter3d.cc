@@ -541,7 +541,7 @@ void HorizonPainter3D::displaySelections(
 	    : EM::EMObject::sIntersectionNode();
 	const OD::MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
 	markerstyle_.color_ = ms3d.color_;
-	markerstyle_.color_ = hor3d->getSelectionColor();
+	markerstyle_.color_ = hor3d->selectionColor();
 	markerstyle_.size_ = ms3d.size_*2;
 	markerstyle_.type_ = OD::MarkerStyle3D::getMS2DType( ms3d.type_ );
 	selectionpoints_->marker_->markerstyles_ += markerstyle_;
@@ -575,7 +575,7 @@ void HorizonPainter3D::updateSelectionColor()
 	selectionpoints_->marker_->markerstyles_;
 
     for ( int idx=0; idx<markerstyles.size(); idx++ )
-	markerstyles[idx].color_ = hor3d->getSelectionColor();
+	markerstyles[idx].color_ = hor3d->selectionColor();
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
 }

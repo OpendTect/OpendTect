@@ -15,7 +15,45 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
-namespace EM {
+namespace EM
+{
+
+unsigned int Fault::totalSize() const
+{
+    mLock4Read();
+    
+    mDynamicCastGet( const Geometry::RowColSurface*, rcs,
+		    geometry().geometryElement() );
+    unsigned int tosz = (rcs->rowRange().nrSteps()+1)
+			*(rcs->colRange().nrSteps()+1);
+    return tosz;
+}
+
+
+int Fault::nrSticks() const
+{
+    mLock4Read();
+    mDynamicCastGet( const Geometry::FaultStickSet*,fss,
+						geometry().geometryElement() );
+    if ( !fss )
+	return -1;
+
+    return fss->nrSticks();
+}
+
+
+TypeSet<Coord3> Fault::getStick( int sticknr ) const
+{
+    mLock4Read();
+    TypeSet<Coord3> coords;
+    mDynamicCastGet(const Geometry::FaultStickSet*,fss,
+						geometry().geometryElement() );
+    if ( !fss )
+	return coords;
+
+    coords.copy( *fss->getStick(sticknr) );
+    return coords;
+}
 
 
 void Fault::removeAll()
@@ -25,6 +63,7 @@ void Fault::removeAll()
 }
 
 
+//FaultGeometry
 Coord3 FaultGeometry::getEditPlaneNormal( const SectionID& sid,
 						 int sticknr ) const
 {

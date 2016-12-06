@@ -1070,7 +1070,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	srcfault->setChangedFlag();
 
     destfault->setFullyLoaded( true );
-    destfault->setPreferredColor( colorbutcolor_, true );
+    destfault->setPreferredColor( colorbutcolor_ );
     displayUpdate();
 
     bool saved = false;

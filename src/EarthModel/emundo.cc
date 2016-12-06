@@ -324,7 +324,7 @@ bool EM::SetPrefColorEvent::unDo()
     EM::EMObject* emobj = EM::EMM().getObject( objectid_ );
     if ( !emobj ) return false;
 
-    emobj->setPreferredColor( oldcolor_, false );
+    emobj->setPreferredColor( oldcolor_ );
     return true;
 }
 
@@ -334,6 +334,6 @@ bool EM::SetPrefColorEvent::reDo()
     EM::EMObject* emobj = EM::EMM().getObject( objectid_ );
     if ( !emobj ) return false;
 
-    emobj->setPreferredColor( newcolor_, false );
+    emobj->setPreferredColor( newcolor_ );
     return true;
 }

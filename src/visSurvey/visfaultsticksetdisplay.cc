@@ -363,15 +363,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 
     visBase::Lines* poly = activeonly ? activestick_ : sticks_;
 
-    int maxpos = 0;
-    for ( int sidx=0; !activeonly && sidx<fault_->nrSections(); sidx++ )
-    {
-	const EM::SectionID sid = fault_->sectionID( sidx );
-	mDynamicCastGet( const Geometry::RowColSurface*, rcs,
-			 fault_->sectionGeometry( sid ) );
-	maxpos += (rcs->rowRange().nrSteps()+1)*(rcs->colRange().nrSteps()+1);
-    }
-
+    const unsigned int maxpos = fault_->totalSize();
     poly->removeAllPrimitiveSets();
     Geometry::IndexedPrimitiveSet* primitiveset =
 		    Geometry::IndexedPrimitiveSet::create( maxpos>USHRT_MAX );
@@ -381,7 +373,22 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	poly->getCoordinates()->setEmpty();
 
     TypeSet<int> coordidxlist;
-    for ( int sidx=0; sidx<fault_->nrSections(); sidx++ )
+    MonitorLock ml( *fault_ );
+    for ( int idx=0; idx<fault_->nrSticks(); idx++ )
+    {
+	TypeSet<Coord3> stickcoords = fault_->getStick( idx );
+	for ( int idc=0; idc<stickcoords.size(); idc++ )
+	{
+	    const int ci = poly->getCoordinates()->addPos( stickcoords[idc] );
+	    addPolyLineCoordIdx( coordidxlist, ci );
+	}
+	
+	addPolyLineCoordBreak( coordidxlist );
+    }
+
+    ml.unlockNow();
+
+    /*for ( int sidx=0; sidx<fault_->nrSections(); sidx++ )
     {
 	const EM::SectionID sid = fault_->sectionID( sidx );
 	mDynamicCastGet( const Geometry::FaultStickSet*, fss,
@@ -468,7 +475,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	    }
 	    addPolyLineCoordBreak( coordidxlist );
 	}
-    }
+    }*/
 
     if ( poly->getCoordinates()->size() )
     {

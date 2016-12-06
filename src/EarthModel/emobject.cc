@@ -51,7 +51,7 @@ EMObject::EMObject( EMManager& emm )
     , preferredlinestyle_( *new OD::LineStyle(OD::LineStyle::Solid,3) )
     , preferredmarkerstyle_(
 	*new OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,2,Color::White()))
-    , selectioncolor_( sDefaultSelectionColor() )
+    , selectioncolor_( *new Color(sDefaultSelectionColor()) )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_ = oid++;
@@ -68,37 +68,16 @@ EMObject::~EMObject()
     delete &preferredcolor_;
     delete &preferredlinestyle_;
     delete &preferredmarkerstyle_;
+    delete &selectioncolor_;
 
     change.remove( mCB(this,EMObject,posIDChangeCB) );
     id_ = -2;	//To check easier if it has been deleted
 }
 
 
-void EMObject::setSelectionColor(const Color& col)
-{
-    selectioncolor_ = col;
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::SelectionColorChnage;
-    change.trigger(cbdata);
-}
-
-
-const Color& EMObject::getSelectionColor() const
-{
-    return selectioncolor_;
-}
-
-
 void EMObject::prepareForDelete()
 {
     manager_.removeObject( this );
-}
-
-
-BufferString EMObject::name() const
-{
-    PtrMan<IOObj> ioobj = DBM().get( dbKey() );
-    return ioobj ? BufferString(ioobj->name()) : objname_;
 }
 
 
@@ -225,50 +204,6 @@ bool EMObject::isAtEdge( const PosID& ) const
 {
     pErrMsg("Not implemented");
     return false;
-}
-
-
-const OD::LineStyle& EMObject::preferredLineStyle() const
-{
-    return preferredlinestyle_;
-}
-
-
-void EMObject::setPreferredLineStyle( const OD::LineStyle& lnst )
-{
-    if ( preferredlinestyle_ == lnst )
-	return;
-    preferredlinestyle_ = lnst;
-
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::PrefColorChange;
-    change.trigger( cbdata );
-
-    saveDisplayPars();
-}
-
-
-const Color& EMObject::preferredColor() const
-{ return preferredcolor_; }
-
-
-void EMObject::setPreferredColor( const Color& col, bool addtoundo )
-{
-    if ( col==preferredcolor_ )
-	return;
-
-    if ( addtoundo )
-    {
-	UndoEvent* undo = new SetPrefColorEvent( id(), preferredcolor_, col );
-	EMM().undo().addEvent( undo );
-    }
-
-    preferredcolor_ = col;
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::PrefColorChange;
-    change.trigger( cbdata );
-
-    saveDisplayPars();
 }
 
 
