@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Mahant Mothey
- Date:		September 2016
+ Author:	Bert
+ Date:		Nov 2016
 ________________________________________________________________________
 
 -*/

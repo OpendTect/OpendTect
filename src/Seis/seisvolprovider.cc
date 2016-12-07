@@ -2,17 +2,17 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Mahant Mothey
- Date:		September 2016
+ Author:	Bert
+ Date:		Nov 2016
 ________________________________________________________________________
 
 -*/
 
 #include "seisvolprovider.h"
+#include "seisfetcher.h"
 #include "seistrctr.h"
 #include "seispreload.h"
 #include "seisdatapack.h"
-#include "dbman.h"
 #include "iostrm.h"
 #include "uistrings.h"
 #include "seisioobjinfo.h"
@@ -53,29 +53,36 @@ namespace Seis
 
   */
 
-class VolFetcher
+class VolFetcher : public Fetcher3D
 { mODTextTranslationClass(Seis::VolFetcher);
 public:
 
 VolFetcher( VolProvider& p )
-    : prov_(p)
+    : Fetcher3D(p)
     , trl_(0)
-    , ioobj_(0)
 {
 }
 
 ~VolFetcher()
 {
     delete trl_;
-    delete ioobj_;
+}
+
+VolProvider& prov()
+{
+    return static_cast<VolProvider&>( prov_ );
+}
+
+const VolProvider& prov() const
+{
+    return static_cast<const VolProvider&>( prov_ );
 }
 
     void		reset();
-    void		getReqCS();
+    TrcKeyZSampling	getDefaultCS() const;
+
     void		findDataPack();
     void		openCube();
-    bool		isSelectedBinID(const BinID&) const;
-    bool		moveNextBinID();
     bool		advanceTrlToNextSelected(SeisTrcInfo&);
     Conn*		getConn();
     void		getNextTranslator();
@@ -85,9 +92,6 @@ VolFetcher( VolProvider& p )
 
     void		get(const TrcKey&,SeisTrc&);
     void		getNext(SeisTrc&);
-
-    VolProvider&	prov_;
-    IOObj*		ioobj_;
 
     RefMan<RegularSeisDataPack> dp_;
     TrcKeyZSampling	reqcs_;
@@ -104,76 +108,30 @@ VolFetcher( VolProvider& p )
 
 void Seis::VolFetcher::reset()
 {
-    uirv_.setEmpty();
     delete trl_; trl_ = 0;
-    delete ioobj_; ioobj_ = 0;
     dp_ = 0;
-    nextbid_.inl() = mUdf(int);
+    uirv_.setEmpty();
 
     findDataPack();
-    getReqCS();
-    if ( !dp_ || !dp_->sampling().includes(reqcs_) )
-	openCube();
-
-    nextbid_ = reqcs_.hsamp_.start_ - reqcs_.hsamp_.step_;
-    if ( !moveNextBinID() )
-	uirv_.set( tr("No traces available for current selection") );
-}
-
-
-bool Seis::VolFetcher::isSelectedBinID( const BinID& bid ) const
-{
-    return !prov_.seldata_ || prov_.seldata_->isOK(bid);
-}
-
-
-bool Seis::VolFetcher::moveNextBinID()
-{
-    while ( true )
-    {
-	if ( !reqcs_.hsamp_.toNext(nextbid_) )
-	    return false;
-	if ( isSelectedBinID(nextbid_) )
-	    return true;
-    }
-}
-
-
-
-void Seis::VolFetcher::getReqCS()
-{
-    // set the default to everything; also sets proper steps
-    SeisIOObjInfo objinf( prov_.dbky_ );
-    if ( !objinf.getRanges(reqcs_) )
-    {
-	if ( dp_ )
-	    reqcs_ = dp_->sampling();
-	else
-	    reqcs_ = TrcKeyZSampling( true );
-    }
-
-    if ( prov_.seldata_ && !prov_.seldata_->isAll() )
-    {
-	const Seis::SelData& seldata = *prov_.seldata_;
-	const Interval<float> reqzrg( seldata.zRange() );
-	const Interval<int> reqinlrg( seldata.inlRange() );
-	const Interval<int> reqcrlrg( seldata.crlRange() );
-	reqcs_.zsamp_.start = reqzrg.start;
-	reqcs_.zsamp_.stop = reqzrg.stop;
-	reqcs_.hsamp_.start_.inl() = reqinlrg.start;
-	reqcs_.hsamp_.stop_.inl() = reqinlrg.stop;
-	reqcs_.hsamp_.start_.crl() = reqcrlrg.start;
-	reqcs_.hsamp_.stop_.crl() = reqcrlrg.stop;
-    }
+    Fetcher3D::reset();
 
     if ( dp_ && !dp_->sampling().zsamp_.includes(reqcs_.zsamp_) )
 	dp_ = 0; // too bad but the required Z range is not loaded
+
+    if ( !dp_ || !dp_->sampling().includes(reqcs_) )
+	openCube();
+}
+
+
+TrcKeyZSampling Seis::VolFetcher::getDefaultCS() const
+{
+    return dp_ ? dp_->sampling() : TrcKeyZSampling( true );
 }
 
 
 void Seis::VolFetcher::findDataPack()
 {
-    RefMan<DataPack> dp = Seis::PLDM().get( prov_.dbky_ );
+    RefMan<DataPack> dp = Seis::PLDM().get( prov().dbky_ );
     if ( !dp )
 	return;
     mDynamicCastGet(RegularSeisDataPack*,rdp,dp.ptr());
@@ -186,12 +144,8 @@ void Seis::VolFetcher::findDataPack()
 
 void Seis::VolFetcher::openCube()
 {
-    ioobj_ = DBM().get( prov_.dbky_ );
-    if ( !ioobj_ )
-    {
-	uirv_ = uiStrings::phrCannotFindDBEntry( prov_.dbky_.toUiString() );
+    if ( !getIOObj() )
 	return;
-    }
 
     getNextTranslator();
 
@@ -216,7 +170,6 @@ void Seis::VolFetcher::getNextTranslator()
 	    break;
     }
 }
-
 
 
 Conn* Seis::VolFetcher::getConn()
@@ -258,15 +211,15 @@ void Seis::VolFetcher::getTranslator( Conn* conn )
 	return;
     }
 
-    trl_->setSelData( prov_.seldata_ );
-    if ( !trl_->initRead(conn,prov_.readmode_) )
+    trl_->setSelData( prov().seldata_ );
+    if ( !trl_->initRead(conn,prov().readmode_) )
 	{ uirv_ = trl_->errMsg(); delete trl_; trl_ = 0; return; }
 
-    if ( prov_.selcomp_ >= 0 )
+    if ( prov().selcomp_ >= 0 )
     {
 	for ( int icd=0; icd<trl_->componentInfo().size(); icd++ )
 	{
-	    if ( icd != prov_.selcomp_ )
+	    if ( icd != prov().selcomp_ )
 		trl_->componentInfo()[icd]->destidx = -1;
 	}
     }
@@ -287,11 +240,11 @@ bool Seis::VolFetcher::translatorSelected() const
 {
     if ( !trl_ )
 	return false;
-    if ( !prov_.seldata_ || !isMultiConn() )
+    if ( !prov().seldata_ || !isMultiConn() )
 	return true;
 
     BinID bid( trl_->packetInfo().inlrg.start, trl_->packetInfo().crlrg.start );
-    int selres = prov_.seldata_->selRes( bid );
+    int selres = prov().seldata_->selRes( bid );
     return selres / 256 == 0;
 }
 

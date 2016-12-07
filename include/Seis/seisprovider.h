@@ -23,6 +23,9 @@ namespace Seis
 {
 
 class SelData;
+class Fetcher;
+class Fetcher2D;
+class Fetcher3D;
 
 
 /*!\brief is the access point for seismic traces. Instantiate a subclass and ask
@@ -114,6 +117,10 @@ protected:
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
     virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
+
+    friend class	Fetcher;
+    friend class	Fetcher2D;
+    friend class	Fetcher3D;
 
 };
 
