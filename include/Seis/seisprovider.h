@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "atomic.h"
 #include "threadlock.h"
+class SeisTrcBuf;
 namespace PosInfo { class CubeData; }
 
 
@@ -25,7 +26,8 @@ class SelData;
 
 
 /*!\brief is the access point for seismic traces. Instantiate a subclass and ask
-  for what you need. The class can fetch multi-threaded.
+  for what you need. The class can fetch multi-threaded, it is (should be)
+  MT-safe.
 
  After instantiation, provide the DBKey with setInput. Then you can ask
  questions about the geometry and components of the seismic object.
@@ -34,7 +36,12 @@ class SelData;
  use selectComponent(). You can have the data resampled; just use
  setSampleInterval().
 
- The class is (should be) MT-safe.
+ You can get all components in a gather, or the entire gather in one trace as
+ components. Just call the corresponding get or getNext function.
+
+ Note: the getNext() function may return !isOK(). At end of input, this will
+ return the special 'error' 'Finished' which can be checked by
+ isFinished( uirv ).
 
   */
 
@@ -61,13 +68,19 @@ public:
     uiRetVal		usePar(const IOPar&);
 
     uiRetVal		getNext(SeisTrc&) const;
-			//!< check return on isFinished()
+    uiRetVal		getNextGather(SeisTrcBuf&) const;
     uiRetVal		get(const TrcKey&,SeisTrc&) const;
+    uiRetVal		getGather(const TrcKey&,SeisTrcBuf&) const;
 
     od_int64		nrDone() const			{ return nrdone_; }
     od_int64		totalNr() const;
 
     static const char*	sKeyForceFPData()		{ return "Force FPs"; }
+
+    static void		putTraceInGather(const SeisTrc&,SeisTrcBuf&);
+			//!< components become offsets 0, 100, 200, ...
+    static void		putGatherInTrace(const SeisTrcBuf&,SeisTrc&);
+			//!< offsets become components
 
 protected:
 
@@ -88,14 +101,19 @@ protected:
     uiRetVal		reset() const;
     void		ensureRightDataRep(SeisTrc&) const;
     void		ensureRightZSampling(SeisTrc&) const;
-    void		handleTrace(SeisTrc&) const;
     bool		handleSetupChanges(uiRetVal&) const;
+    void		handleTrace(SeisTrc&) const;
+    void		handleTraces(SeisTrcBuf&) const;
 
     virtual od_int64	getTotalNrInInput() const			= 0;
     virtual void	doReset(uiRetVal&) const			= 0;
     virtual void	doUsePar(const IOPar&,uiRetVal&)		= 0;
-    virtual void	doGetNext(SeisTrc&,uiRetVal&) const		= 0;
-    virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const	= 0;
+
+			// define at least either SeisTrc or SeisTrcBuf fns
+    virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
+    virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
+    virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
+    virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
 
 };
 

@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "seisvolprovider.h"
 #include "seisioobjinfo.h"
 #include "seisselection.h"
+#include "seisbuf.h"
 #include "uistrings.h"
 
 
@@ -145,11 +146,52 @@ void Seis::Provider::setSubsel( const SelData& sd )
 }
 
 
+void Seis::Provider::putTraceInGather( const SeisTrc& trc, SeisTrcBuf& tbuf )
+{
+    const int nrcomps = trc.data().nrComponents();
+    const int trcsz = trc.size();
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	SeisTrc* newtrc = new SeisTrc( trcsz,
+			    trc.data().getInterpreter(icomp)->dataChar() );
+	newtrc->info() = trc.info();
+	newtrc->info().offset_ = icomp * 100.f;
+	newtrc->data().copyFrom( trc.data(), icomp, 0 );
+	tbuf.add( newtrc );
+    }
+}
+
+
+void Seis::Provider::putGatherInTrace( const SeisTrcBuf& tbuf, SeisTrc& trc )
+{
+    const int nrcomps = tbuf.size();
+    if ( nrcomps < 1 )
+	return;
+
+    trc.info() = tbuf.get(0)->info();
+    trc.info().offset_ = 0.f;
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	const SeisTrc& buftrc = *tbuf.get( icomp );
+	trc.data().addComponent( buftrc.size(),
+			      buftrc.data().getInterpreter(0)->dataChar() );
+	trc.data().copyFrom( buftrc.data(), 0, icomp );
+    }
+}
+
+
 void Seis::Provider::handleTrace( SeisTrc& trc ) const
 {
     ensureRightZSampling( trc );
     ensureRightDataRep( trc );
     nrdone_++;
+}
+
+
+void Seis::Provider::handleTraces( SeisTrcBuf& tbuf ) const
+{
+    for ( int idx=0; idx<tbuf.size(); idx++ )
+	handleTrace( *tbuf.get(idx) );
 }
 
 
@@ -190,6 +232,40 @@ uiRetVal Seis::Provider::get( const TrcKey& trcky, SeisTrc& trc ) const
 
     if ( uirv.isOK() )
 	handleTrace( trc );
+    return uirv;
+}
+
+
+uiRetVal Seis::Provider::getNextGather( SeisTrcBuf& tbuf ) const
+{
+    uiRetVal uirv;
+
+    Threads::Locker locker( lock_ );
+    if ( !handleSetupChanges(uirv) )
+	return uirv;
+
+    doGetNextGather( tbuf, uirv );
+    locker.unlockNow();
+
+    if ( uirv.isOK() )
+	handleTraces( tbuf );
+    return uirv;
+}
+
+
+uiRetVal Seis::Provider::getGather( const TrcKey& trcky,
+				    SeisTrcBuf& tbuf ) const
+{
+    uiRetVal uirv;
+
+    Threads::Locker locker( lock_ );
+    if ( !handleSetupChanges(uirv) )
+	return uirv;
+    doGetGather( trcky, tbuf, uirv );
+    locker.unlockNow();
+
+    if ( uirv.isOK() )
+	handleTraces( tbuf );
     return uirv;
 }
 
@@ -238,4 +314,42 @@ void Seis::Provider::ensureRightZSampling( SeisTrc& trc ) const
     }
 
     trc.data() = newtd;
+}
+
+
+void Seis::Provider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
+{
+    SeisTrcBuf tbuf( true );
+    doGetNextGather( tbuf, uirv );
+    putGatherInTrace( tbuf, trc );
+}
+
+
+void Seis::Provider::doGet( const TrcKey& tkey, SeisTrc& trc,
+			    uiRetVal& uirv ) const
+{
+    SeisTrcBuf tbuf( true );
+    doGetGather( tkey, tbuf, uirv );
+    putGatherInTrace( tbuf, trc );
+}
+
+
+void Seis::Provider::doGetNextGather( SeisTrcBuf& tbuf, uiRetVal& uirv ) const
+{
+    SeisTrc trc;
+    tbuf.erase();
+    doGetNext( trc, uirv );
+    if ( uirv.isOK() )
+	putTraceInGather( trc, tbuf );
+}
+
+
+void Seis::Provider::doGetGather( const TrcKey& tkey, SeisTrcBuf& tbuf,
+				  uiRetVal& uirv ) const
+{
+    SeisTrc trc;
+    tbuf.erase();
+    doGet( tkey, trc, uirv );
+    if ( uirv.isOK() )
+	putTraceInGather( trc, tbuf );
 }
