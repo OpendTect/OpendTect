@@ -449,10 +449,14 @@ void TrcKeySampling::shrinkTo( const TrcKeySampling& innertks )
 
 void TrcKeySampling::expand( int nrlines, int nrtrcs )
 {
-    start_.lineNr() -= nrlines*step_.lineNr();
-    start_.trcNr() -= nrtrcs*step_.trcNr();
-    stop_.lineNr() += nrlines*step_.lineNr();
-    stop_.trcNr() += nrtrcs*step_.trcNr();
+    if ( !is2D() )
+    {
+	start_.lineNr() -= nrlines * step_.lineNr();
+	stop_.lineNr() += nrlines * step_.lineNr();
+    }
+
+    start_.trcNr() -= nrtrcs * step_.trcNr();
+    stop_.trcNr() += nrtrcs * step_.trcNr();
 }
 
 
