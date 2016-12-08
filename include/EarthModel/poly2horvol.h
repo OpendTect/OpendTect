@@ -36,7 +36,7 @@ public:
     bool		setHorizon(const DBKey&,TaskRunner* tskr=0);
 
     float		getM3(float,bool upward,bool usenegvals);
-    const char*		dispText(float m3,bool zinft);
+    const char*		dispText(float m3,bool inft);
 
 protected:
 
