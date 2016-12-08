@@ -32,8 +32,8 @@ class uiTreeViewItem;
 mExpClass(uiStrat) StratDispData
 {
 public:
-			StratDispData() {};
-			~StratDispData() { eraseData(); }
+			StratDispData();
+			~StratDispData();
 
     mStruct(uiStrat) Unit
     {
@@ -89,56 +89,24 @@ public:
 	ObjectSet<Level> levels_;
     };
 
+    void		eraseData();
 
+    void		addCol(Column*);
+    int			nrCols() const;
+    Column*		getCol(int colidx);
+    const Column*	getCol(int colidx) const;
 
-    void		eraseData()
-			{
-			    for ( int idx=0; idx<cols_.size(); idx++ )
-			    {
-				cols_[idx]->units_.erase();
-				cols_[idx]->levels_.erase();
-			    }
-			    cols_.erase();
-			}
+    void		addUnit(int colidx,Unit*);
+    int			nrUnits(int colidx) const;
+    Unit*		getUnit(int colidx,int uidx);
+    const Unit*		getUnit(int colidx,int uidx) const;
 
-    void		addCol( Column* col )
-			    { cols_ += col; }
+    int			nrLevels(int colidx) const;
+    const Level*	getLevel(int colidx,int lidx) const;
 
-    int		nrCols() const
-			    { return cols_.size(); }
-    int			nrUnits( int colidx ) const
-			    { return cols_[colidx]->units_.size(); }
-    void		addUnit( int colidx, Unit* un )
-			    { cols_[colidx]->units_ += un; un->colidx_=colidx; }
+    int			nrDisplayedCols() const;
 
-    const Column*	getCol( int idx ) const
-			    { return cols_[idx]; }
-    Column*		getCol( int idx )
-			    { return cols_[idx]; }
-    Unit*		getUnit( int colidx, int uidx )
-			    { return gtUnit( colidx, uidx ); }
-    const Unit*		getUnit( int colidx, int uidx ) const
-			    { return gtUnit( colidx, uidx ); }
-
-    int			nrLevels( int colidx ) const
-			    { return cols_[colidx]->levels_.size(); }
-    const Level*	getLevel( int colidx, int lidx ) const
-			    { return cols_[colidx]->levels_[lidx]; }
-
-    int		nrDisplayedCols() const
-			{
-			    int nr = 0;
-			    for ( int idx=0; idx<cols_.size(); idx++)
-				{ if ( cols_[idx]->isdisplayed_ ) nr++; }
-			    return nr;
-			}
-
-protected :
-
-    Unit*		gtUnit( int colidx, int uidx ) const
-			    { return const_cast<Unit*>(
-					cols_[colidx]->units_[uidx] ); }
-
+protected:
     ObjectSet<Column> cols_;
 };
 
