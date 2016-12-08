@@ -198,6 +198,7 @@ public:
     static uiString sAverage()		{ return tr("Average"); }
     static uiString sBatch()		{ return tr("Batch"); }
     static uiString sBatchProgram();
+    static uiString sBatchProgramFailedStart();
     static uiString sBelow()		{ return tr("Below"); }
     static uiString sBlue()		{ return tr("Blue"); }
     static uiString sBody(int num=1)	{ return tr("Body", 0, num); }

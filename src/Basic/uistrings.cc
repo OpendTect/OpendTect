@@ -251,7 +251,10 @@ uiString uiStrings::sASCII()
 { return tr("ASCII"); }
 
 uiString uiStrings::sBatchProgram()
-{return mJoinUiStrs(sBatch(),sProgram()); }
+{ return mJoinUiStrs(sBatch(),sProgram()); }
+
+uiString uiStrings::sBatchProgramFailedStart()
+{ return tr("Batch program failed to start"); }
 
 uiString uiStrings::sColorTable(int num)
 { return tr("ColorTable",0,num); }

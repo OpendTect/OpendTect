@@ -13,12 +13,15 @@ ________________________________________________________________________
 #include "batchjobdispatch.h"
 #include "errmsg.h"
 #include "uibatchjobdispatchersel.h"
+#include "uimsg.h"
 
 uiBatchProcDlg::uiBatchProcDlg( uiParent* p, const uiString& dlgnm,
 				bool optional,
 				const Batch::JobSpec::ProcType& pt )
     : uiDialog(p,Setup(dlgnm, mNoDlgTitle, mNoHelpKey).modal(false))
 {
+    setCtrlStyle( RunAndClose );
+
     pargrp_ = new uiGroup( this, "Parmeters group" );
     batchgrp_ = new uiGroup( this, "Batch group" );
     batchgrp_->attach( alignedBelow, pargrp_ );
@@ -46,7 +49,10 @@ bool uiBatchProcDlg::acceptOK( CallBacker* )
     if ( !fillPar(par) )
 	return false;
 
-    return batchjobfld_->start();
+    if ( !batchjobfld_->start() )
+	uiMSG().error( uiStrings::sBatchProgramFailedStart() );
+
+    return false;
 }
 
 
