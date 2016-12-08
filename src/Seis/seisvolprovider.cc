@@ -90,16 +90,11 @@ const VolProvider& prov() const
     bool		isMultiConn() const;
     bool		translatorSelected() const;
 
-    void		get(const TrcKey&,SeisTrc&);
+    void		get(const BinID&,SeisTrc&);
     void		getNext(SeisTrc&);
 
     RefMan<RegularSeisDataPack> dp_;
-    TrcKeyZSampling	reqcs_;
-    BinID		nextbid_;
-
     SeisTrcTranslator*	trl_;
-
-    uiRetVal		uirv_;
 
 };
 
@@ -144,7 +139,7 @@ void Seis::VolFetcher::findDataPack()
 
 void Seis::VolFetcher::openCube()
 {
-    if ( !getIOObj() )
+    if ( !fillIOObj() )
 	return;
 
     getNextTranslator();
@@ -249,10 +244,10 @@ bool Seis::VolFetcher::translatorSelected() const
 }
 
 
-void Seis::VolFetcher::get( const TrcKey& trcky, SeisTrc& trc )
+void Seis::VolFetcher::get( const BinID& bid, SeisTrc& trc )
 {
     bool moveok = false;
-    nextbid_ = trcky.binID();
+    nextbid_ = bid;
     if ( dp_ && dp_->sampling().hsamp_.includes( nextbid_ ) )
 	moveok = true;
     else if ( trl_ && trl_->goTo(nextbid_) )
@@ -458,6 +453,6 @@ void Seis::VolProvider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
 void Seis::VolProvider::doGet( const TrcKey& trcky, SeisTrc& trc,
 				  uiRetVal& uirv ) const
 {
-    fetcher_.get( trcky, trc );
+    fetcher_.get( trcky.binID(), trc );
     uirv = fetcher_.uirv_;
 }

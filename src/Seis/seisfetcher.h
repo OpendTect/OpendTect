@@ -31,11 +31,12 @@ class Fetcher
 { mODTextTranslationClass(Seis::Fetcher);
 public:
 
-    			Fetcher(Provider&);
+			Fetcher(Provider&);
     virtual		~Fetcher();
 
     virtual void	reset();
-    bool		getIOObj();
+    bool		fillIOObj();
+    IOObj*		getIOObj() const;
 
     Provider&		prov_;
     IOObj*		ioobj_;
@@ -50,7 +51,7 @@ class Fetcher3D : public Fetcher
 { mODTextTranslationClass(Seis::Fetcher3D);
 public:
 
-    			Fetcher3D( Provider& p ) : Fetcher(p)	{}
+			Fetcher3D( Provider& p ) : Fetcher(p)	{}
 
     void		getReqCS();
 

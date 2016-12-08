@@ -36,9 +36,16 @@ void Seis::Fetcher::reset()
 }
 
 
-bool Seis::Fetcher::getIOObj()
+IOObj* Seis::Fetcher::getIOObj() const
 {
-    ioobj_ = DBM().get( prov_.dbky_ );
+    return DBM().get( prov_.dbky_ );
+}
+
+
+bool Seis::Fetcher::fillIOObj()
+{
+    delete ioobj_;
+    ioobj_ = getIOObj();
     if ( !ioobj_ )
     {
 	uirv_ = uiStrings::phrCannotFindDBEntry( prov_.dbky_.toUiString() );
@@ -73,7 +80,7 @@ void Seis::Fetcher3D::reset()
 
 
 TrcKeyZSampling Seis::Fetcher3D::getDefaultCS() const
-{   
+{
     return TrcKeyZSampling( true );
 }
 
