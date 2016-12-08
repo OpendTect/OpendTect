@@ -795,5 +795,5 @@ inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
     return ( (diff) < (releps) && (diff) > (-releps) ); \
 }
 
-mDefFltisCompat(float,1e-5f)
+mDefFltisCompat(float,1e-4f)
 mDefFltisCompat(double,1e-10)
