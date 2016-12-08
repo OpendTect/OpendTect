@@ -1221,6 +1221,8 @@ void DescSet::fillInUIInputList( BufferStringSet& inplist ) const
 
     for ( int idx=0; idx<attrinf.ioobjnms_.size(); idx++ )
 	inplist.addIfNew( BufferString("[",attrinf.ioobjnms_.get(idx),"]") );
+    for ( int idx=0; idx<attrinf.steernms_.size(); idx++ )
+	inplist.addIfNew( BufferString("[",attrinf.steernms_.get(idx),"]") );
 }
 
 
@@ -1234,10 +1236,20 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( const StringPair& inpstr )
 	//which is supposed to be the source of the input string.
 	Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false, false,
 				 false, true );
+	DBKey dbky;
 	int iidx = attrinf.ioobjnms_.indexOf( stornm.buf() );
-	if ( iidx < 0 ) return 0;
+	if ( iidx >= 0 )
+	    dbky = attrinf.ioobjids_.get( iidx );
+	else
+	{
+	    iidx = attrinf.steernms_.indexOf( stornm.buf() );
+	    if ( iidx >= 0 )
+		dbky = attrinf.steerids_.get( iidx );
+	}
 
-	const DBKey dbky = attrinf.ioobjids_.get( iidx );
+	if ( dbky.isInvalid() )
+	    return 0;
+
 	int compnr = 0;
 	if ( !inpstr.second().isEmpty() )
 	{
