@@ -62,10 +62,8 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     uiObject* attobj = optsfld_->attachObj();
     if ( SI().zIsTime() )
     {
-	uiString txt = tr("%1%2").arg(uiStrings::sVelocity())
-		       .arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,true));
-	velfld_ = new uiGenInput( grp, txt, FloatInpSpec(
-					    mCast(float,zinft_?10000:3000)) );
+	velfld_ = new uiGenInput( grp, VelocityDesc::getVelVolumeLabel(),
+		FloatInpSpec(zinft_?10000.f:3000.f) );
 	velfld_->attach( alignedBelow, optsfld_ );
 	velfld_->valuechanged.notify( calccb );
 	attobj = velfld_->attachObj();
@@ -89,7 +87,6 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 	    areafld = new uiGenInput( grp, tr("==> Area") );
 	    areafld->attach( alignedBelow, calcbut );
 	    areafld->setReadOnly( true );
-
 	    areafld->setText( getAreaString( area, true, 0 ) );
 	}
     }
@@ -119,8 +116,8 @@ void uiCalcHorVol::haveChg( CallBacker* )
 void uiCalcHorVol::calcReq( CallBacker* )
 {
     const Pick::Set* ps = getPickSet();
-    if ( !ps ) mErrRet( tr("No PickSet selected") );
-    
+    if ( !ps ) mErrRet( tr("No Polygon selected") );
+
     const EM::Horizon3D* hor = getHorizon();
     if ( !hor ) mErrRet( tr("No Horizon selected") );
 
@@ -135,9 +132,9 @@ void uiCalcHorVol::calcReq( CallBacker* )
     }
 
     Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );
-    float m3 = ph2v.getM3( vel, optsfld_->isChecked(0),
-				!optsfld_->isChecked(1));
-    valfld_->setText( ph2v.dispText(m3,zinft_) );
+    const float m3 = ph2v.getM3( vel, optsfld_->isChecked(0),
+				 !optsfld_->isChecked(1) );
+    valfld_->setText( ph2v.dispText(m3,SI().xyInFeet()) );
 }
 
 
@@ -147,10 +144,10 @@ uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 	, hor_(0)
 {
     if ( ps_.size() < 3 )
-	{ 
-	    new uiLabel( this, uiStrings::phrInvalid(uiStrings::sPolygon()) ); 
-	    return; 
-	}
+    {
+	new uiLabel( this, uiStrings::phrInvalid(uiStrings::sPolygon()) );
+	return;
+    }
 
     horsel_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
 				tr("Calculate to") );

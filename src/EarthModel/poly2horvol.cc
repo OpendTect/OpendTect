@@ -59,7 +59,7 @@ bool Poly2HorVol::setHorizon( const MultiID& mid, TaskRunner* tr )
 
 float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 {
-    if ( !hor_ || ! ps_ )
+    if ( !hor_ || !ps_ )
 	return mUdf(float);
 
     ODPolygon<float> poly;
@@ -122,14 +122,15 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	}
     }
 
-    const float cellarea = SI().inlDistance() * hs.step_.inl()
-			 * SI().crlDistance() * hs.step_.crl();
+    const float xyfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
+    const float cellarea = SI().inlDistance() * hs.step_.inl() * xyfactor
+			 * SI().crlDistance() * hs.step_.crl() * xyfactor;
     const float v = SI().zIsTime() ? vel * .5f : 1; // TWT
     return cellarea * v * totth;
 }
 
 
-const char* Poly2HorVol::dispText( float m3, bool zinft )
+const char* Poly2HorVol::dispText( float m3, bool inft )
 {
     const float bblconv = 6.2898108;
     const float ft3conv = 35.314667;
@@ -138,17 +139,16 @@ const char* Poly2HorVol::dispText( float m3, bool zinft )
 	return "";
 
     float dispval = m3;
-    if ( zinft ) dispval *= ft3conv;
+    if ( inft ) dispval *= ft3conv;
     bool mega = false;
     if ( fabs(dispval) > 1e6 )
 	{ mega = true; dispval /= 1e6; }
 
     mDeclStaticString( txt );
     txt = dispval; txt += mega ? "M " : " ";
-    txt += zinft ? "ft^3" : "m^3";
+    txt += inft ? "ft^3" : "m^3";
     txt += " (";
-    dispval *= bblconv;
-    if ( zinft ) dispval /= ft3conv;
+    dispval = m3 * bblconv;
     if ( dispval > 1e6 )
 	{ mega = true; dispval /= 1e6; }
     txt += dispval; if ( mega ) txt += "M";

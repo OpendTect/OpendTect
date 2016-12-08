@@ -27,28 +27,30 @@ static const char* rcsID mUsedVar = "$Id$";
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     : uiDialog(p,Setup(tr("Calculate volume"),tr("Body volume estimation"),
                         mODHelpKey(mImplBodyCalDlgHelpID) ))
-    , embody_(eb)  
+    , embody_(eb)
     , velfld_(0)
     , volfld_(0)
-    , impbody_(0)  
+    , impbody_(0)
 {
     setCtrlStyle( CloseOnly );
-    
+
     if ( SI().zIsTime() )
     {
-	velfld_ = new uiGenInput( this, 
+	velfld_ = new uiGenInput( this,
 			 VelocityDesc::getVelVolumeLabel(),
 			 FloatInpSpec( SI().depthsInFeet()?10000.0f:3000.0f) );
     }
-    
-    volfld_ = new uiGenInput( this, uiStrings::sVolume() );
-    volfld_->setReadOnly( true );
-    if ( velfld_ )
-	volfld_->attach( alignedBelow, velfld_ );
-    
-    uiPushButton* calcbut = new uiPushButton( this, tr("Estimate"), true );
+
+    uiPushButton* calcbut =
+	new uiPushButton( this, tr("Estimate volume"), true );
     calcbut->activated.notify( mCB(this,uiImplBodyCalDlg,calcCB) );
-    calcbut->attach( rightTo, volfld_ );
+    if ( velfld_ )
+	calcbut->attach( alignedBelow, velfld_ );
+
+    volfld_ = new uiGenInput( this, uiStrings::sVolume() );
+    volfld_->setElemSzPol( uiObject::WideMax );
+    volfld_->setReadOnly( true );
+    volfld_->attach( alignedBelow, calcbut );
 }
 
 
@@ -57,6 +59,35 @@ uiImplBodyCalDlg::~uiImplBodyCalDlg()
 
 
 #define mErrRet(s) { uiMSG().error(s); return; }
+
+static BufferString dispText( float m3, bool inft )
+{
+    const float bblconv = 6.2898108;
+    const float ft3conv = 35.314667;
+
+    if ( mIsUdf(m3) )
+	return "";
+
+    float dispval = m3;
+    if ( inft ) dispval *= ft3conv;
+    bool mega = false;
+    if ( fabs(dispval) > 1e6 )
+	{ mega = true; dispval /= 1e6; }
+
+    BufferString txt;
+    txt = dispval; txt += mega ? "M " : " ";
+    txt += inft ? "ft^3" : "m^3";
+    txt += " (";
+    dispval *= bblconv;
+    if ( inft ) dispval /= ft3conv;
+    if ( dispval > 1e6 )
+	{ mega = true; dispval /= 1e6; }
+    txt += dispval; if ( mega ) txt += "M";
+    txt += " bbl)";
+
+    return txt;
+}
+
 
 void uiImplBodyCalDlg::calcCB( CallBacker* )
 {
@@ -82,9 +113,8 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
 	    impbody_->threshold_, vel );
     TaskRunner::execute( &taskrunner, bc );
 
-    BufferString txt;
-    txt += bc.getVolume();
-    txt += "m^3";
+    const float m3 = bc.getVolume();
+    const BufferString txt = dispText( m3, SI().xyInFeet() );
     volfld_->setText( txt.buf() );
 }
 
