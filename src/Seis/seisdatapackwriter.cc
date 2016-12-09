@@ -222,7 +222,7 @@ int SeisDataPackWriter::nextStep()
 		}
 
 		if ( scaler )
-		    value = scaler->scale( value );
+		    value = mCast(float,scaler->scale( value ) );
 	    }
 	    else
 		value = mUdf(float);
