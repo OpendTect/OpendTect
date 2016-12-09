@@ -730,16 +730,16 @@ void VolumeProbe::setZDomain( const ZDomain::Info& zdom )
 
 BufferString VolumeProbe::createName() const
 {
-    BufferString name;
+    BufferString nm;
     const int zuserfac = zdomain_->userFactor();
-    name.add(probepos_.hsamp_.start_.inl()).add("-")
-	.add(probepos_.hsamp_.stop_.inl()).add("/")
-	.add(probepos_.hsamp_.start_.crl()).add( "-")
-	.add(probepos_.hsamp_.stop_.crl()).add("/")
-	.add(mNINT32(probepos_.zsamp_.start*zuserfac)).add("-")
-	.add(mNINT32(probepos_.zsamp_.stop*zuserfac));
+    nm.add(probepos_.hsamp_.start_.inl()).add("-")
+      .add(probepos_.hsamp_.stop_.inl()).add("/")
+      .add(probepos_.hsamp_.start_.crl()).add( "-")
+      .add(probepos_.hsamp_.stop_.crl()).add("/")
+      .add(mNINT32(probepos_.zsamp_.start*zuserfac)).add("-")
+      .add(mNINT32(probepos_.zsamp_.stop*zuserfac));
 
-    return name;
+    return nm;
 }
 
 
