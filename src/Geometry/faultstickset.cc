@@ -13,6 +13,94 @@
 namespace Geometry
 {
 
+FaultStick::FaultStick()
+    : curknotidnr_(0)
+    , firstcol_(0)
+    , planenormal_(Coord3::udf())
+    , stickstatus_(0)
+{}
+
+
+FaultStick::FaultStick( int firstcol, Coord3 plnormal, unsigned int status,
+			int sz )
+    : curknotidnr_(0)
+    , firstcol_(firstcol)
+    , planenormal_(plnormal)
+    , stickstatus_(status)
+{
+    stickcoords_.setSize( sz );
+    knotstatus_.setSize( sz );
+    knotids_.setSize( sz );
+}
+
+
+FaultStick::~FaultStick()
+{
+    stickcoords_.setEmpty();
+    knotstatus_.setEmpty();
+    knotids_.setEmpty();
+}
+
+
+void FaultStick::addKnot( const Coord3& knot, unsigned int status )
+{
+    stickcoords_.add( knot );
+    knotstatus_.add( status );
+    knotids_.add( KnotID::get(curknotidnr_++) );
+}
+
+
+void FaultStick::setKnot( int idx, const Coord3& knot, unsigned int status )
+{
+    if ( idx<size() )
+    {
+	stickcoords_[idx] = knot;
+	knotstatus_[idx] = status;
+	knotids_[idx] = KnotID::get(curknotidnr_++);
+	return;
+    }
+
+    addKnot( knot, status );
+}
+
+
+void FaultStick::removeKnot( int idx )
+{
+    if ( idx >= size() )
+	return;
+
+    stickcoords_.removeSingle( idx );
+    knotstatus_.removeSingle( idx );
+    knotids_.removeSingle( idx );
+}
+
+
+Coord3 FaultStick::getKnot( int idx ) const
+{
+    return idx < size() ? stickcoords_[idx] : Coord3::udf();
+}
+
+
+unsigned int FaultStick::knotStat( int idx ) const
+{
+    return idx < knotstatus_.size() ? knotstatus_[idx] : mUdf(int);
+}
+
+
+void FaultStick::setKnotStat( int idx, unsigned int status )
+{
+    if ( idx<knotstatus_.size() )
+    {
+	knotstatus_[idx] = status;
+    }
+}
+
+
+int FaultStick::size() const
+{
+    return stickcoords_.size();
+}
+
 
 #define mGetValidStickIdx( stickidx, sticknr, extra, errorres ) \
 \
@@ -22,8 +110,8 @@ namespace Geometry
 
 #define mGetValidKnotIdx( knotidx, knotnr, stickidx, extra, errorres ) \
 \
-    if ( !firstcols_.size() ) return errorres; \
-    int knotidx = knotnr - firstcols_[stickidx]; \
+    if ( sticks_[stickidx]->isEmpty() ) return errorres; \
+    int knotidx = knotnr - sticks_[stickidx]->firstCol(); \
     if ( knotidx<-extra || knotidx>=sticks_[stickidx]->size()+extra ) \
 	return errorres;
 
@@ -38,13 +126,13 @@ namespace Geometry
     
 FaultStickSet::FaultStickSet()
     : firstrow_(0)
+    , curstickidnr_(0)
 {}
 
 
 FaultStickSet::~FaultStickSet()
 {
     deepErase( sticks_ );
-    deepErase( knotstatus_ );
 }
 
 
@@ -52,20 +140,14 @@ Element* FaultStickSet::clone() const
 {
     FaultStickSet* res = new FaultStickSet;
     deepCopy( res->sticks_, sticks_ );
-    res->firstcols_ = firstcols_;
-    res->firstrow_ = firstrow_;
-    res->editplanenormals_ = editplanenormals_;
-    res->stickstatus_ = stickstatus_;
-    deepCopy( res->knotstatus_, knotstatus_ );
-
     return res;
 }
 
 
 
 bool FaultStickSet::insertStick( const Coord3& firstpos, 
-				     const Coord3& editnormal, int sticknr,
-				     int firstcol )
+				 const Coord3& editnormal, int sticknr,
+				 int firstcol )
 {
     if ( !firstpos.isDefined() )
 	return false;
@@ -84,26 +166,19 @@ bool FaultStickSet::insertStick( const Coord3& firstpos,
 	stickidx++;
     }
 
+    FaultStick* newstick = new FaultStick( firstcol, normvec, NoStatus );
     if ( stickidx==sticks_.size() )
     {
-	sticks_ += new TypeSet<Coord3>;
-	editplanenormals_ += normvec;
-	stickstatus_ += NoStatus;
-	firstcols_ += firstcol;
-	knotstatus_ += new TypeSet<unsigned int>;
+	sticks_ += newstick;
+	stickids_ += StickID::get(curstickidnr_++);
     }
     else
     {
-	sticks_.insertAt( new TypeSet<Coord3>, stickidx );
-	editplanenormals_.insert( stickidx, normvec );
-	stickstatus_.insert( stickidx, NoStatus );
-	firstcols_.insert( stickidx, firstcol );
-	knotstatus_.insertAt( new TypeSet<unsigned int>, stickidx );
+	sticks_.insertAt( newstick, stickidx );
+	stickids_.insert( stickidx, StickID::get(curstickidnr_++) );
     }
 
-    sticks_[stickidx]->insert( 0, firstpos );
-    knotstatus_[stickidx]->insert( 0, NoStatus );
-
+    newstick->setKnot( 0, firstpos, NoStatus );
     triggerNrPosCh( RowCol(stickidx,StickInsert).toInt64() );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
@@ -117,10 +192,6 @@ bool FaultStickSet::removeStick( int sticknr )
     mGetValidStickIdx( stickidx, sticknr, 0, false );
 
     delete sticks_.removeSingle( stickidx );
-    editplanenormals_.removeSingle( stickidx );
-    stickstatus_.removeSingle( stickidx );
-    firstcols_.removeSingle( stickidx );
-    delete knotstatus_.removeSingle( stickidx );
 
     if ( !stickidx )
 	firstrow_++;
@@ -142,23 +213,16 @@ bool FaultStickSet::insertKnot( const RowCol& rc, const Coord3& pos )
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 1, false );
     if ( knotidx==-1 )
     {
-	firstcols_[stickidx]--;
+	sticks_[stickidx]->firstCol()--;
 	knotidx++;
     }
 
     if ( knotidx==sticks_[stickidx]->size() )
-    {
-	(*sticks_[stickidx]) += pos;
-	(*knotstatus_[stickidx]) += NoStatus;
-    }
+	sticks_[stickidx]->addKnot( pos, NoStatus );
     else
-    {
-	sticks_[stickidx]->insert( knotidx, pos );
-	knotstatus_[stickidx]->insert( knotidx, NoStatus );
-    }
+	sticks_[stickidx]->setKnot( knotidx, pos, NoStatus );
 
     triggerNrPosCh( RowCol(stickidx,StickChange).toInt64() );
-
     return true;
 }
 
@@ -171,11 +235,10 @@ bool FaultStickSet::removeKnot( const RowCol& rc )
     if ( sticks_[stickidx]->size() <= 1 )
 	return removeStick( rc.row() );
 
-    sticks_[stickidx]->removeSingle( knotidx );
-    knotstatus_[stickidx]->removeSingle( knotidx );
+    sticks_[stickidx]->removeKnot( knotidx );
 
     if ( !knotidx )
-	firstcols_[stickidx]++;
+	sticks_[stickidx]->firstCol()++;
 
     triggerNrPosCh( RowCol(stickidx,StickChange).toInt64() );
     
@@ -191,7 +254,7 @@ const TypeSet<Coord3>* FaultStickSet::getStick( int stickidx ) const
    if ( stickidx<0 || stickidx>=sticks_.size() )
       return 0;
 
-    return sticks_[stickidx];
+    return &sticks_[stickidx]->stickCoords();
 }
 
 int FaultStickSet::nrKnots( int sticknr ) const
@@ -216,7 +279,7 @@ StepInterval<int> FaultStickSet::colRange( int sticknr ) const
 {
     mGetValidStickIdx( stickidx, sticknr, 0, mEmptyInterval() );
 
-    const int firstcol = firstcols_[stickidx];
+    const int& firstcol = sticks_[stickidx]->firstCol();
     return StepInterval<int>(firstcol, firstcol+sticks_[stickidx]->size()-1, 1);
 }
 
@@ -229,7 +292,7 @@ bool FaultStickSet::setKnot( const RowCol& rc, const Coord3& pos )
     mGetValidStickIdx( stickidx, rc.row(), 0, false );
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, false );
 
-    (*sticks_[stickidx])[knotidx] = pos;
+    sticks_[stickidx]->setKnot( knotidx, pos );
     triggerMovement( RowCol(stickidx,StickChange).toInt64() );
     return true;
 }
@@ -240,7 +303,7 @@ Coord3 FaultStickSet::getKnot( const RowCol& rc ) const
     mGetValidStickIdx( stickidx, rc.row(), 0, Coord3::udf() );
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, Coord3::udf() );
     
-    return (*sticks_[stickidx])[knotidx];
+    return sticks_[stickidx]->getKnot( knotidx );
 }
 
 
@@ -256,8 +319,8 @@ bool FaultStickSet::isKnotDefined( const RowCol& rc ) const
 Coord3 FaultStickSet::getEditPlaneNormal( int sticknr ) const
 {
     mGetValidStickIdx( stickidx, sticknr, 0, Coord3::udf() );
-    if ( stickidx < editplanenormals_.size() )
-	return editplanenormals_[stickidx];
+    if ( stickidx < sticks_.size() )
+	return  sticks_[stickidx]->planeNormal();
 
     return Coord3::udf();
 }
@@ -265,7 +328,8 @@ Coord3 FaultStickSet::getEditPlaneNormal( int sticknr ) const
 
 void FaultStickSet::addEditPlaneNormal( const Coord3& editnormal )
 {
-    editplanenormals_ += editnormal;
+    int i = 0;
+    //editplanenormals_ += editnormal;
 }
 
 
@@ -273,10 +337,11 @@ void FaultStickSet::addUdfRow( int sticknr, int firstknotnr, int nrknots )
 {
     if ( isEmpty() )
 	firstrow_ = sticknr;
-    firstcols_ += firstknotnr;
-    stickstatus_ += NoStatus;
-    sticks_ += new TypeSet<Coord3>( nrknots, Coord3::udf() );
-    knotstatus_ += new TypeSet<unsigned int>( nrknots, NoStatus );
+    
+    FaultStick* newstick = new FaultStick( firstknotnr, Coord3::udf(),
+					    NoStatus, nrknots );
+    sticks_ += newstick;
+    stickids_ += StickID::get(curstickidnr_++);
 }
 
 
@@ -431,17 +496,20 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
 void FaultStickSet::selectStick( int sticknr, bool yn )
 {
     mGetValidStickIdx( stickidx, sticknr, 0, );
+    unsigned int stat = sticks_[stickidx]->stickStat();
     if ( yn )
-	stickstatus_[stickidx] |= Selected;
+	stat |= Selected;
     else
-	stickstatus_[stickidx] &= ~Selected;
+	stat &= ~Selected;
+
+    sticks_[stickidx]->setStickStat( stat );
 }
 
 
 bool FaultStickSet::isStickSelected( int sticknr ) const
 {
     mGetValidStickIdx( stickidx, sticknr, 0, false );
-    return stickstatus_[stickidx] & Selected;
+    return sticks_[stickidx]->stickStat() & Selected;
 }
 
 
@@ -453,11 +521,13 @@ void FaultStickSet::hideStick( int sticknr, bool yn, int sceneidx )
     mGetValidStickIdx( stickidx, sticknr, 0, );
     mGetValidHiddenMask( hiddenmask, sceneidx, );
 
+    unsigned int stat = sticks_[stickidx]->stickStat();
     if ( yn )
-	stickstatus_[stickidx] |= hiddenmask;
+	stat |= hiddenmask;
     else
-	stickstatus_[stickidx] &= ~hiddenmask;
+	stat &= ~hiddenmask;
 
+    sticks_[stickidx]->setStickStat( stat );
     triggerNrPosCh( RowCol(stickidx,StickHide).toInt64() );
 }
 
@@ -466,25 +536,28 @@ bool FaultStickSet::isStickHidden( int sticknr, int sceneidx ) const
 {
     mGetValidStickIdx( stickidx, sticknr, 0, false );
     mGetValidHiddenMask( hiddenmask, sceneidx, false );
-    return stickstatus_[stickidx] & hiddenmask;
+    return sticks_[stickidx]->stickStat() & hiddenmask;
 }
 
 
 void FaultStickSet::preferStick( int sticknr )
 {
-    for ( int idx=0; idx<stickstatus_.size(); idx++ )
-	stickstatus_[idx] &= ~Preferred;
+    for ( int idx=0; idx<sticks_.size(); idx++ )
+    {
+	unsigned int stat = sticks_[idx]->stickStat();
+	stat &= ~Preferred;
+	sticks_[idx]->setStickStat( stat );
+    }
 
     mGetValidStickIdx( stickidx, sticknr, 0, );
-    stickstatus_[stickidx] |= Preferred;
 }
 
 
 int FaultStickSet::preferredStickNr() const
 {
-    for ( int idx=0; idx<stickstatus_.size(); idx++ )
+    for ( int idx=0; idx<sticks_.size(); idx++ )
     {
-	if ( stickstatus_[idx] & Preferred )
+	if ( sticks_[idx]->stickStat() & Preferred )
 	    return firstrow_+idx;
     }
 
@@ -501,11 +574,13 @@ void FaultStickSet::hideKnot( const RowCol& rc, bool yn, int sceneidx )
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, );
     mGetValidHiddenMask( hiddenmask, sceneidx, );
 
+    unsigned int knotstat = sticks_[stickidx]->knotStat( knotidx );
     if ( yn )
-	(*knotstatus_[stickidx])[knotidx] |= hiddenmask;
+	knotstat |= hiddenmask;
     else
-	(*knotstatus_[stickidx])[knotidx] &= ~hiddenmask;
+	knotstat &= ~hiddenmask;
 
+    sticks_[stickidx]->setKnotStat( knotidx, knotstat );
     // TODO if also sticks of faults are pruned for display only at sections:
     // triggerNrPosCh( RowCol(stickidx,KnotHide).toInt64() );
 }
@@ -516,7 +591,7 @@ bool FaultStickSet::isKnotHidden( const RowCol& rc, int sceneidx ) const
     mGetValidStickIdx( stickidx, rc.row(), 0, false );
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, false );
     mGetValidHiddenMask( hiddenmask, sceneidx, false );
-    return (*knotstatus_[stickidx])[knotidx] & hiddenmask;
+    return sticks_[stickidx]->knotStat( knotidx ) & hiddenmask;
 }
 
 
