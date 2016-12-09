@@ -12,6 +12,8 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
+#include "uilistbox.h"
 #include "uitextedit.h"
 
 #include "attribdesc.h"
@@ -32,6 +34,13 @@ uiAttrSetMan::uiAttrSetMan( uiParent* p )
 	           AttribDescSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
+
+    uiListBox::Setup su( OD::ChooseNone, uiStrings::sAttribute(2),
+			 uiListBox::AboveMid );
+    attribfld_ = new uiListBox( listgrp_, su );
+    attribfld_->attach( rightOf, selgrp_ );
+    attribfld_->setHSzPol( uiObject::Wide );
+
     mTriggerInstanceCreatedNotifier();
     selChg( this );
 }
@@ -42,24 +51,39 @@ uiAttrSetMan::~uiAttrSetMan()
 }
 
 
-static void addAttrNms( const Attrib::DescSet& attrset, BufferString& txt,
+static void getAttrNms( BufferStringSet& nms, const Attrib::DescSet& attrset,
 			bool stor )
 {
     const int totnrdescs = attrset.nrDescs( true, true );
-    BufferStringSet nms;
     for ( int idx=0; idx<totnrdescs; idx++ )
     {
 	const Attrib::Desc& desc = *attrset.desc( idx );
 	if ( !desc.isHidden() && stor == desc.isStored() )
 	    nms.add( desc.userRef() );
     }
+}
 
+static void addAttrNms( const Attrib::DescSet& attrset, BufferString& txt,
+			bool stor )
+{
+    BufferStringSet nms;
+    getAttrNms( nms, attrset, stor );
     txt.add( nms.getDispString(2) );
+}
+
+
+static void fillAttribList( uiListBox* attribfld,
+			    const Attrib::DescSet& attrset )
+{
+    BufferStringSet nms;
+    getAttrNms( nms, attrset, false );
+    attribfld->addItems( nms );
 }
 
 
 void uiAttrSetMan::mkFileInfo()
 {
+    attribfld_->setEmpty();
     if ( !curioobj_ ) { setInfo( "" ); return; }
 
     BufferString txt;
@@ -86,11 +110,8 @@ void uiAttrSetMan::mkFileInfo()
 	}
 	if ( nrattrs < 1 )
 	    txt += "\nNo attributes defined";
-	else
-	{
-	    txt += "\nAttribute"; txt += nrattrs == 1 ? ": " : "s: ";
-	    addAttrNms( attrset, txt, false );
-	}
+
+	fillAttribList( attribfld_, attrset );
     }
 
     txt += "\n";
