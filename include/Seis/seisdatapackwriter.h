@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 namespace PosInfo { class CubeData; }
 class RegularSeisDataPack;
+class Scaler;
 class SeisTrcWriter;
 class SeisTrc;
 
@@ -34,6 +35,8 @@ public:
     const RegularSeisDataPack* dataPack() const	{ return dp_; }
     void		setNextDataPack(const RegularSeisDataPack&);
 
+    void		setComponentScaler(const Scaler&,int compidx);
+
     od_int64		nrDone() const;
     od_int64		totalNr() const;
     uiString		message() const;
@@ -49,8 +52,9 @@ private:
     void		setCubeIdxRange();
     bool		setTrc();
 
-    TypeSet<int>			compidxs_;
-    DBKey				mid_;
+    TypeSet<int>		compidxs_;
+    ObjectSet<Scaler>		compscalers_; //Same size as compidxs_
+    DBKey			mid_;
     ConstRefMan<RegularSeisDataPack>	dp_;
 
     int				nrdone_;

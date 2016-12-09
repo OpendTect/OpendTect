@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "ioobj.h"
 #include "posinfo.h"
+#include "scaler.h"
 #include "seisdatapack.h"
 #include "seisselectionimpl.h"
 #include "seiswrite.h"
@@ -37,12 +38,16 @@ SeisDataPackWriter::SeisDataPackWriter( const DBKey& mid,
     , compidxs_( compidxs )
     , trc_( 0 )
 {
+    compscalers_.allowNull( true );
     getPosInfo();
 
     if ( compidxs_.isEmpty() )
     {
 	for ( int idx=0; idx<dp_->nrComponents(); idx++ )
+	{
 	    compidxs_ += idx;
+	    compscalers_ += 0;
+	}
     }
 
     const int startz =
@@ -60,6 +65,7 @@ SeisDataPackWriter::~SeisDataPackWriter()
 {
     delete trc_;
     delete writer_;
+    deepErase( compscalers_ );
 }
 
 
@@ -71,6 +77,21 @@ void SeisDataPackWriter::getPosInfo()
 	posinfo_ = pi;
 	totalnr_ = posinfo_->totalSizeInside( tks_ );
     }
+}
+
+
+void SeisDataPackWriter::setComponentScaler( const Scaler& scaler, int compidx )
+{
+    if ( scaler.isEmpty() )
+	return;
+
+    for ( int idx=0; idx<=compidx; idx++ )
+    {
+	if ( !compscalers_.validIdx(idx) )
+	    compscalers_ += 0;
+    }
+
+    delete compscalers_.replace( compidx, scaler.clone() );
 }
 
 
@@ -183,6 +204,7 @@ int SeisDataPackWriter::nextStep()
     for ( int idx=0; idx<compidxs_.size(); idx++ )
     {
 	const Array3D<float>& outarr = dp_->data( compidxs_[idx] );
+	const Scaler* scaler = compscalers_[idx];
 	const float* dataptr = outarr.getData();
 	dataptr += offset;
 	zsample = zrg_.start;
@@ -198,6 +220,9 @@ int SeisDataPackWriter::nextStep()
 		    value = outarr.get( inlpos, crlpos, cubesample );
 		    cubesample++;
 		}
+
+		if ( scaler )
+		    value = scaler->scale( value );
 	    }
 	    else
 		value = mUdf(float);
