@@ -246,11 +246,46 @@ RegularSeisDataPack::~RegularSeisDataPack()
 }
 
 
+RegularSeisDataPack* RegularSeisDataPack::clone() const
+{
+    RegularSeisDataPack* ret = getSimilar();
+    if ( trcsSampling() )
+	ret->setTrcsSampling( new PosInfo::SortedCubeData(*trcsSampling()) );
+
+    ret->setZDomain( zDomain() );
+    ret->setRefNrs( refnrs_ );
+    ret->setDataDesc( getDataDesc() );
+    if ( getScaler() )
+	ret->setScaler( *getScaler() );
+
+    if ( !ret->copyFrom(*this) )
+	{ delete ret; return 0; }
+
+    return ret;
+}
+
+
 RegularSeisDataPack* RegularSeisDataPack::getSimilar() const
 {
     RegularSeisDataPack* ret = new RegularSeisDataPack( category(), &desc_ );
     ret->setSampling( sampling() );
     return ret;
+}
+
+
+bool RegularSeisDataPack::copyFrom( const RegularSeisDataPack& oth )
+{
+    componentnames_.setEmpty();
+    deepErase( arrays_ );
+    for ( int icomp=0; icomp<oth.nrComponents(); icomp++ )
+    {
+	if ( !addComponent(oth.getComponentName(icomp)) )
+	    return false;
+
+	*arrays_[icomp] = oth.data( icomp );
+    }
+
+    return true;
 }
 
 

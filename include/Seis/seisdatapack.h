@@ -44,8 +44,12 @@ public:
 				RegularSeisDataPack(const char* cat,
 						    const BinDataDesc* bdd=0);
 				~RegularSeisDataPack();
+
     bool			is2D() const;
+
+    RegularSeisDataPack*	clone() const;
     RegularSeisDataPack*	getSimilar() const;
+    bool			copyFrom(const RegularSeisDataPack&);
 
     void			setSampling( const TrcKeyZSampling& tkzs )
 				{ sampling_ = tkzs; }
