@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 namespace PosInfo { class CubeData; }
 class RegularSeisDataPack;
+class Scaler;
 class SeisTrcWriter;
 class SeisTrc;
 
@@ -35,6 +36,8 @@ public:
 				     const Interval<int>&);
     const RegularSeisDataPack* dataPack() const	{ return dp_; }
     void		setNextDataPack(const RegularSeisDataPack&);
+
+    void		setComponentScaler(const Scaler&,int compidx);
 
     od_int64		nrDone() const;
     od_int64		totalNr() const;

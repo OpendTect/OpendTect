@@ -346,6 +346,15 @@ bool VolProc::ChainOutput::openOutput()
     wrr_ = new SeisDataPackWriter( outid_, *seisdp );
     DPM( DataPackMgr::SeisID() ).release( seisdp->id() );
     wrr_->setSelection( cs_.hsamp_, outputzrg_ );
+    for ( int idx=0; idx<chain_->getOutputScalers().size(); idx++ )
+    {
+	const Scaler* scaler = chain_->getOutputScalers()[idx];
+	if ( !scaler )
+	    continue;
+
+	wrr_->setComponentScaler( *scaler, idx );
+    }
+
     wrr_->enableWorkControl( workControlEnabled() );
 
     return true;

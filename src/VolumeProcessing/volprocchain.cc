@@ -12,8 +12,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "scaler.h"
 #include "survinfo.h"
 
+#include "hiddenparam.h"
+
+HiddenParam<VolProc::Chain,ObjectSet<Scaler>* > volprocchainoutcompscalers_(0);
 
 VolProc::Chain::Connection::Connection( Step::ID outpstepid,
 			       Step::OutputSlotID outpslotid,
@@ -73,12 +77,20 @@ VolProc::Chain::Chain()
     , outputstepid_( Step::cUndefID() )
     , outputslotid_( Step::cUndefSlotID() )
 {
+    ObjectSet<Scaler>* outcompscalers = new ObjectSet<Scaler>;
+    outcompscalers->allowNull( true );
+    volprocchainoutcompscalers_.setParam( this, outcompscalers );
 }
 
 
 VolProc::Chain::~Chain()
 {
     deepErase( steps_ );
+    ObjectSet<Scaler>* outcompscalers =
+				volprocchainoutcompscalers_.getParam( this );
+    deepErase( *outcompscalers );
+    delete outcompscalers;
+    volprocchainoutcompscalers_.removeParam( this );
 }
 
 
@@ -297,6 +309,18 @@ void VolProc::Chain::fillPar( IOPar& par ) const
 	conns[idx].fillPar( par, sKeyConnection(idx,key)  );
 
     par.set( sKey::Output(), outputstepid_, outputslotid_ );
+    const BufferString outscalerstr(
+				IOPar::compKey(sKey::Output(),sKey::Scale()) );
+    const ObjectSet<Scaler>& outcompscalers = getOutputScalers();
+    for ( int idx=0; idx<outcompscalers.size(); idx++ )
+    {
+	if ( !outcompscalers[idx] || outcompscalers[idx]->isEmpty() )
+	    continue;
+
+	BufferString scalerstr;
+	outcompscalers[idx]->put( scalerstr.getCStr() );
+	par.set( IOPar::compKey(outscalerstr.str(),idx), scalerstr );
+    }
 }
 
 
@@ -310,7 +334,10 @@ const char* VolProc::Chain::sKeyConnection( int idx, BufferString& str )
 
 bool VolProc::Chain::usePar( const IOPar& par )
 {
+    ObjectSet<Scaler>& outcompscalers =
+				*volprocchainoutcompscalers_.getParam( this );
     deepErase( steps_ );
+    deepErase( outcompscalers );
     web_.getConnections().erase();
 
     const uiString parseerror = tr("Parsing error");
@@ -414,6 +441,32 @@ bool VolProc::Chain::usePar( const IOPar& par )
 	}
     }
 
+    const BufferString outscalerstr(
+				IOPar::compKey(sKey::Output(),sKey::Scale()) );
+    PtrMan<IOPar> scalerpar = par.subselect( outscalerstr );
+    if ( scalerpar.ptr() )
+    {
+	for ( int idx=0; idx<scalerpar->size(); idx++ )
+	{
+	    const BufferString compidxstr( scalerpar->getKey(idx) );
+	    const int compidx = compidxstr.toInt();
+	    BufferString scalerstr;
+	    if ( !scalerpar->get(compidxstr,scalerstr) || scalerstr.isEmpty() )
+		continue;
+
+	    Scaler* scaler = Scaler::get( scalerstr );
+	    if ( !scaler ) continue;
+
+	    for ( int idy=0; idy<=compidx; idy++ )
+	    {
+		if ( !outcompscalers.validIdx(idy) )
+		    outcompscalers += 0;
+	    }
+
+	    delete outcompscalers.replace( compidx, scaler );
+	}
+    }
+
     return true;
 }
 
@@ -445,6 +498,22 @@ bool VolProc::Chain::setOutputSlot( Step::ID stepid, Step::OutputSlotID slotid )
     outputslotid_ = slotid;
 
     return true;
+}
+
+
+void VolProc::Chain::setOutputScalers( const ObjectSet<Scaler>& scalers )
+{
+    ObjectSet<Scaler>& outcompscalers =
+				*volprocchainoutcompscalers_.getParam( this );
+    deepErase( outcompscalers );
+    for ( int idx=0; idx<scalers.size(); idx++ )
+	outcompscalers += scalers[idx] ? scalers[idx]->clone() : 0;
+}
+
+
+const ObjectSet<Scaler>& VolProc::Chain::getOutputScalers() const
+{
+    return *volprocchainoutcompscalers_.getParam( this );
 }
 
 

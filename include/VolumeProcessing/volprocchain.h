@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "threadlock.h"
 
+class Scaler;
 
 namespace VolProc
 {
@@ -97,6 +98,8 @@ public:
     int				getNrUsers(Step::ID,Step::InputSlotID) const;
 
     bool			setOutputSlot(Step::ID,Step::OutputSlotID);
+    void			setOutputScalers(const ObjectSet<Scaler>&);
+    const ObjectSet<Scaler>&	getOutputScalers() const;
 
     const VelocityDesc*		getVelDesc() const;
 

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "posinfo.h"
+#include "scaler.h"
 #include "seisdatapack.h"
 #include "seiswrite.h"
 #include "seistrc.h"
@@ -25,6 +26,7 @@ ________________________________________________________________________
 #include "hiddenparam.h"
 
 HiddenParam<SeisDataPackWriter,StepInterval<int>* > cubezrgidx_(0);
+HiddenParam<SeisDataPackWriter,ObjectSet<Scaler>* > seisdpwrrcompscalers_(0);
 
 
 SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
@@ -42,13 +44,19 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     , trc_( 0 )
 {
     cubezrgidx_.setParam( this, new StepInterval<int>( 0,0,0 ) );
+    ObjectSet<Scaler>* compscalers = new ObjectSet<Scaler>;
+    compscalers->allowNull( true );
+    seisdpwrrcompscalers_.setParam( this, compscalers );
     obtainDP();
     getPosInfo();
 
     if ( compidxs_.isEmpty() )
     {
 	for ( int idx=0; idx<dp_->nrComponents(); idx++ )
+	{
 	    compidxs_ += idx;
+	    *compscalers += 0;
+	}
     }
 
     const int startz =
@@ -68,6 +76,10 @@ SeisDataPackWriter::~SeisDataPackWriter()
     delete writer_;
     delete cubezrgidx_.getParam( this );
     cubezrgidx_.removeParam( this );
+    ObjectSet<Scaler>* compscalers = seisdpwrrcompscalers_.getParam( this );
+    deepErase( *compscalers );
+    delete compscalers;
+    seisdpwrrcompscalers_.removeParam( this );
 }
 
 
@@ -80,6 +92,23 @@ void SeisDataPackWriter::getPosInfo()
 	totalnr_ = posinfo_->totalSizeInside( tks_ );
     }
 }
+
+
+void SeisDataPackWriter::setComponentScaler( const Scaler& scaler, int compidx )
+{
+    if ( scaler.isEmpty() )
+	return;
+
+    ObjectSet<Scaler>* compscalers = seisdpwrrcompscalers_.getParam( this );
+    for ( int idx=0; idx<=compidx; idx++ )
+    {
+	if ( !compscalers->validIdx(idx) )
+	    *compscalers += 0;
+    }
+
+    delete compscalers->replace( compidx, scaler.clone() );
+}
+
 
 
 od_int64 SeisDataPackWriter::nrDone() const
@@ -187,6 +216,7 @@ int SeisDataPackWriter::nextStep()
     if ( !iterator_.next(currentpos) )
 	return Finished();
 
+    ObjectSet<Scaler>& compscalers = *seisdpwrrcompscalers_.getParam( this );
     const TrcKeySampling& hs = dp_->sampling().hsamp_;
     const od_int64 posidx = iterator_.curIdx();
     if ( posinfo_ && !posinfo_->isValid(posidx,hs) )
@@ -207,6 +237,7 @@ int SeisDataPackWriter::nextStep()
     {
 	const Array3D<float>& outarr = dp_->data( compidxs_[idx] );
 	const float* dataptr = outarr.getData();
+	const Scaler* scaler = compscalers[idx];
 	dataptr += offset;
 	zsample = zrg_.start;
 	cubesample = zsample - cubezrgidx->start;
@@ -221,6 +252,9 @@ int SeisDataPackWriter::nextStep()
 		    value = outarr.get( inlpos, crlpos, cubesample );
 		    cubesample++;
 		}
+
+		if ( scaler )
+		    value = mCast(float,scaler->scale( value ));
 	    }
 	    else
 		value = mUdf(float);
