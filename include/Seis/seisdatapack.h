@@ -32,6 +32,10 @@ public:
 						    const BinDataDesc* bdd=0);
 				~RegularSeisDataPack();
 
+    RegularSeisDataPack*	clone() const;
+    RegularSeisDataPack*	getSimilar() const;
+    bool			copyFrom(const RegularSeisDataPack&);
+
     void			setSampling( const TrcKeyZSampling& tkzs )
 				{ sampling_ = tkzs; }
     const TrcKeyZSampling&	sampling() const

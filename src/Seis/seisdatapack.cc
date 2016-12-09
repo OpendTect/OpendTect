@@ -203,6 +203,47 @@ RegularSeisDataPack::~RegularSeisDataPack()
 }
 
 
+RegularSeisDataPack* RegularSeisDataPack::clone() const
+{
+    RegularSeisDataPack* ret = getSimilar();
+    if ( getTrcsSampling() )
+	ret->setTrcsSampling( new PosInfo::SortedCubeData(*getTrcsSampling()) );
+
+    ret->setZDomain( zDomain() );
+    ret->setRefNrs( refnrs_ );
+    ret->setDataDesc( getDataDesc() );
+    if ( getScaler() )
+	ret->setScaler( *getScaler() );
+
+    ret->copyFrom( *this );
+    return ret;
+}
+
+
+RegularSeisDataPack* RegularSeisDataPack::getSimilar() const
+{
+    RegularSeisDataPack* ret = new RegularSeisDataPack( category(), &desc_ );
+    ret->setSampling( sampling() );
+    return ret;
+}
+
+
+bool RegularSeisDataPack::copyFrom( const RegularSeisDataPack& oth )
+{
+    componentnames_.setEmpty();
+    deepErase( arrays_ );
+    for ( int icomp=0; icomp<oth.nrComponents(); icomp++ )
+    {
+	if ( !addComponent(oth.getComponentName(icomp)) )
+	    return false;
+
+	*arrays_[icomp] = oth.data( icomp );
+    }
+
+    return true;
+}
+
+
 void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
 {
     if ( is2D() )
