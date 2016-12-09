@@ -30,6 +30,7 @@ void AttribProbeLayer::copyClassData( const AttribProbeLayer& oth )
 
 AttribProbeLayer::AttribProbeLayer( DispType dt )
     : ProbeLayer()
+    , attrcoltab_( ColTab::Sequence(ColTab::defSeqName()) )
     , attrspec_(*new Attrib::SelSpec())
     , attribdpid_(DataPack::ID::getInvalid())
     , disptype_(dt)

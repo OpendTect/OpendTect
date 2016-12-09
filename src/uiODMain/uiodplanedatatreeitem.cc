@@ -498,7 +498,7 @@ bool uiODPlaneDataParentTreeItem::setProbeToBeAddedParams( int mnuid )
 	return setDefaultPosToBeAdded();
     }
 
-    return true;
+    return false;
 }
 
 

@@ -15,7 +15,6 @@
 #include "array2dresample.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
-#include "attribprobelayer.h"
 #include "convmemvalseries.h"
 #include "seisdatapack.h"
 #include "volumedatapackzaxistransformer.h"
@@ -38,7 +37,6 @@
 #include "visselman.h"
 #include "vistexturechannels.h"
 #include "vistexturepanelstrip.h"
-#include "visrgbatexturechannel2rgba.h"
 #include "vistopbotimage.h"
 #include "zaxistransform.h"
 
@@ -196,18 +194,6 @@ void RandomTrackDisplay::setProbe( Probe* probe )
     rl_->allNodePositions( bids );
     setNodePositions( bids, true );
     setDepthInterval( rl_->zRange() );
-
-    for ( int idx=0; idx<probe_->nrLayers(); idx++ )
-    {
-	mDynamicCastGet( const AttribProbeLayer*,attrprlayer,
-			 probe_->getLayerByIdx(idx) );
-	if ( !attrprlayer )
-	    continue;
-
-	if ( attrprlayer->getDispType()==AttribProbeLayer::RGB )
-	    setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
-	addAttrib();
-    }
 }
 
 

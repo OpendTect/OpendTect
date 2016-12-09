@@ -524,7 +524,6 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 void uiODDataTreeItem::prepareForShutdown()
 {
     uiTreeItem::prepareForShutdown();
-    visserv_->removeAttrib( displayID(), attribNr() );
     applMgr()->updateColorTable( -1, -1 );
 }
 

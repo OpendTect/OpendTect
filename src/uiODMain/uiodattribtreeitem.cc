@@ -24,8 +24,9 @@ ___________________________________________________________________
 #include "probeimpl.h"
 #include "posvecdataset.h"
 #include "randomlineprobe.h"
-#include "volumedatapackzaxistransformer.h"
 #include "survinfo.h"
+#include "volumedatapackzaxistransformer.h"
+#include "visrgbatexturechannel2rgba.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
 #include "zdomain.h"
@@ -63,6 +64,36 @@ uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )
 
 uiODAttribTreeItem::~uiODAttribTreeItem()
 {}
+
+
+void uiODAttribTreeItem::prepareForShutdown()
+{
+    mDynamicCastGet( visSurvey::SurveyObject*,so,
+		     applMgr()->visServer()->getObject(displayID()) );
+    if ( !so )
+	return;
+
+    so->removeAttrib( attribNr() );
+    uiODDataTreeItem::prepareForShutdown();
+}
+
+
+bool uiODAttribTreeItem::init()
+{
+    mDynamicCastGet( visSurvey::SurveyObject*,so,
+		     applMgr()->visServer()->getObject(displayID()) );
+    if ( !so )
+	return false;
+
+    AttribProbeLayer* attrlay = attribProbeLayer();
+    if ( attrlay && attrlay->getDispType()==AttribProbeLayer::RGB )
+	so->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
+    if ( parent_->nrChildren()>1 )
+	so->addAttrib();//For first child attrib is automatically added
+
+
+    return uiODDataTreeItem::init();
+}
 
 
 bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
@@ -267,8 +298,6 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid )
 	    AttribProbeLayer* attrlayer = attribProbeLayer();
 	    if ( attrlayer )
 		attrlayer->setSelSpec( myas );
-	    //TODO PrIMPl check for vis stuff that need to be done
-	    //!visserv->calcManipulatedAttribs(visid) )
 	}
 	return true;
     }
@@ -341,6 +370,23 @@ void uiODAttribTreeItem::updateColumnText( int col )
     }
 
     uiODDataTreeItem::updateColumnText( col );
+}
+
+
+void uiODAttribTreeItem::setProbeLayer( ProbeLayer* probelayer )
+{
+    uiODDataTreeItem::setProbeLayer( probelayer );
+    AttribProbeLayer* attrlay = attribProbeLayer();
+    if ( !attrlay )
+	return;
+
+    mDynamicCastGet( visSurvey::SurveyObject*, so,
+		     visserv_->getObject(displayID()));
+    if ( !so )
+	return;
+
+    if ( attrlay->getDispType()==AttribProbeLayer::RGB )
+	so->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
 }
 
 

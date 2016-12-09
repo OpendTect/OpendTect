@@ -32,6 +32,7 @@ public:
     void			geomUpdated();
     mDeclInstanceCreatedNotifierAccess( RandomLineProbe );
     mDeclAbstractMonitorableAssignment( RandomLineProbe );
+
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 

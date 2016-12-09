@@ -731,3 +731,61 @@ float ColTab::Sequence::snapToSegmentCenter( float x ) const
 	segment = nrsegments_-1;
     return segment*segmentsize;
 }
+
+ColTab::Sequence RGBBlend::getRedColTab()
+{
+    mDefineStaticLocalObject( ColTab::Sequence, redctab, );
+    redctab.setType(ColTab::Sequence::User);
+    redctab.setColor( 0, 0, 0, 0 );
+    redctab.setColor( 1, 255, 0, 0 );
+    redctab.setName( "Red" );
+    return redctab;
+}
+
+ColTab::Sequence RGBBlend::getGreenColTab()
+{
+    mDefineStaticLocalObject( ColTab::Sequence, greenctab, );
+    greenctab.setType(ColTab::Sequence::User);
+    greenctab.setColor( 0, 0, 0, 0 );
+    greenctab.setColor( 1, 0, 0, 255 );
+    greenctab.setName( "Blue" );
+    return greenctab;
+}
+
+
+ColTab::Sequence RGBBlend::getBlueColTab()
+{
+    mDefineStaticLocalObject( ColTab::Sequence, bluectab, );
+    bluectab.setType(ColTab::Sequence::User);
+    bluectab.setColor( 0, 0, 0, 0 );
+    bluectab.setColor( 1, 0, 255, 0 );
+    bluectab.setName( "Green" );
+    return bluectab;
+}
+
+
+ColTab::Sequence RGBBlend::getTransparencyColTab()
+{
+    mDefineStaticLocalObject( ColTab::Sequence, transpctab, );
+    transpctab.setType(ColTab::Sequence::User);
+    transpctab.setColor( 0, 0, 0, 0 );
+    transpctab.setColor( 1, 255,255,255 );
+    transpctab.setTransparency( Geom::Point2D<float>(0,0) );
+    transpctab.setTransparency( Geom::Point2D<float>(1,255) );
+    transpctab.setName( "Transparency" );
+    return transpctab;
+}
+
+
+ColTab::Sequence RGBBlend::getColTab( int nr )
+{
+    switch ( nr )
+    {
+	case 0: return getRedColTab();
+	case 1: return getGreenColTab();
+	case 2: return getBlueColTab();
+	case 3: return getTransparencyColTab();
+    }
+
+    return ColTab::Sequence();
+}

@@ -96,7 +96,7 @@ public:
 				hasZAxisTransform(). */
 
     bool			useStoredDispPars(bool wva);
-    bool			isVertical() const	{ return isvertical_; }
+    bool			isVertical() const;
 
     TrcKeyZSampling		getTrcKeyZSampling() const
 				{ return probe_.position(); }
@@ -215,7 +215,6 @@ protected:
     int				polyseltbid_;
     int				picksettingstbid_;
     bool			ispolyselect_;
-    bool			isvertical_;
 
     DataPack::ID		createDataPackForTransformedZSlice(
 						const Attrib::SelSpec&);
@@ -227,7 +226,7 @@ protected:
 				will always be in transformed domain if the
 				viewer hasZAxisTransform(). */
 
-    virtual void		createViewWin(bool isvert,bool needslicepos);
+    virtual void		createViewWin();
     virtual void		createTree(uiMainWin*);
     virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();

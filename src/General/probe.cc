@@ -16,6 +16,7 @@ ___________________________________________________________________
 #include "keystrs.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
+#include "zdomain.h"
 
 
 const char* ProbeLayer::sKeyLayerType() { return "Probe Layer Type"; }
@@ -673,6 +674,106 @@ Probe* Line2DProbe::createFrom( const IOPar& par )
 void Line2DProbe::initClass()
 {
     ProbeFac().addCreateFunc( createFrom, sFactoryKey() );
+}
+
+
+mDefineInstanceCreatedNotifierAccess( VolumeProbe );
+
+VolumeProbe::VolumeProbe( const TrcKeyZSampling& pos )
+    : Probe()
+    , zdomain_( new ZDomain::Info(SI().zDomain()) )
+{
+    setPos( pos );
+    mTriggerInstanceCreatedNotifier();
+}
+
+
+VolumeProbe::VolumeProbe()
+    : Probe()
+    , zdomain_( new ZDomain::Info(SI().zDomain()) )
+{
+    probepos_.hsamp_.start_.inl() =
+	(5*probepos_.hsamp_.start_.inl()+3*probepos_.hsamp_.stop_.inl())/8;
+    probepos_.hsamp_.start_.crl() =
+	(5*probepos_.hsamp_.start_.crl()+3*probepos_.hsamp_.stop_.crl())/8;
+    probepos_.hsamp_.stop_.inl() =
+	(3*probepos_.hsamp_.start_.inl()+5*probepos_.hsamp_.stop_.inl())/8;
+    probepos_.hsamp_.stop_.crl() =
+	(3*probepos_.hsamp_.start_.crl()+5*probepos_.hsamp_.stop_.crl())/8;
+    probepos_.zsamp_.start =
+	( 5*probepos_.zsamp_.start + 3*probepos_.zsamp_.stop ) / 8.f;
+    probepos_.zsamp_.stop =
+	( 3*probepos_.zsamp_.start + 5*probepos_.zsamp_.stop ) / 8.f;
+    SI().snap( probepos_.hsamp_.start_, BinID(0,0) );
+    SI().snap( probepos_.hsamp_.stop_, BinID(0,0) );
+    probepos_.zsamp_.start = probepos_.zsamp_.snap( probepos_.zsamp_.start );
+    probepos_.zsamp_.stop = probepos_.zsamp_.snap( probepos_.zsamp_.stop );
+
+    updateName();
+    mTriggerInstanceCreatedNotifier();
+}
+
+const char* VolumeProbe::sFactoryKey()
+{ return sKey::Volume(); }
+
+
+
+void VolumeProbe::setZDomain( const ZDomain::Info& zdom )
+{
+    mLock4Write();
+
+    delete zdomain_;
+    zdomain_ = new ZDomain::Info( zdom );
+    updateName();
+}
+
+
+BufferString VolumeProbe::createName() const
+{
+    BufferString name;
+    const int zuserfac = zdomain_->userFactor();
+    name.add(probepos_.hsamp_.start_.inl()).add("-")
+	.add(probepos_.hsamp_.stop_.inl()).add("/")
+	.add(probepos_.hsamp_.start_.crl()).add( "-")
+	.add(probepos_.hsamp_.stop_.crl()).add("/")
+	.add(mNINT32(probepos_.zsamp_.start*zuserfac)).add("-")
+	.add(mNINT32(probepos_.zsamp_.stop*zuserfac));
+
+    return name;
+}
+
+
+mImplMonitorableAssignment( VolumeProbe, Probe )
+
+void VolumeProbe::copyClassData( const VolumeProbe& oth )
+{
+}
+
+
+Probe* VolumeProbe::createFrom( const IOPar& par )
+{
+    VolumeProbe* inlprobe = new VolumeProbe();
+    if ( !inlprobe->usePar(par) )
+    {
+	delete inlprobe;
+	return 0;
+    }
+
+    return inlprobe;
+}
+
+
+void VolumeProbe::initClass()
+{
+    ProbeFac().addCreateFunc( createFrom, sFactoryKey() );
+}
+
+
+bool VolumeProbe::usePar( const IOPar& par )
+{
+    mLock4Write();
+
+    return Probe::usePar( par );
 }
 
 

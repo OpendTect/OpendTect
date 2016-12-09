@@ -57,6 +57,7 @@ GeneralModuleIniter::GeneralModuleIniter()
     CrosslineProbe::initClass();
     ZSliceProbe::initClass();
     Line2DProbe::initClass();
+    VolumeProbe::initClass();
     Pos::RangeProvider3D::initClass();
     Pos::RangeProvider2D::initClass();
     ValueProperty::initClass();
