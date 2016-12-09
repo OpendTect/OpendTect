@@ -85,6 +85,8 @@ public:
     static void		putGatherInTrace(const SeisTrcBuf&,SeisTrc&);
 			//!< offsets become components
 
+    uiRetVal		reset() const; //!< done automatically when needed
+
 protected:
 
 			Provider();
@@ -101,7 +103,6 @@ protected:
 
     mutable Threads::Atomic<od_int64> nrdone_;
 
-    uiRetVal		reset() const;
     void		ensureRightDataRep(SeisTrc&) const;
     void		ensureRightZSampling(SeisTrc&) const;
     bool		handleSetupChanges(uiRetVal&) const;

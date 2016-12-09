@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "seisvolprovider.h"
+#include "seisps3dprovider.h"
 #include "seisioobjinfo.h"
 #include "seisselection.h"
 #include "seisbuf.h"
@@ -33,7 +34,7 @@ Seis::Provider* Seis::Provider::create( Seis::GeomType gt )
     case Vol:
 	return new VolProvider;
     case VolPS:
-	{ pFreeFnErrMsg("Implement VolPS"); return 0; }
+	return new PS3DProvider;
     case Line:
 	{ pFreeFnErrMsg("Implement Line"); return 0; }
     case LinePS:

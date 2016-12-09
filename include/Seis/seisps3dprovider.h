@@ -45,6 +45,8 @@ protected:
     virtual void	doReset(uiRetVal&) const;
     virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
+    virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
+    virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
 
     SeisPS3DReader*	mkReader() const;
 

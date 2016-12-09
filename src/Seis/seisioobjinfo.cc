@@ -283,10 +283,13 @@ bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
 bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 {
     mChk(false);
-    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-		 ioobj_->createTranslator() );
-    if ( !sttr )
+    Translator* trl = ioobj_->createTranslator();
+    if ( !trl )
 	{ pErrMsg("No Translator!"); return false; }
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		 trl );
+    if ( !sttr )
+	{ pErrMsg("Translator not SeisTrcTranslator!"); return false; }
 
     Conn* conn = ioobj_->getConn( Conn::Read );
     if ( !sttr->initRead(conn) )
@@ -306,10 +309,10 @@ bool SeisIOObjInfo::fillStats( IOPar& iop ) const
 {
     mChk(false);
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-	    	 ioobj_->createTranslator() );
+		 ioobj_->createTranslator() );
     if ( !sttr )
-    	{ pErrMsg("No Translator!"); return false; }
-    
+	{ pErrMsg("No Translator!"); return false; }
+
     return sttr->fillStats( *ioobj_, iop );
 }
 
