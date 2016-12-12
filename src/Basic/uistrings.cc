@@ -297,7 +297,10 @@ uiString uiStrings::sASCII()
 { return tr("ASCII"); }
 
 uiString uiStrings::sBatchProgram()
-{return mJoinUiStrs(sBatch(),sProgram()); }
+{ return mJoinUiStrs(sBatch(),sProgram()); }
+
+uiString uiStrings::sBatchProgramFailedStart()
+{ return tr("Batch program failed to start"); }
 
 uiString uiStrings::sColorTable(int num)
 { return tr("ColorTable",0,num); }
@@ -627,17 +630,17 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 	{
 	    if ( both_2d_3d_in_context )
 	    {
-		return tr( "Pre-Stack 2D Data" );
+		return tr( "Prestack 2D Data" );
 	    }
 
-	    return tr( "Pre-Stack Data" );
+	    return tr( "Prestack Data" );
 	}
 
 	if ( both_2d_3d_in_context )
 	{
 	    if ( both_pre_post_in_context )
 	    {
-		return tr( "Post-Stack 2D Data" );
+		return tr( "Poststack 2D Data" );
 	    }
 
 	    return tr("2D Data (attribute)");
@@ -645,7 +648,7 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 
 	if ( both_pre_post_in_context )
 	{
-	    return tr("Post-Stack Data");
+	    return tr("Poststack Data");
 	}
 
 	return tr("2D Data (attribute)");
@@ -657,10 +660,10 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 	{
 	    if ( both_2d_3d_in_context )
 	    {
-		return tr( "Pre-Stack 3D Data");
+		return tr( "Prestack 3D Data");
 	    }
 
-	    return tr( "Pre-Stack Data" );
+	    return tr( "Prestack Data" );
 	}
 
 	return tr("Cube");
