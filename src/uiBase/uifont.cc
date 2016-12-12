@@ -263,10 +263,11 @@ void uiFontList::setDefaults()
 
     FontData fdsmall = fd; fdsmall.setPointSize( fd.pointSize()-2 );
     FontData fdlarge = fd; fdlarge.setPointSize( fd.pointSize()+2 );
+    FontData fd3d = fd; fd3d.setPointSize( 16 );
 
     add( FontData::key(FontData::Control), fd );
     add( FontData::key(FontData::Graphics2D), fd );
-    add( FontData::key(FontData::Graphics3D), fd );
+    add( FontData::key(FontData::Graphics3D), fd3d );
     add( FontData::key(FontData::ControlSmall), fdsmall );
     add( FontData::key(FontData::ControlLarge), fdlarge );
     add( FontData::key(FontData::Graphics2DSmall), fdsmall );
