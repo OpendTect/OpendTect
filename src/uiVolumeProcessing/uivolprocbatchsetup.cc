@@ -129,6 +129,7 @@ bool uiBatchSetup::fillPar()
 
     // TODO: Make this more general, e.g remove all Attrib related keys
     par.set( "Output.0.Seismic.ID", outputioobj->key() );
+    par.set( sKey::Target(), outputioobj->name() );
 
     IOPar cspar;
     possubsel_->fillPar( cspar );
@@ -163,13 +164,19 @@ bool uiBatchSetup::acceptOK( CallBacker* )
     if ( batchfld_->wantBatch() )
     {
 	batchfld_->setJobName( outputioobj->name() );
-	return batchfld_->start();
+	if ( !batchfld_->start() )
+	    uiMSG().error( uiStrings::sBatchProgramFailedStart() );
+
+	return false;
     }
 
     VolProc::ChainOutput vco;
     vco.usePar( batchfld_->jobSpec().pars_ );
     uiTaskRunner taskrunner( this );
-    return taskrunner.execute( vco );
+    if ( !taskrunner.execute(vco) ) // TODO: More details in message
+	uiMSG().error( tr("Error occured during processing") );
+
+    return false;
 }
 
 } // namespace VolProc

@@ -19,10 +19,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "keystrs.h"
 #include "settings.h"
 #include "genc.h"
 
+#include "uibutton.h"
 #include "uilabel.h"
 #include "uiiosel.h"
 #include "uimsg.h"
@@ -59,7 +61,7 @@ static int defltNrInlPerJob( const IOPar& inputpar )
     const InlineSplitJobDescProv jdp( inputpar );
     StepInterval<int> inlrg; jdp.getRange( inlrg );
     const int nrinls = inlrg.nrSteps() + 1;
-    
+
     int nr_inl_job = -1;
     inputpar.get( mNrInlPerJobProcKey, nr_inl_job );
     nr_inl_job = mMIN( nrinls, nr_inl_job );
@@ -94,6 +96,8 @@ static int defltNrInlPerJob( const IOPar& inputpar )
     }
 
 
+static HiddenParam<uiSeisMMProc,uiCheckBox*> saveasflds(0);
+
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     : uiMMBatchJobDispatcher(p,iop, mODHelpKey(mSeisMMProcHelpID) )
     , parfnm_(iop.find(sKey::FileName()))
@@ -103,6 +107,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     , lsfileemitted_(false)
     , is2d_(false)
 {
+    saveasflds.setParam( this, 0 );
+
     setOkText( uiStrings::sClose() );
     setCancelText( uiString::emptyString() );
 
@@ -123,19 +129,16 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 		     .arg(idres));
 
     nrinlperjob_ = defltNrInlPerJob( jobpars_ );
-   
+
     const_cast<bool&>(is2d_) = outioobjinfo_->is2D();
     const bool doresume = Batch::JobDispatcher::userWantsResume(iop)
 			&& SeisJobExecProv::isRestart(iop);
 
-    setTitleText( isMultiHost()  ? tr("Multi-Machine Processing")
-			: (is2d_ ? tr("Multi-line processing")
-				 : tr("Line-split processing")) );
     FixedString res = jobpars_.find( sKey::Target() );
     uiString captn = tr("Processing");
     if ( !res.isEmpty() )
-	captn = tr("%1 ' '").arg(res);
-    setCaption(captn);
+	captn.append(" '%1'").arg(res);
+    basecaption_ = captn;
 
     if ( !is2d_ )
     {
@@ -174,8 +177,11 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	inlperjobfld_ = new uiGenInput( specparsgroup_,
                         tr("Nr of inlines per job"),
 			IntInpSpec(nrinlperjob_) );
-
 	inlperjobfld_->attach( alignedBelow, inlperjobattach );
+	uiCheckBox* saveasdeffld = new uiCheckBox( specparsgroup_,
+					uiStrings::sSaveAsDefault() );
+	saveasdeffld->attach( rightTo, inlperjobfld_ );
+	saveasflds.setParam( this, saveasdeffld );
     }
 }
 
@@ -184,6 +190,7 @@ uiSeisMMProc::~uiSeisMMProc()
 {
     delete jobprov_;
     delete outioobjinfo_;
+    saveasflds.removeParam( this );
 }
 
 
@@ -223,6 +230,10 @@ bool uiSeisMMProc::initWork( bool retry )
 	    if ( nrinlperjob_ > 100 ) nrinlperjob_ = 100;
 	    inlperjobfld_->setValue( nrinlperjob_ );
 	    inlperjobfld_->setSensitive( false );
+
+	    uiCheckBox* saveasdeffld = saveasflds.getParam( this );
+	    if ( saveasdeffld && saveasdeffld->isChecked() )
+		InlineSplitJobDescProv::setDefaultNrInlPerJob( nrinlperjob_ );
 	}
     }
 

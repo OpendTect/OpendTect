@@ -499,12 +499,10 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	iop.set( IOPar::compKey(keybase,Attrib::Output::scalekey()), buf );
     }
 
-    BufferString attrnm = todofld_ ? todofld_->getAttrName() : "Multi-attribs";
-    iop.set( sKey::Target(), attrnm.buf() );
+    iop.set( sKey::Target(), outioobj->name() );
     BufferString linename;
     if ( is2d )
     {
-	MultiID ky;
 	Attrib::DescSet descset(true);
 	if ( nlamodel_ )
 	    descset.usePar( nlamodel_->pars() );
