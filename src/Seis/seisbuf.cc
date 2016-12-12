@@ -499,8 +499,6 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
 void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 				    SeisTrcInfo::Fld fld, int icomp, bool mine )
 {
-    Threads::Locker lckr( updateLock() );
-
     delete arr2d_; arr2d_ = 0;
     posfld_ = fld;
     gt_ = gt;

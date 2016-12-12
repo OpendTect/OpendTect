@@ -124,17 +124,18 @@ public:
 			{ return this == &oth ? ChangeData::NoChange()
 					      : ChangeData::AllChanged(); }
 
-protected:
-
-			Monitorable();
-
-    mutable Threads::Lock accesslock_;
     mExpClass(Basic) AccessLocker : public Threads::Locker
     {
     public:
 			AccessLocker(const Monitorable&,bool forread=true);
 	inline bool	convertToWrite()	{ return convertToWriteLock(); }
     };
+
+protected:
+
+			Monitorable();
+
+    mutable Threads::Lock accesslock_;
 
     void		copyAll(const Monitorable&);
     void		sendChgNotif(AccessLocker&,ChangeType,IDType) const;

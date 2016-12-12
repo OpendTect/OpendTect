@@ -100,6 +100,7 @@ void DataPack::FullID::putInDBKey( DBKey& dbky ) const
 
 static Threads::Atomic<int> curdpidnr( 0 );
 
+
 DataPack::ID DataPack::getNewID()
 {
     return ID::get( ++curdpidnr );
@@ -110,7 +111,7 @@ void DataPack::setManager( const DataPackMgr* mgr )
 {
     if ( manager_ && mgr )
     {
-	if ( manager_!=mgr )
+	if ( manager_ != mgr )
 	    DBG::forceCrash( false );
 
 	return;

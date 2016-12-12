@@ -69,7 +69,7 @@ void BitMapMgr::setup()
 
     if ( !datapack_ ) return;
 
-    Threads::Locker updlckr( datapack_->updateLock() );
+    Monitorable::AccessLocker updlckr( *datapack_ );
     const FlatPosData& pd = datapack_->posData();
     const Array2D<float>& arr = datapack_->data();
     if ( pd.nrPts(true) < arr.info().getSize(0) )
@@ -168,12 +168,9 @@ bool BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     }
 
     if ( !datapack_ )
-    {
-	pErrMsg("Sanity check");
-	return true;
-    }
+	{ pErrMsg("Sanity check"); return true; }
 
-    Threads::Locker updlckr( datapack_->updateLock() );
+    Monitorable::AccessLocker updlckr( *datapack_ );
     const FlatPosData& pd = datapack_->posData();
     pos_->setDimRange( 0, Interval<float>(
 				mCast(float,wr.left()-pd.offset(true)),
@@ -201,7 +198,5 @@ bool BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     }
 
     gen_->fill();
-
-    updlckr.unlockNow();
     return true;
 }
