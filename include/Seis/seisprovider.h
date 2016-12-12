@@ -160,7 +160,8 @@ protected:
 
 			Provider2D()					{}
 
-    virtual od_int64	getTotalNrInInput() const;
+    virtual od_int64	getTotalNrInInput() const   { return -1; }
+			//TODO put here because of CDash complaints
 
 };
 
