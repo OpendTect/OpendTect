@@ -565,4 +565,9 @@ void DataPack::dumpInfo( IOPar& iop ) const
     iop.set( "Nr users", nrRefs() );
     const od_int64 nrkb = mCast(od_int64,nrKBytes());
     iop.set( "Memory consumption", File::getFileSizeString(nrkb) );
+    const DBKey dbky( dbKey() );
+    BufferString dbkystr( "-" );
+    if ( dbky.isValid() )
+	dbkystr.set( dbKey().toString() );
+    iop.set( "DB Key", dbkystr );
 }

@@ -393,6 +393,7 @@ void PreLoadDataManager::add( const DBKey& dbky, Pos::GeomID geomid,
     if ( !dp ) return;
 
     dp->ref();
+    dp->setDBKey( dbky );
     dpmgr_.add( dp );
 
     entries_ += new PreLoadDataEntry( dbky, geomid, dp->id().getI() );
