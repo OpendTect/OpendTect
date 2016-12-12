@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "empolygonbody.h"
 #include "emmarchingcubessurface.h"
 #include "emrandomposbody.h"
-#include "mousecursor.h"
 #include "survinfo.h"
 #include "task.h"
 #include "ioman.h"
@@ -788,8 +787,6 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	return 0;
     }
 
-    MouseCursorChanger cursorchanger(MouseCursor::Wait);
-
     TypeSet<Coord3> pts = bodypts;
     const int zscale = SI().zDomain().userFactor();
     if ( zscale != 1 )
@@ -816,8 +813,6 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	    res->tkzs_.hsamp_.stop_ = BinID(inlrg.stop, crlrg.stop);
 	    res->tkzs_.hsamp_.step_ = BinID(inlrg.step, crlrg.step);
 	    res->tkzs_.zsamp_ = zrg;
-
-	    cursorchanger.restore();
 	    return res;
 	}
     }
