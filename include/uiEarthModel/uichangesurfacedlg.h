@@ -27,15 +27,16 @@ template <class T> class Array2D;
 mExpClass(uiEarthModel) uiChangeHorizonDlg : public uiDialog
 { mODTextTranslationClass(uiChangeHorizonDlg);
 public:
-				uiChangeHorizonDlg(uiParent*,EM::Horizon*,
-						   bool is2d,const uiString&);
-				~uiChangeHorizonDlg();
+    virtual			~uiChangeHorizonDlg();
+
     uiHorSaveFieldGrp*		saveFldGrp() const { return savefldgrp_; }
     Notifier<uiChangeHorizonDlg> horReadyFroDisplay;
 
 protected:
+				uiChangeHorizonDlg(uiParent*,EM::Horizon*,
+						   bool is2d,const uiString&);
 
-    uiHorSaveFieldGrp*		savefldgrp_;				
+    uiHorSaveFieldGrp*		savefldgrp_;
     uiIOObjSel*			inputfld_;
     uiGroup*			parsgrp_;
 
