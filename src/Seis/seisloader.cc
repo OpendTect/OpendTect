@@ -222,7 +222,6 @@ ParallelFSLoader3D::ParallelFSLoader3D( const IOObj& ioobj,
 void ParallelFSLoader3D::setDataPack( RegularSeisDataPack* dp )
 {
     dp_ = dp;
-    DPM( DataPackMgr::SeisID() ).add( dp );
 }
 
 
@@ -274,7 +273,6 @@ bool ParallelFSLoader3D::doPrepare( int nrthreads )
     else if ( !dp_ )
     {
 	dp_ = new RegularSeisDataPack(0);
-	DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
 	if ( scaler_ && !scaler_->isEmpty() )
@@ -479,7 +477,6 @@ bool ParallelFSLoader2D::doPrepare( int nrthreads )
 
     dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,true),
 				    &dc_ );
-    DPM(DataPackMgr::SeisID()).add( dp_.ptr() );
     dp_->setName( ioobj_->name() );
     dp_->setSampling( tkzs_ );
     if ( scaler_ && !scaler_->isEmpty() )
@@ -793,7 +790,6 @@ bool SequentialFSLoader::init()
 
 	dp_ = new RegularSeisDataPack( VolumeDataPack::categoryStr(true,false),
 					&dc_);
-	DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
 	if ( scaler_ && !scaler_->isEmpty() )
@@ -831,7 +827,6 @@ bool SequentialFSLoader::setDataPack( RegularSeisDataPack& dp,
 {
     initialized_ = false;
     dp_ = &dp;
-    DPM( DataPackMgr::SeisID() ).add( dp_.ptr() );
     setDataChar( DataCharacteristics( dp.getDataDesc() ).userType() );
     setScaler( dp.getScaler() && !dp.getScaler()->isEmpty()
 	       ? dp.getScaler() : 0 );
