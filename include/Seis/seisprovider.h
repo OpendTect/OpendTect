@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "atomic.h"
 #include "threadlock.h"
 class SeisTrcBuf;
-namespace PosInfo { class CubeData; }
+namespace PosInfo { class CubeData; class Line2DData; }
 
 
 namespace Seis
@@ -144,6 +144,26 @@ protected:
     virtual od_int64	getTotalNrInInput() const;
 
 };
+
+
+/*!\brief base class for Providers for 2D data. Extends Provider with some
+  2D specific services. */
+
+
+mExpClass(Seis) Provider2D : public Provider
+{ mODTextTranslationClass(Seis::Provider2D);
+public:
+
+    virtual void	getGeometryInfo(PosInfo::Line2DData&) const	= 0;
+
+protected:
+
+			Provider2D()					{}
+
+    virtual od_int64	getTotalNrInInput() const;
+
+};
+
 
 
 } // namespace Seis
