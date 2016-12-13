@@ -330,18 +330,29 @@ bool GMTCommand::execute( od_ostream& strm, const char* fnm )
 	comm.replace( oldstr.buf(), newstr.buf() );
     }
 
-    ptr = comm.find( ".ps" );
+    ptr = comm.find( ">>" );
+    if ( !ptr )
+	ptr = comm.find( ">" );
+
     if ( ptr )
     {
-	ptr = comm.find( ">>" );
-	if ( ptr )
+	BufferString outputarg = ptr;
+	const BufferString filename = FilePath(fnm).fileName();
+	char* fptr = outputarg.find( filename );
+	if ( fptr )
 	{
-	    BufferString temp = ptr;
+	    fptr += filename.size();
 	    *ptr = '\0';
-	    comm += " -O -K ";
-	    comm += temp;
+	    comm += " -O -K >> ";
+	    comm += fileName( fnm ); // Ensures full path for output file.
+	    comm += fptr;
+	    strm << " Command: " << comm.buf() << od_endl;
 	}
+	else
+	    strm << " Output file different from main map " << fnm << od_endl;
     }
+    else
+	strm << " Opps!...no output file" << od_endl;
 
     if ( !execCmd(comm.buf(),strm) )
 	mErrStrmRet("... Failed")
