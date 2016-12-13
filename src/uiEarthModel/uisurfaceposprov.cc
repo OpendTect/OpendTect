@@ -70,9 +70,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 
     if ( su.withz_ )
     {
-	txt = tr("Extra Z");
-	extrazfld_ = new uiSelZRange( this, false, true, 
-						      mFromUiStringTodo(txt) );
+	extrazfld_ = new uiSelZRange( this, false, true, "Extra Z" );
 	if ( zstepfld_ )
 	    extrazfld_->attach( alignedBelow, zstepfld_ );
 	else
@@ -95,11 +93,6 @@ void uiSurfacePosProvGroup::selChg( CallBacker* )
 {
     const bool isbtwn = !issingfld_->getBoolValue();
     surf2fld_->display( isbtwn );
-    if ( zstepfld_ )
-    {
-	zstepfld_->display( isbtwn );
-	zsteplbl_->display( isbtwn );
-    }
 }
 
 
