@@ -46,7 +46,7 @@ int File::MultiSpec::nrFiles() const
 bool File::MultiSpec::isRangeMulti() const
 {
     const int nrfnms = fnames_.size();
-    return nrfnms == 1 && !mIsUdf(nrs_.start);
+    return nrfnms > 1 && !mIsUdf(nrs_.start);
 }
 
 

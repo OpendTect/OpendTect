@@ -81,7 +81,6 @@ public:
     void		usePar(const IOPar&);
 
     float		zref_;		// not stored
-    bool		new_packet_;	// not stored
 
     mDeprecated Coord&	coord;
     mDeprecated SamplingData<float>& sampling;

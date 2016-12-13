@@ -154,10 +154,7 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
     trc->data().handleDataSwapping();
 
     SeisTrcBuf* addbuf = tbufs_.isEmpty() ? 0 : tbufs_[ tbufs_.size()-1 ];
-    if ( is2D() && trc->info().new_packet_ )
-	addbuf = 0;
-    if ( !is2D() && addbuf &&
-	    addbuf->get(0)->info().lineNr() != trc->info().lineNr() )
+    if ( addbuf && addbuf->get(0)->info().lineNr() != trc->info().lineNr() )
 	addbuf = 0;
 
     if ( !addbuf )

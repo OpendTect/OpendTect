@@ -211,7 +211,7 @@ mStartAllowDeprecatedSection
 SeisTrcInfo::SeisTrcInfo()
     : sampling_(0,defaultSampleInterval())
     , refnr_(mUdf(float)), pick_(mUdf(float))
-    , offset_(0), azimuth_(0), zref_(0), new_packet_(false)
+    , offset_(0), azimuth_(0), zref_(0)
     , binid(const_cast<BinID&>(trckey_.binID()))
     , nr(const_cast<BinID&>(trckey_.binID()).crl())
     , mDeclDeprecCompatStuff
@@ -241,7 +241,6 @@ SeisTrcInfo& SeisTrcInfo::operator=( const SeisTrcInfo& oth )
 	refnr_ = oth.refnr_;
 	pick_ = oth.pick_;
 	zref_ = oth.zref_;
-	new_packet_ = oth.new_packet_;
     }
     return *this;
 }

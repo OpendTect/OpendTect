@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "seisselection.h"
 #include "seispsioprov.h"
+#include "seis2ddata.h"
 #include "posinfo2d.h"
 #include "keystrs.h"
 
@@ -54,12 +55,13 @@ const PS2DProvider& prov() const
 
     void		reset();
 
-    void		openStore();
+    void		openDataSet();
+    void		openReader(Pos::GeomID);
     void		moveNextTrcKey();
     bool		prepGetAt(const TrcKey&);
     void		getAt(const TrcKey&,SeisTrcBuf&);
     void		getSingleAt(const TrcKey&,SeisTrc&);
-    static SeisPS2DReader*  getReader(const IOObj&);
+    static SeisPS2DReader*  getReader(const IOObj&,Pos::GeomID);
 
     void		get(const TrcKey&,SeisTrcBuf&);
     void		getSingle(const TrcKey&,SeisTrc&);
@@ -82,22 +84,36 @@ void Seis::PS2DFetcher::reset()
     delete rdr_; rdr_ = 0;
     atend_ = false;
 
-    openStore();
+    openDataSet();
 }
 
 
-SeisPS2DReader* Seis::PS2DFetcher::getReader( const IOObj& ioobj )
+SeisPS2DReader* Seis::PS2DFetcher::getReader( const IOObj& ioobj,
+						Pos::GeomID geomid )
 {
-    return SPSIOPF().get2DReader( ioobj );
+    return SPSIOPF().get2DReader( ioobj, geomid );
 }
 
 
-void Seis::PS2DFetcher::openStore()
+void Seis::PS2DFetcher::openDataSet()
 {
     if ( !fillIOObj() )
 	return;
 
-    rdr_ = getReader( *ioobj_ );
+    dataset_ = new Seis2DDataSet( *ioobj_ );
+    if ( dataset_->isEmpty() )
+    {
+	uirv_ = tr( "Cannot find any data for this attribute" );
+	delete dataset_; dataset_ = 0;
+    }
+}
+
+
+void Seis::PS2DFetcher::openReader( Pos::GeomID geomid )
+{
+    delete lditer_; lditer_ = 0;
+    delete rdr_;
+    rdr_ = getReader( *ioobj_, geomid );
     if ( !rdr_ )
     {
 	uirv_ = tr( "Cannot find a reader for this type of data store" );
@@ -121,11 +137,11 @@ void Seis::PS2DFetcher::moveNextTrcKey()
 
 bool Seis::PS2DFetcher::prepGetAt( const TrcKey& tk )
 {
-    if ( !rdr_ )
+    if ( rdr_ && rdr_->geomID() != tk.geomID() )
     {
-	if ( uirv_.isOK() )
-	    uirv_.set( uiStrings::phrInternalError("PS2D Reader not created") );
-	return false;
+	openReader( tk.geomID() );
+	if ( !uirv_.isOK() )
+	    return false;
     }
 
     nexttrcky_ = tk;

@@ -84,7 +84,7 @@ SeisTrcReader::~SeisTrcReader()
 void SeisTrcReader::init()
 {
     foundvalidinl = foundvalidcrl = entryis2d =
-    new_packet = inforead = needskip = prepared = forcefloats = false;
+    inforead = needskip = prepared = forcefloats = false;
     prev_inl = mUdf(int);
     readmode = Seis::Prod;
     if ( tbuf_ ) tbuf_->deepErase();
@@ -331,16 +331,12 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	return nextConn( ti );
     }
 
-    ti.new_packet_ = false;
-
     if ( mIsUdf(prev_inl) )
 	prev_inl = ti.lineNr();
     else if ( prev_inl != ti.lineNr() )
     {
 	foundvalidcrl = false;
 	prev_inl = ti.lineNr();
-	if ( !entryis2d )
-	    ti.new_packet_ = true;
     }
 
     int selres = 0;
@@ -369,11 +365,6 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     }
 
     nrtrcs_++;
-    if ( new_packet )
-    {
-	ti.new_packet_ = true;
-	new_packet = false;
-    }
     needskip = true;
     return 1;
 }
@@ -624,7 +615,6 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
 
     inforead = true;
     SeisTrcInfo& trcti = tbuf_->get( 0 )->info();
-    trcti.new_packet_ = mIsUdf(prev_inl);
     ti = trcti;
 
     prev_inl = 0;
@@ -667,7 +657,6 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
 
 int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 {
-    new_packet = false;
     if ( !isMultiConn() ) return 0;
 
     // Multiconn is only used for multi-machine data collection nowadays
@@ -692,12 +681,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 	return -1;
     }
 
-    const int rv = get( ti );
-
-    if ( rv < 1 )	return rv;
-    else if ( rv == 2 )	new_packet = true;
-    else		ti.new_packet_ = true;
-    return rv;
+    return get( ti );
 }
 
 

@@ -91,7 +91,7 @@ public:
 protected:
 
     bool		foundvalidinl, foundvalidcrl;
-    bool		new_packet, needskip;
+    bool		needskip;
     bool		forcefloats;
     bool		prepared;
     bool		inforead;

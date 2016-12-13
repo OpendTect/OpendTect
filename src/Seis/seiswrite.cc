@@ -251,7 +251,7 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
     if ( !neednewconn && isMultiConn() )
     {
 	mDynamicCastGet(IOStream*,iostrm,ioobj_)
-	if ( iostrm->fileSpec().isRangeMulti() && trc.info().new_packet_ )
+	if ( iostrm->fileSpec().isRangeMulti() )
 	{
 	    const int connidx = iostrm->connIdxFor( trc.info().lineNr() );
 	    neednewconn = connidx != iostrm->curConnIdx();
