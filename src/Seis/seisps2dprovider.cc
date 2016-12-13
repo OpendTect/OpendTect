@@ -32,6 +32,7 @@ public:
 
 PS2DFetcher( PS2DProvider& p )
     : Fetcher2D(p)
+    , dataset_(0)
     , rdr_(0)
     , lditer_(0)
 {
@@ -41,6 +42,7 @@ PS2DFetcher( PS2DProvider& p )
 {
     delete lditer_;
     delete rdr_;
+    delete dataset_;
 }
 
 PS2DProvider& prov()
@@ -68,8 +70,10 @@ const PS2DProvider& prov() const
     void		getNext(SeisTrcBuf&);
     void		getNextSingle(SeisTrc&);
 
+    Seis2DDataSet*	dataset_;
     SeisPS2DReader*	rdr_;
     PosInfo::Line2DDataIterator* lditer_;
+    TrcKey		nexttrcky_;
     bool		atend_;
 
 };
@@ -80,9 +84,11 @@ const PS2DProvider& prov() const
 void Seis::PS2DFetcher::reset()
 {
     Fetcher2D::reset();
+    delete dataset_; dataset_ = 0;
     delete lditer_; lditer_ = 0;
     delete rdr_; rdr_ = 0;
     atend_ = false;
+    nexttrcky_.setGeomID( Survey::GeometryManager::cUndefGeomID() );
 
     openDataSet();
 }
@@ -109,18 +115,28 @@ void Seis::PS2DFetcher::openDataSet()
 }
 
 
-void Seis::PS2DFetcher::openReader( Pos::GeomID geomid )
+bool Seis::PS2DFetcher::openReader( Pos::GeomID geomid )
 {
+    uirv_.setEmpty();
     delete lditer_; lditer_ = 0;
     delete rdr_;
     rdr_ = getReader( *ioobj_, geomid );
     if ( !rdr_ )
     {
 	uirv_ = tr( "Cannot find a reader for this type of data store" );
-	return;
+	return false;
     }
 
     lditer_ = new PosInfo::Line2DDataIterator( rdr_->posData() );
+    nexttrckey_.setGeomID( geomid );
+    if ( !lditer_->next() )
+    {
+	uirv_ = tr( "Empty line" );
+	return false;
+    }
+
+    nexttrckey_.setTrcNr( lditer_->trcNr() );
+    return true;
 }
 
 
@@ -128,10 +144,21 @@ void Seis::PS2DFetcher::moveNextTrcKey()
 {
     while ( true )
     {
-	atend_ = !lditer_->next( nexttrcky_ );
+	atend_ = !lditer_->next();
 	if ( atend_ || !prov().seldata_ || prov().seldata_->isOK(nexttrcky_) )
 	    break;
     }
+    if ( atend_ )
+    {
+	int linenr = dataset_->indexOf( nexttrcky_.geomID() );
+	while ( atend_ && linenr < dataset_->nrLines()-1 )
+	{
+	    linenr++;
+	    if ( openReader(dataset_->geomID(linenr)) )
+		atend_ = !lditer_->next();
+	}
+    }
+    if ( !atend_ )
 }
 
 
@@ -139,8 +166,7 @@ bool Seis::PS2DFetcher::prepGetAt( const TrcKey& tk )
 {
     if ( rdr_ && rdr_->geomID() != tk.geomID() )
     {
-	openReader( tk.geomID() );
-	if ( !uirv_.isOK() )
+	if ( !openReader( tk.geomID() )
 	    return false;
     }
 
