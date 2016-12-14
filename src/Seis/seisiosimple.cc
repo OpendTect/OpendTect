@@ -175,7 +175,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 	return;
 
     Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
-    if ( data_.geomid_ != mUdfGeomID )
+    if ( !mIsUdfGeomID(data_.geomid_) )
 	seldata->setGeomID( data_.geomid_ );
 
     sa->setSelData( seldata );

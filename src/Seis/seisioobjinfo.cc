@@ -527,7 +527,7 @@ void SeisIOObjInfo::getComponentNames( BufferStringSet& nms,
 void SeisIOObjInfo::getCompNames( const DBKey& mid, BufferStringSet& nms )
 {
     SeisIOObjInfo ioobjinf( mid );
-    ioobjinf.getComponentNames( nms, Survey::GM().cUndefGeomID() );
+    ioobjinf.getComponentNames( nms, mUdfGeomID );
 }
 
 
@@ -637,7 +637,7 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 					    BufferStringSet& datasets,
 					    Opts2D o2d )
 {
-    if ( geomid == mUdfGeomID )
+    if ( mIsUdfGeomID(geomid) )
 	return;
 
     IOObjContext ctxt( mIOObjContext(SeisTrc2D) );

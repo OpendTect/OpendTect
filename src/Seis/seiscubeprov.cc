@@ -581,7 +581,7 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 
 bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs,
 				     TaskRunner* taskr)
-{ return readData( cs, Survey::GM().cUndefGeomID(), taskr ); }
+{ return readData( cs, mUdfGeomID, taskr ); }
 
 
 #define mErrRet(s) { errmsg_ = s; return false; }
@@ -597,7 +597,7 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     seisrdr->prepareWork();
 
     tkzs_ = cs;
-    bool is2d = geomid != Survey::GM().cUndefGeomID();
+    const bool is2d = !mIsUdfGeomID( geomid );
     Seis::RangeSelData* sd = new Seis::RangeSelData( tkzs_ );
     if ( is2d )
     {

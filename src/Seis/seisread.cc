@@ -515,16 +515,15 @@ Pos::GeomID SeisTrcReader::geomID() const
     else if ( ioobj_ )
 	return Survey::GM().getGeomID( ioobj_->name() );
 
-    return Survey::GM().cUndefGeomID();
+    return mUdfGeomID;
 }
 
 
 bool SeisTrcReader::mkNextGetter()
 {
     curlineidx++; tbuf_->deepErase();
-    Pos::GeomID geomid( seldata_ ? seldata_->geomID()
-				 : Survey::GM().cUndefGeomID() );
-    const bool islinesel = geomid != Survey::GM().cUndefGeomID();
+    const Pos::GeomID geomid( seldata_ ? seldata_->geomID() : mUdfGeomID );
+    const bool islinesel = !mIsUdfGeomID( geomid );
     const bool istable = seldata_ && seldata_->type() == Seis::Table;
     const int nrlines = dataset_->nrLines();
 

@@ -69,11 +69,9 @@ public:
 			//!< max bytes per sample, component -1 => add all
     bool		fillStats(IOPar&) const;
 
-    int			nrComponents(Pos::GeomID geomid=
-					    Survey::GM().cUndefGeomID()) const;
+    int			nrComponents(Pos::GeomID geomid=mUdfGeomID) const;
     void		getComponentNames(BufferStringSet&,
-					  Pos::GeomID geomid=
-					  Survey::GM().cUndefGeomID()) const;
+					  Pos::GeomID geomid=mUdfGeomID) const;
     bool		getDisplayPars(IOPar&) const;
 
     mStruct(Seis) Opts2D

@@ -308,7 +308,7 @@ bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
     TypeSet<BinID> pos1bids, pos2bids;
     TypeSet<float> pos1zs, pos2zs;
     TypeSet<Coord> intersects;
-    if ( !getHorizonIntersectionInfo( hor, Survey::GM().cUndefGeomID(),
+    if ( !getHorizonIntersectionInfo( hor, mUdfGeomID,
 		pos1bids, pos1zs, pos2bids, pos2zs, intersects, true ) )
 	return false;
 

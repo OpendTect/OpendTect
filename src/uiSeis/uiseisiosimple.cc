@@ -452,7 +452,7 @@ bool uiSeisIOSimple::acceptOK()
 		mErrRet( uiStrings::phrEnter(tr("a line name")) )
 
 	    geomid = Geom2DImpHandler::getGeomID( linenm );
-	    if ( geomid == mUdfGeomID )
+	    if ( mIsUdfGeomID(geomid) )
 		return false;
 	}
 

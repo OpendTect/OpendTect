@@ -90,8 +90,7 @@ void Pos::Filter2D::removeGeomID( int lidx )
 
 
 Pos::GeomID Pos::Filter2D::geomID( int lidx ) const
-{ return geomids_.validIdx(lidx) ? geomids_[lidx]
-				 : Survey::GM().cUndefGeomID(); }
+{ return geomids_.validIdx(lidx) ? geomids_[lidx] : mUdfGeomID; }
 
 
 Pos::FilterSet::~FilterSet()

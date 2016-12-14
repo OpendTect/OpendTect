@@ -294,7 +294,7 @@ bool uiAttribCrossPlot::acceptOK()
 	    {
 		const Pos::GeomID geomid = Survey::GM().getGeomID(
 							    lnms.get(lidx) );
-		if ( geomid == Survey::GM().cUndefGeomID() )
+		if ( mIsUdfGeomID(geomid) )
 		    continue;
 
 		p2d->addGeomID( geomid );

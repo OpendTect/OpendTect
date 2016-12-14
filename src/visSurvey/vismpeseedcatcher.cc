@@ -384,7 +384,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	if ( !seis2ddisp )
 	    continue;
 
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	if ( mIsUdfGeomID(geomid) )
 	{
 	    Coord3 pos = eventinfo.worldpickedpos;
 	    if ( transformation_ )
@@ -691,7 +691,7 @@ void MPEClickInfo::clear()
     attrdata_ = 0;
     linedata_ = 0;
     linename_ = "";
-    geomid_ = Survey::GM().cUndefGeomID();
+    geomid_ = mUdfGeomID;
     doubleclicked_ = false;
     rdltkpath_ = 0;
     rdlid_ = -1;

@@ -14,8 +14,9 @@ ________________________________________________________________________
 #include "seis2ddata.h"
 #include "seisbuf.h"
 #include "uistrings.h"
-#include "seisselection.h"
+#include "seisselectionimpl.h"
 #include "posinfo2d.h"
+#include "survgeom.h"
 
 
 od_int64 Seis::Provider2D::getTotalNrInInput() const
@@ -78,13 +79,15 @@ const LineProvider& prov() const
 
     void		reset();
     void		openFirst();
-    void		getNextGetter();
+    bool		getNextGetter();
 
     void		get(const TrcKey&,SeisTrc&);
     void		getNext(SeisTrc&);
 
-    Seis2DLineGetter*	getter_;
+    Executor*		getter_;
     SeisTrcBuf		tbuf_;
+    int			curlidx_;
+    Pos::GeomID		curgeomid_;
 
 };
 
@@ -95,28 +98,73 @@ void Seis::LineFetcher::reset()
 {
     Fetcher2D::reset();
     delete getter_; getter_ = 0;
+    curlidx_ = -1;
+    openFirst();
 }
 
 
 void Seis::LineFetcher::openFirst()
 {
-    if ( !fillIOObj() )
+    openDataSet();
+    if ( !uirv_.isOK() )
 	return;
 
-    getNextGetter();
-
-    if ( !getter_ )
+    if ( !getNextGetter() )
 	{ uirv_ = tr( "No selected data found" ); return; }
 }
 
 
-void Seis::LineFetcher::getNextGetter()
+bool Seis::LineFetcher::getNextGetter()
 {
+    delete getter_; getter_ = 0;
+    tbuf_.deepErase();
+
+    curlidx_++;
+    if ( curlidx_ >= dataset_->nrLines() )
+	return false;
+
+    const Seis::SelData* sd = prov().seldata_;
+    const bool issingleline = sd && !mIsUdfGeomID(sd->geomID());
+    const bool istable = sd && sd->type() == Seis::Table;
+    const int nrlines = dataset_->nrLines();
+
+    if ( issingleline )
+    {
+	while ( dataset_->geomID(curlidx_) != sd->geomID() )
+	{
+	    curlidx_++;
+	    if ( curlidx_ >= nrlines )
+		return false;
+	}
+    }
+    else if ( istable )
+    {
+	mDynamicCastGet(const Seis::TableSelData*,tsd,sd)
+	while ( !dataset_->haveMatch(dataset_->geomID(curlidx_),
+				     tsd->binidValueSet()) )
+	{
+	    curlidx_++;
+	    if ( curlidx_ >= nrlines )
+		return false;
+	}
+    }
+
+    curgeomid_ = dataset_->geomID( curlidx_ );
+    getter_ = dataset_->lineGetter( curgeomid_, tbuf_, 1, sd );
+    return getter_ ? true : getNextGetter();
 }
 
 
 void Seis::LineFetcher::get( const TrcKey& tk, SeisTrc& trc )
 {
+    /*
+    if ( !tk.hasValidGeomID() )
+	uirv_.set( tr("Invalid
+    else if ( tk.geomID() != curgeomid_ )
+    {
+
+    }
+    */
 }
 
 

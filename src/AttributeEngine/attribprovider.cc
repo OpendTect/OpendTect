@@ -216,7 +216,7 @@ Provider::Provider( Desc& nd )
     , desbufferstepout_( 0, 0 )
     , providertask_( 0 )
     , currentbid_( -1, -1 )
-    , geomid_(Survey::GM().cUndefGeomID())
+    , geomid_(mUdfGeomID)
     , linebuffer_( 0 )
     , refstep_( 0 )
     , alreadymoved_( 0 )
@@ -721,7 +721,7 @@ int Provider::alignInputs( ObjectSet<Provider>& movinginputs )
 		inp2_is_on_newline = movinginputs[inp2]->isNew2DLine();
 
 	    int res = comparePosAndAlign(movinginputs[inp1], inp1_is_on_newline,
-			    		 movinginputs[inp2], inp2_is_on_newline,
+					 movinginputs[inp2], inp2_is_on_newline,
 					 inp1moved );
 	    if ( res != 1 ) return res;
 
@@ -1445,10 +1445,10 @@ void Provider::adjust2DLineStoredVolume()
 
 Pos::GeomID  Provider::getGeomID() const
 {
-    if ( geomid_ != Survey::GM().cUndefGeomID() )
+    if ( !mIsUdfGeomID(geomid_) )
 	return geomid_;
 
-    Pos::GeomID geomid = Survey::GM().cUndefGeomID();
+    Pos::GeomID geomid = mUdfGeomID;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
         if ( !inputs_[idx] )

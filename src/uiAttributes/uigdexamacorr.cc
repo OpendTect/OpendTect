@@ -33,7 +33,7 @@ using namespace Attrib;
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )
     : attribid_( DescID::undef() )
-    , geomid_(Survey::GM().cUndefGeomID())
+    , geomid_(mUdfGeomID)
     , dset_( 0 )
     , examwin_(0)
     , qcwin_(0)

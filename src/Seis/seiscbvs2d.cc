@@ -139,7 +139,7 @@ bool SeisCBVS2DLineIOProvider::renameImpl( const IOObj& obj,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );
-	if ( geomid == mUdfGeomID )
+	if ( mIsUdfGeomID(geomid) )
 	    continue;
 
 	File::Path fp( dl.fullPath(idx) );
@@ -172,7 +172,7 @@ bool SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );
-	if ( geomid == mUdfGeomID )
+	if ( mIsUdfGeomID(geomid) )
 	    continue;
 
 	geomids += geomid;

@@ -374,10 +374,10 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 
 bool StorageProvider::getLine2DStoredVolume()
 {
-    if ( geomid_ == mUdfGeomID && desiredvolume_->is2D() )
+    if ( mIsUdfGeomID(geomid_) && desiredvolume_->is2D() )
 	geomid_ = desiredvolume_->hsamp_.getGeomID();
 
-    if ( geomid_ == mUdfGeomID )
+    if ( mIsUdfGeomID(geomid_) )
 	return true;
 
     Seis2DDataSet* dset = mscprov_->reader().dataSet();

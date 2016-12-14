@@ -152,7 +152,7 @@ Pos::GeomID uiODViewer2D::geomID() const
     if ( probe_.position().hsamp_.survid_ == Survey::GM().get2DSurvID() )
 	return probe_.position().hsamp_.trcKeyAt(0).geomID();
 
-    return Survey::GM().cUndefGeomID();
+    return mUdfGeomID;
 }
 
 
@@ -162,7 +162,7 @@ uiParent* uiODViewer2D::viewerParent()
 
 void uiODViewer2D::setUpAux()
 {
-    const bool is2d = geomID() != Survey::GM().cUndefGeomID();
+    const bool is2d = !mIsUdfGeomID( geomID() );
     FlatView::Annotation& vwrannot = viewwin()->viewer().appearance().annot_;
     if ( !is2d && !probe_.position().isFlat() )
 	vwrannot.x1_.showauxannot_ = vwrannot.x2_.showauxannot_ = false;

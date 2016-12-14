@@ -354,9 +354,9 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     if ( is2d )
     {
 	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-	if ( geomid == mUdfGeomID )
+	if ( mIsUdfGeomID(geomid) )
 	    geomid = Geom2DImpHandler::getGeomID( linenm );
-	if ( geomid == mUdfGeomID )
+	if ( mIsUdfGeomID(geomid) )
 	    return false;
     }
 

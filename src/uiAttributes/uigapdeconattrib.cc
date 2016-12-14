@@ -731,7 +731,7 @@ const TrcKeyZSampling& uiGDPositionDlg::getTrcKeyZSampling()
 Pos::GeomID uiGDPositionDlg::getGeomID() const
 {
     if ( !linesfld_ )
-	return Survey::GM().cUndefGeomID();
+	return mUdfGeomID;
 
     return Survey::GM().getGeomID( linesfld_->box()->text() );
 }

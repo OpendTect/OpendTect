@@ -128,7 +128,7 @@ bool Gather::readFrom( const DBKey& mid, const int trcnr,
 		       const char* linename, int comp, uiString* errmsg )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( linename );
-    if ( geomid == mUdfGeomID )
+    if ( mIsUdfGeomID(geomid) )
 	return false;
 
     TrcKey tk( geomid, trcnr );
@@ -140,7 +140,7 @@ bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
 		       const char* linename, int comp, uiString* errmsg )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( linename );
-    if ( geomid == mUdfGeomID )
+    if ( mIsUdfGeomID(geomid) )
 	return false;
 
     TrcKey tk( geomid, tracenr );

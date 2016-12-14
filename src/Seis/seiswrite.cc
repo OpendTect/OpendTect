@@ -29,7 +29,7 @@
 #include "uistrings.h"
 
 
-#define mCurGeomID (seldata_ ? seldata_->geomID():Survey::GM().cUndefGeomID())
+#define mCurGeomID (seldata_ ? seldata_->geomID() : mUdfGeomID)
 
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
@@ -141,7 +141,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 		.arg( ioobj_->uiName() );
 	return false;
     }
-    if ( is2d_ && ( !seldata_ || seldata_->geomID() == mUdfGeomID ) )
+    if ( is2d_ && ( !seldata_ || mIsUdfGeomID(seldata_->geomID()) ) )
     {
 	errmsg_ = tr("Internal: 2D seismic can only "
 		     "be stored if line GeomID known");

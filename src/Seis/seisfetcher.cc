@@ -149,7 +149,7 @@ void Seis::Fetcher2D::reset()
 {
     Fetcher::reset();
     delete dataset_; dataset_ = 0;
-    nexttrcky_.setGeomID( Survey::GeometryManager::cUndefGeomID() );
+    nexttrcky_.setGeomID( mUdfGeomID );
     //TODO
 }
 
