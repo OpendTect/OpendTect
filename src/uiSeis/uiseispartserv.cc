@@ -435,7 +435,7 @@ bool uiSeisPartServer::create2DOutput( const DBKey& mid, const char* linekey,
     StepInterval<int> trcrg;
     dataset.getRanges( dataset.geomID(lidx), trcrg, cs.zsamp_ );
     cs.hsamp_.setCrlRange( trcrg );
-    PtrMan<Executor> exec = dataset.lineFetcher( dataset.geomID(lidx), buf );
+    PtrMan<Executor> exec = dataset.lineGetter( dataset.geomID(lidx), buf );
     uiTaskRunner dlg( parent() );
     return TaskRunner::execute( &dlg, *exec );
 }

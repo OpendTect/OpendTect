@@ -61,7 +61,7 @@ public:
     void		getGeomIDs(TypeSet<Pos::GeomID>&) const;
     void		getLineNames(BufferStringSet&) const;
 
-    Executor*		lineFetcher(Pos::GeomID,SeisTrcBuf&,
+    Executor*		lineGetter(Pos::GeomID,SeisTrcBuf&,
 				    int nrtrcsperstep=10,
 				    const Seis::SelData* sd=0) const;
 				//!< May return null

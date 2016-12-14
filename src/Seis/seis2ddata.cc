@@ -126,7 +126,7 @@ void Seis2DDataSet::getLineNames( BufferStringSet& nms ) const
 void Seis2DDataSet::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 { geomids = geomids_; }
 
-Executor* Seis2DDataSet::lineFetcher( Pos::GeomID geomid, SeisTrcBuf& tbuf,
+Executor* Seis2DDataSet::lineGetter( Pos::GeomID geomid, SeisTrcBuf& tbuf,
 				      int ntps, const Seis::SelData* sd ) const
 {
     if ( !liop_ )

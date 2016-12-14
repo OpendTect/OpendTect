@@ -97,10 +97,10 @@ protected:
     bool		inforead;
     int			prev_inl;
     int			curlineidx;
-    int			nrfetchers;
+    int			nrlinegetters_;
     TrcKeySampling*	outer;
     SeisTrcBuf*		tbuf_;
-    Executor*		fetcher;
+    Executor*		linegetter_;
     Seis::ReadMode	readmode;
     bool		entryis2d;
     StepInterval<int>	curtrcnrrg;
@@ -126,7 +126,7 @@ protected:
 
     int			get2D(SeisTrcInfo&);
     bool		get2D(SeisTrc&);
-    bool		mkNextFetcher();
+    bool		mkNextGetter();
     bool		readNext2D();
 
     Seis::Bounds*	get3DBounds(const StepInterval<int>&,

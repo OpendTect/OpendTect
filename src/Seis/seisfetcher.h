@@ -92,6 +92,8 @@ public:
 
     virtual void	reset();
 
+    Seis2DDataSet*	mkDataSet() const;
+
 };
 
 

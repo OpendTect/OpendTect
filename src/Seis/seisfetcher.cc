@@ -166,3 +166,10 @@ void Seis::Fetcher2D::openDataSet()
 	delete dataset_; dataset_ = 0;
     }
 }
+
+
+Seis2DDataSet* Seis::Fetcher2D::mkDataSet() const
+{
+    PtrMan<IOObj> ioobj = getIOObj();
+    return ioobj ? new Seis2DDataSet( *ioobj ) : 0;
+}

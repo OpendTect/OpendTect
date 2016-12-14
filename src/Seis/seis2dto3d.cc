@@ -166,7 +166,7 @@ bool Seis2DTo3D::read()
     seisbuftks_.init( false );
     for ( int iline=0; iline<ds.nrLines(); iline++)
     {
-	PtrMan<Executor> lf = ds.lineFetcher( ds.geomID(iline), tmpbuf );
+	PtrMan<Executor> lf = ds.lineGetter( ds.geomID(iline), tmpbuf );
 	if ( !lf || !lf->execute() )
 	    continue;
 

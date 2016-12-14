@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
-#include "seisdatapack.h"
 #include "posinfo.h"
 #include "survinfo.h"
 #include "file.h"

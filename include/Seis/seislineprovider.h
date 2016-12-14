@@ -11,25 +11,24 @@ ________________________________________________________________________
 */
 
 #include "seisprovider.h"
-class SeisPS2DReader;
 
 
 namespace Seis
 {
 
-class PS2DFetcher;
+class LineFetcher;
 
-/*!\brief is the place to get traces from your 2D PS data stores.  */
+/*!\brief is the place to get traces from your seismic lines.  */
 
 
-mExpClass(Seis) PS2DProvider : public Provider2D
-{ mODTextTranslationClass(Seis::PS2DProvider);
+mExpClass(Seis) LineProvider : public Provider2D
+{ mODTextTranslationClass(Seis::LineProvider);
 public:
 
-			PS2DProvider();
-			PS2DProvider(const DBKey&);
-			~PS2DProvider();
-    virtual GeomType	geomType() const	{ return VolPS; }
+			LineProvider();
+			LineProvider(const DBKey&);
+			~LineProvider();
+    virtual GeomType	geomType() const	{ return Line; }
 
     virtual BufferStringSet	getComponentInfo() const;
     virtual ZSampling		getZSampling() const;
@@ -38,17 +37,13 @@ public:
 
 protected:
 
-    friend class	PS2DFetcher;
-    PS2DFetcher&	fetcher_;
+    friend class	LineFetcher;
+    LineFetcher&	fetcher_;
 
     virtual void	doUsePar(const IOPar&,uiRetVal&);
     virtual void	doReset(uiRetVal&) const;
-    virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
-    virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
-
-    SeisPS2DReader*	mkReader(Pos::GeomID) const;
 
 };
 

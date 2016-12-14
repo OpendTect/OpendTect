@@ -175,7 +175,7 @@ bool SeisTrc2DTranslator::initRead_()
 
 
 #define mStdInit \
-    , fetcher_(0) \
+    , getter_(0) \
     , putter_(0) \
     , outbuf_(*new SeisTrcBuf(false)) \
     , tbuf1_(*new SeisTrcBuf(false)) \
@@ -213,7 +213,7 @@ Seis2DLineMerger::Seis2DLineMerger( const BufferStringSet& attrnms,
 
 Seis2DLineMerger::~Seis2DLineMerger()
 {
-    delete fetcher_;
+    delete getter_;
     delete putter_;
     delete ds_;
     tbuf1_.deepErase();
@@ -259,13 +259,13 @@ bool Seis2DLineMerger::nextAttr()
 	return false; \
     }
 
-bool Seis2DLineMerger::nextFetcher()
+bool Seis2DLineMerger::nextGetter()
 {
     if ( !ds_ )
 	mErrRet(tr("Cannot find the Data Set"))
     if ( ds_->nrLines() < 2 )
 	mErrRet(tr("Cannot find 2 lines in Line Set"));
-    delete fetcher_; fetcher_ = 0;
+    delete getter_; getter_ = 0;
     currentlyreading_++;
     if ( currentlyreading_ > 2 )
 	return true;
@@ -287,8 +287,8 @@ bool Seis2DLineMerger::nextFetcher()
     const int dslineidx = ds_->indexOf( lid );
     if ( dslineidx<0 )
 	mErrRet( tr("Cannot find line in %1 dataset" ).arg(geom2d->getName()) )
-    fetcher_ = ds_->lineFetcher( dslineidx, tbuf, 1 );
-    if ( !fetcher_ )
+    getter_ = ds_->lineGetter( dslineidx, tbuf, 1 );
+    if ( !getter_ )
 	mErrRet(
 	    uiStrings::phrCannotCreate(tr("a reader for %1.")
 				       .arg(geom2d->getName()) ) )
@@ -317,19 +317,19 @@ int Seis2DLineMerger::doWork()
     if ( !currentlyreading_ && !nextAttr() )
 	    return Executor ::Finished();
 
-    if ( fetcher_ || !currentlyreading_ )
+    if ( getter_ || !currentlyreading_ )
     {
 	if ( !currentlyreading_ )
-	    return nextFetcher() ? Executor::MoreToDo()
-				 : Executor::ErrorOccurred();
-	const int res = fetcher_->doStep();
+	    return nextGetter() ? Executor::MoreToDo()
+				: Executor::ErrorOccurred();
+	const int res = getter_->doStep();
 	if ( res < 0 )
-	    { msg_ = fetcher_->message(); return res; }
+	    { msg_ = getter_->message(); return res; }
 	else if ( res == 1 )
 	    { nrdone_++; return Executor::MoreToDo(); }
 
-	return nextFetcher() ? Executor::MoreToDo()
-			     : Executor::ErrorOccurred();
+	return nextGetter() ? Executor::MoreToDo()
+			    : Executor::ErrorOccurred();
     }
     else if ( putter_ )
     {

@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "seisvolprovider.h"
+#include "seislineprovider.h"
+#include "seisps2dprovider.h"
 #include "seisps3dprovider.h"
 #include "seisioobjinfo.h"
 #include "seisselection.h"
@@ -36,12 +38,12 @@ Seis::Provider* Seis::Provider::create( Seis::GeomType gt )
     case VolPS:
 	return new PS3DProvider;
     case Line:
-	{ pFreeFnErrMsg("Implement Line"); return 0; }
+	return new LineProvider;
     case LinePS:
-	{ pFreeFnErrMsg("Implement LinePS"); return 0; }
+	return new PS2DProvider;
     }
 
-    pFreeFnErrMsg("Add switch case");
+    // can't reach
     return 0;
 }
 

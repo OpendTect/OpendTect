@@ -75,6 +75,7 @@ public:
     void		setZRange( const StepInterval<float>& zrg )
 							{ zrg_ = zrg; }
     void		setLineName( const char* lnm )	{ lnm_ = lnm; }
+    int			size() const			{ return posns_.size();}
     const TypeSet<Line2DPos>&  positions() const	{ return posns_; }
     bool		isEmpty() const		{ return posns_.isEmpty(); }
 

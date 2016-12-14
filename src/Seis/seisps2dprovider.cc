@@ -315,13 +315,16 @@ ZSampling Seis::PS2DProvider::getZSampling() const
 }
 
 
-void Seis::PS2DProvider::getGeometryInfo( PosInfo::Line2DData& ld ) const
+int Seis::PS2DProvider::nrLines() const
 {
-    if ( fetcher_.lditer_ )
-	ld = fetcher_.lditer_->ld_;
-    else
-    {
-	ld.setEmpty();
+    return getNrLines( fetcher_ );
+}
+
+
+void Seis::PS2DProvider::getGeometryInfo( int lidx,
+					  PosInfo::Line2DData& ld ) const
+{
+    ld.setEmpty();
 	//TODO
 	// PtrMan<SeisPS2DReader> rdr = mkReader();
 	// if ( rdr )
@@ -330,7 +333,6 @@ void Seis::PS2DProvider::getGeometryInfo( PosInfo::Line2DData& ld ) const
 	// {
 	    // There is no fallback, right?
 	// }
-    }
 }
 
 

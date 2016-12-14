@@ -154,14 +154,16 @@ mExpClass(Seis) Provider2D : public Provider
 { mODTextTranslationClass(Seis::Provider2D);
 public:
 
-    virtual void	getGeometryInfo(PosInfo::Line2DData&) const	= 0;
+
+    virtual int		nrLines() const					= 0;
+    virtual void	getGeometryInfo(int,PosInfo::Line2DData&) const	= 0;
 
 protected:
 
 			Provider2D()					{}
 
-    virtual od_int64	getTotalNrInInput() const   { return -1; }
-			//TODO put here because of CDash complaints
+    virtual od_int64	getTotalNrInInput() const;
+    static int		getNrLines(const Fetcher2D&);
 
 };
 

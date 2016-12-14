@@ -565,7 +565,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 	int lidx = dataset->indexOf( geomid );
 	if ( lidx < 0 ) lidx = 0;
 	SeisTrcBuf tbuf( true );
-	Executor* ex = dataset->lineFetcher( dataset->geomID(lidx), tbuf, 1 );
+	Executor* ex = dataset->lineGetter( dataset->geomID(lidx), tbuf, 1 );
 	if ( ex ) ex->doStep();
 	ret = tbuf.isEmpty() ? 0 : tbuf.get(0)->nrComponents();
 	if ( nms )

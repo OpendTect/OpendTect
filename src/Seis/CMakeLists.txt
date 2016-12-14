@@ -48,6 +48,7 @@ set(OD_MODULE_SOURCES
 	seisiosimple.cc
 	seisjobexecprov.cc
 	seiskeytracker.cc
+	seislineprovider.cc
 	seisloader.cc
 	seismerge.cc
 	seismulticubeps.cc
