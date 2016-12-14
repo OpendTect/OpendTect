@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uilistbox.h"
 #include "uispinbox.h"
 #include "uitoolbutton.h"
 #include "od_helpids.h"
@@ -129,11 +130,11 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     propfld_->selectionChanged.notify(
 				mCB(this,uiStratLayModEditTools,selPropCB) );
 
-    lvlfld_ = new uiComboBox( leftgrp, "Level" );
-    lvlfld_->setToolTip( tr("Selected stratigraphic level") );
+    lvlfld_ = new uiCheckedCompoundParSel( leftgrp, 
+					    tr("Selected Stratigraphic Level"), 
+					    false, tr("Select Markers") );
     lvlfld_->attach( rightOf, propfld_ );
-    lvlfld_->selectionChanged.notify(
-				mCB(this,uiStratLayModEditTools,selLevelCB) );
+    lvlfld_->butPush.notify( mCB(this,uiStratLayModEditTools,doDlg) );
 
     contfld_ = new uiComboBox( leftgrp, "Content" );
     contfld_->setToolTip( tr("Marked content") );
@@ -176,6 +177,64 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     zoomtb_->attach( leftOf, lithtb_ );
     rightgrp->attach( rightTo, leftgrp );
     rightgrp->attach( rightBorder );
+    
+    updateSummary();
+}
+
+
+void uiStratLayModEditTools::doDlg( CallBacker* )
+{
+    uiDialog::Setup su( uiStrings::phrSelect(uiStrings::sMarker(mPlural)), 
+			mNoDlgTitle, mODHelpKey(mStartSynthOutSelHelpID) );
+    uiDialog dlg( parent(), su );
+    
+    const Strat::LevelSet& lvls = Strat::LVLS();
+    
+    BufferStringSet lvlnmset;
+    for ( int idx=0; idx<lvls.size(); idx++ )
+    {
+	const Strat::Level lvl = lvls.getByIdx( idx );
+	const BufferString nm( lvl.name() );
+	lvlnmset.add( nm );
+    }
+
+    const uiListBox::Setup setup( OD::ChooseZeroOrMore, tr("Available Markers"), 
+							uiListBox::AboveLeft );
+    uiListBox* lb = new uiListBox( &dlg, setup );
+    lb->setMultiChoice( true );
+    lb->addItems( lvlnmset );
+    lb->setChosen( choosenlvlnms_ ); 
+    
+    if ( !dlg.go() )
+	return;
+    lb->getChosen( choosenlvlnms_ );
+    
+    updateSummary();
+}
+
+
+void uiStratLayModEditTools::getSummary()
+{
+    BufferString ret;
+    const int sz = choosenlvlnms_.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	BufferString* nm = choosenlvlnms_[idx];
+	ret.add(*nm);
+
+	if ( sz>1 && idx<(sz-1) )
+	    ret.add("; ");
+    }
+    lvlfld_->setSummary(ret); 
+}
+
+
+void uiStratLayModEditTools::updateSummary()
+{
+    getSummary();
+    lvlfld_->updateSummary();
+    selLevelChg.trigger();
+
 }
 
 
@@ -213,9 +272,14 @@ static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone,
 
 
 void uiStratLayModEditTools::setProps( const BufferStringSet& nms )
-{ setFldNms( propfld_, nms, allownoprop_, false, 0 ); }
+{ 
+    setFldNms( propfld_, nms, allownoprop_, false, 0 ); 
+}
 void uiStratLayModEditTools::setLevelNames( const BufferStringSet& nms )
-{ setFldNms( lvlfld_, nms, true, false, 0 ); }
+{ 
+    int i=0;
+    //setFldNms( lvlfld_, nms, true, false, 0 ); 
+}
 void uiStratLayModEditTools::setContentNames( const BufferStringSet& nms )
 { setFldNms( contfld_, nms, true, true, -1 ); }
 
@@ -241,16 +305,17 @@ int uiStratLayModEditTools::selPropIdx() const
 }
 
 
-const char* uiStratLayModEditTools::selLevel() const
+BufferString uiStratLayModEditTools::selLevel() const
 {
-    return lvlfld_->isEmpty() ? 0 : lvlfld_->text();
+    return choosenlvlnms_.isEmpty() ? 0 : choosenlvlnms_.get(0);
+    //return lvlfld_ ? 0 : lvlfld_->getName();
 }
 
 
 Strat::Level::ID uiStratLayModEditTools::selLevelID() const
 {
-    return lvlfld_->isEmpty() ? Strat::Level::ID::getInvalid()
-			      : Strat::LVLS().getByName( lvlfld_->text() ).id();
+    return lvlfld_ ? Strat::LVLS().getByName( selLevel() ).id() :
+					    Strat::Level::ID::getInvalid();
 }
 
 
@@ -312,7 +377,8 @@ void uiStratLayModEditTools::setSelProp( const char* sel )
 
 void uiStratLayModEditTools::setSelLevel( const char* sel )
 {
-    lvlfld_->setText( sel );
+    lvlfld_->setSelText( toUiString(sel) );
+    return;
 }
 
 
@@ -407,7 +473,7 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
     NotifyStopper stopsynthchg( mkSynthChg );
 
     mSetProp( propfld_, sKeyDisplayedProp );
-    mSetProp( lvlfld_, sKeySelectedLevel );
+    //mSetProp( lvlfld_, sKeySelectedLevel );
     mSetProp( contfld_, sKeySelectedContent );
 
     int decimation;

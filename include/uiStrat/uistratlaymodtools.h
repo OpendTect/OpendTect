@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "stratlevel.h"
 #include "uistring.h"
+#include "uicompoundparsel.h"
 
 class uiComboBox;
 class uiLabel;
@@ -65,7 +66,7 @@ public:
     void	setContentNames(const BufferStringSet&);
 
     const char*	selProp() const;		//!< May return null
-    const char*	selLevel() const;		//!< May return null
+    BufferString selLevel() const;		//!< May return null
     const char*	selContent() const;		//!< May return null
     int		dispEach() const;
     bool	dispZoomed() const;
@@ -106,6 +107,7 @@ public:
     bool	usePar(const IOPar&);
 
     bool	allownoprop_;
+    const BufferStringSet getSelLvlNmSet() { return choosenlvlnms_; }
 
 protected:
 
@@ -117,15 +119,15 @@ protected:
     static const char*		sKeyDispLith();
     static const char*		sKeyShowFlattened();
 
-    uiComboBox*	propfld_;
-    uiComboBox*	lvlfld_;
-    uiComboBox*	contfld_;
-    uiSpinBox*	eachfld_;
-    uiLabel*	eachlbl_;
-    uiToolButton* zoomtb_;
-    uiToolButton* lithtb_;
-    uiToolButton* flattenedtb_;
-    uiToolButton* mksynthtb_;
+    uiComboBox*			propfld_;
+    uiComboBox*			contfld_;
+    uiSpinBox*			eachfld_;
+    uiLabel*			eachlbl_;
+    uiToolButton*		zoomtb_;
+    uiToolButton*		lithtb_;
+    uiToolButton*		flattenedtb_;
+    uiToolButton*		mksynthtb_;
+    uiCheckedCompoundParSel*	lvlfld_;
 
     void	selPropCB( CallBacker* )	{ selPropChg.trigger(); }
     void	selLevelCB( CallBacker* )	{ selLevelChg.trigger(); }
@@ -135,6 +137,11 @@ protected:
     void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
     void	showFlatCB( CallBacker* )	{ flattenChg.trigger(); }
     void	mkSynthCB( CallBacker* )	{ mkSynthChg.trigger(); }
+    void	doDlg( CallBacker* );
+    void	getSummary();
+    void	updateSummary();
+
+    BufferStringSet		choosenlvlnms_;
 
 };
 

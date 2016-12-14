@@ -61,7 +61,8 @@ public:
     virtual bool	canSetDisplayProperties() const	{ return false; }
 
     const Strat::LayerModel& layerModel() const;
-    const TypeSet<float>& levelDepths() const		{ return lvldpths_; }
+    const TypeSet<float>& levelDepths() const		{ 
+							    return lvldpths_; }
     int			selectedSequence() const	{ return selseqidx_; }
     void		selectSequence(int seqidx);
 
