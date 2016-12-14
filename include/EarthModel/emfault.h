@@ -33,6 +33,16 @@ public:
     virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    bool addtohistory)	{ return false; }
+   
+    virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
+				    const Coord3& pos,const Coord3& editnormal,
+				    const DBKey* pickeddbkey,
+				    const char* pickednm,bool addtohistory)
+							{ return false; }
+    virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
+				    const Coord3& pos,const Coord3& editnormal,
+				    Pos::GeomID pickedgeomid,bool addtohistory)
+							{ return false; }
     virtual bool        insertKnot(const SectionID&,const SubID&,
 	    			   const Coord3& pos,bool addtohistory)
 							{ return false; }
@@ -83,10 +93,62 @@ mExpClass(EarthModel) Fault : public Surface
 {
 public:
 
+    bool			insertStick(int sticknr,
+					 int firstcol, const Coord3& pos,
+					 const Coord3& editnormal,
+					 Pos::GeomID pickedgeomid,
+					 bool addtohistory );
+    bool			insertStick(int sticknr,
+					 int firstcol, const Coord3& pos,
+					 const Coord3& editnormal,
+					 const DBKey* pickeddbkey,
+					 const char* pickednm,
+					 bool addtohistory );
+    bool			insertStick(int sticknr,int firstcol,
+					 const Coord3& pos,
+					 const Coord3& editnormal,
+					 bool addtohistory);
+    void			removeStick(int sticknr,bool);
+    
+    void			insertKnot(const SubID&,const Coord3&,bool);
+    void			removeKnot(const SubID&, bool);
+    
+    StepInterval<int>	    	rowRange() const;
+    StepInterval<int>	    	colRange(int row) const;
     int				nrSticks() const;
     TypeSet<Coord3>		getStick(int sticknr) const;
     unsigned int		totalSize() const;
 
+    int				nrKnots(int sticknr) const
+				{ return getStick(sticknr).size(); }
+    Coord3			getKnot(RowCol rc) const;
+    void			hideKnot(RowCol rc,bool,int scnidx);
+    bool			isKnotHidden(RowCol rc,int scnidx=-1) const;
+
+    void			hideStick(int sticknr,bool,int scnidx=-1);
+    bool			isStickHidden(int sticknr, int sceneidx ) const;
+    bool			isStickSelected(int sticknr);
+    void			selectStick(int sticknr,bool);
+    void			removeSelectedSticks(bool);
+
+    void			hideAllSticks(bool yn,int sceneidx);
+    void			hideAllKnots(bool yn,int sceneidx);
+
+    void			hideSticks(const TypeSet<int>& sticknrs,bool yn,
+						int sceneidx);
+    void			hideKnots(const TypeSet<RowCol>& rcs,bool yn,
+						int sceneidx);
+
+    Coord3			getEditPlaneNormal(int sticknr) const;
+    EMObjectIterator*		createIterator(const TrcKeyZSampling*) const;
+
+    virtual bool		pickedOnPlane(int row) const  { return false; }
+    virtual bool		pickedOn2DLine(int row) const { return false; }
+    virtual Pos::GeomID		pickedGeomID(int row) const   { return -1; }
+    virtual const DBKey*	pickedDBKey(int sticknr) const{ return 0; }
+    virtual const char*		pickedName(int sticknr) const { return 0; }
+  
+    
     virtual void		removeAll();
     virtual FaultGeometry&	geometry()			= 0;
     virtual const FaultGeometry& geometry() const
@@ -97,6 +159,9 @@ protected:
 				    : Surface(em)		{}
 
     const IOObjContext&		getIOObjContext() const		= 0;
+    void			hidStick(int sticknr,bool,int scnidx=-1);
+    void			hidKnot(RowCol rc,bool,int scnidx=-1);
+
 };
 
 

@@ -17,6 +17,47 @@ ________________________________________________________________________
 
 namespace EM
 {
+#define mGetConstGeomFSS( ret ) \
+    mDynamicCastGet(const Geometry::FaultStickSet*,geomfss,\
+		geometry().geometryElement() ); \
+    if ( !geomfss ) \
+	return ret; \
+
+#define mGetGeomFSS() \
+mDynamicCastGet(Geometry::FaultStickSet*,geomfss,\
+	    geometry().geometryElement() ); \
+if ( !geomfss ) \
+    return; \
+
+
+StepInterval<int> Fault::rowRange() const
+{
+    mGetConstGeomFSS( StepInterval<int>::udf() );
+    return geomfss->rowRange();
+}
+
+
+StepInterval<int> Fault::colRange( int row ) const
+{
+    mGetConstGeomFSS( StepInterval<int>::udf() );
+    return geomfss->colRange( row );
+}
+
+
+Coord3 Fault::getKnot( RowCol rc ) const
+{
+    mGetConstGeomFSS( Coord3::udf() );
+    return geomfss->getKnot( rc );
+}
+
+
+bool Fault::isKnotHidden( RowCol rc, int sceneidx ) const
+{
+    mGetConstGeomFSS( false );
+    return geomfss->isKnotHidden( rc, sceneidx );
+}
+
+
 
 unsigned int Fault::totalSize() const
 {
@@ -30,29 +71,169 @@ unsigned int Fault::totalSize() const
 }
 
 
+bool Fault::insertStick(int sticknr,int firstcol,
+				    const Coord3& pos,const Coord3& editnormal,
+				    const DBKey* pickeddbkey,
+				    const char* pickednm,bool addtohistory)
+{
+    mLock4Write();
+    return geometry().
+	insertStick( 0, sticknr, firstcol, pos,editnormal,
+			pickeddbkey, pickednm, addtohistory );
+}
+
+bool Fault::insertStick( int sticknr, int firstcol, const Coord3& pos,
+			const Coord3& editnormal, Pos::GeomID pickedgeomid,
+							    bool addtohistory )
+{
+     mLock4Write();
+     return geometry().
+		insertStick( 0, sticknr, firstcol, pos,editnormal,addtohistory);
+}
+
+
+bool Fault::insertStick(int sticknr,int firstcol,
+				    const Coord3& pos,const Coord3& editnormal,
+				    bool addtohistory)
+{
+     mLock4Write();
+     return geometry().
+		insertStick( 0, sticknr, firstcol, pos,editnormal,addtohistory);
+}
+
+
+void Fault::insertKnot( const SubID& subid, const Coord3& pos , bool adtoh )
+{
+    mLock4Write();
+    geometry().insertKnot( 0, subid, pos, adtoh );
+}
+
+
+void Fault::removeStick( int sticknr, bool addtohistory )
+{
+    mLock4Write();
+    geometry().removeStick( 0, sticknr, addtohistory );
+}
+
+
+void Fault::removeKnot( const SubID& sid, bool addtoh )
+{
+    mLock4Write();
+    geometry().removeKnot( 0, sid, addtoh );
+}
+
+
+Coord3 Fault::getEditPlaneNormal( int sticknr ) const
+{
+    mLock4Read();
+    return geometry().getEditPlaneNormal( 0, sticknr );
+}
+
+
 int Fault::nrSticks() const
 {
     mLock4Read();
-    mDynamicCastGet( const Geometry::FaultStickSet*,fss,
-						geometry().geometryElement() );
-    if ( !fss )
-	return -1;
-
-    return fss->nrSticks();
+    mGetConstGeomFSS( -1 )
+    return geomfss->nrSticks();
 }
 
 
 TypeSet<Coord3> Fault::getStick( int sticknr ) const
 {
-    mLock4Read();
     TypeSet<Coord3> coords;
-    mDynamicCastGet(const Geometry::FaultStickSet*,fss,
-						geometry().geometryElement() );
-    if ( !fss )
-	return coords;
-
-    coords.copy( *fss->getStick(sticknr) );
+    mGetConstGeomFSS( coords );
+    mLock4Read();
+    coords.copy( *geomfss->getStick(sticknr) );
     return coords;
+}
+
+
+bool Fault::isStickHidden( int sticknr, int sceneidx ) const
+{
+    mGetConstGeomFSS( false );
+    return geomfss->isStickHidden( sticknr, sceneidx );
+}
+
+
+void Fault::hideKnot( RowCol rc, bool yn, int scnidx )
+{
+    mLock4Write();
+    hidKnot( rc, yn, scnidx );
+}
+
+
+void Fault::hideStick( int sticknr, bool yn, int scnidx )
+{
+    mLock4Write();
+    hidStick( sticknr, yn, scnidx );
+}
+
+
+void Fault::hidKnot( RowCol rc, bool yn, int scnidx )
+{
+    mGetGeomFSS();
+    geomfss->hideKnot( rc, yn, scnidx );
+}
+
+
+void Fault::hidStick( int sticknr, bool yn, int scnidx )
+{
+    mGetGeomFSS();
+    geomfss->hideStick( sticknr, yn, scnidx );
+}
+
+
+void Fault::hideSticks( const TypeSet<int>& sticknrs, bool yn, int sceneidx )
+{
+    mLock4Write();
+    for ( int idx=0; idx<sticknrs.size(); idx++ )
+	hidStick( sticknrs[idx], yn, sceneidx );
+}
+
+
+void Fault::hideKnots( const TypeSet<RowCol>& rcs, bool yn, int sceneidx )
+{
+    mLock4Write();
+    for ( int idx=0; idx<rcs.size(); idx++ )
+	hidKnot( rcs[idx], yn, sceneidx );
+}
+
+
+void Fault::hideAllSticks( bool yn, int sceneidx )
+{
+    mLock4Write();
+    mGetGeomFSS();
+    geomfss->hideAllSticks( yn, sceneidx );
+}
+
+
+void Fault::hideAllKnots( bool yn, int sceneidx )
+{
+    mLock4Write();
+    mGetGeomFSS();
+    geomfss->hideAllKnots( yn, sceneidx );
+}
+
+
+void Fault::removeSelectedSticks( bool yn )
+{
+    mLock4Write();
+    geometry().removeSelectedSticks( yn );
+}
+
+
+bool Fault::isStickSelected( int sticknr )
+{
+    mGetConstGeomFSS( false );
+    return geomfss->isStickSelected( sticknr );
+}
+
+
+void Fault::selectStick( int sticknr, bool yn )
+{
+    mGetGeomFSS();
+    mLock4Write();
+    geomfss->selectStick( sticknr, yn );
 }
 
 
@@ -62,6 +243,12 @@ void Fault::removeAll()
     geometry().removeAll();
 }
 
+
+EMObjectIterator* Fault::createIterator(const TrcKeyZSampling* tks ) const
+{
+    mLock4Write();
+    return geometry().createIterator( 0, tks );
+}
 
 //FaultGeometry
 Coord3 FaultGeometry::getEditPlaneNormal( const SectionID& sid,
