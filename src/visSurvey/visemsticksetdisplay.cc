@@ -74,34 +74,23 @@ const mVisTrans* StickSetDisplay::getDisplayTransformation() const
 {  return displaytransform_; }
 
 
-Geometry::FaultStickSet* StickSetDisplay::faultStickSetGeometry( int id )
-{
-    if ( !fault_ || !&fault_->geometry() ) return 0;
 
-    EM::FaultGeometry* fgeometry = &fault_->geometry();
-    mDynamicCastGet( Geometry::FaultStickSet*,fss,
-	fgeometry->sectionGeometry((EM::SectionID)id) );
-    
-    return fss ? fss : 0;
-}
-
-
-#define mSetKnotSelectStatus( fss, nr, pos )\
+#define mSetKnotSelectStatus( flt, nr, pos )\
 if ( !ctrldown_ )\
 {\
     if ( !selection->isInside(pos) )\
-	fss->selectStick( nr, false );\
+	flt->selectStick( nr, false );\
     else\
-	fss->selectStick( nr, true );\
+	flt->selectStick( nr, true );\
 }\
 else \
 {\
     if ( selection->isInside(pos) )\
     {\
-	if ( fss->isStickSelected(nr) )\
-	    fss->selectStick( nr, false ); \
+	if ( flt->isStickSelected(nr) )\
+	    flt->selectStick( nr, false ); \
 	else \
-	   fss->selectStick(nr,true); \
+	   flt->selectStick(nr,true); \
      }\
 }\
 
@@ -110,11 +99,9 @@ else \
 EM::PosID pid = iter->next();\
 if ( pid.objectID() == -1 )\
     break;\
-const EM::SectionID sid = pid.sectionID();\
-Geometry::FaultStickSet* fss = faultStickSetGeometry(sid);\
-if ( !fss ) return;\
 const int sticknr = pid.getRowCol().row();\
 const Coord3 pos = fault_->getPos(pid);\
+
 
 
 void StickSetDisplay::polygonSelectionCB()
@@ -131,15 +118,12 @@ void StickSetDisplay::polygonSelectionCB()
     for ( int idx=0; idx<stickintersectpoints_.size(); idx++ )
     {
 	const StickIntersectPoint* sip = stickintersectpoints_[idx];
-	Geometry::FaultStickSet* fss = faultStickSetGeometry( sip->sid_ );
-	if ( !fss ) continue;
-
 	if ( !donenr.isPresent(sip->sticknr_) ) 
 	    donenr += sip->sticknr_;
-	mSetKnotSelectStatus( fss, sip->sticknr_, sip->pos_ );
+	mSetKnotSelectStatus( fault_, sip->sticknr_, sip->pos_ );
     }
    
-    PtrMan<EM::EMObjectIterator> iter = fault_->geometry().createIterator( -1 );
+    PtrMan<EM::EMObjectIterator> iter = fault_->createIterator(0);
     while ( true )
     {
 	mGetStickNrAndPos();
@@ -147,7 +131,7 @@ void StickSetDisplay::polygonSelectionCB()
 	    continue;
 	else if ( selection->isInside(pos) )
 	    donenr += sticknr;
-	mSetKnotSelectStatus( fss, sticknr, pos );
+	mSetKnotSelectStatus( fault_, sticknr, pos );
     }
     updateStickMarkerSet();
     selection->clear();
@@ -184,16 +168,13 @@ void StickSetDisplay::updateStickMarkerSet()
     for ( int idx=0; idx<stickintersectpoints_.size(); idx++ )
     {
 	const StickIntersectPoint* sip = stickintersectpoints_[idx];
-	Geometry::FaultStickSet* fss = faultStickSetGeometry( sip->sid_ );
-	if ( !fss ) continue;
-
 	int groupidx = 0;
 	if ( faultstickset_ )
 	    groupidx = displayknots ? 0 : 2;
 	else    
 	    groupidx = !showmanipulator_ || !stickselectmode_ ? 2 : 0;
 
-	if ( fss->isStickSelected(sip->sticknr_) )
+	if ( fault_->isStickSelected(sip->sticknr_) )
 	    groupidx = 1;
 
 	knotmarkersets_[groupidx]->addPos( sip->pos_, false );
@@ -205,7 +186,7 @@ void StickSetDisplay::updateStickMarkerSet()
 	 (!showmanipulator_||!stickselectmode_) )
 	return;
     
-    PtrMan<EM::EMObjectIterator> iter = fault_->geometry().createIterator(-1);
+    PtrMan<EM::EMObjectIterator> iter = fault_->createIterator( 0 );
     while ( true )
     {
 	const EM::PosID pid = iter->next();
@@ -214,10 +195,9 @@ void StickSetDisplay::updateStickMarkerSet()
 
 	const EM::SectionID sid = pid.sectionID();
 	const int sticknr = pid.getRowCol().row();
-	Geometry::FaultStickSet* fss = faultStickSetGeometry( sid );
-	if ( !fss || fss->isStickHidden(sticknr,mSceneIdx) )
+	if ( fault_->isStickHidden(sticknr,mSceneIdx) )
 	    continue;
-	const int groupidx = fss->isStickSelected(sticknr) ? 1 : 0;
+	const int groupidx = fault_->isStickSelected(sticknr) ? 1 : 0;
 	const OD::MarkerStyle3D& style = fault_->getPosAttrMarkerStyle( 0 );
 	knotmarkersets_[groupidx]->setMarkerStyle( style );
 	knotmarkersets_[groupidx]->setScreenSize( mDefaultMarkerSize );
@@ -243,18 +223,16 @@ void StickSetDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 bool StickSetDisplay::matchMarker( int sid, int sticknr, const Coord3 mousepos, 
     const Coord3 pos, const Coord3 eps  )
 {
-    if ( !mousepos.isSameAs(pos,eps) ) return false;
-    Geometry::FaultStickSet* fss = faultStickSetGeometry( sid );
-    if ( fss ) 
-    { 
-	if ( ctrldown_ )
-	    fss->selectStick( sticknr, !fss->isStickSelected( sticknr ) );
-	else
-	    fss->selectStick( sticknr, true ); 
-	updateStickMarkerSet(); 
-	eventcatcher_->setHandled(); 
-	return true; 
-    } 
+    if ( !mousepos.isSameAs(pos,eps) )
+	return false;
+    
+    if ( ctrldown_ )
+	fault_->selectStick( sticknr, !fault_->isStickSelected( sticknr ) );
+    else
+	fault_->selectStick( sticknr, true ); 
+    updateStickMarkerSet(); 
+    eventcatcher_->setHandled(); 
+    
     return false;
 }
 
@@ -307,7 +285,7 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 	    }
 
 	    PtrMan<EM::EMObjectIterator> iter =
-					fault_->geometry().createIterator(-1);
+					fault_->createIterator( 0 );
 	    while ( true )
 	    {
 		const EM::PosID pid = iter->next();

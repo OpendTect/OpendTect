@@ -31,7 +31,7 @@ public:
 			FaultStickSetGeometry(Surface&);
 			~FaultStickSetGeometry();
 
-    int		nrSticks(const SectionID&) const;
+    int			nrSticks(const SectionID&) const;
     int			nrKnots(const SectionID&,int sticknr) const;
 
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
@@ -103,7 +103,10 @@ public:
     const FaultStickSetGeometry&	geometry() const;
     void				apply(const Pos::Filter&);
     uiString				getUserTypeStr() const;
-
+    bool				pickedOn2DLine(int row) const;
+    Pos::GeomID				pickedGeomID(int row) const;
+    const DBKey*			pickedDBKey(int sticknr) const;
+    const char*				pickedName(int sticknr) const; 
 
 protected:
 

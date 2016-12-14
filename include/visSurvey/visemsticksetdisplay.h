@@ -47,7 +47,7 @@ public:
 					       Coord3& xyzpos,BufferString& val,
 					       BufferString& info) const;
 protected:
-    Geometry::FaultStickSet*	faultStickSetGeometry(int);
+
     void			stickSelectionCB(CallBacker*,
 						 const Survey::Geometry3D*);
     void			setCurScene( visSurvey::Scene* scene )

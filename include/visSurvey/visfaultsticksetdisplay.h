@@ -139,14 +139,12 @@ protected:
     Coord3			disp2world(const Coord3& displaypos) const;
 
     void			displayOnlyAtSectionsUpdate();
-    bool			coincidesWith2DLine(
-					Geometry::FaultStickSet&,
-					int sticknr,Pos::GeomID);
-    bool			coincidesWithPlane(
-					Geometry::FaultStickSet&,
-					int sticknr,
-					TypeSet<Coord3>& intersectpoints);
-    EM::FaultStickSet*		emFaultStickSet();
+    bool			coincidesWith2DLine(int sticknr,Pos::GeomID,
+						    TypeSet<RowCol>& knots);
+    bool			coincidesWithPlane(int sticknr,
+					TypeSet<Coord3>& intersectpoints,
+					TypeSet<RowCol>& knots );
+
     void			sowingFinishedCB(CallBacker*);
     void			updateManipulator();
 

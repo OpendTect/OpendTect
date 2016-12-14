@@ -595,4 +595,21 @@ bool FaultStickSet::isKnotHidden( const RowCol& rc, int sceneidx ) const
 }
 
 
+void FaultStickSet::hideAllSticks( bool yn, int sceneidx )
+{
+    for ( int idx=0; idx<nrSticks(); idx++ )
+	hideStick( idx, yn, sceneidx );
+}
+
+
+void FaultStickSet::hideAllKnots( bool yn, int sceneidx )
+{
+    for ( int idx=0; idx<nrSticks(); idx++ )
+    {
+	for( int idy=0; idy<nrKnots(idx); idy++ )
+	    hideKnot( RowCol(idx,idy), yn, sceneidx );
+    }
+}
+
+
 } // namespace Geometry

@@ -83,6 +83,29 @@ const IOObjContext& FaultStickSet::getIOObjContext() const
 { return EMFaultStickSetTranslatorGroup::ioContext(); }
 
 
+bool FaultStickSet::pickedOn2DLine( int row  ) const
+{
+    return geometry().pickedOn2DLine( 0, row );
+}
+
+
+Pos::GeomID FaultStickSet::pickedGeomID( int row  ) const
+{
+    return geometry().pickedGeomID( 0, row );
+}
+
+
+const DBKey* FaultStickSet::pickedDBKey( int sticknr ) const
+{
+    return geometry().pickedDBKey( 0, sticknr );
+}
+
+
+const char* FaultStickSet::pickedName( int sticknr ) const
+{
+    return geometry().pickedName( 0, sticknr );
+}
+
 
 // ***** FaultStickSetGeometry *****
 

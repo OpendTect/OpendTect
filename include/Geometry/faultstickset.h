@@ -127,6 +127,9 @@ public:
     void		hideKnot(const RowCol&,bool yn,int sceneidx=-1);
     bool		isKnotHidden(const RowCol&,int sceneidx=-1) const;
 
+    void		hideAllSticks(bool yn, int sceneidx=-1 );
+    void		hideAllKnots(bool yn, int sceneidx=-1 );
+
 protected:
 
     double			interStickDist(int sticknr1,int sticknr2,
