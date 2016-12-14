@@ -208,7 +208,8 @@ public:
 
 } //namespace Survey
 
-#define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
+#define mUdfGeomID		Survey::GeometryManager::cUndefGeomID()
+#define mIsUdfGeomID(geomid)	(geomid == mUdfGeomID)
 //To cut the long story short.
 
 #endif
