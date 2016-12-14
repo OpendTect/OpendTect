@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "seisprovider.h"
 #include "seisioobjinfo.h"
 #include "seisselection.h"
+#include "seis2ddata.h"
 #include "dbman.h"
 #include "ioobj.h"
 #include "uistrings.h"
@@ -122,5 +123,46 @@ bool Seis::Fetcher3D::moveNextBinID()
 	    return false;
 	if ( isSelectedBinID(nextbid_) )
 	    return true;
+    }
+}
+
+
+Seis::Fetcher2D::~Fetcher2D()
+{
+    delete dataset_;
+}
+
+
+Seis::Provider2D& Seis::Fetcher2D::prov2D()
+{
+    return static_cast<Provider2D&>( prov_ );
+}
+
+
+const Seis::Provider2D& Seis::Fetcher2D::prov2D() const
+{
+    return static_cast<const Provider2D&>( prov_ );
+}
+
+
+void Seis::Fetcher2D::reset()
+{
+    Fetcher::reset();
+    delete dataset_; dataset_ = 0;
+    nexttrcky_.setGeomID( Survey::GeometryManager::cUndefGeomID() );
+    //TODO
+}
+
+
+void Seis::Fetcher2D::openDataSet()
+{
+    if ( !fillIOObj() )
+	return;
+
+    dataset_ = new Seis2DDataSet( *ioobj_ );
+    if ( dataset_->isEmpty() )
+    {
+	uirv_ = tr( "Cannot find any data for this attribute" );
+	delete dataset_; dataset_ = 0;
     }
 }

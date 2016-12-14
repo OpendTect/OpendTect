@@ -11,12 +11,14 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "trckeyzsampling.h"
 class IOObj;
+class Seis2DDataSet;
 
 
 namespace Seis
 {
 
 class Provider;
+class Provider2D;
 class Provider3D;
 
 /*\brief Gets required traces from either DataPack or Storage
@@ -68,6 +70,30 @@ public:
     virtual TrcKeyZSampling	getDefaultCS() const;
 
 };
+
+
+/*\brief Fetcher for 2D data. */
+
+class Fetcher2D : public Fetcher
+{ mODTextTranslationClass(Seis::Fetcher2D);
+public:
+
+			Fetcher2D( Provider& p )
+			    : Fetcher(p)
+			    , dataset_(0)	    {}
+			~Fetcher2D();
+
+    Provider2D&		prov2D();
+    const Provider2D&	prov2D() const;
+    void		openDataSet();
+
+    Seis2DDataSet*	dataset_;
+    TrcKey		nexttrcky_;
+
+    virtual void	reset();
+
+};
+
 
 
 } // namespace Seis

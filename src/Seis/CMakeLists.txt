@@ -54,6 +54,7 @@ set(OD_MODULE_SOURCES
 	seisposindexer.cc
 	seispreload.cc
 	seisprovider.cc
+	seisps2dprovider.cc
 	seisps3dprovider.cc
 	seispsioprov.cc
 	seispsmerge.cc

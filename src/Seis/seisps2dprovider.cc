@@ -32,7 +32,6 @@ public:
 
 PS2DFetcher( PS2DProvider& p )
     : Fetcher2D(p)
-    , dataset_(0)
     , rdr_(0)
     , lditer_(0)
 {
@@ -42,7 +41,6 @@ PS2DFetcher( PS2DProvider& p )
 {
     delete lditer_;
     delete rdr_;
-    delete dataset_;
 }
 
 PS2DProvider& prov()
@@ -57,8 +55,7 @@ const PS2DProvider& prov() const
 
     void		reset();
 
-    void		openDataSet();
-    void		openReader(Pos::GeomID);
+    bool		openReader(Pos::GeomID);
     void		moveNextTrcKey();
     bool		prepGetAt(const TrcKey&);
     void		getAt(const TrcKey&,SeisTrcBuf&);
@@ -70,10 +67,8 @@ const PS2DProvider& prov() const
     void		getNext(SeisTrcBuf&);
     void		getNextSingle(SeisTrc&);
 
-    Seis2DDataSet*	dataset_;
     SeisPS2DReader*	rdr_;
     PosInfo::Line2DDataIterator* lditer_;
-    TrcKey		nexttrcky_;
     bool		atend_;
 
 };
@@ -84,11 +79,10 @@ const PS2DProvider& prov() const
 void Seis::PS2DFetcher::reset()
 {
     Fetcher2D::reset();
-    delete dataset_; dataset_ = 0;
+
     delete lditer_; lditer_ = 0;
     delete rdr_; rdr_ = 0;
     atend_ = false;
-    nexttrcky_.setGeomID( Survey::GeometryManager::cUndefGeomID() );
 
     openDataSet();
 }
@@ -98,20 +92,6 @@ SeisPS2DReader* Seis::PS2DFetcher::getReader( const IOObj& ioobj,
 						Pos::GeomID geomid )
 {
     return SPSIOPF().get2DReader( ioobj, geomid );
-}
-
-
-void Seis::PS2DFetcher::openDataSet()
-{
-    if ( !fillIOObj() )
-	return;
-
-    dataset_ = new Seis2DDataSet( *ioobj_ );
-    if ( dataset_->isEmpty() )
-    {
-	uirv_ = tr( "Cannot find any data for this attribute" );
-	delete dataset_; dataset_ = 0;
-    }
 }
 
 
@@ -128,37 +108,38 @@ bool Seis::PS2DFetcher::openReader( Pos::GeomID geomid )
     }
 
     lditer_ = new PosInfo::Line2DDataIterator( rdr_->posData() );
-    nexttrckey_.setGeomID( geomid );
+    nexttrcky_.setGeomID( geomid );
     if ( !lditer_->next() )
     {
 	uirv_ = tr( "Empty line" );
 	return false;
     }
 
-    nexttrckey_.setTrcNr( lditer_->trcNr() );
+    nexttrcky_.setTrcNr( lditer_->trcNr() );
     return true;
 }
 
 
 void Seis::PS2DFetcher::moveNextTrcKey()
 {
-    while ( true )
-    {
-	atend_ = !lditer_->next();
-	if ( atend_ || !prov().seldata_ || prov().seldata_->isOK(nexttrcky_) )
-	    break;
-    }
+    atend_ = !lditer_->next();
+
     if ( atend_ )
     {
+	// At end of this line ...
 	int linenr = dataset_->indexOf( nexttrcky_.geomID() );
 	while ( atend_ && linenr < dataset_->nrLines()-1 )
 	{
 	    linenr++;
-	    if ( openReader(dataset_->geomID(linenr)) )
+	    nexttrcky_.setGeomID( dataset_->geomID(linenr) );
+	    if ( openReader(nexttrcky_.geomID()) )
 		atend_ = !lditer_->next();
 	}
     }
+
+	// atend_ now indicates the end of everything
     if ( !atend_ )
+	nexttrcky_.setLineNr( lditer_->trcNr() );
 }
 
 
@@ -166,7 +147,7 @@ bool Seis::PS2DFetcher::prepGetAt( const TrcKey& tk )
 {
     if ( rdr_ && rdr_->geomID() != tk.geomID() )
     {
-	if ( !openReader( tk.geomID() )
+	if ( !openReader( tk.geomID() ) )
 	    return false;
     }
 
@@ -248,10 +229,10 @@ Seis::PS2DProvider::~PS2DProvider()
 }
 
 
-SeisPS2DReader* Seis::PS2DProvider::mkReader() const
+SeisPS2DReader* Seis::PS2DProvider::mkReader( Pos::GeomID geomid ) const
 {
     PtrMan<IOObj> ioobj = fetcher_.getIOObj();
-    return ioobj ? PS2DFetcher::getReader( *ioobj ) : 0;
+    return ioobj ? PS2DFetcher::getReader( *ioobj, geomid ) : 0;
 }
 
 
@@ -271,8 +252,9 @@ BufferStringSet Seis::PS2DProvider::getComponentInfo() const
 	rdr = fetcher_.rdr_;
     else
     {
-	rdrptrman = mkReader();
-	rdr = rdrptrman;
+	//TODO
+	// rdrptrman = mkReader( first_geomid );
+	// rdr = rdrptrman;
     }
 
     BufferStringSet compnms;
@@ -280,8 +262,13 @@ BufferStringSet Seis::PS2DProvider::getComponentInfo() const
 	return compnms;
 
     const PosInfo::Line2DData& ld = rdr->posData();
-    if ( ld.size() < 1 )
+    if ( ld.positions().size() < 1 )
 	return compnms;
+
+    //TODO remove
+    addCompName( compnms, true, 0.f );
+
+    /*
     const int linenr = ld.size() / 2;
     const PosInfo::LineData& ld = *ld[linenr];
     const int segnr = ld.segments_.size() / 2;
@@ -307,6 +294,7 @@ BufferStringSet Seis::PS2DProvider::getComponentInfo() const
 			 useoffs ? tbuf.get(idx)->info().offset_
 				 : tbuf.get(idx)->info().azimuth_ );
     }
+    */
 
     return compnms;
 }
@@ -319,30 +307,9 @@ ZSampling Seis::PS2DProvider::getZSampling() const
 	ret = fetcher_.rdr_->getZRange();
     else
     {
-	PtrMan<SeisPS2DReader> rdr = mkReader();
-	ret = rdr ? rdr->getZRange() : TrcKeyZSampling(true).zsamp_;
-    }
-    return ret;
-}
-
-
-TrcKeySampling Seis::PS2DProvider::getHSampling() const
-{
-    TrcKeySampling ret;
-    if ( fetcher_.lditer_ )
-	ret = fetcher_.getDefaultCS().hsamp_;
-    else
-    {
-	PtrMan<SeisPS2DReader> rdr = mkReader();
-	if ( !rdr )
-	    ret = TrcKeyZSampling(true).hsamp_;
-	else
-	{
-	    const PosInfo::Line2DData& ld = rdr->posData();
-	    StepInterval<int> rg;
-	    ld.getInlRange( rg ); ret.setInlRange( rg );
-	    ld.getCrlRange( rg ); ret.setCrlRange( rg );
-	}
+	//TODO
+	// PtrMan<SeisPS2DReader> rdr = mkReader();
+	// ret = rdr ? rdr->getZRange() : TrcKeyZSampling(true).zsamp_;
     }
     return ret;
 }
@@ -355,13 +322,14 @@ void Seis::PS2DProvider::getGeometryInfo( PosInfo::Line2DData& ld ) const
     else
     {
 	ld.setEmpty();
-	PtrMan<SeisPS2DReader> rdr = mkReader();
-	if ( rdr )
-	    ld = rdr->posData();
-	else
-	{
+	//TODO
+	// PtrMan<SeisPS2DReader> rdr = mkReader();
+	// if ( rdr )
+	    // ld = rdr->posData();
+	// else
+	// {
 	    // There is no fallback, right?
-	}
+	// }
     }
 }
 

@@ -33,8 +33,7 @@ public:
 
     virtual BufferStringSet	getComponentInfo() const;
     virtual ZSampling		getZSampling() const;
-    virtual TrcKeySampling	getHSampling() const;
-    virtual void		getGeometryInfo(PosInfo::CubeData&) const;
+    virtual void		getGeometryInfo(PosInfo::Line2DData&) const;
 
 protected:
 
@@ -48,7 +47,7 @@ protected:
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
 
-    SeisPS2DReader*	mkReader() const;
+    SeisPS2DReader*	mkReader(Pos::GeomID) const;
 
 };
 
