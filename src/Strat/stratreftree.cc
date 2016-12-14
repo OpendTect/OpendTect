@@ -106,7 +106,9 @@ void Strat::RefTree::setToActualTypes()
 	NodeUnitRef* par = un->upNode();
 	if ( un->hasChildren() )
 	    { norefs += un; continue; }
-	LeafUnitRef* newun = new LeafUnitRef( par, -1, un->description() );
+
+	LeafUnitRef* newun =
+	    new LeafUnitRef( par, un->levelID().getI(), un->description() );
 	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
 	delete par->replace( par->indexOf(un), newun );
     }
