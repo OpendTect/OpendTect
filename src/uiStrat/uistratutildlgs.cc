@@ -54,15 +54,15 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 
     const Strat::NodeUnitRef* upnode = unit.upNode();
     Interval<float> limitrg = upnode ? upnode->timeRange() : unit.timeRange();
-    uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this,
-						      tr("Time range (My)"));
+    uiLabeledSpinBox* lblbox1 =
+		new uiLabeledSpinBox( this, tr("Time range (My)"));
     agestartfld_ = lblbox1->box();
     agestartfld_->setNrDecimals( 3 );
     agestartfld_->setInterval( limitrg );
     lblbox1->attach( alignedBelow, colfld_ );
 
-    uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox(this,
-						     uiString::emptyString());
+    uiLabeledSpinBox* lblbox2 =
+		new uiLabeledSpinBox( this, uiString::emptyString() );
     agestopfld_ = lblbox2->box();
     agestopfld_->setNrDecimals( 3 );
     agestopfld_->setInterval( limitrg );

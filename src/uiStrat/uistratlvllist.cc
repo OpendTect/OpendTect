@@ -119,7 +119,7 @@ void uiStratLvlList::removeAllCB( CallBacker* )
 }
 
 
-void uiStratLvlList::lvlSetChgCB( CallBacker* cb )
+void uiStratLvlList::lvlSetChgCB( CallBacker* )
 {
     //TODO merge edits with new situation
     fill();
