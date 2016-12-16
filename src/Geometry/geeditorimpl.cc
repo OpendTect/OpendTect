@@ -21,13 +21,13 @@ ElementEditorImpl::ElementEditorImpl( Element& elem,
     , translation2dnormal( norm2d )
     , maytranslate3d( allow3d )
 {
-    elem.nrpositionnotifier.notify( mCB(this,ElementEditorImpl,addedKnots) );
+    elem.nrpositionNotifier().notify( mCB(this,ElementEditorImpl,addedKnots) );
 }
 
 
 ElementEditorImpl::~ElementEditorImpl()
 {
-    element.nrpositionnotifier.remove( mCB(this,ElementEditorImpl,addedKnots) );
+    element.nrpositionNotifier().remove( mCB(this,ElementEditorImpl,addedKnots) );
 }
 
 

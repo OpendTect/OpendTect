@@ -50,7 +50,7 @@ public:
     void		triangulateAlg(TriProjection);
 
     void		setSurface(FaultStickSurface*);
-    FaultStickSurface*	getSurface()			{ return surface_; }
+
     const FaultStickSurface* getSurface() const		{ return surface_; }
 
     void		setZScale( float );
@@ -119,12 +119,12 @@ protected:
 
     void		addTriangle(IndexedGeometry*,int a,int b,int c);
 
-    bool		displaysticks_;
-    bool		displaypanels_;
+    bool					displaysticks_;
+    bool					displaypanels_;
 
-    FaultStickSurface*	surface_;
-    Coord3		scalefacs_;
-    int			sceneidx_;
+    const FaultStickSurface*			surface_;
+    Coord3					scalefacs_;
+    int						sceneidx_;
 
     bool					needsupdate_;
     bool					needsupdatetexture_;

@@ -106,7 +106,7 @@ void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
 	movementbuffer_.append( gpids );
     }
     else
-	movementnotifier.trigger( &gpids, this );
+	movementNotifier().trigger( &gpids, this );
 
     ischanged_ = true;
 }
@@ -124,7 +124,7 @@ void Element::triggerMovement()
     if ( blockcbs_ )
 	getPosIDs( movementbuffer_, true );
     else
-	movementnotifier.trigger( 0, this );
+	movementNotifier().trigger( 0, this );
 
     ischanged_ = true;
 }
@@ -140,7 +140,7 @@ void Element::triggerNrPosCh( const TypeSet<GeomPosID>& gpids )
 	nrposchbuffer_.append( gpids );
     }
     else
-	nrpositionnotifier.trigger( &gpids, this );
+	nrpositionNotifier().trigger( &gpids, this );
 
     ischanged_ = true;
 }
@@ -158,7 +158,7 @@ void Element::triggerNrPosCh()
     if ( blockcbs_ )
 	getPosIDs( nrposchbuffer_, true );
     else
-	nrpositionnotifier.trigger( 0, this );
+	nrpositionNotifier().trigger( 0, this );
     ischanged_ = true;
 }
 

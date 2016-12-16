@@ -406,9 +406,9 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
 {
     if ( surface_ )
     {
-	surface_->nrpositionnotifier.remove(
+	surface_->nrpositionNotifier().remove(
 			mCB(this,ExplFaultStickSurface,surfaceChange) );
-	surface_->movementnotifier.remove(
+	surface_->movementNotifier().remove(
 			mCB(this,ExplFaultStickSurface,surfaceMovement) );
     }
 
@@ -417,9 +417,9 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
 
     if ( surface_ )
     {
-	surface_->nrpositionnotifier.notify(
+	surface_->nrpositionNotifier().notify(
 			mCB(this,ExplFaultStickSurface,surfaceChange) );
-	surface_->movementnotifier.notify(
+	surface_->movementNotifier().notify(
 			mCB(this,ExplFaultStickSurface,surfaceMovement) );
 
 	if ( coordlist_ )

@@ -20,14 +20,14 @@ namespace Geometry
 PolygonSurfEditor::PolygonSurfEditor( Geometry::PolygonSurface& plg )
     : ElementEditor( plg )
 {
-    plg.nrpositionnotifier.notify( mCB(this,PolygonSurfEditor,addedKnots) );
+    plg.nrpositionNotifier().notify( mCB(this,PolygonSurfEditor,addedKnots) );
 }
 
 
 PolygonSurfEditor::~PolygonSurfEditor()
 {
     PolygonSurface& plg = reinterpret_cast<PolygonSurface&>(element);
-    plg.nrpositionnotifier.remove( mCB(this,PolygonSurfEditor,addedKnots) );
+    plg.nrpositionNotifier().remove( mCB(this,PolygonSurfEditor,addedKnots) );
 }
 
 

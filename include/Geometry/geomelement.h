@@ -54,8 +54,10 @@ public:
 
     virtual void	trimUndefParts()		{}
 
-    CNotifier<Element,const TypeSet<GeomPosID>*>	movementnotifier;
-    CNotifier<Element,const TypeSet<GeomPosID>*>	nrpositionnotifier;
+    CNotifier<Element,const TypeSet<GeomPosID>*>&	movementNotifier() const
+			{ return const_cast<Element*>(this)->movementnotifier; }
+    CNotifier<Element,const TypeSet<GeomPosID>*>&     nrpositionNotifier() const
+		      { return const_cast<Element*>(this)->nrpositionnotifier; }
 
     void			blockCallBacks(bool yn,bool flush=true);
 				/*!Block callbacks until further notice.
@@ -81,6 +83,9 @@ protected:
     bool			ischanged_;
 
     uiString&			errmsg();
+
+    CNotifier<Element,const TypeSet<GeomPosID>*>	movementnotifier;
+    CNotifier<Element,const TypeSet<GeomPosID>*>	nrpositionnotifier;
 
 private:
 

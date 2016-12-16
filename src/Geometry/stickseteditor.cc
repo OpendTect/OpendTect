@@ -20,7 +20,7 @@ namespace Geometry
 StickSetEditor::StickSetEditor( Geometry::FaultStickSet& fss )
     : ElementEditor( fss )
 {
-    mAttachCB( fss.nrpositionnotifier, StickSetEditor::addedKnots);
+    mAttachCB( fss.nrpositionNotifier(), StickSetEditor::addedKnots);
 }
 
 

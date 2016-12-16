@@ -39,7 +39,8 @@ Color EMObject::sDefaultSelectionColor() { return Color::Orange(); }
 
 
 EMObject::EMObject( EMManager& emm )
-    : manager_( emm )
+    : SharedObject( "" )
+    , manager_( emm )
     , change( this )
     , id_( -1 )
     , preferredcolor_( *new Color(Color::Green()) )
@@ -85,7 +86,12 @@ void EMObject::setNewName()
 { setName("<New EM Object>"); }
 
 void EMObject::setDBKey( const DBKey& mid )
-{ storageid_ = mid; }
+{
+    storageid_ = mid;
+    PtrMan<IOObj> ioobj = DBM().get( storageid_ );
+    if ( ioobj )
+	name_ = ioobj->name();
+}
 
 
 int EMObject::sectionIndex( const SectionID& sid ) const
