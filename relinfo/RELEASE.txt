@@ -3,11 +3,75 @@ OpendTect V6.0.x : Release info
 In general, all fixes in the stable 5.0 are also applied in the 6.0 releases.
 
 ----
+v6.0.5: December 19, 2016
+ * New Attribute 'Pseudo relief' is added to attribute list
+ * Fix for constant values turning to zeros in Mathematical expression while 
+   switching to different attributes
+ * Fix for faults exporting with incorrect depth values if survey 
+   is in feet
+ * Improved updating speed of locked texture when moving/rotating
+   random line while tracking 3D horizon
+ * Fix for importing SEG-Y file which have samples per trace
+   greater than 60000
+ * Fix for displaying original random line in scene after removing edited
+   line without saving from tree
+ * Fix for removing all poly-lines after closing distance measuring tool window
+ * Fix for multiple appearance of 'Overwrite geometry' message while importing
+   2D Seismic using Classic SEG-Y Import tool
+ * Disabled Multi-machine mode for horizon processing
+ * Added a button 'Process this attribute' to start attribute processing
+   from the attribute set window
+ * Fix for precision issues in 'Contour Display Options' window
+ * Fix for crash while gridding horizon using Triangulation method
+ * Fix for importing a 2D line with user selected Z range
+ * Fix for smoothing amplitude values in Stratal Amplitude processing
+ * Fix for 3D horizon visualization issue for larger surveys
+ * Fix for importing full data using Import Horizon 'Attribute 3D' option
+ * Added a new feature to save depth values from a depth scene as horizon data
+ * Performance improvements while tracking the horizon using  dragging method
+ * Fix for disappearance of PickSets by displaying them only at sections
+ * Fixed issues while setting up Initial Survey
+ * Fix for displaying restored session PreStack data
+ * Fix for displaying preview spectrum of Frequency taper in Frequency filter
+   attribute
+ * Fix for unit selection issue when creating log from saved rock physics
+   formula
+ * Fix for tracking horizon with larger step value
+ * Fix for removing data using polygon selection tool in 2D horizon tracking
+ * Fix for immediate update of Locked horizon patch color in 3D scene
+   while tracking 3D horizon
+ * Fix for default Z-value while creating horizon using 'Constant Z' option
+   from 3D Horizon tree item
+ * Fix for crash in seismic Re-sort scanned SEG-Y
+ * Fix for displaying previously added horizon data after reloading horizon
+ * Fix for incorrect input variables for multi-component volumes in
+   Mathematics attribute
+ * Fix for log tracks in depth, in well-to-seismic tie window if survey
+   depth units are in feet
+ * Fix for PreStack event display in the 3D scene
+ * Fix for auto-tracking of 3D horizon on random line
+ * Fix for memory issue while displaying larger horizons
+ * Fix for sign reversal issue while computing values using PreStack attribute
+   and some user interface improvements in PreStack attribute
+ * Fix for removing row in Edit log window
+ * Disabled cross plot button in cross plot table window unless X & Y columns
+   are selected
+ * Fix for Horizon tracking issue: Holding Ctrl key and picking in
+   auto-tracking mode, 
+   starts drawing in manual mode
+ * Fix for crash without crash report in 2D Horizon tracking
+ * Fix for a lag between actions and display in Horizon Auto-tracking
+ * Fix for unexpected zoom out in 2D viewer
+ * Added more details to message displayed after 2D SEG-Y import
+ * Fix for Z-scaling dependency of one 3D Scene on different domain 3D scenes
+ * In 3D Horizon Auto-Tracking:after locking horizons patch,
+   locked texture appears for a few seconds as confirmation to a user
+
 v6.0.4: September 19, 2016
- * Fix for displaying saved pre-stack events in scene
+ * Fix for displaying saved PreStack events in scene
  * Fix for crash while creating horizon with a non-integer
    Inline/Crossline step
- * Fx for crash while importing horizon from multiple input files
+ * Fix for crash while importing horizon from multiple input files
  * Fix for temporary SEG-Y files appearing in the list of available attributes
    for display
  * Performance improvements for displaying preloaded data in a depth scene
@@ -152,7 +216,7 @@ v6.0.3: June 1, 2016
    interpolating 2D horizons etc.
  * Fix for erroneous Random line display on re-adding to the scene after
    removing once
- * Fix for interval velosity spikes after integrating sonic logs in Well tie
+ * Fix for interval velocity spikes after integrating sonic logs in Well tie
    to seismic
  * Fix for update of time-depth model after closing the well tie to
    seismic window
