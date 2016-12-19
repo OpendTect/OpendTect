@@ -79,7 +79,11 @@ const LineProvider& prov() const
 
     void		reset();
     void		openFirst();
+    bool		createGetter();
     bool		getNextGetter();
+    bool		getFromBuf(int,SeisTrc&);
+    bool		readNextTraces();
+    int			lineIdxFor(Pos::GeomID) const;
 
     void		get(const TrcKey&,SeisTrc&);
     void		getNext(SeisTrc&);
@@ -87,7 +91,9 @@ const LineProvider& prov() const
     Executor*		getter_;
     SeisTrcBuf		tbuf_;
     int			curlidx_;
-    Pos::GeomID		curgeomid_;
+    Pos::GeomID		curGeomID() const
+			{ return dataset_ && curlidx_>=0
+			    ? dataset_->geomID( curlidx_ ) : mUdfGeomID; }
 
 };
 
@@ -114,6 +120,18 @@ void Seis::LineFetcher::openFirst()
 }
 
 
+int Seis::LineFetcher::lineIdxFor( Pos::GeomID geomid ) const
+{
+    const int nrlines = dataset_->nrLines();
+    for ( int lidx=0; lidx<nrlines; lidx++ )
+    {
+	if ( dataset_->geomID(lidx) == geomid )
+	    return lidx;
+    }
+    return -1;
+}
+
+
 bool Seis::LineFetcher::getNextGetter()
 {
     delete getter_; getter_ = 0;
@@ -126,16 +144,12 @@ bool Seis::LineFetcher::getNextGetter()
     const Seis::SelData* sd = prov().seldata_;
     const bool issingleline = sd && !mIsUdfGeomID(sd->geomID());
     const bool istable = sd && sd->type() == Seis::Table;
-    const int nrlines = dataset_->nrLines();
 
     if ( issingleline )
     {
-	while ( dataset_->geomID(curlidx_) != sd->geomID() )
-	{
-	    curlidx_++;
-	    if ( curlidx_ >= nrlines )
-		return false;
-	}
+	curlidx_ = lineIdxFor( sd->geomID() );
+	if ( curlidx_ < 0 )
+	    return false;
     }
     else if ( istable )
     {
@@ -144,32 +158,108 @@ bool Seis::LineFetcher::getNextGetter()
 				     tsd->binidValueSet()) )
 	{
 	    curlidx_++;
-	    if ( curlidx_ >= nrlines )
+	    if ( curlidx_ >= dataset_->nrLines() )
 		return false;
 	}
     }
 
-    curgeomid_ = dataset_->geomID( curlidx_ );
-    getter_ = dataset_->lineGetter( curgeomid_, tbuf_, 1, sd );
+    getter_ = dataset_->lineGetter( curGeomID(), tbuf_, 1, sd );
     return getter_ ? true : getNextGetter();
+}
+
+
+bool Seis::LineFetcher::getFromBuf( int trcnr, SeisTrc& trc )
+{
+    while ( !tbuf_.isEmpty() )
+    {
+	SeisTrc* buftrc = tbuf_.remove( 0 );
+	const bool ismatch = buftrc->info().trcNr() == trcnr;
+	if ( ismatch )
+	    trc = *buftrc;
+	delete buftrc;
+	if ( ismatch )
+	    return true;
+    }
+    return false;
+}
+
+
+bool Seis::LineFetcher::createGetter()
+{
+    delete getter_; tbuf_.deepErase();
+    getter_ = dataset_->lineGetter( curGeomID(), tbuf_, 1, prov().seldata_ );
+    if ( getter_ )
+	return true;
+
+    uirv_.set( uiStrings::phrCannotOpen(
+		    toUiString(dataset_->lineName(curlidx_)) ) );
+    return false;
+}
+
+
+bool Seis::LineFetcher::readNextTraces()
+{
+    if ( !getter_ && !createGetter() )
+	return false;
+
+    int res = getter_->doStep();
+    if ( res < 0 )
+    {
+	uirv_.set( getter_->message() );
+	return false;
+    }
+
+    return !tbuf_.isEmpty();
 }
 
 
 void Seis::LineFetcher::get( const TrcKey& tk, SeisTrc& trc )
 {
-    /*
     if ( !tk.hasValidGeomID() )
-	uirv_.set( tr("Invalid
-    else if ( tk.geomID() != curgeomid_ )
     {
-
+	uirv_.set( tr("Invalid position requested") );
+	return;
     }
-    */
+
+    if ( tk.geomID() == curGeomID() && getFromBuf(tk.trcNr(),trc) )
+	return;
+
+    tbuf_.deepErase();
+    curlidx_ = lineIdxFor( curGeomID() );
+    if ( curlidx_ < 0 )
+    {
+	uirv_.set( tr("Requested position not available") );
+	return;
+    }
+
+    if ( !createGetter() )
+	return;
+
+    while ( true )
+    {
+	if ( !readNextTraces() )
+	{
+	    uirv_.set( tr("Requested position not available") );
+	    return;
+	}
+	if ( getFromBuf(tk.trcNr(),trc) )
+	    break;
+    }
 }
 
 
 void Seis::LineFetcher::getNext( SeisTrc& trc )
 {
+    if ( tbuf_.isEmpty() && !readNextTraces() )
+    {
+	if ( (prov().seldata_ && !mIsUdfGeomID(prov().seldata_->geomID()))
+	  || !getNextGetter() )
+	    { uirv_.set( uiStrings::sFinished() ); return; }
+    }
+
+    SeisTrc* buftrc = tbuf_.remove( 0 );
+    trc = *buftrc;
+    delete buftrc;
 }
 
 
