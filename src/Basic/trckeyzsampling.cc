@@ -878,21 +878,30 @@ od_int64 TrcKeySampling::globalIdx( const BinID& bid ) const
 
 bool TrcKeySampling::lineOK( Pos::LineID lid ) const
 {
-    return lid >= start_.lineNr() &&
-	   lid <= stop_.lineNr() &&
-	   (step_.lineNr()
-		? !( (lid-start_.lineNr()) % step_.lineNr() )
-		: lid==start_.lineNr());
+    return lineOK( lid, false );
 }
 
 
 bool TrcKeySampling::trcOK( Pos::TraceID tid ) const
 {
-    return tid >= start_.trcNr() &&
-	   tid <= stop_.trcNr() &&
-	   (step_.crl()
-		? !( (tid-start_.trcNr()) % step_.trcNr() )
-		: tid==start_.trcNr());
+    return trcOK( tid, false );
+}
+
+
+bool TrcKeySampling::lineOK( Pos::LineID lid, bool ignoresteps ) const
+{
+    const bool linenrok = lid >= start_.lineNr() && lid <= stop_.lineNr();
+    return ignoresteps ? linenrok : linenrok && ( step_.lineNr() ? 
+	!( ( lid-start_.lineNr() ) % step_.lineNr() ) : lid==start_.lineNr() );
+
+}
+
+
+bool TrcKeySampling::trcOK( Pos::TraceID tid, bool ignoresteps ) const
+{
+    const bool trcnrok = tid >= start_.trcNr() && tid <= stop_.trcNr();
+    return ignoresteps ? trcnrok : trcnrok && ( step_.crl() ? 
+	!( ( tid-start_.trcNr() ) % step_.trcNr() ) : tid==start_.trcNr() );
 }
 
 

@@ -247,7 +247,7 @@ int nextStep()
 	}
 
 	bvs.get( pos_, bid );
-	if ( !hs_.includes(bid) || !horarrays_.validIdx(sectionidx_) )
+	if ( !hs_.includes(bid,true) || !horarrays_.validIdx(sectionidx_) )
 	    continue;
 
 	const int inlidx = hs_.inlIdx( bid.inl() );

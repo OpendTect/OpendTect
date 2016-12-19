@@ -60,6 +60,9 @@ public:
     bool		lineOK(Pos::LineID) const;
     bool		trcOK(Pos::TraceID) const;
 
+    bool		lineOK(Pos::LineID,bool ignoresteps) const;
+    bool		trcOK(Pos::TraceID,bool ignoresteps) const;
+
     void		include(const TrcKey&);
     void		includeLine(Pos::LineID);
     void		includeTrc(Pos::TraceID);
@@ -146,6 +149,10 @@ public:
 			{ return lineOK(bid.inl()) && trcOK(bid.crl()); }
     inline bool		inlOK( int inl ) const { return lineOK(inl); }
     inline bool		crlOK( int crl ) const { return trcOK(crl); }
+
+    inline bool		includes(const BinID& bid, bool ignoresteps) const
+			{ return lineOK(bid.inl(), ignoresteps ) && 
+				 trcOK(bid.crl(), ignoresteps ); }
 
     mDeprecated BinID&	start;
     mDeprecated BinID&	stop;
