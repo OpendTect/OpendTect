@@ -22,7 +22,7 @@ Standard color tables
 1.Transparency.0: 0`0
 1.Transparency.1: 1`0
 
-2.Name		: Chimney
+2.Name: Chimney
 2.Value-Color.0: 0`0`0`255`255
 2.Value-Color.1: 0.436548`50`113`207`100
 2.Value-Color.2: 0.482233`42`84`255`255
@@ -36,7 +36,7 @@ Standard color tables
 2.Undef color: 200`200`200`255
 2.Marker color: 0`0`0
 
-3.Name		: Depth
+3.Name: Depth
 3.Value-Color.0: 0`255`0`0`255
 3.Value-Color.1: 0.311558`0`255`0`255
 3.Value-Color.2: 0.5`255`255`0`255
@@ -48,7 +48,7 @@ Standard color tables
 3.Undef color: 200`200`200`0
 3.Marker color: 0`0`0
 
-4.Name       :	Grey scales
+4.Name: Grey scales
 4.Value-Color.1: 0`255`255`255
 4.Value-Color.2: 1`0`0`0
 4.Transparency.0: 0`0
@@ -70,7 +70,7 @@ Standard color tables
 5.Transparency.0: 0`0
 5.Transparency.1: 1`0 
 
-6.Name       :	Extremes
+6.Name: Extremes
 6.Value-Color.1: 0`255`255`0
 6.Value-Color.2: 0.05`255`0`0
 6.Value-Color.3: 0.4`255`255`255
@@ -82,7 +82,7 @@ Standard color tables
 6.Undef color:	200`200`200
 6.Marker color: 0`0`0
 
-7.Name		: Faults
+7.Name: Faults
 7.Value-Color.0: 0`255`255`255`0
 7.Value-Color.1: 0.4`197`180`153`0
 7.Value-Color.2: 0.49`216`173`1`0
@@ -103,7 +103,7 @@ Standard color tables
 8.Transparency.0: 0`0
 8.Transparency.1: 1`0
 
-9.Name       :	Flames
+9.Name: Flames
 9.Value-Color.1: 0`255`255`255
 9.Value-Color.2: 0.2`255`255`255
 9.Value-Color.3: 0.4`0`0`0
@@ -115,7 +115,7 @@ Standard color tables
 9.Undef color:	150`200`150`0
 9.Marker color: 0`240`0`0
 
-10.Name       :	Pastel
+10.Name: Pastel
 10.Value-Color.1: 0`0`0`255
 10.Value-Color.2: 0.25`0`255`255
 10.Value-Color.3: 0.5`255`255`255
@@ -126,7 +126,7 @@ Standard color tables
 10.Undef color:	200`200`200
 10.Marker color: 0`0`0
 
-11.Name       :	Rainbow
+11.Name: Rainbow
 11.Value-Color.1: 0`0`0`255
 11.Value-Color.2: 0.25`0`255`255
 11.Value-Color.3: 0.4`0`255`0
@@ -138,7 +138,7 @@ Standard color tables
 11.Undef color:	200`200`200
 11.Marker color: 0`0`0
 
-12.Name       :	SunRise
+12.Name: SunRise
 12.Value-Color.1: 0`255`255`255
 12.Value-Color.2: 0.5`255`255`0
 12.Value-Color.3: 1`255`0`0
@@ -177,7 +177,7 @@ Standard color tables
 14.Transparency.0: 0`0
 14.Transparency.1: 1`0
 
-15.Name       :	Red-White-Black
+15.Name: Red-White-Black
 15.Value-Color.1: 0`255`0`0
 15.Value-Color.2: 0.25`255`200`0
 15.Value-Color.3: 0.5`255`255`255
@@ -187,7 +187,7 @@ Standard color tables
 15.Undef color:	150`200`150
 15.Marker color: 0`240`0
 
-16.Name       :	Red-White-Blue
+16.Name: Red-White-Blue
 16.Marker color: 0`240`0
 16.Undef color: 150`200`150`0
 16.Value-Color.0: 0`170`0`0`255
@@ -198,7 +198,7 @@ Standard color tables
 16.Transparency.0: 0`0
 16.Transparency.1: 1`0
 
-17.Name		: Seismics
+17.Name: Seismics
 17.Value-Color.0: 0`170`0`0`255
 17.Value-Color.1: 0.070352`255`28`0`0
 17.Value-Color.2: 0.25`255`200`0`0
@@ -241,7 +241,7 @@ Standard color tables
 19.Transparency.0: 0`0
 19.Transparency.1: 1`0
 
-20.Name		: Experimental
+20.Name: Experimental
 20.Value-Color.0: 0`85`170`255`0
 20.Value-Color.1: 0.08`39`117`59`0
 20.Value-Color.2: 0.22`85`255`127`0
@@ -297,7 +297,7 @@ Standard color tables
 23.Transparency.0: 0`0
 23.Transparency.1: 1`0
 
-24.Name:Contour Gradients
+24.Name: Contour Gradients
 24.Marker color: 255`255`255`0
 24.Undef color: 255`255`255`255
 24.Nr segments: 0
@@ -442,7 +442,7 @@ Standard color tables
 33.Transparency.2: 0.783784`0
 33.Transparency.3: 1`0
 
-34.Name       :	Depth1
+34.Name: Depth1
 34.Value-Color.1: 0`255`0`255
 34.Value-Color.2: 0.2`255`0`0
 34.Value-Color.3: 0.45`255`255`0
@@ -454,7 +454,7 @@ Standard color tables
 34.Undef color:	200`200`200
 34.Marker color: 0`0`0
 
-35.Name       :	Similarity
+35.Name: Similarity
 35.Value-Color.1: 0`0`0`0
 35.Value-Color.2: 1`255`255`255
 35.Transparency.0: 0`0
