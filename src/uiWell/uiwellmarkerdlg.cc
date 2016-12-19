@@ -461,8 +461,7 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
     if ( havelvl )
     {
 	table_->setColor( RowCol(irow,cColorCol), levelsel->getColor() );
-	table_->setText( RowCol(irow,cNameCol),
-			 BufferString(levelsel->getLevelName()) );
+	table_->setText( RowCol(irow,cNameCol), levelsel->getLevelName() );
     }
 
     table_->setCellReadOnly( RowCol(irow,cNameCol), havelvl );
