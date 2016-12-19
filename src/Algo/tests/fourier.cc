@@ -4,10 +4,12 @@
  * DATE     : Dec 2007
 -*/
 
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "fourier.h"
 
 #include "testprog.h"
+#include "arrayndimpl.h"
 #include "math2.h"
 #include "threadlock.h"
 #include "threadwork.h"
@@ -30,21 +32,18 @@ private:
 };
 
 
-bool checkRMSDifference( TypeSet<float_complex>& a, TypeSet<float_complex>& b,
+bool checkRMSDifference( float_complex* a, float_complex* b, od_uint64 size,
                          float eps )
 {
-    if ( a.size()!=b.size() )
-        return false;
-
     double err2 = 0;
 
-    for ( int idx=a.size()-1; idx>=0; idx-- )
+    for ( int idx=size-1; idx>=0; idx-- )
     {
         const float_complex diff = a[idx]-b[idx];
 	err2 += diff.real()*diff.real() + diff.imag()*diff.imag();
     }
 
-    err2 /= (a.size()*2);
+    err2 /= (size*2);
 
     const double rms = Math::Sqrt( err2 );
     return rms<eps;
@@ -68,8 +67,10 @@ else \
 } \
 
 
+//-------------------Test 1D------------------------------------
 bool testForwardCC( const TypeSet<float_complex>& input )
 {
+
     TypeSet<float_complex> reference( input.size(), float_complex(0,0) );
 
     const int nrsamples = input.size();
@@ -105,8 +106,8 @@ bool testForwardCC( const TypeSet<float_complex>& input )
     testname = "FFT results ";
     testname.add( input.size() );
     mTest( testname.buf(),
-	   checkRMSDifference( transformdata, reference, 2e-5 ) );
-
+	   checkRMSDifference( transformdata.arr(), reference.arr(),
+	       		       transformdata.size(), 2e-5 ) );
     return true;
 }
 
@@ -122,8 +123,96 @@ bool FFTChecker::execute()
     return true;
 }
 
+//------------------------------ Test 2D --------------------------------
+
+class FFTChecker2D : public Task
+{
+public:
+                FFTChecker2D( int sz0, int sz1 )
+                    : sz0_( sz0 )
+		    , sz1_( sz1 )		{}
+
+    bool	execute();
+
+private:
+
+    int		sz0_;
+    int		sz1_;
+};
 
 
+//2D test will cover the nD case.
+bool testForwardCC2D( const Array2D<float_complex>& input )
+{
+
+    const int nrsamplesdim0 = input.info().getSize(0);
+    const int nrsamplesdim1 = input.info().getSize(1);
+    Array2DImpl<float_complex> reference( nrsamplesdim0, nrsamplesdim1 );
+    reference.setAll( float_complex(0,0) );
+
+    const double anglefactor0 = (-2*M_PI)/nrsamplesdim0;
+    const double anglefactor1 = (-2*M_PI)/nrsamplesdim1;
+    for ( int idx0=nrsamplesdim0-1; idx0>=0; idx0-- )
+    {
+	for ( int idx1=nrsamplesdim1-1; idx1>=0; idx1-- )
+	{
+	    std::complex<double> freqsum(0,0);
+	    const double angleincrement0 = anglefactor0*idx0;
+	    const double angleincrement1 = anglefactor1*idx1;
+	    for ( int idy0=nrsamplesdim0-1; idy0>=0; idy0-- )
+	    {
+		const double angle0 = angleincrement0*idy0;
+		for ( int idy1=nrsamplesdim1-1; idy1>=0; idy1-- )
+		{
+		    const double angle1 = angleincrement1*idy1;
+		    const std::complex<double> contrib( cos(angle0+angle1),
+							sin(angle0+angle1) );
+		    const std::complex<double> val( input.get(idy0,idy1).real(),
+						   input.get(idy0,idy1).imag());
+		    freqsum += contrib * val;
+		}
+	    }
+
+	    freqsum.real() = freqsum.real()/(nrsamplesdim0*nrsamplesdim1);
+	    freqsum.imag() = freqsum.imag()/(nrsamplesdim0*nrsamplesdim1);
+	    reference.set( idx0,idx1, float_complex( (float) freqsum.real(),
+						     (float) freqsum.imag() ) );
+	}
+    }
+
+    Fourier::CC transform;
+    float_complex* transformdata = const_cast<float_complex*>(input.getData());
+    
+    transform.setInputInfo( input.info() );
+    transform.setDir( true );
+
+    BufferString testname( "Running FFT size ",
+	    		   toString( input.info().getTotalSz() ) );
+    mTest( testname.buf(), transform.run( transformdata ));
+
+    testname = "FFT results ";
+    testname.add( input.info().getTotalSz() );
+    mTest( testname.buf(),
+	   checkRMSDifference( transformdata, reference.getData(),
+	       		       reference.info().getTotalSz(), 2e-5 ) );
+    return true;
+}
+
+
+bool FFTChecker2D::execute()
+{
+    Array2DImpl<float_complex> testdata( sz0_, sz1_ );
+    testdata.setAll( float_complex(0,0) );
+    testdata.set( 1, 1, float_complex(1,0) );
+
+    if ( !testForwardCC2D( testdata ) )
+	return false;
+
+    return true;
+}
+
+
+//------------------------------- test --------------------------------
 int testMain( int argc, char** argv )
 {
     mInitTestProg();
