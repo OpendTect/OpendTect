@@ -232,8 +232,8 @@ int uiMarkerDlg::getNrRows() const
 {
     for ( int idx=table_->nrRows()-1; idx>=0; idx-- )
     {
-	const char* txt = table_->text( RowCol(idx,cNameCol) );
-	if ( txt && *txt ) return idx+1;
+	const BufferString txt( table_->text( RowCol(idx,cNameCol) ) );
+	if ( !txt.isEmpty() ) return idx+1;
     }
 
     return 0;
@@ -285,8 +285,8 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
     }
     else if ( nmchg )
     {
-	const char* markernm = table_->text( rc );
-	if ( !markernm || !*markernm )
+	const BufferString markernm( table_->text( rc ) );
+	if ( markernm.isEmpty() )
 	{
 	    uiMSG().error( uiStrings::sEnterValidName() );
 	    return;
@@ -409,11 +409,11 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 
 	    levelsel->setID( marker.levelID() );
 	    const float dah = marker.dah();
+	    table_->setText( RowCol(irow,cNameCol), marker.name() );
 	    table_->setValue( RowCol(irow,cDepthCol), dah * zfac );
 	    const float tvdss = mCast(float,track_.getPos(dah).z_);
 	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev) * zfac );
 	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss * zfac );
-	    table_->setText( RowCol(irow,cNameCol), marker.name() );
 	    table_->setColor( RowCol(irow,cColorCol), marker.color() );
 	    if ( marker.levelID().isValid() )
 		updateFromLevel( irow, levelsel );
@@ -461,7 +461,8 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
     if ( havelvl )
     {
 	table_->setColor( RowCol(irow,cColorCol), levelsel->getColor() );
-	table_->setText( RowCol(irow,cNameCol), levelsel->getLevelName() );
+	table_->setText( RowCol(irow,cNameCol),
+			 BufferString(levelsel->getLevelName()) );
     }
 
     table_->setCellReadOnly( RowCol(irow,cNameCol), havelvl );
@@ -550,8 +551,8 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 	if ( mIsUdf(dah) )
 	    continue;
 
-	const char* markernm = table_->text( RowCol(rowidx,cNameCol) );
-	if ( !markernm || !*markernm )
+	const BufferString markernm( table_->text( RowCol(rowidx,cNameCol) ) );
+	if ( markernm.isEmpty() )
 	    continue;
 
 	if ( !markernms.addIfNew(markernm) )
@@ -809,10 +810,9 @@ Well::Marker uiMarkerDlg::getMarker( int row, bool fromname ) const
     if ( !getMarkerSet(markers) )
 	return 0;
 
-    const char* markernm = table_->text(RowCol(row,cNameCol));
+    const BufferString markernm( table_->text(RowCol(row,cNameCol)) );
     const float dah = table_->getFValue( RowCol(row,cDepthCol) );
-    if ( (fromname && (!markernm || !*markernm)) ||
-	 (!fromname && mIsUdf(dah)) )
+    if ( (fromname && markernm.isEmpty()) || (!fromname && mIsUdf(dah)) )
 	return 0;
 
     const int markeridx = markers.getIdxAbove( dah / zFactor() );

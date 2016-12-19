@@ -528,9 +528,10 @@ Well::MarkerSet::IdxType Well::MarkerSet::indexOf( const char* mname ) const
 
 Well::MarkerSet::IdxType Well::MarkerSet::idxOf( const char* mname ) const
 {
+    const BufferString needle( mname );
     for ( IdxType idx=0; idx<markers_.size(); idx++ )
     {
-	if ( markers_[idx].name()==mname )
+	if ( markers_[idx].name() == needle )
 	    return idx;
     }
     return -1;
