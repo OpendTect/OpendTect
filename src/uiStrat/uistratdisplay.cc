@@ -40,12 +40,13 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     uidatagather_ = new uiStratTreeToDisp( data_ );
     uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,reDraw) );
 
-    getMouseEventHandler().buttonReleased.notify(
-					mCB(this,uiStratDisplay,usrClickCB) );
+    MouseEventHandler& meh = getMouseEventHandler();
+    meh.buttonReleased.notify( mCB(this,uiStratDisplay,usrClickCB) );
+    meh.movement.notify( mCB(this,uiStratDisplay,mouseMoveCB) );
     reSize.notify( mCB(this,uiStratDisplay,reDraw) );
 
     disableScrollZoom();
-    setDragMode( uiGraphicsViewBase::ScrollHandDrag );
+    setDragMode( uiGraphicsView::NoDrag );
     setSceneBorder( 2 );
     setPrefWidth( 650 );
     setPrefHeight( 400 );
@@ -185,14 +186,14 @@ protected:
 };
 
 
-void uiStratDisplay::selCols( CallBacker* cb )
+void uiStratDisplay::selCols( CallBacker* )
 {
     uiColViewerDlg dlg( parent(), drawer_, data_ );
     dlg.go();
 }
 
 
-void uiStratDisplay::reDraw( CallBacker* cb )
+void uiStratDisplay::reDraw( CallBacker* )
 {
     drawer_.draw();
 }
@@ -216,7 +217,7 @@ void uiStratDisplay::display( bool yn, bool shrk, bool maximize )
 }
 
 
-void uiStratDisplay::dispParamChgd( CallBacker* cb )
+void uiStratDisplay::dispParamChgd( CallBacker* )
 {
     Interval<float> rg = rangefld_->getFInterval();
     if ( rg.start < maxrg_.start || rg.stop > maxrg_.stop
@@ -234,6 +235,16 @@ void uiStratDisplay::usrClickCB( CallBacker* cb )
 	return;
 
     mevh->setHandled( handleUserClick(mevh->event()) );
+}
+
+
+void uiStratDisplay::mouseMoveCB( CallBacker* cb )
+{
+    if ( !mainwin() ) return;
+
+    const float age = getPos().y;
+    uiString agetxt = tr("Age: %1 My").arg( age );
+    mainwin()->toStatusBar( agetxt, 0 );
 }
 
 
@@ -698,7 +709,10 @@ void uiStratViewControl::wheelMoveCB( CallBacker* )
     const MouseEvent& ev = mvh.event();
     if ( mIsZero(ev.angle(),0.01) )
 	return;
-    zoomCB( ev.angle() < 0 ? vertzoominbut_ : vertzoomoutbut_ );
+
+    const bool zoomin = viewer_.getMouseWheelReversal() ?
+	ev.angle() < 0 : ev.angle() > 0;
+    zoomCB( zoomin > 0 ? vertzoominbut_ : vertzoomoutbut_ );
 }
 
 

@@ -57,7 +57,7 @@ uiStratTreeWin& StratTreeWin()
 
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
-    : uiMainWin(p,uiStrings::phrManage( uiStrings::sStratigraphy() ), 0, true)
+    : uiMainWin(p,uiStrings::phrManage(uiStrings::sStratigraphy()),2)
     , needsave_(false)
     , istreedisp_(false)
     , repos_(*new Strat::RepositoryAccess())
@@ -112,39 +112,40 @@ void uiStratTreeWin::setNewRT()
     uiSelectFromList::Setup su( dlgmsg, opts );
     uiSelectFromList dlg( this, su );
     if ( nortpresent )
-	dlg.setButtonText( uiDialog::CANCEL, uiStrings::sStratigraphy() );
-    if ( dlg.go() )
-    {
-	const char* nm = opts.get( dlg.selection() );
-	Strat::LevelSet* ls = 0;
-	Strat::RefTree* rt = 0;
+	dlg.setButtonText( uiDialog::CANCEL, uiStrings::sEmptyString() );
+    if ( !dlg.go() )
+	return;
 
-	if ( dlg.selection() > 0 )
-	{
-	    ls = Strat::LevelSet::createStd( nm );
-	    if ( !ls )
-		{ pErrMsg( "Cannot read LevelSet from Std!" ); return; }
-	    else
-	    {
-		rt = Strat::RefTree::createStd( nm );
-		if ( !rt )
-		    { pErrMsg( "Cannot read RefTree from Std!" ); return; }
-	    }
-	}
+    const char* nm = opts.get( dlg.selection() );
+    Strat::LevelSet* ls = 0;
+    Strat::RefTree* rt = 0;
+
+    if ( dlg.selection() > 0 )
+    {
+	ls = Strat::LevelSet::createStd( nm );
+	if ( !ls )
+	    { pErrMsg( "Cannot read LevelSet from Std!" ); return; }
 	else
 	{
-	    rt = new RefTree();
-	    ls = new LevelSet();
+	    rt = Strat::RefTree::createStd( nm );
+	    if ( !rt )
+		{ pErrMsg( "Cannot read RefTree from Std!" ); return; }
 	}
-	Strat::setLVLS( ls );
-	Strat::setRT( rt );
-	needsave_ = true;
-	const Repos::Source dest = Repos::Survey;
-	Strat::LVLS().store( dest );
-	Strat::RepositoryAccess().writeTree( Strat::RT(), dest );
-	if ( tb_ )
-	    resetCB( 0 );
     }
+    else
+    {
+	rt = new RefTree();
+	ls = new LevelSet();
+    }
+
+    Strat::setLVLS( ls );
+    Strat::setRT( rt );
+    needsave_ = true;
+    const Repos::Source dest = Repos::Survey;
+    Strat::LVLS().store( dest );
+    Strat::RepositoryAccess().writeTree( Strat::RT(), dest );
+    if ( tb_ )
+	resetCB( 0 );
 }
 
 
@@ -326,6 +327,7 @@ void uiStratTreeWin::resetCB( CallBacker* )
     uitree_->expand( true );
     uistratdisp_->setTree();
     uitree_->setNoChg();
+    lvllist_->setLevels();
     lvllist_->setNoChg();
     needsave_ = false;
 }

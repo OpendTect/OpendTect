@@ -152,6 +152,7 @@ protected :
     void			reDraw(CallBacker*);
     void			selCols(CallBacker*);
     void			usrClickCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
 };
 
 
