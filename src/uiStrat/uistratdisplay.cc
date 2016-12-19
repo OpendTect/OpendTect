@@ -712,7 +712,7 @@ void uiStratViewControl::wheelMoveCB( CallBacker* )
 
     const bool zoomin = viewer_.getMouseWheelReversal() ?
 	ev.angle() < 0 : ev.angle() > 0;
-    zoomCB( zoomin > 0 ? vertzoominbut_ : vertzoomoutbut_ );
+    zoomCB( zoomin ? vertzoominbut_ : vertzoomoutbut_ );
 }
 
 
