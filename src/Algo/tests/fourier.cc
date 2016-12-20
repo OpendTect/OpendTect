@@ -40,7 +40,7 @@ bool checkRMSDifference( float_complex* a, float_complex* b, od_uint64 size,
     for ( int idx=size-1; idx>=0; idx-- )
     {
         const float_complex diff = a[idx]-b[idx];
-	err2 += diff.real()*diff.real() + diff.imag()*diff.imag();
+	err2 += std::norm( diff );
     }
 
     err2 /= (size*2);
@@ -107,7 +107,7 @@ bool testForwardCC( const TypeSet<float_complex>& input )
     testname.add( input.size() );
     mTest( testname.buf(),
 	   checkRMSDifference( transformdata.arr(), reference.arr(),
-	       		       transformdata.size(), 2e-5 ) );
+			       transformdata.size(), 2e-5 ) );
     return true;
 }
 
@@ -173,8 +173,7 @@ bool testForwardCC2D( const Array2D<float_complex>& input )
 		}
 	    }
 
-	    freqsum.real() = freqsum.real()/(nrsamplesdim0*nrsamplesdim1);
-	    freqsum.imag() = freqsum.imag()/(nrsamplesdim0*nrsamplesdim1);
+	    freqsum /= nrsamplesdim0 * nrsamplesdim1;
 	    reference.set( idx0,idx1, float_complex( (float) freqsum.real(),
 						     (float) freqsum.imag() ) );
 	}
@@ -182,19 +181,19 @@ bool testForwardCC2D( const Array2D<float_complex>& input )
 
     Fourier::CC transform;
     float_complex* transformdata = const_cast<float_complex*>(input.getData());
-    
+
     transform.setInputInfo( input.info() );
     transform.setDir( true );
 
     BufferString testname( "Running FFT size ",
-	    		   toString( input.info().getTotalSz() ) );
+			   toString( input.info().getTotalSz() ) );
     mTest( testname.buf(), transform.run( transformdata ));
 
     testname = "FFT results ";
     testname.add( input.info().getTotalSz() );
     mTest( testname.buf(),
 	   checkRMSDifference( transformdata, reference.getData(),
-	       		       reference.info().getTotalSz(), 2e-5 ) );
+			       reference.info().getTotalSz(), 2e-5 ) );
     return true;
 }
 
