@@ -36,6 +36,7 @@ namespace visSurvey
 
 class EMObjectDisplay;
 class MPEEditor;
+class Seis2DDisplay;
 
 
 mExpClass(visSurvey) MPEClickInfo
@@ -158,6 +159,8 @@ protected:
     void 			sendUnderlyingPlanes(
 					const EMObjectDisplay*,
 					const visBase::EventInfo&);
+    void			handleObjectOnSeis2DDisplay(Seis2DDisplay*,
+							    const Coord3);
 
     void			allowPickBasedReselection();
     void			sowingEnd(CallBacker*);
