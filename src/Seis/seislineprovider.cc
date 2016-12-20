@@ -132,6 +132,9 @@ int Seis::LineFetcher::lineIdxFor( Pos::GeomID geomid ) const
 }
 
 
+#define mIsSingleLine(sd) (sd && !mIsUdfGeomID(sd->geomID()))
+
+
 bool Seis::LineFetcher::getNextGetter()
 {
     delete getter_; getter_ = 0;
@@ -142,7 +145,7 @@ bool Seis::LineFetcher::getNextGetter()
 	return false;
 
     const Seis::SelData* sd = prov().seldata_;
-    const bool issingleline = sd && !mIsUdfGeomID(sd->geomID());
+    const bool issingleline = mIsSingleLine( sd );
     const bool istable = sd && sd->type() == Seis::Table;
 
     if ( issingleline )
@@ -225,7 +228,7 @@ void Seis::LineFetcher::get( const TrcKey& tk, SeisTrc& trc )
 	return;
 
     tbuf_.deepErase();
-    curlidx_ = lineIdxFor( curGeomID() );
+    curlidx_ = lineIdxFor( tk.geomID() );
     if ( curlidx_ < 0 )
     {
 	uirv_.set( tr("Requested position not available") );
@@ -250,11 +253,13 @@ void Seis::LineFetcher::get( const TrcKey& tk, SeisTrc& trc )
 
 void Seis::LineFetcher::getNext( SeisTrc& trc )
 {
-    if ( tbuf_.isEmpty() && !readNextTraces() )
+    if ( tbuf_.isEmpty() )
     {
-	if ( (prov().seldata_ && !mIsUdfGeomID(prov().seldata_->geomID()))
-	  || !getNextGetter() )
-	    { uirv_.set( uiStrings::sFinished() ); return; }
+        while ( !readNextTraces() )
+	{
+	    if ( mIsSingleLine(prov().seldata_) || !getNextGetter() )
+		{ uirv_.set( uiStrings::sFinished() ); return; }
+	}
     }
 
     SeisTrc* buftrc = tbuf_.remove( 0 );

@@ -17,6 +17,7 @@
 
 // Using Penobscot as test survey
 static const TrcKey tk_1300_1200( BinID(1300,1200) );
+static const TrcKey tk_3_200( 3, 200 );
 
 
 static void prTrc( const char* start, const SeisTrc& trc, const uiRetVal& uirv,
@@ -127,6 +128,43 @@ static bool testVol()
 }
 
 
+static bool testLine()
+{
+    od_cout() << "\n\n---- 2D Lines ----\n" << od_endl;
+    const DBKey dbky = DBKey::getFromString( "100010.14" );
+
+    uiRetVal uirv;
+    Seis::Provider* prov = Seis::Provider::create( dbky, &uirv );
+    if ( !prov )
+    {
+	od_cout() << uirv << od_endl;
+	return true; // too bad, but let's not make CDash angry
+    }
+
+    SeisTrc trc;
+    uirv = prov->getNext( trc );
+    prTrc( "First next", trc, uirv );
+    uirv = prov->getNext( trc );
+    prTrc( "Second next", trc, uirv );
+    const int curlinenr = trc.info().lineNr();
+    while ( trc.info().lineNr() == curlinenr )
+    {
+	uirv = prov->getNext( trc );
+	if ( uirv.isError() )
+	{
+	    od_cout() << uirv << od_endl;
+	    break;
+	}
+    }
+    prTrc( "First on following line", trc, uirv );
+
+    uirv = prov->get( tk_3_200, trc );
+    prTrc( "tk_3_200", trc, uirv );
+
+    return true;
+}
+
+
 static bool testPS3D()
 {
     od_cout() << "\n\n---- 3D Pre-Stack ----\n" << od_endl;
@@ -174,6 +212,8 @@ int testMain( int argc, char** argv )
     OD::ModDeps().ensureLoaded("Seis");
 
     if ( !testVol() )
+	ExitProgram( 1 );
+    if ( !testLine() )
 	ExitProgram( 1 );
     if ( !testPS3D() )
 	ExitProgram( 2 );
