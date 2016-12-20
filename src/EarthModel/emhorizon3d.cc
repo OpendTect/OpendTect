@@ -1212,7 +1212,7 @@ void Horizon3D::setLockColor( const Color& col )
     change.trigger( cbdata );
 }
 
-const Color& Horizon3D::getLockColor() const
+const Color Horizon3D::getLockColor() const
 { return lockcolor_; }
 
 

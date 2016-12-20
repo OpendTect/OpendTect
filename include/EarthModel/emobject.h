@@ -187,7 +187,7 @@ public:
     virtual const Array2D<char>* 
 				getLockedNodes() const { return 0; }
     virtual void		setLockColor(const Color&) {};
-    virtual const Color&	getLockColor() const { return Color::Blue(); }
+    virtual const Color		getLockColor() const { return Color::Blue(); }
     virtual bool		hasLockedNodes() const {return haslockednodes_;}
 
 
