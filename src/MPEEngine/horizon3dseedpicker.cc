@@ -649,8 +649,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	    if ( tk.isUdf() )
 		continue;
 	    const EM::EMObject::NodeSourceType type = setmanualnode ?
-		EM::EMObject::NodeSourceType::Manual : 
-		EM::EMObject::NodeSourceType::Auto;  
+		EM::EMObject::Manual : EM::EMObject::Auto;  
 	    hor3d->setZ( tk, (float)interpos.z_, true, type );
 	    hor3d->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 
