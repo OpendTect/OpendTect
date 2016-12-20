@@ -37,7 +37,7 @@ bool checkRMSDifference( float_complex* a, float_complex* b, od_uint64 size,
 {
     double err2 = 0;
 
-    for ( int idx=size-1; idx>=0; idx-- )
+    for ( od_uint64 idx=size-1; idx>=0; idx-- )
     {
         const float_complex diff = a[idx]-b[idx];
 	err2 += std::norm( diff );
