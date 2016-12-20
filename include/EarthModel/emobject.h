@@ -118,6 +118,8 @@ mExpClass(EarthModel) EMObject	: public RefCount::Referenced
 {
 public:
 
+    enum NodeSourceType		{ None = (int)'0', Manual=(int)'1', 
+				  Auto=(int)'2' };			
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const	= 0;
     virtual uiString		getUserTypeStr() const	= 0;
@@ -166,6 +168,26 @@ public:
     virtual bool		unSetPos(const EM::PosID&,bool addtohistory);
     virtual bool		unSetPos(const EM::SectionID&,const EM::SubID&,
 					 bool addtohistory);
+
+    virtual void		setNodeSourceType(const TrcKey&,
+							NodeSourceType){};
+    virtual bool		isNodeSourceType(const PosID&,
+				    NodeSourceType) const {return false;}
+    virtual bool		isNodeSourceType(const TrcKey&,
+				     NodeSourceType)const {return false;}
+
+    virtual void		setNodeLocked(const TrcKey&,bool locked){};
+    virtual bool		isNodeLocked(const TrcKey&) const 
+					    { return false; }
+    virtual bool		isNodeLocked(const PosID&)const {return false;}
+
+    virtual void		lockAll() {};
+    virtual void		unlockAll(){};
+    virtual const Array2D<char>* 
+				getLockedNodes() const { return 0; }
+    virtual void		setLockColor(const Color&) {};
+    virtual const Color&	getLockColor() const { return Color::Blue(); }
+    virtual bool		hasLockedNodes() const {return haslockednodes_;}
 
 
     virtual bool		enableGeometryChecks(bool);
@@ -288,6 +310,7 @@ protected:
 
     bool			insideselremoval_;
     bool			selremoving_;
+    bool			haslockednodes_;
 
     static const char*		nrposattrstr();
     static const char*		posattrprefixstr();

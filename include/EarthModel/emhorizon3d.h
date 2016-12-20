@@ -98,8 +98,28 @@ public:
 
     virtual float		getZ(const TrcKey&) const;
 				//!< Fast: reads from the first section
-    virtual bool		setZ(const TrcKey&,float z,bool addtohist);
+    virtual bool		setZ(const TrcKey&,float z,bool addtohist,
+				     NodeSourceType type=Auto);
 				//!< Fast: writes to the first section
+
+    virtual void		setNodeSourceType(
+				NodeSourceType,const TrcKey&);
+    virtual bool		isNodeSourceType(const PosID&,
+						 NodeSourceType) const;
+    virtual bool		isNodeSourceType(const TrcKey&,
+						 NodeSourceType) const;
+    virtual void		setNodeLocked(const TrcKey&,bool locked);
+    virtual bool		isNodeLocked(const TrcKey&) const;
+    virtual bool		isNodeLocked(const PosID&)const;
+    
+    virtual void		lockAll();
+    virtual void		unlockAll();
+    virtual const Array2D<char>*    getLockedNodes() const;
+    virtual void		setLockColor(const Color&);
+    virtual const Color&	getLockColor() const;
+    virtual bool		hasLockedNodes() const 
+				{ return haslockednodes_; }
+
     virtual bool		hasZ(const TrcKey&) const;
 				//!< Fast: checks only the first section
     virtual Coord3		getCoord(const TrcKey&) const;
@@ -161,6 +181,10 @@ public:
     void			updateTrackingSampling();
     bool			saveParentArray();
     bool			readParentArray();
+
+    bool			saveNodeArrays();
+    bool			readNodeArrays();
+
     TrcKeySampling		getTrackingSampling() const;
     void			setParent(const TrcKey&,const TrcKey& parent);
     TrcKey			getParent(const TrcKey&) const;
@@ -170,28 +194,35 @@ public:
     Array2D<char>*		getChildren() const;
     void			deleteChildren();
     void			resetChildren();
-    void			setNodeLocked(const TrcKey&,bool locked);
-    bool			isNodeLocked(const TrcKey&) const;
-    void			lockAll();
-    void			unlockAll();
-    const Array2D<char>*	getLockedNodes() const;
 
     void			setParentColor(const Color&);
     const Color&		getParentColor() const;
-    void			setLockColor(const Color&);
-    const Color&		getLockColor() const;
-    bool			hasLockedNodes() const 
-					{ return haslockednodes_; }
 
     virtual bool		setPos(const EM::PosID&,const Coord3&,
-				       bool addtohistory);
+				       bool addtohistory,
+				       NodeSourceType type=Auto);
     virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohistory);
+				       const Coord3&,bool addtohistory,
+				       NodeSourceType type=Auto);
 
 protected:
+    enum			ArrayType{Parents,Children,LockNode,NodeSource};
+
     void			fillPar(IOPar&) const;
     bool			usePar( const IOPar& );
     const IOObjContext&		getIOObjContext() const;
+
+    void			initNodeArraysSize(const StepInterval<int>&,
+						   const StepInterval<int>&);
+    void			setNodeArraySize(const StepInterval<int>&,
+				     const StepInterval<int>&,ArrayType);
+    void			updateNodeSourceArray(const TrcKeySampling,
+						      ArrayType);
+    Array2D<char>*		getNodeSourceArray(ArrayType) const;
+    void			createNodeSourceArray(const StepInterval<int>&,
+						const StepInterval<int>&,
+						ArrayType);
+    TrcKeySampling		getSectionTrckeySampling() const;
 
     friend class		EMManager;
     friend class		EMObject;
@@ -206,7 +237,11 @@ protected:
     Color			lockcolor_;
 
     Pos::GeomID			survgeomid_;
-    bool			haslockednodes_;
+    Array2D<char>*		nodesource_;
+				/*!< '0'- non interpreted, '1'- manual 
+				interpreted,'2' - auto interpreted. 
+				see enum NodeSourceType*/
+    bool			arrayinited_;
 
 public:
     /*mDeprecated*/ float	getZ(const BinID&) const;

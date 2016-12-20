@@ -619,7 +619,7 @@ bool uiMPEPartServer::saveSetup( const DBKey& mid )
     if ( trackerid<0 ) return false;
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject(emid))
-    if ( hor3d ) hor3d->saveParentArray();
+    if ( hor3d ) hor3d->saveNodeArrays();
 
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
@@ -725,6 +725,7 @@ bool uiMPEPartServer::readSetup( const DBKey& mid )
     int connectmode = 0;
     iopar.get( "Seed Connection mode", connectmode );
     seedpicker->setTrackMode( (MPE::EMSeedPicker::TrackMode)connectmode );
+    seedpicker->startSeedPick();
     tracker->usePar( iopar );
 
     PtrMan<IOPar> attrpar = iopar.subselect( "Attribs" );

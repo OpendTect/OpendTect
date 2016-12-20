@@ -107,7 +107,7 @@ bool Horizon2DSeedPicker::startSeedPick()
 	    hor->setPosAttrib(pids[idx],EM::EMObject::sSeedNode(),false,false);
 	}
     }
-
+    
     return true;
 }
 
@@ -222,7 +222,7 @@ bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
     for ( int idx=0; idx<path.size(); idx++ )
     {
 	const float val = !doerase ? path[idx].val_ : mUdf(float);
-	hor2d->setZ( path[idx].tk_, val, true );
+	hor2d->setZ( path[idx].tk_, val, true, EM::EMObject::Manual );
 	if ( trackmode_ == DrawAndSnap )
 	{
 	    hor2d->setAttrib( path[idx].tk_, EM::EMObject::sSeedNode(),
@@ -240,7 +240,7 @@ bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
 	    continue;
 	seedlist_ += path[idx].tk_;
     }
-    interpolateSeeds();
+    interpolateSeeds( true );
     hor2d->setBurstAlert( false );
 
     EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().currentEventID());
@@ -453,7 +453,8 @@ void Horizon2DSeedPicker::extendSeedSetEraseInBetween(
 	}
 
 	// to erase points attached to start
-	if ( curdefined )
+	if ( curdefined && 
+	    !hor2d->isNodeSourceType(curtk,EM::EMObject::Manual) )
 	    eraselist_ += curtk;
     }
 
@@ -524,7 +525,7 @@ bool Horizon2DSeedPicker::reTrack()
 }
 
 
-bool Horizon2DSeedPicker::interpolateSeeds()
+bool Horizon2DSeedPicker::interpolateSeeds( bool manualnode )
 {
     mGetHorAndColrg(hor,colrg,false);
 
@@ -582,7 +583,9 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 
 	    const double frac = arclen / totarclen;
 	    const double curz = (1-frac) * startpos.z_ + frac * endpos.z_;
-	    hor->setZ( tk, (float)curz, true );
+	    const EM::EMObject::NodeSourceType type = manualnode ?
+		EM::EMObject::Manual : EM::EMObject::Auto;
+	    hor->setZ( tk, (float)curz, true, type );
 	    hor->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 
 	    if ( trackmode_ != DrawBetweenSeeds )

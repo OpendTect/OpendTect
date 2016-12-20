@@ -58,7 +58,7 @@ protected:
 
     bool			retrackFromSeedSet();
     int				nrLineNeighbors(int colnr) const;
-    bool			interpolateSeeds();
+    bool			interpolateSeeds(bool manualnode=false);
     TrcKeyZSampling		getTrackBox() const;
     bool			getNextSeedPos(int seedpos,int dirstep,
 					       int& nextseedpos) const;
