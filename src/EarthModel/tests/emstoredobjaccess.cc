@@ -14,11 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static bool initLoader( EM::StoredObjAccess& soa )
 {
-    if ( !soa.add( MultiID("100020.3") ) ) // Hor3D: Demo 6 --> FS8
+    if ( !soa.add( MultiID("100020.2") ) ) // Hor3D: Demo 6 --> FS8
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( MultiID("100020.53") ) ) // Body: Slumps-2b
+    if ( !soa.add( MultiID("100020.5") ) ) // Body: Slumps-2b
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( MultiID("100020.33") ) ) // SSIS-Grid-Faultsticks
+    if ( !soa.add( MultiID("100020.6") ) ) // SSIS-Grid-Faultsticks
 	mErrRet( soa.getError(0) );
 
     if ( soa.add( MultiID("100020.99795") ) )
@@ -72,7 +72,7 @@ int main( int argc, char** argv )
     TrcKeyZSampling cs;
     mRunStandardTest( body->getBodyRange(cs),"Get body ranges")
     mRunStandardTest( cs.hsamp_.start_.inl()>390 && cs.hsamp_.stop_.crl()<870,
-	    		"Check on body ranges" )
+			"Check on body ranges" )
        /*
        od_cout() << "Inl/Crl rg: "
 	<< cs.hsamp_.start_.inl() << '-' << cs.hsamp_.stop_.inl() << ", "
@@ -82,7 +82,7 @@ int main( int argc, char** argv )
 
     const EM::FaultStickSetGeometry& fssgeom = fss->geometry();
     mRunStandardTest( fssgeom.nrSticks(0) == 4 && fssgeom.nrKnots(0,0) == 7,
-	    		"Check nr Sticks and knots of Stick in FaultStickSet" );
+			"Check nr Sticks and knots of Stick in FaultStickSet" );
        /*
 	od_cout() << fssgeom.nrSticks(0) << " sticks, "
 		<< fssgeom.nrKnots(0,0) << " knots." << od_endl;
