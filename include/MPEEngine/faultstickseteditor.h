@@ -54,18 +54,18 @@ public:
 						Pos::GeomID pickedgeomid,
 						const Coord3* normal) const;
 protected:
-    float		distToStick(int sticknr,const EM::SectionID& sid,
-				    const DBKey* pickeddbkey,
+    float		distToStick(int sticknr, const DBKey* pickeddbkey,
 				    const char* pickednm,
 				    Pos::GeomID pickedgeomid,const Coord3& pos,
 				    const Coord3* posnorm) const;
-    bool		getNearestStick(int& sticknr,EM::SectionID& sid,
-				const DBKey* pickeddbkey,
+    bool		getNearestStick(int& sticknr, const DBKey* pickeddbkey,
 				const char* pickednm,
 				Pos::GeomID pickedgeomid,const Coord3& pos,
 				const Coord3* posnorm) const;
     void		getPidsOnStick(EM::PosID& insertpid,int sticknr,
-				const EM::SectionID&,const Coord3& pos) const;
+					const Coord3& pos) const;
+    
+    const EM::FaultStickSet*	emFaultStickSet() const;
 
     Geometry::ElementEditor*	createEditor(const EM::SectionID&);
     Coord3			scalevector_;
