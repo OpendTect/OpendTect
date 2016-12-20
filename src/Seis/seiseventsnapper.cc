@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "seiseventsnapper.h"
 #include "seistrc.h"
 #include "seisioobjinfo.h"
-#include "seiscubeprov.h"
+#include "seismscprov.h"
 #include "seisselectionimpl.h"
 #include "ioobj.h"
 #include "uistrings.h"

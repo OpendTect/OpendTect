@@ -21,7 +21,7 @@
 #include "seisbufadapters.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
-#include "seiscubeprov.h"
+#include "seismscprov.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"

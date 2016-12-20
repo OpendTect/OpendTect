@@ -35,7 +35,7 @@ set(OD_MODULE_SOURCES
 	seiscbvsimpfromothersurv.cc
 	seiscbvsps.cc
 	seiscopy.cc
-	seiscubeprov.cc
+	seismscprov.cc
 	seiscube2linedata.cc
 	seisdatapack.cc
 	seiseventsnapper.cc

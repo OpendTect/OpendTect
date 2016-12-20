@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "seiscommon.h"
 #include "arraynd.h"
-#include "trckeyzsampling.h"
 #include "rowcol.h"
 #include "objectset.h"
 #include "uistring.h"
@@ -24,13 +23,11 @@ class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcReader;
 namespace Seis		{ class SelData; }
-class TaskRunner;
 
 
 /*!\brief Reads seismic data into buffers providing a Moving Virtual Subcube
           of seismic data.
 
-This is a SeisTrcGroup that allows advancing by reading traces from storage.
 Note that the provider may skip incomplete parts.
 
 The get() method returns a pointer to the trace, where you specify the
@@ -130,34 +127,5 @@ protected:
     int			readTrace(SeisTrc&);
     bool		isReqBoxFilled() const;
     bool		doAdvance();
-};
 
-
-mExpClass(Seis) SeisFixedCubeProvider
-{ mODTextTranslationClass(SeisFixedCubeProvider);
-public:
-			SeisFixedCubeProvider(const DBKey&);
-			~SeisFixedCubeProvider();
-
-    void		clear();
-    bool		isEmpty() const;
-    bool		readData(const TrcKeyZSampling&,TaskRunner* tskr=0);
-    bool		readData(const TrcKeyZSampling&, 
-				const Pos::GeomID geomid, TaskRunner* tskr = 0);
-
-    const SeisTrc*	getTrace(const BinID&) const;
-    const SeisTrc*	getTrace(int trcnr) const;
-    float		getTrcDist() const		{ return trcdist_; }
-    uiString		errMsg() const;
-
-protected:
-
-    Array2D<SeisTrc*>*	data_;
-
-    TrcKeyZSampling	tkzs_;
-    IOObj*		ioobj_;
-    uiString		errmsg_;
-    float		trcdist_;
-
-    bool		calcTrcDist(const Pos::GeomID);
 };

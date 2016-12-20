@@ -9,7 +9,7 @@ static const char* rcsID = "$Id$";
 #include "batchprog.h"
 #include "dbman.h"
 #include "ioobj.h"
-#include "seiscubeprov.h"
+#include "seismscprov.h"
 #include "seisbuf.h"
 #include "seiswrite.h"
 #include "seisread.h"
@@ -143,7 +143,7 @@ static void interpolateXdir()
 	    haveinterpolated = true;
 	    Interval<int> trcnrs( mCrl(prevtrc), mCrl(curtrc) );
 	    for ( int xl=trcnrs.start+xlinestep; xl<trcnrs.stop;
-		    	xl += xlinestep )
+			xl += xlinestep )
 	    {
 		float frac = trcnrs.stop - xl;
 		frac /= gap;
@@ -325,7 +325,7 @@ static void addBufs( ObjectSet<SeisTrcBuf>& bufs )
     {
 	SeisTrcBuf& subbuf = *usebufs[ idxs[idx] ];
 	int lastprevcrl = tbuftofill.size()
-	    		? mCrl(tbuftofill.get(tbuftofill.size()-1)) : -1;
+			? mCrl(tbuftofill.get(tbuftofill.size()-1)) : -1;
 	const int bufsz = subbuf.size();
 	for ( int itrc=0; itrc<bufsz; itrc++ )
 	{

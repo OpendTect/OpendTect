@@ -22,7 +22,7 @@
 #include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
-#include "seiscubeprov.h"
+#include "seismscprov.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
 #include "statruncalc.h"

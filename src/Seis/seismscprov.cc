@@ -5,7 +5,7 @@
 -*/
 
 
-#include "seiscubeprov.h"
+#include "seismscprov.h"
 
 #include "arrayndimpl.h"
 #include "trckeyzsampling.h"
@@ -457,6 +457,10 @@ bool SeisMSCProvider::doAdvance()
 }
 
 
+//---- seisfixedcubeprov.cc ...?
+
+namespace Seis
+{
 
 class TrcDataLoader : public Executor
 { mODTextTranslationClass(TrcDataLoader);
@@ -510,6 +514,11 @@ int nextStep()
     bool			is2d_;
 
 };
+
+} // namespace Seis
+
+
+#include "seisfixedcubeprov.h"
 
 
 SeisFixedCubeProvider::SeisFixedCubeProvider( const DBKey& key )
@@ -615,8 +624,8 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 	for ( int idy=0; idy<data_->info().getSize(1); idy++ )
 	    data_->set( idx, idy, 0 );
 
-    PtrMan<TrcDataLoader> loader =
-	new TrcDataLoader( *seisrdr, *data_, tkzs_.hsamp_, is2d );
+    PtrMan<Seis::TrcDataLoader> loader =
+	new Seis::TrcDataLoader( *seisrdr, *data_, tkzs_.hsamp_, is2d );
     const bool res = TaskRunner::execute( taskr, *loader );
     if ( !res )
 	mErrRet( uiStrings::phrCannotRead( ioobj_->uiName() ) )
