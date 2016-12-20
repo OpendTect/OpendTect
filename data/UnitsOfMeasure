@@ -60,6 +60,9 @@ Cubic mile: Volume`mi3`2.3991275858e-10
 Cubic feet: Volume`ft3`35.314666721
 Cubic inch: Volume`in3`61023.744095
 Gallon [UK]: Volume`gal`219.9692483
+Gallon [US]: Volume`usgal`264.1720524
 Barrels: Volume`barrels`6.2898107704
+Thousand Barrels: Volume`Mbbl`6.2898107704e-3
+Million Barrels: Volume`MMbbl`6.2898107704e-6
 Billion Cubic Feet: Volume`bcf`35.314666721e-9
 !
