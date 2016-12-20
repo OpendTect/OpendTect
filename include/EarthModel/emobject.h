@@ -29,6 +29,7 @@ class TaskRunner;
 namespace Geometry { class Element; }
 
 template <class T> class Selector;
+template <class T> class Array2D;
 
 namespace EM
 {
