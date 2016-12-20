@@ -54,9 +54,11 @@ public:
     Coord3			getPos(const EM::SectionID&,
 					const EM::SubID&) const;
     bool			setPos(const EM::PosID&,const Coord3&,
-					bool addtohistory);
+					bool addtohistory,
+					NodeSourceType tp=Auto);
     bool			setPos(const EM::SectionID&,const EM::SubID&,
-					const Coord3&,bool addtohistory);
+					const Coord3&,bool addtohistory,
+					NodeSourceType tp=Auto);
     const IOObjContext&		getIOObjContext() const;
     virtual Executor*		saver();
     virtual Executor*		saver(IOObj*);

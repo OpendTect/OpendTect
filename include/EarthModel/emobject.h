@@ -119,8 +119,8 @@ mExpClass(EarthModel) EMObject	: public RefCount::Referenced
 {
 public:
 
-    enum NodeSourceType		{ None = (int)'0', Manual=(int)'1', 
-				  Auto=(int)'2' };			
+    enum NodeSourceType		{ None = (int)'0', Manual=(int)'1',
+				  Auto=(int)'2' };
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const	= 0;
     virtual uiString		getUserTypeStr() const	= 0;
@@ -163,30 +163,32 @@ public:
     virtual bool		isDefined(const EM::SectionID&,
 					  const EM::SubID&) const;
     virtual bool		setPos(const EM::PosID&,const Coord3&,
-				       bool addtohistory);
+				       bool addtohistory,
+				       NodeSourceType type=Auto);
     virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohistory);
+				       const Coord3&,bool addtohistory,
+				       NodeSourceType type=Auto);
     virtual bool		unSetPos(const EM::PosID&,bool addtohistory);
     virtual bool		unSetPos(const EM::SectionID&,const EM::SubID&,
 					 bool addtohistory);
 
     virtual void		setNodeSourceType(const TrcKey&,
-							NodeSourceType){};
+							NodeSourceType){}
     virtual bool		isNodeSourceType(const PosID&,
 				    NodeSourceType) const {return false;}
     virtual bool		isNodeSourceType(const TrcKey&,
 				     NodeSourceType)const {return false;}
 
-    virtual void		setNodeLocked(const TrcKey&,bool locked){};
-    virtual bool		isNodeLocked(const TrcKey&) const 
+    virtual void		setNodeLocked(const TrcKey&,bool locked){}
+    virtual bool		isNodeLocked(const TrcKey&) const
 					    { return false; }
     virtual bool		isNodeLocked(const PosID&)const {return false;}
 
-    virtual void		lockAll() {};
-    virtual void		unlockAll(){};
-    virtual const Array2D<char>* 
+    virtual void		lockAll() {}
+    virtual void		unlockAll(){}
+    virtual const Array2D<char>*
 				getLockedNodes() const { return 0; }
-    virtual void		setLockColor(const Color&) {};
+    virtual void		setLockColor(const Color&) {}
     virtual const Color		getLockColor() const { return Color::Blue(); }
     virtual bool		hasLockedNodes() const {return haslockednodes_;}
 

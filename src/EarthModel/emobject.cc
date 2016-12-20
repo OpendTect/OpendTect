@@ -166,17 +166,18 @@ Coord3 EMObject::getPos( const EM::SectionID& sid,
 #define mRetErr( msg ) { errmsg_ = msg; return false; }
 
 bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
-			bool addtoundo )
+			bool addtoundo, NodeSourceType tp )
 {
     if ( pid.objectID()!=id() )
 	mRetErr(uiString::emptyString());
 
-    return setPos( pid.sectionID(), pid.subID(), newpos, addtoundo );
+    return setPos( pid.sectionID(), pid.subID(), newpos, addtoundo, tp );
 }
 
 
 bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
-			const Coord3& newpos, bool addtoundo )
+			const Coord3& newpos, bool addtoundo,
+			NodeSourceType tp )
 {
     Threads::Locker locker( setposlock_ );
     Geometry::Element* element = sectionGeometryInternal( sid );
@@ -598,7 +599,7 @@ void EMObject::removeAllUnSeedPos()
 	if ( pid.objectID()==-1 )
 	    break;
 
-	if ( !isPosAttrib(pid, EM::EMObject::sSeedNode()) && 
+	if ( !isPosAttrib(pid, EM::EMObject::sSeedNode()) &&
 	     !isNodeSourceType(pid,Manual) &&
 	     !isNodeLocked(pid) )
 	    unSetPos( pid, true );

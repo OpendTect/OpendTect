@@ -145,9 +145,11 @@ public:
 				       int trcnr,float z,bool addtohist,
 				       NodeSourceType type=Auto);
 
-    bool			setPos(const EM::PosID&,const Coord3&,bool);
+    bool			setPos(const EM::PosID&,const Coord3&,bool,
+					NodeSourceType type=Auto);
     bool			setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohist);
+				       const Coord3&,bool addtohist,
+				       NodeSourceType type=Auto);
 
     Horizon2DGeometry&		geometry()		{ return geometry_; }
     const Horizon2DGeometry&	geometry() const	{ return geometry_; }
@@ -182,7 +184,7 @@ protected:
     Horizon2DGeometry		geometry_;
     Color			selectioncolor_;
     Array1D<char>*		nodesource_;
-				/*!< '0'- non interpreted, 
+				/*!< '0'- non interpreted,
 				'1'- manual interpreted,
 				'2' - auto interpreted. see
 				 enum NodeSourceType*/

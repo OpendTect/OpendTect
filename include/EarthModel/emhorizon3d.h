@@ -102,8 +102,8 @@ public:
 				     NodeSourceType type=Auto);
 				//!< Fast: writes to the first section
 
-    virtual void		setNodeSourceType(
-				NodeSourceType,const TrcKey&);
+    virtual void		setNodeSourceType(const TrcKey&,
+						  NodeSourceType);
     virtual bool		isNodeSourceType(const PosID&,
 						 NodeSourceType) const;
     virtual bool		isNodeSourceType(const TrcKey&,
@@ -111,13 +111,13 @@ public:
     virtual void		setNodeLocked(const TrcKey&,bool locked);
     virtual bool		isNodeLocked(const TrcKey&) const;
     virtual bool		isNodeLocked(const PosID&)const;
-    
+
     virtual void		lockAll();
     virtual void		unlockAll();
     virtual const Array2D<char>*    getLockedNodes() const;
     virtual void		setLockColor(const Color&);
     virtual const Color		getLockColor() const;
-    virtual bool		hasLockedNodes() const 
+    virtual bool		hasLockedNodes() const
 				{ return haslockednodes_; }
 
     virtual bool		hasZ(const TrcKey&) const;
@@ -238,8 +238,8 @@ protected:
 
     Pos::GeomID			survgeomid_;
     Array2D<char>*		nodesource_;
-				/*!< '0'- non interpreted, '1'- manual 
-				interpreted,'2' - auto interpreted. 
+				/*!< '0'- non interpreted, '1'- manual
+				interpreted,'2' - auto interpreted.
 				see enum NodeSourceType*/
     bool			arrayinited_;
 

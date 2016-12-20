@@ -316,12 +316,13 @@ Coord3 RandomPosBody::getPos( const SectionID& sid, const SubID& subid ) const
 
 
 bool RandomPosBody::setPos( const PosID& posid, const Coord3& pos,
-			    bool addtohistory )
-{ return setPos( posid.sectionID(), posid.subID(), pos, addtohistory ); }
+			    bool addtohistory, NodeSourceType tp )
+{ return setPos( posid.sectionID(), posid.subID(), pos, addtohistory, tp ); }
 
 
 bool RandomPosBody::setPos( const SectionID& sid, const SubID& sub,
-			    const Coord3& pos, bool addtohistory )
+			    const Coord3& pos, bool addtohistory,
+			    NodeSourceType tp )
 {
     if ( sid!=sectionID(0) || sub<0 )
 	return false;
