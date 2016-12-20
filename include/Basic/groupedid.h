@@ -114,7 +114,9 @@ mGlobal(Basic) void getGroupedIDNumbers(const char*,od_int64&,od_int64&,
 template <class GroupNrT,class ObjNrT> inline
 BufferString IDWithGroup<GroupNrT,ObjNrT>::toString() const
 {
-    BufferString ret( groupnr_, "." );
+    BufferString ret;
+    ret.add( groupnr_ );
+    ret.add( "." );
     ret.add( objnr_ );
     return ret;
 }

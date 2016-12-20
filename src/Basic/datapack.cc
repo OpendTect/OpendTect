@@ -86,7 +86,13 @@ DataPack::FullID DataPack::FullID::getFromDBKey( const DBKey& dbky )
 {
     if ( !dbky.hasAuxKey() )
 	return getInvalid();
-    return getFromString( dbky.auxKey() );
+
+    const BufferString auxval = dbky.auxKey();
+    if ( auxval.firstChar() != '#' )
+	return getInvalid();
+
+    const char* dpstr = auxval.str() + 1;
+    return getFromString( dpstr );
 }
 
 
