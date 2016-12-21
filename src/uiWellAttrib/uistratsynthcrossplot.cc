@@ -67,6 +67,13 @@ static const char* unwantedattribnms[] =
     "HorizonCube Layer",
     "HorizonCube Thickness",
     "Systems Tract",
+    "EW2DErrorGrid",
+    "EW3DModelBuilder",
+    "EWDeterministicInversion",
+    "EWStochasticInversion",
+    "EWUtilities",
+    "Fingerprint",
+    "Fracture Attributes",
     0
 };
 
