@@ -415,7 +415,7 @@ bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist,
     if ( !nodesource_ )
 	initNodeSourceArray( tk );
 
-    return setPos( sectionID(0), tk.geomID(), tk.trcNr(), z, addtohist, type );
+    return setZPos( sectionID(0), tk.geomID(), tk.trcNr(), z, addtohist, type );
 }
 
 
@@ -615,21 +615,7 @@ Coord3 Horizon2D::getPos( EM::SectionID sid, Pos::GeomID geomid,
 }
 
 
-bool Horizon2D::setPos( const EM::PosID& posid, const Coord3& pos,
-			bool addtohistory,  NodeSourceType tp )
-{
-    return EMObject::setPos( posid, pos, addtohistory, tp );
-}
-
-
-bool Horizon2D::setPos( const EM::SectionID& sid, const EM::SubID& subid,
-			const Coord3& pos, bool addtohistory, NodeSourceType tp)
-{
-    return EMObject::setPos( sid, subid, pos, addtohistory, tp );
-}
-
-
-bool Horizon2D::setPos( EM::SectionID sid, Pos::GeomID geomid, int trcnr,
+bool Horizon2D::setZPos( EM::SectionID sid, Pos::GeomID geomid, int trcnr,
 			float z, bool addtohistory, NodeSourceType type )
 {
     Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
@@ -647,7 +633,7 @@ bool Horizon2D::setPos( EM::SectionID sid, Pos::GeomID geomid, int trcnr,
     const TrcKey tk( geomid, trcnr );
     setNodeSourceType( tk, tp );
 
-    return EMObject::setPos( sid, subid, newpos, addtohistory );
+    return setPosition( sid, subid, newpos, addtohistory );
 }
 
 

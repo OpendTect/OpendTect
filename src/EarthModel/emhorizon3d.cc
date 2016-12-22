@@ -1215,12 +1215,7 @@ const Color Horizon3D::getLockColor() const
 { return lockcolor_; }
 
 
-bool Horizon3D::setPos( const PosID& pid, const Coord3& crd, bool addtoundo,
-    NodeSourceType type )
-{ return setPos( pid.sectionID(), pid.subID(), crd, addtoundo, type ); }
-
-
-bool Horizon3D::setPos( const SectionID& sid, const SubID& subid,
+bool Horizon3D::setPosition( const SectionID& sid, const SubID& subid,
 			const Coord3& crd, bool addtoundo,
 			NodeSourceType type )
 {
@@ -1240,7 +1235,7 @@ bool Horizon3D::setPos( const SectionID& sid, const SubID& subid,
     if ( isNodeLocked(tk) ) return false;
     const NodeSourceType tp = crd.isDefined() ? type : None;
     setNodeSourceType( tk, tp );
-    return EMObject::setPos( sid, subid, crd, addtoundo );
+    return EMObject::setPosition( sid, subid, crd, addtoundo );
 }
 
 

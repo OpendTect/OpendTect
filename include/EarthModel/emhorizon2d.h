@@ -141,14 +141,8 @@ public:
     virtual bool		isNodeSourceType(const TrcKey&,
 					NodeSourceType)const;
 
-    bool			setPos(EM::SectionID,Pos::GeomID geomid,
+    bool			setZPos(EM::SectionID,Pos::GeomID geomid,
 				       int trcnr,float z,bool addtohist,
-				       NodeSourceType type=Auto);
-
-    bool			setPos(const EM::PosID&,const Coord3&,bool,
-					NodeSourceType type=Auto);
-    bool			setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohist,
 				       NodeSourceType type=Auto);
 
     Horizon2DGeometry&		geometry()		{ return geometry_; }

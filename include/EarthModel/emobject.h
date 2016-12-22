@@ -162,10 +162,10 @@ public:
     virtual bool		isDefined(const EM::PosID&) const;
     virtual bool		isDefined(const EM::SectionID&,
 					  const EM::SubID&) const;
-    virtual bool		setPos(const EM::PosID&,const Coord3&,
+    bool			setPos(const EM::PosID&,const Coord3&,
 				       bool addtohistory,
 				       NodeSourceType type=Auto);
-    virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
+    bool			setPos(const EM::SectionID&,const EM::SubID&,
 				       const Coord3&,bool addtohistory,
 				       NodeSourceType type=Auto);
     virtual bool		unSetPos(const EM::PosID&,bool addtohistory);
@@ -283,6 +283,11 @@ protected:
 				~EMObject();
 				EMObject( EMManager& );
 				//!<must be called after creation
+
+    virtual bool		setPosition(const EM::SectionID&,
+					    const EM::SubID&,
+					    const Coord3&,bool addtohistory,
+					    NodeSourceType type=Auto);
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete();
     void			posIDChangeCB(CallBacker*);

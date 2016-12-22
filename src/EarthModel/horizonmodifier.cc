@@ -222,7 +222,7 @@ void HorizonModifier::shiftNode( const BinID& bid )
 	if ( !mIsUdf(newz) )
 	    newz += (float) extrashift;
 
-	dynamichor2d->setPos( dynamichor->sectionID(0), geomids_[bid.inl()],
+	dynamichor2d->setZPos( dynamichor->sectionID(0), geomids_[bid.inl()],
 			      bid.crl(), newz, false);
     }
 }
@@ -242,7 +242,7 @@ void HorizonModifier::removeNode( const BinID& bid )
 	mDynamicCastGet(EM::Horizon2D*,dynamichor2d,dynamichor)
 	if ( !dynamichor2d ) return;
 
-	dynamichor2d->setPos( dynamichor->sectionID(0), geomids_[bid.inl()],
+	dynamichor2d->setZPos( dynamichor->sectionID(0), geomids_[bid.inl()],
 			      bid.crl(), mUdf(float), false );
     }
 }

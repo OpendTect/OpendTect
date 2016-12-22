@@ -198,14 +198,8 @@ public:
     void			setParentColor(const Color&);
     const Color&		getParentColor() const;
 
-    virtual bool		setPos(const EM::PosID&,const Coord3&,
-				       bool addtohistory,
-				       NodeSourceType type=Auto);
-    virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohistory,
-				       NodeSourceType type=Auto);
-
 protected:
+
     enum			ArrayType{Parents,Children,LockNode,NodeSource};
 
     void			fillPar(IOPar&) const;
@@ -223,6 +217,11 @@ protected:
 						const StepInterval<int>&,
 						ArrayType);
     TrcKeySampling		getSectionTrckeySampling() const;
+
+    virtual bool		setPosition(const EM::SectionID&,
+					    const EM::SubID&,
+					    const Coord3&,bool addtohistory,
+					    NodeSourceType type=Auto);
 
     friend class		EMManager;
     friend class		EMObject;

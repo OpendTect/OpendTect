@@ -171,13 +171,21 @@ bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
     if ( pid.objectID()!=id() )
 	mRetErr(uiString::emptyString());
 
-    return setPos( pid.sectionID(), pid.subID(), newpos, addtoundo, tp );
+    return setPosition( pid.sectionID(), pid.subID(), newpos, addtoundo, tp );
 }
 
 
 bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 			const Coord3& newpos, bool addtoundo,
 			NodeSourceType tp )
+{
+    return setPosition( sid, subid, newpos, addtoundo, tp );
+}
+
+
+bool EMObject::setPosition( const SectionID& sid, const SubID& subid,
+			    const Coord3& newpos, bool addtoundo,
+			    NodeSourceType tp )
 {
     Threads::Locker locker( setposlock_ );
     Geometry::Element* element = sectionGeometryInternal( sid );
