@@ -731,7 +731,8 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     {
 	if ( !attrdata_.nlamodel_ || outnr < 0 )
 	    return "";
-	if ( outnr >= attrdata_.nlamodel_->design().outputs.size() )
+	if ( outnr >= attrdata_.nlamodel_->design().outputs.size() ||
+		!attrdata_.nlamodel_->design().outputs[outnr] )
 	    return "<error>";
 
 	const char* nm = attrdata_.nlamodel_->design().outputs[outnr]->buf();
