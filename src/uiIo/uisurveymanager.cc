@@ -176,9 +176,9 @@ uiSurveyManager::uiSurveyManager( uiParent* p, bool standalone )
     if ( !standalone )
 	survinfo_ = new SurveyInfo( SI() );
 
-    uiPushButton* settbut = new uiPushButton( this, tr("General Settings"),
-			    mCB(this,uiSurveyManager,odSettsButPushed), false );
-    settbut->setIcon( "settings" );
+    uiToolButton* settbut = new uiToolButton( this, "settings",
+			tr("General Settings"),
+			mCB(this,uiSurveyManager,odSettsButPushed) );
     settbut->attach( rightTo, datarootfld_ );
     settbut->attach( rightBorder );
 
