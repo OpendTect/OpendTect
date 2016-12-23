@@ -380,6 +380,10 @@ const ObjectSet<uiAction>& uiActionContainer::actions() const
 { return actions_; }
 
 
+bool uiActionContainer::isEmpty() const
+{ return actions_.isEmpty(); }
+
+
 uiAction* uiActionContainer::findAction( int mnuid )
 {
     for ( int idx=0; idx<nrActions(); idx++ )
