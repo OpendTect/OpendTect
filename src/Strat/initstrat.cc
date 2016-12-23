@@ -11,16 +11,20 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "stratsinglaygen.h"
 #include "strattransl.h"
+#include "strattreetransl.h"
 
 mDefModInitFn(Strat)
 {
     mIfNotFirstTime( return );
-    
+
+    odStratTreeTranslator::initClass();
+    StratTreeTranslatorGroup::initClass();
+
     StratLayerSequenceAttribSetTranslatorGroup::initClass();
     StratLayerSequenceGenDescTranslatorGroup::initClass();
-    
+
     odStratLayerSequenceGenDescTranslator::initClass();
     odStratLayerSequenceAttribSetTranslator::initClass();
-    
+
     Strat::SingleLayerGenerator::initClass();
 }
