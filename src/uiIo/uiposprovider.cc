@@ -91,10 +91,22 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	{
 	    fullsurvbut_ = new uiToolButton( this, "exttofullsurv",
 				tr("Set ranges to work area"),
-				 mCB(this,uiPosProvider,fullSurvPush) );
+				mCB(this,uiPosProvider,fullSurvPush) );
 	    fullsurvbut_->attach( rightOf, selfld_ );
 	}
     }
+
+    openbut_ = new uiToolButton( this, "open",
+				tr("Open subselection"),
+				mCB(this,uiPosProvider,openCB) );
+    if ( fullsurvbut_ )
+	openbut_->attach( rightTo, fullsurvbut_ );
+    else
+	openbut_->attach( rightTo, selfld_ );
+    savebut_ = new uiToolButton( this, "save",
+				tr("Save subselection"),
+				mCB(this,uiPosProvider,saveCB) );
+    savebut_->attach( rightTo, openbut_ );
 
     setHAlignObj( grps_[0] );
     postFinalise().notify( selcb );
@@ -110,6 +122,8 @@ void uiPosProvider::selChg( CallBacker* )
 
     if ( fullsurvbut_ )
 	fullsurvbut_->display( BufferString(selfld_->text()) == sKey::Range() );
+
+    savebut_->setSensitive( grps_.validIdx(selidx) );
 }
 
 
@@ -122,6 +136,23 @@ void uiPosProvider::fullSurvPush( CallBacker* )
     IOPar iop;
     SI().sampling( true ).fillPar( iop );
     grps_[selidx]->usePar( iop );
+}
+
+
+void uiPosProvider::openCB( CallBacker* )
+{
+}
+
+
+void uiPosProvider::saveCB( CallBacker* )
+{
+    if ( !selfld_ ) return;
+    const int selidx = selfld_->getIntValue();
+    if ( !grps_.validIdx(selidx) )
+	return;
+
+    IOPar iop;
+    grps_[selidx]->fillPar( iop );
 }
 
 
