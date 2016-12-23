@@ -93,11 +93,25 @@ static bool isInOrderedWinList( const uiMainWin* uimw )
 }
 
 
+static bool hasModalWindows()
+{
+    bool res = false;
+    winlistmutex_.lock();
+    for ( int idx=0; idx<orderedwinlist_.size(); idx++ )
+    {
+	if ( orderedwinlist_[idx]->isModal() )
+	{ res = true; break; }
+    }
+    winlistmutex_.unLock();
+    return res;
+}
+
+
 //=============================================================================
 
 
 class uiMainWinBody : public uiParentBody , public QMainWindow
-{ mODTextTranslationClass(uiMainWinBody);
+{ mODTextTranslationClass(uiMainWinBody)
 friend class		uiMainWin;
 public:
 			uiMainWinBody(uiMainWin& handle,uiParent* parnt,
@@ -107,19 +121,19 @@ public:
 
     virtual		~uiMainWinBody();
 
-#define mHANDLE_OBJ     uiMainWin
-#define mQWIDGET_BASE   QMainWindow
-#define mQWIDGET_BODY   QMainWindow
+#define mHANDLE_OBJ	uiMainWin
+#define mQWIDGET_BASE	QMainWindow
+#define mQWIDGET_BODY	QMainWindow
 #define UIBASEBODY_ONLY
 #define UIPARENT_BODY_CENTR_WIDGET
-#include                "i_uiobjqtbody.h"
+#include		"i_uiobjqtbody.h"
 
 public:
 
     uiStatusBar*	uistatusbar();
     uiMenuBar*		uimenubar();
 
-    virtual void        polish();
+    virtual void	polish();
     void		reDraw(bool deep);
     void		go(bool showminimized=false);
     virtual void	show()				{ doShow(); }
@@ -495,6 +509,12 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 
 void uiMainWinBody::closeEvent( QCloseEvent* ce )
 {
+    if ( hasModalWindows() > 0 )
+    {
+	ce->ignore();
+	return;
+    }
+
     const int refnr = handle_.beginCmdRecEvent( "Close" );
 
     if ( handle_.closeOK() )
@@ -1319,7 +1339,7 @@ bool uiMainWin::grabScreen( const char* filenm, const char* format, int quality,
     QWidget* screen = desktop->screen( screenidx );
     if ( !screen ) return false;
 
-    const QRect geom = screen->geometry();
+    const QRect geom = desktop->screenGeometry( screenidx );
     QPixmap snapshot = QPixmap::grabWindow( desktop->winId(),
 	geom.left(), geom.top(), geom.width(), geom.height() );
 #endif
