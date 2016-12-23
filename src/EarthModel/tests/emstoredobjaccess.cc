@@ -14,11 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static bool initLoader( EM::StoredObjAccess& soa )
 {
-    if ( !soa.add( MultiID("100020.2") ) ) // Hor3D: Demo 6 --> FS8
+    if ( !soa.add( MultiID("100020.2") ) ) // Hor3D: 1-Top
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( MultiID("100020.5") ) ) // Body: Slumps-2b
+    if ( !soa.add( MultiID("100020.4") ) ) // Body: Slumps-2b
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( MultiID("100020.6") ) ) // SSIS-Grid-Faultsticks
+    if ( !soa.add( MultiID("100020.5") ) ) // SSIS-Grid-Faultsticks
 	mErrRet( soa.getError(0) );
 
     if ( soa.add( MultiID("100020.99795") ) )
@@ -43,7 +43,7 @@ int main( int argc, char** argv )
     OD::ModDeps().ensureLoaded( "EarthModel" );
 
 
-    EM::StoredObjAccess soa;
+    EM::StoredObjAccess& soa = *new EM::StoredObjAccess;
     if ( !initLoader(soa) )
 	ExitProgram(1);
 
@@ -89,5 +89,6 @@ int main( int argc, char** argv )
        -> 4 sticks, 7 knots.
        */
 
+    delete &soa;
     return ExitProgram( 0 );
 }
