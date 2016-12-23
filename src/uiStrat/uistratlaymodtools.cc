@@ -275,13 +275,18 @@ void uiStratLayModEditTools::setProps( const BufferStringSet& nms )
 { 
     setFldNms( propfld_, nms, allownoprop_, false, 0 ); 
 }
+
+
 void uiStratLayModEditTools::setLevelNames( const BufferStringSet& nms )
 { 
-    int i=0;
     //setFldNms( lvlfld_, nms, true, false, 0 ); 
 }
+
+
 void uiStratLayModEditTools::setContentNames( const BufferStringSet& nms )
-{ setFldNms( contfld_, nms, true, true, -1 ); }
+{
+    setFldNms( contfld_, nms, true, true, -1 );
+}
 
 
 const char* uiStratLayModEditTools::selProp() const
@@ -294,6 +299,7 @@ int uiStratLayModEditTools::selPropIdx() const
 {
     if ( propfld_->isEmpty() )
 	return -1;
+
     const int selidx = propfld_->getIntValue();
     if ( selidx < 0 || (allownoprop_ && selidx == 0) )
 	return -1;
