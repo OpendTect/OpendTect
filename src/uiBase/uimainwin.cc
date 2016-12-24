@@ -509,7 +509,7 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 
 void uiMainWinBody::closeEvent( QCloseEvent* ce )
 {
-    if ( hasModalWindows() > 0 )
+    if ( hasModalWindows() )
     {
 	ce->ignore();
 	return;
