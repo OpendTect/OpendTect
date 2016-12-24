@@ -12,4 +12,4 @@ ________________________________________________________________________
 
 #include "transl.h"
 
-mDeclEmptyTranslatorBundle(General,StratTree,od,"strattree")
+mDeclEmptyTranslatorBundle(Strat,StratTree,od,"strattree")
