@@ -56,7 +56,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     , interpol1dsel_( 0 )
     , savefldgrp_( 0 )
     , finished(this)
-    , horReadyFroDisplay(this)
+    , horReadyForDisplay(this)
 {
     setCtrlStyle( RunAndClose );
 
@@ -191,7 +191,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
     if ( success &&
 	 (saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon()) )
-	horReadyFroDisplay.trigger();
+	horReadyForDisplay.trigger();
 
     return success;
 }
@@ -243,7 +243,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
     }
 
     if ( saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon() )
-	horReadyFroDisplay.trigger();
+	horReadyForDisplay.trigger();
 
     return true;
 }

@@ -30,7 +30,7 @@ public:
     virtual			~uiChangeHorizonDlg();
 
     uiHorSaveFieldGrp*		saveFldGrp() const { return savefldgrp_; }
-    Notifier<uiChangeHorizonDlg> horReadyFroDisplay;
+    Notifier<uiChangeHorizonDlg> horReadyForDisplay;
 
 protected:
 				uiChangeHorizonDlg(uiParent*,EM::Horizon*,

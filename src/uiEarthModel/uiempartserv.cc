@@ -488,7 +488,8 @@ bool uiEMPartServer::fillHoles( const EM::ObjectID& emid, bool is2d )
 {
     mDynamicCastGet(EM::Horizon*,hor,em_.getObject(emid));
     uiHorizonInterpolDlg dlg( parent(), hor, is2d );
-    dlg.horReadyFroDisplay.notify( mCB(this,uiEMPartServer,displayOnCreateCB) );
+    dlg.saveFldGrp()->allowOverWrite( false );
+    dlg.horReadyForDisplay.notify( mCB(this,uiEMPartServer,displayOnCreateCB) );
     return dlg.go();
 }
 
@@ -497,7 +498,8 @@ bool uiEMPartServer::filterSurface( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid))
     uiFilterHorizonDlg dlg( parent(), hor3d );
-    dlg.horReadyFroDisplay.notify( mCB(this,uiEMPartServer,displayOnCreateCB) );
+    dlg.saveFldGrp()->allowOverWrite( false );
+    dlg.horReadyForDisplay.notify( mCB(this,uiEMPartServer,displayOnCreateCB) );
     return dlg.go();
 }
 
