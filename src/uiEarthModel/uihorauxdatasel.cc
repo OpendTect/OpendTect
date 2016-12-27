@@ -29,7 +29,7 @@ class uiHorizonAuxDataDlg: public uiDialog
 public:
 uiHorizonAuxDataDlg( uiParent* p,
 		     const uiHorizonAuxDataSel::HorizonAuxDataInfo& info )
-    : uiDialog( p 
+    : uiDialog( p
     , uiDialog::Setup(toUiString("%1 %2 %3").arg(uiStrings::sHorizon())
 					    .arg(uiStrings::sData())
 					    .arg(uiStrings::sSelection())
@@ -187,8 +187,9 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
 	horfld_->setText( obj->name() );
     }
 
-    auxfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
-				    uiStrings::sHorizon(),uiStrings::sData()));
+    auxfld_ = new uiGenInput( this,
+	uiStrings::phrJoinStrings(uiStrings::sHorizon(),uiStrings::sData()),
+	str );
     auxfld_->attach( rightOf, selbut_ );
     auxfld_->setPrefWidthInChar( 60 );
     auxfld_->valuechanged.notify(
