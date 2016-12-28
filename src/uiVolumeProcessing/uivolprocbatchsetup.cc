@@ -131,6 +131,7 @@ bool uiBatchSetup::fillPar()
 
     // TODO: Make this more general, e.g remove all Attrib related keys
     par.set( "Output.0.Seismic.ID", outputioobj->key() );
+    par.set( sKey::Target(), outputioobj->name() );
 
     IOPar subselpar;
     mDynamicCastGet(uiSeis2DSubSel*,subsel2d,subsel_)
@@ -153,7 +154,6 @@ bool uiBatchSetup::fillPar()
 	subselpar.set( sKey::NrGeoms(), 1 );
 	TrcKeyZSampling tkzs;
 	subsel_->getSampling( tkzs );
-	IOPar tkzspar;
 	tkzs.fillPar( subselpar );
     }
 
@@ -188,13 +188,19 @@ bool uiBatchSetup::acceptOK()
     if ( batchfld_->wantBatch() )
     {
 	batchfld_->setJobName( outputioobj->name() );
-	return batchfld_->start();
+	if ( !batchfld_->start() )
+	    uiMSG().error( uiStrings::sBatchProgramFailedStart() );
+
+	return false;
     }
 
     VolProc::ChainOutput vco;
     vco.usePar( batchfld_->jobSpec().pars_ );
     uiTaskRunner taskrunner( this );
-    return taskrunner.execute( vco );
+    if ( !taskrunner.execute(vco) )
+	uiMSG().error( vco.errorWithDetails() );
+
+    return false;
 }
 
 } // namespace VolProc
