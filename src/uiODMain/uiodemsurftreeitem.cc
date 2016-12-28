@@ -14,6 +14,7 @@ ___________________________________________________________________
 #include "datacoldef.h"
 #include "emhorizon3d.h"
 #include "emhorizonztransform.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "dbman.h"
@@ -22,6 +23,7 @@ ___________________________________________________________________
 #include "posvecdataset.h"
 #include "survinfo.h"
 #include "threadwork.h"
+#include "timefun.h"
 
 #include "uiattribpartserv.h"
 #include "uiempartserv.h"
@@ -72,7 +74,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     savemnuitem_.iconfnm = "save";
     saveasmnuitem_.iconfnm = "saveas";
     enabletrackingmnuitem_.checkable = true;
-    changesetupmnuitem_.iconfnm = "tools";
+    changesetupmnuitem_.iconfnm = "seedpicksettings";
     NotSavedPrompter::NSP().promptSaving.notify(
 	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
 }
@@ -113,6 +115,8 @@ bool uiODEarthModelSurfaceTreeItem::init()
     if ( MPE::engine().hasTracker(emid_) )
 	MPE::engine().refTracker( emid_ );
 
+    EM::IOObjInfo eminfo( EM::EMM().getDBKey(emid_) );
+    timelastmodified_ = eminfo.timeLastModified();
     initNotify();
     return true;
 }
@@ -194,7 +198,7 @@ void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() || istb )
+    if ( !menu || menu->menuID()!=displayID() )
 	return;
 
     mDynamicCastGet(visSurvey::Scene*,scene,
@@ -213,7 +217,8 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 	      !hastransform )
     {
 	mAddMenuItem( &trackmenuitem_, &starttrackmnuitem_, false, false );
-	mAddMenuItem( &trackmenuitem_, &changesetupmnuitem_, true, false );
+	mAddMenuOrTBItem( istb, menu, &trackmenuitem_, &changesetupmnuitem_,
+			  true, false );
 	mAddMenuItem( &trackmenuitem_, &enabletrackingmnuitem_, true,
 		      istrackingallowed_ );
     }
@@ -229,18 +234,23 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
     const DBKey mid = EM::EMM().getDBKey( emid_ );
     const bool enab = trackmenuitem_.nrItems() && !isshifted && isChecked()
 			&& EM::canOverwrite( mid );
-    mAddMenuItem( menu, &trackmenuitem_, enab, false );
+    mAddMenuOrTBItem( istb, 0, menu, &trackmenuitem_, enab, false );
 
-    mAddMenuItem( menu, &reloadmnuitem_, true, false );
+    const EM::IOObjInfo eminfo( mid );
+    const BufferString curtime = eminfo.timeLastModified();
+    const bool isnewer = Time::isEarlier( timelastmodified_, curtime );
+    const bool allowreload = !hastracker && isnewer;
+    mAddMenuOrTBItem( istb, 0, menu, &reloadmnuitem_, allowreload, false );
 
-    mAddMenuItem( menu, &savemnuitem_,
+    mAddMenuOrTBItem( istb, menu, menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid_) &&
 		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
 		  EM::canOverwrite( mid ) &&
 		  !isshifted, false );
 
     const bool istransformedandshifted = hastransform && isshifted;
-    mAddMenuItem( menu, &saveasmnuitem_, !istransformedandshifted, false );
+    mAddMenuOrTBItem( istb, menu, menu, &saveasmnuitem_,
+		      !istransformedandshifted, false );
     mResetMenuItem( &createflatscenemnuitem_ );
 }
 
@@ -257,7 +267,7 @@ int uiODEarthModelSurfaceTreeItem::reloadEMObject()
 	return -1;
 
     emid_ = applMgr()->EMServer()->getObjectID(mid);
-    uivisemobj_ = new uiVisEMObject(ODMainWin(),emid_,sceneID(),visserv_);
+    uivisemobj_ = new uiVisEMObject( ODMainWin(), emid_, sceneID(), visserv_ );
     displayid_ = uivisemobj_->id();
     return displayid_;
 }
@@ -394,8 +404,10 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     uiEMPartServer* ems = applMgr()->EMServer();
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
+    const bool hastracker = MPE::engine().hasTracker(emid_);
 
-    if ( ems->isGeometryChanged(emid_) && ems->nrAttributes(emid_)>0 )
+    if ( !hastracker && ems->isGeometryChanged(emid_)
+		     && ems->nrAttributes(emid_)>0 )
     {
 	const bool res = uiMSG().askSave(
 		tr("Geometry has been changed. Saved 'Horizon Data' is\n"
