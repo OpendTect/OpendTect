@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "batchjobdispatch.h"
 #include "errmsg.h"
 #include "uibatchjobdispatchersel.h"
+#include "uimsg.h"
 
 uiBatchProcDlg::uiBatchProcDlg( uiParent* p, const uiString& dlgnm,
 				bool optional,
@@ -48,7 +49,10 @@ bool uiBatchProcDlg::acceptOK()
     if ( !fillPar(par) )
 	return false;
 
-    return batchjobfld_->start();
+    if ( !batchjobfld_->start() )
+	uiMSG().error( uiStrings::sBatchProgramFailedStart() );
+
+    return false;
 }
 
 
