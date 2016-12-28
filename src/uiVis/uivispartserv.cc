@@ -170,6 +170,8 @@ bool uiVisPartServer::sendVisEvent( int evid )
 
 uiVisPartServer::~uiVisPartServer()
 {
+    detachAllNotifiers();
+
     visBase::DM().selMan().selnotifier.remove(
 	    mCB(this,uiVisPartServer,selectObjCB) );
     visBase::DM().selMan().deselnotifier.remove(
