@@ -124,6 +124,7 @@ EventTracker::EventTracker()
     , seeddepth_(mUdf(float))
     , seedsize_(0)
     , comparemethod_(SeedTrace)
+    , allowamplsignchg_(true)
 {
 #define mAddAV(v) allowedvars_ += v
 //    mAddAV(0.01); mAddAV(0.02); mAddAV(0.05); mAddAV(0.1); mAddAV(0.2);
@@ -187,14 +188,19 @@ const Interval<float>& EventTracker::permittedRange() const
 void EventTracker::setTrackEvent( VSEvent::Type ev )
 { evtype_ = ev; }
 
-
 VSEvent::Type EventTracker::trackEvent() const
 { return evtype_; }
 
 
+void EventTracker::allowAmplitudeSignChange( bool yn )
+{ allowamplsignchg_ = yn; }
+
+bool EventTracker::isAmplitudeSignChangeAllowed() const
+{ return allowamplsignchg_; }
+
+
 void EventTracker::setAmplitudeThreshold( float th )
 { ampthreshold_ = th; }
-
 
 float EventTracker::amplitudeThreshold() const
 { return ampthreshold_; }
@@ -202,7 +208,6 @@ float EventTracker::amplitudeThreshold() const
 
 void EventTracker::setAmplitudeThresholds( const TypeSet<float>& ats )
 { ampthresholds_ = ats; }
-
 
 TypeSet<float>& EventTracker::getAmplitudeThresholds()
 { return ampthresholds_; }

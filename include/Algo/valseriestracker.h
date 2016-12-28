@@ -108,12 +108,17 @@ public:
 				       event within the permitted range. No
 				       amplitude threshold is used. */
     VSEvent::Type		trackEvent() const;
+    void			allowAmplitudeSignChange(bool);
+				/*! If true, a peak can have a negative
+				    amplitude value, and a trough can have a
+				    positive amplitude value.*/
+    bool			isAmplitudeSignChangeAllowed() const;
     bool			snap(const Interval<float>& amplrg);
     bool			snap(float threshold);
-				/*!Snaps at nearest event that is in permitted
-				   range and where the amplitude meets the
-				   threshold criterion. Only needs target
-				   data.*/
+				/*! Snaps at nearest event that is in permitted
+				    range and where the amplitude meets the
+				    threshold criterion. Only needs target
+				    data.*/
 
     void			useSimilarity(bool yn);
     bool			usesSimilarity() const;
@@ -185,6 +190,7 @@ protected:
     float			compareampl_;
     bool			dosnap_;
     float			quality_;
+    bool			allowamplsignchg_;
 
     const ValueSeries<float>*	seedvs_;
     float			seeddepth_;
