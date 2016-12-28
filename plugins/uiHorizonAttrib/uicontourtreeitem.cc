@@ -384,10 +384,10 @@ float uiContourTreeItemContourGenerator::getHorizonZValue( int rowidx,
 							   int colidx ) const
 {
     const BinID bid( rowrg_.atIndex(rowidx), colrg_.atIndex(colidx) );
-    float zval = hor3d_ ? hor3d_->getZ(bid) : mUdf(float);
+    const float zval = hor3d_ ? hor3d_->getZ(bid) : mUdf(float);
 
     if ( ztransform_ && !mIsUdf(zval) )
-	ztransform_->transform( bid, SamplingData<float>(zval,1), 1, &zval );
+	return ztransform_->transformTrc( bid, zval );
 
     return zval;
 }
