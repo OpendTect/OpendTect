@@ -10,17 +10,22 @@ ________________________________________________________________________
 
 
 #include "uiposprovider.h"
-#include "uipossubsel.h"
-#include "rangeposprovider.h"
-#include "uigeninput.h"
-#include "uimainwin.h"
-#include "uilabel.h"
+
 #include "uidialog.h"
+#include "uigeninput.h"
+#include "uiioobjseldlg.h"
+#include "uilabel.h"
+#include "uimainwin.h"
+#include "uimsg.h"
+#include "uipossubsel.h"
 #include "uitoolbutton.h"
-#include "trckeyzsampling.h"
+
+#include "ascstream.h"
 #include "keystrs.h"
-#include "survinfo.h"
 #include "od_helpids.h"
+#include "rangeposprovider.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
 
 
 uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
@@ -139,8 +144,29 @@ void uiPosProvider::fullSurvPush( CallBacker* )
 }
 
 
+#define mErrRet(s) { uiMSG().error(s); return; }
+
 void uiPosProvider::openCB( CallBacker* )
 {
+    CtxtIOObj ctio( PosProvidersTranslatorGroup::ioContext() );
+    ctio.ctxt_.forread_ = true;
+    ctio.fillDefault();
+    uiIOObjSelDlg dlg( this, ctio, tr("Open Subselection") );
+    if ( !dlg.go() || !dlg.ioObj() ) return;
+
+    const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
+    delete ctio.ioobj_;
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	mErrRet( tr("Cannot open input file:\n%1").arg(fnm) )
+
+    ascistream astrm( strm,true );
+    IOPar iop( astrm );
+    if ( iop.isEmpty() )
+	mErrRet( tr("No valid subselection found") )
+
+    usePar( iop );
+    selChg(0);
 }
 
 
@@ -153,6 +179,23 @@ void uiPosProvider::saveCB( CallBacker* )
 
     IOPar iop;
     grps_[selidx]->fillPar( iop );
+
+    CtxtIOObj ctio( PosProvidersTranslatorGroup::ioContext() );
+    ctio.ctxt_.forread_ = false;
+    uiIOObjSelDlg dlg( this, ctio, tr("Save Subselection") );
+    if ( !dlg.go() || !dlg.ioObj() ) return;
+
+    const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
+    delete ctio.ioobj_;
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+	mErrRet( tr("Cannot open output file:\n%1").arg(fnm) )
+
+    ascostream astrm( strm );
+    if ( !astrm.putHeader("PosProvider") )
+	mErrRet( tr("Cannot write to output file:\n%1").arg(fnm) )
+
+    iop.putTo( astrm );
 }
 
 
