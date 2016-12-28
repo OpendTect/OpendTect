@@ -44,5 +44,6 @@ protected:
     float		threshold_;
     float		unitvol_;
     float		volsum_;
+    float		nrunits_;
     Threads::Lock	lock_;
 };

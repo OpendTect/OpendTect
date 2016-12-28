@@ -23,6 +23,7 @@ BodyVolumeCalculator::BodyVolumeCalculator( const TrcKeyZSampling& cs,
     : arr_(arr)
     , threshold_(threshold)
     , volsum_(0)
+    , nrunits_(0)
     , lock_(true)
 {
     const float zfactor = SI().zIsTime() ? velocityinmeter*0.5f :
@@ -168,6 +169,7 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
     }
 
     Threads::Locker lckr( lock_ );
+    nrunits_ += nrunits;
     volsum_ += unitvol_*nrunits;
     return true;
 }
