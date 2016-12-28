@@ -9,23 +9,25 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismmproc.h"
-#include "uiseismmjobdispatch.h"
-#include "uiseisioobjinfo.h"
-#include "seisjobexecprov.h"
-#include "commondefs.h"
-#include "jobrunner.h"
-#include "jobdescprov.h"
-#include "iopar.h"
-#include "file.h"
-#include "filepath.h"
-#include "keystrs.h"
-#include "settings.h"
-#include "genc.h"
 
+#include "uibutton.h"
+#include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uifileinput.h"
+#include "uiseisioobjinfo.h"
+#include "uiseismmjobdispatch.h"
+
+#include "commondefs.h"
+#include "file.h"
+#include "filepath.h"
+#include "genc.h"
+#include "iopar.h"
+#include "jobdescprov.h"
+#include "jobrunner.h"
+#include "keystrs.h"
 #include "od_helpids.h"
+#include "seisjobexecprov.h"
+#include "settings.h"
 
 
 bool Batch::SeisMMProgDef::isSuitedFor( const char* pnm ) const
@@ -95,7 +97,7 @@ static int defltNrInlPerJob( const IOPar& inputpar )
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     : uiMMBatchJobDispatcher(p,iop, mODHelpKey(mSeisMMProcHelpID) )
     , parfnm_(iop.find(sKey::FileName()))
-    , tmpstordirfld_(0), inlperjobfld_(0)
+    , tmpstordirfld_(0), inlperjobfld_(0), saveasdeffld_(0)
     , jobprov_(0)
     , outioobjinfo_(0)
     , lsfileemitted_(false)
@@ -126,14 +128,11 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     const bool doresume = Batch::JobDispatcher::userWantsResume(iop)
 			&& SeisJobExecProv::isRestart(iop);
 
-    setTitleText( isMultiHost()  ? tr("Multi-Machine Processing")
-			: (is2d_ ? tr("Multi-line processing")
-				 : tr("Line-split processing")) );
     FixedString res = jobpars_.find( sKey::Target() );
     uiString captn = tr("Processing");
     if ( !res.isEmpty() )
 	captn.append(" '%1'").arg(res);
-    setCaption(captn);
+    basecaption_ = captn;
 
     if ( !is2d_ )
     {
@@ -169,10 +168,12 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	}
 
 	inlperjobfld_ = new uiGenInput( specparsgroup_,
-                        tr("Nr of inlines per job"),
+			tr("Nr of inlines per job"),
 			IntInpSpec(nrinlperjob_) );
-
 	inlperjobfld_->attach( alignedBelow, inlperjobattach );
+	saveasdeffld_ = new uiCheckBox( specparsgroup_,
+					uiStrings::sSaveAsDefault() );
+	saveasdeffld_->attach( rightTo, inlperjobfld_ );
     }
 }
 
@@ -220,6 +221,9 @@ bool uiSeisMMProc::initWork( bool retry )
 	    if ( nrinlperjob_ > 100 ) nrinlperjob_ = 100;
 	    inlperjobfld_->setValue( nrinlperjob_ );
 	    inlperjobfld_->setSensitive( false );
+
+	    if ( saveasdeffld_ && saveasdeffld_->isChecked() )
+		InlineSplitJobDescProv::setDefaultNrInlPerJob( nrinlperjob_ );
 	}
     }
 
