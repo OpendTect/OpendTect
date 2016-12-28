@@ -1189,6 +1189,40 @@ DBKey DescSet::getStoredKey( const DescID& did ) const
 }
 
 
+void DescSet::getStoredNames( BufferStringSet& nms ) const
+{
+    for ( int idx=0; idx<descs_.size(); idx++ )
+    {
+	const Desc* dsc = desc( idx );
+	if ( !dsc->isStored() )
+	    continue;
+
+	PtrMan<IOObj> ioobj = DBM().get( dsc->getStoredID() );
+	if ( !ioobj )
+	{
+	    BufferString usrref = dsc->userRef();
+	    usrref.embed( '{', '}' );
+	    nms.addIfNew( usrref );
+	}
+	else
+	   nms.addIfNew( ioobj->name() );
+    }
+}
+
+
+void DescSet::getAttribNames( BufferStringSet& nms, bool inclhidden ) const
+{
+    for ( int idx=0; idx<descs_.size(); idx++ )
+    {
+	const Desc* dsc = desc( idx );
+	if ( (!inclhidden && dsc->isHidden()) || dsc->isStored() )
+	    continue;
+
+	nms.add( dsc->userRef() );
+    }
+}
+
+
 void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 {
     Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), true );
