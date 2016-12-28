@@ -17,29 +17,32 @@ class uiGraphicsItemGroup;
 class uiLineItem;
 class uiToolButton;
 class uiParent;
-namespace OD { class LineStyle; };
+namespace OD { class LineStyle; }
 
 mExpClass(uiTools) uiCrossHairItem : public CallBacker
 {
 public:
-			uiCrossHairItem(uiGraphicsViewBase&);
-			~uiCrossHairItem();
+				uiCrossHairItem(uiGraphicsViewBase&);
+				~uiCrossHairItem();
 
-    void		setLineStyle(const OD::LineStyle&);
+    void			setLineStyle(const OD::LineStyle&);
     const OD::LineStyle&	getLineStyle() const;
 
-    void		show(bool yn);
-    bool		isShown() const;
+    void			show(bool yn);
+    bool			isShown() const;
+
+    void			showLine(OD::Orientation,bool yn);
+    bool			isLineShown(OD::Orientation) const;
 
 protected:
-    void		mouseMoveCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
 
-    uiGraphicsItemGroup* itemgrp_;
-    uiLineItem*		horline_;
-    uiLineItem*		vertline_;
+    uiGraphicsItemGroup*	itemgrp_;
+    uiLineItem*			horline_;
+    uiLineItem*			vertline_;
 
     OD::LineStyle&		ls_;
-    uiGraphicsViewBase& view_;
+    uiGraphicsViewBase&		view_;
 };
 
 
