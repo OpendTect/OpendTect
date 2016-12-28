@@ -9,22 +9,26 @@ ________________________________________________________________________
 -*/
 
 #include "moddepmgr.h"
-#include "rangeposprovider.h"
-#include "mathproperty.h"
-#include "dbman.h"
+
 #include "coordsystem.h"
+#include "dbman.h"
 #include "elasticpropseltransl.h"
-#include "mathformulatransl.h"
+#include "geometryio.h"
 #include "ioobjselectiontransl.h"
+#include "mathformulatransl.h"
+#include "mathproperty.h"
+#include "pickset.h"
 #include "preloads.h"
 #include "probeimpl.h"
 #include "probetr.h"
-#include "pickset.h"
-#include "geometryio.h"
+#include "rangeposprovider.h"
 #include "survgeometrytransl.h"
 
 
-mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc);
+mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc)
+mDefSimpleTranslators(PosProviders,"Subselection",dgb,Misc)
+mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
+mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
 
 class GeneralModuleIniter { public: GeneralModuleIniter(); };
 
@@ -40,15 +44,17 @@ GeneralModuleIniter::GeneralModuleIniter()
     ElasticPropSelectionTranslatorGroup::initClass();
     MathFormulaTranslatorGroup::initClass();
     IOObjSelectionTranslatorGroup::initClass();
+    PosProvidersTranslatorGroup::initClass();
     PreLoadsTranslatorGroup::initClass();
     PreLoadSurfacesTranslatorGroup::initClass();
     ProbeTranslatorGroup::initClass();
 
-    dgbPreLoadsTranslator::initClass();
-    dgbPreLoadSurfacesTranslator::initClass();
     odElasticPropSelectionTranslator::initClass();
     odMathFormulaTranslator::initClass();
     odIOObjSelectionTranslator::initClass();
+    dgbPosProvidersTranslator::initClass();
+    dgbPreLoadsTranslator::initClass();
+    dgbPreLoadSurfacesTranslator::initClass();
     dgbProbeTranslator::initClass();
 
     Pick::SetPresentationInfo::initClass();
