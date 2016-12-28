@@ -392,6 +392,7 @@ void uiMPEPartServer::enableTracking( int trackerid, bool yn )
 			mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
 	    seedpicker->seedAdded.notify(
 			mCB(this,uiMPEPartServer,seedAddedCB) );
+	    seedpicker->startSeedPick();
 	}
     }
     else
@@ -502,25 +503,6 @@ bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
 }
 
 
-uiString uiMPEPartServer::sYesAskGoOnStr()
-{
-    return tr("This object has saved tracker settings.\n\n"
-				    "Do you want to verify / change them?");
-}
-
-
-uiString uiMPEPartServer::sNoAskGoOnStr()
-{
-    return tr( "This object was created by manual drawing"
-			    " only, or its tracker settings were not saved."
-			    "\n\nDo you want to specify them right now?" );
-}
-
-
-#define mAskGoOnStr(setupavailable) \
-    ( setupavailable ? sYesAskGoOnStr() : sNoAskGoOnStr() )\
-
-
 void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 					const EM::SectionID& sid )
 {
@@ -531,14 +513,7 @@ void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 	return;
 
     readSetup( emobj->dbKey() );
-
-    MPE::SectionTracker* sectiontracker =
-			 tracker ? tracker->getSectionTracker( sid, true ) : 0;
-    const bool setupavailable = sectiontracker &&
-				sectiontracker->hasInitializedSetup();
-
-    if ( uiMSG().askGoOn(mAskGoOnStr(setupavailable)) )
-	showSetupDlg( emid, sid );
+    showSetupDlg( emid, sid );
 }
 
 
