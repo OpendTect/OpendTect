@@ -173,6 +173,7 @@ protected:
     bool		findMaxSimilarity(int nrtests,int step,int nrgracetests,
 					 float& res,float& maxsim,
 					 bool& flatstart) const;
+    bool			isTargetValueAllowed() const;
 
     VSEvent::Type		evtype_;
     Interval<float>		permrange_;
@@ -210,5 +211,6 @@ protected:
     static const char*		sKeyCompareMethod();
     static const char*		sKeyAttribID();
     static const char*		sKeySnapToEvent();
+    static const char*		sKeyAllowSignChg();
 
 };
