@@ -10,6 +10,8 @@
 #include "bufstringset.h"
 #include "cbvsreadmgr.h"
 #include "conn.h"
+#include "dirlist.h"
+#include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
 #include "globexpr.h"
@@ -253,6 +255,50 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 
     const double bytes2mb = 9.53674e-7;
     return (int)((sz * bytes2mb) + .5);
+}
+
+
+od_int64 SeisIOObjInfo::getFileSize( const char* filenm, int& nrfiles )
+{
+    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) ) return -1;
+
+    od_int64 totalsz = 0;
+    nrfiles = 0;
+    if ( File::isDirectory(filenm) )
+    {
+	DirList dl( filenm, DirList::FilesOnly );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    File::Path filepath = dl.fullPath( idx );
+	    FixedString ext = filepath.extension();
+	    if ( ext != "cbvs" )
+		continue;
+
+	    totalsz += File::getKbSize( filepath.fullPath() );
+	    nrfiles++;
+	}
+    }
+    else
+    {
+	while ( true )
+	{
+	    BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
+	    if ( !File::exists(fullnm) ) break;
+
+	    totalsz += File::getKbSize( fullnm );
+	    nrfiles++;
+	}
+    }
+
+    return totalsz;
+}
+
+
+od_int64 SeisIOObjInfo::getFileSize() const
+{
+    const char* fnm = ioobj_->fullUserExpr();
+    int nrfiles;
+    return getFileSize( fnm, nrfiles );
 }
 
 
