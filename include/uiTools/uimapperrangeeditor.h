@@ -25,36 +25,37 @@ template <class T> class Array2D;
 namespace ColTab { class MapperSetup; class Sequence; }
 
 mExpClass(uiTools) uiMapperRangeEditor : public uiGroup
-{ 
+{
 public:
 
-    				uiMapperRangeEditor(uiParent*,int id,
+				uiMapperRangeEditor(uiParent*,int id,
 					bool fixdrawrg=true);
 				~uiMapperRangeEditor();
 
-    int				ID()		       { return id_; }
+    int				ID()		{ return id_; }
 
-    bool                        setDataPackID(DataPack::ID,DataPackMgr::ID);
-    void                        setData(const Array2D<float>*);
+    void			setEmpty();
+    bool			setDataPackID(DataPack::ID,DataPackMgr::ID);
+    void			setData(const Array2D<float>*);
     void			setData(const IOPar&);
-    void                        setMarkValue(float,bool forx);
+    void			setMarkValue(float,bool forx);
 
     void			setColTabMapperSetup(
 	    				const ColTab::MapperSetup&);
     void			setColTabSeq(const ColTab::Sequence&);
     const ColTab::MapperSetup&	getColTabMapperSetup()	{ return *ctmapper_; }
 
-    uiHistogramDisplay&		getDisplay()	{ return *histogramdisp_; }    
+    uiHistogramDisplay&		getDisplay()	{ return *histogramdisp_; }
 
     Notifier<uiMapperRangeEditor>	rangeChanged;
 
 protected:
-	
-    uiHistogramDisplay*		histogramdisp_;    
+
+    uiHistogramDisplay*		histogramdisp_;
     int 			id_;
     uiAxisHandler*		xax_;
 
-    ColTab::MapperSetup*        ctmapper_;
+    ColTab::MapperSetup*	ctmapper_;
     ColTab::Sequence*		ctseq_;
 
     uiPixmapItem*		leftcoltab_;
