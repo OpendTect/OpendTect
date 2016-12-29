@@ -13,8 +13,10 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seisselection.h"
 #include "seis2ddata.h"
+#include "posinfo2d.h"
 #include "dbman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "uistrings.h"
 
 
@@ -23,6 +25,7 @@ Seis::Fetcher::Fetcher( Provider& p )
     , ioobj_(0)
 {
 }
+
 
 Seis::Fetcher::~Fetcher()
 {
@@ -150,7 +153,7 @@ void Seis::Fetcher2D::reset()
     Fetcher::reset();
     delete dataset_; dataset_ = 0;
     nexttrcky_.setGeomID( mUdfGeomID );
-    //TODO
+    curlidx_ = -1;
 }
 
 
@@ -172,4 +175,127 @@ Seis2DDataSet* Seis::Fetcher2D::mkDataSet() const
 {
     PtrMan<IOObj> ioobj = getIOObj();
     return ioobj ? new Seis2DDataSet( *ioobj ) : 0;
+}
+
+
+int Seis::Fetcher2D::lineIdxFor( Pos::GeomID geomid ) const
+{
+    const int nrlines = dataset_ ? dataset_->nrLines() : 0;
+    for ( int lidx=0; lidx<nrlines; lidx++ )
+    {
+	if ( dataset_->geomID(lidx) == geomid )
+	    return lidx;
+    }
+    return -1;
+}
+
+
+Pos::GeomID Seis::Fetcher2D::curGeomID() const
+{
+    return dataset_ && curlidx_>=0 ? dataset_->geomID( curlidx_ ) : mUdfGeomID;
+}
+
+
+uiRetVal Seis::Fetcher2D::gtComponentInfo( BufferStringSet& nms,
+				       TypeSet<Seis::DataType>& dts ) const
+{
+    Seis2DDataSet* ds = dataset_;
+    PtrMan<Seis2DDataSet> ptrds;
+    if ( !ds )
+	{ ds = mkDataSet(); ptrds = ds; }
+    if ( !ds )
+	return uirv_;
+
+    const BufferString dtyp = ds->dataType();
+    nms.add( ds->name() );
+    if ( dtyp != sKey::Steering() )
+	dts += Seis::UnknowData;
+    else
+    {
+	nms.add( ds->name() );
+	dts += Seis::Dip; dts += Seis::Dip;
+    }
+
+    uirv_.setEmpty();
+    return uirv_;
+}
+
+
+int Seis::Fetcher2D::gtNrLines() const
+{
+    if ( dataset_ )
+	return dataset_->nrLines();
+    else
+    {
+	PtrMan<Seis2DDataSet> ds = mkDataSet();
+	return ds ? ds->nrLines() : 0;
+    }
+}
+
+
+Pos::GeomID Seis::Fetcher2D::gtGeomID( int iln ) const
+{
+    if ( dataset_ )
+	return dataset_->geomID( iln );
+    else
+    {
+	PtrMan<Seis2DDataSet> ds = mkDataSet();
+	return ds ? ds->geomID(iln) : mUdfGeomID;
+    }
+}
+
+
+int Seis::Fetcher2D::gtLineNr( Pos::GeomID geomid ) const
+{
+    if ( dataset_ )
+	return dataset_->indexOf( geomid );
+    else
+    {
+	PtrMan<Seis2DDataSet> ds = mkDataSet();
+	return ds ? ds->indexOf(geomid) : -1;
+    }
+}
+
+
+BufferString Seis::Fetcher2D::gtLineName( int lnr ) const
+{
+    if ( dataset_ )
+	return dataset_->lineName( lnr );
+    else
+    {
+	PtrMan<Seis2DDataSet> ds = mkDataSet();
+	return BufferString( ds ? ds->lineName(lnr) : "" );
+    }
+}
+
+
+void Seis::Fetcher2D::gtGeometryInfo( int iln, PosInfo::Line2DData& l2dd ) const
+{
+    l2dd.setEmpty();
+
+    if ( dataset_ )
+	dataset_->getGeometry( dataset_->geomID(iln), l2dd );
+    else
+    {
+	PtrMan<Seis2DDataSet> ds = mkDataSet();
+	if ( ds )
+	    ds->getGeometry( ds->geomID(iln), l2dd );
+    }
+}
+
+
+bool Seis::Fetcher2D::gtRanges( int iln, StepInterval<int>& trcrg,
+				ZSampling& zsamp ) const
+{
+    if ( dataset_ )
+	return dataset_->getRanges( dataset_->geomID(iln),
+					    trcrg, zsamp );
+    else
+    {
+	PtrMan<Seis2DDataSet> ds = mkDataSet();
+	if ( ds )
+	    return ds->getRanges( ds->geomID(iln), trcrg, zsamp );
+    }
+
+    return false;
 }

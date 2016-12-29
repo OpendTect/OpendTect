@@ -412,16 +412,16 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 
 
 const uiString Desc::errMsg() const
-{ 
+{
     uiString msg;
     if ( !isStored() )
      {
 	msg = uiStrings::phrCannotSave(tr("the attribute.\n"
 					    "Values are not correct."));
-	return msg;						      
+	return msg;
     }
 
-    return errmsg_; 
+    return errmsg_;
 }
 
 
@@ -562,8 +562,8 @@ bool Desc::removeInput( int idx )
 }
 
 
-
-InputSpec& Desc::inputSpec( int input ) { return inputspecs_[input]; }
+InputSpec& Desc::inputSpec( int input )
+{ return inputspecs_[input]; }
 
 
 const InputSpec& Desc::inputSpec( int input ) const
@@ -586,7 +586,10 @@ void Desc::setNrOutputs( Seis::DataType dt, int nroutp )
 
 
 void Desc::addOutputDataType( Seis::DataType dt )
-{ outputtypes_+=dt; outputtypelinks_+=-1; }
+{
+    outputtypes_ += dt;
+    outputtypelinks_ += -1;
+}
 
 
 void Desc::addOutputDataTypeSameAs( int input )

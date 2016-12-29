@@ -41,7 +41,7 @@ static std::ostream* dbgstrmptr = 0;
 #define dbgstrm if ( dbgstrmptr ) *dbgstrmptr << "\tD: "
 
 
-static bool fillBuf( SeisMSCProvider& prov, SeisTrcBuf& buf, bool& atend )
+static bool fillBuf( Seis::MSCProvider& prov, SeisTrcBuf& buf, bool& atend )
 {
     if ( atend )
     {
@@ -63,15 +63,15 @@ static bool fillBuf( SeisMSCProvider& prov, SeisTrcBuf& buf, bool& atend )
 	buf.add( new SeisTrc(*trc) );
 	while ( 1 )
 	{
-	    SeisMSCProvider::AdvanceState res = prov.advance();
-	    if ( res == SeisMSCProvider::Buffering ) continue;
-	    if ( res == SeisMSCProvider::EndReached )
+	    Seis::MSCProvider::AdvanceState res = prov.advance();
+	    if ( res == Seis::MSCProvider::Buffering ) continue;
+	    if ( res == Seis::MSCProvider::EndReached )
 	    {
 		atend = true;
 		dbgstrm << "atend = true (prov)" << std::endl;
 		return true;
 	    }
-	    if ( res == SeisMSCProvider::Error )
+	    if ( res == Seis::MSCProvider::Error )
 	    {
 		dbgstrm << "prov error" << std::endl;
 		strm << prov.errMsg() << std::endl;
@@ -355,7 +355,7 @@ bool BatchProgram::go( std::ostream& strm_ )
 	nrinlbufs = maxnrtrcsfill;
 
     ObjectSet<SeisTrcBuf> bufs;
-    ObjectSet<SeisMSCProvider> provs;
+    ObjectSet<Seis::MSCProvider> provs;
     for ( int idx=0; ; idx++ )
     {
 	BufferString iopkey( "Input." );
@@ -364,17 +364,17 @@ bool BatchProgram::go( std::ostream& strm_ )
 	const char* res = iop ? iop->find( "ID" ) : 0;
 	if ( !res || !*res )
 	    { if ( idx ) break; continue; }
-	SeisMSCProvider* prov = new SeisMSCProvider( DBKey(res) );
+	Seis::MSCProvider* prov = new Seis::MSCProvider( DBKey(res) );
 	prov->reader().usePar( *iop );
-	SeisMSCProvider::AdvanceState advst = prov->advance();
-	while ( advst == SeisMSCProvider::Buffering )
+	Seis::MSCProvider::AdvanceState advst = prov->advance();
+	while ( advst == Seis::MSCProvider::Buffering )
 	    advst = prov->advance();
-	if ( advst == SeisMSCProvider::EndReached )
+	if ( advst == Seis::MSCProvider::EndReached )
 	{
 	    strm << "No valid data in " << DBM().nameOf(res) << std::endl;
 	    return false;
 	}
-	if ( advst == SeisMSCProvider::Error )
+	if ( advst == Seis::MSCProvider::Error )
 	{
 	    strm << prov->errMsg() << std::endl;
 	    return false;
@@ -422,7 +422,7 @@ bool BatchProgram::go( std::ostream& strm_ )
 	for ( int provnr=0; provnr<nrprovs; provnr++ )
 	{
 	    SeisTrcBuf* buf = bufs[provnr];
-	    SeisMSCProvider* prov = provs[provnr];
+	    Seis::MSCProvider* prov = provs[provnr];
 	    if ( !fillBuf(*prov,*buf,atend[provnr]) )
 	    {
 		dbgstrm << "fillBuf returned false" << std::endl;

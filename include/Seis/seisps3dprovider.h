@@ -31,9 +31,7 @@ public:
 			~PS3DProvider();
     virtual GeomType	geomType() const	{ return VolPS; }
 
-    virtual BufferStringSet	getComponentInfo() const;
-    virtual ZSampling		getZSampling() const;
-    virtual TrcKeySampling	getHSampling() const;
+    virtual bool		getRanges(TrcKeyZSampling&) const;
     virtual void		getGeometryInfo(PosInfo::CubeData&) const;
 
 protected:
@@ -43,6 +41,8 @@ protected:
 
     virtual void	doUsePar(const IOPar&,uiRetVal&);
     virtual void	doReset(uiRetVal&) const;
+    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,
+					    TypeSet<Seis::DataType>&) const;
     virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;

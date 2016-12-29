@@ -28,12 +28,17 @@ public:
 			LineProvider();
 			LineProvider(const DBKey&);
 			~LineProvider();
+
     virtual GeomType	geomType() const	{ return Line; }
 
-    virtual BufferStringSet	getComponentInfo() const;
-    virtual ZSampling		getZSampling() const;
-    virtual int			nrLines() const;
-    virtual void		getGeometryInfo(int,PosInfo::Line2DData&) const;
+    virtual int		nrLines() const;
+    virtual int		curLineIdx() const;
+    virtual BufferString lineName(int) const;
+    virtual Pos::GeomID	geomID(int) const;
+    virtual int		lineNr(Pos::GeomID) const;
+    virtual void	getGeometryInfo(int,PosInfo::Line2DData&) const;
+    virtual bool	getRanges(int,StepInterval<int>&,
+					  ZSampling&) const;
 
 protected:
 
@@ -42,6 +47,8 @@ protected:
 
     virtual void	doUsePar(const IOPar&,uiRetVal&);
     virtual void	doReset(uiRetVal&) const;
+    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,
+					    TypeSet<Seis::DataType>&) const;
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
 

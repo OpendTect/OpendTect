@@ -25,7 +25,7 @@
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seistrc.h"
 #include "seisselectionimpl.h"
 #include "survinfo.h"
@@ -58,6 +58,9 @@ void StorageProvider::updateDesc( Desc& desc )
 void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 					       BufferStringSet* compnms )
 {
+    if ( compnms )
+	compnms->erase();
+
     const StringPair strpair( desc.getValParam(keyStr())->getStringValue(0) );
 
     const BufferString storstr = strpair.first();
@@ -71,95 +74,22 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     }
 
     const DBKey key = DBKey::getFromString( storstr );
-    PtrMan<IOObj> ioobj = DBM().get( key );
-    SeisTrcReader rdr( ioobj );
-    if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) || rdr.psIOProv() )
-    {
-//	TODO desc.setErrMsg( rdr.errMsg() );
-	return;
-    }
+    uiRetVal uirv;
+    Seis::Provider* prov = Seis::Provider::create( key, &uirv );
+    if ( !prov )
+	{ desc.setErrMsg( uirv ); return; }
+
+    BufferStringSet provcompnms; TypeSet<Seis::DataType> dtyps;
+    uirv = prov->getComponentInfo( provcompnms, &dtyps );
+    if ( uirv.isError() )
+	{ desc.setErrMsg( uirv ); return; }
 
     if ( compnms )
-	compnms->erase();
+	*compnms = provcompnms;
 
-    if ( rdr.is2D() )
-    {
-	if ( !rdr.dataSet() )
-	{
-	    uiString errmsg = tr("No dataset available for '%1'")
-	                    .arg(ioobj->uiName());
-//	    desc.setErrMsg( errmsg );
-	    return;
-	}
-
-	FixedString datatype = rdr.dataSet()->dataType();
-	const bool issteering = datatype == sKey::Steering();
-	SeisTrcTranslator* transl = rdr.seisTranslator();
-	if ( !transl )
-	{
-	    if ( issteering )
-	    {
-		desc.setNrOutputs( Seis::Dip, 2 );
-		if ( compnms )
-		    compnms->add( rdr.dataSet()->name() );
-	    }
-	    else
-		desc.setNrOutputs( Seis::UnknowData, 1 );
-	}
-	else if ( transl->componentInfo().isEmpty() )
-	{
-	    BufferStringSet complist;
-	    SeisIOObjInfo::getCompNames(key, complist);
-	    if ( complist.isEmpty() )
-	    {
-		if ( issteering )
-		    desc.setNrOutputs( Seis::Dip, 2 );
-		else
-		    desc.setNrOutputs( Seis::UnknowData, 1 );
-	    }
-	    else
-	    {
-		desc.setNrOutputs( issteering ? Seis::Dip : Seis::UnknowData,
-				   complist.size() );
-		if ( compnms )
-		    compnms->operator =( complist );
-	    }
-	}
-	else
-	{
-	    for ( int idx=0; idx<transl->componentInfo().size(); idx++ )
-		desc.addOutputDataType( (Seis::DataType)
-					transl->componentInfo()[0]->datatype );
-	}
-    }
-    else
-    {
-	SeisTrcTranslator* transl = rdr.seisTranslator();
-	if ( !transl )
-	{
-	    uiString errmsg = tr("No data interpreter available for '%1'")
-	                    .arg(ioobj->uiName());
-//	    desc.setErrMsg ( errmsg );
-	    return;
-	}
-
-	BufferString type;
-	ioobj->pars().get( sKey::Type(), type );
-
-	const int nrattribs = transl->componentInfo().size();
-	if ( type == sKey::Steering() )
-	    desc.setNrOutputs( Seis::Dip, nrattribs );
-	else
-	{
-	    for ( int idx=1; idx<=nrattribs; idx++ )
-		if ( desc.nrOutputs() < idx )
-		    desc.addOutputDataType( (Seis::DataType)
-				    transl->componentInfo()[idx-1]->datatype);
-	}
-
-	if ( compnms )
-	    transl->getComponentNames( *compnms );
-    }
+    desc.removeOutputs();
+    for ( int idx=0; idx<dtyps.size(); idx++ )
+	desc.addOutputDataType( dtyps[idx] );
 }
 
 
@@ -219,8 +149,8 @@ bool StorageProvider::checkInpAndParsAtStart()
     const DBKey mid = DBKey::getFromString( strpair.first() );
     if ( !isOK() )
 	return false;
-    mscprov_ = new SeisMSCProvider( mid );
 
+    mscprov_ = new Seis::MSCProvider( mid );
     if ( !initMSCProvider() )
 	mErrRet( mscprov_->errMsg() )
 
@@ -233,26 +163,25 @@ bool StorageProvider::checkInpAndParsAtStart()
     }
     else
     {
-	Seis2DDataSet* dset = mscprov_->reader().dataSet();
-	if ( !dset )
-	    mErrRet( tr("2D seismic data/No data set found") );
-
 	storedvolume_.set2DDef();
 	storedvolume_.hsamp_.start_.inl() = 0;
 	storedvolume_.hsamp_.stop_.inl() = 1;
 	storedvolume_.hsamp_.step_.inl() = 1;
 	storedvolume_.hsamp_.include( BinID( 0,0 ) );
-	storedvolume_.hsamp_.include( BinID( 0,SI().maxNrTraces(true) ) );
+	storedvolume_.hsamp_.include( BinID( 0, SI().maxNrTraces(true) ) );
 	storedvolume_.hsamp_.step_.crl() = 1; // what else?
-	bool foundone = false;
-	for ( int idx=0; idx<dset->nrLines(); idx++ )
+
+	mDynamicCastGet( const Seis::Provider2D&, prov, *mscprov_->provider() );
+	bool isfirst = false;
+	for ( int iln=0; iln<prov.nrLines(); iln++ )
 	{
-	    const Pos::GeomID geomid = dset->geomID( idx );
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
-	    if ( !dset->getRanges(geomid,trcrg,zrg) )
+	    if ( !prov.getRanges(iln,trcrg,zrg) )
 		continue;
 
-	    if ( foundone )
+	    const Pos::GeomID geomid = prov.geomID( iln );
+
+	    if ( !isfirst )
 	    {
 		storedvolume_.hsamp_.include( BinID(geomid,trcrg.start) );
 		storedvolume_.hsamp_.include( BinID(geomid,trcrg.stop) );
@@ -264,7 +193,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 					StepInterval<int>(geomid,geomid,1) );
 		storedvolume_.hsamp_.setTrcRange( trcrg );
 		storedvolume_.zsamp_ = zrg;
-		foundone = true;
+		isfirst = false;
 	    }
 	}
     }
@@ -308,17 +237,17 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
     {
 	if ( isondisc_ )
 	{
-	    SeisMSCProvider::AdvanceState res = mscprov_ ? mscprov_->advance()
-						 : SeisMSCProvider::EndReached;
+	    Seis::MSCProvider::AdvanceState res = mscprov_ ? mscprov_->advance()
+					     : Seis::MSCProvider::EndReached;
 	    switch ( res )
 	    {
-		case SeisMSCProvider::Error:	{ errmsg_ = mscprov_->errMsg();
+		case Seis::MSCProvider::Error:	{ errmsg_ = mscprov_->errMsg();
 						      return -1; }
-		case SeisMSCProvider::EndReached:	return 0;
-		case SeisMSCProvider::Buffering:	continue;
+		case Seis::MSCProvider::EndReached:	return 0;
+		case Seis::MSCProvider::Buffering:	continue;
 						//TODO return 'no new position'
 
-		case SeisMSCProvider::NewPosition:
+		case Seis::MSCProvider::NewPosition:
 		{
 		    if ( useshortcuts_ )
 			{ advancefurther = false; continue; }
@@ -377,18 +306,14 @@ bool StorageProvider::getLine2DStoredVolume()
     if ( mIsUdfGeomID(geomid_) && desiredvolume_->is2D() )
 	geomid_ = desiredvolume_->hsamp_.getGeomID();
 
-    if ( mIsUdfGeomID(geomid_) )
+    if ( mIsUdfGeomID(geomid_) || !mscprov_ || !mscprov_->is2D() )
 	return true;
 
-    Seis2DDataSet* dset = mscprov_->reader().dataSet();
-    if ( !dset )
-	mErrRet( tr("2D seismic data set not found") );
-
-    StepInterval<int> trcrg;
-    StepInterval<float> zrg;
-    if ( !dset->getRanges(geomid_,trcrg,zrg) )
-	mErrRet( tr("2D dataset %1 is not available for line %2")
-		.arg(dset->name()).arg(Survey::GM().getName(geomid_)) );
+    mDynamicCastGet( const Seis::Provider2D&, prov, *mscprov_->provider() );
+    StepInterval<int> trcrg; StepInterval<float> zrg;
+    if ( !prov.getRanges(prov.lineNr(geomid_),trcrg,zrg) )
+	mErrRet( tr("Ranges not available for line %2")
+		.arg(Survey::GM().getName(geomid_)) );
 
     storedvolume_.hsamp_.setLineRange( StepInterval<int>(geomid_,geomid_,1) );
     storedvolume_.hsamp_.setTrcRange( trcrg );
@@ -417,12 +342,9 @@ bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
 
     if ( globpv.isEmpty() && !issynthetic )
     {
-	const IOObj* dataobj = mscprov_->reader().ioObj();
-	const BufferString datanm = dataobj ? dataobj->name()
-					    : OD::String::empty();
 	setDataUnavailableFlag( true );
 	errmsg_ = tr("Stored cube %1 is not available in the desired range")
-		  .arg(datanm);
+		  .arg(mscprov_->name());
 	return false;
     }
 
@@ -432,7 +354,7 @@ bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
 
 bool StorageProvider::initMSCProvider()
 {
-    if ( !mscprov_ || !mscprov_->prepareWork() )
+    if ( !mscprov_ )
 	return false;
 
     updateStorageReqs();
@@ -480,7 +402,7 @@ void StorageProvider::updateStorageReqs( bool )
 }
 
 
-SeisMSCProvider* StorageProvider::getMSCProvider( bool& needmscprov) const
+Seis::MSCProvider* StorageProvider::getMSCProvider( bool& needmscprov) const
 {
     needmscprov = isondisc_;
     return mscprov_;
@@ -489,12 +411,14 @@ SeisMSCProvider* StorageProvider::getMSCProvider( bool& needmscprov) const
 
 bool StorageProvider::setMSCProvSelData()
 {
-    if ( !mscprov_ ) return false;
+    if ( !mscprov_ )
+	return false;
 
-    SeisTrcReader& reader = mscprov_->reader();
-    if ( reader.psIOProv() ) return false;
+    Seis::Provider& prov = *mscprov_->provider();
+    if ( prov.isPS() )
+	return false;
 
-    const bool is2d = reader.is2D();
+    const bool is2d = prov.is2D();
     const bool haveseldata = seldata_ && !seldata_->isAll();
 
     if ( haveseldata && seldata_->type() == Seis::Table )
@@ -540,15 +464,14 @@ bool StorageProvider::setMSCProvSelData()
     cs.zsamp_.stop = desiredvolume_->zsamp_.stop > storedvolume_.zsamp_.stop ?
 		     storedvolume_.zsamp_.stop : desiredvolume_->zsamp_.stop;
 
-    reader.setSelData( haveseldata ? seldata_->clone()
+    prov.setSelData( haveseldata ? seldata_->clone()
 				   : new Seis::RangeSelData(cs) );
 
-    SeisTrcTranslator* transl = reader.seisTranslator();
+    TypeSet<int> selcomps;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
-    {
-	if ( !outputinterest_[idx] )
-	    transl->componentInfo()[idx]->destidx = -1;
-    }
+	if ( outputinterest_[idx] )
+	    selcomps += idx;
+    prov.selectComponents( selcomps );
 
     return true;
 }
@@ -556,47 +479,50 @@ bool StorageProvider::setMSCProvSelData()
 
 bool StorageProvider::setTableSelData()
 {
-    if ( !isondisc_ ) return false;	//in this case we might not use a table
+    if ( !isondisc_ )
+	return false;	//in this case we might not use a table
+    if ( !mscprov_ )
+	return false;
+
 
     Seis::SelData* seldata = seldata_->clone();
     seldata->extendZ( extraz_ );
-    SeisTrcReader& reader = mscprov_->reader();
-    if ( reader.is2D() )
+    Seis::Provider& prov = *mscprov_->provider();
+    if ( prov.is2D() )
 	seldata->setGeomID( geomid_ );
 
-    reader.setSelData( seldata );
-    SeisTrcTranslator* transl = reader.seisTranslator();
-    if ( !transl ) return false;
+    prov.setSelData( seldata );
+
+    TypeSet<int> selcomps;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
-    {
-	if ( !outputinterest_[idx] && transl->componentInfo().size()>idx )
-	    transl->componentInfo()[idx]->destidx = -1;
-    }
+	if ( outputinterest_[idx] )
+	    selcomps += idx;
+    prov.selectComponents( selcomps );
+
     return true;
 }
 
 
 bool StorageProvider::set2DRangeSelData()
 {
-    if ( !isondisc_ ) return false;
+    if ( !isondisc_ )
+	return false;
 
     mDynamicCastGet(const Seis::RangeSelData*,rsd,seldata_)
     Seis::RangeSelData* seldata = rsd ? (Seis::RangeSelData*)rsd->clone()
 				      : new Seis::RangeSelData( false );
-    SeisTrcReader& reader = mscprov_->reader();
-    Seis2DDataSet* dset = reader.dataSet();
-    if ( !dset )
-    {
-	if ( !rsd && seldata ) delete seldata;
-	return false;
-    }
+
+    Seis::Provider& prov = *mscprov_->provider();
+    if ( !prov.is2D() )
+	{ pErrMsg("shld be 2D"); return false; }
+    mDynamicCastGet( Seis::Provider2D&, prov2d, prov );
 
     if ( geomid_ != Survey::GeometryManager::cUndefGeomID() )
     {
 	TrcKeyZSampling tkzs; tkzs.set2DDef();
 	seldata->setGeomID( geomid_ );
 	StepInterval<float> dszrg; StepInterval<int> trcrg;
-	if ( dset->getRanges(geomid_,trcrg,dszrg) )
+	if ( prov2d.getRanges(prov2d.lineNr(geomid_),trcrg,dszrg) )
 	{
 	    if ( !checkDesiredTrcRgOK(trcrg,dszrg) )
 		return false;
@@ -616,7 +542,7 @@ bool StorageProvider::set2DRangeSelData()
 	}
 
 	seldata->cubeSampling() = tkzs;
-	reader.setSelData( seldata );
+	prov.setSelData( seldata );
     }
     else if ( !rsd && seldata )
 	delete seldata;
@@ -846,19 +772,28 @@ BinID StorageProvider::getStepoutStep() const
 	return stepoutstep_;
 
     BinID& sos = const_cast<StorageProvider*>(this)->stepoutstep_;
-    if ( mscprov_ )
+    if ( !mscprov_ )
+	sos.inl() = sos.crl() = 1;
+    else
     {
-	PtrMan<Seis::Bounds> bds = mscprov_->reader().getBounds();
-	if ( bds )
+	const Seis::Provider& prov = *mscprov_->provider();
+	if ( prov.is2D() )
 	{
-	    //Remember: in 2D BinID contains ( linenr, trcnr )
-	    //while Seis::2DBounds.step contains ( trcnr, 1 )
-	    sos.inl() = bds->is2D() ? bds->step( false ) : bds->step( true );
-	    sos.crl() = bds->is2D() ? bds->step( true ) : bds->step( false );
+	    mDynamicCastGet( const Seis::Provider2D&, prov2d, prov );
+
+	    StepInterval<int> tnrrg; ZSampling zsamp;
+	    int lnr = mIsUdfGeomID(geomid_) ? 0 : prov2d.lineNr( geomid_ );
+	    if ( prov2d.getRanges(lnr,tnrrg,zsamp) )
+		sos.crl() = tnrrg.step;
+	}
+	else
+	{
+	    mDynamicCastGet( const Seis::Provider3D&, prov3d, prov );
+	    TrcKeyZSampling cs;
+	    if ( prov3d.getRanges(cs) )
+		sos = cs.hsamp_.step_;
 	}
     }
-    else
-	sos.inl() = sos.crl() = 1;
 
     return stepoutstep_;
 }
@@ -868,12 +803,14 @@ void StorageProvider::adjust2DLineStoredVolume()
 {
     if ( !isondisc_ || !mscprov_ ) return;
 
-    const SeisTrcReader& reader = mscprov_->reader();
-    if ( !reader.is2D() ) return;
+    const Seis::Provider& prov = *mscprov_->provider();
+    if ( !prov.is2D() )
+	return;
 
-    StepInterval<int> trcrg;
-    StepInterval<float> zrg;
-    if ( reader.dataSet()->getRanges(geomid_,trcrg,zrg) )
+    mDynamicCastGet( const Seis::Provider2D&, prov2d, prov );
+    StepInterval<int> trcrg; StepInterval<float> zrg;
+    int lnr = mIsUdfGeomID(geomid_) ? 0 : prov2d.lineNr( geomid_ );
+    if ( prov2d.getRanges(lnr,trcrg,zrg) )
     {
 	storedvolume_.hsamp_.setTrcRange( trcrg );
 	storedvolume_.zsamp_ = zrg;
@@ -882,7 +819,9 @@ void StorageProvider::adjust2DLineStoredVolume()
 
 
 Pos::GeomID StorageProvider::getGeomID() const
-{ return geomid_; }
+{
+    return geomid_;
+}
 
 
 void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dp ) const
@@ -957,29 +896,35 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
 
 bool StorageProvider::compDistBetwTrcsStats( bool force )
 {
-    if ( !mscprov_ ) return false;
-    if ( ls2ddata_ && ls2ddata_->areStatsComputed() ) return true;
+    if ( !mscprov_ )
+	return false;
+    if ( ls2ddata_ && ls2ddata_->areStatsComputed() )
+	return true;
 
-    const SeisTrcReader& reader = mscprov_->reader();
-    if ( !reader.is2D() ) return false;
+    const Seis::Provider& prov = *mscprov_->provider();
+    if ( !prov.is2D() )
+	return false;
 
-    const Seis2DDataSet* dset = reader.dataSet();
-    if ( !dset ) return false;
+    mDynamicCastGet( const Seis::Provider2D&, prov2d, prov );
+    StepInterval<int> trcrg; StepInterval<float> zrg;
+    int lnr = mIsUdfGeomID(geomid_) ? 0 : prov2d.lineNr( geomid_ );
+    if ( prov2d.getRanges(lnr,trcrg,zrg) )
 
     if ( ls2ddata_ ) delete ls2ddata_;
     ls2ddata_ = new PosInfo::LineSet2DData();
-    for ( int idx=0; idx<dset->nrLines(); idx++ )
+    for ( int idx=0; idx<prov2d.nrLines(); idx++ )
     {
-	PosInfo::Line2DData& linegeom = ls2ddata_->addLine(dset->lineName(idx));
+	const BufferString linenm( prov2d.lineName(idx) );
+	PosInfo::Line2DData& linegeom = ls2ddata_->addLine( linenm );
 	const Survey::Geometry* geom =
-		Survey::GM().getGeometry( dset->geomID(idx) );
+		Survey::GM().getGeometry( prov2d.geomID(idx) );
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geom );
 	if ( !geom2d ) continue;
 
 	linegeom = geom2d->data();
 	if ( linegeom.positions().isEmpty() )
 	{
-	    ls2ddata_->removeLine( dset->lineName(idx) );
+	    ls2ddata_->removeLine( linenm );
 	    return false;
 	}
     }

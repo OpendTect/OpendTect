@@ -21,8 +21,13 @@ template <class T> class Array2D;
 class IOObj;
 class SeisTrc;
 class SeisTrcBuf;
-class SeisTrcReader;
-namespace Seis		{ class SelData; }
+
+
+namespace Seis
+{
+
+class SelData;
+class Provider;
 
 
 /*!\brief Reads seismic data into buffers providing a Moving Virtual Subcube
@@ -47,21 +52,16 @@ traces.
  */
 
 
-mExpClass(Seis) SeisMSCProvider
-{ mODTextTranslationClass(SeisMSCProvider);
+mExpClass(Seis) MSCProvider
+{ mODTextTranslationClass(Seis::MSCProvider);
 public:
 
-			SeisMSCProvider(const DBKey&);
+			MSCProvider(const DBKey&);
 				//!< Use any real user entry from '.omf' file
-			SeisMSCProvider(const IOObj&);
-				//!< Use any real user entry from '.omf' file
-			SeisMSCProvider(const char* fnm);
-				//!< 'loose' 3D Post-stack CBVS files only.
-    virtual		~SeisMSCProvider();
+    virtual		~MSCProvider();
 
     bool		is2D() const;
-    bool		prepareWork();
-			//!< Opens the input data. Can still set stepouts etc.
+    BufferString	name() const; // cube name
 
 			// use the following after prepareWork
 			// but before the first next()
@@ -81,27 +81,27 @@ public:
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
     AdvanceState	advance();
-    uiString		errMsg() const		{ return errmsg_; }
+    uiString		errMsg() const		{ return uirv_; }
 
     BinID		getPos() const;
     int			getTrcNr() const;
     SeisTrc*		get(int deltainl,int deltacrl);
     SeisTrc*		get(const BinID&);
     const SeisTrc*	get( int i, int c ) const
-			{ return const_cast<SeisMSCProvider*>(this)->get(i,c); }
+			{ return const_cast<MSCProvider*>(this)->get(i,c); }
     const SeisTrc*	get( const BinID& bid ) const
-			{ return const_cast<SeisMSCProvider*>(this)->get(bid); }
+			{ return const_cast<MSCProvider*>(this)->get(bid); }
 
-    int			comparePos(const SeisMSCProvider&) const;
+    int			comparePos(const MSCProvider&) const;
 			//!< 0 = equal; -1 means I need to next(), 1 the other
     int			estimatedNrTraces() const; //!< returns -1 when unknown
 
-    SeisTrcReader&	reader()		{ return rdr_; }
-    const SeisTrcReader& reader() const		{ return rdr_; }
+    Provider*		provider()		{ return prov_; }
+    const Provider*	provider() const	{ return prov_; }
 
 protected:
 
-    SeisTrcReader&	rdr_;
+    Provider*		prov_;
     ObjectSet<SeisTrcBuf> tbufs_;
     RowCol		reqstepout_;
     RowCol		desstepout_;
@@ -109,10 +109,10 @@ protected:
     Array2D<bool>*	reqmask_;
     bool		intofloats_;
     bool		workstarted_;
-    enum ReadState	{ NeedStart, ReadOK, ReadAtEnd, ReadErr };
-    ReadState		readstate_;
+    bool		atend_;
 
-    uiString		errmsg_;
+    uiRetVal		uirv_;
+    int			curlinenr_;
     mutable int		estnrtrcs_;
 
 			// Indexes of new pos ready, equals -1 while buffering.
@@ -122,10 +122,13 @@ protected:
     int			pivotidx_;
     int			pivotidy_;
 
-    void		init();
     bool		startWork();
-    int			readTrace(SeisTrc&);
+    bool		readTrace(SeisTrc&);
     bool		isReqBoxFilled() const;
     bool		doAdvance();
 
 };
+
+} // namespace Seis
+
+mDeprecated typedef Seis::MSCProvider SeisMSCProvider;

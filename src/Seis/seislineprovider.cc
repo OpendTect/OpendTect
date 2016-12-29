@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 #include "seislineprovider.h"
 #include "seisfetcher.h"
-#include "seis2dlineio.h"
+// #include "seis2dlineio.h"
 #include "seis2ddata.h"
 #include "seisbuf.h"
 #include "uistrings.h"
@@ -30,18 +30,6 @@ od_int64 Seis::Provider2D::getTotalNrInInput() const
 	ret += ld.size();
     }
     return ret;
-}
-
-
-int Seis::Provider2D::getNrLines( const Fetcher2D& fetcher )
-{
-    if ( fetcher.dataset_ )
-	return fetcher.dataset_->nrLines();
-    else
-    {
-	PtrMan<Seis2DDataSet> ds = fetcher.mkDataSet();
-	return ds ? ds->nrLines() : 0;
-    }
 }
 
 
@@ -83,17 +71,12 @@ const LineProvider& prov() const
     bool		getNextGetter();
     bool		getFromBuf(int,SeisTrc&);
     bool		readNextTraces();
-    int			lineIdxFor(Pos::GeomID) const;
 
     void		get(const TrcKey&,SeisTrc&);
     void		getNext(SeisTrc&);
 
     Executor*		getter_;
     SeisTrcBuf		tbuf_;
-    int			curlidx_;
-    Pos::GeomID		curGeomID() const
-			{ return dataset_ && curlidx_>=0
-			    ? dataset_->geomID( curlidx_ ) : mUdfGeomID; }
 
 };
 
@@ -117,18 +100,6 @@ void Seis::LineFetcher::openFirst()
 
     if ( !getNextGetter() )
 	{ uirv_ = tr( "No selected data found" ); return; }
-}
-
-
-int Seis::LineFetcher::lineIdxFor( Pos::GeomID geomid ) const
-{
-    const int nrlines = dataset_->nrLines();
-    for ( int lidx=0; lidx<nrlines; lidx++ )
-    {
-	if ( dataset_->geomID(lidx) == geomid )
-	    return lidx;
-    }
-    return -1;
 }
 
 
@@ -281,29 +252,54 @@ Seis::LineProvider::~LineProvider()
 }
 
 
-BufferStringSet Seis::LineProvider::getComponentInfo() const
+int Seis::LineProvider::curLineIdx() const
 {
-    BufferStringSet compnms;
-    return compnms;
+    return fetcher_.curlidx_;
 }
 
 
-ZSampling Seis::LineProvider::getZSampling() const
+uiRetVal Seis::LineProvider::doGetComponentInfo( BufferStringSet& nms,
+			TypeSet<Seis::DataType>& dts ) const
 {
-    ZSampling ret;
-    return ret;
+    return fetcher_.gtComponentInfo(nms,dts);
 }
 
 
 int Seis::LineProvider::nrLines() const
 {
-    return 0;
+    return fetcher_.gtNrLines();
+}
+
+
+Pos::GeomID Seis::LineProvider::geomID( int iln ) const
+{
+    return fetcher_.gtGeomID( iln );
+}
+
+
+int Seis::LineProvider::lineNr( Pos::GeomID geomid ) const
+{
+    return fetcher_.gtLineNr( geomid );
+}
+
+
+BufferString Seis::LineProvider::lineName( int iln ) const
+{
+    return fetcher_.gtLineName( iln );
 }
 
 
 void Seis::LineProvider::getGeometryInfo( int iln,
 					  PosInfo::Line2DData& ld ) const
 {
+    return fetcher_.gtGeometryInfo( iln, ld );
+}
+
+
+bool Seis::LineProvider::getRanges( int iln, StepInterval<int>& trcrg,
+	                                 ZSampling& zsamp ) const
+{
+    return fetcher_.gtRanges( iln, trcrg, zsamp );
 }
 
 

@@ -171,7 +171,7 @@ void Seis::PS3DFetcher::getSingleAt( const BinID& bid, SeisTrc& trc )
 	return;
 
     SeisTrc* rdtrc = rdr_->getTrace( nextbid_,
-				     prov().selcomp_<0 ? 0 : prov().selcomp_ );
+			 prov().selcomps_.isEmpty() ? 0 : prov().selcomps_[0] );
     if ( !rdtrc )
 	uirv_.set( rdr_->errMsg() );
     else
@@ -232,15 +232,18 @@ SeisPS3DReader* Seis::PS3DProvider::mkReader() const
 }
 
 
-static void addCompName( BufferStringSet& compnms, bool isoffs, float val )
+static void addCompInfo( BufferStringSet& compnms, TypeSet<Seis::DataType>& dts,
+			 bool isoffs, float val )
 {
     BufferString nm( isoffs?sKey::Offset():sKey::Azimuth(), " " );
     nm.add( val );
     compnms.add( nm );
+    dts += isoffs ? Seis::Ampl : Seis::Azimuth;
 }
 
 
-BufferStringSet Seis::PS3DProvider::getComponentInfo() const
+uiRetVal Seis::PS3DProvider::doGetComponentInfo( BufferStringSet& nms,
+			TypeSet<Seis::DataType>& dts ) const
 {
     PtrMan<SeisPS3DReader> rdrptrman;
     const SeisPS3DReader* rdr = 0;
@@ -252,27 +255,26 @@ BufferStringSet Seis::PS3DProvider::getComponentInfo() const
 	rdr = rdrptrman;
     }
 
-    BufferStringSet compnms;
     if ( !rdr )
-	return compnms;
+	return fetcher_.uirv_;
 
     const PosInfo::CubeData& cd = rdr->posData();
     if ( cd.size() < 1 )
-	return compnms;
+	return tr( "Empty input data" );
     const int linenr = cd.size() / 2;
     const PosInfo::LineData& ld = *cd[linenr];
     const int segnr = ld.segments_.size() / 2;
     const BinID bid( ld.linenr_, ld.segments_[segnr].center() );
     SeisTrcBuf tbuf( true );
     if ( !rdr->getGather(bid,tbuf) || tbuf.isEmpty() )
-	return compnms;
+	return tr( "Cannot read a sample gather" );
 
     float prevoffs = tbuf.get(0)->info().offset_;
     float prevazim = tbuf.get(0)->info().azimuth_;
     const int nrtrcs = tbuf.size();
     bool useoffs = true;
     if ( nrtrcs == 1 )
-	addCompName( compnms, true, prevoffs );
+	addCompInfo( nms, dts, true, prevoffs );
     else
     {
 	float offs = tbuf.get(1)->info().offset_;
@@ -280,48 +282,37 @@ BufferStringSet Seis::PS3DProvider::getComponentInfo() const
 	if ( !mIsEqual(azim,prevazim,1e-4f) )
 	    useoffs = !mIsEqual(offs,prevoffs,1e-4f);
 	for ( int idx=0; idx<tbuf.size(); idx++ )
-	    addCompName( compnms, useoffs,
+	    addCompInfo( nms, dts, useoffs,
 			 useoffs ? tbuf.get(idx)->info().offset_
 				 : tbuf.get(idx)->info().azimuth_ );
     }
 
-    return compnms;
+    return uiRetVal::OK();
 }
 
 
-ZSampling Seis::PS3DProvider::getZSampling() const
+bool Seis::PS3DProvider::getRanges( TrcKeyZSampling& cs ) const
 {
-    ZSampling ret;
-    if ( fetcher_.rdr_ )
-	ret = fetcher_.rdr_->getZRange();
-    else
+    SeisPS3DReader* rdr = fetcher_.rdr_;
+    PtrMan<SeisPS3DReader> rdrptrman;
+    if ( !rdr )
     {
-	PtrMan<SeisPS3DReader> rdr = mkReader();
-	ret = rdr ? rdr->getZRange() : TrcKeyZSampling(true).zsamp_;
+	rdrptrman = mkReader();
+	rdr = rdrptrman;
     }
-    return ret;
-}
-
-
-TrcKeySampling Seis::PS3DProvider::getHSampling() const
-{
-    TrcKeySampling ret;
-    if ( fetcher_.cditer_ )
-	ret = fetcher_.getDefaultCS().hsamp_;
-    else
+    if ( !rdr )
     {
-	PtrMan<SeisPS3DReader> rdr = mkReader();
-	if ( !rdr )
-	    ret = TrcKeyZSampling(true).hsamp_;
-	else
-	{
-	    const PosInfo::CubeData& cd = rdr->posData();
-	    StepInterval<int> rg;
-	    cd.getInlRange( rg ); ret.setInlRange( rg );
-	    cd.getCrlRange( rg ); ret.setCrlRange( rg );
-	}
+	cs = TrcKeyZSampling(true);
+	return false;
     }
-    return ret;
+
+    cs.zsamp_ = rdr->getZRange();
+    const PosInfo::CubeData& cd = rdr->posData();
+    StepInterval<int> rg;
+    cd.getInlRange( rg ); cs.hsamp_.setInlRange( rg );
+    cd.getCrlRange( rg ); cs.hsamp_.setCrlRange( rg );
+
+    return true;
 }
 
 
@@ -336,10 +327,7 @@ void Seis::PS3DProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
 	if ( rdr )
 	    cd = rdr->posData();
 	else
-	{
-	    const TrcKeySampling hs = TrcKeyZSampling(true).hsamp_;
-	    cd.generate( hs.start_, hs.stop_, hs.step_ );
-	}
+	    cd.setEmpty();
     }
 }
 

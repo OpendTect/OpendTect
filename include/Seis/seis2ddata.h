@@ -60,6 +60,7 @@ public:
 
     void		getGeomIDs(TypeSet<Pos::GeomID>&) const;
     void		getLineNames(BufferStringSet&) const;
+    bool		getGeometry(Pos::GeomID,PosInfo::Line2DData&) const;
 
     Executor*		lineGetter(Pos::GeomID,SeisTrcBuf&,
 				    int nrtrcsperstep=10,
@@ -95,8 +96,4 @@ protected:
     TypeSet<Pos::GeomID>	geomids_;
 
     void		init();
-
-private:
-
-    bool		getGeometry(Pos::GeomID,PosInfo::Line2DData&) const;
 };

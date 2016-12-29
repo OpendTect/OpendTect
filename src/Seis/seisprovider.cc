@@ -15,17 +15,30 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seisselection.h"
 #include "seisbuf.h"
+#include "keystrs.h"
 #include "uistrings.h"
+#include "dbman.h"
 
 
 Seis::Provider::Provider()
     : forcefpdata_(false)
-    , selcomp_(-1)
     , readmode_(Prod)
     , zstep_(mUdf(float))
     , seldata_(0)
     , setupchgd_(false)
 {
+}
+
+
+Seis::Provider::~Provider()
+{
+    delete seldata_;
+}
+
+
+BufferString Seis::Provider::name() const
+{
+    return DBM().nameOf( dbky_ );
 }
 
 
@@ -70,6 +83,20 @@ Seis::Provider* Seis::Provider::create( const DBKey& dbky, uiRetVal* uirv )
 }
 
 
+Seis::Provider* Seis::Provider::create( const IOPar& iop, uiRetVal* uirv )
+{
+    const DBKey ky = DBKey::getFromString( iop.find(sKey::ID()) );
+    if ( ky.isInvalid() )
+	return 0;
+
+    Provider* ret = create( ky, uirv );
+    if ( ret )
+	ret->usePar( iop );
+
+    return ret;
+}
+
+
 uiRetVal Seis::Provider::reset() const
 {
     uiRetVal uirv;
@@ -77,7 +104,7 @@ uiRetVal Seis::Provider::reset() const
     if ( uirv.isOK() )
     {
 	if ( seldata_ && !seldata_->isAll() )
-	    totalnr_ = seldata_->expectedNrTraces( is2D(geomType()) );
+	    totalnr_ = seldata_->expectedNrTraces( is2D() );
 	else
 	    totalnr_ = getTotalNrInInput();
 	setupchgd_ = false;
@@ -90,6 +117,21 @@ od_int64 Seis::Provider::totalNr() const
 {
     Threads::Locker locker( lock_ );
     return totalnr_;
+}
+
+
+uiRetVal Seis::Provider::getComponentInfo( BufferStringSet& nms,
+				       TypeSet<Seis::DataType>* pdts ) const
+{
+    TypeSet<Seis::DataType> dts;
+    nms.setEmpty();
+    if ( pdts )
+	pdts->setEmpty();
+
+    uiRetVal uirv = doGetComponentInfo( nms, dts );
+    if ( uirv.isOK() && pdts )
+	*pdts = dts;
+    return uirv;
 }
 
 
@@ -106,13 +148,24 @@ void Seis::Provider::setSampleInterval( float zs )
 {
     Threads::Locker locker( lock_ );
     zstep_ = zs;
+    setupchgd_ = true;
 }
 
 
 void Seis::Provider::selectComponent( int icomp )
 {
     Threads::Locker locker( lock_ );
-    selcomp_ = icomp;
+    selcomps_.setEmpty();
+    selcomps_ += icomp;
+    setupchgd_ = true;
+}
+
+
+void Seis::Provider::selectComponents( const TypeSet<int>& comps )
+{
+    Threads::Locker locker( lock_ );
+    selcomps_ = comps;
+    setupchgd_ = true;
 }
 
 
@@ -140,11 +193,11 @@ uiRetVal Seis::Provider::usePar( const IOPar& iop )
 }
 
 
-void Seis::Provider::setSubsel( const SelData& sd )
+void Seis::Provider::setSelData( SelData* sd )
 {
     Threads::Locker locker( lock_ );
     delete seldata_;
-    seldata_ = sd.clone();
+    seldata_ = sd;
     setupchgd_ = true;
 }
 

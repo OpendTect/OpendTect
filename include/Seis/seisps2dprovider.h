@@ -29,12 +29,17 @@ public:
 			PS2DProvider();
 			PS2DProvider(const DBKey&);
 			~PS2DProvider();
+
     virtual GeomType	geomType() const	{ return VolPS; }
 
-    virtual BufferStringSet	getComponentInfo() const;
-    virtual ZSampling		getZSampling() const;
-    virtual int			nrLines() const;
-    virtual void		getGeometryInfo(int,PosInfo::Line2DData&) const;
+    virtual int		curLineIdx() const;
+    virtual int		nrLines() const;
+    virtual int		lineNr(Pos::GeomID) const;
+    virtual BufferString lineName(int) const;
+    virtual Pos::GeomID	geomID(int) const;
+    virtual void	getGeometryInfo(int,PosInfo::Line2DData&) const;
+    virtual bool	getRanges(int,StepInterval<int>&,
+					  ZSampling&) const;
 
 protected:
 
@@ -43,6 +48,8 @@ protected:
 
     virtual void	doUsePar(const IOPar&,uiRetVal&);
     virtual void	doReset(uiRetVal&) const;
+    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,
+					    TypeSet<Seis::DataType>&) const;
     virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetGather(const TrcKey&,SeisTrcBuf&,uiRetVal&) const;
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;

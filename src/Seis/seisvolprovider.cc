@@ -205,15 +205,16 @@ void Seis::VolFetcher::getTranslator( Conn* conn )
 	return;
     }
 
-    trl_->setSelData( prov().seldata_ );
+    Seis::SelData* sd = prov().seldata_ ? prov().seldata_->clone() : 0;
+    trl_->setSelData( sd );
     if ( !trl_->initRead(conn,prov().readmode_) )
 	{ uirv_ = trl_->errMsg(); delete trl_; trl_ = 0; return; }
 
-    if ( prov().selcomp_ >= 0 )
+    if ( !prov().selcomps_.isEmpty() )
     {
 	for ( int icd=0; icd<trl_->componentInfo().size(); icd++ )
 	{
-	    if ( icd != prov().selcomp_ )
+	    if ( !prov().selcomps_.isPresent(icd) )
 		trl_->componentInfo()[icd]->destidx = -1;
 	}
     }
@@ -340,75 +341,60 @@ Seis::VolProvider::~VolProvider()
 }
 
 
-BufferStringSet Seis::VolProvider::getComponentInfo() const
+uiRetVal Seis::VolProvider::doGetComponentInfo( BufferStringSet& nms,
+			TypeSet<Seis::DataType>& dts ) const
 {
-    BufferStringSet compnms;
     if ( fetcher_.dp_ )
     {
 	for ( int icd=0; icd<fetcher_.dp_->nrComponents(); icd++ )
-	    compnms.add( fetcher_.dp_->getComponentName(icd) );
+	{
+	    nms.add( fetcher_.dp_->getComponentName(icd) );
+	    dts.add( Seis::UnknowData );
+	}
     }
     else
     {
 	if ( fetcher_.trl_ )
 	{
 	    for ( int icd=0; icd<fetcher_.trl_->componentInfo().size(); icd++ )
-		compnms.add( fetcher_.trl_->componentInfo()[icd]->name() );
+	    {
+		const SeisTrcTranslator::ComponentData& cd
+			    = *fetcher_.trl_->componentInfo()[icd];
+		nms.add( cd.name() );
+		dts.add( (Seis::DataType)cd.datatype );
+	    }
 	}
 	else
 	{
 	    SeisIOObjInfo objinf( dbky_ );
-	    objinf.getComponentNames( compnms );
+	    objinf.getComponentNames( nms );
+	    if ( nms.isEmpty() )
+		return tr( "No data found" );
+
+	    for ( int idx=0; idx<nms.size(); idx++ )
+		dts.add( Seis::UnknowData );
 	}
     }
-    return compnms;
+
+    return uiRetVal::OK();
 }
 
 
-ZSampling Seis::VolProvider::getZSampling() const
+bool Seis::VolProvider::getRanges( TrcKeyZSampling& cs ) const
 {
-    ZSampling ret;
-    if ( fetcher_.dp_ )
-	ret = fetcher_.dp_->getZRange();
-    else
+    if ( fetcher_.trl_ && !fetcher_.isMultiConn() )
     {
-	if ( fetcher_.trl_ )
-	{
-	    ret.start = fetcher_.trl_->inpSD().start;
-	    ret.step = fetcher_.trl_->inpSD().step;
-	    ret.stop = ret.start + (fetcher_.trl_->inpNrSamples()-1) * ret.step;
-	}
-	else
-	{
-	    TrcKeyZSampling cs;
-	    SeisTrcTranslator::getRanges( dbky_, cs );
-	    ret = cs.zsamp_;
-	}
+	cs.zsamp_.start = fetcher_.trl_->inpSD().start;
+	cs.zsamp_.step = fetcher_.trl_->inpSD().step;
+	cs.zsamp_.stop = cs.zsamp_.start
+		       + (fetcher_.trl_->inpNrSamples()-1) * cs.zsamp_.step;
+	const SeisPacketInfo& pinfo = fetcher_.trl_->packetInfo();
+	cs.hsamp_.set( pinfo.inlrg, pinfo.crlrg );
     }
-    return ret;
-}
+    else if ( !SeisTrcTranslator::getRanges( dbky_, cs ) )
+	return false;
 
-
-TrcKeySampling Seis::VolProvider::getHSampling() const
-{
-    TrcKeySampling ret;
-    if ( fetcher_.dp_ )
-	ret = fetcher_.dp_->sampling().hsamp_;
-    else
-    {
-	if ( fetcher_.trl_ && !fetcher_.isMultiConn() )
-	{
-	    const SeisPacketInfo& pinfo = fetcher_.trl_->packetInfo();
-	    ret.set( pinfo.inlrg, pinfo.crlrg );
-	}
-	else
-	{
-	    TrcKeyZSampling cs;
-	    SeisTrcTranslator::getRanges( dbky_, cs );
-	    ret = cs.hsamp_;
-	}
-    }
-    return ret;
+    return true;
 }
 
 

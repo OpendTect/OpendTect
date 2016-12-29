@@ -75,9 +75,7 @@ SeisEventSnapper3D::SeisEventSnapper3D( const IOObj& ioobj, BinIDValueSet& bvs,
     : SeisEventSnapper(gate)
     , positions_(bvs)
 {
-    mscprov_ = new SeisMSCProvider( ioobj );
-    mscprov_->prepareWork();
-
+    mscprov_ = new Seis::MSCProvider( ioobj.key() );
     const Interval<float> zrg = bvs.valRange( 0 );
     mscprov_->setSelData( new Seis::TableSelData(bvs,&gate) );
     totalnr_ = mCast( int, bvs.totalSize() );
@@ -98,12 +96,12 @@ uiString SeisEventSnapper3D::nrDoneText() const
 
 int SeisEventSnapper3D::nextStep()
 {
-    const SeisMSCProvider::AdvanceState res = mscprov_->advance();
+    const Seis::MSCProvider::AdvanceState res = mscprov_->advance();
     switch ( res )
     {
-	case SeisMSCProvider::Error: return ErrorOccurred();
-	case SeisMSCProvider::EndReached: return Finished();
-	case SeisMSCProvider::NewPosition:
+	case Seis::MSCProvider::Error: return ErrorOccurred();
+	case Seis::MSCProvider::EndReached: return Finished();
+	case Seis::MSCProvider::NewPosition:
 	{
 	    SeisTrc* trc = mscprov_->get(0,0);
 	    BinIDValueSet::SPos pos = positions_.find( trc->info().binID() );
@@ -116,7 +114,7 @@ int SeisEventSnapper3D::nextStep()
 		nrdone_++;
 	    }
 	}
-	case SeisMSCProvider::Buffering:
+	case Seis::MSCProvider::Buffering:
 	    return MoreToDo();
     }
 

@@ -55,17 +55,22 @@ public:
 
     static Provider*	create(Seis::GeomType);
     static Provider*	create(const DBKey&,uiRetVal* uirv=0);
-    virtual		~Provider()			{}
+    static Provider*	create(const IOPar&,uiRetVal* uirv=0);
+    virtual		~Provider();
 
     uiRetVal		setInput(const DBKey&);
 
     virtual GeomType	geomType() const		= 0;
-    virtual BufferStringSet getComponentInfo() const	= 0;
-    virtual ZSampling	getZSampling() const		= 0;
+    bool		is2D() const	{ return Seis::is2D(geomType()); }
+    bool		isPS() const	{ return Seis::isPS(geomType()); }
+    BufferString	name() const;
+    uiRetVal		getComponentInfo(BufferStringSet&,
+					 TypeSet<Seis::DataType>* dts=0) const;
 
-    void		setSubsel(const SelData&);
+    void		setSelData(SelData*); //!< becomes mine
     void		setSampleInterval(float);
     void		selectComponent(int);
+    void		selectComponents(const TypeSet<int>&);
     void		forceFPData(bool yn=true);
     void		setReadMode(ReadMode);
     uiRetVal		usePar(const IOPar&);
@@ -86,6 +91,7 @@ public:
 			//!< offsets become components
 
     uiRetVal		reset() const; //!< done automatically when needed
+    const SelData*	selData() const		{ return seldata_; }
 
 protected:
 
@@ -95,7 +101,7 @@ protected:
     DBKey		dbky_;
     SelData*		seldata_;
     float		zstep_;
-    int			selcomp_;
+    TypeSet<int>	selcomps_;
     ReadMode		readmode_;
     bool		forcefpdata_;
     mutable od_int64	totalnr_;
@@ -112,6 +118,8 @@ protected:
     virtual od_int64	getTotalNrInInput() const			= 0;
     virtual void	doReset(uiRetVal&) const			= 0;
     virtual void	doUsePar(const IOPar&,uiRetVal&)		= 0;
+    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,
+				     TypeSet<Seis::DataType>&) const	= 0;
 
 			// define at least either SeisTrc or SeisTrcBuf fns
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
@@ -134,7 +142,7 @@ mExpClass(Seis) Provider3D : public Provider
 { mODTextTranslationClass(Seis::Provider3D);
 public:
 
-    virtual TrcKeySampling getHSampling() const				= 0;
+    virtual bool	getRanges(TrcKeyZSampling&) const		= 0;
     virtual void	getGeometryInfo(PosInfo::CubeData&) const	= 0;
 
 protected:
@@ -156,14 +164,20 @@ public:
 
 
     virtual int		nrLines() const					= 0;
+    virtual Pos::GeomID	geomID(int) const				= 0;
+    virtual BufferString lineName(int) const				= 0;
+    virtual int		lineNr(Pos::GeomID) const			= 0;
+    virtual int		curLineIdx() const				= 0;
+    virtual bool	getRanges(int,StepInterval<int>&,ZSampling&) const = 0;
     virtual void	getGeometryInfo(int,PosInfo::Line2DData&) const	= 0;
 
 protected:
 
 			Provider2D()					{}
 
+    int			curlidx_;
+
     virtual od_int64	getTotalNrInInput() const;
-    static int		getNrLines(const Fetcher2D&);
 
 };
 

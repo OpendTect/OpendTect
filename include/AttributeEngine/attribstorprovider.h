@@ -17,8 +17,8 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class RegularSeisDataPack;
-class SeisMSCProvider;
 class SeisTrc;
+namespace Seis { class MSCProvider; }
 
 namespace PosInfo{ class LineSet2DData; }
 
@@ -67,7 +67,7 @@ protected:
     bool		allowParallelComputation() const { return false; }
 
     //From disc
-    SeisMSCProvider*	getMSCProvider(bool&) const;
+    Seis::MSCProvider*	getMSCProvider(bool&) const;
     bool		initMSCProvider();
     bool		setMSCProvSelData();
 
@@ -101,7 +101,7 @@ protected:
     bool                useInterTrcDist() const;
 
     TypeSet<BinDataDesc> datachar_;
-    SeisMSCProvider*	mscprov_;
+    Seis::MSCProvider*	mscprov_;
     BinID		stepoutstep_;
     TrcKeyZSampling	storedvolume_;
     bool		isondisc_;

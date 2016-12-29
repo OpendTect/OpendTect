@@ -747,8 +747,8 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 	//TODO implement case !isondisc_ ?
 	bool needmscp1 = true;
 	bool needmscp2 = true;
-	SeisMSCProvider* seismscprov1 = input1->getMSCProvider( needmscp1 );
-	SeisMSCProvider* seismscprov2 = input2->getMSCProvider( needmscp2 );
+	Seis::MSCProvider* seismscprov1 = input1->getMSCProvider( needmscp1 );
+	Seis::MSCProvider* seismscprov2 = input2->getMSCProvider( needmscp2 );
 	int compres = -1;
 
 	if ( seismscprov1 && seismscprov2 )
@@ -1089,12 +1089,12 @@ const DataHolder* Provider::getDataDontCompute( const BinID& relpos ) const
 }
 
 
-SeisMSCProvider* Provider::getMSCProvider( bool& needmscprov ) const
+Seis::MSCProvider* Provider::getMSCProvider( bool& needmscprov ) const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
 	if ( !inputs_[idx] ) continue;
-	SeisMSCProvider* res = inputs_[idx]->getMSCProvider( needmscprov );
+	Seis::MSCProvider* res = inputs_[idx]->getMSCProvider( needmscprov );
 	if ( res ) return res;
     }
 

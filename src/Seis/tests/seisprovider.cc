@@ -97,32 +97,28 @@ static bool testVol()
     prTrc( "tk_1300_1200", trc, uirv );
 
     TrcKeySampling hs;
-    hs.start_.inl() = hs.start_.crl() = 500;
+    hs.start_.inl() = hs.start_.crl() = 1200;
     hs.stop_ = hs.start_;
-    Seis::RangeSelData rgsd( hs );
-    prov->setSubsel( rgsd );
+    prov->setSelData( new Seis::RangeSelData( hs ) );
     uirv = prov->getNext( trc );
     prTrc( "First next after subsel", trc, uirv );
     uirv = prov->getNext( trc );
     prTrc( "Second next after subsel", trc, uirv );
 
-    /*
     Seis::PreLoader pl( dbky );
     TextTaskRunner taskrunner( od_cout() );
     pl.setTaskRunner( taskrunner );
     TrcKeyZSampling cs( true );
-    cs.hsamp_.start_.inl() = 450;
-    cs.hsamp_.stop_.inl() = 550;
+    cs.hsamp_.start_.inl() = 1250;
+    cs.hsamp_.stop_.inl() = 1350;
     pl.load( cs );
-    rgsd.setIsAll( true );
-    prov->setSubsel( rgsd );
+    prov->setSelData( 0 );
     uirv = prov->getNext( trc );
     prTrc( "First next after preload", trc, uirv );
     uirv = prov->get( tk_1300_1200, trc );
     prTrc( "tk_1300_1200", trc, uirv );
 
     pl.unLoad();
-    */
     delete prov;
     return true;
 }
@@ -186,7 +182,13 @@ static bool testPS3D()
     uirv = prov->get( tk_1300_1200, trc );
     prTrc( "tk_1300_1200", trc, uirv, true );
 
-    BufferStringSet compnms = prov->getComponentInfo();
+    BufferStringSet compnms;
+    uirv = prov->getComponentInfo( compnms );
+    if ( uirv.isError() )
+    {
+	od_cout() << uirv << od_endl;
+	return true;
+    }
     BufferString prstr = compnms.getDispString( 4 );
     od_cout() << prstr << od_endl;
     prov->selectComponent( 1 );

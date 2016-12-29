@@ -69,6 +69,7 @@ const PS2DProvider& prov() const
 
     SeisPS2DReader*	rdr_;
     PosInfo::Line2DDataIterator* lditer_;
+    int			curlidx_;
     bool		atend_;
 
 };
@@ -80,6 +81,7 @@ void Seis::PS2DFetcher::reset()
 {
     Fetcher2D::reset();
 
+    curlidx_ = 0;
     delete lditer_; lditer_ = 0;
     delete rdr_; rdr_ = 0;
     atend_ = false;
@@ -175,7 +177,7 @@ void Seis::PS2DFetcher::getSingleAt( const TrcKey& tk, SeisTrc& trc )
 	return;
 
     SeisTrc* rdtrc = rdr_->getTrace( nexttrcky_,
-				     prov().selcomp_<0 ? 0 : prov().selcomp_ );
+			 prov().selcomps_.isEmpty() ? 0 : prov().selcomps_[0] );
     if ( !rdtrc )
 	uirv_.set( rdr_->errMsg() );
     else
@@ -229,6 +231,12 @@ Seis::PS2DProvider::~PS2DProvider()
 }
 
 
+int Seis::PS2DProvider::curLineIdx() const
+{
+    return fetcher_.curlidx_;
+}
+
+
 SeisPS2DReader* Seis::PS2DProvider::mkReader( Pos::GeomID geomid ) const
 {
     PtrMan<IOObj> ioobj = fetcher_.getIOObj();
@@ -236,103 +244,48 @@ SeisPS2DReader* Seis::PS2DProvider::mkReader( Pos::GeomID geomid ) const
 }
 
 
-static void addCompName( BufferStringSet& compnms, bool isoffs, float val )
+uiRetVal Seis::PS2DProvider::doGetComponentInfo( BufferStringSet& nms,
+			TypeSet<Seis::DataType>& dts ) const
 {
-    BufferString nm( isoffs?sKey::Offset():sKey::Azimuth(), " " );
-    nm.add( val );
-    compnms.add( nm );
-}
-
-
-BufferStringSet Seis::PS2DProvider::getComponentInfo() const
-{
-    PtrMan<SeisPS2DReader> rdrptrman;
-    const SeisPS2DReader* rdr = 0;
-    if ( fetcher_.rdr_ )
-	rdr = fetcher_.rdr_;
-    else
-    {
-	//TODO
-	// rdrptrman = mkReader( first_geomid );
-	// rdr = rdrptrman;
-    }
-
-    BufferStringSet compnms;
-    if ( !rdr )
-	return compnms;
-
-    const PosInfo::Line2DData& ld = rdr->posData();
-    if ( ld.positions().size() < 1 )
-	return compnms;
-
-    //TODO remove
-    addCompName( compnms, true, 0.f );
-
-    /*
-    const int linenr = ld.size() / 2;
-    const PosInfo::LineData& ld = *ld[linenr];
-    const int segnr = ld.segments_.size() / 2;
-    const TrcKey tk( ld.linenr_, ld.segments_[segnr].center() );
-    SeisTrcBuf tbuf( true );
-    if ( !rdr->getGather(tk,tbuf) || tbuf.isEmpty() )
-	return compnms;
-
-    float prevoffs = tbuf.get(0)->info().offset_;
-    float prevazim = tbuf.get(0)->info().azimuth_;
-    const int nrtrcs = tbuf.size();
-    bool useoffs = true;
-    if ( nrtrcs == 1 )
-	addCompName( compnms, true, prevoffs );
-    else
-    {
-	float offs = tbuf.get(1)->info().offset_;
-	float azim = tbuf.get(1)->info().azimuth_;
-	if ( !mIsEqual(azim,prevazim,1e-4f) )
-	    useoffs = !mIsEqual(offs,prevoffs,1e-4f);
-	for ( int idx=0; idx<tbuf.size(); idx++ )
-	    addCompName( compnms, useoffs,
-			 useoffs ? tbuf.get(idx)->info().offset_
-				 : tbuf.get(idx)->info().azimuth_ );
-    }
-    */
-
-    return compnms;
-}
-
-
-ZSampling Seis::PS2DProvider::getZSampling() const
-{
-    ZSampling ret;
-    if ( fetcher_.rdr_ )
-	ret = fetcher_.rdr_->getZRange();
-    else
-    {
-	//TODO
-	// PtrMan<SeisPS2DReader> rdr = mkReader();
-	// ret = rdr ? rdr->getZRange() : TrcKeyZSampling(true).zsamp_;
-    }
-    return ret;
+    return fetcher_.gtComponentInfo(nms,dts);
 }
 
 
 int Seis::PS2DProvider::nrLines() const
 {
-    return getNrLines( fetcher_ );
+    return fetcher_.gtNrLines();
+}
+
+
+Pos::GeomID Seis::PS2DProvider::geomID( int iln ) const
+{
+    return fetcher_.gtGeomID( iln );
+}
+
+
+int Seis::PS2DProvider::lineNr( Pos::GeomID geomid ) const
+{
+    return fetcher_.gtLineNr( geomid );
+}
+
+
+BufferString Seis::PS2DProvider::lineName( int iln ) const
+{
+    return fetcher_.gtLineName( iln );
 }
 
 
 void Seis::PS2DProvider::getGeometryInfo( int lidx,
 					  PosInfo::Line2DData& ld ) const
 {
-    ld.setEmpty();
-	//TODO
-	// PtrMan<SeisPS2DReader> rdr = mkReader();
-	// if ( rdr )
-	    // ld = rdr->posData();
-	// else
-	// {
-	    // There is no fallback, right?
-	// }
+    fetcher_.gtGeometryInfo( lidx, ld );
+}
+
+
+bool Seis::PS2DProvider::getRanges( int iln, StepInterval<int>& trcrg,
+	                                 ZSampling& zsamp ) const
+{
+    return fetcher_.gtRanges( iln, trcrg, zsamp );
 }
 
 

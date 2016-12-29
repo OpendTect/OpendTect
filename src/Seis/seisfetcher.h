@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 class IOObj;
 class Seis2DDataSet;
+namespace PosInfo { class Line2DData; }
 
 
 namespace Seis
@@ -42,7 +43,7 @@ public:
 
     Provider&		prov_;
     IOObj*		ioobj_;
-    uiRetVal		uirv_;
+    mutable uiRetVal	uirv_;
 
 };
 
@@ -80,19 +81,32 @@ public:
 
 			Fetcher2D( Provider& p )
 			    : Fetcher(p)
-			    , dataset_(0)	    {}
+			    , dataset_(0)
+			    , curlidx_(-1)		{}
 			~Fetcher2D();
 
     Provider2D&		prov2D();
     const Provider2D&	prov2D() const;
     void		openDataSet();
+    int			lineIdxFor(Pos::GeomID) const;
+    Pos::GeomID		curGeomID() const;
 
     Seis2DDataSet*	dataset_;
     TrcKey		nexttrcky_;
+    int			curlidx_;
 
     virtual void	reset();
 
     Seis2DDataSet*	mkDataSet() const;
+
+    uiRetVal		gtComponentInfo(BufferStringSet&,
+					TypeSet<Seis::DataType>&) const;
+    int			gtNrLines() const;
+    Pos::GeomID		gtGeomID(int) const;
+    BufferString	gtLineName(int) const;
+    int			gtLineNr(Pos::GeomID) const;
+    void		gtGeometryInfo(int,PosInfo::Line2DData&) const;
+    bool		gtRanges(int,StepInterval<int>&,ZSampling&) const;
 
 };
 
