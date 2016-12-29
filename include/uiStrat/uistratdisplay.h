@@ -11,42 +11,42 @@ ________________________________________________________________________
 -*/
 
 #include "uistratmod.h"
-#include "uigraphicsview.h"
-#include "uigraphicsitem.h"
-#include "uiaxishandler.h"
 #include "uidialog.h"
+#include "uigraphicsview.h"
+
+#include "uigraphicsitem.h"
 #include "geometry.h"
 #include "uistratdispdata.h"
 #include "uistring.h"
 
+class uiAxisHandler;
 class uiGenInput;
 class uiGraphicsScene;
 class uiLabeledSpinBox;
 class uiParent;
 class uiPolygonItem;
 class uiPolyLineItem;
-class uiTextItem;
 class uiPushButton;
+class uiStratViewControl;
+class uiTextItem;
 class uiToolButton;
-class uiStratViewControl; 
 class MouseEvent;
 
 
 
-mExpClass(uiStrat) uiStratDrawer 
-{ mODTextTranslationClass(uiStratDrawer);
+mExpClass(uiStrat) uiStratDrawer
+{ mODTextTranslationClass(uiStratDrawer)
 public:
 				uiStratDrawer(uiGraphicsScene&,
 						const StratDispData&);
 				~uiStratDrawer();
 
-    void			setZRange( StepInterval<float> rg ) 
-    				{ if ( yax_ ) yax_->setBounds(rg); }
-    
+    void			setZRange(const StepInterval<float>&);
+
     void			draw();
     void			drawColumns();
     void			setNewAxis(uiAxisHandler*,bool isx);
-    
+
     uiAxisHandler* 		xAxis() 	{ return xax_; }
     uiAxisHandler* 		yAxis() 	{ return yax_; }
     const uiAxisHandler* 	xAxis() const	{ return xax_; }
@@ -62,14 +62,14 @@ public:
 	BufferString		name_;
 	int			size_;
 	int			pos_;
-	
+
 	uiPolyLineItem*		borderitm_;
 	uiTextItem*		bordertxtitm_;
 	uiGraphicsItemSet	txtitms_;
 	uiGraphicsItemSet	unititms_;
 	uiGraphicsItemSet	lvlitms_;
     };
-    
+
     const ColumnItem&		colItem( int idx ) const
     				{ return *colitms_[idx]; }
 
@@ -79,12 +79,12 @@ protected:
     uiTextItem*			emptyitm_;
 
     uiGraphicsScene&		scene_;
-    uiAxisHandler* 		yax_; 
-    uiAxisHandler* 		xax_; 
-    
+    uiAxisHandler* 		yax_;
+    uiAxisHandler* 		xax_;
+
     //data
     const StratDispData&	data_;
-    
+
     //graphics
     void			addUnit(float);
     void			drawBorders(ColumnItem&);
@@ -93,26 +93,27 @@ protected:
     void			drawEmptyText();
     void			eraseAll();
     void			initAxis();
-    void			updateAxis(); 
+    void			updateAxis();
 };
 
 
 
 mExpClass(uiStrat) uiStratDisplay : public uiGraphicsView
-{ mODTextTranslationClass(uiStratDisplay);
+{ mODTextTranslationClass(uiStratDisplay)
 public:
 				uiStratDisplay(uiParent*,uiStratRefTree&);
 				~uiStratDisplay();
-    
+
     void			display(bool,bool shrk=false,bool max=false);
-    void			setZRange(Interval<float>);
-    
+    void			setZRange(const Interval<float>&);
+
     void			addControl(uiToolBar*);
     uiStratViewControl*		control() 	{ return uicontrol_; }
 
     void			setTree();
 
-    void			setIsLocked(bool yn ) { islocked_ = yn; }
+    void			setIsLocked( bool yn )	{ islocked_ = yn; }
+    bool			isLocked() const	{ return islocked_; }
 
 protected :
 
@@ -123,22 +124,22 @@ protected :
     StratDispData		data_;
     uiStratDrawer		drawer_;
 
-    uiGenInput*                 rangefld_;
-    uiLabeledSpinBox*           stepfld_;
+    uiGenInput*			rangefld_;
+    uiLabeledSpinBox*		stepfld_;
     uiGroup*			dispparamgrp_;
     uiPushButton*		fillbutton_;
     uiPushButton*		viewcolbutton_;
     bool			islocked_;
-    
+
     Interval<float>		maxrg_;
-   
+
     void			createDispParamGrp();
     void			setRange();
 
     bool			handleUserClick(const MouseEvent&);
 
-    int				getColIdxFromPos() const; 
-    StratDispData::Column*	getColFromPos() const; 
+    int				getColIdxFromPos() const;
+    StratDispData::Column*	getColFromPos() const;
     const StratDispData::Unit* 	getUnitFromPos() const;
     const StratDispData::Unit* 	getParentUnitFromPos() const;
     const StratDispData::Unit* 	getUnitFromPos(int colidx) const;
@@ -150,11 +151,12 @@ protected :
     void			reDraw(CallBacker*);
     void			selCols(CallBacker*);
     void			usrClickCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
 };
 
 
 mExpClass(uiStrat) uiStratViewControl : public CallBacker
-{ mODTextTranslationClass(uiStratViewControl);
+{ mODTextTranslationClass(uiStratViewControl)
 public:
 
     struct Setup
@@ -170,11 +172,11 @@ public:
 				uiStratViewControl(uiGraphicsView&,Setup&);
 				~uiStratViewControl()	{}
 
-    void			setRange( Interval<float> rg )
-    				{ range_ = rg; }	
-    const Interval<float>&	range() const 	
+    void			setRange( const Interval<float>& rg )
+    				{ range_ = rg; }
+    const Interval<float>&	range() const
     				{ return range_; }
-    
+
     void			setSensitive(bool);
 
     Notifier<uiStratViewControl> rangeChanged;
