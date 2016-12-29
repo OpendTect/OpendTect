@@ -269,9 +269,9 @@ void uiEventGroup::init()
     Interval<int> srchintv; srchintv.setFrom( intvf );
     srchgatefld_->setValue( srchintv );
 
-    llimitfld_->setRelValue( 100*adjuster_->allowedVariance() );
+    llimitfld_->setRelValue( mNINT32(100*adjuster_->allowedVariance()) );
     llimitfld_->setAbsValue( adjuster_->amplitudeThreshold() );
-    ulimitfld_->setRelValue( 100*adjuster_->allowedVariance() );
+    ulimitfld_->setRelValue( mNINT32(100*adjuster_->allowedVariance()) );
     ulimitfld_->setAbsValue( adjuster_->amplitudeThreshold() );
 
     const int sample = 2*mCast(int,SI().zStep()*SI().zDomain().userFactor());
