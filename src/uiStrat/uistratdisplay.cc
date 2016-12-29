@@ -10,19 +10,19 @@ ________________________________________________________________________
 
 #include "uistratdisplay.h"
 
-#include "uitoolbutton.h"
+#include "uiaxishandler.h"
 #include "uicolor.h"
-#include "uidialog.h"
-#include "uigeninput.h"
-#include "uigraphicsscene.h"
-#include "uigraphicsitemimpl.h"
-#include "uimenu.h"
 #include "uifont.h"
-#include "uispinbox.h"
-#include "uistratutildlgs.h"
-#include "uistratreftree.h"
-#include "uitoolbar.h"
+#include "uigeninput.h"
+#include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
+#include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uispinbox.h"
+#include "uistratreftree.h"
+#include "uistratutildlgs.h"
+#include "uitoolbar.h"
+#include "uitoolbutton.h"
 
 #include "scaler.h"
 #include "survinfo.h"
@@ -36,15 +36,19 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     , islocked_(false)
     , maxrg_(Interval<float>(0,2e3))
 {
+    uiCrossHairItem* chitm = new uiCrossHairItem( *this );
+    chitm->showLine( OD::Vertical, false );
+
     uidatagather_ = new uiStratTreeToDisp( data_ );
     uidatagather_->newtreeRead.notify( mCB(this,uiStratDisplay,reDraw) );
 
-    getMouseEventHandler().buttonReleased.notify(
-					mCB(this,uiStratDisplay,usrClickCB) );
+    MouseEventHandler& meh = getMouseEventHandler();
+    meh.buttonReleased.notify( mCB(this,uiStratDisplay,usrClickCB) );
+    meh.movement.notify( mCB(this,uiStratDisplay,mouseMoveCB) );
     reSize.notify( mCB(this,uiStratDisplay,reDraw) );
 
     disableScrollZoom();
-    setDragMode( uiGraphicsViewBase::ScrollHandDrag );
+    setDragMode( uiGraphicsView::NoDrag );
     setSceneBorder( 2 );
     setPrefWidth( 650 );
     setPrefHeight( 400 );
@@ -123,7 +127,7 @@ void uiStratDisplay::createDispParamGrp()
 
 
 class uiColViewerDlg : public uiDialog
-{ mODTextTranslationClass(uiColViewerDlg);
+{ mODTextTranslationClass(uiColViewerDlg)
 public :
     uiColViewerDlg( uiParent* p, uiStratDrawer& drawer, StratDispData& ad )
 	: uiDialog(p,uiDialog::Setup(tr("View Columns"),
@@ -184,21 +188,22 @@ protected:
 };
 
 
-void uiStratDisplay::selCols( CallBacker* cb )
+void uiStratDisplay::selCols( CallBacker* )
 {
     uiColViewerDlg dlg( parent(), drawer_, data_ );
     dlg.go();
 }
 
 
-void uiStratDisplay::reDraw( CallBacker* cb )
+void uiStratDisplay::reDraw( CallBacker* )
 {
     drawer_.draw();
 }
 
 
-void uiStratDisplay::setZRange( Interval<float> zrg )
+void uiStratDisplay::setZRange( const Interval<float>& zrgin )
 {
+    Interval<float> zrg = zrgin;
     rangefld_->setValue( zrg );
     if ( uicontrol_ )
 	uicontrol_->setRange( zrg );
@@ -215,7 +220,7 @@ void uiStratDisplay::display( bool yn, bool shrk, bool maximize )
 }
 
 
-void uiStratDisplay::dispParamChgd( CallBacker* cb )
+void uiStratDisplay::dispParamChgd( CallBacker* )
 {
     Interval<float> rg = rangefld_->getFInterval();
     if ( rg.start < maxrg_.start || rg.stop > maxrg_.stop
@@ -233,6 +238,19 @@ void uiStratDisplay::usrClickCB( CallBacker* cb )
 	return;
 
     mevh->setHandled( handleUserClick(mevh->event()) );
+}
+
+
+void uiStratDisplay::mouseMoveCB( CallBacker* )
+{
+    if ( !mainwin() ) return;
+
+    const Interval<float> agerg = rangefld_->getFInterval();
+    const float age = getPos().y_;
+    BufferString agestr; agestr.set( age, 3 );
+    uiString agetxt = agerg.includes(age,false) ? tr("Age: %1 My").arg( agestr )
+						: uiStrings::sEmptyString();
+    mainwin()->toStatusBar( agetxt, 0 );
 }
 
 
@@ -385,6 +403,13 @@ void uiStratDrawer::initAxis()
 uiStratDrawer::~uiStratDrawer()
 {
     eraseAll();
+}
+
+
+void uiStratDrawer::setZRange( const StepInterval<float>& rg )
+{
+    if ( yax_ )
+	yax_->setBounds( rg );
 }
 
 
@@ -604,16 +629,11 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
     , tb_(su.tb_)
     , boundingrange_(su.maxrg_)
 {
-    if ( tb_ )
-	tb_->addSeparator();
-    else
-    {
+    if ( !tb_ )
 	tb_ = new uiToolBar( v.parent(), toUiString("Viewer toolbar"),
-							      uiToolBar::Top );
-	mDynamicCastGet(uiMainWin*,mw,v.parent())
-	if ( mw )
-	    mw->addToolBar( tb_ );
-    }
+			     uiToolBar::Top );
+    else if ( !tb_->isEmpty() )
+	tb_->addSeparator();
 
     mDefBut(rubbandzoombut_,"rubbandzoom",dragModeCB,tr("Rubberband zoom"));
     mDefBut(vertzoominbut_,"vertzoomin",zoomCB,tr("Zoom in"));
@@ -697,7 +717,10 @@ void uiStratViewControl::wheelMoveCB( CallBacker* )
     const MouseEvent& ev = mvh.event();
     if ( mIsZero(ev.angle(),0.01) )
 	return;
-    zoomCB( ev.angle() < 0 ? vertzoominbut_ : vertzoomoutbut_ );
+
+    const bool zoomin = viewer_.getMouseWheelReversal() ?
+	ev.angle() < 0 : ev.angle() > 0;
+    zoomCB( zoomin > 0 ? vertzoominbut_ : vertzoomoutbut_ );
 }
 
 
@@ -705,7 +728,7 @@ void uiStratViewControl::dragModeCB( CallBacker* )
 {
     viewer_.setDragMode( rubbandzoombut_->isOn() ?
 			 uiGraphicsViewBase::RubberBandDrag :
-			 uiGraphicsViewBase::ScrollHandDrag );
+			 uiGraphicsViewBase::NoDrag );
 }
 
 
