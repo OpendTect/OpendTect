@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "uimpe.h"
 
+class uiCheckBox;
 class uiGenInput;
 class uiLabel;
 class uiPushButton;
@@ -26,6 +27,7 @@ namespace MPE
 
 class HorizonAdjuster;
 class SectionTracker;
+class uiAmplThresholdGrp;
 class uiPreviewGroup;
 
 
@@ -58,10 +60,10 @@ protected:
     void			visibleDataChangeCB(CallBacker*);
 
     uiGenInput*			evfld_;
+    uiCheckBox*			allowsignchgfld_;
+    uiAmplThresholdGrp*		llimitfld_;
+    uiAmplThresholdGrp*		ulimitfld_;
     uiGenInput*			srchgatefld_;
-    uiGenInput*			thresholdtypefld_;
-    uiGenInput*			ampthresholdfld_;
-    uiPushButton*		addstepbut_;
     uiGenInput*			extriffailfld_;
     uiGenInput*			nrzfld_;
     uiGenInput*			nrtrcsfld_;
