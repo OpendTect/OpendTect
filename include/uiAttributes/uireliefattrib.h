@@ -17,6 +17,7 @@ ________________________________________________________________________
 namespace Attrib { class Desc; }
 
 class uiAttrSel;
+class uiGenInput;
 
 /*!
 \brief Pseudo %Relief Attribute description editor
@@ -31,6 +32,7 @@ public:
 protected:
 
     uiAttrSel*		inpfld_;
+    uiGenInput*		gatefld_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
