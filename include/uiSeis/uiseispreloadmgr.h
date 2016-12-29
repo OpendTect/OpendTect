@@ -87,7 +87,10 @@ protected:
 
     uiSeisSel*			seissel_;
     uiSeisSubSel*		subselfld_;
+    uiGenInput*			formatdiskfld_;
+    uiGenInput*			sizediskfld_;
     uiGenInput*			typefld_;
+    uiGenInput*			memusagefld_;
     uiMapperRangeEditor*	histfld_;
     uiGenInput*			nrtrcsfld_;
     uiGenInput*			doscalefld_;
