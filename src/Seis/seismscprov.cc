@@ -168,7 +168,7 @@ int Seis::MSCProvider::estimatedNrTraces() const
     {
 	estnrtrcs_ = -1;
 	if ( prov_ )
-	    estnrtrcs_ = prov_->totalNr();
+	    estnrtrcs_ = mCast(int,prov_->totalNr());
     }
     return estnrtrcs_;
 }
@@ -252,8 +252,8 @@ bool Seis::MSCProvider::readTrace( SeisTrc& trc )
 		prov2d->getGeometryInfo( prov2d->curLineIdx(), l2dd );
 		if ( l2dd.size() > 1 )
 		{
-		    const float avgstep = l2dd.trcNrRange().width()
-					  / (l2dd.size()-1);
+		    const float avgstep = mCast(float,l2dd.trcNrRange().width()
+					  / (l2dd.size()-1));
 		    if ( avgstep > 1.5 )
 			stepoutstep_.crl() = mNINT32( avgstep );
 		}
