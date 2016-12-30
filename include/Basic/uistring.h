@@ -337,6 +337,8 @@ private:
 
 mGlobal(Basic) bool isFinished(const uiRetVal&);
 mGlobal(Basic) bool isCancelled(const uiRetVal&);
+mGlobal(Basic) uiString toUiString(float,char format,int precision);
+mGlobal(Basic) uiString toUiString(double,char format,int precision);
 
 
 //User when string should be revisited later

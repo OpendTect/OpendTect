@@ -826,6 +826,14 @@ uiString toUiString( double v, int prec )
 { return toUiStringWithPrecisionImpl<double,double>( v, prec ); }
 
 
+uiString toUiString( float v, char format, int precision )
+{ return uiString().set( toString(v,format,precision) ); }
+
+
+uiString toUiString( double v, char format, int precision )
+{ return uiString().set( toString(v,format,precision) ); }
+
+
 uiString od_static_tr( const char* func, const char* text,
 		       const char* disambiguation, int pluralnr )
 {
