@@ -28,22 +28,23 @@ namespace Strat {
 
 /*!\brief Displays a Strat::RefTree */
 
-mExpClass(uiStrat) uiStratRefTree : public CallBacker 
-{ mODTextTranslationClass(uiStratRefTree);
+mExpClass(uiStrat) uiStratRefTree : public CallBacker
+{ mODTextTranslationClass(uiStratRefTree)
 public:
 
 			uiStratRefTree(uiParent*);
 			~uiStratRefTree();
 
+    void		setTree();
     void		setTree(Strat::RefTree&,bool force =false);
-    
+
     const Strat::RefTree* tree() const 		{ return tree_; }
 
     uiTreeView*		treeView()		{ return lv_; }
     const uiTreeView*	treeView() const	{ return lv_; }
     uiTreeViewItem* 	getLVItFromFullCode(const char*) const;
-    void                expand(bool) const;
-    void                makeTreeEditable(bool) const;
+    void		expand(bool) const;
+    void		makeTreeEditable(bool) const;
     void		handleMenu(uiTreeViewItem*);
     void		updateUnitsPixmaps();
     void		updateLithoCol();
@@ -77,22 +78,21 @@ protected:
 
     BufferString	getFullCodeFromLVIt(const uiTreeViewItem*) const;
     void		insertUnitInLVIT(uiTreeViewItem*,int,
-				    const Strat::UnitRef&) const; 
+					 const Strat::UnitRef&) const;
 
     void		addNode(uiTreeViewItem*,const Strat::NodeUnitRef&,bool);
-    uiPixmap*		createUnitPixmap(const Color& col) const;
+    uiPixmap*		createUnitPixmap(const Color&) const;
     			//becomes yours!
     Strat::NodeUnitRef* replaceUnit(Strat::NodeUnitRef&,bool byleaved);
-    void		addLithologies(Strat::LeavedUnitRef&,const 
-                        TypeSet<int>&);
+    void		addLithologies(Strat::LeavedUnitRef&,
+				       const TypeSet<int>&);
 
     void		setNodesDefaultTimes(const Strat::NodeUnitRef&);
     void 		getAvailableTime(const Strat::NodeUnitRef&,
-	    					Interval<float>&) const;
+	    				 Interval<float>&) const;
     void		ensureUnitTimeOK(Strat::NodeUnitRef&);
     int			getChildIdxFromTime(const Strat::NodeUnitRef&,
-	    						float)const;
-
+	    				    float) const;
 
     friend class 	uiStratDispToTree;
 };

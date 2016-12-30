@@ -67,6 +67,12 @@ uiStratRefTree::~uiStratRefTree()
 }
 
 
+void uiStratRefTree::setTree()
+{
+    setTree( Strat::eRT(), true );
+}
+
+
 void uiStratRefTree::setTree( Strat::RefTree& rt, bool force )
 {
     if ( !force && &rt == tree_ ) return;
@@ -234,7 +240,6 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 
     if ( parun->isLeaved() )
     {
-	TypeSet<int> lithids;
 	const Strat::LeavedUnitRef& lvdun = (Strat::LeavedUnitRef&)(*parun);
 	tmpun.setLevelID( lvdun.levelID() );
 	for ( int iref = 0; iref<lvdun.nrRefs(); iref++ )
@@ -400,7 +405,7 @@ void uiStratRefTree::removeUnit( uiTreeViewItem* lvit )
     Strat::NodeUnitRef* upnode = un->upNode();
     if ( !upnode ) return;
 
-    TypeSet<int> lithids; 
+    TypeSet<int> lithids;
     Level::ID lvlid = Level::ID::getInvalid();
     if ( un->isLeaved() )
     {
@@ -562,7 +567,7 @@ void uiStratRefTree::moveUnit( bool up )
 
     curit->setOpen( isexpanded );
     lv_->setCurrentItem(curit);
-    
+
     Strat::UnitRef* curun = tree_->find( getFullCodeFromLVIt(curit) );
     if ( !curun )
 	return;
