@@ -21,7 +21,7 @@ namespace Stats { template <class T> class ParallelCalc; }
 
 
 mExpClass(uiTools) uiStatsDisplay : public uiGroup
-{ mODTextTranslationClass(uiStatsDisplay);
+{ mODTextTranslationClass(uiStatsDisplay)
 public:
 
     struct Setup
@@ -39,14 +39,15 @@ public:
 	mDefSetupMemb(bool,vertaxis)
 	mDefSetupMemb(bool,countinplot)
     };
+
 				uiStatsDisplay(uiParent*,const Setup&);
 
-    bool                        setDataPackID(DataPack::ID,DataPackMgr::ID);
+    bool			setDataPackID(DataPack::ID,DataPackMgr::ID);
     void			setData(const float*,int sz);
     void			setData(const Array2D<float>*);
     void			setDataName(const char*);
 
-    uiHistogramDisplay*         funcDisp()        { return histgramdisp_; }
+    uiHistogramDisplay*		funcDisp()	{ return histgramdisp_; }
     void			setMarkValue(float,bool forx);
     void			usePar(const IOPar&);
 

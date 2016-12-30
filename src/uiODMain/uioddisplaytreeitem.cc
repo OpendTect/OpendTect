@@ -444,7 +444,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==histogrammnuitem_.id )
     {
-	visserv_->displayMapperRangeEditForAttrbs( displayID() );
+	visserv_->displayMapperRangeEditForAttribs( displayID() );
     }
     else if ( mnuid==hidemnuitem_.id )
     {

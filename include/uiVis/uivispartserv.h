@@ -301,7 +301,8 @@ public:
 
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
 
-    void			displayMapperRangeEditForAttrbs(int id);
+    void			displayMapperRangeEditForAttribs(int id,
+								 int attrib=-1);
 
     static int			evColorTableChange();
     void			displaySceneColorbar(bool);

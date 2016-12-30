@@ -18,8 +18,6 @@ ___________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
-#include "uistatsdisplay.h"
-#include "uistatsdisplaywin.h"
 #include "uiseisamplspectrum.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
@@ -102,7 +100,6 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , parenttype_(parenttype)
     , visserv_(ODMainWin()->applMgr().visServer())
     , menu_(0)
-    , statswin_(0)
     , ampspectrumwin_(0)
     , fkspectrumwin_(0)
     , probelayer_(0)
@@ -142,7 +139,6 @@ uiODDataTreeItem::~uiODDataTreeItem()
 	menu_->unRef();
     }
 
-    delete statswin_;
     delete ampspectrumwin_;
 
     MenuHandler* tb = visserv_->getToolBarHandler();
@@ -457,14 +453,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 	if ( mnuid==statisticsitem_.id )
 	{
-	    uiStatsDisplay::Setup su; su.countinplot( false );
-	    delete statswin_;
-	    statswin_ =
-		new uiStatsDisplayWin( applMgr()->applService().parent(), su,
-				       1, false );
-	    statswin_->statsDisplay()->setDataPackID( dpid, dmid );
-	    statswin_->setDataName( DPM(dmid).nameOf(dpid)  );
-	    statswin_->show();
+	    visserv_->displayMapperRangeEditForAttribs( visid, attribid );
 	    menu->setIsHandled( true );
 	}
 	else if ( mnuid==amplspectrumitem_.id || mnuid==fkspectrumitem_.id )
