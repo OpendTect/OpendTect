@@ -90,6 +90,13 @@ Seis::SelData* Seis::SelData::get( const Pos::Provider& prov )
 }
 
 
+bool Seis::SelData::isOK( const TrcKey& tk ) const
+{
+    return tk.is2D() ? isOK( BinID(tk.lineNr(),tk.trcNr()) )
+		     : isOK( tk.position() );
+}
+
+
 Interval<int> Seis::SelData::inlRange() const
 {
     return TrcKeySampling(true).inlRange();

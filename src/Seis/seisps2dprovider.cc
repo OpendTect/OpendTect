@@ -69,7 +69,6 @@ const PS2DProvider& prov() const
 
     SeisPS2DReader*	rdr_;
     PosInfo::Line2DDataIterator* lditer_;
-    int			curlidx_;
     bool		atend_;
 
 };
@@ -81,7 +80,6 @@ void Seis::PS2DFetcher::reset()
 {
     Fetcher2D::reset();
 
-    curlidx_ = 0;
     delete lditer_; lditer_ = 0;
     delete rdr_; rdr_ = 0;
     atend_ = false;
@@ -110,13 +108,15 @@ bool Seis::PS2DFetcher::openReader( Pos::GeomID geomid )
     }
 
     lditer_ = new PosInfo::Line2DDataIterator( rdr_->posData() );
-    nexttrcky_.setGeomID( geomid );
     if ( !lditer_->next() )
     {
 	uirv_ = tr( "Empty line" );
 	return false;
     }
 
+    curlidx_ = dataset_->indexOf( geomid );
+    nexttrcky_.setLineNr( curlidx_ );
+    nexttrcky_.setGeomID( geomid );
     nexttrcky_.setTrcNr( lditer_->trcNr() );
     return true;
 }
@@ -125,23 +125,28 @@ bool Seis::PS2DFetcher::openReader( Pos::GeomID geomid )
 void Seis::PS2DFetcher::moveNextTrcKey()
 {
     atend_ = !lditer_->next();
-
-    if ( atend_ )
+    while ( atend_ )
     {
-	// At end of this line ...
-	int linenr = dataset_->indexOf( nexttrcky_.geomID() );
-	while ( atend_ && linenr < dataset_->nrLines()-1 )
+	if ( !toNextLine() )
+	    return;
+
+	nexttrcky_.setLineNr( curlidx_ );
+	nexttrcky_.setGeomID( dataset_->geomID(curlidx_) );
+	if ( openReader(nexttrcky_.geomID()) )
 	{
-	    linenr++;
-	    nexttrcky_.setGeomID( dataset_->geomID(linenr) );
-	    if ( openReader(nexttrcky_.geomID()) )
-		atend_ = !lditer_->next();
+	    const Seis::SelData* sd = prov2D().selData();
+	    do
+	    {
+		nexttrcky_.setTrcNr( lditer_->trcNr() );
+		if ( !sd || sd->isOK(nexttrcky_) )
+		{
+		    atend_ = false;
+		    break;
+		}
+	    }
+	    while ( lditer_->next() );
 	}
     }
-
-	// atend_ now indicates the end of everything
-    if ( !atend_ )
-	nexttrcky_.setLineNr( lditer_->trcNr() );
 }
 
 

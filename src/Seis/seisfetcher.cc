@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "seisfetcher.h"
 #include "seisprovider.h"
 #include "seisioobjinfo.h"
-#include "seisselection.h"
+#include "seisselectionimpl.h"
 #include "seis2ddata.h"
 #include "posinfo2d.h"
 #include "dbman.h"
@@ -168,6 +168,41 @@ void Seis::Fetcher2D::openDataSet()
 	uirv_ = tr( "Cannot find any data for this attribute" );
 	delete dataset_; dataset_ = 0;
     }
+}
+
+
+bool Seis::Fetcher2D::toNextLine()
+{
+    if ( !dataset_ )
+	return false;
+
+    curlidx_++;
+    if ( curlidx_ >= dataset_->nrLines() )
+	return false;
+
+    const Seis::SelData* sd = prov2D().seldata_;
+    const bool issingleline = mIsSingleLine( sd );
+    const bool istable = sd && sd->type() == Seis::Table;
+
+    if ( issingleline )
+    {
+	curlidx_ = lineIdxFor( sd->geomID() );
+	if ( curlidx_ < 0 )
+	    return false;
+    }
+    else if ( istable )
+    {
+	mDynamicCastGet(const Seis::TableSelData*,tsd,sd)
+	while ( !dataset_->haveMatch(dataset_->geomID(curlidx_),
+				     tsd->binidValueSet()) )
+	{
+	    curlidx_++;
+	    if ( curlidx_ >= dataset_->nrLines() )
+		return false;
+	}
+    }
+
+    return true;
 }
 
 

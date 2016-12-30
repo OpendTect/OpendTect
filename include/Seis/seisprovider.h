@@ -175,8 +175,6 @@ protected:
 
 			Provider2D()					{}
 
-    int			curlidx_;
-
     virtual od_int64	getTotalNrInInput() const;
 
 };

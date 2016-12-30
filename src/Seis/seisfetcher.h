@@ -88,6 +88,7 @@ public:
     Provider2D&		prov2D();
     const Provider2D&	prov2D() const;
     void		openDataSet();
+    bool		toNextLine();
     int			lineIdxFor(Pos::GeomID) const;
     Pos::GeomID		curGeomID() const;
 
@@ -109,6 +110,9 @@ public:
     bool		gtRanges(int,StepInterval<int>&,ZSampling&) const;
 
 };
+
+
+#define mIsSingleLine(sd) (sd && !mIsUdfGeomID(sd->geomID()))
 
 
 

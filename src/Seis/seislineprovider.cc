@@ -10,11 +10,10 @@ ________________________________________________________________________
 
 #include "seislineprovider.h"
 #include "seisfetcher.h"
-// #include "seis2dlineio.h"
 #include "seis2ddata.h"
+#include "seisselection.h"
 #include "seisbuf.h"
 #include "uistrings.h"
-#include "seisselectionimpl.h"
 #include "posinfo2d.h"
 #include "survgeom.h"
 
@@ -66,7 +65,6 @@ const LineProvider& prov() const
 }
 
     void		reset();
-    void		openFirst();
     bool		createGetter();
     bool		getNextGetter();
     bool		getFromBuf(int,SeisTrc&);
@@ -87,13 +85,7 @@ void Seis::LineFetcher::reset()
 {
     Fetcher2D::reset();
     delete getter_; getter_ = 0;
-    curlidx_ = -1;
-    openFirst();
-}
 
-
-void Seis::LineFetcher::openFirst()
-{
     openDataSet();
     if ( !uirv_.isOK() )
 	return;
@@ -103,41 +95,15 @@ void Seis::LineFetcher::openFirst()
 }
 
 
-#define mIsSingleLine(sd) (sd && !mIsUdfGeomID(sd->geomID()))
-
-
 bool Seis::LineFetcher::getNextGetter()
 {
     delete getter_; getter_ = 0;
     tbuf_.deepErase();
 
-    curlidx_++;
-    if ( curlidx_ >= dataset_->nrLines() )
+    if ( !toNextLine() )
 	return false;
 
-    const Seis::SelData* sd = prov().seldata_;
-    const bool issingleline = mIsSingleLine( sd );
-    const bool istable = sd && sd->type() == Seis::Table;
-
-    if ( issingleline )
-    {
-	curlidx_ = lineIdxFor( sd->geomID() );
-	if ( curlidx_ < 0 )
-	    return false;
-    }
-    else if ( istable )
-    {
-	mDynamicCastGet(const Seis::TableSelData*,tsd,sd)
-	while ( !dataset_->haveMatch(dataset_->geomID(curlidx_),
-				     tsd->binidValueSet()) )
-	{
-	    curlidx_++;
-	    if ( curlidx_ >= dataset_->nrLines() )
-		return false;
-	}
-    }
-
-    getter_ = dataset_->lineGetter( curGeomID(), tbuf_, 1, sd );
+    getter_ = dataset_->lineGetter( curGeomID(), tbuf_, 1, prov2D().selData() );
     return getter_ ? true : getNextGetter();
 }
 
