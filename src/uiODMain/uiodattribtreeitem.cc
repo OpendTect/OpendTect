@@ -40,6 +40,7 @@ ___________________________________________________________________
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uishortcutsmgr.h"
 #include "uistrings.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
@@ -91,6 +92,8 @@ bool uiODAttribTreeItem::init()
     if ( parent_->nrChildren()>1 )
 	so->addAttrib();//For first child attrib is automatically added
 
+    keyPressed()->notify( mCB(this,uiODAttribTreeItem,keyPressCB) );
+
 
     return uiODDataTreeItem::init();
 }
@@ -111,6 +114,15 @@ bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
     applMgr()->updateColorTable( displayID(), attribNr() );
 
     return true;
+}
+
+
+void uiODAttribTreeItem::keyPressCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(uiKeyDesc,kd,cb);
+
+    if ( kd.key()==OD::KB_PageUp || kd.key()==OD::KB_PageDown )
+        applMgr()->pageUpDownPressed( kd.key()==OD::KB_PageUp );
 }
 
 
@@ -311,9 +323,20 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
-    uiString dispname( as
-	    ? toUiString(as->userRef())
-	    : uiString::emptyString() );
+    uiString dispname = uiString::emptyString();
+    if ( as )
+    {
+	const int nrtextures = visserv->nrTextures( visid, attrib );
+	const int curidx = visserv->selectedTexture( visid, attrib );
+	if ( nrtextures > 1 )
+	{
+	    BufferString str;
+	    str.add( curidx ).add( "/" ).add( nrtextures ).addSpace();
+	    dispname.append( toUiString(str) );
+	}
+	dispname.append( toUiString(as->userRef()) );
+    }
+
     if ( as && as->isNLA() )
     {
 	dispname = toUiString(as->objectRef());

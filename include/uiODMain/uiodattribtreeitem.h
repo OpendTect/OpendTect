@@ -37,6 +37,7 @@ public:
 protected:
 
     bool		anyButtonClick(uiTreeViewItem*);
+    void		keyPressCB(CallBacker*);
 
     virtual bool	init();
     void		createMenu(MenuHandler*,bool istb);
