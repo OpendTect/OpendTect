@@ -185,11 +185,11 @@ void uiMapperRangeEditor::drawText()
 	return;
 
     const int posy = histogramdisp_->height() / 3;
-    minvaltext_->setText( toUiString(cliprg_.start) );
+    minvaltext_->setText( toUiString(cliprg_.start,'g',6) );
     minvaltext_->setPos( uiPoint(startpix_-2,posy) );
     minvaltext_->show();
 
-    maxvaltext_->setText( toUiString(cliprg_.stop) );
+    maxvaltext_->setText( toUiString(cliprg_.stop,'g',6) );
     maxvaltext_->setPos( uiPoint(stoppix_+2,posy) );
     maxvaltext_->show();
 }
