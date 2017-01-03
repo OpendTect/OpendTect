@@ -30,7 +30,7 @@ class uiTreeView;
 class uiParent;
 
 mExpClass(uiTools) uiTreeItem : public CallBacker
-{
+{ mODTextTranslationClass(uiTreeItem)
 public:
 				uiTreeItem(const uiString& nm=
 					   uiString::emptyString() );
@@ -231,7 +231,7 @@ protected:
 
 
 mExpClass(uiTools) uiTreeTopItem : public uiTreeItem
-{
+{ mODTextTranslationClass(uiTreeTopItem)
 public:
 			uiTreeTopItem(uiTreeView*, bool=false );
 			~uiTreeTopItem();
