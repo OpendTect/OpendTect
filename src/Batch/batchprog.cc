@@ -159,6 +159,10 @@ void BatchProgram::init()
 	mSetDataRootVar( res );
 	iopar_->set( sKey::DataRoot(), res );
     }
+    else
+    {
+	(void)DBM(); // force establishing some defaults
+    }
 
     if ( !iopar_->get(sKey::Survey(),res) )
     {
