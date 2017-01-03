@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uioddisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
+#include "uishortcutsmgr.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
 #include "uiseisamplspectrum.h"
@@ -121,6 +122,9 @@ bool uiODDataTreeItem::init()
     tb->createnotifier.notify( mCB(this,uiODDataTreeItem,addToToolBarCB) );
     tb->handlenotifier.notify( mCB(this,uiODDataTreeItem,handleMenuCB) );
 
+    if ( keyPressed() )
+	keyPressed()->notify( mCB(this,uiODDataTreeItem,keyPressCB) );
+
     return uiTreeItem::init();
 }
 
@@ -128,6 +132,15 @@ bool uiODDataTreeItem::init()
 void uiODDataTreeItem::checkCB( CallBacker* cb )
 {
     visserv_->enableAttrib( displayID(), attribNr(), isChecked() );
+}
+
+
+void uiODDataTreeItem::keyPressCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(uiKeyDesc,kd,cb);
+
+    if ( kd.key()==OD::KB_PageUp || kd.key()==OD::KB_PageDown )
+	applMgr()->pageUpDownPressed( kd.key()==OD::KB_PageUp );
 }
 
 

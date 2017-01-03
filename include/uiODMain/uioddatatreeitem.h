@@ -56,6 +56,7 @@ protected:
     virtual bool		init();
 
     virtual void		checkCB(CallBacker*);
+    void			keyPressCB(CallBacker*);
     bool			shouldSelect(int) const;
 
     virtual bool		hasTransparencyMenu() const { return true; }
