@@ -687,14 +687,15 @@ SequentialReader::~SequentialReader()
 {
     delete &rdr_; delete ioobj_;
     delete scaler_;
+
+    DPM( DataPackMgr::SeisID() ).release( dp_ );
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
+
     delete seisseqrdroutcompmgr.getParam( this );
     deepErase( *seisseqrdrcompscalers.getParam( this ) );
     delete seisseqrdrcompscalers.getParam( this );
     seisseqrdroutcompmgr.removeParam( this );
     seisseqrdrcompscalers.removeParam( this );
-
-    DPM( DataPackMgr::SeisID() ).release( dp_ );
-    Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
 
 
