@@ -163,7 +163,7 @@ bool SeisCBVS2DLineIOProvider::renameImpl( const IOObj& obj,
 }
 
 
-bool SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
+uiRetVal SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
 					   TypeSet<Pos::GeomID>& geomids ) const
 {
     geomids.erase();
@@ -178,7 +178,7 @@ bool SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
 	geomids += geomid;
     }
 
-    return true;
+    return uiRetVal::OK();
 }
 
 
@@ -186,7 +186,7 @@ bool SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
 #define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
 
 SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
-					    int ntps, const Seis::SelData& sd )
+					    int ntps, const Seis::SelData* sd )
 	: Seis2DLineGetter(b,ntps,sd)
 	, curnr_(0)
 	, totnr_(0)
@@ -196,10 +196,11 @@ SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
 {
     geomid_ = getGeomIDFromFileName( fname_ );
     tr_ = gtTransl( fname_, false, &msg_ );
-    if ( !tr_ ) return;
+    if ( !tr_ )
+	return;
 
-    if ( !sd.isAll() && sd.type() == Seis::Range )
-	tr_->setSelData( seldata_ );
+    tr_->setSelData( seldata_ );
+    seldata_ = 0;
 
     totnr_ = tr_->packetInfo().crlrg.nrSteps() + 1;
 }
@@ -210,8 +211,12 @@ SeisCBVS2DLineGetter::~SeisCBVS2DLineGetter()
     delete tr_;
 }
 
+
 const SeisTrcTranslator* SeisCBVS2DLineGetter::translator() const
-{ return tr_; }
+{
+    return tr_;
+}
+
 
 void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
 {
@@ -275,25 +280,24 @@ int SeisCBVS2DLineGetter::nextStep()
 #define mErrRet(s) { errmsg = s; return 0; }
 
 
-bool SeisCBVS2DLineIOProvider::getGeometry( const IOObj& obj,
+uiRetVal SeisCBVS2DLineIOProvider::getGeometry( const IOObj& obj,
 			Pos::GeomID geomid, PosInfo::Line2DData& geom ) const
 {
+    uiRetVal uirv;
     geom.setEmpty();
     BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
-	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
-	errmsg += "' does not exist";
-	ErrMsg( errmsg );
-	return false;
+	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
+	return uirv;
     }
 
     uiString errmsg;
     PtrMan<CBVSSeisTrcTranslator> trans = gtTransl( fnm, false, &errmsg );
     if ( !trans )
     {
-	ErrMsg( errmsg.getFullString() );
-	return false;
+	uirv.set( errmsg );
+	return uirv;
     }
 
     const CBVSInfo& cbvsinf = trans->readMgr()->info();
@@ -312,33 +316,38 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOObj& obj,
 	geom.add( p );
     }
 
-    return true;
+    return uirv;
 }
 
 
-Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOObj& obj,
-						Pos::GeomID geomid,
-						SeisTrcBuf& tbuf, int ntps,
-						const Seis::SelData* sd )
+Seis2DTraceGetter* SeisCBVS2DLineIOProvider::getTraceGetter( const IOObj& obj,
+			Pos::GeomID geomid, uiRetVal& uirv )
 {
     const OD::String& fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
-	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
-	errmsg += "' does not exist";
-	ErrMsg( errmsg );
+	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
 	return 0;
     }
 
-    const Seis::SelData* usedsd = sd;
-    PtrMan<Seis::SelData> tmpsd = 0;
-    if ( !usedsd )
+    // return new SeisCBVS2DTraceGetter( fnm );
+    uirv.set( mTODONotImplPhrase() );
+    return 0;
+}
+
+
+Seis2DLineGetter* SeisCBVS2DLineIOProvider::getLineGetter( const IOObj& obj,
+			    Pos::GeomID geomid, SeisTrcBuf& tbuf,
+			    const Seis::SelData* sd, uiRetVal& uirv, int npts )
+{
+    const OD::String& fnm = getFileName( obj, geomid );
+    if ( fnm.isEmpty() || !File::exists(fnm) )
     {
-	tmpsd = Seis::SelData::get(Seis::Range);
-	usedsd = tmpsd;
+	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
+	return 0;
     }
 
-    return new SeisCBVS2DLineGetter( fnm, tbuf, ntps, *usedsd );
+    return new SeisCBVS2DLineGetter( fnm, tbuf, npts, sd );
 }
 
 
@@ -346,8 +355,12 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOObj& obj,
 #define mErrRet(s) { pErrMsg( s ); return 0; }
 
 Seis2DLinePutter* SeisCBVS2DLineIOProvider::getPutter( const IOObj& obj,
-						       Pos::GeomID geomid )
-{ return new SeisCBVS2DLinePutter( obj, geomid ); }
+				   Pos::GeomID geomid, uiRetVal& uirv )
+{
+    SeisCBVS2DLinePutter* ret = new SeisCBVS2DLinePutter( obj, geomid );
+    uirv.set( ret->errMsg() );
+    return ret;
+}
 
 
 //-------------------SeisCBVS2DLinePutter-----------------
@@ -362,11 +375,11 @@ SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const IOObj& obj,
     tr_->set2D( true );
     bid_.inl() = geomid;
     File::Path fp( fname_ );
-    if ( !File::exists(fp.pathOnly()) )
-	File::createDir( fp.pathOnly() );
-
+    const BufferString dirnm( fp.pathOnly() );
     DataCharacteristics::UserTypeDef().parse(
 	    obj.pars().find(sKey::DataStorage()), preseldt_ );
+    if ( !File::exists(dirnm) && !File::createDir(dirnm) )
+	errmsg_ = tr("Cannot create directory '%1'").arg(fp.pathOnly() );
 }
 
 
@@ -414,11 +427,13 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
     return true;
 }
 
+
 bool SeisCBVS2DLinePutter::close()
 {
     if ( !tr_ ) return true;
     tr_->setIs2D( true );
     bool ret = tr_->close();
-    if ( ret ) errmsg_ = tr_->errMsg();
+    if ( !ret )
+	errmsg_ = tr_->errMsg();
     return ret;
 }

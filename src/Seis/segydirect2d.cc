@@ -24,6 +24,7 @@
 #include "seisbuf.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 #define mCapChar '^'
 
@@ -150,7 +151,7 @@ bool SEGYDirect2DLineIOProvider::renameImpl( const IOObj& obj,
 }
 
 
-bool SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
+uiRetVal SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
 					   TypeSet<Pos::GeomID>& geomids ) const
 {
     geomids.erase();
@@ -165,7 +166,7 @@ bool SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
 	geomids += geomid;
     }
 
-    return true;
+    return uiRetVal::OK();
 }
 
 
@@ -173,7 +174,7 @@ bool SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
 #define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
 
 SEGYDirect2DLineGetter::SEGYDirect2DLineGetter( const char* fnm, SeisTrcBuf& b,
-					    int ntps, const Seis::SelData& sd )
+					    int ntps, const Seis::SelData* sd )
 	: Seis2DLineGetter(b,ntps,sd)
 	, curnr_(0)
 	, totnr_(0)
@@ -184,7 +185,7 @@ SEGYDirect2DLineGetter::SEGYDirect2DLineGetter( const char* fnm, SeisTrcBuf& b,
     tr_ = gtTransl( fname_ );
     if ( !tr_ ) return;
 
-    if ( !sd.isAll() && sd.type() == Seis::Range )
+    if ( seldata_ && !seldata_->isAll() && seldata_->type() == Seis::Range )
 	tr_->setSelData( seldata_ );
 
     totnr_ = tr_->packetInfo().crlrg.nrSteps() + 1;
@@ -256,36 +257,43 @@ int SEGYDirect2DLineGetter::nextStep()
 #define mErrRet(s) { errmsg = s; return 0; }
 
 
-bool SEGYDirect2DLineIOProvider::getGeometry( const IOObj& obj,
-			Pos::GeomID geomid, PosInfo::Line2DData& geom ) const
+uiRetVal SEGYDirect2DLineIOProvider::getGeometry( const IOObj& obj,
+		Pos::GeomID geomid, PosInfo::Line2DData& geom ) const
 {
-    return false;
+    uiRetVal uirv;
+    uirv.set( mTODONotImplPhrase() );
+    return uirv;
 }
 
 
-Executor* SEGYDirect2DLineIOProvider::getFetcher( const IOObj& obj,
-						Pos::GeomID geomid,
-						SeisTrcBuf& tbuf, int ntps,
-						const Seis::SelData* sd )
+Seis2DTraceGetter* SEGYDirect2DLineIOProvider::getTraceGetter( const IOObj& obj,
+			Pos::GeomID geomid, uiRetVal& uirv )
 {
     const OD::String& fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
-	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
-	errmsg += "' does not exist";
-	ErrMsg( errmsg );
+	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
 	return 0;
     }
 
-    const Seis::SelData* usedsd = sd;
-    PtrMan<Seis::SelData> tmpsd = 0;
-    if ( !usedsd )
+    // return new SEGYDirect2DTraceGetter( fnm );
+    uirv.set( mTODONotImplPhrase() );
+    return 0;
+}
+
+
+Seis2DLineGetter* SEGYDirect2DLineIOProvider::getLineGetter( const IOObj& obj,
+			Pos::GeomID geomid, SeisTrcBuf& tbuf,
+			const Seis::SelData* sd, uiRetVal& uirv, int ntps )
+{
+    const OD::String& fnm = getFileName( obj, geomid );
+    if ( fnm.isEmpty() || !File::exists(fnm) )
     {
-	tmpsd = Seis::SelData::get(Seis::Range);
-	usedsd = tmpsd;
+	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
+	return 0;
     }
 
-    return new SEGYDirect2DLineGetter( fnm, tbuf, ntps, *usedsd );
+    return new SEGYDirect2DLineGetter( fnm, tbuf, ntps, sd );
 }
 
 
@@ -293,8 +301,12 @@ Executor* SEGYDirect2DLineIOProvider::getFetcher( const IOObj& obj,
 #define mErrRet(s) { pErrMsg( s ); return 0; }
 
 Seis2DLinePutter* SEGYDirect2DLineIOProvider::getPutter( const IOObj& obj,
-						       Pos::GeomID geomid )
-{ return new SEGYDirect2DLinePutter( obj, geomid ); }
+					   Pos::GeomID geomid, uiRetVal& uirv )
+{
+    SEGYDirect2DLinePutter* ret = new SEGYDirect2DLinePutter( obj, geomid );
+    uirv.set( ret->errMsg() );
+    return ret;
+}
 
 
 //-------------------SEGYDirect2DLinePutter-----------------

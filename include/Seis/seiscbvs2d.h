@@ -20,19 +20,20 @@ namespace PosInfo { class Line2DData; }
 
 
 mExpClass(Seis) SeisCBVS2DLineIOProvider : public Seis2DLineIOProvider
-{
+{ mODTextTranslationClass(SeisCBVS2DLineIOProvider);
 public:
 
 			SeisCBVS2DLineIOProvider();
 
     bool		isEmpty(const IOObj&,Pos::GeomID) const;
 
-    bool		getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const;
-    bool		getGeometry(const IOObj&,Pos::GeomID,
+    uiRetVal		getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const;
+    uiRetVal		getGeometry(const IOObj&,Pos::GeomID,
 				    PosInfo::Line2DData&) const;
-    Executor*		getFetcher(const IOObj&,Pos::GeomID,SeisTrcBuf&,int,
-				   const Seis::SelData* sd=0);
-    Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID);
+    Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,uiRetVal&);
+    Seis2DLineGetter*	getLineGetter(const IOObj&,Pos::GeomID,SeisTrcBuf&,
+				   const Seis::SelData*,uiRetVal&,int ntrc=16);
+    Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID,uiRetVal&);
 
     bool		getTxtInfo(const IOObj&,Pos::GeomID,BufferString&,
 				   BufferString&) const;
@@ -77,7 +78,7 @@ class SeisCBVS2DLineGetter : public Seis2DLineGetter
 public:
 			SeisCBVS2DLineGetter(const char* fnm,SeisTrcBuf&,
 					     int trcsperstep,
-					     const Seis::SelData&);
+					     const Seis::SelData*);
 			~SeisCBVS2DLineGetter();
 
     od_int64		nrDone() const		{ return curnr_; }

@@ -38,14 +38,15 @@ public:
 mExpClass(Seis) Seis2DLinePutter
 { mODTextTranslationClass(Seis2DLinePutter);
 public:
+
     virtual		~Seis2DLinePutter()	{}
 
     virtual bool	put(const SeisTrc&)	= 0;
-    //!< Return fase on success, err msg on failure
+				//!< Return false on success, err msg on failure
     virtual bool	close()			= 0;
-    //!< Return null on success, err msg on failure
+				//!< Return null on success, err msg on failure
     virtual uiString	errMsg() const		= 0;
-    //!< Only when put or close returns false
+				//!< Only when put or close returns false
     virtual int		nrWritten() const	= 0;
 
 };
@@ -57,16 +58,16 @@ mExpClass(Seis) Seis2DLineGetter : public Executor
 { mODTextTranslationClass(Seis2DLineGetter);
 public:
 			Seis2DLineGetter(SeisTrcBuf&,int trcsperstep,
-					 const Seis::SelData&);
-    virtual		~Seis2DLineGetter()	{}
+					 const Seis::SelData*);
+    virtual		~Seis2DLineGetter();
 
-    uiString		message() const	{ return msg_; }
+    uiString		message() const		{ return msg_; }
     uiString		nrDoneText() const	{ return tr("Traces read"); }
 
     virtual od_int64	nrDone() const			= 0;
     virtual od_int64	totalNr() const			= 0;
 
-    virtual const SeisTrcTranslator*	translator() const	{ return 0; }
+    virtual const SeisTrcTranslator* translator() const	{ return 0; }
 
 protected:
 
@@ -75,7 +76,20 @@ protected:
     SeisTrcBuf&		tbuf_;
     uiString		msg_;
     Seis::SelData*	seldata_;
+
 };
+
+
+mExpClass(Seis) Seis2DTraceGetter
+{
+public:
+			Seis2DTraceGetter()	{}
+    virtual		~Seis2DTraceGetter()	{}
+
+    virtual uiRetVal	get(const TrcKey&,SeisTrc&) const = 0;
+
+};
+
 
 /*!\brief Provides read/write to/from 2D seismic lines.
 	  Only interesting if you want to add your own 2D data I/O. */
@@ -87,13 +101,18 @@ public:
     virtual		~Seis2DLineIOProvider()			{}
 
     virtual bool	isEmpty(const IOObj&,Pos::GeomID) const		= 0;
-    virtual bool	getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const
+    virtual uiRetVal	getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const
 									= 0;
-    virtual bool	getGeometry(const IOObj&,Pos::GeomID,
+    virtual uiRetVal	getGeometry(const IOObj&,Pos::GeomID,
 				    PosInfo::Line2DData&) const		= 0;
-    virtual Executor*	getFetcher(const IOObj&,Pos::GeomID,SeisTrcBuf&,int,
-				   const Seis::SelData* sd=0)		= 0;
-    virtual Seis2DLinePutter* getPutter(const IOObj&,Pos::GeomID)	= 0;
+
+    virtual Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,
+						uiRetVal&)		= 0;
+    virtual Executor*	getLineGetter(const IOObj&,Pos::GeomID,
+					SeisTrcBuf&,const Seis::SelData*,
+					uiRetVal&,int trcsperfetch=16)	= 0;
+    virtual Seis2DLinePutter*	getPutter(const IOObj&,Pos::GeomID,
+					  uiRetVal&)			= 0;
 
     virtual bool	getTxtInfo(const IOObj&,Pos::GeomID,BufferString&,
 				   BufferString&) const		{ return false;}
@@ -111,6 +130,7 @@ protected:
 			: type_(t)				{}
 
     const BufferString	type_;
+
 };
 
 

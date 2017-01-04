@@ -282,13 +282,10 @@ bool SeisTrcWriter::next2DLine()
     prevgeomid_ = geomid;
     delete putter_;
 
-    putter_ = dataset_->linePutter( geomid );
-
+    uiRetVal uirv;
+    putter_ = dataset_->linePutter( geomid, uirv );
     if ( !putter_ )
-    {
-	errmsg_ = uiStrings::phrCannotCreate(tr("2D line writer"));
-	return false;
-    }
+	{ errmsg_ = uirv; return false; }
 
     return true;
 }

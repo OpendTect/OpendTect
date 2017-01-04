@@ -87,11 +87,8 @@ void Seis::LineFetcher::reset()
     delete getter_; getter_ = 0;
 
     openDataSet();
-    if ( !uirv_.isOK() )
-	return;
-
-    if ( !getNextGetter() )
-	{ uirv_ = tr( "No selected data found" ); return; }
+    if ( uirv_.isOK() )
+	getNextGetter();
 }
 
 
@@ -103,7 +100,8 @@ bool Seis::LineFetcher::getNextGetter()
     if ( !toNextLine() )
 	return false;
 
-    getter_ = dataset_->lineGetter( curGeomID(), tbuf_, 1, prov2D().selData() );
+    getter_ = dataset_->lineGetter( curGeomID(), tbuf_, prov2D().selData(),
+	    			    uirv_ );
     return getter_ ? true : getNextGetter();
 }
 
@@ -127,13 +125,9 @@ bool Seis::LineFetcher::getFromBuf( int trcnr, SeisTrc& trc )
 bool Seis::LineFetcher::createGetter()
 {
     delete getter_; tbuf_.deepErase();
-    getter_ = dataset_->lineGetter( curGeomID(), tbuf_, 1, prov().seldata_ );
-    if ( getter_ )
-	return true;
-
-    uirv_.set( uiStrings::phrCannotOpen(
-		    toUiString(dataset_->lineName(curlidx_)) ) );
-    return false;
+    getter_ = dataset_->lineGetter( curGeomID(), tbuf_, prov().seldata_,
+	    			    uirv_ );
+    return getter_;
 }
 
 
@@ -195,7 +189,11 @@ void Seis::LineFetcher::getNext( SeisTrc& trc )
         while ( !readNextTraces() )
 	{
 	    if ( mIsSingleLine(prov().seldata_) || !getNextGetter() )
-		{ uirv_.set( uiStrings::sFinished() ); return; }
+	    {
+		if ( uirv_.isEmpty() )
+		    uirv_.set( uiStrings::sFinished() );
+		return;
+	    }
 	}
     }
 

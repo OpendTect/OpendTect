@@ -30,15 +30,32 @@
 #include "keystrs.h"
 
 Seis2DLineGetter::Seis2DLineGetter( SeisTrcBuf& trcbuf, int trcsperstep,
-				    const Seis::SelData& sd )
+				    const Seis::SelData* sd )
     : Executor("Reading 2D Traces")
     , tbuf_(trcbuf)
-    , seldata_(sd.clone())
-{}
+    , seldata_(0)
+{
+    if ( sd )
+	seldata_ = sd->clone();
+    else
+    {
+	seldata_ = Seis::SelData::get( Seis::Range );
+	seldata_->setIsAll( true );
+    }
+}
 
-const char*
-SeisTrc2DTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
-{ return IOPar::compKey( sKey::Default(), sKeyDefault() ); }
+
+Seis2DLineGetter::~Seis2DLineGetter()
+{
+    delete seldata_;
+}
+
+
+const char* SeisTrc2DTranslatorGroup::getSurveyDefaultKey(
+						const IOObj* ioobj ) const
+{
+    return IOPar::compKey( sKey::Default(), sKeyDefault() );
+}
 
 
 class Seis2DLineIOProviderSet : public ObjectSet<Seis2DLineIOProvider>
@@ -287,11 +304,10 @@ bool Seis2DLineMerger::nextGetter()
     const int dslineidx = ds_->indexOf( lid );
     if ( dslineidx<0 )
 	mErrRet( tr("Cannot find line in %1 dataset" ).arg(geom2d->getName()) )
-    getter_ = ds_->lineGetter( dslineidx, tbuf, 1 );
+    uiRetVal uirv;
+    getter_ = ds_->lineGetter( lid, tbuf, 0, uirv );
     if ( !getter_ )
-	mErrRet(
-	    uiStrings::phrCannotCreate(tr("a reader for %1.")
-				       .arg(geom2d->getName()) ) )
+	mErrRet( uirv );
 
     nrdonemsg_ = tr("Traces read");
     return true;
@@ -378,9 +394,10 @@ int Seis2DLineMerger::doWork()
 
     IOPar* lineiopar = new IOPar;
     lineiopar->set( sKey::GeomID(), outgeomid_ );
-    putter_ = ds_->linePutter( outgeomid_ );
+    uiRetVal uirv;
+    putter_ = ds_->linePutter( outgeomid_, uirv );
     if ( !putter_ )
-	mErrRet(tr("Cannot create writer for output line") );
+	mErrRet( uirv );
 
     nrdonemsg_ = tr("Traces written");
     return Executor::MoreToDo();

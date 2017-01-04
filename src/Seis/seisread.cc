@@ -572,8 +572,9 @@ bool SeisTrcReader::mkNextGetter()
     }
 
     prev_inl = mUdf(int);
+    uiRetVal uirv;
     linegetter_ = dataset_->lineGetter( dataset_->geomID(curlineidx),
-					*tbuf_, 1, seldata_ );
+					*tbuf_, seldata_, uirv );
     nrlinegetters_++;
     return linegetter_;
 }
