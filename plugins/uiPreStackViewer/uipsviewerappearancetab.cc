@@ -42,8 +42,7 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     uicoltab_ = new uiColorTableGroup( this, coltabseq );
     mAttachCB( uicoltab_->seqChanged, uiViewer3DAppearanceTab::colTabChanged );
     mAttachCB(uicoltab_->scaleChanged, uiViewer3DAppearanceTab::colTabChanged);
-    uicoltablbl_ = new uiLabel( this, m3Dots(uiStrings::sColorTable()),
-				uicoltab_ );
+    uicoltablbl_ = new uiLabel( this, uiStrings::sColorTable(), uicoltab_ );
 
     const SamplingData<float> curzsmp = vwr_->appearance().annot_.x2_.sampling_;
     const bool zudf = mIsUdf( curzsmp.start ) || mIsUdf(curzsmp.step);
