@@ -124,7 +124,7 @@ public:
 
 uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
 	: uiDialog(p,uiDialog::Setup(uiStrings::phrCopy(uiStrings::sSurvey()),
-						    mNoDlgTitle,mTODOHelpKey))
+			    mNoDlgTitle,mODHelpKey(mNewSurveyByCopyHelpID)))
 	, dataroot_(dataroot)
 {
     BufferString curfnm;
@@ -242,7 +242,8 @@ void zdomainChg( CallBacker* cb )
 uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 					      SurveyInfo& survinfo )
 	: uiDialog(p,uiDialog::Setup(tr("Create New Survey"),
-		    tr("Specify new survey parameters"),mTODOHelpKey))
+				     tr("Specify new survey parameters"),
+				     mODHelpKey(mStartNewSurveySetupHelpID)))
 	, survinfo_(survinfo)
 	, dataroot_(dataroot)
 	, sips_(uiSurveyInfoEditor::survInfoProvs())
@@ -428,10 +429,9 @@ uiSurvey::uiSurvey( uiParent* p )
     datarootlbl_->setBackgroundColor( backgroundColor() );
     datarootlbl_->attach( rightOf, datarootbut );
 
-    uiPushButton* settbut = new uiPushButton( topgrp, tr("General Settings"),
-				mCB(this,uiSurvey,odSettsButPush), false );
-    settbut->setIcon( "settings" );
-    settbut->attach( rightBorder );
+    uiToolButton* settbut = new uiToolButton( topgrp, "settings",
+	tr("General Settings"), mCB(this,uiSurvey,odSettsButPush) );
+    settbut->attach( rightOf, datarootlbl_ );
 
     uiSeparator* sep1 = new uiSeparator( topgrp, "Separator 1" );
     sep1->attach( stretchedBelow, datarootbut );
