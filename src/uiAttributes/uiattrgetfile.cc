@@ -160,8 +160,8 @@ uiAttrSrchProcFiles::~uiAttrSrchProcFiles()
 static BufferString sImportDir;
 
 uiImpAttrSet::uiImpAttrSet( uiParent* p )
-    : uiDialog(p,Setup(tr("Import Attribute Set"),mNoDlgTitle,mTODOHelpKey)
-		 .modal(false))
+    : uiDialog(p,Setup(tr("Import Attribute Set"),mNoDlgTitle,
+		       mODHelpKey(mImpAttrSetHelpID)).modal(false))
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sCancel() );
 
