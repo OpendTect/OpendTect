@@ -371,7 +371,7 @@ public:
 uiWellRockPhysLauncher( uiParent* p )
     : uiDialog( p, Setup(tr("Rock Physics - Well Logs"),
 		tr("Select one or more wells to add well logs to"),
-		mTODOHelpKey) )
+		mODHelpKey(mWellRockPhysLauncherHelpID)))
 {
     selgrp_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
 			uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );

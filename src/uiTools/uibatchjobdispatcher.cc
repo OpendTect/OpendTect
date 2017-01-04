@@ -92,7 +92,7 @@ void uiBatchJobDispatcherSel::init( bool optional )
     else
     {
 	selfld_ = new uiGenInput( this, tr("Batch execution"),
-                                  StringListInpSpec());
+				  StringListInpSpec());
 	selfld_->valuechanged.notify( mCB(this,uiBatchJobDispatcherSel,selChg));
 	setHAlignObj( selfld_ );
 	if ( optional )
@@ -339,7 +339,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
 				Batch::JobSpec& js )
     : uiDialog(p,Setup(tr("Batch execution parameters"),
 		       tr("Options for '%1' program").arg(js.prognm_),
-			mTODOHelpKey))
+		       mODHelpKey(mSingleBatchJobDispatcherParsHelpID)))
     , sjd_(sjd)
     , execpars_(js.execpars_)
     , hdl_(hdl)

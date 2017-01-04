@@ -15,17 +15,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "od_helpids.h"
 #include "volproctrans.h"
 
 #include "uiattribfactory.h"
 #include "uiioobjsel.h"
-#include "uidialog.h" // for mTODOHelpKey ... ugh
 
 
 mInitAttribUI(uiVolProcAttrib,VolProcAttrib,"VolumeProcessing",sKeyBasicGrp())
 
 uiVolProcAttrib::uiVolProcAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d,mTODOHelpKey)
+	: uiAttrDescEd(p,is2d,mODHelpKey(mVolProcAttribHelpID))
 
 {
     IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();

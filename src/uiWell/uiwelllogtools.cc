@@ -213,7 +213,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     actiongrp->attach( ensureBelow, displaygrp );
     const char* acts[] = { "Remove Spikes", "FFT Filter", "Smooth", "Clip", 0 };
     uiLabeledComboBox* llc = new uiLabeledComboBox( actiongrp, acts,
-                                                    uiStrings::sAction() );
+						    uiStrings::sAction() );
     actionfld_ = llc->box();
     actionfld_->selectionChanged.notify(mCB(this,uiWellLogToolWin,actionSelCB));
 
@@ -225,7 +225,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     freqfld_->attach( alignedBelow, llc );
 
     uiLabeledSpinBox* spbgt = new uiLabeledSpinBox( actiongrp,
-                                                    tr("Window size") );
+						    tr("Window size") );
     spbgt->attach( alignedBelow, llc );
     gatefld_ = spbgt->box();
     gatelbl_ = spbgt->label();
@@ -305,7 +305,7 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
     gatefld_->display( act != 1 );
     gatelbl_->display( act != 1 );
     gatelbl_->setText( act > 2 ? tr("Clip rate (%)")
-                               : tr("Window size (samples)") );
+			       : tr("Window size (samples)") );
     StepInterval<int> sp = act > 2 ? StepInterval<int>(0,100,10)
 				   : StepInterval<int>(1,1500,5);
     gatefld_->setInterval( sp );
@@ -553,7 +553,8 @@ void uiWellLogToolWin::displayLogs()
 
 // uiWellLogEditor
 uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
-    : uiDialog(p,Setup(tr("Edit Well log"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Edit Well log"),mNoDlgTitle,
+		       mODHelpKey(mWellLogEditorHelpID)))
     , log_(log)
     , changed_(false)
     , valueChanged(this)

@@ -252,7 +252,7 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
 		isMultiChoice( su.markerschoicemode_ )
 		    ? tr("Select markers from one or more wells")
 		    : tr("Select a well marker"),
-		mTODOHelpKey))
+		mODHelpKey(mWellMarkersDlgHelpID)))
 {
     uiGroup* mrkrgrp = new uiGroup( this, "Marker group" );
     uiLabel* markerstxt =

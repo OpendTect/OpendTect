@@ -98,7 +98,7 @@ public:
 
 uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p )
     : uiDialog(p,Setup(tr("Generate a PDF"),mNoDlgTitle,
-                 mODHelpKey(mProbGenFuncGenHelpID) ))
+		 mODHelpKey(mProbGenFuncGenHelpID) ))
 {
 
     choicefld_ = new uiCheckList( this, uiCheckList::OneOnly );
@@ -147,7 +147,8 @@ bool uiProbDenFuncGen::acceptOK( CallBacker* )
 
 uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
 						  bool isgauss, MultiID& ky )
-    : uiDialog(p,Setup(tr("Generate editable PDF"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Generate editable PDF"),mNoDlgTitle,
+		       mODHelpKey(mProbDenFuncGenSampledHelpID)))
     , nrdims_(nrdim)
     , ioobjky_(ky)
 {
@@ -436,7 +437,8 @@ bool uiProbDenFuncGenSampled::acceptOK( CallBacker* )
 
 uiProbDenFuncGenGaussian::uiProbDenFuncGenGaussian( uiParent* p, int nrdim,
 						    MultiID& ky )
-    : uiDialog(p,Setup(tr("Generate Gaussian PDF"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Generate Gaussian PDF"),mNoDlgTitle,
+			mODHelpKey(mProbDenFuncGenGaussianHelpID)))
     , ioobjky_(ky)
 {
     if ( nrdim == 1 )

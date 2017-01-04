@@ -600,9 +600,9 @@ void uiStratUnitDivideDlg::uiDivideTable::popupMenu( CallBacker* cb )
 
 uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
 					    const Strat::LeavedUnitRef& unit )
-    : uiDialog(p,uiDialog::Setup(tr("Subdivide Stratigraphic Unit"),
-			         tr("Specify number and properties "
-				    "of the new units"), mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Subdivide Stratigraphic Unit"),
+			tr("Specify number and properties of the new units"),
+			mODHelpKey(mStratUnitDivideDlgHelpID)))
     , rootunit_(unit)
 {
     table_ = new uiDivideTable( this, uiTable::Setup().rowdesc("Unit")

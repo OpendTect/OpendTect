@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSEGYDefDlg::Setup::Setup()
     : uiDialog::Setup(tr("SEG-Y tool"),tr("Specify basic properties"),
-                      mODHelpKey(mSEGYDefDlgHelpID) )
+		      mODHelpKey(mSEGYDefDlgHelpID) )
     , defgeom_(Seis::Vol)
 {
 }
@@ -232,8 +232,9 @@ static const char* getFileNameKey( int index )
 	{ isusable_ = false; lbl = new uiLabel( this, s ); return; }
 
 uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
-    : uiDialog(p,uiDialog::Setup(tr("SEGYDirect File Editor"),
-				 toUiString(obj.name()),mTODOHelpKey))
+    : uiDialog(p,Setup(tr("SEGYDirect File Editor"),
+			toUiString(obj.name()),
+			mODHelpKey(mEditSEGYFileDataDlgHelpID)))
     , dirsel_(0)
     , filetable_(0)
     , ioobj_(obj)

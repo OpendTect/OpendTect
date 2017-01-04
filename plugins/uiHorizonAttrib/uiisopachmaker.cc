@@ -140,7 +140,8 @@ const char* uiIsochronMakerGrp::attrName() const
 
 //uiIsochronMakerBatch
 uiIsochronMakerBatch::uiIsochronMakerBatch( uiParent* p )
-    : uiDialog( p,Setup(tr("Create Isochron"),mNoDlgTitle,mTODOHelpKey) )
+    : uiDialog(p,Setup(tr("Create Isochron"),mNoDlgTitle,
+		 mODHelpKey(mIsochronMakerBatchHelpID)) )
 {
     grp_ = new uiIsochronMakerGrp( this, -1 );
     batchfld_ = new uiBatchJobDispatcherSel( this, false,

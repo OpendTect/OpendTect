@@ -24,7 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p, CtxtIOObj& ctio )
-    : uiDialog(p,Setup(tr("Select survey"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Select survey"),mNoDlgTitle,
+		       mODHelpKey(mSelObjFromOtherSurveyHelpID)))
     , ctio_(ctio)
 {
     selfld_ = new uiSurveySelect( this, true, true );

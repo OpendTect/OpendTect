@@ -42,7 +42,7 @@ bool Batch::PreStackMMProgDef::canHandle( const Batch::JobSpec& js ) const
 
 
 uiPreStackMMProc::uiPreStackMMProc( uiParent* p, const IOPar& iop )
-    : uiMMBatchJobDispatcher(p,iop,mTODOHelpKey)
+    : uiMMBatchJobDispatcher(p,iop,mODHelpKey(mPreStackMMProcHelpID))
     , is2d_(Seis::is2DGeom(iop))
 {
     setTitleText( isMultiHost()  ? tr("Multi-Machine PreStack Processing")

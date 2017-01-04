@@ -189,7 +189,8 @@ static const char* sKeyPreserveMath()	{ return "Preserve Math formulas"; }
 uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 			 bool doread )
     : uiDialog( p, Setup(doread ? tr("Read dumped models") : tr("Dump models"),
-		mNoDlgTitle,mTODOHelpKey) )
+			 mNoDlgTitle,
+			 mODHelpKey(mStratLayerModelDispIOHelpID)) )
     , doreplacefld_(0)
     , eachfld_(0)
     , nrdisplayfld_(0)

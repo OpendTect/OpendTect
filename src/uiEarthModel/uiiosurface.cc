@@ -722,7 +722,8 @@ public:
 		    tr( "%1 selection" ).arg( fltpar.is2d_
 					    ? uiStrings::sFaultStickSet()
 					    : uiStrings::sFault() ),
-					    mNoDlgTitle,mTODOHelpKey))
+					    mNoDlgTitle,
+					    mODHelpKey(mFaultOptSelHelpID)))
 	, fltpar_(fltpar)
     {
 	const char* fltnm = fltpar.is2d_ ? "FaultStickSet" : "Fault";

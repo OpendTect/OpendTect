@@ -168,7 +168,7 @@ bool uiSEGYImpParsDlg::acceptOK( CallBacker* )
 uiSEGYReadImpParsDlg::uiSEGYReadImpParsDlg( uiParent* p, const char* defnm )
     : uiSEGYImpParsDlg(p,true,defnm)
 {
-    setHelpKey( mTODOHelpKey );
+    setHelpKey( mODHelpKey(mSEGYReadImpParsDlgHelpID) );
 
     detailsfld_ = new uiTextEdit( this, "Entry details", true );
     detailsfld_->setPrefHeightInChar( 5 );
@@ -233,7 +233,7 @@ uiSEGYStoreImpParsDlg::uiSEGYStoreImpParsDlg( uiParent* p, const IOPar& iop,
     : uiSEGYImpParsDlg(p,false,defnm)
     , parstostore_(new Repos::IOPar(iop))
 {
-    setHelpKey( mTODOHelpKey );
+    setHelpKey( mODHelpKey(mSEGYStoreImpParsDlgHelpID) );
 
     namefld_ = new uiGenInput( this, tr("Store as"), StringInpSpec(defnm) );
     namefld_->attach( alignedBelow, listfld_ );

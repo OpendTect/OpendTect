@@ -229,8 +229,9 @@ class uiLatLong2CoordFileTransDlg : public uiDialog
 public:
 
 uiLatLong2CoordFileTransDlg( uiParent* p, const LatLong2Coord& ll2c )
-    : uiDialog( p, Setup(tr("Transform file"),
-	    tr("Transform a file, Lat Long <=> X Y"), mTODOHelpKey) )
+    : uiDialog(p,Setup(tr("Transform file"),
+		       tr("Transform a file, Lat Long <=> X Y"),
+		       mODHelpKey(mLatLong2CoordFileTransDlgHelpID)))
     , ll2c_(ll2c)
 {
     uiFileInput::Setup fisu( uiFileDialog::Txt );

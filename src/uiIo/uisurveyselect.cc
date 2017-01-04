@@ -35,7 +35,8 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
 				      const char* survnm, const char* dataroot,
 				      bool forread, bool needvalidrootdir )
     : uiDialog(p,uiDialog::Setup(tr("Select Data Root and Survey"),
-				 mNoDlgTitle,mTODOHelpKey))
+				 mNoDlgTitle,
+				 mODHelpKey(mSurveySelectDlgHelpID)))
     , forread_(forread)
     , needvalidrootdir_(needvalidrootdir)
     , surveyfld_(0)

@@ -90,7 +90,7 @@ static void getColumnLabels( BufferStringSet& lbls, uiCheckBox* unfld,
 static uiTable* createMarkerTable( uiParent* p, int nrrows, bool editable )
 {
     uiTable* ret = new uiTable( p, uiTable::Setup().rowdesc("Marker")
-					        .rowgrow(editable).defrowlbl("")
+						.rowgrow(editable).defrowlbl("")
 						.selmode(uiTable::Multi),
 			  "Well Marker Table" );
     BufferStringSet colnms;
@@ -163,15 +163,15 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Well Markers"),mNoDlgTitle,
-                                     mODHelpKey(mMarkerDlgHelpID)))
+				     mODHelpKey(mMarkerDlgHelpID)))
 	, track_(t)
-        , oldmrkrs_(0)
-        , table_(0)
+	, oldmrkrs_(0)
+	, table_(0)
 	, unitfld_(0)
 {
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Marker")
-					        .rowgrow(true)
-					        .defrowlbl("")
+						.rowgrow(true)
+						.defrowlbl("")
 						.selmode(uiTable::Multi),
 			  "Well Marker Table" );
     BufferStringSet header;
@@ -470,7 +470,7 @@ public:
 
 uiReadMarkerFile( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import Markers"),mNoDlgTitle,
-                                 mODHelpKey(mReadMarkerFileHelpID) ))
+				 mODHelpKey(mReadMarkerFileHelpID) ))
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
@@ -479,7 +479,7 @@ uiReadMarkerFile( uiParent* p )
 			       .forread(true) );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-                      mODHelpKey(mTableImpDataSelmarkersHelpID) );
+		      mODHelpKey(mTableImpDataSelmarkersHelpID) );
     dataselfld_->attach( alignedBelow, fnmfld_ );
 
     replfld_ = new uiGenInput( this, tr("Existing markers (if any)"),
@@ -844,8 +844,8 @@ float uiMarkerDlg::getOldMarkerVal( Well::Marker* marker ) const
 
 
 uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
-    : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sWell(),sMarker(mPlural)),
-						     mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(mJoinUiStrs(sWell(),sMarker(mPlural)),mNoDlgTitle,
+		       mODHelpKey(mMarkerViewDlgHelpID)))
     , table_(0)
     , wd_(&wd)
 {
