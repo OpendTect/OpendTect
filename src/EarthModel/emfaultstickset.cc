@@ -83,6 +83,12 @@ const IOObjContext& FaultStickSet::getIOObjContext() const
 { return EMFaultStickSetTranslatorGroup::ioContext(); }
 
 
+bool FaultStickSet::pickedOnPlane( int row  ) const
+{
+    return geometry().pickedOnPlane( 0, row );
+}
+
+
 bool FaultStickSet::pickedOn2DLine( int row  ) const
 {
     return geometry().pickedOn2DLine( 0, row );

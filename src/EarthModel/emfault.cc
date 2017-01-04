@@ -77,18 +77,23 @@ bool Fault::insertStick(int sticknr,int firstcol,
 				    const char* pickednm,bool addtohistory)
 {
     mLock4Write();
-    return geometry().
+    const bool ret = geometry().
 	insertStick( 0, sticknr, firstcol, pos,editnormal,
 			pickeddbkey, pickednm, addtohistory );
+    mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+    return ret;
 }
+
 
 bool Fault::insertStick( int sticknr, int firstcol, const Coord3& pos,
 			const Coord3& editnormal, Pos::GeomID pickedgeomid,
 							    bool addtohistory )
 {
      mLock4Write();
-     return geometry().
+     const bool ret =  geometry().
 		insertStick( 0, sticknr, firstcol, pos,editnormal,addtohistory);
+     mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+     return ret;
 }
 
 
@@ -97,29 +102,37 @@ bool Fault::insertStick(int sticknr,int firstcol,
 				    bool addtohistory)
 {
      mLock4Write();
-     return geometry().
+     const bool ret = geometry().
 		insertStick( 0, sticknr, firstcol, pos,editnormal,addtohistory);
+     mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+     return ret;
 }
 
 
-void Fault::insertKnot( const SubID& subid, const Coord3& pos , bool adtoh )
+bool Fault::insertKnot( const SubID& subid, const Coord3& pos , bool adtoh )
 {
     mLock4Write();
-    geometry().insertKnot( 0, subid, pos, adtoh );
+    const bool ret = geometry().insertKnot( 0, subid, pos, adtoh );
+    mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+    return ret;
 }
 
 
-void Fault::removeStick( int sticknr, bool addtohistory )
+bool Fault::removeStick( int sticknr, bool addtohistory )
 {
     mLock4Write();
-    geometry().removeStick( 0, sticknr, addtohistory );
+    const bool ret =  geometry().removeStick( 0, sticknr, addtohistory );
+    mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+    return ret;
 }
 
 
-void Fault::removeKnot( const SubID& sid, bool addtoh )
+bool Fault::removeKnot( const SubID& sid, bool addtoh )
 {
     mLock4Write();
-    geometry().removeKnot( 0, sid, addtoh );
+    const bool ret = geometry().removeKnot( 0, sid, addtoh );
+    mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+    return ret;
 }
 
 
@@ -234,6 +247,21 @@ void Fault::selectStick( int sticknr, bool yn )
     mGetGeomFSS();
     mLock4Write();
     geomfss->selectStick( sticknr, yn );
+}
+
+
+void Fault::preferStick( int sticknr )
+{
+    mGetGeomFSS();
+    mLock4Write();
+    geomfss->preferStick( sticknr );
+}
+
+
+int Fault::preferredStickNr() const
+{
+    mGetConstGeomFSS( false );
+    return geomfss->preferredStickNr();
 }
 
 

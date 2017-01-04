@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "faultstickseteditor.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "monitor.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
 #include "survinfo.h"
@@ -173,7 +174,8 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 {
     if ( fault_ )
     {
-	fault_->change.remove( mCB(this,FaultStickSetDisplay,emChangeCB) );
+	fault_->objectChanged().remove(
+				    mCB(this,FaultStickSetDisplay,emChangeCB) );
 	fault_->unRef();
     }
 
@@ -193,7 +195,7 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	return false;
 
     fault_ = (EM::Fault*) emfss;
-    fault_->change.notify( mCB(this,FaultStickSetDisplay,emChangeCB) );
+    fault_->objectChanged().notify( mCB(this,FaultStickSetDisplay,emChangeCB) );
     fault_->ref();
 
     if ( !emfss->name().isEmpty() )
@@ -729,16 +731,22 @@ void FaultStickSetDisplay::setActiveStick( const EM::PosID& pid )
     }
 }
 
+#define mGetEMCBData( cbid ) \
+    mGetMonitoredChgDataWithCaller( cb, chgdata, caller ); \
+    mGetIDFromChgData( EM::EMCBID, cbid, chgdata ); \
+    mDynamicCastGet(EM::EMObject*,emobj,caller); \
+    if ( !emobj || !emobj->getEMCBData(cbid) ) return; \
+    const EM::EMObjectCallbackData& cbdata = *emobj->getEMCBData( cbid ); \
 
-void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
+void FaultStickSetDisplay::emChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cber);
+    mGetEMCBData( cbid )
+	
     if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
 	getMaterial()->setColor( fault_->preferredColor() );
 	mSetStickIntersectPointColor( fault_->preferredColor() );
     }
-
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
 	EM::SectionID sid = cbdata.pid0.sectionID();

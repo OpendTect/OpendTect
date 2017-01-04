@@ -103,6 +103,8 @@ public:
     const FaultStickSetGeometry&	geometry() const;
     void				apply(const Pos::Filter&);
     uiString				getUserTypeStr() const;
+
+    bool				pickedOnPlane(int sticknr) const;
     bool				pickedOn2DLine(int row) const;
     Pos::GeomID				pickedGeomID(int row) const;
     const DBKey*			pickedDBKey(int sticknr) const;

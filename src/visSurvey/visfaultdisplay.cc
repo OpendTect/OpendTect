@@ -972,8 +972,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    ? mUdf(int)
 	    : insertpid.getRowCol().row();
 
-	if ( fault_->geometry().insertStick( insertpid.sectionID(),
-	       insertstick, 0, pos, editnormal, true ) )
+	if ( fault_->insertStick( insertstick, 0, pos, editnormal, true ) )
 	{
 	    faulteditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
@@ -990,8 +989,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     }
     else
     {
-	if ( fault_->geometry().insertKnot( insertpid.sectionID(),
-		insertpid.subID(), pos, true ) )
+	if ( fault_->insertKnot(insertpid.subID(),pos,true) )
 	{
 	    faulteditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )

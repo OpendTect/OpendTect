@@ -108,10 +108,10 @@ public:
 					 const Coord3& pos,
 					 const Coord3& editnormal,
 					 bool addtohistory);
-    void			removeStick(int sticknr,bool);
+    bool			removeStick(int sticknr,bool);
     
-    void			insertKnot(const SubID&,const Coord3&,bool);
-    void			removeKnot(const SubID&, bool);
+    bool			insertKnot(const SubID&,const Coord3&,bool);
+    bool			removeKnot(const SubID&, bool);
     
     StepInterval<int>	    	rowRange() const;
     StepInterval<int>	    	colRange(int row) const;
@@ -141,6 +141,9 @@ public:
 
     Coord3			getEditPlaneNormal(int sticknr) const;
     EMObjectIterator*		createIterator(const TrcKeyZSampling*) const;
+
+    void			preferStick(int sticknr);
+    int				preferredStickNr() const;
 
     virtual bool		pickedOnPlane(int row) const  { return false; }
     virtual bool		pickedOn2DLine(int row) const { return false; }

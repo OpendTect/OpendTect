@@ -550,6 +550,9 @@ void FaultStickSet::preferStick( int sticknr )
     }
 
     mGetValidStickIdx( stickidx, sticknr, 0, );
+    unsigned int stt = sticks_[stickidx]->stickStat();
+    stt |= Preferred;
+    sticks_[stickidx]->setStickStat( stt );
 }
 
 

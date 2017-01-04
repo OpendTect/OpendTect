@@ -36,7 +36,7 @@ const char* EMObject::posattrposidstr()	    { return " SubID"; }
 const char* EMObject::nrposattrstr()	    { return "Nr Pos Attribs"; }
 
 Color EMObject::sDefaultSelectionColor() { return Color::Orange(); }
-
+Threads::Atomic<int> 	EMObjectCallbackData::curcbid_ = 0;
 
 EMObject::EMObject( EMManager& emm )
     : SharedObject( "" )
@@ -73,6 +73,7 @@ EMObject::~EMObject()
 
     change.remove( mCB(this,EMObject,posIDChangeCB) );
     id_ = -2;	//To check easier if it has been deleted
+    deepErase( emcbdatas_ );
 }
 
 
@@ -162,7 +163,9 @@ bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
 bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 			const Coord3& newpos, bool addtoundo )
 {
-    Threads::Locker locker( setposlock_ );
+    //Threads::Locker locker( setposlock_ );
+    mLock4Write();
+
     Geometry::Element* element = sectionGeometryInternal( sid );
     if ( !element ) mRetErr( uiString::emptyString() );
 
@@ -195,10 +198,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 
     if ( burstalertcount_==0 )
     {
-	EMObjectCallbackData cbdata;
-	cbdata.event = EMObjectCallbackData::PositionChange;
-	cbdata.pid0 = pid;
-	change.trigger( cbdata );
+	mSendEMCBNotifPosID( EMObjectCallbackData::PositionChange, pid );
     }
 
     changed_ = true;
@@ -215,6 +215,8 @@ bool EMObject::isAtEdge( const PosID& ) const
 
 void EMObject::setBurstAlert( bool yn )
 {
+    mLock4Write();
+
     if ( !yn && burstalertcount_==0 )
 	return;
 
@@ -224,10 +226,10 @@ void EMObject::setBurstAlert( bool yn )
     if ( burstalertcount_==0 )
     {
 	if ( yn ) burstalertcount_++;
-	EMObjectCallbackData cbdata;
-	cbdata.flagfor2dviewer = !yn;
-	cbdata.event = EMObjectCallbackData::BurstAlert;
-	change.trigger( cbdata );
+	EMObjectCallbackData* cbdata = getNewEMCBData();
+	cbdata->flagfor2dviewer = !yn;
+	cbdata->event = EMObjectCallbackData::BurstAlert;
+	mSendChgNotif( cPositionChange(), cbdata->cbID().getI() );
     }
     else if ( yn )
 	burstalertcount_++;
@@ -257,41 +259,6 @@ bool EMObject::enableGeometryChecks( bool )
 
 bool EMObject::isGeometryChecksEnabled() const
 { return true; }
-
-
-void EMObject::changePosID( const PosID& from, const PosID& to,
-			    bool addtoundo )
-{
-    if ( from==to )
-    {
-	pErrMsg("From and to are identical");
-	return;
-    }
-
-    if ( from.objectID()!=id() || to.objectID()!=id() )
-	return;
-
-    const Coord3 tosprevpos = getPos( to );
-    setPos( to, getPos(from), false );
-
-    if ( addtoundo )
-    {
-	PosIDChangeEvent* event = new PosIDChangeEvent( from, to, tosprevpos );
-	EMM().undo().addEvent( event, 0 );
-    }
-
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::PosIDChange;
-    cbdata.pid0 = from;
-    cbdata.pid1 = to;
-    change.trigger( cbdata );
-
-    /*The unset must be after the trigger, becaues otherwise the old pos
-	cannot be retrieved for the cb. In addition, the posattrib status of
-	the node is needed during the cbs, and that is removed when unsetting
-	the pos.  */
-    unSetPos( from, false );
-}
 
 
 bool EMObject::isDefined( const PosID& pid ) const
@@ -341,10 +308,7 @@ void EMObject::removePosAttribList( int attr, bool addtoundo )
 void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
 			     bool addtoundo )
 {
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::AttribChange;
-    cbdata.pid0 = pid;
-    cbdata.attrib = attr;
+    mLock4Write();
 
     if ( yn )
 	addPosAttrib( attr );
@@ -370,7 +334,13 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     }
 
     if ( !hasBurstAlert() )
-	change.trigger( cbdata );
+    {
+	EMObjectCallbackData* cbdata = getNewEMCBData();
+	cbdata->event = EMObjectCallbackData::AttribChange;
+	cbdata->pid0 = pid;
+	cbdata->attrib = attr;
+	mSendChgNotif( cPositionChange(), cbdata->cbID().getI() );
+    }
 
     changed_ = true;
 }
@@ -412,13 +382,14 @@ const OD::MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr )
 
 void EMObject::setPosAttrMarkerStyle( int attr, const OD::MarkerStyle3D& ms )
 {
+    mLock4Write();
     addPosAttrib( attr );
     setPreferredMarkerStyle3D( ms );
 
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::AttribChange;
-    cbdata.attrib = attr;
-    change.trigger( cbdata );
+    EMObjectCallbackData* cbdata = getNewEMCBData();
+    cbdata->event = EMObjectCallbackData::AttribChange;
+    cbdata->attrib = attr;
+    mSendChgNotif( cPositionChange(), cbdata->cbID().getI() );
     changed_ = true;
 }
 
@@ -724,5 +695,31 @@ void EMObject::posIDChangeCB(CallBacker* cb)
 	}
     }
 }
+
+
+EMObjectCallbackData* EMObject::getNewEMCBData()
+{
+    EMObjectCallbackData* emcbdata = new EMObjectCallbackData();
+    emcbdatas_ += emcbdata;
+    return emcbdata;
+}
+
+
+const EMObjectCallbackData* EMObject::getEMCBData( EMCBID emcbid ) const
+{
+    if ( emcbdatas_.isEmpty() )
+	return 0;
+
+    mLock4Read();
+    for ( int idx=0; idx<emcbdatas_.size(); idx++ )
+    {
+	const EMObjectCallbackData* emcbdata = emcbdatas_[idx];
+	if ( emcbdata->cbID() == emcbid )
+	    return emcbdata;
+    }
+
+    return 0;
+}
+
 
 } // namespace EM

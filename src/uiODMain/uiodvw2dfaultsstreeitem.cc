@@ -258,7 +258,7 @@ bool uiODVw2DFaultSSTreeItem::init()
 	fssview_ = hd;
     }
 
-    mAttachCB( emobj->change, uiODVw2DFaultSSTreeItem::emobjChangeCB );
+    mAttachCB( emobj->objectChanged(), uiODVw2DFaultSSTreeItem::emobjChangeCB );
     displayMiniCtab();
     name_ = applMgr()->EMServer()->getName( emid_ );
     uitreeviewitem_->setCheckable(true);
@@ -291,12 +291,16 @@ void uiODVw2DFaultSSTreeItem::displayMiniCtab()
 }
 
 
+#define mGetEMCBData( cbid ) \
+    mGetMonitoredChgDataWithCaller( cb, chgdata, caller ); \
+    mGetIDFromChgData( EM::EMCBID, cbid, chgdata ); \
+    mDynamicCastGet(EM::EMObject*,emobj,caller); \
+    if ( !emobj || !emobj->getEMCBData(cbid) ) return; \
+    const EM::EMObjectCallbackData& cbdata = *emobj->getEMCBData( cbid ); \
+
 void uiODVw2DFaultSSTreeItem::emobjChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-				cbdata, caller, cb );
-    mDynamicCastGet(EM::EMObject*,emobject,caller);
-    if ( !emobject ) return;
+    mGetEMCBData( cbid )
 
     switch( cbdata.event )
     {

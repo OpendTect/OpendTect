@@ -43,12 +43,16 @@ class EMManager;
 mExpClass(EarthModel) EMObjectCallbackData
 {
 public:
+
+    mDefIntegerIDType(int, CBID);
+
 		EMObjectCallbackData()
 		    : pid0( 0, 0, 0 )
 		    , pid1( 0, 0, 0 )
 		    , attrib( -1 )
 		    , flagfor2dviewer( false )
 		    , event( EMObjectCallbackData::Undef )
+		    , cbid_(CBID::get(curcbid_++))
 		{}
 
 
@@ -58,6 +62,7 @@ public:
 		    , attrib( data.attrib )
 		    , flagfor2dviewer( data.flagfor2dviewer )
 		    , event( data.event )
+		    , cbid_(data.cbid_)
 		{}
 
 
@@ -70,6 +75,12 @@ public:
     EM::PosID	pid1;	//Only used in PosIDChange
     int		attrib; //Used only with AttribChange
     bool	flagfor2dviewer; //Used only with BurstAlert for 2DViewer
+    CBID	cbID() const { return cbid_; }
+
+protected:
+
+    static Threads::Atomic<int> 	curcbid_;
+    CBID				cbid_;
 };
 
 
@@ -114,6 +125,7 @@ public:
 /*!
 \brief Base class for all EarthModel objects.
 */
+typedef EMObjectCallbackData::CBID EMCBID;
 
 mExpClass(EarthModel) EMObject : public SharedObject
 {
@@ -178,13 +190,6 @@ public:
 
     virtual bool		isAtEdge(const EM::PosID&) const;
 
-    void			changePosID(const EM::PosID& from,
-					    const EM::PosID& to,
-					    bool addtohistory);
-				/*!<Tells the object that the node former known
-				    as from is now called to. Function will also
-				    exchange set the position of to to the
-				    posion of from. */
 
     virtual void		getLinkedPos(const EM::PosID& posid,
 					  TypeSet<EM::PosID>&) const
@@ -254,12 +259,16 @@ public:
     static int			sSeedNode();
     static int			sIntersectionNode();
 
-    static ChangeType		cPrefColorChange()	{ return 2; }
-    static ChangeType		cSelColorChange()	{ return 3; }
-    static ChangeType		cPrefLineStyleChange()	{ return 4; }
-    static ChangeType		cPrefMarkerStyleChange(){ return 5; }
+    static ChangeType		cPositionChange()	{ return 2; }
+    static ChangeType		cPrefColorChange()	{ return 3; }
+    static ChangeType		cSelColorChange()	{ return 4; }
+    static ChangeType		cPrefLineStyleChange()	{ return 5; }
+    static ChangeType		cPrefMarkerStyleChange(){ return 6; }
 
     virtual const IOObjContext&	getIOObjContext() const = 0;
+
+
+    const EMObjectCallbackData*	getEMCBData(EMCBID) const;
 
 protected:
 				~EMObject();
@@ -272,6 +281,9 @@ protected:
     void			setPreferredMarkerStyle3D(
 					const OD::MarkerStyle3D&);
     void			useDisplayPars(const IOPar&);
+
+    EMObjectCallbackData*	getNewEMCBData();
+
     BufferString		objname_;
     ObjectID			id_;
     DBKey			storageid_;
@@ -295,6 +307,7 @@ protected:
 
     bool			insideselremoval_;
     bool			selremoving_;
+    ObjectSet<EMObjectCallbackData> emcbdatas_;
 
     static const char*		nrposattrstr();
     static const char*		posattrprefixstr();
@@ -357,3 +370,13 @@ void clss::setNewName() \
     nm.add( objnr++ ).add( ">" ); \
     setName( nm ); \
 }
+
+#define mSendEMCBNotifPosID( typ, pid ) \
+    setChangedFlag(); \
+    EMObjectCallbackData* cbdata = getNewEMCBData(); \
+    cbdata->event = typ; \
+    cbdata->pid0 = pid; \
+    mSendChgNotif( cPositionChange(), cbdata->cbID().getI() );
+
+#define mSendEMCBNotif( typ ) \
+    mSendEMCBNotifPosID( typ, 0 );
