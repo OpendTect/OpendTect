@@ -133,8 +133,8 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     propfld_->selectionChanged.notify(
 				mCB(this,uiStratLayModEditTools,selPropCB) );
 
-    lvlfld_ = new uiCheckedCompoundParSel( leftgrp, 
-					    tr("Selected Stratigraphic Level"), 
+    lvlfld_ = new uiCheckedCompoundParSel( leftgrp,
+					    tr("Selected Stratigraphic Level"),
 					    false, tr("Select Markers") );
     lvlfld_->attach( rightOf, propfld_ );
     lvlfld_->butPush.notify( mCB(this,uiStratLayModEditTools,doDlg) );
@@ -187,7 +187,7 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     zoomtb_->attach( leftOf, lithtb_ );
     rightgrp->attach( rightTo, leftgrp );
     rightgrp->attach( rightBorder );
-    
+
     updateSummary();
 }
 
@@ -221,7 +221,7 @@ void uiStratLayModEditTools::flattenMenuCB( CallBacker* )
     uiDialog dlg( parent(), su);
 
     const uiListBox::Setup setup( OD::ChooseOnlyOne, tr("Selected Markers"),
-				  uiListBox::LblPos::AboveMid);
+				  uiListBox::AboveMid );
     uiListBox* lb = new uiListBox( &dlg, setup );
     lb->addItems( choosenlvlnms_ );
     if ( !flattenlvlnm_.isEmpty() )
@@ -238,12 +238,12 @@ void uiStratLayModEditTools::flattenMenuCB( CallBacker* )
 
 void uiStratLayModEditTools::doDlg( CallBacker* )
 {
-    uiDialog::Setup su( uiStrings::phrSelect(uiStrings::sMarker(mPlural)), 
+    uiDialog::Setup su( uiStrings::phrSelect(uiStrings::sMarker(mPlural)),
 			mNoDlgTitle, mTODOHelpKey );
     uiDialog dlg( parent(), su );
-    
+
     const Strat::LevelSet& lvls = Strat::LVLS();
-    
+
     BufferStringSet lvlnmset;
     for ( int idx=0; idx<lvls.size(); idx++ )
     {
@@ -252,18 +252,18 @@ void uiStratLayModEditTools::doDlg( CallBacker* )
 	lvlnmset.add( nm );
     }
 
-    const uiListBox::Setup setup( OD::ChooseZeroOrMore, tr("Available Markers"), 
+    const uiListBox::Setup setup( OD::ChooseZeroOrMore, tr("Available Markers"),
 							uiListBox::AboveLeft );
     uiListBox* lb = new uiListBox( &dlg, setup );
     lb->setMultiChoice( true );
     lb->addItems( lvlnmset );
-    lb->setChosen( choosenlvlnms_ ); 
+    lb->setChosen( choosenlvlnms_ );
 
     if ( !dlg.go() )
 	return;
 
     lb->getChosen( choosenlvlnms_ );
-    
+
     updateSummary();
 }
 
@@ -294,7 +294,7 @@ void uiStratLayModEditTools::getSummary()
 	if ( sz>1 && idx<(sz-1) )
 	    ret.add("; ");
     }
-    lvlfld_->setSummary(ret); 
+    lvlfld_->setSummary(ret);
 }
 
 
@@ -340,14 +340,14 @@ static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone,
 
 
 void uiStratLayModEditTools::setProps( const BufferStringSet& nms )
-{ 
-    setFldNms( propfld_, nms, allownoprop_, false, 0 ); 
+{
+    setFldNms( propfld_, nms, allownoprop_, false, 0 );
 }
 
 
 void uiStratLayModEditTools::setLevelNames( const BufferStringSet& nms )
-{ 
-    //setFldNms( lvlfld_, nms, true, false, 0 ); 
+{
+    //setFldNms( lvlfld_, nms, true, false, 0 );
 }
 
 
