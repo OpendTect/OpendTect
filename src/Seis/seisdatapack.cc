@@ -482,14 +482,16 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
 	randsdp->setScaler( *regsdp.getScaler() );
 
     TrcKeyPath& path = randsdp->getPath();
-    const TrcKeySampling& tks = regsdp.sampling().hsamp_;
+
+    TrcKeySampling unitsteptks = regsdp.sampling().hsamp_;
+    unitsteptks.step_ = BinID( 1, 1 );
 
     // Remove outer undefined traces at both sides
     int pathidx = path.size()-1;
-    while ( pathidx>0 && !tks.includes(path[pathidx]) )
+    while ( pathidx>0 && !unitsteptks.includes(path[pathidx]) )
 	path.removeSingle( pathidx-- );
 
-    while ( path.size()>1 && !tks.includes(path[0]) )
+    while ( path.size()>1 && !unitsteptks.includes(path[0]) )
 	path.removeSingle( 0 );
 
     // Auxiliary TrcKeyZSampling to limit z-range and if no overlap at all,
