@@ -36,7 +36,6 @@ public:
     virtual void	setZoomBox(const uiWorldRect&);
     virtual float	getDisplayZSkip() const;
 
-    Color		levelColor() const		{ return lvlcol_; }
     bool&		fillLayerBoxes()		{ return fillmdls_; }
     bool&		useLithColors()			{ return uselithcols_; }
 
@@ -55,11 +54,9 @@ protected:
 
     RefMan<FlatDataPack> emptydp_;
     uiWorldRect		zoomwr_;
-    Color		lvlcol_;
     int			dispprop_;
     int			dispeach_;
     bool		fillmdls_;
-    Strat::Level::ID	selectedlevel_;
     bool		uselithcols_;
     bool		showzoomed_;
     const Strat::Content* selectedcontent_;

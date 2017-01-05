@@ -547,7 +547,7 @@ void uiStratLayerModel::dispEachChg( CallBacker* )
 
 bool uiStratLayerModel::canShowFlattened() const
 {
-    TypeSet<float> zlvls = moddisp_->levelDepths();
+    TypeSet<float> zlvls = moddisp_->flattenLevelDepths();
     for ( int idx=0; idx<zlvls.size(); idx++ )
 	if ( !mIsUdf(zlvls[idx]) ) return true;
     return false;
@@ -578,9 +578,9 @@ void uiStratLayerModel::flattenChg( CallBacker* cb )
 
 void uiStratLayerModel::levelChg( CallBacker* cb )
 {
-    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-		    modtools_->selLevelColor() );
-    modtools_->setFlatTBSensitive( canShowFlattened() );
+    synthdisp_->setDispMrkrs( modtools_->selLevel(),
+		  moddisp_->flattenLevelDepths(), modtools_->selLevelColor() );
+    //modtools_->setFlatTBSensitive( canShowFlattened() );
     if ( !canShowFlattened() && moddisp_->isFlattened() )
     {
 	modtools_->setShowFlattened( false );
@@ -992,8 +992,8 @@ void uiStratLayerModel::handleNewModel()
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
     synthdisp_->setFlattened( modtools_->showFlattened(), true );
     moddisp_->setFlattened( modtools_->showFlattened(), true );
-    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-		    modtools_->selLevelColor() );
+    synthdisp_->setDispMrkrs( modtools_->selLevel(),
+		moddisp_->flattenLevelDepths(), modtools_->selLevelColor() );
     const bool canshowflattened = canShowFlattened();
     synthdisp_->setSnapLevelSensitive( canshowflattened );
 
@@ -1089,8 +1089,8 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
 	useSyntheticsPars( desc_.getWorkBenchParams() );
     }
     synthdisp_->showFRResults();
-    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-			      modtools_->selLevelColor() );
+    synthdisp_->setDispMrkrs( modtools_->selLevel(),
+		moddisp_->flattenLevelDepths(), modtools_->selLevelColor() );
     moddisp_->setBrineFilled( fwd );
     moddisp_->setFluidReplOn( usefr );
     moddisp_->modelChanged();

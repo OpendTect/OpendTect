@@ -45,6 +45,8 @@ mStruct(uiStrat) LMPropSpecificDispPars
 mExpClass(uiStrat) uiStratLayerModelDisp : public uiGroup
 { mODTextTranslationClass(uiStratLayerModelDisp);
 public:
+    typedef TypeSet<float> LVLZVals;
+    typedef TypeSet< LVLZVals > LVLZValsSet;
 
 			uiStratLayerModelDisp(uiStratLayModEditTools&,
 					    const Strat::LayerModelProvider&);
@@ -61,8 +63,7 @@ public:
     virtual bool	canSetDisplayProperties() const	{ return false; }
 
     const Strat::LayerModel& layerModel() const;
-    const TypeSet<float>& levelDepths() const		{ 
-							    return lvldpths_; }
+    const LVLZVals&	flattenLevelDepths() const;
     int			selectedSequence() const	{ return selseqidx_; }
     void		selectSequence(int seqidx);
 
@@ -79,6 +80,7 @@ public:
 	    				  const PropertyRef*,int) const;
     bool		setPropDispPars(const LMPropSpecificDispPars&);
     bool		getCurPropDispPars(LMPropSpecificDispPars&) const;
+    const int		getFlattenLevelIdx() const;
     void		clearDispPars()		{ lmdisppars_.erase(); }
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
@@ -99,7 +101,7 @@ protected:
     bool		flattened_;
     bool		fluidreplon_;
     bool		isbrinefilled_;
-    TypeSet<float>	lvldpths_;
+    LVLZValsSet		lvldpths_;
     TypeSet<LMPropSpecificDispPars> lmdisppars_;
     IOPar		dumppars_;
 

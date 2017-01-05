@@ -95,10 +95,13 @@ public:
     Notifier<uiStratLayModEditTools>	flattenChg;
     Notifier<uiStratLayModEditTools>	mkSynthChg;
 
-    int		selPropIdx() const;		//!< May return -1
-    Strat::Level::ID selLevelID() const;
-    Strat::Level selStratLevel() const;
-    Color	selLevelColor() const;		//!< May return NoColor
+    int				selPropIdx() const;	//!< May return -1
+    Strat::Level::ID		flattenSelLevelID() const;
+    Strat::Level		getFlattenStratLevel() const;
+    TypeSet<Strat::Level>	getAllSelStratLevels() const;
+    TypeSet<Strat::Level::ID>	getAllSelLevelsID() const;
+    Color			selLevelColor() const;	//!< May return NoColor
+
 
     uiToolButton* lithButton()		{ return lithtb_; }
     uiToolButton* zoomButton()		{ return zoomtb_; }
@@ -108,6 +111,7 @@ public:
 
     bool	allownoprop_;
     const BufferStringSet getSelLvlNmSet() { return choosenlvlnms_; }
+    const BufferString	  getFlattenLvlNm() { return flattenlvlnm_; }
 
 protected:
 
@@ -135,13 +139,17 @@ protected:
     void	dispEachCB( CallBacker* )	{ dispEachChg.trigger(); }
     void	dispZoomedCB( CallBacker* )	{ dispZoomedChg.trigger(); }
     void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
-    void	showFlatCB( CallBacker* )	{ flattenChg.trigger(); }
+    void	showFlatCB( CallBacker* );
     void	mkSynthCB( CallBacker* )	{ mkSynthChg.trigger(); }
     void	doDlg( CallBacker* );
+    void	dispLVLs( CallBacker* );
+    void	flattenMenuCB( CallBacker* );
     void	getSummary();
     void	updateSummary();
 
     BufferStringSet		choosenlvlnms_;
+    BufferStringSet		prevlvlnms_;
+    BufferString		flattenlvlnm_;
 
 };
 
