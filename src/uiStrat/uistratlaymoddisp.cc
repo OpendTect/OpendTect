@@ -137,7 +137,7 @@ void uiStratLayerModelDisp::setFlattened( bool yn, bool trigger )
 }
 
 
-const int uiStratLayerModelDisp::getFlattenLevelIdx() const
+int uiStratLayerModelDisp::getFlattenLevelIdx() const
 {
     return tools_.getSelLvlNmSet().indexOf( tools_.getFlattenLvlNm() );
 }
@@ -146,7 +146,7 @@ const int uiStratLayerModelDisp::getFlattenLevelIdx() const
 const uiStratLayerModelDisp::LVLZVals& uiStratLayerModelDisp::
 						    flattenLevelDepths() const
 {
-    return ( getFlattenLevelIdx() < 0 || !flattened_ ) ? lvldpths_[0] : 
+    return ( getFlattenLevelIdx() < 0 || !flattened_ ) ? lvldpths_[0] :
 					    lvldpths_[getFlattenLevelIdx()];
 }
 
@@ -843,7 +843,7 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
 #define mEndLayLoop() \
          } \
      } \
-       
+
 
 void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
 {
@@ -868,7 +868,7 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 {
     if ( layerModel().isEmpty() )
 	return;
-    
+
     const int sz = tools_.getSelLvlNmSet().size();
     TypeSet<Strat::Level> lvlset = tools_.getAllSelStratLevels();
     int auxdataidx = 0;
@@ -900,7 +900,7 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 		vwr_.addAuxData( levelad );
 		levelads_ += levelad;
 	    }
-	    else 
+	    else
 		levelad = levelads_[auxdataidx];
 	    levelad->poly_.erase();
 	    levelad->enabled_ = true;
@@ -934,7 +934,7 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
     int auxdataidx = 0;
     const int idx = tools_.getSelLvlNmSet().indexOf( tools_.getFlattenLvlNm() );
     if ( flattened_ && idx<0 ) return;
-    mStartLayLoop( false,) 
+    mStartLayLoop( false,)
     {
 	if ( !isDisplayedModel(iseq) )
 	    continue;

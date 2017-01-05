@@ -30,7 +30,7 @@ namespace Strat { class LayerModel; class LayerModelProvider; class Layer; }
 
 mStruct(uiStrat) LMPropSpecificDispPars
 {
-    			LMPropSpecificDispPars( const char* nm=0 )
+			LMPropSpecificDispPars( const char* nm=0 )
 			    : propnm_(nm)	{}
     bool		operator==( const LMPropSpecificDispPars& oth ) const
 			{ return propnm_ == oth.propnm_; }
@@ -74,13 +74,13 @@ public:
     void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
     bool		isBrineFilled() const		{return isbrinefilled_;}
     void		setBrineFilled(bool yn)		{ isbrinefilled_= yn; }
-    
+
 
     float		getLayerPropValue(const Strat::Layer&,
-	    				  const PropertyRef*,int) const;
+					  const PropertyRef*,int) const;
     bool		setPropDispPars(const LMPropSpecificDispPars&);
     bool		getCurPropDispPars(LMPropSpecificDispPars&) const;
-    const int		getFlattenLevelIdx() const;
+    int			getFlattenLevelIdx() const;
     void		clearDispPars()		{ lmdisppars_.erase(); }
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
@@ -123,6 +123,6 @@ protected:
     bool		doLayerModelIO(bool);
     virtual void	doLevelChg()			= 0;
     virtual void	handleClick(bool dble)		= 0;
-    				//!< returns whether layermodel has changed
+				//!< returns whether layermodel has changed
 
 };
