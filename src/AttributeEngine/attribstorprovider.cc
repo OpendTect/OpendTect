@@ -90,6 +90,18 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     desc.removeOutputs();
     for ( int idx=0; idx<dtyps.size(); idx++ )
 	desc.addOutputDataType( dtyps[idx] );
+
+    //safety, might be removed afterwards but we still use old surveys/cubes
+    if ( desc.isSteering() )
+    {
+	desc.changeOutputDataType( 0, Seis::Dip );
+	desc.changeOutputDataType( 1, Seis::Dip );
+	if ( compnms && compnms->size()>=2 )
+	{
+	    compnms->set( 0, new BufferString( "Inline Dip" ) );
+	    compnms->set( 1, new BufferString( "Crossline Dip" ) );
+	}
+    }
 }
 
 
