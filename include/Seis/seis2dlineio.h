@@ -52,7 +52,7 @@ public:
 };
 
 
-/*!\brief interface for object that reads 2D seismic data */
+/*!\brief interface for object that reads entire or parts of entire 2D lines. */
 
 mExpClass(Seis) Seis2DLineGetter : public Executor
 { mODTextTranslationClass(Seis2DLineGetter);
@@ -80,13 +80,39 @@ protected:
 };
 
 
-mExpClass(Seis) Seis2DTraceGetter
-{
-public:
-			Seis2DTraceGetter()	{}
-    virtual		~Seis2DTraceGetter()	{}
+/*!\brief Provides access to 2D seismic line data. */
 
-    virtual uiRetVal	get(const TrcKey&,SeisTrc&) const = 0;
+mExpClass(Seis) Seis2DTraceGetter
+{ mODTextTranslationClass(Seis2DTraceGetter);
+public:
+
+    typedef IdxPair::IdxType	TrcNrType;
+    typedef IdxPair::IdxType	LineNrType;
+
+    virtual		~Seis2DTraceGetter();
+
+    const IOObj&	ioobj() const		{ return ioobj_; }
+    Pos::GeomID		geomID() const		{ return geomid_; }
+
+    uiRetVal		get(TrcNrType,SeisTrc&) const;
+    uiRetVal		getNext(SeisTrc&) const;
+
+protected:
+
+			Seis2DTraceGetter(const IOObj&,Pos::GeomID,
+					  const Seis::SelData*);
+
+    virtual void	mkTranslator() const	= 0;
+
+    IOObj&		ioobj_;
+    const Pos::GeomID	geomid_;
+    Seis::SelData*	seldata_;
+    mutable uiString	initmsg_;
+    mutable SeisTrcTranslator* tr_;
+
+    bool		ensureTranslator() const;
+    void		ensureCorrectTrcKey(SeisTrc&) const;
+    LineNrType		lineNr() const		{ return geomid_; }
 
 };
 
@@ -107,8 +133,8 @@ public:
 				    PosInfo::Line2DData&) const		= 0;
 
     virtual Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,
-						uiRetVal&)		= 0;
-    virtual Executor*	getLineGetter(const IOObj&,Pos::GeomID,
+				    const Seis::SelData*,uiRetVal&)	= 0;
+    virtual Executor*		getLineGetter(const IOObj&,Pos::GeomID,
 					SeisTrcBuf&,const Seis::SelData*,
 					uiRetVal&,int trcsperfetch=16)	= 0;
     virtual Seis2DLinePutter*	getPutter(const IOObj&,Pos::GeomID,

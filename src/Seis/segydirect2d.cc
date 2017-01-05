@@ -47,8 +47,8 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 }
 
 
-const OD::String& SEGYDirect2DLineIOProvider::getFileName( const IOObj& obj,
-							 Pos::GeomID geomid )
+BufferString SEGYDirect2DLineIOProvider::getFileName( const IOObj& obj,
+						      Pos::GeomID geomid )
 {
     mDeclStaticString( ret );
     ret = obj.fullUserExpr();
@@ -68,7 +68,7 @@ SEGYDirect2DLineIOProvider::SEGYDirect2DLineIOProvider()
 bool SEGYDirect2DLineIOProvider::isEmpty( const IOObj& obj,
 					Pos::GeomID geomid ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     return fnm.isEmpty() || File::isEmpty(fnm);
 }
 
@@ -85,7 +85,7 @@ bool SEGYDirect2DLineIOProvider::getTxtInfo( const IOObj& obj,
 					     BufferString& uinf,
 					     BufferString& stdinf ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -103,7 +103,7 @@ bool SEGYDirect2DLineIOProvider::getRanges( const IOObj& obj,
 					    StepInterval<int>& trcrg,
 					    StepInterval<float>& zrg ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
 	return false;
 
@@ -117,7 +117,7 @@ bool SEGYDirect2DLineIOProvider::getRanges( const IOObj& obj,
 bool SEGYDirect2DLineIOProvider::removeImpl( const IOObj& obj,
 					   Pos::GeomID geomid ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -168,6 +168,24 @@ uiRetVal SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
 
     return uiRetVal::OK();
 }
+
+
+class SEGYDirect2DTraceGetter : public Seis2DTraceGetter
+{
+public:
+
+SEGYDirect2DTraceGetter( const IOObj& obj, Pos::GeomID geomid,
+			 const Seis::SelData* sd )
+    : Seis2DTraceGetter(obj,geomid,sd)
+{
+}
+
+void mkTranslator() const
+{
+    tr_ = gtTransl( SEGYDirect2DLineIOProvider::getFileName(ioobj_,geomid_) );
+}
+
+};
 
 
 #undef mErrRet
@@ -267,18 +285,16 @@ uiRetVal SEGYDirect2DLineIOProvider::getGeometry( const IOObj& obj,
 
 
 Seis2DTraceGetter* SEGYDirect2DLineIOProvider::getTraceGetter( const IOObj& obj,
-			Pos::GeomID geomid, uiRetVal& uirv )
+		Pos::GeomID geomid, const Seis::SelData* sd, uiRetVal& uirv )
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
 	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
 	return 0;
     }
 
-    // return new SEGYDirect2DTraceGetter( fnm );
-    uirv.set( mTODONotImplPhrase() );
-    return 0;
+    return new SEGYDirect2DTraceGetter( obj, geomid, sd );
 }
 
 
@@ -286,7 +302,7 @@ Seis2DLineGetter* SEGYDirect2DLineIOProvider::getLineGetter( const IOObj& obj,
 			Pos::GeomID geomid, SeisTrcBuf& tbuf,
 			const Seis::SelData* sd, uiRetVal& uirv, int ntps )
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
 	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
@@ -397,7 +413,7 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
 
     const Survey::Geometry::ID geomid
 			= Survey::Geometry2D::getIDFrom( ioobj.key() );
-    const OD::String& segydeffnm =
+    const BufferString segydeffnm =
 	SEGYDirect2DLineIOProvider::getFileName( *segydirectobj, geomid );
     SEGY::DirectDef sgydef( segydeffnm );
     const PosInfo::Line2DData& ld = sgydef.lineData();

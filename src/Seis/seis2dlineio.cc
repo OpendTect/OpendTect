@@ -29,6 +29,96 @@
 #include "uistrings.h"
 #include "keystrs.h"
 
+
+
+Seis2DTraceGetter::Seis2DTraceGetter( const IOObj& obj, Pos::GeomID geomid,
+				      const Seis::SelData* sd )
+    : ioobj_(*obj.clone())
+    , geomid_(geomid)
+    , seldata_(sd && !sd->isAll() ? sd->clone() : 0)
+    , tr_(0)
+{
+}
+
+
+Seis2DTraceGetter::~Seis2DTraceGetter()
+{
+    delete tr_;
+    delete seldata_;
+    delete &ioobj_;
+}
+
+
+bool Seis2DTraceGetter::ensureTranslator() const
+{
+    if ( !tr_ )
+    {
+	mkTranslator();
+	if ( !tr_ )
+	{
+	    if ( initmsg_.isEmpty() )
+		initmsg_ = tr( "Cannot make %1 access for '%2'" )
+			    .arg( ioobj_.translator() ).arg( ioobj_.name() );
+	    return false;
+	}
+	tr_->setSelData( seldata_ );
+    }
+
+    return true;
+}
+
+
+void Seis2DTraceGetter::ensureCorrectTrcKey( SeisTrc& trc ) const
+{
+    const TrcKey tk( lineNr(), trc.info().trcNr() );
+    trc.info().trckey_ = tk;
+}
+
+
+uiRetVal Seis2DTraceGetter::get( TrcNrType tnr, SeisTrc& trc ) const
+{
+    if ( !ensureTranslator() )
+	return uiRetVal( initmsg_ );
+
+    const BinID bid( lineNr(), tnr );
+    if ( !tr_->goTo(bid) )
+	return uiRetVal( tr("Trace not present: %1").arg(tnr) );
+
+    if ( !tr_->read(trc) )
+	return uiRetVal( tr_->errMsg() );
+
+    ensureCorrectTrcKey( trc );
+    return uiRetVal::OK();
+}
+
+
+uiRetVal Seis2DTraceGetter::getNext( SeisTrc& trc ) const
+{
+    if ( !ensureTranslator() )
+	return uiRetVal( initmsg_ );
+
+    uiRetVal uirv;
+    while ( true )
+    {
+	if ( !tr_->read(trc) )
+	{
+	    uirv.set( tr_->errMsg() );
+	    if ( uirv.isEmpty() )
+		uirv.set( uiStrings::sFinished() );
+	    break;
+	}else
+	if ( !seldata_ || seldata_->isOK(BinID(lineNr(),trc.info().trcNr())) )
+	{
+	    ensureCorrectTrcKey( trc );
+	    break;
+	}
+    }
+
+    return uirv;
+}
+
+
+
 Seis2DLineGetter::Seis2DLineGetter( SeisTrcBuf& trcbuf, int trcsperstep,
 				    const Seis::SelData* sd )
     : Executor("Reading 2D Traces")

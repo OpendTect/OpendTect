@@ -63,7 +63,8 @@ public:
     void		getLineNames(BufferStringSet&) const;
     uiRetVal		getGeometry(Pos::GeomID,PosInfo::Line2DData&) const;
 
-    Seis2DTraceGetter*	traceGetter(Pos::GeomID,uiRetVal&) const;
+    Seis2DTraceGetter*	traceGetter(Pos::GeomID,const Seis::SelData*,
+				    uiRetVal&) const;
 				//!< May return null
     Executor*		lineGetter(Pos::GeomID,SeisTrcBuf&,
 				    const Seis::SelData*,uiRetVal&,

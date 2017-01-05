@@ -11,8 +11,8 @@ ________________________________________________________________________
 #include "seislineprovider.h"
 #include "seisfetcher.h"
 #include "seis2ddata.h"
+#include "seis2dlineio.h"
 #include "seisselection.h"
-#include "seisbuf.h"
 #include "uistrings.h"
 #include "posinfo2d.h"
 #include "survgeom.h"
@@ -44,13 +44,11 @@ public:
 LineFetcher( LineProvider& p )
     : Fetcher2D(p)
     , getter_(0)
-    , tbuf_(false)
 {
 }
 
 ~LineFetcher()
 {
-    tbuf_.deepErase();
     delete getter_;
 }
 
@@ -65,16 +63,13 @@ const LineProvider& prov() const
 }
 
     void		reset();
-    bool		createGetter();
     bool		getNextGetter();
-    bool		getFromBuf(int,SeisTrc&);
     bool		readNextTraces();
 
     void		get(const TrcKey&,SeisTrc&);
     void		getNext(SeisTrc&);
 
-    Executor*		getter_;
-    SeisTrcBuf		tbuf_;
+    Seis2DTraceGetter*	getter_;
 
 };
 
@@ -88,62 +83,22 @@ void Seis::LineFetcher::reset()
 
     openDataSet();
     if ( uirv_.isOK() )
-	getNextGetter();
+    {
+	if ( !getNextGetter() )
+	    uirv_.set( tr("Empty 2D Data set") );
+    }
 }
 
 
 bool Seis::LineFetcher::getNextGetter()
 {
     delete getter_; getter_ = 0;
-    tbuf_.deepErase();
 
     if ( !toNextLine() )
 	return false;
 
-    getter_ = dataset_->lineGetter( curGeomID(), tbuf_, prov2D().selData(),
-	    			    uirv_ );
+    getter_ = dataset_->traceGetter( curGeomID(), prov2D().selData(), uirv_ );
     return getter_ ? true : getNextGetter();
-}
-
-
-bool Seis::LineFetcher::getFromBuf( int trcnr, SeisTrc& trc )
-{
-    while ( !tbuf_.isEmpty() )
-    {
-	SeisTrc* buftrc = tbuf_.remove( 0 );
-	const bool ismatch = buftrc->info().trcNr() == trcnr;
-	if ( ismatch )
-	    trc = *buftrc;
-	delete buftrc;
-	if ( ismatch )
-	    return true;
-    }
-    return false;
-}
-
-
-bool Seis::LineFetcher::createGetter()
-{
-    delete getter_; tbuf_.deepErase();
-    getter_ = dataset_->lineGetter( curGeomID(), tbuf_, prov().seldata_,
-	    			    uirv_ );
-    return getter_;
-}
-
-
-bool Seis::LineFetcher::readNextTraces()
-{
-    if ( !getter_ && !createGetter() )
-	return false;
-
-    int res = getter_->doStep();
-    if ( res < 0 )
-    {
-	uirv_.set( getter_->message() );
-	return false;
-    }
-
-    return !tbuf_.isEmpty();
 }
 
 
@@ -155,51 +110,40 @@ void Seis::LineFetcher::get( const TrcKey& tk, SeisTrc& trc )
 	return;
     }
 
-    if ( tk.geomID() == curGeomID() && getFromBuf(tk.trcNr(),trc) )
-	return;
-
-    tbuf_.deepErase();
-    curlidx_ = lineIdxFor( tk.geomID() );
-    if ( curlidx_ < 0 )
+    if ( !getter_ || tk.geomID() != curGeomID() )
     {
-	uirv_.set( tr("Requested position not available") );
-	return;
-    }
+	curlidx_ = lineIdxFor( tk.geomID() );
+	if ( curlidx_ < 0 )
+	    { uirv_.set( tr("Requested position not available") ); return; }
 
-    if ( !createGetter() )
-	return;
-
-    while ( true )
-    {
-	if ( !readNextTraces() )
+	delete getter_;
+	getter_ = dataset_->traceGetter( curGeomID(), prov().seldata_, uirv_ );
+	if ( !getter_ )
 	{
-	    uirv_.set( tr("Requested position not available") );
+	    if ( uirv_.isEmpty() )
+		uirv_.set( tr("Requested position not available") );
 	    return;
 	}
-	if ( getFromBuf(tk.trcNr(),trc) )
-	    break;
     }
+
+    uirv_ = getter_->get( tk.trcNr(), trc );
 }
 
 
 void Seis::LineFetcher::getNext( SeisTrc& trc )
 {
-    if ( tbuf_.isEmpty() )
+    if ( getter_ )
+	uirv_ = getter_->getNext( trc );
+    while ( !getter_ || uirv_.isError() )
     {
-        while ( !readNextTraces() )
+	if ( mIsSingleLine(prov().seldata_) || !getNextGetter() )
 	{
-	    if ( mIsSingleLine(prov().seldata_) || !getNextGetter() )
-	    {
-		if ( uirv_.isEmpty() )
-		    uirv_.set( uiStrings::sFinished() );
-		return;
-	    }
+	    if ( uirv_.isEmpty() )
+		uirv_.set( uiStrings::sFinished() );
+	    break;
 	}
+	uirv_ = getter_->getNext( trc );
     }
-
-    SeisTrc* buftrc = tbuf_.remove( 0 );
-    trc = *buftrc;
-    delete buftrc;
 }
 
 

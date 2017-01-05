@@ -105,6 +105,7 @@ static bool testVol()
     uirv = prov->getNext( trc );
     prTrc( "Second next after subsel", trc, uirv );
 
+    /*
     Seis::PreLoader pl( dbky );
     TextTaskRunner taskrunner( od_cout() );
     pl.setTaskRunner( taskrunner );
@@ -119,6 +120,7 @@ static bool testVol()
     prTrc( "tk_1300_1200", trc, uirv );
 
     pl.unLoad();
+    */
     delete prov;
     return true;
 }

@@ -31,7 +31,8 @@ public:
     uiRetVal		getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const;
     uiRetVal		getGeometry(const IOObj&,Pos::GeomID,
 				    PosInfo::Line2DData&) const;
-    Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,uiRetVal&);
+    Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,
+					const Seis::SelData*,uiRetVal&);
     Seis2DLineGetter*	getLineGetter(const IOObj&,Pos::GeomID,SeisTrcBuf&,
 				   const Seis::SelData*,uiRetVal&,int n=16);
     Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID,uiRetVal&);
@@ -44,11 +45,12 @@ public:
     bool		removeImpl(const IOObj&,Pos::GeomID) const;
     bool		renameImpl(const IOObj&,const char*) const;
 
-    static const OD::String&	getFileName(const IOObj&,Pos::GeomID);
+    static BufferString	getFileName(const IOObj&,Pos::GeomID);
 
 private:
 
     static int		factid_;
+
 };
 
 
@@ -64,12 +66,12 @@ public:
     bool		put(const SeisTrc&);
     bool		close();
 
-    int					nrwr_;
-    BufferString			fname_;
-    uiString				errmsg_;
-    SEGYSeisTrcTranslator*		tr_;
-    BinID				bid_;
-    DataCharacteristics::UserType	preseldt_;
+    int			nrwr_;
+    BufferString	fname_;
+    uiString		errmsg_;
+    SEGYSeisTrcTranslator* tr_;
+    BinID		bid_;
+    DataCharacteristics::UserType preseldt_;
 
 };
 
@@ -85,19 +87,19 @@ public:
     od_int64		nrDone() const		{ return curnr_; }
     od_int64		totalNr() const		{ return totnr_; }
 
-    const SeisTrcTranslator*	translator() const;
+    const SeisTrcTranslator* translator() const;
 
 protected:
 
     void		addTrc(SeisTrc*);
     int			nextStep();
 
-    int				curnr_;
-    int				totnr_;
-    BufferString		fname_;
-    SEGYSeisTrcTranslator*	tr_;
-    const int			trcsperstep_;
-    Pos::GeomID			geomid_;
+    int			curnr_;
+    int			totnr_;
+    BufferString	fname_;
+    SEGYSeisTrcTranslator* tr_;
+    const int		trcsperstep_;
+    Pos::GeomID		geomid_;
 
 };
 

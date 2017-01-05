@@ -124,7 +124,7 @@ void Seis2DDataSet::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 
 
 Seis2DTraceGetter* Seis2DDataSet::traceGetter( Pos::GeomID geomid,
-						uiRetVal& uirv ) const
+			const Seis::SelData* sd, uiRetVal& uirv ) const
 {
     if ( !liop_ )
     {
@@ -138,7 +138,7 @@ Seis2DTraceGetter* Seis2DDataSet::traceGetter( Pos::GeomID geomid,
 	return 0;
     }
 
-    return liop_->getTraceGetter( ioobj_, geomid, uirv );
+    return liop_->getTraceGetter( ioobj_, geomid, sd, uirv );
 }
 
 

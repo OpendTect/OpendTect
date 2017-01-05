@@ -30,7 +30,8 @@ public:
     uiRetVal		getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const;
     uiRetVal		getGeometry(const IOObj&,Pos::GeomID,
 				    PosInfo::Line2DData&) const;
-    Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,uiRetVal&);
+    Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,
+					const Seis::SelData*,uiRetVal&);
     Seis2DLineGetter*	getLineGetter(const IOObj&,Pos::GeomID,SeisTrcBuf&,
 				   const Seis::SelData*,uiRetVal&,int ntrc=16);
     Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID,uiRetVal&);
@@ -43,7 +44,7 @@ public:
     bool		removeImpl(const IOObj&,Pos::GeomID) const;
     bool		renameImpl(const IOObj&,const char*) const;
 
-    static const OD::String&	getFileName(const IOObj&,Pos::GeomID);
+    static BufferString	getFileName(const IOObj&,Pos::GeomID);
 
 private:
 

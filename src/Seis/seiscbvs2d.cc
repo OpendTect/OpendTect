@@ -43,12 +43,12 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 }
 
 
-const OD::String& SeisCBVS2DLineIOProvider::getFileName( const IOObj& obj,
-							 Pos::GeomID geomid )
+BufferString SeisCBVS2DLineIOProvider::getFileName( const IOObj& obj,
+						    Pos::GeomID geomid )
 {
-    mDeclStaticString( ret );
-    ret = obj.fullUserExpr();
-    if ( ret.isEmpty() ) return ret;
+    BufferString ret = obj.fullUserExpr();
+    if ( ret.isEmpty() )
+	return ret;
 
     File::Path fp( ret );
     BufferString fnm = fp.fileName();
@@ -69,7 +69,7 @@ SeisCBVS2DLineIOProvider::SeisCBVS2DLineIOProvider()
 bool SeisCBVS2DLineIOProvider::isEmpty( const IOObj& obj,
 					Pos::GeomID geomid ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     return fnm.isEmpty() || File::isEmpty(fnm);
 }
 
@@ -84,7 +84,7 @@ static CBVSSeisTrcTranslator* gtTransl( const char* fnm, bool infoonly,
 bool SeisCBVS2DLineIOProvider::getTxtInfo( const IOObj& obj, Pos::GeomID geomid,
 		BufferString& uinf, BufferString& stdinf ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -100,7 +100,7 @@ bool SeisCBVS2DLineIOProvider::getTxtInfo( const IOObj& obj, Pos::GeomID geomid,
 bool SeisCBVS2DLineIOProvider::getRanges( const IOObj& obj, Pos::GeomID geomid,
 		StepInterval<int>& trcrg, StepInterval<float>& zrg ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -116,7 +116,7 @@ bool SeisCBVS2DLineIOProvider::getRanges( const IOObj& obj, Pos::GeomID geomid,
 bool SeisCBVS2DLineIOProvider::removeImpl( const IOObj& obj,
 					   Pos::GeomID geomid ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -180,6 +180,26 @@ uiRetVal SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
 
     return uiRetVal::OK();
 }
+
+
+
+class SeisCBVS2DTraceGetter : public Seis2DTraceGetter
+{
+public:
+
+SeisCBVS2DTraceGetter( const IOObj& obj, Pos::GeomID geomid,
+			 const Seis::SelData* sd )
+    : Seis2DTraceGetter(obj,geomid,sd)
+{
+}
+
+void mkTranslator() const
+{
+    tr_ = gtTransl( SeisCBVS2DLineIOProvider::getFileName(ioobj_,geomid_),
+		    false, &initmsg_ );
+}
+
+};
 
 
 #undef mErrRet
@@ -285,7 +305,7 @@ uiRetVal SeisCBVS2DLineIOProvider::getGeometry( const IOObj& obj,
 {
     uiRetVal uirv;
     geom.setEmpty();
-    BufferString fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
 	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
@@ -321,18 +341,16 @@ uiRetVal SeisCBVS2DLineIOProvider::getGeometry( const IOObj& obj,
 
 
 Seis2DTraceGetter* SeisCBVS2DLineIOProvider::getTraceGetter( const IOObj& obj,
-			Pos::GeomID geomid, uiRetVal& uirv )
+		Pos::GeomID geomid, const Seis::SelData* sd, uiRetVal& uirv )
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
 	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
 	return 0;
     }
 
-    // return new SeisCBVS2DTraceGetter( fnm );
-    uirv.set( mTODONotImplPhrase() );
-    return 0;
+    return new SeisCBVS2DTraceGetter( obj, geomid, sd );
 }
 
 
@@ -340,7 +358,7 @@ Seis2DLineGetter* SeisCBVS2DLineIOProvider::getLineGetter( const IOObj& obj,
 			    Pos::GeomID geomid, SeisTrcBuf& tbuf,
 			    const Seis::SelData* sd, uiRetVal& uirv, int npts )
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
 	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
