@@ -38,35 +38,36 @@ public:
 mExpClass(Seis) Seis2DLinePutter
 { mODTextTranslationClass(Seis2DLinePutter);
 public:
+
     virtual		~Seis2DLinePutter()	{}
 
     virtual bool	put(const SeisTrc&)	= 0;
-    //!< Return fase on success, err msg on failure
+				//!< Return false on success, err msg on failure
     virtual bool	close()			= 0;
-    //!< Return null on success, err msg on failure
+				//!< Return null on success, err msg on failure
     virtual uiString	errMsg() const		= 0;
-    //!< Only when put or close returns false
+				//!< Only when put or close returns false
     virtual int		nrWritten() const	= 0;
 
 };
 
 
-/*!\brief interface for object that reads 2D seismic data */
+/*!\brief interface for object that reads entire or parts of entire 2D lines. */
 
 mExpClass(Seis) Seis2DLineGetter : public Executor
 { mODTextTranslationClass(Seis2DLineGetter);
 public:
 			Seis2DLineGetter(SeisTrcBuf&,int trcsperstep,
-					 const Seis::SelData&);
-    virtual		~Seis2DLineGetter()	{}
+					 const Seis::SelData*);
+    virtual		~Seis2DLineGetter();
 
-    uiString		message() const	{ return msg_; }
+    uiString		message() const		{ return msg_; }
     uiString		nrDoneText() const	{ return tr("Traces read"); }
 
     virtual od_int64	nrDone() const			= 0;
     virtual od_int64	totalNr() const			= 0;
 
-    virtual const SeisTrcTranslator*	translator() const	{ return 0; }
+    virtual const SeisTrcTranslator* translator() const	{ return 0; }
 
 protected:
 
@@ -75,7 +76,46 @@ protected:
     SeisTrcBuf&		tbuf_;
     uiString		msg_;
     Seis::SelData*	seldata_;
+
 };
+
+
+/*!\brief Provides access to 2D seismic line data. */
+
+mExpClass(Seis) Seis2DTraceGetter
+{ mODTextTranslationClass(Seis2DTraceGetter);
+public:
+
+    typedef IdxPair::IdxType	TrcNrType;
+    typedef IdxPair::IdxType	LineNrType;
+
+    virtual		~Seis2DTraceGetter();
+
+    const IOObj&	ioobj() const		{ return ioobj_; }
+    Pos::GeomID		geomID() const		{ return geomid_; }
+
+    uiRetVal		get(TrcNrType,SeisTrc&) const;
+    uiRetVal		getNext(SeisTrc&) const;
+
+protected:
+
+			Seis2DTraceGetter(const IOObj&,Pos::GeomID,
+					  const Seis::SelData*);
+
+    virtual void	mkTranslator() const	= 0;
+
+    IOObj&		ioobj_;
+    const Pos::GeomID	geomid_;
+    Seis::SelData*	seldata_;
+    mutable uiString	initmsg_;
+    mutable SeisTrcTranslator* tr_;
+
+    bool		ensureTranslator() const;
+    void		ensureCorrectTrcKey(SeisTrc&) const;
+    LineNrType		lineNr() const		{ return geomid_; }
+
+};
+
 
 /*!\brief Provides read/write to/from 2D seismic lines.
 	  Only interesting if you want to add your own 2D data I/O. */
@@ -87,13 +127,18 @@ public:
     virtual		~Seis2DLineIOProvider()			{}
 
     virtual bool	isEmpty(const IOObj&,Pos::GeomID) const		= 0;
-    virtual bool	getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const
+    virtual uiRetVal	getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const
 									= 0;
-    virtual bool	getGeometry(const IOObj&,Pos::GeomID,
+    virtual uiRetVal	getGeometry(const IOObj&,Pos::GeomID,
 				    PosInfo::Line2DData&) const		= 0;
-    virtual Executor*	getFetcher(const IOObj&,Pos::GeomID,SeisTrcBuf&,int,
-				   const Seis::SelData* sd=0)		= 0;
-    virtual Seis2DLinePutter* getPutter(const IOObj&,Pos::GeomID)	= 0;
+
+    virtual Seis2DTraceGetter*	getTraceGetter(const IOObj&,Pos::GeomID,
+				    const Seis::SelData*,uiRetVal&)	= 0;
+    virtual Executor*		getLineGetter(const IOObj&,Pos::GeomID,
+					SeisTrcBuf&,const Seis::SelData*,
+					uiRetVal&,int trcsperfetch=16)	= 0;
+    virtual Seis2DLinePutter*	getPutter(const IOObj&,Pos::GeomID,
+					  uiRetVal&)			= 0;
 
     virtual bool	getTxtInfo(const IOObj&,Pos::GeomID,BufferString&,
 				   BufferString&) const		{ return false;}
@@ -111,6 +156,7 @@ protected:
 			: type_(t)				{}
 
     const BufferString	type_;
+
 };
 
 

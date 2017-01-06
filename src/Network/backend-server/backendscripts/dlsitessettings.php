@@ -60,8 +60,17 @@ $DLSITES_GS_ARCHIVE_PATH = '';
 //GS bucket path
 $DLSITES_GS_BUCKET = '';
 
-//GS credentials file
+//GS archive path
 $DLSITES_GS_CREDENTIALS = '';
+
+//AWS SDK location
+$DLSITES_AWS_PATH = '';
+
+//AWS archive access key
+$DLSITES_AWS_ACCESS_KEY = '';
+
+//AWS archive access id
+$DLSITES_AWS_ACCESS_ID = '';
 
 //Override defaults if local file exists
 $localsettingsfile = realpath(dirname(__FILE__))."/dlsitessettings.local.php";

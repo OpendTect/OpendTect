@@ -88,7 +88,6 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, Probe& probe,
     , polyseltbid_(-1)
     , voiidx_(-1)
     , basetxt_(tr("2D Viewer - "))
-    , isvertical_(true)
     , viewWinAvailable(this)
     , viewWinClosed(this)
     , dataChanged(this)
@@ -144,12 +143,16 @@ uiODViewer2D::~uiODViewer2D()
 }
 
 
+bool uiODViewer2D::isVertical() const
+{ return probe_.isVertical(); }
+
+
 Pos::GeomID uiODViewer2D::geomID() const
 {
     if ( probe_.position().hsamp_.survid_ == Survey::GM().get2DSurvID() )
 	return probe_.position().hsamp_.trcKeyAt(0).geomID();
 
-    return Survey::GM().cUndefGeomID();
+    return mUdfGeomID;
 }
 
 
@@ -159,7 +162,7 @@ uiParent* uiODViewer2D::viewerParent()
 
 void uiODViewer2D::setUpAux()
 {
-    const bool is2d = geomID() != Survey::GM().cUndefGeomID();
+    const bool is2d = !mIsUdfGeomID( geomID() );
     FlatView::Annotation& vwrannot = viewwin()->viewer().appearance().annot_;
     if ( !is2d && !probe_.position().isFlat() )
 	vwrannot.x1_.showauxannot_ = vwrannot.x2_.showauxannot_ = false;
@@ -207,15 +210,12 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
     const bool isnew = !viewwin();
     if ( isnew )
     {
-	if ( probe_.type()==Line2DProbe::sFactoryKey() )
+	if ( probe_.is2D() )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet2D();
 	else
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
 
-	isvertical_ = probe_.type()!=ZSliceProbe::sFactoryKey();
-	const bool is2d = probe_.type()==Line2DProbe::sFactoryKey();
-	const bool isrdl = probe_.type()==RandomLineProbe::sFactoryKey();
-	createViewWin( isvertical_, !is2d || !isrdl );
+	createViewWin();
     }
 
     updateTransformData();
@@ -365,7 +365,7 @@ void uiODViewer2D::updateSlicePos()
 }
 
 
-void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
+void uiODViewer2D::createViewWin()
 {
     bool wantdock = false;
     Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
@@ -376,7 +376,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true) );
 	mAttachCB( fvmw->windowClosed, uiODViewer2D::winCloseCB );
 
-	if ( needslicepos )
+	if ( probe_.is3DSlice() )
 	{
 	    slicepos_ = new uiSlicePos2DView( fvmw, ZDomain::Info(zDomain()) );
 	    slicepos_->setTrcKeyZSampling( probe_.position() );
@@ -403,17 +403,18 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
 	vwr.setZAxisTransform( datatransform_.ptr() );
 	vwr.appearance().setDarkBG( wantdock );
-	vwr.appearance().setGeoDefaults(isvert);
+	vwr.appearance().setGeoDefaults(probe_.isVertical());
 	vwr.appearance().annot_.setAxesAnnot(true);
     }
 
-    const float initialx2pospercm = isvert ? dispsetup_.initialx2pospercm_
-					   : dispsetup_.initialx1pospercm_;
+    const float initialx2pospercm =
+	probe_.isVertical() ? dispsetup_.initialx2pospercm_
+			    : dispsetup_.initialx1pospercm_;
     uiFlatViewer& mainvwr = viewwin()->viewer();
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
 	    uiFlatViewStdControl::Setup(controlparent).helpkey(
 			mODHelpKey(mODViewer2DHelpID) )
-			.withedit(tifs_).isvertical(isvert)
+			.withedit(tifs_).isvertical(probe_.isVertical())
 			.withfixedaspectratio(true)
 			.withhomebutton(true)
 			.initialx1pospercm(dispsetup_.initialx1pospercm_)

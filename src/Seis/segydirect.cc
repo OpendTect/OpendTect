@@ -556,8 +556,7 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm,
 const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( unm );
-    return geomid == Survey::GM().cUndefGeomID() ? 0
-				: get2DFileName( dirnm, geomid );
+    return mIsUdfGeomID(geomid) ? 0 : get2DFileName( dirnm, geomid );
 }
 
 
@@ -581,7 +580,7 @@ SEGY::FileIndexer::FileIndexer( const DBKey& mid, bool isvol,
 	    geomid_ = Survey::GM().getGeomID( linename );
     }
 
-    if ( is2d && geomid_ == mUdfGeomID )
+    if ( is2d && mIsUdfGeomID(geomid_) )
     {
 	delete ioobj_; ioobj_ = 0; msg_ = tr("2D Line ID not specified");
 	return;

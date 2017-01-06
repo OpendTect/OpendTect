@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uiodvolproctreeitem.h"
 #include "uiodseis2dtreeitem.h"
 #include "uiodrandlinetreeitem.h"
+#include "uiodvolrentreeitem.h"
 
 mDefModInitFn(uiODMain)
 {
@@ -31,4 +32,5 @@ mDefModInitFn(uiODMain)
     uiODZsliceAttribTreeItem::initClass();
     uiOD2DLineAttribTreeItem::initClass();
     uiODRandomLineAttribTreeItem::initClass();
+    uiODVolrenAttribTreeItem::initClass();
 }

@@ -272,7 +272,7 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	    curvwr.rgbCanvas().setDragMode( uiGraphicsViewBase::NoDrag );
 	    MouseCursor::Shape mc = x1auxposidx>=0 ? MouseCursor::SplitH
 						   : MouseCursor::SplitV;
-	    if ( curvwr2d->geomID()!=Survey::GeometryManager::cUndefGeomID() )
+	    if ( !mIsUdfGeomID(curvwr2d->geomID()) )
 		mc = MouseCursor::PointingHand;
 	    MouseCursorManager::mgr()->setOverride( mc );
 	}
@@ -371,11 +371,10 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 	if ( auxannot[selannotidx].isNormal() )
 	    return;
 
-	Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
-					      mUdf(int), mUdf(int) );
+	Line2DInterSection::Point intpoint2d( mUdfGeomID, mUdf(int), mUdf(int));
 	const float auxpos = auxannot[selannotidx].pos_;
 	intpoint2d = intersectingLineID( vwr2d, auxpos );
-	if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
+	if ( mIsUdfGeomID(intpoint2d.line) )
 	   return;
 	clickedvwr2d = find2DViewer( intpoint2d.line );
     }
@@ -449,8 +448,9 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     SI().snapZ( samplecrdz );
     if ( meh->event().leftButton() )
     {
-	if ( curvwr.appearance().annot_.editable_ ||
-	     curvwr2d->geomID()!=mUdfGeomID || (x1auxposidx<0 && x2auxposidx<0))
+	if ( curvwr.appearance().annot_.editable_
+	  || !mIsUdfGeomID(curvwr2d->geomID())
+	  || (x1auxposidx<0 && x2auxposidx<0))
 	    return;
 
 	const bool isx1auxannot = x1auxposidx>=0;
@@ -464,8 +464,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     }
 
     uiMenu menu( uiStrings::sMenu() );
-    Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
-					  mUdf(int), mUdf(int) );
+    Line2DInterSection::Point intpoint2d( mUdfGeomID, mUdf(int), mUdf(int) );
     const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
     if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
     {
@@ -473,7 +472,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	     curvwr.appearance().annot_.x1_.auxannot_[x1auxposidx].isNormal() )
 	{
 	    intpoint2d = intersectingLineID( curvwr2d, mCast(float,wp.x_) );
-	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
+	    if ( mIsUdfGeomID(intpoint2d.line) )
 	       return;
 	    const uiString show2dtxt = m3Dots(tr("Show Line '%1'")).arg(
 					Survey::GM().getName(intpoint2d.line) );
@@ -710,7 +709,7 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( const MouseEventHandler& meh )
 
 uiODViewer2D* uiODViewer2DMgr::find2DViewer( const Pos::GeomID& geomid )
 {
-    if ( geomid == Survey::GM().cUndefGeomID() )
+    if ( mIsUdfGeomID(geomid) )
 	return 0;
 
     for ( int idx=0; idx<viewers_.size(); idx++ )
@@ -744,7 +743,7 @@ void uiODViewer2DMgr::getVWR2DDataGeomIDs(
 	const uiODViewer2D* vwr2d, TypeSet<Pos::GeomID>& commongids ) const
 {
     commongids.erase();
-    if ( vwr2d->geomID()==Survey::GM().cUndefGeomID() )
+    if ( mIsUdfGeomID(vwr2d->geomID()) )
 	return;
 
     Attrib::DescSet* ads2d = Attrib::eDSHolder().getDescSet( true, false );
@@ -791,7 +790,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
     TypeSet<OD::PlotAnnotation>& x2auxannot = annot.x2_.auxannot_;
     x1auxannot.erase(); x2auxannot.erase();
 
-    if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() )
+    if ( !mIsUdfGeomID(vwr2d->geomID()) )
     {
 	reCalc2DIntersetionIfNeeded( vwr2d->geomID() );
 	const int intscidx = intersection2DIdx( vwr2d->geomID() );
@@ -949,8 +948,7 @@ int uiODViewer2DMgr::intersection2DIdx( Pos::GeomID newgeomid ) const
 Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
 	const uiODViewer2D* vwr2d, float pos ) const
 {
-    Line2DInterSection::Point udfintpoint( Survey::GM().cUndefGeomID(),
-					   mUdf(int), mUdf(int) );
+    Line2DInterSection::Point udfintpoint( mUdfGeomID, mUdf(int), mUdf(int) );
 
     const int intsecidx = intersection2DIdx( vwr2d->geomID() );
     if ( intsecidx<0 )

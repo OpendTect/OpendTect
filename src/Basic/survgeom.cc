@@ -33,7 +33,7 @@ const Survey::GeometryManager& Survey::GM()
 
 
 Survey::Geometry::Geometry()
-    : id_(GeometryManager::cUndefGeomID())
+    : id_(mUdfGeomID)
     , sampling_(false)
 {}
 
@@ -207,7 +207,7 @@ Survey::Geometry::ID Survey::GeometryManager::getGeomID(
 	    return geometries_[idx]->getID();
     }
 
-    return cUndefGeomID();
+    return mUdfGeomID;
 }
 
 
@@ -287,7 +287,7 @@ bool Survey::GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 	{
 	    Pos::GeomID geomid = GM().getGeomID( lsnames.get(lsidx),
 						 lnames.get(lidx) );
-	    if ( geomid != GM().cUndefGeomID() )
+	    if ( !mIsUdfGeomID(geomid) )
 		continue;
 
 	    fetchedgeometry = true;
@@ -494,7 +494,7 @@ Survey::Geometry::ID Survey::GeometryManager::findRelated( const Geometry& ref,
     if ( relatedidx >= 0 )
     { reltype = Geometry::Related; return geometries_[relatedidx]->getID(); }
 
-    reltype = Geometry::UnRelated; return cUndefGeomID();
+    reltype = Geometry::UnRelated; return mUdfGeomID;
 }
 
 

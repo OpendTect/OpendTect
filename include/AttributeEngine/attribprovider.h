@@ -17,9 +17,8 @@ ________________________________________________________________________
 
 class BinDataDesc;
 class RegularSeisDataPack;
-class SeisMSCProvider;
 class SeisTrcInfo;
-namespace Seis { class SelData; }
+namespace Seis { class SelData; class MSCProvider; }
 template <class T> class Array2DImpl;
 
 #define mMAXDIP 300 * 1e-6
@@ -99,7 +98,7 @@ public:
 				*/
     void			computeNewStartPos(BinID&);
     int				alignInputs(ObjectSet<Provider>&);
-    int			comparePosAndAlign(Provider*,bool,Provider*,
+    int				comparePosAndAlign(Provider*,bool,Provider*,
 						   bool,bool);
     void			resetMoved();
     void                        resetZIntervals();
@@ -186,7 +185,7 @@ protected:
 				  are set, for extra checks at other time
 				  use isOK()*/
 
-    virtual SeisMSCProvider*	getMSCProvider(bool&) const;
+    virtual Seis::MSCProvider*	getMSCProvider(bool&) const;
     static Provider*		internalCreate(Desc&,ObjectSet<Provider>&,
 					       bool& issame,uiString&);
 				/*!< Creates the provider needed and all its
@@ -366,7 +365,7 @@ protected:
     TrcKeyZSampling*            possiblevolume_;
     TypeSet< Interval<int> >	localcomputezintervals_;
     ObjectSet<Provider>		allexistingprov_;
-    TypeSet<float>	exactz_;//only used for outputs which require
+    TypeSet<float>		exactz_;//only used for outputs which require
                                         //data at exact z values not placed
                                         //at sample locations
 
@@ -376,7 +375,7 @@ protected:
     int				prevtrcnr_;
     Pos::GeomID			geomid_;
     const Seis::SelData*	seldata_;
-    Interval<float>	extraz_;
+    Interval<float>		extraz_;
     const SeisTrcInfo*		curtrcinfo_;
     BinID                       trcinfobid_;
     bool			useshortcuts_;

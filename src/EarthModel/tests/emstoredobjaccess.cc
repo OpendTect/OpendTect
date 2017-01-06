@@ -13,11 +13,11 @@
 
 static bool initLoader( EM::StoredObjAccess& soa )
 {
-    if ( !soa.add( DBKey::getFromString("100020.3") ) ) // Hor3D: Demo 6 --> FS8
+    if ( !soa.add( DBKey::getFromString("100020.2") ) ) // Hor3D: 1-Top
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( DBKey::getFromString("100020.53") ) ) // Body: Slumps-2b
+    if ( !soa.add( DBKey::getFromString("100020.4") ) ) // Body: Slumps-2b
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( DBKey::getFromString("100020.33") ) ) // SSIS-Grid-Faultstick
+    if ( !soa.add( DBKey::getFromString("100020.5") ) ) // SSIS-Grid-Faultstick
 	mErrRet( soa.getError(0) );
 
     if ( soa.add( DBKey::getFromString("100020.99795") ) )

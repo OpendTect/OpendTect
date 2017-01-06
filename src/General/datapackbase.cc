@@ -611,12 +611,19 @@ float VolumeDataPack::nrKBytes() const
 void VolumeDataPack::dumpInfo( IOPar& iop ) const
 {
     DataPack::dumpInfo( iop );
+    BufferString info;
     if ( scaler_ )
     {
-	BufferString info;
 	scaler_->put( info.getCStr() );
 	iop.set( sKey::Scale(), info.buf() );
     }
+
+    DataCharacteristics dc( desc_ );
+    const FixedString usertypestr =
+	DataCharacteristics::toString( dc.userType() );
+    if ( usertypestr.size() > 4 )
+	info.set( usertypestr.buf()+4 );
+    iop.set( sKey::DataStorage(), info.buf() );
 }
 
 

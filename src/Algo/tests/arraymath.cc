@@ -169,13 +169,15 @@ static bool testBigVector()
     const double calcavg =
 		 getAverage<double,double,double,double>( data, true, true );
     mRunStandardTest( mIsEqual(calcavg,46.519363,1e-6), "Average large double" )
+
     res = getAverage<float,double,double,double>( dataf, true, true );
     mRunStandardTest( mIsEqual(res,46.519363,1e-6),"Average large float/double")
+
     const float calcavgf =
 		 getAverage<float,float,float,float>( dataf, true, true );
     mRunStandardTest( mIsEqual(calcavgf,46.519363f,1e-3f),"Average large float")
 
-    double calcintercept, calcgradient;
+    double calcintercept = 0., calcgradient = 0.;
     if ( !getInterceptGradient<double,double>(data,&tvecd,calcintercept,
 					      calcgradient,true) )
 	return false;
@@ -189,7 +191,8 @@ static bool testBigVector()
 		     "Gradient float/double")
     mRunStandardTest(mIsEqual(calcintercept,-152.46854,1e-5),
 		     "Intercept float/double")
-    float calcinterceptf, calcgradientf;
+
+    float calcinterceptf = 0.f, calcgradientf = 0.f;
     if ( !getInterceptGradient<float,float>(dataf,&tvec,calcinterceptf,
 					    calcgradientf,true) )
 	return false;

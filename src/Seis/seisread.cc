@@ -41,7 +41,7 @@
 SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
 	, outer(mUndefPtr(TrcKeySampling))
-	, fetcher(0)
+	, linegetter_(0)
 	, psrdr2d_(0)
 	, psrdr3d_(0)
 	, tbuf_(0)
@@ -59,7 +59,7 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 SeisTrcReader::SeisTrcReader( const char* fname )
 	: SeisStoreAccess(fname,false,false)
 	, outer(mUndefPtr(TrcKeySampling))
-	, fetcher(0)
+	, linegetter_(0)
 	, psrdr2d_(0)
 	, psrdr3d_(0)
 	, pscditer_(0)
@@ -84,17 +84,17 @@ SeisTrcReader::~SeisTrcReader()
 void SeisTrcReader::init()
 {
     foundvalidinl = foundvalidcrl = entryis2d =
-    new_packet = inforead = needskip = prepared = forcefloats = false;
+    inforead = needskip = prepared = forcefloats = false;
     prev_inl = mUdf(int);
     readmode = Seis::Prod;
     if ( tbuf_ ) tbuf_->deepErase();
     mDelOuter; outer = mUndefPtr(TrcKeySampling);
-    delete fetcher; fetcher = 0;
+    delete linegetter_; linegetter_ = 0;
     delete psrdr2d_; psrdr2d_ = 0;
     delete psrdr3d_; psrdr3d_ = 0;
     delete pscditer_; pscditer_ = 0;
     delete pslditer_; pslditer_ = 0;
-    nrfetchers = 0; curlineidx = -1;
+    nrlinegetters_ = 0; curlineidx = -1;
     curpsbid_ = BinID( 0, 0 );
 }
 
@@ -331,16 +331,12 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	return nextConn( ti );
     }
 
-    ti.new_packet_ = false;
-
     if ( mIsUdf(prev_inl) )
 	prev_inl = ti.lineNr();
     else if ( prev_inl != ti.lineNr() )
     {
 	foundvalidcrl = false;
 	prev_inl = ti.lineNr();
-	if ( !entryis2d )
-	    ti.new_packet_ = true;
     }
 
     int selres = 0;
@@ -369,11 +365,6 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     }
 
     nrtrcs_++;
-    if ( new_packet )
-    {
-	ti.new_packet_ = true;
-	new_packet = false;
-    }
     needskip = true;
     return 1;
 }
@@ -524,16 +515,15 @@ Pos::GeomID SeisTrcReader::geomID() const
     else if ( ioobj_ )
 	return Survey::GM().getGeomID( ioobj_->name() );
 
-    return Survey::GM().cUndefGeomID();
+    return mUdfGeomID;
 }
 
 
-bool SeisTrcReader::mkNextFetcher()
+bool SeisTrcReader::mkNextGetter()
 {
     curlineidx++; tbuf_->deepErase();
-    Pos::GeomID geomid( seldata_ ? seldata_->geomID()
-				 : Survey::GM().cUndefGeomID() );
-    const bool islinesel = geomid != Survey::GM().cUndefGeomID();
+    const Pos::GeomID geomid( seldata_ ? seldata_->geomID() : mUdfGeomID );
+    const bool islinesel = !mIsUdfGeomID( geomid );
     const bool istable = seldata_ && seldata_->type() == Seis::Table;
     const int nrlines = dataset_->nrLines();
 
@@ -555,7 +545,7 @@ bool SeisTrcReader::mkNextFetcher()
     }
     else
     {
-	if ( nrfetchers > 0 )
+	if ( nrlinegetters_ > 0 )
 	{ errmsg_ = uiString::emptyString(); return false; }
 
 	bool found = false;
@@ -582,10 +572,11 @@ bool SeisTrcReader::mkNextFetcher()
     }
 
     prev_inl = mUdf(int);
-    fetcher = dataset_->lineFetcher( dataset_->geomID(curlineidx),
-				     *tbuf_, 1, seldata_ );
-    nrfetchers++;
-    return fetcher;
+    uiRetVal uirv;
+    linegetter_ = dataset_->lineGetter( dataset_->geomID(curlineidx),
+					*tbuf_, seldata_, uirv );
+    nrlinegetters_++;
+    return linegetter_;
 }
 
 
@@ -594,15 +585,15 @@ bool SeisTrcReader::readNext2D()
     if ( tbuf_->size() )
 	tbuf_->deepErase();
 
-    int res = fetcher->doStep();
+    int res = linegetter_->doStep();
     if ( res == Executor::ErrorOccurred() )
     {
-	errmsg_ = fetcher->message();
+	errmsg_ = linegetter_->message();
 	return false;
     }
     else if ( res == 0 )
     {
-	if ( !mkNextFetcher() )
+	if ( !mkNextGetter() )
 	    return false;
 	return readNext2D();
     }
@@ -611,12 +602,9 @@ bool SeisTrcReader::readNext2D()
 }
 
 
-#define mNeedNextFetcher() (tbuf_->size() == 0 && !fetcher)
-
-
 int SeisTrcReader::get2D( SeisTrcInfo& ti )
 {
-    if ( !fetcher && !mkNextFetcher() )
+    if ( !linegetter_ && !mkNextGetter() )
 	return errmsg_.isEmpty() ? 0 : -1;
 
     if ( !readNext2D() )
@@ -624,7 +612,6 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
 
     inforead = true;
     SeisTrcInfo& trcti = tbuf_->get( 0 )->info();
-    trcti.new_packet_ = mIsUdf(prev_inl);
     ti = trcti;
 
     prev_inl = 0;
@@ -633,7 +620,7 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
     if ( seldata_ )
     {
 	if ( seldata_->type() == Seis::Table && !seldata_->isAll() )
-	    // Not handled by fetcher
+	    // Not handled by linegetter_
 	{
 	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata_)
 	    isincl = tsd->binidValueSet().includes(trcti.binID());
@@ -667,7 +654,6 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
 
 int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 {
-    new_packet = false;
     if ( !isMultiConn() ) return 0;
 
     // Multiconn is only used for multi-machine data collection nowadays
@@ -692,12 +678,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 	return -1;
     }
 
-    const int rv = get( ti );
-
-    if ( rv < 1 )	return rv;
-    else if ( rv == 2 )	new_packet = true;
-    else		ti.new_packet_ = true;
-    return rv;
+    return get( ti );
 }
 
 

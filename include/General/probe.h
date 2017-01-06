@@ -88,6 +88,8 @@ public:
     void		setPos(const TrcKeyZSampling&);
     virtual const char* type() const				=0;
     virtual bool	is2D() const			{ return false; }
+    virtual bool	isVertical() const		{ return true; }
+    virtual bool	is3DSlice() const		{ return false; }
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 

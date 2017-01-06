@@ -20,6 +20,11 @@ ________________________________________________________________________
 class TaskRunner;
 class IOObj;
 
+// Need some shortcuts because GeomID is not a real object:
+#define mUdfGeomID		Survey::GeometryManager::cUndefGeomID()
+#define mIsUdfGeomID(geomid)	(geomid == mUdfGeomID)
+
+
 namespace Survey
 {
 class Geometry2D;
@@ -206,6 +211,3 @@ public:
 };
 
 } //namespace Survey
-
-#define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
-//To cut the long story short.

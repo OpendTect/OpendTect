@@ -2,26 +2,43 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Mahant Mothey
- Date:		September 2016
+ Author:	Bert
+ Date:		Nov 2016
 ________________________________________________________________________
 
 -*/
 
 #include "seisvolprovider.h"
+#include "seislineprovider.h"
+#include "seisps2dprovider.h"
+#include "seisps3dprovider.h"
 #include "seisioobjinfo.h"
 #include "seisselection.h"
+#include "seisbuf.h"
+#include "keystrs.h"
 #include "uistrings.h"
+#include "dbman.h"
 
 
 Seis::Provider::Provider()
     : forcefpdata_(false)
-    , selcomp_(-1)
     , readmode_(Prod)
     , zstep_(mUdf(float))
     , seldata_(0)
     , setupchgd_(false)
 {
+}
+
+
+Seis::Provider::~Provider()
+{
+    delete seldata_;
+}
+
+
+BufferString Seis::Provider::name() const
+{
+    return DBM().nameOf( dbky_ );
 }
 
 
@@ -32,14 +49,14 @@ Seis::Provider* Seis::Provider::create( Seis::GeomType gt )
     case Vol:
 	return new VolProvider;
     case VolPS:
-	{ pFreeFnErrMsg("Implement VolPS"); return 0; }
+	return new PS3DProvider;
     case Line:
-	{ pFreeFnErrMsg("Implement Line"); return 0; }
+	return new LineProvider;
     case LinePS:
-	{ pFreeFnErrMsg("Implement LinePS"); return 0; }
+	return new PS2DProvider;
     }
 
-    pFreeFnErrMsg("Add switch case");
+    // can't reach
     return 0;
 }
 
@@ -66,6 +83,20 @@ Seis::Provider* Seis::Provider::create( const DBKey& dbky, uiRetVal* uirv )
 }
 
 
+Seis::Provider* Seis::Provider::create( const IOPar& iop, uiRetVal* uirv )
+{
+    const DBKey ky = DBKey::getFromString( iop.find(sKey::ID()) );
+    if ( ky.isInvalid() )
+	return 0;
+
+    Provider* ret = create( ky, uirv );
+    if ( ret )
+	ret->usePar( iop );
+
+    return ret;
+}
+
+
 uiRetVal Seis::Provider::reset() const
 {
     uiRetVal uirv;
@@ -73,7 +104,7 @@ uiRetVal Seis::Provider::reset() const
     if ( uirv.isOK() )
     {
 	if ( seldata_ && !seldata_->isAll() )
-	    totalnr_ = seldata_->expectedNrTraces( is2D(geomType()) );
+	    totalnr_ = seldata_->expectedNrTraces( is2D() );
 	else
 	    totalnr_ = getTotalNrInInput();
 	setupchgd_ = false;
@@ -86,6 +117,21 @@ od_int64 Seis::Provider::totalNr() const
 {
     Threads::Locker locker( lock_ );
     return totalnr_;
+}
+
+
+uiRetVal Seis::Provider::getComponentInfo( BufferStringSet& nms,
+				       TypeSet<Seis::DataType>* pdts ) const
+{
+    TypeSet<Seis::DataType> dts;
+    nms.setEmpty();
+    if ( pdts )
+	pdts->setEmpty();
+
+    uiRetVal uirv = doGetComponentInfo( nms, dts );
+    if ( uirv.isOK() && pdts )
+	*pdts = dts;
+    return uirv;
 }
 
 
@@ -102,13 +148,24 @@ void Seis::Provider::setSampleInterval( float zs )
 {
     Threads::Locker locker( lock_ );
     zstep_ = zs;
+    setupchgd_ = true;
 }
 
 
 void Seis::Provider::selectComponent( int icomp )
 {
     Threads::Locker locker( lock_ );
-    selcomp_ = icomp;
+    selcomps_.setEmpty();
+    selcomps_ += icomp;
+    setupchgd_ = true;
+}
+
+
+void Seis::Provider::selectComponents( const TypeSet<int>& comps )
+{
+    Threads::Locker locker( lock_ );
+    selcomps_ = comps;
+    setupchgd_ = true;
 }
 
 
@@ -136,12 +193,46 @@ uiRetVal Seis::Provider::usePar( const IOPar& iop )
 }
 
 
-void Seis::Provider::setSubsel( const SelData& sd )
+void Seis::Provider::setSelData( SelData* sd )
 {
     Threads::Locker locker( lock_ );
     delete seldata_;
-    seldata_ = sd.clone();
+    seldata_ = sd;
     setupchgd_ = true;
+}
+
+
+void Seis::Provider::putTraceInGather( const SeisTrc& trc, SeisTrcBuf& tbuf )
+{
+    const int nrcomps = trc.data().nrComponents();
+    const int trcsz = trc.size();
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	SeisTrc* newtrc = new SeisTrc( trcsz,
+			    trc.data().getInterpreter(icomp)->dataChar() );
+	newtrc->info() = trc.info();
+	newtrc->info().offset_ = icomp * 100.f;
+	newtrc->data().copyFrom( trc.data(), icomp, 0 );
+	tbuf.add( newtrc );
+    }
+}
+
+
+void Seis::Provider::putGatherInTrace( const SeisTrcBuf& tbuf, SeisTrc& trc )
+{
+    const int nrcomps = tbuf.size();
+    if ( nrcomps < 1 )
+	return;
+
+    trc.info() = tbuf.get(0)->info();
+    trc.info().offset_ = 0.f;
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	const SeisTrc& buftrc = *tbuf.get( icomp );
+	trc.data().addComponent( buftrc.size(),
+			      buftrc.data().getInterpreter(0)->dataChar() );
+	trc.data().copyFrom( buftrc.data(), 0, icomp );
+    }
 }
 
 
@@ -150,6 +241,13 @@ void Seis::Provider::handleTrace( SeisTrc& trc ) const
     ensureRightZSampling( trc );
     ensureRightDataRep( trc );
     nrdone_++;
+}
+
+
+void Seis::Provider::handleTraces( SeisTrcBuf& tbuf ) const
+{
+    for ( int idx=0; idx<tbuf.size(); idx++ )
+	handleTrace( *tbuf.get(idx) );
 }
 
 
@@ -190,6 +288,40 @@ uiRetVal Seis::Provider::get( const TrcKey& trcky, SeisTrc& trc ) const
 
     if ( uirv.isOK() )
 	handleTrace( trc );
+    return uirv;
+}
+
+
+uiRetVal Seis::Provider::getNextGather( SeisTrcBuf& tbuf ) const
+{
+    uiRetVal uirv;
+
+    Threads::Locker locker( lock_ );
+    if ( !handleSetupChanges(uirv) )
+	return uirv;
+
+    doGetNextGather( tbuf, uirv );
+    locker.unlockNow();
+
+    if ( uirv.isOK() )
+	handleTraces( tbuf );
+    return uirv;
+}
+
+
+uiRetVal Seis::Provider::getGather( const TrcKey& trcky,
+				    SeisTrcBuf& tbuf ) const
+{
+    uiRetVal uirv;
+
+    Threads::Locker locker( lock_ );
+    if ( !handleSetupChanges(uirv) )
+	return uirv;
+    doGetGather( trcky, tbuf, uirv );
+    locker.unlockNow();
+
+    if ( uirv.isOK() )
+	handleTraces( tbuf );
     return uirv;
 }
 
@@ -238,4 +370,42 @@ void Seis::Provider::ensureRightZSampling( SeisTrc& trc ) const
     }
 
     trc.data() = newtd;
+}
+
+
+void Seis::Provider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
+{
+    SeisTrcBuf tbuf( true );
+    doGetNextGather( tbuf, uirv );
+    putGatherInTrace( tbuf, trc );
+}
+
+
+void Seis::Provider::doGet( const TrcKey& tkey, SeisTrc& trc,
+			    uiRetVal& uirv ) const
+{
+    SeisTrcBuf tbuf( true );
+    doGetGather( tkey, tbuf, uirv );
+    putGatherInTrace( tbuf, trc );
+}
+
+
+void Seis::Provider::doGetNextGather( SeisTrcBuf& tbuf, uiRetVal& uirv ) const
+{
+    SeisTrc trc;
+    tbuf.erase();
+    doGetNext( trc, uirv );
+    if ( uirv.isOK() )
+	putTraceInGather( trc, tbuf );
+}
+
+
+void Seis::Provider::doGetGather( const TrcKey& tkey, SeisTrcBuf& tbuf,
+				  uiRetVal& uirv ) const
+{
+    SeisTrc trc;
+    tbuf.erase();
+    doGet( tkey, trc, uirv );
+    if ( uirv.isOK() )
+	putTraceInGather( trc, tbuf );
 }

@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "uidialog.h"
+#include "uidlggroup.h"
 #include "uiiosel.h"
 #include "attribdescid.h"
 #include "datapack.h"
@@ -57,6 +57,21 @@ protected:
 
     const Attrib::DescSet*	attrset_;
 
+};
+
+
+
+mExpClass(uiAttributes) uiAttrSelDlgGroup : public uiDlgGroup
+{
+public:
+    virtual			~uiAttrSelDlgGroup();
+
+protected:
+				uiAttrSelDlgGroup(uiParent*,
+						  const uiString& caption);
+
+    uiListBox*			listfld_;
+    uiGenInput*			filterfld_;
 };
 
 
@@ -151,7 +166,7 @@ protected:
     void		selDone(CallBacker*);
     void		filtChg(CallBacker*);
     void		cubeSel(CallBacker*);
-    void                objInserted(CallBacker*);
+    void		objInserted(CallBacker*);
     virtual bool	acceptOK();
 };
 

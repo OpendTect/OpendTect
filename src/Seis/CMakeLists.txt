@@ -7,7 +7,7 @@
 
 set(OD_MODULE_DEPS Geometry MMProc )
 
-set ( OD_TEST_PROGS seisbuf.cc seiskeytracker.cc provider.cc )
+set ( OD_TEST_PROGS seisbuf.cc seiskeytracker.cc seisprovider.cc )
 
 set(OD_MODULE_SOURCES
 	initseis.cc
@@ -35,10 +35,11 @@ set(OD_MODULE_SOURCES
 	seiscbvsimpfromothersurv.cc
 	seiscbvsps.cc
 	seiscopy.cc
-	seiscubeprov.cc
+	seismscprov.cc
 	seiscube2linedata.cc
 	seisdatapack.cc
 	seiseventsnapper.cc
+	seisfetcher.cc
 	seisimpbpsif.cc
 	seisimporter.cc
 	seisimpps.cc
@@ -47,12 +48,15 @@ set(OD_MODULE_SOURCES
 	seisiosimple.cc
 	seisjobexecprov.cc
 	seiskeytracker.cc
+	seislineprovider.cc
 	seisloader.cc
 	seismerge.cc
 	seismulticubeps.cc
 	seisposindexer.cc
 	seispreload.cc
 	seisprovider.cc
+	seisps2dprovider.cc
+	seisps3dprovider.cc
 	seispsioprov.cc
 	seispsmerge.cc
 	seisrandlineto2d.cc

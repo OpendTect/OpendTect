@@ -185,7 +185,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	if ( lnmfld_ )
 	{
 	    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-	    if ( geomid == mUdfGeomID )
+	    if ( mIsUdfGeomID(geomid) )
 	    {
 		PtrMan<IOObj> geomobj = SurvGeom2DTranslator::createEntry( lnm,
 				SEGYDirectSurvGeom2DTranslator::translKey() );

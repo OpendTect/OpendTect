@@ -6,7 +6,6 @@
 -*/
 
 #include "transl.h"
-#include "preloads.h"
 #include "streamconn.h"
 #include "ioobjctxt.h"
 #include "fixedstring.h"
@@ -28,10 +27,6 @@ uiString Translator::sSelObjectIsWrongType()
     return tr("Selected object is not a %1").arg( userName() );
 }
 
-
-
-mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
-mDefSimpleTranslators(PreLoadSurfaces,"Object HorPre-Loads",dgb,Misc)
 
 
 TranslatorGroup::TranslatorGroup( const char* clssnm )

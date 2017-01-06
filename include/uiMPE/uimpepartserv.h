@@ -153,8 +153,4 @@ protected:
     void			cleanSetupDependents();
 
     MPE::uiSetupGroup*		setupgrp_;
-
-private:
-    static uiString		sYesAskGoOnStr();
-    static uiString		sNoAskGoOnStr();
 };

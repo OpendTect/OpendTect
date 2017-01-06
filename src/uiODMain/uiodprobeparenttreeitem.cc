@@ -222,6 +222,7 @@ bool uiODSceneProbeParentTreeItem::setRGBProbeLayers( Probe& probe ) const
 	AttribProbeLayer* attriblayer =
 	    new AttribProbeLayer( AttribProbeLayer::RGB );
 	attriblayer->setSelSpec( rgbaspecs[idx] );
+	attriblayer->setColTab( RGBBlend::getColTab(idx) );
 	probe.addLayer( attriblayer );
     }
 

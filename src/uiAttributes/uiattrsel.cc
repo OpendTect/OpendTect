@@ -110,6 +110,17 @@ void uiAttrSelData::fillSelSpec( SelSpec& as ) const
 }
 
 
+uiAttrSelDlgGroup::uiAttrSelDlgGroup( uiParent* p, const uiString& caption )
+    : uiDlgGroup(p,caption)
+{
+}
+
+
+uiAttrSelDlgGroup::~uiAttrSelDlgGroup()
+{
+}
+
+
 
 #define mImplInitVar \
 	: uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle, \

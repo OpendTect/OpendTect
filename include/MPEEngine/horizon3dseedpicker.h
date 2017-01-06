@@ -57,7 +57,7 @@ protected:
     int			nrLineNeighbors(const BinID& pid,
 					bool perptotrackdir=false) const;
 
-    bool		interpolateSeeds();
+    bool		interpolateSeeds(bool setmanualnode=false);
     TrcKeyZSampling	getTrackBox() const;
     bool		getNextSeed(const BinID& seedbid,const BinID& dir,
 				    BinID& nextseedbid) const;

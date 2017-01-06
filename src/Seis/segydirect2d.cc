@@ -24,6 +24,7 @@
 #include "seisbuf.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 #define mCapChar '^'
 
@@ -46,8 +47,8 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 }
 
 
-const OD::String& SEGYDirect2DLineIOProvider::getFileName( const IOObj& obj,
-							 Pos::GeomID geomid )
+BufferString SEGYDirect2DLineIOProvider::getFileName( const IOObj& obj,
+						      Pos::GeomID geomid )
 {
     mDeclStaticString( ret );
     ret = obj.fullUserExpr();
@@ -67,7 +68,7 @@ SEGYDirect2DLineIOProvider::SEGYDirect2DLineIOProvider()
 bool SEGYDirect2DLineIOProvider::isEmpty( const IOObj& obj,
 					Pos::GeomID geomid ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     return fnm.isEmpty() || File::isEmpty(fnm);
 }
 
@@ -84,7 +85,7 @@ bool SEGYDirect2DLineIOProvider::getTxtInfo( const IOObj& obj,
 					     BufferString& uinf,
 					     BufferString& stdinf ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -102,7 +103,7 @@ bool SEGYDirect2DLineIOProvider::getRanges( const IOObj& obj,
 					    StepInterval<int>& trcrg,
 					    StepInterval<float>& zrg ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
 	return false;
 
@@ -116,7 +117,7 @@ bool SEGYDirect2DLineIOProvider::getRanges( const IOObj& obj,
 bool SEGYDirect2DLineIOProvider::removeImpl( const IOObj& obj,
 					   Pos::GeomID geomid ) const
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() )
 	return false;
 
@@ -134,7 +135,7 @@ bool SEGYDirect2DLineIOProvider::renameImpl( const IOObj& obj,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );
-	if ( geomid == mUdfGeomID )
+	if ( mIsUdfGeomID(geomid) )
 	    continue;
 
 	File::Path fp( dl.fullPath(idx) );
@@ -150,7 +151,7 @@ bool SEGYDirect2DLineIOProvider::renameImpl( const IOObj& obj,
 }
 
 
-bool SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
+uiRetVal SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
 					   TypeSet<Pos::GeomID>& geomids ) const
 {
     geomids.erase();
@@ -159,21 +160,39 @@ bool SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const Pos::GeomID geomid = getGeomIDFromFileName( dl.fullPath(idx) );
-	if ( geomid == mUdfGeomID )
+	if ( mIsUdfGeomID(geomid) )
 	    continue;
 
 	geomids += geomid;
     }
 
-    return true;
+    return uiRetVal::OK();
 }
+
+
+class SEGYDirect2DTraceGetter : public Seis2DTraceGetter
+{
+public:
+
+SEGYDirect2DTraceGetter( const IOObj& obj, Pos::GeomID geomid,
+			 const Seis::SelData* sd )
+    : Seis2DTraceGetter(obj,geomid,sd)
+{
+}
+
+void mkTranslator() const
+{
+    tr_ = gtTransl( SEGYDirect2DLineIOProvider::getFileName(ioobj_,geomid_) );
+}
+
+};
 
 
 #undef mErrRet
 #define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
 
 SEGYDirect2DLineGetter::SEGYDirect2DLineGetter( const char* fnm, SeisTrcBuf& b,
-					    int ntps, const Seis::SelData& sd )
+					    int ntps, const Seis::SelData* sd )
 	: Seis2DLineGetter(b,ntps,sd)
 	, curnr_(0)
 	, totnr_(0)
@@ -184,7 +203,7 @@ SEGYDirect2DLineGetter::SEGYDirect2DLineGetter( const char* fnm, SeisTrcBuf& b,
     tr_ = gtTransl( fname_ );
     if ( !tr_ ) return;
 
-    if ( !sd.isAll() && sd.type() == Seis::Range )
+    if ( seldata_ && !seldata_->isAll() && seldata_->type() == Seis::Range )
 	tr_->setSelData( seldata_ );
 
     totnr_ = tr_->packetInfo().crlrg.nrSteps() + 1;
@@ -256,36 +275,41 @@ int SEGYDirect2DLineGetter::nextStep()
 #define mErrRet(s) { errmsg = s; return 0; }
 
 
-bool SEGYDirect2DLineIOProvider::getGeometry( const IOObj& obj,
-			Pos::GeomID geomid, PosInfo::Line2DData& geom ) const
+uiRetVal SEGYDirect2DLineIOProvider::getGeometry( const IOObj& obj,
+		Pos::GeomID geomid, PosInfo::Line2DData& geom ) const
 {
-    return false;
+    uiRetVal uirv;
+    uirv.set( mTODONotImplPhrase() );
+    return uirv;
 }
 
 
-Executor* SEGYDirect2DLineIOProvider::getFetcher( const IOObj& obj,
-						Pos::GeomID geomid,
-						SeisTrcBuf& tbuf, int ntps,
-						const Seis::SelData* sd )
+Seis2DTraceGetter* SEGYDirect2DLineIOProvider::getTraceGetter( const IOObj& obj,
+		Pos::GeomID geomid, const Seis::SelData* sd, uiRetVal& uirv )
 {
-    const OD::String& fnm = getFileName( obj, geomid );
+    const BufferString fnm = getFileName( obj, geomid );
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
-	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
-	errmsg += "' does not exist";
-	ErrMsg( errmsg );
+	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
 	return 0;
     }
 
-    const Seis::SelData* usedsd = sd;
-    PtrMan<Seis::SelData> tmpsd = 0;
-    if ( !usedsd )
+    return new SEGYDirect2DTraceGetter( obj, geomid, sd );
+}
+
+
+Seis2DLineGetter* SEGYDirect2DLineIOProvider::getLineGetter( const IOObj& obj,
+			Pos::GeomID geomid, SeisTrcBuf& tbuf,
+			const Seis::SelData* sd, uiRetVal& uirv, int ntps )
+{
+    const BufferString fnm = getFileName( obj, geomid );
+    if ( fnm.isEmpty() || !File::exists(fnm) )
     {
-	tmpsd = Seis::SelData::get(Seis::Range);
-	usedsd = tmpsd;
+	uirv.set( tr("2D seismic line file '%1' does not exist").arg(fnm) );
+	return 0;
     }
 
-    return new SEGYDirect2DLineGetter( fnm, tbuf, ntps, *usedsd );
+    return new SEGYDirect2DLineGetter( fnm, tbuf, ntps, sd );
 }
 
 
@@ -293,8 +317,12 @@ Executor* SEGYDirect2DLineIOProvider::getFetcher( const IOObj& obj,
 #define mErrRet(s) { pErrMsg( s ); return 0; }
 
 Seis2DLinePutter* SEGYDirect2DLineIOProvider::getPutter( const IOObj& obj,
-						       Pos::GeomID geomid )
-{ return new SEGYDirect2DLinePutter( obj, geomid ); }
+					   Pos::GeomID geomid, uiRetVal& uirv )
+{
+    SEGYDirect2DLinePutter* ret = new SEGYDirect2DLinePutter( obj, geomid );
+    uirv.set( ret->errMsg() );
+    return ret;
+}
 
 
 //-------------------SEGYDirect2DLinePutter-----------------
@@ -385,7 +413,7 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
 
     const Survey::Geometry::ID geomid
 			= Survey::Geometry2D::getIDFrom( ioobj.key() );
-    const OD::String& segydeffnm =
+    const BufferString segydeffnm =
 	SEGYDirect2DLineIOProvider::getFileName( *segydirectobj, geomid );
     SEGY::DirectDef sgydef( segydeffnm );
     const PosInfo::Line2DData& ld = sgydef.lineData();

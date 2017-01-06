@@ -5,7 +5,7 @@
 -*/
 
 
-#include "seiscubeprov.h"
+#include "seismscprov.h"
 
 #include "arrayndimpl.h"
 #include "trckeyzsampling.h"
@@ -16,78 +16,50 @@
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
+#include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
-static const IOObj* nullioobj = 0;
 
-SeisMSCProvider::SeisMSCProvider( const DBKey& id )
-	: rdr_(*new SeisTrcReader(nullioobj))
+Seis::MSCProvider::MSCProvider( const DBKey& id )
 {
-    IOObj* ioobj = DBM().get( id );
-    rdr_.setIOObj( ioobj );
-    delete ioobj;
-    init();
-}
+    prov_ = Provider::create( id, &uirv_ );
 
-
-SeisMSCProvider::SeisMSCProvider( const IOObj& ioobj )
-	: rdr_(*new SeisTrcReader(&ioobj))
-{
-    init();
-}
-
-
-SeisMSCProvider::SeisMSCProvider( const char* fnm )
-	: rdr_(*new SeisTrcReader(fnm))
-{
-    init();
-}
-
-
-void SeisMSCProvider::init()
-{
-    readstate_ = NeedStart;
-    intofloats_ = workstarted_ = false;
-    errmsg_ = uiString::emptyString();
+    intofloats_ = workstarted_ = atend_ = false;
     estnrtrcs_ = -2;
     reqmask_ = 0;
     bufidx_ = -1;
     trcidx_ = -1;
+    curlinenr_ = -1;
 }
 
 
-SeisMSCProvider::~SeisMSCProvider()
+Seis::MSCProvider::~MSCProvider()
 {
-    rdr_.close();
     for ( int idx=0; idx<tbufs_.size(); idx++ )
 	tbufs_[idx]->deepErase();
     deepErase( tbufs_ );
-    delete &rdr_;
+    delete prov_;
     delete reqmask_;
 }
 
 
-bool SeisMSCProvider::prepareWork()
+bool Seis::MSCProvider::is2D() const
 {
-    const bool prepared = rdr_.isPrepared() ? true : rdr_.prepareWork();
-    if ( !prepared )
-	errmsg_ = rdr_.errMsg();
-
-    return prepared;
+    return prov_ && prov_->is2D();
 }
 
 
-bool SeisMSCProvider::is2D() const
+BufferString Seis::MSCProvider::name() const
 {
-    return rdr_.is2D();
+    return prov_ ? prov_->name() : BufferString();
 }
 
 
-void SeisMSCProvider::setStepout( int i, int c, bool req )
+void Seis::MSCProvider::setStepout( int i, int c, bool req )
 {
     if ( req )
     {
@@ -104,7 +76,7 @@ void SeisMSCProvider::setStepout( int i, int c, bool req )
 }
 
 
-void SeisMSCProvider::setStepout( Array2D<bool>* mask )
+void Seis::MSCProvider::setStepout( Array2D<bool>* mask )
 {
     if ( !mask ) return;
 
@@ -114,9 +86,12 @@ void SeisMSCProvider::setStepout( Array2D<bool>* mask )
 }
 
 
-void SeisMSCProvider::setSelData( Seis::SelData* sd )
+void Seis::MSCProvider::setSelData( Seis::SelData* sd )
 {
-    rdr_.setSelData( sd );
+    if ( prov_ )
+	prov_->setSelData( sd );
+    else
+	delete sd;
 }
 
 
@@ -126,38 +101,27 @@ void SeisMSCProvider::setSelData( Seis::SelData* sd )
    3) if !doAdvance() now, we're buffering
    */
 
-SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
+Seis::MSCProvider::AdvanceState Seis::MSCProvider::advance()
 {
-    if ( !workstarted_ && !startWork() )
-    {
-	if ( errmsg_.isEmpty() ) errmsg_ = rdr_.errMsg();
-	if ( errmsg_.isEmpty() ) errmsg_ = uiStrings::sNoValidData();
+    if ( !prov_ || (!workstarted_ && !startWork()) )
 	return Error;
-    }
 
     if ( doAdvance() )
 	return NewPosition;
-    else if ( readstate_ == ReadErr )
-	return Error;
-    else if ( readstate_ == ReadAtEnd )
-	return EndReached;
+    else if ( !uirv_.isOK() )
+	return isFinished(uirv_) ? EndReached : Error;
 
     SeisTrc* trc = new SeisTrc;
-    int res = readTrace( *trc );
-    if ( res < 1 )
+    if ( !readTrace(*trc) )
     {
 	delete trc;
-	readstate_ = res==0 ? ReadAtEnd : ReadErr;
-	return advance();
+	return isFinished(uirv_) ? EndReached : Error;
     }
 
     trc->data().handleDataSwapping();
 
     SeisTrcBuf* addbuf = tbufs_.isEmpty() ? 0 : tbufs_[ tbufs_.size()-1 ];
-    if ( is2D() && trc->info().new_packet_ )
-	addbuf = 0;
-    if ( !is2D() && addbuf &&
-	    addbuf->get(0)->info().lineNr() != trc->info().lineNr() )
+    if ( addbuf && addbuf->get(0)->info().lineNr() != trc->info().lineNr() )
 	addbuf = 0;
 
     if ( !addbuf )
@@ -172,7 +136,7 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
 }
 
 
-int SeisMSCProvider::comparePos( const SeisMSCProvider& mscp ) const
+int Seis::MSCProvider::comparePos( const MSCProvider& mscp ) const
 {
     if ( &mscp == this )
 	return 0;
@@ -198,32 +162,32 @@ int SeisMSCProvider::comparePos( const SeisMSCProvider& mscp ) const
 }
 
 
-int SeisMSCProvider::estimatedNrTraces() const
+int Seis::MSCProvider::estimatedNrTraces() const
 {
-    if ( estnrtrcs_ != -2 ) return estnrtrcs_;
-    estnrtrcs_ = -1;
-    if ( !rdr_.selData() )
-	return is2D()
-	    ? estnrtrcs_
-	    : (int) SI().sampling(false).hsamp_.totalNr();
-
-    estnrtrcs_ = rdr_.selData()->expectedNrTraces( is2D() );
+    if ( estnrtrcs_ == -2 )
+    {
+	estnrtrcs_ = -1;
+	if ( prov_ )
+	    estnrtrcs_ = mCast(int,prov_->totalNr());
+    }
     return estnrtrcs_;
 }
 
 
-bool SeisMSCProvider::startWork()
+bool Seis::MSCProvider::startWork()
 {
-    if ( !prepareWork() ) return false;
+    if ( !prov_ )
+	return false;
 
-    workstarted_ = true;
-    rdr_.forceFloatData( intofloats_ );
-    PtrMan<Seis::Bounds> bds = rdr_.getBounds();
-    const bool is2d = is2D();
-    if ( bds )
+    prov_->forceFPData( intofloats_ );
+    if ( prov_->is2D() )
+	stepoutstep_ = BinID( 1, 1 );
+    else
     {
-	stepoutstep_.row() = is2d ? 1 : bds->step( true );
-	stepoutstep_.col() = is2d ? bds->step( true ): bds->step( false );
+	mDynamicCastGet( Provider3D*, prov3d, prov_ );
+	TrcKeyZSampling cs;
+	if ( prov3d->getRanges(cs) )
+	    stepoutstep_ = cs.hsamp_.step_;
     }
 
     if ( reqstepout_.row() > desstepout_.row() )
@@ -231,12 +195,13 @@ bool SeisMSCProvider::startWork()
     if ( reqstepout_.col() > desstepout_.col() )
 	desstepout_.col() = reqstepout_.col();
 
-    if ( rdr_.selData() && !rdr_.selData()->isAll() )
+    const SelData* sd = prov_->selData();
+    if ( sd && !sd->isAll() )
     {
-	Seis::SelData* newseldata = rdr_.selData()->clone();
+	Seis::SelData* newseldata = sd->clone();
 	BinID so( desstepout_.row(), desstepout_.col() );
 	bool doextend = so.inl() > 0 || so.crl() > 0;
-	if ( is2d )
+	if ( is2D() )
 	{
 	    so.inl() = 0;
 	    doextend = doextend && newseldata->type() == Seis::Range;
@@ -250,76 +215,73 @@ bool SeisMSCProvider::startWork()
 	    newseldata->extendH( so, &bid );
 	}
 
-	rdr_.setSelData( newseldata );
+	prov_->setSelData( newseldata );
     }
 
     SeisTrc* trc = new SeisTrc;
-    int rv = readTrace( *trc );
-    while ( rv > 1 )
-	rv = readTrace( *trc );
-
-    if ( rv < 0 )
-	{ errmsg_ = rdr_.errMsg(); return false; }
-    else if ( rv == 0 )
-    { errmsg_ = tr("No valid/selected trace found"); return false; }
+    if ( !readTrace(*trc) )
+	return false;
 
     SeisTrcBuf* newbuf = new SeisTrcBuf( false );
     tbufs_ += newbuf;
     newbuf->add( trc );
 
     pivotidx_ = 0; pivotidy_ = 0;
-    readstate_ = ReadOK;
+    workstarted_ = true;
     return true;
 }
 
 
 
-int SeisMSCProvider::readTrace( SeisTrc& trc )
+bool Seis::MSCProvider::readTrace( SeisTrc& trc )
 {
-    while ( true )
+    if ( !prov_ )
+	return false;
+
+    uirv_ = prov_->getNext( trc );
+    if ( uirv_.isOK() )
     {
-	const int rv = rdr_.get( trc.info() );
-
-	switch ( rv )
+	if ( prov_->is2D() )
 	{
-	case 1:		break;
-	case -1:	errmsg_ = rdr_.errMsg();		return -1;
-	case 0:						 return 0;
-	case 2:
-	default:						 return 2;
+	    stepoutstep_.crl() = 1;
+	    if ( trc.info().lineNr() != curlinenr_ )
+	    {
+		curlinenr_ = trc.info().lineNr();
+		mDynamicCastGet( Provider2D*, prov2d, prov_ );
+		PosInfo::Line2DData l2dd;
+		prov2d->getGeometryInfo( prov2d->curLineIdx(), l2dd );
+		if ( l2dd.size() > 1 )
+		{
+		    const float avgstep = mCast(float,l2dd.trcNrRange().width()
+					  / (l2dd.size()-1));
+		    if ( avgstep > 1.5 )
+			stepoutstep_.crl() = mNINT32( avgstep );
+		}
+	    }
 	}
-
-	if ( rdr_.get(trc) )
-	    return 1;
-	else
-	{
-	    BufferString msg( "Trace " );
-	    if ( is2D() )
-		msg += trc.info().trcNr();
-	    else
-		msg += trc.info().binID().toString();
-	    msg.add( ": " ).add( rdr_.errMsg().getFullString() );
-	    ErrMsg( msg );
-	}
+	return true;
     }
+
+    atend_ = isFinished( uirv_ );
+    return false;
 }
 
 
-BinID SeisMSCProvider::getPos() const
+BinID Seis::MSCProvider::getPos() const
 {
-    return bufidx_==-1
-	? BinID(-1,-1) : tbufs_[bufidx_]->get(trcidx_)->info().binID();
+    return bufidx_ < 0 ? BinID(-1,-1)
+	 : tbufs_[bufidx_]->get(trcidx_)->info().binID();
 }
 
 
-int SeisMSCProvider::getTrcNr() const
+int Seis::MSCProvider::getTrcNr() const
 {
     return !is2D() || bufidx_==-1
 	? -1 : tbufs_[bufidx_]->get(trcidx_)->info().trcNr();
 }
 
 
-SeisTrc* SeisMSCProvider::get( int deltainl, int deltacrl )
+SeisTrc* Seis::MSCProvider::get( int deltainl, int deltacrl )
 {
     if ( bufidx_==-1 )
 	return 0;
@@ -346,7 +308,7 @@ SeisTrc* SeisMSCProvider::get( int deltainl, int deltacrl )
 }
 
 
-SeisTrc* SeisMSCProvider::get( const BinID& bid )
+SeisTrc* Seis::MSCProvider::get( const BinID& bid )
 {
     if ( bufidx_==-1 || !stepoutstep_.row() || !stepoutstep_.col() )
 	return 0;
@@ -379,7 +341,7 @@ SeisTrc* SeisMSCProvider::get( const BinID& bid )
 	curbid.crl()-pivotbid.crl()-bidstepout.col();
 
 
-bool SeisMSCProvider::isReqBoxFilled() const
+bool Seis::MSCProvider::isReqBoxFilled() const
 {
     for ( int idy=0; idy<=2*reqstepout_.col(); idy++ )
     {
@@ -396,7 +358,7 @@ bool SeisMSCProvider::isReqBoxFilled() const
 }
 
 
-bool SeisMSCProvider::doAdvance()
+bool Seis::MSCProvider::doAdvance()
 {
     while ( true )
     {
@@ -433,7 +395,7 @@ bool SeisMSCProvider::doAdvance()
 	    return false;
 
 	// If last trace not beyond desired box, ask next trace if available.
-	if ( readstate_!=ReadAtEnd && readstate_!=ReadErr )
+	if ( !atend_ )
 	{
 	    const int lastidx = tbufs_.size()-1;
 	    const int lastidy = tbufs_[lastidx]->size()-1;
@@ -460,6 +422,10 @@ bool SeisMSCProvider::doAdvance()
 }
 
 
+//---- seisfixedcubeprov.cc ...?
+
+namespace Seis
+{
 
 class TrcDataLoader : public Executor
 { mODTextTranslationClass(TrcDataLoader);
@@ -508,11 +474,16 @@ int nextStep()
 
     SeisTrcReader&		rdr_;
     Array2D<SeisTrc*>&		arr_;
-    const TrcKeySampling&		hs_;
+    const TrcKeySampling&	hs_;
     od_int64			nrdone_;
     bool			is2d_;
 
 };
+
+} // namespace Seis
+
+
+#include "seisfixedcubeprov.h"
 
 
 SeisFixedCubeProvider::SeisFixedCubeProvider( const DBKey& key )
@@ -584,7 +555,7 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 
 bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs,
 				     TaskRunner* taskr)
-{ return readData( cs, Survey::GM().cUndefGeomID(), taskr ); }
+{ return readData( cs, mUdfGeomID, taskr ); }
 
 
 #define mErrRet(s) { errmsg_ = s; return false; }
@@ -600,7 +571,7 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     seisrdr->prepareWork();
 
     tkzs_ = cs;
-    bool is2d = geomid != Survey::GM().cUndefGeomID();
+    const bool is2d = !mIsUdfGeomID( geomid );
     Seis::RangeSelData* sd = new Seis::RangeSelData( tkzs_ );
     if ( is2d )
     {
@@ -618,8 +589,8 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 	for ( int idy=0; idy<data_->info().getSize(1); idy++ )
 	    data_->set( idx, idy, 0 );
 
-    PtrMan<TrcDataLoader> loader =
-	new TrcDataLoader( *seisrdr, *data_, tkzs_.hsamp_, is2d );
+    PtrMan<Seis::TrcDataLoader> loader =
+	new Seis::TrcDataLoader( *seisrdr, *data_, tkzs_.hsamp_, is2d );
     const bool res = TaskRunner::execute( taskr, *loader );
     if ( !res )
 	mErrRet( uiStrings::phrCannotRead( ioobj_->uiName() ) )

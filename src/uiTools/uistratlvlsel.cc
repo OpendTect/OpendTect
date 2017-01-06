@@ -64,10 +64,10 @@ Strat::Level uiStratLevelSel::selected() const
 }
 
 
-const char* uiStratLevelSel::getLevelName() const
+BufferString uiStratLevelSel::getLevelName() const
 {
-    const Strat::Level lvl = selected();
-    return lvl.id().isValid() ? lvl.name().buf() : "";
+    const Strat::Level lvl( selected() );
+    return lvl.id().isValid() ? lvl.name() : BufferString::empty();
 }
 
 

@@ -36,7 +36,7 @@ const char* EMObject::posattrposidstr()	    { return " SubID"; }
 const char* EMObject::nrposattrstr()	    { return "Nr Pos Attribs"; }
 
 Color EMObject::sDefaultSelectionColor() { return Color::Orange(); }
-Threads::Atomic<int> 	EMObjectCallbackData::curcbid_ = 0;
+Threads::Atomic<int>	EMObjectCallbackData::curcbid_ = 0;
 
 EMObject::EMObject( EMManager& emm )
     : SharedObject( "" )
@@ -53,6 +53,7 @@ EMObject::EMObject( EMManager& emm )
     , preferredmarkerstyle_(
 	*new OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,2,Color::White()))
     , selectioncolor_( *new Color(sDefaultSelectionColor()) )
+    , haslockednodes_( false )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_ = oid++;
@@ -151,17 +152,26 @@ Coord3 EMObject::getPos( const EM::SectionID& sid,
 #define mRetErr( msg ) { errmsg_ = msg; return false; }
 
 bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
-			bool addtoundo )
+			bool addtoundo, NodeSourceType tp )
 {
     if ( pid.objectID()!=id() )
 	mRetErr(uiString::emptyString());
 
-    return setPos( pid.sectionID(), pid.subID(), newpos, addtoundo );
+    return setPosition( pid.sectionID(), pid.subID(), newpos, addtoundo, tp );
 }
 
 
 bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
-			const Coord3& newpos, bool addtoundo )
+			const Coord3& newpos, bool addtoundo,
+			NodeSourceType tp )
+{
+    return setPosition( sid, subid, newpos, addtoundo, tp );
+}
+
+
+bool EMObject::setPosition( const SectionID& sid, const SubID& subid,
+			    const Coord3& newpos, bool addtoundo,
+			    NodeSourceType tp )
 {
     //Threads::Locker locker( setposlock_ );
     mLock4Write();
@@ -509,7 +519,9 @@ void EMObject::removeAllUnSeedPos()
 	if ( pid.objectID()==-1 )
 	    break;
 
-	if ( !isPosAttrib(pid, EM::EMObject::sSeedNode()) )
+	if ( !isPosAttrib(pid, EM::EMObject::sSeedNode()) &&
+	     !isNodeSourceType(pid,Manual) &&
+	     !isNodeLocked(pid) )
 	    unSetPos( pid, true );
     }
     setBurstAlert( false );

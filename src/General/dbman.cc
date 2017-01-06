@@ -103,10 +103,14 @@ uiRetVal DBMan::setDataSource( const char* fullpath, bool forcerefresh )
 
 mGlobal(Basic) void SetBaseDataDir(const char*);
 
-uiRetVal DBMan::setDataSource( const char* dr, const char* sd,
+uiRetVal DBMan::setDataSource( const char* inpdr, const char* sd,
 			       bool forcerefresh )
 {
     mLock4Read();
+
+    BufferString dr( inpdr );
+    if ( dr.isEmpty() )
+	dr = GetBaseDataDir();
 
     uiRetVal rv = SurveyInfo::setSurveyLocation( dr, sd, forcerefresh );
     if ( !rv.isOK() )

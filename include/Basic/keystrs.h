@@ -134,6 +134,7 @@ namespace sKey
     inline FixedString Value()		{ return "Value"; }
     inline FixedString ValueRange()	{ return "Value Range"; }
     inline FixedString Version()	{ return "Version"; }
+    inline FixedString Volume()		{ return "Volume"; }
     inline FixedString WaveletID()	{ return "Wavelet ID"; }
     inline FixedString Weight()		{ return "Weight"; }
     inline FixedString Well()		{ return "Well"; }

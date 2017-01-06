@@ -699,6 +699,9 @@ void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tskr )
 			matkzs.nrTrcs()!=osgvoldata_->t() ||
 			matkzs.nrLines()!=osgvoldata_->r();
 
+    const bool renewimage = resize ||
+			    attribs_[attr]->indexcache_!=osgvoldata_->data();
+
     if ( !useshading_ || isrgba_ )
     {
 	if ( resize )
@@ -798,7 +801,7 @@ void VolumeRenderScalarField::makeIndices( int attr, TaskRunner* tskr )
 	if ( fft )
 	    fft->setBorderColor( osgtransfunc_->getColor(1.0) );
     }
-    else if ( resize && !isrgba_ )
+    else if ( renewimage && !isrgba_ )
     {
 	osgvoldata_->setImage( matkzs.nrZ(), matkzs.nrTrcs(),
 			       matkzs.nrLines(), GL_LUMINANCE_ALPHA,

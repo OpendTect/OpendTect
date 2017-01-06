@@ -240,7 +240,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	for ( int idx=0; idx<nrlines; idx++ )
 	{
 	    BufferString key = IOPar::compKey( "Line", idx );
-	    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+	    Pos::GeomID geomid = mUdfGeomID;
 	    if ( !par_->get(IOPar::compKey(sKey::GeomID(),idx),geomid) )
 	    {
 		BufferString idstr;
@@ -256,7 +256,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 		}
 	    }
 
-	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	    if ( mIsUdfGeomID(geomid) )
 		continue;
 
 	    geomids_ += geomid;
@@ -283,7 +283,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    if ( !ioobj )
 	    {
 		lineids[idx] = mUdf(int);
-		geomids_ += Survey::GM().cUndefGeomID();
+		geomids_ += mUdfGeomID;
 		trcranges += StepInterval<int>::udf();
 		continue;
 	    }
@@ -302,8 +302,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	int idx = 0;
 	while ( idx<lineids.size() )
 	{
-	    if ( mIsUdf(lineids[idx]) ||
-		    geomids_[idx] == Survey::GeometryManager::cUndefGeomID() )
+	    if ( mIsUdf(lineids[idx]) || mIsUdfGeomID(geomids_[idx]) )
 	    {
 		lineids.removeSingle( idx );
 		linenames_.removeSingle( idx );

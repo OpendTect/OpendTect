@@ -132,47 +132,48 @@ ColTab::MapperSetup&
     return *this;
 }
 
-bool ColTab::MapperSetup::needsReClip( const ColTab::MapperSetup& b ) const
+bool ColTab::MapperSetup::needsReClip( const ColTab::MapperSetup& newmpr ) const
 {
-    if ( type_!=b.type_ || nrsegs_!=b.nrsegs_ ||
-	 maxpts_!=b.maxpts_ || cliprate_!=b.cliprate_ ||
-	 autosym0_!=b.autosym0_  || symmidval_!=b.symmidval_ )
+    if ( (type_!=newmpr.type_ && newmpr.type_!=ColTab::MapperSetup::Fixed ) ||
+	 nrsegs_!=newmpr.nrsegs_ ||
+	 maxpts_!=newmpr.maxpts_ || cliprate_!=newmpr.cliprate_ ||
+	 autosym0_!=newmpr.autosym0_  || symmidval_!=newmpr.symmidval_ )
 	return true;
 
     return false;
 }
 
 
-bool ColTab::MapperSetup::operator==( const ColTab::MapperSetup& b ) const
+bool ColTab::MapperSetup::operator==( const ColTab::MapperSetup& mpr ) const
 {
-    if ( type_!=b.type_ || nrsegs_!=b.nrsegs_ || maxpts_!=b.maxpts_ ||
-	 flipseq_!=b.flipseq_ )
+    if ( type_!=mpr.type_ || nrsegs_!=mpr.nrsegs_ || maxpts_!=mpr.maxpts_ ||
+	 flipseq_!=mpr.flipseq_ )
 	return false;
 
     if ( type_==Fixed )
     {
-	if ( range_!=b.range_ )
+	if ( range_!=mpr.range_ )
 	    return false;
     }
     else
     {
-	if ( !mIsUdf(symmidval_) || !mIsUdf(b.symmidval_) )
+	if ( !mIsUdf(symmidval_) || !mIsUdf(mpr.symmidval_) )
 	{
-	    if ( !mIsEqual(symmidval_,b.symmidval_, 1e-5 ) )
+	    if ( !mIsEqual(symmidval_,mpr.symmidval_, 1e-5 ) )
 		return false;
 	}
 
-	if ( autosym0_ != b.autosym0_ )
+	if ( autosym0_ != mpr.autosym0_ )
 	    return false;
     }
 
     if ( type_==Auto )
     {
 	if ( !mIsUdf(cliprate_.start) || !mIsUdf(cliprate_.stop) ||
-	     !mIsUdf(b.cliprate_.start)  || !mIsUdf(b.cliprate_.stop))
+	     !mIsUdf(mpr.cliprate_.start)  || !mIsUdf(mpr.cliprate_.stop))
 	{
-	    if ( !mIsEqual(cliprate_.start,b.cliprate_.start,1e-5) ||
-	         !mIsEqual(cliprate_.stop,b.cliprate_.stop,1e-5) )
+	    if ( !mIsEqual(cliprate_.start,mpr.cliprate_.start,1e-5) ||
+		 !mIsEqual(cliprate_.stop,mpr.cliprate_.stop,1e-5) )
 		return false;
 	}
     }

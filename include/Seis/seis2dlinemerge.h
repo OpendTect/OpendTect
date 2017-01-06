@@ -58,7 +58,7 @@ protected:
     SeisTrcBuf&		tbuf1_;
     SeisTrcBuf&		tbuf2_;
     SeisTrcBuf&		outbuf_;
-    Executor*		fetcher_;
+    Executor*		getter_;
     Seis2DLinePutter*	putter_;
     BufferStringSet&	attrnms_;
     int			curattridx_;
@@ -76,7 +76,7 @@ protected:
     int			doIO();
     bool		getLineID(const char*,int&) const;
     bool		nextAttr();
-    bool		nextFetcher();
+    bool		nextGetter();
     void		mergeBufs();
     void		makeBufsCompat();
     void		mergeOnCoords();

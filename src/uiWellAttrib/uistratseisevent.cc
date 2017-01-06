@@ -115,10 +115,10 @@ void uiStratSeisEvent::setLevel( const char* lvlnm )
 }
 
 
-const char* uiStratSeisEvent::levelName() const
+BufferString uiStratSeisEvent::levelName() const
 {
     return levelfld_ ? levelfld_->getLevelName()
-		     : Strat::LVLS().get(setup_.fixedlevelid_).name().buf();
+	   : BufferString(Strat::LVLS().get(setup_.fixedlevelid_).name());
 }
 
 

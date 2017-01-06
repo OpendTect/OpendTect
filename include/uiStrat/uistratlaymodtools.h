@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "stratlevel.h"
 #include "uistring.h"
+#include "uicompoundparsel.h"
 
 class uiComboBox;
 class uiLabel;
@@ -65,7 +66,7 @@ public:
     void	setContentNames(const BufferStringSet&);
 
     const char*	selProp() const;		//!< May return null
-    const char*	selLevel() const;		//!< May return null
+    BufferString selLevel() const;		//!< May return null
     const char*	selContent() const;		//!< May return null
     int		dispEach() const;
     bool	dispZoomed() const;
@@ -94,10 +95,13 @@ public:
     Notifier<uiStratLayModEditTools>	flattenChg;
     Notifier<uiStratLayModEditTools>	mkSynthChg;
 
-    int		selPropIdx() const;		//!< May return -1
-    Strat::Level::ID selLevelID() const;
-    Strat::Level selStratLevel() const;
-    Color	selLevelColor() const;		//!< May return NoColor
+    int				selPropIdx() const;	//!< May return -1
+    Strat::Level::ID		flattenSelLevelID() const;
+    Strat::Level		getFlattenStratLevel() const;
+    TypeSet<Strat::Level>	getAllSelStratLevels() const;
+    TypeSet<Strat::Level::ID>	getAllSelLevelsID() const;
+    Color			selLevelColor() const;	//!< May return NoColor
+
 
     uiToolButton* lithButton()		{ return lithtb_; }
     uiToolButton* zoomButton()		{ return zoomtb_; }
@@ -106,6 +110,8 @@ public:
     bool	usePar(const IOPar&);
 
     bool	allownoprop_;
+    const BufferStringSet getSelLvlNmSet() { return choosenlvlnms_; }
+    const BufferString	  getFlattenLvlNm() { return flattenlvlnm_; }
 
 protected:
 
@@ -117,15 +123,15 @@ protected:
     static const char*		sKeyDispLith();
     static const char*		sKeyShowFlattened();
 
-    uiComboBox*	propfld_;
-    uiComboBox*	lvlfld_;
-    uiComboBox*	contfld_;
-    uiSpinBox*	eachfld_;
-    uiLabel*	eachlbl_;
-    uiToolButton* zoomtb_;
-    uiToolButton* lithtb_;
-    uiToolButton* flattenedtb_;
-    uiToolButton* mksynthtb_;
+    uiComboBox*			propfld_;
+    uiComboBox*			contfld_;
+    uiSpinBox*			eachfld_;
+    uiLabel*			eachlbl_;
+    uiToolButton*		zoomtb_;
+    uiToolButton*		lithtb_;
+    uiToolButton*		flattenedtb_;
+    uiToolButton*		mksynthtb_;
+    uiCheckedCompoundParSel*	lvlfld_;
 
     void	selPropCB( CallBacker* )	{ selPropChg.trigger(); }
     void	selLevelCB( CallBacker* )	{ selLevelChg.trigger(); }
@@ -133,8 +139,17 @@ protected:
     void	dispEachCB( CallBacker* )	{ dispEachChg.trigger(); }
     void	dispZoomedCB( CallBacker* )	{ dispZoomedChg.trigger(); }
     void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
-    void	showFlatCB( CallBacker* )	{ flattenChg.trigger(); }
+    void	showFlatCB( CallBacker* );
     void	mkSynthCB( CallBacker* )	{ mkSynthChg.trigger(); }
+    void	doDlg( CallBacker* );
+    void	dispLVLs( CallBacker* );
+    void	flattenMenuCB( CallBacker* );
+    void	getSummary();
+    void	updateSummary();
+
+    BufferStringSet		choosenlvlnms_;
+    BufferStringSet		prevlvlnms_;
+    BufferString		flattenlvlnm_;
 
 };
 

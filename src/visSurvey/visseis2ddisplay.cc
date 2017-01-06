@@ -22,7 +22,6 @@
 #include "array2dresample.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
-#include "attribprobelayer.h"
 #include "bendpointfinder.h"
 #include "mousecursor.h"
 #include "probeimpl.h"
@@ -175,15 +174,6 @@ void Seis2DDisplay::setProbe( Probe* probe )
 					getPixelDensity() );
     }
 
-    for ( int idx=0; idx<probe_->nrLayers(); idx++ )
-    {
-	mDynamicCastGet( const AttribProbeLayer*,attrprlayer,
-			 probe_->getLayerByIdx(idx) );
-	if ( !attrprlayer )
-	    continue;
-
-	addAttrib();
-    }
     geomidchanged_.trigger();
 }
 

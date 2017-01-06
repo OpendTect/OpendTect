@@ -117,7 +117,8 @@ void Strat::setLVLS( LevelSet* ls )
     else
     {
 	const int currentidx =  lvlSetMgr().lss_.indexOf( &LVLS() );
-	lvlSetMgr().lss_.replace( currentidx < 0 ? 0 : currentidx, ls )->unRef();
+	lvlSetMgr().lss_.
+			replace( currentidx < 0 ? 0 : currentidx, ls )->unRef();
     }
 }
 
@@ -418,7 +419,7 @@ Strat::LevelSet::ID Strat::LevelSet::doSet( const Strat::Level& lvl,
     if ( idx < 0 )
     {
 	if ( isnew ) *isnew = true;
-	chglvl = new Level( lvl, curlevelid_ );
+	chglvl = new Level( lvl );
 	curlevelid_++;
 	lvls_ += chglvl;
     }
@@ -497,8 +498,7 @@ void Strat::LevelSet::getFromStream( ascistream& astrm, bool isold )
 		lvl.pars_.removeWithKey( "Time" );
 	    }
 	    doSet( lvl );
-	    if ( lvl.id().getI() > curlevelid_ )
-		curlevelid_ = lvl.id().getI() + 1;
+	    curlevelid_.setIfLarger( lvl.id().getI()+1 );
 	}
     }
 }

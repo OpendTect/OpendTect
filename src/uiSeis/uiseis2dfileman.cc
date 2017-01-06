@@ -335,7 +335,7 @@ bool acceptOK()
 	mErrRet( uiStrings::phrEnter(tr("a name for the merged line")) );
 
     Pos::GeomID outgeomid = Geom2DImpHandler::getGeomID( outnm );
-    if ( outgeomid == mUdfGeomID )
+    if ( mIsUdfGeomID(outgeomid) )
 	return false;
 
     BufferStringSet seldatanms;

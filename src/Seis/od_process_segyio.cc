@@ -23,6 +23,7 @@
 #include "seissingtrcproc.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
+#include "zdomain.h"
 
 #include "prog.h"
 
@@ -77,6 +78,9 @@ bool BatchProgram::doExport( od_ostream& strm, IOPar& iop, bool is2d )
     int compnr;
     if ( !inppar->get( sKey::Component(), compnr ) )
 	compnr = 0;
+    
+    if ( !ZDomain::isSI(inioobj->pars()) )
+	ZDomain::Def::get(inioobj->pars()).set( outioobj->pars() );
 
     SEGY::FilePars fp; fp.usePar( *outpar );
     fp.fillPar( outioobj->pars() );

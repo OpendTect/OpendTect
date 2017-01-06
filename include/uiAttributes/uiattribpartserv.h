@@ -216,7 +216,7 @@ protected:
     uiAttrVolOut*	dataattrdlg_;
 
     Attrib::EngineMan*	createEngMan(const TrcKeyZSampling* cs=0,
-				Pos::GeomID geomid=Survey::GM().cUndefGeomID());
+				     Pos::GeomID geomid=mUdfGeomID);
 
     void		directShowAttr(CallBacker*);
 

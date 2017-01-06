@@ -306,6 +306,8 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
 
     Desc* desc = PF().createDescCopy( StorageProvider::attribName() );
     desc->setHidden( true );
+    desc->setSteering( true );
+    desc->setNrOutputs( Seis::Dip, 2 );
     desc->selectOutput( dipnr );
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     keypar->setValue( storkey );

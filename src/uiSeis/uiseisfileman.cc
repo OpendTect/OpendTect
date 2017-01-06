@@ -390,37 +390,7 @@ void uiSeisFileMan::mkFileInfo()
 
 od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
-    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) ) return -1;
-
-    od_int64 totalsz = 0;
-    nrfiles = 0;
-    if ( File::isDirectory(filenm) )
-    {
-	DirList dl( filenm, DirList::FilesOnly );
-	for ( int idx=0; idx<dl.size(); idx++ )
-	{
-	    File::Path filepath = dl.fullPath( idx );
-	    FixedString ext = filepath.extension();
-	    if ( ext != "cbvs" )
-		continue;
-
-	    totalsz += File::getKbSize( filepath.fullPath() );
-	    nrfiles++;
-	}
-    }
-    else
-    {
-	while ( true )
-	{
-	    BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
-	    if ( !File::exists(fullnm) ) break;
-
-	    totalsz += File::getKbSize( fullnm );
-	    nrfiles++;
-	}
-    }
-
-    return totalsz;
+    return SeisIOObjInfo::getFileSize( filenm, nrfiles );
 }
 
 

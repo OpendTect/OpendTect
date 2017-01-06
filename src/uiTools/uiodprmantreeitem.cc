@@ -22,6 +22,7 @@ uiODPrManagedTreeItem::uiODPrManagedTreeItem( const uiString& nm )
 
 uiODPrManagedTreeItem::~uiODPrManagedTreeItem()
 {
+    detachAllNotifiers();
 }
 
 

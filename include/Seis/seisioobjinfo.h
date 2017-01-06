@@ -29,7 +29,6 @@ namespace ZDomain { class Def; }
 mExpClass(Seis) SeisIOObjInfo
 {
 public:
-
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
 			SeisIOObjInfo(const DBKey&);
@@ -62,6 +61,8 @@ public:
 
     bool		getDefSpaceInfo(SpaceInfo&) const;
     int			expectedMBs(const SpaceInfo&) const;
+    od_int64		getFileSize() const;
+    static od_int64	getFileSize(const char* fnm,int& nrfiles);
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRectAndRegular() const; // Only CBVS
     bool		getDataChar(DataCharacteristics&) const;
@@ -69,11 +70,9 @@ public:
 			//!< max bytes per sample, component -1 => add all
     bool		fillStats(IOPar&) const;
 
-    int			nrComponents(Pos::GeomID geomid=
-					    Survey::GM().cUndefGeomID()) const;
+    int			nrComponents(Pos::GeomID geomid=mUdfGeomID) const;
     void		getComponentNames(BufferStringSet&,
-					  Pos::GeomID geomid=
-					  Survey::GM().cUndefGeomID()) const;
+					  Pos::GeomID geomid=mUdfGeomID) const;
     bool		getDisplayPars(IOPar&) const;
 
     mStruct(Seis) Opts2D

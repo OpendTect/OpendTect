@@ -86,6 +86,8 @@ public:
 				    const char* blindcompnm=0);
     Desc*		getFirstStored(bool usesteering=true) const;
     DBKey		getStoredKey(const DescID&) const;
+    void		getStoredNames(BufferStringSet&) const;
+    void		getAttribNames(BufferStringSet&,bool inclhidden) const;
 
     void		removeDesc(const DescID&);
     void		moveDescUpDown(const DescID&,bool);

@@ -127,7 +127,7 @@ Geometry::ID GeometryWriter2D::createNewGeomID( const char* name ) const
 {
     PtrMan<IOObj> geomobj = createEntry( name );
     if ( !geomobj )
-	return Survey::GM().cUndefGeomID();
+	return mUdfGeomID;
     return SurvGeom2DTranslator::getGeomID( *geomobj );
 }
 

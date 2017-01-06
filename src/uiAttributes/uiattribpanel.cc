@@ -32,7 +32,7 @@ using namespace Attrib;
 
 uiAttribPanel::uiAttribPanel( uiParent* p )
     : attribid_( DescID::undef() )
-    , geomid_(Survey::GM().cUndefGeomID())
+    , geomid_(mUdfGeomID)
     , dset_( 0 )
     , flatvwin_( 0 )
     , parent_( p )

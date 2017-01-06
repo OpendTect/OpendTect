@@ -89,10 +89,9 @@ bool CBVSSeisPSIOProvider::getGeomIDs( const char* dirnm,
 	if ( !dotptr ) continue;
 
 	*dotptr = '\0';
-	Pos::GeomID geomid = Survey::GM().cUndefGeomID();
-	getFromString( geomid, geomidstr, Survey::GM().cUndefGeomID() );
-	if ( geomid != Survey::GM().cUndefGeomID()
-	     && Survey::GM().getGeometry(geomid) )
+	Pos::GeomID geomid = mUdfGeomID;
+	getFromString( geomid, geomidstr, mUdfGeomID );
+	if ( !mIsUdfGeomID(geomid) && Survey::GM().getGeometry(geomid) )
 	    geomids += geomid;
     }
 
@@ -155,8 +154,7 @@ BufferString SeisCBVSPSIO::get2DFileName( Pos::GeomID geomid ) const
 BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-    return geomid == Survey::GM().cUndefGeomID() ? BufferString::empty()
-						 : get2DFileName( geomid );
+    return mIsUdfGeomID(geomid) ? BufferString::empty() : get2DFileName(geomid);
 }
 
 
@@ -628,7 +626,7 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
 	, posdata_(*new PosInfo::Line2DData)
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-    if ( geomid != Survey::GM().cUndefGeomID() )
+    if ( !mIsUdfGeomID(geomid) )
 	init( geomid );
 }
 

@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "gendefs.h"
+#include "math2.h"
 #include "ptrman.h"
 #include "varlenarray.h"
 
@@ -174,7 +175,8 @@ public:
     template <class X>
     inline int		nearestIndex(const X&) const;
     template <class X>
-    inline T		snap(const X&) const;
+    inline T		snap(const X&,int dir=0) const;
+			//!< dir=0: nearest; -1: downward, 1: upward
 
     inline int		nrSteps() const;
     inline float	nrfSteps() const;
@@ -619,7 +621,7 @@ StepInterval<T>::StepInterval( const T& t1, const T& t2, const T& t3 )
 template <class T>
 StepInterval<T>::StepInterval( const Interval<T>& intv )
     : Interval<T>(intv)
-{ step = intv.hasStep() ? ((StepInterval<T>&)intv).step : 1; }
+{ step = intv.hasStep() ? ((const StepInterval<T>&)intv).step : 1; }
 
 
 template <class T>
@@ -701,8 +703,15 @@ int StepInterval<T>::nearestIndex( const X& x ) const
 
 
 template <class T> template <class X> inline
-T StepInterval<T>::snap( const X& t ) const
-{ return atIndex( nearestIndex( t ) ); }
+T StepInterval<T>::snap( const X& t, int dir ) const
+{
+    if ( dir==0 )
+	return atIndex( nearestIndex(t) );
+
+    const float fidx = getfIndex( t );
+    const int idx = mNINT32( dir==-1 ? Math::Floor(fidx) : Math::Ceil(fidx) );
+    return atIndex( idx );
+}
 
 
 template <class T> inline
@@ -795,5 +804,5 @@ inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
     return ( (diff) < (releps) && (diff) > (-releps) ); \
 }
 
-mDefFltisCompat(float,1e-5f)
+mDefFltisCompat(float,1e-4f)
 mDefFltisCompat(double,1e-10)

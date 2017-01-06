@@ -180,7 +180,7 @@ bool uiWellTo2DLineDlg::acceptOK()
 	return false;
 
     Pos::GeomID geomid = Geom2DImpHandler::getGeomID( rl_->name() );
-    if ( geomid == mUdfGeomID )
+    if ( mIsUdfGeomID(geomid) )
 	return false;
 
     SeisRandLineTo2D exec( *randto2dlinefld_->getInputIOObj(),

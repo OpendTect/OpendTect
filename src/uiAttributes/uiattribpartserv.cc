@@ -613,7 +613,7 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
 
     const bool istargetstored = targetspecs_[0].isStored();
     const bool is2d = targetspecs_[0].is2D();
-    if ( is2d && tkzs && geomid == mUdfGeomID )
+    if ( is2d && tkzs && mIsUdfGeomID(geomid) )
 	geomid = tkzs->hsamp_.getGeomID();
 
     DescSet* curdescset = eDSHolder().getDescSet(is2d,istargetstored);
@@ -1461,7 +1461,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	MenuItem& subitem, const SelSpec& as, int geomid,
 	bool isstored, int steerpol )
 {
-    if ( geomid == Survey::GM().cUndefGeomID() )
+    if ( mIsUdfGeomID(geomid) )
 	return;
 
     BufferStringSet childitemnms;
@@ -1523,7 +1523,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 					      bool& dousemulticomp )
 {
     if ( stored3dmnuitem_.id == mnuid )
-	return selectAttrib( as, 0, Survey::GM().cUndefGeomID(),
+	return selectAttrib( as, 0, mUdfGeomID,
 			    uiStrings::phrSelect( uiStrings::sAttribute()) );
 
     const bool is3d = stored3dmnuitem_.findItem(mnuid) ||

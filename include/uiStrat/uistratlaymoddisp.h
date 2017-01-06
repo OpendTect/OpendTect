@@ -30,7 +30,7 @@ namespace Strat { class LayerModel; class LayerModelProvider; class Layer; }
 
 mStruct(uiStrat) LMPropSpecificDispPars
 {
-    			LMPropSpecificDispPars( const char* nm=0 )
+			LMPropSpecificDispPars( const char* nm=0 )
 			    : propnm_(nm)	{}
     bool		operator==( const LMPropSpecificDispPars& oth ) const
 			{ return propnm_ == oth.propnm_; }
@@ -45,6 +45,8 @@ mStruct(uiStrat) LMPropSpecificDispPars
 mExpClass(uiStrat) uiStratLayerModelDisp : public uiGroup
 { mODTextTranslationClass(uiStratLayerModelDisp);
 public:
+    typedef TypeSet<float> LVLZVals;
+    typedef TypeSet< LVLZVals > LVLZValsSet;
 
 			uiStratLayerModelDisp(uiStratLayModEditTools&,
 					    const Strat::LayerModelProvider&);
@@ -61,7 +63,7 @@ public:
     virtual bool	canSetDisplayProperties() const	{ return false; }
 
     const Strat::LayerModel& layerModel() const;
-    const TypeSet<float>& levelDepths() const		{ return lvldpths_; }
+    const LVLZVals&	flattenLevelDepths() const;
     int			selectedSequence() const	{ return selseqidx_; }
     void		selectSequence(int seqidx);
 
@@ -72,12 +74,13 @@ public:
     void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
     bool		isBrineFilled() const		{return isbrinefilled_;}
     void		setBrineFilled(bool yn)		{ isbrinefilled_= yn; }
-    
+
 
     float		getLayerPropValue(const Strat::Layer&,
-	    				  const PropertyRef*,int) const;
+					  const PropertyRef*,int) const;
     bool		setPropDispPars(const LMPropSpecificDispPars&);
     bool		getCurPropDispPars(LMPropSpecificDispPars&) const;
+    int			getFlattenLevelIdx() const;
     void		clearDispPars()		{ lmdisppars_.erase(); }
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
@@ -98,7 +101,7 @@ protected:
     bool		flattened_;
     bool		fluidreplon_;
     bool		isbrinefilled_;
-    TypeSet<float>	lvldpths_;
+    LVLZValsSet		lvldpths_;
     TypeSet<LMPropSpecificDispPars> lmdisppars_;
     IOPar		dumppars_;
 
@@ -120,6 +123,6 @@ protected:
     bool		doLayerModelIO(bool);
     virtual void	doLevelChg()			= 0;
     virtual void	handleClick(bool dble)		= 0;
-    				//!< returns whether layermodel has changed
+				//!< returns whether layermodel has changed
 
 };

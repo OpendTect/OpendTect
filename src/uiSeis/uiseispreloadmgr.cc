@@ -436,7 +436,7 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 				    const DBKey& input )
     : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
-					mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
+					mNoDlgTitle,mNoHelpKey))
     , scaler_(new LinScaler(0,1))
 {
     setCaption( geom==Vol ? tr("Pre-load 3D Data") : tr("Pre-load 2D Data") );
@@ -455,11 +455,26 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     subselfld_->selChange.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
     subselfld_->attach( alignedBelow, seissel_ );
 
+    formatdiskfld_ = new uiGenInput( leftgrp, tr("Format on disk") );
+    formatdiskfld_->setReadOnly();
+    sizediskfld_ = new uiGenInput( leftgrp, tr("Size on disk") );
+    sizediskfld_->setReadOnly();
+    formatdiskfld_->attach( alignedBelow, subselfld_ );
+    sizediskfld_->attach( rightTo, formatdiskfld_ );
+
+    BufferStringSet formats;
+    const BufferStringSet& keys = DataCharacteristics::UserTypeDef().keys();
+    for ( int idx=0; idx<keys.size(); idx++ )
+	formats.add( keys.get(idx).buf()+4 );
+
     typefld_ = new uiGenInput( leftgrp, tr("Load as"),
-		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
+		StringListInpSpec(formats) );
     typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
-    typefld_->setValue( (int)OD::AutoFPRep );
-    typefld_->attach( alignedBelow, subselfld_ );
+    typefld_->attach( alignedBelow, formatdiskfld_ );
+
+    memusagefld_ = new uiGenInput( leftgrp, tr("Est usage") );
+    memusagefld_->setReadOnly();
+    memusagefld_->attach( alignedBelow, sizediskfld_ );
 
     doscalefld_ = new uiGenInput( leftgrp, tr("Scale Values"),
 				  BoolInpSpec(false) );
@@ -497,6 +512,7 @@ uiSeisPreLoadSel::~uiSeisPreLoadSel()
 
 void uiSeisPreLoadSel::finalizeDoneCB( CallBacker* )
 {
+    typefld_->setValue( (int)OD::AutoFPRep );
     doScaleCB( 0 );
     seisSel( 0 );
 }
@@ -574,7 +590,10 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     else
     {
 	if ( !info.getRanges(tkzs) ) // TODO: Add message
+	{
+	    histfld_->setEmpty();
 	    return;
+	}
     }
 
     IOPar iop;
@@ -661,6 +680,7 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
     const IOObj* ioobj = seissel_->ioobj();
     if ( !ioobj ) return;
 
+    NotifyStopper ns( subselfld_->selChange );
     const SeisIOObjInfo info( ioobj ); IOPar iop;
     const bool dorescan = !info.fillStats( iop );
     nrtrcsfld_->setReadOnly( !dorescan );
@@ -668,6 +688,18 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
     scanbut_->setSensitive( dorescan );
     typefld_->setValue( 0 );
     subselfld_->setInput( *ioobj );
+
+    BufferString formatstr;
+    DataCharacteristics dc; info.getDataChar( dc );
+    const FixedString usertypestr =
+	DataCharacteristics::toString( dc.userType() );
+    if ( usertypestr.size() > 4 )
+	formatstr.set( usertypestr.buf()+4 );
+    formatdiskfld_->setText( formatstr );
+
+    const od_int64 filesz = info.getFileSize();
+    sizediskfld_->setText( File::getFileSizeString(filesz) );
+
     selChangeCB( 0 );
     fillHist( 0 );
 }
@@ -715,26 +747,20 @@ void uiSeisPreLoadSel::updateEstUsage()
     SeisIOObjInfo info( seissel_->ioobj() );
     const int nrcomp = info.nrComponents();
 
-    uiString infotxt = uiStrings::phrData(tr("format on disk: "));
+    BufferString infotxt;
     if ( nrcomp > 0 )
     {
-	DataCharacteristics dc; info.getDataChar( dc );
-	const FixedString usertypestr =
-	    DataCharacteristics::toString( dc.userType() );
-	if ( usertypestr.size() > 4 )
-	    infotxt.append( usertypestr.buf()+4 );
-
+	DataCharacteristics dc;
 	getDataChar( dc );
 	const od_int64 nrs = subselfld_->expectedNrSamples();
 	const od_int64 nrt = subselfld_->expectedNrTraces();
 	const od_int64 nrbytes = nrcomp * nrs * nrt * dc.nrBytes();
-	infotxt.append( tr(". Estimated memory usage: ") )
-	       .append( File::getFileSizeString(nrbytes/1024) );
+	infotxt.set( File::getFileSizeString(nrbytes/1024) );
     }
     else
-	infotxt.append( "?" );
+	infotxt.set( "-" );
 
-    toStatusBar( infotxt );
+    memusagefld_->setText( infotxt );
 }
 
 

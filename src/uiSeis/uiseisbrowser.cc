@@ -118,7 +118,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
 			  .arg(Seis::nameOf(su.geom_))
 			  .arg(DBM().nameOf( su.id_ )))));
 
-	if ( su.geomid_ != mUdfGeomID )
+	if ( !mIsUdfGeomID(su.geomid_) )
 	    lbltxt = toUiString("%1 - %2").arg(lbltxt)
 					.arg(Survey::GM().getName(su.geomid_));
 	new uiLabel( this, lbltxt );

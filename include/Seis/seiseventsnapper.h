@@ -17,8 +17,8 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class IOObj;
-class SeisMSCProvider;
 class SeisTrc;
+namespace Seis { class MSCProvider; }
 
 mExpClass(Seis) SeisEventSnapper : public Executor
 {
@@ -65,6 +65,6 @@ protected:
     virtual int			nextStep();
 
     BinIDValueSet&		positions_;
-    SeisMSCProvider*		mscprov_;
+    Seis::MSCProvider*		mscprov_;
 
 };

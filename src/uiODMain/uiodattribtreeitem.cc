@@ -24,8 +24,9 @@ ___________________________________________________________________
 #include "probeimpl.h"
 #include "posvecdataset.h"
 #include "randomlineprobe.h"
-#include "volumedatapackzaxistransformer.h"
 #include "survinfo.h"
+#include "volumedatapackzaxistransformer.h"
+#include "visrgbatexturechannel2rgba.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
 #include "zdomain.h"
@@ -39,6 +40,7 @@ ___________________________________________________________________
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uishortcutsmgr.h"
 #include "uistrings.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
@@ -65,6 +67,38 @@ uiODAttribTreeItem::~uiODAttribTreeItem()
 {}
 
 
+void uiODAttribTreeItem::prepareForShutdown()
+{
+    mDynamicCastGet( visSurvey::SurveyObject*,so,
+		     applMgr()->visServer()->getObject(displayID()) );
+    if ( !so )
+	return;
+
+    so->removeAttrib( attribNr() );
+    uiODDataTreeItem::prepareForShutdown();
+}
+
+
+bool uiODAttribTreeItem::init()
+{
+    mDynamicCastGet( visSurvey::SurveyObject*,so,
+		     applMgr()->visServer()->getObject(displayID()) );
+    if ( !so )
+	return false;
+
+    AttribProbeLayer* attrlay = attribProbeLayer();
+    if ( attrlay && attrlay->getDispType()==AttribProbeLayer::RGB )
+	so->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
+    if ( parent_->nrChildren()>1 )
+	so->addAttrib();//For first child attrib is automatically added
+
+    keyPressed()->notify( mCB(this,uiODAttribTreeItem,keyPressCB) );
+
+
+    return uiODDataTreeItem::init();
+}
+
+
 bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
 {
     if ( item!=uitreeviewitem_ )
@@ -80,6 +114,15 @@ bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
     applMgr()->updateColorTable( displayID(), attribNr() );
 
     return true;
+}
+
+
+void uiODAttribTreeItem::keyPressCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(uiKeyDesc,kd,cb);
+
+    if ( kd.key()==OD::KB_PageUp || kd.key()==OD::KB_PageDown )
+        applMgr()->pageUpDownPressed( kd.key()==OD::KB_PageUp );
 }
 
 
@@ -267,8 +310,6 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid )
 	    AttribProbeLayer* attrlayer = attribProbeLayer();
 	    if ( attrlayer )
 		attrlayer->setSelSpec( myas );
-	    //TODO PrIMPl check for vis stuff that need to be done
-	    //!visserv->calcManipulatedAttribs(visid) )
 	}
 	return true;
     }
@@ -282,9 +323,20 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
-    uiString dispname( as
-	    ? toUiString(as->userRef())
-	    : uiString::emptyString() );
+    uiString dispname = uiString::emptyString();
+    if ( as )
+    {
+	const int nrtextures = visserv->nrTextures( visid, attrib );
+	const int curidx = visserv->selectedTexture( visid, attrib );
+	if ( nrtextures > 1 )
+	{
+	    BufferString str;
+	    str.add( curidx ).add( "/" ).add( nrtextures ).addSpace();
+	    dispname.append( toUiString(str) );
+	}
+	dispname.append( toUiString(as->userRef()) );
+    }
+
     if ( as && as->isNLA() )
     {
 	dispname = toUiString(as->objectRef());
@@ -341,6 +393,23 @@ void uiODAttribTreeItem::updateColumnText( int col )
     }
 
     uiODDataTreeItem::updateColumnText( col );
+}
+
+
+void uiODAttribTreeItem::setProbeLayer( ProbeLayer* probelayer )
+{
+    uiODDataTreeItem::setProbeLayer( probelayer );
+    AttribProbeLayer* attrlay = attribProbeLayer();
+    if ( !attrlay )
+	return;
+
+    mDynamicCastGet( visSurvey::SurveyObject*, so,
+		     visserv_->getObject(displayID()));
+    if ( !so )
+	return;
+
+    if ( attrlay->getDispType()==AttribProbeLayer::RGB )
+	so->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
 }
 
 

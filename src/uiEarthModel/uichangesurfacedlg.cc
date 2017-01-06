@@ -29,15 +29,15 @@ ________________________________________________________________________
 
 
 uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
-                                        bool is2d, const uiString& txt )
+					bool is2d, const uiString& txt )
     : uiDialog (p, Setup(txt,mNoDlgTitle,
-                         mODHelpKey(mChangeSurfaceDlgHelpID) ) )
+			 mODHelpKey(mChangeSurfaceDlgHelpID) ) )
     , horizon_( hor )
     , is2d_( is2d )
     , savefldgrp_( 0 )
     , inputfld_( 0 )
     , parsgrp_( 0 )
-    , horReadyFroDisplay( this )
+    , horReadyForDisplay( this )
 {
     setCtrlStyle( RunAndClose );
 
@@ -132,7 +132,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
 	if ( !arr )
 	{
 	    uiString msg = tr("Not enough horizon data for section %1")
-                         .arg(sid);
+			 .arg(sid);
 	    ErrMsg( msg.getFullString() ); continue;
 	}
 
@@ -153,7 +153,7 @@ bool uiChangeHorizonDlg::doProcessing3D()
 	{
 	    uiString msg = tr("Cannot set new data to section %1").arg(usedsid);
 	    ErrMsg( msg.getFullString() ); continue;
-        }
+	}
 	else if ( usedhor3d==hor3d )
 	{
 	    change = true;
@@ -191,7 +191,7 @@ bool uiChangeHorizonDlg::acceptOK()
 	return false;
 
     if ( saveFldGrp()->displayNewHorizon() || !saveFldGrp()->getNewHorizon() )
-	horReadyFroDisplay.trigger();
+	horReadyForDisplay.trigger();
 
     const bool res = savefldgrp_->saveHorizon();
     if ( res )

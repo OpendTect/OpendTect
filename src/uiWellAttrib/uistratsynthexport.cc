@@ -419,7 +419,7 @@ Pos::GeomID uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 
     Survey::Geometry::ID newgeomid =
 		Geom2DImpHandler::getGeomID( linegeom.lineName() );
-    if ( newgeomid != mUdfGeomID )
+    if ( !mIsUdfGeomID(newgeomid) )
 	create2DGeometry( ptlist, linegeom );
 
     return newgeomid;
@@ -471,7 +471,7 @@ bool uiStratSynthExport::createHor2Ds()
 	for ( int trcidx=0; trcidx<stratlvl->zvals_.size(); trcidx++ )
 	{
 	    const int trcnr = trcnrrg.atIndex( trcidx );
-	    horizon2d->setPos( horizon2d->sectionID(0), geomid, trcnr,
+	    horizon2d->setZPos( horizon2d->sectionID(0), geomid, trcnr,
 			       stratlvl->zvals_[trcidx], false );
 	}
 
@@ -556,7 +556,7 @@ bool uiStratSynthExport::acceptOK()
 
     PtrMan<PosInfo::Line2DData> linegeom = new PosInfo::Line2DData( linenm );
     Pos::GeomID newgeomid = getGeometry( *linegeom );
-    if ( newgeomid == mUdfGeomID )
+    if ( mIsUdfGeomID(newgeomid) )
     {
 	getExpObjs();
 	return false;

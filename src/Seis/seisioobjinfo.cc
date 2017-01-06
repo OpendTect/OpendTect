@@ -10,6 +10,8 @@
 #include "bufstringset.h"
 #include "cbvsreadmgr.h"
 #include "conn.h"
+#include "dirlist.h"
+#include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
 #include "globexpr.h"
@@ -256,6 +258,50 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 }
 
 
+od_int64 SeisIOObjInfo::getFileSize( const char* filenm, int& nrfiles )
+{
+    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) ) return -1;
+
+    od_int64 totalsz = 0;
+    nrfiles = 0;
+    if ( File::isDirectory(filenm) )
+    {
+	DirList dl( filenm, DirList::FilesOnly );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    File::Path filepath = dl.fullPath( idx );
+	    FixedString ext = filepath.extension();
+	    if ( ext != "cbvs" )
+		continue;
+
+	    totalsz += File::getKbSize( filepath.fullPath() );
+	    nrfiles++;
+	}
+    }
+    else
+    {
+	while ( true )
+	{
+	    BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
+	    if ( !File::exists(fullnm) ) break;
+
+	    totalsz += File::getKbSize( fullnm );
+	    nrfiles++;
+	}
+    }
+
+    return totalsz;
+}
+
+
+od_int64 SeisIOObjInfo::getFileSize() const
+{
+    const char* fnm = ioobj_->fullUserExpr();
+    int nrfiles;
+    return getFileSize( fnm, nrfiles );
+}
+
+
 bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
 {
     mChk(false);
@@ -283,10 +329,13 @@ bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
 bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
 {
     mChk(false);
-    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-		 ioobj_->createTranslator() );
-    if ( !sttr )
+    Translator* trl = ioobj_->createTranslator();
+    if ( !trl )
 	{ pErrMsg("No Translator!"); return false; }
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		 trl );
+    if ( !sttr )
+	{ pErrMsg("Translator not SeisTrcTranslator!"); return false; }
 
     Conn* conn = ioobj_->getConn( Conn::Read );
     if ( !sttr->initRead(conn) )
@@ -306,10 +355,10 @@ bool SeisIOObjInfo::fillStats( IOPar& iop ) const
 {
     mChk(false);
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
-	    	 ioobj_->createTranslator() );
+		 ioobj_->createTranslator() );
     if ( !sttr )
-    	{ pErrMsg("No Translator!"); return false; }
-    
+	{ pErrMsg("No Translator!"); return false; }
+
     return sttr->fillStats( *ioobj_, iop );
 }
 
@@ -524,7 +573,7 @@ void SeisIOObjInfo::getComponentNames( BufferStringSet& nms,
 void SeisIOObjInfo::getCompNames( const DBKey& mid, BufferStringSet& nms )
 {
     SeisIOObjInfo ioobjinf( mid );
-    ioobjinf.getComponentNames( nms, Survey::GM().cUndefGeomID() );
+    ioobjinf.getComponentNames( nms, mUdfGeomID );
 }
 
 
@@ -562,8 +611,11 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 	int lidx = dataset->indexOf( geomid );
 	if ( lidx < 0 ) lidx = 0;
 	SeisTrcBuf tbuf( true );
-	Executor* ex = dataset->lineFetcher( dataset->geomID(lidx), tbuf, 1 );
-	if ( ex ) ex->doStep();
+	uiRetVal uirv;
+	Executor* ex = dataset->lineGetter( dataset->geomID(lidx), tbuf, 0,
+					    uirv, 1 );
+	if ( ex )
+	    ex->doStep();
 	ret = tbuf.isEmpty() ? 0 : tbuf.get(0)->nrComponents();
 	if ( nms )
 	{
@@ -634,7 +686,7 @@ void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
 					    BufferStringSet& datasets,
 					    Opts2D o2d )
 {
-    if ( geomid == mUdfGeomID )
+    if ( mIsUdfGeomID(geomid) )
 	return;
 
     IOObjContext ctxt( mIOObjContext(SeisTrc2D) );

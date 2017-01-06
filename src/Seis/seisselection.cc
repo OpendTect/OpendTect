@@ -90,6 +90,13 @@ Seis::SelData* Seis::SelData::get( const Pos::Provider& prov )
 }
 
 
+bool Seis::SelData::isOK( const TrcKey& tk ) const
+{
+    return tk.is2D() ? isOK( BinID(tk.lineNr(),tk.trcNr()) )
+		     : isOK( tk.position() );
+}
+
+
 Interval<int> Seis::SelData::inlRange() const
 {
     return TrcKeySampling(true).inlRange();
@@ -114,7 +121,7 @@ void Seis::SelData::fillPar( IOPar& iop ) const
 {
     const char* typstr = Seis::nameOf(type());
     iop.set( sKey::Type(), isall_ ? (const char*) sKey::None() : typstr );
-    if ( geomid_ == Survey::GM().cUndefGeomID() )
+    if ( mIsUdfGeomID(geomid_) )
 	iop.removeWithKey( sKey::GeomID() );
     else
 	iop.set( sKey::GeomID(), geomid_ );

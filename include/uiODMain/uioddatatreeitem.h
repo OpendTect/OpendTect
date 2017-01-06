@@ -20,7 +20,6 @@ class ProbeLayer;
 class uiFKSpectrum;
 class uiMenuHandler;
 class uiSeisAmplSpectrum;
-class uiStatsDisplayWin;
 class uiVisPartServer;
 class uiODApplMgr;
 class uiODDataTreeItem;
@@ -49,7 +48,6 @@ protected:
 mExpClass(uiODMain) uiODDataTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODDataTreeItem)
 public:
-				uiODDataTreeItem(const char* parenttype);
 				~uiODDataTreeItem();
 
     virtual bool		select();
@@ -72,6 +70,7 @@ public:
     virtual void		setProbeLayer(ProbeLayer*);
 
 protected:
+				uiODDataTreeItem(const char* parenttype);
 
     int				uiTreeViewItemType() const;
     virtual bool		init();
@@ -112,14 +111,13 @@ protected:
     MenuItem			displaymnuitem_;
     MenuItem			removemnuitem_;
     MenuItem			changetransparencyitem_;
-    MenuItem                    statisticsitem_;
+    MenuItem			statisticsitem_;
     MenuItem			amplspectrumitem_;
     MenuItem			fkspectrumitem_;
     MenuItem			view2dwvaitem_;
     MenuItem			view2dvditem_;
     BufferString		parenttype_;
 
-    uiStatsDisplayWin*		statswin_;
     uiSeisAmplSpectrum*		ampspectrumwin_;
     uiFKSpectrum*		fkspectrumwin_;
 

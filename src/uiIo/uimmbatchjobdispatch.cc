@@ -98,7 +98,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     , jobrunner_(0)
     , timer_(0)
     , nrcyclesdone_(0)
-    , basecaption_(tr("Job management"))
+    , basecaption_(tr("Multi-Machine Processing"))
 {
     setCaption( basecaption_ );
 
@@ -258,8 +258,7 @@ uiMMBatchJobDispatcher::~uiMMBatchJobDispatcher()
 void uiMMBatchJobDispatcher::initWin( CallBacker* cb )
 {
     jrpSel( cb );
-    if ( !avmachfld_ )
-	addPush( 0 );
+    setCaption( basecaption_ );
 }
 
 

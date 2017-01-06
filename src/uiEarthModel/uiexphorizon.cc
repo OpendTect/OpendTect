@@ -356,8 +356,9 @@ bool uiExportHorizon::writeAscii()
 		break;
 
 	    Coord3 crd = hor->getPos( posid );
+	    const BinID bid = SI().transform( crd.getXY() );
 	    if ( zatf )
-		crd.z_ = zatf->transform( crd );
+		crd.z_ = zatf->transformTrc( bid, (float)crd.z_ );
 
 	    if ( zatf && SI().depthsInFeet() )
 	    {
@@ -370,7 +371,6 @@ bool uiExportHorizon::writeAscii()
 
 	    if ( dogf )
 	    {
-		const BinID bid = SI().transform( crd.getXY() );
 		const float auxvalue = nrattribs > 0
 		    ? hor->auxdata.getAuxDataVal(0,posid) : mUdf(float);
 		writeGF( stream, bid, (float) crd.z_, auxvalue,
@@ -380,7 +380,6 @@ bool uiExportHorizon::writeAscii()
 
 	    if ( !doxy )
 	    {
-		const BinID bid = SI().transform( crd.getXY() );
 		stream << bid.inl() << od_tab << bid.crl();
 	    }
 	    else

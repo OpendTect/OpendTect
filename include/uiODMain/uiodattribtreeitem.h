@@ -28,6 +28,8 @@ public:
     const AttribProbeLayer* attribProbeLayer() const;
     AttribProbeLayer*	attribProbeLayer();
 
+    void		prepareForShutdown();
+    void		setProbeLayer(ProbeLayer*);
     static uiString	createDisplayName( int visid, int attrib );
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();
@@ -35,7 +37,9 @@ public:
 protected:
 
     bool		anyButtonClick(uiTreeViewItem*);
+    void		keyPressCB(CallBacker*);
 
+    virtual bool	init();
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     virtual void	updateDisplay();

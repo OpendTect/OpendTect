@@ -22,6 +22,97 @@ ________________________________________________________________________
 #include "stratlith.h"
 
 
+StratDispData::StratDispData()
+{}
+
+
+StratDispData::~StratDispData()
+{
+    eraseData();
+}
+
+
+void StratDispData::eraseData()
+{
+    for ( int idx=0; idx<cols_.size(); idx++ )
+    {
+	cols_[idx]->units_.erase();
+	cols_[idx]->levels_.erase();
+    }
+
+    cols_.erase();
+}
+
+
+void StratDispData::addCol( Column* col )
+{ cols_ += col; }
+
+
+int StratDispData::nrCols() const
+{ return cols_.size(); }
+
+
+int StratDispData::nrUnits( int colidx ) const
+{
+    const Column* col = getCol( colidx );
+    return col ? col->units_.size() : -1;
+}
+
+
+void StratDispData::addUnit( int colidx, Unit* un )
+{
+    Column* col = getCol( colidx );
+    if ( !col ) return;
+
+    col->units_ += un;
+    un->colidx_ = colidx;
+}
+
+
+StratDispData::Column* StratDispData::getCol( int idx )
+{ return cols_.validIdx(idx) ? cols_[idx] : 0; }
+
+const StratDispData::Column* StratDispData::getCol( int idx ) const
+{ return const_cast<StratDispData*>(this)->getCol(idx); }
+
+
+StratDispData::Unit* StratDispData::getUnit( int colidx, int uidx )
+{
+    Column* col = getCol( colidx );
+    return col && col->units_.validIdx(uidx) ? col->units_[colidx] : 0;
+}
+
+
+const StratDispData::Unit* StratDispData::getUnit( int colidx, int uidx ) const
+{ return const_cast<StratDispData*>(this)->getUnit( colidx, uidx ); }
+
+
+int StratDispData::nrLevels( int colidx ) const
+{
+    const Column* col = getCol( colidx );
+    return col ? col->levels_.size() : -1;
+}
+
+
+const StratDispData::Level* StratDispData::getLevel( int colidx, int lidx ) const
+{
+    const Column* col = getCol( colidx );
+    return col && col->levels_.validIdx(lidx) ? col->levels_[lidx] : 0;
+}
+
+
+int StratDispData::nrDisplayedCols() const
+{
+    int nr = 0;
+    for ( int idx=0; idx<cols_.size(); idx++)
+	{ if ( cols_[idx]->isdisplayed_ ) nr++; }
+    return nr;
+}
+
+
+
+// uiStratTreeToDisp
+
 #define mAskStratNotif(obj,nm)\
     (obj)->nm.notify(mCB(this,uiStratTreeToDisp,triggerDataChange));
 

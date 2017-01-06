@@ -541,7 +541,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
 
     const Pos::GeomID geomid = clickcatcher_->info().getGeomID();
-    const bool undefgeomid = geomid == Survey::GM().cUndefGeomID();
+    const bool undefgeomid = mIsUdfGeomID( geomid );
     TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd.getXY()) : node,
 			 (float)seedcrd.z_ );
 

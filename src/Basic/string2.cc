@@ -351,6 +351,19 @@ static const char* getStringFromFPNumber( T inpval, int nrdec, bool isdouble )
 }
 
 
+template <class T>
+static const char* getStringFromNumber( T val, char format, int precision )
+{
+#ifdef OD_NO_QT
+    return toString( val );
+#else
+    mDeclStaticString( retstr );
+    retstr = QString::number( val, format, precision );
+    return retstr.getCStr();
+#endif
+}
+
+
 const char* getYesNoString( bool yn )
 {
     const char* strs[] = { "Yes", "No" };
@@ -798,11 +811,17 @@ const char* toString( float f )
 const char* toString( float f, int nrdec )
 { return getStringFromFPNumber( f, nrdec, false ); }
 
+const char* toString( float f, char format, int precision )
+{ return getStringFromNumber( f, format, precision ); }
+
 const char* toString( double d )
 { return getStringFromFPNumber( d, true ); }
 
 const char* toString( double d, int nrdec )
 { return getStringFromFPNumber( d, nrdec, true ); }
+
+const char* toString( double d, char format, int precision )
+{ return getStringFromNumber( d, format, precision ); }
 
 const char* toString( short i )
 { return getStringFromInt((int)i, 0); }

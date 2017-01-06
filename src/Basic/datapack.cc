@@ -86,7 +86,13 @@ DataPack::FullID DataPack::FullID::getFromDBKey( const DBKey& dbky )
 {
     if ( !dbky.hasAuxKey() )
 	return getInvalid();
-    return getFromString( dbky.auxKey() );
+
+    const BufferString auxval = dbky.auxKey();
+    if ( auxval.firstChar() != '#' )
+	return getInvalid();
+
+    const char* dpstr = auxval.str() + 1;
+    return getFromString( dpstr );
 }
 
 
@@ -100,6 +106,7 @@ void DataPack::FullID::putInDBKey( DBKey& dbky ) const
 
 static Threads::Atomic<int> curdpidnr( 0 );
 
+
 DataPack::ID DataPack::getNewID()
 {
     return ID::get( ++curdpidnr );
@@ -110,7 +117,7 @@ void DataPack::setManager( const DataPackMgr* mgr )
 {
     if ( manager_ && mgr )
     {
-	if ( manager_!=mgr )
+	if ( manager_ != mgr )
 	    DBG::forceCrash( false );
 
 	return;
@@ -564,4 +571,9 @@ void DataPack::dumpInfo( IOPar& iop ) const
     iop.set( "Nr users", nrRefs() );
     const od_int64 nrkb = mCast(od_int64,nrKBytes());
     iop.set( "Memory consumption", File::getFileSizeString(nrkb) );
+    const DBKey dbky( dbKey() );
+    BufferString dbkystr( "-" );
+    if ( dbky.isValid() )
+	dbkystr.set( dbKey().toString() );
+    iop.set( "DB Key", dbkystr );
 }

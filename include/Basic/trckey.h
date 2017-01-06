@@ -45,6 +45,9 @@ public:
     bool		is2D() const { return is2D(survid_); }
     static bool		is2D(SurvID);
 
+    inline bool		hasValidGeomID() const
+			{ return survid_ != cUndefSurvID(); }
+			    //!< mind you, not 'hasExistingGeomID' ...
     Pos::GeomID		geomID() const;
     static Pos::GeomID	geomID(SurvID,const BinID&);
     TrcKey&		setGeomID(Pos::GeomID);

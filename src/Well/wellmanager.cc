@@ -328,10 +328,9 @@ void Well::Manager::getLogNames( const ObjID& id, BufferStringSet& nms ) const
 void Well::Manager::getAllMarkerNames( BufferStringSet& nms ) const
 {
     const DBDirEntryList del( mIOObjContext(Well) );
-    RefMan<Data> wd;
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	wd->markers().setEmpty();
+	RefMan<Data> wd = new Well::Data;
 	Reader rdr( del.ioobj(idx), *wd );
 	BufferStringSet newnms;
 	if ( rdr.getMarkers() )

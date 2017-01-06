@@ -29,16 +29,123 @@
 #include "uistrings.h"
 #include "keystrs.h"
 
+
+
+Seis2DTraceGetter::Seis2DTraceGetter( const IOObj& obj, Pos::GeomID geomid,
+				      const Seis::SelData* sd )
+    : ioobj_(*obj.clone())
+    , geomid_(geomid)
+    , seldata_(sd && !sd->isAll() ? sd->clone() : 0)
+    , tr_(0)
+{
+}
+
+
+Seis2DTraceGetter::~Seis2DTraceGetter()
+{
+    delete tr_;
+    delete seldata_;
+    delete &ioobj_;
+}
+
+
+bool Seis2DTraceGetter::ensureTranslator() const
+{
+    if ( !tr_ )
+    {
+	mkTranslator();
+	if ( !tr_ )
+	{
+	    if ( initmsg_.isEmpty() )
+		initmsg_ = tr( "Cannot make %1 access for '%2'" )
+			    .arg( ioobj_.translator() ).arg( ioobj_.name() );
+	    return false;
+	}
+	tr_->setSelData( seldata_ );
+    }
+
+    return true;
+}
+
+
+void Seis2DTraceGetter::ensureCorrectTrcKey( SeisTrc& trc ) const
+{
+    const TrcKey tk( lineNr(), trc.info().trcNr() );
+    trc.info().trckey_ = tk;
+}
+
+
+uiRetVal Seis2DTraceGetter::get( TrcNrType tnr, SeisTrc& trc ) const
+{
+    if ( !ensureTranslator() )
+	return uiRetVal( initmsg_ );
+
+    const BinID bid( lineNr(), tnr );
+    if ( !tr_->goTo(bid) )
+	return uiRetVal( tr("Trace not present: %1").arg(tnr) );
+
+    if ( !tr_->read(trc) )
+	return uiRetVal( tr_->errMsg() );
+
+    ensureCorrectTrcKey( trc );
+    return uiRetVal::OK();
+}
+
+
+uiRetVal Seis2DTraceGetter::getNext( SeisTrc& trc ) const
+{
+    if ( !ensureTranslator() )
+	return uiRetVal( initmsg_ );
+
+    uiRetVal uirv;
+    while ( true )
+    {
+	if ( !tr_->read(trc) )
+	{
+	    uirv.set( tr_->errMsg() );
+	    if ( uirv.isEmpty() )
+		uirv.set( uiStrings::sFinished() );
+	    break;
+	}else
+	if ( !seldata_ || seldata_->isOK(BinID(lineNr(),trc.info().trcNr())) )
+	{
+	    ensureCorrectTrcKey( trc );
+	    break;
+	}
+    }
+
+    return uirv;
+}
+
+
+
 Seis2DLineGetter::Seis2DLineGetter( SeisTrcBuf& trcbuf, int trcsperstep,
-				    const Seis::SelData& sd )
+				    const Seis::SelData* sd )
     : Executor("Reading 2D Traces")
     , tbuf_(trcbuf)
-    , seldata_(sd.clone())
-{}
+    , seldata_(0)
+{
+    if ( sd )
+	seldata_ = sd->clone();
+    else
+    {
+	seldata_ = Seis::SelData::get( Seis::Range );
+	seldata_->setIsAll( true );
+    }
+}
 
-const char*
-SeisTrc2DTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
-{ return IOPar::compKey( sKey::Default(), sKeyDefault() ); }
+
+Seis2DLineGetter::~Seis2DLineGetter()
+{
+    delete seldata_;
+}
+
+
+const char* SeisTrc2DTranslatorGroup::getSurveyDefaultKey(
+						const IOObj* ioobj ) const
+{
+    return IOPar::compKey( sKey::Default(), sKeyDefault() );
+}
 
 
 class Seis2DLineIOProviderSet : public ObjectSet<Seis2DLineIOProvider>
@@ -157,7 +264,7 @@ bool SeisTrc2DTranslator::initRead_()
     if ( seldata_ )
 	geomid_ = seldata_->geomID();
 
-    if ( geomid_!=mUdfGeomID && dset.indexOf(geomid_)<0 )
+    if ( !mIsUdfGeomID(geomid_) && dset.indexOf(geomid_)<0 )
 	{ errmsg_ = tr( "Cannot find GeomID %1" ).arg(geomid_); return false; }
 
     TrcKeyZSampling cs( true );
@@ -175,7 +282,7 @@ bool SeisTrc2DTranslator::initRead_()
 
 
 #define mStdInit \
-    , fetcher_(0) \
+    , getter_(0) \
     , putter_(0) \
     , outbuf_(*new SeisTrcBuf(false)) \
     , tbuf1_(*new SeisTrcBuf(false)) \
@@ -213,7 +320,7 @@ Seis2DLineMerger::Seis2DLineMerger( const BufferStringSet& attrnms,
 
 Seis2DLineMerger::~Seis2DLineMerger()
 {
-    delete fetcher_;
+    delete getter_;
     delete putter_;
     delete ds_;
     tbuf1_.deepErase();
@@ -259,13 +366,13 @@ bool Seis2DLineMerger::nextAttr()
 	return false; \
     }
 
-bool Seis2DLineMerger::nextFetcher()
+bool Seis2DLineMerger::nextGetter()
 {
     if ( !ds_ )
 	mErrRet(tr("Cannot find the Data Set"))
     if ( ds_->nrLines() < 2 )
 	mErrRet(tr("Cannot find 2 lines in Line Set"));
-    delete fetcher_; fetcher_ = 0;
+    delete getter_; getter_ = 0;
     currentlyreading_++;
     if ( currentlyreading_ > 2 )
 	return true;
@@ -287,11 +394,10 @@ bool Seis2DLineMerger::nextFetcher()
     const int dslineidx = ds_->indexOf( lid );
     if ( dslineidx<0 )
 	mErrRet( tr("Cannot find line in %1 dataset" ).arg(geom2d->getName()) )
-    fetcher_ = ds_->lineFetcher( dslineidx, tbuf, 1 );
-    if ( !fetcher_ )
-	mErrRet(
-	    uiStrings::phrCannotCreate(tr("a reader for %1.")
-				       .arg(geom2d->getName()) ) )
+    uiRetVal uirv;
+    getter_ = ds_->lineGetter( lid, tbuf, 0, uirv );
+    if ( !getter_ )
+	mErrRet( uirv );
 
     nrdonemsg_ = tr("Traces read");
     return true;
@@ -317,19 +423,19 @@ int Seis2DLineMerger::doWork()
     if ( !currentlyreading_ && !nextAttr() )
 	    return Executor ::Finished();
 
-    if ( fetcher_ || !currentlyreading_ )
+    if ( getter_ || !currentlyreading_ )
     {
 	if ( !currentlyreading_ )
-	    return nextFetcher() ? Executor::MoreToDo()
-				 : Executor::ErrorOccurred();
-	const int res = fetcher_->doStep();
+	    return nextGetter() ? Executor::MoreToDo()
+				: Executor::ErrorOccurred();
+	const int res = getter_->doStep();
 	if ( res < 0 )
-	    { msg_ = fetcher_->message(); return res; }
+	    { msg_ = getter_->message(); return res; }
 	else if ( res == 1 )
 	    { nrdone_++; return Executor::MoreToDo(); }
 
-	return nextFetcher() ? Executor::MoreToDo()
-			     : Executor::ErrorOccurred();
+	return nextGetter() ? Executor::MoreToDo()
+			    : Executor::ErrorOccurred();
     }
     else if ( putter_ )
     {
@@ -378,9 +484,10 @@ int Seis2DLineMerger::doWork()
 
     IOPar* lineiopar = new IOPar;
     lineiopar->set( sKey::GeomID(), outgeomid_ );
-    putter_ = ds_->linePutter( outgeomid_ );
+    uiRetVal uirv;
+    putter_ = ds_->linePutter( outgeomid_, uirv );
     if ( !putter_ )
-	mErrRet(tr("Cannot create writer for output line") );
+	mErrRet( uirv );
 
     nrdonemsg_ = tr("Traces written");
     return Executor::MoreToDo();

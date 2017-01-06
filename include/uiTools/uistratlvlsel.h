@@ -33,7 +33,7 @@ public:
 			~uiStratLevelSel();
 
     Strat::Level	selected() const;
-    const char*		getLevelName() const;
+    BufferString	getLevelName() const;
     Color		getColor() const;
     LevelID		getID() const;
 

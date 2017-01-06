@@ -20,15 +20,17 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "survinfo.h"
 
 #include "uibutton.h"
-#include "uichecklist.h"
+#include "uicombobox.h"
 #include "uidialog.h"
 #include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uigraphicsview.h"
 #include "uilabel.h"
+#include "uilineedit.h"
 #include "uimpepreviewgrp.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uispinbox.h"
 #include "uitable.h"
 #include "od_helpids.h"
 
@@ -41,8 +43,8 @@ namespace MPE
 
 static VSEvent::Type getEventType( int sel )
 {
-    if ( sel==0 )	return VSEvent::Min;
-    if ( sel==1 )	return VSEvent::Max;
+    if ( sel==0 )	return VSEvent::Max;
+    if ( sel==1 )	return VSEvent::Min;
     if ( sel==2 )	return VSEvent::ZCPosNeg;
     if ( sel==3 )	return VSEvent::ZCNegPos;
 			return VSEvent::None;
@@ -51,21 +53,83 @@ static VSEvent::Type getEventType( int sel )
 
 static int getEventIdx( VSEvent::Type tp )
 {
-    if ( tp == VSEvent::Min )		return 0;
-    if ( tp == VSEvent::Max )		return 1;
+    if ( tp == VSEvent::Max )		return 0;
+    if ( tp == VSEvent::Min )		return 1;
     if ( tp == VSEvent::ZCPosNeg )	return 2;
     if ( tp == VSEvent::ZCNegPos )	return 3;
 					return -1;
 }
 
 
-static const char* sEventNames[] = { "Min", "Max", "0+-", "0-+", 0 };
+static const char* sEventNames[] =
+	{ "Peak", "Trough", "Zero Crossing +-", "Zero Crossing -+", 0 };
 
 static bool sAllowSteps = false;
 
+class uiAmplThresholdGrp : public uiGroup
+{ mODTextTranslationClass(uiAmplThresholdGrp)
+public:
+uiAmplThresholdGrp( uiParent* p, const uiString& lbl )
+    : uiGroup(p,"Ampl Threshold")
+{
+    cbfld_ = new uiCheckBox( this, lbl, mCB(this,uiAmplThresholdGrp,checkCB) );
+
+    uiStringSet list; list.add( tr("Relative") ).add( tr("Absolute") );
+    typefld_ = new uiComboBox( this, list, "Type" );
+    typefld_->attach( rightTo, cbfld_ );
+    typefld_->selectionChanged.notify( mCB(this,uiAmplThresholdGrp,typeCB) );
+
+    percfld_ = new uiSpinBox( this, 0, "Percentage" );
+    percfld_->setSuffix( toUiString("%") );
+    percfld_->attach( rightTo, typefld_ );
+
+    amplfld_ = new uiLineEdit( this, "Amplitude" );
+    amplfld_->attach( rightTo, typefld_ );
+
+    setHAlignObj( typefld_ );
+}
+
+
+void checkCB( CallBacker* )
+{
+    const bool ison = hasThreshold();
+    typefld_->setSensitive( ison );
+    percfld_->setSensitive( ison );
+    amplfld_->setSensitive( ison );
+}
+
+void typeCB( CallBacker* )
+{
+    const bool isrel = hasRelThreshold();
+    percfld_->display( isrel );
+    amplfld_->display( !isrel );
+}
+
+bool hasThreshold() const
+{ return cbfld_->isChecked(); }
+
+bool hasRelThreshold() const
+{ return typefld_->currentItem()==0; }
+
+int getRelValue() const
+{ return percfld_->getIntValue(); }
+void setRelValue( int val )
+{ percfld_->setValue( val ); }
+
+float getAbsValue() const
+{ return amplfld_->getFValue(); }
+void setAbsValue( float val )
+{ amplfld_->setValue( val ); }
+
+    uiCheckBox*		cbfld_;
+    uiComboBox*		typefld_;
+    uiSpinBox*		percfld_;
+    uiLineEdit*		amplfld_;
+};
+
+
 uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     : uiDlgGroup(p,tr("Event"))
-    , addstepbut_(0)
     , sectiontracker_(0)
     , adjuster_(0)
     , changed_(this)
@@ -78,28 +142,14 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     evfld_->valuechanged.notify( mCB(this,uiEventGroup,selEventType) );
     evfld_->valuechanged.notify( mCB(this,uiEventGroup,changeCB) );
     leftgrp->setHAlignObj( evfld_ );
+    allowsignchgfld_ = new uiCheckBox( leftgrp, tr("Positive only"),
+		mCB(this,uiEventGroup,changeCB) );
+    allowsignchgfld_->attach( rightTo, evfld_ );
 
-    uiStringSet strs;
-    strs.add( tr("Cut-off amplitude") ); strs.add( tr("Relative difference") );
-    thresholdtypefld_ = new uiGenInput( leftgrp, tr("Threshold type"),
-					StringListInpSpec(strs) );
-    thresholdtypefld_->setValue( 1 );
-    thresholdtypefld_->valuechanged.notify(
-	    mCB(this,uiEventGroup,selAmpThresholdType) );
-    thresholdtypefld_->attach( alignedBelow, evfld_ );
-
-    ampthresholdfld_ = new uiGenInput( leftgrp, tr("Allowed difference (%)"),
-				       StringInpSpec() );
-    ampthresholdfld_->attach( alignedBelow, thresholdtypefld_ );
-    ampthresholdfld_->valuechanged.notify(
-	    mCB(this,uiEventGroup,changeCB) );
-
-    if ( !is2d && sAllowSteps )
-    {
-	addstepbut_ = new uiPushButton( leftgrp, tr("Steps"),
-		mCB(this,uiEventGroup,addStepPushedCB), false );
-	addstepbut_->attach( rightTo, ampthresholdfld_ );
-    }
+    ulimitfld_ = new uiAmplThresholdGrp( leftgrp, tr("Lower limit") );
+    ulimitfld_->attach( alignedBelow, evfld_ );
+    llimitfld_ = new uiAmplThresholdGrp( leftgrp, tr("Upper limit") );
+    llimitfld_->attach( alignedBelow, ulimitfld_ );
 
     uiString srchwindtxt = tr("Search window %1").arg(SI().zUnitString());
     StepInterval<int> swin0( -10000, -1, -1 );
@@ -107,7 +157,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     IntInpIntervalSpec iis; iis.setSymmetric( true );
     iis.setLimits( swin0, 0 ); iis.setLimits( swin1, 1 );
     srchgatefld_ = new uiGenInput( leftgrp, srchwindtxt, iis );
-    srchgatefld_->attach( alignedBelow, ampthresholdfld_ );
+    srchgatefld_->attach( alignedBelow, llimitfld_ );
     srchgatefld_->valuechanging.notify( mCB(this,uiEventGroup,changeCB) );
 
     uiSeparator* sep = new uiSeparator( leftgrp, "Sep" );
@@ -182,108 +232,15 @@ void uiEventGroup::previewChgCB(CallBacker *)
 void uiEventGroup::selEventType( CallBacker* )
 {
     const VSEvent::Type ev = getEventType( evfld_->getIntValue() );
-    const bool thresholdneeded = ev==VSEvent::Min || ev==VSEvent::Max;
-    thresholdtypefld_->setSensitive( thresholdneeded );
-    ampthresholdfld_->setSensitive( thresholdneeded );
-    if ( addstepbut_ )
-	addstepbut_->setSensitive( thresholdneeded );
-}
+    const bool minormax = ev==VSEvent::Min || ev==VSEvent::Max;
+    llimitfld_->setSensitive( minormax );
+    ulimitfld_->setSensitive( minormax );
+    allowsignchgfld_->display( minormax );
 
-
-void uiEventGroup::selAmpThresholdType( CallBacker* )
-{
-    const bool absthreshold = thresholdtypefld_->getIntValue() == 0;
-    ampthresholdfld_->setTitleText(absthreshold ?tr("Amplitude value")
-						:tr("Allowed difference (%)"));
-    if ( absthreshold )
-    {
-	const TypeSet<float>& thresholds = adjuster_->getAmplitudeThresholds();
-	if ( is2d_ || thresholds.isEmpty() )
-	    ampthresholdfld_->setValue( adjuster_->amplitudeThreshold() );
-	else
-	{
-	    BufferString bs;
-	    bs += thresholds[0];
-	    if ( sAllowSteps )
-	    {
-		for (int idx=1;idx<thresholds.size();idx++)
-		{ bs += ","; bs += thresholds[idx]; }
-	    }
-	    ampthresholdfld_->setText( bs.buf() );
-	}
-    }
-    else
-    {
-	const TypeSet<float>& variances = adjuster_->getAllowedVariances();
-	if ( is2d_ || variances.isEmpty() )
-	    ampthresholdfld_->setValue( adjuster_->allowedVariance()*100 );
-	else
-	{
-	    BufferString bs;
-	    bs += variances[0]*100;
-	    if ( sAllowSteps )
-	    {
-		for ( int idx=1; idx<variances.size(); idx++)
-		{ bs += ","; bs += variances[idx]*100; }
-	    }
-	    ampthresholdfld_->setText( bs.buf() );
-	}
-    }
-}
-
-
-
-class uiStepDialog : public uiDialog
-{ mODTextTranslationClass(uiStepDialog)
-public:
-
-uiStepDialog( uiParent* p, const char* valstr )
-    : uiDialog(p,Setup(tr("Stepwise tracking"),uiString::emptyString(),
-			mODHelpKey(mTrackingWizardHelpID)))
-{
-    steptable_ = new uiTable( this, uiTable::Setup(5,1).rowdesc("Step")
-						       .rowgrow(true)
-						       .defrowlbl(true)
-						       .selmode(uiTable::Multi)
-						       .defrowlbl(""),
-			      "Stepwise tracking table" );
-    steptable_->setColumnLabel( 0, uiStrings::sValue() );
-
-    SeparString ss( valstr, ',' );
-    if ( ss.size() > 3 )
-	steptable_->setNrRows( ss.size() + 2 );
-
-    for ( int idx=0; idx<ss.size(); idx++ )
-	steptable_->setText( RowCol(idx,0), ss[idx] );
-}
-
-
-void getValueString( BufferString& valstr )
-{
-    SeparString ss( 0, ',' );
-    for ( int idx=0; idx<steptable_->nrRows(); idx++ )
-    {
-	const char* valtxt = steptable_->text( RowCol(idx,0) );
-	if ( !valtxt || !*valtxt ) continue;
-	ss.add( valtxt );
-    }
-
-    valstr = ss.buf();
-}
-
-    uiTable*	steptable_;
-};
-
-
-
-void uiEventGroup::addStepPushedCB( CallBacker* )
-{
-    uiStepDialog dlg( this, ampthresholdfld_->text() );
-    if ( !dlg.go() ) return;
-
-    BufferString valstr;
-    dlg.getValueString( valstr );
-    ampthresholdfld_->setText( valstr );
+    if ( ev == VSEvent::Max )
+	allowsignchgfld_->setText( tr("Positive only") );
+    else if ( ev == VSEvent::Min )
+	allowsignchgfld_->setText( tr("Negative only") );
 }
 
 
@@ -305,21 +262,23 @@ void uiEventGroup::init()
     VSEvent::Type ev = adjuster_->trackEvent();
     const int fldidx = getEventIdx( ev );
     evfld_->setValue( fldidx );
+    allowsignchgfld_->setChecked( !adjuster_->isAmplitudeSignChangeAllowed() );
 
     Interval<float> intvf( adjuster_->searchWindow() );
     intvf.scale( mCast(float,SI().zDomain().userFactor()) );
     Interval<int> srchintv; srchintv.setFrom( intvf );
     srchgatefld_->setValue( srchintv );
 
-    thresholdtypefld_->setValue( adjuster_->useAbsThreshold() ? 0 : 1 );
+    llimitfld_->setRelValue( mNINT32(100*adjuster_->allowedVariance()) );
+    llimitfld_->setAbsValue( adjuster_->amplitudeThreshold() );
+    ulimitfld_->setRelValue( mNINT32(100*adjuster_->allowedVariance()) );
+    ulimitfld_->setAbsValue( adjuster_->amplitudeThreshold() );
 
     const int sample = 2*mCast(int,SI().zStep()*SI().zDomain().userFactor());
     const Interval<int> dataintv = srchintv + Interval<int>(-sample,sample);
     nrzfld_->setValue( dataintv );
 
     nrtrcsfld_->setValue( 5 );
-
-    selAmpThresholdType( 0 );
 }
 
 
@@ -349,6 +308,13 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 	adjuster_->setTrackEvent( evtyp );
     }
 
+    const bool allowsignchg = !allowsignchgfld_->isChecked();
+    if ( adjuster_->isAmplitudeSignChangeAllowed() != allowsignchg )
+    {
+	fieldchange = true;
+	adjuster_->allowAmplitudeSignChange( allowsignchg );
+    }
+
     Interval<float> intv = srchgatefld_->getFInterval();
     if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
 	mErrRet( tr("Search window should be minus to positive, ex. -20, 20"));
@@ -360,17 +326,16 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 	adjuster_->setSearchWindow( relintv );
     }
 
-    const bool useabs = thresholdtypefld_->getBoolValue() == 0;
+    const bool useabs = !llimitfld_->hasRelThreshold();
     if ( adjuster_->useAbsThreshold() != useabs )
     {
 	fieldchange = true;
 	adjuster_->setUseAbsThreshold( useabs );
     }
 
-    SeparString ss( ampthresholdfld_->text(), ',' );
     if ( useabs )
     {
-	const float thrval = ss.getFValue(0);
+	const float thrval = llimitfld_->getAbsValue();
 	if ( mIsUdf(thrval) )
 	    mErrRet( tr("Value threshold not set") );
 
@@ -382,8 +347,8 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
     }
     else
     {
-	const float var = ss.getFValue(0) / 100;
-	if ( var<=0.0 || var>=1.0 )
+	const float var = (float)llimitfld_->getRelValue() / 100.f;
+	if ( var<0.0 || var>1.0 )
 	    mErrRet( tr("Allowed difference must be between 0-100") );
 
 	if ( adjuster_->allowedVariance() != var )

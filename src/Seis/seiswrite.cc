@@ -29,7 +29,7 @@
 #include "uistrings.h"
 
 
-#define mCurGeomID (seldata_ ? seldata_->geomID():Survey::GM().cUndefGeomID())
+#define mCurGeomID (seldata_ ? seldata_->geomID() : mUdfGeomID)
 
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
@@ -141,7 +141,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 		.arg( ioobj_->uiName() );
 	return false;
     }
-    if ( is2d_ && ( !seldata_ || seldata_->geomID() == mUdfGeomID ) )
+    if ( is2d_ && ( !seldata_ || mIsUdfGeomID(seldata_->geomID()) ) )
     {
 	errmsg_ = tr("Internal: 2D seismic can only "
 		     "be stored if line GeomID known");
@@ -251,7 +251,7 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
     if ( !neednewconn && isMultiConn() )
     {
 	mDynamicCastGet(IOStream*,iostrm,ioobj_)
-	if ( iostrm->fileSpec().isRangeMulti() && trc.info().new_packet_ )
+	if ( iostrm->fileSpec().isRangeMulti() )
 	{
 	    const int connidx = iostrm->connIdxFor( trc.info().lineNr() );
 	    neednewconn = connidx != iostrm->curConnIdx();
@@ -282,13 +282,10 @@ bool SeisTrcWriter::next2DLine()
     prevgeomid_ = geomid;
     delete putter_;
 
-    putter_ = dataset_->linePutter( geomid );
-
+    uiRetVal uirv;
+    putter_ = dataset_->linePutter( geomid, uirv );
     if ( !putter_ )
-    {
-	errmsg_ = uiStrings::phrCannotCreate(tr("2D line writer"));
-	return false;
-    }
+	{ errmsg_ = uirv; return false; }
 
     return true;
 }

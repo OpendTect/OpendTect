@@ -22,7 +22,7 @@
 #include "dbman.h"
 #include "ioobj.h"
 #include "ptrman.h"
-#include "seiscubeprov.h"
+#include "seismscprov.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
 #include "statruncalc.h"
@@ -216,7 +216,7 @@ Provider::Provider( Desc& nd )
     , desbufferstepout_( 0, 0 )
     , providertask_( 0 )
     , currentbid_( -1, -1 )
-    , geomid_(Survey::GM().cUndefGeomID())
+    , geomid_(mUdfGeomID)
     , linebuffer_( 0 )
     , refstep_( 0 )
     , alreadymoved_( 0 )
@@ -721,7 +721,7 @@ int Provider::alignInputs( ObjectSet<Provider>& movinginputs )
 		inp2_is_on_newline = movinginputs[inp2]->isNew2DLine();
 
 	    int res = comparePosAndAlign(movinginputs[inp1], inp1_is_on_newline,
-			    		 movinginputs[inp2], inp2_is_on_newline,
+					 movinginputs[inp2], inp2_is_on_newline,
 					 inp1moved );
 	    if ( res != 1 ) return res;
 
@@ -747,8 +747,8 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 	//TODO implement case !isondisc_ ?
 	bool needmscp1 = true;
 	bool needmscp2 = true;
-	SeisMSCProvider* seismscprov1 = input1->getMSCProvider( needmscp1 );
-	SeisMSCProvider* seismscprov2 = input2->getMSCProvider( needmscp2 );
+	Seis::MSCProvider* seismscprov1 = input1->getMSCProvider( needmscp1 );
+	Seis::MSCProvider* seismscprov2 = input2->getMSCProvider( needmscp2 );
 	int compres = -1;
 
 	if ( seismscprov1 && seismscprov2 )
@@ -1089,12 +1089,12 @@ const DataHolder* Provider::getDataDontCompute( const BinID& relpos ) const
 }
 
 
-SeisMSCProvider* Provider::getMSCProvider( bool& needmscprov ) const
+Seis::MSCProvider* Provider::getMSCProvider( bool& needmscprov ) const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
 	if ( !inputs_[idx] ) continue;
-	SeisMSCProvider* res = inputs_[idx]->getMSCProvider( needmscprov );
+	Seis::MSCProvider* res = inputs_[idx]->getMSCProvider( needmscprov );
 	if ( res ) return res;
     }
 
@@ -1445,10 +1445,10 @@ void Provider::adjust2DLineStoredVolume()
 
 Pos::GeomID  Provider::getGeomID() const
 {
-    if ( geomid_ != Survey::GM().cUndefGeomID() )
+    if ( !mIsUdfGeomID(geomid_) )
 	return geomid_;
 
-    Pos::GeomID geomid = Survey::GM().cUndefGeomID();
+    Pos::GeomID geomid = mUdfGeomID;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
         if ( !inputs_[idx] )

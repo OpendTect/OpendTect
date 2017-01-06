@@ -79,12 +79,17 @@ public:
     bool		isChecked() const;
 
     Notifier<uiCheckedCompoundParSel> checked;
+    void		setSummary(const BufferString& smmry)
+						{ summary_ = smmry; return; }
 
 protected:
 
     uiCheckBox*		cbox_;
     bool		mkinvis_;
+    BufferString	summary_;
 
     void		checkCB(CallBacker*);
+
+    virtual BufferString getSummary() const { return summary_; }
 
 };

@@ -49,8 +49,7 @@ Seis2DFrom3DExtractor::~Seis2DFrom3DExtractor()
 
 Pos::GeomID Seis2DFrom3DExtractor::curGeomID() const
 {
-    return geomids_.validIdx(curlineidx_) ? geomids_[curlineidx_]
-					  : Survey::GM().cUndefGeomID();
+    return geomids_.validIdx(curlineidx_) ? geomids_[curlineidx_] : mUdfGeomID;
 }
 
 #define mErrRet(s) { msg_ = s; return ErrorOccurred(); }

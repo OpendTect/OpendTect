@@ -12,24 +12,23 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uioddisplaytreeitem.h"
+#include "uiodprobeparenttreeitem.h"
 #include "uiodattribtreeitem.h"
 
-mExpClass(uiODMain) uiODVolrenParentTreeItem : public uiODSceneTreeItem
-{ mODTextTranslationClass(uiODVolrenParentTreeItem);
-    typedef uiODSceneTreeItem	inheritedClass;
+mExpClass(uiODMain) uiODVolrenParentTreeItem
+	: public uiODSceneProbeParentTreeItem
+{   mODTextTranslationClass(uiODVolrenParentTreeItem);
+    mDefineItemMembers(VolrenParent,SceneProbeParentTreeItem,SceneTreeTop);
+    mMenuOnAnyButton;
 public:
-			uiODVolrenParentTreeItem();
 			~uiODVolrenParentTreeItem();
-
+    virtual Probe*	createNewProbe() const;
+    uiODPrManagedTreeItem* addChildItem(const OD::ObjPresentationInfo&);
+    bool		setProbeToBeAddedParams(int mnuid);
 
 protected:
-			mMenuOnAnyButton
-    bool		showSubMenu();
 
-    const char*		iconName() const;
     bool		canAddVolumeToScene();
-    const char*		parentType() const;
 };
 
 
@@ -43,17 +42,16 @@ public:
 };
 
 
-mExpClass(uiODMain) uiODVolrenTreeItem : public uiODDisplayTreeItem
+mExpClass(uiODMain) uiODVolrenTreeItem : public uiODSceneProbeTreeItem
 { mODTextTranslationClass(uiODVolrenTreeItem);
 public:
-			uiODVolrenTreeItem(int displayid_=-1,bool rgba=false);
+			uiODVolrenTreeItem(Probe&,int displayid_=-1);
     bool		showSubMenu();
 
 protected:
 			~uiODVolrenTreeItem();
     bool		init();
-    uiString	createDisplayName() const;
-    uiODDataTreeItem*	createAttribItem( const Attrib::SelSpec* ) const;
+    uiString		createDisplayName() const;
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
 
@@ -61,7 +59,6 @@ protected:
     const char*		parentType() const;
 
     MenuItem		positionmnuitem_;
-    bool		rgba_;
 };
 
 
@@ -69,6 +66,9 @@ mExpClass(uiODMain) uiODVolrenAttribTreeItem : public uiODAttribTreeItem
 { mODTextTranslationClass(uiODVolrenAttribTreeItem);
 public:
 			uiODVolrenAttribTreeItem(const char* parenttype);
+    static void		initClass();
+    static uiODDataTreeItem* create(ProbeLayer&);
+
 protected:
 
     void		createMenu(MenuHandler*,bool istb);

@@ -112,7 +112,7 @@ public:
     static const char*	sKeyTransparency();
     static const char*	sKeyCtbl();
     static const char*	sKeyNrSegments();
-    static const char*  sKeyRainbow();
+    static const char*	sKeyRainbow();
 
 protected:
 
@@ -168,7 +168,7 @@ protected:
 			SeqMgr();
 
 
-    ObjectSet<Sequence>	seqs_;
+    ObjectSet<Sequence> seqs_;
 
     friend mGlobal(General) SeqMgr&	SM();
 
@@ -180,5 +180,13 @@ protected:
 
 mGlobal(General) SeqMgr& SM();
 
-
 } // namespace ColTab
+
+namespace RGBBlend
+{
+    mGlobal(General) ColTab::Sequence	getRedColTab();
+    mGlobal(General) ColTab::Sequence	getBlueColTab();
+    mGlobal(General) ColTab::Sequence	getGreenColTab();
+    mGlobal(General) ColTab::Sequence	getTransparencyColTab();
+    mGlobal(General) ColTab::Sequence	getColTab(int nr);
+}

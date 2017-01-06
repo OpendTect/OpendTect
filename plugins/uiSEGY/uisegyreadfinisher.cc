@@ -46,8 +46,6 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "file.h"
 #include "filepath.h"
 
-#define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
-
 
 uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs )
 {
@@ -465,7 +463,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 
 	Pos::GeomID geomid = isnew ? Geom2DImpHandler::getGeomID(lnm)
 				   : Survey::GM().getGeomID(lnm);
-	if ( geomid == mUdfGeomID )
+	if ( mIsUdfGeomID(geomid) )
 	    mErrRet( tr("Internal: Cannot create line geometry in database") )
 
 	if ( !exec2Dimp(inioobj,outioobj,doimp,fnm,lnm,geomid) )
@@ -543,7 +541,7 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 					     bool& isnewline )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-    if ( geomid == mUdfGeomID )
+    if ( mIsUdfGeomID(geomid) )
 	return true;
 
     isnewline = false;

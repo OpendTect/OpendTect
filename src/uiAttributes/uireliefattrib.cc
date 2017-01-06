@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
+#include "uigeninput.h"
 
 using namespace Attrib;
 
@@ -34,6 +35,12 @@ uiReliefAttrib::uiReliefAttrib( uiParent* p, bool is2d )
 
 {
     inpfld_ = createInpFld( is2d );
+
+    gatefld_ = new uiGenInput( this, gateLabel(),
+	    		FloatInpIntervalSpec().setName("Z start",0)
+					      .setName("Z stop",1) );
+    gatefld_->attach( alignedBelow, inpfld_ );
+
     setHAlignObj( inpfld_ );
 }
 
@@ -42,6 +49,17 @@ bool uiReliefAttrib::setParameters( const Desc& desc )
 {
     if ( desc.attribName() != Relief::attribName() )
 	return false;
+
+    const Desc* instdesc = desc.getInput( 0 );
+    const Desc* energydesc = instdesc ? instdesc->getInput( 0 ) : 0;
+
+    mDynamicCastGet(const ZGateParam*,par,
+	energydesc ? energydesc->getValParam( Energy::gateStr() ) : 0)
+    Interval<float> zgate( 0, 0 );
+    if ( par )
+	zgate = par->getValue();
+
+    gatefld_->setValue( zgate );
     return true;
 }
 
@@ -104,33 +122,37 @@ static BufferString createUserRef( const char* inpnm, const char* attrnm )
 }
 
 
-static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid )
+static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid,
+			       const Interval<float>& zgate, const char* ref )
 {
     const Desc* inpdesc = ds.getDesc( inpid );
     if ( !inpdesc ) return DescID::undef();
 
     const char* attribnm = Energy::attribName();
-    const BufferString usrref = createUserRef( inpdesc->userRef(), attribnm );
-    const DescID descid = hasDesc( attribnm, usrref, ds, inpid );
+    const BufferString usrref = createUserRef( ref, attribnm );
+    DescID descid = hasDesc( attribnm, usrref, ds, inpid );
+
+    bool newdesc = false; Desc* energydesc = 0;
     if ( descid.isValid() )
-	return descid;
+	energydesc = ds.getDesc( descid );
+    else
+    {
+	energydesc = PF().createDescCopy( attribnm );
+	if ( !energydesc ) return DescID::undef();
+	newdesc = true;
+    }
 
-    Desc* newdesc = PF().createDescCopy( attribnm );
-    if ( !newdesc ) return DescID::undef();
+    energydesc->setInput( 0, inpdesc );
+    energydesc->selectOutput( 0 );
+    energydesc->setHidden( true );
 
-    newdesc->setInput( 0, inpdesc );
-    newdesc->selectOutput( 0 );
-    newdesc->setHidden( true );
-
-    // The zgate has to be tested. If a zero timegate works best, we can remove
-    // the scaling and even replace the Energy attribute by a simple Math
-    // attribute
-    Interval<float> zgate( 0, 0 );
-    zgate.scale( mCast(float,SI().zDomain().userFactor()) );
-    mDynamicCastGet(ZGateParam*,param,newdesc->getParam(Energy::gateStr()))
+    mDynamicCastGet(ZGateParam*,param,energydesc->getParam(Energy::gateStr()))
     if ( param ) param->setValue( zgate );
-    newdesc->setUserRef( usrref );
-    return ds.addDesc( newdesc );
+    energydesc->setUserRef( usrref );
+    if ( newdesc )
+	descid = ds.addDesc( energydesc );
+
+    return descid;
 }
 
 
@@ -190,7 +212,9 @@ bool uiReliefAttrib::getInput( Desc& desc )
     if ( !ds ) return false;
 
     const DescID inpid = inpfld_->attribID();
-    const DescID enid = addEnergyAttrib( *ds, inpid );
+
+    const Interval<float> zgate = gatefld_->getFInterval();
+    const DescID enid = addEnergyAttrib( *ds, inpid, zgate, desc.userRef() );
     const DescID hilbid = addHilbertAttrib( *ds, enid );
     const DescID instid = addInstantaneousAttrib( *ds, enid, hilbid );
 

@@ -30,10 +30,8 @@ public:
 			~VolProvider();
     virtual GeomType	geomType() const	{ return Vol; }
 
-    virtual BufferStringSet	getComponentInfo() const;
-    virtual ZSampling		getZSampling() const;
-    virtual TrcKeySampling	getHSampling() const;
-    virtual void		getGeometryInfo(PosInfo::CubeData&) const;
+    virtual bool	getRanges(TrcKeyZSampling&) const;
+    virtual void	getGeometryInfo(PosInfo::CubeData&) const;
 
 protected:
 
@@ -42,6 +40,8 @@ protected:
 
     virtual void	doUsePar(const IOPar&,uiRetVal&);
     virtual void	doReset(uiRetVal&) const;
+    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,
+					    TypeSet<Seis::DataType>&) const;
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
 

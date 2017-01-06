@@ -548,12 +548,12 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 	geomids_.erase();
 	BufferString str;
 	PosInfo::Line2DKey l2dkey;
-	Pos::GeomID geomid = Survey::GM().cUndefGeomID();
+	Pos::GeomID geomid = mUdfGeomID;
 	while ( subpargeom->get(toString(idx++),str) )
 	{
 	    l2dkey.fromString( str );
 	    if ( !l2dkey.haveLSID() )
-		getFromString( geomid,str.buf(),Survey::GM().cUndefGeomID() );
+		getFromString( geomid, str.buf(), mUdfGeomID );
 	    else
 	    {
 		S2DPOS().setCurLineSet( l2dkey.lsID() );
@@ -562,7 +562,7 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 					S2DPOS().getLineName(l2dkey.lineID()) );
 	    }
 
-	    if ( geomid != Survey::GM().cUndefGeomID() )
+	    if ( !mIsUdfGeomID(geomid) )
 		addGeomID( geomid );
 	}
     }

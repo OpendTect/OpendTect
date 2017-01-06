@@ -748,7 +748,7 @@ inline bool removeTrend( const ArrayND<ArrType>& in, ArrayND<ArrType>& out )
 	return false;
 
     mFillTrendXArray()
-    OperType intercept, gradient;
+    OperType intercept=0, gradient=0;
     if ( !getInterceptGradient<ArrType,OperType>(in,&trendx,intercept,gradient,
 						 true) )
     {

@@ -7,17 +7,24 @@
 
 
 #include "stratreftree.h"
+#include "strattreetransl.h"
 #include "stratunitrefiter.h"
 #include "ascstream.h"
 #include "separstr.h"
 
-static const char* sKeyStratTree = "Stratigraphic Tree";
-static const char* sKeyLith = "Lithology";
-static const char* sKeyContents = "Contents";
-static const char* sKeyAppearance = "Appearance";
+mDefSimpleTranslators(StratTree,"Stratigraphic Tree",od,Mdl)
+
+static const char* sKeyStratTree =	"Stratigraphic Tree";
+static const char* sKeyLith =		"Lithology";
+static const char* sKeyContents =	"Contents";
+static const char* sKeyUnits =		"Units";
+static const char* sKeyAppearance =	"Appearance";
 
 
-Strat::RefTree::RefTree()
+namespace Strat
+{
+
+RefTree::RefTree()
     : NodeOnlyUnitRef(0,"","Contains all units")
     , deleteNotif(this)
     , unitAdded(this)
@@ -31,14 +38,14 @@ Strat::RefTree::RefTree()
 }
 
 
-void Strat::RefTree::initTree()
+void RefTree::initTree()
 {
     src_ = Repos::Temp;
-    mAttachCB( Strat::eLVLS().objectChanged(), Strat::RefTree::levelSetChgCB );
+    mAttachCB( eLVLS().objectChanged(), RefTree::levelSetChgCB );
 }
 
 
-Strat::RefTree::~RefTree()
+RefTree::~RefTree()
 {
     detachAllNotifiers();
     deleteNotif.trigger();
@@ -46,7 +53,7 @@ Strat::RefTree::~RefTree()
 }
 
 
-void Strat::RefTree::reportChange( const Strat::UnitRef* un, bool isrem )
+void RefTree::reportChange( const UnitRef* un, bool isrem )
 {
     notifun_ = un;
     if ( un )
@@ -57,7 +64,7 @@ void Strat::RefTree::reportChange( const Strat::UnitRef* un, bool isrem )
 }
 
 
-void Strat::RefTree::reportAdd( const Strat::UnitRef* un )
+void RefTree::reportAdd( const UnitRef* un )
 {
     notifun_ = un;
     if ( un )
@@ -68,7 +75,7 @@ void Strat::RefTree::reportAdd( const Strat::UnitRef* un )
 }
 
 
-bool Strat::RefTree::addLeavedUnit( const char* fullcode, const char* dumpstr )
+bool RefTree::addLeavedUnit( const char* fullcode, const char* dumpstr )
 {
     if ( !fullcode || !*fullcode )
 	return false;
@@ -88,7 +95,7 @@ bool Strat::RefTree::addLeavedUnit( const char* fullcode, const char* dumpstr )
 }
 
 
-void Strat::RefTree::setToActualTypes()
+void RefTree::setToActualTypes()
 {
     UnitRefIter it( *this );
     ObjectSet<LeavedUnitRef> chrefs;
@@ -106,7 +113,9 @@ void Strat::RefTree::setToActualTypes()
 	NodeUnitRef* par = un->upNode();
 	if ( un->hasChildren() )
 	    { norefs += un; continue; }
-	LeafUnitRef* newun = new LeafUnitRef( par, -1, un->description() );
+
+	LeafUnitRef* newun =
+	    new LeafUnitRef( par, un->levelID().getI(), un->description() );
 	IOPar iop; un->putPropsTo( iop ); newun->getPropsFrom( iop );
 	delete par->replace( par->indexOf(un), newun );
     }
@@ -125,7 +134,7 @@ void Strat::RefTree::setToActualTypes()
 }
 
 
-bool Strat::RefTree::read( od_istream& strm )
+bool RefTree::read( od_istream& strm )
 {
     deepErase( refs_ ); liths_.setEmpty(); deepErase( contents_ );
     ascistream astrm( strm, true );
@@ -196,7 +205,7 @@ bool Strat::RefTree::read( od_istream& strm )
 }
 
 
-bool Strat::RefTree::write( od_ostream& strm ) const
+bool RefTree::write( od_ostream& strm ) const
 {
     ascostream astrm( strm );
     astrm.putHeader( sKeyStratTree );
@@ -206,11 +215,13 @@ bool Strat::RefTree::write( od_ostream& strm ) const
 	BufferString bstr; liths_.getLith(idx).fill( bstr );
 	astrm.put( sKeyLith, bstr );
     }
+
     FileMultiString fms;
     for ( int idx=0; idx<contents_.size(); idx++ )
 	fms += contents_[idx]->name();
     if ( !fms.isEmpty() )
 	astrm.put( sKeyContents, fms );
+
     for ( int idx=0; idx<contents_.size(); idx++ )
     {
 	BufferString valstr; contents_[idx]->putAppearanceTo(valstr);
@@ -220,7 +231,7 @@ bool Strat::RefTree::write( od_ostream& strm ) const
     }
 
     astrm.newParagraph();
-    astrm.put( "Units" );
+    astrm.put( sKeyUnits );
     UnitRefIter it( *this );
     ObjectSet<const UnitRef> unitrefs;
     unitrefs += it.unit();
@@ -245,26 +256,26 @@ bool Strat::RefTree::write( od_ostream& strm ) const
 }
 
 
-void Strat::RefTree::levelSetChgCB( CallBacker* cb )
+void RefTree::levelSetChgCB( CallBacker* cb )
 {
     mGetMonitoredChgData( cb, chgdata );
-    if ( chgdata.changeType() != Strat::LevelSet::cLevelToBeRemoved() )
+    if ( chgdata.changeType() != LevelSet::cLevelToBeRemoved() )
 	return;
 
     mGetIDFromChgData( Level::ID, lvlid, chgdata );
-    Strat::LeavedUnitRef* lur = getByLevel( lvlid );
+    LeavedUnitRef* lur = getByLevel( lvlid );
     if ( lur )
 	lur->setLevelID( Level::ID::getInvalid() );
 }
 
 
-void Strat::RefTree::getStdNames( BufferStringSet& nms )
+void RefTree::getStdNames( BufferStringSet& nms )
 {
-    return Strat::LevelSet::getStdNames( nms );
+    return LevelSet::getStdNames( nms );
 }
 
 
-Strat::RefTree* Strat::RefTree::createStd( const char* nm )
+RefTree* RefTree::createStd( const char* nm )
 {
     RefTree* ret = new RefTree;
     if ( nm && *nm )
@@ -272,13 +283,16 @@ Strat::RefTree* Strat::RefTree::createStd( const char* nm )
 	const BufferString fnm( getStdFileName(nm,"Tree") );
 	od_istream strm( fnm );
 	if ( strm.isOK() )
+	{
 	    ret->read( strm );
+	    ret->name_ = nm;
+	}
     }
     return ret;
 }
 
 
-void Strat::RefTree::createFromLevelSet( const Strat::LevelSet& ls )
+void RefTree::createFromLevelSet( const LevelSet& ls )
 {
     setEmpty();
     if ( ls.isEmpty() )
@@ -312,8 +326,7 @@ void Strat::RefTree::createFromLevelSet( const Strat::LevelSet& ls )
 }
 
 
-const Strat::LeavedUnitRef* Strat::RefTree::getLevelSetUnit(
-						const char* lvlnm ) const
+const LeavedUnitRef* RefTree::getLevelSetUnit( const char* lvlnm ) const
 {
     if ( isEmpty() ) return 0;
 
@@ -331,7 +344,7 @@ const Strat::LeavedUnitRef* Strat::RefTree::getLevelSetUnit(
 }
 
 
-Strat::LeavedUnitRef* Strat::RefTree::getByLevel( Level::ID lvlid ) const
+LeavedUnitRef* RefTree::getByLevel( Level::ID lvlid ) const
 {
     UnitRefIter it( *this, UnitRefIter::LeavedNodes );
     while ( it.next() )
@@ -342,3 +355,5 @@ Strat::LeavedUnitRef* Strat::RefTree::getByLevel( Level::ID lvlid ) const
     }
     return 0;
 }
+
+} // namespace Strat

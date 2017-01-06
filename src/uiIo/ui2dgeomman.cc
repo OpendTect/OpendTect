@@ -326,7 +326,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm, bool ovwok )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( nm );
-    if (  geomid == mUdfGeomID )
+    if ( mIsUdfGeomID(geomid) )
 	return createNewGeom( nm );
 
     if ( ovwok || confirmOverwrite(nm) )
@@ -344,12 +344,12 @@ bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	Pos::GeomID geomid = Survey::GM().getGeomID( nms.get(idx) );
-	if ( geomid != mUdfGeomID )
+	if ( !mIsUdfGeomID(geomid) )
 	    existingidxs += idx;
 	else
 	{
 	    geomid = createNewGeom( nms.get(idx) );
-	    if ( geomid == mUdfGeomID )
+	    if ( mIsUdfGeomID(geomid) )
 		return false;
 	}
 
@@ -391,7 +391,7 @@ Pos::GeomID Geom2DImpHandler::createNewGeom( const char* nm )
     Survey::Geometry2D* newgeom = new Survey::Geometry2D( l2d );
     uiString msg;
     Pos::GeomID geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
-    if ( geomid == mUdfGeomID )
+    if ( mIsUdfGeomID(geomid) )
 	uiMSG().error( msg );
 
     return geomid;

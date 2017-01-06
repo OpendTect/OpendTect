@@ -109,7 +109,8 @@ mExpClass(EarthModel) Horizon2D : public Horizon
 public:
 
     virtual float		getZ(const TrcKey&) const;
-    virtual bool		setZ(const TrcKey&,float z,bool addtohist);
+    virtual bool		setZ(const TrcKey&,float z,bool addtohist,
+				     NodeSourceType type=Auto);
     virtual bool		hasZ(const TrcKey&) const;
     virtual Coord3		getCoord(const TrcKey&) const;
     virtual void		setAttrib(const TrcKey&,int attr,bool yn,
@@ -133,12 +134,16 @@ public:
 
     Coord3			getPos(EM::SectionID,Pos::GeomID,int trc) const;
 
-    bool			setPos(EM::SectionID,Pos::GeomID geomid,
-				       int trcnr,float z,bool addtohist);
+    virtual void		setNodeSourceType(const TrcKey&,
+					NodeSourceType);
+    virtual bool		isNodeSourceType(const PosID&,
+					NodeSourceType)const;
+    virtual bool		isNodeSourceType(const TrcKey&,
+					NodeSourceType)const;
 
-    bool			setPos(const EM::PosID&,const Coord3&,bool);
-    bool			setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohist);
+    bool			setZPos(EM::SectionID,Pos::GeomID geomid,
+				       int trcnr,float z,bool addtohist,
+				       NodeSourceType type=Auto);
 
     Horizon2DGeometry&		geometry()		{ return geometry_; }
     const Horizon2DGeometry&	geometry() const	{ return geometry_; }
@@ -168,8 +173,15 @@ public:
 protected:
 
     const IOObjContext&		getIOObjContext() const;
+    void			initNodeSourceArray(const TrcKey&);
+
     Horizon2DGeometry		geometry_;
     Color			selectioncolor_;
+    Array1D<char>*		nodesource_;
+				/*!< '0'- non interpreted,
+				'1'- manual interpreted,
+				'2' - auto interpreted. see
+				 enum NodeSourceType*/
 };
 
 

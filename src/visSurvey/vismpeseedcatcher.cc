@@ -309,43 +309,50 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	mCheckSeis2DDisplay( trackertype_, dataobj, seis2ddisp, legalclick3 );
 	if ( seis2ddisp )
 	{
-	    DataPack::ID datapackid = DataPack::cNoID();
-	    int attrib = seis2ddisp->nrAttribs();
-	    while ( attrib )
-	    {
-		attrib--;
-		unsigned char transpar =
-		    seis2ddisp->getAttribTransparency( attrib );
-		datapackid = seis2ddisp->getDataPackID( attrib );
-		if ( datapackid.isValid() &&
-		     seis2ddisp->isAttribEnabled(attrib) && (transpar<198) )
-		    break;
-	    }
-
+	    handleObjectOnSeis2DDisplay( seis2ddisp, eventinfo.worldpickedpos );
 	    info().setLegalClick( legalclick3 );
-	    info().setObjDataPackID( datapackid );
-	    //TODO remove memory leak
-	    const Attrib::SelSpec* as = seis2ddisp->getSelSpec( attrib );
-	    Attrib::SelSpec newas;
-	    if ( as )
-		newas = *as;
-
-	    info().setObjDataSelSpec(
-		   newas.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()
-			? *as : newas );
-	    info().setGeomID( seis2ddisp->getGeomID() );
-	    info().setObjLineName( seis2ddisp->name().getFullString() );
-
-	    const TrcKey tk( seis2ddisp->getGeomID(),
-			     seis2ddisp->getNearestTraceNr(
-				eventinfo.worldpickedpos) );
-	    info().setNode( tk );
 	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;
 	}
     }
     info().clear();
+}
+
+
+void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp, 
+    const Coord3 worldpickedpos )
+{
+    DataPack::ID datapackid = DataPack::cNoID();
+    int attrib = seis2ddisp->nrAttribs();
+    while ( attrib )
+    {
+	attrib--;
+	unsigned char transpar =
+	    seis2ddisp->getAttribTransparency( attrib );
+	datapackid = seis2ddisp->getDataPackID( attrib );
+	if ( datapackid.isValid() &&
+	     seis2ddisp->isAttribEnabled(attrib) && (transpar<198) )
+	    break;
+    }
+
+    info().setObjDataPackID( datapackid );
+    //TODO remove memory leak
+    const Attrib::SelSpec* as = seis2ddisp->getSelSpec( attrib );
+    Attrib::SelSpec newas;
+    if ( as )
+	newas = *as;
+
+    info().setObjDataSelSpec(
+	   newas.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()
+		? *as : newas );
+    info().setGeomID( seis2ddisp->getGeomID() );
+    info().setObjLineName( seis2ddisp->name().getFullString() );
+
+    const TrcKey tk( seis2ddisp->getGeomID(),
+		     seis2ddisp->getNearestTraceNr(
+			worldpickedpos) );
+    info().setNode( tk );
 }
 
 
@@ -384,7 +391,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	if ( !seis2ddisp )
 	    continue;
 
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	if ( mIsUdfGeomID(geomid) )
 	{
 	    Coord3 pos = eventinfo.worldpickedpos;
 	    if ( transformation_ )
@@ -410,32 +417,22 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	}
     }
 
-    if ( seis2dclosest && mindisttoseis2d<=seis2dclosest->maxDist() )
+    const Scene* scene = seis2dclosest->getScene();
+    const double zscale = scene ? 
+	scene->getZScale()*scene->getFixedZStretch() : 0.0;
+    const Coord3 onesteptranslation = SI().oneStepTranslation( Coord3(0,0,1) );
+    const double onestepdist = Coord3( 1, 1, zscale ).dot( onesteptranslation );
+
+    if ( seis2dclosest && mindisttoseis2d<=0.5*onestepdist )
     {
-	DataPack::ID datapackid = DataPack::cNoID();
-	int attrib = seis2dclosest->nrAttribs();
-	while ( attrib )
-	{
-	    attrib--;
-	    unsigned char transpar =
-		seis2dclosest->getAttribTransparency( attrib );
-	    datapackid = seis2dclosest->getDataPackID( attrib );
-	    if ( datapackid.isValid() &&
-		 seis2dclosest->isAttribEnabled(attrib) && (transpar<198) )
-		break;
-	}
+	handleObjectOnSeis2DDisplay( seis2dclosest, eventinfo.worldpickedpos );
 
 	info().setLegalClick( legalclickclosest );
-	info().setObjDataPackID( datapackid );
 
-	const Attrib::SelSpec* as = seis2dclosest->getSelSpec( attrib );
-	if ( as )
-	    info().setObjDataSelSpec( *as );
-
-	info().setGeomID( seis2dclosest->getGeomID() );
-	info().setObjID( seis2dclosest->id() );
 	click.trigger();
+	eventcatcher_->setHandled();
     }
+
 }
 
 
@@ -691,7 +688,7 @@ void MPEClickInfo::clear()
     attrdata_ = 0;
     linedata_ = 0;
     linename_ = "";
-    geomid_ = Survey::GM().cUndefGeomID();
+    geomid_ = mUdfGeomID;
     doubleclicked_ = false;
     rdltkpath_ = 0;
     rdlid_ = -1;

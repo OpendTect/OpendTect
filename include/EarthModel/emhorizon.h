@@ -55,7 +55,8 @@ public:
 								->geometry(); }
 
     virtual float	getZ(const TrcKey&) const			= 0;
-    virtual bool	setZ(const TrcKey&,float z,bool addtohist)	= 0;
+    virtual bool	setZ(const TrcKey&,float z,bool addtohist,
+			    NodeSourceType type=Auto)		= 0;
     virtual bool	hasZ(const TrcKey&) const			= 0;
     virtual Coord3	getCoord(const TrcKey&) const			= 0;
 

@@ -31,6 +31,8 @@ class SeisTrcBuf;
 class SurfaceInfo;
 class TaskRunner;
 class ZAxisTransform;
+
+class uiDirLightDlg;
 class uiMenuHandler;
 class uiMPEMan;
 class uiMultiMapperRangeEditWin;
@@ -39,15 +41,14 @@ class uiToolBar;
 class uiTreeItemTBHandler;
 class uiVisModeMgr;
 class uiVisPickRetriever;
-class uiDirLightDlg;
 template <class T> class Selector;
 
 namespace Attrib    { class SelSpec; }
+namespace ColTab    { class Sequence; class MapperSetup; }
 namespace FlatView  { class DataDispPars; }
 namespace Threads   { class Mutex; }
 namespace visBase   { class DataObject; class EventCatcher; }
 namespace visSurvey { class Scene; }
-namespace ColTab    { class Sequence; class MapperSetup; }
 namespace ZDomain   { class Info; }
 
 
@@ -300,7 +301,8 @@ public:
 
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
 
-    void			displayMapperRangeEditForAttrbs(int id);
+    void			displayMapperRangeEditForAttribs(int id,
+								 int attrib=-1);
 
     static int			evColorTableChange();
     void			displaySceneColorbar(bool);

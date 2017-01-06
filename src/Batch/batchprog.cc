@@ -155,7 +155,10 @@ void BatchProgram::init()
 	SetEnvVar( __iswin__ ? "DTECT_WINDATA" : "DTECT_DATA", str );
 
     if ( clparser_->getVal(sKeyDataDir(),res) && File::isDirectory(res) )
+    {
 	mSetDataRootVar( res );
+	iopar_->set( sKey::DataRoot(), res );
+    }
 
     if ( !iopar_->get(sKey::Survey(),res) )
     {

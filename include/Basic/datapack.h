@@ -11,12 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "namedobj.h"
+#include "sharedobject.h"
 #include "manobjectset.h"
 #include "dbkey.h"
-#include "notify.h"
-#include "od_iosfwd.h"
 #include "ptrman.h"
+#include "od_iosfwd.h"
 
 class DataPackMgr;
 
@@ -28,10 +27,13 @@ class DataPackMgr;
   'Prestack gather'
   'Wavelet'
   'Fault surface'
+
+  A DataPack may be tied to stored object. If so, the optional dbKey() is
+  valid.
+
 */
 
-mExpClass(Basic) DataPack : public RefCount::Referenced
-			  , public NamedMonitorable
+mExpClass(Basic) DataPack : public SharedObject
 {
 public:
 
@@ -61,12 +63,12 @@ public:
 
 
 				DataPack( const char* categry )
-				    : NamedMonitorable("<?>")
+				    : SharedObject("<?>")
 				    , category_(categry)
 				    , manager_( 0 )
 				    , id_(getNewID())	{}
 				DataPack( const DataPack& dp )
-				    : NamedMonitorable( dp )
+				    : SharedObject( dp )
 				    , category_( dp.category_ )
 				    , manager_( 0 )
 				    , id_(getNewID())	{}
@@ -75,7 +77,7 @@ public:
     ID				id() const		{ return id_; }
     FullID			fullID( MgrID mgrid ) const
 						{ return FullID(mgrid,id()); }
-    virtual const char*		category() const	{ return category_.buf(); }
+    virtual const char*		category() const	{ return category_; }
 
     virtual float		nrKBytes() const	= 0;
     virtual void		dumpInfo(IOPar&) const;
@@ -85,15 +87,17 @@ public:
 
     virtual bool		isOK() const		{ return true; }
 
-    Threads::Lock&		updateLock() const	{ return updatelock_; }
+    mImplSimpleMonitoredGetSet( inline, dbKey, setDBKey, DBKey, dbkey_,
+				cDBKeyChg() )
+    static ChangeType		cDBKeyChg()		{ return 2; }
 
 protected:
 
     void			setManager(const DataPackMgr*);
     const ID			id_;
     const BufferString		category_;
+    DBKey			dbkey_;
 
-    mutable Threads::Lock	updatelock_;
     const DataPackMgr*		manager_;
 
     static ID			getNewID();  //!< ensures a global data pack ID

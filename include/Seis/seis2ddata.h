@@ -23,6 +23,7 @@ class BinIDValueSet;
 class BufferStringSet;
 class SeisTrcWriter;
 class Seis2DLinePutter;
+class Seis2DTraceGetter;
 class Seis2DLineIOProvider;
 namespace PosInfo	{ class LineSet2DData; class Line2DData; }
 namespace Seis		{ class SelData; }
@@ -33,7 +34,7 @@ static const char* sKeyNoOfLines mUnusedVar = "Number of Lines";
 
 
 mExpClass(Seis) Seis2DDataSet : public NamedObject
-{
+{ mODTextTranslationClass(Seis2DDataSet)
     friend class SeisTrcWriter;
 
 public:
@@ -60,12 +61,16 @@ public:
 
     void		getGeomIDs(TypeSet<Pos::GeomID>&) const;
     void		getLineNames(BufferStringSet&) const;
+    uiRetVal		getGeometry(Pos::GeomID,PosInfo::Line2DData&) const;
 
-    Executor*		lineFetcher(Pos::GeomID,SeisTrcBuf&,
-				    int nrtrcsperstep=10,
-				    const Seis::SelData* sd=0) const;
+    Seis2DTraceGetter*	traceGetter(Pos::GeomID,const Seis::SelData*,
+				    uiRetVal&) const;
 				//!< May return null
-    Seis2DLinePutter*	linePutter(Pos::GeomID);
+    Executor*		lineGetter(Pos::GeomID,SeisTrcBuf&,
+				    const Seis::SelData*,uiRetVal&,
+				    int nrtrcsperstep=16) const;
+				//!< May return null
+    Seis2DLinePutter*	linePutter(Pos::GeomID,uiRetVal&);
 				//!< May return null.
 				//!< will return replacer if geomid exists
 
@@ -95,8 +100,4 @@ protected:
     TypeSet<Pos::GeomID>	geomids_;
 
     void		init();
-
-private:
-
-    bool		getGeometry(Pos::GeomID,PosInfo::Line2DData&) const;
 };

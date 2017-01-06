@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uimmbatchjobdispatch.h"
 
+class uiCheckBox;
 class uiGenInput;
 class uiFileInput;
 class uiSeisIOObjInfo;
@@ -22,7 +23,7 @@ mExpClass(uiSeis) uiSeisMMProc : public uiMMBatchJobDispatcher
 { mODTextTranslationClass(uiSeisMMProc);
 public:
 
-                        uiSeisMMProc(uiParent*,const IOPar&);
+			uiSeisMMProc(uiParent*,const IOPar&);
 			~uiSeisMMProc();
 
 protected:
@@ -36,6 +37,7 @@ protected:
 
     uiFileInput*	tmpstordirfld_;
     uiGenInput*		inlperjobfld_;
+    uiCheckBox*		saveasdeffld_;
 
     virtual bool	initWork(bool);
     virtual bool	prepareCurrentJob();

@@ -110,7 +110,7 @@ void uiWaveletIOObjSel::extractionDoneCB( CallBacker* )
 
 ConstRefMan<Wavelet> uiWaveletIOObjSel::getWavelet() const
 {
-    const IOObj* wvltioobj = ioobj();
+    const IOObj* wvltioobj = ioobj(true);
     if ( !wvltioobj )
 	return 0;
 

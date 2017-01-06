@@ -30,10 +30,8 @@ ________________________________________________________________________
 
 
 uiZStretchDlg::uiZStretchDlg( uiParent* p )
-    : uiDialog(p,
-	       uiDialog::Setup(tr("Z Scaling"),tr("Set Z scaling factor"),
-                                mODHelpKey(mZScaleDlgHelpID) )
-	       .canceltext(uiString::emptyString()))
+    : uiDialog(p,uiDialog::Setup(tr("Z Scaling"),tr("Set Z scaling factor"),
+				 mODHelpKey(mZScaleDlgHelpID)))
     , vwallbut_(0)
     , scenefld_(0)
     , sliderfld_(0)
@@ -50,7 +48,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	    visBase::DM().getObject(sceneids_[0]) );
     if ( !scene ) return;
 
-    const float initslval = 
+    const float initslval =
 	scene->getFixedZStretch()*scene->getTempZStretch();
     zstretches_ +=  initslval;
 
@@ -72,7 +70,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	}
 
 	scenefld_ = new uiLabeledComboBox( this, scenenms,
-                                           tr("Apply scaling to") );
+					   tr("Apply scaling to") );
 	scenefld_->box()->setCurrentItem( 1 );
 	mAttachCB( scenefld_->box()->selectionChanged, uiZStretchDlg::sceneSel);
     }
@@ -113,8 +111,8 @@ void uiZStretchDlg::doFinalise( CallBacker* )
     if ( homecb.willCall() )
     {
 	uiPixmap homepm( "home" );
-	uiButton* homebut = new uiPushButton( grp, tr("To Home"), homepm,
-                                              true );
+	uiButton* homebut =
+		new uiPushButton( grp, tr("To Home"), homepm, true );
 	mAttachCB( homebut->activated, uiZStretchDlg::butPush );
 	if ( vwallbut_ )
 	    homebut->attach( rightOf, vwallbut_ );
@@ -130,7 +128,7 @@ void uiZStretchDlg::doFinalise( CallBacker* )
 void uiZStretchDlg::sceneSel( CallBacker* )
 {
     int sceneidx = scenefld_ ? scenefld_->box()->currentItem()-1 : 0;
-    if ( sceneidx<0 ) 
+    if ( sceneidx<0 )
 	sceneidx = 0;
 
     updateSliderValues( sceneidx );
@@ -147,20 +145,20 @@ void uiZStretchDlg::updateSliderValues(  int sceneidx )
     float uifactor = 1.0f;
     if ( sceneids_.size() )
     {
-        if ( sceneidx < 0 ) sceneidx = 0;
-        mDynamicCastGet( visSurvey::Scene*, scene,
-                        visBase::DM().getObject(sceneids_[sceneidx]) );
-
+	if ( sceneidx < 0 ) sceneidx = 0;
+	mDynamicCastGet(visSurvey::Scene*, scene,
+			visBase::DM().getObject(sceneids_[sceneidx]));
 	if ( !scene ) return;
-        initslval = scene->getFixedZStretch()*scene->getTempZStretch();
-        uifactor = scene->getApparentVelocity( initslval )/initslval;
+
+	initslval = scene->getFixedZStretch()*scene->getTempZStretch();
+	uifactor = scene->getApparentVelocity( initslval )/initslval;
 	zstretches_[sceneidx] = initslval;
 
-        if ( scene->zDomainInfo().def_.isTime() )
-        {
+	if ( scene->zDomainInfo().def_.isTime() )
+	{
 	    label = tr( "Apparent velocity %1")
 			.arg( VelocityDesc::getVelUnit( true ) );
-        }
+	}
     }
 
     sliderfld_->label()->setText( label );
@@ -169,8 +167,6 @@ void uiZStretchDlg::updateSliderValues(  int sceneidx )
     sliderfld_->setMaxValue( 25*initslval*uifactor );
     sliderfld_->setValue( initslval*uifactor );
 }
-
-
 
 
 bool uiZStretchDlg::acceptOK()
@@ -202,12 +198,11 @@ void uiZStretchDlg::setOneZStretchToAllScenes( float zstretch, bool permanent )
 	if ( !scene ) continue;
 	setZStretch( scene, zstretch, permanent );
     }
-
 }
 
 
-void uiZStretchDlg::setZStretchesToScenes( TypeSet<float>& zstretches, 
-    bool permanent )
+void uiZStretchDlg::setZStretchesToScenes( TypeSet<float>& zstretches,
+					   bool permanent )
 {
     if ( zstretches.size() != sceneids_.size() )
 	return;
@@ -222,8 +217,8 @@ void uiZStretchDlg::setZStretchesToScenes( TypeSet<float>& zstretches,
 }
 
 
-void uiZStretchDlg::setZStretch( visSurvey::Scene* scene, float zstretch, 
-    bool permanent )
+void uiZStretchDlg::setZStretch( visSurvey::Scene* scene, float zstretch,
+				 bool permanent )
 {
     if ( !scene )
 	return;
@@ -285,7 +280,7 @@ visSurvey::Scene* uiZStretchDlg::getSelectedScene() const
 }
 
 
-float uiZStretchDlg::getSelectedSceneZStretch() const 
+float uiZStretchDlg::getSelectedSceneZStretch() const
 {
     const visSurvey::Scene* scene = getSelectedScene();
     if ( !scene )

@@ -31,6 +31,7 @@ class TaskRunner;
 namespace Geometry { class Element; }
 
 template <class T> class Selector;
+template <class T> class Array2D;
 
 namespace EM
 {
@@ -79,7 +80,7 @@ public:
 
 protected:
 
-    static Threads::Atomic<int> 	curcbid_;
+    static Threads::Atomic<int>	curcbid_;
     CBID				cbid_;
 };
 
@@ -131,6 +132,8 @@ mExpClass(EarthModel) EMObject : public SharedObject
 {
 public:
 
+    enum NodeSourceType		{ None = (int)'0', Manual=(int)'1',
+				  Auto=(int)'2' };
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const	= 0;
     virtual uiString		getUserTypeStr() const	= 0;
@@ -176,13 +179,35 @@ public:
     virtual bool		isDefined(const EM::PosID&) const;
     virtual bool		isDefined(const EM::SectionID&,
 					  const EM::SubID&) const;
-    virtual bool		setPos(const EM::PosID&,const Coord3&,
-				       bool addtohistory);
-    virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
-				       const Coord3&,bool addtohistory);
+    bool			setPos(const EM::PosID&,const Coord3&,
+				       bool addtohistory,
+				       NodeSourceType type=Auto);
+    bool			setPos(const EM::SectionID&,const EM::SubID&,
+				       const Coord3&,bool addtohistory,
+				       NodeSourceType type=Auto);
     virtual bool		unSetPos(const EM::PosID&,bool addtohistory);
     virtual bool		unSetPos(const EM::SectionID&,const EM::SubID&,
 					 bool addtohistory);
+
+    virtual void		setNodeSourceType(const TrcKey&,
+							NodeSourceType){}
+    virtual bool		isNodeSourceType(const PosID&,
+				    NodeSourceType) const {return false;}
+    virtual bool		isNodeSourceType(const TrcKey&,
+				     NodeSourceType)const {return false;}
+
+    virtual void		setNodeLocked(const TrcKey&,bool locked){}
+    virtual bool		isNodeLocked(const TrcKey&) const
+					    { return false; }
+    virtual bool		isNodeLocked(const PosID&)const {return false;}
+
+    virtual void		lockAll() {}
+    virtual void		unlockAll(){}
+    virtual const Array2D<char>*
+				getLockedNodes() const { return 0; }
+    virtual void		setLockColor(const Color&) {}
+    virtual const Color		getLockColor() const { return Color::Blue(); }
+    virtual bool		hasLockedNodes() const {return haslockednodes_;}
 
 
     virtual bool		enableGeometryChecks(bool);
@@ -274,6 +299,11 @@ protected:
 				~EMObject();
 				EMObject( EMManager& );
 				//!<must be called after creation
+
+    virtual bool		setPosition(const EM::SectionID&,
+					    const EM::SubID&,
+					    const Coord3&,bool addtohistory,
+					    NodeSourceType type=Auto);
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete();
     void			posIDChangeCB(CallBacker*);
@@ -307,6 +337,8 @@ protected:
 
     bool			insideselremoval_;
     bool			selremoving_;
+    bool			haslockednodes_;
+
     ObjectSet<EMObjectCallbackData> emcbdatas_;
 
     static const char*		nrposattrstr();

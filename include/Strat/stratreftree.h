@@ -27,7 +27,6 @@ class LevelSet;
 mExpClass(Strat) RefTree : public NodeOnlyUnitRef
 {
 public:
-
 			RefTree();
 			~RefTree();
 
@@ -73,6 +72,7 @@ protected:
 public:
 
     Repos::Source	src_;
+    BufferString	name_;
 
 				// for printing, export or something.
 				// otherwise, use RepositoryAccess::write()
@@ -101,4 +101,4 @@ mGlobal(Strat) void setRT(RefTree*);
 //!< Used by tree manager, and not by *you*. Very very likely not.
 
 
-}; // namespace Strat
+} // namespace Strat

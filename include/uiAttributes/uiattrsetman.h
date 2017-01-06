@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 #include "uiobjfileman.h"
 
+class uiListBox;
 
 /*!
 \brief AttributeSet Manager
@@ -21,12 +22,13 @@ ________________________________________________________________________
 mExpClass(uiAttributes) uiAttrSetMan : public uiObjFileMan
 { mODTextTranslationClass(uiAttrSetMan);
 public:
-    				uiAttrSetMan(uiParent*);
-				~uiAttrSetMan();
+    			uiAttrSetMan(uiParent*);
+			~uiAttrSetMan();
 
     mDeclInstanceCreatedNotifierAccess(uiAttrSetMan);
 
 protected:
 
-    void			mkFileInfo();
+    uiListBox*		attribfld_;
+    void		mkFileInfo();
 };

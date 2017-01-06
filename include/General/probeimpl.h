@@ -14,6 +14,8 @@ ___________________________________________________________________
 #include "probe.h"
 #include "survgeom.h"
 
+namespace ZDomain { class Info; }
+
 mExpClass(General) InlineProbe : public Probe
 {
 public:
@@ -22,6 +24,7 @@ public:
     static const char*		sFactoryKey();
     virtual const char*		type() const		{ return sFactoryKey();}
     static Probe*		createFrom(const IOPar&);
+    bool			is3DSlice() const	{ return true; }
 
     static void			initClass();
     virtual bool		usePar(const IOPar&);
@@ -46,6 +49,7 @@ public:
     virtual bool		usePar(const IOPar&);
     mDeclInstanceCreatedNotifierAccess( CrosslineProbe );
     mDeclAbstractMonitorableAssignment( CrosslineProbe );
+    bool			is3DSlice() const	{ return true; }
 
 protected:
     BufferString		createName() const;
@@ -63,8 +67,10 @@ public:
 
     static void			initClass();
     virtual bool		usePar(const IOPar&);
+    virtual bool		isVertical() const	{ return false; }
     mDeclInstanceCreatedNotifierAccess( ZSliceProbe );
     mDeclAbstractMonitorableAssignment( ZSliceProbe );
+    bool			is3DSlice() const	{ return true; }
 
 protected:
     BufferString		createName() const;
@@ -92,4 +98,25 @@ public:
 protected:
     BufferString		createName() const;
     Pos::GeomID			geomid_;
+};
+
+
+mExpClass(General) VolumeProbe : public Probe
+{
+public:
+				VolumeProbe(const TrcKeyZSampling&);
+				VolumeProbe();
+    static const char*		sFactoryKey();
+    virtual const char*		type() const		{ return sFactoryKey();}
+    static Probe*		createFrom(const IOPar&);
+
+    static void			initClass();
+    virtual bool		usePar(const IOPar&);
+    void			setZDomain(const ZDomain::Info&);
+    mDeclInstanceCreatedNotifierAccess( VolumeProbe );
+    mDeclAbstractMonitorableAssignment( VolumeProbe );
+
+protected:
+    BufferString		createName() const;
+    ZDomain::Info*		zdomain_;
 };

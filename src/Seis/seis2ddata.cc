@@ -96,20 +96,14 @@ bool Seis2DDataSet::isPresent( Pos::GeomID geomid ) const
 bool Seis2DDataSet::isPresent( const char* linename ) const
 { return indexOf( linename ) >= 0; }
 
-bool Seis2DDataSet::getGeometry( Pos::GeomID geomid,
+uiRetVal Seis2DDataSet::getGeometry( Pos::GeomID geomid,
 				 PosInfo::Line2DData& geom ) const
 {
     if ( !liop_ )
-    {
-	ErrMsg("No suitable 2D line information object found");
-	return 0;
-    }
+	return uiRetVal( tr("No suitable 2D line information object found") );
 
     if ( !isPresent(geomid) )
-    {
-	ErrMsg("Requested line not found in Dataset");
-	return 0;
-    }
+	return uiRetVal( tr("Requested line not found in Dataset") );
 
     return liop_->getGeometry( ioobj_, geomid, geom );
 }
@@ -124,50 +118,71 @@ void Seis2DDataSet::getLineNames( BufferStringSet& nms ) const
 
 
 void Seis2DDataSet::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
-{ geomids = geomids_; }
+{
+    geomids = geomids_;
+}
 
-Executor* Seis2DDataSet::lineFetcher( Pos::GeomID geomid, SeisTrcBuf& tbuf,
-				      int ntps, const Seis::SelData* sd ) const
+
+Seis2DTraceGetter* Seis2DDataSet::traceGetter( Pos::GeomID geomid,
+			const Seis::SelData* sd, uiRetVal& uirv ) const
 {
     if ( !liop_ )
     {
-	ErrMsg("No suitable 2D line extraction object found");
+	uirv.set( tr("No suitable 2D line extraction object found") );
 	return 0;
     }
 
     if ( !isPresent(geomid) )
     {
-	ErrMsg("Requested line not found in Dataset");
+	uirv.set( tr("Requested line not found in Dataset") );
 	return 0;
     }
 
-    return liop_->getFetcher( ioobj_, geomid, tbuf, ntps, sd );
+    return liop_->getTraceGetter( ioobj_, geomid, sd, uirv );
 }
 
 
-Seis2DLinePutter* Seis2DDataSet::linePutter( Pos::GeomID newgeomid )
+Executor* Seis2DDataSet::lineGetter( Pos::GeomID geomid, SeisTrcBuf& tbuf,
+	      const Seis::SelData* sd, uiRetVal& uirv, int npts ) const
 {
     if ( !liop_ )
     {
-	ErrMsg("No suitable 2D line creation object found");
+	uirv.set( tr("No suitable 2D line extraction object found") );
 	return 0;
     }
 
-    if ( !isPresent(newgeomid) )
+    if ( !isPresent(geomid) )
+    {
+	uirv.set( tr("Requested line not found in Dataset") );
+	return 0;
+    }
+
+    return liop_->getLineGetter( ioobj_, geomid, tbuf, sd, uirv, npts );
+}
+
+
+Seis2DLinePutter* Seis2DDataSet::linePutter( Pos::GeomID geomid,
+					     uiRetVal& uirv )
+{
+    if ( !liop_ )
+    {
+	uirv.set( tr("No suitable 2D line creation object found") );
+	return 0;
+    }
+
+    if ( !isPresent(geomid) )
     {
 	if ( !readonly_ )
-	    geomids_ += newgeomid;
+	    geomids_ += geomid;
 	else
 	{
-	    BufferString msg( "Read-only Dataset chg req: " );
-	    msg += Survey::GM().getName(newgeomid); msg += " not yet in set ";
-	    msg += name();
-	    pErrMsg( msg );
+	    uirv.set( tr("Read-only 2D seismic data set %1: %2 not in set")
+		    .arg( name() ).arg( Survey::GM().getName(geomid) ) );
 	    return 0;
 	}
     }
 
-    return liop_->getPutter( ioobj_, newgeomid );
+    return liop_->getPutter( ioobj_, geomid, uirv );
 }
 
 

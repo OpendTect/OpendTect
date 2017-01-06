@@ -53,10 +53,6 @@ public:
     Coord3			getPos(const EM::PosID&) const;
     Coord3			getPos(const EM::SectionID&,
 					const EM::SubID&) const;
-    bool			setPos(const EM::PosID&,const Coord3&,
-					bool addtohistory);
-    bool			setPos(const EM::SectionID&,const EM::SubID&,
-					const Coord3&,bool addtohistory);
     const IOObjContext&		getIOObjContext() const;
     virtual Executor*		saver();
     virtual Executor*		saver(IOObj*);
@@ -81,6 +77,10 @@ public:
     static const char*		sKeySubIDs()	{ return "Position IDs"; }
 protected:
 
+     virtual bool		setPosition(const EM::SectionID&,
+					    const EM::SubID&,
+					    const Coord3&,bool addtohistory,
+					    NodeSourceType tp=Auto);
     TypeSet<Coord3>		locations_;
     TypeSet<EM::SubID>		ids_;
 };

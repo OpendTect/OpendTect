@@ -212,20 +212,25 @@ uiString UnitOfMeasure::surveyDefVelUnitAnnot( bool symb, bool withparens )
 bool UnitOfMeasure::isImperial() const
 {
     const char* unitnm = name();
-    const char* unitsymb = symbol_.buf();
-    BufferStringSet needle;
-    TypeSet<int> usename;
+    const char* unitsymb = symbol_.str();
+    BufferStringSet needles;
+    BoolTypeSet usename;
 
-    needle.add( getDistUnitString( true, false ) ); usename += 0;
-    needle.add( "Fahrenheit" ); usename += 1;
-    needle.add( "Inch" ); usename += 1;
-    needle.add( "psi" ); usename += 0;
-    needle.add( "pounds" ); usename += 1;
+    needles.add( getDistUnitString( true, false ) ); usename += false;
+    needles.add( "mile" ); usename += true;
+    needles.add( "Acre" ); usename += true;
+    needles.add( "Fahrenheit" ); usename += true;
+    needles.add( "nch" ); usename += true;
+    needles.add( "psi" ); usename += false;
+    needles.add( "pounds" ); usename += true;
+    needles.add( "Gallon" ); usename += true;
+    needles.add( "Barrel" ); usename += true;
+    needles.add( "bcf" ); usename += false;
 
-    for ( int idx=0; idx<needle.size(); idx++ )
+    for ( int idx=0; idx<needles.size(); idx++ )
     {
-	const char* haystack = (bool)usename[idx] ? unitnm : unitsymb;
-	if ( firstOcc(haystack,needle[idx]->buf()) )
+	const char* haystack = usename[idx] ? unitnm : unitsymb;
+	if ( firstOcc(haystack,needles[idx]->str()) )
 	    return true;
     }
 
