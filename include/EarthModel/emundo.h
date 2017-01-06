@@ -114,28 +114,6 @@ protected:
 };
 
 
-/*!
-\brief Saves information from a EMObject::changePosID call.
-*/
-
-mExpClass(EarthModel) PosIDChangeEvent : public EMUndoEvent
-{
-public:
-    			PosIDChangeEvent(const EM::PosID& from,
-					 const EM::PosID& to,
-					 const Coord3& tosprevpos);
-
-    const char*		getStandardDesc() const;
-    bool		unDo();
-    bool		reDo();
-    ObjectID		getObjectID() const { return to_.objectID(); }
-
-protected:
-    const EM::PosID	from_;
-    const EM::PosID	to_;
-    Coord3		savedpos_;
-};
-
 
 /*!
 \brief UndoEvent to set preferred Color.

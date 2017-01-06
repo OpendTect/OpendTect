@@ -259,53 +259,6 @@ bool EM::SetPosAttribUndoEvent::reDo()
 }
 
 
-EM::PosIDChangeEvent::PosIDChangeEvent( const EM::PosID& from,
-					const EM::PosID& to,
-					const Coord3& tosprevpos )
-    : from_(from)
-    , to_(to)
-    , savedpos_(tosprevpos)
-{ }
-
-
-const char* EM::PosIDChangeEvent::getStandardDesc() const
-{
-    return "Changed posid";
-}
-
-
-bool EM::PosIDChangeEvent::unDo()
-{
-    EM::EMManager& emm = EM::EMM();
-    EM::EMObject* emobject = emm.getObject(from_.objectID());
-    if ( !emobject ) return false;
-
-    const bool  geomchecks  = emobject->enableGeometryChecks(false);
-    const Coord3 frompos = emobject->getPos( from_ );
-    emobject->changePosID( to_, from_, false );
-    emobject->setPos( to_, savedpos_, false );
-    savedpos_ = frompos;
-    emobject->enableGeometryChecks( geomchecks );
-    return true;
-}
-
-
-bool EM::PosIDChangeEvent::reDo()
-{
-    EM::EMManager& emm = EM::EMM();
-    EM::EMObject* emobject = emm.getObject(from_.objectID());
-    if ( !emobject ) return false;
-
-    const bool  geomchecks  = emobject->enableGeometryChecks(false);
-    const Coord3 topos = emobject->getPos( to_ );
-    emobject->changePosID( from_, to_, false );
-    emobject->setPos( from_, savedpos_, false );
-    savedpos_ = topos;
-    emobject->enableGeometryChecks( geomchecks );
-    return true;
-}
-
-
 EM::SetPrefColorEvent::SetPrefColorEvent( const EM::ObjectID& objid,
 					  const Color& oldcol,
 					  const Color& newcol )
