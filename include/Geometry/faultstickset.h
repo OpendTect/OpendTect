@@ -105,7 +105,7 @@ public:
     
     			// To be used by surface reader only
     void		addUdfRow(int stickidx,int firstknotnr,int nrknots);
-    void		addEditPlaneNormal(const Coord3&);
+    void		setEditPlaneNormal(int sticknr,const Coord3&);
 
     			// Use zscale=0 to measure in xy-direction only and
    			// zscale=MAXDOUBLE to measure in z-direction only.

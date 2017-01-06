@@ -338,7 +338,7 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 	    mDefEditNormalStr( editnormstr, sid, sticknr );
 	    Coord3 editnormal( Coord3::udf() );
 	    par.get( editnormstr.buf(), editnormal );
-	    fss->addEditPlaneNormal( editnormal );
+	    fss->setEditPlaneNormal( sticknr, editnormal );
 	    if ( editnormal.isDefined() && fabs(editnormal.z_)<0.5 )
 		fss->setSticksVertical( true );
 	}

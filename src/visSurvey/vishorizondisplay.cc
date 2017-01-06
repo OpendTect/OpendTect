@@ -1302,7 +1302,7 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 	nontexturecol_ = emobject_->preferredColor();
 	setLineStyle( emobject_->preferredLineStyle() );
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::SelectionColorChnage )
+    else if ( cbdata.event==EM::EMObjectCallbackData::SelectionColorChange )
     {
 	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ )
 	if ( hor3d )

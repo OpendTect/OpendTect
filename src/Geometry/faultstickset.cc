@@ -326,10 +326,11 @@ Coord3 FaultStickSet::getEditPlaneNormal( int sticknr ) const
 }
 
 
-void FaultStickSet::addEditPlaneNormal( const Coord3& editnormal )
+void FaultStickSet::setEditPlaneNormal( int sticknr, const Coord3& editnormal )
 {
-    int i = 0;
-    //editplanenormals_ += editnormal;
+    mGetValidStickIdx( stickidx, sticknr, 0, );
+    if ( stickidx < sticks_.size() )
+	sticks_[stickidx]->setPlaneNormal( editnormal );
 }
 
 

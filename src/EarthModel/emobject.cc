@@ -173,7 +173,6 @@ bool EMObject::setPosition( const SectionID& sid, const SubID& subid,
 			    const Coord3& newpos, bool addtoundo,
 			    NodeSourceType tp )
 {
-    //Threads::Locker locker( setposlock_ );
     mLock4Write();
 
     Geometry::Element* element = sectionGeometryInternal( sid );

@@ -497,7 +497,7 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 	    mDefEditNormalStr( editnormstr, sid, sticknr );
 	    Coord3 editnormal( Coord3::udf() );
 	    par.get( editnormstr.buf(), editnormal );
-	    fss->addEditPlaneNormal( editnormal );
+	    fss->setEditPlaneNormal( sticknr, editnormal );
 
 	    stickinfo_.insertAt( new StickInfo, 0 );
 	    stickinfo_[0]->sid = sid;

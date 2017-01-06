@@ -69,8 +69,8 @@ public:
 
     enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
 		 AttribChange, SectionChange, NameChange, SelectionChange,
-		 LockChange, BurstAlert, LockColorChange, SelectionColorChnage,
-		 ParentColorChange} event;
+		 LockChange, BurstAlert, LockColorChange, SelectionColorChange,
+		 ParentColorChange, LineStyleChange, MarkerStyleChange } event;
 
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange
@@ -80,8 +80,8 @@ public:
 
 protected:
 
+    CBID			cbid_;
     static Threads::Atomic<int>	curcbid_;
-    CBID				cbid_;
 };
 
 
@@ -126,6 +126,17 @@ public:
 /*!
 \brief Base class for all EarthModel objects.
 */
+
+#define mImplEMSet(fnnm,typ,memb,emcbtype) \
+    void fnnm( typ _set_to_ ) \
+    { 	EMObjectCallbackData* cbdata = getNewEMCBData(); \
+	cbdata->event = emcbtype; \
+	setMemberSimple( memb, _set_to_, 0, cbdata->cbID().getI() ); } 
+#define mImplEMGetSet(pfx,fnnmget,fnnmset,typ,memb,emcbtype) \
+    pfx mImplSimpleMonitoredGet(fnnmget,typ,memb) \
+    pfx mImplEMSet(fnnmset,const typ&,memb,emcbtype)
+
+
 typedef EMObjectCallbackData::CBID EMCBID;
 
 mExpClass(EarthModel) EMObject : public SharedObject
@@ -140,17 +151,16 @@ public:
     const DBKey&		dbKey() const		{ return storageid_; }
     void			setDBKey(const DBKey&);
 
-    mImplSimpleMonitoredGetSet(inline,preferredColor,setPreferredColor,
-				Color,preferredcolor_,cPrefColorChange())
-    mImplSimpleMonitoredGetSet(inline,selectionColor,setSelectionColor,
-				Color, selectioncolor_,cSelColorChange() )
-
-    mImplSimpleMonitoredGetSet(inline,preferredLineStyle,
-				setPreferredLineStyle,OD::LineStyle,
-				preferredlinestyle_,cPrefLineStyleChange())
-    mImplSimpleMonitoredGetSet(inline,preferredMarkerStyle,
-				setPreferredMarkerStyle,OD::MarkerStyle3D,
-				preferredmarkerstyle_,cPrefMarkerStyleChange())
+    mImplEMGetSet(inline,preferredColor,setPreferredColor,Color,preferredcolor_,
+		  EMObjectCallbackData::PrefColorChange)
+    mImplEMGetSet(inline,selectionColor,setSelectionColor,Color,selectioncolor_,
+		  EMObjectCallbackData::SelectionColorChange)
+    mImplEMGetSet(inline,preferredLineStyle,setPreferredLineStyle,
+		  OD::LineStyle, preferredlinestyle_,
+		  EMObjectCallbackData::LineStyleChange)
+    mImplEMGetSet(inline,preferredMarkerStyle,setPreferredMarkerStyle,
+		  OD::MarkerStyle3D,preferredmarkerstyle_,
+		  EMObjectCallbackData::MarkerStyleChange)
 
     virtual bool		isOK() const		{ return true; }
 
@@ -402,6 +412,7 @@ void clss::setNewName() \
     nm.add( objnr++ ).add( ">" ); \
     setName( nm ); \
 }
+
 
 #define mSendEMCBNotifPosID( typ, pid ) \
     setChangedFlag(); \
