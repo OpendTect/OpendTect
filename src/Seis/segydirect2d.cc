@@ -183,6 +183,8 @@ SEGYDirect2DTraceGetter( const IOObj& obj, Pos::GeomID geomid,
 void mkTranslator() const
 {
     tr_ = gtTransl( SEGYDirect2DLineIOProvider::getFileName(ioobj_,geomid_) );
+    if ( tr_ )
+	tr_->setIs2D( true );
 }
 
 };
