@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "vissower.h"
 #include "emseedpicker.h"
+#include "draw.h"
 
 namespace MPE { class ObjectEditor; }
 
@@ -92,6 +93,7 @@ public:
     void			displayPatch(const MPE::Patch*);
     void			cleanPatch();
     const ObjectSet<visBase::MarkerSet>& getDraggerMarkers() const;
+    void			setMarkerStyle(const MarkerStyle3D&);
 
 protected:
     				~MPEEditor();

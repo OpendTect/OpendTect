@@ -14,10 +14,12 @@ ________________________________________________________________________
 
 #include "vissurveymod.h"
 #include "viscoord.h"
+#include "draw.h"
 
 namespace EM 
 { 
     class Fault; 
+    class FaultStickSet;
     typedef od_int32 ObjectID; 
 }
 
@@ -48,6 +50,10 @@ public:
     void	    		getMousePosInfo(const visBase::EventInfo&,
 					       Coord3& xyzpos,BufferString& val,
 					       BufferString& info) const;
+    const MarkerStyle3D*	markerStyle() const;
+    void			setMarkerStyle(const MarkerStyle3D&);
+    void			setStickMarkerStyle(const MarkerStyle3D&);
+
 protected:
     Geometry::FaultStickSet*	faultStickSetGeometry(int);
     void			stickSelectionCB(CallBacker*,

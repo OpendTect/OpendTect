@@ -117,6 +117,9 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
+    const MarkerStyle3D*	getPreferedMarkerStyle() const;
+    void			setPreferedMarkerStyle(const MarkerStyle3D&);
+
 protected:
     virtual			~FaultStickSetDisplay();
 

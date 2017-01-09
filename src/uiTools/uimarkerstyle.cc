@@ -110,3 +110,11 @@ void uiMarkerStyle3D::setMarkerStyle( const MarkerStyle3D& st )
 	colselfld_->setColor( st.color_ );
     sliderfld_->setValue( st.size_ );
 }
+
+
+void uiMarkerStyle3D::enableColorSelection( bool yn )
+{
+    if ( colselfld_ )
+	colselfld_->setSensitive(yn);
+}
+

@@ -19,10 +19,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivisplanedatadisplaydragprop.h"
 #include "uivispolygonsurfbezierdlg.h"
 #include "uifltdispoptgrp.h"
+#include "uimarkerstyle.h"
 #include "vismaterial.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "visfaultdisplay.h"
+#include "visfaultsticksetdisplay.h"
+#include "visemsticksetdisplay.h"
 #include "vishorizondisplay.h"
 #include "visplanedatadisplay.h"
 #include "vispolygonbodydisplay.h"
@@ -51,6 +54,11 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
 
     if ( survobj_->lineStyle() )
 	addGroup( new uiLineStyleGrp( tabstack_->tabGroup(), survobj_ )  );
+
+    mDynamicCastGet( visSurvey::FaultDisplay*, ftdspl, so );
+    mDynamicCastGet( visSurvey::FaultStickSetDisplay*,ftssdspl,so );
+    if ( ftdspl || ftssdspl )
+	addGroup( new uiMarkerStyleGrp( tabstack_->tabGroup(), survobj_ ) );
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
     if ( pdd )
@@ -102,6 +110,66 @@ bool uiLineStyleGrp::rejectOK( CallBacker* )
 {
     survobj_->setLineStyle( backup_ );
     return true;
+}
+
+#define cDefMaxMarkerSize 18
+//uiMarkerStyleGrp
+uiMarkerStyleGrp::uiMarkerStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
+    : uiDlgGroup(p,tr("Marker style"))
+    , survobj_( so )
+
+{
+    visSurvey::StickSetDisplay* ssdsply = getDisplay();
+
+    if ( ssdsply )
+    {
+	MarkerStyle3D::Type excludetype = MarkerStyle3D::None;
+	stylefld_ = new uiMarkerStyle3D( this, true, 
+	    Interval<int>(1,cDefMaxMarkerSize), 1,
+	       &excludetype );
+	
+	const MarkerStyle3D* mkstyle = ssdsply->markerStyle();
+	if ( mkstyle )
+	    stylefld_->setMarkerStyle( *mkstyle );
+	
+	stylefld_->typeSel()->notify( mCB(this,uiMarkerStyleGrp,typeSel) );
+	stylefld_->sliderMove()->notify( mCB(this,uiMarkerStyleGrp,sizeChg) );
+	stylefld_->colSel()->notify( mCB(this,uiMarkerStyleGrp,colSel) );
+	stylefld_->enableColorSelection( false );
+    }
+
+}
+
+
+void uiMarkerStyleGrp::sizeChg( CallBacker* cb )
+{
+    typeSel(cb);
+}
+
+
+void uiMarkerStyleGrp::typeSel( CallBacker* )
+{
+    MarkerStyle3D mkstyle;
+    stylefld_->getMarkerStyle( mkstyle );
+    visSurvey::StickSetDisplay* ssdsply = getDisplay();
+    if ( ssdsply )
+	ssdsply->setMarkerStyle( mkstyle );
+}
+
+
+void uiMarkerStyleGrp::colSel( CallBacker* cb )
+{
+    typeSel(cb);
+}
+
+
+visSurvey::StickSetDisplay* uiMarkerStyleGrp::getDisplay()
+{
+    mDynamicCastGet( visSurvey::FaultDisplay*,ftdspl, survobj_ );
+    mDynamicCastGet( visSurvey::FaultStickSetDisplay*, ftssdspl, survobj_ );
+
+    return ftdspl ? dynamic_cast<visSurvey::StickSetDisplay*>(ftdspl) :
+	dynamic_cast<visSurvey::StickSetDisplay*>(ftssdspl);
 }
 
 

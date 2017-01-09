@@ -179,6 +179,9 @@ public:
     const visBase::GeomIndexedShape* getFaultDisplayedStickLines() const;
     const ObjectSet<visBase::MarkerSet>& getFaultDisplayedSticks() const;
 
+    const MarkerStyle3D*	getPreferedMarkerStyle() const;
+    void			setPreferedMarkerStyle(const MarkerStyle3D&);
+
 protected:
 
     virtual			~FaultDisplay();

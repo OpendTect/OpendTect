@@ -38,6 +38,7 @@ public:
 
     void		setMarkerStyle(const MarkerStyle3D& style);
     void		getMarkerStyle(MarkerStyle3D& style) const;
+    void		enableColorSelection(bool);
 
 protected:
     TypeSet<MarkerStyle3D::Type>	types_;

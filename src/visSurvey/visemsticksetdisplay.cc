@@ -13,6 +13,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispolygonselection.h"
 #include "visevent.h"
 #include "vismpeeditor.h"
+#include "visfaultdisplay.h"
+#include "visfaultsticksetdisplay.h"
+#include "emfaultstickset.h"
 
 #include "mpeengine.h"
 #include "keyenum.h"
@@ -134,7 +137,7 @@ void StickSetDisplay::polygonSelectionCB()
 	Geometry::FaultStickSet* fss = faultStickSetGeometry( sip->sid_ );
 	if ( !fss ) continue;
 
-	if ( !donenr.isPresent(sip->sticknr_) ) 
+	if ( !donenr.isPresent(sip->sticknr_) )
 	    donenr += sip->sticknr_;
 	mSetKnotSelectStatus( fss, sip->sticknr_, sip->pos_ );
     }
@@ -190,7 +193,7 @@ void StickSetDisplay::updateStickMarkerSet()
 	int groupidx = 0;
 	if ( faultstickset_ )
 	    groupidx = displayknots ? 0 : 2;
-	else    
+	else 
 	    groupidx = !showmanipulator_ || !stickselectmode_ ? 2 : 0;
 
 	if ( fss->isStickSelected(sip->sticknr_) )
@@ -220,7 +223,6 @@ void StickSetDisplay::updateStickMarkerSet()
 	const int groupidx = fss->isStickSelected(sticknr) ? 1 : 0;
 	const MarkerStyle3D& style = fault_->getPosAttrMarkerStyle( 0 );
 	knotmarkersets_[groupidx]->setMarkerStyle( style );
-	knotmarkersets_[groupidx]->setScreenSize( mDefaultMarkerSize );
 	knotmarkersets_[groupidx]->addPos( fault_->getPos(pid), false );
     }
 
@@ -240,8 +242,8 @@ void StickSetDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 }
 
 
-bool StickSetDisplay::matchMarker( int sid, int sticknr, const Coord3 mousepos, 
-    const Coord3 pos, const Coord3 eps  )
+bool StickSetDisplay::matchMarker( int sid, int sticknr, const Coord3 mousepos,
+    const Coord3 pos, const Coord3 eps ) 
 {
     if ( !mousepos.isSameAs(pos,eps) ) return false;
     Geometry::FaultStickSet* fss = faultStickSetGeometry( sid );
@@ -250,8 +252,8 @@ bool StickSetDisplay::matchMarker( int sid, int sticknr, const Coord3 mousepos,
 	if ( ctrldown_ )
 	    fss->selectStick( sticknr, !fss->isStickSelected( sticknr ) );
 	else
-	    fss->selectStick( sticknr, true ); 
-	updateStickMarkerSet(); 
+	    fss->selectStick( sticknr, true );
+	updateStickMarkerSet();
 	eventcatcher_->setHandled(); 
 	return true; 
     } 
@@ -259,7 +261,7 @@ bool StickSetDisplay::matchMarker( int sid, int sticknr, const Coord3 mousepos,
 }
 
 
-void StickSetDisplay::stickSelectionCB( CallBacker* cb, 
+void StickSetDisplay::stickSelectionCB( CallBacker* cb,	
     const Survey::Geometry3D* s3dgeom )
 {
     if ( !s3dgeom ) return;
@@ -321,3 +323,49 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 	}
     }
 }
+
+
+const MarkerStyle3D* StickSetDisplay::markerStyle() const
+{
+    mDynamicCastGet( EM::FaultStickSet*, emfss, fault_ );
+    if ( emfss )
+    {
+	FaultStickSetDisplay* ftssdspl = (FaultStickSetDisplay*)( this );
+	return ftssdspl->getPreferedMarkerStyle();
+    }
+    else
+    {
+	FaultDisplay* ftdspl = (FaultDisplay*)( this );
+	return ftdspl->getPreferedMarkerStyle();
+    }
+
+}
+
+
+void StickSetDisplay::setMarkerStyle( const MarkerStyle3D& mkstyle )
+{
+    mDynamicCastGet( EM::FaultStickSet*, emfss, fault_ );
+    if ( emfss )
+    {
+	FaultStickSetDisplay* ftssdspl = (FaultStickSetDisplay*)( this );
+	ftssdspl->setPreferedMarkerStyle( mkstyle );
+    }
+    else
+    {
+	FaultDisplay* ftdspl = (FaultDisplay*)( this );
+	ftdspl->setPreferedMarkerStyle(mkstyle);
+    }
+}
+
+
+void StickSetDisplay::setStickMarkerStyle(const MarkerStyle3D& mkstyle)
+{
+    const MarkerStyle3D& style = fault_->getPosAttrMarkerStyle(0);
+    for(int idx = 0; idx<knotmarkersets_.size(); idx++)
+    {
+	visBase::MarkerSet* markerset = knotmarkersets_[idx];
+	markerset->setMarkerStyle(mkstyle);
+    }
+    mForceDrawMarkerSet();
+}
+

@@ -20,11 +20,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissower.h"
 #include "vistransform.h"
 #include "vispolyline.h"
+#include "hiddenparam.h"
 
 mCreateFactoryEntry( visSurvey::MPEEditor )
 
 namespace visSurvey
 {
+
+static HiddenParam< visSurvey::MPEEditor, MarkerStyle3D* > markerstyle_( 0 );
 
 MPEEditor::MPEEditor()
     : visBase::VisualObjectImpl( false )
@@ -53,6 +56,9 @@ MPEEditor::MPEEditor()
 
     sower_ = new Sower( this );
     addChild( sower_->osgNode() );
+    MarkerStyle3D* defmkstyle = new MarkerStyle3D( MarkerStyle3D::Cube );
+    defmkstyle->size_ = (int)markersize_;
+    markerstyle_.setParam( this, defmkstyle );
 }
 
 
@@ -74,6 +80,8 @@ MPEEditor::~MPEEditor()
     unRefAndZeroPtr( patchmarkers_ );
     unRefAndZeroPtr( patchline_ );
 
+    delete markerstyle_.getParam(this);
+    markerstyle_.removeParam( this );
 }
 
 
@@ -169,6 +177,28 @@ void MPEEditor::setDisplayTransformation( const mVisTrans* nt )
 	patchmarkers_->setDisplayTransformation( nt );
     if ( patchline_ )
 	patchline_->setDisplayTransformation( nt );
+}
+
+
+void MPEEditor::setMarkerStyle( const MarkerStyle3D& mkstyle )
+{
+    for ( int idx = 0; idx<draggers_.size(); idx++ )
+    {
+	draggermarkers_[idx]->setMarkerStyle( mkstyle );
+	draggermarkers_[idx]->setMarkersSingleColor( mkstyle.color_ );
+    }
+
+    if ( patchmarkers_ )
+    {
+	patchmarkers_->setMarkerStyle( mkstyle );
+	patchmarkers_->setMarkersSingleColor( mkstyle.color_ );
+    }
+
+    if ( mkstyle == *markerstyle_.getParam(this) )
+	return;
+
+    delete markerstyle_.getParam( this );
+    markerstyle_.setParam( this, new MarkerStyle3D(mkstyle) );
 }
 
 
@@ -330,11 +360,9 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     marker->setMarkersSingleColor( nodematerial_->getColor() );
 
 
-    MarkerStyle3D markerstyle;
     marker->setMarkerHeightRatio( 1.0f );
-    markerstyle = MarkerStyle3D::Cube;
-    markerstyle.size_ = (int)markersize_;
-    marker->setMarkerStyle( markerstyle );
+    marker->setMarkerStyle( *markerstyle_.getParam(this) );
+    marker->setMarkersSingleColor((*markerstyle_.getParam(this)).color_ );
     marker->setAutoRotateMode( visBase::MarkerSet::NO_ROTATION );
     marker->addPos( Coord3( 0, 0, 0 ) );
     marker->setMarkerResolution( 0.8f );

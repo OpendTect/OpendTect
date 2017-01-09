@@ -362,6 +362,7 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 
     mSetStickIntersectPointColor( fault_->preferredColor() );
     nontexturecol_ = fault_->preferredColor();
+    setPreferedMarkerStyle( fault_->getPosAttrMarkerStyle(0) );
     updateSingleColor();
     updateDisplay();
     updateManipulator();
@@ -1682,6 +1683,8 @@ void FaultDisplay::updateEditorMarkers()
 	EM::Fault3D* fault3d = emFault();
 	if ( fault3d )
 	{
+	    if ( markerStyle() && viseditor_ )
+		viseditor_->setMarkerStyle( fault_->getPosAttrMarkerStyle(0) );
 	    Geometry::FaultStickSet* fs =
 		fault3d->geometry().sectionGeometry(sid);
 	    viseditor_->turnOnMarker(pid,!fs->isStickHidden(sticknr,mSceneIdx));
@@ -2019,5 +2022,31 @@ FaultDisplay::getFaultDisplayedSticks() const
 {
     return viseditor_->getDraggerMarkers();
 }
+
+
+const MarkerStyle3D* FaultDisplay::getPreferedMarkerStyle() const
+{
+    if ( fault_ )
+	return &fault_->getPosAttrMarkerStyle( 0 );
+
+    return 0;
+}
+
+
+void FaultDisplay::setPreferedMarkerStyle( const MarkerStyle3D& mkstyle )
+{
+    // for fault sticks we do use fixed colors for dragger, 
+    // polygon, and selection. So to guarantee this we set a fixed color here. 
+
+    MarkerStyle3D ftmkstyle = mkstyle;
+    ftmkstyle.color_ = Color::Yellow();
+
+    setStickMarkerStyle( ftmkstyle );
+    if ( viseditor_ )
+	viseditor_->setMarkerStyle( ftmkstyle );
+    if ( fault_ )
+	fault_->setPosAttrMarkerStyle( 0, ftmkstyle );
+}
+
 
 } // namespace visSurvey
