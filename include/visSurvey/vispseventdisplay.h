@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 
-namespace visBase 
-{ 
+namespace visBase
+{
     class PolyLine3D;
     class DrawStyle;
     class DataObjectGroup;
@@ -35,7 +35,7 @@ mExpClass(visSurvey) PSEventDisplay : public visBase::VisualObjectImpl,
 {
 public:
 				PSEventDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PSEventDisplay,
 				    "PSEventDisplay",
 				     ::toUiString(sFactoryKeyword()) );
@@ -45,33 +45,34 @@ public:
     void			setEventManager(PreStack::EventManager*);
     void			setHorizonID(int);
 
-    enum MarkerColor 		{ Single, Quality, Velocity, VelocityFit };
-    				mDeclareEnumUtils(MarkerColor);
+    enum MarkerColor		{ Single, Quality, Velocity, VelocityFit };
+				mDeclareEnumUtils(MarkerColor);
 
     void			setMarkerColor(MarkerColor,bool update=true);
     MarkerColor			getMarkerColor() const;
     void			setColTabMapper(const ColTab::MapperSetup&,
-	    					bool update=true);
+						bool update=true);
     const ColTab::MapperSetup&	getColTabMapper() const;
     void			setColTabSequence(const ColTab::Sequence&,
-	    					  bool update=true);
+						  bool update=true);
     virtual const ColTab::Sequence* getColTabSequence(int ch=0) const;
     virtual void		setColTabSequence(int,const ColTab::Sequence&,
-	    					  TaskRunner*);
+						  TaskRunner*);
     virtual bool		canSetColTabSequence() const { return true; }
     virtual int			nrAttribs() const { return 1; }
     virtual const ColTab::MapperSetup* getColTabMapperSetup(int,int) const;
     virtual void		setPixelDensity(float);
-    
-    enum DisplayMode		{ ZeroOffset, FullOnSections, 
+
+    enum DisplayMode		{ ZeroOffset, FullOnSections,
 				  ZeroOffsetOnSections, FullOnGathers };
-    				mDeclareEnumUtils(DisplayMode);
+				mDeclareEnumUtils(DisplayMode);
     void			setDisplayMode(DisplayMode);
     DisplayMode			getDisplayMode() const;
 
     void			setLineStyle(const OD::LineStyle&);
     OD::LineStyle			getLineStyle() const;
 
+    void			setMarkerStyle(const OD::MarkerStyle3D&);
     void			setMarkerStyle(const OD::MarkerStyle3D&,
 					       bool updat);
     virtual bool		hasColor() const { return true; }
@@ -84,15 +85,15 @@ public:
 
 protected:
     void			clearAll();
-    				~PSEventDisplay();
+				~PSEventDisplay();
     void			otherObjectsMoved( const ObjectSet<
-	    				const SurveyObject>&, int whichobj );
+					const SurveyObject>&, int whichobj );
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
     //bool			filterBinID(const BinID&) const;
-    				/*!<\returns true if the binid should not be
+				/*!<\returns true if the binid should not be
 				     viewed. */
 
 
@@ -126,7 +127,7 @@ protected:
     visBase::DrawStyle*			linestyle_;
     const mVisTrans*			displaytransform_;
     ObjectSet<ParentAttachedObject>	parentattached_;
-    
+
     DisplayMode				displaymode_;
 
     PreStack::EventManager*		eventman_;
