@@ -153,6 +153,10 @@ public:
 						  bool addtohistory=false);
     const OD::LineStyle&	preferredLineStyle() const;
     void			setPreferredLineStyle(const OD::LineStyle&);
+    const OD::MarkerStyle3D&	preferredMarkerStyle3D() const;
+    void			setPreferredMarkerStyle3D(
+						    const OD::MarkerStyle3D&);
+
     void			setBurstAlert(bool yn);
     bool			hasBurstAlert() const;
 
@@ -291,9 +295,6 @@ protected:
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete();
     void			posIDChangeCB(CallBacker*);
-    const OD::MarkerStyle3D&	preferredMarkerStyle3D() const;
-    void			setPreferredMarkerStyle3D(
-					const OD::MarkerStyle3D&);
     void			useDisplayPars(const IOPar&);
     BufferString		objname_;
     ObjectID			id_;

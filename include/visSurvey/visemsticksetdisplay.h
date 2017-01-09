@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "vissurveymod.h"
 #include "viscoord.h"
+#include "draw.h"
 
 namespace EM 
 { 
@@ -29,6 +30,7 @@ namespace visBase
 
 namespace Geometry { class FaultStickSet; }
 namespace Survey { class Geometry3D; }
+namespace OD { class MarkerStyle3D; }
 
 namespace visSurvey
 {
@@ -43,6 +45,8 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
     void			polygonSelectionCB();
     void			updateStickMarkerSet();
+    void			setStickMarkerStyle(const OD::MarkerStyle3D&);
+
     void	    		getMousePosInfo(const visBase::EventInfo&,
 					       Coord3& xyzpos,BufferString& val,
 					       BufferString& info) const;

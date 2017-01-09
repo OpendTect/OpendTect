@@ -220,10 +220,21 @@ void StickSetDisplay::updateStickMarkerSet()
 	const int groupidx = fss->isStickSelected(sticknr) ? 1 : 0;
 	const OD::MarkerStyle3D& style = fault_->getPosAttrMarkerStyle( 0 );
 	knotmarkersets_[groupidx]->setMarkerStyle( style );
-	knotmarkersets_[groupidx]->setScreenSize( mDefaultMarkerSize );
 	knotmarkersets_[groupidx]->addPos( fault_->getPos(pid), false );
     }
 
+    mForceDrawMarkerSet();
+}
+
+
+void StickSetDisplay::setStickMarkerStyle( const OD::MarkerStyle3D& mkstyle )
+{
+    const OD::MarkerStyle3D& style = fault_->getPosAttrMarkerStyle(0);
+    for ( int idx=0; idx<knotmarkersets_.size(); idx++ )
+    {
+	visBase::MarkerSet* markerset = knotmarkersets_[idx];
+	markerset->setMarkerStyle( mkstyle );
+    }
     mForceDrawMarkerSet();
 }
 

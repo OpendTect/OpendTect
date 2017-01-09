@@ -50,6 +50,9 @@ MPEEditor::MPEEditor()
     activenodematerial_->ref();
     activenodematerial_->setColor( Color(255,0,0) );
 
+    markerstyle_ = OD::MarkerStyle3D::Cube;
+    markerstyle_.size_ = (int)markersize_;
+
     sower_ = new Sower( this );
     addChild( sower_->osgNode() );
 }
@@ -179,6 +182,24 @@ void MPEEditor::setMarkerSize(float nsz)
 
     if ( patchmarkers_ )
 	patchmarkers_->setScreenSize( nsz );
+}
+
+
+void MPEEditor::setMarkerStyle( const OD::MarkerStyle3D& mkstyle )
+{
+    for ( int idx=0; idx<draggers_.size(); idx++ )
+    {
+	draggermarkers_[idx]->setMarkerStyle( mkstyle );
+	draggermarkers_[idx]->setMarkersSingleColor( mkstyle.color_ );
+    }
+
+    if ( patchmarkers_ )
+    {
+	patchmarkers_->setMarkerStyle( mkstyle );
+	patchmarkers_->setMarkersSingleColor( mkstyle.color_ );
+    }
+
+    markerstyle_ =  mkstyle;
 }
 
 
@@ -329,11 +350,9 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     marker->setMarkersSingleColor( nodematerial_->getColor() );
 
 
-    OD::MarkerStyle3D markerstyle;
     marker->setMarkerHeightRatio( 1.0f );
-    markerstyle = OD::MarkerStyle3D::Cube;
-    markerstyle.size_ = (int)markersize_;
-    marker->setMarkerStyle( markerstyle );
+    marker->setMarkerStyle( markerstyle_ );
+    marker->setMarkersSingleColor( markerstyle_.color_ );
     marker->setAutoRotateMode( visBase::MarkerSet::NO_ROTATION );
     marker->addPos( Coord3( 0, 0, 0 ) );
     marker->setMarkerResolution( 0.8f );

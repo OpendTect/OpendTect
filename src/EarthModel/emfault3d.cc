@@ -33,6 +33,8 @@ Fault3D::Fault3D( EMManager& em )
 {
     geometry_.addSection( "", false );
     setPreferredColor( getRandomColor() );
+    setPreferredMarkerStyle3D( 
+	OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,3,Color::Yellow()) );
 }
 
 

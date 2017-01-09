@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uivisplanedatadisplaydragprop.h"
 #include "uivispolygonsurfbezierdlg.h"
 #include "uifltdispoptgrp.h"
+#include "uimarkerstyle.h"
 #include "vismaterial.h"
 #include "visobject.h"
 #include "vissurvobj.h"
@@ -51,6 +52,9 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     if ( survobj_->lineStyle() )
 	addGroup( new uiLineStyleGrp( tabstack_->tabGroup(), survobj_ )  );
 
+    if ( survobj_->markerStyle() )
+	addGroup( new uiMarkerStyleGrp( tabstack_->tabGroup(), survobj_ ) );
+
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
     if ( pdd )
 	addGroup( new uiVisPlaneDataDisplayDragProp(tabstack_->tabGroup(),pdd));
@@ -67,6 +71,52 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     }
 
     setCancelText( uiString::emptyString() );
+}
+
+
+//uiMarkerStyleGrp
+uiMarkerStyleGrp::uiMarkerStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
+    : uiDlgGroup(p,tr("Marker style"))
+    , survobj_( so )
+
+{
+    TypeSet<OD::MarkerStyle3D::Type> excludedtypes;
+    excludedtypes.add( OD::MarkerStyle3D::None );
+
+    const OD::MarkerStyle3D* mkstyle = so->markerStyle();
+    const bool enableColorSel = so->markerStyleColorSelection();
+
+    stylefld_ = new uiMarkerStyle3D( this, true, Interval<int>( 1,
+	uiMarkerStyle3D::cDefMaxMarkerSize()), &excludedtypes );
+
+    if ( mkstyle )
+	stylefld_->setMarkerStyle( *mkstyle );
+
+    stylefld_->typeSel()->notify( mCB(this,uiMarkerStyleGrp,typeSel) );
+    stylefld_->sizeChange()->notify( mCB(this,uiMarkerStyleGrp,sizeChg) );
+    stylefld_->colSel()->notify( mCB(this,uiMarkerStyleGrp,colSel) );
+    stylefld_->enableColorSelection( enableColorSel );
+}
+
+
+void uiMarkerStyleGrp::sizeChg( CallBacker* cb )
+{
+    typeSel(cb);
+}
+
+
+void uiMarkerStyleGrp::typeSel( CallBacker* )
+{
+    OD::MarkerStyle3D mkstyle;
+    stylefld_->getMarkerStyle( mkstyle );
+    if ( survobj_ )
+	survobj_->setMarkerStyle( mkstyle );
+}
+
+
+void uiMarkerStyleGrp::colSel( CallBacker* cb )
+{
+    typeSel(cb);
 }
 
 

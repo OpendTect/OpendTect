@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 
 class DataPointSet;
-namespace OD { class LineStyle; };
+namespace OD { class LineStyle; class MarkerStyle3D; };
 class NotifierAccess;
 class RegularSeisDataPack;
 class SeisTrcBuf;
@@ -144,6 +144,14 @@ public:
     virtual bool		hasSpecificLineColor() const { return false; }
 				/*!<Specifies wether setLineStyle takes
 				    regard to the color of the linestyle. */
+
+    virtual void		setMarkerStyle(const OD::MarkerStyle3D&){};
+    virtual const OD::MarkerStyle3D*	
+				markerStyle() const { return 0; }
+				/*!<If the marker style can be set, a non-zero
+				    pointer should be return. */
+    virtual bool		markerStyleColorSelection() const 
+							    { return true; }
     virtual void		setOnlyAtSectionsDisplay(bool)		{}
     virtual bool		displayedOnlyAtSections() const { return false;}
 

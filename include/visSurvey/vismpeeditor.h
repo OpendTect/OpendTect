@@ -17,9 +17,12 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "vissower.h"
 #include "emseedpicker.h"
+#include "draw.h"
 
 
 namespace MPE { class ObjectEditor; }
+
+namespace OD { class MarkerStyle3D; }
 
 namespace visBase
 {
@@ -58,6 +61,7 @@ public:
 
     void		setMarkerSize(float);
     void		turnOnMarker(EM::PosID,bool on);
+    void		setMarkerStyle(const OD::MarkerStyle3D&);
     bool		allMarkersDisplayed() const;
 
     Notifier<MPEEditor>		nodeRightClick;
@@ -120,6 +124,7 @@ protected:
     float				markersize_;
     visBase::MarkerSet*                 patchmarkers_;
     visBase::PolyLine*			patchline_;
+    OD::MarkerStyle3D		markerstyle_;
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;
     EM::PosID			activedragger_;
