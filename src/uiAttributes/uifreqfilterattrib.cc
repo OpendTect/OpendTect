@@ -39,7 +39,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     inpfld_->selectionDone.notify(mCB(this,uiFreqFilterAttrib,selectionDoneCB));
 
     isfftfld_ = new uiGenInput( this, tr("Filtering method"),
-			       BoolInpSpec(true,tr("FFT"),tr("ButterWorth")) );
+				BoolInpSpec(true,tr("FFT"),tr("ButterWorth")) );
     isfftfld_->attach( alignedBelow, inpfld_ );
     isfftfld_->valuechanged.notify( mCB(this,uiFreqFilterAttrib,isfftSel) );
 
@@ -273,42 +273,44 @@ void uiFreqFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     return false;
 bool uiFreqFilterAttrib::areUIParsOK()
 {
-    if ( FixedString(winflds_[0]->windowName()) == "CosTaper" )
+    const bool isfft = isfftfld_->getBoolValue();
+    if ( isfft && FixedString(winflds_[0]->windowName())=="CosTaper" )
     {
 	float paramval = winflds_[0]->windowParamValue();
 	if ( paramval<0 || paramval>1  )
 	{
 	    errmsg_ = tr("Variable 'Taper length' is not\n"
-	              "within the allowed range: 0 to 100 (%).");
+			 "within the allowed range: 0 to 100 (%).");
 	    return false;
 	}
     }
-    mDynamicCastGet( uiFreqTaperSel*, taper, winflds_[1] );
-    if ( taper )
+
+    mDynamicCastGet(uiFreqTaperSel*,taper,winflds_[1]);
+    if ( isfft && taper )
     {
 	Interval<float> freqresvar = taper->freqValues();
 	if ( freqresvar.start < 0 )
-	{ 
-            errmsg_= tr("min frequency cannot be negative");
-            mErrWinFreqMsg()
-        }
-	
+	{
+	    errmsg_= tr("min frequency cannot be negative");
+	    mErrWinFreqMsg()
+	}
+
 	if ( freqresvar.start > freqfld_->freqRange().start )
 	{
-            errmsg_ = tr("Taper min frequency must be lower than this of the"
-                  " filter frequency.\n Please select a different frequency.");
-            mErrWinFreqMsg()
-        }
+	    errmsg_ = tr("Taper min frequency must be lower than this of the"
+		" filter frequency.\n Please select a different frequency.");
+	    mErrWinFreqMsg()
+	}
 	if ( freqresvar.stop < freqfld_->freqRange().stop )
 	{
-            errmsg_ = tr("Taper max frequency must be higher than this of the"
-                  " filter frequency.\n Please select a different frequency.");
-            mErrWinFreqMsg()
-        }
+	    errmsg_ = tr("Taper max frequency must be higher than this of the"
+		" filter frequency.\n Please select a different frequency.");
+	    mErrWinFreqMsg()
+	}
     }
 
     const int passtype = (int)freqfld_->filterType();
-    if ( passtype == 2 && mIsZero(freqfld_->freqRange().width(),1e-3) )
+    if ( passtype==2 && mIsZero(freqfld_->freqRange().width(),1e-3) )
     {
 	if ( mIsZero(freqfld_->freqRange().width(),1e-3) )
 	{
