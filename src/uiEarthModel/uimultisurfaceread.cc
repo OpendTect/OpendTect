@@ -129,7 +129,7 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 {
     mids.erase();
     const int nrsel = ioobjselgrp_->nrChosen();
-    uiString errormsgstr;
+    uiStringSet errormsgstr;
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	const MultiID mid = ioobjselgrp_->chosenID( idx );
@@ -143,7 +143,7 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 	    if ( !info.ioObj() )
 		continue;
 
-	    errormsgstr = tr("%1 :  %2\n").arg(info.ioObj()->uiName())
+	    errormsgstr += tr("%1 :  %2\n").arg(info.ioObj()->uiName())
 			.arg( errmsg );
 	}
 
@@ -156,7 +156,7 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 	else
 	    uiMSG().error(
 		    tr("The following selections will not be loaded:\n\n%1")
-		    .arg( errormsgstr ) );
+		    .arg(errormsgstr.cat()) );
     }
 
 }
