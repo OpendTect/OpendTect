@@ -63,7 +63,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	return mUdf(float);
 
     ODPolygon<float> poly;
-    TrcKeySampling hs;
+    TrcKeySampling polytks( false );
     TypeSet<Coord> pts; TypeSet<float> zvals;
     for ( int idx=0; idx<ps_->size(); idx++ )
     {
@@ -71,11 +71,12 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	pts += pl.pos_; zvals += (float) pl.pos_.z;
 	const BinID bid( SI().transform(pl.pos_) );
 	poly.add( mPolyLoc(bid) );
-	if ( idx )
-	    hs.include( bid );
-	else
-	    hs.start_ = hs.stop_ = bid;
+	polytks.include( bid );
     }
+
+    TrcKeySampling tks = hor_->range();
+    tks.shrinkTo( polytks );
+    tks.expand( 1, 1 );
 
     TriangulatedGridder2D grdr;
     grdr.setPoints( pts );
@@ -88,7 +89,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	avgz /= mCast(float,zvals.size());
 
     const int nrsect = hor_->nrSections();
-    TrcKeySamplingIterator iter( hs );
+    TrcKeySamplingIterator iter( tks );
     BinID bid; float totth = 0;
     while ( iter.next(bid) )
     {
@@ -96,14 +97,14 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	    continue;
 
 	const EM::SubID subid = bid.toInt64();
-	const Coord pos( hs.toCoord(bid) );
+	const Coord pos( tks.toCoord(bid) );
 
 	for ( int isect=0; isect<nrsect; isect++ )
 	{
 	    const EM::SectionID sid = hor_->sectionID( isect );
 	    float horz = (float) hor_->getPos( sid, subid ).z;
-	    if ( mIsUdf(horz) && bid.inl()!=hs.stop_.inl() &&
-		 bid.crl()!=hs.stop_.crl() )
+	    if ( mIsUdf(horz) && bid.inl()!=tks.stop_.inl() &&
+		 bid.crl()!=tks.stop_.crl() )
 	    { //The very last edges should exclude.
 		horz = (float) hor_->geometry().sectionGeometry(sid)
 		    ->computePosition( pos ).z;
@@ -123,9 +124,12 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
     }
 
     const float xyfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
-    const float cellarea = SI().inlDistance() * hs.step_.inl() * xyfactor
-			 * SI().crlDistance() * hs.step_.crl() * xyfactor;
+    const float cellarea = SI().inlDistance() * tks.step_.inl() * xyfactor
+			 * SI().crlDistance() * tks.step_.crl() * xyfactor;
     const float v = SI().zIsTime() ? vel * .5f : 1; // TWT
+    if ( SI().zInFeet() )
+	totth *= mFromFeetFactorF;
+
     return cellarea * v * totth;
 }
 
