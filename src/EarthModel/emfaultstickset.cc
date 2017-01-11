@@ -31,9 +31,36 @@ FaultStickSet::FaultStickSet( EMManager& em )
     geometry_.addSection( "", false );
 }
 
+mImplMonitorableAssignment( FaultStickSet, SharedObject )
+
+
+FaultStickSet::FaultStickSet( const FaultStickSet& oth )
+    : Fault(oth)
+    , geometry_(oth.geometry_)
+{
+    copyClassData( oth );
+}
+
 
 FaultStickSet::~FaultStickSet()
 {}
+
+
+void FaultStickSet::copyClassData( const FaultStickSet& oth )
+{
+    id_ = oth.id_;
+    preferredcolor_ = oth.preferredcolor_;
+    changed_ = oth.changed_;
+    fullyloaded_ = oth.fullyloaded_;
+    locked_ = oth.locked_;
+    burstalertcount_ = oth.fullyloaded_;
+    selremoving_ = oth.selremoving_;
+    preferredlinestyle_ = oth.preferredlinestyle_;
+    preferredmarkerstyle_ = oth.preferredmarkerstyle_;
+    selectioncolor_ = oth.selectioncolor_;
+    haslockednodes_ = oth.haslockednodes_;
+}
+
 
 
 uiString FaultStickSet::getUserTypeStr() const

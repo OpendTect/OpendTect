@@ -99,6 +99,7 @@ mExpClass(EarthModel) FaultStickSet: public Fault
 {   mDefineEMObjFuncs( FaultStickSet );
     mODTextTranslationClass( FaultStickSet );
 public:
+				       mDeclMonitorableAssignment(FaultStickSet)
     FaultStickSetGeometry&		geometry();
     const FaultStickSetGeometry&	geometry() const;
     void				apply(const Pos::Filter&);
