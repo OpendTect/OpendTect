@@ -269,13 +269,14 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
     , crg_( crg )
     , geo_( 0 )
     , horsection_( horsection )
+    , resolution_( -1 )
 {
 
     if ( horsection_ )
     {
 	zaxistransform_ = horsection_->getZAxisTransform();
 	nrcrdspertileside_ = horsection_->nrcoordspertileside_;
-	lowestresidx_ = horsection_->lowestresidx_;
+	resolution_ = horsection_->lowestresidx_;
 	geo_ = horsection_->geometry_;
     }
 
@@ -288,6 +289,13 @@ HorizonSectionTilePosSetup::~HorizonSectionTilePosSetup()
 {
     if ( zaxistransform_ ) zaxistransform_->unRef();
 
+}
+
+
+void HorizonSectionTilePosSetup::setTesselationResolution( char res )
+{
+    if ( horsection_ && res>=0 && res<horsection_->nrResolutions() )
+	resolution_ = res;
 }
 
 
@@ -338,7 +346,7 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 	    Threads::Locker locker( lock_ );
 	    tile = new HorizonSectionTile( *horsection_, origin );
 	    tile->setPositions( positions );
-	    tile->tesselateResolution( lowestresidx_, false );
+	    tile->tesselateResolution( resolution_, false );
 	    locker.unlockNow();
 	}
 	const RowCol tileindex = indexes_[idx];
