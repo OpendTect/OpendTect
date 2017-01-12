@@ -135,21 +135,24 @@ bool uiODSceneProbeParentTreeItem::fillProbe( Probe& newprobe )
 
 bool uiODSceneProbeParentTreeItem::setDefaultAttribLayer( Probe& probe ) const
 {
-    if ( !applMgr() || !applMgr()->attrServer() )
+    if ( !applMgr() )
 	return false;
 
+    return addDefaultAttribLayer( *applMgr(), probe );
+}
+
+bool uiODSceneProbeParentTreeItem::addDefaultAttribLayer( uiODApplMgr& applmgr,
+							  Probe& probe )
+{
     Attrib::DescID descid;
-    if ( !applMgr()->getDefaultDescID(descid,probe.is2D()) )
+    if ( !applmgr.getDefaultDescID(descid,probe.is2D()) )
 	return false;
 
     const Attrib::DescSet* ads =
 	Attrib::DSHolder().getDescSet( probe.is2D(), true );
     const Attrib::Desc* desc = ads->getDesc( descid );
     if ( !desc )
-    {
-	pErrMsg( "Huh ? Desc not found" );
 	return false;
-    }
 
     Attrib::SelSpec as( 0, descid, false, "" );
     as.set( *desc );
@@ -178,6 +181,7 @@ static bool getSelAttribSelSpec( Probe& probe, Attrib::SelSpec& selattr,
 bool uiODSceneProbeParentTreeItem::getSelAttrSelSpec(
 	Probe& probe, Attrib::SelSpec& selattr ) const
 {
+    selattr.set2DFlag( probe.is2D() );
     return getSelAttribSelSpec( probe, selattr, *applMgr(), sceneID(),
 			      tr("Select attribute to display") );
 }
@@ -190,7 +194,6 @@ bool uiODSceneProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
 
     AttribProbeLayer* attriblayer = new AttribProbeLayer;
     Attrib::SelSpec attrlayselspec = attriblayer->getSelSpec();
-    attrlayselspec.set2DFlag( probe.is2D() );
     if ( !getSelAttrSelSpec(probe,attrlayselspec) )
     {
 	delete attriblayer;
@@ -262,6 +265,7 @@ bool uiODSceneProbeTreeItem::init()
 	if ( item )
 	{
 	    addChild( item, false );
+	    item->updateDisplay();
 	    item->setChecked( visserv_->isAttribEnabled(displayid_,idx));
 	}
     }
@@ -284,7 +288,10 @@ void uiODSceneProbeTreeItem::handleAddAttrib()
 {
     uiODDataTreeItem* newitem = createAttribItem( 0 );
     if ( newitem )
+    {
 	addChild( newitem, false );
+	newitem->updateDisplay();
+    }
 }
 
 

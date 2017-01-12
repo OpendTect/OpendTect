@@ -44,6 +44,8 @@ public:
     static int		sAddAndSelectDataMenuID()		{ return 1; }
     static int		sAddColorBlendedMenuID()		{ return 2; }
 
+    static bool		addDefaultAttribLayer(uiODApplMgr&,Probe&);
+
     protected:
 
     bool		fillProbe(Probe&);

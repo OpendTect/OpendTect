@@ -68,6 +68,7 @@ public:
 
     virtual void		prepareForShutdown();
     virtual void		setProbeLayer(ProbeLayer*);
+    virtual void		updateDisplay()				{}
 
 protected:
 				uiODDataTreeItem(const char* parenttype);
@@ -95,7 +96,6 @@ protected:
     void			probeLayerChangedCB(CallBacker*);
     void			probeChangedCB(CallBacker*);
 
-    virtual void		updateDisplay()				{}
     void			updateColumnText(int col);
     virtual uiString		createDisplayName() const		= 0;
 

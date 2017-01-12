@@ -23,6 +23,7 @@ ___________________________________________________________________
 #include "uivispartserv.h"
 
 #include "attribsel.h"
+#include "attribprobelayer.h"
 #include "probemanager.h"
 
 //TODO:remove when Flattened scene ok for 2D Viewer
@@ -188,7 +189,6 @@ bool uiODDataTreeItem::init()
     tb->createnotifier.notify( mCB(this,uiODDataTreeItem,addToToolBarCB) );
     tb->handlenotifier.notify( mCB(this,uiODDataTreeItem,handleMenuCB) );
 
-    updateDisplay();
     return uiTreeItem::init();
 }
 
@@ -560,13 +560,19 @@ void uiODDataTreeItem::setProbeLayer( ProbeLayer* layer )
 }
 
 
-void uiODDataTreeItem::probeLayerChangedCB( CallBacker* )
+void uiODDataTreeItem::probeLayerChangedCB( CallBacker* cb )
 {
     updateDisplay();
+    mCBCapsuleUnpack(Monitorable::ChangeData,cd,cb);
+    if ( cd.changeType()==AttribProbeLayer::cColTabSeqChange() )
+	updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
-void uiODDataTreeItem::probeChangedCB( CallBacker* )
+void uiODDataTreeItem::probeChangedCB( CallBacker* cb )
 {
-    updateDisplay();
+    mCBCapsuleUnpack(Monitorable::ChangeData,cd,cb);
+    if ( cd.changeType()==Probe::cPositionChange() ||
+	 cd.changeType()==Probe::cDimensionChange() )
+	updateDisplay();
 }

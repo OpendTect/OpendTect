@@ -51,12 +51,10 @@ protected:
 
     void		selChg(CallBacker*);
     void		posChange(CallBacker*);
-    void		movePlaneAndCalcAttribs(const TrcKeyZSampling&);
     void		objChangedCB(CallBacker*);
     void		keyUnReDoPressedCB(CallBacker*);
     void		selectRGBA();
 
-    Probe&		probe_;
     const OD::SliceType	orient_;
     MenuItem		positionmnuitem_;
     MenuItem		gridlinesmnuitem_;

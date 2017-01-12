@@ -332,7 +332,10 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 	    uiODDataTreeItem* attrtreeitem =
 		itm->createProbeLayerItem( *attriblay );
 	    if ( attrtreeitem )
+	    {
 		itm->addChild( attrtreeitem, false );
+		attrtreeitem->updateDisplay();
+	    }
 	}
     }
     else if ( menuid == generate3dcubeitm_.id )
@@ -427,16 +430,7 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 uiTreeItem*
     Line2DTreeItemFactory::createForVis( int visid, uiTreeItem* treeitem ) const
 {
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    ODMainWin()->applMgr().visServer()->getObject(visid))
-    if ( !s2d || !treeitem ) return 0;
-
-    uiOD2DLineTreeItem* newsubitm =
-	new uiOD2DLineTreeItem( *s2d->getProbe(), visid );
-
-    if ( newsubitm )
-       treeitem->addChild( newsubitm,true );
-
+    pErrMsg( "Deprecated , to be removed later" );
     return 0;
 }
 

@@ -48,7 +48,6 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o,
 					      Probe& probe )
     : uiODSceneProbeTreeItem( probe )
     , orient_(o)
-    , probe_(probe)
     , positiondlg_(0)
     , positionmnuitem_(m3Dots(tr("Position")),cPositionIdx)
     , gridlinesmnuitem_(m3Dots(tr("Gridlines")),cGridLinesIdx)
@@ -128,10 +127,11 @@ OD::ObjPresentationInfo* uiODPlaneDataTreeItem::getObjPRInfo() const
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_));
-    if ( !pdd ) return 0;
+    const Probe* probe = getProbe();
+    if ( !pdd || !probe ) return 0;
 
     ProbePresentationInfo* prinfo =
-	new ProbePresentationInfo( ProbeMGR().getID(probe_) );
+	new ProbePresentationInfo( ProbeMGR().getID(*probe) );
     return prinfo;
 }
 
@@ -161,6 +161,7 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* cb )
 	if ( slicepos->getDisplayID() != displayid_ )
 	    return;
 
+	pdd->setTrcKeyZSampling( slicepos->getTrcKeyZSampling() );
     }
 
     probe->setPos( pdd->getTrcKeyZSampling() );
@@ -182,6 +183,7 @@ void uiODPlaneDataTreeItem::updateDisplay()
 
 void uiODPlaneDataTreeItem::objChangedCB( CallBacker* )
 {
+    updateColumnText( uiODSceneMgr::cNameColumn() );
     updateDisplay();
 }
 
@@ -310,29 +312,33 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     TrcKeyZSampling newtkzs( true );
-    mDynamicCastGet(uiODSceneProbeParentTreeItem*,probeparent,parent_)
-    if ( !probeparent )
-	return;
-
-    Probe* newprobe = probeparent->createNewProbe();
-    if ( !newprobe )
-	return;
-
+    RefMan<Probe> newprobe = 0;
     if ( mnuid == addinlitem_.id )
+    {
 	newtkzs.hsamp_.setLineRange( Interval<int>(tk.lineNr(),tk.lineNr()) );
+	newprobe = new InlineProbe( newtkzs );
+    }
     else if ( mnuid == addcrlitem_.id )
+    {
 	newtkzs.hsamp_.setTrcRange( Interval<int>(tk.trcNr(),tk.trcNr()) );
+	newprobe = new CrosslineProbe( newtkzs );
+    }
     else if ( mnuid == addzitem_.id )
+    {
 	newtkzs.zsamp_.start = newtkzs.zsamp_.stop = zpos;
+	newprobe = new ZSliceProbe( newtkzs );
+    }
 
-    *newprobe = probe_;
-    newprobe->setPos( newtkzs );
-    ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );
-    uiODPrManagedTreeItem* newitem = probeparent->addChildItem( probeprinfo );
-    if ( !newitem )
+    if ( !uiODSceneProbeParentTreeItem::addDefaultAttribLayer(*applMgr(),
+							      *newprobe) ||
+	 !ProbeMGR().store(*newprobe).isOK() )
 	return;
 
-    newitem->emitPRRequest( OD::Add );
+    OD::ViewerID invalidvwrid;
+    ProbePresentationInfo probeprinfo( ProbeMGR().getID(*newprobe) );
+    IOPar probeinfopar;
+    probeprinfo.fillPar( probeinfopar );
+    OD::PrMan().request( invalidvwrid, OD::Add, probeinfopar );
 }
 
 
@@ -351,12 +357,13 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    if ( !pdd ) return;
+    Probe* probe = getProbe();
+    if ( !pdd || !probe ) return;
 
     TrcKeyZSampling newcs = positiondlg_->getTrcKeyZSampling();
     bool samepos = newcs == pdd->getTrcKeyZSampling();
     if ( positiondlg_->uiResult() && !samepos )
-	movePlaneAndCalcAttribs( newcs );
+	probe->setPos( newcs );
 
     applMgr()->enableMenusAndToolBars( true );
     applMgr()->enableSceneManipulation( true );
@@ -368,32 +375,11 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 {
     mDynamicCastGet(uiSliceSel*,slicesel,cb)
-    if ( !slicesel ) return;
+    Probe* probe = getProbe();
+    if ( !slicesel || !probe ) return;
 
-    movePlaneAndCalcAttribs( slicesel->getTrcKeyZSampling() );
+    probe->setPos( slicesel->getTrcKeyZSampling() );
 }
-
-
-void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs(
-	const TrcKeyZSampling& tkzs )
-{
-    visserv_->movePlaneAndCalcAttribs( displayid_, tkzs );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv_->getObject(displayid_));
-    if ( !pdd ) return;
-
-    ChangeNotifyBlocker notblocker( probe_ );
-    probe_.setPos( tkzs );
-    for ( int iattr=0; iattr<pdd->nrAttribs(); iattr++ )
-    {
-	ProbeLayer* layer = probe_.getLayerByIdx( iattr );
-	mDynamicCastGet(AttribProbeLayer*,attriblayer,layer)
-	if ( !attriblayer )
-	    continue;
-	attriblayer->setAttribDataPack( pdd->getDataPackID(iattr) );
-    }
-}
-
 
 
 void uiODPlaneDataTreeItem::keyUnReDoPressedCB( CallBacker* )
@@ -425,17 +411,8 @@ void uiODPlaneDataTreeItem::keyUnReDoPressedCB( CallBacker* )
 uiTreeItem*
     uiODInlineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    ODMainWin()->applMgr().visServer()->getObject(visid));
-
-    if ( !pdd || pdd->getOrientation()!=OD::InlineSlice )
-	return 0;
-
-    Probe* probe = pdd->getProbe();
-    if ( !probe )
-	return 0;
-
-    return new uiODInlineTreeItem( *probe, visid );
+    pErrMsg( "Deprecated , to be removed later" );
+    return 0;
 }
 
 
@@ -613,17 +590,8 @@ void uiODInlineAttribTreeItem::initClass()
 uiTreeItem*
     uiODCrosslineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
-		     ODMainWin()->applMgr().visServer()->getObject(visid));
-
-    if ( !pdd || pdd->getOrientation()!=OD::CrosslineSlice )
-	return 0;
-
-    Probe* probe = pdd->getProbe();
-    if ( !probe )
-	return 0;
-
-    return new uiODCrosslineTreeItem( *probe, visid );
+    pErrMsg( "Deprecated , to be removed later" );
+    return 0;
 }
 
 
@@ -655,10 +623,9 @@ bool uiODCrosslineParentTreeItem::canShowSubMenu() const
 
 bool uiODCrosslineParentTreeItem::setDefaultPosToBeAdded()
 {
-    TrcKeyZSampling probepos;
     const Interval<int> crlrg = SI().sampling( true ).hsamp_.trcRange();
     Interval<int> defcrlrg( crlrg.center(), crlrg.center() );
-    probepos.hsamp_.setTrcRange( defcrlrg );
+    probetobeaddedpos_.hsamp_.setTrcRange( defcrlrg );
     OD::PresentationManagedViewer* vwr = OD::PrMan().getViewer( getViewerID() );
     if ( !vwr )
     {
@@ -742,17 +709,8 @@ void uiODCrosslineAttribTreeItem::initClass()
 uiTreeItem*
     uiODZsliceTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
-		     ODMainWin()->applMgr().visServer()->getObject(visid));
-
-    if ( !pdd || pdd->getOrientation()!=OD::ZSlice )
-	return 0;
-
-    Probe* probe = pdd->getProbe();
-    if ( !probe )
-	return 0;
-
-    return new uiODZsliceTreeItem( *probe, visid );
+    pErrMsg( "Deprecated , to be removed later" );
+    return 0;
 }
 
 
