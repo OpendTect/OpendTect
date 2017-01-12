@@ -346,6 +346,8 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
 
     seedlist_.erase();
     hor3d->setBurstAlert( true );
+    hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks( true, false );
+
     for ( int idx=0; idx<patch_->nrSeeds(); idx++ )
     {
 	const float val = !doerase ? path[idx].val_ : mUdf(float);
@@ -367,6 +369,7 @@ bool Horizon3DSeedPicker::updatePatchLine( bool doerase )
     }
 
     interpolateSeeds();
+    hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks( false, true );
     hor3d->setBurstAlert( false );
     EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().currentEventID());
     return true;
@@ -377,6 +380,7 @@ bool Horizon3DSeedPicker::addPatchSowingSeeds()
 {
     mGetHorizon( hor3d, false )
     hor3d->setBurstAlert( true );
+    hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks(true,false);
 
     const TypeSet<TrcKeyValue>& path = patch_->getPath();
     int firstthreebendpoints_ = 0;
@@ -388,6 +392,8 @@ bool Horizon3DSeedPicker::addPatchSowingSeeds()
 	addSeed( seed, false, seed );
 	firstthreebendpoints_++;
     }
+
+    hor3d->sectionGeometry(hor3d->sectionID(0))->blockCallBacks(false,true);
     hor3d->setBurstAlert( false );
 
     EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().currentEventID() );

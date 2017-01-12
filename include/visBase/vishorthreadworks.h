@@ -126,6 +126,8 @@ public:
     od_int64	nrIterations() const;
     uiString	uiMessage() const { return tr("Creating Horizon Display"); }
     uiString	uiNrDoneText() const { return tr("Parts completed"); }
+    void	setTesselationResolution(char res);
+
 
 protected:
 
@@ -135,7 +137,7 @@ protected:
     bool doOldWork(od_int64, od_int64, int);
     bool doNewWork(od_int64, od_int64, int);
     int					nrcrdspertileside_;
-    char				lowestresidx_;
+    char				resolution_;
     ObjectSet<HorizonSectionTile>	hrtiles_;
     /*! don't use it, only for keep ABI */
     const Geometry::BinIDSurface*	geo_;

@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace visBase;
 
+#define cFullResolution 0
 
 HorTilesCreatorAndUpdator::HorTilesCreatorAndUpdator(HorizonSection* horsection)
 :   horsection_( horsection )
@@ -149,6 +150,8 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 
     HorizonSectionTilePosSetup postask( fullupdatetiles, tileindexes,
 	horsection_, rrg, crg );
+    postask.setTesselationResolution( cFullResolution );
+
     TaskRunner::execute( tr, postask );
 
     for ( int idx = 0; idx< fullupdatetiles.size(); idx++ )
@@ -161,6 +164,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	setNeighbors( tile, ridx, cidx );
 	horsection_->osghorizon_->addChild( tile->osgswitchnode_ );
 	tile->addTileGlueTesselator();
+	tile->setResolution( cFullResolution );
     }
 
 
