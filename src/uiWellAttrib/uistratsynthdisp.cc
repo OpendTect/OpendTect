@@ -355,10 +355,10 @@ void uiStratSynthDisp::updateSyntheticList( bool wva )
     datalist->addItem( uiStrings::sNone() );
     for ( int idx=0; idx<curSS().nrSynthetics(); idx ++)
     {
-	const SyntheticData* sd = curSS().getSyntheticByIdx( idx );
+	ConstRefMan<SyntheticData> sd = curSS().getSyntheticByIdx( idx );
 	if ( !sd ) continue;
 
-	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
+	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd.ptr());
 	if ( wva && prsd ) continue;
 	datalist->addItem( toUiString(sd->name()) );
     }
@@ -608,8 +608,8 @@ void uiStratSynthDisp::setCurrentWavelet()
 {
     currentwvasynthetic_ = 0;
     curSS().setWavelet( wvltfld_->getWavelet() );
-    SyntheticData* wvasd = curSS().getSynthetic( wvadatalist_->text() );
-    SyntheticData* vdsd = curSS().getSynthetic( vddatalist_->text() );
+    RefMan<SyntheticData> wvasd = curSS().getSynthetic( wvadatalist_->text() );
+    RefMan<SyntheticData> vdsd = curSS().getSynthetic( vddatalist_->text() );
     if ( !vdsd && !wvasd ) return;
     const BufferString wvasynthnm( wvasd ? wvasd->name().buf() : "" );
     const BufferString vdsynthnm( vdsd ? vdsd->name().buf() : "" );
@@ -631,7 +631,7 @@ void uiStratSynthDisp::setCurrentWavelet()
 	return;
     }
 
-    mDynamicCastGet(const StratPropSyntheticData*,prsd,vdsd);
+    mDynamicCastGet(const StratPropSyntheticData*,prsd,vdsd.ptr());
     if ( vdsd && !prsd )
     {
 	vdsd->setWavelet( wvltfld_->getInput() );
@@ -673,7 +673,8 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     }
 
 
-    mDynamicCastGet(const PostStackSyntheticData*,pssd,currentwvasynthetic_);
+    mDynamicCastGet(const PostStackSyntheticData*,pssd,
+		    currentwvasynthetic_.ptr());
     const SeisTrcBuf& tbuf = pssd->postStackPack().trcBuf();
     if ( tbuf.isEmpty() )
     {
@@ -857,20 +858,20 @@ void uiStratSynthDisp::reDisplayPostStackSynthetic( bool wva )
 }
 
 
-void uiStratSynthDisp::displaySynthetic( const SyntheticData* sd )
+void uiStratSynthDisp::displaySynthetic( ConstRefMan<SyntheticData> sd )
 {
     displayPostStackSynthetic( sd );
     displayPreStackSynthetic( sd );
 }
 
-void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
+void uiStratSynthDisp::getCurD2TModel( ConstRefMan<SyntheticData> sd,
 		ObjectSet<const TimeDepthModel>& d2tmodels, float offset ) const
 {
     if ( !sd )
 	return;
 
     d2tmodels.erase();
-    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd);
+    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr());
     if ( !presd || presd->isNMOCorrected() || mIsZero(offset,mDefEps) )
     {
 	d2tmodels = sd->zerooffsd2tmodels_;
@@ -907,8 +908,8 @@ void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
 }
 
 
-void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
-						     bool wva )
+void uiStratSynthDisp::displayPostStackSynthetic( ConstRefMan<SyntheticData> sd,
+						  bool wva )
 {
     const bool hadpack = vwr_->hasPack( wva );
     if ( hadpack )
@@ -929,8 +930,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     }
 
     vwr_->setVisible( wva, true );
-    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd);
-    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
+    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr());
+    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd.ptr());
 
     const float offset =
 	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
@@ -976,8 +977,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     ColTab::MapperSetup& mapper =
 	wva ? vwr_->appearance().ddpars_.wva_.mappersetup_
 	    : vwr_->appearance().ddpars_.vd_.mappersetup_;
-    mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
-    SyntheticData* dispsd = const_cast< SyntheticData* > ( sd );
+    mDynamicCastGet(const StratPropSyntheticData*,prsd,sd.ptr());
+    RefMan<SyntheticData> dispsd = const_cast< SyntheticData* > ( sd.ptr() );
     ColTab::MapperSetup& dispparsmapper =
 	!wva ? dispsd->dispPars().vdmapper_ : dispsd->dispPars().wvamapper_;
     const bool rgnotsaved = (mIsZero(dispparsmapper.range_.start,mDefEps) &&
@@ -1028,7 +1029,7 @@ void uiStratSynthDisp::setSavedViewRect()
 }
 
 
-void uiStratSynthDisp::reSampleTraces( const SyntheticData* sd,
+void uiStratSynthDisp::reSampleTraces( ConstRefMan<SyntheticData> sd,
 				       SeisTrcBuf& tbuf ) const
 {
     if ( longestaimdl_>=layerModel().size() || longestaimdl_<0 )
@@ -1038,7 +1039,7 @@ void uiStratSynthDisp::reSampleTraces( const SyntheticData* sd,
 	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
 				  : 0.0f;
     ObjectSet<const TimeDepthModel> curd2tmodels;
-    mDynamicCastGet(const StratPropSyntheticData*,spsd,sd);
+    mDynamicCastGet(const StratPropSyntheticData*,spsd,sd.ptr());
     getCurD2TModel( sd, curd2tmodels, offset );
     if ( !curd2tmodels.validIdx(longestaimdl_) )
 	return;
@@ -1065,13 +1066,13 @@ void uiStratSynthDisp::reSampleTraces( const SyntheticData* sd,
 }
 
 
-void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
+void uiStratSynthDisp::displayPreStackSynthetic( ConstRefMan<SyntheticData> sd )
 {
     if ( !prestackwin_ ) return;
 
     if ( !sd ) return;
     mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,&sd->getPack())
-    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd)
+    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr())
     if ( !gsetdp || !presd ) return;
 
     const PreStack::GatherSetDataPack& angledp = presd->angleData();
@@ -1126,8 +1127,8 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
     BufferStringSet allgnms, selgnms;
     for ( int idx=0; idx<curSS().nrSynthetics(); idx++ )
     {
-	const SyntheticData* sd = curSS().getSyntheticByIdx( idx );
-	mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd);
+	ConstRefMan<SyntheticData> sd = curSS().getSyntheticByIdx( idx );
+	mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr());
 	if ( !presd ) continue;
 	allgnms.addIfNew( sd->name() );
     }
@@ -1150,10 +1151,11 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* cb )
 	TypeSet<PreStackView::GatherInfo> newginfos;
 	for ( int synthidx=0; synthidx<selgnms.size(); synthidx++ )
 	{
-	    const SyntheticData* sd =
+	    ConstRefMan<SyntheticData> sd =
 		curSS().getSynthetic( selgnms[synthidx]->buf() );
 	    if ( !sd ) continue;
-	    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd);
+	    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,
+			    sd.ptr());
 	    mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,
 			    &sd->getPack())
 	    if ( !gsetdp || !presd ) continue;
@@ -1204,13 +1206,14 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
 
 void uiStratSynthDisp::setCurrentSynthetic( bool wva )
 {
-    SyntheticData* sd = curSS().getSynthetic( wva ? wvadatalist_->text()
+    RefMan<SyntheticData> sd = curSS().getSynthetic( wva ? wvadatalist_->text()
 						  : vddatalist_->text() );
     if ( wva )
 	currentwvasynthetic_ = sd;
     else
 	currentvdsynthetic_ = sd;
-    SyntheticData* cursynth = wva ? currentwvasynthetic_ : currentvdsynthetic_;
+    RefMan<SyntheticData> cursynth = wva ? currentwvasynthetic_
+					 : currentvdsynthetic_;
 
     if ( !cursynth ) return;
 
@@ -1225,7 +1228,7 @@ void uiStratSynthDisp::setCurrentSynthetic( bool wva )
 void uiStratSynthDisp::updateFields()
 {
     mDynamicCastGet(const PreStack::PreStackSyntheticData*,pssd,
-		    currentwvasynthetic_);
+		    currentwvasynthetic_.ptr());
     if ( pssd )
     {
 	StepInterval<float> limits( pssd->offsetRange() );
@@ -1244,14 +1247,14 @@ void uiStratSynthDisp::copySyntheticDispPars()
 {
     for ( int sidx=0; sidx<curSS().nrSynthetics(); sidx++ )
     {
-	SyntheticData* cursd = curSS().getSyntheticByIdx( sidx );
+	RefMan<SyntheticData> cursd = curSS().getSyntheticByIdx( sidx );
 	BufferString sdnm( cursd->name() );
 	if ( useed_ )
 	    sdnm.remove( StratSynth::sKeyFRNameSuffix() );
 	else
 	    sdnm += StratSynth::sKeyFRNameSuffix();
 
-	const SyntheticData* altsd = altSS().getSynthetic( sdnm );
+	ConstRefMan<SyntheticData> altsd = altSS().getSynthetic( sdnm );
 	if ( !altsd ) continue;
 	cursd->dispPars() = altsd->dispPars();
     }
@@ -1319,7 +1322,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
      if ( curvdsdnm==synthnm )
 	 currentvdsynthetic_ = 0;
     mDelD2TM
-    SyntheticData* sd = curSS().addSynthetic();
+    RefMan<SyntheticData> sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return );
 
@@ -1329,7 +1332,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
     {
 	altSS().removeSynthetic( syntheticnm );
 	altSS().genParams() = curSS().genParams();
-	SyntheticData* altsd = altSS().addSynthetic();
+	RefMan<SyntheticData> altsd = altSS().addSynthetic();
 	if ( !altsd )
 	    mErrRet(altSS().errMsg(), return );
 
@@ -1358,7 +1361,7 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 			currentvdsynthetic_->name().buf() : "" );
     const BufferString curwvasynthnm( currentwvasynthetic_ ?
 			currentwvasynthetic_->name().buf() : "" );
-    SyntheticData* cursd = curSS().getSynthetic( syntheticnm );
+    RefMan<SyntheticData> cursd = curSS().getSynthetic( syntheticnm );
     if ( !cursd ) return;
     SynthGenParams curgp;
     cursd->fillGenParams( curgp );
@@ -1508,7 +1511,7 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 	return;
 
     MouseCursorChanger mcchger( MouseCursor::Wait );
-    SyntheticData* sd = curSS().addSynthetic();
+    RefMan<SyntheticData> sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return )
 
@@ -1516,7 +1519,7 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
     if ( altSS().hasElasticModels() )
     {
 	altSS().genParams() = curSS().genParams();
-	SyntheticData* altsd = altSS().addSynthetic();
+	RefMan<SyntheticData> altsd = altSS().addSynthetic();
 	if ( !altsd )
 	    mErrRet(altSS().errMsg(), return )
 
@@ -1542,13 +1545,13 @@ void uiStratSynthDisp::showInfoMsg( bool foralt )
 }
 
 
-SyntheticData* uiStratSynthDisp::getSyntheticData( const char* nm )
+RefMan<SyntheticData> uiStratSynthDisp::getSyntheticData( const char* nm )
 {
     return curSS().getSynthetic( nm );
 }
 
 
-SyntheticData* uiStratSynthDisp::getCurrentSyntheticData( bool wva ) const
+RefMan<SyntheticData> uiStratSynthDisp::getCurrentSyntheticData(bool wva ) const
 {
     return wva ? currentwvasynthetic_ : currentvdsynthetic_;
 }
@@ -1561,9 +1564,9 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
     int nr_nonproprefsynths = 0;
     for ( int idx=0; idx<stratsynth->nrSynthetics(); idx++ )
     {
-	const SyntheticData* sd = stratsynth->getSyntheticByIdx( idx );
+	ConstRefMan<SyntheticData> sd = stratsynth->getSyntheticByIdx( idx );
 	if ( !sd ) continue;
-	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
+	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd.ptr());
 	if ( prsd ) continue;
 	nr_nonproprefsynths++;
 	SynthGenParams genparams;
@@ -1634,7 +1637,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	    genparams.usePar( *synthpar );
 	    wvltfld_->setInputText( genparams.wvltnm_ );
 	    curSS().setWavelet( wvltfld_->getWavelet() );
-	    SyntheticData* sd = curSS().addSynthetic( genparams );
+	    RefMan<SyntheticData> sd = curSS().addSynthetic( genparams );
 	    if ( !sd )
 	    {
 		mErrRet(curSS().errMsg(),);
@@ -1645,7 +1648,8 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 
 	    if ( useed_ )
 	    {
-		SyntheticData* nonfrsd = stratsynth_->getSyntheticByIdx( idx );
+		RefMan<SyntheticData> nonfrsd =
+					stratsynth_->getSyntheticByIdx( idx );
 		IOPar synthdisppar;
 		if ( nonfrsd )
 		    nonfrsd->fillDispPar( synthdisppar );
@@ -1700,13 +1704,13 @@ void uiStratSynthDisp::setDiffData()
 {
     for ( int idx=0; idx<curSS().nrSynthetics(); idx++ )
     {
-	SyntheticData* frsd = curSS().getSyntheticByIdx( idx );
-	const SyntheticData* sd = altSS().getSyntheticByIdx( idx );
+	RefMan<SyntheticData> frsd = curSS().getSyntheticByIdx( idx );
+	ConstRefMan<SyntheticData> sd = altSS().getSyntheticByIdx( idx );
 	if ( !frsd || !sd ) continue;
 	if ( !sd->isPS() )
 	{
-	    mDynamicCastGet(PostStackSyntheticData*,frpostsd,frsd)
-	    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd)
+	    mDynamicCastGet(PostStackSyntheticData*,frpostsd,frsd.ptr())
+	    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd.ptr())
 	    SeisTrcBuf& frsdbuf = frpostsd->postStackPack().trcBuf();
 	    const SeisTrcBuf& sdbuf = postsd->postStackPack().trcBuf();
 	    for ( int itrc=0; itrc<frsdbuf.size(); itrc++ )
@@ -1724,8 +1728,9 @@ void uiStratSynthDisp::setDiffData()
 	}
 	else
 	{
-	    mDynamicCastGet(PreStack::PreStackSyntheticData*,frpresd,frsd)
-	    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd)
+	    mDynamicCastGet(PreStack::PreStackSyntheticData*,frpresd,frsd.ptr())
+	    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,
+			    sd.ptr())
 	    PreStack::GatherSetDataPack& frgdp =frpresd->preStackPack();
 	    ObjectSet<PreStack::Gather>& frgathers = frgdp.getGathers();
 	    StepInterval<float> offrg( frpresd->offsetRange() );

@@ -44,8 +44,9 @@ StratSynthExporter::StratSynthExporter(
     , writer_(0)
 {
     int synthmodelsz = 0;
-    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sds_[0]);
-    mDynamicCastGet(const PostStackSyntheticData*,postsd,sds_[0]);
+    ConstRefMan<SyntheticData> sd = sds_[0];
+    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr());
+    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd.ptr());
     if ( presd )
 	synthmodelsz = presd->preStackPack().getGathers().size();
     else
@@ -140,8 +141,8 @@ uiString StratSynthExporter::message() const
 
 int StratSynthExporter::writePostStackTrace()
 {
-    const SyntheticData* sd = sds_[cursdidx_];
-    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
+    ConstRefMan<SyntheticData> sd = sds_[cursdidx_];
+    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd.ptr());
     if ( !postsd )
 	mErrRetPErr( "Wrong type (not PostStackSyntheticData)" )
 
@@ -175,8 +176,8 @@ int StratSynthExporter::writePostStackTrace()
 
 int StratSynthExporter::writePreStackTraces()
 {
-    const SyntheticData* sd = sds_[cursdidx_];
-    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd);
+    ConstRefMan<SyntheticData> sd = sds_[cursdidx_];
+    mDynamicCastGet(const PreStack::PreStackSyntheticData*,presd,sd.ptr());
     if ( !presd )
 	mErrRetPErr( "Wrong type (not PreStackSyntheticData)" )
     const PreStack::GatherSetDataPack& gsdp = presd->preStackPack();

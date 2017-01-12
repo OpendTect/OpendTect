@@ -47,30 +47,30 @@ public:
 				~StratSynth();
 
     int			nrSynthetics() const;
-    SyntheticData*	addSynthetic();
-    SyntheticData*	addSynthetic(const SynthGenParams&);
+    RefMan<SyntheticData>	addSynthetic();
+    RefMan<SyntheticData>	addSynthetic(const SynthGenParams&);
     bool		removeSynthetic(const char*);
     bool		disableSynthetic(const char*);
-    SyntheticData*	replaceSynthetic(int id);
-    SyntheticData*	addDefaultSynthetic();
+    RefMan<SyntheticData>	replaceSynthetic(int id);
+    RefMan<SyntheticData>	addDefaultSynthetic();
     int			syntheticIdx(const char* nm) const;
     int			syntheticIdx(const PropertyRef&) const;
-    SyntheticData*	getSynthetic(const char* nm);
-    inline const SyntheticData* getSynthetic( const char* nm ) const
+    RefMan<SyntheticData>	getSynthetic(const char* nm);
+    inline ConstRefMan<SyntheticData> getSynthetic( const char* nm ) const
 			{ const int idx = syntheticIdx( nm );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
 							   : 0; }
     void		getSyntheticNames(BufferStringSet&,
 					  SynthGenParams::SynthType) const;
     void		getSyntheticNames(BufferStringSet&,bool wantpres) const;
-    SyntheticData*	getSynthetic(int id);
-    SyntheticData*	getSynthetic(const PropertyRef&);
-    inline const SyntheticData* getSynthetic( const PropertyRef& prf ) const
+    RefMan<SyntheticData>	getSynthetic(int id);
+    RefMan<SyntheticData>	getSynthetic(const PropertyRef&);
+    inline ConstRefMan<SyntheticData> getSynthetic(const PropertyRef& prf) const
 			{ const int idx = syntheticIdx( prf );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
 							   : 0; }
-    SyntheticData*	getSyntheticByIdx(int idx);
-    const SyntheticData* getSyntheticByIdx(int idx) const;
+    RefMan<SyntheticData>	getSyntheticByIdx(int idx);
+    ConstRefMan<SyntheticData>	getSyntheticByIdx(int idx) const;
     void		clearSynthetics();
     void		generateOtherQuantities();
     bool		createElasticModels();
@@ -121,7 +121,7 @@ protected:
     const StratSynthLevel*	level_;
     SynthGenParams		genparams_;
     PropertyRefSelection	props_;
-    ObjectSet<SyntheticData>	synthetics_;
+    RefObjectSet<SyntheticData> synthetics_;
     TypeSet<ElasticModel>	aimodels_;
     int				lastsyntheticid_;
     bool			swaveinfomsgshown_;
@@ -140,18 +140,18 @@ protected:
     void		generateOtherQuantities(
 				const PostStackSyntheticData& sd,
 				const Strat::LayerModel&);
-    SyntheticData*	generateSD();
-    SyntheticData*	generateSD( const SynthGenParams&);
+    RefMan<SyntheticData>	generateSD();
+    RefMan<SyntheticData>	generateSD( const SynthGenParams&);
     bool		runSynthGen(RaySynthGenerator&, const SynthGenParams&);
     void		createAngleData(PreStack::PreStackSyntheticData&,
 					const ObjectSet<RayTracer1D>&);
-    SyntheticData*	createAngleStack(const SyntheticData& sd,
+    RefMan<SyntheticData>	createAngleStack(const SyntheticData& sd,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
-    SyntheticData*	createAVOGradient(const SyntheticData& sd,
+    RefMan<SyntheticData>	createAVOGradient(const SyntheticData& sd,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
-    SyntheticData*	createSynthData(const SyntheticData& sd,
+    RefMan<SyntheticData>	createSynthData(const SyntheticData& sd,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&,bool);
 
