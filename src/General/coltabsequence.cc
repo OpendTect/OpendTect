@@ -390,8 +390,8 @@ void ColTab::Sequence::setTransparency( TranspPtType pt )
 {
     if ( pt.first < 0 ) pt.first = 0.f;
     if ( pt.first > 1 ) pt.first = 1.f;
-    if ( pt.second < 0 ) pt.second = 0.f;
-    if ( pt.second > 255 ) pt.second = 255.f;
+    if ( pt.second < 0 ) pt.second = 0;
+    if ( pt.second > 255 ) pt.second = 255;
 
     mLock4Write();
     bool done = false; IdxType chgidx = -1;
@@ -890,8 +890,8 @@ ColTab::Sequence RGBBlend::getTransparencyColTab()
     transpctab.setType(ColTab::Sequence::User);
     transpctab.setColor( 0.f, 0, 0, 0 );
     transpctab.setColor( 1.f, 255, 255, 255 );
-    transpctab.setTransparency( ColTab::Sequence::TranspPtType(0.f,0.f) );
-    transpctab.setTransparency( ColTab::Sequence::TranspPtType(1.f,255.f) );
+    transpctab.setTransparency( ColTab::Sequence::TranspPtType(0.f,0) );
+    transpctab.setTransparency( ColTab::Sequence::TranspPtType(1.f,255) );
     transpctab.setName( "Transparency" );
     return transpctab;
 }
