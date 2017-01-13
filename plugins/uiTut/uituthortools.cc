@@ -62,26 +62,6 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 			BoolInpSpec(true, tr("Low"), tr("High")) );
     strengthfld_->attach( alignedBelow, attribnamefld_ );
 
-    listboxfld1_ = new uiListBox( this, "Random ListBox",
-			OD::ChoiceMode::ChooseAtLeastOne );
-    listboxfld1_->attach( alignedBelow, strengthfld_ );
-    uiStringSet uistr;
-    uistr.add(uiStrings::sNo());
-    uistr.add(uiStrings::sAbort());
-    uistr.add(uiStrings::sBelow());
-    uistr.add(uiStrings::sCannotWrite());
-    uistr.add(uiStrings::sCoefficient());
-    uistr.add(uiStrings::s2DPlane());
-    uistr.add(uiStrings::sZip());
-    uistr.add(uiStrings::sZ());
-
-    listboxfld2_ = new uiListBox( this, "Random ListBox",
-			OD::ChoiceMode::ChooseAtLeastOne );
-    listboxfld2_->attach( alignedBelow, listboxfld1_ );
-
-    listboxfld1_->addItems(uistr);
-    uistr.sort(true, true);
-    listboxfld2_->addItems(uistr);
     postFinalise().notify( mCB(this,uiTutHorTools,choiceSel) );
 }
 

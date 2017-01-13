@@ -173,8 +173,7 @@ bool testForwardCC2D( const Array2D<float_complex>& input )
 		}
 	    }
 
-	    //freqsum.real() = freqsum.real()/(nrsamplesdim0*nrsamplesdim1);
-	    //freqsum.imag() = freqsum.imag()/(nrsamplesdim0*nrsamplesdim1);
+	    freqsum /= nrsamplesdim0 * nrsamplesdim1;
 	    reference.set( idx0,idx1, float_complex( (float) freqsum.real(),
 						     (float) freqsum.imag() ) );
 	}

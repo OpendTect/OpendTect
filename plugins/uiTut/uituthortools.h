@@ -35,6 +35,4 @@ protected:
     uiGenInput*		attribnamefld_;
     uiIOObjSel*		outfld_;
     uiGenInput*		strengthfld_;
-    uiListBox*		listboxfld1_;
-    uiListBox*		listboxfld2_;
 };
