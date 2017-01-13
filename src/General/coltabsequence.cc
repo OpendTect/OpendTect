@@ -18,6 +18,8 @@
 #include "genc.h"
 #include "separstr.h"
 #include "settings.h"
+#include "envvars.h"
+#include "perthreadrepos.h"
 #include "od_ostream.h"
 
 const char* ColTab::Sequence::sKeyValCol()	{ return "Value-Color"; }
@@ -26,54 +28,71 @@ const char* ColTab::Sequence::sKeyUdfColor()	{ return "Undef color"; }
 const char* ColTab::Sequence::sKeyTransparency(){ return "Transparency"; }
 const char* ColTab::Sequence::sKeyCtbl()	{ return "Color table"; }
 const char* ColTab::Sequence::sKeyNrSegments()	{ return "Nr segments"; }
-const char* ColTab::Sequence::sKeyRainbow()	{ return "Rainbow"; }
 
 static const char* sKeyCtabSettsKey = "coltabs";
+mDefineInstanceCreatedNotifierAccess(ColTab::Sequence);
 
-#define mInitStdMembs(uc,mc) \
-      undefcolor_(uc) \
-    , markcolor_(mc) \
+
+static const char* sKeyDefName = "dTect.Disp.Default Color table";
+static const char* sKeyDefNameOld = "dTect.Color table.Name";
+
+const char* ColTab::Sequence::sDefaultName( bool for_seismics )
+{
+    const char* envval = GetEnvVar( for_seismics ? "OD_DEFAULT_SEIS_COLOR_TABLE"
+						 : "OD_DEFAULT_COLOR_TABLE" );
+    if ( envval )
+	return envval;
+
+    BufferString defcoltabnm;
+    if ( !Settings::common().get(sKeyDefNameOld,defcoltabnm) )
+	  Settings::common().get( sKeyDefName, defcoltabnm);
+    if ( defcoltabnm.isEmpty() )
+	return for_seismics ? "Seismics" : "Viridis";
+
+    mDeclStaticString( ret );
+    ret = defcoltabnm;
+    return ret;
+}
+
+
+const char* ColTab::defSeqName()
+{
+    return ColTab::Sequence::sDefaultName( true );
+}
+
+
+#define mInitMembs() \
+      NamedMonitorable(0) \
+    , undefcolor_(Color::LightGrey()) \
+    , markcolor_(Color::DgbColor()) \
+    , nrsegments_( 0 ) \
+    , type_(User)
 
 
 ColTab::Sequence::Sequence()
-    : mInitStdMembs(Color::LightGrey(),Color::DgbColor())
-    , nrsegments_( 0 )
-    , colorChanged(this)
-    , transparencyChanged(this)
-    , type_(User)
+    : mInitMembs()
 {
+    mTriggerInstanceCreatedNotifier();
 }
 
 
 ColTab::Sequence::Sequence( const char* nm )
-    : NamedMonitorable(nm)
-    , mInitStdMembs(Color::LightGrey(),Color::DgbColor())
-    , nrsegments_( 0 )
-    , colorChanged(this)
-    , transparencyChanged(this)
-    , type_(System)
+    : mInitMembs()
 {
-    bool res = false;
+    bool gotrequested = false;
     if ( nm && *nm )
-	res = ColTab::SM().get( nm , *this );
-    if ( !res )
+	gotrequested = ColTab::SM().get( nm , *this );
+    if ( !gotrequested )
 	ColTab::SM().get( defSeqName(), *this );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
-ColTab::Sequence::Sequence( const ColTab::Sequence& ctab )
-    : NamedMonitorable(ctab)
-    , r_(ctab.r_)
-    , g_(ctab.g_)
-    , b_(ctab.b_)
-    , x_(ctab.x_)
-    , tr_(ctab.tr_)
-    , type_(ctab.type_)
-    , colorChanged( ctab.colorChanged )
-    , transparencyChanged( ctab.transparencyChanged )
-    , nrsegments_( ctab.nrsegments_ )
-    , mInitStdMembs(ctab.undefcolor_,ctab.markcolor_)
+ColTab::Sequence::Sequence( const ColTab::Sequence& oth )
+    : mInitMembs()
 {
+    copyClassData( oth );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -83,45 +102,50 @@ ColTab::Sequence::~Sequence()
 }
 
 
-ColTab::Sequence& ColTab::Sequence::operator=( const ColTab::Sequence& ctab )
+mImplMonitorableAssignment( ColTab::Sequence, NamedMonitorable )
+
+
+void ColTab::Sequence::copyClassData( const Sequence& oth )
 {
-    if ( &ctab != this )
-    {
-	setName( ctab.name() );
-	r_ = ctab.r_;
-	g_ = ctab.g_;
-	b_ = ctab.b_;
-	x_ = ctab.x_;
-	tr_ = ctab.tr_;
-	nrsegments_ = ctab.nrsegments_;
-	undefcolor_ = ctab.undefcolor_;
-	markcolor_ = ctab.markcolor_;
-	type_ = ctab.type_;
-	triggerAll();
-    }
-    return *this;
+    r_ = oth.r_;
+    g_ = oth.g_;
+    b_ = oth.b_;
+    x_ = oth.x_;
+    tr_ = oth.tr_;
+    nrsegments_ = oth.nrsegments_;
+    undefcolor_ = oth.undefcolor_;
+    markcolor_ = oth.markcolor_;
+    type_ = oth.type_;
 }
 
 
-bool ColTab::Sequence::operator==( const ColTab::Sequence& ctab ) const
-{
-   if ( ctab.name() != name() ||
-	ctab.size() != size() ||
-	ctab.tr_.size() != tr_.size() ||
-	ctab.undefcolor_ != undefcolor_ ||
-	ctab.nrsegments_ != nrsegments_ ||
-	ctab.markcolor_ != markcolor_ )          return false;
 
-   for ( int idx=0; idx<size(); idx++ )
+bool ColTab::Sequence::operator==( const ColTab::Sequence& oth ) const
+{
+    if ( !NamedMonitorable::operator==(oth) )
+	return false;
+
+    mLock4Read();
+    MonitorLock ml( oth );
+
+    const size_type sz = gtSize();
+    if ( sz != oth.gtSize()
+      || oth.tr_.size() != tr_.size()
+      || oth.undefcolor_ != undefcolor_
+      || oth.markcolor_ != markcolor_
+      || oth.nrsegments_ != nrsegments_ )
+	return false;
+
+   for ( IdxType idx=0; idx<sz; idx++ )
    {
-      if ( !mIsEqual(ctab.x_[idx],x_[idx],0.001) || ctab.r_[idx] != r_[idx] ||
-	   ctab.g_[idx] != g_[idx] || ctab.b_[idx] != b_[idx] )
+      if ( !mIsEqual(oth.x_[idx],x_[idx],0.001) || oth.r_[idx] != r_[idx] ||
+	   oth.g_[idx] != g_[idx] || oth.b_[idx] != b_[idx] )
 	  return false;
    }
 
-   for ( int idx=0; idx<tr_.size(); idx++ )
+   for ( IdxType idx=0; idx<tr_.size(); idx++ )
    {
-       if ( ctab.tr_[idx] != tr_[idx] )
+       if ( oth.tr_[idx] != tr_[idx] )
 	   return false;
    }
 
@@ -129,30 +153,34 @@ bool ColTab::Sequence::operator==( const ColTab::Sequence& ctab ) const
 }
 
 
-bool ColTab::Sequence::operator!=( const ColTab::Sequence& ctab ) const
-{ return !(*this==ctab); }
-
-
-Color ColTab::Sequence::color( float x ) const
+ColTab::Sequence::size_type ColTab::Sequence::size() const
 {
-    const int sz = size();
+    mLock4Read();
+    return x_.size();
+}
+
+
+Color ColTab::Sequence::color( PosType x ) const
+{
+    mLock4Read();
+    const size_type sz = gtSize();
     if ( sz == 0 || x <= -mDefEps || x >= 1+mDefEps )
 	return undefcolor_;
 
-    const bool snaptomarkerbelow = nrsegments_==-1;
-    if ( nrsegments_>0 )
+    const bool snaptomarkerbelow = nrsegments_ == -1;
+    if ( nrsegments_ > 0 )
 	x = snapToSegmentCenter( x );
 
-    const unsigned char t = Color::getUChar( transparencyAt(x) );
+    ValueType t = Color::getUChar( gtTransparencyAt(x) );
 
-    float x0 = x_[0];
+    PosType x0 = x_[0];
     if ( sz == 1 || x < x0 + mDefEps )
 	return Color( r_[0], g_[0], b_[0], t );
-    float x1 = x_[ sz-1 ];
+    PosType x1 = x_[ sz-1 ];
     if ( x > x1 - mDefEps )
 	return Color( r_[sz-1], g_[sz-1], b_[sz-1], t );
 
-    for ( int idx=1; idx<sz; idx++ )
+    for ( IdxType idx=1; idx<sz; idx++ )
     {
 	x1 = x_[idx];
 	if ( x < x1 + mDefEps )
@@ -163,7 +191,7 @@ Color ColTab::Sequence::color( float x ) const
 		return Color( r_[idx-1], g_[idx-1], b_[idx-1], t );
 
 	    x0 = x_[idx-1];
-	    const float frac = (x-x0) / (x1-x0);
+	    const PosType frac = (x-x0) / (x1-x0);
 #	    define mColVal(c) Color::getUChar( frac*c[idx] + (1-frac)*c[idx-1] )
 	    return Color( mColVal(r_), mColVal(g_), mColVal(b_), t );
 	}
@@ -174,26 +202,38 @@ Color ColTab::Sequence::color( float x ) const
 }
 
 
-float ColTab::Sequence::transparencyAt( float xpos ) const
+ColTab::Sequence::PosType ColTab::Sequence::position( IdxType idx ) const
 {
-    const int sz = tr_.size();
-    if ( sz == 0 || xpos <= -mDefEps || xpos >= 1+mDefEps )	return 0;
+    mLock4Read();
+    return x_[idx];
+}
 
-    float x0 = tr_[0].x_; float y0 = tr_[0].y_;
-    if ( sz == 1 || xpos < x0+mDefEps )			return y0;
-    float x1 = tr_[sz-1].x_; float y1 = tr_[sz-1].y_;
-    if ( xpos > x1 - mDefEps )				return y1;
 
-    for ( int idx=1; idx<sz; idx++ )
+ColTab::Sequence::ValueType ColTab::Sequence::gtTransparencyAt(
+						PosType xpos ) const
+{
+    const size_type sz = tr_.size();
+    if ( sz == 0 || xpos <= -mDefEps || xpos >= 1+mDefEps )
+	return 0;
+
+    PosType x0 = tr_[0].first; ValueType y0 = tr_[0].second;
+    if ( sz == 1 || xpos < x0+mDefEps )
+	return y0;
+    PosType x1 = tr_[sz-1].first; ValueType y1 = tr_[sz-1].second;
+    if ( xpos > x1 - mDefEps )
+	return y1;
+
+    for ( IdxType idx=1; idx<sz; idx++ )
     {
-	x1 = tr_[idx].x_; y1 = tr_[idx].y_;
+	x1 = tr_[idx].first; y1 = tr_[idx].second;
 	if ( xpos < x1 + mDefEps )
 	{
 	    if ( mIsEqual(xpos,x1,mDefEps) )
 		return y1;
-	    x0 = tr_[idx-1].x_; y0 = tr_[idx-1].y_;
+	    x0 = tr_[idx-1].first; y0 = tr_[idx-1].second;
 	    const float frac = (xpos-x0) / (x1-x0);
-	    return frac * y1 + (1-frac) * y0;
+	    const float val = frac * y1 + (1-frac) * y0;
+	    return mRounded( ValueType, val );
 	}
     }
 
@@ -204,32 +244,40 @@ float ColTab::Sequence::transparencyAt( float xpos ) const
 
 bool ColTab::Sequence::hasTransparency() const
 {
+    mLock4Read();
+
     if ( undefcolor_.t() || markcolor_.t() )
 	return true;
 
     if ( tr_.isEmpty() )
 	return false;
 
-    for ( int idx=0; idx<tr_.size(); idx++ )
-	if ( tr_[idx].y_ > 0.1 ) return true;
+    for ( IdxType idx=0; idx<tr_.size(); idx++ )
+	if ( tr_[idx].second > 0 ) return true;
 
     return false;
 }
 
 
-int ColTab::Sequence::setColor( float px, unsigned char pr, unsigned char pg,
-				 unsigned char pb )
+ColTab::Sequence::IdxType ColTab::Sequence::setColor( PosType px,
+				 ValueType pr, ValueType pg, ValueType pb )
 {
-    if ( px > 1 ) px = 1; if ( px < 0 ) px = 0;
-    const int sz = size();
+    mLock4Write();
 
-    int chgdidx = -1;
+    if ( px > 1 ) px = 1; if ( px < 0 ) px = 0;
+    const size_type sz = gtSize();
+
+    IdxType chgdidx = -1;
     bool done = false;
-    for ( int idx=0; idx<sz; idx++ )
+    for ( IdxType idx=0; idx<sz; idx++ )
     {
-	const float x = x_[idx];
+	const PosType x = x_[idx];
 	if ( mIsEqual(x,px,mDefEps) )
-	{ changeColor( idx, pr, pg, pb ); done = true; chgdidx = idx; break; }
+	{
+	    chgColor( idx, pr, pg, pb );
+	    done = true; chgdidx = idx;
+	    break;
+	}
 	else if ( px < x )
 	{
 	    x_.insert(idx,px);
@@ -242,107 +290,167 @@ int ColTab::Sequence::setColor( float px, unsigned char pr, unsigned char pg,
     if ( !done )
 	{ r_ += pr; g_ += pg; b_ += pb; x_ += px; chgdidx = x_.size()-1; }
 
-    colorChanged.trigger();
+    mSendChgNotif( cColorChange(), chgdidx );
     return chgdidx;
 }
 
 
-void ColTab::Sequence::changeColor( int idx, unsigned char pr,
-				    unsigned char pg, unsigned char pb )
+void ColTab::Sequence::changeColor( IdxType idx,
+				 ValueType pr, ValueType pg, ValueType pb )
 {
-    if ( idx >= 0 && idx < size() )
-    {
-	r_[idx] = pr; g_[idx] = pg; b_[idx] = pb;
-	colorChanged.trigger();
-    }
+    mLock4Write();
+    if ( chgColor(idx,pr,pg,pb) )
+	mSendChgNotif( cColorChange(), idx );
+}
+
+
+bool ColTab::Sequence::chgColor( IdxType idx,
+				 ValueType pr, ValueType pg, ValueType pb )
+{
+    if ( !x_.validIdx(idx) )
+	return false;
+
+    r_[idx] = pr; g_[idx] = pg; b_[idx] = pb;
+    return true;
 }
 
 
 #define mEps 0.00001
 
-void ColTab::Sequence::changePos( int idx, float x )
+void ColTab::Sequence::changePos( IdxType idx, PosType x )
 {
-    const int sz = size();
-    if ( idx<0 || idx>=sz ) return;
-
     if ( x > 1 ) x = 1;
     if ( x < 0 ) x = 0;
 
+    mLock4Write();
+    const size_type sz = gtSize();
+    if ( idx<0 || idx>=sz )
+	return;
+
     x_[idx] = x;
-    colorChanged.trigger();
+    mSendChgNotif( cColorChange(), idx );
 }
 
 
-void ColTab::Sequence::removeColor( int idx )
+void ColTab::Sequence::removeColor( IdxType idx )
 {
-    if ( idx>0 && idx<size()-1 )
-    {
-	x_.removeSingle( idx );
-	r_.removeSingle( idx );
-	g_.removeSingle( idx );
-	b_.removeSingle( idx );
-	colorChanged.trigger();
-    }
+    mLock4Write();
+    if ( rmColor(idx) )
+	mSendChgNotif( cColorChange(), idx );
+}
+
+
+bool ColTab::Sequence::rmColor( IdxType idx )
+{
+    if ( !x_.validIdx(idx) )
+	return false;
+
+    x_.removeSingle( idx );
+    r_.removeSingle( idx );
+    g_.removeSingle( idx );
+    b_.removeSingle( idx );
+    return true;
 }
 
 
 void ColTab::Sequence::removeAllColors()
 {
-    x_.erase(); r_.erase(); g_.erase(); b_.erase();
+    if ( !isEmpty() )
+    {
+	mLock4Write();
+	x_.erase(); r_.erase(); g_.erase(); b_.erase();
+	mSendEntireObjChgNotif();
+    }
 }
 
 
-void ColTab::Sequence::setTransparency( Geom::Point2D<float> pt )
+ColTab::Sequence::size_type ColTab::Sequence::transparencySize() const
 {
-    if ( pt.x_ < 0 ) pt.x_ = 0; if ( pt.x_ > 1 ) pt.x_ = 1;
-    if ( pt.y_ < 0 ) pt.y_ = 0; if ( pt.y_ > 255 ) pt.y_ = 255;
+    mLock4Read();
+    return tr_.size();
+}
 
-    bool done = false;
-    for ( int idx=0; idx<tr_.size(); idx++ )
+
+ColTab::Sequence::TranspPtType ColTab::Sequence::transparency(
+						IdxType idx ) const
+{
+    mLock4Read();
+    return tr_.validIdx(idx) ? tr_[idx] : TranspPtType( 0.f, 0 );
+}
+
+
+ColTab::Sequence::ValueType ColTab::Sequence::transparencyAt( PosType px ) const
+{
+    mLock4Read();
+    return gtTransparencyAt( px );
+}
+
+
+void ColTab::Sequence::setTransparency( TranspPtType pt )
+{
+    if ( pt.first < 0 ) pt.first = 0.f;
+    if ( pt.first > 1 ) pt.first = 1.f;
+    if ( pt.second < 0 ) pt.second = 0.f;
+    if ( pt.second > 255 ) pt.second = 255.f;
+
+    mLock4Write();
+    bool done = false; IdxType chgidx = -1;
+    for ( IdxType idx=0; idx<tr_.size(); idx++ )
     {
-	const float x = tr_[idx].x_;
-	if ( mIsEqual(x,pt.x_,mDefEps) )
-	    { tr_[idx] = pt; done = true; break; }
-	else if ( pt.x_ < x )
-	    { tr_.insert( idx, pt ); done = true; break; }
+	const PosType x = tr_[idx].first;
+	if ( mIsEqual(x,pt.first,mDefEps) )
+	    { chgidx = idx; tr_[idx] = pt; done = true; break; }
+	else if ( pt.first < x )
+	    { chgidx = idx; tr_.insert( idx, pt ); done = true; break; }
     }
 
     if ( !done )
+    {
 	tr_ += pt;
+	chgidx = tr_.size()-1;
+    }
 
-    transparencyChanged.trigger();
+    mSendChgNotif( cTransparencyChange(), chgidx );
 }
 
 
 void ColTab::Sequence::removeTransparencies()
 {
+    mLock4Write();
     tr_.erase();
-    transparencyChanged.trigger();
+    mSendEntireObjChgNotif();
 }
 
 
-void ColTab::Sequence::removeTransparencyAt( int idx )
+void ColTab::Sequence::removeTransparencyAt( IdxType idx )
 {
-    tr_.removeSingle( idx );
-    transparencyChanged.trigger();
+    mLock4Write();
+    if ( tr_.validIdx(idx) )
+    {
+	tr_.removeSingle( idx );
+	mSendChgNotif( cTransparencyChange(), idx );
+    }
 }
 
 
-void ColTab::Sequence::changeTransparency( int idx, Geom::Point2D<float> pt )
+void ColTab::Sequence::changeTransparency( IdxType idx, TranspPtType pt )
 {
-    if ( !tr_.validIdx(idx) ) return;
+    mLock4Write();
+    if ( !tr_.validIdx(idx) )
+	return;
 
     tr_[idx] = pt;
-    transparencyChanged.trigger();
+    mSendChgNotif( cTransparencyChange(), idx );
 }
 
 
 void ColTab::Sequence::flipColor()
 {
+    mLock4Write();
     if ( size() == 0 ) return;
 
-    int first = 0;
-    int last = size() - 1;
+    IdxType first = 0;
+    IdxType last = size() - 1;
     for ( ; first!=last && first<last; )
     {
 	Swap( r_[first], r_[last] );
@@ -354,22 +462,25 @@ void ColTab::Sequence::flipColor()
 	last--;
     }
 
-    for ( int idx=0; idx<size(); idx++ )
+    for ( IdxType idx=0; idx<size(); idx++ )
 	x_[idx] = 1.0f - x_[idx];
+    mSendEntireObjChgNotif();
 }
 
 
 void ColTab::Sequence::flipTransparency()
 {
-    TypeSet< Geom::Point2D<float> > oldtr( tr_ );
+    mLock4Write();
+    const TypeSet<TranspPtType> oldtr( tr_ );
 
-    const int sz = oldtr.size();
+    const size_type sz = oldtr.size();
 
-    for ( int idx=0; idx<sz; idx++ )
+    for ( IdxType idx=0; idx<sz; idx++ )
     {
-	tr_[idx].x_ = 1 - oldtr[sz-idx-1].x_;
-	tr_[idx].y_ = oldtr[sz-idx-1].y_;
+	tr_[idx].first = 1 - oldtr[sz-idx-1].first;
+	tr_[idx].second = oldtr[sz-idx-1].second;
     }
+    mSendEntireObjChgNotif();
 }
 
 
@@ -396,7 +507,9 @@ static float getfromPar( const IOPar& iopar, Color& col, const char* key,
 
 void ColTab::Sequence::fillPar( IOPar& iopar ) const
 {
-    iopar.set( sKey::Name(), name() );
+    mLock4Read();
+
+    putNameInPar( iopar );
     FileMultiString fms;
     fms += (int)markcolor_.r(); fms += (int)markcolor_.g();
     fms += (int)markcolor_.b(); fms += (int)markcolor_.t();
@@ -412,47 +525,44 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 	fms = "";
 	fms += x_[idx];
 	fms += (int)r_[idx]; fms += (int)g_[idx]; fms += (int)b_[idx];
-	fms += transparencyAt( x_[idx] );
+	fms += gtTransparencyAt( x_[idx] );
 	BufferString str( sKeyValCol() );
 	str += "."; str += idx;
 	iopar.set( str, fms );
     }
 
-    for ( int idx=0; idx<tr_.size(); idx++ )
+    for ( IdxType idx=0; idx<tr_.size(); idx++ )
     {
 	BufferString key( sKeyTransparency() );
 	key += "."; key += idx;
-	iopar.set( key, tr_[idx].x_, tr_[idx].y_ );
+	iopar.set( key, tr_[idx].first, (float)tr_[idx].second );
     }
 }
 
 
 bool ColTab::Sequence::usePar( const IOPar& iopar )
 {
-    ColTab::Sequence backup = *this;
     FixedString res = iopar.find( sKey::Name() );
     if ( !res )
 	return false;
 
-    setName( res );
-
+    mLock4Write();
     if ( !getfromPar( iopar, markcolor_, sKeyMarkColor(), 0 ) ||
 	 !getfromPar( iopar, undefcolor_, sKeyUdfColor(), 0 ) )
-    {
-	*this = backup;
 	return false;
-    }
+
+    name_ = res;
 
     nrsegments_ = 0;
     const bool hadnrsegments = iopar.get( sKeyNrSegments(), nrsegments_ );
 
     x_.erase(); r_.erase(); g_.erase(); b_.erase(); tr_.erase();
-    for ( int idx=0; ; idx++ )
+    for ( IdxType idx=0; ; idx++ )
     {
 	BufferString key( sKeyValCol() );
 	key += "."; key += idx;
 	Color col;
-	float px;
+	PosType px;
 	getfromPar( iopar, col, key, &px );
 	if ( mIsUdf(px) )
 	{
@@ -465,35 +575,36 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 	r_ += col.r(); g_ += col.g(); b_ += col.b();
     }
 
-    for ( int idx=0; ; idx++ )
+    for ( IdxType idx=0; ; idx++ )
     {
 	BufferString key( sKeyTransparency() );
 	key += "."; key += idx;
-	Geom::Point2D<float> pt;
-	if ( !iopar.get( key, pt.x_, pt.y_ ) ) break;
+	TranspPtType pt; float floatval;
+	if ( !iopar.get( key, pt.first, floatval ) )
+	    break;
+
+	pt.second = mRounded( ValueType, floatval );
 	tr_ += pt;
     }
 
     //OD 3.2 and before
-    if ( !hadnrsegments && size() > 3 )
+    if ( !hadnrsegments && gtSize() > 3 )
     {
 	bool found = false;
-	for ( int idx=1; idx<size()-2; idx+=2 )
+	for ( IdxType idx=1; idx<gtSize()-2; idx+=2 )
 	{
-	    if ( position(idx+1)-position(idx) <= 1.01*mEps )
+	    if ( x_[idx+1]-x_[idx] <= 1.01*mEps )
 	    {
-		removeColor( idx );
+		rmColor( idx );
 		found = true;
 	    }
 	}
 
 	if ( found )
-	{
 	    nrsegments_ = -1;
-	}
     }
 
-    triggerAll();
+    mSendEntireObjChgNotif();
     return true;
 }
 
@@ -549,7 +660,7 @@ void ColTab::SeqMgr::readColTabs()
 
 void ColTab::SeqMgr::addFromPar( const IOPar& iop, bool fromsys )
 {
-    for ( int idx=0; ; idx++ )
+    for ( IdxType idx=0; ; idx++ )
     {
 	PtrMan<IOPar> ctiopar = iop.subselect( idx );
 	if ( !ctiopar || !ctiopar->size() )
@@ -564,7 +675,7 @@ void ColTab::SeqMgr::addFromPar( const IOPar& iop, bool fromsys )
 	if ( newseq->size() < 1 && newseq->transparencySize() < 1 )
 	    { delete newseq; continue; }
 
-	int existidx = indexOf( newseq->name() );
+	IdxType existidx = indexOf( newseq->name() );
 	if ( existidx < 0 )
 	{
 	    newseq->setType( fromsys ? Sequence::System : Sequence::User );
@@ -581,12 +692,12 @@ void ColTab::SeqMgr::addFromPar( const IOPar& iop, bool fromsys )
 }
 
 
-int ColTab::SeqMgr::indexOf( const char* nm ) const
+ColTab::SeqMgr::IdxType ColTab::SeqMgr::indexOf( const char* nm ) const
 {
-    for ( int idx=0; idx<seqs_.size(); idx++ )
+    for ( IdxType idx=0; idx<seqs_.size(); idx++ )
 	if ( seqs_[idx]->name() == nm )
 	    return idx;
-    for ( int idx=0; idx<seqs_.size(); idx++ )
+    for ( IdxType idx=0; idx<seqs_.size(); idx++ )
 	if ( seqs_[idx]->name().isEqual(nm,CaseInsensitive) )
 	    return idx;
     return -1;
@@ -595,14 +706,14 @@ int ColTab::SeqMgr::indexOf( const char* nm ) const
 
 bool ColTab::SeqMgr::get( const char* nm, Sequence& seq )
 {
-    int idx = indexOf( nm );
+    IdxType idx = indexOf( nm );
     if ( idx < 0 ) return false;
     seq = *get( idx );
     return true;
 }
 
 
-const ColTab::Sequence* ColTab::SeqMgr::getAny( const char* nm ) const
+const ColTab::Sequence& ColTab::SeqMgr::getAny( const char* nm ) const
 {
     if ( seqs_.isEmpty() )
     {
@@ -614,28 +725,36 @@ const ColTab::Sequence* ColTab::SeqMgr::getAny( const char* nm ) const
 	cs->setMarkColor( Color::DgbColor() );
 	cs->setUndefColor( Color(255,255,0) );
 	((ColTab::SeqMgr*)this)->seqs_ += cs;
-	return cs;
+	return *cs;
     }
-    int idx = indexOf( nm );
-    if ( idx >= 0 ) return get( idx );
-    idx = indexOf( "Rainbow" );
-    if ( idx >= 0 ) return get( idx );
 
-    return get( 0 );
+    IdxType idx = 0;
+    if ( nm && *nm )
+    {
+	idx = indexOf( nm );
+	if ( idx >= 0 )
+	    return *get( idx );
+    }
+
+    idx = indexOf( Sequence::sDefaultName() );
+    if ( idx < 0 )
+	idx = 0;
+
+    return *get( idx );
 }
 
 
 void ColTab::SeqMgr::getSequenceNames( BufferStringSet& nms )
 {
     nms.erase();
-    for ( int idx=0; idx<size(); idx++ )
+    for ( IdxType idx=0; idx<size(); idx++ )
 	nms.add( SM().get(idx)->name() );
 }
 
 
 void ColTab::SeqMgr::set( const ColTab::Sequence& seq )
 {
-    int idx = indexOf( seq.name() );
+    IdxType idx = indexOf( seq.name() );
     if ( idx < 0 )
 	add( new ColTab::Sequence(seq) );
     else
@@ -643,7 +762,7 @@ void ColTab::SeqMgr::set( const ColTab::Sequence& seq )
 }
 
 
-void ColTab::SeqMgr::remove( int idx )
+void ColTab::SeqMgr::remove( IdxType idx )
 {
     if ( idx < 0 || idx > size() ) return;
     ColTab::Sequence* seq = seqs_.removeSingle( idx );
@@ -658,8 +777,8 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
     {
 	Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
 	setts.setEmpty();
-	int newidx = 1;
-	for ( int idx=0; idx<seqs_.size(); idx++ )
+	IdxType newidx = 1;
+	for ( IdxType idx=0; idx<seqs_.size(); idx++ )
 	{
 	    const ColTab::Sequence& seq = *seqs_[idx];
 	    if ( !seq.isSys() )
@@ -694,8 +813,8 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
     ascostream astrm( strm );
     astrm.putHeader( "Color table definitions" );
     IOPar iopar;
-    int newidx = 1;
-    for ( int idx=0; idx<seqs_.size(); idx++ )
+    IdxType newidx = 1;
+    for ( IdxType idx=0; idx<seqs_.size(); idx++ )
     {
 	const ColTab::Sequence& seq = *seqs_[idx];
 	if ( seq.isSys() )
@@ -712,7 +831,8 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 }
 
 
-float ColTab::Sequence::snapToSegmentCenter( float x ) const
+ColTab::Sequence::PosType ColTab::Sequence::snapToSegmentCenter(
+							PosType x ) const
 {
     if ( nrsegments_<1 )
 	return x;
@@ -725,7 +845,7 @@ float ColTab::Sequence::snapToSegmentCenter( float x ) const
 
     const float segmentsize = 1.0f / (nrsegments_ - 1);
 
-    int segment = (int) ( x/segmentsize + 0.5 );
+    IdxType segment = (IdxType) ( x/segmentsize + 0.5 );
     if ( segment<0 ) segment = 0;
     if ( segment>=nrsegments_ )
 	segment = nrsegments_-1;
@@ -768,10 +888,10 @@ ColTab::Sequence RGBBlend::getTransparencyColTab()
 {
     mDefineStaticLocalObject( ColTab::Sequence, transpctab, );
     transpctab.setType(ColTab::Sequence::User);
-    transpctab.setColor( 0, 0, 0, 0 );
-    transpctab.setColor( 1, 255,255,255 );
-    transpctab.setTransparency( Geom::Point2D<float>(0,0) );
-    transpctab.setTransparency( Geom::Point2D<float>(1,255) );
+    transpctab.setColor( 0.f, 0, 0, 0 );
+    transpctab.setColor( 1.f, 255, 255, 255 );
+    transpctab.setTransparency( ColTab::Sequence::TranspPtType(0.f,0.f) );
+    transpctab.setTransparency( ColTab::Sequence::TranspPtType(1.f,255.f) );
     transpctab.setName( "Transparency" );
     return transpctab;
 }

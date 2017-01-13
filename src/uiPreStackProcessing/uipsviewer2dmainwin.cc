@@ -729,7 +729,7 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 		vdmapper.symmidval_ = mUdf(float);
 		vdmapper.type_ = ColTab::MapperSetup::Fixed;
 		vdmapper.range_ = Interval<float>(0,60);
-		psapp.ddpars_.vd_.ctab_ = ColTab::Sequence::sKeyRainbow();
+		psapp.ddpars_.vd_.ctab_ = ColTab::Sequence::sDefaultName();
 		ColTab::MapperSetup& wvamapper =psapp.ddpars_.wva_.mappersetup_;
 		wvamapper.cliprate_ = Interval<float>(0.0,0.0);
 		wvamapper.autosym0_ = true;
@@ -1171,7 +1171,7 @@ void uiStoredViewer2DMainWin::displayAngle()
 		    mCast(float,angleparams_->anglerange_.start),
 		    mCast(float,angleparams_->anglerange_.stop) );
 	    vdmapper.range_ = anglerg;
-	    psapp.ddpars_.vd_.ctab_ = ColTab::Sequence::sKeyRainbow();
+	    psapp.ddpars_.vd_.ctab_ = ColTab::Sequence::sDefaultName();
 	}
 	else
 	{

@@ -4,21 +4,62 @@ Wed Apr 6 11:09:12 2011
 !
 Standard color tables
 
-1.Name: AI
-1.Marker color: 0`0`0
-1.Undef color: 255`255`255`255
-1.Value-Color.0: 0`0`190`0`0
-1.Value-Color.1: 0.091`0`255`0`0
-1.Value-Color.2: 0.1818`190`255`0`0
-1.Value-Color.3: 0.2727`255`255`0`0
-1.Value-Color.4: 0.3636`255`190`0`0
-1.Value-Color.5: 0.4545`255`0`0`0
-1.Value-Color.6: 0.5455`190`127`0`0
-1.Value-Color.7: 0.6364`0`255`255`0
-1.Value-Color.8: 0.7273`0`190`255`0
-1.Value-Color.9: 0.8182`0`0`255`0
-1.Value-Color.10: 0.9091`255`0`255`0
-1.Value-Color.11: 1`191`0`255`0
+-- Viridis is the new Open Source Default Color Map (scientifically correct)
+1.Name: Viridis
+1.Marker color: 255`0`0`0
+1.Undef color: 150`150`150`0
+1.Nr segments: 0
+1.Value-Color.0: 0.000000`67`1`84`0
+1.Value-Color.1: 0.021164`70`9`92`0
+1.Value-Color.2: 0.040564`71`17`99`0
+1.Value-Color.3: 0.061728`71`24`106`0
+1.Value-Color.4: 0.081129`72`30`112`0
+1.Value-Color.5: 0.100529`71`37`117`0
+1.Value-Color.6: 0.121693`71`43`122`0
+1.Value-Color.7: 0.141093`68`49`126`0
+1.Value-Color.8: 0.160494`67`55`128`0
+1.Value-Color.9: 0.181658`66`61`132`0
+1.Value-Color.10: 0.201058`64`67`135`0
+1.Value-Color.11: 0.220459`60`73`137`0
+1.Value-Color.12: 0.241623`58`79`138`0
+1.Value-Color.13: 0.261023`57`84`139`0
+1.Value-Color.14: 0.280423`54`89`140`0
+1.Value-Color.15: 0.301587`51`95`141`0
+1.Value-Color.16: 0.320988`48`98`141`0
+1.Value-Color.17: 0.340388`46`104`141`0
+1.Value-Color.18: 0.361552`44`109`142`0
+1.Value-Color.19: 0.380952`42`115`142`0
+1.Value-Color.20: 0.400353`40`119`142`0
+1.Value-Color.21: 0.421517`38`124`142`0
+1.Value-Color.22: 0.440917`37`129`142`0
+1.Value-Color.23: 0.460317`35`134`141`0
+1.Value-Color.24: 0.481481`34`138`141`0
+1.Value-Color.25: 0.500882`31`142`140`0
+1.Value-Color.26: 0.520282`31`148`139`0
+1.Value-Color.27: 0.541446`30`152`138`0
+1.Value-Color.28: 0.560847`30`157`135`0
+1.Value-Color.29: 0.580247`30`161`133`0
+1.Value-Color.30: 0.601411`33`166`131`0
+1.Value-Color.31: 0.620811`37`171`129`0
+1.Value-Color.32: 0.640212`42`176`124`0
+1.Value-Color.33: 0.661376`49`180`122`0
+1.Value-Color.34: 0.680776`56`184`118`0
+1.Value-Color.35: 0.700176`64`189`113`0
+1.Value-Color.36: 0.721340`75`194`107`0
+1.Value-Color.37: 0.740741`84`197`102`0
+1.Value-Color.38: 0.760141`95`200`96`0
+1.Value-Color.39: 0.781305`106`205`88`0
+1.Value-Color.40: 0.800705`118`207`81`0
+1.Value-Color.41: 0.820106`130`211`74`0
+1.Value-Color.42: 0.841270`144`214`65`0
+1.Value-Color.43: 0.860670`157`217`56`0
+1.Value-Color.44: 0.880071`169`218`49`0
+1.Value-Color.45: 0.901235`183`220`40`0
+1.Value-Color.46: 0.920635`197`223`31`0
+1.Value-Color.47: 0.940035`210`225`26`0
+1.Value-Color.48: 0.961199`223`227`24`0
+1.Value-Color.49: 0.980600`236`227`25`0
+1.Value-Color.50: 1.000000`248`230`32`0
 1.Transparency.0: 0`0
 1.Transparency.1: 1`0
 
@@ -462,55 +503,81 @@ Standard color tables
 35.Undef color:	255`255`200
 35.Marker color: 0`240`0
 
-36.Name: Double Tasty
-36.Marker color: 0`0`255`0
-36.Undef color: 200`200`200`255
+36.Name: Plasma
+36.Marker color: 0`255`0`0
+36.Undef color: 150`150`150`0
 36.Nr segments: 0
-36.Value-Color.0: 0`127`0`0`0
-36.Value-Color.1: 0.05`200`40`0`0
-36.Value-Color.2: 0.1`255`100`0`0
-36.Value-Color.3: 0.15`255`170`0`0
-36.Value-Color.4: 0.2`255`200`0`0
-36.Value-Color.5: 0.25`255`230`1`0
-36.Value-Color.6: 0.3`255`255`0`0
-36.Value-Color.7: 0.35`160`255`0`0
-36.Value-Color.8: 0.39`80`255`0`0
-36.Value-Color.9: 0.42`40`190`0`0
-36.Value-Color.10: 0.45`0`127`0`0
-36.Value-Color.11: 0.49`0`0`0`0
-36.Value-Color.12: 0.51`0`0`0`0
-36.Value-Color.13: 0.55`0`127`0`0
-36.Value-Color.14: 0.58`40`190`0`0
-36.Value-Color.15: 0.61`80`255`0`0
-36.Value-Color.16: 0.65`160`255`0`0
-36.Value-Color.17: 0.7`255`255`0`0
-36.Value-Color.18: 0.75`255`230`1`0
-36.Value-Color.19: 0.8`255`200`0`0
-36.Value-Color.20: 0.85`255`170`0`0
-36.Value-Color.21: 0.9`255`100`0`0
-36.Value-Color.22: 0.95`200`40`0`0
-36.Value-Color.23: 1`127`0`0`0
+36.Value-Color.0: 0.000000`15`6`133`0
+36.Value-Color.1: 0.021164`29`5`141`0
+36.Value-Color.2: 0.040564`39`5`145`0
+36.Value-Color.3: 0.061728`50`4`150`0
+36.Value-Color.4: 0.081129`58`3`154`0
+36.Value-Color.5: 0.100529`66`3`157`0
+36.Value-Color.6: 0.121693`75`2`161`0
+36.Value-Color.7: 0.141093`83`1`163`0
+36.Value-Color.8: 0.160494`91`0`165`0
+36.Value-Color.9: 0.181658`99`0`166`0
+36.Value-Color.10: 0.201058`107`0`167`0
+36.Value-Color.11: 0.220459`114`0`168`0
+36.Value-Color.12: 0.241623`122`2`168`0
+36.Value-Color.13: 0.261023`129`3`167`0
+36.Value-Color.14: 0.280423`136`7`165`0
+36.Value-Color.15: 0.301587`144`14`162`0
+36.Value-Color.16: 0.320988`151`19`160`0
+36.Value-Color.17: 0.340388`158`25`155`0
+36.Value-Color.18: 0.361552`164`30`151`0
+36.Value-Color.19: 0.380952`170`36`147`0
+36.Value-Color.20: 0.400353`176`42`143`0
+36.Value-Color.21: 0.421517`182`47`138`0
+36.Value-Color.22: 0.440917`187`53`134`0
+36.Value-Color.23: 0.460317`191`59`129`0
+36.Value-Color.24: 0.481481`197`64`124`0
+36.Value-Color.25: 0.500882`202`70`119`0
+36.Value-Color.26: 0.520282`207`75`115`0
+36.Value-Color.27: 0.541446`212`82`109`0
+36.Value-Color.28: 0.560847`216`88`105`0
+36.Value-Color.29: 0.580247`219`93`102`0
+36.Value-Color.30: 0.601411`223`99`97`0
+36.Value-Color.31: 0.620811`227`105`93`0
+36.Value-Color.32: 0.640212`231`110`89`0
+36.Value-Color.33: 0.661376`234`117`83`0
+36.Value-Color.34: 0.680776`237`123`80`0
+36.Value-Color.35: 0.700176`240`129`76`0
+36.Value-Color.36: 0.721340`244`137`70`0
+36.Value-Color.37: 0.740741`246`143`66`0
+36.Value-Color.38: 0.760141`248`150`62`0
+36.Value-Color.39: 0.781305`250`157`58`0
+36.Value-Color.40: 0.800705`251`164`53`0
+36.Value-Color.41: 0.820106`252`172`49`0
+36.Value-Color.42: 0.841270`253`179`45`0
+36.Value-Color.43: 0.860670`253`187`43`0
+36.Value-Color.44: 0.880071`253`193`40`0
+36.Value-Color.45: 0.901235`252`203`37`0
+36.Value-Color.46: 0.920635`250`212`36`0
+36.Value-Color.47: 0.940035`248`219`36`0
+36.Value-Color.48: 0.961199`246`228`36`0
+36.Value-Color.49: 0.980600`243`237`38`0
+36.Value-Color.50: 1.000000`240`245`35`0
 36.Transparency.0: 0`0
 36.Transparency.1: 1`0
 
-37.Name: Double Rainbow
-37.Value-Color.0: 0`255`0`255
-37.Value-Color.1: 0.1`255`0`0
-37.Value-Color.2: 0.23`255`255`0
-37.Value-Color.3: 0.3`0`255`0
-37.Value-Color.4: 0.36`0`255`255
-37.Value-Color.5: 0.48`0`0`255
-37.Value-Color.6: 0.5`0`0`0
-37.Value-Color.7: 0.52`0`0`255
-37.Value-Color.8: 0.64`0`255`255
-37.Value-Color.9: 0.7`0`255`0
-37.Value-Color.10: 0.77`255`255`0
-37.Value-Color.11: 0.9`255`0`0
-37.Value-Color.12: 1`255`0`255
+37.Name: AI
+37.Marker color: 0`0`0
+37.Undef color: 255`255`255`255
+37.Value-Color.0: 0`0`190`0`0
+37.Value-Color.1: 0.091`0`255`0`0
+37.Value-Color.2: 0.1818`190`255`0`0
+37.Value-Color.3: 0.2727`255`255`0`0
+37.Value-Color.4: 0.3636`255`190`0`0
+37.Value-Color.5: 0.4545`255`0`0`0
+37.Value-Color.6: 0.5455`190`127`0`0
+37.Value-Color.7: 0.6364`0`255`255`0
+37.Value-Color.8: 0.7273`0`190`255`0
+37.Value-Color.9: 0.8182`0`0`255`0
+37.Value-Color.10: 0.9091`255`0`255`0
+37.Value-Color.11: 1`191`0`255`0
 37.Transparency.0: 0`0
 37.Transparency.1: 1`0
-37.Undef color:	200`200`200
-37.Marker color: 0`0`0
 
 38.Name: Matteo terrain cube
 38.Marker color: 0`240`0`0

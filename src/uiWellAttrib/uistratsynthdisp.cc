@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "prestacksyntheticdata.h"
 #include "stratsynth.h"
+#include "coltabsequence.h"
 #include "stratsynthlevel.h"
 #include "stratlith.h"
 #include "syntheticdataimpl.h"
@@ -56,8 +57,6 @@ static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
 static const char* sKeySynthetics()	{ return "Synthetics"; }
 static const char* sKeyViewArea()	{ return "Start View Area"; }
 static const char* sKeyNone()		{ return "None"; }
-static const char* sKeyRainbow()	{ return "Rainbow"; }
-static const char* sKeySeismics()	{ return "Seismics"; }
 static const char* sKeyDecimation()	{ return "Decimation"; }
 
 
@@ -252,14 +251,14 @@ void uiStratSynthDisp::makeInfoMsg( uiString& msg, IOPar& pars )
 	else
 	    { if ( vdstr.isEmpty() ) vdstr = "VD Val"; }
 	float val = !vdvalstr.isEmpty() ? vdvalstr.toFloat() : mUdf(float);
-	msg.append(tr("Val = %1 (%2)").arg(mIsUdf(val) ? tr("undef") : 
+	msg.append(tr("Val = %1 (%2)").arg(mIsUdf(val) ? tr("undef") :
 			toUiString(vdvalstr)).arg(toUiString(vdstr)));
     }
     if ( wvavalstr && !issame )
     {
 	mAddSep();
 	float val = !wvavalstr.isEmpty() ? wvavalstr.toFloat() : mUdf(float);
-	msg.append(tr("Val = %1").arg(mIsUdf(val) ? tr("undef") : 
+	msg.append(tr("Val = %1").arg(mIsUdf(val) ? tr("undef") :
 				    toUiString(wvavalstr)));
 	if ( wvastr.isEmpty() ) wvastr = "WVA Val";
 	msg.append(toUiString("(%1)").arg(wvastr));
@@ -995,9 +994,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	mapper.type_ = ColTab::MapperSetup::Auto;
 	mapper.symmidval_ = prsd ? mUdf(float) : 0.0f;
 	if ( sd->dispPars().ctab_.isEmpty() )
-	    dispsd->dispPars().ctab_ =
-		vwr_->appearance().ddpars_.vd_.ctab_ = prsd ? sKeyRainbow()
-							    : sKeySeismics();
+	    dispsd->dispPars().ctab_ = vwr_->appearance().ddpars_.vd_.ctab_
+			= ColTab::Sequence::sDefaultName( !prsd );
     }
 
     vwr_->setPack( wva, dp->id(), !hadpack );
@@ -1112,7 +1110,7 @@ void uiStratSynthDisp::setPreStackMapper()
 	vdmapper.symmidval_ = mUdf(float);
 	vdmapper.type_ = ColTab::MapperSetup::Fixed;
 	vdmapper.range_ = Interval<float>(0,60);
-	vwr.appearance().ddpars_.vd_.ctab_ = sKeyRainbow();
+	vwr.appearance().ddpars_.vd_.ctab_ = ColTab::Sequence::sDefaultName();
 	ColTab::MapperSetup& wvamapper =
 	    vwr.appearance().ddpars_.wva_.mappersetup_;
 	wvamapper.cliprate_ = Interval<float>(0.0,0.0);

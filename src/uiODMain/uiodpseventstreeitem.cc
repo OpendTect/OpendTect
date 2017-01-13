@@ -135,13 +135,7 @@ uiODPSEventsTreeItem::uiODPSEventsTreeItem( const DBKey& key,
 
 uiODPSEventsTreeItem::~uiODPSEventsTreeItem()
 {
-    ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>(
-	   &ODMainWin()->colTabEd().getColTabSequence() );
-    if ( cseq )
-    {
-	cseq->colorChanged.remove(
-			mCB(this,uiODPSEventsTreeItem,coltabChangeCB) );
-    }
+    detachAllNotifiers();
 
     if ( eventdisplay_ )
     {
@@ -241,8 +235,8 @@ void uiODPSEventsTreeItem::updateDisplay()
 	   &ODMainWin()->colTabEd().getColTabSequence() );
 	if ( cseq )
 	{
-	    cseq->colorChanged.notify(
-			    mCB(this,uiODPSEventsTreeItem,coltabChangeCB) );
+	    mAttachCB( cseq->objectChanged(),
+		       uiODPSEventsTreeItem::coltabChangeCB );
 	    eventdisplay_->setColTabSequence( *cseq );
 	}
     }
