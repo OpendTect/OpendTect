@@ -14,12 +14,14 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 
 #include "dbkey.h"
-#include "emfaultstickset.h"
 #include "saveable.h"
 
+class Executor;
 
 namespace EM
 {
+
+class EMObject;
 
 mExpClass(EarthModel) ObjectLoader
 {
@@ -30,7 +32,6 @@ public:
     ObjectSet<EMObject>	getLoadedEMObjects() const { return emobjects_; }
 
 protected:
-
 			ObjectLoader(const DBKey&);
 			ObjectLoader(const DBKeySet&);
 
@@ -59,10 +60,29 @@ protected:
 };
 
 
+mExpClass(EarthModel) Fault3DLoader : public ObjectLoader
+{
+public:
+			Fault3DLoader(const DBKey&);
+			Fault3DLoader(const DBKeySet&);
+
+     virtual bool	load(TaskRunner*);
+     virtual Executor*	getLoader() const;
+
+     const DBKeySet&	tobeLodedKeys() const { return dbkeys_; }
+      bool		allOK() const
+			{ return dbkeys_.size() == loadedkeys_.size(); }
+protected:
+
+    void		addObject(EMObject* obj) { emobjects_ += obj; }
+    DBKeySet		loadedkeys_;
+    friend class	FLT3DLoaderExec;
+};
+
+
 mExpClass(EarthModel) ObjectSaver : public Saveable
 {
 public:
-
 			ObjectSaver(const EMObject&);
 			mDeclMonitorableAssignment(ObjectSaver);
 			~ObjectSaver();
@@ -88,6 +108,16 @@ protected:
     virtual uiRetVal	doStore(const IOObj&) const;
 };
 
+
+mExpClass(EarthModel) Fault3DSaver : public ObjectSaver
+{
+public:
+			Fault3DSaver(const EMObject&);
+			~Fault3DSaver();
+protected:
+
+    virtual uiRetVal	doStore(const IOObj&) const;
+};
 
 } // namespace EM
 
