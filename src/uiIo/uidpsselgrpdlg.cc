@@ -37,7 +37,7 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     setPrefHeight( 500 );
 
     uiTable::Setup su( selgrps_.size(), 2 );
-    su.rowdesc("Selection Group").selmode(uiTable::Single);
+    su.rowdesc(tr("Selection Group")).selmode(uiTable::Single);
     tbl_ = new uiTable( this, su, "Selection Groups" );
     tbl_->setPrefHeight( 200 );
     tbl_->setColumnReadOnly( 1, true );

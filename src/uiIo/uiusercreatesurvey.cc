@@ -176,7 +176,7 @@ void uiUserCreateSurvey::fillSipsFld( bool have2d, bool have3d )
     int maxlen = 0;
     for ( int idx=0; idx<sipfld_->size(); idx++ )
     {
-	const int len = FixedString( sipfld_->textOfItem(idx) ).size();
+	const int len = FixedString( sipfld_->itemText(idx) ).size();
 	if ( len > maxlen ) maxlen = len;
     }
     sipfld_->setPrefWidthInChar( maxlen + 5 );

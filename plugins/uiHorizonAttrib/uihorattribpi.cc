@@ -195,7 +195,7 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     const uiString lbl = emioobj ? emioobj->uiName() : uiString::emptyString();
     uiListBox::Setup su( OD::ChooseOnlyOne, lbl, uiListBox::AboveMid );
     attrlb_ = new uiListBox( this, su );
-    attrlb_->addItems( attrnms );
+    attrlb_->addItems( attrnms.getUiStringSet() );
 }
 
 int nrAttribs() const { return attrlb_->size(); }

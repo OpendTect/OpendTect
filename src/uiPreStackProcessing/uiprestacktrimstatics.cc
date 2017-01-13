@@ -44,11 +44,12 @@ uiTrimStatics::uiTrimStatics( uiParent* p, TrimStatics* trimstat )
 				 mODHelpKey(mPreStackMuteHelpID)))
     , processor_( trimstat )
 {
-    BufferStringSet collbls;
-    collbls.add( "Pilot trace\nOffset start" ).add( "Pilot trace\nOffset stop" )
-	   .add( "Trim\nOffset start" ).add( "Trim\nOffset stop" )
-	   .add( "Max shift" );
-    uiTable::Setup ts; ts.defrowlbl(true).rowdesc("Iteration");
+    uiStringSet collbls;
+    collbls.add( tr("Pilot trace\nOffset start") )
+	   .add( tr("Pilot trace\nOffset stop") )
+	   .add( tr("Trim\nOffset start") ).add( tr("Trim\nOffset stop") )
+	   .add( tr("Max shift") );
+    uiTable::Setup ts; ts.defrowlbl(true).rowdesc(tr("Iteration"));
     table_ = new uiTable( this, ts, "Parameter table" );
     table_->setPrefWidth( 500 );
     table_->setColumnLabels( collbls );

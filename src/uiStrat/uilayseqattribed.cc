@@ -122,8 +122,12 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     uiLabeledComboBox* ltransffld = new uiLabeledComboBox( this,
 						tr("Transform values") );
     transformfld_ = ltransffld->box();
-    static const char* transfs[] = { "No", "Power", "Log", "Exp", 0 };
-    transformfld_->addItems( BufferStringSet(transfs) );
+    static uiStringSet transfs;
+    transfs.add(uiStrings::sNo());
+    transfs.add(tr("Power"));
+    transfs.add(uiStrings::sLog());
+    transfs.add(tr("Exponential"));
+    transformfld_->addItems( transfs );
     transformfld_->setHSzPol( uiObject::Small );
     transformfld_->selectionChanged.notify( transfcb );
     if ( !sep )
@@ -208,7 +212,7 @@ void uiLaySeqAttribEd::putToScreen()
 
 	for ( int idx=0; idx<lithofld_->size(); idx++ )
 	    lithofld_->setChosen( idx, attr_.liths_.isPresent(
-					    lithofld_->textOfItem(idx)) );
+					    lithofld_->itemText(idx)) );
     }
 
     if ( mIsUdf(attr_.transformval_) )

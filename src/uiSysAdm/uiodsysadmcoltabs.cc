@@ -54,7 +54,7 @@ void uiODSysAdmColorTabs::fillList( bool setcur )
     BufferStringSet seqnames;
     ColTab::SM().getSequenceNames( seqnames );
     seqnames.sort();
-    listfld->addItems( seqnames );
+    listfld->addItems( seqnames.getUiStringSet() );
 
     if ( setcur && listfld->size() )
 	listfld->setCurrentItem( 0 );

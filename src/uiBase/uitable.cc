@@ -547,8 +547,8 @@ void uiTable::setDefaultRowLabels()
     const int nrrows = nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	BufferString lbl( setup_.rowdesc_ ); lbl += " ";
-	lbl += ( idx + setup_.defrowstartidx_ );
+	uiString lbl( setup_.rowdesc_ );
+	toUiString("%1 %2").arg(lbl).arg(idx + setup_.defrowstartidx_ );
 	setRowLabel( idx, lbl );
     }
 }
@@ -1070,11 +1070,11 @@ const char* uiTable::rowLabel( int row ) const
 }
 
 
-void uiTable::setRowLabel( int row, const char* label )
+void uiTable::setRowLabel( int row, const uiString& label )
 {
     QTableWidgetItem& itm = body_->getRCItem( row, true );
-    itm.setText( label );
-    itm.setToolTip( label );
+    itm.setText( label.getQString() );
+    itm.setToolTip( label.getQString() );
 }
 
 
@@ -1094,9 +1094,9 @@ void uiTable::setTopLeftCornerLabel( const uiString& txt )
 }
 
 
-void uiTable::setRowToolTip( int row, const char* tt )
+void uiTable::setRowToolTip( int row, const uiString& tt )
 {
-    body_->getRCItem(row,true).setToolTip( tt );
+    body_->getRCItem(row,true).setToolTip( tt.getQString() );
 }
 
 
@@ -1110,7 +1110,7 @@ void uiTable::setLabelBGColor( int rc, Color c, bool isrow )
 void uiTable::setRowLabels( const char** labels )
 {
     BufferStringSet lbls( labels );
-    setRowLabels( lbls );
+    setRowLabels( lbls.getUiStringSet() );
 }
 
 
@@ -1118,7 +1118,15 @@ void uiTable::setRowLabels( const BufferStringSet& labels )
 {
     body_->setNrLines( labels.size() );
     for ( int i=0; i<labels.size(); i++ )
-        setRowLabel( i, *labels[i] );
+	setRowLabel( i, toUiString(*labels[i]) );
+}
+
+
+void uiTable::setRowLabels( const uiStringSet& lblset )
+{
+    body_->setNrLines( lblset.size() );
+    for ( int i=0; i<lblset.size(); i++ )
+	setRowLabel( i, lblset.get(i) );
 }
 
 
@@ -1152,7 +1160,7 @@ void uiTable::setColumnToolTip( int col, const uiString& tt )
 void uiTable::setColumnLabels( const char** labels )
 {
     BufferStringSet lbls( labels );
-    setColumnLabels( lbls );
+    setColumnLabels( lbls.getUiStringSet() );
 }
 
 
@@ -1162,6 +1170,15 @@ void uiTable::setColumnLabels( const BufferStringSet& labels )
 
     for ( int i=0; i<labels.size(); i++ )
         setColumnLabel( i, toUiString(labels[i]->buf()) );
+}
+
+
+void uiTable::setColumnLabels( const uiStringSet& lblset )
+{
+    body_->setColumnCount( lblset.size() );
+
+    for ( int i=0; i<lblset.size(); i++ )
+	setColumnLabel( i, lblset.get(i) );
 }
 
 
@@ -1433,7 +1450,7 @@ void uiTable::popupMenu( CallBacker* )
 	insertRows( newcell_, 1 );
 
 	if ( !setup_.defrowlbl_ )
-	    setRowLabel( newcell_, toString(newcell_.row()) );
+	    setRowLabel( newcell_, toUiString(newcell_.row()) );
 
 	rowInserted.trigger();
     }

@@ -17,7 +17,14 @@ ________________________________________________________________________
 #include "draw.h"
 
 
-static const char* arrowtypes[] = { "Top", "Bottom", "Both", 0 };
+static uiStringSet arrowtypes()
+{
+    uiStringSet uistrset;
+    uistrset.add(uiStrings::sTop());
+    uistrset.add(uiStrings::sBottom());
+    uistrset.add(od_static_tr("arrowtype","Both"));
+    return uistrset;
+}
 
 
 uiArrowDialog::uiArrowDialog( uiParent* p )
@@ -27,7 +34,7 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
 {
     setCancelText(uiString::emptyString());
     typefld_ = new uiLabeledComboBox( this, uiStrings::sType() );
-    typefld_->box()->addItems( arrowtypes );
+    typefld_->box()->addItems( arrowtypes() );
     typefld_->box()->selectionChanged.notify(
 				mCB(this,uiArrowDialog,changeCB) );
 

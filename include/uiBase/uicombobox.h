@@ -32,8 +32,6 @@ mExpClass(uiBase) uiComboBox : public uiObject, public UserInputObjImpl<int>
 public:
 
 			uiComboBox(uiParent*,const char* nm);
-			uiComboBox(uiParent*,const BufferStringSet&,
-				   const char* nm);
 			uiComboBox(uiParent*,const uiStringSet&,
 				   const char* nm);
 			uiComboBox(uiParent*,const char**,const char* nm);
@@ -60,21 +58,23 @@ public:
 
     const char*		text() const;
     void		setText(const char*);
+    void		setText(uiString&);
     int			currentItem() const;
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match
+    void		setCurrentItem(uiString&);
     void		setCurrentItem( const FixedString& fs )
 						{ setCurrentItem( fs.str() ); }
     virtual void	addItem(const uiString&);
     void		addItem(const uiString&,int id);
-    void		addItems(const BufferStringSet&);
     void		addItems(const uiStringSet&);
     void		addSeparator();
     void		insertItem(const uiString&,int index=-1,int id=-1);
     void		insertItem(const uiPixmap&,const uiString&,
 				   int index=-1,int id=-1);
 
-    const char*		textOfItem(int) const;
+    const char*		itemText(int) const;
+    const uiString	textOfItem(int) const;
     void		getItems(BufferStringSet&) const;
 
     void		setItemText(int,const uiString&);
@@ -99,6 +99,9 @@ protected:
     virtual bool	notifyValueChanged_( const CallBack& cb )
 			    { selectionChanged.notify(cb); return true; }
     void		translateText();
+    mDeprecated		uiComboBox(uiParent*,const BufferStringSet&,
+				   const char* nm);
+    mDeprecated void	addItems(const BufferStringSet&);
 private:
 
     int			oldnritems_;
@@ -136,8 +139,6 @@ mExpClass(uiBase) uiLabeledComboBox : public uiGroup
 public:
 		uiLabeledComboBox(uiParent*,const uiString& lbl,
 				  const char* nm=0);
-		uiLabeledComboBox(uiParent*,const BufferStringSet&,
-				  const uiString& lbl,const char* nm=0);
 		uiLabeledComboBox(uiParent*,const char**,
 				  const uiString& lbl,const char* nm=0);
 		uiLabeledComboBox(uiParent*,const uiStringSet&,
@@ -153,5 +154,7 @@ protected:
 
     uiComboBox*	cb_;
     uiLabel*	labl_;
+    mDeprecated uiLabeledComboBox(uiParent*,const BufferStringSet&,
+				  const uiString& lbl,const char* nm=0);
 
 };

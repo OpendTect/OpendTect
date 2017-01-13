@@ -158,7 +158,7 @@ static void addDCDs( uiListBox* lb, ObjectSet<DataColDef>& dcds,
     {
 	if ( !lb->isChosen(idx) )
 	    continue;
-	const char* nm = lb->textOfItem(idx);
+	const char* nm = lb->itemText(idx);
 	nms.add( nm );
 	dcds += new DataColDef( nm );
     }

@@ -753,7 +753,7 @@ void uiListBox::setAllowDuplicates( bool yn )
 void uiListBox::getItems( BufferStringSet& nms ) const
 {
     for ( int idx=0; idx<size(); idx++ )
-	nms.add( textOfItem( idx ) );
+	nms.add( itemText( idx ) );
 }
 
 
@@ -966,16 +966,45 @@ void uiListBox::sortItems( bool asc )
     NotifyStopper nsc( itemChosen );
     BoolTypeSet mrkd, chosen;
     const BufferString cur( getText() );
-    BufferStringSet nms;
+    uiStringSet nms;
     for ( int idx=0; idx<sz; idx++ )
     {
 	mrkd += isMarked( idx );
 	chosen += isChosen( idx );
 	nms.add( textOfItem(idx) );
     }
+    nms.sort(true,asc);
+    setEmpty(); addItems( nms );
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	setMarked( idx, mrkd[idx] );
+	setChosen( idx, chosen[idx] );
+    }
+    if ( !cur.isEmpty() )
+	setCurrentItem( cur );
+}
+
+
+void uiListBox::sortNmItems( bool asc )
+{
+    const int sz = size();
+    if ( sz < 2 ) return;
+
+    NotifyStopper nss( selectionChanged );
+    NotifyStopper nsc( itemChosen );
+    BoolTypeSet mrkd, chosen;
+    const BufferString cur( getText() );
+    BufferStringSet nms;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	mrkd += isMarked( idx );
+	chosen += isChosen( idx );
+	nms.add( itemText(idx) );
+    }
     int* sortidxs = nms.getSortIndexes(true,asc);
     nms.useIndexes( sortidxs );
-    setEmpty(); addItems( nms );
+    setEmpty(); addItems( nms.getUiStringSet() );
 
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -985,7 +1014,7 @@ void uiListBox::sortItems( bool asc )
     }
     delete [] sortidxs;
     if ( !cur.isEmpty() )
-	setCurrentItem( cur );
+    setCurrentItem( cur );
 }
 
 
@@ -1017,7 +1046,7 @@ bool uiListBox::isPresent( const char* txt ) const
 }
 
 
-const char* uiListBox::textOfItem( int idx ) const
+const char* uiListBox::itemText( int idx ) const
 {
     if ( !validIdx(idx) )
 	return "";
@@ -1027,7 +1056,7 @@ const char* uiListBox::textOfItem( int idx ) const
 }
 
 
-const uiString uiListBox::uiTextOfItem( int idx ) const
+const uiString uiListBox::textOfItem( int idx ) const
 {
     if ( !validIdx(idx) )
 	return uiString::emptyString();
@@ -1070,7 +1099,7 @@ void uiListBox::setCurrentItem( const char* txt )
     const int sz = lb_->body().count();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const char* ptr = textOfItem( idx );
+	const char* ptr = itemText( idx );
 	mSkipBlanks(ptr);
 	if ( FixedString(ptr) == txt )
 	    { setCurrentItem( idx ); return; }
@@ -1109,7 +1138,7 @@ int uiListBox::indexOf( const char* txt ) const
 {
     const FixedString str( txt );
     for ( int idx=0; idx<size(); idx++ )
-	if ( str == textOfItem(idx) )
+	if ( str == itemText(idx) )
 	    return idx;
     return -1;
 }
@@ -1172,7 +1201,7 @@ int uiListBox::optimumFieldWidth( int minwdth, int maxwdth ) const
     int len = minwdth;
     for ( int idx=0; idx<sz; idx++ )
     {
-	int itlen = strLength( textOfItem(idx) );
+	int itlen = strLength( itemText(idx) );
 	if ( itlen >= maxwdth )
 	    { len = maxwdth; break; }
 	else if ( itlen > len )
@@ -1310,6 +1339,15 @@ void uiListBox::getChosen( TypeSet<int>& items ) const
 
 
 void uiListBox::getChosen( BufferStringSet& nms ) const
+{
+    nms.setEmpty();
+    TypeSet<int> items; getChosen( items );
+    for ( int idx=0; idx<items.size(); idx++ )
+	nms.add( itemText(items[idx]) );
+}
+
+
+void uiListBox::getChosen( uiStringSet& nms ) const
 {
     nms.setEmpty();
     TypeSet<int> items; getChosen( items );
@@ -1492,7 +1530,7 @@ void uiListBox::setCheckedItems( const BufferStringSet& itms )
 {
     scrollingblocked_ = true;
     for ( int idx=0; idx<size(); idx++ )
-	setItemChecked( idx, itms.isPresent(textOfItem(idx)) );
+	setItemChecked( idx, itms.isPresent(itemText(idx)) );
     scrollingblocked_ = false;
 }
 
@@ -1511,7 +1549,7 @@ void uiListBox::getCheckedItems( BufferStringSet& items ) const
     items.setEmpty();
     for ( int idx=0; idx<this->size(); idx++ )
 	if ( isItemChecked(idx) )
-	    items.add( textOfItem(idx) );
+	    items.add( itemText(idx) );
 }
 
 

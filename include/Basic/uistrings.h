@@ -269,6 +269,7 @@ public:
     static uiString sCode(int num=1)	{ return tr("Code",0,num); }
     static uiString sColorTable(int num=1);
     static uiString sColor(int num=1)	{ return tr("Color",0, num); }
+    static uiString sColumn(int num=1)	{ return tr("Column",0,num); }
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sConstant()		{ return tr("Constant"); }
     static uiString sContinue()		{ return tr("Continue"); }
@@ -387,6 +388,7 @@ public:
     static uiString sNew();
     static uiString sNext()		{ return tr("Next"); }
     static uiString sNo()		{ return tr("No"); }
+    static uiString sNode(int num=1)	{ return tr("Node",0,num); }
     static uiString sNorth(bool abb)	{ return abb ? tr("N") : tr("North"); }
     static uiString sNoLogSel()		{ return tr("No log selected"); }
     static uiString sNone()		{ return tr("None"); }
@@ -440,6 +442,7 @@ public:
     static uiString sRightClick()	{ return tr("<right-click>"); }
     static uiString sReversed()		{ return tr("Reversed"); }
     static uiString sRockPhy()		{ return tr("Rock Physics"); }
+    static uiString sRow(int num=1)	{ return tr("Row",0,num); }
     static uiString sRMS()		{ return tr("RMS"); }
     static uiString sSave();
     static uiString sSaveAs();

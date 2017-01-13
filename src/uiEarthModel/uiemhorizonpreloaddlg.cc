@@ -89,7 +89,7 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     EM::HorizonPreLoader& hpl = EM::HPreL();
     const BufferStringSet& preloadnames = hpl.getPreloadedNames();
     if ( !preloadnames.isEmpty() )
-	listfld_->addItems( preloadnames );
+	listfld_->addItems( preloadnames.getUiStringSet() );
 
     selCB( 0 );
 }
@@ -125,7 +125,7 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
     hpl.load( selmids, &taskrunner );
     uiMSG().message( hpl.errorMsg() );
     listfld_->setEmpty();
-    listfld_->addItems( hpl.getPreloadedNames() );
+    listfld_->addItems( hpl.getPreloadedNames().getUiStringSet() );
     listfld_->setCurrentItem( 0 );
 
     return true;
@@ -151,7 +151,7 @@ void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
     listfld_->setEmpty();
     const BufferStringSet& names = hpl.getPreloadedNames();
     if ( !names.isEmpty() )
-	listfld_->addItems( names );
+	listfld_->addItems( names.getUiStringSet() );
 }
 
 
@@ -169,7 +169,7 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     unloadbut_->setSensitive( true );
     savebut_->setSensitive( true );
     EM::HorizonPreLoader& hpl = EM::HPreL();
-    const DBKey& mid = hpl.getDBKey( listfld_->textOfItem(selidx) );
+    const DBKey& mid = hpl.getDBKey( listfld_->itemText(selidx) );
     PtrMan<IOObj> ioobj = DBM().get( mid );
     if ( !ioobj )
 	return;
@@ -236,7 +236,7 @@ void uiHorizonPreLoadDlg::loadSavedHorizon( const DBKeySet& savedmids )
     listfld_->setEmpty();
     BufferStringSet hornms = hpl.getPreloadedNames();
     if ( !hornms.isEmpty() )
-	listfld_->addItems( hornms );
+	listfld_->addItems( hornms.getUiStringSet() );
 }
 
 

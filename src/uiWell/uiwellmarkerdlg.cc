@@ -86,13 +86,14 @@ static void getColumnLabels( BufferStringSet& lbls, uiCheckBox* unfld,
 
 static uiTable* createMarkerTable( uiParent* p, int nrrows, bool editable )
 {
-    uiTable* ret = new uiTable( p, uiTable::Setup().rowdesc("Marker")
-					        .rowgrow(editable).defrowlbl("")
-						.selmode(uiTable::Multi),
+    uiTable* ret = new uiTable( p, uiTable::Setup()
+					    .rowdesc(uiStrings::sMarker())
+					    .rowgrow(editable).defrowlbl("")
+					    .selmode(uiTable::Multi),
 			  "Well Marker Table" );
     BufferStringSet colnms;
     getColumnLabels( colnms, 0, editable );
-    ret->setColumnLabels( colnms );
+    ret->setColumnLabels( colnms.getUiStringSet() );
     ret->setColumnResizeMode( uiTable::ResizeToContents );
     ret->setColumnStretchable( cLevelCol, true );
     ret->setNrRows( nrrows );
@@ -168,14 +169,14 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
         , table_(0)
 	, unitfld_(0)
 {
-    table_ = new uiTable( this, uiTable::Setup().rowdesc("Marker")
+    table_ = new uiTable( this, uiTable::Setup().rowdesc(uiStrings::sMarker())
 					        .rowgrow(true)
 					        .defrowlbl("")
 						.selmode(uiTable::Multi),
 			  "Well Marker Table" );
     BufferStringSet header;
     getColLabels( header );
-    table_->setColumnLabels( header );
+    table_->setColumnLabels( header.getUiStringSet() );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setColumnStretchable( cLevelCol, true );
     table_->setNrRows( cNrEmptyRows );
@@ -310,7 +311,7 @@ void uiMarkerDlg::unitChangedCB( CallBacker* )
     NotifyStopper notifystop( table_->valueChanged );
     BufferStringSet colnms;
     getColLabels( colnms );
-    table_->setColumnLabels( colnms );
+    table_->setColumnLabels( colnms.getUiStringSet() );
     const float zfac = unitfld_->isChecked() ? mToFeetFactorF
 					     : mFromFeetFactorF;
 

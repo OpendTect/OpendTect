@@ -83,7 +83,7 @@ uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
     uiListBox::Setup su;
     su.lbl( tr("Survey to copy") );
     survdirsfld_ = new uiListBox( this, su );
-    survdirsfld_->addItems( survdirnms );
+    survdirsfld_->addItems( survdirnms.getUiStringSet() );
     survdirsfld_->setHSzPol( uiObject::WideVar );
     survdirsfld_->setStretch( 2, 2 );
     survdirsfld_->setCurrentItem( dirnm );

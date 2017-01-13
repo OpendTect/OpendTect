@@ -112,7 +112,7 @@ void uiListBoxChoiceIO::storeReqCB( CallBacker* )
     {
 	if ( lb_.isChosen(idx) )
 	{
-	    const BufferString itmnm( lb_.textOfItem(idx) );
+	    const BufferString itmnm( lb_.itemText(idx) );
 	    if ( nrkeys < 1 )
 		astrm.put( itmnm );
 	    else

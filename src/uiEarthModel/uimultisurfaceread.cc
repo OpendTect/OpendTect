@@ -185,7 +185,7 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 	    uiDialog::Setup(uiStrings::phrSelect(tr("section(s)"))
 			    ,mNoDlgTitle,mNoHelpKey) );
     uiListBox* lb = new uiListBox( &dlg, "Patches", OD::ChooseAtLeastOne );
-    lb->addItems( sd.sections );
+    lb->addItems( sd.sections.getUiStringSet() );
     lb->chooseAll( true );
     if ( dlg.go() )
     {

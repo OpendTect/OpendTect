@@ -222,7 +222,7 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	    wellnames.addIfNew( wds_[idx]->name() );
 
 	wellselfld_ = new uiLabeledComboBox( this, uiStrings::sWell() );
-	wellselfld_->box()->addItems( wellnames );
+	wellselfld_->box()->addItems( wellnames.getUiStringSet() );
 	mAttachCB( wellselfld_->box()->selectionChanged,
 		   uiMultiWellDispPropDlg::wellSelChg );
 	wellselfld_->attach( hCentered );

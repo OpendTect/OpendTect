@@ -298,7 +298,7 @@ void dsSel( CallBacker* )
     SeisIOObjInfo sii( *ioObj() );
     lnms_.erase();
     sii.getLineNames( lnms_ );
-    lnmsfld_->addItems( lnms_ );
+    lnmsfld_->addItems( lnms_.getUiStringSet() );
     lnmsfld_->chooseAll();
 }
 

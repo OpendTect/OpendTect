@@ -972,3 +972,12 @@ void BufferStringSet::unCat( const char* inpstr, const char* sepstr )
     if ( ptr && *ptr )
 	add( ptr );
 }
+
+
+uiStringSet BufferStringSet::getUiStringSet() const
+{
+    uiStringSet uistrset;
+    for ( int idx=0; idx<(*this).size(); idx++ )
+	uistrset.add( toUiString((*this).get(idx)) );
+    return uistrset;
+}

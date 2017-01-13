@@ -22,7 +22,7 @@ uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
     : uiGroup(p,"BinID table")
     , withz_(withz)
 {
-    table_ = new uiTable( this, uiTable::Setup().rowdesc("Node")
+    table_ = new uiTable( this, uiTable::Setup().rowdesc(tr("Node"))
 						.rowgrow(true)
 						.defrowlbl(true)
 						.selmode(uiTable::Multi),

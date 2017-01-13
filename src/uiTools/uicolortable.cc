@@ -209,7 +209,7 @@ void uiColorTableSel::setCurrent( const char* nm )
 { setCurrentItem( nm ); }
 
 const char* uiColorTableSel::getCurrent() const
-{ return textOfItem( currentItem() ); }
+{ return itemText( currentItem() ); }
 
 
 

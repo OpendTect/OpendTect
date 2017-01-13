@@ -318,7 +318,7 @@ void uiSynthGenDlg::putToScreen()
 	if ( psnms.isPresent(genparams.inpsynthnm_) ||
 	     genparams.inpsynthnm_.isEmpty() )
 	{
-	    psselfld_->box()->addItems( psnms );
+	    psselfld_->box()->addItems( psnms.getUiStringSet() );
 	    psselfld_->box()->setCurrentItem( genparams.inpsynthnm_ );
 	    psselfld_->box()->setSensitive( true );
 	}
@@ -363,7 +363,7 @@ bool uiSynthGenDlg::getFromScreen()
 			return false );
 
 	SyntheticData* inppssd = stratsynth_.getSynthetic(
-		psselfld_->box()->textOfItem(psselfld_->box()->currentItem()) );
+		psselfld_->box()->itemText(psselfld_->box()->currentItem()) );
 	if ( !inppssd )
 	    mErrRet( tr("Problem with Input Prestack synthetic data"),
 		     return false);
@@ -416,7 +416,7 @@ bool uiSynthGenDlg::isCurSynthChanged() const
     const int selidx = synthnmlb_->currentItem();
     if ( selidx < 0 )
 	return false;
-    BufferString selstr = synthnmlb_->textOfItem( selidx );
+    BufferString selstr = synthnmlb_->itemText( selidx );
     SyntheticData* sd = stratsynth_.getSynthetic( selstr );
     if ( !sd )
 	return true;

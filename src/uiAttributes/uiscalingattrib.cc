@@ -105,12 +105,13 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 
     uiGroup* tblgrp = new uiGroup( this );
     tblgrp->attach( alignedBelow, statsfld );
-    table = new uiTable( tblgrp, uiTable::Setup().rowdesc("Gate")
-					       .rowgrow(true)
-					       .defrowlbl("")
-					       .fillcol(true)
-					       .maxrowhgt(1)
-					       .selmode(uiTable::Multi),
+    table = new uiTable( tblgrp, uiTable::Setup()
+				.rowdesc(tr("Time Gate","Time Period Window"))
+				.rowgrow(true)
+				.defrowlbl("")
+				.fillcol(true)
+				.maxrowhgt(1)
+				.selmode(uiTable::Multi),
 		                                "Define Gate limits" );
 
     table->setNrCols( 3 );

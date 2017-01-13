@@ -547,7 +547,7 @@ void uiSurfaceMan::fillAttribList()
 	}
     }
 
-    attribfld_->addItems( availableattrnms );
+    attribfld_->addItems( availableattrnms.getUiStringSet() );
     attribfld_->chooseAll( false );
 }
 
@@ -681,7 +681,8 @@ uiSurfaceStratDlg( uiParent* p,  const DBKeySet& ids )
 {
     tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3),
 			"Stratigraphy Table" );
-    BufferStringSet lbls; lbls.add( "Name" ).add( "Color" ).add( "Marker" );
+    uiStringSet lbls; lbls.add( uiStrings::sName() ).add( uiStrings::sColor() )
+			  .add( uiStrings::sMarker() );
     tbl_->setColumnLabels( lbls );
     tbl_->setTableReadOnly( true );
     tbl_->setRowResizeMode( uiTable::Interactive );
@@ -811,7 +812,7 @@ uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
     linelist_ = new uiListBox( topgrp, su );
     BufferStringSet linenames;
     info.getLineNames( linenames );
-    linelist_->addItems( linenames );
+    linelist_->addItems( linenames.getUiStringSet() );
     linelist_->selectionChanged.notify( mCB(this,uiSurface2DMan,lineSel) );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom" );

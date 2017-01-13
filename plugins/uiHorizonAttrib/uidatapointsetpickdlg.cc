@@ -60,10 +60,10 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, int sceneid )
 
     table_ = new uiTable( this, uiTable::Setup(10,6), "Position table" );
     table_->setPrefWidth( 500 );
-    BufferStringSet lbls;
-    lbls.add(sKey::Inline()).add(sKey::Crossline())
-	.add(sKey::XCoord()).add(sKey::YCoord()).add("Z")
-	.add("Value");
+    uiStringSet lbls;
+    lbls.add(uiStrings::sInline()).add(uiStrings::sCrossline())
+	.add(toUiString("X-Coord")).add(toUiString("Y-Coord"))
+	.add(uiStrings::sZ()).add(uiStrings::sValue());
     table_->setColumnLabels( lbls );
     table_->valueChanged.notify( mCB(this,uiDataPointSetPickDlg,valChgCB) );
     table_->rowClicked.notify( mCB(this,uiDataPointSetPickDlg,rowClickCB) );

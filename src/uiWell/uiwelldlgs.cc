@@ -91,7 +91,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	, origpos_(mUdf(Coord3))
 	, origgl_(d.info().groundElevation())
 {
-    tbl_ = new uiTable( this, uiTable::Setup().rowdesc("Point")
+    tbl_ = new uiTable( this, uiTable::Setup().rowdesc(tr("Point"))
 					      .rowgrow(true)
 					      .defrowlbl("")
 					      .removeselallowed(false),
@@ -757,7 +757,8 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	, replvelfld_(0)
 {
     tbl_ = new uiTable( this, uiTable::Setup()
-				.rowdesc(cksh_ ? "Measure point" : "Control Pt")
+				.rowdesc(cksh_ ? tr("Measure point") :
+							tr("Control Point"))
 				.rowgrow(true)
 				.defrowlbl("")
 				.selmode(uiTable::Single)
@@ -774,7 +775,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 
     BufferStringSet header;
     getColLabels( header );
-    tbl_->setColumnLabels( header );
+    tbl_->setColumnLabels( header.getUiStringSet() );
     tbl_->setNrRows( nremptyrows );
     tbl_->valueChanged.notify( mCB(this,uiD2TModelDlg,dtpointChangedCB) );
     tbl_->rowDeleted.notify( mCB(this,uiD2TModelDlg,dtpointRemovedCB) );
@@ -971,7 +972,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     tbl_->setNrRows( dtsz + nremptyrows );
     BufferStringSet header;
     getColLabels( header );
-    tbl_->setColumnLabels( header );
+    tbl_->setColumnLabels( header.getUiStringSet() );
 
     const float replvel = wd_.info().replacementVelocity();
     const float kbelev = wd_.track().getKbElev();

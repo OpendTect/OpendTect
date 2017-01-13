@@ -118,7 +118,7 @@ void uiWellSinglePropSel::switchPropCB( CallBacker* )
 void uiWellSinglePropSel::updateLogInfo()
 {
     const BufferStringSet& nms = altPropSelected() ? altnms_ : normnms_;
-    lognmfld_->setEmpty(); lognmfld_->addItems( nms );
+    lognmfld_->setEmpty(); lognmfld_->addItems( nms.getUiStringSet() );
     const int sz = nms.size();
     const int selidx = nms.size() < 3 ? sz-1
 			: nms.nearestMatch( selPropRef().name() );

@@ -79,7 +79,7 @@ void uiGoogleExport2DSeis::getFinalSelectedLineNames()
     const uiListBox& lb( *s2dfm_->getListBox(false) );
     sellnms_.erase();
     for ( int idx=0; idx<lb.size(); idx++ )
-	sellnms_.add( lb.textOfItem(idx) );
+	sellnms_.add( lb.itemText(idx) );
 }
 
 
@@ -92,7 +92,7 @@ void uiGoogleExport2DSeis::getInitialSelectedLineNames()
     for ( int idx=0; idx<lb.size(); idx++ )
     {
 	if ( allsel_ || lb.isChosen(idx) )
-	    sellnms_.add( lb.textOfItem(idx) );
+	    sellnms_.add( lb.itemText(idx) );
     }
     allsel_ = sellnms_.size() == lb.size();
 }

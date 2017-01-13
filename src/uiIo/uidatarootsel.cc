@@ -54,7 +54,7 @@ uiDataRootSel::uiDataRootSel( uiParent* p, const char* def )
 						userDataRootString() );
     setHAlignObj( fulldirfld );
     dirfld_ = fulldirfld->box();
-    dirfld_->addItems( boxitms );
+    dirfld_->addItems( boxitms.getUiStringSet() );
     dirfld_->setEditable( true );
     fulldirfld->setStretch( 2, 0 );
     dirfld_->setStretch( 2, 0 );

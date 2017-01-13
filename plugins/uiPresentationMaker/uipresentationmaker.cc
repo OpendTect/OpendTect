@@ -270,7 +270,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
     screenfld_->display( false );
 
     uiTable::Setup ts( 0, 1 );
-    ts.rowdesc("Slide");
+    ts.rowdesc(tr("Slide","Presentation slide"));
     slidestbl_ = new uiTable( this, ts, "Slides table" );
     slidestbl_->setColumnLabel( 0, tr("Title") );
     slidestbl_->setPrefHeightInChar( 4 );

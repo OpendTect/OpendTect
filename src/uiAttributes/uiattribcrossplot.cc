@@ -206,7 +206,7 @@ void uiAttribCrossPlot::lineChecked( CallBacker* )
     for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
     {
 	if ( lnmfld_->isChosen(lidx) )
-	    linenmsset_[selitem].addIfNew( lnmfld_->textOfItem(lidx) );
+	    linenmsset_[selitem].addIfNew( lnmfld_->itemText(lidx) );
     }
 }
 
@@ -225,7 +225,7 @@ void uiAttribCrossPlot::attrChecked( CallBacker* )
 	for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
 	{
 	    lnmfld_->setChosen( lidx, true );
-	    linenmsset_[lsidx].add( lnmfld_->textOfItem(lidx) );
+	    linenmsset_[lsidx].add( lnmfld_->itemText(lidx) );
 	}
     }
     else if ( !ischked )
@@ -310,7 +310,7 @@ bool uiAttribCrossPlot::acceptOK()
     for ( int idx=0; idx<attrsfld_->size(); idx++ )
     {
 	if ( attrsfld_->isChosen(idx) )
-	    dcds += new DataColDef( attrsfld_->textOfItem(idx) );
+	    dcds += new DataColDef( attrsfld_->itemText(idx) );
     }
 
     if ( dcds.isEmpty() )

@@ -119,7 +119,13 @@ bool uiSeisWvltGen::acceptOK()
 }
 
 
-static const char* centernms[] = { "maximum amplitude", "maximum Energy", 0 };
+static uiStringSet centernms()
+{
+    uiStringSet uistrset;
+    uistrset.add(od_static_tr("centernms","Maximum Amplitude"));
+    uistrset.add(od_static_tr("centernms","Maximum Energy"));
+    return uistrset;
+}
 uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     : uiSeisWvltCreate(p,uiDialog::Setup(tr("Stack Wavelets"),
 		       mNoDlgTitle,mODHelpKey(mSeisWvltMergeHelpID)))
@@ -135,7 +141,7 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     centerfld_->attach( rightOf, normalizefld_ );
 
     centerchoicefld_ = new uiLabeledComboBox( this, tr("at") );
-    centerchoicefld_->box()->addItems( centernms );
+    centerchoicefld_->box()->addItems( centernms() );
     centerchoicefld_->box()->selectionChanged.notify(
 					mCB(this,uiSeisWvltMerge,reloadAll) );
     centerchoicefld_->box()->setHSzPol( uiObject::MedVar );

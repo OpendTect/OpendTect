@@ -92,13 +92,13 @@ void uiStratSelUnits::mkBoxFld()
 
     if ( setup_.fldtxt_.isEmpty() )
     {
-	combo_ = new uiComboBox( this, nms, "Unit" );
+	combo_ = new uiComboBox( this, nms.getUiStringSet(), "Unit" );
 	setHAlignObj( combo_ );
     }
     else
     {
-	uiLabeledComboBox* cb = new uiLabeledComboBox( this, nms,
-						  toUiString(setup_.fldtxt_) );
+	uiLabeledComboBox* cb = new uiLabeledComboBox( this,
+			nms.getUiStringSet(),  toUiString(setup_.fldtxt_) );
 	combo_ = cb->box(); setHAlignObj( cb );
     }
     combo_->selectionChanged.notify( curchgcb );

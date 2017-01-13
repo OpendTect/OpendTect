@@ -7,6 +7,7 @@
 
 #include "uitutmod.h"
 #include "uidialog.h"
+#include "uilistbox.h"
 
 class uiIOObjSel;
 class uiGenInput;
@@ -34,4 +35,6 @@ protected:
     uiGenInput*		attribnamefld_;
     uiIOObjSel*		outfld_;
     uiGenInput*		strengthfld_;
+    uiListBox*		listboxfld1_;
+    uiListBox*		listboxfld2_;
 };

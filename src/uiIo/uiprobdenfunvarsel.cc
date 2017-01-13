@@ -23,7 +23,7 @@ uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p,const DataColInfo& colinfos )
     , attrSelChanged( this )
 {
     uiLabeledComboBox* cbx =
-	new uiLabeledComboBox( this, colinfos_.colnms_, 
+	new uiLabeledComboBox( this, colinfos_.colnms_.getUiStringSet(),
 			       uiStrings::sAttribute() );
     attrsel_ = cbx->box();
     attrsel_->selectionChanged.notify(
@@ -58,14 +58,14 @@ void uiPrDenFunVarSel::setColNr( int nr )
 
 
 const char* uiPrDenFunVarSel::colName( int idx ) const
-{ return attrsel_->textOfItem( idx ); }
+{ return attrsel_->itemText( idx ); }
 
 
 void uiPrDenFunVarSel::setPrefCol( const char* nm )
 {
     BufferStringSet attrnms;
     for ( int idx=0; idx<attrsel_->size(); idx++ )
-	attrnms.add( attrsel_->textOfItem(idx) );
+	attrnms.add( attrsel_->itemText(idx) );
     const int prefidx = attrnms.nearestMatch( nm );
     if ( attrnms.validIdx(prefidx) )
     {

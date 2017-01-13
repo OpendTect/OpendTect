@@ -97,7 +97,7 @@ void uiImportLogsDlg::lasSel( CallBacker* )
     if ( res ) { uiMSG().error( toUiString(res) ); return; }
 
     logsfld_->setEmpty();
-    logsfld_->addItems( lfi.lognms );
+    logsfld_->addItems( lfi.lognms.getUiStringSet() );
     logsfld_->chooseAll( true );
 
     uiString lbl = toUiString("(%1)").arg(toUiString(lfi.zunitstr.buf()));

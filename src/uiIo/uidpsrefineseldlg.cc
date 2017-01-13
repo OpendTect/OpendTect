@@ -48,7 +48,7 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
 
     uiGroup* tblgrp = new uiGroup( this );
     tblgrp->attach( alignedBelow, inpfld_ );
-    vartable_ = new uiTable( tblgrp,uiTable::Setup().rowdesc("X")
+    vartable_ = new uiTable( tblgrp,uiTable::Setup().rowdesc(toUiString("X"))
 					.minrowhgt(1.5) .maxrowhgt(2)
 					.mincolwdt(3.0f*uiObject::baseFldSize())
 					.maxcolwdt(3.5f*uiObject::baseFldSize())
@@ -114,10 +114,11 @@ void uiDPSRefineSelDlg::updateDisplay()
 
     for ( int idx=0; idx<nrvars; idx++ )
     {
-	uiComboBox* varsel = new uiComboBox( 0, colnms_, "Variable");
+	uiComboBox* varsel = new uiComboBox( 0, colnms_.getUiStringSet(),
+								"Variable");
 	if ( !dcolids_.isEmpty() && dcolids_.validIdx(idx) )
 	   varsel->setCurrentItem( cColIds(dcolids_[idx]) );
-	vartable_->setRowLabel( idx, mathobj_->uniqueVarName(idx) );
+	vartable_->setRowLabel( idx, toUiString(mathobj_->uniqueVarName(idx)) );
 	vartable_->setCellObject( RowCol(idx,0), varsel );
     }
 

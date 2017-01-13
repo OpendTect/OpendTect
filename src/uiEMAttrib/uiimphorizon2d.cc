@@ -216,7 +216,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Horizon(s) to import") );
     horselfld_ = new uiListBox( this, su );
-    horselfld_->addItems( hornms );
+    horselfld_->addItems( hornms.getUiStringSet() );
     horselfld_->attach( alignedBelow, inpfld_ );
     horselfld_->setAllowDuplicates( false );
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));

@@ -248,19 +248,19 @@ uiGenRandPicks2DDlg::uiGenRandPicks2DDlg( uiParent* p,
 	horselfld_ = new uiLabeledComboBox( this, mJoinUiStrs(sHorizon(),
 							    sSelection()) );
 	horselfld_->box()->addItem( uiStrings::sSelect() );
-	horselfld_->box()->addItems( hornms_ );
+	horselfld_->box()->addItems( hornms_.getUiStringSet() );
 	horselfld_->box()->selectionChanged.notify(mCB(this,
 						uiGenRandPicks2DDlg,hor1Sel));
 	horsel2fld_ = new uiComboBox( this, "" );
 	horsel2fld_->addItem( uiStrings::sSelect()  );
-	horsel2fld_->addItems( hornms_ );
+	horsel2fld_->addItems( hornms_.getUiStringSet() );
 	horsel2fld_->selectionChanged.notify( mCB(this,
 						 uiGenRandPicks2DDlg,hor2Sel) );
     }
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Line(s)") );
     linenmfld_ = new uiListBox( this, su );
-    linenmfld_->addItems( lnms );
+    linenmfld_->addItems( lnms.getUiStringSet() );
     linenmfld_->attach( alignedBelow, nrfld_ );
 
     if ( hornms.size() )
@@ -310,7 +310,7 @@ void uiGenRandPicks2DDlg::horSel( uiComboBox* sel, uiComboBox* tosel )
 
     tosel->setEmpty();
     tosel->addItem( uiStrings::sSelect()  );
-    tosel->addItems( hornms );
+    tosel->addItems( hornms.getUiStringSet() );
     tosel->setCurrentItem( curnm );
 }
 

@@ -111,7 +111,7 @@ Seis::GeomType uiSEGYDefDlg::geomType() const
     if ( !geomfld_ )
 	return geomtype_;
 
-    return Seis::geomTypeOf( geomfld_->textOfItem( geomfld_->currentItem() ) );
+    return Seis::geomTypeOf( geomfld_->itemText( geomfld_->currentItem() ) );
 }
 
 

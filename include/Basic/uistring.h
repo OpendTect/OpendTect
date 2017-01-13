@@ -275,6 +275,12 @@ public:
 				//!< example: "option1, option2, and option3"
 
     void		fill(mQtclass(QStringList)&) const;
+    void		sort(const bool caseinsens,bool asc);
+    void		sort(bool);
+    void		useIndexes( const IdxType* idxs );
+    IdxType*		getSortIndexes(bool caseinsens,bool asc) const;
+
+
 
 protected:
 

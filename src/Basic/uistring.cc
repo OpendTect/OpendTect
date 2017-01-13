@@ -1062,6 +1062,61 @@ uiString uiStringSet::cat( const char* sepstr ) const
 }
 
 
+void uiStringSet::sort( const bool caseinsens,bool asc )
+{
+    size_type* idxs = getSortIndexes( caseinsens, asc );
+    useIndexes( idxs );
+    delete [] idxs;
+}
+
+
+void uiStringSet::useIndexes( const size_type* idxs )
+{
+    const size_type sz = size();
+    if ( !idxs || sz < 2 )
+	return;
+
+    ObjectSet<uiString> tmp;
+    for ( size_type idx=0; idx<sz; idx++ )
+	tmp.add( strs_[idx] );
+
+    strs_.plainErase();
+
+    for ( size_type idx=0; idx<sz; idx++ )
+	strs_.add( tmp[ idxs[idx] ] );
+}
+
+
+uiStringSet::IdxType* uiStringSet::getSortIndexes( bool caseinsens,
+							    bool asc ) const
+{
+    const size_type sz = size();
+    if ( sz < 1 )
+	return 0;
+    mGetIdxArr( size_type, idxs, sz );
+    Qt::CaseSensitivity cs(Qt::CaseSensitive);
+    if ( caseinsens )
+	cs = Qt::CaseInsensitive;
+
+    const uiStringSet* strset = this;
+    for ( size_type d=sz/2; d>0; d=d/2 )
+	for ( size_type i=d; i<sz; i++ )
+	    for ( size_type j=i-d; j>=0 &&
+		  (QString::compare( strset->get(idxs[j]).getQString(),
+		  strset->get(idxs[j+d]).getQString(), cs ) > 0 ); j-=d )
+		Swap( idxs[j+d], idxs[j] );
+
+    if ( !asc )
+    {
+	const size_type hsz = sz/2;
+	for ( size_type idx=0; idx<hsz; idx++ )
+	    Swap( idxs[idx], idxs[sz-idx-1] );
+    }
+
+    return idxs;
+}
+
+
 
 const uiRetVal uiRetVal::ok_;
 

@@ -129,7 +129,7 @@ void uiWellMarkerSel::setMarkers( uiComboBox& cb, const BufferStringSet& nms )
     BufferString cur( cb.text() );
     NotifyStopper ns( cb.selectionChanged );
     cb.setEmpty();
-    cb.addItems( nms );
+    cb.addItems( nms.getUiStringSet() );
     if ( cur.isEmpty() )
 	cb.setCurrentItem( 0 );
     else
@@ -259,7 +259,7 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
     markersselgrp_ = new uiListBox( mrkrgrp, "Markers", su.markerschoicemode_ );
     Well::MGR().getAllMarkerNames( markernms_ );
     markernms_.sort();
-    markersselgrp_->addItems( markernms_ );
+    markersselgrp_->addItems( markernms_.getUiStringSet() );
     filtfld_ = new uiGenInput( markersselgrp_, uiStrings::sFilter(), "*" );
     filtfld_->updateRequested.notify(
 				mCB(this,uiWellMarkersDlg,fltrMarkerNamesCB) );
@@ -318,7 +318,7 @@ void uiWellMarkersDlg::fltrMarkerNamesCB( CallBacker* )
     BufferString filtstr = filtfld_->text();
     if ( filtstr.isEmpty() || filtstr == "*" )
     {
-	markersselgrp_->addItems( markernms_ );
+	markersselgrp_->addItems( markernms_.getUiStringSet() );
 	return;
     }
 
@@ -337,5 +337,5 @@ void uiWellMarkersDlg::fltrMarkerNamesCB( CallBacker* )
     if ( filtmrkrnms.isEmpty() )
 	return;
 
-    markersselgrp_->addItems( filtmrkrnms );
+    markersselgrp_->addItems( filtmrkrnms.getUiStringSet() );
 }

@@ -222,7 +222,7 @@ void uiSeisMultiCubePS::setCompFld( const uiSeisMultiCubePSEntry& se )
     compfld_->setSensitive( dodisp );
     if ( dodisp )
     {
-	compfld_->addItems( compnms );
+	compfld_->addItems( compnms.getUiStringSet() );
 	compfld_->setCurrentItem( se.comp_ );
     }
 }

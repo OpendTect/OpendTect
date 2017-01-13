@@ -223,7 +223,8 @@ void uiStratLayModEditTools::flattenMenuCB( CallBacker* )
     const uiListBox::Setup setup( OD::ChooseOnlyOne, tr("Selected Markers"),
 				  uiListBox::AboveMid );
     uiListBox* lb = new uiListBox( &dlg, setup );
-    lb->addItems( choosenlvlnms_ );
+    uiStringSet trchoosenlvlnms_ = choosenlvlnms_.getUiStringSet();
+    lb->addItems( trchoosenlvlnms_ );
     if ( !flattenlvlnm_.isEmpty() )
 	lb->setCurrentItem( flattenlvlnm_.buf() );
 
@@ -244,12 +245,12 @@ void uiStratLayModEditTools::doDlg( CallBacker* )
 
     const Strat::LevelSet& lvls = Strat::LVLS();
 
-    BufferStringSet lvlnmset;
+    uiStringSet lvlnmset;
     for ( int idx=0; idx<lvls.size(); idx++ )
     {
 	const Strat::Level lvl = lvls.getByIdx( idx );
 	const BufferString nm( lvl.name() );
-	lvlnmset.add( nm );
+	lvlnmset.add( toUiString(nm) );
     }
 
     const uiListBox::Setup setup( OD::ChooseZeroOrMore, tr("Available Markers"),
@@ -322,7 +323,7 @@ static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone,
 	cb->addItem( toUiString("---") );
     if ( nms.isEmpty() ) return;
 
-    cb->addItems( nms );
+    cb->addItems( nms.getUiStringSet() );
     if ( wall )
 	cb->addItem( uiStrings::sAll() );
 

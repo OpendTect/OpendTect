@@ -37,7 +37,7 @@ bool checkRMSDifference( float_complex* a, float_complex* b, od_uint64 size,
 {
     double err2 = 0;
 
-    for ( od_uint64 idx=size-1; idx>=0; idx-- )
+    for ( int idx=mCast(int,size-1); idx>=0; idx-- )
     {
         const float_complex diff = a[idx]-b[idx];
 	err2 += std::norm( diff );
@@ -173,7 +173,8 @@ bool testForwardCC2D( const Array2D<float_complex>& input )
 		}
 	    }
 
-	    freqsum /= nrsamplesdim0 * nrsamplesdim1;
+	    //freqsum.real() = freqsum.real()/(nrsamplesdim0*nrsamplesdim1);
+	    //freqsum.imag() = freqsum.imag()/(nrsamplesdim0*nrsamplesdim1);
 	    reference.set( idx0,idx1, float_complex( (float) freqsum.real(),
 						     (float) freqsum.imag() ) );
 	}

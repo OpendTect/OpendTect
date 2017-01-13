@@ -351,7 +351,7 @@ bool doExp( const File::Path& fp )
     for ( int idx=0; idx<lnmsfld_->size(); idx++ )
     {
 	if ( lnmsfld_->isChosen(idx) )
-	    lnms.add( lnmsfld_->textOfItem(idx) );
+	    lnms.add( lnmsfld_->itemText(idx) );
     }
     if ( lnms.size() < 1 )
     {

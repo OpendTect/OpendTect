@@ -142,31 +142,35 @@ public:
     void		addItem(const uiString&,bool marked=false,int id=-1);
     void		addItem(const uiString&,const uiPixmap&,int id=-1);
     void		addItem(const uiString&,const Color&,int id=-1);
+
     void		addItems(const char**);
-    void		addItems(const BufferStringSet&);
     void		addItems(const uiStringSet&);
+
     void		insertItem(const uiString&,int idx=-1,
 				   bool marked=false,int id=-1);
     void		insertItem(const uiString&,const uiPixmap&,
 				   int idx=-1,int id=-1);
     void		insertItem(const uiString&,const Color&,
 				   int idx=-1,int id=-1);
+
     void		setPixmap(int,const Color&);
     void		setPixmap(int,const uiPixmap&);
     void		setIcon(int,const char* icon_identifier);
     void		setColor(int,const Color&);
+
     Color		getColor(int) const;
 
     void		sortItems(bool asc=true);
+    void		sortNmItems(bool asc=true);
 
     int			indexOf(const char*) const;	//!< First match
-    const char*		textOfItem(int) const;
-    const uiString	uiTextOfItem(int) const;
+    const char*		itemText(int) const;
+    const uiString	textOfItem(int) const;
     void		setItemText(int,const uiString&);
     void		getItems(BufferStringSet&) const;
 
     int			currentItem() const;
-    const char*		getText() const	 { return textOfItem(currentItem()); }
+    const char*		getText() const  { return itemText(currentItem()); }
     void		setCurrentItem(int);
     void		setCurrentItem(const char*);	//!< First match
     void		setCurrentItem(const uiString&);
@@ -180,6 +184,7 @@ public:
     int			firstChosen() const;
     int			nextChosen(int prev=-1) const;
     void		getChosen(BufferStringSet&) const;
+    void		getChosen(uiStringSet&) const;
     void		getChosen(TypeSet<int>&) const;
     void		setChoosable(int,bool yn);
     void		setChosen(int,bool yn=true);
@@ -213,7 +218,8 @@ public:
     void		offerReadWriteSelection( const CallBack& rcb,
 						 const CallBack& wcb )
 			{ retrievecb_ = rcb; savecb_ = wcb; }
-
+protected:
+    mDeprecated void	addItems(const BufferStringSet&);
 private:
 
     void		translateText();

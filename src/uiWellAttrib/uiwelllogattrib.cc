@@ -66,7 +66,7 @@ void uiWellLogAttrib::selDone( CallBacker* )
 
     BufferStringSet lognms;
     Well::MGR().getLogNames( wellid, lognms );
-    logsfld_->addItems( lognms );
+    logsfld_->addItems( lognms.getUiStringSet() );
 }
 
 

@@ -353,10 +353,10 @@ uiSelColorDlg( uiParent* p, const BufferStringSet& names,
 {
     tbl_ = new uiTable( this, uiTable::Setup(names.size(),isy2shwn ? 2 : 1),"");
     tbl_->leftClicked.notify( mCB(this,uiSelColorDlg,changeColCB) );
-    tbl_->setRowLabels( names );
-    BufferStringSet collabel;
-    collabel.add( "Y1" );
-    if ( isy2shwn ) collabel.add( "Y2" );
+    tbl_->setRowLabels( names.getUiStringSet() );
+    uiStringSet collabel;
+    collabel.add( toUiString("Y1") );
+    if ( isy2shwn ) collabel.add( toUiString("Y2") );
 
     tbl_->setColumnLabels( collabel );
     for ( int idx=0; idx<names.size(); idx++ )

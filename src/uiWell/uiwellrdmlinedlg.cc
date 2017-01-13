@@ -40,7 +40,14 @@ ________________________________________________________________________
 #include <math.h>
 
 
-static const char* sTypes[] = { "Top", "Bottom", 0 };
+static uiStringSet sTypes()
+{
+    uiStringSet uistrset;
+    uistrset.add(uiStrings::sTop());
+    uistrset.add(uiStrings::sBottom());
+    return uistrset;
+}
+
 
 uiWellSelGrp::uiWellSelGrp( uiParent* p, bool withpos )
     : uiGroup(p, "Select wells in table" )
@@ -149,7 +156,7 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 				   wellsbox_->textOfItem(idx));
 	    uiComboBox* box = new uiComboBox( 0, "Type" );
 	    selwellstbl_->setCellObject( RowCol(emptyrow,1), box );
-	    box->addItems( sTypes );
+	    box->addItems( sTypes() );
 	    box->setValue( 0 );
 	    wellsbox_->removeItem(idx);
 	    lastusedidx = idx;
@@ -214,7 +221,7 @@ void uiWellSelGrp::fillListBox()
 	allwellsnames_.add( entrylist.name(idx) );
     }
 
-    wellsbox_->addItems( allwellsnames_ );
+    wellsbox_->addItems( allwellsnames_.getUiStringSet() );
 }
 
 
@@ -279,7 +286,7 @@ void uiWellSelGrp::getCoordinates( TypeSet<Coord>& coords )
 	selwellstbl_->insertRows( rowidx, 1 );\
 	selwellstbl_->setText( RowCol(rowidx,0), text );\
 	uiComboBox* newbox = new uiComboBox(0,"Type"); \
-	newbox->addItems( sTypes ); \
+	newbox->addItems( sTypes() ); \
 	newbox->setValue( val ); \
 	selwellstbl_->setCellObject( RowCol(rowidx,1), newbox );
 

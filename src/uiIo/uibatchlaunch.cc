@@ -167,7 +167,7 @@ void uiStartBatchJobDialog::itmSel( CallBacker* )
 		strm.close();
 		batchfld_->jobSpec().usePar( iop );
 		batchfld_->jobSpecUpdated();
-		batchfld_->setJobName( jobsfld_->textOfItem(selidx) );
+		batchfld_->setJobName( jobsfld_->itemText(selidx) );
 	    }
 	}
     }

@@ -218,7 +218,7 @@ void uiSEGYReadStartInfo::mkBasicInfoFlds()
     swpdfmts.removeSingle( swpdfmts.size()-1 ); // 8-bits swapped makes no sense
     swpdfmts.addToAll( " (byte swapped)" );
     fmts.add( swpdfmts, true );
-    fmtfld_ = new uiComboBox( 0, fmts, "Format" );
+    fmtfld_ = new uiComboBox( 0, fmts.getUiStringSet(), "Format" );
     fmtfld_->selectionChanged.notify( parchgcb );
     mAdd2Tbl( fmtfld_, mDataFormatRow, mUseCol );
 

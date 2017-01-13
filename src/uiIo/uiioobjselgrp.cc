@@ -607,7 +607,7 @@ void uiIOObjSelGrp::fillListBox()
     NotifyStopper ns2( listfld_->itemChosen );
 
     listfld_->setEmpty();
-    listfld_->addItems( dispnms_ );
+    listfld_->addItems( dispnms_.getUiStringSet() );
     for ( int idx=0; idx<iconnms_.size(); idx++ )
     {
 	BufferString icnm = iconnms_[idx];

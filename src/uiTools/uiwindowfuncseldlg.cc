@@ -264,7 +264,7 @@ void uiFuncSelDraw::setSelected( int idx )
 const char* uiFuncSelDraw::getCurrentListName() const
 {
     if ( funclistfld_->nrChosen() == 1 )
-	return funclistfld_->textOfItem( funclistfld_->currentItem() );
+	return funclistfld_->itemText( funclistfld_->currentItem() );
     return 0;
 }
 

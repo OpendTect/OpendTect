@@ -21,7 +21,7 @@ uiFillPattern::uiFillPattern( uiParent* p )
 {
     const CallBack selchgcb( mCB(this,uiFillPattern,selChg) );
     BufferStringSet nms; OD::FillPattern::getTypeNames( nms );
-    typefld_ = new uiComboBox( this, nms, "Type" );
+    typefld_ = new uiComboBox( this, nms.getUiStringSet(), "Type" );
     typefld_->setHSzPol( uiObject::Small );
     typefld_->selectionChanged.notify( selchgcb );
 
@@ -45,7 +45,7 @@ void uiFillPattern::setOptNms()
 {
     BufferStringSet nms;
     OD::FillPattern::getOptNames( typefld_->currentItem(), nms );
-    optfld_->setEmpty(); optfld_->addItems( nms );
+    optfld_->setEmpty(); optfld_->addItems( nms.getUiStringSet() );
 }
 
 

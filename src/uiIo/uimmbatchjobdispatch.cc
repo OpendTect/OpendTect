@@ -502,7 +502,7 @@ void uiMMBatchJobDispatcher::updateCurMachs()
     usedmachfld_->setEmpty();
     if ( newsz > 0 )
     {
-	usedmachfld_->addItems( machs );
+	usedmachfld_->addItems( machs.getUiStringSet() );
 	if ( curit >= usedmachfld_->size() )
 	    curit = usedmachfld_->size() - 1;
 	usedmachfld_->setCurrentItem(curit);
@@ -746,7 +746,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* cb )
     {
 	if ( avmachfld_ && !avmachfld_->isChosen(idx) ) continue;
 
-	BufferString hnm = avmachfld_ ? avmachfld_->textOfItem( idx )
+	BufferString hnm = avmachfld_ ? avmachfld_->itemText( idx )
 				      : hdl_[0]->getHostName();
 	char* ptr = hnm.find( ' ' );
 	if ( ptr )

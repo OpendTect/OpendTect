@@ -673,8 +673,10 @@ uiBodyRegionGrp::uiBodyRegionGrp( uiParent* p, const Setup& mysetup )
     uiGroup* tblgrp = new uiGroup( this );
     if ( lastgrp )
 	tblgrp->attach( alignedBelow, lastgrp );
-    table_ = new uiTable( tblgrp, tsu.rowdesc("Boundary").defrowlbl(true),"Sf");
-    BufferStringSet lbls; lbls.add("Type").add("Name").add("Region location");
+    table_ = new uiTable( tblgrp, tsu.rowdesc(tr("Boundary")).defrowlbl(true),
+									"Sf");
+    uiStringSet lbls; lbls.add(uiStrings::sType()).add(uiStrings::sName())
+			  .add(tr("Region location"));
     table_->setColumnLabels( lbls );
     table_->setPrefWidth( 300 );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
@@ -736,10 +738,10 @@ void uiBodyRegionGrp::horModChg( CallBacker* )
 
     const bool singlehormode =
 	singlehorfld_ ? singlehorfld_->getBoolValue() : false;
-    BufferStringSet lbls;
-    lbls.add("Type").add("Location");
+    uiStringSet lbls;
+    lbls.add(uiStrings::sType()).add(tr("Location"));
     if ( singlehormode )
-	lbls.add("Relative shift up").add("Relative shift down");
+	lbls.add(tr("Relative shift up")).add(tr("Relative shift down"));
 
     table_->setColumnLabels( lbls );
     table_->resizeColumnsToContents();

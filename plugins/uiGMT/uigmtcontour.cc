@@ -168,7 +168,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
 	attribfld_->setSensitive( false );
     else
     {
-	attribfld_->addItems( sd_.valnames );
+	attribfld_->addItems( sd_.valnames.getUiStringSet() );
 	attribfld_->setSensitive( true );
     }
 
@@ -262,7 +262,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     if ( ( !hor_ || hor_->dbKey()!=ioobj->key() ) && !loadHor() )
 	return;
 
-    BufferString attrnm = attribfld_->textOfItem( attribfld_->currentItem() );
+    BufferString attrnm = attribfld_->itemText( attribfld_->currentItem() );
     const bool isz = attrnm == ODGMT::sKeyZVals();
     int dataidx = -1;
     if ( !isz )
@@ -352,7 +352,7 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
     inpfld_->fillPar( par );
     par.set( sKey::Name(), ioobj->name() );
     const int attribidx = attribfld_->currentItem();
-    par.set( ODGMT::sKeyAttribName(), attribfld_->textOfItem(attribidx) );
+    par.set( ODGMT::sKeyAttribName(), attribfld_->itemText(attribidx) );
     IOPar subpar;
     subselfld_->fillPar( subpar );
     par.mergeComp( subpar, sKey::Selection() );

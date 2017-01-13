@@ -487,7 +487,7 @@ void updateGatherNames()
     BufferStringSet gathernms;
     getGatherNames( gathernms );
     datasetcb_->setEmpty();
-    datasetcb_->addItems( gathernms );
+    datasetcb_->addItems( gathernms.getUiStringSet() );
 }
 
 
@@ -519,7 +519,7 @@ void getGatherNames( BufferStringSet& gnms )
 BufferString curGatherName() const
 {
     BufferString curgathernm =
-	datasetcb_->textOfItem( datasetcb_->currentItem() );
+	datasetcb_->itemText( datasetcb_->currentItem() );
     return curgathernm;
 }
 

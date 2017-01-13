@@ -77,8 +77,9 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
     for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
 	colnms.add( dps.colName(colidx) );
 
-    selfld_ = new uiLabeledComboBox(this, colnms, uiStrings::phrJoinStrings(
-				    uiStrings::sAttribute(), tr("to display")));
+    selfld_ = new uiLabeledComboBox(this, colnms.getUiStringSet(),
+			  uiStrings::phrJoinStrings( uiStrings::sAttribute(),
+						    tr("to display")));
     selfld_->attach( alignedBelow, typefld_ );
     if ( prevdispprop && !prevdispprop->showSelected() )
     {
@@ -528,7 +529,7 @@ void uiDataPointSet::fillPos( TRowID tid )
 	else
 	    rownm += pos.binid_.toString();
     }
-    tbl_->setRowLabel( tid, rownm );
+    tbl_->setRowLabel( tid, toUiString(rownm) );
     fillingtable_ = false;
 }
 
@@ -729,7 +730,7 @@ uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
 	uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 					  uiStrings::phrSelect(tr("group" )) );
 	grpfld_ = lcb->box();
-	grpfld_->addItems( grpnames );
+	grpfld_->addItems( grpnames.getUiStringSet() );
 	grpfld_->attach( alignedBelow, zinpfld_ );
     }
 }

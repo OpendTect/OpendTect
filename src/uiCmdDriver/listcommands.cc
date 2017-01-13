@@ -27,12 +27,12 @@ namespace CmdDrive
     { \
 	for ( int idx=0; idx<listobj->size(); idx++ ) \
 	{ \
-	    if ( mSearchKey(itemstr).isMatching(listobj->textOfItem(idx)) ) \
+	    if ( mSearchKey(itemstr).isMatching(listobj->itemText(idx)) ) \
 		itmidxs += idx; \
 	} \
         mParStrPre( objnm, itmidxs, 0, itemstr, itemnr, "string", ambicheck ); \
 	wildcardMan().check( mSearchKey(itemstr), \
-			     listobj->textOfItem(itmidxs[0]) ); \
+			     listobj->itemText(itmidxs[0]) ); \
     } \
 
 
@@ -93,7 +93,7 @@ bool CurComboItemCmd::act( const char* parstr )
     mParKeyStrPre( "combobox", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiComboBox*, uicombox, objsfound[0] );
     const int curidx = uicombox->currentItem();
-    mParForm( answer, form, uicombox->textOfItem(curidx), curidx+1 );
+    mParForm( answer, form, uicombox->itemText(curidx), curidx+1 );
     mParIdentPost( identname, answer, parnext );
     return true;
 }
@@ -111,7 +111,7 @@ bool GetComboItemCmd::act( const char* parstr )
     mParKeyStrPre( "combobox", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiComboBox*, uicombox, objsfound[0] );
     mParListSelPre( "item", uicombox, itemstr, itemnr, itemidxs, true );
-    mParForm( answer, form, uicombox->textOfItem(itemidxs[0]), itemidxs[0]+1 );
+    mParForm( answer, form, uicombox->itemText(itemidxs[0]), itemidxs[0]+1 );
     mParIdentPost( identname, answer, parnext );
     return true;
 }
@@ -480,7 +480,7 @@ bool CurListItemCmd::act( const char* parstr )
     if ( framed )
 	curidx = uilist->currentItem();
 
-    const char* text = uilist->textOfItem( curidx );
+    const char* text = uilist->itemText( curidx );
     mGetColorString( uilist->getColor(curidx), curidx>=0, colorstr );
     mParForm( answer, form, text, curidx+1 );
     mParExtraForm( answer, form, Colour, colorstr );
@@ -503,7 +503,7 @@ bool GetListItemCmd::act( const char* parstr )
     mDynamicCastGet( const uiListBox*, uilist, uilistobj->parent() );
     mParListSelPre( "item", uilist, itemstr, itemnr, itemidxs, true );
 
-    const char* text = uilist->textOfItem( itemidxs[0] );
+    const char* text = uilist->itemText( itemidxs[0] );
     mGetColorString( uilist->getColor(itemidxs[0]), true, colorstr );
     mParForm( answer, form, text, itemidxs[0]+1 );
     mParExtraForm( answer, form, Colour, colorstr );
@@ -590,7 +590,7 @@ bool GetListMenuItemCmd::act( const char* parstr )
 
 
 #define mGetListItemName( uilistobj, curitemidx, curitemname, casedep ) \
-    mGetItemName( uilistobj,size,textOfItem,curitemidx,curitemname,casedep )
+    mGetItemName( uilistobj,size,itemText,curitemidx,curitemname,casedep )
 
 
 void ComboCmdComposer::init()
@@ -625,7 +625,7 @@ bool ComboCmdComposer::accept( const CmdRecEvent& ev )
 
     if ( accepted && mMatchCI(msgnexxt, "editTextChanged") )
     {
-	BufferString inittext = uicombo->textOfItem( uicombo->currentItem() );
+	BufferString inittext = uicombo->itemText( uicombo->currentItem() );
 
 	if ( (oldnritems==uicombo->size() && oldcuritem==uicombo->currentItem())
 	     || (mIsUdf(oldnritems) && inittext!=uicombo->text()) )

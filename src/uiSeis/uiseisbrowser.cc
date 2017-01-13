@@ -230,7 +230,8 @@ void uiSeisBrowser::createMenuAndToolBar()
     tr_->getComponentNames( compnms_ );
     if ( compnms_.size()>1 )
     {
-	selcompnmfld_ = new uiComboBox( uitb_, compnms_, "Component name" );
+	selcompnmfld_ = new uiComboBox( uitb_, compnms_.getUiStringSet(),
+							    "Component name" );
 	uitb_->addObject( selcompnmfld_ );
 	selcompnmfld_->setCurrentItem( compnr_ );
 	selcompnmfld_->selectionChanged.notify(
@@ -401,10 +402,10 @@ void uiSeisBrowser::fillTable()
     for ( int idx=0; idx<info.nrsamples_; idx++ )
     {
 	const BufferString zvalstr( getZValStr(info.sd_.atIndex(idx),zfac) );
-	tbl_->setRowLabel( idx, zvalstr );
-	BufferString tt;
-	tt.add( idx+1 ).add( getRankPostFix(idx+1) ).add( " sample at " )
-	  .add( zvalstr ).add( zunstr );
+	tbl_->setRowLabel( idx, toUiString(zvalstr) );
+	uiString tt;
+	tt = toUiString("%1 %2 sample at %3 %4").arg(idx+1)
+			.arg(getRankPostFix(idx+1)).arg(zvalstr).arg(zunstr);
 	tbl_->setRowToolTip( idx, tt );
     }
 

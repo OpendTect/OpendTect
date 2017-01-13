@@ -35,10 +35,11 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf,
     BufferStringSet bss; getLvlNms( bss, haveudf_ );
 
     if ( !lbl.isEmpty() )
-	fld_ = (new uiLabeledComboBox(this, bss, lbl))->box();
+	fld_ = (new uiLabeledComboBox(this, bss.getUiStringSet(), lbl))->box();
     else
     {
-	fld_ = new uiComboBox( this, bss, mFromUiStringTodo(sTiedToTxt()) );
+	fld_ = new uiComboBox( this, bss.getUiStringSet(),
+					    mFromUiStringTodo(sTiedToTxt()) );
 	fld_->setStretch( 2, 2 );
     }
     fld_->selectionChanged.notify( mCB(this,uiStratLevelSel,selCB) );
@@ -112,7 +113,7 @@ void uiStratLevelSel::extChgCB( CallBacker* )
     fld_->setEmpty();
 
     BufferStringSet bss; getLvlNms( bss, haveudf_ );
-    fld_->addItems( bss );
+    fld_->addItems( bss.getUiStringSet() );
 
     if ( !cursel.id().isInvalid() )
 	fld_->setCurrentItem( cursel.name() );
