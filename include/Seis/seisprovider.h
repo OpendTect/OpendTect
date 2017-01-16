@@ -66,6 +66,8 @@ public:
     BufferString	name() const;
     uiRetVal		getComponentInfo(BufferStringSet&,
 					 TypeSet<Seis::DataType>* dts=0) const;
+    int			nrOffsets() const; //!< at a representative location
+					   //!< always 1 for post-stack data
 
     void		setSelData(SelData*); //!< becomes mine
     void		setSampleInterval(float);
@@ -121,6 +123,7 @@ protected:
     virtual uiRetVal	doGetComponentInfo(BufferStringSet&,
 				     TypeSet<Seis::DataType>&) const	= 0;
 
+    virtual int		gtNrOffsets() const { return 1; }
 			// define at least either SeisTrc or SeisTrcBuf fns
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;

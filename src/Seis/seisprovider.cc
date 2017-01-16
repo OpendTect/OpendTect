@@ -120,6 +120,12 @@ od_int64 Seis::Provider::totalNr() const
 }
 
 
+int Seis::Provider::nrOffsets() const
+{
+    return gtNrOffsets();
+}
+
+
 uiRetVal Seis::Provider::getComponentInfo( BufferStringSet& nms,
 				       TypeSet<Seis::DataType>* pdts ) const
 {
