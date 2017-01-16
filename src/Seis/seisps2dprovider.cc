@@ -256,6 +256,41 @@ uiRetVal Seis::PS2DProvider::doGetComponentInfo( BufferStringSet& nms,
 }
 
 
+int Seis::PS2DProvider::gtNrOffsets() const
+{
+    const int nrlines = nrLines();
+    if ( nrlines < 1 )
+	return 1;
+
+    PtrMan<SeisPS2DReader> rdrptrman;
+    const SeisPS2DReader* rdr = 0;
+    if ( fetcher_.rdr_ )
+	rdr = fetcher_.rdr_;
+    else
+    {
+	rdrptrman = mkReader( geomID(nrlines/2) );
+	rdr = rdrptrman;
+    }
+
+    if ( !rdr )
+	return 1;
+
+    const PosInfo::Line2DData& ld = rdr->posData();
+    if ( ld.size() < 1 )
+	return 1;
+
+    const int tidx = ld.size() / 2;
+    const PosInfo::Line2DPos l2dp = ld.positions()[tidx];
+
+    const TrcKey tk( rdr->geomID(), l2dp.nr_ );
+    SeisTrcBuf tbuf( true );
+    if ( !rdr->getGather(tk,tbuf) || tbuf.isEmpty() )
+	return 1;
+
+    return tbuf.size();
+}
+
+
 int Seis::PS2DProvider::nrLines() const
 {
     return fetcher_.gtNrLines();

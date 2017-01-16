@@ -141,6 +141,15 @@ uiRetVal Seis::Provider::getComponentInfo( BufferStringSet& nms,
 }
 
 
+uiRetVal Seis::Provider::doGetComponentInfo( BufferStringSet& nms,
+					 TypeSet<Seis::DataType>& dts ) const
+{
+    nms.add( sKey::Data() );
+    dts += UnknowData;
+    return uiRetVal::OK();
+}
+
+
 uiRetVal Seis::Provider::setInput( const DBKey& dbky )
 {
     Threads::Locker locker( lock_ );

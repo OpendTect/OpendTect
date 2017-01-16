@@ -120,11 +120,13 @@ protected:
     virtual od_int64	getTotalNrInInput() const			= 0;
     virtual void	doReset(uiRetVal&) const			= 0;
     virtual void	doUsePar(const IOPar&,uiRetVal&)		= 0;
-    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,
-				     TypeSet<Seis::DataType>&) const	= 0;
 
-    virtual int		gtNrOffsets() const { return 1; }
-			// define at least either SeisTrc or SeisTrcBuf fns
+    virtual int		gtNrOffsets() const			{ return 1; }
+    virtual uiRetVal	doGetComponentInfo(BufferStringSet&,
+					   TypeSet<Seis::DataType>&) const;
+				//!< def impl: { sKey::Data(), UnknownData }
+
+			    // define at least either SeisTrc or SeisTrcBuf fns
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
     virtual void	doGet(const TrcKey&,SeisTrc&,uiRetVal&) const;
     virtual void	doGetNextGather(SeisTrcBuf&,uiRetVal&) const;

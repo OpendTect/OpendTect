@@ -232,18 +232,7 @@ SeisPS3DReader* Seis::PS3DProvider::mkReader() const
 }
 
 
-static void addCompInfo( BufferStringSet& compnms, TypeSet<Seis::DataType>& dts,
-			 bool isoffs, float val )
-{
-    BufferString nm( isoffs?sKey::Offset():sKey::Azimuth(), " " );
-    nm.add( val );
-    compnms.add( nm );
-    dts += isoffs ? Seis::Ampl : Seis::Azimuth;
-}
-
-
-uiRetVal Seis::PS3DProvider::doGetComponentInfo( BufferStringSet& nms,
-			TypeSet<Seis::DataType>& dts ) const
+int Seis::PS3DProvider::gtNrOffsets() const
 {
     PtrMan<SeisPS3DReader> rdrptrman;
     const SeisPS3DReader* rdr = 0;
@@ -256,38 +245,20 @@ uiRetVal Seis::PS3DProvider::doGetComponentInfo( BufferStringSet& nms,
     }
 
     if ( !rdr )
-	return fetcher_.uirv_;
+	return 1;
 
     const PosInfo::CubeData& cd = rdr->posData();
     if ( cd.size() < 1 )
-	return tr( "Empty input data" );
+	return 1;
     const int linenr = cd.size() / 2;
     const PosInfo::LineData& ld = *cd[linenr];
     const int segnr = ld.segments_.size() / 2;
     const BinID bid( ld.linenr_, ld.segments_[segnr].center() );
     SeisTrcBuf tbuf( true );
     if ( !rdr->getGather(bid,tbuf) || tbuf.isEmpty() )
-	return tr( "Cannot read a sample gather" );
+	return 1;
 
-    float prevoffs = tbuf.get(0)->info().offset_;
-    float prevazim = tbuf.get(0)->info().azimuth_;
-    const int nrtrcs = tbuf.size();
-    bool useoffs = true;
-    if ( nrtrcs == 1 )
-	addCompInfo( nms, dts, true, prevoffs );
-    else
-    {
-	float offs = tbuf.get(1)->info().offset_;
-	float azim = tbuf.get(1)->info().azimuth_;
-	if ( !mIsEqual(azim,prevazim,1e-4f) )
-	    useoffs = !mIsEqual(offs,prevoffs,1e-4f);
-	for ( int idx=0; idx<tbuf.size(); idx++ )
-	    addCompInfo( nms, dts, useoffs,
-			 useoffs ? tbuf.get(idx)->info().offset_
-				 : tbuf.get(idx)->info().azimuth_ );
-    }
-
-    return uiRetVal::OK();
+    return tbuf.size();
 }
 
 
