@@ -108,11 +108,19 @@ public:
 			/*!< shrinks "this" tkzs up to but not across innertkzs
 			     boundaries. Result will be one step larger than
 			     limitTo(.) in case of non-matching steps. */
+    void		growTo(const TrcKeyZSampling& outertkzs,
+			       float releps=1e-4);
+			/*!< grows "this" tkzs up to but not across outertkzs
+			     boundaries. Counterpart of shrinkTo(.) function. */
     bool		adjustTo(const TrcKeyZSampling& availabletkzs,
 				 bool falsereturnsdummy=false);
 			/*!< adjusts the non-flat dimensions of the desired
 			     "this" tkzs to the availabletkzs for optimal
 			     texture data display. */
+    bool		makeCompatibleWith(const TrcKeyZSampling& othertkzs);
+			/*!< makes "this" tkzs compatible to othertkzs. Only
+			     keeps locations lying on the grid of othertkzs. */
+
     bool		isEqual(const TrcKeyZSampling&,
 				float zeps=mUdf(float)) const;
 };

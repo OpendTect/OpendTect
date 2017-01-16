@@ -431,49 +431,88 @@ void TrcKeySampling::limitToWithUdf( const TrcKeySampling& h )
 #define mSnapStop( start, stop, step, eps ) \
     stop = start + step * mCast( int, (stop-start+eps)/step );
 
-#define mShrink( diff, var, assignoper, step ) \
+#define mApproach( diff, var, assignoper, step ) \
     if ( diff>0 ) \
 	var assignoper step * mCast( int, (diff)/step );
 
 void TrcKeySampling::shrinkTo( const TrcKeySampling& innertks )
 {
     normalise();
-    TrcKeySampling tks( innertks  );
+    TrcKeySampling tks( innertks );
     tks.normalise();
 
     mSnapStop( start_.inl(), stop_.inl(), step_.inl(), 0 );
     mSnapStop( start_.crl(), stop_.crl(), step_.crl(), 0 );
 
-    mShrink( tks.start_.inl()-start_.inl(), start_.inl(), +=, step_.inl() );
-    mShrink( stop_.inl() - tks.stop_.inl(),  stop_.inl(), -=, step_.inl() );
-    mShrink( tks.start_.crl()-start_.crl(), start_.crl(), +=, step_.crl() );
-    mShrink( stop_.crl() - tks.stop_.crl(),  stop_.crl(), -=, step_.crl() );
+    mApproach( tks.start_.inl()-start_.inl(), start_.inl(), +=, step_.inl() );
+    mApproach( stop_.inl() - tks.stop_.inl(),  stop_.inl(), -=, step_.inl() );
+    mApproach( tks.start_.crl()-start_.crl(), start_.crl(), +=, step_.crl() );
+    mApproach( stop_.crl() - tks.stop_.crl(),  stop_.crl(), -=, step_.crl() );
+}
+
+
+void TrcKeySampling::growTo( const TrcKeySampling& outertks )
+{
+    normalise();
+    TrcKeySampling tks( outertks );
+    tks.normalise();
+
+    mSnapStop( start_.inl(), stop_.inl(), step_.inl(), 0 );
+    mSnapStop( start_.crl(), stop_.crl(), step_.crl(), 0 );
+
+    mApproach( start_.inl()-tks.start_.inl(), start_.inl(), -=, step_.inl() );
+    mApproach( tks.stop_.inl() - stop_.inl(),  stop_.inl(), +=, step_.inl() );
+    mApproach( start_.crl()-tks.start_.crl(), start_.crl(), -=, step_.crl() );
+    mApproach( tks.stop_.crl() - stop_.crl(),  stop_.crl(), +=, step_.crl() );
+}
+
+
+bool TrcKeyZSampling::makeCompatibleWith(const TrcKeyZSampling& othertkzs )
+{
+    TrcKeyZSampling res( othertkzs );
+    res.growTo( *this );
+    res.expand( 1, 1, 1 );	// "grow to" => "grow over"
+
+    res.limitTo( *this );	// will take care of step-compatibility
+
+    if ( !res.isDefined() || res.isEmpty() )
+	return false;
+
+    *this = res;
+    return true;
 }
 
 
 bool TrcKeyZSampling::adjustTo( const TrcKeyZSampling& availabletkzs,
 				bool falsereturnsdummy )
 {
-    TrcKeyZSampling clippedtkzs( availabletkzs );
+    TrcKeyZSampling compatibletkzs( availabletkzs );
+    const bool iscompatible = compatibletkzs.makeCompatibleWith( *this );
+
+    TrcKeyZSampling clippedtkzs( compatibletkzs );
     clippedtkzs.limitTo( *this, true );
 
-    if ( !clippedtkzs.isDefined() || clippedtkzs.isEmpty() )
+    if ( !iscompatible || !clippedtkzs.isDefined() || clippedtkzs.isEmpty() )
     {
 	// To create dummy with a single undefined voxel
 	if ( falsereturnsdummy )
 	{
+	    *this = compatibletkzs;
+	    hsamp_.start_ -= hsamp_.step_;
+	    zsamp_.start -= zsamp_.step;
 	    hsamp_.stop_ = hsamp_.start_;
 	    zsamp_.stop = zsamp_.start;
 	}
 	else
-	    *this = clippedtkzs;
+	    init( false );
 
 	return false;
     }
 
-    TrcKeyZSampling adjustedtkzs( availabletkzs );
+    TrcKeyZSampling adjustedtkzs( compatibletkzs );
     adjustedtkzs.shrinkTo( *this );
 
+    // Only keep adjustments for non-flat dimensions
     if ( nrLines() == 1 )
 	adjustedtkzs.hsamp_.setLineRange( hsamp_.lineRange() );
     if ( nrTrcs() == 1 )
@@ -1135,8 +1174,24 @@ void TrcKeyZSampling::shrinkTo( const TrcKeyZSampling& innertkzs, float releps )
     const float eps = releps * zsamp_.step;
     mSnapStop( zsamp_.start, zsamp_.stop, zsamp_.step, eps );
 
-    mShrink( tkzs.zsamp_.start-zsamp_.start+eps, zsamp_.start, +=, zsamp_.step);
-    mShrink( zsamp_.stop - tkzs.zsamp_.stop+eps, zsamp_.stop,  -=, zsamp_.step);
+    mApproach(tkzs.zsamp_.start-zsamp_.start+eps, zsamp_.start,+=, zsamp_.step);
+    mApproach(zsamp_.stop - tkzs.zsamp_.stop+eps, zsamp_.stop, -=, zsamp_.step);
+}
+
+
+void TrcKeyZSampling::growTo( const TrcKeyZSampling& outertkzs, float releps )
+{
+    normalise();
+    TrcKeyZSampling tkzs( outertkzs );
+    tkzs.normalise();
+
+    hsamp_.growTo( tkzs.hsamp_ );
+
+    const float eps = releps * zsamp_.step;
+    mSnapStop( zsamp_.start, zsamp_.stop, zsamp_.step, eps );
+
+    mApproach(zsamp_.start-tkzs.zsamp_.start+eps, zsamp_.start,-=, zsamp_.step);
+    mApproach(tkzs.zsamp_.stop - zsamp_.stop+eps, zsamp_.stop, +=, zsamp_.step);
 }
 
 
