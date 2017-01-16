@@ -185,6 +185,11 @@ protected:
     void		add( Sequence* seq )
 			{ seqs_ += seq; seqAdded.trigger(); }
     void		readColTabs();
+
+private:
+
+    ObjectSet<Sequence> removedseqs_;
+
 };
 
 mGlobal(General) SeqMgr& SM();

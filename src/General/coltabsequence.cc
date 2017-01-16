@@ -91,7 +91,7 @@ ColTab::Sequence::Sequence( const char* nm )
 ColTab::Sequence::Sequence( const ColTab::Sequence& oth )
     : mInitMembs()
 {
-    copyClassData( oth );
+    copyAll( oth );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -390,8 +390,8 @@ void ColTab::Sequence::setTransparency( TranspPtType pt )
 {
     if ( pt.first < 0 ) pt.first = 0.f;
     if ( pt.first > 1 ) pt.first = 1.f;
-    if ( pt.second < 0 ) pt.second = 0;
-    if ( pt.second > 255 ) pt.second = 255;
+    if ( pt.second < 0 ) pt.second = 0.f;
+    if ( pt.second > 255 ) pt.second = 255.f;
 
     mLock4Write();
     bool done = false; IdxType chgidx = -1;
@@ -628,6 +628,7 @@ ColTab::SeqMgr::SeqMgr()
 ColTab::SeqMgr::~SeqMgr()
 {
     deepErase( seqs_ );
+    deepErase( removedseqs_ );
 }
 
 
@@ -764,10 +765,10 @@ void ColTab::SeqMgr::set( const ColTab::Sequence& seq )
 
 void ColTab::SeqMgr::remove( IdxType idx )
 {
-    if ( idx < 0 || idx > size() ) return;
-    ColTab::Sequence* seq = seqs_.removeSingle( idx );
+    if ( idx < 0 || idx > size() )
+	return;
+    removedseqs_ += seqs_.removeSingle( idx );
     seqRemoved.trigger();
-    delete seq;
 }
 
 
@@ -890,8 +891,8 @@ ColTab::Sequence RGBBlend::getTransparencyColTab()
     transpctab.setType(ColTab::Sequence::User);
     transpctab.setColor( 0.f, 0, 0, 0 );
     transpctab.setColor( 1.f, 255, 255, 255 );
-    transpctab.setTransparency( ColTab::Sequence::TranspPtType(0.f,0) );
-    transpctab.setTransparency( ColTab::Sequence::TranspPtType(1.f,255) );
+    transpctab.setTransparency( ColTab::Sequence::TranspPtType(0.f,0.f) );
+    transpctab.setTransparency( ColTab::Sequence::TranspPtType(1.f,255.f) );
     transpctab.setName( "Transparency" );
     return transpctab;
 }
