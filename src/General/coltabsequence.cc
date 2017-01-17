@@ -390,8 +390,8 @@ void ColTab::Sequence::setTransparency( TranspPtType pt )
 {
     if ( pt.first < 0 ) pt.first = 0.f;
     if ( pt.first > 1 ) pt.first = 1.f;
-    if ( pt.second < 0 ) pt.second = 0.f;
-    if ( pt.second > 255 ) pt.second = 255.f;
+    if ( pt.second < 0 ) pt.second = 0;
+    if ( pt.second > 255 ) pt.second = 255;
 
     mLock4Write();
     bool done = false; IdxType chgidx = -1;
