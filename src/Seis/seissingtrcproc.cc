@@ -177,7 +177,7 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 
     if ( !szdone )
     {
-	const int totnr = prov->totalNr();
+	const int totnr = (int) prov->totalNr();
 	if ( totnr > 0 )
 	    { szdone = true; totnr_ += totnr; }
 	if ( !szdone )
