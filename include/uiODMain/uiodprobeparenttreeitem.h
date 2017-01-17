@@ -67,6 +67,8 @@ public:
 
     const Probe*	getProbe() const;
     Probe*		getProbe();
+    virtual OD::ObjPresentationInfo*
+			getObjPRInfo() const;
     void		handleAddAttrib();
     virtual uiString	createDisplayName() const;
     uiODDataTreeItem*	createProbeLayerItem(ProbeLayer&) const;

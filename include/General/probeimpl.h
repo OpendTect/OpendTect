@@ -31,8 +31,7 @@ public:
     mDeclInstanceCreatedNotifierAccess( InlineProbe );
     mDeclAbstractMonitorableAssignment( InlineProbe );
 
-protected:
-    BufferString		createName() const;
+    BufferString		getDisplayName() const;
 };
 
 
@@ -51,8 +50,7 @@ public:
     mDeclAbstractMonitorableAssignment( CrosslineProbe );
     bool			is3DSlice() const	{ return true; }
 
-protected:
-    BufferString		createName() const;
+    BufferString		getDisplayName() const;
 };
 
 
@@ -72,8 +70,7 @@ public:
     mDeclAbstractMonitorableAssignment( ZSliceProbe );
     bool			is3DSlice() const	{ return true; }
 
-protected:
-    BufferString		createName() const;
+    BufferString		getDisplayName() const;
 };
 
 
@@ -94,9 +91,9 @@ public:
     void			setGeomID(Pos::GeomID);
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
+    BufferString		getDisplayName() const;
 
 protected:
-    BufferString		createName() const;
     Pos::GeomID			geomid_;
 };
 
@@ -115,8 +112,8 @@ public:
     void			setZDomain(const ZDomain::Info&);
     mDeclInstanceCreatedNotifierAccess( VolumeProbe );
     mDeclAbstractMonitorableAssignment( VolumeProbe );
+    BufferString		getDisplayName() const;
 
 protected:
-    BufferString		createName() const;
     ZDomain::Info*		zdomain_;
 };

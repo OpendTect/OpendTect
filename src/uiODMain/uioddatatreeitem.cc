@@ -495,7 +495,8 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !probe )
 	    return;
 
-	ODMainWin()->viewer2DMgr().displayIn2DViewer( *probe );
+	ODMainWin()->viewer2DMgr().displayIn2DViewer( *probe,
+						      probelayer_->getID() );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==removemnuitem_.id )

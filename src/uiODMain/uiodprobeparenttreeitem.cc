@@ -280,7 +280,7 @@ uiString uiODSceneProbeTreeItem::createDisplayName() const
     if ( !probe )
 	return uiString::emptyString();
 
-    return toUiString( probe->name() );
+    return toUiString( probe->getDisplayName() );
 }
 
 
@@ -335,4 +335,15 @@ Probe* uiODSceneProbeTreeItem::getProbe()
 {
     mDynamicCastGet(Probe*,probe,dataobj_.ptr());
     return probe;
+}
+
+
+OD::ObjPresentationInfo* uiODSceneProbeTreeItem::getObjPRInfo() const
+{
+    const Probe* probe = getProbe();
+    if ( !probe ) return 0;
+
+    ProbePresentationInfo* prinfo =
+	new ProbePresentationInfo( ProbeMGR().getID(*probe) );
+    return prinfo;
 }

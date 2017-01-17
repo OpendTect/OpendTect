@@ -48,7 +48,6 @@ RandomLineProbe::RandomLineProbe( int rdlid )
 	rdlid_ = newrl->ID();
     }
 
-    updateName();
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -60,7 +59,7 @@ const char* RandomLineProbe::sRandomLineID()
 { return "RandomLineID"; }
 
 
-BufferString RandomLineProbe::createName() const
+BufferString RandomLineProbe::getDisplayName() const
 {
     BufferString rdlname;
     const Geometry::RandomLine* rdl = Geometry::RLM().get( rdlid_ );
@@ -92,7 +91,6 @@ void RandomLineProbe::setRandomLineID( int rdlid )
 	return;
 
     rdlid_ = rdlid;
-    updateName();
 
     for ( int idx=0; idx<layers_.size(); idx++ )
 	layers_[idx]->invalidateData();

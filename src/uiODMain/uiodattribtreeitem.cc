@@ -515,7 +515,7 @@ void uiODAttribTreeItem::updateDisplay()
     visserv_->setColTabMapperSetup( displayID(), attribNr(),
 				    attrprlayer->getColTabMapper() );
     visserv_->setColTabSequence( displayID(), attribNr(),
-				 attrprlayer->getColTab());
+				 attrprlayer->getColTab() );
     if ( attrprlayer->getAttribDataPack().isInvalid() )
     {
 	ConstRefMan<DataPack> attrdp = calculateAttribute();

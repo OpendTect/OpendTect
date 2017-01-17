@@ -33,7 +33,6 @@ public:
 			~uiODPlaneDataTreeItem();
 
     bool		init();
-    OD::ObjPresentationInfo* getObjPRInfo() const;
 
 protected:
 			uiODPlaneDataTreeItem(int displayid,OD::SliceType,

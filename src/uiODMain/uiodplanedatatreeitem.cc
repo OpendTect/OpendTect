@@ -123,19 +123,6 @@ bool uiODPlaneDataTreeItem::init()
 }
 
 
-OD::ObjPresentationInfo* uiODPlaneDataTreeItem::getObjPRInfo() const
-{
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv_->getObject(displayid_));
-    const Probe* probe = getProbe();
-    if ( !pdd || !probe ) return 0;
-
-    ProbePresentationInfo* prinfo =
-	new ProbePresentationInfo( ProbeMGR().getID(*probe) );
-    return prinfo;
-}
-
-
 void uiODPlaneDataTreeItem::posChange( CallBacker* cb )
 {
     Probe* probe = getProbe();

@@ -35,8 +35,8 @@ public:
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
+    BufferString		getDisplayName() const;
 
 protected:
-    BufferString		createName() const;
     int				rdlid_;
 };
