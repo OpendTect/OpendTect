@@ -29,14 +29,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linesetposinfo.h"
 #include "nladesign.h"
 #include "nlamodel.h"
+#include "posinfo2dsurv.h"
 #include "posvecdataset.h"
 #include "seis2ddata.h"
 #include "seisdatapack.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-#include "posinfo2dsurv.h"
 #include "uistrings.h"
+
+#include <string.h>
 
 namespace Attrib
 {
@@ -723,13 +725,29 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
     {
 	const char* inpname = desc->inputSpec(idx).getDesc();
 	DescID descid = descset.getID( inpname, true );
-	if ( !descid.isValid() && IOObj::isKey(inpname) )
+	if ( !descid.isValid() )
 	{
 	    descid = descset.getID( inpname, false );
 	    if ( !descid.isValid() )
 	    {
 		// It could be 'storage', but it's not yet in the set ...
-		PtrMan<IOObj> ioobj = IOM().get( MultiID(inpname) );
+		PtrMan<IOObj> ioobj;
+		if ( IOObj::isKey(inpname) )
+		    ioobj = IOM().get( MultiID(inpname) );
+		else
+		{
+		    BufferString rawnmbufstr;
+	    //because constructor has strange behaviour with embeded strings
+		    rawnmbufstr += inpname;
+		    rawnmbufstr.unEmbed( '[', ']' );
+		    if ( rawnmbufstr.buf() && inpname &&
+			 strcmp( rawnmbufstr.buf(), inpname ) )
+		    {
+			const char* tgname = descset.is2D() ? "2D Seismic Data"
+							    : "Seismic Data";
+			ioobj = IOM().get( rawnmbufstr.buf(), tgname );
+		    }
+		}
 		if ( ioobj )
 		{
 		    Desc* stordesc =
@@ -737,7 +755,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 		    stordesc->setDescSet( &descset );
 		    ValParam* idpar =
 			stordesc->getValParam( StorageProvider::keyStr() );
-		    idpar->setValue( inpname );
+		    idpar->setValue( ioobj->key() );
 		    stordesc->setUserRef( ioobj->name() );
 		    descid = descset.addDesc( stordesc );
 		    if ( !descid.isValid() )
