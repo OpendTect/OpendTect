@@ -125,9 +125,9 @@ void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 }
 
 
-void uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid, bool is2d )
+void uiEMAttribPartServer::snapHorizon( const DBKey& emid, bool is2d )
 {
-    PtrMan<IOObj> ioobj = DBM().get( EM::EMM().getDBKey(emid) );
+    PtrMan<IOObj> ioobj = DBM().get( emid );
     if ( !ioobj ) return;
 
     if ( uiseisevsnapdlg_ ) delete uiseisevsnapdlg_;
@@ -189,7 +189,7 @@ StepInterval<float> uiEMAttribPartServer::shiftRange() const
 }
 
 
-void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
+void uiEMAttribPartServer::showHorShiftDlg( const DBKey& id,
 					    int visid,
 					    const BoolTypeSet& attrenabled,
 					    float initialshift,
@@ -250,7 +250,7 @@ const char* uiEMAttribPartServer::getAttribBaseNm() const
 
 
 void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
-       					    TaskRunner* )
+					    TaskRunner* )
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 

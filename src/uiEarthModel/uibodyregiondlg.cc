@@ -71,7 +71,7 @@ BodyExtractorFromHorizons( const DBKeySet& hlist,
     res_.setAll( 1 );
     for ( int idx=0; idx<hlist.size(); idx++ )
     {
-	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(hlist[idx]);
+	EM::EMObject* emobj = EM::Hor3DMan().loadIfNotFullyLoaded(hlist[idx]);
 	mDynamicCastGet(EM::Horizon3D*,hor,emobj);
 	if ( !hor ) continue;
 
@@ -179,7 +179,8 @@ ImplicitBodyRegionExtractor( const DBKeySet& surflist,
 
     for ( int idx=0; idx<surflist.size(); idx++ )
     {
-	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( surflist[idx] );
+	EM::EMObject* emobj =
+			EM::Hor3DMan().loadIfNotFullyLoaded( surflist[idx] );
 	mDynamicCastGet( EM::Horizon3D*, hor, emobj );
 	if ( hor )
 	{
@@ -1000,7 +1001,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     }
 
     RefMan<EM::MarchingCubesSurface> emcs =
-	new EM::MarchingCubesSurface(EM::EMM());
+	new EM::MarchingCubesSurface(EM::BodyMan());
 
     emcs->surface().setVolumeData( 0, 0, 0, *arr, 0, &taskrunner);
     emcs->setInlSampling(
@@ -1014,7 +1015,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();
 
-    EM::EMM().addObject( emcs );
+    EM::BodyMan().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
 	mRetErrDelHoridx( uiStrings::sSaveBodyFail() )

@@ -443,7 +443,7 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( clickedobject == -1 )
 	mSeedClickReturn();
 
-    const EM::ObjectID emobjid  = clickcatcher_->info().getEMObjID();
+    const DBKey emobjid  = clickcatcher_->info().getEMObjID();
     mDynamicCastGet(EM::Horizon*,clickedhor,EM::EMM().getObject(emobjid))
     const bool clickedonhorizon = clickedhor;
     if ( clickedhor && clickedhor!=hor )
@@ -1058,7 +1058,7 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
     mDynamicCastGet( visSurvey::EMObjectDisplay*,
 				surface, visserv_->getObject(selectedids[0]) );
     if ( !surface ) return 0;
-    const EM::ObjectID oid = surface->getObjectID();
+    const DBKey oid = surface->getObjectID();
     const int trackerid = MPE::engine().getTrackerByObject( oid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     if ( tracker && tracker->isEnabled() )

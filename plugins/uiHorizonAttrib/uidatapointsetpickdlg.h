@@ -67,7 +67,7 @@ mClass(uiHorizonAttrib) uiEMDataPointSetPickDlg : public uiDataPointSetPickDlg
 { mODTextTranslationClass(uiEMDataPointSetPickDlg);
 public:
 			uiEMDataPointSetPickDlg(uiParent*,int sceneid,
-						EM::ObjectID);
+						const DBKey&);
 			~uiEMDataPointSetPickDlg();
 
     const DataPointSet&	getData() const		{ return emdps_; }
@@ -76,7 +76,7 @@ public:
 protected:
 
     DataPointSet&	emdps_;
-    EM::ObjectID	emid_;
+    DBKey		emid_;
     Array2DInterpol*	interpol_;
 
     int			addSurfaceData();

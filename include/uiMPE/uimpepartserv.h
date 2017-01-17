@@ -34,19 +34,19 @@ public:
 				uiMPEPartServer(uiApplService&);
 				~uiMPEPartServer();
     void			setCurrentAttribDescSet(const Attrib::DescSet*);
-    const Attrib::DescSet* 	getCurAttrDescSet(bool is2d) const;
+    const Attrib::DescSet*	getCurAttrDescSet(bool is2d) const;
 
     const char*			name() const		{ return "MPE";}
 
-    int				getTrackerID(const EM::ObjectID&) const;
+    int				getTrackerID(const DBKey&) const;
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
     bool			addTracker(const char* trackertype,int sceneid);
-    int				addTracker(const EM::ObjectID&);
+    int				addTracker(const DBKey&);
 				/*!<Creates a new tracker for the object and
 				    returns the trackerid of it or -1 if it
 				    failed.*/
-    EM::ObjectID		getEMObjectID(int trackerid) const;
+    DBKey			getEMObjectID(int trackerid) const;
     int				getCurSceneID() const { return cursceneid_; }
 
     bool			canAddSeed(int trackerid) const;
@@ -54,12 +54,12 @@ public:
     void			enableTracking(int trackerid,bool yn);
     bool			isTrackingEnabled(int trackerid) const;
 
-    bool			showSetupDlg(const EM::ObjectID&,
+    bool			showSetupDlg(const DBKey&,
 					     const EM::SectionID&);
 				/*!<\returns false if cancel was pressed. */
-    bool			showSetupGroupOnTop(const EM::ObjectID&,
+    bool			showSetupGroupOnTop(const DBKey&,
 						    const char* grpnm);
-    void			useSavedSetupDlg(const EM::ObjectID&,
+    void			useSavedSetupDlg(const DBKey&,
 						 const EM::SectionID&);
     MPE::uiSetupGroup*		getSetupGroup()	{ return setupgrp_; }
     void			fillTrackerSettings(int trackerid);
@@ -82,7 +82,7 @@ public:
 					      DataPack::ID);
 
     static int			evCreate2DSelSpec();
-    Pos::GeomID 		getGeomID() const;
+    Pos::GeomID		getGeomID() const;
     const char*			get2DLineName() const;
     const char*			get2DAttribName() const;
     void			set2DSelSpec(const Attrib::SelSpec&);
@@ -101,10 +101,10 @@ public:
     static int			evSetupClosed();
     static int			evInitFromSession();
 
-    bool 			prepareSaveSetupAs(const DBKey&);
-    bool 			saveSetupAs(const DBKey&);
-    bool 			saveSetup(const DBKey&);
-    bool 			readSetup(const DBKey&);
+    bool			prepareSaveSetupAs(const DBKey&);
+    bool			saveSetupAs(const DBKey&);
+    bool			saveSetup(const DBKey&);
+    bool			readSetup(const DBKey&);
 
     bool			sendMPEEvent(int);
 
@@ -131,14 +131,14 @@ protected:
     int				cursceneid_;
 
 				//2D interaction
-    Pos::GeomID 		geomid_;
+    Pos::GeomID		geomid_;
     Attrib::SelSpec		lineselspec_;
 
     void			trackerAddRemoveCB(CallBacker*);
     void			trackerToBeRemovedCB(CallBacker*);
     void			aboutToAddRemoveSeed(CallBacker*);
     void			seedAddedCB(CallBacker*);
-    EM::ObjectID		trackercurrentobject_;
+    DBKey			trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
 
     int				initialundoid_;

@@ -27,7 +27,7 @@ namespace Attrib { class DescSet; }
 mClass(uiEMAttrib) uiHorizonShiftDialog : public uiDialog
 { mODTextTranslationClass(uiHorizonShiftDialog);
 public:
-			uiHorizonShiftDialog(uiParent*,const EM::ObjectID& id,
+			uiHorizonShiftDialog(uiParent*,const DBKey& id,
 					     int visid,
 					     const Attrib::DescSet&,
 					     float initialshift,
@@ -41,7 +41,7 @@ public:
     float			getShift() const;
     int				curShiftIdx() const;
     bool			doStore() const;
-    const EM::ObjectID&		emID() const		{ return emid_; }
+    const DBKey&		emID() const		{ return emid_; }
     const int&			visID() const		{ return visid_; }
 
     const char*			getAttribName() const;
@@ -70,6 +70,6 @@ protected:
     StepInterval<float>		shiftrg_;
     StepInterval<float>		calcshiftrg_;
     EM::Horizon3D*		emhor3d_;
-    EM::ObjectID		emid_;
+    DBKey			emid_;
     int				visid_;
 };

@@ -320,7 +320,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 }
 
 
-void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp, 
+void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp,
     const Coord3 worldpickedpos )
 {
     DataPack::ID datapackid = DataPack::cNoID();
@@ -360,7 +360,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 				const visSurvey::EMObjectDisplay* emod,
 				const visBase::EventInfo& eventinfo )
 {
-    const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
+    const EM::EMObject* emobj = EM::Hor2DMan().getObject( emod->getObjectID() );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj)
     if ( !hor2d ) return;
 
@@ -418,7 +418,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     }
 
     const Scene* scene = seis2dclosest->getScene();
-    const double zscale = scene ? 
+    const double zscale = scene ?
 	scene->getZScale()*scene->getFixedZStretch() : 0.0;
     const Coord3 onesteptranslation = SI().oneStepTranslation( Coord3(0,0,1) );
     const double onestepdist = Coord3( 1, 1, zscale ).dot( onesteptranslation );
@@ -636,7 +636,7 @@ int MPEClickInfo::getObjID() const
 { return clickedobjid_; }
 
 
-EM::ObjectID MPEClickInfo::getEMObjID() const
+const DBKey& MPEClickInfo::getEMObjID() const
 { return clickedemobjid_; }
 
 
@@ -682,7 +682,7 @@ void MPEClickInfo::clear()
     clickednode_ = TrcKey::udf();
     clickedpos_ = Coord3::udf();
     clickedobjid_ = -1;
-    clickedemobjid_ = -1;
+    clickedemobjid_ = DBKey::getInvalid();
     clickedcs_.init( false);
     attrsel_ = 0;
     attrdata_ = 0;
@@ -731,7 +731,7 @@ void MPEClickInfo::setObjID( int visid )
 { clickedobjid_ = visid; }
 
 
-void MPEClickInfo::setEMObjID( EM::ObjectID emobjid )
+void MPEClickInfo::setEMObjID( const DBKey& emobjid )
 { clickedemobjid_ = emobjid; }
 
 

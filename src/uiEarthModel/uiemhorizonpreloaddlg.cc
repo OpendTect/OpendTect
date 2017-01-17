@@ -174,7 +174,8 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     if ( !ioobj )
 	return;
 
-    BufferString type( EM::EMM().objectType(mid) );
+    EM::EMManager& emmgr = EM::getMgr( mid );
+    BufferString type( emmgr.objectType(mid) );
     BufferString info;
     info.add( "Data Type: " ).add( type ).add( "\n" );
     File::Path fp( ioobj->fullUserExpr(true) );

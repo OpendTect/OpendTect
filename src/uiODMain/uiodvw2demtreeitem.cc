@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 
 
-uiODVw2DEMTreeItem::uiODVw2DEMTreeItem( const EM::ObjectID& emid )
+uiODVw2DEMTreeItem::uiODVw2DEMTreeItem( const DBKey& emid )
     : uiODVw2DTreeItem(uiString::emptyString())
     , emid_( emid )
 {
@@ -42,9 +42,9 @@ uiODVw2DEMTreeItem::~uiODVw2DEMTreeItem()
 void uiODVw2DEMTreeItem::doSave()
 {
     bool savewithname = false;
-    if ( EM::EMM().getDBKey( emid_ ).isValid() )
+    if ( emid_.isValid() )
     {
-	PtrMan<IOObj> ioobj = DBM().get( EM::EMM().getDBKey(emid_) );
+	PtrMan<IOObj> ioobj = DBM().get( emid_ );
 	savewithname = !ioobj;
     }
     doStoreObject( savewithname );
@@ -53,7 +53,7 @@ void uiODVw2DEMTreeItem::doSave()
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	if ( mps )
-	    mps->saveSetup( applMgr()->EMServer()->getStorageID(emid_) );
+	    mps->saveSetup( emid_ );
     }
 
 }
@@ -68,9 +68,8 @@ void uiODVw2DEMTreeItem::doSaveAs()
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	if ( mps )
 	{
-	   const DBKey oldmid = applMgr()->EMServer()->getStorageID( emid_ );
-	   mps->prepareSaveSetupAs( oldmid );
-	   mps->saveSetupAs( EM::EMM().getObject(emid_)->dbKey() );
+	   mps->prepareSaveSetupAs( emid_ );
+	   mps->saveSetupAs( emid_ );
 	}
     }
 }
@@ -85,10 +84,9 @@ void uiODVw2DEMTreeItem::doStoreObject( bool saveas )
 
 void uiODVw2DEMTreeItem::renameVisObj()
 {
-    const DBKey midintree = applMgr()->EMServer()->getStorageID( emid_ );
     TypeSet<int> visobjids;
-    applMgr()->visServer()->findObject( midintree, visobjids );
-    name_ = ::toUiString( applMgr()->EMServer()->getName( emid_ ) );
+    applMgr()->visServer()->findObject( emid_, visobjids );
+    name_ = ::toUiString( DBM().nameOf(emid_) );
     for ( int idx = 0; idx<visobjids.size(); idx++ )
 	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
     uiTreeItem::updateColumnText(uiODViewer2DMgr::cNameColumn());

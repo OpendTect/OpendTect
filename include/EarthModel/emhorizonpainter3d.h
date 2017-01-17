@@ -29,7 +29,7 @@ class Horizon3D;
 mExpClass(EarthModel) HorizonPainter3D : public CallBacker
 {
 public:
-    			HorizonPainter3D(FlatView::Viewer&,const EM::ObjectID&);
+			HorizonPainter3D(FlatView::Viewer&,const DBKey&);
 			~HorizonPainter3D();
 
     void		setTrcKeyZSampling(
@@ -47,7 +47,7 @@ public:
     void		removeSelections();
     void		updateSelectionColor();
 
-    	mStruct(EarthModel) Marker3D
+	mStruct(EarthModel) Marker3D
 	{
 				Marker3D()
 				    : marker_(0)
@@ -73,9 +73,9 @@ protected:
     void		removePolyLine();
 
     void		generateNewMarker(const Horizon3D&,const SectionID&,
-	   				  SectionMarker3DLine&,Marker3D*&);
+					  SectionMarker3DLine&,Marker3D*&);
     bool		addDataToMarker(const BinID&,const Coord3&,
-	    				const PosID&,const Horizon3D&,
+					const PosID&,const Horizon3D&,
 					Marker3D&,int idx=-1);
 
     void		horChangeCB(CallBacker*);
@@ -84,7 +84,7 @@ protected:
     void		changePolyLinePosition( const EM::PosID& pid );
     Marker3D*		create3DMarker(const EM::SectionID&);
 
-    EM::ObjectID	id_;
+    DBKey		id_;
     TrcKeyZSampling	tkzs_;
     const TrcKeyPath*	path_;
     const FlatPosData*	flatposdata_;

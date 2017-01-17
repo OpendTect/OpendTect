@@ -36,12 +36,11 @@ HorizonModifier::~HorizonModifier()
 
 bool HorizonModifier::setHorizons( const DBKey& mid1, const DBKey& mid2 )
 {
-    EM::ObjectID objid = EM::EMM().getObjectID( mid1 );
-    mDynamicCastGet(EM::Horizon*,tophor,EM::EMM().getObject(objid))
+    EM::EMManager& emmgr = EM::getMgr( mid1 );
+    mDynamicCastGet(EM::Horizon*,tophor,emmgr.getObject(mid1))
     tophor_ = tophor;
 
-    objid = EM::EMM().getObjectID( mid2 );
-    mDynamicCastGet(EM::Horizon*,bothor,EM::EMM().getObject(objid))
+    mDynamicCastGet(EM::Horizon*,bothor,emmgr.getObject(mid2))
     bothor_ = bothor;
 
     deleteAndZeroPtr( iter_ );

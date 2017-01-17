@@ -26,15 +26,15 @@ class MouseEventHandler;
 
 namespace MPE
 {
-   
+
 class EMTracker;
 class EMSeedPicker;
 
 mExpClass(uiMPE) HorizonFlatViewEditor3D : public CallBacker
 { mODTextTranslationClass(HorizonFlatViewEditor3D);
 public:
-    			HorizonFlatViewEditor3D(FlatView::AuxDataEditor*,
-						const EM::ObjectID&);
+			HorizonFlatViewEditor3D(FlatView::AuxDataEditor*,
+						const DBKey&);
 			~HorizonFlatViewEditor3D();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
@@ -54,7 +54,7 @@ public:
     void		setSeedPicking( bool yn )	{}
     void		setTrackerSetupActive(bool yn)
 			{ trackersetupactive_ = yn; }
-    
+
     Notifier<HorizonFlatViewEditor3D>	updseedpkingstatus_;
 
 protected:
@@ -72,12 +72,12 @@ protected:
 
     void		handleMouseClicked(bool dbl);
     bool		checkSanity(EMTracker&,const EMSeedPicker&,
-	    			    bool& pickinvd) const;
+				    bool& pickinvd) const;
     bool		prepareTracking(bool pickinvd,const EMTracker&,
-	    			       EMSeedPicker&,const FlatDataPack&) const;
+				       EMSeedPicker&,const FlatDataPack&) const;
     bool		getPosID(const Coord3&,EM::PosID&) const;
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
-	    			  const MouseEvent&);
+				  const MouseEvent&);
     void		sowingModeCB(CallBacker*);
     void		releasePolygonSelectionCB(CallBacker*);
     void		selectionColorChangedCB(CallBacker*);
@@ -101,7 +101,7 @@ protected:
     void			setupPatchDisplay();
     void			updatePatchDisplay();
 
-    EM::ObjectID		emid_;
+    DBKey			emid_;
     EM::HorizonPainter3D*	horpainter_;
 
     FlatView::AuxDataEditor*	editor_;

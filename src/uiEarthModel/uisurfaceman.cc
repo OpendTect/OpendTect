@@ -365,7 +365,7 @@ void uiSurfaceMan::calcVolCB( CallBacker* )
 	return;
 
     RefMan<EM::EMObject> emo =
-	EM::EMM().loadIfNotFullyLoaded( curioobj_->key(), 0 );
+	EM::BodyMan().loadIfNotFullyLoaded( curioobj_->key(), 0 );
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
     if ( !emb )
     {

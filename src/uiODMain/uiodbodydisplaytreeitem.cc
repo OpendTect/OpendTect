@@ -106,7 +106,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     else if ( mnuid==1 )
     {
 	RefMan<EM::EMObject> plg =
-	    EM::EMM().createTempObject( EM::PolygonBody::typeStr() );
+	    EM::BodyMan().createTempObject( EM::PolygonBody::typeStr() );
 	if ( !plg )
 	    return false;
 
@@ -137,7 +137,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 {
     ObjectSet<EM::EMObject> objs;
     applMgr()->EMServer()->selectBodies( objs );
-    TypeSet<EM::ObjectID> oids;
+    DBKeySet oids;
 
     for ( int idx=0; idx<objs.size(); idx++ )
     {
@@ -147,8 +147,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	     stype != "MarchingCubesSurface" )
 	    continue;
 
-	const DBKey& mid = objs[idx]->dbKey();
-	PtrMan<IOObj> ioobj = DBM().get( mid );
+	PtrMan<IOObj> ioobj = DBM().get( objs[idx]->id() );
 	PtrMan<Conn> conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
 	if ( !conn )
 	    continue;
@@ -171,7 +170,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	    continue;
 
 	EM::EMObject* emobj =
-	    EM::EMM().loadIfNotFullyLoaded( dlg.getBodyMid() );
+	    EM::BodyMan().loadIfNotFullyLoaded( dlg.getBodyMid() );
 	if ( emobj )
 	{
 	    emobj->ref();
@@ -228,7 +227,7 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
     saveasmnuitem_.iconfnm = "saveas";
 
 
-uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
+uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const DBKey& oid )
     : uiODDisplayTreeItem()
     , emid_(oid)
     mCommonInit
@@ -239,7 +238,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
 
 uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     : uiODDisplayTreeItem()
-    , emid_(-1)
+    , emid_(DBKey::getInvalid())
     mCommonInit
 {
     displayid_ = id;
@@ -289,7 +288,7 @@ bool uiODBodyDisplayTreeItem::init()
 {
     if ( displayid_==-1 )
     {
-	EM::EMObject* object = EM::EMM().getObject( emid_ );
+	EM::EMObject* object = EM::BodyMan().getObject( emid_ );
 	mDynamicCastGet( EM::PolygonBody*, emplg, object );
 	mDynamicCastGet( EM::MarchingCubesSurface*, emmcs, object );
 	mDynamicCastGet( EM::RandomPosBody*, emrpb, object );
@@ -485,27 +484,25 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==saveasmnuitem_.id || mnuid==savemnuitem_.id )
     {
-	bool saveas = mnuid==saveasmnuitem_.id ||
-	    applMgr()->EMServer()->getStorageID(emid_).isInvalid();
+	bool saveas = mnuid==saveasmnuitem_.id || emid_.isInvalid();
 	if ( !saveas )
 	{
-	    PtrMan<IOObj> ioobj =
-		DBM().get( applMgr()->EMServer()->getStorageID(emid_) );
+	    PtrMan<IOObj> ioobj = DBM().get( emid_ );
 	    saveas = !ioobj;
 	}
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
-	const bool notempty = !applMgr()->EMServer()->getName(emid_).isEmpty();
+	const bool notempty = !DBM().nameOf(emid_).isEmpty();
 	if ( saveas && notempty )
 	{
 	    if ( plg_ )
-		plg_->setName( applMgr()->EMServer()->getName(emid_) );
+		plg_->setName( DBM().nameOf(emid_) );
 
 	    if ( rpb_ )
-		rpb_->setName( applMgr()->EMServer()->getName(emid_) );
+		rpb_->setName( DBM().nameOf(emid_) );
 
 	    if ( mcd_ )
-		mcd_->setName( applMgr()->EMServer()->getName(emid_) );
+		mcd_->setName( DBM().nameOf(emid_) );
 
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}

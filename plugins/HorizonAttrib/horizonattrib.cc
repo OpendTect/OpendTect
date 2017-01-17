@@ -140,10 +140,10 @@ void Horizon::prepareForComputeData()
     const int surfdtidx = sd.valnames.indexOf( surfdatanm_ );
     if ( surfdtidx<0 && outtype_==mOutTypeSurfData ) mRet
 
-    EM::ObjectID objid = em.getObjectID( horid_ );
+    EM::EMObject* obj = em.getObject( horid_ );
     EM::SurfaceIODataSelection sel( sd );
     PtrMan<Executor> loader = 0;
-    if ( objid < 0 )
+    if ( !obj )
     {
 	if ( getDesiredVolume() )
 	    sel.rg = getDesiredVolume()->hsamp_;
@@ -152,10 +152,10 @@ void Horizon::prepareForComputeData()
 	if ( !loader ) mRet
 
 	loader->execute();
-	objid = em.getObjectID( horid_ );
+	obj = em.getObject( horid_ );
     }
 
-    mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
+    mDynamicCastGet(EM::Horizon*,hor,obj)
     if ( !hor ) mRet
 
     horizon_ = hor;

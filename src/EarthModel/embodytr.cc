@@ -66,7 +66,7 @@ Executor* odEMBodyTranslator::reader( const IOObj& ioobj )
     BufferString objtype;
     iopar.get( sKey::Type(), objtype );
 
-    EM::EMObject* emobj = EM::EMM().createTempObject(objtype);
+    EM::EMObject* emobj = EM::BodyMan().createTempObject(objtype);
     mDynamicCastGet(EM::Body*,bdy,emobj);
     readbody_ = bdy;
     return emobj ? emobj->loader() : 0;

@@ -53,7 +53,7 @@ public:
     void	getIconInfo(BufferString& fnm,BufferString& tooltip) const;
     void	getIconInfo(BufferString& fnm,uiString& tooltip) const;
 
-    CNotifier<uiVisDataPointSetDisplayMgr,int>	treeToBeAdded;
+    CNotifier<uiVisDataPointSetDisplayMgr,DBKey>	treeToBeAdded;
     mClass(uiVis) DisplayInfo
     {
     public:

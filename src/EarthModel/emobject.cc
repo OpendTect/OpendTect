@@ -42,7 +42,6 @@ EMObject::EMObject( EMManager& emm )
     : SharedObject( "" )
     , manager_( emm )
     , change( this )
-    , id_( -1 )
     , preferredcolor_( *new Color(Color::Green()) )
     , changed_( false )
     , fullyloaded_( false )
@@ -56,7 +55,6 @@ EMObject::EMObject( EMManager& emm )
     , haslockednodes_( false )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
-    id_ = oid++;
 
     removebypolyposbox_.setEmpty();
 
@@ -73,7 +71,6 @@ EMObject::~EMObject()
     delete &selectioncolor_;
 
     change.remove( mCB(this,EMObject,posIDChangeCB) );
-    id_ = -2;	//To check easier if it has been deleted
     deepErase( emcbdatas_ );
 }
 
@@ -202,7 +199,7 @@ bool EMObject::setPosition( const SectionID& sid, const SubID& subid,
     if ( addtoundo )
     {
 	UndoEvent* undo = new SetPosUndoEvent( oldpos, pid );
-	EMM().undo().addEvent( undo, 0 );
+	manager_.undo().addEvent( undo, 0 );
     }
 
     if ( burstalertcount_==0 )
@@ -339,7 +336,7 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     if ( addtoundo )
     {
 	UndoEvent* event = new SetPosAttribUndoEvent( pid, attr, yn );
-	EMM().undo().addEvent( event, 0 );
+	manager_.undo().addEvent( event, 0 );
     }
 
     if ( !hasBurstAlert() )
@@ -515,7 +512,7 @@ void EMObject::removeAllUnSeedPos()
     while( true )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
+	if ( pid.objectID().isInvalid() )
 	    break;
 
 	if ( !isPosAttrib(pid, EM::EMObject::sSeedNode()) &&
@@ -542,7 +539,7 @@ void EMObject::emptyRemovedPolySelectedPosBox()
 bool EMObject::isEmpty() const
 {
     PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
-    return !iterator || iterator->next().objectID()==-1;
+    return !iterator || iterator->next().objectID().isInvalid();
 }
 
 
@@ -556,7 +553,7 @@ void EMObject::useDisplayPars( const IOPar& par )
 {
     IOPar displaypar;
 
-    if( !EMM().readDisplayPars(storageid_,displaypar) )
+    if( !manager_.readDisplayPars(storageid_,displaypar) )
 	displaypar = par;
 
     Color col;
@@ -645,7 +642,7 @@ void EMObject::saveDisplayPars() const
     preferredmarkerstyle_.toString( mkststr );
     displaypar.set( sKey::MarkerStyle(), mkststr );
 
-    EMM().writeDisplayPars( storageid_, displaypar );
+    manager_.writeDisplayPars( storageid_, displaypar );
 }
 
 

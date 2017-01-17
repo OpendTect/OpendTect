@@ -38,7 +38,7 @@ mExpClass(uiODMain) uiODViewer2DMgr : public OD::VwrTypePresentationMgr
 public:
 
     OD::ViewerTypeID		viewerTypeID()	const
-    				{ return theViewerTypeID(); }
+				{ return theViewerTypeID(); }
     static OD::ViewerTypeID	theViewerTypeID()
 				{ return theViewer2DTypeID; }
 
@@ -77,54 +77,51 @@ public:
     bool			isItemPresent(const uiTreeItem*) const;
 
     //3D Horizons
-    void			getHor3DVwr2DIDs( EM::ObjectID emid,
+    void			getHor3DVwr2DIDs(const DBKey& emid,
 						  TypeSet<int>& vw2dids) const;
-    void			removeHorizon3D(EM::ObjectID emid);
-    void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon3D(EM::ObjectID mid);
-    void			addNewTrackingHorizon3D(EM::ObjectID mid,
-	    						int sceneid);
-    void			getLoadedHorizon3Ds(
-					TypeSet<EM::ObjectID>&) const;
+    void			removeHorizon3D(const DBKey& emid);
+    void			addHorizon3Ds(const DBKeySet&);
+    void			addNewTrackingHorizon3D(const DBKey& mid);
+    void			addNewTrackingHorizon3D(const DBKey& mid,
+							int sceneid);
+    void			getLoadedHorizon3Ds(DBKeySet&) const;
     // 2D Horizons
-    void			getHor2DVwr2DIDs( EM::ObjectID emid,
+    void			getHor2DVwr2DIDs(const DBKey& emid,
 						  TypeSet<int>& vw2dids) const;
-    void			removeHorizon2D(EM::ObjectID emid);
-    void			getLoadedHorizon2Ds(
-					TypeSet<EM::ObjectID>&) const;
-    void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon2D(EM::ObjectID mid);
-    void			addNewTrackingHorizon2D(EM::ObjectID mid,
-	    						int sceneid);
+    void			removeHorizon2D(const DBKey& emid);
+    void			getLoadedHorizon2Ds(DBKeySet&) const;
+    void			addHorizon2Ds(const DBKeySet&);
+    void			addNewTrackingHorizon2D(const DBKey& mid);
+    void			addNewTrackingHorizon2D(const DBKey& mid,
+							int sceneid);
 
     //Faults
-    void			removeFault(EM::ObjectID emid);
-    void			addFaults(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFault(EM::ObjectID mid);
-    void			addNewTempFault(EM::ObjectID mid,int sceneid);
-    void			getLoadedFaults( TypeSet<EM::ObjectID>&) const;
+    void			removeFault(const DBKey& emid);
+    void			addFaults(const DBKeySet&);
+    void			addNewTempFault(const DBKey& mid);
+    void			addNewTempFault(const DBKey& mid,int sceneid);
+    void			getLoadedFaults(DBKeySet&) const;
 
     //FaultStickSet
-    void			getFaultSSVwr2DIDs( EM::ObjectID emid,
+    void			getFaultSSVwr2DIDs(const DBKey& emid,
 						    TypeSet<int>& vw2ids) const;
-    void			removeFaultSS(EM::ObjectID emid);
-    void			addFaultSSs(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS(EM::ObjectID mid);
-    void			addNewTempFaultSS(EM::ObjectID mid,int sceneid);
-    void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
+    void			removeFaultSS(const DBKey& emid);
+    void			addFaultSSs(const DBKeySet&);
+    void			addNewTempFaultSS(const DBKey& mid);
+    void			addNewTempFaultSS(const DBKey& mid,int sceneid);
+    void			getLoadedFaultSSs(DBKeySet&) const;
 
     void			getVwr2DObjIDs(TypeSet<int>& vw2ids) const;
     //FaultStickSet2D
-    void			getFaultSS2DVwr2DIDs( EM::ObjectID emid,
+    void			getFaultSS2DVwr2DIDs( const DBKey& emid,
 						    TypeSet<int>& vw2ids) const;
-    void			removeFaultSS2D(EM::ObjectID emid);
-    void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS2D(EM::ObjectID mid);
-    void			addNewTempFaultSS2D(EM::ObjectID mid,
-	    					    int sceneid);
-    void			getLoadedFaultSS2Ds(
-	   				 TypeSet<EM::ObjectID>&) const;
-    
+    void			removeFaultSS2D(const DBKey& emid);
+    void			addFaultSS2Ds(const DBKeySet&);
+    void			addNewTempFaultSS2D(const DBKey& mid);
+    void			addNewTempFaultSS2D(const DBKey& mid,
+						    int sceneid);
+    void			getLoadedFaultSS2Ds(DBKeySet&) const;
+
     //PickSets
     void			getPickSetVwr2DIDs(const DBKey& mid,
 						   TypeSet<int>& vw2ids) const;
@@ -184,7 +181,7 @@ protected:
 						   float pos) const;
     int				intersection2DIdx(Pos::GeomID) const;
     void			getVWR2DDataGeomIDs(const uiODViewer2D*,
-	    					TypeSet<Pos::GeomID>&) const;
+						TypeSet<Pos::GeomID>&) const;
     void			reCalc2DIntersetionIfNeeded(Pos::GeomID);
     void			setAllIntersectionPositions();
     void			setVWR2DIntersectionPositions(uiODViewer2D*);

@@ -259,7 +259,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , usercolor_( Color(0,0,255) )
     , randomcolor_( getRandStdDrawColor() )
     , flashcolor_( Color(0,0,0) )
-    , curemid_(-1)
+    , curemid_(DBKey::getInvalid())
 {
     toolbar_ = new uiToolBar( &appl_,
 	    tr("Fault Stick Control"),uiToolBar::Bottom);
@@ -484,7 +484,7 @@ void uiODFaultToolMan::treeItemDeselCB( CallBacker* cber )
 
 void uiODFaultToolMan::addRemoveEMObjCB( CallBacker* )
 {
-    if ( curemid_ == -1 )
+    if ( curemid_.isInvalid() )
 	return;
 
     if ( !EM::EMM().getObject(curemid_) )
@@ -519,7 +519,7 @@ void uiODFaultToolMan::clearCurDisplayObj()
 {
     curfssd_ = 0;
     curfltd_ = 0;
-    curemid_ = -1;
+    curemid_ = DBKey::getInvalid();
     enableToolbar( false );
 }
 
@@ -852,13 +852,12 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 
 	if ( currentColor() || inheritColor() )
 	{
-	    DBKey mid = auxfaultwrite_->getObjSel()->getKeyOnly();
+	    DBKey emid = auxfaultwrite_->getObjSel()->getKeyOnly();
 	    if ( !isOutputNameUsed(auxfaultwrite_) )
-		mid = auxfsswrite_->getObjSel()->getKeyOnly();
+		emid = auxfsswrite_->getObjSel()->getKeyOnly();
 
-	    if ( mid.isValid() )
+	    if ( emid.isValid() )
 	    {
-		const EM::ObjectID emid  = EM::EMM().getObjectID( mid );
 		const EM::EMObject* emobj = EM::EMM().getObject( emid );
 
 		IOPar iopar;
@@ -866,7 +865,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 		if ( emobj )
 		    curcolor = emobj->preferredColor();
 		else
-		    EM::EMM().readDisplayPars( mid, iopar );
+		    EM::EMM().readDisplayPars( emid, iopar );
 
 		if ( emobj || iopar.get(sKey::Color(),curcolor) )
 		{
@@ -948,7 +947,7 @@ void uiODFaultToolMan::outputSelectedCB( CallBacker* )
 
 void uiODFaultToolMan::stickRemovalCB( CallBacker* )
 {
-    if ( curemid_ < 0 )
+    if ( curemid_.isInvalid() )
 	return;
 
     EM::EMObject* srcemobj = EM::EMM().getObject( curemid_ );
@@ -973,7 +972,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     NotifyStopper ns( EM::EMM().undo().changenotifier );
     MouseCursorChanger mcc( MouseCursor::Wait );
 
-    if ( curemid_ < 0 )
+    if ( curemid_.isInvalid() )
 	return;
 
     RefMan<EM::EMObject> srcemobj = EM::EMM().getObject( curemid_ );
@@ -988,12 +987,11 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	return;
     }
 
-    const DBKey destmid = getObjSel()->key();
-    if ( destmid.isInvalid() )
+    const DBKey destemid = getObjSel()->key();
+    if ( destemid.isInvalid() )
 	return;
 
-    EM::EMM().loadIfNotFullyLoaded( destmid );
-    const EM::ObjectID destemid = EM::EMM().getObjectID( destmid );
+    EM::EMM().loadIfNotFullyLoaded( destemid );
     RefMan<EM::EMObject> destemobj = EM::EMM().getObject( destemid );
     mDynamicCastGet( EM::Fault*, destfault, destemobj.ptr() );
     if ( !destfault )
@@ -1124,8 +1122,7 @@ void uiODFaultToolMan::displayUpdate()
 
     if ( displayAfterwards() )
     {
-	const EM::ObjectID destemid = EM::EMM().getObjectID( destmid );
-	appl_.sceneMgr().addEMItem( destemid, sceneid );
+	appl_.sceneMgr().addEMItem( destmid, sceneid );
 	appl_.sceneMgr().updateTrees();
 	appl_.applMgr().visServer()->setSelObjectId( curid );
     }

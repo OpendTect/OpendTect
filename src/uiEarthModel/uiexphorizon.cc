@@ -222,7 +222,7 @@ bool uiExportHorizon::writeAscii()
     const IOObj* ioobj = infld_->selIOObj();
     if ( !ioobj ) mErrRet(tr("Cannot find horizon object"));
 
-    EM::EMManager& em = EM::EMM();
+    EM::EMManager& em = EM::Hor3DMan();
     EM::SurfaceIOData sd;
     uiString errmsg;
     if ( !em.getSurfaceData(ioobj->key(),sd,errmsg) )
@@ -274,7 +274,7 @@ bool uiExportHorizon::writeAscii()
 	    while ( true )
 	    {
 		const EM::PosID posid = it->next();
-		if ( posid.objectID()==-1 )
+		if ( posid.objectID().isInvalid() )
 		    break;
 
 		const Coord3 crd = hor->getPos( posid );
@@ -352,7 +352,7 @@ bool uiExportHorizon::writeAscii()
 	while ( true )
 	{
 	    const EM::PosID posid = it->next();
-	    if ( posid.objectID()==-1 )
+	    if ( posid.objectID().isInvalid() )
 		break;
 
 	    Coord3 crd = hor->getPos( posid );

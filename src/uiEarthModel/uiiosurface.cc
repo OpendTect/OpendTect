@@ -145,24 +145,17 @@ bool uiIOSurface::getSurfaceIOData(const DBKey& mid, EM::SurfaceIOData& sd,
     {
 	if ( mid.isInvalid() )
 	    return false;
-	const EM::ObjectID emid = EM::EMM().getObjectID( mid );
-	return getSurfaceIOData( emid, sd );
-    }
 
-    return true;
-}
+	mDynamicCastGet( EM::Surface*, emsurf, EM::EMM().getObject(mid))
+	if ( emsurf )
+	    sd.use( *emsurf );
+	else
+	{
+	    if ( showmsg )
+		uiMSG().error( tr("Surface does not exist") );
 
-
-bool uiIOSurface::getSurfaceIOData(const EM::ObjectID& objid,
-    EM::SurfaceIOData& sd ) const
-{
-    mDynamicCastGet( EM::Surface*, emsurf, EM::EMM().getObject(objid) );
-    if ( emsurf )
-	sd.use(*emsurf);
-    else
-    {
-	uiMSG().error( tr("Surface does not exist") );
 	    return false;
+	}
     }
 
     return true;
@@ -634,7 +627,7 @@ uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
     {
 	const IOObj& obj = entlst.ioobj( idx );
 
-	EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded(obj.key());
+	EM::EMObject* emobj = EM::FSSMan().loadIfNotFullyLoaded(obj.key());
 	mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
 	if ( !fss ) continue;
 

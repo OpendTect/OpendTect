@@ -31,108 +31,6 @@ ________________________________________________________________________
 namespace EM {
 
 
-class SurfaceSectionUndoEvent : public UndoEvent
-{
-public:
-			SurfaceSectionUndoEvent( bool add,
-				ObjectID, const SectionID&,
-				const char* name );
-    const char*         getStandardDesc() const;
-    bool                unDo();
-    bool                reDo();
-    void                fillPar(IOPar&) const;
-    bool                usePar(const IOPar&);
-
-protected:
-    bool				action(bool add) const;
-
-    bool				add_;
-    ObjectID				object_;
-    SectionID				sid_;
-    BufferString			name_;
-
-    static const char*		addKey();
-    static const char*		objKey();
-    static const char*		sectionKey();
-    static const char*		nameKey();
-};
-
-
-SurfaceSectionUndoEvent::SurfaceSectionUndoEvent(
-	bool doadd, ObjectID oid,
-        const SectionID& sectionid, const char* nm)
-    : object_( oid )
-    , sid_( sectionid )
-    , name_( nm )
-    , add_( doadd )
-{}
-
-
-const char* SurfaceSectionUndoEvent::getStandardDesc() const
-{
-    return "Modified surface section";
-}
-
-
-bool SurfaceSectionUndoEvent::unDo()
-{
-    return action( !add_ );
-}
-
-
-bool SurfaceSectionUndoEvent::reDo()
-{
-    return action( add_ );
-}
-
-
-const char* SurfaceSectionUndoEvent::addKey() { return "Add"; }
-const char* SurfaceSectionUndoEvent::objKey() { return "Object"; }
-const char* SurfaceSectionUndoEvent::sectionKey() { return "Section"; }
-const char* SurfaceSectionUndoEvent::nameKey() { return "Name"; }
-
-
-void SurfaceSectionUndoEvent::fillPar( IOPar& iopar ) const
-{
-    iopar.setYN( addKey(), add_ );
-    iopar.set( objKey(), object_ );
-    iopar.set( sectionKey(), (int) sid_ );
-    if ( add_ ) iopar.set( nameKey(), name_ );
-}
-
-
-bool SurfaceSectionUndoEvent::usePar( const IOPar& iopar )
-{
-    int tmpsection = mUdf(int);
-    bool res = iopar.getYN( addKey(), add_ ) && iopar.get( objKey(), object_ )
-	    && iopar.get( sectionKey(), tmpsection );
-    if ( res )
-    {
-	if ( add_ )
-	    res = iopar.get( nameKey(), name_ );
-
-	if ( res )
-	    sid_ = mCast( EM::SectionID, tmpsection );
-    }
-
-    return res;
-}
-
-
-bool SurfaceSectionUndoEvent::action( bool doadd ) const
-{
-    EMManager& manager = EMM();
-    EMObject* objectptr = manager.getObject(object_);
-    Surface* emsurface = dynamic_cast<Surface*>(objectptr);
-
-    if ( doadd )
-	return emsurface->geometry().addSection( name_.buf(), sid_, false );
-
-    emsurface->geometry().removeSection( sid_, false );
-    return true;
-}
-
-
 // ***** SurfaceGeometry *****
 
 SurfaceGeometry::SurfaceGeometry( Surface& surf )
@@ -294,15 +192,7 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
     if ( addtoundo )
     {
 	pErrMsg("Undo not implemented for remove section");
-	EMM().undo().removeAllBeforeCurrentEvent();
-	/*
-
-	BufferString name = *sectionnames_[idx];
-	UndoEvent* undo =
-	    new SurfaceSectionUndoEvent( false, surface_.id(),
-					    sid, name );
-	EMM().undo().addEvent( undo, 0, 0 );
-	*/
+	surface_.getMgr().undo().removeAllBeforeCurrentEvent();
     }
 
     EMObjectCallbackData cbdata;
@@ -1074,7 +964,7 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
     if ( addtoundo )
     {
 	pErrMsg("Undo not implemented for add section");
-	EMM().undo().removeAllBeforeCurrentEvent();
+	surface_.getMgr().undo().removeAllBeforeCurrentEvent();
     }
 
     enableChecks( isChecksEnabled() );

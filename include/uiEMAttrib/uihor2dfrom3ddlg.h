@@ -22,21 +22,21 @@ class uiCheckBox;
 mExpClass(uiEMAttrib) uiHor2DFrom3DDlg : public uiDialog
 { mODTextTranslationClass(uiHor2DFrom3DDlg);
 public:
-    				uiHor2DFrom3DDlg(uiParent*);
+				uiHor2DFrom3DDlg(uiParent*);
 
     bool			doDisplay() const;
-    EM::ObjectID		getEMObjID() const	    { return emobjid_; }
+    const DBKey&		getEMObjID() const	    { return emobjid_; }
 
 protected:
     uiSeis2DMultiLineSel*	linesetinpsel_;
     uiSurfaceRead*		hor3dsel_;
     uiSurfaceWrite*		out2dfld_;
     uiCheckBox*			displayfld_;
-    EM::ObjectID		emobjid_;
+    DBKey			emobjid_;
 
-    void 			set2DHorizon(EM::Horizon2D&);
+    void			set2DHorizon(EM::Horizon2D&);
     bool			checkFlds();
-    EM::Horizon2D* 		create2dHorizon( const char* );
+    EM::Horizon2D*		create2dHorizon( const char* );
     bool			acceptOK();
-   
+
 };

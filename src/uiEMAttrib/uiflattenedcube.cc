@@ -34,14 +34,14 @@ ________________________________________________________________________
 #include <math.h>
 
 
-uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
+uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, const DBKey& horid )
 	: uiDialog(p,Setup(uiStrings::phrCreate(tr("flattened %2")
                   .arg(uiStrings::sVolDataName(true, true, false)
                      .toLower())),
                  uiStrings::phrCreate(tr("Seismics flattened on '%2'")
 			   .arg(getHorNm(horid)))
 			  , mODHelpKey(mFlattenedCubeHelpID) ))
-	, hormid_(EM::EMM().getDBKey(horid))
+	, hormid_(horid)
 	, pp_(*new Pos::EMSurfaceProvider3D)
 	, seisselin_(0)
 {
@@ -75,10 +75,9 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
 }
 
 
-BufferString uiWriteFlattenedCube::getHorNm( EM::ObjectID horid )
+BufferString uiWriteFlattenedCube::getHorNm( const DBKey& horid )
 {
-    DBKey mid( EM::EMM().getDBKey( horid ) );
-    return EM::EMM().objectName( mid );
+    return EM::Hor3DMan().objectName( horid );
 }
 
 

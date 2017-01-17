@@ -184,7 +184,8 @@ int HorizonSorter::nextStep()
 {
     if ( !nrdone_ )
     {
-	PtrMan<Executor> horreader = EM::EMM().objectLoader( unsortedids_ );
+	EM::EMManager& emmgr = is2d_ ? EM::Hor2DMan() : EM::Hor3DMan();
+	PtrMan<Executor> horreader = emmgr.objectLoader( unsortedids_ );
 	if ( horreader )
 	{
 	    if ( taskrun_ )
@@ -195,18 +196,15 @@ int HorizonSorter::nextStep()
 
 	for ( int idx=0; idx<unsortedids_.size(); idx++ )
 	{
-	    EM::ObjectID objid = EM::EMM().getObjectID( unsortedids_[idx] );
-	    EM::EMObject* emobj = EM::EMM().getObject( objid );
+	    RefMan<EM::EMObject> emobj = emmgr.getObject( unsortedids_[idx] );
 	    if ( !emobj )
 		mErrRet( uiStrings::phrCannotLoad(tr("all horizons")) );
 
-	    emobj->ref();
-	    mDynamicCastGet(EM::Horizon*,horizon,emobj);
+	    mDynamicCastGet(EM::Horizon*,horizon,emobj.ptr());
 	    if ( !horizon )
-	    {
-		emobj->unRef();
 		mErrRet( tr("Loaded object is not a horizon") );
-	    }
+
+	    horizon->ref();
 	    horizons_ += horizon;
 	}
 

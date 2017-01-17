@@ -362,7 +362,7 @@ uiRetVal HorizonGridder::executeGridding(
     while( true )
     {
 	const EM::PosID posid = iterator->next();
-	if ( posid.objectID() == -1 )
+	if ( posid.objectID().isInvalid() )
 	    break;
 
 	const BinID bid = posid.getRowCol();

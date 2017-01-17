@@ -349,7 +349,7 @@ mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::sGroupName() )
 
 Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )
 {
-    EMObject* emobj = EMM().createTempObject( typeStr() );
+    EMObject* emobj = Hor3DMan().createTempObject( typeStr() );
     mDynamicCastGet(Horizon3D*,hor3d,emobj)
     if ( !hor3d ) return 0;
 
@@ -579,7 +579,7 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
     if ( oldarr )
     {
 	UndoEvent* undo = new  SetAllHor3DPosUndoEvent( this, sid, oldarr );
-	EMM().undo().addEvent( undo, undodesc );
+	Hor3DMan().undo().addEvent( undo, undodesc );
     }
 
     return true;
@@ -1098,7 +1098,7 @@ void Horizon3D::deleteChildren()
 {
     if ( !children_ ) return;
 
-    const int prevevid = EM::EMM().undo().currentEventID();
+    const int prevevid = EM::Hor3DMan().undo().currentEventID();
 
     Geometry::Element* ge = sectionGeometry( sectionID(0) );
     setBurstAlert( true );
@@ -1117,9 +1117,9 @@ void Horizon3D::deleteChildren()
 
     resetChildren();
 
-    const int evid = EM::EMM().undo().currentEventID();
+    const int evid = EM::Hor3DMan().undo().currentEventID();
     if ( prevevid != evid )
-	EM::EMM().undo().setUserInteractionEnd( evid );
+	EM::Hor3DMan().undo().setUserInteractionEnd( evid );
 }
 
 
@@ -1155,7 +1155,7 @@ void Horizon3D::lockAll()
     while ( true )
     {
 	const PosID pid = it->next();
-	if ( pid.objectID()==-1 )
+	if ( pid.objectID().isInvalid() )
 	    break;
 
 	const Coord3 crd = getPos( pid );
@@ -1538,7 +1538,7 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
     while ( true )
     {
 	const PosID pid = it->next();
-	if ( pid.objectID()==-1 )
+	if ( pid.objectID().isInvalid() )
 	    break;
 
 	const Coord3 crd = surface_.getPos( pid );

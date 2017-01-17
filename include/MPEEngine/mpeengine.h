@@ -101,16 +101,16 @@ public:
     int				highestTrackerID() const;
     const EMTracker*		getTracker(int idx) const;
     EMTracker*			getTracker(int idx);
-    int				getTrackerByObject(const EM::ObjectID&) const;
+    int				getTrackerByObject(const DBKey&) const;
     int				getTrackerByObject(const char*) const;
     int				addTracker(EM::EMObject*);
     void			removeTracker(int idx);
-    void			refTracker(EM::ObjectID);
-    void			unRefTracker(EM::ObjectID,bool nodel=false);
-    bool			hasTracker(EM::ObjectID) const;
+    void			refTracker(const DBKey&);
+    void			unRefTracker(const DBKey&,bool nodel=false);
+    bool			hasTracker(const DBKey&) const;
     Notifier<Engine>		trackeraddremove;
     CNotifier<Engine,int>	trackertoberemoved;
-    void			setActiveTracker(const EM::ObjectID&);
+    void			setActiveTracker(const DBKey&);
     void			setActiveTracker(EMTracker*);
     EMTracker*			getActiveTracker();
 
@@ -147,8 +147,8 @@ public:
 					const StepInterval<float>& zrg) const;
 
 				/*Editors */
-    ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
-    void			removeEditor(const EM::ObjectID&);
+    ObjectEditor*		getEditor(const DBKey&,bool create);
+    void			removeEditor(const DBKey&);
 
     void			setValidator(TrackSettingsValidator*);
     const char*			errMsg() const;

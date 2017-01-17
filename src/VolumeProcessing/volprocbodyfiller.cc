@@ -88,7 +88,7 @@ void BodyFiller::releaseData()
 }
 
 
-bool BodyFiller::setSurface( const DBKey& mid )
+bool BodyFiller::setSurface( const DBKey& emid )
 {
     if ( emobj_ )
     {
@@ -97,16 +97,14 @@ bool BodyFiller::setSurface( const DBKey& mid )
 	emobj_ = 0;
     }
 
-    EM::ObjectID emid = EM::EMM().getObjectID( mid );
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobj = EM::BodyMan().getObject( emid );
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
+	PtrMan<Executor> loader = EM::BodyMan().objectLoader( emid );
 	if ( !loader || !loader->execute() )
 	    return false;
 
-	emid = EM::EMM().getObjectID( mid );
-	emobj = EM::EMM().getObject( emid );
+	emobj = EM::BodyMan().getObject( emid );
     }
 
     mDynamicCastGet( EM::Body*, newsurf, emobj.ptr() );
@@ -114,7 +112,7 @@ bool BodyFiller::setSurface( const DBKey& mid )
 
     emobj->ref();
 
-    mid_ = mid;
+    mid_ = emid;
     body_ = newsurf;
     emobj_ = emobj;
     emobj = 0;

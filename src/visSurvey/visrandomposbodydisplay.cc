@@ -60,7 +60,7 @@ bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
 	embody_ = 0;
     }
 
-    mTryAlloc( embody_, EM::RandomPosBody(EM::EMM()) );
+    mTryAlloc( embody_, EM::RandomPosBody(EM::BodyMan()) );
     if ( !embody_ ) return false;
 
     embody_->ref();
@@ -72,7 +72,7 @@ bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
     }
 
     embody_->setPositions( body->getPoints() );
-    EM::EMM().addObject( embody_ );
+    EM::BodyMan().addObject( embody_ );
 
     displaybody_ = body;
     displaybody_->ref();
@@ -90,11 +90,11 @@ bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
 }
 
 
-EM::ObjectID RandomPosBodyDisplay::getEMID() const
-{ return embody_ ? embody_->id() : -1; }
+DBKey RandomPosBodyDisplay::getEMID() const
+{ return embody_ ? embody_->id() : DBKey::getInvalid(); }
 
 
-bool RandomPosBodyDisplay::setEMID( const EM::ObjectID& emid )
+bool RandomPosBodyDisplay::setEMID( const DBKey& emid )
 {
     if ( embody_ )
     {
@@ -102,7 +102,7 @@ bool RandomPosBodyDisplay::setEMID( const EM::ObjectID& emid )
 	embody_ = 0;
     }
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::BodyMan().getObject( emid );
     mDynamicCastGet( EM::RandomPosBody*, embody, emobject.ptr() );
     if ( !embody )
     {
@@ -184,17 +184,15 @@ bool RandomPosBodyDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyPSEarthModelID(),newmid) )
     {
-	EM::ObjectID emid = EM::EMM().getObjectID( newmid );
-	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+	RefMan<EM::EMObject> emobject = EM::BodyMan().getObject( newmid );
 	if ( !emobject )
 	{
-	    PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
+	    PtrMan<Executor> loader = EM::BodyMan().objectLoader( newmid );
 	    if ( loader ) loader->execute();
-	    emid = EM::EMM().getObjectID( newmid );
-	    emobject = EM::EMM().getObject( emid );
+	    emobject = EM::BodyMan().getObject( newmid );
 	}
 
-	if ( emobject ) setEMID( emobject->id() );
+	if ( emobject ) setEMID( newmid );
     }
     else
 	return false;

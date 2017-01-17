@@ -492,7 +492,8 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 	closestnodes += EM::PosID( emobject_->id(), sids_[idx], pickedsubid );
     }
 
-    if ( closestnodes.isEmpty() ) return EM::PosID( -1, -1, -1 );
+    if ( closestnodes.isEmpty() )
+	return EM::PosID( DBKey::getInvalid(), -1, -1 );
 
     EM::PosID closestnode = closestnodes[0];
     float mindist = mUdf(float);
@@ -530,7 +531,7 @@ void HorizonDisplay::removeEMStuff()
 }
 
 
-bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tskr )
+bool HorizonDisplay::setEMObject( const DBKey& newid, TaskRunner* tskr )
 {
     return EMObjectDisplay::setEMObject( newid, tskr );
 }
@@ -2282,10 +2283,10 @@ void HorizonDisplay::calculateLockedPoints()
 
 bool HorizonDisplay::lockedShown() const
 {
-    const bool lockedshow = lockedpts_ ? 
+    const bool lockedshow = lockedpts_ ?
 	lockedpts_->size()>0 && lockedpts_->isOn() : false;
     const bool sectionlockedshow =
-	sectionlockedpts_ ? 
+	sectionlockedpts_ ?
 	sectionlockedpts_->size()>0 && sectionlockedpts_->isOn() : false;
     return lockedshow || sectionlockedshow;
 }

@@ -32,7 +32,7 @@ mExpClass(EarthModel) EMUndo : public Undo
 {
 public:
 
-    ObjectID		getCurrentEMObjectID(bool forredo) const;
+    DBKey		getCurrentEMObjectID(bool forredo) const;
 };
 
 
@@ -40,7 +40,7 @@ mExpClass(EarthModel) EMUndoEvent : public UndoEvent
 {
 public:
 
-    virtual ObjectID	getObjectID() const =0;
+    virtual DBKey	getObjectID() const =0;
 };
 
 
@@ -52,7 +52,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    ObjectID		getObjectID() const { return posid_.objectID(); }
+    DBKey		getObjectID() const { return posid_.objectID(); }
 
 protected:
     EM::PosID		posid_;
@@ -77,7 +77,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    ObjectID		getObjectID() const;
+    DBKey		getObjectID() const;
 
 protected:
     bool		setArray(const Array2D<float>&, const RowCol& origin);
@@ -105,7 +105,7 @@ public:
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    ObjectID		getObjectID() const { return posid_.objectID(); }
+    DBKey		getObjectID() const { return posid_.objectID(); }
 
 protected:
     EM::PosID		posid_;
@@ -122,16 +122,16 @@ protected:
 mExpClass(EarthModel) SetPrefColorEvent : public EMUndoEvent
 {
 public:
-    			SetPrefColorEvent(const EM::ObjectID&,
+			SetPrefColorEvent(const DBKey&,
 					  const Color& oldcol,
 					  const Color& newcol);
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    ObjectID		getObjectID() const { return objectid_; }
+    DBKey		getObjectID() const { return objectid_; }
 
 protected:
-    const EM::ObjectID	objectid_;
+    const DBKey		objectid_;
     const Color		oldcolor_;
     const Color		newcolor_;
 };

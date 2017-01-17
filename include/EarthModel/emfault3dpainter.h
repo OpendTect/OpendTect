@@ -35,7 +35,7 @@ class Fault3D;
 mExpClass(EarthModel) Fault3DPainter : public CallBacker
 {
 public:
-    			Fault3DPainter(FlatView::Viewer&,const EM::ObjectID&);
+			Fault3DPainter(FlatView::Viewer&,const DBKey&);
 			~Fault3DPainter();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,bool);
@@ -60,7 +60,7 @@ public:
 	    int			stickid_;
 	};
 
-    EM::ObjectID&       getFaultID()			{ return emid_; }
+    DBKey&		getFaultID()			{ return emid_; }
     void		getDisplayedSticks(ObjectSet<StkMarkerInfo>&);
 
     Notifier<Fault3DPainter>	abouttorepaint_;
@@ -74,7 +74,7 @@ protected:
 
 	mStruct(EarthModel) Fault3DMarker
 	{
-	    				Fault3DMarker(){}
+					Fault3DMarker(){}
 					~Fault3DMarker()
 					{
 					    deepErase(stickmarker_);
@@ -87,18 +87,18 @@ protected:
     bool		paintSticks(EM::Fault3D&,const EM::SectionID&,
 				    Fault3DMarker*);
     bool		paintStickOnPlane(const Geometry::FaultStickSurface&,
-	    				  RowCol&,const StepInterval<int>&,
+					  RowCol&,const StepInterval<int>&,
 					  const Coord3&, FlatView::AuxData&);
     bool		paintStickOnRLine(const Geometry::FaultStickSurface&,
-	    				  RowCol&,const StepInterval<int>&,
+					  RowCol&,const StepInterval<int>&,
 					  const Coord3&, FlatView::AuxData&);
     bool		paintIntersection(EM::Fault3D&,const EM::SectionID&,
-	    				  Fault3DMarker*);
+					  Fault3DMarker*);
     bool		paintPlaneIntxn(EM::Fault3D&,Fault3DMarker*,
-	    				Geometry::ExplPlaneIntersection*,
+					Geometry::ExplPlaneIntersection*,
 					TypeSet<Coord3>&);
     void		genIntersectionAuxData(EM::Fault3D&,Fault3DMarker*,
-	    				  const Geometry::PrimitiveSet* coordps,
+					  const Geometry::PrimitiveSet* coordps,
 					  TypeSet<Coord3>& intxnposs);
     void		removePolyLine();
     void		repaintFault3D();
@@ -107,7 +107,7 @@ protected:
     FlatView::Point	getFVAuxPoint(const Coord3&) const;
 
     virtual void	fault3DChangedCB(CallBacker*);
-     
+
     TrcKeyZSampling	tkzs_;
     const TrcKeyPath*	path_;
     int			rdlid_;
@@ -119,7 +119,7 @@ protected:
     OD::LineStyle		markerlinestyle_;
     OD::MarkerStyle2D	markerstyle_;
 
-    EM::ObjectID        emid_;
+    DBKey		emid_;
     ObjectSet<Fault3DMarker>    f3dmarkers_;
 
     int			activestickid_;

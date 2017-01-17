@@ -127,54 +127,49 @@ public:
     void			getVwr2DObjIDs(TypeSet<int>& vw2dobjids) const;
 
     //Horizon 3D
-    void			getHor3DVwr2DIDs(EM::ObjectID emid,
+    void			getHor3DVwr2DIDs(const DBKey& emid,
 						 TypeSet<int>& vw2dids) const;
-    void			removeHorizon3D(EM::ObjectID emid);
-    void			getLoadedHorizon3Ds(
-					TypeSet<EM::ObjectID>&) const;
-    void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon3D(EM::ObjectID);
-    void			setupTrackingHorizon3D(EM::ObjectID);
+    void			removeHorizon3D(const DBKey& emid);
+    void			getLoadedHorizon3Ds(DBKeySet&) const;
+    void			addHorizon3Ds(const DBKeySet&);
+    void			addNewTrackingHorizon3D(const DBKey&);
+    void			setupTrackingHorizon3D(const DBKey&);
 
     //Horizon2D
-    void			getHor2DVwr2DIDs(EM::ObjectID emid,
+    void			getHor2DVwr2DIDs(const DBKey& emid,
 						 TypeSet<int>& vw2dids) const;
-    void			removeHorizon2D(EM::ObjectID emid);
-    void			getLoadedHorizon2Ds(
-					TypeSet<EM::ObjectID>&) const;
-    void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon2D(EM::ObjectID emid);
-    void			setupTrackingHorizon2D(EM::ObjectID);
+    void			removeHorizon2D(const DBKey& emid);
+    void			getLoadedHorizon2Ds(DBKeySet&) const;
+    void			addHorizon2Ds(const DBKeySet&);
+    void			addNewTrackingHorizon2D(const DBKey& emid);
+    void			setupTrackingHorizon2D(const DBKey&);
 
     //Fault
-    void			getFaultVwr2DIDs(EM::ObjectID emid,
+    void			getFaultVwr2DIDs(const DBKey& emid,
 						 TypeSet<int>& vw2dids) const;
-    void			removeFault(EM::ObjectID emid);
-    void			getLoadedFaults(
-					TypeSet<EM::ObjectID>&) const;
-    void			addFaults(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFault(EM::ObjectID emid);
-    void			setupNewTempFault(EM::ObjectID emid);
+    void			removeFault(const DBKey& emid);
+    void			getLoadedFaults(DBKeySet&) const;
+    void			addFaults(const DBKeySet&);
+    void			addNewTempFault(const DBKey& emid);
+    void			setupNewTempFault(const DBKey& emid);
 
     //FaultStickeSet
-    void			getFaultSSVwr2DIDs(EM::ObjectID emid,
+    void			getFaultSSVwr2DIDs(const DBKey& emid,
 						   TypeSet<int>& vw2dids) const;
-    void			removeFaultSS(EM::ObjectID emid);
-    void			getLoadedFaultSSs(
-					TypeSet<EM::ObjectID>&) const;
-    void			addFaultSSs(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS(EM::ObjectID emid);
-    void			setupNewTempFaultSS(EM::ObjectID emid);
+    void			removeFaultSS(const DBKey& emid);
+    void			getLoadedFaultSSs(DBKeySet&) const;
+    void			addFaultSSs(const DBKeySet&);
+    void			addNewTempFaultSS(const DBKey& emid);
+    void			setupNewTempFaultSS(const DBKey& emid);
 
     //FaultStickeSet2D
-    void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
+    void			getFaultSS2DVwr2DIDs(const DBKey& emid,
 						     TypeSet<int>& vw2ds) const;
-    void			removeFaultSS2D(EM::ObjectID emid);
-    void			getLoadedFaultSS2Ds(
-					TypeSet<EM::ObjectID>&) const;
-    void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS2D(EM::ObjectID emid);
-    void			setupNewTempFaultSS2D(EM::ObjectID emid);
+    void			removeFaultSS2D(const DBKey& emid);
+    void			getLoadedFaultSS2Ds(DBKeySet&) const;
+    void			addFaultSS2Ds(const DBKeySet&);
+    void			addNewTempFaultSS2D(const DBKey& emid);
+    void			setupNewTempFaultSS2D(const DBKey& emid);
 
     //PickSets
     void			getPickSetVwr2DIDs(const DBKey& mid,

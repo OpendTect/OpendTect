@@ -64,7 +64,7 @@ uiHorGeom2Attr::~uiHorGeom2Attr()
 BufferStringSet& uiHorGeom2Attr::getItems( const EM::Horizon3D& hor )
 {
     itmnms_ = new BufferStringSet;
-    EM::IOObjInfo eminfo( EM::EMM().getDBKey(hor.id()) );
+    EM::IOObjInfo eminfo( hor.id() );
     eminfo.getAttribNames( *itmnms_ );
     return *itmnms_;
 }
@@ -90,7 +90,7 @@ bool uiHorGeom2Attr::acceptOK()
 	while ( true )
 	{
 	    const EM::PosID pid = iter->next();
-	    if ( pid.objectID() == -1 )
+	    if ( pid.objectID().isInvalid() )
 		break;
 	    if ( !hor_.geometry().isNodeOK(pid) )
 		continue;
@@ -111,7 +111,7 @@ bool uiHorGeom2Attr::acceptOK()
 
 
 uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
-       				const DataPointSet& dps, int colid )
+				const DataPointSet& dps, int colid )
     : uiDialog(p, Setup(tr("Set horizon Z values"),(tr("Set Z values from '%1'")
 			.arg(toUiString(dps.dataSet().colDef(colid).name_)))
 			,mODHelpKey(mHorAttr2GeomHelpID)) )
@@ -161,7 +161,7 @@ uiHorAttr2GeomExec( EM::Horizon3D& h, const DataPointSet& dps,
     , uimsg_(tr("Setting Z values"))
 {
     totnr_ = it_->approximateSize();
-    
+
     hortks_ = hor_.range();
     mDeclareAndTryAlloc( Array2D<float>*, arr,
 	    Array2DImpl<float>( hortks_.nrInl(), hortks_.nrCrl() ) );
@@ -196,12 +196,12 @@ int nextStep()
     for ( int idx=0; idx<1000; idx++ )
     {
 	const EM::PosID pid = it_->next();
-	if ( pid.objectID() == -1 )
+	if ( pid.objectID().isInvalid() )
 	{
 	    fillHorizonArray();
 	    return Finished();
 	}
- 
+
 	const BinID bid = pid.getRowCol();
 	DataPointSet::RowID rid = dps_.findFirst( bid );
 	Coord3 crd = hor_.getPos( pid );
@@ -241,7 +241,7 @@ int nextStep()
 
 void fillHorizonArray()
 {
-    const EM::SectionID sid = hor_.nrSections() ? hor_.sectionID( 0 ) 
+    const EM::SectionID sid = hor_.nrSections() ? hor_.sectionID( 0 )
 				: hor_.geometry().addSection( 0, false );
     Geometry::BinIDSurface* geom = hor_.geometry().sectionGeometry( sid );
     geom->setArray( hortks_.start_, hortks_.step_, horarray_, true );

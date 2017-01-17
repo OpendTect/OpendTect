@@ -359,7 +359,7 @@ bool uiImportHorizon2D::doImport()
     BufferStringSet hornms;
     horselfld_->getChosen( hornms );
     ObjectSet<EM::Horizon2D> horizons;
-    EM::EMManager& em = EM::EMM();
+    EM::EMManager& em = EM::Hor2DMan();
     ConstRefMan<DBDir> dbdir = DBM().fetchDir( IOObjContext::Surf );
     if ( dbdir )
     {
@@ -368,8 +368,8 @@ bool uiImportHorizon2D::doImport()
 	    BufferString nm = hornms.get( idx );
 	    PtrMan<IOObj> ioobj = dbdir->getEntryByName( nm,
 				    EMHorizon2DTranslatorGroup::sGroupName() );
-	    EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() ) : -1;
-	    EM::EMObject* emobj = em.getObject( id );
+	    RefMan<EM::EMObject> emobj = ioobj ? em.getObject(ioobj->key())
+						: 0;
 	    if ( emobj )
 		emobj->setBurstAlert( true );
 
@@ -377,19 +377,15 @@ bool uiImportHorizon2D::doImport()
 
 	    if ( !ioobj || !exec || !exec->execute() )
 	    {
-		id = em.createObject( EM::Horizon2D::typeStr(), nm );
-		mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
-		if ( ioobj )
-		    hor->setDBKey( ioobj->key() );
-
+		emobj = em.createObject( EM::Horizon2D::typeStr(), nm );
+		mDynamicCastGet(EM::Horizon2D*,hor,emobj.ptr());
 		hor->ref();
 		hor->setBurstAlert( true );
 		horizons += hor;
 		continue;
 	    }
 
-	    id = em.getObjectID(ioobj->key());
-	    mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
+	    mDynamicCastGet(EM::Horizon2D*,hor,emobj.ptr());
 	    if ( !hor )
 	    {
 		uiMSG().error( uiStrings::phrCannotLoad(
@@ -431,12 +427,12 @@ bool uiImportHorizon2D::doImport()
     if ( !TaskRunner::execute(&impdlg,*exec) )
 	mDeburstRet( false, unRef );
 
-    emobjids_.erase();
+    objids_.erase();
     for ( int idx=0; idx<horizons.size(); idx++ )
     {
 	PtrMan<Executor> saver = horizons[idx]->saver();
 	if ( saver->execute() )
-	    emobjids_ += horizons[idx]->id();
+	    objids_ += horizons[idx]->id();
     }
 
     mDeburstRet( true, unRefNoDelete );
@@ -500,5 +496,5 @@ bool uiImportHorizon2D::checkInpFlds()
 }
 
 
-void uiImportHorizon2D::getEMObjIDs( TypeSet<EM::ObjectID>& ids ) const
-{ ids = emobjids_; }
+void uiImportHorizon2D::getEMObjIDs( DBKeySet& ids ) const
+{ ids = objids_; }

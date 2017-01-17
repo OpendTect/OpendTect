@@ -287,7 +287,7 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	if ( dlg.go() )
 	{
 	    RefMan<EM::EMObject> emobj =
-		    EM::EMM().createTempObject( EM::RandomPosBody::typeStr() );
+		EM::BodyMan().createTempObject( EM::RandomPosBody::typeStr() );
 	    const DataPointSet* data = display->getDataPack();
 	    mDynamicCastGet( EM::RandomPosBody*, emps, emobj.ptr() );
 	    if ( !emps )

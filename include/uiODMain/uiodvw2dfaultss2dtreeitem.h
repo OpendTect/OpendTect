@@ -24,18 +24,17 @@ class uiODViewer2D;
 mExpClass(uiODMain) uiODVw2DFaultSS2DParentTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVw2DFaultSS2DParentTreeItem);
 public:
-    				uiODVw2DFaultSS2DParentTreeItem();
+				uiODVw2DFaultSS2DParentTreeItem();
 				~uiODVw2DFaultSS2DParentTreeItem();
 
     bool			showSubMenu();
-    void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
-	    					     TypeSet<int>& vids ) const;
-    void			getLoadedFaultSS2Ds(
-	    				TypeSet<EM::ObjectID>&) const;
-    void			removeFaultSS2D(EM::ObjectID);
-    void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS2D(EM::ObjectID emid);
-    void			setupNewTempFaultSS2D(EM::ObjectID emid);
+    void			getFaultSS2DVwr2DIDs(const DBKey& emid,
+						     TypeSet<int>& vids ) const;
+    void			getLoadedFaultSS2Ds(DBKeySet&) const;
+    void			removeFaultSS2D(const DBKey&);
+    void			addFaultSS2Ds(const DBKeySet&);
+    void			addNewTempFaultSS2D(const DBKey& emid);
+    void			setupNewTempFaultSS2D(const DBKey& emid);
 
 protected:
 
@@ -62,13 +61,13 @@ public:
 mExpClass(uiODMain) uiODVw2DFaultSS2DTreeItem : public uiODVw2DEMTreeItem
 { mODTextTranslationClass(uiODVw2DFaultSS2DTreeItem);
 public:
-    			uiODVw2DFaultSS2DTreeItem(const EM::ObjectID&);
+			uiODVw2DFaultSS2DTreeItem(const DBKey&);
 			uiODVw2DFaultSS2DTreeItem(int dispid,bool dummy);
 			~uiODVw2DFaultSS2DTreeItem();
 
     bool		showSubMenu();
     bool		select();
-    EM::ObjectID	emObjectID() const	{ return emid_; }
+    const DBKey&	emObjectID() const	{ return emid_; }
     const Vw2DDataObject* vw2DObject() const;
 
 protected:

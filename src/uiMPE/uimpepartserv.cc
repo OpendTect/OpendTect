@@ -62,7 +62,7 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     , eventattrselspec_( 0 )
     , temptrackerid_(-1)
     , cursceneid_(-1)
-    , trackercurrentobject_(-1)
+    , trackercurrentobject_(DBKey::getInvalid())
     , initialundoid_(mUdf(int))
     , setupgrp_(0)
 {
@@ -83,7 +83,7 @@ uiMPEPartServer::~uiMPEPartServer()
 {
     detachAllNotifiers();
 
-    trackercurrentobject_ = -1;
+    trackercurrentobject_ = DBKey::getInvalid();
     initialundoid_ = mUdf(int);
 
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
@@ -109,13 +109,13 @@ const Attrib::DescSet* uiMPEPartServer::getCurAttrDescSet( bool is2d ) const
 { return is2d ? attrset2d_ : attrset3d_; }
 
 
-int uiMPEPartServer::getTrackerID( const EM::ObjectID& emid ) const
+int uiMPEPartServer::getTrackerID( const DBKey& emid ) const
 {
     for ( int idx=0; idx<=MPE::engine().highestTrackerID(); idx++ )
     {
 	if ( MPE::engine().getTracker(idx) )
 	{
-	    EM::ObjectID objid = MPE::engine().getTracker(idx)->objectID();
+	    DBKey objid = MPE::engine().getTracker(idx)->objectID();
 	    if ( objid==emid )
 		return idx;
 	}
@@ -135,7 +135,7 @@ void uiMPEPartServer::getTrackerTypes( BufferStringSet& res ) const
 { MPE::engine().getAvailableTrackerTypes(res); }
 
 
-int uiMPEPartServer::addTracker( const EM::ObjectID& emid )
+int uiMPEPartServer::addTracker( const DBKey& emid )
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid );
     if ( !emobj ) return -1;
@@ -236,7 +236,7 @@ void uiMPEPartServer::modeChangedCB( CallBacker* )
 
 void uiMPEPartServer::eventChangedCB( CallBacker* )
 {
-    if ( trackercurrentobject_ == -1 )
+    if ( trackercurrentobject_.isInvalid() )
 	return;
 
     if ( setupgrp_ )
@@ -246,7 +246,7 @@ void uiMPEPartServer::eventChangedCB( CallBacker* )
 
 void uiMPEPartServer::correlationChangedCB( CallBacker* )
 {
-    if ( trackercurrentobject_ == -1 )
+    if ( trackercurrentobject_.isInvalid() )
 	return;
 
     if ( setupgrp_ )
@@ -256,7 +256,7 @@ void uiMPEPartServer::correlationChangedCB( CallBacker* )
 
 void uiMPEPartServer::propertyChangedCB( CallBacker* )
 {
-    if ( trackercurrentobject_ == -1 )
+    if ( trackercurrentobject_.isInvalid() )
 	return;
 
     EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
@@ -278,15 +278,11 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
 
 void uiMPEPartServer::nrHorChangeCB( CallBacker* )
 {
-    if ( trackercurrentobject_ == -1 ) return;
+    if ( trackercurrentobject_.isInvalid() ||
+	    EM::EMM().getObject(trackercurrentobject_) )
+	return;
 
-    for ( int idx=EM::EMM().nrLoadedObjects()-1; idx>=0; idx-- )
-    {
-	const EM::ObjectID oid = EM::EMM().objectID( idx );
-	if ( oid == trackercurrentobject_ ) return;
-    }
-
-    trackercurrentobject_ = -1;
+    trackercurrentobject_ = DBKey::getInvalid();
     initialundoid_ = mUdf(int);
 
     if ( MPE::engine().nrTrackersAlive() > 0 )
@@ -302,12 +298,12 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* )
 {
     cleanSetupDependents();
 
-    if ( trackercurrentobject_ == -1 ) return;
+    if ( trackercurrentobject_.isInvalid() ) return;
 
     const int trackerid = getTrackerID( trackercurrentobject_ );
     if ( trackerid == -1 )
     {
-	trackercurrentobject_ = -1;
+	trackercurrentobject_ = DBKey::getInvalid();
 	initialundoid_ = mUdf(int);
 	return;
     }
@@ -316,11 +312,11 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* )
     if ( !tracker ) return;
 
 
-    saveSetup( EM::EMM().getDBKey( trackercurrentobject_) );
+    saveSetup( trackercurrentobject_ );
 
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
 
-    trackercurrentobject_ = -1;
+    trackercurrentobject_ = DBKey::getInvalid();
     initialundoid_ = mUdf(int);
 }
 
@@ -352,10 +348,10 @@ void uiMPEPartServer::cleanSetupDependents()
 }
 
 
-EM::ObjectID uiMPEPartServer::getEMObjectID( int trackerid ) const
+DBKey uiMPEPartServer::getEMObjectID( int trackerid ) const
 {
     const MPE::EMTracker* emt = MPE::engine().getTracker(trackerid);
-    return emt ? emt->objectID() : -1;
+    return emt ? emt->objectID() : DBKey::getInvalid();
 }
 
 
@@ -383,8 +379,8 @@ void uiMPEPartServer::enableTracking( int trackerid, bool yn )
     if ( yn )
     {
 	activetrackerid_ = trackerid;
-	trackercurrentobject_ =
-	    tracker->emObject() ? tracker->emObject()->id() : -1;
+	trackercurrentobject_ = tracker->emObject() ? tracker->emObject()->id()
+						    : DBKey::getInvalid();
 	fillTrackerSettings( trackerid );
 	if ( seedpicker )
 	{
@@ -455,13 +451,13 @@ const Attrib::SelSpec* uiMPEPartServer::getAttribSelSpec() const
 { return eventattrselspec_; }
 
 
-bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
+bool uiMPEPartServer::showSetupDlg( const DBKey& emid,
 				    const EM::SectionID& sid )
 {
-    if ( emid<0 || sid<0 )
+    if ( emid.isInvalid() || sid<0 )
 	return false;
 
-    if ( trackercurrentobject_!=-1 && setupgrp_ )
+    if ( !trackercurrentobject_.isInvalid() && setupgrp_ )
     {
 	if ( setupgrp_->mainwin() )
 	{
@@ -492,10 +488,10 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 }
 
 
-bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
+bool uiMPEPartServer::showSetupGroupOnTop( const DBKey& emid,
 					   const char* grpnm )
 {
-    if ( emid<0 || emid!=trackercurrentobject_ || !setupgrp_ )
+    if ( emid.isInvalid() || emid!=trackercurrentobject_ || !setupgrp_ )
 	return false;
 
     setupgrp_->showGroupOnTop( grpnm );
@@ -503,7 +499,7 @@ bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
 }
 
 
-void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
+void uiMPEPartServer::useSavedSetupDlg( const DBKey& emid,
 					const EM::SectionID& sid )
 {
     const int trackerid = getTrackerID( emid );
@@ -547,8 +543,7 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
     PtrMan<Executor> exec = EM::EMM().objectLoader( MPE::engine().midtoload );
     if ( !exec ) return;
 
-    const EM::ObjectID emid = EM::EMM().getObjectID( MPE::engine().midtoload );
-    EM::EMObject* emobj = EM::EMM().getObject( emid );
+    EM::EMObject* emobj = EM::EMM().getObject( MPE::engine().midtoload );
     if ( !emobj ) return;
 
     emobj->ref();
@@ -564,11 +559,10 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
 
 bool uiMPEPartServer::prepareSaveSetupAs( const DBKey& oldmid )
 {
-    const EM::ObjectID emid = EM::EMM().getObjectID( oldmid );
-    if ( getTrackerID(emid) >= 0 )
+    if ( getTrackerID(oldmid) >= 0 )
 	return true;
 
-    EM::EMObject* emobj = EM::EMM().getObject( emid );
+    EM::EMObject* emobj = EM::EMM().getObject( oldmid );
     if ( !emobj )
 	return false;
 
@@ -587,9 +581,8 @@ bool uiMPEPartServer::saveSetupAs( const DBKey& newmid )
 }
 
 
-bool uiMPEPartServer::saveSetup( const DBKey& mid )
+bool uiMPEPartServer::saveSetup( const DBKey& emid )
 {
-    const EM::ObjectID emid = EM::EMM().getObjectID( mid );
     const int trackerid = getTrackerID( emid );
     if ( trackerid<0 ) return false;
 
@@ -626,7 +619,7 @@ bool uiMPEPartServer::saveSetup( const DBKey& mid )
 
     iopar.mergeComp( attrpar, "Attribs" );
 
-    BufferString setupfilenm = MPE::engine().setupFileName( mid );
+    BufferString setupfilenm = MPE::engine().setupFileName( emid );
     if ( !setupfilenm.isEmpty() && !iopar.write(setupfilenm,"Tracking Setup") )
     {
 	uiString errmsg( tr("Unable to save tracking setup file \n"
@@ -682,12 +675,11 @@ void uiMPEPartServer::trackerToBeRemovedCB( CallBacker* cb )
 }
 
 
-bool uiMPEPartServer::readSetup( const DBKey& mid )
+bool uiMPEPartServer::readSetup( const DBKey& emid )
 {
-    BufferString setupfilenm = MPE::engine().setupFileName( mid );
+    BufferString setupfilenm = MPE::engine().setupFileName( emid );
     if ( !File::exists(setupfilenm) ) return false;
 
-    const EM::ObjectID emid = EM::EMM().getObjectID( mid );
     const int trackerid = getTrackerID( emid );
     if ( trackerid<0 ) return false;
 

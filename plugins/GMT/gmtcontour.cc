@@ -109,8 +109,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     if ( !exec || !exec->execute() )
 	mErrStrmRet("Cannot load horizon")
 
-    EM::ObjectID objid = EM::EMM().getObjectID( id );
-    EM::EMObject* obj = EM::EMM().getObject( objid );
+    EM::EMObject* obj = EM::EMM().getObject( id );
     if ( !obj )
 	mErrStrmRet("Failed");
 

@@ -49,8 +49,7 @@ static EM::Horizon3D* loadHorizon( const DBKey& mid, const TrcKeySampling& hs,
     if ( !(exec && exec->go(strm, false, false, 0) ) )
 	return 0;
 
-    EM::ObjectID emid = em.getObjectID( mid );
-    EM::EMObject* emobj = em.getObject( emid );
+    EM::EMObject* emobj = em.getObject( mid );
     if ( !emobj )
     {
 	BufferString msg;
@@ -138,7 +137,7 @@ bool BatchProgram::go( od_ostream& strm )
 	mUnRef();
 	return false;
     }
-    
+
     strm << "Attribute saved successfully";
     mUnRef();
     return true;

@@ -38,8 +38,8 @@ ObjectEditor* PolygonBodyEditor::create( EM::EMObject& emobj )
 
 
 void PolygonBodyEditor::initClass()
-{ 
-    MPE::EditorFactory().addCreator( create, EM::PolygonBody::typeStr() ); 
+{
+    MPE::EditorFactory().addCreator( create, EM::PolygonBody::typeStr() );
 }
 
 
@@ -50,8 +50,8 @@ Geometry::ElementEditor* PolygonBodyEditor::createEditor(
     if ( !ge ) return 0;
 
     mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
-    return !surface ? 0 : new Geometry::PolygonSurfEditor( 
-	    		  *const_cast<Geometry::PolygonSurface*>(surface) );
+    return !surface ? 0 : new Geometry::PolygonSurfEditor(
+			  *const_cast<Geometry::PolygonSurface*>(surface) );
 }
 
 
@@ -82,9 +82,9 @@ void PolygonBodyEditor::setSowingPivot( const Coord3 pos )
 #define mCompareCoord( crd ) Coord3( crd.x_, crd.y_, crd.z_*zfactor )
 
 void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
-					    EM::PosID& nearestpid1, 
+					    EM::PosID& nearestpid1,
 					    EM::PosID& insertpid,
-				    	    const Coord3& mousepos, 
+					    const Coord3& mousepos,
 					    float zfactor ) const
 {
     nearestpid0 = EM::PosID::udf();
@@ -118,7 +118,7 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 	insertpid.setSubID( RowCol(0,0).toInt64() );
 	return;
     }
-    
+
     if ( fabs(mindist)>50 )
     {
 	if ( !emObject().nrSections() )
@@ -137,16 +137,16 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 
 	insertpid.setObjectID( emObject().id() );
 	insertpid.setSectionID( sid );
-	const int newpolygon = mindist>0 
-	    ? polygon+rowrange.step 
+	const int newpolygon = mindist>0
+	    ? polygon+rowrange.step
 	    : polygon==rowrange.start ? polygon-rowrange.step : polygon;
 
 	insertpid.setSubID( RowCol(newpolygon,0).toInt64() );
 	return;
     }
-    
-    getPidsOnPolygon( nearestpid0, nearestpid1, insertpid, polygon, sid, 
-	    	      pos, zfactor );
+
+    getPidsOnPolygon( nearestpid0, nearestpid1, insertpid, polygon, sid,
+		      pos, zfactor );
 }
 
 
@@ -198,8 +198,8 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 
     if ( change )
     {
-	EM::EMM().undo().setUserInteractionEnd(
-		EM::EMM().undo().currentEventID() );
+	EM::BodyMan().undo().setUserInteractionEnd(
+		EM::BodyMan().undo().currentEventID() );
     }
 
     return change;
@@ -253,8 +253,8 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
 	    avgpos /= count;
 
 	    const Plane3 plane( surface->getPolygonNormal(curpolygon),
-		    		avgpos, false );
-	    const float disttoplane = (float) 
+				avgpos, false );
+	    const float disttoplane = (float)
 		plane.distanceToPoint( mCompareCoord(mousepos), true );
 
 	    if ( selsectionidx==-1 || fabs(disttoplane)<fabs(mindist) )
@@ -290,10 +290,10 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
 bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 {
     if ( !mpos.isDefined() ) return false;
-    
+
     const BinID bid = SI().transform( mpos.getXY() );
-    if ( !SI().inlRange( true ).includes(bid.inl(),false) || 
-	 !SI().crlRange( true ).includes(bid.crl(),false) || 
+    if ( !SI().inlRange( true ).includes(bid.inl(),false) ||
+	 !SI().crlRange( true ).includes(bid.crl(),false) ||
 	 !SI().zRange( true ).includes(mpos.z_,false) )
 	return false;
 
@@ -304,7 +304,7 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     const RowCol rc = pid.getRowCol();
     const StepInterval<int> colrg = surface->colRange( rc.row() );
     if ( colrg.isUdf() ) return false;
-	
+
     const bool addtoundo = changedpids_.indexOf(pid) == -1;
     if ( addtoundo )
 	changedpids_ += pid;
@@ -312,14 +312,14 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     if ( colrg.nrSteps()<3 )
 	return emobject_->setPos( pid, mpos, addtoundo );
 
-    const int zscale =  SI().zDomain().userFactor();   
+    const int zscale =  SI().zDomain().userFactor();
     const int previdx=rc.col()==colrg.start ? colrg.stop : rc.col()-colrg.step;
     const int nextidx=rc.col()<colrg.stop ? rc.col()+colrg.step : colrg.start;
-    
+
     Coord3 curpos = mpos; curpos.z_ *= zscale;
     Coord3 prevpos = surface->getKnot( RowCol(rc.row(), previdx) );
     Coord3 nextpos = surface->getKnot( RowCol(rc.row(), nextidx) );
-    
+
     const bool prevdefined = prevpos.isDefined();
     const bool nextdefined = nextpos.isDefined();
     if ( prevdefined ) prevpos.z_ *= zscale;
@@ -331,10 +331,10 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 	if ( knot==previdx || knot==rc.col() )
 	    continue;
 
-	Coord3 v0 = surface->getKnot( RowCol(rc.row(), knot) ); 
+	Coord3 v0 = surface->getKnot( RowCol(rc.row(), knot) );
 	Coord3 v1 = surface->getKnot( RowCol(rc.row(),nextknot));
 	if ( !v0.isDefined() || !v1.isDefined() )
- 	    return false;
+	    return false;
 
 	v0.z_ *= zscale;
 	v1.z_ *= zscale;
@@ -342,11 +342,11 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 	{
 	    mRetNotInsideNext
 	}
-	else if ( knot==nextidx ) 
+	else if ( knot==nextidx )
 	{
 	    mRetNotInsidePrev
-	} 
-	else 
+	}
+	else
 	{
 	    mRetNotInsidePrev
 	    mRetNotInsideNext
@@ -372,7 +372,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 
     const StepInterval<int> colrange = surface->colRange( polygon );
     if ( colrange.isUdf() ) return;
-   
+
     const Coord3 mp = mCompareCoord(mousepos);
     TypeSet<int> knots;
     int nearknotidx = -1;
@@ -380,7 +380,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
     float minsqptdist = mUdf(float);
     for ( int knotidx=0; knotidx<colrange.nrSteps()+1; knotidx++ )
     {
-	const Coord3 pt = 
+	const Coord3 pt =
 	    surface->getKnot( RowCol(polygon,colrange.atIndex(knotidx)) );
 	if ( !pt.isDefined() )
 	    continue;
@@ -399,7 +399,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	     nearknotidx = knots.size();
 	     nearpos = mCompareCoord( pt );
 	 }
-	 	 
+
 	 knots += colrange.atIndex( knotidx );
     }
 
@@ -426,7 +426,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	Coord3 p1 = surface->getKnot( RowCol(polygon,
 		    knots [ knotidx<knots.size()-1 ? knotidx+1 : 0 ]) );
 	if ( !p0.isDefined() || !p1.isDefined() )
-  	    continue;
+	    continue;
 
 	p0.z_ *= zfactor;
 	p1.z_ *= zfactor;
@@ -449,7 +449,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
     if ( minsqedgedist!=-1 && sowinghistory_.size()<=1 )
     {
 	if ( nearknotidx==nearedgeidx ||
-	     nearknotidx==(nearknotidx<knots.size()-1 ? nearknotidx+1 : 0) ||  	
+	     nearknotidx==(nearknotidx<knots.size()-1 ? nearknotidx+1 : 0) ||
 	     ((v1-nearpos).cross(v0-nearpos)).dot((v1-mp).cross(v0-mp))<0  ||
 	     minsqedgedist<minsqptdist )
 	    usenearedge = true;
@@ -459,12 +459,12 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
     {
 	if ( nearedgeidx<knots.size()-1 )
 	{
-	    nearestpid0.setSubID( 
+	    nearestpid0.setSubID(
 		    RowCol(polygon,knots[nearedgeidx]).toInt64() );
 	    nearestpid1 = nearestpid0;
-	    nearestpid1.setSubID( 
+	    nearestpid1.setSubID(
 		    RowCol(polygon,knots[nearedgeidx+1]).toInt64() );
-	
+
 	    insertpid = nearestpid1;
 	}
 	else
@@ -473,7 +473,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	    const int nextcol = knots[nearedgeidx]+colrange.step;
 	    insertpid.setSubID( RowCol(polygon,nextcol).toInt64() );
 	}
-	    
+
 	return;
     }
     else  //use nearknotidx only
@@ -487,12 +487,12 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	if ( sowinghistory_.size() <= 1 )
 	{
 	    const bool prevdefined = prevpos.isDefined();
-	    const bool nextdefined = nextpos.isDefined();	
+	    const bool nextdefined = nextpos.isDefined();
 	    if ( prevdefined ) prevpos.z_ *= zfactor;
 	    if ( nextdefined ) nextpos.z_ *= zfactor;
 
 	    takeprevious = prevdefined && nextdefined &&
-			   sameSide3D(mp,prevpos,nearpos,nextpos,1e-3); 
+			   sameSide3D(mp,prevpos,nearpos,nextpos,1e-3);
 	}
 	else
 	    takeprevious = sowinghistory_[1]==prevpos;
@@ -502,7 +502,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	    if ( nearknotidx )
 	    {
 		nearestpid1 = nearestpid0;
-		nearestpid1.setSubID( 
+		nearestpid1.setSubID(
 			RowCol(polygon,knots[nearknotidx-1]).toInt64() );
 		insertpid = nearestpid0;
 	    }
@@ -513,12 +513,12 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 		insertpid.setSubID(RowCol(polygon,insertcol).toInt64());
 	    }
 	}
-	else 
+	else
 	{
 	    if ( nearknotidx<knots.size()-1 )
 	    {
 		nearestpid1 = nearestpid0;
-		nearestpid1.setSubID( 
+		nearestpid1.setSubID(
 			RowCol(polygon,knots[nearknotidx+1]).toInt64() );
 		insertpid = nearestpid1;
 	    }

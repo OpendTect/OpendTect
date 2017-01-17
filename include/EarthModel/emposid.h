@@ -19,7 +19,6 @@ ________________________________________________________________________
 namespace EM
 {
 
-typedef od_int32 ObjectID;
 typedef od_int16 SectionID;
 typedef od_int64 SubID;
 
@@ -27,25 +26,25 @@ typedef od_int64 SubID;
 \brief Is an identifier for each position in the earthmodel.
 
 It has three parts,
-- an ObjectID, which identifies wich object is belongs to.
+- a DBKey, which identifies wich object is belongs to.
 - a SectionID, which identifies which section of the object it belongs to.
-- a SubID, which identifies the position on the section. 
+- a SubID, which identifies the position on the section.
 */
 
 mExpClass(EarthModel) PosID
 {
 public:
-    				PosID( ObjectID emobjid=0,
+				PosID( DBKey objid=DBKey::getInvalid(),
 				       SectionID sectionid=0,
 				       SubID subid=0);
 
     static const PosID&		udf();
     bool			isUdf() const;
 
-    const ObjectID&		objectID() const;
+    const DBKey&		objectID() const;
     SectionID			sectionID() const;
     SubID			subID() const;
-    void			setObjectID(const ObjectID&);
+    void			setObjectID(const DBKey&);
     void			setSectionID(SectionID);
     void			setSubID(SubID);
     RowCol			getRowCol() const;
@@ -58,32 +57,32 @@ public:
 
 protected:
 
-    ObjectID			emobjid_;
+    DBKey			objid_;
     SectionID			sectionid_;
     SubID			subid_;
 
     static const char*		emobjStr();
-    static const char* 		sectionStr();
+    static const char*		sectionStr();
     static const char*		subidStr();
 };
 
 
-inline PosID::PosID( ObjectID emobj, SectionID section, SubID subid )
-    : emobjid_(emobj)
+inline PosID::PosID( DBKey objid, SectionID section, SubID subid )
+    : objid_(objid)
     , sectionid_(section)
     , subid_(subid)
 {}
 
 
 inline bool PosID::operator==(const PosID& b) const
-{ return emobjid_==b.emobjid_ && sectionid_==b.sectionid_ && subid_==b.subid_; }
+{ return objid_==b.objid_ && sectionid_==b.sectionid_ && subid_==b.subid_; }
 
 
 inline bool PosID::operator!=(const PosID& b) const
 { return !(*this==b); }
 
-inline const ObjectID& PosID::objectID() const
-{ return emobjid_; }
+inline const DBKey& PosID::objectID() const
+{ return objid_; }
 
 inline SectionID PosID::sectionID() const
 { return sectionid_; }
@@ -91,8 +90,8 @@ inline SectionID PosID::sectionID() const
 inline SubID PosID::subID() const
 { return subid_; }
 
-inline void PosID::setObjectID( const ObjectID& id )
-{ emobjid_ = id; }
+inline void PosID::setObjectID( const DBKey& id )
+{ objid_ = id; }
 
 inline void PosID::setSectionID( SectionID id )
 { sectionid_ = id; }

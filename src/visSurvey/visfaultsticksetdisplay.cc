@@ -161,8 +161,8 @@ void FaultStickSetDisplay::setScene( Scene* scene )
 }
 
 
-EM::ObjectID FaultStickSetDisplay::getEMObjectID() const
-{ return fault_ ? fault_->id() : -1; }
+DBKey FaultStickSetDisplay::getEMObjectID() const
+{ return fault_ ? fault_->id() : DBKey::getInvalid(); }
 
 
 #define mSetStickIntersectPointColor( color ) \
@@ -170,7 +170,7 @@ EM::ObjectID FaultStickSetDisplay::getEMObjectID() const
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
+bool FaultStickSetDisplay::setEMObjectID( const DBKey& emid )
 {
     if ( fault_ )
     {
@@ -189,7 +189,7 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
     if ( viseditor_ )
 	viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss )
 	return false;
@@ -304,7 +304,7 @@ void FaultStickSetDisplay::updateEditPids()
     editpids_.erase();
 
     const bool displayknots = !hideallknots_ && !stickselectmode_;
-   
+
     RowCol rc;
     const StepInterval<int> rowrg = fault_->rowRange();
     for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
@@ -437,12 +437,12 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		}
 	    }
 	}
-	
+
 	addPolyLineCoordBreak( coordidxlist );
     }
-    
+
     ml.unlockNow();
-    
+
 
     if ( poly->getCoordinates()->size() )
     {
@@ -486,8 +486,8 @@ static float zdragoffset = 0;
 
 #define mSetUserInteractionEnd() \
     if ( !viseditor_->sower().moreToSow() ) \
-	EM::EMM().undo().setUserInteractionEnd( \
-					EM::EMM().undo().currentEventID() );
+	EM::FSSMan().undo().setUserInteractionEnd( \
+					EM::FSSMan().undo().currentEventID() );
 
 
 void FaultStickSetDisplay::sowingFinishedCB( CallBacker* )
@@ -741,7 +741,7 @@ void FaultStickSetDisplay::setActiveStick( const EM::PosID& pid )
 void FaultStickSetDisplay::emChangeCB( CallBacker* cb )
 {
     mGetEMCBData( cbid )
-	
+
     if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
 	getMaterial()->setColor( fault_->preferredColor() );
@@ -1000,7 +1000,7 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 
     NotifyStopper ns( fsseditor_->editpositionchange );
     deepErase( stickintersectpoints_ );
-   
+
     fault_->hideAllSticks( displayonlyatsections_, mSceneIdx );
     fault_->hideAllKnots( displayonlyatsections_, mSceneIdx );
 
@@ -1008,13 +1008,13 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 	return;
 
     const EM::PosID curdragger = viseditor_->getActiveDragger();
-  
+
     RowCol rc;
     MonitorLock ml( *fault_ );
     const StepInterval<int> rowrg = fault_->rowRange();
     TypeSet<RowCol> unhiddenknots;
     TypeSet<int> unhiddensticks;
-    
+
     for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
     {
 	const StepInterval<int> colrg = fault_->colRange( rc.row() );
@@ -1056,7 +1056,7 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 	    stickintersectpoints_ += sip;
 	}
     }
-   
+
     ml.unlockNow();
     fault_->hideKnots( unhiddenknots, false, mSceneIdx );
     fault_->hideSticks( unhiddensticks, false, mSceneIdx );
@@ -1170,14 +1170,12 @@ bool FaultStickSetDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
-	EM::ObjectID emid = EM::EMM().getObjectID( newmid );
-	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+	RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( newmid );
 	if ( !emobject )
 	{
-	    PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
+	    PtrMan<Executor> loader = EM::FSSMan().objectLoader( newmid );
 	    if ( loader ) loader->execute();
-	    emid = EM::EMM().getObjectID( newmid );
-	    emobject = EM::EMM().getObject( emid );
+	    emobject = EM::FSSMan().getObject( newmid );
 	}
 
 	if ( emobject ) setEMObjectID( emobject->id() );

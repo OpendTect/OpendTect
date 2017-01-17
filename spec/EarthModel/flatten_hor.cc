@@ -52,7 +52,7 @@ static EM::Horizon* loadHorizon( const char* id, BufferString& err )
     EM::EMManager& em = EM::EMM();
     PtrMan<Executor> exec = em.objectLoader( ioobj->key() );
     exec->execute( &std::cerr );
-    EM::EMObject* emobj = em.getObject( em.getObjectID(ioobj->key()) );
+    EM::EMObject* emobj = em.getObject( ioobj->key() );
     mDynamicCastGet(EM::Horizon*,horizon,emobj)
     if ( !horizon ) { err = "ID "; err += id; err += " is not horizon"; }
     horizon->ref();
@@ -75,8 +75,8 @@ static int doWork( int argc, char** argv )
 
     BufferString hornm = horizon2->name();
     hornm += forward ?	"_flattened" : "_unflattened";
-    EM::ObjectID newid = EM::EMM().createObject( EM::Horizon::typeStr(), hornm);
-    mDynamicCastGet(EM::Horizon*,newhorizon,EM::EMM().getObject(newid))
+    EM::Object* newobj = EM::EMM().createObject( EM::Horizon::typeStr(), hornm);
+    mDynamicCastGet(EM::Horizon*,newhorizon,newobj)
 
     StepInterval<int> inlrg = horizon1->geometry().rowRange();
     StepInterval<int> crlrg = horizon1->geometry().colRange();

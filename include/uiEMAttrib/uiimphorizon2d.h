@@ -35,7 +35,7 @@ public:
 			uiImportHorizon2D(uiParent*);
 			~uiImportHorizon2D();
 
-    void		getEMObjIDs(TypeSet<EM::ObjectID>&) const;
+    void		getEMObjIDs(DBKeySet&) const;
     Notifier<uiImportHorizon2D>	readyForDisplay;
 
 protected:
@@ -60,8 +60,7 @@ protected:
     Table::FormatDesc&  fd_;
     Horizon2DScanner*	scanner_;
     BufferStringSet&	linesetnms_;
-    DBKeySet	setids_;
-    TypeSet<EM::ObjectID> emobjids_;
+    DBKeySet		objids_;
 
     ObjectSet<SurfaceInfo>	horinfos_;
 };

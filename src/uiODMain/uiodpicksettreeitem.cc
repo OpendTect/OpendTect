@@ -383,7 +383,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 
 	RefMan<EM::EMObject> emobj =
-	    EM::EMM().createTempObject( EM::RandomPosBody::typeStr() );
+	    EM::BodyMan().createTempObject( EM::RandomPosBody::typeStr() );
 	mDynamicCastGet( EM::RandomPosBody*, emps, emobj.ptr() );
 	if ( !emps )
 	    return;

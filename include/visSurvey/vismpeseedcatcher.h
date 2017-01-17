@@ -41,7 +41,7 @@ mExpClass(visSurvey) MPEClickInfo
 {
     friend class MPEClickCatcher;
 public:
-    				MPEClickInfo();
+				MPEClickInfo();
 
     bool			isLegalClick() const;
 
@@ -56,7 +56,7 @@ public:
 
     const Coord3&		getPos() const;
     int				getObjID() const;
-    EM::ObjectID		getEMObjID() const; // avail when clicked on hor
+    const DBKey&		getEMObjID() const; // avail when clicked on hor
     const TrcKeyZSampling&	getObjCS() const;
     const TrcKeyPath*		getObjTKPath() const;
     int				getObjRandomLineID() const;
@@ -64,7 +64,7 @@ public:
     const RegularSeisDataPack*	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
 
-    Pos::GeomID 		getGeomID() const;
+    Pos::GeomID		getGeomID() const;
     const char*			getObjLineName() const;
     const Attrib::Data2DHolder*	getObjLineData() const;
 
@@ -79,7 +79,7 @@ protected:
     void			setDoubleClicked(bool);
     void			setNode(const TrcKey&);
     void			setPos(const Coord3&);
-    void			setEMObjID(EM::ObjectID);
+    void			setEMObjID(const DBKey&);
     void			setObjID(int);
     void			setObjCS(const TrcKeyZSampling&);
     void			setObjTKPath(const TrcKeyPath*);
@@ -102,7 +102,7 @@ protected:
     TrcKey				clickednode_;
     Coord3				clickedpos_;
 
-    EM::ObjectID			clickedemobjid_;
+    DBKey				clickedemobjid_;
     int					clickedobjid_;
     TrcKeyZSampling			clickedcs_;
     const RegularSeisDataPack*		attrdata_;
@@ -111,7 +111,7 @@ protected:
     Attrib::SelSpec			attrsel_;
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
-    Pos::GeomID 			geomid_;
+    Pos::GeomID			geomid_;
     BufferString			linename_;
     DataPack::ID			datapackid_;
 };
@@ -151,10 +151,10 @@ protected:
 				~MPEClickCatcher();
     void			clickCB(CallBacker*);
 
-    void 			sendUnderlying2DSeis(
+    void			sendUnderlying2DSeis(
 					const EMObjectDisplay*,
 					const visBase::EventInfo&);
-    void 			sendUnderlyingPlanes(
+    void			sendUnderlyingPlanes(
 					const EMObjectDisplay*,
 					const visBase::EventInfo&);
     void			handleObjectOnSeis2DDisplay(Seis2DDisplay*,

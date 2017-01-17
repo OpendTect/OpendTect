@@ -62,7 +62,7 @@ bool Fault::isKnotHidden( RowCol rc, int sceneidx ) const
 unsigned int Fault::totalSize() const
 {
     mLock4Read();
-    
+
     mDynamicCastGet( const Geometry::RowColSurface*, rcs,
 		    geometry().geometryElement() );
     unsigned int tosz = (rcs->rowRange().nrSteps()+1)
@@ -338,7 +338,7 @@ void FaultGeometry::copySelectedSticksTo( FaultStickSetGeometry& destfssg,
 		}
 		knotnr++;
 	    }
-	    sticknr++; 
+	    sticknr++;
 	}
     }
 }
@@ -358,7 +358,7 @@ void FaultGeometry::selectSticks( bool select, const FaultGeometry* doublesref )
     while ( true )
     {
 	EM::PosID pid = iter->next();
-	if ( pid.objectID() == -1 )
+	if ( pid.objectID().isInvalid() )
 	    break;
 
 	const int sticknr = pid.getRowCol().row();
@@ -403,7 +403,7 @@ bool FaultGeometry::removeSelStick( int selidx, bool addtohistory,
 	    if ( !fss->isStickSelected(rc.row()) )
 		continue;
 
-	    if ( selidx ) 
+	    if ( selidx )
 	    {
 		selidx--;
 		continue;
@@ -526,7 +526,7 @@ FaultStickUndoEvent::FaultStickUndoEvent( const EM::PosID& posid )
     : posid_( posid )
     , remove_( false )
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = FSSMan().getObject( posid_.objectID() );
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return;
 
@@ -551,7 +551,7 @@ const char* FaultStickUndoEvent::getStandardDesc() const
 
 bool FaultStickUndoEvent::unDo()
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = FSSMan().getObject( posid_.objectID() );
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 
@@ -566,7 +566,7 @@ bool FaultStickUndoEvent::unDo()
 
 bool FaultStickUndoEvent::reDo()
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = FSSMan().getObject( posid_.objectID() );
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 
@@ -583,7 +583,7 @@ FaultKnotUndoEvent::FaultKnotUndoEvent( const EM::PosID& posid )
     : posid_( posid )
     , remove_( false )
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = FSSMan().getObject( posid_.objectID() );
     if ( !emobj ) return;
     pos_ = emobj->getPos( posid_ );
 }
@@ -603,7 +603,7 @@ const char* FaultKnotUndoEvent::getStandardDesc() const
 
 bool FaultKnotUndoEvent::unDo()
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = FSSMan().getObject( posid_.objectID() );
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 
@@ -617,7 +617,7 @@ bool FaultKnotUndoEvent::unDo()
 
 bool FaultKnotUndoEvent::reDo()
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = FSSMan().getObject( posid_.objectID() );
     mDynamicCastGet( Fault*, fault, emobj.ptr() );
     if ( !fault ) return false;
 

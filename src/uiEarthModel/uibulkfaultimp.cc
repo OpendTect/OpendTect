@@ -234,7 +234,7 @@ static EM::FaultStickSet* createFaultStickSet(
 				ObjectSet<EM::FaultStick>& sticks )
 {
     mDynamicCastGet(EM::FaultStickSet*,emfss,
-	    EM::EMM().createTempObject(EM::FaultStickSet::typeStr()))
+	    EM::FSSMan().createTempObject(EM::FaultStickSet::typeStr()))
     if ( !emfss ) return 0;
 
     EM::SectionID sid = emfss->sectionID( 0 );
@@ -279,9 +279,8 @@ bool uiBulkFaultImport::acceptOK()
     ExecutorGroup saver( "Saving faults" );
     for ( int idx=0; idx<pars.size(); idx++ )
     {
-	EM::ObjectID eid = EM::EMM().createObject(
+	EM::EMObject* emobj = EM::Flt3DMan().createObject(
 		EM::Fault3D::typeStr(), pars[idx]->name_.buf() );
-	EM::EMObject* emobj = EM::EMM().getObject( eid );
 	emobj->ref();
 	mDynamicCastGet( EM::Fault3D*, emflt, emobj );
 	if ( !emflt )

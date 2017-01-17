@@ -376,7 +376,7 @@ bool uiDataPointSetPickDlg::acceptOK()
 
 // uiEMDataPointSetPickDlg
 uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, int sceneid,
-						  EM::ObjectID emid )
+						  const DBKey& emid )
     : uiDataPointSetPickDlg(p,sceneid)
     , emid_(emid)
     , emdps_(*new DataPointSet(false,true))
@@ -435,7 +435,7 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
+	if ( pid.objectID().isInvalid() )
 	    break;
 
 	auxvals[0] = (float) hor3d->getPos( pid ).z_;

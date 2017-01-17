@@ -33,7 +33,7 @@ public:
     virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    bool addtohistory)	{ return false; }
-   
+
     virtual bool	insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    const DBKey* pickeddbkey,
@@ -44,7 +44,7 @@ public:
 				    Pos::GeomID pickedgeomid,bool addtohistory)
 							{ return false; }
     virtual bool        insertKnot(const SectionID&,const SubID&,
-	    			   const Coord3& pos,bool addtohistory)
+				   const Coord3& pos,bool addtohistory)
 							{ return false; }
     virtual bool	removeStick(const SectionID&,int sticknr,
 				    bool addtohistory)	{ return false; }
@@ -79,7 +79,7 @@ protected:
     bool		removeSelStick(int selidx,bool addtohistory,
 				       const FaultGeometry* doublesref=0);
 
-    			FaultGeometry( Surface& surf )
+			FaultGeometry( Surface& surf )
 			    : SurfaceGeometry(surf)	{}
 };
 
@@ -109,12 +109,12 @@ public:
 					 const Coord3& editnormal,
 					 bool addtohistory);
     bool			removeStick(int sticknr,bool);
-    
+
     bool			insertKnot(const SubID&,const Coord3&,bool);
     bool			removeKnot(const SubID&, bool);
-    
-    StepInterval<int>	    	rowRange() const;
-    StepInterval<int>	    	colRange(int row) const;
+
+    StepInterval<int>		rowRange() const;
+    StepInterval<int>		colRange(int row) const;
     int				nrSticks() const;
     TypeSet<Coord3>		getStick(int sticknr) const;
     unsigned int		totalSize() const;
@@ -150,15 +150,15 @@ public:
     virtual Pos::GeomID		pickedGeomID(int row) const   { return -1; }
     virtual const DBKey*	pickedDBKey(int sticknr) const{ return 0; }
     virtual const char*		pickedName(int sticknr) const { return 0; }
-  
-    
+
+
     virtual void		removeAll();
     virtual FaultGeometry&	geometry()			= 0;
     virtual const FaultGeometry& geometry() const
 				{ return const_cast<Fault*>(this)->geometry(); }
 
 protected:
-    				Fault( EMManager& em )
+				Fault( EMManager& em )
 				    : Surface(em)		{}
 
     const IOObjContext&		getIOObjContext() const		= 0;

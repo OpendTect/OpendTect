@@ -38,7 +38,7 @@ static EM::Horizon* load3DHorizon( const char* id, BufferString& err )
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;
-    EM::EMManager& em = EM::EMM();
+    EM::EMManager& em = EM::Hor3DMan();
     EM::dgbSurfaceReader* reader =
 	new EM::dgbSurfaceReader( *ioobj, EM::Horizon3D::typeStr() );
     if ( !reader->isOK() )
@@ -47,7 +47,7 @@ static EM::Horizon* load3DHorizon( const char* id, BufferString& err )
 	return 0;
     }
 
-    EM::EMObject* emobj = EM::Horizon3D::create( EM::EMM() );
+    EM::EMObject* emobj = EM::Horizon3D::create( EM::Hor3DMan() );
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
     emobj->setDBKey( ioobj->key() );
     reader->setOutput( *horizon );
@@ -67,7 +67,7 @@ static EM::Horizon* load2DHorizon( const char* id, BufferString& err )
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;
-    EM::EMManager& em = EM::EMM();
+    EM::EMManager& em = EM::Hor2DMan();
     EM::dgbSurfaceReader* reader =
 	new EM::dgbSurfaceReader( *ioobj, EM::Horizon2D::typeStr() );
     if ( !reader->isOK() )
@@ -76,7 +76,7 @@ static EM::Horizon* load2DHorizon( const char* id, BufferString& err )
 	return 0;
     }
 
-    EM::EMObject* emobj = EM::Horizon2D::create( EM::EMM() );
+    EM::EMObject* emobj = EM::Horizon2D::create( EM::Hor2DMan() );
     mDynamicCastGet(EM::Horizon2D*,horizon,emobj)
     emobj->setDBKey( ioobj->key() );
     reader->setOutput( *horizon );

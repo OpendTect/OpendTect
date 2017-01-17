@@ -75,12 +75,12 @@ public:
     void			setOnlyAtSectionsDisplay(bool yn);
     bool			displayedOnlyAtSections() const;
 
-    bool			setEMID(const EM::ObjectID&);
-    EM::ObjectID		getEMID() const;
+    bool			setEMID(const DBKey&);
+    DBKey			getEMID() const;
 
     void			touchAll(bool,bool updatemarker=false);
     EM::PolygonBody*		getEMPolygonBody() const
-    				{ return empolygonsurf_; }
+				{ return empolygonsurf_; }
     bool			canRemoveSelection() const	{ return true; }
     bool			removeSelections(TaskRunner*);
 
@@ -94,7 +94,7 @@ protected:
 
     virtual			~PolygonBodyDisplay();
     void			otherObjectsMoved(
-	    			    const ObjectSet<const SurveyObject>&,
+				    const ObjectSet<const SurveyObject>&,
 				    int whichobj);
 
     void			updatePolygonDisplay();
@@ -102,15 +102,15 @@ protected:
     void			updateManipulator();
 
     static const char*		sKeyEMPolygonSurfID()
-    				{ return "EMPolygonsurface ID"; }
+				{ return "EMPolygonsurface ID"; }
 
     bool			isPicking() const;
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
 
-    void 			updateNearestPolygonMarker();
+    void			updateNearestPolygonMarker();
     void			setNewIntersectingPolygon(const Coord3& normal,
-	    						  const Coord3& pt);
+							  const Coord3& pt);
 				/*<Given a plane3(nomal, pt), calculate the
 				   intersections of known polygons with the
 				   intersection line between plane3 and polygon

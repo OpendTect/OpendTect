@@ -27,11 +27,11 @@ class Scene;
 /*!\brief used for displaying a set of random picks in xyz coordinate.*/
 
 mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
-       			      public visSurvey::SurveyObject
+			      public visSurvey::SurveyObject
 { mODTextTranslationClass(RandomPosBodyDisplay);
 public:
 				RandomPosBodyDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				 visSurvey::SurveyObject,RandomPosBodyDisplay,
 				 "RandomPosBodyDisplay",
 				 toUiString(sFactoryKeyword()));
@@ -49,9 +49,9 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     bool			setVisBody(visBase::RandomPos2Body*);
-    				//!<Creates an EMObject for it.
-    bool			setEMID(const EM::ObjectID&);
-    EM::ObjectID		getEMID() const;
+				//!<Creates an EMObject for it.
+    bool			setEMID(const DBKey&);
+    DBKey			getEMID() const;
     EM::RandomPosBody*		getEMBody() const	{ return embody_; }
 
     const uiString&		errMsg() const { return errmsg_; }
@@ -60,7 +60,7 @@ protected:
 
     static const char*		sKeyPSEarthModelID()	{ return "EM ID"; }
     virtual			~RandomPosBodyDisplay();
-    
+
     bool			updateVisFromEM();
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);

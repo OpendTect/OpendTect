@@ -199,8 +199,8 @@ void FaultDisplay::setScene( Scene* scene )
 }
 
 
-EM::ObjectID FaultDisplay::getEMObjectID() const
-{ return fault_ ? fault_->id() : -1; }
+DBKey FaultDisplay::getEMObjectID() const
+{ return fault_ ? fault_->id() : DBKey::getInvalid(); }
 
 
 #define mSetStickIntersectPointColor( color ) \
@@ -216,7 +216,7 @@ EM::Fault3D* FaultDisplay::emFault()
 }
 
 
-bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
+bool FaultDisplay::setEMObjectID( const DBKey& emid )
 {
     if ( fault_ )
     {
@@ -229,7 +229,7 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     faulteditor_ = 0;
     if ( viseditor_ ) viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emfault,emobject.ptr());
     if ( !emfault )
     {
@@ -693,14 +693,12 @@ bool FaultDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
-	EM::ObjectID emid = EM::EMM().getObjectID( newmid );
-	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+	RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( newmid );
 	if ( !emobject )
 	{
-	    PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
+	    PtrMan<Executor> loader = EM::Flt3DMan().objectLoader( newmid );
 	    if ( loader ) loader->execute();
-	    emid = EM::EMM().getObjectID( newmid );
-	    emobject = EM::EMM().getObject( emid );
+	    emobject = EM::Flt3DMan().getObject( newmid );
 	}
 
 	if ( emobject ) setEMObjectID( emobject->id() );
@@ -940,8 +938,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
 		if ( res && !viseditor_->sower().moreToSow() )
 		{
-		    EM::EMM().undo().setUserInteractionEnd(
-			    EM::EMM().undo().currentEventID() );
+		    EM::Flt3DMan().undo().setUserInteractionEnd(
+			    EM::Flt3DMan().undo().currentEventID() );
 		    updateDisplay();
 		}
 	    }
@@ -977,8 +975,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    faulteditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
 	    {
-		EM::EMM().undo().setUserInteractionEnd(
-		    EM::EMM().undo().currentEventID() );
+		EM::Flt3DMan().undo().setUserInteractionEnd(
+		    EM::Flt3DMan().undo().currentEventID() );
 
 		updateDisplay();
 		setActiveStick( insertpid );
@@ -994,8 +992,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    faulteditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
 	    {
-		EM::EMM().undo().setUserInteractionEnd(
-		    EM::EMM().undo().currentEventID() );
+		EM::Flt3DMan().undo().setUserInteractionEnd(
+		    EM::Flt3DMan().undo().currentEventID() );
 		faulteditor_->editpositionchange.trigger();
 	    }
 	}
@@ -1668,7 +1666,7 @@ void FaultDisplay::updateEditorMarkers()
     while ( true )
     {
 	const EM::PosID pid = iter->next();
-	if ( pid.objectID() == -1 )
+	if ( pid.objectID().isInvalid() )
 	    break;
 
 	const EM::SectionID sid = pid.sectionID();
@@ -2004,14 +2002,14 @@ const visBase::GeomIndexedShape* FaultDisplay::getFaultDisplayedPlane() const
 }
 
 
-const visBase::GeomIndexedShape* 
+const visBase::GeomIndexedShape*
 FaultDisplay::getFaultDisplayedStickLines() const
 {
     return stickdisplay_;
 }
 
 
-const ObjectSet<visBase::MarkerSet>& 
+const ObjectSet<visBase::MarkerSet>&
 FaultDisplay::getFaultDisplayedSticks() const
 {
     return viseditor_->getDraggerMarkers();

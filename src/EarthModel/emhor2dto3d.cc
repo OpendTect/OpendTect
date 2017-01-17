@@ -132,7 +132,7 @@ void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 	for ( EM::RowColIterator iter(hor2d_,sid); ; )
 	{
 	    const EM::PosID posid = iter.next();
-	    if ( posid.objectID() == -1 )
+	    if ( posid.objectID().isInvalid() )
 		break;
 
 	    const Coord coord = hor2d_.getPos( posid ).getXY();
@@ -181,7 +181,7 @@ void Hor2DTo3D::fillSections()
 	for ( EM::RowColIterator iter(hor2d_,sd.sid_); ; )
 	{
 	    const EM::PosID posid = iter.next();
-	    if ( posid.objectID() == -1 )
+	    if ( posid.objectID().isInvalid() )
 		break;
 
 	    const Coord3 coord = hor2d_.getPos( posid );

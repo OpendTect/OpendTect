@@ -22,7 +22,7 @@ namespace MPE { class HorizonFlatViewEditor3D; }
 mExpClass(uiViewer2D) Vw2DHorizon3D : public Vw2DEMDataObject
 {
 public:
-   static Vw2DHorizon3D* create(const EM::ObjectID& id,uiFlatViewWin* win,
+   static Vw2DHorizon3D* create(const DBKey& id,uiFlatViewWin* win,
 			   const ObjectSet<uiFlatViewAuxDataEditor>& ed)
 			    mCreateVw2DDataObj(Vw2DHorizon3D,id,win,ed);
 

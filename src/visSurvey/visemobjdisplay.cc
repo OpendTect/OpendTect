@@ -250,10 +250,10 @@ void EMObjectDisplay::removeEMStuff()
 
 
 EM::PosID EMObjectDisplay::findClosestNode(const Coord3&) const
-{ return EM::PosID(-1,-1,-1); }
+{ return EM::PosID(DBKey::getInvalid(),-1,-1); }
 
 
-bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tskr )
+bool EMObjectDisplay::setEMObject( const DBKey& newid, TaskRunner* tskr )
 {
     EM::EMObject* emobject = em_.getObject( newid );
     if ( !emobject ) return false;
@@ -283,9 +283,9 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tskr )
 }
 
 
-EM::ObjectID EMObjectDisplay::getObjectID() const
+DBKey EMObjectDisplay::getObjectID() const
 {
-    return emobject_ ? emobject_->id() : -1;
+    return emobject_ ? emobject_->id() : DBKey::getInvalid();
 }
 
 
@@ -681,7 +681,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
     const TypeSet<int>& path, const Coord3& clickeddisplaypos ) const
 {
-    EM::PosID res(-1,-1,-1);
+    EM::PosID res(DBKey::getInvalid(),-1,-1);
     const int attribidx = posattribs_.indexOf(attrib);
     if ( attribidx<0 )
 	return res;

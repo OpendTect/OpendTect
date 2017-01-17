@@ -256,7 +256,7 @@ void Surface::apply( const Pos::Filter& pf )
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
+	if ( pid.objectID().isInvalid() )
 	    break;
 
 	const Coord3 pos = getPos( pid );

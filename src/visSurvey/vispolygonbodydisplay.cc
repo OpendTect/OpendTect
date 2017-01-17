@@ -149,9 +149,9 @@ void PolygonBodyDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 }
 
 
-EM::ObjectID PolygonBodyDisplay::getEMID() const
+DBKey PolygonBodyDisplay::getEMID() const
 {
-    return empolygonsurf_ ? empolygonsurf_->id() : -1;
+    return empolygonsurf_ ? empolygonsurf_->id() : DBKey::getInvalid();
 }
 
 
@@ -197,7 +197,7 @@ void PolygonBodyDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
+bool PolygonBodyDisplay::setEMID( const DBKey& emid )
 {
     if ( empolygonsurf_ )
     {
@@ -211,7 +211,7 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     empolygonsurf_ = 0;
     polygonsurfeditor_ = 0;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::BodyMan().getObject( emid );
     mDynamicCastGet( EM::PolygonBody*, emplys, emobject.ptr() );
     if ( !emplys )
     {
@@ -470,17 +470,15 @@ bool PolygonBodyDisplay::usePar( const IOPar& par )
     DBKey newmid;
     if ( par.get(sKeyEMPolygonSurfID(),newmid) )
     {
-	EM::ObjectID emid = EM::EMM().getObjectID( newmid );
-	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+	RefMan<EM::EMObject> emobject = EM::BodyMan().getObject( newmid );
 	if ( !emobject )
 	{
-	    PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
+	    PtrMan<Executor> loader = EM::BodyMan().objectLoader( newmid );
 	    if ( loader ) loader->execute();
-	    emid = EM::EMM().getObjectID( newmid );
-	    emobject = EM::EMM().getObject( emid );
+	    emobject = EM::BodyMan().getObject( newmid );
 	}
 
-	if ( emobject ) setEMID( emobject->id() );
+	if ( emobject ) setEMID( newmid );
     }
 
     return true;
@@ -617,8 +615,8 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 
 		if ( res && !viseditor_->sower().moreToSow() )
 		{
-		    EM::EMM().undo().setUserInteractionEnd(
-			    EM::EMM().undo().currentEventID() );
+		    EM::BodyMan().undo().setUserInteractionEnd(
+			    EM::BodyMan().undo().currentEventID() );
 		    touchAll( false );
 		}
 	    }
@@ -659,8 +657,8 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	    polygonsurfeditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
 	    {
-		EM::EMM().undo().setUserInteractionEnd(
-		    EM::EMM().undo().currentEventID() );
+		EM::BodyMan().undo().setUserInteractionEnd(
+		    EM::BodyMan().undo().currentEventID() );
 
 		touchAll( false );
 		polygonsurfeditor_->editpositionchange.trigger();
@@ -675,8 +673,8 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	    polygonsurfeditor_->setLastClicked( insertpid );
 	    if ( !viseditor_->sower().moreToSow() )
 	    {
-		EM::EMM().undo().setUserInteractionEnd(
-		    EM::EMM().undo().currentEventID() );
+		EM::BodyMan().undo().setUserInteractionEnd(
+		    EM::BodyMan().undo().currentEventID() );
 		polygonsurfeditor_->editpositionchange.trigger();
 	    }
 	}

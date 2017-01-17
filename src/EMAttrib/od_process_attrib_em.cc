@@ -350,7 +350,8 @@ bool BatchProgram::go( od_ostream& strm )
 
 	SurfaceIOData sd;
 	uiString uierr;
-	if ( !EM::EMM().getSurfaceData(dbky,sd,uierr) )
+	EM::EMManager& emmgr = EM::getMgr( dbky );
+	if ( !emmgr.getSurfaceData(dbky,sd,uierr) )
 	{
 	    BufferString errstr( "Cannot load horizon ", dbky.toString(), ": ");
 	    errstr += uierr.getFullString();
@@ -363,7 +364,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    sels.selsections += ids;
 	sels.rg = hsamp;
 	PtrMan<Executor> loader =
-			EMM().objectLoader( dbky, iscubeoutp ? &sels : 0 );
+			emmgr.objectLoader( dbky, iscubeoutp ? &sels : 0 );
 	if ( !loader || !loader->go(strm) )
 	{
 	    BufferString errstr = "Cannot load horizon:";
@@ -386,7 +387,7 @@ bool BatchProgram::go( od_ostream& strm )
 		zbounds4mmproc = sd.zrg;
 	}
 
-	EMObject* emobj = EMM().getObject( EMM().getObjectID(dbky) );
+	EMObject* emobj = emmgr.getObject( dbky );
 	if ( emobj ) emobj->ref();
 	objects += emobj;
     }
@@ -446,7 +447,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( !process( strm, proc, false ) ) return false;
 	HorizonUtils::addSurfaceData( midset[0], attribrefs, bivs );
-	EMObject* obj = EMM().getObject( EMM().getObjectID(midset[0]) );
+	EMObject* obj = Hor3DMan().getObject( midset[0] );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
 	if ( !horizon ) mErrRet( "Huh" );
 

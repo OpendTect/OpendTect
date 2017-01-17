@@ -26,18 +26,18 @@ namespace EM
 mDefineEnumUtils(HorizonMerger,Mode,"Merge mode")
 { "Take average", "Use top", "Use base", 0 };
 
-Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
+Horizon3DMerger::Horizon3DMerger( const TypeSet<DBKey>& ids )
     : outputhor_(0)
     , ownsarray_(true)
     , hs_(false)
 {
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	const ObjectID& objid( ids[idx] );
-	mDynamicCastGet(Horizon3D*,hor,EMM().getObject(objid))
+	const DBKey& objid( ids[idx] );
+	mDynamicCastGet(Horizon3D*,hor,Hor3DMan().getObject(objid))
 	if ( !hor ) continue;
 	inputhors_ += hor;
-	IOObjInfo oi( EMM().getDBKey(objid) );
+	IOObjInfo oi( objid );
 	SurfaceIOData sd;
 	uiString errmsg;
 	if ( oi.getSurfaceData(sd,errmsg) )
@@ -48,7 +48,7 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
     depths_ = new Array2DImpl<float>( hs_.nrInl(), hs_.nrCrl() );
     depths_->setAll( mUdf(float) );
 
-    EMObject* emobj = EMM().createTempObject( Horizon3D::typeStr() );
+    EMObject* emobj = Hor3DMan().createTempObject( Horizon3D::typeStr() );
     if ( emobj ) emobj->ref();
     mDynamicCast(Horizon3D*,outputhor_,emobj)
     if ( emobj && !outputhor_ )

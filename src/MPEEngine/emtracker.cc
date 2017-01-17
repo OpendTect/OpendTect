@@ -54,8 +54,8 @@ BufferString EMTracker::objectName() const
 { return emobject_ ? emobject_->name() : BufferString::empty(); }
 
 
-EM::ObjectID EMTracker::objectID() const
-{ return emobject_ ? emobject_->id() : -1; }
+DBKey EMTracker::objectID() const
+{ return emobject_ ? emobject_->id() : DBKey::getInvalid(); }
 
 
 bool EMTracker::snapPositions( const TypeSet<TrcKey>& list )

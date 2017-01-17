@@ -65,11 +65,11 @@ bool uiHor2DFrom3DDlg::acceptOK()
 	return false;
 
     const DBKey mid = hor3dsel_->selIOObj()->key();
-    const EM::ObjectID oid = EM::EMM().getObjectID( mid );
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject( oid );
+    RefMan<EM::EMObject> emobj = EM::Hor3DMan().getObject( mid );
     if ( !emobj || !emobj->isFullyLoaded() )
     {
-	emobj = EM::EMM().createTempObject( hor3dsel_->selIOObj()->group() );
+	emobj =
+	    EM::Hor3DMan().createTempObject( hor3dsel_->selIOObj()->group() );
 	if ( !emobj )
 	{
 	    uiMSG().error( tr("Cannot read or create 3D horizon") );
@@ -77,7 +77,7 @@ bool uiHor2DFrom3DDlg::acceptOK()
 	}
 
 	emobj->setDBKey( mid );
-	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
+	PtrMan<Executor> loader = EM::Hor3DMan().objectLoader( mid );
 	uiTaskRunner taskrunner( this );
 	if ( !TaskRunner::execute( &taskrunner, *loader ) )
 	    return false;
@@ -112,10 +112,11 @@ bool uiHor2DFrom3DDlg::acceptOK()
 
 EM::Horizon2D* uiHor2DFrom3DDlg::create2dHorizon( const char* horizonnm )
 {
-    EM::EMManager& em = EM::EMM();
-    emobjid_ = em.createObject( EM::Horizon2D::typeStr(), horizonnm );
-    mDynamicCastGet( EM::Horizon2D*, horizon, em.getObject(emobjid_) );
+    EM::EMManager& em = EM::Hor2DMan();
+    EM::EMObject* obj = em.createObject( EM::Horizon2D::typeStr(), horizonnm );
+    mDynamicCastGet( EM::Horizon2D*, horizon, obj );
     horizon->setDBKey( out2dfld_->selIOObj()->key() );
+    emobjid_ = horizon->dbKey();
     return horizon;
 }
 
@@ -138,9 +139,8 @@ void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
 {
     TypeSet<Pos::GeomID> geomids;
     linesetinpsel_->getSelGeomIDs( geomids );
-    EM::EMManager& em = EM::EMM();
-    EM::ObjectID objid = em.getObjectID( hor3dsel_->selIOObj()->key() );
-    mDynamicCastGet(EM::Horizon3D*,horizon3d,em.getObject(objid));
+    mDynamicCastGet(EM::Horizon3D*,horizon3d,
+		    EM::Hor3DMan().getObject(hor3dsel_->selIOObj()->key()));
     Hor2DFrom3DCreatorGrp creator( *horizon3d, horizon2d );
     creator.init( geomids );
 

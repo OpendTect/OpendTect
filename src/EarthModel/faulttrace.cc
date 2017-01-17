@@ -1357,9 +1357,10 @@ bool FaultTrcDataProvider::init( const DBKeySet& faultids,
     EM::SurfaceIODataSelection sel( sd );
     sd.rg = hrg;
     ExecutorGroup loadergrp( "Loading Faults" );
+    EM::EMManager& emmgr = is2d_ ? EM::FSSMan() : EM::Flt3DMan();
     for ( int idx=0; idx<faultids.size(); idx++ )
-	if ( EM::EMM().getObjectID(faultids[idx]) < 0 )
-	    loadergrp.add( EM::EMM().objectLoader(faultids[idx],&sel) );
+	if ( !emmgr.getObject(faultids[idx]) )
+	    loadergrp.add( emmgr.objectLoader(faultids[idx],&sel) );
 
     const int res = TaskRunner::execute( taskrunner, loadergrp );
     if ( !res )
@@ -1371,8 +1372,8 @@ bool FaultTrcDataProvider::init( const DBKeySet& faultids,
     TaskGroup taskgrp;
     for ( int idx=0; idx<faultids.size(); idx++ )
     {
-	const EM::ObjectID oid = EM::EMM().getObjectID( faultids[idx] );
-	mDynamicCastGet(EM::Fault*,flt,EM::EMM().getObject(oid))
+	RefMan<EM::EMObject> emobj = emmgr.getObject( faultids[idx] );
+	mDynamicCastGet(EM::Fault*,flt,emobj.ptr())
 	if ( !flt )
 	{
 	    errmsg_ = uiStrings::phrCannotRead( toUiString(faultids[idx]) );
@@ -1403,8 +1404,8 @@ bool FaultTrcDataProvider::get2DTraces( const DBKeySet& faultids,
     TaskGroup taskgrp;
     for ( int idx=0; idx<faultids.size(); idx++ )
     {
-	const EM::ObjectID oid = EM::EMM().getObjectID( faultids[idx] );
-	mDynamicCastGet(EM::Fault*,flt,EM::EMM().getObject(oid))
+	RefMan<EM::EMObject> emobj = EM::FSSMan().getObject( faultids[idx] );
+	mDynamicCastGet(EM::Fault*,flt,emobj.ptr())
 	if ( !flt )
 	{
 	    holders_ += 0;

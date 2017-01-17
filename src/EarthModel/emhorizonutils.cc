@@ -114,9 +114,8 @@ float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface,
 
 Surface* HorizonUtils::getSurface( const DBKey& id )
 {
-    EMManager& em = EMM();
-    const ObjectID objid = em.getObjectID(id);
-    EMObject* obj = em.getObject( objid );
+    EMManager& em = Hor3DMan();
+    EMObject* obj = em.getObject( id );
     mDynamicCastGet(Surface*,surface,obj)
     return surface;
 }
@@ -138,7 +137,7 @@ void HorizonUtils::getPositions( od_ostream& strm, const DBKey& id,
     while ( iterator )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
+	if ( pid.objectID().isInvalid() )
 	    break;
 
 	if ( pid.sectionID() != sid )
@@ -196,7 +195,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const DBKey& id,
 	while ( iterator )
 	{
 	    const EM::PosID pid = iterator->next();
-	    if ( pid.objectID()==-1 )
+	    if ( pid.objectID().isInvalid() )
 		break;
 
 	    if ( pid.sectionID() != sid )
@@ -351,9 +350,8 @@ void HorizonUtils::addSurfaceData( const DBKey& id,
 				   const BufferStringSet& attrnms,
 				   const ObjectSet<BinIDValueSet>& data )
 {
-    EMManager& em = EMM();
-    const ObjectID objid = em.getObjectID(id);
-    EMObject* obj = em.getObject( objid );
+    EMManager& em = Hor3DMan();
+    EMObject* obj = em.getObject( id );
     mDynamicCastGet(Horizon3D*,horizon,obj)
     if ( !horizon ) return;
 
@@ -366,7 +364,7 @@ void HorizonUtils::addSurfaceData( const DBKey& id,
 	const SectionID sectionid = horizon->sectionID( sectionidx );
 	const BinIDValueSet& bivs = *data[sectionidx];
 
-	PosID posid( objid, sectionid );
+	PosID posid( id, sectionid );
 	BinIDValueSet::SPos pos;
 	BinID bid; TypeSet<float> vals;
 	while ( bivs.next(pos) )

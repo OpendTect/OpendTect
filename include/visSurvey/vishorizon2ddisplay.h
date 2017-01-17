@@ -32,7 +32,7 @@ public:
 				Horizon2DDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,Horizon2DDisplay,
-				    "Horizon2DDisplay", 
+				    "Horizon2DDisplay",
 				    toUiString(sFactoryKeyword()));
 
     void			setDisplayTransformation(const mVisTrans*);
@@ -46,7 +46,7 @@ public:
 						BufferString& info) const;
     void			setLineStyle(const OD::LineStyle&);
 
-    bool			setEMObject(const EM::ObjectID&,TaskRunner*);
+    bool			setEMObject(const DBKey&,TaskRunner*);
     EM::SectionID		getSectionID(int visid) const;
     TypeSet<EM::SectionID>	getSectionIDs() const{ return sids_; }
 
@@ -95,7 +95,7 @@ protected:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
     bool			calcLine2DIntersections(
-						const TypeSet<Pos::GeomID>&, 
+						const TypeSet<Pos::GeomID>&,
 						    Line2DInterSectionSet&);
 
     void			calcLine2DInterSectionSet();

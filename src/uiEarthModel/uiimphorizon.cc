@@ -653,18 +653,15 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 EM::Horizon3D* uiImportHorizon::createHor() const
 {
     const char* horizonnm = outputfld_->getInput();
-    EM::EMManager& em = EM::EMM();
-    const DBKey mid = getSelID();
-    EM::ObjectID objid = em.getObjectID( mid );
-    if ( objid < 0 )
-	objid = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
+    EM::EMManager& em = EM::Hor3DMan();
+    RefMan<EM::EMObject> obj =
+	em.createObject( EM::Horizon3D::typeStr(), horizonnm );
 
-    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
+    mDynamicCastGet(EM::Horizon3D*,horizon,obj.ptr());
     if ( !horizon )
 	mErrRet( uiStrings::sCantCreateHor() );
 
     horizon->change.disable();
-    horizon->setDBKey( mid );
     horizon->setStratLevelID( stratlvlfld_->getID() );
     horizon->ref();
     return horizon;
@@ -673,7 +670,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
 
 EM::Horizon3D* uiImportHorizon::loadHor()
 {
-    EM::EMManager& em = EM::EMM();
+    EM::EMManager& em = EM::Hor3DMan();
     EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
     emobj->setDBKey( ctio_.ioobj_->key() );
     Executor* loader = emobj->loader();

@@ -128,7 +128,7 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
 
     Scene* scene = STM().currentScene();
     if ( scene && scene->getPolySelection()->getSelectionType() !=
-	    					visBase::PolygonSelection::Off )
+						visBase::PolygonSelection::Off )
 	mReturnHandled( false );
 
     if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
@@ -449,7 +449,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	    mode_ = SequentSowing;
     }
 
-    
+
     if ( sow )
 	sowingEnd.trigger();
     reset();
@@ -599,7 +599,8 @@ EM::PosID Sower::getMarkerID( const visBase::EventInfo& eventinfo ) const
     if ( locdisp )
     {
 	const int knotid = locdisp->clickedMarkerIndex( eventinfo );
-	return knotid<0 ? EM::PosID::udf() : EM::PosID( 0, 0, knotid );
+	return knotid<0 ? EM::PosID::udf()
+			: EM::PosID( DBKey::getInvalid(), 0, knotid );
     }
 
     return EM::PosID::udf();

@@ -24,7 +24,7 @@ namespace EM
 {
 
 FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
-				      const EM::ObjectID& oid )
+				      const DBKey& oid )
     : viewer_(fv)
     , emid_(oid)
     , markerlinestyle_( OD::LineStyle::Solid,2,Color(0,255,0) )
@@ -41,7 +41,7 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     , knotenabled_(false)
     , paintenable_(true)
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::FSSMan().getObject( emid_ );
     if ( emobj )
     {
 	emobj->ref();
@@ -53,7 +53,7 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
 
 FaultStickPainter::~FaultStickPainter()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::FSSMan().getObject( emid_ );
     if ( emobj )
     {
 	emobj->change.remove( mCB(this,FaultStickPainter,fssChangedCB) );
@@ -89,7 +89,7 @@ void FaultStickPainter::paint()
 
 bool FaultStickPainter::addPolyLine()
 {
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid_ );
+    RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( emid_ );
 
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return false;
@@ -158,7 +158,7 @@ bool FaultStickPainter::addPolyLine()
 			const BinID bid = SI().transform( pos.getXY() );
 			const TrcKey trckey = Survey::GM().traceKey(
 			   Survey::GM().default3DSurvID(),bid.inl(),bid.crl() );
-			Coord3 editnormal( 
+			Coord3 editnormal(
 			    Geometry::RandomLine::getNormal(knots,trckey), 0.f);
 			const Coord3 nzednor = editnormal.normalize();
 			const Coord3 stkednor =

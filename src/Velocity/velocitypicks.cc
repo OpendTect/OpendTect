@@ -38,8 +38,7 @@ mDefineEnumUtils( Picks, PickType, "Pick types" )
 { "RMO", "RMS", "Delta", "Epsilon", "Eta", 0 };
 
 
-Pick::Pick( float depth, float vel, float offset,
-			    EM::ObjectID oid )
+Pick::Pick( float depth, float vel, float offset, DBKey oid )
     : depth_( depth )
     , vel_( vel )
     , offset_( offset )
@@ -256,7 +255,7 @@ RowCol Picks::find( const BinID& pickbid,const Pick& pick) const
 	do
 	{
 	    const Pick& storedpick = picks_.getRef( arrpos, 0 );
-	    if ( pick.emobjid_==-1 )
+	    if ( pick.emobjid_.isInvalid() )
 	    {
 		const int sample = snapper_.nearestIndex(storedpick.depth_);
 		if ( sample==depthsample )
@@ -390,7 +389,7 @@ bool Picks::store( const IOObj* passedioobj )
 	changelate.trigger(BinID(-1,-1));
     }
 
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
 	if ( horizons_[idx] )
@@ -588,7 +587,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
 
 void Picks::addHorizon( const DBKey& mid, bool addzeroonfail )
 {
-    RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
+    RefMan<EM::EMObject> emobj = EM::Hor3DMan().loadIfNotFullyLoaded( mid );
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobj.ptr() );
     if ( !hor3d )
     {
@@ -617,13 +616,13 @@ void Picks::addHorizon( EM::Horizon3D* hor )
 int Picks::nrHorizons() const { return horizons_.size(); }
 
 
-EM::ObjectID Picks::getHorizonID( int idx ) const
+DBKey Picks::getHorizonID( int idx ) const
 {
-    return horizons_[idx] ? horizons_[idx]->id() : -1;
+    return horizons_[idx] ? horizons_[idx]->id() : DBKey::getInvalid();
 }
 
 
-void Picks::removeHorizon( EM::ObjectID id )
+void Picks::removeHorizon( const DBKey& id )
 {
     for ( int idx=horizons_.size()-1; idx>=0; idx-- )
     {
@@ -639,7 +638,7 @@ void Picks::removeHorizon( EM::ObjectID id )
 }
 
 
-EM::Horizon3D* Picks::getHorizon( EM::ObjectID id )
+EM::Horizon3D* Picks::getHorizon( const DBKey& id )
 {
     for ( int idx=horizons_.size()-1; idx>=0; idx-- )
     {
@@ -651,7 +650,7 @@ EM::Horizon3D* Picks::getHorizon( EM::ObjectID id )
 }
 
 
-const EM::Horizon3D* Picks::getHorizon( EM::ObjectID id ) const
+const EM::Horizon3D* Picks::getHorizon( const DBKey& id ) const
 { return const_cast<Picks*>( this )->getHorizon( id ); }
 
 
@@ -685,7 +684,7 @@ char Picks::getHorizonStatus( const BinID& bid ) const
 }
 
 
-bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
+bool Picks::interpolateVelocity(const DBKey& emid, float searchradius,
 					BinIDValueSet& res ) const
 {
     ConstRefMan<EM::Horizon3D> horizon = getHorizon( emid );
@@ -807,7 +806,7 @@ bool Picks::load( const IOObj* ioobj )
 	const BinID bid = SI().transform( ploc.pos().getXY() );
 	const float z = mCast(float,ploc.pos().z_);
 	const Sphere& dir = ploc.dir();
-	Pick pick = version==1	? Pick( z, dir.radius_, refoffset_, -1 )
+	Pick pick = version==1	? Pick( z, dir.radius_, refoffset_ )
 				: Pick( z, dir.radius_, dir.theta_-1 );
 
 	if ( ploc.hasText() )
@@ -853,7 +852,7 @@ void Picks::setSmoother(Smoother1D<float>* ns )
 
 int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
 			 TypeSet<float>* velocities, TypeSet<RowCol>* positions,
-			 TypeSet<EM::ObjectID>* emobjres,
+			 DBKeySet* emobjres,
 			 bool interpolhors ) const
 {
     if ( depths ) depths->erase();
@@ -861,8 +860,8 @@ int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
     if ( positions ) positions->erase();
     if ( emobjres ) emobjres->erase();
 
-    TypeSet<EM::ObjectID> internalemobjects;
-    TypeSet<EM::ObjectID>& emids = emobjres ? *emobjres : internalemobjects;
+    DBKeySet internalemobjects;
+    DBKeySet& emids = emobjres ? *emobjres : internalemobjects;
 
     RowCol arrpos;
     BinID curbid;
@@ -918,7 +917,7 @@ void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
 {
     picks.erase();
 
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
 
     RowCol arrpos;
     BinID curbid;
@@ -999,7 +998,7 @@ bool Picks::get( const RowCol& arrpos, BinID& bid, Pick& pick)
 }
 
 
-void Picks::get(const EM::ObjectID& emid, TypeSet<RowCol>& res ) const
+void Picks::get(const DBKey& emid, TypeSet<RowCol>& res ) const
 {
     RowCol arrpos( -1, -1 );
     while ( picks_.next(arrpos,false) )

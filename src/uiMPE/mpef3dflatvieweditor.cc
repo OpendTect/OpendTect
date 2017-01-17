@@ -29,7 +29,7 @@ namespace MPE
 
 Fault3DFlatViewEditor::Fault3DFlatViewEditor(
 			    FlatView::AuxDataEditor* ed,
-			    const EM::ObjectID& oid )
+			    const DBKey& oid )
     : EM::FaultStickSetFlatViewEditor(ed)
     , editor_(ed)
     , f3dpainter_( new EM::Fault3DPainter(ed->viewer(),oid) )
@@ -212,10 +212,10 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
     if ( selstickid == f3dpainter_->getActiveStickId() )
 	return;
 
-    EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return;
+    DBKey emid = f3dpainter_->getFaultID();
+    if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d )
 	return;
@@ -239,10 +239,10 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
     if ( (edidauxdataid==-1) || (displayedknotid==-1) )
 	return;
 
-    EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return;
+    DBKey emid = f3dpainter_->getFaultID();
+    if ( emid.isInvalid()  ) return;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d )
 	return;
@@ -362,10 +362,10 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
     if ( editor_ && editor_->sower().accept(mouseevent, false) )
 	return;
 
-    EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return;
+    DBKey emid = f3dpainter_->getFaultID();
+    if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d )
 	return;
@@ -417,10 +417,10 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     if ( editor_->getSelPtIdx().size() > 0 )
 	displayedknotid = editor_->getSelPtIdx()[0];
 
-    EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return;
+    DBKey emid = f3dpainter_->getFaultID();
+    if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
 
     if ( (edidauxdataid==-1) || (displayedknotid==-1) )
     {
@@ -473,8 +473,8 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
 
 #define mSetUserInteractionEnd() \
     if ( !editor_->sower().moreToSow() ) \
-	EM::EMM().undo().setUserInteractionEnd( \
-					EM::EMM().undo().currentEventID() );
+	EM::Flt3DMan().undo().setUserInteractionEnd( \
+				EM::Flt3DMan().undo().currentEventID() );
 
 void Fault3DFlatViewEditor::doubleClickedCB( CallBacker* cb )
 {
@@ -525,10 +525,10 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	return;
     }
 
-    EM::ObjectID emid = f3dpainter_->getFaultID();
-    if ( emid == -1 ) return;
+    DBKey emid = f3dpainter_->getFaultID();
+    if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d )
 	return;
@@ -565,12 +565,12 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	if ( emf3d->geometry().nrKnots(mousepid_.sectionID(),rmnr) == 1 )
 	{
 	    res = emf3d->geometry().removeStick( mousepid_.sectionID(), rmnr,
-		    				 true );
+						 true );
 	    f3deditor->setLastClicked( EM::PosID::udf() );
 	}
 	else
 	    res = emf3d->geometry().removeKnot( mousepid_.sectionID(),
-		    				mousepid_.subID(), true );
+						mousepid_.subID(), true );
 	if ( res )
 	    mSetUserInteractionEnd();
 
@@ -679,7 +679,7 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
 
     sort_coupled( selectedidxs.arr(), selectedids.arr(), selectedids.size() );
     RefMan<EM::EMObject> emobject =
-			EM::EMM().getObject( f3dpainter_->getFaultID() );
+			EM::Flt3DMan().getObject( f3dpainter_->getFaultID() );
 
     mDynamicCastGet(EM::Fault3D*,emf3d,emobject.ptr());
     if ( !emf3d )
@@ -687,7 +687,7 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
 
     const EM::SectionID sid = emf3d->sectionID( 0 );
     mDynamicCastGet(const Geometry::FaultStickSet*,fss,
-	    	    emf3d->sectionGeometry(sid));
+		    emf3d->sectionGeometry(sid));
     if ( !fss ) return;
 
     emf3d->setBurstAlert( true );

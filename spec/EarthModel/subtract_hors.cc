@@ -53,7 +53,7 @@ static EM::Horizon3D* loadHorizon( const char* id, BufferString& err )
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
     std::cerr << "Reading " << ioobj->name() << " ..." << std::endl;
-    EM::EMManager& em = EM::EMM();
+    EM::EMManager& em = EM::Hor3DMan();
     PtrMan<Executor> exec = em.objectLoader( ioobj->key() );
     exec->execute( &std::cerr );
     EM::EMObject* emobj = em.getObject( em.getObjectID(ioobj->key()) );

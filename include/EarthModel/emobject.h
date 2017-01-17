@@ -48,9 +48,7 @@ public:
     mDefIntegerIDType(int, CBID);
 
 		EMObjectCallbackData()
-		    : pid0( 0, 0, 0 )
-		    , pid1( 0, 0, 0 )
-		    , attrib( -1 )
+		    : attrib( -1 )
 		    , flagfor2dviewer( false )
 		    , event( EMObjectCallbackData::Undef )
 		    , cbid_(CBID::get(curcbid_++))
@@ -100,7 +98,7 @@ public:
     virtual int		approximateSize() const	{ return maximumSize(); }
     virtual int		maximumSize() const	{ return -1; }
     virtual bool	canGoTo() const		{ return false; }
-    virtual EM::PosID	goTo(od_int64)		{ return EM::PosID(-1,-1,-1); }
+    virtual EM::PosID	goTo(od_int64)		{ return EM::PosID(); }
 };
 
 
@@ -129,9 +127,9 @@ public:
 
 #define mImplEMSet(fnnm,typ,memb,emcbtype) \
     void fnnm( typ _set_to_ ) \
-    { 	EMObjectCallbackData* cbdata = getNewEMCBData(); \
+    {	EMObjectCallbackData* cbdata = getNewEMCBData(); \
 	cbdata->event = emcbtype; \
-	setMemberSimple( memb, _set_to_, 0, cbdata->cbID().getI() ); } 
+	setMemberSimple( memb, _set_to_, 0, cbdata->cbID().getI() ); }
 #define mImplEMGetSet(pfx,fnnmget,fnnmset,typ,memb,emcbtype) \
     pfx mImplSimpleMonitoredGet(fnnmget,typ,memb) \
     pfx mImplEMSet(fnnmset,const typ&,memb,emcbtype)
@@ -145,7 +143,8 @@ public:
 
     enum NodeSourceType		{ None = (int)'0', Manual=(int)'1',
 				  Auto=(int)'2' };
-    const ObjectID&		id() const		{ return id_; }
+
+    const DBKey&		id() const		{ return storageid_; }
     virtual const char*		getTypeStr() const	= 0;
     virtual uiString		getUserTypeStr() const	= 0;
     const DBKey&		dbKey() const		{ return storageid_; }
@@ -325,7 +324,6 @@ protected:
     EMObjectCallbackData*	getNewEMCBData();
 
     BufferString		objname_;
-    ObjectID			id_;
     DBKey			storageid_;
     class EMManager&		manager_;
     uiString			errmsg_;
@@ -361,6 +359,7 @@ public:
     mDeprecated const DBKey&	multiID() const		{ return storageid_; }
     mDeprecated void		setMultiID( const DBKey& k ) { setDBKey(k); }
     static Color		sDefaultSelectionColor();
+    EMManager&			getMgr()	{ return manager_; }
 
 };
 
@@ -397,8 +396,7 @@ EMObject* clss::create( EM::EMManager& emm ) \
 \
 clss* clss::create( const char* nm ) \
 { \
-    const ObjectID objid = EMM().createObject( typeStr(), nm ); \
-    EMObject* emobj = EMM().getObject( objid ); \
+    EMObject* emobj = EMM().createObject( typeStr(), nm ); \
     mDynamicCastGet(clss*,newobj,emobj); \
     return newobj; \
 } \
@@ -422,4 +420,4 @@ void clss::setNewName() \
     mSendChgNotif( cPositionChange(), cbdata->cbID().getI() );
 
 #define mSendEMCBNotif( typ ) \
-    mSendEMCBNotifPosID( typ, 0 );
+    mSendEMCBNotifPosID( typ, EM::PosID() );

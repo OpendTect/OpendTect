@@ -33,8 +33,8 @@ namespace EM
 mExpClass(EarthModel) FaultStickPainter : public CallBacker
 {
 public:
-    			FaultStickPainter(FlatView::Viewer&,
-					  const EM::ObjectID&);
+			FaultStickPainter(FlatView::Viewer&,
+					  const DBKey&);
 			~FaultStickPainter();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,bool);
@@ -65,19 +65,19 @@ public:
 	    int			stickid_;
 	};
 
-    EM::ObjectID&	getFaultSSID()			{ return emid_; }
+    const DBKey&	getFaultSSID()			{ return emid_; }
     void		getDisplayedSticks(ObjectSet<StkMarkerInfo>&);
 
     void		set2D(bool yn)		{ is2d_ = yn; }
     bool		is2D()			{ return is2d_; }
-    const char* 	getLineName() const;
+    const char*	getLineName() const;
     void		setGeomID( Pos::GeomID geomid )
 			{ geomid_ = geomid; }
-    Pos::GeomID 	getGeomID() const		{ return geomid_; }
+    Pos::GeomID	getGeomID() const		{ return geomid_; }
     Coord		getNormalToTrace( int trcnr ) const;
     Coord		getNormalInRandLine( int idx ) const;
-    			//<! idx of BinID in path_ of RandomLine
-    
+			//<! idx of BinID in path_ of RandomLine
+
     Notifier<FaultStickPainter>	abouttorepaint_;
     Notifier<FaultStickPainter> repaintdone_;
 
@@ -102,7 +102,7 @@ protected:
 
     TrcKeyZSampling	tkzs_;
     const TrcKeyPath*	path_;
-    int 		rdlid_;
+    int		rdlid_;
     const FlatPosData*	flatposdata_;
 
     OD::LineStyle		markerlinestyle_;
@@ -110,14 +110,14 @@ protected:
 
     FlatView::Viewer&   viewer_;
 
-    EM::ObjectID        emid_;
+    DBKey		emid_;
 
     ObjectSet<ObjectSet<StkMarkerInfo> >	sectionmarkerlines_;
 
     int			activestickid_;
 
     bool		is2d_;
-    Pos::GeomID 	geomid_;
+    Pos::GeomID	geomid_;
 
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;

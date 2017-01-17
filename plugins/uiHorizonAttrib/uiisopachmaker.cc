@@ -32,7 +32,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
-uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
+uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, const DBKey& horid )
 	: uiGroup(p,"Create Isochron")
 	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, basectio_(*mMkCtxtIOObj(EMHorizon3D))
@@ -75,10 +75,9 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
 }
 
 
-BufferString uiIsochronMakerGrp::getHorNm( EM::ObjectID horid )
+BufferString uiIsochronMakerGrp::getHorNm( const DBKey& horid )
 {
-    DBKey mid( EM::EMM().getDBKey( horid ) );
-    return EM::EMM().objectName( mid );
+    return EM::EMM().objectName( horid );
 }
 
 
@@ -142,7 +141,7 @@ uiIsochronMakerBatch::uiIsochronMakerBatch( uiParent* p )
     : uiDialog(p, Setup(tr("Create Isochron"), mNoDlgTitle,
     mODHelpKey(mIsochronMakerBatchHelpID)))
 {
-    grp_ = new uiIsochronMakerGrp( this, -1 );
+    grp_ = new uiIsochronMakerGrp( this, DBKey::getInvalid() );
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::NonODBase );
     batchfld_->attach( alignedBelow, grp_ );
@@ -196,7 +195,7 @@ bool uiIsochronMakerBatch::acceptOK()
 
 
 //uiIsochronMakerDlg
-uiIsochronMakerDlg::uiIsochronMakerDlg( uiParent* p, EM::ObjectID emid )
+uiIsochronMakerDlg::uiIsochronMakerDlg( uiParent* p, const DBKey& emid )
     : uiDialog(p,Setup(tr("Create Isochron"),mNoDlgTitle,
 			mODHelpKey(mIsopachMakerHelpID)))
     , dps_( new DataPointSet(false,true) )
@@ -237,8 +236,7 @@ bool uiIsochronMakerDlg::doWork()
 	mErrRet(tr("Cannot load selected horizon"))
     h2->ref();
 
-    EM::ObjectID emidbase = EM::EMM().getObjectID( mid1 );
-    EM::EMObject* emobjbase = EM::EMM().getObject( emidbase );
+    EM::EMObject* emobjbase = EM::EMM().getObject( mid1 );
     mDynamicCastGet(EM::Horizon3D*,h1,emobjbase)
     if ( !h1 )
     { h2->unRef(); mErrRet(tr("Cannot find base horizon")) }

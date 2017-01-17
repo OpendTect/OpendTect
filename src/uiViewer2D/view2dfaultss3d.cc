@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 mCreateVw2DFactoryEntry( VW2DFaultSS3D );
 
-VW2DFaultSS3D::VW2DFaultSS3D( const EM::ObjectID& oid, uiFlatViewWin* win,
+VW2DFaultSS3D::VW2DFaultSS3D( const DBKey& oid, uiFlatViewWin* win,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
     : Vw2DEMDataObject(oid,win,auxdataeds)
     , deselted_( this )
@@ -33,7 +33,7 @@ VW2DFaultSS3D::VW2DFaultSS3D( const EM::ObjectID& oid, uiFlatViewWin* win,
     , knotenabled_(false)
 {
     fsseds_.allowNull();
-    if ( oid >= 0)
+    if ( !oid.isInvalid() )
 	setEditors();
 }
 

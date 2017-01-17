@@ -20,7 +20,8 @@ ________________________________________________________________________
 #include "ioobj.h"
 
 
-#define mGetEMObjPtr(mid) EM::EMM().getObject( EM::EMM().getObjectID(mid) )
+#define mGetEMObjPtr(mid) \
+    EM::Hor2DMan().getObject( mid )
 
 
 EM::Hor2DSeisLineIterator::Hor2DSeisLineIterator( const EM::Horizon2D& h2d )

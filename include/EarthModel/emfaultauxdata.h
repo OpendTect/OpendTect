@@ -37,9 +37,9 @@ public:
 
     bool		init();
     int			setData(const char* sdname,const Array2D<float>* data,
-	    			OD::PtrPolicy);
+				OD::PtrPolicy);
     void		setData(int sdidx,const Array2D<float>*,
-	    			OD::PtrPolicy);
+				OD::PtrPolicy);
     const Array2D<float>* loadIfNotLoaded(const char* sdname);
     const Array2D<float>* loadIfNotLoaded(int sdidx);
     int			dataIndex(const char* sdname) const;

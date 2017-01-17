@@ -38,7 +38,7 @@ mExpClass(uiODMain) uiODBodyDisplayTreeItemFactory
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODBodyDisplayParentTreeItem; }
+			{ return new uiODBodyDisplayParentTreeItem; }
     virtual uiTreeItem*	createForVis(int visid,uiTreeItem*) const;
 };
 
@@ -46,11 +46,11 @@ public:
 mExpClass(uiODMain) uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODBodyDisplayTreeItem);
 public:
-    			uiODBodyDisplayTreeItem(int,bool dummy);
-    			uiODBodyDisplayTreeItem(const EM::ObjectID&);
-    			~uiODBodyDisplayTreeItem();
+			uiODBodyDisplayTreeItem(int,bool dummy);
+			uiODBodyDisplayTreeItem(const DBKey&);
+			~uiODBodyDisplayTreeItem();
 
-    EM::ObjectID	emObjectID() const	{ return emid_; }
+    const DBKey&	emObjectID() const	{ return emid_; }
     void		setOnlyAtSectionsDisplay(bool);
 
 protected:
@@ -69,7 +69,7 @@ protected:
     const char*		parentType() const
 			{return typeid(uiODBodyDisplayParentTreeItem).name();}
 
-    EM::ObjectID			emid_;
+    DBKey		emid_;
     visSurvey::MarchingCubesDisplay*	mcd_;
     visSurvey::PolygonBodyDisplay*	plg_;
     visSurvey::RandomPosBodyDisplay*	rpb_;
@@ -87,7 +87,7 @@ protected:
 mExpClass(uiODMain) uiODBodyDisplayDataTreeItem : public uiODAttribTreeItem
 { mODTextTranslationClass(uiODBodyDisplayDataTreeItem);
 public:
-    			uiODBodyDisplayDataTreeItem(const char* parenttype);
+			uiODBodyDisplayDataTreeItem(const char* parenttype);
 protected:
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);

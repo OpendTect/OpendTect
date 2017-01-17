@@ -311,9 +311,8 @@ bool uiGMTContourGrp::loadHor()
     const IOObj* ioobj = inpfld_->ioobj();
     if ( !ioobj ) return false;
 
-    EM::EMObject* obj = 0;
-    EM::ObjectID id = EM::EMM().getObjectID( ioobj->key() );
-    if ( id < 0 || !EM::EMM().getObject(id)->isFullyLoaded() )
+    RefMan<EM::EMObject> obj = EM::EMM().getObject( ioobj->key() );
+    if ( !obj || !obj->isFullyLoaded() )
     {
 	PtrMan<EM::SurfaceIODataSelection> sel =
 					new EM::SurfaceIODataSelection( sd_ );
@@ -325,21 +324,15 @@ bool uiGMTContourGrp::loadHor()
 	if ( !TaskRunner::execute( &dlg, *exec ) )
 	    return false;
 
-	id = EM::EMM().getObjectID( ioobj->key() );
-	obj = EM::EMM().getObject( id );
-	obj->ref();
-    }
-    else
-    {
-	obj = EM::EMM().getObject( id );
-	obj->ref();
+	obj = EM::EMM().getObject( ioobj->key() );
     }
 
-    mDynamicCastGet(EM::Horizon3D*,hor3d,obj)
+    mDynamicCastGet(EM::Horizon3D*,hor3d,obj.ptr())
     if ( !hor3d )
 	return false;
 
     hor_ = hor3d;
+    hor_->ref();
     return true;
 }
 

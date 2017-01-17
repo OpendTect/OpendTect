@@ -62,7 +62,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
     if ( mnuid == getNewItemID() )
     {
 	RefMan<EM::EMObject> emo =
-			EM::EMM().createTempObject( EM::Fault3D::typeStr() );
+		EM::Flt3DMan().createTempObject( EM::Fault3D::typeStr() );
 	if ( !emo )
 	    return false;
 
@@ -76,7 +76,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaults( objs, false );
-	TypeSet<EM::ObjectID> emids;
+	DBKeySet emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
 
@@ -105,7 +105,7 @@ bool uiODVw2DFaultParentTreeItem::init()
 
 
 void uiODVw2DFaultParentTreeItem::getFaultVwr2DIDs(
-	EM::ObjectID emid, TypeSet<int>& vw2dobjids ) const
+	const DBKey& emid, TypeSet<int>& vw2dobjids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -119,7 +119,7 @@ void uiODVw2DFaultParentTreeItem::getFaultVwr2DIDs(
 
 
 void uiODVw2DFaultParentTreeItem::getLoadedFaults(
-	TypeSet<EM::ObjectID>& emids ) const
+	DBKeySet& emids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -131,7 +131,7 @@ void uiODVw2DFaultParentTreeItem::getLoadedFaults(
 }
 
 
-void uiODVw2DFaultParentTreeItem::removeFault( EM::ObjectID emid )
+void uiODVw2DFaultParentTreeItem::removeFault( const DBKey& emid )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -143,9 +143,9 @@ void uiODVw2DFaultParentTreeItem::removeFault( EM::ObjectID emid )
 }
 
 
-void uiODVw2DFaultParentTreeItem::addFaults(const TypeSet<EM::ObjectID>& emids)
+void uiODVw2DFaultParentTreeItem::addFaults(const DBKeySet& emids)
 {
-    TypeSet<EM::ObjectID> emidstobeloaded, emidsloaded;
+    DBKeySet emidstobeloaded, emidsloaded;
     getLoadedFaults( emidsloaded );
     for ( int idx=0; idx<emids.size(); idx++ )
     {
@@ -155,8 +155,8 @@ void uiODVw2DFaultParentTreeItem::addFaults(const TypeSet<EM::ObjectID>& emids)
 
     for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
-	const EM::ObjectID emid = emidstobeloaded[idx];
-	const EM::EMObject* emobj = EM::EMM().getObject( emid );
+	const DBKey emid = emidstobeloaded[idx];
+	const EM::EMObject* emobj = EM::Flt3DMan().getObject( emid );
 	if ( !emobj || findChild(emobj->name()) )
 	    continue;
 
@@ -169,9 +169,9 @@ void uiODVw2DFaultParentTreeItem::addFaults(const TypeSet<EM::ObjectID>& emids)
 }
 
 
-void uiODVw2DFaultParentTreeItem::setupNewTempFault( EM::ObjectID emid )
+void uiODVw2DFaultParentTreeItem::setupNewTempFault( const DBKey& emid )
 {
-    TypeSet<EM::ObjectID> emidsloaded;
+    DBKeySet emidsloaded;
     getLoadedFaults( emidsloaded );
     if ( !emidsloaded.isPresent(emid) )
 	return;
@@ -191,9 +191,9 @@ void uiODVw2DFaultParentTreeItem::setupNewTempFault( EM::ObjectID emid )
 }
 
 
-void uiODVw2DFaultParentTreeItem::addNewTempFault( EM::ObjectID emid )
+void uiODVw2DFaultParentTreeItem::addNewTempFault( const DBKey& emid )
 {
-    TypeSet<EM::ObjectID> emidsloaded;
+    DBKeySet emidsloaded;
     getLoadedFaults( emidsloaded );
     if ( emidsloaded.isPresent(emid) )
 	return;
@@ -206,14 +206,14 @@ void uiODVw2DFaultParentTreeItem::addNewTempFault( EM::ObjectID emid )
 }
 
 
-uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( const EM::ObjectID& emid )
+uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( const DBKey& emid )
     : uiODVw2DEMTreeItem(emid)
     , faultview_(0)
 {}
 
 
 uiODVw2DFaultTreeItem::uiODVw2DFaultTreeItem( int id, bool )
-    : uiODVw2DEMTreeItem(-1)
+    : uiODVw2DEMTreeItem(DBKey::getInvalid())
     , faultview_(0)
 {
     displayid_ = id;
@@ -234,7 +234,7 @@ bool uiODVw2DFaultTreeItem::init()
     EM::EMObject* emobj = 0;
     if ( displayid_ < 0 )
     {
-	emobj = EM::EMM().getObject( emid_ );
+	emobj = EM::Flt3DMan().getObject( emid_ );
 	if ( !emobj ) return false;
 
 	faultview_ = VW2DFault::create( emid_, viewer2D()->viewwin(),
@@ -249,7 +249,7 @@ bool uiODVw2DFaultTreeItem::init()
 	if ( !hd )
 	    return false;
 	emid_ = hd->emID();
-	emobj = EM::EMM().getObject( emid_ );
+	emobj = EM::Flt3DMan().getObject( emid_ );
 	if ( !emobj ) return false;
 
 	faultview_ = hd;
@@ -258,7 +258,7 @@ bool uiODVw2DFaultTreeItem::init()
     mAttachCB( emobj->change, uiODVw2DFaultTreeItem::emobjChangeCB );
     displayMiniCtab();
 
-    name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = DBM().nameOf( emid_ );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultTreeItem,checkCB) );
@@ -279,7 +279,7 @@ bool uiODVw2DFaultTreeItem::init()
 
 void uiODVw2DFaultTreeItem::displayMiniCtab()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::Flt3DMan().getObject( emid_ );
     if ( !emobj ) return;
 
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
@@ -306,7 +306,7 @@ void uiODVw2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
 	}
 	case EM::EMObjectCallbackData::NameChange:
 	{
-	    name_ = toUiString(applMgr()->EMServer()->getName( emid_ ));
+	    name_ = toUiString(DBM().nameOf( emid_ ));
 	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	    break;
 	}
@@ -377,7 +377,7 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
 	    return true;
 
-	name_ = applMgr()->EMServer()->getName( emid_ );
+	name_ = DBM().nameOf( emid_ );
 	renameVisObj();
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 			mnuid==mRemoveID;
@@ -414,10 +414,10 @@ void uiODVw2DFaultTreeItem::checkCB( CallBacker* )
 
 void uiODVw2DFaultTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
+    mCBCapsuleUnpack( const DBKey&, emid, cb );
     if ( emid != emid_ ) return;
 
-    EM::EMObject* emobj = EM::EMM().getObject( emid );
+    EM::EMObject* emobj = EM::Flt3DMan().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,f3d,emobj);
     if ( !f3d ) return;
 

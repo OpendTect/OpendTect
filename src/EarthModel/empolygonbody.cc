@@ -32,7 +32,7 @@ PolygonBodyUndoEvent( const EM::PosID& posid )
     : posid_( posid )
     , remove_( false )
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return;
 
@@ -58,7 +58,7 @@ const char* getStandardDesc() const
 
 bool unDo()
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
@@ -73,7 +73,7 @@ bool unDo()
 
 bool reDo()
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
@@ -103,7 +103,7 @@ PolygonBodyKnotUndoEvent( const EM::PosID& posid )
     : posid_( posid )
     , remove_( false )
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
     if ( !emobj ) return;
     pos_ = emobj->getPos( posid_ );
 }
@@ -123,7 +123,7 @@ const char* getStandardDesc() const
 
 bool unDo()
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
@@ -137,7 +137,7 @@ bool unDo()
 
 bool reDo()
 {
-    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    RefMan<EMObject> emobj = BodyMan().getObject( posid_.objectID() );
     mDynamicCastGet( PolygonBody*, polygon, emobj.ptr() );
     if ( !polygon ) return false;
 
@@ -273,7 +273,7 @@ void PolygonBody::fillBodyPar( IOPar& par ) const
 Executor* PolygonBody::saver()
 {
     PtrMan<IOObj> ioobj = DBM().get( dbKey() );
-    return saver( ioobj ); 
+    return saver( ioobj );
 }
 
 
@@ -380,7 +380,7 @@ bool PolygonBodyGeometry::insertPolygon( const SectionID& sid, int polygonnr,
 	const PosID posid( surface_.id(), sid,
 		RowCol(polygonnr,0).toInt64() );
 	UndoEvent* undo = new PolygonBodyUndoEvent( posid );
-	EMM().undo().addEvent( undo, 0 );
+	BodyMan().undo().addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();
@@ -415,7 +415,7 @@ bool PolygonBodyGeometry::removePolygon( const SectionID& sid, int polygonnr,
     {
 	const PosID posid( surface_.id(), sid, rc.toInt64() );
 	UndoEvent* undo = new PolygonBodyUndoEvent( posid, pos, normal );
-	EMM().undo().addEvent( undo, 0 );
+	BodyMan().undo().addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();
@@ -439,7 +439,7 @@ bool PolygonBodyGeometry::insertKnot( const SectionID& sid, const SubID& subid,
     {
 	const PosID posid( surface_.id(), sid, subid );
 	UndoEvent* undo = new PolygonBodyKnotUndoEvent( posid );
-	EMM().undo().addEvent( undo, 0 );
+	BodyMan().undo().addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();
@@ -475,7 +475,7 @@ bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     {
 	const PosID posid( surface_.id(), sid, subid );
 	UndoEvent* undo = new PolygonBodyKnotUndoEvent( posid, pos );
-	EMM().undo().addEvent( undo, 0 );
+	BodyMan().undo().addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();

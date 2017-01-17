@@ -1152,7 +1152,7 @@ void uiODSceneMgr::gtLoadedPickSetIDs( const uiTreeItem& topitm,
 }
 
 
-void uiODSceneMgr::getLoadedEMIDs( TypeSet<int>& emids, const char* type,
+void uiODSceneMgr::getLoadedEMIDs( DBKeySet& emids, const char* type,
 				   int sceneid ) const
 {
     if ( sceneid>=0 )
@@ -1168,7 +1168,7 @@ void uiODSceneMgr::getLoadedEMIDs( TypeSet<int>& emids, const char* type,
 }
 
 
-void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm, TypeSet<int>& emids,
+void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm, DBKeySet& emids,
 				  const char* type ) const
 {
     for ( int chidx=0; chidx<topitm->nrChildren(); chidx++ )
@@ -1206,7 +1206,7 @@ void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm, TypeSet<int>& emids,
 }
 
 
-void uiODSceneMgr::gtLoadedEMIDs( const uiODScene* scene, TypeSet<int>& emids,
+void uiODSceneMgr::gtLoadedEMIDs( const uiODScene* scene, DBKeySet& emids,
 				  const char* type ) const
 {
     for ( int chidx=0; chidx<scene->itemmanager_->nrChildren(); chidx++ )
@@ -1217,7 +1217,7 @@ void uiODSceneMgr::gtLoadedEMIDs( const uiODScene* scene, TypeSet<int>& emids,
 }
 
 
-int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
+int uiODSceneMgr::addEMItem( const DBKey& emid, int sceneid )
 {
     mGetOrAskForScene;
 

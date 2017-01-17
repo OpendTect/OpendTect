@@ -26,14 +26,13 @@ public:
 				~uiODVw2DHor3DParentTreeItem();
 
     bool			showSubMenu();
-    void			getHor3DVwr2DIDs(EM::ObjectID emid,
+    void			getHor3DVwr2DIDs(const DBKey& emid,
 						 TypeSet<int>& vw2dids) const;
-    void			getLoadedHorizon3Ds(
-					TypeSet<EM::ObjectID>&) const;
-    void			removeHorizon3D(EM::ObjectID emid);
-    void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon3D(EM::ObjectID emid);
-    void			setupTrackingHorizon3D(EM::ObjectID emid);
+    void			getLoadedHorizon3Ds(DBKeySet&) const;
+    void			removeHorizon3D(const DBKey& emid);
+    void			addHorizon3Ds(const DBKeySet&);
+    void			addNewTrackingHorizon3D(const DBKey& emid);
+    void			setupTrackingHorizon3D(const DBKey& emid);
 
 protected:
 
@@ -42,8 +41,7 @@ protected:
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-    void			getNonLoadedTrackedHor3Ds(
-					TypeSet<EM::ObjectID>&);
+    void			getNonLoadedTrackedHor3Ds(DBKeySet&);
 };
 
 
@@ -61,20 +59,20 @@ public:
 mExpClass(uiODMain) uiODVw2DHor3DTreeItem : public uiODVw2DEMTreeItem
 { mODTextTranslationClass(uiODVw2DHor3DTreeItem)
 public:
-    			uiODVw2DHor3DTreeItem(const EM::ObjectID&);
-    			uiODVw2DHor3DTreeItem(int id,bool dummy);
+			uiODVw2DHor3DTreeItem(const DBKey&);
+			uiODVw2DHor3DTreeItem(int id,bool dummy);
 			~uiODVw2DHor3DTreeItem();
 
     bool		select();
     bool		showSubMenu();
-    EM::ObjectID	emObjectID() const	{ return emid_; }
+    const DBKey&	emObjectID() const	{ return emid_; }
     const Vw2DDataObject* vw2DObject() const;
 
 protected:
 
     bool		init();
     const char*		parentType() const
-    			{ return typeid(uiODVw2DHor3DParentTreeItem).name(); }
+			{ return typeid(uiODVw2DHor3DParentTreeItem).name(); }
     bool		isSelectable() const			{ return true; }
 
 

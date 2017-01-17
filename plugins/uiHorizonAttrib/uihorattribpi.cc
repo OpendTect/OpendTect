@@ -181,13 +181,12 @@ class uiSelContourAttribDlg : public uiDialog
 { mODTextTranslationClass(uiSelContourAttribDlg)
 public:
 
-uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
+uiSelContourAttribDlg( uiParent* p, const DBKey& id )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(
 	       tr("Attribute to contour")), mNoDlgTitle, mNoHelpKey))
 {
-    const DBKey mid = EM::EMM().getDBKey( id );
-    PtrMan<IOObj> emioobj = DBM().get( mid );
-    EM::IOObjInfo eminfo( mid );
+    PtrMan<IOObj> emioobj = DBM().get( id );
+    EM::IOObjInfo eminfo( id );
     BufferStringSet attrnms;
     attrnms.add( uiContourTreeItem::sKeyZValue() );
     eminfo.getAttribNames( attrnms );

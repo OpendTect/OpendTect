@@ -176,7 +176,7 @@ void uiODViewer2DMgr::setupCurInterpItem( uiODViewer2D* vwr2d )
 
 void uiODViewer2DMgr::setupHorizon3Ds( uiODViewer2D* vwr2d )
 {
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
     getLoadedHorizon3Ds( emids );
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon3D::typeStr(), -1 );
     vwr2d->addHorizon3Ds( emids );
@@ -187,7 +187,7 @@ void uiODViewer2DMgr::setupHorizon2Ds( uiODViewer2D* vwr2d )
 {
     if ( SI().has2D() )
     {
-	TypeSet<EM::ObjectID> emids;
+	DBKeySet emids;
 	getLoadedHorizon2Ds( emids );
 	appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon2D::typeStr(), -1 );
 	vwr2d->addHorizon2Ds( emids );
@@ -197,7 +197,7 @@ void uiODViewer2DMgr::setupHorizon2Ds( uiODViewer2D* vwr2d )
 
 void uiODViewer2DMgr::setupFaults( uiODViewer2D* vwr2d )
 {
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
     getLoadedFaults( emids );
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::Fault3D::typeStr(), -1 );
     vwr2d->addFaults( emids );
@@ -206,7 +206,7 @@ void uiODViewer2DMgr::setupFaults( uiODViewer2D* vwr2d )
 
 void uiODViewer2DMgr::setupFaultSSs( uiODViewer2D* vwr2d )
 {
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
     getLoadedFaultSSs( emids );
     getLoadedFaultSS2Ds( emids );
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::FaultStickSet::typeStr(), -1 );
@@ -916,11 +916,12 @@ void uiODViewer2DMgr::setAllIntersectionPositions()
 	setVWR2DIntersectionPositions( vwr2d );
     }
 
-    TypeSet<EM::ObjectID> hor3dids;
+    DBKeySet hor3dids;
     getLoadedHorizon3Ds( hor3dids );
     for ( int idx=0; idx<hor3dids.size(); idx++ )
     {
-	mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject(hor3dids[idx]))
+	mDynamicCastGet(EM::Horizon3D*,hor3d,
+			EM::Hor3DMan().getObject(hor3dids[idx]))
 	if ( !hor3d )
 	    continue;
 	EM::EMObjectCallbackData cbdata;
@@ -1089,7 +1090,7 @@ void uiODViewer2DMgr::getVwr2DObjIDs( TypeSet<int>& vw2dobjids ) const
 }
 
 
-void uiODViewer2DMgr::getHor3DVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2DMgr::getHor3DVwr2DIDs( const DBKey& emid,
 					TypeSet<int>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
@@ -1100,7 +1101,7 @@ void uiODViewer2DMgr::getHor3DVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2DMgr::removeHorizon3D( EM::ObjectID emid )
+void uiODViewer2DMgr::removeHorizon3D( const DBKey& emid )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1110,7 +1111,7 @@ void uiODViewer2DMgr::removeHorizon3D( EM::ObjectID emid )
 }
 
 
-void uiODViewer2DMgr::getLoadedHorizon3Ds( TypeSet<EM::ObjectID>& emids ) const
+void uiODViewer2DMgr::getLoadedHorizon3Ds( DBKeySet& emids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1120,7 +1121,7 @@ void uiODViewer2DMgr::getLoadedHorizon3Ds( TypeSet<EM::ObjectID>& emids ) const
 }
 
 
-void uiODViewer2DMgr::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
+void uiODViewer2DMgr::addHorizon3Ds( const DBKeySet& emids )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1130,13 +1131,13 @@ void uiODViewer2DMgr::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2DMgr::addNewTrackingHorizon3D( EM::ObjectID emid )
+void uiODViewer2DMgr::addNewTrackingHorizon3D( const DBKey& emid )
 {
     addNewTrackingHorizon3D( emid, -1 );
 }
 
 
-void uiODViewer2DMgr::addNewTrackingHorizon3D( EM::ObjectID emid, int sceneid )
+void uiODViewer2DMgr::addNewTrackingHorizon3D( const DBKey& emid, int sceneid )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1144,7 +1145,7 @@ void uiODViewer2DMgr::addNewTrackingHorizon3D( EM::ObjectID emid, int sceneid )
 	vwr2d->addNewTrackingHorizon3D( emid );
     }
 
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon3D::typeStr(), sceneid );
     if ( emids.isPresent(emid) )
 	return;
@@ -1153,7 +1154,7 @@ void uiODViewer2DMgr::addNewTrackingHorizon3D( EM::ObjectID emid, int sceneid )
 }
 
 
-void uiODViewer2DMgr::getHor2DVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2DMgr::getHor2DVwr2DIDs( const DBKey& emid,
 					TypeSet<int>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
@@ -1164,7 +1165,7 @@ void uiODViewer2DMgr::getHor2DVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2DMgr::removeHorizon2D( EM::ObjectID emid )
+void uiODViewer2DMgr::removeHorizon2D( const DBKey& emid )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1174,7 +1175,7 @@ void uiODViewer2DMgr::removeHorizon2D( EM::ObjectID emid )
 }
 
 
-void uiODViewer2DMgr::getLoadedHorizon2Ds( TypeSet<EM::ObjectID>& emids ) const
+void uiODViewer2DMgr::getLoadedHorizon2Ds( DBKeySet& emids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1184,7 +1185,7 @@ void uiODViewer2DMgr::getLoadedHorizon2Ds( TypeSet<EM::ObjectID>& emids ) const
 }
 
 
-void uiODViewer2DMgr::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
+void uiODViewer2DMgr::addHorizon2Ds( const DBKeySet& emids )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1194,13 +1195,13 @@ void uiODViewer2DMgr::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid )
+void uiODViewer2DMgr::addNewTrackingHorizon2D( const DBKey& emid )
 {
     addNewTrackingHorizon2D( emid, -1 );
 }
 
 
-void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid, int sceneid )
+void uiODViewer2DMgr::addNewTrackingHorizon2D( const DBKey& emid, int sceneid )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1208,7 +1209,7 @@ void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid, int sceneid )
 	vwr2d->addNewTrackingHorizon2D( emid );
     }
 
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon2D::typeStr(), sceneid );
     if ( emids.isPresent(emid) )
 	return;
@@ -1217,7 +1218,7 @@ void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid, int sceneid )
 }
 
 
-void uiODViewer2DMgr::removeFault( EM::ObjectID emid )
+void uiODViewer2DMgr::removeFault( const DBKey& emid )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1227,7 +1228,7 @@ void uiODViewer2DMgr::removeFault( EM::ObjectID emid )
 }
 
 
-void uiODViewer2DMgr::getLoadedFaults( TypeSet<EM::ObjectID>& emids ) const
+void uiODViewer2DMgr::getLoadedFaults( DBKeySet& emids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1237,7 +1238,7 @@ void uiODViewer2DMgr::getLoadedFaults( TypeSet<EM::ObjectID>& emids ) const
 }
 
 
-void uiODViewer2DMgr::addFaults( const TypeSet<EM::ObjectID>& emids )
+void uiODViewer2DMgr::addFaults( const DBKeySet& emids )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1247,13 +1248,13 @@ void uiODViewer2DMgr::addFaults( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid )
+void uiODViewer2DMgr::addNewTempFault( const DBKey& emid )
 {
     addNewTempFault( emid, -1 );
 }
 
 
-void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid, int sceneid )
+void uiODViewer2DMgr::addNewTempFault( const DBKey& emid, int sceneid )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1261,7 +1262,7 @@ void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid, int sceneid )
 	vwr2d->addNewTempFault( emid );
     }
 
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::Fault3D::typeStr(), sceneid );
     if ( emids.isPresent(emid) )
 	return;
@@ -1270,7 +1271,7 @@ void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid, int sceneid )
 }
 
 
-void uiODViewer2DMgr::getFaultSSVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2DMgr::getFaultSSVwr2DIDs( const DBKey& emid,
 					TypeSet<int>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
@@ -1282,7 +1283,7 @@ void uiODViewer2DMgr::getFaultSSVwr2DIDs( EM::ObjectID emid,
 
 
 
-void uiODViewer2DMgr::removeFaultSS( EM::ObjectID emid )
+void uiODViewer2DMgr::removeFaultSS( const DBKey& emid )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1292,7 +1293,7 @@ void uiODViewer2DMgr::removeFaultSS( EM::ObjectID emid )
 }
 
 
-void uiODViewer2DMgr::getLoadedFaultSSs( TypeSet<EM::ObjectID>& emids ) const
+void uiODViewer2DMgr::getLoadedFaultSSs( DBKeySet& emids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1302,7 +1303,7 @@ void uiODViewer2DMgr::getLoadedFaultSSs( TypeSet<EM::ObjectID>& emids ) const
 }
 
 
-void uiODViewer2DMgr::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
+void uiODViewer2DMgr::addFaultSSs( const DBKeySet& emids )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1312,13 +1313,13 @@ void uiODViewer2DMgr::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid )
+void uiODViewer2DMgr::addNewTempFaultSS( const DBKey& emid )
 {
     addNewTempFaultSS( emid, -1 );
 }
 
 
-void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid, int sceneid )
+void uiODViewer2DMgr::addNewTempFaultSS( const DBKey& emid, int sceneid )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1326,7 +1327,7 @@ void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid, int sceneid )
 	vwr2d->addNewTempFaultSS( emid );
     }
 
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::FaultStickSet::typeStr(),
 				     sceneid );
     if ( emids.isPresent(emid) )
@@ -1335,7 +1336,7 @@ void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid, int sceneid )
 }
 
 
-void uiODViewer2DMgr::getFaultSS2DVwr2DIDs( EM::ObjectID emid,
+void uiODViewer2DMgr::getFaultSS2DVwr2DIDs( const DBKey& emid,
 					TypeSet<int>& vw2dobjids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
@@ -1346,7 +1347,7 @@ void uiODViewer2DMgr::getFaultSS2DVwr2DIDs( EM::ObjectID emid,
 }
 
 
-void uiODViewer2DMgr::removeFaultSS2D( EM::ObjectID emid )
+void uiODViewer2DMgr::removeFaultSS2D( const DBKey& emid )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1356,7 +1357,7 @@ void uiODViewer2DMgr::removeFaultSS2D( EM::ObjectID emid )
 }
 
 
-void uiODViewer2DMgr::getLoadedFaultSS2Ds( TypeSet<EM::ObjectID>& emids ) const
+void uiODViewer2DMgr::getLoadedFaultSS2Ds( DBKeySet& emids ) const
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1366,7 +1367,7 @@ void uiODViewer2DMgr::getLoadedFaultSS2Ds( TypeSet<EM::ObjectID>& emids ) const
 }
 
 
-void uiODViewer2DMgr::addFaultSS2Ds( const TypeSet<EM::ObjectID>& emids )
+void uiODViewer2DMgr::addFaultSS2Ds( const DBKeySet& emids )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1376,13 +1377,13 @@ void uiODViewer2DMgr::addFaultSS2Ds( const TypeSet<EM::ObjectID>& emids )
 }
 
 
-void uiODViewer2DMgr::addNewTempFaultSS2D( EM::ObjectID emid )
+void uiODViewer2DMgr::addNewTempFaultSS2D( const DBKey& emid )
 {
     addNewTempFaultSS2D( emid, -1 );
 }
 
 
-void uiODViewer2DMgr::addNewTempFaultSS2D( EM::ObjectID emid, int sceneid )
+void uiODViewer2DMgr::addNewTempFaultSS2D( const DBKey& emid, int sceneid )
 {
     for ( int vwridx=0; vwridx<viewers_.size(); vwridx++ )
     {
@@ -1390,7 +1391,7 @@ void uiODViewer2DMgr::addNewTempFaultSS2D( EM::ObjectID emid, int sceneid )
 	vwr2d->addNewTempFaultSS2D( emid );
     }
 
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
     appl_.sceneMgr().getLoadedEMIDs( emids, EM::FaultStickSet::typeStr(),
 				     sceneid );
     if ( emids.isPresent(emid) )

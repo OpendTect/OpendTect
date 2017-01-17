@@ -137,7 +137,7 @@ uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( Pick::Set& ps )
 bool uiODVw2DPickSetTreeItem::init()
 {
     vw2dpickset_ =
-	VW2DPickSet::create( storedid_.objID().getI(), viewer2D()->viewwin(),
+	VW2DPickSet::create( storedid_, viewer2D()->viewwin(),
 			     viewer2D()->dataEditor() );
     if ( !vw2dpickset_ )
 	{ pErrMsg("Factory returns null"); return false; }

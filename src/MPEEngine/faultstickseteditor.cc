@@ -145,7 +145,7 @@ float FaultStickSetEditor::distToStick( int sticknr,const DBKey* pickeddbkey,
 			const char* pickednm,Pos::GeomID pickedgeomid,
 			const Coord3& mousepos, const Coord3* posnormal ) const
 {
-    
+
     const EM::FaultStickSet* emfss = emFaultStickSet();
     if ( !emfss || emfss->isStickHidden(sticknr,sceneidx_)
 		|| !mousepos.isDefined() )
@@ -270,7 +270,7 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 {
     EM::FaultStickSet* emfss =const_cast<EM::FaultStickSet*>(emFaultStickSet());
     bool change = false;
-    
+
     const StepInterval<int> rowrange = emfss->rowRange();
     if ( rowrange.isUdf() )
 	return false;
@@ -301,8 +301,8 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 
     if ( change )
     {
-	EM::EMM().undo().setUserInteractionEnd(
-		                            EM::EMM().undo().currentEventID() );
+	EM::FSSMan().undo().setUserInteractionEnd(
+					EM::FSSMan().undo().currentEventID() );
     }
 
     return change;
@@ -336,7 +336,7 @@ bool FaultStickSetEditor::getNearestStick( int& sticknr,
 	    {
 		minlinedist = disttoline;
 		selsticknr = cursticknr;
-		
+
 	    }
 	}
     }

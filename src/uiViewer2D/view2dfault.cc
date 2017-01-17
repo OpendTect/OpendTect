@@ -26,7 +26,7 @@ ________________________________________________________________________
 mCreateVw2DFactoryEntry( VW2DFault );
 
 
-VW2DFault::VW2DFault( const EM::ObjectID& oid, uiFlatViewWin* win,
+VW2DFault::VW2DFault( const DBKey& oid, uiFlatViewWin* win,
 		    const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
     : Vw2DEMDataObject(oid,win,auxdataeds)
     , deselted_( this )
@@ -34,7 +34,7 @@ VW2DFault::VW2DFault( const EM::ObjectID& oid, uiFlatViewWin* win,
     , knotenabled_(false)
 {
     faulteds_.allowNull();
-    if ( oid >= 0 )
+    if ( !oid.isInvalid() )
 	setEditors();
 }
 

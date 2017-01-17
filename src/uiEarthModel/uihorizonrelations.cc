@@ -182,9 +182,7 @@ bool acceptOK()
 {
     const bool saveas = savefld_->getBoolValue();
     const bool topisstatic = horizonfld_->getIntValue() == 1;
-    const EM::ObjectID objid =
-		EM::EMM().getObjectID( topisstatic ? mid2_ : mid1_ );
-    EM::EMObject* emobj = EM::EMM().getObject( objid );
+    EM::EMObject* emobj = EM::EMM().getObject( topisstatic ? mid2_ : mid1_ );
     DBKey outmid;
     RefMan<EM::EMObject> outemobj = 0;
 
@@ -195,9 +193,8 @@ bool acceptOK()
 		    uiStrings::phrOutput(uiStrings::sSurface())) :
 		    uiStrings::sEmptyString()))
 	outmid = ctio_->ioobj_->key();
-	EM::ObjectID outemobjid =
-	    EM::EMM().createObject( emobj->getTypeStr(), ctio_->ioobj_->name());
-	outemobj = EM::EMM().getObject( outemobjid );
+	outemobj = EM::EMM().createObject( emobj->getTypeStr(),
+					   ctio_->ioobj_->name());
 	outemobj->setPreferredColor( emobj->preferredColor() );
 
 	if ( !is2d_ )

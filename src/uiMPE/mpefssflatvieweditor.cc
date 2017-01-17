@@ -30,7 +30,7 @@ namespace MPE
 
 FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 				FlatView::AuxDataEditor* ed,
-				const EM::ObjectID& oid )
+				const DBKey& oid )
     : EM::FaultStickSetFlatViewEditor(ed)
     , editor_(ed)
     , fsspainter_( new EM::FaultStickPainter(ed->viewer(),oid) )
@@ -250,13 +250,13 @@ void FaultStickSetFlatViewEditor::seedMovementStartedCB( CallBacker* cb )
     if ( selstickid == fsspainter_->getActiveStickId() )
 	return;
 
-    EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return;
+    DBKey emid = fsspainter_->getFaultSSID();
+    if ( emid.isInvalid() ) return;
 
     if ( emid != fsspainter_->getFaultSSID() )
 	return;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss )
 	return;
@@ -280,10 +280,10 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     if ( (edidauxdataid==-1) || (displayedknotid==-1) )
 	return;
 
-    EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return;
+    DBKey emid = fsspainter_->getFaultSSID();
+    if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss )
 	return;
@@ -409,10 +409,10 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     if ( editor_ && editor_->sower().accept(mouseevent, false) )
 	return;
 
-    EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return;
+    DBKey emid = fsspainter_->getFaultSSID();
+    if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss )
 	return;
@@ -464,10 +464,10 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     if ( editor_->getSelPtIdx().size() > 0 )
 	displayedknotid = editor_->getSelPtIdx()[0];
 
-    EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return;
+    DBKey emid = fsspainter_->getFaultSSID();
+    if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( emid );
 
     if ( (edidauxdataid==-1) || (displayedknotid==-1) )
     {
@@ -508,8 +508,8 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
 
 #define mSetUserInteractionEnd() \
     if ( !editor_->sower().moreToSow() ) \
-	EM::EMM().undo().setUserInteractionEnd( \
-					EM::EMM().undo().currentEventID() );
+	EM::FSSMan().undo().setUserInteractionEnd( \
+					EM::FSSMan().undo().currentEventID() );
 
 
 void FaultStickSetFlatViewEditor::sowingFinishedCB( CallBacker* cb )
@@ -546,10 +546,10 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	return;
     }
 
-    EM::ObjectID emid = fsspainter_->getFaultSSID();
-    if ( emid == -1 ) return;
+    DBKey emid = fsspainter_->getFaultSSID();
+    if ( emid.isInvalid() ) return;
 
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    RefMan<EM::EMObject> emobject = EM::FSSMan().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss )
 	return;
@@ -620,7 +620,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	const EM::SectionID sid = emfss->sectionID(0);
 	Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
 	const int insertsticknr = !fss || fss->isEmpty()
-	    			  ? 0 : fss->rowRange().stop+1;
+				  ? 0 : fss->rowRange().stop+1;
 
 	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal, true );
@@ -683,13 +683,13 @@ void FaultStickSetFlatViewEditor::removeSelectionCB( CallBacker* cb )
 
     sort_coupled( selectedidxs.arr(), selectedids.arr(), selectedids.size() );
     RefMan<EM::EMObject> emobject =
-			EM::EMM().getObject( fsspainter_->getFaultSSID() );
+			EM::FSSMan().getObject( fsspainter_->getFaultSSID() );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
     if ( !emfss ) return;
 
     const EM::SectionID sid = emfss->sectionID( 0 );
     mDynamicCastGet(const Geometry::FaultStickSet*,
-	    	    fss, emfss->sectionGeometry(sid ) );
+		    fss, emfss->sectionGeometry(sid ) );
     if ( !fss ) return;
 
     emfss->setBurstAlert( true );

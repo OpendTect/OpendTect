@@ -18,12 +18,12 @@ const char* PosID::subidStr() { return  "Sub ID"; }
 
 const PosID& PosID::udf()
 {
-    mDefineStaticLocalObject( PosID, undef, ( -1, -1, -1 ) );
+    mDefineStaticLocalObject( PosID, undef, ( DBKey::getInvalid(), -1, -1 ) );
     return undef;
 }
 
 
-bool PosID::isUdf() const { return objectID()==-1; }
+bool PosID::isUdf() const { return objectID().isInvalid(); }
 
 
 RowCol PosID::getRowCol() const
@@ -32,7 +32,7 @@ RowCol PosID::getRowCol() const
 
 void PosID::fillPar( IOPar& par ) const
 {
-    par.set( emobjStr(), emobjid_ );
+    par.set( emobjStr(), objid_ );
     par.set( sectionStr(), sectionid_ );
     par.set( subidStr(), subid_ );
 }
@@ -42,7 +42,7 @@ bool PosID::usePar( const IOPar& par )
 {
     int tmpsection = mUdf(int);
     SubID tmpsubid = mUdf(od_int64);
-    const bool res = par.get( emobjStr(), emobjid_ ) &&
+    const bool res = par.get( emobjStr(), objid_ ) &&
 		     par.get( sectionStr(), tmpsection ) &&
 		     par.get( subidStr(), tmpsubid );
     if ( res )

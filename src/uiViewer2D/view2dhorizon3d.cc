@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 mCreateVw2DFactoryEntry( Vw2DHorizon3D );
 
-Vw2DHorizon3D::Vw2DHorizon3D( const EM::ObjectID& oid, uiFlatViewWin* win,
+Vw2DHorizon3D::Vw2DHorizon3D( const DBKey& oid, uiFlatViewWin* win,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataedtors)
     : Vw2DEMDataObject(oid,win,auxdataedtors)
     , deselted_(this)
@@ -34,7 +34,7 @@ Vw2DHorizon3D::Vw2DHorizon3D( const EM::ObjectID& oid, uiFlatViewWin* win,
     , wvaselspec_(0)
 {
     horeds_.allowNull();
-    if ( oid >= 0 )
+    if ( !oid.isInvalid() )
 	setEditors();
 }
 
@@ -159,7 +159,7 @@ void Vw2DHorizon3D::selected( bool enabled )
     if ( activetracker )
     {
 	MPE::EMSeedPicker* seedpicker = activetracker->getSeedPicker(true);
-	if ( seedpicker && 
+	if ( seedpicker &&
 	     (seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawBetweenSeeds ||
 	      seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawAndSnap) )
 	    setenableseed = false;

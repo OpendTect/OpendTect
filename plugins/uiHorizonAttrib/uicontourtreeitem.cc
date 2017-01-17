@@ -228,7 +228,7 @@ bool uiContourTreeItemContourGenerator::setRowColRgs(
 bool uiContourTreeItemContourGenerator::prepForContourGenerator()
 {
     uiVisPartServer* visserv = uicitem_->applMgr()->visServer();
-    EM::ObjectID emid = uicitem_->getHorDisp()->getObjectID();
+    DBKey emid = uicitem_->getHorDisp()->getObjectID();
     mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(emid));
     if( !hor ) return false;
     hor3d_ = hor;
@@ -1223,7 +1223,7 @@ void uiContourTreeItem::startCreateUICContours()
 Array2D<float>* uiContourTreeItem::getDataSet(
     visSurvey::HorizonDisplay* hordisp )
 {
-    EM::ObjectID emid = hordisp->getObjectID();
+    DBKey emid = hordisp->getObjectID();
     mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(emid));
     if ( !hor ) return 0;
 

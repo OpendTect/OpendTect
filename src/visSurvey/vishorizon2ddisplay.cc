@@ -778,7 +778,7 @@ void Horizon2DDisplay::otherObjectsMoved(
 }
 
 
-bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid,
+bool Horizon2DDisplay::setEMObject( const DBKey& newid,
 				    TaskRunner* taskr )
 {
     if ( !EMObjectDisplay::setEMObject( newid, taskr ) )
@@ -913,7 +913,7 @@ void Horizon2DDisplay::updateSelections()
     while( true )
     {
 	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
+	if ( pid.objectID().isInvalid() )
 	    break;
 
 	const Coord3 pos = h2d->getPos( pid );

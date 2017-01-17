@@ -66,8 +66,6 @@ protected:
     void		fillFields(const EM::SurfaceIOData&);
     bool		getSurfaceIOData(const DBKey&,EM::SurfaceIOData&,
 					 bool showmsg=true) const;
-    bool		getSurfaceIOData(const EM::ObjectID&,
-					 EM::SurfaceIOData&) const;
     void		fillSectionFld(const BufferStringSet&);
     void		fillAttribFld(const BufferStringSet&);
     void		fillRangeFld(const TrcKeySampling&);

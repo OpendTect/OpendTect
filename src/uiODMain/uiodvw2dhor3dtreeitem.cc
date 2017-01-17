@@ -52,10 +52,10 @@ uiODVw2DHor3DParentTreeItem::~uiODVw2DHor3DParentTreeItem()
 
 
 void uiODVw2DHor3DParentTreeItem::getNonLoadedTrackedHor3Ds(
-	TypeSet<EM::ObjectID>& emids )
+	DBKeySet& emids )
 {
     const int nrtracker = MPE::engine().nrTrackersAlive();
-    TypeSet<EM::ObjectID> loadedemids;
+    DBKeySet loadedemids;
     getLoadedHorizon3Ds( loadedemids );
     for ( int idx=0; idx<nrtracker; idx++ )
     {
@@ -81,7 +81,7 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( createAddMenu() );
 
-    TypeSet<EM::ObjectID> emids;
+    DBKeySet emids;
     getNonLoadedTrackedHor3Ds( emids );
     if ( emids.isEmpty() )
     {
@@ -97,7 +97,8 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 	trackmenu->insertItem( newmenu, mNewIdx );
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
-	    const EM::EMObject* emobject = EM::EMM().getObject( emids[idx] );
+	    const EM::EMObject* emobject =
+			EM::Hor3DMan().getObject( emids[idx] );
 	    uiAction* trackexistingmnu = new uiAction( emobject->uiName() );
 	    trackexistingmnu->setEnabled( cantrack );
 	    trackmenu->insertItem( trackexistingmnu, mNewIdx + idx + 1 );
@@ -117,7 +118,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 
     if ( mnuid >= mNewIdx )
     {
-	TypeSet<EM::ObjectID> emids;
+	DBKeySet emids;
 	getNonLoadedTrackedHor3Ds( emids );
 	const int emidx = mnuid - mNewIdx - 1;
 	if ( emidx >= emids.size() )
@@ -126,11 +127,11 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 		applMgr()->attrServer()->curDescSet(false) );
-	int emid = -1;
+	DBKey emid = DBKey::getInvalid();
 	if ( emids.validIdx(emidx) )
 	    emid = emids[emidx];
 
-	EM::EMObject* emobj = EM::EMM().getObject( emid );
+	EM::EMObject* emobj = EM::Hor3DMan().getObject( emid );
 	if ( !emobj )
 	{
 	// This will add the 3D scene item.
@@ -156,7 +157,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false );
-	TypeSet<EM::ObjectID> emids;
+	DBKeySet emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
 
@@ -176,7 +177,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 
 
 void uiODVw2DHor3DParentTreeItem::getHor3DVwr2DIDs(
-	EM::ObjectID emid, TypeSet<int>& vw2dobjids ) const
+	const DBKey& emid, TypeSet<int>& vw2dobjids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -190,7 +191,7 @@ void uiODVw2DHor3DParentTreeItem::getHor3DVwr2DIDs(
 
 
 void uiODVw2DHor3DParentTreeItem::getLoadedHorizon3Ds(
-	TypeSet<EM::ObjectID>& emids ) const
+	DBKeySet& emids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -202,7 +203,7 @@ void uiODVw2DHor3DParentTreeItem::getLoadedHorizon3Ds(
 }
 
 
-void uiODVw2DHor3DParentTreeItem::removeHorizon3D( EM::ObjectID emid )
+void uiODVw2DHor3DParentTreeItem::removeHorizon3D( const DBKey& emid )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -215,9 +216,9 @@ void uiODVw2DHor3DParentTreeItem::removeHorizon3D( EM::ObjectID emid )
 
 
 void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
-	const TypeSet<EM::ObjectID>& emids )
+	const DBKeySet& emids )
 {
-    TypeSet<EM::ObjectID> emidstobeloaded, emidsloaded;
+    DBKeySet emidstobeloaded, emidsloaded;
     getLoadedHorizon3Ds( emidsloaded );
     for ( int idx=0; idx<emids.size(); idx++ )
     {
@@ -227,11 +228,11 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 
     for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
-	const EM::ObjectID emid = emidstobeloaded[idx];
+	const DBKey emid = emidstobeloaded[idx];
 	const bool hastracker = MPE::engine().hasTracker( emid );
 	if ( hastracker )
 	{
-	    EM::EMObject* emobj = EM::EMM().getObject( emid );
+	    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid );
 	    if ( !emobj || findChild(emobj->name()) )
 		continue;
 
@@ -248,17 +249,17 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
     }
 }
 
-void uiODVw2DHor3DParentTreeItem::setupTrackingHorizon3D( EM::ObjectID emid )
+void uiODVw2DHor3DParentTreeItem::setupTrackingHorizon3D( const DBKey& emid )
 {
     if ( viewer2D() && !viewer2D()->isVertical() &&
 	 !viewer2D()->hasZAxisTransform() )
 	return;
 
-    TypeSet<EM::ObjectID> emidsloaded;
+    DBKeySet emidsloaded;
     getLoadedHorizon3Ds( emidsloaded );
     if ( !emidsloaded.isPresent(emid) )
 	return;
-    
+
     bool hashorizon = false;
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -275,13 +276,13 @@ void uiODVw2DHor3DParentTreeItem::setupTrackingHorizon3D( EM::ObjectID emid )
 }
 
 
-void uiODVw2DHor3DParentTreeItem::addNewTrackingHorizon3D( EM::ObjectID emid )
+void uiODVw2DHor3DParentTreeItem::addNewTrackingHorizon3D( const DBKey& emid )
 {
     if ( viewer2D() && !viewer2D()->isVertical() &&
 	 !viewer2D()->hasZAxisTransform() )
 	return;
 
-    TypeSet<EM::ObjectID> emidsloaded;
+    DBKeySet emidsloaded;
     getLoadedHorizon3Ds( emidsloaded );
     if ( emidsloaded.isPresent(emid) )
 	return;
@@ -308,7 +309,7 @@ bool uiODVw2DHor3DParentTreeItem::init()
 
 
 
-uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )
+uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const DBKey& emid )
     : uiODVw2DEMTreeItem(emid)
     , horview_(0)
 {
@@ -318,7 +319,7 @@ uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )
 
 
 uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( int id, bool )
-    : uiODVw2DEMTreeItem(-1)
+    : uiODVw2DEMTreeItem(DBKey::getInvalid())
     , horview_(0)
 {
     displayid_ = id;
@@ -329,12 +330,12 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 {
     detachAllNotifiers();
 
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( emobj )
     {
 	emobj->change.remove( mCB(this,uiODVw2DHor3DTreeItem,emobjChangeCB) );
 
-	EM::ObjectID emid = emobj->id();
+	DBKey emid = emobj->id();
 	if ( MPE::engine().hasTracker(emid) )
 	{
 	    MPE::engine().removeEditor( emid );
@@ -352,7 +353,7 @@ bool uiODVw2DHor3DTreeItem::init()
     EM::EMObject* emobj = 0;
     if ( displayid_ < 0 )
     {
-	emobj = EM::EMM().getObject( emid_ );
+	emobj = EM::Hor3DMan().getObject( emid_ );
 	if ( !emobj ) return false;
 
 	horview_ = Vw2DHorizon3D::create( emid_, viewer2D()->viewwin(),
@@ -367,7 +368,7 @@ bool uiODVw2DHor3DTreeItem::init()
 	if ( !hd )
 	    return false;
 	emid_ = hd->emID();
-	emobj = EM::EMM().getObject( emid_ );
+	emobj = EM::Hor3DMan().getObject( emid_ );
 	if ( !emobj ) return false;
 
 	horview_ = hd;
@@ -378,7 +379,7 @@ bool uiODVw2DHor3DTreeItem::init()
 
     displayMiniCtab();
 
-    name_ = toUiString(applMgr()->EMServer()->getName( emid_ ));
+    name_ = toUiString(DBM().nameOf( emid_ ));
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DHor3DTreeItem,checkCB) );
@@ -410,7 +411,7 @@ bool uiODVw2DHor3DTreeItem::init()
 
 void uiODVw2DHor3DTreeItem::displayMiniCtab()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( !emobj ) return;
 
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
@@ -437,7 +438,7 @@ void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 	}
 	case EM::EMObjectCallbackData::NameChange:
 	{
-	    name_ = toUiString(applMgr()->EMServer()->getName( emid_ ));
+	    name_ = toUiString(DBM().nameOf( emid_ ));
 	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	    break;
 	}
@@ -448,9 +449,8 @@ void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 
 void uiODVw2DHor3DTreeItem::renameVisObj()
 {
-    const DBKey midintree = applMgr()->EMServer()->getStorageID(emid_);
     TypeSet<int> visobjids;
-    applMgr()->visServer()->findObject( midintree, visobjids );
+    applMgr()->visServer()->findObject( emid_, visobjids );
     for ( int idx=0; idx<visobjids.size(); idx++ )
 	applMgr()->visServer()->setObjectName( visobjids[idx], name_ );
     applMgr()->visServer()->triggerTreeUpdate();
@@ -511,7 +511,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     }
     else if ( mnuid == mStartID )
     {
-	const EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+	const EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
 	if ( !emobj || mps->addTracker(emid_)==-1 )
 	    return false;
 
@@ -523,7 +523,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     }
     else if ( mnuid == mSettsID )
     {
-	EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+	EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
 	if ( emobj )
 	{
 	    const EM::SectionID sid = emobj->sectionID( 0 );
@@ -538,7 +538,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	const int trackerid = mps->getTrackerID( emid_ );
 	if ( trackerid>= 0 )
 	    renameVisObj();
-	name_ = ems->getName( emid_ );
+	name_ = DBM().nameOf( emid_ );
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 			mnuid==mRemoveID;
 	if ( mnuid == mRemoveAllID )
@@ -605,10 +605,10 @@ void uiODVw2DHor3DTreeItem::updateCS( const TrcKeyZSampling& cs, bool upd )
 
 void uiODVw2DHor3DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
+    mCBCapsuleUnpack( const DBKey&, emid, cb );
     if ( emid != emid_ ) return;
 
-    EM::EMObject* emobj = EM::EMM().getObject( emid );
+    EM::EMObject* emobj = EM::Hor3DMan().getObject( emid );
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return;
 

@@ -61,7 +61,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
     if ( mnuid == getNewItemID() )
     {
 	RefMan<EM::EMObject> emo =
-		EM::EMM().createTempObject( EM::FaultStickSet::typeStr() );
+		EM::FSSMan().createTempObject( EM::FaultStickSet::typeStr() );
 	if ( !emo )
 	    return false;
 
@@ -76,7 +76,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaultStickSets( objs );
-	TypeSet<EM::ObjectID> emids;
+	DBKeySet emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
 	if ( isAddItem(mnuid,true) )
@@ -104,7 +104,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::init()
 
 
 void uiODVw2DFaultSS2DParentTreeItem::getFaultSS2DVwr2DIDs(
-	EM::ObjectID emid, TypeSet<int>& vw2dobjids ) const
+	const DBKey& emid, TypeSet<int>& vw2dobjids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -119,7 +119,7 @@ void uiODVw2DFaultSS2DParentTreeItem::getFaultSS2DVwr2DIDs(
 
 
 void uiODVw2DFaultSS2DParentTreeItem::getLoadedFaultSS2Ds(
-	TypeSet<EM::ObjectID>& emids ) const
+	DBKeySet& emids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -131,7 +131,7 @@ void uiODVw2DFaultSS2DParentTreeItem::getLoadedFaultSS2Ds(
 }
 
 
-void uiODVw2DFaultSS2DParentTreeItem::removeFaultSS2D( EM::ObjectID emid )
+void uiODVw2DFaultSS2DParentTreeItem::removeFaultSS2D( const DBKey& emid )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
@@ -144,9 +144,9 @@ void uiODVw2DFaultSS2DParentTreeItem::removeFaultSS2D( EM::ObjectID emid )
 
 
 void uiODVw2DFaultSS2DParentTreeItem::addFaultSS2Ds(
-					const TypeSet<EM::ObjectID>& emids )
+					const DBKeySet& emids )
 {
-    TypeSet<EM::ObjectID> emidstobeloaded, emidsloaded;
+    DBKeySet emidstobeloaded, emidsloaded;
     getLoadedFaultSS2Ds( emidsloaded );
     for ( int idx=0; idx<emids.size(); idx++ )
     {
@@ -156,7 +156,8 @@ void uiODVw2DFaultSS2DParentTreeItem::addFaultSS2Ds(
 
     for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
     {
-	const EM::EMObject* emobj = EM::EMM().getObject( emidstobeloaded[idx] );
+	const EM::EMObject* emobj =
+			EM::FSSMan().getObject( emidstobeloaded[idx] );
 	if ( !emobj || findChild(emobj->name()) )
 	    continue;
 
@@ -171,9 +172,9 @@ void uiODVw2DFaultSS2DParentTreeItem::addFaultSS2Ds(
 }
 
 
-void uiODVw2DFaultSS2DParentTreeItem::setupNewTempFaultSS2D( EM::ObjectID emid )
+void uiODVw2DFaultSS2DParentTreeItem::setupNewTempFaultSS2D( const DBKey& emid )
 {
-    TypeSet<EM::ObjectID> emidsloaded;
+    DBKeySet emidsloaded;
     getLoadedFaultSS2Ds( emidsloaded );
     if ( !emidsloaded.isPresent(emid) )
 	return;
@@ -193,9 +194,9 @@ void uiODVw2DFaultSS2DParentTreeItem::setupNewTempFaultSS2D( EM::ObjectID emid )
 }
 
 
-void uiODVw2DFaultSS2DParentTreeItem::addNewTempFaultSS2D( EM::ObjectID emid )
+void uiODVw2DFaultSS2DParentTreeItem::addNewTempFaultSS2D( const DBKey& emid )
 {
-    TypeSet<EM::ObjectID> emidsloaded;
+    DBKeySet emidsloaded;
     getLoadedFaultSS2Ds( emidsloaded );
     if ( emidsloaded.isPresent(emid) )
 	return;
@@ -210,13 +211,13 @@ void uiODVw2DFaultSS2DParentTreeItem::addNewTempFaultSS2D( EM::ObjectID emid )
 
 void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
+    mCBCapsuleUnpack( const DBKey&, emid, cb );
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
     if ( !fss ) return;
 
-    if ( findChild(applMgr()->EMServer()->getName(emid).getFullString()) )
+    if ( findChild(DBM().nameOf(emid)) )
 	return;
 
     addChld( new uiODVw2DFaultSS2DTreeItem(emid),false,false);
@@ -224,7 +225,7 @@ void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
 
 
 
-uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( const EM::ObjectID& emid )
+uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( const DBKey& emid )
     : uiODVw2DEMTreeItem( emid )
     , fssview_( 0 )
 {
@@ -232,7 +233,7 @@ uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( const EM::ObjectID& emid )
 
 
 uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( int id, bool )
-    : uiODVw2DEMTreeItem( -1 )
+    : uiODVw2DEMTreeItem( DBKey::getInvalid() )
     , fssview_( 0 )
 {
     displayid_ = id;
@@ -280,7 +281,7 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     emobj->ref();
     mAttachCB( emobj->change, uiODVw2DFaultSS2DTreeItem::emobjChangeCB );
 
-    name_ = applMgr()->EMServer()->getName( emid_ );
+    name_ = DBM().nameOf( emid_ );
     uitreeviewitem_->setChecked( true );
     mAttachCB( checkStatusChange(), uiODVw2DFaultSS2DTreeItem::checkCB );
 
@@ -396,7 +397,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
 	    return true;
 
-	name_ = applMgr()->EMServer()->getName( emid_ );
+	name_ = DBM().nameOf( emid_ );
 	renameVisObj();
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 			mnuid==mRemoveID;
@@ -429,7 +430,7 @@ void uiODVw2DFaultSS2DTreeItem::checkCB( CallBacker* )
 
 void uiODVw2DFaultSS2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
+    mCBCapsuleUnpack( const DBKey&, emid, cb );
     if ( emid != emid_ ) return;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );

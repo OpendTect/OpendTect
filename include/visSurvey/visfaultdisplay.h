@@ -108,8 +108,8 @@ public:
     bool			arePanelsDisplayed() const;
     bool			arePanelsDisplayedInFull() const;
 
-    bool			setEMObjectID(const EM::ObjectID&);
-    EM::ObjectID		getEMObjectID() const;
+    bool			setEMObjectID(const DBKey&);
+    DBKey			getEMObjectID() const;
 
     void			setScene(Scene*);
 

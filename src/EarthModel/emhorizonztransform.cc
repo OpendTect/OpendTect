@@ -163,20 +163,14 @@ bool HorizonZTransform::usePar( const IOPar& par )
     if ( !ZAxisTransform::usePar( par ) )
 	return false;
 
-    DBKey mid;
-    if ( !par.get( sKeyHorizonID(), mid ) )
+    DBKey objkey;
+    if ( !par.get( sKeyHorizonID(), objkey ) )
 	return true;
 
-    EM::ObjectID emid = EM::EMM().getObjectID( mid );
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
+    EM::EMManager& horman = EM::getMgr( objkey );
+    RefMan<EM::EMObject> emobj = horman.getObject( objkey );
     if ( !emobj )
-    {
-	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
-	if ( !loader || !loader->execute() ) return false;
-
-	emid = EM::EMM().getObjectID( mid );
-	emobj = EM::EMM().getObject( emid );
-    }
+	return false;
 
     mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
     if ( !hor )
@@ -215,7 +209,7 @@ void HorizonZTransform::calculateHorizonRange()
     bool isset = false;
 
     EM::PosID pid = iterator->next();
-    while ( pid.objectID()!=-1  )
+    while ( !pid.objectID().isInvalid()  )
     {
 	const float depth = (float) horizon_->getPos( pid ).z_;
 	if ( !mIsUdf( depth ) )

@@ -83,15 +83,15 @@ static int doWork( int argc, char** argv )
     for ( int idx=0; idx<list.size(); idx++ )
 	horids += list[idx]->ioobj->key();
 
-    PtrMan<Executor> loader = EM::EMM().objectLoader( horids, 0 );
+    PtrMan<Executor> loader = EM::Hor2DMan().objectLoader( horids, 0 );
     if ( !loader->execute() )
 	return prError( "Cannot load horizons" );
 
     ObjectSet<const EM::Horizon2D> horizons;
     for ( int idx=0; idx<horids.size(); idx++ )
     {
-	EM::ObjectID emobjid = EM::EMM().getObjectID( horids[idx] );
-	mDynamicCastGet(const EM::Horizon2D*,hor,EM::EMM().getObject(emobjid))
+	mDynamicCastGet(const EM::Horizon2D*,hor,
+			EM::Hor2DMan().getObject(horids[idx]))
 	if ( !hor ) continue;
 
 	bool doadd = false;

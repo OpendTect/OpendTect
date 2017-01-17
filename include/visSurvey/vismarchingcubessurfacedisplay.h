@@ -56,8 +56,8 @@ public:
 
     bool			setVisSurface(visBase::MarchingCubesSurface*);
 				//!<Creates an EMObject for it.
-    bool			setEMID(const EM::ObjectID&,TaskRunner*);
-    EM::ObjectID		getEMID() const;
+    bool			setEMID(const DBKey&,TaskRunner*);
+    DBKey			getEMID() const;
 
     const uiString&		errMsg() const { return errmsg_; }
 

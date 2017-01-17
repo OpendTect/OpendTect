@@ -19,7 +19,7 @@ namespace EM
 {
 
 HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
-				    const EM::ObjectID& oid )
+				    const DBKey& oid )
     : viewer_(fv)
     , id_(oid)
     , markerlinestyle_(OD::LineStyle::Solid,2,Color(0,255,0))
@@ -34,7 +34,7 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
     , abouttorepaint_(this)
     , repaintdone_(this)
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
     if ( emobj )
     {
 	emobj->ref();
@@ -47,7 +47,7 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
 HorizonPainter3D::~HorizonPainter3D()
 {
     detachAllNotifiers();
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
     if ( emobj )
     {
 	emobj->removePosAttribList(
@@ -95,7 +95,7 @@ void HorizonPainter3D::paintCB( CallBacker* )
     removePolyLine();
     addPolyLine();
     changePolyLineColor();
-    const EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    const EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
     if ( emobj && markerseeds_ && nrseeds_==1 )
     {
 	for ( int idx=0;idx<markerseeds_->marker_->markerstyles_.size(); idx++ )
@@ -128,7 +128,7 @@ HorizonPainter3D::Marker3D* HorizonPainter3D::create3DMarker(
 
 bool HorizonPainter3D::addPolyLine()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return false;
 
@@ -277,7 +277,7 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
     {
 	const int postype = isseed ? EM::EMObject::sSeedNode()
 				   : EM::EMObject::sIntersectionNode();
-	EM::EMObject* emobj = EM::EMM().getObject( id_ );
+	EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
 	OD::MarkerStyle3D ms3d = emobj->getPosAttrMarkerStyle( postype );
 	markerstyle_.color_ = ms3d.color_;
 	if ( isintersec )
@@ -355,7 +355,7 @@ void HorizonPainter3D::getDisplayedHor( ObjectSet<Marker3D>& disphor )
 
 void HorizonPainter3D::changePolyLineColor()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
     if ( !emobj ) return;
 
     for ( int idx=0; idx<markerline_.size(); idx++ )
@@ -378,7 +378,7 @@ void HorizonPainter3D::changePolyLineColor()
 
 void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 {
-    mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject( id_ ));
+    mDynamicCastGet(EM::Horizon3D*,hor3d,EM::Hor3DMan().getObject( id_ ));
     if ( !hor3d ) return;
 
     if ( id_ != pid.objectID() ) return;
@@ -512,11 +512,11 @@ void HorizonPainter3D::setUpdateTrcKeySampling(
 
 
 
-void HorizonPainter3D::displaySelections( 
+void HorizonPainter3D::displaySelections(
     const TypeSet<EM::PosID>& pointselections )
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
-    if ( !emobj ) 
+    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
+    if ( !emobj )
 	return;
 
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
@@ -525,7 +525,7 @@ void HorizonPainter3D::displaySelections(
     removeSelections();
 
     selectionpoints_ = create3DMarker(0);
-    
+
     for ( int idx=0; idx<pointselections.size(); idx++ )
     {
 	const Coord3 pos = emobj->getPos( pointselections[idx] );
@@ -535,7 +535,7 @@ void HorizonPainter3D::displaySelections(
 	    x = tk.crl();
 	else if ( tkzs_.nrTrcs()==1 )
 	    x = tk.inl();
-	const bool isseed = 
+	const bool isseed =
 	    hor3d->isPosAttrib(pointselections[idx],EM::EMObject::sSeedNode());
 	const int postype = isseed ? EM::EMObject::sSeedNode()
 	    : EM::EMObject::sIntersectionNode();
@@ -565,13 +565,13 @@ void HorizonPainter3D::removeSelections()
 
 void HorizonPainter3D::updateSelectionColor()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor3DMan().getObject( id_ );
     mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
     if ( !hor3d ) return;
 
     if ( !selectionpoints_ )
 	return;
-    TypeSet<OD::MarkerStyle2D>& markerstyles = 
+    TypeSet<OD::MarkerStyle2D>& markerstyles =
 	selectionpoints_->marker_->markerstyles_;
 
     for ( int idx=0; idx<markerstyles.size(); idx++ )

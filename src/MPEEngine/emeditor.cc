@@ -30,7 +30,7 @@ mImplFactory1Param( ObjectEditor, EM::EMObject&, EditorFactory );
 ObjectEditor::ObjectEditor( EM::EMObject& emobj )
     : emobject_(&emobj)
     , editpositionchange(this)
-    , movingnode_( -1,-1,-1 )
+    , movingnode_( DBKey::getInvalid(),-1,-1 )
     , snapafteredit_( true )
     , nrusers_(0)
 {}
@@ -61,7 +61,7 @@ void ObjectEditor::startEdit(const EM::PosID& pid)
 
     if ( pid.objectID()!=emobject_->id() )
     {
-	movingnode_ = EM::PosID(-1,-1,-1);
+	movingnode_ = EM::PosID(DBKey::getInvalid(),-1,-1);
 	return;
     }
 
@@ -71,7 +71,7 @@ void ObjectEditor::startEdit(const EM::PosID& pid)
     if ( !startpos_.isDefined() )
     {
 	pErrMsg( "Editnode is undefined");
-	movingnode_ = EM::PosID(-1,-1,-1);
+	movingnode_ = EM::PosID(DBKey::getInvalid(),-1,-1);
 	return;
     }
 
@@ -88,7 +88,7 @@ void ObjectEditor::startEdit(const EM::PosID& pid)
 
 bool ObjectEditor::setPosition(const Coord3& np)
 {
-    if ( movingnode_.objectID()==-1 )
+    if ( movingnode_.objectID().isInvalid() )
     {
 	pErrMsg("Moving unknown node");
 	return false;
@@ -132,8 +132,8 @@ void ObjectEditor::finishEdit()
 //	tracker->snapPositions(alongmovingnodes);
     }
 
-    EM::EMM().undo().setUserInteractionEnd(
-	    EM::EMM().undo().currentEventID() );
+    emobject_->getMgr().undo().setUserInteractionEnd(
+	    emobject_->getMgr().undo().currentEventID() );
 }
 
 

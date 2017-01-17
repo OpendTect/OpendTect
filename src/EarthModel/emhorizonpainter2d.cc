@@ -19,7 +19,7 @@ namespace EM
 {
 
 HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
-				    const EM::ObjectID& oid )
+				    const DBKey& oid )
     : viewer_(fv)
     , id_(oid)
     , markerlinestyle_(OD::LineStyle::Solid,2,Color(0,255,0))
@@ -31,7 +31,7 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
     , abouttorepaint_(this)
     , repaintdone_(this)
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     if ( emobj )
     {
 	emobj->ref();
@@ -43,7 +43,7 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
 HorizonPainter2D::~HorizonPainter2D()
 {
     detachAllNotifiers();
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     if ( emobj )
     {
 	emobj->change.remove( mCB(this,HorizonPainter2D,horChangeCB) );
@@ -83,7 +83,7 @@ void HorizonPainter2D::paint( CallBacker* )
 
 bool HorizonPainter2D::addPolyLine()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     if ( !emobj ) return false;
 
     const OD::MarkerStyle3D ms3d =
@@ -221,7 +221,7 @@ void HorizonPainter2D::updateIntersectionMarkers( int sid )
 	    return;
     }
     removeIntersectionMarkers();
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     mDynamicCastGet( EM::Horizon2D*, hor2d, emobj )
     if ( !hor2d ) return;
 
@@ -329,7 +329,7 @@ void HorizonPainter2D::getDisplayedHor( ObjectSet<Marker2D>& disphor )
 
 void HorizonPainter2D::changePolyLineColor()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     if ( !emobj ) return;
 
     for ( int idx=0; idx<markerline_.size(); idx++ )
@@ -425,7 +425,7 @@ void HorizonPainter2D::displayIntersection( bool yn )
 void HorizonPainter2D::displaySelections(
     const TypeSet<EM::PosID>& pointselections )
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     if ( !emobj )
 	return;
 
@@ -474,13 +474,13 @@ void HorizonPainter2D::removeSelections()
 
 void HorizonPainter2D::updateSelectionColor()
 {
-    EM::EMObject* emobj = EM::EMM().getObject( id_ );
+    EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
     if ( !hor2d ) return;
 
     if ( !selectionpoints_ )
 	return;
-    TypeSet<OD::MarkerStyle2D>& markerstyles = 
+    TypeSet<OD::MarkerStyle2D>& markerstyles =
 	selectionpoints_->marker_->markerstyles_;
 
     for ( int idx=0;idx<markerstyles.size();idx++ )

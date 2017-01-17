@@ -356,7 +356,7 @@ bool uiODApplMgr::manSurv( uiParent* p )
 
 void uiODApplMgr::addVisDPSChild( CallBacker* cb )
 {
-    mCBCapsuleUnpack( int, emid, cb );
+    mCBCapsuleUnpack( DBKey, emid, cb );
     TypeSet<int> sceneids;
     visserv_->getChildIds( -1, sceneids );
     sceneMgr().addEMItem( emid, sceneids[0] );
@@ -752,12 +752,16 @@ void uiODApplMgr::calcShiftAttribute( int attrib, const Attrib::SelSpec& as )
 
     if ( mIsUdf(attrib) )
     {
-	uiODAttribTreeItem* itm =
-	    new uiODEarthModelSurfaceDataTreeItem(
-		    visserv_->getEventObjId(), 0, typeid(*parent).name() );
-	parent->addChild( itm, false );
-	attrib = visserv_->addAttrib( visserv_->getEventObjId() );
-	emattrserv_->setAttribIdx( attrib );
+	mDynamicCastGet(uiODEarthModelSurfaceTreeItem*,emitem,parent)
+	if ( emitem )
+	{
+	    uiODAttribTreeItem* itm =
+		new uiODEarthModelSurfaceDataTreeItem( emitem->emObjectID(), 0,
+						       typeid(*parent).name() );
+	    parent->addChild( itm, false );
+	    attrib = visserv_->addAttrib( visserv_->getEventObjId() );
+	    emattrserv_->setAttribIdx( attrib );
+	}
     }
 
     attrserv_->setTargetSelSpec( as );
@@ -839,15 +843,14 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     DataPackMgr& dpm = DPM(DataPackMgr::PointID());
     if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
     {
-	const DBKey surfmid = visserv_->getDBKey(visid);
-	const EM::ObjectID emid = emserv_->getObjectID(surfmid);
-	const int auxdatanr = emserv_->loadAuxData( emid, myas.userRef() );
+	const DBKey surfid = visserv_->getDBKey(visid);
+	const int auxdatanr = emserv_->loadAuxData( surfid, myas.userRef() );
 	if ( auxdatanr>=0 )
 	{
 	    RefMan<DataPointSet> data =
 		dpm.add( new DataPointSet(false,true) );
 	    TypeSet<float> shifts( 1, 0 );
-	    emserv_->getAuxData( emid, auxdatanr, *data, shifts[0] );
+	    emserv_->getAuxData( surfid, auxdatanr, *data, shifts[0] );
 	    setRandomPosData( visid, attrib, *data );
 	    mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
 			    visserv_->getObject(visid) )
@@ -1007,7 +1010,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     if ( evid == uiMPEPartServer::evAddTreeObject() )
     {
 	const int trackerid = mpeserv_->activeTrackerID();
-	const EM::ObjectID emid = mpeserv_->getEMObjectID(trackerid);
+	const DBKey emid = mpeserv_->getEMObjectID(trackerid);
 	const int sceneid = mpeserv_->getCurSceneID();
 	const int sdid = sceneMgr().addEMItem( emid, sceneid );
 	if ( sdid==-1 )
@@ -1024,7 +1027,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     else if ( evid == uiMPEPartServer::evRemoveTreeObject() )
     {
 	const int trackerid = mpeserv_->activeTrackerID();
-	const EM::ObjectID emid = mpeserv_->getEMObjectID( trackerid );
+	const DBKey emid = mpeserv_->getEMObjectID( trackerid );
 
 	TypeSet<int> sceneids;
 	visserv_->getChildIds( -1, sceneids );
@@ -1154,14 +1157,14 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	const int sceneid = sceneMgr().askSelectScene();
 	if ( sceneid<0 ) return false;
 
-	const EM::ObjectID emid = emserv_->selEMID();
+	const DBKey emid = emserv_->selEMID();
 	sceneMgr().addEMItem( emid, sceneid );
 	sceneMgr().updateTrees();
 	return true;
     }
     else if ( evid == uiEMPartServer::evRemoveTreeObject() )
     {
-	const EM::ObjectID emid = emserv_->selEMID();
+	const DBKey emid = emserv_->selEMID();
 
 	TypeSet<int> sceneids;
 	visserv_->getChildIds( -1, sceneids );
@@ -1260,8 +1263,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	visserv_->getRandomPosCache( visid, attribidx, data );
 	if ( data.isEmpty() ) return false;
 
-	const DBKey mid = visserv_->getDBKey( visid );
-	const EM::ObjectID emid = emserv_->getObjectID( mid );
+	const DBKey emid = visserv_->getDBKey( visid );
 	const int nrvals = data.bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
@@ -1355,7 +1357,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	const int sceneid = sceneMgr().askSelectScene();
 	if ( sceneid<0 ) return false;
 
-	const TypeSet<EM::ObjectID>& emobjids = emattrserv_->getEMObjIDs();
+	const DBKeySet& emobjids = emattrserv_->getEMObjIDs();
 	for ( int idx=0; idx<emobjids.size(); idx++ )
 	    sceneMgr().addEMItem( emobjids[idx], sceneid );
 
@@ -1382,16 +1384,11 @@ bool uiODApplMgr::handlePickServEv( int evid )
     }
     else if ( evid == uiPickPartServer::evGetHorDef3D() )
     {
-	TypeSet<EM::ObjectID> horids;
-	const DBKeySet& storids = pickserv_->selHorIDs();
-	for ( int idx=0; idx<storids.size(); idx++ )
+	const DBKeySet& horids = pickserv_->selHorIDs();
+	for ( int idx=0; idx<horids.size(); idx++ )
 	{
-	    const DBKey horid = storids[idx];
-	    const EM::ObjectID id = emserv_->getObjectID(horid);
-	    if ( id<0 || !emserv_->isFullyLoaded(id) )
-		emserv_->loadSurface( horid );
-
-	    horids += emserv_->getObjectID( horid );
+	    if ( !emserv_->isFullyLoaded(horids[idx]) )
+		emserv_->loadSurface( horids[idx] );
 	}
 
 	emserv_->getSurfaceDef3D( horids, pickserv_->genDef(),
@@ -1422,7 +1419,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
     const int selobjvisid = visserv_->getSelObjectId(); \
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,\
 				visserv_->getObject(selobjvisid));\
-    const EM::ObjectID emid = emod ? emod->getObjectID() : -1; \
+    const DBKey emid = emod ? emod->getObjectID() : DBKey::getInvalid(); \
     const int trackerid = mpeserv_->getTrackerID(emid); \
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
 
@@ -1759,8 +1756,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	visserv_->getRandomPosCache( visid, attrnr, data );
 	if ( data.isEmpty() ) return false;
 
-	const DBKey mid = visserv_->getDBKey( visid );
-	const EM::ObjectID emid = emserv_->getObjectID( mid );
+	const DBKey emid = visserv_->getDBKey( visid );
 	const float shift = (float) visserv_->getTranslation(visid).z_;
 	const TypeSet<Attrib::SelSpec>& specs = attrserv_->getTargetSelSpecs();
 	const int nrvals = data.bivSet().nrVals()-2;
@@ -1879,22 +1875,20 @@ void uiODApplMgr::storeEMObject( bool saveasreq )
 				surface, visserv_->getObject(selectedids[0]) );
     if ( !surface ) return;
 
-    const EM::ObjectID emid = surface->getObjectID();
-    DBKey mid = emserv_->getStorageID( emid );
-    PtrMan<IOObj> ioobj = DBM().get( mid );
-    const bool saveas = mid.isInvalid() || !ioobj || saveasreq;
+    const DBKey emid = surface->getObjectID();
+    PtrMan<IOObj> ioobj = DBM().get( emid );
+    const bool saveas = emid.isInvalid() || !ioobj || saveasreq;
     emserv_->storeObject( emid, saveas );
     BufferString auxdatanm;
     emserv_->storeAuxData( emid, auxdatanm );
 
     TypeSet<int> ids;
-    mid = emserv_->getStorageID( emid );
-    visserv_->findObject( mid, ids );
+    visserv_->findObject( emid, ids );
 
     for ( int idx=0; idx<ids.size(); idx++ )
-    visserv_->setObjectName( ids[idx], emserv_->getName(emid) );
+	visserv_->setObjectName( ids[idx], DBM().nameOf(emid) );
 
-    mpeserv_->saveSetup( mid );
+    mpeserv_->saveSetup( emid );
     sceneMgr().updateTrees();
 }
 

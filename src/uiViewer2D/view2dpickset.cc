@@ -30,18 +30,15 @@ ________________________________________________________________________
 
 mCreateVw2DFactoryEntry( VW2DPickSet );
 
-VW2DPickSet::VW2DPickSet( const EM::ObjectID& psid, uiFlatViewWin* win,
+VW2DPickSet::VW2DPickSet( const DBKey& psid, uiFlatViewWin* win,
 			  const ObjectSet<uiFlatViewAuxDataEditor>& editors )
     : Vw2DDataObject()
     , pickset_(0)
     , deselected_(this)
 {
-    if ( psid > 0 )
+    if ( !psid.isInvalid() )
     {
-	// Bert: very fishy
-	const DBKey setid( IOObjContext::getStdDirData(IOObjContext::Loc)->id_,
-			    DBKey::ObjID::get(psid) );
-	RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( setid );
+	RefMan<Pick::Set> ps = Pick::SetMGR().fetchForEdit( psid );
 	if ( ps )
 	    setPickSet( ps );
     }

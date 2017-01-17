@@ -48,14 +48,14 @@ SurfaceCutter::~SurfaceCutter()
 }
 
 
-void SurfaceCutter::setCuttingObj( EM::ObjectID objid, EM::SectionID sid )
+void SurfaceCutter::setCuttingObj( const DBKey& objid, EM::SectionID sid )
 {
     cuttingobjid_ = objid;
     cuttingsectionid_ = sid;
 }
 
 
-void SurfaceCutter::setCuttedObj( EM::ObjectID objid, EM::SectionID sid )
+void SurfaceCutter::setCuttedObj( const DBKey& objid, EM::SectionID sid )
 {
     cuttedobjid_ = objid;
     cuttedsectionid_ = sid;

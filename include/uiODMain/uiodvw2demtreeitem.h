@@ -19,14 +19,14 @@ ________________________________________________________________________
 mExpClass(uiODMain) uiODVw2DEMTreeItem : public uiODVw2DTreeItem
 {mODTextTranslationClass(uiODVw2DEMTreeItem);
 public:
-			uiODVw2DEMTreeItem(const EM::ObjectID&);
+			uiODVw2DEMTreeItem(const DBKey&);
 			~uiODVw2DEMTreeItem();
-    
-    EM::ObjectID	emObjectID() const	{ return emid_; }
+
+    const DBKey&	emObjectID() const	{ return emid_; }
 
 protected:
 
-    EM::ObjectID        emid_;
+    DBKey		emid_;
     void		doSave();
     void		doSaveAs();
     void		renameVisObj();

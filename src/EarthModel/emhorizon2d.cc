@@ -231,14 +231,14 @@ int Horizon2DGeometry::getConnectedPos( const PosID& pid,
 {
     int nrres = 0;
     PosID neighborpid = getNeighbor( pid, true, true );
-    if ( neighborpid.objectID()!=-1 )
+    if ( !neighborpid.objectID().isInvalid() )
     {
 	nrres++;
 	if ( res ) (*res) += neighborpid;
     }
 
     neighborpid = getNeighbor( pid, false, true );
-    if ( neighborpid.objectID()!=-1 )
+    if ( !neighborpid.objectID().isInvalid() )
     {
 	nrres++;
 	if ( res ) (*res) += neighborpid;
@@ -571,7 +571,7 @@ void Horizon2D::removeSelected( const Selector<Coord3>& selector,
 	while ( true )
 	{
 	    const EM::PosID pid = iterator->next();
-	    if ( pid.objectID()==-1 )
+	    if ( pid.objectID().isInvalid() )
 		break;
 
 	    const Coord3 pos = getPos(pid);

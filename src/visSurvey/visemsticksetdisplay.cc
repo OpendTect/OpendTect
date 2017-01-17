@@ -97,7 +97,7 @@ else \
 
 #define mGetStickNrAndPos()\
 EM::PosID pid = iter->next();\
-if ( pid.objectID() == -1 )\
+if ( pid.objectID().isInvalid() )\
     break;\
 const int sticknr = pid.getRowCol().row();\
 const Coord3 pos = fault_->getPos(pid);\
@@ -111,18 +111,18 @@ void StickSetDisplay::polygonSelectionCB()
     visBase::PolygonSelection* selection =  ownerscene_->getPolySelection();
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
-    if ( !selection->hasPolygon() && !selection->singleSelection()  ) 
+    if ( !selection->hasPolygon() && !selection->singleSelection()  )
 	return;
-    
+
     TypeSet<int> donenr;
     for ( int idx=0; idx<stickintersectpoints_.size(); idx++ )
     {
 	const StickIntersectPoint* sip = stickintersectpoints_[idx];
-	if ( !donenr.isPresent(sip->sticknr_) ) 
+	if ( !donenr.isPresent(sip->sticknr_) )
 	    donenr += sip->sticknr_;
 	mSetKnotSelectStatus( fault_, sip->sticknr_, sip->pos_ );
     }
-   
+
     PtrMan<EM::EMObjectIterator> iter = fault_->createIterator(0);
     while ( true )
     {
@@ -171,7 +171,7 @@ void StickSetDisplay::updateStickMarkerSet()
 	int groupidx = 0;
 	if ( faultstickset_ )
 	    groupidx = displayknots ? 0 : 2;
-	else    
+	else
 	    groupidx = !showmanipulator_ || !stickselectmode_ ? 2 : 0;
 
 	if ( fault_->isStickSelected(sip->sticknr_) )
@@ -182,15 +182,15 @@ void StickSetDisplay::updateStickMarkerSet()
 
     mForceDrawMarkerSet();
 
-    if ( (faultstickset_&&!displayknots ) || 
+    if ( (faultstickset_&&!displayknots ) ||
 	 (!showmanipulator_||!stickselectmode_) )
 	return;
-    
+
     PtrMan<EM::EMObjectIterator> iter = fault_->createIterator( 0 );
     while ( true )
     {
 	const EM::PosID pid = iter->next();
-	if ( pid.objectID() == -1 )
+	if ( pid.objectID().isInvalid() )
 	    break;
 
 	const EM::SectionID sid = pid.sectionID();
@@ -215,29 +215,29 @@ void StickSetDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
     info = ""; val = "";
     if ( !fault_ ) return;
 
-    info = faultstickset_ ? "FaultStickSet" : "Fault: "; 
+    info = faultstickset_ ? "FaultStickSet" : "Fault: ";
     info.add( fault_->name() );
 }
 
 
-bool StickSetDisplay::matchMarker( int sid, int sticknr, const Coord3 mousepos, 
+bool StickSetDisplay::matchMarker( int sid, int sticknr, const Coord3 mousepos,
     const Coord3 pos, const Coord3 eps  )
 {
     if ( !mousepos.isSameAs(pos,eps) )
 	return false;
-    
+
     if ( ctrldown_ )
 	fault_->selectStick( sticknr, !fault_->isStickSelected( sticknr ) );
     else
-	fault_->selectStick( sticknr, true ); 
-    updateStickMarkerSet(); 
-    eventcatcher_->setHandled(); 
-    
+	fault_->selectStick( sticknr, true );
+    updateStickMarkerSet();
+    eventcatcher_->setHandled();
+
     return false;
 }
 
 
-void StickSetDisplay::stickSelectionCB( CallBacker* cb, 
+void StickSetDisplay::stickSelectionCB( CallBacker* cb,
     const Survey::Geometry3D* s3dgeom )
 {
     if ( !s3dgeom ) return;
@@ -280,7 +280,7 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 	    for ( int sipidx=0; sipidx<stickintersectpoints_.size(); sipidx++ )
 	    {
 		const StickIntersectPoint* sip = stickintersectpoints_[sipidx];
-		matchMarker( 
+		matchMarker(
 		    sip->sid_,sip->sticknr_,markerpos,sip->pos_,eps );
 	    }
 
@@ -289,11 +289,11 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 	    while ( true )
 	    {
 		const EM::PosID pid = iter->next();
-		if ( pid.objectID() == -1 )
+		if ( pid.objectID().isInvalid() )
 		    return;
 
 		const int sticknr = pid.getRowCol().row();
-		matchMarker( pid.sectionID(), sticknr, markerpos, 
+		matchMarker( pid.sectionID(), sticknr, markerpos,
 		    fault_->getPos(pid),eps );
 	    }
 	}

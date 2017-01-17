@@ -108,15 +108,15 @@ bool uiExport2DHorizon::doExport()
 	mErrRet(tr("Invalid Horizon"))
 
     DBKey horid = hinfos_[horidx]->dbkey;
-    EM::EMManager& em = EM::EMM();
-    EM::EMObject* obj = em.getObject( em.getObjectID(horid) );
+    EM::EMManager& em = EM::Hor2DMan();
+    EM::EMObject* obj = em.getObject( horid );
     if ( !obj )
     {
 	PtrMan<Executor> exec = em.objectLoader( horid );
 	if ( !exec || !exec->execute() )
 	    mErrRet(uiStrings::sCantReadHor())
 
-	obj = em.getObject( em.getObjectID(horid) );
+	obj = em.getObject( horid );
 	if ( !obj ) return false;
 
 	obj->ref();

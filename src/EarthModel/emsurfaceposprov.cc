@@ -98,7 +98,7 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
     {
 	EM::RowColIterator it( surf, surf.sectionID(idx) );
 	EM::PosID posid = it.next();
-	while ( posid.objectID() != -1 )
+	while ( !posid.objectID().isInvalid() )
 	{
 	    const Coord3 coord = surf.getPos( posid );
 	    const BinID bid( SI().transform(coord.getXY()) );
@@ -126,9 +126,10 @@ bool EMSurfaceProvider::initialize( TaskRunner* taskr )
 {
     if ( nrSurfaces() == 0 ) return false;
 
-    EM::EMObject* emobj = EM::EMM().getObject( EM::EMM().getObjectID(id1_) );
+    EM::EMManager& emman = EM::getMgr( id1_ );
+    EM::EMObject* emobj = emman.getObject( id1_ );
     if ( !emobj )
-	emobj = EM::EMM().loadIfNotFullyLoaded( id1_, taskr );
+	emobj = emman.loadIfNotFullyLoaded( id1_, taskr );
     mDynamicCastGet(EM::Surface*,surf1,emobj)
     if ( !surf1 ) return false;
     surf1_ = surf1; surf1_->ref();
@@ -137,9 +138,9 @@ bool EMSurfaceProvider::initialize( TaskRunner* taskr )
 
     if ( id2_.isValid() )
     {
-	emobj = EM::EMM().getObject( EM::EMM().getObjectID(id2_) );
+	emobj = emman.getObject( id2_ );
 	if ( !emobj )
-	    emobj = EM::EMM().loadIfNotFullyLoaded( id2_, taskr );
+	    emobj = emman.loadIfNotFullyLoaded( id2_, taskr );
 	mDynamicCastGet(EM::Surface*,surf2,emobj)
 	if ( !surf2 ) return false;
 	surf2_ = surf2; surf2_->ref();
@@ -161,14 +162,14 @@ void EMSurfaceProvider::reset()
     delete iterator_; iterator_ = 0;
     if ( surf1_ )
 	iterator_ = new EM::RowColIterator( *surf1_, surf1_->sectionID(0) );
-    curpos_ = EM::PosID( -1, -1, -1 );
+    curpos_ = EM::PosID( DBKey::getInvalid(), -1, -1 );
 }
 
 
 bool EMSurfaceProvider::toNextPos()
 {
     curpos_ = iterator_->next();
-    if ( curpos_.objectID() == -1 )
+    if ( curpos_.objectID().isInvalid() )
 	return false;
 
     curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z_;
@@ -520,7 +521,7 @@ void EMSurface2DProvider3D::mkDPS( const EM::Surface& s, DataPointSet& dps )
 	while ( true )
 	{
 	    EM::PosID posid = it.next();
-	    if ( posid.objectID() < 0 )
+	    if ( posid.objectID().isInvalid() )
 		break;
 
 	    const BinID bid2d = posid.getRowCol();
@@ -688,9 +689,10 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
     if ( !iop.get( mGetBodyKey("ID"), mid ) )
 	return;
 
-    EM::EMObject* emobj = EM::EMM().getObject( EM::EMM().getObjectID(mid) );
+    EM::EMManager& emman = EM::getMgr( mid );
+    EM::EMObject* emobj = emman.getObject( mid );
     if ( !emobj )
-	emobj = EM::EMM().loadIfNotFullyLoaded( mid );
+	emobj = emman.loadIfNotFullyLoaded( mid );
     mDynamicCastGet(EM::Body*,emb,emobj);
     if ( !emb )
 	return;

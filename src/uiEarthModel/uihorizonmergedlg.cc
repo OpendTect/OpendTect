@@ -70,9 +70,9 @@ bool uiHorizonMergeDlg::acceptOK()
 {
     uiTaskRunner uitr( this );
 
-    DBKeySet mids;
-    horselfld_->getSelSurfaceIds( mids );
-    if ( mids.size() < 2 )
+    DBKeySet objids;
+    horselfld_->getSelSurfaceIds( objids );
+    if ( objids.size() < 2 )
     {
 	uiMSG().error( uiStrings::phrSelect(tr("at least 2 horizons")) );
 	return false;
@@ -83,19 +83,11 @@ bool uiHorizonMergeDlg::acceptOK()
     if ( !ioobj )
 	return false;
 
-    PtrMan<Executor> loader = EM::EMM().objectLoader( mids );
+    PtrMan<Executor> loader = EM::getMgr(ioobj->key()).objectLoader( objids );
     if ( loader && !TaskRunner::execute( &uitr, *loader ) )
     {
 	uiMSG().error( tr("Cannot load selected input horizons") );
 	return false;
-    }
-
-    TypeSet<EM::ObjectID> objids;
-    for ( int idx=0; idx<mids.size(); idx++ )
-    {
-	EM::ObjectID objid = EM::EMM().getObjectID( mids[idx] );
-	if ( EM::EMM().getObject(objid) )
-	    objids += objid;
     }
 
     EM::Horizon3DMerger merger( objids );

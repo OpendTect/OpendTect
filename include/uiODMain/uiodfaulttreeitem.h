@@ -34,7 +34,7 @@ protected:
 			mMenuOnAnyButton
     const char*		iconName() const;
     bool		showSubMenu();
-    const char* 	parentType() const
+    const char*	parentType() const
 			{ return typeid(uiODSceneTreeTop).name(); }
 };
 
@@ -54,10 +54,10 @@ mExpClass(uiODMain) uiODFaultTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODFaultTreeItem)
 public:
 			uiODFaultTreeItem(int,bool dummy);
-			uiODFaultTreeItem(const EM::ObjectID&);
+			uiODFaultTreeItem(const DBKey&);
 			~uiODFaultTreeItem();
 
-    EM::ObjectID	emObjectID() const	{ return emid_; }
+    const DBKey&	emObjectID() const	{ return emid_; }
 
     static uiString	sFaultPlanes() { return tr("Fault Planes" ); }
     static uiString	sFaultSticks() { return tr("Fault Sticks" ); }
@@ -77,7 +77,7 @@ protected:
     const char*		parentType() const
 			{return typeid(uiODFaultParentTreeItem).name();}
 
-    EM::ObjectID		emid_;
+    DBKey		emid_;
 
     MenuItem			savemnuitem_;
     MenuItem			saveasmnuitem_;
@@ -113,10 +113,10 @@ mExpClass(uiODMain) uiODFaultStickSetTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODFaultStickSetTreeItem)
 public:
 			uiODFaultStickSetTreeItem(int,bool dummy);
-			uiODFaultStickSetTreeItem(const EM::ObjectID&);
+			uiODFaultStickSetTreeItem(const DBKey&);
 			~uiODFaultStickSetTreeItem();
 
-    EM::ObjectID	emObjectID() const	{ return emid_; }
+    const DBKey&	emObjectID() const	{ return emid_; }
 
 protected:
     bool		askContinueAndSaveIfNeeded( bool withcancel );
@@ -130,7 +130,7 @@ protected:
 			{return typeid(uiODFaultStickSetParentTreeItem).name();}
 
 
-    EM::ObjectID			emid_;
+    DBKey		emid_;
     MenuItem				onlyatsectmnuitem_;
     MenuItem				savemnuitem_;
     MenuItem				saveasmnuitem_;
@@ -141,7 +141,7 @@ protected:
 mExpClass(uiODMain) uiODFaultSurfaceDataTreeItem : public uiODAttribTreeItem
 { mODTextTranslationClass(uiODFaultSurfaceDataTreeItem)
 public:
-			uiODFaultSurfaceDataTreeItem(EM::ObjectID,
+			uiODFaultSurfaceDataTreeItem(const DBKey&,
 				const char* parenttype);
 
     void		setDataPointSet(const DataPointSet&);
@@ -158,5 +158,5 @@ protected:
     MenuItem		algomnuitem_;
 
     bool		changed_;
-    EM::ObjectID	emid_;
+    DBKey	emid_;
 };

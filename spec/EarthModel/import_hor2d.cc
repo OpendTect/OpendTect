@@ -33,8 +33,8 @@ static const char* rcsID = "$Id$";
 
     Then the command line should read something like this:
     ./import_hor2d [Input File] [LineSet] [Hor1] [Hor2] ..............
-    
-    Struct HorLine2D contains data for all Horizons for a line. It basically 
+
+    Struct HorLine2D contains data for all Horizons for a line. It basically
     represents a 2D Line from the input file.
 */
 
@@ -116,7 +116,7 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 
     DBM().to( DBKey(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     PtrMan<IOObj> lsetobj = DBM().getLocal( linesetnm );
-    BufferString msg( "Cannot find LineSet: " ); msg += linesetnm; 
+    BufferString msg( "Cannot find LineSet: " ); msg += linesetnm;
     if ( !lsetobj ) return prError( msg );
     BufferString fnm = lsetobj->fullUserExpr(true);
     Seis2DLineSet lineset( fnm );
@@ -132,20 +132,20 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 	if ( !linedata )
 	{
 	    linedata = newLine( valbuf );
-	    
+
 	    removeTrailingBlanks( valbuf );
 	    int lineidx = lineset.indexOf( valbuf );
 	    if ( !linedata || !lineset.getGeometry(lineidx,line2d) ) break;
 	}
 
 	if ( linedata && strcmp(valbuf,linedata->linename_) )
-	{ 
+	{
 	    data += linedata;
 	    linedata = newLine( valbuf );
 	    int lineidx = lineset.indexOf( valbuf );
 	    if ( !linedata || !lineset.getGeometry(lineidx,line2d) ) break;
 	}
-	
+
 	ptr = getNextWord( ptr, valbuf );
 	const int trcnr = toInt( valbuf );
 	Coord xypos;
@@ -241,17 +241,17 @@ void makeHorizons( ObjectSet<HorLine2D>& data, const DBKey& lsetkey,
 	    {
 		tdx1 = tdx2++;
 		const float val1 = data[ldx]->zvals_[tdx1][hdx];
-		while ( tdx2<data[ldx]->traces_.size() && 
+		while ( tdx2<data[ldx]->traces_.size() &&
 			data[ldx]->zvals_[tdx2][hdx] >= NaN )
 		    tdx2++;
 		if ( tdx2>=data[ldx]->traces_.size() )
 		    break;
 		const float val2 = data[ldx]->zvals_[tdx2][hdx];
-		
+
 		const int trc1 = data[ldx]->traces_[tdx1];
 		const int trc2 = data[ldx]->traces_[tdx2];
 		const int trcintv = trc2 - trc1;
-		
+
 		const float valdifpertrc = (val2 - val1) / trcintv;
 		for ( int idx=trc1+1; idx<=trc2; idx++ )
 		{
@@ -283,10 +283,10 @@ static int doWork( int argc, char** argv )
     for ( int hdx=0; hdx<argc-3; hdx++ )
     {
 	const char* horizonnm = argv[hdx+3];
-	EM::EMManager& em = EM::EMM();
-	EM::ObjectID horid = em.createObject( EM::Horizon2D::typeStr(),
-					horizonnm );
-	mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(horid));
+	EM::EMManager& em = EM::Hor2DMan();
+	EM::Object* emobj = em.createObject( EM::Horizon2D::typeStr(),
+					     horizonnm );
+	mDynamicCastGet(EM::Horizon2D*,hor,emobj);
 	if ( !hor )
 	{
 	    prError( "Cannot Create Horizon\n" );
@@ -311,7 +311,7 @@ static int doWork( int argc, char** argv )
 	saver->execute();
 	horizons[hdx]->unRef();
     }
-    
+
     deepErase( data );
 
     return 0;

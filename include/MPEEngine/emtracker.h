@@ -42,7 +42,7 @@ public:
 
     BufferString		objectName() const;
     EM::EMObject*		emObject()		{ return emobject_; }
-    EM::ObjectID		objectID() const;
+    DBKey			objectID() const;
 
     virtual bool		is2D() const		{ return false; }
 
@@ -65,7 +65,7 @@ public:
 						  bool create=false);
     virtual EMSeedPicker*	getSeedPicker(bool create=true)
 				{ return 0; }
-    void 			applySetupAsDefault(const EM::SectionID);
+    void			applySetupAsDefault(const EM::SectionID);
 
     const char*			errMsg() const;
 

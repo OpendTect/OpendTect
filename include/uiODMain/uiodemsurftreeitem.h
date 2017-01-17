@@ -26,11 +26,11 @@ mExpClass(uiODMain) uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
 public:
 
     uiVisEMObject*	visEMObject() const	{ return uivisemobj_; }
-    EM::ObjectID	emObjectID() const	{ return emid_; }
+    const DBKey&	emObjectID() const	{ return emid_; }
     int			reloadEMObject();	//Return new display id.
 
 protected:
-			uiODEarthModelSurfaceTreeItem(const EM::ObjectID&);
+			uiODEarthModelSurfaceTreeItem(const DBKey&);
 			~uiODEarthModelSurfaceTreeItem();
 
     virtual void	createMenu(MenuHandler*,bool istb);
@@ -45,7 +45,7 @@ protected:
     void		askSaveCB(CallBacker*);
     void		saveCB(CallBacker*);
 
-    EM::ObjectID	emid_;
+    DBKey		emid_;
     uiVisEMObject*	uivisemobj_;
 
     MenuItem		createflatscenemnuitem_;
@@ -76,7 +76,7 @@ mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem
     : public uiODAttribTreeItem
 { mODTextTranslationClass(uiODEarthModelSurfaceDataTreeItem)
 public:
-			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,
+			uiODEarthModelSurfaceDataTreeItem(const DBKey&,
 				       uiVisEMObject*,const char* parenttype);
 
     void		setDataPointSet(const DataPointSet&);
@@ -97,6 +97,6 @@ protected:
     MenuItem		attr2geommnuitm_;
 
     bool		changed_;
-    EM::ObjectID	emid_;
+    DBKey		emid_;
     uiVisEMObject*	uivisemobj_;
 };

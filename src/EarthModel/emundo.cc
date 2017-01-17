@@ -20,16 +20,16 @@ ________________________________________________________________________
 
 const char* EM::SetPosUndoEvent::savedposstr_ = "Pos";
 
-EM::ObjectID EM::EMUndo::getCurrentEMObjectID( bool forredo ) const
+DBKey EM::EMUndo::getCurrentEMObjectID( bool forredo ) const
 {
     const int curidx = indexOf( forredo ? currenteventid_ + 1
 					: currenteventid_ );
     if ( !events_.validIdx(curidx) )
-	return -1;
+	return DBKey::getInvalid();
 
     const UndoEvent* curev = events_[curidx];
     mDynamicCastGet( const EMUndoEvent*, emundoev, curev );
-    return emundoev ? emundoev->getObjectID() : -1;
+    return emundoev ? emundoev->getObjectID() : DBKey::getInvalid();
 }
 
 
@@ -156,8 +156,8 @@ bool EM::SetAllHor3DPosUndoEvent::reDo()
 }
 
 
-EM::ObjectID EM::SetAllHor3DPosUndoEvent::getObjectID() const
-{ return horizon_ ? horizon_->id() : -1; }
+DBKey EM::SetAllHor3DPosUndoEvent::getObjectID() const
+{ return horizon_ ? horizon_->id() : DBKey::getInvalid(); }
 
 
 bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
@@ -259,7 +259,7 @@ bool EM::SetPosAttribUndoEvent::reDo()
 }
 
 
-EM::SetPrefColorEvent::SetPrefColorEvent( const EM::ObjectID& objid,
+EM::SetPrefColorEvent::SetPrefColorEvent( const DBKey& objid,
 					  const Color& oldcol,
 					  const Color& newcol )
     : objectid_( objid )

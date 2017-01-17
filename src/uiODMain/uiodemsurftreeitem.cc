@@ -57,7 +57,7 @@ uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
 
 
 uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
-						const EM::ObjectID& nemid )
+						const DBKey& nemid )
     : uiODDisplayTreeItem()
     , emid_(nemid)
     , uivisemobj_(0)
@@ -115,7 +115,7 @@ bool uiODEarthModelSurfaceTreeItem::init()
     if ( MPE::engine().hasTracker(emid_) )
 	MPE::engine().refTracker( emid_ );
 
-    EM::IOObjInfo eminfo( EM::EMM().getDBKey(emid_) );
+    EM::IOObjInfo eminfo( emid_ );
     timelastmodified_ = eminfo.timeLastModified();
     initNotify();
     return true;
@@ -231,12 +231,11 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     const bool isshifted =
 		!mIsZero( visserv_->getTranslation(displayID()).z_, 1e-5 );
-    const DBKey mid = EM::EMM().getDBKey( emid_ );
     const bool enab = trackmenuitem_.nrItems() && !isshifted && isChecked()
-			&& EM::canOverwrite( mid );
+			&& EM::canOverwrite( emid_ );
     mAddMenuOrTBItem( istb, 0, menu, &trackmenuitem_, enab, false );
 
-    const EM::IOObjInfo eminfo( mid );
+    const EM::IOObjInfo eminfo( emid_ );
     const BufferString curtime = eminfo.timeLastModified();
     const bool isnewer = Time::isEarlier( timelastmodified_, curtime );
     const bool allowreload = !hastracker && isnewer;
@@ -245,7 +244,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuOrTBItem( istb, menu, menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid_) &&
 		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
-		  EM::canOverwrite( mid ) &&
+		  EM::canOverwrite( emid_ ) &&
 		  !isshifted, false );
 
     const bool istransformedandshifted = hastransform && isshifted;
@@ -258,15 +257,13 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 int uiODEarthModelSurfaceTreeItem::reloadEMObject()
 {
     uiEMPartServer* ems = applMgr()->EMServer();
-    const DBKey mid = ems->getStorageID(emid_);
 
     applMgr()->visServer()->removeObject( displayid_, sceneID() );
     delete uivisemobj_; uivisemobj_ = 0;
 
-    if ( !ems->loadSurface(mid) )
+    if ( !ems->loadSurface(emid_) )
 	return -1;
 
-    emid_ = applMgr()->EMServer()->getObjectID(mid);
     uivisemobj_ = new uiVisEMObject( ODMainWin(), emid_, sceneID(), visserv_ );
     displayid_ = uivisemobj_->id();
     return displayid_;
@@ -301,20 +298,15 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==saveasmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	const DBKey oldmid = ems->getStorageID(emid_);
+	const DBKey oldmid = emid_;
 	mps->prepareSaveSetupAs( oldmid );
 
 	DBKey storedmid;
-	ems->storeObject( emid_, true, storedmid,
+	ems->storeObject( oldmid, true, storedmid,
 		(float) visserv_->getTranslation(displayID()).z_);
 	applMgr()->visServer()->setObjectName( displayid_,
-	    ems->getName(emid_) );
-
-	const DBKey midintree = ems->getStorageID(emid_);
-	EM::EMM().getObject(emid_)->setDBKey( storedmid );
+					toUiString(DBM().nameOf(storedmid)) );
 	mps->saveSetupAs( storedmid );
-	EM::EMM().getObject(emid_)->setDBKey( midintree );
-
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
     else if ( mnuid==starttrackmnuitem_.id )
@@ -357,7 +349,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     {
 	mDynamicCastGet(visSurvey::EMObjectDisplay*,
 			emd,visserv_->getObject(displayid_))
-	const EM::ObjectID objectid = emd->getObjectID();
+	const DBKey objectid = emd->getObjectID();
 	mDynamicCastGet(const EM::Horizon*,horizon,
 			EM::EMM().getObject(objectid))
 	if ( !horizon ) return;
@@ -378,16 +370,15 @@ void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
     if ( !ems->isChanged( emid_ ) )
 	return;
 
-    const DBKey dbky = EM::EMM().getDBKey( emid_ );
-    bool savewithname = dbky.isInvalid();
+    bool savewithname = emid_.isInvalid();
     if ( !savewithname )
     {
-	PtrMan<IOObj> ioobj = DBM().get( dbky );
+	PtrMan<IOObj> ioobj = DBM().get( emid_ );
 	savewithname = !ioobj;
     }
 
     const uiString obj = toUiString("%1 \"%2\"")
-	.arg( ems->getType( emid_ ) ).arg(ems->getName(emid_));
+	.arg( EM::EMM().objectType( emid_ ) ).arg(DBM().nameOf(emid_));
     NotSavedPrompter::NSP().addObject(	obj,
 		mCB( this, uiODEarthModelSurfaceTreeItem, saveCB ),
 	        savewithname, 0 );
@@ -417,20 +408,18 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 	    return;
     }
 
-    DBKey dbky = EM::EMM().getDBKey( emid_ );
-    bool savewithname = dbky.isInvalid();
+    bool savewithname = emid_.isInvalid();
     if ( !savewithname )
     {
-	PtrMan<IOObj> ioobj = DBM().get( dbky );
+	PtrMan<IOObj> ioobj = DBM().get( emid_ );
 	savewithname = !ioobj;
     }
 
     if ( applMgr()->EMServer()->storeObject( emid_, savewithname ) && cb )
 	NotSavedPrompter::NSP().reportSuccessfullSave();
 
-    applMgr()->visServer()->setObjectName( displayid_, ems->getName(emid_) );
-    dbky = ems->getStorageID(emid_);
-    mps->saveSetup( dbky );
+    applMgr()->visServer()->setObjectName( displayid_, DBM().nameOf(emid_) );
+    mps->saveSetup( emid_ );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 
@@ -463,7 +452,7 @@ void uiODEarthModelSurfaceTreeItem::addAuxDataItems()
 
 // uiODEarthModelSurfaceDataTreeItem
 uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
-							EM::ObjectID objid,
+							const DBKey& objid,
 							uiVisEMObject* uv,
 							const char* parenttype )
     : uiODAttribTreeItem( parenttype )

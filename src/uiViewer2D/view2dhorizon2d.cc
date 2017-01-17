@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 mCreateVw2DFactoryEntry( Vw2DHorizon2D );
 
-Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* win,
+Vw2DHorizon2D::Vw2DHorizon2D( const DBKey& oid, uiFlatViewWin* win,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataedtors)
     : Vw2DEMDataObject(oid,win,auxdataedtors)
     , geomid_(Survey::GeometryManager::cUndefGeomID())
@@ -34,7 +34,7 @@ Vw2DHorizon2D::Vw2DHorizon2D( const EM::ObjectID& oid, uiFlatViewWin* win,
     , wvaselspec_( 0 )
 {
     horeds_.allowNull();
-    if ( oid >= 0 )
+    if ( !oid.isInvalid() )
 	setEditors();
 }
 

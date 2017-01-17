@@ -164,7 +164,7 @@ bool Fault3DGeometry::insertStick( const SectionID& sid, int sticknr,
     {
 	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).toInt64());
 	UndoEvent* undo = new FaultStickUndoEvent( posid );
-	EMM().undo().addEvent( undo, 0 );
+	Flt3DMan().undo().addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();
@@ -202,7 +202,7 @@ bool Fault3DGeometry::removeStick( const SectionID& sid, int sticknr,
 	const PosID posid( surface_.id(), sid, rc.toInt64() );
 
 	UndoEvent* undo = new FaultStickUndoEvent( posid, pos, normal );
-	EMM().undo().addEvent( undo, 0 );
+	Flt3DMan().undo().addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();
@@ -226,7 +226,7 @@ bool Fault3DGeometry::insertKnot( const SectionID& sid, const SubID& subid,
     {
 	const PosID posid( surface_.id(), sid, subid );
 	UndoEvent* undo = new FaultKnotUndoEvent( posid );
-	EMM().undo().addEvent( undo, 0 );
+	Flt3DMan().undo().addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();
@@ -289,7 +289,7 @@ bool Fault3DGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 	const PosID posid( surface_.id(), sid, subid );
 
 	UndoEvent* undo = new FaultKnotUndoEvent( posid, pos );
-	EMM().undo().addEvent( undo, 0 );
+	Flt3DMan().undo().addEvent( undo, 0 );
     }
 
     surface_.setChangedFlag();

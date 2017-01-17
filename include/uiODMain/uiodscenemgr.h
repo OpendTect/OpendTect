@@ -66,7 +66,7 @@ mExpClass(uiODMain) uiODSceneMgr : public OD::VwrTypePresentationMgr
 public:
 
     OD::ViewerTypeID		viewerTypeID()	const
-    				{ return theViewerTypeID(); }
+				{ return theViewerTypeID(); }
     static OD::ViewerTypeID	theViewerTypeID()
 				{ return sSceneViewerTypeID; }
 
@@ -155,11 +155,11 @@ public:
 
     void			getLoadedPickSetIDs(DBKeySet&,bool poly,
 						    int scnid=-1) const;
-    void			getLoadedEMIDs(TypeSet<EM::ObjectID>&,
+    void			getLoadedEMIDs(DBKeySet&,
 					       const char* emtypestr=0,
 					       int sceneid=-1) const;
 				// if sceneid==-1, then all scenes
-    int				addEMItem(const EM::ObjectID&,int sceneid=-1);
+    int				addEMItem(const DBKey&,int sceneid=-1);
     int				addPickSetItem(const DBKey&,int sceneid=-1);
     int				addPickSetItem(Pick::Set&,int sceneid=-1);
     int				addRandomLineItem(int rlid,int sceneid=-1);
@@ -220,10 +220,10 @@ protected:
     const uiODScene*		getSceneByIdx(int idx) const;
     void			newSceneUpdated(CallBacker*);
     void			gtLoadedEMIDs(const uiODScene*,
-					      TypeSet<EM::ObjectID>&,
+					      DBKeySet&,
 					      const char* emtypestr) const;
     void			gtLoadedEMIDs(const uiTreeItem*,
-					      TypeSet<EM::ObjectID>&,
+					      DBKeySet&,
 					      const char* emtypestr) const;
     void			gtLoadedPickSetIDs(const uiODScene&,
 				    DBKeySet&, bool poly) const;

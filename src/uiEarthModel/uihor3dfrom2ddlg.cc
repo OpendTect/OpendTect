@@ -90,13 +90,11 @@ bool uiHor3DFrom2DDlg::acceptOK()
 
     const bool nameandtypeexist = ioobj && typ==ioobj->group();
 
-    EM::EMManager& em = EM::EMM();
-
     if ( emserv_ && nameandtypeexist )
-	emserv_->removeTreeObject( em.getObjectID(ioobj->key()) );
+	emserv_->removeTreeObject( ioobj->key() );
 
-    const EM::ObjectID emobjid = em.createObject( typ, ioobj->name() );
-    mDynamicCastGet(EM::Horizon3D*,hor3d,em.getObject(emobjid));
+    EM::EMObject* emobj = EM::Hor3DMan().createObject( typ, ioobj->name() );
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d )
 	mErrRet( toUiString("Cannot create 3D horizon") );
 
@@ -107,7 +105,6 @@ bool uiHor3DFrom2DDlg::acceptOK()
 
     hor3d_->ref();
     hor3d_->setPreferredColor( hor2d_.preferredColor() );
-    hor3d_->setDBKey( ioobj->key() );
 
     Array2DInterpol* interpolator = interpolsel_->getResult();
     if ( !interpolator )
