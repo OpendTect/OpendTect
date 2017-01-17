@@ -18,9 +18,9 @@ ________________________________________________________________________
 class IOObj;
 class Scaler;
 class SeisTrc;
-class SeisTrcReader;
 class SeisTrcWriter;
 class SeisResampler;
+namespace Seis { class Provider; }
 
 
 /*!\brief Single trace processing executor
@@ -59,8 +59,8 @@ public:
     void		skipCurTrc()		{ skipcurtrc_ = true; }
 			//!< will also be checked after processing CB
 
-    const SeisTrcReader* reader(int idx=0) const
-			{ return rdrs_.size()>idx ? rdrs_[idx] : 0; }
+    const Seis::Provider* provider(int idx=0) const
+			{ return provs_.size()>idx ? provs_[idx] : 0; }
     const SeisTrcWriter& writer() const		 { return wrr_; }
     SeisTrc&		getTrace()		 { return *worktrc_; }
     const SeisTrc&	getInputTrace()		 { return intrc_; }
@@ -95,7 +95,7 @@ public:
 
 protected:
 
-    ObjectSet<SeisTrcReader> rdrs_;
+    ObjectSet<Seis::Provider> provs_;
     SeisTrcWriter&	wrr_;
     SeisTrc&		intrc_;
     SeisTrc*		worktrc_;
@@ -108,7 +108,7 @@ protected:
     int			totnr_;
     DBKey&		wrrkey_;
     int			trcsperstep_;
-    int			currdridx_;
+    int			curprovidx_;
     Scaler*		scaler_;
     bool		skipnull_;
     bool		is3d_;

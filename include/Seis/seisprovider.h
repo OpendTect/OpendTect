@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "dbkey.h"
 #include "atomic.h"
 #include "threadlock.h"
+#include "survgeom.h"
+
 class SeisTrcBuf;
 namespace PosInfo { class CubeData; class Line2DData; }
 
@@ -64,6 +66,8 @@ public:
     bool		is2D() const	{ return Seis::is2D(geomType()); }
     bool		isPS() const	{ return Seis::isPS(geomType()); }
     BufferString	name() const;
+    DBKey		dbKey() const		{ return dbky_; }
+    Pos::GeomID		curGeomID() const	{ return doGetCurGeomID(); }
     uiRetVal		getComponentInfo(BufferStringSet&,
 					 TypeSet<Seis::DataType>* dts=0) const;
     int			nrOffsets() const; //!< at a representative location
@@ -125,6 +129,7 @@ protected:
     virtual uiRetVal	doGetComponentInfo(BufferStringSet&,
 					   TypeSet<Seis::DataType>&) const;
 				//!< def impl: { sKey::Data(), UnknownData }
+    virtual Pos::GeomID doGetCurGeomID() const				= 0;
 
 			    // define at least either SeisTrc or SeisTrcBuf fns
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
@@ -155,6 +160,8 @@ protected:
 			Provider3D()					{}
 
     virtual od_int64	getTotalNrInInput() const;
+    virtual Pos::GeomID doGetCurGeomID() const
+			{ return Survey::GM().default3DSurvID(); }
 
 };
 
@@ -181,6 +188,8 @@ protected:
 			Provider2D()					{}
 
     virtual od_int64	getTotalNrInInput() const;
+    virtual Pos::GeomID doGetCurGeomID() const
+			{ return geomID( curLineIdx() ); }
 
 };
 
