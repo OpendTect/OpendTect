@@ -134,7 +134,7 @@
 <context>
     <name>uiSEGYExamine</name>
     <message numerus="yes">
-        <location filename="../../../plugins/uiSEGY/uisegyexamine.cc" line="+374"/>
+        <location filename="../../../plugins/uiSEGY/uisegyexamine.cc" line="+375"/>
         <source>file</source>
         <translation>
             <numerusform>file</numerusform>
@@ -163,7 +163,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+245"/>
+        <location line="+256"/>
         <source>ColorTable</source>
         <translation>
             <numerusform>Color Table</numerusform>
@@ -335,7 +335,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../include/Basic/uistrings.h" line="+201"/>
+        <location filename="../../../include/Basic/uistrings.h" line="+205"/>
         <source>2D Plane</source>
         <translation>
             <numerusform>2D Plane</numerusform>
@@ -351,7 +351,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Attribute</source>
         <translation>
             <numerusform>Attribute</numerusform>
@@ -359,7 +359,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Body</source>
         <translation>
             <numerusform>Body</numerusform>
@@ -367,7 +367,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+38"/>
+        <location line="+39"/>
         <source>Code</source>
         <translation>
             <numerusform>Code</numerusform>
@@ -380,6 +380,14 @@
         <translation>
             <numerusform>Color</numerusform>
             <numerusform>Colors</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
+        <source>Column</source>
+        <translation>
+            <numerusform>Column</numerusform>
+            <numerusform>Columns</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -448,7 +456,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Filter</source>
         <translation>
             <numerusform>Filter</numerusform>
@@ -536,7 +544,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+25"/>
+        <location line="+4"/>
+        <source>Node</source>
+        <translation>
+            <numerusform>Node</numerusform>
+            <numerusform>Nodes</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+23"/>
         <source>Parameter</source>
         <translation>
             <numerusform>Parameter</numerusform>
@@ -600,7 +616,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+21"/>
+        <location line="+15"/>
+        <source>Row</source>
+        <translation>
+            <numerusform>Row</numerusform>
+            <numerusform>Rows</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+7"/>
         <source>Scene</source>
         <translation>
             <numerusform>Scene</numerusform>
