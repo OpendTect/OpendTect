@@ -157,6 +157,7 @@ public:
     IdxType		indexOf(const char*) const;
     const Sequence*	get( IdxType idx ) const	{ return seqs_[idx]; }
     bool		get(const char*,Sequence&);
+    const Sequence*	getByName(const char*) const;
     void		getSequenceNames(BufferStringSet&);
     const Sequence&	getDefault() const	{ return getAny(0); }
     const Sequence&	getAny(const char* key) const;

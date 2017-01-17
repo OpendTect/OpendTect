@@ -714,6 +714,13 @@ bool ColTab::SeqMgr::get( const char* nm, Sequence& seq )
 }
 
 
+const ColTab::Sequence* ColTab::SeqMgr::getByName( const char* nm ) const
+{
+    const IdxType idx = indexOf( nm );
+    return idx < 0 ? 0 : get( idx );
+}
+
+
 const ColTab::Sequence& ColTab::SeqMgr::getAny( const char* nm ) const
 {
     if ( seqs_.isEmpty() )
