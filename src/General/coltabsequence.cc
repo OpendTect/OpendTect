@@ -891,8 +891,8 @@ ColTab::Sequence RGBBlend::getTransparencyColTab()
     transpctab.setType(ColTab::Sequence::User);
     transpctab.setColor( 0.f, 0, 0, 0 );
     transpctab.setColor( 1.f, 255, 255, 255 );
-    transpctab.setTransparency( ColTab::Sequence::TranspPtType(0.f,0.f) );
-    transpctab.setTransparency( ColTab::Sequence::TranspPtType(1.f,255.f) );
+    transpctab.setTransparency( ColTab::Sequence::TranspPtType(0.f,0) );
+    transpctab.setTransparency( ColTab::Sequence::TranspPtType(1.f,255) );
     transpctab.setName( "Transparency" );
     return transpctab;
 }
