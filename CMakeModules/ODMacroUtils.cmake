@@ -502,9 +502,7 @@ endforeach()
 
 
 if( OD_USEBATCH )
-    list(APPEND OD_MODULE_INCLUDEPATH
-		${OpendTect_DIR}/include/Batch
-		${CMAKE_BINARY_DIR}/include/Batch)
+    list(APPEND OD_MODULE_INCLUDEPATH ${OD_Batch_INCLUDEPATH} )
 endif( OD_USEBATCH )
 
 #Set current include_path
