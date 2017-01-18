@@ -23,6 +23,7 @@ class TimeDepthModel;
 class PropertyRefSelection;
 class ElasticPropSelection;
 class uiToolBar;
+class uiIOObjSelDlg;
 class uiStratSynthDisp;
 class uiStratLayerModelDisp;
 class uiLayerSequenceGenDesc;
@@ -44,7 +45,6 @@ public:
     void			go()		{ show(); }
 
     static const char*		sKeyModeler2Use();
-    static void			initClass();
 
     mDeclInstanceCreatedNotifierAccess(uiStratLayerModel);
     uiToolBar*			analysisToolBar()	   { return analtb_; }
@@ -75,7 +75,6 @@ public:
     bool			checkUnscaledWavelet();
 
     static void			doBasicLayerModel();
-    static void			doLayerModel(const char* modnm,int opt=0);
 
     uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
     void			displayFRResult(bool usefr,bool parschanged,
@@ -97,7 +96,7 @@ protected:
     uiStratGenDescTools*	gentools_;
     uiStratLayModEditTools*	modtools_;
     uiToolBar*			analtb_;
-
+    uiIOObjSelDlg*		modeldlg_;
     Strat::LayerSequenceGenDesc& desc_;
     uiStratLayerModelLMProvider& lmp_;
     CtxtIOObj&			descctio_;

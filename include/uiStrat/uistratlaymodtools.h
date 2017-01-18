@@ -99,7 +99,6 @@ public:
     Strat::Level::ID		flattenSelLevelID() const;
     Strat::Level		getFlattenStratLevel() const;
     TypeSet<Strat::Level>	getAllSelStratLevels() const;
-    TypeSet<Strat::Level::ID>	getAllSelLevelsID() const;
     Color			selLevelColor() const;	//!< May return NoColor
 
 

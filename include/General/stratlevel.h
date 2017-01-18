@@ -63,7 +63,6 @@ public:
 protected:
 
 			Level(const Level&,ID::IDType);
-
     const ID		id_;
     Color		color_;
     IOPar		pars_;
@@ -92,6 +91,7 @@ public:
 mExpClass(General) LevelSet : public SharedObject
 {
 public:
+    mDefIntegerIDType(int,LVLID);
 
     typedef Level::ID			ID;
     typedef ObjectSet<Level>::size_type	size_type;
@@ -152,6 +152,7 @@ protected:
     ID			doSet(const Level&,bool* isnew=0);
 
     void		getFromStream(ascistream&,bool);
+    Strat::Level::ID	lvlid_;
 
 public:
 

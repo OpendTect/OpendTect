@@ -146,7 +146,7 @@ int uiStratLayerModelDisp::getFlattenLevelIdx() const
 const uiStratLayerModelDisp::LVLZVals& uiStratLayerModelDisp::
 						    flattenLevelDepths() const
 {
-    return ( getFlattenLevelIdx() < 0 || !flattened_ ) ? lvldpths_[0] :
+    return ( getFlattenLevelIdx() < 0 || !flattened_ ) ? lvldpths_[0]:
 					    lvldpths_[getFlattenLevelIdx()];
 }
 

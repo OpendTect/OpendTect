@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiflatviewslicepos.h"
 #include "uistring.h"
+#include "stratsynthlevelset.h"
+#include "uistratsimplelaymoddisp.h"
 
 class TimeDepthModel;
 class SeisTrcBuf;
@@ -41,13 +43,15 @@ namespace PreStackView { class uiSyntheticViewer2DMainWin; }
 mExpClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
 { mODTextTranslationClass(uiStratSynthDisp);
 public:
+    typedef TypeSet<float> LVLZVals;
+    typedef TypeSet< LVLZVals > LVLZValsSet;
 
 			uiStratSynthDisp(uiParent*,
 					 const Strat::LayerModelProvider&);
 			~uiStratSynthDisp();
 
     const Strat::LayerModel& layerModel() const;
-    const char*		levelName() const;
+    const char*		levelName(const int idx=0) const;
     DBKey		waveletID() const;
     const Wavelet*	getWavelet() const;
     inline const StratSynth& curSS() const
@@ -67,8 +71,8 @@ public:
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
 
     void		setFlattened(bool flattened,bool trigger=true);
-    void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
-				     Color);
+    void		setDispMrkrs(const BufferStringSet,
+				const uiStratLayerModelDisp::LVLZValsSet&);
     void		setSelectedTrace(int);
     void		setDispEach(int);
     void		setZDataRange(const Interval<double>&,bool indpt);
@@ -119,46 +123,51 @@ public:
     void		setRelativeViewRect(const uiWorldRect& relwr);
     const uiWorldRect&	getRelativeViewRect() const	{ return relzoomwr_; }
     void		setSavedViewRect();
+    void		setFlattenLvlNm(const BufferString flatlvlnm)
+			{ flattenlvlnm_ = flatlvlnm; }
+    const BufferString	getFlattenLvlNm() { return flattenlvlnm_; }
 
 protected:
 
-    int			longestaimdl_;
-    StratSynth*		stratsynth_;
-    StratSynth*		edstratsynth_;
-    const Strat::LayerModelProvider& lmp_;
-    uiWorldRect		relzoomwr_;
-    mutable uiWorldRect	savedzoomwr_;
-    int			selectedtrace_;
-    int			dispeach_;
-    float		dispskipz_;
-    bool		dispflattened_;
-    bool		isbrinefilled_;
-    bool		autoupdate_;
-    bool		forceupdate_;
-    bool		useed_;
+    int					longestaimdl_;
+    StratSynth*				stratsynth_;
+    StratSynth*				edstratsynth_;
+    const Strat::LayerModelProvider&	lmp_;
+    uiWorldRect				relzoomwr_;
+    mutable uiWorldRect			savedzoomwr_;
+    int					selectedtrace_;
+    int					dispeach_;
+    float				dispskipz_;
+    bool				dispflattened_;
+    bool				isbrinefilled_;
+    bool				autoupdate_;
+    bool				forceupdate_;
+    bool				useed_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
-    RefMan<SyntheticData>	currentwvasynthetic_;
-    RefMan<SyntheticData>	currentvdsynthetic_;
+    RefMan<SyntheticData>		currentwvasynthetic_;
+    RefMan<SyntheticData>		currentvdsynthetic_;
 
-    uiMultiFlatViewControl* control_;
-    FlatView::AuxData*	selectedtraceaux_;
-    FlatView::AuxData*	levelaux_;
+    uiMultiFlatViewControl*		control_;
+    FlatView::AuxData*			selectedtraceaux_;
+    ObjectSet<FlatView::AuxData>	levelaux_;
 
-    uiGroup*		topgrp_;
-    uiGroup*		datagrp_;
-    uiGroup*		prestackgrp_;
-    uiWaveletIOObjSel*	wvltfld_;
-    uiFlatViewer*	vwr_;
-    uiPushButton*	scalebut_;
-    uiButton*		lasttool_;
-    uiToolButton*	prestackbut_;
-    uiComboBox*		wvadatalist_;
-    uiComboBox*		vddatalist_;
-    uiComboBox*		levelsnapselfld_;
-    uiSynthGenDlg*	synthgendlg_;
-    uiSynthSlicePos*	offsetposfld_;
-    PtrMan<TaskRunner>	taskrunner_;
+    uiGroup*				topgrp_;
+    uiGroup*				datagrp_;
+    uiGroup*				prestackgrp_;
+    uiWaveletIOObjSel*			wvltfld_;
+    uiFlatViewer*			vwr_;
+    uiPushButton*			scalebut_;
+    uiButton*				lasttool_;
+    uiToolButton*			prestackbut_;
+    uiComboBox*				wvadatalist_;
+    uiComboBox*				vddatalist_;
+    uiComboBox*				levelsnapselfld_;
+    uiSynthGenDlg*			synthgendlg_;
+    uiSynthSlicePos*			offsetposfld_;
+    PtrMan<TaskRunner>			taskrunner_;
+    StratSynthLevelSet*			lvlset_;
+
     PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_;
 
     void		showInfoMsg(bool foralt);
@@ -206,6 +215,8 @@ protected:
     void		syntheticChanged(CallBacker*);
     void		selPreStackDataCB(CallBacker*);
     void		preStackWinClosedCB(CallBacker*);
+    int			lvlidx_;
+    BufferString	flattenlvlnm_;
 };
 
 

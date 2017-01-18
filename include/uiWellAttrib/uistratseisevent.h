@@ -42,6 +42,7 @@ public:
 
     bool		getFromScreen();
     void		setLevel(const char* lvlnm);
+    void		setLevels(const BufferStringSet);
     void		putToScreen();
     BufferString	levelName() const;
     bool		doAllLayers() const;
