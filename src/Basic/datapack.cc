@@ -78,6 +78,8 @@ void DataPack::setManager( const DataPackMgr* mgr )
 
 void DataPack::release()
 {
+    if ( !manager_ ) return;
+
     const_cast<DataPackMgr*>(manager_)->release( this );
 }
 
