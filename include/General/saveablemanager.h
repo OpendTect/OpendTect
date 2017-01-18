@@ -89,7 +89,7 @@ public:
 protected:
 
 			SaveableManager(const IOObjContext&,bool autosv,
-					bool saveindisc=true);
+					bool tempobjsonly=false);
 
     virtual Saveable*	getSaver(const SharedObject&) const	= 0;
     virtual ChangeRecorder* getChangeRecorder(const SharedObject&) const
@@ -97,11 +97,11 @@ protected:
     virtual void	addCBsToObj(const SharedObject&);
     virtual void	setAuxOnAdd()				{}
 
-    ObjectSet<Saveable>		savers_;
-    ObjectSet<ChangeRecorder>	chgrecs_;
-    const IOObjContext&		ctxt_;
-    const bool			autosaveable_;
-    const bool			saveondisc_;
+    ObjectSet<Saveable>	savers_;
+    ObjectSet<ChangeRecorder> chgrecs_;
+    const IOObjContext&	ctxt_;
+    const bool		autosaveable_;
+    const bool		tempobjsonly_;
 
 			// to be called from public obj-type specific ones
     ObjID		getID(const SharedObject&) const;

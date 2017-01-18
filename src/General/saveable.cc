@@ -173,10 +173,10 @@ uiRetVal Saveable::store( const IOObj& ioobj ) const
 
 
 SaveableManager::SaveableManager( const IOObjContext& ctxt, bool withautosave,
-				  bool saveondisc )
+				  bool tempobjsonly )
     : ctxt_(*new IOObjContext(ctxt))
     , autosaveable_(withautosave)
-    , saveondisc_(saveondisc)
+    , tempobjsonly_(tempobjsonly)
     , ObjAdded(this)
     , ObjOrphaned(this)
     , UnsavedObjLastCall(this)
@@ -381,7 +381,7 @@ uiRetVal SaveableManager::store( const SharedObject& newobj,
 	CtxtIOObj ctio( ctxt_ );
 	ctio.setName( newobj.name() );
 	ctio.ctxt_.forread_ = false;
-	DBM().getEntry( ctio, !saveondisc_ );
+	DBM().getEntry( ctio, tempobjsonly_ );
 	ioobj = ctio.ioobj_;
 	ctio.ioobj_ = 0;
     }
