@@ -9,6 +9,18 @@ else
     if [ "$#" -eq "4" ]; then
 	src=$3/data/localizations/source/$1.ts
 	dst=$4/data/localizations/$1.qm
+	
+	#Ensure data directory exists
+        if [ ! -e "$4/data/" ]; then
+            mkdir $4/data
+        else
+            if [ ! -d $4/data ]; then
+                echo "$4/data exists and is not a directory."
+                exit 1;
+            fi
+        fi
+
+	#Ensure data/localizations directory exists
 	if [ ! -e "$4/data/localizations/" ]; then
 	    mkdir $4/data/localizations
 	else
