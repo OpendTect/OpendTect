@@ -70,8 +70,8 @@ void uiProcSel::selDoneCB( CallBacker* cb )
     if ( editbut_ )
     {
 	const IOObj* ioobj = selfld_->ioobj( true );
-	editbut_->setText( ioobj ? uiStrings::sEdit()
-				 : uiStrings::sCreate() );
+	editbut_->setText(
+		m3Dots(ioobj ? uiStrings::sEdit() : uiStrings::sCreate()) );
     }
 
     selectionDone.trigger();
@@ -96,8 +96,8 @@ void uiProcSel::editPushCB( CallBacker* )
 				  .arg(uiStrings::sPreStack().toLower())
 				  .arg(uiStrings::sProcessing().toLower());
 
-    uiDialog dlg( this, uiDialog::Setup( title, mNoDlgTitle, 
-                                        mODHelpKey(mPreStackProcSelHelpID) ) );
+    uiDialog dlg( this, uiDialog::Setup(title,mNoDlgTitle,
+					mODHelpKey(mPreStackProcSelHelpID)) );
     dlg.enableSaveButton(tr("Save on OK"));
     dlg.setSaveButtonChecked( true );
     PreStack::uiProcessorManager* grp = new uiProcessorManager( &dlg, man );
