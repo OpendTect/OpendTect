@@ -8,12 +8,21 @@ ________________________________________________________________________
 
 -*/
 
+#include "uicolseqdisp.h"
 #include "uicolseqsel.h"
 
-#include "coltabsequence.h"
 #include "settings.h"
+#include "coltabindex.h"
+#include "coltabsequence.h"
 
+#include "uimsg.h"
+#include "uimenu.h"
+#include "uilabel.h"
+#include "uipixmap.h"
+#include "uirgbarray.h"
 #include "uicoltabman.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsitemimpl.h"
 
 
 uiColorSeqDisp::uiColorSeqDisp( uiParent* p )
@@ -22,15 +31,17 @@ uiColorSeqDisp::uiColorSeqDisp( uiParent* p )
     , seqnm_(ColTab::Sequence::sDefaultName())
     , selReq(this)
     , menuReq(this)
+    , upReq(this)
+    , downReq(this)
 {
     disableImageSave();
     disableScrollZoom();
     setDragMode( uiGraphicsView::NoDrag );
 
     nmitm_ = scene().addItem(
-	     new uiTextItem(uiString::sEmptyString(),mAlignment(HCenter,Top)) );
+	     new uiTextItem(uiString::emptyString(),mAlignment(HCenter,Top)) );
 
-    mAttachCB( postFinalize(), uiColorSeqDisp::initCB );
+    mAttachCB( postFinalise(), uiColorSeqDisp::initCB );
 }
 
 
@@ -52,6 +63,13 @@ void uiColorSeqDisp::setSeqName( const char* nm )
     if ( ColTab::SM().indexOf(nm) < 0 )
 	return;
     seqnm_ = nm;
+    reDraw();
+}
+
+
+void uiColorSeqDisp::setFlipped( bool yn )
+{
+    flipped_ = yn;
     reDraw();
 }
 
@@ -90,26 +108,26 @@ void uiColorSeqDisp::reDraw()
     beforeDraw();
     rgbarr_->clear( Color::White() );
 
-    const int height = rgbarr_->getSize( false );
-    const int ctabstop = height / 2;
+    const int arrh = rgbarr_->getSize( false );
+    const int ctabstop = arrh / 2;
 
-    const int width = rgbarr_->getSize( true );
-    const ColTab::IndexedLookUpTable indextable( *colseq, width );
-    for ( int ix=0; ix<width; ix++ )
+    const int arrw = rgbarr_->getSize( true );
+    const ColTab::IndexedLookUpTable indextable( *colseq, arrw );
+    for ( int ix=0; ix<arrw; ix++ )
     {
-	const int colidx = flipseq_ ? width-ix-1 : ix;
+	const int colidx = flipped_ ? arrw-ix-1 : ix;
 	const Color color = indextable.colorForIndex( colidx );
 	for ( int iy=0; iy<ctabstop; iy++ )
 	    rgbarr_->set( ix, iy, color );
     }
 
-    uiPixmap pixmap( width, height );
+    uiPixmap pixmap( arrw, arrh );
     pixmap.convertFromRGBArray( *rgbarr_ );
     setPixmap( pixmap );
     updatePixmap();
 
     nmitm_->setText( toUiString(seqnm_) );
-    nmitm_->setPos( uiPoint(width/2,ctabstop) );
+    nmitm_->setPos( uiPoint(arrw/2,ctabstop) );
 }
 
 
@@ -162,7 +180,7 @@ void uiColorSeqDisp::keybCB( CallBacker* )
     if ( keh.isHandled() )
 	return;
 
-    const MouseEvent& event = keh.event();
+    const KeyboardEvent& event = keh.event();
     if ( event.modifier_ != OD::NoButton )
 	return;
 
@@ -178,18 +196,24 @@ void uiColorSeqDisp::keybCB( CallBacker* )
 
 
 
-uiColorSeqSel::uiColorSeqSel( uiParent* p, const uiString& lbl )
+uiColorSeqSel::uiColorSeqSel( uiParent* p, uiString lbl )
     : uiGroup(p,"Color Seq Selector")
     , usebasicmenu_(true)
     , mandlg_(0)
     , seqChanged(this)
+    , menuReq(this)
 {
     disp_ = new uiColorSeqDisp( this );
 
     if ( !lbl.isEmpty() )
 	new uiLabel( this, lbl, disp_ );
 
-    mAttachCB( postFinalize(), uiColorSeqSel::initDisp );
+    mAttachCB( postFinalise(), uiColorSeqSel::initDisp );
+}
+
+
+uiColorSeqSel::~uiColorSeqSel()
+{
 }
 
 
@@ -199,40 +223,54 @@ const char* uiColorSeqSel::seqName() const
 }
 
 
-void uiColorSeqSel::setSeqName( const char* nm ) const
+void uiColorSeqSel::setSeqName( const char* nm )
 {
     disp_->setSeqName( nm );
+}
+
+
+bool uiColorSeqSel::isFlipped() const
+{
+    return disp_->isFlipped();
+}
+
+
+void uiColorSeqSel::setFlipped( bool yn )
+{
+    disp_->setFlipped( yn );
 }
 
 
 
 void uiColorSeqSel::initDisp( CallBacker* )
 {
-    mAttachCB( disp_->selReq, uiColorSeqDisp::selectCB );
-    mAttachCB( disp_->menuReq, uiColorSeqDisp::menuCB );
-    mAttachCB( disp_->upReq, uiColorSeqDisp::upCB );
-    mAttachCB( disp_->downReq, uiColorSeqDisp::downCB );
+    mAttachCB( disp_->selReq, uiColorSeqSel::selectCB );
+    mAttachCB( disp_->menuReq, uiColorSeqSel::menuCB );
+    mAttachCB( disp_->upReq, uiColorSeqSel::upCB );
+    mAttachCB( disp_->downReq, uiColorSeqSel::downCB );
 }
 
 
-void uiColorSeqDisp::selectCB( CallBacker* )
+void uiColorSeqSel::selectCB( CallBacker* )
 {
     uiMSG().error( mTODONotImplPhrase() );
 }
 
 
-uiMenu* uiColorSeqDisp::getBasicMenu()
+uiMenu* uiColorSeqSel::getBasicMenu()
 {
     uiMenu* mnu = new uiMenu( this, uiStrings::sAction() );
 
     mnu->insertItem( new uiAction(tr("Set as default"),
-	mCB(this,uiColorSeqDisp,setAsDefaultCB)), 0 );
+	mCB(this,uiColorSeqSel,setAsDefaultCB)), 0 );
     mnu->insertItem( new uiAction(m3Dots(tr("Manage")),
-	mCB(this,uiColorSeqDisp,manageCB)), 1 );
+	mCB(this,uiColorSeqSel,manageCB)), 1 );
+
+    return mnu;
 }
 
 
-void uiColorSeqDisp::menuCB( CallBacker* )
+void uiColorSeqSel::menuCB( CallBacker* )
 {
     if ( !usebasicmenu_ )
 	menuReq.trigger();
@@ -244,27 +282,28 @@ void uiColorSeqDisp::menuCB( CallBacker* )
 }
 
 
-void uiColorSeqDisp::setAsDefaultCB( CallBacker* )
+void uiColorSeqSel::setAsDefaultCB( CallBacker* )
 {
     setCurrentAsDefault();
 }
 
 
-void uiColorSeqDisp::manageCB( CallBacker* )
+void uiColorSeqSel::manageCB( CallBacker* )
 {
     showManageDlg();
 }
 
 
-void uiColorSeqDisp::setCurrentAsDefault()
+void uiColorSeqSel::setCurrentAsDefault()
 {
     mSettUse( set, "dTect.Color table.Name", "", seqName() );
     Settings::common().write();
 }
 
 
-void uiColorSeqDisp::showManageDlg()
+void uiColorSeqSel::showManageDlg()
 {
+	/*
     if ( !mandlg_ )
     {
 	//TODO find out why this flag exists
@@ -275,10 +314,11 @@ void uiColorSeqDisp::showManageDlg()
 
     mandlg_->show();
     mandlg_->raise();
+	*/
 }
 
 
-void uiColorSeqDisp::nextColTab( bool prev )
+void uiColorSeqSel::nextColTab( bool prev )
 {
     const int curidx = ColTab::SM().indexOf( seqName() );
     if ( (prev && curidx < 1) || (!prev && curidx>=ColTab::SM().size()-1) )

@@ -12,6 +12,8 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uirgbarraycanvas.h"
+class uiTextItem;
+class uiRGBArray;
 
 
 mExpClass(uiTools) uiColorSeqDisp : public uiRGBArrayCanvas
@@ -21,20 +23,26 @@ public:
 				uiColorSeqDisp(uiParent*);
 				~uiColorSeqDisp();
 
+    const char*			seqName() const		{ return seqnm_; }
     void			setSeqName(const char*);
-    const char*			seqName() const	    { return seqnm_; }
+    bool			isFlipped() const	{ return flipped_; }
+    void			setFlipped(bool);
 
-    Notifier<uiColorSeqSel>	selReq; //!< click or enter
-    Notifier<uiColorSeqSel>	menuReq; //!< right-click or space
-    Notifier<uiColorSeqSel>	upReq;	 //!< wheel-up, key-up or page-up
-    Notifier<uiColorSeqSel>	downReq; //!< wheel-down, key-down or page-down
+    Notifier<uiColorSeqDisp>	selReq; //!< click or enter
+    Notifier<uiColorSeqDisp>	menuReq; //!< right-click or space
+    Notifier<uiColorSeqDisp>	upReq;	 //!< wheel-up, key-up or page-up
+    Notifier<uiColorSeqDisp>	downReq; //!< wheel-down, key-down or page-down
 
 protected:
 
-    mutable BufferString	seqnm_;
+    BufferString		seqnm_;
+    bool			flipped_;
+    uiRGBArray*			rgbarr_;
+    uiTextItem*			nmitm_;
 
     void			initCB(CallBacker*);
     void			mouseButCB(CallBacker*);
+    void			mouseWheelCB(CallBacker*);
     void			keybCB(CallBacker*);
     inline void			reSizeCB(CallBacker*);
 
