@@ -67,7 +67,7 @@ public:
 
     const OD::MarkerStyle3D*	markerStyle() const;
     void			setMarkerStyle(const OD::MarkerStyle3D&);
-    bool			markerStyleColorSelection() const 
+    bool			markerStyleColorSelection() const
 							    { return false; }
 
     void			hideAllKnots(bool yn);

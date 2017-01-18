@@ -1677,7 +1677,7 @@ void FaultDisplay::updateEditorMarkers()
 	{
 	    Geometry::FaultStickSet* fs =
 		fault3d->geometry().sectionGeometry(sid);
-	    if ( markerStyle() && viseditor_ )
+	    if ( viseditor_ )
 		viseditor_->setMarkerStyle( fault_->preferredMarkerStyle3D() );
 	    viseditor_->turnOnMarker(pid,!fs->isStickHidden(sticknr,mSceneIdx));
 	}
@@ -1906,17 +1906,14 @@ void FaultDisplay::setLineStyle( const OD::LineStyle& lst )
 
 const OD::MarkerStyle3D* FaultDisplay::markerStyle() const
 {
-    if ( fault_ )
-	return &fault_->preferredMarkerStyle3D();
-
     return 0;
 }
 
 
 void FaultDisplay::setMarkerStyle( const OD::MarkerStyle3D& mkstyle )
 {
-    // for fault sticks we do use fixed colors for dragger, 
-    // polygon, and selection. So to guarantee this we set a fixed color here. 
+    // for fault sticks we do use fixed colors for dragger,
+    // polygon, and selection. So to guarantee this we set a fixed color here.
 
     OD::MarkerStyle3D ftmkstyle = mkstyle;
     ftmkstyle.color_ = Color::Yellow();

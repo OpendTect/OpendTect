@@ -29,7 +29,7 @@ FaultStickSet::FaultStickSet( EMManager& em )
     , geometry_( *this )
 {
     geometry_.addSection( "", false );
-    setPreferredMarkerStyle3D( 
+    setPreferredMarkerStyle3D(
 	OD::MarkerStyle3D(OD::MarkerStyle3D::Cube,3,Color::Yellow()) );
 }
 
@@ -50,7 +50,7 @@ FaultStickSet::~FaultStickSet()
 
 void FaultStickSet::copyClassData( const FaultStickSet& oth )
 {
-    id_ = oth.id_;
+    storageid_ = oth.storageid_;
     preferredcolor_ = oth.preferredcolor_;
     changed_ = oth.changed_;
     fullyloaded_ = oth.fullyloaded_;

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "saveable.h"
 
 class Executor;
+class TaskRunner;
 
 namespace EM
 {
@@ -26,7 +27,7 @@ class EMObject;
 mExpClass(EarthModel) ObjectLoader
 {
 public:
-		    
+
     virtual bool	load(TaskRunner*) = 0;
     virtual Executor*	getLoader() const = 0;
     ObjectSet<EMObject>	getLoadedEMObjects() const { return emobjects_; }

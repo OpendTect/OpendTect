@@ -1223,9 +1223,6 @@ void FaultStickSetDisplay::hideAllKnots( bool yn )
 
 const OD::MarkerStyle3D* FaultStickSetDisplay::markerStyle() const
 {
-    if ( fault_ )
-	return &fault_->preferredMarkerStyle3D();
-
     return 0;
 }
 
@@ -1233,14 +1230,14 @@ const OD::MarkerStyle3D* FaultStickSetDisplay::markerStyle() const
 void FaultStickSetDisplay::setMarkerStyle( const OD::MarkerStyle3D& mkstyle )
 {
     // for stickset we do use fixed color for dragger, polygon, and selection.
-    // So to guarantee this here we set a fixed color. 
-    
+    // So to guarantee this here we set a fixed color.
+
     OD::MarkerStyle3D sstmkstyle = mkstyle;
     sstmkstyle.color_ = Color::Yellow();
 
     viseditor_->setMarkerStyle( sstmkstyle );
     setStickMarkerStyle( sstmkstyle );
-    
+
     if ( fault_ )
 	fault_->setPreferredMarkerStyle3D( sstmkstyle );
 }
