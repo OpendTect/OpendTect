@@ -111,8 +111,7 @@ bool uiSeisCopyCube::acceptOK()
 	FixedString(sKey::Steering()) == outpars.find( sKey::Type() );
     if ( issteer && compnr>-1 )
 	outpars.set( sKey::Type(), sKey::Attribute() );
-    IOM().commitChanges( *outioobj );
-
+    DBM().setEntry( *outioobj );
 
     if ( batchfld_->wantBatch() )
     {
