@@ -95,8 +95,10 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
     table_ = new uiTable( this, uiTable::Setup(positions.size(),3), "2DGeom" );
     table_->attach( ensureBelow, titllbl );
     table_->setPrefWidth( 400 );
-    BufferStringSet collbls;
-    collbls.add( "Trace Number" ); collbls.add( "X" ); collbls.add( "Y" );
+    uiStringSet collbls;
+    collbls.add( tr("Trace Number") );
+    collbls.add( toUiString("X") );
+    collbls.add( toUiString("Y") );
     table_->setColumnLabels( collbls );
     if ( readonly )
 	table_->setTableReadOnly( true );

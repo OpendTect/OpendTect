@@ -58,7 +58,6 @@ public:
 	RefMan<ReflectivityModelSet>	sampledrefmodels_;
     };
 
-    					~SyntheticData();
 
     void				setName(const char*);
 
@@ -107,6 +106,7 @@ public:
 protected:
 					SyntheticData(const SynthGenParams&,
 						      DataPack&);
+					~SyntheticData();
 
     BufferString 			wvltnm_;
     IOPar				raypars_;

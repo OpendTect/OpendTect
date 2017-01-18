@@ -110,7 +110,7 @@ void uiSurveySelect::updateList()
     survdirfld_->setEmpty();
     BufferStringSet dirlist; uiSurvey::getDirectoryNames( dirlist, false,
 							  dataroot_ );
-    survdirfld_->addItems( dirlist );
+    survdirfld_->addItems( dirlist.getUiStringSet() );
 
     if ( !survdirfld_->isEmpty() )
     {
@@ -131,7 +131,7 @@ void uiSurveySelect::startFileMonitoring()
     filemonitor_->watch( dataroot_ );
     for ( int idx=0; idx<survdirfld_->size(); idx++ )
     {
-	const File::Path fp( dataroot_, survdirfld_->textOfItem(idx),
+	const File::Path fp( dataroot_, survdirfld_->itemText(idx),
 					 SurveyInfo::sSetupFileName() );
 	const BufferString fnm = fp.fullPath();
 	filemonitor_->watch( fnm );

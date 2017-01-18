@@ -104,6 +104,11 @@ public:
     bool			ctrlStatus() const;
     bool			altStatus() const;
     bool			shiftStatus() const;
+    inline bool			isWithKey() const
+				{
+				    return ctrlStatus() || altStatus()
+					|| shiftStatus();
+				}
 
     bool			operator ==( const MouseEvent& ev ) const;
     bool			operator !=( const MouseEvent& ev ) const

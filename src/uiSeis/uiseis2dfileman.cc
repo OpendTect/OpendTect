@@ -112,7 +112,7 @@ void uiSeis2DFileMan::fillLineBox()
     SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
     objinfo_->ioObjInfo().getLineNames( linenames, opts2d );
     lb->setEmpty();
-    lb->addItems( linenames );
+    lb->addItems( linenames.getUiStringSet() );
     lb->setCurrentItem( curitm );
 }
 
@@ -239,9 +239,10 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     uiGroup* geomgrp = new uiGroup( this );
     BufferStringSet lnms; objinf_.ioObjInfo().getLineNames( lnms );
     uiLabeledComboBox* lcb1 =
-	new uiLabeledComboBox( geomgrp, lnms, tr("First line") );
-    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( geomgrp, lnms,
-						     uiStrings::sAdd() );
+	new uiLabeledComboBox( geomgrp, lnms.getUiStringSet(),
+							tr("First line") );
+    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( geomgrp,
+				lnms.getUiStringSet(), uiStrings::sAdd() );
     lcb2->attach( alignedBelow, lcb1 );
     ln1fld_ = lcb1->box(); ln2fld_ = lcb2->box();
     ln1fld_->setCurrentItem( sellns.get(0) );
@@ -315,7 +316,7 @@ void fillData2MergeCB( CallBacker* )
     }
 
     data2mergefld_->setEmpty();
-    data2mergefld_->addItems( commondataset );
+    data2mergefld_->addItems( commondataset.getUiStringSet() );
 }
 
 
@@ -414,18 +415,18 @@ void uiSeis2DFileMan::mergeLines( CallBacker* )
     {
 	if ( linefld_->isChosen(idx) )
 	{
-	    sellnms.add( linefld_->textOfItem(idx) );
+	    sellnms.add( linefld_->itemText(idx) );
 	    if ( firstsel < 0 ) firstsel = idx;
 	    if ( sellnms.size() > 1 ) break;
 	}
     }
     if ( firstsel < 0 )
-	{ firstsel = 0; sellnms.add( linefld_->textOfItem(0) ); }
+	{ firstsel = 0; sellnms.add( linefld_->itemText(0) ); }
     if ( sellnms.size() == 1 )
     {
 	if ( firstsel >= linefld_->size() )
 	    firstsel = -1;
-	sellnms.add( linefld_->textOfItem(firstsel+1) );
+	sellnms.add( linefld_->itemText(firstsel+1) );
     }
 
     uiSeis2DFileManMergeDlg dlg( this, *objinfo_, sellnms );

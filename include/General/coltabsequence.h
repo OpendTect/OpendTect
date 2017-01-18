@@ -37,56 +37,57 @@ mExpClass(General) Sequence : public NamedMonitorable
 {
 public:
 
-			Sequence();
-			Sequence(const char*);	//!< Find by name in SeqMgr
-			Sequence(const Sequence&);
-			~Sequence();
+    typedef float			PosType; //!< 0 <= x <= 1
+    typedef TypeSet<float>::size_type	size_type;
+    typedef size_type			IdxType;
+    typedef unsigned char		ValueType;
+    typedef std::pair<PosType,ValueType> TranspPtType;
 
     enum Type		{ System, User, Edited };
 
-    Sequence&		operator=(const Sequence&);
+			Sequence();		//!< Empty
+			Sequence(const char*);	//!< Find by name in SeqMgr
+			~Sequence();
+			mDeclInstanceCreatedNotifierAccess(Sequence);
+			mDeclMonitorableAssignment(Sequence);
+
     bool		operator==(const Sequence&) const;
-    bool		operator!=(const Sequence&) const;
+    bool		operator!=( const Sequence& oth ) const
+			{ return !(*this == oth); }
 
-    bool		isSys() const
-			{ return type_==System; }
-    Type		type() const		{ return type_; }
-    void		setType( Type tp )	{ type_ = tp; }
+    Color		color(PosType) const; //!< 0 <= pos <= 1
 
-    Color		color(float pos) const; //!< 0 <= pos <= 1
+    inline bool		isSys() const		{ return type()==System; }
+    mImplSimpleMonitoredGetSet(inline,type,setType,Type,type_,cTypeChange())
 
-    inline bool		isEmpty() const		{ return x_.isEmpty(); }
-    inline int		size() const		{ return x_.size(); }
-    inline float	position( int idx ) const { return x_[idx]; }
-    inline unsigned char r( int idx ) const	{ return r_[idx]; }
-    inline unsigned char g( int idx ) const	{ return g_[idx]; }
-    inline unsigned char b( int idx ) const	{ return b_[idx]; }
+    inline bool		isEmpty() const		{ return size() < 1; }
+    size_type		size() const;
+    PosType		position(IdxType) const;
+    ValueType		r(IdxType) const;
+    ValueType		g(IdxType) const;
+    ValueType		b(IdxType) const;
 
-    int			transparencySize() const	{ return tr_.size(); }
-    Geom::Point2D<float> transparency( int idx ) const	{ return tr_[idx]; }
-    float		transparencyAt(float) const;
-    void		setTransparency(Geom::Point2D<float>);
-			/*!<x goes from 0 to 1, trans from 0 to 255 */
-    void		changeTransparency(int,Geom::Point2D<float>);
+    size_type		transparencySize() const;
+    TranspPtType	transparency(IdxType) const;
+    ValueType		transparencyAt(PosType) const;
+    void		setTransparency(TranspPtType);
+    void		changeTransparency(IdxType,TranspPtType);
     void		removeTransparencies();
-    void		removeTransparencyAt(int);
+    void		removeTransparencyAt(IdxType);
     bool		hasTransparency() const;
 
-    int			nrSegments() const		{ return nrsegments_; }
-    void		setNrSegments(int n)		{ nrsegments_ = n; }
+    mImplSimpleMonitoredGetSet(inline,nrSegments,setNrSegments,size_type,
+				    nrsegments_,cNrSegmentsChange())
 			/*!<nrsegments > 0 divide the ctab in equally wide
 			    nrsegments == 0 no segmentation
 			    nrsegments == -1 constant color between markers.*/
+    bool		isSegmentized() const		{ return nrSegments(); }
 
-
-    bool		isSegmentized() const		{ return nrsegments_; }
-
-    void		changeColor(int,
-				    unsigned char,unsigned char,unsigned char);
-    void		changePos(int,float);
-    int			setColor(float pos, //!< Insert or change
-				 unsigned char,unsigned char,unsigned char);
-    void		removeColor(int);
+    void		changeColor(IdxType,ValueType,ValueType,ValueType);
+    void		changePos(IdxType,PosType);
+    IdxType		setColor(PosType, //!< Insert or change
+				 ValueType,ValueType,ValueType);
+    void		removeColor(IdxType);
     void		removeAllColors();
     void		flipColor();
     void		flipTransparency();
@@ -94,17 +95,17 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    Notifier<Sequence>	colorChanged;
-    Notifier<Sequence>	transparencyChanged;
+    mImplSimpleMonitoredGetSet(inline,undefColor,setUndefColor,
+				Color,undefcolor_,cUdfColChange())
+    mImplSimpleMonitoredGetSet(inline,markColor,setMarkColor,
+				Color,markcolor_,cMarkColChange())
 
-    const Color&	undefColor() const
-			{ return undefcolor_; }
-    void		setUndefColor( Color c )
-			{ undefcolor_ = c; triggerAll(); }
-    const Color&	markColor() const
-			{ return markcolor_; }
-    void		setMarkColor( Color c )
-			{ markcolor_ = c; triggerAll(); }
+    static ChangeType	cTypeChange()		{ return 2; }
+    static ChangeType	cColorChange()		{ return 3; }
+    static ChangeType	cTransparencyChange()	{ return 4; }
+    static ChangeType	cNrSegmentsChange()	{ return 5; }
+    static ChangeType	cUdfColChange()		{ return 6; }
+    static ChangeType	cMarkColChange()	{ return 7; }
 
     static const char*	sKeyValCol();
     static const char*	sKeyMarkColor();
@@ -112,24 +113,28 @@ public:
     static const char*	sKeyTransparency();
     static const char*	sKeyCtbl();
     static const char*	sKeyNrSegments();
-    static const char*	sKeyRainbow();
+    static const char*	sDefaultName(bool for_seismics=false);
 
 protected:
 
-    TypeSet<float>		x_;
-    TypeSet<unsigned char>	r_;
-    TypeSet<unsigned char>	g_;
-    TypeSet<unsigned char>	b_;
-    TypeSet< Geom::Point2D<float> > tr_;
+    TypeSet<PosType>		x_;
+    TypeSet<ValueType>		r_;
+    TypeSet<ValueType>		g_;
+    TypeSet<ValueType>		b_;
+    TypeSet<TranspPtType>	tr_;
 
-    Color		undefcolor_;
-    Color		markcolor_;
-    Type		type_;
-    int			nrsegments_;
+    Color			undefcolor_;
+    Color			markcolor_;
+    Type			type_;
+    size_type			nrsegments_;
 
-    inline void		triggerAll() {	colorChanged.trigger();
-					transparencyChanged.trigger(); }
-    float		snapToSegmentCenter(float) const;
+    inline size_type	gtSize() const	{ return x_.size(); }
+
+    PosType		snapToSegmentCenter(PosType) const;
+    ValueType		gtTransparencyAt(PosType) const;
+    bool		chgColor(IdxType,ValueType,ValueType,ValueType);
+    bool		rmColor(IdxType);
+
 };
 
 
@@ -143,18 +148,23 @@ mExpClass(General) SeqMgr : public CallBacker
 {
 public:
 
+    typedef ObjectSet<Sequence>::size_type  size_type;
+    typedef size_type			    IdxType;
+
     void		refresh();
 
-    int			size() const		{ return seqs_.size(); }
-    int			indexOf(const char*) const;
-    const Sequence*	get( int idx ) const	{ return seqs_[idx]; }
+    size_type		size() const		{ return seqs_.size(); }
+    IdxType		indexOf(const char*) const;
+    const Sequence*	get( IdxType idx ) const	{ return seqs_[idx]; }
     bool		get(const char*,Sequence&);
+    const Sequence*	getByName(const char*) const;
     void		getSequenceNames(BufferStringSet&);
-    const Sequence*	getAny(const char* key) const;
+    const Sequence&	getDefault() const	{ return getAny(0); }
+    const Sequence&	getAny(const char* key) const;
 			//!< returns with key, or a nice one anyway
 
     void		set(const Sequence&); //!< if name not yet present, adds
-    void		remove(int);
+    void		remove(IdxType);
 
     bool		write(bool sys=false,bool applsetup=true);
 
@@ -176,6 +186,11 @@ protected:
     void		add( Sequence* seq )
 			{ seqs_ += seq; seqAdded.trigger(); }
     void		readColTabs();
+
+private:
+
+    ObjectSet<Sequence> removedseqs_;
+
 };
 
 mGlobal(General) SeqMgr& SM();

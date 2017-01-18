@@ -221,7 +221,7 @@ void uiStratLithoBox::fillLiths( CallBacker* )
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( isChosen(idx) )
-	    selected.add( textOfItem(idx) );
+	    selected.add( itemText(idx) );
     }
 
     selectionChanged.disable();
@@ -390,7 +390,7 @@ void uiStratLithoDlg::rmLast( CallBacker* )
     if ( selidx < 1 ) return; // No need to ever delete the last lithology
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
-    const Strat::Lithology* lith = lithos.get( selfld_->textOfItem(selidx) );
+    const Strat::Lithology* lith = lithos.get( selfld_->itemText(selidx) );
     if ( !lith || lith->isUdf() ) return;
 
     delete lithos.lithologies().removeSingle( lithos.indexOf( lith->id() ) );
@@ -606,10 +606,11 @@ uiStratUnitDivideDlg::uiStratUnitDivideDlg( uiParent* p,
                                  mODHelpKey(mStratUnitDivideDlgHelpID)))
     , rootunit_(unit)
 {
-    table_ = new uiDivideTable( this, uiTable::Setup().rowdesc("Unit")
-						      .rowgrow(true)
-						      .defrowlbl("")
-						     .selmode(uiTable::Multi));
+    table_ = new uiDivideTable( this, uiTable::Setup()
+						.rowdesc(uiStrings::sUnit())
+						.rowgrow(true)
+						.defrowlbl("")
+						.selmode(uiTable::Multi));
     table_->setColumnLabels( unitcollbls );
     table_->setColumnReadOnly( cColorCol, true );
     table_->setColumnResizeMode( uiTable::ResizeToContents );

@@ -37,7 +37,7 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const DBKey& wellid )
     inplogfld_ = new uiListBox( this, su );
     inplogfld_->setHSzPol( uiObject::Wide );
     BufferStringSet nms; logs.getNames( nms );
-    inplogfld_->addItems( nms );
+    inplogfld_->addItems( nms.getUiStringSet() );
     inplogfld_->selectionChanged.notify(
 				mCB(this,uiTutWellTools,inpchg) );
 

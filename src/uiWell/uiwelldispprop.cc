@@ -196,7 +196,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 
     uiListBox::Setup msu( OD::ChooseZeroOrMore, tr("Display markers") );
     displaymarkersfld_ = new uiListBox( this, msu );
-    displaymarkersfld_->addItems( allmarkernms );
+    displaymarkersfld_->addItems( allmarkernms.getUiStringSet() );
     if ( !setup_.onlyfor2ddisplay_ )
 	displaymarkersfld_->attach( alignedBelow, nmcolfld_ );
     else
@@ -238,7 +238,7 @@ void uiWellMarkersDispProperties::getSelNames()
     for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
     {
 	if ( displaymarkersfld_->isChosen( idx ) )
-	    selnms.add( displaymarkersfld_->textOfItem(idx) );
+	    selnms.add( displaymarkersfld_->itemText(idx) );
     }
     mrkprops().setSelMarkerNames( selnms );
 }
@@ -255,7 +255,7 @@ void uiWellMarkersDispProperties::setAllMarkerNames(
 					const BufferStringSet& allmarkernms )
 {
     displaymarkersfld_->setEmpty();
-    displaymarkersfld_->addItems( allmarkernms );
+    displaymarkersfld_->addItems( allmarkernms.getUiStringSet() );
     setSelNames();
 }
 
@@ -695,9 +695,9 @@ void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
     lognames.sort();
     logsfld_->box()->setEmpty();
     logsfld_->box()->addItem(uiStrings::sNone());
-    logsfld_->box()->addItems( lognames );
+    logsfld_->box()->addItems( lognames.getUiStringSet() );
     filllogsfld_->box()->setEmpty();
-    filllogsfld_->box()->addItems( lognames );
+    filllogsfld_->box()->addItems( lognames.getUiStringSet() );
     if ( lognames.isPresent(curlognm) )
     {
 	logsfld_->box()->setText( curlognm );
@@ -780,7 +780,7 @@ void uiWellLogDispProperties::setFieldVals()
 
 void uiWellLogDispProperties::updateRange( CallBacker* )
 {
-    const char* lognm = logsfld_->box()->textOfItem(
+    const char* lognm = logsfld_->box()->itemText(
 		        logsfld_->box()->currentItem() );
     const Well::Log* wl = wls_->getLogByName( lognm );
     if ( wl )
@@ -793,7 +793,7 @@ void uiWellLogDispProperties::updateRange( CallBacker* )
 
 void uiWellLogDispProperties::updateFillRange( CallBacker* )
 {
-    const char* lognm = filllogsfld_->box()->textOfItem(
+    const char* lognm = filllogsfld_->box()->itemText(
 			filllogsfld_->box()->currentItem() );
     const Well::Log* wl = wls_->getLogByName( lognm );
     if ( wl )

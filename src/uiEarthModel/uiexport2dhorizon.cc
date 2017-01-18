@@ -292,7 +292,7 @@ void uiExport2DHorizon::horChg( CallBacker* cb )
     if ( !oi.getSurfaceData(emdata,errmsg) )
 	return;
 
-    linenmfld_->addItems( emdata.linenames );
+    linenmfld_->addItems( emdata.linenames.getUiStringSet() );
     linenmfld_->setChosen( sellines );
     if ( linenmfld_->nrChosen() == 0 )
 	linenmfld_->chooseAll();

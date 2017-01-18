@@ -94,7 +94,7 @@ void uiHorizonRelationsDlg::readHorizonCB( CallBacker* )
 void uiHorizonRelationsDlg::fillRelationField( const BufferStringSet& strs )
 {
     relationfld_->setEmpty();
-    relationfld_->addItems( strs );
+    relationfld_->addItems( strs.getUiStringSet() );
     crossbut_->setSensitive( strs.size() > 1 );
 }
 

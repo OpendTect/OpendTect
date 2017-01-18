@@ -69,7 +69,7 @@ void uiSelObjFromOtherSurvey::survSelCB( CallBacker* )
     }
 
     objfld_->setEmpty();
-    objfld_->addItems( objnms );
+    objfld_->addItems( objnms.getUiStringSet() );
     if ( !objnms.isEmpty() )
 	objfld_->setCurrentItem( 0 );
 }

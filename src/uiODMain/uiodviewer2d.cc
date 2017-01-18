@@ -259,15 +259,12 @@ void uiODViewer2D::setUpView( ProbeLayer::ID curlayid )
 	    uiFlatViewer& vwr = viewwin()->viewer(ivwr);
 	    if ( !iswiggle )
 	    {
-		vwr.appearance().ddpars_.vd_.ctab_ =
-		    attriblayer->getColTab().name();
-		vwr.appearance().ddpars_.vd_.mappersetup_ =
-		    attriblayer->getColTabMapper();
+		ColTab::Sequence attrcoltab = attriblayer->getColTab();
+		vwr.appearance().ddpars_.vd_.ctab_ = attrcoltab.name();
 	    }
-	    else
-		vwr.appearance().ddpars_.wva_.mappersetup_ =
-		    attriblayer->getColTabMapper();
 
+	    vwr.appearance().ddpars_.wva_.mappersetup_ =
+		attriblayer->getColTabMapper();
 	    vwr.handleChange( FlatView::Viewer::DisplayPars );
 	}
     }

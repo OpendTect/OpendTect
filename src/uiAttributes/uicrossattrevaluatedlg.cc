@@ -65,7 +65,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     uiLabel* paramlabel = new uiLabel( grp, tr("Parameter to evaluate") );
     paramsfld_ = new uiListBox( grp );
     paramsfld_->attach( ensureBelow, paramlabel );
-    paramsfld_->addItems( paramnms );
+    paramsfld_->addItems( paramnms.getUiStringSet() );
     paramsfld_->selectionChanged.notify(
 	    mCB(this,uiCrossAttrEvaluateDlg,parameterSel));
 
@@ -126,7 +126,7 @@ void uiCrossAttrEvaluateDlg::parameterSel( CallBacker* )
 	grps_[idx]->display( idx==sel );
 
     attrnmsfld_->setEmpty();
-    attrnmsfld_->addItems( userattnms_[sel] );
+    attrnmsfld_->addItems( userattnms_[sel].getUiStringSet() );
 }
 
 

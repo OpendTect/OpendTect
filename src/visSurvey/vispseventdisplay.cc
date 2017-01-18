@@ -224,20 +224,25 @@ OD::LineStyle PSEventDisplay::getLineStyle() const
 }
 
 
-void PSEventDisplay::setMarkerStyle( const OD::MarkerStyle3D& st, bool update )
+void PSEventDisplay::setMarkerStyle( const OD::MarkerStyle3D& st )
 {
     if ( markerstyle_==st )
 	return;
 
     markerstyle_ = st;
+}
 
-    if ( update )
+
+void PSEventDisplay::setMarkerStyle( const OD::MarkerStyle3D& st, bool update )
+{
+    setMarkerStyle( st );
+    if ( !update )
+	return;
+
+    for ( int idx=0; idx<parentattached_.size(); idx++ )
     {
-	for ( int idx=0; idx<parentattached_.size(); idx++ )
-	{
-	    ParentAttachedObject* pao = parentattached_[idx];
-		pao->markerset_->setMarkerStyle( st );
-	}
+	ParentAttachedObject* pao = parentattached_[idx];
+	    pao->markerset_->setMarkerStyle( st );
     }
 }
 
@@ -388,7 +393,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	for ( int idx=0; idx<parentattached_.size(); idx++ )
 	    clearDisplay( parentattached_[idx] );
 
-	
+
 	eventmarkerset_->clearMarkers();
 	TypeSet<float> vals;
 	for ( int lidx=0; lidx<locations.totalSize(); lidx++ )
@@ -420,7 +425,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		vals += (markercolor_==Quality ? psevent->quality_
 					       : getMoveoutComp(offsets,picks));
 	    }
-	   
+
 	}
 
 	if (  markercolor_ == Single )
@@ -439,7 +444,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		 eventmarkerset_->getMaterial()->setColor(col,idx) ;
 	    }
 	}
-	
+
 	eventmarkerset_->turnAllMarkersOn( true );
 	eventmarkerset_->forceRedraw( true );
 	return;
@@ -498,7 +503,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     if ( !cs.hsamp_.includes(evntrg) )
 	return;
-  
+
     pao->eventsets_.erase();
     pao->tks_ = cs.hsamp_;
     pao->objectgroup_->addObject( pao->markerset_ );
@@ -749,7 +754,7 @@ bool PSEventDisplay::supportsDisplay() const
 	if ( !pdd )
 	    continue;
 	const TrcKeyZSampling pddrg = pdd->getTrcKeyZSampling();
-	issuported = pddrg.hsamp_.includes(eventrg);  
+	issuported = pddrg.hsamp_.includes(eventrg);
     }
 
     return issuported;

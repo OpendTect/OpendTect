@@ -233,6 +233,7 @@ bool FaultStickSetDisplay::setEMObjectID( const DBKey& emid )
     mSetStickIntersectPointColor( fault_->preferredColor() );
     viseditor_->setMarkerSize( mDefaultMarkerSize );
 
+    setMarkerStyle( fault_->preferredMarkerStyle3D() );
     updateSticks();
     updateKnotMarkers();
     updateManipulator();
@@ -1218,5 +1219,31 @@ void FaultStickSetDisplay::hideAllKnots( bool yn )
 	updateManipulator();
     }
 }
+
+
+const OD::MarkerStyle3D* FaultStickSetDisplay::markerStyle() const
+{
+    if ( fault_ )
+	return &fault_->preferredMarkerStyle3D();
+
+    return 0;
+}
+
+
+void FaultStickSetDisplay::setMarkerStyle( const OD::MarkerStyle3D& mkstyle )
+{
+    // for stickset we do use fixed color for dragger, polygon, and selection.
+    // So to guarantee this here we set a fixed color. 
+    
+    OD::MarkerStyle3D sstmkstyle = mkstyle;
+    sstmkstyle.color_ = Color::Yellow();
+
+    viseditor_->setMarkerStyle( sstmkstyle );
+    setStickMarkerStyle( sstmkstyle );
+    
+    if ( fault_ )
+	fault_->setPreferredMarkerStyle3D( sstmkstyle );
+}
+
 
 } // namespace visSurvey

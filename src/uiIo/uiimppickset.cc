@@ -38,12 +38,14 @@ ________________________________________________________________________
 
 #include <math.h>
 
-static const char* zoptions[] =
+static uiStringSet zoptions()
 {
-    "Input file",
-    "Constant Z",
-    "Horizon",
-    0
+    uiStringSet uistrset;
+    uistrset.add(uiStrings::sInputFile());
+    uistrset.add(od_static_tr("zoptions","Constant Z")),
+    uistrset.add(uiStrings::sHorizon());
+    uistrset.add(uiStrings::sEmptyString());
+    return uistrset;
 };
 
 
@@ -91,7 +93,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     if ( import_ )
     {
 	zfld_ = new uiLabeledComboBox( this, tr("Get Z values from") );
-	zfld_->box()->addItems( zoptions );
+	zfld_->box()->addItems( zoptions() );
 	zfld_->box()->selectionChanged.notify( mCB(this,uiImpExpPickSet,
 				formatSel) );
 	zfld_->attach( alignedBelow, filefld_ );

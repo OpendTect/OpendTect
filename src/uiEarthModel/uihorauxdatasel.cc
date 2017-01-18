@@ -41,7 +41,7 @@ uiHorizonAuxDataDlg( uiParent* p,
     uiLabel* horlabel = new uiLabel(grp,
 				    uiStrings::sHorizon(mPlural));
     horlistfld_ = new uiListBox( grp );
-    horlistfld_->addItems( auxinfo_->hornms_ );
+    horlistfld_->addItems( auxinfo_->hornms_.getUiStringSet() );
     horlistfld_->attach( ensureBelow, horlabel );
     horlistfld_->setHSzPol( uiObject::Wide );
     horlistfld_->selectionChanged.notify(
@@ -105,7 +105,7 @@ void selChg( CallBacker* )
     selmid_ = auxinfo_->mids_[hidx];
 
     datalistfld_->setEmpty();
-    datalistfld_->addItems( auxinfo_->auxdatanms_[hidx] );
+    datalistfld_->addItems( auxinfo_->auxdatanms_[hidx].getUiStringSet() );
     if ( oldidx>=0 )
 	datalistfld_->setCurrentItem( oldidx );
 }

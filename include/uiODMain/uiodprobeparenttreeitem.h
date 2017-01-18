@@ -44,6 +44,8 @@ public:
     static int		sAddAndSelectDataMenuID()		{ return 1; }
     static int		sAddColorBlendedMenuID()		{ return 2; }
 
+    static bool		addDefaultAttribLayer(uiODApplMgr&,Probe&);
+
     protected:
 
     bool		fillProbe(Probe&);
@@ -65,6 +67,8 @@ public:
 
     const Probe*	getProbe() const;
     Probe*		getProbe();
+    virtual OD::ObjPresentationInfo*
+			getObjPRInfo() const;
     void		handleAddAttrib();
     virtual uiString	createDisplayName() const;
     uiODDataTreeItem*	createProbeLayerItem(ProbeLayer&) const;

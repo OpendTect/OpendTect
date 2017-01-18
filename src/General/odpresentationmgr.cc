@@ -77,7 +77,8 @@ void OD::PresentationManager::request( OD::ViewerID originvwrid,
 	OD::VwrTypePresentationMgr* vwrtypemgr = vwrtypemanagers_[idx];
 	const SyncInfo& syninfo = vwrtypesyncinfos_[idx];
 	const OD::ViewerTypeID vwrtypeid = syninfo.vwrtypeid_;
-	if ( !areViewerTypesSynced(originvwrid.viewerTypeID(),vwrtypeid) )
+	if ( originvwrid.isValid() &&
+	     !areViewerTypesSynced(originvwrid.viewerTypeID(),vwrtypeid) )
 	    continue;
 
 	vwrtypemgr->request( originvwrid, req, prinfopar);
@@ -203,8 +204,9 @@ void OD::VwrTypePresentationMgr::request( OD::ViewerID originvwrid,
     for ( int idx=0; idx<viewers_.size(); idx++ )
     {
 	OD::PresentationManagedViewer* vwr = viewers_[idx];
-	if ( vwr->viewerID()==originvwrid ||
-	     !OD::PrMan().canViewerBeSynced(vwr->viewerID(),originvwrid) )
+	if ( originvwrid.isValid() &&
+	     (vwr->viewerID()==originvwrid ||
+	     !OD::PrMan().canViewerBeSynced(vwr->viewerID(),originvwrid)) )
 	    continue;
 
 	switch ( req )

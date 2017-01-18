@@ -664,7 +664,7 @@ uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
     fsslistfld_ = new uiListBox( this, "", OD::ChooseAtLeastOne );
     fsslistfld_->setNrLines( validmids_.size()+1 );
     fsslistfld_->setFieldWidth( 20 );
-    fsslistfld_->addItems( validfss_ );
+    fsslistfld_->addItems( validfss_.getUiStringSet() );
 }
 
 void getSelected( BufferStringSet& nms, DBKeySet& mids )
@@ -711,7 +711,8 @@ public:
                                             mODHelpKey(mFaultOptSelHelpID)))
 	, fltpar_(fltpar)
     {
-	const char* fltnm = fltpar.is2d_ ? "FaultStickSet" : "Fault";
+	const uiString& fltnm = fltpar.is2d_ ? toUiString("FaultStickSet") :
+								   tr("Fault");
 	table_ = new uiTable( this, uiTable::Setup().rowgrow(true).
 		rowdesc(fltnm).defrowlbl("").selmode(uiTable::Multi).
 		rightclickdisabled(true), "Fault Boundary Table");
@@ -771,7 +772,7 @@ public:
 
 	uiLabeledComboBox* actopts = new uiLabeledComboBox( 0,
 		uiString::emptyString(), "Boundary Type" );
-	actopts->box()->addItems( fltpar_.optnms_ );
+	actopts->box()->addItems( fltpar_.optnms_.getUiStringSet() );
 	actopts->box()->selectionChanged.notify( mCB(this,uiFaultOptSel,optCB));
 	const int cursel = getUpdateOptIdx( optidx, fltpar_.is2d_, true );
 	actopts->box()->setCurrentItem( cursel );

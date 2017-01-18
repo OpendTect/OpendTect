@@ -120,6 +120,7 @@ public:
     od_int64	nrIterations() const { return hrtiles_.size(); }
     uiString	message() const { return tr("Creating Horizon Display"); }
     uiString	nrDoneText() const { return tr("Parts completed"); }
+    void	setTesselationResolution(char res);
 
 protected:
 
@@ -127,7 +128,7 @@ protected:
     bool doFinish(bool);
 
     int					nrcrdspertileside_;
-    char				lowestresidx_;
+    char				resolution_;
     TypeSet<RowCol>&			hrtiles_;
     TypeSet<RowCol>&			indexes_;
     const Geometry::BinIDSurface*	geo_;

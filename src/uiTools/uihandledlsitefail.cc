@@ -68,7 +68,8 @@ uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
     uiLabeledComboBox* lcb = 0;
     if ( dlsites.size() >= 1 )
     {
-	lcb = new uiLabeledComboBox( this, dlsites, tr("Download from") );
+	lcb = new uiLabeledComboBox( this, dlsites.getUiStringSet(),
+							tr("Download from") );
 	dlsitefld_ = lcb->box();
 	dlsitefld_->setText( site_ );
     }

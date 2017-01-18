@@ -38,6 +38,7 @@ public:
 				uiGraphicsScene(const char*);
 				~uiGraphicsScene();
 
+    inline void			setEmpty()	    { removeAllItems(); }
     void			removeAllItems();
     uiGraphicsItem*		removeItem(uiGraphicsItem*);
 				/*!<Gives object back to caller (not deleted) */

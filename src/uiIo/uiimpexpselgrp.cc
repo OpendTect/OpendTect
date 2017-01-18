@@ -342,7 +342,7 @@ bool uiSGSelGrp::fillListBox()
 	return false;
 
     listfld_->setEmpty();
-    listfld_->addItems( selgrpsetnms );
+    listfld_->addItems( selgrpsetnms.getUiStringSet() );
 
     return true;
 }
@@ -702,12 +702,12 @@ void uiReadSelGrp::selectedCB( CallBacker* )
     if ( !y2name_.isEmpty() )
 	nms.add( y2name_ );
     xselfld_->setEmpty();
-    xselfld_->addItems( nms );
+    xselfld_->addItems( nms.getUiStringSet() );
     mSetMatchingItem( xselfld_, 0 );
     xselfld_->display( true );
 
     yselfld_->setEmpty();
-    yselfld_->addItems( nms );
+    yselfld_->addItems( nms.getUiStringSet() );
     mSetMatchingItem( yselfld_, 1 );
     yselfld_->display( true );
     ychkfld_->display( false );
@@ -718,7 +718,7 @@ void uiReadSelGrp::selectedCB( CallBacker* )
     {
 	ychkfld_->display( true );
 	y2selfld_->setEmpty();
-	y2selfld_->addItems( nms );
+	y2selfld_->addItems( nms.getUiStringSet() );
 	mSetMatchingItem( y2selfld_, 2 );
 	y2selfld_->display( true );
 	y2selfld_->setSensitive( false );
@@ -730,11 +730,11 @@ void uiReadSelGrp::selectedCB( CallBacker* )
 BufferStringSet uiReadSelGrp::getAvailableAxisNames() const
 {
     BufferStringSet axisnm;
-    axisnm.add( xselfld_->textOfItem(xselfld_->currentItem()) );
+    axisnm.add( xselfld_->itemText(xselfld_->currentItem()) );
     if ( ychkfld_->isChecked() || !ychkfld_->isDisplayed() )
-	axisnm.add( yselfld_->textOfItem(yselfld_->currentItem()) );
+	axisnm.add( yselfld_->itemText(yselfld_->currentItem()) );
     if ( y2selfld_ && y2chkfld_->isChecked() )
-	axisnm.add( y2selfld_->textOfItem(y2selfld_->currentItem()) );
+	axisnm.add( y2selfld_->itemText(y2selfld_->currentItem()) );
     return axisnm;
 }
 

@@ -59,7 +59,7 @@ void uiSEGYImpParsDlg::fillList()
     for ( int idx=0; idx<parset_.size(); idx++ )
 	nms.add( parset_[idx]->name() );
     nms.sort();
-    listfld_->addItems( nms );
+    listfld_->addItems( nms.getUiStringSet() );
 }
 
 
@@ -99,7 +99,7 @@ void uiSEGYImpParsDlg::delCB( CallBacker* )
     const int newselidx = listfld_->currentItem() - 1;
     BufferString newselnm;
     if ( newselidx >= 0 )
-	newselnm = listfld_->textOfItem( newselidx );
+	newselnm = listfld_->itemText( newselidx );
 
     const int remidx = parset_.find( listfld_->getText() );
     if ( remidx < 0 )

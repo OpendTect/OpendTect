@@ -69,8 +69,8 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
     for ( int irow=0; irow<nrrows; irow++ )
     {
 	const SEGY::HdrEntry& he = *def_[irow];
-	tbl_->setRowLabel( irow, he.name() );
-	tbl_->setRowToolTip( irow, he.description() );
+	tbl_->setRowLabel( irow, toUiString(he.name()) );
+	tbl_->setRowToolTip( irow, mToUiStringTodo(he.description()) );
 	tbl_->setValue( RowCol(irow,0), he.bytepos_+1 );
 	tbl_->setValue( RowCol(irow,1),
 			he.getValue(hdr_.buf(),hdr_.isSwapped()) );
@@ -293,8 +293,8 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     for ( int irow=0; irow<nrrows; irow++ )
     {
 	const SEGY::HdrEntry& he = *def[irow];
-	thtbl_->setRowLabel( irow, he.name() );
-	thtbl_->setRowToolTip( irow, he.description() );
+	thtbl_->setRowLabel( irow, toUiString(he.name()) );
+	thtbl_->setRowToolTip( irow, mToUiStringTodo(he.description()) );
 	thtbl_->setValue( RowCol(irow,0), he.bytepos_ + 1 );
     }
     thtbl_->attach( ensureRightOf, edbut_ );
@@ -471,7 +471,7 @@ void insTxt( CallBacker* )
     if ( selidx < 0 ) return;
     const int curpos = formfld_->cursorPosition();
     BufferString toins( curpos > 0 ? " " : "" );
-    toins.add( hdrfld_->textOfItem(selidx) ).add( " " );
+    toins.add( hdrfld_->itemText(selidx) ).add( " " );
     formfld_->insert( toins );
 }
 
@@ -508,7 +508,7 @@ void uiSEGYFileManip::addReq( CallBacker* )
 {
     const int selidx = avtrchdrsfld_->currentItem();
     if ( selidx < 0 ) return;
-    const char* nm = avtrchdrsfld_->textOfItem( selidx );
+    const char* nm = avtrchdrsfld_->itemText( selidx );
     const SEGY::HdrDef&	def = calcset_.hdrDef();
     const int hdridx = def.indexOf( nm );
     if ( hdridx < 0 ) { pErrMsg("Huh" ); return; }

@@ -40,7 +40,7 @@ ________________________________________________________________________
 #include "segybatchio.h"
 #include "segyhdr.h"
 #include "segytr.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seissingtrcproc.h"
 #include "seiswrite.h"
 #include "od_istream.h"
@@ -351,7 +351,7 @@ bool doExp( const File::Path& fp )
     for ( int idx=0; idx<lnmsfld_->size(); idx++ )
     {
 	if ( lnmsfld_->isChosen(idx) )
-	    lnms.add( lnmsfld_->textOfItem(idx) );
+	    lnms.add( lnmsfld_->itemText(idx) );
     }
     if ( lnms.size() < 1 )
     {
@@ -478,11 +478,11 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     mDynamicCastGet(SeisSingleTraceProc*,sstp,exec)
     if ( sstp )
     {
-	if ( !sstp->reader(0) )
+	if ( !sstp->provider() )
 	    mRet( false )
-	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
-	SeisIOObjInfo oinf( rdr.ioObj() );
-	rdr.setComponent( seissel_->compNr() );
+	Seis::Provider& prov =
+		const_cast<Seis::Provider&>( *sstp->provider() );
+	prov.selectComponent( seissel_->compNr() );
 
 	if ( !autogentxthead_ && !hdrtxt_.isEmpty() )
 	{

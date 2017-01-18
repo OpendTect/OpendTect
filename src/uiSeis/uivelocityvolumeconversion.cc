@@ -67,7 +67,7 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
 	return;
 
     FixedString oldoutputtype =
-	outputveltype_->box()->textOfItem(outputveltype_->box()->currentItem());
+	outputveltype_->box()->itemText(outputveltype_->box()->currentItem());
 
     TypeSet<VelocityDesc::Type> types;
     if ( SI().zIsTime() ) types += VelocityDesc::RMS;
@@ -135,7 +135,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
     }
 
     const FixedString outputtype =
-	outputveltype_->box()->textOfItem( outputvelidx );
+	outputveltype_->box()->itemText( outputvelidx );
 
     VelocityDesc outputdesc;
     if ( !VelocityDesc::TypeDef().parse( outputtype, outputdesc.type_ ) )

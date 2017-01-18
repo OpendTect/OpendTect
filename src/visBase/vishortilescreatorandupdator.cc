@@ -34,6 +34,7 @@ HorTilesCreatorAndUpdator::HorTilesCreatorAndUpdator(HorizonSection* horsection)
 HorTilesCreatorAndUpdator::~HorTilesCreatorAndUpdator()
 {}
 
+#define cFullResolution 0
 
 void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 				      TaskRunner* tskr )
@@ -147,6 +148,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
     horsection_->setUpdateVar( horsection_->forceupdate_,  false );
     HorizonSectionTilePosSetup postask( fullupdatetiles, tileindexes,
 	horsection_, rrg, crg );
+    postask.setTesselationResolution( cFullResolution );
     TaskRunner::execute( tskr, postask );
 
     for ( int idx=0; idx<fullupdatetiles.size(); idx++ )
@@ -159,6 +161,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	setNeighbors( tile, ridx, cidx );
 	horsection_->osghorizon_->addChild( tile->osgswitchnode_ );
 	tile->addTileGlueTesselator();
+	tile->setResolution( cFullResolution );
     }
 
     //Only for fixed resolutions, which won't be tessellated at render.

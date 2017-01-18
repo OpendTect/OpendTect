@@ -151,7 +151,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     uiGroup* tblgrp = new uiGroup( this );
     if ( linefld_ )	tblgrp->attach( alignedBelow, linefld_ );
     else		tblgrp->attach( alignedBelow, statsfld_ );
-    table_ = new uiTable( tblgrp, uiTable::Setup().rowdesc("Attribute")
+    table_ = new uiTable( tblgrp, uiTable::Setup()
+				.rowdesc(uiStrings::sAttribute())
 				.rowgrow(true)
 				.minrowhgt(1.5)
 				.maxrowhgt(1.8)

@@ -164,8 +164,8 @@ void Seis2DDisplay::setProbe( Probe* probe )
     const TrcKeyZSampling probepos = probe_->position();
     setTraceNrRange( probepos.hsamp_.trcRange() );
     setZRange( probepos.zsamp_ );
-    setName( toUiString(probe_->name()) );
-    linename_->text()->setText( toUiString(probe_->name()) );
+    setName( toUiString(probe_->getDisplayName()) );
+    linename_->text()->setText( toUiString(probe_->getDisplayName()) );
 
     if ( scene_ )
     {
@@ -192,7 +192,7 @@ const char* Seis2DDisplay::getLineName() const
     if ( !l2dprobe )
 	return mFromUiStringTodo(name()).buf();
 
-    return l2dprobe->name();
+    return l2dprobe->getDisplayName();
 }
 
 
@@ -418,7 +418,7 @@ void Seis2DDisplay::updateTexOriginAndScale( int attrib,
     const TraceDisplayInfo& tdi = trcdisplayinfo_;
 
     const Coord origin( (tkzs.zsamp_.start-tdi.zrg_.start) / tdi.zrg_.step,
-	    tkzs.hsamp_.trcRange().start - tdi.alltrcnrs_[tdi.rg_.start] );
+		tkzs.hsamp_.trcRange().start - tdi.rg_.start );
 
     const Coord scale( tkzs.zsamp_.step / tdi.zrg_.step,
 		       tkzs.hsamp_.trcRange().step );
@@ -541,13 +541,23 @@ void Seis2DDisplay::updatePanelStripPath()
 
     for ( int idx=0; idx<bends.size(); idx++ )
     {
-	if ( bends[idx]>tdi.rg_.start &&
-	    (!tdi.alljoints_.isEmpty() && tdi.alljoints_.last()<tdi.rg_.start) )
-	    tdi.alljoints_ += tdi.rg_.start;
+	if ( tdi.alltrcnrs_[bends[idx]]>tdi.rg_.start &&
+	    (!tdi.alljoints_.isEmpty()
+	       && tdi.alltrcnrs_[tdi.alljoints_.last()] < tdi.rg_.start) )
+	{
+	    const int trcidx = tdi.alltrcnrs_.indexOf( tdi.rg_.start );
+	    if ( tdi.alltrcnrs_.validIdx(trcidx) )
+		tdi.alljoints_ += trcidx;
+	}
 
-	if ( bends[idx]>tdi.rg_.stop &&
-	    (!tdi.alljoints_.isEmpty() && tdi.alljoints_.last()<tdi.rg_.stop) )
-	    tdi.alljoints_ += tdi.rg_.stop;
+	if ( tdi.alltrcnrs_[bends[idx]]>tdi.rg_.stop &&
+	    (!tdi.alljoints_.isEmpty()
+	       && tdi.alltrcnrs_[tdi.alljoints_.last()] < tdi.rg_.stop) )
+	{
+	    const int trcidx = tdi.alltrcnrs_.indexOf( tdi.rg_.stop );
+	    if ( tdi.alltrcnrs_.validIdx(trcidx) )
+		tdi.alljoints_ += trcidx;
+	}
 
 	tdi.alljoints_ += bends[idx];
     }
@@ -586,8 +596,8 @@ void Seis2DDisplay::updatePanelStripPath()
     for ( int idx=0; idx<knots.size(); idx++ )
     {
 	path += tdi.alltrcpos_[knots[idx]];
-	const float diff = mCast(float,tdi.alltrcnrs_[knots[idx]]-
-				 tdi.alltrcnrs_[tdi.rg_.start]);
+	const float diff =
+		mCast(float,tdi.alltrcnrs_[knots[idx]]-tdi.rg_.start);
 	mapping += diff * (resolution_+1);
 
 	const Coord3 linepos( path[idx], tdi.zrg_.start );

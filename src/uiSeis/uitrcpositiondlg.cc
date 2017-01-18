@@ -44,7 +44,7 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
 
     BufferStringSet altdimnms;
     fdp_->getAltDim0Keys( altdimnms );
-    altdimnmflds_ = new uiComboBox( this, altdimnms, "" );
+    altdimnmflds_ = new uiComboBox( this, altdimnms.getUiStringSet(), "" );
     altdimnmflds_->selectionChanged.notify(
 	    mCB(this,uiFlatDPPosSel,sldrPosChangedCB) );
     possldr_ = new uiSlider( this, uiSlider::Setup() );

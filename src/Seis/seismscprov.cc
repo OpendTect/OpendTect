@@ -109,13 +109,15 @@ Seis::MSCProvider::AdvanceState Seis::MSCProvider::advance()
     if ( doAdvance() )
 	return NewPosition;
     else if ( !uirv_.isOK() )
-	return isFinished(uirv_) ? EndReached : Error;
+	return Error;
+    else if ( atend_ )
+	return EndReached;
 
     SeisTrc* trc = new SeisTrc;
     if ( !readTrace(*trc) )
     {
 	delete trc;
-	return isFinished(uirv_) ? EndReached : Error;
+	return atend_ ? EndReached : Error;
     }
 
     trc->data().handleDataSwapping();
@@ -218,6 +220,8 @@ bool Seis::MSCProvider::startWork()
 	prov_->setSelData( newseldata );
     }
 
+    if ( prov_->is2D() )
+	stepoutstep_.crl() = 1;
     SeisTrc* trc = new SeisTrc;
     if ( !readTrace(*trc) )
 	return false;
@@ -243,9 +247,9 @@ bool Seis::MSCProvider::readTrace( SeisTrc& trc )
     {
 	if ( prov_->is2D() )
 	{
-	    stepoutstep_.crl() = 1;
 	    if ( trc.info().lineNr() != curlinenr_ )
 	    {
+		stepoutstep_.crl() = 1;
 		curlinenr_ = trc.info().lineNr();
 		mDynamicCastGet( Provider2D*, prov2d, prov_ );
 		PosInfo::Line2DData l2dd;
@@ -263,6 +267,8 @@ bool Seis::MSCProvider::readTrace( SeisTrc& trc )
     }
 
     atend_ = isFinished( uirv_ );
+    if ( atend_ )
+	uirv_.setEmpty();
     return false;
 }
 

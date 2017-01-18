@@ -74,7 +74,6 @@ const mVisTrans* StickSetDisplay::getDisplayTransformation() const
 {  return displaytransform_; }
 
 
-
 #define mSetKnotSelectStatus( flt, nr, pos )\
 if ( !ctrldown_ )\
 {\
@@ -200,10 +199,20 @@ void StickSetDisplay::updateStickMarkerSet()
 	const int groupidx = fault_->isStickSelected(sticknr) ? 1 : 0;
 	const OD::MarkerStyle3D& style = fault_->getPosAttrMarkerStyle( 0 );
 	knotmarkersets_[groupidx]->setMarkerStyle( style );
-	knotmarkersets_[groupidx]->setScreenSize( mDefaultMarkerSize );
 	knotmarkersets_[groupidx]->addPos( fault_->getPos(pid), false );
     }
 
+    mForceDrawMarkerSet();
+}
+
+
+void StickSetDisplay::setStickMarkerStyle( const OD::MarkerStyle3D& mkstyle )
+{
+    for ( int idx=0; idx<knotmarkersets_.size(); idx++ )
+    {
+	visBase::MarkerSet* markerset = knotmarkersets_[idx];
+	markerset->setMarkerStyle( mkstyle );
+    }
     mForceDrawMarkerSet();
 }
 
@@ -232,7 +241,6 @@ bool StickSetDisplay::matchMarker( int sid, int sticknr, const Coord3 mousepos,
 	fault_->selectStick( sticknr, true );
     updateStickMarkerSet();
     eventcatcher_->setHandled();
-
     return false;
 }
 

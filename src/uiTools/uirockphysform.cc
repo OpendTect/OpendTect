@@ -201,7 +201,7 @@ void uiRockPhysForm::setType( PropertyRef::StdType typ )
     NotifyStopper ns( nmfld_->selectionChanged );
 
     nmfld_->setEmpty();
-    nmfld_->addItems( nms );
+    nmfld_->addItems( nms.getUiStringSet() );
     nmfld_->setCurrentItem( 0 );
 
     nameSel( 0 );

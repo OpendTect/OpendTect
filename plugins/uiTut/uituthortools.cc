@@ -23,6 +23,7 @@
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
+#include "uistrings.h"
 
 uiTutHorTools::uiTutHorTools( uiParent* p )
 	: uiDialog( p, Setup( tr("Tut Horizon tools"),
@@ -59,7 +60,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 
     strengthfld_ = new uiGenInput( this, tr("Filter Strength"),
 			BoolInpSpec(true, tr("Low"), tr("High")) );
-    strengthfld_->attach( alignedBelow, outfld_ );
+    strengthfld_->attach( alignedBelow, attribnamefld_ );
 
     postFinalise().notify( mCB(this,uiTutHorTools,choiceSel) );
 }

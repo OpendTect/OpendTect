@@ -72,7 +72,7 @@ void SeisCubeCopier::init()
     if ( wrr.ioObj() )
 	veltype_ = getVelType( wrr.ioObj()->pars() );
 
-    if ( !stp_->reader(0) )
+    if ( !stp_->provider() )
     {
 	errmsg_ = stp_->message();
 	if ( errmsg_.isEmpty() )

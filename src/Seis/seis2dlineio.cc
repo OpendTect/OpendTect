@@ -38,6 +38,7 @@ Seis2DTraceGetter::Seis2DTraceGetter( const IOObj& obj, Pos::GeomID geomid,
     , seldata_(sd && !sd->isAll() ? sd->clone() : 0)
     , tr_(0)
 {
+    linenrfortr_ = geomid_; // just a default, usually not right
 }
 
 
@@ -49,18 +50,37 @@ Seis2DTraceGetter::~Seis2DTraceGetter()
 }
 
 
+void Seis2DTraceGetter::setErrMsgForNoTrMade() const
+{
+    if ( initmsg_.isEmpty() )
+	initmsg_ = tr( "Cannot make %1 access for '%2'" )
+		    .arg( ioobj_.translator() ).arg( ioobj_.name() );
+}
+
+
 bool Seis2DTraceGetter::ensureTranslator() const
 {
     if ( !tr_ )
     {
 	mkTranslator();
 	if ( !tr_ )
+	    { setErrMsgForNoTrMade(); return false; }
+
+	SeisTrcInfo ti;
+	if ( !tr_->readInfo(ti) )
 	{
+	    initmsg_ = tr_->errMsg();
 	    if ( initmsg_.isEmpty() )
-		initmsg_ = tr( "Cannot make %1 access for '%2'" )
-			    .arg( ioobj_.translator() ).arg( ioobj_.name() );
+		initmsg_ = tr( "%1: no traces in input" ).arg( ioobj_.name() );
 	    return false;
 	}
+	linenrfortr_ = ti.lineNr();
+
+	delete tr_; tr_ = 0;
+	mkTranslator();
+	if ( !tr_ )
+	    { setErrMsgForNoTrMade(); return false; }
+
 	tr_->setSelData( seldata_ );
     }
 
@@ -70,7 +90,7 @@ bool Seis2DTraceGetter::ensureTranslator() const
 
 void Seis2DTraceGetter::ensureCorrectTrcKey( SeisTrc& trc ) const
 {
-    const TrcKey tk( lineNr(), trc.info().trcNr() );
+    const TrcKey tk( geomid_, trc.info().trcNr() );
     trc.info().trckey_ = tk;
 }
 
@@ -80,7 +100,7 @@ uiRetVal Seis2DTraceGetter::get( TrcNrType tnr, SeisTrc& trc ) const
     if ( !ensureTranslator() )
 	return uiRetVal( initmsg_ );
 
-    const BinID bid( lineNr(), tnr );
+    const BinID bid( linenrfortr_, tnr );
     if ( !tr_->goTo(bid) )
 	return uiRetVal( tr("Trace not present: %1").arg(tnr) );
 

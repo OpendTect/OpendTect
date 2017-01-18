@@ -385,7 +385,7 @@ void uiDirectionalPlot::drawScatter()
 void uiDirectionalPlot::drawVals()
 {
     if ( !colseq_ )
-	colseq_ = ColTab::SM().getAny( "Directional Plot" );
+	colseq_ = &ColTab::SM().getAny( "Directional Plot" );
 
     drawSectorParts( true );
 }

@@ -86,7 +86,7 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
     if ( !withpostype )
     {
 	postypefld_ = new uiLabeledComboBox( this, tr("Position type") );
-	postypefld_->box()->addItems( geoms );
+	postypefld_->box()->addItems( geoms.getUiStringSet() );
 	postypefld_->box()->selectionChanged.notify( inpcb );
 	topgrp_ = postypefld_;
     }

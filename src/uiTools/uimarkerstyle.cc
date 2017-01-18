@@ -49,6 +49,13 @@ void uiMarkerStyle::createFlds( const uiStringSet& typnms, bool wcol,
 }
 
 
+void uiMarkerStyle::enableColorSelection( bool yn )
+{
+    if ( colselfld_ )
+	colselfld_->setSensitive( yn );
+}
+
+
 void uiMarkerStyle::setMStyle( int typ, int sz, const Color& col )
 {
     const int idx = types_.indexOf( typ );

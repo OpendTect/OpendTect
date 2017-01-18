@@ -270,12 +270,16 @@ protected:
 
 
 /*!\brief For subclasses: declaration of assignment method that will emit
-  'Entire Object' notifications.
+  notifications, by default 'Entire Object'.
 
   Because of the locking, assignment operators are essential. These will
   need to copy both the 'own' members aswell as base class members, and emit
   the notification afterwards. For this, you have to implement a function that
   copies only the class' own data (unlocked): void copyClassData(const clss&).
+
+  Note that if you want to give more fine-grained notifications than always
+  'Entire Object Changed', then you can define (and implement) your own
+  compareWith().
 
   */
 
@@ -326,29 +330,6 @@ void clss::copyAll( const clss& oth ) \
 { \
     baseclss::copyAll( oth ); \
     copyClassData( oth ); \
-}
-
-
-#define mDeclMonitorableComparison(clss) \
-    private: \
-        void	    compareClassData(const clss&); \
-    protected: \
-        void	    compareAll(const clss&); \
-    public: \
-	bool	    operator ==(const clss&) const
-
-
-#define mImplMonitorableComparison(clss) \
-bool clss::operator ==( const clss& oth ) const \
-{ \
-    mLock4Read(); \
-    return compareAll( oth ); \
-} \
-\
-bool clss::compareAll( const clss& oth ) const \
-{ \
-    return this == &oth \
-	|| (baseclss::compareAll( oth ) && compareClassData( oth ) ); \
 }
 
 

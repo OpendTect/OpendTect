@@ -47,7 +47,8 @@ uiArray1DInterpolSel::uiArray1DInterpolSel( uiParent* p, bool doextrapolate,
     BufferStringSet algonms; algonms.add( "Linear Interpolation" );
     algonms.add( "Polynomial Interpolation" );
     uiLabeledComboBox* lcbbx =
-	new uiLabeledComboBox( this, algonms, tr("Algorithm") );
+	new uiLabeledComboBox( this, algonms.getUiStringSet(),
+							tr("Algorithm") );
     methodsel_ = lcbbx->box();
     setHAlignObj( methodsel_ );
 

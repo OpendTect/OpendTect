@@ -200,7 +200,7 @@ void uiMadagascarMain::butPush( CallBacker* cb )
 	const int newcur = curidx + (isup ? -1 : 1);
 	if ( newcur >= 0 && newcur < sz )
 	{
-	    BufferString tmp( procsfld_->textOfItem(newcur) );
+	    BufferString tmp( procsfld_->itemText(newcur) );
 	    procsfld_->setItemText( newcur, toUiString(procsfld_->getText()) );
 	    procsfld_->setItemText( curidx, toUiString(tmp) );
 	    procflow_.swap( curidx, newcur );

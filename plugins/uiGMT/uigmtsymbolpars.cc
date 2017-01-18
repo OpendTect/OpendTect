@@ -112,7 +112,7 @@ bool uiGMTSymbolPars::fillPar( IOPar& par ) const
     else
     {
 	const int selitem = shapefld_->currentItem();
-	par.set( ODGMT::sKeyWellSymbolName(), shapefld_->textOfItem(selitem) );
+	par.set( ODGMT::sKeyWellSymbolName(), shapefld_->itemText(selitem) );
     }
 
     par.set( sKey::Size(), sizefld_->getFValue() );

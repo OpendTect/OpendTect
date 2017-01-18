@@ -576,14 +576,13 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     table_->rowDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->selectionDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->rowInserted.notify( mCB(this,uiWellLogEditor,rowInsertCB) );
-    BufferString mdlbl( "MD" );
-    mdlbl.add( getDistUnitString(SI().depthsInFeet(), true) );
-    BufferString loglbl( log_.name() );
-    const BufferString uomlbl = log.unitMeasLabel();
+    uiString mdlbl = toUiString("MD %1").arg(toUiString(SI().xyUnit()) );
+    uiString loglbl = toUiString(log_.name());
+    const uiString uomlbl = mToUiStringTodo(log.unitMeasLabel());
     if ( !uomlbl.isEmpty() )
-	loglbl.add( "(" ).add( uomlbl ).add( ")" );
+	loglbl = toUiString("%1 (%2)").arg(loglbl).arg(uomlbl);
 
-    BufferStringSet colnms; colnms.add(mdlbl).add(loglbl);
+    uiStringSet colnms; colnms.add(mdlbl).add(loglbl);
     table_->setColumnLabels( colnms );
 
     fillTable();

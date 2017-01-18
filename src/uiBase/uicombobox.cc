@@ -89,7 +89,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
     , curwidth_(0)
     , enumdef_(0)
 {
-    addItems( uids );
+    addItems( uids.getUiStringSet() );
 }
 
 
@@ -114,7 +114,8 @@ uiComboBox::uiComboBox( uiParent* parnt, const char** uids, const char* nm )
     , curwidth_(0)
     , enumdef_(0)
 {
-    addItems( uids );
+    BufferStringSet bset = uids;
+    addItems( bset.getUiStringSet() );
 }
 
 
@@ -185,7 +186,7 @@ int uiComboBox::indexOf( const char* str ) const
     const FixedString inputstr( str );
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( inputstr == textOfItem(idx) )
+	if ( inputstr == itemText(idx) )
 	    return idx;
     }
 
@@ -237,7 +238,7 @@ void uiComboBox::setEmpty()
 const char* uiComboBox::text() const
 {
     if ( isReadOnly() )
-	rettxt_ = textOfItem( currentItem() );
+	rettxt_ = itemText( currentItem() );
     else
 	rettxt_ = body_->currentText();
 
@@ -261,13 +262,19 @@ void uiComboBox::setText( const char* txt )
 }
 
 
+void uiComboBox::setText( uiString& txt )
+{
+    mBlockCmdRec;
+}
+
+
 bool uiComboBox::isPresent( const char* txt ) const
 {
     return indexOf( txt ) >= 0;
 }
 
 
-const char* uiComboBox::textOfItem( int idx ) const
+const char* uiComboBox::itemText( int idx ) const
 {
     if ( idx < 0 || idx >= body_->count() ) return sKey::EmptyString();
 
@@ -300,7 +307,7 @@ void uiComboBox::setCurrentItem( const char* txt )
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( FixedString(textOfItem(idx)) == txt )
+	if ( FixedString(itemText(idx)) == txt )
 	    { body_->setCurrentIndex( idx ); return; }
     }
 }
@@ -439,7 +446,7 @@ int uiComboBox::getItemIndex( int id ) const
 void uiComboBox::getItems( BufferStringSet& nms ) const
 {
     for ( int idx=0; idx<size(); idx++ )
-	nms.add( textOfItem( idx ) );
+	nms.add( itemText( idx ) );
 }
 
 
@@ -521,7 +528,8 @@ uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const BufferStringSet& strs,
 				      const uiString& txt, const char* nm )
 	: uiGroup(p,"Labeled combobox")
 {
-    cb_ = new uiComboBox( this, strs, nm && *nm
+    BufferStringSet strset = strs;
+    cb_ = new uiComboBox( this, strset.getUiStringSet(), nm && *nm
 	    ? nm
 	    : txt.getFullString().buf() );
     labl_ = new uiLabel( this, txt, cb_ );

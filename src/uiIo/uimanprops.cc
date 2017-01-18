@@ -489,7 +489,7 @@ void uiSelectPropRefsGrp::fillList()
 	return;
 
     dispnms.sort();
-    propfld_->addItems( dispnms );
+    propfld_->addItems( dispnms.getUiStringSet() );
 
     int firstsel = -1;
     for ( int idx=0; idx<dispnms.size(); idx++ )
@@ -538,7 +538,7 @@ bool uiSelectPropRefsGrp::acceptOK()
 	if ( !propfld_->isChosen(idx) )
 	    continue;
 
-	const char* pnm = propfld_->textOfItem( idx );
+	const char* pnm = propfld_->itemText( idx );
 	const PropertyRef* pr = props_.find( pnm );
 	if ( !pr ) { pErrMsg("Huh"); structchg_ = true; continue; }
 	prsel_ += pr;

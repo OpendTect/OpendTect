@@ -32,6 +32,7 @@ public:
     NotifierAccess*	colSel();
 
     static int		cDefMaxMarkerSize()	{ return 18; }
+    void		enableColorSelection(bool);
 
 protected:
 

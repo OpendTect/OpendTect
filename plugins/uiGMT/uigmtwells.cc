@@ -131,7 +131,7 @@ bool uiGMTWellsGrp::usePar( const IOPar& par )
     welllistfld_->chooseAll( false );
     for ( int idx=0; idx<welllistfld_->size(); idx ++ )
     {
-	const bool issel = selnames.isPresent( welllistfld_->textOfItem(idx) );
+	const bool issel = selnames.isPresent( welllistfld_->itemText(idx) );
 	welllistfld_->setChosen( idx, issel );
     }
 

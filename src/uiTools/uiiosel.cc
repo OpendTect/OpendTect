@@ -144,7 +144,7 @@ void uiIOSelect::setEntries( const BufferStringSet& keys,
 {
     entries_ = keys;
     inp_->setEmpty();
-    inp_->addItems( names );
+    inp_->addItems( names.getUiStringSet() );
 }
 
 
@@ -153,7 +153,7 @@ void uiIOSelect::updateFromEntries()
     int curitnr = inp_->size() ? inp_->currentItem() : -1;
     BufferString curusrnm;
     if ( curitnr >= 0 )
-	curusrnm = inp_->textOfItem( curitnr );
+	curusrnm = inp_->itemText( curitnr );
 
     if ( keepmytxt_ )
 	curusrnm = inp_->text();

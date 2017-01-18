@@ -557,7 +557,7 @@ void uiWellMan::editLogPush( CallBacker* )
 	mErrRet(uiStrings::sNoLogSel())
 
     currdrs_[0]->getLogs();
-    const char* lognm = logsfld_->textOfItem( selidx );
+    const char* lognm = logsfld_->itemText( selidx );
     Well::LogSet& wls = curwds_[0]->logs();
     Well::Log* wl = wls.getLogByName( lognm );
     if ( !wl )
@@ -636,7 +636,7 @@ void uiWellMan::viewLogPush( CallBacker* )
     mEnsureLogSelected(uiStrings::sNoLogSel())
     currdrs_[0]->getLogs();
     const Well::LogSet& wls = curwds_[0]->logs();
-    const char* lognm = logsfld_->textOfItem( logsfld_->firstChosen() );
+    const char* lognm = logsfld_->itemText( logsfld_->firstChosen() );
     const Well::Log* wl = wls.getLogByName( lognm );
     if ( !wl )
 	mErrRet( uiStrings::phrCannotRead( uiStrings::sWellLog() ) )

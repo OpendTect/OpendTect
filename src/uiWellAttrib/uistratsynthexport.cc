@@ -72,7 +72,7 @@ void selItems( CallBacker* )
     uiDialog dlg( parent(), su );
     uiListBox* lb = new uiListBox( &dlg, mFromUiStringTodo(nm_) );
     lb->setMultiChoice( true );
-    lb->addItems( nms_ );
+    lb->addItems( nms_.getUiStringSet() );
     for ( int idx=0; idx<selidxs_.size(); idx++ )
 	lb->setChosen( selidxs_[idx], true );
     if ( dlg.go() )
@@ -189,6 +189,8 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
 
 uiStratSynthExport::~uiStratSynthExport()
 {
+    deepUnRef( postsds_ );
+    deepUnRef( presds_ );
 }
 
 
@@ -244,17 +246,20 @@ void uiStratSynthExport::getExpObjs()
     if ( !ss_.nrSynthetics() )
 	return;
 
-    postsds_.erase(); presds_.erase(); sslvls_.erase();
+    deepUnRef( postsds_ ); deepUnRef( presds_ ); sslvls_.erase();
     for ( int idx=0; idx<ss_.nrSynthetics(); idx++ )
     {
-	const SyntheticData* sd = ss_.getSyntheticByIdx( idx );
+	ConstRefMan<SyntheticData> sd = ss_.getSyntheticByIdx( idx );
 	(sd->isPS() ? presds_ : postsds_) += sd;
     }
+
+    deepRef( postsds_ );
+    deepRef( presds_ );
 
     if ( postsds_.isEmpty() )
 	return;
 
-    const SyntheticData* sd = postsds_[0];
+    ConstRefMan<SyntheticData> sd = postsds_[0];
     const ObjectSet<const TimeDepthModel>& d2t = sd->zerooffsd2tmodels_;
     const Strat::LevelSet& lvls = Strat::LVLS();
     MonitorLock ml( lvls );
@@ -494,11 +499,11 @@ void uiStratSynthExport::removeNonSelected()
 	for ( int idx=postsds_.size()-1; idx>=0; idx-- )
 	{
 	    if ( !selids.isPresent(idx) )
-		postsds_.removeSingle( idx );
+		postsds_.removeSingle( idx )->unRef();
 	}
     }
     else
-	postsds_.erase();
+	deepUnRef( postsds_ );
 
     if ( prestcksel_->isChecked() )
     {
@@ -506,11 +511,11 @@ void uiStratSynthExport::removeNonSelected()
 	for ( int idx=presds_.size()-1; idx>=0; idx-- )
 	{
 	    if ( !selids.isPresent(idx) )
-		presds_.removeSingle( idx );
+		presds_.removeSingle( idx )->unRef();
 	}
     }
     else
-	presds_.erase();
+	deepUnRef( presds_ );
 
     if ( horsel_->isChecked() )
     {
@@ -584,6 +589,7 @@ bool uiStratSynthExport::acceptOK()
     prepostfix.add( postfxfld_->text() );
     ObjectSet<const SyntheticData> sds( postsds_ );
     sds.append( presds_ );
+    deepRef( sds );
     if ( !sds.isEmpty() )
     {
 	StratSynthExporter synthexp( sds, newgeomid, linegeom, prepostfix );
@@ -597,5 +603,6 @@ bool uiStratSynthExport::acceptOK()
     if ( !SI().has2D() )
 	uiMSG().warning(tr("You need to change survey type to 'Both 2D and 3D'"
 			   " in survey setup to display the 2D line"));
+    deepUnRef( sds );
     return true;
 }

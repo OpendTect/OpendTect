@@ -151,7 +151,7 @@ void uiGatherPosSliceSel::reDoTable()
 	    posseltbl_->clearCellObject( RowCol(row,col) );
     }
 
-    posseltbl_->setColumnLabels( gathernms_ );
+    posseltbl_->setColumnLabels( gathernms_.getUiStringSet() );
     StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hsamp_.crlRange()
 					      : tkzs_.hsamp_.inlRange();
     trcrg.step = stepfld_->box()->getIntValue();
@@ -466,8 +466,8 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
     selgatherfld_ = new uiListBox( this, "Selected gathers",
 				   OD::ChooseAtLeastOne );
 
-    allgatherfld_->addItems( gnms );
-    selgatherfld_->addItems( selgnms );
+    allgatherfld_->addItems( gnms.getUiStringSet() );
+    selgatherfld_->addItems( selgnms.getUiStringSet() );
 
     uiLabel* sellbl = new uiLabel( this, uiStrings::sSelect() );
     CallBack cb = mCB(this,uiViewer2DSelDataDlg,selButPush);
@@ -496,7 +496,7 @@ void uiViewer2DSelDataDlg::selButPush( CallBacker* cb )
 	if ( !fromfld->isChosen(idx) )
 	    continue;
 
-	removegathernms.addIfNew( fromfld->textOfItem(idx) );
+	removegathernms.addIfNew( fromfld->itemText(idx) );
     }
 
     while ( !removegathernms.isEmpty() )
@@ -525,7 +525,7 @@ bool uiViewer2DSelDataDlg::acceptOK()
     selgathers_.erase();
     for ( int idx=0; idx<selgatherfld_->size(); idx++ )
     {
-	const char* txt = selgatherfld_->textOfItem( idx );
+	const char* txt = selgatherfld_->itemText( idx );
 	selgathers_.addIfNew( txt );
     }
     return true;

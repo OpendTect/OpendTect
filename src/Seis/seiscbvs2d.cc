@@ -195,8 +195,15 @@ SeisCBVS2DTraceGetter( const IOObj& obj, Pos::GeomID geomid,
 
 void mkTranslator() const
 {
-    tr_ = gtTransl( SeisCBVS2DLineIOProvider::getFileName(ioobj_,geomid_),
-		    false, &initmsg_ );
+    const BufferString fnm
+	= SeisCBVS2DLineIOProvider::getFileName( ioobj_, geomid_ );
+    CBVSSeisTrcTranslator* cbvstr = gtTransl( fnm, false, &initmsg_ );
+    if ( cbvstr )
+    {
+	cbvstr->set2D( true );
+	cbvstr->setSingleFile( true );
+    }
+    tr_ = cbvstr;
 }
 
 };

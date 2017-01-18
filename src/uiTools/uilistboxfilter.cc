@@ -76,7 +76,7 @@ void uiListBoxFilter::filtChg( CallBacker* )
 int uiListBoxFilter::getCurrent() const
 {
     const int selidx = lb_.currentItem();
-    return selidx < 0 ? -1 : availitems_.indexOf( lb_.textOfItem(selidx) );
+    return selidx < 0 ? -1 : availitems_.indexOf( lb_.itemText(selidx) );
 }
 
 
@@ -91,6 +91,6 @@ void uiListBoxFilter::getChosen( TypeSet<int>& idxs ) const
     for ( int idx=0; idx<chidxs.size(); idx++ )
     {
 	const int chidx = chidxs[idx];
-	idxs += availitems_.indexOf( lb_.textOfItem(chidx) );
+	idxs += availitems_.indexOf( lb_.itemText(chidx) );
     }
 }

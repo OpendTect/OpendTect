@@ -157,7 +157,7 @@ public:
     mImplEMGetSet(inline,preferredLineStyle,setPreferredLineStyle,
 		  OD::LineStyle, preferredlinestyle_,
 		  EMObjectCallbackData::LineStyleChange)
-    mImplEMGetSet(inline,preferredMarkerStyle,setPreferredMarkerStyle,
+    mImplEMGetSet(inline,preferredMarkerStyle3D,setPreferredMarkerStyle3D,
 		  OD::MarkerStyle3D,preferredmarkerstyle_,
 		  EMObjectCallbackData::MarkerStyleChange)
 
@@ -316,9 +316,6 @@ protected:
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete();
     void			posIDChangeCB(CallBacker*);
-    const OD::MarkerStyle3D&	preferredMarkerStyle3D() const;
-    void			setPreferredMarkerStyle3D(
-					const OD::MarkerStyle3D&);
     void			useDisplayPars(const IOPar&);
 
     EMObjectCallbackData*	getNewEMCBData();

@@ -49,8 +49,8 @@ RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
 	sequences_[3].setType(ColTab::Sequence::User);
 	sequences_[3].setColor( 0, 0, 0, 0 );
 	sequences_[3].setColor( 1, 255,255,255 );
-	sequences_[3].setTransparency( Geom::Point2D<float>(0,0) );
-	sequences_[3].setTransparency( Geom::Point2D<float>(1,255) );
+	sequences_[3].setTransparency( ColTab::Sequence::TranspPtType(0.f,0) );
+	sequences_[3].setTransparency( ColTab::Sequence::TranspPtType(1.f,255));
 	sequences_[3].setName( "Transparency" );
     }
 

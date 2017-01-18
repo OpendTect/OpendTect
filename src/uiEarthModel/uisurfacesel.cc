@@ -55,7 +55,7 @@ void uiSurfaceSel::getFullList()
 	}
     }
 
-    listfld_->addItems( names_ );
+    listfld_->addItems( names_.getUiStringSet() );
 }
 
 

@@ -60,8 +60,8 @@ public:
     const StratSynth&	editSS() const		{ return *edstratsynth_; }
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
-    SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
-    SyntheticData*	getSyntheticData(const char* nm);
+    RefMan<SyntheticData>	getCurrentSyntheticData(bool wva=true) const;
+    RefMan<SyntheticData>	getSyntheticData(const char* nm);
     const PropertyRefSelection&	modelPropertyRefs() const;
 
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
@@ -91,7 +91,7 @@ public:
 
     void		modelChanged();
     bool		haveUserScaleWavelet();
-    void		displaySynthetic(const SyntheticData*);
+    void		displaySynthetic(ConstRefMan<SyntheticData>);
     void		reDisplayPostStackSynthetic(bool wva=true);
     void		cleanSynthetics();
     float		centralTrcShift() const;
@@ -138,8 +138,8 @@ protected:
     bool		useed_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
-    SyntheticData*	currentwvasynthetic_;
-    SyntheticData*	currentvdsynthetic_;
+    RefMan<SyntheticData>	currentwvasynthetic_;
+    RefMan<SyntheticData>	currentvdsynthetic_;
 
     uiMultiFlatViewControl* control_;
     FlatView::AuxData*	selectedtraceaux_;
@@ -167,10 +167,11 @@ protected:
     void		fillPar(IOPar&,const StratSynth*) const;
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
-    void		getCurD2TModel(const SyntheticData*,
+    void		getCurD2TModel(ConstRefMan<SyntheticData>,
 				    ObjectSet<const TimeDepthModel>&,
 				    float offset = 0.0f) const;
-    void		reSampleTraces(const SyntheticData*,SeisTrcBuf&) const;
+    void		reSampleTraces(ConstRefMan<SyntheticData>,
+				       SeisTrcBuf&) const;
     void		updateFields();
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);
@@ -180,8 +181,8 @@ protected:
 
     void		drawLevel();
     void		displayFRText();
-    void		displayPreStackSynthetic(const SyntheticData*);
-    void		displayPostStackSynthetic(const SyntheticData*,
+    void		displayPreStackSynthetic(ConstRefMan<SyntheticData>);
+    void		displayPostStackSynthetic(ConstRefMan<SyntheticData>,
 						  bool wva=true);
     void		setPreStackMapper();
     void		setAbsoluteViewRect(const uiWorldRect& abswr);

@@ -77,9 +77,9 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     listsaved_ += c1;
 
     uiGroup* rgrp = new uiGroup( this, "Right Group" );
-    BufferStringSet btype;
-    btype.add( "Stored body" );
-    btype.add( "Operator" );
+    uiStringSet btype;
+    btype.add( tr("Stored body") );
+    btype.add( tr("Operator") );
     typefld_ = new uiLabeledComboBox( rgrp, btype, tr("Input type") );
     typefld_->box()->selectionChanged.notify(
 	    mCB(this,uiBodyOperatorDlg,typeSel) );
@@ -92,8 +92,10 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     bodyselbut_->attach( rightOf, bodyselfld_ );
     bodyselbut_->activated.notify( mCB(this,uiBodyOperatorDlg,bodySel) );
 
-    BufferStringSet operators;
-    operators.add( "Union" ).add( "Intersection" ).add( "Difference" );
+    uiStringSet operators;
+    operators.add( tr("Union") );
+    operators.add( tr("Intersection") );
+    operators.add( tr("Difference") );
     oprselfld_ = new uiLabeledComboBox( rgrp, operators,
                                         uiStrings::sOperator() );
     oprselfld_->box()->setIcon( 0, "set_union" );

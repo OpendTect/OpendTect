@@ -189,7 +189,7 @@ void uiPreStackMergeDlg::fillListBox()
 	allvolsnames_.add( entrylist.dispName(idx) );
     }
 
-    volsbox_->addItems( allvolsnames_ );
+    volsbox_->addItems( allvolsnames_.getUiStringSet() );
     stackSel(0);
 }
 
@@ -209,7 +209,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
     bool altstormsgdone = false;
     for ( int idx=0; idx<nrobjs; idx++ )
     {
-	const char* txt = selvolsbox_->textOfItem(idx);
+	const char* txt = selvolsbox_->itemText(idx);
 	int volidx = allvolsnames_.indexOf( txt );
 	if ( volidx < 0 ) continue;
 
@@ -248,13 +248,13 @@ void uiPreStackMergeDlg::moveButPush( CallBacker* cb )
     if ( selvolsbox_->nrChosen() != 1 ) return;
 
     const int idx = selvolsbox_->currentItem();
-    const char* item = selvolsbox_->textOfItem(idx);
+    const uiString item = selvolsbox_->textOfItem(idx);
     mDynamicCastGet(uiToolButton*,but,cb);
     if ( but == moveupward_ )
     {
 	if ( idx < 1 ) return;
 	selvolsbox_->removeItem(idx);
-	selvolsbox_->insertItem( toUiString(item), idx-1 );
+	selvolsbox_->insertItem( item, idx-1 );
 	selvolsbox_->setCurrentItem( idx - 1 );
     }
     else if ( but == movedownward_ )
@@ -262,8 +262,8 @@ void uiPreStackMergeDlg::moveButPush( CallBacker* cb )
 	const int totalnr = selvolsbox_->size();
 	if ( idx > totalnr-2 ) return;
 	selvolsbox_->removeItem(idx);
-	if ( idx == totalnr-2 ) selvolsbox_->addItem( toUiString(item) );
-	else selvolsbox_->insertItem( toUiString(item), idx+1 );
+	if ( idx == totalnr-2 ) selvolsbox_->addItem( item );
+	else selvolsbox_->insertItem( item, idx+1 );
 	selvolsbox_->setCurrentItem( idx + 1 );
     }
 }

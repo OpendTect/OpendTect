@@ -113,7 +113,7 @@ void uiEditObjectList::setItems( const BufferStringSet& itms, int newcur )
     listfld_->setEmpty();
     if ( newcur < 0 ) return;
 
-    listfld_->addItems( itms );
+    listfld_->addItems( itms.getUiStringSet() );
     listfld_->setCurrentItem( newcur );
     manButSt();
 }
@@ -219,7 +219,7 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
 void uiBuildListFromList::setAvailable( const BufferStringSet& avnms )
 {
     avfld_->setEmpty();
-    avfld_->addItems( avnms );
+    avfld_->addItems( avnms.getUiStringSet() );
 }
 
 
@@ -250,7 +250,7 @@ void uiBuildListFromList::rmItm( int itmidx, bool dosignals )
 	return;
     if ( setup_.singleuse_ )
 	avfld_->insertItem(
-		toUiString(avFromDef(deffld_->textOfItem(itmidx))), 0 );
+		toUiString(avFromDef(deffld_->itemText(itmidx))), 0 );
 
     deffld_->removeItem( itmidx );
     usrchg_ = true;
@@ -289,7 +289,7 @@ void uiBuildListFromList::setItemName( const char* newnm )
 {
     const int itmidx = deffld_->currentItem();
     if ( itmidx < 0 ) return;
-    const BufferString orgnm( deffld_->textOfItem(itmidx) );
+    const BufferString orgnm( deffld_->itemText(itmidx) );
     if ( orgnm != newnm )
     {
 	deffld_->setItemText( itmidx, toUiString(newnm) );
@@ -338,8 +338,8 @@ void uiBuildListFromList::moveCB( CallBacker* cb )
     const int toidx = cb == movedownbut_ ? fromidx + 1 : fromidx - 1;
     if ( toidx < 0 || toidx >= sz ) return;
 
-    const char* fromtxt( deffld_->textOfItem(fromidx) );
-    const char* totxt( deffld_->textOfItem(toidx) );
+    const char* fromtxt( deffld_->itemText(fromidx) );
+    const char* totxt( deffld_->itemText(toidx) );
     deffld_->setItemText( fromidx, toUiString(totxt) );
     deffld_->setItemText( toidx, toUiString(fromtxt) );
 
@@ -357,14 +357,14 @@ uiToolButton* uiBuildListFromList::lowestStdBut()
 const char* uiBuildListFromList::curAvSel() const
 {
     const int itmidx = avfld_->currentItem();
-    return itmidx < 0 ? 0 : avfld_->textOfItem(itmidx);
+    return itmidx < 0 ? 0 : avfld_->itemText(itmidx);
 }
 
 
 const char* uiBuildListFromList::curDefSel() const
 {
     const int itmidx = deffld_->currentItem();
-    return itmidx < 0 ? 0 : deffld_->textOfItem(itmidx);
+    return itmidx < 0 ? 0 : deffld_->itemText(itmidx);
 }
 
 

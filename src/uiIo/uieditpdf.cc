@@ -135,8 +135,8 @@ void uiEditSampledProbDenFunc::mkTable( uiGroup* grp )
     mDeclSzVars;
 
     uiTable::Setup su( nrrows, nrcols );
-    su.coldesc( pdf_.dimName(0) )
-      .rowdesc( nrdims_ > 1 ? pdf_.dimName(1) : "Values" )
+    su.coldesc( toUiString(pdf_.dimName(0)) )
+      .rowdesc( nrdims_ > 1 ? toUiString(pdf_.dimName(1)) : tr("Values") )
       .fillrow(true).fillcol(true)
       .manualresize(true).sizesFixed(true);
     tbl_ = new uiTable( grp, su, "Values table" );
@@ -156,7 +156,7 @@ void uiEditSampledProbDenFunc::mkTable( uiGroup* grp )
     {
 	mGetRowIdx(irow);
 	const float rowval = andpdf->sampling(nrdims_<2?0:1).atIndex(rowidx);
-	tbl_->setRowLabel( irow, toString(rowval) );
+	tbl_->setRowLabel( irow, toUiString(rowval) );
     }
 
     uiButtonGroup* bgrp = new uiButtonGroup( grp, "Buttons", OD::Vertical );
@@ -424,7 +424,7 @@ void uiEditSampledProbDenFunc::setToolTips()
 
     mMkTT(nrdims_ > 1 ? 1 : 0)
     for ( int irow=0; irow<nrrows; irow++ )
-	tbl_->setRowToolTip( irow, mFromUiStringTodo(tt) );
+	tbl_->setRowToolTip( irow, tt );
 }
 
 
@@ -711,7 +711,8 @@ void uiEditGaussianProbDenFunc::tabChg( CallBacker* )
 	NotifyStopper stopper1( var1fld_->selectionChanged );
 	NotifyStopper stopper2( var2fld_->selectionChanged );
 	var1fld_->setEmpty(); var2fld_->setEmpty();
-	var1fld_->addItems( varnms ); var2fld_->addItems( varnms );
+	var1fld_->addItems( varnms.getUiStringSet() ); 
+	var2fld_->addItems( varnms.getUiStringSet() );
     }
 
     corrSel( 0 );

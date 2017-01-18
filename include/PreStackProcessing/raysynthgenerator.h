@@ -30,7 +30,8 @@ public:
 
 			RaySynthGenerator(const TypeSet<ElasticModel>*,
 					  const SynthGenParams&);
-			RaySynthGenerator(SyntheticData*, bool overwrite);
+			RaySynthGenerator(RefMan<SyntheticData>,
+					  bool overwrite);
 			~RaySynthGenerator();
 
     void		reset();
@@ -57,7 +58,7 @@ public:
     const TypeSet<ElasticModel>& elasticModels() const	{ return *aimodels_; }
     void		getTraces(ObjectSet<SeisTrcBuf>&);
     void		getStackedTraces(SeisTrcBuf&);
-    SyntheticData*	getSyntheticData() const { return synthdata_; }
+    RefMan<SyntheticData>	getSyntheticData() const { return synthdata_; }
     bool		updateDataPack();
 
 protected:
@@ -80,5 +81,5 @@ protected:
     bool			forcerefltimes_;
     bool			raytracingdone_;
     bool			overwrite_;
-    SyntheticData*		synthdata_;
+    RefMan<SyntheticData>	synthdata_;
 };

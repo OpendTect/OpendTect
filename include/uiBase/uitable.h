@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "keyenum.h"
 #include "rowcol.h"
 #include "draw.h"
+#include "uistrings.h"
 
 class BufferStringSet;
 class uiPixmap;
@@ -55,8 +56,8 @@ public:
 
 		    Setup(int nrrows=-1,int nrcols=-1)
 			: size_(nrrows,nrcols)
-			, rowdesc_("Row")
-			, coldesc_("Column")
+			, rowdesc_(uiStrings::sRow())
+			, coldesc_(uiStrings::sColumn())
 			, insertrowallowed_(true)
 			, removerowallowed_(true)
 			, rowgrow_(false) //!< can extra rows be added by user?
@@ -86,8 +87,8 @@ public:
 				{}
 
 	mDefSetupMemb(RowCol,size)
-	mDefSetupMemb(BufferString,rowdesc)
-	mDefSetupMemb(BufferString,coldesc)
+	mDefSetupMemb(uiString,rowdesc)
+	mDefSetupMemb(uiString,coldesc)
 	mDefSetupMemb(bool,rowgrow)
 	mDefSetupMemb(bool,colgrow)
 	mDefSetupMemb(bool,insertrowallowed)
@@ -231,12 +232,12 @@ public:
     const char*		rowLabel(int) const;
     const char*		rowLabel( const RowCol& rc ) const
 			    { return rowLabel(rc.row()); }
-    void		setRowLabel(int,const char*); // also sets tooltip
+    void		setRowLabel(int,const uiString&); // also sets tooltip
     void		setRowLabels(const char**);
-    void		setRowLabels(const BufferStringSet&);
-    void		setRowLabel( const RowCol& rc, const char* lbl )
+    void		setRowLabels(const uiStringSet&);
+    void		setRowLabel( const RowCol& rc, const uiString& lbl )
 			    { setRowLabel( rc.row(), lbl ); }
-    void		setRowToolTip(int,const char*);
+    void		setRowToolTip(int,const uiString&);
     void		setTopLeftCornerLabel(const uiString&);
 
     const char*		columnLabel(int) const;
@@ -244,7 +245,7 @@ public:
 			    { return columnLabel(rc.col()); }
     void		setColumnLabel(int,const uiString&); //also sets tooltip
     void		setColumnLabels(const char**);
-    void		setColumnLabels(const BufferStringSet&);
+    void		setColumnLabels(const uiStringSet&);
     void		setColumnLabel( const RowCol& rc, const uiString& lbl )
 			    { setColumnLabel( rc.col(), lbl ); }
     void		setColumnToolTip(int,const uiString&);
@@ -350,6 +351,8 @@ protected:
     void		update(bool row,int nr);
 
     bool		istablereadonly_;
+    mDeprecated void	setRowLabels(const BufferStringSet&);
+    mDeprecated void	setColumnLabels(const BufferStringSet&);
 
 private:
 

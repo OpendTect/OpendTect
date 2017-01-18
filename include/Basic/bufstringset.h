@@ -106,6 +106,8 @@ public:
 				{ strs_.replace(idx,bs); return *this; }
     void		insertAt( BufferString* bs, size_type idx )
 				{ strs_.insertAt(bs,idx); }
+				    //generate non translated uiStrings's set
+    uiStringSet		getUiStringSet() const;	
 
 protected:
 

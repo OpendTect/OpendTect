@@ -109,8 +109,8 @@ void uiTextFile::init( uiParent* p )
     if ( setup_.style_ == File::Table )
     {
 	uiTable::Setup tsu;
-	tsu.rowdesc("Row").coldesc("Col").fillrow(false).fillcol(true)
-	    .defcollbl(true).defrowlbl(true);
+	tsu.rowdesc(uiStrings::sRow()).coldesc(uiStrings::sColumn())
+		.fillrow(false).fillcol(true).defcollbl(true).defrowlbl(true);
 	tbl_ = new uiTable( p, tsu, filename_ );
 	tbl_->setTableReadOnly( !setup_.editable_ );
 	tbl_->valueChanged.notify( modifcb );

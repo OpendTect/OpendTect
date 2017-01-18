@@ -20,6 +20,7 @@ class uiGenInput;
 class uiSlider;
 class uiSelLineStyle;
 class uiTabStack;
+class uiMarkerStyle3D;
 
 namespace visBase { class Material; class VisualObject; };
 namespace visSurvey { class SurveyObject; };
@@ -86,6 +87,20 @@ protected:
     
     uiGenInput*			textclasssify_;
     visSurvey::SurveyObject*	survobj_;
+};
+
+
+mExpClass(uiVis) uiMarkerStyleGrp : public uiDlgGroup
+{mODTextTranslationClass(uiMarkerStyleGrp);
+public:
+				uiMarkerStyleGrp(uiParent*,
+					    visSurvey::SurveyObject*);
+protected:
+    uiMarkerStyle3D*	    	stylefld_;
+    visSurvey::SurveyObject*	survobj_;
+    void			sizeChg(CallBacker*);
+    void			typeSel(CallBacker*);
+    void			colSel(CallBacker*);
 };
 
 

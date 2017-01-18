@@ -138,6 +138,10 @@ mDefineInstanceCreatedNotifierAccess( Probe )
 Probe::Probe()
     : SharedObject()
 {
+    mDefineStaticLocalObject( int, probeid_, = 0 );
+    probeid_++;
+    name_ = BufferString( "Probe" );
+    name_.add( probeid_ );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -190,7 +194,6 @@ void Probe::fillPar( IOPar& par ) const
 bool Probe::usePar( const IOPar& par )
 {
     probepos_.usePar( par );
-    updateName();
     return true;
 }
 
@@ -301,18 +304,11 @@ void Probe::setPos( const TrcKeyZSampling& newpos )
 	return;
 
     probepos_ = newpos;
-    updateName();
 
     for ( int idx=0; idx<layers_.size(); idx++ )
 	layers_[idx]->invalidateData();
 
     mSendChgNotif( cPositionChange(), cEntireObjectChangeID() );
-}
-
-
-void Probe::updateName()
-{
-    name_ = createName();
 }
 
 
@@ -402,7 +398,6 @@ InlineProbe::InlineProbe()
 {
     const int centerpos = SI().inlRange( true ).center();
     probepos_.hsamp_.setLineRange( Interval<int>(centerpos,centerpos) );
-    updateName();
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -410,7 +405,7 @@ const char* InlineProbe::sFactoryKey()
 { return sKey::Inline(); }
 
 
-BufferString InlineProbe::createName() const
+BufferString InlineProbe::getDisplayName() const
 {
     return BufferString( type(), probepos_.hsamp_.inlRange().start );
 }
@@ -465,7 +460,6 @@ CrosslineProbe::CrosslineProbe()
 {
     const int centerpos = SI().crlRange( true ).center();
     probepos_.hsamp_.setTrcRange( Interval<int>(centerpos,centerpos) );
-    updateName();
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -473,7 +467,7 @@ const char* CrosslineProbe::sFactoryKey()
 { return sKey::Crossline(); }
 
 
-BufferString CrosslineProbe::createName() const
+BufferString CrosslineProbe::getDisplayName() const
 {
     return BufferString( type(), probepos_.hsamp_.crlRange().start );
 }
@@ -526,7 +520,6 @@ ZSliceProbe::ZSliceProbe()
 {
     const float centerpos = SI().zRange( true ).center();
     probepos_.zsamp_.set( centerpos, centerpos, SI().zStep() );
-    updateName();
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -535,7 +528,7 @@ const char* ZSliceProbe::sFactoryKey()
 
 
 
-BufferString ZSliceProbe::createName() const
+BufferString ZSliceProbe::getDisplayName() const
 {
     return BufferString( type(),probepos_.zsamp_.start*SI().showZ2UserFactor());
 }
@@ -589,7 +582,6 @@ Line2DProbe::Line2DProbe()
     : Probe()
     , geomid_(Survey::GeometryManager::cUndefGeomID())
 {
-    updateName();
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -613,7 +605,6 @@ void Line2DProbe::setGeomID( Pos::GeomID geomid )
     { pErrMsg( "2D Geometry not found" ); return; }
 
     probepos_ = geom2d->sampling();
-    updateName();
 
     for ( int idx=0; idx<layers_.size(); idx++ )
 	layers_[idx]->invalidateData();
@@ -626,7 +617,7 @@ const char* Line2DProbe::sFactoryKey()
 { return IOPar::compKey(sKey::TwoD(),sKey::Line()); }
 
 
-BufferString Line2DProbe::createName() const
+BufferString Line2DProbe::getDisplayName() const
 {
     return BufferString( Survey::GM().getName(geomid_) );
 }
@@ -709,7 +700,6 @@ VolumeProbe::VolumeProbe()
     probepos_.zsamp_.start = probepos_.zsamp_.snap( probepos_.zsamp_.start );
     probepos_.zsamp_.stop = probepos_.zsamp_.snap( probepos_.zsamp_.stop );
 
-    updateName();
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -724,11 +714,10 @@ void VolumeProbe::setZDomain( const ZDomain::Info& zdom )
 
     delete zdomain_;
     zdomain_ = new ZDomain::Info( zdom );
-    updateName();
 }
 
 
-BufferString VolumeProbe::createName() const
+BufferString VolumeProbe::getDisplayName() const
 {
     BufferString nm;
     const int zuserfac = zdomain_->userFactor();

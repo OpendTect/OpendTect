@@ -65,7 +65,8 @@ static void fillAttribList( uiListBox* attribfld,
 {
     BufferStringSet nms;
     attrset.getAttribNames( nms, false );
-    attribfld->addItems( nms );
+    attribfld->addItems( nms.getUiStringSet() );
+    attribfld->addItems( nms.getUiStringSet() );
 }
 
 

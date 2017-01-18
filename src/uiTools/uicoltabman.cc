@@ -159,17 +159,14 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     markercanvas_->markerChanged.notify(
 			mCB(this,uiColorTableMan,markerChange) );
-    ctab_.colorChanged.notify( mCB(this,uiColorTableMan,sequenceChange) );
-    ctab_.transparencyChanged.notify( mCB(this,uiColorTableMan,sequenceChange));
+    mAttachCB( ctab_.objectChanged(), uiColorTableMan::sequenceChange );
     postFinalise().notify( mCB(this,uiColorTableMan,doFinalise) );
 }
 
 
 uiColorTableMan::~uiColorTableMan()
 {
-    ctab_.colorChanged.remove( mCB(this,uiColorTableMan,sequenceChange) );
-    ctab_.transparencyChanged.remove( mCB(this,uiColorTableMan,sequenceChange));
-
+    detachAllNotifiers();
     delete orgctab_;
     delete w2uictabcanvas_;
 }
@@ -231,12 +228,9 @@ void uiColorTableMan::updateTransparencyGraph()
     TypeSet<float> yvals;
     for ( int idx=0; idx<ctab_.transparencySize(); idx++ )
     {
-	const Geom::Point2D<float> transp = ctab_.transparency( idx );
-	if ( !transp.isDefined() )
-	    continue;
-
-	xvals += transp.x_;
-	yvals += transp.y_;
+	const ColTab::Sequence::TranspPtType transp = ctab_.transparency( idx );
+	xvals += transp.first;
+	yvals += transp.second;
     }
 
     cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size()  );
@@ -462,7 +456,7 @@ void uiColorTableMan::segmentSel( CallBacker* )
 
 void uiColorTableMan::nrSegmentsCB( CallBacker* )
 {
-    NotifyStopper( ctab_.colorChanged );
+    NotifyStopper( ctab_.objectChanged() );
     doSegmentize();
 }
 
@@ -474,7 +468,7 @@ void uiColorTableMan::nrSegmentsCB( CallBacker* )
 
 void uiColorTableMan::doSegmentize()
 {
-    NotifyStopper ns( ctab_.colorChanged );
+    NotifyStopper( ctab_.objectChanged() );
     if ( segmentfld_->getIntValue()==0 )
 	ctab_.setNrSegments( 0 );
     else if ( segmentfld_->getIntValue()==1 )
@@ -563,12 +557,15 @@ void uiColorTableMan::transptChg( CallBacker* )
 	    if ( !pt.isDefined() )
 		continue;
 
-	    if ( idx==0 && pt.x_>0 )
-		pt.x_ = 0;
-	    else if ( idx==nrpts-1 && pt.x_<1 )
-		pt.x_ = 1;
+	    ColTab::Sequence::TranspPtType tpt( pt.x_,
+		    mRounded(ColTab::Sequence::ValueType,pt.y_) );
 
-	    ctab_.setTransparency( pt );
+	    if ( idx==0 && tpt.first>0 )
+		tpt.first = 0.f;
+	    else if ( idx==nrpts-1 && tpt.first<1 )
+		tpt.first = 1.f;
+
+	    ctab_.setTransparency( tpt );
 	}
     }
     else
@@ -578,22 +575,25 @@ void uiColorTableMan::transptChg( CallBacker* )
 	if ( !pt.isDefined() )
 	    return;
 
+	ColTab::Sequence::TranspPtType tpt( pt.x_,
+		mRounded(ColTab::Sequence::ValueType,pt.y_) );
+
 	bool reset = false;
-	if ( ptidx==0 && !mIsZero(pt.x_,mEps) )
+	if ( ptidx==0 && !mIsZero(tpt.first,mEps) )
 	{
-	    pt.x_ = 0;
+	    tpt.first = 0.f;
 	    reset = true;
 	}
-	else if ( ptidx==nrpts-1 && !mIsZero(pt.x_-1,mEps) )
+	else if ( ptidx==nrpts-1 && !mIsZero(tpt.first-1,mEps) )
 	{
-	    pt.x_ = 1;
+	    tpt.first = 1.f;
 	    reset = true;
 	}
 
 	if ( reset )
 	    updateTransparencyGraph();
 
-	ctab_.changeTransparency( ptidx, pt );
+	ctab_.changeTransparency( ptidx, tpt );
     }
     tableChanged.trigger();
 }
@@ -611,7 +611,10 @@ void uiColorTableMan::transptSel( CallBacker* )
     if ( !pt.isDefined() )
 	return;
 
-    ctab_.setTransparency( pt );
+    const ColTab::Sequence::TranspPtType tpt( pt.x_,
+	    mRounded(ColTab::Sequence::ValueType,pt.y_) );
+
+    ctab_.setTransparency( tpt );
     tableChanged.trigger();
 }
 

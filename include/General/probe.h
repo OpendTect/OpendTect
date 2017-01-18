@@ -100,14 +100,13 @@ public:
     ProbeLayer*		getLayerByIdx(int);
     const ProbeLayer*	getLayer(ProbeLayer::ID) const;
     ProbeLayer*		getLayer(ProbeLayer::ID);
+    virtual BufferString getDisplayName() const		=0;
 
 protected:
 				~Probe();
     ObjectSet<ProbeLayer>	layers_;
     TrcKeyZSampling		probepos_;
 
-    virtual BufferString	createName() const		=0;
-    void			updateName();
 };
 
 

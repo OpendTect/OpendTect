@@ -114,7 +114,7 @@ void uiSynthGenDlg::getPSNames( BufferStringSet& synthnms )
     for ( int synthidx=0; synthidx<stratsynth_.nrSynthetics(); synthidx++ )
     {
 	SynthGenParams genparams;
-	SyntheticData* synth = stratsynth_.getSyntheticByIdx( synthidx );
+	RefMan<SyntheticData> synth = stratsynth_.getSyntheticByIdx( synthidx );
 	if ( !synth ) continue;
 	synth->fillGenParams( genparams );
 	if ( !genparams.isPreStack() ) continue;
@@ -131,10 +131,10 @@ void uiSynthGenDlg::updateSynthNames()
     synthnmlb_->setEmpty();
     for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
     {
-	const SyntheticData* sd = stratsynth_.getSyntheticByIdx( idx );
+	ConstRefMan<SyntheticData> sd = stratsynth_.getSyntheticByIdx( idx );
 	if ( !sd ) continue;
 
-	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd);
+	mDynamicCastGet(const StratPropSyntheticData*,prsd,sd.ptr());
 	if ( prsd ) continue;
 	synthnmlb_->addItem( toUiString(sd->name()) );
     }
@@ -145,7 +145,7 @@ void uiSynthGenDlg::changeSyntheticsCB( CallBacker* )
 {
     FixedString synthnm( synthnmlb_->getText() );
     if ( synthnm.isEmpty() ) return;
-    SyntheticData* sd = stratsynth_.getSynthetic( synthnm.buf() );
+    RefMan<SyntheticData> sd = stratsynth_.getSynthetic( synthnm.buf() );
     if ( !sd ) return;
     sd->fillGenParams( stratsynth_.genParams() );
     putToScreen();
@@ -196,7 +196,8 @@ bool uiSynthGenDlg::prepareSyntheticToBeChanged( bool toberemoved )
 	mErrRet( tr("No synthetic selected"), return false );
 
     const BufferString synthtochgnm( synthnmlb_->getText() );
-    const SyntheticData* sdtochg = stratsynth_.getSynthetic( synthtochgnm );
+    ConstRefMan<SyntheticData> sdtochg =
+				stratsynth_.getSynthetic( synthtochgnm );
     if ( !sdtochg )
 	mErrRet( tr("Cannot find synthetic data '%1'").arg(synthtochgnm),
 		 return false );
@@ -215,7 +216,7 @@ bool uiSynthGenDlg::prepareSyntheticToBeChanged( bool toberemoved )
     int nrofzerooffs = 0;
     for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
     {
-	SyntheticData* sd = stratsynth_.getSyntheticByIdx( idx );
+	RefMan<SyntheticData> sd = stratsynth_.getSyntheticByIdx( idx );
 	if ( !sd || sd->isPS() )
 	    continue;
 
@@ -318,7 +319,7 @@ void uiSynthGenDlg::putToScreen()
 	if ( psnms.isPresent(genparams.inpsynthnm_) ||
 	     genparams.inpsynthnm_.isEmpty() )
 	{
-	    psselfld_->box()->addItems( psnms );
+	    psselfld_->box()->addItems( psnms.getUiStringSet() );
 	    psselfld_->box()->setCurrentItem( genparams.inpsynthnm_ );
 	    psselfld_->box()->setSensitive( true );
 	}
@@ -362,8 +363,8 @@ bool uiSynthGenDlg::getFromScreen()
 		        " synthetic data has already been removed"),
 			return false );
 
-	SyntheticData* inppssd = stratsynth_.getSynthetic(
-		psselfld_->box()->textOfItem(psselfld_->box()->currentItem()) );
+	RefMan<SyntheticData> inppssd = stratsynth_.getSynthetic(
+		psselfld_->box()->itemText(psselfld_->box()->currentItem()) );
 	if ( !inppssd )
 	    mErrRet( tr("Problem with Input Prestack synthetic data"),
 		     return false);
@@ -416,8 +417,8 @@ bool uiSynthGenDlg::isCurSynthChanged() const
     const int selidx = synthnmlb_->currentItem();
     if ( selidx < 0 )
 	return false;
-    BufferString selstr = synthnmlb_->textOfItem( selidx );
-    SyntheticData* sd = stratsynth_.getSynthetic( selstr );
+    BufferString selstr = synthnmlb_->itemText( selidx );
+    RefMan<SyntheticData> sd = stratsynth_.getSynthetic( selstr );
     if ( !sd )
 	return true;
     SynthGenParams genparams;

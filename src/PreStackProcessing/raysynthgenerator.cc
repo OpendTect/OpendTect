@@ -49,7 +49,7 @@ RaySynthGenerator::RaySynthGenerator( const TypeSet<ElasticModel>* ems,
 }
 
 
-RaySynthGenerator::RaySynthGenerator( SyntheticData* sd, bool overwrite )
+RaySynthGenerator::RaySynthGenerator( RefMan<SyntheticData> sd, bool overwrite )
     : forcerefltimes_(false)
     , rtr_( 0 )
     , raytracingdone_( true )

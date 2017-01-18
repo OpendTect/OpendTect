@@ -46,7 +46,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     uiLabel* collbl =  new uiLabel( this, tr("Node outside Survey") );
     collbl->attach( rightTo, pmlvl );
 
-    table_ = new uiTable( this, uiTable::Setup().rowdesc("Node")
+    table_ = new uiTable( this, uiTable::Setup().rowdesc(uiStrings::sNode())
 						.rowgrow(true)
 						.selmode(uiTable::Multi)
 						.defrowlbl(true),

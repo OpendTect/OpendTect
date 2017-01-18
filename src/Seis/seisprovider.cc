@@ -120,6 +120,12 @@ od_int64 Seis::Provider::totalNr() const
 }
 
 
+int Seis::Provider::nrOffsets() const
+{
+    return gtNrOffsets();
+}
+
+
 uiRetVal Seis::Provider::getComponentInfo( BufferStringSet& nms,
 				       TypeSet<Seis::DataType>* pdts ) const
 {
@@ -132,6 +138,15 @@ uiRetVal Seis::Provider::getComponentInfo( BufferStringSet& nms,
     if ( uirv.isOK() && pdts )
 	*pdts = dts;
     return uirv;
+}
+
+
+uiRetVal Seis::Provider::doGetComponentInfo( BufferStringSet& nms,
+					 TypeSet<Seis::DataType>& dts ) const
+{
+    nms.add( sKey::Data() );
+    dts += UnknowData;
+    return uiRetVal::OK();
 }
 
 

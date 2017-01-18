@@ -33,6 +33,7 @@ public:
     static uiString	createDisplayName( int visid, int attrib );
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();
+    virtual void	updateDisplay();
 
 protected:
 
@@ -42,7 +43,6 @@ protected:
     virtual bool	init();
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
-    virtual void	updateDisplay();
     void		updateColumnText(int col);
     uiString		createDisplayName() const;
     void		createSelMenu(MenuItem&);

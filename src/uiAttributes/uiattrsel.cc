@@ -320,7 +320,7 @@ void uiAttrSelDlg::createSelectionFields()
     const bool haveattribs = attrinf_->attrnms_.size();
 
     storoutfld_ = new uiListBox( this, "Stored output" );
-    storoutfld_->addItems( attrinf_->ioobjnms_ );
+    storoutfld_->addItems( attrinf_->ioobjnms_.getUiStringSet() );
     storoutfld_->setHSzPol( uiObject::Wide );
     storoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
@@ -334,7 +334,7 @@ void uiAttrSelDlg::createSelectionFields()
     }
 
     steeroutfld_ = new uiListBox( this, "Steered output" );
-    steeroutfld_->addItems( attrinf_->steernms_ );
+    steeroutfld_->addItems( attrinf_->steernms_.getUiStringSet() );
     steeroutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     steeroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     steeroutfld_->attach( rightOf, selgrp_ );
@@ -349,7 +349,7 @@ void uiAttrSelDlg::createSelectionFields()
     if ( haveattribs )
     {
 	attroutfld_ = new uiListBox( this, "Output attributes" );
-	attroutfld_->addItems( attrinf_->attrnms_ );
+	attroutfld_->addItems( attrinf_->attrnms_.getUiStringSet() );
 	attroutfld_->setHSzPol( uiObject::Wide );
 	attroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	attroutfld_->attach( rightOf, selgrp_ );
@@ -358,7 +358,7 @@ void uiAttrSelDlg::createSelectionFields()
     if ( havenlaouts )
     {
 	nlaoutfld_ = new uiListBox( this, "Output NLAs" );
-	nlaoutfld_->addItems( attrinf_->nlaoutnms_ );
+	nlaoutfld_->addItems( attrinf_->nlaoutnms_.getUiStringSet() );
 	nlaoutfld_->setHSzPol( uiObject::Wide );
 	nlaoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	nlaoutfld_->attach( rightOf, selgrp_ );
@@ -369,7 +369,7 @@ void uiAttrSelDlg::createSelectionFields()
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
 	zdomoutfld_ = new uiListBox( this, "ZDomain output" );
-	zdomoutfld_->addItems( nms );
+	zdomoutfld_->addItems( nms.getUiStringSet() );
 	zdomoutfld_->setHSzPol( uiObject::Wide );
 	zdomoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
 	zdomoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
@@ -430,7 +430,7 @@ void uiAttrSelDlg::filtChg( CallBacker* c )
     attrinf_->fillStored( issteersel, filtfld_->text() );
     if ( nms.isEmpty() ) return;
 
-    outfld->addItems( nms );
+    outfld->addItems( nms.getUiStringSet() );
     outfld->setCurrentItem( 0 );
     cubeSel( c );
 }
@@ -483,7 +483,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     if ( !showsteerdata_ )	//trick to prevent ALL coming to the display
 	compfld_->box()->addItem( uiStrings::sAll() );
 
-    compfld_->box()->addItems( compnms );
+    compfld_->box()->addItems( compnms.getUiStringSet() );
     compfld_->display( compnms.size()>=2 );
 }
 
@@ -545,7 +545,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     }
     else
     {
-	const bool canuseallcomps = BufferString(compfld_->box()->textOfItem(0))
+	const bool canuseallcomps = BufferString(compfld_->box()->itemText(0))
 			== BufferString(uiStrings::sAll().getFullString())
 			&& compfld_->mainObject()->visible();
 	const int curselitmidx = compfld_->box()->currentItem();

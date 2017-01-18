@@ -266,7 +266,7 @@ void uiSEGYReadFinisher::wllSel( CallBacker* )
     BufferStringSet nms; Well::MGR().getLogNames( outwllfld_->key(), nms );
     BufferString curlognm = lognmfld_->text();
     lognmfld_->setEmpty();
-    lognmfld_->addItems( nms );
+    lognmfld_->addItems( nms.getUiStringSet() );
     if ( curlognm.isEmpty() )
 	curlognm = "VSP";
     lognmfld_->setText( curlognm );

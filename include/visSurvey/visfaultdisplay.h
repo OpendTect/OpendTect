@@ -136,8 +136,14 @@ public:
     void			turnOnSelectionMode(bool);
     bool			isInStickSelectMode() const;
 
-    const OD::LineStyle*		lineStyle() const;
+    const OD::LineStyle*	lineStyle() const;
     void			setLineStyle(const OD::LineStyle&);
+
+    const OD::MarkerStyle3D*	markerStyle() const;
+    void			setMarkerStyle(const OD::MarkerStyle3D&);
+    bool			markerStyleColorSelection() const 
+							    { return false; }
+
     virtual void		getMousePosInfo(const visBase::EventInfo& ei,
 						IOPar& iop ) const
 				{ return MultiTextureSurveyObject

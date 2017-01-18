@@ -302,6 +302,23 @@ bool testHexEncoding()
     return true;
 }
 
+bool fromBufferStringSetToUiStringSet()
+{
+    BufferStringSet strset;
+    strset.add("A");
+    strset.add("B");
+    strset.add("C");
+    uiStringSet uistrset = strset.getUiStringSet();
+
+    BufferString str = strset.cat(" ");
+    uiString uistr = uistrset.cat(" ");
+
+    mRunStandardTest( str == uistr.getFullString(), "Comparing BuffStrSet "
+				    "UiStrSet" );
+    return true;
+
+}
+
 
 int testMain( int argc, char** argv )
 {
@@ -310,7 +327,8 @@ int testMain( int argc, char** argv )
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
 	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings() ||
-	 !testToLower() || !TestTranslator::testTranslation() || !testUTF8() )
+	 !testToLower() || !TestTranslator::testTranslation() || !testUTF8() ||
+	 !fromBufferStringSetToUiStringSet() )
 	return 1;
 
     return 0;

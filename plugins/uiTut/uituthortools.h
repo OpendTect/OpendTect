@@ -7,6 +7,7 @@
 
 #include "uitutmod.h"
 #include "uidialog.h"
+#include "uilistbox.h"
 
 class uiIOObjSel;
 class uiGenInput;

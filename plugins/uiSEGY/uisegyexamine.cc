@@ -85,7 +85,8 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 			     mCB(this,uiSEGYExamine,dispSeis) );
 
     uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );
-    tblsu.rowdesc("Header field").coldesc("Trace").selmode(uiTable::SingleRow);
+    tblsu.rowdesc(tr("Header field")).coldesc(uiStrings::sTrace())
+				     .selmode(uiTable::SingleRow);
     tbl_ = new uiTable( tblgrp, tblsu, "Trace info" );
     tbl_->setPrefHeightInChar( 14 );
     tbl_->setPrefWidthInChar( 40 );
@@ -401,10 +402,10 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
     for ( int ival=0; ival<nrvals; ival++ )
     {
 	const SEGY::HdrEntry& he( *hdef[ival] );
-	BufferString rownm( "", ((int)he.bytepos_)+1 );
-	rownm.add( " [" ).add( he.name() ).add( "]" );
+	uiString rownm = toUiString("%1 [%2]").arg(((int)he.bytepos_)+1)
+							    .arg(he.name());
 	tbl_->setRowLabel( ival, rownm );
-	tbl_->setRowToolTip( ival, he.description() );
+	tbl_->setRowToolTip( ival, mToUiStringTodo(he.description()) );
     }
 
     tbl_->resizeRowsToContents();

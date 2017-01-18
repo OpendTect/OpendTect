@@ -627,6 +627,8 @@ void uiMPEMan::seedClick( CallBacker* )
 
     const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
     const bool ctrlbut = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
+    const bool blockcallback = 
+	emobj->sectionGeometry(emobj->sectionID(0))->blocksCallBacks();
 
     if ( clickedonhorizon || !clickcatcher_->info().getPickedNode().isUdf() )
     {
@@ -656,7 +658,12 @@ void uiMPEMan::seedClick( CallBacker* )
 	else
 	{
 	    if ( !sowingmode_ && seedpicker->addSeed(seedpos,false) )
+	    {
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
+		if ( blockcallback )
+		    emobj->sectionGeometry(
+		    emobj->sectionID(0))->blockCallBacks( true, true );
+	    }
 	    else if ( sowingmode_ && !ctrlbut )
 	    {
 		seedpicker->addSeedToPatch( seedpos, false );
@@ -679,7 +686,12 @@ void uiMPEMan::seedClick( CallBacker* )
 	else if ( !ctrlbut && !sowingmode_ )
 	{
 	    if ( seedpicker->addSeed(seedpos,shiftclicked) )
+	    {
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
+		if ( blockcallback )
+		    emobj->sectionGeometry(
+		    emobj->sectionID(0))->blockCallBacks( true, true );
+	    }
 	}
 	else if ( sowingmode_ )
 	{

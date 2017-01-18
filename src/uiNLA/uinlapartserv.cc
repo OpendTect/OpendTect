@@ -320,8 +320,10 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
 				     mODHelpKey(mLithCodeManHelpID)))
 	, usrsels(usels)
 {
-    BufferStringSet opts;
-    opts.add( "Use" ).add( "Merge into" ).add( "Drop" );
+    uiStringSet opts;
+    opts.add( tr("Use") );
+    opts.add( tr("Merge into") );
+    opts.add( tr("Drop") );
     uiLabeledComboBox* prevoptlcb = 0;
     for ( int icode=0; icode<codes.size(); icode++ )
     {

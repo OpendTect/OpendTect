@@ -50,8 +50,11 @@ ________________________________________________________________________
 #define mInterpNotAll	2
 #define mInterpAll	3
 #define mGetInterpols() \
-    BufferStringSet pols; \
-    pols.add("No").add("One log max").add("Unless all undef").add("Yes")
+    uiStringSet pols; \
+    pols.add(uiStrings::sNo()); \
+    pols.add(oneLogMax()); \
+    pols.add(allUndef()); \
+    pols.add(uiStrings::sYes());
 
 
 static Math::SpecVarSet& getSpecVars()
@@ -87,6 +90,17 @@ static uiString getDlgUiTitle( const DBKeySet& wllids )
     return od_static_tr("getDlgUiTitle","Calculate new logs for '%1").arg(ret);
 }
 
+
+static uiString allUndef()
+{
+    return od_static_tr("allUndef","Unless all undef");	
+}
+
+
+static uiString oneLogMax()
+{
+    return od_static_tr("oneLogMax","One log Max");
+}
 
 uiWellLogCalc::uiWellLogCalc( uiParent* p, const DBKeySet& wllids,
 			      bool rockphysmode )

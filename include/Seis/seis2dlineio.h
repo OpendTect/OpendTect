@@ -107,12 +107,14 @@ protected:
     IOObj&		ioobj_;
     const Pos::GeomID	geomid_;
     Seis::SelData*	seldata_;
+    mutable LineNrType	linenrfortr_;
     mutable uiString	initmsg_;
     mutable SeisTrcTranslator* tr_;
 
     bool		ensureTranslator() const;
     void		ensureCorrectTrcKey(SeisTrc&) const;
     LineNrType		lineNr() const		{ return geomid_; }
+    void		setErrMsgForNoTrMade() const;
 
 };
 

@@ -212,10 +212,10 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     addcoloptfld_->attach( leftAlignedBelow, tbllbl );
     addcoloptfld_->attach( ensureBelow, tbl_ );
 
-    BufferStringSet matchopts;
-    matchopts.add( "Exact match" );
-    matchopts.add( "Nearby match" );
-    matchopts.add( "Never match, add all new" );
+    uiStringSet matchopts;
+    matchopts.add( tr("Exact match") );
+    matchopts.add( tr("Nearby match") );
+    matchopts.add( tr("Never match, add all new") );
     uiLabeledComboBox* mlcbox =
 	new uiLabeledComboBox( this, matchopts,
 			       tr("How do you want to match positions?") );
@@ -239,13 +239,13 @@ uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
     zgatefld_->attach( rightTo, distfld_ );
     zgatefld_->setValue( SI().zStep()*SI().zDomain().userFactor() );
 
-    BufferStringSet replaceopts;
-    BufferString opt1( "Keep '" ); opt1 += mdps_->name(); opt1 += "'";
+    uiStringSet replaceopts;
+    uiString opt1 = tr("Keep '%1'").arg(mdps_->name());
     replaceopts.add( opt1 );
 
-    BufferString opt2( "Overwrite with '" );opt2 += sdps_->name();opt2 += "'";
+    uiString opt2 = tr("Overwrite with '%1'").arg(sdps_->name());
     replaceopts.add( opt2 );
-    replaceopts.add( "Take the average of both" );
+    replaceopts.add( tr("Take the average of both") );
 
     uiLabeledComboBox* rlcbox =
 	new uiLabeledComboBox( this, replaceopts,
@@ -296,10 +296,10 @@ void uiDataPointSetMerger::setTable()
     for ( int rowidx=0; rowidx<nrcols; rowidx++ )
     {
 	BufferString colnm( mdps_->colName(rowidx) );
-	BufferString celltxt( "Couple '");
-	celltxt += colnm; celltxt += "' to";
+	uiString celltxt = tr("Couple '%1' to").arg(colnm);
 	tbl_->setRowLabel( rowidx, celltxt );
-	uiComboBox* cb = new uiComboBox( 0, colnames, "Attributes" );
+	uiComboBox* cb = new uiComboBox( 0, colnames.getUiStringSet(),
+								"Attributes" );
 	cb->selectionChanged.notify(
 		mCB(this,uiDataPointSetMerger,attribChangedCB) );
 	const int nearmatchidx = colnames.nearestMatch( colnm );
