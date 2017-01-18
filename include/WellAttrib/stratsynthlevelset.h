@@ -29,7 +29,8 @@ public:
     StratSynthLevelSet&		operator =(StratSynthLevelSet&);
     BufferStringSet&		getLevelNmSet() { return lvlnmset_; }
     LVLZValsSet&		getLevelZVals() { return zvals_; }
-    const int			size() { return  lvlnmset_.size(); }
+    int				size() const
+				{ return  lvlnmset_.size(); }
     void			addData(BufferString&,LVLZVals&);
     void			addDatas(BufferStringSet&,LVLZValsSet&);
     VSEvent::Type&		getSnapEv() { return snapev_; }

@@ -182,7 +182,7 @@ static uiStratLayerModelManager& uislm_manager()
     return theinst;
 }
 
-static void uiStratLayerModelManager::initClass()
+static void initClass()
 {
     uislm_manager().addToTreeWin();
 }
