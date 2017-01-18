@@ -45,7 +45,6 @@ set(OD_MODULE_SOURCES
 	uiodrandlinetreeitem.cc
 	uiodbodydisplaytreeitem.cc
 	uiodseis2dtreeitem.cc
-	uiodsynth.cc
 	uiodviewer2d.cc
 	uiodviewer2dmgr.cc
 	uiodviewer2dposgrp.cc
