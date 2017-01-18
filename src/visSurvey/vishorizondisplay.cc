@@ -879,8 +879,8 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	float* vals = bivs.getVals(pos);
 	if ( zaxistransform_ )
 	{
-	    vals[zcol] = zaxistransform_->transform(
-		    BinIDValue( bivs.getBinID(pos), vals[0] ) );
+	    vals[zcol] = zaxistransform_->transformTrc(
+					bivs.getBinID(pos), vals[0] );
 	}
 	else
 	    vals[zcol] = vals[0];
