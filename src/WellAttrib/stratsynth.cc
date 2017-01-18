@@ -152,7 +152,8 @@ bool StratSynth::removeSynthetic( const char* nm )
 	{
 	    RefMan<SyntheticData> sd = synthetics_.removeSingle( idx );
 	    SynthGenParams sgp;
-	    sd->fillGenParams( sgp );
+	    if ( sd )
+		sd->fillGenParams( sgp );
 	    if ( canRayModelsBeRemoved(sgp.raypars_) )
 	    {
 		RayModelSet* rms = sd->raymodels_;
