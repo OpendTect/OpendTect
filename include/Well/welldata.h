@@ -78,6 +78,7 @@ public:
     static const char*	sKeyCoord();
     static const char*	sKeyKBElev();
     static const char*	sKeyTD();
+    static const char*	sKeyTVDSS();
     static const char*	sKeyReplVel();
     static const char*	sKeyGroundElev();
     static const char*	sKeyWellType();
@@ -91,6 +92,7 @@ public:
     static uiString	sCoord();
     static uiString	sKBElev();
     static uiString	sTD();
+    static uiString	sTVDSS();
     static uiString	sReplVel();
     static uiString	sGroundElev();
 };

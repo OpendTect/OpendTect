@@ -28,6 +28,7 @@ const char* Well::Info::sKeyCounty()	{ return "County"; }
 const char* Well::Info::sKeyCoord()	{ return "Surface coordinate"; }
 const char* Well::Info::sKeyWellType()	{ return "WellType"; }
 const char* Well::Info::sKeyTD()	{ return "Total Depth [TD]"; }
+const char* Well::Info::sKeyTVDSS()	{ return "Z [TVDSS]"; }
 const char* Well::Info::sKeyKBElev()
 	{ return "Reference Datum Elevation [KB]"; }
 const char* Well::Info::sKeyReplVel()
@@ -49,6 +50,8 @@ uiString Well::Info::sGroundElev()
 	{ return tr("Ground Level Elevation [GL]"); }
 uiString Well::Info::sTD()
 	{ return tr("Total Depth [TD]"); }
+uiString Well::Info::sTVDSS()
+	{ return tr("Z [TVDSS]"); }
 
 
 mDefineEnumUtils( Well::Info, WellType, "Well Type" )

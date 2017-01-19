@@ -171,7 +171,7 @@ void uiWellImportAsc::trckFmtChg( CallBacker* )
     for ( int idx=0; idx<fd.bodyinfos_.size(); idx++ )
     {
 	const Table::TargetInfo& ti = *fd.bodyinfos_[idx];
-	if ( ti.name() == "Z" && ti.selection_.isInFile(0) )
+	if ( ti.name() == Well::Info::sKeyTVDSS() && ti.selection_.isInFile(0) )
 	    havez = true;
 
 	if ( ti.name() == "MD" && ti.selection_.isInFile(0) )

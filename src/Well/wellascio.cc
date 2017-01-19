@@ -40,7 +40,7 @@ Table::FormatDesc* TrackAscIO::getDesc()
     Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( false );
-    zti->setName( "Z (TVDSS)" );
+    zti->setName( Well::Info::sKeyTVDSS() );
     fd->bodyinfos_ += zti;
     Table::TargetInfo* ti = new Table::TargetInfo( "MD", FloatInpSpec(),
 						   Table::Optional );
@@ -304,7 +304,8 @@ Table::TargetInfo* gtDepthTI( bool withuns )
     }
 
     ti->form(0).setName( "MD" );
-    ti->add( new Table::TargetInfo::Form( "TVDSS", FloatInpSpec() ) );
+    ti->add( new Table::TargetInfo::Form( Well::Info::sKeyTVDSS(),
+					  FloatInpSpec() ) );
     return ti;
 }
 
@@ -474,7 +475,7 @@ Table::FormatDesc* BulkTrackAscIO::getDesc()
     fd->bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     Table::TargetInfo* zti = Table::TargetInfo::mkDepthPosition( true );
-    zti->setName( "Z (TVDSS)" );
+    zti->setName( Well::Info::sKeyTVDSS() );
     fd->bodyinfos_ += zti;
     Table::TargetInfo* mdti =
 	new Table::TargetInfo( "MD", FloatInpSpec(), Table::Optional,
