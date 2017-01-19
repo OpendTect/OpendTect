@@ -1311,6 +1311,9 @@ static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
 	const BufferStringSet* ids, const char* cursel,
 	int start, int stop, bool correcttype )
 {
+    const LineKey lk( cursel );
+    const BufferString selnm = lk.lineName();
+
     mnu.removeItems();
     mnu.enabled = !nms.isEmpty();
     bool checkparent = false;
@@ -1321,7 +1324,7 @@ static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
 	itm->checkable = true;
 	if ( ids && Seis::PLDM().isPresent(MultiID(ids->get(idx))) )
 	    itm->iconfnm = "preloaded";
-	const bool docheck = correcttype && nm == cursel;
+	const bool docheck = correcttype && nm == selnm;
 	if ( docheck ) checkparent = true;
 	mAddMenuItem( &mnu, itm, true, docheck );
     }
