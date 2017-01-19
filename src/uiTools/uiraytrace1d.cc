@@ -54,7 +54,6 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	    if ( raytracerselfld_ )
 	    {
 		raytracerselfld_->box()->addItem( usernm );
-		raytracerselfld_->box()->setCurrentItem(usernm.getFullString());
 		grp->attach( alignedBelow, raytracerselfld_ );
 		grp->setName( facnm );
 	    }
@@ -64,6 +63,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     if ( !grps_.isEmpty() )
 	setHAlignObj( grps_[0] );
 
+    setCurrent( grps_.size()-1 );
     postFinalise().notify( mCB(this,uiRayTracerSel,selRayTraceCB) );
 }
 
@@ -93,7 +93,9 @@ void uiRayTracerSel::usePar( const IOPar& par )
 
 void uiRayTracerSel::fillPar( IOPar& par ) const
 {
-    if ( !current() ) return;
+    if ( !current() )
+	return;
+
     current()->fillPar( par );
     par.set( sKey::Type(), current()->name() );
 }
@@ -101,21 +103,23 @@ void uiRayTracerSel::fillPar( IOPar& par ) const
 
 const uiRayTracer1D* uiRayTracerSel::current() const
 {
-    int selidx = raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
-    return grps_.validIdx( selidx ) ? grps_[selidx] : 0;
+    return const_cast<uiRayTracerSel*>(this)->current();
 }
 
 
 uiRayTracer1D* uiRayTracerSel::current()
 {
-    int selidx = raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
+    const int selidx =
+	raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
     return grps_.validIdx( selidx ) ? grps_[selidx] : 0;
 }
 
 
 bool uiRayTracerSel::setCurrentType( const char* typestr )
 {
-    if ( !raytracerselfld_ ) return false;
+    if ( !raytracerselfld_ )
+	return false;
+
     for ( int grpidx=0; grpidx<grps_.size(); grpidx++ )
     {
 	if ( grps_[grpidx]->name() == typestr )
@@ -131,7 +135,9 @@ bool uiRayTracerSel::setCurrentType( const char* typestr )
 
 bool uiRayTracerSel::setCurrent( int selidx )
 {
-    if ( !grps_.validIdx(selidx) || !raytracerselfld_ ) return false;
+    if ( !grps_.validIdx(selidx) || !raytracerselfld_ )
+	return false;
+
     raytracerselfld_->box()->setCurrentItem( selidx );
     return true;
 }
@@ -150,7 +156,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 {
     if ( s.dooffsets_ )
     {
-	uiString olb = tr( "offset range %1(start/stop)" )
+	uiString olb = tr( "Offset range (start/stop) %1" )
 			.arg( SI().getXYUnitString(true) );;
 	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
 	offsetfld_->setValue(

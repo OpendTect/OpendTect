@@ -71,8 +71,8 @@ void uiProcSel::selDoneCB( CallBacker* cb )
     if ( editbut_ )
     {
 	const IOObj* ioobj = selfld_->ioobj( true );
-	editbut_->setText( ioobj ? uiStrings::sEdit()
-				 : uiStrings::sCreate() );
+	editbut_->setText(
+		m3Dots(ioobj ? uiStrings::sEdit() : uiStrings::sCreate()) );
     }
 
     selectionDone.trigger();

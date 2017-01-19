@@ -59,8 +59,8 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 	anglelbl_->attach( rightOf, anglefld_ );
     }
 
-    advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"), true );
-    advpushbut_->activated.notify( mCB(this, uiAngleCompGrp, advPushButCB) );
+    advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"), false );
+    advpushbut_->activated.notify( mCB(this,uiAngleCompGrp,advPushButCB) );
     advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
 
     setHAlignObj( velfuncsel_ );
@@ -366,5 +366,4 @@ bool uiAngleMute::acceptOK(CallBacker*)
     return true;
 }
 
-
-}; //namespace
+} // namespace PreStack
