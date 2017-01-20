@@ -24,6 +24,25 @@ Monitorable::AccessLocker::AccessLocker( const Monitorable& obj, bool forread )
 }
 
 
+Monitorable::ChangeData::ChangeData( const ChangeData& oth )
+    : auxdata_(0)
+{
+    *this = oth;
+}
+
+
+Monitorable::ChangeData& Monitorable::ChangeData::operator =(
+						const ChangeData& oth )
+{
+    if ( this != &oth )
+    {
+	std::pair<ChangeType,IDType>::operator =( oth );
+	auxdata_ = oth.auxdata_;
+    }
+    return *this;
+}
+
+
 Monitorable::Monitorable()
     : dirtycount_(0)
     , chgnotifblocklevel_(0)
@@ -90,12 +109,19 @@ void Monitorable::sendEntireObjectChangeNotification() const
 void Monitorable::sendChgNotif( AccessLocker& locker, ChangeType ct,
 				IDType id ) const
 {
+    sendChgNotif( locker, ChangeData(ct,id) );
+}
+
+
+void Monitorable::sendChgNotif( AccessLocker& locker,
+				const ChangeData& cd ) const
+{
     touch();
     locker.unlockNow();
     if ( chgnotifblocklevel_ )
 	return;
 
-    objectChanged().trigger( ChangeData(ct,id) );
+    objectChanged().trigger( cd );
 }
 
 
