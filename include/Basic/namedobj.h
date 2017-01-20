@@ -78,11 +78,23 @@ public:
     bool		operator ==(const NamedMonitorable&) const;
 
     inline virtual	mImplSimpleMonitoredGet(getName,BufferString,name_)
-    inline virtual	mImplSimpleMonitoredSet(setName,const char*,name_,1)
+    virtual void	setName(const char*);
 
     mDeclInstanceCreatedNotifierAccess( NamedMonitorable );
 
     static ChangeType	cNameChange()		{ return 1; }
+
+    mExpClass(Basic) NameChgData : public ChangeData::AuxData
+    {
+	public:
+			    NameChgData( const char* from, const char* to )
+				: oldnm_(from), newnm_(to)  {}
+
+	    BufferString    oldnm_;
+	    BufferString    newnm_;
+
+    };
+
 
 };
 
