@@ -215,9 +215,8 @@ static od_int64 getExtraMem( const VolProc::Step* step, int outidx,
 
     // OK, must be from plugin.
     // Hack: use output from deprecated virtual:
-    od_int64 fac = step->getProcTimeExtraMemory();
-    if ( fac < 1 || fac > 10 )
-	fac = 1;
+    const od_int64 fac = step->getProcTimeExtraMemory();
+
     return fac * VolProc::Step::getBaseMemoryUsage( hrg, zrg );
 }
 
