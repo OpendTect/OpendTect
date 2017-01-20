@@ -1126,6 +1126,7 @@ void HorizonDisplay::setSectionDisplayRestore( bool yn )
 	for ( int idx=0; idx<sids_.size(); idx++ )
 	{
 	    oldsectionids_ += sids_[idx];
+	    if ( !sections_.validIdx(idx) ) continue;
 	    olddisplayedrowranges_ += sections_[idx]->displayedRowRange();
 	    olddisplayedcolranges_ += sections_[idx]->displayedColRange();
 	    oldhortexhandlers_ += &sections_[idx]->getTextureHandler();

@@ -1129,6 +1129,7 @@ StepInterval<int> RowColSurfaceGeometry::rowRange() const
     {
 	Geometry::RowColSurface* surf =
 	    (Geometry::RowColSurface*) sections_[idx];
+	if( !surf ) continue;
 	const StepInterval<int> sectionrg = surf->rowRange();
 	if ( sectionrg.start>sectionrg.stop )
 	    continue;
@@ -1160,7 +1161,7 @@ StepInterval<int> RowColSurfaceGeometry::colRange() const
     {
 	Geometry::RowColSurface* surf =
 			(Geometry::RowColSurface*) sections_[idx];
-
+	if ( !surf ) continue;
 	StepInterval<int> sectionrg = surf->colRange();
 	if ( sectionrg.start>sectionrg.stop )
 	    continue;
