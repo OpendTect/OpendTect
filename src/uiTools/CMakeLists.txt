@@ -31,6 +31,7 @@ SET( OD_MODULE_SOURCES
 	uicoltabmarker.cc
 	uicoltabtools.cc
 	uicompparsel.cc
+	uiconstvel.cc
 	uidirectionalplot.cc
 	uidlggroup.cc
 	uifileinput.cc

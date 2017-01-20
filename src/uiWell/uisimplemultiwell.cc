@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellwriter.h"
 
 #include "uibutton.h"
+#include "uiconstvel.h"
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "uitable.h"
@@ -93,10 +94,8 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     if ( SI().zIsTime() )
     {
 	const float defvel = uiD2TModelGroup::getDefaultTemporaryVelocity();
-	const uiString velunstr = tr( "%1 %2" )
-		       .arg( uiD2TModelGroup::sKeyTemporaryVel() )
-		       .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
-	velfld_ = new uiGenInput( this, velunstr, FloatInpSpec(defvel) );
+	const uiString vellbl( uiD2TModelGroup::sKeyTemporaryVelUiStr() );
+	velfld_ = new uiConstantVel( this, defvel, vellbl );
 	velfld_->attach( rightTo, pb );
 	velfld_->attach( rightBorder );
     }
@@ -174,20 +173,20 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     , par_(p)
     , fd_("Simple multi-welldata")
 {
-    inpfld_ = new uiFileInput( this, uiStrings::sInputFile(), 
+    inpfld_ = new uiFileInput( this, uiStrings::sInputFile(),
 			       uiFileInput::Setup().withexamine(true)
 			       .examstyle(File::Table) );
 
     fd_.bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     Table::TargetInfo* ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( Well::Info::sKeyKBElev() ); 
+    ti->setName( Well::Info::sKeyKBElev() );
     fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( Well::Info::sKeyTD() ); 
+    ti->setName( Well::Info::sKeyTD() );
     fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( Well::Info::sKeyGroundElev() ); 
+    ti->setName( Well::Info::sKeyGroundElev() );
     fd_.bodyinfos_ += ti;
     fd_.bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyUwid(),
 				      Table::Optional );
@@ -341,7 +340,7 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 {
     crwellids_.erase();
-    vel_ = velfld_ ? velfld_->getfValue() : getGUIDefaultVelocity();
+    vel_ = velfld_ ? velfld_->getfValue() : Vel::getGUIDefaultVelocity();
     if ( zinft_ && SI().zIsTime() && zun_ )
 	vel_ = zun_->internalValue( vel_ );
 

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
 
+#include "uiconstvel.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uimsg.h"
@@ -28,12 +29,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 #include "od_helpids.h"
 
+uiString uiD2TModelGroup::sKeyTemporaryVelUiStr()
+{ return tr("Temporary model velocity"); }
+
 const char* uiD2TModelGroup::sKeyTemporaryVel()
 { return "Temporary model velocity"; }
 
 
 float uiD2TModelGroup::getDefaultTemporaryVelocity()
-{ return getGUIDefaultVelocity() * 1.25f; }
+{ return Vel::getGUIDefaultVelocity() * 1.25f; }
 
 
 uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
@@ -48,13 +52,11 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 				uiFileInput::Setup().withexamine(true) );
     if ( setup_.fileoptional_ )
     {
-	const uiString velllbl = tr("%1 %2")
-		     .arg( sKeyTemporaryVel() )
-		     .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
-	const float vel = getDefaultTemporaryVelocity();
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
-	velfld_ = new uiGenInput( this, velllbl, FloatInpSpec(vel) );
+	const uiString vellbl( sKeyTemporaryVelUiStr() );
+	velfld_ = new uiConstantVel( this, getDefaultTemporaryVelocity(),
+				     vellbl );
 	velfld_->attach( alignedBelow, filefld_ );
     }
 
@@ -175,5 +177,5 @@ BufferString uiD2TModelGroup::dataSourceName() const
 
 float getGUIDefaultVelocity()
 {
-    return SI().depthsInFeet() ? 8000.f : 2000.f;
+    return Vel::getGUIDefaultVelocity();
 }
