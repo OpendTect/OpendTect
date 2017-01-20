@@ -262,12 +262,9 @@ int VolProc::ChainOutput::setupChunking()
 			mMAX(mNINT32(Math::Ceil(tkzs_.zsamp_.step/zstep)),1) );
 			   //real -> index, outputzrg_ is the index of z-samples
 
-    // We will be writing while a new chunk will be calculated
-    // Thus, we need to keep the output datapack alive while the next chunk
-    // is calculated. Therefore, lets double the computed mem need:
+    od_uint64 nrbytes = mCast( od_uint64, 1.01f *
+	      chainexec_->computeMaximumMemoryUsage( tkzs_.hsamp_, outputzrg_ ) );
 
-    od_uint64 nrbytes = 2 * chainexec_->computeMaximumMemoryUsage( tkzs_.hsamp_,
-								   outputzrg_ );
     od_int64 totmem, freemem; OD::getSystemMemory( totmem, freemem );
 
     /* handy for test:
@@ -282,7 +279,6 @@ int VolProc::ChainOutput::setupChunking()
     if ( needsplit && !cansplit )
     {
 	// duh. but ... it may still fit, fingers crossed:
-	nrbytes /= 2;
 	needsplit = nrbytes > freemem;
 	if ( needsplit )
 	    return retError(
@@ -290,7 +286,13 @@ int VolProc::ChainOutput::setupChunking()
     }
     if ( needsplit )
     {
-	nrexecs_ = (int)(nrbytes / freemem) + 1;
+	// We will be writing while a new chunk will be calculated
+	// Thus, we need to keep the output datapack alive while the next chunk
+	// is calculated. Therefore, lets add some more mem need:
+	nrbytes += (( tkzs_.hsamp_.totalNr() *
+		    ( outputzrg_.nrSteps() + 1 ) ) * sizeof(float) ) * 3;
+
+	nrexecs_ = Math::Ceil( mCast(float,nrbytes) / mCast(float,freemem) );
 	if ( nrexecs_ > tkzs_.hsamp_.nrLines() )
 	    nrexecs_ = tkzs_.hsamp_.nrLines(); // and pray!
     }
