@@ -109,6 +109,8 @@ public:
 	static inline ChangeData NoChange()	{ return ChangeData(
 							 mUdf(ChangeType),-1); }
 	RefMan<AuxData>	auxdata_;
+	template<class T> inline T* auxDataAs()
+	{ return static_cast<T*>( auxdata_.ptr() ); }
     };
 
 			Monitorable(const Monitorable&);
@@ -276,8 +278,18 @@ protected:
 
 #define mGetMonitoredChgData(cb,chgdata) \
     mCBCapsuleUnpack( Monitorable::ChangeData, chgdata, cb )
+
+#define mGetMonitoredChgDataWithAux(cb,chgdata,T,auxvar) \
+    mCBCapsuleUnpack( Monitorable::ChangeData, chgdata, cb ); \
+    T* auxvar = chgdata.auxDataAs<T>()
+
 #define mGetMonitoredChgDataWithCaller(cb,chgdata,caller) \
     mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, caller, cb )
+
+#define mGetMonitoredChgDataWithAuxAndCaller(cb,chgdata,T,auxvar,caller) \
+    mGetMonitoredChgDataWithCaller(cb,chgdata,caller); \
+    T* auxvar = chgdata.auxDataAs<T>()
+
 #define mGetMonitoredChgDataDoAll(cb,chgdata,doallact) \
     mGetMonitoredChgData(chgdata,cb); \
     if ( chgdata.changeType() == Monitored::cEntireObjectChangeType() ) \

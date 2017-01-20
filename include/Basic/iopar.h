@@ -311,6 +311,8 @@ public:
     void		dumpPretty(BufferString&) const;
     void		dumpPretty(od_ostream&) const;
 
+    void		collectIDs(TypeSet<int>&) const;
+
     static const char*	sKeyDumpPretty()         { return "_pretty"; }
     static const char*	sKeyHdr()		 { return "->";	     }
     static const char*	sKeySubHdr()		 { return "-->";     }

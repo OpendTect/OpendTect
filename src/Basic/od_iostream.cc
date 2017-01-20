@@ -210,6 +210,14 @@ void od_stream::addErrMsgTo( uiString& msg ) const
 }
 
 
+void od_stream::addErrMsgTo( uiRetVal& uirv ) const
+{
+    uiString msg = errMsg();
+    if ( !msg.isEmpty() )
+	uirv.add( msg );
+}
+
+
 od_stream::Pos od_stream::position() const
 {
     if ( sd_.ostrm )
