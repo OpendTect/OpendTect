@@ -233,6 +233,8 @@ protected:
     Timer*			tiletimer_;
     void			tileTimerCB(CallBacker*);
 
+    void			font3DChanged(CallBacker*);
+
     friend class		uiODMain;
 };
 
