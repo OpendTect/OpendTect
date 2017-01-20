@@ -227,6 +227,8 @@ protected:
     Timer*			tiletimer_;
     void			tileTimerCB(CallBacker*);
 
+    void			font3DChanged(CallBacker*);
+
     friend class		uiODMain;
 
     void			resetStatusBar(int id=-1);
