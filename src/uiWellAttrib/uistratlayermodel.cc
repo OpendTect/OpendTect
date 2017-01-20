@@ -235,12 +235,27 @@ void uiStratLayerModel::doBasicLayerModel()
 }
 
 
+void uiStratLayerModel::doBasicLayerModel( uiParent* p )
+{
+    doLayerModel( p, uiBasicLayerSequenceGenDesc::typeStr() );
+}
+
+
 void uiStratLayerModel::doLayerModel( const char* modnm, int opt )
 {
     if ( Strat::RT().isEmpty() )
 	StratTreeWin().popUp();
     else
 	uislm_manager().doLayerModel( &StratTreeWin(), modnm, opt );
+}
+
+
+void uiStratLayerModel::doLayerModel( uiParent* p, const char* modnm, int opt )
+{
+    if ( Strat::RT().isEmpty() )
+	StratTreeWin().popUp();
+    else
+	uislm_manager().doLayerModel( p, modnm, opt );
 }
 
 

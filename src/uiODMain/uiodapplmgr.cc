@@ -1882,7 +1882,7 @@ void uiODApplMgr::launchRockPhysics( CallBacker* )
 void uiODApplMgr::launch2DViewer( CallBacker* )
 { show2DViewer(); }
 void uiODApplMgr::doLayerModeling( CallBacker* )
-{ uiStratLayerModel::doBasicLayerModel(); }
+{ uiStratLayerModel::doBasicLayerModel(ODMainWin()); }
 
 void uiODApplMgr::doVolProcCB( CallBacker* )
 { volprocserv_->doVolProc( 0 ); }

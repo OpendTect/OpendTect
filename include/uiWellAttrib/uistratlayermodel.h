@@ -76,8 +76,12 @@ public:
 
     bool			checkUnscaledWavelet();
 
-    static void			doBasicLayerModel();
+    static void			doBasicLayerModel(); //do not use this
     static void			doLayerModel(const char* modnm,int opt=0);
+				//do not use the above function
+    static void			doBasicLayerModel(uiParent*);
+    static void			doLayerModel(uiParent*,const char* modnm,
+								int opt=0);
 
     uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
     void			displayFRResult(bool usefr,bool parschanged,
