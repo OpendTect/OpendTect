@@ -292,7 +292,9 @@ int VolProc::ChainOutput::setupChunking()
 	nrbytes += (( tkzs_.hsamp_.totalNr() *
 		    ( outputzrg_.nrSteps() + 1 ) ) * sizeof(float) ) * 3;
 
-	nrexecs_ = Math::Ceil( mCast(float,nrbytes) / mCast(float,freemem) );
+	const float fnrexecs = Math::Ceil( mCast(float,nrbytes)
+					 / mCast(float,freemem) );
+	nrexecs_ = mNINT32( fnrexecs );
 	if ( nrexecs_ > tkzs_.hsamp_.nrLines() )
 	    nrexecs_ = tkzs_.hsamp_.nrLines(); // and pray!
     }
