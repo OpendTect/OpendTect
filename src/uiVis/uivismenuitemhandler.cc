@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivismenuitemhandler.h"
 
 #include "uivispartserv.h"
-#include "vissurvobj.h"
+#include "vispicksetdisplay.h"
 
 
 uiVisMenuItemHandler::uiVisMenuItemHandler(const char* classnm,
@@ -37,4 +37,41 @@ bool uiVisMenuItemHandler::shouldAddMenu() const
 	return false;
 
     return FixedString(classnm_) == survobj->factoryKeyword();
+}
+
+
+// uiPickSetPolygonMenuItemHandler
+uiPickSetPolygonMenuItemHandler::uiPickSetPolygonMenuItemHandler(
+	uiVisPartServer& vps, const uiString& nm,
+	const CallBack& cb, const char* parenttext, int placement )
+    : MenuItemHandler( *vps.getMenuHandler(), nm, cb, parenttext, placement )
+    , visserv_(vps)
+    , addwhenpolygon_(true)
+    , addwhenpickset_(true)
+{}
+
+
+void uiPickSetPolygonMenuItemHandler::addWhenPickSet( bool yn )
+{ addwhenpickset_ = yn; }
+
+void uiPickSetPolygonMenuItemHandler::addWhenPolygon( bool yn )
+{ addwhenpolygon_ = yn; }
+
+
+int uiPickSetPolygonMenuItemHandler::getDisplayID() const
+{ return menuhandler_.menuID(); }
+
+
+bool uiPickSetPolygonMenuItemHandler::shouldAddMenu() const
+{
+    RefMan<visBase::DataObject> dataobj =
+		visserv_.getObject( menuhandler_.menuID() );
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,dataobj.ptr())
+    if ( !psd )
+	return false;
+
+    if ( addwhenpolygon_==addwhenpickset_ )
+	return addwhenpolygon_;
+
+    return psd->isPolygon()==addwhenpolygon_;
 }

@@ -34,8 +34,8 @@ mExpClass(uiVis) uiVisMenuItemHandler : public MenuItemHandler
 {
 public:
     		uiVisMenuItemHandler(const char* classnm,uiVisPartServer&,
-				     const uiString& mnutext, const CallBack& cb,
-				     const char* parenttext=0,int placement=-1);
+				const uiString& mnutext,const CallBack& cb,
+				const char* parenttext=0,int placement=-1);
 
     int		getDisplayID() const;
     		/*!<Does only give a valid answer if called from cb. */
@@ -48,5 +48,29 @@ protected:
 };
 
 
+/*!brief MenuItemHandler for PickSet/Polygons
+    By default the menu will be added to both. This can be controlled with the
+    functions addWhenPickSet and addWhenPolygon
+*/
+
+mExpClass(uiVis) uiPickSetPolygonMenuItemHandler : public MenuItemHandler
+{
+public:
+		uiPickSetPolygonMenuItemHandler(uiVisPartServer&,
+				const uiString& mnutext,const CallBack&,
+				const char* parenttext=0,int placement=-1);
+
+    void	addWhenPickSet(bool);
+    void	addWhenPolygon(bool);
+
+    int		getDisplayID() const;
+		/*!<Does only give a valid answer if called from cb. */
+protected:
+    bool		shouldAddMenu() const;
+
+    uiVisPartServer&	visserv_;
+    bool		addwhenpolygon_;
+    bool		addwhenpickset_;
+};
 
 #endif
