@@ -115,7 +115,7 @@ protected:
 public:
     void		init(int dataidx,float val=mUdf(float));
 			/*!<dataidx==-1: init all*/
-    enum		AuxDataType { NoType=0, Tracking };
+    enum		AuxDataType { NoType=0, AutoShow, Tracking };
     void		setAuxDataType(int dataidx,AuxDataType);
     AuxDataType		getAuxDataType(int dataidx) const;
 };

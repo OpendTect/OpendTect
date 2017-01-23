@@ -426,24 +426,29 @@ bool uiODHorizonTreeItem::init()
 	if ( !applMgr()->isRestoringSession() )
 	{
 	    hd->setDepthAsAttrib( 0 );
-	    const bool addauxdata = tracker && tracker->isEnabled() && !rgba_;
+	    const bool istracking = tracker && tracker->isEnabled();
 	    const int nrauxdata = hor3d->auxdata.nrAuxData();
-	    for ( int idx=0; addauxdata && idx<nrauxdata; idx++ )
+	    for ( int idx=0; !rgba_ && idx<nrauxdata; idx++ )
 	    {
 		if ( !hor3d->auxdata.auxDataName(idx) )
 		    continue;
 
-		if ( hor3d->auxdata.getAuxDataType(idx) !=
-						EM::SurfaceAuxData::Tracking )
-		    continue;
+		const EM::SurfaceAuxData::AuxDataType auxdatatype =
+					    hor3d->auxdata.getAuxDataType(idx);
 
-		DataPointSet vals( false, true );
-		float shift;
-		applMgr()->EMServer()->getAuxData( emid_, idx, vals, shift );
+		if ( auxdatatype==EM::SurfaceAuxData::AutoShow ||
+		     (auxdatatype==EM::SurfaceAuxData::Tracking && istracking) )
+		{
+		    DataPointSet vals( false, true );
+		    float shift;
+		    applMgr()->EMServer()->getAuxData(emid_, idx, vals, shift);
 
-		uiODDataTreeItem* itm = addAttribItem();
-		mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
-		if ( emitm ) emitm->setDataPointSet( vals );
+		    uiODDataTreeItem* itm = addAttribItem();
+		    mDynamicCastGet( uiODEarthModelSurfaceDataTreeItem*,
+				     emitm, itm );
+		    if ( emitm )
+			emitm->setDataPointSet( vals );
+		}
 	    }
 	}
 
