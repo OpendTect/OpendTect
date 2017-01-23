@@ -674,6 +674,17 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 }
 
 
+static const Desc* getTargetDesc( const TypeSet<Attrib::SelSpec>& targetspecs )
+{
+    const bool isstortarget = targetspecs.size() && targetspecs[0].isStored();
+    const bool is2d = targetspecs.size() && targetspecs[0].is2D();
+    const DescSet* attrds = DSHolder().getDescSet( is2d, isstortarget );
+    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
+				: attrds->getDesc( targetspecs[0].id() );
+    return targetdesc;
+}
+
+
 RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
 				const RegularSeisDataPack* cache )
@@ -682,15 +693,12 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
     if ( !aem ) return 0;
 
     bool atsamplepos = true;
-    const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
-    const bool is2d = targetspecs_.size() && targetspecs_[0].is2D();
-    const DescSet* attrds = DSHolder().getDescSet( is2d, isstortarget );
-    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
-				: attrds->getDesc( targetspecs_[0].id() );
+
+    const Desc* targetdesc = getTargetDesc( targetspecs_ );
     if ( targetdesc )
     {
 	BufferString defstr;
-	targetdesc->getDefStr(defstr);
+	targetdesc->getDefStr( defstr );
 	if ( defstr != targetspecs_[0].defString() )
 	    cache = 0;
 
@@ -838,6 +846,31 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
 
 bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 {
+    const Desc* targetdesc = getTargetDesc( targetspecs_ );
+    if ( targetdesc && targetdesc->isStored() )
+    {
+	const DBKey mid( targetdesc->getStoredID() );
+	RefMan<RegularSeisDataPack> sdp =
+		Seis::PLDM().getAndCast<RegularSeisDataPack>(mid);
+	if ( sdp )
+	{
+	    const TrcKeyZSampling& seistkzs = sdp->sampling();
+	    TrcKeySampling dpstks;
+	    dpstks.set( posvals.bivSet().inlRange(),
+			posvals.bivSet().crlRange() );
+	    uiString msg( tr("Preloaded data does not cover the full "
+			     "requested area.") );
+	    if ( seistkzs.hsamp_.includes(dpstks) ||
+		 uiMSG().askContinue(msg) )
+	    {
+		uiTaskRunner uitr( parent() );
+		const int comp = targetdesc->selectedOutput();
+		DPSFromVolumeFiller filler( posvals, firstcol, *sdp, comp );
+		return TaskRunner::execute( &uitr, filler );
+	    }
+	}
+    }
+
     PtrMan<EngineMan> aem = createEngMan();
     if ( !aem ) return false;
 
@@ -1264,6 +1297,9 @@ static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
 	const BufferStringSet* ids, const char* cursel,
 	int start, int stop, bool correcttype )
 {
+    StringPair sp( cursel );
+    const BufferString curselnm = sp.first();
+
     mnu.removeItems();
     mnu.enabled = !nms.isEmpty();
     bool checkparent = false;
@@ -1276,7 +1312,7 @@ static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
 			       : DBKey::getInvalid();
 	if ( ids && Seis::PLDM().isPresent(dbky) )
 	    itm->iconfnm = "preloaded";
-	const bool docheck = correcttype && nm == cursel;
+	const bool docheck = correcttype && nm == curselnm;
 	if ( docheck ) checkparent = true;
 	mAddMenuItem( &mnu, itm, true, docheck );
     }

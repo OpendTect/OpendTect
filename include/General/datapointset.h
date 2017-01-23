@@ -250,3 +250,31 @@ protected:
 
     DataColDef&		gtColDef(ColID) const;
 };
+
+
+/*!\brief Fills DataPointSet with data from a VolumeDataPack
+*/
+
+mClass(General) DPSFromVolumeFiller : public ParallelTask
+{ mODTextTranslationClass(DPSFromVolumeFiller)
+public:
+				DPSFromVolumeFiller(DataPointSet&,int firstcol,
+						    const VolumeDataPack&,
+						    int component);
+				~DPSFromVolumeFiller();
+
+    virtual uiString		message() const;
+    virtual uiString		nrDoneText() const;
+
+protected:
+    virtual od_int64		nrIterations() const;
+    virtual bool		doWork(int64_t start,int64_t stop,int thridx);
+
+    DataPointSet&		dps_;
+    const VolumeDataPack&	vdp_;
+    int				component_;
+    int				firstcol_;
+
+    bool			hastrcdata_;
+    bool			hasstorage_;
+};
