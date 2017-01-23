@@ -985,7 +985,7 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
     Array1DImpl<float>* trcarr = 0;
     if ( !hastrcdata_ && !hasstorage_ )
 	trcarr = new Array1DImpl<float>( nrz );
-    for ( int64_t idx=start; idx<=stop; idx++ )
+    for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	const DataPointSet::RowID rid = mCast(int,idx);
 	float* vals = dps_.getValues( rid );
