@@ -268,7 +268,7 @@ public:
 
 protected:
     virtual od_int64		nrIterations() const;
-    virtual bool		doWork(int64_t start,int64_t stop,int thridx);
+    virtual bool		doWork(od_int64 start,od_int64 stop,int thridx);
 
     DataPointSet&		dps_;
     const VolumeDataPack&	vdp_;

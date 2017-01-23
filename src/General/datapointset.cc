@@ -977,7 +977,7 @@ od_int64 DPSFromVolumeFiller::nrIterations() const
 }
 
 
-bool DPSFromVolumeFiller::doWork( int64_t start, int64_t stop, int thridx )
+bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 {
     const StepInterval<float>& zsamp = vdp_.getZRange();
     const int nrz = zsamp.nrSteps() + 1;
