@@ -39,6 +39,12 @@ VolProc::ChainExecutor::~ChainExecutor()
     deepErase( epochs_ );
     if ( curepoch_ )
 	delete curepoch_;
+
+    DataPackMgr& seismgr = DPM( DataPackMgr::SeisID() );
+    if ( !outputdp_ || !seismgr.haveID(outputdp_->id()) )
+	return;
+
+    seismgr.release( outputdp_->id() );
 }
 
 
