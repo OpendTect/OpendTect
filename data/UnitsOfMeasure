@@ -8,6 +8,7 @@ Microseconds: Time`us`1e-6
 Meter: Distance/Depth`m`1
 Feet: Distance/Depth`ft`0.3048
 Inches: Distance/Depth`in`0.0254
+Millimeters: Distance/Depth`mm`0.001
 -Meter: Distance/Depth`-m`-1
 -Feet: Distance/Depth`-ft`-0.3048
 Kg/m3: Density`kg/m3`1
