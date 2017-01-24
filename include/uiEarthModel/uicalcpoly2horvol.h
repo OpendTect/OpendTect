@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "pickset.h"
+
+class uiConstantVel;
 class uiIOObjSel;
 class uiPickSetIOObjSel;
 class uiGenInput;
@@ -29,7 +31,7 @@ protected:
 			uiCalcHorVol(uiParent*,const uiString&);
 
     uiCheckList*	optsfld_;
-    uiGenInput*		velfld_;
+    uiConstantVel*	velfld_;
     uiGenInput*		valfld_;
 
     uiGroup*		mkStdGrp();

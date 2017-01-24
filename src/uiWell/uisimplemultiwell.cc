@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "wellwriter.h"
 
 #include "uibutton.h"
+#include "uiconstvel.h"
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "uitable.h"
@@ -93,10 +94,8 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     if ( SI().zIsTime() )
     {
 	const float defvel = uiD2TModelGroup::getDefaultTemporaryVelocity();
-	const uiString velunstr = tr( "%1 %2" )
-		       .arg( uiD2TModelGroup::sKeyTemporaryVel() )
-		       .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
-	velfld_ = new uiGenInput( this, velunstr, FloatInpSpec(defvel) );
+	const uiString vellbl( uiD2TModelGroup::sKeyTemporaryVel() );
+	velfld_ = new uiConstantVel( this, defvel, vellbl );
 	velfld_->attach( rightTo, pb );
 	velfld_->attach( rightBorder );
     }
@@ -342,7 +341,7 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 bool uiSimpleMultiWellCreate::acceptOK()
 {
     crwellids_.setEmpty();
-    vel_ = velfld_ ? velfld_->getFValue() : getGUIDefaultVelocity();
+    vel_ = velfld_ ? velfld_->getFValue() : Vel::getGUIDefaultVelocity();
     if ( zinft_ && SI().zIsTime() && zun_ )
 	vel_ = zun_->internalValue( vel_ );
 

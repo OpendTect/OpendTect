@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
 
+class uiConstantVel;
 class uiGenInput;
 namespace EM	{ class Body; class ImplicitBody; }
 
@@ -26,12 +27,12 @@ public:
 			~uiImplBodyCalDlg();
 
 protected:
-    
+
     void		calcCB(CallBacker*);
     void		getImpBody();
 
     const EM::Body&	embody_;
     EM::ImplicitBody*	impbody_;
-    uiGenInput*		velfld_;
+    uiConstantVel*	velfld_;
     uiGenInput*		volfld_;
 };

@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "welltransl.h"
 
 #include "uibutton.h"
+#include "uiconstvel.h"
 #include "uifiledlg.h"
 #include "uifileinput.h"
 #include "uimsg.h"
@@ -79,10 +80,9 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
 
     if ( SI().zIsTime() )
     {
-	const uiString vellbl = tr("Temporary model velocity %1" )
-				  .arg( VelocityDesc::getVelUnit( true ));
-	const float vel = getGUIDefaultVelocity();
-	velocityfld_ = new uiGenInput( this, vellbl, FloatInpSpec(vel) );
+	const float vel = uiD2TModelGroup::getDefaultTemporaryVelocity();
+	const uiString vellbl( uiD2TModelGroup::sKeyTemporaryVel() );
+	velocityfld_ = new uiConstantVel( this, vel, vellbl );
 	velocityfld_->attach( alignedBelow, dataselfld_ );
     }
 }
@@ -140,7 +140,7 @@ uiRetVal uiBulkTrackImport::addD2T()
     if ( !SI().zIsTime() )
 	return uiRetVal::OK();
 
-    const float vel = velocityfld_->getFValue();
+    const float vel = velocityfld_->getInternalVelocity();
     if ( vel<=0 || mIsUdf(vel) )
 	return uiStrings::phrEnter(tr("a positive velocity "
 			    "for generating the D2T model"));

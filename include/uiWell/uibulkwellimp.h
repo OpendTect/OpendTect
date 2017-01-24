@@ -9,6 +9,7 @@
 #include "uidialog.h"
 #include "uistring.h"
 
+class uiConstantVel;
 class uiFileInput;
 class uiGenInput;
 class uiTableImpDataSel;
@@ -34,7 +35,7 @@ protected:
 
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;
-    uiGenInput*		velocityfld_;
+    uiConstantVel*	velocityfld_;
 
     ObjectSet<Well::Data> wells_;
     Table::FormatDesc*	fd_;

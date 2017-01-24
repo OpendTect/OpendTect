@@ -11,8 +11,8 @@ ________________________________________________________________________
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
 
+#include "uiconstvel.h"
 #include "uifileinput.h"
-#include "uigeninput.h"
 #include "uimsg.h"
 
 #include "ioobjctxt.h"
@@ -28,12 +28,11 @@ ________________________________________________________________________
 #include "wellinfo.h"
 #include "od_helpids.h"
 
-const char* uiD2TModelGroup::sKeyTemporaryVel()
-{ return "Temporary model velocity"; }
-
+uiString uiD2TModelGroup::sKeyTemporaryVel()
+{ return tr("Temporary model velocity"); }
 
 float uiD2TModelGroup::getDefaultTemporaryVelocity()
-{ return getGUIDefaultVelocity() * 1.25f; }
+{ return Vel::getGUIDefaultVelocity() * 1.25f; }
 
 
 uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
@@ -48,20 +47,19 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 				uiFileInput::Setup().withexamine(true) );
     if ( setup_.fileoptional_ )
     {
-	const uiString velllbl = tr("%1 %2")
-		     .arg( sKeyTemporaryVel() )
-		     .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
-	const float vel = getDefaultTemporaryVelocity();
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
-	velfld_ = new uiGenInput( this, velllbl, FloatInpSpec(vel) );
+	const uiString vellbl( sKeyTemporaryVel() );
+	velfld_ = new uiConstantVel( this, getDefaultTemporaryVelocity(),
+				     vellbl );
 	velfld_->attach( alignedBelow, filefld_ );
     }
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
                                         mODHelpKey(mD2TModelGroupHelpID) );
-    dataselfld_->attach( alignedBelow, setup_.fileoptional_ ? velfld_
-							    : filefld_ );
+    dataselfld_->attach( alignedBelow,
+			 setup_.fileoptional_ ? (uiGenInput*)velfld_
+					      : filefld_ );
 
     if ( setup_.asksetcsmdl_ )
     {
@@ -108,11 +106,7 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
     if ( filefld_->isCheckable() && !filefld_->isChecked() )
     {
-	float vel = velfld_->getFValue();
-	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-	if ( SI().zIsTime() && SI().depthsInFeet() && zun )
-	    vel = zun->internalValue( vel );
-
+	const float vel = velfld_->getInternalVelocity();
 	d2t.makeFromTrack( wd.track(), vel, wd.info().replacementVelocity() );
     }
     else
@@ -167,10 +161,4 @@ BufferString uiD2TModelGroup::dataSourceName() const
 	ret.add( VelocityDesc::getVelUnit(true).getFullString() ).add( "]" );
     }
     return ret;
-}
-
-
-float getGUIDefaultVelocity()
-{
-    return SI().depthsInFeet() ? 8000.f : 2000.f;
 }
