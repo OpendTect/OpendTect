@@ -19,21 +19,24 @@ class uiColorTableMan;
 
 
 mExpClass(uiTools) uiColorSeqSel : public uiGroup
-{
+{ mODTextTranslationClass(uiColorSeqSel);
 public:
 
 				uiColorSeqSel(uiParent*,
-				    const uiString lbl=uiString::emptyString());
+					uiString lbl=uiString::emptyString());
 				~uiColorSeqSel();
 
     const char*			seqName() const;
     void			setSeqName(const char*);
+    bool			isFlipped() const;
+    void			setFlipped(bool);
 
     Notifier<uiColorSeqSel>	seqChanged;
+    Notifier<uiColorSeqSel>	menuReq;	//!< only when !usingBasicMenu()
 
+    bool			usingBasicMenu() const	{ return usebasicmenu_;}
     void			setUseBasicMenu( bool yn )
 				{ usebasicmenu_ = yn; }
-    Notifier<uiColorSeqSel>	menuReq;	//!< only when !usebasicmenu_
     uiMenu*			getBasicMenu();	//!< starting point
 
     void			setCurrentAsDefault();

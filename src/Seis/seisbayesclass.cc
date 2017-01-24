@@ -6,7 +6,7 @@
 
 
 #include "seisbayesclass.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seiswrite.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -48,7 +48,7 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
 	, doprenorm_(!iop.isFalse( sKeyPreNorm() ))
 	, dopostnorm_(!iop.isFalse( sKeyPostNorm() ))
 {
-    aprdrs_.allowNull( true );
+    approvs_.allowNull( true );
 
     const char* res = pars_.find( sKey::Type() );
     is2d_ = res && *res == '2';
@@ -78,8 +78,8 @@ void SeisBayesClass::cleanUp()
 {
     deepErase(inppdfs_);
     deepErase(pdfs_);
-    deepErase(rdrs_);
-    deepErase(aprdrs_);
+    deepErase(provs_);
+    deepErase(approvs_);
     deepErase(wrrs_);
 }
 
@@ -132,13 +132,13 @@ bool SeisBayesClass::getPDFs()
 
 	aptrcs_.add( new SeisTrc );
 	res = pars_.find( mGetSeisBayesAPProbIDKey(ipdf) );
-	SeisTrcReader* rdr = 0;
+	Seis::Provider* prov = 0;
 	if ( res && *res )
 	{
-	    rdr = getReader( res, false, ipdf );
-	    if ( !rdr ) return false;
+	    prov = getProvider( res, false, ipdf );
+	    if ( !prov ) return false;
 	}
-	aprdrs_ += rdr;
+	approvs_ += prov;
     }
 
     const_cast<int&>(nrpdfs_) = inppdfs_.size();
@@ -169,9 +169,11 @@ void SeisBayesClass::preScalePDFs()
 }
 
 
-SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
+Seis::Provider* SeisBayesClass::getProvider(
+			const char* id, bool isdim, int idx )
 {
-    PtrMan<IOObj> ioobj = DBM().get( DBKey::getFromString(id) );
+    const DBKey dbkey = DBKey::getFromString( id );
+    PtrMan<IOObj> ioobj = DBM().get( dbkey );
     if ( !ioobj )
     {
 	const ProbDenFunc& pdf0 = *inppdfs_[0];
@@ -184,15 +186,16 @@ SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
 	return 0;
     }
 
-    SeisTrcReader* rdr = new SeisTrcReader( ioobj );
-    rdr->usePar( pars_ );
-    if ( !rdr->prepareWork() )
+    uiRetVal uirv;
+    Seis::Provider* prov = Seis::Provider::create( dbkey, &uirv );
+    if ( !uirv.isOK() )
     {
-	msg_ = tr( "For %1:\n%2" ).arg( ioobj->uiName() ).arg( rdr->errMsg() );
-	delete rdr; return 0;
+	msg_ = tr( "For %1:\n%2" ).arg( ioobj->uiName() ).arg( uirv );
+	delete prov; return 0;
     }
 
-    return rdr;
+    prov->usePar( pars_ );
+    return prov;
 }
 
 
@@ -213,9 +216,9 @@ bool SeisBayesClass::getReaders()
 	    return false;
 	}
 
-	SeisTrcReader* rdr = getReader( id, true, idim );
-	if ( !rdr ) return false;
-	rdrs_ += rdr;
+	Seis::Provider* prov = getProvider( id, true, idim );
+	if ( !prov ) return false;
+	provs_ += prov;
     }
 
     initstep_ = 3;
@@ -284,12 +287,10 @@ od_int64 SeisBayesClass::totalNr() const
     if ( initstep_ )
 	return 4;
 
-    if ( totalnr_ == -2 && !rdrs_.isEmpty() )
+    if ( totalnr_ == -2 && !provs_.isEmpty() )
     {
-	Seis::Bounds* sb = rdrs_[0]->getBounds();
 	SeisBayesClass& self = *(const_cast<SeisBayesClass*>(this));
-	self.totalnr_ = sb->expectedNrTraces();
-	delete sb;
+	self.totalnr_ = provs_[0]->totalNr();
     }
     return totalnr_ < -1 ? -1 : totalnr_;
 }
@@ -305,10 +306,11 @@ int SeisBayesClass::nextStep()
 			       : getWriters()))
 	     ? MoreToDo() : ErrorOccurred();
 
-    int ret = readInpTrcs();
-    if ( ret != 1 )
-	return ret > 1	? MoreToDo()
-	    : (ret == 0	? closeDown() : ErrorOccurred());
+    int ret = readInpTrcs( true );
+    if ( ret == MoreToDo() )
+	ret = readInpTrcs( false );
+    if ( ret != MoreToDo() )
+	return ret == 0 ? closeDown() : ErrorOccurred();
 
     return createOutput() ? MoreToDo() : ErrorOccurred();
 }
@@ -321,43 +323,27 @@ int SeisBayesClass::closeDown()
 }
 
 
-int SeisBayesClass::readInpTrcs()
+int SeisBayesClass::readInpTrcs( bool inptrcs )
 {
-    SeisTrcInfo& ti0 = inptrcs_.get(0)->info();
-    int ret = rdrs_[0]->get( ti0 );
-    if ( ret != 1 )
+    ObjectSet<Seis::Provider>& provs = inptrcs ? provs_ : approvs_;
+    SeisTrcBuf& trcs = inptrcs ? inptrcs_ : aptrcs_;
+    for ( int idx=0; idx<provs.size(); idx++ )
     {
-	if ( ret < 0 )
-	    msg_ = rdrs_[0]->errMsg();
-	return ret;
-    }
+	Seis::Provider* prov = provs[idx];
+	if ( !prov ) continue;
 
-    for ( int idx=0; idx<rdrs_.size(); idx++ )
-    {
-	if ( idx && !rdrs_[idx]->seisTranslator()->goTo( ti0.binID() ) )
-	    return 2;
-	if ( !rdrs_[idx]->get(*inptrcs_.get(idx)) )
+	const uiRetVal uirv = prov->getNext( *trcs.get(idx) );
+	if ( !uirv.isOK() )
 	{
-	    msg_ = rdrs_[idx]->errMsg();
-	    return Executor::ErrorOccurred();
+	    if ( isFinished(uirv) )
+		return Finished();
+
+	    msg_ = uirv;
+	    return ErrorOccurred();
 	}
     }
 
-    for ( int idx=0; idx<aprdrs_.size(); idx++ )
-    {
-	SeisTrcReader* rdr = aprdrs_[idx];
-	if ( !rdr ) continue;
-
-	if ( !rdr->seisTranslator()->goTo( ti0.binID() ) )
-	    return 2;
-	if ( !rdr->get(*aptrcs_.get(idx)) )
-	{
-	    msg_ = rdr->errMsg();
-	    return Executor::ErrorOccurred();
-	}
-    }
-
-    return 1;
+    return MoreToDo();
 }
 
 
@@ -481,7 +467,7 @@ void SeisBayesClass::calcProbs( int ipdf )
 	for ( int isamp=0; isamp<nrsamps; isamp++ )
 	{
 	    float val = getPDFValue( ipdf, isamp, icomp );
-	    if ( aprdrs_[ipdf] )
+	    if ( approvs_[ipdf] )
 		val *= getAPTrcVal( ipdf, isamp, icomp );
 	    trc.set( isamp, val, icomp );
 	}

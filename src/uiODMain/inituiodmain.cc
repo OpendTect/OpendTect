@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uiodseis2dtreeitem.h"
 #include "uiodrandlinetreeitem.h"
 #include "uiodvolrentreeitem.h"
+#include "uiodstratlayermodelmgr.h"
 
 mDefModInitFn(uiODMain)
 {
@@ -33,4 +34,5 @@ mDefModInitFn(uiODMain)
     uiOD2DLineAttribTreeItem::initClass();
     uiODRandomLineAttribTreeItem::initClass();
     uiODVolrenAttribTreeItem::initClass();
+    uiStratLayerModelManager::initClass();
 }

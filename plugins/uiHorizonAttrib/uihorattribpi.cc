@@ -74,8 +74,8 @@ public:
     uiVisMenuItemHandler isochronmnuitemhndlr_;
     uiVisMenuItemHandler contourmnuitemhndlr_;
     uiVisMenuItemHandler horvolmnuitemhndlr_;
-    uiVisMenuItemHandler polyvolmnuitemhndlr_;
     uiVisMenuItemHandler pickdatamnuitemhndlr_;
+    uiPickSetPolygonMenuItemHandler polyvolmnuitemhndlr_;
 
     uiODMain*			appl_;
     uiEMDataPointSetPickDlg*	dpspickdlg_;
@@ -98,13 +98,15 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 		mMkPars(m3Dots(tr("Calculate Volume")),calcHorVol),"Workflows")
 	, pickdatamnuitemhndlr_(
 		mMkPars(m3Dots(tr("Pick Horizon Data")),pickData),"Workflows")
-	, polyvolmnuitemhndlr_(visSurvey::PickSetDisplay::sFactoryKeyword(),
+	, polyvolmnuitemhndlr_(
 		*a->applMgr().visServer(),m3Dots(tr("Calculate Volume")),
 		mCB(this,uiHorAttribPIMgr,calcPolyVol),0,996)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     mAttachCB( mnumgr.dTectMnuChanged, uiHorAttribPIMgr::updateMenu );
     updateMenu(0);
+
+    polyvolmnuitemhndlr_.addWhenPickSet( false );
 }
 
 

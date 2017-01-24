@@ -17,7 +17,7 @@
 mDefineSaveableManagerInstance(ProbeManager);
 
 ProbeManager::ProbeManager()
-    : SaveableManager(mIOObjContext(Probe),false,false)
+    : SaveableManager(mIOObjContext(Probe),false,true)
 {
     mTriggerInstanceCreatedNotifier();
 }

@@ -63,7 +63,6 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
-
 static float sMaxNrLayToBeDisplayed = 500.0f;
 static const char* sKeyDecimation() { return "Decimation"; }
 
@@ -73,175 +72,6 @@ const char* uiStratLayerModel::sKeyModeler2Use()
 {
     return "dTect.Stratigraphic Modeler to use";
 }
-
-
-class uiStratLayerModelManager : public CallBacker
-{ mODTextTranslationClass(uiStratLayerModelManager);
-public:
-
-uiStratLayerModelManager()
-    : dlg_(0)
-{
-    DBM().surveyToBeChanged.notify(mCB(this,uiStratLayerModelManager,survChg));
-    DBM().applicationClosing.notify(mCB(this,uiStratLayerModelManager,survChg));
-}
-
-
-void survChg( CallBacker* )
-{
-    if ( dlg_ )
-	dlg_->saveGenDescIfNecessary( false );
-    delete dlg_; dlg_ = 0;
-}
-
-void winClose( CallBacker* )
-{
-    uiStratTreeWin::makeEditable( true );
-    dlg_ = 0;
-}
-
-void startCB( CallBacker* cb )
-{
-    if ( haveExistingDlg() )
-	return;
-    const uiStringSet& usrnms =
-			uiLayerSequenceGenDesc::factory().getUserNames();
-    const BufferStringSet& nms = uiLayerSequenceGenDesc::factory().getNames();
-    mDynamicCastGet(uiToolButton*,tb,cb)
-    if ( Strat::RT().isEmpty() || nms.isEmpty() )
-	{ pErrMsg("Pre-condition not met"); return; }
-
-    uiParent* par = tb ? tb->parent() : &StratTreeWin();
-    const char* settres = Settings::common().find(
-				uiStratLayerModel::sKeyModeler2Use());
-    BufferString modnm( settres );
-    int defmodnr = -1;
-    bool givechoice = nms.size() > 1;
-    if ( modnm.isEmpty() )
-	modnm = *nms.last();
-    else
-    {
-	FileMultiString fms( modnm );
-	modnm = fms[0];
-	defmodnr = nms.indexOf( modnm.buf() );
-	if ( defmodnr < 0 )
-	    modnm.setEmpty();
-	else
-	{
-	    const bool alwayswant = fms.size() > 1 && *fms[1] == 'A';
-	    givechoice = givechoice && !alwayswant;
-	}
-    }
-
-    if ( givechoice )
-    {
-	uiSelectFromList::Setup sflsu( tr("Select modeling type"), usrnms );
-	sflsu.current( defmodnr < 0 ? nms.size()-1 : defmodnr );
-	uiSelectFromList dlg( par, sflsu );
-	uiCheckList* defpol = new uiCheckList( &dlg, uiCheckList::Chain1st,
-						OD::Horizontal );
-	defpol->addItem( tr("Set as default") )
-	       .addItem( tr("Always use this type") );
-	defpol->setChecked( 0, defmodnr >= 0 );
-	defpol->attach( centeredBelow, dlg.selFld() );
-	if ( !dlg.go() ) return;
-
-	const int sel = dlg.selection();
-	if ( sel < 0 ) return;
-	const BufferString newmodnm = nms.get( sel );
-	int indic = defpol->isChecked(0) ? (defpol->isChecked(1) ? 2 : 1) : 0;
-	bool needwrite = true;
-	if ( indic == 0 )
-	{
-	    if ( defmodnr < 0 )
-		needwrite = false;
-	    else
-		Settings::common().removeWithKey(
-				    uiStratLayerModel::sKeyModeler2Use() );
-	}
-	else
-	{
-	    if ( indic == 2 || defmodnr < 0 || modnm != newmodnm )
-	    {
-		Settings::common().set( uiStratLayerModel::sKeyModeler2Use(),
-			BufferString(newmodnm, indic == 2 ? "`Always" : "") );
-	    }
-	    else if ( defmodnr >= 0 )
-		needwrite = false;
-	}
-
-	if ( needwrite )
-	    Settings::common().write( false );
-	modnm = newmodnm;
-    }
-    doLayerModel( par, modnm, 0 );
-}
-
-bool haveExistingDlg()
-{
-    if ( dlg_ )
-    {
-	uiMSG().error(tr("Please exit your other layer modeling window first"));
-	dlg_->raise();
-	return true;
-    }
-    return false;
-}
-
-void doLayerModel( uiParent* p, const char* modnm, int opt )
-{
-    if ( haveExistingDlg() || Strat::RT().isEmpty() )
-	return;
-
-    dlg_ = new uiStratLayerModel( p, modnm, opt );
-    if ( !dlg_->moddisp_ )
-	{ delete dlg_; dlg_ = 0; }
-    else
-    {
-	uiStratTreeWin::makeEditable( false );
-	dlg_->windowClosed.notify(mCB(this,uiStratLayerModelManager,winClose));
-	dlg_->go();
-    }
-}
-
-void addToTreeWin()
-{
-    uiToolButtonSetup* su = new uiToolButtonSetup( "stratlayermodeling",
-			    tr("Start layer/synthetics modeling"),
-			    mCB(this,uiStratLayerModelManager,startCB) );
-    uiStratTreeWin::addTool( su );
-}
-
-    uiStratLayerModel*	dlg_;
-
-};
-
-static uiStratLayerModelManager& uislm_manager()
-{
-    mDefineStaticLocalObject( uiStratLayerModelManager, theinst, );
-    return theinst;
-}
-
-void uiStratLayerModel::initClass()
-{
-    uislm_manager().addToTreeWin();
-}
-
-
-void uiStratLayerModel::doBasicLayerModel()
-{
-    doLayerModel( uiBasicLayerSequenceGenDesc::typeStr() );
-}
-
-
-void uiStratLayerModel::doLayerModel( const char* modnm, int opt )
-{
-    if ( Strat::RT().isEmpty() )
-	StratTreeWin().popUp();
-    else
-	uislm_manager().doLayerModel( &StratTreeWin(), modnm, opt );
-}
-
 
 
 class uiStratLayerModelLMProvider : public Strat::LayerModelProvider
@@ -322,6 +152,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     , automksynth_(true)
     , nrmodels_(0)
     , moddisp_(0)
+    , modeldlg_(0)
     , newModels(this)
     , waveletChanged(this)
     , saveRequired(this)
@@ -449,6 +280,9 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &lmp_;
     delete descctio_.ioobj_; delete &descctio_;
     delete elpropsel_;
+    if ( modeldlg_ )
+	modeldlg_->close();
+    delete modeldlg_;
     StratTreeWin().changeLayerModelNumber( false );
     UnitOfMeasure::saveCurrentDefaults();
 }
@@ -573,14 +407,15 @@ void uiStratLayerModel::flattenChg( CallBacker* cb )
 {
     moddisp_->setFlattened( modtools_->showFlattened() );
     synthdisp_->setFlattened( modtools_->showFlattened() );
+    synthdisp_->setFlattenLvlNm( modtools_->getFlattenLvlNm() );
 }
 
 
 void uiStratLayerModel::levelChg( CallBacker* cb )
 {
-    synthdisp_->setDispMrkrs( modtools_->selLevel(),
-		  moddisp_->flattenLevelDepths(), modtools_->selLevelColor() );
-    //modtools_->setFlatTBSensitive( canShowFlattened() );
+    synthdisp_->setDispMrkrs( modtools_->getSelLvlNmSet(),
+						moddisp_->getLevelDepths() );
+    modtools_->setFlatTBSensitive( canShowFlattened() );
     if ( !canShowFlattened() && moddisp_->isFlattened() )
     {
 	modtools_->setShowFlattened( false );
@@ -769,10 +604,13 @@ bool uiStratLayerModel::openGenDesc()
 	return false;
 
     descctio_.ctxt_.forread_ = true;
-    uiIOObjSelDlg dlg( this, descctio_ );
-    if ( !dlg.go() || !dlg.ioObj() )
+    modeldlg_ = new uiIOObjSelDlg( this, descctio_ );
+
+
+    if ( !modeldlg_->go() || !modeldlg_->ioObj() )
 	return false;
-    descctio_.setObj( dlg.ioObj()->clone() );
+
+    descctio_.setObj( modeldlg_->ioObj()->clone() );
 
     const BufferString fnm( descctio_.ioobj_->fullUserExpr(true) );
     od_istream strm( fnm );
@@ -992,10 +830,8 @@ void uiStratLayerModel::handleNewModel()
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
     synthdisp_->setFlattened( modtools_->showFlattened(), true );
     moddisp_->setFlattened( modtools_->showFlattened(), true );
-    synthdisp_->setDispMrkrs( modtools_->selLevel(),
-		moddisp_->flattenLevelDepths(), modtools_->selLevelColor() );
-    const bool canshowflattened = canShowFlattened();
-    synthdisp_->setSnapLevelSensitive( canshowflattened );
+    synthdisp_->setDispMrkrs( modtools_->getSelLvlNmSet(),
+						moddisp_->getLevelDepths() );
 
     if ( needtoretrievefrpars_ )
     {
@@ -1089,8 +925,8 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
 	useSyntheticsPars( desc_.getWorkBenchParams() );
     }
     synthdisp_->showFRResults();
-    synthdisp_->setDispMrkrs( modtools_->selLevel(),
-		moddisp_->flattenLevelDepths(), modtools_->selLevelColor() );
+    synthdisp_->setDispMrkrs( modtools_->getSelLvlNmSet(),
+						moddisp_->getLevelDepths() );
     moddisp_->setBrineFilled( fwd );
     moddisp_->setFluidReplOn( usefr );
     moddisp_->modelChanged();

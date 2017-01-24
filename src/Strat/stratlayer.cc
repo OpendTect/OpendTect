@@ -448,7 +448,7 @@ int Strat::LayerSequence::indexOf( const Strat::Level& lvl, int startat ) const
 	const Strat::LeavedUnitRef* un
 		= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
 	if ( un->levelID() == lvl.id() )
-	    { lvlunit = un; break; }
+	{ lvlunit = un; break; }
     }
     if ( !lvlunit ) return -1;
 

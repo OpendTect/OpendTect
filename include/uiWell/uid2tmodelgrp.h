@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uigroup.h"
 
+class uiConstantVel;
 class uiFileInput;
 class uiGenInput;
 class uiTableImpDataSel;
@@ -48,7 +49,7 @@ public:
     bool		wantAsCSModel() const;
     BufferString	dataSourceName() const;
 
-    static const char*	sKeyTemporaryVel();
+    static uiString	sKeyTemporaryVel();
     static float	getDefaultTemporaryVelocity();
 
 protected:
@@ -59,15 +60,9 @@ protected:
     mutable uiString	warnmsg_;
 
     uiFileInput*	filefld_;
-    uiGenInput*		velfld_;
+    uiConstantVel*	velfld_;
     uiGenInput*		csfld_;
     uiTableImpDataSel*  dataselfld_;
 
     void		fileFldChecked(CallBacker*);
 };
-
-
-mGlobal(uiWell)	float	getGUIDefaultVelocity();
-                        //!< If survey display unit is feet, it returns 8000
-                        //!< otherwise 2000. Its purpose is to get nice values
-                        //!< of velocity when initializing velocity fields

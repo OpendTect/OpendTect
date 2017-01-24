@@ -23,11 +23,13 @@ set( OD_MODULE_SOURCES
 	uibuttonstateedit.cc
 	uichecklist.cc
 	uicolortable.cc
+	uicolseqsel.cc
 	uicoltabimport.cc
 	uicoltabman.cc
 	uicoltabmarker.cc
 	uicoltabtools.cc
 	uicompparsel.cc
+	uiconstvel.cc
 	uidirectionalplot.cc
 	uidlggroup.cc
 	uifileinput.cc

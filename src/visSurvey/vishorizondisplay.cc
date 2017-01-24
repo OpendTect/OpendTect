@@ -880,8 +880,8 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	float* vals = bivs.getVals(pos);
 	if ( zaxistransform_ )
 	{
-	    vals[zcol] = zaxistransform_->transform(
-		    BinIDValue( bivs.getBinID(pos), vals[0] ) );
+	    vals[zcol] = zaxistransform_->transformTrc(
+					bivs.getBinID(pos), vals[0] );
 	}
 	else
 	    vals[zcol] = vals[0];
@@ -1107,6 +1107,7 @@ void HorizonDisplay::setSectionDisplayRestore( bool yn )
 	for ( int idx=0; idx<sids_.size(); idx++ )
 	{
 	    oldsectionids_ += sids_[idx];
+	    if ( !sections_.validIdx(idx) ) continue;
 	    olddisplayedrowranges_ += sections_[idx]->displayedRowRange();
 	    olddisplayedcolranges_ += sections_[idx]->displayedColRange();
 	    oldhortexhandlers_ += &sections_[idx]->getTextureHandler();

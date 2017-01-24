@@ -21,9 +21,9 @@ ________________________________________________________________________
 #include "veldesc.h"
 #include "unitofmeasure.h"
 
+#include "uiconstvel.h"
 #include "uiioobjsel.h"
 #include "uipicksetsel.h"
-#include "uigeninput.h"
 #include "uibutton.h"
 #include "uichecklist.h"
 #include "uiseparator.h"
@@ -61,8 +61,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     uiObject* attobj = optsfld_->attachObj();
     if ( SI().zIsTime() )
     {
-	velfld_ = new uiGenInput( grp, VelocityDesc::getVelVolumeLabel(),
-		FloatInpSpec(zinft_?10000.f:3000.f) );
+	velfld_ = new uiConstantVel( grp, Vel::getGUIDefaultVelocity()*1.25f );
 	velfld_->attach( alignedBelow, optsfld_ );
 	velfld_->valuechanged.notify( calccb );
 	attobj = velfld_->attachObj();
@@ -123,11 +122,9 @@ void uiCalcHorVol::calcReq( CallBacker* )
     float vel = 1;
     if ( velfld_ )
     {
-	vel = velfld_->getFValue();
+	vel = velfld_->getInternalVelocity();
 	if ( mIsUdf(vel) || vel < 0.1 )
 	    mErrRet(tr("Please provide the velocity"))
-	if ( zinft_ )
-	    vel *= mFromFeetFactorF;
     }
 
     Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );

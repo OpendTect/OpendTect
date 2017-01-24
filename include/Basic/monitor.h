@@ -11,6 +11,8 @@ ________________________________________________________________________
 -*/
 
 #include "notify.h"
+#include "ptrman.h"
+#include "refcount.h"
 
 
 /*!\brief Object that can be MT-safely monitored from cradle to grave.
@@ -79,8 +81,19 @@ public:
     mExpClass(Basic) ChangeData : public std::pair<ChangeType,IDType>
     {
     public:
+
+	mExpClass(Basic) AuxData : public RefCount::Referenced
+	{
+	    protected:
+		virtual	~AuxData()			{}
+	};
+
 			ChangeData( ChangeType typ, IDType id )
-			    : std::pair<ChangeType,IDType>(typ,id) {}
+			    : std::pair<ChangeType,IDType>(typ,id)
+			    , auxdata_(0)		{}
+			ChangeData(const ChangeData&);
+	virtual		~ChangeData()		{}
+	ChangeData&	operator =(const ChangeData&);
 
 	ChangeType	changeType() const	{ return first; }
 	IDType		ID() const		{ return second; }
@@ -95,6 +108,9 @@ public:
 	static inline ChangeData AllChanged()	{ return ChangeData(-1,-1); }
 	static inline ChangeData NoChange()	{ return ChangeData(
 							 mUdf(ChangeType),-1); }
+	RefMan<AuxData>	auxdata_;
+	template<class T> inline T* auxDataAs()
+	{ return static_cast<T*>( auxdata_.ptr() ); }
     };
 
 			Monitorable(const Monitorable&);
@@ -138,8 +154,9 @@ protected:
     mutable Threads::Lock accesslock_;
 
     void		copyAll(const Monitorable&);
-    void		sendChgNotif(AccessLocker&,ChangeType,IDType) const;
+    void		sendChgNotif(AccessLocker&,const ChangeData&) const;
 				//!< objectChanged called with released lock
+    void		sendChgNotif(AccessLocker&,ChangeType,IDType) const;
     void		sendDelNotif() const;
     void		stopChangeNotifications() const
 			{ chgnotifblocklevel_++; }
@@ -261,8 +278,18 @@ protected:
 
 #define mGetMonitoredChgData(cb,chgdata) \
     mCBCapsuleUnpack( Monitorable::ChangeData, chgdata, cb )
+
+#define mGetMonitoredChgDataWithAux(cb,chgdata,T,auxvar) \
+    mCBCapsuleUnpack( Monitorable::ChangeData, chgdata, cb ); \
+    T* auxvar = chgdata.auxDataAs<T>()
+
 #define mGetMonitoredChgDataWithCaller(cb,chgdata,caller) \
     mCBCapsuleUnpackWithCaller( Monitorable::ChangeData, chgdata, caller, cb )
+
+#define mGetMonitoredChgDataWithAuxAndCaller(cb,chgdata,T,auxvar,caller) \
+    mGetMonitoredChgDataWithCaller(cb,chgdata,caller); \
+    T* auxvar = chgdata.auxDataAs<T>()
+
 #define mGetMonitoredChgDataDoAll(cb,chgdata,doallact) \
     mGetMonitoredChgData(chgdata,cb); \
     if ( chgdata.changeType() == Monitored::cEntireObjectChangeType() ) \

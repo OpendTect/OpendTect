@@ -81,6 +81,7 @@ public:
     bool		setPropDispPars(const LMPropSpecificDispPars&);
     bool		getCurPropDispPars(LMPropSpecificDispPars&) const;
     int			getFlattenLevelIdx() const;
+    const LVLZValsSet&	getLevelDepths()	{ return lvldpths_; }
     void		clearDispPars()		{ lmdisppars_.erase(); }
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;

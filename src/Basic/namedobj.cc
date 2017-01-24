@@ -70,3 +70,18 @@ bool NamedMonitorable::operator ==( const NamedMonitorable& oth ) const
     mLock4Read();
     return name_ == oth.getName();
 }
+
+
+void NamedMonitorable::setName( const char* newnm )
+{
+    mLock4Read();
+    if ( name_ == newnm )
+	return;
+    if ( !mLock2Write() && name_ == newnm )
+	return;
+
+    ChangeData cd( cNameChange(), 0 );
+    cd.auxdata_ = new NameChgData( name_, newnm );
+    name_ = newnm;
+    sendChgNotif( mAccessLocker(), cd );
+}

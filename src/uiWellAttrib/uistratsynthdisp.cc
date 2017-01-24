@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "stratsynth.h"
 #include "coltabsequence.h"
 #include "stratsynthlevel.h"
+#include "stratsynthlevelset.h"
 #include "stratlith.h"
 #include "syntheticdataimpl.h"
 #include "flatviewzoommgr.h"
@@ -73,7 +74,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , dispflattened_(false)
     , selectedtrace_(-1)
     , selectedtraceaux_(0)
-    , levelaux_(0)
     , wvltChanged(this)
     , viewChanged(this)
     , modSelChanged(this)
@@ -92,7 +92,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , taskrunner_( new uiTaskRunner(this) )
     , relzoomwr_(0,0,1,1)
     , savedzoomwr_(mUdf(double),0,0,0)
+    , lvlset_(0)
+    , lvlidx_(mUdf(int))
 {
+    levelaux_ += new FlatView::AuxData("");
     stratsynth_->setTaskRunner( taskrunner_ );
     edstratsynth_->setTaskRunner( taskrunner_ );
 
@@ -435,11 +438,11 @@ void uiStratSynthDisp::setFlattened( bool flattened, bool trigger )
 }
 
 
-void uiStratSynthDisp::setDispMrkrs( const char* lnm,
-				     const TypeSet<float>& zvals, Color col )
+void uiStratSynthDisp::setDispMrkrs( const BufferStringSet lvlnmset,
+			    const uiStratLayerModelDisp::LVLZValsSet& zvalset )
 {
-    StratSynthLevel* lvl = new StratSynthLevel( lnm, col, &zvals );
-    curSS().setLevel( lvl );
+    lvlset_ = new StratSynthLevelSet( lvlnmset, zvalset );
+    curSS().setLevels( *lvlset_ );
     levelSnapChanged(0);
 }
 
@@ -530,18 +533,18 @@ void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
 
 void uiStratSynthDisp::levelSnapChanged( CallBacker* )
 {
-    const StratSynthLevel* lvl = curSS().getLevel();
+    if ( !lvlset_ ) return;
+    const StratSynthLevelSet* lvl = curSS().getLevels();
     if ( !lvl )  return;
-    StratSynthLevel* edlvl = const_cast<StratSynthLevel*>( lvl );
-    edlvl->snapev_ =
-            VSEvent::TypeDef().parse( levelsnapselfld_->text() );
+    StratSynthLevelSet* edlvl = const_cast<StratSynthLevelSet*>( lvl );
+    edlvl->setSnapEv( VSEvent::TypeDef().parse(levelsnapselfld_->text()) );
     drawLevel();
 }
 
 
-const char* uiStratSynthDisp::levelName()  const
+const char* uiStratSynthDisp::levelName( const int idx )  const
 {
-    const StratSynthLevel* lvl = curSS().getLevel();
+    const StratSynthLevel* lvl = curSS().getLevel(idx);
     return lvl ? lvl->name().buf() : 0;
 }
 
@@ -563,40 +566,55 @@ void uiStratSynthDisp::displayFRText()
 
 void uiStratSynthDisp::drawLevel()
 {
-    delete vwr_->removeAuxData( levelaux_ );
-
-    const StratSynthLevel* lvl = curSS().getLevel();
-    const float offset =
-	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
-				  : 0.0f;
-    ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( currentwvasynthetic_ ? currentwvasynthetic_
-					 : currentvdsynthetic_, curd2tmodels,
-					 offset );
-    if ( !curd2tmodels.isEmpty() && lvl )
+    if ( !lvlset_ ) return;
+    vwr_->removeAuxDatas( levelaux_ );
+    for( int lvlidx=0; lvlidx<lvlset_->size(); lvlidx++ )
     {
-	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
-	FlatView::AuxData* auxd = vwr_->createAuxData("Level markers");
-	curSS().getLevelTimes( tbuf, curd2tmodels, dispeach_ );
+	const StratSynthLevel* lvl = curSS().getLevel(lvlidx);
+	if ( !lvl ) return;
+	BufferString checkstr = lvl->getName();
+	const Strat::Level stratlvl = Strat::LVLS().getByName(
+							    lvl->getName()) ;
+	const float offset =
+	    prestackgrp_->sensitive() ? mCast(float, offsetposfld_->getValue())
+				      : 0.0f;
+	ObjectSet<const TimeDepthModel> curd2tmodels;
+	getCurD2TModel( currentwvasynthetic_ ? currentwvasynthetic_
+					   : currentvdsynthetic_, curd2tmodels,
+					     offset );
 
-	auxd->linestyle_.type_ = OD::LineStyle::None;
-	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
+	if ( !curd2tmodels.isEmpty() )
 	{
-	    if ( tbuf.get(imdl)->isNull() )
-		continue;
-	    const float tval =
-		dispflattened_ ? 0 :  tbuf.get(imdl)->info().pick_;
+	    TypeSet<float> fltlvltimeval;
+	    if ( dispflattened_ )
+		curSS().getLevelTimes(Strat::LVLS().getByName( flattenlvlnm_ ),
+					    curd2tmodels, fltlvltimeval );
+	    FlatView::AuxData* auxd = vwr_->createAuxData("Level markers");
+	    TypeSet<float> timeval;
+	    curSS().getLevelTimes( stratlvl, curd2tmodels, timeval );
 
-	    auxd->markerstyles_ += OD::MarkerStyle2D( OD::MarkerStyle2D::Target,
-						  cMarkerSize, lvl->col_ );
-	    auxd->poly_ += FlatView::Point( (imdl*dispeach_)+1, tval );
-	}
-	if ( auxd->isEmpty() )
-	    delete auxd;
-	else
-	{
-	    vwr_->addAuxData( auxd );
-	    levelaux_ = auxd;
+
+	    auxd->linestyle_.type_ = OD::LineStyle::None;
+	    for ( int imdl=0; imdl<timeval.size(); imdl ++ )
+	    {
+		float tval = timeval[imdl];
+		if ( dispflattened_ )
+		    tval = tval - fltlvltimeval[imdl];
+
+		auxd->markerstyles_ += OD::MarkerStyle2D(
+			OD::MarkerStyle2D::Target,   cMarkerSize, lvl->col_ );
+		auxd->poly_ += FlatView::Point( (imdl*dispeach_)+1, tval );
+		auxd->zvalue_ = 3;
+		if ( dispflattened_ && (stratlvl.name() == flattenlvlnm_) )
+		    auxd->zvalue_ = 5;
+	    }
+	    if ( auxd->isEmpty() )
+		delete auxd;
+	    else
+	    {
+		vwr_->addAuxData( auxd );
+		levelaux_ += auxd;
+	    }
 	}
     }
 
@@ -683,8 +701,8 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	return false;
     }
     BufferString levelname;
-    if ( curSS().getLevel() )
-	levelname = curSS().getLevel()->name();
+    if ( curSS().getLevel(0) )
+	levelname = curSS().getLevel(0)->name();
     if ( levelname.isEmpty() || levelname.startsWith( "--" ) )
     {
 	uiMSG().error(uiStrings::phrSelect(tr("a Stratigraphic Level.\n"

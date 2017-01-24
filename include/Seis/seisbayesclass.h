@@ -16,8 +16,8 @@ ________________________________________________________________________
 class SeisTrc;
 class SeisTrcBuf;
 class ProbDenFunc;
-class SeisTrcReader;
 class SeisTrcWriter;
+namespace Seis { class Provider; }
 
 
 /*!\brief Bayesian inversion/classification for seismic data using PDFs.
@@ -62,8 +62,8 @@ protected:
     bool			is2d_;
     ObjectSet<ProbDenFunc>	inppdfs_;
     ObjectSet<ProbDenFunc>	pdfs_;
-    ObjectSet<SeisTrcReader>	rdrs_;
-    ObjectSet<SeisTrcReader>	aprdrs_;
+    ObjectSet<Seis::Provider>	provs_;
+    ObjectSet<Seis::Provider>	approvs_;
     ObjectSet<SeisTrcWriter>	wrrs_;
     SeisTrcBuf&			inptrcs_;
     SeisTrcBuf&			aptrcs_;
@@ -90,8 +90,8 @@ protected:
     bool			getReaders();
     bool			getWriters();
 
-    SeisTrcReader*		getReader(const char*,bool,int);
-    int				readInpTrcs();
+    Seis::Provider*		getProvider(const char*,bool,int);
+    int				readInpTrcs(bool forinptrcs);
     int				createOutput();
     int				closeDown();
 

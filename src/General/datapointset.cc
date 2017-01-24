@@ -6,16 +6,19 @@
 
 
 #include "datapointset.h"
+
+#include "arrayndimpl.h"
+#include "bufstringset.h"
 #include "datacoldef.h"
 #include "executor.h"
-#include "posvecdataset.h"
-#include "posprovider.h"
-#include "bufstringset.h"
-#include "survinfo.h"
-#include "statrand.h"
 #include "idxable.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "posprovider.h"
+#include "posvecdataset.h"
+#include "samplfunc.h"
+#include "statrand.h"
+#include "survinfo.h"
 
 static const char* sKeyDPS = "Data Point Set";
 const int DataPointSet::groupcol_ = 3;
@@ -922,4 +925,110 @@ DataPointSet::RowID DataPointSet::findFirst( const Coord& crd ) const
     }
 
     return -1;
+}
+
+
+// DPSFromVolumeFiller
+DPSFromVolumeFiller::DPSFromVolumeFiller( DataPointSet& dps, int firstcol,
+				const VolumeDataPack& vdp, int component )
+    : ParallelTask()
+    , dps_(dps)
+    , vdp_(vdp)
+    , component_(component)
+    , firstcol_(firstcol)
+    , hastrcdata_(false)
+    , hasstorage_(false)
+{
+    dps_.ref();
+    vdp_.ref();
+
+    const int testcomponent = component==-1 ? 0 : component;
+    if ( !vdp_.isEmpty() )
+    {
+	const Array3DImpl<float>& array = vdp_.data( testcomponent );
+	hastrcdata_ = array.getData();
+	hasstorage_ = array.getStorage();
+    }
+}
+
+
+DPSFromVolumeFiller::~DPSFromVolumeFiller()
+{
+    dps_.unRef();
+    vdp_.unRef();
+}
+
+
+uiString DPSFromVolumeFiller::message() const
+{
+    return tr("Reading data");
+}
+
+
+uiString DPSFromVolumeFiller::nrDoneText() const
+{
+    return tr("Traces done");
+}
+
+
+od_int64 DPSFromVolumeFiller::nrIterations() const
+{
+    return dps_.size();
+}
+
+
+bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
+{
+    const StepInterval<float>& zsamp = vdp_.getZRange();
+    const int nrz = zsamp.nrSteps() + 1;
+    const SamplingData<float> sd( zsamp.start, zsamp.step );
+    Array1DImpl<float>* trcarr = 0;
+    if ( !hastrcdata_ && !hasstorage_ )
+	trcarr = new Array1DImpl<float>( nrz );
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	const DataPointSet::RowID rid = mCast(int,idx);
+	float* vals = dps_.getValues( rid );
+	const BinID bid = dps_.binID( rid );
+	const int gidx = vdp_.getGlobalIdx( bid );
+	if ( gidx<0 ) continue;
+
+	const float zval = dps_.z( rid );
+	const float fzidx = sd.getfIndex( zval );
+	int outidx = 0;
+	for ( int cidx=0; cidx<vdp_.nrComponents(); cidx++ )
+	{
+	    if ( component_!=-1 && component_!=cidx )
+		continue;
+
+	    if ( hastrcdata_ )
+	    {
+		const float* trcdata = vdp_.getTrcData( cidx, gidx );
+		const SampledFunctionImpl<float,const float*>
+						sampfunc( trcdata, nrz );
+		vals[firstcol_+outidx] = sampfunc.getValue( fzidx );
+	    }
+	    else if ( hasstorage_ )
+	    {
+		const OffsetValueSeries<float> ovs =
+			vdp_.getTrcStorage( cidx, gidx );
+		const SampledFunctionImpl<float,ValueSeries<float> >
+						sampfunc( ovs, nrz );
+		vals[firstcol_+outidx] = sampfunc.getValue( fzidx );
+	    }
+	    else if ( vdp_.getCopiedTrcData(cidx,gidx,*trcarr) )
+	    {
+		float* dataptr = trcarr->getData();
+		const SampledFunctionImpl<float,const float*>
+						sampfunc( dataptr, nrz );
+		vals[firstcol_+outidx] = sampfunc.getValue( fzidx );
+	    }
+
+	    outidx++;
+	}
+
+	addToNrDone( 1 );
+    }
+
+    return true;
 }

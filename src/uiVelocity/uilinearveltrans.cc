@@ -10,12 +10,14 @@ ________________________________________________________________________
 -*/
 
 #include "uilinearveltrans.h"
+
 #include "timedepthconv.h"
 #include "zdomain.h"
 #include "survinfo.h"
 #include "binidvalue.h"
+
+#include "uiconstvel.h"
 #include "uimsg.h"
-#include "uigeninput.h"
 #include "uizrangeinput.h"
 
 namespace Vel
@@ -46,14 +48,9 @@ uiZAxisTransform* uiLinearVelTransform::createInstance( uiParent* p,
 uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
     : uiTime2DepthZTransformBase( p, t2d )
 {
-    uiString velfldlbl = uiStrings::phrJoinStrings(
-		    VelocityDesc::TypeDef().toUiString(VelocityDesc::Interval),
-		    VelocityDesc::getVelUnit(true) );
-
-    velfld_ = new uiGenInput( this, velfldlbl,
-			     FloatInpSpec(SI().zInFeet() ? 6000.f : 2000.f ) );
+    const uiString velfldlbl( VelocityDesc::toUiString(VelocityDesc::Interval));
+    velfld_ = new uiConstantVel( this, Vel::getGUIDefaultVelocity(), velfldlbl);
     mAttachCB( velfld_->valuechanging, uiLinearVelTransform::velChangedCB );
-
 
     gradientfld_ = new uiGenInput( this, tr("Gradient (1/s)"), FloatInpSpec(0));
     gradientfld_->attach( rightTo, velfld_ );

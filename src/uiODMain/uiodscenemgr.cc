@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 #include "uibuttongroup.h"
 #include "uidockwin.h"
+#include "uifont.h"
 #include "uigeninputdlg.h"
 #include "uimdiarea.h"
 #include "uimsg.h"
@@ -141,6 +142,9 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 
     mAttachCB( mdiarea_->windowActivated, uiODSceneMgr::mdiAreaChanged );
     mAttachCB( tiletimer_->tick, uiODSceneMgr::tileTimerCB );
+
+    uiFont& font3d = FontList().get( FontData::key(FontData::Graphics3D) );
+    mAttachCB( font3d.changed, uiODSceneMgr::font3DChanged );
 }
 
 
@@ -1445,6 +1449,26 @@ uiODScene* uiODSceneMgr::getScene( int sceneid )
 
 const uiODScene* uiODSceneMgr::getScene( int sceneid ) const
 { return const_cast<uiODSceneMgr*>(this)->getScene( sceneid ); }
+
+
+void uiODSceneMgr::font3DChanged( CallBacker* )
+{
+    uiFont& font3d = FontList().get( FontData::key(FontData::Graphics3D) );
+    for ( int idx=0; idx<viewers_.size(); idx++ )
+    {
+	uiODScene* uiscene = getSceneByIdx( idx );
+	if ( !uiscene || !uiscene->vwr3d_ ) continue;
+
+	uiscene->vwr3d_->setAnnotationFont( font3d.fontData() );
+
+	const int sceneid = uiscene->vwr3d_->sceneID();
+	mDynamicCastGet(visSurvey::Scene*,visscene,
+			visBase::DM().getObject(sceneid))
+	if ( !visscene ) continue;
+
+	visscene->setAnnotFont( font3d.fontData() );
+    }
+}
 
 
 // uiODScene

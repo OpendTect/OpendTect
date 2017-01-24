@@ -24,10 +24,11 @@ public:
 			StratSynthLevel( const char* nm, Color c,
 					 const TypeSet<float>* dpts=0 )
 			    : NamedObject(nm), col_(c), snapev_(VSEvent::None)
-			{ if ( dpts ) zvals_ = *dpts; }
+			{
+			    if ( dpts ) zvals_ = *dpts;
+			}
 
     TypeSet<float> 	zvals_;
     Color          	col_;
     VSEvent::Type  	snapev_;
-
 };

@@ -227,6 +227,7 @@ void Strat::Level::usePar( const IOPar& iop )
 
 Strat::LevelSet::LevelSet( int idnr )
     : curlevelid_(idnr)
+    , lvlid_(ID::get(0))
 {
 }
 
@@ -234,6 +235,7 @@ Strat::LevelSet::LevelSet( int idnr )
 Strat::LevelSet::LevelSet( const LevelSet& oth )
     : SharedObject(oth)
     , curlevelid_(0)
+    , lvlid_(ID::get(0))
 {
     copyClassData( oth );
 }
@@ -419,8 +421,9 @@ Strat::LevelSet::ID Strat::LevelSet::doSet( const Strat::Level& lvl,
     if ( idx < 0 )
     {
 	if ( isnew ) *isnew = true;
-	chglvl = new Level( lvl );
 	curlevelid_++;
+	lvl.id().setI(curlevelid_);
+	chglvl = new Level( lvl );
 	lvls_ += chglvl;
     }
     else
@@ -457,7 +460,9 @@ void Strat::LevelSet::remove( ID id )
 
 Strat::LevelSet::ID Strat::LevelSet::add( const char* nm, const Color& col )
 {
-    Level lvl( nm, col );
+    lvlid_.setI(curlevelid_);
+    Level lvl( nm, col, lvlid_ );
+    curlevelid_++;
     mLock4Write();
     return doSet( lvl );
 }

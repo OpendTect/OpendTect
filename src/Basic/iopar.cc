@@ -1345,5 +1345,27 @@ void IOPar::dumpPretty( BufferString& res ) const
 }
 
 
+void IOPar::collectIDs( TypeSet<int>& ids ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	BufferString idstr( keys_.get(idx) );
+	char* firstdotptr = idstr.find( '.' );
+	if ( !firstdotptr )
+	    continue;
+
+	*firstdotptr = '\0';
+	if ( idstr.isNumber(true) )
+	{
+	    int id = idstr.toInt();
+	    if ( !ids.isPresent(id) )
+		ids += id;
+	}
+    }
+}
+
+
 int IOPar::odVersion() const
-{ return 100*majorversion_ + 10*minorversion_; }
+{
+    return 100*majorversion_ + 10*minorversion_;
+}

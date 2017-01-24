@@ -77,6 +77,7 @@ ________________________________________________________________________
 #include "randomlinegeom.h"
 #include "unitofmeasure.h"
 #include "od_helpids.h"
+#include "uiodstratlayermodelmgr.h"
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl_(a)
@@ -1907,7 +1908,7 @@ void uiODApplMgr::launchRockPhysics( CallBacker* )
 void uiODApplMgr::launch2DViewer( CallBacker* )
 { show2DViewer(); }
 void uiODApplMgr::doLayerModeling( CallBacker* )
-{ uiStratLayerModel::doBasicLayerModel(); }
+{ uiStratLayerModelManager::doBasicLayerModel(); }
 
 void uiODApplMgr::doVolProc2DCB( CallBacker* )
 { volprocserv_->doVolProc( true, 0 ); }

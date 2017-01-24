@@ -82,7 +82,8 @@ public:
     void			close();
 
     void			addErrMsgTo(BufferString&) const;
-    void			addErrMsgTo(uiString&)const;
+    void			addErrMsgTo(uiString&) const;
+    void			addErrMsgTo(uiRetVal&) const;
     static od_stream*		create(const char*,bool forread,
 					   uiString& errmsg);
 				//!< returns null on failure, never a bad stream

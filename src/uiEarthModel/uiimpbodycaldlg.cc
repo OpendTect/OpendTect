@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "survinfo.h"
 #include "uibutton.h"
-#include "uigeninput.h"
+#include "uiconstvel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "veldesc.h"
@@ -35,9 +35,8 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
 
     if ( SI().zIsTime() )
     {
-	velfld_ = new uiGenInput( this,
-			 VelocityDesc::getVelVolumeLabel(),
-			 FloatInpSpec( SI().depthsInFeet()?10000.0f:3000.0f) );
+	velfld_ = new uiConstantVel( this,
+				     Vel::getGUIDefaultVelocity() * 1.25f );
     }
 
     uiPushButton* calcbut =
@@ -94,18 +93,16 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
     if ( !impbody_ )
     {
 	getImpBody();
-    	if ( !impbody_ || !impbody_->arr_ )
-    	    mErrRet(tr("Checking body failed"));
+	if ( !impbody_ || !impbody_->arr_ )
+	    mErrRet(tr("Checking body failed"));
     }
 
-    float vel = 1;
+    float vel = 1.f;
     if ( velfld_ )
     {
-	vel = velfld_->getFValue();
+	vel = velfld_->getInternalVelocity();
 	if ( mIsUdf(vel) || vel < 0.1 )
 	    mErrRet(tr("Please provide the velocity"))
-	if ( SI().depthsInFeet() )
-	    vel *= mFromFeetFactorF;
     }
 
     uiTaskRunner taskrunner(this);

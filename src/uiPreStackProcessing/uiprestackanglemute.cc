@@ -37,7 +37,7 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
     , advpardlg_(0)
 {
     velfuncsel_ = new uiVelSel( this, uiVelSel::ioContext(),
-				uiSeisSel::Setup(Seis::Vol), false);
+				uiSeisSel::Setup(Seis::Vol), false );
     velfuncsel_->setLabelText( tr("Input Velocity") );
     if ( !params_.velvolmid_.isInvalid() )
        velfuncsel_->setInput( params_.velvolmid_ );
@@ -45,7 +45,7 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
     if ( isformute_ )
     {
 	anglefld_ = new uiGenInput( this, tr("Mute cutoff angle (degree)"),
-				     FloatInpSpec(false) );
+				    FloatInpSpec(false) );
 	anglefld_->attach( alignedBelow, velfuncsel_ );
 	anglefld_->setValue( params_.mutecutoff_ );
     }
@@ -58,8 +58,8 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 	anglelbl_->attach( rightOf, anglefld_ );
     }
 
-    advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"), true );
-    advpushbut_->activated.notify( mCB(this, uiAngleCompGrp, advPushButCB) );
+    advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"), false );
+    advpushbut_->activated.notify( mCB(this,uiAngleCompGrp,advPushButCB) );
     advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
 
     setHAlignObj( velfuncsel_ );
@@ -88,8 +88,8 @@ bool uiAngleCompGrp::acceptOK()
 	params_.mutecutoff_ = anglefld_->getFValue();
 	if ( !normalanglevalrange.includes(params_.mutecutoff_,false) )
 	{
-	    uiMSG().error(uiStrings::phrSelect(tr("the mute cutoff between "
-							   "0 and 90 degree")));
+	    uiMSG().error( uiStrings::phrSelect(
+		tr("the mute cutoff between 0 and 90 degree")) );
 	    return false;
 	}
     }
@@ -100,8 +100,8 @@ bool uiAngleCompGrp::acceptOK()
 
 	if ( !normalanglevalrange.includes(anglerange,false) )
 	{
-	    uiMSG().error(tr("Provide angle range"
-                " between 0 and 90 degree"));
+	    uiMSG().error(
+		tr("Provide angle range between 0 and 90 degree") );
 	    return false;
 	}
 
@@ -124,9 +124,9 @@ void uiAngleCompGrp::advPushButCB( CallBacker* )
 uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					      PreStack::AngleCompParams& pars,
 					      bool offset, bool isformute )
-    : uiDialog(p, uiDialog::Setup(tr("Advanced Parameter"),
-				  tr("Advanced angle parameters"),
-                                  mODHelpKey(mAngleCompAdvParsDlgHelpID) ))
+    : uiDialog(p, uiDialog::Setup(tr("Advanced Angle Parameters"),
+				  mNoDlgTitle,
+				  mODHelpKey(mAngleCompAdvParsDlgHelpID)))
     , params_(pars)
     , isformute_(isformute)
     , smoothtypefld_(0)
@@ -262,7 +262,7 @@ bool uiAngleCompAdvParsDlg::isSmoothTypeMovingAverage()
 {
     const char* smoothtype = smoothtypefld_->text();
     const PreStack::AngleComputer::smoothingType smtype =
-            PreStack::AngleComputer::smoothingTypeDef().parse( smoothtype);
+		PreStack::AngleComputer::smoothingTypeDef().parse( smoothtype);
     return smtype == PreStack::AngleComputer::MovingAverage;
 }
 
@@ -271,7 +271,7 @@ bool uiAngleCompAdvParsDlg::isSmoothTypeFFTFilter()
 {
     const char* smoothtype = smoothtypefld_->text();
     const PreStack::AngleComputer::smoothingType smtype =
-            PreStack::AngleComputer::smoothingTypeDef().parse( smoothtype );
+		PreStack::AngleComputer::smoothingTypeDef().parse( smoothtype );
     return smtype == PreStack::AngleComputer::FFTFilter;
 }
 
@@ -333,7 +333,7 @@ uiDialog* uiAngleMute::create( uiParent* p, Processor* sgp )
 
 uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
     : uiDialog( p, uiDialog::Setup(tr("AngleMute setup"),mNoDlgTitle,
-                                    mODHelpKey(mAngleMuteHelpID) ) )
+				   mODHelpKey(mAngleMuteHelpID)))
     , processor_( rt )
 {
     anglecompgrp_ = new uiAngleCompGrp( this, processor_->params() );

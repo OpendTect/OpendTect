@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 namespace OD { class LineStyle; };
+class uiConstantVel;
 class uiGenInput;
 class uiSelLineStyle;
 class uiCheckBox;
@@ -40,7 +41,7 @@ protected:
     uiGenInput*			hdistfld_;
     uiGenInput*			zdistfld_;
     uiGenInput*			zdist2fld_;
-    uiGenInput*			appvelfld_;
+    uiConstantVel*		appvelfld_;
     uiGenInput*			distfld_;
     uiGenInput*			dist2fld_;
     uiGenInput*			inlcrldistfld_;

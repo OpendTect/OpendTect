@@ -414,25 +414,12 @@ Color uiStratLayModEditTools::selLevelColor() const
     return lvl.color();
 }
 
-TypeSet<Strat::Level::ID> uiStratLayModEditTools::getAllSelLevelsID() const
-{
-    TypeSet<Strat::Level::ID> lvlidset;
-    for ( int idx=0; idx<choosenlvlnms_.size(); idx++ )
-    {
-	if ( lvlfld_ )
-	    lvlidset += Strat::LVLS().getByName( choosenlvlnms_.get(idx)).id();
-	else
-	    lvlidset += Strat::Level::ID::getInvalid();
-    }
-    return lvlidset;
-}
 
 TypeSet<Strat::Level> uiStratLayModEditTools::getAllSelStratLevels() const
 {
     TypeSet<Strat::Level> lvlset;
-    TypeSet<Strat::Level::ID> lvlidset = getAllSelLevelsID();
-    for ( int idx=0; idx<lvlidset.size(); idx++ )
-	lvlset += Strat::LVLS().get( lvlidset.get(idx) );
+    for ( int idx=0; idx<choosenlvlnms_.size(); idx++ )
+	lvlset += Strat::LVLS().getByName( choosenlvlnms_.get(idx) );
     return lvlset;
 }
 

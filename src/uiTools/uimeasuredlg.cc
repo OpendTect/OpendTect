@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicolor.h"
-#include "uigeninput.h"
+#include "uiconstvel.h"
 #include "uilabel.h"
 #include "uisellinest.h"
 #include "uispinbox.h"
@@ -38,7 +38,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     , appvelfld_(0)
     , zdist2fld_(0)
     , dist2fld_(0)
-    , velocity_(2000)
+    , velocity_(Vel::getGUIDefaultVelocity())
     , lineStyleChange(this)
     , clearPressed(this)
     , velocityChange(this)
@@ -66,7 +66,8 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
 
-    uiString zintimelbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
+    const uiString zintimelbl =
+			  uiStrings::phrJoinStrings(uiStrings::sVertical(),
 			  uiStrings::phrJoinStrings(uiStrings::sDistance(),
 			  SI().xyUnitString()) );
     if ( SI().zIsTime() )
@@ -74,9 +75,8 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	zdist2fld_ = new uiGenInput( topgrp, zintimelbl, FloatInpSpec(0) );
 	zdist2fld_->attach( alignedBelow, zdistfld_ );
 
-	zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVelocity(),
-		   UnitOfMeasure::surveyDefVelUnitAnnot(true,true));
-	appvelfld_ = new uiGenInput(topgrp, zdistlbl, FloatInpSpec(velocity_));
+	appvelfld_ = new uiConstantVel( topgrp );
+	velocity_ = appvelfld_->getInternalVelocity();
 	appvelfld_->valuechanged.notify( mCB(this,uiMeasureDlg,velocityChgd) );
 	appvelfld_->attach( alignedBelow, zdist2fld_ );
     }
@@ -164,7 +164,7 @@ void uiMeasureDlg::velocityChgd( CallBacker* )
 {
     if ( !appvelfld_ ) return;
 
-    const float newvel = appvelfld_->getFValue();
+    const float newvel = appvelfld_->getInternalVelocity();
     if ( mIsEqual(velocity_,newvel,mDefEps) )
 	return;
 
@@ -178,7 +178,7 @@ void uiMeasureDlg::reset()
     hdistfld_->setValue( 0 );
     zdistfld_->setValue( 0 );
     if ( zdist2fld_ ) zdist2fld_->setValue( 0 );
-    if ( appvelfld_ ) appvelfld_->setValue( velocity_ );
+    if ( appvelfld_ ) appvelfld_->setInternalVelocity( velocity_ );
     distfld_->setValue( 0 );
     if ( dist2fld_ ) dist2fld_->setValue( 0 );
     distfld_->setValue( 0 );
@@ -188,7 +188,7 @@ void uiMeasureDlg::reset()
 
 void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 {
-    const float velocity = appvelfld_ ? appvelfld_->getFValue() : 0 ;
+    const float velocity = appvelfld_ ? appvelfld_->getInternalVelocity() : 0 ;
     const int size = points.size();
     if ( size<2 )
     {

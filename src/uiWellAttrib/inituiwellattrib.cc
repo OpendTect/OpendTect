@@ -16,6 +16,6 @@ mDefModInitFn(uiWellAttrib)
 {
     mIfNotFirstTime( return );
 
-    uiStratLayerModel::initClass();
+    //uiStratLayerModel::initClass();
     uiWellLogAttrib::initClass();
 }

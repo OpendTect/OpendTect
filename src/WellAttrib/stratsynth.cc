@@ -36,22 +36,21 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 #include "timeser.h"
 #include "waveletmanager.h"
+#include "stratlevel.h"
 
 StratSynth::StratSynth( const Strat::LayerModelProvider& lmp, bool useed )
     : lmp_(lmp)
     , useed_(useed)
-    , level_(0)
     , taskr_(0)
     , wvlt_(0)
     , lastsyntheticid_(0)
     , swaveinfomsgshown_(0)
-{
-}
-
+    , stratlevelset_(0)
+{}
 
 StratSynth::~StratSynth()
 {
-    setLevel( 0 );
+    delete stratlevelset_;
     if ( wvlt_ )
 	wvlt_->unRef();
 }
@@ -153,7 +152,8 @@ bool StratSynth::removeSynthetic( const char* nm )
 	{
 	    RefMan<SyntheticData> sd = synthetics_.removeSingle( idx );
 	    SynthGenParams sgp;
-	    sd->fillGenParams( sgp );
+	    if ( sd )
+		sd->fillGenParams( sgp );
 	    if ( canRayModelsBeRemoved(sgp.raypars_) )
 	    {
 		RayModelSet* rms = sd->raymodels_;
@@ -1287,44 +1287,57 @@ void StratSynth::getLevelTimes( SeisTrcBuf& trcs,
 			const ObjectSet<const TimeDepthModel>& d2ts,
 			int dispeach ) const
 {
-    if ( !level_ ) return;
+    if ( !stratlevelset_->size() ) return;
 
-    TypeSet<float> times = level_->zvals_;
-    convD2T( times, d2ts );
-
-    for ( int idx=0; idx<trcs.size(); idx++ )
+    for( int lvlidx=0; lvlidx< stratlevelset_->size(); lvlidx++ )
     {
-	const SeisTrc& trc = *trcs.get( idx );
-	SeisTrcPropCalc stp( trc );
-	const int d2tidx = dispeach==-1 ? idx : idx*dispeach;
-	float z = times.validIdx( d2tidx ) ? times[d2tidx] : mUdf( float );
-	trcs.get( idx )->info().zref_ = z;
-	if ( !mIsUdf( z ) && level_->snapev_ != VSEvent::None )
-	{
-	    Interval<float> tg( z, trc.startPos() );
-	    mFlValSerEv ev1 = stp.find( level_->snapev_, tg, 1 );
-	    tg.start = z; tg.stop = trc.endPos();
-	    mFlValSerEv ev2 = stp.find( level_->snapev_, tg, 1 );
-	    float tmpz = ev2.pos;
-	    const bool ev1invalid = mIsUdf(ev1.pos) || ev1.pos < 0;
-	    const bool ev2invalid = mIsUdf(ev2.pos) || ev2.pos < 0;
-	    if ( ev1invalid && ev2invalid )
-		continue;
-	    else if ( ev2invalid )
-		tmpz = ev1.pos;
-	    else if ( fabs(z-ev1.pos) < fabs(z-ev2.pos) )
-		tmpz = ev1.pos;
+	TypeSet<float> times = stratlevelset_->getLevelZVals()[lvlidx];
+	convD2T( times, d2ts );
 
-	    z = tmpz;
+	for ( int idx=0; idx<trcs.size(); idx++ )
+	{
+	    const SeisTrc& trc = *trcs.get( idx );
+	    SeisTrcPropCalc stp( trc );
+	    const int d2tidx = dispeach==-1 ? idx : idx*dispeach;
+	    float z = times.validIdx( d2tidx ) ? times[d2tidx] : mUdf( float );
+	    trcs.get( idx )->info().zref_ = z;
+	    if ( !mIsUdf( z ) && stratlevelset_->getSnapEv() != VSEvent::None )
+	    {
+		Interval<float> tg( z, trc.startPos() );
+		mFlValSerEv ev1 = stp.find( stratlevelset_->getSnapEv(),
+								      tg, 1 );
+		tg.start = z; tg.stop = trc.endPos();
+		mFlValSerEv ev2 = stp.find( stratlevelset_->getSnapEv(),
+								      tg, 1 );
+		float tmpz = ev2.pos;
+		const bool ev1invalid = mIsUdf(ev1.pos) || ev1.pos < 0;
+		const bool ev2invalid = mIsUdf(ev2.pos) || ev2.pos < 0;
+		if ( ev1invalid && ev2invalid )
+		    continue;
+		else if ( ev2invalid )
+		    tmpz = ev1.pos;
+		else if ( fabs(z-ev1.pos) < fabs(z-ev2.pos) )
+		    tmpz = ev1.pos;
+
+		z = tmpz;
+	    }
+	    trcs.get( idx )->info().pick_ = z;
 	}
-	trcs.get( idx )->info().pick_ = z;
     }
 }
 
 
-void StratSynth::setLevel( const StratSynthLevel* lvl )
-{ delete level_; level_ = lvl; }
+void StratSynth::setLevels( const StratSynthLevelSet& lvlset )
+{
+    stratlevelset_ = new StratSynthLevelSet(lvlset);
+}
 
+
+void StratSynth::setLevels( const BufferStringSet& lvlnmset,
+						    const LVLZValsSet& zvalset)
+{
+    stratlevelset_ = new StratSynthLevelSet( lvlnmset, zvalset );
+}
 
 
 void StratSynth::trimTraces( SeisTrcBuf& tbuf,
