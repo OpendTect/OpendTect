@@ -255,7 +255,7 @@ protected:
 /*!\brief Fills DataPointSet with data from a VolumeDataPack
 */
 
-mClass(General) DPSFromVolumeFiller : public ParallelTask
+mExpClass(General) DPSFromVolumeFiller : public ParallelTask
 { mODTextTranslationClass(DPSFromVolumeFiller)
 public:
 				DPSFromVolumeFiller(DataPointSet&,int firstcol,
