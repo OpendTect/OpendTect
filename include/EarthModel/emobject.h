@@ -306,7 +306,7 @@ public:
 
 protected:
 				~EMObject();
-				EMObject( EMManager& );
+				EMObject(const char*);
 				//!<must be called after creation
 
     virtual bool		setPosition(const EM::SectionID&,
@@ -322,7 +322,6 @@ protected:
 
     BufferString		objname_;
     DBKey			storageid_;
-    class EMManager&		manager_;
     uiString			errmsg_;
 
     Color&			preferredcolor_;
@@ -356,15 +355,13 @@ public:
     mDeprecated const DBKey&	multiID() const		{ return storageid_; }
     mDeprecated void		setMultiID( const DBKey& k ) { setDBKey(k); }
     static Color		sDefaultSelectionColor();
-    EMManager&			getMgr()	{ return manager_; }
-
 };
 
 } // namespace EM
 
 #define mDefineEMObjFuncs( clss ) \
 public: \
-				clss(EM::EMManager&); \
+				clss(const char* nm); \
     static void			initClass(); \
     static EMObject*		create(EM::EMManager&); \
     static clss*		create(const char* nm); \
@@ -383,7 +380,7 @@ void clss::initClass() \
  \
 EMObject* clss::create( EM::EMManager& emm ) \
 { \
-    EMObject* obj = new clss( emm ); \
+    EMObject* obj = new clss(""); \
     if ( !obj ) return 0; \
     obj->ref();         \
     emm.addObject( obj ); \

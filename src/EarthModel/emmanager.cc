@@ -15,6 +15,7 @@
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "emioobjinfo.h"
+#include "emobjectio.h"
 #include "emundo.h"
 #include "executor.h"
 #include "filepath.h"
@@ -86,24 +87,8 @@ EMManager::~EMManager()
 
 void EMManager::setEmpty()
 {
-    for ( int idx=0; idx<objects_.size(); idx++ )
-    {
-	EMObjectCallbackData cbdata;
-	cbdata.event = EMObjectCallbackData::Removal;
-
-	const int oldsize = objects_.size();
-	objects_[idx]->change.trigger(cbdata);
-	if ( oldsize!=objects_.size() ) idx--;
-    }
-
-    deepRef( objects_ );		//Removes all non-reffed
-    deepUnRef( objects_ );
-
-    if ( objects_.size() )
-	{ pErrMsg( "Not all objects are unreffed" ); }
-
+    savers_.setEmpty();
     addRemove.trigger();
-
     undo_.removeAll();
 }
 
@@ -145,18 +130,27 @@ EMObject* EMManager::createObject( const char* type, const char* nm )
 }
 
 
-const DBKey& EMManager::objID( int idx ) const
+DBKey EMManager::objID( int idx ) const
 {
-    return objects_[idx]->dbKey();
+    if ( !savers_.validIdx(idx) )
+	return DBKey::getInvalid();
+    return savers_[idx]->key();
 }
 
 
 EMObject* EMManager::getObject( const DBKey& id )
 {
-    for ( int idx=0; idx<objects_.size(); idx++ )
+   mLock4Read();
+   return gtObject( id );
+}
+
+
+EMObject* EMManager::gtObject( const DBKey& mid )
+{
+    for ( int idx=0; idx<savers_.size(); idx++ )
     {
-	if ( objects_[idx]->id()==id )
-	    return objects_[idx];
+	if ( savers_[idx]->key() == mid )
+	    return mCast(EMObject*,savers_[idx]->object());
     }
 
     return 0;
@@ -181,21 +175,41 @@ ConstRefMan<EMObject> EMManager::fetch( const DBKey& mid, TaskRunner* trunner,
 }
 
 
-EMObject* EMManager::gtObject( const DBKey& mid )
+RefMan<EMObject> EMManager::fetchForEdit( const DBKey& mid, TaskRunner* trunner,
+				bool forcereload )
 {
-    for ( int idx=0; idx<objects_.size(); idx++ )
-    {
-	if ( objects_[idx]->dbKey()==mid )
-	    return objects_[idx];
-    }
+    mLock4Read();
+    EMObject* ret = gtObject( mid );
+    if ( !forcereload && ret && ret->isFullyLoaded() )
+	return ret;
 
-    return 0;
+    PtrMan<Executor> exec = EM::Hor3DMan().objectLoader( mid );
+    mUnlockAllAccess();
+    if ( !exec || !TaskRunner::execute(trunner,*exec) )
+	return 0;
+
+    mReLock();
+    return gtObject( mid );
+}
+
+
+uiRetVal EMManager::store( const EMObject& emobj,
+				  const IOPar* ioobjpars ) const
+{
+    return SaveableManager::store( emobj, ioobjpars );
+}
+
+
+uiRetVal EMManager::store( const EMObject& emobj, const ObjID& id,
+			      const IOPar* ioobjpars ) const
+{
+    return SaveableManager::store( emobj, id, ioobjpars );
 }
 
 
 bool EMManager::objectExists( const EMObject* obj ) const
 {
-    return objects_.isPresent(obj);
+    return isPresent( *obj );
 }
 
 
@@ -204,19 +218,10 @@ void EMManager::addObject( EMObject* obj )
     if ( !obj )
 	{ pErrMsg("No object provided!"); return; }
 
-    if ( objects_.isPresent(obj) )
+    if ( isPresent(*obj) )
 	{ pErrMsg("Adding object twice"); return; }
 
-    objects_ += obj;
-    addRemove.trigger();
-}
-
-
-void EMManager::removeObject( const EMObject* obj )
-{
-    const int idx = objects_.indexOf(obj);
-    if ( idx<0 ) return;
-    objects_.removeSingle( idx );
+    addNew( *obj, obj->dbKey(), 0, true ); 
     addRemove.trigger();
 }
 
@@ -311,7 +316,6 @@ Executor* EMManager::objectLoader( const DBKey& mid,
 }
 
 
-
 EMObject* EMManager::loadIfNotFullyLoaded( const DBKey& mid,
 					   TaskRunner* taskrunner )
 {
@@ -345,8 +349,10 @@ void EMManager::burstAlertToAll( bool yn )
 {
     for ( int idx=nrLoadedObjects()-1; idx>=0; idx-- )
     {
-	EM::EMObject* emobj = objects_[idx];
-	emobj->setBurstAlert( yn );
+	SharedObject* shobj = const_cast<SharedObject*>(savers_[idx]->object());
+	mDynamicCastGet(EM::EMObject*,emobj,shobj);
+	if ( emobj )
+	    emobj->setBurstAlert( yn );
     }
 }
 
@@ -456,12 +462,20 @@ void EMManager::levelSetChgCB( CallBacker* cb )
 	return;
 
     mGetIDFromChgData( Strat::Level::ID, lvlid, chgdata );
-    for ( int idx=0; idx<objects_.size(); idx++ )
+    for ( int idx=0; idx<savers_.size(); idx++ )
     {
-	mDynamicCastGet( EM::Horizon*, hor, objects_[idx] )
+	SharedObject* shobj = const_cast<SharedObject*>(savers_[idx]->object());
+	mDynamicCastGet( EM::Horizon*, hor, shobj )
 	if ( hor && hor->stratLevelID() == lvlid )
 	    hor->setStratLevelID( Strat::Level::ID::getInvalid() );
     }
+}
+
+
+Saveable* EMManager::getSaver( const SharedObject& shobj ) const
+{
+    ObjectSaver* objsaver = ObjectSaver::createObjectSaver( shobj );
+    return objsaver;
 }
 
 

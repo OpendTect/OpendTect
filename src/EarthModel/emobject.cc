@@ -38,9 +38,8 @@ const char* EMObject::nrposattrstr()	    { return "Nr Pos Attribs"; }
 Color EMObject::sDefaultSelectionColor() { return Color::Orange(); }
 Threads::Atomic<int>	EMObjectCallbackData::curcbid_ = 0;
 
-EMObject::EMObject( EMManager& emm )
-    : SharedObject( "" )
-    , manager_( emm )
+EMObject::EMObject( const char* nm )
+    : SharedObject( nm )
     , change( this )
     , preferredcolor_( *new Color(Color::Green()) )
     , changed_( false )
@@ -77,7 +76,6 @@ EMObject::~EMObject()
 
 void EMObject::prepareForDelete()
 {
-    manager_.removeObject( this );
 }
 
 
@@ -199,7 +197,6 @@ bool EMObject::setPosition( const SectionID& sid, const SubID& subid,
     if ( addtoundo )
     {
 	UndoEvent* undo = new SetPosUndoEvent( oldpos, pid );
-	manager_.undo().addEvent( undo, 0 );
     }
 
     if ( burstalertcount_==0 )
@@ -336,7 +333,6 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     if ( addtoundo )
     {
 	UndoEvent* event = new SetPosAttribUndoEvent( pid, attr, yn );
-	manager_.undo().addEvent( event, 0 );
     }
 
     if ( !hasBurstAlert() )
@@ -537,7 +533,7 @@ void EMObject::useDisplayPars( const IOPar& par )
 {
     IOPar displaypar;
 
-    if( !manager_.readDisplayPars(storageid_,displaypar) )
+    if( !EMM().readDisplayPars(storageid_,displaypar) )
 	displaypar = par;
 
     Color col;
@@ -626,7 +622,7 @@ void EMObject::saveDisplayPars() const
     preferredmarkerstyle_.toString( mkststr );
     displaypar.set( sKey::MarkerStyle(), mkststr );
 
-    manager_.writeDisplayPars( storageid_, displaypar );
+    EMM().writeDisplayPars( storageid_, displaypar );
 }
 
 

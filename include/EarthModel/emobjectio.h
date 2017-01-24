@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "saveable.h"
 
 class Executor;
-class TaskRunner;
 
 namespace EM
 {
@@ -28,16 +27,18 @@ mExpClass(EarthModel) ObjectLoader
 {
 public:
 
+    static ObjectLoader* createObjectLoader(const DBKey&);
+
     virtual bool	load(TaskRunner*) = 0;
     virtual Executor*	getLoader() const = 0;
-    ObjectSet<EMObject>	getLoadedEMObjects() const { return emobjects_; }
+    ObjectSet<EMObject> getLoadedEMObjects() const { return emobjects_; }
 
 protected:
 			ObjectLoader(const DBKey&);
 			ObjectLoader(const DBKeySet&);
 
     DBKeySet		dbkeys_;
-    ObjectSet<EMObject>	emobjects_;
+    ObjectSet<EMObject> emobjects_;
 };
 
 
@@ -84,6 +85,9 @@ protected:
 mExpClass(EarthModel) ObjectSaver : public Saveable
 {
 public:
+    
+    static ObjectSaver* createObjectSaver(const SharedObject&);
+
 			ObjectSaver(const EMObject&);
 			mDeclMonitorableAssignment(ObjectSaver);
 			~ObjectSaver();

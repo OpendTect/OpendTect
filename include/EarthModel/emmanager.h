@@ -45,9 +45,9 @@ public:
 			EMManager(const IOObjContext&);
 			~EMManager();
 
-    inline int		nrLoadedObjects() const	{ return objects_.size(); }
+    inline int		nrLoadedObjects() const	{ return savers_.size(); }
     inline int		size() const		{ return nrLoadedObjects(); }
-    const DBKey&	objID(int idx) const;
+    DBKey		objID(int idx) const;
     bool		objectExists(const EMObject*) const;
 
     EMObject*		loadIfNotFullyLoaded(const DBKey&,TaskRunner* =0);
@@ -60,6 +60,10 @@ public:
 			        bool forcereload=false) const;
     RefMan<EMObject>	fetchForEdit(const DBKey&,TaskRunner* trunner=0,
 				     bool forcereload=false);
+
+    uiRetVal		store(const EMObject&,const IOPar* ioobjpars=0) const;
+    uiRetVal		store(const EMObject&,const ObjID&,
+				const IOPar* ioobjpars=0) const;
 
     EMObject*		getObject(const DBKey&);
 
@@ -84,14 +88,12 @@ public:
 protected:
 
     EMObject*		gtObject(const DBKey&);
-    virtual Saveable*	getSaver(const SharedObject&) const	{ return 0; }
+    virtual Saveable*	getSaver(const SharedObject&) const;
     virtual ChangeRecorder* getChangeRecorder(const SharedObject&) const
 			{ return 0; }
 
 
     Undo&			undo_;
-
-    ObjectSet<EMObject>		objects_;
 
     void		levelSetChgCB(CallBacker*);
     static const char*	displayparameterstr();
@@ -121,7 +123,6 @@ public:
 
 			/*Interface from EMObject to report themselves */
     void		addObject(EMObject*);
-    void		removeObject(const EMObject*);
 
     Undo&		undo();
     const Undo&		undo() const;
@@ -169,7 +170,7 @@ public:
 				       TaskRunner* trun)
 			{ return getMgr(id).removeSelected( id, sel, trun ); }
     bool		readDisplayPars(const DBKey& id,IOPar& pars) const
-			{ return readDisplayPars( id, pars ); }
+			{ return getMgr(id).readDisplayPars( id, pars ); }
     bool		writeDisplayPars(const DBKey& id,
 					 const IOPar& pars) const
 			{ return getMgr(id).writeDisplayPars( id, pars ); }

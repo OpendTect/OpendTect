@@ -11,8 +11,10 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "uibodyposprovgroup.h"
 #include "uihorinterpol.h"
+#include "uinewemobjdlg.h"
 #include "uisurfaceposprov.h"
 #include "uiimphorizon.h"
+
 
 mDefModInitFn(uiEarthModel)
 {
@@ -26,4 +28,6 @@ mDefModInitFn(uiEarthModel)
 
     uiBodyPosProvGroup::initClass();
     uiSurfacePosProvGroup::initClass();
+
+    uiNewFSSDlg::initClass();
 }

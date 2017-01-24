@@ -129,6 +129,7 @@ protected:
     void		appExitCB(CallBacker*);
     void		objDelCB(CallBacker*);
     void		objChgCB(CallBacker*);
+    bool		isPresent(const SharedObject&) const;
 
 public:
 
