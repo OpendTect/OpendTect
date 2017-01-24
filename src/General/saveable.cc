@@ -552,6 +552,12 @@ SaveableManager::IdxType SaveableManager::gtIdx( const SharedObject& obj ) const
 }
 
 
+bool SaveableManager::isPresent( const SharedObject& obj ) const
+{
+    return gtIdx( obj ) > -1;
+}
+
+
 SharedObject* SaveableManager::gtObj( IdxType idx ) const
 {
     return !savers_.validIdx(idx) ? 0

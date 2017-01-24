@@ -33,7 +33,7 @@ ________________________________________________________________________
 namespace EM
 {
 
-class MarchingCubesSurfaceReader : public Executor
+ class MarchingCubesSurfaceReader : public Executor
 { mODTextTranslationClass(MarchingCubesSurfaceReader);
 public:
     ~MarchingCubesSurfaceReader()
@@ -230,7 +230,7 @@ void MarchingCubesSurface::initClass()
 
 EMObject* MarchingCubesSurface::create( EMManager& emm ) \
 {
-    EMObject* obj = new MarchingCubesSurface( emm );
+    EMObject* obj = new MarchingCubesSurface("");
     if ( !obj ) return 0;
     obj->ref();
     emm.addObject( obj );
@@ -256,8 +256,8 @@ void MarchingCubesSurface::setNewName()
 }
 
 
-MarchingCubesSurface::MarchingCubesSurface( EMManager& emm )
-    : EMObject( emm )
+MarchingCubesSurface::MarchingCubesSurface( const char* nm )
+    : EMObject(nm)
     , mcsurface_( new ::MarchingCubesSurface )
     , operator_( 0 )
 {

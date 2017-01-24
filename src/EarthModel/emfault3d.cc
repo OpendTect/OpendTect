@@ -26,8 +26,8 @@ namespace EM {
 mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::sGroupName() )
 
 
-Fault3D::Fault3D( EMManager& em )
-    : Fault(em)
+Fault3D::Fault3D(const char* fnm)
+    : Fault(fnm)
     , geometry_( *this )
     , auxdata_( 0 )
 {

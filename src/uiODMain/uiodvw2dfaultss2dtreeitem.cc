@@ -281,7 +281,7 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     emobj->ref();
     mAttachCB( emobj->change, uiODVw2DFaultSS2DTreeItem::emobjChangeCB );
 
-    name_ = DBM().nameOf( emid_ );
+    name_ = toUiString( DBM().nameOf(emid_) );
     uitreeviewitem_->setChecked( true );
     mAttachCB( checkStatusChange(), uiODVw2DFaultSS2DTreeItem::checkCB );
 
@@ -397,7 +397,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
 	    return true;
 
-	name_ = DBM().nameOf( emid_ );
+	name_ = toUiString( DBM().nameOf(emid_) );
 	renameVisObj();
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 			mnuid==mRemoveID;

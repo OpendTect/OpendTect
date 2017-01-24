@@ -22,6 +22,11 @@ mDefineInstanceCreatedNotifierAccess(EM::ObjectSaver)
 
 namespace EM
 {
+ObjectLoader* ObjectLoader::createObjectLoader( const DBKey& dbkey )
+{
+    return new FaultStickSetLoader( dbkey );
+}
+
 
 ObjectLoader::ObjectLoader( const DBKey& key )
 {
@@ -93,7 +98,8 @@ int FSSLoaderExec::nextStep()
     if ( typenm.isEmpty() )
 	typenm = ioobj->group();
 
-    FaultStickSet* fss = new FaultStickSet( EMM() ); fss->setDBKey( key );
+    FaultStickSet* fss = new FaultStickSet( ioobj->name() );
+    fss->setDBKey( key );
     if ( !fss->loader()->execute() )
 	return MoreToDo();
 
@@ -189,13 +195,13 @@ int FLT3DLoaderExec::nextStep()
     if ( typenm.isEmpty() )
 	typenm = ioobj->group();
 
-    FaultStickSet* fss = new FaultStickSet( EMM() ); fss->setDBKey( key );
-    if ( !fss->loader()->execute() )
+    Fault3D* flt = new Fault3D( ioobj->name() ); flt->setDBKey( key );
+    if ( !flt->loader()->execute() )
 	return MoreToDo();
 
     loader_.loadedkeys_ += key;
-    EMM().addObject( fss );
-    loader_.addObject( fss );
+    EMM().addObject( flt );
+    loader_.addObject( flt );
     return MoreToDo();
 }
 
@@ -227,6 +233,14 @@ Executor* Fault3DLoader::getLoader() const
 }
 
 //Saver
+ObjectSaver* ObjectSaver::createObjectSaver( const SharedObject& shobj )
+{
+    mDynamicCastGet(const EMObject*,emobj,&shobj);
+    if ( FaultStickSet::typeStr() == emobj->getTypeStr() )
+	return new FaultStickSetSaver( *emobj );
+    return 0;
+}
+
 ObjectSaver::ObjectSaver( const EMObject& emobj )
     : Saveable(emobj)
 {
@@ -298,10 +312,10 @@ uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj ) const
     if ( exec && !exec->execute() )
 	return exec->errorWithDetails();
     
-    fss->setDBKey( key );
     if ( isSave(ioobj) )
     {
-	fss->setName( ioobj.name() );
+	emobj.getNonConstPtr()->setName( ioobj.name() );
+	emobj.getNonConstPtr()->setDBKey( key );
 	fss->saveDisplayPars();
     }
     

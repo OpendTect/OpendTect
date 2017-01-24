@@ -362,7 +362,7 @@ bool uiODVw2DHor2DTreeItem::init()
 
     displayMiniCtab();
 
-    name_ = DBM().nameOf( emid_ );
+    name_ = toUiString( DBM().nameOf(emid_) );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DHor2DTreeItem,checkCB) );

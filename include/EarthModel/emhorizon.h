@@ -85,8 +85,8 @@ public:
     virtual TrcKey::SurvID getSurveyID() const				= 0;
 
 protected:
-			Horizon( EMManager& emm )
-			    : Surface(emm)				{}
+			Horizon(const char* nm)
+			    : Surface(nm)				{}
 
     virtual const IOObjContext&	getIOObjContext() const			= 0;
 

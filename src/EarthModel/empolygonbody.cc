@@ -159,8 +159,8 @@ protected:
 
 mImplementEMObjFuncs( PolygonBody, "Polygon" );
 
-PolygonBody::PolygonBody( EMManager& em )
-    : Surface( em )
+PolygonBody::PolygonBody( const char* nm )
+    : Surface(nm)
     , geometry_( *this )
 {
     geometry_.addSection( "", false );

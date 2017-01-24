@@ -299,7 +299,7 @@ bool uiImportFault::getFromAscIO( od_istream& strm, EM::Fault& flt )
 	res = fsstof3d.convert( true );
     }
 
-    EM::FSSMan().removeObject( emobj );
+    //EM::FSSMan().removeObject( emobj );
     return res;
 }
 

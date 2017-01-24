@@ -73,7 +73,7 @@ protected:
     friend class		SurfaceGeometry;
     friend class		EMObject;
 
-				Surface(EMManager&);
+				Surface(const char*);
 				~Surface();
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
 

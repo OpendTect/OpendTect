@@ -192,7 +192,7 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
     if ( addtoundo )
     {
 	pErrMsg("Undo not implemented for remove section");
-	surface_.getMgr().undo().removeAllBeforeCurrentEvent();
+	//surface_.getMgr().undo().removeAllBeforeCurrentEvent();
     }
 
     EMObjectCallbackData cbdata;
@@ -964,7 +964,7 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
     if ( addtoundo )
     {
 	pErrMsg("Undo not implemented for add section");
-	surface_.getMgr().undo().removeAllBeforeCurrentEvent();
+	//surface_.getMgr().undo().removeAllBeforeCurrentEvent();
     }
 
     enableChecks( isChecksEnabled() );

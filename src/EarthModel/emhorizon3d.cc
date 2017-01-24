@@ -289,8 +289,8 @@ protected:
 
 
 // EM::Horizon3D
-Horizon3D::Horizon3D( EMManager& man )
-    : Horizon(man)
+Horizon3D::Horizon3D( const char* nm )
+    : Horizon(nm)
     , geometry_(*this)
     , auxdata(*new SurfaceAuxData(*this))
     , lockednodes_(0)
@@ -344,7 +344,8 @@ const Horizon3DGeometry& Horizon3D::geometry() const
 { return geometry_; }
 
 
-mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::sGroupName() )
+mImplementEMObjFuncs( Horizon3D,
+				EMHorizon3DTranslatorGroup::sGroupName() )
 
 
 Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )

@@ -538,7 +538,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
 	const int trackerid = mps->getTrackerID( emid_ );
 	if ( trackerid>= 0 )
 	    renameVisObj();
-	name_ = DBM().nameOf( emid_ );
+	name_ = toUiString( DBM().nameOf(emid_) );
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 			mnuid==mRemoveID;
 	if ( mnuid == mRemoveAllID )

@@ -604,15 +604,18 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     if ( hor3d )
 	selectedrg_ = sel.rg;
 
+    EM::EMManager& emm = EM::getMgr( typ );
     DBKeySet idstobeloaded;
-    PtrMan<Executor> exec = em_.objectLoader(surfaceids,hor3d ? &sel : &orisel,
+    PtrMan<Executor> exec = emm.objectLoader(
+					     surfaceids,hor3d ? &sel : &orisel,
 					     &idstobeloaded);
 
     for ( int idx=0; idx<surfaceids.size(); idx++ )
     {
-	EM::EMObject* obj = em_.getObject( surfaceids[idx] );
+	EM::EMObject* obj = emm.getObject( surfaceids[idx] );
 	if ( !obj ) continue;
 	obj->ref();
+	//obj->setDBKey( surfaceids.get(idx) );
 	objs += obj;
     }
 
@@ -622,7 +625,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     ObjectSet<EM::EMObject> objstobeloaded;
     for ( int idx=0; idx<idstobeloaded.size(); idx++ )
     {
-	EM::EMObject* obj = em_.getObject( idstobeloaded[idx] );
+	EM::EMObject* obj = emm.getObject( idstobeloaded[idx] );
 	if ( !obj ) continue;
 	obj->setBurstAlert( true );
 	obj->ref();

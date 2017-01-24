@@ -134,7 +134,7 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
     if ( !surface || !surface->getSurface() )
 	return false;
 
-    mTryAlloc( emsurface_, EM::MarchingCubesSurface( EM::EMM() ) );
+    mTryAlloc( emsurface_, EM::MarchingCubesSurface("") );
 
     if ( !emsurface_ )
     {

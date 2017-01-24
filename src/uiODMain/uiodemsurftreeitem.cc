@@ -418,7 +418,8 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     if ( applMgr()->EMServer()->storeObject( emid_, savewithname ) && cb )
 	NotSavedPrompter::NSP().reportSuccessfullSave();
 
-    applMgr()->visServer()->setObjectName( displayid_, DBM().nameOf(emid_) );
+    applMgr()->visServer()->setObjectName( displayid_,
+					   toUiString(DBM().nameOf(emid_)) );
     mps->saveSetup( emid_ );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }

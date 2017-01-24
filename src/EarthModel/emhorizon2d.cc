@@ -385,11 +385,12 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 }
 
 
-mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::sGroupName() )
+mImplementEMObjFuncs( Horizon2D,
+			      EMHorizon2DTranslatorGroup::sGroupName() )
 
 
-Horizon2D::Horizon2D( EMManager& emm )
-    : Horizon(emm)
+Horizon2D::Horizon2D( const char* nm )
+    : Horizon(nm)
     , geometry_(*this)
     , selectioncolor_( Color::Pink() )
     , nodesource_( 0 )

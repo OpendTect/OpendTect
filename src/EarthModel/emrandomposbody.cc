@@ -201,8 +201,8 @@ protected:
 mImplementEMObjFuncs( RandomPosBody, "RandomPos" );
 
 
-RandomPosBody::RandomPosBody( EMManager& man )
-    : EMObject( man )
+RandomPosBody::RandomPosBody( const char* nm )
+    : EMObject(nm)
 {}
 
 

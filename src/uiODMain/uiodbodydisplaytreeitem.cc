@@ -496,13 +496,13 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	if ( saveas && notempty )
 	{
 	    if ( plg_ )
-		plg_->setName( DBM().nameOf(emid_) );
+		plg_->setName( toUiString(DBM().nameOf(emid_)) );
 
 	    if ( rpb_ )
-		rpb_->setName( DBM().nameOf(emid_) );
+		rpb_->setName( toUiString(DBM().nameOf(emid_)) );
 
 	    if ( mcd_ )
-		mcd_->setName( DBM().nameOf(emid_) );
+		mcd_->setName( toUiString(DBM().nameOf(emid_)) );
 
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}

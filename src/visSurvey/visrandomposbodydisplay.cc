@@ -60,7 +60,7 @@ bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
 	embody_ = 0;
     }
 
-    mTryAlloc( embody_, EM::RandomPosBody(EM::BodyMan()) );
+    mTryAlloc( embody_, EM::RandomPosBody("") );
     if ( !embody_ ) return false;
 
     embody_->ref();

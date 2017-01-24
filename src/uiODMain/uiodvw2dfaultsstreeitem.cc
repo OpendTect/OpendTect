@@ -261,7 +261,7 @@ bool uiODVw2DFaultSSTreeItem::init()
 
     mAttachCB( emobj->objectChanged(), uiODVw2DFaultSSTreeItem::emobjChangeCB );
     displayMiniCtab();
-    name_ = DBM().nameOf( emid_ );
+    name_ = toUiString( DBM().nameOf(emid_) );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     checkStatusChange()->notify( mCB(this,uiODVw2DFaultSSTreeItem,checkCB) );
@@ -385,7 +385,7 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 	if ( !applMgr()->EMServer()->askUserToSave(emid_,true) )
 	    return true;
 
-	name_ = DBM().nameOf( emid_ );
+	name_ = toUiString( DBM().nameOf(emid_) );
 	renameVisObj();
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 			mnuid==mRemoveID;

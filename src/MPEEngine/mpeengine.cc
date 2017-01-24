@@ -910,7 +910,7 @@ ObjectEditor* Engine::getEditor( const DBKey& id, bool create )
 
     if ( !create ) return 0;
 
-    EM::EMObject* emobj = EM::EMM().getObject(id);
+    EM::EMObject* emobj = EM::FSSMan().getObject(id);
     if ( !emobj ) return 0;
 
     ObjectEditor* editor = EditorFactory().create( emobj->getTypeStr(), *emobj);

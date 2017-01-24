@@ -26,6 +26,7 @@ ___________________________________________________________________
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
+#include "uinewemobjdlg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
@@ -363,7 +364,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( saveas && faultdisplay_ && DBM().nameOf(emid_).isEmpty() )
 	{
-	    faultdisplay_->setName( DBM().nameOf(emid_) );
+	    faultdisplay_->setName( toUiString(DBM().nameOf(emid_)) );
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
     }
@@ -454,15 +455,19 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     }
     else if ( mnuid == mNewMnuID )
     {
-	//applMgr()->mpeServer()->saveUnsaveEMObject();
-	RefMan<EM::EMObject> emo =
-	    EM::FSSMan().createTempObject( EM::FaultStickSet::typeStr() );
+	uiNewEMObjectDlg* newdlg =
+	    uiNewEMObjectDlg::factory().create( EM::FaultStickSet::typeStr(),
+						getUiParent() );
+	if ( !newdlg || !newdlg->go() )
+	    return false;
+
+	RefMan<EM::EMObject> emo = newdlg->getEMObject();
 	if ( !emo )
 	    return false;
 
-	emo->setPreferredColor( getRandomColor(false) );
+	/*emo->setPreferredColor( getRandomColor(false) );
 	emo->setNewName();
-	emo->setFullyLoaded( true );
+	emo->setFullyLoaded( true );*/
 	addChild( new uiODFaultStickSetTreeItem( emo->id() ), false );
 	applMgr()->viewer2DMgr().addNewTempFaultSS( emo->id() );
 	return true;
@@ -647,7 +652,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
-    const uiString emname = DBM().nameOf( emid_ );
+	const uiString emname = toUiString( DBM().nameOf(emid_) );
 	if ( saveas && faultsticksetdisplay_ && !emname.isEmpty() )
 	{
 	    faultsticksetdisplay_->setName( emname );

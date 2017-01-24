@@ -22,10 +22,11 @@ ________________________________________________________________________
 
 namespace EM {
 
-mImplementEMObjFuncs(FaultStickSet,EMFaultStickSetTranslatorGroup::sGroupName())
+mImplementEMObjFuncs(FaultStickSet,
+			     EMFaultStickSetTranslatorGroup::sGroupName())
 
-FaultStickSet::FaultStickSet( EMManager& em )
-    : Fault(em)
+FaultStickSet::FaultStickSet( const char* nm )
+    : Fault(nm)
     , geometry_( *this )
 {
     geometry_.addSection( "", false );

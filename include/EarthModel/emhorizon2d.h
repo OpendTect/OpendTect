@@ -107,7 +107,6 @@ mExpClass(EarthModel) Horizon2D : public Horizon
 {   mDefineEMObjFuncs( Horizon2D );
     mODTextTranslationClass( Horizon2D );
 public:
-
     virtual float		getZ(const TrcKey&) const;
     virtual bool		setZ(const TrcKey&,float z,bool addtohist,
 				     NodeSourceType type=Auto);

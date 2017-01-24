@@ -158,8 +158,8 @@ public:
 				{ return const_cast<Fault*>(this)->geometry(); }
 
 protected:
-				Fault( EMManager& em )
-				    : Surface(em)		{}
+				Fault(const char* nm)
+				    : Surface(nm)		{}
 
     const IOObjContext&		getIOObjContext() const		= 0;
     void			hidStick(int sticknr,bool,int scnidx=-1);

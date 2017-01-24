@@ -1886,7 +1886,7 @@ void uiODApplMgr::storeEMObject( bool saveasreq )
     visserv_->findObject( emid, ids );
 
     for ( int idx=0; idx<ids.size(); idx++ )
-	visserv_->setObjectName( ids[idx], DBM().nameOf(emid) );
+	visserv_->setObjectName( ids[idx], toUiString(DBM().nameOf(emid)) );
 
     mpeserv_->saveSetup( emid );
     sceneMgr().updateTrees();

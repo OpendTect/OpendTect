@@ -311,7 +311,7 @@ bool uiBodyOperatorDlg::acceptOK()
 	return false;
 
     RefMan<EM::MarchingCubesSurface> emcs =
-	new EM::MarchingCubesSurface(EM::BodyMan());
+	new EM::MarchingCubesSurface("");
     if ( !emcs->getBodyOperator() )
 	emcs->createBodyOperator();
 
@@ -470,7 +470,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK()
     }
 
     RefMan<EM::MarchingCubesSurface> emcs =
-	new EM::MarchingCubesSurface( EM::BodyMan() );
+	new EM::MarchingCubesSurface("");
 
     emcs->surface().setVolumeData( 0, 0, 0, *impbd->arr_, 0, &taskrunner );
     emcs->setInlSampling( SamplingData<int>(impbd->tkzs_.hsamp_.inlRange()) );

@@ -195,8 +195,8 @@ void SurfaceIODataSelection::setDefault()
 }
 
 
-Surface::Surface( EMManager& man)
-    : EMObject( man )
+Surface::Surface( const char* nm )
+    : EMObject(nm)
 {
 }
 
