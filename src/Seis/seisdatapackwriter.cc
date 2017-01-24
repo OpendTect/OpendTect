@@ -58,6 +58,11 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
 	    *compscalers += 0;
 	}
     }
+    else
+    {
+	for ( int idx=0; idx<compidxs_.size(); idx++ )
+	    *compscalers += 0;
+    }
 
     const int startz =
 	mNINT32(dp_->sampling().zsamp_.start/dp_->sampling().zsamp_.step);
