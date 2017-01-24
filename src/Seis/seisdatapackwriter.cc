@@ -49,6 +49,11 @@ SeisDataPackWriter::SeisDataPackWriter( const DBKey& mid,
 	    compscalers_ += 0;
 	}
     }
+    else
+    {
+	for ( int idx=0; idx<compidxs_.size(); idx++ )
+	    compscalers_ += 0;
+    }
 
     const int startz =
 	mNINT32(dp_->sampling().zsamp_.start/dp_->sampling().zsamp_.step);
