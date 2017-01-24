@@ -1042,24 +1042,25 @@ void uiMPEMan::lockAll()
 {
     EM::Horizon3D* hor3d = getSelectedHorizon3D();
     visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    const bool preshowlocked = hd->lockedShown();
+
     if ( hor3d && hd ) 
     {
 	hor3d->lockAll();
 	hd->showLocked( true );
+	if ( !preshowlocked )
+	{
+	    Timer* timer = timer_.getParam(this);
+	    if ( timer )
+		timer->tick.remove( mCB(this,uiMPEMan,timerHideLockedCB) );
 
-	Timer* timer = timer_.getParam(this);
-	if ( timer )
-	    timer->tick.remove( mCB(this,uiMPEMan,timerHideLockedCB) );
-
-	delete timer;
-	timer = new Timer("Lock all");
-	timer_.setParam( this, timer );
-	timer->tick.notify( mCB(this,uiMPEMan,timerHideLockedCB) );
-	timer->start( cLockWaitTime, true );
+	    delete timer;
+	    timer = new Timer("Lock all");
+	    timer_.setParam( this, timer );
+	    timer->tick.notify( mCB(this,uiMPEMan,timerHideLockedCB) );
+	    timer->start( cLockWaitTime, true );
+	}
     }
-
-    if ( hd && hd->lockedShown() )
-	hd->showLocked( true );
 }
 
 
