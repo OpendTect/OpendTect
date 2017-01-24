@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "saveable.h"
 
 class Executor;
+class TaskRunner;
 
 namespace EM
 {
@@ -85,7 +86,7 @@ protected:
 mExpClass(EarthModel) ObjectSaver : public Saveable
 {
 public:
-    
+
     static ObjectSaver* createObjectSaver(const SharedObject&);
 
 			ObjectSaver(const EMObject&);
