@@ -21,9 +21,6 @@ static HiddenParam< IsoContourTracer, unsigned int > edgepar_( 0 );
 #define mFieldX(idx)		xsampling_.atIndex( mFieldIdx(x,idx) )
 #define mFieldY(idy)		ysampling_.atIndex( mFieldIdx(y,idy) )
 
-#define mFieldZ(idx,idy) ( mOnEdge(x,idx) || mOnEdge(y,idy) ? edgevalue_ : \
-			   field_.get(mFieldIdx(x,idx), mFieldIdx(y,idy)) )
-
 #define mMakeVertex( vertex, idx, idy, hor, frac ) \
 \
     const Geom::Point2D<float> vertex( \
@@ -31,71 +28,12 @@ static HiddenParam< IsoContourTracer, unsigned int > edgepar_( 0 );
 			(1.0f-frac)*mFieldY(idy) + frac*mFieldY(idy+1-hor) );
 
 
-static bool nextCrossing( Array3DImpl<float>& crossings, int& idx, int& idy,
-			  int& hor, int& up, float& frac )
-{
-    const int xsize = crossings.info().getSize(0);
-    const int ysize = crossings.info().getSize(1);
-
-    const int lidx =   up    ? idx : ( hor ? idx+1 : idx-1 );	/* [l]eft */
-    const int lidy = up==hor ? idy : ( hor ? idy-1 : idy+1 );
-    const int ridx = up!=hor ? idx : ( hor ? idx+1 : idx-1 );	/* [r]ight */
-    const int ridy =   up    ? idy : ( hor ? idy-1 : idy+1 );
-
-    float lfrac = mUdf(float);
-    if ( lidx>=0 && lidx<xsize && lidy>=0 && lidy<ysize )
-	lfrac = crossings.get( lidx, lidy, 1-hor );
-
-    float rfrac = mUdf(float);
-    if ( ridx>=0 && ridx<xsize && ridy>=0 && ridy<ysize )
-	rfrac = crossings.get( ridx, ridy, 1-hor );
-
-    if ( !mIsUdf(lfrac) && !mIsUdf(rfrac) )			/* Tie-break */
-    {
-	const float ldist =   up    ? lfrac : 1.0f-lfrac;
-	const float rdist =   up    ? rfrac : 1.0f-rfrac;
-	const float  dist = up==hor ?  frac : 1.0f-frac;
-
-	if ( ldist*ldist+dist*dist > rdist*rdist+(1.0-dist)*(1.0-dist) )
-	    lfrac = mUdf(float);
-	else
-	    rfrac = mUdf(float);
-    }
-
-    if ( !mIsUdf(lfrac) )
-    {
-	idx = lidx; idy = lidy; frac = lfrac; hor = 1-hor;
-	up = up==hor ? 1 : 0;
-	return true;
-    }
-
-    if ( !mIsUdf(rfrac) )
-    {
-	idx = ridx; idy = ridy; frac = rfrac; hor = 1-hor;
-	up = up==hor ? 0 : 1;
-	return true;
-    }
-
-    const int sidx =  hor ? idx : ( up ? idx+1 : idx-1 );	/* [s]traight */
-    const int sidy = !hor ? idy : ( up ? idy+1 : idy-1 );
-
-    float sfrac = mUdf(float);
-    if ( sidx>=0 && sidx<xsize && sidy>=0 && sidy<ysize )
-	sfrac = crossings.get( sidx, sidy, hor );
-
-    if ( mIsUdf(sfrac) )
-	return false;
-
-    idx = sidx; idy = sidy; frac = sfrac;
-    return true;
-}
-
-
 class SameZFinder : public ParallelTask
 {
 public:
 				SameZFinder( const Array2D<float>* field,
-					     Array3DImpl<float>* zarray,
+					     float* zarray, int* execs,
+					     int xsize, int ysize,
 					     const ODPolygon<float>*polyroi,
 					     const float zval,
 					     const float edgevalue);
@@ -111,7 +49,10 @@ protected:
 private:
     void			findDataWithTheZ(int idx,float z);
     Threads::Atomic<od_int64>	totalnr_;
-    Array3DImpl<float>*		zarray_;
+    float*			zarray_;
+    int*			execs_;
+    int				xsize_;
+    int				ysize_;
     const Array2D<float>*	field_;
     const float			zval_;
     const float			edgevalue_;
@@ -121,65 +62,24 @@ private:
     Interval<int>		yrange_;
     StepInterval<int>		xsampling_;
     StepInterval<int>		ysampling_;
-    Threads::Mutex		lock_;
 };
 
 
-class ContourTracer : public ParallelTask
-{
-public:
-			    ContourTracer(
-					ObjectSet<ODPolygon<float> >& contours,
-					Array3DImpl<float>* crossings,
-					unsigned int edge,float bendpointeps,
-					int nrlargestonly,int minnrvertices,
-					bool closedonly);
-    void		    setRanges(const Interval<int>&,
-				      const Interval<int>&);
-    void		    setSamplings(const StepInterval<int>&,
-					 const StepInterval<int>&);
-			    ~ContourTracer(){};
-
-protected:
-    bool		    doWork(od_int64 start, od_int64 stop, int);
-    od_int64		    nrIterations() const { return totalnr_; }
-
-private:
-    void		    addVertex(ODPolygon<float>& contour,
-				      bool headinsert,int idx,int idy,
-				      int hor,float frac) const;
-
-    IsoContourTracer*		isotracer_;
-    Array3DImpl<float>*		crossings_;
-    ObjectSet<ODPolygon<float> >& contours_;
-    Threads::Atomic<od_int64>	totalnr_;
-    Interval<int>		xrange_;
-    Interval<int>		yrange_;
-    StepInterval<int>		xsampling_;
-    StepInterval<int>		ysampling_;
-    float			bendpointeps_;
-    int				minnrvertices_;
-    int				nrlargestonly_;
-    unsigned int		edge_;
-    int				xsize_;
-    int				ysize_;
-    bool			closedonly_;
-    Threads::Mutex		lock_;
-};
-
-
-SameZFinder::SameZFinder( const Array2D<float>* field,
-    Array3DImpl<float>* zarray, const ODPolygon<float>*polyroi,
-    const float zval, const float edgevalue )
+SameZFinder::SameZFinder( const Array2D<float>* field, float* zarray,
+	int* execs, int xsize, int ysize, const ODPolygon<float>*polyroi,
+	const float zval, const float edgevalue )
     : field_( field )
     , edgevalue_( edgevalue )
     , polyroi_( polyroi )
     , zarray_( zarray )
+    , execs_( execs )
+    , xsize_( xsize )
+    , ysize_( ysize )
     , zval_( zval )
     , edge_(0)
 {
     edge_ = mIsUdf(edgevalue) ? 0 : 1;
-    totalnr_ = zarray_ ? zarray_->info().getSize(0) : 0 ;
+    totalnr_ = xsize;
 }
 
 void SameZFinder::setRanges( const Interval<int>&xrange,
@@ -200,19 +100,21 @@ void SameZFinder::setSamplings( const StepInterval<int>& xsampling,
 
 bool SameZFinder::doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
+    for ( od_int64 idx=start; idx<=stop; idx++ )
 	findDataWithTheZ( (int)idx, zval_ );
     return true;
 }
 
+#define mNoExecutive		-1
+#define mIsExecutive(val)	(val!=mNoExecutive)
+#define mNoFraction		-1.0f
+#define mIsFraction(val)	(val>-0.5f)
 
 void SameZFinder::findDataWithTheZ( int idx, float z )
 {
-    const int xsize = zarray_->info().getSize(0);
-    const int ysize = zarray_->info().getSize(1);
-    for ( int idy=0; idy<ysize; idy++ )
+    for ( int idy=0; idy<ysize_; idy++ )
     {
-	float z0 = mUdf( float );
+	float z0 = mUdf(float);
 	if ( mOnEdge(x,idx) || mOnEdge(y,idy) )
 	{
 	    if ( edge_==0 )
@@ -225,10 +127,11 @@ void SameZFinder::findDataWithTheZ( int idx, float z )
 	}
 	for ( int hor=0; hor<=1; hor++ )
 	{
-	    zarray_->set( idx, idy, hor, mUdf(float) );
-	    if ( mIsUdf(z0) )
+	    const int zarrayidx = (idx*ysize_+idy)*2+hor;
+	    zarray_[zarrayidx] = mNoFraction;
+	    if ( !mFastIsFloatDefined(z0) )
 		continue;
-	    if ( (hor && idx==xsize-1) || (!hor && idy==ysize-1) )
+	    if ( (hor && idx==xsize_-1) || (!hor && idy==ysize_-1) )
 		continue;
 	    const int tmpidx = idx+hor;
 	    const int tmpidy = idy+1-hor;
@@ -242,7 +145,7 @@ void SameZFinder::findDataWithTheZ( int idx, float z )
 	    else
 	    {
 		z1 = field_->get(mFieldIdx(x,tmpidx), mFieldIdx(y,tmpidy));
-		if ( mIsUdf(z1) )
+		if ( !mFastIsFloatDefined(z1) )
 		    continue;
 	    }
 	    if ( (z0<z && z<=z1) || (z1<z && z<=z0) )
@@ -254,30 +157,111 @@ void SameZFinder::findDataWithTheZ( int idx, float z )
 		    if ( !polyroi_->isInside(vertex, true, mDefEps) )
 			continue;
 		}
-		zarray_->set( idx, idy, hor, frac );
+		zarray_[zarrayidx] = frac;
+		execs_[zarrayidx] = mNoExecutive;
 	    }
 	}
     }
 }
 
 
+class ContourTracer : public ParallelTask
+{
+public:
+			    ContourTracer(
+					ObjectSet<ODPolygon<float> >& contours,
+					float* crossings, int* execs, int xsize,
+					int ysize, unsigned int edge,
+					float bendpointeps, int nrlargestonly,
+					int minnrvertices, bool closedonly);
+    void		    setRanges(const Interval<int>&,
+				      const Interval<int>&);
+    void		    setSamplings(const StepInterval<int>&,
+					 const StepInterval<int>&);
+			    ~ContourTracer(){};
+
+protected:
+    bool		    doWork(od_int64 start, od_int64 stop, int);
+    od_int64		    nrIterations() const { return totalnr_; }
+
+private:
+
+    void		    addVertex(ODPolygon<float>& contour,
+				      bool headinsert,int idx,int idy,
+				      int hor,float frac) const;
+    bool		    nextCrossing(int& idx,int& idy,int& hor,int& up,
+					 float& frac);
+
+    enum ExecutiveMode	    { Approved, Confirmed, Refused };
+    ExecutiveMode	    setExecutive(int idx,int executive,bool takeover);
+    int			    nextExecutive();
+
+    float*			crossings_;
+    int*			execs_;
+    ObjectSet<ODPolygon<float> >& contours_;
+    Threads::Atomic<od_int64>	totalnr_;
+    Interval<int>		xrange_;
+    Interval<int>		yrange_;
+    StepInterval<int>		xsampling_;
+    StepInterval<int>		ysampling_;
+    float			bendpointeps_;
+    int				minnrvertices_;
+    int				nrlargestonly_;
+    unsigned int		edge_;
+    int				xsize_;
+    int				ysize_;
+    bool			closedonly_;
+    int				nextexecutive_;
+    Threads::Lock		contourlock_;
+    Threads::Lock		execslock_;
+    Threads::Lock		nextexecutivelock_;
+};
+
+
 ContourTracer::ContourTracer( ObjectSet<ODPolygon<float> >& contours,
-    Array3DImpl<float>* crossings, unsigned int edge, float bendpointeps,
-    int nrlargestonly, int minnrvertices, bool closedonly )
+    float* crossings, int* execs, int xsize, int ysize, unsigned int edge,
+    float bendpointeps, int nrlargestonly, int minnrvertices, bool closedonly )
     : crossings_( crossings )
     , contours_( contours )
+    , execs_( execs )
+    , xsize_( xsize )
+    , ysize_( ysize )
     , edge_( edge )
     , bendpointeps_( bendpointeps )
     , nrlargestonly_( nrlargestonly )
     , minnrvertices_( minnrvertices )
     , closedonly_( closedonly )
-    , xsize_( 0 )
-    , ysize_( 0 )
     , totalnr_( 0 )
+    , nextexecutive_( 0 )
+    , contourlock_( Threads::Lock::SmallWork )
+    , execslock_( Threads::Lock::SmallWork )
+    , nextexecutivelock_( Threads::Lock::SmallWork )
 {
-    xsize_ = crossings_->info().getSize(0);
-    ysize_ = crossings_->info().getSize(1);
-    totalnr_ = xsize_*ysize_;
+    totalnr_ = xsize * ysize;
+}
+
+
+ContourTracer::ExecutiveMode ContourTracer::setExecutive(
+					int idx, int executive, bool takeover )
+{
+    Threads::Locker locker( execslock_, Threads::Locker::WriteLock );
+    if ( execs_[idx] == executive )
+	return Confirmed;
+
+    if ( !mIsExecutive(execs_[idx]) || (takeover && execs_[idx]>executive) )
+    {
+	execs_[idx] = executive;
+	return Approved;
+    }
+
+    return Refused;
+}
+
+
+int ContourTracer::nextExecutive()
+{
+    Threads::Locker locker( nextexecutivelock_, Threads::Locker::WriteLock );
+    return nextexecutive_++;
 }
 
 
@@ -310,52 +294,143 @@ void ContourTracer::addVertex( ODPolygon<float>& contour, bool headinsert,
 }
 
 
+bool ContourTracer::nextCrossing( int& idx, int& idy, int& hor, int& up,
+				  float& frac )
+{
+    const int lidx =   up    ? idx : ( hor ? idx+1 : idx-1 );	/* [l]eft */
+    const int lidy = up==hor ? idy : ( hor ? idy-1 : idy+1 );
+
+    float lfrac = mNoFraction;
+    if ( lidx>=0 && lidx<xsize_ && lidy>=0 && lidy<ysize_ )
+	lfrac = crossings_[(lidx*ysize_+lidy)*2+1-hor];
+
+    const int ridx = up!=hor ? idx : ( hor ? idx+1 : idx-1 );	/* [r]ight */
+    const int ridy =   up    ? idy : ( hor ? idy-1 : idy+1 );
+
+    float rfrac = mNoFraction;
+    if ( !mIsFraction(lfrac) || hor )
+    {
+	if ( ridx>=0 && ridx<xsize_ && ridy>=0 && ridy<ysize_ )
+	    rfrac = crossings_[(ridx*ysize_+ridy)*2+1-hor];
+    }
+
+    if ( mIsFraction(lfrac) && mIsFraction(rfrac) )
+    {
+	// Tie-break (direction invariance required for multi-threading)
+	if ( hor )
+	    lfrac = mNoFraction;
+	else
+	    rfrac = mNoFraction;
+    }
+
+    if ( mIsFraction(lfrac) )
+    {
+	idx = lidx; idy = lidy; frac = lfrac; hor = 1-hor;
+	up = up==hor ? 1 : 0;
+	return true;
+    }
+
+    if ( mIsFraction(rfrac) )
+    {
+	idx = ridx; idy = ridy; frac = rfrac; hor = 1-hor;
+	up = up==hor ? 0 : 1;
+	return true;
+    }
+
+    const int sidx =  hor ? idx : ( up ? idx+1 : idx-1 );	/* [s]traight */
+    const int sidy = !hor ? idy : ( up ? idy+1 : idy-1 );
+
+    float sfrac = mNoFraction;
+    if ( sidx>=0 && sidx<xsize_ && sidy>=0 && sidy<ysize_ )
+	sfrac = crossings_[(sidx*ysize_+sidy)*2+hor];
+
+    if ( !mIsFraction(sfrac) )
+	return false;
+
+    idx = sidx; idy = sidy; frac = sfrac;
+    return true;
+}
+
+
 bool ContourTracer::doWork( od_int64 start, od_int64 stop, int )
 {
-    for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
+    // Minimize wasted work: (Horizon) contours often align with shorter dim.
+    const bool xisfastdim = xsize_ <= ysize_;
+
+    int pidx = mCast( int, xisfastdim ? start%xsize_ : start/ysize_ );
+    int pidy = mCast( int, xisfastdim ? start/xsize_ : start%ysize_ );
+
+    for ( od_int64 count=start; count<=stop; count++ )
     {
-	const int pidx = (int)Math::Floor((double)idx/ysize_);
-	const int pidy = (int)idx - pidx*ysize_;
 	for ( int phor=0; phor<=1; phor++ )
 	{
-	    const float pfrac = crossings_->get( pidx, pidy, phor );
-	    if ( mIsUdf(pfrac) )
+	    const int pivotidx = (pidx*ysize_+pidy)*2 + phor;
+	    const float pfrac = crossings_[pivotidx];
+	    if ( !mIsFraction(pfrac) || mIsExecutive(execs_[pivotidx]) )
 		continue;
+
+	    const int executive = nextExecutive();
+	    if ( setExecutive(pivotidx,executive,false) == Refused )
+		continue;
+
 	    ODPolygon<float>* contour = new ODPolygon<float>();
 	    contour->setClosed( false );
+	    addVertex( *contour, false, pidx, pidy, phor, pfrac );
+
 	    for ( int pup=0; pup<=1; pup++ )
 	    {
-		int idxx = pidx; int idyy = pidy; int hor = phor;
+		int idx = pidx; int idy = pidy; int hor = phor;
 		int up = pup; float frac = pfrac;
-		if ( !pup && !nextCrossing(*crossings_,idxx,idyy,hor,up,frac) )
-		    continue;
-		do
+
+		while ( nextCrossing(idx,idy,hor,up,frac) )
 		{
-		    addVertex( *contour, pup, idxx, idyy, hor, frac );
-		    crossings_->set( idxx, idyy, hor, mUdf(float) );
-		}
-		while( nextCrossing(*crossings_,idxx,idyy,hor,up,frac) );
-		if ( !pup && idxx==pidx && idyy==pidy && hor==phor )
-		{
-		    contour->setClosed( true );
-		    break;
+		    const ExecutiveMode res =
+			setExecutive( (idx*ysize_+idy)*2+hor, executive, true );
+
+		    if ( res != Approved )
+		    {
+			if ( res == Confirmed )
+			    contour->setClosed( true );
+			else	/* Refused */
+			    contour->setEmpty();
+
+			pup = 1;	// escape from up/down loop too
+			break;
+		    }
+
+		    addVertex( *contour, pup, idx, idy, hor, frac );
 		}
 	    }
-	    if ( !mIsUdf(bendpointeps_) )
+
+	    if ( mFastIsFloatDefined(bendpointeps_) )
 		contour->keepBendPoints( bendpointeps_ );
+
 	    const int sz = contour->size();
 	    if ( sz<minnrvertices_ || (closedonly_ && !contour->isClosed()) )
 		delete contour;
 	    else
 	    {
-		Threads::MutexLocker lock( lock_ );
+		Threads::Locker( contourlock_, Threads::Locker::WriteLock );
 		contours_ += contour;
-		lock.unLock();
 	    }
 	}
-    }
-    return true;
 
+	if ( xisfastdim )
+	{
+	    if ( ++pidx >= xsize_ )
+	    {
+		++pidy;
+		pidx = 0;
+	    }
+	}
+	else if ( ++pidy >= ysize_ )
+	{
+	    ++pidx;
+	    pidy = 0;
+	}
+    }
+
+    return true;
 }
 
 
@@ -430,26 +505,25 @@ bool IsoContourTracer::getContours( ObjectSet<ODPolygon<float> >& contours,
 {
     deepErase( contours );
     const unsigned int edge = edgepar_.getParam(this);
-    Array3DImpl<float>* crossings = new Array3DImpl<float>(
-	xrange_.width()+2*edge+1, yrange_.width()+2*edge+1, 2 );
+    const int xsize = xrange_.width() + 2*edge + 1;
+    const int ysize = yrange_.width() + 2*edge + 1;
+    float* crossings = new float[ xsize*ysize*2 ];
+    int* execs = new int[ xsize*ysize*2 ];
 
-    const bool multithread1 = !Threads::WorkManager::twm().isWorkThread();
-    SameZFinder finder( &field_,crossings,polyroi_,z,edgevalue_ );
+    SameZFinder finder( &field_, crossings, execs, xsize, ysize, polyroi_, z,
+			edgevalue_);
     finder.setRanges( xrange_, yrange_ );
     finder.setSamplings( xsampling_, ysampling_ );
-    if ( finder.executeParallel( multithread1 ) )
+    if ( finder.execute() )
     {
-	const bool multithread2 = false;
-	// Line below leads to a freeze of the system. No clue why. Making the
-	// ContourTracer single threaded solves the problem for now.
-	//const bool multithread2 = !Threads::WorkManager::twm().isWorkThread();
-	ContourTracer tracer( contours, crossings, edge, bendpointeps_,
-	    nrlargestonly_, minnrvertices_, closedonly );
+	ContourTracer tracer( contours, crossings, execs, xsize, ysize, edge,
+	    bendpointeps_, nrlargestonly_, minnrvertices_, closedonly );
 	tracer.setRanges( xrange_, yrange_ );
 	tracer.setSamplings( xsampling_, ysampling_ );
-	tracer.executeParallel( multithread2 );
+	tracer.execute();
     }
     delete crossings;
+    delete execs;
 
     if ( nrlargestonly_>0 && contours.size()>nrlargestonly_ )
     {
