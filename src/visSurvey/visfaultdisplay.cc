@@ -586,7 +586,7 @@ void FaultDisplay::updateIntersectionDisplay()
 
 	const bool dodisplay = areIntersectionsDisplayed() &&
 			       arePanelsDisplayed() &&
-			       otherobjects_;
+			       isOn() && otherobjects_;
 	if ( dodisplay )
 	    intersectiondisplay_->touch( false );
 
@@ -604,7 +604,7 @@ void FaultDisplay::updateHorizonIntersectionDisplay()
 	setLineRadius( horintersections_[idx] );
 
 	const bool dodisplay = areHorizonIntersectionsDisplayed() &&
-			       arePanelsDisplayed();
+			       arePanelsDisplayed() && isOn();
 	if ( dodisplay )
 	    horintersections_[idx]->touch( false );
 
@@ -1668,7 +1668,7 @@ bool FaultDisplay::isInStickSelectMode() const
 
 void FaultDisplay::updateEditorMarkers()
 {
-    if ( !fault_ || !viseditor_ )
+    if ( !fault_ || !viseditor_ || !areSticksDisplayed() )
 	return;
 
     PtrMan<EM::EMObjectIterator> iter = fault_->geometry().createIterator(-1);
@@ -1844,6 +1844,8 @@ void FaultDisplay::updateStickHiding()
 	{
 	    TypeSet<Coord3> intersectpoints;
 	    fss->hideStick( rc.row(), true, mSceneIdx );
+	    if ( !areSticksDisplayed() )
+		continue;
 
 	    if ( !areIntersectionsDisplayed() ||
 		 coincidesWith2DLine(*fss, rc.row()) ||
