@@ -41,45 +41,30 @@ class EMManager;
 \brief EM object callback data.
 */
 
-mExpClass(EarthModel) EMObjectCallbackData
+typedef Monitorable::ChangeData EMChangeData;
+
+mExpClass(EarthModel) EMChangeAuxData : public Monitorable::ChangeData::AuxData
 {
 public:
-
-    mDefIntegerIDType(int, CBID);
-
-		EMObjectCallbackData()
+		EMChangeAuxData()
 		    : attrib( -1 )
 		    , flagfor2dviewer( false )
-		    , event( EMObjectCallbackData::Undef )
-		    , cbid_(CBID::get(curcbid_++))
 		{}
 
 
-		EMObjectCallbackData( const EMObjectCallbackData& data )
+		EMChangeAuxData( const EMChangeAuxData& data )
 		    : pid0( data.pid0 )
 		    , pid1( data.pid1 )
 		    , attrib( data.attrib )
 		    , flagfor2dviewer( data.flagfor2dviewer )
-		    , event( data.event )
-		    , cbid_(data.cbid_)
 		{}
 
-
-    enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
-		 AttribChange, SectionChange, NameChange, SelectionChange,
-		 LockChange, BurstAlert, LockColorChange, SelectionColorChange,
-		 ParentColorChange, LineStyleChange, MarkerStyleChange } event;
 
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange
     int		attrib; //Used only with AttribChange
     bool	flagfor2dviewer; //Used only with BurstAlert for 2DViewer
-    CBID	cbID() const { return cbid_; }
 
-protected:
-
-    CBID			cbid_;
-    static Threads::Atomic<int>	curcbid_;
 };
 
 
@@ -126,16 +111,13 @@ public:
 */
 
 #define mImplEMSet(fnnm,typ,memb,emcbtype) \
-    void fnnm( typ _set_to_ ) \
-    {	EMObjectCallbackData* cbdata = getNewEMCBData(); \
-	cbdata->event = emcbtype; \
-	setMemberSimple( memb, _set_to_, 0, cbdata->cbID().getI() ); }
+void fnnm( typ _set_to_ ) \
+{ setMemberSimple( memb, _set_to_, emcbtype, ChangeData::cUnspecChgID() ); }
+
 #define mImplEMGetSet(pfx,fnnmget,fnnmset,typ,memb,emcbtype) \
     pfx mImplSimpleMonitoredGet(fnnmget,typ,memb) \
     pfx mImplEMSet(fnnmset,const typ&,memb,emcbtype)
 
-
-typedef EMObjectCallbackData::CBID EMCBID;
 
 mExpClass(EarthModel) EMObject : public SharedObject
 {
@@ -151,15 +133,14 @@ public:
     void			setDBKey(const DBKey&);
 
     mImplEMGetSet(inline,preferredColor,setPreferredColor,Color,preferredcolor_,
-		  EMObjectCallbackData::PrefColorChange)
+		  cPrefColorChange())
     mImplEMGetSet(inline,selectionColor,setSelectionColor,Color,selectioncolor_,
-		  EMObjectCallbackData::SelectionColorChange)
+		  cSelColorChange())
     mImplEMGetSet(inline,preferredLineStyle,setPreferredLineStyle,
-		  OD::LineStyle, preferredlinestyle_,
-		  EMObjectCallbackData::LineStyleChange)
+		  OD::LineStyle, preferredlinestyle_,cPrefLineStyleChange())
     mImplEMGetSet(inline,preferredMarkerStyle3D,setPreferredMarkerStyle3D,
 		  OD::MarkerStyle3D,preferredmarkerstyle_,
-		  EMObjectCallbackData::MarkerStyleChange)
+		  cPrefMarkerStyleChange())
 
     virtual bool		isOK() const		{ return true; }
 
@@ -250,7 +231,7 @@ public:
     virtual const char*		posAttribName(int) const;
     virtual int			addPosAttribName(const char*);
     const TypeSet<PosID>*	getPosAttribList(int attr) const;
-    const OD::MarkerStyle3D&	getPosAttrMarkerStyle(int attr);
+    OD::MarkerStyle3D		getPosAttrMarkerStyle(int attr);
     void			setPosAttrMarkerStyle(int attr,
 						      const OD::MarkerStyle3D&);
     virtual void		lockPosAttrib(int attr,bool yn);
@@ -262,8 +243,6 @@ public:
     void			removeAllUnSeedPos();
     const TrcKeyZSampling	getRemovedPolySelectedPosBox();
     void			emptyRemovedPolySelectedPosBox();
-
-    CNotifier<EMObject,const EMObjectCallbackData&>	change;
 
     virtual Executor*		loader()		{ return 0; }
     virtual bool		isLoaded() const	{ return false; }
@@ -298,11 +277,18 @@ public:
     static ChangeType		cSelColorChange()	{ return 4; }
     static ChangeType		cPrefLineStyleChange()	{ return 5; }
     static ChangeType		cPrefMarkerStyleChange(){ return 6; }
+    static ChangeType		cPosIDChange()		{ return 7; }
+    static ChangeType		cAttribChange()		{ return 8; }
+    static ChangeType		cSectionChange()	{ return 9; }
+    static ChangeType		cNameChange()		{ return 10; }
+    static ChangeType		cSelectionChange()	{ return 11; }
+    static ChangeType		cLockChange()		{ return 12; }
+    static ChangeType		cBurstAlert()		{ return 13; }
+    static ChangeType		cLockColorChange()	{ return 14; }
+    static ChangeType		cParentColorChange()	{ return 15; }
 
     virtual const IOObjContext&	getIOObjContext() const = 0;
 
-
-    const EMObjectCallbackData*	getEMCBData(EMCBID) const;
 
 protected:
 				~EMObject();
@@ -318,7 +304,7 @@ protected:
     void			posIDChangeCB(CallBacker*);
     void			useDisplayPars(const IOPar&);
 
-    EMObjectCallbackData*	getNewEMCBData();
+    EMChangeData*		getNewEMCBData();
 
     BufferString		objname_;
     DBKey			storageid_;
@@ -342,8 +328,6 @@ protected:
     bool			insideselremoval_;
     bool			selremoving_;
     bool			haslockednodes_;
-
-    ObjectSet<EMObjectCallbackData> emcbdatas_;
 
     static const char*		nrposattrstr();
     static const char*		posattrprefixstr();
@@ -406,12 +390,16 @@ void clss::setNewName() \
 }
 
 
+#define mSendEMCBNotifWithData( typ, data ) \
+    ChangeData cd( typ, ChangeData::cUnspecChgID(), data ); \
+    sendChgNotif( accesslocker_, cd );
+
 #define mSendEMCBNotifPosID( typ, pid ) \
     setChangedFlag(); \
-    EMObjectCallbackData* cbdata = getNewEMCBData(); \
-    cbdata->event = typ; \
-    cbdata->pid0 = pid; \
-    mSendChgNotif( cPositionChange(), cbdata->cbID().getI() );
+    RefMan<EMChangeAuxData> data = new EMChangeAuxData; \
+    data->pid0 = pid; \
+    ChangeData cd( typ, ChangeData::cUnspecChgID(), data ); \
+    sendChgNotif( accesslocker_, cd );
 
 #define mSendEMCBNotif( typ ) \
     mSendEMCBNotifPosID( typ, EM::PosID() );

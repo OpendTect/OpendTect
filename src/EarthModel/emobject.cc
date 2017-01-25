@@ -36,7 +36,6 @@ const char* EMObject::posattrposidstr()	    { return " SubID"; }
 const char* EMObject::nrposattrstr()	    { return "Nr Pos Attribs"; }
 
 Color EMObject::sDefaultSelectionColor() { return Color::Orange(); }
-Threads::Atomic<int>	EMObjectCallbackData::curcbid_ = 0;
 
 EMObject::EMObject( const char* nm )
     : SharedObject( nm )
@@ -201,7 +200,7 @@ bool EMObject::setPosition( const SectionID& sid, const SubID& subid,
 
     if ( burstalertcount_==0 )
     {
-	mSendEMCBNotifPosID( EMObjectCallbackData::PositionChange, pid );
+	mSendEMCBNotifPosID( cPositionChange(), pid );
     }
 
     changed_ = true;
@@ -229,10 +228,9 @@ void EMObject::setBurstAlert( bool yn )
     if ( burstalertcount_==0 )
     {
 	if ( yn ) burstalertcount_++;
-	EMObjectCallbackData* cbdata = getNewEMCBData();
-	cbdata->flagfor2dviewer = !yn;
-	cbdata->event = EMObjectCallbackData::BurstAlert;
-	mSendChgNotif( cPositionChange(), cbdata->cbID().getI() );
+	RefMan<EMChangeAuxData> data = new EMChangeAuxData;
+	data->flagfor2dviewer = !yn;
+	mSendEMCBNotifWithData( cBurstAlertChange(), data );
     }
     else if ( yn )
 	burstalertcount_++;
@@ -337,11 +335,10 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
 
     if ( !hasBurstAlert() )
     {
-	EMObjectCallbackData* cbdata = getNewEMCBData();
-	cbdata->event = EMObjectCallbackData::AttribChange;
-	cbdata->pid0 = pid;
-	cbdata->attrib = attr;
-	mSendChgNotif( cPositionChange(), cbdata->cbID().getI() );
+	RefMan<EMChangeAuxData> data = new EMChangeAuxData;
+	data->attrib = attr;
+	data->pid0 = pid;
+	mSendEMCBNotifWithData( cAttribChange(), data );
     }
 
     changed_ = true;
@@ -375,7 +372,7 @@ const TypeSet<PosID>* EMObject::getPosAttribList( int attr ) const
 }
 
 
-const OD::MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr )
+OD::MarkerStyle3D EMObject::getPosAttrMarkerStyle( int attr )
 {
     addPosAttrib( attr );
     return preferredMarkerStyle3D();
@@ -388,11 +385,11 @@ void EMObject::setPosAttrMarkerStyle( int attr, const OD::MarkerStyle3D& ms )
     addPosAttrib( attr );
     setPreferredMarkerStyle3D( ms );
 
-    EMObjectCallbackData* cbdata = getNewEMCBData();
-    cbdata->event = EMObjectCallbackData::AttribChange;
-    cbdata->attrib = attr;
-    mSendChgNotif( cPositionChange(), cbdata->cbID().getI() );
-    changed_ = true;
+    RefMan<EMChangeAuxData> data = new EMChangeAuxData;
+    data->attrib = attr;
+    data->pid0 = pid;
+    mSendEMCBNotifWithData( cAttribChange(), data );
+    touch();
 }
 
 
@@ -664,8 +661,8 @@ void EMObject::fillPar( IOPar& par ) const
 
 void EMObject::posIDChangeCB(CallBacker* cb)
 {
-    mCBCapsuleUnpack(const EMObjectCallbackData&,cbdata,cb);
-    if ( cbdata.event != EMObjectCallbackData::PosIDChange )
+    mCBCapsuleUnpack(const ChangeData&,cbdata,cb);
+    if ( cbdata.changeType() != cPosIDChange() )
 	return;
 
     for ( int idx=0; idx<posattribs_.size(); idx++ )
@@ -683,31 +680,5 @@ void EMObject::posIDChangeCB(CallBacker* cb)
 	}
     }
 }
-
-
-EMObjectCallbackData* EMObject::getNewEMCBData()
-{
-    EMObjectCallbackData* emcbdata = new EMObjectCallbackData();
-    emcbdatas_ += emcbdata;
-    return emcbdata;
-}
-
-
-const EMObjectCallbackData* EMObject::getEMCBData( EMCBID emcbid ) const
-{
-    if ( emcbdatas_.isEmpty() )
-	return 0;
-
-    mLock4Read();
-    for ( int idx=0; idx<emcbdatas_.size(); idx++ )
-    {
-	const EMObjectCallbackData* emcbdata = emcbdatas_[idx];
-	if ( emcbdata->cbID() == emcbid )
-	    return emcbdata;
-    }
-
-    return 0;
-}
-
 
 } // namespace EM

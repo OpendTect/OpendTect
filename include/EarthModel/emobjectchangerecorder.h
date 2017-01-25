@@ -25,10 +25,21 @@ public:
 
     typedef ChangeRecorder::Action	Action;
 
+    virtual bool	apply(Monitorable&,Action) const;
+
+protected:
+
+    virtual bool	doApply(Monitorable&,Action) consti	= 0;
+};
+
+
+mExpClass(General) EMPosChangeRecord : public EMChangeRecord
+{
+public:
+
     EM::PosID		posid_;
     Coord		pos_;
 
-    virtual bool	apply(Monitorable&,Action) const;
     virtual bool	isValid() const		{ return posid_.isValid();}
     static const EMChangeRecord& udf();
 
@@ -37,7 +48,7 @@ protected:
 			EMChangeRecord( PosID id, const Coord& pos )
 			    : posid_(id), pos_(pos)	{}
 
-//    virtual void	doApply(EMObject&,bool) const	= 0;
+    virtual bool	doApply(EMObject&,bool) const;
 
 };
 

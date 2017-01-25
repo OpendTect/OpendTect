@@ -34,7 +34,7 @@ void PosID::fillPar( IOPar& par ) const
 {
     par.set( emobjStr(), objid_ );
     par.set( sectionStr(), sectionid_ );
-    par.set( subidStr(), subid_ );
+    par.set( subidStr(), getI() );
 }
 
 
@@ -48,7 +48,7 @@ bool PosID::usePar( const IOPar& par )
     if ( res )
     {
 	sectionid_ = mCast( EM::SectionID, tmpsection );
-	subid_ = tmpsubid;
+	setI( tmpsubid );
     }
 
     return res;

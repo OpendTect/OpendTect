@@ -31,7 +31,7 @@ It has three parts,
 - a SubID, which identifies the position on the section.
 */
 
-mExpClass(EarthModel) PosID
+mExpClass(EarthModel) PosID : public IntegerID<SubID>
 {
 public:
 				PosID( DBKey objid=DBKey::getInvalid(),
@@ -59,7 +59,6 @@ protected:
 
     DBKey			objid_;
     SectionID			sectionid_;
-    SubID			subid_;
 
     static const char*		emobjStr();
     static const char*		sectionStr();
@@ -68,14 +67,15 @@ protected:
 
 
 inline PosID::PosID( DBKey objid, SectionID section, SubID subid )
-    : objid_(objid)
+    : IntegerID<SubID>(subid)
+    , objid_(objid)
     , sectionid_(section)
-    , subid_(subid)
 {}
 
 
 inline bool PosID::operator==(const PosID& b) const
-{ return objid_==b.objid_ && sectionid_==b.sectionid_ && subid_==b.subid_; }
+{ return objid_==b.objid_ && sectionid_==b.sectionid_
+    && IntegerID<SubID>::operator ==(b); }
 
 
 inline bool PosID::operator!=(const PosID& b) const
@@ -88,7 +88,7 @@ inline SectionID PosID::sectionID() const
 { return sectionid_; }
 
 inline SubID PosID::subID() const
-{ return subid_; }
+{ return getI(); }
 
 inline void PosID::setObjectID( const DBKey& id )
 { objid_ = id; }
@@ -97,7 +97,7 @@ inline void PosID::setSectionID( SectionID id )
 { sectionid_ = id; }
 
 inline void PosID::setSubID( SubID id )
-{ subid_ = id; }
+{ setI( id ); }
 
 
 } // namespace EM
