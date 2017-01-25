@@ -55,6 +55,7 @@ public:
     TypeSet<EM::SectionID>	getSectionIDs() const{ return sids_; }
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    const Color&		getLineColor() const;
 
     const visBase::PointSet*	getPointSet(const EM::SectionID&) const;
     const visBase::PolyLine3D*	getLine(const EM::SectionID&) const;

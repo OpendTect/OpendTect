@@ -682,6 +682,16 @@ void EMObjectDisplay::fillPar( IOPar& par ) const
 }
 
 
+const visBase::MarkerSet* EMObjectDisplay::getSeedMarkerSet() const
+{
+    const int attribindex = posattribs_.indexOf( EM::EMObject::sSeedNode() );
+    if ( attribindex==-1 || posattribmarkers_.size()<attribindex ) 
+	return 0;
+
+    return posattribmarkers_[attribindex];
+}
+
+
 bool EMObjectDisplay::usePar( const IOPar& par )
 {
     if ( !visBase::VisualObjectImpl::usePar( par ) ||

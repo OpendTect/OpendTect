@@ -148,6 +148,7 @@ public:
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj )	=0;
     virtual void		setPixelDensity(float dpi);
+    const visBase::MarkerSet*	getSeedMarkerSet() const; 
 
 
 protected:
