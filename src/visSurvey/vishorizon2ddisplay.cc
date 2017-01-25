@@ -949,4 +949,13 @@ void Horizon2DDisplay::clearSelections()
 }
 
 
+const Color& Horizon2DDisplay::getLineColor() const
+{
+    if ( emobject_ )
+	return emobject_->preferredColor();
+
+    return Color::Blue();
+}
+
+
 } // namespace visSurvey

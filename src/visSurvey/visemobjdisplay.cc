@@ -678,6 +678,16 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 }
 
 
+const visBase::MarkerSet* EMObjectDisplay::getSeedMarkerSet() const
+{
+    const int attribindex = posattribs_.indexOf( EM::EMObject::sSeedNode() );
+    if ( attribindex==-1 || posattribmarkers_.size()<attribindex ) 
+	return 0;
+
+    return posattribmarkers_[attribindex];
+}
+
+
 EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
     const TypeSet<int>& path, const Coord3& clickeddisplaypos ) const
 {
