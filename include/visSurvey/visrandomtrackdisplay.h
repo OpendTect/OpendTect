@@ -289,6 +289,9 @@ protected:
     void			geomNodeMoveCB( CallBacker*);
     void			setNodePositions(const TypeSet<BinID>&,
 						 bool onlyinternal);
+
+    bool			isMappingTraceOfBid(BinID bid,int trcidx,
+						    bool forward=true) const;
 };
 
 } // namespace visSurvey
