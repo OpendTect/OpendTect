@@ -707,6 +707,26 @@ void RandomTrackDisplay::updateRanges(bool resetinlcrl, bool resetz )
 }
 
 
+bool RandomTrackDisplay::isMappingTraceOfBid( BinID bid, int trcidx,
+					      bool forward ) const
+{
+    if ( !trcspath_.validIdx(trcidx) )
+	return false;
+
+    // Allow round-off differences from elsewhere
+    if ( abs(trcspath_[trcidx].inl()-bid.inl()) > SI().inlStep() )
+	return false;
+    if ( abs(trcspath_[trcidx].crl()-bid.crl()) > SI().crlStep() )
+	return false;
+
+    if ( (!forward && !trcidx) || (forward && trcidx==trcspath_.size()-1) )
+	return true;
+
+    const int dir = forward ? 1 : -1;
+    return trcspath_[trcidx].sqDistTo(bid)<=trcspath_[trcidx+dir].sqDistTo(bid);
+}
+
+
 void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 			const TrcKeyPath& path, const StepInterval<float>& zrg )
 {
@@ -714,11 +734,12 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 	return;
 
     int idx0 = 0;
-    while ( idx0<trcspath_.size() && path.first().binID()!=trcspath_[idx0] )
+    while ( idx0<trcspath_.size() &&
+	    !isMappingTraceOfBid(path.first().binID(),idx0,true) )
 	idx0++;
 
     int idx1 = trcspath_.size()-1;
-    while ( idx1>=0 && path.last().binID()!=trcspath_[idx1] )
+    while ( idx1>=0 && !isMappingTraceOfBid(path.last().binID(),idx1,false) )
 	idx1--;
 
     if ( idx0>=trcspath_.size() || idx1<0 || idx1-idx0!=path.size()-1 )
@@ -848,7 +869,7 @@ void RandomTrackDisplay::updatePanelStripPath()
     for ( int trcidx=0; trcidx<trcspath_.size(); trcidx++ )
     {
 	while ( nodeidx<nodes_.size() &&
-		trcspath_[trcidx]==nodes_[nodeidx] )
+		isMappingTraceOfBid(nodes_[nodeidx],trcidx,true) )
 	{
 	    pathcrds += Coord( nodes_[nodeidx].inl(), nodes_[nodeidx].crl() );
 	    mapping += mCast( float, trcidx*(resolution_+1) );
