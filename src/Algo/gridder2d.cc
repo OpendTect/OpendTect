@@ -312,7 +312,7 @@ bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
 	    continue;
 
 	relevantpoints += index;
-	const double weight = useradius ? 1.-dist/radius_ : 1./dist;
+	const double weight = 1./(dist*dist);
 	weightsum += weight;
 	weights += weight;
     }
