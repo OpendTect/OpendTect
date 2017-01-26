@@ -1125,9 +1125,18 @@ void Horizon3D::deleteChildren()
 
 void Horizon3D::setNodeLocked( const TrcKey& node, bool locked )
 {
-    if ( !lockednodes_ ) return;
+    if ( !lockednodes_ || !trackingsamp_.includes(node) )
+	return;
 
-    lockednodes_->getData()[trackingsamp_.globalIdx(node)] = locked ? '1' : '0';
+    const od_int64 pos = trackingsamp_.globalIdx( node );
+#ifdef __debug__
+    if ( !lockednodes_->getData() ||
+	 pos < 0 || pos >= trackingsamp_.totalNr() ||
+		    pos >= lockednodes_->info().getTotalSz() )
+	pErrMsg("Invalid access");
+#endif
+
+    lockednodes_->getData()[pos] = locked ? '1' : '0';
 }
 
 
@@ -1140,8 +1149,18 @@ bool Horizon3D::isNodeLocked( const PosID& posid )const
 
 bool Horizon3D::isNodeLocked( const TrcKey& node ) const
 {
-    return lockednodes_ ?
-	lockednodes_->getData()[trackingsamp_.globalIdx(node)] == '1' : false;
+    if ( !lockednodes_ || !trackingsamp_.includes(node) )
+	return false;
+
+    const od_int64 pos = trackingsamp_.globalIdx( node );
+#ifdef __debug__
+    if ( !lockednodes_->getData() ||
+	 pos < 0 || pos >= trackingsamp_.totalNr() ||
+		    pos >= lockednodes_->info().getTotalSz() )
+	pErrMsg("Invalid access");
+#endif
+
+    return lockednodes_->getData()[pos] == '1';
 }
 
 
