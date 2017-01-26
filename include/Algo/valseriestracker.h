@@ -35,7 +35,7 @@ public:
 			     possible to track.*/
     virtual void	setSource(const ValueSeries<float>*,int sz,float depth);
     virtual void	setTarget(const ValueSeries<float>*,int sz,
-	    			  float initialdepth);
+				  float initialdepth);
 
     virtual bool	track()				= 0;
 			/*!<Calculates a new value for targetdepth_. */
@@ -67,6 +67,7 @@ mExpClass(Algo) EventTracker : public ValSeriesTracker
 {
 public:
 				EventTracker();
+				~EventTracker();
 
     const char*			type()		{ return sType(); }
     static const char*		sType()		{ return "EventTracker"; }
@@ -92,7 +93,7 @@ public:
 				//<!Is divided by rangestep to get nrof samples
     const Interval<float>&	permittedRange() const;
     void			setTrackEvent(VSEvent::Type ev);
-    				/*!<
+				/*!<
 				    - VSEvent::Max
 				       Will find max event within the permitted
 				       range where the amplitude is higher than
@@ -133,7 +134,7 @@ public:
     bool			useAbsThreshold() const;
 
     void			setAmplitudeThreshold(float th);
-    				//!<Must be set if using absolute threshold.
+				//!<Must be set if using absolute threshold.
     float			amplitudeThreshold() const;
 
     void			setAmplitudeThresholds(const TypeSet<float>&);

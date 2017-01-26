@@ -122,6 +122,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
 
 uiHorizonSetupGroup::~uiHorizonSetupGroup()
 {
+    failfld_.removeParam( this );
     engine().actionCalled.remove( mCB(this,uiHorizonSetupGroup,mpeActionCB) );
 }
 

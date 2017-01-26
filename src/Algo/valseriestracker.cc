@@ -138,6 +138,12 @@ EventTracker::EventTracker()
 }
 
 
+EventTracker::~EventTracker()
+{
+    dosnap_.removeParam( this );
+}
+
+
 void EventTracker::setCompareMethod( CompareMethod cm )
 { comparemethod_ = cm; }
 
