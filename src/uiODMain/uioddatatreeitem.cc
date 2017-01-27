@@ -133,6 +133,8 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
 
 uiODDataTreeItem::~uiODDataTreeItem()
 {
+    detachAllNotifiers();
+
     if ( menu_ )
     {
 	menu_->createnotifier.remove( mCB(this,uiODDataTreeItem,createMenuCB) );
@@ -152,7 +154,7 @@ uiODDataTreeItemFactory& uiODDataTreeItem::fac()
 {
     mDefineStaticLocalObject(uiODDataTreeItemFactory,datatreeitmfac_,);
     return datatreeitmfac_;
-};
+}
 
 
 int uiODDataTreeItem::uiTreeViewItemType() const
