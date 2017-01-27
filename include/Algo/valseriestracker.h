@@ -67,7 +67,8 @@ mExpClass(Algo) EventTracker : public ValSeriesTracker
 {
 public:
 				EventTracker();
-				~EventTracker();
+
+    void			clean();
 
     const char*			type()		{ return sType(); }
     static const char*		sType()		{ return "EventTracker"; }

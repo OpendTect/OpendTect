@@ -52,6 +52,7 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor, EM::SectionID sid )
 HorizonAdjuster::~HorizonAdjuster()
 {
     delete attribsel_;
+    evtracker_.clean();
     delete &evtracker_;
     dpm_.release( datapackid_ );
 }
