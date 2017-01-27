@@ -16,10 +16,9 @@ ________________________________________________________________________
 
 class IOObj;
 class Scaler;
-class SeisTrcReader;
 class SeisTrcWriter;
 class SeisSingleTraceProc;
-namespace Seis { class RangeSelData; }
+namespace Seis { class Provider; class RangeSelData; }
 
 
 /*!\brief Copies cubes. The IOPar constructor wants an IOPar as you would pass
@@ -89,7 +88,7 @@ protected:
 
     const IOObj&		inioobj_;
     const IOObj&		outioobj_;
-    SeisTrcReader*		rdr_;
+    Seis::Provider*		prov_;
     SeisTrcWriter*		wrr_;
     uiString			msg_;
     Seis::RangeSelData&		seldata_;

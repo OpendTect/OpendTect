@@ -10,7 +10,7 @@
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seispacketinfo.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselection.h"
 #include "ptrman.h"
 #include "sorting.h"
@@ -601,28 +601,28 @@ const char* SeisTrcBufDataPack::dimName( bool dim0 ) const
 }
 
 
-SeisBufReader::SeisBufReader( SeisTrcReader& rdr, SeisTrcBuf& buf )
+SeisBufReader::SeisBufReader( Seis::Provider& prov, SeisTrcBuf& buf )
     : Executor("Collecting traces")
-    , rdr_(rdr)
+    , prov_(prov)
     , buf_(buf)
-    , totnr_(-1)
+    , totnr_(prov.totalNr())
     , msg_(tr("Reading traces"))
-{
-    if ( rdr.selData() && !rdr.selData()->isAll() )
-	totnr_ = rdr.selData()->expectedNrTraces( rdr.is2D() );
-}
+{}
 
 
 int SeisBufReader::nextStep()
 {
     SeisTrc* newtrc = new SeisTrc;
 
-    int res = rdr_.get( newtrc->info() );
-    if ( res > 1 ) return Executor::MoreToDo();
-    if ( res == 0 ) return Executor::Finished();
+    const uiRetVal uirv = prov_.getNext( *newtrc );
+    if ( !uirv.isOK() )
+    {
+	if ( isFinished(uirv) )
+	    return Executor::Finished();
 
-    if ( res<0 || !rdr_.get(*newtrc) )
-    { msg_ = rdr_.errMsg(); return Executor::ErrorOccurred(); }
+	msg_ = uirv;
+	return Executor::ErrorOccurred();
+    }
 
     buf_.add( newtrc );
     return Executor::MoreToDo();

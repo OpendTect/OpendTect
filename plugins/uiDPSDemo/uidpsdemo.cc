@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "binidsurface.h"
 #include "seistrc.h"
 #include "seisbuf.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seistrctr.h"
 #include "seistrcprop.h"
 #include "seisselectionimpl.h"
@@ -184,14 +184,15 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 			     TaskRunner& taskrunner )
 {
-    SeisTrcReader rdr( &ioobj );
-    Seis::TableSelData* tsd = new Seis::TableSelData( dps.bivSet() );
-    rdr.setSelData( tsd );
-    if ( !rdr.prepareWork() )
-	mErrRet(rdr.errMsg())
+    uiRetVal uirv;
+    Seis::Provider* prov = Seis::Provider::create( ioobj.key(), &uirv );
+    if ( !prov )
+	mErrRet( uirv );
+
+    prov->setSelData( new Seis::TableSelData(dps.bivSet()) );
 
     SeisTrcBuf tbuf(true);
-    SeisBufReader br( rdr, tbuf );
+    SeisBufReader br( *prov, tbuf );
     if ( !TaskRunner::execute( &taskrunner, br ) )
 	return false;
 

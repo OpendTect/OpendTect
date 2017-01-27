@@ -8,7 +8,7 @@
 #include "seiscopy.h"
 #include "seis2ddata.h"
 #include "seistrc.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seiswrite.h"
 #include "seistrcprop.h"
 #include "seissingtrcproc.h"
@@ -184,7 +184,7 @@ Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
     : Executor("Copying 2D Seismic Data")
     , inioobj_(*inobj.clone())
     , outioobj_(*outobj.clone())
-    , rdr_(0)
+    , prov_(0)
     , wrr_(0)
     , seldata_(*new Seis::RangeSelData)
     , lineidx_(-1)
@@ -249,7 +249,7 @@ Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
 
 Seis2DCopier::~Seis2DCopier()
 {
-    delete rdr_; delete wrr_;
+    delete prov_; delete wrr_;
     delete scaler_;
     delete &seldata_;
     delete (IOObj*)(&inioobj_);
@@ -259,7 +259,11 @@ Seis2DCopier::~Seis2DCopier()
 
 bool Seis2DCopier::initNextLine()
 {
-    delete rdr_; rdr_ = new SeisTrcReader( &inioobj_ );
+    uiRetVal uirv;
+    delete prov_; prov_ = Seis::Provider::create( inioobj_.key(), &uirv);
+    if ( !prov_ )
+	{ msg_ = uirv; return false; }
+
     delete wrr_; wrr_ = new SeisTrcWriter( &outioobj_ );
 
     lineidx_++;
@@ -275,11 +279,8 @@ bool Seis2DCopier::initNextLine()
     }
 
     seldata_.setGeomID( selgeomids_[lineidx_] );
-    rdr_->setSelData( seldata_.clone() );
+    prov_->setSelData( seldata_.clone() );
     wrr_->setSelData( seldata_.clone() );
-    if ( !rdr_->prepareWork() )
-	{ msg_ = rdr_->errMsg(); return false; }
-
     return true;
 }
 
@@ -296,14 +297,15 @@ int Seis2DCopier::nextStep()
 	return ErrorOccurred();
 
     SeisTrc trc;
-    const int res = rdr_->get( trc.info() );
-    if ( res < 0 )
-	{ msg_ = rdr_->errMsg(); return ErrorOccurred(); }
-    if ( res == 0 )
-	return initNextLine() ? MoreToDo() : Finished();
+    const uiRetVal uirv = prov_->getNext( trc );
+    if ( !uirv.isOK() )
+    {
+	if ( isFinished(uirv) )
+	    return initNextLine() ? MoreToDo() : Finished();
 
-    if ( !rdr_->get(trc) )
-	{ msg_ = rdr_->errMsg(); return ErrorOccurred(); }
+	msg_ = uirv;
+	return ErrorOccurred();
+    }
 
     if ( scaler_ )
     {

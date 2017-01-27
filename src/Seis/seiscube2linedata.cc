@@ -8,7 +8,7 @@
 #include "seiscube2linedata.h"
 #include "keystrs.h"
 #include "posinfo2d.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselection.h"
 #include "seiswrite.h"
 #include "seistrc.h"
@@ -22,15 +22,20 @@ Seis2DFrom3DExtractor::Seis2DFrom3DExtractor(
 			const IOObj& cubein, const IOObj& dsout,
 			const TypeSet<Pos::GeomID>& geomids )
     : Executor("Extract 3D data into 2D lines")
-    , rdr_(*new SeisTrcReader(&cubein))
     , wrr_(*new SeisTrcWriter(&dsout))
     , geomids_(geomids)
+    , prov_(0)
     , nrdone_(0)
     , totalnr_(0)
     , curgeom2d_(0)
     , curlineidx_(-1)
     , curtrcidx_(-1)
 {
+    uiRetVal uirv;
+    prov_ = Seis::Provider::create( cubein.key(), &uirv );
+    if ( !prov_ )
+	{ msg_ = uirv; return; }
+
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
@@ -43,7 +48,7 @@ Seis2DFrom3DExtractor::Seis2DFrom3DExtractor(
 
 Seis2DFrom3DExtractor::~Seis2DFrom3DExtractor()
 {
-    delete &wrr_; delete &rdr_;
+    delete &wrr_; delete prov_;
 }
 
 
@@ -56,12 +61,12 @@ Pos::GeomID Seis2DFrom3DExtractor::curGeomID() const
 
 int Seis2DFrom3DExtractor::goToNextLine()
 {
+    if ( !prov_ )
+	return ErrorOccurred();
+
     curlineidx_++;
     if ( curlineidx_ >= geomids_.size() )
 	return Finished();
-
-    if ( !curlineidx_ && !rdr_.prepareWork() )
-	mErrRet( rdr_.errMsg() )
 
     mDynamicCast( const Survey::Geometry2D*, curgeom2d_,
 		  Survey::GM().getGeometry(geomids_[curlineidx_]) );
@@ -87,15 +92,18 @@ int Seis2DFrom3DExtractor::nextStep()
 
 int Seis2DFrom3DExtractor::handleTrace()
 {
+    SeisTrc trc;
+    const uiRetVal uirv = prov_->getNext( trc );
+    if ( !uirv.isOK() )
+    {
+	if ( isFinished(uirv) )
+	    return Finished();
+
+	mErrRet( uirv );
+    }
+
     const PosInfo::Line2DPos& curpos =
 		curgeom2d_->data().positions()[curtrcidx_++];
-    if ( !rdr_.seisTranslator()->goTo( SI().transform(curpos.coord_) ) )
-	return MoreToDo();
-
-    SeisTrc trc;
-    if ( !rdr_.get(trc) )
-	return MoreToDo();
-
     TrcKey curtrckey( curgeom2d_->getID(), curpos.nr_ );
     trc.info().trckey_ = curtrckey;
     trc.info().coord_ = curpos.coord_;

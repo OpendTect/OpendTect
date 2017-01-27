@@ -25,6 +25,7 @@ class SeisTrc;
 class SeisTrcReader;
 template <class T> class Array3D;
 template <class T> class ValueSeries;
+namespace Seis { class Provider; }
 
 
 mExpClass(Seis) VelocityStretcher : public ZAxisTransform
@@ -177,7 +178,7 @@ protected:
     const IOObj&		obj_;
     const VelocityDesc&		vd_;
 
-    SeisTrcReader*		reader_;
+    Seis::Provider*		provider_;
 
     Interval<float>		startavgvel_;
     Interval<float>		stopavgvel_;

@@ -9,7 +9,7 @@
 
 #include "envvars.h"
 #include "genc.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seiswrite.h"
 #include "seisimporter.h"
 #include "seistrc.h"
@@ -151,7 +151,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 	, trc_(*new SeisTrc)
 	, isimp_(imp)
 	, strm_(0)
-	, rdr_(0)
+	, prov_(0)
 	, wrr_(0)
 	, importer_(0)
 	, nrdone_(0)
@@ -165,20 +165,28 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
     if ( !ioobj ) return;
     const_cast<bool&>(zistm_) = ZDomain::isTime( ioobj->pars() );
 
-    SeisStoreAccess* sa;
-    if ( isimp_ )
-	sa = wrr_ = new SeisTrcWriter( ioobj );
-    else
-	sa = rdr_ = new SeisTrcReader( ioobj );
-    errmsg_ = sa->errMsg();
-    if ( !errmsg_.isEmpty() )
-	return;
-
     Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
     if ( !mIsUdfGeomID(data_.geomid_) )
 	seldata->setGeomID( data_.geomid_ );
 
-    sa->setSelData( seldata );
+    if ( isimp_ )
+    {
+	wrr_ = new SeisTrcWriter( ioobj );
+	errmsg_ = wrr_->errMsg();
+	if ( !errmsg_.isEmpty() )
+	    return;
+
+	wrr_->setSelData( seldata );
+    }
+    else
+    {
+	uiRetVal uirv;
+	prov_ = Seis::Provider::create( d.seiskey_, &uirv );
+	if ( !prov_ )
+	    { errmsg_ = uirv; return; }
+
+	prov_->setSelData( seldata );
+    }
 
     uiString errmsg;
     strm_ = od_stream::create( data_.fname_, isimp_, errmsg );
@@ -196,7 +204,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 SeisIOSimple::~SeisIOSimple()
 {
     delete importer_;
-    delete rdr_;
+    delete prov_;
     delete wrr_;
     delete strm_;
     delete &trc_;
@@ -427,17 +435,18 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 
 int SeisIOSimple::readExpTrc()
 {
+    if ( !prov_ ) return ErrorOccurred();
+
     errmsg_ = uiString::emptyString();
-    rdr_->setComponent( data_.compidx_ );
-    int readres = rdr_->get( trc_.info() );
-    if ( readres == 0 )
-	return -2;
-    else if ( readres > 1 )
-	return 0;
-    else if ( readres < 0 || !rdr_->get( trc_ ) )
+    prov_->selectComponent( data_.compidx_ );
+    const uiRetVal uirv = prov_->getNext( trc_ );
+    if ( !uirv.isOK() )
     {
-	errmsg_ = rdr_->errMsg();
-	return -1;
+	if ( isFinished(uirv) )
+	    return Finished();
+
+	errmsg_ = uirv;
+	return ErrorOccurred();
     }
 
     if ( data_.resampler_ )

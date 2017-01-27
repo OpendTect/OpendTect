@@ -23,7 +23,6 @@ class BinIDValueSet;
 class IOObj;
 class RegularSeisDataPack;
 class Scaler;
-class SeisTrcReader;
 
 template <class T> class Array2D;
 template <class T> class Array3D;
@@ -32,6 +31,7 @@ template <class T> class Array3D;
 namespace Seis
 {
 
+class Provider;
 class SelData;
 
 mExpClass(Seis) Loader
@@ -184,7 +184,7 @@ protected:
     bool		init();
     int			nextStep();
 
-    SeisTrcReader&	rdr_;
+    Seis::Provider*	prov_;
     Seis::SelData*	sd_;
     Interval<int>	samprg_;
 

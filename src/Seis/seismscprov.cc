@@ -15,7 +15,6 @@
 #include "seisbounds.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
-#include "seisread.h"
 #include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
@@ -436,10 +435,10 @@ namespace Seis
 class TrcDataLoader : public Executor
 { mODTextTranslationClass(TrcDataLoader);
 public:
-TrcDataLoader( SeisTrcReader& rdr, Array2D<SeisTrc*>& arr,
+TrcDataLoader( Seis::Provider& prov, Array2D<SeisTrc*>& arr,
 	       const TrcKeySampling& hs, bool is2d )
     : Executor("Data Loader")
-    , rdr_(rdr), arr_(arr), hs_(hs)
+    , prov_(prov), arr_(arr), hs_(hs)
     , nrdone_(0)
     , is2d_(is2d)
 {
@@ -455,32 +454,34 @@ uiString nrDoneText() const
 { return tr("Positions done"); }
 
 uiString message() const
-{ return tr("Reading Steering traces"); }
+{ return errmsg_.isEmpty() ? tr("Reading Steering traces") : errmsg_; }
 
 int nextStep()
 {
     SeisTrc* trc = new SeisTrc;
-    const int res = rdr_.get( trc->info() );
-    if ( res == -1 ) { delete trc; return ErrorOccurred(); }
-    if ( res == 0 ) { delete trc; return Finished(); }
-    if ( res == 2 ) { delete trc; return MoreToDo(); }
-    else if ( rdr_.get(*trc) )
+    const uiRetVal uirv = prov_.getNext( *trc );
+    if ( !uirv.isOK() )
     {
-	const BinID bid = trc->info().binID();
-	const int inlidx = is2d_ ? 0 : hs_.inlIdx( bid.inl() );
-	const int crlidx = hs_.crlIdx( bid.crl() );
-	arr_.set( inlidx, crlidx, trc );
-    }
-    else
 	delete trc;
+	if ( isFinished(uirv) )
+	    return Finished();
 
+	errmsg_ = uirv;
+	return ErrorOccurred();
+    }
+
+    const BinID bid = trc->info().binID();
+    const int inlidx = is2d_ ? 0 : hs_.inlIdx( bid.inl() );
+    const int crlidx = hs_.crlIdx( bid.crl() );
+    arr_.set( inlidx, crlidx, trc );
     nrdone_++;
     return MoreToDo();
 }
 
-    SeisTrcReader&		rdr_;
+    Seis::Provider&		prov_;
     Array2D<SeisTrc*>&		arr_;
     const TrcKeySampling&	hs_;
+    uiString			errmsg_;
     od_int64			nrdone_;
     bool			is2d_;
 
@@ -571,10 +572,12 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 				      TaskRunner* taskr )
 {
     if ( !ioobj_ )
-	mErrRet( uiStrings::phrCannotFindDBEntry( uiStrings::sInput() ) )
+	mErrRet( uiStrings::phrCannotFindDBEntry( uiStrings::sInput() ) );
 
-    PtrMan<SeisTrcReader> seisrdr = new SeisTrcReader( ioobj_ );
-    seisrdr->prepareWork();
+    uiRetVal uirv;
+    Seis::Provider* prov = Seis::Provider::create( ioobj_->key(), &uirv );
+    if ( !prov )
+	mErrRet( uirv );
 
     tkzs_ = cs;
     const bool is2d = !mIsUdfGeomID( geomid );
@@ -586,7 +589,7 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 	    return false;
     }
 
-    seisrdr->setSelData( sd );
+    prov->setSelData( sd );
 
     clear();
     data_ = new Array2DImpl<SeisTrc*>( tkzs_.hsamp_.nrInl(),
@@ -596,7 +599,7 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 	    data_->set( idx, idy, 0 );
 
     PtrMan<Seis::TrcDataLoader> loader =
-	new Seis::TrcDataLoader( *seisrdr, *data_, tkzs_.hsamp_, is2d );
+	new Seis::TrcDataLoader( *prov, *data_, tkzs_.hsamp_, is2d );
     const bool res = TaskRunner::execute( taskr, *loader );
     if ( !res )
 	mErrRet( uiStrings::phrCannotRead( ioobj_->uiName() ) )

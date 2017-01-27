@@ -9,7 +9,7 @@
 
 #include "seisbuf.h"
 #include "seiscbvs.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisresampler.h"
 #include "seisselection.h"
 #include "seistrc.h"
@@ -20,9 +20,11 @@
 #include "binidsorting.h"
 #include "cbvsreadmgr.h"
 #include "conn.h"
+#include "dbman.h"
 #include "file.h"
 #include "filepath.h"
 #include "iostrm.h"
+#include "keystrs.h"
 #include "ptrman.h"
 #include "scaler.h"
 #include "survinfo.h"
@@ -361,12 +363,16 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 
 SeisStdImporterReader::SeisStdImporterReader( const IOObj& ioobj,
 					      const char* nm )
-    : rdr_(*new SeisTrcReader(&ioobj))
+    : prov_(0)
     , name_(nm)
     , remnull_(false)
     , resampler_(0)
     , scaler_(0)
 {
+    uiRetVal uirv;
+    prov_ = Seis::Provider::create( ioobj.key(), &uirv );
+    if ( !prov_ )
+	errmsg_ = uirv;
 }
 
 
@@ -374,19 +380,19 @@ SeisStdImporterReader::~SeisStdImporterReader()
 {
     delete resampler_;
     delete scaler_;
-    delete &rdr_;
+    delete prov_;
 }
 
 
 const char* SeisStdImporterReader::implName() const
 {
-    return rdr_.ioObj() ? rdr_.ioObj()->fullUserExpr() : "";
+    return prov_ ? prov_->name() : sKey::EmptyString();
 }
 
 
 int SeisStdImporterReader::totalNr() const
 {
-    return rdr_.selData() ? rdr_.selData()->expectedNrTraces() : -1;
+    return prov_ ? prov_->totalNr() : 0;
 }
 
 
@@ -404,27 +410,24 @@ void SeisStdImporterReader::setScaler( Scaler* s )
 
 void SeisStdImporterReader::setSelData( Seis::SelData* sd )
 {
-    rdr_.setSelData( sd );
+    if ( prov_ )
+	prov_->setSelData( sd );
 }
 
 
 bool SeisStdImporterReader::fetch( SeisTrc& trc )
 {
+    if ( !prov_ ) return false;
+
     while ( true )
     {
-	int rv = 2;
-	while ( rv != 1 )
+	const uiRetVal uirv = prov_->getNext( trc );
+	if ( !uirv.isOK() )
 	{
-	    rv = rdr_.get(trc.info());
-	    if ( rv < 1 )
-	    {
-		if ( rv < 0 ) errmsg_ = rdr_.errMsg();
-		return false;
-	    }
-	}
-	if ( !rdr_.get(trc) )
-	{
-	    errmsg_ = rdr_.errMsg();
+	    if ( isFinished(uirv) )
+		return true;
+
+	    errmsg_ = uirv;
 	    return false;
 	}
 

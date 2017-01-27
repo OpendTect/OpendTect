@@ -23,9 +23,10 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "dbman.h"
+#include "ioobj.h"
 #include "scaler.h"
 #include "seisbuf.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seistrc.h"
 #include "seisioobjinfo.h"
 #include "seisselectionimpl.h"
@@ -155,15 +156,18 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
     if ( posdlg_ &&  posdlg_->go() )
     {
 	const TrcKeyZSampling cs = posdlg_->getTrcKeyZSampling();
-	SeisTrcReader rdr( objinfo.ioObj() );
+	uiRetVal uirv;
+	Seis::Provider* prov = Seis::Provider::create(
+					objinfo.ioObj()->key(), &uirv );
+	if ( !prov )
+	    mErrRet( uirv );
 
 	Seis::RangeSelData* sd = new Seis::RangeSelData( cs );
 	sd->setGeomID( geomid );
-	rdr.setSelData( sd );
-	rdr.prepareWork();
+	prov->setSelData( sd );
 
 	SeisTrcBuf trcset( true );
-	SeisBufReader sbfr( rdr, trcset );
+	SeisBufReader sbfr( *prov, trcset );
 	sbfr.execute();
 
 	if ( !trcset.size() )

@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "executor.h"
 #include "uistring.h"
 class SeisTrc;
-class SeisTrcReader;
 class SeisPacketInfo;
+namespace Seis { class Provider; }
 
 
 /*!\brief set of seismic traces.
@@ -106,7 +106,7 @@ protected:
 mExpClass(Seis) SeisBufReader : public Executor
 { mODTextTranslationClass(SeisBufReader);
 public:
-			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);
+			SeisBufReader(Seis::Provider&,SeisTrcBuf&);
 
     uiString		message() const	{ return msg_; }
     uiString		nrDoneText() const	{ return tr("Traces read"); }
@@ -116,7 +116,7 @@ public:
 
 protected:
 
-    SeisTrcReader&	rdr_;
+    Seis::Provider&	prov_;
     SeisTrcBuf&		buf_;
     int			totnr_;
     uiString		msg_;

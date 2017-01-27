@@ -18,11 +18,10 @@ class Scaler;
 class SeisTrc;
 class SeisTrcBuf;
 class BinIDSorting;
-class SeisTrcReader;
 class SeisTrcWriter;
 class SeisResampler;
 class BinIDSortingAnalyser;
-namespace Seis { class SelData; }
+namespace Seis { class SelData; class Provider; }
 
 /*!\brief Helps import or export of seismic data. */
 
@@ -105,7 +104,7 @@ public:
 			SeisStdImporterReader(const IOObj&,const char* nm);
 			~SeisStdImporterReader();
 
-    SeisTrcReader&	reader()		{ return rdr_; }
+    Seis::Provider*	provider()		{ return prov_; }
 
     const char*		name() const		{ return name_; }
     const char*		implName() const;
@@ -121,7 +120,7 @@ public:
 protected:
 
     const BufferString	name_;
-    SeisTrcReader&	rdr_;
+    Seis::Provider*	prov_;
     bool		remnull_;
     SeisResampler*	resampler_;
     Scaler*		scaler_;

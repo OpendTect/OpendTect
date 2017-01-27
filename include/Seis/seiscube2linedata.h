@@ -16,8 +16,8 @@ ________________________________________________________________________
 
 class IOObj;
 class Seis2DDataSet;
-class SeisTrcReader;
 class SeisTrcWriter;
+namespace Seis { class Provider; }
 namespace Survey { class Geometry2D; }
 
 /*!\brief Extracts 2D data from 3D Cube */
@@ -40,7 +40,7 @@ public:
 
 protected:
 
-    SeisTrcReader&	rdr_;
+    Seis::Provider*	prov_;
     SeisTrcWriter&	wrr_;
     uiString		msg_;
 
