@@ -138,7 +138,7 @@ EventTracker::EventTracker()
 }
 
 
-void EventTracker::clean();
+void EventTracker::clean()
 {
     dosnap_.removeParam( this );
 }
