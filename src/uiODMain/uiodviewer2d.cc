@@ -964,6 +964,8 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     if ( caller==this )
 	return;
 
+    if ( !viewwin() ) return;
+
     uiFlatViewer& vwr = viewwin()->viewer(0);
     if ( !marker_ )
     {
