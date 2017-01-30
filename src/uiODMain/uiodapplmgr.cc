@@ -635,6 +635,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 		res = dpid != DataPack::cNoID();
 		visserv_->setDataPackID( visid, attrib, dpid );
+		DPM( DataPackMgr::SeisID() ).release( dpid );
 		delete calc;
 		break;
 	    }

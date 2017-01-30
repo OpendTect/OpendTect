@@ -239,7 +239,10 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 	return DataPack::cNoID();
     }
 
-    // Datapack still reffed by the chain
+    //Ensure it survives the chain executor destruction
+    DPM( DataPackMgr::SeisID() ).addAndObtain(
+				 const_cast<RegularSeisDataPack*>( output ) );
+
     return output->id();
 }
 
