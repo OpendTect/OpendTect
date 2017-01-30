@@ -51,12 +51,12 @@ public:
     float			getSearchRadius() const;
     const Gridder2D*		getGridder() { return gridder_; }
     const InterpolationLayerModel* getLayerModel() const;
-    const Well::ExtractParams& getSelParams(); 
+    const Well::ExtractParams& getSelParams();
 
     void			setGridder(const char* nm,float radius=0);
     void			setGridder(const Gridder2D*);
     void			setWellData(const DBKeySet&,
-					    const char* lognm); 
+					    const char* lognm);
     void			setWellExtractParams(
 						    const Well::ExtractParams&);
     void			setLayerModel(InterpolationLayerModel*);
@@ -99,7 +99,6 @@ protected:
     ExtensionModel		extension_;
     bool			extlog_;
 
-    uiString			errmsg_;
     StepInterval<int>		outputinlrg_;
     StepInterval<int>		outputcrlrg_;
 
