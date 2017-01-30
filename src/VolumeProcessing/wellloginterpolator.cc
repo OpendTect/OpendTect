@@ -9,11 +9,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellloginterpolator.h"
 
 #include "arrayndimpl.h"
+#include "fftfilter.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 #include "welldata.h"
+#include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
@@ -90,9 +92,62 @@ bool init()
 	return false;
 
     delete log_;
-    log_ = new Well::Log( *log );
+    log_ = applyFilter( *wd, *log );
 
-    return true;
+    return log_;
+}
+
+#define cLogStepFact 10
+
+Well::Log* applyFilter( const Well::Data& wd, const Well::Log& log ) const
+{
+    const Well::Track& track = wd.track();
+    const Well::D2TModel* d2t = wd.d2TModel();
+    const Interval<float> zrg( bbox_.zsamp_ );
+    const float extractstep = bbox_.zsamp_.step / cLogStepFact;
+    const bool zintime = SI().zIsTime();
+    ObjectSet<const Well::Log> logs;
+    logs += &log;
+    Well::LogSampler ls( d2t, &track, zrg, zintime, extractstep, zintime,
+			 Stats::UseAvg, logs ),
+		     lsnear( d2t, &track, zrg, zintime, extractstep, zintime,
+			     Stats::TakeNearest, logs );
+    if ( !ls.execute() || !lsnear.execute() )
+	return 0;
+
+    const int nrz = ls.nrZSamples();
+    Array1DImpl<float> reglog( nrz );
+    const int logidx = logs.size()-1;
+    for ( int idz=0; idz<nrz; idz++ )
+    {
+	const float val = ls.getLogVal( logidx, idz );
+	const float outval = mIsUdf(val) ? lsnear.getLogVal(logidx,idz) : val;
+	reglog.set( idz, outval );
+    }
+
+    FFTFilter filter( nrz, extractstep );
+    filter.setLowPass( 1.f / (2.f*bbox_.zsamp_.step) );
+    if ( !filter.apply(reglog) )
+	return 0;
+
+    Well::Log* filteredlog = new Well::Log;
+    const int intstep = mNINT32(cLogStepFact);
+    for ( int idz=0; idz<nrz; idz+=intstep )
+    {
+	const float md = ls.getDah( idz );
+	if ( mIsUdf(md) )
+	    continue;
+
+	filteredlog->addValue( md, reglog.get(idz) );
+    }
+
+    if ( filteredlog->isEmpty() )
+    {
+	delete filteredlog;
+	return 0;
+    }
+
+    return filteredlog;
 }
 
 void computeLayerModelIntersection(
