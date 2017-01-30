@@ -37,7 +37,10 @@ class WellLogInfo
 {
 public:
 WellLogInfo( const MultiID& mid, const char* lognm )
-    : mid_(mid), logname_(lognm)
+    : mid_(mid)
+    , logname_(lognm)
+    , track_(0)
+    , log_(0)
 {}
 
 ~WellLogInfo()
@@ -49,30 +52,45 @@ WellLogInfo( const MultiID& mid, const char* lognm )
 bool init()
 {
     const bool isloaded = Well::MGR().isLoaded( mid_ );
+    const bool zistime = SI().zIsTime();
     RefMan<Well::Data> wd = new Well::Data;
-    if ( isloaded && !wd )
+    if ( isloaded )
     {
-	return false;
+	if ( !wd )
+	    return false;
+
+	const Well::Data* wddb = Well::MGR().get( mid_ );
+	if ( !wddb || wddb->track().size() < 2 ||
+	     ( zistime && (!wddb->d2TModel() || wddb->d2TModel()->size() < 2)) )
+	    return false;
+
+	wd = const_cast<Well::Data*>( wddb );
+	if ( !wd->logs().getLog(logname_) )
+	{
+	    Well::Reader wrdr( mid_, *wd );
+	    if ( !wrdr.getLog(logname_) )
+		return false;
+	}
     }
-    else if ( !isloaded )
+    else
     {
 	Well::Reader wrdr( mid_, *wd );
-	if ( !wrdr.getTrack() ||
-	     ( SI().zIsTime() && ( !wrdr.getInfo() || !wrdr.getD2T() ) ) ||
+	if ( !wrdr.getTrack() || ( zistime && !wrdr.getD2T() ) ||
 	     !wrdr.getLog(logname_) )
 	    return false;
     }
 
-    if ( SI().zIsTime() )
-    {
-	track_ = new Well::Track;
+    delete track_;
+    track_ = new Well::Track( wd->track() );
+    if ( zistime )
 	track_->toTime( *wd );
-    }
-    else
-	track_ = isloaded ? &wd->track() : new Well::Track( wd->track() );
 
     const Well::Log* log = wd->logs().getLog( logname_ );
-    log_ = isloaded ? log : new Well::Log( *log );
+    if ( !log )
+	return false;
+
+    delete log_;
+    log_ = new Well::Log( *log );
 
     return true;
 }
@@ -137,6 +155,7 @@ void WellLogInterpolator::releaseData()
     Step::releaseData();
     delete gridder_; gridder_ = 0;
     delete layermodel_; layermodel_ = 0;
+    deepErase( infos_ );
 }
 
 
@@ -248,16 +267,32 @@ bool WellLogInterpolator::prepareComp( int )
 
     outputcrlrg_ = hs.crlRange();
 
-    bool res = true;
     for ( int idx=0; idx<wellmids_.size(); idx++ )
     {
 	WellLogInfo* info = new WellLogInfo( wellmids_[idx], logname_ );
-	info->init();
+	if ( !info->init() || idx==5 )
+	{
+	    RefMan<Well::Data> wd = Well::MGR().get( wellmids_[idx] );
+	    if ( wd )
+	    {
+		errmsg_ = tr("Cannot load log '%1' for well '%2'")
+				    .arg( logname_ ).arg( wd->name() );
+	    }
+	    else
+	    {
+		errmsg_ = tr("Cannot load log '%1' for well with ID '%2'")
+				    .arg( logname_ ).arg( wellmids_[idx] );
+	    }
+	    delete info;
+	    deepErase( infos_ );
+	    return false;
+	}
+
 	info->computeLayerModelIntersection( *layermodel_ );
 	infos_ += info;
     }
 
-    return res;
+    return true;
 }
 
 
@@ -288,10 +323,13 @@ static TypeSet<float> getMDs( const WellLogInfo& info, float layeridx )
 
 bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 {
+    if ( infos_.isEmpty() )
+	return false;
+
     if ( !outputinlrg_.includes( bid.inl(), true ) ||
 	 !outputcrlrg_.includes( bid.crl(), true ) ||
          (bid.inl()-outputinlrg_.start)%outputinlrg_.step ||
-         (bid.crl()-outputcrlrg_.start)%outputcrlrg_.step )
+	 (bid.crl()-outputcrlrg_.start)%outputcrlrg_.step )
 	return true;
 
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
