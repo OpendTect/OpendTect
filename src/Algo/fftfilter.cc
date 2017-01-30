@@ -56,6 +56,7 @@ FFTFilter::~FFTFilter()
     delete trendimag_;
     delete freqdomain_.getParam(this);
     freqdomain_.removeParam( this );
+    stayinfreq_.removeParam( this );
 }
 
 
