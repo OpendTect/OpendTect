@@ -537,6 +537,17 @@ const RegularSeisDataPack* VolProc::ChainExecutor::getOutput() const
 
 #define mCleanUpAndRet( ret ) \
 { \
+    uiStringSet errors; \
+    const ObjectSet<Step>& cursteps = curepoch_->getSteps(); \
+    for ( int istep=0; istep<cursteps.size(); istep++ ) \
+    { \
+	if ( !cursteps[istep] || cursteps[istep]->errMsg().isEmpty() ) \
+	    continue; \
+\
+	errors.add( cursteps[istep]->errMsg() ); \
+    } \
+    if ( !errors.isEmpty() ) \
+	errmsg_ = errors.cat(); \
     delete curepoch_; \
     curepoch_ = 0; \
     return ret; \
