@@ -36,27 +36,38 @@ class WellLogInfo
 {
 public:
 WellLogInfo( const DBKey& mid, const char* lognm, Well::ExtractParams params )
-    : dbky_(mid), logname_(lognm), params_(params)
+    : dbky_(mid)
+    , logname_(lognm)
+    , params_(params)
+    , track_(0)
 {}
 
 bool init()
 {
     const bool zistime = SI().zIsTime();
     RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbky_,
-				Well::LoadReqs( Well::Trck, Well::D2T ) );
+				  Well::LoadReqs( Well::Trck, Well::D2T ) );
     if ( !wd )
 	return false;
-    log_ = Well::MGR().getLog( dbky_, logname_ );
+
+    ConstRefMan<Well::Log> log = Well::MGR().getLog( dbky_, logname_ );
+    if ( !log )
+	return false;
+
+    if ( log_ ) log_->unRef();
+    log_ = new Well::Log( *log );
     if ( !log_ )
 	return false;
 
+    delete track_;
     track_ = new Well::Track( wd->track() );
     if ( zistime )
 	track_->toTime( *wd );
 
     wd_ = wd;
-    range_ = wd->track().dahRange();
+    range_ = wd_->track().dahRange();
     params_.getDahRange( *wd_, range_ );
+
     return true;
 }
 
@@ -94,7 +105,7 @@ void computeLayerModelIntersection(
 
 
 Well::Track*		    track_;
-ConstRefMan<Well::Log>	    log_;
+RefMan<Well::Log>	    log_;
 RefMan<Well::Data>	    wd_;
 TrcKeyZSampling		    bbox_;
 DBKey			    dbky_;
@@ -127,6 +138,7 @@ void WellLogInterpolator::releaseData()
     Step::releaseData();
     delete gridder_; gridder_ = 0;
     delete layermodel_; layermodel_ = 0;
+    deepErase( infos_ );
     params_.setEmpty();
 }
 
@@ -237,22 +249,34 @@ bool WellLogInterpolator::prepareComp( int )
 
     const TrcKeySampling& hs = output->sampling().hsamp_;
     outputinlrg_ = hs.inlRange();
-
     outputcrlrg_ = hs.crlRange();
 
-    bool res = true;
     for ( int idx=0; idx<wellmids_.size(); idx++ )
     {
 	WellLogInfo* info = new WellLogInfo( wellmids_[idx], logname_,
 								    params_ );
-	if ( info->init() )
+	if ( !info->init() )
 	{
-	    info->computeLayerModelIntersection( *layermodel_ );
-	    infos_ += info;
+	    if ( info->wd_ )
+	    {
+		errmsg_ = tr("Cannot load log '%1' for well '%2'")
+				.arg( logname_ ).arg( info->wd_->name() );
+	    }
+	    else
+	    {
+		errmsg_ = tr("Cannot load log '%1' for well with ID '%2'")
+				.arg( logname_ ).arg( wellmids_[idx] );
+	    }
+	    delete info;
+	    deepErase( infos_ );
+	    return false;
 	}
+
+	info->computeLayerModelIntersection( *layermodel_ );
+	infos_ += info;
     }
 
-    return res;
+    return true;
 }
 
 
@@ -283,6 +307,9 @@ static TypeSet<float> getMDs( const WellLogInfo& info, float layeridx )
 
 bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 {
+    if ( infos_.isEmpty() )
+	return false;
+
     if ( !outputinlrg_.includes( bid.inl(), true ) ||
 	 !outputcrlrg_.includes( bid.crl(), true ) ||
          (bid.inl()-outputinlrg_.start)%outputinlrg_.step ||
