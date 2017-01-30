@@ -270,7 +270,7 @@ bool WellLogInterpolator::prepareComp( int )
     for ( int idx=0; idx<wellmids_.size(); idx++ )
     {
 	WellLogInfo* info = new WellLogInfo( wellmids_[idx], logname_ );
-	if ( !info->init() || idx==5 )
+	if ( !info->init() )
 	{
 	    RefMan<Well::Data> wd = Well::MGR().get( wellmids_[idx] );
 	    if ( wd )
