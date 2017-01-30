@@ -45,7 +45,7 @@ public:
 	virtual const char*	name() const			= 0;
 	virtual const char*	implName() const		= 0;
 	virtual bool		fetch(SeisTrc&)			= 0;
-	virtual int		totalNr() const			{ return -1; }
+	virtual od_int64	totalNr() const			{ return -1; }
 
 	uiString		errmsg_;
     };
@@ -115,7 +115,7 @@ public:
     void		setScaler(Scaler*);		//!< becomes mine
     void		setSelData(Seis::SelData*);	//!< becomes mine
 
-    int			totalNr() const;
+    od_int64		totalNr() const;
 
 protected:
 

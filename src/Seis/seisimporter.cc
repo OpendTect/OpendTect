@@ -390,7 +390,7 @@ const char* SeisStdImporterReader::implName() const
 }
 
 
-int SeisStdImporterReader::totalNr() const
+od_int64 SeisStdImporterReader::totalNr() const
 {
     return prov_ ? prov_->totalNr() : 0;
 }

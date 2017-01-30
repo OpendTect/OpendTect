@@ -118,7 +118,7 @@ protected:
 
     Seis::Provider&	prov_;
     SeisTrcBuf&		buf_;
-    int			totnr_;
+    od_int64		totnr_;
     uiString		msg_;
 
 };
