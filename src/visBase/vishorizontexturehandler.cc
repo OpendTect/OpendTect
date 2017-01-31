@@ -318,7 +318,6 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 
 	const int inlidx = rrg.nearestIndex( bid.inl() );
 	const int crlidx = crg.nearestIndex( bid.crl() );
-
 	const int offset = inlidx*nrcols + crlidx;
 	if ( offset>=nrcells )
 	    continue;
