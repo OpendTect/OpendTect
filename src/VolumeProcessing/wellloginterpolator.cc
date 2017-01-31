@@ -8,11 +8,13 @@
 #include "wellloginterpolator.h"
 
 #include "arrayndimpl.h"
+#include "fftfilter.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 #include "welldata.h"
+#include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellmanager.h"
@@ -50,15 +52,6 @@ bool init()
     if ( !wd )
 	return false;
 
-    ConstRefMan<Well::Log> log = Well::MGR().getLog( dbky_, logname_ );
-    if ( !log )
-	return false;
-
-    if ( log_ ) log_->unRef();
-    log_ = new Well::Log( *log );
-    if ( !log_ )
-	return false;
-
     delete track_;
     track_ = new Well::Track( wd->track() );
     if ( zistime )
@@ -67,6 +60,77 @@ bool init()
     wd_ = wd;
     range_ = wd_->track().dahRange();
     params_.getDahRange( *wd_, range_ );
+
+    return applyFilter();
+}
+
+#define cLogStepFact 10
+
+bool applyFilter()
+{
+    if ( log_ )
+	log_->unRef();
+
+    if ( !wd_ )
+	return false;
+
+    ConstRefMan<Well::Log> inplog = Well::MGR().getLog( dbky_, logname_ );
+    if ( !inplog )
+	return false;
+
+    MonitorLock ml( *inplog );
+
+    const Well::Track& track = wd_->track();
+    const Well::D2TModel* d2t = wd_->d2TModelPtr();
+    const Interval<float> zrg( bbox_.zsamp_ );
+    const float extractstep = bbox_.zsamp_.step / cLogStepFact;
+    const bool zintime = SI().zIsTime();
+    ObjectSet<const Well::Log> logs;
+    logs += inplog;
+    Well::LogSampler ls( d2t, &track, zrg, zintime, extractstep, zintime,
+			 Stats::UseAvg, logs ),
+		     lsnear( d2t, &track, zrg, zintime, extractstep, zintime,
+			     Stats::TakeNearest, logs );
+    if ( !ls.execute() || !lsnear.execute() )
+	return false;
+
+    const BufferString newlognm( inplog->name(), " filtered" );
+    ml.unlockNow();
+
+    const int nrz = ls.nrZSamples();
+    Array1DImpl<float> reglog( nrz );
+    const int logidx = logs.size()-1;
+    for ( int idz=0; idz<nrz; idz++ )
+    {
+	const float val = ls.getLogVal( logidx, idz );
+	const float outval = mIsUdf(val) ? lsnear.getLogVal(logidx,idz) : val;
+	reglog.set( idz, outval );
+    }
+
+    FFTFilter filter( nrz, extractstep );
+    filter.setLowPass( 1.f / (2.f*bbox_.zsamp_.step) );
+    if ( !filter.apply(reglog) )
+	return false;
+
+    RefMan<Well::Log> filteredlog = new Well::Log( newlognm );
+    const int intstep = mNINT32(cLogStepFact);
+    for ( int idz=0; idz<nrz; idz+=intstep )
+    {
+	const float md = ls.getDah( idz );
+	if ( mIsUdf(md) )
+	    continue;
+
+	filteredlog->addValue( md, reglog.get(idz) );
+    }
+
+    if ( filteredlog->isEmpty() )
+    {
+	filteredlog = 0;
+	return false;
+    }
+
+    log_ = filteredlog;
+    wd_->logs().add( filteredlog );
 
     return true;
 }
@@ -104,15 +168,15 @@ void computeLayerModelIntersection(
 }
 
 
-Well::Track*		    track_;
-RefMan<Well::Log>	    log_;
-RefMan<Well::Data>	    wd_;
-TrcKeyZSampling		    bbox_;
-DBKey			    dbky_;
-BufferString		    logname_;
-TypeSet<float>		    intersections_;
-StepInterval<float>	    range_;
-Well::ExtractParams	    params_;
+Well::Track*		track_;
+ConstRefMan<Well::Log>	log_;
+RefMan<Well::Data>	wd_;
+TrcKeyZSampling		bbox_;
+DBKey			dbky_;
+BufferString		logname_;
+TypeSet<float>		intersections_;
+StepInterval<float>	range_;
+Well::ExtractParams	params_;
 
 };
 
