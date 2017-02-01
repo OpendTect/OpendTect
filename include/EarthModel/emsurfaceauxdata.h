@@ -40,6 +40,7 @@ public:
 			SurfaceAuxData(Horizon3D&);
     virtual		~SurfaceAuxData();
     Executor*		auxDataLoader(int selidx=-1);
+    Executor*		auxDataLoader(const char* nm);
     Executor*		auxDataSaver(int dataidx=0,bool overwrite=false);
 
     void		removeAll();

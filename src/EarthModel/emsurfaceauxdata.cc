@@ -227,27 +227,54 @@ void SurfaceAuxData::resetChangedFlag()
 }
 
 
-Executor* SurfaceAuxData::auxDataLoader( int selidx )
+static EMSurfaceTranslator* getTranslator( Horizon& horizon )
 {
-    PtrMan<IOObj> ioobj = DBM().get( horizon_.dbKey() );
+    PtrMan<IOObj> ioobj = DBM().get( horizon.dbKey() );
     if ( !ioobj )
     {
-	horizon_.setErrMsg( uiStrings::sCantFindSurf() );
+	horizon.setErrMsg( uiStrings::sCantFindSurf() );
 	return 0;
     }
 
-    PtrMan<EMSurfaceTranslator> transl =
+    EMSurfaceTranslator* transl =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
     if ( !transl || !transl->startRead(*ioobj) )
     {
-	horizon_.setErrMsg( transl ? transl->errMsg()
-				   : tr("Cannot find Translator") );
+	horizon.setErrMsg( transl ? transl->errMsg()
+				  : toUiString("Cannot find Translator") );
+	delete transl;
 	return 0;
     }
 
+    return transl;
+}
+
+
+Executor* SurfaceAuxData::auxDataLoader( int selidx )
+{
+    EMSurfaceTranslator* transl = getTranslator( horizon_ );
+    if ( !transl )
+	return 0;
+
     SurfaceIODataSelection& sel = transl->selections();
     const int nrauxdata = sel.sd.valnames.size();
-    if ( nrauxdata==0 || selidx >= nrauxdata ) return 0;
+    if ( nrauxdata==0 || selidx >= nrauxdata )
+	return 0;
+
+    return transl->getAuxdataReader( horizon_, selidx );
+}
+
+
+Executor* SurfaceAuxData::auxDataLoader( const char* nm )
+{
+    EMSurfaceTranslator* transl = getTranslator( horizon_ );
+    if ( !transl )
+	return 0;
+
+    SurfaceIODataSelection& sel = transl->selections();
+    const int selidx = sel.sd.valnames.indexOf( nm );
+    if ( !sel.sd.valnames.validIdx(selidx) )
+	return 0;
 
     return transl->getAuxdataReader( horizon_, selidx );
 }
