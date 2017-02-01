@@ -133,7 +133,6 @@ protected:
     EM::Horizon*	refhorizon_;
     float		refz_;
     bool		userefz_;
-    uiString		errmsg_;
 
 			/* The following four have the same size, for any idx,
 			      faults_[idx] or hors_[idx] is 0. */

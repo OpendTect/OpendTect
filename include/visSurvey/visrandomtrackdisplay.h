@@ -203,6 +203,8 @@ protected:
     void			getDataTraceBids(TypeSet<BinID>&,
 						 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int node) const;
+    bool			isMappingTraceOfBid(BinID bid,int trcidx,
+						    bool forward) const;
     void			updateTexOriginAndScale(
 					    int attrib,const TrcKeyPath&,
 					    const StepInterval<float>& zrg);

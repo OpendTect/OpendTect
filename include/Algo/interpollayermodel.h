@@ -32,11 +32,21 @@ public:
     virtual bool	hasPosition(const BinID&) const			= 0;
     virtual bool	prepare(TaskRunner*)				= 0;
 
+    void		setZStart(float);
+    float		zStart() const;
+    void		setZStop(float);
+    float		zStop() const;
+
     static const char*	sKeyModelType();
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&)		{ return true; }
 
+protected:
+			InterpolationLayerModel();
+
+    float		zstart_;
+    float		zstop_;
 };
 
 

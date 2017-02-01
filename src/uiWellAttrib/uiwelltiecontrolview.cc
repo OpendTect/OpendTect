@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "emsurfacetr.h"
 #include "mouseevent.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "welltiepickset.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
@@ -269,10 +269,13 @@ void uiControlView::reDrawNeeded( CallBacker* )
 
 void uiControlView::loadHorizons( CallBacker* )
 {
-    PtrMan<IOObj> ioobj = DBM().get( server_.data().setup().seisid_ );
-    SeisTrcReader rdr( ioobj );
-    const bool is2d = rdr.is2D();
+    uiRetVal uirv;
+    ConstRefMan<Seis::Provider> prov =
+	Seis::Provider::create( server_.data().setup().seisid_, &uirv );
+    if ( !prov )
+	mErrRet( uirv, return );
 
+    const bool is2d = prov->is2D();
     const IOObjContext horctxt = is2d ? mIOObjContext( EMHorizon2D )
 				      : mIOObjContext( EMHorizon3D );
     if ( !selhordlg_ )

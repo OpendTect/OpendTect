@@ -73,7 +73,6 @@ protected:
     InterpolationLayerModel*		layermodel_;
     Gridder2D*				gridder_;
     ObjectSet<Vel::FunctionSource>	sources_;
-    uiString				errmsg_;
 
 };
 

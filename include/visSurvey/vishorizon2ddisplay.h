@@ -54,6 +54,8 @@ public:
 
     const visBase::PointSet*	getPointSet(const EM::SectionID&) const;
     const visBase::PolyLine3D*	getLine(const EM::SectionID&) const;
+    const Color			getLineColor() const;
+
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj );

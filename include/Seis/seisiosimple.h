@@ -15,10 +15,9 @@
 class Scaler;
 class SeisTrc;
 class SeisImporter;
-class SeisTrcReader;
 class SeisTrcWriter;
 class SeisResampler;
-namespace Seis { class SelData; }
+namespace Seis { class SelData; class Provider; }
 
 
 mExpClass(Seis) SeisIOSimple : public Executor
@@ -97,7 +96,7 @@ protected:
 
     SeisTrc&		trc_;
     od_stream*		strm_;
-    SeisTrcReader*	rdr_;
+    Seis::Provider*	prov_;
     SeisTrcWriter*	wrr_;
     SeisImporter*	importer_;
     bool		firsttrc_;

@@ -21,7 +21,7 @@
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seisloader.h"
-#include "seisread.h"
+#include "seisprovider.h"
 
 
 int main( int argc, char** argv )
@@ -68,9 +68,13 @@ int main( int argc, char** argv )
     else
     {
 	SeisTrcBuf sbuf( true );
-	SeisTrcReader trcrdr( ioobj );
-	trcrdr.setSelData( new Seis::RangeSelData(tkzs) );
-	SeisBufReader bufrdr( trcrdr, sbuf );
+	uiRetVal uirv;
+	Seis::Provider* prov = Seis::Provider::create( ioobj->key(), &uirv );
+	if ( !prov )
+	    { std::cerr << uirv << std::endl; ExitProgram( 1 ); }
+
+	prov->setSelData( new Seis::RangeSelData(tkzs) );
+	SeisBufReader bufrdr( *prov, sbuf );
 	bufrdr.execute();
     }
 

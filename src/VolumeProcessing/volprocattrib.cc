@@ -226,10 +226,10 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 
     if ( !TaskRunner::execute(taskrunner,executor) )
     {
-	if ( !executor.errMsg().isEmpty() )
-	    errmsg_ = executor.errMsg();
-	else
+	if ( executor.errMsg().isEmpty() )
 	    errmsg_ = tr("Error while calculating.");
+
+	return 0;
     }
 
     RefMan<RegularSeisDataPack> output = executor.getOutput();

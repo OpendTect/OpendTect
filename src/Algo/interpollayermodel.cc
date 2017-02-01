@@ -19,6 +19,11 @@ ________________________________________________________________________
 // InterpolationLayerModel
 mImplFactory( InterpolationLayerModel, InterpolationLayerModel::factory )
 
+InterpolationLayerModel::InterpolationLayerModel()
+    : zstart_(mUdf(float))
+    , zstop_(mUdf(float))
+{}
+
 InterpolationLayerModel::~InterpolationLayerModel()
 {}
 
@@ -42,6 +47,12 @@ float InterpolationLayerModel::getInterpolatedZ( const BinID& bid,
     const float z1 = getZ( bid, idx1 );
     return z0 + (z1-z0)*(layeridx-idx0);
 }
+
+
+void InterpolationLayerModel::setZStart( float zval )	{ zstart_ = zval; }
+void InterpolationLayerModel::setZStop( float zval )	{ zstop_ = zval; }
+float InterpolationLayerModel::zStart() const		{ return zstart_; }
+float InterpolationLayerModel::zStop() const		{ return zstop_; }
 
 
 

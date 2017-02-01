@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seisjobexecprov.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
@@ -53,7 +53,7 @@ Seis2DTo3D::Seis2DTo3D()
     , seisbuf_(*new SeisTrcBuf(true))
     , nrdone_(0)
     , wrr_(0)
-    , rdr_(0)
+    , prov_(0)
     , tmpseisbuf_(true)
     , trcarr_(0)
     , butterfly_(0)
@@ -80,7 +80,7 @@ Seis2DTo3D::~Seis2DTo3D()
 {
     seisbuf_.erase();
     delete wrr_;
-    delete rdr_;
+    delete prov_;
     delete inioobj_;
     delete outioobj_;
     delete trcarr_;
@@ -523,8 +523,11 @@ bool Seis2DTo3D::writeOutput()
 
     if ( nrdone_ != 0 )
     {
-	delete rdr_;
-	rdr_ = new SeisTrcReader( outioobj_ );
+	delete prov_;
+	uiRetVal uirv;
+	prov_ = Seis::Provider::create( outioobj_->key(), &uirv );
+	if ( !prov_ )
+	    mErrRet( uirv );
     }
 
     const TrcKeySampling& hrg = tkzs_.hsamp_;
@@ -541,7 +544,16 @@ bool Seis2DTo3D::writeOutput()
 	const int crlpos = hrg.trcIdx( trk.trcNr() );
 
 	if ( nrdone_ != 0 )
-	    rdr_->get(trc);
+	{
+	    const uiRetVal uirv = prov_->getNext( trc );
+	    if ( !uirv.isOK() )
+	    {
+		if ( isFinished(uirv) )
+		    return true;
+
+		mErrRet( uirv );
+	    }
+	}
 
 	trc.info().setBinID( trk.position() );
 	for ( int idz=0; idz<nrz; idz++ )

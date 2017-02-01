@@ -22,7 +22,7 @@
 #include "seiscbvs2d.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
@@ -291,41 +291,25 @@ bool ParallelFSLoader3D::doPrepare( int nrthreads )
 }
 
 
-bool ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop, int threadid )
+bool ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop, int threadid)
 {
+    uiRetVal uirv;
     PtrMan<IOObj> ioobj = ioobj_->clone();
-    PtrMan<SeisTrcReader> reader = new SeisTrcReader( ioobj );
-    if ( !reader )
-    {
-	msg_ = tr("Cannot open storage");
-	return false;
-    }
-
-    if ( !reader->prepareWork() )
-    {
-	msg_ = reader->errMsg();
-	return false;
-    }
+    PtrMan<Seis::Provider> prov = Seis::Provider::create(ioobj->key(),&uirv);
+    if ( !prov )
+	{ msg_ = uirv; return false; }
 
     if ( !threadid && !dp_->is2D() )
     {
+	mDynamicCastGet(const Seis::Provider3D&,prov3d,*prov);
 	PosInfo::CubeData cubedata;
-	if ( reader->get3DGeometryInfo(cubedata) )
-	{
-	    cubedata.limitTo( tkzs_.hsamp_ );
-	    if ( !cubedata.isFullyRectAndReg() )
-		dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
-	}
+	prov3d.getGeometryInfo( cubedata );
+	cubedata.limitTo( tkzs_.hsamp_ );
+	if ( !cubedata.isFullyRectAndReg() )
+	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
     }
 
     //Set ranges, at least z-range
-    mDynamicCastGet( SeisTrcTranslator*, translator, reader->translator() );
-    if ( !translator || !translator->supportsGoTo() )
-    {
-	msg_ = tr("Storage does not support random access");
-	return false;
-    }
-
     const TypeSet<int>& outcompnrs = outcomponents_
 				   ? *outcomponents_
 				   : components_;
@@ -366,9 +350,8 @@ bool ParallelFSLoader3D::doWork( od_int64 start, od_int64 stop, int threadid )
 	curbid = bidvals_ ? bidvals_->getBinID( bidvalpos )
 			  : iter.curBinID();
 
-        if ( translator->goTo( curbid )
-	  && reader->get( trc )
-	  && trc.info().binID() == curbid )
+	uirv = prov->getNext( trc );
+	if ( uirv.isOK() && trc.info().binID()==curbid )
         {
 	    const StepInterval<float> trczrg = trc.zRange();
 
@@ -696,10 +679,15 @@ SequentialFSLoader::SequentialFSLoader( const IOObj& ioobj,
     : Loader(ioobj,tkzs,comps)
     , Executor("Volume Reader")
     , sd_(0)
-    , rdr_(*new SeisTrcReader(&ioobj))
+    , prov_(0)
     , initialized_(false)
     , nrdone_(0)
 {
+    uiRetVal uirv;
+    prov_ = Seis::Provider::create( ioobj.key(), &uirv );
+    if ( !prov_ )
+	msg_ = uirv;
+
     queueid_ = Threads::WorkManager::twm().addQueue(
 				Threads::WorkManager::MultiThread,
 				"SequentialFSLoader" );
@@ -708,7 +696,7 @@ SequentialFSLoader::SequentialFSLoader( const IOObj& ioobj,
 
 SequentialFSLoader::~SequentialFSLoader()
 {
-    delete &rdr_;
+    delete prov_;
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
 
@@ -722,13 +710,9 @@ uiString SequentialFSLoader::message() const
 
 #define mSetSelData() \
 { \
+    if ( !prov_ ) return false; \
     sd_ = new Seis::RangeSelData( tkzs_ ); \
-    rdr_.setSelData( sd_ ); \
-    if ( !rdr_.prepareWork() ) \
-    { \
-	msg_ = rdr_.errMsg(); \
-	return false; \
-    } \
+    prov_->setSelData( sd_ ); \
 }
 
 bool SequentialFSLoader::init()
@@ -801,13 +785,14 @@ bool SequentialFSLoader::init()
 
     if ( !is2d )
     {
+	mDynamicCastGet(const Seis::Provider3D*,prov3d,prov_);
+	if ( !prov3d ) return false;
+
 	PosInfo::CubeData cubedata;
-	if ( rdr_.get3DGeometryInfo(cubedata) )
-	{
-	    cubedata.limitTo( tkzs_.hsamp_ );
-	    if ( !cubedata.isFullyRectAndReg() )
-		dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
-	}
+	prov3d->getGeometryInfo( cubedata );
+	cubedata.limitTo( tkzs_.hsamp_ );
+	if ( !cubedata.isFullyRectAndReg() )
+	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(cubedata) );
     }
 
     nrdone_ = 0;
@@ -860,14 +845,16 @@ int SequentialFSLoader::nextStep()
 	return MoreToDo();
 
     SeisTrc* trc = new SeisTrc;
-    const int res = rdr_.get( trc->info() );
-    if ( res==-1 )
-    { delete trc; msg_ = rdr_.errMsg(); return ErrorOccurred(); }
-    if ( res==0 ) { delete trc; return Finished(); }
-    if ( res==2 ) { delete trc; return MoreToDo(); }
+    const uiRetVal uirv = prov_->getNext( *trc );
+    if ( !uirv.isOK() )
+    {
+	delete trc;
+	if ( isFinished(uirv) )
+	    return Finished();
 
-    if ( !rdr_.get(*trc) )
-    { delete trc; msg_ = rdr_.errMsg(); return ErrorOccurred(); }
+	msg_ = uirv;
+	return ErrorOccurred();
+    }
 
     const TypeSet<int>& outcomponents = outcomponents_
 				      ? *outcomponents_ : components_;

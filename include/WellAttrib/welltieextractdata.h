@@ -19,9 +19,9 @@ ________________________________________________________________________
 
 class TrcKeyZSampling;
 class IOObj;
-class SeisTrcReader;
 class SeisTrcBuf;
 class SeisTrc;
+namespace Seis { class Provider; }
 
 namespace WellTie
 {
@@ -54,7 +54,7 @@ protected:
     TypeSet<BinID>	bidset_;
     SeisTrc*		outtrc_;
     SeisTrcBuf*		trcbuf_;
-    SeisTrcReader*	rdr_;
+    Seis::Provider*	prov_;
     StepInterval<float> extrintv_;
     BufferString	linenm_;
     uiString		errmsg_;

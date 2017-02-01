@@ -72,7 +72,7 @@ public:
 				      bool onlynewpos=false);
     void		setAuxDataVal(int dataidx,const TrcKey&,float val);
 
-    enum		AuxDataType { NoType=0, Tracking };
+    enum		AuxDataType { NoType=0, AutoShow, Tracking };
     void		setAuxDataType(int dataidx,AuxDataType);
     AuxDataType		getAuxDataType(int dataidx) const;
 

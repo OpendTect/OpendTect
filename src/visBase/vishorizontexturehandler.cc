@@ -304,12 +304,12 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 	    continue;
 
 	const BinID bid = data->getBinID( pos );
+	if ( !rrg.includes(bid.inl(), false) ||
+	    !crg.includes(bid.crl(),false) )
+	    continue;
+
 	if ( horsection_->userchangedisplayrg_ )
 	{
-	    if ( !rrg.includes(bid.inl(), false) ||
-		 !crg.includes(bid.crl(),false) )
-		continue;
-
 	    if ( ( bid.inl()-rrg.start ) % rrg.step || 
 		 ( bid.crl()-crg.start ) % crg.step )
 		continue;
@@ -317,7 +317,6 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 
 	const int inlidx = rrg.nearestIndex( bid.inl() );
 	const int crlidx = crg.nearestIndex( bid.crl() );
-
 	const int offset = inlidx*nrcols + crlidx;
 	if ( offset>=nrcells )
 	    continue;

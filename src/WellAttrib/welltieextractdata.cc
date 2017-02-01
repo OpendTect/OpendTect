@@ -14,12 +14,13 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "trckeyzsampling.h"
 #include "interpol1d.h"
+#include "ioobj.h"
 #include "dbman.h"
 #include "datapointset.h"
 #include "samplingdata.h"
 #include "seisbuf.h"
+#include "seisprovider.h"
 #include "seistrc.h"
-#include "seisread.h"
 #include "seisselectionimpl.h"
 #include "survinfo.h"
 
@@ -28,7 +29,7 @@ namespace WellTie
 
 SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 	: Executor("Extracting Seismic positions")
-	, rdr_(new SeisTrcReader( &ioobj ))
+	, prov_(0)
 	, trcbuf_(new SeisTrcBuf(false))
 	, nrdone_(0)
 	, outtrc_(0)
@@ -36,13 +37,18 @@ SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 	, extrintv_(SI().zRange(false))
 	, linenm_(*new BufferString)
 	, radius_(1)
-{}
+{
+    uiRetVal uirv;
+    prov_ = Seis::Provider::create( ioobj.key(), &uirv );
+    if ( !prov_ )
+	errmsg_ = uirv;
+}
 
 
 SeismicExtractor::~SeismicExtractor()
 {
     delete tkzs_;
-    delete rdr_;
+    delete prov_;
     delete trcbuf_;
     delete outtrc_;
 }
@@ -60,10 +66,12 @@ void SeismicExtractor::setInterval( const StepInterval<float>& itv )
 #define mErrRet(msg) { errmsg_ = msg; return false; }
 bool SeismicExtractor::collectTracesAroundPath()
 {
+    if ( !prov_ ) return false;
+
     if ( bidset_.isEmpty() )
 	mErrRet( tr("No position extracted from well track") );
 
-    const bool seisid2D = rdr_->is2D();
+    const bool seisid2D = prov_->is2D();
     if ( seisid2D )
     {
 	const Survey::Geometry* geom = linenm_.isEmpty() ? 0
@@ -96,10 +104,9 @@ bool SeismicExtractor::collectTracesAroundPath()
     if ( seisid2D && !linenm_.isEmpty() )
 	sd->setGeomID( Survey::GM().getGeomID(linenm_) );
 
-    rdr_->setSelData( sd );
-    rdr_->prepareWork();
+    prov_->setSelData( sd );
 
-    SeisBufReader sbfr( *rdr_, *trcbuf_ );
+    SeisBufReader sbfr( *prov_, *trcbuf_ );
     if ( !sbfr.execute() )
 	mErrRet( sbfr.message() );
 

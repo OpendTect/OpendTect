@@ -392,9 +392,6 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     if ( imp && imp->nrSkipped() > 0 )
 	warns += new BufferString("During import, ", imp->nrSkipped(),
 				  " traces were rejected" );
-    SeisTrcTranslator* transl = rdr->reader().seisTranslator();
-    if ( transl && transl->haveWarnings() )
-	warns.add( transl->warnings(), false );
     imp.erase(); wrr.erase(); // closes output cube
 
     uiSEGY::displayWarnings( warns );

@@ -679,16 +679,9 @@ bool uiSEGYReadFinisher::handleWarnings( bool withstop,
     if ( indexer )
 	warns.add( indexer->scanner()->warnings(), false );
     else
-    {
 	if ( imp->nrSkipped() > 0 )
 	    warns += new BufferString("During import, ", imp->nrSkipped(),
 				      " traces were rejected" );
-	SeisStdImporterReader& stdrdr
-		= static_cast<SeisStdImporterReader&>( imp->reader() );
-	SeisTrcTranslator* transl = stdrdr.reader().seisTranslator();
-	if ( transl && transl->haveWarnings() )
-	    warns.add( transl->warnings(), false );
-    }
 
     return uiSEGY::displayWarnings( warns, withstop );
 }

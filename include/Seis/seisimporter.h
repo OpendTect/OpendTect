@@ -18,11 +18,10 @@ class Scaler;
 class SeisTrc;
 class SeisTrcBuf;
 class BinIDSorting;
-class SeisTrcReader;
 class SeisTrcWriter;
 class SeisResampler;
 class BinIDSortingAnalyser;
-namespace Seis { class SelData; }
+namespace Seis { class SelData; class Provider; }
 
 /*!\brief Helps import or export of seismic data. */
 
@@ -46,7 +45,7 @@ public:
 	virtual const char*	name() const			= 0;
 	virtual const char*	implName() const		= 0;
 	virtual bool		fetch(SeisTrc&)			= 0;
-	virtual int		totalNr() const			{ return -1; }
+	virtual od_int64	totalNr() const			{ return -1; }
 
 	uiString		errmsg_;
     };
@@ -105,7 +104,7 @@ public:
 			SeisStdImporterReader(const IOObj&,const char* nm);
 			~SeisStdImporterReader();
 
-    SeisTrcReader&	reader()		{ return rdr_; }
+    Seis::Provider*	provider()		{ return prov_; }
 
     const char*		name() const		{ return name_; }
     const char*		implName() const;
@@ -116,12 +115,12 @@ public:
     void		setScaler(Scaler*);		//!< becomes mine
     void		setSelData(Seis::SelData*);	//!< becomes mine
 
-    int			totalNr() const;
+    od_int64		totalNr() const;
 
 protected:
 
     const BufferString	name_;
-    SeisTrcReader&	rdr_;
+    Seis::Provider*	prov_;
     bool		remnull_;
     SeisResampler*	resampler_;
     Scaler*		scaler_;

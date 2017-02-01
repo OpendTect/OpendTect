@@ -8,11 +8,13 @@
 #include "wellloginterpolator.h"
 
 #include "arrayndimpl.h"
+#include "fftfilter.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 #include "welldata.h"
+#include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellmanager.h"
@@ -36,27 +38,100 @@ class WellLogInfo
 {
 public:
 WellLogInfo( const DBKey& mid, const char* lognm, Well::ExtractParams params )
-    : dbky_(mid), logname_(lognm), params_(params)
+    : dbky_(mid)
+    , logname_(lognm)
+    , params_(params)
+    , track_(0)
 {}
 
 bool init()
 {
     const bool zistime = SI().zIsTime();
     RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbky_,
-				Well::LoadReqs( Well::Trck, Well::D2T ) );
+				  Well::LoadReqs( Well::Trck, Well::D2T ) );
     if ( !wd )
 	return false;
-    log_ = Well::MGR().getLog( dbky_, logname_ );
-    if ( !log_ )
-	return false;
-    
+
+    delete track_;
     track_ = new Well::Track( wd->track() );
     if ( zistime )
 	track_->toTime( *wd );
-            
+
     wd_ = wd;
-    range_ = wd->track().dahRange();
+    range_ = wd_->track().dahRange();
     params_.getDahRange( *wd_, range_ );
+
+    return applyFilter();
+}
+
+#define cLogStepFact 10
+
+bool applyFilter()
+{
+    if ( log_ )
+	log_->unRef();
+
+    if ( !wd_ )
+	return false;
+
+    ConstRefMan<Well::Log> inplog = Well::MGR().getLog( dbky_, logname_ );
+    if ( !inplog )
+	return false;
+
+    MonitorLock ml( *inplog );
+
+    const Well::Track& track = wd_->track();
+    const Well::D2TModel* d2t = wd_->d2TModelPtr();
+    const Interval<float> zrg( bbox_.zsamp_ );
+    const float extractstep = bbox_.zsamp_.step / cLogStepFact;
+    const bool zintime = SI().zIsTime();
+    ObjectSet<const Well::Log> logs;
+    logs += inplog;
+    Well::LogSampler ls( d2t, &track, zrg, zintime, extractstep, zintime,
+			 Stats::UseAvg, logs ),
+		     lsnear( d2t, &track, zrg, zintime, extractstep, zintime,
+			     Stats::TakeNearest, logs );
+    if ( !ls.execute() || !lsnear.execute() )
+	return false;
+
+    const BufferString newlognm( inplog->name(), " filtered" );
+    ml.unlockNow();
+
+    const int nrz = ls.nrZSamples();
+    Array1DImpl<float> reglog( nrz );
+    const int logidx = logs.size()-1;
+    for ( int idz=0; idz<nrz; idz++ )
+    {
+	const float val = ls.getLogVal( logidx, idz );
+	const float outval = mIsUdf(val) ? lsnear.getLogVal(logidx,idz) : val;
+	reglog.set( idz, outval );
+    }
+
+    FFTFilter filter( nrz, extractstep );
+    filter.setLowPass( 1.f / (2.f*bbox_.zsamp_.step) );
+    if ( !filter.apply(reglog) )
+	return false;
+
+    RefMan<Well::Log> filteredlog = new Well::Log( newlognm );
+    const int intstep = mNINT32(cLogStepFact);
+    for ( int idz=0; idz<nrz; idz+=intstep )
+    {
+	const float md = ls.getDah( idz );
+	if ( mIsUdf(md) )
+	    continue;
+
+	filteredlog->addValue( md, reglog.get(idz) );
+    }
+
+    if ( filteredlog->isEmpty() )
+    {
+	filteredlog = 0;
+	return false;
+    }
+
+    log_ = filteredlog;
+    wd_->logs().add( filteredlog );
+
     return true;
 }
 
@@ -93,15 +168,15 @@ void computeLayerModelIntersection(
 }
 
 
-Well::Track*		    track_;
-ConstRefMan<Well::Log>	    log_;
-RefMan<Well::Data>	    wd_;
-TrcKeyZSampling		    bbox_;
-DBKey			    dbky_;
-BufferString		    logname_;
-TypeSet<float>		    intersections_;
-StepInterval<float>	    range_;
-Well::ExtractParams	    params_;
+Well::Track*		track_;
+ConstRefMan<Well::Log>	log_;
+RefMan<Well::Data>	wd_;
+TrcKeyZSampling		bbox_;
+DBKey			dbky_;
+BufferString		logname_;
+TypeSet<float>		intersections_;
+StepInterval<float>	range_;
+Well::ExtractParams	params_;
 
 };
 
@@ -127,6 +202,7 @@ void WellLogInterpolator::releaseData()
     Step::releaseData();
     delete gridder_; gridder_ = 0;
     delete layermodel_; layermodel_ = 0;
+    deepErase( infos_ );
     params_.setEmpty();
 }
 
@@ -145,7 +221,7 @@ const InterpolationLayerModel* WellLogInterpolator::getLayerModel() const
 void WellLogInterpolator::setGridder( const Gridder2D* gridder )
 {
     delete gridder_;
-        
+
     gridder_ = gridder->clone();
 }
 
@@ -175,7 +251,7 @@ void WellLogInterpolator::setGridder( const char* nm, float radius )
 
 	return;
     }
-} 
+}
 
 
 const char* WellLogInterpolator::getGridderName() const
@@ -205,7 +281,7 @@ void WellLogInterpolator::setWellData( const DBKeySet& ids, const char* lognm )
 }
 
 
-void WellLogInterpolator::setWellExtractParams( 
+void WellLogInterpolator::setWellExtractParams(
 					    const Well::ExtractParams& param)
 {
     params_ = param;
@@ -237,22 +313,34 @@ bool WellLogInterpolator::prepareComp( int )
 
     const TrcKeySampling& hs = output->sampling().hsamp_;
     outputinlrg_ = hs.inlRange();
-
     outputcrlrg_ = hs.crlRange();
 
-    bool res = true;
     for ( int idx=0; idx<wellmids_.size(); idx++ )
     {
-	WellLogInfo* info = new WellLogInfo( wellmids_[idx], logname_, 
+	WellLogInfo* info = new WellLogInfo( wellmids_[idx], logname_,
 								    params_ );
-	if ( info->init() )
+	if ( !info->init() )
 	{
-	    info->computeLayerModelIntersection( *layermodel_ );
-	    infos_ += info;
+	    if ( info->wd_ )
+	    {
+		errmsg_ = tr("Cannot load log '%1' for well '%2'")
+				.arg( logname_ ).arg( info->wd_->name() );
+	    }
+	    else
+	    {
+		errmsg_ = tr("Cannot load log '%1' for well with ID '%2'")
+				.arg( logname_ ).arg( wellmids_[idx] );
+	    }
+	    delete info;
+	    deepErase( infos_ );
+	    return false;
 	}
+
+	info->computeLayerModelIntersection( *layermodel_ );
+	infos_ += info;
     }
 
-    return res;
+    return true;
 }
 
 
@@ -283,6 +371,9 @@ static TypeSet<float> getMDs( const WellLogInfo& info, float layeridx )
 
 bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 {
+    if ( infos_.isEmpty() )
+	return false;
+
     if ( !outputinlrg_.includes( bid.inl(), true ) ||
 	 !outputcrlrg_.includes( bid.crl(), true ) ||
          (bid.inl()-outputinlrg_.start)%outputinlrg_.step ||
@@ -299,7 +390,7 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
     PtrMan<Gridder2D> gridder = gridder_->clone();
     const TrcKeySampling& hs = output->sampling().hsamp_;
     const Coord gridpoint( hs.toCoord(nearbid) );
-    
+
     mAllocVarLenArr(float,vals,lastzidx+1);
     int lasthcidx=-1, firsthcidx=-1;
     for ( int idx=lastzidx; idx>=0; idx-- )
@@ -320,30 +411,30 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 	    if ( !log ) continue;
 
 	    TypeSet<float> mds = getMDs( *info, layeridx );
-	    
+
 	    if ( mds.isEmpty() || mIsUdf(mds[0]) )
 		continue;
 
 	    const Coord3 pos = info->track_->getPos( mds[0] );
 	    if ( pos.isUdf() )
 		continue;
-	    
+
 	    if ( !info->range_.isUdf() )
 	    {
 		if ( !info->range_.includes( mds[0], false ) ) continue;
 	    }
 	    float lv = Well::LogDataExtracter::calcVal( *log, mds[0],
 					    mDefWinSz, params_.samppol_ );
-	    
+
 
 	    if ( mIsUdf(lv) )
 		continue;
-	    
+
 	    wellposes += pos.getXY();
 	    logvals += lv;
 	}
 
-	
+
 
 	gridder->setPoints( wellposes );
 	gridder->setValues( logvals );
@@ -449,6 +540,13 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
 	layermodel_ = InterpolationLayerModel::factory().create( lmtype );
 	if ( !layermodel_ || !layermodel_->usePar(*lmpar) )
 	{ delete layermodel_; layermodel_ = 0; }
+    }
+
+    if ( layermodel_ )
+    {
+	const bool yn = extension_==ExtrapolateEdgeValue;
+	layermodel_->setZStart( yn ? SI().zRange(false).start : mUdf(float) );
+	layermodel_->setZStop( yn ? SI().zRange(false).stop : mUdf(float) );
     }
 
     return true;

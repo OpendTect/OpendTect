@@ -51,10 +51,13 @@ ________________________________________________________________________
 #include "uiattrsetman.h"
 #include "uiattrvolout.h"
 #include "uiattr2dsel.h"
+#include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uicrossattrevaluatedlg.h"
 #include "uievaluatedlg.h"
 #include "uigeninputdlg.h"
 #include "uiioobjseldlg.h"
+#include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uimultcomputils.h"
@@ -858,10 +861,30 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 	    TrcKeySampling dpstks;
 	    dpstks.set( posvals.bivSet().inlRange(),
 			posvals.bivSet().crlRange() );
-	    uiString msg( tr("Preloaded data does not cover the full "
-			     "requested area.") );
-	    if ( seistkzs.hsamp_.includes(dpstks) ||
-		 uiMSG().askContinue(msg) )
+
+	    bool usepldata = seistkzs.hsamp_.includes( dpstks );
+	    if ( !usepldata )
+	    {
+		uiDialog dlg( parent(),
+		    uiDialog::Setup(tr("Question"),mNoDlgTitle,mNoHelpKey) );
+		uiString msg( tr("Pre-loaded data does not cover the "
+				"full requested area.\n"
+				"Please choose one of the following options:") );
+		uiLabel* lbl = new uiLabel( &dlg, msg );
+		uiButtonGroup* grp =
+		    new uiButtonGroup( &dlg, "Options", OD::Vertical );
+		grp->attach( alignedBelow, lbl );
+		new uiCheckBox( grp, tr("Use pre-loaded data (fast)") );
+		new uiCheckBox( grp, tr("Read data from disk (slow)") );
+		grp->selectButton( 0 );
+		dlg.showAlwaysOnTop();
+		if ( !dlg.go() )
+		    return false;
+
+		usepldata = grp->selectedId() == 0;
+	    }
+
+	    if ( usepldata )
 	    {
 		uiTaskRunner uitr( parent() );
 		const int comp = targetdesc->selectedOutput();

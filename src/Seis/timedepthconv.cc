@@ -21,6 +21,7 @@
 #include "seisbounds.h"
 #include "seisdatapack.h"
 #include "seisread.h"
+#include "seisprovider.h"
 #include "seispreload.h"
 #include "seispacketinfo.h"
 #include "seistrc.h"
@@ -737,16 +738,22 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
     , startavgvel_( -1, -1 )
     , stopavgvel_( -1, -1 )
     , subsel_( true )
-    , reader_( new SeisTrcReader(&obj_) )
+    , provider_( 0 )
     , definedv0_( false )
     , definedv1_( false )
     , zistime_ ( SI().zIsTime() )
     , seisrefdatum_( SI().seismicReferenceDatum() )
     , nrdone_( 0 )
 {
-    reader_->prepareWork();
-    mDynamicCastGet( Seis::Bounds3D*, bd3, reader_->getBounds() );
-    if ( bd3 ) subsel_ = bd3->tkzs_.hsamp_;
+    uiRetVal uirv;
+    provider_ = Seis::Provider::create( input.key(), &uirv );
+    if ( !provider_ )
+	{ msg_ = uirv; return; }
+
+    TrcKeyZSampling tkzs;
+    mDynamicCastGet(const Seis::Provider3D&,prov3d,*provider_);
+    prov3d.getRanges( tkzs );
+    subsel_ = tkzs.hsamp_;
 
     hsiter_.setSampling(  subsel_ );
     zistime_ = ZDomain::isTime( input.pars() );
@@ -757,7 +764,7 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
 
 VelocityModelScanner::~VelocityModelScanner()
 {
-    delete reader_;
+    delete provider_;
 }
 
 
@@ -774,25 +781,23 @@ int VelocityModelScanner::nextStep()
 	return Finished();
     }
 
-    mDynamicCastGet( SeisTrcTranslator*, veltranslator, reader_->translator() );
-    if ( !veltranslator || !veltranslator->supportsGoTo() )
-    {
-	msg_ = tr("Cannot read velocity volume");
-	return ErrorOccurred();
-    }
-
     nrdone_++;
 
     SeisTrc veltrace;
-    const BinID curbid( hsiter_.curBinID() );
-    if ( !veltranslator->goTo(curbid) || !reader_->get(veltrace) )
-	return MoreToDo();
+    const uiRetVal uirv = provider_->getNext( veltrace );
+    if ( !uirv.isOK() )
+    {
+	if ( isFinished(uirv) )
+	    return Finished();
 
-    const SeisTrcValueSeries trcvs( veltrace, 0 );
+	msg_ = uirv;
+	return ErrorOccurred();
+    }
 
     const int sz = veltrace.size();
     if ( sz<2 ) return MoreToDo();
 
+    const SeisTrcValueSeries trcvs( veltrace, 0 );
     const SamplingData<double> sd = veltrace.info().sampling_;
 
     TimeDepthConverter tdconverter;

@@ -27,6 +27,7 @@ class SeisTrc;
 class SeisTrcWriter;
 class SeisTrcBuf;
 class od_ostream;
+namespace Seis { class Provider; }
 
 mExpClass(Seis) Seis2DTo3D : public Executor
 { mODTextTranslationClass(Seis2DTo3D)
@@ -65,8 +66,8 @@ protected:
 
     SeisTrcBuf&		seisbuf_;
     TrcKeySampling	seisbuftks_;
-    SeisTrcWriter*  wrr_;
-    SeisTrcReader*	rdr_;
+    SeisTrcWriter*	wrr_;
+    Seis::Provider*	prov_;
     SeisTrcBuf		tmpseisbuf_;
 
     bool			read_;
