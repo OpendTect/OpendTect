@@ -804,6 +804,7 @@ void DBMan::findTempObjs( ObjectSet<IOObj>& ioobjs,
 	mDynamicCastGet( const IOSubDir*, iosubd, &iter.ioObj() );
 	if ( !iosubd )
 	    continue;
-	DBDir::getTmpIOObjs( iosubd->key().dirID(), ioobjs, cnstrts );
+	const DirID dirid( DirID::get(iosubd->key().objID().getI()) );
+	DBDir::getTmpIOObjs( dirid, ioobjs, cnstrts );
     }
 }
