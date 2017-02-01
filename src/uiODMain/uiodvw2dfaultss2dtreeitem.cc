@@ -279,7 +279,8 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 	fssview_ = fd;
     }
     emobj->ref();
-    mAttachCB( emobj->change, uiODVw2DFaultSS2DTreeItem::emobjChangeCB );
+    mAttachCB( emobj->objectChanged(),
+	       uiODVw2DFaultSS2DTreeItem::emobjChangeCB );
 
     name_ = toUiString( DBM().nameOf(emid_) );
     uitreeviewitem_->setChecked( true );
@@ -322,17 +323,8 @@ void uiODVw2DFaultSS2DTreeItem::emobjChangeCB( CallBacker* cb )
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
-    switch( cbdata.event )
-    {
-	case EM::EMObjectCallbackData::Undef:
-	    break;
-	case EM::EMObjectCallbackData::PrefColorChange:
-	    {
-		displayMiniCtab();
-		break;
-	    }
-	default: break;
-    }
+    if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+	displayMiniCtab();
 }
 
 

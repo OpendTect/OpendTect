@@ -661,7 +661,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
     if ( !horizon )
 	mErrRet( uiStrings::sCantCreateHor() );
 
-    horizon->change.disable();
+    horizon->objectChanged().disable();
     horizon->setStratLevelID( stratlvlfld_->getID() );
     horizon->ref();
     return horizon;

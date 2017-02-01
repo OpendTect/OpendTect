@@ -497,12 +497,12 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
       if ( !cbdata )
           continue;
       EMObjectDisplay::handleEmChange( *cbdata );
-      if ( cbdata->event==EM::EMObjectCallbackData::PrefColorChange )
+      if ( cbdata->changeType()==EM::EMObject::cPrefColorChange() )
       {
           getMaterial()->setColor( emobject_->preferredColor() );
           setLineStyle( emobject_->preferredLineStyle() );
       }
-      else if ( cbdata->event==EM::EMObjectCallbackData::SelectionColorChange )
+      else if ( cbdata->changeType()==EM::EMObject::cSelColorChange() )
       {
 	  mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
 	  if ( hor2d && selections_ && selections_->getMaterial() )

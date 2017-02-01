@@ -37,13 +37,13 @@ SurfaceGeometry::SurfaceGeometry( Surface& surf )
     : changed_( false )
     , surface_( surf )
 {
-    surface_.change.notify( mCB(this,SurfaceGeometry,geomChangeCB) );
+    surface_.objectChanged().notify( mCB(this,SurfaceGeometry,geomChangeCB) );
 }
 
 
 SurfaceGeometry::~SurfaceGeometry()
 {
-    surface_.change.remove( mCB(this,SurfaceGeometry,geomChangeCB) );
+    surface_.objectChanged().remove( mCB(this,SurfaceGeometry,geomChangeCB) );
     removeAll();
 }
 
@@ -58,7 +58,7 @@ void SurfaceGeometry::removeAll()
 void SurfaceGeometry::geomChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const EMObjectCallbackData&,cbdata,cb);
-    if ( cbdata.event == EMObjectCallbackData::PositionChange )
+    if ( cbdata.changeType() == EMObject::cPositionChange() )
        changed_ = true;
 }
 
@@ -194,12 +194,6 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
 	pErrMsg("Undo not implemented for remove section");
 	//surface_.getMgr().undo().removeAllBeforeCurrentEvent();
     }
-
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::SectionChange;
-    cbdata.pid0 = PosID( surface_.id(), sid, 0 );
-    surface_.change.enable( true );
-    surface_.change.trigger( cbdata );
 
     changed_ = true;
     return true;
@@ -968,12 +962,6 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
     }
 
     enableChecks( isChecksEnabled() );
-
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::SectionChange;
-    cbdata.pid0 = PosID( surface_.id(), sid, 0 );
-    surface_.change.enable( true );
-    surface_.change.trigger(cbdata);
 
     changed_ = true;
     return sid;

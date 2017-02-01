@@ -99,7 +99,8 @@ PolygonBodyDisplay::~PolygonBodyDisplay()
     if ( empolygonsurf_ )
     {
 	MPE::engine().removeEditor( empolygonsurf_->id() );
-	empolygonsurf_->change.remove(mCB(this,PolygonBodyDisplay,emChangeCB));
+	empolygonsurf_->objectChanged().remove(
+			mCB(this,PolygonBodyDisplay,emChangeCB) );
 	empolygonsurf_->unRef();
     }
 
@@ -201,7 +202,7 @@ bool PolygonBodyDisplay::setEMID( const DBKey& emid )
 {
     if ( empolygonsurf_ )
     {
-	empolygonsurf_->change.remove(
+	empolygonsurf_->objectChanged().remove(
 		mCB(this,PolygonBodyDisplay,emChangeCB) );
 	empolygonsurf_->unRef();
     }
@@ -223,7 +224,8 @@ bool PolygonBodyDisplay::setEMID( const DBKey& emid )
     }
 
     empolygonsurf_ = emplys;
-    empolygonsurf_->change.notify( mCB(this,PolygonBodyDisplay,emChangeCB) );
+    empolygonsurf_->objectChanged().notify(
+			mCB(this,PolygonBodyDisplay,emChangeCB) );
     empolygonsurf_->ref();
 
     if ( !empolygonsurf_->name().isEmpty() )
@@ -686,16 +688,17 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 
 void PolygonBodyDisplay::emChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    mCBCapsuleUnpack(EM::EMObjectCallbackData,cbdata,cb);
+    RefMan<EM::EMChangeAuxData> cbaux =	cbdata.auxDataAs<EM::EMChangeAuxData>();
 
-    if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert ||
-	 cbdata.event==EM::EMObjectCallbackData::SectionChange ||
-	 cbdata.event==EM::EMObjectCallbackData::PositionChange )
+    if ( cbdata.changeType()==EM::EMObject::cBurstAlert() ||
+	 cbdata.changeType()==EM::EMObject::cSectionChange() ||
+	 cbdata.changeType()==EM::EMObject::cPositionChange() )
     {
 	updateSingleColor();
-	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+	if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
 	{
-	     if ( cbdata.pid0.getRowCol().row()==nearestpolygon_ )
+	     if ( cbaux->pid0.getRowCol().row()==nearestpolygon_ )
 		updateNearestPolygonMarker();
 	}
 	else
@@ -703,7 +706,7 @@ void PolygonBodyDisplay::emChangeCB( CallBacker* cb )
 
 	touchAll( false );
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    else if ( cbdata.changeType()==EM::EMObject::cPrefColorChange() )
     {
 	nontexturecol_ = empolygonsurf_->preferredColor();
 	updateSingleColor();

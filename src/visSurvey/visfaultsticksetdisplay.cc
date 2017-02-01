@@ -115,7 +115,8 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
     if ( fault_ )
     {
 	MPE::engine().removeEditor( fault_->id() );
-	fault_->change.remove( mCB(this,FaultStickSetDisplay,emChangeCB) );
+	fault_->objectChanged().remove(
+		mCB(this,FaultStickSetDisplay,emChangeCB) );
 
     }
     fsseditor_ = 0;
@@ -732,33 +733,27 @@ void FaultStickSetDisplay::setActiveStick( const EM::PosID& pid )
     }
 }
 
-#define mGetEMCBData( cbid ) \
-    mGetMonitoredChgDataWithCaller( cb, chgdata, caller ); \
-    mGetIDFromChgData( EM::EMCBID, cbid, chgdata ); \
-    mDynamicCastGet(EM::EMObject*,emobj,caller); \
-    if ( !emobj || !emobj->getEMCBData(cbid) ) return; \
-    const EM::EMObjectCallbackData& cbdata = *emobj->getEMCBData( cbid ); \
 
 void FaultStickSetDisplay::emChangeCB( CallBacker* cb )
 {
-    mGetEMCBData( cbid )
-
-    if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    mGetMonitoredChgData( cb, cbdata );
+    RefMan<EM::EMChangeAuxData> cbaux =	cbdata.auxDataAs<EM::EMChangeAuxData>();
+    if ( cbdata.changeType()==EM::EMObject::cPrefColorChange() )
     {
 	getMaterial()->setColor( fault_->preferredColor() );
 	mSetStickIntersectPointColor( fault_->preferredColor() );
     }
-    if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+    if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
     {
-	EM::SectionID sid = cbdata.pid0.sectionID();
-	RowCol rc = cbdata.pid0.getRowCol();
+	EM::SectionID sid = cbaux->pid0.sectionID();
+	RowCol rc = cbaux->pid0.getRowCol();
 
 	const DBKey* mid = fault_->pickedDBKey( rc.row() );
 	const Pos::GeomID geomid = fault_->pickedGeomID( rc.row() );
 	if ( fault_->pickedOnPlane(rc.row()) )
 	{
 	    const char* nm =fault_->pickedName( rc.row() );
-	    const Coord3 dragpos = fault_->getPos( cbdata.pid0 );
+	    const Coord3 dragpos = fault_->getPos( cbaux->pid0 );
 	    Coord3 pos = dragpos;
 
 	    Seis2DDisplay* s2dd = Seis2DDisplay::getSeis2DDisplay( geomid );
@@ -796,9 +791,9 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cb )
 	    }
 
 	    /*CallBack cb = mCB(this,FaultStickSetDisplay,emChangeCB);
-	    emfss->change.remove( cb );
-	    emfss->setPos( cbdata.pid0, pos, false );
-	    emfss->change.notify( cb );*/
+	    emfss->objectChanged().remove( cb );
+	    emfss->setPos( cbaux->pid0, pos, false );
+	    emfss->objectChanged().notify( cb );*/
 	}
     }
 

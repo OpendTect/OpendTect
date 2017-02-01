@@ -1291,20 +1291,20 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 
 void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 {
-    if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+    if ( cbdata.changeType()==EM::EMObject::cPositionChange() )
     {
 	validtexture_ = false;
-	const EM::SectionID sid = cbdata.pid0.sectionID();
+	const EM::SectionID sid = emobject_->sectionID(0);
 	const int idx = sids_.indexOf( sid );
 	if ( idx>=0 && idx<sections_.size() )
 	    sections_[idx]->inValidateCache(-1);
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    else if ( cbdata.changeType()==EM::EMObject::cPrefColorChange() )
     {
 	nontexturecol_ = emobject_->preferredColor();
 	setLineStyle( emobject_->preferredLineStyle() );
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::SelectionColorChange )
+    else if ( cbdata.changeType()==EM::EMObject::cSelColorChange() )
     {
 	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ )
 	if ( hor3d )
@@ -1314,7 +1314,7 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 		hor3d->selectionColor() );
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::ParentColorChange )
+    else if ( cbdata.changeType()==EM::EMObject::cParentColorChange() )
     {
 	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ )
 	if ( hor3d )
@@ -1323,13 +1323,13 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 		parentline_->getMaterial()->setColor( hor3d->getParentColor() );
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::SelectionChange )
+    else if ( cbdata.changeType()==EM::EMObject::cSelectionChange() )
     {
 	// TODO: Should be made more general, such that it also works for
 	// polygon selections
 	selectChildren();
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::LockChange )
+    else if ( cbdata.changeType()==EM::EMObject::cLockChange() )
     {
 	// if it is unlocked, we need set all lockedpts to unlock.
 	// if it is locked, we do nothing
@@ -1361,7 +1361,7 @@ void HorizonDisplay::handleEmChange(const EM::EMObjectCallbackData& cbdata)
 	    showLocked( showlock_ );
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::LockColorChange )
+    else if ( cbdata.changeType()==EM::EMObject::cLockColorChange() )
     {
 	updateLockedPointsColor();
     }

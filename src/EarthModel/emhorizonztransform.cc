@@ -40,7 +40,7 @@ HorizonZTransform::~HorizonZTransform()
 {
     if ( horizon_ )
     {
-	const_cast<Horizon*>(horizon_)->change.remove(
+	const_cast<Horizon*>(horizon_)->objectChanged().remove(
 		mCB(this,HorizonZTransform,horChangeCB) );
 	horizon_->unRef();
     }
@@ -52,14 +52,14 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
     if ( horizon_ )
     {
 	const_cast<Horizon*>(horizon_)
-	    ->change.remove( mCB(this,HorizonZTransform,horChangeCB) );
+	    ->objectChanged().remove( mCB(this,HorizonZTransform,horChangeCB) );
 	horizon_->unRef();
     }
 
     horizon_ = &hor;
     horizon_->ref();
     const_cast<Horizon*>(horizon_)
-	->change.notify( mCB(this,HorizonZTransform,horChangeCB) );
+	->objectChanged().notify( mCB(this,HorizonZTransform,horChangeCB) );
 
     fromzdomaininfo_.setID( horizon_->dbKey().toString() );
     tozdomaininfo_.setID( horizon_->dbKey().toString() );

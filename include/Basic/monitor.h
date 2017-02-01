@@ -109,6 +109,8 @@ public:
 	static inline ChangeData NoChange()	{ return ChangeData(
 							 mUdf(ChangeType),-1); }
 	RefMan<AuxData>	auxdata_;
+	template<class T> inline const T* auxDataAs() const
+	{ return static_cast<const T*>( auxdata_.ptr() ); }
 	template<class T> inline T* auxDataAs()
 	{ return static_cast<T*>( auxdata_.ptr() ); }
     };

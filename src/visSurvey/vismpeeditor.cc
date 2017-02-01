@@ -121,7 +121,7 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
     if ( emeditor_ )
     {
 	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor_->emObject());
-	emobj.change.remove( movementcb );
+	emobj.objectChanged().remove( movementcb );
 	emobj.unRef();
 	emeditor_->editpositionchange.remove( numnodescb );
 	emeditor_->unRef();
@@ -134,7 +134,7 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
 	emeditor_->ref();
 	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor_->emObject());
 	emobj.ref();
-	emobj.change.notify( movementcb );
+	emobj.objectChanged().notify( movementcb );
 	emeditor_->editpositionchange.notify( numnodescb );
 	changeNumNodes(0);
     }
@@ -373,16 +373,18 @@ void MPEEditor::nodeMovement(CallBacker* cb)
 {
     if ( emeditor_ )
     {
-	mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+	mCBCapsuleUnpack(EM::EMObjectCallbackData,cbdata,cb);
+	RefMan<EM::EMChangeAuxData> cbaux =
+			cbdata.auxDataAs<EM::EMChangeAuxData>();
+	if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
 	{
-	    const int idx = posids_.indexOf( cbdata.pid0 );
+	    const int idx = posids_.indexOf( cbaux->pid0 );
 	    if ( idx==-1 ) return;
 
-	    const Coord3 pos = emeditor_->getPosition( cbdata.pid0 );
+	    const Coord3 pos = emeditor_->getPosition( cbaux->pid0 );
 	    updateNodePos( idx, pos );
 	}
-	else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
+	else if ( cbdata.changeType()==EM::EMObject::cBurstAlert() )
 	{
 	    for ( int idx=0; idx<posids_.size(); idx++ )
 	    {

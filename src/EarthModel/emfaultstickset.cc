@@ -199,13 +199,6 @@ int FaultStickSetGeometry::nrKnots( const SectionID& sid, int sticknr ) const
 }
 
 
-#define mTriggerSurfaceChange( surf ) \
-    surf.setChangedFlag(); \
-    EMObjectCallbackData cbdata; \
-    cbdata.event = EMObjectCallbackData::BurstAlert; \
-    surf.change.trigger( cbdata );
-
-
 bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 					 int firstcol, const Coord3& pos,
 					 const Coord3& editnormal,
@@ -252,7 +245,6 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 	FSSMan().undo().addEvent( undo, 0 );
     }
 
-    mTriggerSurfaceChange( surface_ );
     return true;
 }
 
@@ -290,7 +282,6 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 	FSSMan().undo().addEvent( undo, 0 );
     }
 
-    mTriggerSurfaceChange( surface_ );
     return true;
 }
 
@@ -338,7 +329,6 @@ bool FaultStickSetGeometry::removeStick( const SectionID& sid, int sticknr,
 	FSSMan().undo().addEvent( undo, 0 );
     }
 
-    mTriggerSurfaceChange( surface_ );
     return true;
 }
 
@@ -359,7 +349,6 @@ bool FaultStickSetGeometry::insertKnot( const SectionID& sid,
 	FSSMan().undo().addEvent( undo, 0 );
     }
 
-    mTriggerSurfaceChange( surface_ );
     return true;
 }
 
@@ -383,7 +372,6 @@ bool FaultStickSetGeometry::removeKnot( const SectionID& sid,
 	FSSMan().undo().addEvent( undo, 0 );
     }
 
-    mTriggerSurfaceChange( surface_ );
     return true;
 }
 

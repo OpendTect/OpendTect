@@ -220,7 +220,7 @@ bool FaultDisplay::setEMObjectID( const DBKey& emid )
 {
     if ( fault_ )
     {
-	mDetachCB( fault_->change,FaultDisplay::emChangeCB );
+	mDetachCB( fault_->objectChanged(),FaultDisplay::emChangeCB );
 	fault_->unRef();
     }
 
@@ -243,7 +243,7 @@ bool FaultDisplay::setEMObjectID( const DBKey& emid )
     }
 
     fault_ = (EM::Fault*)(emfault);
-    mAttachCB( fault_->change,FaultDisplay::emChangeCB );
+    mAttachCB( fault_->objectChanged(),FaultDisplay::emChangeCB );
     fault_->ref();
 
 
@@ -1030,11 +1030,13 @@ void FaultDisplay::setActiveStick( const EM::PosID& pid )
 void FaultDisplay::emChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    ConstRefMan<EM::EMChangeAuxData> cbaux =
+			cbdata.auxDataAs<EM::EMChangeAuxData>();
 
     EM::Fault3D* fault3d = emFault();
     if ( !fault3d ) return;
 
-    if ( cbdata.event == EM::EMObjectCallbackData::SectionChange )
+    if ( cbdata.changeType() == EM::EMObject::cSectionChange() )
     {
 	if ( fault3d && fault3d->nrSections() )
 	{
@@ -1048,21 +1050,21 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	}
     }
 
-    if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert ||
-	 cbdata.event==EM::EMObjectCallbackData::SectionChange ||
-	 cbdata.event==EM::EMObjectCallbackData::PositionChange )
+    if ( cbdata.changeType()==EM::EMObject::cBurstAlert() ||
+	 cbdata.changeType()==EM::EMObject::cSectionChange() ||
+	 cbdata.changeType()==EM::EMObject::cPositionChange() )
     {
 	validtexture_ = false;
 	updateSingleColor();
-	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+	if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
 	{
-	    if ( cbdata.pid0.getRowCol().row()==activestick_ )
+	    if ( cbaux->pid0.getRowCol().row()==activestick_ )
 		updateActiveStickMarker();
 	}
 	else
 	    updateActiveStickMarker();
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    else if ( cbdata.changeType()==EM::EMObject::cPrefColorChange() )
     {
 	mSetStickIntersectPointColor( fault_->preferredColor() );
 	nontexturecol_ = fault_->preferredColor();

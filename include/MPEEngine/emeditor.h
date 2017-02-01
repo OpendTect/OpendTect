@@ -116,7 +116,6 @@ protected:
     virtual Geometry::ElementEditor*	createEditor( const EM::SectionID& )=0;
 
     void				editPosChangeTrigger(CallBacker*);
-    void				emSectionChange(CallBacker*);
 
     virtual void			getAlongMovingNodes( const EM::PosID&,
 					    TypeSet<EM::PosID>&,

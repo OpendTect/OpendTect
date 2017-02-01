@@ -269,38 +269,6 @@ void ObjectEditor::editPosChangeTrigger(CallBacker*)
 { editpositionchange.trigger(); }
 
 
-void ObjectEditor::emSectionChange(CallBacker* cb)
-{
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-    if ( cbdata.event!=EM::EMObjectCallbackData::SectionChange )
-	return;
-
-    const EM::SectionID sectionid = cbdata.pid0.sectionID();
-    const int editoridx = sections_.indexOf(sectionid);
-
-    const Geometry::Element* ge =
-	const_cast<const EM::EMObject*>(emobject_.ptr())
-	    ->sectionGeometry(sectionid);
-
-    if ( !ge && editoridx!=-1 )
-    {
-	delete geeditors_.removeSingle(editoridx);
-	editpositionchange.trigger();
-    }
-    else if ( ge && editoridx==-1 )
-    {
-	Geometry::ElementEditor* geeditor = createEditor( sectionid );
-	if ( geeditor )
-	{
-	    geeditors_ += geeditor;
-	    sections_ += sectionid;
-	    geeditor->editpositionchange.notify(
-		    mCB(this,ObjectEditor,editPosChangeTrigger));
-	}
-    }
-}
-
-
 void ObjectEditor::getAlongMovingNodes( const EM::PosID&,
 					TypeSet<EM::PosID>& nodes,
 					TypeSet<float>* factors ) const

@@ -383,11 +383,7 @@ bool PolygonBodyGeometry::insertPolygon( const SectionID& sid, int polygonnr,
 	BodyMan().undo().addEvent( undo, 0 );
     }
 
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
-
+    mSendEMSurfNotif( EMObject::cBurstAlert() );
     return true;
 }
 
@@ -418,11 +414,7 @@ bool PolygonBodyGeometry::removePolygon( const SectionID& sid, int polygonnr,
 	BodyMan().undo().addEvent( undo, 0 );
     }
 
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
-
+    mSendEMSurfNotif( EMObject::cBurstAlert() );
     return true;
 }
 
@@ -442,11 +434,7 @@ bool PolygonBodyGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 	BodyMan().undo().addEvent( undo, 0 );
     }
 
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
-
+    mSendEMSurfNotif( EMObject::cBurstAlert() );
     return true;
 }
 
@@ -478,11 +466,7 @@ bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 	BodyMan().undo().addEvent( undo, 0 );
     }
 
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
-
+    mSendEMSurfNotif( EMObject::cBurstAlert() );
     return true;
 }
 

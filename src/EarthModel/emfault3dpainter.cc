@@ -45,7 +45,7 @@ Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const DBKey& oid )
     if ( emobj )
     {
 	emobj->ref();
-	emobj->change.notify( mCB(this,Fault3DPainter,fault3DChangedCB) );
+	emobj->objectChanged().notify( mCB(this,Fault3DPainter,fault3DChangedCB) );
     }
     tkzs_.setEmpty();
 }
@@ -56,7 +56,7 @@ Fault3DPainter::~Fault3DPainter()
     EM::EMObject* emobj = EM::Flt3DMan().getObject( emid_ );
     if ( emobj )
     {
-	emobj->change.remove( mCB(this,Fault3DPainter,fault3DChangedCB) );
+	emobj->objectChanged().remove( mCB(this,Fault3DPainter,fault3DChangedCB) );
 	emobj->unRef();
     }
 
@@ -635,53 +635,46 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 
     if ( emobject->id() != emid_ ) return;
 
-    switch ( cbdata.event )
+    if ( cbdata.changeType() == EM::EMObject::cUndefChange() )
+	return;
+    else if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
     {
-	case EM::EMObjectCallbackData::Undef:
-	    break;
-	case EM::EMObjectCallbackData::PrefColorChange:
+	for ( int oidx=0; oidx<f3dmarkers_.size(); oidx++ )
+	{
+	    if ( !f3dmarkers_[oidx] ) continue;
+	    Fault3DMarker& mrks = *f3dmarkers_[oidx];
+
+	    for ( int stid=0; stid<mrks.stickmarker_.size(); stid++ )
 	    {
-		for ( int oidx=0; oidx<f3dmarkers_.size(); oidx++ )
-		{
-		    if ( !f3dmarkers_[oidx] ) continue;
-		    Fault3DMarker& mrks = *f3dmarkers_[oidx];
+		if ( !mrks.stickmarker_[stid] ) continue;
 
-		    for ( int stid=0; stid<mrks.stickmarker_.size(); stid++ )
-		    {
-			if ( !mrks.stickmarker_[stid] ) continue;
-
-			mrks.stickmarker_[stid]->marker_->linestyle_.color_ =
-							emf3d->preferredColor();
-			viewer_.updateProperties(
-					*mrks.stickmarker_[stid]->marker_ );
-		    }
-
-		    for ( int itid=0; itid<mrks.intsecmarker_.size(); itid++ )
-		    {
-			if ( !mrks.intsecmarker_[itid] ) continue;
-
-			mrks.intsecmarker_[itid]->linestyle_.color_ =
-							emf3d->preferredColor();
-			viewer_.updateProperties( *mrks.intsecmarker_[itid] );
-		    }
-		}
-		break;
+		mrks.stickmarker_[stid]->marker_->linestyle_.color_ =
+						emf3d->preferredColor();
+		viewer_.updateProperties(
+				*mrks.stickmarker_[stid]->marker_ );
 	    }
-	case EM::EMObjectCallbackData::PositionChange:
-	{
-	    if ( emf3d->hasBurstAlert() )
-		return;
-	    repaintFault3D();
-	    break;
+
+	    for ( int itid=0; itid<mrks.intsecmarker_.size(); itid++ )
+	    {
+		if ( !mrks.intsecmarker_[itid] ) continue;
+
+		mrks.intsecmarker_[itid]->linestyle_.color_ =
+						emf3d->preferredColor();
+		viewer_.updateProperties( *mrks.intsecmarker_[itid] );
+	    }
 	}
-	case EM::EMObjectCallbackData::BurstAlert:
-	{
-	    if (  emobject->hasBurstAlert() )
-		return;
-	    repaintFault3D();
-	    break;
-	}
-	default: break;
+    }
+    if ( cbdata.changeType() == EM::EMObject::cPositionChange() )
+    {
+	if ( emf3d->hasBurstAlert() )
+	    return;
+	repaintFault3D();
+    }
+    if ( cbdata.changeType() == EM::EMObject::cBurstAlert() )
+    {
+	if (  emobject->hasBurstAlert() )
+	    return;
+	repaintFault3D();
     }
 }
 

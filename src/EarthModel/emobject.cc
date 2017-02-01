@@ -39,7 +39,6 @@ Color EMObject::sDefaultSelectionColor() { return Color::Orange(); }
 
 EMObject::EMObject( const char* nm )
     : SharedObject( nm )
-    , change( this )
     , preferredcolor_( *new Color(Color::Green()) )
     , changed_( false )
     , fullyloaded_( false )
@@ -56,7 +55,7 @@ EMObject::EMObject( const char* nm )
 
     removebypolyposbox_.setEmpty();
 
-    change.notify( mCB(this,EMObject,posIDChangeCB) );
+    objectChanged().notify( mCB(this,EMObject,posIDChangeCB) );
 }
 
 
@@ -68,8 +67,7 @@ EMObject::~EMObject()
     delete &preferredmarkerstyle_;
     delete &selectioncolor_;
 
-    change.remove( mCB(this,EMObject,posIDChangeCB) );
-    deepErase( emcbdatas_ );
+    objectChanged().remove( mCB(this,EMObject,posIDChangeCB) );
 }
 
 
@@ -230,7 +228,7 @@ void EMObject::setBurstAlert( bool yn )
 	if ( yn ) burstalertcount_++;
 	RefMan<EMChangeAuxData> data = new EMChangeAuxData;
 	data->flagfor2dviewer = !yn;
-	mSendEMCBNotifWithData( cBurstAlertChange(), data );
+	mSendEMCBNotifWithData( cBurstAlert(), data );
     }
     else if ( yn )
 	burstalertcount_++;
@@ -387,7 +385,6 @@ void EMObject::setPosAttrMarkerStyle( int attr, const OD::MarkerStyle3D& ms )
 
     RefMan<EMChangeAuxData> data = new EMChangeAuxData;
     data->attrib = attr;
-    data->pid0 = pid;
     mSendEMCBNotifWithData( cAttribChange(), data );
     touch();
 }
@@ -661,8 +658,12 @@ void EMObject::fillPar( IOPar& par ) const
 
 void EMObject::posIDChangeCB(CallBacker* cb)
 {
-    mCBCapsuleUnpack(const ChangeData&,cbdata,cb);
+    mCBCapsuleUnpack(EMObjectCallbackData,cbdata,cb);
     if ( cbdata.changeType() != cPosIDChange() )
+	return;
+
+    RefMan<EMChangeAuxData> cbauxdata = cbdata.auxDataAs<EMChangeAuxData>();
+    if ( !cbauxdata )
 	return;
 
     for ( int idx=0; idx<posattribs_.size(); idx++ )
@@ -672,11 +673,11 @@ void EMObject::posIDChangeCB(CallBacker* cb)
 
 	while ( true )
 	{
-	    const int idy = nodes.indexOf( cbdata.pid0 );
+	    const int idy = nodes.indexOf( cbauxdata->pid0 );
 	    if ( idy==-1 )
 		break;
 
-	    nodes[idy] = cbdata.pid1;
+	    nodes[idy] = cbauxdata->pid1;
 	}
     }
 }

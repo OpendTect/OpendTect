@@ -69,7 +69,7 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
 
     EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( emobj )
-	mAttachCB( emobj->change,
+	mAttachCB( emobj->objectChanged(),
 	HorizonFlatViewEditor3D::selectionColorChangedCB );
 
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
@@ -129,7 +129,7 @@ void HorizonFlatViewEditor3D::selectionColorChangedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::EMObjectCallbackData&, cbdata, cb );
     if ( horpainter_ &&
-	cbdata.event==EM::EMObjectCallbackData::SelectionColorChange )
+	cbdata.changeType()==EM::EMObject::cSelColorChange() )
 	horpainter_->updateSelectionColor();
 }
 

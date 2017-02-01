@@ -333,7 +333,8 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
     EM::EMObject* emobj = EM::Hor3DMan().getObject( emid_ );
     if ( emobj )
     {
-	emobj->change.remove( mCB(this,uiODVw2DHor3DTreeItem,emobjChangeCB) );
+	emobj->objectChanged().remove(
+		mCB(this,uiODVw2DHor3DTreeItem,emobjChangeCB) );
 
 	DBKey emid = emobj->id();
 	if ( MPE::engine().hasTracker(emid) )
@@ -375,7 +376,8 @@ bool uiODVw2DHor3DTreeItem::init()
     }
 
     if ( emobj )
-	mAttachCB( emobj->change, uiODVw2DHor3DTreeItem::emobjChangeCB );
+	mAttachCB( emobj->objectChanged(),
+		uiODVw2DHor3DTreeItem::emobjChangeCB );
 
     displayMiniCtab();
 
@@ -427,22 +429,12 @@ void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
-    switch( cbdata.event )
+    if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+	displayMiniCtab();
+    else if ( cbdata.changeType() == EM::EMObject::cNameChange() )
     {
-	case EM::EMObjectCallbackData::Undef:
-	    break;
-	case EM::EMObjectCallbackData::PrefColorChange:
-	{
-	    displayMiniCtab();
-	    break;
-	}
-	case EM::EMObjectCallbackData::NameChange:
-	{
-	    name_ = toUiString(DBM().nameOf( emid_ ));
-	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	    break;
-	}
-	default: break;
+	name_ = toUiString(DBM().nameOf( emid_ ));
+	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
 }
 

@@ -45,7 +45,8 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
     if ( emobj )
     {
 	emobj->ref();
-	emobj->change.notify( mCB(this,FaultStickPainter,fssChangedCB) );
+	emobj->objectChanged().notify(
+		mCB(this,FaultStickPainter,fssChangedCB) );
     }
     tkzs_.setEmpty();
 }
@@ -56,7 +57,8 @@ FaultStickPainter::~FaultStickPainter()
     EM::EMObject* emobj = EM::FSSMan().getObject( emid_ );
     if ( emobj )
     {
-	emobj->change.remove( mCB(this,FaultStickPainter,fssChangedCB) );
+	emobj->objectChanged().remove(
+		mCB(this,FaultStickPainter,fssChangedCB) );
 	emobj->unRef();
     }
 
@@ -374,45 +376,37 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 
     if ( emobject->id() != emid_ ) return;
 
-    switch ( cbdata.event )
+    if ( cbdata.changeType() == EM::EMObject::cUndefChange() )
+	return;
+    else if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
     {
-	case EM::EMObjectCallbackData::Undef:
-	    break;
-	case EM::EMObjectCallbackData::PrefColorChange:
+	for ( int oidx=0; oidx<sectionmarkerlines_.size(); oidx++ )
+	{
+	    if ( !sectionmarkerlines_[oidx] ) continue;
+	    ObjectSet<StkMarkerInfo>& stmkrinfos =
+					*sectionmarkerlines_[oidx];
+
+	    for( int iidx=0; iidx<stmkrinfos.size(); iidx++ )
 	    {
-		for ( int oidx=0; oidx<sectionmarkerlines_.size(); oidx++ )
-		{
-		    if ( !sectionmarkerlines_[oidx] ) continue;
-		    ObjectSet<StkMarkerInfo>& stmkrinfos =
-						*sectionmarkerlines_[oidx];
+		if ( !stmkrinfos[iidx] ) continue;
 
-		    for( int iidx=0; iidx<stmkrinfos.size(); iidx++ )
-		    {
-			if ( !stmkrinfos[iidx] ) continue;
-
-			stmkrinfos[iidx]->marker_->linestyle_.color_ =
-							emfss->preferredColor();
-			viewer_.updateProperties( *stmkrinfos[iidx]->marker_ );
-		    }
-		}
-		break;
+		stmkrinfos[iidx]->marker_->linestyle_.color_ =
+						emfss->preferredColor();
+		viewer_.updateProperties( *stmkrinfos[iidx]->marker_ );
 	    }
-	case EM::EMObjectCallbackData::PositionChange:
-	{
-	    if ( emfss->hasBurstAlert() )
-		return;
-	    repaintFSS();
-	    break;
 	}
-	case EM::EMObjectCallbackData::BurstAlert:
-	{
-	    if (  emobject->hasBurstAlert() )
-		return;
-	    repaintFSS();
-	    break;
-	}
-	default:
-	    break;
+    }
+    else if ( cbdata.changeType() == EM::EMObject::cPositionChange() )
+    {
+	if ( emfss->hasBurstAlert() )
+	    return;
+	repaintFSS();
+    }
+    else if ( cbdata.changeType() == EM::EMObject::cBurstAlert() )
+    {
+	if (  emobject->hasBurstAlert() )
+	    return;
+	repaintFSS();
     }
 }
 

@@ -35,7 +35,7 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
     if ( emobj )
     {
 	emobj->ref();
-	emobj->change.notify( mCB(this,HorizonPainter2D,horChangeCB) );
+	emobj->objectChanged().notify( mCB(this,HorizonPainter2D,horChangeCB) );
     }
 }
 
@@ -46,7 +46,7 @@ HorizonPainter2D::~HorizonPainter2D()
     EM::EMObject* emobj = EM::Hor2DMan().getObject( id_ );
     if ( emobj )
     {
-	emobj->change.remove( mCB(this,HorizonPainter2D,horChangeCB) );
+	emobj->objectChanged().remove( mCB(this,HorizonPainter2D,horChangeCB) );
 	emobj->unRef();
     }
 
@@ -186,29 +186,17 @@ void HorizonPainter2D::horChangeCB( CallBacker* cb )
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
-    switch ( cbdata.event )
+    if ( cbdata.changeType() == EM::EMObject::cUndefChange() )
+	return;
+    else if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+	changePolyLineColor();
+    else if ( cbdata.changeType() == EM::EMObject::cAttribChange() )
+	paint();
+    else if ( cbdata.changeType() == EM::EMObject::cBurstAlert() )
     {
-	case EM::EMObjectCallbackData::Undef:
-	    break;
-	case EM::EMObjectCallbackData::PrefColorChange:
-	    {
-		changePolyLineColor();
-		break;
-	    }
-	case EM::EMObjectCallbackData::AttribChange:
-	    {
-		paint();
-		break;
-	    }
-	case EM::EMObjectCallbackData::BurstAlert:
-	    {
-		if ( emobject->hasBurstAlert() )
-		    return;
-		paint();
-		break;
-	    }
-	default:
-	    break;
+	if ( emobject->hasBurstAlert() )
+	    return;
+	paint();
     }
 }
 

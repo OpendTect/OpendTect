@@ -80,7 +80,7 @@ bool Fault::insertStick(int sticknr,int firstcol,
     const bool ret = geometry().
 	insertStick( 0, sticknr, firstcol, pos,editnormal,
 			pickeddbkey, pickednm, addtohistory );
-    mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+    mSendEMCBNotif( EMObject::cBurstAlert() );
     return ret;
 }
 
@@ -92,7 +92,7 @@ bool Fault::insertStick( int sticknr, int firstcol, const Coord3& pos,
      mLock4Write();
      const bool ret =  geometry().
 		insertStick( 0, sticknr, firstcol, pos,editnormal,addtohistory);
-     mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+     mSendEMCBNotif( EMObject::cBurstAlert() );
      return ret;
 }
 
@@ -104,7 +104,7 @@ bool Fault::insertStick(int sticknr,int firstcol,
      mLock4Write();
      const bool ret = geometry().
 		insertStick( 0, sticknr, firstcol, pos,editnormal,addtohistory);
-     mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+     mSendEMCBNotif( EMObject::cBurstAlert() );
      return ret;
 }
 
@@ -113,7 +113,7 @@ bool Fault::insertKnot( const SubID& subid, const Coord3& pos , bool adtoh )
 {
     mLock4Write();
     const bool ret = geometry().insertKnot( 0, subid, pos, adtoh );
-    mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+    mSendEMCBNotif( EMObject::cBurstAlert() );
     return ret;
 }
 
@@ -122,7 +122,7 @@ bool Fault::removeStick( int sticknr, bool addtohistory )
 {
     mLock4Write();
     const bool ret =  geometry().removeStick( 0, sticknr, addtohistory );
-    mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+    mSendEMCBNotif( EMObject::cBurstAlert() );
     return ret;
 }
 
@@ -131,7 +131,7 @@ bool Fault::removeKnot( const SubID& sid, bool addtoh )
 {
     mLock4Write();
     const bool ret = geometry().removeKnot( 0, sid, addtoh );
-    mSendEMCBNotif( EMObjectCallbackData::BurstAlert );
+    mSendEMCBNotif( EMObject::cBurstAlert() );
     return ret;
 }
 

@@ -292,33 +292,15 @@ void uiODVw2DFaultSSTreeItem::displayMiniCtab()
 }
 
 
-#define mGetEMCBData( cbid ) \
-    mGetMonitoredChgDataWithCaller( cb, chgdata, caller ); \
-    mGetIDFromChgData( EM::EMCBID, cbid, chgdata ); \
-    mDynamicCastGet(EM::EMObject*,emobj,caller); \
-    if ( !emobj || !emobj->getEMCBData(cbid) ) return; \
-    const EM::EMObjectCallbackData& cbdata = *emobj->getEMCBData( cbid ); \
-
 void uiODVw2DFaultSSTreeItem::emobjChangeCB( CallBacker* cb )
 {
-    mGetEMCBData( cbid )
-
-    switch( cbdata.event )
+    mGetMonitoredChgData( cb, cbdata );
+    if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+	displayMiniCtab();
+    else if ( cbdata.changeType() == EM::EMObject::cNameChange() )
     {
-	case EM::EMObjectCallbackData::Undef:
-	    break;
-	case EM::EMObjectCallbackData::PrefColorChange:
-	{
-	    displayMiniCtab();
-	    break;
-	}
-	case EM::EMObjectCallbackData::NameChange:
-	{
-	    name_ = toUiString(DBM().nameOf( emid_ ));
-	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
-	    break;
-	}
-	default: break;
+	name_ = toUiString(DBM().nameOf( emid_ ));
+	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
 }
 

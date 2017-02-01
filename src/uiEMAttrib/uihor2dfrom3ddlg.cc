@@ -95,12 +95,12 @@ bool uiHor2DFrom3DDlg::acceptOK()
     uiTaskRunner writedlg( this );
     TaskRunner::execute( &writedlg, *saver );
 
-    EM::EMObjectCallbackData cbdata;
-    cbdata.event = EM::EMObjectCallbackData::PositionChange;
+    EM::EMObjectCallbackData cbdata( EM::EMObject::cPositionChange(),
+				     Monitorable::ChangeData::cUnspecChgID() );
     saver = 0;
     if ( doDisplay() )
     {
-	horizon2d->change.trigger( cbdata );
+	horizon2d->objectChanged().trigger( cbdata );
 	horizon2d->unRefNoDelete();
     }
     else

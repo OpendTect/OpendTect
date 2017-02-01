@@ -169,11 +169,6 @@ bool Fault3DGeometry::insertStick( const SectionID& sid, int sticknr,
 	Flt3DMan().undo().addEvent( undo, 0 );
     }
 
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
-
     return true;
 }
 
@@ -207,11 +202,6 @@ bool Fault3DGeometry::removeStick( const SectionID& sid, int sticknr,
 	Flt3DMan().undo().addEvent( undo, 0 );
     }
 
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
-
     return true;
 }
 
@@ -230,11 +220,6 @@ bool Fault3DGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 	UndoEvent* undo = new FaultKnotUndoEvent( posid );
 	Flt3DMan().undo().addEvent( undo, 0 );
     }
-
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
 
     return true;
 }
@@ -293,11 +278,6 @@ bool Fault3DGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 	UndoEvent* undo = new FaultKnotUndoEvent( posid, pos );
 	Flt3DMan().undo().addEvent( undo, 0 );
     }
-
-    surface_.setChangedFlag();
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::BurstAlert;
-    surface_.change.trigger( cbdata );
 
     return true;
 }

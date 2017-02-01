@@ -41,7 +41,7 @@ class EMManager;
 \brief EM object callback data.
 */
 
-typedef Monitorable::ChangeData EMChangeData;
+typedef Monitorable::ChangeData EMObjectCallbackData;
 
 mExpClass(EarthModel) EMChangeAuxData : public Monitorable::ChangeData::AuxData
 {
@@ -272,6 +272,8 @@ public:
     static int			sSeedNode();
     static int			sIntersectionNode();
 
+    static ChangeType		cUndefChange()
+				{ return ChangeData::cNoChgType(); }
     static ChangeType		cPositionChange()	{ return 2; }
     static ChangeType		cPrefColorChange()	{ return 3; }
     static ChangeType		cSelColorChange()	{ return 4; }
@@ -303,8 +305,6 @@ protected:
     virtual void		prepareForDelete();
     void			posIDChangeCB(CallBacker*);
     void			useDisplayPars(const IOPar&);
-
-    EMChangeData*		getNewEMCBData();
 
     BufferString		objname_;
     DBKey			storageid_;
@@ -339,6 +339,11 @@ public:
     mDeprecated const DBKey&	multiID() const		{ return storageid_; }
     mDeprecated void		setMultiID( const DBKey& k ) { setDBKey(k); }
     static Color		sDefaultSelectionColor();
+
+				//TODO:Remove when all EMObjects are Montorable
+    void			sendEMNotifFromOutside(
+					const EMObjectCallbackData& c) const
+				{ mLock4Read(); sendChgNotif(accesslocker_,c); }
 };
 
 } // namespace EM
@@ -391,15 +396,24 @@ void clss::setNewName() \
 
 
 #define mSendEMCBNotifWithData( typ, data ) \
-    ChangeData cd( typ, ChangeData::cUnspecChgID(), data ); \
+    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), \
+			     data ); \
     sendChgNotif( accesslocker_, cd );
 
 #define mSendEMCBNotifPosID( typ, pid ) \
     setChangedFlag(); \
     RefMan<EMChangeAuxData> data = new EMChangeAuxData; \
     data->pid0 = pid; \
-    ChangeData cd( typ, ChangeData::cUnspecChgID(), data ); \
+    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), \
+			     data ); \
     sendChgNotif( accesslocker_, cd );
 
 #define mSendEMCBNotif( typ ) \
-    mSendEMCBNotifPosID( typ, EM::PosID() );
+    setChangedFlag(); \
+    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), 0); \
+    sendChgNotif( accesslocker_, cd );
+
+#define mSendEMSurfNotif( typ ) \
+    surface_.setChangedFlag(); \
+    EMObjectCallbackData cd( typ, Monitorable::ChangeData::cUnspecChgID(), 0); \
+    surface_.sendEMNotifFromOutside( cd );

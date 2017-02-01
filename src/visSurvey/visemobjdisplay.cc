@@ -237,7 +237,8 @@ void EMObjectDisplay::removeEMStuff()
 
     if ( emobject_ )
     {
-	emobject_->change.remove( mCB(this,EMObjectDisplay,emChangeCB));
+	emobject_->objectChanged().remove(
+		mCB(this,EMObjectDisplay,emChangeCB));
 	const int trackeridx =
 	    MPE::engine().getTrackerByObject(emobject_->id());
 	if ( trackeridx >= 0 )
@@ -262,7 +263,7 @@ bool EMObjectDisplay::setEMObject( const DBKey& newid, TaskRunner* tskr )
 
     emobject_ = emobject;
     emobject_->ref();
-    emobject_->change.notify( mCB(this,EMObjectDisplay,emChangeCB) );
+    emobject_->objectChanged().notify( mCB(this,EMObjectDisplay,emChangeCB) );
 
     if ( nontexturecolisset_ )
 	emobject_->setPreferredColor( nontexturecol_ );
@@ -887,26 +888,10 @@ void EMObjectDisplay::unSelectAll()
 
 void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 {
-   bool triggermovement = false;
-   if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
-    {
-	const EM::SectionID sectionid = cbdata.pid0.sectionID();
-	if ( emobject_->sectionIndex(sectionid)>=0 )
-	{
-	    if ( emobject_->hasBurstAlert() )
-		addsectionids_ += sectionid;
-	    else
-		addSection( sectionid, 0 );
-	}
-	else
-	{
-	    removeSectionDisplay(sectionid);
-	    hasmoved.trigger();
-	}
-
-	triggermovement = true;
-    }
-    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert)
+    bool triggermovement = false;
+    ConstRefMan<EM::EMChangeAuxData> cbaux =
+				cbdata.auxDataAs<EM::EMChangeAuxData>();
+    if ( cbdata.changeType()==EM::EMObject::cBurstAlert())
     {
 	burstalertison_ = !burstalertison_;
 	if ( !burstalertison_ )
@@ -924,7 +909,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	}
 
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+    else if ( cbdata.changeType()==EM::EMObject::cPositionChange() && cbaux )
     {
 	if ( !burstalertison_ )
 	{
@@ -932,7 +917,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	    {
 		const TypeSet<EM::PosID>* pids =
 			emobject_->getPosAttribList(posattribs_[idx]);
-		if ( !pids || !pids->isPresent(cbdata.pid0) )
+		if ( !pids || !pids->isPresent(cbaux->pid0) )
 		    continue;
 
 		updatePosAttrib(posattribs_[idx]);
@@ -940,12 +925,12 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	    triggermovement = true;
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
+    else if ( cbdata.changeType()==EM::EMObject::cAttribChange() && cbaux )
     {
-	if ( !burstalertison_ && posattribs_.isPresent(cbdata.attrib) )
-	    updatePosAttrib(cbdata.attrib);
+	if ( !burstalertison_ && posattribs_.isPresent(cbaux->attrib) )
+	    updatePosAttrib(cbaux->attrib);
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::LockChange )
+    else if ( cbdata.changeType()==EM::EMObject::cLockChange() )
     {
 	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
 	if ( hor3d )
@@ -954,7 +939,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 		updatePosAttrib( posattribs_[idx] );
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::LockColorChange )
+    else if ( cbdata.changeType()==EM::EMObject::cLockColorChange() )
     {
 	updateLockedSeedsColor();
     }

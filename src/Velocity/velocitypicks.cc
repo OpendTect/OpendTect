@@ -132,7 +132,8 @@ void Picks::removeHorizons()
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
 	if ( horizons_[idx] )
-	    horizons_[idx]->change.remove( mCB(this,Picks,horizonChangeCB) );
+	    horizons_[idx]->objectChanged().remove(
+				mCB(this,Picks,horizonChangeCB) );
     }
 
     deepUnRef( horizons_ );
@@ -530,12 +531,11 @@ void Picks::horizonChangeCB( CallBacker* cb )
 {
     if ( !cb ) return;
 
-    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&, cbdata,
-				caller, cb );
-    if ( cbdata.event==EM::EMObjectCallbackData::PosIDChange ||
-	 cbdata.event==EM::EMObjectCallbackData::AttribChange ||
-	 cbdata.event==EM::EMObjectCallbackData::PrefColorChange ||
-	 cbdata.event==EM::EMObjectCallbackData::SectionChange )
+    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData, cbdata, caller, cb );
+    if ( cbdata.changeType()==EM::EMObject::cPosIDChange() ||
+	 cbdata.changeType()==EM::EMObject::cAttribChange() ||
+	 cbdata.changeType()==EM::EMObject::cPrefColorChange() ||
+	 cbdata.changeType()==EM::EMObject::cSectionChange() )
 	return;
 
     mDynamicCastGet( const EM::Horizon3D*, hor, caller );
@@ -543,13 +543,15 @@ void Picks::horizonChangeCB( CallBacker* cb )
 	return;
 
     TypeSet<RowCol> rcs;
-    if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
+    if ( cbdata.changeType()==EM::EMObject::cBurstAlert() )
     {
 	get( hor->id(), rcs );
     }
     else
     {
-	BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
+	RefMan<EM::EMChangeAuxData> cbauxdata =
+			cbdata.auxDataAs<EM::EMChangeAuxData>();
+	BinID bid = BinID::fromInt64( cbauxdata->pid0.subID() );
 	RowCol arrpos;
 	BinID curbid;
 	if ( picks_.findFirst( bid, arrpos ) )
@@ -608,7 +610,7 @@ void Picks::addHorizon( EM::Horizon3D* hor )
     if ( hor )
     {
 	hor->ref();
-	hor->change.notify( mCB(this,Picks,horizonChangeCB) );
+	hor->objectChanged().notify( mCB(this,Picks,horizonChangeCB) );
     }
 }
 
@@ -629,7 +631,7 @@ void Picks::removeHorizon( const DBKey& id )
 	if ( horizons_[idx] && horizons_[idx]->id()==id )
 	{
 	    //TODO: Remove all picks on this horizon.
-	    horizons_[idx]->change.remove(
+	    horizons_[idx]->objectChanged().remove(
 		    mCB(this,Picks,horizonChangeCB) );
 	    horizons_.removeSingle( idx )->unRef();
 	    return;

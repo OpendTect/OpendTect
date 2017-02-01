@@ -903,9 +903,6 @@ bool uiEMPartServer::storeObject( const DBKey& id, bool storeas,
 	}
     }
 
-    EM::EMObjectCallbackData cbdata;
-    cbdata.event = EM::EMObjectCallbackData::NameChange;
-    object->change.trigger( cbdata );
     object->resetChangedFlag();
     storagekey = key;
     uiTaskRunner exdlg( parent() );

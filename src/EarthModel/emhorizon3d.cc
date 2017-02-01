@@ -1072,17 +1072,14 @@ bool Horizon3D::selectChildren( const TrcKey& node )
 {
     if ( !children_ ) return false;
 
+    mLock4Write();
     children_->setAll( '0' );
     od_int64 gidx = trackingsamp_.globalIdx( node );
     ChildFinder cf( trackingsamp_, *parents_, *children_ );
     cf.addTask( gidx );
     const bool res = cf.execute();
     if ( res )
-    {
-	EMObjectCallbackData cbdata;
-	cbdata.event = EMObjectCallbackData::SelectionChange;
-	change.trigger( cbdata );
-    }
+	mSendEMCBNotif( EMObject::cSelectionChange() );
 
     return res;
 }
@@ -1153,6 +1150,7 @@ void Horizon3D::lockAll()
     PtrMan<EMObjectIterator> it = createIterator( sectionID(0) );
     if ( !it ) return;
 
+    mLock4Write();
     while ( true )
     {
 	const PosID pid = it->next();
@@ -1168,9 +1166,7 @@ void Horizon3D::lockAll()
 
     haslockednodes_ = true;
 
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::LockChange;
-    change.trigger( cbdata );
+    mSendEMCBNotif( EMObject::cLockChange() );
 }
 
 
@@ -1178,12 +1174,11 @@ void Horizon3D::unlockAll()
 {
     if ( !lockednodes_ ) return;
 
+    mLock4Write();
     haslockednodes_ = false;
     lockednodes_->setAll( '0' );
 
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::LockChange;
-    change.trigger( cbdata );
+    mSendEMCBNotif( EMObject::cLockChange() );
 }
 
 
@@ -1193,10 +1188,9 @@ const Array2D<char>* Horizon3D::getLockedNodes() const
 
 void Horizon3D::setParentColor( const Color& col )
 {
+    mLock4Write();
     parentcolor_ = col;
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::ParentColorChange;
-    change.trigger( cbdata );
+    mSendEMCBNotif( EMObject::cParentColorChange() );
 }
 
 
@@ -1206,10 +1200,9 @@ const Color& Horizon3D::getParentColor() const
 
 void Horizon3D::setLockColor( const Color& col )
 {
+    mLock4Write();
     lockcolor_ = col;
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::LockColorChange;
-    change.trigger( cbdata );
+    mSendEMCBNotif( EMObject::cLockColorChange() );
 }
 
 const Color Horizon3D::getLockColor() const

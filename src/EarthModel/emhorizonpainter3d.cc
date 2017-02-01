@@ -38,7 +38,7 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
     if ( emobj )
     {
 	emobj->ref();
-	emobj->change.notify( mCB(this,HorizonPainter3D,horChangeCB) );
+	emobj->objectChanged().notify( mCB(this,HorizonPainter3D,horChangeCB) );
     }
     updatesamplings_.init( false );
 }
@@ -52,7 +52,7 @@ HorizonPainter3D::~HorizonPainter3D()
     {
 	emobj->removePosAttribList(
 	    EM::EMObject::sIntersectionNode(), false );
-	emobj->change.remove( mCB(this,HorizonPainter3D,horChangeCB) );
+	emobj->objectChanged().remove( mCB(this,HorizonPainter3D,horChangeCB) );
 	emobj->unRef();
     }
 
@@ -295,50 +295,41 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 
 void HorizonPainter3D::horChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-				cbdata, caller, cb );
+    mCBCapsuleUnpackWithCaller( EM::EMObjectCallbackData, cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
-    switch ( cbdata.event )
+    if ( cbdata.changeType() == EM::EMObject::cUndefChange() )
+	return;
+    else if ( cbdata.changeType() == EM::EMObject::cPrefColorChange() )
+	changePolyLineColor();
+    else if ( cbdata.changeType() == EM::EMObject::cAttribChange() )
+	paint();
+    else if ( cbdata.changeType() == EM::EMObject::cPositionChange() )
     {
-	case EM::EMObjectCallbackData::Undef:
-	    break;
-	case EM::EMObjectCallbackData::PrefColorChange:
-	    {
-		changePolyLineColor();
-		break;
-	    }
-	case EM::EMObjectCallbackData::AttribChange:
-	    {
-		paint();
-		break;
-	    }
-	case EM::EMObjectCallbackData::PositionChange:
-	    {
-		if ( emobject->hasBurstAlert() )
-		    return;
+	if ( emobject->hasBurstAlert() )
+	    return;
 
-		const BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
-		const TrcKey tk = Survey::GM().traceKey(
-			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
-		if ( tkzs_.hsamp_.includes(bid) ||
-		    (path_&&path_->isPresent(tk)) )
-		{
-		    changePolyLinePosition( cbdata.pid0 );
-		    viewer_.handleChange( FlatView::Viewer::Auxdata );
-		}
+	RefMan<EM::EMChangeAuxData> cbauxdata =
+			cbdata.auxDataAs<EM::EMChangeAuxData>();
+	if ( !cbauxdata )
+	    return;
 
-		break;
-	    }
-	case EM::EMObjectCallbackData::BurstAlert:
-	    {
-		if ( emobject->hasBurstAlert() )
-		    return;
-		paint();
-		break;
-	    }
-	default: break;
+	const BinID bid = BinID::fromInt64( cbauxdata->pid0.subID() );
+	const TrcKey tk = Survey::GM().traceKey(
+		Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+	if ( tkzs_.hsamp_.includes(bid) ||
+	    (path_&&path_->isPresent(tk)) )
+	{
+	    changePolyLinePosition( cbauxdata->pid0 );
+	    viewer_.handleChange( FlatView::Viewer::Auxdata );
+	}
+    }
+    else if ( cbdata.changeType() == EM::EMObject::cBurstAlert() )
+    {
+	if ( emobject->hasBurstAlert() )
+	    return;
+	paint();
     }
 }
 
