@@ -44,7 +44,7 @@ WellLogInfo( const DBKey& mid, const char* lognm, Well::ExtractParams params )
     , track_(0)
 {}
 
-bool init()
+bool init( const InterpolationLayerModel& layermodel, bool extend )
 {
     const bool zistime = SI().zIsTime();
     RefMan<Well::Data> wd = Well::MGR().fetchForEdit( dbky_,
@@ -58,15 +58,13 @@ bool init()
 	track_->toTime( *wd );
 
     wd_ = wd;
-    range_ = wd_->track().dahRange();
-    params_.getDahRange( *wd_, range_ );
 
-    return applyFilter();
+    return applyFilter( layermodel, extend );
 }
 
 #define cLogStepFact 10
 
-bool applyFilter()
+bool applyFilter( const InterpolationLayerModel& layermodel, bool extend )
 {
     if ( log_ )
 	log_->unRef();
@@ -88,13 +86,14 @@ bool applyFilter()
     ObjectSet<const Well::Log> logs;
     logs += inplog;
     Well::LogSampler ls( d2t, &track, zrg, zintime, extractstep, zintime,
-			 Stats::UseAvg, logs ),
+			 params_.samppol_, logs ),
 		     lsnear( d2t, &track, zrg, zintime, extractstep, zintime,
 			     Stats::TakeNearest, logs );
     if ( !ls.execute() || !lsnear.execute() )
 	return false;
 
     const BufferString newlognm( inplog->name(), " filtered" );
+    const Interval<float> mdrange( inplog->dahRange() );
     ml.unlockNow();
 
     const int nrz = ls.nrZSamples();
@@ -132,39 +131,37 @@ bool applyFilter()
     log_ = filteredlog;
     wd_->logs().add( filteredlog );
 
-    return true;
+    return createInterpolationFunctions( layermodel, extend, mdrange );
 }
 
-void computeLayerModelIntersection(
-	const InterpolationLayerModel& layermodel )
+bool createInterpolationFunctions( const InterpolationLayerModel& layermodel,
+				   bool extend, const Interval<float> mdrg )
 {
-    intersections_.setSize( layermodel.nrLayers(), mUdf(float) );
-    StepInterval<float> dahrg = track_->dahRange();
-    dahrg.step = 5;
+    logfunc_.setEmpty();
+    mdfunc_.setEmpty();
 
-    const int nrdah = dahrg.nrSteps() + 1;
-    for ( int lidx=0; lidx<layermodel.nrLayers(); lidx++ )
+    const TrcKeySampling& hsamp = bbox_.hsamp_;
+    Interval<float> range( mdrg );
+    if ( !extend )
+	params_.getDahRange( *wd_, range );
+
+    Well::LogIter iter( *log_ );
+    while ( iter.next() )
     {
-	for ( int dahidx=1; dahidx<nrdah; dahidx++ )
-	{
-	    const float prevdah = dahrg.atIndex( dahidx-1 );
-	    const float dah = dahrg.atIndex( dahidx );
-	    const Coord3 prevpos = track_->getPos( prevdah );
-	    const Coord3 pos = track_->getPos( dah );
-	    const float prevlayerz =
-		layermodel.getZ( SI().transform(prevpos.getXY()), lidx );
-	    const float layerz =
-		layermodel.getZ( SI().transform(pos.getXY()), lidx );
-	    const float avgz = (prevlayerz+layerz) / 2;
-	    if ( avgz>=prevpos.z_ && avgz<pos.z_ )
-	    {
-		const float slope = (dah-prevdah) / float(pos.z_-prevpos.z_);
-		const float calcdah = prevdah + slope*float(avgz-prevpos.z_);
-		intersections_[lidx] = calcdah;
-		break;
-	    }
-	}
+	const float md = iter.dah();
+	const Coord3 pos = track_->getPos( md );
+	const BinID bid = hsamp.toTrcKey( pos.getXY() ).position();
+	const float layerz = layermodel.getLayerIndex( bid, pos.z_ );
+	const float logval = iter.value();
+	if ( mIsUdf(layerz) || mIsUdf(logval) ||
+		( !extend && !range.includes(md,false) ) )
+	    continue;
+
+	logfunc_.add( layerz, logval );
+	mdfunc_.add( layerz, md );
     }
+
+    return !logfunc_.isEmpty();
 }
 
 
@@ -174,14 +171,13 @@ RefMan<Well::Data>	wd_;
 TrcKeyZSampling		bbox_;
 DBKey			dbky_;
 BufferString		logname_;
-TypeSet<float>		intersections_;
-StepInterval<float>	range_;
 Well::ExtractParams	params_;
+PointBasedMathFunction	logfunc_;
+PointBasedMathFunction	mdfunc_;
 
 };
 
 
-#define mDefWinSz SI().zIsTime() ? log->dahStep(true)*20 : SI().zStep()
 
 WellLogInterpolator::WellLogInterpolator()
     : gridder_(0)
@@ -200,8 +196,8 @@ WellLogInterpolator::~WellLogInterpolator()
 void WellLogInterpolator::releaseData()
 {
     Step::releaseData();
-    delete gridder_; gridder_ = 0;
-    delete layermodel_; layermodel_ = 0;
+    deleteAndZeroPtr( gridder_ );
+    deleteAndZeroPtr( layermodel_ );
     deepErase( infos_ );
     params_.setEmpty();
 }
@@ -319,7 +315,7 @@ bool WellLogInterpolator::prepareComp( int )
     {
 	WellLogInfo* info = new WellLogInfo( wellmids_[idx], logname_,
 								    params_ );
-	if ( !info->init() )
+	if ( !info->init(*layermodel_,extlog_) )
 	{
 	    if ( info->wd_ )
 	    {
@@ -336,36 +332,10 @@ bool WellLogInterpolator::prepareComp( int )
 	    return false;
 	}
 
-	info->computeLayerModelIntersection( *layermodel_ );
 	infos_ += info;
     }
 
     return true;
-}
-
-
-static TypeSet<float> getMDs( const WellLogInfo& info, float layeridx )
-{
-    TypeSet<float> mds;
-    const float fidx0 = Math::Floor( layeridx );
-    const float fidx1 = Math::Ceil( layeridx );
-    const int idx0 = mNINT32(fidx0);
-    const int idx1 = mNINT32(fidx1);
-    if ( !info.intersections_.validIdx(idx0) ||
-	 !info.intersections_.validIdx(idx1) )
-	return mds;
-
-    const float dah0 = info.intersections_[idx0];
-    const float dah1 = info.intersections_[idx1];
-    if ( mIsZero(fidx1-fidx0,mDefEps) )
-	mds += dah0;
-    else
-    {
-	const float slope = (dah1-dah0) / (fidx1-fidx0);
-	mds += dah0 + slope*(layeridx-fidx0);
-    }
-
-    return mds;
 }
 
 
@@ -382,91 +352,52 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     Array3D<float>& outputarray = output->data(0);
-    const int lastzidx = outputarray.info().getSize(2) - 1;
+    const int nrz = output->sampling().nrZ();
+    const int nrwells = infos_.size();
 
-    BinID nearbid = bid;
-
-
-    PtrMan<Gridder2D> gridder = gridder_->clone();
     const TrcKeySampling& hs = output->sampling().hsamp_;
-    const Coord gridpoint( hs.toCoord(nearbid) );
-
-    mAllocVarLenArr(float,vals,lastzidx+1);
-    int lasthcidx=-1, firsthcidx=-1;
-    for ( int idx=lastzidx; idx>=0; idx-- )
-    {
-	vals[idx] = mUdf(float);
-	const float z = output->sampling().zsamp_.atIndex( idx );
-	const float layeridx = layermodel_->getLayerIndex( bid, z );
-	if ( mIsUdf(layeridx) ) continue;
-
-	TypeSet<Coord> wellposes;
-	TypeSet<float> logvals;
-
-	for ( int idy=0; idy<infos_.size(); idy++ )
-	{
-	    if ( !infos_.validIdx(idy) ) continue;
-	    WellLogInfo* info = infos_[idy];
-	    const Well::Log* log = info ? info->log_ : 0;
-	    if ( !log ) continue;
-
-	    TypeSet<float> mds = getMDs( *info, layeridx );
-
-	    if ( mds.isEmpty() || mIsUdf(mds[0]) )
-		continue;
-
-	    const Coord3 pos = info->track_->getPos( mds[0] );
-	    if ( pos.isUdf() )
-		continue;
-
-	    if ( !info->range_.isUdf() )
-	    {
-		if ( !info->range_.includes( mds[0], false ) ) continue;
-	    }
-	    float lv = Well::LogDataExtracter::calcVal( *log, mds[0],
-					    mDefWinSz, params_.samppol_ );
-
-
-	    if ( mIsUdf(lv) )
-		continue;
-
-	    wellposes += pos.getXY();
-	    logvals += lv;
-	}
-
-
-
-	gridder->setPoints( wellposes );
-	gridder->setValues( logvals );
-	vals[idx] = gridder->getValue( gridpoint );
-	if ( extension_==None )
-	    continue;
-
-	if ( lasthcidx==-1 )
-	{
-	    lasthcidx = idx;
-	    firsthcidx = idx;
-	}
-	else if ( idx<firsthcidx )
-	    firsthcidx = idx;
-    }
-
     const int outputinlidx = outputinlrg_.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg_.nearestIndex( bid.crl() );
-    const bool useextension = extension_!=None && lasthcidx!=-1;
-    for ( int idx=lastzidx; idx>=0; idx-- )
+    const Coord gridpoint( hs.toCoord(bid) );
+    Gridder2D* gridder = gridder_->clone();
+    TypeSet<Coord> points;
+    TypeSet<float> logvals;
+    for ( int idz=0; idz<nrz; idz++ )
     {
-	float val = vals[idx];
-	if ( useextension )
+	const float z = output->sampling().zsamp_.atIndex( idz );
+	const float layeridx = layermodel_->getLayerIndex( bid, z );
+	if ( mIsUdf(layeridx) )
 	{
-	    if ( idx>lasthcidx )
-		val = vals[lasthcidx];
-	    else if ( idx<firsthcidx )
-		val = vals[firsthcidx];
+	    outputarray.set( outputinlidx, outputcrlidx, idz, mUdf(float) );
+	    continue;
 	}
 
-	outputarray.set( outputinlidx, outputcrlidx, idx, val );
+	points.setEmpty();
+	logvals.setEmpty();
+	for ( int iwell=0; iwell<nrwells; iwell++ )
+	{
+	    const float md = infos_[iwell]->mdfunc_.getValue( layeridx );
+	    const Coord pos = infos_[iwell]->track_->getPos( md ).getXY();
+	    const float logval = infos_[iwell]->logfunc_.getValue( layeridx );
+	    if ( mIsUdf(md) || mIsUdf(logval) || mIsUdf(pos) )
+		continue;
+
+	    points += pos;
+	    logvals += logval;
+	}
+
+	if ( points.isEmpty() || !gridder->setPoints(points) ||
+	     !gridder->setValues(logvals) )
+	{
+	    outputarray.set( outputinlidx, outputcrlidx, idz, mUdf(float) );
+	    continue;
+	}
+
+	const float val = gridder->getValue( gridpoint );
+	outputarray.set( outputinlidx, outputcrlidx, idz, val );
     }
+
+    delete gridder;
 
     return true;
 }
