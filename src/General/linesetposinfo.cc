@@ -147,3 +147,13 @@ void PosInfo::LineSet2DData::compDistBetwTrcsStats()
 	trcdiststatsperlines_ += ltrcdiststats;
     }
 }
+
+
+BinID PosInfo::LineSet2DData::getElementStepout( const char* linenm ) const
+{
+    const Line2DData* l2dd = getLineData( linenm );
+    if ( l2dd )
+	return BinID( 1, l2dd->trcNrRange().step );
+
+    return BinID(1,1);
+}

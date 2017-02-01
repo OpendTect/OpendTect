@@ -1710,6 +1710,24 @@ bool Provider::compDistBetwTrcsStats( bool force )
 }
 
 
+//Cannot make it a virtual function in 6.0
+BinID Provider::getElementStepout() const
+{
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+	if ( !inputs_[idx] ) continue;
+	mDynamicCastGet( StorageProvider*, inpatidx,
+			 const_cast<Attrib::Provider*>(this)->inputs_[idx] );
+	if ( !inpatidx )
+	    return inputs_[idx]->getElementStepout();
+
+	return inpatidx->getElementStepoutStoredSpecial();
+    }
+
+    return BinID(1,1);
+}
+
+
 bool Provider::needStoredInput() const
 {
     bool needinput = false;

@@ -1007,4 +1007,16 @@ float StorageProvider::getDistBetwTrcs( bool ismax, const char* linenm ) const
 		     : mUdf(float);
 }
 
+
+BinID StorageProvider::getElementStepoutStoredSpecial() const
+{
+    if ( !ls2ddata_ )	//huh? should never happen, on the safe side anyway
+	const_cast<StorageProvider*>(this)->compDistBetwTrcsStats( true );
+
+    return ls2ddata_
+		? ls2ddata_->getElementStepout( Survey::GM().getName(geomid_) )
+		: BinID(1,1);
+}
+
+
 }; // namespace Attrib

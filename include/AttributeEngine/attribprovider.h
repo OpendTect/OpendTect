@@ -177,6 +177,7 @@ public:
     float			getApplicableCrlDist(bool) const;
     virtual float		getDistBetwTrcs(bool,
 	    					const char* linenm =0) const;
+    BinID			getElementStepout() const;
 
 protected:
 

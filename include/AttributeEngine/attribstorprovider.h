@@ -54,6 +54,7 @@ public:
     virtual void	getCompNames(BufferStringSet&) const;
     virtual float	getDistBetwTrcs(bool,const char* linenm =0) const;
     virtual bool	compDistBetwTrcsStats(bool force=false);
+    BinID		getElementStepoutStoredSpecial() const;
 
 protected:
 
@@ -101,6 +102,7 @@ protected:
 
     void		registerNewPosInfo(SeisTrc*,const BinID&,bool,bool&);
     bool                useInterTrcDist() const;
+			//to counter impossibility to create a virtual function
 
     TypeSet<BinDataDesc> datachar_;
     SeisMSCProvider*	mscprov_;

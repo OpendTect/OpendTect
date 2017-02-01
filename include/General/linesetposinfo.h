@@ -49,6 +49,7 @@ public:
     void		intersect(const BinIDValueSet&,ObjectSet<IR>&) const;
 
     float		getDistBetwTrcs(bool,const char* linenm =0) const;
+    BinID		getElementStepout(const char* linenm) const;
     void                compDistBetwTrcsStats();
     bool		areStatsComputed() const
 			{ return trcdiststatsperlines_.size(); }
