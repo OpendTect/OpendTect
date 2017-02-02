@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-#include "seisscanner.h"
+#include "seisstatscalc.h"
 
 #include "rangeposprovider.h"
 #include "seisioobjinfo.h"

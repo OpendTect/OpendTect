@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id: uivolprocregionfiller.cc 35352 2014-06
 #include "emregion.h"
 #include "emsurfaceposprov.h"
 #include "od_helpids.h"
-#include "seisscanner.h"
+#include "seisstatscalc.h"
 #include "seistrctr.h"
 #include "separstr.h"
 #include "survinfo.h"
