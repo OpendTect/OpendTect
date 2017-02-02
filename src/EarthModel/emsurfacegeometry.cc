@@ -57,7 +57,7 @@ void SurfaceGeometry::removeAll()
 
 void SurfaceGeometry::geomChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const EMObjectCallbackData&,cbdata,cb);
+    mCBCapsuleUnpack(EMObjectCallbackData,cbdata,cb);
     if ( cbdata.changeType() == EMObject::cPositionChange() )
        changed_ = true;
 }

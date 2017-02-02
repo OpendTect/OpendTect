@@ -474,7 +474,12 @@ void EMManager::levelSetChgCB( CallBacker* cb )
 
 Saveable* EMManager::getSaver( const SharedObject& shobj ) const
 {
-    ObjectSaver* objsaver = ObjectSaver::createObjectSaver( shobj );
+    mDynamicCastGet(const EMObject*,emobj,&shobj);
+    if ( !emobj )
+	return 0;
+
+    ObjectSaver* objsaver = ObjectSaver::factory().create( emobj->getTypeStr(),
+							   shobj );
     return objsaver;
 }
 

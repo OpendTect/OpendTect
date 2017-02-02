@@ -13,8 +13,12 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 
+#include "emfault3d.h"
+#include "emfaultstickset.h"
+#include "factory.h"
 #include "dbkey.h"
 #include "saveable.h"
+#include "uistrings.h"
 
 class Executor;
 class TaskRunner;
@@ -27,15 +31,13 @@ class EMObject;
 mExpClass(EarthModel) ObjectLoader
 {
 public:
-
-    static ObjectLoader* createObjectLoader(const DBKey&);
+    mDefineFactory1ParamInClass(ObjectLoader,const DBKeySet&,factory)
 
     virtual bool	load(TaskRunner*) = 0;
     virtual Executor*	getLoader() const = 0;
     ObjectSet<EMObject> getLoadedEMObjects() const { return emobjects_; }
 
 protected:
-			ObjectLoader(const DBKey&);
 			ObjectLoader(const DBKeySet&);
 
     DBKeySet		dbkeys_;
@@ -46,19 +48,24 @@ protected:
 mExpClass(EarthModel) FaultStickSetLoader : public ObjectLoader
 {
 public:
-			FaultStickSetLoader(const DBKey&);
+
+    mDefaultFactoryInstantiation1Param(ObjectLoader,
+				       FaultStickSetLoader,const DBKeySet&,
+				       EM::FaultStickSet::typeStr(),
+				       uiStrings::sFaultStickSet(mPlural))
+
 			FaultStickSetLoader(const DBKeySet&);
 
-     virtual bool	load(TaskRunner*);
-     virtual Executor*	getLoader() const;
+    virtual bool	load(TaskRunner*);
+    virtual Executor*	getLoader() const;
 
-     const DBKeySet&	tobeLodedKeys() const { return dbkeys_; }
-      bool		allOK() const
-			{ return dbkeys_.size() == loadedkeys_.size(); }
+    const DBKeySet&	tobeLodedKeys() const { return dbkeys_; }
+    bool		allOK() const
+			{ return notloadedkeys_.isEmpty(); }
 protected:
 
     void		addObject(EMObject* obj) { emobjects_ += obj; }
-    DBKeySet		loadedkeys_;
+    DBKeySet		notloadedkeys_;
     friend class	FSSLoaderExec;
 };
 
@@ -66,14 +73,18 @@ protected:
 mExpClass(EarthModel) Fault3DLoader : public ObjectLoader
 {
 public:
-			Fault3DLoader(const DBKey&);
+      mDefaultFactoryInstantiation1Param(ObjectLoader,
+				       Fault3DLoader,const DBKeySet&,
+				       Fault3D::typeStr(),
+				       uiStrings::sFault(mPlural))
+
 			Fault3DLoader(const DBKeySet&);
 
      virtual bool	load(TaskRunner*);
      virtual Executor*	getLoader() const;
 
      const DBKeySet&	tobeLodedKeys() const { return dbkeys_; }
-      bool		allOK() const
+     bool		allOK() const
 			{ return dbkeys_.size() == loadedkeys_.size(); }
 protected:
 
@@ -87,9 +98,9 @@ mExpClass(EarthModel) ObjectSaver : public Saveable
 {
 public:
 
-    static ObjectSaver* createObjectSaver(const SharedObject&);
+    mDefineFactory1ParamInClass(ObjectSaver,const SharedObject&,factory)
 
-			ObjectSaver(const EMObject&);
+			ObjectSaver(const SharedObject&);
 			mDeclMonitorableAssignment(ObjectSaver);
 			~ObjectSaver();
 
@@ -107,7 +118,11 @@ protected:
 mExpClass(EarthModel) FaultStickSetSaver : public ObjectSaver
 {
 public:
-			FaultStickSetSaver(const EMObject&);
+     mDefaultFactoryInstantiation1Param(ObjectSaver,
+				       FaultStickSetSaver,const SharedObject&,
+				       FaultStickSet::typeStr(),
+				       uiStrings::sFaultStickSet(mPlural))
+			FaultStickSetSaver(const SharedObject&);
 			~FaultStickSetSaver();
 protected:
 
@@ -118,7 +133,11 @@ protected:
 mExpClass(EarthModel) Fault3DSaver : public ObjectSaver
 {
 public:
-			Fault3DSaver(const EMObject&);
+     mDefaultFactoryInstantiation1Param(ObjectSaver,
+				       Fault3DSaver,const SharedObject&,
+				       Fault3D::typeStr(),
+				       uiStrings::sFault(mPlural))
+			Fault3DSaver(const SharedObject&);
 			~Fault3DSaver();
 protected:
 

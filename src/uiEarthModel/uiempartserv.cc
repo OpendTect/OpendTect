@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
+#include "emobjectio.h"
 #include "empolygonbody.h"
 #include "emposid.h"
 #include "emrandomposbody.h"
@@ -595,54 +596,14 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
     DBKeySet surfaceids;
     dlg.iogrp()->getSurfaceIds( surfaceids );
 
-    EM::SurfaceIOData sd;
-    EM::SurfaceIODataSelection sel( sd ), orisel( sd );
-    dlg.iogrp()->getSurfaceSelection( sel );
-
-    const bool hor3d = EMHorizon3DTranslatorGroup::sGroupName() == typ;
-
-    if ( hor3d )
-	selectedrg_ = sel.rg;
-
-    EM::EMManager& emm = EM::getMgr( typ );
-    DBKeySet idstobeloaded;
-    PtrMan<Executor> exec = emm.objectLoader(
-					     surfaceids,hor3d ? &sel : &orisel,
-					     &idstobeloaded);
-
-    for ( int idx=0; idx<surfaceids.size(); idx++ )
-    {
-	EM::EMObject* obj = emm.getObject( surfaceids[idx] );
-	if ( !obj ) continue;
-	obj->ref();
-	//obj->setDBKey( surfaceids.get(idx) );
-	objs += obj;
-    }
-
-    if ( objs.isEmpty() )
+    PtrMan<EM::ObjectLoader> emloader =
+			  EM::ObjectLoader::factory().create( typ, surfaceids );
+    if ( !emloader )
 	return;
 
-    ObjectSet<EM::EMObject> objstobeloaded;
-    for ( int idx=0; idx<idstobeloaded.size(); idx++ )
-    {
-	EM::EMObject* obj = emm.getObject( idstobeloaded[idx] );
-	if ( !obj ) continue;
-	obj->setBurstAlert( true );
-	obj->ref();
-	objstobeloaded += obj;
-    }
-
-    if ( exec )
-    {
-	uiTaskRunner execdlg( parent() );
-	if ( !TaskRunner::execute( &execdlg, *exec ) )
-	    deepUnRef( objs );
-    }
-
-    for ( int idx=0; idx<objstobeloaded.size(); idx++ )
-	objstobeloaded[idx]->setBurstAlert( false );
-    deepUnRef( objstobeloaded );
-
+    uiTaskRunner uitr( parent() );
+    if ( emloader->load(&uitr) )
+	objs.append( emloader->getLoadedEMObjects() );
 }
 
 

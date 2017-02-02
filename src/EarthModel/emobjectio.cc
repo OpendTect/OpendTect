@@ -19,20 +19,11 @@
 #include "uistrings.h"
 
 mDefineInstanceCreatedNotifierAccess(EM::ObjectSaver)
+mImplFactory1Param(EM::ObjectLoader,const DBKeySet&,EM::ObjectLoader::factory)
+mImplFactory1Param(EM::ObjectSaver,const SharedObject&,EM::ObjectSaver::factory)
 
 namespace EM
 {
-ObjectLoader* ObjectLoader::createObjectLoader( const DBKey& dbkey )
-{
-    return new FaultStickSetLoader( dbkey );
-}
-
-
-ObjectLoader::ObjectLoader( const DBKey& key )
-{
-    dbkeys_ += key;
-}
-
 
 ObjectLoader::ObjectLoader( const DBKeySet& keys )
     : dbkeys_(keys)
@@ -40,31 +31,98 @@ ObjectLoader::ObjectLoader( const DBKeySet& keys )
 }
 
 
-class FSSLoaderExec : public Executor
+class FSSLoaderExec : public ExecutorGroup
 { mODTextTranslationClass(FSSLoaderExec)
 public:
 
 FSSLoaderExec( FaultStickSetLoader& ldr )
-    : Executor("FaultStickSet Loader")
+    : ExecutorGroup("FaultStickSet Loader")
     , loader_(ldr)
-    , curidx_(-1)
+    , curidx_(0)
+    , totnr_(-1)
+    , nrdone_(0)
 {
-    loader_.loadedkeys_.setEmpty();
+    loader_.notloadedkeys_.setEmpty();
+    init();
 }
 
-virtual od_int64 nrDone() const
+protected:
+
+void init()
 {
-    return curidx_;
+    for ( int idx=0; idx<loader_.tobeLodedKeys().size(); idx++ )
+    {
+	const DBKey key = loader_.tobeLodedKeys()[idx];
+	PtrMan<IOObj> ioobj = DBM().get( key );
+	if ( !ioobj )
+	{
+	    pErrMsg( "Required ID not in IOM. Probably not OK" );
+	    continue;
+	}
+
+	BufferString typenm = ioobj->pars().find( sKey::Type() );
+	if ( typenm.isEmpty() )
+	    typenm = ioobj->group();
+
+	FaultStickSet* fss = new FaultStickSet( ioobj->name() );
+	fss->ref();
+	fss->setDBKey( key );
+	add( fss->loader() );
+	fltstcksets_.add( fss );
+    }
+
 }
 
-virtual od_int64 totalNr() const
+int nextStep()
 {
-    return loader_.tobeLodedKeys().size();
+    const int ret = ExecutorGroup::nextStep();
+    if (  ret == ErrorOccurred() )
+    {
+	loader_.notloadedkeys_ += fltstcksets_[currentexec_]->dbKey();
+	nrdone_++;
+	if( goToNextExecutor() )
+	    return MoreToDo();
+    }
+    else if ( ret == Finished() )
+    {
+	finishWork();
+	return Finished();
+    }
+   
+    nrdone_++;
+    return ret;
+}
+
+void finishWork()
+{
+    for ( int idx=0; idx<fltstcksets_.size(); idx++ )
+    {
+	FaultStickSet* fss = fltstcksets_[idx];
+	const DBKey& dbkey = fss->dbKey();
+	if ( loader_.notloadedkeys_.isPresent(dbkey) )
+	    continue;
+
+	FSSMan().addObject( fss );
+	loader_.addObject( fss );
+    }
+}
+
+public:
+
+od_int64 totalNr() const
+{
+    return executors_.size() ? ( totnr_ + ExecutorGroup::totalNr() ) : totnr_;
+}
+
+
+od_int64 nrDone() const
+{
+    return executors_.size() ? ( nrdone_ + ExecutorGroup::nrDone() ) : nrdone_;
 }
 
 virtual uiString message() const
 {
-    return uiStrings::phrLoading( uiStrings::sPickSet() );
+    return uiStrings::phrLoading( uiStrings::sFaultStickSet() );
 }
 
 virtual uiString nrDoneText() const
@@ -72,48 +130,14 @@ virtual uiString nrDoneText() const
     return tr("FaultStickSets loaded");
 }
 
-    virtual int		nextStep();
+protected:
 
     FaultStickSetLoader&	loader_;
     int				curidx_;
-
+    ObjectSet<FaultStickSet>	fltstcksets_;
+    od_int64			nrdone_;
+    od_int64			totnr_;
 };
-
-
-int FSSLoaderExec::nextStep()
-{
-    curidx_++;
-    if ( curidx_ >= loader_.tobeLodedKeys().size() )
-	return Finished();
-   
-    const DBKey key = loader_.tobeLodedKeys()[curidx_];
-    PtrMan<IOObj> ioobj = DBM().get( key );
-    if ( !ioobj )
-    {
-	pErrMsg( "Required ID not in IOM. Probably not OK" );
-	return MoreToDo();
-    }
-
-    BufferString typenm = ioobj->pars().find( sKey::Type() );
-    if ( typenm.isEmpty() )
-	typenm = ioobj->group();
-
-    FaultStickSet* fss = new FaultStickSet( ioobj->name() );
-    fss->setDBKey( key );
-    if ( !fss->loader()->execute() )
-	return MoreToDo();
-
-    loader_.loadedkeys_ += key;
-    EMM().addObject( fss );
-    loader_.addObject( fss );
-    return MoreToDo();
-}
-
-
-FaultStickSetLoader::FaultStickSetLoader( const DBKey& key )
-    : ObjectLoader(key)
-{
-}
 
 
 FaultStickSetLoader::FaultStickSetLoader( const DBKeySet& keys )
@@ -200,15 +224,9 @@ int FLT3DLoaderExec::nextStep()
 	return MoreToDo();
 
     loader_.loadedkeys_ += key;
-    EMM().addObject( flt );
+    Flt3DMan().addObject( flt );
     loader_.addObject( flt );
     return MoreToDo();
-}
-
-
-Fault3DLoader::Fault3DLoader( const DBKey& key )
-    : ObjectLoader(key)
-{
 }
 
 
@@ -232,16 +250,9 @@ Executor* Fault3DLoader::getLoader() const
     return new FLT3DLoaderExec( *_this );
 }
 
-//Saver
-ObjectSaver* ObjectSaver::createObjectSaver( const SharedObject& shobj )
-{
-    mDynamicCastGet(const EMObject*,emobj,&shobj);
-    if ( FaultStickSet::typeStr() == emobj->getTypeStr() )
-	return new FaultStickSetSaver( *emobj );
-    return 0;
-}
 
-ObjectSaver::ObjectSaver( const EMObject& emobj )
+//Saver
+ObjectSaver::ObjectSaver( const SharedObject& emobj )
     : Saveable(emobj)
 {
     mTriggerInstanceCreatedNotifier();
@@ -287,7 +298,7 @@ uiRetVal ObjectSaver::doStore( const IOObj& ioobj ) const
 }
 
 
-FaultStickSetSaver::FaultStickSetSaver( const EMObject& emobj )
+FaultStickSetSaver::FaultStickSetSaver( const SharedObject& emobj )
     : ObjectSaver(emobj)
 {}
 
@@ -324,7 +335,7 @@ uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj ) const
 
 
 //Fault3D
-Fault3DSaver::Fault3DSaver( const EMObject& emobj )
+Fault3DSaver::Fault3DSaver( const SharedObject& emobj )
     : ObjectSaver(emobj)
 {}
 
