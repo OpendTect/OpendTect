@@ -854,6 +854,10 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     ObjectSet<DataColDef> defs;
     DataPointSet positions( pts, defs, false, true );
 
+    const DataColDef siddef( sKeySectionID() );
+    if ( positions.dataSet().findColDef(siddef,PosVecDataSet::NameExact)==-1 )
+	positions.dataSet().add( new DataColDef(siddef) );
+
     const DataColDef zvalsdef( sKeyZValues() );
     if ( positions.dataSet().findColDef(zvalsdef,PosVecDataSet::NameExact)==-1 )
 	positions.dataSet().add( new DataColDef(zvalsdef) );
