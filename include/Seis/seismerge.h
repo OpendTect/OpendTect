@@ -18,8 +18,8 @@ ________________________________________________________________________
 class Scaler;
 class SeisTrc;
 class SeisTrcBuf;
-class SeisTrcReader;
 class SeisTrcWriter;
+namespace Seis { class Provider; }
 
 
 /*!\brief Merges 2D and 3D post-stack data */
@@ -28,9 +28,8 @@ mExpClass(Seis) SeisMerger : public Executor
 { mODTextTranslationClass(SeisMerger);
 public:
 
-			SeisMerger(const ObjectSet<IOPar>& in,const IOPar& out,
-				   bool is2d);
-			SeisMerger(const IOPar&);	//For post-processing
+			SeisMerger(const ObjectSet<IOPar>& in,
+				   const IOPar& out,bool is2d);
     virtual		~SeisMerger();
 
     uiString		message() const;
@@ -47,9 +46,9 @@ public:
 protected:
 
     bool			is2d_;
-    ObjectSet<SeisTrcReader>	rdrs_;
+    ObjectSet<Seis::Provider>	provs_;
     SeisTrcWriter*		wrr_;
-    int				currdridx_;
+    int				curprovidx_;
     int				nrpos_;
     int				totnrpos_;
     uiString			errmsg_;
@@ -61,7 +60,7 @@ protected:
     Scaler*			scaler_;
 
     SeisTrc*			getNewTrc();
-    SeisTrc*			getTrcFrom(SeisTrcReader&);
+    SeisTrc*			getTrcFrom(Seis::Provider&);
     void			get3DTraces();
     SeisTrc*			getStacked(SeisTrcBuf&);
     bool			toNextPos();

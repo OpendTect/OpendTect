@@ -79,6 +79,7 @@ public:
     void		selectComponents(const TypeSet<int>&);
     void		forceFPData(bool yn=true);
     void		setReadMode(ReadMode);
+    uiRetVal		fillPar(IOPar&) const;
     uiRetVal		usePar(const IOPar&);
 
     uiRetVal		getNext(SeisTrc&) const;
@@ -123,6 +124,7 @@ protected:
 
     virtual od_int64	getTotalNrInInput() const			= 0;
     virtual void	doReset(uiRetVal&) const			= 0;
+    virtual void	doFillPar(IOPar&,uiRetVal&) const;
     virtual void	doUsePar(const IOPar&,uiRetVal&)		= 0;
 
     virtual int		gtNrOffsets() const			{ return 1; }
@@ -160,6 +162,8 @@ protected:
 			Provider3D()					{}
 
     virtual od_int64	getTotalNrInInput() const;
+    virtual void	doUsePar( const IOPar& iop, uiRetVal& uirv )
+			{ Provider::doUsePar( iop, uirv ); }
     virtual Pos::GeomID doGetCurGeomID() const
 			{ return Survey::GM().default3DSurvID(); }
 
@@ -188,6 +192,8 @@ protected:
 			Provider2D()					{}
 
     virtual od_int64	getTotalNrInInput() const;
+    virtual void	doUsePar( const IOPar& iop, uiRetVal& uirv )
+			{ Provider::doUsePar( iop, uirv ); }
     virtual Pos::GeomID doGetCurGeomID() const
 			{ return geomID( curLineIdx() ); }
 

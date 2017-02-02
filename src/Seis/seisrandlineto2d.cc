@@ -11,12 +11,13 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "dbman.h"
 #include "iopar.h"
+#include "ioobj.h"
 #include "progressmeter.h"
 #include "seisioobjinfo.h"
 #include "seisrandlineto2d.h"
 #include "randomlinegeom.h"
 #include "seisbuf.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seiswrite.h"
@@ -30,12 +31,15 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 				    const Geometry::RandomLine& rln )
     : Executor("Saving 2D Line")
     , geomid_(geomid)
-    , rdr_(0)
+    , prov_(0)
     , wrr_(0)
     , nrdone_(0)
     , seldata_(*new Seis::TableSelData)
 {
-    rdr_ = new SeisTrcReader( &inobj );
+    uiRetVal uirv;
+    prov_ = Seis::Provider::create( inobj.key(), &uirv );
+    if ( !prov_ ) errmsg_ = uirv;
+
     wrr_ = new SeisTrcWriter( &outobj );
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
     if ( seldata )
@@ -96,8 +100,8 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
     }
 
     totnr_ = mCast( int, seldata_.binidValueSet().totalSize() );
-    if ( rdr_ )
-	rdr_->setSelData( new Seis::TableSelData(seldata_) );
+    if ( prov_ )
+	prov_->setSelData( new Seis::TableSelData(seldata_) );
 
     seldata_.binidValueSet().next( pos_ );
     buf_ = new SeisTrcBuf( true );
@@ -106,7 +110,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 
 SeisRandLineTo2D::~SeisRandLineTo2D()
 {
-    delete rdr_; delete wrr_;
+    delete prov_; delete wrr_;
     delete &seldata_; delete buf_;
 }
 
@@ -147,16 +151,18 @@ bool SeisRandLineTo2D::writeTraces()
 
 int SeisRandLineTo2D::nextStep()
 {
-    if ( !rdr_ || !wrr_ || !totnr_ )
+    if ( !prov_ || !wrr_ || !totnr_ )
 	return Executor::ErrorOccurred();
 
     SeisTrc* trc = new SeisTrc;
-    const int rv = rdr_->get( trc->info() );
-    if ( rv == 0 ) return writeTraces() ? Executor::Finished()
-					: Executor::ErrorOccurred();
-    else if ( rv !=1 ) return Executor::ErrorOccurred();
+    const uiRetVal uirv = prov_->getNext( *trc );
+    if ( !uirv.isOK() )
+    {
+	if ( isFinished(uirv) )
+	    writeTraces() ? Executor::Finished() : Executor::ErrorOccurred();
 
-    if ( !rdr_->get(*trc) ) return Executor::ErrorOccurred();
+	return Executor::ErrorOccurred();
+    }
 
     BinID bid = trc->info().binID();
     bool geommatching = false;
@@ -202,7 +208,7 @@ int SeisRandLineTo2D::nextStep()
 
 
 uiString SeisRandLineTo2D::message() const
-{ return m3Dots(tr("Writing traces")); }
+{ return errmsg_.isEmpty() ? m3Dots(tr("Writing traces")) : errmsg_; }
 
 uiString SeisRandLineTo2D::nrDoneText() const
 { return tr("Traces written"); }

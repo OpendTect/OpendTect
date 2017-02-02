@@ -13,7 +13,8 @@ ________________________________________________________________________
 #include "seispsread.h"
 #include "seispsioprov.h"
 #include "uistring.h"
-class SeisTrcReader;
+
+namespace Seis { class Provider; }
 
 
 /*!\brief PS data store reader based on multiple 3D CBVS cubes */
@@ -38,8 +39,8 @@ public:
 
     void		usePar(const IOPar&);
 
-    void		addReader( SeisTrcReader* rdr, float offs )
-			{ rdrs_ += rdr; offs_ += offs; }
+    void		addProvider( Seis::Provider* prov, float offs )
+			{ provs_ += prov; offs_ += offs; }
 
     bool		getFrom(const char* fnm);
     bool		putTo(const char* fnm) const;
@@ -54,14 +55,10 @@ public:
 protected:
 
     PosInfo::CubeData&		posdata_;
-    ObjectSet<SeisTrcReader>	rdrs_;
+    ObjectSet<Seis::Provider>	provs_;
     TypeSet<float>		offs_;
     TypeSet<int>		comps_;
     mutable uiString		errmsg_;
-
-    void			getCubeData(const SeisTrcReader&,
-					    PosInfo::CubeData&) const;
-
 };
 
 

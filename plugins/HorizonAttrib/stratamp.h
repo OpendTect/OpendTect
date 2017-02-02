@@ -18,10 +18,10 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 class od_ostream;
-class SeisTrcReader;
 
 namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; class Processor; }
+namespace Seis { class Provider; }
 
 mExpClass(HorizonAttrib) StratAmpCalc  : public Executor
 {
@@ -34,8 +34,7 @@ public:
     int                 nextStep();
     od_int64		totalNr() const		{ return totnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		message() const
-    { return uiStrings::phrHandling(uiStrings::sPosition(mPlural)); }
+    uiString		message() const;
     uiString		nrDoneText() const
     { return uiStrings::phrHandled(uiStrings::sPosition(mPlural)); }
 
@@ -57,7 +56,7 @@ public:
 protected:
 
     Stats::Type			stattyp_;
-    SeisTrcReader*		rdr_;
+    Seis::Provider*		prov_;
     bool			usesstored_;
     const EM::Horizon3D*	tophorizon_;
     const EM::Horizon3D*	bothorizon_;
@@ -71,7 +70,8 @@ protected:
     int				dataidxfold_;
     bool			addtotop_;
     bool			outfold_;
-    TrcKeySampling			hs_;
+    uiString			errmsg_;
+    TrcKeySampling		hs_;
     Attrib::DescSet*		descset_;
     Attrib::Processor*		proc_;
 };

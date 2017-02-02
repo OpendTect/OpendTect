@@ -7,7 +7,7 @@
 
 #include "seismerge.h"
 #include "seisbounds.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seiswrite.h"
 #include "seistrc.h"
 #include "seistrctr.h"
@@ -30,7 +30,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 	: Executor(is2d?"Merging line parts":"Merging cubes")
 	, is2d_(is2d)
 	, wrr_(0)
-	, currdridx_(-1)
+	, curprovidx_(-1)
 	, nrpos_(0)
 	, totnrpos_(-1)
 	, curbid_(SI().sampling(false).hsamp_.start_)
@@ -47,18 +47,29 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     StepInterval<float> zrg( mUdf(float), -mUdf(float), SI().zStep() );
     for ( int idx=0; idx<iops.size(); idx++ )
     {
-	SeisTrcReader* newrdr = new SeisTrcReader;
-	newrdr->usePar( *iops[idx] );
-	if ( !newrdr->prepareWork() )
+	const Seis::GeomType geomtype = is2d_ ? Seis::Line : Seis::Vol;
+	Seis::Provider* prov = Seis::Provider::create( geomtype );
+	const uiRetVal uirv = prov->usePar( *iops[idx] );
+	if ( !uirv.isOK() )
+	    { errmsg_ = uirv; delete prov; continue; }
+
+	if ( is2d_ )
 	{
-	    errmsg_ = newrdr->errMsg();
-	    delete newrdr;
-	    continue;
+	    StepInterval<int> rg;
+	    ZSampling zsamp;
+	    mDynamicCastGet(const Seis::Provider2D&,prov2d,*prov);
+	    if ( prov2d.getRanges(prov2d.curGeomID(),rg,zsamp) )
+		zrg.include( zsamp, false );
+	}
+	else
+	{
+	    TrcKeyZSampling tkzs;
+	    mDynamicCastGet(const Seis::Provider3D&,prov3d,*prov);
+	    if ( prov3d.getRanges(tkzs) )
+		zrg.include( tkzs.zsamp_, false );
 	}
 
-	PtrMan<Seis::Bounds> rgs = newrdr->getBounds();
-	if ( rgs ) zrg.include( rgs->getZRange(), false );
-	rdrs_ += newrdr;
+	provs_ += prov;
     }
 
     if ( !mIsUdf(zrg.start) && !mIsUdf(zrg.start) )
@@ -72,78 +83,19 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     if ( !wrr_->errMsg().isEmpty() )
     {
 	errmsg_ = wrr_->errMsg();
-	deepErase( rdrs_ );
+	deepErase( provs_ );
 	return;
     }
 
-    currdridx_ = 0;
+    curprovidx_ = 0;
     if ( !is2d_ )
 	totnrpos_ = mCast( int, SI().sampling(false).hsamp_.totalNr() );
 }
 
 
-SeisMerger::SeisMerger( const IOPar& iop )
-	: Executor("Merging cubes")
-	, is2d_(false)
-	, wrr_(0)
-	, currdridx_(-1)
-	, nrpos_(0)
-	, totnrpos_(-1)
-	, curbid_(SI().sampling(false).hsamp_.start_)
-	, trcbuf_(*new SeisTrcBuf(false))
-	, stacktrcs_(true)
-	, nrsamps_(-1)
-{
-    if ( iop.isEmpty() )
-    { errmsg_ = tr("Nothing to merge"); return; }
-
-    File::Path fp( iop.find(sKey::TmpStor()) );
-    DirList dlist( fp.fullPath(), DirList::FilesOnly );
-    StepInterval<float> zrg( mUdf(float), -mUdf(float), SI().zStep() );
-    for ( int idx=0; idx<dlist.size(); idx++ )
-    {
-	SeisTrcReader* newrdr = new SeisTrcReader( dlist.fullPath(idx) );
-	if ( !newrdr->prepareWork() )
-	{
-	    errmsg_ = newrdr->errMsg();
-	    delete newrdr;
-	    continue;
-	}
-
-	PtrMan<Seis::Bounds> rgs = newrdr->getBounds();
-	if ( rgs ) zrg.include( rgs->getZRange(), false );
-	rdrs_ += newrdr;
-    }
-
-    if ( !mIsUdf(zrg.start) && !mIsUdf(zrg.start) )
-    {
-	sd_.start = zrg.start; sd_.step = zrg.step;
-	nrsamps_ = zrg.nrSteps() + 1;
-    }
-
-    PtrMan<IOPar> outiop = iop.subselect( sKey::Output() );
-    if ( !outiop )
-	return;
-
-    wrr_ = new SeisTrcWriter( 0 );
-    wrr_->usePar( *outiop );
-    if ( !wrr_->errMsg().isEmpty() )
-    {
-	errmsg_ = wrr_->errMsg();
-	deepErase( rdrs_ );
-	delete wrr_;
-	wrr_ = 0;
-	return;
-    }
-
-    currdridx_ = 0;
-    totnrpos_ = mCast( int, SI().sampling(false).hsamp_.totalNr() );
-}
-
-
 SeisMerger::~SeisMerger()
 {
-    deepErase( rdrs_ );
+    deepErase( provs_ );
     delete wrr_;
     trcbuf_.deepErase();
     delete &trcbuf_;
@@ -166,16 +118,16 @@ void SeisMerger::setScaler( Scaler* scaler )
 
 int SeisMerger::nextStep()
 {
-    if ( currdridx_ < 0 )
+    if ( curprovidx_ < 0 )
 	return Executor::ErrorOccurred();
 
-    if ( is2d_ && rdrs_.isEmpty() )
+    if ( is2d_ && provs_.isEmpty() )
 	return writeFromBuf();
 
     SeisTrc* newtrc = getNewTrc();
     if ( !newtrc )
     {
-	deepErase( rdrs_ );
+	deepErase( provs_ );
 	if ( !errmsg_.isEmpty() )
 	    return Executor::ErrorOccurred();
 
@@ -205,13 +157,13 @@ SeisTrc* SeisMerger::getNewTrc()
 	nrpos_++;
 	if ( is2d_ )
 	{
-	    ret = getTrcFrom( *rdrs_[currdridx_] );
+	    ret = getTrcFrom( *provs_[curprovidx_] );
 	    if ( !ret )
 	    {
 		if ( !errmsg_.isEmpty() )
 		    return 0;
-		currdridx_++;
-		if ( currdridx_ >= rdrs_.size() )
+		curprovidx_++;
+		if ( curprovidx_ >= provs_.size() )
 		    return 0;
 	    }
 	}
@@ -226,14 +178,17 @@ SeisTrc* SeisMerger::getNewTrc()
 }
 
 
-SeisTrc* SeisMerger::getTrcFrom( SeisTrcReader& rdr )
+SeisTrc* SeisMerger::getTrcFrom( Seis::Provider& prov )
 {
     SeisTrc* newtrc = new SeisTrc;
-    if ( !rdr.get(*newtrc) )
+    const uiRetVal uirv = prov.getNext( *newtrc );
+    if ( !uirv.isOK() )
     {
-	errmsg_ = rdr.errMsg();
-	delete newtrc; newtrc = 0;
+	deleteAndZeroPtr( newtrc );
+	if ( !isFinished(uirv) )
+	    errmsg_ = uirv;
     }
+
     return newtrc;
 }
 
@@ -241,19 +196,15 @@ SeisTrc* SeisMerger::getTrcFrom( SeisTrcReader& rdr )
 void SeisMerger::get3DTraces()
 {
     trcbuf_.deepErase();
-    for ( int idx=0; idx<rdrs_.size(); idx++ )
+    for ( int idx=0; idx<provs_.size(); idx++ )
     {
-	SeisTrcReader& rdr = *rdrs_[idx];
-	if ( rdr.seisTranslator()->goTo(curbid_) )
-	{
-	    SeisTrc* newtrc = getTrcFrom( rdr );
-	    if ( !newtrc )
-		continue;
+	SeisTrc* newtrc = getTrcFrom( *provs_[idx] );
+	if ( !newtrc )
+	    continue;
 
-	    trcbuf_.add( newtrc );
-	    if ( !stacktrcs_ )
-		break;
-	}
+	trcbuf_.add( newtrc );
+	if ( !stacktrcs_ )
+	    break;
     }
 }
 

@@ -213,7 +213,7 @@ bool Seis::LineProvider::getRanges( int iln, StepInterval<int>& trcrg,
 
 void Seis::LineProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
 {
-    uirv.set( mTODONotImplPhrase() );
+    Seis::Provider2D::doUsePar( iop, uirv );
 }
 
 

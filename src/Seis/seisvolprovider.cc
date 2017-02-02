@@ -417,7 +417,7 @@ void Seis::VolProvider::getGeometryInfo( PosInfo::CubeData& cd ) const
 
 void Seis::VolProvider::doUsePar( const IOPar& iop, uiRetVal& uirv )
 {
-    uirv.set( mTODONotImplPhrase() );
+    Seis::Provider3D::doUsePar( iop, uirv );
 }
 
 

@@ -12,7 +12,7 @@
 #include "dbman.h"
 #include "posinfo.h"
 #include "seisioobjinfo.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seispacketinfo.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
@@ -30,13 +30,14 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
 					ZAxisTransform& ztf,
 					bool forward,
 					bool stretchz )
-    : seisreader_( 0 )
-    , seisreadertdmodel_( 0 )
+    : seisprovider_( 0 )
+    , seisprovidertdmodel_( 0 )
     , seiswriter_( 0 )
     , sequentialwriter_( 0 )
     , nrwaiting_( 0 )
     , waitforall_( false )
     , nrthreads_( 0 )
+    , totalnr_( -1 )
     , curhrg_( false )
     , outcs_( outcs )
     , ztransform_( &ztf )
@@ -60,43 +61,24 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
     if ( ztransform_ )
 	ztransform_->ref();
 
-    seisreader_ = new SeisTrcReader( &in );
-    if ( !seisreader_->prepareWork(Seis::Scan) ||
-	 !seisreader_->seisTranslator())
-    {
-	delete seisreader_;
-	seisreader_ = 0;
-	return;
-    }
+    uiRetVal uirv;
+    seisprovider_ = Seis::Provider::create( in.key(), &uirv );
+    if ( !seisprovider_ )
+	{ errmsg_ = uirv; return; }
 
     if ( !is2d_ )
     {
-	const SeisPacketInfo& spi = seisreader_->seisTranslator()->packetInfo();
-	TrcKeySampling storhrg; storhrg.set( spi.inlrg, spi.crlrg );
-	outcs_.hsamp_.limitTo( storhrg );
+	mDynamicCastGet(const Seis::Provider3D&,prov3d,*seisprovider_);
+	prov3d.getRanges( outcs_ );
     }
 
     TrcKeyZSampling cs( true );
     cs.hsamp_ = outcs_.hsamp_;
-    seisreader_->setSelData( new Seis::RangeSelData(cs) );
-    if ( seisreadertdmodel_ )
-	seisreadertdmodel_->setSelData( new Seis::RangeSelData(cs) );
+    seisprovider_->setSelData( new Seis::RangeSelData(cs) );
+    if ( seisprovidertdmodel_ )
+	seisprovidertdmodel_->setSelData( new Seis::RangeSelData(cs) );
 
-
-    if ( !is2d_ )
-    {
-	const SeisPacketInfo& packetinfo =
-			        seisreader_->seisTranslator()->packetInfo();
-	if ( packetinfo.cubedata )
-	    totalnr_ = packetinfo.cubedata->totalSizeInside( cs.hsamp_ );
-	else
-	    totalnr_ = mCast( int, cs.hsamp_.totalNr() );
-    }
-    else
-    {
-	totalnr_ = mCast( int, cs.hsamp_.totalNr() );
-    }
-
+    totalnr_ = seisprovider_->totalNr();
     seiswriter_ = new SeisTrcWriter( &out );
     sequentialwriter_ = new SeisSequentialWriter( seiswriter_ );
 }
@@ -104,12 +86,10 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
 
 SeisZAxisStretcher::~SeisZAxisStretcher()
 {
-    delete seisreader_;
+    delete seisprovider_;
     delete seiswriter_;
     delete sequentialwriter_;
-
-    if ( seisreadertdmodel_ )
-	delete seisreadertdmodel_;
+    delete seisprovidertdmodel_;
 
     if ( ztransform_ )
     {
@@ -123,38 +103,34 @@ SeisZAxisStretcher::~SeisZAxisStretcher()
 
 bool SeisZAxisStretcher::isOK() const
 {
-    return seisreader_ && seiswriter_
-	&& ( seisreadertdmodel_ || (ztransform_ && ztransform_->isOK()) );
+    return seisprovider_ && seiswriter_
+	&& ( seisprovidertdmodel_ || (ztransform_ && ztransform_->isOK()) );
 }
 
 
 void SeisZAxisStretcher::setGeomID( Pos::GeomID geomid )
 {
-    Seis::RangeSelData sd; sd.copyFrom( *seisreader_->selData() );
-    sd.setGeomID( geomid );
-    seisreader_->setSelData( sd.clone() );
-    if ( !seisreader_->prepareWork() )
-    {
-	delete seisreader_;
-	seisreader_ = 0;
-	return;
-    }
+    const Seis::SelData* seldata = seisprovider_ ? seisprovider_->selData()
+						 : 0;
+    if ( !seldata ) return;
 
-    if ( seisreadertdmodel_ )
-    {
-	seisreadertdmodel_->setSelData( sd.clone() );
-	if ( !seisreadertdmodel_->prepareWork() )
-	{
-	    delete seisreadertdmodel_;
-	    seisreadertdmodel_ = 0;
-	    return;
-	}
-    }
+    Seis::RangeSelData sd; sd.copyFrom( *seldata );
+    sd.setGeomID( geomid );
+    seisprovider_->setSelData( sd.clone() );
+
+    if ( seisprovidertdmodel_ )
+	seisprovidertdmodel_->setSelData( sd.clone() );
 
     sd.copyFrom( seiswriter_->selData() ? *seiswriter_->selData()
 					: *new Seis::RangeSelData(true) );
     sd.setGeomID( geomid );
     seiswriter_->setSelData( sd.clone() );
+}
+
+
+uiString SeisZAxisStretcher::message() const
+{
+    return errmsg_.isEmpty() ? tr("Stretching data") : errmsg_;
 }
 
 
@@ -175,9 +151,9 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
     if ( !stretchz_ )
     {
 	sampler = new ZAxisTransformSampler( *ztransform_, true, sd, is2d_ );
-	if ( is2d_ && seisreader_ && seisreader_->selData() )
+	if ( is2d_ && seisprovider_ && seisprovider_->selData() )
 	    sampler->setLineName( Survey::GM().getName(
-					    seisreader_->selData()->geomID()));
+				  seisprovider_->selData()->geomID()) );
 	intrcfunc = new SeisTrcFunction( intrc, 0 );
 
 	if ( !intrcfunc )
@@ -439,15 +415,18 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
 	nrwaiting_--;
     }
 
-    if ( !seisreader_ )
+    if ( !seisprovider_ )
 	return false;
 
     while ( shouldContinue() )
     {
-	if ( !seisreader_->get(trc) )
+	const uiRetVal uirv = seisprovider_->getNext( trc );
+	if ( !uirv.isOK() )
 	{
-	    delete seisreader_;
-	    seisreader_ = 0;
+	    if ( !isFinished(uirv) )
+		errmsg_ = uirv;
+
+	    deleteAndZeroPtr( seisprovider_ );
 	    return false;
 	}
 
@@ -495,15 +474,18 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, TrcKey& trckey )
 	nrwaiting_--;
     }
 
-    if ( !seisreadertdmodel_ )
+    if ( !seisprovidertdmodel_ )
 	return false;
 
     while ( shouldContinue() )
     {
-	if ( !seisreadertdmodel_->get(trc) )
+	const uiRetVal uirv = seisprovidertdmodel_->getNext( trc );
+	if ( !uirv.isOK() )
 	{
-	    delete seisreadertdmodel_;
-	    seisreadertdmodel_ = 0;
+	    if ( !isFinished(uirv) )
+		errmsg_ = uirv;
+
+	    deleteAndZeroPtr( seisprovidertdmodel_ );
 	    return false;
 	}
 

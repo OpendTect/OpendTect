@@ -18,10 +18,10 @@ ________________________________________________________________________
 
 class IOObj;
 class SeisTrc;
-class SeisTrcReader;
 class SeisTrcWriter;
 class SeisSequentialWriter;
 class ZAxisTransform;
+namespace Seis { class Provider; }
 
 
 /*!Stretches the zaxis from the input cube with a ZAxisTransform and writes it
@@ -42,7 +42,7 @@ public:
     bool		isOK() const;
 
     void		setGeomID(Pos::GeomID);
-    uiString		message() const { return tr("Stretching data"); }
+    uiString		message() const;
 
     void		setVelTypeIsVint( bool yn )	{ isvint_ = yn; }
     void		setVelTypeIsVrms( bool yn )	{ isvrms_ = yn; }
@@ -59,17 +59,18 @@ protected:
     bool				getModelTrace(SeisTrc&,TrcKey&);
     bool				loadTransformChunk(int firstinl);
 
-    SeisTrcReader*			seisreader_;
+    Seis::Provider*			seisprovider_;
     Threads::ConditionVar		readerlock_;
     Threads::ConditionVar		readerlockmodel_;
 
-    SeisTrcReader*			seisreadertdmodel_;
+    Seis::Provider*			seisprovidertdmodel_;
 
     SeisTrcWriter*			seiswriter_;
     SeisSequentialWriter*		sequentialwriter_;
     bool				waitforall_;
     int					nrwaiting_;
     int					nrthreads_;
+    uiString				errmsg_;
 
     TrcKeyZSampling			outcs_;
     TrcKeySampling				curhrg_;

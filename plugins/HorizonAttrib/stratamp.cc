@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "dbman.h"
 #include "ioobj.h"
 #include "odver.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "statruncalc.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
@@ -47,7 +47,7 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    Stats::Type stattyp, const TrcKeySampling& hs,
 			    bool outputfold )
     : Executor("Computing Stratal amplitude...")
-    , rdr_(0)
+    , prov_(0)
     , tophorizon_(tophor)
     , bothorizon_(bothor)
     , stattyp_(stattyp)
@@ -75,9 +75,7 @@ StratAmpCalc::~StratAmpCalc()
 {
     if ( tophorizon_ ) tophorizon_->unRef();
     if ( bothorizon_ ) bothorizon_->unRef();
-    delete descset_;
-    if ( proc_ ) delete proc_;
-    if ( rdr_ ) delete rdr_;
+    delete descset_; delete proc_; delete prov_;
 }
 
 
@@ -116,14 +114,19 @@ int StratAmpCalc::init( const IOPar& pars )
     if ( usesstored_)
     {
 	const StringPair strpair( targetdesc->getValParam(
-			Attrib::StorageProvider::keyStr())->getStringValue(0) );
+		Attrib::StorageProvider::keyStr())->getStringValue(0) );
 	const DBKey key = DBKey::getFromString( strpair.first() );
-	PtrMan<IOObj> seisobj = DBM().get( key );
-	rdr_ = new SeisTrcReader( seisobj );
-	TrcKeyZSampling cs;
-	cs.hsamp_ = hs_;
-	rdr_->setSelData( new Seis::RangeSelData(cs) );
-	rdr_->prepareWork();
+
+	uiRetVal uirv;
+	prov_ = Seis::Provider::create( key, &uirv );
+	if ( !prov_ )
+	    errmsg_ = uirv;
+	else
+	{
+	    TrcKeyZSampling tkzs;
+	    tkzs.hsamp_ = hs_;
+	    prov_->setSelData( new Seis::RangeSelData(tkzs) );
+	}
     }
     else
     {
@@ -158,12 +161,19 @@ int StratAmpCalc::init( const IOPar& pars )
 }
 
 
+uiString StratAmpCalc::message() const
+{
+    return !errmsg_.isEmpty() ? errmsg_
+		: uiStrings::phrHandling(uiStrings::sPosition(mPlural));
+}
+
+
 #define mRet( event ) \
 { delete trc; return event; }
 
 int StratAmpCalc::nextStep()
 {
-    if ( ( !proc_ && !rdr_ ) || !tophorizon_ || dataidx_<0 )
+    if ( ( !proc_ && !prov_ ) || !tophorizon_ || dataidx_<0 )
 	return Executor::ErrorOccurred();
 
     int res = -1;
@@ -171,10 +181,15 @@ int StratAmpCalc::nextStep()
     if ( usesstored_ )
     {
 	trc = new SeisTrc();
-	const int rv = rdr_->get( trc->info() );
-	if ( rv == 0 ) mRet( Executor::Finished() )
-	else if ( rv == -1 ) mRet( Executor::ErrorOccurred() )
-	if ( !rdr_->get(*trc) ) mRet( Executor::ErrorOccurred() );
+	const uiRetVal uirv = prov_->getNext( *trc );
+	if ( !uirv.isOK() )
+	{
+	    if ( isFinished(uirv) )
+		mRet( Executor::Finished() );
+
+	    errmsg_ = uirv;
+	    mRet( Executor::ErrorOccurred() );
+	}
     }
     else
     {
@@ -238,7 +253,7 @@ int StratAmpCalc::nextStep()
     else
 	proc_->outputs_[0]->deleteTrc();
 
-    return res || rdr_ ? Executor::MoreToDo() : Executor::Finished();
+    return res || prov_ ? Executor::MoreToDo() : Executor::Finished();
 }
 
 

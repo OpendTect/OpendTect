@@ -60,7 +60,6 @@ set(OD_MODULE_SOURCES
 	seispsioprov.cc
 	seispsmerge.cc
 	seisrandlineto2d.cc
-	seisrandomprovider.cc
 	seisread.cc
 	seisreaderset.cc
 	seisresampler.cc

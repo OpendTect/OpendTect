@@ -7,7 +7,7 @@
 
 #include "seismulticubeps.h"
 #include "seispsioprov.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seispacketinfo.h"
@@ -64,7 +64,7 @@ MultiCubeSeisPSReader::MultiCubeSeisPSReader( const char* fnm )
 
 MultiCubeSeisPSReader::~MultiCubeSeisPSReader()
 {
-    deepErase( rdrs_ );
+    deepErase( provs_ );
     delete &posdata_;
 }
 
@@ -76,7 +76,7 @@ MultiCubeSeisPSReader::~MultiCubeSeisPSReader()
 
 bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 {
-    deepErase( rdrs_ ); offs_.erase(); comps_.erase(); errmsg_.setEmpty();
+    deepErase( provs_ ); offs_.erase(); comps_.erase(); errmsg_.setEmpty();
     posdata_ = PosInfo::CubeData();
 
     od_istream strm( fnm );
@@ -90,42 +90,31 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 #   define mErrCont(s) { errmsg_ = s; continue; }
     while ( !atEndOfSection(astrm.next()) )
     {
-	DBKey dbky( DBKey::getFromString(astrm.keyWord()) );
-
-	PtrMan<IOObj> ioobj = DBM().get( dbky );
-	if ( !ioobj )
-	    mErrCont(uiStrings::phrCannotFindDBEntry(
-						toUiString(astrm.keyWord())) )
-
+	const DBKey dbky( DBKey::getFromString(astrm.keyWord()) );
 	FileMultiString fms( astrm.value() );
 	const int fmssz = fms.size();
 	const float offs = fms.getFValue( 0 );
 	const int comp = fmssz > 1 ? fms.getIValue( 1 ) : 0;
 
-	SeisTrcReader* rdr = new SeisTrcReader( ioobj );
-	rdr->setComponent( comp );
-	if ( !rdr->ioObj() || !rdr->prepareWork() )
-	{
-	    if ( !rdr->errMsg().isEmpty() )
-		errmsg_ = rdr->errMsg();
-	    else
-	    {
-		errmsg_ = uiStrings::phrCannotRead( ioobj->uiName() );
-	    }
-	    delete rdr; continue;
-	}
+	uiRetVal uirv;
+	Seis::Provider* prov = Seis::Provider::create( dbky, &uirv );
+	if ( !prov )
+	    { errmsg_ = uirv; delete prov; continue; }
 
-	rdrs_ += rdr; offs_ += offs; comps_ += comp;
+	prov->selectComponent( comp );
+	provs_ += prov; offs_ += offs; comps_ += comp;
 
-	PosInfo::CubeData cd; getCubeData( *rdr, cd );
-	if ( rdrs_.size() == 1 )
+	PosInfo::CubeData cd;
+	mDynamicCastGet(const Seis::Provider3D&,prov3d,*prov);
+	prov3d.getGeometryInfo( cd );
+
+	if ( provs_.size() == 1 )
 	    posdata_ = cd;
 	else
 	    posdata_.merge( cd, true );
     }
 
-    bool rv = !rdrs_.isEmpty();
-    if ( !rv && errmsg_.isEmpty() )
+    if ( provs_.isEmpty() && errmsg_.isEmpty() )
 	errmsg_ = tr("No valid cubes found");
 
     return true;
@@ -135,14 +124,14 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 bool MultiCubeSeisPSReader::putTo( const char* fnm ) const
 {
     DBKeySet keys; TypeSet<float> offs; TypeSet<int> comps;
-    for ( int irdr=0; irdr<rdrs_.size(); irdr++ )
+    for ( int iprov=0; iprov<provs_.size(); iprov++ )
     {
-	const IOObj* ioobj = rdrs_[irdr]->ioObj();
-	if ( ioobj )
+	const DBKey dbky = provs_[iprov]->dbKey();
+	if ( !dbky.isInvalid() )
 	{
-	    keys += ioobj->key();
-	    offs += offs_[irdr];
-	    comps += comps_[irdr];
+	    keys += dbky;
+	    offs += offs_[iprov];
+	    comps += comps_[iprov];
 	}
     }
 
@@ -220,34 +209,19 @@ bool MultiCubeSeisPSReader::writeData( const char* fnm,
 }
 
 
-
-void MultiCubeSeisPSReader::getCubeData( const SeisTrcReader& rdr,
-					 PosInfo::CubeData& cd ) const
-{
-    const SeisTrcTranslator* trans = rdr.seisTranslator();
-    if ( !trans )
-	return;
-    const SeisPacketInfo& pi(
-		const_cast<SeisTrcTranslator*>(trans)->packetInfo());
-    if ( pi.cubedata )
-	cd = *pi.cubedata;
-    else
-	cd.generate( BinID(pi.inlrg.start,pi.crlrg.start),
-		     BinID(pi.inlrg.stop,pi.crlrg.stop),
-		     BinID(pi.inlrg.step,pi.crlrg.step) );
-}
-
-
 SeisTrc* MultiCubeSeisPSReader::getTrace( const TrcKey& tk, int nr ) const
 {
-    if ( nr >= rdrs_.size() ) return 0;
+    if ( nr >= provs_.size() ) return 0;
 
-    SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *rdrs_[nr] );
+    Seis::Provider& prov = const_cast<Seis::Provider&>( *provs_[nr] );
     SeisTrc* trc = new SeisTrc;
-    if ( !rdr.seisTranslator()->goTo(tk.position()) )
-	{ delete trc; trc = 0; }
-    else if ( !rdr.get(*trc) )
-	{ errmsg_ = rdr.errMsg(); delete trc; trc = 0; }
+    const uiRetVal uirv = prov.get( tk, *trc );
+    if ( !uirv.isOK() )
+    {
+	deleteAndZeroPtr( trc );
+	if ( !isFinished(uirv) )
+	    errmsg_ = uirv;
+    }
     else
 	trc->info().offset_ = offs_[nr];
 
@@ -264,14 +238,14 @@ SeisTrc* MultiCubeSeisPSReader::getTrace( const BinID& bid, int nr ) const
 bool MultiCubeSeisPSReader::getGather( const TrcKey& tk, SeisTrcBuf& buf ) const
 {
     buf.deepErase(); buf.setIsOwner( true );
-    for ( int idx=0; idx<rdrs_.size(); idx++ )
+    for ( int idx=0; idx<provs_.size(); idx++ )
     {
 	SeisTrc* newtrc = getTrace( tk.position(), idx );
 	if ( newtrc )
 	    buf.add( newtrc );
     }
 
-    return buf.isEmpty() ? false : true;
+    return !buf.isEmpty();
 }
 
 
