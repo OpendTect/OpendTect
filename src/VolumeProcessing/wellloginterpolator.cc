@@ -151,7 +151,7 @@ bool createInterpolationFunctions( const InterpolationLayerModel& layermodel,
 	const float md = iter.dah();
 	const Coord3 pos = track_->getPos( md );
 	const BinID bid = hsamp.toTrcKey( pos.getXY() ).position();
-	const float layerz = layermodel.getLayerIndex( bid, pos.z_ );
+	const float layerz = layermodel.getLayerIndex(bid,mCast(float,pos.z_));
 	const float logval = iter.value();
 	if ( mIsUdf(layerz) || mIsUdf(logval) ||
 		( !extend && !range.includes(md,false) ) )
