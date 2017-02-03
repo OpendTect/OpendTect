@@ -23,6 +23,7 @@ class uiD2TModelGroup;
 class uiFileInput;
 class uiGenInput;
 class uiLabel;
+class uiMultiWellSel;
 class uiPushButton;
 class uiTable;
 class uiTableImpDataSel;
@@ -36,15 +37,16 @@ namespace Well { class Data; class Track; class D2TModel; class Log;
 
 
 
-/*! \brief Dialog for D2T Model editing. */
+/*! \brief Dialog for Well track editing. */
 
 mExpClass(uiWell) uiWellTrackDlg : public uiDialog
 { mODTextTranslationClass(uiWellTrackDlg);
 public:
 			uiWellTrackDlg(uiParent*,Well::Data&);
 			~uiWellTrackDlg();
-    static const uiString   sCkShotData();
-    static const uiString   sTimeDepthModel();
+
+    static const uiString	sCkShotData();
+    static const uiString	sTimeDepthModel();
 
 protected:
 
@@ -91,6 +93,7 @@ protected:
 };
 
 
+/*! \brief Dialog for D2T Model editing. */
 mExpClass(uiWell) uiD2TModelDlg : public uiDialog
 { mODTextTranslationClass(uiD2TModelDlg);
 public:
@@ -167,7 +170,7 @@ protected:
 };
 
 
-/* brief edit the logs's unit of measure */
+/* brief Dialog for editing the logs's unit of measure */
 
 mExpClass(uiWell) uiWellLogUOMDlg : public uiDialog
 { mODTextTranslationClass(uiWellLogUOMDlg);
@@ -184,9 +187,28 @@ protected:
 
     bool		acceptOK();
 
-protected:
     void		fillTable(ObjectSet<Well::LogSet> wls,
 			     const BufferStringSet& wellnms,
 			     const BufferStringSet& lognms);
     bool		setUoMValues();
+};
+
+
+
+/* brief Dialog to set Depth-to-Time model to selected wells */
+
+mExpClass(uiWell) uiSetD2TFromOtherWell : public uiDialog
+{ mODTextTranslationClass(uiSetD2TFromOtherWell);
+public:
+			uiSetD2TFromOtherWell(uiParent*);
+			~uiSetD2TFromOtherWell();
+
+    void		setSelected(const DBKeySet&);
+
+protected:
+
+    bool		acceptOK();
+
+    uiWellSel*		inpwellfld_;
+    uiMultiWellSel*	wellfld_;
 };

@@ -39,13 +39,14 @@ ________________________________________________________________________
 #include "veldesc.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
+#include "wellimpasc.h"
+#include "wellinfo.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "wellreader.h"
+#include "welltrack.h"
 #include "welltransl.h"
 #include "wellwriter.h"
-#include "welltrack.h"
-#include "wellinfo.h"
-#include "wellimpasc.h"
 #include "od_helpids.h"
 
 
@@ -1796,4 +1797,65 @@ bool uiWellLogUOMDlg::setUoMValues()
 bool uiWellLogUOMDlg::acceptOK()
 {
     return setUoMValues();
+}
+
+
+
+// uiSetD2TFromOtherWell
+uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
+    : uiDialog(p,Setup(tr("Set Depth to Time Model"),mNoDlgTitle,mTODOHelpKey))
+{
+    inpwellfld_ = new uiWellSel( this, true, tr("Use D2T model from"), false );
+
+    wellfld_ = new uiMultiWellSel( this, false );
+    wellfld_->attach( alignedBelow, inpwellfld_ );
+}
+
+
+uiSetD2TFromOtherWell::~uiSetD2TFromOtherWell()
+{
+}
+
+
+void uiSetD2TFromOtherWell::setSelected( const DBKeySet& keys )
+{
+    wellfld_->setSelected( keys );
+}
+
+
+bool uiSetD2TFromOtherWell::acceptOK()
+{
+    const IOObj* inpioobj = inpwellfld_->ioobj();
+    if ( !inpioobj )
+	return false;
+
+    RefMan<Well::Data> inpwd = new Well::Data;
+    PtrMan<Well::Reader> inprdr = new Well::Reader( *inpioobj, *inpwd );
+    if ( !inprdr->getD2T() )
+    {
+	uiMSG().message( tr("Can not read input model.") );
+	return false;
+    }
+
+    DBKeySet selwells;
+    wellfld_->getSelected( selwells );
+    if ( selwells.isEmpty() )
+    {
+	uiMSG().error( tr("Please select at least one target well") );
+	return false;
+    }
+
+    for ( int idx=0; idx<selwells.size(); idx++ )
+    {
+	RefMan<Well::Data> wd = new Well::Data;
+	PtrMan<Well::Reader> rdr = new Well::Reader( selwells[idx], *wd );
+	if ( !rdr->getD2T() )
+	    continue;
+
+	wd->d2TModel() = inpwd->d2TModel();
+	Well::Writer wtr( selwells[idx], *wd );
+	wtr.putD2T();
+    }
+
+    return true;
 }
