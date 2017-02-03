@@ -63,7 +63,7 @@ public:
 			Pos(const Coord&,float z);
 			Pos(const Coord3&);
 
-	bool		operator ==(const Pos& pos) const 
+	bool		operator ==(const Pos& pos) const
 			{ return binid_==pos.binid_ && offsx_ ==pos.offsx_
 			    	&& offsy_==pos.offsy_ && z_==pos.z_; }
 	const BinID&	binID() const	{ return binid_; }
@@ -107,7 +107,7 @@ public:
 			    : pos_(p), grp_((short)grp)
 							{ setSel( issel ); }
 
-	bool			operator ==(const DataRow& dr) const 
+	bool			operator ==(const DataRow& dr) const
 				{ return pos_==dr.pos_ && grp_==dr.grp_
 				    	&& data_==dr.data_; }
 	const BinID&		binID() const		{ return pos_.binID(); }
@@ -201,7 +201,7 @@ public:
 			    const ObjectSet<Interval<float> >* value_ranges=0)
 							const;
     void		randomSubselect(int maxsz);
-    
+
     int			bivSetIdx( ColID idx ) const
 						{ return idx+nrfixedcols_; }
 
@@ -250,6 +250,34 @@ protected:
     const int		nrfixedcols_;
 
     DataColDef&		gtColDef(ColID) const;
+};
+
+
+/*!\brief Fills DataPointSet with data from a VolumeDataPack
+*/
+
+mClass(General) DPSFromVolumeFiller : public ParallelTask
+{ mODTextTranslationClass(DPSFromVolumeFiller)
+public:
+				DPSFromVolumeFiller(DataPointSet&,int firstcol,
+						    const SeisDataPack&,
+						    int component);
+				~DPSFromVolumeFiller();
+
+    virtual uiString		uiMessage() const;
+    virtual uiString		uiNrDoneText() const;
+
+protected:
+    virtual od_int64		nrIterations() const;
+    virtual bool		doWork(od_int64 start,od_int64 stop,int thridx);
+
+    DataPointSet&		dps_;
+    const SeisDataPack&		sdp_;
+    int				component_;
+    int				firstcol_;
+
+    bool			hastrcdata_;
+    bool			hasstorage_;
 };
 
 #endif

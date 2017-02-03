@@ -53,9 +53,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattr2dsel.h"
 #include "uiattrvolout.h"
 #include "uiattribcrossplot.h"
+#include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uievaluatedlg.h"
 #include "uigeninputdlg.h"
 #include "uiioobjseldlg.h"
+#include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uimultcomputils.h"
@@ -647,6 +650,17 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 }
 
 
+static const Desc* getTargetDesc( const TypeSet<Attrib::SelSpec>& targetspecs )
+{
+    const bool isstortarget = targetspecs.size() && targetspecs[0].isStored();
+    const bool is2d = targetspecs.size() && targetspecs[0].is2D();
+    const DescSet* attrds = DSHolder().getDescSet( is2d, isstortarget );
+    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
+				: attrds->getDesc( targetspecs[0].id() );
+    return targetdesc;
+}
+
+
 const RegularSeisDataPack* uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
 				const RegularSeisDataPack* cache )
@@ -655,14 +669,12 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
     if ( !aem ) return 0;
 
     bool atsamplepos = true;
-    const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
-    const DescSet* attrds = DSHolder().getDescSet( false, isstortarget );
-    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
-				: attrds->getDesc( targetspecs_[0].id() );
+
+    const Desc* targetdesc = getTargetDesc( targetspecs_ );
     if ( targetdesc )
     {
 	BufferString defstr;
-	attrds->getDesc(targetspecs_[0].id())->getDefStr(defstr);
+	targetdesc->getDefStr( defstr );
 	if ( defstr != targetspecs_[0].defString() )
 	    cache = 0;
 
@@ -811,6 +823,50 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 
 bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 {
+    const Desc* targetdesc = getTargetDesc( targetspecs_ );
+    if ( targetdesc && targetdesc->isStored() )
+    {
+	const MultiID mid( targetdesc->getStoredID() );
+	mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid))
+	if ( sdp )
+	{
+	    const TrcKeyZSampling& seistkzs = sdp->sampling();
+	    TrcKeySampling dpstks;
+	    dpstks.set( posvals.bivSet().inlRange(),
+			posvals.bivSet().crlRange() );
+
+	    bool usepldata = seistkzs.hsamp_.includes( dpstks );
+	    if ( !usepldata )
+	    {
+		uiDialog dlg( parent(),
+		    uiDialog::Setup(tr("Question"),mNoDlgTitle,mNoHelpKey) );
+		uiString msg( tr("Pre-loaded data does not cover the "
+				"full requested area.\n"
+				"Please choose one of the following options:"));
+		uiLabel* lbl = new uiLabel( &dlg, msg );
+		uiButtonGroup* grp =
+		    new uiButtonGroup( &dlg, "Options", OD::Vertical );
+		grp->attach( alignedBelow, lbl );
+		new uiCheckBox( grp, tr("Use pre-loaded data (fast)") );
+		new uiCheckBox( grp, tr("Read data from disk (slow)") );
+		grp->selectButton( 0 );
+		dlg.showAlwaysOnTop();
+		if ( !dlg.go() )
+		    return false;
+
+		usepldata = grp->selectedId() == 0;
+	    }
+
+	    if ( usepldata )
+	    {
+		uiTaskRunner uitr( parent() );
+		const int comp = targetdesc->selectedOutput();
+		DPSFromVolumeFiller filler( posvals, firstcol, *sdp, comp );
+		return TaskRunner::execute( &uitr, filler );
+	    }
+	}
+    }
+
     PtrMan<EngineMan> aem = createEngMan();
     if ( !aem ) return false;
 
@@ -883,10 +939,10 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     TypeSet<BinID> knots, path;
     rdmline->allNodePositions( knots );
     rdmline->getPathBids( knots, path );
-    
+
     if ( path.isEmpty() )
 	return DataPack::cNoID();
-    
+
     snapToValidRandomTraces( path, targetdesc );
 
     TrcKeyPath trckeys;
