@@ -542,15 +542,15 @@ void Picks::horizonChangeCB( CallBacker* cb )
     if ( !hor || !horizons_.isPresent(hor) )
 	return;
 
+    RefMan<EM::EMChangeAuxData> cbauxdata =
+			cbdata.auxDataAs<EM::EMChangeAuxData>();
     TypeSet<RowCol> rcs;
     if ( cbdata.changeType()==EM::EMObject::cBurstAlert() )
     {
 	get( hor->id(), rcs );
     }
-    else
+    else if ( cbauxdata )
     {
-	RefMan<EM::EMChangeAuxData> cbauxdata =
-			cbdata.auxDataAs<EM::EMChangeAuxData>();
 	BinID bid = BinID::fromInt64( cbauxdata->pid0.subID() );
 	RowCol arrpos;
 	BinID curbid;

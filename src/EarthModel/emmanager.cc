@@ -221,7 +221,7 @@ void EMManager::addObject( EMObject* obj )
     if ( isPresent(*obj) )
 	{ pErrMsg("Adding object twice"); return; }
 
-    addNew( *obj, obj->dbKey(), 0, true ); 
+    addNew( *obj, obj->dbKey(), 0, true );
     addRemove.trigger();
 }
 

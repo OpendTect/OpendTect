@@ -9,14 +9,11 @@
 
 #include "dbman.h"
 #include "emmanager.h"
-#include "emfaultstickset.h"
-#include "emfault3d.h"
 #include "executor.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "task.h"
-#include "uistrings.h"
 
 mDefineInstanceCreatedNotifierAccess(EM::ObjectSaver)
 mImplFactory1Param(EM::ObjectLoader,const DBKeySet&,EM::ObjectLoader::factory)
@@ -31,12 +28,12 @@ ObjectLoader::ObjectLoader( const DBKeySet& keys )
 }
 
 
-class FSSLoaderExec : public ExecutorGroup
-{ mODTextTranslationClass(FSSLoaderExec)
+class ObjectLoaderExec : public ExecutorGroup
+{ mODTextTranslationClass(ObjectLoaderExec)
 public:
 
-FSSLoaderExec( FaultStickSetLoader& ldr )
-    : ExecutorGroup("FaultStickSet Loader")
+ObjectLoaderExec( ObjectLoader& ldr )
+    : ExecutorGroup("Object Loader")
     , loader_(ldr)
     , curidx_(0)
     , totnr_(-1)
@@ -64,11 +61,11 @@ void init()
 	if ( typenm.isEmpty() )
 	    typenm = ioobj->group();
 
-	FaultStickSet* fss = new FaultStickSet( ioobj->name() );
-	fss->ref();
-	fss->setDBKey( key );
-	add( fss->loader() );
-	fltstcksets_.add( fss );
+	EMObject* obj = EMM().createObject( typenm, ioobj->name() );
+	obj->ref();
+	obj->setDBKey( key );
+	add( obj->loader() );
+	objects_.add( obj );
     }
 
 }
@@ -78,7 +75,7 @@ int nextStep()
     const int ret = ExecutorGroup::nextStep();
     if (  ret == ErrorOccurred() )
     {
-	loader_.notloadedkeys_ += fltstcksets_[currentexec_]->dbKey();
+	loader_.notloadedkeys_ += objects_[currentexec_]->dbKey();
 	nrdone_++;
 	if( goToNextExecutor() )
 	    return MoreToDo();
@@ -88,22 +85,22 @@ int nextStep()
 	finishWork();
 	return Finished();
     }
-   
+
     nrdone_++;
     return ret;
 }
 
 void finishWork()
 {
-    for ( int idx=0; idx<fltstcksets_.size(); idx++ )
+    for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	FaultStickSet* fss = fltstcksets_[idx];
-	const DBKey& dbkey = fss->dbKey();
+	EMObject* obj = objects_[idx];
+	const DBKey& dbkey = obj->dbKey();
 	if ( loader_.notloadedkeys_.isPresent(dbkey) )
 	    continue;
 
-	FSSMan().addObject( fss );
-	loader_.addObject( fss );
+	EMM().addObject( obj );
+	loader_.addObject( obj );
     }
 }
 
@@ -127,14 +124,14 @@ virtual uiString message() const
 
 virtual uiString nrDoneText() const
 {
-    return tr("FaultStickSets loaded");
+    return tr("%1 loaded").arg( loader_.userName() );
 }
 
 protected:
 
-    FaultStickSetLoader&	loader_;
+    ObjectLoader&		loader_;
     int				curidx_;
-    ObjectSet<FaultStickSet>	fltstcksets_;
+    ObjectSet<EMObject>		objects_;
     od_int64			nrdone_;
     od_int64			totnr_;
 };
@@ -157,76 +154,7 @@ bool FaultStickSetLoader::load( TaskRunner* tskr )
 Executor* FaultStickSetLoader::getLoader() const
 {
     FaultStickSetLoader* _this = const_cast<FaultStickSetLoader*>( this );
-    return new FSSLoaderExec( *_this );
-}
-
-
-class FLT3DLoaderExec : public Executor
-{ mODTextTranslationClass(FLT3DLoaderExec)
-public:
-
-FLT3DLoaderExec( Fault3DLoader& ldr )
-    : Executor("FaultStickSet Loader")
-    , loader_(ldr)
-    , curidx_(-1)
-{
-    loader_.loadedkeys_.setEmpty();
-}
-
-virtual od_int64 nrDone() const
-{
-    return curidx_;
-}
-
-virtual od_int64 totalNr() const
-{
-    return loader_.tobeLodedKeys().size();
-}
-
-virtual uiString message() const
-{
-    return uiStrings::phrLoading( uiStrings::sPickSet() );
-}
-
-virtual uiString nrDoneText() const
-{
-    return tr("FaultStickSets loaded");
-}
-
-    virtual int		nextStep();
-
-    Fault3DLoader&	loader_;
-    int			curidx_;
-
-};
-
-
-int FLT3DLoaderExec::nextStep()
-{
-    curidx_++;
-    if ( curidx_ >= loader_.tobeLodedKeys().size() )
-	return Finished();
-   
-    const DBKey key = loader_.tobeLodedKeys()[curidx_];
-    PtrMan<IOObj> ioobj = DBM().get( key );
-    if ( !ioobj )
-    {
-	pErrMsg( "Required ID not in IOM. Probably not OK" );
-	return MoreToDo();
-    }
-
-    BufferString typenm = ioobj->pars().find( sKey::Type() );
-    if ( typenm.isEmpty() )
-	typenm = ioobj->group();
-
-    Fault3D* flt = new Fault3D( ioobj->name() ); flt->setDBKey( key );
-    if ( !flt->loader()->execute() )
-	return MoreToDo();
-
-    loader_.loadedkeys_ += key;
-    Flt3DMan().addObject( flt );
-    loader_.addObject( flt );
-    return MoreToDo();
+    return new ObjectLoaderExec( *_this );
 }
 
 
@@ -247,9 +175,29 @@ bool Fault3DLoader::load( TaskRunner* tskr )
 Executor* Fault3DLoader::getLoader() const
 {
     Fault3DLoader* _this = const_cast<Fault3DLoader*>( this );
-    return new FLT3DLoaderExec( *_this );
+    return new ObjectLoaderExec( *_this );
 }
 
+
+Horizon3DLoader::Horizon3DLoader( const DBKeySet& keys )
+    : ObjectLoader(keys)
+{
+}
+
+
+bool Horizon3DLoader::load( TaskRunner* tskr )
+{
+    PtrMan<Executor> exec = getLoader();
+    TaskRunner::execute( tskr, *exec );
+    return allOK();
+}
+
+
+Executor* Horizon3DLoader::getLoader() const
+{
+    Horizon3DLoader* _this = const_cast<Horizon3DLoader*>( this );
+    return new ObjectLoaderExec( *_this );
+}
 
 //Saver
 ObjectSaver::ObjectSaver( const SharedObject& emobj )
@@ -322,14 +270,14 @@ uiRetVal FaultStickSetSaver::doStore( const IOObj& ioobj ) const
     Executor* exec = fss->geometry().saver( 0, &key );
     if ( exec && !exec->execute() )
 	return exec->errorWithDetails();
-    
+
     if ( isSave(ioobj) )
     {
 	emobj.getNonConstPtr()->setName( ioobj.name() );
 	emobj.getNonConstPtr()->setDBKey( key );
 	fss->saveDisplayPars();
     }
-    
+
     return uiRetVal::OK();
 }
 
@@ -359,15 +307,52 @@ uiRetVal Fault3DSaver::doStore( const IOObj& ioobj ) const
     Executor* exec = flt3d->geometry().saver( 0, &key );
     if ( exec && !exec->execute() )
 	return exec->errorWithDetails();
-    
+
     flt3d->setDBKey( key );
     if ( isSave(ioobj) )
     {
 	flt3d->setName( ioobj.name() );
 	flt3d->saveDisplayPars();
     }
-    
+
     return uiRetVal::OK();
 }
+
+
+Horizon3DSaver::Horizon3DSaver( const SharedObject& emobj )
+    : ObjectSaver(emobj)
+{}
+
+
+Horizon3DSaver::~Horizon3DSaver()
+{}
+
+
+uiRetVal Horizon3DSaver::doStore( const IOObj& ioobj ) const
+{
+    uiRetVal uirv;
+    ConstRefMan<EMObject> emobj = emObject();
+    if ( !emobj )
+	return uiRetVal::OK();
+
+    SharedObject* copiedemobj = emobj->clone();
+    mDynamicCastGet(Horizon3D*,hor,copiedemobj)
+    if ( !hor )
+	return uiRetVal::OK();
+    const DBKey key = ioobj.key();
+    Executor* exec = hor->geometry().saver( 0, &key );
+    if ( exec && !exec->execute() )
+	return exec->errorWithDetails();
+
+    if ( isSave(ioobj) )
+    {
+	emobj.getNonConstPtr()->setName( ioobj.name() );
+	emobj.getNonConstPtr()->setDBKey( key );
+	hor->saveDisplayPars();
+    }
+
+    return uiRetVal::OK();
+}
+
 
 } // namespace EM

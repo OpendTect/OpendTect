@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "emfault3d.h"
 #include "emfaultstickset.h"
+#include "emhorizon3d.h"
 #include "factory.h"
 #include "dbkey.h"
 #include "saveable.h"
@@ -33,15 +34,24 @@ mExpClass(EarthModel) ObjectLoader
 public:
     mDefineFactory1ParamInClass(ObjectLoader,const DBKeySet&,factory)
 
-    virtual bool	load(TaskRunner*) = 0;
-    virtual Executor*	getLoader() const = 0;
-    ObjectSet<EMObject> getLoadedEMObjects() const { return emobjects_; }
+    virtual uiString	userName()		= 0;
+    virtual bool	load(TaskRunner*)	= 0;
+    virtual Executor*	getLoader() const	= 0;
 
+    ObjectSet<EMObject> getLoadedEMObjects() const { return emobjects_; }
+    const DBKeySet&	tobeLodedKeys() const { return dbkeys_; }
+    virtual bool	allOK() const
+			{ return notloadedkeys_.isEmpty(); }
 protected:
 			ObjectLoader(const DBKeySet&);
 
+    virtual void	addObject(EMObject* obj) { emobjects_ += obj; }
+
     DBKeySet		dbkeys_;
+    DBKeySet		notloadedkeys_;
     ObjectSet<EMObject> emobjects_;
+
+    friend class	ObjectLoaderExec;
 };
 
 
@@ -56,17 +66,14 @@ public:
 
 			FaultStickSetLoader(const DBKeySet&);
 
+    uiString		userName() {return uiStrings::sFaultStickSet(mPlural);}
+
     virtual bool	load(TaskRunner*);
     virtual Executor*	getLoader() const;
 
-    const DBKeySet&	tobeLodedKeys() const { return dbkeys_; }
-    bool		allOK() const
-			{ return notloadedkeys_.isEmpty(); }
 protected:
 
     void		addObject(EMObject* obj) { emobjects_ += obj; }
-    DBKeySet		notloadedkeys_;
-    friend class	FSSLoaderExec;
 };
 
 
@@ -80,17 +87,35 @@ public:
 
 			Fault3DLoader(const DBKeySet&);
 
+    uiString		userName() { return uiStrings::sFault(mPlural); }
+
      virtual bool	load(TaskRunner*);
      virtual Executor*	getLoader() const;
 
-     const DBKeySet&	tobeLodedKeys() const { return dbkeys_; }
-     bool		allOK() const
-			{ return dbkeys_.size() == loadedkeys_.size(); }
 protected:
 
     void		addObject(EMObject* obj) { emobjects_ += obj; }
-    DBKeySet		loadedkeys_;
-    friend class	FLT3DLoaderExec;
+};
+
+
+mExpClass(EarthModel) Horizon3DLoader : public ObjectLoader
+{
+public:
+      mDefaultFactoryInstantiation1Param(ObjectLoader,
+				       Horizon3DLoader,const DBKeySet&,
+				       Horizon3D::typeStr(),
+				       uiStrings::sHorizon(mPlural))
+
+			Horizon3DLoader(const DBKeySet&);
+
+    uiString		userName() { return uiStrings::sHorizon(mPlural); }
+
+     virtual bool	load(TaskRunner*);
+     virtual Executor*	getLoader() const;
+
+protected:
+
+    void		addObject(EMObject* obj) { emobjects_ += obj; }
 };
 
 
@@ -139,6 +164,21 @@ public:
 				       uiStrings::sFault(mPlural))
 			Fault3DSaver(const SharedObject&);
 			~Fault3DSaver();
+protected:
+
+    virtual uiRetVal	doStore(const IOObj&) const;
+};
+
+
+mExpClass(EarthModel) Horizon3DSaver : public ObjectSaver
+{
+public:
+     mDefaultFactoryInstantiation1Param(ObjectSaver,
+				       Horizon3DSaver,const SharedObject&,
+				       Horizon3D::typeStr(),
+				       uiStrings::sHorizon(mPlural))
+			Horizon3DSaver(const SharedObject&);
+			~Horizon3DSaver();
 protected:
 
     virtual uiRetVal	doStore(const IOObj&) const;
