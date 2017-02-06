@@ -315,6 +315,8 @@ Horizon3D::~Horizon3D()
 {
     delete &auxdata;
     haslockednodes_.removeParam( this );
+
+    delete parents_; delete children_; delete lockednodes_;
 }
 
 
