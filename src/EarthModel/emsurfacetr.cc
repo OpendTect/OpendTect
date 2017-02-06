@@ -198,6 +198,7 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
 
     mRemove( getSetupFileName )
     mRemove( getParFileName )
+    mRemove( getParentChildFileName )
 
     return res;
 }
@@ -244,6 +245,7 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 
     mRename( getSetupFileName )
     mRename( getParFileName )
+    mRename( getParentChildFileName )
 
     return res;
 }
@@ -484,7 +486,7 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
     mSettUse(getYN,"dTect.Surface","Binary format",isbinary);
 
     ExecutorGroup* grp = new ExecutorGroup( "Surface Data saver" );
-    grp->setNrDoneText( Task::uiStdNrDoneText() );
+    grp->setNrDoneText( toUiString("Positions written") );
     BufferString fnm;
     for ( int selidx=0; selidx<sels_.sd.valnames.size(); selidx++ )
     {
