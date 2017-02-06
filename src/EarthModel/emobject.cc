@@ -197,7 +197,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 		setPosAttrib( pid, attribs_[idx], false, addtoundo );
 	}
     }
-    
+
     if ( addtoundo )
     {
 	UndoEvent* undo = new SetPosUndoEvent( oldpos, pid );
@@ -473,7 +473,6 @@ void EMObject::setPosAttrMarkerStyle( int attr, const MarkerStyle3D& ms )
     cbdata.event = EMObjectCallbackData::AttribChange;
     cbdata.attrib = attr;
     change.trigger( cbdata );
-    changed_ = true;
 }
 
 
