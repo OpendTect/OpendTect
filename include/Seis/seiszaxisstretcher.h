@@ -80,7 +80,7 @@ protected:
     bool				is2d_;
     bool				stretchz_;
 
-    int					totalnr_;
+    od_int64				totalnr_;
     bool				isvint_;
     bool				isvrms_;
 
