@@ -614,7 +614,7 @@ bool uiAxisHandler::reCalcAnnotation()
 {
     annots_.erase();
     if ( setup_.nogridline_ && setup_.noaxisannot_ && !setup_.showauxannot_ )
-	return false;
+	return true;
 
     annotrg_ = datarg_;
     annotrg_.start = annotstart_;
