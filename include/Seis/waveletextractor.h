@@ -16,9 +16,8 @@ ________________________________________________________________________
 
 namespace Fourier { class CC; }
 class IOObj;
-namespace Seis { class SelData; }
+namespace Seis { class Provider; class SelData; }
 class SeisTrc;
-class SeisTrcReader;
 class Wavelet;
 template <class T> class Array1DImpl;
 
@@ -60,7 +59,7 @@ protected:
     const IOObj&		iobj_;
     const Seis::SelData*	sd_;
     ObjectSet<Seis::SelData>    sdset_;
-    SeisTrcReader*		seisrdr_;
+    Seis::Provider*		seisprov_;
     Fourier::CC*		fft_;
     int				lineidx_;
     float			paramval_;

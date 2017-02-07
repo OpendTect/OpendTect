@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "seis2dlineio.h"
 #include "seisioobjinfo.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselection.h"
 #include "seistrctr.h"
 #include "seistype.h"
@@ -157,15 +157,17 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 	return;
 
     compfld_->box()->setCurrentItem(0);
-    SeisTrcReader rdr( ioobj );
-    if ( !rdr.prepareWork(Seis::PreScan) ) return;
-    SeisTrcTranslator* transl = rdr.seisTranslator();
-    if ( !transl ) return;
+    uiRetVal uirv;
+    PtrMan<Seis::Provider> prov = Seis::Provider::create(
+					ioobj->key(), &uirv );
+    if ( !prov )
+	{ errmsg_ = uirv; return; }
+
     BufferStringSet compnms;
-    transl->getComponentNames( compnms );
+    prov->getComponentInfo( compnms );
     compfld_->box()->setEmpty();
     compfld_->box()->addItems( compnms.getUiStringSet() );
-    compfld_->display( transl->componentInfo().size()>1 );
+    compfld_->display( compnms.size()>1 );
 }
 
 
@@ -226,11 +228,10 @@ void uiSeisSelDlg::getComponentNames( BufferStringSet& compnms ) const
     compnms.erase();
     const IOObj* ioobj = ioObj();
     if ( !ioobj ) return;
-    SeisTrcReader rdr( ioobj );
-    if ( !rdr.prepareWork(Seis::PreScan) ) return;
-    SeisTrcTranslator* transl = rdr.seisTranslator();
-    if ( !transl ) return;
-    transl->getComponentNames( compnms );
+    uiRetVal uirv;
+    PtrMan<Seis::Provider> prov = Seis::Provider::create(ioobj->key(),&uirv);
+    if ( prov )
+	prov->getComponentInfo( compnms );
 }
 
 
@@ -390,12 +391,14 @@ void uiSeisSel::updateInput()
 
     if ( seissetup_.selectcomp_ && !mIsUdf( compnr_ ) )
     {
-	SeisTrcReader rdr( workctio_.ioobj_ );
-	if ( !rdr.prepareWork(Seis::PreScan) ) return;
-	SeisTrcTranslator* transl = rdr.seisTranslator();
-	if ( !transl ) return;
+	uiRetVal uirv;
+	PtrMan<Seis::Provider> prov = Seis::Provider::create(
+					workctio_.ioobj_->key(), &uirv );
+	if ( !prov )
+	    { errmsg_ = uirv; return; }
+
 	BufferStringSet compnms;
-	transl->getComponentNames( compnms );
+	prov->getComponentInfo( compnms );
 	if ( compnr_ >= compnms.size() || compnms.size()<2 ) return;
 
 	BufferString text = userNameFromKey( ioobjkey );

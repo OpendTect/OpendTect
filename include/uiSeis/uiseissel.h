@@ -91,6 +91,7 @@ protected:
     Setup		seissetup_;
     int			compnr_;
     mutable BufferString curusrnm_;
+    uiString		errmsg_;
     IOPar		dlgiopar_;
     uiCheckBox*		othdombox_;
 
@@ -124,6 +125,7 @@ protected:
     int			steerpol_;
     BufferString	notalloweddatatype_;	// 2D only
     BufferString	zdomainkey_;	// 2D only
+    uiString		errmsg_;
 
     void		entrySel(CallBacker*);
     const char*		getDataType();

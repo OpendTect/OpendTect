@@ -68,6 +68,7 @@ public:
     BufferString	name() const;
     DBKey		dbKey() const		{ return dbky_; }
     Pos::GeomID		curGeomID() const	{ return doGetCurGeomID(); }
+    ZSampling		getZRange() const	{ return doGetZRange(); }
     uiRetVal		getComponentInfo(BufferStringSet&,
 					 TypeSet<Seis::DataType>* dts=0) const;
     int			nrOffsets() const; //!< at a representative location
@@ -81,6 +82,9 @@ public:
     void		setReadMode(ReadMode);
     uiRetVal		fillPar(IOPar&) const;
     uiRetVal		usePar(const IOPar&);
+
+    bool		isPresent( const TrcKey& tk ) const
+			{ return doGetIsPresent( tk ); }
 
     uiRetVal		getNext(SeisTrc&) const;
     uiRetVal		getNextGather(SeisTrcBuf&) const;
@@ -132,6 +136,8 @@ protected:
 					   TypeSet<Seis::DataType>&) const;
 				//!< def impl: { sKey::Data(), UnknownData }
     virtual Pos::GeomID doGetCurGeomID() const				= 0;
+    virtual ZSampling	doGetZRange() const				= 0;
+    virtual bool	doGetIsPresent(const TrcKey&) const;
 
 			    // define at least either SeisTrc or SeisTrcBuf fns
     virtual void	doGetNext(SeisTrc&,uiRetVal&) const;
@@ -166,6 +172,7 @@ protected:
 			{ Provider::doUsePar( iop, uirv ); }
     virtual Pos::GeomID doGetCurGeomID() const
 			{ return Survey::GM().default3DSurvID(); }
+    virtual ZSampling	doGetZRange() const;
 
 };
 
@@ -196,6 +203,7 @@ protected:
 			{ Provider::doUsePar( iop, uirv ); }
     virtual Pos::GeomID doGetCurGeomID() const
 			{ return geomID( curLineIdx() ); }
+    virtual ZSampling	doGetZRange() const;
 
 };
 

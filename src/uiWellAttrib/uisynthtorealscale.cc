@@ -19,7 +19,7 @@
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seisbuf.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "stratlevel.h"
 #include "statparallelcalc.h"
@@ -341,10 +341,11 @@ void uiSynthToRealScale::updSynthStats()
 class uiSynthToRealScaleRealStatCollector : public Executor
 { mODTextTranslationClass(uiSynthToRealScaleRealStatCollector);
 public:
-uiSynthToRealScaleRealStatCollector( uiSynthToRealScale& d, SeisTrcReader& r )
+uiSynthToRealScaleRealStatCollector(
+	uiSynthToRealScale& d, Seis::Provider& prov )
     : Executor( "Collect Amplitudes" )
     , dlg_(d)
-    , rdr_(r)
+    , prov_(prov)
     , msg_(tr("Collecting"))
     , nrdone_(0)
     , totalnr_(-1)
@@ -399,10 +400,13 @@ int getTrc3D()
     {
 	if ( !getNextPos3D() )
 	    return Finished();
-	else if ( !rdr_.seisTranslator()->goTo(bid_) )
+
+	if ( !prov_.isPresent(TrcKey(bid_)) )
 	    continue;
-	else if ( !rdr_.get(trc_) )
-	    { msg_ = rdr_.errMsg(); return ErrorOccurred(); }
+
+	const uiRetVal uirv = prov_.get( TrcKey(bid_), trc_ );
+	if ( !uirv.isOK() )
+	    { msg_ = uirv; return ErrorOccurred(); }
 
 	break;
     }
@@ -411,8 +415,9 @@ int getTrc3D()
 
 int getTrc2D()
 {
-    if ( !rdr_.get(trc_) )
-	return Finished();
+    const uiRetVal uirv = prov_.get( TrcKey(bid_), trc_ );
+    if ( !uirv.isOK() )
+	{ msg_ = uirv; return ErrorOccurred(); }
 
     if ( !setBinID(trc_.info().coord_) )
 	return MoreToDo();
@@ -420,7 +425,7 @@ int getTrc2D()
     mDynamicCastGet(const EM::Horizon2D*,hor2d,dlg_.horizon_)
     if ( !hor2d )
 	return ErrorOccurred();
-    TrcKey tk( rdr_.geomID(), trc_.info().trcNr() );
+    TrcKey tk( prov_.curGeomID(), trc_.info().trcNr() );
     EM::PosID pid = hor2d->geometry().getPosID( tk );
     const Coord3 crd = dlg_.horizon_->getPos( pid );
     if ( mIsUdf(crd.z_) )
@@ -446,7 +451,7 @@ int nextStep()
 }
 
     uiSynthToRealScale&	dlg_;
-    SeisTrcReader&	rdr_;
+    Seis::Provider&	prov_;
     Seis::SelData*	seldata_;
     SeisTrc		trc_;
     uiString		msg_;
@@ -489,11 +494,13 @@ void uiSynthToRealScale::updRealStats()
 	    mErrRet(tr("No common line names found in horizon & seismic data"))
     }
 
-    SeisTrcReader rdr( seisfld_->ioobj() );
-    if ( !rdr.prepareWork() )
-	mErrRet( tr("Error opening input seismic data") );
+    uiRetVal uirv;
+    PtrMan<Seis::Provider> prov = Seis::Provider::create(
+					seisfld_->ioobj()->key(), &uirv );
+    if ( !prov )
+	mErrRet( uirv );
 
-    uiSynthToRealScaleRealStatCollector coll( *this, rdr );
+    uiSynthToRealScaleRealStatCollector coll( *this, *prov );
     if ( !TaskRunner::execute( &taskrunner, coll ) )
 	return;
 

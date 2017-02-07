@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "seisselectionimpl.h"
 #include "emhor2dseisiter.h"
 #include "emhorizon2d.h"
+#include "seisprovider.h"
 #include "seistrc.h"
 #include "ioobj.h"
 #include "dbman.h"
@@ -23,25 +24,31 @@ Seis2DLineEventSnapper::Seis2DLineEventSnapper( const EM::Horizon2D& orghor,
     : SeisEventSnapper(su.gate_)
     , orghor_(orghor)
     , newhor_(newhor)
+    , seisprov_(0)
 {
+    if ( !su.ioobj_ ) return;
     geomid_ = su.geomid_;
     Seis::RangeSelData* seldata = new Seis::RangeSelData( true );
     seldata->setGeomID( su.geomid_ );
-    seisrdr_ = new SeisTrcReader( su.ioobj_ );
-    seisrdr_->setSelData( seldata );
-    seisrdr_->prepareWork();
+    uiRetVal uirv;
+    seisprov_ = Seis::Provider::create( su.ioobj_->key(), &uirv );
+    if ( seisprov_ )
+	seisprov_->setSelData( seldata );
+    else
+	errmsg_ = uirv;
 }
 
 
 Seis2DLineEventSnapper::~Seis2DLineEventSnapper()
 {
-    delete seisrdr_;
+    delete seisprov_;
 }
 
 
 uiString Seis2DLineEventSnapper::message() const
 {
-    return uiStrings::phrHandling(uiStrings::sTrace(mPlural));
+    return errmsg_.isEmpty()
+	? uiStrings::phrHandling(uiStrings::sTrace(mPlural)) : errmsg_;
 }
 
 
@@ -54,15 +61,17 @@ uiString Seis2DLineEventSnapper::nrDoneText() const
 int Seis2DLineEventSnapper::nextStep()
 {
     //TODO: Support multiple sections
+    if ( !seisprov_ ) return ErrorOccurred();
 
-    const int res = seisrdr_->get( trc_.info() );
-    if ( res == -1 )
+    const uiRetVal uirv = seisprov_->getNext( trc_ );
+    if ( !uirv.isOK() )
+    {
+	if ( isFinished(uirv) )
+	    return Finished();
+
+	errmsg_ = uirv;
 	return ErrorOccurred();
-    else if ( res == 0 )
-	return Finished();
-
-    if ( !seisrdr_->get(trc_) )
-	return MoreToDo();
+    }
 
     EM::SectionID sid(0);
     Coord3 coord = orghor_.getPos( sid, geomid_, trc_.info().trcNr() );

@@ -8,9 +8,8 @@
 #include "uivelocityvolumeconversion.h"
 
 #include "ioobjctxt.h"
-#include "seisbounds.h"
 #include "seistrctr.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "survinfo.h"
 #include "velocityvolumeconversion.h"
 
@@ -84,19 +83,18 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
 
     outputveltype_->box()->setCurrentItem( oldoutputtype );
 
-    SeisTrcReader reader( velioobj );
-    if ( !reader.prepareWork( Seis::PreScan ) )
-	return;
+    uiRetVal uirv;
+    PtrMan<Seis::Provider> provider = Seis::Provider::create(
+					velioobj->key(), &uirv );
+    if ( !provider )
+	{ uiMSG().error( uirv ); return; }
 
-    PtrMan<Seis::Bounds> bounds = reader.getBounds();
-    if ( !bounds )
-	return;
+    mDynamicCastGet(const Seis::Provider3D*,prov3d,provider.ptr());
+    if ( !prov3d ) return;
 
-    mDynamicCastGet( const Seis::Bounds3D*, bounds3d, bounds.ptr() );
-    if ( !bounds3d )
-	return;
-
-    possubsel_->setInputLimit( bounds3d->tkzs_ );
+    TrcKeyZSampling tkzs;
+    prov3d->getRanges( tkzs );
+    possubsel_->setInputLimit( tkzs );
 }
 
 

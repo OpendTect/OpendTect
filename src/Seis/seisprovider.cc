@@ -398,6 +398,12 @@ void Seis::Provider::ensureRightZSampling( SeisTrc& trc ) const
 }
 
 
+bool Seis::Provider::doGetIsPresent( const TrcKey& tk ) const
+{
+    return Survey::GM().getGeometry(curGeomID())->includes( tk );
+}
+
+
 void Seis::Provider::doGetNext( SeisTrc& trc, uiRetVal& uirv ) const
 {
     SeisTrcBuf tbuf( true );
@@ -474,4 +480,20 @@ void Seis::Provider::doUsePar( const IOPar& iop, uiRetVal& uirv )
     }
 
     setSelData( Seis::SelData::get(iop) );
+}
+
+
+ZSampling Seis::Provider3D::doGetZRange() const
+{
+    TrcKeyZSampling tkzs;
+    getRanges( tkzs );
+    return tkzs.zsamp_;
+}
+
+
+ZSampling Seis::Provider2D::doGetZRange() const
+{
+    StepInterval<int> trcrg; ZSampling zsamp;
+    getRanges( curLineIdx(), trcrg, zsamp );
+    return zsamp;
 }

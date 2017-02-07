@@ -22,7 +22,6 @@ ________________________________________________________________________
 
 class IOObj;
 class SeisTrc;
-class SeisTrcReader;
 template <class T> class Array3D;
 template <class T> class ValueSeries;
 namespace Seis { class Provider; }
@@ -94,7 +93,7 @@ protected:
     BoolTypeSet				voiintime_;
     TypeSet<int>			voiids_;
 
-    SeisTrcReader*			velreader_;
+    Seis::Provider*			velprovider_;
     VelocityDesc			veldesc_;
     bool				velintime_;
 

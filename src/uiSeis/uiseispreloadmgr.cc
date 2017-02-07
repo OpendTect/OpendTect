@@ -25,7 +25,7 @@
 #include "seisioobjinfo.h"
 #include "seispreload.h"
 #include "seispsioprov.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "statrand.h"
@@ -619,23 +619,22 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 
     sort( gidxs );
     SeisTrcBuf seisbuf( true );
-    SeisTrcReader rdr( ioobj );
-    rdr.prepareWork();
-    mDynamicCastGet(SeisTrcTranslator*,trl,rdr.translator())
-    if ( !trl ) return;
+    uiRetVal uirv;
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( ioobj->key(), &uirv );
+    if ( !prov )
+	mErrRet( uirv );
 
     for ( int idx=0; idx<nr2add; idx++ )
     {
 	const od_int64 gidx = gidxs[idx];
-	bool res = true;
-	if ( rdr.seisTranslator()->supportsGoTo() )
-	    res = rdr.seisTranslator()->goTo( tkzs.hsamp_.atIndex(gidx) );
-
-	if ( !res ) continue;
+	const TrcKey trckey = tkzs.hsamp_.atIndex( gidx );
+	if ( !prov->isPresent(trckey) )
+	    continue;
 
 	SeisTrc* trc = new SeisTrc;
-	res = rdr.get( *trc );
-	if ( !res ) continue;
+	const uiRetVal retval = prov->get( trckey, *trc );
+	if ( !retval.isOK() )
+	    { delete trc; continue; }
 
 	seisbuf.add( trc );
     }

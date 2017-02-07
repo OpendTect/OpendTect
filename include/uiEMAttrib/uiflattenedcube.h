@@ -41,6 +41,7 @@ protected:
     float		defzval_;
     Interval<float>	horzrg_;
     Pos::EMSurfaceProvider3D& pp_;
+    uiString		errmsg_;
 
     bool		acceptOK();
     BufferString	getHorNm(EM::ObjectID);

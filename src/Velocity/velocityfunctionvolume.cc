@@ -12,7 +12,8 @@
 #include "idxable.h"
 #include "dbman.h"
 #include "posinfo.h"
-#include "seisread.h"
+#include "posinfo2d.h"
+#include "seisprovider.h"
 #include "seistrc.h"
 #include "seispacketinfo.h"
 #include "seistrctr.h"
@@ -160,7 +161,7 @@ VolumeFunctionSource::VolumeFunctionSource()
 
 VolumeFunctionSource::~VolumeFunctionSource()
 {
-    deepErase( velreader_ );
+    deepErase( velprovider_ );
 }
 
 
@@ -170,7 +171,7 @@ bool VolumeFunctionSource::zIsTime() const
 
 bool VolumeFunctionSource::setFrom( const DBKey& velid )
 {
-    deepErase( velreader_ );
+    deepErase( velprovider_ );
     threads_.erase();
 
     PtrMan<IOObj> velioobj = DBM().get( velid );
@@ -193,85 +194,69 @@ bool VolumeFunctionSource::setFrom( const DBKey& velid )
 }
 
 
-SeisTrcReader* VolumeFunctionSource::getReader()
+Seis::Provider* VolumeFunctionSource::getProvider( uiRetVal& uirv )
 {
-    Threads::Locker lckr( readerlock_ );
+    Threads::Locker lckr( providerlock_ );
     const Threads::ThreadID thread = Threads::currentThread();
 
     const int idx = threads_.indexOf( thread );
     if ( threads_.validIdx(idx) )
-	return velreader_[idx];
+	return velprovider_[idx];
 
-    PtrMan<IOObj> velioobj = DBM().get( mid_ );
-    if ( !velioobj )
-	return 0;
+    Seis::Provider* velprovider = Seis::Provider::create( mid_, &uirv );
+    if ( !velprovider ) return 0;
 
-    SeisTrcReader* velreader = new SeisTrcReader( velioobj );
-    if ( !velreader->prepareWork() )
-    {
-	delete velreader;
-	return 0;
-    }
-
-    velreader_ += velreader;
+    velprovider_ += velprovider;
     threads_ += thread;
 
-    return velreader;
+    return velprovider;
 }
 
 
 void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
 {
+    uiRetVal uirv;
     VolumeFunctionSource* myself = const_cast<VolumeFunctionSource*>(this);
-    SeisTrcReader* velreader = myself->getReader();
+    Seis::Provider* velprovider = myself->getProvider( uirv );
+    if ( !velprovider )
+	{ pErrMsg( uirv.getText() ); return; }
 
-    if ( !velreader || !velreader->seisTranslator() )
-	return;
-
-    const SeisPacketInfo& packetinfo =
-	velreader->seisTranslator()->packetInfo();
-
-    if ( packetinfo.cubedata )
-	bids.add( *packetinfo.cubedata );
+    if ( !velprovider->is2D() )
+    {
+	mDynamicCastGet(const Seis::Provider3D&,prov3d,*velprovider);
+	PosInfo::CubeData cubedata;
+	prov3d.getGeometryInfo( cubedata );
+	bids.add( cubedata );
+    }
     else
     {
-	const StepInterval<int>& inlrg = packetinfo.inlrg;
-	const StepInterval<int>& crlrg = packetinfo.crlrg;
-	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )
+	mDynamicCastGet(const Seis::Provider2D&,prov2d,*velprovider);
+	PosInfo::Line2DData line2ddata;
+	prov2d.getGeometryInfo( prov2d.curLineIdx(), line2ddata );
+	for ( int idx=0; idx<line2ddata.positions().size(); idx++ )
 	{
-	    for ( int crl=crlrg.start; crl<=crlrg.stop; crl +=crlrg.step )
-	    {
-		bids.add( BinID(inl,crl) );
-	    }
+	    const TrcKey trckey = Survey::GM().traceKey( prov2d.curGeomID(),
+					line2ddata.positions()[idx].nr_ );
+	    bids.add( trckey.binID() );
 	}
     }
 }
 
 
 bool VolumeFunctionSource::getVel( const BinID& bid,
-			    SamplingData<float>& sd, TypeSet<float>& trcdata )
+			   SamplingData<float>& sd, TypeSet<float>& trcdata )
 {
-    SeisTrcReader* velreader = getReader();
-    if ( !velreader )
-    {
-	pErrMsg("No reader available");
-	return false;
-    }
+    uiRetVal uirv;
+    Seis::Provider* velprovider = getProvider( uirv );
+    if ( !velprovider )
+	{ pErrMsg( uirv.getText() ); return false; }
 
-    mDynamicCastGet( SeisTrcTranslator*, veltranslator,
-		     velreader->translator() );
-
-    if ( !veltranslator || !veltranslator->supportsGoTo() )
-    {
-	pErrMsg("Velocity translator not capable enough");
-	return false;
-    }
-
-    if ( !veltranslator->goTo(bid) )
+    if ( !velprovider->isPresent(TrcKey(bid)) )
 	return false;
 
     SeisTrc velocitytrc;
-    if ( !velreader->get(velocitytrc) )
+    const uiRetVal retval = velprovider->get( TrcKey(bid), velocitytrc );
+    if ( !retval.isOK() )
 	return false;
 
     trcdata.setSize( velocitytrc.size(), mUdf(float) );

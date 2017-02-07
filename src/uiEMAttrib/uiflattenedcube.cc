@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "emsurfaceposprov.h"
 #include "seistrctr.h"
 #include "seistrc.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seiswrite.h"
 #include "seisselectionimpl.h"
 #include "survinfo.h"
@@ -114,10 +114,10 @@ class uiWriteFlattenedCubeMaker : public Executor
 { mODTextTranslationClass(uiWriteFlattenedCubeMaker);
 public:
 
-uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
+uiWriteFlattenedCubeMaker( Seis::Provider& prov, SeisTrcWriter& wrr,
 			   Pos::Provider3D& pp, Interval<float> hz, float zval )
     : Executor("Create flattened cube")
-    , rdr_(rdr)
+    , prov_(prov)
     , wrr_(wrr)
     , pp_(pp)
     , msg_(tr("Creating cube"))
@@ -135,10 +135,14 @@ od_int64 totalNr() const	{ return totnr_; }
 
 int nextStep()
 {
-    if ( !rdr_.get(intrc_) )
+    const uiRetVal uirv = prov_.getNext( intrc_ );
+    if ( !uirv.isOK() )
     {
-	msg_ = rdr_.errMsg();
-	return msg_.isEmpty() ? Finished() : ErrorOccurred();
+	if ( isFinished(uirv) )
+	    return Finished();
+
+	msg_ = uirv;
+	return ErrorOccurred();
     }
 
     if ( outtrc_.size() < 1 )
@@ -173,7 +177,7 @@ int nextStep()
     return MoreToDo();
 }
 
-    SeisTrcReader&	rdr_;
+    Seis::Provider&	prov_;
     SeisTrcWriter&	wrr_;
     Pos::Provider3D&	pp_;
     const float		zval_;
@@ -197,11 +201,16 @@ bool uiWriteFlattenedCube::doWork( const IOObj& inioobj, const IOObj& outioobj,
 
     const float zwdth = SI().zRange(false).width();
     const Interval<float> maxzrg( -zwdth, zwdth );
-    Seis::TableSelData* tsd = new Seis::TableSelData( dps.bivSet(), &maxzrg );
-    SeisTrcReader rdr( &inioobj );
-    rdr.setSelData( tsd );
+    Seis::TableSelData* tsd = new Seis::TableSelData( dps.bivSet(), &maxzrg);
+    uiRetVal uirv;
+    PtrMan<Seis::Provider> prov = Seis::Provider::create(
+					inioobj.key(), &uirv );
+    if ( !prov )
+	{ errmsg_ = uirv; return false; }
+
+    prov->setSelData( tsd );
     SeisTrcWriter wrr( &outioobj );
-    uiWriteFlattenedCubeMaker cm( rdr, wrr, pp_, horzrg_, zval );
+    uiWriteFlattenedCubeMaker cm( *prov, wrr, pp_, horzrg_, zval );
     MouseCursorManager::restoreOverride();
     return TaskRunner::execute( &taskrunner, cm );
 }

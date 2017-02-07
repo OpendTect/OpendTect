@@ -17,7 +17,7 @@
 #include "prestackeventio.h"
 #include "separstr.h"
 #include "survinfo.h"
-#include "seisread.h"
+#include "seisprovider.h"
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "thread.h"
@@ -214,8 +214,8 @@ EventManager::EventManager()
     , notificationqueue_( new BinIDValueSet( 0, false ) )
     , nexthorid_( 0 )
     , auxdatachanged_( false )
-    , primarydipreader_( 0 )
-    , secondarydipreader_( 0 )
+    , primarydipprovider_( 0 )
+    , secondarydipprovider_( 0 )
     , color_( getRandomColor() )
     , storageid_( DBKey::getInvalid() )
 {
@@ -232,8 +232,8 @@ EventManager::~EventManager()
 
     delete reloadbids_;
     delete notificationqueue_;
-    delete primarydipreader_;
-    delete secondarydipreader_;
+    delete primarydipprovider_;
+    delete secondarydipprovider_;
 
     deepUnRef( emhorizons_ );
 }
@@ -713,26 +713,21 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	if ( ds.mid_.isInvalid() )
 	    return false;
 
-	SeisTrcReader*& reader =
-	    primary ? primarydipreader_ : secondarydipreader_;
+	Seis::Provider*& provider =
+	    primary ? primarydipprovider_ : secondarydipprovider_;
 
-	if ( !reader || !reader->ioObj() || reader->ioObj()->key()!=ds.mid_ )
+	if ( !provider || provider->dbKey()!=ds.mid_ )
 	{
-	    delete reader;
-	    reader = 0;
-	    PtrMan<IOObj> ioobj = DBM().get( ds.mid_ );
-	    if ( !ioobj ) return false;
-	    reader = new SeisTrcReader( ioobj );
-	    if ( !reader->prepareWork() )
-		return false;
+	    deleteAndZeroPtr( provider );
+	    uiRetVal uirv;
+	    provider = Seis::Provider::create( ds.mid_, &uirv );
+	    if ( !provider )
+		{ errmsg_ = uirv; return false; }
 	}
 
-	mDynamicCastGet(SeisTrcTranslator*,translator,reader->translator());
-	if ( !translator->supportsGoTo() || translator->goTo(bidv) )
-	    return false;
-
 	SeisTrc diptrc;
-	if ( !reader->get(diptrc) || diptrc.nrComponents()<2 )
+	const uiRetVal uirv = provider->get( TrcKey(bidv), diptrc );
+	if ( !uirv.isOK() || diptrc.nrComponents()<2 )
 	    return false;
 
 	float tmpinldip = diptrc.getValue( bidv.val(), 0 );

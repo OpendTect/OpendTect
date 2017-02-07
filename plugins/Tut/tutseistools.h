@@ -12,8 +12,8 @@
 
 class IOObj;
 class SeisTrc;
-class SeisTrcReader;
 class SeisTrcWriter;
+namespace Seis { class Provider; }
 
 
 namespace Tut
@@ -67,7 +67,7 @@ protected:
     SamplingData<float>	newsd_;
     bool		weaksmooth_;
 
-    SeisTrcReader*	rdr_;
+    Seis::Provider*	prov_;
     SeisTrcWriter*	wrr_;
     SeisTrc&		trcin_;
     SeisTrc&            trcout_;
@@ -75,7 +75,7 @@ protected:
     mutable int		totnr_;
     uiString		errmsg_;
 
-    bool		createReader();
+    bool		createProvider();
     bool		createWriter();
     void		handleTrace();
 
