@@ -18,8 +18,10 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "trckeyzsampling.h"
 #include "threadlock.h"
-class SeisDataPackWriter;
+
+class JobCommunic;
 class ProgressRecorder;
+class SeisDataPackWriter;
 
 
 namespace VolProc
@@ -53,6 +55,7 @@ public:
     virtual void		setProgressMeter(ProgressMeter*);
     virtual void		controlWork(Control);
     virtual void		enableWorkControl(bool yn=true);
+    void			setJobCommunicator(JobCommunic*);
 
 protected:
 

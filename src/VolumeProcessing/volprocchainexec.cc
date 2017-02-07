@@ -8,10 +8,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprocchainexec.h"
 
+#include "hiddenparam.h"
+#include "jobcommunic.h"
 #include "posinfo.h"
 #include "seisdatapack.h"
-#include "threadwork.h"
 #include "simpnumer.h" // for getCommonStepInterval
+#include "threadwork.h"
+
+
+HiddenParam<VolProc::ChainExecutor,JobCommunic*> jobcomm(0);
+
 
 uiString VolProc::ChainExecutor::sGetStepErrMsg()
 {
@@ -31,6 +37,8 @@ VolProc::ChainExecutor::ChainExecutor( Chain& vr )
     setName( vr.name().getFullString() );
     web_ = chain_.getWeb();
     //TODO Optimize connections, check for indentical steps using same inputs
+
+    jobcomm.setParam( this, 0 );
 }
 
 
@@ -45,6 +53,8 @@ VolProc::ChainExecutor::~ChainExecutor()
 	return;
 
     seismgr.release( outputdp_->id() );
+
+    jobcomm.removeParam( this );
 }
 
 
@@ -246,7 +256,7 @@ struct VolumeMemory
 			: creator_(creator)
 			, outputslot_(outputslot)
 			, nrbytes_(nrbytes)
-			, epoch_(epoch)				{};
+			, epoch_(epoch)				{}
 
     bool		operator==( VolumeMemory vm ) const
 			{
@@ -622,6 +632,10 @@ void VolProc::ChainExecutor::controlWork( Task::Control ctrl )
 }
 
 
+void VolProc::ChainExecutor::setJobCommunicator( JobCommunic* jc )
+{ jobcomm.setParam( this, jc ); }
+
+
 od_int64 VolProc::ChainExecutor::nrDone() const
 {
     if ( totalnrepochs_ < 1 )
@@ -643,6 +657,10 @@ od_int64 VolProc::ChainExecutor::nrDone() const
 	    percentagedone += curtaskpercentage;
 	}
     }
+
+    JobCommunic* comm = jobcomm.getParam(this);
+    if ( comm )
+	comm->updateProgress( mNINT32(percentagedone) );
 
     return mNINT64( percentagedone );
 }

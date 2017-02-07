@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "volprocchain.h"
 #include "executor.h"
 
+class JobCommunic;
 
 namespace VolProc
 {
@@ -49,6 +50,7 @@ public:
     bool			needsFullVolume() const;
 
     void			controlWork(Task::Control);
+    void			setJobCommunicator(JobCommunic*);
 
 private:
 

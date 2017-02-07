@@ -285,7 +285,9 @@ bool BatchProgram::go( od_ostream& strm )
 
 		if ( res > 0 )
 		{
-		    if ( comm_ && !comm_->updateProgress( nriter + 1 ) )
+		    const int percdone =
+				mNINT32( 100*(float)nrdone/proc->totalNr() );
+		    if ( comm_ && !comm_->updateProgress(percdone) )
 			mRetHostErr( comm_->errMsg().getFullString() )
 
 		    if ( proc->nrDone()>nrdone )

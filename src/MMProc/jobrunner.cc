@@ -670,14 +670,14 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
     case mPID_TAG :
 	ji->osprocid_ = si.status;
 	ji->state_ = JobInfo::Working;
-	ji->statusmsg_ = " initialising";
+	ji->statusmsg_ = " initializing";
     break;
     case mPROC_STATUS :
 	ji->nrdone_ = si.status;
 
 	ji->statusmsg_ = " active; ";
 	ji->statusmsg_ += ji->nrdone_;
-	ji->statusmsg_ += " traces done.";
+	ji->statusmsg_ += " % done.";
 
 	if ( si.procid > 0 && ji->osprocid_ > 0  && si.procid != ji->osprocid_ )
 	    failedJob( *ji, JobInfo::JobFailed );
