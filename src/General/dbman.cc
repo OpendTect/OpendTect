@@ -543,8 +543,14 @@ RefMan<DBDir> DBMan::getDBDir( DirID dirid )
 
 bool DBMan::setEntry( const IOObj& ioobj )
 {
-    RefMan<DBDir> dbdir = getDBDir( ioobj.key().dirID() );
-    return dbdir ? dbdir->commitChanges( ioobj ) : false;
+   RefMan<DBDir> dbdir = getDBDir( ioobj.key().dirID() );
+   if ( !dbdir )
+       return false;
+
+   if ( !ioobj.key().hasValidObjID() )
+       const_cast<IOObj&>( ioobj ).setKey( dbdir->newKey() );
+
+   return dbdir->commitChanges( ioobj );
 }
 
 
