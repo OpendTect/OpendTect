@@ -678,8 +678,8 @@ uiString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
     if ( as && as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
         return uiStrings::sZValue(mPlural);
 
-    if ( as )
-	return toUiString( as->userRef() );
+     if ( as && as->userRef() && *as->userRef() != 0 )
+	 return toUiString( as->userRef() );
 
     return uiODAttribTreeItem::createDisplayName();
 }
