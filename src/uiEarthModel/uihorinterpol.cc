@@ -191,10 +191,19 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     uiStringSet errors;
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
     {
+	Interval<int> polyinlrg( Interval<int>::udf() );
+	Interval<int> polycrlrg( Interval<int>::udf() );
+	
+	bool usepolygon = false;
+	if ( interpolhor3dsel_ )
+	    usepolygon = 
+	    interpolhor3dsel_->getPolygonRange( polyinlrg, polycrlrg );
+	
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
 	uiRetVal rv = HorizonGridder::executeGridding(
 		interpolator.ptr(), hor3d, sid, interpolhor3dsel_->getStep(),
-		&taskrunner );
+		usepolygon ? &polyinlrg : 0, 
+		usepolygon ? &polycrlrg : 0, &taskrunner );
 	if ( rv.isError() )
 	    errors += rv;
     }
