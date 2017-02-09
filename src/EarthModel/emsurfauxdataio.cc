@@ -343,9 +343,25 @@ uiString dgbSurfDataReader::sHorizonData()
     return tr("Horizon data");
 }
 
-#define mErrRetRead(msg) { \
+#ifdef __debug__
+#   define mErrRetRead(msg) { \
     if ( !msg.isEmpty() ) errmsg_ = msg; \
     surf_->auxdata.removeAuxData(dataidx_); return ErrorOccurred(); }
+#else
+    #define mErrRetRead(msg) { \
+    surf_->auxdata.removeAuxData(dataidx_); return ErrorOccurred(); }
+#endif
+
+
+#ifdef __debug__
+#   define mErrRetReadNoDeleteAux(msg) { \
+    if ( !msg.isEmpty() ) errmsg_ = msg; \
+    return ErrorOccurred(); }
+#else
+#define mErrRetRead(msg) { \
+    return ErrorOccurred(); }
+#endif
+
 
 int dgbSurfDataReader::nextStep()
 {
@@ -365,12 +381,14 @@ int dgbSurfDataReader::nextStep()
 	    else
 	    {
 		if ( !readInt(nrsections_) || nrsections_ < 0 )
-		    mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
+		    mErrRetReadNoDeleteAux( 
+		    uiStrings::phrCannotRead( sHorizonData() ) )
 	    }
 
 	    int cursec = -1;
 	    if ( !readInt(cursec) || !readInt(valsleftonsection_) || cursec<0 )
-		mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
+		mErrRetReadNoDeleteAux( 
+		uiStrings::phrCannotRead( sHorizonData() ) )
 
 	    currentsection_ = mCast(EM::SectionID,cursec);
 	    totalnr_ = 100;
@@ -385,7 +403,8 @@ int dgbSurfDataReader::nextStep()
 	SubID subid;
 	float val;
 	if ( !readInt64(subid) || !readFloat(val) )
-	    mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
+	    mErrRetReadNoDeleteAux( 
+	    uiStrings::phrCannotRead( sHorizonData() ) )
 
 	posid.setSubID( subid );
 	posid.setSectionID( currentsection_ );
