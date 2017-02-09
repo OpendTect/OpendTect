@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "polygon.h"
 #include "emhorizon3d.h"
+#include "emhorizon2d.h"
 
 #include "visdrawstyle.h"
 #include "visevent.h"
@@ -846,7 +847,16 @@ const TypeSet<int> EMObjectDisplay::findOverlapSelectors(
 
 void EMObjectDisplay::updateSelections()
 {
+    mDynamicCastGet( EM::Horizon2D*, hor2d, emobject_ );
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
+
+    Color selectioncolor =  Color::Orange();
+    if ( hor2d || hor3d )
+    {
+	selectioncolor = hor3d ? hor3d->getSelectionColor() :	
+	    hor2d->getSelectionColor();    
+    }
+
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
     {
 	for ( int idy=0; idy<posattribmarkers_[idx]->size(); idy++ )
@@ -860,17 +870,21 @@ void EMObjectDisplay::updateSelections()
 	    if ( !coords )
 		continue;
 	    const Coord3 pos = coords->getPos( idy );
+	    const BinID pickedbid = SI().transform( pos.getXY() );
+	    const bool lockednode = !pickedbid.isUdf() && hor3d &&
+		hor3d->isNodeLocked( TrcKey(pickedbid) );
+
 	    for ( int idz=selectors_.size()-1; idz>=0; idz-- )
 	    {
-		if ( selectors_[idz]->includes(pos) )
-			markerset->getMaterial()->setColor( mSelColor, idy );
-		else
+		if ( selectors_[idz]->includes(pos) && !lockednode )
 		{
-		    const BinID pickedbid = SI().transform( pos.getXY() );
-		    if ( !pickedbid.isUdf() && hor3d &&
-			hor3d->isNodeLocked(TrcKey(pickedbid)) )
 			markerset->getMaterial()->setColor(
-			hor3d->getLockColor(), idy );
+			selectioncolor, idy );
+		}
+		else if ( lockednode && hor3d )
+		{
+		    markerset->getMaterial()->setColor(
+		    hor3d->getLockColor(),idy);
 		}
 	    }
 	}
@@ -984,6 +998,8 @@ void EMObjectDisplay::updateLockedSeedsColor()
     visBase::MarkerSet* markerset = posattribmarkers_[attribindex];
     if ( !markerset ) return;
 
+    const Color seedclr = emobject_->getPosAttrMarkerStyle(attribindex).color_;
+
     const visBase::Coordinates* coords = markerset->getCoordinates();
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
     if ( !coords || !hor3d ) return;
@@ -993,7 +1009,9 @@ void EMObjectDisplay::updateLockedSeedsColor()
 	if ( pickedbid.isUdf() )
 		continue;
 	if ( hor3d->isNodeLocked(TrcKey(pickedbid)) )
-	    markerset->getMaterial()->setColor(hor3d->getLockColor(),idx);
+	    markerset->getMaterial()->setColor( hor3d->getLockColor(), idx );
+	else
+	    markerset->getMaterial()->setColor( seedclr, idx );
     }
     markerset->forceRedraw( true );
 }
