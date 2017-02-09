@@ -359,7 +359,7 @@ uiString dgbSurfDataReader::sHorizonData()
     if ( !msg.isEmpty() ) errmsg_ = msg; \
     return ErrorOccurred(); }
 #else
-#define mErrRetRead(msg) { \
+#define mErrRetReadNoDeleteAux(msg) { \
     return ErrorOccurred(); }
 #endif
 
