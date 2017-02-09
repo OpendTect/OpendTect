@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Raman K Singh
- Date:          Mar 2013
+ Author:	Raman K Singh
+ Date:		Mar 2013
 ________________________________________________________________________
 
 -*/
@@ -332,10 +332,28 @@ uiRetVal HorizonGridder::executeGridding(
 	const EM::SectionID& sid,
 	const BinID& gridstep, TaskRunner* taskrunner)
 {
+    return HorizonGridder::executeGridding( interpolator, hor3d, sid, gridstep,
+	0, 0, taskrunner );
+}
+
+uiRetVal HorizonGridder::executeGridding(
+	HorizonGridder* interpolator, EM::Horizon3D* hor3d,
+	const EM::SectionID& sid,
+	const BinID& gridstep, 
+	const Interval<int>* polyinlrg,
+	const Interval<int>* polycrlrg,
+	TaskRunner* taskrunner)
+{
     StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
     rowrg.step = gridstep.inl();
     StepInterval<int> colrg = hor3d->geometry().colRange();
     colrg.step = gridstep.crl();
+
+    if ( polyinlrg && polycrlrg )
+    {
+	rowrg.include( *polyinlrg );
+	colrg.include( *polycrlrg );
+    }
 
     TrcKeySampling hs( false );
     hs.set( rowrg, colrg );
@@ -391,3 +409,4 @@ uiRetVal HorizonGridder::executeGridding(
 					hs.start_, hs.step_, arr, true );
     return uiRetVal::OK();
 }
+
