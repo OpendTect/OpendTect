@@ -326,15 +326,25 @@ bool ContinuousCurvatureHor3DGridder::setArray2D( Array2D<float>& arr,
      return setArray( arr,taskrunner );
 }
 
+
 uiRetVal HorizonGridder::executeGridding(
 	HorizonGridder* interpolator, EM::Horizon3D* hor3d,
 	const EM::SectionID& sid,
-	const BinID& gridstep, TaskRunner* taskrunner)
+	const BinID& gridstep, 
+	const Interval<int>* polyinlrg,
+	const Interval<int>* polycrlrg,
+	TaskRunner* taskrunner)
 {
     StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
     rowrg.step = gridstep.inl();
     StepInterval<int> colrg = hor3d->geometry().colRange();
     colrg.step = gridstep.crl();
+
+    if ( polyinlrg && polycrlrg )
+    {
+	rowrg.include( *polyinlrg );
+	colrg.include( *polycrlrg );
+    }
 
     TrcKeySampling hs( false );
     hs.set( rowrg, colrg );
