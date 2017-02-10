@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 #include "uitaskrunner.h"
 #include "uivispartserv.h"
+#include "visrgbatexturechannel2rgba.h"
 #include "visseis2ddisplay.h"
 
 #include "attribdataholder.h"
@@ -223,11 +224,13 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	int action = 0;
 	TypeSet<Pos::GeomID> geomids;
 	applMgr()->seisServer()->select2DLines( geomids, action );
+	const bool rgba = action==3;
+
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	for ( int idx=geomids.size()-1; idx>=0; idx-- )
 	{
 	    setMoreObjectsToDoHint( idx>0 );
-	    addChild( new uiOD2DLineTreeItem(geomids[idx]), false );
+	    addChild( new uiOD2DLineTreeItem(geomids[idx],-1,rgba), false );
 	}
 	cursorchgr.restore();
 
@@ -237,6 +240,12 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	    loadDefaultData();
 	else if ( action==2 )
 	    selectLoadAttribute( geomids );
+
+	if ( rgba )
+	{
+	    for ( int attridx=0; attridx<4; attridx++ )
+		selectLoadAttribute( geomids, sKeyRightClick(), attridx );
+	}
     }
     else if ( mnuid == mGridFrom3D )
 	ODMainWin()->applMgr().create2DGrid();
@@ -367,7 +376,7 @@ bool uiODLine2DParentTreeItem::loadDefaultData()
 
 
 bool uiODLine2DParentTreeItem::selectLoadAttribute(
-	const TypeSet<Pos::GeomID>& geomids, const char* curattrnm )
+    const TypeSet<Pos::GeomID>& geomids, const char* curattrnm, int attridx )
 {
     const Attrib::DescSet* ds =
 	applMgr()->attrServer()->curDescSet( true );
@@ -377,11 +386,34 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
     ZDomain::Info info = scene->zDomainInfo();
 
     uiAttr2DSelDlg dlg( ODMainWin(), ds, geomids, nla, info, curattrnm );
-    if ( !dlg.go() ) return false;
 
     uiTaskRunner uitr( ODMainWin() );
     ObjectSet<uiTreeItem> set;
     findChildren( curattrnm, set );
+
+    if ( attridx >= 0 )
+    {
+	const uiODDataTreeItem* dataitm0 = 0;
+	for ( int idx=set.size()-1; idx>=0; idx-- )
+	{
+	    mDynamicCastGet( const uiODDataTreeItem*, itm, set[idx] );
+	    if ( itm && attridx==itm->attribNr() )
+		dataitm0 = itm;
+	    else
+		set.removeSingle( idx );
+	}
+
+	if ( dataitm0 )	
+	{
+	    uiString attribposname;
+	    applMgr()->visServer()->getAttribPosName( dataitm0->displayID(),
+						      attridx, attribposname );
+	    dlg.setCaption( uiStrings::phrSelect(attribposname) );
+	}
+    }
+
+    if ( !dlg.go() ) return false;
+
     const int attrtype = dlg.getSelType();
     if ( attrtype == 0 || attrtype == 1 )
     {
@@ -434,8 +466,11 @@ uiTreeItem*
 		    ODMainWin()->applMgr().visServer()->getObject(visid))
     if ( !s2d || !treeitem ) return 0;
 
+    mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
+		     s2d->getChannels2RGBA() );
+
     uiOD2DLineTreeItem* newsubitm =
-	new uiOD2DLineTreeItem( s2d->getGeomID(), visid );
+	new uiOD2DLineTreeItem( s2d->getGeomID(), visid, rgba );
 
     if ( newsubitm )
        treeitem->addChild( newsubitm,true );
@@ -444,12 +479,14 @@ uiTreeItem*
 }
 
 
-uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, int displayid )
+uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, int displayid,
+					bool rgba )
     : linenmitm_(tr("Show Linename"))
     , panelitm_(tr("Show 2D Plane"))
     , polylineitm_(tr("Show Line Geometry"))
     , positionitm_(m3Dots(tr("Position")))
     , geomid_(geomid)
+    , rgba_( rgba )
 {
     name_ = mToUiStringTodo(Survey::GM().getName( geomid ));
     displayid_ = displayid;
@@ -486,6 +523,14 @@ bool uiOD2DLineTreeItem::init()
 
 	s2d->turnOn( true );
 	newdisplay = true;
+
+	if ( rgba_ )
+	{
+	    s2d->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
+	    s2d->addAttrib();
+	    s2d->addAttrib();
+	    s2d->addAttrib();
+	}
     }
 
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
@@ -1019,7 +1064,9 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     s2d->showPanel( true );
 
     updateColumnText(0);
-    setChecked( s2d->isOn() );
+
+    if ( s2d->isOn() != isChecked() )
+	setChecked( s2d->isOn(), true );
 
     return true;
 }
@@ -1044,7 +1091,10 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
     s2d->showPanel( true );
 
     updateColumnText(0);
-    setChecked( s2d->isOn() );
+
+    if ( s2d->isOn() != isChecked() )
+	setChecked( s2d->isOn(), true );
+
     applMgr()->updateColorTable( displayID(), attribNr() );
 }
 

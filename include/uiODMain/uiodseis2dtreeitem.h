@@ -31,7 +31,7 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODTreeItem
     bool                handleSubMenu(int);
     bool                loadDefaultData();
     bool                selectLoadAttribute(const TypeSet<Pos::GeomID>&,
-                             const char* attrnm=sKeyRightClick());
+			    const char* attrnm=sKeyRightClick(),int attridx=-1);
     static const char*  sKeyRightClick();
     static const char*  sKeyUnselected();
     uiMenu*             replaceattritm_;
@@ -57,7 +57,8 @@ public:
 mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiOD2DLineTreeItem);
 public:
-			uiOD2DLineTreeItem(Pos::GeomID,int displayid=-1);
+			uiOD2DLineTreeItem(Pos::GeomID,int displayid=-1,
+					   bool rgba=false);
 
     bool		addStoredData(const char*,int component,uiTaskRunner&);
     void		addAttrib(const Attrib::SelSpec&,uiTaskRunner&);
@@ -86,6 +87,7 @@ private:
     MenuItem		panelitm_;
     MenuItem		polylineitm_;
     MenuItem		positionitm_;
+    bool		rgba_;
 };
 
 

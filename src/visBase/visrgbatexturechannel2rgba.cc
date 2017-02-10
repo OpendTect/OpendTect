@@ -52,7 +52,7 @@ RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
 	sequences_[3].setColor( 1, 255,255,255 );
 	sequences_[3].setTransparency( Geom::Point2D<float>(0,0) );
 	sequences_[3].setTransparency( Geom::Point2D<float>(1,255) );
-	sequences_[3].setName( "Transparency" );
+	sequences_[3].setName( "Alpha" );
     }
 
     for ( int idx=0; idx<=3; idx++ )
@@ -81,7 +81,7 @@ void RGBATextureChannel2RGBA::getChannelName( int channel,
 	    layername = uiStrings::sBlue();
 	    break;
 	case 3:
-	    layername = uiStrings::sTransparency();
+	    layername = uiStrings::sAlpha();
 	    break;
 	default:
 	    res.setEmpty();
