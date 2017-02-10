@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 #include "uiobjfileman.h"
 
+class uiListBox;
+
 
 /*!
 \brief AttributeSet Manager
@@ -31,6 +33,8 @@ public:
 protected:
 
     void			mkFileInfo();
+
+    uiListBox*			attribfld_;
 };
 
 #endif
