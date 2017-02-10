@@ -464,10 +464,11 @@ void uiODDisplayTreeItem::deleteObject()
 	return;
     }
 
+    const int sceneid = sceneID(); // Don't change this order!
     if ( !uiIOObj(*ioobj).removeImpl(true,true) )
 	return;
 
-    visserv_->removeObject( displayid_, sceneID() );
+    visserv_->removeObject( displayid_, sceneid );
     parent_->removeChild( this );
 }
 
