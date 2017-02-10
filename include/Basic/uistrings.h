@@ -212,6 +212,7 @@ public:
     static uiString sAdvanced()		{ return tr("Advanced"); }
     static uiString sAlignment()	{ return tr("OD::Alignment"); }
     static uiString sAll()		{ return tr("All"); }
+    static uiString sAlpha()		{ return tr("Alpha"); }
     static uiString sAmplitude(int num=1){ return tr("Amplitude",0,num); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
     static uiString sAnd()		{ return tr("and"); }

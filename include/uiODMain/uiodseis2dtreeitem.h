@@ -42,7 +42,7 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem
 protected:
     uiVisPartServer*	visserv_;
     Pos::GeomID		geomtobeadded_;
-    mutable Attrib::SelSpec selattr_;
+
     MenuItem		additm_;
     MenuItem		create2dgridfrom3ditm_;
     MenuItem		extractfrom3ditm_;
@@ -56,7 +56,11 @@ protected:
     MenuItem		displayallitm_;
     MenuItem		hideallitm_;
 
+    mutable TypeSet<Attrib::SelSpec> selattribs_;
+
     bool		getSelAttrSelSpec(Probe&,Attrib::SelSpec&) const;
+    bool		getSelRGBAttrSelSpecs(Probe&,
+					      TypeSet<Attrib::SelSpec>&) const;
     BufferStringSet	getDisplayedAttribNames() const;
     Type		getType(int) const;
 };

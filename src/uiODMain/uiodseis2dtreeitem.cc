@@ -70,6 +70,7 @@ uiODSceneProbeParentTreeItem::Type
 	case 0: return uiODSceneProbeParentTreeItem::Empty; break;
 	case 1: return uiODSceneProbeParentTreeItem::Default; break;
 	case 2: return uiODSceneProbeParentTreeItem::Select; break;
+	case 3: return uiODSceneProbeParentTreeItem::RGBA; break;
 	default: return uiODSceneProbeParentTreeItem::Empty;
     }
 }
@@ -255,15 +256,36 @@ void uiODLine2DParentTreeItem::createMenu( MenuHandler* menu, bool istb )
 bool uiODLine2DParentTreeItem::getSelAttrSelSpec(
 	Probe& probe , Attrib::SelSpec& selspec ) const
 {
-    if ( selattr_.id()==Attrib::SelSpec::cAttribNotSel() )
+    if ( selattribs_.isEmpty() )
     {
+	MouseCursorChanger cursorchgr( MouseCursor::Arrow );
 	if ( !uiODSceneProbeParentTreeItem::getSelAttrSelSpec(probe,selspec) )
 	    return false;
 
-	selattr_ = selspec;
+	selattribs_ += selspec;
     }
+    else
+	selspec = selattribs_[0];
 
-    selspec = selattr_;
+    return true;
+}
+
+
+bool uiODLine2DParentTreeItem::getSelRGBAttrSelSpecs( Probe& probe,
+				    TypeSet<Attrib::SelSpec>& rgbaspecs ) const
+{
+    if ( selattribs_.isEmpty() )
+    {
+	MouseCursorChanger cursorchgr( MouseCursor::Arrow );
+	if ( !uiODSceneProbeParentTreeItem::getSelRGBAttrSelSpecs(probe,
+								  rgbaspecs) )
+	    return false;
+
+	selattribs_ = rgbaspecs;
+    }
+    else
+	rgbaspecs = selattribs_;
+
     return true;
 }
 
@@ -291,7 +313,7 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
     {
 	int action = 0;
 	TypeSet<Pos::GeomID> geomids;
-	selattr_ = Attrib::SelSpec();
+	selattribs_.setEmpty();
 	applMgr()->seisServer()->select2DLines( geomids, action );
 	if ( geomids.isEmpty() )
 	    return;
@@ -313,7 +335,7 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
 	ODMainWin()->applMgr().create2DFrom3D();
     else if ( menuid == addattritm_.id )
     {
-	selattr_ = Attrib::SelSpec();
+	selattribs_.setEmpty();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx]);
@@ -344,7 +366,7 @@ void uiODLine2DParentTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const MenuItem* itm = replaceattritm_.findItem( menuid );
 	FixedString attrnm = itm->text.getOriginalString();
-	selattr_ = Attrib::SelSpec();
+	selattribs_.setEmpty();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineTreeItem*,lineitm,children_[idx]);

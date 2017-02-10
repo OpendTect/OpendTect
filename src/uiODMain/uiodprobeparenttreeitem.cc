@@ -207,18 +207,24 @@ bool uiODSceneProbeParentTreeItem::setSelAttribProbeLayer( Probe& probe ) const
 }
 
 
-bool uiODSceneProbeParentTreeItem::setRGBProbeLayers( Probe& probe ) const
+bool uiODSceneProbeParentTreeItem::getSelRGBAttrSelSpecs( Probe& probe,
+				    TypeSet<Attrib::SelSpec>& rgbaspecs ) const
 {
     if ( !applMgr() || !applMgr()->attrServer() )
 	return false;
 
-    const Pos::GeomID probegeomid = probe.position().hsamp_.getGeomID();
+    const Pos::GeomID geomid = probe.position().hsamp_.getGeomID();
     const ZDomain::Info* zdinf = applMgr()->visServer()->zDomainInfo(sceneID());
 
+    return applMgr()->attrServer()->selectRGBAttribs( rgbaspecs,zdinf,geomid );
+}
+
+
+bool uiODSceneProbeParentTreeItem::setRGBProbeLayers( Probe& probe ) const
+{
     TypeSet<Attrib::SelSpec> rgbaspecs;
-    const bool selok =
-	applMgr()->attrServer()->selectRGBAttribs(rgbaspecs,zdinf,probegeomid);
-    if ( !selok ) return false;
+    if ( !getSelRGBAttrSelSpecs(probe,rgbaspecs) )
+	return false;
 
     for ( int idx=0; idx<rgbaspecs.size(); idx++ )
     {
