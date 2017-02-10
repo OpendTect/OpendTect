@@ -249,9 +249,20 @@ uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
-    uiString dispname( as
-	    ? toUiString(as->userRef())
-	    : uiString::emptyString() );
+    uiString dispname = uiString::emptyString();
+    if ( as )
+    {
+	const int nrtextures = visserv->nrTextures( visid, attrib );
+	const int curidx = visserv->selectedTexture( visid, attrib );
+	if ( nrtextures > 1 )
+	{
+	    BufferString str;
+	    str.add( curidx+1 ).add( "/" ).add( nrtextures ).addSpace();
+	    dispname.append( toUiString(str) );
+	}
+	dispname.append( toUiString(as->userRef()) );
+    }
+
     if ( as && as->isNLA() )
     {
 	dispname = toUiString(as->objectRef());
