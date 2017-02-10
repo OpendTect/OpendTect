@@ -79,7 +79,23 @@ public:
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
-    void			getTextureCoordinates(TypeSet<Coord3>&) const;
+
+    int				getNrTextures() const;
+    const unsigned char*	getTextureData() const;
+
+    mStruct(visBase) TextureDataInfo
+    {
+	TypeSet<Coord3> coords_;
+	TypeSet<Coord>	texcoords_;
+	TypeSet<int>	ps_;
+	void		setEmpty() { coords_.erase(); texcoords_.erase();
+				     ps_.erase(); }
+    };
+
+    bool			getTextureDataInfo(int tidx,
+				    TextureDataInfo& texinfo) const;
+    bool			getTextureInfo(int& width,int& height,
+					       int& pixsize) const;
 
 protected:
     				~TextureRectangle();

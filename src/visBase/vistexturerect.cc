@@ -196,61 +196,73 @@ const mVisTrans* TextureRectangle::getDisplayTransformation() const
 { return displaytrans_; }
 
 
-void TextureRectangle::getTextureCoordinates( TypeSet<Coord3>& coords ) const
+int TextureRectangle::getNrTextures() const
 {
-    Coord3 width = getWidth();
-    Coord3 center = getCenter();
+    const std::vector<osg::Geometry*>& geometries =
+					    textureplane_->getGeometries();
+    return geometries.size();
+}
 
-    char thindim = 0;
-    if ( width.x_ == 0 )
-	thindim = 0;
-    else if ( width.y_ == 0 )
-	thindim = 1;
-    else thindim = 2;
 
-    if ( displaytrans_ )
+const unsigned char* TextureRectangle::getTextureData() const
+{
+    const osg::Image* image = textureplane_->getCompositeTextureImage();
+    return image ? image->data() : 0;
+}
+
+
+bool TextureRectangle::getTextureDataInfo( int tidx,
+					   TextureDataInfo& texinfo ) const
+{
+    texinfo.setEmpty();
+    const std::vector<osg::Geometry*>& geometries =
+				       textureplane_->getGeometries();
+
+    if ( tidx >= geometries.size() )
+	return false;
+
+    const osg::Array* coords = geometries[tidx]->getVertexArray();
+    const osg::Vec3Array* vtxcoords =
+				dynamic_cast<const osg::Vec3Array*>( coords );
+
+    const osg::PrimitiveSet* ps = geometries[tidx]->getPrimitiveSet( 0 );
+    if ( !vtxcoords || !ps )
+	return false;
+
+    for ( int idx=0; idx<vtxcoords->size(); idx++ )
     {
-	displaytrans_->transformDir( width );
-	displaytrans_->transform( center );
+	texinfo.coords_ += Coord3( vtxcoords->at(idx)[0],
+				   vtxcoords->at(idx)[1],
+				   vtxcoords->at(idx)[2] );
     }
 
-    const int tw = channels_->getChannels2RGBA()->getTextureWidth();
-    const int th = channels_->getChannels2RGBA()->getTextureHeight();
-    
-    coords.erase();
+    for ( int idx=0; idx<ps->getNumIndices(); idx++ )
+	texinfo.ps_ += ps->index( idx );
 
-    for ( int idx=0; idx<4; idx++ )
-	coords += Coord3();
-    
-    coords[0] = Coord3( 0.0f, 0.0f, 0.0f );
-    coords[1] = Coord3( tw, 0.0f, 0.0f );
-    coords[2] = Coord3( 0.0f, th, 0.0f );
-    coords[3] = Coord3( tw, th, 0.0f );
+    texinfo.texcoords_.setEmpty();
+    osg::ref_ptr<const osg::Vec2Array> osgcoords =
+			textureplane_->getCompositeTextureCoords( tidx );
 
-    const osg::Quat rotation = textureplane_->getRotation();
-    osg::Matrix rotmt;
-    rotmt.makeRotate( rotation );
+    if ( !osgcoords.valid() )
+	return false;
 
-    for ( int idx=0; idx<4; idx++ )
-    {
-	coords[idx].x_ /= tw;
-	coords[idx].y_ /= th;
-	coords[idx] -= Coord3( 0.5f, 0.5f, 0.0f );
+    for ( int idx=0; idx<osgcoords->size(); idx++ )
+	texinfo.texcoords_ += Conv::to<Coord>( osgcoords->at(idx) );
 
-	if ( textureplane_->areTextureAxesSwapped() )
-	    coords[idx] = Coord3( coords[idx].y_, coords[idx].x_, 0.0f );
-	if ( thindim==0 )
-	    coords[idx]  = Coord3( 0.0f, coords[idx].x_, coords[idx].y_ );
-	else if ( thindim==1 )
-	    coords[idx] = Coord3( coords[idx].x_, 0.0f, coords[idx].y_ );
+    return true;
+}
 
-	coords[idx].x_ *= width.x_;
-	coords[idx].y_ *= width.y_;
-	coords[idx].z_ *= width.z_;
 
-	osg::Vec3 crd = Conv::to<osg::Vec3>( coords[idx] );
-	crd = rotmt.preMult( crd );
-	coords[idx] = Conv::to<Coord3>(crd) + center;
-    }
-    
+bool TextureRectangle::getTextureInfo( int& width, int& height,
+	int& pixsize ) const
+{
+    const osg::Image* image = textureplane_->getCompositeTextureImage();
+    if ( !image )
+	return false;
+
+    width = image->s();
+    height = image->t();
+    pixsize = image->getPixelSizeInBits() / 8;
+
+    return true;
 }
