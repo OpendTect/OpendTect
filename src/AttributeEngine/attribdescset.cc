@@ -653,13 +653,38 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 			    CompoundKey usrrefkey(compkey.key(0));
 			    usrrefkey += userRefStr();
 			    copypar.get( usrrefkey.buf(), depattribnm );
+			    if ( depattribnm.find( "FullSteering")
+				 || depattribnm.find( "CentralSteering") )
+			    {
+				depattribnm.setEmpty();
+				bool foundsecondorder = true;
+				while ( foundsecondorder )
+				{
+				    const CompoundKey compkey2 =
+					tmpcpypar.findKeyFor(
+						toString(compkey.key(0)) );
+				    foundsecondorder = !compkey2.isEmpty();
+				    if ( foundsecondorder )
+				    {
+					if ( compkey2.nrKeys()>1
+					  && compkey2.key(1) == sKey::Input() )
+					{
+					    CompoundKey urkey(compkey2.key(0));
+					    urkey += userRefStr();
+					    copypar.get( urkey.buf(),
+							 depattribnm );
+					}
+					break;
+				    }
+				}
+			    }
 			    break;
 			}
 			else
 			    tmpcpypar.removeWithKey( compkey.buf() );
 		    }
 		}
-		err = tr( "Impossible to find stored data '%1'"
+		err = tr( "Impossible to find stored data '%1' "
 			"used as input for another attribute %2 '%3'. \n"
 			"Data might have been deleted or corrupted.\n"
 			"Please check your attribute set "
