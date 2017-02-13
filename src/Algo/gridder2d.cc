@@ -111,8 +111,7 @@ void Gridder2D::setTrend( PolyTrend::Order order )
 	if ( order == trend_->getOrder() )
 	    return;
 
-	delete trend_;
-	trend_ = 0;
+	deleteAndZeroPtr( trend_ );
     }
 
     if ( order != PolyTrend::None )
@@ -262,15 +261,6 @@ bool InverseDistanceGridder2D::operator==( const Gridder2D& b ) const
 }
 
 
-void InverseDistanceGridder2D::setSearchRadius( float r )
-{
-    if ( r <= 0 )
-	return;
-
-    radius_ = r;
-}
-
-
 bool InverseDistanceGridder2D::isPointUsable( const Coord& calcpt,
 					      const Coord& datapt ) const
 {
@@ -320,11 +310,16 @@ bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
 bool InverseDistanceGridder2D::usePar( const IOPar& par )
 {
     Gridder2D::usePar( par );
-    float radius;
-    if ( !par.get( sKeySearchRadius(), radius ) )
-	return false;
 
-    setSearchRadius( radius );
+    if ( !par.get(sKeySearchRadius(),radius_) )
+    {
+	radius_ = mUdf(float);
+	return false;
+    }
+
+    if ( radius_ < 0.f )
+	radius_ = mUdf(float);
+
     return true;
 }
 
@@ -332,7 +327,7 @@ bool InverseDistanceGridder2D::usePar( const IOPar& par )
 void InverseDistanceGridder2D::fillPar( IOPar& par ) const
 {
     Gridder2D::fillPar( par );
-    par.set( sKeySearchRadius(), getSearchRadius() );
+    par.set( sKeySearchRadius(), radius_ );
 }
 
 

@@ -12,53 +12,100 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidlggroup.h"
+
+#include "arrayndalgo.h"
 #include "factory.h"
 
 class Gridder2D;
+class uiGridder2DGrp;
 class InverseDistanceGridder2D;
+class TriangulatedGridder2D;
 class uiGenInput;
 
 
 mExpClass(uiTools) uiGridder2DSel : public uiDlgGroup
 { mODTextTranslationClass(uiGridder2DSel);
 public:
-    				uiGridder2DSel(uiParent*,const Gridder2D*);
-    				~uiGridder2DSel();
+				uiGridder2DSel(uiParent*,const Gridder2D*,
+					      PolyTrend::Order=PolyTrend::None);
+				~uiGridder2DSel();
 
-    const Gridder2D*		getSel();
+    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&,bool withprefix=false) const;
 
 protected:
+
     void			selChangeCB(CallBacker*);
+    const uiGridder2DGrp*	getSel() const;
     const Gridder2D*		original_;
     uiGenInput*			griddingsel_;
 
-    ObjectSet<uiDlgGroup>	griddingparams_;
-    ObjectSet<Gridder2D>	gridders_;
+    ObjectSet<uiGridder2DGrp>	griddinggrps_;
 };
 
-mExpClass(uiTools) uiInverseDistanceGridder2D : public uiDlgGroup
-{ mODTextTranslationClass(uiInverseDistanceGridder2D)
+
+mExpClass(uiTools) uiGridder2DGrp : public uiDlgGroup
+{ mODTextTranslationClass(uiGridder2DGrp)
 public:
-    static void		initClass();
-    static uiDlgGroup*	create(uiParent*,Gridder2D*);
 
-    			uiInverseDistanceGridder2D(uiParent*,
-					InverseDistanceGridder2D&);
+				~uiGridder2DGrp();
 
-    bool		acceptOK();
-    bool		rejectOK();
-    bool		revertChanges();
+    virtual bool		usePar(const IOPar&);
+    virtual bool		fillPar(IOPar&) const;
 
-    const uiString	errMsg() const;
+    virtual bool		rejectOK()	{ return revertChanges(); }
+    bool			revertChanges();
+
+    virtual const uiString	errMg() { return msg_; }
 
 protected:
+				uiGridder2DGrp(uiParent*,const uiString,
+				      const BufferString&,bool withtrend=false);
 
-    uiGenInput*			searchradiusfld_;
-    const float			initialsearchradius_;
+    virtual void		getFromScreen() const	{}
+    virtual void		putToScreen()		{}
 
-    InverseDistanceGridder2D&	idg_;
+    uiGenInput*			trendFld() const	{ return trendfld_; }
+
+    Gridder2D*			gridder_;
+    IOPar			initialstate_;
+    mutable uiString		msg_;
+
+private:
+
+    uiGenInput*			trendfld_;
+
 };
 
 
-mDefineFactory2Param( uiTools, uiDlgGroup, uiParent*, Gridder2D*,
+mExpClass(uiTools) uiInverseDistanceGridder2D : public uiGridder2DGrp
+{ mODTextTranslationClass(uiInverseDistanceGridder2D)
+public:
+    static void			initClass();
+    static uiGridder2DGrp*	create(uiParent*,const BufferString&);
+
+				uiInverseDistanceGridder2D(uiParent*,
+							   const BufferString&);
+protected:
+
+    virtual void		getFromScreen() const;
+    virtual void		putToScreen();
+
+    uiGenInput*			searchradiusfld_;
+};
+
+
+mExpClass(uiTools) uiTriangulatedGridder2D : public uiGridder2DGrp
+{ mODTextTranslationClass(uiTriangulatedGridder2D)
+public:
+    static void			initClass();
+    static uiGridder2DGrp*	create(uiParent*,const BufferString&);
+
+				uiTriangulatedGridder2D(uiParent*,
+							const BufferString&);
+
+};
+
+
+mDefineFactory2Param( uiTools, uiGridder2DGrp, uiParent*, const BufferString&,
 		      uiGridder2DFact );

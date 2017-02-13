@@ -47,11 +47,11 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
 
     uiWellExtractParams::Setup su;
     su.withextractintime(false).withsampling(true);
-     
+
     welllogsel_ = new uiMultiWellLogSel( this, true, &su );
     welllogsel_->attach( alignedBelow, logextenfld_ );
 
-    algosel_ = new uiGridder2DSel( this, hwi.getGridder() );
+    algosel_ = new uiGridder2DSel( this, hwi.getGridder(), hwi.getTrendOrder());
     algosel_->attach( alignedBelow, welllogsel_ );
 
     addNameFld( algosel_ );
@@ -92,7 +92,9 @@ bool uiWellLogInterpolator::acceptOK()
     hwinterpolator_.extensionMethod(
 	    (WellLogInterpolator::ExtensionModel)extensfld_->getIntValue() );
 
-    hwinterpolator_.setGridder( algosel_->getSel() );
+    IOPar par;
+    algosel_->fillPar( par, true );
+    hwinterpolator_.usePar( par );
 
     DBKeySet wellids;
     BufferStringSet lognms;
@@ -108,7 +110,7 @@ bool uiWellLogInterpolator::acceptOK()
 
     hwinterpolator_.setWellData( wellids, lognms.get(0) );
     if ( welllogsel_->isWellExtractParamsUsed() )
-	hwinterpolator_.setWellExtractParams( 
+	hwinterpolator_.setWellExtractParams(
 					 *welllogsel_->getWellExtractParams() );
     return true;
 }

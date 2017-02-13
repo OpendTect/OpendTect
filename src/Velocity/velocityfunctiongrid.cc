@@ -612,13 +612,13 @@ void GriddedSource::fillPar( IOPar& par ) const
     IOPar gridpar;
     gridder_->fillPar( gridpar );
     gridpar.set( sKey::Name(), gridder_->factoryKeyword() );
-    par.mergeComp( gridpar, sKeyGridder() );
+    par.mergeComp( gridpar, Gridder2D::sKeyGridder() );
 }
 
 
 bool GriddedSource::usePar( const IOPar& par )
 {
-    PtrMan<IOPar> gridpar = par.subselect( sKeyGridder() );
+    PtrMan<IOPar> gridpar = par.subselect( Gridder2D::sKeyGridder() );
     if ( !gridpar )
 	return true; //For now. Change later.
 

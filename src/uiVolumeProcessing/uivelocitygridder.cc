@@ -89,7 +89,9 @@ bool uiVelocityGridder::acceptOK()
     if ( !operation_ ) return true;
 
     operation_->setSources( velfuncsel_->getVelSources() );
-    operation_->setGridder( griddersel_->getSel()->clone() );
+    IOPar par;
+    griddersel_->fillPar( par, true );
+    operation_->setGridder( par );
     operation_->setLayerModel( layermodelfld_->getModel() );
 
     return true;

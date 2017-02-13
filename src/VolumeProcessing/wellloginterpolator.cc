@@ -11,6 +11,7 @@
 #include "fftfilter.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
+#include "keystrs.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 #include "welldata.h"
@@ -28,7 +29,6 @@ namespace VolProc
 static const char* sKeyNrWells()	{ return "Nr of wells"; }
 static const char* sKeyWellLogID()	{ return "WellLog ID"; }
 static const char* sKeyLogName()	{ return "Log name"; }
-static const char* sKeyAlgoName()	{ return "Algorithm"; }
 static const char* sKeyExtension()	{ return "Output boundary"; }
 static const char* sKeyLogExtension()	{ return "Logs Extension"; }
 static const char* sKeyLayerModel()	{ return "Layer Model"; }
@@ -181,9 +181,11 @@ PointBasedMathFunction	mdfunc_;
 
 WellLogInterpolator::WellLogInterpolator()
     : gridder_(0)
+    , invdistgridder_(new InverseDistanceGridder2D())
     , extension_(ExtrapolateEdgeValue)
     , extlog_(0)
     , layermodel_(0)
+    , trendorder_(PolyTrend::None)
 {}
 
 
@@ -197,6 +199,7 @@ void WellLogInterpolator::releaseData()
 {
     Step::releaseData();
     deleteAndZeroPtr( gridder_ );
+    deleteAndZeroPtr( invdistgridder_ );
     deleteAndZeroPtr( layermodel_ );
     deepErase( infos_ );
     params_.setEmpty();
@@ -217,52 +220,47 @@ const InterpolationLayerModel* WellLogInterpolator::getLayerModel() const
 void WellLogInterpolator::setGridder( const Gridder2D* gridder )
 {
     delete gridder_;
-
     gridder_ = gridder->clone();
 }
 
 
-void WellLogInterpolator::setGridder( const char* nm, float radius )
+void WellLogInterpolator::setGridder( const IOPar& par )
 {
-    delete gridder_;
-
-    if ( FixedString(nm) == RadialBasisFunctionGridder2D::sFactoryKeyword() )
+    deleteAndZeroPtr( gridder_ );
+    PtrMan<IOPar> velgridpar = par.subselect( Gridder2D::sKeyGridder() );
+    if ( velgridpar )
     {
-	gridder_ = new RadialBasisFunctionGridder2D();
-	return;
-    }
+	BufferString nm;
+	velgridpar->get( sKey::Name(), nm );
+	gridder_ = Gridder2D::factory().create( nm.buf() );
+	if ( !gridder_ )
+	    return;
 
-    if ( FixedString(nm) ==  TriangulatedGridder2D::sFactoryKeyword() )
+	if ( !gridder_->usePar(*velgridpar) )
+	    { deleteAndZeroPtr( gridder_ ); return; }
+
+	PolyTrend::OrderDef().parse( *velgridpar, PolyTrend::sKeyOrder(),
+				     trendorder_ );
+    }
+    else
     {
-	gridder_ = new TriangulatedGridder2D();
-	return;
+	IOPar gridpar;
+	BufferString griddernm;
+	if ( !par.get("Algorithm",griddernm) )
+	    return;
+
+	gridder_ = Gridder2D::factory().create( griddernm.buf() );
+	if ( !gridder_ )
+	    return;
+
+	float radius;
+	gridpar.set( sKey::Name(), griddernm );
+	if ( par.get(InverseDistanceGridder2D::sKeySearchRadius(),radius) )
+	    gridpar.set( InverseDistanceGridder2D::sKeySearchRadius(), radius );
+
+	if ( !gridder_->usePar(par) )
+	    { deleteAndZeroPtr( gridder_ ); return; }
     }
-
-    if ( FixedString(nm) == InverseDistanceGridder2D::sFactoryKeyword() )
-    {
-	InverseDistanceGridder2D* invgrid = new InverseDistanceGridder2D();
-	gridder_ = invgrid;
-	if ( !mIsUdf(radius) )
-	    invgrid->setSearchRadius( radius );
-
-	return;
-    }
-}
-
-
-const char* WellLogInterpolator::getGridderName() const
-{
-    if ( gridder_ )
-	return gridder_->factoryKeyword();
-
-    return 0;
-}
-
-
-float WellLogInterpolator::getSearchRadius() const
-{
-    mDynamicCastGet( InverseDistanceGridder2D*, invgrid, gridder_ );
-    return invgrid ? invgrid->getSearchRadius() : mUdf( float );
 }
 
 
@@ -339,6 +337,57 @@ bool WellLogInterpolator::prepareComp( int )
 }
 
 
+static void getCornerPoints( const BinID& bid, TypeSet<Coord>& corners )
+{
+    corners.setEmpty();
+    const TrcKeyZSampling tkzs( SI().sampling( false ) );
+    const TrcKeySampling& tks = tkzs.hsamp_;
+
+    TypeSet<BinID> cornerbids;
+    cornerbids.add( bid );
+
+    cornerbids.addIfNew( BinID( tks.start_.inl(), tks.start_.crl() ) );
+    cornerbids.addIfNew( BinID( tks.start_.inl(), tks.stop_.crl() ) );
+    cornerbids.addIfNew( BinID( tks.stop_.inl(), tks.start_.crl() ) );
+    cornerbids.addIfNew( BinID( tks.stop_.inl(), tks.stop_.crl() ) );
+
+    for ( int idx=1; idx<cornerbids.size(); idx++ )
+    {
+	const BinID& cornerbid = cornerbids[idx];
+	corners.add( tks.toCoord(cornerbid) );
+    }
+
+}
+
+
+static void addCornerPoints( const Gridder2D& gridder,
+			     Gridder2D& invdistgridder,
+			     const TypeSet<Coord>& corners,
+			     TypeSet<Coord>& points, TypeSet<float>& vals )
+{
+    if ( BufferString(gridder.factoryKeyword()) ==
+				InverseDistanceGridder2D::sFactoryKeyword() ||
+	 points.size() < 2 )
+	return;
+
+    TypeSet<Coord> initialpoints( points );
+    TypeSet<float> initialvals( vals );
+    invdistgridder.setPoints( initialpoints );
+    invdistgridder.setValues( initialvals );
+
+    for ( int idx=0; idx<corners.size(); idx++ )
+    {
+	const Coord& gridpoint = corners[idx];
+	const float cornerval = invdistgridder.getValue( gridpoint );
+	if ( mIsUdf(cornerval) )
+	    continue;
+
+	points += gridpoint;
+	vals += cornerval;
+    }
+}
+
+
 bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 {
     if ( infos_.isEmpty() )
@@ -355,11 +404,15 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
     const int nrz = output->sampling().nrZ();
     const int nrwells = infos_.size();
 
+    TypeSet<Coord> corners;
+    getCornerPoints( bid, corners );
+
     const TrcKeySampling& hs = output->sampling().hsamp_;
     const int outputinlidx = outputinlrg_.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg_.nearestIndex( bid.crl() );
     const Coord gridpoint( hs.toCoord(bid) );
     Gridder2D* gridder = gridder_->clone();
+    Gridder2D* invdistgridder = invdistgridder_->clone();
     TypeSet<Coord> points;
     TypeSet<float> logvals;
     for ( int idz=0; idz<nrz; idz++ )
@@ -386,18 +439,26 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 	    logvals += logval;
 	}
 
-	if ( points.isEmpty() || !gridder->setPoints(points) ||
-	     !gridder->setValues(logvals) )
+	if ( points.isEmpty() )
 	{
 	    outputarray.set( outputinlidx, outputcrlidx, idz, mUdf(float) );
 	    continue;
 	}
 
+	addCornerPoints( *gridder, *invdistgridder, corners, points, logvals );
+	if ( !gridder->setPoints(points) || !gridder->setValues(logvals) )
+	{
+	    outputarray.set( outputinlidx, outputcrlidx, idz, mUdf(float) );
+	    continue;
+	}
+
+	gridder->setTrend( trendorder_ );
 	const float val = gridder->getValue( gridpoint );
 	outputarray.set( outputinlidx, outputcrlidx, idz, val );
     }
 
     delete gridder;
+    delete invdistgridder;
 
     return true;
 }
@@ -406,14 +467,21 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 void WellLogInterpolator::fillPar( IOPar& pars ) const
 {
     Step::fillPar( pars );
+
     params_.fillPar( pars );
 
     pars.set( sKeyExtension(), extension_ );
     pars.setYN( sKeyLogExtension(), extlog_ );
 
-    pars.set( sKeyAlgoName(), getGridderName() );
     if ( gridder_ )
-	gridder_->fillPar( pars );
+    {
+	IOPar gridpar;
+	gridpar.set( sKey::Name(), gridder_->factoryKeyword() );
+	gridder_->fillPar( gridpar );
+	gridpar.set( PolyTrend::sKeyOrder(),
+		     PolyTrend::OrderDef().getKey(trendorder_) );
+	pars.mergeComp( gridpar, Gridder2D::sKeyGridder() );
+    }
 
     pars.set( sKeyLogName(), logname_ );
     pars.set( sKeyNrWells(), wellmids_.size() );
@@ -436,11 +504,12 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
 {
     if ( !Step::usePar(pars) )
 	return false;
+
     params_.usePar( pars );
 
     int extension = 0;
-    pars.get( sKeyExtension(), extension );
-    extension_ = (ExtensionModel)extension;
+    if ( pars.get(sKeyExtension(),extension) )
+	extension_ = (ExtensionModel)extension;
 
     pars.getYN( sKeyLogExtension(), extlog_ );
     pars.get( sKeyLogName(), logname_ );
@@ -456,25 +525,18 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
 	    wellmids_ += mid;
     }
 
-    float radius = 0;;
-    pars.get( InverseDistanceGridder2D::sKeySearchRadius(), radius );
-    BufferString nm;
-    pars.get( sKeyAlgoName(), nm );
-    setGridder( nm.buf(), radius );
+    setGridder( pars );
 
-    delete layermodel_; layermodel_ = 0;
     PtrMan<IOPar> lmpar = pars.subselect( sKeyLayerModel() );
     if ( lmpar )
     {
 	BufferString lmtype;
 	lmpar->get( InterpolationLayerModel::sKeyModelType(), lmtype );
+	delete layermodel_;
 	layermodel_ = InterpolationLayerModel::factory().create( lmtype );
 	if ( !layermodel_ || !layermodel_->usePar(*lmpar) )
-	{ delete layermodel_; layermodel_ = 0; }
-    }
+	    { deleteAndZeroPtr( layermodel_ ); }
 
-    if ( layermodel_ )
-    {
 	const bool yn = extension_==ExtrapolateEdgeValue;
 	layermodel_->setZStart( yn ? SI().zRange(false).start : mUdf(float) );
 	layermodel_->setZStop( yn ? SI().zRange(false).stop : mUdf(float) );

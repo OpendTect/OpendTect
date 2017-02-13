@@ -12,6 +12,8 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
+
+#include "arrayndalgo.h"
 #include "volprocstep.h"
 #include "veldesc.h"
 
@@ -44,6 +46,7 @@ public:
     const ObjectSet<Vel::FunctionSource>&	getSources() const;
 
     void		setGridder(Gridder2D*); //becomes mine
+    bool		setGridder(const IOPar&);
     const Gridder2D*	getGridder() const;
 
     void		setLayerModel(InterpolationLayerModel*); //becomes mine
@@ -62,7 +65,6 @@ public:
     static const char*	sKeyType()			{ return "Type"; }
     static const char*	sKeyID()			{ return "ID"; }
     static const char*	sKeyNrSources()			{ return "NrSources"; }
-    static const char*	sKeyGridder()			{ return "Gridder"; }
 
 protected:
 
@@ -72,6 +74,7 @@ protected:
 
     InterpolationLayerModel*		layermodel_;
     Gridder2D*				gridder_;
+    PolyTrend::Order			trend_;
     ObjectSet<Vel::FunctionSource>	sources_;
 
 };

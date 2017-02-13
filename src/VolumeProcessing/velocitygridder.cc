@@ -436,6 +436,7 @@ static const char* sKeyLayerModel()	{ return "Layer Model"; }
 VelocityGridder::VelocityGridder()
     : gridder_(0)
     , layermodel_(0)
+    , trend_(PolyTrend::None)
 {}
 
 
@@ -464,6 +465,39 @@ void VelocityGridder::setSources( ObjectSet<Vel::FunctionSource>& nvfs )
 
 const ObjectSet<Vel::FunctionSource>& VelocityGridder::getSources() const
 { return sources_; }
+
+
+bool VelocityGridder::setGridder( const IOPar& par )
+{
+    Gridder2D* gridder = 0;
+
+    PtrMan<IOPar> velgridpar = par.subselect( Gridder2D::sKeyGridder() );
+    if ( velgridpar )
+    {
+	BufferString nm;
+	velgridpar->get( sKey::Name(), nm );
+	gridder = Gridder2D::factory().create( nm.buf() );
+	if ( !gridder )
+	    return false;
+
+	if ( !gridder->usePar(*velgridpar) )
+	{
+	    delete gridder;
+	    return false;
+	}
+    }
+    else //Old format
+    {
+	InverseDistanceGridder2D* newgridder = new InverseDistanceGridder2D;
+	newgridder->usePar( par );
+	gridder = newgridder;
+    }
+
+    setGridder( gridder );
+    PolyTrend::OrderDef().parse( *velgridpar, PolyTrend::sKeyOrder(), trend_ );
+
+    return gridder_;
+}
 
 
 void VelocityGridder::setGridder( Gridder2D* gridder )
@@ -538,9 +572,9 @@ void VelocityGridder::fillPar( IOPar& par ) const
     if ( gridder_ )
     {
 	IOPar gridpar;
-	gridder_->fillPar( gridpar );
 	gridpar.set( sKey::Name(), gridder_->factoryKeyword() );
-	par.mergeComp( gridpar, sKeyGridder() );
+	gridder_->fillPar( gridpar );
+	par.mergeComp( gridpar, Gridder2D::sKeyGridder() );
     }
 
     if ( layermodel_ )
@@ -614,33 +648,7 @@ bool VelocityGridder::usePar( const IOPar& par )
 	sources_ += source;
     }
 
-    Gridder2D* gridder = 0;
-
-    PtrMan<IOPar> velgridpar = par.subselect( sKeyGridder() );
-    if ( velgridpar )
-    {
-	BufferString nm;
-	velgridpar->get( sKey::Name(), nm );
-	gridder = Gridder2D::factory().create( nm.buf() );
-	if ( !gridder )
-	    return false;
-
-	if ( !gridder->usePar(*velgridpar) )
-	{
-	    delete gridder;
-	    return false;
-	}
-    }
-    else //Old format
-    {
-	float searchradius = mUdf(float);
-	par.get( "Searchradius", searchradius );
-	InverseDistanceGridder2D* newgridder = new InverseDistanceGridder2D;
-	newgridder->setSearchRadius( searchradius );
-	gridder = newgridder;
-    }
-
-    setGridder( gridder );
+    setGridder( par );
 
     delete layermodel_; layermodel_ = 0;
     PtrMan<IOPar> lmpar = par.subselect( sKeyLayerModel() );
