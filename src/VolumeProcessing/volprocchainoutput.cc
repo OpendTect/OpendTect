@@ -28,6 +28,8 @@ HiddenParam<VolProc::ChainOutput,JobCommunic*> jobcomms(0);
 VolProc::ChainOutput::ChainOutput()
     : Executor("")
     , cs_(true)
+    , chainid_(MultiID::udf())
+    , chainpar_(0)
     , chain_(0)
     , chainexec_(0)
     , wrr_(0)
@@ -47,6 +49,7 @@ VolProc::ChainOutput::~ChainOutput()
 {
     chain_->unRef();
     delete chainexec_;
+    delete chainpar_;
     delete wrr_;
     deepErase( storers_ );
     delete &progresskeeper_;
@@ -58,6 +61,15 @@ VolProc::ChainOutput::~ChainOutput()
 void VolProc::ChainOutput::usePar( const IOPar& iop )
 {
     iop.get( VolProcessingTranslatorGroup::sKeyChainID(), chainid_ );
+    unRefAndZeroPtr( chain_ );
+    if ( chainid_.isEmpty() || chainid_.isUdf() )
+    {
+	if ( chainpar_ )
+	    deleteAndZeroPtr( chainpar_ );
+
+	chainpar_ = iop.subselect( sKey::Chain() );
+	if ( !chainpar_ ) return;
+    }
 
     PtrMan<IOPar> subselpar = iop.subselect(
 	    IOPar::compKey(sKey::Output(),sKey::Subsel()) );
@@ -214,6 +226,13 @@ int VolProc::ChainOutput::nextStep()
 
 int VolProc::ChainOutput::getChain()
 {
+    if ( chainpar_ )
+    {
+	chain_ = new Chain; chain_->ref();
+	if ( chain_->usePar(*chainpar_) )
+	    return MoreToDo();
+    }
+
     if ( chainid_.isEmpty() )
 	return retError( tr("No Volume Processing ID specified") );
 

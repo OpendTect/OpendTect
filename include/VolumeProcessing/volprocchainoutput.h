@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "threadlock.h"
 
+class IOPar;
 class JobCommunic;
 class ProgressRecorder;
 class SeisDataPackWriter;
@@ -62,6 +63,7 @@ protected:
     MultiID			chainid_;
     MultiID			outid_;
     TrcKeyZSampling		cs_;
+    IOPar*			chainpar_;
 
     Chain*			chain_;
     ChainExecutor*		chainexec_;
