@@ -203,7 +203,7 @@ void TextureRectangle::getTextureCoordinates( TypeSet<Coord3>& coords ) const
     Coord3 center = getCenter();
 
     char thindim = 0;
-    if ( width.x == 0 ) 
+    if ( width.x == 0 )
 	thindim = 0;
     else if ( width.y == 0 ) 
 	thindim = 1;
@@ -253,5 +253,76 @@ void TextureRectangle::getTextureCoordinates( TypeSet<Coord3>& coords ) const
 	crd = rotmt.preMult( crd );
 	coords[idx] = Conv::to<Coord3>(crd) + center;
     }
-    
+}
+
+
+int TextureRectangle::getNrTextures() const
+{
+    const std::vector<osg::Geometry*>& geometries =
+					    textureplane_->getGeometries();
+    return geometries.size();
+}
+
+
+const unsigned char* TextureRectangle::getTextureData() const
+{
+    const osg::Image* image = textureplane_->getCompositeTextureImage();
+    return image ? image->data() : 0;
+}
+
+
+bool TextureRectangle::getTextureDataInfo( int tidx,
+					   TextureDataInfo& texinfo ) const
+{
+    texinfo.setEmpty();
+    const std::vector<osg::Geometry*>& geometries =
+					textureplane_->getGeometries();
+
+    if ( tidx >= geometries.size() )
+	return false;
+
+    const osg::Array* coords = geometries[tidx]->getVertexArray();
+    const osg::Vec3Array* vtxcoords =
+				dynamic_cast<const osg::Vec3Array*>( coords );
+
+    const osg::PrimitiveSet* ps = geometries[tidx]->getPrimitiveSet( 0 );
+    if ( !vtxcoords || !ps )
+	return false;
+
+    for ( int idx=0; idx<vtxcoords->size(); idx++ )
+    {
+	texinfo.coords_ += Coord3( vtxcoords->at(idx)[0],
+				   vtxcoords->at(idx)[1],
+				   vtxcoords->at(idx)[2] );
+    }
+
+    for ( int idx=0; idx<ps->getNumIndices(); idx++ )
+	texinfo.ps_ += ps->index( idx );
+
+    texinfo.texcoords_.setEmpty();
+    osg::ref_ptr<const osg::Vec2Array> osgcoords =
+			textureplane_->getCompositeTextureCoords( tidx );
+
+    if ( !osgcoords.valid() )
+	return false;
+
+    for ( int idx=0; idx<osgcoords->size(); idx++ )
+	 texinfo.texcoords_ += Conv::to<Coord>( osgcoords->at(idx) );
+
+    return true;
+}
+
+
+bool TextureRectangle::getTextureInfo( int& width, int& height,
+				       int& pixsize ) const
+{
+    const osg::Image* image = textureplane_->getCompositeTextureImage();
+    if ( !image )
+	return false;
+
+    width = image->s();
+    height = image->t();
+    pixsize = image->getPixelSizeInBits() / 8;
+
+    return true;
 }
