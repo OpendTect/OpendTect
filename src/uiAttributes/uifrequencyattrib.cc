@@ -50,7 +50,7 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
 {
     inpfld = createImagInpFld( is2d );
 
-    gatefld = new uiGenInput( this, gateLabel(), 
+    gatefld = new uiGenInput( this, gateLabel(),
 	    		      FloatInpIntervalSpec().setName("Z start",0)
 			      			    .setName("Z stop",1) );
     gatefld->attach( alignedBelow, inpfld );
@@ -61,10 +61,10 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
     uiWindowFunctionSel::Setup su; su.label_ = "Window/Taper";
     su.winname_ = "CosTaper"; su.winparam_ = .05;
     winfld = new uiWindowFunctionSel( this, su );
-    winfld->attach( alignedBelow, normfld ); 
+    winfld->attach( alignedBelow, normfld );
 
     uiGenInput* smoothspectrumfld = new uiGenInput( this, tr("Smooth Spectrum"),
-						    BoolInpSpec(true) );
+						    BoolInpSpec(false) );
     smoothspectrumfld->attach( alignedBelow, winfld );
     smoothspectrumfld_.setParam(this, smoothspectrumfld );
 
