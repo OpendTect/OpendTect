@@ -203,7 +203,7 @@ static const char* sKeyResumeProcessing = "Resume Processing";
 
 void Batch::JobDispatcher::setUserWantsResume( IOPar& iop, bool yn )
 {
-    iop.set( sKeyResumeProcessing, yn );
+    iop.setYN( sKeyResumeProcessing, yn );
 }
 
 
