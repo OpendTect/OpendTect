@@ -213,9 +213,9 @@ const mVisTrans* TexturePanelStrip::getDisplayTransformation() const
 
 int TexturePanelStrip::getNrTextures() const
 {
-   const std::vector<osg::Geometry*> geometries = 
-       osgpanelstrip_->getGeoMetries();
-   return geometries.size();
+    const std::vector<osg::Geometry*>& geometries =
+	osgpanelstrip_->getGeometries();
+    return geometries.size();
 
 }
 
@@ -224,8 +224,8 @@ bool TexturePanelStrip::getTextureDataInfo( int tidx,
 	TextureDataInfo& texinfo ) const
 {
     texinfo.setEmpty();
-    const std::vector<osg::Geometry*> geometries = 
-	osgpanelstrip_->getGeoMetries();
+    const std::vector<osg::Geometry*>& geometries =
+	osgpanelstrip_->getGeometries();
 
     if ( tidx>=geometries.size() )
 	return false;
@@ -254,73 +254,37 @@ bool TexturePanelStrip::getTextureDataInfo( int tidx,
 
 bool TexturePanelStrip::getTextureInfo( int& width, int& height, int& pixsize )
 {
-    osgGeo::LayeredTexture* lytexture = osgpanelstrip_->getTexture();
-    if ( !lytexture ) return false;
+    const osg::Image* image = osgpanelstrip_->getCompositeTextureImage();
+    if ( !image ) return false;
 
-    width = lytexture->getCompositeTextureImage()->s();
-    height = lytexture->getCompositeTextureImage()->t();
-    pixsize = lytexture->getCompositeTextureImage()->getPixelSizeInBits();
+    width = image->s();
+    height = image->t();
+    pixsize = image->getPixelSizeInBits() / 8;
 
     return true;
-
 }
 
 
 bool TexturePanelStrip::calcTextureCoordinates( int geomidx, 
-    TypeSet<Coord>& coordout) const
+						TypeSet<Coord>& coords ) const
 {
-    const std::vector<osgGeo::Vec2i>& origins = 
-	osgpanelstrip_->getCompositeCutoutOrigins();
-
-    const std::vector<osgGeo::Vec2i>& szs =
-	osgpanelstrip_->getCompositeCutoutSizes();
-
-    osgGeo::LayeredTexture* lytexture = osgpanelstrip_->getTexture();
-
-    if ( geomidx>=origins.size() || geomidx>=szs.size() || !lytexture )
+    coords.setEmpty();
+    osg::ref_ptr<const osg::Vec2Array> osgcoords =
+			osgpanelstrip_->getCompositeTextureCoords( geomidx );
+    if ( !osgcoords.valid() )
 	return false;
 
-    const int width = lytexture->getCompositeTextureImage()->s();
-    const int height = lytexture->getCompositeTextureImage()->t();
-    
-    if ( width<=0 || height<=0 ) return false;
+    for ( int idx=0; idx<osgcoords->size(); idx++ )
+	coords += Conv::to<Coord>( osgcoords->at(idx) );
 
-    coordout.setEmpty();
-
-    const std::vector<osg::Geometry*> geometries = 
-	osgpanelstrip_->getGeoMetries();
-
-    if ( geomidx>=geometries.size() ) return false;
-
-    for ( int idx=0; idx<geometries[geomidx]->getNumTexCoordArrays(); idx++ )
-    {
-	const osg::Array* coords = geometries[geomidx]->getTexCoordArray(idx);
-	const osg::Vec2Array* vtxcoords =
-	    dynamic_cast<const osg::Vec2Array*>( coords );
-	if ( !vtxcoords )
-	    continue;
-	for ( int idy=0; idy<vtxcoords->size(); idy++ )
-	{
-	    const double x = vtxcoords->at(idy)[0]*szs[geomidx][0];
-	    const double y = vtxcoords->at(idy)[1]*szs[geomidx][1];
-
-	    Coord tcrd;
-	    tcrd.x = ( x+origins[geomidx][0] )/width;
-	    tcrd.y = ( y+origins[geomidx][1] )/height;
-	    coordout += tcrd;
-	}
-    }
-    
     return true;
 }
 
 
 const unsigned char* TexturePanelStrip::getTextureData() const
 {
-    osgGeo::LayeredTexture* lytexture = osgpanelstrip_->getTexture();
-    if ( !lytexture ) return 0;
-
-    return lytexture->getCompositeTextureImage()->data();
+    const osg::Image* image = osgpanelstrip_->getCompositeTextureImage();
+    return image ? image->data() : 0;
 }
 
 
