@@ -714,13 +714,16 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
     if ( removeold )
 	hor3d->auxdata.removeAll();
 
-    ExecutorGroup exgrp( "Horizon Data loader" );
-    exgrp.setNrDoneText( Task::uiStdNrDoneText() );
+    bool retval = false;
     for ( int idx=0; idx<selattribs.size(); idx++ )
-	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
+    {
+	Executor* executor = hor3d->auxdata.auxDataLoader( selattribs[idx] );
+	uiTaskRunner runer( parent() );
+	if ( runer.execute( *executor) )
+	    retval = true;
+    }
 
-    uiTaskRunner exdlg( parent() );
-    return TaskRunner::execute( &exdlg, exgrp );
+    return retval;
 }
 
 
