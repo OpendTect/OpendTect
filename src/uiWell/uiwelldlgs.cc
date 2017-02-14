@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "veldesc.h"
+#include "velocitycalc.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -1803,7 +1804,7 @@ bool uiWellLogUOMDlg::acceptOK()
 
 // uiSetD2TFromOtherWell
 uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
-    : uiDialog(p,Setup(tr("Set Depth to Time Model"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Set Depth-Time Model"),mNoDlgTitle,mTODOHelpKey))
 {
     inpwellfld_ = new uiWellSel( this, true, tr("Use D2T model from"), false );
 
@@ -1837,6 +1838,14 @@ bool uiSetD2TFromOtherWell::acceptOK()
 	return false;
     }
 
+    const Well::D2TModel& d2t = inpwd->d2TModel();
+    TimeDepthModel dtmodel;
+    if ( !d2t.getTimeDepthModel(*inpwd,dtmodel) )
+    {
+	uiMSG().error( tr("Input Depth-Time Model is invalid") );
+	return false;
+    }
+
     DBKeySet selwells;
     wellfld_->getSelected( selwells );
     if ( selwells.isEmpty() )
@@ -1845,6 +1854,16 @@ bool uiSetD2TFromOtherWell::acceptOK()
 	return false;
     }
 
+    const int mdlsz = dtmodel.size();
+    TypeSet<double> inputdepths( mdlsz, 0. );
+    TypeSet<double> inputtimes( mdlsz, 0. );
+    for ( int idx=0; idx<mdlsz; idx++ )
+    {
+	inputdepths[idx] = dtmodel.getDepth( idx );
+	inputtimes[idx] = dtmodel.getTime( idx );
+    }
+
+    uiStringSet errmsgs;
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
 	RefMan<Well::Data> wd = new Well::Data;
@@ -1852,9 +1871,27 @@ bool uiSetD2TFromOtherWell::acceptOK()
 	if ( !rdr->getD2T() )
 	    continue;
 
-	wd->d2TModel() = inpwd->d2TModel();
+	TypeSet<double> depths( inputdepths );
+	TypeSet<double> times( inputtimes );
+	uiString errmsg;
+	const bool res =
+		wd->d2TModel().ensureValid( *wd, errmsg, &depths, &times );
+	if ( !res )
+	{
+	    uiString msgtoadd;
+	    msgtoadd.append( wd->name() ).append( " : " ).append( errmsg );
+	    errmsgs.add( errmsg );
+	    continue;
+	}
+
 	Well::Writer wtr( selwells[idx], *wd );
 	wtr.putD2T();
+    }
+
+    if ( !errmsgs.isEmpty() )
+    {
+	uiMSG().errorWithDetails( errmsgs );
+	return errmsgs.size() != selwells.size();
     }
 
     return true;
